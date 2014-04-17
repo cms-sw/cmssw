@@ -7,6 +7,7 @@
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
 #include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -42,12 +43,18 @@ public:
     else{
       m_searchOpt = false;
     }
-    m_measurementTracker ="";
-    m_howToUseMeasurementTracker=0;
+    m_howToUseMeasurementTracker = RectangularEtaPhiTrackingRegion::UseMeasurementTracker::kForSiStrips;
     if (regionPSet.exists("measurementTrackerName")){
-      m_measurementTracker = regionPSet.getParameter<std::string>("measurementTrackerName");
+      // FIXME: when next time altering the configuration of this
+      // class, please change the types of the following parameters:
+      // - howToUseMeasurementTracker to at least int32 or to a string
+      //   corresponding to the UseMeasurementTracker enumeration
+      // - measurementTrackerName to InputTag
       if (regionPSet.exists("howToUseMeasurementTracker")){
-	m_howToUseMeasurementTracker = regionPSet.getParameter<double>("howToUseMeasurementTracker");
+	m_howToUseMeasurementTracker = RectangularEtaPhiTrackingRegion::doubleToUseMeasurementTracker(regionPSet.getParameter<double>("howToUseMeasurementTracker"));
+      }
+      if(m_howToUseMeasurementTracker != RectangularEtaPhiTrackingRegion::UseMeasurementTracker::kNever) {
+        theMeasurementTrackerToken = iC.consumes<MeasurementTrackerEvent>(regionPSet.getParameter<std::string>("measurementTrackerName"));
       }
     }
   }   
@@ -58,6 +65,13 @@ public:
       const edm::EventSetup& es) const {
 
     std::vector<TrackingRegion* > result;
+
+    const MeasurementTrackerEvent *measurementTracker = nullptr;
+    if(!theMeasurementTrackerToken.isUninitialized()) {
+      edm::Handle<MeasurementTrackerEvent> hmte;
+      ev.getByToken(theMeasurementTrackerToken, hmte);
+      measurementTracker = hmte.product();
+    }
 
     // optional constraint for vertex
     // get highest Pt pixel vertex (if existing)
@@ -84,7 +98,7 @@ public:
                                                                   thePtMin, theOriginRadius, deltaZVertex, theDeltaEta, theDeltaPhi,
 								  m_howToUseMeasurementTracker,
 								  true,
-								  m_measurementTracker,
+								  measurementTracker,
 								  m_searchOpt) );
           }
         return result;
@@ -100,7 +114,7 @@ public:
 					       thePtMin, theOriginRadius, deltaZVertex, theDeltaEta, theDeltaPhi,
 					       m_howToUseMeasurementTracker,
 					       true,
-					       m_measurementTracker,
+					       measurementTracker,
 					       m_searchOpt) );
     }
     return result;
@@ -123,8 +137,8 @@ private:
 
   double theDeltaEta; 
   double theDeltaPhi;
-  std::string m_measurementTracker;
-  double m_howToUseMeasurementTracker;
+  edm::EDGetTokenT<MeasurementTrackerEvent> theMeasurementTrackerToken;
+  RectangularEtaPhiTrackingRegion::UseMeasurementTracker m_howToUseMeasurementTracker;
   bool m_searchOpt;
 };
 

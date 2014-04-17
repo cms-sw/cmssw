@@ -37,6 +37,9 @@ PhotonAnalyzer::PhotonAnalyzer( const edm::ParameterSet& pset )
 
     triggerEvent_token_     = consumes<trigger::TriggerEvent>(pset.getParameter<edm::InputTag>("triggerEvent"));
 
+    offline_pvToken_ = consumes<reco::VertexCollection>(pset.getUntrackedParameter<edm::InputTag>("offlinePV", edm::InputTag("offlinePrimaryVertices")));
+
+
     minPhoEtCut_            = pset.getParameter<double>("minPhoEtCut");
     photonMaxEta_           = pset.getParameter<double>("maxPhoEta");
     invMassEtCut_           = pset.getParameter<double>("invMassEtCut");
@@ -240,14 +243,17 @@ void PhotonAnalyzer::beginJob()
     h_invMassZeroWithTracks_= bookHisto("invMassZeroWithTracks",    "Two photon invariant mass: Neither has tracks;M (GeV)",  etBin,etMin,etMax);
     h_invMassOneWithTracks_ = bookHisto("invMassOneWithTracks",     "Two photon invariant mass: Only one has tracks;M (GeV)", etBin,etMin,etMax);
     h_invMassTwoWithTracks_ = bookHisto("invMassTwoWithTracks",     "Two photon invariant mass: Both have tracks;M (GeV)",    etBin,etMin,etMax);
-    
+
+
+    h_nRecoVtx_ =  bookHisto("nOfflineVtx","# of Offline Vertices",80, -0.5, 79.5);    
 
     ////////////////START OF BOOKING FOR PHOTON-RELATED HISTOGRAMS////////////////
 
     //ENERGY VARIABLES
 
     book3DHistoVector(h_phoE_, "1D","phoE","Energy;E (GeV)",eBin,eMin,eMax);
-    book3DHistoVector(h_phoSigmaEoverE_, "1D","phoSigmaEoverE","#sigma_{E}/E; #sigma_{E}/E", 100,0.,0.06);
+    book3DHistoVector(h_phoSigmaEoverE_, "1D","phoSigmaEoverE","#sigma_{E}/E; #sigma_{E}/E", 100,0.,0.08);
+    book3DHistoVector(p_phoSigmaEoverEvsNVtx_, "Profile","phoSigmaEoverEvsNVtx","#sigma_{E}/E vs NVtx; N_{vtx}; #sigma_{E}/E",80, -0.5, 79.5, 100,0., 0.08);
     book3DHistoVector(h_phoEt_, "1D","phoEt","E_{T};E_{T} (GeV)", etBin,etMin,etMax);
 
 
@@ -494,6 +500,11 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
   if (validtightPhotonID) tightPhotonID = *(tightPhotonFlag.product());
 
 
+  edm::Handle<reco::VertexCollection> vtxH;
+  if ( !isHeavyIon_) { 
+    e.getByToken(offline_pvToken_, vtxH);
+    h_nRecoVtx_ ->Fill (float(vtxH->size()));
+  }
 
   // Create array to hold #photons/event information
   int nPho[100][3][3];
@@ -760,6 +771,9 @@ void PhotonAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& esup )
 
 	fill3DHistoVector(h_phoE_, aPho->energy(),cut,type,part);
 	fill3DHistoVector(h_phoSigmaEoverE_, aPho->getCorrectedEnergyError(aPho->getCandidateP4type())/aPho->energy(),cut,type,part);
+
+	if ( !isHeavyIon_) fill3DHistoVector(p_phoSigmaEoverEvsNVtx_, float(vtxH->size()),  aPho->getCorrectedEnergyError(aPho->getCandidateP4type())/aPho->energy(),cut,type,part);
+ 
 	fill3DHistoVector(h_phoEt_,aPho->et(),    cut,type,part);
 
 	//geometrical variables

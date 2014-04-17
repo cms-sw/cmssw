@@ -391,6 +391,9 @@ void SiStripBaseCondObjDQM::getSummaryMEs(ModMEs& CondObj_ME, const uint32_t& de
   if(CondObj_name_ == "lorentzangle" && SummaryOnStringLevel_On_ ){
     SummaryMEsMap_iter = SummaryMEsMap_.find(getStringNameAndId(detId_,tTopo).second);
   }
+  else if(CondObj_name_ == "bpcorrection" && SummaryOnStringLevel_On_ ){
+    SummaryMEsMap_iter = SummaryMEsMap_.find(getStringNameAndId(detId_,tTopo).second);
+  }
   else {
     SummaryMEsMap_iter = SummaryMEsMap_.find(getLayerNameAndId(detId_,tTopo).second);
   }
@@ -407,6 +410,7 @@ void SiStripBaseCondObjDQM::getSummaryMEs(ModMEs& CondObj_ME, const uint32_t& de
       CondObj_name_ == "lowthreshold"  || 
       CondObj_name_ == "highthreshold" || 
       CondObj_name_ == "apvgain"       || 
+      CondObj_name_ == "bpcorrection"  || 
       CondObj_name_ == "lorentzangle") ) {
     if(hPSet_.getParameter<bool>("FillSummaryProfileAtLayerLevel"))	
       if (!CondObj_ME.SummaryOfProfileDistr) { bookSummaryProfileMEs(CondObj_ME,detId_,tTopo); }
@@ -416,6 +420,7 @@ void SiStripBaseCondObjDQM::getSummaryMEs(ModMEs& CondObj_ME, const uint32_t& de
   if(   (CondObj_fillId_ =="ProfileAndCumul" || CondObj_fillId_ =="onlyCumul" ) &&
 	(
 	 CondObj_name_ == "lorentzangle" ||  
+	 CondObj_name_ == "bpcorrection" ||  
 	 CondObj_name_ == "noise")  ) {
     if(hPSet_.getParameter<bool>("FillCumulativeSummaryAtLayerLevel"))
       if (!CondObj_ME.SummaryOfCumulDistr) { bookSummaryCumulMEs(CondObj_ME,detId_,tTopo); } 
@@ -434,6 +439,10 @@ void SiStripBaseCondObjDQM::getSummaryMEs(ModMEs& CondObj_ME, const uint32_t& de
   } 
                           
   if(CondObj_name_ == "lorentzangle" && SummaryOnStringLevel_On_) {
+    //FIXME getStringNameandId takes time. not need to call it every timne. put the call at the beginning of the method and caache the string 
+    SummaryMEsMap_.insert( std::make_pair(getStringNameAndId(detId_,tTopo).second,CondObj_ME) );
+  }
+  else if(CondObj_name_ == "bpcorrection" && SummaryOnStringLevel_On_) {
     //FIXME getStringNameandId takes time. not need to call it every timne. put the call at the beginning of the method and caache the string 
     SummaryMEsMap_.insert( std::make_pair(getStringNameAndId(detId_,tTopo).second,CondObj_ME) );
   }
@@ -560,6 +569,7 @@ void SiStripBaseCondObjDQM::bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs&
   int nStrip, nApv, layerId_;    
   
   if(CondObj_name_ == "lorentzangle" && SummaryOnStringLevel_On_) { layerId_= getStringNameAndId(detId_,tTopo).second;}
+  else if(CondObj_name_ == "bpcorrection" && SummaryOnStringLevel_On_) { layerId_= getStringNameAndId(detId_,tTopo).second;}
   else                                                            { layerId_= getLayerNameAndId(detId_,tTopo).second;}
 
 
@@ -576,7 +586,7 @@ void SiStripBaseCondObjDQM::bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs&
     hSummaryOfProfile_HighX          = nStrip+0.5;
   
   }  
-  else if( (CondObj_name_ == "lorentzangle" && SummaryOnLayerLevel_On_) || CondObj_name_ == "quality"){ // plot in detId-number
+  else if( ((CondObj_name_ == "lorentzangle" || CondObj_name_ == "bpcorrection" ) && SummaryOnLayerLevel_On_) || CondObj_name_ == "quality"){ // plot in detId-number
 
     // -----
     // get detIds belonging to same layer to fill X-axis with detId-number
@@ -604,7 +614,7 @@ void SiStripBaseCondObjDQM::bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs&
     hSummaryOfProfile_HighX          = sameLayerDetIds_.size()+0.5;
  
   } 
-  else if( CondObj_name_ == "lorentzangle" && SummaryOnStringLevel_On_){ // plot in detId-number
+  else if( (CondObj_name_ == "lorentzangle" || CondObj_name_ == "bpcorrection") && SummaryOnStringLevel_On_){ // plot in detId-number
 
     // -----
     // get detIds belonging to same string to fill X-axis with detId-number
@@ -676,7 +686,7 @@ void SiStripBaseCondObjDQM::bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs&
   }
   // ---
   
-  if(CondObj_name_ == "lorentzangle" && SummaryOnStringLevel_On_) { 
+  if((CondObj_name_ == "lorentzangle" || CondObj_name_ == "bpcorrection") && SummaryOnStringLevel_On_) { 
     hSummaryOfProfile_name = hidmanager.createHistoLayer(hSummaryOfProfile_description, "layer" , getStringNameAndId(detId_,tTopo).first,"") ;
   }
   else {
@@ -716,7 +726,7 @@ void SiStripBaseCondObjDQM::bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs&
     
     }
   } 
-  if( CondObj_name_ == "lorentzangle"){
+  if( CondObj_name_ == "lorentzangle" || CondObj_name_ == "bpcorrection"){
 
     // Put the detIds for the -z side as following the geometrical order:
       reverse(sameLayerDetIds_.begin(), sameLayerDetIds_.begin()+sameLayerDetIds_.size()/2);
@@ -799,8 +809,8 @@ void SiStripBaseCondObjDQM::bookSummaryCumulMEs(SiStripBaseCondObjDQM::ModMEs& C
   }
   // ---
   
-  // LA Histos are plotted for each string:
-  if(CondObj_name_ == "lorentzangle" && SummaryOnStringLevel_On_) { 
+  // LA and BP Histos are plotted for each string:
+  if((CondObj_name_ == "lorentzangle" || CondObj_name_ == "bpcorrection") && SummaryOnStringLevel_On_) { 
     hSummaryOfCumul_name = hidmanager.createHistoLayer(hSummaryOfCumul_description, "layer" , getStringNameAndId(detId_,tTopo).first, "") ;
   }
   else {  

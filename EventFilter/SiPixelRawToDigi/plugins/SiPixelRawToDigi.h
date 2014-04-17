@@ -16,6 +16,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
+class SiPixelFedCablingTree;
 class SiPixelFedCabling;
 class SiPixelQuality;
 class TH1D;
@@ -37,9 +38,8 @@ public:
 private:
 
   edm::ParameterSet config_;
-  const SiPixelFedCabling* cabling_;
+  std::unique_ptr<SiPixelFedCablingTree> cabling_;
   const SiPixelQuality* badPixelInfo_;
-  bool  useCablingTree_;
   PixelUnpackingRegions* regions_;
   edm::EDGetTokenT<FEDRawDataCollection> tFEDRawDataCollection; 
 

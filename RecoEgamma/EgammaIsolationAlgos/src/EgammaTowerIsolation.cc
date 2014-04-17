@@ -38,12 +38,12 @@ EgammaTowerIsolation::EgammaTowerIsolation (float extRadiusI,
 {
   assert(0==etLow);
 
-  // cheating  (test of performance)
+  // extremely poor in quality  (test of performance)
   if (newAlgo==nullptr ||  towers!=oldTowers || towers->size()!=newAlgo->nt || (towers->size()>15 && (*towers)[15].id()!=id15)) {
     delete newAlgo;
     newAlgo = new EgammaTowerIsolationNew<1>(&extRadius,&intRadius,*towers);
     oldTowers=towers;
-    id15 = (*towers)[15].id();
+    id15 = towers->size()>15 ? (*towers)[15].id() : 0;
   }
 }
 

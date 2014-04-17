@@ -856,28 +856,51 @@ class Process(object):
                 self.__thelist.append(pset)
             def newPSet(self):
                 return self.__processPSet.newPSet()
+        #This adaptor is used to 'add' the method 'getTopPSet_'
+        # to the ProcessDesc and PythonParameterSet C++ classes.
+        # This method is needed for the PSet refToPSet_ functionality.
+        class TopLevelPSetAcessorAdaptor(object):
+            def __init__(self,ppset,process):
+                self.__ppset = ppset
+                self.__process = process
+            def __getattr__(self,attr):
+                return getattr(self.__ppset,attr)
+            def getTopPSet_(self,label):
+                return getattr(self.__process,label)
+            def newPSet(self):
+                return TopLevelPSetAcessorAdaptor(self.__ppset.newPSet(),self.__process)
+            def addPSet(self,tracked,name,ppset):
+                return self.__ppset.addPSet(tracked,name,self.__extractPSet(ppset))
+            def addVPSet(self,tracked,name,vpset):
+                return self.__ppset.addVPSet(tracked,name,[self.__extractPSet(x) for x in vpset])
+            def __extractPSet(self,pset):
+                if isinstance(pset,TopLevelPSetAcessorAdaptor):
+                    return pset.__ppset
+                return pset
+                
         self.validate()
         processPSet.addString(True, "@process_name", self.name_())
         all_modules = self.producers_().copy()
         all_modules.update(self.filters_())
         all_modules.update(self.analyzers_())
         all_modules.update(self.outputModules_())
-        self._insertInto(processPSet, self.psets_())
-        self._insertInto(processPSet, self.vpsets_())
-        self._insertManyInto(processPSet, "@all_modules", all_modules, True)
-        self._insertOneInto(processPSet,  "@all_sources", self.source_(), True)
-        self._insertOneInto(processPSet,  "@all_loopers", self.looper_(), True)
-        self._insertOneInto(processPSet,  "@all_subprocesses", self.subProcess_(), False)
-        self._insertManyInto(processPSet, "@all_esmodules", self.es_producers_(), True)
-        self._insertManyInto(processPSet, "@all_essources", self.es_sources_(), True)
-        self._insertManyInto(processPSet, "@all_esprefers", self.es_prefers_(), True)
-        self._insertManyInto(processPSet, "@all_aliases", self.aliases_(), True)
-        self._insertPaths(processPSet)
+        adaptor = TopLevelPSetAcessorAdaptor(processPSet,self)
+        self._insertInto(adaptor, self.psets_())
+        self._insertInto(adaptor, self.vpsets_())
+        self._insertManyInto(adaptor, "@all_modules", all_modules, True)
+        self._insertOneInto(adaptor,  "@all_sources", self.source_(), True)
+        self._insertOneInto(adaptor,  "@all_loopers", self.looper_(), True)
+        self._insertOneInto(adaptor,  "@all_subprocesses", self.subProcess_(), False)
+        self._insertManyInto(adaptor, "@all_esmodules", self.es_producers_(), True)
+        self._insertManyInto(adaptor, "@all_essources", self.es_sources_(), True)
+        self._insertManyInto(adaptor, "@all_esprefers", self.es_prefers_(), True)
+        self._insertManyInto(adaptor, "@all_aliases", self.aliases_(), True)
+        self._insertPaths(adaptor)
         #handle services differently
         services = []
         for n in self.services_():
-             getattr(self,n).insertInto(ServiceInjectorAdaptor(processPSet,services))
-        processPSet.addVPSet(False,"services",services)
+             getattr(self,n).insertInto(ServiceInjectorAdaptor(adaptor,services))
+        adaptor.addVPSet(False,"services",services)
         return processPSet
 
     def validate(self):
@@ -1128,7 +1151,7 @@ if __name__=="__main__":
             self.__insertValue(tracked,label,value)
         def newPSet(self):
             return TestMakePSet()
-        
+    
     class TestModuleCommand(unittest.TestCase):
         def setUp(self):
             """Nothing to do """
@@ -1681,6 +1704,22 @@ process.subProcess = cms.SubProcess( process = childProcess, SelectEvents = cms.
             self.assertEqual((True,['a']),p.values["@sub_process"][1].values["process"][1].values['@all_modules'])
             self.assertEqual((True,['p']),p.values["@sub_process"][1].values["process"][1].values['@paths'])
             self.assertEqual({'@service_type':(True,'Foo')}, p.values["@sub_process"][1].values["process"][1].values["services"][1][0].values)
+        def testRefToPSet(self):
+            proc = Process("test")
+            proc.top = PSet(a = int32(1))
+            proc.ref = PSet(refToPSet_ = string("top"))
+            proc.ref2 = PSet( a = int32(1), b = PSet( refToPSet_ = string("top")))
+            proc.ref3 = PSet(refToPSet_ = string("ref"))
+            proc.ref4 = VPSet(PSet(refToPSet_ = string("top")),
+                              PSet(refToPSet_ = string("ref2")))
+            p = TestMakePSet()
+            proc.fillProcessDesc(p)
+            self.assertEqual((True,1),p.values["ref"][1].values["a"])
+            self.assertEqual((True,1),p.values["ref3"][1].values["a"])
+            self.assertEqual((True,1),p.values["ref2"][1].values["a"])
+            self.assertEqual((True,1),p.values["ref2"][1].values["b"][1].values["a"])
+            self.assertEqual((True,1),p.values["ref4"][1][0].values["a"])
+            self.assertEqual((True,1),p.values["ref4"][1][1].values["a"])
         def testPrune(self):
             p = Process("test")
             p.a = EDAnalyzer("MyAnalyzer")

@@ -7,8 +7,8 @@ exec tclsh "$0" ${1+"$@"}
 # in its part that is used to generate interpolation
 # tables for jet corrections
 #
-set inputdir "/afs/cern.ch/user/i/igv/npstat-1.0.4"
-set packagedir "/afs/cern.ch/user/i/igv/FFTJet_corr_v2/CMSSW_6_1_0_pre4/src/JetMETCorrections/InterpolationTables"
+set inputdir "/afs/cern.ch/user/i/igv/local/src/npstat-3.0.0"
+set packagedir "/afs/cern.ch/user/i/igv/CMSSW_7_1_X_2014-03-22-1400/src/JetMETCorrections/InterpolationTables"
 
 # Create the map for changing include statements
 set includemap [list "\#include \"geners/" "\#include \"Alignment/Geners/interface/"]

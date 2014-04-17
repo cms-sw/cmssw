@@ -107,21 +107,13 @@ using namespace std;
 #endif
 =================================== */
 
-
-GroupedCkfTrajectoryBuilder::
-GroupedCkfTrajectoryBuilder(const edm::ParameterSet&              conf,
-			    const TrajectoryStateUpdator*         updator,
-			    const Propagator*                     propagatorAlong,
-			    const Propagator*                     propagatorOpposite,
-			    const Chi2MeasurementEstimatorBase*   estimator,
-			    const TransientTrackingRecHitBuilder* recHitBuilder,
-			    const TrajectoryFilter*               filter,
-			    const TrajectoryFilter*               inOutFilter):
-
-
+GroupedCkfTrajectoryBuilder::GroupedCkfTrajectoryBuilder(const edm::ParameterSet& conf, edm::ConsumesCollector& iC):
   BaseCkfTrajectoryBuilder(conf,
-			   updator, propagatorAlong,propagatorOpposite,
-			   estimator, recHitBuilder, filter, inOutFilter)
+                           BaseCkfTrajectoryBuilder::createTrajectoryFilter(conf.getParameter<edm::ParameterSet>("trajectoryFilter"), iC),
+                           conf.getParameter<bool>("useSameTrajFilter") ?
+                             BaseCkfTrajectoryBuilder::createTrajectoryFilter(conf.getParameter<edm::ParameterSet>("trajectoryFilter"), iC) :
+                             BaseCkfTrajectoryBuilder::createTrajectoryFilter(conf.getParameter<edm::ParameterSet>("inOutTrajectoryFilter"), iC)
+                           )
 {
   // fill data members from parameters (eventually data members could be dropped)
   //
@@ -164,11 +156,7 @@ GroupedCkfTrajectoryBuilder(const edm::ParameterSet&              conf,
 }
 */
 
-GroupedCkfTrajectoryBuilder *
-GroupedCkfTrajectoryBuilder::clone(const MeasurementTrackerEvent *data) const {
-    GroupedCkfTrajectoryBuilder *ret = new GroupedCkfTrajectoryBuilder(*this);
-    ret->setData(data);
-    return ret;
+void GroupedCkfTrajectoryBuilder::setEvent_(const edm::Event& event, const edm::EventSetup& iSetup) {
 }
 
 GroupedCkfTrajectoryBuilder::TrajectoryContainer 
@@ -224,7 +212,7 @@ GroupedCkfTrajectoryBuilder::rebuildTrajectories(TempTrajectory const & starting
   work.reserve(result.size());
   for (TrajectoryContainer::iterator traj=result.begin();
        traj!=result.end(); ++traj) {
-    if(traj->isValid()) work.push_back(TempTrajectory(*traj));
+    if(traj->isValid()) work.push_back(TempTrajectory(std::move(*traj)));
   }
 
   rebuildSeedingRegion(seed,startingTraj,work);
@@ -268,7 +256,7 @@ GroupedCkfTrajectoryBuilder::buildTrajectories (const TrajectorySeed& seed,
 
   work_.clear();
   const bool inOut = true;
-  groupedLimitedCandidates( startingTraj, regionalCondition, theForwardPropagator, inOut, work_);
+  groupedLimitedCandidates(seed, startingTraj, regionalCondition, forwardPropagator(seed), inOut, work_);
   if ( work_.empty() )  return startingTraj;
 
 
@@ -306,7 +294,8 @@ GroupedCkfTrajectoryBuilder::buildTrajectories (const TrajectorySeed& seed,
 
 
 void 
-GroupedCkfTrajectoryBuilder::groupedLimitedCandidates (TempTrajectory const& startingTraj, 
+GroupedCkfTrajectoryBuilder::groupedLimitedCandidates (const TrajectorySeed& seed,
+                                                       TempTrajectory const& startingTraj, 
 						       const TrajectoryFilter* regionalCondition,
 						       const Propagator* propagator, 
                                                        bool inOut,
@@ -322,7 +311,7 @@ GroupedCkfTrajectoryBuilder::groupedLimitedCandidates (TempTrajectory const& sta
     newCand.clear();
     for (TempTrajectoryContainer::iterator traj=candidates.begin();
 	 traj!=candidates.end(); traj++) {
-      if ( !advanceOneLayer(*traj, regionalCondition, propagator, inOut, newCand, result) ) {
+      if ( !advanceOneLayer(seed, *traj, regionalCondition, propagator, inOut, newCand, result) ) {
 	LogDebug("CkfPattern")<< "GCTB: terminating after advanceOneLayer==false";
  	continue;
       }
@@ -425,7 +414,8 @@ std::string whatIsTheStateToUse(TrajectoryStateOnSurface &initial, TrajectorySta
 #endif
 
 bool 
-GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj, 
+GroupedCkfTrajectoryBuilder::advanceOneLayer (const TrajectorySeed& seed,
+                                              TempTrajectory& traj, 
 					      const TrajectoryFilter* regionalCondition, 
 					      const Propagator* propagator,
                                               bool inOut,
@@ -530,7 +520,7 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (TempTrajectory& traj,
 	  // go to a middle point first
 	  TransverseImpactPointExtrapolator middle;
 	  GlobalPoint center(0,0,0);
-	  stateToUse = middle.extrapolate(stateToUse, center, *theForwardPropagator);
+	  stateToUse = middle.extrapolate(stateToUse, center, *(forwardPropagator(seed)));
 	  
 	  if (!stateToUse.isValid()) continue;
 	  LogDebug("CkfPattern")<<"to: "<<stateToUse;
@@ -805,7 +795,7 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(const TrajectorySeed&seed,
   // Fitter (need to create it here since the propagation direction
   // might change between different starting trajectories)
   //
-  KFTrajectoryFitter fitter(&(*theBackwardPropagator),&updator(),&estimator());
+  KFTrajectoryFitter fitter(backwardPropagator(seed),&updator(),&estimator());
   //
   TrajectorySeed::range rseedHits = seed.recHits();
   std::vector<const TrackingRecHit*> seedHits;
@@ -911,7 +901,7 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(const TrajectorySeed&seed,
   // cuts from "forward" building (e.g. no check on nr. of invalid hits)?
   //
   const bool inOut = false;
-  groupedLimitedCandidates(candidate, (const TrajectoryFilter*)0, theBackwardPropagator, inOut, rebuiltTrajectories);
+  groupedLimitedCandidates(seed, candidate, nullptr, backwardPropagator(seed), inOut, rebuiltTrajectories);
 
   LogDebug("CkfPattern")<<" After backward building: "<<PrintoutHelper::dumpCandidates(rebuiltTrajectories);
 

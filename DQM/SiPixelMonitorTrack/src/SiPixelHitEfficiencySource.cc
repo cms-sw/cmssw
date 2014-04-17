@@ -698,8 +698,8 @@ float y=predTrajState.globalPosition().y();
 		      edmNew::DetSet<SiPixelCluster>::const_iterator itCluster=itClusterSet->begin();
 		      for( ; itCluster!=itClusterSet->end(); ++itCluster){
 		        LocalPoint lp(itCluster->x(), itCluster->y(), 0.);
-			PixelClusterParameterEstimator::LocalValues params=cpe.localParameters(*itCluster,*pixdet);
-			lp=params.first;
+			PixelClusterParameterEstimator::ReturnType params=cpe.getParameters(*itCluster,*pixdet);
+			lp=std::get<0>(params);
 			float D = sqrt((lp.x()-lx)*(lp.x()-lx)+(lp.y()-ly)*(lp.y()-ly));
 			if(D<minD[0]){
 			  minD[1]=minD[0];

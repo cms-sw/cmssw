@@ -29,8 +29,8 @@ hltExoticaValidator = cms.EDAnalyzer("HLTExoticaValidator",
     # -- The name of the analysis. This is the name that
     # appears in Run summary/Exotica/ANALYSIS_NAME
     analysis       = cms.vstring("HighPtDimuon",
-                                 "HighPtDielectron",
-                                 "EleMu"),
+                                 "HighPtDielectron"),
+#                                 "EleMu",
 #                                 "PureMET",
 #                                 "Monojet",
 #                                 "HT"),

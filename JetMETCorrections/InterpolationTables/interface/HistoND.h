@@ -48,13 +48,19 @@ namespace npstat {
         typedef Numeric value_type;
         typedef Axis axis_type;
 
+        enum RebinType {
+            SAMPLE = 0,
+            SUM,
+            AVERAGE
+        };
+
         /** Main constructor for arbitrary-dimensional histograms */
-        HistoND(const std::vector<Axis>& axes, const char* title=0,
-                const char* accumulatedDataLabel=0);
+        explicit HistoND(const std::vector<Axis>& axes, const char* title=0,
+                         const char* accumulatedDataLabel=0);
 
         /** Convenience constructor for 1-d histograms */
-        HistoND(const Axis& xAxis, const char* title=0,
-                const char* accumulatedDataLabel=0);
+        explicit HistoND(const Axis& xAxis, const char* title=0,
+                         const char* accumulatedDataLabel=0);
 
         /** Convenience constructor for 2-d histograms */
         HistoND(const Axis& xAxis, const Axis& yAxis,
@@ -115,6 +121,28 @@ namespace npstat {
         template <typename Num2>
         HistoND(const HistoND<Num2,Axis>& h, const Axis& newAxis,
                 unsigned newAxisNumber, const char* title=0);
+
+        /**
+        // Create a rebinned histogram with the same axis coverage.
+        // Note that not all such operations will be meaningful if the
+        // bin contents do not belong to one of the floating point types.
+        // The "newBinCounts" argument specifies the new number of bins
+        // along each axis. The length of this array (provided by the
+        // "lenNewBinCounts" argument) should be equal to the input
+        // histogram dimensionality.
+        //
+        // The "shifts" argument can be meaningfully specified with the
+        // "rType" argument set to "SAMPLE". These shifts will be added
+        // to the bin centers of the created histogram when the bin contents
+        // are looked up in the input histogram. This can be useful in case
+        // the bin center lookup without shifts would fall exactly on the
+        // bin edge. Naturally, the length of the "shifts" array should be
+        // equal to the input histogram dimensionality.
+        */
+        template <typename Num2>
+        HistoND(const HistoND<Num2,Axis>& h, RebinType rType,
+                const unsigned *newBinCounts, unsigned lenNewBinCounts, 
+                const double* shifts=0, const char* title=0);
 
         /** Copy constructor */
         HistoND(const HistoND&);
@@ -753,7 +781,8 @@ namespace npstat {
         // Acc += Numeric must be defined.
         */
         template <typename Acc>
-        void accumulateBinsInBox(const BoxND<double>& box, Acc* acc) const;
+        void accumulateBinsInBox(const BoxND<double>& box, Acc* acc,
+                                 bool calculateAverage = false) const;
 
         //@{
         /**
@@ -826,7 +855,7 @@ namespace npstat {
         template <typename Acc>
         void accumulateBinsLoop(unsigned level, const BoxND<double>& box,
                                 unsigned* idx, Acc* accumulator,
-                                double overlapFraction) const;
+                                double overlapFraction, long double* wsum) const;
         std::string title_;
         std::string accumulatedDataLabel_;
         ArrayND<Numeric> data_;
@@ -964,6 +993,23 @@ namespace npstat {
         }
 
         template <class Axis>
+        std::vector<Axis> rebinAxes(const std::vector<Axis>& axes,
+                                    const unsigned *newBins,
+                                    const unsigned lenNewBins)
+        {
+            const unsigned dim = axes.size();
+            if (lenNewBins != dim) throw npstat::NpstatInvalidArgument(
+                "In npstat::Private::rebinAxes: invalid length "
+                "of the new bins array");
+            assert(newBins);
+            std::vector<Axis> newAxes;
+            newAxes.reserve(dim);
+            for (unsigned i=0; i<dim; ++i)
+                newAxes.push_back(axes[i].rebin(newBins[i]));
+            return newAxes;
+        }
+
+        template <class Axis>
         std::vector<Axis> axesOfASlice(const std::vector<Axis>& axes,
                                        const unsigned *fixedIndices,
                                        const unsigned nFixedIndices)
@@ -1097,7 +1143,8 @@ namespace npstat {
     template <typename Acc>
     void HistoND<Numeric,Axis>::accumulateBinsLoop(
         const unsigned level, const BoxND<double>& box,
-        unsigned* idx, Acc* accumulator, const double overlapFraction) const
+        unsigned* idx, Acc* accumulator, const double overlapFraction,
+        long double* wsum) const
     {
         const Interval<double>& boxSide(box[level]);
         const Axis& axis(axes_[level]);
@@ -1111,9 +1158,13 @@ namespace npstat {
             {
                 idx[level] = i;
                 if (lastLevel)
+                {
                     *accumulator += over*data_.value(idx, dim_);
+                    *wsum += over;
+                }
                 else
-                    accumulateBinsLoop(level+1U, box, idx, accumulator, over);
+                    accumulateBinsLoop(level+1U, box, idx, accumulator,
+                                       over, wsum);
             }
         }
     }
@@ -1121,7 +1172,8 @@ namespace npstat {
     template <typename Numeric, class Axis>
     template <typename Acc>
     void HistoND<Numeric,Axis>::accumulateBinsInBox(
-        const BoxND<double>& box, Acc* accumulator) const
+        const BoxND<double>& box, Acc* accumulator,
+        const bool calculateAverage) const
     {
         if (box.size() != dim_) throw npstat::NpstatInvalidArgument(
             "In npstat::HistoND::accumulateBinsInBox: "
@@ -1129,9 +1181,12 @@ namespace npstat {
         assert(accumulator);
         if (dim_)
         {
+            long double wsum = 0.0L;
             for (unsigned i=0; i<dim_; ++i)
                 indexBuf_[i] = 0U;
-            accumulateBinsLoop(0U, box, &indexBuf_[0], accumulator, 1.0);
+            accumulateBinsLoop(0U, box, &indexBuf_[0], accumulator, 1.0, &wsum);
+            if (calculateAverage && wsum > 0.0L)
+                *accumulator *= static_cast<double>(1.0L/wsum);
         }
         else
             *accumulator += 1.0*data_();
@@ -1365,6 +1420,60 @@ namespace npstat {
                 "In npstat::HistoND constructor: requested histogram "
                 "dimensionality is not supported (too large)");
         clear();
+    }
+
+    template <typename Numeric, class Axis>
+    template <typename Num2>
+    HistoND<Numeric,Axis>::HistoND(
+        const HistoND<Num2,Axis>& h, const RebinType rType,
+        const unsigned *newBinCounts, const unsigned lenNewBinCounts,
+        const double* shifts, const char* title)
+        : title_(title ? title : h.title_.c_str()),
+          accumulatedDataLabel_(h.accumulatedDataLabel_),
+          data_(newBinCounts, lenNewBinCounts),
+          overflow_(h.overflow_),
+          axes_(Private::rebinAxes(h.axes_, newBinCounts, lenNewBinCounts)),
+          weightBuf_(h.dim_),
+          indexBuf_(2U*h.dim_),
+          fillCount_(h.fillCount_),
+          overCount_(h.overCount_),
+          modCount_(0UL),
+          dim_(h.dim_)
+    {
+        const unsigned long newBins = data_.length();
+        const Axis* ax = &axes_[0];
+        unsigned* ubuf = &indexBuf_[0];
+
+        // Fill out the bins of the new histogram
+        if (rType == SAMPLE)
+        {
+            double* buf = &weightBuf_[0];
+            for (unsigned long ibin=0; ibin<newBins; ++ibin)
+            {
+                data_.convertLinearIndex(ibin, ubuf, dim_);
+                if (shifts)
+                    for (unsigned i=0; i<dim_; ++i)
+                        buf[i] = ax[i].binCenter(ubuf[i]) + shifts[i];
+                else
+                    for (unsigned i=0; i<dim_; ++i)
+                        buf[i] = ax[i].binCenter(ubuf[i]);
+                data_.linearValue(ibin) = h.examine(buf, dim_);
+            }
+        }
+        else
+        {
+            const Numeric zero = Numeric();
+            BoxND<double> binLimits(dim_);
+            for (unsigned long ibin=0; ibin<newBins; ++ibin)
+            {
+                data_.convertLinearIndex(ibin, ubuf, dim_);
+                for (unsigned i=0; i<dim_; ++i)
+                    binLimits[i] = ax[i].binInterval(ubuf[i]);
+                Numeric& thisBin(data_.linearValue(ibin));
+                thisBin = zero;
+                h.accumulateBinsInBox(binLimits, &thisBin, rType == AVERAGE);
+            }
+        }
     }
 
     template <typename Numeric, class Axis>
@@ -1748,7 +1857,7 @@ namespace npstat {
     void HistoND<Numeric,Axis>::fill(const double x0, const Num2& w)
     {
         if (dim_ != 1U) Private::h_badargs("fill");
-        unsigned i0;
+        unsigned i0 = 0;
         const unsigned ov0 = axes_[0].overflowIndex(x0, &i0);
         if (ov0 == 1U)
             data_(i0) += w;
@@ -1765,7 +1874,7 @@ namespace npstat {
     void HistoND<Numeric,Axis>::dispatch(const double x0, Num2& w, Functor& f)
     {
         if (dim_ != 1U) Private::h_badargs("dispatch");
-        unsigned i0;
+        unsigned i0 = 0;
         const unsigned ov0 = axes_[0].overflowIndex(x0, &i0);
         if (ov0 == 1U)
             f(data_(i0), w);
@@ -1796,7 +1905,7 @@ namespace npstat {
     inline const Numeric& HistoND<Numeric,Axis>::examine(const double x0) const
     {
         if (dim_ != 1U) Private::h_badargs("examine");
-        unsigned i0;
+        unsigned i0 = 0;
         const unsigned ov0 = axes_[0].overflowIndex(x0, &i0);
         if (ov0 == 1U)
             return data_(i0);
@@ -1818,7 +1927,7 @@ namespace npstat {
                                      const Num2& w)
     {
         if (dim_ != 2U) Private::h_badargs("fill");
-        unsigned i0, i1;
+        unsigned i0 = 0, i1 = 0;
         const Axis* ax = &axes_[0];
         const unsigned o0 = ax[0].overflowIndex(x0, &i0);
         const unsigned o1 = ax[1].overflowIndex(x1, &i1);
@@ -1838,7 +1947,7 @@ namespace npstat {
                                          Num2& w, Functor& f)
     {
         if (dim_ != 2U) Private::h_badargs("dispatch");
-        unsigned i0, i1;
+        unsigned i0 = 0, i1 = 0;
         const Axis* ax = &axes_[0];
         const unsigned o0 = ax[0].overflowIndex(x0, &i0);
         const unsigned o1 = ax[1].overflowIndex(x1, &i1);
@@ -1875,7 +1984,7 @@ namespace npstat {
                                                   const double x1) const
     {
         if (dim_ != 2U) Private::h_badargs("examine");
-        unsigned i0, i1;
+        unsigned i0 = 0, i1 = 0;
         const Axis* ax = &axes_[0];
         const unsigned o0 = ax[0].overflowIndex(x0, &i0);
         const unsigned o1 = ax[1].overflowIndex(x1, &i1);
@@ -1902,7 +2011,7 @@ namespace npstat {
                                      const double x2, const Num2& w)
     {
         if (dim_ != 3U) Private::h_badargs("fill");
-        unsigned i0, i1, i2;
+        unsigned i0 = 0, i1 = 0, i2 = 0;
         const Axis* ax = &axes_[0];
         const unsigned o0 = ax[0].overflowIndex(x0, &i0);
         const unsigned o1 = ax[1].overflowIndex(x1, &i1);
@@ -1923,7 +2032,7 @@ namespace npstat {
                                          const double x2, Num2& w, Functor& f)
     {
         if (dim_ != 3U) Private::h_badargs("dispatch");
-        unsigned i0, i1, i2;
+        unsigned i0 = 0, i1 = 0, i2 = 0;
         const Axis* ax = &axes_[0];
         const unsigned o0 = ax[0].overflowIndex(x0, &i0);
         const unsigned o1 = ax[1].overflowIndex(x1, &i1);
@@ -1963,7 +2072,7 @@ namespace npstat {
                                                   const double x2) const
     {
         if (dim_ != 3U) Private::h_badargs("examine");
-        unsigned i0, i1, i2;
+        unsigned i0 = 0, i1 = 0, i2 = 0;
         const Axis* ax = &axes_[0];
         const unsigned o0 = ax[0].overflowIndex(x0, &i0);
         const unsigned o1 = ax[1].overflowIndex(x1, &i1);
@@ -1994,7 +2103,7 @@ namespace npstat {
                                      const Num2& w)
     {
         if (dim_ != 4U) Private::h_badargs("fill");
-        unsigned i0, i1, i2, i3;
+        unsigned i0 = 0, i1 = 0, i2 = 0, i3 = 0;
         const Axis* ax = &axes_[0];
         const unsigned o0 = ax[0].overflowIndex(x0, &i0);
         const unsigned o1 = ax[1].overflowIndex(x1, &i1);
@@ -2017,7 +2126,7 @@ namespace npstat {
                                          Num2& w, Functor& f)
     {
         if (dim_ != 4U) Private::h_badargs("dispatch");
-        unsigned i0, i1, i2, i3;
+        unsigned i0 = 0, i1 = 0, i2 = 0, i3 = 0;
         const Axis* ax = &axes_[0];
         const unsigned o0 = ax[0].overflowIndex(x0, &i0);
         const unsigned o1 = ax[1].overflowIndex(x1, &i1);
@@ -2061,7 +2170,7 @@ namespace npstat {
                                                   const double x3) const
     {
         if (dim_ != 4U) Private::h_badargs("examine");
-        unsigned i0, i1, i2, i3;
+        unsigned i0 = 0, i1 = 0, i2 = 0, i3 = 0;
         const Axis* ax = &axes_[0];
         const unsigned o0 = ax[0].overflowIndex(x0, &i0);
         const unsigned o1 = ax[1].overflowIndex(x1, &i1);
@@ -2095,7 +2204,7 @@ namespace npstat {
                                      const double x4, const Num2& w)
     {
         if (dim_ != 5U) Private::h_badargs("fill");
-        unsigned i0, i1, i2, i3, i4;
+        unsigned i0 = 0, i1 = 0, i2 = 0, i3 = 0, i4 = 0;
         const Axis* ax = &axes_[0];
         const unsigned o0 = ax[0].overflowIndex(x0, &i0);
         const unsigned o1 = ax[1].overflowIndex(x1, &i1);
@@ -2119,7 +2228,7 @@ namespace npstat {
                                          const double x4, Num2& w, Functor& f)
     {
         if (dim_ != 5U) Private::h_badargs("dispatch");
-        unsigned i0, i1, i2, i3, i4;
+        unsigned i0 = 0, i1 = 0, i2 = 0, i3 = 0, i4 = 0;
         const Axis* ax = &axes_[0];
         const unsigned o0 = ax[0].overflowIndex(x0, &i0);
         const unsigned o1 = ax[1].overflowIndex(x1, &i1);
@@ -2165,7 +2274,7 @@ namespace npstat {
         const double x4) const
     {
         if (dim_ != 5U) Private::h_badargs("examine");
-        unsigned i0, i1, i2, i3, i4;
+        unsigned i0 = 0, i1 = 0, i2 = 0, i3 = 0, i4 = 0;
         const Axis* ax = &axes_[0];
         const unsigned o0 = ax[0].overflowIndex(x0, &i0);
         const unsigned o1 = ax[1].overflowIndex(x1, &i1);
@@ -2203,7 +2312,7 @@ namespace npstat {
                                      const Num2& w)
     {
         if (dim_ != 6U) Private::h_badargs("fill");
-        unsigned i0, i1, i2, i3, i4, i5;
+        unsigned i0 = 0, i1 = 0, i2 = 0, i3 = 0, i4 = 0, i5 = 0;
         const Axis* ax = &axes_[0];
         const unsigned o0 = ax[0].overflowIndex(x0, &i0);
         const unsigned o1 = ax[1].overflowIndex(x1, &i1);
@@ -2230,7 +2339,7 @@ namespace npstat {
                                          Num2& w, Functor& f)
     {
         if (dim_ != 6U) Private::h_badargs("dispatch");
-        unsigned i0, i1, i2, i3, i4, i5;
+        unsigned i0 = 0, i1 = 0, i2 = 0, i3 = 0, i4 = 0, i5 = 0;
         const Axis* ax = &axes_[0];
         const unsigned o0 = ax[0].overflowIndex(x0, &i0);
         const unsigned o1 = ax[1].overflowIndex(x1, &i1);
@@ -2283,7 +2392,7 @@ namespace npstat {
                                                   const double x5) const
     {
         if (dim_ != 6U) Private::h_badargs("examine");
-        unsigned i0, i1, i2, i3, i4, i5;
+        unsigned i0 = 0, i1 = 0, i2 = 0, i3 = 0, i4 = 0, i5 = 0;
         const Axis* ax = &axes_[0];
         const unsigned o0 = ax[0].overflowIndex(x0, &i0);
         const unsigned o1 = ax[1].overflowIndex(x1, &i1);
@@ -2325,7 +2434,7 @@ namespace npstat {
                                      const double x6, const Num2& w)
     {
         if (dim_ != 7U) Private::h_badargs("fill");
-        unsigned i0, i1, i2, i3, i4, i5, i6;
+        unsigned i0 = 0, i1 = 0, i2 = 0, i3 = 0, i4 = 0, i5 = 0, i6 = 0;
         const Axis* ax = &axes_[0];
         const unsigned o0 = ax[0].overflowIndex(x0, &i0);
         const unsigned o1 = ax[1].overflowIndex(x1, &i1);
@@ -2353,7 +2462,7 @@ namespace npstat {
                                          const double x6, Num2& w, Functor& f)
     {
         if (dim_ != 7U) Private::h_badargs("dispatch");
-        unsigned i0, i1, i2, i3, i4, i5, i6;
+        unsigned i0 = 0, i1 = 0, i2 = 0, i3 = 0, i4 = 0, i5 = 0, i6 = 0;
         const Axis* ax = &axes_[0];
         const unsigned o0 = ax[0].overflowIndex(x0, &i0);
         const unsigned o1 = ax[1].overflowIndex(x1, &i1);
@@ -2407,7 +2516,7 @@ namespace npstat {
         const double x6) const
     {
         if (dim_ != 7U) Private::h_badargs("examine");
-        unsigned i0, i1, i2, i3, i4, i5, i6;
+        unsigned i0 = 0, i1 = 0, i2 = 0, i3 = 0, i4 = 0, i5 = 0, i6 = 0;
         const Axis* ax = &axes_[0];
         const unsigned o0 = ax[0].overflowIndex(x0, &i0);
         const unsigned o1 = ax[1].overflowIndex(x1, &i1);
@@ -2453,7 +2562,7 @@ namespace npstat {
                                      const Num2& w)
     {
         if (dim_ != 8U) Private::h_badargs("fill");
-        unsigned i0, i1, i2, i3, i4, i5, i6, i7;
+        unsigned i0=0, i1=0, i2=0, i3=0, i4=0, i5=0, i6=0, i7=0;
         const Axis* ax = &axes_[0];
         const unsigned o0 = ax[0].overflowIndex(x0, &i0);
         const unsigned o1 = ax[1].overflowIndex(x1, &i1);
@@ -2483,7 +2592,7 @@ namespace npstat {
                                          Num2& w, Functor& f)
     {
         if (dim_ != 8U) Private::h_badargs("dispatch");
-        unsigned i0, i1, i2, i3, i4, i5, i6, i7;
+        unsigned i0=0, i1=0, i2=0, i3=0, i4=0, i5=0, i6=0, i7=0;
         const Axis* ax = &axes_[0];
         const unsigned o0 = ax[0].overflowIndex(x0, &i0);
         const unsigned o1 = ax[1].overflowIndex(x1, &i1);
@@ -2541,7 +2650,7 @@ namespace npstat {
         const double x7) const
     {
         if (dim_ != 8U) Private::h_badargs("examine");
-        unsigned i0, i1, i2, i3, i4, i5, i6, i7;
+        unsigned i0=0, i1=0, i2=0, i3=0, i4=0, i5=0, i6=0, i7=0;
         const Axis* ax = &axes_[0];
         const unsigned o0 = ax[0].overflowIndex(x0, &i0);
         const unsigned o1 = ax[1].overflowIndex(x1, &i1);
@@ -2590,7 +2699,7 @@ namespace npstat {
                                      const double x8, const Num2& w)
     {
         if (dim_ != 9U) Private::h_badargs("fill");
-        unsigned i0, i1, i2, i3, i4, i5, i6, i7, i8;
+        unsigned i0=0, i1=0, i2=0, i3=0, i4=0, i5=0, i6=0, i7=0, i8=0;
         const Axis* ax = &axes_[0];
         const unsigned o0 = ax[0].overflowIndex(x0, &i0);
         const unsigned o1 = ax[1].overflowIndex(x1, &i1);
@@ -2621,7 +2730,7 @@ namespace npstat {
                                          const double x8, Num2& w, Functor& f)
     {
         if (dim_ != 9U) Private::h_badargs("dispatch");
-        unsigned i0, i1, i2, i3, i4, i5, i6, i7, i8;
+        unsigned i0=0, i1=0, i2=0, i3=0, i4=0, i5=0, i6=0, i7=0, i8=0;
         const Axis* ax = &axes_[0];
         const unsigned o0 = ax[0].overflowIndex(x0, &i0);
         const unsigned o1 = ax[1].overflowIndex(x1, &i1);
@@ -2681,7 +2790,7 @@ namespace npstat {
         const double x8) const
     {
         if (dim_ != 9U) Private::h_badargs("examine");
-        unsigned i0, i1, i2, i3, i4, i5, i6, i7, i8;
+        unsigned i0=0, i1=0, i2=0, i3=0, i4=0, i5=0, i6=0, i7=0, i8=0;
         const Axis* ax = &axes_[0];
         const unsigned o0 = ax[0].overflowIndex(x0, &i0);
         const unsigned o1 = ax[1].overflowIndex(x1, &i1);
@@ -2734,7 +2843,7 @@ namespace npstat {
                                      const Num2& w)
     {
         if (dim_ != 10U) Private::h_badargs("fill");
-        unsigned i0, i1, i2, i3, i4, i5, i6, i7, i8, i9;
+        unsigned i0=0, i1=0, i2=0, i3=0, i4=0, i5=0, i6=0, i7=0, i8=0, i9=0;
         const Axis* ax = &axes_[0];
         const unsigned o0 = ax[0].overflowIndex(x0, &i0);
         const unsigned o1 = ax[1].overflowIndex(x1, &i1);
@@ -2767,7 +2876,7 @@ namespace npstat {
                                          Num2& w, Functor& f)
     {
         if (dim_ != 10U) Private::h_badargs("dispatch");
-        unsigned i0, i1, i2, i3, i4, i5, i6, i7, i8, i9;
+        unsigned i0=0, i1=0, i2=0, i3=0, i4=0, i5=0, i6=0, i7=0, i8=0, i9=0;
         const Axis* ax = &axes_[0];
         const unsigned o0 = ax[0].overflowIndex(x0, &i0);
         const unsigned o1 = ax[1].overflowIndex(x1, &i1);
@@ -2831,7 +2940,7 @@ namespace npstat {
         const double x9) const
     {
         if (dim_ != 10U) Private::h_badargs("examine");
-        unsigned i0, i1, i2, i3, i4, i5, i6, i7, i8, i9;
+        unsigned i0=0, i1=0, i2=0, i3=0, i4=0, i5=0, i6=0, i7=0, i8=0, i9=0;
         const Axis* ax = &axes_[0];
         const unsigned o0 = ax[0].overflowIndex(x0, &i0);
         const unsigned o1 = ax[1].overflowIndex(x1, &i1);

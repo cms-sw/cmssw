@@ -108,7 +108,7 @@ void GsfTrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setu
   
   //put everything in th event
   putInEvt(theEvent, thePropagator.product(), theMeasTk.product(),
-	   outputRHColl, outputTColl, outputTEColl, outputGsfTEColl, outputTrajectoryColl, algoResults, bs);
+	   outputRHColl, outputTColl, outputTEColl, outputGsfTEColl, outputTrajectoryColl, algoResults, theBuilder.product(), bs);
   LogDebug("GsfTrackRefitter") << "end" << "\n";
 }
 

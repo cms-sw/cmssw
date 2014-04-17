@@ -28,7 +28,8 @@ public:
 
   using HLTTauDQMPlotter::isValid;
 
-  void beginRun(const HLTConfigProvider& HLTCP);
+  void updateHLTMenu(const HLTConfigProvider& HLTCP);
+  void bookHistograms(DQMStore::IBooker &iBooker);
 
   void analyze(const edm::TriggerResults& triggerResults, const trigger::TriggerEvent& triggerEvent, const HLTTauDQMOfflineObjects& refCollection);
 

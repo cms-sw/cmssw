@@ -170,7 +170,7 @@ class ConfigBuilder(object):
         #if not self._options.conditions:
         #        raise Exception("ERROR: No conditions given!\nPlease specify conditions. E.g. via --conditions=IDEAL_30X::All")
 
-	if hasattr(self._options,"datatier") and self._options.datatier and 'DQMROOT' in self._options.datatier and 'ENDJOB' in self._options.step:
+	if hasattr(self._options,"datatier") and self._options.datatier and 'DQMIO' in self._options.datatier and 'ENDJOB' in self._options.step:
 		self._options.step=self._options.step.replace(',ENDJOB','')
 		
         # what steps are provided by this class?
@@ -492,7 +492,7 @@ class ConfigBuilder(object):
 				
 			if len(outDefDict.keys()):
 				raise Exception("unused keys from --output options: "+','.join(outDefDict.keys()))
-			if theStreamType=='DQMROOT': theStreamType='DQM'
+			if theStreamType=='DQMIO': theStreamType='DQM'
 			if theStreamType=='ALL':
 				theEventContent = cms.PSet(outputCommands = cms.untracked.vstring('keep *'))
 			else:
@@ -502,7 +502,7 @@ class ConfigBuilder(object):
 				theFilterName='StreamALCACombined'
 
 			CppType='PoolOutputModule'
-			if theStreamType=='DQM' and theTier=='DQMROOT': CppType='DQMRootOutputModule'
+			if theStreamType=='DQM' and theTier=='DQMIO': CppType='DQMRootOutputModule'
 			output = cms.OutputModule(CppType,			
 						  theEventContent.clone(),
 						  fileName = cms.untracked.string(theFileName),
@@ -554,7 +554,7 @@ class ConfigBuilder(object):
 
         for i,(streamType,tier) in enumerate(zip(streamTypes,tiers)):
 		if streamType=='': continue
-		if streamType=='DQMROOT': streamType='DQM'
+		if streamType=='DQMIO': streamType='DQM'
                 theEventContent = getattr(self.process, streamType+"EventContent")
                 if i==0:
                         theFileName=self._options.outfile_name
@@ -563,7 +563,7 @@ class ConfigBuilder(object):
                         theFileName=self._options.outfile_name.replace('.root','_in'+streamType+'.root')
                         theFilterName=self._options.filtername
 		CppType='PoolOutputModule'
-		if streamType=='DQM' and tier=='DQMROOT': CppType='DQMRootOutputModule'
+		if streamType=='DQM' and tier=='DQMIO': CppType='DQMRootOutputModule'
                 output = cms.OutputModule(CppType,
                                           theEventContent,
                                           fileName = cms.untracked.string(theFileName),
@@ -628,20 +628,22 @@ class ConfigBuilder(object):
 			self.loadAndRemember(mixingDict['file'])
 
 		mixingDict.pop('file')
-		if self._options.pileup_input:
-			if self._options.pileup_input.startswith('dbs:') or self._options.pileup_input.startswith('das:'):
-				mixingDict['F']=filesFromDASQuery('file dataset = %s'%(self._options.pileup_input[4:],))[0]
-			else:
-				mixingDict['F']=self._options.pileup_input.split(',')
-		specialization=defineMixing(mixingDict,self._options.fast)
-		for command in specialization:
-			self.executeAndRemember(command)
-		if len(mixingDict)!=0:
-			raise Exception('unused mixing specification: '+mixingDict.keys().__str__())
+		if not "DATAMIX" in self.stepMap.keys(): # when DATAMIX is present, pileup_input refers to pre-mixed GEN-RAW
+			if self._options.pileup_input:
+				if self._options.pileup_input.startswith('dbs:') or self._options.pileup_input.startswith('das:'):
+					mixingDict['F']=filesFromDASQuery('file dataset = %s'%(self._options.pileup_input[4:],))[0]
+				else:
+					mixingDict['F']=self._options.pileup_input.split(',')
+			specialization=defineMixing(mixingDict,self._options.fast)
+			for command in specialization:
+				self.executeAndRemember(command)
+			if len(mixingDict)!=0:
+				raise Exception('unused mixing specification: '+mixingDict.keys().__str__())
 
-		if self._options.fast and not 'SIM' in self.stepMap and not 'FASTSIM' in self.stepMap:
-			self.executeAndRemember('process.mix.playback= True')
-		
+			if self._options.fast and not 'SIM' in self.stepMap and not 'FASTSIM' in self.stepMap:
+				self.executeAndRemember('process.mix.playback= True')
+
+
         # load the geometry file
         try:
 		if len(self.stepMap):
@@ -1385,6 +1387,17 @@ class ConfigBuilder(object):
 	    """ Enrich the schedule with the digitisation step"""
 	    self.loadAndRemember(self.DATAMIXDefaultCFF)
 	    self.scheduleSequence('pdatamix','datamixing_step')
+	    if self._options.pileup_input:
+		    theFiles=''
+		    if self._options.pileup_input.startswith('dbs:') or self._options.pileup_input.startswith('das:'):
+			    theFiles=filesFromDASQuery('file dataset = %s'%(self._options.pileup_input[4:],))[0]
+		    elif self._options.pileup_input.startswith("filelist:"):
+			    theFiles= (filesFromList(self._options.pileup_input[9:]))[0]
+		    else:
+			    theFiles=self._options.pileup_input.split(',')
+		    #print theFiles
+		    self.executeAndRemember( "process.mixData.input.fileNames = cms.untracked.vstring(%s)"%(  theFiles ) )
+
 	    return
 
     def prepare_DIGI2RAW(self, sequence = None):

@@ -20,19 +20,14 @@ process.load('Configuration/StandardSequences/DigiToRaw_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(100)
 )
-#process.MessageLogger.cerr.FwkReport.reportEvery = 100
+process.MessageLogger.cerr.FwkReport.reportEvery = 10
 # Input source
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
     fileNames = cms.untracked.vstring(
-    'root://eoscms//eos/cms/store/relval/CMSSW_7_0_0_pre8/RelValZpTT_1500_8TeV_Tauola/GEN-SIM-DIGI-RAW-HLTDEBUG/START70_V2_amend-v4/00000/1A74851A-F051-E311-A9D8-0025905964BC.root',
- 'root://eoscms//eos/cms/store/relval/CMSSW_7_0_0_pre8/RelValZpTT_1500_8TeV_Tauola/GEN-SIM-DIGI-RAW-HLTDEBUG/START70_V2_amend-v4/00000/7E305124-F051-E311-BEFA-002618943916.root',
- 'root://eoscms//eos/cms/store/relval/CMSSW_7_0_0_pre8/RelValZpTT_1500_8TeV_Tauola/GEN-SIM-DIGI-RAW-HLTDEBUG/START70_V2_amend-v4/00000/BE19C16C-F051-E311-8EF4-002590596486.root',
- 'root://eoscms//eos/cms/store/relval/CMSSW_7_0_0_pre8/RelValZpTT_1500_8TeV_Tauola/GEN-SIM-DIGI-RAW-HLTDEBUG/START70_V2_amend-v4/00000/D481531B-F051-E311-BAFD-00261894387B.root',
- 'root://eoscms//eos/cms/store/relval/CMSSW_7_0_0_pre8/RelValZpTT_1500_8TeV_Tauola/GEN-SIM-DIGI-RAW-HLTDEBUG/START70_V2_amend-v4/00000/D63A7E1F-F251-E311-BE1C-003048678FB4.root'
-
+        'root://eoscms//eos/cms/store/user/taroni/ClusterSplitting/ZpTauTau8TeV/GEN-SIM-RAW/ZpTT_1500_8TeV_Tauola_cfi_py_GEN_SIM_DIGI_L1_DIGI2RAW_HLT.root'
 ),
 )
                             
@@ -119,12 +114,14 @@ process.newrechits = cms.Sequence(process.mySiPixelRecHits*process.mySiStripRecH
 # The commands included in splitter_tracking_setup_cff.py instruct 
 # the tracking machinery to use the clusters and rechits generated after 
 # cluster splitting (instead of the default clusters and rechits)
-process.load('RecoLocalTracker.SubCollectionProducers.splitter_tracking_setup_cff')
+#process.load('RecoLocalTracker.SubCollectionProducers.splitter_tracking_setup2_cff')
 
 process.fullreco = cms.Sequence(process.globalreco*process.highlevelreco)
 process.options = cms.untracked.PSet(
 
 )
+from RecoLocalTracker.SubCollectionProducers.splitter_tracking_setup_cff import customizeTracking
+customizeTracking('splitClusters', 'splitClusters', 'mySiPixelRecHits', 'mySiStripRecHits')
 
 process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
 
@@ -133,7 +130,7 @@ process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
 
 process.RECOoutput = cms.OutputModule("PoolOutputModule",
     outputCommands = process.FEVTDEBUGEventContent.outputCommands,
-    fileName = cms.untracked.string('TTbar700_simsplit.root'),
+    fileName = cms.untracked.string('ZpTauTau8TeV_simsplit_71X.root'),
     dataset = cms.untracked.PSet(
         #filterName = cms.untracked.string(''),
         dataTier = cms.untracked.string('RECO')
@@ -146,7 +143,7 @@ process.RECOoutput = cms.OutputModule("PoolOutputModule",
 process.dump = cms.EDAnalyzer("EventContentAnalyzer")
 # Other statements
 
-process.GlobalTag.globaltag = 'START70_V2::All'
+process.GlobalTag.globaltag = 'MC_71_V1::All'
 
 process.mix.mixObjects.mixSH.crossingFrames.append('TrackerHitsPixelBarrelHighTof')
 process.mix.mixObjects.mixSH.crossingFrames.append('TrackerHitsPixelBarrelLowTof')
@@ -161,6 +158,9 @@ process.mix.mixObjects.mixSH.crossingFrames.append('TrackerHitsTIDLowTof')
 process.mix.mixObjects.mixSH.crossingFrames.append('TrackerHitsTOBHighTof') 
 process.mix.mixObjects.mixSH.crossingFrames.append('TrackerHitsTOBLowTof')
 
+
+from RecoLocalCalo.HcalRecProducers.HBHEIsolatedNoiseReflagger_cfi import *
+process.hbhereco.hbheInput= cms.InputTag("hbheprereco::SPLIT")
 
 # Path and EndPath definitions
 process.pre_init  = cms.Path(cms.Sequence(process.pdigi*process.SimL1Emulator*process.DigiToRaw))
@@ -177,4 +177,4 @@ process.RECOoutput_step = cms.EndPath(process.RECOoutput)
 
 
 # Schedule definition
-process.schedule = cms.Schedule(process.init_step,process.splitClusters_step,process.newrechits_step,process.fullreco_step, process.RECOoutput_step)
+process.schedule = cms.Schedule(process.init_step,process.splitClusters_step,process.newrechits_step, process.fullreco_step, process.RECOoutput_step)

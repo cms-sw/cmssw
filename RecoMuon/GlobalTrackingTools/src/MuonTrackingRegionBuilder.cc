@@ -24,6 +24,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 #include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
@@ -70,8 +71,15 @@ void MuonTrackingRegionBuilder::build(const edm::ParameterSet& par, edm::Consume
   theDeltaR = par.getParameter<double>("DeltaR");
 
   // perigee reference point
-  theOnDemand = par.getParameter<double>("OnDemand");
-  theMeasurementTrackerName = par.getParameter<std::string>("MeasurementTrackerName");
+  // FIXME: when next time altering the configuration of this
+  // class, please change the types of the following parameters:
+  // - OnDemand to at least int32 or to a string
+  //   corresponding to the UseMeasurementTracker enumeration
+  // - MeasurementTrackerName to InputTag
+  theOnDemand = RectangularEtaPhiTrackingRegion::doubleToUseMeasurementTracker(par.getParameter<double>("OnDemand"));
+  if(theOnDemand != RectangularEtaPhiTrackingRegion::UseMeasurementTracker::kNever) {
+    theMeasurementTrackerToken = iC.consumes<MeasurementTrackerEvent>(par.getParameter<std::string>("MeasurementTrackerName"));
+  }
 
   bsHandleToken=iC.consumes<reco::BeamSpot>(theBeamSpotTag);
   vertexCollectionToken=iC.consumes<reco::VertexCollection>(theVertexCollTag);
@@ -243,12 +251,19 @@ MuonTrackingRegionBuilder::region(const reco::Track& staTrack) const {
      region_dPhi = thePhiFixed;
   }
 
+  const MeasurementTrackerEvent *measurementTracker = nullptr;
+  if(!theMeasurementTrackerToken.isUninitialized()) {
+    edm::Handle<MeasurementTrackerEvent> hmte;
+    theEvent->getByToken(theMeasurementTrackerToken, hmte);
+    measurementTracker = hmte.product();
+  }
+
   region = new RectangularEtaPhiTrackingRegion(dirVector, vertexPos,
                                                minPt, deltaR,
                                                deltaZ, region_dEta, region_dPhi,
 					       theOnDemand,
 					       true,/*default in the header*/
-					       theMeasurementTrackerName);
+					       measurementTracker);
 
   LogDebug("MuonTrackingRegionBuilder")<<"the region parameters are:\n"
 				       <<"\n dirVector: "<<dirVector
@@ -258,7 +273,7 @@ MuonTrackingRegionBuilder::region(const reco::Track& staTrack) const {
 				       <<"\n deltaZ:"<<deltaZ
 				       <<"\n region_dEta:"<<region_dEta
 				       <<"\n region_dPhi:"<<region_dPhi
-				       <<"\n on demand parameter: "<<theOnDemand;
+				       <<"\n on demand parameter: "<<static_cast<int>(theOnDemand);
 
   
   return region;

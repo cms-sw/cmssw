@@ -6,12 +6,15 @@
   \brief    PF Jet selector for pat::Jets
 
   Selector functor for pat::Jets that implements quality cuts based on
-  studies of noise patterns. 
+  studies of noise patterns.
 
   Please see https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATSelectors
-  for a general overview of the selectors. 
+  for a general overview of the selectors.
 */
 
+#ifndef __GCCXML__
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#endif
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -26,13 +29,19 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
   enum Quality_t { LOOSE, TIGHT, N_QUALITY};
 
   PFJetIDSelectionFunctor() {}
-  
- PFJetIDSelectionFunctor( edm::ParameterSet const & params ) 
+
+#ifndef __GCCXML__
+  PFJetIDSelectionFunctor( edm::ParameterSet const & params, edm::ConsumesCollector& iC ) :
+    PFJetIDSelectionFunctor(params)
+  {}
+#endif
+
+ PFJetIDSelectionFunctor( edm::ParameterSet const & params )
  {
    std::string versionStr = params.getParameter<std::string>("version");
    std::string qualityStr = params.getParameter<std::string>("quality");
 
-   if ( versionStr == "FIRSTDATA" ) 
+   if ( versionStr == "FIRSTDATA" )
      version_ = FIRSTDATA;
    else
      version_ = FIRSTDATA;  /// will have other options eventually, most likely
@@ -63,7 +72,7 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
       set("CEF", 0.99);
       set("NEF", 0.9);
       set("NCH", 0);
-      set("nConstituents", 1);      
+      set("nConstituents", 1);
     }
 
 
@@ -87,7 +96,7 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
     indexNCH_ = index_type (&bits_, "NCH");
 
     retInternal_ = getBitTemplate();
-    
+
   }
 
 
@@ -118,7 +127,7 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
       set("CEF", 0.99);
       set("NEF", 0.9);
       set("NCH", 0);
-      set("nConstituents", 1);      
+      set("nConstituents", 1);
     }
 
 
@@ -129,19 +138,19 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
     indexCHF_ = index_type (&bits_, "CHF");
     indexNCH_ = index_type (&bits_, "NCH");
 
-    retInternal_ = getBitTemplate();   
+    retInternal_ = getBitTemplate();
  }
-			   
 
-  // 
+
+  //
   // Accessor from PAT jets
-  // 
-  bool operator()( const pat::Jet & jet, pat::strbitset & ret )  
+  //
+  bool operator()( const pat::Jet & jet, pat::strbitset & ret )
   {
     if ( version_ == FIRSTDATA ) {
-      if ( jet.currentJECLevel() == "Uncorrected" || !jet.jecSetsAvailable() ) 
+      if ( jet.currentJECLevel() == "Uncorrected" || !jet.jecSetsAvailable() )
 	return firstDataCuts( jet, ret );
-      else 
+      else
 	return firstDataCuts( jet.correctedJet("Uncorrected"), ret );
     }
     else {
@@ -150,11 +159,11 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
   }
   using Selector<pat::Jet>::operator();
 
-  // 
-  // Accessor from *CORRECTED* 4-vector, EMF, and Jet ID. 
-  // This can be used with reco quantities. 
-  // 
-  bool operator()( const reco::PFJet & jet, pat::strbitset & ret )  
+  //
+  // Accessor from *CORRECTED* 4-vector, EMF, and Jet ID.
+  // This can be used with reco quantities.
+  //
+  bool operator()( const reco::PFJet & jet, pat::strbitset & ret )
   {
     if ( version_ == FIRSTDATA ) return firstDataCuts( jet, ret );
     else {
@@ -169,13 +178,13 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
     setIgnored(retInternal_);
     return (bool)retInternal_;
   }
-  
-  // 
-  // cuts based on craft 08 analysis. 
-  // 
+
+  //
+  // cuts based on craft 08 analysis.
+  //
   bool firstDataCuts( reco::Jet const & jet,
-		      pat::strbitset & ret) 
-  {    
+		      pat::strbitset & ret)
+  {
     ret.set(false);
 
     // cache some variables
@@ -199,7 +208,7 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
 	nef = patJet->neutralEmEnergyFraction();
 	nch = patJet->chargedMultiplicity();
 	nconstituents = patJet->numberOfDaughters();
-      } 
+      }
       // Handle the special case where this is a composed jet for
       // subjet analyses
       else if ( patJet->isBasicJet() ) {
@@ -234,8 +243,8 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
     } // end if pat jet
     else if ( pfJet != 0 ) {
       // CV: need to compute energy fractions in a way that works for corrected as well as for uncorrected PFJets
-      double jetEnergyUncorrected = 
-	pfJet->chargedHadronEnergy() 
+      double jetEnergyUncorrected =
+	pfJet->chargedHadronEnergy()
        + pfJet->neutralHadronEnergy()
        + pfJet->photonEnergy()
        + pfJet->electronEnergy()
@@ -260,7 +269,7 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
       double e_nef = 0.0;
       nch = 0;
       nconstituents = 0;
-      
+
       for ( reco::Jet::const_iterator ibegin = basicJet->begin(),
 	      iend = patJet->end(), isub = ibegin;
 	    isub != iend; ++isub ) {
@@ -285,11 +294,11 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
     // Cuts for all |eta|:
     if ( ignoreCut(indexNConstituents_) || nconstituents > cut(indexNConstituents_, int() ) ) passCut( ret, indexNConstituents_);
     if ( ignoreCut(indexNEF_)           || ( nef < cut(indexNEF_, double()) ) ) passCut( ret, indexNEF_);
-    if ( ignoreCut(indexNHF_)           || ( nhf < cut(indexNHF_, double()) ) ) passCut( ret, indexNHF_);    
+    if ( ignoreCut(indexNHF_)           || ( nhf < cut(indexNHF_, double()) ) ) passCut( ret, indexNHF_);
     // Cuts for |eta| < 2.4:
     if ( ignoreCut(indexCEF_)           || ( cef < cut(indexCEF_, double()) || std::abs(jet.eta()) > 2.4 ) ) passCut( ret, indexCEF_);
     if ( ignoreCut(indexCHF_)           || ( chf > cut(indexCHF_, double()) || std::abs(jet.eta()) > 2.4 ) ) passCut( ret, indexCHF_);
-    if ( ignoreCut(indexNCH_)           || ( nch > cut(indexNCH_, int())    || std::abs(jet.eta()) > 2.4 ) ) passCut( ret, indexNCH_);    
+    if ( ignoreCut(indexNCH_)           || ( nch > cut(indexNCH_, int())    || std::abs(jet.eta()) > 2.4 ) ) passCut( ret, indexNCH_);
 
     //std::cout << "<PFJetIDSelectionFunctor::firstDataCuts>:" << std::endl;
     //std::cout << " jet: Pt = " << jet.pt() << ", eta = " << jet.eta() << ", phi = " << jet.phi() << std::endl;
@@ -298,9 +307,9 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
     setIgnored( ret );
     return (bool)ret;
   }
-  
+
  private: // member variables
-  
+
   Version_t version_;
   Quality_t quality_;
 
@@ -310,7 +319,7 @@ class PFJetIDSelectionFunctor : public Selector<pat::Jet>  {
   index_type indexCEF_;
   index_type indexCHF_;
   index_type indexNCH_;
-  
+
 };
 
 #endif

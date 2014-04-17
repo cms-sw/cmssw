@@ -28,9 +28,9 @@ dqmSaver = cms.EDAnalyzer("DQMFileSaver",
     saveByTime = cms.untracked.int32(-1),
 
     # Save file every N runs (-1: disabled)
-    saveByRun = cms.untracked.int32(1),
+    saveByRun = cms.untracked.int32(-1),
     # Save file at the end of the job
-    saveAtJobEnd = cms.untracked.bool(False),
+    saveAtJobEnd = cms.untracked.bool(True),
 
     # Ignore run number for MC data (-1: disabled)
     forceRunNumber = cms.untracked.int32(-1),

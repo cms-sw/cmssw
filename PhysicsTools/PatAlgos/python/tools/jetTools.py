@@ -292,7 +292,7 @@ class AddJetCollection(ConfigToolBase):
             if 'inclusiveSecondaryVertexFinderFilteredTagInfos' in acceptedTagInfos:
                 if not hasattr( process, 'inclusiveVertexing' ):
                     process.load( 'RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff' )
-                if not hasattr( process, 'inclusiveMergedVerticesFiltered' ):
+                if not hasattr( process, 'inclusiveSecondaryVerticesFiltered' ):
                     process.load( 'RecoBTag.SecondaryVertex.secondaryVertex_cff' )
                 if not hasattr( process, 'bToCharmDecayVertexMerged' ):
                     process.load( 'RecoBTag.SecondaryVertex.bToCharmDecayVertexMerger_cfi' )

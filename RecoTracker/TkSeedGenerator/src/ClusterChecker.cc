@@ -65,18 +65,6 @@ size_t ClusterChecker::tooManyClusters(const edm::Event & e) const
             }
         }
     }
-    else{
-        edm::Handle<edm::LazyGetter<SiStripCluster> > lazyGH;
-        e.getByToken(token_sc, lazyGH);
-        totals.stripdets = 0; // don't know how to count this online
-        if (!lazyGH.failedToGet()){
-            totals.strip = lazyGH->size();
-        }else{
-            //say something's wrong.
-            edm::LogError("ClusterChecker")<<"could not get any SiStrip cluster collections of type edm::DetSetVector<SiStripCluster> or edm::LazyGetter<SiStripCluster, with label: "<<clusterCollectionInputTag_;
-            totals.strip = 999999;
-        }
-    }
     if (totals.strip > int(maxNrOfCosmicClusters_)) return totals.strip;
 
     // get special input for pixel cluster multiplicity filter

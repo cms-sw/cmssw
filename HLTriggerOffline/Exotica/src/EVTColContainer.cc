@@ -28,15 +28,17 @@
 #include<vector>
 #include<map>
 
-/// container with all the objects needed
+/// Container with all the objects needed
+/// Notice that I have "more or less" followed
+/// the pdgIds of the particles involved.
 struct EVTColContainer {
     enum {
-        MUON,
-        ELEC,
-        PHOTON,
-        PFMET,
-        PFTAU,
-        JET,
+        ELEC = 11,
+        MUON = 13,
+        PFTAU = 15,
+        PHOTON = 22,
+        PFMET = 39,
+        JET = 211,
         _nMAX
     };
 
@@ -119,6 +121,7 @@ struct EVTColContainer {
         jets = v;
         ++nInitialized;
     }
+
     /// Get size of collections
     const unsigned int getSize(const unsigned int & objtype) const
     {
@@ -140,7 +143,8 @@ struct EVTColContainer {
         return size;
     }
 
-    static std::string getTypeString(const unsigned int & objtype)
+    /// Tranform types into strings
+    const static std::string getTypeString(const unsigned int & objtype)
     {
         std::string objTypestr;
 

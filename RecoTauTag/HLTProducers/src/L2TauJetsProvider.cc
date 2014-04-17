@@ -15,9 +15,13 @@ using namespace l1extra;
 L2TauJetsProvider::L2TauJetsProvider(const edm::ParameterSet& iConfig)
 {
   jetSrc = iConfig.getParameter<vtag>("JetSrc");
-  l1ParticlesTau = iConfig.getParameter<InputTag>("L1ParticlesTau");
-  l1ParticlesJet = iConfig.getParameter<InputTag>("L1ParticlesJet");
-  tauTrigger = iConfig.getParameter<InputTag>("L1TauTrigger");
+  for( vtag::const_iterator s = jetSrc.begin(); s != jetSrc.end(); ++ s ) {
+    edm::EDGetTokenT<CaloJetCollection> aToken = consumes<CaloJetCollection>( *s );
+    jetSrcToken.push_back(aToken);
+  }
+  l1ParticlesTau = consumes<L1JetParticleCollection>(iConfig.getParameter<InputTag>("L1ParticlesTau"));
+  l1ParticlesJet = consumes<L1JetParticleCollection>(iConfig.getParameter<InputTag>("L1ParticlesJet"));
+  tauTrigger = consumes<trigger::TriggerFilterObjectWithRefs>(iConfig.getParameter<InputTag>("L1TauTrigger"));
   mEt_Min = iConfig.getParameter<double>("EtMin");
   
   produces<CaloJetCollection>();
@@ -42,9 +46,10 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
  //and removing the collinear jets
  myL2L1JetsMap.clear();
  int iL1Jet = 0;
- for( vtag::const_iterator s = jetSrc.begin(); s != jetSrc.end(); ++ s ) {
+ typedef std::vector<edm::EDGetTokenT<reco::CaloJetCollection> > vtag_token;
+ for( vtag_token::const_iterator s = jetSrcToken.begin(); s != jetSrcToken.end(); ++ s ) {
    edm::Handle<CaloJetCollection> tauJets;
-   iEvent.getByLabel( * s, tauJets );
+   iEvent.getByToken( * s, tauJets );
    CaloJetCollection::const_iterator iTau = tauJets->begin();
    if(iTau != tauJets->end()){
      //Create a Map to associate to every Jet its L1SeedId, i.e. 0,1,2 or 3
@@ -64,8 +69,8 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
   edm::Handle< L1JetParticleCollection > tauColl ; 
   edm::Handle< L1JetParticleCollection > jetColl ; 
   
-  iEvent.getByLabel( l1ParticlesTau, tauColl );
-  iEvent.getByLabel(l1ParticlesJet, jetColl);
+  iEvent.getByToken(l1ParticlesTau, tauColl);
+  iEvent.getByToken(l1ParticlesJet, jetColl);
 
   const L1JetParticleCollection  myL1Tau = *(tauColl.product());
 
@@ -85,7 +90,7 @@ void L2TauJetsProvider::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 
 
     edm::Handle<trigger::TriggerFilterObjectWithRefs> l1TriggeredTaus;
-    if(iEvent.getByLabel(tauTrigger,l1TriggeredTaus)){
+    if(iEvent.getByToken(tauTrigger,l1TriggeredTaus)){
     
       
       tauCandRefVec.clear();

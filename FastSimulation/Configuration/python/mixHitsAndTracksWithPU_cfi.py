@@ -76,9 +76,11 @@ mix = cms.EDProducer("MixingModule",
                      
                      input = cms.SecSource("PoolSource",
                          nbPileupEvents = cms.PSet(
-                         averageNumber = cms.double(0.) 
+                           probFunctionVariable = cms.vint32(0,1), # dummy value, it is replaced by the cfi that imports this file
+                           probValue = cms.vdouble(1,0), # dummy value, it is replaced by the cfi that imports this file
+                           histoFileName = cms.untracked.string('histProbFunction.root'),
                          ),
-                         type = cms.string('poisson'),
+                         type = cms.string('probFunction'),
                          sequential = cms.untracked.bool(False),
                          manage_OOT = cms.untracked.bool(False),  ## manage out-of-time pileup
                                            ## setting this to True means that the out-of-time pileup

@@ -35,8 +35,6 @@
 
 #include <vector>
 
-#include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
-#include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/MuonSeed/interface/L3MuonTrajectorySeedCollection.h"
 
@@ -62,6 +60,8 @@ TSGFromL1Muon::TSGFromL1Muon(const edm::ParameterSet& cfg)
       theConfig.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
   std::string hitsfactoryName = hitsfactoryPSet.getParameter<std::string>("ComponentName");
   theHitGenerator = OrderedHitsGeneratorFactory::get()->create( hitsfactoryName, hitsfactoryPSet, iC);
+
+  theSourceToken=iC.consumes<L1MuonParticleCollection>(theSourceTag);
 }
 
 TSGFromL1Muon::~TSGFromL1Muon()
@@ -97,7 +97,7 @@ void TSGFromL1Muon::produce(edm::Event& ev, const edm::EventSetup& es)
   std::auto_ptr<L3MuonTrajectorySeedCollection> result(new L3MuonTrajectorySeedCollection());
 
   edm::Handle<L1MuonParticleCollection> l1muon;
-  ev.getByLabel(theSourceTag, l1muon);
+  ev.getByToken(theSourceToken, l1muon);
 
   LogDebug("TSGFromL1Muon")<<l1muon->size()<<" l1 muons to seed from.";
 

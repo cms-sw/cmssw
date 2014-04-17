@@ -21,6 +21,8 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "RecoParticleFlow/PFTracking/interface/PFGeometry.h"
+
 /// \brief Abstract
 /*!
 \author Michele Pioppi
@@ -62,7 +64,7 @@ class GoodSeedProducer : public edm::EDProducer {
       void PSforTMVA(const math::XYZTLorentzVector& mom,
 		     const math::XYZTLorentzVector& pos);
       bool IsIsolated(float  charge,float P,
-	              math::XYZPointF, 
+	              GlobalPoint, 
                       const reco::PFClusterCollection &ecalColl,
                       const reco::PFClusterCollection &hcalColl);
 
@@ -72,8 +74,8 @@ class GoodSeedProducer : public edm::EDProducer {
       // ----------member data ---------------------------
 
       ///Vector of clusters of the PreShower
-      std::vector<reco::PFCluster> ps1Clus;
-      std::vector<reco::PFCluster> ps2Clus;
+      std::vector<reco::PFCluster const *> ps1Clus;
+      std::vector<reco::PFCluster const *> ps2Clus;
 
       ///Name of the Seed(Ckf) Collection
       std::string preidckf_;
@@ -175,6 +177,7 @@ class GoodSeedProducer : public edm::EDProducer {
 
       /// Map used to create the TrackRef, PreIdRef value map
       std::map<reco::TrackRef,unsigned> refMap_;
-     
+
+      PFGeometry pfGeometry_;
 };
 #endif

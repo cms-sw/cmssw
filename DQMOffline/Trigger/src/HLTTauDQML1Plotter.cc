@@ -43,110 +43,84 @@ HLTTauDQML1Plotter::HLTTauDQML1Plotter(const edm::ParameterSet& ps, edm::Consume
   configValid_ = true;
 }
 
-void HLTTauDQML1Plotter::beginRun() {
+void HLTTauDQML1Plotter::bookHistograms(DQMStore::IBooker &iBooker) {
   if(!configValid_)
     return;
 
-  edm::Service<DQMStore> store;
-  if (store.isAvailable()) {
-        // The L1 phi plot is asymmetric around 0 because of the discrete nature of L1 phi
-        constexpr float pi = 3.1416f;
-        constexpr float phiShift = pi/18; // half of 2pi/18 bin
-        constexpr float minPhi = -pi+phiShift;
-        constexpr float maxPhi = pi+phiShift;
+  // The L1 phi plot is asymmetric around 0 because of the discrete nature of L1 phi
+  constexpr float pi = 3.1416f;
+  constexpr float phiShift = pi/18; // half of 2pi/18 bin
+  constexpr float minPhi = -pi+phiShift;
+  constexpr float maxPhi = pi+phiShift;
 
-        constexpr int BUFMAX = 256;
-        char buffer[BUFMAX] = "";
+  constexpr int BUFMAX = 256;
+  char buffer[BUFMAX] = "";
 
-        //Create the histograms
-        store->setCurrentFolder(triggerTag());
-        store->removeContents();
+  //Create the histograms
+  iBooker.setCurrentFolder(triggerTag());
         
-        l1tauEt_ = store->book1D("L1TauEt","L1 #tau E_{T};L1 #tau E_{T};entries",binsEt_,0,maxPt_);
-        l1tauEta_ = store->book1D("L1TauEta","L1 #tau #eta;L1 #tau #eta;entries",binsEta_,-maxEta_,maxEta_);
-        l1tauPhi_ = store->book1D("L1TauPhi","L1 #tau #phi;L1 #tau #phi;entries",binsPhi_,minPhi,maxPhi);
+  l1tauEt_ = iBooker.book1D("L1TauEt","L1 #tau E_{T};L1 #tau E_{T};entries",binsEt_,0,maxPt_);
+  l1tauEta_ = iBooker.book1D("L1TauEta","L1 #tau #eta;L1 #tau #eta;entries",binsEta_,-maxEta_,maxEta_);
+  l1tauPhi_ = iBooker.book1D("L1TauPhi","L1 #tau #phi;L1 #tau #phi;entries",binsPhi_,minPhi,maxPhi);
         
-        l1jetEt_ = store->book1D("L1JetEt","L1 central jet E_{T};L1 jet E_{T};entries",binsEt_,0,maxPt_);
-        snprintf(buffer, BUFMAX, "L1 central jet #eta (E_{T} > %.1f);L1 jet #eta;entries", l1JetMinEt_);
-        l1jetEta_ = store->book1D("L1JetEta", buffer, binsEta_, -maxEta_, maxEta_);
-        snprintf(buffer, BUFMAX, "L1 central jet #phi (E_{T} > %.1f);L1 jet #phi;entries", l1JetMinEt_);
-        l1jetPhi_ = store->book1D("L1JetPhi", buffer, binsPhi_, minPhi, maxPhi);
+  l1jetEt_ = iBooker.book1D("L1JetEt","L1 central jet E_{T};L1 jet E_{T};entries",binsEt_,0,maxPt_);
+  snprintf(buffer, BUFMAX, "L1 central jet #eta (E_{T} > %.1f);L1 jet #eta;entries", l1JetMinEt_);
+  l1jetEta_ = iBooker.book1D("L1JetEta", buffer, binsEta_, -maxEta_, maxEta_);
+  snprintf(buffer, BUFMAX, "L1 central jet #phi (E_{T} > %.1f);L1 jet #phi;entries", l1JetMinEt_);
+  l1jetPhi_ = iBooker.book1D("L1JetPhi", buffer, binsPhi_, minPhi, maxPhi);
         
-        snprintf(buffer, BUFMAX, "L1 leading (#tau OR central jet E_{T} > %.1f) E_{T};L1 (#tau or central jet) E_{T};entries", l1JetMinEt_);
-        firstTauEt_ = store->book1D("L1LeadTauEt", buffer, binsEt_, 0, maxPt_);
-        snprintf(buffer, BUFMAX, "L1 leading (#tau OR central jet E_{T} > %.1f) #eta;L1 (#tau or central jet) #eta;entries", l1JetMinEt_);
-        firstTauEta_ = store->book1D("L1LeadTauEta", buffer, binsEta_, -maxEta_, maxEta_);
-        snprintf(buffer, BUFMAX, "L1 leading (#tau OR central jet E_{T} > %.1f) #phi;L1 (#tau or central jet) #phi;entries", l1JetMinEt_);
-        firstTauPhi_ = store->book1D("L1LeadTauPhi", buffer, binsPhi_, minPhi, maxPhi);
+  snprintf(buffer, BUFMAX, "L1 leading (#tau OR central jet E_{T} > %.1f) E_{T};L1 (#tau or central jet) E_{T};entries", l1JetMinEt_);
+  firstTauEt_ = iBooker.book1D("L1LeadTauEt", buffer, binsEt_, 0, maxPt_);
+  snprintf(buffer, BUFMAX, "L1 leading (#tau OR central jet E_{T} > %.1f) #eta;L1 (#tau or central jet) #eta;entries", l1JetMinEt_);
+  firstTauEta_ = iBooker.book1D("L1LeadTauEta", buffer, binsEta_, -maxEta_, maxEta_);
+  snprintf(buffer, BUFMAX, "L1 leading (#tau OR central jet E_{T} > %.1f) #phi;L1 (#tau or central jet) #phi;entries", l1JetMinEt_);
+  firstTauPhi_ = iBooker.book1D("L1LeadTauPhi", buffer, binsPhi_, minPhi, maxPhi);
         
-        snprintf(buffer, BUFMAX, "L1 second-leading (#tau OR central jet E_{T} > %.1f) E_{T};L1 (#tau or central jet) E_{T};entries", l1JetMinEt_);
-        secondTauEt_ = store->book1D("L1SecondTauEt", buffer, binsEt_, 0, maxPt_);
-        snprintf(buffer, BUFMAX, "L1 second-leading (#tau OR central jet E_{T} > %.1f) #eta;L1 (#tau or central jet) #eta;entries", l1JetMinEt_);
-        secondTauEta_ = store->book1D("L1SecondTauEta", buffer, binsEta_, -maxEta_, maxEta_);
-        snprintf(buffer, BUFMAX, "L1 second-leading (#tau OR central jet E_{T} > %.1f) #phi;L1 (#tau or central jet) #phi;entries", l1JetMinEt_);
-        secondTauPhi_ = store->book1D("L1SecondTauPhi", buffer, binsPhi_, minPhi, maxPhi);
+  snprintf(buffer, BUFMAX, "L1 second-leading (#tau OR central jet E_{T} > %.1f) E_{T};L1 (#tau or central jet) E_{T};entries", l1JetMinEt_);
+  secondTauEt_ = iBooker.book1D("L1SecondTauEt", buffer, binsEt_, 0, maxPt_);
+  snprintf(buffer, BUFMAX, "L1 second-leading (#tau OR central jet E_{T} > %.1f) #eta;L1 (#tau or central jet) #eta;entries", l1JetMinEt_);
+  secondTauEta_ = iBooker.book1D("L1SecondTauEta", buffer, binsEta_, -maxEta_, maxEta_);
+  snprintf(buffer, BUFMAX, "L1 second-leading (#tau OR central jet E_{T} > %.1f) #phi;L1 (#tau or central jet) #phi;entries", l1JetMinEt_);
+  secondTauPhi_ = iBooker.book1D("L1SecondTauPhi", buffer, binsPhi_, minPhi, maxPhi);
         
-        if (doRefAnalysis_) {
-            l1tauEtRes_ = store->book1D("L1TauEtResol","L1 #tau E_{T} resolution;[L1 #tau E_{T}-Ref #tau E_{T}]/Ref #tau E_{T};entries",60,-1,4);
-            snprintf(buffer, BUFMAX, "L1 central jet E_{T} resolution (E_{T} > %.1f);[L1 jet E_{T}-Ref #tau E_{T}]/Ref #tau E_{T};entries", l1JetMinEt_);
-            l1jetEtRes_ = store->book1D("L1JetEtResol", buffer, 60, -1, 4);
+  if (doRefAnalysis_) {
+    l1tauEtRes_ = iBooker.book1D("L1TauEtResol","L1 #tau E_{T} resolution;[L1 #tau E_{T}-Ref #tau E_{T}]/Ref #tau E_{T};entries",60,-1,4);
+    snprintf(buffer, BUFMAX, "L1 central jet E_{T} resolution (E_{T} > %.1f);[L1 jet E_{T}-Ref #tau E_{T}]/Ref #tau E_{T};entries", l1JetMinEt_);
+    l1jetEtRes_ = iBooker.book1D("L1JetEtResol", buffer, 60, -1, 4);
             
-            store->setCurrentFolder(triggerTag()+"/EfficiencyHelpers");
-            store->removeContents();
+    iBooker.setCurrentFolder(triggerTag()+"/EfficiencyHelpers");
             
-            l1tauEtEffNum_ = store->book1D("L1TauEtEffNum","L1 #tau E_{T} Efficiency;Ref #tau E_{T};entries",binsEt_,0,maxPt_);
-            l1tauEtEffNum_->getTH1F()->Sumw2();
-            l1tauHighEtEffNum_ = store->book1D("L1TauHighEtEffNum","L1 #tau E_{T} Efficiency (high E_{T});Ref #tau E_{T};entries",binsEt_,0,maxHighPt_);
-            l1tauHighEtEffNum_->getTH1F()->Sumw2();
+    l1tauEtEffNum_ = iBooker.book1D("L1TauEtEffNum","L1 #tau E_{T} Efficiency;Ref #tau E_{T};entries",binsEt_,0,maxPt_);
+    l1tauHighEtEffNum_ = iBooker.book1D("L1TauHighEtEffNum","L1 #tau E_{T} Efficiency (high E_{T});Ref #tau E_{T};entries",binsEt_,0,maxHighPt_);
             
-            l1tauEtEffDenom_ = store->book1D("L1TauEtEffDenom","L1 #tau E_{T} Denominator;Ref #tau E_{T};entries",binsEt_,0,maxPt_);
-            l1tauEtEffDenom_->getTH1F()->Sumw2();
-            l1tauHighEtEffDenom_ = store->book1D("L1TauHighEtEffDenom","L1 #tau E_{T} Denominator (high E_{T});Ref #tau E_{T};entries",binsEt_,0,maxHighPt_);
-            l1tauHighEtEffDenom_->getTH1F()->Sumw2();
+    l1tauEtEffDenom_ = iBooker.book1D("L1TauEtEffDenom","L1 #tau E_{T} Denominator;Ref #tau E_{T};entries",binsEt_,0,maxPt_);
+    l1tauHighEtEffDenom_ = iBooker.book1D("L1TauHighEtEffDenom","L1 #tau E_{T} Denominator (high E_{T});Ref #tau E_{T};entries",binsEt_,0,maxHighPt_);
             
-            l1tauEtaEffNum_ = store->book1D("L1TauEtaEffNum","L1 #tau #eta Efficiency;Ref #tau #eta;entries",binsEta_,-maxEta_,maxEta_);
-            l1tauEtaEffNum_->getTH1F()->Sumw2();
+    l1tauEtaEffNum_ = iBooker.book1D("L1TauEtaEffNum","L1 #tau #eta Efficiency;Ref #tau #eta;entries",binsEta_,-maxEta_,maxEta_);
+    l1tauEtaEffDenom_ = iBooker.book1D("L1TauEtaEffDenom","L1 #tau #eta Denominator;Ref #tau #eta;entries",binsEta_,-maxEta_,maxEta_);
             
-            l1tauEtaEffDenom_ = store->book1D("L1TauEtaEffDenom","L1 #tau #eta Denominator;Ref #tau #eta;entries",binsEta_,-maxEta_,maxEta_);
-            l1tauEtaEffDenom_->getTH1F()->Sumw2();
+    l1tauPhiEffNum_ = iBooker.book1D("L1TauPhiEffNum","L1 #tau #phi Efficiency;Ref #tau #phi;entries",binsPhi_,minPhi,maxPhi);
+    l1tauPhiEffDenom_ = iBooker.book1D("L1TauPhiEffDenom","L1 #tau #phi Denominator;Ref #tau #phi;entries",binsPhi_,minPhi,maxPhi);
             
-            l1tauPhiEffNum_ = store->book1D("L1TauPhiEffNum","L1 #tau #phi Efficiency;Ref #tau #phi;entries",binsPhi_,minPhi,maxPhi);
-            l1tauPhiEffNum_->getTH1F()->Sumw2();
+    l1jetEtEffNum_ = iBooker.book1D("L1JetEtEffNum","L1 central jet E_{T} Efficiency;Ref #tau E_{T};entries",binsEt_,0,maxPt_);
+    l1jetHighEtEffNum_ = iBooker.book1D("L1JetHighEtEffNum","L1 central jet E_{T} Efficiency (high E_{T});Ref #tau E_{T};entries",binsEt_,0,maxHighPt_);
             
-            l1tauPhiEffDenom_ = store->book1D("L1TauPhiEffDenom","L1 #tau #phi Denominator;Ref #tau #phi;entries",binsPhi_,minPhi,maxPhi);
-            l1tauPhiEffDenom_->getTH1F()->Sumw2();
+    l1jetEtEffDenom_ = iBooker.book1D("L1JetEtEffDenom","L1 central jet E_{T} Denominator;Ref #tau E_{T};entries",binsEt_,0,maxPt_);
+    l1jetHighEtEffDenom_ = iBooker.book1D("L1JetHighEtEffDenom","L1 central jet E_{T} Denominator (high E_{T});Ref #tau E_{T};entries",binsEt_,0,maxHighPt_);
             
-            l1jetEtEffNum_ = store->book1D("L1JetEtEffNum","L1 central jet E_{T} Efficiency;Ref #tau E_{T};entries",binsEt_,0,maxPt_);
-            l1jetEtEffNum_->getTH1F()->Sumw2();
-            l1jetHighEtEffNum_ = store->book1D("L1JetHighEtEffNum","L1 central jet E_{T} Efficiency (high E_{T});Ref #tau E_{T};entries",binsEt_,0,maxHighPt_);
-            l1jetHighEtEffNum_->getTH1F()->Sumw2();
+    snprintf(buffer, BUFMAX, "L1 central jet #eta Efficiency (E_{T} > %.1f);Ref #tau #eta;entries", l1JetMinEt_);
+    l1jetEtaEffNum_ = iBooker.book1D("L1JetEtaEffNum", buffer, binsEta_, -maxEta_, maxEta_);
             
-            l1jetEtEffDenom_ = store->book1D("L1JetEtEffDenom","L1 central jet E_{T} Denominator;Ref #tau E_{T};entries",binsEt_,0,maxPt_);
-            l1jetEtEffDenom_->getTH1F()->Sumw2();
-            l1jetHighEtEffDenom_ = store->book1D("L1JetHighEtEffDenom","L1 central jet E_{T} Denominator (high E_{T});Ref #tau E_{T};entries",binsEt_,0,maxHighPt_);
-            l1jetHighEtEffDenom_->getTH1F()->Sumw2();
+    snprintf(buffer, BUFMAX, "L1 central jet #eta Denominator (E_{T} > %.1f);Ref #tau #eta;entries", l1JetMinEt_);
+    l1jetEtaEffDenom_ = iBooker.book1D("L1JetEtaEffDenom", buffer, binsEta_, -maxEta_, maxEta_);
             
-            snprintf(buffer, BUFMAX, "L1 central jet #eta Efficiency (E_{T} > %.1f);Ref #tau #eta;entries", l1JetMinEt_);
-            l1jetEtaEffNum_ = store->book1D("L1JetEtaEffNum", buffer, binsEta_, -maxEta_, maxEta_);
-            l1jetEtaEffNum_->getTH1F()->Sumw2();
+    snprintf(buffer, BUFMAX, "L1 central jet #phi Efficiency (E_{T} > %.1f);Ref #tau #eta;entries", l1JetMinEt_);
+    l1jetPhiEffNum_ = iBooker.book1D("L1JetPhiEffNum", buffer, binsPhi_, minPhi, maxPhi);
             
-            snprintf(buffer, BUFMAX, "L1 central jet #eta Denominator (E_{T} > %.1f);Ref #tau #eta;entries", l1JetMinEt_);
-            l1jetEtaEffDenom_ = store->book1D("L1JetEtaEffDenom", buffer, binsEta_, -maxEta_, maxEta_);
-            l1jetEtaEffDenom_->getTH1F()->Sumw2();
-            
-            snprintf(buffer, BUFMAX, "L1 central jet #phi Efficiency (E_{T} > %.1f);Ref #tau #eta;entries", l1JetMinEt_);
-            l1jetPhiEffNum_ = store->book1D("L1JetPhiEffNum", buffer, binsPhi_, minPhi, maxPhi);
-            l1jetPhiEffNum_->getTH1F()->Sumw2();
-            
-            snprintf(buffer, BUFMAX, "L1 central jet #phi Efficiency (E_{T} > %.1f);Ref #tau #eta;entries", l1JetMinEt_);
-            l1jetPhiEffDenom_ = store->book1D("L1JetPhiEffDenom", buffer, binsPhi_, minPhi, maxPhi);
-            l1jetPhiEffDenom_->getTH1F()->Sumw2();
-        }
-        runValid_ = true;
+    snprintf(buffer, BUFMAX, "L1 central jet #phi Efficiency (E_{T} > %.1f);Ref #tau #eta;entries", l1JetMinEt_);
+    l1jetPhiEffDenom_ = iBooker.book1D("L1JetPhiEffDenom", buffer, binsPhi_, minPhi, maxPhi);
   }
-  else {
-    runValid_ = false;
-  }
+  runValid_ = true;
 }
 
 

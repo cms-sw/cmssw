@@ -61,7 +61,7 @@ namespace gs {
 
     private:
         void search(AbsReference& reference);
-        std::istream& inputStream(unsigned long long id);
+        std::istream& inputStream(unsigned long long id, long long* sz);
 
         inline std::ostream& outputStream()
         {

@@ -53,9 +53,9 @@ TrackProducerAlgorithm<T>::runWithCandidate(const TrackingGeometry * theG,
       
       const TrackCandidate * theTC = &(*i);
 
-      PTrajectoryStateOnDet state = theTC->trajectoryStateOnDet();
-      const TrackCandidate::range& recHitVec=theTC->recHits();
-      const TrajectorySeed& seed = theTC->seed();
+      PTrajectoryStateOnDet const & state = theTC->trajectoryStateOnDet();
+      const TrackCandidate::range & recHitVec=theTC->recHits();
+      const TrajectorySeed & seed = theTC->seed();
 
       //convert PTrajectoryStateOnDet to TrajectoryStateOnSurface
   
@@ -72,7 +72,7 @@ TrackProducerAlgorithm<T>::runWithCandidate(const TrackingGeometry * theG,
       float ndof=0;     
       for (edm::OwnVector<TrackingRecHit>::const_iterator i=recHitVec.first;
 	   i!=recHitVec.second; i++){
-	hits.push_back(builder->build(&(*i) ));
+	hits.push_back(builder->build(&(*i) ));  // major waste, will be soon fitted and recloned...
       }      
       
       //build Track
@@ -84,6 +84,9 @@ TrackProducerAlgorithm<T>::runWithCandidate(const TrackingGeometry * theG,
     }
   LogDebug("TrackProducer") << "Number of Tracks found: " << cont << "\n";
 }
+
+
+// the following are called by the Refitter(s)
 
 template <class T> void
 TrackProducerAlgorithm<T>::runWithTrack(const TrackingGeometry * theG,
@@ -426,11 +429,13 @@ TrackProducerAlgorithm<T>::getInitialState(const T * theT,
   
   // error is rescaled, but correlation are kept.
   initialStateFromTrack.rescaleError(100);
+  return initialStateFromTrack;
+  /*
   theInitialStateForRefitting = TrajectoryStateOnSurface(initialStateFromTrack.localParameters(),
 							 initialStateFromTrack.localError(), 		      
 							 initialStateFromTrack.surface(),
-							 theMF);  
-  
+							 theMF);
   return theInitialStateForRefitting;
+  */
 }
 

@@ -20,8 +20,6 @@ public:
   
   typedef OmniClusterRef::ClusterPixelRef ClusterPixelRef;
   typedef OmniClusterRef::ClusterStripRef ClusterStripRef;
-  typedef OmniClusterRef::ClusterRegionalRef ClusterRegionalRef;
-
 
   // no position (as in persistent)
   TrackerSingleRecHit(DetId id,
@@ -63,18 +61,18 @@ public:
     return cluster_.cluster_strip();
   }
   
-  ClusterRegionalRef cluster_regional()  const { 
-    return cluster_.cluster_regional();
-  }
-
   SiStripCluster const & stripCluster() const { 
     return cluster_.stripCluster();
   }  
 
+  SiPixelCluster const & pixelCluster() const {
+    return cluster_.pixelCluster();
+  }
+
+
   // void setClusterRef(const &  OmniClusterRef ref) {  cluster_ =ref;}
   void setClusterPixelRef(ClusterPixelRef const & ref) {  cluster_ = OmniClusterRef(ref); }
   void setClusterStripRef(ClusterStripRef const & ref) {  cluster_ = OmniClusterRef(ref); }
-  void setClusterRegionalRef(ClusterRegionalRef const & ref) { cluster_ = OmniClusterRef(ref); }
 
 
 

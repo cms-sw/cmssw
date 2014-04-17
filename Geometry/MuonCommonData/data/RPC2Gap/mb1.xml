@@ -1,0 +1,2020 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+    <ConstantsSection label="mb1.xml">
+        <!--- #### MB1: Positions -->
+        <!--%% Radial coordinates for algos-->
+        <Constant name="MB1UnitRadius" value="4329.460186*mm"/>
+        <Constant name="MB1PosAngle" value="5.184184778*deg"/>
+        <!--%% Cartesian coordinates for sector 1 -->
+        <Constant name="MB1Pos_x" value="[mbCommon:MBHC_offset]+4285.*mm"/>
+        <Constant name="MB1Pos_y" value="391.2*mm"/>
+        <!--- #### MB1: Constants for DT superlayer Phi -->
+        <Constant name="MB1SLPhiPl_x" value="2121./2*mm"/>
+        <Constant name="MB1SLPhiL48" value="[mbCommon:MBCell_width]*48+[mbCommon:MBIbeamWall]"/>
+        <Constant name="MB1SLPhiL49" value="[mbCommon:MBCell_width]*49+[mbCommon:MBIbeamWall]"/>
+        <Constant name="MB1SLPhiL50" value="[mbCommon:MBCell_width]*50+[mbCommon:MBIbeamWall]"/>
+        <!--- #### MB1: Constants for DT superlayer Z (although they are placed with a rotation that interchanges X and Z, the _x refers to the coordinate X in EDMS, that is the Z in its final position; similar for _z -->
+        <Constant name="MB1SLZWire_length" value="2038./2.*mm"/>
+        <!--%% Wire length from EDMS: THIS NUMBER DEFINE THE SL DIMENSIONS-->
+        <Constant name="MB1SLZBareWire_length" value="[MB1SLZWire_length]-15.5*mm"/>
+        <!--%% Bare Wire _length == wire_lenght - depth in tappini-->
+        <Constant name="MB1SLZLayer_length" value="[MB1SLZBareWire_length]+2*[mbCommon:MBLayerElectronics_width]"/>
+        <!--%% The z length of the Al layer volume-->
+        <Constant name="MB1SLZPlI_z" value="[MB1SLZLayer_length]+6.5*mm"/>
+        <!--%% Distance between tappini and Al Plate edge-->
+        <Constant name="MB1SLZPlO_z" value="[MB1SLZPlI_z]+38.*mm"/>
+        <!--- #### MB1: X dimensions -->
+        <Constant name="MB1_x" value="1090.*mm"/>
+        <Constant name="MB1HC_x" value="2033/2.*mm"/>
+        <!--- #### MB1: Constants for DT positioning: distance from SL center to HC center -->
+        <Constant name="MB1pSLPhi1_HC_dist" value="16.*mm"/>
+        <Constant name="MB1pSLPhi2_HC_dist" value="-5.*mm"/>
+        <Constant name="MB1pSLZ_HC_dist" value="-5*mm"/>
+        <Constant name="MB1nSLPhi1_HC_dist" value="-16.*mm"/>
+        <Constant name="MB1nSLPhi2_HC_dist" value="5.*mm"/>
+        <Constant name="MB1nSLZ_HC_dist" value="5*mm"/>
+        <!--- #### MB1: Constants for RPCs -->
+        <Constant name="MB1RPC_x" value="2080./2*mm"/>
+        <Constant name="MB1RPC_Gas_x" value="[mb1:MB1RPC_x]-10.*mm"/>
+        <Constant name="MB1RPC_I_x_pos" value="15.2*mm"/>
+        <Constant name="MB1RPC_O_x_pos" value="60.2*mm"/>
+        <!--- #### MB1Chim: Constants for DT RPCs -->
+        <Constant name="MB1ChimRPC_GasRight_y_pos" value="[mbCommon:MBRPC_GasRight_y_pos]-([mbCommon:MBRPC_z]-[mbCommon:MBChimRPC_z])/2.-4.*mm"/>
+        <Constant name="MB1ChimRPC_GasLeft_y_pos" value="[mbCommon:MBRPC_GasLeft_y_pos]-([mbCommon:MBRPC_z]-[mbCommon:MBChimRPC_z])/2.-4.*mm"/>
+    </ConstantsSection>
+    <SolidSection label="mb1.xml">
+        <!-- ####  MB1 Unit: fake volume representing one DTBX + 1 or 2 RPC -->
+        <!-- ####  MB1: DTBX chamber -->
+        <!--%% In MB1 the widest superlayer in x is the Z one -->
+        <Box name="MB1_a" dx="[MB1_x]" dy="[mbCommon:MBSLPhiPlO_z]+12.*mm" dz="[mbCommon:MBHeight_With2RPC]"/>
+        <Box name="MB1_OLAP1" dx="17.*mm" dy="[mbCommon:MBSLPhiPlO_z]+13.*mm" dz="15.*mm"/>
+        <Box name="MB1_OLAP2" dx="5.6*mm" dy="[mbCommon:MBSLPhiPlO_z]+13.*mm" dz="6.6*mm"/>
+        <Box name="MB1_OLAP3" dx="5.*mm" dy="[mbCommon:MBSLPhiPlO_z]+13.*mm" dz="10.*mm"/>
+        <Box name="MB1_OLAP4" dx="20.*mm" dy="[mbCommon:MBSLPhiPlO_z]+13.*mm" dz="40.*mm"/>
+        <SubtractionSolid name="MB1N_b">
+            <rSolid name="MB1_a"/>
+            <rSolid name="MB1_OLAP1"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="[MB1_x]-16.8*mm" y="0.*fm" z="-[mbCommon:MBHeight_With2RPC]+14.8*mm"/>
+        </SubtractionSolid>
+        <UnionSolid name="MB1N">
+            <rSolid name="MB1N_b"/>
+            <rSolid name="MB1_OLAP2"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="-[MB1_x]-5.5*mm" y="0.*fm" z="-[mbCommon:MBHeight_With2RPC]+6.5*mm"/>
+        </UnionSolid>
+        <UnionSolid name="MB1Nw0_c">
+            <rSolid name="MB1N_b"/>
+            <rSolid name="MB1_OLAP2"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="-[MB1_x]-5.5*mm" y="0.*fm" z="-[mbCommon:MBHeight_With2RPC]+6.5*mm"/>
+        </UnionSolid>
+        <SubtractionSolid name="MB1Nw0_d">
+            <rSolid name="MB1Nw0_c"/>
+            <rSolid name="MB1_OLAP3"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="-[MB1_x]+4.9*mm" y="0.*fm" z="[mbCommon:MBHeight_With2RPC]-9.9*mm"/>
+        </SubtractionSolid>
+        <SubtractionSolid name="MB1Nw0">
+            <rSolid name="MB1Nw0_d"/>
+            <rSolid name="MB1_OLAP4"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="[MB1_x]-19.9*mm" y="0.*fm" z="[mbCommon:MBHeight_With2RPC]-39.9*mm"/>
+        </SubtractionSolid>
+        <SubtractionSolid name="MB1P_b">
+            <rSolid name="MB1_a"/>
+            <rSolid name="MB1_OLAP1"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="-[MB1_x]+16.8*mm" y="0.*fm" z="-[mbCommon:MBHeight_With2RPC]+14.8*mm"/>
+        </SubtractionSolid>
+        <UnionSolid name="MB1P">
+            <rSolid name="MB1P_b"/>
+            <rSolid name="MB1_OLAP2"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="[MB1_x]+5.5*mm" y="0.*fm" z="-[mbCommon:MBHeight_With2RPC]+6.5*mm"/>
+        </UnionSolid>
+        <UnionSolid name="MB1Pw0_c">
+            <rSolid name="MB1P_b"/>
+            <rSolid name="MB1_OLAP2"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="[MB1_x]+5.5*mm" y="0.*fm" z="-[mbCommon:MBHeight_With2RPC]+6.5*mm"/>
+        </UnionSolid>
+        <SubtractionSolid name="MB1Pw0_d">
+            <rSolid name="MB1Pw0_c"/>
+            <rSolid name="MB1_OLAP3"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="[MB1_x]-4.9*mm" y="0.*fm" z="[mbCommon:MBHeight_With2RPC]-9.9*mm"/>
+        </SubtractionSolid>
+        <SubtractionSolid name="MB1Pw0">
+            <rSolid name="MB1Pw0_d"/>
+            <rSolid name="MB1_OLAP4"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="-[MB1_x]+19.0*mm" y="0.*fm" z="[mbCommon:MBHeight_With2RPC]-39.9*mm"/>
+        </SubtractionSolid>
+        <!-- ####  MB1: Superlayers Phi -->
+        <!--%% SuperLayer X,Z dimensions cover the outer Al plate + 2 mm for the closing profiles. Y is 5 Al plates + 4 Layer's -->
+        <Box name="MB1SuperLayerPhi" dx="[mb1:MB1SLPhiPl_x]+2.7*mm" dy="[mbCommon:MBSLPhiPlO_z]+12.*mm" dz="[mbCommon:MBSuperLayer_height]"/>
+        <!--%% MB1SLPhiClosingPlateParal is parallel to gas cells, MB1SLPhiClosingPlatePerp is perpendicular -->
+        <!--%% Parallel are 2 mm thick and as long as outer Plates -->
+        <Box name="MB1SLPhiClosingPlateParal" dx="1.*mm" dy="[mbCommon:MBSLPhiPlO_z]" dz="[mbCommon:MBSuperLayer_height]"/>
+        <Box name="MB1SLPhi_C_PlateParal" dx="7.*mm" dy="[mbCommon:MBSLPhiPlO_z]-14.*mm" dz="1.*mm"/>
+        <!--%% Perpendicular are 12 mm thick and higher by 20 mm per side than the SL; 2.7 mm are added to reach the parallel "Cs" -->
+        <Box name="MB1SLPhiClosingPlatePerp" dx="[mb1:MB1SLPhiPl_x]+2.7*mm" dy="12./2.*mm" dz="[mbCommon:MBSuperLayer_height]"/>
+        <Box name="MB1SLPhi_C_PlatePerp" dx="[mb1:MB1SLPhiPl_x]+0.7*mm" dy="7.*mm" dz="1.*mm"/>
+        <!--%% MB1SLPhiAlPlateOuter is 0.7 mm wider (perpendicular to the wires) to reach the parallel "Cs"-->
+        <Box name="MB1SLPhiAlPlateOuter" dx="[mb1:MB1SLPhiPl_x]+0.7*mm" dy="[mbCommon:MBSLPhiPlO_z]" dz="[mbCommon:MBAlPlate_height]"/>
+        <!--%% MB1SLPhiAlPlateOuter does not reach the parallel "Cs"-->
+        <Box name="MB1SLPhiAlPlateInner" dx="[mb1:MB1SLPhiPl_x]" dy="[mbCommon:MBSLPhiPlI_z]" dz="[mbCommon:MBAlPlate_height]"/>
+        <!--%% Fake layer volume contains the ibeams plus gas volumes: n+1 Ibeam's and n gas volumes.
+             (Ibeam wall width is ~1.35mm, but 0.1 is mylar, that is very light, so it set to 1.3) 
+             It is first made of aluminium and them it is filled with the n gas volumes. 
+             Z length is the bare wire length plus the electronics (==tappini)-->
+        <Box name="MB1SLPhiLayer_48Cells" dx="[MB1SLPhiL48]" dy="[mbCommon:MBSLPhiLayer_length]" dz="[mbCommon:MBGas_height]"/>
+        <Box name="MB1SLPhiLayer_49Cells" dx="[MB1SLPhiL49]" dy="[mbCommon:MBSLPhiLayer_length]" dz="[mbCommon:MBGas_height]"/>
+        <Box name="MB1SLPhiLayer_50Cells" dx="[MB1SLPhiL50]" dy="[mbCommon:MBSLPhiLayer_length]" dz="[mbCommon:MBGas_height]"/>
+        <!--%% Tappini, Perpendicular to the Ibeams and at the two ends -->
+        <Box name="MB1SLPhiElectronics_48Cells" dx="[mb1:MB1SLPhiL48]" dy="[mbCommon:MBLayerElectronics_width]" dz="[mbCommon:MBGas_height]"/>
+        <Box name="MB1SLPhiElectronics_49Cells" dx="[mb1:MB1SLPhiL49]" dy="[mbCommon:MBLayerElectronics_width]" dz="[mbCommon:MBGas_height]"/>
+        <Box name="MB1SLPhiElectronics_50Cells" dx="[mb1:MB1SLPhiL50]" dy="[mbCommon:MBLayerElectronics_width]" dz="[mbCommon:MBGas_height]"/>
+        <Box name="MB1SLPhiCommonElectronics" dx="[mb1:MB1SLPhiPl_x]" dy="35./2.*mm" dz="[mbCommon:MBSuperLayer_height]-10.*mm"/>
+        <!-- ####  MB1: Superlayer Z -->
+        <Box name="MB1SuperLayerZ" dx="[mbCommon:MBSLZPl_x]+2.7*mm" dy="[mb1:MB1SLZPlO_z]+12.*mm" dz="[mbCommon:MBSuperLayer_height]"/>
+        <Box name="MB1SLZClosingPlateParal" dx="1.*mm" dy="[mb1:MB1SLZPlO_z]" dz="[mbCommon:MBSuperLayer_height]"/>
+        <Box name="MB1SLZ_C_PlateParal" dx="7.*mm" dy="[mb1:MB1SLZPlO_z]-14.*mm" dz="1.*mm"/>
+        <Box name="MB1SLZClosingPlatePerp" dx="[mbCommon:MBSLZPl_x]+2.7*mm" dy="12./2.*mm" dz="[mbCommon:MBSuperLayer_height]"/>
+        <Box name="MB1SLZ_C_PlatePerp" dx="[mbCommon:MBSLZPl_x]+0.7*mm" dy="7.*mm" dz="1.*mm"/>
+        <Box name="MB1SLZAlPlateOuter" dx="[mbCommon:MBSLZPl_x]+0.7*mm" dy="[mb1:MB1SLZPlO_z]" dz="[mbCommon:MBAlPlate_height]"/>
+        <Box name="MB1SLZAlPlateInner" dx="[mbCommon:MBSLZPl_x]" dy="[mb1:MB1SLZPlI_z]" dz="[mbCommon:MBAlPlate_height]"/>
+        <Box name="MB1SLZLayer_56Cells" dx="[mbCommon:MBSLZL56]" dy="[mb1:MB1SLZLayer_length]" dz="[mbCommon:MBGas_height]"/>
+        <Box name="MB1SLZLayer_57Cells" dx="[mbCommon:MBSLZL57]" dy="[mb1:MB1SLZLayer_length]" dz="[mbCommon:MBGas_height]"/>
+        <Box name="MB1SLZLayer_58Cells" dx="[mbCommon:MBSLZL58]" dy="[mb1:MB1SLZLayer_length]" dz="[mbCommon:MBGas_height]"/>
+        <Box name="MB1SLZElectronics_56Cells" dx="[mbCommon:MBSLZL56]" dy="[mbCommon:MBLayerElectronics_width]" dz="[mbCommon:MBGas_height]"/>
+        <Box name="MB1SLZElectronics_57Cells" dx="[mbCommon:MBSLZL57]" dy="[mbCommon:MBLayerElectronics_width]" dz="[mbCommon:MBGas_height]"/>
+        <Box name="MB1SLZElectronics_58Cells" dx="[mbCommon:MBSLZL58]" dy="[mbCommon:MBLayerElectronics_width]" dz="[mbCommon:MBGas_height]"/>
+        <Box name="MB1SLZCommonElectronics" dx="[mbCommon:MBSLZPl_x]" dy="35./2.*mm" dz="[mbCommon:MBSuperLayer_height]-10.*mm"/>
+        <!--%% Effective gas volume -->
+        <Box name="MB1SLZGas_a" dx="20.35*mm" dy="[MB1SLZBareWire_length]" dz="[mbCommon:MBGas_height]"/>
+        <!--%% Horizontal bars to make the 'I' shape (without them it would be a '|') -->
+        <Box name="MB1SLZIBeamWing" dx="3.175*mm" dy="[MB1SLZBareWire_length]" dz="0.65*mm"/>
+        <SubtractionSolid name="MB1SLZGas_b">
+            <rSolid name="MB1SLZGas_a"/>
+            <rSolid name="MB1SLZIBeamWing"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="17.175*mm" y="0.*fm" z="5.1*mm"/>
+        </SubtractionSolid>
+        <SubtractionSolid name="MB1SLZGas_c">
+            <rSolid name="MB1SLZGas_b"/>
+            <rSolid name="MB1SLZIBeamWing"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="17.175*mm" y="0.*fm" z="-5.1*mm"/>
+        </SubtractionSolid>
+        <SubtractionSolid name="MB1SLZGas_d">
+            <rSolid name="MB1SLZGas_c"/>
+            <rSolid name="MB1SLZIBeamWing"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="-17.175*mm" y="0.*fm" z="5.1*mm"/>
+        </SubtractionSolid>
+        <SubtractionSolid name="MB1SLZGas">
+            <rSolid name="MB1SLZGas_d"/>
+            <rSolid name="MB1SLZIBeamWing"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="-17.175*mm" y="0.*fm" z="-5.1*mm"/>
+        </SubtractionSolid>
+        <!-- ####  MB1: Honeycomb -->
+        <Box name="MB1HoneycombBox" dx="[mb1:MB1HC_x]" dy="[mbCommon:MBHC_z]" dz="[mbCommon:MBHC_height]"/>
+        <Box name="MB1Honeycomb" dx="[mb1:MB1HC_x]-125.*mm" dy="[mbCommon:MBHC_z]-125.*mm" dz="[mbCommon:MBHC_height]-2*[mbCommon:MBAlPlate_height]"/>
+        <Box name="MB1HcPlate" dx="[mb1:MB1HC_x]" dy="[mbCommon:MBHC_z]" dz="[mbCommon:MBAlPlate_height]"/>
+        <Box name="MB1Hc_LateralC" dx="[mbCommon:MBHC_C_dimension]" dy="[mbCommon:MBHC_z]" dz="[mbCommon:MBHC_C_width]"/>
+        <Box name="MB1Hc_FrontC" dx="[mb1:MB1HC_x]-125.*mm" dy="[mbCommon:MBHC_C_dimension]" dz="[mbCommon:MBHC_C_width]"/>
+        <Box name="MB1Hc_LateralElectronics" dx="[mbCommon:MBHCLatElectronics_width]" dy="[mbCommon:MBHC_z]" dz="[mbCommon:MBHCElectronics_height]"/>
+        <Box name="MB1Hc_FrontElectronics" dx="[mb1:MB1HC_x]-125.*mm" dy="[mbCommon:MBHCFrontElectronics_width]" dz="[mbCommon:MBHCElectronics_height]"/>
+        <Box name="MB1HcTorsionBar" dx="25*mm" dy="678*mm" dz="50.*mm"/>
+        <!-- ####  MB1: RPC chambers -->
+        <Box name="MB1RPC" dx="[mb1:MB1RPC_x]" dy="[mbCommon:MBRPC_z]" dz="[mbCommon:MBRPC_y]"/>
+        <Box name="MB1RPC_GasLeft" dx="[mb1:MB1RPC_Gas_x]" dy="[mbCommon:MBRPC_GasLeft_z]" dz="[mbCommon:MBRPC_Gas_y]"/>
+        <Box name="MB1RPC_GasRight" dx="[mb1:MB1RPC_Gas_x]" dy="[mbCommon:MBRPC_GasRight_z]" dz="[mbCommon:MBRPC_Gas_y]"/>
+        <!-- ####  MB1Chimney Unit -->
+        <!-- ####  MB1Chim: DTBX chamber -->
+        <Box name="MB1Chim_a" dx="[MB1_x]" dy="[mbCommon:MBChimSLPhiPlO_z]+12.*mm" dz="[mbCommon:MBHeight_With2RPC]"/>
+        <Box name="MB1Chim_OLAP2" dx="5.6*mm" dy="[mbCommon:MBChimSLPhiPlO_z]+13.*mm" dz="6.6*mm"/>
+        <SubtractionSolid name="MB1ChimN_b">
+            <rSolid name="MB1Chim_a"/>
+            <rSolid name="MB1_OLAP1"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="[MB1_x]-16.8*mm" y="0.*fm" z="-[mbCommon:MBHeight_With2RPC]+14.8*mm"/>
+        </SubtractionSolid>
+        <UnionSolid name="MB1ChimN">
+            <rSolid name="MB1ChimN_b"/>
+            <rSolid name="MB1Chim_OLAP2"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="-[MB1_x]-5.5*mm" y="0.*fm" z="-[mbCommon:MBHeight_With2RPC]+6.5*mm"/>
+        </UnionSolid>
+        <SubtractionSolid name="MB1ChimP_b">
+            <rSolid name="MB1Chim_a"/>
+            <rSolid name="MB1_OLAP1"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="-[MB1_x]+16.8*mm" y="0.*fm" z="-[mbCommon:MBHeight_With2RPC]+14.8*mm"/>
+        </SubtractionSolid>
+        <UnionSolid name="MB1ChimP">
+            <rSolid name="MB1ChimP_b"/>
+            <rSolid name="MB1Chim_OLAP2"/>
+            <rRotation name="rotations:000D"/>
+            <Translation x="[MB1_x]+5.5*mm" y="0.*fm" z="-[mbCommon:MBHeight_With2RPC]+6.5*mm"/>
+        </UnionSolid>
+        <!-- ####  MB1Chim: DT Superlayers Phi -->
+        <Box name="MB1ChimSuperLayerPhi" dx="[mb1:MB1SLPhiPl_x]+2.7*mm" dy="[mbCommon:MBChimSLPhiPlO_z]+12.*mm" dz="[mbCommon:MBSuperLayer_height]"/>
+        <!--%% Only extra parallel "Cs" are needed -->
+        <Box name="MB1ChimSLPhiClosingPlateParal" dx="1.*mm" dy="[mbCommon:MBChimSLPhiPlO_z]" dz="[mbCommon:MBSuperLayer_height]"/>
+        <Box name="MB1ChimSLPhi_C_PlateParal" dx="7.*mm" dy="[mbCommon:MBChimSLPhiPlO_z]-14.*mm" dz="1.*mm"/>
+        <Box name="MB1ChimSLPhiAlPlateOuter" dx="[mb1:MB1SLPhiPl_x]+0.7*mm" dy="[mbCommon:MBChimSLPhiPlO_z]" dz="[mbCommon:MBAlPlate_height]"/>
+        <Box name="MB1ChimSLPhiAlPlateInner" dx="[mb1:MB1SLPhiPl_x]" dy="[mbCommon:MBChimSLPhiPlI_z]" dz="[mbCommon:MBAlPlate_height]"/>
+        <Box name="MB1ChimSLPhiLayer_48Cells" dx="[mb1:MB1SLPhiL48]" dy="[mbCommon:MBChimSLPhiLayer_length]" dz="[mbCommon:MBGas_height]"/>
+        <Box name="MB1ChimSLPhiLayer_49Cells" dx="[mb1:MB1SLPhiL49]" dy="[mbCommon:MBChimSLPhiLayer_length]" dz="[mbCommon:MBGas_height]"/>
+        <Box name="MB1ChimSLPhiLayer_50Cells" dx="[mb1:MB1SLPhiL50]" dy="[mbCommon:MBChimSLPhiLayer_length]" dz="[mbCommon:MBGas_height]"/>
+        <!-- ####  MB1Chim: DT Superlayer Z -->
+        <Box name="MB1ChimSuperLayerZ" dx="[mbCommon:MBChimSLZPl_x]+2.7*mm" dy="[mb1:MB1SLZPlO_z]+12.*mm" dz="[mbCommon:MBSuperLayer_height]"/>
+        <!--%% Only extra perperdicular "Cs" are needed -->
+        <Box name="MB1ChimSLZClosingPlatePerp" dx="[mbCommon:MBChimSLZPl_x]+2.7*mm" dy="12./2.*mm" dz="[mbCommon:MBSuperLayer_height]"/>
+        <Box name="MB1ChimSLZ_C_PlatePerp" dx="[mbCommon:MBChimSLZPl_x]+0.7*mm" dy="7.*mm" dz="1.*mm"/>
+        <Box name="MB1ChimSLZAlPlateOuter" dx="[mbCommon:MBChimSLZPl_x]+0.7*mm" dy="[mb1:MB1SLZPlO_z]" dz="[mbCommon:MBAlPlate_height]"/>
+        <Box name="MB1ChimSLZAlPlateInner" dx="[mbCommon:MBChimSLZPl_x]" dy="[mb1:MB1SLZPlI_z]" dz="[mbCommon:MBAlPlate_height]"/>
+        <Box name="MB1ChimSLZLayer_47Cells" dx="[mbCommon:MBChimSLZL47]" dy="[mb1:MB1SLZLayer_length]" dz="[mbCommon:MBGas_height]"/>
+        <Box name="MB1ChimSLZLayer_48Cells" dx="[mbCommon:MBChimSLZL48]" dy="[mb1:MB1SLZLayer_length]" dz="[mbCommon:MBGas_height]"/>
+        <Box name="MB1ChimSLZElectronics_47Cells" dx="[mbCommon:MBChimSLZL47]" dy="[mbCommon:MBLayerElectronics_width]" dz="[mbCommon:MBGas_height]"/>
+        <Box name="MB1ChimSLZElectronics_48Cells" dx="[mbCommon:MBChimSLZL48]" dy="[mbCommon:MBLayerElectronics_width]" dz="[mbCommon:MBGas_height]"/>
+        <Box name="MB1ChimSLZCommonElectronics" dx="[mbCommon:MBChimSLZPl_x]" dy="35./2.*mm" dz="[mbCommon:MBSuperLayer_height]-10.*mm"/>
+        <!-- ####  MB1Chim: DT Honeycomb -->
+        <Box name="MB1ChimHoneycombBox" dx="[mb1:MB1HC_x]" dy="[mbCommon:MBChimHC_z]" dz="[mbCommon:MBHC_height]"/>
+        <Box name="MB1ChimHoneycomb" dx="[mb1:MB1HC_x]-125.*mm" dy="[mbCommon:MBChimHC_z]-125.*mm" dz="[mbCommon:MBHC_height]-2*[mbCommon:MBAlPlate_height]"/>
+        <Box name="MB1ChimHc_LateralC" dx="[mbCommon:MBHC_C_dimension]" dy="[mbCommon:MBChimHC_z]" dz="[mbCommon:MBHC_C_width]"/>
+        <Box name="MB1ChimHc_LateralElectronics" dx="[mbCommon:MBHCLatElectronics_width]" dy="[mbCommon:MBChimHC_z]" dz="[mbCommon:MBHCElectronics_height]"/>
+        <Box name="MB1ChimHcPlate" dx="[mb1:MB1HC_x]" dy="[mbCommon:MBChimHC_z]" dz="[mbCommon:MBAlPlate_height]"/>
+        <!-- ####  MB1Chim: RPC chambers -->
+        <Box name="MB1ChimRPC" dx="[mb1:MB1RPC_x]" dy="[mbCommon:MBChimRPC_z]" dz="[mbCommon:MBRPC_y]"/>
+        <Box name="MB1ChimRPC_GasLeft" dx="[mb1:MB1RPC_Gas_x]" dy="[mbCommon:MBChimRPC_OGasLeft_z]" dz="[mbCommon:MBRPC_Gas_y]"/>
+        <Box name="MB1ChimRPC_GasRight" dx="[mb1:MB1RPC_Gas_x]" dy="[mbCommon:MBChimRPC_OGasRight_z]" dz="[mbCommon:MBRPC_Gas_y]"/>
+    </SolidSection>
+    <LogicalPartSection label="mb1.xml">
+        <!-- ####  MB1 Unit -->
+        <!-- ####  MB1: DTBX -->
+        <LogicalPart name="MB1P" category="unspecified">
+            <rSolid name="MB1P"/>
+            <rMaterial name="materials:M_B_Air"/>
+        </LogicalPart>
+        <LogicalPart name="MB1P0" category="unspecified">
+            <rSolid name="MB1Pw0"/>
+            <rMaterial name="materials:M_B_Air"/>
+        </LogicalPart>
+        <LogicalPart name="MB1N" category="unspecified">
+            <rSolid name="MB1N"/>
+            <rMaterial name="materials:M_B_Air"/>
+        </LogicalPart>
+        <!-- # In wheel_0, all the RPC chambers are Positive, while the DT are half positive, half negative -->
+        <LogicalPart name="MB1N0P" category="unspecified">
+            <rSolid name="MB1Nw0"/>
+            <rMaterial name="materials:M_B_Air"/>
+        </LogicalPart>
+        <!-- ####  MB1: DT Superlayers Phi -->
+        <LogicalPart name="MB1SuperLayerPhi" category="unspecified">
+            <rSolid name="MB1SuperLayerPhi"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <LogicalPart name="MB1SLPhiClosingPlateParal" category="unspecified">
+            <rSolid name="MB1SLPhiClosingPlateParal"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB1SLPhi_C_PlateParal" category="unspecified">
+            <rSolid name="MB1SLPhi_C_PlateParal"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB1SLPhiClosingPlatePerp" category="unspecified">
+            <rSolid name="MB1SLPhiClosingPlatePerp"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB1SLPhi_C_PlatePerp" category="unspecified">
+            <rSolid name="MB1SLPhi_C_PlatePerp"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB1SLPhiAlPlateOuter" category="unspecified">
+            <rSolid name="MB1SLPhiAlPlateOuter"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB1SLPhiAlPlateInner" category="unspecified">
+            <rSolid name="MB1SLPhiAlPlateInner"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB1SLPhiLayer_48Cells" category="unspecified">
+            <rSolid name="MB1SLPhiLayer_48Cells"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB1SLPhiLayer_49Cells" category="unspecified">
+            <rSolid name="MB1SLPhiLayer_49Cells"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB1SLPhiLayer_50Cells" category="unspecified">
+            <rSolid name="MB1SLPhiLayer_50Cells"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB1SLPhiElectronics_48Cells" category="unspecified">
+            <rSolid name="MB1SLPhiElectronics_48Cells"/>
+            <rMaterial name="materials:M_Electronics averag"/>
+        </LogicalPart>
+        <LogicalPart name="MB1SLPhiElectronics_49Cells" category="unspecified">
+            <rSolid name="MB1SLPhiElectronics_49Cells"/>
+            <rMaterial name="materials:M_Electronics averag"/>
+        </LogicalPart>
+        <LogicalPart name="MB1SLPhiElectronics_50Cells" category="unspecified">
+            <rSolid name="MB1SLPhiElectronics_50Cells"/>
+            <rMaterial name="materials:M_Electronics averag"/>
+        </LogicalPart>
+        <LogicalPart name="MB1SLPhiCommonElectronics" category="unspecified">
+            <rSolid name="MB1SLPhiCommonElectronics"/>
+            <rMaterial name="materials:M_Electronics averag"/>
+        </LogicalPart>
+        <!-- ####  MB1: DT Superlayer Z -->
+        <LogicalPart name="MB1SuperLayerZ" category="unspecified">
+            <rSolid name="MB1SuperLayerZ"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <LogicalPart name="MB1SLZClosingPlateParal" category="unspecified">
+            <rSolid name="MB1SLZClosingPlateParal"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB1SLZClosingPlatePerp" category="unspecified">
+            <rSolid name="MB1SLZClosingPlatePerp"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB1SLZ_C_PlateParal" category="unspecified">
+            <rSolid name="MB1SLZ_C_PlateParal"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB1SLZ_C_PlatePerp" category="unspecified">
+            <rSolid name="MB1SLZ_C_PlatePerp"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB1SLZAlPlateOuter" category="unspecified">
+            <rSolid name="MB1SLZAlPlateOuter"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB1SLZAlPlateInner" category="unspecified">
+            <rSolid name="MB1SLZAlPlateInner"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB1SLZLayer_56Cells" category="unspecified">
+            <rSolid name="MB1SLZLayer_56Cells"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB1SLZLayer_57Cells" category="unspecified">
+            <rSolid name="MB1SLZLayer_57Cells"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB1SLZLayer_58Cells" category="unspecified">
+            <rSolid name="MB1SLZLayer_58Cells"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB1SLZIBeamWing" category="unspecified">
+            <rSolid name="MB1SLZIBeamWing"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB1SLZGas" category="unspecified">
+            <rSolid name="MB1SLZGas"/>
+            <rMaterial name="materials:M_DTBX Gas"/>
+        </LogicalPart>
+        <LogicalPart name="MB1SLZElectronics_56Cells" category="unspecified">
+            <rSolid name="MB1SLZElectronics_56Cells"/>
+            <rMaterial name="materials:M_Electronics averag"/>
+        </LogicalPart>
+        <LogicalPart name="MB1SLZElectronics_57Cells" category="unspecified">
+            <rSolid name="MB1SLZElectronics_57Cells"/>
+            <rMaterial name="materials:M_Electronics averag"/>
+        </LogicalPart>
+        <LogicalPart name="MB1SLZElectronics_58Cells" category="unspecified">
+            <rSolid name="MB1SLZElectronics_58Cells"/>
+            <rMaterial name="materials:M_Electronics averag"/>
+        </LogicalPart>
+        <LogicalPart name="MB1SLZCommonElectronics" category="unspecified">
+            <rSolid name="MB1SLZCommonElectronics"/>
+            <rMaterial name="materials:M_Electronics averag"/>
+        </LogicalPart>
+        <!-- ####  MB1: DT Honeycomb -->
+        <LogicalPart name="MB1HoneycombBox" category="unspecified">
+            <rSolid name="MB1HoneycombBox"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <LogicalPart name="MB1Honeycomb" category="unspecified">
+            <rSolid name="MB1Honeycomb"/>
+            <rMaterial name="materials:M_honeycomb"/>
+        </LogicalPart>
+        <LogicalPart name="MB1HcPlate" category="unspecified">
+            <rSolid name="MB1HcPlate"/>
+            <rMaterial name="materials:M_Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB1Hc_LateralC" category="unspecified">
+            <rSolid name="MB1Hc_LateralC"/>
+            <rMaterial name="materials:M_Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB1Hc_FrontC" category="unspecified">
+            <rSolid name="MB1Hc_FrontC"/>
+            <rMaterial name="materials:M_Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB1Hc_LateralElectronics" category="unspecified">
+            <rSolid name="MB1Hc_LateralElectronics"/>
+            <rMaterial name="materials:M_Electronics averag"/>
+        </LogicalPart>
+        <LogicalPart name="MB1Hc_FrontElectronics" category="unspecified">
+            <rSolid name="MB1Hc_FrontElectronics"/>
+            <rMaterial name="materials:M_Electronics averag"/>
+        </LogicalPart>
+        <LogicalPart name="MB1HcTorsionBar" category="unspecified">
+            <rSolid name="MB1HcTorsionBar"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <!-- ####  MB1: RPC chambers -->
+        <LogicalPart name="MB1RPC_IP" category="unspecified">
+            <rSolid name="MB1RPC"/>
+            <rMaterial name="materials:M_RPC_Bakelite"/>
+        </LogicalPart>
+        <LogicalPart name="MB1RPC_IN" category="unspecified">
+            <rSolid name="MB1RPC"/>
+            <rMaterial name="materials:M_RPC_Bakelite"/>
+        </LogicalPart>
+        <LogicalPart name="MB1RPC_IGasLeft" category="unspecified">
+            <rSolid name="MB1RPC_GasLeft"/>
+            <rMaterial name="materials:M_RPC_Gas"/>
+        </LogicalPart>
+        <LogicalPart name="MB1RPC_IGasRight" category="unspecified">
+            <rSolid name="MB1RPC_GasRight"/>
+            <rMaterial name="materials:M_RPC_Gas"/>
+        </LogicalPart>
+        <LogicalPart name="MB1RPC_OP" category="unspecified">
+            <rSolid name="MB1RPC"/>
+            <rMaterial name="materials:M_RPC_Bakelite"/>
+        </LogicalPart>
+        <LogicalPart name="MB1RPC_ON" category="unspecified">
+            <rSolid name="MB1RPC"/>
+            <rMaterial name="materials:M_RPC_Bakelite"/>
+        </LogicalPart>
+        <LogicalPart name="MB1RPC_OGasLeft" category="unspecified">
+            <rSolid name="MB1RPC_GasLeft"/>
+            <rMaterial name="materials:M_RPC_Gas"/>
+        </LogicalPart>
+        <LogicalPart name="MB1RPC_OGasRight" category="unspecified">
+            <rSolid name="MB1RPC_GasRight"/>
+            <rMaterial name="materials:M_RPC_Gas"/>
+        </LogicalPart>
+        <!-- ####  MB1Chimney Unit -->
+        <!-- ####  MB1Chim: DTBX -->
+        <LogicalPart name="MB1ChimP" category="unspecified">
+            <rSolid name="MB1ChimP"/>
+            <rMaterial name="materials:M_B_Air"/>
+        </LogicalPart>
+        <LogicalPart name="MB1ChimN" category="unspecified">
+            <rSolid name="MB1ChimN"/>
+            <rMaterial name="materials:M_B_Air"/>
+        </LogicalPart>
+        <!-- ####  MB1Chim: DT Superlayers Phi -->
+        <LogicalPart name="MB1ChimSuperLayerPhi" category="unspecified">
+            <rSolid name="MB1ChimSuperLayerPhi"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <LogicalPart name="MB1ChimSLPhiClosingPlateParal" category="unspecified">
+            <rSolid name="MB1ChimSLPhiClosingPlateParal"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB1ChimSLPhi_C_PlateParal" category="unspecified">
+            <rSolid name="MB1ChimSLPhi_C_PlateParal"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB1ChimSLPhiAlPlateOuter" category="unspecified">
+            <rSolid name="MB1ChimSLPhiAlPlateOuter"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB1ChimSLPhiAlPlateInner" category="unspecified">
+            <rSolid name="MB1ChimSLPhiAlPlateInner"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB1ChimSLPhiLayer_48Cells" category="unspecified">
+            <rSolid name="MB1ChimSLPhiLayer_48Cells"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB1ChimSLPhiLayer_49Cells" category="unspecified">
+            <rSolid name="MB1ChimSLPhiLayer_49Cells"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB1ChimSLPhiLayer_50Cells" category="unspecified">
+            <rSolid name="MB1ChimSLPhiLayer_50Cells"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <!-- ####  MB1Chim: DT Superlayer Z -->
+        <LogicalPart name="MB1ChimSuperLayerZ" category="unspecified">
+            <rSolid name="MB1ChimSuperLayerZ"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <LogicalPart name="MB1ChimSLZClosingPlatePerp" category="unspecified">
+            <rSolid name="MB1ChimSLZClosingPlatePerp"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB1ChimSLZ_C_PlatePerp" category="unspecified">
+            <rSolid name="MB1ChimSLZ_C_PlatePerp"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB1ChimSLZAlPlateOuter" category="unspecified">
+            <rSolid name="MB1ChimSLZAlPlateOuter"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB1ChimSLZAlPlateInner" category="unspecified">
+            <rSolid name="MB1ChimSLZAlPlateInner"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB1ChimSLZLayer_47Cells" category="unspecified">
+            <rSolid name="MB1ChimSLZLayer_47Cells"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB1ChimSLZLayer_47Cells_startCell2" category="unspecified">
+            <rSolid name="MB1ChimSLZLayer_47Cells"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB1ChimSLZLayer_48Cells" category="unspecified">
+            <rSolid name="MB1ChimSLZLayer_48Cells"/>
+            <rMaterial name="materials:Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB1ChimSLZElectronics_47Cells" category="unspecified">
+            <rSolid name="MB1ChimSLZElectronics_47Cells"/>
+            <rMaterial name="materials:M_Electronics averag"/>
+        </LogicalPart>
+        <LogicalPart name="MB1ChimSLZElectronics_48Cells" category="unspecified">
+            <rSolid name="MB1ChimSLZElectronics_48Cells"/>
+            <rMaterial name="materials:M_Electronics averag"/>
+        </LogicalPart>
+        <LogicalPart name="MB1ChimSLZCommonElectronics" category="unspecified">
+            <rSolid name="MB1ChimSLZCommonElectronics"/>
+            <rMaterial name="materials:M_Electronics averag"/>
+        </LogicalPart>
+        <!-- ####  MB1Chim: DT Honeycomb -->
+        <LogicalPart name="MB1ChimHoneycombBox" category="unspecified">
+            <rSolid name="MB1ChimHoneycombBox"/>
+            <rMaterial name="materials:Air"/>
+        </LogicalPart>
+        <LogicalPart name="MB1ChimHoneycomb" category="unspecified">
+            <rSolid name="MB1ChimHoneycomb"/>
+            <rMaterial name="materials:M_honeycomb"/>
+        </LogicalPart>
+        <LogicalPart name="MB1ChimHcPlate" category="unspecified">
+            <rSolid name="MB1ChimHcPlate"/>
+            <rMaterial name="materials:M_Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB1ChimHc_LateralC" category="unspecified">
+            <rSolid name="MB1ChimHc_LateralC"/>
+            <rMaterial name="materials:M_Aluminium"/>
+        </LogicalPart>
+        <LogicalPart name="MB1ChimHc_LateralElectronics" category="unspecified">
+            <rSolid name="MB1ChimHc_LateralElectronics"/>
+            <rMaterial name="materials:M_Electronics averag"/>
+        </LogicalPart>
+        <!-- ####  MB1Chim: RPC chambers -->
+        <LogicalPart name="MB1ChimRPC_IP" category="unspecified">
+            <rSolid name="MB1ChimRPC"/>
+            <rMaterial name="materials:M_RPC_Bakelite"/>
+        </LogicalPart>
+        <LogicalPart name="MB1ChimRPC_IN" category="unspecified">
+            <rSolid name="MB1ChimRPC"/>
+            <rMaterial name="materials:M_RPC_Bakelite"/>
+        </LogicalPart>
+        <LogicalPart name="MB1ChimRPC_IGasLeft" category="unspecified">
+            <rSolid name="MB1ChimRPC_GasLeft"/>
+            <rMaterial name="materials:M_RPC_Gas"/>
+        </LogicalPart>
+        <LogicalPart name="MB1ChimRPC_IGasRight" category="unspecified">
+            <rSolid name="MB1ChimRPC_GasRight"/>
+            <rMaterial name="materials:M_RPC_Gas"/>
+        </LogicalPart>
+        <LogicalPart name="MB1ChimRPC_OP" category="unspecified">
+            <rSolid name="MB1ChimRPC"/>
+            <rMaterial name="materials:M_RPC_Bakelite"/>
+        </LogicalPart>
+        <LogicalPart name="MB1ChimRPC_ON" category="unspecified">
+            <rSolid name="MB1ChimRPC"/>
+            <rMaterial name="materials:M_RPC_Bakelite"/>
+        </LogicalPart>
+        <LogicalPart name="MB1ChimRPC_OGasLeft" category="unspecified">
+            <rSolid name="MB1ChimRPC_GasLeft"/>
+            <rMaterial name="materials:M_RPC_Gas"/>
+        </LogicalPart>
+        <LogicalPart name="MB1ChimRPC_OGasRight" category="unspecified">
+            <rSolid name="MB1ChimRPC_GasRight"/>
+            <rMaterial name="materials:M_RPC_Gas"/>
+        </LogicalPart>
+    </LogicalPartSection>
+    <PosPartSection label="mb1.xml">
+        <!-- ####  MB1 Unit -->
+        <!-- ####  MB1: DTBX chamber -->
+        <Algorithm name="global:DDAngular">
+            <rParent name="muonBase:MBWheel_0"/>
+            <String name="ChildName" value="mb1:MB1N0P"/>
+            <Numeric name="StartCopyNo" value="1"/>
+            <Numeric name="IncrCopyNo" value="4"/>
+            <Numeric name="N" value="3"/>
+            <Numeric name="Radius" value="[MB1UnitRadius]"/>
+            <Numeric name="StartAngle" value="[MB1PosAngle]"/>
+            <Numeric name="RangeAngle" value="360*deg"/>
+            <Vector name="Center" type="numeric" nEntries="3"> 0, 0, [mbCommon:MBPos_z] </Vector>
+            <Vector name="RotateSolid" type="numeric" nEntries="9"> 0.*deg, 0.*deg, 180*deg, 90.*deg, 0.*deg, 90.*deg, 0.*deg, 0.*deg, 270.*deg-[MB1PosAngle] </Vector>
+        </Algorithm>
+        <Algorithm name="global:DDAngular">
+            <rParent name="muonBase:MBWheel_0"/>
+            <String name="ChildName" value="mb1:MB1P0"/>
+            <Numeric name="StartCopyNo" value="2"/>
+            <Numeric name="IncrCopyNo" value="4"/>
+            <Numeric name="N" value="3"/>
+            <Numeric name="Radius" value="[MB1UnitRadius]"/>
+            <Numeric name="StartAngle" value="30.*deg+[MB1PosAngle]"/>
+            <Numeric name="RangeAngle" value="360*deg"/>
+            <Vector name="Center" type="numeric" nEntries="3"> 0, 0, -[mbCommon:MBPos_z] </Vector>
+            <Vector name="RotateSolid" type="numeric" nEntries="6"> 90.*deg, 0.*deg, 90.*deg, 0.*deg, 0.*deg, 270.*deg-[MB1PosAngle] </Vector>
+        </Algorithm>
+        <Algorithm name="global:DDAngular">
+            <rParent name="muonBase:MBWheel_0"/>
+            <String name="ChildName" value="mb1:MB1P0"/>
+            <Numeric name="StartCopyNo" value="3"/>
+            <Numeric name="IncrCopyNo" value="4"/>
+            <Numeric name="N" value="3"/>
+            <Numeric name="Radius" value="[MB1UnitRadius]"/>
+            <Numeric name="StartAngle" value="60.*deg+[MB1PosAngle]"/>
+            <Numeric name="RangeAngle" value="360*deg"/>
+            <Vector name="Center" type="numeric" nEntries="3"> 0, 0, -[mbCommon:MBPos_z] </Vector>
+            <Vector name="RotateSolid" type="numeric" nEntries="6"> 90.*deg, 0.*deg, 90.*deg, 0.*deg, 0.*deg, 270.*deg-[MB1PosAngle] </Vector>
+        </Algorithm>
+        <Algorithm name="global:DDAngular">
+            <rParent name="muonBase:MBWheel_0"/>
+            <String name="ChildName" value="mb1:MB1N0P"/>
+            <Numeric name="StartCopyNo" value="4"/>
+            <Numeric name="IncrCopyNo" value="4"/>
+            <Numeric name="N" value="3"/>
+            <Numeric name="Radius" value="[MB1UnitRadius]"/>
+            <Numeric name="StartAngle" value="90.*deg+[MB1PosAngle]"/>
+            <Numeric name="RangeAngle" value="360*deg"/>
+            <Vector name="Center" type="numeric" nEntries="3"> 0, 0, [mbCommon:MBPos_z] </Vector>
+            <Vector name="RotateSolid" type="numeric" nEntries="9"> 0.*deg, 0.*deg, 180*deg, 90.*deg, 0.*deg, 90.*deg, 0.*deg, 0.*deg, 270.*deg-[MB1PosAngle] </Vector>
+        </Algorithm>
+        <PosPart copyNumber="1">
+            <rParent name="muonBase:MBWheel_1P"/>
+            <rChild name="mb1:MB1P"/>
+            <rRotation name="rotations:RM1872"/>
+            <Translation x="[MB1Pos_x]" y="[MB1Pos_y]" z="-[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="muonBase:MBWheel_1P"/>
+            <rChild name="mb1:MB1P"/>
+            <rRotation name="rotations:RM1882"/>
+            <Translation x="[MB1Pos_x]*0.86602543*mm-[MB1Pos_y]*0.5*mm" y="[MB1Pos_x]*0.5*mm+[MB1Pos_y]*0.86602543*mm" z="-[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="muonBase:MBWheel_1P"/>
+            <rChild name="mb1:MB1P"/>
+            <rRotation name="rotations:RM1892"/>
+            <Translation x="[MB1Pos_x]*0.5*mm-[MB1Pos_y]*0.86602543*mm" y="[MB1Pos_x]*0.86602543*mm+[MB1Pos_y]*0.5*mm" z="-[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="muonBase:MBWheel_1P"/>
+            <rChild name="mb1:MB1ChimP"/>
+            <rRotation name="rotations:RM1902"/>
+            <Translation x="-[MB1Pos_y]" y="[MB1Pos_x]" z="[mbCommon:MBChimPos_z]"/>
+        </PosPart>
+        <Algorithm name="global:DDAngular">
+            <rParent name="muonBase:MBWheel_1P"/>
+            <String name="ChildName" value="mb1:MB1P"/>
+            <Numeric name="StartCopyNo" value="5"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="N" value="8"/>
+            <Numeric name="Radius" value="[MB1UnitRadius]"/>
+            <Numeric name="StartAngle" value="120.*deg+[MB1PosAngle]"/>
+            <Numeric name="RangeAngle" value="210.*deg"/>
+            <Vector name="Center" type="numeric" nEntries="3"> 0, 0, -[mbCommon:MBPos_z] </Vector>
+            <Vector name="RotateSolid" type="numeric" nEntries="6"> 90.*deg, 0.*deg, 90.*deg, 0.*deg, 0.*deg, 270.*deg-[MB1PosAngle] </Vector>
+        </Algorithm>
+        <PosPart copyNumber="1">
+            <rParent name="muonBase:MBWheel_1N"/>
+            <rChild name="mb1:MB1N"/>
+            <rRotation name="rotations:E127"/>
+            <Translation x="[MB1Pos_x]" y="[MB1Pos_y]" z="[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="muonBase:MBWheel_1N"/>
+            <rChild name="mb1:MB1N"/>
+            <rRotation name="rotations:MM200"/>
+            <Translation x="[MB1Pos_x]*0.86602543*mm-[MB1Pos_y]*0.5*mm" y="[MB1Pos_x]*0.5*mm+[MB1Pos_y]*0.86602543*mm" z="[mbCommon:MBPos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="muonBase:MBWheel_1N"/>
+            <rChild name="mb1:MB1ChimN"/>
+            <rRotation name="rotations:MM300"/>
+            <Translation x="[MB1Pos_x]*0.5*mm-[MB1Pos_y]*0.86602543*mm" y="[MB1Pos_x]*0.86602543*mm+[MB1Pos_y]*0.5*mm" z="-[mbCommon:MBChimPos_z]"/>
+        </PosPart>
+        <Algorithm name="global:DDAngular">
+            <rParent name="muonBase:MBWheel_1N"/>
+            <String name="ChildName" value="mb1:MB1N"/>
+            <Numeric name="StartCopyNo" value="4"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="N" value="9"/>
+            <Numeric name="Radius" value="[MB1UnitRadius]"/>
+            <Numeric name="StartAngle" value="90.*deg+[MB1PosAngle]"/>
+            <Numeric name="RangeAngle" value="240.*deg"/>
+            <Vector name="Center" type="numeric" nEntries="3"> 0, 0, [mbCommon:MBPos_z] </Vector>
+            <Vector name="RotateSolid" type="numeric" nEntries="9"> 0.*deg, 0.*deg, 180*deg, 90.*deg, 0.*deg, 90.*deg, 0.*deg, 0.*deg, 270.*deg-[MB1PosAngle] </Vector>
+        </Algorithm>
+        <Algorithm name="global:DDAngular">
+            <rParent name="muonBase:MBWheel_2P"/>
+            <String name="ChildName" value="mb1:MB1P"/>
+            <Numeric name="StartCopyNo" value="1"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="N" value="12"/>
+            <Numeric name="Radius" value="[MB1UnitRadius]"/>
+            <Numeric name="StartAngle" value="[MB1PosAngle]"/>
+            <Numeric name="RangeAngle" value="360*deg"/>
+            <Vector name="Center" type="numeric" nEntries="3"> 0, 0, -[mbCommon:MBPos_z] </Vector>
+            <Vector name="RotateSolid" type="numeric" nEntries="6"> 90.*deg, 0.*deg, 90.*deg, 0.*deg, 0.*deg, 270.*deg-[MB1PosAngle] </Vector>
+        </Algorithm>
+        <Algorithm name="global:DDAngular">
+            <rParent name="muonBase:MBWheel_2N"/>
+            <String name="ChildName" value="mb1:MB1N"/>
+            <Numeric name="StartCopyNo" value="1"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="N" value="12"/>
+            <Numeric name="Radius" value="[MB1UnitRadius]"/>
+            <Numeric name="StartAngle" value="[MB1PosAngle]"/>
+            <Numeric name="RangeAngle" value="360*deg"/>
+            <Vector name="Center" type="numeric" nEntries="3"> 0, 0, [mbCommon:MBPos_z] </Vector>
+            <Vector name="RotateSolid" type="numeric" nEntries="9"> 0.*deg, 0.*deg, 180*deg, 90.*deg, 0.*deg, 90.*deg, 0.*deg, 0.*deg, 270.*deg-[MB1PosAngle] </Vector>
+        </Algorithm>
+        <!-- #### MB1: DT Superlayers Phi -->
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1P"/>
+            <rChild name="mb1:MB1SuperLayerPhi"/>
+            <Translation x="[mb1:MB1pSLPhi1_HC_dist]" y="0*fm" z="[mbCommon:MBSL_pos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb1:MB1P"/>
+            <rChild name="mb1:MB1SuperLayerPhi"/>
+            <Translation x="[mb1:MB1pSLPhi2_HC_dist]" y="0*fm" z="-[mbCommon:MBSL_pos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1P0"/>
+            <rChild name="mb1:MB1SuperLayerPhi"/>
+            <Translation x="[mb1:MB1pSLPhi1_HC_dist]" y="0*fm" z="[mbCommon:MBSL_pos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb1:MB1P0"/>
+            <rChild name="mb1:MB1SuperLayerPhi"/>
+            <Translation x="[mb1:MB1pSLPhi2_HC_dist]" y="0*fm" z="-[mbCommon:MBSL_pos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1N0P"/>
+            <rChild name="mb1:MB1SuperLayerPhi"/>
+            <Translation x="[mb1:MB1nSLPhi1_HC_dist]" y="0*fm" z="[mbCommon:MBSL_pos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb1:MB1N0P"/>
+            <rChild name="mb1:MB1SuperLayerPhi"/>
+            <Translation x="[mb1:MB1nSLPhi2_HC_dist]" y="0*fm" z="-[mbCommon:MBSL_pos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1N"/>
+            <rChild name="mb1:MB1SuperLayerPhi"/>
+            <Translation x="[mb1:MB1nSLPhi1_HC_dist]" y="0*fm" z="[mbCommon:MBSL_pos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb1:MB1N"/>
+            <rChild name="mb1:MB1SuperLayerPhi"/>
+            <Translation x="[mb1:MB1nSLPhi2_HC_dist]" y="0*fm" z="-[mbCommon:MBSL_pos_z]"/>
+        </PosPart>
+        <!-- ## MB1: DT Superlayers Phi internal -->
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1SuperLayerPhi"/>
+            <rChild name="mb1:MB1SLPhiAlPlateOuter"/>
+            <Translation x="0*fm" y="0*fm" z="4*[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1SuperLayerPhi"/>
+            <rChild name="mb1:MB1SLPhiAlPlateOuter"/>
+            <Translation x="0*fm" y="0*fm" z="-4*[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1SuperLayerPhi"/>
+            <rChild name="mb1:MB1SLPhiAlPlateInner"/>
+            <Translation x="0*fm" y="0*fm" z="2*[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1SuperLayerPhi"/>
+            <rChild name="mb1:MB1SLPhiAlPlateInner"/>
+            <Translation x="0*fm" y="0.*mm" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb1:MB1SuperLayerPhi"/>
+            <rChild name="mb1:MB1SLPhiAlPlateInner"/>
+            <Translation x="0*fm" y="0*fm" z="-2*[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1SuperLayerPhi"/>
+            <rChild name="mb1:MB1SLPhiLayer_49Cells"/>
+            <Translation x="0*fm" y="0*fm" z="3*[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1SuperLayerPhi"/>
+            <rChild name="mb1:MB1SLPhiLayer_50Cells"/>
+            <Translation x="0*fm" y="0*fm" z="[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb1:MB1SuperLayerPhi"/>
+            <rChild name="mb1:MB1SLPhiLayer_49Cells"/>
+            <Translation x="0*fm" y="0*fm" z="-[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="mb1:MB1SuperLayerPhi"/>
+            <rChild name="mb1:MB1SLPhiLayer_48Cells"/>
+            <Translation x="0*fm" y="0*fm" z="-3*[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1SuperLayerPhi"/>
+            <rChild name="mb1:MB1SLPhiClosingPlateParal"/>
+            <Translation x="[mb1:MB1SLPhiPl_x]+1.7*mm" y="0.*fm" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1SuperLayerPhi"/>
+            <rChild name="mb1:MB1SLPhiClosingPlateParal"/>
+            <Translation x="-([mb1:MB1SLPhiPl_x]+1.7*mm)" y="0.*fm" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1SuperLayerPhi"/>
+            <rChild name="mb1:MB1SLPhi_C_PlateParal"/>
+            <Translation x="[mb1:MB1SLPhiPl_x]+0.7*mm-7.*mm" y="0.*fm" z="[mbCommon:MBSuperLayer_height]-2.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1SuperLayerPhi"/>
+            <rChild name="mb1:MB1SLPhi_C_PlateParal"/>
+            <Translation x="[mb1:MB1SLPhiPl_x]+0.7*mm-7.*mm" y="0.*fm" z="-([mbCommon:MBSuperLayer_height]-2.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb1:MB1SuperLayerPhi"/>
+            <rChild name="mb1:MB1SLPhi_C_PlateParal"/>
+            <Translation x="-([mb1:MB1SLPhiPl_x]+0.7*mm-7.*mm)" y="0.*fm" z="[mbCommon:MBSuperLayer_height]-2.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="mb1:MB1SuperLayerPhi"/>
+            <rChild name="mb1:MB1SLPhi_C_PlateParal"/>
+            <Translation x="-([mb1:MB1SLPhiPl_x]+0.7*mm-7.*mm)" y="0.*fm" z="-([mbCommon:MBSuperLayer_height]-2.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1SuperLayerPhi"/>
+            <rChild name="mb1:MB1SLPhiClosingPlatePerp"/>
+            <Translation x="0.*fm" y="[mbCommon:MBSLPhiPlO_z]+6.*mm" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1SuperLayerPhi"/>
+            <rChild name="mb1:MB1SLPhiClosingPlatePerp"/>
+            <Translation x="0.*fm" y="-([mbCommon:MBSLPhiPlO_z]+6.*mm)" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1SuperLayerPhi"/>
+            <rChild name="mb1:MB1SLPhi_C_PlatePerp"/>
+            <Translation x="0.*fm" y="[mbCommon:MBSLPhiPlO_z]-7.*mm" z="[mbCommon:MBSuperLayer_height]-2.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1SuperLayerPhi"/>
+            <rChild name="mb1:MB1SLPhi_C_PlatePerp"/>
+            <Translation x="0.*fm" y="[mbCommon:MBSLPhiPlO_z]-7.*mm" z="-([mbCommon:MBSuperLayer_height]-2.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb1:MB1SuperLayerPhi"/>
+            <rChild name="mb1:MB1SLPhi_C_PlatePerp"/>
+            <Translation x="0.*fm" y="-([mbCommon:MBSLPhiPlO_z]-7.*mm)" z="[mbCommon:MBSuperLayer_height]-2.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="mb1:MB1SuperLayerPhi"/>
+            <rChild name="mb1:MB1SLPhi_C_PlatePerp"/>
+            <Translation x="0.*fm" y="-([mbCommon:MBSLPhiPlO_z]-7.*mm)" z="-([mbCommon:MBSuperLayer_height]-2.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1SuperLayerPhi"/>
+            <rChild name="mb1:MB1SLPhiCommonElectronics"/>
+            <Translation x="0.*fm" y="[mbCommon:MBSLPhiPlO_z]-35./2.*mm" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1SuperLayerPhi"/>
+            <rChild name="mb1:MB1SLPhiCommonElectronics"/>
+            <Translation x="0.*fm" y="-([mbCommon:MBSLPhiPlO_z]-35./2.*mm)" z="0.*fm"/>
+        </PosPart>
+        <Algorithm name="global:DDLinear">
+            <rParent name="mb1:MB1SLPhiLayer_48Cells"/>
+            <String name="ChildName" value="mbCommon:MBSLPhiGas"/>
+            <Numeric name="N" value="48"/>
+            <Numeric name="StartCopyNo" value="2"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="Delta" value="[mbCommon:MBCell_width]*2."/>
+            <Vector name="Base" type="numeric" nEntries="3"> -[mb1:MB1SLPhiL48]-3*[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
+            <Numeric name="Theta" value="90.*deg"/>
+            <Numeric name="Phi" value="0.*deg"/>
+        </Algorithm>
+        <Algorithm name="global:DDLinear">
+            <rParent name="mb1:MB1SLPhiLayer_49Cells"/>
+            <String name="ChildName" value="mbCommon:MBSLPhiGas"/>
+            <Numeric name="N" value="49"/>
+            <Numeric name="StartCopyNo" value="1"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="Delta" value="[mbCommon:MBCell_width]*2."/>
+            <Vector name="Base" type="numeric" nEntries="3"> -[mb1:MB1SLPhiL49]-[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
+            <Numeric name="Theta" value="90.*deg"/>
+            <Numeric name="Phi" value="0.*deg"/>
+        </Algorithm>
+        <Algorithm name="global:DDLinear">
+            <rParent name="mb1:MB1SLPhiLayer_50Cells"/>
+            <String name="ChildName" value="mbCommon:MBSLPhiGas"/>
+            <Numeric name="N" value="50"/>
+            <Numeric name="StartCopyNo" value="1"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="Delta" value="[mbCommon:MBCell_width]*2."/>
+            <Vector name="Base" type="numeric" nEntries="3"> -[mb1:MB1SLPhiL50]-[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
+            <Numeric name="Theta" value="90.*deg"/>
+            <Numeric name="Phi" value="0.*deg"/>
+        </Algorithm>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1SLPhiLayer_48Cells"/>
+            <rChild name="mb1:MB1SLPhiElectronics_48Cells"/>
+            <Translation x="0.*fm" y="[mbCommon:MBSLPhiLayer_length]-[mbCommon:MBLayerElectronics_width]" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1SLPhiLayer_48Cells"/>
+            <rChild name="mb1:MB1SLPhiElectronics_48Cells"/>
+            <Translation x="0.*fm" y="-([mbCommon:MBSLPhiLayer_length]-[mbCommon:MBLayerElectronics_width])" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1SLPhiLayer_49Cells"/>
+            <rChild name="mb1:MB1SLPhiElectronics_49Cells"/>
+            <Translation x="0.*fm" y="[mbCommon:MBSLPhiLayer_length]-[mbCommon:MBLayerElectronics_width]" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1SLPhiLayer_49Cells"/>
+            <rChild name="mb1:MB1SLPhiElectronics_49Cells"/>
+            <Translation x="0.*fm" y="-([mbCommon:MBSLPhiLayer_length]-[mbCommon:MBLayerElectronics_width])" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1SLPhiLayer_50Cells"/>
+            <rChild name="mb1:MB1SLPhiElectronics_50Cells"/>
+            <Translation x="0.*fm" y="[mbCommon:MBSLPhiLayer_length]-[mbCommon:MBLayerElectronics_width]" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1SLPhiLayer_50Cells"/>
+            <rChild name="mb1:MB1SLPhiElectronics_50Cells"/>
+            <Translation x="0.*fm" y="-([mbCommon:MBSLPhiLayer_length]-[mbCommon:MBLayerElectronics_width])" z="0.*fm"/>
+        </PosPart>
+        <!-- #### MB1: DT Superlayer Z -->
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1P"/>
+            <rChild name="mb1:MB1SuperLayerZ"/>
+            <Translation x="[mb1:MB1pSLZ_HC_dist]" y="0.*mm" z="-[mbCommon:MBHC_height]"/>
+            <rRotation name="rotations:R270"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1P0"/>
+            <rChild name="mb1:MB1SuperLayerZ"/>
+            <Translation x="[mb1:MB1pSLZ_HC_dist]" y="0.*mm" z="-[mbCommon:MBHC_height]"/>
+            <rRotation name="rotations:R270"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1N"/>
+            <rChild name="mb1:MB1SuperLayerZ"/>
+            <Translation x="[mb1:MB1nSLZ_HC_dist]" y="0.*mm" z="-[mbCommon:MBHC_height]"/>
+            <rRotation name="rotations:R270"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1N0P"/>
+            <rChild name="mb1:MB1SuperLayerZ"/>
+            <Translation x="[mb1:MB1nSLZ_HC_dist]" y="0.*mm" z="-[mbCommon:MBHC_height]"/>
+            <rRotation name="rotations:R270"/>
+        </PosPart>
+        <!-- #### MB1: DT Superlayer Z internal -->
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1SuperLayerZ"/>
+            <rChild name="mb1:MB1SLZAlPlateOuter"/>
+            <Translation x="0*fm" y="0*fm" z="4*[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1SuperLayerZ"/>
+            <rChild name="mb1:MB1SLZAlPlateOuter"/>
+            <Translation x="0*fm" y="0*fm" z="-4*[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1SuperLayerZ"/>
+            <rChild name="mb1:MB1SLZAlPlateInner"/>
+            <Translation x="0*fm" y="0*fm" z="2*[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1SuperLayerZ"/>
+            <rChild name="mb1:MB1SLZAlPlateInner"/>
+            <Translation x="0*fm" y="0*fm" z="0.*mm"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb1:MB1SuperLayerZ"/>
+            <rChild name="mb1:MB1SLZAlPlateInner"/>
+            <Translation x="0*fm" y="0*fm" z="-2*[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1SuperLayerZ"/>
+            <rChild name="mb1:MB1SLZLayer_57Cells"/>
+            <Translation x="0*fm" y="0*fm" z="3*[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1SuperLayerZ"/>
+            <rChild name="mb1:MB1SLZLayer_58Cells"/>
+            <Translation x="0*fm" y="0*fm" z="[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb1:MB1SuperLayerZ"/>
+            <rChild name="mb1:MB1SLZLayer_57Cells"/>
+            <Translation x="0*fm" y="0*fm" z="-[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="mb1:MB1SuperLayerZ"/>
+            <rChild name="mb1:MB1SLZLayer_56Cells"/>
+            <Translation x="0*fm" y="0*fm" z="-3*[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1SuperLayerZ"/>
+            <rChild name="mb1:MB1SLZClosingPlateParal"/>
+            <Translation x="[mbCommon:MBSLZPl_x]+1.7*mm" y="0*fm" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1SuperLayerZ"/>
+            <rChild name="mb1:MB1SLZClosingPlateParal"/>
+            <Translation x="-([mbCommon:MBSLZPl_x]+1.7*mm)" y="0*fm" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1SuperLayerZ"/>
+            <rChild name="mb1:MB1SLZ_C_PlateParal"/>
+            <Translation x="[mbCommon:MBSLZPl_x]+0.7*mm-7.*mm" y="0.*fm" z="[mbCommon:MBSuperLayer_height]-2.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1SuperLayerZ"/>
+            <rChild name="mb1:MB1SLZ_C_PlateParal"/>
+            <Translation x="[mbCommon:MBSLZPl_x]+0.7*mm-7.*mm" y="0.*fm" z="-([mbCommon:MBSuperLayer_height]-2.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb1:MB1SuperLayerZ"/>
+            <rChild name="mb1:MB1SLZ_C_PlateParal"/>
+            <Translation x="-([mbCommon:MBSLZPl_x]+0.7*mm-7.*mm)" y="0.*fm" z="[mbCommon:MBSuperLayer_height]-2.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="mb1:MB1SuperLayerZ"/>
+            <rChild name="mb1:MB1SLZ_C_PlateParal"/>
+            <Translation x="-([mbCommon:MBSLZPl_x]+0.7*mm-7.*mm)" y="0.*fm" z="-([mbCommon:MBSuperLayer_height]-2.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1SuperLayerZ"/>
+            <rChild name="mb1:MB1SLZClosingPlatePerp"/>
+            <Translation x="0.*fm" y="[mb1:MB1SLZPlO_z]+6.*mm" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1SuperLayerZ"/>
+            <rChild name="mb1:MB1SLZClosingPlatePerp"/>
+            <Translation x="0.*fm" y="-([mb1:MB1SLZPlO_z]+6.*mm)" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1SuperLayerZ"/>
+            <rChild name="mb1:MB1SLZ_C_PlatePerp"/>
+            <Translation x="0.*fm" y="[mb1:MB1SLZPlO_z]-7.*mm" z="[mbCommon:MBSuperLayer_height]-2.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1SuperLayerZ"/>
+            <rChild name="mb1:MB1SLZ_C_PlatePerp"/>
+            <Translation x="0.*fm" y="[mb1:MB1SLZPlO_z]-7.*mm" z="-([mbCommon:MBSuperLayer_height]-2.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb1:MB1SuperLayerZ"/>
+            <rChild name="mb1:MB1SLZ_C_PlatePerp"/>
+            <Translation x="0.*fm" y="-([mb1:MB1SLZPlO_z]-7.*mm)" z="[mbCommon:MBSuperLayer_height]-2.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="mb1:MB1SuperLayerZ"/>
+            <rChild name="mb1:MB1SLZ_C_PlatePerp"/>
+            <Translation x="0.*fm" y="-([mb1:MB1SLZPlO_z]-7.*mm)" z="-([mbCommon:MBSuperLayer_height]-2.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1SuperLayerZ"/>
+            <rChild name="mb1:MB1SLZCommonElectronics"/>
+            <Translation x="0.*fm" y="[mb1:MB1SLZPlO_z]-35./2.*mm" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1SuperLayerZ"/>
+            <rChild name="mb1:MB1SLZCommonElectronics"/>
+            <Translation x="0.*fm" y="-([mb1:MB1SLZPlO_z]-35./2.*mm)" z="0.*fm"/>
+        </PosPart>
+        <Algorithm name="global:DDLinear">
+            <rParent name="mb1:MB1SLZLayer_56Cells"/>
+            <String name="ChildName" value="mb1:MB1SLZGas"/>
+            <Numeric name="N" value="56"/>
+            <Numeric name="StartCopyNo" value="2"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="Delta" value="[mbCommon:MBCell_width]*2."/>
+            <Vector name="Base" type="numeric" nEntries="3"> -[mbCommon:MBSLZL56]-3*[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
+            <Numeric name="Theta" value="90.*deg"/>
+            <Numeric name="Phi" value="0.*deg"/>
+        </Algorithm>
+        <Algorithm name="global:DDLinear">
+            <rParent name="mb1:MB1SLZLayer_57Cells"/>
+            <String name="ChildName" value="mb1:MB1SLZGas"/>
+            <Numeric name="N" value="57"/>
+            <Numeric name="StartCopyNo" value="1"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="Delta" value="[mbCommon:MBCell_width]*2."/>
+            <Vector name="Base" type="numeric" nEntries="3"> -[mbCommon:MBSLZL57]-[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
+            <Numeric name="Theta" value="90.*deg"/>
+            <Numeric name="Phi" value="0.*deg"/>
+        </Algorithm>
+        <Algorithm name="global:DDLinear">
+            <rParent name="mb1:MB1SLZLayer_58Cells"/>
+            <String name="ChildName" value="mb1:MB1SLZGas"/>
+            <Numeric name="N" value="58"/>
+            <Numeric name="StartCopyNo" value="1"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="Delta" value="[mbCommon:MBCell_width]*2."/>
+            <Vector name="Base" type="numeric" nEntries="3"> -[mbCommon:MBSLZL58]-[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
+            <Numeric name="Theta" value="90.*deg"/>
+            <Numeric name="Phi" value="0.*deg"/>
+        </Algorithm>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1SLZLayer_56Cells"/>
+            <rChild name="mb1:MB1SLZElectronics_56Cells"/>
+            <Translation x="0.*fm" y="[MB1SLZLayer_length]-[mbCommon:MBLayerElectronics_width]" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1SLZLayer_56Cells"/>
+            <rChild name="mb1:MB1SLZElectronics_56Cells"/>
+            <Translation x="0.*fm" y="-([MB1SLZLayer_length]-[mbCommon:MBLayerElectronics_width])" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1SLZLayer_57Cells"/>
+            <rChild name="mb1:MB1SLZElectronics_57Cells"/>
+            <Translation x="0.*fm" y="[MB1SLZLayer_length]-[mbCommon:MBLayerElectronics_width]" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1SLZLayer_57Cells"/>
+            <rChild name="mb1:MB1SLZElectronics_57Cells"/>
+            <Translation x="0.*fm" y="-([MB1SLZLayer_length]-[mbCommon:MBLayerElectronics_width])" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1SLZLayer_58Cells"/>
+            <rChild name="mb1:MB1SLZElectronics_58Cells"/>
+            <Translation x="0.*fm" y="[MB1SLZLayer_length]-[mbCommon:MBLayerElectronics_width]" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1SLZLayer_58Cells"/>
+            <rChild name="mb1:MB1SLZElectronics_58Cells"/>
+            <Translation x="0.*fm" y="-([MB1SLZLayer_length]-[mbCommon:MBLayerElectronics_width])" z="0.*fm"/>
+        </PosPart>
+        <!-- ##### MB1: DT honeycomb -->
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1P"/>
+            <rChild name="mb1:MB1HoneycombBox"/>
+            <Translation x="0*fm" y="0*fm" z="[mbCommon:MBSuperLayer_height]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1P0"/>
+            <rChild name="mb1:MB1HoneycombBox"/>
+            <Translation x="0*fm" y="0*fm" z="[mbCommon:MBSuperLayer_height]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1N"/>
+            <rChild name="mb1:MB1HoneycombBox"/>
+            <Translation x="0*fm" y="0*fm" z="[mbCommon:MBSuperLayer_height]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1N0P"/>
+            <rChild name="mb1:MB1HoneycombBox"/>
+            <Translation x="0*fm" y="0*fm" z="[mbCommon:MBSuperLayer_height]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1HoneycombBox"/>
+            <rChild name="mb1:MB1Honeycomb"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1HoneycombBox"/>
+            <rChild name="mb1:MB1HcPlate"/>
+            <Translation x="0*fm" y="0*fm" z="[mbCommon:MBHC_height]-0.75*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1HoneycombBox"/>
+            <rChild name="mb1:MB1HcPlate"/>
+            <Translation x="0*fm" y="0*fm" z="-([mbCommon:MBHC_height]-0.75*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1HoneycombBox"/>
+            <rChild name="mb1:MB1Hc_LateralC"/>
+            <Translation x="[mb1:MB1HC_x]-[mbCommon:MBHC_C_dimension]" y="0*fm" z="[mbCommon:MBHC_height]-5.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1HoneycombBox"/>
+            <rChild name="mb1:MB1Hc_LateralC"/>
+            <Translation x="[mb1:MB1HC_x]-[mbCommon:MBHC_C_dimension]" y="0*fm" z="-([mbCommon:MBHC_height]-5.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb1:MB1HoneycombBox"/>
+            <rChild name="mb1:MB1Hc_LateralC"/>
+            <Translation x="-([mb1:MB1HC_x]-[mbCommon:MBHC_C_dimension])" y="0*fm" z="[mbCommon:MBHC_height]-5.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="mb1:MB1HoneycombBox"/>
+            <rChild name="mb1:MB1Hc_LateralC"/>
+            <Translation x="-([mb1:MB1HC_x]-[mbCommon:MBHC_C_dimension])" y="0*fm" z="-([mbCommon:MBHC_height]-5.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1HoneycombBox"/>
+            <rChild name="mb1:MB1Hc_FrontC"/>
+            <Translation x="0*fm" y="[mbCommon:MBHC_z]-[mbCommon:MBHC_C_dimension]" z="[mbCommon:MBHC_height]-5.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1HoneycombBox"/>
+            <rChild name="mb1:MB1Hc_FrontC"/>
+            <Translation x="0*fm" y="[mbCommon:MBHC_z]-[mbCommon:MBHC_C_dimension]" z="-([mbCommon:MBHC_height]-5.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb1:MB1HoneycombBox"/>
+            <rChild name="mb1:MB1Hc_FrontC"/>
+            <Translation x="0*fm" y="-([mbCommon:MBHC_z]-[mbCommon:MBHC_C_dimension])" z="[mbCommon:MBHC_height]-5.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="mb1:MB1HoneycombBox"/>
+            <rChild name="mb1:MB1Hc_FrontC"/>
+            <Translation x="0*fm" y="-([mbCommon:MBHC_z]-[mbCommon:MBHC_C_dimension])" z="-([mbCommon:MBHC_height]-5.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1HoneycombBox"/>
+            <rChild name="mb1:MB1Hc_LateralElectronics"/>
+            <Translation x="[mb1:MB1HC_x]-2*[mbCommon:MBHC_C_dimension]+[mbCommon:MBHCLatElectronics_width]" y="0*fm" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1HoneycombBox"/>
+            <rChild name="mb1:MB1Hc_LateralElectronics"/>
+            <Translation x="-([mb1:MB1HC_x]-2*[mbCommon:MBHC_C_dimension]+[mbCommon:MBHCLatElectronics_width])" y="0*fm" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1HoneycombBox"/>
+            <rChild name="mb1:MB1Hc_FrontElectronics"/>
+            <Translation x="0*fm" y="[mbCommon:MBHC_z]-2*[mbCommon:MBHC_C_dimension]+[mbCommon:MBHCFrontElectronics_width]" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1HoneycombBox"/>
+            <rChild name="mb1:MB1Hc_FrontElectronics"/>
+            <Translation x="0*fm" y="-([mbCommon:MBHC_z]-2*[mbCommon:MBHC_C_dimension]+[mbCommon:MBHCFrontElectronics_width])" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1HoneycombBox"/>
+            <rChild name="mb1:MB1HcTorsionBar"/>
+            <Translation x="[mb1:MB1HC_x]-25.*mm" y="0*fm" z="0*fm"/>
+        </PosPart>
+        <!-- ##### MB1: RPC chambers -->
+        <!-- ##### MB1: RPC_IP chamber -->
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1P"/>
+            <rChild name="mb1:MB1RPC_IP"/>
+            <Translation x="[mb1:MB1RPC_I_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1P0"/>
+            <rChild name="mb1:MB1RPC_IP"/>
+            <Translation x="[mb1:MB1RPC_I_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1RPC_IP"/>
+            <rChild name="mb1:MB1RPC_IGasLeft"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="+0*mm" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="+[mbCommon:MBRPC_Gas_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1RPC_IP"/>
+            <rChild name="mb1:MB1RPC_IGasLeft"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="-0*mm" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="-[mbCommon:MBRPC_Gas_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1RPC_IP"/>
+            <rChild name="mb1:MB1RPC_IGasRight"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="+0*mm" y="[mbCommon:MBRPC_GasRight_y_pos]" z="+[mbCommon:MBRPC_Gas_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1RPC_IP"/>
+            <rChild name="mb1:MB1RPC_IGasRight"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="-0*mm" y="[mbCommon:MBRPC_GasRight_y_pos]" z="-[mbCommon:MBRPC_Gas_z_pos]"/>
+        </PosPart>
+        <!-- ##### MB1: RPC_OP chamber -->
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1P"/>
+            <rChild name="mb1:MB1RPC_OP"/>
+            <Translation x="[mb1:MB1RPC_O_x_pos]" y="0*fm" z="-[mbCommon:MBRPC_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1P0"/>
+            <rChild name="mb1:MB1RPC_OP"/>
+            <Translation x="[mb1:MB1RPC_O_x_pos]" y="0*fm" z="-[mbCommon:MBRPC_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1RPC_OP"/>
+            <rChild name="mb1:MB1RPC_OGasLeft"/>
+            <rRotation name="rotations:RPCD"/>
+            <Translation x="0*cm" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="+[mbCommon:MBRPC_Gas_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1RPC_OP"/>
+            <rChild name="mb1:MB1RPC_OGasLeft"/>
+            <rRotation name="rotations:RPCD"/>
+            <Translation x="0*cm" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="-[mbCommon:MBRPC_Gas_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1RPC_OP"/>
+            <rChild name="mb1:MB1RPC_OGasRight"/>
+            <rRotation name="rotations:RPCD"/>
+            <Translation x="0*cm" y="[mbCommon:MBRPC_GasRight_y_pos]" z="+[mbCommon:MBRPC_Gas_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1RPC_OP"/>
+            <rChild name="mb1:MB1RPC_OGasRight"/>
+            <rRotation name="rotations:RPCD"/>
+            <Translation x="0*cm" y="[mbCommon:MBRPC_GasRight_y_pos]" z="-[mbCommon:MBRPC_Gas_z_pos]"/>
+        </PosPart>
+        <!-- ##### MB1: RPC_IN chamber -->
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1N"/>
+            <rChild name="mb1:MB1RPC_IN"/>
+            <Translation x="-[mb1:MB1RPC_I_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1N0P"/>
+            <rChild name="mb1:MB1RPC_IP"/>
+            <Translation x="-[mb1:MB1RPC_I_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1RPC_IN"/>
+            <rChild name="mb1:MB1RPC_IGasLeft"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="0*cm" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="+[mbCommon:MBRPC_Gas_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1RPC_IN"/>
+            <rChild name="mb1:MB1RPC_IGasLeft"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="0*cm" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="-[mbCommon:MBRPC_Gas_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1RPC_IN"/>
+            <rChild name="mb1:MB1RPC_IGasRight"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="0*cm" y="[mbCommon:MBRPC_GasRight_y_pos]" z="+[mbCommon:MBRPC_Gas_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1RPC_IN"/>
+            <rChild name="mb1:MB1RPC_IGasRight"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="0*cm" y="[mbCommon:MBRPC_GasRight_y_pos]" z="-[mbCommon:MBRPC_Gas_z_pos]"/>
+        </PosPart>
+        <!-- ##### MB1: RPC_ON chamber -->
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1N"/>
+            <rChild name="mb1:MB1RPC_ON"/>
+            <Translation x="-[mb1:MB1RPC_O_x_pos]" y="0*fm" z="-[mbCommon:MBRPC_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1N0P"/>
+            <rChild name="mb1:MB1RPC_OP"/>
+            <Translation x="-[mb1:MB1RPC_O_x_pos]" y="0*fm" z="-[mbCommon:MBRPC_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1RPC_ON"/>
+            <rChild name="mb1:MB1RPC_OGasLeft"/>
+            <rRotation name="rotations:RPCD"/>
+            <Translation x="0*cm" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="+[mbCommon:MBRPC_Gas_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1RPC_ON"/>
+            <rChild name="mb1:MB1RPC_OGasLeft"/>
+            <rRotation name="rotations:RPCD"/>
+            <Translation x="0*cm" y="-[mbCommon:MBRPC_GasLeft_y_pos]" z="-[mbCommon:MBRPC_Gas_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1RPC_ON"/>
+            <rChild name="mb1:MB1RPC_OGasRight"/>
+            <rRotation name="rotations:RPCD"/>
+            <Translation x="0*cm" y="[mbCommon:MBRPC_GasRight_y_pos]" z="+[mbCommon:MBRPC_Gas_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1RPC_ON"/>
+            <rChild name="mb1:MB1RPC_OGasRight"/>
+            <rRotation name="rotations:RPCD"/>
+            <Translation x="0*cm" y="[mbCommon:MBRPC_GasRight_y_pos]" z="-[mbCommon:MBRPC_Gas_z_pos]"/>
+        </PosPart>
+        <!-- ####  MB1Chimney Unit -->
+        <!-- ####  MB1Chim: DTBX chamber -->
+        <!-- #### MB1: DT Superlayers Phi -->
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1ChimP"/>
+            <rChild name="mb1:MB1ChimSuperLayerPhi"/>
+            <Translation x="[mb1:MB1pSLPhi1_HC_dist]" y="0*fm" z="[mbCommon:MBSL_pos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb1:MB1ChimP"/>
+            <rChild name="mb1:MB1ChimSuperLayerPhi"/>
+            <Translation x="[mb1:MB1pSLPhi2_HC_dist]" y="0*fm" z="-[mbCommon:MBSL_pos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1ChimN"/>
+            <rChild name="mb1:MB1ChimSuperLayerPhi"/>
+            <Translation x="[mb1:MB1nSLPhi1_HC_dist]" y="0*fm" z="[mbCommon:MBSL_pos_z]"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb1:MB1ChimN"/>
+            <rChild name="mb1:MB1ChimSuperLayerPhi"/>
+            <Translation x="[mb1:MB1nSLPhi2_HC_dist]" y="0*fm" z="-[mbCommon:MBSL_pos_z]"/>
+        </PosPart>
+        <!-- ## MB1: DT Superlayers Phi internal -->
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1ChimSuperLayerPhi"/>
+            <rChild name="mb1:MB1ChimSLPhiAlPlateOuter"/>
+            <Translation x="0*fm" y="0*fm" z="4*[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1ChimSuperLayerPhi"/>
+            <rChild name="mb1:MB1ChimSLPhiAlPlateOuter"/>
+            <Translation x="0*fm" y="0*fm" z="-4*[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1ChimSuperLayerPhi"/>
+            <rChild name="mb1:MB1ChimSLPhiAlPlateInner"/>
+            <Translation x="0*fm" y="0*fm" z="2*[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1ChimSuperLayerPhi"/>
+            <rChild name="mb1:MB1ChimSLPhiAlPlateInner"/>
+            <Translation x="0*fm" y="0.*mm" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb1:MB1ChimSuperLayerPhi"/>
+            <rChild name="mb1:MB1ChimSLPhiAlPlateInner"/>
+            <Translation x="0*fm" y="0*fm" z="-2*[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1ChimSuperLayerPhi"/>
+            <rChild name="mb1:MB1ChimSLPhiLayer_49Cells"/>
+            <Translation x="0*fm" y="0*fm" z="3*[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1ChimSuperLayerPhi"/>
+            <rChild name="mb1:MB1ChimSLPhiLayer_50Cells"/>
+            <Translation x="0*fm" y="0*fm" z="[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb1:MB1ChimSuperLayerPhi"/>
+            <rChild name="mb1:MB1ChimSLPhiLayer_49Cells"/>
+            <Translation x="0*fm" y="0*fm" z="-[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="mb1:MB1ChimSuperLayerPhi"/>
+            <rChild name="mb1:MB1ChimSLPhiLayer_48Cells"/>
+            <Translation x="0*fm" y="0*fm" z="-3*[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1ChimSuperLayerPhi"/>
+            <rChild name="mb1:MB1ChimSLPhiClosingPlateParal"/>
+            <Translation x="[mb1:MB1SLPhiPl_x]+1.7*mm" y="0*fm" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1ChimSuperLayerPhi"/>
+            <rChild name="mb1:MB1ChimSLPhiClosingPlateParal"/>
+            <Translation x="-([mb1:MB1SLPhiPl_x]+1.7*mm)" y="0*fm" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1ChimSuperLayerPhi"/>
+            <rChild name="mb1:MB1ChimSLPhi_C_PlateParal"/>
+            <Translation x="[mb1:MB1SLPhiPl_x]+0.7*mm-7.*mm" y="0.*fm" z="[mbCommon:MBSuperLayer_height]-2.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1ChimSuperLayerPhi"/>
+            <rChild name="mb1:MB1ChimSLPhi_C_PlateParal"/>
+            <Translation x="[mb1:MB1SLPhiPl_x]+0.7*mm-7.*mm" y="0.*fm" z="-([mbCommon:MBSuperLayer_height]-2.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb1:MB1ChimSuperLayerPhi"/>
+            <rChild name="mb1:MB1ChimSLPhi_C_PlateParal"/>
+            <Translation x="-([mb1:MB1SLPhiPl_x]+0.7*mm-7.*mm)" y="0.*fm" z="[mbCommon:MBSuperLayer_height]-2.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="mb1:MB1ChimSuperLayerPhi"/>
+            <rChild name="mb1:MB1ChimSLPhi_C_PlateParal"/>
+            <Translation x="-([mb1:MB1SLPhiPl_x]+0.7*mm-7.*mm)" y="0.*fm" z="-([mbCommon:MBSuperLayer_height]-2.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1ChimSuperLayerPhi"/>
+            <rChild name="mb1:MB1SLPhiClosingPlatePerp"/>
+            <Translation x="0.*fm" y="[mbCommon:MBChimSLPhiPlO_z]+6.*mm" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1ChimSuperLayerPhi"/>
+            <rChild name="mb1:MB1SLPhiClosingPlatePerp"/>
+            <Translation x="0.*fm" y="-([mbCommon:MBChimSLPhiPlO_z]+6.*mm)" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1ChimSuperLayerPhi"/>
+            <rChild name="mb1:MB1SLPhi_C_PlatePerp"/>
+            <Translation x="0.*fm" y="[mbCommon:MBChimSLPhiPlO_z]-7.*mm" z="[mbCommon:MBSuperLayer_height]-2.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1ChimSuperLayerPhi"/>
+            <rChild name="mb1:MB1SLPhi_C_PlatePerp"/>
+            <Translation x="0.*fm" y="[mbCommon:MBChimSLPhiPlO_z]-7.*mm" z="-([mbCommon:MBSuperLayer_height]-2.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb1:MB1ChimSuperLayerPhi"/>
+            <rChild name="mb1:MB1SLPhi_C_PlatePerp"/>
+            <Translation x="0.*fm" y="-([mbCommon:MBChimSLPhiPlO_z]-7.*mm)" z="[mbCommon:MBSuperLayer_height]-2.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="mb1:MB1ChimSuperLayerPhi"/>
+            <rChild name="mb1:MB1SLPhi_C_PlatePerp"/>
+            <Translation x="0.*fm" y="-([mbCommon:MBChimSLPhiPlO_z]-7.*mm)" z="-([mbCommon:MBSuperLayer_height]-2.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1ChimSuperLayerPhi"/>
+            <rChild name="mb1:MB1SLPhiCommonElectronics"/>
+            <Translation x="0.*fm" y="[mbCommon:MBChimSLPhiPlO_z]-35./2.*mm" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1ChimSuperLayerPhi"/>
+            <rChild name="mb1:MB1SLPhiCommonElectronics"/>
+            <Translation x="0.*fm" y="-([mbCommon:MBChimSLPhiPlO_z]-35./2.*mm)" z="0.*fm"/>
+        </PosPart>
+        <Algorithm name="global:DDLinear">
+            <rParent name="mb1:MB1ChimSLPhiLayer_48Cells"/>
+            <String name="ChildName" value="mbCommon:MBChimSLPhiGas"/>
+            <Numeric name="N" value="48"/>
+            <Numeric name="StartCopyNo" value="2"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="Delta" value="[mbCommon:MBCell_width]*2."/>
+            <Vector name="Base" type="numeric" nEntries="3"> -[mb1:MB1SLPhiL48]-3*[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
+            <Numeric name="Theta" value="90.*deg"/>
+            <Numeric name="Phi" value="0.*deg"/>
+        </Algorithm>
+        <Algorithm name="global:DDLinear">
+            <rParent name="mb1:MB1ChimSLPhiLayer_49Cells"/>
+            <String name="ChildName" value="mbCommon:MBChimSLPhiGas"/>
+            <Numeric name="N" value="49"/>
+            <Numeric name="StartCopyNo" value="1"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="Delta" value="[mbCommon:MBCell_width]*2."/>
+            <Vector name="Base" type="numeric" nEntries="3"> -[mb1:MB1SLPhiL49]-[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
+            <Numeric name="Theta" value="90.*deg"/>
+            <Numeric name="Phi" value="0.*deg"/>
+        </Algorithm>
+        <Algorithm name="global:DDLinear">
+            <rParent name="mb1:MB1ChimSLPhiLayer_50Cells"/>
+            <String name="ChildName" value="mbCommon:MBChimSLPhiGas"/>
+            <Numeric name="N" value="50"/>
+            <Numeric name="StartCopyNo" value="1"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="Delta" value="[mbCommon:MBCell_width]*2."/>
+            <Vector name="Base" type="numeric" nEntries="3"> -[mb1:MB1SLPhiL50]-[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
+            <Numeric name="Theta" value="90.*deg"/>
+            <Numeric name="Phi" value="0.*deg"/>
+        </Algorithm>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1ChimSLPhiLayer_48Cells"/>
+            <rChild name="mb1:MB1SLPhiElectronics_48Cells"/>
+            <Translation x="0.*fm" y="[mbCommon:MBChimSLPhiLayer_length]-[mbCommon:MBLayerElectronics_width]" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1ChimSLPhiLayer_48Cells"/>
+            <rChild name="mb1:MB1SLPhiElectronics_48Cells"/>
+            <Translation x="0.*fm" y="-([mbCommon:MBChimSLPhiLayer_length]-[mbCommon:MBLayerElectronics_width])" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1ChimSLPhiLayer_49Cells"/>
+            <rChild name="mb1:MB1SLPhiElectronics_49Cells"/>
+            <Translation x="0.*fm" y="[mbCommon:MBChimSLPhiLayer_length]-[mbCommon:MBLayerElectronics_width]" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1ChimSLPhiLayer_49Cells"/>
+            <rChild name="mb1:MB1SLPhiElectronics_49Cells"/>
+            <Translation x="0.*fm" y="-([mbCommon:MBChimSLPhiLayer_length]-[mbCommon:MBLayerElectronics_width])" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1ChimSLPhiLayer_50Cells"/>
+            <rChild name="mb1:MB1SLPhiElectronics_50Cells"/>
+            <Translation x="0.*fm" y="[mbCommon:MBChimSLPhiLayer_length]-[mbCommon:MBLayerElectronics_width]" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1ChimSLPhiLayer_50Cells"/>
+            <rChild name="mb1:MB1SLPhiElectronics_50Cells"/>
+            <Translation x="0.*fm" y="-([mbCommon:MBChimSLPhiLayer_length]-[mbCommon:MBLayerElectronics_width])" z="0.*fm"/>
+        </PosPart>
+        <!-- #### MB1Chim: DT Superlayer Z -->
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1ChimP"/>
+            <rChild name="mb1:MB1ChimSuperLayerZ"/>
+            <Translation x="[mb1:MB1pSLZ_HC_dist]" y="0.*mm" z="-[mbCommon:MBHC_height]"/>
+            <rRotation name="rotations:R270"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1ChimN"/>
+            <rChild name="mb1:MB1ChimSuperLayerZ"/>
+            <Translation x="[mb1:MB1pSLZ_HC_dist]" y="0.*mm" z="-[mbCommon:MBHC_height]"/>
+            <rRotation name="rotations:R270"/>
+        </PosPart>
+        <!-- #### MB1Chim: DT Superlayer Z internal -->
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1ChimSuperLayerZ"/>
+            <rChild name="mb1:MB1ChimSLZAlPlateOuter"/>
+            <Translation x="0*fm" y="0*fm" z="4*[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1ChimSuperLayerZ"/>
+            <rChild name="mb1:MB1ChimSLZAlPlateOuter"/>
+            <Translation x="0*fm" y="0*fm" z="-4*[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1ChimSuperLayerZ"/>
+            <rChild name="mb1:MB1ChimSLZAlPlateInner"/>
+            <Translation x="0*fm" y="0*fm" z="2*[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1ChimSuperLayerZ"/>
+            <rChild name="mb1:MB1ChimSLZAlPlateInner"/>
+            <Translation x="0*fm" y="0.*mm" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb1:MB1ChimSuperLayerZ"/>
+            <rChild name="mb1:MB1ChimSLZAlPlateInner"/>
+            <Translation x="0*fm" y="0*fm" z="-2*[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1ChimSuperLayerZ"/>
+            <rChild name="mb1:MB1ChimSLZLayer_47Cells"/>
+            <Translation x="-10.5*mm" y="0*fm" z="3*[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1ChimSuperLayerZ"/>
+            <rChild name="mb1:MB1ChimSLZLayer_48Cells"/>
+            <Translation x="-10.5*mm" y="0*fm" z="[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb1:MB1ChimSuperLayerZ"/>
+            <rChild name="mb1:MB1ChimSLZLayer_48Cells"/>
+            <Translation x="10.5*mm" y="0*fm" z="-[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="mb1:MB1ChimSuperLayerZ"/>
+            <rChild name="mb1:MB1ChimSLZLayer_47Cells_startCell2"/>
+            <Translation x="10.5*mm" y="0*fm" z="-3*[mbCommon:MBCell_height]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1ChimSuperLayerZ"/>
+            <rChild name="mb1:MB1SLZClosingPlateParal"/>
+            <Translation x="[mbCommon:MBChimSLZPl_x]+1.7*mm" y="0*fm" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1ChimSuperLayerZ"/>
+            <rChild name="mb1:MB1SLZClosingPlateParal"/>
+            <Translation x="-([mbCommon:MBChimSLZPl_x]+1.7*mm)" y="0*fm" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1ChimSuperLayerZ"/>
+            <rChild name="mb1:MB1SLZ_C_PlateParal"/>
+            <Translation x="[mbCommon:MBChimSLZPl_x]+0.7*mm-7.*mm" y="0.*fm" z="[mbCommon:MBSuperLayer_height]-2.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1ChimSuperLayerZ"/>
+            <rChild name="mb1:MB1SLZ_C_PlateParal"/>
+            <Translation x="[mbCommon:MBChimSLZPl_x]+0.7*mm-7.*mm" y="0.*fm" z="-([mbCommon:MBSuperLayer_height]-2.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb1:MB1ChimSuperLayerZ"/>
+            <rChild name="mb1:MB1SLZ_C_PlateParal"/>
+            <Translation x="-([mbCommon:MBChimSLZPl_x]+0.7*mm-7.*mm)" y="0.*fm" z="[mbCommon:MBSuperLayer_height]-2.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="mb1:MB1ChimSuperLayerZ"/>
+            <rChild name="mb1:MB1SLZ_C_PlateParal"/>
+            <Translation x="-([mbCommon:MBChimSLZPl_x]+0.7*mm-7.*mm)" y="0.*fm" z="-([mbCommon:MBSuperLayer_height]-2.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1ChimSuperLayerZ"/>
+            <rChild name="mb1:MB1ChimSLZClosingPlatePerp"/>
+            <Translation x="0.*fm" y="[mb1:MB1SLZPlO_z]+6.*mm" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1ChimSuperLayerZ"/>
+            <rChild name="mb1:MB1ChimSLZClosingPlatePerp"/>
+            <Translation x="0.*fm" y="-([mb1:MB1SLZPlO_z]+6.*mm)" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1ChimSuperLayerZ"/>
+            <rChild name="mb1:MB1ChimSLZ_C_PlatePerp"/>
+            <Translation x="0.*fm" y="[mb1:MB1SLZPlO_z]-7.*mm" z="[mbCommon:MBSuperLayer_height]-2.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1ChimSuperLayerZ"/>
+            <rChild name="mb1:MB1ChimSLZ_C_PlatePerp"/>
+            <Translation x="0.*fm" y="[mb1:MB1SLZPlO_z]-7.*mm" z="-([mbCommon:MBSuperLayer_height]-2.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb1:MB1ChimSuperLayerZ"/>
+            <rChild name="mb1:MB1ChimSLZ_C_PlatePerp"/>
+            <Translation x="0.*fm" y="-([mb1:MB1SLZPlO_z]-7.*mm)" z="[mbCommon:MBSuperLayer_height]-2.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="mb1:MB1ChimSuperLayerZ"/>
+            <rChild name="mb1:MB1ChimSLZ_C_PlatePerp"/>
+            <Translation x="0.*fm" y="-([mb1:MB1SLZPlO_z]-7.*mm)" z="-([mbCommon:MBSuperLayer_height]-2.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1ChimSuperLayerZ"/>
+            <rChild name="mb1:MB1ChimSLZCommonElectronics"/>
+            <Translation x="0.*fm" y="[mb1:MB1SLZPlO_z]-35./2.*mm" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1ChimSuperLayerZ"/>
+            <rChild name="mb1:MB1ChimSLZCommonElectronics"/>
+            <Translation x="0.*fm" y="-([mb1:MB1SLZPlO_z]-35./2.*mm)" z="0.*fm"/>
+        </PosPart>
+        <Algorithm name="global:DDLinear">
+            <rParent name="mb1:MB1ChimSLZLayer_47Cells"/>
+            <String name="ChildName" value="mb1:MB1SLZGas"/>
+            <Numeric name="N" value="47"/>
+            <Numeric name="StartCopyNo" value="1"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="Delta" value="[mbCommon:MBCell_width]*2."/>
+            <Vector name="Base" type="numeric" nEntries="3"> -[mbCommon:MBChimSLZL47]-[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
+            <Numeric name="Theta" value="90.*deg"/>
+            <Numeric name="Phi" value="0.*deg"/>
+        </Algorithm>
+        <Algorithm name="global:DDLinear">
+            <rParent name="mb1:MB1ChimSLZLayer_47Cells_startCell2"/>
+            <String name="ChildName" value="mb1:MB1SLZGas"/>
+            <Numeric name="N" value="47"/>
+            <Numeric name="StartCopyNo" value="2"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="Delta" value="[mbCommon:MBCell_width]*2."/>
+            <Vector name="Base" type="numeric" nEntries="3"> -[mbCommon:MBChimSLZL47]-3*[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
+            <Numeric name="Theta" value="90.*deg"/>
+            <Numeric name="Phi" value="0.*deg"/>
+        </Algorithm>
+        <Algorithm name="global:DDLinear">
+            <rParent name="mb1:MB1ChimSLZLayer_48Cells"/>
+            <String name="ChildName" value="mb1:MB1SLZGas"/>
+            <Numeric name="N" value="48"/>
+            <Numeric name="StartCopyNo" value="1"/>
+            <Numeric name="IncrCopyNo" value="1"/>
+            <Numeric name="Delta" value="[mbCommon:MBCell_width]*2."/>
+            <Vector name="Base" type="numeric" nEntries="3"> -[mbCommon:MBChimSLZL48]-[mbCommon:MBCell_width]+[mbCommon:MBIbeamWall], 0.*mm, 0.*mm </Vector>
+            <Numeric name="Theta" value="90.*deg"/>
+            <Numeric name="Phi" value="0.*deg"/>
+        </Algorithm>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1ChimSLZLayer_47Cells"/>
+            <rChild name="mb1:MB1ChimSLZElectronics_47Cells"/>
+            <Translation x="0.*fm" y="[mb1:MB1SLZLayer_length]-[mbCommon:MBLayerElectronics_width]" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1ChimSLZLayer_47Cells"/>
+            <rChild name="mb1:MB1ChimSLZElectronics_47Cells"/>
+            <Translation x="0.*fm" y="-([mb1:MB1SLZLayer_length]-[mbCommon:MBLayerElectronics_width])" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1ChimSLZLayer_47Cells_startCell2"/>
+            <rChild name="mb1:MB1ChimSLZElectronics_47Cells"/>
+            <Translation x="0.*fm" y="[mb1:MB1SLZLayer_length]-[mbCommon:MBLayerElectronics_width]" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1ChimSLZLayer_47Cells_startCell2"/>
+            <rChild name="mb1:MB1ChimSLZElectronics_47Cells"/>
+            <Translation x="0.*fm" y="-([mb1:MB1SLZLayer_length]-[mbCommon:MBLayerElectronics_width])" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1ChimSLZLayer_48Cells"/>
+            <rChild name="mb1:MB1ChimSLZElectronics_48Cells"/>
+            <Translation x="0.*fm" y="[mb1:MB1SLZLayer_length]-[mbCommon:MBLayerElectronics_width]" z="0.*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1ChimSLZLayer_48Cells"/>
+            <rChild name="mb1:MB1ChimSLZElectronics_48Cells"/>
+            <Translation x="0.*fm" y="-([mb1:MB1SLZLayer_length]-[mbCommon:MBLayerElectronics_width])" z="0.*fm"/>
+        </PosPart>
+        <!-- ##### MB1Chim: DT honeycomb -->
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1ChimP"/>
+            <rChild name="mb1:MB1ChimHoneycombBox"/>
+            <Translation x="0*fm" y="0*fm" z="[mbCommon:MBSuperLayer_height]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1ChimN"/>
+            <rChild name="mb1:MB1ChimHoneycombBox"/>
+            <Translation x="0*fm" y="0*fm" z="[mbCommon:MBSuperLayer_height]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1ChimHoneycombBox"/>
+            <rChild name="mb1:MB1ChimHoneycomb"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1ChimHoneycombBox"/>
+            <rChild name="mb1:MB1ChimHcPlate"/>
+            <Translation x="0*fm" y="0*fm" z="[mbCommon:MBHC_height]-0.75*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1ChimHoneycombBox"/>
+            <rChild name="mb1:MB1ChimHcPlate"/>
+            <Translation x="0*fm" y="0*fm" z="-([mbCommon:MBHC_height]-0.75*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1ChimHoneycombBox"/>
+            <rChild name="mb1:MB1ChimHc_LateralC"/>
+            <Translation x="[mb1:MB1HC_x]-[mbCommon:MBHC_C_dimension]" y="0*fm" z="[mbCommon:MBHC_height]-5.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1ChimHoneycombBox"/>
+            <rChild name="mb1:MB1ChimHc_LateralC"/>
+            <Translation x="[mb1:MB1HC_x]-[mbCommon:MBHC_C_dimension]" y="0*fm" z="-([mbCommon:MBHC_height]-5.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb1:MB1ChimHoneycombBox"/>
+            <rChild name="mb1:MB1ChimHc_LateralC"/>
+            <Translation x="-([mb1:MB1HC_x]-[mbCommon:MBHC_C_dimension])" y="0*fm" z="[mbCommon:MBHC_height]-5.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="mb1:MB1ChimHoneycombBox"/>
+            <rChild name="mb1:MB1ChimHc_LateralC"/>
+            <Translation x="-([mb1:MB1HC_x]-[mbCommon:MBHC_C_dimension])" y="0*fm" z="-([mbCommon:MBHC_height]-5.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1ChimHoneycombBox"/>
+            <rChild name="mb1:MB1Hc_FrontC"/>
+            <Translation x="0*fm" y="[mbCommon:MBChimHC_z]-[mbCommon:MBHC_C_dimension]" z="[mbCommon:MBHC_height]-5.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1ChimHoneycombBox"/>
+            <rChild name="mb1:MB1Hc_FrontC"/>
+            <Translation x="0*fm" y="[mbCommon:MBChimHC_z]-[mbCommon:MBHC_C_dimension]" z="-([mbCommon:MBHC_height]-5.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="3">
+            <rParent name="mb1:MB1ChimHoneycombBox"/>
+            <rChild name="mb1:MB1Hc_FrontC"/>
+            <Translation x="0*fm" y="-([mbCommon:MBChimHC_z]-[mbCommon:MBHC_C_dimension])" z="[mbCommon:MBHC_height]-5.5*mm"/>
+        </PosPart>
+        <PosPart copyNumber="4">
+            <rParent name="mb1:MB1ChimHoneycombBox"/>
+            <rChild name="mb1:MB1Hc_FrontC"/>
+            <Translation x="0*fm" y="-([mbCommon:MBChimHC_z]-[mbCommon:MBHC_C_dimension])" z="-([mbCommon:MBHC_height]-5.5*mm)"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1ChimHoneycombBox"/>
+            <rChild name="mb1:MB1ChimHc_LateralElectronics"/>
+            <Translation x="[mb1:MB1HC_x]-2*[mbCommon:MBHC_C_dimension]+[mbCommon:MBHCLatElectronics_width]" y="0*fm" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1ChimHoneycombBox"/>
+            <rChild name="mb1:MB1ChimHc_LateralElectronics"/>
+            <Translation x="-([mb1:MB1HC_x]-2*[mbCommon:MBHC_C_dimension]+[mbCommon:MBHCLatElectronics_width])" y="0*fm" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1ChimHoneycombBox"/>
+            <rChild name="mb1:MB1Hc_FrontElectronics"/>
+            <Translation x="0*fm" y="[mbCommon:MBChimHC_z]-2*[mbCommon:MBHC_C_dimension]+[mbCommon:MBHCFrontElectronics_width]" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1ChimHoneycombBox"/>
+            <rChild name="mb1:MB1Hc_FrontElectronics"/>
+            <Translation x="0*fm" y="-([mbCommon:MBChimHC_z]-2*[mbCommon:MBHC_C_dimension]+[mbCommon:MBHCFrontElectronics_width])" z="0*fm"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1ChimHoneycombBox"/>
+            <rChild name="mb1:MB1HcTorsionBar"/>
+            <Translation x="[mb1:MB1HC_x]-25.*mm" y="0*fm" z="0*fm"/>
+        </PosPart>
+        <!-- ##### MB1Chim: RPC chambers -->
+        <!-- ##### MB1Chim: RPC_IP chamber -->
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1ChimP"/>
+            <rChild name="mb1:MB1ChimRPC_IP"/>
+            <Translation x="[mb1:MB1RPC_I_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1ChimRPC_IP"/>
+            <rChild name="mb1:MB1ChimRPC_IGasLeft"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="0*cm" y="-[mb1:MB1ChimRPC_GasLeft_y_pos]" z="+[mbCommon:MBRPC_Gas_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1ChimRPC_IP"/>
+            <rChild name="mb1:MB1ChimRPC_IGasLeft"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="0*cm" y="-[mb1:MB1ChimRPC_GasLeft_y_pos]" z="-[mbCommon:MBRPC_Gas_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1ChimRPC_IP"/>
+            <rChild name="mb1:MB1ChimRPC_IGasRight"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="0*cm" y="[mb1:MB1ChimRPC_GasRight_y_pos]" z="+[mbCommon:MBRPC_Gas_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1ChimRPC_IP"/>
+            <rChild name="mb1:MB1ChimRPC_IGasRight"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="0*cm" y="[mb1:MB1ChimRPC_GasRight_y_pos]" z="-[mbCommon:MBRPC_Gas_z_pos]"/>
+        </PosPart>
+        <!-- ##### MB1Chim: RPC_OP chamber -->
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1ChimP"/>
+            <rChild name="mb1:MB1ChimRPC_OP"/>
+            <Translation x="[mb1:MB1RPC_O_x_pos]" y="0*fm" z="-[mbCommon:MBRPC_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1ChimRPC_OP"/>
+            <rChild name="mb1:MB1ChimRPC_OGasLeft"/>
+            <rRotation name="rotations:RPCD"/>
+            <Translation x="0*cm" y="-[mb1:MB1ChimRPC_GasLeft_y_pos]" z="+[mbCommon:MBRPC_Gas_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1ChimRPC_OP"/>
+            <rChild name="mb1:MB1ChimRPC_OGasLeft"/>
+            <rRotation name="rotations:RPCD"/>
+            <Translation x="0*cm" y="-[mb1:MB1ChimRPC_GasLeft_y_pos]" z="-[mbCommon:MBRPC_Gas_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1ChimRPC_OP"/>
+            <rChild name="mb1:MB1ChimRPC_OGasRight"/>
+            <rRotation name="rotations:RPCD"/>
+            <Translation x="0*cm" y="[mb1:MB1ChimRPC_GasRight_y_pos]" z="+[mbCommon:MBRPC_Gas_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1ChimRPC_OP"/>
+            <rChild name="mb1:MB1ChimRPC_OGasRight"/>
+            <rRotation name="rotations:RPCD"/>
+            <Translation x="0*cm" y="[mb1:MB1ChimRPC_GasRight_y_pos]" z="-[mbCommon:MBRPC_Gas_z_pos]"/>
+        </PosPart>
+        <!-- ##### MB1Chim: RPC_IN chamber -->
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1ChimN"/>
+            <rChild name="mb1:MB1ChimRPC_IN"/>
+            <Translation x="-[mb1:MB1RPC_I_x_pos]" y="0*fm" z="[mbCommon:MBRPC_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1ChimRPC_IN"/>
+            <rChild name="mb1:MB1ChimRPC_IGasLeft"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="0*cm" y="-[mb1:MB1ChimRPC_GasLeft_y_pos]" z="+[mbCommon:MBRPC_Gas_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1ChimRPC_IN"/>
+            <rChild name="mb1:MB1ChimRPC_IGasLeft"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="0*cm" y="-[mb1:MB1ChimRPC_GasLeft_y_pos]" z="-[mbCommon:MBRPC_Gas_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1ChimRPC_IN"/>
+            <rChild name="mb1:MB1ChimRPC_IGasRight"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="0*cm" y="[mb1:MB1ChimRPC_GasRight_y_pos]" z="+[mbCommon:MBRPC_Gas_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1ChimRPC_IN"/>
+            <rChild name="mb1:MB1ChimRPC_IGasRight"/>
+            <rRotation name="rotations:R180"/>
+            <Translation x="0*cm" y="[mb1:MB1ChimRPC_GasRight_y_pos]" z="-[mbCommon:MBRPC_Gas_z_pos]"/>
+        </PosPart>
+        <!-- ##### MB1Chim: RPC_ON chamber -->
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1ChimN"/>
+            <rChild name="mb1:MB1ChimRPC_ON"/>
+            <Translation x="-[mb1:MB1RPC_O_x_pos]" y="0*fm" z="-[mbCommon:MBRPC_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1ChimRPC_ON"/>
+            <rChild name="mb1:MB1ChimRPC_OGasLeft"/>
+            <rRotation name="rotations:RPCD"/>
+            <Translation x="0*cm" y="-[mb1:MB1ChimRPC_GasLeft_y_pos]" z="+[mbCommon:MBRPC_Gas_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1ChimRPC_ON"/>
+            <rChild name="mb1:MB1ChimRPC_OGasLeft"/>
+            <rRotation name="rotations:RPCD"/>
+            <Translation x="0*cm" y="-[mb1:MB1ChimRPC_GasLeft_y_pos]" z="-[mbCommon:MBRPC_Gas_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="1">
+            <rParent name="mb1:MB1ChimRPC_ON"/>
+            <rChild name="mb1:MB1ChimRPC_OGasRight"/>
+            <rRotation name="rotations:RPCD"/>
+            <Translation x="0*cm" y="[mb1:MB1ChimRPC_GasRight_y_pos]" z="+[mbCommon:MBRPC_Gas_z_pos]"/>
+        </PosPart>
+        <PosPart copyNumber="2">
+            <rParent name="mb1:MB1ChimRPC_ON"/>
+            <rChild name="mb1:MB1ChimRPC_OGasRight"/>
+            <rRotation name="rotations:RPCD"/>
+            <Translation x="0*cm" y="[mb1:MB1ChimRPC_GasRight_y_pos]" z="-[mbCommon:MBRPC_Gas_z_pos]"/>
+        </PosPart>
+    </PosPartSection>
+</DDDefinition>

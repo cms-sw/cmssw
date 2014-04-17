@@ -15,7 +15,7 @@ from RecoTracker.FinalTrackSelectors.CosmicTFFinalTrackSelectorP5_cff import *
 #chi2 set to 40!!
 # CTF
 from RecoTracker.SpecialSeedGenerators.CombinatorialSeedGeneratorForCosmicsP5_cff import *
-from RecoTracker.SpecialSeedGenerators.SimpleCosmicBONSeeder_cfi import *
+from RecoTracker.SpecialSeedGenerators.SimpleCosmicBONSeeder_cff import *
 from RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cff import *
 combinedP5SeedsForCTF = RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi.globalCombinedSeeds.clone()
 combinedP5SeedsForCTF.seedCollections = cms.VInputTag(
@@ -46,7 +46,8 @@ from RecoTracker.FinalTrackSelectors.CTFFinalTrackSelectorP5_cff import *
 ckfTrackCandidatesP5LHCNavigation    = ckfTrackCandidatesP5.clone(NavigationSchool = cms.string('SimpleNavigationSchool'))
 ctfWithMaterialTracksP5LHCNavigation = ctfWithMaterialTracksCosmics.clone(src = cms.InputTag("ckfTrackCandidatesP5LHCNavigation"))
 
-ctftracksP5 = cms.Sequence(combinatorialcosmicseedfinderP5*simpleCosmicBONSeeds*combinedP5SeedsForCTF*
+ctftracksP5 = cms.Sequence(combinatorialcosmicseedinglayersP5+combinatorialcosmicseedfinderP5*
+                           simpleCosmicBONSeedingLayers*simpleCosmicBONSeeds*combinedP5SeedsForCTF*
                            ckfTrackCandidatesP5*ctfWithMaterialTracksCosmics*ctfWithMaterialTracksP5+
                            ckfTrackCandidatesP5LHCNavigation*ctfWithMaterialTracksP5LHCNavigation)
 

@@ -15,7 +15,7 @@ for rnum in 172791 173241 173243 173244
 do
   cmsRun ../../filterByRun2.py ${rnum}
 
-  cmsDriver.py test_${tnum}_${step}_1 -s ${DQMSEQUENCE} --conditions auto:com10 --datatier DQMROOT --filetype DQM --data --filein "file:file_${tnum}_a_new_Run${rnum}.root"  --scenario pp --customise ${customFile} --no_exec --python_filename=test_${tnum}_${step}_new_Run${rnum}.py
+  cmsDriver.py test_${tnum}_${step}_1 -s ${DQMSEQUENCE} --conditions auto:com10 --datatier DQMIO --filetype DQM --data --filein "file:file_${tnum}_a_new_Run${rnum}.root"  --scenario pp --customise ${customFile} --no_exec --python_filename=test_${tnum}_${step}_new_Run${rnum}.py
 
   if [ -e  q${tnum}_${step}_new_Run${rnum}.log ]; then
     rm  q${tnum}_${step}_new_Run${rnum}.log

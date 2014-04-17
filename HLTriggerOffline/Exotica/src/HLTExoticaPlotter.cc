@@ -5,11 +5,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
-//#include "DataFormats/Candidate/interface/CandMatchMap.h"
-//#include "DataFormats/MuonReco/interface/Muon.h"
-//#include "DataFormats/MuonReco/interface/MuonFwd.h"
-
-//#include "DataFormats/HLTReco/interface/TriggerEvent.h"
 
 #include "HLTriggerOffline/Exotica/interface/HLTExoticaPlotter.h"
 #include "HLTriggerOffline/Exotica/interface/HLTExoticaSubAnalysis.h"
@@ -72,7 +67,7 @@ void HLTExoticaPlotter::plotterBookHistos(DQMStore::IBooker & iBooker,
 
 void HLTExoticaPlotter::analyze(const bool & isPassTrigger,
                                 const std::string & source,
-                                const std::vector<MatchStruct> & matches)
+                                const std::vector<reco::LeafCandidate> & matches)
 {
     LogDebug("ExoticaValidation") << "In HLTExoticaPlotter::analyze()";
     if (!isPassTrigger) {
@@ -91,17 +86,17 @@ void HLTExoticaPlotter::analyze(const bool & isPassTrigger,
     // Fill the histos if pass the trigger (just the two with higher pt)
     for (size_t j = 0; j < matches.size(); ++j) {
         // Is this object owned by this trigger? If not we are not interested...
-        if (_objectsType.find(matches[j].objType) == _objectsType.end()) {
+        if (_objectsType.find(matches[j].pdgId()) == _objectsType.end()) {
             continue;
         }
 
-        const unsigned int objType = matches[j].objType;
-        const std::string objTypeStr = EVTColContainer::getTypeString(matches[j].objType);
+        const unsigned int objType = matches[j].pdgId();
+        const std::string objTypeStr = EVTColContainer::getTypeString(objType);
 
-        float pt  =   matches[j].pt;
-        float eta =   matches[j].eta;
-        float phi =   matches[j].phi;
-	float sumEt = matches[j].sumEt;
+        float pt  =   matches[j].pt();
+        float eta =   matches[j].eta();
+        float phi =   matches[j].phi();
+	float sumEt = 0;//matches[j].sumEt;
         this->fillHist(isPassTrigger, source, objTypeStr, "Eta", eta);
         this->fillHist(isPassTrigger, source, objTypeStr, "Phi", phi);
 	this->fillHist(isPassTrigger, source, objTypeStr, "SumEt", sumEt);

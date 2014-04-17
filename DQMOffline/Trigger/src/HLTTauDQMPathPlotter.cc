@@ -32,7 +32,7 @@ HLTTauDQMPathPlotter::HLTTauDQMPathPlotter(const edm::ParameterSet& pset, bool d
   configValid_ = true;
 }
 
-void HLTTauDQMPathPlotter::beginRun(const HLTConfigProvider& HLTCP) {
+void HLTTauDQMPathPlotter::updateHLTMenu(const HLTConfigProvider& HLTCP) {
   if(!configValid_)
     return;
 
@@ -45,67 +45,62 @@ void HLTTauDQMPathPlotter::beginRun(const HLTConfigProvider& HLTCP) {
 
   // Search path candidates
   runValid_ = hltPath_.beginRun(HLTCP);
-  if(!runValid_)
+}
+
+void HLTTauDQMPathPlotter::bookHistograms(DQMStore::IBooker &iBooker) {
+  if(!isValid())
     return;
 
   // Book histograms
-  edm::Service<DQMStore> store;
-  if(store.isAvailable()) {
-    store->setCurrentFolder(triggerTag());
-    store->removeContents();
+  iBooker.setCurrentFolder(triggerTag());
 
-    hAcceptedEvents_ = store->book1D("EventsPerFilter", "Accepted Events per filter;;entries", hltPath_.filtersSize(), 0, hltPath_.filtersSize());
-    for(size_t i=0; i<hltPath_.filtersSize(); ++i) {
-      hAcceptedEvents_->setBinLabel(i+1, hltPath_.getFilterName(i));
-    }
-
-    hTrigTauEt_ = store->book1D("TrigTauEt",   "Triggered #tau p_{T};#tau p_{T};entries", ptbins_,     0, ptmax_);
-    hTrigTauEta_ = store->book1D("TrigTauEta", "Triggered #tau #eta;#tau #eta;entries",  etabins_, -2.5, 2.5);
-    hTrigTauPhi_ = store->book1D("TrigTauPhi", "Triggered #tau #phi;#tau #phi;entries",  phibins_, -3.2, 3.2);
-
-    // Efficiency helpers
-    if(doRefAnalysis_) {
-      store->setCurrentFolder(triggerTag()+"/helpers");
-      store->removeContents();
-      if(hltPath_.hasL2Taus()) {
-        hL2TrigTauEtEffNum_    = store->book1D("L2TrigTauEtEffNum",    "L2 #tau p_{T} efficiency;Ref #tau p_{T};entries", ptbins_, 0, ptmax_);
-        hL2TrigTauEtEffDenom_  = store->book1D("L2TrigTauEtEffDenom",  "L2 #tau p_{T} denominator;Ref #tau p_{T};entries", ptbins_, 0, ptmax_);
-        hL2TrigTauEtaEffNum_   = store->book1D("L2TrigTauEtaEffNum",   "L2 #tau #eta efficiency;Ref #tau #eta;entries", etabins_, -2.5, 2.5);
-        hL2TrigTauEtaEffDenom_ = store->book1D("L2TrigTauEtaEffDenom", "L2 #tau #eta denominator;Ref #tau #eta;entries", etabins_, -2.5, 2.5);
-        hL2TrigTauPhiEffNum_   = store->book1D("L2TrigTauPhiEffNum",   "L2 #tau #phi efficiency;Ref #tau #phi;entries", phibins_, -3.2, 3.2);
-        hL2TrigTauPhiEffDenom_ = store->book1D("L2TrigTauPhiEffDenom", "L2 #tau #phi denominator;Ref #tau #phi;entries", phibins_, -3.2, 3.2);
-        hL2TrigTauHighEtEffNum_   = store->book1D("L2TrigTauHighEtEffNum",    "L2 #tau p_{T} efficiency (high p_{T})Ref #tau p_{T};entries", ptbins_, 0, highptmax_);
-        hL2TrigTauHighEtEffDenom_ = store->book1D("L2TrigTauHighEtEffDenom",  "L2 #tau p_{T} denominator (high p_{T})Ref #tau p_{T};entries", ptbins_, 0, highptmax_);
-      }
-
-      if(hltPath_.hasL3Taus()) {
-        hL3TrigTauEtEffNum_    = store->book1D("L3TrigTauEtEffNum",    "L3 #tau p_{T} efficiency;Ref #tau p_{T};entries", ptbins_, 0, ptmax_);
-        hL3TrigTauEtEffDenom_  = store->book1D("L3TrigTauEtEffDenom",  "L3 #tau p_{T} denominator;Ref #tau p_{T};entries", ptbins_, 0, ptmax_);
-        hL3TrigTauEtaEffNum_   = store->book1D("L3TrigTauEtaEffNum",   "L3 #tau #eta efficiency;Ref #tau #eta;entries", etabins_, -2.5, 2.5);
-        hL3TrigTauEtaEffDenom_ = store->book1D("L3TrigTauEtaEffDenom", "L3 #tau #eta denominator;Ref #tau #eta;entries", etabins_, -2.5, 2.5);
-        hL3TrigTauPhiEffNum_   = store->book1D("L3TrigTauPhiEffNum",   "L3 #tau #phi efficiency;Ref #tau #phi;entries", phibins_, -3.2, 3.2);
-        hL3TrigTauPhiEffDenom_ = store->book1D("L3TrigTauPhiEffDenom", "L3 #tau #phi denominator;Ref #tau #phi;entries", phibins_, -3.2, 3.2);
-        hL3TrigTauHighEtEffNum_    = store->book1D("L3TrigTauHighEtEffNum",    "L3 #tau p_{T} efficiency (high p_{T});Ref #tau p_{T};entries", ptbins_, 0, highptmax_);
-        hL3TrigTauHighEtEffDenom_  = store->book1D("L3TrigTauHighEtEffDenom",  "L3 #tau p_{T} denominator (high p_{T});Ref #tau p_{T};entries", ptbins_, 0, highptmax_);
-      }
-      store->setCurrentFolder(triggerTag());
-    }
-
-    // Book di-object invariant mass histogram only for mu+tau, ele+tau, and di-tau paths
-    hMass_ = nullptr;
-    if(doRefAnalysis_) {
-      const int lastFilter = hltPath_.filtersSize()-1;
-      const int ntaus = hltPath_.getFilterNTaus(lastFilter);
-      const int neles = hltPath_.getFilterNElectrons(lastFilter);
-      const int nmus = hltPath_.getFilterNMuons(lastFilter);
-      if(ntaus+neles+nmus == 2) {
-        hMass_ = store->book1D("ReferenceMass", "Invariant mass of reference "+dqmFolder_+";Reference invariant mass;entries", 100, 0, 500);
-      }
-    }
-    runValid_ = true;
+  hAcceptedEvents_ = iBooker.book1D("EventsPerFilter", "Accepted Events per filter;;entries", hltPath_.filtersSize(), 0, hltPath_.filtersSize());
+  for(size_t i=0; i<hltPath_.filtersSize(); ++i) {
+    hAcceptedEvents_->setBinLabel(i+1, hltPath_.getFilterName(i));
   }
-  else
-    runValid_ = false;
+
+  hTrigTauEt_ = iBooker.book1D("TrigTauEt",   "Triggered #tau p_{T};#tau p_{T};entries", ptbins_,     0, ptmax_);
+  hTrigTauEta_ = iBooker.book1D("TrigTauEta", "Triggered #tau #eta;#tau #eta;entries",  etabins_, -2.5, 2.5);
+  hTrigTauPhi_ = iBooker.book1D("TrigTauPhi", "Triggered #tau #phi;#tau #phi;entries",  phibins_, -3.2, 3.2);
+
+  // Efficiency helpers
+  if(doRefAnalysis_) {
+    iBooker.setCurrentFolder(triggerTag()+"/helpers");
+    if(hltPath_.hasL2Taus()) {
+      hL2TrigTauEtEffNum_    = iBooker.book1D("L2TrigTauEtEffNum",    "L2 #tau p_{T} efficiency;Ref #tau p_{T};entries", ptbins_, 0, ptmax_);
+      hL2TrigTauEtEffDenom_  = iBooker.book1D("L2TrigTauEtEffDenom",  "L2 #tau p_{T} denominator;Ref #tau p_{T};entries", ptbins_, 0, ptmax_);
+      hL2TrigTauEtaEffNum_   = iBooker.book1D("L2TrigTauEtaEffNum",   "L2 #tau #eta efficiency;Ref #tau #eta;entries", etabins_, -2.5, 2.5);
+      hL2TrigTauEtaEffDenom_ = iBooker.book1D("L2TrigTauEtaEffDenom", "L2 #tau #eta denominator;Ref #tau #eta;entries", etabins_, -2.5, 2.5);
+      hL2TrigTauPhiEffNum_   = iBooker.book1D("L2TrigTauPhiEffNum",   "L2 #tau #phi efficiency;Ref #tau #phi;entries", phibins_, -3.2, 3.2);
+      hL2TrigTauPhiEffDenom_ = iBooker.book1D("L2TrigTauPhiEffDenom", "L2 #tau #phi denominator;Ref #tau #phi;entries", phibins_, -3.2, 3.2);
+      hL2TrigTauHighEtEffNum_   = iBooker.book1D("L2TrigTauHighEtEffNum",    "L2 #tau p_{T} efficiency (high p_{T})Ref #tau p_{T};entries", ptbins_, 0, highptmax_);
+      hL2TrigTauHighEtEffDenom_ = iBooker.book1D("L2TrigTauHighEtEffDenom",  "L2 #tau p_{T} denominator (high p_{T})Ref #tau p_{T};entries", ptbins_, 0, highptmax_);
+    }
+
+    if(hltPath_.hasL3Taus()) {
+      hL3TrigTauEtEffNum_    = iBooker.book1D("L3TrigTauEtEffNum",    "L3 #tau p_{T} efficiency;Ref #tau p_{T};entries", ptbins_, 0, ptmax_);
+      hL3TrigTauEtEffDenom_  = iBooker.book1D("L3TrigTauEtEffDenom",  "L3 #tau p_{T} denominator;Ref #tau p_{T};entries", ptbins_, 0, ptmax_);
+      hL3TrigTauEtaEffNum_   = iBooker.book1D("L3TrigTauEtaEffNum",   "L3 #tau #eta efficiency;Ref #tau #eta;entries", etabins_, -2.5, 2.5);
+      hL3TrigTauEtaEffDenom_ = iBooker.book1D("L3TrigTauEtaEffDenom", "L3 #tau #eta denominator;Ref #tau #eta;entries", etabins_, -2.5, 2.5);
+      hL3TrigTauPhiEffNum_   = iBooker.book1D("L3TrigTauPhiEffNum",   "L3 #tau #phi efficiency;Ref #tau #phi;entries", phibins_, -3.2, 3.2);
+      hL3TrigTauPhiEffDenom_ = iBooker.book1D("L3TrigTauPhiEffDenom", "L3 #tau #phi denominator;Ref #tau #phi;entries", phibins_, -3.2, 3.2);
+      hL3TrigTauHighEtEffNum_    = iBooker.book1D("L3TrigTauHighEtEffNum",    "L3 #tau p_{T} efficiency (high p_{T});Ref #tau p_{T};entries", ptbins_, 0, highptmax_);
+      hL3TrigTauHighEtEffDenom_  = iBooker.book1D("L3TrigTauHighEtEffDenom",  "L3 #tau p_{T} denominator (high p_{T});Ref #tau p_{T};entries", ptbins_, 0, highptmax_);
+    }
+    iBooker.setCurrentFolder(triggerTag());
+  }
+
+  // Book di-object invariant mass histogram only for mu+tau, ele+tau, and di-tau paths
+  hMass_ = nullptr;
+  if(doRefAnalysis_) {
+    const int lastFilter = hltPath_.filtersSize()-1;
+    const int ntaus = hltPath_.getFilterNTaus(lastFilter);
+    const int neles = hltPath_.getFilterNElectrons(lastFilter);
+    const int nmus = hltPath_.getFilterNMuons(lastFilter);
+    if(ntaus+neles+nmus == 2) {
+      hMass_ = iBooker.book1D("ReferenceMass", "Invariant mass of reference "+dqmFolder_+";Reference invariant mass;entries", 100, 0, 500);
+    }
+  }
 }
 
 

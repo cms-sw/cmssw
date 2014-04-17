@@ -7,6 +7,7 @@ trackerHitsValid = cms.EDAnalyzer("TrackerHitAnalyzer",
     PxlBrlLowSrc = cms.InputTag("g4SimHits","TrackerHitsPixelBarrelLowTof"),
     Name = cms.untracked.string('TrackerHitAnalyzer'),
     Verbosity = cms.untracked.bool(False),
+    runStandalone = cms.bool(False),
     outputFile =cms.untracked.string(''),
     PxlFwdLowSrc = cms.InputTag("g4SimHits","TrackerHitsPixelEndcapLowTof"),
 

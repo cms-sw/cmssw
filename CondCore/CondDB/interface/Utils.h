@@ -8,6 +8,8 @@
 #include <algorithm>
 #include <iostream>
 #include <tuple>
+//
+#include <boost/regex.hpp>
 
 namespace cond {
 
@@ -59,6 +61,58 @@ namespace cond {
       } else throwException( "Technology "+protocol+" is not known.","parseConnectionString" );
 	
       return std::make_tuple( protocol, serviceName, databaseName );
+    }
+
+    inline std::string convertoToOracleConnection(const std::string & input){
+
+      //static const boost::regex trivial("oracle://(cms_orcon_adg|cms_orcoff_prep)/([_[:alnum:]]+?)");
+      static const boost::regex short_frontier("frontier://([[:alnum:]]+?)/([_[:alnum:]]+?)");
+      static const boost::regex long_frontier("frontier://((\\([-[:alnum:]]+?=[^\\)]+?\\))+)/([_[:alnum:]]+?)");
+      static const boost::regex long_frontier_serverurl("\\(serverurl=[^\\)]+?/([[:alnum:]]+?)\\)");
+
+      static const std::map<std::string, std::string> frontierMap = {
+	{"PromptProd", "cms_orcon_adg"},
+	{"FrontierProd", "cms_orcon_adg"},
+	{"FrontierArc", "cms_orcon_adg"},
+	{"FrontierOnProd", "cms_orcon_adg"},
+	{"FrontierPrep", "cms_orcoff_prep"},
+      };
+
+      boost::smatch matches;
+
+      static const std::string technology("oracle://");
+      std::string service("");
+      std::string account("");
+
+      bool match = false;
+      if (boost::regex_match(input, matches, short_frontier)){
+	service = matches[1];
+	account = matches[2];
+	match = true;
+      }
+      
+      if (boost::regex_match(input, matches, long_frontier)) {
+	std::string frontier_config(matches[1]);
+	boost::smatch matches2;
+	if (not boost::regex_search(frontier_config, matches2, long_frontier_serverurl))
+	  throwException("No serverurl in matched long frontier","convertoToOracleConnection");
+	service = matches2[1];
+	account = matches[3];
+	match = true;
+      }
+
+      if( !match ) throwException("Connection string can't be converted.","convertoToOracleConnection");
+
+      if( service == "FrontierArc" ){
+	size_t len = account.size()-5;
+	account = account.substr(0,len);
+      }
+
+      auto it = frontierMap.find( service );
+      if( it == frontierMap.end() ) throwException("Connection string can't be converted.","convertoToOracleConnection");
+      service = it->second; 
+
+      return technology+service+"/"+account;
     }
     
   }

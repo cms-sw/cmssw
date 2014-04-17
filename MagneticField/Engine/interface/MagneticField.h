@@ -53,7 +53,10 @@ class MagneticField
   }
   
   /// The nominal field value for this map in kGauss
-  int nominalValue() const;
+  int nominalValue() const {  
+     if(kSet==nominalValueCompiuted.load()) return theNominalValue;
+     return computeNominalValue();
+  }     
 
 private:
   //nominal field value 

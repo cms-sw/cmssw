@@ -22,6 +22,10 @@
      <field name="sVector_" mapping="blob"/>
   </class>
 
+  <class name="SiPixelGenErrorDBObject" class_version="0">
+     <field name="sVector_" mapping="blob"/>
+  </class>
+
   <class name="SiPixelGainCalibration" class_version="0"/>
   <class name="SiPixelGainCalibration::DetRegistry"/>
   <class name="std::vector<SiPixelGainCalibration::DetRegistry>"/>

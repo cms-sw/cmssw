@@ -20,7 +20,7 @@ namespace cond {
       std::string tag;
       cond::TimeType timeType;
       std::string payloadType;
-      cond::SynchronizationType synchronizationType; 
+      cond::SynchronizationType synchronizationType = cond::OFFLINE; 
       std::string description;
       cond::Time_t endOfValidity = cond::time::MAX_VAL;
       cond::Time_t lastValidatedTime = cond::time::MIN_VAL; 

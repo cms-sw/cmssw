@@ -868,6 +868,16 @@ void ElectronMcFakeValidator::book()
   h1_ele_photonIso = bookH1withSumw2("photonIso","photonIso",100,0.0,20.,"photonIso","Events","ELE_LOGY E1 P");
   h1_ele_photonIso_barrel = bookH1withSumw2("photonIso_barrel","photonIso for barrel",100,0.0,20.,"photonIso_barrel","Events","ELE_LOGY E1 P");
   h1_ele_photonIso_endcaps = bookH1withSumw2("photonIso_endcaps","photonIso for endcaps",100,0.0,20.,"photonIso_endcaps","Events","ELE_LOGY E1 P");
+  // -- pflow over pT
+  h1_ele_chargedHadronRelativeIso = bookH1withSumw2("chargedHadronRelativeIso","chargedHadronRelativeIso",100,0.0,2.,"chargedHadronRelativeIso","Events","ELE_LOGY E1 P");
+  h1_ele_chargedHadronRelativeIso_barrel = bookH1withSumw2("chargedHadronRelativeIso_barrel","chargedHadronRelativeIso for barrel",100,0.0,2.,"chargedHadronRelativeIso_barrel","Events","ELE_LOGY E1 P");
+  h1_ele_chargedHadronRelativeIso_endcaps = bookH1withSumw2("chargedHadronRelativeIso_endcaps","chargedHadronRelativeIso for endcaps",100,0.0,2.,"chargedHadronRelativeIso_endcaps","Events","ELE_LOGY E1 P");
+  h1_ele_neutralHadronRelativeIso = bookH1withSumw2("neutralHadronRelativeIso","neutralHadronRelativeIso",100,0.0,2.,"neutralHadronRelativeIso","Events","ELE_LOGY E1 P");
+  h1_ele_neutralHadronRelativeIso_barrel = bookH1withSumw2("neutralHadronRelativeIso_barrel","neutralHadronRelativeIso for barrel",100,0.0,2.,"neutralHadronRelativeIso_barrel","Events","ELE_LOGY E1 P");
+  h1_ele_neutralHadronRelativeIso_endcaps = bookH1withSumw2("neutralHadronRelativeIso_endcaps","neutralHadronRelativeIso for endcaps",100,0.0,2.,"neutralHadronRelativeIso_endcaps","Events","ELE_LOGY E1 P");
+  h1_ele_photonRelativeIso = bookH1withSumw2("photonRelativeIso","photonRelativeIso",100,0.0,2.,"photonRelativeIso","Events","ELE_LOGY E1 P");
+  h1_ele_photonRelativeIso_barrel = bookH1withSumw2("photonRelativeIso_barrel","photonRelativeIso for barrel",100,0.0,2.,"photonRelativeIso_barrel","Events","ELE_LOGY E1 P");
+  h1_ele_photonRelativeIso_endcaps = bookH1withSumw2("photonRelativeIso_endcaps","photonRelativeIso for endcaps",100,0.0,2.,"photonRelativeIso_endcaps","Events","ELE_LOGY E1 P");
 
   // conversion rejection information
   h1_ele_convFlags = bookH1withSumw2("convFlags","conversion rejection flag",5,-2.5,2.5);
@@ -1389,6 +1399,19 @@ void ElectronMcFakeValidator::analyze( const edm::Event & iEvent, const edm::Eve
       h1_ele_photonIso->Fill(bestGsfElectron.pfIsolationVariables().sumPhotonEt);
       if (bestGsfElectron.isEB()) h1_ele_photonIso_barrel->Fill(bestGsfElectron.pfIsolationVariables().sumPhotonEt);
       if (bestGsfElectron.isEE()) h1_ele_photonIso_endcaps->Fill(bestGsfElectron.pfIsolationVariables().sumPhotonEt);
+
+      // -- pflow over pT
+      h1_ele_chargedHadronRelativeIso->Fill(bestGsfElectron.pfIsolationVariables().sumChargedHadronPt / bestGsfElectron.pt());
+      if (bestGsfElectron.isEB()) h1_ele_chargedHadronRelativeIso_barrel->Fill(bestGsfElectron.pfIsolationVariables().sumChargedHadronPt / bestGsfElectron.pt());
+      if (bestGsfElectron.isEE()) h1_ele_chargedHadronRelativeIso_endcaps->Fill(bestGsfElectron.pfIsolationVariables().sumChargedHadronPt / bestGsfElectron.pt());
+
+      h1_ele_neutralHadronRelativeIso->Fill(bestGsfElectron.pfIsolationVariables().sumNeutralHadronEt / bestGsfElectron.pt());
+      if (bestGsfElectron.isEB()) h1_ele_neutralHadronRelativeIso_barrel->Fill(bestGsfElectron.pfIsolationVariables().sumNeutralHadronEt / bestGsfElectron.pt());
+      if (bestGsfElectron.isEE()) h1_ele_neutralHadronRelativeIso_endcaps->Fill(bestGsfElectron.pfIsolationVariables().sumNeutralHadronEt / bestGsfElectron.pt());
+
+      h1_ele_photonRelativeIso->Fill(bestGsfElectron.pfIsolationVariables().sumPhotonEt / bestGsfElectron.pt());
+      if (bestGsfElectron.isEB()) h1_ele_photonRelativeIso_barrel->Fill(bestGsfElectron.pfIsolationVariables().sumPhotonEt / bestGsfElectron.pt());
+      if (bestGsfElectron.isEE()) h1_ele_photonRelativeIso_endcaps->Fill(bestGsfElectron.pfIsolationVariables().sumPhotonEt / bestGsfElectron.pt());
 
       // isolation
       h1_ele_tkSumPt_dr03->Fill(bestGsfElectron.dr03TkSumPt());

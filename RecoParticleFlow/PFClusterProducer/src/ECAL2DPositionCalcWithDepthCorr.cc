@@ -1,6 +1,7 @@
 #include "ECAL2DPositionCalcWithDepthCorr.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 #include <cmath>
 #include <unordered_map>
@@ -67,17 +68,28 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
   // find the seed and max layer
   for( const reco::PFRecHitFraction& rhf : cluster.recHitFractions() ) {
     const reco::PFRecHitRef& refhit = rhf.recHitRef();
-    const double rh_energy = refhit->energy() * rhf.fraction();    
-    const double rh_energyf = ((float)refhit->energy()) * ((float)rhf.fraction());
-    if( std::isnan(rh_energy) ) {
+    const double rh_fraction = rhf.fraction();
+    const double rh_rawenergy = refhit->energy();
+    const double rh_energy = rh_rawenergy * rh_fraction;    
+    const double rh_energyf = ((float)rh_rawenergy) * ((float) rh_fraction);
+    if( !edm::isFinite(rh_energy) ) {
       throw cms::Exception("PFClusterAlgo")
-	<<"rechit " << refhit->detId() << " has a NaN energy... " 
+	<<"rechit " << refhit->detId() << " has non-finite energy... " 
 	<< "The input of the particle flow clustering seems to be corrupted.";
     }
     cl_energy += rh_energy;
     cl_energy_float += rh_energyf;
-    cl_timeweight+=refhit->energy()*refhit->energy()*rhf.fraction();
-    cl_time += refhit->energy()*refhit->energy()*rhf.fraction()*refhit->time();   
+    // If time resolution is given, calculate weighted average
+    if (_timeResolutionCalc) {
+      const double res2 = _timeResolutionCalc->timeResolution2(rh_rawenergy);
+      cl_time += rh_fraction*refhit->time()/res2;
+      cl_timeweight += rh_fraction/res2;
+    }
+    else { // assume resolution ~ 1/E**2
+      const double rh_rawenergy2 = rh_rawenergy*rh_rawenergy;
+      cl_timeweight+=rh_rawenergy2*rh_fraction;
+      cl_time += rh_rawenergy2*rh_fraction*refhit->time();
+    }
     if( rh_energy > max_e ) {
       max_e = rh_energy;
       max_e_layer = rhf.recHitRef()->layer();

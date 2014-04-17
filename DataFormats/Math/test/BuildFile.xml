@@ -36,6 +36,14 @@
 </bin>
 <bin   file="eta_t.cpp" name="DataFormatsEta_t">
 </bin>
+<bin file="testAtan2.cpp" />
+<bin file="testAtan2.cpp" name="testAtan2FastMath">
+   <flags CXXFLAGS="-ffast-math"/>
+</bin>
+<bin file="testAtan2.cpp" name="testAtan2VDT">
+  <use   name="vdt"/>
+</bin>
+
 <bin   file="deltaR_t.cpp" name="DataFormatsDeltaR_t">
   <flags CXXFLAGS="-std=gnu++11 -Wno-error=format -Wno-format"/>
   <flags REM_CXXFLAGS="-std=c++%"/>

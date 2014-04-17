@@ -6,6 +6,14 @@
 
 #include <string>
 #include <map>
+#include<memory>
+
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+#define NO_DICT
+#endif
+
+
 class SiPixelFedCablingTree;
 
 
@@ -21,7 +29,9 @@ public:
 
   virtual ~SiPixelFedCablingMap() {}
 
-  SiPixelFedCablingTree * cablingTree() const; 
+#ifdef NO_DICT
+  std::unique_ptr<SiPixelFedCablingTree> cablingTree() const; 
+#endif
 
   virtual std::string version() const { return theVersion; }
 

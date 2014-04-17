@@ -21,6 +21,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
@@ -42,7 +43,6 @@
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 #include "HLTriggerOffline/Exotica/interface/HLTExoticaPlotter.h"
-
 #include<vector>
 #include<set>
 #include<map>
@@ -56,9 +56,9 @@ class EVTColContainer;
 /// of all HLT paths related to that analysis.
 class HLTExoticaSubAnalysis {
 public:
-    enum {
-        GEN,
-        RECO
+    enum class Level{
+        GEN = 98,
+        RECO = 99
     };
 
     HLTExoticaSubAnalysis(const edm::ParameterSet & pset,
@@ -96,7 +96,7 @@ private:
     /// This function applies the selectors initialized previously to the objects,
     /// and matches the passing objects to HLT objects.
     void insertCandidates(const unsigned int & objtype, const EVTColContainer * col,
-                          std::vector<MatchStruct> * matches);
+                          std::vector<reco::LeafCandidate> * matches);
 
     /// The internal functions to book and fill histograms
     void bookHist(DQMStore::IBooker &iBooker, const std::string & source, const std::string & objType,

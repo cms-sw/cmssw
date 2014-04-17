@@ -42,6 +42,7 @@ class EgammaHLTPFNeutralIsolationProducer : public edm::EDProducer {
   edm::EDGetTokenT<reco::ElectronCollection> electronProducer_;
   edm::EDGetTokenT<reco::RecoEcalCandidateCollection> recoEcalCandidateProducer_;
   edm::EDGetTokenT<reco::PFCandidateCollection> pfCandidateProducer_;
+  edm::EDGetTokenT<double> rhoProducer_;
 
   bool useSCRefs_;
 
@@ -54,9 +55,11 @@ class EgammaHLTPFNeutralIsolationProducer : public edm::EDProducer {
   double energyEndcap_;
   int pfToUse_;
 
-  //bool doRhoCorrection_;
-  //float rhoScale_;
-  //float rhoMax_;
+  float effectiveAreaBarrel_;
+  float effectiveAreaEndcap_;
+  bool doRhoCorrection_;
+  float rhoScale_;
+  float rhoMax_;
 
 };
 

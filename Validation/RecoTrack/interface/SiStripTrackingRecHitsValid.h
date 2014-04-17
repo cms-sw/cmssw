@@ -5,7 +5,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 
@@ -72,7 +72,7 @@
 class SiStripDetCabling;
 class SiStripDCSStatus;
 
-class SiStripTrackingRecHitsValid : public edm::EDAnalyzer
+class SiStripTrackingRecHitsValid : public thread_unsafe::DQMEDAnalyzer
 {
  public:
   
@@ -253,15 +253,18 @@ class SiStripTrackingRecHitsValid : public edm::EDAnalyzer
  protected:
 
   virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
-  void beginJob(const edm::EventSetup& es);
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
+  void bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es);
   const MagneticField * magfield2_ ;
+  void beginJob(const edm::EventSetup& es);
   void endJob();
 
  private:
   
   DQMStore* dbe_;
-  std::string outputFile_;
+  bool runStandalone;
+  bool outputMEsInRootFile;
+  std::string outputFileName;
+  
   std::string topFolderName_;
   
  
@@ -403,13 +406,13 @@ class SiStripTrackingRecHitsValid : public edm::EDAnalyzer
 
   MonitorElement* Fit_SliceY(TH2F * Histo2D);
 
-  void createMEs(const edm::EventSetup& es);
-  void createSimpleHitsMEs(); 
-  void createLayerMEs(std::string label);
-  void createStereoAndMatchedMEs(std::string label);
+  void createMEs(DQMStore::IBooker & ibooker,const edm::EventSetup& es);
+  void createSimpleHitsMEs(DQMStore::IBooker & ibooker); 
+  void createLayerMEs(DQMStore::IBooker & ibooker,std::string label);
+  void createStereoAndMatchedMEs(DQMStore::IBooker & ibooker,std::string label);
   
-  MonitorElement* bookME1D(const char* ParameterSetLabel, const char* HistoName, const char* HistoTitle);
-  MonitorElement* bookMEProfile(const char* ParameterSetLabel, const char* HistoName, const char* HistoTitle);
+  MonitorElement* bookME1D(DQMStore::IBooker & ibooker,const char* ParameterSetLabel, const char* HistoName, const char* HistoTitle);
+  MonitorElement* bookMEProfile(DQMStore::IBooker & ibooker,const char* ParameterSetLabel, const char* HistoName, const char* HistoTitle);
 
   inline void fillME(MonitorElement* ME,float value1){if (ME!=0)ME->Fill(value1);}
   inline void fillME(MonitorElement* ME,float value1,float value2){if (ME!=0)ME->Fill(value1,value2);}

@@ -17,13 +17,9 @@ process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 #
 process.load("SimG4Core.Application.g4SimHits_cfi")
 
-process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    moduleSeeds = cms.PSet(
-        generator = cms.untracked.uint32(456789),
-        g4SimHits = cms.untracked.uint32(9876)
-    ),
-    sourceSeed = cms.untracked.uint32(135799753)
-)
+process.load("IOMC.RandomEngine.IOMC_cff")
+process.RandomNumberGeneratorService.generator.initialSeed = 456789
+process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
 
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout'),
@@ -73,33 +69,7 @@ process.g4SimHits.Physics.type = 'SimG4Core/Physics/DummyPhysics'
 process.g4SimHits.Physics.DummyEMPhysics = True
 process.g4SimHits.Physics.CutsPerRegion = False
 process.g4SimHits.Generator.ApplyEtaCuts = False
-process.common_maximum_timex = cms.PSet(
-    MaxTrackTime  = cms.double(1000.0),
-    MaxTimeNames  = cms.vstring(),
-    MaxTrackTimes = cms.vdouble()
-)
 
-process.g4SimHits.StackingAction = cms.PSet(
-    process.common_heavy_suppression,
-    process.common_maximum_timex,
-    KillDeltaRay  = cms.bool(True),
-    TrackNeutrino = cms.bool(False),
-    KillHeavy     = cms.bool(False),
-    SaveFirstLevelSecondary = cms.untracked.bool(True),
-    SavePrimaryDecayProductsAndConversionsInTracker = cms.untracked.bool(True),
-    SavePrimaryDecayProductsAndConversionsInCalo    = cms.untracked.bool(True),
-    SavePrimaryDecayProductsAndConversionsInMuon    = cms.untracked.bool(True)
-)
-process.g4SimHits.SteppingAction = cms.PSet(
-    process.common_maximum_timex,
-    KillBeamPipe            = cms.bool(False),
-    CriticalEnergyForVacuum = cms.double(0.0),
-    CriticalDensity         = cms.double(1e-15),
-    EkinNames               = cms.vstring(),
-    EkinThresholds          = cms.vdouble(),
-    EkinParticles           = cms.vstring(),
-    Verbosity               = cms.untracked.int32(2)
-)
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     MaterialBudgetForward = cms.PSet(
         DetectorTypes = cms.vstring('BeamPipe','Tracker','EM Calorimeter','Hadron Calorimeter','Forward Calorimeter','TOTEM','CASTOR','Forward Shield','Muon System'),

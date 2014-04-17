@@ -54,19 +54,59 @@ namespace cond {
 
 }
 
+namespace {
+  struct InitDTCCBConfig {void operator()(DTCCBConfig& e){ e.initialize();}};
+}
+
+namespace {
+  struct InitDTDeadFlag {void operator()(DTDeadFlag& e){ e.initialize();}};
+}
+
+namespace {
+  struct InitDTHVStatus {void operator()(DTHVStatus& e){ e.initialize();}};
+}
+
+namespace {
+  struct InitDTLVStatus {void operator()(DTLVStatus& e){ e.initialize();}};
+}
+
+namespace {
+  struct InitDTMtime {void operator()(DTMtime& e){ e.initialize();}};
+}
+
+namespace {
+  struct InitDTPerformance {void operator()(DTPerformance& e){ e.initialize();}};
+}
+
+namespace {
+  struct InitDTRangeT0 {void operator()(DTRangeT0& e){ e.initialize();}};
+}
+
+namespace {
+  struct InitDTStatusFlag {void operator()(DTStatusFlag& e){ e.initialize();}};
+}
+
+namespace {
+  struct InitDTTPGParameters {void operator()(DTTPGParameters& e){ e.initialize();}};
+}
+
+namespace {
+  struct InitDTTtrig {void operator()(DTTtrig& e){ e.initialize();}};
+}
+
 REGISTER_PLUGIN(DTReadOutMappingRcd,DTReadOutMapping);
 REGISTER_PLUGIN(DTT0Rcd,DTT0);
 REGISTER_PLUGIN(DTT0RefRcd,DTT0);
-REGISTER_PLUGIN(DTRangeT0Rcd,DTRangeT0);
-REGISTER_PLUGIN(DTTtrigRcd,DTTtrig);
-REGISTER_PLUGIN(DTMtimeRcd,DTMtime);
-REGISTER_PLUGIN(DTStatusFlagRcd,DTStatusFlag);
-REGISTER_PLUGIN(DTDeadFlagRcd,DTDeadFlag);
-REGISTER_PLUGIN(DTPerformanceRcd,DTPerformance);
-REGISTER_PLUGIN(DTCCBConfigRcd,DTCCBConfig);
-REGISTER_PLUGIN(DTTPGParametersRcd,DTTPGParameters);
-REGISTER_PLUGIN(DTHVStatusRcd,DTHVStatus);
-REGISTER_PLUGIN(DTLVStatusRcd,DTLVStatus);
+REGISTER_PLUGIN_INIT(DTRangeT0Rcd,DTRangeT0,InitDTRangeT0);
+REGISTER_PLUGIN_INIT(DTTtrigRcd,DTTtrig,InitDTTtrig);
+REGISTER_PLUGIN_INIT(DTMtimeRcd,DTMtime,InitDTMtime);
+REGISTER_PLUGIN_INIT(DTStatusFlagRcd,DTStatusFlag,InitDTStatusFlag);
+REGISTER_PLUGIN_INIT(DTDeadFlagRcd,DTDeadFlag,InitDTDeadFlag);
+REGISTER_PLUGIN_INIT(DTPerformanceRcd,DTPerformance,InitDTPerformance);
+REGISTER_PLUGIN_INIT(DTCCBConfigRcd,DTCCBConfig,InitDTCCBConfig);
+REGISTER_PLUGIN_INIT(DTTPGParametersRcd,DTTPGParameters,InitDTTPGParameters);
+REGISTER_PLUGIN_INIT(DTHVStatusRcd,DTHVStatus,InitDTHVStatus);
+REGISTER_PLUGIN_INIT(DTLVStatusRcd,DTLVStatus,InitDTLVStatus);
 REGISTER_PLUGIN(DTKeyedConfigContainerRcd, cond::BaseKeyed);
 REGISTER_KEYLIST_PLUGIN(DTKeyedConfigListRcd,cond::persistency::KeyList,DTKeyedConfigContainerRcd);
 REGISTER_PLUGIN(DTRecoUncertaintiesRcd, DTRecoUncertainties);

@@ -18,18 +18,16 @@ struct CorrMETData
   double mey;
 
   double sumet; // to be deleted
-  double significance; // to be deleted
 
-  CorrMETData() : mex(0.0), mey(0.0), sumet(0.0), significance(0.0) { }
+  CorrMETData() : mex(0.0), mey(0.0), sumet(0.0) { }
 
-  CorrMETData(const CorrMETData& corr) : mex(corr.mex), mey(corr.mey), sumet(corr.sumet), significance(corr.significance) { }
+  CorrMETData(const CorrMETData& corr) : mex(corr.mex), mey(corr.mey), sumet(corr.sumet) { }
 
   CorrMETData& operator+=(const CorrMETData& rhs)
   {
     mex += rhs.mex;	 
     mey += rhs.mey;	 
     sumet += rhs.sumet;	 
-    significance += rhs.significance;
     return *this;
   }
 
@@ -38,7 +36,6 @@ struct CorrMETData
     mex *= rhs;
     mey *= rhs;	 
     sumet *= rhs;	 
-    significance *= rhs;
     return *this;
   }
 

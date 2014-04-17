@@ -422,7 +422,7 @@ void FastTimerService::preStreamBeginRun(edm::StreamContext const & sc)
 
     // per-path and per-module accounting
     if (m_enable_timing_paths) {
-      booker.setCurrentFolder(m_dqm_path + "/Paths");
+      booker.setCurrentFolder(m_dqm_path + "/process " + process_name + "/Paths");
       for (auto & keyval: stream.paths[pid]) {
         std::string const & pathname = keyval.first;
         PathInfo          & pathinfo = keyval.second;

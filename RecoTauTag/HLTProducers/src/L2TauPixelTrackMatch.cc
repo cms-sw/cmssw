@@ -3,12 +3,8 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/RefToBase.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 
@@ -20,14 +16,14 @@
 
 L2TauPixelTrackMatch::L2TauPixelTrackMatch(const edm::ParameterSet& conf)
 {
-  m_jetSrc	     = conf.getParameter<edm::InputTag>("JetSrc");
+  m_jetSrc	     = consumes<trigger::TriggerFilterObjectWithRefs>(conf.getParameter<edm::InputTag>("JetSrc"));
   m_jetMinPt	     = conf.getParameter<double>("JetMinPt");
   m_jetMaxEta	     = conf.getParameter<double>("JetMaxEta");
   //m_jetMinN	     = conf.getParameter<int>("JetMinN");
-  m_trackSrc	     = conf.getParameter<edm::InputTag>("TrackSrc");
+  m_trackSrc	     = consumes<reco::TrackCollection>(conf.getParameter<edm::InputTag>("TrackSrc"));
   m_trackMinPt	     = conf.getParameter<double>("TrackMinPt");
   m_deltaR	     = conf.getParameter<double>("deltaR");
-  m_beamSpotTag      = conf.getParameter<edm::InputTag>("BeamSpotSrc");
+  m_beamSpotTag      = consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("BeamSpotSrc"));
 
   produces<reco::CaloJetCollection>();
 }
@@ -45,7 +41,7 @@ void L2TauPixelTrackMatch::produce(edm::Event& ev, const edm::EventSetup& es)
   
   // use beam spot for vertex x,y
   edm::Handle<BeamSpot> bsHandle;
-  ev.getByLabel( m_beamSpotTag, bsHandle);
+  ev.getByToken( m_beamSpotTag, bsHandle);
   const reco::BeamSpot & bs = *bsHandle;
   math::XYZPoint beam_spot(bs.x0(), bs.y0(), bs.z0());
   DBG_PRINT(cout<<endl<<"beamspot "<<beam_spot<<endl);
@@ -53,13 +49,13 @@ void L2TauPixelTrackMatch::produce(edm::Event& ev, const edm::EventSetup& es)
   // *** Pick up pixel tracks ***
 
   edm::Handle<TrackCollection> tracksHandle;
-  ev.getByLabel(m_trackSrc,tracksHandle);
+  ev.getByToken(m_trackSrc,tracksHandle);
 
   // *** Pick up L2 tau jets that were previously selected by some other filter ***
   
   // first, get L2 object refs by the label
   edm::Handle<trigger::TriggerFilterObjectWithRefs> jetsHandle;
-  ev.getByLabel(m_jetSrc, jetsHandle);
+  ev.getByToken(m_jetSrc, jetsHandle);
 
   // now we can get pre-selected L2 tau jets
   std::vector<CaloJetRef> tau_jets;

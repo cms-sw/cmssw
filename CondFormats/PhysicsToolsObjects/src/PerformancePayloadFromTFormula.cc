@@ -5,8 +5,17 @@ const int PerformancePayloadFromTFormula::InvalidPos=-1;
 #include <iostream>
 using namespace std;
 
+void PerformancePayloadFromTFormula::initialize() {
+  for( std::vector<std::string>::const_iterator formula = pl.formulas().begin(); formula != pl.formulas().end(); ++formula ) {
+    //FIXME: "rr" should be unique!      
+    boost::shared_ptr<TFormula> temp(new TFormula("rr",formula->c_str()));
+    temp->Compile();
+    compiledFormulas_.push_back(temp);
+  }
+}
+
+
 float PerformancePayloadFromTFormula::getResult(PerformanceResult::ResultType r ,const BinningPointByMap& _p) const {
-  check();
   BinningPointByMap p = _p;
   //
   // which formula to use?
@@ -14,7 +23,7 @@ float PerformancePayloadFromTFormula::getResult(PerformanceResult::ResultType r 
   if (! isInPayload(r,p)) return PerformancePayload::InvalidResult;
 
   // nice, what to do here???
-  TFormula * formula = compiledFormulas_[resultPos(r)];
+  const boost::shared_ptr<TFormula>& formula = compiledFormulas_[resultPos(r)];
   //
   // prepare the vector to pass, order counts!!!
   //
@@ -28,6 +37,10 @@ float PerformancePayloadFromTFormula::getResult(PerformanceResult::ResultType r 
   }
   //
   // i need a non const version #$%^
+  // Note, in current implementation of TFormula EvalPar should be
+  // thread safe as it does nothing more than call a function
+  // through a function pointer which is stateless. In spite of the
+  // fact that it is not const.
   return formula->EvalPar(values);
 }
 
@@ -46,7 +59,6 @@ bool PerformancePayloadFromTFormula::isOk(const BinningPointByMap& _p) const {
 }
 
 bool PerformancePayloadFromTFormula::isInPayload(PerformanceResult::ResultType res,const BinningPointByMap& point) const {
-  check();
   // first, let's see if it is available at all
   if (resultPos(res) == PerformancePayloadFromTFormula::InvalidPos) return false;
   
@@ -54,30 +66,18 @@ bool PerformancePayloadFromTFormula::isInPayload(PerformanceResult::ResultType r
   return true;
 }
 
-
-void PerformancePayloadFromTFormula::check() const {
-  if (pl.formulas().size() == compiledFormulas_.size()) return;
-  //
-  // otherwise, compile!
-  //
-  for (unsigned int i=0; i< pl.formulas().size(); ++i){
-    TFormula* t = new TFormula("rr",(pl.formulas()[i]).c_str()); //FIXME: "rr" should be unique!
-    t->Compile();
-    compiledFormulas_.push_back(t);
-  }
-}
-
 void PerformancePayloadFromTFormula::printFormula(PerformanceResult::ResultType res) const {
-  check();
   //
   // which formula to use?
   //
   if (resultPos(res) == PerformancePayloadFromTFormula::InvalidPos)  {
     cout << "Warning: result not available!" << endl;
+    return;
   }
   
   // nice, what to do here???
-  TFormula * formula = compiledFormulas_[resultPos(res)];
+  const boost::shared_ptr<TFormula>& formula = 
+    compiledFormulas_[resultPos(res)];
   cout << "-- Formula: " << formula->GetExpFormula("p") << endl;
   // prepare the vector to pass, order counts!!!
   //

@@ -160,4 +160,7 @@ class PFPhotonTranslator : public edm::EDProducer
   bool emptyIsOk_;
 
 };
+
+DEFINE_FWK_MODULE(PFPhotonTranslator);
+
 #endif

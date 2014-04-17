@@ -153,7 +153,7 @@ ParticlePropagator::propagateToBoundSurface(const TrackerLayer& layer) {
 
 
   fiducial = true;
-  BoundDisk* disk = layer.disk();
+  BoundDisk const* disk = layer.disk();
   //  bool disk = layer.forward();
   //  double innerradius=-999;
   double innerradius = disk ? layer.diskInnerRadius() : -999. ;

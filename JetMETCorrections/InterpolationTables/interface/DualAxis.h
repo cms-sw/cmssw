@@ -35,8 +35,8 @@ namespace npstat {
                         const char* label=0)
             : a_(dummy_vec()), u_(nCoords, min, max, label), uniform_(true) {}
 
-        inline DualAxis(const std::vector<double>& coords,
-                        const bool useLogSpace=false)
+        inline explicit DualAxis(const std::vector<double>& coords,
+                                 const bool useLogSpace=false)
             : a_(coords, useLogSpace), u_(2, 0.0, 1.0), uniform_(false) {}
 
         inline DualAxis(const std::vector<double>& coords, const char* label,
@@ -116,9 +116,6 @@ namespace npstat {
         static DualAxis* read(const gs::ClassId& id, std::istream& in);
 
     private:
-        inline DualAxis()
-            : a_(dummy_vec()), u_(2, 0.0, 1.0), uniform_(true) {}
-
         GridAxis a_;
         UniformAxis u_;
         bool uniform_;
@@ -130,6 +127,8 @@ namespace npstat {
             return vec;
         }
 
+        inline DualAxis()
+            : a_(dummy_vec()), u_(2, 0.0, 1.0), uniform_(true) {}
     };
 }
 

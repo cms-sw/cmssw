@@ -91,6 +91,7 @@ private:
   edm::ESHandle<GeometricSearchTracker> theGeometricSearchTracker;
 
   edm::InputTag theMeasurementTrackerEventTag;
+  edm::EDGetTokenT<MeasurementTrackerEvent> theMeasurementTrackerEventToken;
   const MeasurementTrackerEvent * theMeasurementTrackerEvent;
 
   TrajectoryStateUpdator * theUpdator;

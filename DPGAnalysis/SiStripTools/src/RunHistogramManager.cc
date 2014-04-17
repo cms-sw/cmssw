@@ -3,7 +3,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "DataFormats/Common/interface/ConditionsInEdm.h"
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TProfile.h"
@@ -15,7 +14,7 @@ BaseHistoParams::~BaseHistoParams() { }
 
 /*
 void BaseHistoParams::beginRun(const edm::Run& iRun, TFileDirectory& subrun) {
-  
+
   beginRun(iRun.run(),subrun);
 
 }
@@ -23,8 +22,15 @@ void BaseHistoParams::beginRun(const edm::Run& iRun, TFileDirectory& subrun) {
 
 
 
-RunHistogramManager::RunHistogramManager(const bool fillHistograms):
-  _fillHistograms(fillHistograms), _histograms() { }
+RunHistogramManager::RunHistogramManager(edm::ConsumesCollector& iC, const bool fillHistograms):
+  _fillHistograms(fillHistograms),
+  _histograms(),
+  _conditionsInRunToken(iC.consumes<edm::ConditionsInRunBlock,edm::InRun>(edm::InputTag("conditionsInEdm"))) {}
+
+RunHistogramManager::RunHistogramManager(edm::ConsumesCollector&& iC, const bool fillHistograms):
+  _fillHistograms(fillHistograms),
+  _histograms(),
+  _conditionsInRunToken(iC.consumes<edm::ConditionsInRunBlock,edm::InRun>(edm::InputTag("conditionsInEdm"))) {}
 
 TH1F** RunHistogramManager::makeTH1F(const char* name, const char* title, const unsigned int nbinx, const double xmin, const double xmax) {
 
@@ -103,7 +109,7 @@ void  RunHistogramManager::beginRun(const edm::Run& iRun, TFileDirectory& subdir
     unsigned int fillnum = 0;
 
     edm::Handle<edm::ConditionsInRunBlock> cirb;
-    iRun.getByLabel("conditionsInEdm",cirb);
+    iRun.getByToken(_conditionsInRunToken,cirb);
 
     if(!cirb.failedToGet() && cirb.isValid()) fillnum=cirb->lhcFillNumber;
 
@@ -119,9 +125,9 @@ void  RunHistogramManager::beginRun(const unsigned int irun) {
 }
 
 void  RunHistogramManager::beginRun(const unsigned int irun, TFileDirectory& subdir) {
-  
+
   // create/go to the run subdirectory
-  
+
   char fillrun[30];
 
   if(!_fillHistograms) {
@@ -134,13 +140,13 @@ void  RunHistogramManager::beginRun(const unsigned int irun, TFileDirectory& sub
   char dirname[300];
   sprintf(dirname,"%s_%d",fillrun,irun);
   TFileDirectory subrun = subdir.mkdir(dirname);
-  
+
   // loop on the histograms and update the pointer references
-  
+
   for(unsigned int ih=0;ih<_histograms.size();++ih) {
-    
+
     _histograms[ih]->beginRun(irun,subrun,fillrun);
-    
+
   }
 }
 

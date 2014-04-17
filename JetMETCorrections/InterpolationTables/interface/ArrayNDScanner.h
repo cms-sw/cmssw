@@ -41,7 +41,7 @@ namespace npstat {
         inline ArrayNDScanner(const unsigned* shape, const unsigned lenShape)
             {initialize(shape, lenShape);}
 
-        inline ArrayNDScanner(const std::vector<unsigned>& shape)
+        inline explicit ArrayNDScanner(const std::vector<unsigned>& shape)
             {initialize(shape.empty() ? static_cast<unsigned*>(0) : 
                         &shape[0], shape.size());}
         //@}

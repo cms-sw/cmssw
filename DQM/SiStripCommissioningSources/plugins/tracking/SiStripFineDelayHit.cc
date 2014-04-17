@@ -322,7 +322,7 @@ std::pair<const SiStripCluster*,double> SiStripFineDelayHit::closestCluster(cons
 	  if(rangeStop !=DSViter->end()) ++rangeStop;
           // build a fake cluster 
           LogDebug("closestCluster") << "build a fake cluster ";
-          SiStripCluster* newCluster = new SiStripCluster(det_id,SiStripCluster::SiStripDigiRange(rangeStart,rangeStop)); // /!\ ownership transfered
+          SiStripCluster* newCluster = new SiStripCluster(SiStripCluster::SiStripDigiRange(rangeStart,rangeStop)); // /!\ ownership transfered
           result.first = newCluster;
           result.second = fabs(newCluster->barycenter()-hitStrip);
 	}

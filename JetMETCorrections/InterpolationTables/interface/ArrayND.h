@@ -676,6 +676,25 @@ namespace npstat {
                             unsigned nFixedIndices,
                             Functor binaryFunct);
 
+        /**
+        // Joint cycle over a slice this array and some memory buffer.
+        // The length of the buffer must be equal to the length of the
+        // slice, as in "jointSliceScan". This method is to be used
+        // for import/export of slice data and in-place operations
+        // (addition, multiplication, etc) with memory managed not
+        // by ArrayND but in some other manner.
+        */
+        template <typename Num2, class Functor>
+        void jointMemSliceScan(Num2* buffer, unsigned long bufLen,
+                               const unsigned *fixedIndices,
+                               const unsigned *fixedIndexValues,
+                               unsigned nFixedIndices,
+                               Functor binaryFunct);
+
+        /** Figure out the slice shape without actually making the slice */
+        ArrayShape sliceShape(const unsigned *fixedIndices,
+                              unsigned nFixedIndices) const;
+
         /** Convenience method for exporting a slice of this array */
         template <typename Num2, unsigned Len2, unsigned Dim2>
         inline void exportSlice(ArrayND<Num2,Len2,Dim2>* slice,
@@ -687,6 +706,21 @@ namespace npstat {
             (const_cast<ArrayND*>(this))->jointSliceScan(
                 *slice, fixedIndices, fixedIndexValues, nFixedIndices,
                 scast_assign_right<Numeric,Num2>());
+        }
+
+        /** 
+        // Convenience method for exporting a slice of this array
+        // into a memory buffer
+        */
+        template <typename Num2>
+        inline void exportMemSlice(Num2* buffer, unsigned long bufLen,
+                                   const unsigned *fixedIndices,
+                                   const unsigned *fixedIndexValues,
+                                   unsigned nFixedIndices) const
+        {
+            (const_cast<ArrayND*>(this))->jointMemSliceScan(
+                buffer, bufLen, fixedIndices, fixedIndexValues,
+                nFixedIndices, scast_assign_right<Numeric,Num2>());
         }
 
         /** Convenience method for importing a slice into this array */
@@ -702,11 +736,25 @@ namespace npstat {
         }
 
         /**
-        // This method applies the values in the slice
-        // to all other coresponding values in the array. This can
-        // be used, for example, to multiply/divide by some factor which
-        // varies across the slice. The slice values will be used as
-        // the right functor argument.
+        // Convenience method for importing a slice into this array
+        // from a memory buffer
+        */
+        template <typename Num2>
+        inline void importMemSlice(const Num2* buffer, unsigned long bufLen,
+                                   const unsigned *fixedIndices,
+                                   const unsigned *fixedIndexValues,
+                                   unsigned nFixedIndices)
+        {
+            jointMemSliceScan(const_cast<Num2*>(buffer), bufLen,
+                              fixedIndices, fixedIndexValues, nFixedIndices,
+                              scast_assign_left<Numeric,Num2>());
+        }
+
+        /**
+        // This method applies the values in the slice to all other
+        // coresponding values in the array. This can be used, for example,
+        // to multiply/divide by some factor which varies across the slice.
+        // The slice values will be used as the right functor argument.
         */
         template <typename Num2, unsigned Len2, unsigned Dim2, class Functor>
         void applySlice(ArrayND<Num2,Len2,Dim2>& slice,
@@ -1133,11 +1181,19 @@ namespace npstat {
             const unsigned *fixedIndexValues,
             unsigned nFixedIndices) const;
 
+        // Buffer compatibility verification with a slice
+        unsigned long verifyBufferSliceCompatibility(
+            unsigned long bufLen,
+            const unsigned *fixedIndices,
+            const unsigned *fixedIndexValues,
+            unsigned nFixedIndices,
+            unsigned long* sliceStrides) const;
+
         // Recursive implementation of nested loops for slice operations
-        template <typename Num2, unsigned Len2, unsigned Dim2, class Functor>
+        template <typename Num2, class Functor>
         void jointSliceLoop(unsigned level, unsigned long idx0,
                             unsigned level1, unsigned long idx1,
-                            ArrayND<Num2,Len2,Dim2>& slice,
+                            Num2* sliceData, const unsigned long* sliceStrides,
                             const unsigned *fixedIndices,
                             const unsigned *fixedIndexValues,
                             unsigned nFixedIndices, Functor binaryFunctor);
@@ -1694,6 +1750,42 @@ namespace npstat {
     }
 
     template<typename Numeric, unsigned StackLen, unsigned StackDim>
+    ArrayShape ArrayND<Numeric,StackLen,StackDim>::sliceShape(
+        const unsigned *fixedIndices, const unsigned nFixedIndices) const
+    {
+        if (!shapeIsKnown_) throw npstat::NpstatInvalidArgument(
+            "Initialize npstat::ArrayND before calling method \"sliceShape\"");
+        if (nFixedIndices)
+        {
+            assert(fixedIndices);
+            if (nFixedIndices > dim_)
+                throw npstat::NpstatInvalidArgument(
+                    "In npstat::ArrayND::sliceShape: too many fixed indices");
+            for (unsigned j=0; j<nFixedIndices; ++j)
+                if (fixedIndices[j] >= dim_)
+                    throw npstat::NpstatOutOfRange("In npstat::ArrayND::sliceShape: "
+                                            "fixed index out of range");
+            ArrayShape sh;
+            sh.reserve(dim_ - nFixedIndices);
+            for (unsigned i=0; i<dim_; ++i)
+            {
+                bool fixed = false;
+                for (unsigned j=0; j<nFixedIndices; ++j)
+                    if (fixedIndices[j] == i)
+                    {
+                        fixed = true;
+                        break;
+                    }
+                if (!fixed)
+                    sh.push_back(shape_[i]);
+            }
+            return sh;
+        }
+        else
+            return ArrayShape(shape_, shape_+dim_);
+    }
+
+    template<typename Numeric, unsigned StackLen, unsigned StackDim>
     template <typename Num2, unsigned Len2, unsigned Dim2>
     unsigned long ArrayND<Numeric,StackLen,StackDim>::verifySliceCompatibility(
         const ArrayND<Num2,Len2,Dim2>& slice,
@@ -1753,11 +1845,79 @@ namespace npstat {
     }
 
     template<typename Numeric, unsigned StackLen, unsigned StackDim>
-    template <typename Num2, unsigned Len2, unsigned Dim2, class Op>
+    unsigned long
+    ArrayND<Numeric,StackLen,StackDim>::verifyBufferSliceCompatibility(
+        const unsigned long bufLen,
+        const unsigned *fixedIndices,
+        const unsigned *fixedIndexValues,
+        const unsigned nFixedIndices,
+        unsigned long* sliceStrides) const
+    {
+        if (!(nFixedIndices && nFixedIndices <= dim_))
+            throw npstat::NpstatInvalidArgument(
+                "In npstat::ArrayND::verifyBufferSliceCompatibility: "
+                "invalid number of fixed indices");
+        if (!shapeIsKnown_) throw npstat::NpstatInvalidArgument(
+            "Initialize npstat::ArrayND before calling "
+            "method \"verifyBufferSliceCompatibility\"");
+        assert(fixedIndices);
+        assert(fixedIndexValues);
+
+        for (unsigned j=0; j<nFixedIndices; ++j)
+            if (fixedIndices[j] >= dim_) throw npstat::NpstatOutOfRange(
+                "In npstat::ArrayND::verifyBufferSliceCompatibility: "
+                "fixed index out of range");
+
+        // Figure out slice shape. Store it, temporarily, in sliceStrides.
+        unsigned long idx = 0UL;
+        unsigned sliceDim = 0U;
+        for (unsigned i=0; i<dim_; ++i)
+        {
+            bool fixed = false;
+            for (unsigned j=0; j<nFixedIndices; ++j)
+                if (fixedIndices[j] == i)
+                {
+                    fixed = true;
+                    if (fixedIndexValues[j] >= shape_[i])
+                        throw npstat::NpstatOutOfRange(
+                            "In npstat::ArrayND::verifyBufferSliceCompatibility:"
+                            " fixed index value out of range");
+                    idx += fixedIndexValues[j]*strides_[i];
+                    break;
+                }
+            if (!fixed)
+                sliceStrides[sliceDim++] = shape_[i];
+        }
+        assert(sliceDim + nFixedIndices == dim_);
+
+        // Convert the slice shape into slice strides
+        unsigned long expectedBufLen = 1UL;
+        if (sliceDim)
+        {
+            unsigned long shapeJ = sliceStrides[sliceDim - 1];
+            sliceStrides[sliceDim - 1] = 1UL;
+            for (unsigned j=sliceDim - 1; j>0; --j)
+            {
+                const unsigned long nextStride = sliceStrides[j]*shapeJ;
+                shapeJ = sliceStrides[j - 1];
+                sliceStrides[j - 1] = nextStride;
+            }
+            expectedBufLen = sliceStrides[0]*shapeJ;
+        }            
+        if (expectedBufLen != bufLen)
+            throw npstat::NpstatInvalidArgument(
+                "In npstat::ArrayND::verifyBufferSliceCompatibility: "
+                "invalid memory buffer length");
+
+        return idx;
+    }
+
+    template<typename Numeric, unsigned StackLen, unsigned StackDim>
+    template <typename Num2, class Op>
     void ArrayND<Numeric,StackLen,StackDim>::jointSliceLoop(
         const unsigned level, const unsigned long idx0,
         const unsigned level1, const unsigned long idx1,
-        ArrayND<Num2,Len2,Dim2>& slice,
+        Num2* sliceData, const unsigned long* sliceStrides,
         const unsigned *fixedIndices,
         const unsigned *fixedIndexValues,
         const unsigned nFixedIndices,
@@ -1771,31 +1931,29 @@ namespace npstat {
                 break;
             }
         if (fixed)
-        {
             jointSliceLoop(level+1, idx0, level1, idx1,
-                           slice, fixedIndices, fixedIndexValues,
-                           nFixedIndices, fcn);
-        }
+                           sliceData, sliceStrides, fixedIndices,
+                           fixedIndexValues, nFixedIndices, fcn);
         else
         {
             const unsigned imax = shape_[level];
-            assert(imax == slice.shape_[level1]);
             const unsigned long stride = strides_[level];
 
-            if (level1 == slice.dim_ - 1)
+            if (level1 == dim_ - nFixedIndices - 1)
             {
-                Num2* to = slice.data_ + idx1;
+                sliceData += idx1;
+                Numeric* localData = data_ + idx0;
                 for (unsigned i = 0; i<imax; ++i)
-                    fcn(data_[idx0 + i*stride], to[i]);
+                    fcn(localData[i*stride], sliceData[i]);
             }
             else
             {
-                const unsigned long stride2 = slice.strides_[level1];
+                const unsigned long stride2 = sliceStrides[level1];
                 for (unsigned i = 0; i<imax; ++i)
                     jointSliceLoop(level+1, idx0+i*stride,
                                    level1+1, idx1+i*stride2,
-                                   slice, fixedIndices, fixedIndexValues,
-                                   nFixedIndices, fcn);
+                                   sliceData, sliceStrides, fixedIndices,
+                                   fixedIndexValues, nFixedIndices, fcn);
             }
         }
     }
@@ -1812,10 +1970,34 @@ namespace npstat {
         const unsigned long idx = verifySliceCompatibility(
             slice, fixedIndices, fixedIndexValues, nFixedIndices);
         if (slice.dim_)
-            jointSliceLoop(0U, idx, 0U, 0UL, slice, fixedIndices,
-                           fixedIndexValues, nFixedIndices, binaryFunct);
+            jointSliceLoop(0U, idx, 0U, 0UL, slice.data_, slice.strides_,
+                           fixedIndices, fixedIndexValues,
+                           nFixedIndices, binaryFunct);
         else
             binaryFunct(data_[idx], slice.localData_[0]);
+    }
+
+    template<typename Numeric, unsigned StackLen, unsigned StackDim>
+    template <typename Num2, class Functor>
+    void ArrayND<Numeric,StackLen,StackDim>::jointMemSliceScan(
+        Num2* slice, const unsigned long len,
+        const unsigned *fixedIndices, const unsigned *fixedIndexValues,
+        unsigned nFixedIndices, Functor binaryFunct)
+    {
+        assert(slice);
+        if (dim_ > CHAR_BIT*sizeof(unsigned long))
+            throw npstat::NpstatInvalidArgument(
+                "In npstat::ArrayND::jointMemSliceScan: "
+                "rank of this array is too large");
+        unsigned long sliceStrides[CHAR_BIT*sizeof(unsigned long)];
+        const unsigned long idx = verifyBufferSliceCompatibility(
+            len, fixedIndices, fixedIndexValues, nFixedIndices, sliceStrides);
+        if (dim_ > nFixedIndices)
+            jointSliceLoop(0U, idx, 0U, 0UL, slice, sliceStrides,
+                           fixedIndices, fixedIndexValues,
+                           nFixedIndices, binaryFunct);
+        else
+            binaryFunct(data_[idx], *slice);
     }
 
     template<typename Numeric, unsigned StackLen, unsigned StackDim>

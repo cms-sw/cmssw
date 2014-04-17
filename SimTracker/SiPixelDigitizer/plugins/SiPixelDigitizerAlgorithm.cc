@@ -89,6 +89,7 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/SiPixelDetId/interface/PixelBarrelName.h"
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapName.h"
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupMixingContent.h"
 
 // Geometry
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -378,6 +379,30 @@ SiPixelDigitizerAlgorithm::PixelEfficiencies::PixelEfficiencies(const edm::Param
                      thePixelChipEfficiency[i++] = conf.getParameter<double>("thePixelChipEfficiency_BPix2");
                      thePixelChipEfficiency[i++] = conf.getParameter<double>("thePixelChipEfficiency_BPix3");
                      if (NumberOfBarrelLayers>=4){thePixelChipEfficiency[i++] = conf.getParameter<double>("thePixelChipEfficiency_BPix4");}
+		     //
+		     i=0;
+		     theLadderEfficiency_BPix[i++] = conf.getParameter<std::vector<double> >("theLadderEfficiency_BPix1");
+		     theLadderEfficiency_BPix[i++] = conf.getParameter<std::vector<double> >("theLadderEfficiency_BPix2");
+		     theLadderEfficiency_BPix[i++] = conf.getParameter<std::vector<double> >("theLadderEfficiency_BPix3");
+		     if ( ((theLadderEfficiency_BPix[0].size()!=20) || (theLadderEfficiency_BPix[1].size()!=32) ||
+			   (theLadderEfficiency_BPix[2].size()!=44)) && (NumberOfBarrelLayers==3) )  
+		       throw cms::Exception("Configuration") << "Wrong ladder number in efficiency config!";
+		     //		     
+		     i=0;
+		     theModuleEfficiency_BPix[i++] = conf.getParameter<std::vector<double> >("theModuleEfficiency_BPix1");
+		     theModuleEfficiency_BPix[i++] = conf.getParameter<std::vector<double> >("theModuleEfficiency_BPix2");
+		     theModuleEfficiency_BPix[i++] = conf.getParameter<std::vector<double> >("theModuleEfficiency_BPix3");
+		     if ( ((theModuleEfficiency_BPix[0].size()!=4) || (theModuleEfficiency_BPix[1].size()!=4) ||
+			   (theModuleEfficiency_BPix[2].size()!=4)) && (NumberOfBarrelLayers==3) )  
+		       throw cms::Exception("Configuration") << "Wrong module number in efficiency config!";
+		     //
+		     i=0;		     
+		     thePUEfficiency_BPix[i++] = conf.getParameter<std::vector<double> >("thePUEfficiency_BPix1");
+		     thePUEfficiency_BPix[i++] = conf.getParameter<std::vector<double> >("thePUEfficiency_BPix2");
+		     thePUEfficiency_BPix[i++] = conf.getParameter<std::vector<double> >("thePUEfficiency_BPix3");		    		    
+		     if ( ((thePUEfficiency_BPix[0].size()==0) || (thePUEfficiency_BPix[1].size()==0) || 
+			   (thePUEfficiency_BPix[2].size()==0)) && (NumberOfBarrelLayers==3) )
+		       throw cms::Exception("Configuration") << "At least one PU efficiency  number is needed in efficiency config!";
 		     // The next is needed for Phase2 Tracker studies
 		     if (NumberOfBarrelLayers>=5){
 			if (NumberOfTotLayers>20){throw cms::Exception("Configuration") <<"SiPixelDigitizer was given more layers than it can handle";}
@@ -466,11 +491,51 @@ void SiPixelDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_it
 }
 
 //============================================================================
+void SiPixelDigitizerAlgorithm::calculateInstlumiFactor(PileupMixingContent* puInfo){
+  //Instlumi scalefactor calculating for dynamic inefficiency
+  
+  if (puInfo) {
+    
+    const std::vector<int> bunchCrossing = puInfo->getMix_bunchCrossing();
+    const std::vector<float> TrueInteractionList = puInfo->getMix_TrueInteractions();      
+    
+    int pui = 0, p = 0;
+    std::vector<int>::const_iterator pu;
+    std::vector<int>::const_iterator pu0 = bunchCrossing.end();
+
+    for (pu=bunchCrossing.begin(); pu!=bunchCrossing.end(); ++pu) {
+      if (*pu==0) {
+	pu0 = pu;
+	p = pui;
+      }
+      pui++;
+    }
+    
+    if (pu0!=bunchCrossing.end()) {        
+      for (size_t i=0; i<3; i++) {
+	double instlumi = TrueInteractionList.at(p)*221.95;
+	double instlumi_pow=1.;
+	_pu_scale[i] = 0;
+	for  (size_t j=0; j<pixelEfficiencies_.thePUEfficiency_BPix[i].size(); j++){
+	  _pu_scale[i]+=instlumi_pow*pixelEfficiencies_.thePUEfficiency_BPix[i][j];
+	  instlumi_pow*=instlumi;
+	}
+      }
+    }
+  } 
+  else {
+    for (int i=0; i<3;i++) {
+      _pu_scale[i] = 1.;
+    }
+  }
+}
+
+//============================================================================
 void SiPixelDigitizerAlgorithm::digitize(const PixelGeomDetUnit* pixdet,
                                          std::vector<PixelDigi>& digis,
                                          std::vector<PixelDigiSimLink>& simlinks, const TrackerTopology *tTopo,
                                          CLHEP::HepRandomEngine* engine) {
-
+  
    // Pixel Efficiency moved from the constructor to this method because
    // the information of the det are not available in the constructor
    // Effciency parameters. 0 - no inefficiency, 1-low lumi, 10-high lumi
@@ -1285,6 +1350,13 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
     if (NumberOfBarrelLayers==3){
        if(numColumns>416)  LogWarning ("Pixel Geometry") <<" wrong columns in barrel "<<numColumns;
        if(numRows>160)  LogWarning ("Pixel Geometry") <<" wrong rows in barrel "<<numRows;
+      
+       int ladder=tTopo->pxbLadder(detID);
+       int module=tTopo->pxbModule(detID);
+       if (module<=4) module=5-module;
+       else module-=4;
+       
+       columnEfficiency *= eff.theLadderEfficiency_BPix[layerIndex-1][ladder-1]*eff.theModuleEfficiency_BPix[layerIndex-1][module-1]*_pu_scale[layerIndex-1];
     }
   } else {                // forward disks
     unsigned int diskIndex=tTopo->pxfDisk(detID)+eff.FPixIndex; // Use diskIndex-1 later to stay consistent with BPix

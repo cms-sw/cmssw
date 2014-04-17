@@ -6,7 +6,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 
 // useful?
@@ -14,7 +14,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class PFConcretePFCandidateProducer : public edm::EDProducer {
+class PFConcretePFCandidateProducer : public edm::stream::EDProducer<> {
  public:
   explicit PFConcretePFCandidateProducer(const edm::ParameterSet&);
   ~PFConcretePFCandidateProducer();
@@ -25,5 +25,8 @@ class PFConcretePFCandidateProducer : public edm::EDProducer {
 
   edm::InputTag  inputColl_;
 };
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(PFConcretePFCandidateProducer);
 
 #endif

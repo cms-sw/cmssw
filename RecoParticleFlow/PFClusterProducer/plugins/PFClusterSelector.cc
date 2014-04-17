@@ -46,6 +46,7 @@ void PFClusterSelector::produce(edm::Event& iEvent,
     case PFLayer::HCAL_ENDCAP:
       timingCutsLow = &timingCutsLowEndcap_;
       timingCutsHigh = &timingCutsHighEndcap_;
+      break;
     default:      
       continue;
     }    

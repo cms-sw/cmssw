@@ -22,7 +22,11 @@ public:
 
   using HLTTauDQMPlotter::isValid;
 
-  void beginRun(const std::vector<const HLTTauDQMPath *>& pathObjects);
+  void setPathObjects(const std::vector<const HLTTauDQMPath *>& pathObjects) {
+    pathObjects_ = pathObjects;
+    runValid_ = !pathObjects_.empty();
+  }
+  void bookHistograms(DQMStore::IBooker &iBooker);
 
   void analyze(const edm::TriggerResults& triggerResults, const trigger::TriggerEvent& triggerEvent, const HLTTauDQMOfflineObjects& refCollection);
 private:

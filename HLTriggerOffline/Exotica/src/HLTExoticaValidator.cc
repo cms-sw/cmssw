@@ -5,9 +5,10 @@
 //
 
 //
-// Thiago Tomei, based on the HLTriggerOffline/Higgs package.
-// Jordi Duarte Campderros (based on the code from Jason Slaunwhite
-// and Jeff Klukas from the HLTriggerOffline/Muon package).
+// Jordi Duarte Campderros (based on the Jason Slaunwhite
+// and Jeff Klukas coded from the HLTriggerOffline/Muon package
+//
+//
 //
 
 // system include files

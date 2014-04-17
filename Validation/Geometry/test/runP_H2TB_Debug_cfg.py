@@ -12,14 +12,10 @@ process.load("SimG4CMS.HcalTestBeam.TB2007GeometryXML_cfi")
 #
 process.load("SimG4Core.Application.g4SimHits_cfi")
 
-process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    moduleSeeds = cms.PSet(
-        generator = cms.untracked.uint32(456789),
-        g4SimHits = cms.untracked.uint32(9876),
-        VtxSmeared = cms.untracked.uint32(123456789)
-    ),
-    sourceSeed = cms.untracked.uint32(135799753)
-)
+process.load("IOMC.RandomEngine.IOMC_cff")
+process.RandomNumberGeneratorService.generator.initialSeed = 456789
+process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
+process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
 
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout'),
@@ -35,6 +31,7 @@ process.MessageLogger = cms.Service("MessageLogger",
         )
     )
 )
+
 process.common_beam_direction_parameters = cms.PSet(
     MinEta       = cms.double(1.562),
     MaxEta       = cms.double(1.562),

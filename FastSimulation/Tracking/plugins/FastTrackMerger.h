@@ -4,6 +4,10 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+
 #include <vector>
 #include <string>
 
@@ -13,9 +17,10 @@ namespace edm {
   class EventSetup;
 }
 
-namespace reco { 
-  class Track;
-}
+//namespace reco { 
+//  class Track;
+//}
+
 
 class FastTrackMerger : public edm::EDProducer
 {
@@ -44,6 +49,12 @@ class FastTrackMerger : public edm::EDProducer
   unsigned theMinimumNumberOfHits;
   unsigned theMaxLostHits;
   unsigned theMaxConsecutiveLostHits;
+
+  // consumes
+  std::vector<edm::EDGetTokenT<reco::TrackCollection> > removeTrackTokens;
+  std::vector<edm::EDGetTokenT<reco::TrackCollection> > trackTokens;
+  std::vector<edm::EDGetTokenT<std::vector<Trajectory> > > trajectoryTokens;
+  std::vector<edm::EDGetTokenT<TrajTrackAssociationCollection> > assoMapTokens;
 
 };
 

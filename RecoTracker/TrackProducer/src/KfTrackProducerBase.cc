@@ -16,6 +16,9 @@
 #include "RecoTracker/TrackProducer/interface/ClusterRemovalRefSetter.h"
 #include "TrajectoryToResiduals.h"
 
+#include "RecoTracker/TransientTrackingRecHit/interface/Traj2TrackHits.h"
+
+
 void KfTrackProducerBase::putInEvt(edm::Event& evt,
 				   const Propagator* prop,
 				   const MeasurementTracker* measTk,
@@ -23,7 +26,7 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
 				   std::auto_ptr<reco::TrackCollection>& selTracks,
 				   std::auto_ptr<reco::TrackExtraCollection>& selTrackExtras,
 				   std::auto_ptr<std::vector<Trajectory> >&   selTrajectories,
-				   AlgoProductCollection& algoResults)
+				   AlgoProductCollection& algoResults, TransientTrackingRecHitBuilder const * hitBuilder)
 {
 
   TrackingRecHitRefProd rHits = evt.getRefBeforePut<TrackingRecHitCollection>();
@@ -42,8 +45,6 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
       iTjRef++;
     }
 
-    // const TrajectoryFitter::RecHitContainer& transHits = theTraj->recHits(useSplitting);  // NO: the return type in Trajectory is by VALUE
-    TrajectoryFitter::RecHitContainer transHits = theTraj->recHits(useSplitting);
 
     reco::Track * theTrack = (*i).second.first;
     
@@ -113,10 +114,25 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
 
 
     reco::TrackExtra & tx = selTrackExtras->back();
+    // ---  NOTA BENE: the convention is to sort hits and measurements "along the momentum".
+    // This is consistent with innermost and outermost labels only for tracks from LHC collisions
+    Traj2TrackHits t2t(hitBuilder,false);
+    auto ih = selHits->size();
+    assert(ih==hidx);
+    t2t(*theTraj,*selHits,useSplitting);
+    auto ie = selHits->size();
+    size_t il = 0;
+    for (;ih<ie; ++ih) {
+      auto const & hit = (*selHits)[ih];
+      track.setHitPattern( hit, il ++ );
+      tx.add( TrackingRecHitRef( rHits, hidx ++ ) );
+    }
     
+    /*
     // ---  NOTA BENE: the convention is to sort hits and measurements "along the momentum".
     // This is consistent with innermost and outermost labels only for tracks from LHC collisions
     size_t ih = 0;
+    TrajectoryFitter::RecHitContainer transHits; theTraj->recHitsV(transHits, useSplitting);
     if (theTraj->direction() == alongMomentum) {
       for( TrajectoryFitter::RecHitContainer::const_iterator j = transHits.begin();
 	   j != transHits.end(); j ++ ) {
@@ -138,6 +154,8 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
 	}
       }
     }
+    */
+
     // ----
     tx.setResiduals(trajectoryToResiduals(*theTraj));
 

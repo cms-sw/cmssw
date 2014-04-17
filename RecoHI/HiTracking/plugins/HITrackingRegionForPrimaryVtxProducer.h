@@ -132,7 +132,7 @@ class HITrackingRegionForPrimaryVtxProducer : public TrackingRegionProducer {
 
       if(estTracks>regTracking) {  // regional tracking
         result.push_back( 
-	  new RectangularEtaPhiTrackingRegion(theDirection, origin, thePtMin, theOriginRadius, halflength, etaB, phiB, 0, thePrecise) );
+	  new RectangularEtaPhiTrackingRegion(theDirection, origin, thePtMin, theOriginRadius, halflength, etaB, phiB, RectangularEtaPhiTrackingRegion::UseMeasurementTracker::kNever, thePrecise) );
       }
       else {                       // global tracking
         LogTrace("heavyIonHLTVertexing")<<" [HIVertexing: Global Tracking]";

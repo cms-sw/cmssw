@@ -116,7 +116,7 @@ step1Up2015Defaults = {'-s' : 'GEN,SIM',
                              '--conditions'  : 'auto:upgradePLS1', # 25ns GT
                              '--datatier'    : 'GEN-SIM',
                              '--eventcontent': 'FEVTDEBUG',
-                             '--geometry'    : 'Extended2015',
+                             '--geometry'    : 'DBExtendedPostLS1',
                              '--magField'    : '38T_PostLS1',
                              '--customise'   : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'
                              }
@@ -325,15 +325,17 @@ steps['SingleMuPt10_ID']=identitySim(steps['SingleMuPt10'])
 steps['TTbar_ID']=identitySim(steps['TTbar'])
 
 baseDataSetRelease=[
-    'CMSSW_6_2_0_pre8-PRE_ST62_V8-v1',  # 8 TeV , keep old GEN-SIM
-    'CMSSW_7_1_0_pre1-STARTHI70_V5-v1', # Run1 HI GEN-SIM (only MB)
+    'CMSSW_6_2_0_pre8-PRE_ST62_V8-v1',  # 8 TeV , keep old GEN-SIM for samples not routinely produced
+    'CMSSW_7_1_0_pre5-STARTHI71_V1-v1', # Run1 HI GEN-SIM (only MB = wf 140)
     'CMSSW_6_2_0_pre8-PRE_ST62_V8_FastSim-v1', # for fastsim id test
     'CMSSW_6_2_0_pre8-PRE_SH62_V15-v2', # Run1 HI GEN-SIM (only HydjetQ_B3_2760)
     'CMSSW_6_1_0_pre6-STARTHI61_V6-v1', # Run1 HI GEN-SIM (only HydjetQ_B0_2760)
     'CMSSW_6_2_0_pre8-PRE_ST62_V8-v3',  # pPb 
-    'CMSSW_7_1_0_pre1-POSTLS170_V1-v1', # 13 TeV samples with postLs1 geometry and updated mag field
+    'CMSSW_7_1_0_pre5-POSTLS171_V1-v1', # 13 TeV samples with postLs1 geometry and updated mag field
     'CMSSW_6_2_0_pre8-PRE_SH62_V15-v1', # Run1 HI GEN-SIM (only HydjetQ_B8_2760)
-    'CMSSW_7_1_0_pre1-POSTLS170_V1-v4'  # GEN-SIM for 13 TeV BuJPsiK sample
+    'CMSSW_7_1_0_pre5-START71_V1-v1',   # 8 TeV , for the one sample which is part of the routine relval production (MinBias)
+    'CMSSW_7_1_0_pre5-START71_V1-v2',   # 8 TeV , for the one sample which is part of the routine relval production (RelValZmumuJets_Pt_20_300, because of -v2)
+                                        # this an previous should be unified, when -v2 will be gone
     ]
 
 # note: INPUT commands to be added once GEN-SIM w/ 13TeV+PostLS1Geo will be available 
@@ -398,8 +400,8 @@ steps['PhotonJets_Pt_10_13INPUT']={'INPUT':InputInfo(dataSet='/RelValPhotonJets_
 steps['QQH1352T_Tauola_13INPUT']={'INPUT':InputInfo(dataSet='/RelValQQH1352T_Tauola_13/%s/GEN-SIM'%(baseDataSetRelease[6],),location='STD')}
 steps['ZmumuJets_Pt_20_300_13INPUT']={'INPUT':InputInfo(dataSet='/RelValZmumuJets_Pt_20_300_13/%s/GEN-SIM'%(baseDataSetRelease[6],),location='STD')}
 steps['ADDMonoJet_d3MD3_13INPUT']={'INPUT':InputInfo(dataSet='/RelValADDMonoJet_d3MD3_13/%s/GEN-SIM'%(baseDataSetRelease[6],),location='STD')}
-steps['RSKKGluon_m3000GeV_13INPUT']={'INPUT':InputInfo(dataSet='/RelValRelValRSKKGluon_m3000GeV_13/%s/GEN-SIM'%(baseDataSetRelease[6],),location='STD')} # RelValRel to be removed at the next GEN-SIM recycle 
-steps['Pythia6_BuJpsiK_TuneZ2star_13INPUT']={'INPUT':InputInfo(dataSet='/RelValPythia6_BuJpsiK_TuneZ2star_13/%s/GEN-SIM'%(baseDataSetRelease[8],),location='STD')} # RelValRel to be removed at the next GEN-SIM recycle 
+steps['RSKKGluon_m3000GeV_13INPUT']={'INPUT':InputInfo(dataSet='/RelValRSKKGluon_m3000GeV_13/%s/GEN-SIM'%(baseDataSetRelease[6],),location='STD')}
+steps['Pythia6_BuJpsiK_TuneZ2star_13INPUT']={'INPUT':InputInfo(dataSet='/RelValPythia6_BuJpsiK_TuneZ2star_13/%s/GEN-SIM'%(baseDataSetRelease[6],),location='STD')}
 steps['BeamHalo_13INPUT']={'INPUT':InputInfo(dataSet='/RelValBeamHalo_13/%s/GEN-SIM'%(baseDataSetRelease[6],),location='STD')}
 # particle guns with postLS1 geometry recycle GEN-SIM input
 steps['SingleElectronPt10_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleElectronPt10_UP15/%s/GEN-SIM'%(baseDataSetRelease[6],),location='STD')}
@@ -469,7 +471,7 @@ steps['H130GGgluonfusion_13']=gen2015('H130GGgluonfusion_13TeV_cfi',Kby(9,100))
 steps['PhotonJets_Pt_10_13']=gen2015('PhotonJet_Pt_10_13TeV_cfi',Kby(9,150))
 steps['QQH1352T_Tauola_13']=gen2015('QQH1352T_Tauola_13TeV_cfi',Kby(9,100))
 steps['ZmumuJets_Pt_20_300']=gen('ZmumuJets_Pt_20_300_GEN_8TeV_cfg',Kby(25,100))
-steps['ZmumuJets_Pt_20_300_13']=gen('ZmumuJets_Pt_20_300_GEN_13TeV_cfg',Kby(25,100))
+steps['ZmumuJets_Pt_20_300_13']=gen2015('ZmumuJets_Pt_20_300_GEN_13TeV_cfg',Kby(25,100))
 steps['ADDMonoJet_d3MD3']=genS('ADDMonoJet_8TeV_d3MD3_cfi',Kby(9,100))
 steps['ADDMonoJet_d3MD3_13']=gen2015('ADDMonoJet_13TeV_d3MD3_cfi',Kby(9,100))
 steps['RSKKGluon_m3000GeV_13']=gen2015('RSKKGluon_m3000GeV_13TeV_cff',Kby(9,100))                  # re-named to remove RelvalRelval in the dataset name 
@@ -497,7 +499,7 @@ steps['ZpEE_2250_8TeV_TauolaINPUT']={'INPUT':InputInfo(dataSet='/RelValZpEE_2250
 steps['ZpTT_1500_8TeV_TauolaINPUT']={'INPUT':InputInfo(dataSet='/RelValZpTT_1500_8TeV_Tauola/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
 
 
-steps['ZmumuJets_Pt_20_300INPUT']={'INPUT':InputInfo(dataSet='/RelValZmumuJets_Pt_20_300/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
+steps['ZmumuJets_Pt_20_300INPUT']={'INPUT':InputInfo(dataSet='/RelValZmumuJets_Pt_20_300/%s/GEN-SIM'%(baseDataSetRelease[9],),location='STD')}
 
 
 steps['Cosmics']=merge([{'cfg':'UndergroundCosmicMu_cfi.py','--scenario':'cosmics'},Kby(666,100000),step1Defaults])
@@ -534,7 +536,7 @@ step1UpepiDefaults = {'-s' : 'GEN,SIM',
                              '--beamspot' : 'Gauss',
                              '--datatier' : 'GEN-SIM',
                              '--eventcontent': 'FEVTDEBUG',
-                             '--geometry' : 'ExtendedPhaseIPixel',
+                             '--geometry' : 'ExtendedPhaseIPixel', #check geo
                              '--customise' : 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise'
                              }
 def genepi(fragment,howMuch):
@@ -689,7 +691,7 @@ step1Up2017Defaults = {'-s' : 'GEN,SIM',
                              '--beamspot' : 'Gauss',
                              '--datatier' : 'GEN-SIM',
                              '--eventcontent': 'FEVTDEBUG',
-                             '--geometry' : 'Extended2017',
+                             '--geometry' : 'Extended2017', #check geo
                              '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1,SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise'
                              }
 def gen2017(fragment,howMuch):
@@ -816,7 +818,7 @@ def addForAll(steps,d):
 step1FastDefaults =merge([{'-s':'GEN,SIM,RECO,EI,HLT:@relval,VALIDATION',
                            '--fast':'',
                            '--eventcontent':'FEVTDEBUGHLT,DQM',
-                           '--datatier':'GEN-SIM-DIGI-RECO,DQMROOT',
+                           '--datatier':'GEN-SIM-DIGI-RECO,DQMIO',
                            '--relval':'27000,3000'},
                           step1Defaults])
 step1FastUpg2015Defaults =merge([{'-s':'GEN,SIM,RECO,EI,HLT:@relval,VALIDATION',
@@ -824,9 +826,9 @@ step1FastUpg2015Defaults =merge([{'-s':'GEN,SIM,RECO,EI,HLT:@relval,VALIDATION',
                            '--conditions'  :'auto:upgradePLS1', # this is the 25ns GT
                            '--magField'    :'38T_PostLS1',
                            '--customise'   :'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
-                           '--geometry'    :'Extended2015',
+                           '--geometry'    :'DBExtendedPostLS1',
                            '--eventcontent':'FEVTDEBUGHLT,DQM',
-                           '--datatier':'GEN-SIM-DIGI-RECO,DQMROOT',
+                           '--datatier':'GEN-SIM-DIGI-RECO,DQMIO',
                            '--relval':'27000,3000'},
                            step1Defaults])
 
@@ -910,6 +912,7 @@ steps['ZJetsLNu_Tune4C_8TeV_madgraph-pythia8']=genvalid('Hadronizer_MgmMatchTune
 steps['ReggeGribovPartonMC_EposLHC_5TeV_pPb']=genvalid('GeneratorInterface/ReggeGribovPartonMCInterface/ReggeGribovPartonMC_EposLHC_5TeV_pPb_cfi',step1GenDefaults)
 
 PU={'-n':10,'--pileup':'default','--pileup_input':'das:/RelValMinBias/%s/GEN-SIM'%(baseDataSetRelease[0],)}
+PU2={'-n':10,'--pileup':'default','--pileup_input':'das:/RelValMinBias/%s/GEN-SIM'%(baseDataSetRelease[8],)}
 PU25={'-n':10,'--pileup':'AVE_10_BX_25ns_m8','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(baseDataSetRelease[6],)}
 PU50={'-n':10,'--pileup':'AVE_20_BX_50ns_m8','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(baseDataSetRelease[6],)}
 PUFS={'--pileup':'default'}
@@ -933,7 +936,7 @@ step2Upg2015Defaults = {'-s'     :'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval,RAW2
                  '--datatier'    :'GEN-SIM-DIGI-RAW-HLTDEBUG',
                  '--eventcontent':'FEVTDEBUGHLT',
                  '--customise'   :'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
-                 '--geometry'    :'Extended2015',
+                 '--geometry'    :'DBExtendedPostLS1',
                  '-n'            :'10'
                   }
 step2Upg2015Defaults50ns = merge([{'--conditions':'auto:upgradePLS150ns'},step2Upg2015Defaults])
@@ -950,6 +953,7 @@ steps['DIGICOS']=merge([{'--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--
 steps['DIGIHAL']=merge([{'--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--datatier':'GEN-SIM-DIGI-RAW'},step2Upg2015Defaults])
 
 steps['DIGIPU1']=merge([PU,step2Defaults])
+steps['DIGIPU2']=merge([PU2,step2Defaults])
 steps['REDIGIPU']=merge([{'-s':'reGEN,reDIGI,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco'},steps['DIGIPU1']])
 
 steps['DIGI_ID']=merge([{'--restoreRND':'HLT','--process':'HLT2'},steps['DIGI']])
@@ -969,7 +973,7 @@ step2Upgpixphase1Defaults = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
                  '-n':'10',
                  '--eventcontent':'FEVTDEBUGHLT',
                  '--customise': 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise',
-                 '--geometry' : 'ExtendedPhaseIPixel'
+                 '--geometry' : 'ExtendedPhaseIPixel' #check geo
                   }
 steps['DIGIUP']=merge([step2Upgpixphase1Defaults])
 
@@ -980,7 +984,7 @@ step2Upg2017Defaults = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
                  '-n':'10',
                  '--eventcontent':'FEVTDEBUGHLT',
                  '--customise': 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1,SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise',
-                 '--geometry' : 'Extended2017'
+                 '--geometry' : 'Extended2017' #check geo
                   }
 steps['DIGIUP17']=merge([step2Upg2017Defaults])
 #add this line when testing from an input file that is not strictly GEN-SIM
@@ -988,7 +992,7 @@ steps['DIGIUP17']=merge([step2Upg2017Defaults])
 
 dataReco={'--conditions':'auto:com10',
           '-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias,DQM',
-          '--datatier':'RECO,DQMROOT',
+          '--datatier':'RECO,DQMIO',
           '--eventcontent':'RECO,DQM',
           '--data':'',
           '--process':'reRECO',
@@ -1020,7 +1024,7 @@ steps['REPACKHID']=merge([{'--scenario':'HeavyIons',
                         steps['RECOD']])
 steps['RECOHID10']=merge([{'--scenario':'HeavyIons',
                          '-s':'RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBiasHI+HcalCalMinBias,DQM',
-                         '--datatier':'RECO,DQMROOT',
+                         '--datatier':'RECO,DQMIO',
                          '--eventcontent':'RECO,DQM'},
                         steps['RECOD']])
 steps['RECOHID11']=merge([{'--repacked':''},
@@ -1031,12 +1035,12 @@ steps['RECOHID10']['--eventcontent']+=',REPACKRAW'
 
 steps['TIER0']=merge([{'--customise':'Configuration/DataProcessing/RecoTLR.customisePrompt',
                        '-s':'RAW2DIGI,L1Reco,RECO,EI,ALCAPRODUCER:@allForPrompt,DQM,ENDJOB',
-                       '--datatier':'RECO,AOD,ALCARECO,DQMROOT',
+                       '--datatier':'RECO,AOD,ALCARECO,DQMIO',
                        '--eventcontent':'RECO,AOD,ALCARECO,DQM',
                        '--process':'RECO'
                        },dataReco])
 steps['TIER0EXP']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCAPRODUCER:@allForExpress,DQM,ENDJOB',
-                          '--datatier':'ALCARECO,DQMROOT',
+                          '--datatier':'ALCARECO,DQMIO',
                           '--eventcontent':'ALCARECO,DQM',
                           '--customise':'Configuration/DataProcessing/RecoTLR.customiseExpress',
                           },steps['TIER0']])
@@ -1060,7 +1064,7 @@ step3Defaults = {
                   '-s'            : 'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
                   '--conditions'  : 'auto:startup',
                   '--no_exec'     : '',
-                  '--datatier'    : 'GEN-SIM-RECO,DQMROOT',
+                  '--datatier'    : 'GEN-SIM-RECO,DQMIO',
                   '--eventcontent': 'RECOSIM,DQM'
                   }
 
@@ -1071,21 +1075,21 @@ step3Up2015Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
                  '--conditions':'auto:upgradePLS1', 
                  '--magField'    : '38T_PostLS1',
                  '-n':'10',
-                 '--datatier':'GEN-SIM-RECO,DQMROOT',
+                 '--datatier':'GEN-SIM-RECO,DQMIO',
                  '--eventcontent':'RECOSIM,DQM',
                  '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
-                 '--geometry' : 'Extended2015'
+                 '--geometry' : 'DBExtendedPostLS1'
                  }
 step3Up2015Defaults50ns = merge([{'--conditions':'auto:upgradePLS150ns'},step3Up2015Defaults])
 
 step3Up2015Hal = {'-s'            :'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
                  '--conditions'   :'auto:upgradePLS1', 
                  '--magField'     :'38T_PostLS1',
-                 '--datatier'     :'GEN-SIM-RECO,DQMROOT',
+                 '--datatier'     :'GEN-SIM-RECO,DQMIO',
                   '--eventcontent':'RECOSIM,DQM',
                   '-n'            :'10',
                  '--customise'    :'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
-                 '--geometry'     :'Extended2015'
+                 '--geometry'     :'DBExtendedPostLS1'
                  }
                              
 steps['RECOUP15']=merge([step3Up2015Defaults]) # todo: remove UP from label
@@ -1106,6 +1110,7 @@ steps['RECOMINUP15']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:SiStripCalZeroBi
 steps['RECODDQM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,DQM:@common+@muon+@hcal+@jetmet+@ecal'},steps['RECOD']])
 
 steps['RECOPU1']=merge([PU,steps['RECO']])
+steps['RECOPU2']=merge([PU2,steps['RECO']])
 steps['RECOUP15_PU25']=merge([PU25,step3Up2015Defaults])
 steps['RECOUP15_PU50']=merge([PU50,step3Up2015Defaults50ns])
 #wmsplit['RECOPU1']=1
@@ -1131,11 +1136,11 @@ steps['RECOFS']=merge([{'--fast':'',
 #for phase1
 step3Upgpixphase1Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
                  '--conditions':'DESIGN61_V10::All', #to be updtaed with autocond
-                 '--datatier':'GEN-SIM-RECO,DQMROOT',
+                 '--datatier':'GEN-SIM-RECO,DQMIO',
                  '-n':'10',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
                  '--customise' : 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise',
-                 '--geometry' : 'ExtendedPhaseIPixel'
+                 '--geometry' : 'ExtendedPhaseIPixel' #check geo
                  }
                              
 
@@ -1144,11 +1149,11 @@ steps['RECOUP']=merge([step3Upgpixphase1Defaults])
 #for 2017
 step3Up2017Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
                  '--conditions':'auto:upgradePLS1', 
-                 '--datatier':'GEN-SIM-RECO,DQMROOT',
+                 '--datatier':'GEN-SIM-RECO,DQMIO',
                  '-n':'10',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
                  '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1,SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise',
-                 '--geometry' : 'Extended2017'
+                 '--geometry' : 'Extended2017' #check geo
                  }
                              
 steps['RECOUP17']=merge([step3Up2017Defaults])
@@ -1276,7 +1281,7 @@ steps['HARVESTUP']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                    '--conditions':'DESIGN61_V10::All', #to be updtaed with autocond
                    '--mc':'',
                    '--customise' : 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise',
-		   '--geometry' : 'ExtendedPhaseIPixel',
+		   '--geometry' : 'ExtendedPhaseIPixel', #check geo
                    '--filetype':'DQM'
                    }
 		   
@@ -1285,7 +1290,7 @@ steps['HARVESTUP15']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting', # to
                    '--magField'    : '38T_PostLS1',
                    '--mc':'',
                    '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
-		   '--geometry' : 'Extended2015',
+		   '--geometry' : 'DBExtendedPostLS1',
                    '--filetype':'DQM',
                    }
 
@@ -1300,7 +1305,7 @@ steps['HARVESTUP17']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                    '--mc':'',
                    '--customise' : 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise',
                    '--filetype':'DQM',
-                   '--geometry' : 'Extended2017'
+                   '--geometry' : 'Extended2017' #check geo
                    }
 steps['ALCASPLIT']={'-s':'ALCAOUTPUT:@allForPrompt',
                     '--conditions':'auto:com10',
@@ -1329,14 +1334,14 @@ steps['SKIMCOSD']={'-s':'SKIM:all',
 #### for special wfs ###
 #steps['TTbar_REDIGI_RERECO']=merge([{'cfg':'TTbar_Tauola_8TeV_cfi',
 #                                     '-s':'GEN,SIM,DIGI,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco,RECO,EI,ALCA:MuAlCalIsolatedMu+DtCalib,VALIDATION,DQM',
-#                                     '--datatier':'GEN-SIM-DIGI-RAW-HLTDEBUG-RECO,DQMROOT',
+#                                     '--datatier':'GEN-SIM-DIGI-RAW-HLTDEBUG-RECO,DQMIO',
 #                                     '--eventcontent':'FEVTDEBUGHLT,DQM'},
 #                                    K9by50,stCond,step1Defaults])
 #steps['DIGI2RECO']=merge([{'-s':'DIGI,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
 #                           '--filtername':'DIGItoRECO',
 #                           '--process':'RECO',
 #                           '--eventcontent':'RECOSIM,DQM',
-#                           '--datatier':'GEN-SIM-RECO,DQMROOT',
+#                           '--datatier':'GEN-SIM-RECO,DQMIO',
 #                           },
 #                            stCond,step3Defaults])
 steps['RECOFROMRECO']=merge([{'-s':'RECO,EI',

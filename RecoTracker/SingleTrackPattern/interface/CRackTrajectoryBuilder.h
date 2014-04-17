@@ -197,6 +197,9 @@ class CRackTrajectoryBuilder
 
     void init(const edm::EventSetup& es,bool);
     Trajectory createStartingTrajectory( const TrajectorySeed& seed) const;
+
+    const TransientTrackingRecHitBuilder * hitBuilder() const {return RHBuilder;}
+
  private:
     std::vector<TrajectoryMeasurement> seedMeasurements(const TrajectorySeed& seed) const;
  
@@ -229,6 +232,8 @@ class CRackTrajectoryBuilder
 
     std::pair<TrajectoryStateOnSurface, const GeomDet*>
      innerState( const Trajectory& traj) const;
+
+
  
  private:
    edm::ESHandle<MagneticField> magfield;

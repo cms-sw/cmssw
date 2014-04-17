@@ -620,6 +620,10 @@ class PSet(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelable):
         _Parameterizable.__init__(self,*arg,**args)
     def value(self):
         return self
+    def isRef_(self):
+        """Returns true if this PSet is actually a reference to a different PSet
+            """
+        return hasattr(self,"refToPSet_")
     @staticmethod
     def _isValid(value):
         return True
@@ -665,6 +669,12 @@ class PSet(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelable):
         newpset = parameterSet.newPSet()
         self.insertContentsInto(newpset)
         parameterSet.addPSet(self.isTracked(), myname, newpset)
+    def insertContentsInto(self, parameterSet):
+        if self.isRef_():
+            ref = parameterSet.getTopPSet_(self.refToPSet_.value())
+            ref.insertContentsInto(parameterSet)
+        else:
+            super(PSet, self).insertContentsInto(parameterSet)
 
 
 class vint32(_ValidatingParameterListBase):

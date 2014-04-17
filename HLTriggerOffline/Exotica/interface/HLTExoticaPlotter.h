@@ -23,6 +23,7 @@
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateFwd.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
@@ -30,8 +31,6 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-
-#include "HLTriggerOffline/Exotica/src/MatchStruct.cc"
 
 #include <vector>
 #include <cstring>
@@ -51,7 +50,7 @@ public:
     void beginRun(const edm::Run &, const edm::EventSetup &);
     void plotterBookHistos(DQMStore::IBooker & iBooker, const edm::Run & iRun, const edm::EventSetup & iSetup);
     void analyze(const bool & isPassTrigger, const std::string & source,
-                 const std::vector<MatchStruct> & matches);
+                 const std::vector<reco::LeafCandidate> & matches);
 
     inline const std::string gethltpath() const
     {

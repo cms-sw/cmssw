@@ -27,7 +27,7 @@ L1OffsetCorrector::L1OffsetCorrector(const JetCorrectorParameters& fParam, const
     throw cms::Exception("L1OffsetCorrector")<<" correction level: "<<fParam.definitions().level()<<" is not L1Offset"; 
   vector<JetCorrectorParameters> vParam;
   vParam.push_back(fParam);
-  mCorrector = new FactorizedJetCorrector(vParam);
+  mCorrector = new FactorizedJetCorrectorCalculator(vParam);
 }
 //------------------------------------------------------------------------ 
 //--- L1OffsetCorrector destructor -------------------------------------------
@@ -71,11 +71,12 @@ double L1OffsetCorrector::correction(const reco::Jet& fJet,
     }
   } 
   if (NPV > 0) {
-    mCorrector->setJetEta(fJet.eta());
-    mCorrector->setJetPt(fJet.pt());
-    mCorrector->setJetE(fJet.energy());
-    mCorrector->setNPV(NPV);
-    result = mCorrector->getCorrection();
+    FactorizedJetCorrectorCalculator::VariableValues values;
+    values.setJetEta(fJet.eta());
+    values.setJetPt(fJet.pt());
+    values.setJetE(fJet.energy());
+    values.setNPV(NPV);
+    result = mCorrector->getCorrection(values);
   }
   return result;
 }

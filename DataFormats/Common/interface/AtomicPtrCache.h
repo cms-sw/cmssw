@@ -73,6 +73,8 @@ namespace edm {
     
     ///unsets the value and deletes the memory
     void reset();
+
+    T* release();
     
   private:
     
@@ -143,8 +145,11 @@ namespace edm {
   template<typename T>
   inline void AtomicPtrCache<T>::reset() { delete m_data.exchange(nullptr,std::memory_order_acq_rel);}
 
+  template<typename T>
+  inline T* AtomicPtrCache<T>::release() {
+    T* tmp = m_data.exchange(nullptr);
+    return tmp;
+  }
 #endif
 }
-
-
 #endif

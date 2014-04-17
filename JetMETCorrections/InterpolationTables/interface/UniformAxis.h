@@ -83,14 +83,13 @@ namespace npstat {
         static UniformAxis* read(const gs::ClassId& id, std::istream& in);
 
     private:
-        inline UniformAxis() : min_(0.), max_(0.), bw_(0.), npt_(0) {}
-
         double min_;
         double max_;
         double bw_;
         std::string label_;
         unsigned npt_;
 
+        inline UniformAxis() : min_(0.), max_(0.), bw_(0.), npt_(0) {}
     };
 }
 

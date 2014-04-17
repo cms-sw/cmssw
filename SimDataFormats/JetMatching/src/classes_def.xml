@@ -1,6 +1,6 @@
 <lcgdict>
   <class name="reco::JetFlavourInfo" ClassVersion="10">
-   <version ClassVersion="10" checksum="3935266839"/>
+   <version ClassVersion="10" checksum="1683584268"/>
   </class>
   <class name="std::vector<reco::JetFlavourInfo>"/>
   <class name="std::pair<edm::RefToBase<reco::Jet>, reco::JetFlavourInfo>"/>

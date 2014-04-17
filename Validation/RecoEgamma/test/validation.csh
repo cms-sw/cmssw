@@ -30,26 +30,26 @@ setenv TYPE GEDPhotons
 setenv ANALYZERNAME pfPhotonValidator
 
 
-setenv CMSSWver1 7_0_0
-setenv CMSSWver2 7_0_0
-setenv OLDRELEASE 7_0_0
-setenv NEWRELEASE 7_0_0
-setenv OLDPRERELEASE pre11
-setenv NEWPRERELEASE pre12
+setenv CMSSWver1 7_1_0
+setenv CMSSWver2 7_1_0
+setenv OLDRELEASE 7_1_0
+setenv NEWRELEASE 7_1_0
+setenv OLDPRERELEASE pre3
+setenv NEWPRERELEASE pre4
 setenv UPGRADEVER  UPG2017
 setenv LHCENERGY   13
 setenv PU True
-setenv PUlevel 25ns
+setenv PUlevel 50ns
 
 if ( $STARTUP == True &&  $FASTSIM == False && $PU == False && $UPGRADE == True ) then
-setenv OLDGLOBALTAG POSTLS162_V4-v1
-setenv NEWGLOBALTAG POSTLS170_V1-v1
+setenv OLDGLOBALTAG POSTLS171_V1-v1
+setenv NEWGLOBALTAG POSTLS171_V1-v2
 else if ( $UPGRADE == True && $PU == True &&  $FASTSIM == False ) then
-setenv OLDGLOBALTAG PU${PUlevel}_POSTLS162_V4-v1
-setenv NEWGLOBALTAG PU${PUlevel}_POSTLS170_V1-v1
+setenv OLDGLOBALTAG PU${PUlevel}_POSTLS171_V2-v6
+setenv NEWGLOBALTAG PU${PUlevel}_POSTLS171_V2-v2
 else if (  $STARTUP == True  && $FASTSIM == True) then
-setenv OLDGLOBALTAG START70_V2_amend_FastSim
-setenv NEWGLOBALTAG START70_V2_FastSim-v4
+setenv OLDGLOBALTAG POSTLS171_V1_FastSim-v1
+setenv NEWGLOBALTAG POSTLS171_V1_FastSim-v2
  endif
 
 
@@ -155,7 +155,7 @@ else if ( $RUNTYPE == Central ) then
 
 #setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValH130GGgluonfusion__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__GEN-SIM-DIGI-RECO.root
 #setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValH130GGgluonfusion__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__DQM.root
-#setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValH130GGgluonfusion_${UPGRADEVER}_${LHCENERGY}__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__DQM.root
+setenv OLDFILE ${WorkDir1}/DQM_V0001_R000000001__RelValH130GGgluonfusion_${UPGRADEVER}_${LHCENERGY}__CMSSW_${OLDRELEASE}-${OLDGLOBALTAG}__DQM.root
 
 if ( $UPGRADE == True ) then
 
@@ -202,7 +202,7 @@ endif
 #http://cmsdoc.cern.ch/Physics/egamma/www/validation/
 
 setenv CURRENTDIR $PWD
-setenv OUTPATH /afs/cern.ch/cms/Physics/egamma/www/validation
+setenv OUTPATH /afs/cern.ch/cms/Physics/egamma/www/validation/Photons
 cd $OUTPATH
 setenv NEWRELEASE {$NEWRELEASE}
 setenv OLDRELEASE {$OLDRELEASE}
@@ -231,7 +231,7 @@ else if ( $FASTSIM == False && $UPGRADE == False && $PU == True ) then
 setenv OUTDIR $OUTPATH/${SAMPLE}PU
 else if ( $FASTSIM == False && $PU == False && $UPGRADE == False ) then 
 setenv OUTDIR $OUTPATH/${SAMPLE}
-else if ( $SAMPLE == H130GGgluonfusion  && $UPGRADE == True && $PU == True ) then
+else if ( $SAMPLE == H130GGgluonfusion  && $UPGRADE == True && $PU == True && $FASTSIM == False) then
 setenv OUTDIR $OUTPATH/${SAMPLE}_${LHCENERGY}TeV_PU${PUlevel}
 else if ( $SAMPLE == H130GGgluonfusion  && $UPGRADE == True ) then
 setenv OUTDIR $OUTPATH/${SAMPLE}_${LHCENERGY}TeV
@@ -417,6 +417,18 @@ cat > scaledhistosGEDspecific <<EOF
   pfMVAEndcap
   nCluOutMustacheBarrel
   nCluOutMustacheEndcap
+  dRPhoPFcand_Pho_unCleanedBarrel
+  dRPhoPFcand_Pho_unCleanedEndcap
+  dRPhoPFcand_Pho_CleanedBarrel
+  dRPhoPFcand_Pho_CleanedEndcap
+  dRPhoPFcand_ChHad_unCleanedBarrel
+  dRPhoPFcand_ChHad_unCleanedEndcap
+  dRPhoPFcand_ChHad_CleanedBarrel
+  dRPhoPFcand_ChHad_CleanedEndcap
+  dRPhoPFcand_NeuHad_unCleanedBarrel
+  dRPhoPFcand_NeuHad_unCleanedEndcap
+  dRPhoPFcand_NeuHad_CleanedBarrel
+  dRPhoPFcand_NeuHad_CleanedEndcap
   SumPtOverPhoPt_Pho_unCleanedBarrel
   SumPtOverPhoPt_Pho_unCleanedEndcap
   SumPtOverPhoPt_Pho_CleanedBarrel
@@ -429,6 +441,7 @@ cat > scaledhistosGEDspecific <<EOF
   SumPtOverPhoPt_NeuHad_unCleanedEndcap
   SumPtOverPhoPt_NeuHad_CleanedBarrel
   SumPtOverPhoPt_NeuHad_CleanedEndcap
+
 EOF
 
 
@@ -925,8 +938,8 @@ $i->GetYaxis()->SetRangeUser(0.,5.);
 } else if ( $i==pHoverEVsEtAll ||  $i==pnewHoverEVsEtAll ) 
 { $i->GetYaxis()->SetRangeUser(-0.05,0.05);
 } else  {
-$i->SetMinimum(0.8);
-$i->SetMaximum(1.1);
+$i->SetMinimum(0.94);
+$i->SetMaximum(1.04);
 }
 $i->SetLineColor(kPink+8);
 $i->SetMarkerColor(kPink+8);

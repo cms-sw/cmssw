@@ -129,14 +129,9 @@ void CosmicTrajectoryBuilder::run(const TrajectorySeedCollection &collseed,
 
 Trajectory CosmicTrajectoryBuilder::createStartingTrajectory( const TrajectorySeed& seed) const
 {
-  Trajectory result( seed, seed.direction());
-  std::vector<TM> seedMeas = seedMeasurements(seed);
-  if ( !seedMeas.empty()) {
-    for (std::vector<TM>::const_iterator i=seedMeas.begin(); i!=seedMeas.end(); i++){
-      result.push(*i);
-    }
-  }
- 
+  Trajectory result( seed, seed.direction()); 
+  std::vector<TM> && seedMeas = seedMeasurements(seed);
+  for (auto & i : seedMeas) result.push(std::move(i));
   return result;
 }
 
@@ -151,15 +146,14 @@ CosmicTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed) const
     //RC TransientTrackingRecHit* recHit = RHBuilder->build(&(*ihit));
     TransientTrackingRecHit::RecHitPointer recHit = RHBuilder->build(&(*ihit));
     const GeomDet* hitGeomDet = (&(*tracker))->idToDet( ihit->geographicalId());
-    TSOS invalidState( new BasicSingleTrajectoryState( hitGeomDet->surface()));
+    TSOS invalidState(new BasicSingleTrajectoryState( hitGeomDet->surface()));
 
     if (ihit == hitRange.second - 1) {
       TSOS  updatedState=startingTSOS(seed);
-      result.push_back(TM( invalidState, updatedState, recHit));
-
+      result.emplace_back(invalidState, updatedState, recHit);
     } 
     else {
-      result.push_back(TM( invalidState, recHit));
+      result.emplace_back(invalidState, recHit);
     }
     
   }
@@ -311,8 +305,8 @@ void CosmicTrajectoryBuilder::AddHit(Trajectory &traj,
 	   TSOS UpdatedState= theUpdator->update( prSt, *tmphitbestdet);
 	   if (UpdatedState.isValid()){
 
-	     traj.push(TM(prSt,UpdatedState,RHBuilder->build(Hits[ibestdet])
-			  , chi2min));
+	     traj.push(std::move(TM(prSt,UpdatedState,RHBuilder->build(Hits[ibestdet])
+			  , chi2min)));
 	     LogDebug("CosmicTrackFinder") <<
 	       "STATE UPDATED WITH HIT AT POSITION "
 					   <<tmphitbestdet->globalPosition()

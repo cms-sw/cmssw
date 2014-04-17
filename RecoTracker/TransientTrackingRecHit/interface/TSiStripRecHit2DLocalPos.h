@@ -5,7 +5,6 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TValidTrackingRecHit.h"
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/HelpertRecHit2DLocalPos.h"
-#include "DataFormats/Common/interface/RefGetter.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -13,8 +12,6 @@ class TSiStripRecHit2DLocalPos GCC11_FINAL : public TValidTrackingRecHit {
 public:
   
   typedef SiStripRecHit2D::ClusterRef SiStripClusterRef;
-  
-  typedef edm::LazyGetter<SiStripCluster>::value_ref  SiStripRegionalClusterRef;
   
   virtual ~TSiStripRecHit2DLocalPos() {}
   
@@ -77,15 +74,7 @@ public:
     return RecHitPointer( new TSiStripRecHit2DLocalPos( pos, err, det, OmniClusterRef(clust), cpe));
   }
   
-  static RecHitPointer build( const LocalPoint& pos, const LocalError& err,
-			      const GeomDet* det,
-			      const SiStripRegionalClusterRef & clust,
-			      const StripClusterParameterEstimator* cpe) {
-    return RecHitPointer( new TSiStripRecHit2DLocalPos( pos, err, det, OmniClusterRef(clust), cpe));
-  }
   
-  
-
   static float sigmaPitch(LocalPoint const& pos, LocalError err, 
 			  GeomDetUnit const & stripdet) {
 

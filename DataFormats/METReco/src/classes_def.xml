@@ -8,8 +8,9 @@
   <class name="std::vector<CommonMETData>"/> 
   <class name="edm::Wrapper<std::vector<CommonMETData> >"/> 
 
-  <class name="CorrMETData" ClassVersion="10">
+  <class name="CorrMETData" ClassVersion="11">
    <version ClassVersion="10" checksum="1727583300"/>
+   <version ClassVersion="11" checksum="1460799916"/>
   </class>
   <class name="edm::Wrapper<CorrMETData>"/> 
   <class name="std::vector<CorrMETData>"/> 

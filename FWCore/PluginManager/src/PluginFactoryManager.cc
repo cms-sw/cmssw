@@ -83,7 +83,7 @@ PluginFactoryManager::end() const
 PluginFactoryManager*
 PluginFactoryManager::get()
 {
-   static PluginFactoryManager s_instance;
+   [[cms::thread_safe]] static PluginFactoryManager s_instance;
    return &s_instance;
 }
 }

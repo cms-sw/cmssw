@@ -12,6 +12,7 @@
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Error.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 /* 
  * class PFTauVertexSelector
@@ -23,19 +24,27 @@
 class PFTauVertexSelector : public edm::EDFilter  {
    public:
       explicit PFTauVertexSelector(const edm::ParameterSet& iConfig){   
-         tauSrc_ = iConfig.getParameter<edm::InputTag>("tauSrc");
+         tauSrc_ = consumes<edm::View<reco::PFTau> >(iConfig.getParameter<edm::InputTag>("tauSrc"));
          useVertex_ = iConfig.getParameter<bool>("useVertex");
-         vertexSrc_ = iConfig.getParameter<edm::InputTag>("vertexSrc");
+         vertexSrc_ = consumes<edm::View<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("vertexSrc"));
          useBeamSpot_ = iConfig.getParameter<bool>("useBeamSpot");
-         beamSpotSrc_ = iConfig.getParameter<edm::InputTag>("beamSpotSrc");
+         beamSpotSrc_ = consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpotSrc"));
          useLeadingTrack_ = iConfig.getParameter<bool>("useLeadingTrack");
-         trackSrc_ = iConfig.getParameter<std::vector<edm::InputTag> >("trackSrc");
+         trackSrcIT_ = iConfig.getParameter<std::vector<edm::InputTag> >("trackSrc");
+	 for( std::vector<edm::InputTag>::const_iterator it = trackSrcIT_.begin(); it != trackSrcIT_.end(); ++it ) {
+	   edm::EDGetTokenT<edm::View<reco::Track> > aToken =  consumes<edm::View<reco::Track> >( *it );
+	   trackSrc_.push_back(aToken);
+	 }
          useLeadingRecoCandidate_ = iConfig.getParameter<bool>("useLeadingRecoCandidate");
-         recoCandidateSrc_ = iConfig.getParameter<std::vector<edm::InputTag> >("recoCandidateSrc");
+         recoCandidateSrcIT_ = iConfig.getParameter<std::vector<edm::InputTag> >("recoCandidateSrc");
+	 for( std::vector<edm::InputTag>::const_iterator it =  recoCandidateSrcIT_.begin(); it != recoCandidateSrcIT_.end(); ++it ) {
+	   edm::EDGetTokenT<edm::View<reco::RecoCandidate> > aToken =  consumes<edm::View<reco::RecoCandidate> >( *it );
+	   recoCandidateSrc_.push_back(aToken);
+	 }
          useTriggerFilterElectrons_ = iConfig.getParameter<bool>("useTriggerFilterElectrons");
-         triggerFilterElectronsSrc_ = iConfig.getParameter<edm::InputTag>("triggerFilterElectronsSrc");
+         triggerFilterElectronsSrc_ = consumes<trigger::TriggerFilterObjectWithRefs>(iConfig.getParameter<edm::InputTag>("triggerFilterElectronsSrc"));
          useTriggerFilterMuons_ = iConfig.getParameter<bool>("useTriggerFilterMuons");
-         triggerFilterMuonsSrc_ = iConfig.getParameter<edm::InputTag>("triggerFilterMuonsSrc");
+         triggerFilterMuonsSrc_ = consumes<trigger::TriggerFilterObjectWithRefs>(iConfig.getParameter<edm::InputTag>("triggerFilterMuonsSrc"));
          dZ_ = iConfig.getParameter<double>("dZ");
          filterOnNTaus_ = iConfig.getParameter<uint32_t>("filterOnNTaus");
          produces<reco::PFTauCollection>();
@@ -43,19 +52,21 @@ class PFTauVertexSelector : public edm::EDFilter  {
       ~PFTauVertexSelector(){} 
    private:
       virtual bool filter(edm::Event&, const edm::EventSetup&) override;
-      edm::InputTag tauSrc_;
+      edm::EDGetTokenT<edm::View<reco::PFTau> > tauSrc_;
       bool useVertex_;
-      edm::InputTag vertexSrc_;
+      edm::EDGetTokenT<edm::View<reco::Vertex> > vertexSrc_;
       bool useBeamSpot_;
-      edm::InputTag beamSpotSrc_;
+      edm::EDGetTokenT<reco::BeamSpot> beamSpotSrc_;
       bool useLeadingTrack_;
-      std::vector<edm::InputTag> trackSrc_;
+      std::vector<edm::InputTag> trackSrcIT_;
+      std::vector<edm::EDGetTokenT<edm::View<reco::Track> > > trackSrc_;
       bool useLeadingRecoCandidate_;
-      std::vector<edm::InputTag> recoCandidateSrc_;
+      std::vector<edm::InputTag> recoCandidateSrcIT_;
+      std::vector<edm::EDGetTokenT<edm::View<reco::RecoCandidate> > > recoCandidateSrc_;
       bool useTriggerFilterElectrons_;
-      edm::InputTag triggerFilterElectronsSrc_;
+      edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> triggerFilterElectronsSrc_;
       bool useTriggerFilterMuons_;
-      edm::InputTag triggerFilterMuonsSrc_;
+      edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> triggerFilterMuonsSrc_;
       double dZ_;
       uint32_t filterOnNTaus_;
 };

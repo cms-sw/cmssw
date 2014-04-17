@@ -5,14 +5,26 @@
 #include "TH2.h"
 #include "TProfile.h"
 /// default constructor
-AnalysisTasksAnalyzerJEC::AnalysisTasksAnalyzerJEC(const edm::ParameterSet& cfg, TFileDirectory& fs): 
+AnalysisTasksAnalyzerJEC::AnalysisTasksAnalyzerJEC(const edm::ParameterSet& cfg, TFileDirectory& fs):
   edm::BasicAnalyzer::BasicAnalyzer(cfg, fs),
   Jets_(cfg.getParameter<edm::InputTag>("Jets")),
   jecLevel_(cfg.getParameter<std::string>("jecLevel")),
   patJetCorrFactors_(cfg.getParameter<std::string>("patJetCorrFactors")),
   help_(cfg.getParameter<bool>("help"))
 {
- 
+
+  hists_["Response"  ] = fs.make<TH2F>("Response"  , "response; #eta;p_{T}(reco)/p_{T}(gen)"  ,  5,  -3.3, 3.3, 100, 0.4, 1.6);
+  jetInEvents_=0;
+}
+AnalysisTasksAnalyzerJEC::AnalysisTasksAnalyzerJEC(const edm::ParameterSet& cfg, TFileDirectory& fs, edm::ConsumesCollector&& iC):
+  edm::BasicAnalyzer::BasicAnalyzer(cfg, fs),
+  Jets_(cfg.getParameter<edm::InputTag>("Jets")),
+  JetsToken_(iC.consumes<std::vector<pat::Jet> >(Jets_)),
+  jecLevel_(cfg.getParameter<std::string>("jecLevel")),
+  patJetCorrFactors_(cfg.getParameter<std::string>("patJetCorrFactors")),
+  help_(cfg.getParameter<bool>("help"))
+{
+
   hists_["Response"  ] = fs.make<TH2F>("Response"  , "response; #eta;p_{T}(reco)/p_{T}(gen)"  ,  5,  -3.3, 3.3, 100, 0.4, 1.6);
   jetInEvents_=0;
 }
@@ -28,10 +40,10 @@ AnalysisTasksAnalyzerJEC::~AnalysisTasksAnalyzerJEC()
  file->Close();
 }
 /// everything that needs to be done during the event loop
-void 
+void
 AnalysisTasksAnalyzerJEC::analyze(const edm::EventBase& event)
 {
-  // define what Jet you are using; this is necessary as FWLite is not 
+  // define what Jet you are using; this is necessary as FWLite is not
   // capable of reading edm::Views
   using pat::Jet;
 
@@ -40,22 +52,22 @@ AnalysisTasksAnalyzerJEC::analyze(const edm::EventBase& event)
   event.getByLabel(Jets_, Jets);
 
   // loop Jet collection and fill histograms
-  for(std::vector<Jet>::const_iterator jet_it=Jets->begin(); jet_it!=Jets->end(); ++jet_it){  
+  for(std::vector<Jet>::const_iterator jet_it=Jets->begin(); jet_it!=Jets->end(); ++jet_it){
 
 
 ///// You can get some help if you switch help to True in your config file
   if(help_==true){
      if(jetInEvents_==0){
-       std::cout<<"\n \n number of available JEC sets: "<< jet_it->availableJECSets().size() << std::endl; 
+       std::cout<<"\n \n number of available JEC sets: "<< jet_it->availableJECSets().size() << std::endl;
        for(unsigned int k=0; k< jet_it->availableJECSets().size(); ++k){
-	 std::cout<<"\n \n available JEC Set: "<< jet_it->availableJECSets()[k] << std::endl; 
+	 std::cout<<"\n \n available JEC Set: "<< jet_it->availableJECSets()[k] << std::endl;
        }
        std::cout<<"\n \n*** You found out which JEC Sets exist! Now correct it in your config file."<<std::endl;
-       std::cout<<"\n \n number of available JEC levels "<< jet_it->availableJECLevels().size() << std::endl; 
+       std::cout<<"\n \n number of available JEC levels "<< jet_it->availableJECLevels().size() << std::endl;
        for(unsigned int k=0; k< jet_it->availableJECLevels().size(); ++k){
-	 std::cout<<"\n \n available JEC: "<< jet_it->availableJECLevels(patJetCorrFactors_)[k] << std::endl; 
+	 std::cout<<"\n \n available JEC: "<< jet_it->availableJECLevels(patJetCorrFactors_)[k] << std::endl;
        }
-       std::cout<<"\n \n**** You did it correctly congratulations!!!!  And you found out which JEC levels are saved within the jets. Correct this in your configuration file." <<std::endl;	
+       std::cout<<"\n \n**** You did it correctly congratulations!!!!  And you found out which JEC levels are saved within the jets. Correct this in your configuration file." <<std::endl;
      }
   }
 

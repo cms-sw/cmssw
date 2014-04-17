@@ -7,7 +7,7 @@
 
 DQMTauProducer::DQMTauProducer(const edm::ParameterSet& iConfig)
 {
-  trackIsolatedJets_ = iConfig.getParameter<edm::InputTag>("TrackIsoJets");
+  trackIsolatedJets_ = consumes<reco::IsolatedTauTagInfoCollection>(iConfig.getParameter<edm::InputTag>("TrackIsoJets"));
   matchingCone_ = iConfig.getParameter<double>("MatchingCone");
   signalCone_ = iConfig.getParameter<double>("SignalCone");
   ptMin_ = iConfig.getParameter<double>("MinPtTracks");
@@ -30,14 +30,14 @@ void DQMTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
  
 
   edm::Handle<IsolatedTauTagInfoCollection> tauL25Jets;
-  iEvent.getByLabel(trackIsolatedJets_, tauL25Jets );
+  iEvent.getByToken(trackIsolatedJets_, tauL25Jets );
   
 
   IsolatedTauTagInfoCollection tau = *(tauL25Jets.product());
 
   
-    float eta_, phi_, pt_;
-    float ptLeadTk=0.;
+  float eta_, phi_, pt_;
+  float ptLeadTk=0.;
   int trackIsolation=1000.;  
   int nTracks=1000.;
 
