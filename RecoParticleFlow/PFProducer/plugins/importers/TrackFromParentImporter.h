@@ -54,7 +54,7 @@ importToBlock( const edm::Event& e,
 				[](const ElementType& a){
 			        return a->type() == reco::PFBlockElement::TRACK;
 				});  
-  // insert gsf tracks and SCs, binding pre-existing SCs to ECAL-Driven GSF
+  // insert tracks into the element list, updating tracks that exist already
   auto bpar = pfparents->cbegin();
   auto epar = pfparents->cend();
   edm::Ref<Collection> parentRef;
@@ -79,7 +79,7 @@ importToBlock( const edm::Event& e,
 	}
       }
     }
-  }// loop on conversions
+  }// loop on tracking coming from common parent
   elems.shrink_to_fit();
 }
 #endif
