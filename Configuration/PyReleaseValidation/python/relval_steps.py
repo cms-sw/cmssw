@@ -102,7 +102,7 @@ def merge(dictlist,TELL=False):
         return merge(reducedlist,TELL)
 
 
-# step1 gensim
+# step1 gensim: for run1
 step1Defaults = {'--relval'      : None, # need to be explicitly set
                  '-s'            : 'GEN,SIM',
                  '-n'            : 10,
@@ -110,19 +110,15 @@ step1Defaults = {'--relval'      : None, # need to be explicitly set
                  '--datatier'    : 'GEN-SIM',
                  '--eventcontent': 'RAWSIM',
                  }
-# 2015 step1 gensim
+# step1 gensim: for postLS1
 step1Up2015Defaults = {'-s' : 'GEN,SIM',
                              '-n'            : 10,
-                             '--conditions'  : 'auto:upgradePLS1', # 25ns GT
+                             '--conditions'  : 'auto:upgradePLS1',
                              '--datatier'    : 'GEN-SIM',
                              '--eventcontent': 'FEVTDEBUG',
-                             '--geometry'    : 'DBExtendedPostLS1',
                              '--magField'    : '38T_PostLS1',
                              '--customise'   : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'
                              }
-# differences between upgradePLS150ns and upgradePLS1 ought to be irrelevant for GEN-SIM
-#step1Up2015Defaults50ns = merge([{'--conditions':'auto:upgradePLS150ns'},step1Up2015Defaults])
-
 
 steps = Steps()
 #wmsplit = {}
@@ -823,10 +819,9 @@ step1FastDefaults =merge([{'-s':'GEN,SIM,RECO,EI,HLT:@relval,VALIDATION',
                           step1Defaults])
 step1FastUpg2015Defaults =merge([{'-s':'GEN,SIM,RECO,EI,HLT:@relval,VALIDATION',
                            '--fast':'',
-                           '--conditions'  :'auto:upgradePLS1', # this is the 25ns GT
+                           '--conditions'  :'auto:upgradePLS1',
                            '--magField'    :'38T_PostLS1',
                            '--customise'   :'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
-                           '--geometry'    :'DBExtendedPostLS1',
                            '--eventcontent':'FEVTDEBUGHLT,DQM',
                            '--datatier':'GEN-SIM-DIGI-RECO,DQMIO',
                            '--relval':'27000,3000'},
@@ -931,12 +926,11 @@ step2Defaults = { '-s'            : 'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval,RA
                   }
 #for 2015
 step2Upg2015Defaults = {'-s'     :'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco',
-                 '--conditions'  :'auto:upgradePLS1', # this is the 25ns GT
+                 '--conditions'  :'auto:upgradePLS1',
                  '--magField'    :'38T_PostLS1',
                  '--datatier'    :'GEN-SIM-DIGI-RAW-HLTDEBUG',
                  '--eventcontent':'FEVTDEBUGHLT',
                  '--customise'   :'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
-                 '--geometry'    :'DBExtendedPostLS1',
                  '-n'            :'10'
                   }
 step2Upg2015Defaults50ns = merge([{'--conditions':'auto:upgradePLS150ns'},step2Upg2015Defaults])
@@ -1077,8 +1071,7 @@ step3Up2015Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
                  '-n':'10',
                  '--datatier':'GEN-SIM-RECO,DQMIO',
                  '--eventcontent':'RECOSIM,DQM',
-                 '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
-                 '--geometry' : 'DBExtendedPostLS1'
+                 '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'
                  }
 step3Up2015Defaults50ns = merge([{'--conditions':'auto:upgradePLS150ns'},step3Up2015Defaults])
 
@@ -1088,8 +1081,7 @@ step3Up2015Hal = {'-s'            :'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
                  '--datatier'     :'GEN-SIM-RECO,DQMIO',
                   '--eventcontent':'RECOSIM,DQM',
                   '-n'            :'10',
-                 '--customise'    :'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
-                 '--geometry'     :'DBExtendedPostLS1'
+                 '--customise'    :'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'
                  }
                              
 steps['RECOUP15']=merge([step3Up2015Defaults]) # todo: remove UP from label
@@ -1290,7 +1282,6 @@ steps['HARVESTUP15']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting', # to
                    '--magField'    : '38T_PostLS1',
                    '--mc':'',
                    '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
-		   '--geometry' : 'DBExtendedPostLS1',
                    '--filetype':'DQM',
                    }
 
@@ -1330,20 +1321,6 @@ steps['SKIMCOSD']={'-s':'SKIM:all',
                    '--filein':'file:step2.root',
                    '--secondfilein':'filelist:step1_dasquery.log'}
                  
-
-#### for special wfs ###
-#steps['TTbar_REDIGI_RERECO']=merge([{'cfg':'TTbar_Tauola_8TeV_cfi',
-#                                     '-s':'GEN,SIM,DIGI,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco,RECO,EI,ALCA:MuAlCalIsolatedMu+DtCalib,VALIDATION,DQM',
-#                                     '--datatier':'GEN-SIM-DIGI-RAW-HLTDEBUG-RECO,DQMIO',
-#                                     '--eventcontent':'FEVTDEBUGHLT,DQM'},
-#                                    K9by50,stCond,step1Defaults])
-#steps['DIGI2RECO']=merge([{'-s':'DIGI,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
-#                           '--filtername':'DIGItoRECO',
-#                           '--process':'RECO',
-#                           '--eventcontent':'RECOSIM,DQM',
-#                           '--datatier':'GEN-SIM-RECO,DQMIO',
-#                           },
-#                            stCond,step3Defaults])
 steps['RECOFROMRECO']=merge([{'-s':'RECO,EI',
                               '--filtername':'RECOfromRECO',
                               '--process':'reRECO',

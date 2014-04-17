@@ -29,17 +29,11 @@ HLTTauDQML1Plotter::HLTTauDQML1Plotter(const edm::ParameterSet& ps, edm::Consume
     return;
 
   //Process PSet
-  try {
-    l1ExtraTaus_      = ps.getUntrackedParameter<edm::InputTag>("L1Taus");
-    l1ExtraTausToken_ = cc.consumes<l1extra::L1JetParticleCollection>(l1ExtraTaus_);
-    l1ExtraJets_      = ps.getUntrackedParameter<edm::InputTag>("L1Jets");
-    l1ExtraJetsToken_ = cc.consumes<l1extra::L1JetParticleCollection>(l1ExtraJets_);
-    l1JetMinEt_       = ps.getUntrackedParameter<double>("L1JetMinEt");
-  } catch ( cms::Exception &e ) {
-    edm::LogWarning("HLTTauDQMOffline") << "HLTTauDQML1Plotter::HLTTauDQML1Plotter: " << e.what();
-    configValid_ = false;
-    return;
-  }
+  l1ExtraTaus_      = ps.getUntrackedParameter<edm::InputTag>("L1Taus");
+  l1ExtraTausToken_ = cc.consumes<l1extra::L1JetParticleCollection>(l1ExtraTaus_);
+  l1ExtraJets_      = ps.getUntrackedParameter<edm::InputTag>("L1Jets");
+  l1ExtraJetsToken_ = cc.consumes<l1extra::L1JetParticleCollection>(l1ExtraJets_);
+  l1JetMinEt_       = ps.getUntrackedParameter<double>("L1JetMinEt");
   configValid_ = true;
 }
 
@@ -120,7 +114,6 @@ void HLTTauDQML1Plotter::bookHistograms(DQMStore::IBooker &iBooker) {
     snprintf(buffer, BUFMAX, "L1 central jet #phi Efficiency (E_{T} > %.1f);Ref #tau #eta;entries", l1JetMinEt_);
     l1jetPhiEffDenom_ = iBooker.book1D("L1JetPhiEffDenom", buffer, binsPhi_, minPhi, maxPhi);
   }
-  runValid_ = true;
 }
 
 

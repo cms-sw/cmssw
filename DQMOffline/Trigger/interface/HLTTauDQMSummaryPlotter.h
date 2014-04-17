@@ -6,7 +6,8 @@
 
 class HLTTauDQMSummaryPlotter: private HLTTauDQMPlotter {
 public:
-    HLTTauDQMSummaryPlotter(const edm::ParameterSet& ps, const std::string& dqmBaseFolder);
+    HLTTauDQMSummaryPlotter(const edm::ParameterSet& ps, const std::string& dqmBaseFolder, const std::string& type);
+    HLTTauDQMSummaryPlotter(const std::string& dqmBaseFolder, const std::string& type);
     ~HLTTauDQMSummaryPlotter();
 
     using HLTTauDQMPlotter::isValid;
@@ -15,15 +16,9 @@ public:
     void plot();
 
 private:
-    void bookEfficiencyHisto(const std::string& folder, const std::string& name, const std::string& hist1, bool copyLabels=false);
-    void plotEfficiencyHisto( std::string folder, std::string name, std::string hist1, std::string hist2 );
-    void plotIntegratedEffHisto( std::string folder, std::string name, std::string refHisto, std::string evCount, int bin );
-    void bookTriggerBitEfficiencyHistos( std::string folder, std::string histo );
-    void plotTriggerBitEfficiencyHistos( std::string folder, std::string histo );
-    void bookFractionHisto(const std::string& folder, const std::string& name);
-    void plotFractionHisto(const std::string& folder, const std::string& name);
+  const std::string type_;
 
-    std::string type_;
-    DQMStore *store_;
+  class SummaryPlotter;
+  std::vector<std::unique_ptr<SummaryPlotter> > plotters_;
 };
 #endif
