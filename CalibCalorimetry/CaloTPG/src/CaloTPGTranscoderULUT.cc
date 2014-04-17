@@ -63,7 +63,8 @@ void CaloTPGTranscoderULUT::loadHCALCompress() const{
            outputLUT_[lutId][i] = 0;
 
         for (unsigned int i = threshold; i < OUTPUT_LUT_SIZE; ++i)
-           outputLUT_[lutId][i] = (abs(ieta) < theTrigTowerGeometry->firstHFTower()) ? analyticalLUT[i] : identityLUT[i];
+	  outputLUT_[lutId][i] = (abs(ieta) < theTrigTowerGeometry->firstHFTower(id.version())) ? analyticalLUT[i] : identityLUT[i]; 
+	// TODO: UPDATE TO PRODUCE 1x1 output LUTs
      } //for iphi
   } //for ieta
 }
@@ -181,8 +182,10 @@ void CaloTPGTranscoderULUT::loadHCALUncompress() const {
 
    for (int ieta = -32; ieta <= 32; ++ieta){
 
+      const int version_of_hcal_TPs = 0;
+
       double eta_low = 0., eta_high = 0.;
-		theTrigTowerGeometry->towerEtaBounds(ieta,eta_low,eta_high); 
+      theTrigTowerGeometry->towerEtaBounds(ieta,version_of_hcal_TPs,eta_low,eta_high); 
       double cosh_ieta = fabs(cosh((eta_low + eta_high)/2.));
 
 		for (int iphi = 1; iphi <= 72; iphi++) {
@@ -195,7 +198,7 @@ void CaloTPGTranscoderULUT::loadHCALUncompress() const {
          double factor = 0.;
 
          // HF
-         if (abs(ieta) >= theTrigTowerGeometry->firstHFTower())
+         if (abs(ieta) >= theTrigTowerGeometry->firstHFTower(version_of_hcal_TPs))
             factor = rctlsb_factor_;
          // HBHE
          else 
@@ -388,12 +391,13 @@ void CaloTPGTranscoderULUT::setup(const edm::EventSetup& es, Mode mode=All) cons
 }
 
 void CaloTPGTranscoderULUT::printDecompression() const{
-   std::cout << "RCT Decompression table" << std::endl;                          
+   std::cout << "RCT Decompression table" << std::endl;  
+   const int version_of_hcal_TPs = 0; // appropriate for RCT                       
    for (int i=0; i < 256; i++) {                                                 
-      for (int j=1; j <= theTrigTowerGeometry->nTowers(); j++)
+      for (int j=1; j <= theTrigTowerGeometry->nTowers(version_of_hcal_TPs); j++)
          std::cout << int(hcaletValue(j,i)*100. + 0.5)/100. << " ";
       std::cout << std::endl;                                               
-      for (int j=1; j <= theTrigTowerGeometry->nTowers(); j++)               
+      for (int j=1; j <= theTrigTowerGeometry->nTowers(version_of_hcal_TPs); j++)               
          if (hcaletValue(j,i) != hcaletValue(-j,i))                    
             cout << "Error: decompression table for ieta = +/- " << j << " disagree! " << hcaletValue(-j,i) << ", " << hcaletValue(j,i) << endl;        
    }

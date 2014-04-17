@@ -23,7 +23,7 @@ HcalTrigTowerGeometry::towerIds(const HcalDetId & cellId) const {
     if (useRCT_) { 
       // first do eta
       int hfRing = cellId.ietaAbs();
-      int ieta = firstHFTower(); 
+      int ieta = firstHFTower(0); 
       // find the tower that contains this ring
       while(hfRing >= firstHFRingInTower(ieta+1)) {
 	++ieta;
@@ -131,7 +131,7 @@ HcalTrigTowerGeometry::detIds(const HcalTrigTowerDetId & hcalTrigTowerDetId) con
 
     if (hcalTrigTowerDetId.version()==0) {
     
-      int HfTowerPhiSize =  72 / nPhiBins(tower_ieta);
+      int HfTowerPhiSize =  72 / nPhiBins(tower_ieta,0);
 
       int HfTowerEtaSize     = hfTowerEtaSize(tower_ieta);
       int FirstHFRingInTower = firstHFRingInTower(abs(tower_ieta));
@@ -192,9 +192,9 @@ HcalTrigTowerGeometry::detIds(const HcalTrigTowerDetId & hcalTrigTowerDetId) con
 int HcalTrigTowerGeometry::hfTowerEtaSize(int ieta) const {
   
   int ietaAbs = abs(ieta); 
-  assert(ietaAbs >= firstHFTower() && ietaAbs <= nTowers());
+  assert(ietaAbs >= firstHFTower(0) && ietaAbs <= nTowers(0));
   // the first three come from rings 29-31, 32-34, 35-37. The last has 4 rings: 38-41
-  return (ietaAbs == nTowers()) ? 4 : 3;
+  return (ietaAbs == nTowers(0)) ? 4 : 3;
   
 }
 
@@ -203,7 +203,7 @@ int HcalTrigTowerGeometry::firstHFRingInTower(int ietaTower) const {
   // count up to the correct HF ring
   int inputTower = abs(ietaTower);
   int result = theTopology->firstHFRing();
-  for(int iTower = firstHFTower(); iTower != inputTower; ++iTower) {
+  for(int iTower = firstHFTower(0); iTower != inputTower; ++iTower) {
     result += hfTowerEtaSize(iTower);
   }
   
@@ -213,20 +213,27 @@ int HcalTrigTowerGeometry::firstHFRingInTower(int ietaTower) const {
 }
 
 
-void HcalTrigTowerGeometry::towerEtaBounds(int ieta, double & eta1, double & eta2) const {
+void HcalTrigTowerGeometry::towerEtaBounds(int ieta, int version, double & eta1, double & eta2) const {
   int ietaAbs = abs(ieta);
-  if(ietaAbs < firstHFTower()) {
+  if(ietaAbs < firstHFTower(version)) {
     eta1 = theHBHEEtaBounds[ietaAbs-1];
     eta2 = theHBHEEtaBounds[ietaAbs];
-    // the last tower is split, so get tower 29, too
-    if(ietaAbs == theTopology->lastHERing()-1) {
+    // the last tower is split, so get tower 29, too (in version 0!)
+    if(ietaAbs == theTopology->lastHERing()-1 && version==0) {
       eta2 = theHBHEEtaBounds[ietaAbs+1];
     } 
   } else {
-    // count from 0
-    int hfIndex = firstHFRingInTower(ietaAbs) - theTopology->firstHFRing();
-    eta1 = theHFEtaBounds[hfIndex];
-    eta2 = theHFEtaBounds[hfIndex + hfTowerEtaSize(ieta)];
+    if (version==0) {
+      int hfIndex = firstHFRingInTower(ietaAbs) - theTopology->firstHFRing();
+      // count from 0
+      eta1 = theHFEtaBounds[hfIndex];
+      eta2 = theHFEtaBounds[hfIndex + hfTowerEtaSize(ieta)];
+    } else { // 1x1 towers
+      if (ietaAbs==29) ietaAbs=30; // HF 29 is a tail catcher/guard-ring.  should not define eta for TT
+      int hfIndex = ietaAbs - 29;
+      eta1 = theHFEtaBounds[hfIndex];
+      eta2 = theHFEtaBounds[hfIndex+1];
+    }
   }
 
   // get the signs and order right

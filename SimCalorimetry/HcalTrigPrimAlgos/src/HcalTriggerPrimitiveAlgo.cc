@@ -72,8 +72,8 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
    for(SumMap::iterator mapItr = theSumMap.begin(); mapItr != theSumMap.end(); ++mapItr) {
       result.push_back(HcalTriggerPrimitiveDigi(mapItr->first));
       HcalTrigTowerDetId detId(mapItr->second.id());
-      if(detId.ietaAbs() >= theTrigTowerGeometry->firstHFTower())
-         { analyzeHF(mapItr->second, result.back(), rctlsb);}
+      if(detId.ietaAbs() >= theTrigTowerGeometry->firstHFTower(detId.version()))
+	{ analyzeHF(mapItr->second, result.back(), rctlsb);} // need to add version-dependency here!
          else{analyze(mapItr->second, result.back());}
    }
    return;

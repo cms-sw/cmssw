@@ -21,17 +21,23 @@ public:
     use1x1_=enable1x1;
   }
 
-  int firstHFTower() const {return 29;} 
+  int firstHFTower(int version) const {return (version==0)?(29):(30);} 
+
+  /// where this tower begins and ends in eta
+  void towerEtaBounds(int ieta, int version, double & eta1, double & eta2) const;
+
+  /// number of towers (version dependent)
+  int nTowers(int version) const {return (version==0)?(32):(41);}
+
+
 
  private:
 
   /// the number of phi bins in this eta ring
-  int nPhiBins(int ieta) const {
+  int nPhiBins(int ieta, int version) const {
     int nPhiBinsHF = ( 18 );   
-    return (abs(ieta) < firstHFTower()) ? 72 : nPhiBinsHF;
+    return (abs(ieta) < firstHFTower(version)) ? 72 : nPhiBinsHF;
   }
-
-  int nTowers() const {return 32;}
 
   /// the number of HF eta rings in this trigger tower
   /// ieta starts at firstHFTower()
@@ -39,10 +45,6 @@ public:
 
   /// since the towers are irregular in eta in HF
   int firstHFRingInTower(int ietaTower) const;
-
-  /// where this tower begins and ends in eta
-  void towerEtaBounds(int ieta, double & eta1, double & eta2) const;
-
 
  private:
   const HcalTopology* theTopology;
