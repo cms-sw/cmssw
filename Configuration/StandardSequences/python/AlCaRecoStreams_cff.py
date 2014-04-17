@@ -153,11 +153,8 @@ pathALCARECOTkAlCosmicsRegional0THLT = cms.Path(seqALCARECOTkAlCosmicsRegional0T
 pathALCARECOMuAlGlobalCosmicsInCollisions = cms.Path(seqALCARECOMuAlGlobalCosmicsInCollisions*ALCARECOMuAlGlobalCosmicsInCollisionsDQM)
 pathALCARECOMuAlGlobalCosmics = cms.Path(seqALCARECOMuAlGlobalCosmics*ALCARECOMuAlGlobalCosmicsDQM)
 pathALCARECOPromptCalibProd = cms.Path(seqALCARECOPromptCalibProd)
-<<<<<<< HEAD
 pathALCARECOPromptCalibProdSiStrip = cms.Path(seqALCARECOPromptCalibProdSiStrip)
-=======
 pathALCARECOPromptCalibProdSiStripGains = cms.Path(seqALCARECOPromptCalibProdSiStripGains)
->>>>>>> Add PromptCalibProdSiStripGains ALCARECO dedicated to PCL workflow for SiStrip Gains determination
 pathALCARECOSiStripPCLHistos = cms.Path(seqALCARECOSiStripPCLHistos)
 
 # AlCaReco event content definitions:
@@ -475,7 +472,7 @@ ALCARECOStreamPromptCalibProd = cms.FilteredStream(
 	)
 
 
-<<<<<<< HEAD
+
 ALCARECOStreamPromptCalibProdSiStrip = cms.FilteredStream(
 	responsible = 'Gianluca Cerminara',
 	name = 'PromptCalibProdSiStrip',
@@ -485,7 +482,7 @@ ALCARECOStreamPromptCalibProdSiStrip = cms.FilteredStream(
 	dataTier = cms.untracked.string('ALCARECO')
 	)
 
-=======
+
 ALCARECOStreamPromptCalibProdSiStripGains = cms.FilteredStream(
 	responsible = 'Gianluca Cerminara',
 	name = 'PromptCalibProdSiStripGains',
@@ -496,7 +493,7 @@ ALCARECOStreamPromptCalibProdSiStripGains = cms.FilteredStream(
 	)
 
 
->>>>>>> Add PromptCalibProdSiStripGains ALCARECO dedicated to PCL workflow for SiStrip Gains determination
+
 ALCARECOStreamSiStripPCLHistos = cms.FilteredStream(
 	responsible = 'Gianluca Cerminara',
 	name = 'SiStripPCLHistos',
