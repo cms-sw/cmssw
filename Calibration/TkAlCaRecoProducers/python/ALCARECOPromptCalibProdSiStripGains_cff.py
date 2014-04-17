@@ -48,10 +48,14 @@ from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
 from RecoTracker.TrackProducer.TrackRefitters_cff import *
 ALCARECOCalibrationTracksRefit = TrackRefitter.clone(src = cms.InputTag("ALCARECOCalibrationTracks"))
 
+from RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi import *
+
+
 # refit and BS can be dropped if done together with RECO.
 # track filter can be moved in acalreco if no otehr users
 ALCARECOTrackFilterRefit = cms.Sequence(ALCARECOCalibrationTracks +
                                         offlineBeamSpot +
+                                        MeasurementTrackerEvent +
                                         ALCARECOCalibrationTracksRefit )
 
 
