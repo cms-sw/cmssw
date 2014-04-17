@@ -6,10 +6,19 @@
 #include "DataFormats/Provenance/interface/EventID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/StreamContext.h"
+#include "FWCore/ServiceRegistry/interface/GlobalContext.h"
+#include "FWCore/ServiceRegistry/interface/SystemBounds.h"
 #include "CondCore/CondDB/interface/Exception.h"
 //
 #include <vector>
 #include<memory>
+#include <cassert>
+
+//In order to make PoolDBOutputService::currentTime() to work we have to keep track
+// of which stream is presently being processed on a given thread during the call of
+// a module which calls that method.
+static thread_local int s_streamIndex = -1;
 
 void 
 cond::service::PoolDBOutputService::fillRecord( edm::ParameterSet & pset) {
@@ -35,7 +44,7 @@ cond::service::PoolDBOutputService::fillRecord( edm::ParameterSet & pset) {
 
 cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet & iConfig,edm::ActivityRegistry & iAR ): 
   m_timetypestr(""),
-  m_currentTime( 0 ),
+  m_currentTimes{},
   m_session(),
   //m_logConnectionString(""),
   //m_logdb(),
@@ -71,11 +80,25 @@ cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet 
     fillRecord( *itToPut);
 
 
-  iAR.watchPreProcessEvent(this,&cond::service::PoolDBOutputService::preEventProcessing);
   iAR.watchPostEndJob(this,&cond::service::PoolDBOutputService::postEndJob);
-  iAR.watchPreModule(this,&cond::service::PoolDBOutputService::preModule);
-  iAR.watchPostModule(this,&cond::service::PoolDBOutputService::postModule);
-  iAR.watchPreBeginLumi(this,&cond::service::PoolDBOutputService::preBeginLumi);
+  iAR.watchPreallocate([this](edm::service::SystemBounds const& iBounds) {
+      m_currentTimes.resize(iBounds.maxNumberOfStreams());
+    });
+  if( m_timetype == cond::timestamp ){ //timestamp
+    iAR.watchPreEvent(this,&cond::service::PoolDBOutputService::preEventProcessing);
+    iAR.watchPreModuleEvent(this, &cond::service::PoolDBOutputService::preModuleEvent);
+    iAR.watchPostModuleEvent(this, &cond::service::PoolDBOutputService::postModuleEvent);
+  } else if( m_timetype == cond::runnumber ){//runnumber
+    //NOTE: this assumes only one run is being processed at a time.
+    // This is true for 7_1_X but plan are to allow multiple in flight at a time
+    s_streamIndex = 0;
+    iAR.watchPreGlobalBeginRun(this,&cond::service::PoolDBOutputService::preGlobalBeginRun);
+  } else if( m_timetype == cond::lumiid ){
+    //NOTE: this assumes only one lumi is being processed at a time.
+    // This is true for 7_1_X but plan are to allow multiple in flight at a time
+    s_streamIndex = 0;
+    iAR.watchPreGlobalBeginLumi(this,&cond::service::PoolDBOutputService::preGlobalBeginLumi);
+  }
 }
 
 cond::persistency::Session
@@ -97,6 +120,7 @@ cond::service::PoolDBOutputService::isNewTagRequest( const std::string& recordNa
 void 
 cond::service::PoolDBOutputService::initDB( bool forReading )
 {
+  std::lock_guard<std::recursive_mutex> lock(m_mutex);
   m_session.transaction().start(false);
   cond::persistency::TransactionScope scope( m_session.transaction() );
   try{ 
@@ -125,28 +149,33 @@ cond::service::PoolDBOutputService::postEndJob()
 }
 
 void 
-cond::service::PoolDBOutputService::preEventProcessing(const edm::EventID& iEvtid, const edm::Timestamp& iTime)
+cond::service::PoolDBOutputService::preEventProcessing(edm::StreamContext const& iContext)
 {
-  if( m_timetype == cond::runnumber ){//runnumber
-    m_currentTime=iEvtid.run();
-  }else if( m_timetype == cond::timestamp ){ //timestamp
-    m_currentTime=iTime.value();
-  }
-}
-
-void
-cond::service::PoolDBOutputService::preModule(const edm::ModuleDescription& desc){
+  m_currentTimes[iContext.streamID().value()] = iContext.timestamp().value();
 }
 
 void 
-cond::service::PoolDBOutputService::preBeginLumi(const edm::LuminosityBlockID& iLumiid,  const edm::Timestamp& iTime ){
-  if( m_timetype == cond::lumiid ){
-    m_currentTime=iLumiid.value();
+cond::service::PoolDBOutputService::preModuleEvent(edm::StreamContext const& iContext, edm::ModuleCallingContext const&) {
+  s_streamIndex = iContext.streamID().value();
+}
+
+void 
+cond::service::PoolDBOutputService::postModuleEvent(edm::StreamContext const& iContext, edm::ModuleCallingContext const&) {
+  s_streamIndex = -1;
+}
+
+void 
+cond::service::PoolDBOutputService::preGlobalBeginRun(edm::GlobalContext const& iContext) {
+  for( auto& time : m_currentTimes) {
+    time = iContext.luminosityBlockID().run();
   }
 }
 
-void
-cond::service::PoolDBOutputService::postModule(const edm::ModuleDescription& desc){
+void 
+cond::service::PoolDBOutputService::preGlobalBeginLumi(edm::GlobalContext const& iContext) {
+  for( auto& time : m_currentTimes) {
+    time = iContext.luminosityBlockID().value();
+  }
 }
 
 cond::service::PoolDBOutputService::~PoolDBOutputService(){
@@ -165,7 +194,8 @@ cond::service::PoolDBOutputService::beginOfTime() const{
 
 cond::Time_t 
 cond::service::PoolDBOutputService::currentTime() const{
-  return m_currentTime;
+  assert(-1 != s_streamIndex);
+  return m_currentTimes[s_streamIndex];
 }
 
 void 
@@ -175,6 +205,8 @@ cond::service::PoolDBOutputService::createNewIOV( const std::string& firstPayloa
                                                   cond::Time_t firstTillTime,
                                                   const std::string& recordName, 
                                                   bool withlogging){
+  std::lock_guard<std::recursive_mutex> lock(m_mutex);
+
   cond::persistency::TransactionScope scope( m_session.transaction() );
   Record& myrecord=this->lookUpRecord(recordName);
   if(!myrecord.m_isNewTag) {
@@ -218,6 +250,7 @@ cond::service::PoolDBOutputService::createNewIOV( const std::string& firstPayloa
                                                   cond::Time_t firstTillTime,
                                                   const std::string& recordName, 
                                                   bool withlogging){
+  std::lock_guard<std::recursive_mutex> lock(m_mutex);
   cond::persistency::TransactionScope scope( m_session.transaction() );
   Record& myrecord=this->lookUpRecord(recordName);
   if(!myrecord.m_isNewTag) {
@@ -243,6 +276,7 @@ cond::service::PoolDBOutputService::appendSinceTime( const std::string& payloadI
 						     cond::Time_t time,
 						     const std::string& recordName,
 						     bool withlogging) {
+  std::lock_guard<std::recursive_mutex> lock(m_mutex);
   cond::persistency::TransactionScope scope( m_session.transaction() );
   Record& myrecord=this->lookUpRecord(recordName);
   if( myrecord.m_isNewTag ) {
@@ -279,6 +313,7 @@ cond::service::PoolDBOutputService::appendSinceTime( const std::string& payloadI
 
 cond::service::PoolDBOutputService::Record& 
 cond::service::PoolDBOutputService::lookUpRecord(const std::string& recordName){
+  std::lock_guard<std::recursive_mutex> lock(m_mutex);
   if (!m_dbstarted) this->initDB( false );
   cond::persistency::TransactionScope scope( m_session.transaction() );
   std::map<std::string,Record>::iterator it=m_callbacks.find(recordName);
@@ -304,6 +339,7 @@ cond::service::PoolDBOutputService::lookUpRecord(const std::string& recordName){
 void 
 cond::service::PoolDBOutputService::closeIOV(Time_t lastTill, const std::string& recordName, 
 					     bool withlogging) {
+  std::lock_guard<std::recursive_mutex> lock(m_mutex);
   // not fully working.. not be used for now...
   Record & myrecord  = lookUpRecord(recordName);
   cond::persistency::TransactionScope scope( m_session.transaction() );
@@ -338,6 +374,7 @@ cond::service::PoolDBOutputService::setLogHeaderForRecord(const std::string& rec
 void 
 cond::service::PoolDBOutputService::tagInfo(const std::string& recordName,cond::TagInfo_t& result ){
   //
+  std::lock_guard<std::recursive_mutex> lock(m_mutex);
   Record& record = lookUpRecord(recordName);
   result.name=record.m_tag;
   //use iovproxy to find out.
