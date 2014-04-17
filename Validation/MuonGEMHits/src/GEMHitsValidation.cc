@@ -46,9 +46,9 @@ void GEMHitsValidation::bookHisto(const GEMGeometry* gem_geo) {
           if( station_num == 0 ) { tof_min = 18; tof_max = 22; }
           else  { tof_min = 26; tof_max = 30; }
           gem_sh_tof[region_num][station_num][layer_num] = dbe_->book1D( hist_name_for_tof.c_str(), hist_label_for_tof.c_str(), 40,tof_min,tof_max);
-          gem_sh_tofMu[region_num][station_num][layer_num] = dbe_->book1D( hist_name_for_tofMu.c_str(), hist_label_for_tofMu.c_str(), 40,18,22);
-          gem_sh_eloss[region_num][station_num][layer_num] = dbe_->book1D( hist_name_for_eloss.c_str(), hist_label_for_eloss.c_str(), 60,0.,60.);
-          gem_sh_elossMu[region_num][station_num][layer_num] = dbe_->book1D( hist_name_for_elossMu.c_str(), hist_label_for_elossMu.c_str(), 60,0.,60.);
+          gem_sh_tofMu[region_num][station_num][layer_num] = dbe_->book1D( hist_name_for_tofMu.c_str(), hist_label_for_tofMu.c_str(), 40,tof_min,tof_max);
+          gem_sh_eloss[region_num][station_num][layer_num] = dbe_->book1D( hist_name_for_eloss.c_str(), hist_label_for_eloss.c_str(), 60,0.,6000.);
+          gem_sh_elossMu[region_num][station_num][layer_num] = dbe_->book1D( hist_name_for_elossMu.c_str(), hist_label_for_elossMu.c_str(), 60,0.,6000.);
       }
     }
   }
@@ -101,7 +101,7 @@ void GEMHitsValidation::analyze(const edm::Event& e,
       energyLossMuon = hits->energyLoss();
 //fill histos for Muons only
       gem_sh_tofMu[(int)(region/2.+0.5)][station-1][layer-1]->Fill(timeOfFlightMuon);
-      gem_sh_elossMu[(int)(region/2.+0.5)][station-1][layer-1]->Fill(energyLossMuon);
+      gem_sh_elossMu[(int)(region/2.+0.5)][station-1][layer-1]->Fill(energyLossMuon*1.e9);
     }
     
       // fill hist
@@ -109,6 +109,6 @@ void GEMHitsValidation::analyze(const edm::Event& e,
     gem_sh_zr[(int)(region/2.+0.5)][station-1][layer-1]->Fill(g_z,g_r);
     gem_sh_xy[(int)(region/2.+0.5)][station-1][layer-1]->Fill(g_x,g_y);
     gem_sh_tof[(int)(region/2.+0.5)][station-1][layer-1]->Fill(timeOfFlight);
-    gem_sh_eloss[(int)(region/2.+0.5)][station-1][layer-1]->Fill(energyLoss);
+    gem_sh_eloss[(int)(region/2.+0.5)][station-1][layer-1]->Fill(energyLoss*1.e9);
    }
 }
