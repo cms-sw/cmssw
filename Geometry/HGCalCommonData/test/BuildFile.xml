@@ -6,3 +6,4 @@
 <flags   EDM_PLUGIN="1"/>
 <library   file="HGCGeometryTester.cc" name="testHGCGeometry">  </library>
 <library   file="ShashlikNumberingTester.cc" name="testShashlikNumbering">  </library>
+<library   file="HGCalNumberingTester.cc" name="testHGCalNumbering">  </library>
