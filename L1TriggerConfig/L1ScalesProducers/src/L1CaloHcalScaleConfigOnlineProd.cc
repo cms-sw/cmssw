@@ -108,6 +108,9 @@ boost::shared_ptr< L1CaloHcalScale >
 L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
 {
      using namespace edm::es;
+     // Version 0 of the hcal TPs is the 2012 and before running state.
+     // TODO: Add version 1 support if desired.
+	 const int version_of_hcal_TPs = 0;
  
      std:: cout << "object Key " << objectKey <<std::endl <<std::flush;
 
@@ -266,15 +269,14 @@ L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
 
 	 unsigned int outputLut[1024];
 
-	 uint32_t lutId = caloTPG->getOutputLUTId(ieta,iphi);
+	 uint32_t lutId = caloTPG->getOutputLUTId(ieta, iphi, version_of_hcal_TPs);
 
 	 double eta_low = 0., eta_high = 0.;
-	 const int version_of_hcal_TPs = 0;
 	 theTrigTowerGeometry->towerEtaBounds(ieta,version_of_hcal_TPs, eta_low,eta_high); 
 	 double cosh_ieta = fabs(cosh((eta_low + eta_high)/2.));
 
 
-	 if (!caloTPG->HTvalid(ieta, iphi)) continue;
+	 if (!caloTPG->HTvalid(ieta, iphi, version_of_hcal_TPs)) continue;
 	 double factor = 0.;
 	 if (abs(ieta) >= theTrigTowerGeometry->firstHFTower(version_of_hcal_TPs))
 	   factor = rctlsb;
@@ -318,9 +320,9 @@ L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
 	   
 
 	   for(int iphi = 1; iphi<=72; iphi++){
-	     if(!caloTPG->HTvalid(ieta, iphi))
+	     if(!caloTPG->HTvalid(ieta, iphi, version_of_hcal_TPs))
 	       continue;
-	     uint32_t lutId = caloTPG->getOutputLUTId(ieta,iphi);
+	     uint32_t lutId = caloTPG->getOutputLUTId(ieta, iphi, version_of_hcal_TPs);
 	     nphi++;
 	     etvalue += (double) hcaluncomp[lutId][irank];
 

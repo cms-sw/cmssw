@@ -555,13 +555,14 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFr
     // higher LUT numbers have priority in case of overlapping
     int lut_index=-1;
     for ( int i=0; i<lut_set_size; i++ ){
+      const int detid_version = 0;  // 0 is pre-2013, 1 is post
       if ( row->subdet . find("HT") != std::string::npos &&
 	   (row->crate == _crate || _crate == -1) && // -1 stands for all crates
 	   _set.eta_min[i] <= row->ieta &&
 	   _set.eta_max[i] >= row->ieta &&
 	   _set.phi_min[i] <= row->iphi &&
 	   _set.phi_max[i] >= row->iphi &&
-	   _coder.HTvalid(row->ieta, row->iphi) ){
+	   _coder.HTvalid(row->ieta, row->iphi, detid_version) ){
 	lut_index=i;
       }
     }
@@ -806,7 +807,8 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFr
 
     // only trigger tower channels
     // and valid (ieta,iphi)
-    if ( row->subdet . find("HT") != std::string::npos && _coder.HTvalid(row->ieta, row->iphi) ){
+    const int detid_version = 0;  // 0 is pre-2013, 1 is post
+    if ( row->subdet . find("HT") != std::string::npos && _coder.HTvalid(row->ieta, row->iphi, detid_version) ){
       if ( _xml.count(row->crate) == 0 && split_by_crate ){
 	_xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(row->crate,boost::shared_ptr<LutXml>(new LutXml())) );
       }
@@ -891,7 +893,8 @@ std::map<int, boost::shared_ptr<LutXml> > HcalLutManager::getCompressionLutXmlFr
 
     // only trigger tower channels
     // and valid (ieta,iphi)
-    if ( row->subdet . find("HT") != std::string::npos && _coder.HTvalid(row->ieta, row->iphi) ){
+    const int detid_version = 0;  // 0 is pre-2013, 1 is post
+    if ( row->subdet . find("HT") != std::string::npos && _coder.HTvalid(row->ieta, row->iphi, detid_version) ){
       if ( _xml.count(row->crate) == 0 && split_by_crate ){
 	_xml.insert( std::pair<int,boost::shared_ptr<LutXml> >(row->crate,boost::shared_ptr<LutXml>(new LutXml())) );
       }
