@@ -37,26 +37,20 @@ namespace evf{
       enum FileStatus { noFile, sameFile, newFile, newLumi, runEnded };
 
       explicit EvFDaqDirector( const edm::ParameterSet &pset, edm::ActivityRegistry& reg );
-      ~EvFDaqDirector(){}
+      ~EvFDaqDirector();
       void preallocate(edm::service::SystemBounds const& bounds);
       void preBeginRun(edm::GlobalContext const& globalContext);
       void postEndRun(edm::GlobalContext const& globalContext);
       void preSourceEvent(edm::StreamID const& streamID);
-      //void preBeginRun(edm::RunID const& id, edm::Timestamp const& ts);
-      //void postEndRun(edm::Run const& run, edm::EventSetup const& es);
-      std::string &baseDir(){return base_dir_;}
-      std::string &fuBaseDir(){return run_dir_;}
-      std::string &smBaseDir(){return sm_base_dir_;}
-      std::string &buBaseDir(){return bu_run_dir_;}
-      std::string &buBaseOpenDir(){return bu_run_open_dir_;}
-      std::string &monitorBaseDir(){return monitor_base_dir_;}
+      //std::string &baseDir(){return base_dir_;}
+      std::string &baseRunDir(){return run_dir_;}
+      std::string &buBaseRunDir(){return bu_run_dir_;}
+      std::string &buBaseRunOpenDir(){return bu_run_open_dir_;}
 
-      std::string findHighestRunDir(){ return dirManager_.findHighestRunDir();}
       std::string findCurrentRunDir(){ return dirManager_.findRunDir(run_);}
-      std::string findHighestRunDirStem();
-      unsigned int findHighestRun(){return dirManager_.findHighestRun();}
       std::string getRawFilePath(const unsigned int ls, const unsigned int index) const;
       std::string getOpenRawFilePath(const unsigned int ls, const unsigned int index) const;
+      std::string getOpenInputJsonFilePath(const unsigned int ls, const unsigned int index) const;
       std::string getOpenDatFilePath(const unsigned int ls, std::string const& stream) const;
       std::string getOutputJsonFilePath(const unsigned int ls, std::string const& stream) const;
       std::string getMergedDatFilePath(const unsigned int ls, std::string const& stream) const;
@@ -65,17 +59,10 @@ namespace evf{
       std::string getEoLSFilePathOnFU(const unsigned int ls) const;
       std::string getEoRFilePath() const;
       std::string getEoRFilePathOnFU() const;
-      std::string getPathForFU() const;
       void removeFile(unsigned int ls, unsigned int index);
       void removeFile(std::string );
-      void updateBuLock(unsigned int ls);
-      int readBuLock();
-      // DEPRECATED
-      //int updateFuLock(unsigned int &ls);
+
       FileStatus updateFuLock(unsigned int& ls, std::string& nextFile, uint32_t& fsize);
-      void writeLsStatisticsBU(unsigned int, unsigned int, unsigned long long, long long);
-      void writeLsStatisticsFU(unsigned int ls, unsigned int events, timeval completion_time){}
-      void writeDiskAndThrottleStat(double, int, int);
       void tryInitializeFuLockFile();
       unsigned int getRunNumber() const { return run_; }
       unsigned int getJumpLS() const { return jumpLS_; }
@@ -90,19 +77,16 @@ namespace evf{
       void updateFileIndex(int const& fileIndex) {currentFileIndex_=fileIndex;}
       std::vector<int>* getStreamFileTracker() {return &streamFileTracker_;}
       bool isSingleStreamThread() {return nStreams_==1 && nThreads_==1;}
+      void lockFULocal();
+      void unlockFULocal();
+      void lockFULocal2();
+      void unlockFULocal2();
 
 
     private:
-      bool bulock();
-      bool fulock();
-      // DEPRECATED
-      // bool copyRunDirToSlaves();
-      // This functionality is for emulator running only
-      bool mkFuRunDir();
-      // This functionality is for emulator running only
-      bool createOutputDirectory();
+      //bool bulock();
+      //bool fulock();
       bool bumpFile(unsigned int& ls, unsigned int& index, std::string& nextFile, uint32_t& fsize);
-      bool findHighestActiveLS(unsigned int& startingLS) const;
       void openFULockfileStream(std::string& fuLockFilePath, bool create);
       std::string inputFileNameStem(const unsigned int ls, const unsigned int index) const;
       std::string outputFileNameStem(const unsigned int ls, std::string const& stream) const;
@@ -114,8 +98,6 @@ namespace evf{
       bool testModeNoBuilderUnit_;
       std::string base_dir_;
       std::string bu_base_dir_;
-      std::string sm_base_dir_;
-      std::string monitor_base_dir_;
       bool directorBu_;
       unsigned int run_;
 
@@ -129,6 +111,8 @@ namespace evf{
       int bu_writelock_fd_;
       int fu_readwritelock_fd_;
       int data_readwrite_fd_;
+      int fulocal_rwlock_fd_;
+      int fulocal_rwlock_fd2_;
 
       FILE * bu_w_lock_stream;
       FILE * bu_r_lock_stream;
@@ -150,6 +134,10 @@ namespace evf{
       struct flock fu_rw_fulk;
       struct flock data_rw_flk;
       struct flock data_rw_fulk;
+      //struct flock fulocal_rw_flk;
+      //struct flock fulocal_rw_fulk;
+      //struct flock fulocal_rw_flk2;
+      //struct flock fulocal_rw_fulk2;
 
       evf::FastMonitoringService * fms_ = nullptr;
       std::vector<int> streamFileTracker_;

@@ -80,7 +80,7 @@ void RawEventOutputModuleForBU<Consumer>::write(edm::EventPrincipal const& e, ed
   if(totevents>0 && totevents%numEventsPerFile_==0){
 	  index_++;
 	  std::string filename = edm::Service<evf::EvFDaqDirector>()->getOpenRawFilePath( ls,index_);
-	  std::string destinationDir = edm::Service<evf::EvFDaqDirector>()->buBaseDir();
+	  std::string destinationDir = edm::Service<evf::EvFDaqDirector>()->buBaseRunDir();
 	  templateConsumer_->initialize(destinationDir,filename,ls);
   }
   totevents++;
@@ -135,7 +135,7 @@ void RawEventOutputModuleForBU<Consumer>::write(edm::EventPrincipal const& e, ed
 template <class Consumer>
 void RawEventOutputModuleForBU<Consumer>::beginRun(edm::RunPrincipal const&, edm::ModuleCallingContext const*)
 {
-  edm::Service<evf::EvFDaqDirector>()->updateBuLock(1);
+ // edm::Service<evf::EvFDaqDirector>()->updateBuLock(1);
   templateConsumer_->start();
 }
    
@@ -149,20 +149,21 @@ template <class Consumer>
 void RawEventOutputModuleForBU<Consumer>::beginLuminosityBlock(edm::LuminosityBlockPrincipal const& ls, edm::ModuleCallingContext const*){
 	index_ = 0;
 	std::string filename = edm::Service<evf::EvFDaqDirector>()->getOpenRawFilePath( ls.id().luminosityBlock(),index_);
-	std::string destinationDir = edm::Service<evf::EvFDaqDirector>()->buBaseDir();
+	std::string destinationDir = edm::Service<evf::EvFDaqDirector>()->buBaseRunDir();
+        std::cout << " writing to destination dir " << destinationDir << " name: " << filename << std::endl;
 	templateConsumer_->initialize(destinationDir,filename,ls.id().luminosityBlock());
-  edm::Service<evf::EvFDaqDirector>()->updateBuLock(ls.id().luminosityBlock()+1);
+  //edm::Service<evf::EvFDaqDirector>()->updateBuLock(ls.id().luminosityBlock()+1);
   if(!firstLumi_){
     timeval now;
     ::gettimeofday(&now,0);
-    long long elapsedusec = (now.tv_sec - startOfLastLumi.tv_sec)*1000000+now.tv_usec-startOfLastLumi.tv_usec;
+    //long long elapsedusec = (now.tv_sec - startOfLastLumi.tv_sec)*1000000+now.tv_usec-startOfLastLumi.tv_usec;
 /*     std::cout << "(now.tv_sec - startOfLastLumi.tv_sec) " << now.tv_sec <<"-" << startOfLastLumi.tv_sec */
 /* 	      <<" (now.tv_usec-startOfLastLumi.tv_usec) " << now.tv_usec << "-" << startOfLastLumi.tv_usec << std::endl; */
 /*     std::cout << "elapsedusec " << elapsedusec << "  totevents " << totevents << "  size (GB)" << writtensize  */
 /* 	      << "  rate " << (writtensize-writtenSizeLast)/elapsedusec << " MB/s" <<std::endl; */
     writtenSizeLast=writtensize;
     ::gettimeofday(&startOfLastLumi,0);
-    edm::Service<evf::EvFDaqDirector>()->writeLsStatisticsBU(ls.id().luminosityBlock(), totevents, totsize, elapsedusec);
+    //edm::Service<evf::EvFDaqDirector>()->writeLsStatisticsBU(ls.id().luminosityBlock(), totevents, totsize, elapsedusec);
   }
   else
     ::gettimeofday(&startOfLastLumi,0);
