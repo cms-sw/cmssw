@@ -117,7 +117,8 @@ class SiStripGainFromCalibTree : public ConditionDBWriter<SiStripApvGain> {
 
    private:
 
-      virtual void algoBeginJob      (const edm::EventSetup&) override;
+  
+      virtual void algoBeginRun(const edm::Run& run, const edm::EventSetup& iSetup) override;
       virtual void algoEndJob        () override;
       virtual void algoAnalyze       (const edm::Event &, const edm::EventSetup &) override;
 
@@ -235,7 +236,6 @@ SiStripGainFromCalibTree::SiStripGainFromCalibTree(const edm::ParameterSet& iCon
 }
 
 void SiStripGainFromCalibTree::algoBeginRun(const edm::Run& run, const edm::EventSetup& iSetup)
-//void SiStripGainFromCalibTree::algoBeginJob(const edm::EventSetup& iSetup)
 {
   cout << "algoBeginRun start" << endl;
   if(!harvestingMode){
@@ -328,7 +328,7 @@ void SiStripGainFromCalibTree::algoBeginRun(const edm::Run& run, const edm::Even
    BAD        = 0;
    MASKED     = 0;
    
-   cout << "algoBeginJob end" << endl;
+   cout << "algoBeginRun end" << endl;
 }
 
 void 
