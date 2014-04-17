@@ -79,7 +79,7 @@ def customise_Validation(process):
 
 def customise_harvesting(process):
     process.load('Validation.Configuration.gemPostValidation_cff')
-    process.postValidation += process.gemPostValidation
+    process.genHarvesting += process.gemPostValidation
     return process
 
 def outputCustoms(process):

@@ -80,7 +80,7 @@ HepMC::FourVector* HLLHCEvtVtxGenerator::newVertex() {
 
     z=(fRandom->fire()-0.5)*6.0*fZsize;
     t=(fRandom->fire()-0.5)*6.0*fZsize/c_light;
-    x=(fRandom->fire()-0.5)*8.0*sigma(0.0,params.epsilonx,params.betax,
+    x=(fRandom->fire()-0.5)*12.0*sigma(0.0,params.epsilonx,params.betax,
 				      params.betagamma);
     y=(fRandom->fire()-0.5)*8.0*sigma(0.0,params.epsilony,params.betay,
 				      params.betagamma);

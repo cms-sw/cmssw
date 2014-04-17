@@ -13,6 +13,8 @@
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
+//#define DebugLog
+
 DDShashlikEndcap::DDShashlikEndcap() {
   edm::LogInfo("HGCalGeom") << "DDShashlikEndcap test: Creating an instance";
 }
@@ -31,6 +33,7 @@ DDShashlikEndcap::initialize(const DDNumericArguments & nArgs,
   m_rMin        = int( nArgs["rMin"] );
   m_rMax        = int( nArgs["rMax"] );
   m_zoffset     = nArgs["zoffset"];
+  m_zpointing   = nArgs["zpointing"];
   m_xyoffset    = nArgs["xyoffset"];
   m_n           = int( nArgs["n"] );
   m_startCopyNo = int( nArgs["startCopyNo"] );
@@ -56,25 +59,49 @@ DDShashlikEndcap::createQuarter( DDCompactView& cpv, int xQuadrant, int yQuadran
 {
   int copyNo = startCopyNo;
   double tiltAngle = m_tiltAngle;
-  double xphi = xQuadrant*tiltAngle;
-  double yphi = yQuadrant*tiltAngle;
+  double pointingAngle = m_tiltAngle;
+  double pointingLocation = m_zoffset + m_zpointing;
+  double xphi = xQuadrant*(tiltAngle+pointingAngle);
+  double yphi = yQuadrant*(tiltAngle+pointingAngle);
   double theta  = 90.*CLHEP::deg;
   double phiX = 0.0;
   double phiY = theta;
   double phiZ = 3*theta; 
   double offsetZ = m_zoffset;
-  double offsetX = offsetZ * tan( xphi );
-  double offsetY = offsetZ * tan( yphi );
-  int row(0), column(0);
-  while( abs(offsetX) < m_rMax ) {
+  double offsetMultiplier = 1.00;
+  //double offsetX = offsetMultiplier * offsetZ * tan( xphi - xQuadrant*pointingAngle);
+  //double offsetY = offsetMultiplier * offsetZ * tan( yphi - yQuadrant*pointingAngle);
+  double offsetX = offsetMultiplier * pointingLocation * tan( xphi - xQuadrant*pointingAngle );
+  double offsetY = offsetMultiplier * pointingLocation * tan( yphi - yQuadrant*pointingAngle );
+
+#ifdef DebugLog
+  std::cout << " Initially, tiltAngle = " << tiltAngle 
+	    << " pointingAngle=" << pointingAngle << " pointingLocation=" 
+	    << pointingLocation << " copyNo = " << copyNo << ": offsetX,Y = " 
+	    << offsetX << "," << offsetY << " rMin, rMax = " 
+	    << m_rMin << "," << m_rMax << std::endl;
+  int column(0), rowmax(0);
+#endif
+  while( abs(offsetX) < m_rMax) {
+#ifdef DebugLog
     column++;
-    while( abs(offsetY) < m_rMax ) {
+    int row(0);
+#endif
+    while( abs(offsetY) < m_rMax) {
+#ifdef DebugLog
       row++;
+#endif
       double limit = sqrt( offsetX*offsetX + offsetY*offsetY );
       
       // Make sure we do not add supermodules in rMin area
       if( limit > m_rMin && limit < m_rMax )
       {
+#ifdef DebugLog
+	std::cout << " copyNo = " << copyNo << " (" << column << "," << row 
+		  << "): offsetX,Y = " 	<< offsetX << "," << offsetY 
+		  << " limit=" << limit << " rMin, rMax = " 
+		  << m_rMin << "," << m_rMax << std::endl;
+#endif
 	DDRotation rotation;
 	std::string rotstr( "NULL" );
 
@@ -90,20 +117,34 @@ DDShashlikEndcap::createQuarter( DDCompactView& cpv, int xQuadrant, int yQuadran
 	}
       
 	DDTranslation tran( offsetX, offsetY, offsetZ );
+	edm::LogInfo("HGCalGeom") << "Module " << copyNo << ": location = "
+				  << tran << " Rotation " << rotation;
 	
 	DDName parentName = parent().name(); 
 	cpv.position( DDName( m_childName ), parentName, copyNo, tran, rotation );
 	copyNo += m_incrCopyNo;
       }
       yphi += yQuadrant*2.*tiltAngle;
-      offsetY = offsetZ * tan( yphi );
+      //offsetY = offsetMultiplier * offsetZ * tan( yphi - yQuadrant*pointingAngle );
+      offsetY = offsetMultiplier * pointingLocation * tan( yphi - yQuadrant*pointingAngle );
+
     }
+#ifdef DebugLog
+    if (row > rowmax) rowmax = row;
+#endif
     xphi +=  xQuadrant*2.*tiltAngle;
-    yphi  =  yQuadrant*tiltAngle;
-    offsetX = offsetZ * tan( xphi );
-    offsetY = offsetZ * tan( yphi );
+    yphi  =  yQuadrant*(tiltAngle + pointingAngle);
+    //offsetX = offsetMultiplier * offsetZ * tan( xphi - xQuadrant*pointingAngle);
+    //offsetY = offsetMultiplier * offsetZ * tan( yphi - yQuadrant*pointingAngle);
+    offsetX = offsetMultiplier * pointingLocation * tan( xphi - xQuadrant*pointingAngle);
+    offsetY = offsetMultiplier * pointingLocation * tan( yphi - yQuadrant*pointingAngle);
+
   }
-  std::cout << row << " rows and " << column << " columns in quadrant " << xQuadrant << ":" << yQuadrant << std::endl;
+#ifdef DebugLog
+  std::cout << rowmax << " rows and " << column << " columns in quadrant " 
+	    << xQuadrant << ":" << yQuadrant << std::endl;
+#endif
   return copyNo;
 }
+
 

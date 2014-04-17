@@ -6,7 +6,7 @@
   <Constant name="zSHCal2"    value="368.4*cm"/>
   <Constant name="rMinSHCal1" value="[etaMax:slope]*[zSHCal1]"/>
   <Constant name="rMinSHCal2" value="[etaMax:slope]*[zSHCal2]"/>
-  <Constant name="rMaxSHCal1" value="159.0*cm"/>
+  <Constant name="rMaxSHCal1" value="154.0*cm"/>
   <Constant name="rMaxSHCal2" value="181.2*cm"/>
   <Constant name="deltaZ"     value="2*cm"/>
   <Constant name="modZ"	      value="14*cm"/>
@@ -16,10 +16,11 @@
   <Constant name="modRmax2"   value="145.*cm"/>
   <Constant name="zSHBack1"   value="[zSHCal2]- 30.*cm"/>
   <Constant name="zSHBack2"   value="[zSHCal2]"/>
+  <Constant name="zSHBack3"   value="[zSHBack1] + 6.*cm"/>
+  <Constant name="zSHBack4"   value="[zSHBack3] + 4.8*cm"/>
   <Constant name="backRmin1"  value="[etaMax:slope]*[zSHBack1]"/>
   <Constant name="backRmin2"  value="[etaMax:slope]*[zSHBack2]"/>
-  <Constant name="backRmin3"  value="[etaMax:slope]*([zSHBack1]+6.*cm)"/>
-  <Constant name="backRmax1"  value="168.*cm"/>
+  <Constant name="backRmax1"  value="165.*cm"/>
   <Constant name="backRmax2"  value="[rMaxSHCal2]"/>  
 </ConstantsSection>
 
@@ -37,12 +38,12 @@
     <ZSection z="[zSHBack2]" rMin="[backRmin2]" rMax="[backRmax2]"/>
   </Polycone>
   <Polycone name="SHCalSS" startPhi="0*deg" deltaPhi="360*deg">
-    <ZSection z="[zSHBack1]" rMin="[backRmin1]" rMax="[backRmax1]"/>
-    <ZSection z="[zSHBack1]+ 6.*cm" rMin="[backRmin3]" rMax="[backRmax1]"/>
+    <ZSection z="[zSHBack1]" rMin="[backRmin2]" rMax="[backRmax1]"/>
+    <ZSection z="[zSHBack3]" rMin="[backRmin2]" rMax="[backRmax1]"/>
   </Polycone>
   <Polycone name="SHCalCables" startPhi="0*deg" deltaPhi="360*deg">
-    <ZSection z="[zSHBack1]+ 6.*cm" rMin="[backRmin1]" rMax="[backRmax1]"/>
-    <ZSection z="[zSHBack1]+ 6.*cm + 4.8*cm" rMin="[backRmax1]" rMax="[backRmax1]"/>
+    <ZSection z="[zSHBack3]" rMin="[backRmin2]" rMax="[backRmax1]"/>
+    <ZSection z="[zSHBack4]" rMin="[backRmax1]" rMax="[backRmax1]"/>
   </Polycone>
 </SolidSection>
 
@@ -111,11 +112,12 @@
   <Numeric name="startCopyNo" value="1"/>
   <Numeric name="incrCopyNo"  value="1"/>
   <Numeric name="invert"      value="1"/>
-  <Numeric name="rMin"	      value="[rMinSHCal1]+0.5*([shashlikmodule:widthFront]+[shashlikmodule:widthBack])+4.*cm"/>
-  <Numeric name="rMax"	      value="[rMaxSHCal1]-8.*cm"/>  
-  <Numeric name="tiltAngle"   value="atan((2.5*([shashlikmodule:widthBack]-[shashlikmodule:widthFront]))/[shashlikmodule:moduleThickness]) "/>
-  <Numeric name="zoffset"     value="[zSHCal1]+0.5*[shashlikmodule:moduleThickness] + 3.5*cm"/>
-  <Numeric name="xyoffset"     value="-0.4*m"/>
+  <Numeric name="tiltAngle"   value="5.*[shashlikmodule:moduleTaperAngle]"/> 
+  <Numeric name="rMin"	      value="[rMinSHCal1]+0.5*([shashliksupermodule:superModuleWidthFront]+[shashliksupermodule:superModuleWidthBack])"/>
+  <Numeric name="rMax"	      value="[rMaxSHCal1]-0.5*([shashliksupermodule:superModuleWidthFront]+[shashliksupermodule:superModuleWidthBack])"/>  
+  <Numeric name="zoffset"     value="[zSHCal1]+0.5*[shashliksupermodule:superModuleThickness] + 3.0*cm"/>
+  <Numeric name="zpointing"   value="2625.*mm - 0.5*[shashliksupermodule:superModuleThickness]"/>
+  <Numeric name="xyoffset"    value="-0.4*m"/>
  </Algorithm>
 
 </DDDefinition>

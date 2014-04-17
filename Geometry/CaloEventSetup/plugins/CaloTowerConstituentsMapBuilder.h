@@ -27,8 +27,9 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloTopology/interface/CaloTowerConstituentsMap.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 namespace edm {
   class ConfigurationDescriptions;
@@ -45,11 +46,12 @@ public:
 
   typedef std::auto_ptr<CaloTowerConstituentsMap> ReturnType;
 
-  ReturnType produce(const HcalRecNumberingRecord&);
+  ReturnType produce(const CaloGeometryRecord&);
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
   void parseTextMap(const std::string& filename,CaloTowerConstituentsMap& theMap);
+  void assignEEtoHE(const CaloGeometry* geometry, CaloTowerConstituentsMap& theMap);
   std::string mapFile_;
 };
 

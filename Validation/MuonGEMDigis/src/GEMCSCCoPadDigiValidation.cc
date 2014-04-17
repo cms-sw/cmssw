@@ -4,7 +4,8 @@ GEMCSCCoPadDigiValidation::GEMCSCCoPadDigiValidation(DQMStore* dbe,
                                                const edm::InputTag & inputTag)
 :  GEMBaseValidation(dbe, inputTag) { }
 
-void GEMCSCCoPadDigiValidation::bookHisto() {
+void GEMCSCCoPadDigiValidation::bookHisto(const GEMGeometry* geom) {
+  theGEMGeometry = geom;
   const double PI = TMath::Pi();
   std::string region[2]= { "-1","1" } ;
   std::string station[3]= { "1","2","3" } ;

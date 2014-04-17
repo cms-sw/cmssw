@@ -7,7 +7,7 @@ from SimGeneral.MixingModule.stripDigitizer_cfi import *
 from SimGeneral.MixingModule.ecalDigitizer_cfi import *
 from SimGeneral.MixingModule.hcalDigitizer_cfi import *
 from SimGeneral.MixingModule.castorDigitizer_cfi import *
-from SimGeneral.MixingModule.trackingTruthProducer_cfi import *
+from SimGeneral.MixingModule.trackingTruthProducerSelection_cfi import *
 
 theDigitizers = cms.PSet(
   pixel = cms.PSet(

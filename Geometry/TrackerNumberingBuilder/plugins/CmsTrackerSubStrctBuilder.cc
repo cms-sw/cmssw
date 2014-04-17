@@ -57,7 +57,7 @@ CmsTrackerSubStrctBuilder::sortNS( DDFilteredView& fv, GeometricDet* det )
     std::sort( comp.begin(), comp.end(), LessModZ());
     break;	
   case GeometricDet::disk:
-    std::sort( comp.begin(), comp.end(), LessModZ());
+    std::sort( comp.begin(), comp.end(), LessModExtPhase2Z());
     break;
   default:
     edm::LogError( "CmsTrackerSubStrctBuilder" ) << "ERROR - wrong SubDet to sort..... " << det->components().front()->type(); 

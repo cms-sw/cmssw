@@ -1,5 +1,7 @@
 #!/bin/bash
 
+fail_exit() { echo "$@" 1>&2; exit 1; }
+
 #set -o verbose
 EXPECTED_ARGS=10
 
@@ -54,11 +56,16 @@ export RELEASE=${CMSSW_VERSION}
 export WORKDIR=`pwd`
 
 # Get the input card
-wget --no-check-certificate http://cms-project-generators.web.cern.ch/cms-project-generators/${cardinput} -O powheg.input
+wget --no-check-certificate http://cms-project-generators.web.cern.ch/cms-project-generators/${cardinput} -O powheg.input  || fail_exit "Failed to obtain input card" ${cardinput}
 card="$WORKDIR/powheg.input"
 
 # initialize the CMS environment 
-scram project -n ${name} CMSSW ${RELEASE} ; cd ${name} ; mkdir -p work ; cd work
+if [[ -e ${name} ]]; then
+  mv ${name} old_${name}
+  mv output.lhe old_output.lhe
+fi
+
+scram project -n ${name} CMSSW ${RELEASE}; cd ${name} ; mkdir -p work ; cd work  
 eval `scram runtime -sh`
 
 # force the f77 compiler to be the CMS defined one
@@ -91,7 +98,7 @@ if [ "$precompile" == "false" ];
 then 
     echo "Compile during the run"
 
-    wget --no-check-certificate http://cms-project-generators.web.cern.ch/cms-project-generators/${repo}/${name}.tar.gz  -O ${name}.tar.gz
+    wget --no-check-certificate http://cms-project-generators.web.cern.ch/cms-project-generators/${repo}/${name}.tar.gz  -O ${name}.tar.gz || fail_exit "Failed to get powheg tar ball " ${name}
     tar xzf ${name}.tar.gz
 
 #remove from Powheg the LENOCC function which is already defined in LHAPDF library
@@ -178,7 +185,7 @@ EOF
 EOF
     chmod a+x lhapdf-config-wrap
 
-    make LHAPDF_CONFIG="`pwd`/lhapdf-config-wrap" pwhg_main
+    make LHAPDF_CONFIG="`pwd`/lhapdf-config-wrap" pwhg_main || fail_exit "Failed to compile pwhg_main"
 
     if [ "$createTarball" == "true" ]
     then
@@ -189,12 +196,8 @@ EOF
         rm -rf *.f
         cd ..
         tar chvzf ${tarball}.tar.gz ${process}
-        cp -p ${tarball}.tar.gz /afs/cern.ch/cms/generators/www/${tarballRepo}/.
-	echo "I am here 1"
-	ls  /afs/cern.ch/cms/generators/www/${tarballRepo}/
-	echo "I am here 2"
+	cp -p ${tarball}.tar.gz ${WORKDIR}/.
         cd ${process}
-	echo "I am here 3"
     fi
 
 else if [ "$precompile" == "true" ];

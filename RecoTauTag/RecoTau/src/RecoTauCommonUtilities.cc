@@ -13,17 +13,22 @@ typedef PFCandPtrs::iterator PFCandIter;
 namespace reco { namespace tau {
 
 std::vector<PFCandidatePtr>
-flattenPiZeros( const std::vector<RecoTauPiZero>& piZeros) {
+flattenPiZeros(const std::vector<RecoTauPiZero>::const_iterator& piZerosBegin, const std::vector<RecoTauPiZero>::const_iterator& piZerosEnd) {
   std::vector<PFCandidatePtr> output;
 
-  for(std::vector<RecoTauPiZero>::const_iterator piZero = piZeros.begin();
-      piZero != piZeros.end(); ++piZero) {
+  for(std::vector<RecoTauPiZero>::const_iterator piZero = piZerosBegin;
+      piZero != piZerosEnd; ++piZero) {
     for(size_t iDaughter = 0; iDaughter < piZero->numberOfDaughters();
         ++iDaughter) {
       output.push_back(PFCandidatePtr(piZero->daughterPtr(iDaughter)));
     }
   }
   return output;
+}
+
+std::vector<PFCandidatePtr>
+flattenPiZeros(const std::vector<RecoTauPiZero>& piZeros) {
+  return flattenPiZeros(piZeros.begin(), piZeros.end()); 
 }
 
 std::vector<reco::PFCandidatePtr> pfCandidates(const reco::PFJet& jet,
@@ -64,7 +69,5 @@ std::vector<reco::PFCandidatePtr> pfChargedCands(const reco::PFJet& jet,
   if (sort) std::sort(output.begin(), output.end(), SortPFCandsDescendingPt());
   return output;
 }
-
-
 
 } }

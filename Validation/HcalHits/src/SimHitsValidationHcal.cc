@@ -4,6 +4,8 @@
 #include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "SimDataFormats/CaloTest/interface/HcalTestNumbering.h"
 
+//#define DebugLog
+
 SimHitsValidationHcal::SimHitsValidationHcal(const edm::ParameterSet& ps) :
   initialized(false) {
 
@@ -42,14 +44,10 @@ void SimHitsValidationHcal::beginRun(const edm::Run&,
     maxDepthHE_ = hcons->getMaxDepth(1);
     maxDepthHF_ = hcons->getMaxDepth(2);
     maxDepthHO_ = hcons->getMaxDepth(3);
-    edm::LogInfo("SimHitsValidationHcal") << " Maximum Depths HB:"<< maxDepthHB_
-					  << " HE:" << maxDepthHE_ << " HO:" 
-					  << maxDepthHO_ << " HF:"<<maxDepthHF_;
-
-    std::cout << " Maximum Depths HB:"<< maxDepthHB_
-	      << " HE:" << maxDepthHE_ << " HO:" 
-	      << maxDepthHO_ << " HF:"<<maxDepthHF_<<std::endl;
-  
+#ifdef DebugLog
+    std::cout << " Maximum Depths HB:"<< maxDepthHB_ << " HE:" << maxDepthHE_ 
+	      << " HO:" << maxDepthHO_ << " HF:" << maxDepthHF_ << std::endl;
+#endif  
     std::vector<std::pair<std::string,std::string> > divisions = getHistogramTypes();
     if (dbe_) {
       edm::LogInfo("SimHitsValidationHcal") << "Booking the Histograms";
@@ -115,29 +113,36 @@ void SimHitsValidationHcal::beginRun(const edm::Run&,
 
 void SimHitsValidationHcal::analyze(const edm::Event& e, 
 				    const edm::EventSetup&) {
-  
-  LogDebug("SimHitsValidationHcal") << "Run = " << e.id().run() << " Event = "
-				    << e.id().event();
-
+#ifdef DebugLog  
+  std::cout << "Run = " << e.id().run() << " Event = " << e.id().event()
+	    << std::endl;
+#endif
   std::vector<PCaloHit>               caloHits;
   edm::Handle<edm::PCaloHitContainer> hitsHcal;
   
   bool getHits = false;
   e.getByLabel(g4Label_,hcalHits_,hitsHcal); 
   if (hitsHcal.isValid()) getHits = true;
-  
-  LogDebug("SimHitsValidationHcal") << "SimHitsValidationHcal.: Input flags Hits " << getHits;
-
+#ifdef DebugLog  
+  std::cout << "SimHitsValidationHcal.: Input flags Hits " << getHits 
+	    << std::endl;
+#endif
   if (getHits) {
     caloHits.insert(caloHits.end(),hitsHcal->begin(),hitsHcal->end());
-    std::cout<<"testNumber_:"<<testNumber_<<std::endl;
+#ifdef DebugLog
+    std::cout << "testNumber_:" << testNumber_ << std::endl;
+#endif
     if (testNumber_) {
       for (unsigned int i=0; i<caloHits.size(); ++i) {
 	unsigned int id_ = caloHits[i].id();
 	int subdet, z, depth0, eta0, phi0, lay;
 	HcalTestNumbering::unpackHcalIndex(id_, subdet, z, depth0, eta0, phi0, lay);
 	int sign = (z==0) ? (-1):(1);
-	std::cout << "Hit[" << i << "] subdet|z|depth|eta|phi|lay " << subdet << "|" << z << "|" << depth0 << "|" << eta0 << "|" << phi0 << "|" << lay << std::endl;
+#ifdef DebugLog
+	std::cout << "Hit[" << i << "] subdet|z|depth|eta|phi|lay " << subdet 
+		  << "|" << z << "|" << depth0 << "|" << eta0 << "|" << phi0 
+		  << "|" << lay << std::endl;
+#endif
 	HcalDDDRecConstants::HcalID id = hcons->getHCID(subdet, eta0, phi0, lay, depth0);
 	
 	HcalDetId hid;
@@ -151,11 +156,15 @@ void SimHitsValidationHcal::analyze(const edm::Event& e,
 	  hid = HcalDetId(HcalForward,sign*id.eta,id.phi,id.depth);
 	}
 	caloHits[i].setID(hid.rawId());
+#ifdef DebugLog
 	std::cout << "Hit[" << i << "] " << hid << std::endl;
+#endif
       }
     }
-    LogDebug("SimHitsValidationHcal") << "SimHitsValidationHcal: Hit buffer " 
-				      << caloHits.size(); 
+#ifdef DebugLog
+    std::cout << "SimHitsValidationHcal: Hit buffer " << caloHits.size()
+	      << std::endl; 
+#endif
     analyzeHits (caloHits);
   }
 }
@@ -177,11 +186,9 @@ void SimHitsValidationHcal::analyzeHits (std::vector<PCaloHit>& hits) {
     double time      = hits[i].time();
     HcalDetId id     = HcalDetId(hits[i].id());
     int itime        = (int)(time);
-    int det          = id.det();
     int subdet       = id.subdet();
     int depth        = id.depth();
     int eta          = id.ieta();
-    int phi          = id.iphi();
     unsigned int dep = hits[i].depth();
         
     std::pair<int,int> types = histId(subdet, eta, depth, dep);
@@ -218,23 +225,14 @@ void SimHitsValidationHcal::analyzeHits (std::vector<PCaloHit>& hits) {
     }
     map_try[id0] = ensum;
     
-    LogDebug("SimHitsValidationHcal") << "Hit[" << i << "] ID " 
-				      << std::dec << " " << id << std::dec
-				      << " Det " << det << " Sub " << subdet 
-				      << " depth " << depth << " depthX "
-				      << dep << " Eta " << eta << " Phi " << phi
-				      << " E " << energy << " time " << time
-				      << " type " << types.first << " " 
-				      << types.second;
-
-    std::cout << "Hit[" << i << "] ID "
-	      << std::dec << " " << id << std::dec<< " Det " << det << " Sub " 
-	      << subdet << " depth " << depth << " depthX "
-	      << dep << " Eta " << eta << " Phi " << phi 
+#ifdef DebugLog
+    std::cout << "Hit[" << i << "] ID " << std::dec << " " << id << std::dec
+	      << " Det " << id.det() << " Sub " << subdet << " depth " << depth
+	      << " depthX "<< dep << " Eta " << eta << " Phi " << id.iphi()
 	      << " E " << energy << " time " << time
 	      << " type " << types.first << " " << types.second
-	      << std::endl << std::endl;
-
+	      << std::endl;
+#endif
     double etax = eta - 0.5;
     if (eta < 0) etax += 1;
     if (dbe_) {
@@ -288,48 +286,67 @@ void SimHitsValidationHcal::analyzeHits (std::vector<PCaloHit>& hits) {
 	meHcalEnergyl250_[types.second]->Fill(etax,phix,ensum.e250);
       }
       
-      LogDebug("HitsValidationHcal") << " energy of tower =" << (*itr).first.first << " in time 25ns is == " << (*itr).second.e25 << " in time 25-50ns == " << (*itr).second.e50 << " in time 50-100ns == " << (*itr).second.e100 << " in time 100-250 ns == " << (*itr).second.e250;
-      
+#ifdef DebugLog
+      std::cout << " energy of tower =" << (*itr).first.first 
+		<< " in time 25ns is == " << (*itr).second.e25 
+		<< " in time 25-50ns == " << (*itr).second.e50 
+		<< " in time 50-100ns == " << (*itr).second.e100 
+		<< " in time 100-250 ns == " << (*itr).second.e250 
+		<< std::endl;
+#endif
     }
   }
   
 }
 
-SimHitsValidationHcal::etaRange SimHitsValidationHcal::getLimits (idType type) {
+SimHitsValidationHcal::etaRange SimHitsValidationHcal::getLimits (idType type){
 
   int    bins;
+  std::pair<int,int> range;
   double low, high;
+  
   if (type.subdet == HcalBarrel) {
-    bins = 32;
-    low  =-16;
-    high = 16;
+    range = hcons->getEtaRange(0);
+    low  =-range.second;
+    high = range.second;
+    bins = (high-low);
   } else if (type.subdet == HcalEndcap) {
-    bins = 14;
+    range = hcons->getEtaRange(1);
+    bins = range.second- range.first;
     if (type.z == 1) {
-      low  = 16;
-      high = 30;
+      low  = range.first;
+      high = range.second;
     } else {
-      low  =-30;
-      high =-16;
+      low  =-range.second;
+      high =-range.first;
     }
   } else if (type.subdet == HcalOuter) {
-    bins = 30;
-    low  =-15;
-    high = 15;
+    range = hcons->getEtaRange(3);
+    low  =-range.second;
+    high = range.second;
+    bins = high-low;
   } else if (type.subdet == HcalForward) {
-    bins = 12;
+    range = hcons->getEtaRange(2);
+    bins = range.second-range.first;
     if (type.z == 1) {
-      low  = 29;
-      high = 41;
+      low  = range.first;
+      high = range.second;
     } else {
-      low  =-41;
-      high =-29;
+      low  =-range.second;
+      high =-range.first;
     }
   } else {
     bins = 82;
     low  =-41;
     high = 41;
   }
+#ifdef DebugLog
+  std::cout << "Subdetector:" << type.subdet << " z:" << type.z 
+	    << " range.first:" << range.first << " and second:" 
+	    << range.second << std::endl;
+  std::cout << "bins: " << bins << " low:" << low << " high:" << high
+	    << std::endl;
+#endif
   return SimHitsValidationHcal::etaRange(bins, low, high);
 }
 

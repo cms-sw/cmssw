@@ -15,24 +15,14 @@ public:
                          const edm::InputTag & inputTag);
   ~GEMHitsValidation();
   void analyze(const edm::Event& e, const edm::EventSetup&);
-  void bookHisto();
+  void bookHisto(const GEMGeometry*);
  private:
 
-  MonitorElement* gem_sh_xy[2][3][2][3];
+  MonitorElement* gem_sh_xy[2][3][2][2];
+  MonitorElement* gem_sh_zr[2][3][2];
 
-  MonitorElement* gem_sh_zr_rm1[3];
-  MonitorElement* gem_sh_zr_rp1[3];
-
-  MonitorElement* gem_sh_tof_rm1_l1[3];
-  MonitorElement* gem_sh_tof_rm1_l2[3];
-  MonitorElement* gem_sh_tof_rp1_l1[3];
-  MonitorElement* gem_sh_tof_rp1_l2[3];
-
-
-  MonitorElement* gem_sh_pabs[3];
-  MonitorElement* gem_sh_pdgid[3];
-  MonitorElement* gem_sh_global_eta[3];
-  MonitorElement* gem_sh_energyloss[3];
+  MonitorElement* gem_sh_tof[2][3][2][2];
+  MonitorElement* gem_sh_eloss[2][3][2][2];
 
   Int_t npart;
 

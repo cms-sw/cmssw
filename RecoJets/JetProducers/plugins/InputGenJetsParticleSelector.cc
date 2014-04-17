@@ -27,6 +27,11 @@
 *
 *
 * \author: Christophe Saout, Andreas Oehler
+* 
+* Modifications:
+* 
+*    04.08.2014: Dinko Ferencek
+*                Added support for Pythia8 (status=22 for intermediate resonances)
 *
 */
 
@@ -71,7 +76,7 @@ void InputGenJetsParticleSelector::setExcludeFromResonancePids(const std::vector
 
 bool InputGenJetsParticleSelector::isParton(int pdgId) const{
   pdgId = (pdgId > 0 ? pdgId : -pdgId) % 10000;
-  return (pdgId > 0 && pdgId < 6) || pdgId == 7 ||
+  return (pdgId > 0 && pdgId < 6) ||
     pdgId == 9 || (tausAsJets && pdgId == 15) || pdgId == 21;
   // tops are not considered "regular" partons
   // but taus eventually are (since they may hadronize later)
@@ -88,7 +93,7 @@ bool InputGenJetsParticleSelector::isResonance(int pdgId)
 {
   // gauge bosons and tops
   pdgId = (pdgId > 0 ? pdgId : -pdgId) % 10000;
-  return (pdgId > 21 && pdgId <= 42) || pdgId == 6 || pdgId == 8 ;  //BUG! war 21. 22=gamma..
+  return (pdgId > 21 && pdgId <= 42) || pdgId == 6 || pdgId == 7 || pdgId == 8 ;  //BUG! was 21. 22=gamma..
 }
 
 bool InputGenJetsParticleSelector::isIgnored(int pdgId) const
@@ -113,8 +118,7 @@ bool InputGenJetsParticleSelector::isExcludedFromResonance(int pdgId) const
 }
 
 static unsigned int partIdx(const InputGenJetsParticleSelector::ParticleVector &p,
-			    //const reco::GenParticle *particle)
-			    const reco::GenParticle *particle)
+			       const reco::GenParticle *particle)
 {
   InputGenJetsParticleSelector::ParticleVector::const_iterator pos =
     std::lower_bound(p.begin(), p.end(), particle);
@@ -178,7 +182,7 @@ InputGenJetsParticleSelector::fromResonance(ParticleBitmap &invalid,
 
   if (invalid[idx]) return kIndirect;
       
-  if (isResonance(id) && particle->status() == 3){
+  if (isResonance(id) && (particle->status() == 3 || particle->status() == 22) ){
     return kDirect;
   }
 
@@ -225,13 +229,13 @@ void InputGenJetsParticleSelector::produce (edm::Event &evt, const edm::EventSet
   std::auto_ptr<reco::GenParticleRefVector> selected_ (new reco::GenParticleRefVector);
     
   edm::Handle<reco::GenParticleCollection> genParticles;
-  //  evt.getByLabel("genParticles", genParticles );
   evt.getByLabel(inTag, genParticles );
     
-    
+  std::map<const reco::GenParticle*,size_t> particlePtrIdxMap;
   ParticleVector particles;
   for (reco::GenParticleCollection::const_iterator iter=genParticles->begin();iter!=genParticles->end();++iter){
-    particles.push_back(&*iter); 
+    particles.push_back(&*iter);
+    particlePtrIdxMap[&*iter] = (iter - genParticles->begin());
   }
   
   std::sort(particles.begin(), particles.end());
@@ -261,8 +265,8 @@ void InputGenJetsParticleSelector::produce (edm::Event &evt, const edm::EventSet
     }
 	
   }
- unsigned int count=0;
-  for(size_t idx=0;idx<genParticles->size();++idx){ 
+
+  for(size_t idx = 0; idx < size; ++idx){ 
     const reco::GenParticle *particle = particles[idx];
     if (!selected[idx] || invalid[idx]){
       continue;
@@ -281,10 +285,9 @@ void InputGenJetsParticleSelector::produce (edm::Event &evt, const edm::EventSet
 
    
     if (particle->pt() >= ptMin){
-      edm::Ref<reco::GenParticleCollection> particleRef(genParticles,idx);
+      edm::Ref<reco::GenParticleCollection> particleRef(genParticles,particlePtrIdxMap[particle]);
       selected_->push_back(particleRef);
       //cout<<"Finally we have: ["<<setw(4)<<idx<<"] "<<setw(4)<<particle->pdgId()<<" "<<particle->pt()<<endl;
-      count++;
     }
   }
   evt.put(selected_);

@@ -97,10 +97,12 @@ CaloTau CaloRecoTauAlgorithm::buildCaloTau(edm::Event& iEvent,const edm::EventSe
 	edm::ESHandle<CaloGeometry> myCaloGeometry;
 	iSetup.get<CaloGeometryRecord>().get(myCaloGeometry);
 	const CaloSubdetectorGeometry* myCaloSubdetectorGeometry=(*myCaloGeometry).getSubdetectorGeometry(DetId::Calo,CaloTowerDetId::SubdetId);
+	edm::ESHandle<CaloTowerTopology> caloTowerTopology;
+	iSetup.get<HcalRecNumberingRecord>().get(caloTowerTopology);
 	CaloTowerDetId mypropagleadTrack_closestCaloTowerId((*myCaloSubdetectorGeometry).getClosestCell(GlobalPoint(mypropagleadTrackECALSurfContactPoint.x(),
 														    mypropagleadTrackECALSurfContactPoint.y(),
 														    mypropagleadTrackECALSurfContactPoint.z())));
-	std::vector<CaloTowerDetId> mypropagleadTrack_closestCaloTowerNeighbourIds=getCaloTowerneighbourDetIds(myCaloSubdetectorGeometry,mypropagleadTrack_closestCaloTowerId);
+	std::vector<CaloTowerDetId> mypropagleadTrack_closestCaloTowerNeighbourIds=getCaloTowerneighbourDetIds(myCaloSubdetectorGeometry, *caloTowerTopology, mypropagleadTrack_closestCaloTowerId);
 	for(std::vector<CaloTowerPtr>::const_iterator iCaloTower=myCaloTowers.begin();iCaloTower!=myCaloTowers.end();iCaloTower++){
 	  CaloTowerDetId iCaloTowerId((**iCaloTower).id());
 	  bool CaloTower_inside3x3matrix=false;
@@ -302,8 +304,7 @@ for(EERecHitCollection::const_iterator theRecHit = EERecHits->begin();theRecHit 
   return myCaloTau;  
 }
 
-std::vector<CaloTowerDetId> CaloRecoTauAlgorithm::getCaloTowerneighbourDetIds(const CaloSubdetectorGeometry* myCaloSubdetectorGeometry,CaloTowerDetId myCaloTowerDetId){
-  CaloTowerTopology myCaloTowerTopology;
+std::vector<CaloTowerDetId> CaloRecoTauAlgorithm::getCaloTowerneighbourDetIds(const CaloSubdetectorGeometry* myCaloSubdetectorGeometry, const CaloTowerTopology & myCaloTowerTopology, CaloTowerDetId myCaloTowerDetId){
   std::vector<CaloTowerDetId> myCaloTowerneighbourDetIds;
   std::vector<DetId> northDetIds=myCaloTowerTopology.north(myCaloTowerDetId);
   std::vector<DetId> westDetIds=myCaloTowerTopology.west(myCaloTowerDetId);

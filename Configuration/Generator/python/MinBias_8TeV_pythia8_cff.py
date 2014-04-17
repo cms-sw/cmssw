@@ -11,13 +11,13 @@ generator = cms.EDFilter("Pythia8GeneratorFilter",
     comEnergy = cms.double(8000.0),
     PythiaParameters = cms.PSet(
         processParameters = cms.vstring(
-	    'Main:timesAllowErrors    = 10000', 
+            'Main:timesAllowErrors    = 10000',
             'ParticleDecays:limitTau0 = on',
-	    'ParticleDecays:tauMax = 10',
-            'SoftQCD:minBias = on',           
-            'SoftQCD:singleDiffractive = on', 
-            'SoftQCD:doubleDiffractive = on', 
-            'Tune:pp 2',                      
+            'ParticleDecays:tauMax = 10',
+            'SoftQCD:nonDiffractive = on',
+            'SoftQCD:singleDiffractive = on',
+            'SoftQCD:doubleDiffractive = on',
+            'Tune:pp 2',
             'Tune:ee 3'),
         parameterSets = cms.vstring('processParameters')
     )

@@ -7,7 +7,6 @@
  * expression.  A string cut can additionally be applied.  The PiZeros
  * that fail the cut will be associated with a default value.
  *
- * $Id $
  *
  */
 

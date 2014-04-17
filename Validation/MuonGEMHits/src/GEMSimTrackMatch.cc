@@ -15,7 +15,6 @@ GEMSimTrackMatch::GEMSimTrackMatch(DQMStore* dbe, std::string simInputLabel , ed
 
 void GEMSimTrackMatch::bookHisto() 
 {
-   buildLUT();
    const float PI=TMath::Pi();
    dbe_->setCurrentFolder("MuonGEMHitsV/GEMHitsTask");
    track_eta        = dbe_->book1D("track_eta", "track_eta;SimTrack |#eta|;# of tracks", 140,1.5,2.2);
@@ -90,7 +89,7 @@ void GEMSimTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     { continue; } 
     
     // match hits to this SimTrack
-    SimTrackMatchManager match(t, sim_vert[t.vertIndex()], cfg_, iEvent, iSetup);
+    SimTrackMatchManager match(t, sim_vert[t.vertIndex()], cfg_, iEvent, iSetup, theGEMGeometry);
     const SimHitMatcher& match_sh = match.simhits();
 
     track_.pt = t.momentum().pt();
@@ -128,7 +127,6 @@ void GEMSimTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         else track_.gem_sh_layer2 |= 2;
       }
     }
-
     track_eta->Fill( fabs( track_.eta)  );
     if ( track_.gem_sh_layer1 > 0 ) {
       track_eta_l1->Fill ( fabs(track_.eta));
@@ -176,6 +174,7 @@ void GEMSimTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& 
  
     GEMDetId detId_first(mypair.first);
     GEMDetId detId_second(mypair.second);
+
  
     // assignment of local even and odd chambers (there is always an even and an odd chamber)
     bool firstIsOdd = detId_first.chamber() & 1;
@@ -217,27 +216,35 @@ void GEMSimTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     gem_ly_even->Fill( track_.gem_ly_even);
     gem_ly_odd->Fill( track_.gem_ly_odd);
 
-    if ( track_.has_gem_sh_l1 > 0 ) {
+    if ( track_.has_gem_sh_l1 /2 >=1 ) {
       gem_lx_even_l1->Fill ( track_.gem_lx_even);
       gem_ly_even_l1->Fill ( track_.gem_ly_even);
+    }
+    if ( track_.has_gem_sh_l1 %2 ==1 ) {
       gem_lx_odd_l1->Fill ( track_.gem_lx_odd);
       gem_ly_odd_l1->Fill ( track_.gem_ly_odd);
     }
-    if ( track_.has_gem_sh_l2 > 0 ) {
+    if ( track_.has_gem_sh_l2 /2 >=1 ) {
       gem_lx_even_l2->Fill ( track_.gem_lx_even);
       gem_ly_even_l2->Fill ( track_.gem_ly_even);
+    }
+    if ( track_.has_gem_sh_l2 %2 ==1 ) {
       gem_lx_odd_l2->Fill ( track_.gem_lx_odd);
       gem_ly_odd_l2->Fill ( track_.gem_ly_odd);
     }
-    if ( track_.has_gem_sh_l1 > 0 || track_.has_gem_sh_l2 > 0 ) {
+    if ( track_.has_gem_sh_l1 /2 >=1  || track_.has_gem_sh_l2 /2 >= 1 ) {
       gem_lx_even_l1or2->Fill ( track_.gem_lx_even);
       gem_ly_even_l1or2->Fill ( track_.gem_ly_even);
+    }
+    if ( track_.has_gem_sh_l1 %2 ==1  || track_.has_gem_sh_l2 %2 == 1 ) {
       gem_lx_odd_l1or2->Fill ( track_.gem_lx_odd);
       gem_ly_odd_l1or2->Fill ( track_.gem_ly_odd);
     }
-    if ( track_.has_gem_sh_l1 > 0 && track_.has_gem_sh_l2 > 0 ) {
+    if ( track_.has_gem_sh_l1 /2 >=1  && track_.has_gem_sh_l2 /2 >= 1 ) {
       gem_lx_even_l1and2->Fill ( track_.gem_lx_even);
       gem_ly_even_l1and2->Fill ( track_.gem_ly_even);
+    }
+    if ( track_.has_gem_sh_l1 %2 ==1  && track_.has_gem_sh_l2 %2 == 1 ) {
       gem_lx_odd_l1and2->Fill ( track_.gem_lx_odd);
       gem_ly_odd_l1and2->Fill ( track_.gem_ly_odd);
     }

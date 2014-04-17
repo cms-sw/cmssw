@@ -12,6 +12,7 @@
 <use   name="SimDataFormats/CaloTest"/>
 <use   name="Geometry/HcalCommonData"/>
 <use   name="Geometry/EcalCommonData"/>
+<use   name="Geometry/HGCalCommonData"/>
 <use   name="DetectorDescription/Core"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/MessageLogger"/>

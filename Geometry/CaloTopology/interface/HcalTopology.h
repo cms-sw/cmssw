@@ -128,6 +128,8 @@ public:
 
   int maxDepthHB() const { return maxDepthHB_;}
   int maxDepthHE() const { return maxDepthHE_;}
+  double etaMax(HcalSubdetector subdet) const;
+  std::pair<double,double> etaRange(HcalSubdetector subdet, int ieta) const;
 
   /// return a linear packed id from HB
   unsigned int detId2denseIdHB(const DetId& id) const;
@@ -187,6 +189,7 @@ private:
   unsigned int numberOfShapes_;
   
   std::vector<double> etaTable, etaTableHF, dPhiTable, dPhiTableHF;
+  std::vector<double> phioff;
   std::vector<int>    unitPhi, unitPhiHF;
 
   int topoVersion_;

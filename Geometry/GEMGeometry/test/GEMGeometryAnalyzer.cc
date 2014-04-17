@@ -163,9 +163,9 @@ GEMGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetu
 	      
 	      // base_bottom, base_top, height, strips, pads (all half length)
 	      auto& parameters(roll->specs()->parameters());
-	      float bottomEdge(parameters[0]);
-	      float topEdge(parameters[1]);
-	      float height(parameters[2]);
+	      float bottomEdge(parameters[0]*2);
+	      float topEdge(parameters[1]*2);
+	      float height(parameters[2]*2);
 	      float nStrips(parameters[3]);
 	      float nPads(parameters[4]);
 	      
@@ -222,9 +222,9 @@ GEMGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetu
 		ofos << "    \t\tType: " << type << endl
 		     << "    \t\tDimensions[cm]: b = " << bottomEdge << ", B = " << topEdge << ", h  = " << height << endl
 		     << "    \t\tnStrips = " << nStrips << ", nPads =  " << nPads << endl
-		     << "    \t\tcenter(x,y,z) = " << cx << " " << cy << " " << cz << ", center(eta,phi) = " << ceta << " " << cphi << endl
-		     << "    \t\ttop(x,y,z) = " << tx << " " << ty << " " << tz << ", top(eta,phi) = " << teta << " " << tphi << endl
-		     << "    \t\tbottom(x,y,z) = " << bx << " " << by << " " << bz << ", bottom(eta,phi) = " << beta << " " << bphi << endl
+		     << "    \t\tcenter(x,y,z)[cm] = " << cx << " " << cy << " " << cz << ", center(eta,phi) = " << ceta << " " << cphi << endl
+		     << "    \t\ttop(x,y,z)[cm] = " << tx << " " << ty << " " << tz << ", top(eta,phi) = " << teta << " " << tphi << endl
+		     << "    \t\tbottom(x,y,z)[cm] = " << bx << " " << by << " " << bz << ", bottom(eta,phi) = " << beta << " " << bphi << endl
 		     << "    \t\tpitch (top,center,bottom) = " << topPitch << " " << pitch << " " << bottomPitch << ", dEta = " << deta << ", dPhi = " << dphi << endl;
 	      
 	      ++k;

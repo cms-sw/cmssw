@@ -58,7 +58,43 @@ public:
     }
   };
   
-  
+  struct LessModExtPhase2Z{
+    bool operator()(const GeometricDet* a, const GeometricDet* b) const
+    {
+      std::string det_name_a = a->name();
+      std::string det_name_b = b->name();
+      if ( (det_name_a.find("PixelForwardDisk") < det_name_a.size()) &&
+	   (det_name_b.find("PixelForwardDisk") < det_name_b.size()) )
+	{
+	  // both are inner pixels
+	  // sort by z
+	  return fabs(a->translation().z()) < fabs(b->translation().z());  
+	}
+      else if ( !(det_name_a.find("PixelForwardDisk") < det_name_a.size()) &&
+		!(det_name_b.find("PixelForwardDisk") < det_name_b.size()) )
+	{
+	  // both are outer tracker
+	  // sort by z
+	  return fabs(a->translation().z()) < fabs(b->translation().z());
+	}
+      else
+	{
+	  if ( det_name_a.find("PixelForwardDisk") < det_name_a.size() )
+	    {
+	      // a is inner pixel
+	      // let it be first
+	      return true;
+	    }
+	  else
+	    {
+	      // b is inner pixel
+	      // let it be first
+	      return false;
+	    }
+	}
+    }
+  };
+
   struct ExtractPhi:public uFcn{
     double operator()(const GeometricDet* a)const{
       const double pi = 3.141592653592;

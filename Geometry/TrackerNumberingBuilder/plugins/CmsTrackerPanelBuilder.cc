@@ -28,7 +28,11 @@ void CmsTrackerPanelBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
  if (comp.front()->type()==GeometricDet::DetUnit){ 
 
    // NP** Phase 2 Sort Modules within Rings
-   if( fabs( comp[0]->translation().z() ) > 1000 ) {
+
+   std::string comp_name = comp[0]->name();
+   if( !(comp_name.find("PixelForwardDisk") < comp_name.size())  ) {
+
+     //   if( fabs( comp[0]->translation().z() ) > 1000 ) { now commented by AT+NP
      //std::cerr<<"PHASE 2!!!"<<std::endl;
      TrackerStablePhiSort(comp.begin(), comp.end(), ExtractPhi());
      stable_sort(comp.begin(), comp.end() ,PhiSortNP());

@@ -8,7 +8,6 @@
  *
  * Code modifications: Evan Friis (UC Davis)
  *
- * $Id $
  */
 #include <algorithm>
 #include <memory>
@@ -100,8 +99,8 @@ RecoTauPiZeroStripPlugin::return_type RecoTauPiZeroStripPlugin::operator()(
 
   // Get the candidates passing our quality cuts
   qcuts_.setPV(vertexAssociator_.associatedVertex(jet));
-  PFCandPtrs candsVector = qcuts_.filterRefs(pfCandidates(jet, inputPdgIds_));
-  //PFCandPtrs candsVector = qcuts_.filterRefs(pfGammas(jet));
+  PFCandPtrs candsVector = qcuts_.filterCandRefs(pfCandidates(jet, inputPdgIds_));
+  //PFCandPtrs candsVector = qcuts_.filterCandRefs(pfGammas(jet));
 
   // Convert to stl::list to allow fast deletions
   typedef std::list<reco::PFCandidatePtr> PFCandPtrList;

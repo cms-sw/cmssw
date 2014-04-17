@@ -3,17 +3,16 @@ import FWCore.ParameterSet.Config as cms
 # NEW CLUSTERS (remove previously used clusters)
 lowPtQuadStepClusters = cms.EDProducer("TrackClusterRemover",
     clusterLessSolution= cms.bool(True),
+    oldClusterRemovalInfo = cms.InputTag("highPtTripletStepClusters"),
     trajectories = cms.InputTag("highPtTripletStepTracks"),
     overrideTrkQuals = cms.InputTag('highPtTripletStepSelector','highPtTripletStep'),
     TrackQuality = cms.string('highPurity'),
     minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
     pixelClusters = cms.InputTag("siPixelClusters"),
     stripClusters = cms.InputTag("siStripClusters"),
-    doStripChargeCheck = cms.bool(True),
     stripRecHits = cms.string('siStripMatchedRecHits'),
     Common = cms.PSet(
-        maxChi2 = cms.double(9.0),
-        minGoodStripCharge = cms.double(60.0)
+        maxChi2 = cms.double(9.0)
     )
 )
 
@@ -22,32 +21,18 @@ import RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi
 lowPtQuadStepSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.pixellayertriplets.clone(
     ComponentName = cms.string('lowPtQuadStepSeedLayers'),
     layerList = cms.vstring('BPix1+BPix2+BPix3', 'BPix2+BPix3+BPix4',
-                            'BPix1+BPix3+BPix4', 'BPix1+BPix2+BPix4',
                             'BPix2+BPix3+FPix1_pos', 'BPix2+BPix3+FPix1_neg',
                             'BPix1+BPix2+FPix1_pos', 'BPix1+BPix2+FPix1_neg',
                             'BPix2+FPix1_pos+FPix2_pos', 'BPix2+FPix1_neg+FPix2_neg',
                             'BPix1+FPix1_pos+FPix2_pos', 'BPix1+FPix1_neg+FPix2_neg',
+                            'BPix1+FPix2_pos+FPix3_pos', 'BPix1+FPix2_neg+FPix3_neg',
                             'FPix1_pos+FPix2_pos+FPix3_pos', 'FPix1_neg+FPix2_neg+FPix3_neg',
-#ale
-                            'BPix1+FPix1_pos+FPix3_pos',
-                            'BPix1+FPix1_neg+FPix3_neg',
-                            'BPix1+FPix2_pos+FPix3_pos',
-                            'BPix1+FPix2_neg+FPix3_neg',
-                            'BPix1+FPix3_pos+FPix4_pos',
-                            'BPix1+FPix3_neg+FPix4_neg',
-                            'FPix3_pos+FPix4_pos+FPix5_pos',
-                            'FPix3_neg+FPix4_neg+FPix5_neg',
-                            'FPix4_pos+FPix5_pos+FPix6_pos',
-                            'FPix4_neg+FPix5_neg+FPix6_neg',
-                            'FPix5_pos+FPix6_pos+FPix7_pos',
-                            'FPix5_neg+FPix6_neg+FPix7_neg',
-                            'FPix6_pos+FPix7_pos+FPix9_pos',
-                            'FPix6_neg+FPix7_neg+FPix9_neg',
-                            'FPix6_pos+FPix7_pos+FPix10_pos',
-                            'FPix6_neg+FPix7_neg+FPix10_neg',
-                            'FPix7_pos+FPix9_pos+FPix10_pos',
-                            'FPix7_neg+FPix9_neg+FPix10_neg'
-                            )
+                            'FPix2_pos+FPix3_pos+FPix4_pos', 'FPix2_neg+FPix3_neg+FPix4_neg',
+                            'FPix3_pos+FPix4_pos+FPix5_pos', 'FPix3_neg+FPix4_neg+FPix5_neg',
+                            'FPix4_pos+FPix5_pos+FPix6_pos', 'FPix4_neg+FPix5_neg+FPix6_neg',
+                            'FPix5_pos+FPix6_pos+FPix7_pos', 'FPix5_neg+FPix6_neg+FPix7_neg',
+                            'FPix6_pos+FPix7_pos+FPix8_pos', 'FPix6_neg+FPix7_neg+FPix8_neg',
+                            'FPix6_pos+FPix7_pos+FPix9_pos', 'FPix6_neg+FPix7_neg+FPix9_neg')
     )
 lowPtQuadStepSeedLayers.BPix.skipClusters = cms.InputTag('lowPtQuadStepClusters')
 lowPtQuadStepSeedLayers.FPix.skipClusters = cms.InputTag('lowPtQuadStepClusters')
@@ -111,7 +96,8 @@ lowPtQuadStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuil
     MeasurementTrackerName = '',
     trajectoryFilterName = 'lowPtQuadStepTrajectoryFilter',
     clustersToSkip = cms.InputTag('lowPtQuadStepClusters'),
-    maxCand = 4,
+    minNrOfHitsForRebuild = 1,
+    maxCand = 5,
     estimator = cms.string('lowPtQuadStepChi2Est'),
     maxDPhiForLooperReconstruction = cms.double(2.0),
     # 0.63 GeV is the maximum pT for a charged particle to loop within the 1.1m radius
@@ -143,7 +129,7 @@ lowPtQuadStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.
 from TrackingTools.TrajectoryCleaning.TrajectoryCleanerBySharedHits_cfi import trajectoryCleanerBySharedHits
 lowPtQuadStepTrajectoryCleanerBySharedHits = trajectoryCleanerBySharedHits.clone(
         ComponentName = cms.string('lowPtQuadStepTrajectoryCleanerBySharedHits'),
-            fractionShared = cms.double(0.095),
+            fractionShared = cms.double(0.09),
             allowSharedFirstHit = cms.bool(True)
             )
 lowPtQuadStepTrackCandidates.TrajectoryCleaner = 'lowPtQuadStepTrajectoryCleanerBySharedHits'
@@ -162,34 +148,34 @@ lowPtQuadStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.m
             minNumber3DLayers = 3,
             d0_par1 = ( 0.8, 4.0 ),
             dz_par1 = ( 0.7, 4.0 ),
-            d0_par2 = ( 0.5, 4.0 ),
-            dz_par2 = ( 0.5, 4.0 )
+            d0_par2 = ( 0.6, 4.0 ),
+            dz_par2 = ( 0.6, 4.0 )
             ), #end of pset
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
             name = 'lowPtQuadStepTight',
             preFilterName = 'lowPtQuadStepLoose',
-            chi2n_par = 1.3,
+            chi2n_par = 1.4,
             res_par = ( 0.003, 0.002 ),
             minNumberLayers = 3,
             maxNumberLostLayers = 2,
             minNumber3DLayers = 3,
             d0_par1 = ( 0.7, 4.0 ),
             dz_par1 = ( 0.6, 4.0 ),
-            d0_par2 = ( 0.4, 4.0 ),
-            dz_par2 = ( 0.4, 4.0 )
+            d0_par2 = ( 0.5, 4.0 ),
+            dz_par2 = ( 0.5, 4.0 )
             ),
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
             name = 'lowPtQuadStep',
             preFilterName = 'lowPtQuadStepTight',
-            chi2n_par = 1.0,
+            chi2n_par = 1.2,
             res_par = ( 0.003, 0.001 ),
             minNumberLayers = 3,
             maxNumberLostLayers = 2,
             minNumber3DLayers = 3,
-            d0_par1 = ( 0.6, 4.0 ),
+            d0_par1 = ( 0.5, 4.0 ),
             dz_par1 = ( 0.5, 4.0 ),
-            d0_par2 = ( 0.3, 4.0 ),
-            dz_par2 = ( 0.4, 4.0 )
+            d0_par2 = ( 0.45, 4.0 ),
+            dz_par2 = ( 0.45, 4.0 )
             ),
         ) #end of vpset
     ) #end of clone

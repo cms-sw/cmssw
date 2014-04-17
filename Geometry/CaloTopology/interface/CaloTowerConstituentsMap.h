@@ -8,6 +8,7 @@
 #include <map>
 
 class HcalTopology;
+class CaloTowerTopology;
 
 /** \class CaloTowerConstituentsMap
   *  
@@ -17,7 +18,7 @@ class HcalTopology;
   */
 class CaloTowerConstituentsMap {
 public:
-  CaloTowerConstituentsMap(const HcalTopology * topology);
+  CaloTowerConstituentsMap(const HcalTopology * hcaltopo, const CaloTowerTopology * cttopo);
 
   /// Get the tower id for this det id (or null if not known)
   CaloTowerDetId towerOf(const DetId& id) const;
@@ -43,7 +44,8 @@ public:
   void useStandardEB(bool use=true);
 
 private:
-  const HcalTopology * m_topology;
+  const HcalTopology * m_hcaltopo;
+  const CaloTowerTopology * m_cttopo;
     
   bool standardHB_;
   bool standardHE_;

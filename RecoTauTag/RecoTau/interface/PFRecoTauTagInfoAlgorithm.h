@@ -17,7 +17,7 @@ class  PFRecoTauTagInfoAlgorithm  {
   PFRecoTauTagInfoAlgorithm(){}
   PFRecoTauTagInfoAlgorithm(const edm::ParameterSet&);
   ~PFRecoTauTagInfoAlgorithm(){}
-  reco::PFTauTagInfo buildPFTauTagInfo(const reco::PFJetRef&,const reco::PFCandidateRefVector&,const reco::TrackRefVector&,const reco::Vertex&); 
+  reco::PFTauTagInfo buildPFTauTagInfo(const reco::PFJetRef&,const std::vector<reco::PFCandidatePtr>&,const reco::TrackRefVector&,const reco::Vertex&); 
  private: 
   double ChargedHadrCand_tkminPt_;
   int ChargedHadrCand_tkminPixelHitsn_;

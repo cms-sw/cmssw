@@ -9,11 +9,9 @@ highPtTripletStepClusters = cms.EDProducer("TrackClusterRemover",
     minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
     pixelClusters = cms.InputTag("siPixelClusters"),
     stripClusters = cms.InputTag("siStripClusters"),
-    doStripChargeCheck = cms.bool(True),
     stripRecHits = cms.string('siStripMatchedRecHits'),
     Common = cms.PSet(
-        maxChi2 = cms.double(9.0),
-        minGoodStripCharge = cms.double(50.0)
+        maxChi2 = cms.double(9.0)
     )
 )
 
@@ -25,29 +23,18 @@ highPtTripletStepSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi
                             'BPix1+BPix3+BPix4', 'BPix1+BPix2+BPix4',
                             'BPix2+BPix3+FPix1_pos', 'BPix2+BPix3+FPix1_neg',
                             'BPix1+BPix2+FPix1_pos', 'BPix1+BPix2+FPix1_neg',
-                            'BPix1+BPix3+FPix1_pos', 'BPix1+BPix3+FPix1_neg',
                             'BPix2+FPix1_pos+FPix2_pos', 'BPix2+FPix1_neg+FPix2_neg',
                             'BPix1+FPix1_pos+FPix2_pos', 'BPix1+FPix1_neg+FPix2_neg',
                             'BPix1+BPix2+FPix2_pos', 'BPix1+BPix2+FPix2_neg',
                             'FPix1_pos+FPix2_pos+FPix3_pos', 'FPix1_neg+FPix2_neg+FPix3_neg',
                             'BPix1+FPix2_pos+FPix3_pos', 'BPix1+FPix2_neg+FPix3_neg',
                             'BPix1+FPix1_pos+FPix3_pos', 'BPix1+FPix1_neg+FPix3_neg',
-#ale
-                            'BPix1+FPix3_pos+FPix4_pos',
-                            'BPix1+FPix3_neg+FPix4_neg',
-                            'FPix3_pos+FPix4_pos+FPix5_pos',
-                            'FPix3_neg+FPix4_neg+FPix5_neg',
-                            'FPix4_pos+FPix5_pos+FPix6_pos',
-                            'FPix4_neg+FPix5_neg+FPix6_neg',
-                            'FPix5_pos+FPix6_pos+FPix7_pos',
-                            'FPix5_neg+FPix6_neg+FPix7_neg',
-                            'FPix6_pos+FPix7_pos+FPix9_pos',
-                            'FPix6_neg+FPix7_neg+FPix9_neg',
-                            'FPix6_pos+FPix7_pos+FPix10_pos',
-                            'FPix6_neg+FPix7_neg+FPix10_neg',
-                            'FPix7_pos+FPix9_pos+FPix10_pos',
-                            'FPix7_neg+FPix9_neg+FPix10_neg'
-                            )
+                            'FPix2_pos+FPix3_pos+FPix4_pos', 'FPix2_neg+FPix3_neg+FPix4_neg',
+                            'FPix3_pos+FPix4_pos+FPix5_pos', 'FPix3_neg+FPix4_neg+FPix5_neg',
+                            'FPix4_pos+FPix5_pos+FPix6_pos', 'FPix4_neg+FPix5_neg+FPix6_neg',
+                            'FPix5_pos+FPix6_pos+FPix7_pos', 'FPix5_neg+FPix6_neg+FPix7_neg',
+                            'FPix6_pos+FPix7_pos+FPix8_pos', 'FPix6_neg+FPix7_neg+FPix8_neg',
+                            'FPix6_pos+FPix7_pos+FPix9_pos', 'FPix6_neg+FPix7_neg+FPix9_neg')
     )
 highPtTripletStepSeedLayers.BPix.skipClusters = cms.InputTag('highPtTripletStepClusters')
 highPtTripletStepSeedLayers.FPix.skipClusters = cms.InputTag('highPtTripletStepClusters')
@@ -60,7 +47,7 @@ highPtTripletStepSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff
     ComponentName = cms.string('GlobalRegionProducerFromBeamSpot'),
     RegionPSet = RegionPsetFomBeamSpotBlock.RegionPSet.clone(
     ptMin = 0.9,
-    originRadius = 0.02,
+    originRadius = 0.03,
     nSigmaZ = 4.0
     )
     )
@@ -86,7 +73,7 @@ import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi
 highPtTripletStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi.Chi2MeasurementEstimator.clone(
     ComponentName = cms.string('highPtTripletStepChi2Est'),
     nSigma = cms.double(3.0),
-    MaxChi2 = cms.double(30.0)
+    MaxChi2 = cms.double(25.0)
 )
 
 # TRACK BUILDING
@@ -96,7 +83,8 @@ highPtTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectory
     MeasurementTrackerName = '',
     trajectoryFilterName = 'highPtTripletStepTrajectoryFilter',
     clustersToSkip = cms.InputTag('highPtTripletStepClusters'),
-    maxCand = 4,
+    minNrOfHitsForRebuild = 1,
+    maxCand = 5,
     estimator = cms.string('highPtTripletStepChi2Est'),
     maxDPhiForLooperReconstruction = cms.double(2.0),
     # 0.63 GeV is the maximum pT for a charged particle to loop within the 1.1m radius
@@ -147,7 +135,7 @@ highPtTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_c
             minNumber3DLayers = 3,
             d0_par1 = ( 0.7, 4.0 ),
             dz_par1 = ( 0.8, 4.0 ),
-            d0_par2 = ( 0.4, 4.0 ),
+            d0_par2 = ( 0.6, 4.0 ),
             dz_par2 = ( 0.6, 4.0 )
             ), #end of pset
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
@@ -160,21 +148,21 @@ highPtTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_c
             minNumber3DLayers = 3,
             d0_par1 = ( 0.6, 4.0 ),
             dz_par1 = ( 0.7, 4.0 ),
-            d0_par2 = ( 0.35, 4.0 ),
+            d0_par2 = ( 0.5, 4.0 ),
             dz_par2 = ( 0.5, 4.0 )
             ),
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
             name = 'highPtTripletStep',
             preFilterName = 'highPtTripletStepTight',
-            chi2n_par = 0.7,
+            chi2n_par = 0.6,
             res_par = ( 0.003, 0.001 ),
             minNumberLayers = 3,
             maxNumberLostLayers = 2,
             minNumber3DLayers = 3,
             d0_par1 = ( 0.5, 4.0 ),
-            dz_par1 = ( 0.7, 4.0 ),
-            d0_par2 = ( 0.25, 4.0 ),
-            dz_par2 = ( 0.4, 4.0 )
+            dz_par1 = ( 0.6, 4.0 ),
+            d0_par2 = ( 0.45, 4.0 ),
+            dz_par2 = ( 0.45, 4.0 )
             ),
         ) #end of vpset
     ) #end of clone
