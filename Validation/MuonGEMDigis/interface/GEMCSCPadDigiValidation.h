@@ -20,7 +20,7 @@ class GEMCSCPadDigiValidation : public GEMBaseValidation
 {
 public:
   GEMCSCPadDigiValidation(DQMStore* dbe,
-                         const edm::InputTag & inputTag);
+                         const edm::InputTag & inputTag, const edm::ParameterSet& pbInfo);
   ~GEMCSCPadDigiValidation();
   void analyze(const edm::Event& e, const edm::EventSetup&);
   void bookHisto(const GEMGeometry* geom);
@@ -29,9 +29,8 @@ public:
   MonitorElement* theCSCPad_xy[2][3][2];
   MonitorElement* theCSCPad_phipad[2][3][2];
   MonitorElement* theCSCPad[2][3][2];
-  MonitorElement* theCSCPad_bx[2][2];
-  MonitorElement* theCSCPad_zr_rm1;
-  MonitorElement* theCSCPad_zr_rp1;
+  MonitorElement* theCSCPad_bx[2][3][2];
+  MonitorElement* theCSCPad_zr[2][3][2];
 };
 
 #endif
