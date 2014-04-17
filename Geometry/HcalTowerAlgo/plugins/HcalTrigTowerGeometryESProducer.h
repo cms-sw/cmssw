@@ -22,7 +22,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
 private:
-  bool useFullGranularityHF_;
+  bool enable1x1HF_,enableRCTHF_;
   boost::shared_ptr<HcalTrigTowerGeometry> m_hcalTrigTowerGeom;
 };
 
