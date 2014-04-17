@@ -70,6 +70,11 @@ class HCALProperties : public CalorimeterProperties
 
   int eta2ieta(double eta) const; 
 
+  /// functions for rad. damage in HE
+  const std::vector<double> &getMapLayersHB() const {return hbLayers_;}
+  const std::vector<double> &getMapLayersHE() const {return heLayers_;}
+  bool getHcalTestNumbering() const {return HcalNumbering_;}
+
  private:
   double hOPi;
   double spotFrac;
@@ -85,7 +90,9 @@ class HCALProperties : public CalorimeterProperties
   double HCALinteractionLength_;
   std::vector <double> etatow_;// HCAL towers eta edges
   std::vector <double> hcalDepthLam_;// HCAL depth for each tower ieta
-
+  bool HcalNumbering_;
+  std::vector <double> hbLayers_;    // HB layers r-position
+  std::vector <double> heLayers_;    // HE layers z-position
 };
 
 #endif
