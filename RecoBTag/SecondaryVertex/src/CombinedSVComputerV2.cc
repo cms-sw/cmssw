@@ -159,10 +159,23 @@ CombinedSVComputerV2::operator () (const TrackIPTagInfo &ipInfo,
 	vars.insert(btau::jetPt, jet->pt(), true);
 	vars.insert(btau::jetEta, jet->eta(), true);
 
-	if (ipInfo.tracks().size() < trackMultiplicityMin)
+	TrackKinematics jetKinematics;
+	
+	const edm::RefVector<TrackCollection> &jettracks = ipInfo.selectedTracks();
+	std::vector<std::size_t> trackIndices = ipInfo.sortedIndexes(sortCriterium);
+  IterationRange range = flipIterate(trackIndices.size(), false);
+	range_for(i, range) {
+		std::size_t idx = trackIndices[i];
+		const TrackRef &trackRef = jettracks[idx];
+		const Track &track = *trackRef;
+		jetKinematics.add(track);
+	}	
+	vars.insert(btau::trackJetPt, jetKinematics.vectorSum().Pt(), true);
+
+	if (ipInfo.selectedTracks().size() < trackMultiplicityMin)
 		return vars;
 	
-	vars.insert(btau::jetNTracks, ipInfo.tracks().size(), true);
+	vars.insert(btau::jetNTracks, ipInfo.selectedTracks().size(), true);
 
 	TrackKinematics allKinematics;
 	TrackKinematics vertexKinematics;
@@ -175,7 +188,7 @@ CombinedSVComputerV2::operator () (const TrackIPTagInfo &ipInfo,
 	unsigned int numberofvertextracks = 0;
 
 	//IF THERE ARE SECONDARY VERTICES THE JET FALLS IN THE RECOVERTEX CATEGORY
-	IterationRange range = flipIterate(svInfo.nVertices(), true);
+	range = flipIterate(svInfo.nVertices(), true);
 	range_for(i, range) {
 		if (vtx < 0) vtx = i; //RecoVertex category (vtx=0) if we enter at least one time in this loop!
 
