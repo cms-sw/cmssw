@@ -119,6 +119,9 @@ public:
   void deallocate(void* address) const;
   ObjectWithDict construct() const;
   void destruct(void* address, bool dealloc = true) const;
+  void* ttype() const {
+    return type_;
+  }
 };
 
 // A related free function
