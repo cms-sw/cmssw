@@ -49,7 +49,7 @@ def customise_L1Emulator(process, ptdphi):
         'pt40' : { 'odd' :  0.00342827 , 'even' :  0.00230833 }
     }
     tmb = process.simCscTriggerPrimitiveDigis.tmbSLHC
-    tmb.me11ILT = cms.PSet(
+    tmb.untracked.me11ILT = cms.PSet(
         ## run the upgrade algorithm
         runME11ILT = cms.untracked.bool(True),
 
@@ -98,7 +98,7 @@ def customise_L1Emulator(process, ptdphi):
         process.simCscTriggerPrimitiveDigis.clctParam07.clctPidThreshPretrig = 2
     
     ## GE2/1-ME2/1
-    tmb.me21ILT = cms.PSet(
+    tmb.untracked.me21ILT = cms.PSet(
         ## run the upgrade algorithm
         runME21ILT = cms.untracked.bool(True),
 

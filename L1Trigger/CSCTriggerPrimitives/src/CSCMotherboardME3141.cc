@@ -79,7 +79,7 @@ CSCMotherboardME3141::CSCMotherboardME3141(unsigned endcap, unsigned station,
   edm::ParameterSet alctParams = conf.getParameter<edm::ParameterSet>("alctSLHC");
   edm::ParameterSet clctParams = conf.getParameter<edm::ParameterSet>("clctSLHC");
   edm::ParameterSet tmbParams = conf.getParameter<edm::ParameterSet>("tmbSLHC");
-  edm::ParameterSet me3141tmbParams = tmbParams.getParameter<edm::ParameterSet>("me3141ILT");
+  edm::ParameterSet me3141tmbParams = tmbParams.getUntrackedParameter<edm::ParameterSet>("me3141ILT");
 
   // central bx for LCT is 6 for simulation
   lct_central_bx = tmbParams.getUntrackedParameter<int>("lctCentralBX", 6);

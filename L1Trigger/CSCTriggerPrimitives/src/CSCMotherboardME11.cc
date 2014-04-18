@@ -198,7 +198,7 @@ CSCMotherboardME11::CSCMotherboardME11(unsigned endcap, unsigned station,
   const edm::ParameterSet alctParams(conf.getParameter<edm::ParameterSet>("alctSLHC"));
   const edm::ParameterSet clctParams(conf.getParameter<edm::ParameterSet>("clctSLHC"));
   const edm::ParameterSet tmbParams(conf.getParameter<edm::ParameterSet>("tmbSLHC"));
-  const edm::ParameterSet me11tmbParams(tmbParams.getParameter<edm::ParameterSet>("me11ILT"));
+  const edm::ParameterSet me11tmbParams(tmbParams.getUntrackedParameter<edm::ParameterSet>("me11ILT",edm::ParameterSet()));
 
   clct1a = new CSCCathodeLCTProcessor(endcap, station, sector, subsector, chamber, clctParams, commonParams, tmbParams);
   clct1a->setRing(4);

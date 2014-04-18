@@ -49,16 +49,16 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
   // Receives ParameterSet percolated down from EDProducer.
 
   // special configuration parameters for ME11 treatment
-  edm::ParameterSet commonParams = conf.getParameter<edm::ParameterSet>("commonParam");
+  const edm::ParameterSet commonParams(conf.getParameter<edm::ParameterSet>("commonParam"));
   smartME1aME1b = commonParams.getUntrackedParameter<bool>("smartME1aME1b", false);
   disableME1a = commonParams.getUntrackedParameter<bool>("disableME1a", false);
   disableME42 = commonParams.getUntrackedParameter<bool>("disableME42", false);
 
   checkBadChambers_ = conf.getUntrackedParameter<bool>("checkBadChambers", true);
 
-  edm::ParameterSet tmbParams = conf.getParameter<edm::ParameterSet>("tmbSLHC");
-  edm::ParameterSet me21mbParams = tmbParams.getParameter<edm::ParameterSet>("me21ILT");
-  edm::ParameterSet me3141tmbParams = tmbParams.getParameter<edm::ParameterSet>("me3141ILT");
+  const edm::ParameterSet tmbParams(conf.getParameter<edm::ParameterSet>("tmbSLHC"));
+  const edm::ParameterSet me21mbParams(tmbParams.getUntrackedParameter<edm::ParameterSet>("me21ILT",edm::ParameterSet()));
+  const edm::ParameterSet me3141tmbParams(tmbParams.getUntrackedParameter<edm::ParameterSet>("me3141ILT",edm::ParameterSet()));
 
   runFactorizedModel_ = tmbParams.getUntrackedParameter<bool>("runFactorizedModel",true);
   runME21ILT_ = me21mbParams.getUntrackedParameter<bool>("runME21ILT",false);
