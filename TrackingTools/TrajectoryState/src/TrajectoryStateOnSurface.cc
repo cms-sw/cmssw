@@ -32,6 +32,6 @@ update( const LocalTrajectoryParameters& p,
    if (data().canUpdateLocalParameters()) {
         unsharedData().update(p, err, aSurface, field, side, weight);
     } else {
-        *this = TrajectoryStateOnSurface(p, err, aSurface, field, side, weight);
+     *this = TrajectoryStateOnSurface(weight, p, err, aSurface, field, side );
     }
 }

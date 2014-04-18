@@ -12,7 +12,7 @@ public:
   BasicSingleTrajectoryState() :  BasicTrajectoryState(){}
 #ifndef CMS_NOCXX11
   template<typename... Args>
-    BasicSingleTrajectoryState(Args && ...args) : BasicTrajectoryState(std::forward<Args>(args)...){assert(weight()>0);}
+    BasicSingleTrajectoryState(Args && ...args) : BasicTrajectoryState(std::forward<Args>(args)...){/* assert(weight()>0);*/}
 #endif
   BasicSingleTrajectoryState* clone() const {
     return new BasicSingleTrajectoryState(*this);

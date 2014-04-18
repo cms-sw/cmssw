@@ -211,6 +211,14 @@ public:
 			double weight) : 
     BasicTrajectoryState(par,err, aSurface, SurfaceSideDefinition::atCenterOfSurface, weight){}
 
+
+  // as above, with explicit weight
+  template<typename... Args>
+  BasicTrajectoryState(double iweight, Args && ...args) : BasicTrajectoryState(std::forward<Args>(args)...) {
+    theWeight = iweight;
+  }
+
+
 #endif
 
 
@@ -403,8 +411,11 @@ private:
   SurfaceSide theSurfaceSide;
   ConstReferenceCountingPointer<SurfaceType> theSurfaceP;
 
+#ifdef CMS_NOCXX11
   double theWeight;
-
+#else
+  double theWeight=0.;
+#endif
 };
 
 #endif
