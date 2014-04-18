@@ -24,6 +24,8 @@ class TrackSelector {
 	bool				selectQuality;
 	reco::TrackBase::TrackQuality	quality;
 	unsigned int			minPixelHits;
+        unsigned int                    maxBpixLayer;
+        unsigned int                    maxEpixLayer;
 	unsigned int			minTotalHits;
 	double				minPt;
 	double				maxNormChi2;
