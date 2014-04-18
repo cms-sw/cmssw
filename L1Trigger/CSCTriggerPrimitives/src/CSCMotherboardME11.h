@@ -268,7 +268,7 @@ class CSCMotherboardME11 : public CSCMotherboard
   bool FirstTwoLCTsInME11_;
 
   // map of roll N to min and max eta
-  std::map<int,std::pair<double,double> > gemPadToEtaLimits_;
+  std::map<int,std::pair<double,double> > gemRollToEtaLimits_;
   std::map<int,std::pair<int,int>> cscWgToGemRoll_;
 
   // map of pad to HS

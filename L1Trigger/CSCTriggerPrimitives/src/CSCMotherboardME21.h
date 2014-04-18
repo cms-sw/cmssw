@@ -53,7 +53,7 @@ class CSCMotherboardME21 : public CSCMotherboard
 
   GEMPads retrieveGEMPads(const GEMCSCPadDigiCollection* pads, unsigned id, bool iscopad = false);
 
-  std::map<int,std::pair<double,double> > createGEMPadLUT(bool isLong);
+  std::map<int,std::pair<double,double> > createGEMRollEtaLUT(bool isLong);
 
   int assignGEMRoll(double eta);
   int deltaRoll(int wg, int roll);
@@ -184,15 +184,12 @@ class CSCMotherboardME21 : public CSCMotherboard
   bool useOldLCTDataFormatALCTGEM_;
   bool useOldLCTDataFormatCLCTGEM_;
 
-  std::map<int,std::pair<double,double> > gemPadToEtaLimitsShort_;
-  std::map<int,std::pair<double,double> > gemPadToEtaLimitsLong_;
+  std::map<int,std::pair<double,double> > gemRollToEtaLimitsShort_;
+  std::map<int,std::pair<double,double> > gemRollToEtaLimitsLong_;
 
-  std::map<int,std::pair<int,int>> cscWgToGemRollShort_;
-  std::map<int,std::pair<int,int>> cscWgToGemRollLong_;
-/*   std::map<int,int> cscWgToGemRollShort_; */
-/*   std::map<int,int> cscWgToGemRollLong_; */
-
-
+  std::map<int,int> cscWgToGemRollShort_;
+  std::map<int,int> cscWgToGemRollLong_; 
+  
   // map of pad to HS
   std::map<int,int> gemPadToCscHs_;
   std::map<int,std::pair<int,int>> cscHsToGemPad_;

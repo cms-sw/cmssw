@@ -339,6 +339,7 @@ void CSCMotherboardME11::clear()
         allLCTs1a[bx][mbx][i].clear();
       }
   }
+  gemRollToEtaLimits_.clear();
   cscWgToGemRoll_.clear();
 
   gemPadToCscHsME1a_.clear();
@@ -346,6 +347,9 @@ void CSCMotherboardME11::clear()
 
   cscHsToGemPadME1a_.clear();
   cscHsToGemPadME1b_.clear();
+
+  pads_.clear();
+  coPads_.clear();
 }
 
 // Set configuration parameters obtained via EventSetup mechanism.
@@ -442,8 +446,8 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
     // LUT<roll,<etaMin,etaMax> >    
     createGEMPadLUT(isEven);
     if (debug_luts){
-      if (gemPadToEtaLimits_.size())
-        for(auto p : gemPadToEtaLimits_) {
+      if (gemRollToEtaLimits_.size())
+        for(auto p : gemRollToEtaLimits_) {
           std::cout << "pad "<< p.first << " min eta " << (p.second).first << " max eta " << (p.second).second << std::endl;
         }
     }
@@ -1986,7 +1990,7 @@ void CSCMotherboardME11::createGEMPadLUT(bool isEven)
     const LocalPoint lp_bottom(0., -half_striplength, 0.);
     const GlobalPoint gp_top(roll->toGlobal(lp_top));
     const GlobalPoint gp_bottom(roll->toGlobal(lp_bottom));
-    gemPadToEtaLimits_[i] = std::make_pair(gp_top.eta(), gp_bottom.eta());
+    gemRollToEtaLimits_[i] = std::make_pair(gp_top.eta(), gp_bottom.eta());
   }
 }
 
@@ -1994,7 +1998,7 @@ void CSCMotherboardME11::createGEMPadLUT(bool isEven)
 int CSCMotherboardME11::assignGEMRoll(double eta)
 {
   int result = -99;
-  for(auto p : gemPadToEtaLimits_) {
+  for(auto p : gemRollToEtaLimits_) {
     const float minEta((p.second).first);
     const float maxEta((p.second).second);
     if (minEta <= eta and eta <= maxEta) {

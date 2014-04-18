@@ -108,13 +108,22 @@ CSCMotherboardME3141::CSCMotherboardME3141(unsigned endcap, unsigned station,
 
   // drop low quality stubs if they don't have RPCs
   dropLowQualityCLCTsNoRPCs_ = tmbParams.getUntrackedParameter<bool>("dropLowQualityCLCTsNoRPCs",false);
-  dropLowQualityALCTsNoRPCs_ = tmbParams.getUntrackedParameter<bool>("dropLowQualityALCTsNoRPCs",false);
 }
 
 CSCMotherboardME3141::~CSCMotherboardME3141() 
 {
 }
 
+void CSCMotherboardME3141::clear()
+{
+  CSCMotherboard::clear();
+
+  rpcRollToEtaLimits_.clear();
+  cscWgToRpcRoll_.clear();
+  rpcStripToCscHs_.clear();
+  cscHsToRpcStrip_.clear();
+  rpcDigis_.clear();
+}
 
 void
 CSCMotherboardME3141::run(const CSCWireDigiCollection* wiredc,
@@ -162,7 +171,8 @@ CSCMotherboardME3141::run(const CSCWireDigiCollection* wiredc,
   const int region((theEndcap == 1) ? 1: -1);
   const bool isEven(csc_id%2==0);
   //  const int nSubSectors(3);
-  const int chamber(CSCTriggerNumbering::chamberFromTriggerLabels(theSector,theSubsector,theStation,theTrigChamber));
+  //  const int chamber(CSCTriggerNumbering::chamberFromTriggerLabels(theSector,theSubsector,theStation,theTrigChamber));
+  const int chamber((theSector-1)*3 + theTrigChamber);
   const RPCDetId rpc_id(region,1,theStation,theSector,1,theTrigChamber,0);
   std::cout << "csc id " << csc_id << ", rpc id " << rpc_id << ", chamber number from trigger " << chamber << std::endl;
   const RPCChamber* rpcChamber(rpc_g->chamber(rpc_id));

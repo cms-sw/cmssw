@@ -27,7 +27,7 @@ def customise_L1Emulator(process):
     tmb = process.simCscTriggerPrimitiveDigis.tmbSLHC
     tmb.me3141ILT = cms.untracked.PSet(
         ## run the upgrade algorithm
-        runME3141ILT = cms.untracked.bool(True),
+        runME3141ILT = cms.untracked.bool(False),
         
         ## run in debug mode
         debugLUTs = cms.untracked.bool(False),
@@ -40,7 +40,6 @@ def customise_L1Emulator(process):
 
         ## efficiency recovery switches
         dropLowQualityCLCTsNoRPC = cms.untracked.bool(True),
-        dropLowQualityALCTsNoRPCs = cms.untracked.bool(True),
     )
     if tmb.me3141ILT.runME3141ILT:
         process.simCscTriggerPrimitiveDigis.clctSLHC.clctNplanesHitPattern = 3

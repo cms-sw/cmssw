@@ -163,6 +163,8 @@ void CSCMotherboardME21::clear()
 {
   CSCMotherboard::clear();
 
+  gemRollToEtaLimitsShort_.clear();
+  gemRollToEtaLimitsLong_.clear();
   cscWgToGemRollShort_.clear();
   cscWgToGemRollLong_.clear();
   gemPadToCscHs_.clear();
@@ -217,26 +219,27 @@ CSCMotherboardME21::run(const CSCWireDigiCollection* wiredc,
 
     //    const bool isEven(csc_id%2==0);
     const int region((theEndcap == 1) ? 1: -1);
+    const bool isEven(csc_id%2==0);
     const GEMDetId gem_id_short(region, 1, 2, 1, csc_id.chamber(), 0);
     const GEMDetId gem_id_long(region, 1, 3, 1, csc_id.chamber(), 0);
     //    const GEMChamber* gemChamberShort(gem_g->chamber(gem_id_short));
     const GEMChamber* gemChamberLong(gem_g->chamber(gem_id_long));
     
     // LUT<roll,<etaMin,etaMax> >    
-    gemPadToEtaLimitsShort_ = createGEMPadLUT(false);
-    gemPadToEtaLimitsLong_ = createGEMPadLUT(true);
+    gemRollToEtaLimitsShort_ = createGEMRollEtaLUT(false);
+    gemRollToEtaLimitsLong_ = createGEMRollEtaLUT(true);
 
     if (debug_luts){
-      if (gemPadToEtaLimitsShort_.size())
-        for(auto p : gemPadToEtaLimitsShort_) {
+      if (gemRollToEtaLimitsShort_.size())
+	for(auto p : gemRollToEtaLimitsShort_) {
           std::cout << "pad "<< p.first << " min eta " << (p.second).first << " max eta " << (p.second).second << std::endl;
-        }
-      if (gemPadToEtaLimitsLong_.size())
-        for(auto p : gemPadToEtaLimitsLong_) {
+	}
+      if (gemRollToEtaLimitsLong_.size())
+        for(auto p : gemRollToEtaLimitsLong_) {
           std::cout << "pad "<< p.first << " min eta " << (p.second).first << " max eta " << (p.second).second << std::endl;
         }
     }
-    /*
+
     // loop on all wiregroups to create a LUT <WG,rollMin,rollMax>
     const int numberOfWG(keyLayerGeometry->numberOfWireGroups());
     for (int i = 0; i< numberOfWG; ++i){
@@ -245,10 +248,10 @@ CSCMotherboardME21::run(const CSCWireDigiCollection* wiredc,
     }
     if (debug_luts){
       for(auto p : cscWgToGemRollLong_) {
-        std::cout << "WG "<< p.first << " GEM pads " << (p.second).first << " " << (p.second).second << std::endl;
+        std::cout << "WG "<< p.first << " GEM roll " << p.second << std::endl;
       }
     }
-    */
+
     auto randRoll(gemChamberLong->etaPartition(2));
     auto nStrips(keyLayerGeometry->numberOfStrips());
     for (float i = 0; i< nStrips; i = i+0.5){
@@ -847,7 +850,7 @@ void CSCMotherboardME21::buildCoincidencePads(const GEMCSCPadDigiCollection* out
 
 
 std::map<int,std::pair<double,double> >
-CSCMotherboardME21::createGEMPadLUT(bool isLong)
+CSCMotherboardME21::createGEMRollEtaLUT(bool isLong)
 {
   std::map<int,std::pair<double,double> > result;
 
@@ -961,15 +964,11 @@ CSCMotherboardME21::matchingGEMPads(const CSCALCTDigi& alct, const GEMPadsBX& pa
   
   auto alctRoll(cscWgToGemRollLong_[alct.getKeyWG()]);
   const bool debug(false);
-  if (debug) std::cout << "ALCT keyWG " << alct.getKeyWG() << ", rolls " << alctRoll.first << " " << alctRoll.second << std::endl;
+  if (debug) std::cout << "ALCT keyWG " << alct.getKeyWG() << ", roll " << alctRoll << std::endl;
   for (auto p: pads){
     auto padRoll(GEMDetId(p.first).roll());
     if (debug) std::cout << "Candidate ALCT: " << padRoll << std::endl;
-    if (alctRoll.first == -99 and alctRoll.second == -99) continue;  //invalid region
-    else if (alctRoll.first == -99 and !(padRoll <= alctRoll.second)) continue; // top of the chamber
-    else if (alctRoll.second == -99 and !(padRoll >= alctRoll.first)) continue; // bottom of the chamber
-    else if ((alctRoll.first != -99 and alctRoll.second != -99) and // center
-             (alctRoll.first > padRoll or padRoll > alctRoll.second)) continue;
+    if (alctRoll !=  padRoll) continue;
     if (debug) std::cout << "++Matches! " << std::endl;
     result.push_back(p);
     if (first) return result;
@@ -1159,7 +1158,7 @@ void CSCMotherboardME21::matchGEMPads()
 int CSCMotherboardME21::assignGEMRoll(double eta)
 {
   int result = -99;
-  for(auto p : gemPadToEtaLimitsLong_) {
+  for(auto p : gemRollToEtaLimitsLong_) {  
     const float minEta((p.second).first);
     const float maxEta((p.second).second);
     if (minEta <= eta and eta <= maxEta) {
