@@ -1735,16 +1735,16 @@ void CSCMotherboardME11::correlateLCTs(CSCALCTDigi bestALCT,
 
   switch (lut[code][0]) {
     case 11:
-      lct1 = constructLCTs(bestALCT, bestCLCT);
+      lct1 = constructLCTsGEM(bestALCT, bestCLCT, hasPads, hasCoPads);
       break;
     case 12:
-      lct1 = constructLCTs(bestALCT, secondCLCT);
+      lct1 = constructLCTsGEM(bestALCT, secondCLCT, hasPads, hasCoPads);
       break;
     case 21:
-      lct1 = constructLCTs(secondALCT, bestCLCT);
+      lct1 = constructLCTsGEM(secondALCT, bestCLCT, hasPads, hasCoPads);
       break;
     case 22:
-      lct1 = constructLCTs(secondALCT, secondCLCT);
+      lct1 = constructLCTsGEM(secondALCT, secondCLCT, hasPads, hasCoPads);
       break;
     default: return;  
   }
@@ -1755,17 +1755,17 @@ void CSCMotherboardME11::correlateLCTs(CSCALCTDigi bestALCT,
   switch (lut[code][1])
   {
     case 12:
-      lct2 = constructLCTs(bestALCT, secondCLCT);
+      lct2 = constructLCTsGEM(bestALCT, secondCLCT, hasPads, hasCoPads);
       lct2.setTrknmb(2);
       if (dbg) LogTrace("CSCMotherboardME11")<<"lct2: "<<lct2<<std::endl;
       return;
     case 21:
-      lct2 = constructLCTs(secondALCT, bestCLCT);
+      lct2 = constructLCTsGEM(secondALCT, bestCLCT, hasPads, hasCoPads);
       lct2.setTrknmb(2);
       if (dbg) LogTrace("CSCMotherboardME11")<<"lct2: "<<lct2<<std::endl;
       return;
     case 22:
-      lct2 = constructLCTs(secondALCT, secondCLCT);
+      lct2 = constructLCTsGEM(secondALCT, secondCLCT, hasPads, hasCoPads);
       lct2.setTrknmb(2);
       if (dbg) LogTrace("CSCMotherboardME11")<<"lct2: "<<lct2<<std::endl;
       return;
@@ -2110,14 +2110,13 @@ CSCCorrelatedLCTDigi CSCMotherboardME11::constructLCTsGEM(const CSCCLCTDigi& clc
 
 
 CSCCorrelatedLCTDigi CSCMotherboardME11::constructLCTsGEM(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, 
-							  const GEMCSCPadDigi& pad, const GEMCSCPadDigi& copad,
-							  int me, bool oldDataFormat)
+							  bool hasPad, bool hasCoPad)
 {
   // CLCT pattern number
   unsigned int pattern = encodePattern(cLCT.getPattern(), cLCT.getStripType());
 
   // LCT quality number
-  unsigned int quality = findQualityGEM(aLCT, cLCT, pad, copad);
+  unsigned int quality = findQualityGEM(aLCT, cLCT, hasPad, hasCoPad);
 
   // Bunch crossing: get it from cathode LCT if anode LCT is not there.
   int bx = aLCT.isValid() ? aLCT.getBX() : cLCT.getBX();
@@ -2138,7 +2137,7 @@ unsigned int CSCMotherboardME11::encodePatternGEM(const int ptn, const int highP
 
 
 unsigned int CSCMotherboardME11::findQualityGEM(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT,
-						const GEMCSCPadDigi& pad, const GEMCSCPadDigi& copad)
+						bool hasPad, bool hasCoPad)
 {
 
   /*
@@ -2231,10 +2230,12 @@ unsigned int CSCMotherboardME11::findQualityGEM(const CSCALCTDigi& aLCT, const C
         // CLCT quality is the number of layers hit minus 3.
         // CLCT quality is the number of layers hit.
 	//	const int n_gem((pad!=NULL and 1) or (copad!=NULL and 2));
-	const int n_gem = 1;
+	int n_gem = 0;  
+	if (hasPad) n_gem = 1;
+	if (hasCoPad) n_gem = 2;
         bool a4 = (aLCT.getQuality() >= 1);
 	//        bool c4 = (cLCT.getQuality() >= 4);
-	const bool c4((cLCT.getQuality() >= 4) or (cLCT.getQuality() >= 4 and n_gem>=1));
+	const bool c4((cLCT.getQuality() >= 4) or (cLCT.getQuality() >= 3 and n_gem>=1));
         //              quality = 4; "reserved for low-quality muons in future"
         if      (!a4 && !c4) quality = 5; // marginal anode and cathode
         else if ( a4 && !c4) quality = 6; // HQ anode, but marginal cathode
