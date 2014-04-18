@@ -21,8 +21,8 @@ class HistogramProbabilityEstimator {
 
 
   HistogramProbabilityEstimator( const  TrackProbabilityCalibration  * calib3D,
-                                const TrackProbabilityCalibration * calib2D) 
-   :   m_calibration3D(calib3D),m_calibration2D(calib2D)
+				 const TrackProbabilityCalibration * calib2D, uint32_t maxBpix, uint32_t maxEpix) 
+    :   m_calibration3D(calib3D),m_calibration2D(calib2D), m_maxBpix(maxBpix), m_maxEpix(maxEpix)
     {}
 
 /*   HistogramProbabilityEstimator( AlgorithmCalibration<TrackClassFilterCategory,CalibratedHistogramXML>  * calib3D,
@@ -44,7 +44,7 @@ class HistogramProbabilityEstimator {
  private:
   const TrackProbabilityCalibration * m_calibration3D;
  const TrackProbabilityCalibration * m_calibration2D;
-   
+ uint32_t m_maxBpix, m_maxEpix;
 };
 
 #endif
