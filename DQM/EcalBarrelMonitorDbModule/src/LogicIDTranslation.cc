@@ -7,6 +7,12 @@
 namespace ecaldqm
 {
   EcalLogicID
+  ecalID()
+  {
+    return EcalLogicID("ECAL", 1);
+  }
+
+  EcalLogicID
   subdetID(EcalSubdetector _subdet)
   {
     switch(_subdet){

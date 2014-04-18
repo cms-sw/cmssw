@@ -1373,24 +1373,16 @@ x      PNDiodeTask.Pedestal (i13, i14)
   SummaryWriter::run(EcalCondDBInterface* _db, MonRunIOV& _iov)
   {
     std::map<EcalLogicID, MonRunDat> dataset;
-    MonRunDat& ebDat(dataset[subdetID(EcalBarrel)]);
-    MonRunDat& eeDat(dataset[subdetID(EcalEndcap)]);
+    MonRunDat& runDat(dataset[ecalID()]);
 
     // CURRENTLY ONLY WRITING SUCCESS
     MonRunOutcomeDef outcomeDef;
     outcomeDef.setShortDesc("success");
 
-    ebDat.setNumEvents(processedEvents_);
-    eeDat.setNumEvents(processedEvents_);
-
-    ebDat.setMonRunOutcomeDef(outcomeDef);
-    eeDat.setMonRunOutcomeDef(outcomeDef);
-
-    ebDat.setTaskList(taskList_);
-    eeDat.setTaskList(taskList_);
-
-    ebDat.setTaskOutcome(outcome_);
-    eeDat.setTaskOutcome(outcome_);
+    runDat.setNumEvents(processedEvents_);
+    runDat.setMonRunOutcomeDef(outcomeDef);
+    runDat.setTaskList(taskList_);
+    runDat.setTaskOutcome(outcome_);
 
     try{
       _db->insertDataSet(&dataset, &_iov);

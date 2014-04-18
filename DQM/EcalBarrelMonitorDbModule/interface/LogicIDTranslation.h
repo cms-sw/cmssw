@@ -13,6 +13,7 @@
 
 namespace ecaldqm
 {
+  EcalLogicID ecalID();
   EcalLogicID subdetID(EcalSubdetector);
   EcalLogicID crystalID(DetId const&);
   EcalLogicID towerID(EcalElectronicsId const&);
