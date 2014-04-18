@@ -194,8 +194,11 @@ int main( int argc, char **argv )
       test . test_read( _accessor, _type);
       return 0;
     }
+
     
     if (vm.count("test-emap")) {
+      std::cout << "Broken without topology...\n";
+      /*
       std::cout << "Testing emap stuff..." << "\n";
       std::string _accessor = vm["test-emap"].as<std::string>();
       std::cout << "Electronic map accessor string: " << _accessor << "\n";
@@ -204,6 +207,7 @@ int main( int argc, char **argv )
       //
       HcalLutManager _m;
       _m . test_emap();
+      */
       return 0;
     }
     
@@ -217,14 +221,19 @@ int main( int argc, char **argv )
     }
     
     if (vm.count("test-lut-manager")) {
+      std::cout << "Broken without topology...\n";
+      /*
       std::cout << "Testing LUT manager stuff..." << "\n";
       std::string _accessor = vm["test-lut-manager"].as<std::string>();
       std::cout << "LUT ascii file: " << _accessor << "\n";
       HcalLutManager_test::getLutSetFromFile_test( _accessor );
+      */
       return 0;
     }
     
     if (vm.count("test-lut-xml-access")) {
+      std::cout << "Broken without topology...\n";
+      /*
       std::cout << "Testing reading LUTs from local XML file..." << "\n";
       std::string in_ = vm["input-file"].as<std::string>();
       std::cout << "LUT XML file: " << in_ << "\n";
@@ -232,10 +241,13 @@ int main( int argc, char **argv )
       std::cout << "Tag: " << tag_ << "\n";
       HcalLutManager manager;
       manager . test_xml_access( tag_, in_ );
+      */
       return 0;
     }
     
     if (vm.count("test-lut-checksum")) {
+      std::cout << "Broken without topology...\n";
+      /*
       std::cout << "Testing evaluation of LUT MD5 checksums..." << "\n";
       std::string in_ = vm["input-file"].as<std::string>();
       std::cout << "LUT XML file: " << in_ << "\n";
@@ -243,6 +255,7 @@ int main( int argc, char **argv )
       std::cout << "Tag: " << tag_ << "\n";
       HcalLutManager manager;
       manager . test_xml_access( tag_, in_ );
+      */
       return 0;
     }
     
@@ -277,6 +290,8 @@ int main( int argc, char **argv )
     
     if (vm.count("create-lin-lut-xml")) {
       while(1){
+	std::cout << "Broken without topology...\n";
+	/*
 	cout << "Creating XML with LUTs for all channels..." << "\n";
 	//int _cr = vm["crate"].as<int>();
 	string lin_master_file, comp_master_file;
@@ -294,6 +309,7 @@ int main( int argc, char **argv )
 	string _tag = vm["tag-name"].as<std::string>();
 	HcalLutManager manager;
 	manager . createLinLutXmlFiles( _tag, lin_master_file, !vm.count("do-not-split-by-crate") );
+	*/
 	break;
       }
       return 0;
@@ -301,6 +317,8 @@ int main( int argc, char **argv )
 
     if (vm.count("create-lut-xml")) {
       while(1){
+	std::cout << "Broken without topology...\n";
+	/*
 	cout << "Creating XML with LUTs for all channels..." << "\n";
 	//int _cr = vm["crate"].as<int>();
 	string lin_master_file, comp_master_file;
@@ -330,12 +348,15 @@ int main( int argc, char **argv )
 	else{
 	  manager . createLinLutXmlFiles( _tag, lin_master_file, !vm.count("do-not-split-by-crate") );
 	}
+	*/
 	break;
       }
       return 0;
     }
 
     if (vm.count("create-lut-xml-from-coder")) {
+      std::cout << "Broken without topology...\n";
+      /*
       std::cout << "Creating XML with LUTs for all channels from TPG coder..." << "\n";
       if (!vm.count("tag-name")){
 	cout << "tag name is not specified...exiting" << std::endl;
@@ -344,6 +365,7 @@ int main( int argc, char **argv )
       std::string _tag = vm["tag-name"].as<std::string>();
       HcalLutManager manager;
       manager . createCompLutXmlFilesFromCoder( _tag, !vm.count("do-not-split-by-crate") );
+      */
       return 0;
     }
     
@@ -351,6 +373,8 @@ int main( int argc, char **argv )
 
     if (vm.count("create-lut-xml-lin-ascii-comp-coder")) {
       while(1){
+      std::cout << "Broken without topology...\n";
+      /*
 	cout << "Creating XML with LUTs for all channels..." << "\n";
 	//int _cr = vm["crate"].as<int>();
 	string lin_master_file, comp_master_file;
@@ -368,6 +392,7 @@ int main( int argc, char **argv )
 	string _tag = vm["tag-name"].as<std::string>();
 	HcalLutManager manager;
 	manager . createAllLutXmlFilesLinAsciiCompCoder( _tag, lin_master_file, !vm.count("do-not-split-by-crate") );
+      */
 	break;
       }
       return 0;
@@ -394,6 +419,8 @@ int main( int argc, char **argv )
     }
     
     if (vm.count("get-lut-xml-from-oracle")) {
+      std::cout << "Broken without topology...\n";
+      /*
       std::cout << "Getting LUTs from Oracle database..." << "\n";
       if (!vm.count("tag-name")){
 	cout << "tag name is not specified...exiting" << std::endl;
@@ -406,11 +433,14 @@ int main( int argc, char **argv )
       std::cout << "Accessing the database as " << _accessor << std::endl;
       std::cout << "Tag name: " << _tag << std::endl;
       manager . get_xml_files_from_db( _tag, _accessor, !vm.count("do-not-split-by-crate") );
+      */
       return 0;
     }
 
 
     if (vm.count("create-lut-loader")){
+      std::cout << "Broken without topology...\n";
+      /*
       std::cout << "===> Processing LUT XML files, creating the database loader..." << "\n";
       std::cout << "prefix: ";
       std::string _prefix = vm["prefix-name"].as<std::string>();
@@ -430,6 +460,7 @@ int main( int argc, char **argv )
       std::string _file_list = vm["file-list"].as<std::string>();
       HcalLutManager manager;
       manager . create_lut_loader( _file_list, _prefix, _tag, _comment, _version, _subversion );
+*/
       return 0;
     }
 
@@ -1612,6 +1643,8 @@ std::vector <std::string> splitString (const std::string& fLine) {
 
 void test_lut_gen( void )
 {
+      std::cout << "Broken without topology...\n";
+      /*
   HcalLutManager _manager;
   std::vector<unsigned int> _l;
   _l.push_back(0);
@@ -1620,4 +1653,5 @@ void test_lut_gen( void )
   _l.push_back(1);
   _l.push_back(2);
   std::cout << _manager . getLutXml( _l );
+      */
 }
