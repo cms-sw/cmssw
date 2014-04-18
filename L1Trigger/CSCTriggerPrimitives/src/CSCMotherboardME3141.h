@@ -49,6 +49,11 @@ class CSCMotherboardME3141 : public CSCMotherboard
   void retrieveRPCDigis(const RPCDigiCollection* digis, unsigned id);
   void printRPCTriggerDigis(int minBX, int maxBx);
 
+  RPCDigisBX matchingRPCDigis(const CSCCLCTDigi& cLCT, const RPCDigisBX& pads = RPCDigisBX(), bool first = true);  
+  RPCDigisBX matchingRPCDigis(const CSCALCTDigi& aLCT, const RPCDigisBX& pads = RPCDigisBX(), bool first = true);  
+  RPCDigisBX matchingRPCDigis(const CSCCLCTDigi& cLCT, const CSCALCTDigi& aLCT, const RPCDigisBX& pads = RPCDigisBX(), 
+			     bool first = true);  
+
   std::map<int,std::pair<double,double> > createRPCRollLUT(RPCDetId id);
 
  private: 
@@ -82,7 +87,7 @@ class CSCMotherboardME3141 : public CSCMotherboard
   int maxDeltaStripRPC_;
 
   // drop low quality stubs if they don't have RPCs
-  bool dropLowQualityCLCTsNoRPC_;
+  bool dropLowQualityCLCTsNoRPCs_;
   bool dropLowQualityALCTsNoRPCs_;
 
   std::map<int,std::pair<double,double> > rpcRollToEtaLimits_;
