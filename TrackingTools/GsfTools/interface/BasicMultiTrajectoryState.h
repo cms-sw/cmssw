@@ -20,7 +20,7 @@ class BasicMultiTrajectoryState GCC11_FINAL : public BasicTrajectoryState {
   
 public:
 
-  BasicMultiTrajectoryState( const std::vector<TSOS>& tsvec); 
+  explicit BasicMultiTrajectoryState( const std::vector<TSOS>& tsvec); 
 
   BasicMultiTrajectoryState() {}
 
@@ -33,7 +33,7 @@ public:
 
   void rescaleError(double factor);
 
-  virtual BasicMultiTrajectoryState* clone() const {
+  virtual BasicMultiTrajectoryState* clone() const override {
     return new BasicMultiTrajectoryState(*this);
   }
 
@@ -46,13 +46,14 @@ public:
   virtual void update( const LocalTrajectoryParameters& p,
                        const Surface& aSurface,
                        const MagneticField* field,
-                       const SurfaceSide side ) ;
+                       const SurfaceSide side ) override;
+
   virtual void update( const LocalTrajectoryParameters& p,
                        const LocalTrajectoryError& err,
                        const Surface& aSurface,
                        const MagneticField* field,
                        const SurfaceSide side,
-                       double weight ) ;
+                       double weight ) override;
 private:
 
   std::vector<TSOS> theStates;

@@ -45,25 +45,25 @@ class GsfPropagatorWithMaterial : public Propagator {
    */
   virtual std::pair<TrajectoryStateOnSurface,double>
   propagateWithPath (const TrajectoryStateOnSurface&,
-		     const Plane&) const;
+		     const Plane&) const override;
 
   /** Propagation to cylinder with path length calculation.
    */
   virtual std::pair<TrajectoryStateOnSurface,double>
   propagateWithPath (const TrajectoryStateOnSurface&,
-		     const Cylinder&) const;
+		     const Cylinder&) const override;
 
 
   /** Propagation to plane with path length calculation.
    *  Use from FTS implies single state (better use PropagatorWithMaterial)!
    */
   virtual std::pair<TrajectoryStateOnSurface,double> propagateWithPath (const FreeTrajectoryState&,
-								   const Plane&) const;
+								   const Plane&) const override;
   /** Propagation to cylinder with path length calculation.
    *  Use from FTS implies single state (better use PropagatorWithMaterial)!
    */
   virtual std::pair<TrajectoryStateOnSurface,double> propagateWithPath (const FreeTrajectoryState&,
-								   const Cylinder&) const;
+								   const Cylinder&) const override;
 
 
 

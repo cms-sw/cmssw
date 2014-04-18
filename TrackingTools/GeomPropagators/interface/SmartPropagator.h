@@ -73,12 +73,18 @@ class SmartPropagator GCC11_FINAL : public Propagator {
  private:
     std::pair<TrajectoryStateOnSurface,double>
       propagateWithPath(const FreeTrajectoryState& fts,
-                        const Plane& plane) const;
-
-
+                        const Plane& plane) const override;
+    
+    
     std::pair<TrajectoryStateOnSurface,double>
       propagateWithPath(const FreeTrajectoryState& fts,
-                        const Cylinder& cylinder) const;
+                        const Cylinder& cylinder) const override;
+    
+    virtual std::pair< TrajectoryStateOnSurface, double>
+      propagateWithPath (const TrajectoryStateOnSurface& tsos, const Plane& sur) const override;
+    
+    virtual std::pair< TrajectoryStateOnSurface, double>
+      propagateWithPath (const TrajectoryStateOnSurface& tsos, const Cylinder& sur) const override;
 
  public:
 

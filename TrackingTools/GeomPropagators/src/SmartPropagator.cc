@@ -118,6 +118,29 @@ SmartPropagator::propagateWithPath(const FreeTrajectoryState& fts,
   }
 }
 
+
+std::pair<TrajectoryStateOnSurface,double> 
+SmartPropagator::propagateWithPath(const TrajectoryStateOnSurface& fts, 
+                                   const Plane& plane) const 
+{
+  if (insideTkVol(*fts.freeState()) && insideTkVol(plane)) {
+    return getTkPropagator()->propagateWithPath(fts, plane);
+  } else {
+    return getGenPropagator()->propagateWithPath(fts, plane);
+  }
+}
+
+std::pair<TrajectoryStateOnSurface,double> 
+SmartPropagator::propagateWithPath(const TrajectoryStateOnSurface& fts, 
+                                   const Cylinder& cylinder) const
+{
+  if (insideTkVol(*fts.freeState()) && insideTkVol(cylinder)) {
+    return getTkPropagator()->propagateWithPath(fts, cylinder);
+  } else {
+    return getGenPropagator()->propagateWithPath(fts, cylinder);
+  }
+}
+
 bool SmartPropagator::insideTkVol(const FreeTrajectoryState& fts) const {
 
   GlobalPoint gp = fts.position();

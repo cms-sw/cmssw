@@ -37,6 +37,9 @@ namespace reco{class BeamSpot;}
  *  The propagator interface promises to take you to "any surface"
  *  but you should check the concrete propagator you are using for
  *  additional limitations.
+ *
+ *  derived classes have to implement the PropagateWithPath for Plane and Cylinder
+ *
  */
 
 class Propagator {
