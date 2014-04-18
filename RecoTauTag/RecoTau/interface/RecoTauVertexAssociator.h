@@ -73,7 +73,7 @@ class RecoTauVertexAssociator {
     //PJ adding quality cuts
     RecoTauQualityCuts* qcuts_;
     bool recoverLeadingTrk_;
-    enum { kLeadTrack, kLeadPFCand };
+    enum { kLeadTrack, kLeadPFCand, kFirstTrack };
     int leadingTrkOrPFCandOption_;
     // containers for holding vertices associated to jets
     std::map<const reco::PFJet*, reco::VertexRef>* jetToVertexAssociation_;

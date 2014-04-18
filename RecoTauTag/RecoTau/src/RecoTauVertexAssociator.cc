@@ -42,22 +42,26 @@ reco::TrackBaseRef RecoTauVertexAssociator::getLeadTrack(const PFJet& jet) const
   PFCandidatePtr leadPFCand;
   if ( selectedPFCands.size() >= 1 ) {
     double leadTrackPt = 0.;
-    for ( std::vector<PFCandidatePtr>::const_iterator pfCand = selectedPFCands.begin();
-	  pfCand != selectedPFCands.end(); ++pfCand ) {
-      const reco::Track* track = 0;
-      if ( (*pfCand)->trackRef().isNonnull() ) track = (*pfCand)->trackRef().get();
-      else if ( (*pfCand)->gsfTrackRef().isNonnull() ) track = (*pfCand)->gsfTrackRef().get();
-      if ( !track ) continue;
-      double trackPt = 0.;
-      if ( leadingTrkOrPFCandOption_ == kLeadTrack ) {
-	//double trackPt = track->pt();
-	trackPt = track->pt() - 2.*track->ptError();
-      } else if ( leadingTrkOrPFCandOption_ == kLeadPFCand ) {
-	trackPt = (*pfCand)->pt();
-      } else assert(0);
-      if ( trackPt > leadTrackPt ) {
-	leadPFCand = (*pfCand);
-	leadTrackPt = trackPt;
+    if ( leadingTrkOrPFCandOption_ == kFirstTrack){ leadPFCand=selectedPFCands[0];}
+    else
+    {
+      for ( std::vector<PFCandidatePtr>::const_iterator pfCand = selectedPFCands.begin();
+  	  pfCand != selectedPFCands.end(); ++pfCand ) {
+        const reco::Track* track = 0;
+        if ( (*pfCand)->trackRef().isNonnull() ) track = (*pfCand)->trackRef().get();
+        else if ( (*pfCand)->gsfTrackRef().isNonnull() ) track = (*pfCand)->gsfTrackRef().get();
+        if ( !track ) continue;
+        double trackPt = 0.;
+        if ( leadingTrkOrPFCandOption_ == kLeadTrack ) {
+  	  //double trackPt = track->pt();
+  	  trackPt = track->pt() - 2.*track->ptError();
+        } else if ( leadingTrkOrPFCandOption_ == kLeadPFCand ) {
+	  trackPt = (*pfCand)->pt();
+        } else assert(0);
+        if ( trackPt > leadTrackPt ) {
+          leadPFCand = (*pfCand);
+	  leadTrackPt = trackPt;
+        }
       }
     }
   }
@@ -187,12 +191,13 @@ RecoTauVertexAssociator::RecoTauVertexAssociator(
   recoverLeadingTrk_ = pset.exists("recoverLeadingTrk") ? pset.getParameter<bool>("recoverLeadingTrk") : false;
   // containers for holding vertices associated to jets
 
-  std::string leadingTrkOrPFCandOption_string = pset.getParameter<std::string>("leadingTrkOrPFCandOption");
+  std::string leadingTrkOrPFCandOption_string = pset.exists("leadingTrkOrPFCandOption") ? pset.getParameter<std::string>("leadingTrkOrPFCandOption") : "firstTrack" ;
   if      ( leadingTrkOrPFCandOption_string == "leadTrack"  ) leadingTrkOrPFCandOption_ = kLeadTrack;
   else if ( leadingTrkOrPFCandOption_string == "leadPFCand" ) leadingTrkOrPFCandOption_ = kLeadPFCand;
+  else if ( leadingTrkOrPFCandOption_string == "firstTrack" ) leadingTrkOrPFCandOption_ = kFirstTrack;
   else throw cms::Exception("BadVertexAssociatorConfig")
     << "Invalid Configuration parameter 'leadingTrkOrPFCandOption' " << leadingTrkOrPFCandOption_string << "." 
-    << " Valid options are: 'leadTrack', 'leadPFCand'.\n";
+    << " Valid options are: 'leadTrack', 'leadPFCand', 'firstTrack'.\n";
   
   verbosity_ = ( pset.exists("verbosity") ) ?
     pset.getParameter<int>("verbosity") : 0;

@@ -46,4 +46,5 @@ PFTauQualityCuts = cms.PSet(
     recoverLeadingTrk = cms.bool(False),
     leadingTrkOrPFCandOption = cms.string("leadPFCand")
     ##leadingTrkOrPFCandOption = cms.string("leadTrack")
+    ##leadingTrkOrPFCandOption = cms.string("firstTrack") #default behaviour until 710 (first track in the collection)
 )
