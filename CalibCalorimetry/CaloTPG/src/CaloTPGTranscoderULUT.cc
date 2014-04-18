@@ -377,10 +377,8 @@ bool CaloTPGTranscoderULUT::HTvalid(const int ieta, const int iphiin, const int 
 	if (iphi <= 0 || iphi > 72 || ieta == 0) return false;
     if (version==0 && abs(ieta) > 32) return false;
 	if (version==0 && abs(ieta) > 28) {
-	  if (newHFphi) {
-	    if ((iphi/4)*4 + 1 != iphi) return false;
-	    iphi = iphi/4 + 1;
-	  }
+	  if ((iphi/4)*4 + 1 != iphi) return false;
+	  iphi = iphi/4 + 1;	  
 	  if (iphi > 18) return false;
 	}
     if (version==1) {
@@ -399,7 +397,7 @@ int CaloTPGTranscoderULUT::getOutputLUTId(const int ieta, const int iphiin, cons
             if (ieta < 0) offset = NUM_V0_LUTS/2;
             if (ietaabs < 29) return 72*(ietaabs - 1) + (iphi - 1) + offset;
             else {
-                if (newHFphi) iphi = iphi/4 + 1;
+                iphi = iphi/4 + 1;
                 return 18*(ietaabs - 29) + iphi + 2015 + offset;
             }
         } else if (version == 1) {

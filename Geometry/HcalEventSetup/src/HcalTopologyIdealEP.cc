@@ -69,11 +69,13 @@ HcalTopologyIdealEP::fillDescriptions( edm::ConfigurationDescriptions & descript
   hcalTopologyConstants.add<std::string>( "mode", "HcalTopologyMode::LHC" );
   hcalTopologyConstants.add<int>( "maxDepthHB", 2 );
   hcalTopologyConstants.add<int>( "maxDepthHE", 3 );  
+  hcalTopologyConstants.add<std::string>( "triggerMode", "HcalTopologyMode::tm_LHC_RCT_and_1x1" );
 
   edm::ParameterSetDescription hcalSLHCTopologyConstants;
   hcalSLHCTopologyConstants.add<std::string>( "mode", "HcalTopologyMode::SLHC" );
   hcalSLHCTopologyConstants.add<int>( "maxDepthHB", 7 );
   hcalSLHCTopologyConstants.add<int>( "maxDepthHE", 7 );
+  hcalSLHCTopologyConstants.add<std::string>( "triggerMode", "HcalTopologyMode::tm_LHC_1x1" );
 
   edm::ParameterSetDescription desc;
   desc.addUntracked<std::string>( "Exclude", "" );
@@ -102,6 +104,7 @@ HcalTopologyIdealEP::produce(const IdealGeometryRecord& iRecord)
   HcalTopologyMode::Mode mode = HcalTopologyMode::LHC;
   int maxDepthHB = 2;
   int maxDepthHE = 3;
+  HcalTopologyMode::TriggerMode tmode = HcalTopologyMode::tm_LHC_RCT_and_1x1;
   if( m_pSet.exists( "hcalTopologyConstants" ))
   {
     const edm::ParameterSet hcalTopoConsts( m_pSet.getParameter<edm::ParameterSet>( "hcalTopologyConstants" ));
@@ -109,11 +112,14 @@ HcalTopologyIdealEP::produce(const IdealGeometryRecord& iRecord)
     mode = (HcalTopologyMode::Mode) eparser.parseString(hcalTopoConsts.getParameter<std::string>("mode"));
     maxDepthHB = hcalTopoConsts.getParameter<int>("maxDepthHB");
     maxDepthHE = hcalTopoConsts.getParameter<int>("maxDepthHE");
+    StringToEnumParser<HcalTopologyMode::TriggerMode> tparser;
+    tmode = (HcalTopologyMode::TriggerMode) tparser.parseString(hcalTopoConsts.getParameter<std::string>("triggerMode"));
+
   }
   //  std::cout << "mode = " << mode << ", maxDepthHB = " << maxDepthHB << ", maxDepthHE = " << maxDepthHE << std::endl;
-  edm::LogInfo("HCAL") << "mode = " << mode << ", maxDepthHB = " << maxDepthHB << ", maxDepthHE = " << maxDepthHE;
+  edm::LogInfo("HCAL") << "mode = " << mode << ", maxDepthHB = " << maxDepthHB << ", maxDepthHE = " << maxDepthHE << "trigger mode=" << tmode;
 
-  ReturnType myTopo(new HcalTopology( mode, maxDepthHB, maxDepthHE ));
+  ReturnType myTopo(new HcalTopology( mode, maxDepthHB, maxDepthHE, tmode ));
 
   HcalTopologyRestrictionParser parser(*myTopo);
   if (!m_restrictions.empty()) {

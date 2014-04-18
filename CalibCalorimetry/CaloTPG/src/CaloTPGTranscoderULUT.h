@@ -51,7 +51,6 @@ public:
   static const int NOUTLUTS = NUM_V0_LUTS + NUM_V1_LUTS;
   static const unsigned int OUTPUT_LUT_SIZE = 1024;
   static const int TPGMAX = 256;
-  static const bool newHFphi = true;
 
   // Member functions
   void loadHCALCompress(void) const; //Analytical compression tables
