@@ -25,7 +25,7 @@ def customise_Digi(process):
 def customise_L1Emulator(process):
     process.simCscTriggerPrimitiveDigis.rpcDigiProducer =  cms.untracked.InputTag("simMuonRPCDigis","")
     tmb = process.simCscTriggerPrimitiveDigis.tmbSLHC
-    tmb.me3141ILT = cms.PSet(
+    tmb.me3141ILT = cms.untracked.PSet(
         ## run the upgrade algorithm
         runME3141ILT = cms.untracked.bool(True),
         
