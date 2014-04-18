@@ -139,7 +139,7 @@ class CSCMotherboardME11 : public CSCMotherboard
 
   void retrieveGEMPads(const GEMCSCPadDigiCollection* pads, unsigned id, bool iscopad = false);
 
-  void createGEMPadLUT(bool isEven);
+  void createGEMRollEtaLUT(bool isEven);
 
   int assignGEMRoll(double eta);
   int deltaRoll(int wg, int roll);

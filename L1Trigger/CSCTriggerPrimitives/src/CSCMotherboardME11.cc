@@ -444,7 +444,7 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
     maxDeltaPadCoPad_ = isEven ? maxDeltaPadCoPadEven_ : maxDeltaPadCoPadOdd_;
     
     // LUT<roll,<etaMin,etaMax> >    
-    createGEMPadLUT(isEven);
+    createGEMRollEtaLUT(isEven);
     if (debug_luts){
       if (gemRollToEtaLimits_.size())
         for(auto p : gemRollToEtaLimits_) {
@@ -1975,7 +1975,7 @@ void CSCMotherboardME11::buildCoincidencePads(const GEMCSCPadDigiCollection* out
 }
 
 
-void CSCMotherboardME11::createGEMPadLUT(bool isEven)
+void CSCMotherboardME11::createGEMRollEtaLUT(bool isEven)
 {
   int ch(isEven ? 2 : 1);
   auto chamber(gem_g->chamber(GEMDetId(1,1,1,1,ch,0)));
