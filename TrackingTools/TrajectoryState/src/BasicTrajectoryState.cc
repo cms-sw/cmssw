@@ -46,7 +46,7 @@ BasicTrajectoryState(const SurfaceType& aSurface) :
   theValid(false),
   theSurfaceSide(SurfaceSideDefinition::atCenterOfSurface), 
   theSurfaceP( &aSurface), 
-  theWeight(0)
+  theWeight(1.)
 {}
 
 

@@ -119,8 +119,16 @@ public:
   BasicTrajectoryState( const LocalTrajectoryParameters& par,
 			const LocalTrajectoryError& err,
 			const SurfaceType& aSurface,
+			const MagneticField* field,
+			const SurfaceSide side) :
+    BasicTrajectoryState(par,err,aSurface,field, side, 1.){}
+
+  BasicTrajectoryState( const LocalTrajectoryParameters& par,
+			const LocalTrajectoryError& err,
+			const SurfaceType& aSurface,
 			const MagneticField* field) :
     BasicTrajectoryState(par,err,aSurface,field, SurfaceSideDefinition::atCenterOfSurface, 1.){}
+
   /** Constructor from local parameters, errors and surface. For multi-states the
    *  weight should be specified explicitely. For backward compatibility without
    *  specification of the side of the surface.
