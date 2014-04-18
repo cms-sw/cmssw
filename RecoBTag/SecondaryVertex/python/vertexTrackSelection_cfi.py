@@ -1,10 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoBTag.ImpactParameter.variableJTA_cfi import *
+from RecoBTag.Configuration.SLHCPixelBarrelLayerDef_cfi import *
 
 vertexTrackSelectionBlock = cms.PSet(
 	trackSelection = cms.PSet(
                 variableJTAPars,
+                PixelBarrelLayerDefBlock,
 		totalHitsMin = cms.uint32(8),
 		jetDeltaRMax = cms.double(0.3),
 		qualityClass = cms.string('highPurity'),
