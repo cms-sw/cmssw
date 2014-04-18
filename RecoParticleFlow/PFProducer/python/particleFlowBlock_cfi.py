@@ -16,12 +16,12 @@ particleFlowBlock = cms.EDProducer(
         cms.PSet( importerName = cms.string("GSFTrackImporter"),
                   source = cms.InputTag("pfTrackElec"),
                   gsfsAreSecondary = cms.bool(False),
-                  superClustersArePF = cms.bool(True) ),    
+                  superClustersArePF = cms.bool(False) ),    
         cms.PSet( importerName = cms.string("ConvBremTrackImporter"),
                   source = cms.InputTag("pfTrackElec") ),
         cms.PSet( importerName = cms.string("EGPhotonImporter"),
-                  source = cms.InputTag("mustachePhotons"),
-                  superClustersArePF = cms.bool(True),
+                  source = cms.InputTag("photons"),
+                  superClustersArePF = cms.bool(False),
                   SelectionChoice = cms.string("CombinedDetectorIso"),
                   SelectionDefinition = cms.PSet( 
                              minEt = cms.double(-99),
@@ -63,8 +63,7 @@ particleFlowBlock = cms.EDProducer(
         # to properly set SC based links you need to run ECAL importer
         # after you've imported all SCs to the block
         cms.PSet( importerName = cms.string("ECALClusterImporter"),
-                  source = cms.InputTag("particleFlowClusterECAL"),
-                  BCtoPFCMap = cms.InputTag('particleFlowSuperClusterECAL:PFClusterAssociationEBEE') ),
+                  source = cms.InputTag("particleFlowClusterECAL") ),
         cms.PSet( importerName = cms.string("GenericClusterImporter"),
                   source = cms.InputTag("particleFlowClusterHCAL") ),
         cms.PSet( importerName = cms.string("GenericClusterImporter"),

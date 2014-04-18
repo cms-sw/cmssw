@@ -17,15 +17,13 @@ public:
   ECALClusterImporter(const edm::ParameterSet& conf,
 		      edm::ConsumesCollector& sumes) :
     BlockElementImporterBase(conf,sumes),
-    _src(sumes.consumes<reco::PFClusterCollection>(conf.getParameter<edm::InputTag>("source"))),
-    _assoc(sumes.consumes<edm::ValueMap<reco::CaloClusterPtr> >(conf.getParameter<edm::InputTag>("BCtoPFCMap"))) {}
-  
+    _src(sumes.consumes<reco::PFClusterCollection>(conf.getParameter<edm::InputTag>("source"))){}
+     
   void importToBlock( const edm::Event& ,
 		      ElementList& ) const override;
 
 private:
   edm::EDGetTokenT<reco::PFClusterCollection> _src;
-  edm::EDGetTokenT<edm::ValueMap<reco::CaloClusterPtr> > _assoc;
 };
 
 DEFINE_EDM_PLUGIN(BlockElementImporterFactory, 
@@ -39,7 +37,6 @@ importToBlock( const edm::Event& e,
   edm::Handle<reco::PFClusterCollection> clusters;
   edm::Handle<edm::ValueMap<reco::CaloClusterPtr> > assoc;
   e.getByToken(_src,clusters);
-  e.getByToken(_assoc,assoc);
   auto bclus = clusters->cbegin();
   auto eclus = clusters->cend();
   // get all the SCs in the element list
@@ -56,14 +53,8 @@ importToBlock( const edm::Event& e,
       const reco::PFBlockElementSuperCluster* elem_as_sc =
 	static_cast<const reco::PFBlockElementSuperCluster*>(scelem->get());
       const reco::SuperClusterRef& this_sc = elem_as_sc->superClusterRef();
-      const bool in_sc = ( elem_as_sc->fromPFSuperCluster() ?
-			   // use association map if from PFSC
-			   ClusterClusterMapping::overlap(tempref,
-							  *this_sc,
-							  *assoc) :
-			   // match by overlapping rechit otherwise
-			   ClusterClusterMapping::overlap(*tempref,
-							  *this_sc) );
+      const bool in_sc = ClusterClusterMapping::overlap(*tempref,
+							*this_sc);
       if( in_sc ) {	
 	newelem->setSuperClusterRef(this_sc);
 	break;

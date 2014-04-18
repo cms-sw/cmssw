@@ -98,7 +98,7 @@ importToBlock( const edm::Event& e,
       } else {
 	scbe = new reco::PFBlockElementSuperCluster(scref);
 	scbe->setFromPhoton(true);
-	scbe->setFromPFSuperCluster(_superClustersArePF);
+	//scbe->setFromPFSuperCluster(_superClustersArePF);
 	scbe->setPhotonRef(phoref);
 	scbe->setTrackIso(photon->trkSumPtHollowConeDR04());
 	scbe->setEcalIso(photon->ecalRecHitSumEtConeDR04());

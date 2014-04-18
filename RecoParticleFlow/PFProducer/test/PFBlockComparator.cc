@@ -65,6 +65,7 @@ namespace MK = reco::MustacheKernel;
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementBrem.h"
 
+#include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"

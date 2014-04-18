@@ -70,7 +70,7 @@ importToBlock( const edm::Event& e,
 	    reco::PFBlockElementSuperCluster* scbe = 
 	      new reco::PFBlockElementSuperCluster(scref);
 	    scbe->setFromGsfElectron(true);
-	    scbe->setFromPFSuperCluster(_superClustersArePF);
+	    //scbe->setFromPFSuperCluster(_superClustersArePF);
 	    SCs_end = elems.insert(SCs_end,ElementType(scbe));
 	    ++SCs_end; // point to element *after* the new one
 	  }
