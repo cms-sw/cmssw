@@ -691,12 +691,35 @@ unsigned int HcalTopology::detId2denseIdHT(const DetId& id) const {
   unsigned int iphi = tid.iphi();
 
   unsigned int index;
-  if ((iphi-1)%4==0) index = (iphi-1)*32 + (ietaAbs-1) - (12*((iphi-1)/4));
-  else               index = (iphi-1)*28 + (ietaAbs-1) + (4*(((iphi-1)/4)+1));
-  
-  if (zside == -1) index += kHThalfPhase0;
+  if (tid.version() == 0) {  // LHC Run 1
+    if ((iphi-1)%4==0) index = (iphi-1)*32 + (ietaAbs-1) - (12*((iphi-1)/4));
+    else               index = (iphi-1)*28 + (ietaAbs-1) + (4*(((iphi-1)/4)+1));
 
-  return index;
+    if (zside == -1) index += kHThalfPhase0;
+
+    return index;
+  }
+  else if (tid.version() == 1) {  // HF 1x1 summing
+    int offset = kHThalfPhase0;
+    if (zside == -1) {
+      // The negative ieta values are stored on the back half of the array
+      // reserved for the new segmentation.
+      offset += (kHThalfPhase1 - kHThalfPhase0) / 2; 
+    }
+    // ieta 28, 29 have 72 iph
+    if (28 <= ietaAbs && ietaAbs <= 29) {
+      return 72 * (ietaAbs - 28) + (iphi - 1) + offset;
+    } 
+    // ieta 30-41 have 36 iphi (1,3,5,7,...)
+    else { 
+      offset += 2 * 72;  // Accounting for ieta 28, 29
+      // (iphi - 1)/2 takes 1,3,5... to 0,1,2...
+      return 36 * (ietaAbs - 30) + ((iphi - 1)/2) + offset;
+    }
+  } 
+
+  // Return -1 if passed an unhandled version or ieta
+  return -1;
 }
 
 unsigned int HcalTopology::detId2denseIdCALIB(const DetId& id) const {
