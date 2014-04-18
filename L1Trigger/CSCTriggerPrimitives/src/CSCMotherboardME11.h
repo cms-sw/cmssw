@@ -266,7 +266,7 @@ class CSCMotherboardME11 : public CSCMotherboard
   bool useOldLCTDataFormatALCTGEM_;
   bool useOldLCTDataFormatCLCTGEM_;
 
-  //
+  // send only first 2 lcts
   bool FirstTwoLCTsInME11_;
 
   // promote ALCT-GEM pattern

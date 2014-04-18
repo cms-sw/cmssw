@@ -153,6 +153,12 @@ CSCMotherboardME21::CSCMotherboardME21(unsigned endcap, unsigned station,
   // use "old" or "new" dataformat for integrated LCTs?
   useOldLCTDataFormatALCTGEM_ = me21tmbParams.getUntrackedParameter<bool>("useOldLCTDataFormatALCTGEM",true);
   useOldLCTDataFormatCLCTGEM_ = me21tmbParams.getUntrackedParameter<bool>("useOldLCTDataFormatCLCTGEM",true);
+
+  // promote ALCT-GEM pattern
+  promoteALCTGEMpattern_ = me21tmbParams.getUntrackedParameter<bool>("promoteALCTGEMpattern",false);
+
+  // promote ALCT-GEM quality
+  promoteALCTGEMquality_ = me21tmbParams.getUntrackedParameter<bool>("promoteALCTGEMquality",false);
 }
 
 CSCMotherboardME21::~CSCMotherboardME21() 
@@ -736,11 +742,11 @@ CSCCorrelatedLCTDigi CSCMotherboardME21::constructLCTsGEM(const CSCALCTDigi& alc
                                                           bool oldDataFormat) 
 {    
   if (oldDataFormat){
-    // CLCT pattern number - no pattern
-    unsigned int pattern = 0;
+    // CLCT pattern number - set it to a reasonably high value
+    unsigned int pattern = promoteALCTGEMpattern_ ? 4 : 0;
     
-    // LCT quality number
-    unsigned int quality = 11;
+    // LCT quality number - set it to a reasonably high value
+    unsigned int quality = promoteALCTGEMquality_ ? 14 : 11;
     
     // Bunch crossing
     int bx = alct.getBX();

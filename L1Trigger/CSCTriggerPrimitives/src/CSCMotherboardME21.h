@@ -184,6 +184,15 @@ class CSCMotherboardME21 : public CSCMotherboard
   bool useOldLCTDataFormatALCTGEM_;
   bool useOldLCTDataFormatCLCTGEM_;
 
+  // send only first 2 lcts
+  bool FirstTwoLCTsInME11_;
+
+  // promote ALCT-GEM pattern
+  bool promoteALCTGEMpattern_;
+
+  // promote ALCT-GEM quality
+  bool promoteALCTGEMquality_;
+
   std::map<int,std::pair<double,double> > gemRollToEtaLimitsShort_;
   std::map<int,std::pair<double,double> > gemRollToEtaLimitsLong_;
 
