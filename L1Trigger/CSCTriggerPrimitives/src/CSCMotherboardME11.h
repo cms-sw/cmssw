@@ -120,16 +120,14 @@ class CSCMotherboardME11 : public CSCMotherboard
 		     CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2);
 
   void correlateLCTs(CSCALCTDigi bestALCT, CSCALCTDigi secondALCT,
-             		     CSCCLCTDigi bestCLCT, CSCCLCTDigi secondCLCT,
+		     CSCCLCTDigi bestCLCT, CSCCLCTDigi secondCLCT,
                      CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2, int me,
                      const GEMPadsBX& pads = GEMPadsBX(), const GEMPadsBX& copads = GEMPadsBX());
 
-  void correlateLCTsGEM(CSCALCTDigi bestALCT, CSCALCTDigi secondALCT,
-			GEMCSCPadDigi gemPad,
+  void correlateLCTsGEM(CSCALCTDigi bestALCT, CSCALCTDigi secondALCT, GEMCSCPadDigi gemPad,
 			CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2, int me);
 
-  void correlateLCTsGEM(CSCCLCTDigi bestCLCT, CSCCLCTDigi secondCLCT,
-			GEMCSCPadDigi gemPad,
+  void correlateLCTsGEM(CSCCLCTDigi bestCLCT, CSCCLCTDigi secondCLCT, GEMCSCPadDigi gemPad,
 			CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2, int me);
 
   void matchGEMPads(enum ME11Part = ME1B);
@@ -147,13 +145,17 @@ class CSCMotherboardME11 : public CSCMotherboard
 
   CSCCorrelatedLCTDigi constructLCTsGEM(const CSCALCTDigi& alct, const GEMCSCPadDigi& gem,
                                         int me, bool oldDataFormat = false); 
-  
   CSCCorrelatedLCTDigi constructLCTsGEM(const CSCCLCTDigi& clct, const GEMCSCPadDigi& gem,
+                                        int me, bool oldDataFormat = true); 
+  CSCCorrelatedLCTDigi constructLCTsGEM(const CSCALCTDigi& alct, const CSCCLCTDigi& clct, 
+					const GEMCSCPadDigi& pad, const GEMCSCPadDigi& copad,
                                         int me, bool oldDataFormat = true); 
 
   unsigned int encodePatternGEM(const int ptn, const int highPt);
   unsigned int findQualityGEM(const CSCALCTDigi& aLCT, const GEMCSCPadDigi& gem);
   unsigned int findQualityGEM(const CSCCLCTDigi& cLCT, const GEMCSCPadDigi& gem);
+  unsigned int findQualityGEM(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, 
+			      const GEMCSCPadDigi& pad, const GEMCSCPadDigi& copad);
 
   void printGEMTriggerPads(int minBX, int maxBx, bool iscopad = false);
 
@@ -266,6 +268,12 @@ class CSCMotherboardME11 : public CSCMotherboard
 
   //
   bool FirstTwoLCTsInME11_;
+
+  // promote ALCT-GEM pattern
+  bool promoteALCTGEMpattern_;
+
+  // promote ALCT-GEM quality
+  bool promoteALCTGEMquality_;
 
   // map of roll N to min and max eta
   std::map<int,std::pair<double,double> > gemRollToEtaLimits_;

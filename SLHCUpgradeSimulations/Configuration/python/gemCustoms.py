@@ -83,6 +83,8 @@ def customise_L1Emulator(process, ptdphi):
         buildLCTfromALCTandGEM_ME1b = cms.untracked.bool(True),
         doLCTGhostBustingWithGEMs = cms.untracked.bool(False),
         correctLCTtimingWithGEM = cms.untracked.bool(True),
+        promoteALCTGEMpattern = cms.untracked.bool(True),
+        promoteALCTGEMquality = cms.untracked.bool(True),
         
         ## rate reduction 
         doGemMatching = cms.untracked.bool(True),
