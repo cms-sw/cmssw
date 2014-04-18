@@ -82,6 +82,7 @@ CSCTFUnpacker::CSCTFUnpacker(const edm::ParameterSet& pset):edm::EDProducer(),ma
 	produces<L1CSCTrackCollection>();
 	produces<L1CSCStatusDigiCollection>();
 	produces<CSCTriggerContainer<csctf::TrackStub> >("DT");
+	consumes<FEDRawDataCollection>(producer);
 }
 
 CSCTFUnpacker::~CSCTFUnpacker(){
