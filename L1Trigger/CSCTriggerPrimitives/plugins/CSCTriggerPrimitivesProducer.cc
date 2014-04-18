@@ -22,6 +22,7 @@
 #include "L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h"
 #include "CondFormats/DataRecord/interface/CSCBadChambersRcd.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 
 #include "DataFormats/CSCDigi/interface/CSCComparatorDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
@@ -43,6 +44,7 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
   wireDigiProducer_ = conf.getParameter<edm::InputTag>("CSCWireDigiProducer");
   compDigiProducer_ = conf.getParameter<edm::InputTag>("CSCComparatorDigiProducer");
   gemPadProducer_ = conf.getUntrackedParameter<edm::InputTag>("gemPadProducer", edm::InputTag());
+  rpcDigiProducer_ = conf.getUntrackedParameter<edm::InputTag>("rpcDigiProducer", edm::InputTag());
   checkBadChambers_ = conf.getUntrackedParameter<bool>("checkBadChambers", true);
 
   lctBuilder_ = new CSCTriggerPrimitivesBuilder(conf); // pass on the conf
@@ -68,7 +70,6 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
 					   const edm::EventSetup& setup) {
 
   LogDebug("L1CSCTrigger") << "start producing LCTs for event " << ++iev;
-
   // Find the geometry (& conditions?) for this event & cache it in 
   // CSCTriggerGeometry.
   {
@@ -85,6 +86,16 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
       edm::LogInfo("L1CSCTPEmulatorNoGEMGeometry") 
 	<< "+++ Info: GEM geometry is unavailable. Running CSC-only trigger algorithm. +++\n";
     }
+
+    edm::ESHandle<RPCGeometry> h_rpc;
+    try {
+      setup.get<MuonGeometryRecord>().get(h_rpc);
+      lctBuilder_->setRPCGeometry(&*h_rpc);
+    } catch (edm::eventsetup::NoProxyException<RPCGeometry>& e) {
+      edm::LogInfo("L1CSCTPEmulatorNoRPCGeometry") 
+	<< "+++ Info: RPC geometry is unavailable. Running CSC-only trigger algorithm. +++\n";
+    }
+
   }
 
   // Find conditions data for bad chambers.
@@ -119,6 +130,13 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
     gemPads = h_pads.product();
   }
 
+  const RPCDigiCollection *rpcDigis = nullptr;
+  if (!rpcDigiProducer_.label().empty()) {
+    edm::Handle<RPCDigiCollection> h_rpcs;
+    ev.getByLabel(rpcDigiProducer_, h_rpcs);
+    rpcDigis = h_rpcs.product();
+  }
+
   // Create empty collections of ALCTs, CLCTs, and correlated LCTs upstream
   // and downstream of MPC.
   std::auto_ptr<CSCALCTDigiCollection> oc_alct(new CSCALCTDigiCollection);
@@ -147,7 +165,7 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
                                                 std::shared_ptr<const CSCBadChambers>{pBadChambers.product(), [](const void*){}} :
                                                 std::make_shared<const CSCBadChambers>());
     lctBuilder_->build(temp.get(),
-                       wireDigis.product(), compDigis.product(), gemPads,
+                       wireDigis.product(), compDigis.product(), gemPads, rpcDigis,
                        *oc_alct, *oc_clct, *oc_pretrig, *oc_lct, *oc_sorted_lct);
   }
 
