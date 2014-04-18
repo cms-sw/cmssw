@@ -108,7 +108,8 @@ void HcalLutGenerator::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   //
   //HcalLutManager * manager = new HcalLutManager(); // old ways
   //HcalLutManager * manager = new HcalLutManager(&(*hEmap));
-  HcalLutManager * manager = new HcalLutManager(&(*hEmap), _cq, _status_word_to_mask);
+  HcalTopology aHorribleHack(HcalTopologyMode::LHC,2,3);
+  HcalLutManager * manager = new HcalLutManager(&aHorribleHack,&(*hEmap), _cq, _status_word_to_mask);
   bool split_by_crate = true;
   std::cout << " tag name: " << _tag << std::endl;
   std::cout << " HO master file: " << _lin_file << std::endl;

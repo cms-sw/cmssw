@@ -23,6 +23,9 @@ public:
   /** \brief Constructor from signed ieta, iphi, depth
   */
   HcalTrigTowerDetId(int ieta, int iphi, int depth);
+  /** \brief Constructor from signed ieta, iphi, depth, version
+  */
+  HcalTrigTowerDetId(int ieta, int iphi, int depth, int version);
 
   /** Constructor from a generic cell id */
   HcalTrigTowerDetId(const DetId& id);

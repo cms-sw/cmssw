@@ -29,7 +29,8 @@ public:
   /// number of towers (version dependent)
   int nTowers(int version) const {return (version==0)?(32):(41);}
 
-
+  // get the topology pointer
+  const HcalTopology& topology() const { return *theTopology; }
 
  private:
 
