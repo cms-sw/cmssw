@@ -37,7 +37,8 @@ options.parseArguments()
 
 process.MessageLogger = cms.Service("MessageLogger",
                                     out = cms.untracked.PSet(threshold = cms.untracked.string('INFO')),
-                                    destinations = cms.untracked.vstring('out')
+                                    cout = cms.untracked.PSet(threshold = cms.untracked.string('WARNING')),
+                                    destinations = cms.untracked.vstring('out','cout')
                                     )
 
 process.source = cms.Source("EmptyIOVSource",
