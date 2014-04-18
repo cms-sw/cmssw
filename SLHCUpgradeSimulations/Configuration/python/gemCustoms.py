@@ -93,6 +93,10 @@ def customise_L1Emulator(process, ptdphi):
         gemMatchDeltaPhiOdd = cms.untracked.double(dphi_lct_pad98[ptdphi]['odd']),
         gemMatchDeltaPhiEven = cms.untracked.double(dphi_lct_pad98[ptdphi]['even']),
         gemClearNomatchLCTs = cms.untracked.bool(False),
+
+        ## cross BX algorithm
+        tmbCrossBxAlgorithm = cms.untracked.uint32(3),
+        firstTwoLCTsInChamber = cms.untracked.bool(True),
     )
     if tmb.me11ILT.runME11ILT:
         process.simCscTriggerPrimitiveDigis.clctSLHC.clctNplanesHitPattern = 3
@@ -147,6 +151,7 @@ def customise_L1Emulator(process, ptdphi):
 
         ## cross BX algorithm
         tmbCrossBxAlgorithm = cms.untracked.uint32(3),
+        firstTwoLCTsInChamber = cms.untracked.bool(True),
     )
     
     if tmb.me21ILT.runME21ILT:

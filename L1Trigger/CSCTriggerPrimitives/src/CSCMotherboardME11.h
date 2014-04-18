@@ -119,10 +119,10 @@ class CSCMotherboardME11 : public CSCMotherboard
 		     CSCCLCTDigi bestCLCT, CSCCLCTDigi secondCLCT,
 		     CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2);
 
-  void correlateLCTs(CSCALCTDigi bestALCT, CSCALCTDigi secondALCT,
-		     CSCCLCTDigi bestCLCT, CSCCLCTDigi secondCLCT,
-                     CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2, int me,
-                     const GEMPadsBX& pads = GEMPadsBX(), const GEMPadsBX& copads = GEMPadsBX());
+  void correlateLCTsGEM(CSCALCTDigi bestALCT, CSCALCTDigi secondALCT,
+			CSCCLCTDigi bestCLCT, CSCCLCTDigi secondCLCT,
+			CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2, int me,
+			const GEMPadsBX& pads = GEMPadsBX(), const GEMPadsBX& copads = GEMPadsBX());
 
   void correlateLCTsGEM(CSCALCTDigi bestALCT, CSCALCTDigi secondALCT, GEMCSCPadDigi gemPad,
 			CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2, int me);
@@ -266,7 +266,7 @@ class CSCMotherboardME11 : public CSCMotherboard
   bool useOldLCTDataFormatCLCTGEM_;
 
   // send only first 2 lcts
-  bool FirstTwoLCTsInME11_;
+  bool firstTwoLCTsInChamber_;
 
   // promote ALCT-GEM pattern
   bool promoteALCTGEMpattern_;

@@ -305,6 +305,9 @@ CSCMotherboardME11::CSCMotherboardME11(unsigned endcap, unsigned station,
 
   // promote ALCT-GEM quality
   promoteALCTGEMquality_ = me11tmbParams.getUntrackedParameter<bool>("promoteALCTGEMquality",false);
+
+  // send first 2 LCTs
+  firstTwoLCTsInChamber_ = me11tmbParams.getUntrackedParameter<bool>("firstTwoLCTsInChamber",false);
 }
 
 
@@ -612,9 +615,9 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
             << "; match window: [" << bx_alct_start << "; " << bx_alct_stop
             << "]; bx_alct = " << bx_alct;
           int mbx = bx_alct_stop - bx_alct;
-          correlateLCTs(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
-                        clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct],
-                        allLCTs1b[bx_alct][mbx][0], allLCTs1b[bx_alct][mbx][1], ME1B);
+          correlateLCTsGEM(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
+			   clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct],
+			   allLCTs1b[bx_alct][mbx][0], allLCTs1b[bx_alct][mbx][1], ME1B);
           if (allLCTs1b[bx_alct][mbx][0].isValid()) {
             used_alct_mask[bx_alct] += 1;
             if (match_earliest_alct_me11_only) break;
@@ -682,9 +685,9 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
 	    << "; match window: [" << bx_alct_start << "; " << bx_alct_stop
 	    << "]; bx_alct = " << bx_alct;
 	  int mbx = bx_alct_stop - bx_alct;
-	  correlateLCTs(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
-			clct1a->bestCLCT[bx_clct], clct1a->secondCLCT[bx_clct],
-			allLCTs1a[bx_alct][mbx][0], allLCTs1a[bx_alct][mbx][1], ME1A);
+	  correlateLCTsGEM(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
+			   clct1a->bestCLCT[bx_clct], clct1a->secondCLCT[bx_clct],
+			   allLCTs1a[bx_alct][mbx][0], allLCTs1a[bx_alct][mbx][1], ME1A);
 	  if (allLCTs1a[bx_alct][mbx][0].isValid())
 	  {
 	    used_alct_mask_1a[bx_alct] += 1;
@@ -767,9 +770,9 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
           hasLCTs = true;
           //	    if (infoV > 1) LogTrace("CSCMotherboard")
           int mbx = bx_clct-bx_clct_start;
-          correlateLCTs(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
-                        clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct],
-                        allLCTs1b[bx_alct][mbx][0], allLCTs1b[bx_alct][mbx][1], ME1B, pads_[bx_clct], coPads_[bx_clct]);
+          correlateLCTsGEM(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
+			   clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct],
+			   allLCTs1b[bx_alct][mbx][0], allLCTs1b[bx_alct][mbx][1], ME1B, pads_[bx_clct], coPads_[bx_clct]);
           if (debug_gem_matching) {
             std::cout << "Successful ALCT-CLCT match in ME1b: bx_alct = " << bx_alct
                       << "; match window: [" << bx_clct_start << "; " << bx_clct_stop
@@ -875,9 +878,9 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
           }
           ++nSuccesFulMatches;
           int mbx = bx_clct-bx_clct_start;
-          correlateLCTs(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
-                        clct1a->bestCLCT[bx_clct], clct1a->secondCLCT[bx_clct],
-                        allLCTs1a[bx_alct][mbx][0], allLCTs1a[bx_alct][mbx][1], ME1A, pads_[bx_clct], coPads_[bx_clct]);
+          correlateLCTsGEM(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
+			   clct1a->bestCLCT[bx_clct], clct1a->secondCLCT[bx_clct],
+			   allLCTs1a[bx_alct][mbx][0], allLCTs1a[bx_alct][mbx][1], ME1A, pads_[bx_clct], coPads_[bx_clct]);
           if (debug_gem_matching) {
             std::cout << "Successful ALCT-CLCT match in ME1a: bx_alct = " << bx_alct
                       << "; match window: [" << bx_clct_start << "; " << bx_clct_stop
@@ -1320,7 +1323,7 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::sortLCTsByQuality(enum ME1
       LCTs_tmp.insert(LCTs_tmp.begin(), LCTs1b.begin(), LCTs1b.end());
       LCTs_tmp.insert(LCTs_tmp.end(), LCTs1a.begin(), LCTs1a.end());
       LCTs_tmp1 = sortLCTsByQuality(LCTs_tmp);//LCTs reduction per BX
-      if (FirstTwoLCTsInME11_)
+      if (firstTwoLCTsInChamber_)
         {
           std::vector<CSCCorrelatedLCTDigi>::iterator itp = LCTs_tmp1.begin();
           for ( ; itp != LCTs_tmp1.end(); itp++)
@@ -1428,7 +1431,7 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::sortLCTsByGEMDPhi(enum ME1
       LCTs_tmp.insert(LCTs_tmp.begin(), LCTs1b.begin(), LCTs1b.end());
       LCTs_tmp.insert(LCTs_tmp.end(), LCTs1a.begin(), LCTs1a.end());
       LCTs_tmp1 = sortLCTsByGEMDPhi(LCTs_tmp);//LCTs reduction per BX
-      if (FirstTwoLCTsInME11_)
+      if (firstTwoLCTsInChamber_)
         {
           std::vector<CSCCorrelatedLCTDigi>::iterator itp = LCTs_tmp1.begin();
           while (itp != LCTs_tmp1.end())
@@ -1588,15 +1591,15 @@ void CSCMotherboardME11::correlateLCTsGEM(CSCCLCTDigi bestCLCT,
   }
 }
 
-void CSCMotherboardME11::correlateLCTs(CSCALCTDigi bestALCT,
-				       CSCALCTDigi secondALCT,
-				       CSCCLCTDigi bestCLCT,
-				       CSCCLCTDigi secondCLCT,
-				       CSCCorrelatedLCTDigi& lct1,
-				       CSCCorrelatedLCTDigi& lct2,
-				       int me, 
-				       const GEMPadsBX& pads, 
-				       const GEMPadsBX& copads)
+void CSCMotherboardME11::correlateLCTsGEM(CSCALCTDigi bestALCT,
+					  CSCALCTDigi secondALCT,
+					  CSCCLCTDigi bestCLCT,
+					  CSCCLCTDigi secondCLCT,
+					  CSCCorrelatedLCTDigi& lct1,
+					  CSCCorrelatedLCTDigi& lct2,
+					  int me, 
+					  const GEMPadsBX& pads, 
+					  const GEMPadsBX& copads)
 {
   // assume that always anodeBestValid and cathodeBestValid
   
@@ -2233,8 +2236,7 @@ unsigned int CSCMotherboardME11::findQualityGEM(const CSCALCTDigi& aLCT, const C
 	int n_gem = 0;  
 	if (hasPad) n_gem = 1;
 	if (hasCoPad) n_gem = 2;
-        bool a4 = (aLCT.getQuality() >= 1);
-	//        bool c4 = (cLCT.getQuality() >= 4);
+        const bool a4(aLCT.getQuality() >= 1);
 	const bool c4((cLCT.getQuality() >= 4) or (cLCT.getQuality() >= 3 and n_gem>=1));
         //              quality = 4; "reserved for low-quality muons in future"
         if      (!a4 && !c4) quality = 5; // marginal anode and cathode
