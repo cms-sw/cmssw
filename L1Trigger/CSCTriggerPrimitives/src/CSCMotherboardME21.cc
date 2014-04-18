@@ -236,7 +236,19 @@ CSCMotherboardME21::run(const CSCWireDigiCollection* wiredc,
           std::cout << "pad "<< p.first << " min eta " << (p.second).first << " max eta " << (p.second).second << std::endl;
         }
     }
-    
+    /*
+    // loop on all wiregroups to create a LUT <WG,rollMin,rollMax>
+    const int numberOfWG(keyLayerGeometry->numberOfWireGroups());
+    for (int i = 0; i< numberOfWG; ++i){
+      auto eta(isEven ? lut_wg_eta_even[i][1] : lut_wg_eta_odd[i][1]); 
+      cscWgToGemRollLong_[i] = assignGEMRoll(eta);
+    }
+    if (debug_luts){
+      for(auto p : cscWgToGemRollLong_) {
+        std::cout << "WG "<< p.first << " GEM pads " << (p.second).first << " " << (p.second).second << std::endl;
+      }
+    }
+    */
     auto randRoll(gemChamberLong->etaPartition(2));
     auto nStrips(keyLayerGeometry->numberOfStrips());
     for (float i = 0; i< nStrips; i = i+0.5){
@@ -1141,4 +1153,19 @@ void CSCMotherboardME21::matchGEMPads()
         if (allLCTs[bx][mbx][i].isValid()) nlct_after++;
       }
   if (debug_gem_matching) std::cout<<"before "<<nlct<<"  after "<<nlct_after<<std::endl;
+}
+
+
+int CSCMotherboardME21::assignGEMRoll(double eta)
+{
+  int result = -99;
+  for(auto p : gemPadToEtaLimitsLong_) {
+    const float minEta((p.second).first);
+    const float maxEta((p.second).second);
+    if (minEta <= eta and eta <= maxEta) {
+      result = p.first;
+      break;
+    }
+  }
+  return result;
 }

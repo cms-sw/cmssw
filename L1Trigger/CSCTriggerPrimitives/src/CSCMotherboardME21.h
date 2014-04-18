@@ -189,6 +189,9 @@ class CSCMotherboardME21 : public CSCMotherboard
 
   std::map<int,std::pair<int,int>> cscWgToGemRollShort_;
   std::map<int,std::pair<int,int>> cscWgToGemRollLong_;
+/*   std::map<int,int> cscWgToGemRollShort_; */
+/*   std::map<int,int> cscWgToGemRollLong_; */
+
 
   // map of pad to HS
   std::map<int,int> gemPadToCscHs_;
