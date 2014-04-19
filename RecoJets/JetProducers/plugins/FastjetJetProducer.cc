@@ -55,6 +55,7 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
   : VirtualJetProducer( iConfig ),
     useMassDropTagger_(false),
     useFiltering_(false),
+    useDynamicFiltering_(false),
     useTrimming_(false),
     usePruning_(false),
     useCMSBoostedTauSeedingAlgorithm_(false),
@@ -62,6 +63,7 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
     muCut_(-1.0),
     yCut_(-1.0),
     rFilt_(-1.0),
+    rFiltFactor_(-1.0),
     nFilt_(-1),
     trimPtFracMin_(-1.0),
     zCut_(-1.0),
@@ -103,11 +105,13 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
        iConfig.exists("useCMSBoostedTauSeedingAlgorithm") ) {
     useMassDropTagger_=false;
     useFiltering_=false;
+    useDynamicFiltering_=false;
     useTrimming_=false;
     usePruning_=false;
     useCMSBoostedTauSeedingAlgorithm_=false;
     useKtPruning_=false;
     rFilt_=-1.0;
+    rFiltFactor_=-1.0;
     nFilt_=-1;
     trimPtFracMin_=-1.0;
     zCut_=-1.0;
@@ -134,6 +138,12 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
       useFiltering_ = iConfig.getParameter<bool>("useFiltering");
       rFilt_ = iConfig.getParameter<double>("rFilt");
       nFilt_ = iConfig.getParameter<int>("nFilt");
+      if ( iConfig.exists("useDynamicFiltering") ) {
+        useDynamicFiltering_ = iConfig.getParameter<bool>("useDynamicFiltering");
+        rFiltFactor_ = iConfig.getParameter<double>("rFiltFactor");
+        if ( useDynamicFiltering_ )
+          rFiltDynamic_ = DynamicRfiltPtr(new DynamicRfilt(rFilt_, rFiltFactor_));
+      }
     }
   
     if ( iConfig.exists("useTrimming") ) {
@@ -363,6 +373,8 @@ void FastjetJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup cons
     fastjet::contrib::CMSBoostedTauSeedingAlgorithm tau_tagger( subjetPtMin_, muMin_, muMax_, yMin_, yMax_, dRMin_, dRMax_, maxDepth_, verbosity_ );
     fastjet::Filter trimmer( fastjet::Filter(fastjet::JetDefinition(fastjet::kt_algorithm, rFilt_), fastjet::SelectorPtFractionMin(trimPtFracMin_)));
     fastjet::Filter filter( fastjet::Filter(fastjet::JetDefinition(fastjet::cambridge_algorithm, rFilt_), fastjet::SelectorNHardest(nFilt_)));
+    if ( useDynamicFiltering_ )
+      filter = fastjet::Filter( fastjet::Filter(&*rFiltDynamic_, fastjet::SelectorNHardest(nFilt_)));
     fastjet::Pruner pruner(fastjet::cambridge_algorithm, zCut_, RcutFactor_);
     if ( useKtPruning_ )
       pruner = fastjet::Pruner(fastjet::kt_algorithm, zCut_, RcutFactor_);
@@ -378,11 +390,11 @@ void FastjetJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup cons
     if ( useTrimming_ ) {
       transformers.push_back(&trimmer);
     } 
-    if ( useFiltering_ ) {
-      transformers.push_back(&filter);
-    } 
     if ( usePruning_ ) {
       transformers.push_back(&pruner);
+    }
+    if ( useFiltering_ ) {
+      transformers.push_back(&filter);
     }
 
     for ( std::vector<fastjet::PseudoJet>::const_iterator ijet = tempJets.begin(),
