@@ -32,10 +32,12 @@ TrajectoryStateOnSurface GsfMultiStateUpdator::update(const TrajectoryStateOnSur
        iter != predictedComponents.end(); iter++) {
     TrajectoryStateOnSurface updatedTSOS = KFUpdator().update(*iter, aRecHit);
     if (updatedTSOS.isValid()){
-      result.addState(TrajectoryStateOnSurface(updatedTSOS.localParameters(),
+      result.addState(TrajectoryStateOnSurface(weights[i], 
+                                               updatedTSOS.localParameters(),
 					       updatedTSOS.localError(), updatedTSOS.surface(), 
 					       &(tsos.globalParameters().magneticField()),
-					       (*iter).surfaceSide(), weights[i]));
+					       (*iter).surfaceSide()
+                                              ));
     i++;
     }
     else{

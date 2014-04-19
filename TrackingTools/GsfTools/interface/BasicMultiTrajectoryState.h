@@ -48,12 +48,12 @@ public:
                        const MagneticField* field,
                        const SurfaceSide side ) override;
 
-  virtual void update( const LocalTrajectoryParameters& p,
+  virtual void update(double weight,
+                       const LocalTrajectoryParameters& p,
                        const LocalTrajectoryError& err,
                        const Surface& aSurface,
                        const MagneticField* field,
-                       const SurfaceSide side,
-                       double weight ) override;
+                       const SurfaceSide side) override;
 private:
 
   std::vector<TSOS> theStates;

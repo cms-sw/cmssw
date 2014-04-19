@@ -111,8 +111,7 @@ BasicTrajectoryState( const LocalTrajectoryParameters& par,
 		      const LocalTrajectoryError& err,
 		      const SurfaceType& aSurface,
 		      const MagneticField* field,
-		      const SurfaceSide side,
-		      double weight) :
+		      const SurfaceSide side) :
   theFreeState(makeFTS(par,aSurface,field)),
   theLocalError(err),
   theLocalParameters(par),
@@ -120,7 +119,7 @@ BasicTrajectoryState( const LocalTrajectoryParameters& par,
   theValid(true),
   theSurfaceSide(side), 
   theSurfaceP( &aSurface),
-  theWeight(weight)
+  theWeight(1.)
 {}
 
 
@@ -248,12 +247,12 @@ BasicTrajectoryState::update( const LocalTrajectoryParameters& p,
 }
 
 void
-BasicTrajectoryState::update( const LocalTrajectoryParameters& p,
-        const LocalTrajectoryError& err,
-        const SurfaceType& aSurface,
-        const MagneticField* field,
-        const SurfaceSide side, 
-        double weight) 
+BasicTrajectoryState::update(double weight,
+			     const LocalTrajectoryParameters& p,
+			     const LocalTrajectoryError& err,
+			     const SurfaceType& aSurface,
+			     const MagneticField* field,
+			     const SurfaceSide side) 
 {
     theLocalParameters = p;
     theLocalError      = err;

@@ -167,6 +167,7 @@ public:
                const LocalTrajectoryError& err,
                SurfaceSide side) {unsharedData().update(p, err, side);}
 
+  /*
   void update( const GlobalTrajectoryParameters& par,
 	       const SurfaceType& aSurface,
 	       SurfaceSide side) { unsharedData().update(par, aSurface, side);}
@@ -175,7 +176,7 @@ public:
                const CurvilinearTrajectoryError& err,
                const SurfaceType& aSurface,
                SurfaceSide side) { unsharedData().update(par, err, aSurface, side);}
-
+  */
 
   /** Mutator from local parameters, errors and surface. For surfaces 
    *  with material the side of the surface should be specified explicitely. 
@@ -183,12 +184,11 @@ public:
    *  If the underlying trajectory state supports updates, it will be updated, otherwise this method will
    *  just behave like creating a new TSOS (which will make a new BasicSingleTrajectoryState)
    */
-  void update( const LocalTrajectoryParameters& p,
-	       const LocalTrajectoryError& err,
-               const SurfaceType& aSurface,
-               const MagneticField* field,
-               SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface, 
-               double weight = 1.);
+  void update(const LocalTrajectoryParameters& p,
+	      const LocalTrajectoryError& err,
+	      const SurfaceType& aSurface,
+	      const MagneticField* field,
+	      SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface);
   /*
 #ifndef CMS_NOCXX11
   template<typename... Args>

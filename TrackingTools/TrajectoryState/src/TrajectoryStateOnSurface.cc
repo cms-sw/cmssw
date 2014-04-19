@@ -22,16 +22,15 @@ update( const LocalTrajectoryParameters& p,
 
 void
 TrajectoryStateOnSurface::
-update( const LocalTrajectoryParameters& p,
-        const LocalTrajectoryError& err,
-        const SurfaceType& aSurface,
-        const MagneticField* field,
-        const SurfaceSide side, 
-        double weight) 
+update(const LocalTrajectoryParameters& p,
+       const LocalTrajectoryError& err,
+       const SurfaceType& aSurface,
+       const MagneticField* field,
+       const SurfaceSide side) 
 {
    if (data().canUpdateLocalParameters()) {
-        unsharedData().update(p, err, aSurface, field, side, weight);
+     unsharedData().update(1., p, err, aSurface, field, side);
     } else {
-     *this = TrajectoryStateOnSurface(weight, p, err, aSurface, field, side );
+     *this = TrajectoryStateOnSurface(1., p, err, aSurface, field, side );
     }
 }
