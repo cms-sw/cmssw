@@ -519,9 +519,16 @@ def main():
 
     opts, args = parser.parse_known_args()
 
+    logLevel = logging.INFO
+    if opts.verbose < 1 and opts.output and opts.package:   # assume we're called by scram and reduce logging - but only if no verbose is requested
+       logLevel = logging.WARNING
+
+    if opts.verbose >= 1: 
+       logLevel = logging.DEBUG
+
     logging.basicConfig(
         format = '[%(asctime)s] %(levelname)s: %(message)s',
-        level = logging.DEBUG if opts.verbose >= 1 else logging.INFO,
+        level = logLevel,
     )
 
     if opts.package:  # we got a directory name to process, assume it's from scram and remove the last ('/src') dir from the path
