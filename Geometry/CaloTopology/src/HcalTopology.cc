@@ -685,25 +685,34 @@ unsigned int HcalTopology::detId2denseIdHF(const DetId& id) const {
 }
 
 unsigned int HcalTopology::detId2denseIdHT(const DetId& id) const {
-  HcalTrigTowerDetId tid(id); 
-  int zside = tid.zside();
-  unsigned int ietaAbs = tid.ietaAbs();
-  unsigned int iphi = tid.iphi();
+  const HcalTrigTowerDetId tid(id);
+  const int zside = tid.zside();
+  const unsigned int ietaAbs = tid.ietaAbs();
+  const unsigned int iphi = tid.iphi();
+  // LHC Run 1
+  if (tid.version() == 0) {
+    unsigned int index;
+    if ((iphi-1)%4 == 0) { 
+      index = (iphi-1)*32 + (ietaAbs-1) - (12*((iphi-1)/4));
+    } else {
+      index = (iphi-1)*28 + (ietaAbs-1) + (4*(((iphi-1)/4)+1));
+    }
 
-  unsigned int index;
-  if (tid.version() == 0) {  // LHC Run 1
-    if ((iphi-1)%4==0) index = (iphi-1)*32 + (ietaAbs-1) - (12*((iphi-1)/4));
-    else               index = (iphi-1)*28 + (ietaAbs-1) + (4*(((iphi-1)/4)+1));
-
-    if (zside == -1) index += kHThalfPhase0;
+    if (zside == -1) {
+      index += kHThalfPhase0;
+    }
 
     return index;
   }
-  else if (tid.version() == 1) {  // HF 1x1 summing
+  // HF 1x1 summing and LHC Run 1 simultaneously
+  else if (tid.version() == 1) {
     int offset = kHThalfPhase0;
     if (zside == -1) {
-      // The negative ieta values are stored on the back half of the array
-      // reserved for the new segmentation.
+      // The negative ieta values are stored on the back half of the part of
+      // the array reserved for the new segmentation. kHThalfPhase1 is
+      // kHThalfPhase0 + the size of the Version 1 bit on the end, so we
+      // subtract off kHThalfPhase0 and then divid by 2 to find the halfway
+      // point.
       offset += (kHThalfPhase1 - kHThalfPhase0) / 2; 
     }
     // ieta 28, 29 have 72 iph
@@ -711,7 +720,7 @@ unsigned int HcalTopology::detId2denseIdHT(const DetId& id) const {
       return 72 * (ietaAbs - 28) + (iphi - 1) + offset;
     } 
     // ieta 30-41 have 36 iphi (1,3,5,7,...)
-    else { 
+    else if (30 <= ietaAbs && ietaAbs <= 41) {
       offset += 2 * 72;  // Accounting for ieta 28, 29
       // (iphi - 1)/2 takes 1,3,5... to 0,1,2...
       return 36 * (ietaAbs - 30) + ((iphi - 1)/2) + offset;
