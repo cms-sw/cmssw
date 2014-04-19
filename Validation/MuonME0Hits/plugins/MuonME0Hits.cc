@@ -155,11 +155,6 @@ EffRootFileName_(iConfig.getUntrackedParameter<std::string>("EffRootFileName"))
    //now do what ever initialization is needed
     dbe = edm::Service<DQMStore>().operator->();
     
-    if(debug_) std::cout<<"booking Global histograms with "<<folderPath_<<std::endl;
-    std::string folder;
-    folder = folderPath_;
-    dbe->setCurrentFolder(folder);
-    
     cfg_ = iConfig.getParameter<edm::ParameterSet>("simTrackMatching");
     auto simTrack = cfg_.getParameter<edm::ParameterSet>("simTrack");
     simTrackInput_ = simTrack.getParameter<edm::InputTag>("input");
@@ -171,7 +166,6 @@ EffRootFileName_(iConfig.getUntrackedParameter<std::string>("EffRootFileName"))
     
     auto me0SimHit = cfg_.getParameter<edm::ParameterSet>("me0SimHit");
     me0SimHitInput_ = me0SimHit.getParameter<edm::InputTag>("input");
-
     
     hasME0Geometry_=false;
 }
@@ -325,6 +319,11 @@ MuonME0Hits::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
         hasME0Geometry_ = false;
         LogDebug("MuonSimHitAnalyzer") << "+++ Info: ME0 geometry is unavailable. +++\n";
     }
+
+    if(debug_) std::cout<<"booking Global histograms with "<<folderPath_<<std::endl;
+    std::string folder;
+    folder = folderPath_;
+    dbe->setCurrentFolder(folder);
     
     if(hasME0Geometry_){
         
