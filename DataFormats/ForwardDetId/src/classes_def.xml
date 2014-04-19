@@ -8,4 +8,7 @@
   <class name="HGCHEDetId" ClassVersion="12">
    <version ClassVersion="12" checksum="512348125"/>
   </class>
+  <class name="HGCalDetId" ClassVersion="13">
+   <version ClassVersion="13" checksum="519079711"/>
+  </class>
 </lcgdict>
