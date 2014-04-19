@@ -58,6 +58,7 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
     useTrimming_(false),
     usePruning_(false),
     useCMSBoostedTauSeedingAlgorithm_(false),
+    useKtPruning_(false),
     muCut_(-1.0),
     yCut_(-1.0),
     rFilt_(-1.0),
@@ -105,6 +106,7 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
     useTrimming_=false;
     usePruning_=false;
     useCMSBoostedTauSeedingAlgorithm_=false;
+    useKtPruning_=false;
     rFilt_=-1.0;
     nFilt_=-1;
     trimPtFracMin_=-1.0;
@@ -145,6 +147,8 @@ FastjetJetProducer::FastjetJetProducer(const edm::ParameterSet& iConfig)
       zCut_ = iConfig.getParameter<double>("zcut");
       RcutFactor_ = iConfig.getParameter<double>("rcut_factor");
       nFilt_ = iConfig.getParameter<int>("nFilt");
+      if ( iConfig.exists("useKtPruning") )
+        useKtPruning_ = iConfig.getParameter<bool>("useKtPruning");
     }
 
     if ( iConfig.exists("useCMSBoostedTauSeedingAlgorithm") ) {
@@ -360,6 +364,8 @@ void FastjetJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup cons
     fastjet::Filter trimmer( fastjet::Filter(fastjet::JetDefinition(fastjet::kt_algorithm, rFilt_), fastjet::SelectorPtFractionMin(trimPtFracMin_)));
     fastjet::Filter filter( fastjet::Filter(fastjet::JetDefinition(fastjet::cambridge_algorithm, rFilt_), fastjet::SelectorNHardest(nFilt_)));
     fastjet::Pruner pruner(fastjet::cambridge_algorithm, zCut_, RcutFactor_);
+    if ( useKtPruning_ )
+      pruner = fastjet::Pruner(fastjet::kt_algorithm, zCut_, RcutFactor_);
 
     std::vector<fastjet::Transformer const *> transformers;
 
