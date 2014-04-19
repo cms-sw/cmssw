@@ -39,6 +39,10 @@ class CSCMotherboardME3141 : public CSCMotherboard
            const CSCComparatorDigiCollection* compdc, 
            const RPCDigiCollection* rpcDigis);
 
+  /** Clears correlated LCT and passes clear signal on to cathode and anode
+      LCT processors. */
+  void clear();
+
   /// set CSC and RPC geometries for the matching needs
   void setCSCGeometry(const CSCGeometry *g) { csc_g = g; }
   void setRPCGeometry(const RPCGeometry *g) { rpc_g = g; }
@@ -48,6 +52,11 @@ class CSCMotherboardME3141 : public CSCMotherboard
   int assignRPCRoll(double eta);
   void retrieveRPCDigis(const RPCDigiCollection* digis, unsigned id);
   void printRPCTriggerDigis(int minBX, int maxBx);
+
+  RPCDigisBX matchingRPCDigis(const CSCCLCTDigi& cLCT, const RPCDigisBX& pads = RPCDigisBX(), bool first = true);  
+  RPCDigisBX matchingRPCDigis(const CSCALCTDigi& aLCT, const RPCDigisBX& pads = RPCDigisBX(), bool first = true);  
+  RPCDigisBX matchingRPCDigis(const CSCCLCTDigi& cLCT, const CSCALCTDigi& aLCT, const RPCDigisBX& pads = RPCDigisBX(), 
+			     bool first = true);  
 
   std::map<int,std::pair<double,double> > createRPCRollLUT(RPCDetId id);
 
@@ -82,8 +91,7 @@ class CSCMotherboardME3141 : public CSCMotherboard
   int maxDeltaStripRPC_;
 
   // drop low quality stubs if they don't have RPCs
-  bool dropLowQualityCLCTsNoRPC_;
-  bool dropLowQualityALCTsNoRPCs_;
+  bool dropLowQualityCLCTsNoRPCs_;
 
   std::map<int,std::pair<double,double> > rpcRollToEtaLimits_;
   std::map<int,int> cscWgToRpcRoll_;

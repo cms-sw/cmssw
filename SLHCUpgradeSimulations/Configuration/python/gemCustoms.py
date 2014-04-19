@@ -49,7 +49,7 @@ def customise_L1Emulator(process, ptdphi):
         'pt40' : { 'odd' :  0.00342827 , 'even' :  0.00230833 }
     }
     tmb = process.simCscTriggerPrimitiveDigis.tmbSLHC
-    tmb.me11ILT = cms.PSet(
+    tmb.me11ILT = cms.untracked.PSet(
         ## run the upgrade algorithm
         runME11ILT = cms.untracked.bool(True),
 
@@ -83,6 +83,8 @@ def customise_L1Emulator(process, ptdphi):
         buildLCTfromALCTandGEM_ME1b = cms.untracked.bool(True),
         doLCTGhostBustingWithGEMs = cms.untracked.bool(False),
         correctLCTtimingWithGEM = cms.untracked.bool(True),
+        promoteALCTGEMpattern = cms.untracked.bool(True),
+        promoteALCTGEMquality = cms.untracked.bool(True),
         
         ## rate reduction 
         doGemMatching = cms.untracked.bool(True),
@@ -90,20 +92,26 @@ def customise_L1Emulator(process, ptdphi):
         gemMatchDeltaBX = cms.untracked.int32(1),
         gemMatchDeltaPhiOdd = cms.untracked.double(dphi_lct_pad98[ptdphi]['odd']),
         gemMatchDeltaPhiEven = cms.untracked.double(dphi_lct_pad98[ptdphi]['even']),
-        gemClearNomatchLCTs = cms.untracked.bool(ptdphi == 'pt0' and False),
+        gemClearNomatchLCTs = cms.untracked.bool(False),
+
+        ## cross BX algorithm
+        tmbCrossBxAlgorithm = cms.untracked.uint32(3),
+        firstTwoLCTsInChamber = cms.untracked.bool(True),
     )
     if tmb.me11ILT.runME11ILT:
         process.simCscTriggerPrimitiveDigis.clctSLHC.clctNplanesHitPattern = 3
         process.simCscTriggerPrimitiveDigis.clctSLHC.clctPidThreshPretrig = 2
         process.simCscTriggerPrimitiveDigis.clctParam07.clctPidThreshPretrig = 2
-    
+    if ptdphi != 'pt0' :
+        tmb.me11ILT.gemClearNomatchLCTs = True 
+        
     ## GE2/1-ME2/1
-    tmb.me21ILT = cms.PSet(
+    tmb.me21ILT = cms.untracked.PSet(
         ## run the upgrade algorithm
         runME21ILT = cms.untracked.bool(True),
 
         ## run in debug mode
-        debugLUTs = cms.untracked.bool(False),
+        debugLUTs = cms.untracked.bool(True),
         debugMatching = cms.untracked.bool(False),
 
         ## use old dataformat
@@ -130,6 +138,8 @@ def customise_L1Emulator(process, ptdphi):
         buildLCTfromALCTandGEM = cms.untracked.bool(True),
         doLCTGhostBustingWithGEMs = cms.untracked.bool(False),
         correctLCTtimingWithGEM = cms.untracked.bool(True),
+        promoteALCTGEMpattern = cms.untracked.bool(True),
+        promoteALCTGEMquality = cms.untracked.bool(True),
 
         ## rate reduction 
         doGemMatching = cms.untracked.bool(True),
@@ -141,6 +151,7 @@ def customise_L1Emulator(process, ptdphi):
 
         ## cross BX algorithm
         tmbCrossBxAlgorithm = cms.untracked.uint32(3),
+        firstTwoLCTsInChamber = cms.untracked.bool(True),
     )
     
     if tmb.me21ILT.runME21ILT:

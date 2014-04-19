@@ -53,7 +53,7 @@ class CSCMotherboardME21 : public CSCMotherboard
 
   GEMPads retrieveGEMPads(const GEMCSCPadDigiCollection* pads, unsigned id, bool iscopad = false);
 
-  std::map<int,std::pair<double,double> > createGEMPadLUT(bool isLong);
+  std::map<int,std::pair<double,double> > createGEMRollEtaLUT(bool isLong);
 
   int assignGEMRoll(double eta);
   int deltaRoll(int wg, int roll);
@@ -67,6 +67,9 @@ class CSCMotherboardME21 : public CSCMotherboard
                             bool isCopad = false, bool first = true);  
   GEMPadsBX matchingGEMPads(const CSCCLCTDigi& cLCT, const CSCALCTDigi& aLCT, const GEMPadsBX& pads = GEMPadsBX(), 
                             bool isCopad = false, bool first = true);  
+
+  unsigned int findQualityGEM(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, 
+			      bool hasPad, bool hasCoPad);
 
   void correlateLCTs(CSCALCTDigi bestALCT, CSCALCTDigi secondALCT,
              		     CSCCLCTDigi bestCLCT, CSCCLCTDigi secondCLCT,
@@ -83,11 +86,17 @@ class CSCMotherboardME21 : public CSCMotherboard
 			GEMCSCPadDigi gemPad,
 			CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2);
 
+  void correlateLCTsGEM(CSCALCTDigi bestALCT, CSCALCTDigi secondALCT,
+			CSCCLCTDigi bestCLCT, CSCCLCTDigi secondCLCT,
+			CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2,
+			const GEMPadsBX& pads = GEMPadsBX(), const GEMPadsBX& copads = GEMPadsBX());
+
   CSCCorrelatedLCTDigi constructLCTsGEM(const CSCALCTDigi& alct, const GEMCSCPadDigi& gem,
                                         bool oldDataFormat = false); 
-  
   CSCCorrelatedLCTDigi constructLCTsGEM(const CSCCLCTDigi& clct, const GEMCSCPadDigi& gem,
                                         bool oldDataFormat = true); 
+  CSCCorrelatedLCTDigi constructLCTsGEM(const CSCALCTDigi& alct, const CSCCLCTDigi& clct, 
+					bool hasPad, bool hasCoPad); 
 
   /** Methods to sort the LCTs */
   std::vector<CSCCorrelatedLCTDigi> sortLCTsByQuality(int bx);
@@ -184,12 +193,21 @@ class CSCMotherboardME21 : public CSCMotherboard
   bool useOldLCTDataFormatALCTGEM_;
   bool useOldLCTDataFormatCLCTGEM_;
 
-  std::map<int,std::pair<double,double> > gemPadToEtaLimitsShort_;
-  std::map<int,std::pair<double,double> > gemPadToEtaLimitsLong_;
+  // send only first 2 lcts
+  bool firstTwoLCTsInChamber_;
 
-  std::map<int,std::pair<int,int>> cscWgToGemRollShort_;
-  std::map<int,std::pair<int,int>> cscWgToGemRollLong_;
+  // promote ALCT-GEM pattern
+  bool promoteALCTGEMpattern_;
 
+  // promote ALCT-GEM quality
+  bool promoteALCTGEMquality_;
+
+  std::map<int,std::pair<double,double> > gemRollToEtaLimitsShort_;
+  std::map<int,std::pair<double,double> > gemRollToEtaLimitsLong_;
+
+  std::map<int,int> cscWgToGemRollShort_;
+  std::map<int,int> cscWgToGemRollLong_; 
+  
   // map of pad to HS
   std::map<int,int> gemPadToCscHs_;
   std::map<int,std::pair<int,int>> cscHsToGemPad_;

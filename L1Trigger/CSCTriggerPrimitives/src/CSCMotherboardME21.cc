@@ -65,10 +65,10 @@ CSCMotherboardME21::CSCMotherboardME21(unsigned endcap, unsigned station,
   if (!isSLHC) edm::LogError("L1CSCTPEmulatorConfigError")
     << "+++ Upgrade CSCMotherboardME21 constructed while isSLHC is not set! +++\n";
   
-  edm::ParameterSet alctParams = conf.getParameter<edm::ParameterSet>("alctSLHC");
-  edm::ParameterSet clctParams = conf.getParameter<edm::ParameterSet>("clctSLHC");
-  edm::ParameterSet tmbParams = conf.getParameter<edm::ParameterSet>("tmbSLHC");
-  edm::ParameterSet me21tmbParams = tmbParams.getParameter<edm::ParameterSet>("me21ILT");
+  const edm::ParameterSet alctParams(conf.getParameter<edm::ParameterSet>("alctSLHC"));
+  const edm::ParameterSet clctParams(conf.getParameter<edm::ParameterSet>("clctSLHC"));
+  const edm::ParameterSet tmbParams(conf.getParameter<edm::ParameterSet>("tmbSLHC"));
+  const edm::ParameterSet me21tmbParams(tmbParams.getUntrackedParameter<edm::ParameterSet>("me21ILT"));
 
   // central bx for LCT is 6 for simulation
   lct_central_bx = tmbParams.getUntrackedParameter<int>("lctCentralBX", 6);
@@ -153,6 +153,15 @@ CSCMotherboardME21::CSCMotherboardME21(unsigned endcap, unsigned station,
   // use "old" or "new" dataformat for integrated LCTs?
   useOldLCTDataFormatALCTGEM_ = me21tmbParams.getUntrackedParameter<bool>("useOldLCTDataFormatALCTGEM",true);
   useOldLCTDataFormatCLCTGEM_ = me21tmbParams.getUntrackedParameter<bool>("useOldLCTDataFormatCLCTGEM",true);
+
+  // promote ALCT-GEM pattern
+  promoteALCTGEMpattern_ = me21tmbParams.getUntrackedParameter<bool>("promoteALCTGEMpattern",false);
+
+  // promote ALCT-GEM quality
+  promoteALCTGEMquality_ = me21tmbParams.getUntrackedParameter<bool>("promoteALCTGEMquality",false);
+
+  // send first 2 LCTs
+  firstTwoLCTsInChamber_ = me21tmbParams.getUntrackedParameter<bool>("firstTwoLCTsInChamber",false);
 }
 
 CSCMotherboardME21::~CSCMotherboardME21() 
@@ -163,6 +172,8 @@ void CSCMotherboardME21::clear()
 {
   CSCMotherboard::clear();
 
+  gemRollToEtaLimitsShort_.clear();
+  gemRollToEtaLimitsLong_.clear();
   cscWgToGemRollShort_.clear();
   cscWgToGemRollLong_.clear();
   gemPadToCscHs_.clear();
@@ -217,26 +228,39 @@ CSCMotherboardME21::run(const CSCWireDigiCollection* wiredc,
 
     //    const bool isEven(csc_id%2==0);
     const int region((theEndcap == 1) ? 1: -1);
+    const bool isEven(csc_id%2==0);
     const GEMDetId gem_id_short(region, 1, 2, 1, csc_id.chamber(), 0);
     const GEMDetId gem_id_long(region, 1, 3, 1, csc_id.chamber(), 0);
     //    const GEMChamber* gemChamberShort(gem_g->chamber(gem_id_short));
     const GEMChamber* gemChamberLong(gem_g->chamber(gem_id_long));
     
     // LUT<roll,<etaMin,etaMax> >    
-    gemPadToEtaLimitsShort_ = createGEMPadLUT(false);
-    gemPadToEtaLimitsLong_ = createGEMPadLUT(true);
+    gemRollToEtaLimitsShort_ = createGEMRollEtaLUT(false);
+    gemRollToEtaLimitsLong_ = createGEMRollEtaLUT(true);
 
     if (debug_luts){
-      if (gemPadToEtaLimitsShort_.size())
-        for(auto p : gemPadToEtaLimitsShort_) {
+      if (gemRollToEtaLimitsShort_.size())
+	for(auto p : gemRollToEtaLimitsShort_) {
           std::cout << "pad "<< p.first << " min eta " << (p.second).first << " max eta " << (p.second).second << std::endl;
-        }
-      if (gemPadToEtaLimitsLong_.size())
-        for(auto p : gemPadToEtaLimitsLong_) {
+	}
+      if (gemRollToEtaLimitsLong_.size())
+        for(auto p : gemRollToEtaLimitsLong_) {
           std::cout << "pad "<< p.first << " min eta " << (p.second).first << " max eta " << (p.second).second << std::endl;
         }
     }
-    
+
+    // loop on all wiregroups to create a LUT <WG,rollMin,rollMax>
+    const int numberOfWG(keyLayerGeometry->numberOfWireGroups());
+    for (int i = 0; i< numberOfWG; ++i){
+      auto eta(isEven ? lut_wg_eta_even[i][1] : lut_wg_eta_odd[i][1]); 
+      cscWgToGemRollLong_[i] = assignGEMRoll(eta);
+    }
+    if (debug_luts){
+      for(auto p : cscWgToGemRollLong_) {
+        std::cout << "WG "<< p.first << " GEM roll " << p.second << std::endl;
+      }
+    }
+
     auto randRoll(gemChamberLong->etaPartition(2));
     auto nStrips(keyLayerGeometry->numberOfStrips());
     for (float i = 0; i< nStrips; i = i+0.5){
@@ -364,9 +388,9 @@ CSCMotherboardME21::run(const CSCWireDigiCollection* wiredc,
           int mbx = bx_clct-bx_clct_start;
 
           //	    if (infoV > 1) LogTrace("CSCMotherboard")
-          correlateLCTs(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
-                        clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct],
-                        allLCTs[bx_alct][mbx][0], allLCTs[bx_alct][mbx][1], padsLong_[bx_clct], coPadsLong_[bx_clct]);
+          correlateLCTsGEM(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
+			   clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct],
+			   allLCTs[bx_alct][mbx][0], allLCTs[bx_alct][mbx][1], padsLong_[bx_clct], coPadsLong_[bx_clct]);
           if (debug_gem_matching) {
             std::cout << "Successful ALCT-CLCT match in ME21: bx_alct = " << bx_alct
                       << "; match window: [" << bx_clct_start << "; " << bx_clct_stop
@@ -525,27 +549,27 @@ CSCMotherboardME21::run(const CSCWireDigiCollection* wiredc,
   // 					       <<"  a "<<n_clct_a<<"  b "<<n_clct_b<<"  ab "<<n_clct_a+n_clct_b;
 }
 
-void CSCMotherboardME21::correlateLCTs(CSCALCTDigi bestALCT,
-				       CSCALCTDigi secondALCT,
-				       CSCCLCTDigi bestCLCT,
-				       CSCCLCTDigi secondCLCT,
-				       CSCCorrelatedLCTDigi& lct1,
-				       CSCCorrelatedLCTDigi& lct2,
-				       const GEMPadsBX& pads, 
-				       const GEMPadsBX& copads)
+void CSCMotherboardME21::correlateLCTsGEM(CSCALCTDigi bestALCT,
+					  CSCALCTDigi secondALCT,
+					  CSCCLCTDigi bestCLCT,
+					  CSCCLCTDigi secondCLCT,
+					  CSCCorrelatedLCTDigi& lct1,
+					  CSCCorrelatedLCTDigi& lct2,
+					  const GEMPadsBX& pads, 
+					  const GEMPadsBX& copads)
 {
+  // check for pads 
+  const int nPads(pads.size());
+  const int nCoPads(copads.size());
+  const bool hasPads(nPads!=0);
+  const bool hasCoPads(nCoPads!=0);
+
   /*
   // assume that always anodeBestValid and cathodeBestValid
   
   if (secondALCT == bestALCT) secondALCT.clear();
   if (secondCLCT == bestCLCT) secondCLCT.clear();
 
-  // first check the special case (11,22) where we have an ambiguity
-  const int nPads(pads.size());
-  const int nCoPads(copads.size());
-  const bool hasPads(nPads!=0);
-  const bool hasCoPads(nCoPads!=0);
-  
   if (doLCTGhostBustingWithGEMs_ and hasPads){
 
     if (debug_gem_matching) std::cout << "++Info: 2 valid ALCTs-CLCTs pairs with trigger pads. Call the GHOSTBUSTERS!!!" << std::endl;    
@@ -643,8 +667,9 @@ void CSCMotherboardME21::correlateLCTs(CSCALCTDigi bestALCT,
       (clct_trig_enable  and bestCLCT.isValid()) or
       (match_trig_enable and bestALCT.isValid() and bestCLCT.isValid()))
   {
-    lct1 = constructLCTs(bestALCT, bestCLCT);
+    lct1 = constructLCTsGEM(bestALCT, bestCLCT, hasPads, hasCoPads);
     lct1.setTrknmb(1);
+    lct1.setGEMDPhi(0.0);
   }
 
   if (((secondALCT != bestALCT) or (secondCLCT != bestCLCT)) and
@@ -652,8 +677,9 @@ void CSCMotherboardME21::correlateLCTs(CSCALCTDigi bestALCT,
        (clct_trig_enable  and secondCLCT.isValid()) or
        (match_trig_enable and secondALCT.isValid() and secondCLCT.isValid())))
   {
-    lct2 = constructLCTs(secondALCT, secondCLCT);
+    lct2 = constructLCTsGEM(secondALCT, secondCLCT, hasPads, hasCoPads);
     lct2.setTrknmb(2);
+    lct2.setGEMDPhi(0.0);
   }
 }
 
@@ -721,11 +747,11 @@ CSCCorrelatedLCTDigi CSCMotherboardME21::constructLCTsGEM(const CSCALCTDigi& alc
                                                           bool oldDataFormat) 
 {    
   if (oldDataFormat){
-    // CLCT pattern number - no pattern
-    unsigned int pattern = 0;
+    // CLCT pattern number - set it to a reasonably high value
+    unsigned int pattern = promoteALCTGEMpattern_ ? 4 : 0;
     
-    // LCT quality number
-    unsigned int quality = 11;
+    // LCT quality number - set it to a reasonably high value
+    unsigned int quality = promoteALCTGEMquality_ ? 14 : 11;
     
     // Bunch crossing
     int bx = alct.getBX();
@@ -799,6 +825,154 @@ CSCCorrelatedLCTDigi CSCMotherboardME21::constructLCTsGEM(const CSCCLCTDigi& clc
 }
 
 
+CSCCorrelatedLCTDigi CSCMotherboardME21::constructLCTsGEM(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, 
+							  bool hasPad, bool hasCoPad)
+{
+  // CLCT pattern number
+  unsigned int pattern = encodePattern(cLCT.getPattern(), cLCT.getStripType());
+
+  // LCT quality number
+  unsigned int quality = findQualityGEM(aLCT, cLCT, hasPad, hasCoPad);
+
+  // Bunch crossing: get it from cathode LCT if anode LCT is not there.
+  int bx = aLCT.isValid() ? aLCT.getBX() : cLCT.getBX();
+
+  // construct correlated LCT; temporarily assign track number of 0.
+  int trknmb = 0;
+  CSCCorrelatedLCTDigi thisLCT(trknmb, 1, quality, aLCT.getKeyWG(),
+                               cLCT.getKeyStrip(), pattern, cLCT.getBend(),
+                               bx, 0, 0, 0, theTrigChamber);
+  return thisLCT;
+}
+
+
+unsigned int CSCMotherboardME21::findQualityGEM(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT,
+						bool hasPad, bool hasCoPad)
+{
+
+  /*
+    Same LCT quality definition as standard LCTs
+    c4 takes GEMs into account!!!
+  */
+
+  unsigned int quality = 0;
+
+  if (!isTMB07) {
+    bool isDistrip = (cLCT.getStripType() == 0);
+
+    if (aLCT.isValid() && !(cLCT.isValid())) {    // no CLCT
+      if (aLCT.getAccelerator()) {quality =  1;}
+      else                       {quality =  3;}
+    }
+    else if (!(aLCT.isValid()) && cLCT.isValid()) { // no ALCT
+      if (isDistrip)             {quality =  4;}
+      else                       {quality =  5;}
+    }
+    else if (aLCT.isValid() && cLCT.isValid()) { // both ALCT and CLCT
+      if (aLCT.getAccelerator()) {quality =  2;} // accelerator muon
+      else {                                     // collision muon
+        // CLCT quality is, in fact, the number of layers hit, so subtract 3
+        // to get quality analogous to ALCT one.
+        int sumQual = aLCT.getQuality() + (cLCT.getQuality()-3);
+        if (sumQual < 1 || sumQual > 6) {
+          if (infoV >= 0) edm::LogWarning("L1CSCTPEmulatorWrongValues")
+            << "+++ findQuality: sumQual = " << sumQual << "+++ \n";
+        }
+        if (isDistrip) { // distrip pattern
+          if (sumQual == 2)      {quality =  6;}
+          else if (sumQual == 3) {quality =  7;}
+          else if (sumQual == 4) {quality =  8;}
+          else if (sumQual == 5) {quality =  9;}
+          else if (sumQual == 6) {quality = 10;}
+        }
+        else {            // halfstrip pattern
+          if (sumQual == 2)      {quality = 11;}
+          else if (sumQual == 3) {quality = 12;}
+          else if (sumQual == 4) {quality = 13;}
+          else if (sumQual == 5) {quality = 14;}
+          else if (sumQual == 6) {quality = 15;}
+        }
+      }
+    }
+  }
+#ifdef OLD
+  else {
+    // Temporary definition, used until July 2008.
+    // First if statement is fictitious, just to help the CSC TF emulator
+    // handle such cases (one needs to make sure they will be accounted for
+    // in the new quality definition.
+    if (!(aLCT.isValid()) || !(cLCT.isValid())) {
+      if (aLCT.isValid() && !(cLCT.isValid()))      quality = 1; // no CLCT
+      else if (!(aLCT.isValid()) && cLCT.isValid()) quality = 2; // no ALCT
+      else quality = 0; // both absent; should never happen.
+    }
+    else {
+      // Sum of ALCT and CLCT quality bits.  CLCT quality is, in fact, the
+      // number of layers hit, so subtract 3 to put it to the same footing as
+      // the ALCT quality.
+      int sumQual = aLCT.getQuality() + (cLCT.getQuality()-3);
+      if (sumQual < 1 || sumQual > 6) {
+        if (infoV >= 0) edm::LogWarning("L1CSCTPEmulatorWrongValues")
+          << "+++ findQuality: Unexpected sumQual = " << sumQual << "+++\n";
+      }
+
+      // LCT quality is basically the sum of ALCT and CLCT qualities, but split
+      // in two groups depending on the CLCT pattern id (higher quality for
+      // straighter patterns).
+      int offset = 0;
+      if (cLCT.getPattern() <= 7) offset = 4;
+      else                        offset = 9;
+      quality = offset + sumQual;
+    }
+  }
+#endif
+  else {
+    // 2008 definition.
+    if (!(aLCT.isValid()) || !(cLCT.isValid())) {
+      if (aLCT.isValid() && !(cLCT.isValid()))      quality = 1; // no CLCT
+      else if (!(aLCT.isValid()) && cLCT.isValid()) quality = 2; // no ALCT
+      else quality = 0; // both absent; should never happen.
+    }
+    else {
+      const int pattern(cLCT.getPattern());
+      if (pattern == 1) quality = 3; // layer-trigger in CLCT
+      else {
+        // CLCT quality is the number of layers hit minus 3.
+        // CLCT quality is the number of layers hit.
+	//	const int n_gem((pad!=NULL and 1) or (copad!=NULL and 2));
+	int n_gem = 0;  
+	if (hasPad) n_gem = 1;
+	if (hasCoPad) n_gem = 2;
+        const bool a4(aLCT.getQuality() >= 1);
+	const bool c4((cLCT.getQuality() >= 4) or (cLCT.getQuality() >= 3 and n_gem>=1));
+        //              quality = 4; "reserved for low-quality muons in future"
+        if      (!a4 && !c4) quality = 5; // marginal anode and cathode
+        else if ( a4 && !c4) quality = 6; // HQ anode, but marginal cathode
+        else if (!a4 &&  c4) quality = 7; // HQ cathode, but marginal anode
+        else if ( a4 &&  c4) {
+          if (aLCT.getAccelerator()) quality = 8; // HQ muon, but accel ALCT
+          else {
+            // quality =  9; "reserved for HQ muons with future patterns
+            // quality = 10; "reserved for HQ muons with future patterns
+            if (pattern == 2 || pattern == 3)      quality = 11;
+            else if (pattern == 4 || pattern == 5) quality = 12;
+            else if (pattern == 6 || pattern == 7) quality = 13;
+            else if (pattern == 8 || pattern == 9) quality = 14;
+            else if (pattern == 10)                quality = 15;
+            else {
+              if (infoV >= 0) edm::LogWarning("L1CSCTPEmulatorWrongValues")
+                << "+++ findQuality: Unexpected CLCT pattern id = "
+                << pattern << "+++\n";
+            }
+          }
+        }
+      }
+    }
+  }
+  return quality;
+}
+
+
 void CSCMotherboardME21::buildCoincidencePads(const GEMCSCPadDigiCollection* out_pads, GEMCSCPadDigiCollection& out_co_pads)
 {
   // build coincidences
@@ -835,7 +1009,7 @@ void CSCMotherboardME21::buildCoincidencePads(const GEMCSCPadDigiCollection* out
 
 
 std::map<int,std::pair<double,double> >
-CSCMotherboardME21::createGEMPadLUT(bool isLong)
+CSCMotherboardME21::createGEMRollEtaLUT(bool isLong)
 {
   std::map<int,std::pair<double,double> > result;
 
@@ -949,15 +1123,11 @@ CSCMotherboardME21::matchingGEMPads(const CSCALCTDigi& alct, const GEMPadsBX& pa
   
   auto alctRoll(cscWgToGemRollLong_[alct.getKeyWG()]);
   const bool debug(false);
-  if (debug) std::cout << "ALCT keyWG " << alct.getKeyWG() << ", rolls " << alctRoll.first << " " << alctRoll.second << std::endl;
+  if (debug) std::cout << "ALCT keyWG " << alct.getKeyWG() << ", roll " << alctRoll << std::endl;
   for (auto p: pads){
     auto padRoll(GEMDetId(p.first).roll());
     if (debug) std::cout << "Candidate ALCT: " << padRoll << std::endl;
-    if (alctRoll.first == -99 and alctRoll.second == -99) continue;  //invalid region
-    else if (alctRoll.first == -99 and !(padRoll <= alctRoll.second)) continue; // top of the chamber
-    else if (alctRoll.second == -99 and !(padRoll >= alctRoll.first)) continue; // bottom of the chamber
-    else if ((alctRoll.first != -99 and alctRoll.second != -99) and // center
-             (alctRoll.first > padRoll or padRoll > alctRoll.second)) continue;
+    if (alctRoll !=  padRoll) continue;
     if (debug) std::cout << "++Matches! " << std::endl;
     result.push_back(p);
     if (first) return result;
@@ -1141,4 +1311,19 @@ void CSCMotherboardME21::matchGEMPads()
         if (allLCTs[bx][mbx][i].isValid()) nlct_after++;
       }
   if (debug_gem_matching) std::cout<<"before "<<nlct<<"  after "<<nlct_after<<std::endl;
+}
+
+
+int CSCMotherboardME21::assignGEMRoll(double eta)
+{
+  int result = -99;
+  for(auto p : gemRollToEtaLimitsLong_) {  
+    const float minEta((p.second).first);
+    const float maxEta((p.second).second);
+    if (minEta <= eta and eta <= maxEta) {
+      result = p.first;
+      break;
+    }
+  }
+  return result;
 }
