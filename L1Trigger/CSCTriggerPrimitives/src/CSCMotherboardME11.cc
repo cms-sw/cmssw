@@ -1041,7 +1041,7 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
 
     // Maximum 2 per whole ME11 per BX case:
     // (supposedly, now we should have max 2 per bx in each 1a and 1b)
-    if ( n1a+n1b > max_me11_lcts )
+    if (n1a+n1b > max_me11_lcts and tmb_cross_bx_algo == 1)
     {
       // do it simple so far: take all low eta 1/b stubs
       unsigned int nLCT=n1b;
