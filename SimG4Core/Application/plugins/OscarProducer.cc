@@ -66,7 +66,7 @@ OscarProducer::OscarProducer(edm::ParameterSet const & p)
     usesResource(edm::SharedResourceNames::kGEANT);
     usesResource(edm::SharedResourceNames::kCLHEPRandomEngine);
 
-    consumes<edm::HepMCProduct>(p.getParameter<edm::InputTag>("HepMCProduct"));
+    consumes<edm::HepMCProduct>(p.getParameter<edm::InputTag>("HepMCProductLabel"));
     m_runManager.reset(new RunManager(p));
     //m_runManager.reset(new RunManager(p, consumesCollector()));
 
