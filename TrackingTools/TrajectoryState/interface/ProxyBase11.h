@@ -1,7 +1,6 @@
 #ifndef Tracker_ProxyBase11_H
 #define Tracker_ProxyBase11_H
 
-#include "TrackingTools/TrajectoryState/interface/CopyUsingNew.h"
 #include "FWCore/Utilities/interface/Visibility.h"
 #include "FWCore/Utilities/interface/Likely.h"
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
@@ -16,21 +15,28 @@
  *  part of the interface of the reference counted class that it whiches to expose.
  */
 
-template <class T, class Cloner > 
+
+template <class T> 
 class ProxyBase11 {
 public:
-
-
-protected:
-
+  
+  
+  // protected:
+  
   ProxyBase11() {}
-
-  explicit ProxyBase11( T* p) theData(p) {}
+  
+  explicit ProxyBase11( T* p) : theData(p) {}
+#ifndef CMS_NOCXX11
+  template<typename U>
+  ProxyBase11(std::shared_ptr<U> p) : theData(std::move(p)){}
+  template<typename U>
+  ProxyBase11& operator=(std::shared_ptr<U> p) { theData =std::move(p); return *this;}
+#endif  
 
   ~ProxyBase11()  noexcept {
     destroy();
   }
-
+  
   void swap(ProxyBase11& other)  noexcept {
     std::swap(theData,other.theData);
   }
@@ -47,12 +53,14 @@ protected:
   ProxyBase11& operator=( const ProxyBase11& other) = default;
 #endif
 
+  void reset() { theData.reset();}
+
   const T& data() const { check(); return *theData;}
 
   T& unsharedData() {
     check(); 
     if ( references() > 1) {
-      theData.reset(Cloner().clone(*theData));
+      theData = theData->clone();
     }
     return *theData;
   }
@@ -70,7 +78,7 @@ protected:
 
   void destroy()  noexcept {}
 
-  int  references() const {return theData->count();}  
+  int  references() const {return theData.use_count();}  
 
 private:
 #ifdef CMS_NOCXX11
@@ -80,9 +88,9 @@ private:
 #endif
 };
 
-template <class T, class Cloner >
+template <class T >
 inline
-void swap(ProxyBase11<T,Cloner>& lh, ProxyBase11<T,Cloner>& rh)  noexcept {
+void swap(ProxyBase11<T>& lh, ProxyBase11<T>& rh)  noexcept {
   lh.swap(rh);
 }
 
