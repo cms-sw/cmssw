@@ -11,7 +11,6 @@
   <class pattern="ROOT::Math::SMatrix<*>" />
   <class pattern="ROOT::Math::MatRepStd<*>" />
   <class pattern="ROOT::Math::MatRepSym<*>" >
-    <field name="fOff" transient="true"/>
   </class>
   <class pattern="ROOT::Math::RowOffsets<*>" />
   <class pattern="ROOT::Math::SVector<*>" />
