@@ -17,12 +17,10 @@ makePatJets = cms.Sequence(
     # reco pre-production
     patJetCorrections *
     patJetCharge *
-   #secondaryVertexNegativeTagInfos *
-   #simpleSecondaryVertexNegativeBJetTags *
     # pat specifics
     patJetPartonMatch *
     patJetGenJetMatch *
-    patJetFlavourId *
+    (patJetFlavourIdLegacy + patJetFlavourId) *
     # object production
     patJets
     )
