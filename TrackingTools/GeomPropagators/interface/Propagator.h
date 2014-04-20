@@ -45,57 +45,18 @@ namespace reco{class BeamSpot;}
 class Propagator {
 public:
 
-  Propagator (PropagationDirection dir = alongMomentum) :
+  explicit Propagator (PropagationDirection dir = alongMomentum) :
     theDir(dir) {}
   virtual ~Propagator();
 
-  /** Propagate from a free state (e.g. position and momentum in
-   *  in global cartesian coordinates) to a surface.
-   */
 
-  /** Only use the generic method if the surface type (plane or cylinder)
-   *  is not known at the calling point.
-   */
-  virtual TrajectoryStateOnSurface
-  propagate (const FreeTrajectoryState&, const Surface&) const final;
-
-  virtual TrajectoryStateOnSurface
-  propagate (const FreeTrajectoryState& fts, const Plane& sur) const final {
-    return propagateWithPath(fts, sur).first;
+#ifndef CMS_NOCXX11
+  template<typename STA, typename SUR>
+ TrajectoryStateOnSurface
+  propagate (STA const & state, SUR const & surface) const {
+    return propagateWithPath(state,surface).first;
   }
-
-  virtual TrajectoryStateOnSurface
-  propagate (const FreeTrajectoryState& fts, const Cylinder& sur) const final {
-    return propagateWithPath( fts, sur).first;
-  }
-
-  /** The following three methods are equivalent to the corresponding
-   *  methods above,
-   *  but if the starting state is a TrajectoryStateOnSurface, it's better
-   *  to use it as such rather than use just the FreeTrajectoryState
-   *  part. It may help some concrete propagators.
-   */
-
-  /** Only use the generic method if the surface type (plane or cylinder)
-   *  is not known at the calling point.
-   */
-  virtual TrajectoryStateOnSurface
-  propagate (const TrajectoryStateOnSurface & tsos, const Surface& sur) const final;
-
-  virtual TrajectoryStateOnSurface
-  propagate (const TrajectoryStateOnSurface & tsos, const Plane& sur ) const final {
-    return propagateWithPath(tsos, sur).first;
-  }
-
-  virtual TrajectoryStateOnSurface
-  propagate (const TrajectoryStateOnSurface & tsos, const Cylinder& sur) const final {
-    return propagateWithPath(tsos, sur).first;
-  }
-
-  virtual FreeTrajectoryState
-  propagate(const FreeTrajectoryState&,
-	    const reco::BeamSpot&) const;
-
+#endif
 
 public:
 
@@ -141,9 +102,35 @@ public:
   }
 
 
+  /// implemented by Stepping Helix
+  //! Propagate to PCA to point given a starting point
   virtual std::pair<FreeTrajectoryState, double>
-  propagateWithPath(const FreeTrajectoryState&,
-                      const GlobalPoint&, const GlobalPoint&) const;
+    propagateWithPath(const FreeTrajectoryState& ftsStart, const GlobalPoint& pDest) const;
+  //! Propagate to PCA to a line (given by 2 points) given a starting point
+  virtual std::pair<FreeTrajectoryState, double>
+    propagateWithPath(const FreeTrajectoryState& ftsStart,
+                      const GlobalPoint& pDest1, const GlobalPoint& pDest2) const;
+  //! Propagate to PCA to a line (given by beamSpot position and slope) given a starting point
+  virtual std::pair<FreeTrajectoryState, double>
+    propagateWithPath(const FreeTrajectoryState& ftsStart, const reco::BeamSpot& beamSpot) const;
+    
+  // this is a mess...
+  virtual FreeTrajectoryState
+  propagate(const FreeTrajectoryState& ftsStart, const GlobalPoint& pDest) const final {
+    return propagateWithPath(ftsStart,pDest).first;
+  }
+  virtual FreeTrajectoryState
+  propagate(const FreeTrajectoryState& ftsStart,
+	    const GlobalPoint& pDest1, const GlobalPoint& pDest2) const final {
+    return propagateWithPath(ftsStart,pDest1,pDest2).first;
+  }
+  virtual FreeTrajectoryState
+  propagate(const FreeTrajectoryState& ftsStart, const reco::BeamSpot& beamSpot) const final{
+    return propagateWithPath(ftsStart,beamSpot).first;
+  }
+
+
+
 
 
 public:

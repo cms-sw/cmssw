@@ -34,17 +34,17 @@ public:
 
 
   std::pair<TSOS,double> propagateWithPath(const FreeTrajectoryState& fts, 
-				      const Plane& surface) const;
+				      const Plane& surface) const  override;
 
   std::pair<TSOS,double> propagateWithPath(const FreeTrajectoryState& fts, 
-				      const Cylinder& surface) const;
+				      const Cylinder& surface) const  override;
 
-  virtual StraightLinePropagator * clone() const {
+  virtual StraightLinePropagator * clone() const  override{
     return new StraightLinePropagator(*this);
   }
 
  
-  virtual const MagneticField* magneticField() const {return theField;}
+  virtual const MagneticField* magneticField() const  override {return theField;}
 
 private:
 

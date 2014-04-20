@@ -49,13 +49,13 @@ public:
   /// propagation to plane with path length  
   std::pair<TrajectoryStateOnSurface,double> 
     propagateWithPath(const FreeTrajectoryState& fts, 
-		    const Plane& plane) const; 
+		    const Plane& plane) const override; 
   
 
   /// propagation to cylinder with path length
   std::pair<TrajectoryStateOnSurface,double> 
   propagateWithPath(const FreeTrajectoryState& fts, 
-		    const Cylinder& cylinder) const;
+		    const Cylinder& cylinder) const override;
 
 
  public:

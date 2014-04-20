@@ -8,64 +8,29 @@
 
 Propagator::~Propagator() {}
 
-TrajectoryStateOnSurface 
-Propagator::propagate( const FreeTrajectoryState& state, 
-		       const Surface& sur) const
+
+
+
+std::pair< TrajectoryStateOnSurface, double> 
+Propagator::propagateWithPath (const FreeTrajectoryState& state, 
+			       const Surface& sur) const
 {
   // try plane first, most probable case (disk "is a" plane too) 
   const Plane* bp = dynamic_cast<const Plane*>(&sur);
-  if (bp != 0) return propagate( state, *bp);
+  if (bp != 0) return propagateWithPath( state, *bp);
   
   // if not plane try cylinder
   const Cylinder* bc = dynamic_cast<const Cylinder*>(&sur);
-  if (bc != 0) return propagate( state, *bc);
+  if (bc != 0) return propagateWithPath( state, *bc);
 
   // unknown surface - can't do it!
   throw PropagationException("The surface is neither Cylinder nor Plane");
 }
-
-
-
-TrajectoryStateOnSurface 
-Propagator::propagate( TrajectoryStateOnSurface const & state, 
-		       const Surface& sur) const
-{
-  // try plane first, most probable case (disk "is a" plane too) 
-  const Plane* bp = dynamic_cast<const Plane*>(&sur);
-  if (bp != 0) return propagate( state, *bp);
-  
-  // if not plane try cylinder
-  const Cylinder* bc = dynamic_cast<const Cylinder*>(&sur);
-  if (bc != 0) return propagate( state, *bc);
-
-  // unknown surface - can't do it!
-  throw PropagationException("The surface is neither Cylinder nor Plane");
-}
-
-
-FreeTrajectoryState 
-Propagator::propagate(const FreeTrajectoryState& ftsStart, 
-    const reco::BeamSpot& beamSpot) const{
-  throw cms::Exception("Propagator::propagate(FTS,beamSpot) not implemented");
-}
-
 
 std::pair< TrajectoryStateOnSurface, double> 
 Propagator::propagateWithPath (const TrajectoryStateOnSurface& state, 
 			       const Surface& sur) const
 {
-  assert(0=="Propagator::propagateWithPath generic TSOS not implemented");
-
-}
-std::pair< TrajectoryStateOnSurface, double> 
-Propagator::propagateWithPath (const FreeTrajectoryState& state, 
-			       const Surface& sur) const
-{
-
-  assert(0=="Propagator::propagateWithPath generic FTS not implemented");
-
-  // same code as above, only method name changes
-
   // try plane first, most probable case (disk "is a" plane too) 
   const Plane* bp = dynamic_cast<const Plane*>(&sur);
   if (bp != 0) return propagateWithPath( state, *bp);
@@ -79,9 +44,22 @@ Propagator::propagateWithPath (const FreeTrajectoryState& state,
 }
 
 
-
 std::pair<FreeTrajectoryState, double> 
-Propagator::propagateWithPath(const FreeTrajectoryState& ftsStart, 
-			      const GlobalPoint& pDest1, const GlobalPoint& pDest2) const{
-  throw cms::Exception("Propagator::propagate(FTS,GlobalPoint,GlobalPoint) not implemented");
+Propagator::propagateWithPath(const FreeTrajectoryState&, 
+			      const GlobalPoint&) const{
+  throw cms::Exception("Propagator::propagate(FTS,GlobalPoint) not implemented");
+  return std::pair<FreeTrajectoryState, double> ();
 }
+std::pair<FreeTrajectoryState, double> 
+Propagator::propagateWithPath(const FreeTrajectoryState&, 
+			      const GlobalPoint&, const GlobalPoint&) const{
+  throw cms::Exception("Propagator::propagate(FTS,GlobalPoint,GlobalPoint) not implemented");
+  return std::pair<FreeTrajectoryState, double> ();
+
+}
+std::pair<FreeTrajectoryState, double> 
+Propagator::propagateWithPath(const FreeTrajectoryState& ftsStart,  const reco::BeamSpot& beamSpot) const{
+  throw cms::Exception("Propagator::propagate(FTS,beamSpot) not implemented");
+  return std::pair<FreeTrajectoryState, double> ();
+}
+

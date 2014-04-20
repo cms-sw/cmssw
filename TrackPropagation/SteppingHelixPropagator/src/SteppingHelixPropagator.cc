@@ -89,21 +89,6 @@ SteppingHelixPropagator::SteppingHelixPropagator(const MagneticField* field,
 }
 
 
-FreeTrajectoryState
-SteppingHelixPropagator::propagate(const FreeTrajectoryState& ftsStart, 
-				   const GlobalPoint& pDest1, const GlobalPoint& pDest2) const
-{
-  return propagateWithPath(ftsStart, pDest1, pDest2).first;
-}
-
-FreeTrajectoryState
-SteppingHelixPropagator::propagate(const FreeTrajectoryState& ftsStart, 
-				   const reco::BeamSpot& beamSpot) const
-{
-  return propagateWithPath(ftsStart, beamSpot).first;
-}
-
-
 std::pair<TrajectoryStateOnSurface, double> 
 SteppingHelixPropagator::propagateWithPath(const FreeTrajectoryState& ftsStart, 
 					   const Plane& pDest) const {
