@@ -1,5 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
+## dictionary with supported jet clustering algorithms
+supportedJetAlgos = {
+   'ak' : 'AntiKt'
+ , 'ca' : 'CambridgeAachen'
+ , 'kt' : 'Kt'
+ }
+
 patJetPartonsLegacy = cms.EDProducer("PartonSelector",
     withLeptons = cms.bool(False),
     src = cms.InputTag("genParticles")
