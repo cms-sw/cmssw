@@ -10,6 +10,7 @@
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "RecoEgamma/PhotonIdentification/interface/CutBasedPhotonIDAlgo.h"
 #include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 
 
 class PhotonIDProducer : public edm::EDProducer
@@ -26,9 +27,8 @@ class PhotonIDProducer : public edm::EDProducer
   CutBasedPhotonIDAlgo* cutBasedAlgo_; 	   
 
   edm::ParameterSet conf_;
+  edm::EDGetTokenT<reco::PhotonCollection> photonToken_;
 
-  std::string photonProducer_;
-  std::string photonLabel_;
   std::string photonCutBasedIDLooseEMLabel_;
   std::string photonCutBasedIDLooseLabel_;
   std::string photonCutBasedIDTightLabel_;

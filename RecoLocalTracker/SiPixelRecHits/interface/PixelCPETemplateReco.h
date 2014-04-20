@@ -79,9 +79,8 @@ class PixelCPETemplateReco : public PixelCPEBase
 
   bool UseClusterSplitter_;
 
-  bool DoCosmics_;
-
-  bool LoadTemplatesFromDB_;
+  //bool DoCosmics_;
+  //bool LoadTemplatesFromDB_;
 
 };
 

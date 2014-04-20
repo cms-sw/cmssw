@@ -480,6 +480,8 @@ class SiPixelTemplate {
   float chi2xminone() {return chi2xminone_;}                        //!< //!< minimum of x chi^2 for 1 pixel clusters 
   float lorywidth() {return lorywidth_;}                            //!< signed lorentz y-width (microns)
   float lorxwidth() {return lorxwidth_;}                            //!< signed lorentz x-width (microns)
+  float lorybias() {return lorywidth_;}                            //!< signed lorentz y-width (microns)
+  float lorxbias() {return lorxwidth_;}                            //!< signed lorentz x-width (microns)
   float mpvvav() {return mpvvav_;}                                  //!< most probable charge in Vavilov distribution (not actually for larger kappa)
   float sigmavav() {return sigmavav_;}                              //!< "sigma" scale fctor for Vavilov distribution
   float kappavav() {return kappavav_;}                              //!< kappa parameter for Vavilov distribution
