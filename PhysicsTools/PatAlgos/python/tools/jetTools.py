@@ -2,6 +2,12 @@ from FWCore.GuiBrowsers.ConfigToolBase import *
 
 from PhysicsTools.PatAlgos.tools.helpers import *
 
+## dictionary with supported jet clustering algorithms
+supportedJetAlgos = {
+   'ak' : 'AntiKt'
+ , 'ca' : 'CambridgeAachen'
+ , 'kt' : 'Kt'
+}
 
 _defaultBTagInfos =['impactParameterTagInfos'
                    ,'secondaryVertexTagInfos'
@@ -515,6 +521,9 @@ class AddJetCollection(ConfigToolBase):
         self.addParameter(self._defaultParameters,'doType1MET',True, "if jetCorrLabel is not 'None', set this to 'True' to redo the Type1 MET correction for the new jet colllection; at the moment it must be 'False' for non CaloJets otherwise the JetMET POG module crashes. ")
         self.addParameter(self._defaultParameters,'doL1Cleaning',True, "copy also the producer modules for cleanLayer1 will be set to 'True' automatically when doL1Counters is 'True'")
         self.addParameter(self._defaultParameters,'doL1Counters',False, "copy also the filter modules that accept/reject the event looking at the number of jets")
+        self.addParameter(self._defaultParameters,'rParam', 0.5, "Jet size (distance parameter R used in jet clustering)")
+        self.addParameter(self._defaultParameters,'getJetMCFlavour', True, "Get jet MC truth flavour")
+        self.addParameter(self._defaultParameters,'useLegacyFlavour', True, "Use legacy jet MC truth flavour")
         self.addParameter(self._defaultParameters,'genJetCollection',cms.InputTag("ak5GenJets"), "GenJet collection to match to")
         self.addParameter(self._defaultParameters,'doJetID',True, "add jetId variables to the added jet collection?")
         self.addParameter(self._defaultParameters,'jetIdLabel',"ak5", " specify the label prefix of the xxxJetID object; in general it is the jet collection tag like ak5, kt4 sc5, aso. For more information have a look to SWGuidePATTools#add_JetCollection")
@@ -539,6 +548,9 @@ class AddJetCollection(ConfigToolBase):
                  doType1MET         = None,
                  doL1Cleaning       = None,
                  doL1Counters       = None,
+                 rParam             = None,
+                 getJetMCFlavour    = None,
+                 useLegacyFlavour   = None,
                  genJetCollection   = None,
                  doJetID            = None,
                  jetIdLabel         = None,
@@ -550,7 +562,7 @@ class AddJetCollection(ConfigToolBase):
 
         ## stop processing if 'outputModule' exists and show the new alternative
         if  not outputModule is None:
-            depricatedOptionOutputModule(self)
+            deprecatedOptionOutputModule(self)
         if jetCollection  is None:
             jetCollection=self._defaultParameters['jetCollection'].value
         if algoLabel is None:
@@ -569,6 +581,12 @@ class AddJetCollection(ConfigToolBase):
             doL1Cleaning=self._defaultParameters['doL1Cleaning'].value
         if doL1Counters  is None:
             doL1Counters=self._defaultParameters['doL1Counters'].value
+        if rParam is None:
+            rParam=self._defaultParameters['rParam'].value
+        if getJetMCFlavour is None:
+            getJetMCFlavour=self._defaultParameters['getJetMCFlavour'].value
+        if useLegacyFlavour is None:
+            useLegacyFlavour=self._defaultParameters['useLegacyFlavour'].value
         if genJetCollection  is None:
             genJetCollection=self._defaultParameters['genJetCollection'].value
         if doJetID  is None:
@@ -591,6 +609,9 @@ class AddJetCollection(ConfigToolBase):
         self.setParameter('doType1MET',doType1MET)
         self.setParameter('doL1Cleaning',doL1Cleaning)
         self.setParameter('doL1Counters',doL1Counters)
+        self.setParameter('rParam',rParam)
+        self.setParameter('getJetMCFlavour',getJetMCFlavour)
+        self.setParameter('useLegacyFlavour',useLegacyFlavour)
         self.setParameter('genJetCollection',genJetCollection)
         self.setParameter('doJetID',doJetID)
         self.setParameter('jetIdLabel',jetIdLabel)
@@ -611,6 +632,9 @@ class AddJetCollection(ConfigToolBase):
         doType1MET =self._parameters['doType1MET'].value
         doL1Cleaning=self._parameters['doL1Cleaning'].value
         doL1Counters=self._parameters['doL1Counters'].value
+        rParam=self._parameters['rParam'].value
+        getJetMCFlavour=self._parameters['getJetMCFlavour'].value
+        useLegacyFlavour=self._parameters['useLegacyFlavour'].value
         genJetCollection=self._parameters['genJetCollection'].value
         doJetID=self._parameters['doJetID'].value
         jetIdLabel=self._parameters['jetIdLabel'].value
@@ -618,6 +642,15 @@ class AddJetCollection(ConfigToolBase):
         btagInfo=self._parameters['btagInfo'].value
         btagdiscriminators=self._parameters['btagdiscriminators'].value
 
+        _algo=''
+        if not useLegacyFlavour:
+            ## supported algo types are ak, ca, and kt
+            for x in ["ak", "ca", "kt"]:
+                if algoLabel.lower().find(x)>-1:
+                    _algo=supportedJetAlgos[x]
+                    break
+            if _algo=='':
+                unsupportedJetAlgorithm(self)
 
         ## create old module label from standardAlgo
         ## and standardType and return
@@ -670,9 +703,24 @@ class AddJetCollection(ConfigToolBase):
         addClone('patJetPartonMatch', src = jetCollection)
         addClone('patJetGenJetMatch', src = jetCollection, matched = genJetCollection)
 
-        ## add a clone of parton and flavour associations
-        addClone('patJetPartonAssociation', jets = jetCollection)
-        addClone('patJetFlavourAssociation', srcByReference = cms.InputTag(newLabel('patJetPartonAssociation')))
+        if (getJetMCFlavour):
+            l1Jets.getJetMCFlavour = True
+            l1Jets.useLegacyJetMCFlavour = useLegacyFlavour
+            if useLegacyFlavour:
+                ## legacy jet flavour (see https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideBTagMCTools)
+                ## add a clone of parton and flavour associations
+                addClone('patJetPartonAssociationLegacy', jets = jetCollection)
+                addClone('patJetFlavourAssociationLegacy', srcByReference = cms.InputTag(newLabel('patJetPartonAssociationLegacy')))
+            else:
+                ## new jet flavour (see https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideBTagMCTools)
+                from PhysicsTools.PatAlgos.mcMatchLayer0.jetFlavourId_cff import patJetFlavourAssociation
+                setattr(process, newLabel("patJetFlavourAssociation"), patJetFlavourAssociation.clone(jets=jetCollection, jetAlgorithm=_algo, rParam=rParam) )
+                getattr(process, "patDefaultSequence").replace( getattr(process, "patJetPartons"),
+                                                                getattr(process, "patJetPartons")
+                                                                + getattr(process, newLabel("patJetFlavourAssociation") ) #module that is not in patDefaultSequence
+                                                              )
+        else:
+            l1Jets.getJetMCFlavour = False
 
         ## fix label for input tag
         def fixInputTag(x): x.setModuleLabel(newLabel(x.moduleLabel))
@@ -683,6 +731,7 @@ class AddJetCollection(ConfigToolBase):
         fixInputTag(l1Jets.genJetMatch)
         fixInputTag(l1Jets.genPartonMatch)
         fixInputTag(l1Jets.JetPartonMapSource)
+        fixInputTag(l1Jets.JetFlavourInfoSource)
 
         ## make VInputTag from strings
         def vit(*args) : return cms.VInputTag( *[ cms.InputTag(x) for x in args ] )
@@ -717,6 +766,8 @@ class AddJetCollection(ConfigToolBase):
             l1Jets.trackAssociationSource = cms.InputTag(btagLabels['jta'])
             l1Jets.tagInfoSources = cms.VInputTag( *[ cms.InputTag(x) for x in btagLabels['tagInfos'] ] )
             l1Jets.discriminatorSources = cms.VInputTag( *[ cms.InputTag(x) for x in btagLabels['jetTags']  ] )
+            ## switch general b tagging info switch on
+            l1Jets.addBTagInfo = True
         else:
             ## switch general b tagging info switch off
             l1Jets.addBTagInfo = False
@@ -901,10 +952,13 @@ class SwitchJetCollection(ConfigToolBase):
         self.addParameter(self._defaultParameters,'jetCollection',self._defaultValue,'Input jet collection', cms.InputTag)
         self.addParameter(self._defaultParameters,'btagInfo',_defaultBTagInfos,"input btag info",allowedValues=_allowedBTagInfos,Type=list)
         self.addParameter(self._defaultParameters,'btagdiscriminators',_defaultBTagDiscriminators,"input btag discriminators",allowedValues=_allowedBTagDiscriminators,Type=list)
-	self.addParameter(self._defaultParameters,'doJTA',True, "run b tagging sequence for new jet collection and add it to the new pat jet collection")
+        self.addParameter(self._defaultParameters,'doJTA',True, "run b tagging sequence for new jet collection and add it to the new pat jet collection")
         self.addParameter(self._defaultParameters,'doBTagging',True, 'run JetTracksAssociation and JetCharge and add it to the new pat jet collection (will autom. be true if doBTagging is set to true)')
         self.addParameter(self._defaultParameters,'jetCorrLabel',None, "payload and list of new jet correction labels, such as (\'AK5Calo\',[\'L2Relative\', \'L3Absolute\'])", tuple,acceptNoneValue=True )
         self.addParameter(self._defaultParameters,'doType1MET',True, "if jetCorrLabel is not 'None', set this to 'True' to redo the Type1 MET correction for the new jet colleection; at the moment it must be 'False' for non CaloJets otherwise the JetMET POG module crashes. ")
+        self.addParameter(self._defaultParameters,'rParam', 0.5, "Jet size (distance parameter R used in jet clustering)")
+        self.addParameter(self._defaultParameters,'getJetMCFlavour', True, "Get jet MC truth flavour")
+        self.addParameter(self._defaultParameters,'useLegacyFlavour', True, "Use legacy jet MC truth flavour")
         self.addParameter(self._defaultParameters,'genJetCollection',cms.InputTag("ak5GenJets"), "GenJet collection to match to")
         self.addParameter(self._defaultParameters,'doJetID',True, "add jetId variables to the added jet collection")
         self.addParameter(self._defaultParameters,'jetIdLabel',"ak5", " specify the label prefix of the xxxJetID object; in general it is the jet collection tag like ak5, kt4 sc5, aso. For more information have a look to SWGuidePATTools#add_JetCollection")
@@ -923,6 +977,9 @@ class SwitchJetCollection(ConfigToolBase):
                  doBTagging         = None,
                  jetCorrLabel       = None,
                  doType1MET         = None,
+                 rParam             = None,
+                 getJetMCFlavour    = None,
+                 useLegacyFlavour   = None,
                  genJetCollection   = None,
                  doJetID            = None,
                  jetIdLabel         = None,
@@ -938,7 +995,7 @@ class SwitchJetCollection(ConfigToolBase):
 
         ## stop processing if 'outputModule' exists and show the new alternative
         if  not outputModule is None:
-            depricatedOptionOutputModule(self)
+            deprecatedOptionOutputModule(self)
         if jetCollection  is None:
             jetCollection=self._defaultParameters['jetCollection'].value
         if doJTA is None:
@@ -949,6 +1006,12 @@ class SwitchJetCollection(ConfigToolBase):
             jetCorrLabel=self._defaultParameters['jetCorrLabel'].value
         if doType1MET  is None:
             doType1MET=self._defaultParameters['doType1MET'].value
+        if rParam is None:
+            rParam=self._defaultParameters['rParam'].value
+        if getJetMCFlavour is None:
+            getJetMCFlavour=self._defaultParameters['getJetMCFlavour'].value
+        if useLegacyFlavour is None:
+            useLegacyFlavour=self._defaultParameters['useLegacyFlavour'].value
         if genJetCollection  is None:
             genJetCollection=self._defaultParameters['genJetCollection'].value
         if doJetID  is None:
@@ -972,6 +1035,9 @@ class SwitchJetCollection(ConfigToolBase):
         self.setParameter('doBTagging',doBTagging)
         self.setParameter('jetCorrLabel',jetCorrLabel)
         self.setParameter('doType1MET',doType1MET)
+        self.setParameter('rParam',rParam)
+        self.setParameter('getJetMCFlavour',getJetMCFlavour)
+        self.setParameter('useLegacyFlavour',useLegacyFlavour)
         self.setParameter('genJetCollection',genJetCollection)
         self.setParameter('doJetID',doJetID)
         self.setParameter('jetIdLabel',jetIdLabel)
@@ -988,6 +1054,9 @@ class SwitchJetCollection(ConfigToolBase):
         doBTagging=self._parameters['doBTagging'].value
         jetCorrLabel=self._parameters['jetCorrLabel'].value
         doType1MET =self._parameters['doType1MET'].value
+        rParam=self._parameters['rParam'].value
+        getJetMCFlavour=self._parameters['getJetMCFlavour'].value
+        useLegacyFlavour=self._parameters['useLegacyFlavour'].value
         genJetCollection=self._parameters['genJetCollection'].value
         doJetID=self._parameters['doJetID'].value
         jetIdLabel=self._parameters['jetIdLabel'].value
@@ -995,6 +1064,16 @@ class SwitchJetCollection(ConfigToolBase):
         postfix=self._parameters['postfix'].value
         btagInfo=self._parameters['btagInfo'].value
         btagdiscriminators=self._parameters['btagdiscriminators'].value
+
+        _algo=''
+        if not useLegacyFlavour:
+            ## supported algo types are ak, ca, and kt
+            for x in ["ak", "ca", "kt"]:
+                if jetIdLabel.lower().find(x)>-1:
+                    _algo=supportedJetAlgos[x]
+                    break
+            if _algo=='':
+                unsupportedJetAlgorithm(self)
 
         ## save label of old input jet collection
         oldLabel = applyPostfix(process, "patJets", postfix).jetSource;
@@ -1006,11 +1085,33 @@ class SwitchJetCollection(ConfigToolBase):
         if (process.patJets.addGenJetMatch):
             applyPostfix(process, "patJetGenJetMatch", postfix).src = jetCollection
             applyPostfix(process, "patJetGenJetMatch", postfix).matched = genJetCollection
-        if (process.patJets.getJetMCFlavour):
-            applyPostfix(process, "patJetPartonAssociation", postfix).jets = jetCollection
+        if (getJetMCFlavour):
+            applyPostfix(process, "patJets", postfix).getJetMCFlavour = True
+            applyPostfix(process, "patJets", postfix).useLegacyJetMCFlavour = useLegacyFlavour
+            applyPostfix(process, "patJetPartonAssociationLegacy", postfix).jets = jetCollection
+            if not useLegacyFlavour:
+                from PhysicsTools.PatAlgos.mcMatchLayer0.jetFlavourId_cff import patJetFlavourAssociation
+                setattr(process, "patJetFlavourAssociation"+postfix,
+                        patJetFlavourAssociation.clone(
+                            jets=jetCollection,
+                            jetAlgorithm=_algo,
+                            rParam=rParam,
+                            bHadrons=cms.InputTag("patJetPartons"+postfix,"bHadrons"),
+                            cHadrons=cms.InputTag("patJetPartons"+postfix,"cHadrons"),
+                            partons=cms.InputTag("patJetPartons"+postfix,"partons")
+                        )
+                )
+                getattr(process, "patDefaultSequence"+postfix).replace(
+                    applyPostfix(process, "patJetPartons", postfix),
+                    applyPostfix(process, "patJetPartons", postfix)
+                    + getattr(process, "patJetFlavourAssociation" + postfix) #module with postfix that is not in patDefaultSequence
+                )
+                applyPostfix(process, "patJets", postfix).JetFlavourInfoSource = "patJetFlavourAssociation" + postfix
+        else:
+            applyPostfix(process, "patJets", postfix).getJetMCFlavour = False
 
         ## replace input jet collection for pat jet production
-	applyPostfix(process, "patJets", postfix).jetSource = jetCollection
+        applyPostfix(process, "patJets", postfix).jetSource = jetCollection
 
         ## make VInputTag from strings
         def vit(*args) : return cms.VInputTag( *[ cms.InputTag(x) for x in args ] )
@@ -1025,7 +1126,7 @@ class SwitchJetCollection(ConfigToolBase):
                 getattr(process, "jetTracksAssociatorAtVertex"+postfix).jets = jetCollection
             getattr(process, "patDefaultSequence"+postfix).replace(
                 applyPostfix(process, "patJetCharge", postfix),
-                getattr(process, "jetTracksAssociatorAtVertex" + postfix) #module with postfix that is not n patDefaultSequence
+                getattr(process, "jetTracksAssociatorAtVertex" + postfix) #module with postfix that is not in patDefaultSequence
                 + applyPostfix(process, "patJetCharge", postfix)
                 )
 
@@ -1405,7 +1506,7 @@ class SwitchJetCorrLevels(ConfigToolBase):
 
 switchJetCorrLevels=SwitchJetCorrLevels()
 
-def depricatedOptionOutputModule(obj):
+def deprecatedOptionOutputModule(obj):
     print "-------------------------------------------------------"
     print " Error: the option 'outputModule' is not supported"
     print "        anymore by:"
@@ -1414,4 +1515,13 @@ def depricatedOptionOutputModule(obj):
     print "        names of all needed OutModules in there"
     print "        (default: ['out'])"
     print "-------------------------------------------------------"
-    raise KeyError, "unsupported option 'outputModule' used in '"+obj._label+"'"
+    raise KeyError, "Unsupported option 'outputModule' used in '"+obj._label+"'"
+
+def unsupportedJetAlgorithm(obj):
+    print "-------------------------------------------------------"
+    print " Error: Unsupported jet algorithm detected."
+    print "        The supported algorithms are:"
+    for key in supportedJetAlgos.keys():
+        print "        " + key.upper() + ", " + key.lower() + ": " + supportedJetAlgos[key]
+    print "-------------------------------------------------------"
+    raise KeyError, "Unsupported jet algorithm used in '"+obj._label+"'"
