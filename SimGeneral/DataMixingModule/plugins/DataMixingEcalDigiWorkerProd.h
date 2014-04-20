@@ -83,6 +83,12 @@ namespace edm
       edm::EDGetTokenT<EEDigitizerTraits::DigiCollection> tok_ee_;
       edm::EDGetTokenT<ESDigitizerTraits::DigiCollection> tok_es_;
 
+      const double m_EBs25notCont;
+      const double m_EEs25notCont;
+      const double m_peToABarrel;
+      const double m_peToAEndcap;
+
+
       EcalDigiProducer* myEcalDigitizer_;
       EBSignalGenerator theEBSignalGenerator;
       EESignalGenerator theEESignalGenerator;

@@ -17,11 +17,15 @@ namespace edm {
     EBPileInputTag_(ps.getParameter<edm::InputTag>("EBPileInputTag")),
     EEPileInputTag_(ps.getParameter<edm::InputTag>("EEPileInputTag")),
     ESPileInputTag_(ps.getParameter<edm::InputTag>("ESPileInputTag")),
+    m_EBs25notCont(ps.getParameter<double>("EBs25notContainment") ) ,
+    m_EEs25notCont(ps.getParameter<double>("EEs25notContainment") ) ,
+    m_peToABarrel(ps.getParameter<double>("photoelectronsToAnalogBarrel") ) ,
+    m_peToAEndcap(ps.getParameter<double>("photoelectronsToAnalogEndcap") ) ,
     label_(ps.getParameter<std::string>("Label"))
   {  
 
-    theEBSignalGenerator = EBSignalGenerator(EBPileInputTag_,tok_eb_);
-    theEESignalGenerator = EESignalGenerator(EBPileInputTag_,tok_ee_);
+    theEBSignalGenerator = EBSignalGenerator(EBPileInputTag_,tok_eb_, m_EBs25notCont, m_EEs25notCont, m_peToABarrel, m_peToAEndcap);
+    theEESignalGenerator = EESignalGenerator(EBPileInputTag_,tok_ee_, m_EBs25notCont, m_EEs25notCont, m_peToABarrel, m_peToAEndcap);
     //    theESSignalGenerator = ESSignalGenerator(ESPileInputTag_,tok_es_);
 
     // get the subdetector names
@@ -87,6 +91,8 @@ namespace edm {
     theEBSignalGenerator.initializeEvent(ep, &ES);
     theEESignalGenerator.initializeEvent(ep, &ES);
     //theESSignalGenerator.initializeEvent(ep, &ES);
+
+    std::cout << " filling noise signals" << std::endl;
 
     theEBSignalGenerator.fill(mcc);
     theEESignalGenerator.fill(mcc);

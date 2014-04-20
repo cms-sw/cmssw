@@ -31,7 +31,7 @@ muonCSCDigis = EventFilter.CSCRawToDigi.cscUnpacker_cfi.muonCSCDigis.clone()
 
 muonDTDigis = EventFilter.DTRawToDigi.dtunpacker_cfi.muonDTDigis.clone()
 
-muonRPCDigis = EventFilter.RPCRawToDigi.rpcUnpacker_cfi.rpcunpacker.clone()
+#muonRPCDigis = EventFilter.RPCRawToDigi.rpcUnpacker_cfi.rpcunpacker.clone()
 
 #castorDigis = EventFilter.CastorRawToDigi.CastorRawToDigi_cfi.castorDigis.clone( FEDs = cms.untracked.vint32(690,691,692) )
 
@@ -45,7 +45,7 @@ ecalPreshowerDigis.sourceTag = 'rawDataCollector'
 hcalDigis.InputLabel = 'rawDataCollector'
 muonCSCDigis.InputObjects = 'rawDataCollector'
 muonDTDigis.inputLabel = 'rawDataCollector'
-muonRPCDigis.InputLabel = 'rawDataCollector'
+#muonRPCDigis.InputLabel = 'rawDataCollector'
 #castorDigis.InputLabel = 'rawDataCollector'
 
 
@@ -65,7 +65,7 @@ mixData = cms.EDProducer("DataMixingModule",
                                              ecalPreshowerDigis = ecalPreshowerDigis,
                                              hcalDigis = hcalDigis,
                                              muonDTDigis = muonDTDigis,
-                                             muonRPCDigis = muonRPCDigis,
+                                             #muonRPCDigis = muonRPCDigis,
                                              muonCSCDigis = muonCSCDigis,
                                              siStripDigis = siStripDigis,
                                              siPixelDigis = siPixelDigis,
@@ -146,8 +146,8 @@ mixData = cms.EDProducer("DataMixingModule",
     ZDCdigiCollectionSig   = cms.InputTag("simHcalUnsuppressedDigis"),
 
     #
-    EBPileInputTag = cms.InputTag("ecalEBunpacker","ebDigis","@MIXING"),
-    EEPileInputTag = cms.InputTag("ecalEBunpacker","eeDigis","@MIXING"),
+    EBPileInputTag = cms.InputTag("ecalDigis","ebDigis","@MIXING"),
+    EEPileInputTag = cms.InputTag("ecalDigis","eeDigis","@MIXING"),
     ESPileInputTag = cms.InputTag("esRawToDigi","","@MIXING"),
     HBHEPileInputTag = cms.InputTag("hcalDigis","","@MIXING"),
     HOPileInputTag   = cms.InputTag("hcalDigis","","@MIXING"),
@@ -166,7 +166,8 @@ mixData = cms.EDProducer("DataMixingModule",
     #  Pileup
                    #                   
     DTPileInputTag        = cms.InputTag("muonDTDigis","","@MIXING"),
-    RPCPileInputTag       = cms.InputTag("muonRPCDigis","","@MIXING"),
+    RPCPileInputTag       = cms.InputTag("simMuonRPCDigis",""),
+#    RPCPileInputTag       = cms.InputTag("muonRPCDigis","","@MIXING"),  # use MC digis...
     CSCWirePileInputTag   = cms.InputTag("muonCSCDigis","MuonCSCWireDigi","@MIXING"),
     CSCStripPileInputTag  = cms.InputTag("muonCSCDigis","MuonCSCStripDigi","@MIXING"),
     CSCCompPileInputTag   = cms.InputTag("muonCSCDigis","MuonCSCComparatorDigi","@MIXING"),

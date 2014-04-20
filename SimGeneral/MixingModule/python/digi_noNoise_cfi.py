@@ -34,8 +34,9 @@ theDigitizersNoNoise.hcal.doHPDNoise = cms.bool(False)
 theDigitizersNoNoise.hcal.doIonFeedback = cms.bool(False)
 theDigitizersNoNoise.hcal.doThermalNoise = cms.bool(False)
 theDigitizersNoNoise.hcal.doTimeSlew = cms.bool(False)
-theDigitizersNoNoise.ecal.doNoise = cms.bool(False)
+theDigitizersNoNoise.ecal.doENoise = cms.bool(False)
 theDigitizersNoNoise.pixel.AddNoise = cms.bool(True)
 theDigitizersNoNoise.pixel.addNoisyPixels = cms.bool(False)
 theDigitizersNoNoise.strip.Noise = cms.bool(False)
-
+theDigitizersNoNoise.ecal.EcalPreMixStage1 = cms.bool(True)
+#Need Hcal statement - change variable
