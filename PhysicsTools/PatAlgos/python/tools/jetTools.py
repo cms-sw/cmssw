@@ -28,7 +28,7 @@ class AddJetCollection(ConfigToolBase):
         ## initialization of the base class
         ConfigToolBase.__init__(self)
         ## add all parameters that should be known to the class
-        self.addParameter(self._defaultParameters,'labelName','', "Label name of the new patJet collection.", str)
+        self.addParameter(self._defaultParameters,'labelName', 'UNDEFINED', "Label name of the new patJet collection.", str)
         self.addParameter(self._defaultParameters,'postfix','', "Postfix from usePF2PAT.", str)
         self.addParameter(self._defaultParameters,'jetSource','', "Label of the input collection from which the new patJet collection should be created", cms.InputTag)
         self.addParameter(self._defaultParameters,'algo', 'AK5', "Jet algorithm of the input collection from which the new patJet collection should be created")
@@ -118,7 +118,7 @@ class AddJetCollection(ConfigToolBase):
         Tool code implementation
         """
         ## initialize parameters
-        labelName='patJets'+self._parameters['labelName'].value
+        labelName=self._parameters['labelName'].value
         postfix=self._parameters['postfix'].value
         jetSource=self._parameters['jetSource'].value
         algo=self._parameters['algo'].value
@@ -130,6 +130,10 @@ class AddJetCollection(ConfigToolBase):
         btagInfos=list(self._parameters['btagInfos'].value)
         jetTrackAssociation=self._parameters['jetTrackAssociation'].value
         outputModules=list(self._parameters['outputModules'].value)
+
+        ## added jets must have a defined 'labelName'
+        if labelName=='UNDEFINED':
+            undefinedLabelName(self)
 
         ## a list of all producer modules, which are already known to process
         knownModules = process.producerNames().split()
@@ -152,30 +156,24 @@ class AddJetCollection(ConfigToolBase):
                 break
         if _algo=='':
             unsupportedJetAlgorithm(self)
+
         ## add new patJets to process (keep instance for later further modifications)
         from PhysicsTools.PatAlgos.producersLayer1.jetProducer_cfi import patJets
-        if labelName in knownModules :
-            _newPatJets=getattr(process, labelName+postfix)
+        if 'patJets'+_labelName+postfix in knownModules :
+            _newPatJets=getattr(process, 'patJets'+_labelName+postfix)
             _newPatJets.jetSource=jetSource
         else :
-            #setattr(process, labelName, patJets.clone(jetSource=jetSource))
-            setattr(process, labelName+postfix, patJets.clone(jetSource=jetSource))
-            _newPatJets=getattr(process, labelName+postfix)
-            knownModules.append(labelName+postfix)
+            setattr(process, 'patJets'+_labelName+postfix, patJets.clone(jetSource=jetSource))
+            _newPatJets=getattr(process, 'patJets'+_labelName+postfix)
+            knownModules.append('patJets'+_labelName+postfix)
         ## add new selectedPatJets to process
         from PhysicsTools.PatAlgos.selectionLayer1.jetSelector_cfi import selectedPatJets
-        if 'selected'+_labelName+postfix in knownModules :
-            _newSelectedPatJets=getattr(process, 'selected'+_labelName+postfix)
-            _newSelectedPatJets.src=labelName+postfix
+        if 'selectedPatJets'+_labelName+postfix in knownModules :
+            _newSelectedPatJets=getattr(process, 'selectedPatJets'+_labelName+postfix)
+            _newSelectedPatJets.src='patJets'+_labelName+postfix
         else :
-            setattr(process, 'selected'+_labelName+postfix, selectedPatJets.clone(src=labelName+postfix))
-            knownModules.append('selected'+_labelName+postfix)
-
-        ## set postfix label to '' if there is no labelName given. In this case all
-        ## modules should keep there names w/o postfixes. This will cover the case
-        ## of switchJectCollection
-        if self._parameters['labelName'].value == '' :
-            _labelName = ''
+            setattr(process, 'selectedPatJets'+_labelName+postfix, selectedPatJets.clone(src='patJets'+_labelName+postfix))
+            knownModules.append('selectedPatJets'+_labelName+postfix)
 
 	## add new patJetPartonMatch to process
         from PhysicsTools.PatAlgos.mcMatchLayer0.jetMatch_cfi import patJetPartonMatch
@@ -707,7 +705,7 @@ class SetTagInfos(ConfigToolBase):
 
 setTagInfos=SetTagInfos()
 
-def depricatedOptionOutputModule(obj):
+def deprecatedOptionOutputModule(obj):
     print "-------------------------------------------------------"
     print " Error: the option 'outputModule' is not supported"
     print "        anymore by:"
@@ -716,7 +714,14 @@ def depricatedOptionOutputModule(obj):
     print "        names of all needed OutModules in there"
     print "        (default: ['out'])"
     print "-------------------------------------------------------"
-    raise KeyError, "unsupported option 'outputModule' used in '"+obj._label+"'"
+    raise KeyError, "Unsupported option 'outputModule' used in '"+obj._label+"'"
+
+def undefinedLabelName(obj):
+    print "-------------------------------------------------------"
+    print " Error: the jet 'labelName' is not defined."
+    print "        All added jets must have 'labelName' defined."
+    print "-------------------------------------------------------"
+    raise KeyError, "Undefined jet 'labelName' used in '"+obj._label+"'"
 
 def unsupportedJetAlgorithm(obj):
     print "-------------------------------------------------------"
