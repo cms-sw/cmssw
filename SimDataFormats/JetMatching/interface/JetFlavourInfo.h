@@ -19,7 +19,9 @@ namespace reco
 class JetFlavourInfo
 {
   public:
-    JetFlavourInfo(void) { }
+    JetFlavourInfo(void) :
+      m_hadronFlavour(0),
+      m_partonFlavour(0) { }
     JetFlavourInfo(
                    const GenParticleRefVector& bHadrons,
                    const GenParticleRefVector& cHadrons,
