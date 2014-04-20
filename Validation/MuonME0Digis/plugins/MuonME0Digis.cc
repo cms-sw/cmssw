@@ -433,7 +433,7 @@ void MuonME0Digis::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
         
         for(int k=0;k<num_region;k++){
             
-            std::cout<<"REGION!!!!!!   "<<region[k]<<std::endl;
+            //std::cout<<"REGION!!!!!!   "<<region[k]<<std::endl;
             
             meCollection["strip_dg_xy_r"+region[k]+"_l1"]=dbe->book2D("strip_dg_xy_r"+region[k]+"_l1","Digi occupancy: region "+region[k]+", layer1;globalX [cm];globalY [cm]",120,-280,280,120,-280,280);
             meCollection["strip_dg_xy_r"+region[k]+"_l2"]=dbe->book2D("strip_dg_xy_r"+region[k]+"_l2","Digi occupancy: region "+region[k]+", layer2;globalX [cm];globalY [cm]",120,-280,280,120,-280,280);
