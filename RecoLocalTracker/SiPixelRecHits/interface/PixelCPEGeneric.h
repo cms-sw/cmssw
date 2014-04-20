@@ -30,8 +30,6 @@
 // simple, and is described in Morris's note (IN ???) on the generalizaton
 // of the pixel algorithm.
 
-#define NEW_PIXELCPEERROR
-
 #include "RecoLocalTracker/SiPixelRecHits/interface/PixelCPEBase.h"
 #include "CalibTracker/SiPixelESProducers/interface/SiPixelCPEGenericDBErrorParametrization.h"
 
@@ -45,6 +43,7 @@
 #include <utility>
 #include <vector>
 
+//#define NEW_CPEERROR // must be constistent with base.cc, generic cc/h and genericProducer.cc 
 
 #if 0
 /** \class PixelCPEGeneric
@@ -83,13 +82,13 @@ class PixelCPEGeneric : public PixelCPEBase
   float dx2   ; // CPE Generic x-bias for single double-pixel cluster
   };
 
-#ifdef NEW_PIXELCPEERROR
-  PixelCPEGeneric(edm::ParameterSet const& conf, const MagneticField *, const TrackerGeometry&,
-		  const SiPixelLorentzAngle *, const SiPixelGenErrorDBObject *, 
-		  const SiPixelTemplateDBObject *,const SiPixelLorentzAngle *);
+#ifdef NEW_CPEERROR
+  PixelCPEGeneric(edm::ParameterSet const& conf, const MagneticField *, 
+		  const TrackerGeometry&, const SiPixelLorentzAngle *, 
+		  const SiPixelGenErrorDBObject *, const SiPixelLorentzAngle *);
 #else
   PixelCPEGeneric(edm::ParameterSet const& conf, const MagneticField *, const TrackerGeometry&,
-		  const SiPixelLorentzAngle *, const SiPixelCPEGenericErrorParm *, 
+		  const SiPixelLorentzAngle *, const SiPixelGenErrorDBObject *, 
 		  const SiPixelTemplateDBObject *,const SiPixelLorentzAngle *);
 #endif
 
@@ -149,7 +148,7 @@ private:
 
   bool UseErrorsFromTemplates_;
   bool DoCosmics_;
-  bool LoadTemplatesFromDB_;
+  //bool LoadTemplatesFromDB_;
   bool TruncatePixelCharge_;
   bool IrradiationBiasCorrection_;
   bool isUpgrade_;
@@ -162,16 +161,14 @@ private:
   float xerr_barrel_l1_def_, yerr_barrel_l1_def_,xerr_barrel_ln_def_;
   float yerr_barrel_ln_def_, xerr_endcap_def_, yerr_endcap_def_;
 
-#ifdef NEW_PIXELCPEERROR
-
+  //--- DB Error Parametrization object, new light templates 
   std::vector< SiPixelGenErrorStore > thePixelGenError_;
+  //SiPixelCPEGenericDBErrorParametrization * genErrorsFromDB_;
 
-#else
-  //--- DB Error Parametrization object
-  SiPixelCPEGenericDBErrorParametrization * genErrorsFromDB_;
-#endif
-
+#ifndef NEW_CPEERROR
+  // For old template errors
   std::vector< SiPixelTemplateStore > thePixelTemp_;
+#endif
 
 };
 

@@ -31,6 +31,8 @@ Implementation:
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 
 class CaloTopology;
 
@@ -45,6 +47,8 @@ class GamIsoDetIdCollectionProducer : public edm::EDProducer {
 
    private:
       // ----------member data ---------------------------
+      edm::EDGetTokenT<EcalRecHitCollection> recHitsToken_;
+      edm::EDGetTokenT<reco::PhotonCollection> emObjectToken_;
       edm::InputTag recHitsLabel_;
       edm::InputTag emObjectLabel_;
       double energyCut_;

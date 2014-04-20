@@ -45,6 +45,8 @@ class ScalersRawToDigi : public edm::EDProducer
 
   private:
     edm::InputTag inputTag_;
+    edm::EDGetTokenT<FEDRawDataCollection> fedToken_;
+
 };
 
 // Constructor
@@ -61,6 +63,8 @@ ScalersRawToDigi::ScalersRawToDigi(const edm::ParameterSet& iConfig):
   {
     inputTag_ = iConfig.getParameter<edm::InputTag>("scalersInputTag");
   }
+  fedToken_=consumes<FEDRawDataCollection>(inputTag_);
+
 }
 
 // Destructor
@@ -74,7 +78,7 @@ void ScalersRawToDigi::produce(edm::Event& iEvent,
 
   // Get a handle to the FED data collection
   edm::Handle<FEDRawDataCollection> rawdata;
-  iEvent.getByLabel(inputTag_, rawdata);
+  iEvent.getByToken(fedToken_, rawdata);
 
   std::auto_ptr<LumiScalersCollection> pLumi(new LumiScalersCollection());
 
