@@ -23,10 +23,10 @@ DDShashlikNoTaperEndcap::~DDShashlikNoTaperEndcap() {}
 
 void
 DDShashlikNoTaperEndcap::initialize(const DDNumericArguments & nArgs,
-			     const DDVectorArguments & vArgs,
-			     const DDMapArguments & ,
-			     const DDStringArguments & sArgs,
-			     const DDStringVectorArguments & )
+				    const DDVectorArguments & vArgs,
+				    const DDMapArguments & ,
+				    const DDStringArguments & sArgs,
+				    const DDStringVectorArguments & )
 {
   m_tiltAngle   = nArgs["tiltAngle"];
   m_invert      = int( nArgs["invert"] );
@@ -96,10 +96,10 @@ DDShashlikNoTaperEndcap::createQuarter( DDCompactView& cpv, int xQuadrant, int y
       // Make sure we do not add supermodules in rMin area
       if( limit2 > m_rMin && limit1 < m_rMax ) {
 #ifdef DebugLog
-	std::cout << " copyNo = " << copyNo << " (" << column << "," << row 
-		  << "): offsetX,Y = " << offsetX << "," << offsetY 
-		  << " limit=" << limit1 << ":" << limit2 << " rMin, rMax = " 
-		  << m_rMin << "," << m_rMax << std::endl;
+	std::cout << m_childName << " copyNo = " << copyNo << " (" << column 
+		  << "," << row << "): offsetX,Y = " << offsetX << "," 
+		  << offsetY << " limit=" << limit1 << ":" << limit2 
+		  << " rMin, rMax = " << m_rMin << "," << m_rMax << std::endl;
 #endif
 	DDRotation rotation;
 	std::string rotstr( "NULL" );
