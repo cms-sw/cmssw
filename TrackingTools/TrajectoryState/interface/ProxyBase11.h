@@ -4,7 +4,10 @@
 #include "FWCore/Utilities/interface/Visibility.h"
 #include "FWCore/Utilities/interface/Likely.h"
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
-#include <memory>
+
+#ifndef CMS_NOCXX11
+#include "ChurnAllocator.h"
+#endif
 
 /** A base class for reference counting proxies.
  *  The class to which this one is proxy must inherit from
@@ -20,7 +23,12 @@ template <class T>
 class ProxyBase11 {
 public:
   
-  
+#ifdef CMS_NOCXX11
+  typedef T * pointer;
+#else
+  using pointer = std::shared_ptr<T>;
+#endif
+
   // protected:
   
   ProxyBase11() {}
@@ -67,7 +75,7 @@ public:
 
   T& sharedData() { check(); return *theData;}
 
-  bool isValid() const { return theData;}
+  bool isValid() const { return bool(theData);}
 
   void check() const {
 #ifdef TR_DEBUG
@@ -77,8 +85,11 @@ public:
   }
 
   void destroy()  noexcept {}
-
-  int  references() const {return theData.use_count();}  
+#ifndef CMS_NOCXX11
+  int  references() const {return theData.use_count();}
+#else
+  int  references() const { return 0;}
+#endif
 
 private:
 #ifdef CMS_NOCXX11

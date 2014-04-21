@@ -16,16 +16,20 @@
 
 class TrajectoryStateOnSurface : private  BasicTrajectoryState::Proxy {
 
+  typedef BasicTrajectoryState                    BTSOS;
   typedef BasicTrajectoryState::SurfaceType SurfaceType;
   typedef BasicTrajectoryState::SurfaceSide SurfaceSide;
-  typedef BasicTrajectoryState::Proxy             Base;
+  typedef BasicTrajectoryState::Proxy              Base;
 
 public:
   // construct
   TrajectoryStateOnSurface() {}
   /// Constructor from one of the basic states
-  TrajectoryStateOnSurface( BasicTrajectoryState* p) : Base(p) {}
-  TrajectoryStateOnSurface( BasicSingleTrajectoryState* p) : Base(p) {}
+#ifndef CMS_NOCXX11
+  explicit TrajectoryStateOnSurface( Base::pointer p) : Base(p) {}
+#endif
+  explicit TrajectoryStateOnSurface( BasicTrajectoryState* p) : Base(p) {}
+  explicit TrajectoryStateOnSurface( BasicSingleTrajectoryState* p) : Base(p) {}
 
   ~TrajectoryStateOnSurface() {}
 
@@ -52,7 +56,7 @@ public:
   }
 
   template<typename... Args>
-  explicit TrajectoryStateOnSurface(Args && ...args) : Base(new BasicSingleTrajectoryState(std::forward<Args>(args)...)){}
+  explicit TrajectoryStateOnSurface(Args && ...args) : Base(BTSOS::build<BasicSingleTrajectoryState>(std::forward<Args>(args)...)){}
 
 #endif
 

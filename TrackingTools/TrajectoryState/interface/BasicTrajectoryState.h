@@ -1,9 +1,7 @@
 #ifndef BasicTrajectoryState_H
 #define BasicTrajectoryState_H
 
-#include "TrackingTools/TrajectoryState/interface/ProxyBase.h"
-#include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
-#include "TrackingTools/TrajectoryState/interface/CopyUsingClone.h"
+#include "TrackingTools/TrajectoryState/interface/ProxyBase11.h"
 
 #include "TrackingTools/TrajectoryParametrization/interface/LocalTrajectoryParameters.h"
 #include "TrackingTools/TrajectoryParametrization/interface/LocalTrajectoryError.h"
@@ -20,7 +18,6 @@
 #include "TrackingTools/TrajectoryParametrization/interface/LocalTrajectoryError.h"
 
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
-
 #include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointer.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "TrackingTools/TrajectoryParametrization/interface/TrajectoryStateExceptions.h"
@@ -62,8 +59,6 @@ private :
   mutable unsigned int referenceMax_ =0;
 #endif
 };
-#else
-typedef ReferenceCountedInEvent  BTSCount;
 #endif
 
 /** No so Abstract (anyore) base class for TrajectoryState.
@@ -72,18 +67,15 @@ typedef ReferenceCountedInEvent  BTSCount;
  * VI 8/12/2011   content of BasicSingleTrajectoryState moved here....
  * fully devirtualized
  */
-class BasicTrajectoryState : public BTSCount {
+class BasicTrajectoryState {
   public:
 
   typedef BasicTrajectoryState                              BTSOS;
-  typedef ProxyBase< BTSOS, CopyUsingClone<BTSOS> >         Proxy;
-  typedef ReferenceCountingPointer<BasicTrajectoryState>    RCPtr;
+  typedef ProxyBase11<BTSOS>                                Proxy;
+  typedef Proxy::pointer                           pointer;
   typedef SurfaceSideDefinition::SurfaceSide SurfaceSide;
   typedef Surface SurfaceType;
 
-private:
-  friend class ProxyBase< BTSOS, CopyUsingClone<BTSOS> >;
-  friend class ReferenceCountingPointer<BasicTrajectoryState>;
 public:
 
   // default constructor : to make root happy
@@ -94,7 +86,17 @@ public:
 
   virtual ~BasicTrajectoryState();
 
+  virtual pointer clone() const=0;
+
 #ifndef CMS_NOCXX11
+
+  template<typename T, typename... Args>
+  static std::shared_ptr<BTSOS> build(Args && ...args){ return std::allocate_shared<T>(std::allocator<T>(),std::forward<Args>(args)...);}
+
+  template<typename T, typename... Args>
+  static std::shared_ptr<BTSOS> churn(Args && ...args){ return std::allocate_shared<T>(churn_allocator<T>(),std::forward<Args>(args)...);}
+
+
 
   /** Constructor from FTS and surface. For surfaces with material
    *  the side of the surface should be specified explicitely.
@@ -300,8 +302,6 @@ public:
   }
 
 
-  virtual BasicTrajectoryState* clone() const=0;
-
   virtual bool canUpdateLocalParameters() const { return true; }
 
   virtual void update( const LocalTrajectoryParameters& p,
@@ -331,7 +331,7 @@ public:
  }
 
 public:
-  virtual std::vector<TrajectoryStateOnSurface> components() const;
+  virtual std::vector<TrajectoryStateOnSurface> components() const =0;
 
 private:
 

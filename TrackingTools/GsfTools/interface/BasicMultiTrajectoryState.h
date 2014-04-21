@@ -33,8 +33,8 @@ public:
 
   void rescaleError(double factor);
 
-  virtual BasicMultiTrajectoryState* clone() const override {
-    return new BasicMultiTrajectoryState(*this);
+  pointer clone() const override {
+    return build<BasicMultiTrajectoryState>(*this);
   }
 
   virtual std::vector<TrajectoryStateOnSurface> components() const {
