@@ -23,6 +23,12 @@
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalElectronicsSim.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalDigitizerTraits.h"
+#include "CondFormats/ESObjects/interface/ESIntercalibConstants.h"
+#include "CondFormats/DataRecord/interface/ESIntercalibConstantsRcd.h"
+#include "CondFormats/ESObjects/interface/ESMIPToGeVConstant.h"
+#include "CondFormats/DataRecord/interface/ESMIPToGeVConstantRcd.h"
+#include "CondFormats/ESObjects/interface/ESGain.h"
+#include "CondFormats/DataRecord/interface/ESGainRcd.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 /** Converts digis back into analog signals, to be used
@@ -78,6 +84,18 @@ public:
     m_maxEneEB = (agc->getEBValue())*theDefaultGains[1]*MAXADC*m_EBs25notCont  ;
     m_maxEneEE = (agc->getEEValue())*theDefaultGains[1]*MAXADC*m_EEs25notCont  ;
 
+    //ES
+    eventSetup->get<ESGainRcd>().               get( hesgain      ) ;
+    eventSetup->get<ESMIPToGeVConstantRcd>().   get( hesMIPToGeV  ) ;
+    eventSetup->get<ESIntercalibConstantsRcd>().get( hesMIPs      ) ;
+
+    esgain     = hesgain.product()      ;
+    esmips     = hesMIPs.product()      ;
+    esMipToGeV = hesMIPToGeV.product()  ;
+    if( 1.1 > esgain->getESGain() ) ESgain = 1;
+    else ESgain = 2;
+    if( ESgain ==1 ) ESMIPToGeV = esMipToGeV->getESValueLow();
+    else ESMIPToGeV = esMipToGeV->getESValueHigh();
   }
 
   /// some users use EventPrincipals, not Events.  We support both
@@ -94,6 +112,18 @@ public:
     m_maxEneEB = (agc->getEBValue())*theDefaultGains[1]*MAXADC*m_EBs25notCont  ;
     m_maxEneEE = (agc->getEEValue())*theDefaultGains[1]*MAXADC*m_EEs25notCont  ;
 
+    //ES
+    eventSetup->get<ESGainRcd>().               get( hesgain      ) ;
+    eventSetup->get<ESMIPToGeVConstantRcd>().   get( hesMIPToGeV  ) ;
+    eventSetup->get<ESIntercalibConstantsRcd>().get( hesMIPs      ) ;
+
+    esgain     = hesgain.product()      ;
+    esmips     = hesMIPs.product()      ;
+    esMipToGeV = hesMIPToGeV.product()  ;
+    if( 1.1 > esgain->getESGain() ) ESgain = 1;
+    else ESgain = 2;
+    if( ESgain ==1 ) ESMIPToGeV = esMipToGeV->getESValueLow();
+    else ESMIPToGeV = esMipToGeV->getESValueHigh();
   }
 
   virtual void fill(edm::ModuleCallingContext const* mcc)
@@ -109,7 +139,7 @@ public:
      {
       if( theEvent->getByToken(tok_, pDigis) ) {
         digis = pDigis.product(); // get a ptr to the product
-        LogTrace("EcalSignalGenerator") << "total # digis  for "  << theInputTag << " " <<  digis->size();
+        //LogTrace("EcalSignalGenerator") << "total # digis  for "  << theInputTag << " " <<  digis->size();
       }
       else
       {
@@ -162,57 +192,7 @@ private:
 	 ADCGAINSWITCH = 4079 , // adc gain switch
 	 NGAINS        =    3 };  // number of electronic gains
 
-  CaloSamples samplesInPE(const DIGI & digi)
-  {
-    // calibration, for future reference:  (same block for all Ecal types)
-    //EcalDetId cell = digi.id();
-    //         const EcalCalibrations& calibrations=conditions->getEcalCalibrations(cell);
-    //const EcalQIECoder* channelCoder = theConditions->getEcalCoder (cell);
-    //const EcalQIEShape* channelShape = theConditions->getEcalShape (cell);
-    //EcalCoderDb coder (*channelCoder, *channelShape);
-    //CaloSamples result;
-    //coder.adc2fC(digi, result);
-    //fC2pe(result);
-
-    DetId detId = digi.id();
-
-    double Emax = fullScaleEnergy(detId); 
-    double LSB[NGAINS+1]; 
-
-    double icalconst = 1. ;
-    findIntercalibConstant( detId, icalconst );
-
-    double peToA = peToAConversion ( detId ) ;
-
-    const std::vector<float> gainRatios = GetGainRatios(detId);
-
-    for( unsigned int igain ( 0 ); igain <= NGAINS ; ++igain ) 
-      {
-	LSB[igain] = 0.;
-	if ( igain > 0 ) LSB[igain]= Emax/(MAXADC*gainRatios[igain]);
-      }
-
-    //    std::cout << " intercal, LSBs, egains " << icalconst << " " << LSB[0] << " " << LSB[1] << " " << gainRatios[0] << " " << gainRatios[1] << " " << Emax << std::endl;
-
-    CaloSamples result(detId, digi.size());
-
-    for(int isample = 0; isample<digi.size(); ++isample){
-
-      int gainId = digi[isample].gainId();
-
-      result[isample] = float(digi[isample].adc())*LSB[gainId]*icalconst/peToA;
-    }
-
-    std::cout << " EcalSignalGenerator: noise input " << digi << std::endl;
-
-    std::cout << " converted noise sample " << std::endl;
-    for(int isample = 0; isample<digi.size(); ++isample){
-      std::cout << " " << result[isample] ;
-    }
-    std::cout << std::endl;
-
-    return result;
-  }
+  CaloSamples samplesInPE(const DIGI & digi);  // have to define this separately for ES
 
   const std::vector<float>  GetGainRatios(const DetId& detid) {
 
@@ -228,25 +208,6 @@ private:
     return gainRatios;
   }
 
-  void
-  findIntercalibConstant( const DetId& detId,
-			  double&      icalconst ) const
-  {
-    EcalIntercalibConstantMC thisconst = 1.;
-    // find intercalib constant for this xtal                                              
-    const EcalIntercalibConstantMCMap &icalMap = ical->getMap();
-    EcalIntercalibConstantMCMap::const_iterator icalit = icalMap.find(detId);
-    if( icalit!=icalMap.end() )
-      {
-	thisconst = (*icalit);
-	if ( icalconst == 0. ) { thisconst = 1.; }
-      }
-    else
-      {
-	edm::LogError("EcalSignalGenerator") << "No intercalib const found for xtal " << detId.rawId() << "! something wrong with EcalIntercalibConstants in your DB? ";
-      }
-    icalconst = thisconst;
-  }
 
   double fullScaleEnergy( const DetId & detId ) const 
   {
@@ -269,6 +230,17 @@ private:
  /// these come from the ParameterSet
   edm::InputTag theInputTag;
   edm::EDGetTokenT<COLLECTION> tok_;
+
+  edm::ESHandle<ESGain>                hesgain      ;
+  edm::ESHandle<ESMIPToGeVConstant>    hesMIPToGeV  ;
+  edm::ESHandle<ESIntercalibConstants> hesMIPs      ;
+
+  const ESGain*                esgain;
+  const ESIntercalibConstants* esmips;
+  const ESMIPToGeVConstant*    esMipToGeV;
+  int ESgain ;
+  double ESMIPToGeV; 
+
   double m_EBs25notCont;
   double m_EEs25notCont;
 
@@ -287,7 +259,7 @@ private:
 
 typedef EcalSignalGenerator<EBDigitizerTraits>   EBSignalGenerator;
 typedef EcalSignalGenerator<EEDigitizerTraits>   EESignalGenerator;
-//typedef EcalSignalGenerator<ESDigitizerTraits>   ESSignalGenerator;
+typedef EcalSignalGenerator<ESDigitizerTraits>   ESSignalGenerator;
 
 #endif
 
