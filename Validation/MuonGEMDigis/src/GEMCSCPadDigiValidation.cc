@@ -1,14 +1,11 @@
 #include "Validation/MuonGEMDigis/interface/GEMCSCPadDigiValidation.h"
 
 GEMCSCPadDigiValidation::GEMCSCPadDigiValidation(DQMStore* dbe,
-                                               const edm::InputTag & inputTag)
-:  GEMBaseValidation(dbe, inputTag)
+                                               const edm::InputTag & inputTag, const edm::ParameterSet& pbInfo)
+:  GEMBaseValidation(dbe, inputTag, pbInfo)
 {}
 void GEMCSCPadDigiValidation::bookHisto(const GEMGeometry* geom) {
   theGEMGeometry = geom;
-  std::string region[2]= { "-1","1" } ;
-  std::string station[3]= { "1","2","3" } ;
-  std::string layer[2]= { "1","2" } ;
 
   int npadsGE11 = theGEMGeometry->regions()[0]->stations()[0]->superChambers()[0]->chambers()[0]->etaPartitions()[0]->npads();
   int npadsGE21 = 0;
@@ -20,23 +17,20 @@ void GEMCSCPadDigiValidation::bookHisto(const GEMGeometry* geom) {
     npadsGE21  = theGEMGeometry->regions()[0]->stations()[1]->superChambers()[0]->chambers()[0]->etaPartitions()[0]->npads();
   }
 
-
-  theCSCPad_zr_rm1 = dbe_->book2D("pad_dg_zr_rm1", "Digi occupancy: region-1; globalZ [cm] ; globalR [cm] ", 200,-573,-564,55,130,240);
-  theCSCPad_zr_rp1 =  dbe_->book2D("pad_dg_zr_rp1", "Digi occupancy: region 1; globalZ [cm] ; globalR [cm] ", 200,564,573,55,130,240);
-
   for( int region_num = 0 ; region_num < nregions ; region_num++ ) {
     for( int layer_num = 0 ; layer_num < 2 ; layer_num++) {
-      std::string name_prefix  = std::string("_r")+region[region_num]+"_l"+layer[layer_num];
-      std::string label_prefix = "region "+region[region_num]+" layer "+layer[layer_num];
-      theCSCPad_bx[region_num][layer_num] = dbe_->book1D( ("pad_dg_bx"+name_prefix).c_str(), ("Bunch crossing: "+label_prefix+"; bunch crossing ; entries").c_str(), 11,-5.5,5.5);
+      std::string name_prefix  = std::string("_r")+regionLabel[region_num]+"_l"+layerLabel[layer_num];
+      std::string label_prefix = "region "+regionLabel[region_num]+" layer "+layerLabel[layer_num];
       for( int station_num = 0 ; station_num < nstations ; station_num++) {
         if ( station_num == 0 ) nPads = npadsGE11;
         else nPads = npadsGE21;
-        name_prefix  = std::string("_r")+region[region_num]+"_st"+station[station_num]+"_l"+layer[layer_num];
-        label_prefix = "region"+region[region_num]+" station "+station[station_num]+" layer "+layer[layer_num];
+        name_prefix  = std::string("_r")+regionLabel[region_num]+"_st"+stationLabel[station_num]+"_l"+layerLabel[layer_num];
+        label_prefix = "region"+regionLabel[region_num]+" station "+stationLabel[station_num]+" layer "+layerLabel[layer_num];
         theCSCPad_phipad[region_num][station_num][layer_num] = dbe_->book2D( ("pad_dg_phipad"+name_prefix).c_str(), ("Digi occupancy: "+label_prefix+"; phi [rad]; Pad number").c_str(), 280,-TMath::Pi(),TMath::Pi(), nPads/2,0,nPads );
         theCSCPad[region_num][station_num][layer_num] = dbe_->book1D( ("pad_dg"+name_prefix).c_str(), ("Digi occupancy per pad number: "+label_prefix+";Pad number; entries").c_str(), nPads,0.5,nPads+0.5);
-        theCSCPad_xy[region_num][station_num][layer_num] = dbe_->book2D( ("pad_dg_xy"+name_prefix).c_str(), ("Digi occupancy: "+label_prefix+";globalX [cm]; globalY[cm]").c_str(), 260, -260,260,260,-260,260);
+        theCSCPad_xy[region_num][station_num][layer_num] = dbe_->book2D( ("pad_dg_xy"+name_prefix).c_str(), ("Digi occupancy: "+label_prefix+";globalX [cm]; globalY[cm]").c_str(), 360, -360,360,360,-360,360);
+        theCSCPad_bx[region_num][station_num][layer_num] = dbe_->book1D( ("pad_dg_bx"+name_prefix).c_str(), ("Bunch crossing: "+label_prefix+"; bunch crossing ; entries").c_str(), 11,-5.5,5.5);
+        theCSCPad_zr[region_num][station_num][layer_num] = BookHistZR("pad_dg","Pad Digi",region_num,station_num,layer_num);
       }
     }
   }
@@ -90,26 +84,16 @@ void GEMCSCPadDigiValidation::analyze(const edm::Event& e,
       edm::LogInfo("GEMCSCPadDIGIValidation")<<"Global bx "<<bx<<std::endl;	
 
       int region_num=0;
-      if ( region == -1 ) region_num = 0 ; 
-      else if (region == 1 ) region_num = 1; 
       int station_num = station-1;
       int layer_num = layer-1;
+      if ( region == -1 ) region_num = 0 ; 
+      else if (region == 1 ) region_num = 1; 
 
       theCSCPad_xy[region_num][station_num][layer_num]->Fill(g_x,g_y);     
       theCSCPad_phipad[region_num][station_num][layer_num]->Fill(g_phi,pad);
       theCSCPad[region_num][station_num][layer_num]->Fill(pad);
-      theCSCPad_bx[region_num][layer_num]->Fill(bx);
-
-      // fill hist
-      if ( region== -1 ) {
-                theCSCPad_zr_rm1->Fill(g_z,g_r);
-      }
-      else if ( region == 1 ) {
-                theCSCPad_zr_rp1->Fill(g_z,g_r);
-      }
-      else {
-        edm::LogInfo("GEMCSCPadDIGIValidation")<<"region : "<<region<<std::endl;
-      }
-   }
+      theCSCPad_bx[region_num][station_num][layer_num]->Fill(bx);
+      theCSCPad_zr[region_num][station_num][layer_num]->Fill(g_z,g_r);
+    }
   }
 }

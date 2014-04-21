@@ -15,18 +15,18 @@ GEMDigiTrackMatch::GEMDigiTrackMatch(DQMStore* dbe, std::string simInputLabel , 
 
 void GEMDigiTrackMatch::bookHisto(){
    const float PI=TMath::Pi();
-   track_eta =  dbe_->book1D("track_eta", "track_eta;SimTrack |#eta|;# of tracks", 140,1.5,2.2);
+   track_eta =  dbe_->book1D("track_eta", "track_eta;SimTrack |#eta|;# of tracks", 140,1.5,2.5);
    track_phi =  dbe_->book1D("track_phi", "track_phi;SimTrack |#eta|;# of tracks", 100,-PI,PI);
 
-   dg_eta[0] = dbe_->book1D("dg_eta_l1","dg_eta_l1",140,1.5,2.2);
-   dg_eta[1] = dbe_->book1D("dg_eta_l2","dg_eta_l2",140,1.5,2.2);
-   dg_eta[2] = dbe_->book1D("dg_eta_l1or2","dg_eta_l1or2",140,1.5,2.2);
-   dg_eta[3] = dbe_->book1D("dg_eta_l1and2","dg_eta_l1and2",140,1.5,2.2);
+   dg_eta[0] = dbe_->book1D("dg_eta_l1","dg_eta_l1",140,1.5,2.5);
+   dg_eta[1] = dbe_->book1D("dg_eta_l2","dg_eta_l2",140,1.5,2.5);
+   dg_eta[2] = dbe_->book1D("dg_eta_l1or2","dg_eta_l1or2",140,1.5,2.5);
+   dg_eta[3] = dbe_->book1D("dg_eta_l1and2","dg_eta_l1and2",140,1.5,2.5);
 
-   dg_sh_eta[0] = dbe_->book1D("dg_sh_eta_l1","dg_sh_eta_l1",140,1.5,2.2);
-   dg_sh_eta[1] = dbe_->book1D("dg_sh_eta_l2","dg_sh_eta_l2",140,1.5,2.2);
-   dg_sh_eta[2] = dbe_->book1D("dg_sh_eta_l1or2","dg_sh_eta_l1or2",140,1.5,2.2);
-   dg_sh_eta[3] = dbe_->book1D("dg_sh_eta_l1and2","dg_sh_eta_l1and2",140,1.5,2.2);
+   dg_sh_eta[0] = dbe_->book1D("dg_sh_eta_l1","dg_sh_eta_l1",140,1.5,2.5);
+   dg_sh_eta[1] = dbe_->book1D("dg_sh_eta_l2","dg_sh_eta_l2",140,1.5,2.5);
+   dg_sh_eta[2] = dbe_->book1D("dg_sh_eta_l1or2","dg_sh_eta_l1or2",140,1.5,2.5);
+   dg_sh_eta[3] = dbe_->book1D("dg_sh_eta_l1and2","dg_sh_eta_l1and2",140,1.5,2.5);
 
    dg_phi[0] = dbe_->book1D("dg_phi_l1","dg_phi_l1",100,-PI,PI);
    dg_phi[1] = dbe_->book1D("dg_phi_l2","dg_phi_l2",100,-PI,PI);
@@ -38,10 +38,10 @@ void GEMDigiTrackMatch::bookHisto(){
    dg_sh_phi[2] = dbe_->book1D("dg_sh_phi_l1or2","dg_sh_phi_l1or2",100,-PI,PI);
    dg_sh_phi[3] = dbe_->book1D("dg_sh_phi_l1and2","dg_sh_phi_l1and2",100,-PI,PI);
 
-   pad_eta[0] = dbe_->book1D("pad_eta_l1","pad_eta_l1",140,1.5,2.2);
-   pad_eta[1] = dbe_->book1D("pad_eta_l2","pad_eta_l2",140,1.5,2.2);
-   pad_eta[2] = dbe_->book1D("pad_eta_l1or2","pad_eta_l1or2",140,1.5,2.2);
-   pad_eta[3] = dbe_->book1D("copad_eta","copad_eta",140,1.5,2.2);
+   pad_eta[0] = dbe_->book1D("pad_eta_l1","pad_eta_l1",140,1.5,2.5);
+   pad_eta[1] = dbe_->book1D("pad_eta_l2","pad_eta_l2",140,1.5,2.5);
+   pad_eta[2] = dbe_->book1D("pad_eta_l1or2","pad_eta_l1or2",140,1.5,2.5);
+   pad_eta[3] = dbe_->book1D("copad_eta","copad_eta",140,1.5,2.5);
 
    pad_phi[0] = dbe_->book1D("pad_phi_l1","pad_phi_l1",100,-PI,PI);
    pad_phi[1] = dbe_->book1D("pad_phi_l2","pad_phi_l2",100,-PI,PI);
