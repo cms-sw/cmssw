@@ -33,10 +33,10 @@ class EZArrayFL
       EZArrayFL< T >() : m_begin ( 0 ) ,
 			 m_mgr   (   ) {}
 
-      EZArrayFL< T >( const MgrType* mgr  ) : m_begin ( 0 ) ,
+      EZArrayFL< T >( MgrType* mgr  ) : m_begin ( 0 ) ,
 					      m_mgr   ( mgr )   {}
 
-      EZArrayFL< T >( const MgrType* mgr   , 
+      EZArrayFL< T >( MgrType* mgr   , 
 		      const_iterator start ,
 		      const_iterator finis       ) :
 	 m_begin ( 0==finis-start ? (iterator)0 : mgr->assign() ) ,
@@ -52,9 +52,9 @@ class EZArrayFL
 
       virtual ~EZArrayFL< T >() {}
 
-      void resize() const { assign() ; }
+      void resize() { assign() ; }
 
-      void assign( const T& t = T() ) const 
+      void assign( const T& t = T() ) 
       {
 	 assert( (iterator)0 == m_begin ) ;
 	 m_begin = m_mgr->assign( t ) ;
@@ -88,8 +88,8 @@ class EZArrayFL
 
       //EZArrayFL( const EZArrayFL& ) ; //stop
       //EZArrayFL& operator=( const EZArrayFL& ) ; //stop
-      mutable iterator m_begin   ;
-      const MgrType*   m_mgr   ;
+      iterator m_begin   ;
+      MgrType*   m_mgr   ;
 };
 
 #endif
