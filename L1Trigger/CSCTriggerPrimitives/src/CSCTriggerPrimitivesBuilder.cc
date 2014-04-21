@@ -13,6 +13,7 @@
 //-----------------------------------------------------------------------------
 
 #include <L1Trigger/CSCTriggerPrimitives/src/CSCTriggerPrimitivesBuilder.h>
+#include <L1Trigger/CSCTriggerPrimitives/src/CSCGEMRPCTriggerGeometryHelper.h>
 #include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboard.h>
 #include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME11.h>
 #include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME21.h>
@@ -189,6 +190,13 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
 {
   // CSC geometry.
   CSCTriggerGeomManager* theGeom = CSCTriggerGeometry::get();
+  
+  // GEM-CSC-RPC trigger geometry helper
+  CSCGEMRPCTriggerGeometryHelper* trigGeomHelper = new CSCGEMRPCTriggerGeometryHelper();
+  trigGeomHelper->setCSCGeometry(csc_g);
+  trigGeomHelper->setRPCGeometry(rpc_g);
+  trigGeomHelper->setGEMGeometry(gem_g);
+  trigGeomHelper->setup();
 
   for (int endc = min_endcap; endc <= max_endcap; endc++)
   {
