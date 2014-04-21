@@ -487,7 +487,7 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
       const bool edge(HS < 4 or HS > 93);
       const float pad(edge ? -99 : randRoll->pad(lpGEM));
       // HS are wrapped-around
-      cscHsToGemPadME1a_[nStripsME1a*2-HS] = std::make_pair(std::floor(pad),std::ceil(pad));
+      cscHsToGemPadME1a_[HS] = std::make_pair(std::floor(pad),std::ceil(pad));
     }
     // ME1b
     auto nStripsME1b(keyLayerGeometryME1b->numberOfStrips());
@@ -499,7 +499,7 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
       const bool edge(HS < 5 or HS > 124);
       const float pad(edge ? -99 : randRoll->pad(lpGEM));
       // HS are wrapped-around
-      cscHsToGemPadME1b_[nStripsME1b*2-HS] = std::make_pair(std::floor(pad),std::ceil(pad));
+      cscHsToGemPadME1b_[HS] = std::make_pair(std::floor(pad),std::ceil(pad));
     }
     if (debug_luts){
       std::cout << "detId " << me1bId << std::endl;
@@ -523,8 +523,8 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
       const float stripME1a(keyLayerGeometryME1a->strip(lpCSCME1a));
       const float stripME1b(keyLayerGeometryME1b->strip(lpCSCME1b));
       // HS are wrapped-around
-      gemPadToCscHsME1a_[i] = nStripsME1a*2-(int) (stripME1a - 0.25)/0.5;
-      gemPadToCscHsME1b_[i] = nStripsME1b*2-(int) (stripME1b - 0.25)/0.5;
+      gemPadToCscHsME1a_[i] = (int) (stripME1a - 0.25)/0.5;
+      gemPadToCscHsME1b_[i] = (int) (stripME1b - 0.25)/0.5;
     }
     if (debug_luts){
       std::cout << "detId " << me1bId << std::endl;
