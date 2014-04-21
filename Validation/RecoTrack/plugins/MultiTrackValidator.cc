@@ -152,8 +152,10 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
   edm::LogInfo("TrackValidator") << "\n====================================================" << "\n"
 				 << "Analyzing new event" << "\n"
 				 << "====================================================\n" << "\n";
-  edm::ESHandle<ParametersDefinerForTP> parametersDefinerTP;
-  setup.get<TrackAssociatorRecord>().get(parametersDefiner,parametersDefinerTP);
+  edm::ESHandle<ParametersDefinerForTP> parametersDefinerTPHandle;
+  setup.get<TrackAssociatorRecord>().get(parametersDefiner,parametersDefinerTPHandle);
+  //Since we modify the object, we must clone it
+  auto parametersDefinerTP = parametersDefinerTPHandle->clone();
 
   edm::Handle<TrackingParticleCollection>  TPCollectionHeff ;
   event.getByToken(label_tp_effic,TPCollectionHeff);
