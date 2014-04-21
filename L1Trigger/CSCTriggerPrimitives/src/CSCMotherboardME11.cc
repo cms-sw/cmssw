@@ -2026,10 +2026,12 @@ CSCCorrelatedLCTDigi CSCMotherboardME11::constructLCTsGEM(const CSCALCTDigi& alc
   auto mymap(ME==ME1A ? gemPadToCscHsME1a_ : gemPadToCscHsME1b_);
   auto wgvshs(ME==ME1A ? lut_wg_vs_hs_me1a : lut_wg_vs_hs_me1b);
   if (oldDataFormat){
-    // CLCT pattern number - set it to a reasonably high value
-    unsigned int pattern = promoteALCTGEMpattern_ ? 4 : 0;
+    // CLCT pattern number - set it to a highest value
+    // hack to get LCTs in the CSCTF
+    unsigned int pattern = promoteALCTGEMpattern_ ? 10 : 0;
     
-    // LCT quality number - set it to a reasonably high value
+    // LCT quality number - set it to a very high value 
+    // hack to get LCTs in the CSCTF
     unsigned int quality = promoteALCTGEMquality_ ? 14 : 11;
     
     // Bunch crossing
