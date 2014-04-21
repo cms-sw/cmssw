@@ -93,8 +93,7 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
   edm::ParameterSet tmbParams  =  conf.getParameter<edm::ParameterSet>("tmbParam");
 
   // run upgrade TMBs for all MEX/1 stations
-  if (isSLHC && 
-      CSCTriggerNumbering::ringFromTriggerLabels(theStation, theTrigChamber) == 1 ) {
+  if (isSLHC && CSCTriggerNumbering::ringFromTriggerLabels(theStation, theTrigChamber) == 1 ) {
     alctParams = conf.getParameter<edm::ParameterSet>("alctSLHC");
     clctParams = conf.getParameter<edm::ParameterSet>("clctSLHC");
     tmbParams  =  conf.getParameter<edm::ParameterSet>("tmbSLHC");
