@@ -51,7 +51,7 @@ void CaloTPGTranscoderULUT::loadHCALCompress() const{
      for (int iphi = 1; iphi <= 72; iphi++){
         HcalTrigTowerDetId id(ieta, iphi);
         if (!topo.validHT(id)) continue;
-        int lutId = topo.detId2denseId(id);
+        int lutId = topo.detId2denseIdHT(id);
         // TODO cms::Error log
         if (outputLUT_[lutId] != 0){
            std::cout << "Error: LUT with (ieta,iphi) = (" << ieta << "," << iphi << ") has been previously allocated!" << std::endl;
@@ -78,7 +78,7 @@ void CaloTPGTranscoderULUT::loadHCALCompress() const{
           id.setVersion(version_of_hcal_TPs);
 
           if (!topo.validHT(id)) continue;
-          int lutId = topo.detId2denseId(id);
+          int lutId = topo.detId2denseIdHT(id);
           // TODO cms::Error log
           if (outputLUT_[lutId] != 0){
               std::cout << "Error: LUT with (ieta,iphi) = (" << ieta << "," << iphi << ") has been previously allocated!" << std::endl;
@@ -114,11 +114,11 @@ void CaloTPGTranscoderULUT::loadHCALCompress(const std::string& filename) const{
     for (int iphi = 1; iphi <= 72; iphi++) {
       HcalTrigTowerDetId id(ieta,iphi);
       if (topo.validHT(id)) {
-	rawid = topo.detId2denseId(id);
-	if (outputLUT_[rawid] != 0) std::cout << "Error: LUT with (ieta,iphi) = (" << ieta << "," << iphi << ") has been previously allocated!" << std::endl;
-          else outputLUT_[rawid] = new LUT[OUTPUT_LUT_SIZE];
-	if (rawid < minid) minid = rawid;
-	if (rawid > maxid) maxid = rawid;
+        rawid = topo.detId2denseIdHT(id);
+        if (outputLUT_[rawid] != 0) std::cout << "Error: LUT with (ieta,iphi) = (" << ieta << "," << iphi << ") has been previously allocated!" << std::endl;
+        else outputLUT_[rawid] = new LUT[OUTPUT_LUT_SIZE];
+        if (rawid < minid) minid = rawid;
+        if (rawid > maxid) maxid = rawid;
       }
     }
   }
@@ -185,26 +185,23 @@ void CaloTPGTranscoderULUT::loadHCALCompress(const std::string& filename) const{
 
 	HcalDetId cell;
 	int id, ntot = 0;
-	for (int i=0; i < nluts; i++) {
-		int nini = 0;
-     		for (int iphi = loiphi[i]; iphi <= hiiphi[i]; iphi++) {
-       			for (int ieta=loieta[i]; ieta <= hiieta[i]; ieta++) {
-			  HcalTrigTowerDetId detid(ieta,iphi);
-			  if (topo.validHT(detid)) {
-			    id = topo.detId2denseId(detid);
-	   					if (outputLUT_[id] == 0) throw cms::Exception("PROBLEM: outputLUT_ has not been initialized for ieta, iphi, id = ") << ieta << ", " << iphi << ", " << id << std::endl;
-		    			for (int j = 0; j <= 0x3ff; j++) outputLUT_[id][j] = outputluts[i][j];
-						nini++;
-						ntot++;
-	 				}
-       			}
-       }
-
+    for (int i=0; i < nluts; i++) {
+      int nini = 0;
+      for (int iphi = loiphi[i]; iphi <= hiiphi[i]; iphi++) {
+        for (int ieta=loieta[i]; ieta <= hiieta[i]; ieta++) {
+          HcalTrigTowerDetId detid(ieta,iphi);
+          if (topo.validHT(detid)) {
+            id = topo.detId2denseIdHT(detid);
+            if (outputLUT_[id] == 0) throw cms::Exception("PROBLEM: outputLUT_ has not been initialized for ieta, iphi, id = ") << ieta << ", " << iphi << ", " << id << std::endl;
+            for (int j = 0; j <= 0x3ff; j++) outputLUT_[id][j] = outputluts[i][j];
+            nini++;
+            ntot++;
+          }
+        }
+      }
     }
-
   } else {
-
-	loadHCALCompress();
+      loadHCALCompress();
   }
 }
 
@@ -229,19 +226,18 @@ void CaloTPGTranscoderULUT::loadHCALUncompress() const {
        HcalTrigTowerDetId id(ieta, iphi);
        
        if (!topo.validHT(id)) continue; 
-       
-       int lutId = topo.detId2denseId(id);
+       int lutId = topo.detId2denseIdHT(id);
        
        double factor = 0.;
        
        // HF
        if (abs(ieta) >= theTrigTowerGeometry->firstHFTower(version_of_hcal_TPs)) {
-	 factor = rctlsb_factor_;
+         factor = rctlsb_factor_;
        }
        // HBHE
        else {
-	 const HcalLutMetadatum *meta = lutMetadata_->getValues(id);
-	 factor = nominal_gain_ / cosh_ieta * meta->getLutGranularity();
+         const HcalLutMetadatum *meta = lutMetadata_->getValues(id);
+         factor = nominal_gain_ / cosh_ieta * meta->getLutGranularity();
        }
        
        // tpg - compressed value
@@ -273,8 +269,7 @@ void CaloTPGTranscoderULUT::loadHCALUncompress() const {
            HcalTrigTowerDetId id(ieta, iphi);
            id.setVersion(version_of_hcal_TPs);
            if (!topo.validHT(id)) continue; 
-
-           int lutId = topo.detId2denseId(id);
+           int lutId = topo.detId2denseIdHT(id);
 
            double factor = 0.;
            // HF
@@ -318,32 +313,31 @@ void CaloTPGTranscoderULUT::loadHCALUncompress(const std::string& filename) cons
 
   static const int etabound = 32;
   if( userfile ) {
-	 double et;
-     for (int i=0; i<TPGMAX; i++) {
+    double et;
+    for (int i=0; i<TPGMAX; i++) {
       for(int j = 1; j <=etabound; j++) {
-	    userfile >> et;
-		for (int iphi = 1; iphi <= 72; iphi++) {
-		  HcalTrigTowerDetId id(j,iphi);
-		  int itower = theTrigTowerGeometry->topology().detId2denseId(id);
+        userfile >> et;
+        for (int iphi = 1; iphi <= 72; iphi++) {
+          HcalTrigTowerDetId id(j,iphi);
+          int itower = theTrigTowerGeometry->topology().detId2denseIdHT(id);
 
-		  if (itower >= 0) hcaluncomp_[itower][i] = et;
-		  HcalTrigTowerDetId id2(-j,iphi);
-		  itower = theTrigTowerGeometry->topology().detId2denseId(id2);
-		  		  if (itower >= 0) hcaluncomp_[itower][i] = et;
-		}
-	  }
-	 }
-	 userfile.close();
+          if (itower >= 0) hcaluncomp_[itower][i] = et;
+          HcalTrigTowerDetId id2(-j,iphi);
+          itower = theTrigTowerGeometry->topology().detId2denseIdHT(id2);
+          if (itower >= 0) hcaluncomp_[itower][i] = et;
+        }
+      }
+    }
+    userfile.close();
   }
   else {
-
-	loadHCALUncompress();
+    loadHCALUncompress();
   }
 }
 
 HcalTriggerPrimitiveSample CaloTPGTranscoderULUT::hcalCompress(const HcalTrigTowerDetId& id, unsigned int sample, bool fineGrain) const {
 
-  int itower = theTrigTowerGeometry->topology().detId2denseId(id);
+  int itower = theTrigTowerGeometry->topology().detId2denseIdHT(id);
 
   if (itower < 0) cms::Exception("Invalid Data") << "No trigger tower found for ieta, iphi = " << id.ieta() << ", " << id.iphi() << " v"<<id.version();
   if (sample >= OUTPUT_LUT_SIZE) {
@@ -359,7 +353,7 @@ double CaloTPGTranscoderULUT::hcaletValue(const HcalTrigTowerDetId& hid, const H
   if (hcaluncomp_.empty()) loadHCALUncompress(decompressionFile_);
 
   int compET = hc.compressedEt();	// to be within the range by the class
-  int itower = theTrigTowerGeometry->topology().detId2denseId(hid);
+  int itower = theTrigTowerGeometry->topology().detId2denseIdHT(hid);
   double etvalue = hcaluncomp_[itower][compET];
   return(etvalue);
 }
