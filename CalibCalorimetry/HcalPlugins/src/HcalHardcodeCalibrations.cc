@@ -89,7 +89,7 @@ std::vector<HcalGenericDetId> allCells (const HcalTopology& hcaltopology) {
         for (int iphi = 1; iphi <= 72; ++iphi) {
           const int depth = 0;
           HcalTrigTowerDetId cell(ieta, iphi, depth, version);
-          if (!hcaltopology.validHT(cell)) {
+          if (hcaltopology.validHT(cell)) {
             result.push_back (cell);
           }
         }

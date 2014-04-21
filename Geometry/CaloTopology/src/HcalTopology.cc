@@ -80,7 +80,7 @@ bool HcalTopology::validHT(const HcalTrigTowerDetId& id) const {
     }
   } else { // version==1
     if (triggerMode_==HcalTopologyMode::tm_LHC_RCT) return false;
-    if (id.ietaAbs()<27 || id.ietaAbs()>41) return false;
+    if (id.ietaAbs()<28 || id.ietaAbs()>41) return false;
     if (id.ietaAbs()>29 && ((id.iphi()%2)==0)) return false;
   }
   return true;
@@ -706,14 +706,14 @@ unsigned int HcalTopology::detId2denseIdHT(const DetId& id) const {
   }
   // HF 1x1 summing and LHC Run 1 simultaneously
   else if (tid.version() == 1) {
-    int offset = kHThalfPhase0;
+    int offset = kHTSizePhase0;
     if (zside == -1) {
       // The negative ieta values are stored on the back half of the part of
-      // the array reserved for the new segmentation. kHThalfPhase1 is
-      // kHThalfPhase0 + the size of the Version 1 bit on the end, so we
-      // subtract off kHThalfPhase0 and then divid by 2 to find the halfway
+      // the array reserved for the new segmentation. kHTSizePhase1 is
+      // kHTSizePhase0 + the size of the Version 1 bit on the end, so we
+      // subtract off kHTSizePhase0 and then divid by 2 to find the halfway
       // point.
-      offset += (kHThalfPhase1 - kHThalfPhase0) / 2; 
+      offset += (kHTSizePhase1 - kHTSizePhase0) / 2;
     }
     // ieta 28, 29 have 72 iph
     if (28 <= ietaAbs && ietaAbs <= 29) {
