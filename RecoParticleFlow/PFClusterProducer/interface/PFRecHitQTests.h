@@ -59,7 +59,10 @@ class PFRecHitQTestThreshold : public PFRecHitQTestBase {
 //  Quality test that checks kHCAL Severity
 //
 class PFRecHitQTestHCALChannel : public PFRecHitQTestBase {
+
  public:
+
+
   PFRecHitQTestHCALChannel() {
 
   }
@@ -68,7 +71,40 @@ class PFRecHitQTestHCALChannel : public PFRecHitQTestBase {
     PFRecHitQTestBase(iConfig)
     {
       thresholds_ = iConfig.getParameter<std::vector<int> >("maxSeverities");
-      flags_ = iConfig.getParameter<std::vector<int> >("flags");
+      cleanThresholds_ = iConfig.getParameter<std::vector<double> >("cleaningThresholds");
+      std::vector<std::string> flags = iConfig.getParameter<std::vector<std::string> >("flags");
+      for (unsigned int i=0;i<flags.size();++i) {
+	if (flags[i] =="Standard") {
+	  flags_.push_back(-1);
+	  depths_.push_back(-1);
+
+	}
+	else if (flags[i] =="HFInTime") {
+	  flags_.push_back(1<<HcalCaloFlagLabels::HFInTimeWindow);
+	  depths_.push_back(-1);
+	}
+	else if (flags[i] =="HFDigi") {
+	  flags_.push_back(1<<HcalCaloFlagLabels::HFDigiTime);
+	  depths_.push_back(-1);
+
+	}
+	else if (flags[i] =="HFLong") {
+	  flags_.push_back(1<<HcalCaloFlagLabels::HFLongShort);
+	  depths_.push_back(1);
+
+	}
+	else if (flags[i] =="HFShort") {
+	  flags_.push_back(1<<HcalCaloFlagLabels::HFLongShort);
+	  depths_.push_back(2);
+
+	}
+	else {
+	  flags_.push_back(-1);
+	  depths_.push_back(-1);
+
+	}
+      }
+
     }
 
     void beginEvent(const edm::Event& event,const edm::EventSetup& iSetup) {
@@ -87,14 +123,14 @@ class PFRecHitQTestHCALChannel : public PFRecHitQTestBase {
       return true;
     }
     bool test(reco::PFRecHit& hit,const HBHERecHit& rh,bool& clean) {
-      return test(rh.detid(),rh.flags(),clean);
+      return test(rh.detid(),rh.energy(),rh.flags(),clean);
     }
 
     bool test(reco::PFRecHit& hit,const HFRecHit& rh,bool& clean) {
-      return test(rh.detid(),rh.flags(),clean);
+      return test(rh.detid(),rh.energy(),rh.flags(),clean);
     }
     bool test(reco::PFRecHit& hit,const HORecHit& rh,bool& clean) {
-      return test(rh.detid(),rh.flags(),clean);
+      return test(rh.detid(),rh.energy(),rh.flags(),clean);
     }
 
     bool test(reco::PFRecHit& hit,const CaloTower& rh,bool& clean) {
@@ -104,17 +140,22 @@ class PFRecHitQTestHCALChannel : public PFRecHitQTestBase {
 
  protected:
     std::vector<int> thresholds_;
+    std::vector<double> cleanThresholds_;
     std::vector<int> flags_;
-  const HcalChannelQuality* theHcalChStatus_;
-  const HcalSeverityLevelComputer* hcalSevLvlComputer_;
+    std::vector<int> depths_;
+    const HcalChannelQuality* theHcalChStatus_;
+    const HcalSeverityLevelComputer* hcalSevLvlComputer_;
 
-  bool test(unsigned DETID,int flags,bool& clean) {
+    bool test(unsigned DETID,double energy,int flags,bool& clean) {
     const HcalDetId& detid = (HcalDetId)DETID;
     const HcalChannelStatus* theStatus = theHcalChStatus_->getValues(detid);
     unsigned theStatusValue = theStatus->getValue();
     // Now get severity of problems for the given detID, based on the rechit flag word and the channel quality status value
     for (unsigned int i=0;i<thresholds_.size();++i) {
       int hitSeverity =0;
+      if (energy < cleanThresholds_[i])
+	continue;
+
       if(flags_[i]<0) {
 	hitSeverity=hcalSevLvlComputer_->getSeverityLevel(detid, flags,theStatusValue);
       }
@@ -122,7 +163,7 @@ class PFRecHitQTestHCALChannel : public PFRecHitQTestBase {
 	hitSeverity=hcalSevLvlComputer_->getSeverityLevel(detid, flags & flags_[i],theStatusValue);
       }
       
-      if (hitSeverity>thresholds_[i]) {
+      if (hitSeverity>thresholds_[i] && ((depths_[i]<0 || (depths_[i]==detid.depth())))) {
 	clean=true;
 	return false;
       }
@@ -135,13 +176,13 @@ class PFRecHitQTestHCALChannel : public PFRecHitQTestBase {
 //
 //  Quality test that applies threshold and timing as a function of depth 
 //
-class PFRecHitQTestHCALThresholdTimeVsDepth : public PFRecHitQTestBase {
+class PFRecHitQTestHCALTimeVsDepth : public PFRecHitQTestBase {
  public:
-  PFRecHitQTestHCALThresholdTimeVsDepth() {
+  PFRecHitQTestHCALTimeVsDepth() {
     
   }
 
-  PFRecHitQTestHCALThresholdTimeVsDepth(const edm::ParameterSet& iConfig):
+  PFRecHitQTestHCALTimeVsDepth(const edm::ParameterSet& iConfig):
     PFRecHitQTestBase(iConfig)
     {
       std::vector<edm::ParameterSet> psets = iConfig.getParameter<std::vector<edm::ParameterSet> >("cuts");
@@ -184,7 +225,7 @@ class PFRecHitQTestHCALThresholdTimeVsDepth : public PFRecHitQTestBase {
       HcalDetId detid(DETID);
       for (unsigned int i=0;i<depths_.size();++i) {
 	if (detid.depth() == depths_[i]) {
-	  if (time <minTimes_[i] || time >maxTimes_[i] || energy<thresholds_[i])
+	  if ((time <minTimes_[i] || time >maxTimes_[i] ) &&  energy>thresholds_[i])
 	    {
 	      clean=true;
 	      return false;
@@ -196,6 +237,68 @@ class PFRecHitQTestHCALThresholdTimeVsDepth : public PFRecHitQTestBase {
     }
 };
 
+
+
+
+//
+//  Quality test that applies threshold  as a function of depth 
+//
+class PFRecHitQTestHCALThresholdVsDepth : public PFRecHitQTestBase {
+ public:
+  PFRecHitQTestHCALThresholdVsDepth() {
+    
+  }
+
+  PFRecHitQTestHCALThresholdVsDepth(const edm::ParameterSet& iConfig):
+    PFRecHitQTestBase(iConfig)
+    {
+      std::vector<edm::ParameterSet> psets = iConfig.getParameter<std::vector<edm::ParameterSet> >("cuts");
+      for (unsigned int i=0;i<psets.size();++i) {
+	depths_.push_back(psets[i].getParameter<int>("depth"));
+	thresholds_.push_back(psets[i].getParameter<double>("threshold"));
+      }
+    }
+
+    void beginEvent(const edm::Event& event,const edm::EventSetup& iSetup) {
+    }
+
+    bool test(reco::PFRecHit& hit,const EcalRecHit& rh,bool& clean) {
+      return true;
+    }
+    bool test(reco::PFRecHit& hit,const HBHERecHit& rh,bool& clean) {
+      return test(rh.detid(),rh.energy(),rh.time(),clean);
+    }
+
+    bool test(reco::PFRecHit& hit,const HFRecHit& rh,bool& clean) {
+      return test(rh.detid(),rh.energy(),rh.time(),clean);
+    }
+    bool test(reco::PFRecHit& hit,const HORecHit& rh,bool& clean) {
+      return test(rh.detid(),rh.energy(),rh.time(),clean);
+    }
+
+    bool test(reco::PFRecHit& hit,const CaloTower& rh,bool& clean) {
+      return true;
+    }
+
+ protected:
+    std::vector<int> depths_;
+    std::vector<double> thresholds_;
+
+    bool test(unsigned DETID,double energy,double time,bool& clean) {
+      HcalDetId detid(DETID);
+      for (unsigned int i=0;i<depths_.size();++i) {
+	if (detid.depth() == depths_[i]) {
+	  if (  energy<thresholds_[i])
+	    {
+	      clean=true;
+	      return false;
+	    }
+	  break;
+	}
+      }
+      return true;
+    }
+};
 
 
 
