@@ -62,6 +62,10 @@ class CSCMotherboardME3141 : public CSCMotherboard
 
  private: 
 
+  /** for the case when more than 2 LCTs/BX are allowed;
+      maximum match window = 15 */
+  CSCCorrelatedLCTDigi allLCTs[MAX_LCT_BINS][15][2];
+
   static const double lut_wg_me31_eta_odd[96][2];
   static const double lut_wg_me31_eta_even[96][2];
   static const double lut_wg_me41_eta_odd[96][2];
