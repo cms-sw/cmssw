@@ -71,6 +71,7 @@ namespace reco {
     void calculatePositionREP();
 
     void addNeighbour(short x,short y, short z,const PFRecHitRef&);
+    const PFRecHitRef getNeighbour(short x,short y, short z);
     void setTime( double time) { time_ = time; }
     void clearNeighbours() {
       neighbours_.clear();
