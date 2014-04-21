@@ -118,6 +118,11 @@ void CSCMotherboardME3141::clear()
 {
   CSCMotherboard::clear();
 
+  for (int bx = 0; bx < MAX_LCT_BINS; bx++)
+    for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++)
+      for (int i=0;i<2;i++)
+        allLCTs[bx][mbx][i].clear();
+
   rpcRollToEtaLimits_.clear();
   cscWgToRpcRoll_.clear();
   rpcStripToCscHs_.clear();

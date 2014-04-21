@@ -171,6 +171,11 @@ CSCMotherboardME21::~CSCMotherboardME21()
 void CSCMotherboardME21::clear()
 {
   CSCMotherboard::clear();
+  
+  for (int bx = 0; bx < MAX_LCT_BINS; bx++)
+    for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++)
+      for (int i=0;i<2;i++)
+        allLCTs[bx][mbx][i].clear();
 
   gemRollToEtaLimitsShort_.clear();
   gemRollToEtaLimitsLong_.clear();
@@ -747,12 +752,14 @@ CSCCorrelatedLCTDigi CSCMotherboardME21::constructLCTsGEM(const CSCALCTDigi& alc
                                                           bool oldDataFormat) 
 {    
   if (oldDataFormat){
-    // CLCT pattern number - set it to a reasonably high value
-    unsigned int pattern = promoteALCTGEMpattern_ ? 4 : 0;
+    // CLCT pattern number - set it to a highest value
+    // hack to get LCTs in the CSCTF
+    unsigned int pattern = promoteALCTGEMpattern_ ? 10 : 0;
     
-    // LCT quality number - set it to a reasonably high value
+    // LCT quality number - set it to a very high value 
+    // hack to get LCTs in the CSCTF
     unsigned int quality = promoteALCTGEMquality_ ? 14 : 11;
-    
+
     // Bunch crossing
     int bx = alct.getBX();
     
