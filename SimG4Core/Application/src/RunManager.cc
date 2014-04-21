@@ -55,6 +55,8 @@
 #include "G4Event.hh"
 #include "G4TransportationManager.hh"
 #include "G4ParticleTable.hh"
+#include "G4Field.hh"
+#include "G4FieldManager.hh"
 
 #include "G4GDMLParser.hh"
 #include "G4SystemOfUnits.hh"
@@ -137,6 +139,8 @@ RunManager::RunManager(edm::ParameterSet const & p)
     
   m_check = p.getUntrackedParameter<bool>("CheckOverlap",false);
   m_WriteFile = p.getUntrackedParameter<std::string>("FileNameGDML","");
+  m_FieldFile = p.getUntrackedParameter<std::string>("FileNameField","");
+  if("" != m_FieldFile) { m_FieldFile += ".txt"; } 
 
   m_currentRun = 0;
   m_currentEvent = 0;
@@ -209,7 +213,11 @@ void RunManager::initG4(const edm::EventSetup & es)
       m_fieldBuilder = new sim::FieldBuilder(&(*pMF), m_pField);
       G4TransportationManager * tM = 
 	G4TransportationManager::GetTransportationManager();
-      m_fieldBuilder->build( tM->GetFieldManager(),tM->GetPropagatorInField());
+      m_fieldBuilder->build( tM->GetFieldManager(),
+			     tM->GetPropagatorInField());
+      if("" != m_FieldFile) { 
+	DumpMagneticField(tM->GetFieldManager()->GetDetectorField()); 
+      }
     }
 
   // we need the track manager now
@@ -220,17 +228,19 @@ void RunManager::initG4(const edm::EventSetup & es)
   
   std::pair< std::vector<SensitiveTkDetector*>,
     std::vector<SensitiveCaloDetector*> > sensDets = 
-    m_attach->create(*world,(*pDD),catalog_,m_p,m_trackManager.get(),m_registry);
+    m_attach->create(*world,(*pDD),catalog_,m_p,m_trackManager.get(),
+		     m_registry);
       
   m_sensTkDets.swap(sensDets.first);
   m_sensCaloDets.swap(sensDets.second);
      
-  edm::LogInfo("SimG4CoreApplication") << " RunManager: Sensitive Detector "
-				       << "building finished; found " 
-				       << m_sensTkDets.size()
-                                       << " Tk type Producers, and " 
-				       << m_sensCaloDets.size() 
-				       << " Calo type producers ";
+  edm::LogInfo("SimG4CoreApplication") 
+    << " RunManager: Sensitive Detector "
+    << "building finished; found " 
+    << m_sensTkDets.size()
+    << " Tk type Producers, and " 
+    << m_sensCaloDets.size() 
+    << " Calo type producers ";
 
   edm::ESHandle<HepPDT::ParticleDataTable> fTable;
   es.get<PDTRecord>().get(fTable);
@@ -248,10 +258,12 @@ void RunManager::initG4(const edm::EventSetup & es)
     physicsMaker->make(map_,fPDGTable,m_fieldBuilder,m_pPhysics,m_registry);
 
   PhysicsList* phys = m_physicsList.get(); 
-  if (phys==0) { throw SimG4Exception("Physics list construction failed!"); }
+  if (phys==0) { 
+    throw SimG4Exception("Physics list construction failed!"); 
+  }
 
-  // adding GFlash, Russian Roulette for eletrons and gamma, step limiters
-  // on top of any Physics Lists
+  // adding GFlash, Russian Roulette for eletrons and gamma, 
+  // step limiters on top of any Physics Lists
   phys->RegisterPhysics(new ParametrisedEMPhysics("EMoptions",m_pPhysics));
   
   m_kernel->SetPhysics(phys);
@@ -263,7 +275,9 @@ void RunManager::initG4(const edm::EventSetup & es)
     m_physicsList->SetPhysicsTableRetrieved(tableDir);
   } 
   if (m_kernel->RunInitialization()) { m_managerInitialized = true; }
-  else { throw SimG4Exception("G4RunManagerKernel initialization failed!"); }
+  else { 
+    throw SimG4Exception("G4RunManagerKernel initialization failed!"); 
+  }
   
   if (m_StorePhysicsTables)
     {
@@ -506,4 +520,53 @@ void  RunManager::Connect(TrackingAction* trackingAction)
 void  RunManager::Connect(SteppingAction* steppingAction)
 {
   steppingAction->m_g4StepSignal.connect(m_registry.g4StepSignal_);
+}
+void RunManager::DumpMagneticField(const G4Field* field) const
+{
+  std::ofstream fout(m_FieldFile.c_str(), std::ios::out);
+  if(fout.fail()){
+    edm::LogWarning("SimG4CoreApplication") 
+      << " RunManager WARNING : "
+      << "error opening file <" << m_FieldFile << "> for magnetic field";
+  } else {
+    double rmax = 9000*mm;
+    double zmax = 16000*mm;
+
+    double dr = 5*cm;
+    double dz = 20*cm;
+
+    int nr = (int)(rmax/dr);
+    int nz = 2*(int)(zmax/dz);
+
+    double r = 0.0;
+    double z0 = -zmax;
+    double z;
+
+    double phi = 0.0;
+    double cosf = cos(phi);
+    double sinf = sin(phi);
+
+    double point[4] = {0.0,0.0,0.0,0.0};
+    double bfield[3] = {0.0,0.0,0.0};
+
+    fout << std::setprecision(6); 
+    for(int i=0; i<=nr; ++i) {
+      z = z0;
+      for(int j=0; j<=nz; ++j) {
+        point[0] = r*cosf;
+	point[1] = r*sinf;
+	point[2] = z;
+        field->GetFieldValue(point, bfield); 
+        fout << "R(mm)= " << r/mm << " phi(deg)= " << phi/degree 
+	     << " Z(mm)= " << z/mm << "   Bz(tesla)= " << bfield[2]/tesla 
+	     << " Br(tesla)= " << (bfield[0]*cosf + bfield[1]*sinf)/tesla
+	     << " Bphi(tesla)= " << (bfield[0]*sinf - bfield[1]*cosf)/tesla
+	     << G4endl;
+	z += dz;
+      }
+      r += dr;
+    }
+    
+    fout.close();
+  }
 }
