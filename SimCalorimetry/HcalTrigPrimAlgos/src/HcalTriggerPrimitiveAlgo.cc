@@ -116,7 +116,6 @@ void HcalTriggerPrimitiveAlgo::addSignal(const HBHEDataFrame & frame) {
 
 
 void HcalTriggerPrimitiveAlgo::addSignal(const HFDataFrame & frame) {
-
    if(frame.id().depth() == 1 || frame.id().depth() == 2) {
       std::vector<HcalTrigTowerDetId> ids = theTrigTowerGeometry->towerIds(frame.id());
       assert(ids.size() == 1);
@@ -135,17 +134,19 @@ void HcalTriggerPrimitiveAlgo::addSignal(const HFDataFrame & frame) {
 
       if ( theTowerMapFGSum.find(ids[0]) == theTowerMapFGSum.end() ) {
          SumFGContainer sumFG;
-         theTowerMapFGSum.insert(std::pair<HcalTrigTowerDetId, SumFGContainer >(ids[0], sumFG));
+         theTowerMapFGSum.insert(std::pair<HcalTrigTowerDetId, SumFGContainer>(ids[0], sumFG));
       }
 
       SumFGContainer& sumFG = theTowerMapFGSum[ids[0]];
       SumFGContainer::iterator sumFGItr;
       for ( sumFGItr = sumFG.begin(); sumFGItr != sumFG.end(); ++sumFGItr) {
-         if (sumFGItr->id() == fgid) break;
+         if (sumFGItr->id() == fgid) { break; }
       }
       // If find
       if (sumFGItr != sumFG.end()) {
-         for (int i=0; i<samples.size(); ++i) (*sumFGItr)[i] += samples[i];
+         for (int i=0; i<samples.size(); ++i) {
+            (*sumFGItr)[i] += samples[i];
+         }
       }
       else {
          //Copy samples (change to fgid)
@@ -160,9 +161,11 @@ void HcalTriggerPrimitiveAlgo::addSignal(const HFDataFrame & frame) {
          vector<bool> vetoBits(samples.size(), false);
          HF_Veto[fgid] = vetoBits;
       }
-      for (int i=0; i<samples.size(); ++i)
-         if (samples[i] < minSignalThreshold_)
+      for (int i=0; i<samples.size(); ++i) {
+         if (samples[i] < minSignalThreshold_) {
             HF_Veto[fgid][i] = true;
+         }
+      }
    }
 }
 
