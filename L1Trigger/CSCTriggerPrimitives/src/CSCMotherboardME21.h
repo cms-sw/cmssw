@@ -212,21 +212,10 @@ class CSCMotherboardME21 : public CSCMotherboard
   std::map<int,int> gemPadToCscHs_;
   std::map<int,std::pair<int,int>> cscHsToGemPad_;
 
-/*   void correlateLCTs(CSCALCTDigi bestALCT, CSCALCTDigi secondALCT, */
-/*                      CSCCLCTDigi bestCLCT, CSCCLCTDigi secondCLCT); */
-
-/*   CSCCorrelatedLCTDigi constructLCTs(const CSCALCTDigi& aLCT, */
-/*                                      const CSCCLCTDigi& cLCT); */
-
-/*   unsigned int encodePattern(const int ptn, const int highPt); */
-
-/*   unsigned int findQuality(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT); */
-
   // map< bx , vector<gemid, pad> >
   GEMPads padsShort_;
   GEMPads padsLong_;
   GEMPads coPadsShort_;
   GEMPads coPadsLong_;
-
 };
 #endif
