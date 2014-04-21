@@ -978,7 +978,9 @@ void CSCMotherboardME21::buildCoincidencePads(const GEMCSCPadDigiCollection* out
   // build coincidences
   for (auto det_range = out_pads->begin(); det_range != out_pads->end(); ++det_range) {
     const GEMDetId& id = (*det_range).first;
-    if (id.station() != 1) continue;
+
+    // build coincidences only in station 2
+    if (id.station() != 2 or id.station() != 3) continue;
     
     // all coincidences detIDs will have layer=1
     if (id.layer() != 1) continue;
