@@ -90,11 +90,11 @@ public:
 
 #ifndef CMS_NOCXX11
 
-  template<typename T, typename... Args>
-  static std::shared_ptr<BTSOS> build(Args && ...args){ return std::allocate_shared<T>(std::allocator<T>(),std::forward<Args>(args)...);}
+  //  template<typename T, typename... Args>
+  // static std::shared_ptr<BTSOS> build(Args && ...args){ return std::allocate_shared<T>(std::allocator<T>(),std::forward<Args>(args)...);}
 
   template<typename T, typename... Args>
-  static std::shared_ptr<BTSOS> churn(Args && ...args){ return std::allocate_shared<T>(churn_allocator<T>(),std::forward<Args>(args)...);}
+  static std::shared_ptr<BTSOS> build(Args && ...args){ return std::allocate_shared<T>(churn_allocator<T>(),std::forward<Args>(args)...);}
 
 
 

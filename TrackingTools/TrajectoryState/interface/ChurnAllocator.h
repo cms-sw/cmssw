@@ -10,14 +10,15 @@ public:
   using pointer = typename Base::pointer;
   using size_type = typename Base::size_type;
 
-  static pointer&  cache() {
-    static thread_local pointer local = nullptr;
+  struct Cache {
+    pointer cache = nullptr;
+    bool gard=false;
+  };
+
+  static Cache &  cache() {
+    static thread_local Cache local;
     return local;
   } 
-  static bool & gard() {
-    static thread_local bool g = false;
-    return g;
-  }
 
 
   template<typename _Tp1>
@@ -28,14 +29,16 @@ public:
 
   pointer allocate(size_type n, const void *hint=0)
   {
-    if (!gard()) 
-     cache() = std::allocator<T>::allocate(n, hint);
-    gard()=false; return cache();
+    Cache & c = cache();
+    if (!c.gard) 
+     c.cache = std::allocator<T>::allocate(n, hint);
+    c.gard=false; return c.cache;
   }
   
   void deallocate(pointer p, size_type n)
   {
-    if (p==cache()) gard()=true;
+    Cache & c = cache();
+    if (p==c.cache) c.gard=true;
     else std::allocator<T>::deallocate(p, n);
   }
   
