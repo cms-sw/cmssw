@@ -23,7 +23,7 @@ IdealObliquePrism::operator=( const IdealObliquePrism& idop )
 }
 
 IdealObliquePrism::IdealObliquePrism( const GlobalPoint& faceCenter, 
-				      const CornersMgr*  mgr       ,
+				      CornersMgr*        mgr       ,
 				      const CCGFloat*    parm       )
   : CaloCellGeometry ( faceCenter, mgr, parm )
 {initSpan();}
@@ -145,13 +145,11 @@ void IdealObliquePrism::localCorners( Pt3DVec&        lc  ,
    ref   = 0.25*( lc[0] + lc[1] + lc[2] + lc[3] ) ;
 }
 
-const CaloCellGeometry::CornersVec& 
-IdealObliquePrism::getCorners() const
+void IdealObliquePrism::initCorners(CaloCellGeometry::CornersVec& co)
 {
-   const CornersVec& co ( CaloCellGeometry::getCorners() ) ;
    if( co.uninitialized() )
    {
-      CornersVec& corners ( setCorners() ) ;
+      CornersVec& corners ( co ) ;
       if( dz()>0 ) 
       { 
 	 /* In this case, the faces are parallel to the zaxis.  
@@ -196,7 +194,6 @@ IdealObliquePrism::getCorners() const
 	 
       }
    }
-   return co ;
 }
 
 std::ostream& operator<<( std::ostream& s, const IdealObliquePrism& cell ) 

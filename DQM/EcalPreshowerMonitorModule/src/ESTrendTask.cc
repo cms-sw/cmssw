@@ -22,13 +22,7 @@ using namespace std;
 
 ESTrendTask::ESTrendTask(const ParameterSet& ps) {
 
-  init_ = false;
-
-  dqmStore_ = Service<DQMStore>().operator->();
-
   prefixME_       = ps.getUntrackedParameter<string>("prefixME", "EcalPreshower"); 
-  enableCleanup_  = ps.getUntrackedParameter<bool>("enableCleanup", false);
-  mergeRuns_      = ps.getUntrackedParameter<bool>("mergeRuns", false);
   rechittoken_    = consumes<ESRecHitCollection>(ps.getParameter<InputTag>("RecHitLabel"));
   dccCollections_ = consumes<ESRawDataCollection>(ps.getParameter<InputTag>("ESDCCCollections"));
 
@@ -47,25 +41,10 @@ ESTrendTask::ESTrendTask(const ParameterSet& ps) {
   current_time_ = 0;
   last_time_ = 0;
 
-}
-
-ESTrendTask::~ESTrendTask() {
-}
-
-void ESTrendTask::beginJob(void) {
-
   ievt_ = 0;
-
-  if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "/ESTrendTask");
-    dqmStore_->rmdir(prefixME_ + "/ESTrendTask");
-  }
-
 }
 
-void ESTrendTask::beginRun(const Run& r, const EventSetup& c) {
-
-  if ( ! mergeRuns_ ) this->reset();
+void ESTrendTask::dqmBeginRun(const Run& r, const EventSetup& c) {
 
   start_time_ = (r.beginTime()).unixTime();
 
@@ -73,111 +52,54 @@ void ESTrendTask::beginRun(const Run& r, const EventSetup& c) {
 
 }
 
-void ESTrendTask::endRun(const Run& r, const EventSetup& c) {
+void ESTrendTask::bookHistograms(DQMStore::IBooker& iBooker, Run const&, EventSetup const&)
+{
+  char histo[200];
 
-}
-
-void ESTrendTask::reset(void) {
+  iBooker.setCurrentFolder(prefixME_ + "/ESTrendTask");
 
   for (int i=0 ; i<2; ++i)  
     for (int j=0 ; j<2; ++j) {
-      if (hESRecHitTrend_[i][j]) hESRecHitTrend_[i][j]->Reset();
-      if (hESRecHitTrendHr_[i][j]) hESRecHitTrendHr_[i][j]->Reset();
+      int iz = (i==0)? 1:-1;
+      sprintf(histo, "ES Trending RH Occ per 5 mins Z %d P %d", iz, j+1);
+      hESRecHitTrend_[i][j] = iBooker.bookProfile(histo, histo, 36, 0.0, 180.0, 100, 0.0, 1.0e6, "s");
+      hESRecHitTrend_[i][j]->setAxisTitle("Elapse time (Minutes)", 1);
+      hESRecHitTrend_[i][j]->setAxisTitle("ES RecHit Occupancy / 5 minutes", 2);
+
+      sprintf(histo, "ES Trending RH Occ per hour Z %d P %d", iz, j+1);
+      hESRecHitTrendHr_[i][j] = iBooker.bookProfile(histo, histo, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
+      hESRecHitTrendHr_[i][j]->setAxisTitle("Elapse time (Hours)", 1);
+      hESRecHitTrendHr_[i][j]->setAxisTitle("ES RecHit Occupancy / hour", 2);
     }
 
-  if (hESSLinkErrTrend_) hESSLinkErrTrend_->Reset();
-  if (hESFiberErrTrend_) hESFiberErrTrend_->Reset();
-  if (hESSLinkErrTrendHr_) hESSLinkErrTrendHr_->Reset();
-  if (hESFiberErrTrendHr_) hESFiberErrTrendHr_->Reset();
+  sprintf(histo, "ES Trending SLink CRC Error per 5 mins");
+  hESSLinkErrTrend_ = iBooker.bookProfile(histo, histo, 36, 0.0, 180.0, 100, 0.0, 1.0e6, "s");
+  hESSLinkErrTrend_->setAxisTitle("Elapse time (Minutes)", 1);
+  hESSLinkErrTrend_->setAxisTitle("ES SLink CRC Err / 5 minutes", 2);
 
-}
+  sprintf(histo, "ES Trending Fiber Error per 5 mins");
+  hESFiberErrTrend_ = iBooker.bookProfile(histo, histo, 36, 0.0, 180.0, 100, 0.0, 1.0e6, "s");
+  hESFiberErrTrend_->setAxisTitle("Elapse time (Minutes)", 1);
+  hESFiberErrTrend_->setAxisTitle("ES Fiber Err / 5 minutes", 2);
 
-void ESTrendTask::setup(void) {
+  sprintf(histo, "ES Trending SLink CRC Error per hour");
+  hESSLinkErrTrendHr_ = iBooker.bookProfile(histo, histo, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
+  hESSLinkErrTrendHr_->setAxisTitle("Elapse time (Hours)", 1);
+  hESSLinkErrTrendHr_->setAxisTitle("ES SLink CRC Err / hour", 2);
 
-  init_ = true;
-
-  char histo[200];
-
-  if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "/ESTrendTask");
-
-    for (int i=0 ; i<2; ++i)  
-      for (int j=0 ; j<2; ++j) {
-	int iz = (i==0)? 1:-1;
-	sprintf(histo, "ES Trending RH Occ per 5 mins Z %d P %d", iz, j+1);
-	hESRecHitTrend_[i][j] = dqmStore_->bookProfile(histo, histo, 36, 0.0, 180.0, 100, 0.0, 1.0e6, "s");
-	hESRecHitTrend_[i][j]->setAxisTitle("Elapse time (Minutes)", 1);
-	hESRecHitTrend_[i][j]->setAxisTitle("ES RecHit Occupancy / 5 minutes", 2);
-
-	sprintf(histo, "ES Trending RH Occ per hour Z %d P %d", iz, j+1);
-	hESRecHitTrendHr_[i][j] = dqmStore_->bookProfile(histo, histo, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
-	hESRecHitTrendHr_[i][j]->setAxisTitle("Elapse time (Hours)", 1);
-	hESRecHitTrendHr_[i][j]->setAxisTitle("ES RecHit Occupancy / hour", 2);
-      }
-
-    sprintf(histo, "ES Trending SLink CRC Error per 5 mins");
-    hESSLinkErrTrend_ = dqmStore_->bookProfile(histo, histo, 36, 0.0, 180.0, 100, 0.0, 1.0e6, "s");
-    hESSLinkErrTrend_->setAxisTitle("Elapse time (Minutes)", 1);
-    hESSLinkErrTrend_->setAxisTitle("ES SLink CRC Err / 5 minutes", 2);
-
-    sprintf(histo, "ES Trending Fiber Error per 5 mins");
-    hESFiberErrTrend_ = dqmStore_->bookProfile(histo, histo, 36, 0.0, 180.0, 100, 0.0, 1.0e6, "s");
-    hESFiberErrTrend_->setAxisTitle("Elapse time (Minutes)", 1);
-    hESFiberErrTrend_->setAxisTitle("ES Fiber Err / 5 minutes", 2);
-
-    sprintf(histo, "ES Trending SLink CRC Error per hour");
-    hESSLinkErrTrendHr_ = dqmStore_->bookProfile(histo, histo, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
-    hESSLinkErrTrendHr_->setAxisTitle("Elapse time (Hours)", 1);
-    hESSLinkErrTrendHr_->setAxisTitle("ES SLink CRC Err / hour", 2);
-
-    sprintf(histo, "ES Trending Fiber Error per hour");
-    hESFiberErrTrendHr_ = dqmStore_->bookProfile(histo, histo, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
-    hESFiberErrTrendHr_->setAxisTitle("Elapse time (Hours)", 1);
-    hESFiberErrTrendHr_->setAxisTitle("ES Fiber Err / hour", 2);
-  }
-
-}
-
-void ESTrendTask::cleanup(void) {
-
-  if ( ! init_ ) return;
-
-  if ( dqmStore_ ) {
-    dqmStore_->setCurrentFolder(prefixME_ + "/ESTrendTask");
-
-    for (int i=0 ; i<2; ++i)  
-      for (int j=0 ; j<2; ++j) {
-	if (hESRecHitTrend_[i][j]) dqmStore_->removeElement(hESRecHitTrend_[i][j]->getName());
-	hESRecHitTrend_[i][j] = 0;
-	if (hESRecHitTrendHr_[i][j]) dqmStore_->removeElement(hESRecHitTrendHr_[i][j]->getName());
-	hESRecHitTrendHr_[i][j] = 0;
-      }
-
-    if (hESSLinkErrTrend_) dqmStore_->removeElement(hESSLinkErrTrend_->getName());
-    hESSLinkErrTrend_ = 0;
-    if (hESFiberErrTrend_) dqmStore_->removeElement(hESFiberErrTrend_->getName());
-    hESFiberErrTrend_ = 0;
-    if (hESSLinkErrTrendHr_) dqmStore_->removeElement(hESSLinkErrTrendHr_->getName());
-    hESSLinkErrTrendHr_ = 0;
-    if (hESFiberErrTrendHr_) dqmStore_->removeElement(hESFiberErrTrendHr_->getName());
-    hESFiberErrTrendHr_ = 0;
-  }
-
-  init_ = false;
-
+  sprintf(histo, "ES Trending Fiber Error per hour");
+  hESFiberErrTrendHr_ = iBooker.bookProfile(histo, histo, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
+  hESFiberErrTrendHr_->setAxisTitle("Elapse time (Hours)", 1);
+  hESFiberErrTrendHr_->setAxisTitle("ES Fiber Err / hour", 2);
 }
 
 void ESTrendTask::endJob(void) {
 
   LogInfo("ESTrendTask") << "analyzed " << ievt_ << " events";
 
-  if ( enableCleanup_ ) this->cleanup();
-
 }
 
 void ESTrendTask::analyze(const Event& e, const EventSetup& c) {
-
-  if ( ! init_ ) this->setup();
 
   ievt_++;
 

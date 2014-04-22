@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 MaterialPropagator = cms.ESProducer("PropagatorWithMaterialESProducer",
+    SimpleMagneticField = cms.string(""),
     MaxDPhi = cms.double(1.6),
     ComponentName = cms.string('PropagatorWithMaterial'),
     Mass = cms.double(0.105),

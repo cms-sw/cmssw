@@ -29,10 +29,10 @@ class EZMgrFL
 
       virtual ~EZMgrFL< T >() {}
 
-      iterator reserve() const { return assign() ; }
-      iterator resize()  const { return assign() ; }
+      iterator reserve() { return assign() ; }
+      iterator resize()  { return assign() ; }
 
-      iterator assign( const T& t = T() ) const
+      iterator assign( const T& t = T() )
       {
 	 assert( ( m_vec.size() + m_subSize ) <= m_vecSize ) ;
 	 if( 0 == m_vec.capacity() )
@@ -60,7 +60,7 @@ class EZMgrFL
 
       const size_type m_vecSize ;
       const size_type m_subSize ;
-      mutable VecType m_vec     ;
+      VecType m_vec     ;
 };
 
 #endif

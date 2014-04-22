@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 TrackProducer = cms.EDProducer("TrackProducer",
+    useSimpleMF = cms.bool(False),
+    SimpleMagneticField = cms.string(""),
     src = cms.InputTag("ckfTrackCandidates"),
     clusterRemovalInfo = cms.InputTag(""),
     beamSpot = cms.InputTag("offlineBeamSpot"),
