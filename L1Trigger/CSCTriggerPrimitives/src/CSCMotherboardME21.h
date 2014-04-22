@@ -104,6 +104,8 @@ class CSCMotherboardME21 : public CSCMotherboard
   std::vector<CSCCorrelatedLCTDigi> sortLCTsByGEMDPhi(int bx);
   std::vector<CSCCorrelatedLCTDigi> sortLCTsByGEMDPhi(std::vector<CSCCorrelatedLCTDigi>);
 
+  std::vector<CSCCorrelatedLCTDigi> getLCTs();
+  std::vector<CSCCorrelatedLCTDigi> readoutLCTs();
 
  private: 
 

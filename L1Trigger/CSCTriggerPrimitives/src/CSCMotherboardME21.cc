@@ -554,6 +554,64 @@ CSCMotherboardME21::run(const CSCWireDigiCollection* wiredc,
   // 					       <<"  a "<<n_clct_a<<"  b "<<n_clct_b<<"  ab "<<n_clct_a+n_clct_b;
 }
 
+
+//readout LCTs 
+std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME21::readoutLCTs()
+{
+  return getLCTs();
+ 
+}
+
+//getLCTs when we use different sort algorithm
+std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME21::getLCTs()
+{
+  std::vector<CSCCorrelatedLCTDigi> result;
+  for (int bx = 0; bx < MAX_LCT_BINS; bx++ )
+    {
+      std::vector<CSCCorrelatedLCTDigi> tmpV;
+      if (tmb_cross_bx_algo == 2)
+        {
+          tmpV = sortLCTsByQuality(bx);
+          result.insert(result.end(), tmpV.begin(), tmpV.end());
+        }
+      else {
+        for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++) 
+          for (int i=0;i<2;i++)
+            if (allLCTs[bx][mbx][i].isValid())  
+              result.push_back(allLCTs[bx][mbx][i]);
+      }
+    }
+  return result;
+}
+
+//sort LCTs by Quality in each BX
+std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME21::sortLCTsByQuality(int bx)
+{
+  std::vector<CSCCorrelatedLCTDigi> LCTs;
+  std::vector<CSCCorrelatedLCTDigi> tmpV;
+  tmpV.clear();
+  LCTs.clear();
+  for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++) 
+    for (int i=0;i<2;i++)
+      if (allLCTs[bx][mbx][i].isValid())  
+        LCTs.push_back(allLCTs[bx][mbx][i]);
+  std::vector<CSCCorrelatedLCTDigi>::iterator plct = LCTs.begin();
+  for (; plct != LCTs.end(); plct++)
+    {
+      if (!plct->isValid()) continue;
+      std::vector<CSCCorrelatedLCTDigi>::iterator itlct = tmpV.begin();
+      for (; itlct != tmpV.end(); itlct++)
+        if((*itlct).getQuality() < (*plct).getQuality()) break;
+    
+      if(itlct==tmpV.end()) tmpV.push_back(*plct);
+      else tmpV.insert(itlct--, *plct);
+          
+    }
+  unsigned int max_me21_lcts = 2;
+  if (tmpV.size()> max_me21_lcts) tmpV.erase(tmpV.begin()+max_me21_lcts, tmpV.end());
+  return  tmpV;
+}
+
 void CSCMotherboardME21::correlateLCTsGEM(CSCALCTDigi bestALCT,
 					  CSCALCTDigi secondALCT,
 					  CSCCLCTDigi bestCLCT,
@@ -987,7 +1045,7 @@ void CSCMotherboardME21::buildCoincidencePads(const GEMCSCPadDigiCollection* out
     const GEMDetId& id = (*det_range).first;
 
     // build coincidences only in station 2
-    if (id.station() != 2 or id.station() != 3) continue;
+    if (id.station() != 2 and id.station() != 3) continue;
     
     // all coincidences detIDs will have layer=1
     if (id.layer() != 1) continue;
