@@ -92,7 +92,7 @@ namespace edm
       EcalDigiProducer* myEcalDigitizer_;
       EBSignalGenerator theEBSignalGenerator;
       EESignalGenerator theEESignalGenerator;
-      //      ESSignalGenerator theESSignalGenerator;
+      ESSignalGenerator theESSignalGenerator;
 
       std::string label_;
 

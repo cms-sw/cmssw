@@ -102,12 +102,23 @@ public:
           theElectronicsSim->setStartingCapId(startingCapId);
           theParameterMap->setFrameSize(it->id(), it->size());
         }
-        theNoiseSignals.push_back(samplesInPE(*it));
+	if(validDigi(*it)) {
+	  theNoiseSignals.push_back(samplesInPE(*it));
+	}
       }
     }
   }
 
 private:
+
+  bool validDigi(const DIGI & digi)
+  {
+    int DigiSum = 0;
+    for(int id = 0; id<digi.size(); id++) {
+      if(digi[id].adc() > 0) ++DigiSum;
+    }
+    return(DigiSum>0);
+  }
 
   CaloSamples samplesInPE(const DIGI & digi)
   {
@@ -121,9 +132,7 @@ private:
     coder.adc2fC(digi, result);
     fC2pe(result);
 
-    //    std::cout << " HcalSignalGenerator: noise result " << result << std::endl;
-
-
+    //    std::cout << " HcalSignalGenerator: noise input " << digi << std::endl;
 
     return result;
   }

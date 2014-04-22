@@ -25,8 +25,8 @@ namespace edm {
   {  
 
     theEBSignalGenerator = EBSignalGenerator(EBPileInputTag_,tok_eb_, m_EBs25notCont, m_EEs25notCont, m_peToABarrel, m_peToAEndcap);
-    theEESignalGenerator = EESignalGenerator(EBPileInputTag_,tok_ee_, m_EBs25notCont, m_EEs25notCont, m_peToABarrel, m_peToAEndcap);
-    //    theESSignalGenerator = ESSignalGenerator(ESPileInputTag_,tok_es_);
+    theEESignalGenerator = EESignalGenerator(EEPileInputTag_,tok_ee_, m_EBs25notCont, m_EEs25notCont, m_peToABarrel, m_peToAEndcap);
+    theESSignalGenerator = ESSignalGenerator(ESPileInputTag_,tok_es_, m_EBs25notCont, m_EEs25notCont, m_peToABarrel, m_peToAEndcap);
 
     // get the subdetector names
     //    this->getSubdetectorNames();  //something like this may be useful to check what we are supposed to do...
@@ -49,7 +49,7 @@ namespace edm {
 
     myEcalDigitizer_->setEBNoiseSignalGenerator( & theEBSignalGenerator );
     myEcalDigitizer_->setEENoiseSignalGenerator( & theEESignalGenerator );
-    //myEcalDigitizer_->setESNoiseSignalGenerator( & theESSignalGenerator );
+    myEcalDigitizer_->setESNoiseSignalGenerator( & theESSignalGenerator );
 
 
     std::cout << " IN ECAL constructor " << std::endl;
@@ -90,13 +90,13 @@ namespace edm {
 
     theEBSignalGenerator.initializeEvent(ep, &ES);
     theEESignalGenerator.initializeEvent(ep, &ES);
-    //theESSignalGenerator.initializeEvent(ep, &ES);
+    theESSignalGenerator.initializeEvent(ep, &ES);
 
     std::cout << " filling noise signals" << std::endl;
 
     theEBSignalGenerator.fill(mcc);
     theEESignalGenerator.fill(mcc);
-    //theESSignalGenerator.fill(mcc);
+    theESSignalGenerator.fill(mcc);
   }
 
   void DataMixingEcalDigiWorkerProd::putEcal(edm::Event &e,const edm::EventSetup& ES) {

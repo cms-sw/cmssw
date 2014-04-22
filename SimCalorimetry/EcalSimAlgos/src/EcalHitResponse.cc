@@ -169,8 +169,6 @@ EcalHitResponse::add( const PCaloHit& hit )
 
      const DetId detId ( hit.id() ) ;
 
-     std::cout << " Adding energy from pcalohit " << detId.rawId() << std::endl;
-
   }
 }
 

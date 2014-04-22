@@ -3,6 +3,7 @@
 
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalTDigitizer.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalHitResponse.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/EcalBaseSignalGenerator.h"
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
 
 template <class Traits>
@@ -42,8 +43,6 @@ template <class Traits>
 void
 EcalTDigitizer<Traits>::setNoiseSignalGenerator(EcalBaseSignalGenerator* noiseSignalGenerator) {
 
-	std::cout << " Setting noise Signal Generator " << std::endl;
-
    theNoiseSignalGenerator = noiseSignalGenerator;
 }
 
@@ -53,12 +52,11 @@ template <class Traits>
 void 
 EcalTDigitizer<Traits>::run( DigiCollection&          output   )
 {
+
    m_hitResponse->finalizeHits()  ;
 
    if(theNoiseSignalGenerator != 0) {
-
-	std::cout << "Ecal NG: " << theNoiseSignalGenerator << std::endl;
-//	addNoiseSignals();	
+	addNoiseSignals();	
    }
 
    m_electronicsSim->newEvent() ;
@@ -75,6 +73,7 @@ EcalTDigitizer<Traits>::run( DigiCollection&          output   )
 	 output.push_back( analogSignal.id().rawId() ) ;
 	 Digi digi ( output.back() ) ;  // why does this work without &
 	 m_electronicsSim->analogToDigital( analogSignal , digi ) ;
+
 	 Traits::fix( digi, output.back() ) ;
       }
    }
@@ -97,7 +96,7 @@ EcalTDigitizer<Traits>::addNoiseSignals()
 	theNoiseSignalGenerator->fillEvent();
 	theNoiseSignalGenerator->getNoiseSignals(noiseSignals);
 	//for(auto& signalItr: noiseSignals) 
-	for(typename std::vector<CaloSamples>::const_iterator signalItr = noiseSignals.begin(), signalEnd = noiseSignals.end(); signalItr != signalEnd; ++signalItr)
+	for(std::vector<CaloSamples>::const_iterator signalItr = noiseSignals.begin(), signalEnd = noiseSignals.end(); signalItr != signalEnd; ++signalItr)
 	  {
 	    m_hitResponse->add(*signalItr);
 	  }

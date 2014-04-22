@@ -164,6 +164,9 @@ EcalCoder::encode( const EcalSamples& ecalSamples ,
 					     &noisy[0]->vecgau() ) ; // low
    }
 
+
+   //   std::cout << " intercal, LSBs, gains " << icalconst << " " << LSB[0] << " " << LSB[1] << " " << gains[0] << " " << gains[1] << " " << Emax <<  std::endl;
+
    int wait = 0 ;
    int gainId = 0 ;
    bool isSaturated = 0;
@@ -190,7 +193,7 @@ EcalCoder::encode( const EcalSamples& ecalSamples ,
 	 {
 	    noisy[igain-1]->noisify( noiseframe[igain-1] ,
 				     &noisy[0]->vecgau()   ) ;
-//	    std::cout<<"....noisifying gain level = "<<igain<<std::endl ;
+	    //std::cout<<"....noisifying gain level = "<<igain<<std::endl ;
 	 }
 	
 	 double signal;
@@ -205,12 +208,14 @@ EcalCoder::encode( const EcalSamples& ecalSamples ,
 	 }
 	 else {
 
-	   // noiseframe filled with zeros if !m_addNoise
 	   const double asignal ( // no pedestals for pre-mixing
-			       ecalSamples[i] /( LSB[igain]*icalconst ) +
-			       trueRMS[igain]*noiseframe[igain-1][i]      ) ;
+				 ecalSamples[i] /( LSB[igain]*icalconst ) );
 	   signal = asignal;
 	 }
+
+	 //	 std::cout << " " << ecalSamples[i] << " " << noiseframe[igain-1][i] << std::endl;
+
+
 	 const int isignal ( signal ) ;
 	 const int tmpadc ( signal - (double)isignal < 0.5 ?
 			    isignal : isignal + 1 ) ;

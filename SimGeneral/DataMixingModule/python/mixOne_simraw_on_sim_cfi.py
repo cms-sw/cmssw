@@ -148,7 +148,7 @@ mixData = cms.EDProducer("DataMixingModule",
     #
     EBPileInputTag = cms.InputTag("ecalDigis","ebDigis","@MIXING"),
     EEPileInputTag = cms.InputTag("ecalDigis","eeDigis","@MIXING"),
-    ESPileInputTag = cms.InputTag("esRawToDigi","","@MIXING"),
+    ESPileInputTag = cms.InputTag("ecalPreshowerDigis","","@MIXING"),
     HBHEPileInputTag = cms.InputTag("hcalDigis","","@MIXING"),
     HOPileInputTag   = cms.InputTag("hcalDigis","","@MIXING"),
     HFPileInputTag   = cms.InputTag("hcalDigis","","@MIXING"),

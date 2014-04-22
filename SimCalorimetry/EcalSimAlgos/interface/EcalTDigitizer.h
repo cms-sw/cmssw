@@ -13,6 +13,7 @@
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalBaseSignalGenerator.h"
 
 class EcalHitResponse ;
+class EcalBaseSignalGenerator;
 
 template< class Traits >
 class EcalTDigitizer
