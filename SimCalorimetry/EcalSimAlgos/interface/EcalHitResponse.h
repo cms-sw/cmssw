@@ -2,6 +2,7 @@
 #define EcalSimAlgos_EcalHitResponse_h
 
 #include "CalibFormats/CaloObjects/interface/CaloTSamplesBase.h"
+#include "CalibFormats/CaloObjects/interface/CaloSamples.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
@@ -61,6 +62,8 @@ class EcalHitResponse
       void add( const EcalSamples* pSam ) ;
 
       virtual void add( const PCaloHit&  hit ) ;
+
+      virtual void add( const CaloSamples&  hit ) ;
 
       virtual void initializeHits() ;
 

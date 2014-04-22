@@ -4,6 +4,7 @@
 
 
 #include "CalibFormats/CaloObjects/interface/CaloTSamples.h"
+#include "SimCalorimetry/CaloSimAlgos/interface/CaloVNoiseSignalGenerator.h"
 #include "CLHEP/Random/RandGaussQ.h"
 
 
@@ -35,6 +36,10 @@ class EcalElectronicsSim
 
       void newEvent() {}
 
+      void setNoiseSignalGenerator(const CaloVNoiseSignalGenerator * noiseSignalGenerator) {
+	theNoiseSignalGenerator = noiseSignalGenerator;
+      }
+
    private:
 
       /// input signal is in pe.  Converted in GeV
@@ -43,6 +48,8 @@ class EcalElectronicsSim
       /// map of parameters
 
       const EcalSimParameterMap* m_simMap ;
+
+      const CaloVNoiseSignalGenerator * theNoiseSignalGenerator;
 
       EcalCoder*                 m_theCoder ;
 

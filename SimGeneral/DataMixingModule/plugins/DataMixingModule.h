@@ -27,6 +27,7 @@
 #include "SimGeneral/DataMixingModule/plugins/DataMixingEMWorker.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingHcalWorker.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingEMDigiWorker.h"
+#include "SimGeneral/DataMixingModule/plugins/DataMixingEcalDigiWorkerProd.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingHcalDigiWorker.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingHcalDigiWorkerProd.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingMuonWorker.h"
@@ -63,9 +64,17 @@ namespace edm {
       virtual void doPileUp(edm::Event &e,const edm::EventSetup& ES) override;
       virtual void put(edm::Event &e,const edm::EventSetup& ES) ;
 
-      virtual void initializeEvent(edm::Event const& e, edm::EventSetup const& eventSetup);
+      void initializeEvent(edm::Event const& e, edm::EventSetup const& eventSetup);
+      void beginRun(edm::Run const& run, edm::EventSetup const& eventSetup);
 
       void pileWorker(const edm::EventPrincipal&, int bcr, int EventId,const edm::EventSetup& ES, ModuleCallingContext const*);
+      //virtual void beginJob();
+      //virtual void endJob();
+      //virtual void beginLuminosityBlock(LuminosityBlock const& l1, EventSetup const& c) override;
+      //virtual void endLuminosityBlock(LuminosityBlock const& l1, EventSetup const& c) override;
+      //virtual void endRun(const edm::Run& r, const edm::EventSetup& setup) override;
+
+
 
     private:
       // data specifiers
@@ -121,6 +130,7 @@ namespace edm {
 
       DataMixingEMWorker *EMWorker_ ;
       DataMixingEMDigiWorker *EMDigiWorker_ ;
+      DataMixingEcalDigiWorkerProd *EcalDigiWorkerProd_ ;
       bool MergeEMDigis_;
 
       // Hcal 
@@ -130,14 +140,21 @@ namespace edm {
       DataMixingHcalDigiWorkerProd *HcalDigiWorkerProd_ ;
 
      // tokens needed to DataMixingHcalDigiWorkerProd
+      edm::InputTag EBPileInputTag_; // InputTag for Pileup Digis collection  
+      edm::InputTag EEPileInputTag_  ; // InputTag for Pileup Digis collection
+      edm::InputTag ESPileInputTag_  ; // InputTag for Pileup Digis collection
       edm::InputTag HBHEPileInputTag_; // InputTag for Pileup Digis collection  
       edm::InputTag HOPileInputTag_  ; // InputTag for Pileup Digis collection
       edm::InputTag HFPileInputTag_  ; // InputTag for Pileup Digis collection
       edm::InputTag ZDCPileInputTag_ ; // InputTag for Pileup Digis collection
-     edm::EDGetTokenT<HBHEDigitizerTraits::DigiCollection> tok_hbhe_;
-     edm::EDGetTokenT<HODigitizerTraits::DigiCollection> tok_ho_;
-     edm::EDGetTokenT<HFDigitizerTraits::DigiCollection> tok_hf_;
-     edm::EDGetTokenT<ZDCDigitizerTraits::DigiCollection> tok_zdc_;
+      edm::EDGetTokenT<HBHEDigitizerTraits::DigiCollection> tok_hbhe_;
+      edm::EDGetTokenT<HODigitizerTraits::DigiCollection> tok_ho_;
+      edm::EDGetTokenT<HFDigitizerTraits::DigiCollection> tok_hf_;
+      edm::EDGetTokenT<ZDCDigitizerTraits::DigiCollection> tok_zdc_;
+      edm::EDGetTokenT<EBDigitizerTraits::DigiCollection> tok_eb_;
+      edm::EDGetTokenT<EEDigitizerTraits::DigiCollection> tok_ee_;
+      edm::EDGetTokenT<ESDigitizerTraits::DigiCollection> tok_es_;
+
 
       bool MergeHcalDigis_;
       bool MergeHcalDigisProd_;

@@ -6,6 +6,7 @@
 #include "DataFormats/EcalDigi/interface/ESSample.h"
 #include "CondFormats/ESObjects/interface/ESPedestals.h"
 #include "CondFormats/ESObjects/interface/ESIntercalibConstants.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/EcalBaseSignalGenerator.h"
 
 #include <vector>
 
@@ -21,7 +22,7 @@ class ESElectronicsSimFast
       enum { MAXADC = 4095,
 	     MINADC =    0 } ;
   
-      ESElectronicsSimFast( bool addNoise ) ;
+      ESElectronicsSimFast( bool addNoise , bool PreMix1) ;
       ~ESElectronicsSimFast() ;
 
       void setPedestals( const ESPedestals* peds ) ;
@@ -36,15 +37,20 @@ class ESElectronicsSimFast
 
       void newEvent() {}
 
+
    private :
 
       bool m_addNoise ;
+
+      bool m_PreMix1;
 
       double m_MIPToGeV ;
 
       const ESPedestals* m_peds ;
 
       const ESIntercalibConstants* m_mips ;
+
+      EcalBaseSignalGenerator * theNoiseSignalGenerator;
 
       CLHEP::RandGaussQ* m_ranGau ;
 } ;

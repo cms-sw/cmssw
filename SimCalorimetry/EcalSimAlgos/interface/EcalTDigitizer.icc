@@ -3,6 +3,8 @@
 
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalTDigitizer.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EcalHitResponse.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/EcalBaseSignalGenerator.h"
+#include "CalibFormats/CaloObjects/interface/CaloSamples.h"
 
 template <class Traits>
 EcalTDigitizer<Traits>::EcalTDigitizer( EcalHitResponse* hitResponse    ,
@@ -10,7 +12,8 @@ EcalTDigitizer<Traits>::EcalTDigitizer( EcalHitResponse* hitResponse    ,
 					bool             addNoise         ) :
    m_hitResponse    ( hitResponse    ) ,
    m_electronicsSim ( electronicsSim ) ,
-   m_addNoise       ( addNoise       )
+   m_addNoise       ( addNoise       ) ,
+   theNoiseSignalGenerator (0)
 {
 }
 
@@ -35,11 +38,26 @@ EcalTDigitizer<Traits>::initializeHits() {
   m_hitResponse->initializeHits();
 }
 
+
+template <class Traits>
+void
+EcalTDigitizer<Traits>::setNoiseSignalGenerator(EcalBaseSignalGenerator* noiseSignalGenerator) {
+
+   theNoiseSignalGenerator = noiseSignalGenerator;
+}
+
+
+
 template <class Traits>
 void 
 EcalTDigitizer<Traits>::run( DigiCollection&          output   )
 {
+
    m_hitResponse->finalizeHits()  ;
+
+   if(theNoiseSignalGenerator != 0) {
+	addNoiseSignals();	
+   }
 
    m_electronicsSim->newEvent() ;
 
@@ -55,10 +73,12 @@ EcalTDigitizer<Traits>::run( DigiCollection&          output   )
 	 output.push_back( analogSignal.id().rawId() ) ;
 	 Digi digi ( output.back() ) ;  // why does this work without &
 	 m_electronicsSim->analogToDigital( analogSignal , digi ) ;
+
 	 Traits::fix( digi, output.back() ) ;
       }
    }
 }
+
 
 template <class Traits>
 bool
@@ -66,6 +86,24 @@ EcalTDigitizer<Traits>::addNoise() const
 {
    return m_addNoise ;
 }
+
+template <class Traits> 
+void 
+EcalTDigitizer<Traits>::addNoiseSignals()
+      {
+	std::vector<CaloSamples> noiseSignals;
+	// noise signals need to be in units of photoelectrons.  Fractional is OK
+	theNoiseSignalGenerator->fillEvent();
+	theNoiseSignalGenerator->getNoiseSignals(noiseSignals);
+	//for(auto& signalItr: noiseSignals) 
+	for(std::vector<CaloSamples>::const_iterator signalItr = noiseSignals.begin(), signalEnd = noiseSignals.end(); signalItr != signalEnd; ++signalItr)
+	  {
+	    m_hitResponse->add(*signalItr);
+	  }
+      }
+
+
+
 
 template <class Traits>
 const EcalHitResponse* 

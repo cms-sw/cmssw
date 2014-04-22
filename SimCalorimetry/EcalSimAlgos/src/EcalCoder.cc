@@ -10,6 +10,7 @@
 
 
 EcalCoder::EcalCoder( bool                  addNoise     , 
+		      bool                  PreMix1      ,
 		      EcalCoder::Noisifier* ebCorrNoise0 ,
 		      EcalCoder::Noisifier* eeCorrNoise0 ,
 		      EcalCoder::Noisifier* ebCorrNoise1 ,
@@ -21,8 +22,9 @@ EcalCoder::EcalCoder( bool                  addNoise     ,
    m_intercals   (           0 ) ,
    m_maxEneEB    (      1668.3 ) , // 4095(MAXADC)*12(gain 2)*0.035(GeVtoADC)*0.97
    m_maxEneEE    (      2859.9 ) , // 4095(MAXADC)*12(gain 2)*0.060(GeVtoADC)*0.97
-   m_addNoise    ( addNoise    )
-{
+   m_addNoise    ( addNoise    ) ,
+   m_PreMix1     ( PreMix1     ) 
+   {
    m_ebCorrNoise[0] = ebCorrNoise0 ;
    assert( 0 != m_ebCorrNoise[0] ) ;
    m_eeCorrNoise[0] = eeCorrNoise0 ;
@@ -162,6 +164,9 @@ EcalCoder::encode( const EcalSamples& ecalSamples ,
 					     &noisy[0]->vecgau() ) ; // low
    }
 
+
+   //   std::cout << " intercal, LSBs, gains " << icalconst << " " << LSB[0] << " " << LSB[1] << " " << gains[0] << " " << gains[1] << " " << Emax <<  std::endl;
+
    int wait = 0 ;
    int gainId = 0 ;
    bool isSaturated = 0;
@@ -188,14 +193,29 @@ EcalCoder::encode( const EcalSamples& ecalSamples ,
 	 {
 	    noisy[igain-1]->noisify( noiseframe[igain-1] ,
 				     &noisy[0]->vecgau()   ) ;
-//	    std::cout<<"....noisifying gain level = "<<igain<<std::endl ;
+	    //std::cout<<"....noisifying gain level = "<<igain<<std::endl ;
 	 }
 	
-	 // noiseframe filled with zeros if !m_addNoise
-	 const double signal ( pedestals[igain] +
+	 double signal;
+
+	 if(!m_PreMix1) {
+
+	   // noiseframe filled with zeros if !m_addNoise
+	   const double asignal ( pedestals[igain] +
 			       ecalSamples[i] /( LSB[igain]*icalconst ) +
 			       trueRMS[igain]*noiseframe[igain-1][i]      ) ;
-	 
+	   signal = asignal;
+	 }
+	 else {
+
+	   const double asignal ( // no pedestals for pre-mixing
+				 ecalSamples[i] /( LSB[igain]*icalconst ) );
+	   signal = asignal;
+	 }
+
+	 //	 std::cout << " " << ecalSamples[i] << " " << noiseframe[igain-1][i] << std::endl;
+
+
 	 const int isignal ( signal ) ;
 	 const int tmpadc ( signal - (double)isignal < 0.5 ?
 			    isignal : isignal + 1 ) ;
