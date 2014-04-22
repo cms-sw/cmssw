@@ -3,7 +3,10 @@ import FWCore.ParameterSet.Config as cms
 patPhotons = cms.EDProducer("PATPhotonProducer",
     # input collection
     photonSource = cms.InputTag("gedPhotons"),
-                                 
+             
+    reducedBarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
+    reducedEndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE"),             
+             
     # user data to add
     userData = cms.PSet(
       # add custom classes here
@@ -29,7 +32,11 @@ patPhotons = cms.EDProducer("PATPhotonProducer",
 
     # embedding of AOD items
     embedSuperCluster = cms.bool(True), ## whether to embed in AOD externally stored supercluster
-
+    embedSeedCluster               = cms.bool(True),  ## embed in AOD externally stored the photon's seedcluster 
+    embedBasicClusters             = cms.bool(True),  ## embed in AOD externally stored the photon's basic clusters 
+    embedPreshowerClusters         = cms.bool(True),  ## embed in AOD externally stored the photon's preshower clusters 
+    embedRecHits         = cms.bool(True),  ## embed in AOD externally stored the RecHits - can be called from the PATPhotonProducer 
+    
     # embed IsoDeposits to recompute isolation
     isoDeposits = cms.PSet(),
 

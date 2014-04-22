@@ -2,6 +2,7 @@
 //
 
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
+#include "FWCore/Common/interface/TriggerNames.h"
 
 #include <boost/algorithm/string.hpp>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -134,6 +135,8 @@ bool TriggerObjectStandAlone::hasAnyName( const std::string & name, const std::v
 // Adds a new HLT path or L1 algorithm name
 void TriggerObjectStandAlone::addPathOrAlgorithm( const std::string & name, bool pathLastFilterAccepted, bool pathL3FilterAccepted )
 {
+  checkIfPathsAreUnpacked();
+
   // Check, if path is already assigned
   if ( ! hasPathOrAlgorithm( name, false, false ) ) {
     // The path itself
@@ -161,6 +164,8 @@ void TriggerObjectStandAlone::addPathOrAlgorithm( const std::string & name, bool
 // Gets all HLT path or L1 algorithm names
 std::vector< std::string > TriggerObjectStandAlone::pathsOrAlgorithms( bool pathLastFilterAccepted, bool pathL3FilterAccepted ) const
 {
+  checkIfPathsAreUnpacked();
+
   // Deal with older PAT-tuples, where trigger object usage is not available
   if ( ! hasLastFilter() ) pathLastFilterAccepted = false;
   if ( ! hasL3Filter() ) pathL3FilterAccepted = false;
@@ -190,6 +195,8 @@ bool TriggerObjectStandAlone::hasFilterOrCondition( const std::string & name ) c
 // Checks, if a certain path name is assigned
 bool TriggerObjectStandAlone::hasPathOrAlgorithm( const std::string & name, bool pathLastFilterAccepted, bool pathL3FilterAccepted ) const
 {
+  checkIfPathsAreUnpacked();
+
   // Move to wild-card parser, if needed
   if ( name.find( wildcard_ ) != std::string::npos ) return hasAnyName( name, pathsOrAlgorithms( pathLastFilterAccepted, pathL3FilterAccepted ) );
   // Deal with older PAT-tuples, where trigger object usage is not available
@@ -246,3 +253,56 @@ bool TriggerObjectStandAlone::hasCollection( const std::string & collName ) cons
   // Use parent class's method otherwise
   return TriggerObject::hasCollection( collName );
 }
+
+
+bool TriggerObjectStandAlone::checkIfPathsAreUnpacked(bool throwIfPacked) const {
+   bool unpacked = (!pathNames_.empty() || pathIndices_.empty());
+   if (!unpacked && throwIfPacked) throw cms::Exception("RuntimeError", "This TriggerObjectStandAlone object has packed trigger path names. Before accessing path names you must call unpackPathNames with an edm::TriggerNames object. You can get the latter from the edm::Event or fwlite::Event and the TriggerResults\n");
+   return unpacked;
+}
+
+void TriggerObjectStandAlone::packPathNames(const edm::TriggerNames &names) {
+    if (!pathIndices_.empty()) {
+        if (!pathNames_.empty()) {
+            throw cms::Exception("RuntimeError", "Error, trying to pack a partially packed TriggerObjectStandAlone");
+        } else {
+            return;
+        }
+    }
+    bool ok = true;
+    unsigned int n = pathNames_.size(), end = names.size();
+    std::vector<uint16_t> indices(n); 
+    for (unsigned int i = 0; i < n; ++i) {
+        uint16_t id = names.triggerIndex(pathNames_[i]);
+        if (id >= end) {
+            static int _warn = 0;
+            if (++_warn < 5) std::cerr << "Warning: can't resolve '" << pathNames_[i] << "' to a path index" << std::endl;
+            ok = false; break;
+        } else {
+            indices[i] = id;
+        }
+    }
+    if (ok) {
+        pathIndices_.swap(indices);
+        pathNames_.clear();
+    }
+}
+
+void TriggerObjectStandAlone::unpackPathNames(const edm::TriggerNames &names) {
+    if (!pathNames_.empty()) {
+        if (!pathIndices_.empty()) {
+            throw cms::Exception("RuntimeError", "Error, trying to unpack a partially unpacked TriggerObjectStandAlone");
+        } else {
+            return;
+        }
+    }
+    unsigned int n = pathIndices_.size(), end = names.size();
+    std::vector<std::string> paths(n); 
+    for (unsigned int i = 0; i < n; ++i) {
+        if (pathIndices_[i] >= end) throw cms::Exception("RuntimeError", "Error, path index out of bounds");
+        paths[i] = names.triggerName(pathIndices_[i]);
+    }
+    pathIndices_.clear();
+    pathNames_.swap(paths);
+}
+
