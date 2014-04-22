@@ -9,9 +9,8 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "EventFilter/DTRawToDigi/interface/DTDataMonitorInterface.h"
-#include "EventFilter/DTRawToDigi/interface/DTControlData.h"
-#include "EventFilter/DTRawToDigi/interface/DTDDUWords.h"
+#include "DataFormats/DTDigi/interface/DTControlData.h"
+#include "DataFormats/DTDigi/interface/DTDDUWords.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include <DQM/DTMonitorModule/interface/DTTimeEvolutionHisto.h>
@@ -32,19 +31,14 @@ int FirstRos=0,nevents=0,n,m;
 const unsigned long long max_bx = 59793997824ULL;
 #include "ROSDebugUtility.h"
 
-DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps,edm::ActivityRegistry& reg) : nevents(0) , dbe(0) {
-
-  // Register the methods that we want to schedule
-  //   reg.watchPostEndJob(this,&DTDataIntegrityTask::postEndJob);
-  reg.watchPreBeginLumi(this,&DTDataIntegrityTask::preBeginLumi);
-  reg.watchPreEndLumi(this,&DTDataIntegrityTask::preEndLumi);
-
-  reg.watchPostBeginJob(this,&DTDataIntegrityTask::postBeginJob);
-  reg.watchPreProcessEvent(this,&DTDataIntegrityTask::preProcessEvent);
+DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps) : nevents(0) , dbe(0) {
 
   LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
-    << "[DTDataIntegrityTask]: Constructor" <<endl;
-
+  << "[DTDataIntegrityTask]: Constructor" <<endl;
+  
+  dduToken = consumes<DTDDUCollection>(ps.getParameter<InputTag>("dtDDULabel"));
+  ros25Token = consumes<DTROS25Collection>(ps.getParameter<InputTag>("dtROS25Label"));
+  
   neventsDDU = 0;
   neventsROS25 = 0;
 
@@ -56,7 +50,7 @@ DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps,edm::Activi
   fedIntegrityFolder    = ps.getUntrackedParameter<string>("fedIntegrityFolder","DT/FEDIntegrity");
 
   string processingMode = ps.getUntrackedParameter<string>("processingMode","Online");
-
+  
   // processing mode flag to select plots to be produced and basedirs CB vedi se farlo meglio...
   if (processingMode == "Online") {
     mode = 0;
@@ -92,7 +86,7 @@ DTDataIntegrityTask::~DTDataIntegrityTask() {
   with the chosen granularity (simply change the histo name)
 */
 
-void DTDataIntegrityTask::postEndJob(){
+void DTDataIntegrityTask::endJob(){
   LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
     << "[DTDataIntegrityTask]: postEndJob called!" <<endl;
 
@@ -536,6 +530,7 @@ void DTDataIntegrityTask::bookHistosROS25(DTROChainCoding code) {
 
 
 void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
+  
   neventsROS25++; // FIXME: implement a counter which makes sense
 
 //   if (neventsROS25%1000 == 0)
@@ -845,8 +840,6 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
 
   // Read SC data
   if (mode <= 1 && getSCInfo) {
-    // SC Data
-
     // NumberOf16bitWords counts the # of words + 1 subheader
     // the SC includes the SC "private header" and the ROS header and trailer (= NumberOf16bitWords +3)
     rosHistos["SCSizeVsROSSize"][code.getSCID()]->Fill(ros,data.getSCPrivHeader().NumberOf16bitWords()+3-data.getSCTrailer().wordCount());
@@ -859,7 +852,7 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
 }
 
 void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25Data> & rosData, int ddu) {
-
+  
   neventsDDU++;
   if (neventsDDU%1000 == 0)
     LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask")
@@ -869,24 +862,26 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
   DTROChainCoding code;
   code.setDDU(ddu);
 
+  code.getDDUID();
+  
   hFEDEntry->Fill(code.getDDUID());
-
+  
   FEDTrailer trailer = data.getDDUTrailer();
   FEDHeader header = data.getDDUHeader();
-
+  
   // check consistency of header and trailer
   if(!header.check()) {
     // error code 7
     hFEDFatal->Fill(code.getDDUID());
     hCorruptionSummary->Fill(code.getDDUID(), 7);
   }
-
+  
   if(!trailer.check()) {
     // error code 8
     hFEDFatal->Fill(code.getDDUID());
     hCorruptionSummary->Fill(code.getDDUID(), 8);
   }
-
+  
   // check CRC error bit set by DAQ before sending data on SLink
   if(data.crcErrorBit()) {
     // error code 6
@@ -897,7 +892,6 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
   DTDDUSecondStatusWord secondWord = data.getSecondStatusWord();
 
   // Fill the status summary of the TTS
-
 
   //1D HISTO WITH TTS VALUES form trailer (7 bins = 7 values)
   int ttsCodeValue = -1;
@@ -1201,39 +1195,13 @@ void DTDataIntegrityTask::channelsInROS(int cerosMask, vector<int>& channels){
   return;
 }
 
-void DTDataIntegrityTask::preProcessEvent(const edm::EventID& iEvtid, const edm::Timestamp& iTime) {
-
-  nevents++;
-  nEventMonitor->Fill(nevents);
-
-  nEventsLS++;
-
-  LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask") << "[DTDataIntegrityTask]: preProcessEvent" <<endl;
-  // clear the set of BXids from the ROSs
-  for(map<int, set<int> >::iterator rosBxIds = rosBxIdsPerFED.begin();
-      rosBxIds != rosBxIdsPerFED.end(); ++rosBxIds) {
-    (*rosBxIds).second.clear();
-  }
-
-  fedBXIds.clear();
-
-  for(map<int, set<int> >::iterator rosL1AIds = rosL1AIdsPerFED.begin();
-      rosL1AIds != rosL1AIdsPerFED.end(); ++rosL1AIds) {
-    (*rosL1AIds).second.clear();
-  }
-
-  // reset the error flag
-  eventErrorFlag = false;
-
-}
-
-void DTDataIntegrityTask::preBeginLumi(const edm::LuminosityBlockID& ls, const edm::Timestamp& iTime) {
+void DTDataIntegrityTask::beginLuminosityBlock(const edm::LuminosityBlock& ls, const edm::EventSetup& es) {
 
   nEventsLS = 0;
 
 }
 
-void DTDataIntegrityTask::preEndLumi(const edm::LuminosityBlockID& ls, const edm::Timestamp& iTime) {
+void DTDataIntegrityTask::endLuminosityBlock(const edm::LuminosityBlock& ls, const edm::EventSetup& es) {
 
   int lumiBlock = ls.luminosityBlock();
 
@@ -1259,7 +1227,7 @@ void DTDataIntegrityTask::preEndLumi(const edm::LuminosityBlockID& ls, const edm
 
 }
 
-void DTDataIntegrityTask::postBeginJob() {
+void DTDataIntegrityTask::beginJob() {
   LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask") << "[DTDataIntegrityTask]: postBeginJob" <<endl;
   // get the DQMStore service if needed
   dbe = edm::Service<DQMStore>().operator->();
@@ -1292,6 +1260,67 @@ void DTDataIntegrityTask::postBeginJob() {
     }
   }
 
+}
+
+
+void DTDataIntegrityTask::analyze(const edm::Event& e, const edm::EventSetup& c)
+{
+  nevents++;
+  nEventMonitor->Fill(nevents);
+  
+  nEventsLS++;
+  
+  LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask") << "[DTDataIntegrityTask]: preProcessEvent" <<endl;
+  // clear the set of BXids from the ROSs
+  for(map<int, set<int> >::iterator rosBxIds = rosBxIdsPerFED.begin(); rosBxIds != rosBxIdsPerFED.end(); ++rosBxIds) {
+    (*rosBxIds).second.clear();
+  }
+  
+  fedBXIds.clear();
+  
+  for(map<int, set<int> >::iterator rosL1AIds = rosL1AIdsPerFED.begin(); rosL1AIds != rosL1AIdsPerFED.end(); ++rosL1AIds) {
+    (*rosL1AIds).second.clear();
+  }
+  
+  // reset the error flag
+  eventErrorFlag = false;
+  
+  // Digi collection
+  edm::Handle<DTDDUCollection> dduProduct;
+  e.getByToken(dduToken, dduProduct);
+  edm::Handle<DTROS25Collection> ros25Product;
+  e.getByToken(ros25Token, ros25Product);
+  
+  // To be written
+  // FIXME: to be passed by configuration?
+  // Loop over the DT FEDs
+  int FEDIDmin = 0/*, FEDIDMax = 0*/;
+//   if (useStandardFEDid_){
+  FEDIDmin = FEDNumbering::MINDTFEDID;
+//   FEDIDMax = FEDNumbering::MAXDTFEDID;
+//   }
+//   else {
+//     FEDIDmin = minFEDid_;
+//     FEDIDMax = maxFEDid_;
+//   }
+  
+  DTDDUData dduData;
+  std::vector<DTROS25Data> ros25Data;
+  
+//   for (int id=FEDIDmin; id<=FEDIDMax; ++id){ 
+  if(dduProduct.isValid() && ros25Product.isValid()) {
+    for(unsigned int i=0; i<dduProduct->size(); ++i)
+    {
+      dduData = dduProduct->at(i);
+      ros25Data = ros25Product->at(i);
+      int id = FEDIDmin+i;
+      processFED(dduData, ros25Data, id);
+      for(unsigned int j=0; j < ros25Data.size(); ++j) {
+        int rosid = j+1;
+        processROS25(ros25Data[j],id,rosid);
+      }
+    }
+  }
 }
 
 // Local Variables:

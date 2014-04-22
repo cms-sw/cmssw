@@ -1,5 +1,5 @@
-#ifndef DTRawToDigi_DTDDUWords_h
-#define DTRawToDigi_DTDDUWords_h
+#ifndef DTDigi_DTDDUWords_h
+#define DTDigi_DTDDUWords_h
 
 /** \file
  * MASKS and SHIFTS definition. Documentation at:
@@ -104,6 +104,8 @@ public:
     *this = obj;
   }
 
+  DTROSWordType() : word_(0) {};
+  
   /// Destructor
   virtual ~DTROSWordType() {};
 
