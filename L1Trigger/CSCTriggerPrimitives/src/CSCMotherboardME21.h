@@ -104,6 +104,8 @@ class CSCMotherboardME21 : public CSCMotherboard
   std::vector<CSCCorrelatedLCTDigi> sortLCTsByGEMDPhi(int bx);
   std::vector<CSCCorrelatedLCTDigi> sortLCTsByGEMDPhi(std::vector<CSCCorrelatedLCTDigi>);
 
+  std::vector<CSCCorrelatedLCTDigi> getLCTs();
+  std::vector<CSCCorrelatedLCTDigi> readoutLCTs();
 
  private: 
 
@@ -134,6 +136,9 @@ class CSCMotherboardME21 : public CSCMotherboard
   bool drop_used_clcts;
   
   unsigned int tmb_cross_bx_algo;
+
+  /** maximum lcts per BX in ME2 */
+  unsigned int max_me21_lcts;
 
   // masterswitch
   bool runME21ILT_;

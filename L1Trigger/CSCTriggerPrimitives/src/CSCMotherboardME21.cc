@@ -81,6 +81,9 @@ CSCMotherboardME21::CSCMotherboardME21(unsigned endcap, unsigned station,
 
   tmb_cross_bx_algo = me21tmbParams.getUntrackedParameter<unsigned int>("tmbCrossBxAlgorithm");
 
+  // maximum lcts per BX in ME2
+  max_me21_lcts = me21tmbParams.getUntrackedParameter<unsigned int>("maxME21LCTs",2);
+
   pref[0] = match_trig_window_size/2;
   for (unsigned int m=2; m<match_trig_window_size; m+=2)
   {
@@ -554,6 +557,60 @@ CSCMotherboardME21::run(const CSCWireDigiCollection* wiredc,
   // 					       <<"  a "<<n_clct_a<<"  b "<<n_clct_b<<"  ab "<<n_clct_a+n_clct_b;
 }
 
+
+//readout LCTs 
+std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME21::readoutLCTs()
+{
+  return getLCTs();
+ 
+}
+
+//getLCTs when we use different sort algorithm
+std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME21::getLCTs()
+{
+  std::vector<CSCCorrelatedLCTDigi> result;
+  for (int bx = 0; bx < MAX_LCT_BINS; bx++) {
+    std::vector<CSCCorrelatedLCTDigi> tmpV;
+    if (tmb_cross_bx_algo == 2) {
+      tmpV = sortLCTsByQuality(bx);
+      result.insert(result.end(), tmpV.begin(), tmpV.end());
+    }
+    else {
+      for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++) {
+        for (int i=0;i<2;i++) {
+          if (allLCTs[bx][mbx][i].isValid()) {
+            result.push_back(allLCTs[bx][mbx][i]);
+          }
+        }
+      }
+    }
+  }
+  return result;
+}
+
+// compare LCTs by quality
+bool hasLowerQuality(const CSCCorrelatedLCTDigi& lct1, const CSCCorrelatedLCTDigi& lct2) 
+{ 
+  return lct1.getQuality() < lct2.getQuality();
+}
+
+
+//sort LCTs by Quality in each BX
+std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME21::sortLCTsByQuality(int bx)
+{
+  std::vector<CSCCorrelatedLCTDigi> LCTs;
+  LCTs.clear();
+  for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++) 
+    for (int i=0;i<2;i++)
+      if (allLCTs[bx][mbx][i].isValid())  
+        LCTs.push_back(allLCTs[bx][mbx][i]);
+
+  // return sorted vector with 2 highest quality LCTs
+  std::sort(LCTs.begin(), LCTs.end(), hasLowerQuality);
+  if (LCTs.size()> max_me21_lcts) LCTs.erase(LCTs.begin()+max_me21_lcts, LCTs.end());
+  return  LCTs;
+}
+
 void CSCMotherboardME21::correlateLCTsGEM(CSCALCTDigi bestALCT,
 					  CSCALCTDigi secondALCT,
 					  CSCCLCTDigi bestCLCT,
@@ -987,7 +1044,7 @@ void CSCMotherboardME21::buildCoincidencePads(const GEMCSCPadDigiCollection* out
     const GEMDetId& id = (*det_range).first;
 
     // build coincidences only in station 2
-    if (id.station() != 2 or id.station() != 3) continue;
+    if (id.station() != 2 and id.station() != 3) continue;
     
     // all coincidences detIDs will have layer=1
     if (id.layer() != 1) continue;
