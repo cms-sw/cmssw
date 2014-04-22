@@ -26,19 +26,20 @@ SpecificPFMETData PFSpecificAlgo::run(const edm::View<reco::Candidate>& pfCands)
 
   for( edm::View<reco::Candidate>::const_iterator iPfCand = pfCands.begin(); iPfCand != pfCands.end(); ++iPfCand)
     {   
-      const reco::PFCandidate* pfCand = dynamic_cast<const reco::PFCandidate*> (&(*iPfCand));
+      const reco::Candidate* pfCand = dynamic_cast<const reco::Candidate*> (&(*iPfCand));
       if (!pfCand) continue;
       const double theta = pfCand->theta();
       const double e     = pfCand->energy();
       const double et    = e*sin(theta);
-
-      if (pfCand->particleId() == 1) ChargedHadEt += et;
-      if (pfCand->particleId() == 2) ChargedEMEt += et;
-      if (pfCand->particleId() == 3) MuonEt += et;
-      if (pfCand->particleId() == 4) NeutralEMEt += et;
-      if (pfCand->particleId() == 5) NeutralHadEt += et;
-      if (pfCand->particleId() == 6) type6Et += et;
-      if (pfCand->particleId() == 7) type7Et += et;
+      switch (abs(pfCand->pdgId())) {
+        case 211: ChargedHadEt += et; break;
+        case  11: ChargedEMEt += et; break;
+        case  13: MuonEt += et; break;
+        case  22: NeutralEMEt += et; break;
+        case 130: NeutralHadEt += et; break;
+        case   1: type6Et += et; break;
+        case   2: type7Et += et; break;
+      }
     }
 
   const double Et_total = NeutralEMEt + NeutralHadEt + ChargedEMEt + ChargedHadEt + MuonEt + type6Et + type7Et;

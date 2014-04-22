@@ -7,6 +7,12 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
+#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+#include "Geometry/CaloTopology/interface/CaloTopology.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
@@ -21,6 +27,14 @@ PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet & iConfig) :
   // initialize the configurables
   photonToken_ = consumes<edm::View<reco::Photon> >(iConfig.getParameter<edm::InputTag>("photonSource"));
   embedSuperCluster_ = iConfig.getParameter<bool>("embedSuperCluster");
+  embedSeedCluster_ = iConfig.getParameter<bool>( "embedSeedCluster" );
+  embedBasicClusters_ = iConfig.getParameter<bool>( "embedBasicClusters" );
+  embedPreshowerClusters_ = iConfig.getParameter<bool>( "embedPreshowerClusters" );
+  embedRecHits_ = iConfig.getParameter<bool>( "embedRecHits" );  
+  reducedBarrelRecHitCollection_ = iConfig.getParameter<edm::InputTag>("reducedBarrelRecHitCollection");
+  reducedBarrelRecHitCollectionToken_ = mayConsume<EcalRecHitCollection>(reducedBarrelRecHitCollection_);
+  reducedEndcapRecHitCollection_ = iConfig.getParameter<edm::InputTag>("reducedEndcapRecHitCollection");
+  reducedEndcapRecHitCollectionToken_ = mayConsume<EcalRecHitCollection>(reducedEndcapRecHitCollection_);  
   // MC matching configurables
   addGenMatch_ = iConfig.getParameter<bool>( "addGenMatch" );
   if (addGenMatch_) {
@@ -95,10 +109,16 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
     addGenMatch_   = false;
     embedGenMatch_ = false;
   }
+  
+  edm::ESHandle<CaloTopology> theCaloTopology;
+  iSetup.get<CaloTopologyRecord>().get(theCaloTopology);
+  ecalTopology_ = & (*theCaloTopology);  
 
   // Get the vector of Photon's from the event
   edm::Handle<edm::View<reco::Photon> > photons;
   iEvent.getByToken(photonToken_, photons);
+
+  EcalClusterLazyTools lazyTools(iEvent, iSetup, reducedBarrelRecHitCollectionToken_, reducedEndcapRecHitCollectionToken_);  
 
   // prepare the MC matching
   std::vector<edm::Handle<edm::Association<reco::GenParticleCollection> > >genMatches(genMatchTokens_.size());
@@ -145,7 +165,54 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
     edm::Ptr<reco::Photon> photonPtr = photons->ptrAt(idx);
     Photon aPhoton(photonRef);
     if (embedSuperCluster_) aPhoton.embedSuperCluster();
+    if (embedSeedCluster_) aPhoton.embedSeedCluster();
+    if (embedBasicClusters_) aPhoton.embedBasicClusters();
+    if (embedPreshowerClusters_) aPhoton.embedPreshowerClusters();
+  
+    std::vector<DetId> selectedCells;
+    bool barrel = itPhoton->isEB();
+    //loop over sub clusters
+    if (embedBasicClusters_) {
+      for (reco::CaloCluster_iterator clusIt = itPhoton->superCluster()->clustersBegin(); clusIt!=itPhoton->superCluster()->clustersEnd(); ++clusIt) {
+        //get seed (max energy xtal)
+        DetId seed = lazyTools.getMaximum(**clusIt).first;
+        //get all xtals in 5x5 window around the seed
+        std::vector<DetId> dets5x5 = (barrel) ? ecalTopology_->getSubdetectorTopology(DetId::Ecal,EcalBarrel)->getWindow(seed,5,5):
+      ecalTopology_->getSubdetectorTopology(DetId::Ecal,EcalEndcap)->getWindow(seed,5,5);
+        selectedCells.insert(selectedCells.end(), dets5x5.begin(), dets5x5.end());
+        
+        //get all xtals belonging to cluster
+        for (const std::pair<DetId, float> &hit : (*clusIt)->hitsAndFractions()) {
+          selectedCells.push_back(hit.first);
+        }
+      }
+    }
+    
+    //remove duplicates
+    std::sort(selectedCells.begin(),selectedCells.end());
+    std::unique(selectedCells.begin(),selectedCells.end());
+    
+    // Retrieve the corresponding RecHits
 
+    edm::Handle< EcalRecHitCollection > rechitsH ;
+    if(barrel)
+      iEvent.getByToken(reducedBarrelRecHitCollectionToken_,rechitsH);
+    else
+      iEvent.getByToken(reducedEndcapRecHitCollectionToken_,rechitsH);
+
+    EcalRecHitCollection selectedRecHits;
+    const EcalRecHitCollection *recHits = rechitsH.product();
+
+    unsigned nSelectedCells = selectedCells.size();
+    for (unsigned icell = 0 ; icell < nSelectedCells ; ++icell) {
+      EcalRecHitCollection::const_iterator  it = recHits->find( selectedCells[icell] );
+      if ( it != recHits->end() ) {
+        selectedRecHits.push_back(*it);
+      }
+    }
+    selectedRecHits.sort();
+    if (embedRecHits_) aPhoton.embedRecHits(& selectedRecHits);    
+    
     // store the match to the generated final state muons
     if (addGenMatch_) {
       for(size_t i = 0, n = genMatches.size(); i < n; ++i) {
@@ -217,8 +284,15 @@ void PATPhotonProducer::fillDescriptions(edm::ConfigurationDescriptions & descri
   // input source
   iDesc.add<edm::InputTag>("photonSource", edm::InputTag("no default"))->setComment("input collection");
 
+  iDesc.add<edm::InputTag>("reducedBarrelRecHitCollection", edm::InputTag("reducedEcalRecHitsEB"));
+  iDesc.add<edm::InputTag>("reducedEndcapRecHitCollection", edm::InputTag("reducedEcalRecHitsEE"));  
+  
   iDesc.add<bool>("embedSuperCluster", true)->setComment("embed external super cluster");
-
+  iDesc.add<bool>("embedSeedCluster", true)->setComment("embed external seed cluster");
+  iDesc.add<bool>("embedBasicClusters", true)->setComment("embed external basic clusters");
+  iDesc.add<bool>("embedPreshowerClusters", true)->setComment("embed external preshower clusters");
+  iDesc.add<bool>("embedRecHits", true)->setComment("embed external RecHits");
+  
   // MC matching configurables
   iDesc.add<bool>("addGenMatch", true)->setComment("add MC matching");
   iDesc.add<bool>("embedGenMatch", false)->setComment("embed MC matched MC information");

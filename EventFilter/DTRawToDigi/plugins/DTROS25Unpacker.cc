@@ -6,11 +6,10 @@
 
 #include <EventFilter/DTRawToDigi/plugins/DTROS25Unpacker.h>
 
-#include <EventFilter/DTRawToDigi/interface/DTDDUWords.h>
-#include <EventFilter/DTRawToDigi/interface/DTControlData.h>
+#include <DataFormats/DTDigi/interface/DTDDUWords.h>
+#include <DataFormats/DTDigi/interface/DTControlData.h>
 #include <EventFilter/DTRawToDigi/interface/DTROChainCoding.h>
 
-#include <EventFilter/DTRawToDigi/interface/DTDataMonitorInterface.h>
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -41,17 +40,6 @@ DTROS25Unpacker::DTROS25Unpacker(const edm::ParameterSet& ps) {
   performDataIntegrityMonitor = ps.getUntrackedParameter<bool>("performDataIntegrityMonitor",false);
   debug = ps.getUntrackedParameter<bool>("debug",false);
 
-  // enable DQM if Service is available
-  if(performDataIntegrityMonitor) {
-    if (edm::Service<DTDataMonitorInterface>().isAvailable()) {
-      dataMonitor = edm::Service<DTDataMonitorInterface>().operator->(); 
-    } else {
-      LogWarning("DTRawToDigi|DTROS25Unpacker") << 
-	"[DTROS25Unpacker] WARNING! Data Integrity Monitoring requested but no DTDataMonitorInterface Service available" << endl;
-      performDataIntegrityMonitor = false;
-    }
-  }
-
 }
 
 
@@ -64,7 +52,6 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 				       std::auto_ptr<DTDigiCollection>& detectorProduct,
 				       std::auto_ptr<DTLocalTriggerCollection>& triggerProduct,
 				       uint16_t rosList) {
-
 
   int dduID;
   if (readDDUIDfromDDU) dduID = dduIDfromDDU;
@@ -284,7 +271,7 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 	    int leftword = numofscword;
 
 	    if(debug) cout<<"                   SC PrivateHeader (number of words + subheader = "
-			  << scPrivateHeaderWord.NumberOf16bitWords() << ")" <<endl;
+                << scPrivateHeaderWord.NumberOf16bitWords() << ")" <<endl;
 
 	    // if no SC data -> no loop ;
 	    // otherwise subtract 1 word (subheader) and countdown for bx assignment
@@ -394,7 +381,7 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
 	    controlData.addSCTrailer(scTrailerWord);
 
 	    if (debug) cout<<"                   SC Trailer, # of words: "
-			   << scTrailerWord.wordCount() <<endl;
+                << scTrailerWord.wordCount() <<endl;
 	  }
 	}
 
@@ -410,7 +397,7 @@ void DTROS25Unpacker::interpretRawData(const unsigned int* index, int datasize,
       // Perform dqm if requested:
       // DQM IS PERFORMED FOR EACH ROS SEPARATELY
       if (performDataIntegrityMonitor) {
-	dataMonitor->processROS25(controlData, dduID, rosID);
+// 	dataMonitor->processROS25(controlData, dduID, rosID);
 	// fill the vector with ROS's control data
 	controlDataFromAllROS.push_back(controlData);
       }

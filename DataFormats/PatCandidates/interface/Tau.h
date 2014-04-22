@@ -48,6 +48,8 @@ namespace reco {
 // Class definition
 namespace pat {
 
+  class PATTauSlimmer;
+
   class Tau : public Lepton<reco::BaseTau> {
     /// make friends with PATTauProducer so that it can set the initial
     /// jet energy scale unequal to raw calling the private initializeJEC
@@ -349,6 +351,8 @@ namespace pat {
       const LorentzVector& correctedP4(const unsigned int& level, const unsigned int& set = 0) const { 
 	return correctedTauJet(level, set).p4(); 
       }
+
+      friend class PATTauSlimmer;
 
     protected:
    
