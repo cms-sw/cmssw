@@ -81,6 +81,12 @@ class CSCMotherboard
   /** Cathode LCT processor. */
   CSCCathodeLCTProcessor* clct;
 
+  // utilities for sorting
+  bool sortByQuality(const CSCCorrelatedLCTDigi&, const CSCCorrelatedLCTDigi&); 
+  bool sortByGEMDphi(const CSCCorrelatedLCTDigi&, const CSCCorrelatedLCTDigi&); 
+  void sortLCTs(std::vector<CSCCorrelatedLCTDigi>&, bool (*sortOption) (const CSCCorrelatedLCTDigi&, const CSCCorrelatedLCTDigi&), 
+                unsigned maxLength=99);
+
  // VK: change to protected, to allow inheritance
  protected:
 

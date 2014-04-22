@@ -811,3 +811,23 @@ void CSCMotherboard::dumpConfigParams() const {
   LogDebug("CSCMotherboard") << strm.str();
   //std::cerr << strm.str()<<std::endl;
 }
+
+// compare LCTs by quality
+bool sortByQuality(const CSCCorrelatedLCTDigi& lct1, const CSCCorrelatedLCTDigi& lct2) 
+{ 
+  return lct1.getQuality() > lct2.getQuality();
+}
+
+// compare LCTs by GEM bending angle
+bool sortByGEMDphi(const CSCCorrelatedLCTDigi& lct1, const CSCCorrelatedLCTDigi& lct2) 
+{ 
+  return lct1.getGEMDPhi() < lct2.getGEMDPhi();
+}
+
+// sort vector of LCTs
+void sortLCTs(std::vector<CSCCorrelatedLCTDigi>& lcts, bool (*sortOption) (const CSCCorrelatedLCTDigi& lct1, const CSCCorrelatedLCTDigi& lct2), 
+              unsigned maxLength)
+{
+  std::sort(lcts.begin(), lcts.end(), sortOption);
+  if (lcts.size() > maxLength) lcts.erase(lcts.begin() + maxLength, lcts.end());
+}
