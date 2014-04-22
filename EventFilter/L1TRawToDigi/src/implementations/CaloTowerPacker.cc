@@ -1,4 +1,5 @@
 #include "DataFormats/L1TCalorimeter/interface/CaloTower.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -35,42 +36,63 @@ namespace l1t {
    CaloTowerPacker::pack(const edm::Event& event)
    {
 
-     // This is not correct as it is now. The towers have a block per two phi values so I need this to handle a vector of Blocks I think.
-
       edm::Handle<CaloTowerBxCollection> towers;
       event.getByToken(towerToken_, towers);
 
-      Block res;
+      Blocks res;
 
       for (int i = towers->getFirstBX(); i <= towers->getLastBX(); ++i) {
-         for (auto j = towers->begin(i); j != towers->end(i); j++) {
 
-	   // I think this loop relies on the time slices i.e. eta being in the correct order in the vector
-	   // I need to change it to use the method to find the entry by eta and phi instead of the iterator here.
-	   // #include L1Trigger / L1TCalorimeter / interface / CaloTools.h
-	   // l1t::CaloTools::caloTowerHash(int iEta,int iPhi) returns an int, which is the index in the std::vector
+        for (int phi = 1; phi <=72; phi=phi+2) { // Two phi values per link
 
-	   // Need to check these two words are in the right order
-            uint32_t word = \
-	      (j->hwPt() & 0x1FF) |
-	      (j->hwEtRatio() & 0x7) << 9 |
-	      (j->hwQual() & 0xF) << 12;
-	    
-	    j++;
+          Block blk;
+          blk.id = 2*phi - 2; // Block IDs start at zero and span even numbers up to 142
 
-	    word = word |
-	      (j->hwPt() & 0x1FF) << 16 |
-	      (j->hwEtRatio() & 0x7) << 25 |
-	      (j->hwQual() & 0xF) << 28;
+          for (int eta = 1; eta <=41; eta++) { // This is abs(eta) since +/- eta are interleaved in time
 
-	    res.id = 2*j->hwPhi() - 2;
-            res.load.push_back(word);
-         }
+            // Get four towers +/- eta and phi and phi+1 to all be packed in this loop
+            l1t::CaloTower t1 = towers->at(i,l1t::CaloTools::caloTowerHash(eta,phi));
+            l1t::CaloTower t2 = towers->at(i,l1t::CaloTools::caloTowerHash(eta,phi+1));
+            l1t::CaloTower t3 = towers->at(i,l1t::CaloTools::caloTowerHash(-1*eta,phi));
+            l1t::CaloTower t4 = towers->at(i,l1t::CaloTools::caloTowerHash(-1*eta,phi+1));
+
+            // Merge phi and phi+1 into one block (phi is LSW, phi+1 is MSW)
+            uint32_t word1 = \
+	      (t1.hwPt() & 0x1FF) |
+	      (t1.hwEtRatio() & 0x7) << 9 |
+	      (t1.hwQual() & 0xF) << 12;
+
+	    word1 = word1 |
+	      (t2.hwPt() & 0x1FF) << 16 |
+	      (t2.hwEtRatio() & 0x7) << 25 |
+	      (t2.hwQual() & 0xF) << 28;
+
+            blk.load.push_back(word1);
+            
+            // Do it all again for -eta
+
+            uint32_t word2 = \
+              (t3.hwPt() & 0x1FF) |
+              (t3.hwEtRatio() & 0x7) << 9 |
+              (t3.hwQual() & 0xF) << 12;
+
+            word2 = word2 |
+              (t4.hwPt() & 0x1FF) << 16 |
+              (t4.hwEtRatio() & 0x7) << 25 |
+              (t4.hwQual() & 0xF) << 28;
+
+            blk.load.push_back(word2);
+
+          }
+
+          res.push_back(blk);
+
+        }
       }
-
-      return {res};
+      
+      return res;
    }
-
+  
    void
    CaloTowerPacker::fetchToken(L1TDigiToRaw* digi2raw)
    {
