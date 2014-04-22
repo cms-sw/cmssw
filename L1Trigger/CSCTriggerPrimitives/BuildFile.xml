@@ -1,5 +1,7 @@
 <use   name="CondFormats/CSCObjects"/>
 <use   name="DataFormats/CSCDigi"/>
+<use   name="DataFormats/GEMDigi"/>
+<use   name="DataFormats/RPCDigi"/>
 <use   name="DataFormats/L1CSCTrackFinder"/>
 <use   name="DataFormats/MuonDetId"/>
 <use   name="FWCore/MessageLogger"/>
@@ -7,6 +9,7 @@
 <use   name="FWCore/Utilities"/>
 <use   name="L1Trigger/CSCCommonTrigger"/>
 <use   name="Geometry/GEMGeometry"/>
+<use   name="Geometry/RPCGeometry"/>
 <export>
   <lib   name="1"/>
 </export>
