@@ -98,26 +98,24 @@ namespace edm {
   void
   FunctionWithDict::invoke(ObjectWithDict const& obj, ObjectWithDict* ret/*=nullptr*/,
          std::vector<void*> const& values/*=std::vector<void*>()*/) const {
-    //Reflex::Object reflexReturn(ret->typeOf().type_, ret->address());
-    //function_.Invoke(Reflex::Object(obj.typeOf().type_, obj.address()), &reflexReturn, values);
+    void const** data = const_cast<void const**>(values.data());
     if (ret == nullptr) {
-      gInterpreter->ExecuteWithArgsAndReturn(function_, obj.address(), values, 0);
+      gInterpreter->ExecuteWithArgsAndReturn(function_, obj.address(), data, values.size(), nullptr);
       return;
     }
-    gInterpreter->ExecuteWithArgsAndReturn(function_, obj.address(), values, ret->address());
+    gInterpreter->ExecuteWithArgsAndReturn(function_, obj.address(), data, values.size(), ret->address());
   }
 
   /// Call a static function.
   void
   FunctionWithDict::invoke(ObjectWithDict* ret/*=nullptr*/,
          std::vector<void*> const& values/*=std::vector<void*>()*/) const {
-    //Reflex::Object reflexReturn(ret->typeOf().type_, ret->address());
-    //function_.Invoke(obj.address()), &reflexReturn, values);
+    void const** data = const_cast<void const**>(values.data());
     if (ret == nullptr) {
-      gInterpreter->ExecuteWithArgsAndReturn(function_, 0, values, 0);
+      gInterpreter->ExecuteWithArgsAndReturn(function_, nullptr, data, values.size(), nullptr);
       return;
     }
-    gInterpreter->ExecuteWithArgsAndReturn(function_, 0, values, ret->address());
+    gInterpreter->ExecuteWithArgsAndReturn(function_, nullptr, data, values.size(), ret->address());
   }
 
   IterWithDict<TMethodArg>
