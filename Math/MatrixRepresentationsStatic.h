@@ -5,13 +5,11 @@
 #define ROOT_Math_MatrixRepresentationsStatic 1
 
 #warning "using MatrixRepresentationsStatic by vin"
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
-#ifdef CMS_NOCXX11
-#define SMATRIX_USE_COMPUTATION
-#else
+#ifndef SMATRIX_USE_COMPUTATION
 #define SMATRIX_USE_CONSTEXPR
 #endif
+
 // Include files
 
 /** 
