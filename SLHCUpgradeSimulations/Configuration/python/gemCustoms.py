@@ -111,7 +111,7 @@ def customise_L1Emulator(process, ptdphi):
         runME21ILT = cms.untracked.bool(True),
 
         ## run in debug mode
-        debugLUTs = cms.untracked.bool(True),
+        debugLUTs = cms.untracked.bool(False),
         debugMatching = cms.untracked.bool(False),
 
         ## use old dataformat
