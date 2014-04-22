@@ -21,6 +21,14 @@
 //____________________________________________________________________________||
 struct SpecificCaloMETData
 {
+  SpecificCaloMETData()
+    : MaxEtInEmTowers(0.0), MaxEtInHadTowers(0.0)
+    , HadEtInHO(0.0), HadEtInHB(0.0),  HadEtInHF(0.0), HadEtInHE(0.0)
+    , EmEtInEB(0.0), EmEtInEE(0.0), EmEtInHF(0.0), EtFractionHadronic(0.0)
+    , EtFractionEm(0.0), METSignificance(0.0), CaloMETInpHF(0.0)
+    , CaloMETInmHF(0.0), CaloSETInpHF(0.0), CaloSETInmHF(0.0)
+    , CaloMETPhiInpHF(0.0), CaloMETPhiInmHF(0.0) { }
+
   double MaxEtInEmTowers;    // Maximum ET in EM towers
   double MaxEtInHadTowers;   // Maximum ET in HCAL towers
   double HadEtInHO;          // Hadronic ET fraction in HO
