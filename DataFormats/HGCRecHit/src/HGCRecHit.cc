@@ -1,6 +1,7 @@
 #include "DataFormats/HGCRecHit/interface/HGCRecHit.h"
 #include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
 #include "DataFormats/ForwardDetId/interface/HGCHEDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <cassert>
 #include <math.h>
@@ -135,7 +136,9 @@ bool HGCRecHit::checkFlags(const std::vector<int>&  flagsvec ) const{
 std::ostream& operator<<(std::ostream& s, const HGCRecHit& hit) {
   if (hit.detid().det() == DetId::Forward && hit.detid().subdetId() == HGCEE) 
     return s << HGCEEDetId(hit.detid()) << ": " << hit.energy() << " GeV, " << hit.time() << " ns";
-  else if (hit.detid().det() == DetId::Forward && hit.detid().subdetId() == HGCHE) 
+  else if (hit.detid().det() == DetId::Forward && hit.detid().subdetId() == HGCHEF) 
+    return s << HGCHEDetId(hit.detid()) << ": " << hit.energy() << " GeV, " << hit.time() << " ns";
+  else if (hit.detid().det() == DetId::Forward && hit.detid().subdetId() == HGCHEB) 
     return s << HGCHEDetId(hit.detid()) << ": " << hit.energy() << " GeV, " << hit.time() << " ns";
   else
     return s << "HGCRecHit undefined subdetector" ;
