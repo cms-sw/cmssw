@@ -84,8 +84,8 @@ _pfClusterizer_HF = cms.PSet(
     algoName = cms.string("Basic2DGenericPFlowClusterizer"),
     #pf clustering parameters
     minFractionToKeep = cms.double(1e-7),
-    positionCalc = _positionCalcHFEM_cross_nodepth,
-    allCellsPositionCalc = _positionCalcHFEM_all_nodepth,
+    positionCalc = _positionCalcHF_cross_nodepth,
+    allCellsPositionCalc = _positionCalcHF_all_nodepth,
     showerSigma = cms.double(10.0),
     stoppingTolerance = cms.double(1e-8),
     maxIterations = cms.uint32(50),
