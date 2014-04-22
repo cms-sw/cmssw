@@ -87,12 +87,11 @@ SiClusterTranslator::produce(edm::Event& e, const edm::EventSetup& es)
   
   edm::ESHandle<PixelClusterParameterEstimator> pixelCPE;
   es.get<TkPixelCPERecord>().get("FastPixelCPE",pixelCPE);
-  auto pixelcpe = pixelCPE->clone();
-  pixelcpe->clearParameters();
+  //  auto pixelcpe = pixelCPE->clone();
   
   edm::ESHandle<StripClusterParameterEstimator> stripCPE;
   es.get<TkStripCPERecord>().get("FastStripCPE", stripCPE); 
-  auto stripcpe = stripCPE->clone();
+  // auto stripcpe = stripCPE->clone();
     
   edm::Handle<CrossingFrame<PSimHit> > cf_simhit;
   std::vector<const CrossingFrame<PSimHit> *> cf_simhitvec;
@@ -118,9 +117,6 @@ SiClusterTranslator::produce(edm::Event& e, const edm::EventSetup& es)
   std::map< DetId, std::vector<SiPixelCluster> > temporaryPixelClusters;
   std::map< DetId, std::vector<SiStripCluster> > temporaryStripClusters;
   
-  //Clearing CPE maps from previous event.
-  stripcpe->clearParameters();
-  pixelcpe->clearParameters();
   
   int ClusterNum = 0;
   
@@ -145,7 +141,7 @@ SiClusterTranslator::produce(edm::Event& e, const edm::EventSetup& es)
     if (subdet < 3) {
       //Here is the hard part. From the position of the FastSim Cluster I need to figure out the Pixel location for the Cluster.
       LocalPoint position = aCluster->localPosition();
-      LocalError error = aCluster->localPositionError();
+      // LocalError error = aCluster->localPositionError();
       //std::cout << "The pixel charge is " << aCluster->charge() << std::endl;
       int charge = (int)(aCluster->charge() + 0.5);
       //std::cout << "The pixel charge after integer conversion is " << charge << std::endl;
@@ -166,8 +162,11 @@ SiClusterTranslator::produce(edm::Event& e, const edm::EventSetup& es)
       SiPixelCluster::PixelPos pixelPos((int)pixelPos_out.first, (int)pixelPos_out.second);
       
       //Filling Pixel CPE with information.
-      std::pair<int,int> row_col((int)pixelPos_out.first,(int)pixelPos_out.second);
-      pixelcpe->enterLocalParameters((unsigned int) det.rawId() , row_col, std::make_pair(position,error));
+      // FIXME this cannot be done. CPE is global and cannot be modified.
+      // this information has to be encoded in the Pixel cluster itself w/o changing it!
+      // CPE has just to retrieve it and return.
+      //std::pair<int,int> row_col((int)pixelPos_out.first,(int)pixelPos_out.second);
+      // pixelcpe->enterLocalParameters((unsigned int) det.rawId() , row_col, std::make_pair(position,error));
       
       unsigned int ch = PixelChannelIdentifier::pixelToChannel((int)pixelPos_out.first, (int)pixelPos_out.second);
       
@@ -189,13 +188,15 @@ SiClusterTranslator::produce(edm::Event& e, const edm::EventSetup& es)
     else if ((subdet > 2) && (subdet < 7)) {
       //Getting pos/err info from the cluster
       LocalPoint position = aCluster->localPosition();
-      LocalError error = aCluster->localPositionError();
+      // LocalError error = aCluster->localPositionError();
       
       //Will have to make charge into ADC eventually...
       uint16_t charge = (uint16_t)(aCluster->charge() + 0.5);
       
       //std::cout << "The charge is " << charge << std::endl;
       
+      // FIXME VI there is something wrong here
+      // each "digi" is a new strip that this algorithm will add at the right of "strip_num"
       uint16_t strip_num = 0;
       std::vector<uint16_t> digi_vec;
       while (charge > 255) { 
@@ -221,7 +222,10 @@ SiClusterTranslator::produce(edm::Event& e, const edm::EventSetup& es)
       }
       
       //Filling Strip CPE with info.
-      stripcpe->enterLocalParameters(det.rawId(), strip_num, std::make_pair(position,error));
+      // FIXME this cannot be done. CPE	is global and cannot be	modified.
+      // this information has to be encoded in the Strip cluster itself	w/o modifing it!
+      // CPE has just to retrieve it and return.
+      // stripcpe->enterLocalParameters(det.rawId(), strip_num, std::make_pair(position,error));
       
       //Creating a new strip cluster
       SiStripCluster temporaryStripCluster(strip_num, digi_vec.begin(), digi_vec.end());
