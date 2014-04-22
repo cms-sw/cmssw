@@ -2,8 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("GeometryTest")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
-process.load("Configuration.StandardSequences.GeometryExtended_cff")
-process.load('Configuration.Geometry.GeometryExtendedReco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023SHCalNoTaperReco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023SHCalNoTaper_cff')
+#process.load("Configuration.StandardSequences.GeometryExtended_cff")
+#process.load('Configuration.Geometry.GeometryExtendedReco_cff')
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(4) )
