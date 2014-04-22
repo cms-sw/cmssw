@@ -278,7 +278,7 @@ CSCMotherboardME21::run(const CSCWireDigiCollection* wiredc,
       const int HS(i/0.5);
       const float pad(randRoll->pad(lpGEM));
       // HS are wrapped-around
-      cscHsToGemPad_[nStrips*2-HS] = std::make_pair(std::floor(pad),std::ceil(pad));
+      cscHsToGemPad_[HS] = std::make_pair(std::floor(pad),std::ceil(pad));
     }
     if (debug_luts){
       std::cout << "detId " << csc_id << std::endl;
@@ -295,7 +295,7 @@ CSCMotherboardME21::run(const CSCWireDigiCollection* wiredc,
       const LocalPoint lpCSC(keyLayer->toLocal(gp));
       const float strip(keyLayerGeometry->strip(lpCSC));
       // HS are wrapped-around
-      gemPadToCscHs_[i] = nStrips*2-(int) (strip - 0.25)/0.5;
+      gemPadToCscHs_[i] = (int) (strip - 0.25)/0.5;
     }
     if (debug_luts){
       std::cout << "detId " << csc_id << std::endl;
