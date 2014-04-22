@@ -61,6 +61,7 @@ class CSCMotherboardME3141 : public CSCMotherboard
   std::map<int,std::pair<double,double> > createRPCRollLUT(RPCDetId id);
 
  private: 
+  CSCCorrelatedLCTDigi allLCTs[MAX_LCT_BINS][15][2];
 
   static const double lut_wg_me31_eta_odd[96][2];
   static const double lut_wg_me31_eta_even[96][2];
