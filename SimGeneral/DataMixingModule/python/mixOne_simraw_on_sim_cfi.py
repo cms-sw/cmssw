@@ -1,3 +1,9 @@
+# This is the PreMixing config for the DataMixer.  Not only does it do a RawToDigi conversion
+# to the secondary input source, it also holds its own instances of an EcalDigiProducer and
+# an HcalDigitizer.  It also replicates the noise adding functions in the SiStripDigitizer.
+#
+
+
 import FWCore.ParameterSet.Config as cms
 from SimCalorimetry.HcalSimProducers.hcalUnsuppressedDigis_cfi import hcalSimBlock
 from SimGeneral.MixingModule.SiStripSimParameters_cfi import SiStripSimBlock
@@ -48,6 +54,7 @@ muonDTDigis.inputLabel = 'rawDataCollector'
 #muonRPCDigis.InputLabel = 'rawDataCollector'
 #castorDigis.InputLabel = 'rawDataCollector'
 
+hcalSimBlock.HcalPreMixStage2 = cms.bool(True)
 
 mixData = cms.EDProducer("DataMixingModule",
           hcalSimBlock,

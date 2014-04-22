@@ -19,12 +19,14 @@ from Configuration.StandardSequences.Digi_cff import *
 #mix.digitizers.pixel.AddNoise = False
 #simSiStripDigis.Noise = False
 #mix.digitizers.strip.AddNoise = False
-simMuonCSCDigis.strips.doNoise = False
-simMuonCSCDigis.wires.doNoise = False
+#simMuonCSCDigis.strips.doNoise = False
+#simMuonCSCDigis.wires.doNoise = False
 #DTs are strange - no noise flag - only use true hits?
 #simMuonDTDigis.IdealModel = True
-simMuonDTDigis.onlyMuHits = True
-simMuonRPCDigis.Noise = False
+#simMuonDTDigis.onlyMuHits = True
+#simMuonRPCDigis.Noise = False
+
+# for PreMixing, to first approximation, allow noise in Muon system
 
 # remove unnecessary modules from 'pdigi' sequence - run after DataMixing
 # standard mixing module now makes unsuppressed digis for calorimeter
