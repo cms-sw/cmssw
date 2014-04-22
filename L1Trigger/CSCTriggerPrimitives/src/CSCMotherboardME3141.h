@@ -61,7 +61,6 @@ class CSCMotherboardME3141 : public CSCMotherboard
   std::map<int,std::pair<double,double> > createRPCRollLUT(RPCDetId id);
 
  private: 
-  CSCCorrelatedLCTDigi allLCTs[MAX_LCT_BINS][15][2];
 
   /** for the case when more than 2 LCTs/BX are allowed;
       maximum match window = 15 */
