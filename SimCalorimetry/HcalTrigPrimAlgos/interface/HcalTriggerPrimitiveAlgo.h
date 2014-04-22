@@ -50,7 +50,10 @@ public:
 
   /// adds the actual RecHits
   void analyze(IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result);
+  // Version 0: RCT
   void analyzeHF(IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result, float rctlsb);
+  // Version 1: 1x1
+  void analyzeHFV1(const IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result);
 
    // Member initialized by constructor
   const HcaluLUTTPGCoder* incoder_;
@@ -82,6 +85,13 @@ public:
 
   typedef std::map<HcalTrigTowerDetId, IntegerCaloSamples> SumMap;
   SumMap theSumMap;  
+
+  struct HFDetails {
+      IntegerCaloSamples long_fiber;
+      IntegerCaloSamples short_fiber;
+  };
+  typedef std::map<HcalTrigTowerDetId, HFDetails> HFDetailMap;
+  HFDetailMap theHFDetailMap;
   
   typedef std::vector<IntegerCaloSamples> SumFGContainer;
   typedef std::map< HcalTrigTowerDetId, SumFGContainer > TowerMapFGSum;
