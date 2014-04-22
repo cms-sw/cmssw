@@ -24,7 +24,7 @@
 #include "DataFormats/METReco/interface/PFMET.h"
 #include "DataFormats/METReco/interface/GenMET.h"
 #include "DataFormats/PatCandidates/interface/PATObject.h"
-
+#include <cmath>
 
 // Define typedefs for convenience
 namespace pat {
@@ -165,6 +165,44 @@ namespace pat {
 	float phi;
       };
 
+      enum METUncertainty {
+        JetEnUp=0, JetEnDown=1, JetResUp=2, JetResDown=3,
+        MuonEnUp=4, MuonEnDown=5, ElectronEnUp=6, ElectronEnDown=7, TauEnUp=8,TauEnDown=9,
+        UnclusteredEnUp=10,UnclusteredEnDown=11, METUncertaintySize=12
+      };
+      enum METUncertaintyLevel {
+        Raw=0, Type1=1, Type1p2=2
+      };
+      struct Vector2 { 
+        double px, py; 
+        double pt() const { return hypotf(px,py); }  
+        double phi() const { return std::atan2(py,px); }
+      };
+      Vector2 shiftedP2(METUncertainty shift, METUncertaintyLevel level=Type1)  const ;
+      Vector shiftedP3(METUncertainty shift, METUncertaintyLevel level=Type1)  const ;
+      LorentzVector shiftedP4(METUncertainty shift, METUncertaintyLevel level=Type1)  const ;
+      double shiftedPx(METUncertainty shift, METUncertaintyLevel level=Type1)  const { return shiftedP2(shift,level).px; }
+      double shiftedPy(METUncertainty shift, METUncertaintyLevel level=Type1)  const { return shiftedP2(shift,level).py; }
+      double shiftedPt(METUncertainty shift, METUncertaintyLevel level=Type1)  const { return shiftedP2(shift,level).pt(); }
+      double shiftedPhi(METUncertainty shift, METUncertaintyLevel level=Type1) const { return shiftedP2(shift,level).phi(); }
+      double shiftedSumEt(METUncertainty shift, METUncertaintyLevel level=Type1) const ;
+
+      void setShift(double px, double py, double sumEt, METUncertainty shift, METUncertaintyLevel level=Type1) ;
+
+      /// this below should be private but Reflex doesn't like it
+      class PackedMETUncertainty {
+        // defined as C++ class so that I can change the packing without having to touch the code elsewhere
+        // the compiler should anyway inline everything whenever possible
+        public:
+            PackedMETUncertainty() : dpx_(0), dpy_(0), dsumEt_(0) {}
+            PackedMETUncertainty(float dpx, float dpy, float dsumEt) : dpx_(dpx), dpy_(dpy), dsumEt_(dsumEt) {}
+            double dpx() const { return dpx_; }
+            double dpy() const { return dpy_; }
+            double dsumEt() const { return dsumEt_; }
+            void set(float dpx, float dpy, float dsumEt) { dpx_ = dpx; dpy_ = dpy; dsumEt_ = dsumEt; }
+        protected:
+            float dpx_, dpy_, dsumEt_;
+      };
     private:
 
       // ---- GenMET holder ----
@@ -187,6 +225,8 @@ namespace pat {
       // ---- non-public correction utilities ----
       void checkUncor_() const;
       void setPtPhi_(UncorInfo& uci) const;
+
+      std::vector<PackedMETUncertainty> uncertaintiesRaw_, uncertaintiesType1_, uncertaintiesType1p2_;
 
   };
 

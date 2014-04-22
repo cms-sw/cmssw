@@ -1,5 +1,5 @@
-#ifndef DTRawToDigi_DTControlData_h
-#define DTRawToDigi_DTControlData_h
+#ifndef DTDigi_DTControlData_h
+#define DTDigi_DTControlData_h
 
 /** \class DTROS25Data
  *  The collection containing DT ROS25 status data.
@@ -8,14 +8,14 @@
  *  \revision I. Josa - Ciemat Madrid
  */
 
-#include <EventFilter/DTRawToDigi/interface/DTDDUWords.h>
-#include <DataFormats/FEDRawData/interface/FEDHeader.h>
-#include <DataFormats/FEDRawData/interface/FEDTrailer.h>
-#include <DataFormats/FEDRawData/src/fed_trailer.h>
+#include "DataFormats/DTDigi/interface/DTDDUWords.h"
+#include "DataFormats/FEDRawData/interface/FEDHeader.h"
+#include "DataFormats/FEDRawData/interface/FEDTrailer.h"
+#include "DataFormats/FEDRawData/src/fed_trailer.h"
 
 #include <vector>
 
-typedef std::pair<int, DTROBHeaderWord> DTROBHeader;   
+typedef std::pair<int, DTROBHeaderWord> DTROBHeader;
 typedef std::pair<int, DTTDCMeasurementWord> DTTDCData;
 typedef std::pair<int, DTTDCErrorWord> DTTDCError;
 typedef std::pair<DTLocalTriggerDataWord, int> DTSectorCollectorData;
@@ -27,13 +27,12 @@ public:
  /// Constructors
  DTROS25Data(int ROSId = 0): theROSId(ROSId) {}
 
-
  /// Destructor
  virtual ~DTROS25Data() {}
 
  /// Setters  ///////////////////////
  inline void setROSId(const int & ID) { theROSId = ID; }
-  
+
  inline void addROSHeader( const DTROSHeaderWord & word)  { theROSHeader = DTROSHeaderWord(word) ; }
  inline void addROSTrailer( const DTROSTrailerWord & word)  { theROSTrailer = DTROSTrailerWord(word) ; }
  inline void addROSError( const DTROSErrorWord & word)  { theROSErrors.push_back(word); }
@@ -46,7 +45,7 @@ public:
  inline void addSCData ( const DTSectorCollectorData & scData) { theSCData.push_back(scData); }
  inline void addSCHeader( const DTLocalTriggerHeaderWord &scHeader) { theSCHeader = scHeader; }
  inline void addSCPrivHeader( const DTLocalTriggerSectorCollectorHeaderWord& scPrivHeader) { theSCPrivateHeader = scPrivHeader; }
-  inline void addSCPrivSubHeader( const DTLocalTriggerSectorCollectorSubHeaderWord& scPrivSubHeader) { theSCPrivateSubHeader = scPrivSubHeader; }
+ inline void addSCPrivSubHeader( const DTLocalTriggerSectorCollectorSubHeaderWord& scPrivSubHeader) { theSCPrivateSubHeader = scPrivSubHeader; }
  inline void addSCTrailer( const DTLocalTriggerTrailerWord& scTrailer) { theSCTrailer = scTrailer; }
 
  /// Getters ////////////////////////
@@ -68,18 +67,20 @@ public:
  inline const DTLocalTriggerSectorCollectorSubHeaderWord& getSCPrivSubHeader() const { return theSCPrivateSubHeader;}
 
  inline void clean() {
-   theROSHeader = 0; 
+   theROSHeader = 0;
    theROSTrailer = 0;
-   theROSErrors.clear(); 
-   theROSDebugs.clear(); 
-   theROBHeaders.clear(); 
-   theROBTrailers.clear(); 
-   theTDCMeasurements.clear(); 
-   theTDCData.clear(); 
-   theTDCError.clear(); 
-   theSCData.clear(); 
+   theROSErrors.clear();
+   theROSDebugs.clear();
+   theROBHeaders.clear();
+   theROBTrailers.clear();
+   theTDCMeasurements.clear();
+   theTDCData.clear();
+   theTDCError.clear();
+   theSCData.clear();
+   theSCHeader = 0;
+   theSCTrailer = 0;
  }
- 
+
 
 private:
 
@@ -89,7 +90,7 @@ private:
  DTROSTrailerWord theROSTrailer;
  std::vector<DTROSErrorWord> theROSErrors;
  std::vector<DTROSDebugWord> theROSDebugs;
- std::vector<DTROBHeader> theROBHeaders;    
+ std::vector<DTROBHeader> theROBHeaders;
  std::vector<DTROBTrailerWord> theROBTrailers;
  std::vector<DTTDCMeasurementWord> theTDCMeasurements;
  std::vector<DTTDCData> theTDCData;
@@ -99,9 +100,6 @@ private:
  DTLocalTriggerSectorCollectorHeaderWord theSCPrivateHeader;
  DTLocalTriggerTrailerWord theSCTrailer;
  DTLocalTriggerSectorCollectorSubHeaderWord theSCPrivateSubHeader;
-
-
-
 };
 
 
@@ -116,6 +114,11 @@ public:
    crcErrorBitSet(false)
  {}
 
+ DTDDUData():
+   theDDUHeader(0),
+   theDDUTrailer(0),
+   crcErrorBitSet(false)
+ {}
 
  /// Destructor
  virtual ~DTDDUData() {}
@@ -147,7 +150,13 @@ public:
  inline bool crcErrorBit() const {
    return crcErrorBitSet;
  }
-  
+
+ // FIXME: check whether the other variables should also be reset in the clean() method
+ inline void clean() {
+   theROSStatusWords.clear();
+ }
+
+
 private:
 
  FEDHeader theDDUHeader;
@@ -158,5 +167,7 @@ private:
 
 };
 
+typedef std::vector<std::vector<DTROS25Data> > DTROS25Collection;
+typedef std::vector<DTDDUData> DTDDUCollection;
 
 #endif

@@ -6,7 +6,7 @@
  *  \author M. Zanetti - INFN Padova
  */
 
-#include <EventFilter/DTRawToDigi/interface/DTDDUWords.h>
+#include <DataFormats/DTDigi/interface/DTDDUWords.h>
 //class DTTDCErrorWord;
 
 class DTTDCErrorNotifier {
