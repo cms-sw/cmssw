@@ -306,6 +306,7 @@ JetFlavour::Leptons JetFlavourIdentifier::findLeptons(const GenParticleRef &part
 std::vector<const reco::Candidate*> JetFlavourIdentifier::findCandidates(const reco::Candidate *cand, int partonFlavour)
 {
   std::vector<const reco::Candidate*> cands;
+  if(!cand) return cands;
 
   for(unsigned int i = 0; i < cand->numberOfDaughters(); i++) {
 /*
@@ -315,7 +316,6 @@ std::vector<const reco::Candidate*> JetFlavourIdentifier::findCandidates(const r
     if (DeltaR(thePartonLV, cand->daughter(i)->p4()) > 0.7) std::cout << ")";
     std::cout << std::endl;
 */
-
     if (DeltaR(thePartonLV, cand->daughter(i)->p4()) < 0.7) {
       int pdgId = std::abs(cand->daughter(i)->pdgId());
       int flavour = heaviestFlavour(pdgId);
