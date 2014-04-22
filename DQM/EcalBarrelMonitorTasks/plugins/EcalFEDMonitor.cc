@@ -188,17 +188,17 @@ EcalFEDMonitorTemp<SUBDET>::analyze(edm::Event const& _evt, edm::EventSetup cons
     EcalElectronicsIdCollection::const_iterator eleEnd(eleHndl->end());
     for(EcalElectronicsIdCollection::const_iterator eleItr(eleHndl->begin()); eleItr != eleEnd; ++eleItr){
       unsigned iDCC(eleItr->dccId() - 1);
-      if(SUBDET == EcalBarrel && (iDCC < 609 || iDCC > 644)) continue;
-      if(SUBDET == EcalEndcap && (iDCC > 608 && iDCC < 645)) continue;
+
+      unsigned nonfatal(-1);
+      if((SUBDET == EcalBarrel || SUBDET < 0) && iDCC >= ecaldqm::kEBmLow && iDCC <= ecaldqm::kEBpHigh)
+        nonfatal = kEBNonFatal;
+      else if((SUBDET == EcalEndcap || SUBDET < 0) && (iDCC <= ecaldqm::kEEmHigh || iDCC >= ecaldqm::kEEpLow))
+        nonfatal = kEENonFatal;
+      else
+        continue;
 
       double normalization(ecaldqm::nCrystals(iDCC + 1));
       if(normalization < 1.) continue;
-
-      unsigned nonfatal(-1);
-      if(iDCC <= ecaldqm::kEEmHigh || iDCC >= ecaldqm::kEEpLow)
-        nonfatal = kEENonFatal;
-      else
-        nonfatal = kEBNonFatal;
 
       MEs_[nonfatal]->Fill(iDCC + 601.5, 25. / normalization);
     }
@@ -208,17 +208,17 @@ EcalFEDMonitorTemp<SUBDET>::analyze(edm::Event const& _evt, edm::EventSetup cons
     EcalElectronicsIdCollection::const_iterator eleEnd(eleHndl->end());
     for(EcalElectronicsIdCollection::const_iterator eleItr(eleHndl->begin()); eleItr != eleEnd; ++eleItr){
       unsigned iDCC(eleItr->dccId() - 1);
-      if(SUBDET == EcalBarrel && (iDCC < 609 || iDCC > 644)) continue;
-      if(SUBDET == EcalEndcap && (iDCC > 608 && iDCC < 645)) continue;
+
+      unsigned nonfatal(-1);
+      if((SUBDET == EcalBarrel || SUBDET < 0) && iDCC >= ecaldqm::kEBmLow && iDCC <= ecaldqm::kEBpHigh)
+        nonfatal = kEBNonFatal;
+      else if((SUBDET == EcalEndcap || SUBDET < 0) && (iDCC <= ecaldqm::kEEmHigh || iDCC >= ecaldqm::kEEpLow))
+        nonfatal = kEENonFatal;
+      else
+        continue;
 
       double normalization(ecaldqm::nCrystals(iDCC + 1));
       if(normalization < 1.) continue;
-
-      unsigned nonfatal(-1);
-      if(iDCC <= ecaldqm::kEEmHigh || iDCC >= ecaldqm::kEEpLow)
-        nonfatal = kEENonFatal;
-      else
-        nonfatal = kEBNonFatal;
 
       MEs_[nonfatal]->Fill(iDCC + 601.5, 25. / normalization);
     }
