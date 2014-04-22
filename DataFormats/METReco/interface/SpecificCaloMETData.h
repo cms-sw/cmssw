@@ -29,24 +29,24 @@ struct SpecificCaloMETData
     , CaloMETInmHF(0.0), CaloSETInpHF(0.0), CaloSETInmHF(0.0)
     , CaloMETPhiInpHF(0.0), CaloMETPhiInmHF(0.0) { }
 
-  double MaxEtInEmTowers;    // Maximum ET in EM towers
-  double MaxEtInHadTowers;   // Maximum ET in HCAL towers
-  double HadEtInHO;          // Hadronic ET fraction in HO
-  double HadEtInHB;          // Hadronic ET in HB
-  double HadEtInHF;          // Hadronic ET in HF
-  double HadEtInHE;          // Hadronic ET in HE
-  double EmEtInEB;           // Em ET in EB
-  double EmEtInEE;           // Em ET in EE
-  double EmEtInHF;           // Em ET in HF
-  double EtFractionHadronic; // Hadronic ET fraction
-  double EtFractionEm;       // Em ET fraction
-  double METSignificance;    // Em ET fraction
-  double CaloMETInpHF;       // CaloMET in HF+
-  double CaloMETInmHF;       // CaloMET in HF-
-  double CaloSETInpHF;       // CaloSET in HF+
-  double CaloSETInmHF;       // CaloSET in HF-
-  double CaloMETPhiInpHF;    // CaloMET-phi in HF+
-  double CaloMETPhiInmHF;    // CaloMET-phi in HF-
+  float MaxEtInEmTowers;    // Maximum ET in EM towers
+  float MaxEtInHadTowers;   // Maximum ET in HCAL towers
+  float HadEtInHO;          // Hadronic ET fraction in HO
+  float HadEtInHB;          // Hadronic ET in HB
+  float HadEtInHF;          // Hadronic ET in HF
+  float HadEtInHE;          // Hadronic ET in HE
+  float EmEtInEB;           // Em ET in EB
+  float EmEtInEE;           // Em ET in EE
+  float EmEtInHF;           // Em ET in HF
+  float EtFractionHadronic; // Hadronic ET fraction
+  float EtFractionEm;       // Em ET fraction
+  float METSignificance;    // Em ET fraction
+  float CaloMETInpHF;       // CaloMET in HF+
+  float CaloMETInmHF;       // CaloMET in HF-
+  float CaloSETInpHF;       // CaloSET in HF+
+  float CaloSETInmHF;       // CaloSET in HF-
+  float CaloMETPhiInpHF;    // CaloMET-phi in HF+
+  float CaloMETPhiInmHF;    // CaloMET-phi in HF-
 
 };
 

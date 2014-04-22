@@ -82,7 +82,7 @@ void CaloSpecificAlgo::update_totalEt_totalEm(double &totalEt, double& totalEm, 
 }
 
 //____________________________________________________________________________||
-void CaloSpecificAlgo::update_MaxTowerEm_MaxTowerHad(double &MaxTowerEm, double &MaxTowerHad, const CaloTower* calotower, bool noHF)
+void CaloSpecificAlgo::update_MaxTowerEm_MaxTowerHad(float &MaxTowerEm, float &MaxTowerHad, const CaloTower* calotower, bool noHF)
 {
   DetId detIdHcal = find_DetId_of_HCAL_cell_in_constituent_of(calotower);
   DetId detIdEcal = find_DetId_of_ECAL_cell_in_constituent_of(calotower);
@@ -105,7 +105,7 @@ void CaloSpecificAlgo::update_MaxTowerEm_MaxTowerHad(double &MaxTowerEm, double 
 }
 
 //____________________________________________________________________________||
-void CaloSpecificAlgo::update_EmEtInEB_EmEtInEE(double &EmEtInEB, double &EmEtInEE, const CaloTower* calotower)
+void CaloSpecificAlgo::update_EmEtInEB_EmEtInEE(float &EmEtInEB, float &EmEtInEE, const CaloTower* calotower)
 {
   DetId detIdEcal = find_DetId_of_ECAL_cell_in_constituent_of(calotower);
   if(detIdEcal.null()) return;
@@ -122,7 +122,7 @@ void CaloSpecificAlgo::update_EmEtInEB_EmEtInEE(double &EmEtInEB, double &EmEtIn
 }
 
 //____________________________________________________________________________||
-void CaloSpecificAlgo::update_HadEtInHB_HadEtInHE_HadEtInHO_HadEtInHF_EmEtInHF(double &HadEtInHB, double &HadEtInHE, double &HadEtInHO, double &HadEtInHF, double &EmEtInHF, const CaloTower* calotower, bool noHF)
+void CaloSpecificAlgo::update_HadEtInHB_HadEtInHE_HadEtInHO_HadEtInHF_EmEtInHF(float &HadEtInHB, float &HadEtInHE, float &HadEtInHO, float &HadEtInHF, float &EmEtInHF, const CaloTower* calotower, bool noHF)
 {
   DetId detIdHcal = find_DetId_of_HCAL_cell_in_constituent_of(calotower);
   if(detIdHcal.null()) return;
