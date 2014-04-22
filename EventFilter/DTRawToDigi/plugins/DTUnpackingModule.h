@@ -40,6 +40,8 @@ class DTUnpackingModule: public edm::EDProducer {
   int minFEDid_;
   int maxFEDid_;
   bool dqmOnly;
+  bool performDataIntegrityMonitor;
+  std::string dataType;
 };
 
 #endif
