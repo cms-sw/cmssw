@@ -13,7 +13,7 @@ class TrackClassFilter
 {
  public:
 
- TrackClassFilter() {}
+  TrackClassFilter(uint32_t maxBpix, uint32_t maxEpix): m_maxBpix(maxBpix), m_maxEpix(maxEpix) {}
 
  class Input
  {
@@ -33,7 +33,7 @@ class TrackClassFilter
  bool operator()(const first_argument_type & , const second_argument_type &) const;
 
 //  void dump() const;
-
+ uint32_t m_maxBpix, m_maxEpix;
 };
 
 

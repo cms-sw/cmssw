@@ -1,8 +1,10 @@
 import FWCore.ParameterSet.Config as cms
+from RecoBTag.Configuration.SLHCPixelBarrelLayerDef_cfi import *
 
 # TrackIP tag info configuration
 bTagTrackIPAnalysisBlock = cms.PSet(
     parameters = cms.PSet(
+        PixelBarrelLayerDefBlock,
         QualityPlots = cms.bool(False),
         endEffPur = cms.double(1.005),
         nBinEffPur = cms.int32(200),
