@@ -30,30 +30,12 @@ EfficiencyAnalyzer::EfficiencyAnalyzer(const edm::ParameterSet& pSet){
   parameters = pSet;
   
   theService = new MuonServiceProxy(parameters.getParameter<ParameterSet>("ServiceParameters"));
-  theDbe = edm::Service<DQMStore>().operator->();
 
   // DATA 
   theMuonCollectionLabel_  = consumes<reco::MuonCollection>  (parameters.getParameter<edm::InputTag>("MuonCollection"));
   theTrackCollectionLabel_ = consumes<reco::TrackCollection> (parameters.getParameter<edm::InputTag>("TrackCollection"));
   theVertexLabel_          = consumes<reco::VertexCollection>(parameters.getParameter<edm::InputTag>("VertexLabel"));
   theBeamSpotLabel_        = mayConsume<reco::BeamSpot>      (parameters.getParameter<edm::InputTag>("BeamSpotLabel"));
-
-}
-
-EfficiencyAnalyzer::~EfficiencyAnalyzer() {
-  delete theService;
-}
-
-void EfficiencyAnalyzer::beginJob(){
-  metname = "EfficiencyAnalyzer";
-  LogTrace(metname)<<"[EfficiencyAnalyzer] Parameters initialization";
-}
-
-void EfficiencyAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup){ 
-  metname = "EfficiencyAnalyzer";
-  
-  theDbe->cd();
-  theDbe->setCurrentFolder("Muons/EfficiencyAnalyzer");  
 
   //Vertex requirements
   doPVCheck_ = parameters.getParameter<bool>("doPrimaryVertexCheck");
@@ -74,55 +56,67 @@ void EfficiencyAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& i
   vtxMin_ = parameters.getParameter<double>("vtxMin");
   vtxMax_ = parameters.getParameter<double>("vtxMax");
 
-  test_TightMu_Minv  = theDbe->book1D("test_TightMu_Minv"  ,"Minv",50,70,110);
+}
 
-  h_allProbes_pt     = theDbe->book1D("allProbes_pt","All Probes Pt",              ptBin_, ptMin_, ptMax_);
-  h_allProbes_EB_pt  = theDbe->book1D("allProbes_EB_pt","Barrel: all Probes Pt",   ptBin_, ptMin_, ptMax_);
-  h_allProbes_EE_pt  = theDbe->book1D("allProbes_EE_pt","Endcap: all Probes Pt",   ptBin_, ptMin_, ptMax_);
-  h_allProbes_eta    = theDbe->book1D("allProbes_eta","All Probes Eta",            etaBin_, etaMin_, etaMax_);
-  h_allProbes_hp_eta = theDbe->book1D("allProbes_hp_eta","High Pt all Probes Eta", etaBin_, etaMin_, etaMax_);
-  h_allProbes_phi    = theDbe->book1D("allProbes_phi","All Probes Phi",            phiBin_, phiMin_, phiMax_);
+EfficiencyAnalyzer::~EfficiencyAnalyzer() {
+  delete theService;
+}
+
+void EfficiencyAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
+					edm::Run const & /*iRun*/,
+					edm::EventSetup const & /* iSetup */){
   
-  h_allProbes_TightMu_pt    = theDbe->book1D("allProbes_TightMu_pt","All TightMu Probes Pt", ptBin_, ptMin_, ptMax_);
-  h_allProbes_EB_TightMu_pt = theDbe->book1D("allProbes_EB_TightMu_pt","Barrel: all TightMu Probes Pt", ptBin_, ptMin_, ptMax_);
-  h_allProbes_EE_TightMu_pt = theDbe->book1D("allProbes_EE_TightMu_pt","Endcap: all TightMu Probes Pt", ptBin_, ptMin_, ptMax_);
-  h_allProbes_TightMu_nVtx = theDbe->book1D("allProbes_TightMu_nVtx","All Probes (TightMu) nVtx", vtxBin_, vtxMin_, vtxMax_);
-  h_allProbes_EB_TightMu_nVtx = theDbe->book1D("allProbes_EB_TightMu_nVtx","Barrel: All Probes (TightMu) nVtx", vtxBin_, vtxMin_, vtxMax_);
-  h_allProbes_EE_TightMu_nVtx = theDbe->book1D("allProbes_EE_TightMu_nVtx","Endcap: All Probes (TightMu) nVtx", vtxBin_, vtxMin_, vtxMax_);
+  ibooker.cd();
+  ibooker.setCurrentFolder("Muons/EfficiencyAnalyzer");  
 
-  h_passProbes_TightMu_pt = theDbe->book1D("passProbes_TightMu_pt","TightMu Passing Probes Pt", ptBin_ , ptMin_ , ptMax_ );
-  h_passProbes_TightMu_EB_pt = theDbe->book1D("passProbes_TightMu_EB_pt","Barrel: TightMu Passing Probes Pt", ptBin_ , ptMin_ , ptMax_ );
-  h_passProbes_TightMu_EE_pt = theDbe->book1D("passProbes_TightMu_EE_pt","Endcap: TightMu Passing Probes Pt", ptBin_ , ptMin_ , ptMax_ );
-  h_passProbes_TightMu_eta = theDbe->book1D("passProbes_TightMu_eta","TightMu Passing Probes #eta", etaBin_, etaMin_, etaMax_);
-  h_passProbes_TightMu_hp_eta = theDbe->book1D("passProbes_TightMu_hp_eta","High Pt TightMu Passing Probes #eta", etaBin_, etaMin_, etaMax_);
-  h_passProbes_TightMu_phi = theDbe->book1D("passProbes_TightMu_phi","TightMu Passing Probes #phi", phiBin_, phiMin_, phiMax_);
 
-  h_passProbes_detIsoTightMu_pt = theDbe->book1D("passProbes_detIsoTightMu_pt","detIsoTightMu Passing Probes Pt", ptBin_, ptMin_, ptMax_);
-  h_passProbes_EB_detIsoTightMu_pt = theDbe->book1D("passProbes_EB_detIsoTightMu_pt","Barrel: detIsoTightMu Passing Probes Pt", ptBin_, ptMin_, ptMax_);
-  h_passProbes_EE_detIsoTightMu_pt = theDbe->book1D("passProbes_EE_detIsoTightMu_pt","Endcap: detIsoTightMu Passing Probes Pt", ptBin_, ptMin_, ptMax_);
+  test_TightMu_Minv  = ibooker.book1D("test_TightMu_Minv"  ,"Minv",50,70,110);
 
-  h_passProbes_pfIsoTightMu_pt = theDbe->book1D("passProbes_pfIsoTightMu_pt","pfIsoTightMu Passing Probes Pt", ptBin_, ptMin_, ptMax_);
-  h_passProbes_EB_pfIsoTightMu_pt = theDbe->book1D("passProbes_EB_pfIsoTightMu_pt","Barrel: pfIsoTightMu Passing Probes Pt", ptBin_, ptMin_, ptMax_);
-  h_passProbes_EE_pfIsoTightMu_pt = theDbe->book1D("passProbes_EE_pfIsoTightMu_pt","Endcap: pfIsoTightMu Passing Probes Pt", ptBin_, ptMin_, ptMax_);
+  h_allProbes_pt     = ibooker.book1D("allProbes_pt","All Probes Pt",              ptBin_, ptMin_, ptMax_);
+  h_allProbes_EB_pt  = ibooker.book1D("allProbes_EB_pt","Barrel: all Probes Pt",   ptBin_, ptMin_, ptMax_);
+  h_allProbes_EE_pt  = ibooker.book1D("allProbes_EE_pt","Endcap: all Probes Pt",   ptBin_, ptMin_, ptMax_);
+  h_allProbes_eta    = ibooker.book1D("allProbes_eta","All Probes Eta",            etaBin_, etaMin_, etaMax_);
+  h_allProbes_hp_eta = ibooker.book1D("allProbes_hp_eta","High Pt all Probes Eta", etaBin_, etaMin_, etaMax_);
+  h_allProbes_phi    = ibooker.book1D("allProbes_phi","All Probes Phi",            phiBin_, phiMin_, phiMax_);
+  
+  h_allProbes_TightMu_pt    = ibooker.book1D("allProbes_TightMu_pt","All TightMu Probes Pt", ptBin_, ptMin_, ptMax_);
+  h_allProbes_EB_TightMu_pt = ibooker.book1D("allProbes_EB_TightMu_pt","Barrel: all TightMu Probes Pt", ptBin_, ptMin_, ptMax_);
+  h_allProbes_EE_TightMu_pt = ibooker.book1D("allProbes_EE_TightMu_pt","Endcap: all TightMu Probes Pt", ptBin_, ptMin_, ptMax_);
+  h_allProbes_TightMu_nVtx = ibooker.book1D("allProbes_TightMu_nVtx","All Probes (TightMu) nVtx", vtxBin_, vtxMin_, vtxMax_);
+  h_allProbes_EB_TightMu_nVtx = ibooker.book1D("allProbes_EB_TightMu_nVtx","Barrel: All Probes (TightMu) nVtx", vtxBin_, vtxMin_, vtxMax_);
+  h_allProbes_EE_TightMu_nVtx = ibooker.book1D("allProbes_EE_TightMu_nVtx","Endcap: All Probes (TightMu) nVtx", vtxBin_, vtxMin_, vtxMax_);
 
-  h_passProbes_detIsoTightMu_nVtx    = theDbe->book1D("passProbes_detIsoTightMu_nVtx",    "detIsoTightMu Passing Probes nVtx (R03)",  vtxBin_, vtxMin_, vtxMax_);
-  h_passProbes_pfIsoTightMu_nVtx     = theDbe->book1D("passProbes_pfIsoTightMu_nVtx",    "pfIsoTightMu Passing Probes nVtx (R04)",  vtxBin_, vtxMin_, vtxMax_);
-  h_passProbes_EB_detIsoTightMu_nVtx = theDbe->book1D("passProbes_EB_detIsoTightMu_nVtx","Barrel: detIsoTightMu Passing Probes nVtx (R03)",  vtxBin_, vtxMin_, vtxMax_);
-  h_passProbes_EE_detIsoTightMu_nVtx = theDbe->book1D("passProbes_EE_detIsoTightMu_nVtx","Endcap: detIsoTightMu Passing Probes nVtx (R03)",  vtxBin_, vtxMin_, vtxMax_);
-  h_passProbes_EB_pfIsoTightMu_nVtx  = theDbe->book1D("passProbes_EB_pfIsoTightMu_nVtx", "Barrel: pfIsoTightMu Passing Probes nVtx (R04)",  vtxBin_, vtxMin_, vtxMax_);
-  h_passProbes_EE_pfIsoTightMu_nVtx  = theDbe->book1D("passProbes_EE_pfIsoTightMu_nVtx", "Endcap: pfIsoTightMu Passing Probes nVtx (R04)",  vtxBin_, vtxMin_, vtxMax_);
+  h_passProbes_TightMu_pt = ibooker.book1D("passProbes_TightMu_pt","TightMu Passing Probes Pt", ptBin_ , ptMin_ , ptMax_ );
+  h_passProbes_TightMu_EB_pt = ibooker.book1D("passProbes_TightMu_EB_pt","Barrel: TightMu Passing Probes Pt", ptBin_ , ptMin_ , ptMax_ );
+  h_passProbes_TightMu_EE_pt = ibooker.book1D("passProbes_TightMu_EE_pt","Endcap: TightMu Passing Probes Pt", ptBin_ , ptMin_ , ptMax_ );
+  h_passProbes_TightMu_eta = ibooker.book1D("passProbes_TightMu_eta","TightMu Passing Probes #eta", etaBin_, etaMin_, etaMax_);
+  h_passProbes_TightMu_hp_eta = ibooker.book1D("passProbes_TightMu_hp_eta","High Pt TightMu Passing Probes #eta", etaBin_, etaMin_, etaMax_);
+  h_passProbes_TightMu_phi = ibooker.book1D("passProbes_TightMu_phi","TightMu Passing Probes #phi", phiBin_, phiMin_, phiMax_);
+
+  h_passProbes_detIsoTightMu_pt = ibooker.book1D("passProbes_detIsoTightMu_pt","detIsoTightMu Passing Probes Pt", ptBin_, ptMin_, ptMax_);
+  h_passProbes_EB_detIsoTightMu_pt = ibooker.book1D("passProbes_EB_detIsoTightMu_pt","Barrel: detIsoTightMu Passing Probes Pt", ptBin_, ptMin_, ptMax_);
+  h_passProbes_EE_detIsoTightMu_pt = ibooker.book1D("passProbes_EE_detIsoTightMu_pt","Endcap: detIsoTightMu Passing Probes Pt", ptBin_, ptMin_, ptMax_);
+
+  h_passProbes_pfIsoTightMu_pt = ibooker.book1D("passProbes_pfIsoTightMu_pt","pfIsoTightMu Passing Probes Pt", ptBin_, ptMin_, ptMax_);
+  h_passProbes_EB_pfIsoTightMu_pt = ibooker.book1D("passProbes_EB_pfIsoTightMu_pt","Barrel: pfIsoTightMu Passing Probes Pt", ptBin_, ptMin_, ptMax_);
+  h_passProbes_EE_pfIsoTightMu_pt = ibooker.book1D("passProbes_EE_pfIsoTightMu_pt","Endcap: pfIsoTightMu Passing Probes Pt", ptBin_, ptMin_, ptMax_);
+
+  h_passProbes_detIsoTightMu_nVtx    = ibooker.book1D("passProbes_detIsoTightMu_nVtx",    "detIsoTightMu Passing Probes nVtx (R03)",  vtxBin_, vtxMin_, vtxMax_);
+  h_passProbes_pfIsoTightMu_nVtx     = ibooker.book1D("passProbes_pfIsoTightMu_nVtx",    "pfIsoTightMu Passing Probes nVtx (R04)",  vtxBin_, vtxMin_, vtxMax_);
+  h_passProbes_EB_detIsoTightMu_nVtx = ibooker.book1D("passProbes_EB_detIsoTightMu_nVtx","Barrel: detIsoTightMu Passing Probes nVtx (R03)",  vtxBin_, vtxMin_, vtxMax_);
+  h_passProbes_EE_detIsoTightMu_nVtx = ibooker.book1D("passProbes_EE_detIsoTightMu_nVtx","Endcap: detIsoTightMu Passing Probes nVtx (R03)",  vtxBin_, vtxMin_, vtxMax_);
+  h_passProbes_EB_pfIsoTightMu_nVtx  = ibooker.book1D("passProbes_EB_pfIsoTightMu_nVtx", "Barrel: pfIsoTightMu Passing Probes nVtx (R04)",  vtxBin_, vtxMin_, vtxMax_);
+  h_passProbes_EE_pfIsoTightMu_nVtx  = ibooker.book1D("passProbes_EE_pfIsoTightMu_nVtx", "Endcap: pfIsoTightMu Passing Probes nVtx (R04)",  vtxBin_, vtxMin_, vtxMax_);
 
   
   // Apply deltaBeta PU corrections to the PF isolation eficiencies.
   
-  h_passProbes_pfIsodBTightMu_pt = theDbe->book1D("passProbes_pfIsodBTightMu_pt","pfIsoTightMu Passing Probes Pt (deltaB PU correction)", ptBin_, ptMin_, ptMax_);
-  h_passProbes_EB_pfIsodBTightMu_pt = theDbe->book1D("passProbes_EB_pfIsodBTightMu_pt","Barrel: pfIsoTightMu Passing Probes Pt (deltaB PU correction)", ptBin_, ptMin_, ptMax_);
-  h_passProbes_EE_pfIsodBTightMu_pt = theDbe->book1D("passProbes_EE_pfIsodBTightMu_pt","Endcap: pfIsoTightMu Passing Probes Pt (deltaB PU correction)", ptBin_, ptMin_, ptMax_);
-  h_passProbes_pfIsodBTightMu_nVtx     = theDbe->book1D("passProbes_pfIsodBTightMu_nVtx",    "pfIsoTightMu Passing Probes nVtx (R04) (deltaB PU correction)",  vtxBin_, vtxMin_, vtxMax_);
-h_passProbes_EB_pfIsodBTightMu_nVtx  = theDbe->book1D("passProbes_EB_pfIsodBTightMu_nVtx", "Barrel: pfIsoTightMu Passing Probes nVtx (R04) (deltaB PU correction)",  vtxBin_, vtxMin_, vtxMax_);
-  h_passProbes_EE_pfIsodBTightMu_nVtx  = theDbe->book1D("passProbes_EE_pfIsodBTightMu_nVtx", "Endcap: pfIsoTightMu Passing Probes nVtx (R04) (deltaB PU correction)",  vtxBin_, vtxMin_, vtxMax_);
-
-
+  h_passProbes_pfIsodBTightMu_pt = ibooker.book1D("passProbes_pfIsodBTightMu_pt","pfIsoTightMu Passing Probes Pt (deltaB PU correction)", ptBin_, ptMin_, ptMax_);
+  h_passProbes_EB_pfIsodBTightMu_pt = ibooker.book1D("passProbes_EB_pfIsodBTightMu_pt","Barrel: pfIsoTightMu Passing Probes Pt (deltaB PU correction)", ptBin_, ptMin_, ptMax_);
+  h_passProbes_EE_pfIsodBTightMu_pt = ibooker.book1D("passProbes_EE_pfIsodBTightMu_pt","Endcap: pfIsoTightMu Passing Probes Pt (deltaB PU correction)", ptBin_, ptMin_, ptMax_);
+  h_passProbes_pfIsodBTightMu_nVtx     = ibooker.book1D("passProbes_pfIsodBTightMu_nVtx",    "pfIsoTightMu Passing Probes nVtx (R04) (deltaB PU correction)",  vtxBin_, vtxMin_, vtxMax_);
+h_passProbes_EB_pfIsodBTightMu_nVtx  = ibooker.book1D("passProbes_EB_pfIsodBTightMu_nVtx", "Barrel: pfIsoTightMu Passing Probes nVtx (R04) (deltaB PU correction)",  vtxBin_, vtxMin_, vtxMax_);
+  h_passProbes_EE_pfIsodBTightMu_nVtx  = ibooker.book1D("passProbes_EE_pfIsodBTightMu_nVtx", "Endcap: pfIsoTightMu Passing Probes nVtx (R04) (deltaB PU correction)",  vtxBin_, vtxMin_, vtxMax_);
 
 #ifdef DEBUG
   cout << "[EfficiencyAnalyzer] Parameters initialization DONE" <<endl;
