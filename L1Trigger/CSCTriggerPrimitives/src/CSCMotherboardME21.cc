@@ -276,7 +276,8 @@ CSCMotherboardME21::run(const CSCWireDigiCollection* wiredc,
       const GlobalPoint gp(keyLayer->toGlobal(lpCSC));
       const LocalPoint lpGEM(randRoll->toLocal(gp));
       const int HS(i/0.5);
-      const float pad(randRoll->pad(lpGEM));
+      const bool edge(HS < 5 or HS > 155);
+      const float pad(edge ? -99 : randRoll->pad(lpGEM));
       // HS are wrapped-around
       cscHsToGemPad_[HS] = std::make_pair(std::floor(pad),std::ceil(pad));
     }
@@ -365,7 +366,7 @@ CSCMotherboardME21::run(const CSCWireDigiCollection* wiredc,
             // pick the pad that corresponds 
             auto matchingPads(matchingGEMPads(clct->bestCLCT[bx_clct], alct->bestALCT[bx_alct], padsLong_[bx_clct], false));
             int nFound(matchingPads.size());
-            const bool clctInEdge(clct->bestCLCT[bx_clct].getKeyStrip() < 5 or clct->bestCLCT[bx_clct].getKeyStrip() > 124);
+            const bool clctInEdge(clct->bestCLCT[bx_clct].getKeyStrip() < 5 or clct->bestCLCT[bx_clct].getKeyStrip() > 155);
             if (clctInEdge){
               if (debug_gem_matching) std::cout << "\tInfo: low quality CLCT in CSC chamber edge, don't care about GEM pads" << std::endl;
             }
