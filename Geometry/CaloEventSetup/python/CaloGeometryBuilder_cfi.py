@@ -6,6 +6,7 @@ CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",
                                 'CASTOR'        ,
                                 'EcalBarrel'    , 
                                 'EcalEndcap'    , 
+                                'EcalShashlik'    , 
                                 'EcalPreshower' , 
                                 'TOWER'           )
 )

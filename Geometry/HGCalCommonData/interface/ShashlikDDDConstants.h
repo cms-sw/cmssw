@@ -27,6 +27,8 @@ public:
   ShashlikDDDConstants();
   ShashlikDDDConstants( const DDCompactView& cpv );
   ~ShashlikDDDConstants();
+  void                loadSpecPars(const std::vector<int>& firstY,
+				   const std::vector<int>& lastY);
 
   std::pair<int,int>  getSMM(int ix, int iy) const;
   std::pair<int,int>  getXY(int sm, int mod) const;
@@ -38,6 +40,7 @@ public:
   bool                isValidSMM(int sm, int mod) const;
   int                 quadrant(int ix, int iy) const;
   int                 quadrant(int sm) const;
+  bool                valid () const {return !tobeInitialized;}
        
 private:
   void                checkInitialized() const;
