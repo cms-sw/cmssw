@@ -827,14 +827,11 @@ step1FastUpg2015Defaults =merge([{'-s':'GEN,SIM,RECO,EI,HLT:@relval,VALIDATION',
                            '--relval':'27000,3000'},
                            step1Defaults])
 
-
+#step1FastDefaults
 steps['TTbarFS']=merge([{'cfg':'TTbar_Tauola_8TeV_cfi'},Kby(100,1000),step1FastDefaults])
-steps['TTbarFS_13']=merge([{'cfg':'TTbar_Tauola_13TeV_cfi'},Kby(100,1000),step1FastUpg2015Defaults])
 steps['SingleMuPt1FS']=merge([{'cfg':'SingleMuPt1_cfi'},step1FastDefaults])
 steps['SingleMuPt10FS']=merge([{'cfg':'SingleMuPt10_cfi'},step1FastDefaults])
 steps['SingleMuPt100FS']=merge([{'cfg':'SingleMuPt100_cfi'},step1FastDefaults])
-steps['SingleMuPt10FS_UP15']=merge([{'cfg':'SingleMuPt10_cfi'},step1FastUpg2015Defaults])
-steps['SingleMuPt100FS_UP15']=merge([{'cfg':'SingleMuPt100_cfi'},step1FastUpg2015Defaults])
 steps['SinglePiPt1FS']=merge([{'cfg':'SinglePiPt1_cfi'},step1FastDefaults])
 steps['SinglePiPt10FS']=merge([{'cfg':'SinglePiPt10_cfi'},step1FastDefaults])
 steps['SinglePiPt100FS']=merge([{'cfg':'SinglePiPt100_cfi'},step1FastDefaults])
@@ -845,12 +842,17 @@ steps['QCD_Pt_80_120FS']=merge([{'cfg':'QCD_Pt_80_120_8TeV_cfi'},Kby(100,500),st
 steps['QCD_Pt_3000_3500FS']=merge([{'cfg':'QCD_Pt_3000_3500_8TeV_cfi'},Kby(100,500),stCond,step1FastDefaults])
 steps['H130GGgluonfusionFS']=merge([{'cfg':'H130GGgluonfusion_8TeV_cfi'},step1FastDefaults])
 steps['SingleGammaFlatPt10To10FS']=merge([{'cfg':'SingleGammaFlatPt10To100_cfi'},Kby(100,500),step1FastDefaults])
+
+#step1FastUpg2015Defaults
+steps['TTbarFS_13']=merge([{'cfg':'TTbar_Tauola_13TeV_cfi'},Kby(100,1000),step1FastUpg2015Defaults])
 steps['ZEEFS_13']=merge([{'cfg':'ZEE_13TeV_cfi'},Kby(100,2000),step1FastUpg2015Defaults])
 steps['ZTTFS_13']=merge([{'cfg':'ZTT_Tauola_OneLepton_OtherHadrons_13TeV_cfi'},Kby(100,2000),step1FastUpg2015Defaults])
 steps['QCDFlatPt153000FS_13']=merge([{'cfg':'QCDForPF_13TeV_cfi'},Kby(27,2000),step1FastUpg2015Defaults])
 steps['QCD_Pt_80_120FS_13']=merge([{'cfg':'QCD_Pt_80_120_13TeV_cfi'},Kby(100,500),step1FastUpg2015Defaults])
 steps['QCD_Pt_3000_3500FS_13']=merge([{'cfg':'QCD_Pt_3000_3500_13TeV_cfi'},Kby(100,500),step1FastUpg2015Defaults])
 steps['H130GGgluonfusionFS_13']=merge([{'cfg':'H130GGgluonfusion_13TeV_cfi'},step1FastUpg2015Defaults])
+steps['SingleMuPt10FS_UP15']=merge([{'cfg':'SingleMuPt10_cfi'},step1FastUpg2015Defaults])
+steps['SingleMuPt100FS_UP15']=merge([{'cfg':'SingleMuPt100_cfi'},step1FastUpg2015Defaults])
 
 steps['TTbarSFS']=merge([{'cfg':'TTbar_Tauola_8TeV_cfi'},
                         {'-s':'GEN,SIM',
@@ -858,6 +860,7 @@ steps['TTbarSFS']=merge([{'cfg':'TTbar_Tauola_8TeV_cfi'},
                          '--datatier':'GEN-SIM',
                          '--fast':''},
                         step1Defaults])
+
 steps['TTbarSFSA']=merge([{'cfg':'TTbar_Tauola_8TeV_cfi',
                            '-s':'GEN,SIM,RECO,EI,HLT,VALIDATION',
                            '--fast':''},
@@ -906,14 +909,23 @@ steps['ZJetsLNu_TuneZ2star_8TeV_madgraph-tauola']=genvalid('Hadronizer_MgmMatchT
 steps['ZJetsLNu_Tune4C_8TeV_madgraph-pythia8']=genvalid('Hadronizer_MgmMatchTune4C_8TeV_madgraph_pythia8_cff',step1GenDefaults,fi=5591)
 steps['ReggeGribovPartonMC_EposLHC_5TeV_pPb']=genvalid('GeneratorInterface/ReggeGribovPartonMCInterface/ReggeGribovPartonMC_EposLHC_5TeV_pPb_cfi',step1GenDefaults)
 
+#PU for FullSim
 PU={'-n':10,'--pileup':'default','--pileup_input':'das:/RelValMinBias/%s/GEN-SIM'%(baseDataSetRelease[0],)}
 PU2={'-n':10,'--pileup':'default','--pileup_input':'das:/RelValMinBias/%s/GEN-SIM'%(baseDataSetRelease[8],)}
 PU25={'-n':10,'--pileup':'AVE_10_BX_25ns_m8','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(baseDataSetRelease[6],)}
 PU50={'-n':10,'--pileup':'AVE_20_BX_50ns_m8','--pileup_input':'das:/RelValMinBias_13/%s/GEN-SIM'%(baseDataSetRelease[6],)}
+
+#PU for FastSim
 PUFS={'--pileup':'default'}
 PUFS2={'--pileup':'mix_2012_Startup_inTimeOnly'}
+PUFSAVE10={'--pileup':'E13TeV_AVE_10_inTimeOnly'}
+PUFSAVE20={'--pileup':'E13TeV_AVE_20_inTimeOnly'}
+
+#
 steps['TTbarFSPU']=merge([PUFS,Kby(100,500),steps['TTbarFS']] )
 steps['TTbarFSPU2']=merge([PUFS2,Kby(100,500),steps['TTbarFS']])
+steps['TTbarFSPU13AVE10']=merge([PUFSAVE10,Kby(100,500),steps['TTbarFS_13']] )
+steps['TTbarFSPU13AVE20']=merge([PUFSAVE20,Kby(100,500),steps['TTbarFS_13']] )
 ##########################
 
 
