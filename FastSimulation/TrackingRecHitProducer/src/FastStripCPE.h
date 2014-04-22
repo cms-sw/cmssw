@@ -17,20 +17,10 @@ class FastStripCPE : public StripClusterParameterEstimator
   
   //Standard method used
   //LocalValues is typedef for std::pair<LocalPoint,LocalError> 
-  StripClusterParameterEstimator::LocalValues localParameters( const SiStripCluster & cl,const GeomDetUnit& det) const;
-  
-  //Put information into the map.
-  void enterLocalParameters(uint32_t id, uint16_t firstStrip, const std::pair<LocalPoint,LocalError>& pos_err_info);
-  
-  //Clear the map.
-  void clearParameters() const {
-    pos_err_map.clear();
-  }
+  StripClusterParameterEstimator::LocalValues localParameters( const SiStripCluster & cl,const GeomDetUnit& det) const override;  
 
-  LocalVector driftDirection(const StripGeomDetUnit* det)const;
-  
- private:
-  mutable std::map<std::pair<uint32_t, uint16_t>,std::pair<LocalPoint, LocalError> >  pos_err_map;
+
+  LocalVector driftDirection(const StripGeomDetUnit* ) const override;
   
 };
 

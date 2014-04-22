@@ -3,7 +3,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "SimG4Core/Application/interface/OscarProducer.h"
+#include "SimG4Core/Application/interface/OscarMTProducer.h"
 #include "SimG4Core/Application/interface/G4SimEvent.h"
 
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
@@ -38,7 +38,7 @@ namespace {
     // Dave D. has decided to implement it this way because
     // we don't know if there're other modules using CLHEP
     // static engine, thus we want to ensure that the one
-    // we use for OscarProducer is unique to OscarProducer
+    // we use for OscarMTProducer is unique to OscarMTProducer
     //
     // !!! This not only sets the random engine used by GEANT.
     // There are a few SimWatchers/SimProducers that generate
@@ -58,7 +58,7 @@ namespace {
     };
 }
 
-OscarProducer::OscarProducer(edm::ParameterSet const & p)
+OscarMTProducer::OscarMTProducer(edm::ParameterSet const & p)
 {
   // Random number generation not allowed here
   StaticRandomEngineSetUnset random(nullptr);
@@ -67,8 +67,8 @@ OscarProducer::OscarProducer(edm::ParameterSet const & p)
   usesResource(edm::SharedResourceNames::kCLHEPRandomEngine);
 
   consumes<edm::HepMCProduct>(p.getParameter<edm::InputTag>("HepMCProductLabel"));
-  m_runManager.reset(new RunManager(p));
-  //m_runManager.reset(new RunManager(p, consumesCollector()));
+  m_runManager.reset(new RunManagerMT(p));
+  //m_runManager.reset(new RunManagerMT(p, consumesCollector()));
 
   produces<edm::SimTrackContainer>().setBranchAlias("SimTracks");
   produces<edm::SimVertexContainer>().setBranchAlias("SimVertices");
@@ -126,18 +126,18 @@ OscarProducer::OscarProducer(edm::ParameterSet const & p)
   m_UIsession.reset(new CustomUIsession());
 }
 
-OscarProducer::~OscarProducer() 
+OscarMTProducer::~OscarMTProducer() 
 { }
 
 void 
-OscarProducer::beginRun(const edm::Run & r, const edm::EventSetup & es)
+OscarMTProducer::beginRun(const edm::Run & r, const edm::EventSetup & es)
 {
   // Random number generation not allowed here
   StaticRandomEngineSetUnset random(nullptr);
   m_runManager->initG4(es);
 }
 
-void OscarProducer::produce(edm::Event & e, const edm::EventSetup & es)
+void OscarMTProducer::produce(edm::Event & e, const edm::EventSetup & es)
 {
   StaticRandomEngineSetUnset random(e.streamID());
 
@@ -211,9 +211,9 @@ StaticRandomEngineSetUnset::StaticRandomEngineSetUnset(
   edm::Service<edm::RandomNumberGenerator> rng;
   if ( ! rng.isAvailable()) {
     throw cms::Exception("Configuration")
-      << "The OscarProducer module requires the RandomNumberGeneratorService\n"
+      << "The OscarMTProducer module requires the RandomNumberGeneratorService\n"
       "which is not present in the configuration file.  You must add the service\n"
-      "in the configuration file if you want to run OscarProducer";
+      "in the configuration file if you want to run OscarMTProducer";
   }
   m_currentEngine = &(rng->getEngine(streamID));
 
@@ -239,4 +239,4 @@ CLHEP::HepRandomEngine* StaticRandomEngineSetUnset::getEngine() const
   return m_currentEngine; 
 }
 
-DEFINE_FWK_MODULE(OscarProducer);
+DEFINE_FWK_MODULE(OscarMTProducer);
