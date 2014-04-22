@@ -331,7 +331,6 @@ def get_flags(product_name, flags):
     logging.debug('Running: %s', command)
     return subprocess.check_output(command, shell=True).splitlines()
 
-
 def log_flags(name, flags):
     logging.debug('%s = [', name)
     for flag in flags:
@@ -382,7 +381,7 @@ def get_default_gcc_search_paths(gcc = 'g++', language = 'c++'):
 
 class SerializationCodeGenerator(object):
 
-    def __init__(self):
+    def __init__(self, scramFlags=None):
 
         self.cmssw_base = os.getenv('CMSSW_BASE')
         if self.cmssw_base is None:
@@ -413,8 +412,13 @@ class SerializationCodeGenerator(object):
         product_name = '%s%s' % (self.split_path[1], self.split_path[2])
         logging.debug('product_name = %s', product_name)
 
-        cpp_flags = get_flags(product_name, 'CPPFLAGS')
-        cxx_flags = get_flags(product_name, 'CXXFLAGS')
+	if not scramFlags:
+	   cpp_flags = get_flags(product_name, 'CPPFLAGS')
+           cxx_flags = get_flags(product_name, 'CXXFLAGS')
+	else:
+	   cpp_flags = scramFlags
+	   cxx_flags = []
+
         std_flags = get_default_gcc_search_paths()
         log_flags('cpp_flags', cpp_flags)
         log_flags('cxx_flags', cxx_flags)
@@ -458,8 +462,11 @@ class SerializationCodeGenerator(object):
         return os.path.join(self.cmssw_base, self.split_path[0], self.split_path[1], self.split_path[2], *path)
 
 
-    def generate(self):
-        filename = self._join_package_path('src', 'Serialization.cc')
+    def generate(self, outFileName):
+
+    	filename = outFileName
+	if not filename:  # in case we're not using scram, this may not be set, use the default then, assuming we're in the package dir ...
+	   filename = self._join_package_path('src', 'Serialization.cc')
 
         n_serializable_classes = 0
 
@@ -507,16 +514,27 @@ class SerializationCodeGenerator(object):
 def main():
     parser = argparse.ArgumentParser(description='CMS Condition DB Serialization generator.')
     parser.add_argument('--verbose', '-v', action='count', help='Verbosity level. -v reports debugging information.')
+    parser.add_argument('--output' , '-o', action='store', help='Specifies the path to the output file written. Default: src/Serialization.cc')
+    parser.add_argument('--package', '-p', action='store', help='Specifies the path to the package to be processed. Default: the actual package')
 
-    args = parser.parse_args()
+    opts, args = parser.parse_known_args()
 
     logging.basicConfig(
         format = '[%(asctime)s] %(levelname)s: %(message)s',
-        level = logging.DEBUG if args.verbose >= 1 else logging.INFO,
+        level = logging.DEBUG if opts.verbose >= 1 else logging.INFO,
     )
 
-    SerializationCodeGenerator().generate()
+    if opts.package:  # we got a directory name to process, assume it's from scram and remove the last ('/src') dir from the path
+        pkgDir = opts.package
+	if pkgDir.endswith('/src') :
+	    pkgDir, srcDir = os.path.split( opts.package )
+        os.chdir( pkgDir )
+	logging.info("Wrocessing package in %s " % pkgDir)
 
+    if opts.output:
+       logging.info("Writing serialization code to %s " % opts.output)
+
+    SerializationCodeGenerator( scramFlags=args ).generate( opts.output )
 
 if __name__ == '__main__':
     main()
