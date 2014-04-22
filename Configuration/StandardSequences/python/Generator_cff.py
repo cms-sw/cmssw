@@ -46,6 +46,7 @@ from RecoMET.Configuration.GenMETParticles_cff import *
 #   }
 # }
 VertexSmearing = cms.Sequence(cms.SequencePlaceholder("VtxSmeared"))
+AfterBurner = cms.Sequence(cms.SequencePlaceholder("AftBurner"))
 GeneInfo = cms.Sequence(genParticles)
 genJetMET = cms.Sequence(genJetParticles*recoGenJets+genMETParticles*recoGenMET)
 pgen = cms.Sequence(cms.SequencePlaceholder("randomEngineStateProducer")+VertexSmearing+GeneInfo+genJetMET)
