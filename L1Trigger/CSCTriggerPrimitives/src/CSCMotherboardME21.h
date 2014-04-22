@@ -137,6 +137,9 @@ class CSCMotherboardME21 : public CSCMotherboard
   
   unsigned int tmb_cross_bx_algo;
 
+  /** maximum lcts per BX in ME2 */
+  unsigned int max_me21_lcts;
+
   // masterswitch
   bool runME21ILT_;
 

@@ -81,6 +81,9 @@ CSCMotherboardME21::CSCMotherboardME21(unsigned endcap, unsigned station,
 
   tmb_cross_bx_algo = me21tmbParams.getUntrackedParameter<unsigned int>("tmbCrossBxAlgorithm");
 
+  // maximum lcts per BX in ME2
+  max_me21_lcts = me21tmbParams.getUntrackedParameter<unsigned int>("maxME21LCTs",2);
+
   pref[0] = match_trig_window_size/2;
   for (unsigned int m=2; m<match_trig_window_size; m+=2)
   {
@@ -566,50 +569,46 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME21::readoutLCTs()
 std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME21::getLCTs()
 {
   std::vector<CSCCorrelatedLCTDigi> result;
-  for (int bx = 0; bx < MAX_LCT_BINS; bx++ )
-    {
-      std::vector<CSCCorrelatedLCTDigi> tmpV;
-      if (tmb_cross_bx_algo == 2)
-        {
-          tmpV = sortLCTsByQuality(bx);
-          result.insert(result.end(), tmpV.begin(), tmpV.end());
+  for (int bx = 0; bx < MAX_LCT_BINS; bx++) {
+    std::vector<CSCCorrelatedLCTDigi> tmpV;
+    if (tmb_cross_bx_algo == 2) {
+      tmpV = sortLCTsByQuality(bx);
+      result.insert(result.end(), tmpV.begin(), tmpV.end());
+    }
+    else {
+      for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++) {
+        for (int i=0;i<2;i++) {
+          if (allLCTs[bx][mbx][i].isValid()) {
+            result.push_back(allLCTs[bx][mbx][i]);
+          }
         }
-      else {
-        for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++) 
-          for (int i=0;i<2;i++)
-            if (allLCTs[bx][mbx][i].isValid())  
-              result.push_back(allLCTs[bx][mbx][i]);
       }
     }
+  }
   return result;
 }
+
+// compare LCTs by quality
+bool hasLowerQuality(const CSCCorrelatedLCTDigi& lct1, const CSCCorrelatedLCTDigi& lct2) 
+{ 
+  return lct1.getQuality() < lct2.getQuality();
+}
+
 
 //sort LCTs by Quality in each BX
 std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME21::sortLCTsByQuality(int bx)
 {
   std::vector<CSCCorrelatedLCTDigi> LCTs;
-  std::vector<CSCCorrelatedLCTDigi> tmpV;
-  tmpV.clear();
   LCTs.clear();
   for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++) 
     for (int i=0;i<2;i++)
       if (allLCTs[bx][mbx][i].isValid())  
         LCTs.push_back(allLCTs[bx][mbx][i]);
-  std::vector<CSCCorrelatedLCTDigi>::iterator plct = LCTs.begin();
-  for (; plct != LCTs.end(); plct++)
-    {
-      if (!plct->isValid()) continue;
-      std::vector<CSCCorrelatedLCTDigi>::iterator itlct = tmpV.begin();
-      for (; itlct != tmpV.end(); itlct++)
-        if((*itlct).getQuality() < (*plct).getQuality()) break;
-    
-      if(itlct==tmpV.end()) tmpV.push_back(*plct);
-      else tmpV.insert(itlct--, *plct);
-          
-    }
-  unsigned int max_me21_lcts = 2;
-  if (tmpV.size()> max_me21_lcts) tmpV.erase(tmpV.begin()+max_me21_lcts, tmpV.end());
-  return  tmpV;
+
+  // return sorted vector with 2 highest quality LCTs
+  std::sort(LCTs.begin(), LCTs.end(), hasLowerQuality);
+  if (LCTs.size()> max_me21_lcts) LCTs.erase(LCTs.begin()+max_me21_lcts, LCTs.end());
+  return  LCTs;
 }
 
 void CSCMotherboardME21::correlateLCTsGEM(CSCALCTDigi bestALCT,
