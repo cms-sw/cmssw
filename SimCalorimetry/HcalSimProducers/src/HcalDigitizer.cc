@@ -139,8 +139,8 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   iC.consumes<std::vector<PCaloHit> >(edm::InputTag(hitsProducer_, "HcalHits"));
 
   bool doNoise = ps.getParameter<bool>("doNoise");
-  bool PreMix1 = ps.getParameter<bool>("PreMixStage1");  // special threshold/pedestal treatment
-  bool PreMix2 = ps.getParameter<bool>("PreMixStage2");  // special threshold/pedestal treatment
+  bool PreMix1 = ps.getParameter<bool>("HcalPreMixStage1");  // special threshold/pedestal treatment
+  bool PreMix2 = ps.getParameter<bool>("HcalPreMixStage2");  // special threshold/pedestal treatment
   bool useOldNoiseHB = ps.getParameter<bool>("useOldHB");
   bool useOldNoiseHE = ps.getParameter<bool>("useOldHE");
   bool useOldNoiseHF = ps.getParameter<bool>("useOldHF");
@@ -602,8 +602,6 @@ void HcalDigitizer::finalizeEvent(edm::Event& e, const edm::EventSetup& eventSet
 
 
 void HcalDigitizer::beginRun(const edm::EventSetup & es) {
-
-  std::cout << " IN Hcal BeginRun " << std::endl;
   checkGeometry(es);
   theShapes->beginRun(es);
 }
@@ -621,9 +619,6 @@ void HcalDigitizer::checkGeometry(const edm::EventSetup & eventSetup) {
   // See if it's been updated
   if(&*geometry != theGeometry)
   {
-
-    std::cout << " New Geometry " << std::endl;
-
     theGeometry = &*geometry;
     updateGeometry(eventSetup);
   }

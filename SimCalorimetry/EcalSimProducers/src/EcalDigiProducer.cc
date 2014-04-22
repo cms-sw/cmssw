@@ -620,8 +620,6 @@ EcalDigiProducer::finalizeEvent(edm::Event& event, edm::EventSetup const& eventS
      //event.put( apdResult,    m_apdDigiTag         ) ;
    }
 
-   std::cout << " EcalDigiProducer, size of ES " << preshowerResult->size() << std::endl;
-
    event.put( barrelResult,    m_EBdigiCollection ) ;
    event.put( endcapResult,    m_EEdigiCollection ) ;
    event.put( preshowerResult, m_ESdigiCollection ) ;
