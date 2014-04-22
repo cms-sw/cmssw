@@ -23,7 +23,6 @@
 
 <SolidSection label="fastTiming.xml">
   <Tubs name="SFLY" rMin="[rInTiming]" rMax="[rOutTiming]" dz="0.5*[dzTiming]"  startPhi="0*deg" deltaPhi="360*deg"/>
-  <Box  name="SFBX" dx="0.5*[dxTiming]" dy="0.5*[dxTiming]" dz="0.5*[dzTiming]"/>
   <Tubs name="SFAX" rMin="[rInTiming]" rMax="[rOutTiming]" dz="0.5*[dzCeramic]" startPhi="0*deg" deltaPhi="360*deg"/>
   <Tubs name="SFCX" rMin="[rInTiming]" rMax="[rOutTiming]" dz="0.5*[dzG10]"     startPhi="0*deg" deltaPhi="360*deg"/>
 </SolidSection>
@@ -32,10 +31,6 @@
   <LogicalPart name="SFLY" category="unspecified">
     <rSolid name="SFLY"/>
     <rMaterial name="materials:E_Air"/>
-  </LogicalPart>
-  <LogicalPart name="SFBX" category="unspecified">
-    <rSolid name="SFBX"/>
-    <rMaterial name="materials:E_Silicon"/>
   </LogicalPart>
   <!-- ceramic -->
   <LogicalPart name="SFAX" category="unspecified">
@@ -65,19 +60,5 @@
     <Translation x="0*fm" y="0*fm" z="[zG10]"/>
   </PosPart>
 </PosPartSection>
-
-<Algorithm name="shashlik:DDShashlikNoTaperEndcap">
-  <rParent name="fastTiming:SFLY"/>
-  <String name="ChildName" value="fastTiming:SFBX"/>
-  <Numeric name="n" value="125"/>
-  <Numeric name="startCopyNo" value="1"/>
-  <Numeric name="incrCopyNo"  value="1"/>
-  <Numeric name="invert"      value="1"/>
-  <Numeric name="rMin"        value="[rInTiming]"/>
-  <Numeric name="rMax"        value="[rOutTiming]"/> 
-  <Numeric name="tiltAngle"   value="0"/>
-  <Numeric name="zoffset"     value="0"/>
-  <Numeric name="xyoffset"    value="[dxTiming]"/>
-</Algorithm>
 
 </DDDefinition>
