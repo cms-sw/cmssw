@@ -1,5 +1,5 @@
-#ifndef SimG4Core_RunManager_H
-#define SimG4Core_RunManager_H
+#ifndef SimG4Core_RunManagerMT_H
+#define SimG4Core_RunManagerMT_H
 
 #include <memory>
 #include "FWCore/Framework/interface/Event.h"
@@ -7,6 +7,8 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+
+#include "SimG4Core/Application/interface/RunManager.h"
 
 #include "SimG4Core/SensitiveDetector/interface/AttachSD.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveDetector.h"
@@ -42,7 +44,7 @@ class G4SimEvent;
 class SimTrackManager;
 
 class RunAction;
-class EventAction;
+class EventAction; 
 class TrackingAction;
 class SteppingAction;
 
@@ -57,13 +59,13 @@ class RunAction;
 class SimRunInterface;
 class ExceptionHandler;
 
-class RunManager
+class RunManagerMT : public RunManager
 {
 public:
 
-  //RunManager(edm::ParameterSet const & p, edm::ConsumesCollector && iC);
-  RunManager(edm::ParameterSet const & p);
-  ~RunManager();
+  //RunManagerMT(edm::ParameterSet const & p, edm::ConsumesCollector && iC);
+  RunManagerMT(edm::ParameterSet const & p);
+  ~RunManagerMT();
   void initG4(const edm::EventSetup & es);
   void initializeUserActions();
   void initializeRun();
