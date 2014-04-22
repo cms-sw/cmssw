@@ -172,6 +172,8 @@ def customise_Reco(process):
     process.muonlocalreco += process.gemRecHits
     process.standAloneMuons.STATrajBuilderParameters.EnableGEMMeasurement = cms.bool(True)
     process.standAloneMuons.STATrajBuilderParameters.BWFilterParameters.EnableGEMMeasurement = cms.bool(True)
+    process.refittedStandAloneMuons.STATrajBuilderParameters.EnableGEMMeasurement = cms.bool(True)
+    process.refittedStandAloneMuons.STATrajBuilderParameters.BWFilterParameters.EnableGEMMeasurement = cms.bool(True)
     process=outputCustoms(process)
     return process
 
@@ -191,7 +193,7 @@ def customise_Validation(process):
 
 def customise_harvesting(process):
     process.load('Validation.Configuration.gemPostValidation_cff')
-    process.postValidation += process.gemPostValidation
+    process.genHarvesting += process.gemPostValidation
     return process
 
 def outputCustoms(process):
