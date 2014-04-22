@@ -37,7 +37,8 @@ options.parseArguments()
 
 process.MessageLogger = cms.Service("MessageLogger",
                                     out = cms.untracked.PSet(threshold = cms.untracked.string('INFO')),
-                                    destinations = cms.untracked.vstring('out')
+                                    cout = cms.untracked.PSet(threshold = cms.untracked.string('WARNING')),
+                                    destinations = cms.untracked.vstring('out','cout')
                                     )
 
 process.source = cms.Source("EmptyIOVSource",
@@ -46,6 +47,10 @@ process.source = cms.Source("EmptyIOVSource",
                             timetype = cms.string('runnumber'),
                             interval = cms.uint64(1)
                             )
+
+# the DB Geometry is NOT used because in this cfg only one tag is taken from the DB and no GT is used. To be fixed if this is a problem
+process.load('Configuration.Geometry.GeometryExtended_cff')
+process.TrackerTopologyEP = cms.ESProducer("TrackerTopologyEP")
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 
