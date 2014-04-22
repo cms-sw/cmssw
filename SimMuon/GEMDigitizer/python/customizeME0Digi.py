@@ -88,8 +88,15 @@ def customize_random_ME0Digi(process):
     return process
 
 
+## load the digitizer 
+def load_ME0_digitizer(process):
+    process.load('SimMuon.GEMDigitizer.muonME0DigisPreReco_cfi')
+    return process
+
+
 # customize the full digitization sequence pdigi by adding ME0s
 def customize_digi_addME0(process):
+    process = load_ME0_digitizer(process)
     process = customize_random_ME0Digi(process)
     process = customize_mix_addME0(process)
     process.muonDigi = cms.Sequence(
@@ -109,11 +116,13 @@ def customize_digi_addME0(process):
         process.trackingParticles*
         process.addPileupInfo
     )
+    process = append_ME0Digi_event(process)
     return process
 
 
 # customize the digitization sequence pdigi to only digitize DT+CSC+RPC+ME0
 def customize_digi_addME0_muon_only(process):
+    process = load_ME0_digitizer(process)
     process = customize_random_ME0Digi(process)
     process = customize_mix_addME0_muon_only(process)
     process.muonDigi = cms.Sequence(
@@ -127,23 +136,29 @@ def customize_digi_addME0_muon_only(process):
         cms.SequencePlaceholder("mix")*
         process.muonDigi
     )
+    process = append_ME0Digi_event(process)
     return process
 
 
 # customize the digitization sequence pdigi to only digitize ME0
 def customize_digi_addME0_me0_only(process):
+    process = load_ME0_digitizer(process)
     process = customize_random_ME0Digi(process)
     process = customize_mix_addME0_muon_only(process)
-    process.muonDigi = cms.Sequence(
-        process.simMuonCSCDigis +
-        process.simMuonDTDigis +
-        process.simMuonRPCDigis +
-        process.simMuonME0Digis
-    )
     process.pdigi = cms.Sequence(
         cms.SequencePlaceholder("randomEngineStateProducer")*
         cms.SequencePlaceholder("mix")*
         process.simMuonME0Digis
     )
+    process = append_ME0Digi_event(process)
     return process
 
+
+# insert the ME0Digi collection to the event
+def append_ME0Digi_event(process):
+    alist=['AODSIM','RECOSIM','FEVTSIM','FEVTDEBUG','FEVTDEBUGHLT','RECODEBUG','RAWRECOSIMHLT','RAWRECODEBUGHLT']
+    for a in alist:
+        b=a+'output'
+        if hasattr(process,b):
+            getattr(process,b).outputCommands.append('keep *_simMuonME0Digis_*_*')
+    return process

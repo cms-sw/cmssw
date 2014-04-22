@@ -4,14 +4,14 @@
 <SolidSection label="eregalgo.xml">
   <Polycone name="ECAL" startPhi="0*deg" deltaPhi="360*deg">
     <ZSection z="-[ectkcable:z4CabEC]" rMin="[ectkcable:rMin2Cab]" rMax="[eecon:EBRMax]"/>
-    <ZSection z="-[ectkcable:z3CabEC]" rMin="[ectkcable:rMin2Cab]" rMax="[eecon:EBRMax]"/>
-    <ZSection z="-[ectkcable:z3CabEC]" rMin="[ectkcable:rMin1Cab]" rMax="[eecon:EBRMax]"/>
-    <ZSection z="-[ectkcable:z2CabEC]" rMin="[ectkcable:rMin0Cab]" rMax="[eecon:EBRMax]"/>
-    <ZSection z="-[ectkcable:z1CabEC]" rMin="[eecon:EBRMin]"       rMax="[eecon:EBRMax]"/>
-    <ZSection z=" [ectkcable:z1CabEC]" rMin="[eecon:EBRMin]"       rMax="[eecon:EBRMax]"/>
-    <ZSection z=" [ectkcable:z2CabEC]" rMin="[ectkcable:rMin0Cab]" rMax="[eecon:EBRMax]"/>
-    <ZSection z=" [ectkcable:z3CabEC]" rMin="[ectkcable:rMin1Cab]" rMax="[eecon:EBRMax]"/>
-    <ZSection z=" [ectkcable:z3CabEC]" rMin="[ectkcable:rMin2Cab]" rMax="[eecon:EBRMax]"/>
+    <ZSection z="-[escon:ESRearZ]"     rMin="[ectkcable:rMin2Cab]" rMax="[eecon:EBRMax]"/>
+    <ZSection z="-[escon:ESRearZ]"     rMin="[escon:R_MIN]"        rMax="[eecon:EBRMax]"/>
+    <ZSection z="-[escon:ESFrontZ]"    rMin="[escon:R_MIN]"        rMax="[eecon:EBRMax]"/>
+    <ZSection z="-[escon:ESFrontZ]"    rMin="[eecon:EBRMin]"       rMax="[eecon:EBRMax]"/>
+    <ZSection z=" [escon:ESFrontZ]"    rMin="[eecon:EBRMin]"       rMax="[eecon:EBRMax]"/>
+    <ZSection z=" [escon:ESFrontZ]"    rMin="[escon:R_MIN]"        rMax="[eecon:EBRMax]"/>
+    <ZSection z=" [escon:ESRearZ]"     rMin="[escon:R_MIN]"        rMax="[eecon:EBRMax]"/>
+    <ZSection z=" [escon:ESRearZ]"     rMin="[ectkcable:rMin2Cab]" rMax="[eecon:EBRMax]"/>
     <ZSection z=" [ectkcable:z4CabEC]" rMin="[ectkcable:rMin2Cab]" rMax="[eecon:EBRMax]"/>
   </Polycone>
 </SolidSection>

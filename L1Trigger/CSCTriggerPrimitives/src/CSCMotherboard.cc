@@ -92,8 +92,8 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
   // Motherboard parameters:
   edm::ParameterSet tmbParams  =  conf.getParameter<edm::ParameterSet>("tmbParam");
 
-  if (isSLHC && theStation == 1 &&
-      CSCTriggerNumbering::ringFromTriggerLabels(theStation, theTrigChamber) == 1 ) {
+  // run upgrade TMBs for all MEX/1 stations
+  if (isSLHC && CSCTriggerNumbering::ringFromTriggerLabels(theStation, theTrigChamber) == 1 ) {
     alctParams = conf.getParameter<edm::ParameterSet>("alctSLHC");
     clctParams = conf.getParameter<edm::ParameterSet>("clctSLHC");
     tmbParams  =  conf.getParameter<edm::ParameterSet>("tmbSLHC");

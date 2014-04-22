@@ -67,6 +67,8 @@ void EmulatedME0SegmentProducer::produce(edm::Event& ev, const edm::EventSetup& 
       if ( (CurrentParticle.status()==1) && ( (CurrentParticle.pdgId()==13)  || (CurrentParticle.pdgId()==-13) ) ){  
 
 	//Setup
+	if (CurrentParticle.pz()==0) continue;
+
 	float zSign  = CurrentParticle.pz()/fabs(CurrentParticle.pz());
 
 	float zValue = 560. * zSign;
