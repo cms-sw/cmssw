@@ -43,7 +43,6 @@ class CaloSpecificAlgo
  private:
   typedef math::XYZTLorentzVector LorentzVector;
   typedef math::XYZPoint Point;
-  void initializeSpecificCaloMETData(SpecificCaloMETData &specific);
   void update_totalEt_totalEm(double &totalEt, double& totalEm, const CaloTower* calotower, bool noHF);
   void update_MaxTowerEm_MaxTowerHad(double &MaxTowerEm, double &MaxTowerHad, const CaloTower* calotower, bool noHF);
   void update_EmEtInEB_EmEtInEE(double &EmEtInEB, double &EmEtInEE, const CaloTower* calotower);

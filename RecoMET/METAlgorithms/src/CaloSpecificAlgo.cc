@@ -26,7 +26,6 @@ using namespace reco;
 reco::CaloMET CaloSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > towers, const CommonMETData& umet, bool noHF, double globalThreshold)
 { 
   SpecificCaloMETData specific;
-  initializeSpecificCaloMETData(specific);
   CommonMETData met = umet;
   double totalEt = 0.0; 
   double totalEm = 0.0;
@@ -63,29 +62,6 @@ reco::CaloMET CaloSpecificAlgo::addInfo(edm::Handle<edm::View<Candidate> > tower
   const Point vtx(0.0, 0.0, 0.0);
   CaloMET caloMET(specific, met.sumet, p4, vtx);
   return caloMET;
-}
-
-//____________________________________________________________________________||
-void CaloSpecificAlgo::initializeSpecificCaloMETData(SpecificCaloMETData &specific)
-{
-  specific.MaxEtInEmTowers = 0.0;    // Maximum energy in EM towers
-  specific.MaxEtInHadTowers = 0.0;   // Maximum energy in HCAL towers
-  specific.HadEtInHO = 0.0;          // Hadronic energy fraction in HO
-  specific.HadEtInHB = 0.0;          // Hadronic energy in HB
-  specific.HadEtInHF = 0.0;          // Hadronic energy in HF
-  specific.HadEtInHE = 0.0;          // Hadronic energy in HE
-  specific.EmEtInEB = 0.0;           // Em energy in EB
-  specific.EmEtInEE = 0.0;           // Em energy in EE
-  specific.EmEtInHF = 0.0;           // Em energy in HF
-  specific.EtFractionHadronic = 0.0; // Hadronic energy fraction
-  specific.EtFractionEm = 0.0;       // Em energy fraction
-  specific.METSignificance = 0.0;
-  specific.CaloMETInpHF = 0.0;        // CaloMET in HF+ 
-  specific.CaloMETInmHF = 0.0;        // CaloMET in HF- 
-  specific.CaloSETInpHF = 0.0;        // CaloSET in HF+ 
-  specific.CaloSETInmHF = 0.0;        // CaloSET in HF- 
-  specific.CaloMETPhiInpHF = 0.0;     // CaloMET-phi in HF+ 
-  specific.CaloMETPhiInmHF = 0.0;     // CaloMET-phi in HF- 
 }
 
 //____________________________________________________________________________||
