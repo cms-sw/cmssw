@@ -1,4 +1,3 @@
-
 #include "RecoTracker/CkfPattern/interface/GroupedCkfTrajectoryBuilder.h"
 #include "TrajectorySegmentBuilder.h"
 
@@ -30,6 +29,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
 
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
+
+
 // only included for RecHit comparison operator:
 #include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleanerBySharedHits.h"
 
@@ -38,6 +40,7 @@
 #include "TrackingTools/GeomPropagators/interface/HelixBarrelPlaneCrossingByCircle.h"
 #include "TrackingTools/GeomPropagators/interface/HelixArbitraryPlaneCrossing.h"
 
+#include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
 
 #include <algorithm>
 #include <array>
@@ -287,6 +290,34 @@ GroupedCkfTrajectoryBuilder::buildTrajectories (const TrajectorySeed& seed,
   LogDebug("CkfPattern")<< "GroupedCkfTrajectoryBuilder: returning result of size " << result.size();
   statCount.traj(result.size());
 
+#ifdef VI_DEBUG
+  int kt=0;
+  for (auto const & traj : result) {
+int chit[7]={};
+for (auto const & tm : traj.measurements()) {
+  auto const & hit = tm.recHitR();
+  if (!hit.isValid()) ++chit[0];
+  if (hit.det()==nullptr) ++chit[1];
+  if ( trackerHitRTTI::isUndef(hit) ) continue;
+  if ( hit.dimension()!=2 ) {
+    ++chit[2];
+  } else {
+    auto const & thit = static_cast<BaseTrackerRecHit const&>(hit);
+    auto const & clus = thit.firstClusterRef();
+    if (clus.isPixel()) ++chit[3];
+    else if (thit.isMatched()) {
+      ++chit[4];
+    } else  if (thit.isProjected()) {
+      ++chit[5];
+    } else {
+      ++chit[6];
+        }
+  }
+ }
+
+std::cout << "ckf " << kt++ << ": "; for (auto c:chit) std::cout << c <<'/'; std::cout<< std::endl;
+}
+#endif
 
   return startingTraj;
 
@@ -422,7 +453,7 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (const TrajectorySeed& seed,
 					      TempTrajectoryContainer& newCand, 
 					      TempTrajectoryContainer& result) const
 {
-  std::pair<TSOS,std::vector<const DetLayer*> > stateAndLayers = findStateAndLayers(traj);
+  std::pair<TSOS,std::vector<const DetLayer*> > && stateAndLayers = findStateAndLayers(traj);
 
 
   if(maxPt2ForLooperReconstruction>0){
@@ -437,8 +468,8 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (const TrajectorySeed& seed,
     }
   }
 
-  vector<const DetLayer*>::iterator layerBegin = stateAndLayers.second.begin();
-  vector<const DetLayer*>::iterator layerEnd   = stateAndLayers.second.end();
+  auto layerBegin = stateAndLayers.second.begin();
+  auto layerEnd   = stateAndLayers.second.end();
 
   //   if (nl.empty()) {
   //     addToResult(traj,result,inOut);
@@ -451,8 +482,7 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (const TrajectorySeed& seed,
   
   bool foundSegments(false);
   bool foundNewCandidates(false);
-  for ( vector<const DetLayer*>::iterator il=layerBegin; 
-	il!=layerEnd; il++) {
+  for ( auto il=layerBegin; il!=layerEnd; il++) {
 
     TSOS stateToUse = stateAndLayers.first;
     
@@ -538,29 +568,26 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (const TrajectorySeed& seed,
     LogDebug("CkfPattern")<<whatIsTheStateToUse(stateAndLayers.first,stateToUse,*il);
 #endif
     
-    TempTrajectoryContainer segments=
-      layerBuilder.segments(stateToUse);
+    auto && segments= layerBuilder.segments(stateToUse);
 
     LogDebug("CkfPattern")<< "GCTB: number of segments = " << segments.size();
 
     if ( !segments.empty() )  foundSegments = true;
     
-    for ( TempTrajectoryContainer::iterator is=segments.begin();
-	  is!=segments.end(); is++ ) {
+    for (auto is=segments.begin(); is!=segments.end(); is++ ) {
       //
       // assume "invalid hit only" segment is last in list
       //
-      const TempTrajectory::DataContainer & measurements = is->measurements();
+      auto const & measurements = is->measurements();
       if ( !theAlwaysUseInvalid && is!=segments.begin() && measurements.size()==1 && 
 	   (measurements.front().recHit()->getType() == TrackingRecHit::missing) )  break;
       
 
      //----  avoid to add the same hits more than once in the trajectory ----
       bool toBeRejected(false);
-      for(const TempTrajectory::DataContainer::const_iterator revIt = measurements.rbegin(); 
-	  revIt!=measurements.rend(); --revIt){
+      for(auto revIt = measurements.rbegin(); revIt!=measurements.rend(); --revIt){
 	// int tmpCounter(0);
-	for(const TempTrajectory::DataContainer::const_iterator newTrajMeasIt = traj.measurements().rbegin(); 
+	for(auto  newTrajMeasIt = traj.measurements().rbegin(); 
 	    newTrajMeasIt != traj.measurements().rend(); --newTrajMeasIt){
 	  //if(tmpCounter==2) break;
 	  if(revIt->recHitR().geographicalId()==newTrajMeasIt->recHitR().geographicalId() 
@@ -573,13 +600,14 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (const TrajectorySeed& seed,
       }
       
     rejected:;    // http://xkcd.com/292/
-      if(toBeRejected){	
-	/*cout << "WARNING: neglect candidate because it contains the same hit twice \n";
-	  cout << "-- discarded track's pt,eta,#found: " 
-	  << traj.lastMeasurement().updatedState().globalMomentum().perp() << " , "
-	  << traj.lastMeasurement().updatedState().globalMomentum().eta() << " , "
-	  << traj.foundHits() << "\n";
-	*/
+      if(toBeRejected){
+#ifdef VI_DEBUG
+        cout << "WARNING: neglect candidate because it contains the same hit twice \n";
+          cout << "-- discarded track's pt,eta,#found/lost: "
+          << traj.lastMeasurement().updatedState().globalMomentum().perp() << " , "
+          << traj.lastMeasurement().updatedState().globalMomentum().eta() << " , "
+          << traj.foundHits() << '/' << traj.lostHits() << "\n";
+#endif
 	traj.setDPhiCacheForLoopersReconstruction(dPhiCacheForLoopersReconstruction);
 	continue; //Are we sure about this????
       }
@@ -795,7 +823,8 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(const TrajectorySeed&seed,
   // Fitter (need to create it here since the propagation direction
   // might change between different starting trajectories)
   //
-  KFTrajectoryFitter fitter(backwardPropagator(seed),&updator(),&estimator());
+  auto hitCloner = static_cast<TkTransientTrackingRecHitBuilder const *>(hitBuilder())->cloner();
+  KFTrajectoryFitter fitter(backwardPropagator(seed),&updator(),&estimator(),3,nullptr,&hitCloner);
   //
   TrajectorySeed::range rseedHits = seed.recHits();
   std::vector<const TrackingRecHit*> seedHits;
@@ -1106,13 +1135,12 @@ GroupedCkfTrajectoryBuilder::verifyHits (TempTrajectory::DataContainer::const_it
   LogDebug("CkfPattern")<<"Checking for " << hits.size() << " hits in "
 			<< maxDepth << " measurements" << endl;
 
-  TempTrajectory::DataContainer::const_iterator rend = rbegin; 
+  auto rend = rbegin; 
   while (maxDepth > 0) { --maxDepth; --rend; }
-  for ( vector<const TrackingRecHit*>::const_iterator ir=hits.begin();
-	ir!=hits.end(); ir++ ) {
+  for ( auto  ir=hits.begin();	ir!=hits.end(); ir++ ) {
     // assume that all seeding hits are valid!
     bool foundHit(false);
-    for ( TempTrajectory::DataContainer::const_iterator im=rbegin; im!=rend; --im ) {
+    for ( auto im=rbegin; im!=rend; --im ) {
       if ( im->recHit()->isValid() && (*ir)->sharesInput(im->recHit()->hit(), TrackingRecHit::some) ) {
 	foundHit = true;
 	break;

@@ -5,17 +5,22 @@
 #include "DataFormats/GeometrySurface/interface/LocalError.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 
-class InvalidTrackingRecHit GCC11_FINAL : public TrackingRecHit {
+class InvalidTrackingRecHit : public TrackingRecHit {
 public:
   typedef TrackingRecHit::Type Type;
+  
+  InvalidTrackingRecHit(GeomDet const & idet, Type type ) : TrackingRecHit(idet, type)  {}
+  explicit InvalidTrackingRecHit(Type type) : TrackingRecHit(DetId(0), type) {}
 
-  InvalidTrackingRecHit(DetId id, Type type ) : TrackingRecHit(id, type) {}
-  InvalidTrackingRecHit(DetId id, GeomDet const * idet, Type type ) : TrackingRecHit(id, idet, type) {}
-  InvalidTrackingRecHit() : TrackingRecHit(0, TrackingRecHit::missing) {}
+  InvalidTrackingRecHit() : TrackingRecHit(DetId(0), TrackingRecHit::missing) {}
 
   virtual ~InvalidTrackingRecHit() {}
-  
-  virtual InvalidTrackingRecHit * clone() const {return new InvalidTrackingRecHit(*this);}
+
+  virtual InvalidTrackingRecHit * clone() const GCC11_OVERRIDE {return new InvalidTrackingRecHit(*this);}
+#ifdef NO_DICT
+  virtual RecHitPointer cloneSH() const { return RecHitPointer(clone());}
+#endif
+
   
   virtual AlgebraicVector parameters() const;
 
@@ -38,6 +43,21 @@ public:
 private:
 
   void throwError() const;
+
+};
+
+class InvalidTrackingRecHitNoDet GCC11_FINAL : public InvalidTrackingRecHit {
+public:
+
+  InvalidTrackingRecHitNoDet() {}
+  InvalidTrackingRecHitNoDet(Surface const & surface, Type type) : InvalidTrackingRecHit(type), m_surface(&surface){}
+
+  virtual InvalidTrackingRecHitNoDet * clone() const GCC11_OVERRIDE {return new InvalidTrackingRecHitNoDet(*this);}
+
+  const Surface* surface() const GCC11_OVERRIDE {  return  m_surface; }
+
+ private:
+  Surface const * m_surface;
 
 };
 

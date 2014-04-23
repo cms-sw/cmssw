@@ -37,7 +37,7 @@ public:
     theEstimator(aEstimator.clone()),
     theErrorRescaling(errorRescaling),
     minHits_(minHits),
-    theGeometry(0){ // to be fixed. Why this first constructor is needed? who is using it? Can it be removed?
+    theGeometry(nullptr){ // to be fixed. Why this first constructor is needed? who is using it? Can it be removed?
       if(!theGeometry) theGeometry = &dummyGeometry;
     }
 
@@ -47,10 +47,12 @@ public:
 		       const MeasurementEstimator* aEstimator,
 		       float errorRescaling = 100.f,
 		       int minHits = 3,
-		       const DetLayerGeometry* detLayerGeometry=0) :
+		       const DetLayerGeometry* detLayerGeometry=nullptr,
+                       TkCloner const * hc=nullptr) :
     thePropagator(aPropagator->clone()),
     theUpdator(aUpdator->clone()),
     theEstimator(aEstimator->clone()),
+    theHitCloner(hc),
     theErrorRescaling(errorRescaling),
     minHits_(minHits),
     theGeometry(detLayerGeometry){
@@ -66,14 +68,19 @@ public:
   const MeasurementEstimator* estimator() const {return theEstimator;}
 
   virtual KFTrajectorySmoother* clone() const{
-    return new KFTrajectorySmoother(thePropagator,theUpdator,theEstimator,theErrorRescaling,minHits_,theGeometry);
+    return new KFTrajectorySmoother(thePropagator,theUpdator,theEstimator,theErrorRescaling,minHits_,theGeometry,theHitCloner);
   }
+
+ // FIXME a prototype:  final inplementaiton may differ
+  virtual void setHitCloner(TkCloner const * hc) {  theHitCloner =	hc;}
+
 
 private:
   const DetLayerGeometry dummyGeometry;
   Propagator* thePropagator;
   const TrajectoryStateUpdator* theUpdator;
   const MeasurementEstimator* theEstimator;
+  TkCloner const * theHitCloner=nullptr;
   float theErrorRescaling;
   int minHits_;
   const DetLayerGeometry* theGeometry;

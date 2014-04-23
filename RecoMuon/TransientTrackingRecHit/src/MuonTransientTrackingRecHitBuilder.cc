@@ -23,10 +23,10 @@ MuonTransientTrackingRecHitBuilder::build (const TrackingRecHit* p,
 					   edm::ESHandle<GlobalTrackingGeometry> trackingGeometry) const {
   
   if ( p->geographicalId().det() == DetId::Muon ) {
-    return (MuonTransientTrackingRecHit::specificBuild(trackingGeometry->idToDet(p->geographicalId()),p).get());
+    return MuonTransientTrackingRecHit::specificBuild(trackingGeometry->idToDet(p->geographicalId()),p);
   }
   
-  return 0;
+  return RecHitPointer();
 
 }
 
