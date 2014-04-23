@@ -102,6 +102,7 @@ particleFlowBlock = cms.EDProducer(
                   useKDTree  = cms.bool(False) ),
         cms.PSet( linkerName = cms.string("ECALAndHCALLinker"),
                   linkType   = cms.string("ECAL:HCAL"),
+                  trackerBoundary = cms.double(2.5),
                   useKDTree  = cms.bool(False) ),
         cms.PSet( linkerName = cms.string("HCALAndHOLinker"),
                   linkType   = cms.string("HCAL:HO"),

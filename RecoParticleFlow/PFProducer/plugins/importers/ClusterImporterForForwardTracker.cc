@@ -55,6 +55,18 @@ importToBlock( const edm::Event& e,
       throw cms::Exception("InvalidPFLayer")
 	<< "Layer given, " << clus->layer() << " is not a valid PFLayer!";
     }
+
+    //Outside tracker call it HF
+    if (type == reco::PFBlockElement::ECAL && 
+	clus->layer()== PFLayer::HF_EM && abs(clus->position().Eta())>3.8)
+            type = reco::PFBlockElement::HFEM;
+    if (type == reco::PFBlockElement::HCAL && 
+	clus->layer()== PFLayer::HF_HAD && abs(clus->position().Eta())>3.8)
+            type = reco::PFBlockElement::HFHAD;
+
+
+
+
     reco::PFBlockElement* cptr = new reco::PFBlockElementCluster(cref,type);
     elems.emplace_back(cptr);
   }
