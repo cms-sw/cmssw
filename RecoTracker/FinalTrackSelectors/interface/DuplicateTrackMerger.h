@@ -7,7 +7,7 @@
  * \author Matthew Walker
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
@@ -31,7 +31,7 @@
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
 
 namespace reco { namespace modules {
-    class DuplicateTrackMerger : public edm::EDProducer {
+    class DuplicateTrackMerger : public edm::stream::EDProducer<> {
        public:
          /// constructor
          explicit DuplicateTrackMerger(const edm::ParameterSet& iPara);

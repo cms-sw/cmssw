@@ -2,7 +2,7 @@
 #define MeasurementTrackerEventProducer_h
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 
@@ -11,7 +11,7 @@
 #include "DataFormats/Common/interface/ContainerMask.h"
 #include "DataFormats/DetId/interface/DetIdCollection.h"
 
-class MeasurementTrackerEventProducer : public edm::EDProducer {
+class MeasurementTrackerEventProducer : public edm::stream::EDProducer<> {
 public:
       explicit MeasurementTrackerEventProducer(const edm::ParameterSet &iConfig) ;
       ~MeasurementTrackerEventProducer() {}
