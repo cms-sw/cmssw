@@ -9,7 +9,7 @@
 
 #include <boost/iterator/transform_iterator.hpp>
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -62,7 +62,7 @@ namespace {
 	};
 }
 
-class SecondaryVertexProducer : public edm::EDProducer {
+class SecondaryVertexProducer : public edm::stream::EDProducer<> {
     public:
 	explicit SecondaryVertexProducer(const edm::ParameterSet &params);
 	~SecondaryVertexProducer();

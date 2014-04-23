@@ -4,7 +4,7 @@
 
 #include <vector>
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -31,7 +31,7 @@
 // a PFCandidateCollection as input and produces a RefVector
 // to the likely soft muons in this collection.
 
-class SoftPFMuonTagInfoProducer : public edm::EDProducer
+class SoftPFMuonTagInfoProducer : public edm::stream::EDProducer<>
 {
 
   public:

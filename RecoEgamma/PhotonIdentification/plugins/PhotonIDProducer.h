@@ -1,7 +1,7 @@
 #ifndef PhotonIDProducer_h
 #define PhotonIDProducer_h
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -13,7 +13,7 @@
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 
 
-class PhotonIDProducer : public edm::EDProducer
+class PhotonIDProducer : public edm::stream::EDProducer<>
 {
  public:
 

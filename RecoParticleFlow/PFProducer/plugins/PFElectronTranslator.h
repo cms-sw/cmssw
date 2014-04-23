@@ -1,6 +1,6 @@
 #ifndef RecoParticleFlow_PFProducer_PFElectronTranslator_H
 #define RecoParticleFlow_PFProducer_PFElectronTranslator_H
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -20,7 +20,7 @@
 
 
 
-class PFElectronTranslator : public edm::EDProducer
+class PFElectronTranslator : public edm::stream::EDProducer<>
 {
  public:
   explicit PFElectronTranslator(const edm::ParameterSet&);

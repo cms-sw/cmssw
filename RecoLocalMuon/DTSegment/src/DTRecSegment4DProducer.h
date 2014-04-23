@@ -7,7 +7,7 @@
  * \author Riccardo Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 namespace edm {
@@ -17,7 +17,7 @@ namespace edm {
 }
 class DTRecSegment4DBaseAlgo;
 
-class DTRecSegment4DProducer: public edm::EDProducer {
+class DTRecSegment4DProducer: public edm::stream::EDProducer<> {
 public:
   /// Constructor
   DTRecSegment4DProducer(const edm::ParameterSet&) ;
