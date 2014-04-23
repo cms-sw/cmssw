@@ -45,11 +45,15 @@ EcalRecHitWorkerSimple::EcalRecHitWorkerSimple(const edm::ParameterSet&ps, edm::
 
 	  v_DB_reco_flags_[recoflagbit]=dbstatuses;
 	}  
-	
 
-
+    flagmask_=0;
+    flagmask_|=    0x1<<EcalRecHit::kNeighboursRecovered;
+    flagmask_|=    0x1<<EcalRecHit::kTowerRecovered;
+    flagmask_|=    0x1<<EcalRecHit::kDead;
+    flagmask_|=    0x1<<EcalRecHit::kKilled;
+    flagmask_|=    0x1<<EcalRecHit::kTPSaturated;
+    flagmask_|=    0x1<<EcalRecHit::kL1SpikeFlag; 
 }
-
 
 
 void EcalRecHitWorkerSimple::set(const edm::EventSetup& es)
@@ -82,10 +86,6 @@ EcalRecHitWorkerSimple::run( const edm::Event & evt,
         
     }
 
-    // find the proper flag for the recHit
-    // from a configurable vector
-    // (see cfg file for the association)
-   
 	uint32_t flagBits = setFlagBits(v_DB_reco_flags_, dbstatus);
 
 	float offsetTime = 0; // the global time phase
@@ -127,23 +127,22 @@ EcalRecHitWorkerSimple::run( const edm::Event & evt,
         }
           
 	 
-        // make the rechit and put in the output collection
-#warning Review removed line if (recoFlag<=EcalRecHit::kLeadingEdgeRecovered || !killDeadChannels_)
-	//	if (recoFlag<=EcalRecHit::kLeadingEdgeRecovered || !killDeadChannels_) {
-	EcalRecHit myrechit( rechitMaker_->makeRecHit(uncalibRH, 
-						      icalconst * lasercalib, 
-						      (itimeconst + offsetTime), 
-						      /*recoflags_ 0*/ 
-						      flagBits) );
+    // make the rechit and put in the output collection, unless recovery has to take care of it
+    if (! (flagmask_ & flagBits ) || !killDeadChannels_) {
+        EcalRecHit myrechit( rechitMaker_->makeRecHit(uncalibRH, 
+                                                      icalconst * lasercalib, 
+                                                      (itimeconst + offsetTime), 
+                                                      /*recoflags_ 0*/ 
+                                                      flagBits) );
 	
-	if (detid.subdetId() == EcalBarrel && (lasercalib < EBLaserMIN_ || lasercalib > EBLaserMAX_)) 
-	  myrechit.setFlag(EcalRecHit::kPoorCalib);
-	if (detid.subdetId() == EcalEndcap && (lasercalib < EELaserMIN_ || lasercalib > EELaserMAX_)) 
-	  myrechit.setFlag(EcalRecHit::kPoorCalib);
-	result.push_back(myrechit);
-	//}
+        if (detid.subdetId() == EcalBarrel && (lasercalib < EBLaserMIN_ || lasercalib > EBLaserMAX_)) 
+            myrechit.setFlag(EcalRecHit::kPoorCalib);
+        if (detid.subdetId() == EcalEndcap && (lasercalib < EELaserMIN_ || lasercalib > EELaserMAX_)) 
+            myrechit.setFlag(EcalRecHit::kPoorCalib);
+        result.push_back(myrechit);
+	}
 
-        return true;
+    return true;
 }
 
 // Take our association map of dbstatuses-> recHit flagbits and return the apporpriate flagbit word
