@@ -21,7 +21,7 @@ class ESElectronicsSimFast
       enum { MAXADC = 4095,
 	     MINADC =    0 } ;
   
-      ESElectronicsSimFast( bool addNoise ) ;
+      ESElectronicsSimFast( bool addNoise , bool PreMix1) ;
       ~ESElectronicsSimFast() ;
 
       void setPedestals( const ESPedestals* peds ) ;
@@ -36,9 +36,12 @@ class ESElectronicsSimFast
 
       void newEvent() {}
 
+
    private :
 
       bool m_addNoise ;
+
+      bool m_PreMix1;
 
       double m_MIPToGeV ;
 

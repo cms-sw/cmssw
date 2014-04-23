@@ -166,8 +166,31 @@ EcalHitResponse::add( const PCaloHit& hit )
 {
   if (!edm::isNotFinite( hit.time() ) && ( 0 == m_hitFilter || m_hitFilter->accepts( hit ) ) ) {
      putAnalogSignal( hit ) ;
+
   }
 }
+
+void 
+EcalHitResponse::add( const CaloSamples& hit ) 
+{
+  const DetId detId ( hit.id() ) ;
+
+  EcalSamples& result ( *findSignal( detId ) ) ;
+
+  const int rsize ( result.size() ) ;
+
+  if(rsize != hit.size()) {
+    throw cms::Exception("EcalDigitization")
+      << "CaloSamples and EcalSamples have different sizes. Type Mismatach";
+  }
+
+  for( int bin ( 0 ) ; bin != rsize ; ++bin )
+    {
+      result[ bin ] += hit[ bin ] ;
+    }
+
+}
+
 
 bool
 EcalHitResponse::withinBunchRange(int bunchCrossing) const

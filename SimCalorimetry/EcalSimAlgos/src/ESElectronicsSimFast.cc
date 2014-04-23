@@ -8,8 +8,9 @@
 
 #include <iostream>
 
-ESElectronicsSimFast::ESElectronicsSimFast( bool addNoise ) :
+ESElectronicsSimFast::ESElectronicsSimFast( bool addNoise , bool PreMix1 ) :
    m_addNoise ( addNoise ) ,
+   m_PreMix1  ( PreMix1  ) ,
    m_MIPToGeV (        0 ) ,
    m_peds     (        0 ) ,
    m_mips     (        0 ) ,
@@ -87,8 +88,10 @@ ESElectronicsSimFast::analogToDigital( ESSamples&   cs,
    {
       const double noi ( isNoise || (!m_addNoise) ? 0 :
 			 sigma*m_ranGau->fire() ) ;
-    
-      double signal = cs[i]*ADCGeV + noi + baseline ;
+      double signal;
+
+      if(!m_PreMix1) signal = cs[i]*ADCGeV + noi + baseline ;
+      else signal = cs[i]*ADCGeV ;
 
       if( 0 <= signal )
       { 
@@ -100,7 +103,8 @@ ESElectronicsSimFast::analogToDigital( ESSamples&   cs,
       }
     
       adc = int( signal ) ;
-      assert( 0 < adc ) ;
+
+      if(!m_PreMix1) assert( 0 < adc ) ;
 
       if( 0.5 < signal - adc ) ++adc ;
 

@@ -222,24 +222,22 @@ namespace edm
     // collection of Digis to put in the event
     std::vector< edm::DetSet<SiStripDigi> > vSiStripDigi;
 
-    // loop through our collection of detectors, merging hits and putting new ones in the output
+    // loop through our collection of detectors, merging hits and making a new list of "signal" digis
+
+    // clear some temporary storage for later digitization:
+
+    signals_.clear();
 
     // big loop over Detector IDs:
 
     for(SiGlobalIndex::const_iterator IDet = SiHitStorage_.begin();
 	IDet != SiHitStorage_.end(); IDet++) {
 
-      unsigned int detID = IDet->first;
+      uint32_t detID = IDet->first;
 
-      edm::DetSet<SiStripDigi> SSD(detID); // Make empty collection with this detector ID
-
-      // get the right detector element for this det ID:
-      const GeomDetUnit* it = pDD->idToDetUnit(DetId(detID));
-      const StripGeomDetUnit* det = dynamic_cast<const StripGeomDetUnit*>((it));
-      int numStrips = (det->specificTopology()).nstrips();
-
-      std::vector<float> detAmpl(numStrips, 0.);
-	
+      SignalMapType Signals;
+      Signals.clear();
+      
       OneDetectorMap LocalMap = IDet->second;
 
       //counter variables
@@ -260,7 +258,9 @@ namespace edm
 	}
 	else{
 	  if(formerStrip!=-1){
-	    detAmpl[formerStrip] = ADCSum;
+	    Signals.insert( std::make_pair(formerStrip, ADCSum));
+
+	    //detAmpl[formerStrip] = ADCSum;
 
 	    //if (ADCSum > 511) ADCSum = 255;
 	    //else if (ADCSum > 253 && ADCSum < 512) ADCSum = 254;
@@ -275,15 +275,42 @@ namespace edm
 	iLocalchk = iLocal;
 	if((++iLocalchk) == LocalMap.end()) {  //make sure not to lose the last one
 
-	  detAmpl[formerStrip] = ADCSum;
+	  Signals.insert( std::make_pair(formerStrip, ADCSum));
+
+	  //detAmpl[formerStrip] = ADCSum;
 
 	  //	  if (ADCSum > 511) ADCSum = 255;
 	  //else if (ADCSum > 253 && ADCSum < 512) ADCSum = 254;
 	  //SSD.push_back( SiStripDigi(formerStrip, ADCSum) );	  
 	} 
+      }
+      // save merged map:
+      signals_.insert( std::make_pair( detID, Signals));
+    }
 
-	//Now, do noise, zero suppression, take into account bad channels, etc.
-	// This section stolen from SiStripDigitizerAlgorithm
+    //Now, do noise, zero suppression, take into account bad channels, etc.
+    // This section stolen from SiStripDigitizerAlgorithm
+    // must loop over all detIds in the tracker to get all of the noise added properly.
+    for(TrackingGeometry::DetUnitContainer::const_iterator iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); iu ++){
+      StripGeomDetUnit* sgd = dynamic_cast<StripGeomDetUnit*>((*iu));
+      if (sgd != 0){
+
+	uint32_t detID = sgd->geographicalId().rawId();
+
+	edm::DetSet<SiStripDigi> SSD(detID); // Make empty collection with this detector ID
+
+	int numStrips = (sgd->specificTopology()).nstrips();
+
+	// see if there is some signal on this detector
+
+	const SignalMapType* theSignal(getSignal(detID));
+
+	std::vector<float> detAmpl(numStrips, 0.);
+	if(theSignal) {
+	  for(const auto& amp : *theSignal) {
+	    detAmpl[amp.first] = amp.second;
+	  }
+	}
 
 	//removing signal from the dead (and HIP effected) strips
 	std::vector<bool>& badChannels = allBadChannels[detID];
@@ -291,6 +318,21 @@ namespace edm
 
 	SiStripNoises::Range detNoiseRange = noiseHandle->getRange(detID);
 	SiStripApvGain::Range detGainRange = gainHandle->getRange(detID);
+
+	//convert our signals back to raw counts so that we can add noise properly:
+
+        if(theSignal) {
+          for(unsigned int iv = 0; iv!=detAmpl.size(); iv++) {
+	    float signal = detAmpl[iv];
+	    if(signal > 0) {
+	      float gainValue = gainHandle->getStripGain(iv, detGainRange);
+	      signal *= theElectronPerADC/gainValue;
+	      detAmpl[iv] = signal;
+	    }
+          }
+        }
+
+
 	//SiStripPedestals::Range detPedestalRange = pedestalHandle->getRange(detID);
 
 	// -----------------------------------------------------------
@@ -311,12 +353,18 @@ namespace edm
 	DigitalVecType digis;
 	theSiZeroSuppress->suppress(theSiDigitalConverter->convert(detAmpl, gainHandle, detID), digis, detID,noiseHandle,thresholdHandle);
 
+
 	SSD.data = digis;
+	//	if(digis.size() > 0) {
+	//  std::cout << " Real SiS Mixed Digi: " << detID << " ADC values ";
+	//  for(const auto& iDigi : digis) { std::cout << iDigi.adc() << " " ;}
+	//  std::cout << std::endl;
+	//}
+
+	// stick this into the global vector of detector info
+	vSiStripDigi.push_back(SSD);
 	
       } // end of loop over one detector
-
-      // stick this into the global vector of detector info
-      vSiStripDigi.push_back(SSD);
 
     } // end of big loop over all detector IDs
 

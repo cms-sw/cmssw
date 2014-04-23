@@ -78,18 +78,27 @@ public:
 
   /// Collects the digis
   void run(DigiCollection & output) {
+
+    //std::cout << " In CaloTDigitizer " << std::endl;
+
     theHitResponse->finalizeHits();
+
+    //std::cout << " In CaloTDigitizer, after finalize hits " << std::endl;
 
     assert(theDetIds->size() != 0);
 
     if(theNoiseHitGenerator != 0) addNoiseHits();
     if(theNoiseSignalGenerator != 0) addNoiseSignals();
 
+    //std::cout << " In CaloTDigitizer, after addNoiseSignals " << std::endl;
+
     theElectronicsSim->newEvent();
 
     // reserve space for how many digis we expect
     int nDigisExpected = addNoise_ ? theDetIds->size() : theHitResponse->nSignals();
     output.reserve(nDigisExpected);
+
+    //std::cout << " In CaloTDigitizer, nDigisExpected " << nDigisExpected << std::endl;
 
     // make a raw digi for evey cell
     for(std::vector<DetId>::const_iterator idItr = theDetIds->begin();
@@ -107,6 +116,8 @@ public:
        }
        if(analogSignal != 0) { 
          theElectronicsSim->analogToDigital(*analogSignal , digi);
+
+	 // std::cout << " New Digi: " << digi << std::endl; 
          output.push_back(std::move(digi));
          if(needToDeleteSignal) delete analogSignal;
       }

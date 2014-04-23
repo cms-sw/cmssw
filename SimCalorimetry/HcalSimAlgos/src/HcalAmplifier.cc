@@ -19,7 +19,7 @@
 #include <cmath>
 #include <math.h>
 
-HcalAmplifier::HcalAmplifier(const CaloVSimParameterMap * parameters, bool addNoise) :
+HcalAmplifier::HcalAmplifier(const CaloVSimParameterMap * parameters, bool addNoise, bool PreMix1, bool PreMix2) :
   theDbService(0), 
   theRandGaussQ(0),
   theRandFlat(0),
@@ -29,12 +29,13 @@ HcalAmplifier::HcalAmplifier(const CaloVSimParameterMap * parameters, bool addNo
   theTimeSlewSim(0),
   theStartingCapId(0), 
   addNoise_(addNoise),
+  preMixDigi_(PreMix1),
+  preMixAdd_(PreMix2),
   useOldHB(false),
   useOldHE(false),
   useOldHF(false),
   useOldHO(false)
-{
-}
+{ }
 
 
 void HcalAmplifier::setDbService(const HcalDbService * service) {
@@ -62,7 +63,9 @@ void HcalAmplifier::amplify(CaloSamples & frame) const {
   {
     theTimeSlewSim->delay(frame);
   }
-  if(theNoiseSignalGenerator==0 || !theNoiseSignalGenerator->contains(frame.id()))
+
+  // if we are combining pre-mixed digis, we need noise and peds
+  if(theNoiseSignalGenerator==0 || preMixAdd_ || !theNoiseSignalGenerator->contains(frame.id()) )
   {
     addPedestals(frame);
   }
@@ -111,10 +114,13 @@ void HcalAmplifier::addPedestals(CaloSamples & frame) const
        makeNoiseOld(hcalSubDet, calibWidths, frame.size(), gauss, noise);
      }
    
-     for (int tbin = 0; tbin < frame.size(); ++tbin) {
-       int capId = (theStartingCapId + tbin)%4;
-       double pedestal = calibs.pedestal(capId) + noise[tbin];
-       frame[tbin] += pedestal;
+     if(!preMixDigi_){  // if we are doing initial premix, no pedestals
+       for (int tbin = 0; tbin < frame.size(); ++tbin) {
+	 int capId = (theStartingCapId + tbin)%4;
+	 double pedestal = calibs.pedestal(capId) + noise[tbin];
+
+	 frame[tbin] += pedestal;
+       }
      }
      return;
    }

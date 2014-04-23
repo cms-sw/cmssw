@@ -55,9 +55,18 @@ namespace edm {
     delete myHcalDigitizer_;
   }  
 
+  void DataMixingHcalDigiWorkerProd::beginRun(const edm::EventSetup& ES) {
+
+    myHcalDigitizer_->beginRun(ES); 
+  }
+
+  void DataMixingHcalDigiWorkerProd::initializeEvent(const edm::Event &e, const edm::EventSetup& ES) {
+    myHcalDigitizer_->initializeEvent(e, ES); 
+  }
+
   void DataMixingHcalDigiWorkerProd::addHcalSignals(const edm::Event &e,const edm::EventSetup& ES) { 
     
-    // nothing to do
+    myHcalDigitizer_->accumulate(e, ES);
 
   } // end of addHcalSignals
 
@@ -66,10 +75,13 @@ namespace edm {
   
     LogDebug("DataMixingHcalDigiWorkerProd") <<"\n===============> adding pileups from event  "<<ep->id()<<" for bunchcrossing "<<bcr;
 
+
     theHBHESignalGenerator.initializeEvent(ep, &ES);
     theHOSignalGenerator.initializeEvent(ep, &ES);
     theHFSignalGenerator.initializeEvent(ep, &ES);
     theZDCSignalGenerator.initializeEvent(ep, &ES);
+
+    // put digis from pileup event into digitizer
 
     theHBHESignalGenerator.fill(mcc);
     theHOSignalGenerator.fill(mcc);
@@ -80,7 +92,8 @@ namespace edm {
 
     // Digitize
 
-    myHcalDigitizer_->initializeEvent( e, ES );
+    //myHcalDigitizer_->initializeEvent( e, ES );
+
     myHcalDigitizer_->finalizeEvent( e, ES );
   }
 
