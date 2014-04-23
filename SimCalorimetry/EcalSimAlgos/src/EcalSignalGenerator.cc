@@ -52,13 +52,13 @@
       result[isample] = float(digi[isample].adc())*LSB[gainId]*icalconst/peToA;
     }
 
-    std::cout << " EcalSignalGenerator:EB noise input " << digi << std::endl;
+    //std::cout << " EcalSignalGenerator:EB noise input " << digi << std::endl;
 
-    std::cout << " converted noise sample " << std::endl;
-    for(int isample = 0; isample<digi.size(); ++isample){
-      std::cout << " " << result[isample] ;
-    }
-    std::cout << std::endl;
+    //std::cout << " converted noise sample " << std::endl;
+    //for(int isample = 0; isample<digi.size(); ++isample){
+    //  std::cout << " " << result[isample] ;
+    //}
+    //std::cout << std::endl;
 
     return result;
   }
@@ -114,13 +114,13 @@
       result[isample] = float(digi[isample].adc())*LSB[gainId]*icalconst/peToA;
     }
 
-    std::cout << " EcalSignalGenerator:EE noise input " << digi << std::endl;
+    //std::cout << " EcalSignalGenerator:EE noise input " << digi << std::endl;
 
-    std::cout << " converted noise sample " << std::endl;
-    for(int isample = 0; isample<digi.size(); ++isample){
-      std::cout << " " << result[isample] ;
-    }
-    std::cout << std::endl;
+    //std::cout << " converted noise sample " << std::endl;
+    //for(int isample = 0; isample<digi.size(); ++isample){
+    //  std::cout << " " << result[isample] ;
+    // }
+    //std::cout << std::endl;
 
     return result;
   }
@@ -155,13 +155,13 @@
       result[isample] = float(digi[isample].adc())/icalconst*ESMIPToGeV;
     }
 
-    std::cout << " EcalSignalGenerator:ES noise input " << digi << std::endl;
+    //std::cout << " EcalSignalGenerator:ES noise input " << digi << std::endl;
 
-    std::cout << " converted noise sample " << std::endl;
-    for(int isample = 0; isample<digi.size(); ++isample){
-      std::cout << " " << result[isample] ;
-    }
-    std::cout << std::endl;
+    //std::cout << " converted noise sample " << std::endl;
+    //for(int isample = 0; isample<digi.size(); ++isample){
+    //  std::cout << " " << result[isample] ;
+    //}
+    //std::cout << std::endl;
 
     return result;
   }

@@ -35,11 +35,7 @@ HcalAmplifier::HcalAmplifier(const CaloVSimParameterMap * parameters, bool addNo
   useOldHE(false),
   useOldHF(false),
   useOldHO(false)
-{
-
-  std::cout << " PreMix1, PreMix2 " << PreMix1 << " " << PreMix2 << std::endl;
-
-}
+{ }
 
 
 void HcalAmplifier::setDbService(const HcalDbService * service) {

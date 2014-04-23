@@ -48,8 +48,6 @@ namespace edm {
     myHcalDigitizer_->setHONoiseSignalGenerator( & theHOSignalGenerator );
     myHcalDigitizer_->setZDCNoiseSignalGenerator( & theZDCSignalGenerator );
 
-    std::cout << " IN HCAL constructor " << std::endl;
-
   }
 	       
   // Virtual destructor needed.
@@ -58,8 +56,6 @@ namespace edm {
   }  
 
   void DataMixingHcalDigiWorkerProd::beginRun(const edm::EventSetup& ES) {
-
-    std::cout << " IN DM Hcal BeginRun " << std::endl;
 
     myHcalDigitizer_->beginRun(ES); 
   }
@@ -70,8 +66,6 @@ namespace edm {
 
   void DataMixingHcalDigiWorkerProd::addHcalSignals(const edm::Event &e,const edm::EventSetup& ES) { 
     
-    std::cout << " In Hcal Add Signals, something to do " << std::endl;
-
     myHcalDigitizer_->accumulate(e, ES);
 
   } // end of addHcalSignals
@@ -82,14 +76,12 @@ namespace edm {
     LogDebug("DataMixingHcalDigiWorkerProd") <<"\n===============> adding pileups from event  "<<ep->id()<<" for bunchcrossing "<<bcr;
 
 
-    std::cout << " In Hcal Add Pileup! " << std::endl;
-
     theHBHESignalGenerator.initializeEvent(ep, &ES);
     theHOSignalGenerator.initializeEvent(ep, &ES);
     theHFSignalGenerator.initializeEvent(ep, &ES);
     theZDCSignalGenerator.initializeEvent(ep, &ES);
 
-
+    // put digis from pileup event into digitizer
 
     theHBHESignalGenerator.fill(mcc);
     theHOSignalGenerator.fill(mcc);
@@ -100,7 +92,8 @@ namespace edm {
 
     // Digitize
 
-    myHcalDigitizer_->initializeEvent( e, ES );
+    //myHcalDigitizer_->initializeEvent( e, ES );
+
     myHcalDigitizer_->finalizeEvent( e, ES );
   }
 

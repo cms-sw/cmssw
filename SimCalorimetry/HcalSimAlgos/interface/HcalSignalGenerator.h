@@ -58,8 +58,6 @@ public:
   virtual void fill(edm::ModuleCallingContext const* mcc)
   {
 
-    std::cout << " In Signal Generator, Filling event " << std::endl;
-
     theNoiseSignals.clear();
     edm::Handle<COLLECTION> pDigis;
     const COLLECTION *  digis = 0;

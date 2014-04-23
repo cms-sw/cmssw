@@ -44,15 +44,9 @@ namespace edm {
 
     myEcalDigitizer_ = new EcalDigiProducer( ps , iC);
 
-
-    std::cout << " Setting NG from DataMixer " << std::endl;
-
     myEcalDigitizer_->setEBNoiseSignalGenerator( & theEBSignalGenerator );
     myEcalDigitizer_->setEENoiseSignalGenerator( & theEESignalGenerator );
     myEcalDigitizer_->setESNoiseSignalGenerator( & theESSignalGenerator );
-
-
-    std::cout << " IN ECAL constructor " << std::endl;
 
   }
 	       
@@ -63,8 +57,6 @@ namespace edm {
 
   void DataMixingEcalDigiWorkerProd::beginRun(const edm::EventSetup& ES) {
 
-    //    std::cout << " IN DM Ecal BeginRun " << std::endl;
-
     // myEcalDigitizer_->beginRun(ES); 
   }
 
@@ -74,9 +66,7 @@ namespace edm {
 
   void DataMixingEcalDigiWorkerProd::addEcalSignals(const edm::Event &e,const edm::EventSetup& ES) { 
     
-    std::cout << " In Ecal Add Signals, something to do " << std::endl;
-
-    myEcalDigitizer_->accumulate(e, ES);
+    myEcalDigitizer_->accumulate(e, ES);  // puts SimHits into Ecal digitizer
 
   } // end of addEcalSignals
 
@@ -85,14 +75,11 @@ namespace edm {
   
     LogDebug("DataMixingEcalDigiWorkerProd") <<"\n===============> adding pileups from event  "<<ep->id()<<" for bunchcrossing "<<bcr;
 
-
-    std::cout << " In Ecal Add Pileup! " << std::endl;
-
     theEBSignalGenerator.initializeEvent(ep, &ES);
     theEESignalGenerator.initializeEvent(ep, &ES);
     theESSignalGenerator.initializeEvent(ep, &ES);
 
-    std::cout << " filling noise signals" << std::endl;
+    // add noise signals using incoming digis
 
     theEBSignalGenerator.fill(mcc);
     theEESignalGenerator.fill(mcc);
@@ -103,8 +90,8 @@ namespace edm {
 
     // Digitize
 
-    myEcalDigitizer_->initializeEvent( e, ES );
     myEcalDigitizer_->finalizeEvent( e, ES );
+
   }
 
 } //edm
