@@ -1,0 +1,37 @@
+# $Id$
+#
+# This is the decay file for Pwave states -> (J/psi(1s) -> mu+ mu- ) gamma
+#
+# Author: Alberto Sanchez-Hernandez
+# Date: 1/13/14
+#
+
+Alias MyJ/psi J/psi
+ChargeConj MyJ/psi MyJ/psi
+
+Alias Mychi_c0 chi_c0
+ChargeConj Mychi_c0 Mychi_c0
+
+Alias Mychi_c1 chi_c1
+ChargeConj Mychi_c1 Mychi_c1
+
+Alias Mychi_c2 chi_c2
+ChargeConj Mychi_c2 Mychi_c2
+
+Decay MyJ/psi
+ 1.0000  mu+        mu-                    PHOTOS VLL ;
+Enddecay
+
+Decay Mychi_c0
+ 1.0000  gamma      MyJ/psi                PHSP ;
+Enddecay
+
+Decay Mychi_c1
+ 1.0000  MyJ/psi    gamma                  VVP 1.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 ;
+Enddecay
+
+Decay Mychi_c2
+ 1.0000  gamma      MyJ/psi                PHSP ;
+Enddecay
+
+End
