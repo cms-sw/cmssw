@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_1_0/GRun/V28 (CMSSW_7_1_0_pre6_HLT1)
+# /dev/CMSSW_7_1_0/GRun/V29 (CMSSW_7_1_0_pre6_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTGRun" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_1_0/GRun/V28')
+  tableName = cms.string('/dev/CMSSW_7_1_0/GRun/V29')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -28920,9 +28920,9 @@ process.hltPFTausSansRef = cms.EDProducer( "RecoTauProducer",
         signalConeNeutralHadrons = cms.string( "0.1" ),
         name = cms.string( "fixedConeTau" ),
         plugin = cms.string( "RecoTauBuilderConePlugin" ),
-        isoConeChargedHadrons = cms.string( "0.4" ),
-        isoConePiZeros = cms.string( "0.4" ),
-        isoConeNeutralHadrons = cms.string( "0.4" ),
+        isoConeChargedHadrons = cms.string( "0.45" ),
+        isoConePiZeros = cms.string( "0.45" ),
+        isoConeNeutralHadrons = cms.string( "0.45" ),
         matchingCone = cms.string( "0.2" ),
         signalConeChargedHadrons = cms.string( "0.15" ),
         leadObjectPt = cms.double( 0.5 ),
@@ -32483,9 +32483,9 @@ process.hltPFTausSansRefReg = cms.EDProducer( "RecoTauProducer",
         signalConeNeutralHadrons = cms.string( "0.1" ),
         name = cms.string( "fixedConeTauReg" ),
         plugin = cms.string( "RecoTauBuilderConePlugin" ),
-        isoConeChargedHadrons = cms.string( "0.4" ),
-        isoConePiZeros = cms.string( "0.4" ),
-        isoConeNeutralHadrons = cms.string( "0.4" ),
+        isoConeChargedHadrons = cms.string( "0.45" ),
+        isoConePiZeros = cms.string( "0.45" ),
+        isoConeNeutralHadrons = cms.string( "0.45" ),
         matchingCone = cms.string( "0.2" ),
         signalConeChargedHadrons = cms.string( "0.15" ),
         leadObjectPt = cms.double( 0.5 ),

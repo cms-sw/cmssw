@@ -117,11 +117,12 @@ const DigiCollectionFP420::Range DigiCollectionFP420::get(unsigned int detID) co
 #ifdef mydigidebug
   std::cout <<"DigiCollectionFP420::get1:detID= " << detID << std::endl;
 #endif
-  // next 2 lines work OK also:
-  //  DigiCollectionFP420::RegistryIterator returnIndex = map_.find(detID);
-  //  DigiCollectionFP420::IndexRange returnIndexRange = returnIndex->second;
-  // but use one:
-  DigiCollectionFP420::IndexRange returnIndexRange = map_[detID];
+  auto found = map_.find(detID);
+  if(found == map_.end()) {
+    return DigiCollectionFP420::Range{container_.begin(),container_.begin()};
+  }
+
+  DigiCollectionFP420::IndexRange returnIndexRange = found->second;
   //
   DigiCollectionFP420::Range returnRange;
   returnRange.first  = container_.begin()+returnIndexRange.first;
@@ -216,8 +217,9 @@ void DigiCollectionFP420::digis( unsigned int& det_id,
 #ifdef mydigidebug
   std::cout <<"DigiCollectionFP420::digis:det_id= " << det_id << std::endl;
 #endif
-  if ( digiMap_.find( det_id ) != digiMap_.end() ) { 
-    digis = digiMap_[det_id];
+  auto found = digiMap_.find( det_id );
+  if ( found != digiMap_.end() ) { 
+    digis = found->second;
   } else {
     digis = std::vector<HDigiFP420>();
   }
