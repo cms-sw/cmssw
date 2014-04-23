@@ -6,13 +6,13 @@
 
 using namespace edm;
 using namespace std;
-                                     
+
 PixelBlade* PixelBladeBuilder:: build(const GeometricDet* geometricDetFrontPanel,
 				      const GeometricDet* geometricDetBackPanel,
 				      const TrackerGeometry* theGeomDetGeometry)
 {
-  vector<const GeometricDet*> frontGeometricDets = geometricDetFrontPanel->components();  
-  vector<const GeometricDet*> backGeometricDets  = geometricDetBackPanel->components();  
+  vector<const GeometricDet*> frontGeometricDets = geometricDetFrontPanel->components();
+  vector<const GeometricDet*> backGeometricDets  = geometricDetBackPanel->components();
 
   vector<const GeomDet*> theFrontGeomDets;
   vector<const GeomDet*> theBackGeomDets;
@@ -34,7 +34,7 @@ PixelBlade* PixelBladeBuilder:: build(const GeometricDet* geometricDetFrontPanel
 
   return new PixelBlade(theFrontGeomDets,theBackGeomDets);
 }
- 
+
 
 
 

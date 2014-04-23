@@ -9,7 +9,7 @@
 
 using namespace std;
 
-BoundDiskSector* 
+BoundDiskSector*
 BladeShapeBuilderFromDet::operator()( const vector<const GeomDet*>& dets) const
 {
   // find mean position
@@ -25,7 +25,7 @@ BladeShapeBuilderFromDet::operator()( const vector<const GeomDet*>& dets) const
   Plane tmpPlane( meanPos, rotation);
 
 
-  auto bo = 
+  auto bo =
     computeBounds( dets,tmpPlane );
   GlobalPoint pos = meanPos+bo.second;
   //edm::LogInfo(TkDetLayers) << "global pos in operator: " << pos ;
@@ -62,20 +62,20 @@ BladeShapeBuilderFromDet::computeBounds( const vector<const GeomDet*>& dets,
       if ( PhiLess()( phi, phimin)) phimin = phi;
       if ( PhiLess()( phimax, phi)) phimax = phi;
     }
-    // in addition to the corners we have to check the middle of the 
+    // in addition to the corners we have to check the middle of the
     // det +/- length/2, since the min (max) radius for typical fw
     // dets is reached there
-        
+
     float rdet = (*it)->position().perp();
     float height  = (*it)->surface().bounds().width();
     rmin = min( rmin, rdet-height/2.F);
-    rmax = max( rmax, rdet+height/2.F);  
-    
+    rmax = max( rmax, rdet+height/2.F);
+
 
   }
 
-  if (!PhiLess()(phimin, phimax)) 
-    edm::LogError("TkDetLayers") << " BladeShapeBuilderFromDet : " 
+  if (!PhiLess()(phimin, phimax))
+    edm::LogError("TkDetLayers") << " BladeShapeBuilderFromDet : "
 				 << "Something went wrong with Phi Sorting !" ;
   float zPos = (zmax+zmin)/2.;
   float phiWin = phimax - phimin;
@@ -85,12 +85,12 @@ BladeShapeBuilderFromDet::computeBounds( const vector<const GeomDet*>& dets,
     if ( (phimin < Geom::pi() / 2.) || (phimax > -Geom::pi()/2.) ){
       edm::LogError("TkDetLayers") << " something strange going on, please check " ;
     }
-    //edm::LogInfo(TkDetLayers) << " Wedge at pi: phi " << phimin << " " << phimax << " " << phiWin 
+    //edm::LogInfo(TkDetLayers) << " Wedge at pi: phi " << phimin << " " << phimax << " " << phiWin
     //	 << " " << 2.*Geom::pi()+phiWin << " " ;
     phiWin += 2.*Geom::pi();
-    phiPos += Geom::pi(); 
+    phiPos += Geom::pi();
   }
-  
+
   LocalVector localPos( rmed*cos(phiPos), rmed*sin(phiPos), zPos);
 
   LogDebug("TkDetLayers") << "localPos in computeBounds: " << localPos << "\n"
@@ -106,16 +106,16 @@ BladeShapeBuilderFromDet::computeBounds( const vector<const GeomDet*>& dets,
 }
 
 
-Surface::RotationType 
+Surface::RotationType
 BladeShapeBuilderFromDet::computeRotation( const vector<const GeomDet*>& dets,
 					   const Surface::PositionType& meanPos) const
 {
   const Plane& plane = dets.front()->surface();
-  
+
   GlobalVector xAxis;
   GlobalVector yAxis;
   GlobalVector zAxis;
-  
+
   GlobalVector planeXAxis    = plane.toGlobal( LocalVector( 1, 0, 0));
   GlobalPoint  planePosition = plane.position();
 
@@ -133,7 +133,7 @@ BladeShapeBuilderFromDet::computeRotation( const vector<const GeomDet*>& dets,
   }
 
   xAxis = yAxis.cross( zAxis);
-  
+
   return Surface::RotationType( xAxis, yAxis);
 }
 
