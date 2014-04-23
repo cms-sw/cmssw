@@ -29,7 +29,7 @@ MuonEnergyDepositAnalyzer::MuonEnergyDepositAnalyzer(const edm::ParameterSet& pS
 
   theMuonCollectionLabel_ = consumes<reco::MuonCollection>(parameters.getParameter<InputTag>("MuonCollection"));
 
-  std::string AlgoName = parameters.getParameter<std::string>("AlgoName");
+  AlgoName = parameters.getParameter<std::string>("AlgoName");
   emNoBin = parameters.getParameter<int>("emSizeBin");
   emNoMin = parameters.getParameter<double>("emSizeMin");
   emNoMax = parameters.getParameter<double>("emSizeMax");
