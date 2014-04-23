@@ -251,10 +251,10 @@ TrajectorySegmentBuilder::addGroup (TempTrajectory const & traj,
   
   TempTrajectoryContainer updatedTrajectories; updatedTrajectories.reserve(2);
   if ( traj.measurements().empty() ) {
-    //vector<TM> const & firstMeasurements = unlockedMeasurements(begin->measurements());
-    //if ( theBestHitOnly )
-    //updateCandidatesWithBestHit(traj,firstMeasurements,updatedTrajectories);
-    //else
+    if ( theMaxCand==1 )
+      vector<TM> const & firstMeasurements = unlockedMeasurements(begin->measurements());
+      updateCandidatesWithBestHit(traj,firstMeasurements,updatedTrajectories);
+    else
     updateCandidates(traj,begin->measurements(),updatedTrajectories);
     if unlikely(theDbgFlg) cout << "TSB::addGroup : updating with first group - "
 				<< updatedTrajectories.size() << " trajectories" << endl;
