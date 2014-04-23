@@ -91,11 +91,14 @@ process.L1Packer = cms.EDProducer("l1t::L1TDigiToRaw",
         FedId = cms.int32(100),
         FWId = cms.uint32(1),
         CaloTowers = cms.InputTag(""),
-        Jets = cms.InputTag("Layer2HW"))
+        EGammas = cms.InputTag("Layer2HW"),
+        EtSums = cms.InputTag("Layer2HW"),
+        Jets = cms.InputTag("Layer2HW"),
+        Taus = cms.InputTag("Layer2HW"))
 
 process.L1Unpacker = cms.EDProducer("l1t::L1TRawToDigi",
         InputLabel = cms.InputTag("L1Packer"),
-        FedIds = cms.vint32(100))
+        FedId = cms.int32(100))
 
 process.gctDigis = cms.EDProducer("GctRawToDigi",
     unpackSharedRegions = cms.bool(False),

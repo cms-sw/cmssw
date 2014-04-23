@@ -1,7 +1,10 @@
 #include "EventFilter/L1TRawToDigi/interface/PackerFactory.h"
 
 #include "implementations/CaloTowerPacker.h"
+#include "implementations/EGammaPacker.h"
+#include "implementations/EtSumPacker.h"
 #include "implementations/JetPacker.h"
+#include "implementations/TauPacker.h"
 
 namespace l1t {
    std::vector<PackerFactory*> PackerFactory::factories_ = PackerFactory::createFactories();
@@ -9,8 +12,11 @@ namespace l1t {
    std::vector<PackerFactory*> PackerFactory::createFactories()
    {
       std::vector<PackerFactory*> res;
-      res.push_back(new CaloTowerPackerFactory());
+      // res.push_back(new CaloTowerPackerFactory());
+      res.push_back(new EGammaPackerFactory());
+      res.push_back(new EtSumPackerFactory());
       res.push_back(new JetPackerFactory());
+      res.push_back(new TauPackerFactory());
       return res;
    }
 
