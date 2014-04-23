@@ -167,8 +167,6 @@ EcalHitResponse::add( const PCaloHit& hit )
   if (!edm::isNotFinite( hit.time() ) && ( 0 == m_hitFilter || m_hitFilter->accepts( hit ) ) ) {
      putAnalogSignal( hit ) ;
 
-     const DetId detId ( hit.id() ) ;
-
   }
 }
 
