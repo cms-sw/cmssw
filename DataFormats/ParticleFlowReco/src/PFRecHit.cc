@@ -9,6 +9,7 @@ PFRecHit::PFRecHit() :
   layer_(PFLayer::NONE),
   energy_(0.), 
   time_(-1.),
+  depth_(0),
   position_(math::XYZPoint(0.,0.,0.))
 {
   
