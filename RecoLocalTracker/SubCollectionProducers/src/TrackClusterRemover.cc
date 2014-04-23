@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -34,7 +34,7 @@
 // class decleration
 //
 
-class TrackClusterRemover : public edm::EDProducer {
+class TrackClusterRemover : public edm::stream::EDProducer<> {
     public:
         TrackClusterRemover(const edm::ParameterSet& iConfig) ;
         ~TrackClusterRemover() ;

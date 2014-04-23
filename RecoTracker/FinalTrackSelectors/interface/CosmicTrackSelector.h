@@ -15,7 +15,7 @@
 #include <memory>
 #include <algorithm>
 #include <map>
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/EventPrincipal.h" 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -32,7 +32,7 @@
 
 namespace reco { namespace modules {
     
-    class CosmicTrackSelector : public edm::EDProducer {
+    class CosmicTrackSelector : public edm::stream::EDProducer<> {
 		   private:
 		   public:
 		     // constructor 

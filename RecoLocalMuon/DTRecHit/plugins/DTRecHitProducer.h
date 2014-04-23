@@ -9,7 +9,7 @@
  *  \author G. Cerminara
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 namespace edm {
@@ -20,7 +20,7 @@ namespace edm {
 
 class DTRecHitBaseAlgo;
 
-class DTRecHitProducer : public edm::EDProducer {
+class DTRecHitProducer : public edm::stream::EDProducer<> {
 public:
   /// Constructor
   DTRecHitProducer(const edm::ParameterSet&);
