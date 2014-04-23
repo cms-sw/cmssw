@@ -2,7 +2,7 @@
 #define TrackRecoDeDx_DeDxDiscriminatorProducer_H
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -45,7 +45,7 @@
 
 
 
-class DeDxDiscriminatorProducer : public edm::EDProducer {
+class DeDxDiscriminatorProducer : public edm::stream::EDProducer<> {
 
 public:
 
@@ -55,7 +55,7 @@ public:
 private:
   virtual void beginRun(edm::Run const& run, const edm::EventSetup&) override;
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() ;
+  virtual void endStream() override;
 
   double GetProbability(const SiStripCluster*   cluster, TrajectoryStateOnSurface trajState,const uint32_t &);
   double ComputeDiscriminator (std::vector<double>& vect_probs);

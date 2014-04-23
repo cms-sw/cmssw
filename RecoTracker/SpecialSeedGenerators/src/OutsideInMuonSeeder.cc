@@ -10,7 +10,7 @@
 */
 
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -41,7 +41,7 @@
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/PatternTools/interface/TrajMeasLessEstim.h"
 
-class OutsideInMuonSeeder : public edm::EDProducer {
+class OutsideInMuonSeeder : public edm::stream::EDProducer<> {
     public:
       explicit OutsideInMuonSeeder(const edm::ParameterSet & iConfig);
       virtual ~OutsideInMuonSeeder() { }

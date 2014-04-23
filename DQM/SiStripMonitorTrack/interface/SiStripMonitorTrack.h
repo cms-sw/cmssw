@@ -57,7 +57,7 @@ class TrackerTopology;
 
 class SiStripMonitorTrack : public edm::EDAnalyzer {
 public:
-  typedef TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
+  typedef TrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
   enum RecHitType { Single=0, Matched=1, Projected=2, Null=3};
   explicit SiStripMonitorTrack(const edm::ParameterSet&);
   ~SiStripMonitorTrack();

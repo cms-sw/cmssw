@@ -1,5 +1,0 @@
-<use name="DQM/EcalCommon"/>
-<use name="DQM/EcalBarrelMonitorTasks"/>
-<library file="*.cc" name="DQMEcalBarrelMonitorTasksPlugins">
-   <flags EDM_PLUGIN="1"/>
-</library>

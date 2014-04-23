@@ -10,8 +10,7 @@
 
 //____________________________________________________________________________||
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
-
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -25,7 +24,7 @@
 //____________________________________________________________________________||
 namespace cms 
 {
-  class MuonMET : public edm::EDProducer 
+  class MuonMET : public edm::stream::EDProducer<> 
   {
   public:
     explicit MuonMET( const edm::ParameterSet& );

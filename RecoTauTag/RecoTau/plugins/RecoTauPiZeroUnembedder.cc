@@ -14,7 +14,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "RecoTauTag/RecoTau/interface/RecoTauCommonUtilities.h"
 
@@ -23,7 +23,7 @@
 #include "DataFormats/TauReco/interface/RecoTauPiZero.h"
 #include "DataFormats/TauReco/interface/RecoTauPiZeroFwd.h"
 
-class RecoTauPiZeroUnembedder : public edm::EDProducer {
+class RecoTauPiZeroUnembedder : public edm::stream::EDProducer<> {
   public:
     RecoTauPiZeroUnembedder(const edm::ParameterSet& pset);
     virtual ~RecoTauPiZeroUnembedder(){}

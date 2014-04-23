@@ -94,6 +94,11 @@ MuonTCMETValueMapProducer::MuonTCMETValueMapProducer(const edm::ParameterSet& iC
   response_function = 0;
   tcmetAlgo_=new TCMETAlgo();
 
+  if( rfType_ == 1 )
+    response_function = tcmetAlgo_->getResponseFunction_fit();
+  else if( rfType_ == 2 )
+    response_function = tcmetAlgo_->getResponseFunction_mode();
+
   muonToken_ = consumes<reco::MuonCollection>(iConfig.getParameter<edm::InputTag>("muonInputTag"));
   beamSpotToken_ = consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamSpotInputTag"));
   vertexToken_ = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexInputTag"));
@@ -185,16 +190,6 @@ void MuonTCMETValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetu
   iEvent.put(vm_muCorrData, "muCorrData");
 }
   
-//____________________________________________________________________________||
-void MuonTCMETValueMapProducer::beginJob()
-{
-
-  if( rfType_ == 1 )
-    response_function = tcmetAlgo_->getResponseFunction_fit();
-  else if( rfType_ == 2 )
-    response_function = tcmetAlgo_->getResponseFunction_mode();
-}
-
 //____________________________________________________________________________||
 bool MuonTCMETValueMapProducer::isGoodMuon( const reco::Muon* muon )
 {
