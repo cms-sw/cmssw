@@ -8,6 +8,7 @@
 #include "DataFormats/HGCDigi/interface/HGCSample.h"
 
 typedef edm::SortedCollection< HGCDataFrame<HGCEEDetId,HGCSample> > HGCEEDigiCollection;
-typedef edm::SortedCollection< HGCDataFrame<HGCHEDetId,HGCSample> > HGCHEDigiCollection;
+typedef edm::SortedCollection< HGCDataFrame<HGCHEDetId,HGCSample> > HGCHEfrontDigiCollection;
+typedef edm::SortedCollection< HGCDataFrame<HGCHEDetId,HGCSample> > HGCHEbackDigiCollection;
 
 #endif

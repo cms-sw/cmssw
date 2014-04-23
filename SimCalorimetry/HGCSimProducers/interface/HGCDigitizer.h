@@ -32,6 +32,13 @@ public:
   void initializeEvent(edm::Event const& e, edm::EventSetup const& c);
   void finalizeEvent(edm::Event& e, edm::EventSetup const& c);
 
+
+  /**
+   */
+  bool producesEEDigis()      { return (hitCollection_.find("EE")!=std::string::npos);      } 
+  bool producesHEfrontDigis() { return (hitCollection_.find("HEfront")!=std::string::npos); } 
+  bool producesHEbackDigis()  { return (hitCollection_.find("HEback")!=std::string::npos);  } 
+
   /**
       @short actions at the start/end of run
    */
@@ -47,7 +54,7 @@ private :
   typedef std::vector<double> CaloSimHitData;
   typedef std::map<uint32_t, CaloSimHitData> CaloSimHitDataAccumulator;
   CaloSimHitDataAccumulator simHitAccumulator_;  
-  void resetSimHitDataAccumulator() { for( std::map<uint32_t, CaloSimHitData>::iterator it = simHitAccumulator_begin(); it!=simHitAccumulator_.end(); it++) std::fill(it->begin(), it->end(),0.); }
+  void resetSimHitDataAccumulator() { for( CaloSimHitDataAccumulator::iterator it = simHitAccumulator_.begin(); it!=simHitAccumulator_.end(); it++) std::fill(it.second->begin(), it.second->end(),0.); }
   
 };
 

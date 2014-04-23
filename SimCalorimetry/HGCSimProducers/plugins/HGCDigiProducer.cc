@@ -4,12 +4,9 @@
 HGCDigiProducer::HGCDigiProducer(edm::ParameterSet const& pset, edm::EDProducer& mixMod) :
   DigiAccumulatorMixMod(),
   theDigitizer_(pset) {
-  // mixMod.produces<HBHEDigiCollection>();
-  // mixMod.produces<HODigiCollection>();
-  // mixMod.produces<HFDigiCollection>();
-  // mixMod.produces<ZDCDigiCollection>();
-  //mixMod.produces<HBHEUpgradeDigiCollection>("HBHEUpgradeDigiCollection");
-  //mixMod.produces<HFUpgradeDigiCollection>("HFUpgradeDigiCollection");
+  if( theDigitizer_.producesEEDigis()     ) mixMod.produces<HGCEEDigiCollection>("HGCEEDigis");
+  if( theDigitizer_.producesHEfrontDigis()) mixMod.produces<HGCHEfrontDigiCollection>("HGCHEfrontDigis");
+  if( theDigitizer_.producesHEbackDigis() ) mixMod.produces<HGCHEbackDigiCollection>("HGCHEbackDigis");
 }
 
 //
