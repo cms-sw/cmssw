@@ -34,6 +34,7 @@ foreach gtag ( $1 )
 
     echo
     set name = HLT_Integration_${table}_${gtag}
+    touch  ${name}
     rm -rf ${name}*
 
     set config = `grep tableName ${basepy}_HLT_${table}.py | cut -f2 -d "'"`
@@ -43,6 +44,7 @@ foreach gtag ( $1 )
     echo "hltIntegrationTests $config -d $name -i $infile -n 100 -j 4 $flags -x ${autogt} >& $name.log"
     time  hltIntegrationTests $config -d $name -i $infile -n 100 -j 4 $flags -x ${autogt} >& $name.log
     echo "exit status: $?"
+    rm -f  ${name}/*.root
 
   end
 

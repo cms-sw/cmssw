@@ -35,7 +35,7 @@ def getPathList(menu, selection):
 
 
 # define an argparse parser to parse our options
-textwidth = int( 64 )
+textwidth = int( 80 )
 try:
   textwidth = int( os.popen("stty size", "r").read().split()[1] )
 except:
