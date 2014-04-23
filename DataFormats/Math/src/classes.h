@@ -1,6 +1,7 @@
 #define G__DICTIONARY
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
+
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 #ifdef CMS_NOCXX11
 #define SMATRIX_USE_COMPUTATION
 #else

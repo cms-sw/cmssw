@@ -1,6 +1,7 @@
 #ifndef DataFormat_Math_ProjectMatrix_H
 #define DataFormat_Math_ProjectMatrix_H
 
+#define SMATRIX_USE_CONSTEXPR
 #include "Math/SMatrix.h"
 
 

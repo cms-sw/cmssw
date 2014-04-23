@@ -4,6 +4,7 @@
 #include "FWCore/Utilities/interface/Visibility.h"
 #include "DataFormats/GeometryVector/interface/PreciseFloatType.h"
 
+#define SMATRIX_USE_CONSTEXPR
 #include <Math/SVector.h>
 
 

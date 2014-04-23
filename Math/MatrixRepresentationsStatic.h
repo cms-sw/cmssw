@@ -6,9 +6,16 @@
 
 #warning "using MatrixRepresentationsStatic by vin"
 
-#ifndef SMATRIX_USE_COMPUTATION
-#define SMATRIX_USE_CONSTEXPR
+
+//#ifndef SMATRIX_USE_COMPUTATION
+//#define SMATRIX_USE_CONSTEXPR
+//#endif
+
+
+#ifndef SMATRIX_USE_CONSTEXPR
+#define SMATRIX_USE_COMPUTATION
 #endif
+
 
 // Include files
 
