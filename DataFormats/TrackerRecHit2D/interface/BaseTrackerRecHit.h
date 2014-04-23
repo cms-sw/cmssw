@@ -44,7 +44,7 @@ public:
 
   BaseTrackerRecHit( const LocalPoint& p, const LocalError&e,
 		     GeomDet const & idet, trackerHitRTTI::RTTI rt) :  
-    TrackingRecHit(idet.geographicalId(),&idet, (unsigned int)(rt)), pos_(p), err_(e){
+    TrackingRecHit(idet, (unsigned int)(rt)), pos_(p), err_(e){
     LocalError lape = det()->localAlignmentError();
     if (lape.valid())
       err_ = LocalError(err_.xx()+lape.xx(),
@@ -60,6 +60,8 @@ public:
   bool isProjMono() const { return trackerHitRTTI::isProjMono(*this);}
   bool isProjSterep() const { return trackerHitRTTI::isProjStereo(*this);}
   bool isMulti() const { return trackerHitRTTI::isMulti(*this);}
+
+  virtual bool isPixel() const { return false;}
 
  // used by trackMerger (to be improved)
   virtual OmniClusterRef const & firstClusterRef() const=0;

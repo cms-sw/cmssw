@@ -9,8 +9,8 @@
 namespace tracking {
   // the return type from a MeasurementDet
   struct TempMeasurements {
-    typedef TransientTrackingRecHit::ConstRecHitContainer        RecHitContainer;
-    typedef TransientTrackingRecHit::ConstRecHitPointer    ConstRecHitPointer;
+    typedef TrackingRecHit::ConstRecHitContainer        RecHitContainer;
+    typedef TrackingRecHit::ConstRecHitPointer    ConstRecHitPointer;
     typedef std::vector<float> Distances;
 
     void clear() { hits.clear(); distances.clear();}
