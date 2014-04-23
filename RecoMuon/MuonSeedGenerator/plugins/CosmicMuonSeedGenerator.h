@@ -7,7 +7,7 @@
  *  \author Chang Liu - Purdue University 
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -23,7 +23,7 @@ class TrajectoryStateTransform;
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
-class CosmicMuonSeedGenerator: public edm::EDProducer {
+class CosmicMuonSeedGenerator: public edm::stream::EDProducer<> {
  public:
 
   /// Constructor

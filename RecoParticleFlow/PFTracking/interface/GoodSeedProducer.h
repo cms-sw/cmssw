@@ -6,7 +6,7 @@
 // user include files
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -22,6 +22,8 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "RecoParticleFlow/PFTracking/interface/PFGeometry.h"
+
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 
 /// \brief Abstract
 /*!
@@ -47,7 +49,7 @@ class TrackerGeometry;
 class TrajectoryStateOnSurface;
 
 
-class GoodSeedProducer : public edm::EDProducer {
+class GoodSeedProducer : public edm::stream::EDProducer<> {
   typedef TrajectoryStateOnSurface TSOS;
    public:
       explicit GoodSeedProducer(const edm::ParameterSet&);
@@ -87,10 +89,13 @@ class GoodSeedProducer : public edm::EDProducer {
       std::string preidname_;
 
       ///Fitter
-      edm::ESHandle<TrajectoryFitter> fitter_;
+      std::unique_ptr<TrajectoryFitter> fitter_;
 
       ///Smoother
-      edm::ESHandle<TrajectorySmoother> smoother_;
+      std::unique_ptr<TrajectorySmoother> smoother_;
+
+      // needed by the above
+      TkClonerImpl hitCloner;
 
       ///PFTrackTransformer
       PFTrackTransformer *pfTransformer_;

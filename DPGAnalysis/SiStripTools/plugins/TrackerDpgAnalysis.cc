@@ -1105,8 +1105,8 @@ void TrackerDpgAnalysis::insertMeasurement(std::multimap<const uint32_t,std::pai
 {
       if(!hit) return;
       const TSiTrackerMultiRecHit* multihit=dynamic_cast<const TSiTrackerMultiRecHit*>(hit);
-      const TSiStripRecHit2DLocalPos* singlehit=dynamic_cast<const TSiStripRecHit2DLocalPos*>(hit);
-      const TSiStripRecHit1D* hit1d=dynamic_cast<const TSiStripRecHit1D*>(hit);
+      const SiStripRecHit2D* singlehit=dynamic_cast<const SiStripRecHit2D*>(hit);
+      const SiStripRecHit1D* hit1d=dynamic_cast<const SiStripRecHit1D*>(hit);
       if(hit1d) { //...->33X
         collection.insert(std::make_pair(hit1d->geographicalId().rawId(),std::make_pair(hit1d->localPosition(),tla)));
       } else if(singlehit) { // 41X->...
@@ -1115,7 +1115,7 @@ void TrackerDpgAnalysis::insertMeasurement(std::multimap<const uint32_t,std::pai
       else if(multihit){
         std::vector< const TrackingRecHit * > childs = multihit->recHits();
 	for(std::vector<const TrackingRecHit*>::const_iterator it=childs.begin();it!=childs.end();++it) {
-	   insertMeasurement(collection,dynamic_cast<const TransientTrackingRecHit*>(*it),tla);
+	   insertMeasurement(collection,dynamic_cast<const TrackingRecHit*>(*it),tla);
 	}
       }
 }
@@ -1232,7 +1232,7 @@ std::vector<std::pair<double,double> > TrackerDpgAnalysis::onTrackAngles(edm::Ha
 void TrackerDpgAnalysis::insertMeasurement(std::multimap<const uint32_t,std::pair<LocalPoint,std::pair<double,double> > >& collection,const TransientTrackingRecHit* hit , double alpha, double beta)
 {
       if(!hit) return;
-      const TSiPixelRecHit* pixhit = dynamic_cast<const TSiPixelRecHit*>(hit);
+      const SiPixelRecHit* pixhit = dynamic_cast<const SiPixelRecHit*>(hit);
       if(pixhit) {
         collection.insert(std::make_pair(pixhit->geographicalId().rawId(),std::make_pair(pixhit->localPosition(),std::make_pair(alpha,beta))));
       }

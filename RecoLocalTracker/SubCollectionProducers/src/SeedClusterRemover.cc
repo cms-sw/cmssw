@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -35,7 +35,7 @@
 // class decleration
 //
 
-class SeedClusterRemover : public edm::EDProducer {
+class SeedClusterRemover : public edm::stream::EDProducer<> {
     public:
         SeedClusterRemover(const edm::ParameterSet& iConfig) ;
         ~SeedClusterRemover() ;

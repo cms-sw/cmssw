@@ -13,7 +13,7 @@ NonPropagatingDetMeasurements::get( const MeasurementDet& det,
 {
   throw cms::Exception("THIS SHOULD NOT BE CALLED");
   std::vector<TrajectoryMeasurement> result;
-
+  /*
   MeasurementDet::RecHitContainer allHits = det.recHits(stateOnThisDet, data);
   for (MeasurementDet::RecHitContainer::const_iterator ihit=allHits.begin();
        ihit != allHits.end(); ihit++) {
@@ -35,5 +35,6 @@ NonPropagatingDetMeasurements::get( const MeasurementDet& det,
       sort( result.begin(), result.end(), TrajMeasLessEstim());
     }
   }
+  */
   return result;
 }
