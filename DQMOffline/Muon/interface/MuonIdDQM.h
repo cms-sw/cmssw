@@ -55,7 +55,7 @@ class MuonIdDQM : public DQMEDAnalyzer {
       /* Operations */
       void analyze(const edm::Event&, const edm::EventSetup&);
       void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-  
+
    private:
       virtual void Fill(MonitorElement*, float);
 
