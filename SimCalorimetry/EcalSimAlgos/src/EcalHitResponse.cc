@@ -137,7 +137,14 @@ EcalHitResponse::add( const PCaloHit& hit, CLHEP::HepRandomEngine* engine )
   if (!edm::isNotFinite( hit.time() ) && ( 0 == m_hitFilter || m_hitFilter->accepts( hit ) ) ) {
     putAnalogSignal( hit, engine ) ;
   }
+
+  for( int bin ( 0 ) ; bin != rsize ; ++bin )
+    {
+      result[ bin ] += hit[ bin ] ;
+    }
+
 }
+
 
 bool
 EcalHitResponse::withinBunchRange(int bunchCrossing) const

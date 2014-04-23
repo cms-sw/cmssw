@@ -18,17 +18,18 @@ if [ ! -f ${LOCALRT}/tmp/classes.txt ]
 	exit 1
 fi
 cd ${LOCALRT}/tmp/
+touch check-start
 touch function-checker.txt.unsorted class-checker.txt.unsorted
-cd $LOCALRT/src/Utilities/StaticAnalyzers
+cd ${LOCALRT}/src/Utilities/StaticAnalyzers
 scram b -j $J
 cd ${LOCALRT}/
-export USER_CXXFLAGS="-DEDM_ML_DEBUG -w -fsyntax-only"
-export USER_LLVM_CHECKERS="-disable-checker cms -enable-checker optional.ClassChecker -enable-checker cms.FunctionChecker"
-scram b -k -j $J checker  SCRAM_IGNORE_PACKAGES=Fireworks/% SCRAM_IGNORE_SUBDIRS=test 2>&1 | tee ${LOCALRT}/tmp/class+function-checker.log
+export USER_CXXFLAGS="-DEDM_ML_DEBUG -w"
+export USER_LLVM_CHECKERS="-disable-checker cplusplus -disable-checker unix -disable-checker threadsafety -disable-checker core -disable-checker security -disable-checker deadcode -disable-checker cms -enable-checker optional.ClassChecker -enable-checker cms.FunctionChecker"
+scram b -k -j $J checker  SCRAM_IGNORE_PACKAGES=Fireworks/% SCRAM_IGNORE_SUBDIRS=test 2>&1 > ${LOCALRT}/tmp/class+function-checker.log
 cd ${LOCALRT}/tmp/
 sort -u < class-checker.txt.unsorted | grep -e"^data class">class-checker.txt
 sort -u < function-checker.txt.unsorted >function-statics-db.txt
 sort -u < function-checker.txt.unsorted >function-statics-db.txt
 sort -u < plugins.txt.unsorted > plugins.txt
 cat  function-calls-db.txt function-statics-db.txt >db.txt
-
+touch check-end

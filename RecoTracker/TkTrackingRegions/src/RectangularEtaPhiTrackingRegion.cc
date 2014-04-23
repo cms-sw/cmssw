@@ -345,18 +345,26 @@ TrackingRegion::Hits RectangularEtaPhiTrackingRegion::hits(
     
     LayerMeasurements lm(theMeasurementTracker->measurementTracker(), *theMeasurementTracker);
     
-    vector<TrajectoryMeasurement> meas = lm.measurements(*detLayer, tsos, prop, *findDetAndHits);
-    result.reserve(meas.size());
+    LayerMeasurements:: SimpleHitContainer hits;
+    lm.recHits(hits,*detLayer, tsos, prop, *findDetAndHits);
+    /*
+    {  // old code
+      vector<TrajectoryMeasurement> meas = lm.measurements(*detLayer, tsos, prop, *findDetAndHits);
+      auto n=0UL;
+      for (auto const & im : meas) 
+	if(im.recHit()->isValid()) ++n;
+      assert(n==hits.size());
+      // std::cout << "old/new " << n <<'/'<<hits.size() << std::endl;      
+    }
+    */
 
-    // waiting for a migration at LayerMeasurements level and at seed builder level
-    for (auto const & im : meas) {
-      if(!im.recHit()->isValid()) continue;
-      auto ptrHit = (BaseTrackerRecHit *)(im.recHit()->hit()->clone());
-      cache.emplace_back(ptrHit);
-      result.emplace_back(ptrHit);
+    result.reserve(hits.size());
+    for (auto h : hits) {
+      cache.emplace_back(h);
+      result.emplace_back(h);
     }
   
-    LogDebug("RectangularEtaPhiTrackingRegion")<<" found "<< meas.size()<<" minus one measurements on layer: "<<detLayer->subDetector();
+    LogDebug("RectangularEtaPhiTrackingRegion")<<" found "<< hits.size()<<" minus one measurements on layer: "<<detLayer->subDetector();
     // std::cout << "RectangularEtaPhiTrackingRegion" <<" found "<< meas.size()<<" minus one measurements on layer: "<<detLayer->subDetector() << std::endl;
   
   } else {

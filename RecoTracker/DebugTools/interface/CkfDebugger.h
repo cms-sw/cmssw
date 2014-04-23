@@ -31,7 +31,6 @@
 class Trajectory;
 class TrajectoryMeasurement;
 class PSimHit;
-class TransientTrackingRecHit;
 class MeasurementTracker;
 class TrajectoryStateOnSurface;
 class MagneticField;

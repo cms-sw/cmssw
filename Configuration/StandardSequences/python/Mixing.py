@@ -97,6 +97,7 @@ addMixingScenario("2012_Summer_50ns_PoissonOOTPU_FixedInTime0",{'file': 'SimGene
 addMixingScenario("2012_Summer_50ns_PoissonOOTPU_FixedInTime30",{'file': 'SimGeneral.MixingModule.mix_2012_Summer_50ns_PoissonOOTPU_FixedInTime30_cfi'})
 addMixingScenario("CSA14_50ns_PoissonOOT",{'file': 'SimGeneral.MixingModule.mix_CSA14_50ns_PoissonOOTPU_cfi'})
 addMixingScenario("CSA14_inTimeOnly",{'file': 'SimGeneral.MixingModule.mix_CSA14_inTimeOnly_cfi'})
+addMixingScenario("Flat_20_50",{'file': 'SimGeneral.MixingModule.mix_Flat_20_50_cfi'})
 addMixingScenario("ProdStep2",{'file': 'SimGeneral.MixingModule.mixProdStep2_cfi'})
 addMixingScenario("fromDB",{'file': 'SimGeneral.MixingModule.mix_fromDB_cfi'})
 ##fastsim section

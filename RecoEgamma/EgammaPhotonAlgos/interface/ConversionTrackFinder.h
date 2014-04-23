@@ -41,13 +41,6 @@ class ConversionTrackFinder {
   /// Initialize EventSetup objects at each event
   void setEventSetup( const edm::EventSetup& es ) ; 
 
-
- private:
-
-   
-
-
-
  protected: 
   
   const MagneticField* theMF_;
@@ -64,21 +57,18 @@ class ConversionTrackFinder {
 
   bool useSplitHits_;
 
-struct ExtractNumOfHits {
-  typedef int result_type;
-  result_type operator()(const Trajectory& t) const {return t.foundHits();}
-  result_type operator()(const Trajectory* t) const {return t->foundHits();}
-};
+  struct ExtractNumOfHits {
+    typedef int result_type;
+    result_type operator()(const Trajectory& t) const {return t.foundHits();}
+    result_type operator()(const Trajectory* t) const {return t->foundHits();}
+  };
 
 
-struct ExtractChi2 {
-  typedef float result_type;
-  result_type operator()(const Trajectory& t) const {return t.chiSquared();}
-  result_type operator()(const Trajectory* t) const {return t->chiSquared();}
-};
-
-
- 
+  struct ExtractChi2 {
+    typedef float result_type;
+    result_type operator()(const Trajectory& t) const {return t.chiSquared();}
+    result_type operator()(const Trajectory* t) const {return t->chiSquared();}
+  };
 
 };
 
