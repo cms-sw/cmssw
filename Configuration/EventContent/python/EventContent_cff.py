@@ -513,6 +513,7 @@ GENRAWEventContent.outputCommands.extend(CommonEventContent.outputCommands)
 
 PREMIXEventContent.outputCommands.extend(GENRAWEventContent.outputCommands)
 PREMIXEventContent.outputCommands.append('keep RPCDetIdRPCDigiMuonDigiCollection_simMuonRPCDigis_*_*')
+PREMIXEventContent.outputCommands.append('keep CrossingFramePlaybackInfoExtended_*_*_*')
 
 PREMIXRAWEventContent.outputCommands.extend(GENRAWEventContent.outputCommands)
 PREMIXRAWEventContent.outputCommands.append('keep CrossingFramePlaybackInfoExtended_*_*_*')

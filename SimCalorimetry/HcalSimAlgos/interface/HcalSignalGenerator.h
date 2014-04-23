@@ -98,7 +98,7 @@ public:
         {
           int startingCapId = (*it)[0].capid();
           theElectronicsSim->setStartingCapId(startingCapId);
-          theParameterMap->setFrameSize(it->id(), it->size());
+          // theParameterMap->setFrameSize(it->id(), it->size()); //don't need this
         }
 	if(validDigi(*it)) {
 	  theNoiseSignals.push_back(samplesInPE(*it));
