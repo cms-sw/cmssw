@@ -108,6 +108,10 @@ ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
     esg_tokens.token_vtx = 
       mayConsume<reco::VertexCollection>(edm::InputTag("offlinePrimaryVerticesWithBS"));
   }
+  if(conf_.existsAs<edm::InputTag>("measurementTrackerEvent")) {
+    esg_tokens.token_measTrkEvt= consumes<std::vector<reco::Vertex> >(conf_.getParameter<edm::InputTag>("measurementTrackerEvent"));
+  }
+
   matcher_ = new ElectronSeedGenerator(conf_,esg_tokens) ;
 
   //  get collections from config'
