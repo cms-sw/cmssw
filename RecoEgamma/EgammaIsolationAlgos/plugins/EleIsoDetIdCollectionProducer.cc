@@ -29,8 +29,10 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 
 EleIsoDetIdCollectionProducer::EleIsoDetIdCollectionProducer(const edm::ParameterSet& iConfig) :
-            recHitsLabel_(iConfig.getParameter< edm::InputTag > ("recHitsLabel")),
-            emObjectLabel_(iConfig.getParameter< edm::InputTag > ("emObjectLabel")),
+            recHitsToken_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag > ("recHitsLabel"))),
+	    emObjectToken_(consumes<reco::GsfElectronCollection>(iConfig.getParameter< edm::InputTag > ("emObjectLabel"))),
+	    recHitsLabel_(iConfig.getParameter< edm::InputTag > ("recHitsLabel")),
+	    emObjectLabel_(iConfig.getParameter< edm::InputTag > ("emObjectLabel")),
             energyCut_(iConfig.getParameter<double>("energyCut")),
             etCut_(iConfig.getParameter<double>("etCut")),
             etCandCut_(iConfig.getParameter<double> ("etCandCut")),
@@ -81,11 +83,11 @@ EleIsoDetIdCollectionProducer::produce (edm::Event& iEvent, const edm::EventSetu
 
     //Get EM Object
     Handle<reco::GsfElectronCollection> emObjectH;
-    iEvent.getByLabel(emObjectLabel_,emObjectH);
+    iEvent.getByToken(emObjectToken_,emObjectH);
 
     // take EcalRecHits
     Handle<EcalRecHitCollection> recHitsH;
-    iEvent.getByLabel(recHitsLabel_,recHitsH);
+    iEvent.getByToken(recHitsToken_,recHitsH);
 
     edm::ESHandle<CaloGeometry> pG;
     iSetup.get<CaloGeometryRecord>().get(pG);    

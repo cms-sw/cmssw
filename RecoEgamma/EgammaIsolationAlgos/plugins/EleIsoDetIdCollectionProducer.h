@@ -24,7 +24,7 @@ Implementation:
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -43,6 +43,8 @@ class EleIsoDetIdCollectionProducer : public edm::EDProducer {
 
    private:
       // ----------member data ---------------------------
+      edm::EDGetToken recHitsToken_;
+      edm::EDGetToken emObjectToken_; 
       edm::InputTag recHitsLabel_;
       edm::InputTag emObjectLabel_;
       double energyCut_;
