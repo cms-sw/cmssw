@@ -5,10 +5,12 @@
 <use   name="SimG4Core/Application"/>
 <use   name="SimG4CMS/Calo"/>
 <use   name="DataFormats/Math"/>
+<use   name="DataFormats/ForwardDetId"/>
 <use   name="SimDataFormats/SimHitMaker"/>
 <use   name="SimDataFormats/CaloHit"/>
 <use   name="SimDataFormats/Forward"/>
 <use   name="DetectorDescription/Core"/>
+<use   name="Geometry/HGCalCommonData"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/MessageLogger"/>

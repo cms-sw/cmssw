@@ -12,3 +12,5 @@
 <library file="ShashlikNumberingInitialization.cc" name="GeometryShashlikNumberingInitialization"> </library>
 
 <library file="HGCalNumberingInitialization.cc" name="GeometryHGCalNumberingInitialization"> </library>
+
+<library file="FastTimeNumberingInitialization.cc" name="GeometryFastTimeNumberingInitialization"> </library>
