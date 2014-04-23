@@ -18,6 +18,10 @@
 #include <FWCore/Framework/interface/EDProducer.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <FWCore/Utilities/interface/InputTag.h>
+#include <DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h>
+#include <DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h>
+#include <DataFormats/L1DTTrackFinder/interface/L1MuDTTrackContainer.h>
+
 
 #include <string>
 
@@ -42,8 +46,11 @@ class DTTFFEDSim : public edm::EDProducer {
   
   unsigned int eventNum;
 
-  edm::InputTag DTDigiInputTag;
-  edm::InputTag DTPHTFInputTag;
+  edm::EDGetTokenT<FEDRawDataCollection> DTTFToken_;
+
+  edm::EDGetTokenT<L1MuDTChambPhContainer> DTDigiPhToken_;
+  edm::EDGetTokenT<L1MuDTChambThContainer> DTDigiThToken_;
+  edm::EDGetTokenT<L1MuDTTrackContainer> DTPHTFToken_;
 
  // utilities
   int channel(int wheel, int sector, int bx);
@@ -55,9 +62,6 @@ class DTTFFEDSim : public edm::EDProducer {
   int wheel(int channel);
 
   void calcCRC(int myD1, int myD2, int &myC);
-
-  edm::InputTag getDTDigiInputTag() { return DTDigiInputTag; }
-  edm::InputTag getDTPHTFInputTag() { return DTPHTFInputTag; }
 
 };
 #endif
