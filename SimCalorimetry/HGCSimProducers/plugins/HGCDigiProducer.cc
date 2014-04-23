@@ -1,3 +1,5 @@
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "SimGeneral/MixingModule/interface/DigiAccumulatorMixModFactory.h"
 #include "SimCalorimetry/HGCSimProducers/plugins/HGCDigiProducer.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 
@@ -43,3 +45,6 @@ void HGCDigiProducer::endRun(edm::Run const&, edm::EventSetup const&)
 {
   theDigitizer_.endRun();
 }
+
+
+DEFINE_DIGI_ACCUMULATOR(HGCDigiProducer);
