@@ -138,7 +138,8 @@ TestIsoSimTracks::TestIsoSimTracks(const edm::ParameterSet& iConfig) :
 
    // Load TrackDetectorAssociator parameters
    edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
-   trackAssociatorParameters_.loadParameters( parameters );
+   edm::ConsumesCollector iC = consumesCollector();
+   trackAssociatorParameters_.loadParameters( parameters, iC );
    trackAssociator_.useDefaultPropagator();
 }
 
