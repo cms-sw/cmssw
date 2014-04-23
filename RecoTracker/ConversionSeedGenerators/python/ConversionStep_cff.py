@@ -226,7 +226,7 @@ convCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESP
     ComponentName = 'convCkfTrajectoryBuilder',
     trajectoryFilterName = 'convCkfTrajectoryFilter',
     minNrOfHitsForRebuild = 3,
-    maxCand = 2
+    maxCand = 1
     )
 
 # MAKING OF TRACK CANDIDATES
