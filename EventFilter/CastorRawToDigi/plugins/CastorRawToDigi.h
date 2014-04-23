@@ -14,7 +14,7 @@
  *
  ************************************************************/
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
@@ -26,7 +26,7 @@
 #include "EventFilter/CastorRawToDigi/interface/CastorCtdcUnpacker.h"
 #include "EventFilter/CastorRawToDigi/interface/CastorDataFrameFilter.h"
 
-class CastorRawToDigi : public edm::EDProducer
+class CastorRawToDigi : public edm::stream::EDProducer<>
 {
 public:
   explicit CastorRawToDigi(const edm::ParameterSet& ps);

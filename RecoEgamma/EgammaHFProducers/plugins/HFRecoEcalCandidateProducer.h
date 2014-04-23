@@ -13,7 +13,7 @@
 //
 //
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -21,7 +21,7 @@
 #include "HFRecoEcalCandidateAlgo.h"
 #include "HFValueStruct.h"
 
-class HFRecoEcalCandidateProducer : public edm::EDProducer {
+class HFRecoEcalCandidateProducer : public edm::stream::EDProducer<> {
  public:
   explicit HFRecoEcalCandidateProducer(edm::ParameterSet const& conf);
   virtual void produce(edm::Event& e, edm::EventSetup const& iSetup);

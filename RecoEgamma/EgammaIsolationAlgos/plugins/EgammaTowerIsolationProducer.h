@@ -18,7 +18,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -31,7 +31,7 @@
 // class declaration
 //
 
-class EgammaTowerIsolationProducer : public edm::EDProducer {
+class EgammaTowerIsolationProducer : public edm::stream::EDProducer<> {
    public:
       explicit EgammaTowerIsolationProducer(const edm::ParameterSet&);
       ~EgammaTowerIsolationProducer();

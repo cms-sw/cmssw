@@ -1,7 +1,7 @@
 #ifndef CSCTFUnpacker_h
 #define CSCTFUnpacker_h
 
-#include <FWCore/Framework/interface/EDProducer.h>
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <FWCore/Utilities/interface/InputTag.h>
 
@@ -13,7 +13,7 @@
 
 class CSCTriggerMapping;
 
-class CSCTFUnpacker: public edm::EDProducer {
+class CSCTFUnpacker: public edm::stream::EDProducer<> {
 private:
 	int  m_minBX, m_maxBX;
 	bool swapME1strips;

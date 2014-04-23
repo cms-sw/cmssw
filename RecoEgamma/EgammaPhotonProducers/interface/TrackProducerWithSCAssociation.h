@@ -9,13 +9,14 @@
  ** 
  ***/
 
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
 #include "RecoTracker/TrackProducer/interface/TrackProducerAlgorithm.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "DataFormats/EgammaTrackReco/interface/TrackCandidateCaloClusterAssociation.h"
 
-class TrackProducerWithSCAssociation : public TrackProducerBase<reco::Track>, public edm::EDProducer {
+class TrackProducerWithSCAssociation : public TrackProducerBase<reco::Track>, public edm::stream::EDProducer<> {
 public:
 
   explicit TrackProducerWithSCAssociation(const edm::ParameterSet& iConfig);
