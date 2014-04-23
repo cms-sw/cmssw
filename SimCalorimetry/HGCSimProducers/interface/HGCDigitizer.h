@@ -7,7 +7,10 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
+#include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
+
 #include <vector>
+#include <map>
 
 class PCaloHit;
 class PileUpEventPrincipal;
@@ -18,6 +21,7 @@ public:
   
   explicit HGCDigitizer(const edm::ParameterSet& ps);
   virtual ~HGCDigitizer();
+
 
   /**
      @short handle SimHit accumulation
@@ -49,12 +53,15 @@ private :
 
   std::string hitCollection_;
 
+  //flag for trivial digitization
+  bool doTrivialDigis_;
+
   //handle sim hits
   int maxSimHitsAccTime_;
   typedef std::vector<double> CaloSimHitData;
   typedef std::map<uint32_t, CaloSimHitData> CaloSimHitDataAccumulator;
   CaloSimHitDataAccumulator simHitAccumulator_;  
-  void resetSimHitDataAccumulator() { for( CaloSimHitDataAccumulator::iterator it = simHitAccumulator_.begin(); it!=simHitAccumulator_.end(); it++) std::fill(it.second->begin(), it.second->end(),0.); }
+  void resetSimHitDataAccumulator();
   
 };
 

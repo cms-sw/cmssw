@@ -21,7 +21,11 @@ public:
    */
   HGCSample() : value_(0) { }
   HGCSample(uint16_t value) : value_(value) { }
-  HGCSample(uint16_t adc) { value_ = ((adc & ADC_MASK) << ADC_POS); }
+
+  /**
+     @short setters
+   */
+  void setADC(uint16_t adc) { value_ = ((adc & ADC_MASK) << ADC_POS); }
   
   /**
      @short getters
