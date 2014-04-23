@@ -53,7 +53,7 @@ void Stage1Layer2MainProcessorFirmwareImp1::processEvent(const std::vector<CaloE
   }
 
   m_egAlgo->processEvent(emcands, regions, egammas);
-  m_sumAlgo->processEvent(regions, etsums);
+  m_sumAlgo->processEvent(regions, emcands, etsums);
   m_jetAlgo->processEvent(regions, emcands, jets);
   m_tauAlgo->processEvent(emcands, regions, taus);
 }
