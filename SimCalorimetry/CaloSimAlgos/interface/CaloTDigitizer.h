@@ -78,6 +78,8 @@ public:
   void run(DigiCollection & output, CLHEP::HepRandomEngine* engine) {
     theHitResponse->finalizeHits(engine);
 
+    //std::cout << " In CaloTDigitizer, after finalize hits " << std::endl;
+
     assert(theDetIds->size() != 0);
 
     if(theNoiseHitGenerator != 0) addNoiseHits(engine);
@@ -88,6 +90,8 @@ public:
     // reserve space for how many digis we expect
     int nDigisExpected = addNoise_ ? theDetIds->size() : theHitResponse->nSignals();
     output.reserve(nDigisExpected);
+
+    //std::cout << " In CaloTDigitizer, nDigisExpected " << nDigisExpected << std::endl;
 
     // make a raw digi for evey cell
     for(std::vector<DetId>::const_iterator idItr = theDetIds->begin();

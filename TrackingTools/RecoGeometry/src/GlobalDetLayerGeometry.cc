@@ -7,7 +7,7 @@ GlobalDetLayerGeometry::idToLayer(const DetId& detId) const{
   else if(detId.det() ==2) return muon_->idToLayer(detId);
   else{
     throw cms::Exception("DetLayers") 
-      << "Error: called GlobalDetLayerGeometry::idToLayer() for a detId which is neither Tracker nor Muon";      
+      << "Error: called GlobalDetLayerGeometry::idToLayer() for a detId which is neither Tracker nor Muon " << detId;      
   }
 
 }

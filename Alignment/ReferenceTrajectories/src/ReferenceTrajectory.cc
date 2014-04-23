@@ -176,10 +176,9 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
     // There is also a constructor taking the magentic field. Use this one instead?
     theRefTsos = TrajectoryStateOnSurface(pcaFts, bsGeom->surface());
     
-    TransientTrackingRecHit::ConstRecHitPointer bsRecHit = 
-      new BeamSpotTransientTrackingRecHit(beamSpot,
+    TransientTrackingRecHit::ConstRecHitPointer bsRecHit(new BeamSpotTransientTrackingRecHit(beamSpot,
 					  bsGeom,
-					  theRefTsos.freeState()->momentum().phi());
+					  theRefTsos.freeState()->momentum().phi()));
     allRecHits.push_back(bsRecHit);
 
   }
@@ -411,8 +410,11 @@ void ReferenceTrajectory::fillMeasurementAndError(const TransientTrackingRecHit:
   //             That is an analytical extrapolation and not the best guess of the real 
   //             track state on the module, but the latter should be better to get the best
   //             hit uncertainty estimate!
-  TransientTrackingRecHit::ConstRecHitPointer newHitPtr(hitPtr->canImproveWithTrack() ?
-							hitPtr->clone(updatedTsos) : hitPtr);
+
+   // FIXME FIXME  CLONE
+  auto newHitPtr =  hitPtr;
+//  TransientTrackingRecHit::ConstRecHitPointer newHitPtr(hitPtr->canImproveWithTrack() ?
+//							hitPtr->clone(updatedTsos) : hitPtr);
 
   const LocalPoint localMeasurement    = newHitPtr->localPosition();
   const LocalError localMeasurementCov = newHitPtr->localPositionError();

@@ -37,8 +37,14 @@ public:
     TrackerSingleRecHit(pos,err,idet, clus){
     qualWord_=qual; }
 
+  virtual bool isPixel() const GCC11_OVERRIDE { return true;}
+
   
   virtual SiPixelRecHit * clone() const {return new SiPixelRecHit( * this); }
+#ifdef NO_DICT
+  virtual RecHitPointer cloneSH() const { return std::make_shared<SiPixelRecHit>(*this);}
+#endif
+
   
   ClusterRef cluster()  const { return cluster_pixel(); }
 
@@ -54,7 +60,11 @@ private:
   virtual SiPixelRecHit * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const {
     return cloner(*this,tsos);
   }
-  
+#ifdef NO_DICT
+  virtual  RecHitPointer cloneSH(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const {
+    return cloner.makeShared(*this,tsos);
+  }
+#endif  
   
 public:
   //--- The overall probability.  flags is the 32-bit-packed set of flags that
