@@ -106,7 +106,7 @@ import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 pixelPairStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
     src='pixelPairStepTracks',
     useAnyMVA = cms.bool(True),
-    GBRForestLabel = cms.string('MVASelectorIter2'),
+    GBRForestLabel = cms.string('MVASelectorIter2_13TeV_v0'),
     trackSelectors= cms.VPSet(
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             name = 'pixelPairStepLoose',

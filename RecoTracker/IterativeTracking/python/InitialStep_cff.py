@@ -97,7 +97,7 @@ from RecoTracker.IterativeTracking.DetachedTripletStep_cff import detachedTriple
 initialStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
     src='initialStepTracks',
     useAnyMVA = cms.bool(True),
-    GBRForestLabel = cms.string('MVASelectorIter0'),
+    GBRForestLabel = cms.string('MVASelectorIter0_13TeV_v0'),
     trackSelectors= cms.VPSet(
     RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
         name = 'initialStepLoose',
