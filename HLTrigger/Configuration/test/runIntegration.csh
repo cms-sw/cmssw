@@ -41,6 +41,8 @@ foreach gtag ( $1 )
     set autogt = "--globaltag=${basegt}_${table}"
     set infile = file:../RelVal_Raw_${table}_${gtag}.root
 
+#   -x "--l1-emulator" -x "--l1 L1GtTriggerMenu_L1Menu_Collisions2012_v1_mc" 
+
     echo "hltIntegrationTests $config -d $name -i $infile -n 100 -j 4 $flags -x ${autogt} >& $name.log"
     time  hltIntegrationTests $config -d $name -i $infile -n 100 -j 4 $flags -x ${autogt} >& $name.log
     echo "exit status: $?"
