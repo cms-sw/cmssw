@@ -810,7 +810,7 @@ void FastTimerService::postEvent(edm::StreamContext const & sc) {
       PathInfo & pathinfo = keyval.second;
       pathinfo.time_exclusive = pathinfo.time_overhead;
 
-      for (uint32_t i = 0; i <= pathinfo.last_run; ++i) {
+      for (uint32_t i = 0; i < pathinfo.last_run; ++i) {
         ModuleInfo * module = pathinfo.modules[i];
         if (module == 0)
           // this is a module occurring more than once in the same path, skip it after the first occurrence
@@ -870,7 +870,7 @@ void FastTimerService::postEvent(edm::StreamContext const & sc) {
 
       // fill detailed timing histograms
       if (m_enable_dqm_bypath_details) {
-        for (uint32_t i = 0; i <= pathinfo.last_run; ++i) {
+        for (uint32_t i = 0; i < pathinfo.last_run; ++i) {
           ModuleInfo * module = pathinfo.modules[i];
           // skip duplicate modules
           if (module == nullptr)
@@ -887,7 +887,7 @@ void FastTimerService::postEvent(edm::StreamContext const & sc) {
       //   - also for duplicate modules, to properly extract rejection information
       //   - fill the N+1th bin for paths accepting the event, so the FastTimerServiceClient can properly measure the last filter efficiency
       if (m_enable_dqm_bypath_counters) {
-        for (uint32_t i = 0; i <= pathinfo.last_run; ++i)
+        for (uint32_t i = 0; i < pathinfo.last_run; ++i)
           pathinfo.dqm_module_counter->Fill(i);
         if (pathinfo.accept)
           pathinfo.dqm_module_counter->Fill(pathinfo.modules.size());
@@ -1048,8 +1048,10 @@ void FastTimerService::postPathEvent(edm::StreamContext const & sc, edm::PathCon
       // "overhead" will be active - current
       // "total"    will be active + the sum of the time spent in non-active modules
 
-      uint32_t last_run = status.index();     // index of the last module run in this path
-      for (uint32_t i = 0; i <= last_run; ++i) {
+      uint32_t last_run = 0;                // index of the last module run in this path, plus one
+      if (status.wasrun() and not pathinfo.modules.empty())
+        last_run = status.index() + 1;      // index of the last module run in this path, plus one
+      for (uint32_t i = 0; i < last_run; ++i) {
         ModuleInfo * module = pathinfo.modules[i];
 
         if (module == 0)
@@ -1095,7 +1097,7 @@ void FastTimerService::postPathEvent(edm::StreamContext const & sc, edm::PathCon
       pathinfo.summary_postmodules  += post;
       pathinfo.summary_overhead     += overhead;
       pathinfo.summary_total        += total;
-      pathinfo.last_run              = status.index();
+      pathinfo.last_run              = last_run;
       pathinfo.accept                = status.accept();
     }
   }
