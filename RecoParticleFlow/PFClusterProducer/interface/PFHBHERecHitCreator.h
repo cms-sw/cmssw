@@ -49,7 +49,7 @@ class PFHBHERecHitCreator :  public  PFRecHitCreatorBase {
 	
 	double energy = erh.energy();
 	double time = erh.time();
-
+	int depth = detid.depth();
 
 	math::XYZVector position;
 	math::XYZVector axis;
@@ -87,7 +87,7 @@ class PFHBHERecHitCreator :  public  PFRecHitCreatorBase {
 			   position.x(), position.y(), position.z(), 
 			   0,0,0);
 	rh.setTime(time); //Mike: This we will use later
-
+	rh.setDepth(depth);
 	const CaloCellGeometry::CornersVec& corners = thisCell->getCorners();
 	assert( corners.size() == 8 );
 
