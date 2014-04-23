@@ -31,10 +31,10 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
 
   void initialize(){setUpVectors();};
 
-  void bookSimHistos();
+  void bookSimHistos(DQMStore::IBooker& ibook);
 
-  void bookRecoHistos();
-  void bookRecoHistosForStandaloneRunning();
+  void bookRecoHistos(DQMStore::IBooker& ibook);
+  void bookRecoHistosForStandaloneRunning(DQMStore::IBooker& ibook);
 
 
   void fill_generic_simTrack_histos(int counter,const TrackingParticle::Vector&,const TrackingParticle::Point& vertex, int bx);
