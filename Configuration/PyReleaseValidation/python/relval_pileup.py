@@ -45,3 +45,7 @@ workflows[25202]=['',['TTbar_13','DIGIUP15_PU25','RECOUP15_PU25','HARVEST']]
 workflows[25203]=['',['H130GGgluonfusion_13','DIGIUP15_PU25','RECOUP15_PU25','HARVEST']]
 workflows[25204]=['',['QQH1352T_Tauola_13','DIGIUP15_PU25','RECOUP15_PU25','HARVEST']]
 workflows[25205]=['',['ZTT_13','DIGIUP15_PU25','RECOUP15_PU25','HARVEST']]
+
+#fastsim
+workflows[25400]=['TTbar_13_AVE10',['TTbarFSPU13AVE10','HARVESTFS']]
+workflows[25401]=['TTbar_13_AVE20',['TTbarFSPU13AVE20','HARVESTFS']]
