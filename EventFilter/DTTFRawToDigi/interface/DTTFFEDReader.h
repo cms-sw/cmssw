@@ -17,6 +17,7 @@
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTTrackContainer.h"
+#include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
 
 #include <FWCore/Framework/interface/EDProducer.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
@@ -45,7 +46,7 @@ class DTTFFEDReader : public edm::EDProducer {
 
  private:
   
-  edm::InputTag DTTFInputTag;
+  edm::EDGetTokenT<FEDRawDataCollection> DTTFToken_;
 
   bool verbose_;
 
@@ -91,8 +92,6 @@ class DTTFFEDReader : public edm::EDProducer {
   int wheel(int channel);
 
   void calcCRC(int myD1, int myD2, int &myC);
-
-  edm::InputTag getDTTFInputTag() { return DTTFInputTag; }
-
+  
 };
 #endif

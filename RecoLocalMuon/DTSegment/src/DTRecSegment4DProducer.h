@@ -8,7 +8,8 @@
  */
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment2DCollection.h"
 
 namespace edm {
   class ParameterSet;
@@ -38,9 +39,9 @@ private:
   // Switch on verbosity
   bool debug;
 
-  edm::InputTag theRecHits1DLabel;
+  edm::EDGetTokenT<DTRecHitCollection> recHits1DToken_;
   //static std::string theAlgoName;
-  edm::InputTag theRecHits2DLabel;
+  edm::EDGetTokenT<DTRecSegment2DCollection> recHits2DToken_;
   // The 4D-segments reconstruction algorithm
   DTRecSegment4DBaseAlgo* the4DAlgo;
 };

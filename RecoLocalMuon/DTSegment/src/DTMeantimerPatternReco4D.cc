@@ -170,7 +170,7 @@ DTMeantimerPatternReco4D::reconstruct(){
 
       std::auto_ptr<DTChamberRecSegment2D> superPhi(**phi);
 
-      theUpdator->update(superPhi.get());
+      theUpdator->update(superPhi.get(),1);
       if(debug) cout << "superPhi: " << *superPhi << endl;
 
       if (hasZed) {
@@ -199,12 +199,12 @@ DTMeantimerPatternReco4D::reconstruct(){
           DTRecSegment4D* newSeg = new DTRecSegment4D(*superPhi,*zed,posZInCh,dirZInCh);
 
           /// 4d segment: I have the pos along the wire => further update!
-          theUpdator->update(newSeg);
+          theUpdator->update(newSeg,0,1);
           if (debug) cout << "Created a 4D seg " << *newSeg << endl;
 
           //update the segment with the t0 and possibly vdrift correction
           if(!applyT0corr && computeT0corr) theUpdator->calculateT0corr(newSeg);
-          if(applyT0corr) theUpdator->update(newSeg,true);
+          if(applyT0corr) theUpdator->update(newSeg,true,1);
 
           result.push_back(newSeg);
         }
@@ -216,7 +216,7 @@ DTMeantimerPatternReco4D::reconstruct(){
 
         //update the segment with the t0 and possibly vdrift correction
         if(!applyT0corr && computeT0corr) theUpdator->calculateT0corr(newSeg);
-        if(applyT0corr) theUpdator->update(newSeg,true);
+        if(applyT0corr) theUpdator->update(newSeg,true,1);
 
         result.push_back(newSeg);
       }
@@ -239,7 +239,7 @@ DTMeantimerPatternReco4D::reconstruct(){
         if (debug) cout << "Created a 4D segment using only the 2D Theta segment" << endl;
 
         if(!applyT0corr && computeT0corr) theUpdator->calculateT0corr(newSeg);
-        if(applyT0corr) theUpdator->update(newSeg,true);
+        if(applyT0corr) theUpdator->update(newSeg,true,1);
 
         result.push_back(newSeg);
       }

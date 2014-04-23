@@ -11,6 +11,7 @@
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 
 namespace edm {
   class ParameterSet;
@@ -35,7 +36,7 @@ private:
   // Switch on verbosity
   const bool debug;
   // The label to be used to retrieve DT digis from the event
-  edm::InputTag theDTDigiLabel;
+  edm::EDGetTokenT<DTDigiCollection> DTDigiToken_;
   // The reconstruction algorithm
   DTRecHitBaseAlgo *theAlgo;
 //   static string theAlgoName;

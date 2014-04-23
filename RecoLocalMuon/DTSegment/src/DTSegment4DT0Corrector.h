@@ -8,8 +8,8 @@
  */
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 #include "RecoLocalMuon/DTSegment/src/DTSegmentUpdator.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 
 namespace edm {
   class ParameterSet;
@@ -39,7 +39,7 @@ class DTSegment4DT0Corrector: public edm::EDProducer {
   // Switch on verbosity
   bool debug;
 
-  edm::InputTag theRecHits4DLabel;
+  edm::EDGetTokenT<DTRecSegment4DCollection> recHits4DToken_;
 
   // the updator
   DTSegmentUpdator *theUpdator;
