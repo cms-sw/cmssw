@@ -29,11 +29,7 @@ _localMaxSeeds_HFHAD = cms.PSet(
               seedingThresholdPt = cms.double(0.0)
               )
     ),
-<<<<<<< HEAD
     nNeighbours = cms.int32(0)
-=======
-    nNeighbours = cms.int32(4)
->>>>>>> Track HF
 )
 
 #topo clusters
