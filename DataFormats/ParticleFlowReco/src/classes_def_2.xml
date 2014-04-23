@@ -33,24 +33,23 @@
   </class>
 
 
-  <class name="reco::PFRecHit" ClassVersion="16">
+  <class name="reco::PFRecHit" ClassVersion="17">
    <version ClassVersion="10" checksum="1807687081"/>
-   <!-- just point old neighbours at nothing if we are reading them for some reason -->
-   <ioread sourceClass = "reco::PFRecHit" version="[1-10]" targetClass="reco::PFRecHit" source="std::vector<unsigned> neighbours4_; std::vector<unsigned> neighbours8_;" target="">
-     <![CDATA[]]>
-   </ioread>
    <version ClassVersion="11" checksum="3727193351"/>
    <version ClassVersion="12" checksum="207373238"/>
    <version ClassVersion="13" checksum="2553278843"/>
    <version ClassVersion="14" checksum="3941705446"/>
    <version ClassVersion="15" checksum="730472518"/>
    <version ClassVersion="16" checksum="3833143325"/>
+   <version ClassVersion="17" checksum="2707878893"/>
+   <ioread sourceClass = "reco::PFRecHit" version="[1-10]" targetClass="reco::PFRecHit" source="std::vector<unsigned> neighbours4_; std::vector<unsigned> neighbours8_;" target="">
+    <![CDATA[]]>
+   </ioread>
 
-    <field name="positionrep_" transient="true"/>
-    <!-- <field name="seedState_" transient="true"/> -->
-    <!-- <field name="nNeighbours_" transient="true"/> -->
-    <field name="nCorners_" transient="true"/>
-    <field name="cornersrep_" transient="true"/>
+   <field name="positionrep_" transient="true"/>
+   <field name="nCorners_" transient="true"/>
+   <field name="cornersrep_" transient="true"/>
+
   </class>
 
 

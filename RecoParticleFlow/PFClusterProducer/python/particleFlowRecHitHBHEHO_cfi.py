@@ -7,6 +7,7 @@ particleFlowRecHitHBHEHO = cms.EDProducer("PFRecHitProducer",
            cms.PSet(
              name = cms.string("PFHORecHitCreator"),
              src  = cms.InputTag("horeco",""),
+             hoDepth = cms.untracked.int32(2),
              qualityTests = cms.VPSet(
                   cms.PSet(
                   name = cms.string("PFRecHitQTestThreshold"),
