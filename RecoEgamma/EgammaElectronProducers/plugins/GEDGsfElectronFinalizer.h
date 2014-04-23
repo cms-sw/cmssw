@@ -2,7 +2,7 @@
 #ifndef GEDGsfElectronFinalizer_h
 #define GEDGsfElectronFinalizer_h
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -13,7 +13,7 @@
 #include <string>
 #include <vector>
 
-class GEDGsfElectronFinalizer : public edm::EDProducer
+class GEDGsfElectronFinalizer : public edm::stream::EDProducer<>
 {
  public:
   explicit GEDGsfElectronFinalizer (const edm::ParameterSet &);

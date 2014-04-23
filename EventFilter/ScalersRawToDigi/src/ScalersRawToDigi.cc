@@ -16,7 +16,7 @@
 
 #include <memory>
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -35,7 +35,7 @@
 #include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "DataFormats/Scalers/interface/ScalersRaw.h"
 
-class ScalersRawToDigi : public edm::EDProducer 
+class ScalersRawToDigi : public edm::stream::EDProducer<> 
 {
   public:
     explicit ScalersRawToDigi(const edm::ParameterSet&);

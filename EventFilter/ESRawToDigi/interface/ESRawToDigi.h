@@ -3,7 +3,7 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "EventFilter/ESRawToDigi/interface/ESUnpacker.h"
@@ -11,7 +11,7 @@
 #include "DataFormats/EcalRawData/interface/ESListOfFEDS.h"
 
 
-class ESRawToDigi : public edm::EDProducer {
+class ESRawToDigi : public edm::stream::EDProducer<> {
   
  public:
   

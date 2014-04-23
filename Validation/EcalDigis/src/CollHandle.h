@@ -6,6 +6,7 @@
 
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 /** Utilitity class for handling an EDM data collection. This class
@@ -32,6 +33,7 @@ public:
   CollHandle(const edm::InputTag& tag,
 	     bool failIfNotFound = true,
 	     bool notFoundWarn = true): tag_(tag),
+                                        token_(),
 					currentColl_(&emptyColl_),
 					notFoundAlreadyWarned_(false),
 					failIfNotFound_(failIfNotFound),
@@ -39,9 +41,19 @@ public:
   
   //method(s)
 public:
+  /*
+    Receives the "ConsumesCollector" from the EDAnalyzer and declares the usage
+     of the collection, as well as storing the token for it.
+  */
+
+  void setToken(edm::ConsumesCollector& collector)
+  {
+    token_ = collector.consumes<T>(tag_);
+  }
+
   /** Retrieves the collection from the event. If failIfNotFound is true and
    * the collection is not found, then an edm::Exception is thrown. For other
-   * case of exception throw see edm::Event::getByLabel() method documentation.
+   * case of exception throw see edm::Event::getByToken() method documentation.
    * If failIfNotFound is false and the collection is not found, an empty
    * collection is used; a warn message will be logged the first time
    * the collection is not found.
@@ -50,7 +62,7 @@ public:
   void read(const edm::Event& event){
     //    try{
     edm::Handle<T> hColl;
-    event.getByLabel(tag_, hColl);
+    event.getByToken(token_, hColl);
   
     //If we must be tolerant to product absence, then
     //we must check validaty before calling Handle::operator*
@@ -91,6 +103,9 @@ private:
   /** tag identifying the data collecion
    */
   const edm::InputTag tag_;
+
+  /* EDM "Token" that is used in the actual data retrieval */
+  edm::EDGetTokenT<T> token_;
 
   /** Pointer to the last read collection, points to emptColl be default
    */
