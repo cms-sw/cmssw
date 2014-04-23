@@ -23,9 +23,10 @@ class TrackingRecHitPropagator {
 
 	~TrackingRecHitPropagator() {delete thePropagator;}
 
-	template <class ResultingHit> TransientTrackingRecHit::RecHitPointer project(const TransientTrackingRecHit::ConstRecHitPointer hit,
-                         							     const GeomDet& det,
-                         					                     const TrajectoryStateOnSurface ts) const{
+        /*
+	template <class ResultingHit> TrackingRecHit::RecHitPointer project(const TrackingRecHit::ConstRecHitPointer hit,
+                         					            const GeomDet& det,
+                         					            const TrajectoryStateOnSurface ts) const{
 	//1) propagate the best possible track parameters to the surface of the hit you want to "move" using a AnalyticalPropagator ;
 	//2) create LocalTrajectoryParameters with the local x,y of the hit and direction + momentum from the propagated track parameters;
 	//3) create a LocalTrajectoryError matrix which is 0 except for the local x,y submatrix, which is filled with the hit errors;
@@ -40,7 +41,7 @@ class TrackingRecHitPropagator {
 		//	  LogTrace("SiTrackerMultiRecHitUpdator") << "the propagate tsos is valid";	  
 		//		LogTrace("SiTrackerMultiRecHitUpdator") << "Original: position: "<<hit->parameters()<<" error: "<<hit->parametersError()<<std::endl;
 		//clone the original hit with this state
-		TransientTrackingRecHit::RecHitPointer updatedOriginal = hit->clone(propagated);
+		TrackingRecHit::RecHitPointer updatedOriginal = hit->clone(propagated);
 		//		LogTrace("SiTrackerMultiRecHitUpdator") << "New: position: "<<updatedOriginal->parameters()<<" error: "<<updatedOriginal->parametersError()<<std::endl;
 		
 		//	  LogTrace("SiTrackerMultiRecHitUpdator") << "rechit cloned";	  
@@ -65,6 +66,7 @@ class TrackingRecHitPropagator {
 		return ResultingHit::build(p, e, &det, updatedOriginal->det(), updatedOriginal, this);
 	}
 	
+        */
 	private:
 	const AnalyticalPropagator* thePropagator;
 };

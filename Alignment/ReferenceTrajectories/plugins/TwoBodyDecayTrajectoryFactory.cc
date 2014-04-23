@@ -222,11 +222,17 @@ TwoBodyDecayTrajectoryFactory::constructTrajectories( const ConstTrajTrackPairCo
   }
 
   // always use the refitted trajectory state for matching
-  TransientTrackingRecHit::ConstRecHitPointer updatedRecHit1( recHits.first.front()->clone( tsos.first ) );
+  // FIXME FIXME CLONE
+  //TrackingRecHit::ConstRecHitPointer updatedRecHit1( recHits.first.front()->clone( tsos.first ) );
+  // TrackingRecHit::ConstRecHitPointer updatedRecHit2( recHits.second.front()->clone( tsos.second ) );
+
+  TrackingRecHit::ConstRecHitPointer updatedRecHit1( recHits.first.front() );
+  TrackingRecHit::ConstRecHitPointer updatedRecHit2( recHits.second.front() );
+
+
   bool valid1 = match( trajectoryState.trajectoryStates( true ).first,
 		       updatedRecHit1 );
 
-  TransientTrackingRecHit::ConstRecHitPointer updatedRecHit2( recHits.second.front()->clone( tsos.second ) );
   bool valid2 = match( trajectoryState.trajectoryStates( true ).second,
 		       updatedRecHit2 );
 
