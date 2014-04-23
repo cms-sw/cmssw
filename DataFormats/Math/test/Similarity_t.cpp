@@ -1,3 +1,4 @@
+#define SMATRIX_USE_CONSTEXPR
 #include "Math/SMatrix.h"
 #include <cmath>
 #include <cstddef>
