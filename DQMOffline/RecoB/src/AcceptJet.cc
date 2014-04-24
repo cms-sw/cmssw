@@ -1,18 +1,19 @@
 #include "DQMOffline/RecoB/interface/AcceptJet.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
 
 #include<iostream>
 
 using namespace std;
 
 AcceptJet::AcceptJet(const double& etaMin_, const double& etaMax_, const double& ptMin_, const double& ptMax_,
-          const double& pMin_, const double& pMax_, const double& ratioMin_, const double& ratioMax_) :
+		     const double& pMin_, const double& pMax_, const double& ratioMin_, const double& ratioMax_, const bool& doJetID_) :
   etaMin(etaMin_), etaMax(etaMax_), ptRecJetMin(ptMin_), ptRecJetMax(ptMax_), pRecJetMin(pMin_),
-  pRecJetMax(pMax_), ratioMin(ratioMin_), ratioMax(ratioMax_) {}
+  pRecJetMax(pMax_), ratioMin(ratioMin_), ratioMax(ratioMax_), doJetID(doJetID_) {}
 
 
-bool AcceptJet::operator() (const reco::Jet & jet, const int & jetFlavour, const edm::Handle<reco::SoftLeptonTagInfoCollection> & infos) const
+bool AcceptJet::operator() (const reco::Jet & jet, const int & jetFlavour, const edm::Handle<reco::SoftLeptonTagInfoCollection> & infos, const double jec) const
 {
 
   // temporary fudge to correct for double loop error
@@ -27,11 +28,11 @@ bool AcceptJet::operator() (const reco::Jet & jet, const int & jetFlavour, const
 //   if ( jetFlavour.underlyingParton4Vec().Pt() < ptPartonMin  ||
 //        jetFlavour.underlyingParton4Vec().Pt() > ptPartonMax  ) accept = false;
 
-  if ( jet.pt() < ptRecJetMin ||
-       jet.pt() > ptRecJetMax ) return false;
+  if ( jet.pt()*jec < ptRecJetMin ||
+       jet.pt()*jec > ptRecJetMax ) return false;
 
-  if ( jet.p() < pRecJetMin ||
-       jet.p() > pRecJetMax ) return false;
+  if ( jet.p()*jec < pRecJetMin ||
+       jet.p()*jec > pRecJetMax ) return false;
 
   if ( !infos.isValid() ) {
     edm::LogWarning("infos not valid") << "A valid SoftLeptonTagInfoCollection was not found!"
@@ -39,10 +40,30 @@ bool AcceptJet::operator() (const reco::Jet & jet, const int & jetFlavour, const
   }
   else {
     double pToEratio = ratio( jet, infos );
-    if ( pToEratio < ratioMin ||
-         pToEratio > ratioMax ) return false;
+    if ( pToEratio/jec < ratioMin ||
+         pToEratio/jec > ratioMax ) return false;
   }
 
+  if(doJetID){
+    const reco::PFJet * pfjet = dynamic_cast<const reco::PFJet *>(&jet);
+    if(pfjet) {
+      double neutralHadronEnergyFraction = pfjet->neutralHadronEnergy()/(jet.energy()*jec);
+      double neutralEmEnergyFraction = pfjet->neutralEmEnergy()/(jet.energy()*jec);
+      int nConstituents = pfjet->getPFConstituents().size();
+      double chargedHadronEnergyFraction = pfjet->chargedHadronEnergy()/(jet.energy()*jec);
+      int chargedMultiplicity = pfjet->chargedMultiplicity();
+      double chargedEmEnergyFraction = pfjet->chargedEmEnergy()/(jet.energy()*jec);
+      if(!(neutralHadronEnergyFraction < 0.99 
+	   && neutralEmEnergyFraction < 0.99 
+	   && nConstituents > 1 
+	   && chargedHadronEnergyFraction > 0.0 
+	   && chargedMultiplicity > 0.0 
+	   && chargedEmEnergyFraction < 0.99)) 
+	return false; //2012 values
+    }
+    else std::cout<<"Jets are not PF jets, put 'doJetID' to False."<<std::endl;
+  }
+  
   return true;
 }
 

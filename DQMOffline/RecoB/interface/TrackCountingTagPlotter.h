@@ -14,15 +14,16 @@ class TrackCountingTagPlotter : public BaseTagInfoPlotter {
  public:
 
   TrackCountingTagPlotter (const std::string & tagName, const EtaPtBin & etaPtBin,
-	const edm::ParameterSet& pSet, const bool& update, const unsigned int& mc, const bool& willfinalize);
+			   const edm::ParameterSet& pSet, const bool& update, 
+			   const unsigned int& mc, const bool& willfinalize, DQMStore::IBooker & ibook);
 
   ~TrackCountingTagPlotter () ;
 
-  void analyzeTag (const reco::BaseTagInfo * baseTagInfo, const int & jetFlavour);
-  void analyzeTag (const reco::BaseTagInfo * baseTagInfo, const int & jetFlavour, const float & w);
+  void analyzeTag (const reco::BaseTagInfo * baseTagInfo, const double & jec, const int & jetFlavour);
+  void analyzeTag (const reco::BaseTagInfo * baseTagInfo, const double & jec, const int & jetFlavour, const float & w);
 
   virtual void finalize ();
-  virtual void createPlotsForFinalize ();
+  virtual void createPlotsForFinalize (DQMStore::IBooker & ibook);
 
   void epsPlot(const std::string & name);
 
@@ -43,6 +44,7 @@ class TrackCountingTagPlotter : public BaseTagInfoPlotter {
 
   EffPurFromHistos * effPurFromHistos[4] ;
   bool finalized;
+  DQMStore::IBooker & ibook_;
 } ;
 
 #endif
