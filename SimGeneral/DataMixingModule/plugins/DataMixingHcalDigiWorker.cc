@@ -93,6 +93,7 @@ namespace edm
     ES.get<HcalDbRecord>().get(conditions);                                         
 
 
+
     // fill in maps of hits
 
     LogInfo("DataMixingHcalDigiWorker")<<"===============> adding MC signals for "<<e.id();
@@ -324,7 +325,6 @@ namespace edm
 #endif
        }
     }
-    else {std::cout << "NO HBHE Digis!!!!" << std::endl;}
     // HO Next
 
     boost::shared_ptr<Wrapper<HODigiCollection>  const> HODigisPTR = 

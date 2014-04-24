@@ -214,9 +214,7 @@ int main() {
 
 
   bool addNoise = false;
-  bool PM1 = false;
-  bool PM2 = false;
-  HcalAmplifier amplifier(&parameterMap, addNoise, PM1, PM2);
+  HcalAmplifier amplifier(&parameterMap, addNoise);
   HcalCoderFactory coderFactory(HcalCoderFactory::NOMINAL);
   HcalElectronicsSim electronicsSim(&amplifier, &coderFactory);
   amplifier.setDbService(&calibratorHandle);

@@ -3,17 +3,8 @@ import FWCore.ParameterSet.Config as cms
 from RecoBTag.Configuration.RecoBTag_cff import *
 from DQMOffline.RecoB.dqmAnalyzer_cff import *
 
-
-#Calo collector
-calobTagCollector = calobTagAnalysis.clone()
-# module execution
-bTagCollectorSequence = cms.Sequence(calobTagCollector)
-calobTagCollector.finalizePlots = True
-calobTagCollector.finalizeOnly = True
-
-
 #pf DATA collector
-bTagCollectorDATA = pfbTagAnalysis.clone()
+bTagCollectorDATA = bTagAnalysis.clone()
 # module execution
 bTagCollectorSequenceDATA = cms.Sequence(bTagCollectorDATA)
 bTagCollectorDATA.ptRanges = cms.vdouble(0.0)
@@ -22,7 +13,7 @@ bTagCollectorDATA.finalizeOnly = True
 
 
 #pf MC collector
-bTagCollectorMC = pfbTagAnalysis.clone(
+bTagCollectorMC = bTagAnalysis.clone(
     finalizePlots = True,
     finalizeOnly = True,
     mcPlots = 2, #harvest all, b, c, dusg and ni histos 

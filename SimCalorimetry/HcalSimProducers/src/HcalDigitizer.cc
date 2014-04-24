@@ -137,8 +137,6 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   iC.consumes<std::vector<PCaloHit> >(edm::InputTag(hitsProducer_, "HcalHits"));
 
   bool doNoise = ps.getParameter<bool>("doNoise");
-  bool PreMix1 = ps.getParameter<bool>("HcalPreMixStage1");  // special threshold/pedestal treatment
-  bool PreMix2 = ps.getParameter<bool>("HcalPreMixStage2");  // special threshold/pedestal treatment
   bool useOldNoiseHB = ps.getParameter<bool>("useOldHB");
   bool useOldNoiseHE = ps.getParameter<bool>("useOldHE");
   bool useOldNoiseHF = ps.getParameter<bool>("useOldHF");
@@ -154,20 +152,11 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   bool agingFlagHE = ps.getParameter<bool>("HEDarkening");
   bool agingFlagHF = ps.getParameter<bool>("HFDarkening");
 
-
-  if(PreMix1 && PreMix2) {
-     throw cms::Exception("Configuration")
-      << "HcalDigitizer cannot operate in PreMixing digitization and PreMixing\n"
-         "digi combination modes at the same time.  Please set one mode to False\n"
-         "in the configuration file.";
-  }
-
-
   // need to make copies, because they might get different noise generators
-  theHBHEAmplifier = new HcalAmplifier(theParameterMap, doNoise, PreMix1, PreMix2);
-  theHFAmplifier = new HcalAmplifier(theParameterMap, doNoise, PreMix1, PreMix2);
-  theHOAmplifier = new HcalAmplifier(theParameterMap, doNoise, PreMix1, PreMix2);
-  theZDCAmplifier = new HcalAmplifier(theParameterMap, doNoise, PreMix1, PreMix2);
+  theHBHEAmplifier = new HcalAmplifier(theParameterMap, doNoise);
+  theHFAmplifier = new HcalAmplifier(theParameterMap, doNoise);
+  theHOAmplifier = new HcalAmplifier(theParameterMap, doNoise);
+  theZDCAmplifier = new HcalAmplifier(theParameterMap, doNoise);
   theHBHEAmplifier->setHBtuningParameter(HBtp);
   theHBHEAmplifier->setHEtuningParameter(HEtp);
   theHFAmplifier->setHFtuningParameter(HFtp);
@@ -253,8 +242,6 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
   theZDCResponse->setHitFilter(&theZDCHitFilter);
 
   bool doTimeSlew = ps.getParameter<bool>("doTimeSlew");
-  //initialize: they won't be called later if flag is set
-  theTimeSlewSim = 0;
   if(doTimeSlew) {
     // no time slewing for HF
     theTimeSlewSim = new HcalTimeSlewSim(theParameterMap);
