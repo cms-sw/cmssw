@@ -32,7 +32,8 @@ public:
   FlavourHistograms (const std::string& baseNameTitle_ , const std::string& baseNameDescription_ ,
 		     const int& nBins_ , const double& lowerBound_ , const double& upperBound_ ,
 		     const bool& statistics_ , const bool& plotLog_ , const bool& plotNormalized_ ,
-		     const std::string& plotFirst_ , const bool& update, const std::string& folder, const unsigned int& mc) ;
+		     const std::string& plotFirst_ , const bool& update, const std::string& folder, 
+		     const unsigned int& mc, DQMStore::IBooker & ibook) ;
 
   virtual ~FlavourHistograms () ;
 
@@ -148,7 +149,8 @@ template <class T>
 FlavourHistograms<T>::FlavourHistograms (const std::string& baseNameTitle_ , const std::string& baseNameDescription_ ,
 					 const int& nBins_ , const double& lowerBound_ , const double& upperBound_ ,
 					 const bool& statistics_ , const bool& plotLog_ , const bool& plotNormalized_ ,
-					 const std::string& plotFirst_, const bool& update, const std::string& folder, const unsigned int& mc) :
+					 const std::string& plotFirst_, const bool& update, const std::string& folder, 
+					 const unsigned int& mc, DQMStore::IBooker & ibook) :
   // BaseFlavourHistograms () ,
   // theVariable ( variable_ ) ,
   theMaxDimension(-1), theIndexToPlot(-1), theBaseNameTitle ( baseNameTitle_ ) , theBaseNameDescription ( baseNameDescription_ ) ,
@@ -172,7 +174,7 @@ FlavourHistograms<T>::FlavourHistograms (const std::string& baseNameTitle_ , con
 
   if (!update) {
     // book histos
-    HistoProviderDQM prov("Btag",folder);
+    HistoProviderDQM prov("Btag",folder,ibook);
     if(mcPlots_%2==0) theHisto_all   = (prov.book1D( theBaseNameTitle + "ALL"  , theBaseNameDescription + " all jets"  , theNBins , theLowerBound , theUpperBound )) ; 
     else theHisto_all = 0;
     if (mcPlots_) {
@@ -227,7 +229,8 @@ FlavourHistograms<T>::FlavourHistograms (const std::string& baseNameTitle_ , con
       }
     }
   } else {
-    HistoProviderDQM prov("Btag",folder);
+    //is it useful? anyway access function is deprecated... 
+    HistoProviderDQM prov("Btag",folder,ibook);
     if(theHisto_all) theHisto_all   = prov.access(theBaseNameTitle + "ALL" ) ; 
     if (mcPlots_) {  
       if (mcPlots_>2 ) {
