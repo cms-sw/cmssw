@@ -11,14 +11,15 @@ class SoftLeptonTagPlotter : public BaseTagInfoPlotter {
 public:
 
   SoftLeptonTagPlotter(const std::string & tagName, const EtaPtBin & etaPtBin,
-	const edm::ParameterSet& pSet, const unsigned int& mc, const bool& update);
+		       const edm::ParameterSet& pSet, const unsigned int& mc, 
+		       const bool& update, DQMStore::IBooker & ibook);
   
   ~SoftLeptonTagPlotter( void ) ;
 
-  void analyzeTag (const reco::BaseTagInfo * baseTagInfo, const int & jetFlavour);
-  void analyzeTag (const reco::BaseTagInfo * baseTagInfo, const int & jetFlavour, const float & w);
+  void analyzeTag (const reco::BaseTagInfo * baseTagInfo, const double & jec, const int & jetFlavour);
+  void analyzeTag (const reco::BaseTagInfo * baseTagInfo, const double & jec, const int & jetFlavour, const float & w);
 
-  virtual void finalize( void ) {}
+  virtual void finalize() {}
 
 
   void psPlot( const std::string & name );

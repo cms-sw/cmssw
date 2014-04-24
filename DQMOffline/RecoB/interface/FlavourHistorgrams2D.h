@@ -32,10 +32,10 @@ class FlavourHistograms2D {
 public:
 
   FlavourHistograms2D (TString baseNameTitle_ , TString baseNameDescription_ ,
-		      int nBinsX_ , double lowerBoundX_ , double upperBoundX_ ,
-                      int nBinsY_ , double lowerBoundY_ , double upperBoundY_ ,
-		      bool statistics_ , bool update, std::string folder, unsigned int mc,
-                      bool createProfile) ;
+		       int nBinsX_ , double lowerBoundX_ , double upperBoundX_ ,
+		       int nBinsY_ , double lowerBoundY_ , double upperBoundY_ ,
+		       bool statistics_ , bool update, std::string folder, unsigned int mc,
+		       bool createProfile, DQMStore::IBooker & ibook) ;
 
   virtual ~FlavourHistograms2D () ;
 
@@ -173,10 +173,10 @@ protected:
 
 template <class T, class G>
 FlavourHistograms2D<T, G>::FlavourHistograms2D (TString baseNameTitle_ , TString baseNameDescription_ ,
-					  int nBinsX_ , double lowerBoundX_ , double upperBoundX_ ,
-                                          int nBinsY_ , double lowerBoundY_ , double upperBoundY_ ,
-					  bool statistics_ ,
-					  bool update, std::string folder, unsigned int mc, bool createProfile) :
+						int nBinsX_ , double lowerBoundX_ , double upperBoundX_ ,
+						int nBinsY_ , double lowerBoundY_ , double upperBoundY_ ,
+						bool statistics_ , bool update, std::string folder, 
+						unsigned int mc, bool createProfile, DQMStore::IBooker & ibook) :
   // BaseFlavourHistograms2D () ,
   // theVariable ( variable_ ) ,
   theMaxDimension(-1), theIndexToPlot(-1), theBaseNameTitle ( baseNameTitle_ ) , theBaseNameDescription ( baseNameDescription_ ) ,
@@ -190,7 +190,7 @@ FlavourHistograms2D<T, G>::FlavourHistograms2D (TString baseNameTitle_ , TString
     
   if (!update) {
     // book histos
-    HistoProviderDQM prov("Btag",folder);
+    HistoProviderDQM prov("Btag",folder,ibook);
     if(mcPlots_%2 == 0) theHisto_all   = (prov.book2D( theBaseNameTitle + "ALL"  , theBaseNameDescription + " all jets"  , theNBinsX , theLowerBoundX , theUpperBoundX , theNBinsY, theLowerBoundY, theUpperBoundY )) ; 
     else theHisto_all = 0;
     if (mcPlots_) {  
@@ -310,7 +310,8 @@ FlavourHistograms2D<T, G>::FlavourHistograms2D (TString baseNameTitle_ , TString
       }
     }
   } else {
-    HistoProviderDQM prov("Btag",folder);
+    //is it useful? anyway access function is deprecated...
+    HistoProviderDQM prov("Btag",folder,ibook);
     if(theHisto_all) theHisto_all   = prov.access(theBaseNameTitle + "ALL" ) ; 
     if (mcPlots_) {  
       if (mcPlots_>2) {

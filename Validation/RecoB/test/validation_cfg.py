@@ -7,7 +7,7 @@ import FWCore.ParameterSet.VarParsing as VarParsing
 options = VarParsing.VarParsing ('analysis')
 
 options.register ('jets',
-                  "ak5PFCHS", # default value, allowed : "ak5PF", "ak5PFCHS"
+                  "ak5PFCHS", # default value, allowed : "ak5PF", "ak5PFCHS", add "NoJEC" to run the code with no JEC applied
                   VarParsing.VarParsing.multiplicity.singleton,
                   VarParsing.VarParsing.varType.string,  
                   "jet collection to use")
@@ -37,6 +37,9 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 100
 process.load("Configuration.StandardSequences.MagneticField_cff")
 #process.load("Configuration.StandardSequences.Geometry_cff") #old one, to use for old releases
 process.load("Configuration.Geometry.GeometryIdeal_cff")
+#process.load('Configuration.Geometry.GeometryExtended2017Reco_cff')                                                                                                                                    
+#process.load('Configuration.Geometry.GeometryExtended2019Reco_cff')                                                                                                                                    
+#process.load('Configuration.Geometry.GeometryExtended2019_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.GlobalTag.globaltag = tag
@@ -46,15 +49,21 @@ process.load("DQMServices.Core.DQM_cfg")
 process.load("DQMOffline.RecoB.bTagSequences_cff")
 #process.bTagHLT.HLTPaths = ["HLT_PFJet80_v*"] #uncomment this line if you want to use different trigger
 
-process.JECAlgo = cms.Sequence(process.ak5JetsJEC * process.PFJetsFilter)
-newjetID=cms.InputTag("PFJetsFilter")
+newjetID=cms.InputTag("ak5PFJetsCHS")
+process.jetSequences = cms.Sequence(process.goodOfflinePrimaryVertices * process.btagSequence)
+if "NoJEC" in whichJets and not "CHS" in whichJets : newjetID=cms.InputTag("ak5PFJets")
+if not "NoJEC" in whichJets:
+    process.JECAlgo = cms.Sequence(process.ak5JetsJEC * process.PFJetsFilter)
+    process.jetSequences = cms.Sequence(process.goodOfflinePrimaryVertices * process.JECAlgo * process.btagSequence)
+    newjetID=cms.InputTag("PFJetsFilter")
+    if whichJets=="ak5PF":
+        process.ak5JetsJEC.src = 'ak5PFJets'
+        process.ak5JetsJEC.correctors = ['ak5PFL1FastL2L3']
 process.myak5JetTracksAssociatorAtVertex.jets = newjetID
 process.softPFMuonsTagInfos.jets              = newjetID
 process.softPFElectronsTagInfos.jets          = newjetID
 process.AK5byRef.jets                         = newjetID
-if whichJets=="ak5PF":
-    process.ak5JetsJEC.src = 'ak5PFJets'
-    process.ak5JetsJEC.correctors = ['ak5PFL1FastL2L3']
+
 ###
 print "inputTag : ", process.myak5JetTracksAssociatorAtVertex.jets
 ###
@@ -88,8 +97,6 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring()
 )
-
-process.jetSequences = cms.Sequence(process.goodOfflinePrimaryVertices * process.JECAlgo * process.btagSequence)
 
 if runOnMC:
     process.dqmSeq = cms.Sequence(process.ak5GenJetsForPUid * process.patJetGenJetMatch * process.flavourSeq * process.bTagValidation * process.dqmSaver)
