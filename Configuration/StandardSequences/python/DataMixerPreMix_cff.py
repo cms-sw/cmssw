@@ -19,12 +19,12 @@ DMEcalPreshowerDigis = simEcalPreshowerDigis.clone()
 
 # Re-define inputs to point at DataMixer output
 DMEcalTriggerPrimitiveDigis.Label = cms.string('mixData')
-DMEcalTriggerPrimitiveDigis.InstanceEB = cms.string('')
-DMEcalTriggerPrimitiveDigis.InstanceEE = cms.string('')
+DMEcalTriggerPrimitiveDigis.InstanceEB = cms.string('EBDigiCollectionDM')
+DMEcalTriggerPrimitiveDigis.InstanceEE = cms.string('EEDigiCollectionDM')
 #
 DMEcalDigis.digiProducer = cms.string('mixData')
-DMEcalDigis.EBdigiCollection = cms.string('')
-DMEcalDigis.EEdigiCollection = cms.string('')
+DMEcalDigis.EBdigiCollection = cms.string('EBDigiCollectionDM')
+DMEcalDigis.EEdigiCollection = cms.string('EEDigiCollectionDM')
 DMEcalDigis.trigPrimProducer = cms.string('DMEcalTriggerPrimitiveDigis')
 #
 DMEcalPreshowerDigis.digiProducer = cms.string('mixData')

@@ -27,7 +27,6 @@
 #include "SimGeneral/DataMixingModule/plugins/DataMixingEMWorker.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingHcalWorker.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingEMDigiWorker.h"
-#include "SimGeneral/DataMixingModule/plugins/DataMixingEcalDigiWorkerProd.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingHcalDigiWorker.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingHcalDigiWorkerProd.h"
 #include "SimGeneral/DataMixingModule/plugins/DataMixingMuonWorker.h"
@@ -64,17 +63,9 @@ namespace edm {
       virtual void doPileUp(edm::Event &e,const edm::EventSetup& ES) override;
       virtual void put(edm::Event &e,const edm::EventSetup& ES) ;
 
-      void initializeEvent(edm::Event const& e, edm::EventSetup const& eventSetup);
-      void beginRun(edm::Run const& run, edm::EventSetup const& eventSetup);
+      virtual void initializeEvent(edm::Event const& e, edm::EventSetup const& eventSetup);
 
       void pileWorker(const edm::EventPrincipal&, int bcr, int EventId,const edm::EventSetup& ES, ModuleCallingContext const*);
-      //virtual void beginJob();
-      //virtual void endJob();
-      //virtual void beginLuminosityBlock(LuminosityBlock const& l1, EventSetup const& c) override;
-      //virtual void endLuminosityBlock(LuminosityBlock const& l1, EventSetup const& c) override;
-      //virtual void endRun(const edm::Run& r, const edm::EventSetup& setup) override;
-
-
 
     private:
       // data specifiers
@@ -130,7 +121,6 @@ namespace edm {
 
       DataMixingEMWorker *EMWorker_ ;
       DataMixingEMDigiWorker *EMDigiWorker_ ;
-      DataMixingEcalDigiWorkerProd *EcalDigiWorkerProd_ ;
       bool MergeEMDigis_;
 
       // Hcal 
