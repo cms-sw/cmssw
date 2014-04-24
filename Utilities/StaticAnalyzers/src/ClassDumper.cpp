@@ -27,8 +27,6 @@ void writeLog(std::string ostring,std::string tfstring) {
 void ClassDumper::checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::AnalysisManager& mgr,
                     clang::ento::BugReporter &BR, std::string tname ) const {
 
- 	const char *sfile=BR.getSourceManager().getPresumedLoc(RD->getLocation()).getFilename();
- 	if (!support::isCmsLocalFile(sfile)) return;
 
 	if (!RD->hasDefinition()) return;
 	std::string rname = RD->getQualifiedNameAsString();
