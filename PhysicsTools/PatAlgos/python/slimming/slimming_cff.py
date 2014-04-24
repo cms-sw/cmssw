@@ -13,7 +13,7 @@ from PhysicsTools.PatAlgos.slimming.slimmedPhotons_cfi   import *
 from PhysicsTools.PatAlgos.slimming.slimmedTaus_cfi      import *
 from PhysicsTools.PatAlgos.slimming.slimmedSecondaryVertices_cfi      import *
 from PhysicsTools.PatAlgos.slimming.slimmedMETs_cfi      import *
-#from PhysicsTools.PatAlgos.slimming.metFilterPaths_cff   import *
+from PhysicsTools.PatAlgos.slimming.metFilterPaths_cff   import *
 
 MicroEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring(

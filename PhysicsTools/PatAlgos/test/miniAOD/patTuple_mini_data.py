@@ -15,17 +15,11 @@ process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
 #   process.GlobalTag.globaltag =  ...    ##  (according to https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions)
 #                                         ##
 process.source.fileNames = [
-	'/store/relval/CMSSW_7_1_0_pre6/SingleMu/RECO/PRE_R_71_V2_RelVal_zMu2012D-v1/00000/10C0893A-3CC7-E311-9483-00248C55CC9D.root',
-	'/store/relval/CMSSW_7_1_0_pre6/SingleMu/RECO/PRE_R_71_V2_RelVal_zMu2012D-v1/00000/14730258-3FC7-E311-AED2-003048679182.root',
-	'/store/relval/CMSSW_7_1_0_pre6/SingleMu/RECO/PRE_R_71_V2_RelVal_zMu2012D-v1/00000/1C0E64F2-40C7-E311-81D3-003048678FA6.root',
-	'/store/relval/CMSSW_7_1_0_pre6/SingleMu/RECO/PRE_R_71_V2_RelVal_zMu2012D-v1/00000/221D09C4-46C7-E311-9DF4-002590596486.root',
-	'/store/relval/CMSSW_7_1_0_pre6/SingleMu/RECO/PRE_R_71_V2_RelVal_zMu2012D-v1/00000/26FCDB29-3AC7-E311-B6E2-0025905A605E.root',
-	'/store/relval/CMSSW_7_1_0_pre6/SingleMu/RECO/PRE_R_71_V2_RelVal_zMu2012D-v1/00000/2866963F-3FC7-E311-9931-0025905A612C.root',
-	'/store/relval/CMSSW_7_1_0_pre6/SingleMu/RECO/PRE_R_71_V2_RelVal_zMu2012D-v1/00000/28E258C0-48C7-E311-B09D-003048679248.root',
-	'/store/relval/CMSSW_7_1_0_pre6/SingleMu/RECO/PRE_R_71_V2_RelVal_zMu2012D-v1/00000/2A0AEBC2-43C7-E311-A924-0025905A60E0.root',
-	'/store/relval/CMSSW_7_1_0_pre6/SingleMu/RECO/PRE_R_71_V2_RelVal_zMu2012D-v1/00000/2A51AC48-47C7-E311-846C-0025905A4964.root',
-	'/store/relval/CMSSW_7_1_0_pre6/SingleMu/RECO/PRE_R_71_V2_RelVal_zMu2012D-v1/00000/2AB0279B-47C7-E311-A0B8-003048FFD752.root',
+	'/store/relval/CMSSW_7_1_0_pre6/JetHT/RECO/PRE_R_71_V2_RelVal_jet2012C-v1/00000/2CBD40F5-E2C7-E311-8206-003048678AC0.root',
+	'/store/relval/CMSSW_7_1_0_pre6/JetHT/RECO/PRE_R_71_V2_RelVal_jet2012C-v1/00000/A4DAA3A4-E0C7-E311-A427-00304867BFBC.root',
+	'/store/relval/CMSSW_7_1_0_pre6/JetHT/RECO/PRE_R_71_V2_RelVal_jet2012C-v1/00000/E86E08F2-DDC7-E311-8EAC-0025905A6090.root',
 ]
+
 #                                         ##
 process.maxEvents.input = 10000
 
