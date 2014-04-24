@@ -12,7 +12,7 @@
 
 /* Base Class Headers */
 #include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 
 namespace edm {
   class ParameterSet;

@@ -8,7 +8,6 @@
  */
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 #include "RecoLocalMuon/DTSegment/src/DTSegmentUpdator.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
 

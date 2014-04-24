@@ -11,8 +11,6 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
 
-#include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
-
 #include <iostream>
 
 class DTUnpacker;

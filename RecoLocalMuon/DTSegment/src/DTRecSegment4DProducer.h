@@ -8,7 +8,8 @@
  */
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
+#include "DataFormats/DTRecHit/interface/DTRecSegment2DCollection.h"
 
 namespace edm {
   class ParameterSet;
