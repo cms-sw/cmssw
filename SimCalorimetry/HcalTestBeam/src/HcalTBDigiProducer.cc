@@ -47,9 +47,7 @@ HcalTBDigiProducer::HcalTBDigiProducer(const edm::ParameterSet& ps, edm::one::ED
   }
 
   bool doNoise = ps.getParameter<bool>("doNoise");
-  bool dummy1 = false; 
-  bool dummy2 = false;  // extra arguments for premixing
-  theAmplifier = new HcalAmplifier(theParameterMap, doNoise, dummy1, dummy2);
+  theAmplifier = new HcalAmplifier(theParameterMap, doNoise);
   theCoderFactory = new HcalCoderFactory(HcalCoderFactory::DB);
   theElectronicsSim = new HcalElectronicsSim(theAmplifier, theCoderFactory);
 
