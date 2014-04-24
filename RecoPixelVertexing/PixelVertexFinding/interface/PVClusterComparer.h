@@ -17,7 +17,7 @@ class PVClusterComparer {
  public:
   /// Constructor does nothing, no data members
   PVClusterComparer();
-  PVClusterComparer(double track_pt_min, double track_pt_max, double track_chi2_max, double track_prob_max);
+  PVClusterComparer(double track_pt_min, double track_pt_max, double track_chi2_max, double track_prob_min);
    
   /// Calculate sum of square of the pT's of the tracks in the vertex
   double pTSquaredSum(const PVCluster &v) const;
@@ -30,7 +30,7 @@ class PVClusterComparer {
   const double track_pT_min_;
   const double track_pT_max_;
   const double track_chi2_max_;
-  const double track_prob_max_;
+  const double track_prob_min_;
 
 };
 #endif

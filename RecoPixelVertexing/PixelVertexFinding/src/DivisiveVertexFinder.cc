@@ -10,7 +10,7 @@
 #include <algorithm>
 #include <cmath>
 
-DivisiveVertexFinder::DivisiveVertexFinder(double track_pt_min, double track_pt_max, double track_chi2_max, double track_prob_max,
+DivisiveVertexFinder::DivisiveVertexFinder(double track_pt_min, double track_pt_max, double track_chi2_max, double track_prob_min,
 					   double zOffset, int ntrkMin, 
 					   bool useError, double zSeparation, bool wtAverage,
 					   int verbosity)
@@ -20,7 +20,7 @@ DivisiveVertexFinder::DivisiveVertexFinder(double track_pt_min, double track_pt_
     verbose_(verbosity)
 {
 
-  pvComparer_ = new PVClusterComparer(track_pt_min, track_pt_max, track_chi2_max, track_prob_max);
+  pvComparer_ = new PVClusterComparer(track_pt_min, track_pt_max, track_chi2_max, track_prob_min);
 
 }
 
