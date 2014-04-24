@@ -691,7 +691,7 @@ void MuonIsolationDQM::bookHistograms(DQMStore::IBooker & ibooker,
 			    param[var][2]
 			    );
     h_1D[var]->setAxisTitle(axis_titles[var],XAXIS);
-    GetTH1FromMonitorElement(h_1D[var])->Sumw2();
+    //    GetTH1FromMonitorElement(h_1D[var])->Sumw2();
   }//Finish 1D
   
   //----Initialize 2D Histograms
@@ -700,14 +700,14 @@ void MuonIsolationDQM::bookHistograms(DQMStore::IBooker & ibooker,
     
     h_2D[var]->setAxisTitle("Number of PV",            XAXIS);
     h_2D[var]->setAxisTitle(titles_2D[var] + " (GeV)" ,YAXIS);
-    h_2D[var]->getTH1()->Sumw2();
+    //    h_2D[var]->getTH1()->Sumw2();
   }
   
   //-----Initialise PU-Binned histograms
   for (int var=0; var<NUM_VARS_NVTX; var++){
     h_1D_NVTX[var] = ibooker.book1D(names_NVtxs[var], main_titles_NVtxs[var], 50, 0.0, 10.0);
     h_1D_NVTX[var]->setAxisTitle(axis_titles_NVtxs[var],XAXIS);
-    GetTH1FromMonitorElement(h_1D_NVTX[var])->Sumw2();
+    ///    GetTH1FromMonitorElement(h_1D_NVTX[var])->Sumw2();
   }
 }
 
