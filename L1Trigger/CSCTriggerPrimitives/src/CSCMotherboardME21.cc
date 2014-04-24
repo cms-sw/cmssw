@@ -732,7 +732,6 @@ void CSCMotherboardME21::correlateLCTsGEM(CSCALCTDigi bestALCT,
   {
     lct1 = constructLCTsGEM(bestALCT, bestCLCT, hasPads, hasCoPads);
     lct1.setTrknmb(1);
-    lct1.setGEMDPhi(0.0);
   }
 
   if (((secondALCT != bestALCT) or (secondCLCT != bestCLCT)) and
@@ -742,7 +741,6 @@ void CSCMotherboardME21::correlateLCTsGEM(CSCALCTDigi bestALCT,
   {
     lct2 = constructLCTsGEM(secondALCT, secondCLCT, hasPads, hasCoPads);
     lct2.setTrknmb(2);
-    lct2.setGEMDPhi(0.0);
   }
 }
 
