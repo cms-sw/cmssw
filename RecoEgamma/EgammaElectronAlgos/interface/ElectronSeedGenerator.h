@@ -54,7 +54,7 @@ class ElectronSeedGenerator
   struct Tokens {
     edm::EDGetTokenT<std::vector<reco::Vertex> > token_vtx;
     edm::EDGetTokenT<reco::BeamSpot> token_bs;
-    edm::EDGetTokenT<std::vector<reco::Vertex> > token_measTrkEvt;
+    edm::EDGetTokenT<MeasurementTrackerEvent> token_measTrkEvt;
   };
 
   typedef edm::OwnVector<TrackingRecHit> PRecHitContainer;
@@ -121,7 +121,7 @@ class ElectronSeedGenerator
 
   std::string theMeasurementTrackerName;
   const MeasurementTracker*     theMeasurementTracker;
-  edm::EDGetTokenT<std::vector<reco::Vertex> > theMeasurementTrackerEventTag;
+  edm::EDGetTokenT<MeasurementTrackerEvent> theMeasurementTrackerEventTag;
 
   const NavigationSchool*       theNavigationSchool;
 
