@@ -44,10 +44,10 @@ DTSegment2DSLPhiQuality::DTSegment2DSLPhiQuality(const ParameterSet& pset)  {
 
   // the name of the simhit collection
   simHitLabel = pset.getUntrackedParameter<InputTag>("simHitLabel");
-  simHitToken_ = consumes<PSimHitContainer>(pset.getParameter<InputTag>("simHitLabel"));
+  simHitToken_ = consumes<PSimHitContainer>(pset.getUntrackedParameter<InputTag>("simHitLabel"));
   // the name of the 2D rec hit collection
   segment4DLabel = pset.getUntrackedParameter<InputTag>("segment4DLabel");
-  segment4DToken_ = consumes<DTRecSegment4DCollection>(pset.getParameter<InputTag>("segment4DLabel"));
+  segment4DToken_ = consumes<DTRecSegment4DCollection>(pset.getUntrackedParameter<InputTag>("segment4DLabel"));
 
   //sigma resolution on position
   sigmaResPos = pset.getParameter<double>("sigmaResPos");
