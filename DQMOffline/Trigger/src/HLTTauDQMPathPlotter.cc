@@ -52,24 +52,24 @@ void HLTTauDQMPathPlotter::bookHistograms(DQMStore::IBooker &iBooker) {
     iBooker.setCurrentFolder(triggerTag()+"/helpers");
     if(hltPath_.hasL2Taus()) {
       hL2TrigTauEtEffNum_    = iBooker.book1D("L2TrigTauEtEffNum",    "L2 #tau p_{T} efficiency;Ref #tau p_{T};entries", ptbins_, 0, ptmax_);
-      hL2TrigTauEtEffDenom_  = iBooker.book1D("L2TrigTauEtEffDenom",  "L2 #tau p_{T} denominator;Ref #tau p_{T};entries", ptbins_, 0, ptmax_);
+      hL2TrigTauEtEffDenom_  = iBooker.book1D("L2TrigTauEtEffDenom",  "L2 #tau p_{T} denominator;Ref #tau p_{T};Efficiency", ptbins_, 0, ptmax_);
       hL2TrigTauEtaEffNum_   = iBooker.book1D("L2TrigTauEtaEffNum",   "L2 #tau #eta efficiency;Ref #tau #eta;entries", etabins_, -2.5, 2.5);
-      hL2TrigTauEtaEffDenom_ = iBooker.book1D("L2TrigTauEtaEffDenom", "L2 #tau #eta denominator;Ref #tau #eta;entries", etabins_, -2.5, 2.5);
+      hL2TrigTauEtaEffDenom_ = iBooker.book1D("L2TrigTauEtaEffDenom", "L2 #tau #eta denominator;Ref #tau #eta;Efficiency", etabins_, -2.5, 2.5);
       hL2TrigTauPhiEffNum_   = iBooker.book1D("L2TrigTauPhiEffNum",   "L2 #tau #phi efficiency;Ref #tau #phi;entries", phibins_, -3.2, 3.2);
-      hL2TrigTauPhiEffDenom_ = iBooker.book1D("L2TrigTauPhiEffDenom", "L2 #tau #phi denominator;Ref #tau #phi;entries", phibins_, -3.2, 3.2);
+      hL2TrigTauPhiEffDenom_ = iBooker.book1D("L2TrigTauPhiEffDenom", "L2 #tau #phi denominator;Ref #tau #phi;Efficiency", phibins_, -3.2, 3.2);
       hL2TrigTauHighEtEffNum_   = iBooker.book1D("L2TrigTauHighEtEffNum",    "L2 #tau p_{T} efficiency (high p_{T});Ref #tau p_{T};entries", ptbins_, 0, highptmax_);
-      hL2TrigTauHighEtEffDenom_ = iBooker.book1D("L2TrigTauHighEtEffDenom",  "L2 #tau p_{T} denominator (high p_{T});Ref #tau p_{T};entries", ptbins_, 0, highptmax_);
+      hL2TrigTauHighEtEffDenom_ = iBooker.book1D("L2TrigTauHighEtEffDenom",  "L2 #tau p_{T} denominator (high p_{T});Ref #tau p_{T};Efficiency", ptbins_, 0, highptmax_);
     }
 
     if(hltPath_.hasL3Taus()) {
       hL3TrigTauEtEffNum_    = iBooker.book1D("L3TrigTauEtEffNum",    "L3 #tau p_{T} efficiency;Ref #tau p_{T};entries", ptbins_, 0, ptmax_);
-      hL3TrigTauEtEffDenom_  = iBooker.book1D("L3TrigTauEtEffDenom",  "L3 #tau p_{T} denominator;Ref #tau p_{T};entries", ptbins_, 0, ptmax_);
+      hL3TrigTauEtEffDenom_  = iBooker.book1D("L3TrigTauEtEffDenom",  "L3 #tau p_{T} denominator;Ref #tau p_{T};Efficiency", ptbins_, 0, ptmax_);
       hL3TrigTauEtaEffNum_   = iBooker.book1D("L3TrigTauEtaEffNum",   "L3 #tau #eta efficiency;Ref #tau #eta;entries", etabins_, -2.5, 2.5);
-      hL3TrigTauEtaEffDenom_ = iBooker.book1D("L3TrigTauEtaEffDenom", "L3 #tau #eta denominator;Ref #tau #eta;entries", etabins_, -2.5, 2.5);
+      hL3TrigTauEtaEffDenom_ = iBooker.book1D("L3TrigTauEtaEffDenom", "L3 #tau #eta denominator;Ref #tau #eta;Efficiency", etabins_, -2.5, 2.5);
       hL3TrigTauPhiEffNum_   = iBooker.book1D("L3TrigTauPhiEffNum",   "L3 #tau #phi efficiency;Ref #tau #phi;entries", phibins_, -3.2, 3.2);
-      hL3TrigTauPhiEffDenom_ = iBooker.book1D("L3TrigTauPhiEffDenom", "L3 #tau #phi denominator;Ref #tau #phi;entries", phibins_, -3.2, 3.2);
+      hL3TrigTauPhiEffDenom_ = iBooker.book1D("L3TrigTauPhiEffDenom", "L3 #tau #phi denominator;Ref #tau #phi;Efficiency", phibins_, -3.2, 3.2);
       hL3TrigTauHighEtEffNum_    = iBooker.book1D("L3TrigTauHighEtEffNum",    "L3 #tau p_{T} efficiency (high p_{T});Ref #tau p_{T};entries", ptbins_, 0, highptmax_);
-      hL3TrigTauHighEtEffDenom_  = iBooker.book1D("L3TrigTauHighEtEffDenom",  "L3 #tau p_{T} denominator (high p_{T});Ref #tau p_{T};entries", ptbins_, 0, highptmax_);
+      hL3TrigTauHighEtEffDenom_  = iBooker.book1D("L3TrigTauHighEtEffDenom",  "L3 #tau p_{T} denominator (high p_{T});Ref #tau p_{T};Efficiency", ptbins_, 0, highptmax_);
     }
     iBooker.setCurrentFolder(triggerTag());
   }
