@@ -21,11 +21,14 @@ namespace {
     {}
 
     typedef HLTTauDQMPath::FilterIndex FilterIndex;
+    typedef std::tuple<typename std::tuple_element<0, FilterIndex>::type,
+                       typename std::tuple_element<1, FilterIndex>::type,
+                       bool> FilterIndexSave;
 
-    std::vector<FilterIndex> interestingFilters(const HLTConfigProvider& HLTCP, bool doRefAnalysis) const {
+    std::vector<FilterIndex> interestingFilters(const HLTConfigProvider& HLTCP, bool doRefAnalysis) {
       const std::vector<std::string>& moduleLabels = HLTCP.moduleLabels(name_);
-      std::vector<FilterIndex> selectedFilters;
       std::vector<std::string> leptonTauFilters;
+      allInterestingFilters_.clear();
 
       // Ignore all "Selector"s, for ref-analysis keep only those with saveTags=True
       // Also record HLT2(Electron|Muon)(PF)?Tau module names
@@ -39,13 +42,11 @@ namespace {
           continue;
         if(type == "HLTTriggerTypeFilter" || type == "HLTBool")
           continue;
-        if(doRefAnalysis && !HLTCP.saveTags(*iLabel))
-          continue;
         if(type == "HLT2ElectronPFTau" || type == "HLT2MuonPFTau" || type == "HLT2ElectronTau" || type == "HLT2MuonTau")
           leptonTauFilters.emplace_back(*iLabel);
         else if(type.find("Electron") != std::string::npos || type.find("Egamma") != std::string::npos || type.find("Muon") != std::string::npos)
           continue;
-        selectedFilters.emplace_back(*iLabel, iLabel-moduleLabels.begin());
+        allInterestingFilters_.emplace_back(*iLabel, iLabel-moduleLabels.begin(), HLTCP.saveTags(*iLabel));
       }
 
       // Insert the last filters of lepton legs
@@ -56,31 +57,55 @@ namespace {
         unsigned idx1 = HLTCP.moduleIndex(name_, input1);
         unsigned idx2 = HLTCP.moduleIndex(name_, input2);
 
-        auto func = [&](const FilterIndex& a, unsigned idxb) {
+        auto func = [&](const FilterIndexSave& a, unsigned idxb) {
           return std::get<1>(a) < idxb;
         };
-        std::vector<FilterIndex>::iterator found = std::lower_bound(selectedFilters.begin(), selectedFilters.end(), idx1, func);
-        if(found == selectedFilters.end() || std::get<1>(*found) != idx1)
-          selectedFilters.emplace(found, input1, idx1);
-        found = std::lower_bound(selectedFilters.begin(), selectedFilters.end(), idx2, func);
-        if(found == selectedFilters.end() || std::get<1>(*found) != idx2)
-          selectedFilters.emplace(found, input2, idx2);
+        std::vector<FilterIndexSave>::iterator found = std::lower_bound(allInterestingFilters_.begin(), allInterestingFilters_.end(), idx1, func);
+        if(found == allInterestingFilters_.end() || std::get<1>(*found) != idx1)
+          allInterestingFilters_.emplace(found, input1, idx1, HLTCP.saveTags(input1));
+        found = std::lower_bound(allInterestingFilters_.begin(), allInterestingFilters_.end(), idx2, func);
+        if(found == allInterestingFilters_.end() || std::get<1>(*found) != idx2)
+          allInterestingFilters_.emplace(found, input2, idx2, HLTCP.saveTags(input1));
+      }
+
+      std::vector<FilterIndex> selectedFilters;
+      // For reference-matched case exclude filters with saveTags=False.
+      // However, they are needed a bit later to find the position of the
+      // first L3 tau filter.
+      for(const auto& item: allInterestingFilters_) {
+        if(!doRefAnalysis || (doRefAnalysis && std::get<2>(item)))
+          selectedFilters.emplace_back(std::get<0>(item), std::get<1>(item));
       }
 
       return selectedFilters;
     }
 
-    size_t tauProducerIndex(const HLTConfigProvider& HLTCP) const {
-      const std::vector<std::string>& moduleLabels = HLTCP.moduleLabels(name_);
-      for(std::vector<std::string>::const_iterator iLabel = moduleLabels.begin(); iLabel != moduleLabels.end(); ++iLabel) {
-        const std::string type = HLTCP.moduleType(*iLabel);
-        // FIXME: this will not work in unscheduled mode, where
-        // producers are not in paths. Try looking first filter using
-        // the PFRecoTauProducer output instead.
-        if(type == "PFRecoTauProducer" || type == "RecoTauPiZeroUnembedder") {
-          LogDebug("HLTTauDQMOffline") << "Found tau producer " << type << " " << *iLabel << " index " << (iLabel-moduleLabels.begin());
-          return iLabel-moduleLabels.begin();
-        }
+    bool isL3TauProducer(const HLTConfigProvider& HLTCP, const std::string& producerLabel) const {
+      const std::string type = HLTCP.moduleType(producerLabel);
+      if(type == "PFRecoTauProducer" || type == "RecoTauPiZeroUnembedder") {
+        LogDebug("HLTTauDQMOffline") << "Found tau producer " << type << " with label " << producerLabel << " from path " << name_;
+        return true;
+      }
+      return false;
+    }
+
+    bool isL3TauFilter(const HLTConfigProvider& HLTCP, const std::string& filterLabel) const {
+      const edm::ParameterSet& pset = HLTCP.modulePSet(filterLabel);
+      if(pset.exists("inputTag"))
+        return isL3TauProducer(HLTCP, pset.getParameter<edm::InputTag>("inputTag").label());
+      if(pset.exists("inputTag1"))
+        return isL3TauProducer(HLTCP, pset.getParameter<edm::InputTag>("inputTag1").label());
+      if(pset.exists("inputTag2"))
+        return isL3TauProducer(HLTCP, pset.getParameter<edm::InputTag>("inputTag2").label());
+      return false;
+    }
+
+    size_t firstL3TauFilterIndex(const HLTConfigProvider& HLTCP) const {
+      // Loop over filters and check if a filter uses L3 tau producer
+      // output.
+      for(const auto& filter: allInterestingFilters_) {
+        if(isL3TauFilter(HLTCP, std::get<0>(filter)))
+          return std::get<1>(filter);
       }
       return std::numeric_limits<size_t>::max();
     }
@@ -90,7 +115,7 @@ namespace {
   private:
     std::string name_;
 
-    std::vector<int> thresholds_;
+    std::vector<FilterIndexSave> allInterestingFilters_;
   };
 
   int getParameterSafe(const HLTConfigProvider& HLTCP, const std::string& filterName, const std::string& parameterName) {
@@ -258,20 +283,23 @@ HLTTauDQMPath::HLTTauDQMPath(const std::string& pathName, const std::string& hlt
 #endif
 
 
-  // Find the position of tau producer, use filters with taus
-  // before it for L2 tau efficiency, and filters with taus after it
-  // for L3 tau efficiency
-  const size_t tauProducerIndex = thePath.tauProducerIndex(HLTCP);
-  if(tauProducerIndex == std::numeric_limits<size_t>::max()) {
-    edm::LogWarning("HLTTauDQMOffline") << "HLTTauDQMPath::beginRun(): Did not find tau producer from HLT path " << pathName_;
+  // Find the position of tau producer, use filters with taus before
+  // it for L2 tau efficiency, and filters with taus after it for L3
+  // tau efficiency. Here we have to take into account that for
+  // reference-matched case filterIndices_ contains only those filters
+  // that have saveTags=True, while for searching the first L3 tau
+  // filter we have to consider all filters
+  const size_t firstL3TauFilterIndex = thePath.firstL3TauFilterIndex(HLTCP);
+  if(firstL3TauFilterIndex == std::numeric_limits<size_t>::max()) {
+    edm::LogInfo("HLTTauDQMOffline") << "Did not find a filter with L3 tau producer as input in path " << pathName_;
   }
-  //lastFilterBeforeL2TauIndex_ = std::numeric_limits<size_t>::max();
+
+  lastFilterBeforeL2TauIndex_ = 0;
   lastL2TauFilterIndex_ = std::numeric_limits<size_t>::max();
-  //lastFilterBeforeL3TauIndex_ = std::numeric_limits<size_t>::max();
+  lastFilterBeforeL3TauIndex_ = 0;
   lastL3TauFilterIndex_ = std::numeric_limits<size_t>::max();
   size_t i = 0;
-  lastFilterBeforeL2TauIndex_ = 0;
-  for(; i<filtersSize() && getFilterIndex(i) < tauProducerIndex; ++i) {
+  for(; i<filtersSize() && getFilterIndex(i) < firstL3TauFilterIndex; ++i) {
     if(lastL2TauFilterIndex_ == std::numeric_limits<size_t>::max() && getFilterNTaus(i) == 0)
       lastFilterBeforeL2TauIndex_ = i;
     if(getFilterNTaus(i) > 0 && getFilterNElectrons(i) == 0 && getFilterNMuons(i) == 0)
