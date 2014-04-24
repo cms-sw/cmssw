@@ -31,10 +31,14 @@ PixelVertexProducer::PixelVertexProducer(const edm::ParameterSet& conf)
   token_BeamSpot = consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("beamSpot"));
   method2 = conf.getParameter<bool>("Method2");
 
+  edm::ParameterSet PVcomparerPSet = conf.getParameter<edm::ParameterSet>("PVcomparer");
+  double track_pt_max   = PVcomparerPSet.getParameter<double>("track_pt_max");
+  double track_chi2_max = PVcomparerPSet.getParameter<double>("track_chi2_max");
+  double track_prob_max = PVcomparerPSet.getParameter<double>("track_prob_max");
 
   if (finder == "DivisiveVertexFinder") {
     if (verbose_ > 0) edm::LogInfo("PixelVertexProducer") << ": Using the DivisiveVertexFinder\n";
-    dvf_ = new DivisiveVertexFinder(zOffset, ntrkMin, useError, zSeparation, wtAverage, verbose_);
+    dvf_ = new DivisiveVertexFinder(ptMin_,track_pt_max,track_chi2_max,track_prob_max,zOffset, ntrkMin, useError, zSeparation, wtAverage, verbose_);
   }
   else { // Finder not supported, or you made a mistake in your request
     // throw an exception once I figure out how CMSSW does this
