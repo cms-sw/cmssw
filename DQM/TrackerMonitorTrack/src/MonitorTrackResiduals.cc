@@ -37,7 +37,8 @@ void MonitorTrackResiduals::beginJob(void) {
   reset_me_after_each_run = conf_.getParameter<bool>("ResetAfterRun");
 }
 
-void MonitorTrackResiduals::beginRun(edm::Run const& run, edm::EventSetup const& iSetup) {
+void MonitorTrackResiduals::bookHistograms(DQMStore::IBooker & ibooker , const edm::Run & run, const edm::EventSetup & iSetup)
+{
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
@@ -47,7 +48,7 @@ void MonitorTrackResiduals::beginRun(edm::Run const& run, edm::EventSetup const&
   unsigned long long cacheID = iSetup.get<SiStripDetCablingRcd>().cacheIdentifier();
   if (m_cacheID_ != cacheID) {
     m_cacheID_ = cacheID;
-    this->createMEs(iSetup);
+    this->createMEs( ibooker , iSetup);
   }
   if(reset_me_after_each_run) {
     if(ModOn) {
@@ -64,11 +65,15 @@ void MonitorTrackResiduals::beginRun(edm::Run const& run, edm::EventSetup const&
     } // end if-else Module level on
   } // end reset after run
 
+}
+
+void MonitorTrackResiduals::dqmBeginRun(edm::Run const& run, edm::EventSetup const& iSetup) {
+
   // Initialize the GenericTriggerEventFlag
   if ( genTriggerEventFlag_->on() ) genTriggerEventFlag_->initRun( run, iSetup );
 }
 
-void MonitorTrackResiduals::createMEs(const edm::EventSetup& iSetup){
+void MonitorTrackResiduals::createMEs( DQMStore::IBooker & ibooker , const edm::EventSetup& iSetup){
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
@@ -116,11 +121,11 @@ void MonitorTrackResiduals::createMEs(const edm::EventSetup& iSetup){
 	if (ModOn) {
 	  std::string hid = hidmanager.createHistoId("HitResiduals","det",ModuleID);
 	  std::string normhid = hidmanager.createHistoId("NormalizedHitResiduals","det",ModuleID);
-	  HitResidual[ModuleID] = dqmStore_->book1D(hid, hid,
-						    i_residuals_Nbins,d_residual_xmin,d_residual_xmax);
+	  HitResidual[ModuleID] = ibooker.book1D(hid, hid,
+						 i_residuals_Nbins,d_residual_xmin,d_residual_xmax);
 	  HitResidual[ModuleID]->setAxisTitle("(x_{pred} - x_{rec})' [cm]");
-	  NormedHitResiduals[ModuleID] = dqmStore_->book1D(normhid, normhid,
-							   i_normres_Nbins,d_normres_xmin,d_normres_xmax);
+	  NormedHitResiduals[ModuleID] = ibooker.book1D(normhid, normhid,
+							i_normres_Nbins,d_normres_xmin,d_normres_xmax);
 	  NormedHitResiduals[ModuleID]->setAxisTitle("(x_{pred} - x_{rec})'/#sigma");
 	}
 	// book layer level histogramms
@@ -136,12 +141,12 @@ void MonitorTrackResiduals::createMEs(const edm::EventSetup& iSetup){
 		 "NormalizedHitResidual_%s__Layer__%d" : "NormalizedHitResidual_%s__wheel__%d" ,
 		 subdetandlayer.first.c_str(),std::abs(subdetandlayer.second));
 	  m_SubdetLayerResiduals[subdetandlayer] =
-	    dqmStore_->book1D(histoname.c_str(),histoname.c_str(),
-			      i_residuals_Nbins,d_residual_xmin,d_residual_xmax);
+	    ibooker.book1D(histoname.c_str(),histoname.c_str(),
+			   i_residuals_Nbins,d_residual_xmin,d_residual_xmax);
 	  m_SubdetLayerResiduals[subdetandlayer]->setAxisTitle("(x_{pred} - x_{rec})' [cm]");
 	  m_SubdetLayerNormedResiduals[subdetandlayer] =
-	    dqmStore_->book1D(normhistoname.c_str(),normhistoname.c_str(),
-			      i_normres_Nbins,d_normres_xmin,d_normres_xmax);
+	    ibooker.book1D(normhistoname.c_str(),normhistoname.c_str(),
+			   i_normres_Nbins,d_normres_xmin,d_normres_xmax);
 	  m_SubdetLayerNormedResiduals[subdetandlayer]->setAxisTitle("(x_{pred} - x_{rec})'/#sigma");
 	}
       } // end 'is strip module'

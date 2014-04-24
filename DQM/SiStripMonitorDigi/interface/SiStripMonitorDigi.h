@@ -21,6 +21,8 @@
 #include "DQM/SiStripCommon/interface/APVShotFinder.h"
 #include "DQM/SiStripCommon/interface/APVShot.h"
 
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+
 class DQMStore;
 class SiStripDCSStatus;
 class SiStripDetCabling;
@@ -29,17 +31,18 @@ class EventWithHistory;
 class L1GlobalTriggerEvmReadoutRecord;
 class APVCyclePhaseCollection;
 
-class SiStripMonitorDigi : public edm::EDAnalyzer {
+class SiStripMonitorDigi : public DQMEDAnalyzer {
  public:
   explicit SiStripMonitorDigi(const edm::ParameterSet&);
   ~SiStripMonitorDigi();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void beginJob();
-  virtual void endJob() ;
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
+  virtual void endJob();
   virtual void endRun(const edm::Run&, const edm::EventSetup&);
   virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
   virtual void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c);
 
   std::string topFolderName_;
 
@@ -92,12 +95,12 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   };
 
  private:
-  void createMEs(const edm::EventSetup& es);
+  void createMEs(DQMStore::IBooker & ibooker , const edm::EventSetup& es );
   void ResetModuleMEs(uint32_t idet);
-  void bookLayer(); 
-  MonitorElement* bookMETrend(const char* ParameterSetLabel, const char* HistoName);
-  MonitorElement* bookME1D(const char* ParameterSetLabel, const char* HistoName);
-  void bookTrendMEs(const TString& name,int32_t layer,uint32_t id,std::string flag);
+  void bookLayer( DQMStore::IBooker & ibooker ); 
+  MonitorElement* bookMETrend( DQMStore::IBooker & ibooker , const char* ParameterSetLabel, const char* HistoName);
+  MonitorElement* bookME1D( DQMStore::IBooker & ibooker , const char* ParameterSetLabel, const char* HistoName);
+  void bookTrendMEs( DQMStore::IBooker & ibooker , const TString& name,int32_t layer,uint32_t id,std::string flag);
   void fillDigiADCsMEs(int value, std::string name);
   void fillTrend(MonitorElement* me ,float value, float timeinorbit);
   inline void fillME(MonitorElement* ME,float value1){if (ME!=0)ME->Fill(value1);}
@@ -106,10 +109,10 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   inline void fillME(MonitorElement* ME,float value1,float value2,float value3,float value4){if (ME!=0)ME->Fill(value1,value2,value3,value4);}
   bool AllDigis( const edm::EventSetup& es);
 
-  void createModuleMEs(ModMEs& mod_single, uint32_t detid);
-  void createLayerMEs(std::string label, int ndet);
-  void createSubDetMEs(std::string label);
-  void createSubDetTH2(std::string label);
+  void createModuleMEs( DQMStore::IBooker & ibooker , ModMEs& mod_single, uint32_t detid);
+  void createLayerMEs( DQMStore::IBooker & ibooker , std::string label, int ndet);
+  void createSubDetMEs( DQMStore::IBooker & ibooker , std::string label);
+  void createSubDetTH2( DQMStore::IBooker & ibooker , std::string label);
   int getDigiSourceIndex(uint32_t id);
   void AddApvShotsToSubDet(const std::vector<APVShot> &, std::vector<APVShot> &);
   void FillApvShotsMap(TkHistoMap*, const std::vector<APVShot> &, uint32_t id ,int);
