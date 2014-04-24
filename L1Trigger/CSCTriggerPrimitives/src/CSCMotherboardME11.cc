@@ -1059,50 +1059,6 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
     }
   }// reduction per bx
   
-  /*
-  bool first = true;
-  for (int bx = 0; bx < MAX_LCT_BINS; bx++)
-  {
-    // counting
-    unsigned int n1a=0, n1b=0;
-    for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++)
-      for (int i=0;i<2;i++)
-      {
-        int cbx = bx + mbx - match_trig_window_size/2;
-        if (allLCTs1b[bx][mbx][i].isValid())
-        {
-          if (debug_gem_matching and first){
-            std::cout << "========================================================================" << std::endl;
-            std::cout << "Counting the final LCTs" << std::endl;
-            std::cout << "========================================================================" << std::endl;
-            first = false;
-          }
-
-          n1b++;
-          //          if (infoV > 0) LogDebug("CSCMotherboard") 
-          if (debug_gem_matching)
-            std::cout
-              << "1b LCT"<<i+1<<" "<<bx<<"/"<<cbx<<": "<<allLCTs1b[bx][mbx][i]<<std::endl;
-        }
-        if (allLCTs1a[bx][mbx][i].isValid())
-        {
-          if (debug_gem_matching and first){
-            std::cout << "========================================================================" << std::endl;
-            std::cout << "Counting the final LCTs" << std::endl;
-            std::cout << "========================================================================" << std::endl;
-            first = false;
-          }
-
-          n1a++;
-          //          if (infoV > 0) LogDebug("CSCMotherboard") 
-          if (debug_gem_matching)
-            std::cout 
-              << "1a LCT"<<i+1<<" "<<bx<<"/"<<cbx<<": "<<allLCTs1a[bx][mbx][i]<<std::endl;
-        }
-      }
-  }
-  */
-
   bool first = true;
   unsigned int n1b=0, n1a=0;
   for (auto p : readoutLCTs1b())
