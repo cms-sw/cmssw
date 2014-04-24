@@ -11,7 +11,7 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "RecoEgamma/EgammaHFProducers/plugins/HFEMClusterProducer.h"
 using namespace reco;
-HFEMClusterProducer::HFEMClusterProducer(edm::ParameterSet const& conf): hfreco_(conf.getParameter<edm::InputTag>("hits")) {
+HFEMClusterProducer::HFEMClusterProducer(edm::ParameterSet const& conf): hfreco_(consumes<HFRecHitCollection>(conf.getParameter<edm::InputTag>("hits"))) {
   produces<reco::HFEMClusterShapeCollection>();
   produces<reco::BasicClusterCollection>();
   produces<reco::SuperClusterCollection>();
@@ -30,7 +30,7 @@ void HFEMClusterProducer::produce(edm::Event & e, edm::EventSetup const& iSetup)
   
   edm::Handle<HFRecHitCollection> hf_hits;
   
-  e.getByLabel(hfreco_,hf_hits);
+  e.getByToken(hfreco_,hf_hits);
   
   edm::ESHandle<CaloGeometry> geometry;
   iSetup.get<CaloGeometryRecord>().get(geometry);
