@@ -3095,14 +3095,17 @@ double
 PFAlgo::neutralHadronEnergyResolution(double clusterEnergyHCAL, double eta) const {
 
   // Add a protection
+
+  
   if ( clusterEnergyHCAL < 1. ) clusterEnergyHCAL = 1.;
 
-  double resol =  fabs(eta) < 1.48 ? 
-    sqrt (1.02*1.02/clusterEnergyHCAL + 0.065*0.065)
-    :
-    sqrt (1.20*1.20/clusterEnergyHCAL + 0.028*0.028);
-
-  return resol;
+  
+  if (fabs(eta) < 1.48)
+    return     sqrt(1.02*1.02/clusterEnergyHCAL + 0.065*0.065);
+  else   if (fabs(eta) < 3)
+	 return     sqrt (1.20*1.20/clusterEnergyHCAL + 0.028*0.028);
+  else
+	 return     sqrt (1.9*1.9/clusterEnergyHCAL + 0.1*0.1);
 
 }
 

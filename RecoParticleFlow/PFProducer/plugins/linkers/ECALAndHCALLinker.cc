@@ -8,7 +8,9 @@ public:
   ECALAndHCALLinker(const edm::ParameterSet& conf) :
     BlockElementLinkerBase(conf),
     _useKDTree(conf.getParameter<bool>("useKDTree")),
-    _debug(conf.getUntrackedParameter<bool>("debug",false)) {}
+    _debug(conf.getUntrackedParameter<bool>("debug",false)),
+    _trackerBoundary(conf.getParameter<double>("trackerEtaBoundary"))
+  {}
   
   double testLink 
   ( const reco::PFBlockElement*,
@@ -16,6 +18,7 @@ public:
 
 private:
   bool _useKDTree,_debug;
+  double _trackerBoundary;
 };
 
 DEFINE_EDM_PLUGIN(BlockElementLinkerFactory, 
@@ -41,7 +44,7 @@ double ECALAndHCALLinker::testLink
     throw cms::Exception("BadClusterRefs") 
       << "PFBlockElementCluster's refs are null!";
   }  
-  dist = ( std::abs(ecalreppos.Eta()) > 2.5 ?
+  dist = ( std::abs(ecalreppos.Eta()) > _trackerBoundary ?
 	   LinkByRecHit::computeDist( ecalreppos.Eta(),
 				      ecalreppos.Phi(), 
 				      hcalref->positionREP().Eta(), 

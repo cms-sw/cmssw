@@ -30,6 +30,7 @@ _localMaxSeeds_HFEM = cms.PSet(
               )
     ),
     nNeighbours = cms.int32(0)
+
 )
 
 #topo clusters
