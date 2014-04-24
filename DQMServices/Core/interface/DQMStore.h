@@ -236,7 +236,7 @@ class DQMStore
     /* If enableMultiThread is not enabled we do not set run_,
        streamId_ and moduleId_ to 0, since we rely on their default
        initialization in DQMSTore constructor. */
-    uint32_t oldRun,oldStreamId,oldModuleId;
+    uint32_t oldRun=0,oldStreamId=0,oldModuleId=0;
     if (enableMultiThread_) {
       oldRun = run_;
       run_ = run;
