@@ -29,10 +29,12 @@ namespace {
 
       // Ignore all "Selector"s, for ref-analysis keep only those with saveTags=True
       // Also record HLT2(Electron|Muon)(PF)?Tau module names
+      LogTrace("HLTTauDQMOffline") << "Path " << name_ << ", list of all filters (preceded by the module index in the path)";
       for(std::vector<std::string>::const_iterator iLabel = moduleLabels.begin(); iLabel != moduleLabels.end(); ++iLabel) {
         if(HLTCP.moduleEDMType(*iLabel) != "EDFilter")
           continue;
         const std::string type = HLTCP.moduleType(*iLabel);
+        LogTrace("HLTTauDQMOffline") << "  " << std::distance(moduleLabels.begin(), iLabel) << " " << *iLabel << " " << type << " saveTags " << HLTCP.saveTags(*iLabel);
         if(type.find("Selector") != std::string::npos)
           continue;
         if(type == "HLTTriggerTypeFilter" || type == "HLTBool")
@@ -209,7 +211,7 @@ HLTTauDQMPath::HLTTauDQMPath(const std::string& pathName, const std::string& hlt
   isFirstL1Seed_(false),
   isValid_(false)
 {
-#ifdef EDM_ML_LOGDEBUG
+#ifdef EDM_ML_DEBUG
   std::stringstream ss;
   ss << "HLTTauDQMPath: " << pathName_ << "\n";
 #endif
@@ -222,8 +224,8 @@ HLTTauDQMPath::HLTTauDQMPath(const std::string& pathName, const std::string& hlt
     return;
   }
   isFirstL1Seed_ = HLTCP.moduleType(std::get<0>(filterIndices_[0])) == "HLTLevel1GTSeed";
-#ifdef EDM_ML_LOGDEBUG
-  ss << "  Filters";
+#ifdef EDM_ML_DEBUG
+  ss << "  Interesting filters (preceded by the module index in the path)";
 #endif
   // Set the filter multiplicity counts
   filterTauN_.clear();
@@ -241,7 +243,7 @@ HLTTauDQMPath::HLTTauDQMPath(const std::string& pathName, const std::string& hlt
     filterElectronN_.push_back(n.electron);
     filterMuonN_.push_back(n.muon);
 
-#ifdef EDM_ML_LOGDEBUG
+#ifdef EDM_ML_DEBUG
     ss << "\n    " << std::get<1>(filterIndices_[i])
        << " " << filterName
        << " " << moduleType
@@ -251,7 +253,7 @@ HLTTauDQMPath::HLTTauDQMPath(const std::string& pathName, const std::string& hlt
 #endif
 
   }
-#ifdef EDM_ML_LOGDEBUG
+#ifdef EDM_ML_DEBUG
   LogDebug("HLTTauDQMOffline") << ss.str();
 #endif
 
