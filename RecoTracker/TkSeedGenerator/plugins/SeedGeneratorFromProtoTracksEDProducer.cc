@@ -72,6 +72,7 @@ void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::
   
   edm::Handle<reco::VertexCollection> vertices;
   bool foundVertices = ev.getByToken(theInputVertexCollectionTag, vertices);
+  bool noVertices = vertices->empty();
   //const reco::VertexCollection & vertices = *(h_vertices.product());
 
   ///
@@ -83,8 +84,8 @@ void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::
 
     // check the compatibility with a primary vertex
     bool keepTrack = false;
-    if ( !foundVertices ) { 
-	  if (useEventsWithNoVertex) keepTrack = true;
+    if ( (!foundVertices) | noVertices ) { 
+      if (useEventsWithNoVertex) keepTrack = true;
     } 
     else if (usePV_){
  
@@ -95,7 +96,6 @@ void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::
         keepTrack = true;
       }
     }
-
     else { 
       for (reco::VertexCollection::const_iterator iv=vertices->begin(); iv!= vertices->end(); ++iv) {
         GlobalPoint aPV(iv->position().x(),iv->position().y(),iv->position().z());
