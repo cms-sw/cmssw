@@ -68,14 +68,9 @@ tobTecStepSeedsTripl.SeedComparitorPSet = cms.PSet(
         ComponentName = cms.string('PixelClusterShapeSeedComparitor'),
         FilterAtHelixStage = cms.bool(True),
         FilterPixelHits = cms.bool(False),
-<<<<<<< HEAD
-        FilterStripHits = cms.bool(False),
-        ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter'),
-        ClusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCache") # not really needed here since FilterPixelHits=False
-=======
         FilterStripHits = cms.bool(True),
-        ClusterShapeHitFilterName = cms.string('tobTecStepClusterShapeHitFilter')
->>>>>>> 779f737... Add ClusterChargeCut
+        ClusterShapeHitFilterName = cms.string('tobTecStepClusterShapeHitFilter'),
+        ClusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCache") # not really needed here since FilterPixelHits=False
 )
 # PAIR SEEDING LAYERS
 tobTecStepSeedLayersPair = cms.EDProducer("SeedingLayersEDProducer",
@@ -124,14 +119,9 @@ tobTecStepSeedsPair.SeedComparitorPSet = cms.PSet(
         ComponentName = cms.string('PixelClusterShapeSeedComparitor'),
         FilterAtHelixStage = cms.bool(True),
         FilterPixelHits = cms.bool(False),
-<<<<<<< HEAD
-        FilterStripHits = cms.bool(False),
-        ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter'),
-        ClusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCache") # not really needed here since FilterPixelHits=False
-=======
         FilterStripHits = cms.bool(True),
-        ClusterShapeHitFilterName = cms.string('tobTecStepClusterShapeHitFilter')
->>>>>>> 779f737... Add ClusterChargeCut
+        ClusterShapeHitFilterName = cms.string('tobTecStepClusterShapeHitFilter'),
+        ClusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCache") # not really needed here since FilterPixelHits=False
 )
 import RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi
 tobTecStepSeeds = RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi.globalCombinedSeeds.clone()
