@@ -78,6 +78,7 @@ process.generator = cms.EDFilter("Pythia6GeneratorFilter",
     ExternalDecays = cms.PSet(
         Tauola = cms.untracked.PSet(
             UseTauolaPolarization = cms.bool(False),
+	    parameterSets =  cms.vstring(),
             InputCards = cms.PSet(
                 mdtau = cms.int32(0),
                 pjak2 = cms.int32(3),
@@ -90,7 +91,7 @@ process.generator = cms.EDFilter("Pythia6GeneratorFilter",
     pythiaPylistVerbosity = cms.untracked.int32(1),
     filterEfficiency = cms.untracked.double(1.0),
     pythiaHepMCVerbosity = cms.untracked.bool(False),
-    comEnergy = cms.double(8000.0),
+    comEnergy = cms.double(13000.0),
     crossSection = cms.untracked.double(762.0),
     UseExternalGenerators = cms.untracked.bool(True),
     PythiaParameters = cms.PSet(
@@ -141,6 +142,7 @@ process.ProductionFilterSequence = cms.Sequence(process.generator)
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen+process.TauSpinnerGen+process.TauSpinnerZHFilter)
+#process.generation_step = cms.Path(process.pgen)
 process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
 process.validation_step = cms.EndPath(process.genstepfilter+process.genvalid_dy)
 process.endjob_step = cms.EndPath(process.endOfProcess)
