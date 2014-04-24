@@ -27,7 +27,7 @@ class HFRecoEcalCandidateProducer : public edm::stream::EDProducer<> {
   virtual void produce(edm::Event& e, edm::EventSetup const& iSetup);
  private:
   std::vector<double> defaultDB_; 
-  edm::InputTag hfclusters_,vertices_;
+  edm::EDGetToken hfclustersSC_,hfclustersHFEM_,vertices_;
   int HFDBversion_;
   std::vector<double> HFDBvector_;
   bool doPU_; 

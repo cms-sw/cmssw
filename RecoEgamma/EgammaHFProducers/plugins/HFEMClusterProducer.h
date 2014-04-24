@@ -18,7 +18,7 @@ public:
   virtual void produce(edm::Event& e, edm::EventSetup const& iSetup);
   virtual void beginRun(edm::Run const &, edm::EventSetup const&) override final { algo_.resetForRun(); }
 private:
-  edm::InputTag hfreco_;
+  edm::EDGetToken hfreco_;
   HFClusterAlgo algo_;
 };
 #endif
