@@ -16,7 +16,6 @@
 using namespace edm;
 using namespace TauSpinner;
 
-
 CLHEP::HepRandomEngine* TauSpinnerCMS::fRandomEngine= nullptr;
 bool                    TauSpinnerCMS::isTauSpinnerConfigure=false;
 bool                    TauSpinnerCMS::fInitialized=false;
@@ -57,8 +56,8 @@ void  TauSpinnerCMS::endJob(){};
 
 void TauSpinnerCMS::initialize(){
   // Now for Tauola and TauSpinner
+  Tauolapp::Tauola::setRandomGenerator(TauSpinnerCMS::flat);
   if(!isTauolaConfigured_){
-    Tauolapp::Tauola::setRandomGenerator(TauSpinnerCMS::flat);
     Tauolapp::Tauola::initialize();
   }
   if(!isLHPDFConfigured_){
@@ -82,7 +81,7 @@ void TauSpinnerCMS::produce( edm::Event& e, const edm::EventSetup& iSetup){
   if(!fInitialized) initialize();
 
   Tauolapp::Tauola::setRandomGenerator(TauSpinnerCMS::flat);  // rest tauola++ random number incase other modules use tauola++
-
+  Tauolapp::jaki_.ktom = 1; // rest for when you run after tauola
   double WT=1.0;
   double WTFlip=1.0;
   double polSM=-999; //range [-1,1]

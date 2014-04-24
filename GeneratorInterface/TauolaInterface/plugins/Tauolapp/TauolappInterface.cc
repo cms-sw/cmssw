@@ -106,10 +106,8 @@ void TauolappInterface::init( const edm::EventSetup& es ){
 
    Tauolapp::Tauola::spin_correlation.setAll(fPolarization);// Tauola switches this on during Tauola::initialise(); so we add this here to keep it on/off
 
-
-#ifdef UseTauola114
    Tauolapp::Tauola::setNewCurrents(fPSet->getUntrackedParameter<int>("setNewCurrents",0));
-   
+      
    std::vector<std::string> par = fPSet->getParameter< std::vector<std::string> >("parameterSets");
    for (unsigned int ip=0; ip<par.size(); ++ip ){
      std::string curSet = par[ip];
@@ -153,9 +151,7 @@ void TauolappInterface::init( const edm::EventSetup& es ){
        else {std::cout << "WARNING invalid size for setTauBr - JAK: " << vJAK.size() << " BR: " << vBR.size() << std::endl;}
      }
    }
-#endif
-
-
+   
    // override decay modes if needs be
    //
    // we have to do it AFTER init because otherwises branching ratios are NOT filled in
