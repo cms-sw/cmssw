@@ -11,12 +11,12 @@ GlobalTrajectoryBuilderCommon = cms.PSet(
     GlobalMuonTrackMatcher,
     ScaleTECxFactor = cms.double(-1.0),
     ScaleTECyFactor = cms.double(-1.0),
-    TrackerRecHitBuilder = cms.string('WithTrackAngle'),
+    TrackerRecHitBuilder = cms.string('WithAngleAndTemplate'),
     MuonRecHitBuilder = cms.string('MuonRecHitBuilder'),
     RefitRPCHits = cms.bool(True),
     TrackTransformer = cms.PSet(
         Fitter = cms.string('KFFitterForRefitInsideOut'),
-        TrackerRecHitBuilder = cms.string('WithTrackAngle'),
+        TrackerRecHitBuilder = cms.string('WithAngleAndTemplate'),
         Smoother = cms.string('KFSmootherForRefitInsideOut'),
         MuonRecHitBuilder = cms.string('MuonRecHitBuilder'),
         RefitDirection = cms.string('alongMomentum'),
@@ -40,7 +40,7 @@ GlobalTrajectoryBuilderCommon = cms.PSet(
         
         Fitter = cms.string('GlbMuKFFitter'),
         Propagator = cms.string('SmartPropagatorAnyRK'),
-        TrackerRecHitBuilder = cms.string('WithTrackAngle'),
+        TrackerRecHitBuilder = cms.string('WithAngleAndTemplate'),
         MuonRecHitBuilder = cms.string('MuonRecHitBuilder'),
         DoPredictionsOnly = cms.bool(False),
         RefitDirection = cms.string('insideOut'),
