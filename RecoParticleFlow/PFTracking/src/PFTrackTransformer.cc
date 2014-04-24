@@ -207,6 +207,9 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
        pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HCALEntrance,
 					  math::XYZPoint(theOutParticle.vertex()),
 					  math::XYZTLorentzVector(theOutParticle.momentum())));
+       pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HCALExit,
+					  math::XYZPoint(theOutParticle.vertex()),
+					  math::XYZTLorentzVector(theOutParticle.momentum())));
      }else {
        
        if (PT>5.&& msgwarning)
@@ -432,6 +435,9 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 	theOutParticle.propagateToVFcalEntrance(false);
 	if(theOutParticle.getSuccess()!=0) {
 	  pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HCALEntrance,
+					   math::XYZPoint(theOutParticle.vertex()),
+					     math::XYZTLorentzVector(theOutParticle.momentum()))); 
+	  pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HCALExit,
 					   math::XYZPoint(theOutParticle.vertex()),
 					     math::XYZTLorentzVector(theOutParticle.momentum()))); }
 	else {
@@ -1090,11 +1096,21 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 					 math::XYZPoint(theOutParticle.vertex()),
 					 math::XYZTLorentzVector(theOutParticle.momentum())));
     else{
+	theOutParticle.propagateToVFcalEntrance(false);
+	if(theOutParticle.getSuccess()!=0) {
+	  pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HCALEntrance,
+					   math::XYZPoint(theOutParticle.vertex()),
+					   math::XYZTLorentzVector(theOutParticle.momentum())));
+	  pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HCALExit,
+					   math::XYZPoint(theOutParticle.vertex()),
+					   math::XYZTLorentzVector(theOutParticle.momentum())));
+	} else {
       if (pTtot_out>5.)
 	LogWarning("PFTrackTransformer")<<"GSF TRACK "<<pftrack<< " PROPAGATION TO THE HCAL ENTRANCE HAS FAILED";
       PFTrajectoryPoint dummyHCALentrance;
       pftrack.addPoint(dummyHCALentrance); 
     }  
+    }
     //HCAL exit
     theOutParticle.propagateToHcalExit(false);
     if(theOutParticle.getSuccess()!=0)
