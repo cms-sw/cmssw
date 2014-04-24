@@ -3,11 +3,11 @@
 
 #define DebugLog
 
-ShashlikTopology::ShashlikTopology(const ShashlikDDDConstants* sdcons) :
+ShashlikTopology::ShashlikTopology(const ShashlikDDDConstants& sdcons) :
   sdcons_(sdcons) {
-  smodules_ = sdcons->getSuperModules();
-  modules_  = sdcons->getModules();
-  nRows_    = (sdcons->getCols())/2;
+  smodules_ = sdcons.getSuperModules();
+  modules_  = sdcons.getModules();
+  nRows_    = (sdcons.getCols())/2;
   kEKhalf_  = smodules_*modules_*FIB_MAX*RO_MAX;
   kSizeForDenseIndexing = (unsigned int)(2*kEKhalf_);
 #ifdef DebugLog
@@ -19,7 +19,7 @@ ShashlikTopology::ShashlikTopology(const ShashlikDDDConstants* sdcons) :
 
 uint32_t ShashlikTopology::detId2denseId(const DetId& id) const {
   EKDetId id_(id);
-  std::pair<int,int> ismm = sdcons_->getSMM(id_.ix(),id_.iy());
+  std::pair<int,int> ismm = sdcons_.getSMM(id_.ix(),id_.iy());
   int iFib = id_.fiber();
   int iRO  = id_.readout();
   uint32_t idx = (uint32_t)((((id_.zside() > 0) ? kEKhalf_ : 0) +
@@ -37,7 +37,7 @@ DetId ShashlikTopology::denseId2detId(uint32_t hi) const {
     int fib (((di-ro)/RO_MAX)%FIB_MAX);
     int iMD (((((di-ro)/RO_MAX)-fib)/FIB_MAX)%modules_+1);
     int iSM (((((di-ro)/RO_MAX)-fib)/FIB_MAX-iMD+1)/modules_+1);
-    std::pair<int,int> ixy = sdcons_->getXY(iSM,iMD);
+    std::pair<int,int> ixy = sdcons_.getXY(iSM,iMD);
     return EKDetId(ixy.first, ixy.second, fib, ro, iz).rawId();
   } else {
     return DetId(0);
@@ -47,7 +47,7 @@ DetId ShashlikTopology::denseId2detId(uint32_t hi) const {
 bool ShashlikTopology::valid(const DetId& id) const {
 
   EKDetId id_(id);
-  std::pair<int,int> ismm = sdcons_->getSMM(id_.ix(),id_.iy());
+  std::pair<int,int> ismm = sdcons_.getSMM(id_.ix(),id_.iy());
   int fib = id_.fiber();
   int ro  = id_.readout();
   bool flag = (ismm.first >= 1 && ismm.first <= smodules_ && ismm.second >= 1&&
