@@ -179,6 +179,47 @@ class DQMStore
     DQMStore * owner_;
   };  // IBooker
 
+  class IGetter
+  {
+   public:
+    friend class DQMStore;
+
+    MonitorElement * get(const std::string &path) {
+      return owner_->get(path);
+    }
+    std::vector<std::string> getSubdirs(void) {
+      return owner_->getSubdirs();
+    }
+    std::vector<std::string> getMEs(void) {
+      return owner_->getMEs();
+    }
+    bool containsAnyMonitorable(const std::string &path) {
+      return owner_->containsAnyMonitorable(path);
+    }
+    // for the supported syntaxes, see the declarations of DQMStore::getContents
+    template <typename... Args>
+    std::vector<MonitorElement *> getContents(Args && ... args) {
+      return owner_->getContents(std::forward<Args>(args)...);
+    }
+    bool dirExists(const std::string &path) {
+      return owner_->dirExists(path);
+    }
+
+   private:
+    explicit IGetter(DQMStore * store):owner_(0) {
+      assert(store);
+      owner_ = store;
+    }
+
+    IGetter();
+    IGetter(const IGetter&);
+
+    // Embedded classes do not natively own a pointer to the embedding
+    // class. We therefore need to store a pointer to the main
+    // DQMStore instance (owner_).
+    DQMStore * owner_;
+  }; //IGetter
+
   // Template function to be used inside each DQM Modules' lambda
   // functions to book MonitorElements into the DQMStore. The function
   // calls whatever user-supplied code via the function f. The latter
@@ -195,13 +236,41 @@ class DQMStore
     /* If enableMultiThread is not enabled we do not set run_,
        streamId_ and moduleId_ to 0, since we rely on their default
        initialization in DQMSTore constructor. */
+    uint32_t oldRun=0,oldStreamId=0,oldModuleId=0;
     if (enableMultiThread_) {
+      oldRun = run_;
       run_ = run;
+      oldStreamId = streamId_;
       streamId_ = streamId;
+      oldModuleId = moduleId_;
       moduleId_ = moduleId;
     }
     f(*ibooker_);
+    if (enableMultiThread_) {
+      run_ = oldRun;
+      streamId_ = oldStreamId;
+      moduleId_ = oldModuleId;
+    }
   }
+  // Signature needed in the harvesting where the booking is done
+  // in the endJob. No handles to the run there. Two arguments ensure
+  // the capability of booking and getting. The method relies on the
+  // initialization of run, stream and module ID to 0. The mutex
+  // is not needed.
+  template <typename iFunc>
+  void meBookerGetter(iFunc f) {
+    f(*ibooker_, *igetter_);
+  }
+  // Signature needed in the harvesting where it might be needed to get
+  // the LS based histograms. Handle to the Lumi and to the iSetup are available.
+  // No need to book anything there. The method relies on the
+  // initialization of run, stream and module ID to 0. The mutex
+  // is not needed.
+  template <typename iFunc>
+  void meGetter(iFunc f) {
+    f(*igetter_);
+  }
+
   //-------------------------------------------------------------------------
   // ---------------------- Constructors ------------------------------------
   DQMStore(const edm::ParameterSet &pset, edm::ActivityRegistry&);
@@ -612,6 +681,7 @@ class DQMStore
 
   std::mutex book_mutex_;
   IBooker * ibooker_;
+  IGetter * igetter_;
 
   friend class edm::DQMHttpSource;
   friend class DQMService;

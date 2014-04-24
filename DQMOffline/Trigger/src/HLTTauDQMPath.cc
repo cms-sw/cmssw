@@ -16,64 +16,13 @@ namespace {
   // Used as a helper only in this file
   class HLTPath {
   public:
-    HLTPath(const std::string& name, const boost::smatch& what):
+    HLTPath(const std::string& name):
       name_(name)
-    {
-      char buffer[10];
-      for(int i=0; i<10; ++i) {
-        snprintf(buffer, 10, "tr%d", i);
-        boost::ssub_match sm = what[buffer];
-        if(sm.length() == 0)
-          break;
-
-        try {
-          thresholds_.push_back(std::stoi(sm.str())); // C++11
-        } catch(std::invalid_argument& e) {
-          throw cms::Exception("Configuration") << "Interpreting regex of path " << name << ", threshold " << buffer << ": unable to convert '" << sm.str() << "' to integer";
-        } catch(std::out_of_range& e) {
-          throw cms::Exception("Configuration") << "Interpreting regex of path " << name << ", threshold " << buffer << ": '" << sm.str() << "' is out of int range";
-        }
-      }
-    }
-
-    bool isBetterThan(const HLTPath& other, const HLTConfigProvider& HLTCP)  const {
-      // First compare prescales
-      // Search for prescale set where either is enabled
-      // If other is disabled (prescale = 0), pick the enabled one
-      // If prescales are different, pick the one with smaller
-      // If prescales are same, continue to compare thresholds
-      // FIXME: try to include L1 prescale to the comparison
-      for(unsigned int iSet = 0; iSet < HLTCP.prescaleSize(); ++iSet) {
-        unsigned int prescale = HLTCP.prescaleValue(iSet, name_);
-        unsigned int prescaleOther = HLTCP.prescaleValue(iSet, other.name_);
-        if(prescale == 0 && prescaleOther == 0)
-          continue;
-        if(prescale == 0)
-          return false;
-        if(prescaleOther == 0)
-          return true;
-
-        if(prescale != prescaleOther)
-          return prescale < prescaleOther;
-        break;
-      }
-
-      // Then thresholds
-      if(thresholds_.size() != other.thresholds_.size())
-        throw cms::Exception("Configuration") << "Comparing path " << name_ << " and " << other.name_ << ", they have different numbers of thresholds (" << thresholds_.size() << " != " << other.thresholds_.size() << ")";
-      for(size_t i=0; i<thresholds_.size(); ++i) {
-        if(thresholds_[i] != other.thresholds_[i])
-          return thresholds_[i] < other.thresholds_[i];
-      }
-
-      // Nothing left, what to do? In principle this is an error
-      throw cms::Exception("Configuration") << "Comparing path " << name_ << " and " << other.name_ << ", unable to tell which to choose. Improve your input regex!";
-      return true;
-    }
+    {}
 
     typedef HLTTauDQMPath::FilterIndex FilterIndex;
 
-    std::vector<FilterIndex> interestingFilters(const HLTConfigProvider& HLTCP, bool doRefAnalysis, const std::vector<boost::regex>& ignoreFilterTypes, const std::vector<boost::regex>& ignoreFilterNames) const {
+    std::vector<FilterIndex> interestingFilters(const HLTConfigProvider& HLTCP, bool doRefAnalysis) const {
       const std::vector<std::string>& moduleLabels = HLTCP.moduleLabels(name_);
       std::vector<FilterIndex> selectedFilters;
       std::vector<std::string> leptonTauFilters;
@@ -116,28 +65,7 @@ namespace {
           selectedFilters.emplace(found, input2, idx2);
       }
 
-      // Remove filters ignored by their type
-      std::vector<FilterIndex>::iterator selectedFiltersEnd = std::remove_if(selectedFilters.begin(), selectedFilters.end(), [&](const FilterIndex& labelIndex) {
-          for(const boost::regex& re: ignoreFilterTypes) {
-            if(boost::regex_search(HLTCP.moduleType(std::get<0>(labelIndex)), re))
-              return true;
-          }
-          return false;
-        });
-      // Remove filters ignored by their label
-      selectedFiltersEnd = std::remove_if(selectedFilters.begin(), selectedFiltersEnd, [&](const FilterIndex& labelIndex) {
-          for(const boost::regex& re: ignoreFilterNames) {
-            if(boost::regex_search(std::get<0>(labelIndex), re))
-              return true;
-          }
-          return false;
-        });
-
-
-      std::vector<FilterIndex> ret;
-      ret.reserve(selectedFiltersEnd-selectedFilters.begin());
-      std::move(selectedFilters.begin(), selectedFiltersEnd, std::back_inserter(ret));
-      return ret;
+      return selectedFilters;
     }
 
     size_t tauProducerIndex(const HLTConfigProvider& HLTCP) const {
@@ -147,8 +75,8 @@ namespace {
         // FIXME: this will not work in unscheduled mode, where
         // producers are not in paths. Try looking first filter using
         // the PFRecoTauProducer output instead.
-        if(type == "PFRecoTauProducer") {
-          //edm::LogInfo("HLTTauDQMOffline") << "Found PFTauProducer " << *iLabel << " index " << (iLabel-moduleLabels.begin());
+        if(type == "PFRecoTauProducer" || type == "RecoTauPiZeroUnembedder") {
+          LogDebug("HLTTauDQMOffline") << "Found tau producer " << type << " " << *iLabel << " index " << (iLabel-moduleLabels.begin());
           return iLabel-moduleLabels.begin();
         }
       }
@@ -179,7 +107,7 @@ namespace {
     int electron;
     int muon;
   };
-  TauLeptonMultiplicity inferTauLeptonMultiplicity(const HLTConfigProvider& HLTCP, const std::string& filterName, const std::string& moduleType) {
+  TauLeptonMultiplicity inferTauLeptonMultiplicity(const HLTConfigProvider& HLTCP, const std::string& filterName, const std::string& moduleType, const std::string& pathName) {
     TauLeptonMultiplicity n;
 
     if(moduleType == "HLTLevel1GTSeed") {
@@ -193,7 +121,7 @@ namespace {
         n.tau = 2;
       }
     }
-    else if(moduleType == "HLT1CaloJet") {
+    else if(moduleType == "HLT1CaloJet" || moduleType == "HLT1PFJet") {
       //const edm::ParameterSet& pset = HLTCP.modulePSet(filterName);
       //pset.getParameter<int>("triggerType") == trigger::TriggerTau) {
       if(getParameterSafe(HLTCP, filterName, "triggerType") == trigger::TriggerTau) {
@@ -220,7 +148,7 @@ namespace {
       //n.electron = HLTCP.modulePSet(filterName).getParameter<int>("ncandcut");
       n.electron = getParameterSafe(HLTCP, filterName, "ncandcut");
     }
-    else if(moduleType == "HLTMuonIsoFilter") {
+    else if(moduleType == "HLTMuonIsoFilter" || moduleType == "HLTMuonL3PreFilter") {
       n.muon = HLTCP.modulePSet(filterName).getParameter<int>("MinN");
     }
     else if(moduleType == "HLT2ElectronTau" || moduleType == "HLT2ElectronPFTau") {
@@ -239,7 +167,7 @@ namespace {
       // ignore
     }
     else {
-      edm::LogWarning("HLTTauDQMOfflineSource") << "HLTTauDQMPath.cc, inferTauLeptonMultiplicity(): module type '" << moduleType << "' not recognized, filter '" << filterName << "' will be ignored for offline matching." << std::endl;
+      edm::LogWarning("HLTTauDQMOfflineSource") << "HLTTauDQMPath.cc, inferTauLeptonMultiplicity(): module type '" << moduleType << "' not recognized, filter '" << filterName << "' in path '" << pathName << "' will be ignored for offline matching." << std::endl;
     }
 
     return n;
@@ -271,86 +199,32 @@ namespace {
 }
 
 
-HLTTauDQMPath::HLTTauDQMPath(const std::string& hltProcess, const std::string& dqmFolder, bool doRefAnalysis):
+HLTTauDQMPath::HLTTauDQMPath(const std::string& pathName, const std::string& hltProcess, bool doRefAnalysis, const HLTConfigProvider& HLTCP):
   hltProcess_(hltProcess),
-  dqmFolder_(dqmFolder),
   doRefAnalysis_(doRefAnalysis),
-  pathIndex_(0),
+  pathName_(pathName),
+  pathIndex_(HLTCP.triggerIndex(pathName_)),
   lastFilterBeforeL2TauIndex_(0), lastL2TauFilterIndex_(0),
   lastFilterBeforeL3TauIndex_(0), lastL3TauFilterIndex_(0),
-  isFirstL1Seed_(false)
-{}
-HLTTauDQMPath::~HLTTauDQMPath() {}
-
-void HLTTauDQMPath::initialize(const edm::ParameterSet& pset) {
-  std::vector<std::string> regexs;
-  std::vector<boost::regex> ignoreFilterTypes;
-  std::vector<boost::regex> ignoreFilterNames;
-  std::vector<std::string> regexsTmp = pset.getUntrackedParameter<std::vector<std::string> >("Path");
-  pathRegexs_.reserve(regexsTmp.size());
-  for(const std::string& str: regexsTmp)
-    pathRegexs_.emplace_back(str);
-
-  std::vector<std::string> ignoreFilterTypesTmp;
-  std::vector<std::string> ignoreFilterNamesTmp;
-  ignoreFilterTypesTmp   = pset.getUntrackedParameter<std::vector<std::string> >("IgnoreFilterTypes");
-  ignoreFilterNamesTmp   = pset.getUntrackedParameter<std::vector<std::string> >("IgnoreFilterNames");
-  ignoreFilterTypes.reserve(ignoreFilterTypesTmp.size());
-  ignoreFilterNames.reserve(ignoreFilterNamesTmp.size());
-  for(const std::string& str: ignoreFilterTypesTmp)
-    ignoreFilterTypes.emplace_back(str);
-  for(const std::string& str: ignoreFilterNamesTmp)
-    ignoreFilterNames.emplace_back(str);
-}
-
-bool HLTTauDQMPath::beginRun(const HLTConfigProvider& HLTCP) {
-  // Search path candidates
-
-  std::vector<HLTPath> foundPaths;
-  const std::vector<std::string>& triggerNames = HLTCP.triggerNames();
-  for(const boost::regex& re: pathRegexs_) {
-    //std::cout << regexStr << std::endl;
-    boost::smatch what;
-
-    for(const std::string& path: triggerNames) {
-      if(boost::regex_match(path, what, re)) {
-        foundPaths.emplace_back(path, what);
-      }
-    }
-    if(!foundPaths.empty())
-      break;
-  }
-  if(foundPaths.empty()) {
-    std::stringstream ss;
-    for(std::vector<boost::regex>::const_iterator iRegex = pathRegexs_.begin(); iRegex != pathRegexs_.end(); ++iRegex) {
-      if(iRegex != pathRegexs_.begin())
-        ss << ",";
-      ss << iRegex->str();
-    }
-    edm::LogInfo("HLTTauDQMOffline") << "HLTTauDQMPath::beginRun(): did not find any paths matching to regexes " << ss.str();
-    return false;
-  }
-
-  // If more than one, find the best match
-  std::vector<HLTPath>::const_iterator thePath = foundPaths.begin();
-  try {
-    std::vector<HLTPath>::const_iterator iPath = thePath;
-    ++iPath;
-    for(; iPath != foundPaths.end(); ++iPath) {
-      if(!thePath->isBetterThan(*iPath, HLTCP))
-        thePath = iPath;
-    }
-  } catch(cms::Exception& e) {
-    edm::LogError("HLTTauDQMOffline") << "HLTTauDQMPath::beginRun(): " << e.what();
-    return false;
-  }
+  isFirstL1Seed_(false),
+  isValid_(false)
+{
+#ifdef EDM_ML_LOGDEBUG
   std::stringstream ss;
-  ss << "HLTTauDQMPath::beginRun(): " << dqmFolder_ << ": chose path " << thePath->name() << "\n";
+  ss << "HLTTauDQMPath: " << pathName_ << "\n";
+#endif
 
   // Get the filters
-  filterIndices_ = thePath->interestingFilters(HLTCP, doRefAnalysis_, ignoreFilterTypes_, ignoreFilterNames_);
+  HLTPath thePath(pathName_);
+  filterIndices_ = thePath.interestingFilters(HLTCP, doRefAnalysis_);
+  if(filterIndices_.empty()) {
+    edm::LogInfo("HLTTauDQMOffline") << "HLTTauDQMPath: " << pathName_ << " no interesting filters found";
+    return;
+  }
   isFirstL1Seed_ = HLTCP.moduleType(std::get<0>(filterIndices_[0])) == "HLTLevel1GTSeed";
+#ifdef EDM_ML_LOGDEBUG
   ss << "  Filters";
+#endif
   // Set the filter multiplicity counts
   filterTauN_.clear();
   filterElectronN_.clear();
@@ -362,29 +236,32 @@ bool HLTTauDQMPath::beginRun(const HLTConfigProvider& HLTCP) {
     const std::string& filterName = std::get<0>(filterIndices_[i]);
     const std::string& moduleType = HLTCP.moduleType(filterName);
 
-    TauLeptonMultiplicity n = inferTauLeptonMultiplicity(HLTCP, filterName, moduleType);
+    TauLeptonMultiplicity n = inferTauLeptonMultiplicity(HLTCP, filterName, moduleType, pathName_);
     filterTauN_.push_back(n.tau);
     filterElectronN_.push_back(n.electron);
     filterMuonN_.push_back(n.muon);
 
+#ifdef EDM_ML_LOGDEBUG
     ss << "\n    " << std::get<1>(filterIndices_[i])
        << " " << filterName
        << " " << moduleType
        << " ntau " << n.tau
        << " nele " << n.electron
        << " nmu " << n.muon;
+#endif
 
   }
-  edm::LogInfo("HLTTauDQMOffline") << ss.str();
+#ifdef EDM_ML_LOGDEBUG
+  LogDebug("HLTTauDQMOffline") << ss.str();
+#endif
 
 
-  // Find the position of PFRecoTauProducer, use filters with taus
+  // Find the position of tau producer, use filters with taus
   // before it for L2 tau efficiency, and filters with taus after it
   // for L3 tau efficiency
-  const size_t tauProducerIndex = thePath->tauProducerIndex(HLTCP);
+  const size_t tauProducerIndex = thePath.tauProducerIndex(HLTCP);
   if(tauProducerIndex == std::numeric_limits<size_t>::max()) {
-    edm::LogWarning("HLTTauDQMOffline") << "HLTTauDQMPath::beginRun(): Did not find PFRecoTauProducer from HLT path " << thePath->name();
-    return false;
+    edm::LogWarning("HLTTauDQMOffline") << "HLTTauDQMPath::beginRun(): Did not find tau producer from HLT path " << pathName_;
   }
   //lastFilterBeforeL2TauIndex_ = std::numeric_limits<size_t>::max();
   lastL2TauFilterIndex_ = std::numeric_limits<size_t>::max();
@@ -409,14 +286,11 @@ bool HLTTauDQMPath::beginRun(const HLTConfigProvider& HLTCP) {
                                    << " lastL2TauFilter " << lastL2TauFilterIndex_
                                    << " lastFilterBeforeL3 " << lastFilterBeforeL3TauIndex_
                                    << " lastL3TauFilter " << lastL3TauFilterIndex_;
-
-  // Set path index
-  pathName_ = thePath->name();
-  pathIndex_ = HLTCP.triggerIndex(thePath->name());
-
-
-  return true;
+  isValid_ = true;
 }
+
+HLTTauDQMPath::~HLTTauDQMPath() {}
+
 
 bool HLTTauDQMPath::fired(const edm::TriggerResults& triggerResults) const {
   return triggerResults.accept(pathIndex_);

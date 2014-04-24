@@ -31,25 +31,16 @@ BaseEvtVtxGenerator::BaseEvtVtxGenerator( const ParameterSet& pset )
 	  sourceLabel(pset.getParameter<edm::InputTag>("src"))
 {
    
-/* No longer needed...
-
-   // 1st of all, check on module_label - must be VtxSmeared !
-   if ( pset.getParameter<string>("@module_label") != "VtxSmeared" )
-   {
-      throw cms::Exception("Configuration")
-        << "Module has an invalid module label. "
-           "The label of this module MUST be VtxSmeared.";
-   }
-*/
-
    Service<RandomNumberGenerator> rng;
    if ( ! rng.isAvailable()) {
      throw cms::Exception("Configuration")
        << "The BaseEvtVtxGenerator requires the RandomNumberGeneratorService\n"
-          "which is not present in the configuration file.  You must add the service\n"
+          "which is not present in the configuration file. \n" 
+          "You must add the service\n"
           "in the configuration file or remove the modules that require it.";
    }
 
+   consumes<edm::HepMCProduct>(pset.getParameter<edm::InputTag>("src"));
    produces<bool>(); 
 }
 

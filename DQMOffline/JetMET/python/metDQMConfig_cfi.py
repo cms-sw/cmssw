@@ -11,22 +11,25 @@ newAk7CaloL2L3 = ak7CaloL2L3.clone()
 from JetMETCorrections.Configuration.JetCorrectionServices_cff import ak5PFL1FastL2L3,ak5PFL1Fastjet,ak5PFL2Relative,ak5PFL3Absolute
 newAk5PFL1FastL2L3 = ak5PFL1FastL2L3.clone()
 
-from JetMETCorrections.Configuration.JetCorrectionServices_cff import ak5JPTL1FastL2L3,ak5JPTL1Fastjet,ak5JPTL2Relative,ak5JPTL3Absolute
-newAk5JPTL1FastL2L3 = ak5JPTL1FastL2L3.clone()
+#from JetMETCorrections.Configuration.JetCorrectionServices_cff import ak5JPTL1FastL2L3,ak5JPTL1Fastjet,ak5JPTL2Relative,ak5JPTL3Absolute
+#newAk5JPTL1FastL2L3 = ak5JPTL1FastL2L3.clone()
 
 
-tcMetDQMAnalyzer = cms.EDAnalyzer("METAnalyzer",
+caloMetDQMAnalyzer = cms.EDAnalyzer("METAnalyzer",
     OutputMEsInRootFile = cms.bool(False),
     OutputFile = cms.string('jetMETMonitoring.root'),
-    METType=cms.untracked.string('tc'),
-    METCollectionLabel     = cms.InputTag("tcMet"),
 
-    JetCollectionLabel  = cms.InputTag("JetPlusTrackZSPCorJetAntiKt5"),
-    JetCorrections = cms.string("newAk5JPTL1FastL2L3"),
+    METType=cms.untracked.string('calo'),
+    METCollectionLabel     = cms.InputTag("met"),
+    JetCollectionLabel  = cms.InputTag("ak5CaloJets"),
+    JetCorrections = cms.string("newAk5CaloL2L3"),
+
     InputJetIDValueMap         = cms.InputTag("ak5JetID"), 
     ptThreshold                =cms.double(30),
     
     FolderName = cms.untracked.string("JetMET/MET/"),
+
+    fillMetHighLevel = cms.bool(True),
 
     CleaningParameters = cleaningParameters.clone(),
 
@@ -114,10 +117,11 @@ tcMetDQMAnalyzer = cms.EDAnalyzer("METAnalyzer",
 #    etThreshold  = cms.double(2.),
 
     DCSFilter = cms.PSet(
-        DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon"),
-        #DebugOn = cms.untracked.bool(True),
-        Filter = cms.untracked.bool(True)
-        ),
+      DetectorTypes = cms.untracked.string("ecal:hbhe:hf"),
+      #DebugOn = cms.untracked.bool(True),
+      Filter = cms.untracked.bool(True)
+    ),
+
     
     #Parameters set for METAnalyzer --> but only used for TCMET
     InputBeamSpotLabel = cms.InputTag("offlineBeamSpot"),
@@ -127,21 +131,28 @@ tcMetDQMAnalyzer = cms.EDAnalyzer("METAnalyzer",
     InputTCMETValueMap = cms.InputTag("muonTCMETValueMapProducer","muCorrData"),#muonMETValueMapProducer -> calomet vs muonTCMETValueMapProducer
 )
 
-pfMetDQMAnalyzer = tcMetDQMAnalyzer.clone(
+#tcMetDQMAnalyzer = caloMetDQMAnalyzer.clone(
+#    METType=cms.untracked.string('tc'),
+#    METCollectionLabel     = cms.InputTag("tcMet"),
+#    JetCollectionLabel  = cms.InputTag("JetPlusTrackZSPCorJetAntiKt5"),
+#    JetCorrections = cms.string("newAk5JPTL1FastL2L3"),
+#    fillMetHighLevel = cms.bool(False),
+#    DCSFilter = cms.PSet(
+#        DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon"),
+#        #DebugOn = cms.untracked.bool(True),
+#        Filter = cms.untracked.bool(True)
+#        ),
+#)
+
+pfMetDQMAnalyzer = caloMetDQMAnalyzer.clone(
     METType=cms.untracked.string('pf'),
     METCollectionLabel     = cms.InputTag("pfMet"),
     JetCollectionLabel  = cms.InputTag("ak5PFJets"),
     JetCorrections = cms.string("newAk5PFL1FastL2L3"),
-)
-
-caloMetDQMAnalyzer = tcMetDQMAnalyzer.clone(
-    METType=cms.untracked.string('calo'),
-    METCollectionLabel     = cms.InputTag("met"),
-    JetCollectionLabel  = cms.InputTag("ak5CaloJets"),
-    JetCorrections = cms.string("newAk5CaloL2L3"),
+    fillMetHighLevel = cms.bool(False),
     DCSFilter = cms.PSet(
-      DetectorTypes = cms.untracked.string("ecal:hbhe:hf"),
-      #DebugOn = cms.untracked.bool(True),
-      Filter = cms.untracked.bool(True)
-    )
+        DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon"),
+        #DebugOn = cms.untracked.bool(True),
+        Filter = cms.untracked.bool(True)
+        ),
 )

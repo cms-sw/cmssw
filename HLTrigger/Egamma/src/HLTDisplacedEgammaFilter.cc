@@ -110,7 +110,8 @@ HLTDisplacedEgammaFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& i
 
   std::vector<edm::Ref<reco::RecoEcalCandidateCollection> > recoecalcands;
   PrevFilterOutput->getObjects(TriggerCluster, recoecalcands);
-
+  if(recoecalcands.empty()) PrevFilterOutput->getObjects(TriggerPhoton, recoecalcands);
+  
   // look at all candidates,  check cuts and add to filter object
   int n(0);
 

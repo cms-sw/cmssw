@@ -48,7 +48,7 @@ class SimTrack;
  ***/
 
 
-class TkConvValidator : public DQMEDAnalyzer
+class TkConvValidator : public thread_unsafe::DQMEDAnalyzer
 {
 
  public:

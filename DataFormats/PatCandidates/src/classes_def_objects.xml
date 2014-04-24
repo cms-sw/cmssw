@@ -16,7 +16,9 @@
   <class name="pat::Lepton<reco::BaseTau>" />
 
   <!-- PAT Objects, and embedded data  -->
-  <class name="pat::Electron"  ClassVersion="22">
+  <class name="pat::Electron"  ClassVersion="23">
+   <field name="superClusterRelinked_" transient="true"/>
+   <version ClassVersion="23" checksum="434577157"/>
    <version ClassVersion="22" checksum="4113394532"/>
    <version ClassVersion="21" checksum="366535823"/>
    <version ClassVersion="20" checksum="4220542719"/>
@@ -26,7 +28,14 @@
    <version ClassVersion="15" checksum="990589145"/>
    <version ClassVersion="10" checksum="1662079993"/>
   </class>
-  <class name="pat::Muon"  ClassVersion="12">
+  <!--NOTE: the declaration of AtomicPtrCache are a temporary work around until ROOT 6 where they will not be needed -->
+  <class name="edm::AtomicPtrCache<std::vector<reco::SuperCluster> >" />
+  <ioread sourceClass="pat::Electron" targetClass="pat::Electron" version="[1-]" source="" target="superClusterRelinked_">
+    <![CDATA[superClusterRelinked_.reset();]]>
+  </ioread>
+
+  <class name="pat::Muon"  ClassVersion="13">
+   <version ClassVersion="13" checksum="2943499125"/>
    <version ClassVersion="12" checksum="462627330"/>
    <version ClassVersion="11" checksum="489577659"/>
    <version ClassVersion="10" checksum="2367573922"/>
@@ -91,20 +100,33 @@
    <version ClassVersion="10" checksum="2692173055"/>
   </class>
   <class name="std::vector<pat::tau::TauCaloSpecific>" />
-  <class name="pat::Photon"  ClassVersion="10">
+  <class name="pat::Photon"  ClassVersion="12">
+   <field name="superClusterRelinked_" transient="true"/>
+   <version ClassVersion="12" checksum="2518470540"/>
+   <version ClassVersion="11" checksum="3277818926"/>
    <version ClassVersion="10" checksum="865744757"/>
   </class>
+  <!--NOTE: the declaration of AtomicPtrCache are a temporary work around until ROOT 6 where they will not be needed -->
+  <ioread sourceClass="pat::Photon" targetClass="pat::Photon" version="[1-]" source="" target="superClusterRelinked_">
+    <![CDATA[superClusterRelinked_.reset();]]>
+  </ioread>
+
   <class name="pat::Jet"  ClassVersion="11">
    <field name="caloTowersTemp_" transient="true"/>
    <field name="pfCandidatesTemp_" transient="true"/>
    <version ClassVersion="11" checksum="4153489469"/>
    <version ClassVersion="10" checksum="3393361159"/>
   </class>
-  <class name="pat::MET"  ClassVersion="10">
+  <class name="pat::MET"  ClassVersion="11">
+   <version ClassVersion="11" checksum="1829185007"/>
    <version ClassVersion="10" checksum="1136648776"/>
     <field name="uncorInfo_" transient="true"/>
     <field name="nCorrections_" transient="true"/>
   </class>
+  <class name="pat::MET::PackedMETUncertainty" ClassVersion="10">
+    <version ClassVersion="10" checksum="1984780659"/>
+  </class>
+  <class name="std::vector<pat::MET::PackedMETUncertainty>" />
   <class name="pat::MHT"  ClassVersion="10">
    <version ClassVersion="10" checksum="2696169357"/>
   </class>
@@ -126,6 +148,47 @@
   <class name="pat::Conversion"  ClassVersion="11">
    <version ClassVersion="11" checksum="1239840459"/>
   </class>
+
+  <class name="pat::PackedCandidate" ClassVersion="12">
+    <version ClassVersion="12" checksum="981046949"/>
+    <version ClassVersion="11" checksum="3135186025"/>
+    <version ClassVersion="10" checksum="572957881"/>
+    <field name="p4_" transient="true" />
+    <field name="p4c_" transient="true" />
+    <field name="vertex_" transient="true" />
+    <field name="unpacked_" transient="true" />
+    <field name="unpackedVtx_" transient="true" />
+    <field name="dxy_" transient="true" />
+    <field name="dz_" transient="true" />
+    <field name="dphi_" transient="true" />
+    <field name="dxydxy_" transient="true" />
+    <field name="dzdz_" transient="true" />
+    <field name="dxydz_" transient="true" />
+    <field name="dlambdadz_" transient="true" />
+    <field name="dphidxy_" transient="true" />
+    <field name="dphidphi_" transient="true" />
+    <field name="detadeta_" transient="true" />
+    <field name="dptdpt_" transient="true" />
+  </class>
+  <ioread sourceClass="pat::PackedCandidate"  version="[1-]" targetClass="pat::PackedCandidate" source="" target="unpacked_">
+    <![CDATA[unpacked_ = false;
+    ]]>
+  </ioread>
+  <ioread sourceClass="pat::PackedCandidate"  version="[1-]" targetClass="pat::PackedCandidate" source="" target="unpackedVtx_">
+    <![CDATA[unpackedVtx_ = false;
+    ]]>
+  </ioread>
+
+ <class name="pat::PackedGenParticle">
+    <field name="p4_" transient="true" />
+    <field name="p4c_" transient="true" />
+    <field name="unpacked_" transient="true" />
+  </class>
+  <ioread sourceClass="pat::PackedGenParticle"  version="[1-]" targetClass="pat::PackedGenParticle" source="" target="unpacked_">
+    <![CDATA[unpacked_ = false;
+    ]]>
+  </ioread>
+
 
   <!-- PAT Object Ptrs  -->
   <class name="edm::Ptr<pat::Electron>" />
@@ -149,6 +212,8 @@
   <class name="std::vector<pat::GenericParticle>" />
   <class name="std::vector<pat::Hemisphere>" />
   <class name="std::vector<pat::Conversion>" />
+  <class name="std::vector<pat::PackedCandidate>"/>
+  <class name="std::vector<pat::PackedGenParticle>"/>
 
   <!-- PAT Object Collection Iterators -->
   <class name="std::vector<pat::Electron>::const_iterator" />
@@ -164,6 +229,8 @@
   <class name="std::vector<pat::GenericParticle>::const_iterator" />
   <class name="std::vector<pat::Hemisphere>::const_iterator" />
   <class name="std::vector<pat::Conversion>::const_iterator" />
+  <class name="std::vector<pat::PackedCandidate>::const_iterator" />
+  <class name="std::vector<pat::PackedGenParticle>::const_iterator" />
 
   <!-- PAT Object Collection Wrappers -->
   <class name="edm::Wrapper<std::vector<pat::Electron> >" />
@@ -179,6 +246,8 @@
   <class name="edm::Wrapper<std::vector<pat::GenericParticle> >" />
   <class name="edm::Wrapper<std::vector<pat::Hemisphere> >" />
   <class name="edm::Wrapper<std::vector<pat::Conversion> >" />
+  <class name="edm::Wrapper<std::vector<pat::PackedCandidate> >"/>
+  <class name="edm::Wrapper<std::vector<pat::PackedGenParticle> >"/>
 
   <!-- PAT Object References -->
   <class name="pat::ElectronRef" />
@@ -194,6 +263,8 @@
   <class name="pat::GenericParticleRef" />
   <class name="pat::HemisphereRef" />
   <class name="pat::ConversionRef" />
+  <class name="pat::PackedCandidateRef" />
+  <class name="pat::PackedGenParticleRef" />
 
   <!-- PAT Object Ref Vectors -->
   <class name="pat::ElectronRefVector" />
@@ -208,6 +279,8 @@
   <class name="pat::GenericParticleRefVector" />
   <class name="pat::HemisphereRefVector" />
   <class name="pat::ConversionRefVector" />
+  <class name="pat::PackedCandidateRefVector" />
+  <class name="pat::PackedGenParticleRefVector" />
 
   <!-- PAT Object Ref Vector Wrappers -->
   <class name="edm::Wrapper<pat::ElectronRefVector>" />
@@ -253,6 +326,10 @@
  <!-- RefToBaseVector<Candidate> from PATObjetcs  -->
   <class name="edm::reftobase::RefVectorHolder<pat::CompositeCandidateRefVector>" />
   <class name="edm::reftobase::VectorHolder<reco::Candidate, pat::CompositeCandidateRefVector>" />
+
+  <class name="edm::RefProd<pat::PackedCandidateCollection>" />
+  <class name="edm::Association<pat::PackedCandidateCollection>" />
+  <class name="edm::Wrapper<edm::Association<pat::PackedCandidateCollection> >" />
 
   </selection>
  <exclusion>

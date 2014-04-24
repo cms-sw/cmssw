@@ -1,13 +1,632 @@
-# /dev/CMSSW_7_1_0/HIon/V23 (CMSSW_7_1_0_pre5_HLT1)
+# /dev/CMSSW_7_1_0/HIon/V29 (CMSSW_7_1_0_pre6_HLT1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTHIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_1_0/HIon/V23')
+  tableName = cms.string('/dev/CMSSW_7_1_0/HIon/V29')
 )
 
+process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
+  minPt = cms.double( 0.3 ),
+  minHitsMinPt = cms.int32( 3 ),
+  ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
+  maxLostHits = cms.int32( 0 ),
+  maxNumberOfHits = cms.int32( 100 ),
+  maxConsecLostHits = cms.int32( 1 ),
+  minimumNumberOfHits = cms.int32( 6 ),
+  nSigmaMinPt = cms.double( 5.0 ),
+  chargeSignificance = cms.double( -1.0 )
+)
+process.HLTIter3PSetTrajectoryFilterIT = cms.PSet( 
+  minPt = cms.double( 0.3 ),
+  minHitsMinPt = cms.int32( 3 ),
+  ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
+  maxLostHits = cms.int32( 0 ),
+  maxNumberOfHits = cms.int32( 100 ),
+  maxConsecLostHits = cms.int32( 1 ),
+  minimumNumberOfHits = cms.int32( 3 ),
+  nSigmaMinPt = cms.double( 5.0 ),
+  chargeSignificance = cms.double( -1.0 )
+)
+process.HLTIter2PSetTrajectoryFilterIT = cms.PSet( 
+  minPt = cms.double( 0.3 ),
+  minHitsMinPt = cms.int32( 3 ),
+  ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
+  maxLostHits = cms.int32( 1 ),
+  maxNumberOfHits = cms.int32( 100 ),
+  maxConsecLostHits = cms.int32( 1 ),
+  minimumNumberOfHits = cms.int32( 3 ),
+  nSigmaMinPt = cms.double( 5.0 ),
+  chargeSignificance = cms.double( -1.0 )
+)
+process.HLTIter1PSetTrajectoryFilterIT = cms.PSet( 
+  minPt = cms.double( 0.2 ),
+  minHitsMinPt = cms.int32( 3 ),
+  ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
+  maxLostHits = cms.int32( 1 ),
+  maxNumberOfHits = cms.int32( 100 ),
+  maxConsecLostHits = cms.int32( 1 ),
+  minimumNumberOfHits = cms.int32( 3 ),
+  nSigmaMinPt = cms.double( 5.0 ),
+  chargeSignificance = cms.double( -1.0 )
+)
+process.HLTPSetbJetRegionalTrajectoryFilter = cms.PSet( 
+  minPt = cms.double( 1.0 ),
+  minHitsMinPt = cms.int32( 3 ),
+  ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
+  maxLostHits = cms.int32( 1 ),
+  maxNumberOfHits = cms.int32( 8 ),
+  maxConsecLostHits = cms.int32( 1 ),
+  minimumNumberOfHits = cms.int32( 5 ),
+  nSigmaMinPt = cms.double( 5.0 ),
+  chargeSignificance = cms.double( -1.0 )
+)
+process.HLTPSetTrajectoryFilterL3 = cms.PSet( 
+  minPt = cms.double( 0.5 ),
+  minHitsMinPt = cms.int32( 3 ),
+  ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
+  maxLostHits = cms.int32( 1 ),
+  maxNumberOfHits = cms.int32( 1000000000 ),
+  maxConsecLostHits = cms.int32( 1 ),
+  minimumNumberOfHits = cms.int32( 5 ),
+  nSigmaMinPt = cms.double( 5.0 ),
+  chargeSignificance = cms.double( -1.0 )
+)
+process.HLTPSetTrajectoryFilterIT = cms.PSet( 
+  minPt = cms.double( 0.3 ),
+  minHitsMinPt = cms.int32( 3 ),
+  ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
+  maxLostHits = cms.int32( 1 ),
+  maxNumberOfHits = cms.int32( 100 ),
+  maxConsecLostHits = cms.int32( 1 ),
+  minimumNumberOfHits = cms.int32( 3 ),
+  nSigmaMinPt = cms.double( 5.0 ),
+  chargeSignificance = cms.double( -1.0 )
+)
+process.HLTPSetTrajectoryFilterForElectrons = cms.PSet( 
+  ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
+  minPt = cms.double( 2.0 ),
+  minHitsMinPt = cms.int32( -1 ),
+  maxLostHits = cms.int32( 1 ),
+  maxNumberOfHits = cms.int32( -1 ),
+  maxConsecLostHits = cms.int32( 1 ),
+  nSigmaMinPt = cms.double( 5.0 ),
+  minimumNumberOfHits = cms.int32( 5 ),
+  chargeSignificance = cms.double( -1.0 )
+)
+process.HLTPSetMuonCkfTrajectoryFilter = cms.PSet( 
+  minPt = cms.double( 0.9 ),
+  minHitsMinPt = cms.int32( 3 ),
+  ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
+  maxLostHits = cms.int32( 1 ),
+  maxNumberOfHits = cms.int32( -1 ),
+  maxConsecLostHits = cms.int32( 1 ),
+  chargeSignificance = cms.double( -1.0 ),
+  nSigmaMinPt = cms.double( 5.0 ),
+  minimumNumberOfHits = cms.int32( 5 )
+)
+process.HLTPSetMuTrackJpsiTrajectoryFilter = cms.PSet( 
+  minPt = cms.double( 1.0 ),
+  minHitsMinPt = cms.int32( 3 ),
+  ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
+  maxLostHits = cms.int32( 1 ),
+  maxNumberOfHits = cms.int32( 8 ),
+  maxConsecLostHits = cms.int32( 1 ),
+  minimumNumberOfHits = cms.int32( 5 ),
+  nSigmaMinPt = cms.double( 5.0 ),
+  chargeSignificance = cms.double( -1.0 )
+)
+process.HLTPSetMuTrackJpsiEffTrajectoryFilter = cms.PSet( 
+  minPt = cms.double( 1.0 ),
+  minHitsMinPt = cms.int32( 3 ),
+  ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
+  maxLostHits = cms.int32( 1 ),
+  maxNumberOfHits = cms.int32( 9 ),
+  maxConsecLostHits = cms.int32( 1 ),
+  minimumNumberOfHits = cms.int32( 5 ),
+  nSigmaMinPt = cms.double( 5.0 ),
+  chargeSignificance = cms.double( -1.0 )
+)
+process.HLTPSetCkfTrajectoryFilterForHI = cms.PSet( 
+  minimumNumberOfHits = cms.int32( 6 ),
+  minHitsMinPt = cms.int32( 3 ),
+  ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
+  maxLostHits = cms.int32( 1 ),
+  maxNumberOfHits = cms.int32( -1 ),
+  maxConsecLostHits = cms.int32( 1 ),
+  chargeSignificance = cms.double( -1.0 ),
+  nSigmaMinPt = cms.double( 5.0 ),
+  minPt = cms.double( 11.0 )
+)
+process.HLTPSetCkfTrajectoryFilter = cms.PSet( 
+  minPt = cms.double( 0.9 ),
+  minHitsMinPt = cms.int32( 3 ),
+  ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
+  maxLostHits = cms.int32( 1 ),
+  maxNumberOfHits = cms.int32( -1 ),
+  maxConsecLostHits = cms.int32( 1 ),
+  minimumNumberOfHits = cms.int32( 5 ),
+  nSigmaMinPt = cms.double( 5.0 ),
+  chargeSignificance = cms.double( -1.0 )
+)
+process.HLTPSetCkf3HitTrajectoryFilter = cms.PSet( 
+  minPt = cms.double( 0.9 ),
+  minHitsMinPt = cms.int32( 3 ),
+  ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
+  maxLostHits = cms.int32( 1 ),
+  maxNumberOfHits = cms.int32( -1 ),
+  maxConsecLostHits = cms.int32( 1 ),
+  minimumNumberOfHits = cms.int32( 3 ),
+  nSigmaMinPt = cms.double( 5.0 ),
+  chargeSignificance = cms.double( -1.0 )
+)
+process.HLTIter4Tau3MuPSetTrajectoryBuilderIT = cms.PSet( 
+  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
+  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTIter4PSetTrajectoryFilterIT" ) ),
+  maxCand = cms.int32( 1 ),
+  ComponentType = cms.string( "CkfTrajectoryBuilder" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
+  MeasurementTrackerName = cms.string( "hltIter4Tau3MuESPMeasurementTracker" ),
+  estimator = cms.string( "hltESPChi2MeasurementEstimator16" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  alwaysUseInvalidHits = cms.bool( False ),
+  intermediateCleaning = cms.bool( True ),
+  lostHitPenalty = cms.double( 30.0 ),
+  minNrOfHitsForRebuild = cms.untracked.int32( 4 )
+)
+process.HLTIter4PSetTrajectoryBuilderITReg = cms.PSet( 
+  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
+  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTIter4PSetTrajectoryFilterIT" ) ),
+  maxCand = cms.int32( 1 ),
+  ComponentType = cms.string( "CkfTrajectoryBuilder" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
+  MeasurementTrackerName = cms.string( "hltIter4ESPMeasurementTrackerReg" ),
+  estimator = cms.string( "hltESPChi2MeasurementEstimator16" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  alwaysUseInvalidHits = cms.bool( False ),
+  intermediateCleaning = cms.bool( True ),
+  lostHitPenalty = cms.double( 30.0 )
+)
+process.HLTIter4PSetTrajectoryBuilderITPA = cms.PSet( 
+  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
+  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTIter4PSetTrajectoryFilterIT" ) ),
+  maxCand = cms.int32( 1 ),
+  ComponentType = cms.string( "CkfTrajectoryBuilder" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
+  MeasurementTrackerName = cms.string( "hltIter4ESPMeasurementTrackerPA" ),
+  estimator = cms.string( "hltESPChi2MeasurementEstimator16" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  alwaysUseInvalidHits = cms.bool( False ),
+  intermediateCleaning = cms.bool( True ),
+  lostHitPenalty = cms.double( 30.0 )
+)
+process.HLTIter4PSetTrajectoryBuilderIT = cms.PSet( 
+  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
+  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTIter4PSetTrajectoryFilterIT" ) ),
+  maxCand = cms.int32( 1 ),
+  ComponentType = cms.string( "CkfTrajectoryBuilder" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
+  MeasurementTrackerName = cms.string( "hltIter4ESPMeasurementTracker" ),
+  estimator = cms.string( "hltESPChi2MeasurementEstimator16" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  alwaysUseInvalidHits = cms.bool( False ),
+  intermediateCleaning = cms.bool( True ),
+  lostHitPenalty = cms.double( 30.0 ),
+  minNrOfHitsForRebuild = cms.untracked.int32( 4 )
+)
+process.HLTIter3Tau3MuPSetTrajectoryBuilderIT = cms.PSet( 
+  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
+  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTIter3PSetTrajectoryFilterIT" ) ),
+  maxCand = cms.int32( 1 ),
+  ComponentType = cms.string( "CkfTrajectoryBuilder" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
+  MeasurementTrackerName = cms.string( "hltIter3Tau3MuESPMeasurementTracker" ),
+  estimator = cms.string( "hltESPChi2MeasurementEstimator16" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  alwaysUseInvalidHits = cms.bool( False ),
+  intermediateCleaning = cms.bool( True ),
+  lostHitPenalty = cms.double( 30.0 )
+)
+process.HLTIter3PSetTrajectoryBuilderITReg = cms.PSet( 
+  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
+  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTIter3PSetTrajectoryFilterIT" ) ),
+  maxCand = cms.int32( 1 ),
+  ComponentType = cms.string( "CkfTrajectoryBuilder" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
+  MeasurementTrackerName = cms.string( "hltIter3ESPMeasurementTrackerReg" ),
+  estimator = cms.string( "hltESPChi2MeasurementEstimator16" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  alwaysUseInvalidHits = cms.bool( False ),
+  intermediateCleaning = cms.bool( True ),
+  lostHitPenalty = cms.double( 30.0 )
+)
+process.HLTIter3PSetTrajectoryBuilderITPA = cms.PSet( 
+  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
+  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTIter3PSetTrajectoryFilterIT" ) ),
+  maxCand = cms.int32( 1 ),
+  ComponentType = cms.string( "CkfTrajectoryBuilder" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
+  MeasurementTrackerName = cms.string( "hltIter3ESPMeasurementTrackerPA" ),
+  estimator = cms.string( "hltESPChi2MeasurementEstimator16" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  alwaysUseInvalidHits = cms.bool( False ),
+  intermediateCleaning = cms.bool( True ),
+  lostHitPenalty = cms.double( 30.0 )
+)
+process.HLTIter3PSetTrajectoryBuilderIT = cms.PSet( 
+  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
+  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTIter3PSetTrajectoryFilterIT" ) ),
+  maxCand = cms.int32( 1 ),
+  ComponentType = cms.string( "CkfTrajectoryBuilder" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
+  MeasurementTrackerName = cms.string( "hltIter3ESPMeasurementTracker" ),
+  estimator = cms.string( "hltESPChi2MeasurementEstimator16" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  alwaysUseInvalidHits = cms.bool( False ),
+  intermediateCleaning = cms.bool( True ),
+  lostHitPenalty = cms.double( 30.0 )
+)
+process.HLTIter2Tau3MuPSetTrajectoryBuilderIT = cms.PSet( 
+  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
+  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTIter2PSetTrajectoryFilterIT" ) ),
+  maxCand = cms.int32( 2 ),
+  ComponentType = cms.string( "CkfTrajectoryBuilder" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
+  MeasurementTrackerName = cms.string( "hltIter2Tau3MuESPMeasurementTracker" ),
+  estimator = cms.string( "hltESPChi2MeasurementEstimator16" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  alwaysUseInvalidHits = cms.bool( False ),
+  intermediateCleaning = cms.bool( True ),
+  lostHitPenalty = cms.double( 30.0 )
+)
+process.HLTIter2PSetTrajectoryBuilderITReg = cms.PSet( 
+  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
+  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTIter2PSetTrajectoryFilterIT" ) ),
+  maxCand = cms.int32( 2 ),
+  ComponentType = cms.string( "CkfTrajectoryBuilder" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
+  MeasurementTrackerName = cms.string( "hltIter2ESPMeasurementTrackerReg" ),
+  estimator = cms.string( "hltESPChi2MeasurementEstimator16" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  alwaysUseInvalidHits = cms.bool( False ),
+  intermediateCleaning = cms.bool( True ),
+  lostHitPenalty = cms.double( 30.0 )
+)
+process.HLTIter2PSetTrajectoryBuilderITPA = cms.PSet( 
+  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
+  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTIter2PSetTrajectoryFilterIT" ) ),
+  maxCand = cms.int32( 2 ),
+  ComponentType = cms.string( "CkfTrajectoryBuilder" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
+  MeasurementTrackerName = cms.string( "hltIter2ESPMeasurementTrackerPA" ),
+  estimator = cms.string( "hltESPChi2MeasurementEstimator16" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  alwaysUseInvalidHits = cms.bool( False ),
+  intermediateCleaning = cms.bool( True ),
+  lostHitPenalty = cms.double( 30.0 )
+)
+process.HLTIter2PSetTrajectoryBuilderIT = cms.PSet( 
+  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
+  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTIter2PSetTrajectoryFilterIT" ) ),
+  maxCand = cms.int32( 2 ),
+  ComponentType = cms.string( "CkfTrajectoryBuilder" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
+  MeasurementTrackerName = cms.string( "hltIter2ESPMeasurementTracker" ),
+  estimator = cms.string( "hltESPChi2MeasurementEstimator16" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  alwaysUseInvalidHits = cms.bool( False ),
+  intermediateCleaning = cms.bool( True ),
+  lostHitPenalty = cms.double( 30.0 )
+)
+process.HLTIter1Tau3MuPSetTrajectoryBuilderIT = cms.PSet( 
+  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
+  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTIter1PSetTrajectoryFilterIT" ) ),
+  maxCand = cms.int32( 2 ),
+  ComponentType = cms.string( "CkfTrajectoryBuilder" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
+  MeasurementTrackerName = cms.string( "hltIter1Tau3MuESPMeasurementTracker" ),
+  estimator = cms.string( "hltESPChi2MeasurementEstimator16" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  alwaysUseInvalidHits = cms.bool( False ),
+  intermediateCleaning = cms.bool( True ),
+  lostHitPenalty = cms.double( 30.0 )
+)
+process.HLTIter1PSetTrajectoryBuilderITReg = cms.PSet( 
+  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
+  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTIter1PSetTrajectoryFilterIT" ) ),
+  maxCand = cms.int32( 2 ),
+  ComponentType = cms.string( "CkfTrajectoryBuilder" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
+  MeasurementTrackerName = cms.string( "hltIter1ESPMeasurementTrackerReg" ),
+  estimator = cms.string( "hltESPChi2MeasurementEstimator16" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  alwaysUseInvalidHits = cms.bool( False ),
+  intermediateCleaning = cms.bool( True ),
+  lostHitPenalty = cms.double( 30.0 )
+)
+process.HLTIter1PSetTrajectoryBuilderITPA = cms.PSet( 
+  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
+  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTIter1PSetTrajectoryFilterIT" ) ),
+  maxCand = cms.int32( 2 ),
+  ComponentType = cms.string( "CkfTrajectoryBuilder" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
+  MeasurementTrackerName = cms.string( "hltIter1ESPMeasurementTrackerPA" ),
+  estimator = cms.string( "hltESPChi2MeasurementEstimator16" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  alwaysUseInvalidHits = cms.bool( False ),
+  intermediateCleaning = cms.bool( True ),
+  lostHitPenalty = cms.double( 30.0 )
+)
+process.HLTIter1PSetTrajectoryBuilderIT = cms.PSet( 
+  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
+  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTIter1PSetTrajectoryFilterIT" ) ),
+  maxCand = cms.int32( 2 ),
+  ComponentType = cms.string( "CkfTrajectoryBuilder" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
+  MeasurementTrackerName = cms.string( "hltIter1ESPMeasurementTracker" ),
+  estimator = cms.string( "hltESPChi2MeasurementEstimator16" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  alwaysUseInvalidHits = cms.bool( False ),
+  intermediateCleaning = cms.bool( True ),
+  lostHitPenalty = cms.double( 30.0 )
+)
+process.HLTHIAllPSetTrajectoryBuilderIT = cms.PSet( 
+  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
+  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetTrajectoryFilterIT" ) ),
+  maxCand = cms.int32( 5 ),
+  ComponentType = cms.string( "CkfTrajectoryBuilder" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
+  MeasurementTrackerName = cms.string( "hltHIAllESPMeasurementTracker" ),
+  estimator = cms.string( "hltESPChi2MeasurementEstimator" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  alwaysUseInvalidHits = cms.bool( False ),
+  intermediateCleaning = cms.bool( True ),
+  lostHitPenalty = cms.double( 30.0 )
+)
+process.HLTHIAllPSetCkfTrajectoryBuilder = cms.PSet( 
+  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
+  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetCkfTrajectoryFilter" ) ),
+  maxCand = cms.int32( 5 ),
+  ComponentType = cms.string( "CkfTrajectoryBuilder" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
+  MeasurementTrackerName = cms.string( "hltHIAllESPMeasurementTracker" ),
+  estimator = cms.string( "hltESPChi2MeasurementEstimator" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  alwaysUseInvalidHits = cms.bool( True ),
+  intermediateCleaning = cms.bool( True ),
+  lostHitPenalty = cms.double( 30.0 )
+)
+process.HLTHIAllPSetCkf3HitTrajectoryBuilder = cms.PSet( 
+  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
+  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetCkf3HitTrajectoryFilter" ) ),
+  maxCand = cms.int32( 5 ),
+  ComponentType = cms.string( "CkfTrajectoryBuilder" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
+  MeasurementTrackerName = cms.string( "hltHIAllESPMeasurementTracker" ),
+  estimator = cms.string( "hltESPChi2MeasurementEstimator" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  alwaysUseInvalidHits = cms.bool( True ),
+  intermediateCleaning = cms.bool( True ),
+  lostHitPenalty = cms.double( 30.0 )
+)
+process.HLTPSetbJetRegionalTrajectoryBuilder = cms.PSet( 
+  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
+  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetbJetRegionalTrajectoryFilter" ) ),
+  maxCand = cms.int32( 1 ),
+  ComponentType = cms.string( "CkfTrajectoryBuilder" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
+  MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
+  estimator = cms.string( "hltESPChi2MeasurementEstimator" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  alwaysUseInvalidHits = cms.bool( False ),
+  intermediateCleaning = cms.bool( True ),
+  lostHitPenalty = cms.double( 30.0 )
+)
+process.HLTPSetTrajectoryBuilderL3 = cms.PSet( 
+  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
+  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetTrajectoryFilterL3" ) ),
+  maxCand = cms.int32( 5 ),
+  ComponentType = cms.string( "CkfTrajectoryBuilder" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
+  MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
+  estimator = cms.string( "hltESPChi2MeasurementEstimator" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  alwaysUseInvalidHits = cms.bool( False ),
+  intermediateCleaning = cms.bool( True ),
+  lostHitPenalty = cms.double( 30.0 )
+)
+process.HLTPSetTrajectoryBuilderITReg = cms.PSet( 
+  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
+  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetTrajectoryFilterIT" ) ),
+  maxCand = cms.int32( 2 ),
+  ComponentType = cms.string( "CkfTrajectoryBuilder" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
+  MeasurementTrackerName = cms.string( "hltESPMeasurementTrackerReg" ),
+  estimator = cms.string( "hltESPChi2MeasurementEstimator9" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  alwaysUseInvalidHits = cms.bool( False ),
+  intermediateCleaning = cms.bool( True ),
+  lostHitPenalty = cms.double( 30.0 )
+)
+process.HLTPSetTrajectoryBuilderIT = cms.PSet( 
+  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
+  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetTrajectoryFilterIT" ) ),
+  maxCand = cms.int32( 2 ),
+  ComponentType = cms.string( "CkfTrajectoryBuilder" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
+  MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
+  estimator = cms.string( "hltESPChi2MeasurementEstimator9" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  alwaysUseInvalidHits = cms.bool( False ),
+  intermediateCleaning = cms.bool( True ),
+  lostHitPenalty = cms.double( 30.0 )
+)
+process.HLTPSetTrajectoryBuilderForElectrons = cms.PSet( 
+  propagatorAlong = cms.string( "hltESPFwdElectronPropagator" ),
+  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetTrajectoryFilterForElectrons" ) ),
+  maxCand = cms.int32( 5 ),
+  ComponentType = cms.string( "CkfTrajectoryBuilder" ),
+  propagatorOpposite = cms.string( "hltESPBwdElectronPropagator" ),
+  MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
+  estimator = cms.string( "hltESPElectronChi2" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  alwaysUseInvalidHits = cms.bool( True ),
+  intermediateCleaning = cms.bool( False ),
+  lostHitPenalty = cms.double( 90.0 )
+)
+process.HLTPSetMuTrackJpsiTrajectoryBuilder = cms.PSet( 
+  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
+  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetMuTrackJpsiTrajectoryFilter" ) ),
+  maxCand = cms.int32( 1 ),
+  ComponentType = cms.string( "CkfTrajectoryBuilder" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
+  MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
+  estimator = cms.string( "hltESPChi2MeasurementEstimator" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  alwaysUseInvalidHits = cms.bool( False ),
+  intermediateCleaning = cms.bool( True ),
+  lostHitPenalty = cms.double( 30.0 )
+)
+process.HLTPSetMuTrackJpsiEffTrajectoryBuilder = cms.PSet( 
+  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
+  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetMuTrackJpsiEffTrajectoryFilter" ) ),
+  maxCand = cms.int32( 1 ),
+  ComponentType = cms.string( "CkfTrajectoryBuilder" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
+  MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
+  estimator = cms.string( "hltESPChi2MeasurementEstimator" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  alwaysUseInvalidHits = cms.bool( False ),
+  intermediateCleaning = cms.bool( True ),
+  lostHitPenalty = cms.double( 30.0 )
+)
+process.HLTPSetCkfTrajectoryBuilderForHI = cms.PSet( 
+  propagatorAlong = cms.string( "PropagatorWithMaterialForHI" ),
+  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetCkfTrajectoryFilterForHI" ) ),
+  maxCand = cms.int32( 5 ),
+  ComponentType = cms.string( "CkfTrajectoryBuilder" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialOppositeForHI" ),
+  MeasurementTrackerName = cms.string( "hltESPMeasurementTrackerForHI" ),
+  estimator = cms.string( "hltESPChi2MeasurementEstimator" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  alwaysUseInvalidHits = cms.bool( False ),
+  intermediateCleaning = cms.bool( False ),
+  lostHitPenalty = cms.double( 30.0 )
+)
+process.HLTPSetCkfTrajectoryBuilder = cms.PSet( 
+  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
+  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetCkfTrajectoryFilter" ) ),
+  maxCand = cms.int32( 5 ),
+  ComponentType = cms.string( "CkfTrajectoryBuilder" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
+  MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
+  estimator = cms.string( "hltESPChi2MeasurementEstimator" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  alwaysUseInvalidHits = cms.bool( True ),
+  intermediateCleaning = cms.bool( True ),
+  lostHitPenalty = cms.double( 30.0 )
+)
+process.HLTPSetCkf3HitTrajectoryBuilder = cms.PSet( 
+  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
+  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetCkf3HitTrajectoryFilter" ) ),
+  maxCand = cms.int32( 5 ),
+  ComponentType = cms.string( "CkfTrajectoryBuilder" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
+  MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
+  estimator = cms.string( "hltESPChi2MeasurementEstimator" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  alwaysUseInvalidHits = cms.bool( True ),
+  intermediateCleaning = cms.bool( True ),
+  lostHitPenalty = cms.double( 30.0 )
+)
+process.HLTHIAllPSetMuonCkfTrajectoryBuilder = cms.PSet( 
+  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
+  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetMuonCkfTrajectoryFilter" ) ),
+  maxCand = cms.int32( 5 ),
+  ComponentType = cms.string( "MuonCkfTrajectoryBuilder" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
+  useSeedLayer = cms.bool( False ),
+  deltaEta = cms.double( -1.0 ),
+  deltaPhi = cms.double( -1.0 ),
+  estimator = cms.string( "hltESPChi2MeasurementEstimator" ),
+  rescaleErrorIfFail = cms.double( 1.0 ),
+  propagatorProximity = cms.string( "SteppingHelixPropagatorAny" ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  alwaysUseInvalidHits = cms.bool( True ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  MeasurementTrackerName = cms.string( "hltHIAllESPMeasurementTracker" ),
+  intermediateCleaning = cms.bool( False ),
+  lostHitPenalty = cms.double( 30.0 )
+)
+process.HLTPSetMuonCkfTrajectoryBuilderSeedHit = cms.PSet( 
+  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
+  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetMuonCkfTrajectoryFilter" ) ),
+  maxCand = cms.int32( 5 ),
+  ComponentType = cms.string( "MuonCkfTrajectoryBuilder" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
+  useSeedLayer = cms.bool( True ),
+  deltaEta = cms.double( -1.0 ),
+  deltaPhi = cms.double( -1.0 ),
+  estimator = cms.string( "hltESPChi2MeasurementEstimator" ),
+  rescaleErrorIfFail = cms.double( 1.0 ),
+  propagatorProximity = cms.string( "SteppingHelixPropagatorAny" ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  alwaysUseInvalidHits = cms.bool( True ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
+  intermediateCleaning = cms.bool( False ),
+  lostHitPenalty = cms.double( 30.0 )
+)
+process.HLTPSetMuonCkfTrajectoryBuilder = cms.PSet( 
+  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
+  trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTPSetMuonCkfTrajectoryFilter" ) ),
+  maxCand = cms.int32( 5 ),
+  ComponentType = cms.string( "MuonCkfTrajectoryBuilder" ),
+  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
+  useSeedLayer = cms.bool( False ),
+  deltaEta = cms.double( -1.0 ),
+  deltaPhi = cms.double( -1.0 ),
+  estimator = cms.string( "hltESPChi2MeasurementEstimator" ),
+  rescaleErrorIfFail = cms.double( 1.0 ),
+  propagatorProximity = cms.string( "SteppingHelixPropagatorAny" ),
+  updator = cms.string( "hltESPKFUpdator" ),
+  alwaysUseInvalidHits = cms.bool( True ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
+  MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
+  intermediateCleaning = cms.bool( False ),
+  lostHitPenalty = cms.double( 30.0 )
+)
 process.streams = cms.PSet( 
   AForHI = cms.vstring( 'HIDiMuon',
     'HIHighPt',
@@ -997,90 +1616,6 @@ process.hltESPChi2MeasurementEstimator9 = cms.ESProducer( "Chi2MeasurementEstima
   nSigma = cms.double( 3.0 ),
   ComponentName = cms.string( "hltESPChi2MeasurementEstimator9" )
 )
-process.hltESPCkf3HitTrajectoryBuilder = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
-  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
-  trajectoryFilterName = cms.string( "hltESPCkf3HitTrajectoryFilter" ),
-  maxCand = cms.int32( 5 ),
-  ComponentName = cms.string( "hltESPCkf3HitTrajectoryBuilder" ),
-  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
-  MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator" ),
-  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-  updator = cms.string( "hltESPKFUpdator" ),
-  alwaysUseInvalidHits = cms.bool( True ),
-  intermediateCleaning = cms.bool( True ),
-  lostHitPenalty = cms.double( 30.0 )
-)
-process.hltESPCkf3HitTrajectoryFilter = cms.ESProducer( "TrajectoryFilterESProducer",
-  filterPset = cms.PSet( 
-    minPt = cms.double( 0.9 ),
-    minHitsMinPt = cms.int32( 3 ),
-    ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
-    maxLostHits = cms.int32( 1 ),
-    maxNumberOfHits = cms.int32( -1 ),
-    maxConsecLostHits = cms.int32( 1 ),
-    minimumNumberOfHits = cms.int32( 3 ),
-    nSigmaMinPt = cms.double( 5.0 ),
-    chargeSignificance = cms.double( -1.0 )
-  ),
-  ComponentName = cms.string( "hltESPCkf3HitTrajectoryFilter" )
-)
-process.hltESPCkfTrajectoryBuilder = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
-  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
-  trajectoryFilterName = cms.string( "hltESPCkfTrajectoryFilter" ),
-  maxCand = cms.int32( 5 ),
-  ComponentName = cms.string( "hltESPCkfTrajectoryBuilder" ),
-  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
-  MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator" ),
-  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-  updator = cms.string( "hltESPKFUpdator" ),
-  alwaysUseInvalidHits = cms.bool( True ),
-  intermediateCleaning = cms.bool( True ),
-  lostHitPenalty = cms.double( 30.0 )
-)
-process.hltESPCkfTrajectoryBuilderForHI = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
-  propagatorAlong = cms.string( "PropagatorWithMaterialForHI" ),
-  trajectoryFilterName = cms.string( "hltESPCkfTrajectoryFilterForHI" ),
-  maxCand = cms.int32( 5 ),
-  ComponentName = cms.string( "hltESPCkfTrajectoryBuilderForHI" ),
-  propagatorOpposite = cms.string( "PropagatorWithMaterialOppositeForHI" ),
-  MeasurementTrackerName = cms.string( "hltESPMeasurementTrackerForHI" ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator" ),
-  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-  updator = cms.string( "hltESPKFUpdator" ),
-  alwaysUseInvalidHits = cms.bool( False ),
-  intermediateCleaning = cms.bool( False ),
-  lostHitPenalty = cms.double( 30.0 )
-)
-process.hltESPCkfTrajectoryFilter = cms.ESProducer( "TrajectoryFilterESProducer",
-  filterPset = cms.PSet( 
-    minPt = cms.double( 0.9 ),
-    minHitsMinPt = cms.int32( 3 ),
-    ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
-    maxLostHits = cms.int32( 1 ),
-    maxNumberOfHits = cms.int32( -1 ),
-    maxConsecLostHits = cms.int32( 1 ),
-    minimumNumberOfHits = cms.int32( 5 ),
-    nSigmaMinPt = cms.double( 5.0 ),
-    chargeSignificance = cms.double( -1.0 )
-  ),
-  ComponentName = cms.string( "hltESPCkfTrajectoryFilter" )
-)
-process.hltESPCkfTrajectoryFilterForHI = cms.ESProducer( "TrajectoryFilterESProducer",
-  filterPset = cms.PSet( 
-    minimumNumberOfHits = cms.int32( 6 ),
-    minHitsMinPt = cms.int32( 3 ),
-    ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
-    maxLostHits = cms.int32( 1 ),
-    maxNumberOfHits = cms.int32( -1 ),
-    maxConsecLostHits = cms.int32( 1 ),
-    chargeSignificance = cms.double( -1.0 ),
-    nSigmaMinPt = cms.double( 5.0 ),
-    minPt = cms.double( 11.0 )
-  ),
-  ComponentName = cms.string( "hltESPCkfTrajectoryFilterForHI" )
-)
 process.hltESPCloseComponentsMerger5D = cms.ESProducer( "CloseComponentsMergerESProducer5D",
   ComponentName = cms.string( "hltESPCloseComponentsMerger5D" ),
   MaxComponents = cms.int32( 12 ),
@@ -1380,8 +1915,6 @@ process.hltESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESProducer
   ),
   DebugStripModuleQualityDB = cms.untracked.bool( False ),
   ComponentName = cms.string( "hltESPMeasurementTracker" ),
-  Regional = cms.bool( False ),
-  OnDemand = cms.bool( False ),
   DebugPixelModuleQualityDB = cms.untracked.bool( False ),
   UsePixelModuleQualityDB = cms.bool( True ),
   DebugStripAPVFiberQualityDB = cms.untracked.bool( False ),
@@ -1390,9 +1923,7 @@ process.hltESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESProducer
   PixelCPE = cms.string( "hltESPPixelCPEGeneric" ),
   SiStripQualityLabel = cms.string( "" ),
   UseStripModuleQualityDB = cms.bool( True ),
-  MaskBadAPVFibers = cms.bool( True ),
-  UseStripNoiseDB = cms.bool( False ),
-  UseStripCablingDB = cms.bool( False )
+  MaskBadAPVFibers = cms.bool( True )
 )
 process.hltESPMeasurementTrackerForHI = cms.ESProducer( "MeasurementTrackerESProducer",
   UseStripStripQualityDB = cms.bool( True ),
@@ -1420,8 +1951,6 @@ process.hltESPMeasurementTrackerForHI = cms.ESProducer( "MeasurementTrackerESPro
   ),
   DebugStripModuleQualityDB = cms.untracked.bool( False ),
   ComponentName = cms.string( "hltESPMeasurementTrackerForHI" ),
-  Regional = cms.bool( False ),
-  OnDemand = cms.bool( False ),
   DebugPixelModuleQualityDB = cms.untracked.bool( False ),
   UsePixelModuleQualityDB = cms.bool( True ),
   DebugStripAPVFiberQualityDB = cms.untracked.bool( False ),
@@ -1430,9 +1959,7 @@ process.hltESPMeasurementTrackerForHI = cms.ESProducer( "MeasurementTrackerESPro
   PixelCPE = cms.string( "hltESPPixelCPEGeneric" ),
   SiStripQualityLabel = cms.string( "" ),
   UseStripModuleQualityDB = cms.bool( True ),
-  MaskBadAPVFibers = cms.bool( True ),
-  UseStripNoiseDB = cms.bool( False ),
-  UseStripCablingDB = cms.bool( False )
+  MaskBadAPVFibers = cms.bool( True )
 )
 process.hltESPMeasurementTrackerReg = cms.ESProducer( "MeasurementTrackerESProducer",
   UseStripStripQualityDB = cms.bool( True ),
@@ -1460,8 +1987,6 @@ process.hltESPMeasurementTrackerReg = cms.ESProducer( "MeasurementTrackerESProdu
   ),
   DebugStripModuleQualityDB = cms.untracked.bool( False ),
   ComponentName = cms.string( "hltESPMeasurementTrackerReg" ),
-  Regional = cms.bool( False ),
-  OnDemand = cms.bool( False ),
   DebugPixelModuleQualityDB = cms.untracked.bool( False ),
   UsePixelModuleQualityDB = cms.bool( True ),
   DebugStripAPVFiberQualityDB = cms.untracked.bool( False ),
@@ -1470,117 +1995,7 @@ process.hltESPMeasurementTrackerReg = cms.ESProducer( "MeasurementTrackerESProdu
   PixelCPE = cms.string( "hltESPPixelCPEGeneric" ),
   SiStripQualityLabel = cms.string( "" ),
   UseStripModuleQualityDB = cms.bool( True ),
-  MaskBadAPVFibers = cms.bool( True ),
-  UseStripNoiseDB = cms.bool( False ),
-  UseStripCablingDB = cms.bool( False )
-)
-process.hltESPMuTrackJpsiEffTrajectoryBuilder = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
-  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
-  trajectoryFilterName = cms.string( "hltESPMuTrackJpsiEffTrajectoryFilter" ),
-  maxCand = cms.int32( 1 ),
-  ComponentName = cms.string( "hltESPMuTrackJpsiEffTrajectoryBuilder" ),
-  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
-  MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator" ),
-  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-  updator = cms.string( "hltESPKFUpdator" ),
-  alwaysUseInvalidHits = cms.bool( False ),
-  intermediateCleaning = cms.bool( True ),
-  lostHitPenalty = cms.double( 30.0 )
-)
-process.hltESPMuTrackJpsiEffTrajectoryFilter = cms.ESProducer( "TrajectoryFilterESProducer",
-  filterPset = cms.PSet( 
-    minPt = cms.double( 1.0 ),
-    minHitsMinPt = cms.int32( 3 ),
-    ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
-    maxLostHits = cms.int32( 1 ),
-    maxNumberOfHits = cms.int32( 9 ),
-    maxConsecLostHits = cms.int32( 1 ),
-    minimumNumberOfHits = cms.int32( 5 ),
-    nSigmaMinPt = cms.double( 5.0 ),
-    chargeSignificance = cms.double( -1.0 )
-  ),
-  ComponentName = cms.string( "hltESPMuTrackJpsiEffTrajectoryFilter" )
-)
-process.hltESPMuTrackJpsiTrajectoryBuilder = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
-  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
-  trajectoryFilterName = cms.string( "hltESPMuTrackJpsiTrajectoryFilter" ),
-  maxCand = cms.int32( 1 ),
-  ComponentName = cms.string( "hltESPMuTrackJpsiTrajectoryBuilder" ),
-  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
-  MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator" ),
-  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-  updator = cms.string( "hltESPKFUpdator" ),
-  alwaysUseInvalidHits = cms.bool( False ),
-  intermediateCleaning = cms.bool( True ),
-  lostHitPenalty = cms.double( 30.0 )
-)
-process.hltESPMuTrackJpsiTrajectoryFilter = cms.ESProducer( "TrajectoryFilterESProducer",
-  filterPset = cms.PSet( 
-    minPt = cms.double( 1.0 ),
-    minHitsMinPt = cms.int32( 3 ),
-    ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
-    maxLostHits = cms.int32( 1 ),
-    maxNumberOfHits = cms.int32( 8 ),
-    maxConsecLostHits = cms.int32( 1 ),
-    minimumNumberOfHits = cms.int32( 5 ),
-    nSigmaMinPt = cms.double( 5.0 ),
-    chargeSignificance = cms.double( -1.0 )
-  ),
-  ComponentName = cms.string( "hltESPMuTrackJpsiTrajectoryFilter" )
-)
-process.hltESPMuonCkfTrajectoryBuilder = cms.ESProducer( "MuonCkfTrajectoryBuilderESProducer",
-  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
-  trajectoryFilterName = cms.string( "hltESPMuonCkfTrajectoryFilter" ),
-  maxCand = cms.int32( 5 ),
-  ComponentName = cms.string( "hltESPMuonCkfTrajectoryBuilder" ),
-  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
-  useSeedLayer = cms.bool( False ),
-  deltaEta = cms.double( -1.0 ),
-  deltaPhi = cms.double( -1.0 ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator" ),
-  rescaleErrorIfFail = cms.double( 1.0 ),
-  propagatorProximity = cms.string( "SteppingHelixPropagatorAny" ),
-  updator = cms.string( "hltESPKFUpdator" ),
-  alwaysUseInvalidHits = cms.bool( True ),
-  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-  MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
-  intermediateCleaning = cms.bool( False ),
-  lostHitPenalty = cms.double( 30.0 )
-)
-process.hltESPMuonCkfTrajectoryBuilderSeedHit = cms.ESProducer( "MuonCkfTrajectoryBuilderESProducer",
-  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
-  trajectoryFilterName = cms.string( "hltESPMuonCkfTrajectoryFilter" ),
-  maxCand = cms.int32( 5 ),
-  ComponentName = cms.string( "hltESPMuonCkfTrajectoryBuilderSeedHit" ),
-  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
-  useSeedLayer = cms.bool( True ),
-  deltaEta = cms.double( -1.0 ),
-  deltaPhi = cms.double( -1.0 ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator" ),
-  rescaleErrorIfFail = cms.double( 1.0 ),
-  propagatorProximity = cms.string( "SteppingHelixPropagatorAny" ),
-  updator = cms.string( "hltESPKFUpdator" ),
-  alwaysUseInvalidHits = cms.bool( True ),
-  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-  MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
-  intermediateCleaning = cms.bool( False ),
-  lostHitPenalty = cms.double( 30.0 )
-)
-process.hltESPMuonCkfTrajectoryFilter = cms.ESProducer( "TrajectoryFilterESProducer",
-  filterPset = cms.PSet( 
-    minPt = cms.double( 0.9 ),
-    minHitsMinPt = cms.int32( 3 ),
-    ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
-    maxLostHits = cms.int32( 1 ),
-    maxNumberOfHits = cms.int32( -1 ),
-    maxConsecLostHits = cms.int32( 1 ),
-    chargeSignificance = cms.double( -1.0 ),
-    nSigmaMinPt = cms.double( 5.0 ),
-    minimumNumberOfHits = cms.int32( 5 )
-  ),
-  ComponentName = cms.string( "hltESPMuonCkfTrajectoryFilter" )
+  MaskBadAPVFibers = cms.bool( True )
 )
 process.hltESPMuonDetLayerGeometryESProducer = cms.ESProducer( "MuonDetLayerGeometryESProducer" )
 process.hltESPMuonTransientTrackingRecHitBuilder = cms.ESProducer( "MuonTransientTrackingRecHitBuilderESProducer",
@@ -1816,62 +2231,6 @@ process.hltESPTrackerRecoGeometryESProducer = cms.ESProducer( "TrackerRecoGeomet
   appendToDataLabel = cms.string( "" ),
   trackerGeometryLabel = cms.untracked.string( "" )
 )
-process.hltESPTrajectoryBuilderForElectrons = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
-  propagatorAlong = cms.string( "hltESPFwdElectronPropagator" ),
-  trajectoryFilterName = cms.string( "hltESPTrajectoryFilterForElectrons" ),
-  maxCand = cms.int32( 5 ),
-  ComponentName = cms.string( "hltESPTrajectoryBuilderForElectrons" ),
-  propagatorOpposite = cms.string( "hltESPBwdElectronPropagator" ),
-  MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
-  estimator = cms.string( "hltESPElectronChi2" ),
-  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-  updator = cms.string( "hltESPKFUpdator" ),
-  alwaysUseInvalidHits = cms.bool( True ),
-  intermediateCleaning = cms.bool( False ),
-  lostHitPenalty = cms.double( 90.0 )
-)
-process.hltESPTrajectoryBuilderIT = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
-  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
-  trajectoryFilterName = cms.string( "hltESPTrajectoryFilterIT" ),
-  maxCand = cms.int32( 2 ),
-  ComponentName = cms.string( "hltESPTrajectoryBuilderIT" ),
-  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
-  MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator9" ),
-  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-  updator = cms.string( "hltESPKFUpdator" ),
-  alwaysUseInvalidHits = cms.bool( False ),
-  intermediateCleaning = cms.bool( True ),
-  lostHitPenalty = cms.double( 30.0 )
-)
-process.hltESPTrajectoryBuilderITReg = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
-  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
-  trajectoryFilterName = cms.string( "hltESPTrajectoryFilterIT" ),
-  maxCand = cms.int32( 2 ),
-  ComponentName = cms.string( "hltESPTrajectoryBuilderITReg" ),
-  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
-  MeasurementTrackerName = cms.string( "hltESPMeasurementTrackerReg" ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator9" ),
-  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-  updator = cms.string( "hltESPKFUpdator" ),
-  alwaysUseInvalidHits = cms.bool( False ),
-  intermediateCleaning = cms.bool( True ),
-  lostHitPenalty = cms.double( 30.0 )
-)
-process.hltESPTrajectoryBuilderL3 = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
-  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
-  trajectoryFilterName = cms.string( "hltESPTrajectoryFilterL3" ),
-  maxCand = cms.int32( 5 ),
-  ComponentName = cms.string( "hltESPTrajectoryBuilderL3" ),
-  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
-  MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator" ),
-  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-  updator = cms.string( "hltESPKFUpdator" ),
-  alwaysUseInvalidHits = cms.bool( False ),
-  intermediateCleaning = cms.bool( True ),
-  lostHitPenalty = cms.double( 30.0 )
-)
 process.hltESPTrajectoryCleanerBySharedHits = cms.ESProducer( "TrajectoryCleanerESProducer",
   ComponentName = cms.string( "hltESPTrajectoryCleanerBySharedHits" ),
   fractionShared = cms.double( 0.5 ),
@@ -1887,48 +2246,6 @@ process.hltESPTrajectoryCleanerBySharedSeeds = cms.ESProducer( "TrajectoryCleane
   ComponentType = cms.string( "TrajectoryCleanerBySharedSeeds" ),
   MissingHitPenalty = cms.double( 0.0 ),
   allowSharedFirstHit = cms.bool( True )
-)
-process.hltESPTrajectoryFilterForElectrons = cms.ESProducer( "TrajectoryFilterESProducer",
-  filterPset = cms.PSet( 
-    ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
-    minPt = cms.double( 2.0 ),
-    minHitsMinPt = cms.int32( -1 ),
-    maxLostHits = cms.int32( 1 ),
-    maxNumberOfHits = cms.int32( -1 ),
-    maxConsecLostHits = cms.int32( 1 ),
-    nSigmaMinPt = cms.double( 5.0 ),
-    minimumNumberOfHits = cms.int32( 5 ),
-    chargeSignificance = cms.double( -1.0 )
-  ),
-  ComponentName = cms.string( "hltESPTrajectoryFilterForElectrons" )
-)
-process.hltESPTrajectoryFilterIT = cms.ESProducer( "TrajectoryFilterESProducer",
-  filterPset = cms.PSet( 
-    minPt = cms.double( 0.3 ),
-    minHitsMinPt = cms.int32( 3 ),
-    ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
-    maxLostHits = cms.int32( 1 ),
-    maxNumberOfHits = cms.int32( 100 ),
-    maxConsecLostHits = cms.int32( 1 ),
-    minimumNumberOfHits = cms.int32( 3 ),
-    nSigmaMinPt = cms.double( 5.0 ),
-    chargeSignificance = cms.double( -1.0 )
-  ),
-  ComponentName = cms.string( "hltESPTrajectoryFilterIT" )
-)
-process.hltESPTrajectoryFilterL3 = cms.ESProducer( "TrajectoryFilterESProducer",
-  filterPset = cms.PSet( 
-    minPt = cms.double( 0.5 ),
-    minHitsMinPt = cms.int32( 3 ),
-    ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
-    maxLostHits = cms.int32( 1 ),
-    maxNumberOfHits = cms.int32( 1000000000 ),
-    maxConsecLostHits = cms.int32( 1 ),
-    minimumNumberOfHits = cms.int32( 5 ),
-    nSigmaMinPt = cms.double( 5.0 ),
-    chargeSignificance = cms.double( -1.0 )
-  ),
-  ComponentName = cms.string( "hltESPTrajectoryFilterL3" )
 )
 process.hltESPTrajectoryFitterRK = cms.ESProducer( "KFTrajectoryFitterESProducer",
   minHits = cms.int32( 3 ),
@@ -1946,62 +2263,6 @@ process.hltESPTrajectorySmootherRK = cms.ESProducer( "KFTrajectorySmootherESProd
   Updator = cms.string( "hltESPKFUpdator" ),
   Propagator = cms.string( "hltESPRungeKuttaTrackerPropagator" ),
   RecoGeometry = cms.string( "hltESPDummyDetLayerGeometry" )
-)
-process.hltESPbJetRegionalTrajectoryBuilder = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
-  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
-  trajectoryFilterName = cms.string( "hltESPbJetRegionalTrajectoryFilter" ),
-  maxCand = cms.int32( 1 ),
-  ComponentName = cms.string( "hltESPbJetRegionalTrajectoryBuilder" ),
-  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
-  MeasurementTrackerName = cms.string( "hltESPMeasurementTracker" ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator" ),
-  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-  updator = cms.string( "hltESPKFUpdator" ),
-  alwaysUseInvalidHits = cms.bool( False ),
-  intermediateCleaning = cms.bool( True ),
-  lostHitPenalty = cms.double( 30.0 )
-)
-process.hltESPbJetRegionalTrajectoryFilter = cms.ESProducer( "TrajectoryFilterESProducer",
-  filterPset = cms.PSet( 
-    minPt = cms.double( 1.0 ),
-    minHitsMinPt = cms.int32( 3 ),
-    ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
-    maxLostHits = cms.int32( 1 ),
-    maxNumberOfHits = cms.int32( 8 ),
-    maxConsecLostHits = cms.int32( 1 ),
-    minimumNumberOfHits = cms.int32( 5 ),
-    nSigmaMinPt = cms.double( 5.0 ),
-    chargeSignificance = cms.double( -1.0 )
-  ),
-  ComponentName = cms.string( "hltESPbJetRegionalTrajectoryFilter" )
-)
-process.hltHIAllESPCkf3HitTrajectoryBuilder = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
-  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
-  trajectoryFilterName = cms.string( "hltESPCkf3HitTrajectoryFilter" ),
-  maxCand = cms.int32( 5 ),
-  ComponentName = cms.string( "hltHIAllESPCkf3HitTrajectoryBuilder" ),
-  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
-  MeasurementTrackerName = cms.string( "hltHIAllESPMeasurementTracker" ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator" ),
-  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-  updator = cms.string( "hltESPKFUpdator" ),
-  alwaysUseInvalidHits = cms.bool( True ),
-  intermediateCleaning = cms.bool( True ),
-  lostHitPenalty = cms.double( 30.0 )
-)
-process.hltHIAllESPCkfTrajectoryBuilder = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
-  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
-  trajectoryFilterName = cms.string( "hltESPCkfTrajectoryFilter" ),
-  maxCand = cms.int32( 5 ),
-  ComponentName = cms.string( "hltHIAllESPCkfTrajectoryBuilder" ),
-  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
-  MeasurementTrackerName = cms.string( "hltHIAllESPMeasurementTracker" ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator" ),
-  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-  updator = cms.string( "hltESPKFUpdator" ),
-  alwaysUseInvalidHits = cms.bool( True ),
-  intermediateCleaning = cms.bool( True ),
-  lostHitPenalty = cms.double( 30.0 )
 )
 process.hltHIAllESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESProducer",
   UseStripStripQualityDB = cms.bool( True ),
@@ -2029,8 +2290,6 @@ process.hltHIAllESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESPro
   ),
   DebugStripModuleQualityDB = cms.untracked.bool( False ),
   ComponentName = cms.string( "hltHIAllESPMeasurementTracker" ),
-  Regional = cms.bool( False ),
-  OnDemand = cms.bool( False ),
   DebugPixelModuleQualityDB = cms.untracked.bool( False ),
   UsePixelModuleQualityDB = cms.bool( True ),
   DebugStripAPVFiberQualityDB = cms.untracked.bool( False ),
@@ -2039,324 +2298,7 @@ process.hltHIAllESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESPro
   PixelCPE = cms.string( "hltESPPixelCPEGeneric" ),
   SiStripQualityLabel = cms.string( "" ),
   UseStripModuleQualityDB = cms.bool( True ),
-  MaskBadAPVFibers = cms.bool( True ),
-  UseStripNoiseDB = cms.bool( False ),
-  UseStripCablingDB = cms.bool( False )
-)
-process.hltHIAllESPMuonCkfTrajectoryBuilder = cms.ESProducer( "MuonCkfTrajectoryBuilderESProducer",
-  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
-  trajectoryFilterName = cms.string( "hltESPMuonCkfTrajectoryFilter" ),
-  maxCand = cms.int32( 5 ),
-  ComponentName = cms.string( "hltHIAllESPMuonCkfTrajectoryBuilder" ),
-  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
-  useSeedLayer = cms.bool( False ),
-  deltaEta = cms.double( -1.0 ),
-  deltaPhi = cms.double( -1.0 ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator" ),
-  rescaleErrorIfFail = cms.double( 1.0 ),
-  propagatorProximity = cms.string( "SteppingHelixPropagatorAny" ),
-  updator = cms.string( "hltESPKFUpdator" ),
-  alwaysUseInvalidHits = cms.bool( True ),
-  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-  MeasurementTrackerName = cms.string( "hltHIAllESPMeasurementTracker" ),
-  intermediateCleaning = cms.bool( False ),
-  lostHitPenalty = cms.double( 30.0 )
-)
-process.hltHIAllESPTrajectoryBuilderIT = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
-  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
-  trajectoryFilterName = cms.string( "hltESPTrajectoryFilterIT" ),
-  maxCand = cms.int32( 5 ),
-  ComponentName = cms.string( "hltHIAllESPTrajectoryBuilderIT" ),
-  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
-  MeasurementTrackerName = cms.string( "hltHIAllESPMeasurementTracker" ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator" ),
-  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-  updator = cms.string( "hltESPKFUpdator" ),
-  alwaysUseInvalidHits = cms.bool( False ),
-  intermediateCleaning = cms.bool( True ),
-  lostHitPenalty = cms.double( 30.0 )
-)
-process.hltIter1ESPTrajectoryBuilderIT = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
-  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
-  trajectoryFilterName = cms.string( "hltIter1ESPTrajectoryFilterIT" ),
-  maxCand = cms.int32( 2 ),
-  ComponentName = cms.string( "hltIter1ESPTrajectoryBuilderIT" ),
-  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
-  MeasurementTrackerName = cms.string( "hltIter1ESPMeasurementTracker" ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator16" ),
-  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-  updator = cms.string( "hltESPKFUpdator" ),
-  alwaysUseInvalidHits = cms.bool( False ),
-  intermediateCleaning = cms.bool( True ),
-  lostHitPenalty = cms.double( 30.0 )
-)
-process.hltIter1ESPTrajectoryBuilderITPA = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
-  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
-  trajectoryFilterName = cms.string( "hltIter1ESPTrajectoryFilterIT" ),
-  maxCand = cms.int32( 2 ),
-  ComponentName = cms.string( "hltIter1ESPTrajectoryBuilderITPA" ),
-  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
-  MeasurementTrackerName = cms.string( "hltIter1ESPMeasurementTrackerPA" ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator16" ),
-  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-  updator = cms.string( "hltESPKFUpdator" ),
-  alwaysUseInvalidHits = cms.bool( False ),
-  intermediateCleaning = cms.bool( True ),
-  lostHitPenalty = cms.double( 30.0 )
-)
-process.hltIter1ESPTrajectoryBuilderITReg = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
-  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
-  trajectoryFilterName = cms.string( "hltIter1ESPTrajectoryFilterIT" ),
-  maxCand = cms.int32( 2 ),
-  ComponentName = cms.string( "hltIter1ESPTrajectoryBuilderITReg" ),
-  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
-  MeasurementTrackerName = cms.string( "hltIter1ESPMeasurementTrackerReg" ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator16" ),
-  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-  updator = cms.string( "hltESPKFUpdator" ),
-  alwaysUseInvalidHits = cms.bool( False ),
-  intermediateCleaning = cms.bool( True ),
-  lostHitPenalty = cms.double( 30.0 )
-)
-process.hltIter1ESPTrajectoryFilterIT = cms.ESProducer( "TrajectoryFilterESProducer",
-  filterPset = cms.PSet( 
-    minPt = cms.double( 0.2 ),
-    minHitsMinPt = cms.int32( 3 ),
-    ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
-    maxLostHits = cms.int32( 1 ),
-    maxNumberOfHits = cms.int32( 100 ),
-    maxConsecLostHits = cms.int32( 1 ),
-    minimumNumberOfHits = cms.int32( 3 ),
-    nSigmaMinPt = cms.double( 5.0 ),
-    chargeSignificance = cms.double( -1.0 )
-  ),
-  ComponentName = cms.string( "hltIter1ESPTrajectoryFilterIT" )
-)
-process.hltIter1Tau3MuESPTrajectoryBuilderIT = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
-  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
-  trajectoryFilterName = cms.string( "hltIter1ESPTrajectoryFilterIT" ),
-  maxCand = cms.int32( 2 ),
-  ComponentName = cms.string( "hltIter1Tau3MuESPTrajectoryBuilderIT" ),
-  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
-  MeasurementTrackerName = cms.string( "hltIter1Tau3MuESPMeasurementTracker" ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator16" ),
-  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-  updator = cms.string( "hltESPKFUpdator" ),
-  alwaysUseInvalidHits = cms.bool( False ),
-  intermediateCleaning = cms.bool( True ),
-  lostHitPenalty = cms.double( 30.0 )
-)
-process.hltIter2ESPTrajectoryBuilderIT = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
-  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
-  trajectoryFilterName = cms.string( "hltIter2ESPTrajectoryFilterIT" ),
-  maxCand = cms.int32( 2 ),
-  ComponentName = cms.string( "hltIter2ESPTrajectoryBuilderIT" ),
-  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
-  MeasurementTrackerName = cms.string( "hltIter2ESPMeasurementTracker" ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator16" ),
-  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-  updator = cms.string( "hltESPKFUpdator" ),
-  alwaysUseInvalidHits = cms.bool( False ),
-  intermediateCleaning = cms.bool( True ),
-  lostHitPenalty = cms.double( 30.0 )
-)
-process.hltIter2ESPTrajectoryBuilderITPA = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
-  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
-  trajectoryFilterName = cms.string( "hltIter2ESPTrajectoryFilterIT" ),
-  maxCand = cms.int32( 2 ),
-  ComponentName = cms.string( "hltIter2ESPTrajectoryBuilderITPA" ),
-  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
-  MeasurementTrackerName = cms.string( "hltIter2ESPMeasurementTrackerPA" ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator16" ),
-  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-  updator = cms.string( "hltESPKFUpdator" ),
-  alwaysUseInvalidHits = cms.bool( False ),
-  intermediateCleaning = cms.bool( True ),
-  lostHitPenalty = cms.double( 30.0 )
-)
-process.hltIter2ESPTrajectoryBuilderITReg = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
-  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
-  trajectoryFilterName = cms.string( "hltIter2ESPTrajectoryFilterIT" ),
-  maxCand = cms.int32( 2 ),
-  ComponentName = cms.string( "hltIter2ESPTrajectoryBuilderITReg" ),
-  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
-  MeasurementTrackerName = cms.string( "hltIter2ESPMeasurementTrackerReg" ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator16" ),
-  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-  updator = cms.string( "hltESPKFUpdator" ),
-  alwaysUseInvalidHits = cms.bool( False ),
-  intermediateCleaning = cms.bool( True ),
-  lostHitPenalty = cms.double( 30.0 )
-)
-process.hltIter2ESPTrajectoryFilterIT = cms.ESProducer( "TrajectoryFilterESProducer",
-  filterPset = cms.PSet( 
-    minPt = cms.double( 0.3 ),
-    minHitsMinPt = cms.int32( 3 ),
-    ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
-    maxLostHits = cms.int32( 1 ),
-    maxNumberOfHits = cms.int32( 100 ),
-    maxConsecLostHits = cms.int32( 1 ),
-    minimumNumberOfHits = cms.int32( 3 ),
-    nSigmaMinPt = cms.double( 5.0 ),
-    chargeSignificance = cms.double( -1.0 )
-  ),
-  ComponentName = cms.string( "hltIter2ESPTrajectoryFilterIT" )
-)
-process.hltIter2Tau3MuESPTrajectoryBuilderIT = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
-  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
-  trajectoryFilterName = cms.string( "hltIter2ESPTrajectoryFilterIT" ),
-  maxCand = cms.int32( 2 ),
-  ComponentName = cms.string( "hltIter2Tau3MuESPTrajectoryBuilderIT" ),
-  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
-  MeasurementTrackerName = cms.string( "hltIter2Tau3MuESPMeasurementTracker" ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator16" ),
-  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-  updator = cms.string( "hltESPKFUpdator" ),
-  alwaysUseInvalidHits = cms.bool( False ),
-  intermediateCleaning = cms.bool( True ),
-  lostHitPenalty = cms.double( 30.0 )
-)
-process.hltIter3ESPTrajectoryBuilderIT = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
-  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
-  trajectoryFilterName = cms.string( "hltIter3ESPTrajectoryFilterIT" ),
-  maxCand = cms.int32( 1 ),
-  ComponentName = cms.string( "hltIter3ESPTrajectoryBuilderIT" ),
-  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
-  MeasurementTrackerName = cms.string( "hltIter3ESPMeasurementTracker" ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator16" ),
-  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-  updator = cms.string( "hltESPKFUpdator" ),
-  alwaysUseInvalidHits = cms.bool( False ),
-  intermediateCleaning = cms.bool( True ),
-  lostHitPenalty = cms.double( 30.0 )
-)
-process.hltIter3ESPTrajectoryBuilderITPA = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
-  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
-  trajectoryFilterName = cms.string( "hltIter3ESPTrajectoryFilterIT" ),
-  maxCand = cms.int32( 1 ),
-  ComponentName = cms.string( "hltIter3ESPTrajectoryBuilderITPA" ),
-  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
-  MeasurementTrackerName = cms.string( "hltIter3ESPMeasurementTrackerPA" ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator16" ),
-  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-  updator = cms.string( "hltESPKFUpdator" ),
-  alwaysUseInvalidHits = cms.bool( False ),
-  intermediateCleaning = cms.bool( True ),
-  lostHitPenalty = cms.double( 30.0 )
-)
-process.hltIter3ESPTrajectoryBuilderITReg = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
-  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
-  trajectoryFilterName = cms.string( "hltIter3ESPTrajectoryFilterIT" ),
-  maxCand = cms.int32( 1 ),
-  ComponentName = cms.string( "hltIter3ESPTrajectoryBuilderITReg" ),
-  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
-  MeasurementTrackerName = cms.string( "hltIter3ESPMeasurementTrackerReg" ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator16" ),
-  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-  updator = cms.string( "hltESPKFUpdator" ),
-  alwaysUseInvalidHits = cms.bool( False ),
-  intermediateCleaning = cms.bool( True ),
-  lostHitPenalty = cms.double( 30.0 )
-)
-process.hltIter3ESPTrajectoryFilterIT = cms.ESProducer( "TrajectoryFilterESProducer",
-  filterPset = cms.PSet( 
-    minPt = cms.double( 0.3 ),
-    minHitsMinPt = cms.int32( 3 ),
-    ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
-    maxLostHits = cms.int32( 0 ),
-    maxNumberOfHits = cms.int32( 100 ),
-    maxConsecLostHits = cms.int32( 1 ),
-    minimumNumberOfHits = cms.int32( 3 ),
-    nSigmaMinPt = cms.double( 5.0 ),
-    chargeSignificance = cms.double( -1.0 )
-  ),
-  ComponentName = cms.string( "hltIter3ESPTrajectoryFilterIT" )
-)
-process.hltIter3Tau3MuESPTrajectoryBuilderIT = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
-  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
-  trajectoryFilterName = cms.string( "hltIter3ESPTrajectoryFilterIT" ),
-  maxCand = cms.int32( 1 ),
-  ComponentName = cms.string( "hltIter3Tau3MuESPTrajectoryBuilderIT" ),
-  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
-  MeasurementTrackerName = cms.string( "hltIter3Tau3MuESPMeasurementTracker" ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator16" ),
-  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-  updator = cms.string( "hltESPKFUpdator" ),
-  alwaysUseInvalidHits = cms.bool( False ),
-  intermediateCleaning = cms.bool( True ),
-  lostHitPenalty = cms.double( 30.0 )
-)
-process.hltIter4ESPTrajectoryBuilderIT = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
-  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
-  trajectoryFilterName = cms.string( "hltIter4ESPTrajectoryFilterIT" ),
-  maxCand = cms.int32( 1 ),
-  ComponentName = cms.string( "hltIter4ESPTrajectoryBuilderIT" ),
-  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
-  MeasurementTrackerName = cms.string( "hltIter4ESPMeasurementTracker" ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator16" ),
-  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-  updator = cms.string( "hltESPKFUpdator" ),
-  alwaysUseInvalidHits = cms.bool( False ),
-  intermediateCleaning = cms.bool( True ),
-  lostHitPenalty = cms.double( 30.0 ),
-  minNrOfHitsForRebuild = cms.untracked.int32( 4 )
-)
-process.hltIter4ESPTrajectoryBuilderITPA = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
-  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
-  trajectoryFilterName = cms.string( "hltIter4ESPTrajectoryFilterIT" ),
-  maxCand = cms.int32( 1 ),
-  ComponentName = cms.string( "hltIter4ESPTrajectoryBuilderITPA" ),
-  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
-  MeasurementTrackerName = cms.string( "hltIter4ESPMeasurementTrackerPA" ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator16" ),
-  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-  updator = cms.string( "hltESPKFUpdator" ),
-  alwaysUseInvalidHits = cms.bool( False ),
-  intermediateCleaning = cms.bool( True ),
-  lostHitPenalty = cms.double( 30.0 )
-)
-process.hltIter4ESPTrajectoryBuilderITReg = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
-  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
-  trajectoryFilterName = cms.string( "hltIter4ESPTrajectoryFilterIT" ),
-  maxCand = cms.int32( 1 ),
-  ComponentName = cms.string( "hltIter4ESPTrajectoryBuilderITReg" ),
-  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
-  MeasurementTrackerName = cms.string( "hltIter4ESPMeasurementTrackerReg" ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator16" ),
-  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-  updator = cms.string( "hltESPKFUpdator" ),
-  alwaysUseInvalidHits = cms.bool( False ),
-  intermediateCleaning = cms.bool( True ),
-  lostHitPenalty = cms.double( 30.0 )
-)
-process.hltIter4ESPTrajectoryFilterIT = cms.ESProducer( "TrajectoryFilterESProducer",
-  filterPset = cms.PSet( 
-    minPt = cms.double( 0.3 ),
-    minHitsMinPt = cms.int32( 3 ),
-    ComponentType = cms.string( "CkfBaseTrajectoryFilter" ),
-    maxLostHits = cms.int32( 0 ),
-    maxNumberOfHits = cms.int32( 100 ),
-    maxConsecLostHits = cms.int32( 1 ),
-    minimumNumberOfHits = cms.int32( 6 ),
-    nSigmaMinPt = cms.double( 5.0 ),
-    chargeSignificance = cms.double( -1.0 )
-  ),
-  ComponentName = cms.string( "hltIter4ESPTrajectoryFilterIT" )
-)
-process.hltIter4Tau3MuESPTrajectoryBuilderIT = cms.ESProducer( "CkfTrajectoryBuilderESProducer",
-  propagatorAlong = cms.string( "PropagatorWithMaterial" ),
-  trajectoryFilterName = cms.string( "hltIter4ESPTrajectoryFilterIT" ),
-  maxCand = cms.int32( 1 ),
-  ComponentName = cms.string( "hltIter4Tau3MuESPTrajectoryBuilderIT" ),
-  propagatorOpposite = cms.string( "PropagatorWithMaterialOpposite" ),
-  MeasurementTrackerName = cms.string( "hltIter4Tau3MuESPMeasurementTracker" ),
-  estimator = cms.string( "hltESPChi2MeasurementEstimator16" ),
-  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
-  updator = cms.string( "hltESPKFUpdator" ),
-  alwaysUseInvalidHits = cms.bool( False ),
-  intermediateCleaning = cms.bool( True ),
-  lostHitPenalty = cms.double( 30.0 ),
-  minNrOfHitsForRebuild = cms.untracked.int32( 4 )
+  MaskBadAPVFibers = cms.bool( True )
 )
 process.hoDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
   ComponentName = cms.string( "HODetIdAssociator" ),
@@ -2528,11 +2470,6 @@ process.DQMStore = cms.Service( "DQMStore",
     enableMultiThread = cms.untracked.bool( False ),
     verbose = cms.untracked.int32( 0 ),
     collateHistograms = cms.untracked.bool( False ),
-)
-process.DTDataIntegrityTask = cms.Service( "DTDataIntegrityTask",
-    processingMode = cms.untracked.string( "HLT" ),
-    fedIntegrityFolder = cms.untracked.string( "DT/FEDIntegrity_EvF" ),
-    getSCInfo = cms.untracked.bool( True )
 )
 process.MessageLogger = cms.Service( "MessageLogger",
     suppressInfo = cms.untracked.vstring(  ),
@@ -3685,6 +3622,10 @@ process.hltHISiPixelClusters = cms.EDProducer( "SiPixelClusterProducer",
     SeedThreshold = cms.int32( 1000 ),
     ClusterThreshold = cms.double( 4000.0 )
 )
+process.hltHISiPixelClustersCache = cms.EDProducer( "SiPixelClusterShapeCacheProducer",
+    src = cms.InputTag( "hltHISiPixelClusters" ),
+    onDemand = cms.bool( False )
+)
 process.hltHISiPixelRecHits = cms.EDProducer( "SiPixelRecHitConverter",
     VerboseLevel = cms.untracked.int32( 0 ),
     src = cms.InputTag( "hltHISiPixelClusters" ),
@@ -4728,11 +4669,8 @@ process.hltHISiStripRawToClustersFacility = cms.EDProducer( "SiStripClusterizerF
     onDemand = cms.bool( True )
 )
 process.hltHISiStripClusters = cms.EDProducer( "MeasurementTrackerEventProducer",
-    stripLazyGetterProducer = cms.string( "" ),
     inactivePixelDetectorLabels = cms.VInputTag(  ),
-    OnDemand = cms.bool( False ),
     stripClusterProducer = cms.string( "hltHISiStripRawToClustersFacility" ),
-    Regional = cms.bool( False ),
     pixelClusterProducer = cms.string( "hltHISiPixelClusters" ),
     switchOffPixelsIfEmpty = cms.bool( True ),
     inactiveStripDetectorLabels = cms.VInputTag( 'hltSiStripExcludedFEDListProducer' ),
@@ -4846,6 +4784,7 @@ process.hltHIL3TrackCandidateFromL2OIState = cms.EDProducer( "CkfTrajectoryMaker
     RedundantSeedCleaner = cms.string( "CachingSeedCleanerBySharedInput" ),
     doSeedingRegionRebuilding = cms.bool( False ),
     trackCandidateAlso = cms.bool( True ),
+    TrajectoryBuilderPSet = cms.PSet(  refToPSet_ = cms.string( "HLTHIAllPSetMuonCkfTrajectoryBuilder" ) ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
     TrajectoryBuilder = cms.string( "hltHIAllESPMuonCkfTrajectoryBuilder" ),
     maxNSeeds = cms.uint32( 100000 )
@@ -5105,6 +5044,7 @@ process.hltHIL3TrackCandidateFromL2OIHit = cms.EDProducer( "CkfTrajectoryMaker",
     RedundantSeedCleaner = cms.string( "CachingSeedCleanerBySharedInput" ),
     doSeedingRegionRebuilding = cms.bool( False ),
     trackCandidateAlso = cms.bool( True ),
+    TrajectoryBuilderPSet = cms.PSet(  refToPSet_ = cms.string( "HLTHIAllPSetMuonCkfTrajectoryBuilder" ) ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
     TrajectoryBuilder = cms.string( "hltHIAllESPMuonCkfTrajectoryBuilder" ),
     maxNSeeds = cms.uint32( 100000 )
@@ -5434,6 +5374,7 @@ process.hltHIL3TrackCandidateFromL2IOHit = cms.EDProducer( "CkfTrajectoryMaker",
     RedundantSeedCleaner = cms.string( "CachingSeedCleanerBySharedInput" ),
     doSeedingRegionRebuilding = cms.bool( False ),
     trackCandidateAlso = cms.bool( True ),
+    TrajectoryBuilderPSet = cms.PSet(  refToPSet_ = cms.string( "HLTHIAllPSetMuonCkfTrajectoryBuilder" ) ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
     TrajectoryBuilder = cms.string( "hltHIAllESPMuonCkfTrajectoryBuilder" ),
     maxNSeeds = cms.uint32( 100000 )
@@ -6625,7 +6566,8 @@ process.hltHIPixel3PrimTracks = cms.EDProducer( "PixelTrackProducer",
       VertexCollection = cms.InputTag( "hltHISelectedVertex" ),
       nSigmaTipMaxTolerance = cms.double( 6.0 ),
       nSigmaLipMaxTolerance = cms.double( 0.0 ),
-      lipMax = cms.double( 0.3 )
+      lipMax = cms.double( 0.3 ),
+      clusterShapeCacheSrc = cms.InputTag( "hltHISiPixelClustersCache" )
     ),
     useFilterWithES = cms.bool( True ),
     passLabel = cms.string( "Pixel triplet primary tracks with vertex constraint" ),
@@ -6720,6 +6662,7 @@ process.hltHIPrimTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
     RedundantSeedCleaner = cms.string( "none" ),
     doSeedingRegionRebuilding = cms.bool( False ),
     maxNSeeds = cms.uint32( 100000 ),
+    TrajectoryBuilderPSet = cms.PSet(  refToPSet_ = cms.string( "HLTPSetCkfTrajectoryBuilderForHI" ) ),
     NavigationSchool = cms.string( "SimpleNavigationSchool" ),
     TrajectoryBuilder = cms.string( "hltESPCkfTrajectoryBuilderForHI" )
 )
@@ -7856,7 +7799,7 @@ process.HLTRecoMETSequence = cms.Sequence( process.HLTDoCaloSequence + process.h
 process.HLTDoHIStripZeroSuppression = cms.Sequence( process.hltSiStripRawToDigi + process.hltSiStripZeroSuppression + process.hltSiStripDigiToZSRaw + process.hltSiStripRawDigiToVirginRaw + process.virginRawDataRepacker + process.rawDataRepacker )
 process.HLTEndSequence = cms.Sequence( process.hltBoolEnd )
 process.HLTBeginSequenceCalibration = cms.Sequence( process.hltCalibrationEventsFilter + process.hltGtDigis )
-process.HLTDoHILocalPixelSequence = cms.Sequence( process.hltSiPixelDigis + process.hltHISiPixelClusters + process.hltHISiPixelRecHits )
+process.HLTDoHILocalPixelSequence = cms.Sequence( process.hltSiPixelDigis + process.hltHISiPixelClusters + process.hltHISiPixelClustersCache + process.hltHISiPixelRecHits )
 process.HLTPixelTrackingForHITrackTrigger = cms.Sequence( process.hltHIPixelClusterVertices + process.hltHIPixelLayerTriplets + process.hltPixelTracksForHITrackTrigger + process.hltPixelCandsForHITrackTrigger )
 process.HLTMuonLocalRecoSequence = cms.Sequence( process.hltMuonDTDigis + process.hltDt1DRecHits + process.hltDt4DSegments + process.hltMuonCSCDigis + process.hltCsc2DRecHits + process.hltCscSegments + process.hltMuonRPCDigis + process.hltRpcRecHits )
 process.HLTL2muonrecoNocandSequence = cms.Sequence( process.HLTMuonLocalRecoSequence + process.hltL2OfflineMuonSeeds + process.hltL2MuonSeeds + process.hltL2Muons )
@@ -7877,7 +7820,7 @@ process.HLTDoHILocalStripSequenceNonRegional = cms.Sequence( process.hltSiStripR
 process.HLTFullTrackingForHITrackTrigger = cms.Sequence( process.hltHIPixelTrackSeeds + process.hltHIPrimTrackCandidates + process.hltHIGlobalPrimTracks + process.hltHIGoodLooseTracks + process.hltHIFullTrackCandsForHITrackTrigger )
 process.HLTDoLocalHfSequence = cms.Sequence( process.hltHcalDigis + process.hltHfreco + process.hltTowerMakerForHf )
 process.HLTRecoMETHfSequence = cms.Sequence( process.HLTDoLocalHfSequence + process.hltHIMetForHf )
-process.HLTDoHILocalPixelClustersSequence = cms.Sequence( process.hltSiPixelDigis + process.hltHISiPixelClusters )
+process.HLTDoHILocalPixelClustersSequence = cms.Sequence( process.hltSiPixelDigis + process.hltHISiPixelClusters + process.hltHISiPixelClustersCache )
 
 process.HLTriggerFirstPath = cms.Path( process.hltGetConditions + process.hltGetRaw + process.hltBoolFalse )
 process.HLT_HIMET120_v6 = cms.Path( process.HLTBeginSequence + process.hltL1sL1ETM30BptxAND + process.hltPreHIMET120 + process.HLTRecoMETSequence + process.hltHIMET120 + process.HLTDoHIStripZeroSuppression + process.HLTEndSequence )

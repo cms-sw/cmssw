@@ -20,15 +20,14 @@
 #include <sstream>
 
 
-InOutConversionTrackFinder::InOutConversionTrackFinder(const edm::EventSetup& es, 
-						       const edm::ParameterSet& conf ) : ConversionTrackFinder (es,  conf ) 
+InOutConversionTrackFinder::InOutConversionTrackFinder(const edm::ParameterSet& conf, const BaseCkfTrajectoryBuilder *trajectoryBuilder ) : ConversionTrackFinder ( conf, trajectoryBuilder )
 { 
 
  
   theTrajectoryCleaner_ = new TrajectoryCleanerBySharedHits(conf);
 
  // get the seed cleaner
- std::string cleaner = conf_.getParameter<std::string>("InOutRedundantSeedCleaner");
+ std::string cleaner = conf.getParameter<std::string>("InOutRedundantSeedCleaner");
  if (cleaner == "SeedCleanerByHitPosition") {
    theSeedCleaner_ = new SeedCleanerByHitPosition();
  } else if (cleaner == "CachingSeedCleanerByHitPosition") {
@@ -160,17 +159,6 @@ std::vector<Trajectory> InOutConversionTrackFinder::tracks(const TrajectorySeedC
 
      t2t(*it,recHits,useSplitHits_);
     
-     assert(recHits.size()==(*it).measurements().size());
-    
-    /*
-    edm::OwnVector<TrackingRecHit> recHits;
-    Trajectory::RecHitContainer thits;
-    it->recHitsV(thits,useSplitHits_);
-    recHits.reserve(thits.size());
-    for (Trajectory::RecHitContainer::const_iterator hitIt = thits.begin(); hitIt != thits.end(); hitIt++) {
-      recHits.push_back( (**hitIt).hit()->clone());
-    }
-    */
     
     std::pair<TrajectoryStateOnSurface, const GeomDet*> initState =  theInitialState_->innerState( *it);
 

@@ -7,6 +7,18 @@
 #include <iostream>
 #include "FWCore/Utilities/interface/Likely.h"
 
+#ifdef VI_DEBUG
+struct MaxIter {
+   ~MaxIter() { std::cout << "maxiter " << v << std::endl; }
+    void operator()(int i) { v= std::min(v,i);}    
+  int v=100;
+};
+#else
+struct MaxIter { void operator()(int)const{}};
+#endif
+static MaxIter maxiter;
+
+
 HelixArbitraryPlaneCrossing::HelixArbitraryPlaneCrossing(const PositionType& point,
 							 const DirectionType& direction,
 							 const float curvature,
@@ -45,7 +57,7 @@ HelixArbitraryPlaneCrossing::pathLength(const Plane& plane) {
   //
   // Constants used for control of convergence
   //
-  const int maxIterations(100);
+  constexpr int maxIterations = 20;
   //
   // maximum distance to plane (taking into account numerical precision)
   //
@@ -54,50 +66,57 @@ HelixArbitraryPlaneCrossing::pathLength(const Plane& plane) {
   //
   // Prepare internal value of the propagation direction and position / direction vectors for iteration 
   //
-  PropagationDirection propDir = thePropDir;
-  PositionTypeDouble xnew(theX0,theY0,theZ0);
-  DirectionTypeDouble pnew(theCosPhi0,theSinPhi0,theCosTheta/theSinTheta);
+  
+  float dz = plane.localZ(Surface::GlobalPoint(theX0,theY0,theZ0));
+  if (std::abs(dz)<safeMaxDist) return std::make_pair(true,0.);
+
+  bool notFail;
+  double dSTotal;
+  // Use existing 2nd order object at first pass
+  std::tie(notFail,dSTotal) = theQuadraticCrossingFromStart.pathLength(plane);
+  if unlikely(!notFail) return std::make_pair(notFail,dSTotal);
+  auto  xnew = positionInDouble(dSTotal);
+
+  auto propDir = thePropDir;
+  auto newDir = dSTotal>=0 ? alongMomentum : oppositeToMomentum;
+  if ( propDir == anyDirection ) {
+      propDir = newDir;
+  }  else {
+     if unlikely( newDir!=propDir )  return std::pair<bool,double>(false,0);
+  }
+ 
+
   //
   // Prepare iterations: count and total pathlength
   //
-  unsigned int iteration(maxIterations+1);
-  double dSTotal(0.);
-  //
-  bool first = true;
+  auto iteration = maxIterations;
   while ( notAtSurface(plane,xnew,safeMaxDist) ) {
     //
     // return empty solution vector if no convergence after maxIterations iterations
     //
     if unlikely( --iteration == 0 ) {
-      edm::LogInfo("HelixArbitraryPlaneCrossing") << "pathLength : no convergence";
+      LogDebug("HelixArbitraryPlaneCrossing") << "pathLength : no convergence";
       return std::pair<bool,double>(false,0);
     }
 
     //
-    // Use existing 2nd order object at first pass, create temporary object
-    // for subsequent passes.
-    //
-    std::pair<bool,double> deltaS2;
-    if unlikely( first ) {
-      first = false;
-      deltaS2 = theQuadraticCrossingFromStart.pathLength(plane);
-    }
-    else {
-      HelixArbitraryPlaneCrossing2Order quadraticCrossing(xnew.x(),xnew.y(),xnew.z(),
+    // create temporary object for subsequent passes.
+    auto  pnew = directionInDouble(dSTotal);
+    HelixArbitraryPlaneCrossing2Order quadraticCrossing(xnew.x(),xnew.y(),xnew.z(),
 							  pnew.x(),pnew.y(),
 							  theCosTheta,theSinTheta,
 							  theRho,
 							  anyDirection);
       
-      deltaS2 = quadraticCrossing.pathLength(plane);
-    }
+    auto  deltaS2 = quadraticCrossing.pathLength(plane);
+   
      
     if unlikely( !deltaS2.first )  return deltaS2;
     //
     // Calculate and sort total pathlength (max. 2 solutions)
     //
     dSTotal += deltaS2.second;
-    PropagationDirection newDir = dSTotal>=0 ? alongMomentum : oppositeToMomentum;
+    auto newDir = dSTotal>=0 ? alongMomentum : oppositeToMomentum;
     if ( propDir == anyDirection ) {
       propDir = newDir;
     }
@@ -108,12 +127,13 @@ HelixArbitraryPlaneCrossing::pathLength(const Plane& plane) {
     // Step forward by dSTotal.
     //
     xnew = positionInDouble(dSTotal);
-    pnew = directionInDouble(dSTotal);
   }
   //
   // Return result
   //
-  return std::pair<bool,double>(true,dSTotal);
+  maxiter(iteration);
+
+  return std::make_pair(true,dSTotal);
 }
 //
 // Position on helix after a step of path length s.
@@ -179,11 +199,10 @@ HelixArbitraryPlaneCrossing::directionInDouble (double s) const {
   //
   // Calculate delta phi (if not already available)
   //
-  if unlikely( s!=theCachedS ) {
+  if unlikely( s!=theCachedS ) {  // very very unlikely!
     theCachedS = s;
     theCachedDPhi = theCachedS*theRho*theSinTheta;
-    theCachedSDPhi = sin(theCachedDPhi);
-    theCachedCDPhi = cos(theCachedDPhi);
+    vdt::fast_sincos(theCachedDPhi,theCachedSDPhi,theCachedCDPhi);
   }
 
   if ( std::abs(theCachedDPhi)>1.e-4 ) {

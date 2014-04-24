@@ -1,3 +1,9 @@
+2014-04-17 Srecko Morovic <srecko.morovic@cern.ch>
+
+	* Removed obsolete modules (were used for fakeBU mode previously)
+	* FU-wide lock when moving index and creating EoL files
+	* This is to prevent another process creating EoL prematurely
+
 2014-02-26 Srecko Morovic <srecko.morovic@cern.ch>
 
 	* Multithreaded implementation of monitoring and monitoring rework

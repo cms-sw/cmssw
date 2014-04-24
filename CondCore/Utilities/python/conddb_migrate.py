@@ -187,19 +187,19 @@ def check_and_run(args):
         raise Exception('If set, --jobs needs to be >= 1.')
 
     aliases = {
-        'root': 'oracle://cms_orcoff_prep/CMS_CONDITIONS',
-        'boost': 'oracle://cms_orcoff_prep/CMS_TEST_CONDITIONS',
+        'root': 'oracle://cms_orcoff_prep/CMS_R5_CONDITIONS',
+        'boost': 'oracle://cms_orcoff_prep/CMS_CONDITIONS',
     }
 
     if args.db in aliases:
         args.db = aliases[args.db]
 
     # Check that the release and database match to prevent mistakes...
-    if args.db == 'oracle://cms_orcoff_prep/CMS_TEST_CONDITIONS' and \
+    if args.db == 'oracle://cms_orcoff_prep/CMS_CONDITIONS' and \
         not 'BOOST' in os.environ['CMSSW_VERSION']:
         raise Exception('Boost database without a Boost release -- mistake?')
 
-    if args.db == 'oracle://cms_orcoff_prep/CMS_CONDITIONS' and \
+    if args.db == 'oracle://cms_orcoff_prep/CMS_R5_CONDITIONS' and \
         'BOOST' in os.environ['CMSSW_VERSION']:
         raise Exception('ROOT database with a Boost release -- mistake?')
 

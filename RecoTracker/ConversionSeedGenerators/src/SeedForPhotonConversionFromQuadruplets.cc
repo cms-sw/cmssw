@@ -18,7 +18,6 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h" 
-#include "RecoTracker/TransientTrackingRecHit/interface/TSiStripRecHit2DLocalPos.h"
 //ClusterShapeIncludes
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
@@ -35,15 +34,34 @@
 //#define quadDispLine
 template <class T> T sqr( T t) {return t*t;}
 
+SeedForPhotonConversionFromQuadruplets::SeedForPhotonConversionFromQuadruplets( const edm::ParameterSet & cfg, edm::ConsumesCollector& iC, const edm::ParameterSet& SeedComparitorPSet):
+  SeedForPhotonConversionFromQuadruplets(iC,
+                                         SeedComparitorPSet,
+                                         cfg.getParameter<std::string>("propagator"),
+                                         cfg.existsAs<double>("SeedMomentumForBOFF") ? cfg.getParameter<double>("SeedMomentumForBOFF") : 5.0)
+{}
+
+SeedForPhotonConversionFromQuadruplets::SeedForPhotonConversionFromQuadruplets(edm::ConsumesCollector& iC, const edm::ParameterSet& SeedComparitorPSet, const std::string & propagator, double seedMomentumForBOFF)
+  : thePropagatorLabel(propagator), theBOFFMomentum(seedMomentumForBOFF)
+{
+  std::string comparitorName = SeedComparitorPSet.getParameter<std::string>("ComponentName");
+  if(comparitorName != "none") {
+    theComparitor.reset(SeedComparitorFactory::get()->create( comparitorName, SeedComparitorPSet, iC));
+  }
+}
+
+SeedForPhotonConversionFromQuadruplets::~SeedForPhotonConversionFromQuadruplets() {}
+
+
 const TrajectorySeed * SeedForPhotonConversionFromQuadruplets::trajectorySeed(
     TrajectorySeedCollection & seedCollection,
     const SeedingHitSet & phits,
     const SeedingHitSet & mhits,
     const TrackingRegion & region,
+    const edm::Event& ev,
     const edm::EventSetup& es,
     std::stringstream& ss,
     std::vector<Quad>& quadV,
-    edm::ParameterSet& SeedComparitorPSet,
     edm::ParameterSet& QuadCutPSet)
 {
 
@@ -432,15 +450,13 @@ if(DeltaPhiManualM1P1>DeltaPhiMaxM1P1+tol_DeltaPhiMaxM1P1 || DeltaPhiManualM1P1<
 // At this point implement cleaning cuts after building the seed
 
     //ClusterShapeFilter_knuenz:::
-    std::string comparitorName = SeedComparitorPSet.getParameter<std::string>("ComponentName");
-    SeedComparitor * theComparitor = (comparitorName == "none") ? 0 :  SeedComparitorFactory::get()->create( comparitorName, SeedComparitorPSet);
     edm::ESHandle<MagneticField> bfield;
     es.get<IdealMagneticFieldRecord>().get(bfield);
     float nomField = bfield->nominalValue();
 
 
     if(ClusterShapeFiltering){
-  	  if (theComparitor) theComparitor->init(es);
+          if (theComparitor) theComparitor->init(ev, es);
 
 		  GlobalTrajectoryParameters pkine;
 		  GlobalTrajectoryParameters mkine;

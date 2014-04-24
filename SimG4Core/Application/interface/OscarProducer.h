@@ -18,18 +18,19 @@
 class OscarProducer : public edm::one::EDProducer<edm::one::SharedResources, edm::one::WatchRuns>
 {
 public:
-    typedef std::vector<boost::shared_ptr<SimProducer> > Producers;
+  typedef std::vector<boost::shared_ptr<SimProducer> > Producers;
 
-    explicit OscarProducer(edm::ParameterSet const & p);
-    virtual ~OscarProducer();
-    virtual void beginRun(const edm::Run & r,const edm::EventSetup& c) override;
-    virtual void endRun(const edm::Run & r,const edm::EventSetup& c) override { }
-    virtual void produce(edm::Event & e, const edm::EventSetup& c) override;
+  explicit OscarProducer(edm::ParameterSet const & p);
+  virtual ~OscarProducer();
+  virtual void beginRun(const edm::Run & r,const edm::EventSetup& c) override;
+  virtual void endRun(const edm::Run & r,const edm::EventSetup& c) override { }
+  virtual void produce(edm::Event & e, const edm::EventSetup& c) override;
+
 private:
-    std::unique_ptr<RunManager> m_runManager;
-    Producers     m_producers;
-    std::unique_ptr<CustomUIsession> m_UIsession;
-    //edm::EDGetTokenT<edm::HepMCProduct> m_HepMC;
+  std::unique_ptr<RunManager> m_runManager;
+  Producers     m_producers;
+  std::unique_ptr<CustomUIsession> m_UIsession;
+  //edm::EDGetTokenT<edm::HepMCProduct> m_HepMC;
 };
 
 #endif

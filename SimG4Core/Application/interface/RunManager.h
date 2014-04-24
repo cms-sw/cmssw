@@ -29,7 +29,7 @@ namespace CLHEP {
 }
 
 namespace sim {
-   class FieldBuilder;
+  class FieldBuilder;
 }
 
 class PrimaryTransformer;
@@ -51,11 +51,11 @@ class DDDWorld;
 class G4RunManagerKernel;
 class G4Run;
 class G4Event;
+class G4Field;
 class RunAction;
 
 class SimRunInterface;
-
-class ExceptionHandler ;
+class ExceptionHandler;
 
 class RunManager
 {
@@ -63,96 +63,101 @@ public:
 
   //RunManager(edm::ParameterSet const & p, edm::ConsumesCollector && iC);
   RunManager(edm::ParameterSet const & p);
-    ~RunManager();
-    void initG4(const edm::EventSetup & es);
-    void initializeUserActions();
-    void initializeRun();
-    void terminateRun();
-    void abortRun(bool softAbort=false);
-    const G4Run * currentRun() const { return m_currentRun; }
-    void produce(edm::Event& inpevt, const edm::EventSetup& es);
-    void abortEvent();
-    const Generator * generator() const { return m_generator; }
-    const G4Event * currentEvent() const { return m_currentEvent; }
-    G4SimEvent * simEvent() { return m_simEvent; }
-    std::vector<SensitiveTkDetector*>& sensTkDetectors() { return m_sensTkDets; }
-    std::vector<SensitiveCaloDetector*>& sensCaloDetectors() { return m_sensCaloDets; }
+  ~RunManager();
+  void initG4(const edm::EventSetup & es);
+  void initializeUserActions();
+  void initializeRun();
+  void terminateRun();
+  void abortRun(bool softAbort=false);
+  const G4Run * currentRun() const { return m_currentRun; }
+  void produce(edm::Event& inpevt, const edm::EventSetup& es);
+  void abortEvent();
+  const Generator * generator() const { return m_generator; }
+  const G4Event * currentEvent() const { return m_currentEvent; }
+  G4SimEvent * simEvent() { return m_simEvent; }
+  std::vector<SensitiveTkDetector*>& sensTkDetectors() { 
+    return m_sensTkDets; 
+  }
+  std::vector<SensitiveCaloDetector*>& sensCaloDetectors() { 
+    return m_sensCaloDets; 
+  }
+  std::vector<boost::shared_ptr<SimProducer> > producers() const {
+    return m_producers;
+  }
 
-    std::vector<boost::shared_ptr<SimProducer> > producers() const {
-       return m_producers;
-    }
-
-    SimTrackManager* GetSimTrackManager();
-    void             Connect(RunAction*);
-    void             Connect(EventAction*);
-    void             Connect(TrackingAction*);
-    void             Connect(SteppingAction*);
+  SimTrackManager* GetSimTrackManager();
+  void             Connect(RunAction*);
+  void             Connect(EventAction*);
+  void             Connect(TrackingAction*);
+  void             Connect(SteppingAction*);
 
 protected:
 
-    G4Event * generateEvent( edm::Event& inpevt );
-    void resetGenParticleId( edm::Event& inpevt );
+  G4Event * generateEvent( edm::Event& inpevt );
+  void resetGenParticleId( edm::Event& inpevt );
+  void DumpMagneticField( const G4Field*) const;
  
 private:
 
-    G4RunManagerKernel * m_kernel;
+  G4RunManagerKernel * m_kernel;
     
-    Generator * m_generator;
-    std::string m_InTag ;
+  Generator * m_generator;
+  std::string m_InTag ;
     
-    bool m_nonBeam;
-    std::auto_ptr<PhysicsList> m_physicsList;
-    PrimaryTransformer * m_primaryTransformer;
-    bool m_managerInitialized;
-    bool m_runInitialized;
-    bool m_runTerminated;
-    bool m_runAborted;
-    bool firstRun;
-    bool m_pUseMagneticField;
-    G4Run * m_currentRun;
-    G4Event * m_currentEvent;
-    G4SimEvent * m_simEvent;
-    RunAction * m_userRunAction;
-    SimRunInterface * m_runInterface;
+  bool m_nonBeam;
+  std::auto_ptr<PhysicsList> m_physicsList;
+  PrimaryTransformer * m_primaryTransformer;
+  bool m_managerInitialized;
+  bool m_runInitialized;
+  bool m_runTerminated;
+  bool m_runAborted;
+  bool firstRun;
+  bool m_pUseMagneticField;
+  G4Run * m_currentRun;
+  G4Event * m_currentEvent;
+  G4SimEvent * m_simEvent;
+  RunAction * m_userRunAction;
+  SimRunInterface * m_runInterface;
 
-    //edm::EDGetTokenT<edm::HepMCProduct> m_HepMC;
+  //edm::EDGetTokenT<edm::HepMCProduct> m_HepMC;
 
-    std::string m_PhysicsTablesDir;
-    bool m_StorePhysicsTables;
-    bool m_RestorePhysicsTables;
-    int m_EvtMgrVerbosity;
-    bool m_check;
-    edm::ParameterSet m_pGeometry;
-    edm::ParameterSet m_pField;
-    edm::ParameterSet m_pGenerator;   
-    edm::ParameterSet m_pVertexGenerator;
-    edm::ParameterSet m_pPhysics; 
-    edm::ParameterSet m_pRunAction;      
-    edm::ParameterSet m_pEventAction;
-    edm::ParameterSet m_pStackingAction;
-    edm::ParameterSet m_pTrackingAction;
-    edm::ParameterSet m_pSteppingAction;
-    std::vector<std::string> m_G4Commands;
-    edm::ParameterSet m_p;
-    ExceptionHandler* m_CustomExceptionHandler ;
+  std::string m_PhysicsTablesDir;
+  bool m_StorePhysicsTables;
+  bool m_RestorePhysicsTables;
+  int m_EvtMgrVerbosity;
+  bool m_check;
+  edm::ParameterSet m_pGeometry;
+  edm::ParameterSet m_pField;
+  edm::ParameterSet m_pGenerator;   
+  edm::ParameterSet m_pVertexGenerator;
+  edm::ParameterSet m_pPhysics; 
+  edm::ParameterSet m_pRunAction;      
+  edm::ParameterSet m_pEventAction;
+  edm::ParameterSet m_pStackingAction;
+  edm::ParameterSet m_pTrackingAction;
+  edm::ParameterSet m_pSteppingAction;
+  std::vector<std::string> m_G4Commands;
+  edm::ParameterSet m_p;
+  ExceptionHandler* m_CustomExceptionHandler ;
 
-    AttachSD * m_attach;
-    std::vector<SensitiveTkDetector*> m_sensTkDets;
-    std::vector<SensitiveCaloDetector*> m_sensCaloDets;
+  AttachSD * m_attach;
+  std::vector<SensitiveTkDetector*> m_sensTkDets;
+  std::vector<SensitiveCaloDetector*> m_sensCaloDets;
 
-    SimActivityRegistry m_registry;
-    std::vector<boost::shared_ptr<SimWatcher> > m_watchers;
-    std::vector<boost::shared_ptr<SimProducer> > m_producers;
+  SimActivityRegistry m_registry;
+  std::vector<boost::shared_ptr<SimWatcher> > m_watchers;
+  std::vector<boost::shared_ptr<SimProducer> > m_producers;
     
-    std::auto_ptr<SimTrackManager> m_trackManager;
-    sim::FieldBuilder             *m_fieldBuilder;
+  std::auto_ptr<SimTrackManager> m_trackManager;
+  sim::FieldBuilder             *m_fieldBuilder;
     
-    edm::ESWatcher<IdealGeometryRecord> idealGeomRcdWatcher_;
-    edm::ESWatcher<IdealMagneticFieldRecord> idealMagRcdWatcher_;
+  edm::ESWatcher<IdealGeometryRecord> idealGeomRcdWatcher_;
+  edm::ESWatcher<IdealMagneticFieldRecord> idealMagRcdWatcher_;
+    
+  edm::InputTag m_theLHCTlinkTag;
 
-    edm::InputTag m_theLHCTlinkTag;
-
-    std::string m_WriteFile;
+  std::string m_FieldFile;
+  std::string m_WriteFile;
 };
 
 #endif

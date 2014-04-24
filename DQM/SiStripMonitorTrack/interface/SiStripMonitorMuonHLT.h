@@ -67,13 +67,16 @@
 #include "TH1F.h"
 #include "TMath.h"
 #include "Math/GenVector/CylindricalEta3D.h"
-	//////////////////////////
 
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+
+
+//////////////////////////
 //
 // class decleration
 //
 
-class SiStripMonitorMuonHLT : public edm::EDAnalyzer {
+class SiStripMonitorMuonHLT : public DQMEDAnalyzer {
 
   //structure which contains all MonitorElement for a Layer
   // there is 34 layers in the tracker
@@ -95,11 +98,11 @@ class SiStripMonitorMuonHLT : public edm::EDAnalyzer {
       ~SiStripMonitorMuonHLT();
 
    private:
-      virtual void beginRun(const edm::Run& run, const edm::EventSetup& es);
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       void analyzeOnTrackClusters( const reco::Track* l3tk, const TrackerGeometry & theTracker, bool isL3MuTrack = true );
       virtual void endJob() ;
-      void createMEs(const edm::EventSetup& es);
+      void createMEs(DQMStore::IBooker &, const edm::EventSetup& es);
+      void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
       //methods needed for normalisation
       float GetEtaWeight(std::string label, GlobalPoint gp);
       float GetPhiWeight(std::string label, GlobalPoint gp);

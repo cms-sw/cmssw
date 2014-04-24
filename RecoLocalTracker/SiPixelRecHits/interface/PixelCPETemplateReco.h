@@ -34,53 +34,53 @@ class MagneticField;
 class PixelCPETemplateReco : public PixelCPEBase
 {
  public:
+  struct ClusterParamTemplate : ClusterParam
+  {
+    ClusterParamTemplate(const SiPixelCluster & cl) : ClusterParam(cl){}
+    // The result of PixelTemplateReco2D
+    float templXrec_ ; 
+    float templYrec_ ;
+    float templSigmaX_ ;
+    float templSigmaY_ ;
+    // Add new information produced by SiPixelTemplateReco::PixelTempReco2D &&&
+    // These can only be accessed if we change silicon pixel data formats and add them to the rechit
+    float templProbX_ ;
+    float templProbY_ ;
+
+    float templProbQ_;
+
+    int templQbin_ ;
+
+    int ierr;
+
+  };
+
   // PixelCPETemplateReco( const DetUnit& det );
-  PixelCPETemplateReco(edm::ParameterSet const& conf, const MagneticField *, const SiPixelLorentzAngle *, const SiPixelTemplateDBObject *);
+  PixelCPETemplateReco(edm::ParameterSet const& conf, const MagneticField *, const TrackerGeometry&,
+                       const SiPixelLorentzAngle *, const SiPixelTemplateDBObject *);
+
   ~PixelCPETemplateReco();
 
+ private:
+  ClusterParam * createClusterParam(const SiPixelCluster & cl) const;
 
-private:
   // We only need to implement measurementPosition, since localPosition() from
   // PixelCPEBase will call it and do the transformation
   // Gavril : put it back
-  LocalPoint localPosition (const SiPixelCluster& cluster) const; 
+  LocalPoint localPosition (DetParam const & theDetParam, ClusterParam & theClusterParam) const; 
   
   // However, we do need to implement localError().
-  LocalError localError   (const SiPixelCluster& cl) const;
+  LocalError localError   (DetParam const & theDetParam, ClusterParam & theClusterParam) const;
 
- private:
   // Template storage
-  mutable SiPixelTemplate templ_ ;
- //---------------------------
-  // [Morris, 6/25/08]
-  // Cache the template ID number
-  mutable int templID_;   // in general this will change in time and via DetID
+  std::vector< SiPixelTemplateStore > thePixelTemp_;
   
-  // The result of PixelTemplateReco2D
-  mutable float templXrec_ ; 
-  mutable float templYrec_ ;
-  mutable float templSigmaX_ ;
-  mutable float templSigmaY_ ;
-  // Add new information produced by SiPixelTemplateReco::PixelTempReco2D &&&
-  // These can only be accessed if we change silicon pixel data formats and add them to the rechit
-  mutable float templProbX_ ;
-  mutable float templProbY_ ;
+  int speed_ ;
 
-  mutable float templProbQ_;
+  bool UseClusterSplitter_;
 
-  mutable int templQbin_ ;
-
-  mutable int speed_ ;
-
-  mutable int ierr;
-
-  mutable bool UseClusterSplitter_;
-
-  mutable bool DoCosmics_;
-
-  mutable bool DoLorentz_;
-
-  mutable bool LoadTemplatesFromDB_;
+  //bool DoCosmics_;
+  //bool LoadTemplatesFromDB_;
 
 };
 

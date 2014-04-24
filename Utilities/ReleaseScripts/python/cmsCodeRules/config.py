@@ -178,8 +178,6 @@ Configuration[ruleName]['exceptPaths'] = ['Utilities/RFIOAdaptor/*BuildFile.xml:
 					  'Utilities/XrdAdaptor/*BuildFile.xml:.*:_FILE_OFFSET_BITS=',
 					  'Utilities/StorageFactory/*BuildFile.xml:.*:_FILE_OFFSET_BITS=',
                                           'Utilities/LStoreAdaptor/BuildFile.xml:.*:_FILE_OFFSET_BITS=',
-					  'DQM/EcalEndcapMonitorClient/plugins/BuildFile.xml:.*:"WITH_ECAL_COND_DB"',
-                                          'DQM/EcalBarrelMonitorClient/plugins/BuildFile.xml:.*:"WITH_ECAL_COND_DB"',
 					  'DQM/CSCMonitorModule/*BuildFile.xml:.*:="DQMGLOBAL"',
 					  'DQMServices/Core/*BuildFile.xml:.*:="-DWITHOUT_CMS_FRAMEWORK=0"',
                                           'L1Trigger/CSCTrackFinder/BuildFile.xml:.*:ADD_SUBDIR=',

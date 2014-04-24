@@ -16,8 +16,6 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQM/EcalPreshowerMonitorModule/interface/ESTimingTask.h"
 
-#include "TStyle.h"
-#include "TH2F.h"
 #include "TMath.h"
 #include "TGraph.h"
 
@@ -44,7 +42,6 @@ ESTimingTask::ESTimingTask(const edm::ParameterSet& ps) {
   digilabel_   = consumes<ESDigiCollection>(ps.getParameter<InputTag>("DigiLabel"));
   prefixME_    = ps.getUntrackedParameter<string>("prefixME", "EcalPreshower"); 
   
-  dqmStore_	= Service<DQMStore>().operator->();
   eCount_ = 0;
 
   fit_ = new TF1("fitShape", fitf, -200, 200, 4);
@@ -54,8 +51,15 @@ ESTimingTask::ESTimingTask(const edm::ParameterSet& ps) {
   for (int i = 0; i < 2; ++i)
     for (int j = 0; j < 2; ++j) 
       hTiming_[i][j] = 0;
- 
-  dqmStore_->setCurrentFolder(prefixME_ + "/ESTimingTask");
+
+  htESP_ = new TH1F("htESP", "Timing ES+", 81, -20.5, 20.5);
+  htESM_ = new TH1F("htESM", "Timing ES-", 81, -20.5, 20.5);
+}
+
+void
+ESTimingTask::bookHistograms(DQMStore::IBooker& iBooker, Run const&, EventSetup const&)
+{
+  iBooker.setCurrentFolder(prefixME_ + "/ESTimingTask");
   
   //Booking Histograms
   //Notice: Change ESRenderPlugin under DQM/RenderPlugins/src if you change this histogram name.
@@ -64,28 +68,20 @@ ESTimingTask::ESTimingTask(const edm::ParameterSet& ps) {
     for (int j=0 ; j<2; ++j) {
       int iz = (i==0)? 1:-1;
       sprintf(histo, "ES Timing Z %d P %d", iz, j+1);
-      hTiming_[i][j] = dqmStore_->book1D(histo, histo, 81, -20.5, 20.5);
+      hTiming_[i][j] = iBooker.book1D(histo, histo, 81, -20.5, 20.5);
       hTiming_[i][j]->setAxisTitle("ES Timing (ns)", 1);
     }
 
   sprintf(histo, "ES 2D Timing");
-  h2DTiming_ = dqmStore_->book2D(histo, histo, 81, -20.5, 20.5, 81, -20.5, 20.5);
+  h2DTiming_ = iBooker.book2D(histo, histo, 81, -20.5, 20.5, 81, -20.5, 20.5);
   h2DTiming_->setAxisTitle("ES- Timing (ns)", 1);
   h2DTiming_->setAxisTitle("ES+ Timing (ns)", 2);
-
-  htESP_ = new TH1F("htESP", "Timing ES+", 81, -20.5, 20.5);
-  htESM_ = new TH1F("htESM", "Timing ES-", 81, -20.5, 20.5);
 }
 
 ESTimingTask::~ESTimingTask() {
+  delete fit_;
   delete htESP_;
   delete htESM_;
-}
-
-void ESTimingTask::beginJob(void) {
-}
-
-void ESTimingTask::endJob() {
 }
 
 void ESTimingTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {

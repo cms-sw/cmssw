@@ -56,7 +56,7 @@ std::vector<std::pair< std::pair<DetId, LocalPoint> ,float> > SiStripFineDelayTL
   std::vector<TrajectoryMeasurement>::iterator itm;
   for (itm=TMeas.begin();itm!=TMeas.end();itm++){
     TrajectoryStateOnSurface tsos=itm->updatedState();
-    const TransientTrackingRecHit::ConstRecHitPointer thit=itm->recHit();
+    auto thit=itm->recHit();
     const SiStripMatchedRecHit2D* matchedhit=dynamic_cast<const SiStripMatchedRecHit2D*>((*thit).hit());
     const SiStripRecHit2D* hit=dynamic_cast<const SiStripRecHit2D*>((*thit).hit());
     LocalVector trackdirection=tsos.localDirection();

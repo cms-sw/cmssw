@@ -111,8 +111,7 @@ TrajectoryFactoryBase::useRecHit( const TransientTrackingRecHit::ConstRecHitPoin
 
   if ( !theUseProjectedHits )
   {
-    const ProjectedRecHit2D* projectedHit = dynamic_cast< const ProjectedRecHit2D* >( hitPtr.get() );
-    if ( projectedHit != 0 ) return false;
+    if(trackerHitRTTI::isProjected(*hitPtr)) return false;
   }
 
   return true;

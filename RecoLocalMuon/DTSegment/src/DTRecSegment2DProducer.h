@@ -11,7 +11,7 @@
  */
 
 /* Base Class Headers */
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 namespace edm {
@@ -28,7 +28,7 @@ class DTRecSegment2DBaseAlgo;
 
 /* Class DTRecSegment2DProducer Interface */
 
-class DTRecSegment2DProducer : public edm::EDProducer {
+class DTRecSegment2DProducer : public edm::stream::EDProducer<> {
 
  public:
 

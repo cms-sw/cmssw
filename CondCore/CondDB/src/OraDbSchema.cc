@@ -72,9 +72,12 @@ namespace cond {
 			      cond::SynchronizationType&, cond::Time_t& endOfValidity, 
 			      std::string& description, cond::Time_t& lastValidatedTime ){
       if(!m_cache.load( name )) return false;
+      if( m_cache.iovSequence().size()==0 ) return false;
       timeType = m_cache.iovSequence().timetype();
-      if( m_cache.iovSequence().payloadClasses().size()==0 ) throwException( "No payload type information found.","OraTagTable::select");
-      objectType = *m_cache.iovSequence().payloadClasses().begin();
+      std::string ptok = m_cache.iovSequence().head(1).front().token();
+      objectType = m_cache.session().classNameForItem( ptok );
+      //if( m_cache.iovSequence().payloadClasses().size()==0 ) throwException( "No payload type information found.","OraTagTable::select");
+      //objectType = *m_cache.iovSequence().payloadClasses().begin();
       endOfValidity = m_cache.iovSequence().lastTill();
       description = m_cache.iovSequence().comment();
       lastValidatedTime = m_cache.iovSequence().tail(1).back().since();
@@ -234,6 +237,11 @@ namespace cond {
 	data.push_back( std::make_pair( std::get<0>(v), std::get<1>(v) ) );
       }
       m_cache.editor().bulkAppend( data );
+    }
+
+    void OraIOVTable::erase( const std::string& ){
+      throwException( "Erase iovs from ORA database is not supported.",
+		      "OraIOVTable::erase" );
     }
 
     OraIOVSchema::OraIOVSchema( DbSession& session ):

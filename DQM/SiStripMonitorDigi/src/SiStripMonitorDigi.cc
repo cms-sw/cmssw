@@ -176,7 +176,7 @@ SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig) :
 
   // Create DCS Status
   bool checkDCS    = conf_.getParameter<bool>("UseDCSFiltering");
-  if (checkDCS) dcsStatus_ = new SiStripDCSStatus();
+  if (checkDCS) dcsStatus_ = new SiStripDCSStatus(consumesCollector());
   else dcsStatus_ = 0; 
 
   //initialize boolean for the data-presence check (needed for TotalNumberOfDigisFailure histogram)
@@ -192,25 +192,34 @@ SiStripMonitorDigi::~SiStripMonitorDigi() {
   if (dcsStatus_) delete dcsStatus_;
 }
 
-//--------------------------------------------------------------------------------------------
-void SiStripMonitorDigi::beginRun(const edm::Run& run, const edm::EventSetup& es){
 
+void SiStripMonitorDigi::bookHistograms(DQMStore::IBooker & ibooker, const edm::Run & run, const edm::EventSetup & es)
+{
   if (show_mechanical_structure_view) {
     unsigned long long cacheID = es.get<SiStripDetCablingRcd>().cacheIdentifier();
     if (m_cacheID_ != cacheID) {
       m_cacheID_ = cacheID;       
-      edm::LogInfo("SiStripMonitorDigi") <<"SiStripMonitorDigi::beginRun: " 
+      edm::LogInfo("SiStripMonitorDigi") <<"SiStripMonitorDigi::bookHistograms: " 
 					 << " Creating MEs for new Cabling ";     
-      createMEs(es);
+      createMEs( ibooker, es );
     } 
   } else if (reset_each_run) {
-    edm::LogInfo("SiStripMonitorDigi") <<"SiStripMonitorDigi::beginRun: " 
+    edm::LogInfo("SiStripMonitorDigi") <<"SiStripMonitorDigi::bookHistograms: " 
 				       << " Resetting MEs ";        
     for (std::map<uint32_t, ModMEs >::const_iterator idet = DigiMEs.begin() ; idet!=DigiMEs.end() ; idet++) {
       ResetModuleMEs(idet->first);
     }
   }
+
+}
   
+
+
+
+
+//--------------------------------------------------------------------------------------------
+void SiStripMonitorDigi::dqmBeginRun(const edm::Run& run, const edm::EventSetup& es){
+
   if (subdetswitchtotdigifailureon) {
     //get FED cabling to know if SiStrip is in DAQ or no
     unsigned long long cacheID = es.get<SiStripDetCablingRcd>().cacheIdentifier();
@@ -318,7 +327,7 @@ void SiStripMonitorDigi::beginJob(){
 
 
 //--------------------------------------------------------------------------------------------
-void SiStripMonitorDigi::createMEs(const edm::EventSetup& es){
+void SiStripMonitorDigi::createMEs(DQMStore::IBooker & ibooker , const edm::EventSetup& es ){
 
   if ( show_mechanical_structure_view ){
 
@@ -347,10 +356,10 @@ void SiStripMonitorDigi::createMEs(const edm::EventSetup& es){
 
     // Create TkHistoMap for Digi and APV shots properies
     
-    if (digitkhistomapon)      tkmapdigi                = new TkHistoMap(topFolderName_,"TkHMap_NumberOfDigi",        0.0,true);
-    if (shotshistomapon)       tkmapNApvshots           = new TkHistoMap(topFolderName_,"TkHMap_NApvShots",           0.0,true);
-    if (shotsstripshistomapon) tkmapNstripApvshot       = new TkHistoMap(topFolderName_,"TkHMap_NStripApvShots",      0.0,true);
-    if (shotschargehistomapon) tkmapMedianChargeApvshots= new TkHistoMap(topFolderName_,"TkHMap_MedianChargeApvShots",0.0,true);
+    if (digitkhistomapon)      tkmapdigi                = new TkHistoMap(ibooker , topFolderName_,"TkHMap_NumberOfDigi",        0.0,true);
+    if (shotshistomapon)       tkmapNApvshots           = new TkHistoMap(ibooker , topFolderName_,"TkHMap_NApvShots",           0.0,true);
+    if (shotsstripshistomapon) tkmapNstripApvshot       = new TkHistoMap(ibooker , topFolderName_,"TkHMap_NStripApvShots",      0.0,true);
+    if (shotschargehistomapon) tkmapMedianChargeApvshots= new TkHistoMap(ibooker , topFolderName_,"TkHMap_MedianChargeApvShots",0.0,true);
     
     std::vector<uint32_t> tibDetIds;
     
@@ -374,7 +383,7 @@ void SiStripMonitorDigi::createMEs(const edm::EventSetup& es){
 	// set appropriate folder using SiStripFolderOrganizer
 	folder_organizer.setDetectorFolder(detid, tTopo); // pass the detid to this method
 	if (reset_each_run) ResetModuleMEs(detid);
-	createModuleMEs(local_modmes, detid);
+	createModuleMEs( ibooker , local_modmes, detid );
 
 	// append to DigiMEs
 	DigiMEs.insert( std::make_pair(detid, local_modmes));
@@ -409,27 +418,27 @@ void SiStripMonitorDigi::createMEs(const edm::EventSetup& es){
 
         // book Layer plots      
 	folder_organizer.setLayerFolder(detid,tTopo,det_layer_pair.second); 
-	createLayerMEs(label, layerDetIds.size());
+	createLayerMEs( ibooker , label, layerDetIds.size() );
       }
       
       // book sub-detector plots
       std::pair<std::string,std::string> sdet_pair = folder_organizer.getSubDetFolderAndTag(detid, tTopo);
       if (SubDetMEsMap.find(sdet_pair.second) == SubDetMEsMap.end()){
-	dqmStore_->setCurrentFolder(sdet_pair.first);
-	createSubDetMEs(sdet_pair.second);        
+	ibooker.setCurrentFolder(sdet_pair.first);
+	createSubDetMEs( ibooker , sdet_pair.second );        
       }
 
     }//end of loop over detectors
 
     //book some Summary histograms on APV shots in the MechanicalView
 
-    dqmStore_->setCurrentFolder(topFolderName_+"/MechanicalView/");
+    ibooker.setCurrentFolder(topFolderName_+"/MechanicalView/");
 
     if (globalsummaryapvshotson) {
       const char* HistoName = "Summary Mean Apv shots for SubDets";
-      NApvShotsGlobalProf= dqmStore_->bookProfile(HistoName, HistoName,
-					      6,0.5,6.5,
-					      100, 0., 0., "" );
+      NApvShotsGlobalProf= ibooker.bookProfile(HistoName, HistoName,
+					       6,0.5,6.5,
+					       100, 0., 0., "" );
       NApvShotsGlobalProf->setBinLabel(1, std::string("TEC-"));
       NApvShotsGlobalProf->setBinLabel(2, std::string("TEC+"));
       NApvShotsGlobalProf->setBinLabel(3, std::string("TIB"));
@@ -443,14 +452,14 @@ void SiStripMonitorDigi::createMEs(const edm::EventSetup& es){
     if (globalswitchapvshotsonprof){
       edm::ParameterSet Parameters =  conf_.getParameter<edm::ParameterSet>("TProfNShotsVsTime");
       const char* HistoName = "NApv_Shots_vs_Time";
-      ShotsVsTimeApvShotsGlobal=dqmStore_->bookProfile(HistoName,HistoName,
-							   Parameters.getParameter<int32_t>("Nbins"),
-							   Parameters.getParameter<double>("xmin"),
-							   Parameters.getParameter<double>("xmax"),
-							   200, //that parameter should not be there !?
-							   Parameters.getParameter<double>("ymin"),
-							   Parameters.getParameter<double>("ymax"),
-							   "" );
+      ShotsVsTimeApvShotsGlobal=ibooker.bookProfile(HistoName,HistoName,
+						    Parameters.getParameter<int32_t>("Nbins"),
+						    Parameters.getParameter<double>("xmin"),
+						    Parameters.getParameter<double>("xmax"),
+						    200, //that parameter should not be there !?
+						    Parameters.getParameter<double>("ymin"),
+						    Parameters.getParameter<double>("ymax"),
+						    "" );
       ShotsVsTimeApvShotsGlobal->setAxisTitle("Time (s)",1);
       ShotsVsTimeApvShotsGlobal->setAxisTitle("# Apv Shots",2);
       if (ShotsVsTimeApvShotsGlobal->kind() == MonitorElement::DQM_KIND_TPROFILE) ShotsVsTimeApvShotsGlobal->getTH1()->SetBit(TH1::kCanRebin);
@@ -460,10 +469,10 @@ void SiStripMonitorDigi::createMEs(const edm::EventSetup& es){
     if (globalswitchnstripsapvshotson){
       edm::ParameterSet Parameters =  conf_.getParameter<edm::ParameterSet>("TH1NStripsApvShots");
       const char* HistoName = "Number_of_Strips_in_Apv_Shots";
-      StripMultiplicityApvShotsGlobal=dqmStore_->book1D(HistoName,HistoName,
-							   Parameters.getParameter<int32_t>("Nbins"),
-							   Parameters.getParameter<double>("xmin"),
-							   Parameters.getParameter<double>("xmax"));
+      StripMultiplicityApvShotsGlobal=ibooker.book1D(HistoName,HistoName,
+						     Parameters.getParameter<int32_t>("Nbins"),
+						     Parameters.getParameter<double>("xmin"),
+						     Parameters.getParameter<double>("xmax"));
       StripMultiplicityApvShotsGlobal->setAxisTitle("# strips in Apv Shots",1);
     }
 
@@ -471,10 +480,10 @@ void SiStripMonitorDigi::createMEs(const edm::EventSetup& es){
     if (globalswitchnapvshotson){
 	edm::ParameterSet Parameters =  conf_.getParameter<edm::ParameterSet>("TH1NApvShots");
 	const char* HistoName = "Number_of_Apv_Shots";
-	NApvShotsGlobal=dqmStore_->book1D(HistoName,HistoName,
-						       Parameters.getParameter<int32_t>("Nbins"),
-						       Parameters.getParameter<double>("xmin"),
-						       Parameters.getParameter<double>("xmax"));
+	NApvShotsGlobal=ibooker.book1D(HistoName,HistoName,
+				       Parameters.getParameter<int32_t>("Nbins"),
+				       Parameters.getParameter<double>("xmin"),
+				       Parameters.getParameter<double>("xmax"));
 	NApvShotsGlobal->setAxisTitle("# Apv Shots",1);
     }
 
@@ -483,10 +492,10 @@ void SiStripMonitorDigi::createMEs(const edm::EventSetup& es){
       edm::ParameterSet Parameters =  conf_.getParameter<edm::ParameterSet>("TH1ChargeMedianApvShots");
       //dqmStore_->setCurrentFolder("SiStrip/MechanicalView/"+label);
       const char* HistoName = "Apv_Shots_Charge_Median";
-      MedianChargeApvShotsGlobal=dqmStore_->book1D(HistoName,HistoName,
-								Parameters.getParameter<int32_t>("Nbins"),
-								Parameters.getParameter<double>("xmin"),
-								Parameters.getParameter<double>("xmax"));
+      MedianChargeApvShotsGlobal=ibooker.book1D(HistoName,HistoName,
+						Parameters.getParameter<int32_t>("Nbins"),
+						Parameters.getParameter<double>("xmin"),
+						Parameters.getParameter<double>("xmax"));
       MedianChargeApvShotsGlobal->setAxisTitle("Apv Shots Charge Median (ADC)",1);
     }
 
@@ -495,10 +504,10 @@ void SiStripMonitorDigi::createMEs(const edm::EventSetup& es){
       edm::ParameterSet Parameters =  conf_.getParameter<edm::ParameterSet>("TH1ApvNumApvShots");
       //dqmStore_->setCurrentFolder("SiStrip/MechanicalView/"+label);
       const char* HistoName = "Apv_Shots_Apv_Number";
-      NApvApvShotsGlobal=dqmStore_->book1D(HistoName,HistoName,
-							 Parameters.getParameter<int32_t>("Nbins"),
-							 Parameters.getParameter<double>("xmin"),
-							 Parameters.getParameter<double>("xmax"));
+      NApvApvShotsGlobal=ibooker.book1D(HistoName,HistoName,
+					Parameters.getParameter<int32_t>("Nbins"),
+					Parameters.getParameter<double>("xmin"),
+					Parameters.getParameter<double>("xmax"));
       NApvApvShotsGlobal->setAxisTitle("Apv Number",1);
     }
 
@@ -512,14 +521,14 @@ void SiStripMonitorDigi::createMEs(const edm::EventSetup& es){
     std::stringstream ss;
 
     folder_organizer.getLayerFolderName(ss, 0, tTopo);
-    dqmStore_->setCurrentFolder(ss.str().c_str());
-
+    ibooker.setCurrentFolder(ss.str().c_str());
+    
     //    if (subdetswitchtotdigiproflson) {
     if (subdetswitchtotdigifailureon) {
       const char* HistoName = "NumberOfDigisInLastLS";
-      digiFailureMEs.SubDetTotDigiProfLS= dqmStore_->bookProfile(HistoName, HistoName,
-								 6,0.5,6.5,
-								 0., 0., "" );
+      digiFailureMEs.SubDetTotDigiProfLS= ibooker.bookProfile(HistoName, HistoName,
+							      6,0.5,6.5,
+							      0., 0., "" );
       digiFailureMEs.SubDetTotDigiProfLS->setBinLabel(1, std::string("TEC-"));
       digiFailureMEs.SubDetTotDigiProfLS->setBinLabel(2, std::string("TEC+"));
       digiFailureMEs.SubDetTotDigiProfLS->setBinLabel(3, std::string("TIB"));
@@ -532,14 +541,14 @@ void SiStripMonitorDigi::createMEs(const edm::EventSetup& es){
       std::string HistoName = "DataPresentInLS";
       edm::ParameterSet Parameters =  conf_.getParameter<edm::ParameterSet>("TotalNumberOfDigisFailure");
 
-      digiFailureMEs.SubDetDigiFailures2D = dqmStore_->book2D(HistoName,HistoName,
-							      Parameters.getParameter<int32_t>("Nbins"), //bins X
-							      1, //xmin
-							      Parameters.getParameter<int32_t>("Nbins") + 1, //xmax
-							      6, //bins Y
-							      0, //ymin
-							      6); //ymax
-
+      digiFailureMEs.SubDetDigiFailures2D = ibooker.book2D(HistoName,HistoName,
+							   Parameters.getParameter<int32_t>("Nbins"), //bins X
+							   1, //xmin
+							   Parameters.getParameter<int32_t>("Nbins") + 1, //xmax
+							   6, //bins Y
+							   0, //ymin
+							   6); //ymax
+      
       digiFailureMEs.SubDetDigiFailures2D->setBinLabel(1, std::string("TEC-") , 2 );
       digiFailureMEs.SubDetDigiFailures2D->setBinLabel(2, std::string("TEC+") , 2 );
       digiFailureMEs.SubDetDigiFailures2D->setBinLabel(3, std::string("TIB")  , 2 );
@@ -571,6 +580,7 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
   float iOrbitSec      = iEvent.orbitNumber()/NORBITS_PER_SECOND;
 
   digi_detset_handles.clear();
+
   std::vector<edm::EDGetTokenT<edm::DetSetVector<SiStripDigi> > >::const_iterator iToken = digiProducerTokenList.begin();
   for(std::vector<edm::InputTag>::const_iterator iter = digiProducerList.begin(), iEnd = digiProducerList.end();
       iter != iEnd; ++iter, ++iToken) {
@@ -883,19 +893,19 @@ void SiStripMonitorDigi::ResetModuleMEs(uint32_t idet){
 
 }
 //------------------------------------------------------------------------------------------
-MonitorElement* SiStripMonitorDigi::bookMETrend(const char* ParameterSetLabel, const char* HistoName)
+MonitorElement* SiStripMonitorDigi::bookMETrend(DQMStore::IBooker & ibooker , const char* ParameterSetLabel, const char* HistoName )
 {
   edm::ParameterSet ParametersTrend =  conf_.getParameter<edm::ParameterSet>("Trending");
-  MonitorElement* me = dqmStore_->bookProfile(HistoName,HistoName,
-					      ParametersTrend.getParameter<int32_t>("Nbins"),
-					      // 					      0,
-					      ParametersTrend.getParameter<double>("xmin"),
-					      ParametersTrend.getParameter<double>("xmax"),
-					      // 					      ParametersTrend.getParameter<int32_t>("Nbins"),
-					      100, //that parameter should not be there !?
-					      ParametersTrend.getParameter<double>("ymin"),
-					      ParametersTrend.getParameter<double>("ymax"),
-					      "" );
+  MonitorElement* me = ibooker.bookProfile(HistoName,HistoName,
+					   ParametersTrend.getParameter<int32_t>("Nbins"),
+					   // 					      0,
+					   ParametersTrend.getParameter<double>("xmin"),
+					   ParametersTrend.getParameter<double>("xmax"),
+					   // 					      ParametersTrend.getParameter<int32_t>("Nbins"),
+					   100, //that parameter should not be there !?
+					   ParametersTrend.getParameter<double>("ymin"),
+					   ParametersTrend.getParameter<double>("ymax"),
+					   "" );
   if(!me) return me;
 
   me->setAxisTitle("Event Time in Seconds",1);
@@ -904,14 +914,14 @@ MonitorElement* SiStripMonitorDigi::bookMETrend(const char* ParameterSetLabel, c
 }
 
 //------------------------------------------------------------------------------------------
-MonitorElement* SiStripMonitorDigi::bookME1D(const char* ParameterSetLabel, const char* HistoName)
+MonitorElement* SiStripMonitorDigi::bookME1D(DQMStore::IBooker & ibooker , const char* ParameterSetLabel, const char* HistoName )
 {
   edm::ParameterSet Parameters =  conf_.getParameter<edm::ParameterSet>(ParameterSetLabel);
-  return dqmStore_->book1D(HistoName,HistoName,
-			   Parameters.getParameter<int32_t>("Nbinx"),
-			   Parameters.getParameter<double>("xmin"),
-			   Parameters.getParameter<double>("xmax")
-			   );
+  return ibooker.book1D(HistoName,HistoName,
+			Parameters.getParameter<int32_t>("Nbinx"),
+			Parameters.getParameter<double>("xmin"),
+			Parameters.getParameter<double>("xmax")
+			);
 }
 
 //--------------------------------------------------------------------------------
@@ -924,7 +934,7 @@ void SiStripMonitorDigi::fillTrend(MonitorElement* me ,float value, float timein
 //
 // -- Create Module Level MEs
 //
-void SiStripMonitorDigi::createModuleMEs(ModMEs& mod_single, uint32_t detid) {
+void SiStripMonitorDigi::createModuleMEs(DQMStore::IBooker & ibooker , ModMEs& mod_single, uint32_t detid ) {
 
   // use SistripHistoId for producing histogram id (and title)
   SiStripHistoId hidmanager;
@@ -933,8 +943,8 @@ void SiStripMonitorDigi::createModuleMEs(ModMEs& mod_single, uint32_t detid) {
   //nr. of digis per module
   if(moduleswitchnumdigison) {
     hid = hidmanager.createHistoId("NumberOfDigis","det",detid);
-    mod_single.NumberOfDigis = dqmStore_->book1D(hid, hid, 21, -0.5, 20.5);
-    dqmStore_->tag(mod_single.NumberOfDigis, detid);
+    mod_single.NumberOfDigis = ibooker.book1D(hid, hid, 21, -0.5, 20.5);
+    ibooker.tag(mod_single.NumberOfDigis, detid);
     mod_single.NumberOfDigis->setAxisTitle("number of digis in one detector module");
     mod_single.NumberOfDigis->getTH1()->StatOverflows(kTRUE);  // over/underflows in Mean calculation
   }
@@ -943,40 +953,40 @@ void SiStripMonitorDigi::createModuleMEs(ModMEs& mod_single, uint32_t detid) {
   if(moduleswitchnumdigispstripon){
     hid = hidmanager.createHistoId("NumberOfDigisPerStrip","det",detid);
     short nstrips = SiStripDetCabling_->nApvPairs(detid) * 2 * 128; 
-    mod_single.NumberOfDigisPerStrip = dqmStore_->book1D(hid, hid, nstrips, -0.5, nstrips+0.5);
-    dqmStore_->tag(mod_single.NumberOfDigisPerStrip, detid);
+    mod_single.NumberOfDigisPerStrip = ibooker.book1D(hid, hid, nstrips, -0.5, nstrips+0.5);
+    ibooker.tag(mod_single.NumberOfDigisPerStrip, detid);
     mod_single.NumberOfDigisPerStrip->setAxisTitle("number of (digis > 0) per strip");
     mod_single.NumberOfDigisPerStrip->getTH1()->StatOverflows(kTRUE);  // over/underflows in Mean calculation
   }
   //#ADCs for hottest strip
   if(moduleswitchadchotteston) {
     hid = hidmanager.createHistoId("ADCsHottestStrip","det",detid);
-    mod_single.ADCsHottestStrip = bookME1D("TH1ADCsHottestStrip", hid.c_str());
-    dqmStore_->tag(mod_single.ADCsHottestStrip, detid); // 6 APVs -> 768 strips
+    mod_single.ADCsHottestStrip = bookME1D(ibooker , "TH1ADCsHottestStrip", hid.c_str() );
+    ibooker.tag(mod_single.ADCsHottestStrip, detid); // 6 APVs -> 768 strips
     mod_single.ADCsHottestStrip->setAxisTitle("number of ADCs for hottest strip");
   }
   
   //#ADCs for coolest strip
   if(moduleswitchadccooleston) {
     hid = hidmanager.createHistoId("ADCsCoolestStrip","det",detid);
-    mod_single.ADCsCoolestStrip = bookME1D("TH1ADCsCoolestStrip", hid.c_str());
-    dqmStore_->tag(mod_single.ADCsCoolestStrip, detid);
+    mod_single.ADCsCoolestStrip = bookME1D(ibooker , "TH1ADCsCoolestStrip", hid.c_str() );
+    ibooker.tag(mod_single.ADCsCoolestStrip, detid);
     mod_single.ADCsCoolestStrip->setAxisTitle("number of ADCs for coolest strip");
   }
   
   //#ADCs for each digi
   if(moduleswitchdigiadcson) {
     hid = hidmanager.createHistoId("DigiADCs","det",detid);
-    mod_single.DigiADCs = bookME1D("TH1DigiADCs", hid.c_str());
-    dqmStore_->tag(mod_single.DigiADCs, detid);
+    mod_single.DigiADCs = bookME1D( ibooker , "TH1DigiADCs", hid.c_str() );
+    ibooker.tag(mod_single.DigiADCs, detid);
     mod_single.DigiADCs->setAxisTitle("number of ADCs for each digi");
   }
   
   //Strip occupancy
   if(moduleswitchstripoccupancyon) {
     hid = hidmanager.createHistoId("StripOccupancy","det",detid);
-    mod_single.StripOccupancy = bookME1D("TH1StripOccupancy", hid.c_str());
-    dqmStore_->tag(mod_single.StripOccupancy, detid);
+    mod_single.StripOccupancy = bookME1D( ibooker , "TH1StripOccupancy", hid.c_str() );
+    ibooker.tag(mod_single.StripOccupancy, detid);
     mod_single.StripOccupancy->setAxisTitle("strip occupancy");
   }
   
@@ -986,7 +996,7 @@ void SiStripMonitorDigi::createModuleMEs(ModMEs& mod_single, uint32_t detid) {
 // -- Create Module Level MEs
 //  
 
-void SiStripMonitorDigi::createLayerMEs(std::string label, int ndets) {
+void SiStripMonitorDigi::createLayerMEs( DQMStore::IBooker & ibooker , std::string label, int ndets ) {
 
   std::map<std::string, LayerMEs>::iterator iLayerME  = LayerMEsMap.find(label);
   if(iLayerME==LayerMEsMap.end()){
@@ -1008,44 +1018,44 @@ void SiStripMonitorDigi::createLayerMEs(std::string label, int ndets) {
 
     //#Digis
     if(layerswitchnumdigison) {
-      layerMEs.LayerNumberOfDigis=bookME1D("TH1NumberOfDigis", hidmanager.createHistoLayer("Summary_TotalNumberOfDigis","layer",label,"").c_str()); 
-      if (createTrendMEs) layerMEs.LayerNumberOfDigisTrend=bookMETrend("TH1NumberOfDigis", hidmanager.createHistoLayer("Trend_NumberOfDigis","layer",label,"").c_str()); 
+      layerMEs.LayerNumberOfDigis=bookME1D( ibooker , "TH1NumberOfDigis", hidmanager.createHistoLayer("Summary_TotalNumberOfDigis","layer",label,"").c_str() );
+      if (createTrendMEs) layerMEs.LayerNumberOfDigisTrend=bookMETrend( ibooker , "TH1NumberOfDigis", hidmanager.createHistoLayer("Trend_NumberOfDigis","layer",label,"").c_str() );
     }
 
     //#ADCs for hottest strip
     if(layerswitchadchotteston) {
-      layerMEs.LayerADCsHottestStrip=bookME1D("TH1ADCsHottestStrip", hidmanager.createHistoLayer("Summary_ADCsHottestStrip","layer",label,"").c_str()); 
-      if (createTrendMEs) layerMEs.LayerADCsHottestStripTrend=bookMETrend("TH1ADCsHottestStrip", hidmanager.createHistoLayer("Trend_ADCsHottestStrip","layer",label,"").c_str()); 
+      layerMEs.LayerADCsHottestStrip=bookME1D( ibooker , "TH1ADCsHottestStrip", hidmanager.createHistoLayer("Summary_ADCsHottestStrip","layer",label,"").c_str() );
+      if (createTrendMEs) layerMEs.LayerADCsHottestStripTrend=bookMETrend( ibooker , "TH1ADCsHottestStrip", hidmanager.createHistoLayer("Trend_ADCsHottestStrip","layer",label,"").c_str() );
     }
 
     //#ADCs for coolest strip
     if(layerswitchadccooleston) {
-      layerMEs.LayerADCsCoolestStrip=bookME1D("TH1ADCsCoolestStrip", hidmanager.createHistoLayer("Summary_ADCsCoolestStrip","layer",label,"").c_str());
-      if (createTrendMEs) layerMEs.LayerADCsCoolestStripTrend=bookMETrend("TH1ADCsCoolestStrip", hidmanager.createHistoLayer("Trend_ADCsCoolestStrip","layer",label,"").c_str());
+      layerMEs.LayerADCsCoolestStrip=bookME1D(ibooker , "TH1ADCsCoolestStrip", hidmanager.createHistoLayer("Summary_ADCsCoolestStrip","layer",label,"").c_str() );
+      if (createTrendMEs) layerMEs.LayerADCsCoolestStripTrend=bookMETrend( ibooker , "TH1ADCsCoolestStrip", hidmanager.createHistoLayer("Trend_ADCsCoolestStrip","layer",label,"").c_str() );
     }
 
     //#ADCs for each digi
     if(layerswitchdigiadcson) {
-      layerMEs.LayerDigiADCs=bookME1D("TH1DigiADCs", hidmanager.createHistoLayer("Summary_DigiADCs","layer",label,"").c_str());
-      if (createTrendMEs) layerMEs.LayerDigiADCsTrend=bookMETrend("TH1DigiADCs", hidmanager.createHistoLayer("Trend_DigiADCs","layer",label,"").c_str());
+      layerMEs.LayerDigiADCs=bookME1D( ibooker , "TH1DigiADCs", hidmanager.createHistoLayer("Summary_DigiADCs","layer",label,"").c_str() );
+      if (createTrendMEs) layerMEs.LayerDigiADCsTrend=bookMETrend( ibooker , "TH1DigiADCs", hidmanager.createHistoLayer("Trend_DigiADCs","layer",label,"").c_str() );
     }
 
     //Strip Occupancy
     if(layerswitchstripoccupancyon) {
-      layerMEs.LayerStripOccupancy=bookME1D("TH1StripOccupancy", hidmanager.createHistoLayer("Summary_StripOccupancy","layer",label,"").c_str());  
-      if (createTrendMEs) layerMEs.LayerStripOccupancyTrend=bookMETrend("TH1StripOccupancy", hidmanager.createHistoLayer("Trend_StripOccupancy","layer",label,"").c_str());  
+      layerMEs.LayerStripOccupancy=bookME1D( ibooker , "TH1StripOccupancy", hidmanager.createHistoLayer("Summary_StripOccupancy","layer",label,"").c_str() );
+      if (createTrendMEs) layerMEs.LayerStripOccupancyTrend=bookMETrend( ibooker , "TH1StripOccupancy", hidmanager.createHistoLayer("Trend_StripOccupancy","layer",label,"").c_str() );
       
     }
     // # of Digis 
     if(layerswitchnumdigisprofon) {
       std::string hid = hidmanager.createHistoLayer("NumberOfDigiProfile","layer",label,"");
-      layerMEs.LayerNumberOfDigisProfile = dqmStore_->bookProfile(hid, hid, ndets, 0.5, ndets+0.5,21, -0.5, 200.5);
+      layerMEs.LayerNumberOfDigisProfile = ibooker.bookProfile(hid, hid, ndets, 0.5, ndets+0.5,21, -0.5, 200.5);
     }
 
     // # of Digis 
     if(layerswitchdigiadcprofon) {
       std::string hid = hidmanager.createHistoLayer("DigiADCProfile","layer",label,"");      
-      layerMEs.LayerDigiADCProfile = dqmStore_->bookProfile(hid, hid, ndets, 0.5, ndets+0.5, 64, -0.5, 255.5);      
+      layerMEs.LayerDigiADCProfile = ibooker.bookProfile(hid, hid, ndets, 0.5, ndets+0.5, 64, -0.5, 255.5);      
     }
 
     LayerMEsMap[label]=layerMEs;
@@ -1054,7 +1064,7 @@ void SiStripMonitorDigi::createLayerMEs(std::string label, int ndets) {
 //
 // -- Create SubDetector MEs
 //
-void SiStripMonitorDigi::createSubDetMEs(std::string label) {
+void SiStripMonitorDigi::createSubDetMEs(DQMStore::IBooker & ibooker , std::string label ) {
 
   SubDetMEs subdetMEs; 
   subdetMEs.totNDigis         = 0;
@@ -1074,14 +1084,14 @@ void SiStripMonitorDigi::createSubDetMEs(std::string label) {
   if(subdetswitchtotdigiprofon){
     edm::ParameterSet Parameters =  conf_.getParameter<edm::ParameterSet>("TProfTotalNumberOfDigis");
     HistoName = "TotalNumberOfDigiProfile__" + label;
-    subdetMEs.SubDetTotDigiProf=dqmStore_->bookProfile(HistoName,HistoName,
-						       Parameters.getParameter<int32_t>("Nbins"),
-						       Parameters.getParameter<double>("xmin"),
-						       Parameters.getParameter<double>("xmax"),
-						       100, //that parameter should not be there !?
-						       Parameters.getParameter<double>("ymin"),
-						       Parameters.getParameter<double>("ymax"),
-						       "" );
+    subdetMEs.SubDetTotDigiProf=ibooker.bookProfile(HistoName,HistoName,
+						    Parameters.getParameter<int32_t>("Nbins"),
+						    Parameters.getParameter<double>("xmin"),
+						    Parameters.getParameter<double>("xmax"),
+						    100, //that parameter should not be there !?
+						    Parameters.getParameter<double>("ymin"),
+						    Parameters.getParameter<double>("ymax"),
+						    "" );
     subdetMEs.SubDetTotDigiProf->setAxisTitle("Event Time in Seconds",1);
     if (subdetMEs.SubDetTotDigiProf->kind() == MonitorElement::DQM_KIND_TPROFILE) subdetMEs.SubDetTotDigiProf->getTH1()->SetBit(TH1::kCanRebin);
   }
@@ -1090,14 +1100,14 @@ void SiStripMonitorDigi::createSubDetMEs(std::string label) {
   if(subdetswitchapvcycleprofon){
     edm::ParameterSet Parameters =  conf_.getParameter<edm::ParameterSet>("TProfDigiApvCycle");
     HistoName = "Digi_vs_ApvCycle__" + label;
-    subdetMEs.SubDetDigiApvProf=dqmStore_->bookProfile(HistoName,HistoName,
-						       Parameters.getParameter<int32_t>("Nbins"),
-						       Parameters.getParameter<double>("xmin"),
-						       Parameters.getParameter<double>("xmax"),
-						       200, //that parameter should not be there !?
-						       Parameters.getParameter<double>("ymin"),
-						       Parameters.getParameter<double>("ymax"),
-						       "" );
+    subdetMEs.SubDetDigiApvProf=ibooker.bookProfile(HistoName,HistoName,
+						    Parameters.getParameter<int32_t>("Nbins"),
+						    Parameters.getParameter<double>("xmin"),
+						    Parameters.getParameter<double>("xmax"),
+						    200, //that parameter should not be there !?
+						    Parameters.getParameter<double>("ymin"),
+						    Parameters.getParameter<double>("ymax"),
+						    "" );
     subdetMEs.SubDetDigiApvProf->setAxisTitle("ApvCycle (Corrected Absolute Bx % 70)",1);
   }
   
@@ -1113,13 +1123,13 @@ void SiStripMonitorDigi::createSubDetMEs(std::string label) {
     else if (label.find("TID") != std::string::npos) h2ymax = (2208.*256.)*yfact;
     else if (label.find("TOB") != std::string::npos) h2ymax = (12906.*256.)*yfact;
     else if (label.find("TEC") != std::string::npos) h2ymax = (7552.*2.*256.)*yfact;
-    subdetMEs.SubDetDigiApvTH2=dqmStore_->book2D(HistoName,HistoName,
-						 Parameters.getParameter<int32_t>("Nbins"),
-						 Parameters.getParameter<double>("xmin"),
-						 Parameters.getParameter<double>("xmax"),
-						 Parameters.getParameter<int32_t>("Nbinsy"), //it was 100 that parameter should not be there !?
-						 Parameters.getParameter<double>("ymin"),
-						 h2ymax);
+    subdetMEs.SubDetDigiApvTH2=ibooker.book2D(HistoName,HistoName,
+					      Parameters.getParameter<int32_t>("Nbins"),
+					      Parameters.getParameter<double>("xmin"),
+					      Parameters.getParameter<double>("xmax"),
+					      Parameters.getParameter<int32_t>("Nbinsy"), //it was 100 that parameter should not be there !?
+					      Parameters.getParameter<double>("ymin"),
+					      h2ymax);
     subdetMEs.SubDetDigiApvTH2->setAxisTitle("absolute Bx mod(70)",1);
   }
 
@@ -1128,10 +1138,10 @@ void SiStripMonitorDigi::createSubDetMEs(std::string label) {
     edm::ParameterSet Parameters =  conf_.getParameter<edm::ParameterSet>("TH1NApvShots");
     //dqmStore_->setCurrentFolder("SiStrip/MechanicalView/"+label);
     HistoName = "Number_of_Apv_Shots_" + label;
-    subdetMEs.SubDetNApvShotsTH1=dqmStore_->book1D(HistoName,HistoName,
-						   Parameters.getParameter<int32_t>("Nbins"),
-						   Parameters.getParameter<double>("xmin"),
-						   Parameters.getParameter<double>("xmax"));
+    subdetMEs.SubDetNApvShotsTH1=ibooker.book1D(HistoName,HistoName,
+						Parameters.getParameter<int32_t>("Nbins"),
+						Parameters.getParameter<double>("xmin"),
+						Parameters.getParameter<double>("xmax"));
     subdetMEs.SubDetNApvShotsTH1->setAxisTitle("# Apv Shots",1);
   }
 
@@ -1140,10 +1150,10 @@ void SiStripMonitorDigi::createSubDetMEs(std::string label) {
     edm::ParameterSet Parameters =  conf_.getParameter<edm::ParameterSet>("TH1NStripsApvShots");
     //dqmStore_->setCurrentFolder("SiStrip/MechanicalView/"+label);
     HistoName = "Number_of_Strips_in_Apv_Shots_" + label;
-    subdetMEs.SubDetNStripsApvShotsTH1=dqmStore_->book1D(HistoName,HistoName,
-						   Parameters.getParameter<int32_t>("Nbins"),
-						   Parameters.getParameter<double>("xmin"),
-						   Parameters.getParameter<double>("xmax"));
+    subdetMEs.SubDetNStripsApvShotsTH1=ibooker.book1D(HistoName,HistoName,
+						      Parameters.getParameter<int32_t>("Nbins"),
+						      Parameters.getParameter<double>("xmin"),
+						      Parameters.getParameter<double>("xmax"));
     subdetMEs.SubDetNStripsApvShotsTH1->setAxisTitle("# strips in Apv Shots",1);
   }
 
@@ -1152,10 +1162,10 @@ void SiStripMonitorDigi::createSubDetMEs(std::string label) {
     edm::ParameterSet Parameters =  conf_.getParameter<edm::ParameterSet>("TH1ChargeMedianApvShots");
     //dqmStore_->setCurrentFolder("SiStrip/MechanicalView/"+label);
     HistoName = "Apv_Shots_Charge_Median_" + label;
-    subdetMEs.SubDetChargeMedianApvShotsTH1=dqmStore_->book1D(HistoName,HistoName,
-						   Parameters.getParameter<int32_t>("Nbins"),
-						   Parameters.getParameter<double>("xmin"),
-						   Parameters.getParameter<double>("xmax"));
+    subdetMEs.SubDetChargeMedianApvShotsTH1=ibooker.book1D(HistoName,HistoName,
+							   Parameters.getParameter<int32_t>("Nbins"),
+							   Parameters.getParameter<double>("xmin"),
+							   Parameters.getParameter<double>("xmax"));
     subdetMEs.SubDetChargeMedianApvShotsTH1->setAxisTitle("Apv Shots Charge Median (ADC)",1);
   }
 
@@ -1164,10 +1174,10 @@ void SiStripMonitorDigi::createSubDetMEs(std::string label) {
     edm::ParameterSet Parameters =  conf_.getParameter<edm::ParameterSet>("TH1ApvNumApvShots");
     //dqmStore_->setCurrentFolder("SiStrip/MechanicalView/"+label);
     HistoName = "Apv_Shots_Apv_Number_" + label;
-    subdetMEs.SubDetNApvShotsNApvTH1=dqmStore_->book1D(HistoName,HistoName,
-							      Parameters.getParameter<int32_t>("Nbins"),
-							      Parameters.getParameter<double>("xmin"),
-							      Parameters.getParameter<double>("xmax"));
+    subdetMEs.SubDetNApvShotsNApvTH1=ibooker.book1D(HistoName,HistoName,
+						    Parameters.getParameter<int32_t>("Nbins"),
+						    Parameters.getParameter<double>("xmin"),
+						    Parameters.getParameter<double>("xmax"));
     subdetMEs.SubDetNApvShotsNApvTH1->setAxisTitle("Apv Number",1);
   }
 
@@ -1179,14 +1189,14 @@ void SiStripMonitorDigi::createSubDetMEs(std::string label) {
   if(subdetswitchapvshotsonprof){
     edm::ParameterSet Parameters =  conf_.getParameter<edm::ParameterSet>("TProfNShotsVsTime");
     HistoName = "NApv_Shots_vs_Time_" + label;
-    subdetMEs.SubDetNApvShotsProf=dqmStore_->bookProfile(HistoName,HistoName,
-						       Parameters.getParameter<int32_t>("Nbins"),
-						       Parameters.getParameter<double>("xmin"),
-						       Parameters.getParameter<double>("xmax"),
-						       200, //that parameter should not be there !?
-						       Parameters.getParameter<double>("ymin"),
-						       Parameters.getParameter<double>("ymax"),
-						       "" );
+    subdetMEs.SubDetNApvShotsProf=ibooker.bookProfile(HistoName,HistoName,
+						      Parameters.getParameter<int32_t>("Nbins"),
+						      Parameters.getParameter<double>("xmin"),
+						      Parameters.getParameter<double>("xmax"),
+						      200, //that parameter should not be there !?
+						      Parameters.getParameter<double>("ymin"),
+						      Parameters.getParameter<double>("ymax"),
+						      "" );
     subdetMEs.SubDetNApvShotsProf->setAxisTitle("Time (s)",1);
     subdetMEs.SubDetNApvShotsProf->setAxisTitle("# Apv Shots",2);
     if (subdetMEs.SubDetNApvShotsProf->kind() == MonitorElement::DQM_KIND_TPROFILE) subdetMEs.SubDetNApvShotsProf->getTH1()->SetBit(TH1::kCanRebin);

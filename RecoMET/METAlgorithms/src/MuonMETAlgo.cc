@@ -1,23 +1,21 @@
-// File: MuonMETAlgo.cc
-// Description:  see MuonMETAlgo.h
-// Author: M. Schmitt, R. Cavanaugh, The University of Florida
-// Creation Date:  MHS May 31, 2005 Initial version.
+// -*- C++ -*-
 //
-//--------------------------------------------
+// Package:    METAlgorithms
+// Class:      MuonMETAlgo
+//
+// Original Authors:  Michael Schmitt, Richard Cavanaugh The University of Florida
+//          Created:  August 30, 2007
+//
+
+//____________________________________________________________________________||
 #include <math.h>
 #include <vector>
 #include "RecoMET/METAlgorithms/interface/MuonMETAlgo.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/SpecificCaloMETData.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "DataFormats/Math/interface/Point3D.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "TMath.h"
 
 
@@ -27,6 +25,7 @@ using namespace reco;
 typedef math::XYZTLorentzVector LorentzVector;
 typedef math::XYZPoint Point;
 
+//____________________________________________________________________________||
 CaloMET MuonMETAlgo::makeMET (const CaloMET& fMet, 
 			      double fSumEt, 
 			      const std::vector<CorrMETData>& fCorrections, 
@@ -35,7 +34,7 @@ CaloMET MuonMETAlgo::makeMET (const CaloMET& fMet,
 }
   
   
-  
+//____________________________________________________________________________||
 MET MuonMETAlgo::makeMET (const MET& fMet, 
 			  double fSumEt, 
 			  const std::vector<CorrMETData>& fCorrections, 
@@ -45,19 +44,17 @@ MET MuonMETAlgo::makeMET (const MET& fMet,
 
  
 
+//____________________________________________________________________________||
 template <class T> void MuonMETAlgo::MuonMETAlgo_run(const edm::View<reco::Muon>& inputMuons,
 						     const edm::ValueMap<reco::MuonMETCorrectionData>& vm_muCorrData,
 						     const edm::View<T>& v_uncorMET,
-						     std::vector<T>* v_corMET) {
+						     std::vector<T>* v_corMET)
+{
   T uncorMETObj = v_uncorMET.front();
   
-  double uncorMETX = uncorMETObj.px();
-  double uncorMETY = uncorMETObj.py();
+  double corMETX = uncorMETObj.px();
+  double corMETY = uncorMETObj.py();
   
-  double corMETX = uncorMETX;
-  double corMETY = uncorMETY;
-  
-  CorrMETData delta;
   double sumMuPx    = 0.;
   double sumMuPy    = 0.;
   double sumMuPt    = 0.;
@@ -65,31 +62,30 @@ template <class T> void MuonMETAlgo::MuonMETAlgo_run(const edm::View<reco::Muon>
   double sumMuDepEy = 0.;
   double sumMuDepEt = 0.;
 
-  unsigned int nMuons = inputMuons.size();
-  for(unsigned int iMu = 0; iMu<nMuons; iMu++) {
-    const reco::Muon *mu = &inputMuons[iMu]; //new
-    reco::MuonMETCorrectionData muCorrData = (vm_muCorrData)[inputMuons.refAt(iMu)];
-    int flag   = muCorrData.type();      
-    float deltax = muCorrData.corrX();      
-    float deltay = muCorrData.corrY();      
-            
-    LorentzVector mup4;
-    if (flag == 0) //this muon is not used to correct the MET
-      continue;
+  for(unsigned int i = 0; i < inputMuons.size(); ++i)
+    {
+      reco::MuonMETCorrectionData muCorrData = vm_muCorrData[inputMuons.refAt(i)];
 
-    //if we're here, then the muon should be used to correct the MET using the default fit
-    mup4 = mu->p4();
+      if(muCorrData.type() == 0) continue;
+
+      float deltax = muCorrData.corrX();
+      float deltay = muCorrData.corrY();
+
+      const reco::Muon *mu = &inputMuons[i];
+      LorentzVector mup4 = mu->p4();
     
-    sumMuPx    += mup4.px();
-    sumMuPy    += mup4.py();
-    sumMuPt    += mup4.pt();
-    sumMuDepEx += deltax;
-    sumMuDepEy += deltay;
-    sumMuDepEt += sqrt(deltax*deltax + deltay*deltay);
-    corMETX    = corMETX - mup4.px() + deltax;
-    corMETY    = corMETY - mup4.py() + deltay;
+      sumMuPx    += mup4.px();
+      sumMuPy    += mup4.py();
+      sumMuPt    += mup4.pt();
+      sumMuDepEx += deltax;
+      sumMuDepEy += deltay;
+      sumMuDepEt += sqrt(deltax*deltax + deltay*deltay);
+      corMETX    = corMETX - mup4.px() + deltax;
+      corMETY    = corMETY - mup4.py() + deltay;
   
-  }
+    }
+
+  CorrMETData delta;
   delta.mex = sumMuDepEx - sumMuPx;
   delta.mey = sumMuDepEy - sumMuPy;
   delta.sumet = sumMuPt - sumMuDepEt;
@@ -101,6 +97,7 @@ template <class T> void MuonMETAlgo::MuonMETAlgo_run(const edm::View<reco::Muon>
   v_corMET->push_back(result);
 }
 
+//____________________________________________________________________________||
 void MuonMETAlgo::GetMuDepDeltas(const reco::Muon* inputMuon,
 				  TrackDetMatchInfo& info,
 				  bool useTrackAssociatorPositions,
@@ -191,8 +188,8 @@ void MuonMETAlgo::GetMuDepDeltas(const reco::Muon* inputMuon,
 		    muMETInfo);
 }
    
-//----------------------------------------------------------------------------
 
+//____________________________________________________________________________||
 void MuonMETAlgo::correctMETforMuon(double& deltax, double& deltay, double bfield, int muonCharge,
 				    const math::XYZTLorentzVector& muonP4,const math::XYZPoint& muonVertex,
 				    MuonMETInfo& muonMETInfo) {
@@ -411,7 +408,8 @@ void MuonMETAlgo::correctMETforMuon(double& deltax, double& deltay, double bfiel
 
   
 }
-//----------------------------------------------------------------------------
+
+//____________________________________________________________________________||
 void MuonMETAlgo::run(const edm::View<reco::Muon>& inputMuons,
 		      const edm::ValueMap<reco::MuonMETCorrectionData>& vm_muCorrData,
 		      const edm::View<reco::MET>& uncorMET,
@@ -420,7 +418,7 @@ void MuonMETAlgo::run(const edm::View<reco::Muon>& inputMuons,
   MuonMETAlgo_run(inputMuons, vm_muCorrData, uncorMET, corMET);
 }
 
-//----------------------------------------------------------------------------
+//____________________________________________________________________________||
 void MuonMETAlgo::run(const edm::View<reco::Muon>& inputMuons,
 		      const edm::ValueMap<reco::MuonMETCorrectionData>& vm_muCorrData,
 		      const edm::View<reco::CaloMET>& uncorMET,
@@ -430,14 +428,4 @@ void MuonMETAlgo::run(const edm::View<reco::Muon>& inputMuons,
   
 }
 
-
-//----------------------------------------------------------------------------
-MuonMETAlgo::MuonMETAlgo() {}
-//----------------------------------------------------------------------------
-  
-//----------------------------------------------------------------------------
-MuonMETAlgo::~MuonMETAlgo() {}
-//----------------------------------------------------------------------------
-
-
-
+//____________________________________________________________________________||

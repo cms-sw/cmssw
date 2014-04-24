@@ -2,7 +2,7 @@
 #define RecoTracker_TkSeedGenerator_SeedCombiner_H
 
 #include <vector>
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackerRecHit2D/interface/ClusterRemovalInfo.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -10,7 +10,7 @@
 namespace edm { class Event; class EventSetup; class ParameterSet; }
 
 
-class SeedCombiner : public edm::EDProducer {
+class SeedCombiner : public edm::stream::EDProducer<> {
 public:
 
   SeedCombiner(const edm::ParameterSet& cfg);

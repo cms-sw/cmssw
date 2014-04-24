@@ -26,7 +26,7 @@
 
 // user include 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -48,7 +48,7 @@
 // class declaration
 //
 
-class CastorTowerProducer : public edm::EDProducer {
+class CastorTowerProducer : public edm::stream::EDProducer<> {
    public:
       explicit CastorTowerProducer(const edm::ParameterSet&);
       ~CastorTowerProducer();

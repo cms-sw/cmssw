@@ -19,6 +19,15 @@ TkHistoMap::TkHistoMap(std::string path, std::string MapName,float baseline, boo
   createTkHistoMap(path,MapName_, baseline, mechanicalView);
 }
 
+TkHistoMap::TkHistoMap(DQMStore::IBooker & ibooker , std::string path, std::string MapName,float baseline, bool mechanicalView): 
+  HistoNumber(35),
+  MapName_(MapName)
+{
+  LogTrace("TkHistoMap") <<"TkHistoMap::constructor with parameters"; 
+  loadServices();
+  createTkHistoMap(ibooker , path,MapName_, baseline, mechanicalView);
+}
+
 void TkHistoMap::loadServices(){
   if(!edm::Service<DQMStore>().isAvailable()){
     edm::LogError("TkHistoMap") << 
@@ -77,6 +86,37 @@ void TkHistoMap::createTkHistoMap(std::string& path, std::string& MapName, float
 						   nchX,lowX,highX,
 						   nchY,lowY,highY,
                                                    0.0, 0.0);
+    //initialize bin content for the not assigned bins
+    if(baseline!=0){
+      for(size_t ix = 1; ix <= (unsigned int) nchX; ++ix)
+	for(size_t iy = 1;iy <= (unsigned int) nchY; ++iy)
+	  if(!tkdetmap_->getDetFromBin(layer,ix,iy))
+	    me->Fill(1.*(lowX+ix-.5),1.*(lowY+iy-.5),baseline);	  
+    }
+
+    tkHistoMap_[layer]=me;
+#ifdef debug_TkHistoMap
+    LogTrace("TkHistoMap")  << "[TkHistoMap::createTkHistoMap] folder " << folder << " histoName " << fullName << " layer " << layer << " ptr " << tkHistoMap_[layer];
+#endif
+  }
+}
+
+void TkHistoMap::createTkHistoMap(DQMStore::IBooker & ibooker , std::string& path, std::string& MapName, float& baseline, bool mechanicalView){
+  
+  int nchX;
+  int nchY;
+  double lowX,highX;
+  double lowY, highY;
+  std::string fullName, folder;
+
+  tkHistoMap_.resize(HistoNumber);    
+  for(int layer=1;layer<HistoNumber;++layer){
+    folder=folderDefinition(path,MapName,layer,mechanicalView,fullName);
+    tkdetmap_->getComponents(layer,nchX,lowX,highX,nchY,lowY,highY);
+    MonitorElement* me  = ibooker.bookProfile2D(fullName.c_str(),fullName.c_str(),
+						nchX,lowX,highX,
+						nchY,lowY,highY,
+						0.0, 0.0);
     //initialize bin content for the not assigned bins
     if(baseline!=0){
       for(size_t ix = 1; ix <= (unsigned int) nchX; ++ix)

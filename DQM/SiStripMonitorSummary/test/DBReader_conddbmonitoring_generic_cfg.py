@@ -132,18 +132,18 @@ options.parseArguments()
 
 process.MessageLogger = cms.Service("MessageLogger",
                                     debugModules = cms.untracked.vstring(''),
-#    cout = cms.untracked.PSet(
-#        threshold = cms.untracked.string('INFO')
                                     destinations = cms.untracked.vstring(options.logDestination,
                                                                          options.qualityLogDestination,
                                                                          options.cablingLogDestination,
-                                                                         options.condLogDestination
+                                                                         options.condLogDestination,
+                                                                         'cout'
                                                                          ), #Reader, cout
                                     categories = cms.untracked.vstring('SiStripQualityStatistics',
                                                                        'SiStripQualityDQM',
                                                                        'SiStripFedCablingReader',
                                                                        'DummyCondObjContentPrinter',
-                                                                       )
+                                                                       ),
+                                    cout = cms.untracked.PSet(threshold = cms.untracked.string('WARNING'))
 )
 setattr(process.MessageLogger,options.logDestination,cms.untracked.PSet(threshold = cms.untracked.string('INFO')))
 setattr(process.MessageLogger,options.qualityLogDestination,cms.untracked.PSet(

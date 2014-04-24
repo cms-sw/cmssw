@@ -1,31 +1,56 @@
 #ifndef RecoLocalTracker_PixelCluster_Parameter_Estimator_H
 #define RecoLocalTracker_PixelCluster_Parameter_Estimator_H
 
+#include "DataFormats/GeometrySurface/interface/LocalError.h"
+#include "DataFormats/GeometryVector/interface/LocalPoint.h"
+
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "DataFormats/TrajectoryState/interface/LocalTrajectoryParameters.h"
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
-#include "RecoLocalTracker/ClusterParameterEstimator/interface/ClusterParameterEstimator.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitQuality.h"
 #include<tuple>
 
-class PixelClusterParameterEstimator : public  ClusterParameterEstimator<SiPixelCluster> {
+class PixelClusterParameterEstimator
+{
   public:
 
+  virtual ~PixelClusterParameterEstimator(){}
   
+  typedef std::pair<LocalPoint,LocalError>  LocalValues;
+  typedef std::vector<LocalValues> VLocalValues;
+
   using ReturnType = std::tuple<LocalPoint,LocalError,SiPixelRecHitQuality::QualWordType>;
 
   // here just to implement it in the clients;
   // to be properly implemented in the sub-classes in order to make them thread-safe
+
   virtual ReturnType getParameters(const SiPixelCluster & cl, 
-				   const GeomDetUnit    & det ) const {
-    auto lv = localParameters(cl,det);
-    return std::make_tuple(lv.first,lv.second,rawQualityWord());
-  }
+                                   const GeomDetUnit    & det) const =0;
+
   virtual ReturnType getParameters(const SiPixelCluster & cl, 
 				   const GeomDetUnit    & det, 
-				   const LocalTrajectoryParameters & ltp ) const {
-    auto lv = localParameters(cl,det,ltp);
-    return std::make_tuple(lv.first,lv.second,rawQualityWord());
+				   const LocalTrajectoryParameters & ltp ) const =0;
+
+  virtual ReturnType getParameters(const SiPixelCluster & cl, 
+				   const GeomDetUnit    & det, 
+				   const TrajectoryStateOnSurface& tsos ) const {
+    return getParameters(cl,det,tsos.localParameters());
   }
 
+  virtual VLocalValues localParametersV(const SiPixelCluster& cluster, const GeomDetUnit& gd) const {
+    VLocalValues vlp;
+    ReturnType tuple = getParameters(cluster, gd);
+    vlp.push_back(std::make_pair(std::get<0>(tuple), std::get<1>(tuple)));
+    return vlp;
+  }
+  virtual VLocalValues localParametersV(const SiPixelCluster& cluster, const GeomDetUnit& gd, TrajectoryStateOnSurface& tsos) const {
+    VLocalValues vlp;
+    ReturnType tuple = getParameters(cluster,  gd, tsos);
+    vlp.push_back(std::make_pair(std::get<0>(tuple), std::get<1>(tuple)));
+    return vlp;
+  }
 
 
   PixelClusterParameterEstimator() : clusterProbComputationFlag_(0){}
@@ -39,16 +64,6 @@ class PixelClusterParameterEstimator : public  ClusterParameterEstimator<SiPixel
     }
   
   
-  //-----------------------------------------------------------------------------
-  //! A convenience method to fill a whole SiPixelRecHitQuality word in one shot.
-  //! This way, we can keep the details of what is filled within the pixel
-  //! code and not expose the Transient SiPixelRecHit to it as well.  The name
-  //! of this function is chosen to match the one in SiPixelRecHit.
-  //-----------------------------------------------------------------------------
-  virtual SiPixelRecHitQuality::QualWordType rawQualityWord() const {
-     return SiPixelRecHitQuality::QualWordType();
-  }
-
   protected:
  //--- A flag that could be used to change the behavior of
   //--- clusterProbability() in TSiPixelRecHit (the *transient* one).

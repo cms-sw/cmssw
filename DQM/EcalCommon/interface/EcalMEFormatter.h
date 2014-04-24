@@ -3,7 +3,7 @@
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-#include "DQM/EcalCommon/interface/EcalDQMonitor.h"
+#include "DQM/EcalCommon/interface/DQWorker.h"
 #include "DQM/EcalCommon/interface/MESet.h"
 
 class EcalMEFormatter : public edm::EDAnalyzer, public ecaldqm::DQWorker {
