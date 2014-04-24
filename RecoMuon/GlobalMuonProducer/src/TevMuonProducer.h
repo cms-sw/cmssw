@@ -13,7 +13,7 @@
  *   \author  R.Bellan - INFN TO
  */
 
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/EDProducer.h"
 #include "RecoMuon/GlobalTrackingTools/interface/GlobalMuonRefitter.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrackLoader.h"
 
@@ -36,7 +36,7 @@ namespace edm {class ParameterSet; class Event; class EventSetup;}
 class MuonTrackFinder;
 class MuonServiceProxy;
 
-class TevMuonProducer : public edm::stream::EDProducer<> {
+class TevMuonProducer : public edm::EDProducer {
 
  public:
 
@@ -47,7 +47,7 @@ class TevMuonProducer : public edm::stream::EDProducer<> {
   virtual ~TevMuonProducer(); 
   
   /// reconstruct muons
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
   
  private:
     
