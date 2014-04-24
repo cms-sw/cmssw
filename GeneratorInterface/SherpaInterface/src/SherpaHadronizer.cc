@@ -60,8 +60,6 @@ public:
   
 private:
   
-  virtual void doSetRandomEngine(CLHEP::HepRandomEngine* v) override;
-  
   std::string SherpaProcess;
   std::string SherpaChecksum;
   std::string SherpaPath;
