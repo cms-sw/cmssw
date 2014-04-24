@@ -250,6 +250,7 @@ void PFBlockComparator::analyze(const edm::Event& e,
       ++matchedblocks;
       if( block.linkData().size() != matched_block->linkData().size() ) {
 	std::cout << "Something is really fucked up, captain..." << std::endl;
+	std::cout << block.elements().size() << ' ' << matched_block->elements().size() << std::endl;
       }
       unsigned found_elements = 0;
       for( const auto& elem : block.elements() ) {
@@ -287,8 +288,10 @@ void PFBlockComparator::analyze(const edm::Event& e,
 	    }
 	    std::cout << std::endl;	      
 	  }
+	} else {
+	  std::cout << "+++WARNING+++ : couldn't find match for element: " << elem << std::endl;
 	}
-      }          
+      }     
       if( found_elements != block.elements().size() ) {
 	std::cout << "+++WARNING+++ : couldn't find all elements in block with " 
 		  << block.elements().size() << " elements matched to block with " 
