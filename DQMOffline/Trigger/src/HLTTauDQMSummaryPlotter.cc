@@ -132,15 +132,15 @@ HLTTauDQMSummaryPlotter::SummaryPlotter::SummaryPlotter(const std::string& type,
 
   //L1 Summary
   else if ( type_ == Type::kL1 ) {
-    bookEfficiencyHisto("L1TauEtEff","EfficiencyHelpers/L1TauEtEffNum");
-    bookEfficiencyHisto("L1TauHighEtEff","EfficiencyHelpers/L1TauHighEtEffNum");
-    bookEfficiencyHisto("L1TauEtaEff","EfficiencyHelpers/L1TauEtaEffNum");
-    bookEfficiencyHisto("L1TauPhiEff","EfficiencyHelpers/L1TauPhiEffNum");
+    bookEfficiencyHisto("L1TauEtEff","helpers/L1TauEtEffNum");
+    bookEfficiencyHisto("L1TauHighEtEff","helpers/L1TauHighEtEffNum");
+    bookEfficiencyHisto("L1TauEtaEff","helpers/L1TauEtaEffNum");
+    bookEfficiencyHisto("L1TauPhiEff","helpers/L1TauPhiEffNum");
 
-    bookEfficiencyHisto("L1JetEtEff","EfficiencyHelpers/L1JetEtEffNum");
-    bookEfficiencyHisto("L1JetHighEtEff","EfficiencyHelpers/L1JetHighEtEffNum");
-    bookEfficiencyHisto("L1JetEtaEff","EfficiencyHelpers/L1JetEtaEffNum");
-    bookEfficiencyHisto("L1JetPhiEff","EfficiencyHelpers/L1JetPhiEffNum");
+    bookEfficiencyHisto("L1JetEtEff","helpers/L1JetEtEffNum");
+    bookEfficiencyHisto("L1JetHighEtEff","helpers/L1JetHighEtEffNum");
+    bookEfficiencyHisto("L1JetEtaEff","helpers/L1JetEtaEffNum");
+    bookEfficiencyHisto("L1JetPhiEff","helpers/L1JetPhiEffNum");
   }
 
   else if(type_ == Type::kPathSummary) {
@@ -169,23 +169,23 @@ void HLTTauDQMSummaryPlotter::SummaryPlotter::plot(DQMStore& store) {
         
   //L1 Summary
   else if ( type_ == Type::kL1 ) {
-    plotEfficiencyHisto("L1TauEtEff","EfficiencyHelpers/L1TauEtEffNum","EfficiencyHelpers/L1TauEtEffDenom");
-    plotEfficiencyHisto("L1TauHighEtEff","EfficiencyHelpers/L1TauHighEtEffNum","EfficiencyHelpers/L1TauHighEtEffDenom");
-    plotEfficiencyHisto("L1TauEtaEff","EfficiencyHelpers/L1TauEtaEffNum","EfficiencyHelpers/L1TauEtaEffDenom");
-    plotEfficiencyHisto("L1TauPhiEff","EfficiencyHelpers/L1TauPhiEffNum","EfficiencyHelpers/L1TauPhiEffDenom");
+    plotEfficiencyHisto("L1TauEtEff","helpers/L1TauEtEffNum","helpers/L1TauEtEffDenom");
+    plotEfficiencyHisto("L1TauHighEtEff","helpers/L1TauHighEtEffNum","helpers/L1TauHighEtEffDenom");
+    plotEfficiencyHisto("L1TauEtaEff","helpers/L1TauEtaEffNum","helpers/L1TauEtaEffDenom");
+    plotEfficiencyHisto("L1TauPhiEff","helpers/L1TauPhiEffNum","helpers/L1TauPhiEffDenom");
             
-    plotEfficiencyHisto("L1JetEtEff","EfficiencyHelpers/L1JetEtEffNum","EfficiencyHelpers/L1JetEtEffDenom");
-    plotEfficiencyHisto("L1JetHighEtEff","EfficiencyHelpers/L1JetHighEtEffNum","EfficiencyHelpers/L1JetHighEtEffDenom");
-    plotEfficiencyHisto("L1JetEtaEff","EfficiencyHelpers/L1JetEtaEffNum","EfficiencyHelpers/L1JetEtaEffDenom");
-    plotEfficiencyHisto("L1JetPhiEff","EfficiencyHelpers/L1JetPhiEffNum","EfficiencyHelpers/L1JetPhiEffDenom");
+    plotEfficiencyHisto("L1JetEtEff","helpers/L1JetEtEffNum","helpers/L1JetEtEffDenom");
+    plotEfficiencyHisto("L1JetHighEtEff","helpers/L1JetHighEtEffNum","helpers/L1JetHighEtEffDenom");
+    plotEfficiencyHisto("L1JetEtaEff","helpers/L1JetEtaEffNum","helpers/L1JetEtaEffDenom");
+    plotEfficiencyHisto("L1JetPhiEff","helpers/L1JetPhiEffNum","helpers/L1JetPhiEffDenom");
             
-    plotEfficiencyHisto("L1ElectronEtEff","EfficiencyHelpers/L1ElectronEtEffNum","EfficiencyHelpers/L1ElectronEtEffDenom");
-    plotEfficiencyHisto("L1ElectronEtaEff","EfficiencyHelpers/L1ElectronEtaEffNum","EfficiencyHelpers/L1ElectronEtaEffDenom");
-    plotEfficiencyHisto("L1ElectronPhiEff","EfficiencyHelpers/L1ElectronPhiEffNum","EfficiencyHelpers/L1ElectronPhiEffDenom");
+    plotEfficiencyHisto("L1ElectronEtEff","helpers/L1ElectronEtEffNum","helpers/L1ElectronEtEffDenom");
+    plotEfficiencyHisto("L1ElectronEtaEff","helpers/L1ElectronEtaEffNum","helpers/L1ElectronEtaEffDenom");
+    plotEfficiencyHisto("L1ElectronPhiEff","helpers/L1ElectronPhiEffNum","helpers/L1ElectronPhiEffDenom");
             
-    plotEfficiencyHisto("L1MuonEtEff","EfficiencyHelpers/L1MuonEtEffNum","EfficiencyHelpers/L1MuonEtEffDenom");
-    plotEfficiencyHisto("L1MuonEtaEff","EfficiencyHelpers/L1MuonEtaEffNum","EfficiencyHelpers/L1MuonEtaEffDenom");
-    plotEfficiencyHisto("L1MuonPhiEff","EfficiencyHelpers/L1MuonPhiEffNum","EfficiencyHelpers/L1MuonPhiEffDenom");
+    plotEfficiencyHisto("L1MuonEtEff","helpers/L1MuonEtEffNum","helpers/L1MuonEtEffDenom");
+    plotEfficiencyHisto("L1MuonEtaEff","helpers/L1MuonEtaEffNum","helpers/L1MuonEtaEffDenom");
+    plotEfficiencyHisto("L1MuonPhiEff","helpers/L1MuonPhiEffNum","helpers/L1MuonPhiEffDenom");
   }
 
   else if(type_ == Type::kPathSummary) {

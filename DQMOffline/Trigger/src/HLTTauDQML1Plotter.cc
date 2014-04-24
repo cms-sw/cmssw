@@ -82,7 +82,7 @@ void HLTTauDQML1Plotter::bookHistograms(DQMStore::IBooker &iBooker) {
     snprintf(buffer, BUFMAX, "L1 central jet E_{T} resolution (E_{T} > %.1f);[L1 jet E_{T}-Ref #tau E_{T}]/Ref #tau E_{T};entries", l1JetMinEt_);
     l1jetEtRes_ = iBooker.book1D("L1JetEtResol", buffer, 60, -1, 4);
             
-    iBooker.setCurrentFolder(triggerTag()+"/EfficiencyHelpers");
+    iBooker.setCurrentFolder(triggerTag()+"/helpers");
             
     l1tauEtEffNum_ = iBooker.book1D("L1TauEtEffNum","L1 #tau E_{T} Efficiency;Ref #tau E_{T};entries",binsEt_,0,maxPt_);
     l1tauHighEtEffNum_ = iBooker.book1D("L1TauHighEtEffNum","L1 #tau E_{T} Efficiency (high E_{T});Ref #tau E_{T};entries",binsEt_,0,maxHighPt_);
