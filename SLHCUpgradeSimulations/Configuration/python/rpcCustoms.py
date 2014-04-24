@@ -40,11 +40,15 @@ def customise_L1Emulator(process):
 
         ## efficiency recovery switches
         dropLowQualityCLCTsNoRPC = cms.untracked.bool(True),
+        
+        ## cross BX algorithm
+        tmbCrossBxAlgorithm = cms.untracked.uint32(3),
     )
     if tmb.me3141ILT.runME3141ILT:
         process.simCscTriggerPrimitiveDigis.clctSLHC.clctNplanesHitPattern = 3
         process.simCscTriggerPrimitiveDigis.clctSLHC.clctPidThreshPretrig = 2
         process.simCscTriggerPrimitiveDigis.clctParam07.clctPidThreshPretrig = 2
+        process.simCscTriggerPrimitiveDigis.alctSLHC.runME3141ILT = cms.untracked.bool(True)
 
     return process
 
