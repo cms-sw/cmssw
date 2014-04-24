@@ -35,10 +35,10 @@ class RecoCollectionFP420 {
     void clear();
     
  private:
-    mutable std::vector<RecoFP420> container_;
-    mutable Registry map_;
+    std::vector<RecoFP420> container_;
+    Registry map_;
     
-    mutable RecoFP420Container trackMap_; 
+    RecoFP420Container trackMap_; 
 };
 
 #endif // 
