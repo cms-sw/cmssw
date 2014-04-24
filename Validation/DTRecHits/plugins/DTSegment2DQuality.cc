@@ -40,10 +40,10 @@ DTSegment2DQuality::DTSegment2DQuality(const ParameterSet& pset)  {
   DTHitQualityUtils::debug = debug;
   // the name of the simhit collection
   simHitLabel = pset.getUntrackedParameter<InputTag>("simHitLabel");
-  simHitToken_ = consumes<PSimHitContainer>(pset.getParameter<InputTag>("simHitLabel"));
+  simHitToken_ = consumes<PSimHitContainer>(pset.getUntrackedParameter<InputTag>("simHitLabel"));
   // the name of the 2D rec hit collection
   segment2DLabel = pset.getUntrackedParameter<InputTag>("segment2DLabel");
-  segment2DToken_ = consumes<DTRecSegment2DCollection>(pset.getParameter<InputTag>("segment2DLabel"));
+  segment2DToken_ = consumes<DTRecSegment2DCollection>(pset.getUntrackedParameter<InputTag>("segment2DLabel"));
 
   //sigma resolution on position
   sigmaResPos = pset.getParameter<double>("sigmaResPos");
