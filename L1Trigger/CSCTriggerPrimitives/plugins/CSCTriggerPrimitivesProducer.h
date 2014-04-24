@@ -41,6 +41,7 @@ class CSCTriggerPrimitivesProducer : public edm::EDProducer
   edm::InputTag compDigiProducer_;
   edm::InputTag wireDigiProducer_;
   edm::InputTag gemPadProducer_;
+  edm::InputTag rpcDigiProducer_;
   // swich to force the use of parameters from config file rather then from DB
   bool debugParameters_;
   // switch to for enabling checking against the list of bad chambers
