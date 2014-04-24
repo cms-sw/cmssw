@@ -1,11 +1,10 @@
-# /dev/CMSSW_7_1_0/GRun/V29 (CMSSW_7_1_0_pre6_HLT1)
+# /dev/CMSSW_7_1_0/GRun/V30 (CMSSW_7_1_0_pre6_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import *
 
-
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_1_0/GRun/V29')
+  tableName = cms.string('/dev/CMSSW_7_1_0/GRun/V30')
 )
 
 HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -3724,51 +3723,61 @@ hltLightPFTracks = cms.EDProducer( "LightPFTrackProducer",
     UseQuality = cms.bool( False ),
     TkColList = cms.VInputTag( 'hltPFMuonMerging' )
 )
-hltParticleFlowBlock = cms.EDProducer(
-    "PFBlockProducer",
-    verbose = cms.untracked.bool(False),
-    debug = cms.untracked.bool(False),    
-    elementImporters = cms.VPSet(        
-        cms.PSet( importerName = cms.string("GeneralTracksImporter"),
-                  source = cms.InputTag("hltLightPFTracks"),
-                  muonSrc = cms.InputTag("hltMuons"),
-                  useIterativeTracking = cms.bool(False),
-                  DPtOverPtCuts_byTrackAlgo = cms.vdouble(0.5,0.5,0.5,0.5,0.5),
-                  NHitCuts_byTrackAlgo = cms.vuint32(3,3,3,3,3)
-                  ),        
-        cms.PSet( importerName = cms.string("ECALClusterImporter"),
-                  source = cms.InputTag("hltParticleFlowClusterECAL"),
-                  BCtoPFCMap = cms.InputTag('') ),
-        cms.PSet( importerName = cms.string("GenericClusterImporter"),
-                  source = cms.InputTag("hltParticleFlowClusterHCAL") ),        
-        cms.PSet( importerName = cms.string("GenericClusterImporter"),
-                  source = cms.InputTag("hltParticleFlowClusterHFEM") ),
-        cms.PSet( importerName = cms.string("GenericClusterImporter"),
-                  source = cms.InputTag("hltParticleFlowClusterHFHAD") ),
-        cms.PSet( importerName = cms.string("GenericClusterImporter"),
-                  source = cms.InputTag("hltParticleFlowClusterPS") )        
-        ),   
-    linkDefinitions = cms.VPSet(
-        cms.PSet( linkerName = cms.string("PreshowerAndECALLinker"),
-                  linkType   = cms.string("PS1:ECAL"),
-                  useKDTree  = cms.bool(True) ),
-        cms.PSet( linkerName = cms.string("PreshowerAndECALLinker"),
-                  linkType   = cms.string("PS2:ECAL"),
-                  useKDTree  = cms.bool(True) ),
-        cms.PSet( linkerName = cms.string("TrackAndECALLinker"),
-                  linkType   = cms.string("TRACK:ECAL"),
-                  useKDTree  = cms.bool(True) ),
-        cms.PSet( linkerName = cms.string("TrackAndHCALLinker"),
-                  linkType   = cms.string("TRACK:HCAL"),
-                  useKDTree  = cms.bool(True) ),
-        cms.PSet( linkerName = cms.string("ECALAndHCALLinker"),
-                  linkType   = cms.string("ECAL:HCAL"),
-                  useKDTree  = cms.bool(False) ),       
-        cms.PSet( linkerName = cms.string("HFEMAndHFHADLinker"),
-                  linkType   = cms.string("HFEM:HFHAD"),
-                  useKDTree  = cms.bool(False) )
-        )
-) 
+hltParticleFlowBlock = cms.EDProducer( "PFBlockProducer",
+    debug = cms.untracked.bool( False ),
+    elementImporters = cms.VPSet( 
+      cms.PSet(  importerName = cms.string( "GeneralTracksImporter" ),
+        useIterativeTracking = cms.bool( False ),
+        source = cms.InputTag( "hltLightPFTracks" ),
+        NHitCuts_byTrackAlgo = cms.vuint32( 3, 3, 3, 3, 3 ),
+        muonSrc = cms.InputTag( "hltMuons" ),
+        DPtOverPtCuts_byTrackAlgo = cms.vdouble( 0.5, 0.5, 0.5, 0.5, 0.5 )
+      ),
+      cms.PSet(  importerName = cms.string( "ECALClusterImporter" ),
+        source = cms.InputTag( "hltParticleFlowClusterECAL" ),
+        BCtoPFCMap = cms.InputTag( "" )
+      ),
+      cms.PSet(  importerName = cms.string( "GenericClusterImporter" ),
+        source = cms.InputTag( "hltParticleFlowClusterHCAL" )
+      ),
+      cms.PSet(  importerName = cms.string( "GenericClusterImporter" ),
+        source = cms.InputTag( "hltParticleFlowClusterHFEM" )
+      ),
+      cms.PSet(  importerName = cms.string( "GenericClusterImporter" ),
+        source = cms.InputTag( "hltParticleFlowClusterHFHAD" )
+      ),
+      cms.PSet(  importerName = cms.string( "GenericClusterImporter" ),
+        source = cms.InputTag( "hltParticleFlowClusterPS" )
+      )
+    ),
+    verbose = cms.untracked.bool( False ),
+    linkDefinitions = cms.VPSet( 
+      cms.PSet(  useKDTree = cms.bool( True ),
+        linkType = cms.string( "PS1:ECAL" ),
+        linkerName = cms.string( "PreshowerAndECALLinker" )
+      ),
+      cms.PSet(  useKDTree = cms.bool( True ),
+        linkType = cms.string( "PS2:ECAL" ),
+        linkerName = cms.string( "PreshowerAndECALLinker" )
+      ),
+      cms.PSet(  useKDTree = cms.bool( True ),
+        linkType = cms.string( "TRACK:ECAL" ),
+        linkerName = cms.string( "TrackAndECALLinker" )
+      ),
+      cms.PSet(  useKDTree = cms.bool( True ),
+        linkType = cms.string( "TRACK:HCAL" ),
+        linkerName = cms.string( "TrackAndHCALLinker" )
+      ),
+      cms.PSet(  useKDTree = cms.bool( False ),
+        linkType = cms.string( "ECAL:HCAL" ),
+        linkerName = cms.string( "ECALAndHCALLinker" )
+      ),
+      cms.PSet(  useKDTree = cms.bool( False ),
+        linkType = cms.string( "HFEM:HFHAD" ),
+        linkerName = cms.string( "HFEMAndHFHADLinker" )
+      )
+    )
+)
 hltParticleFlow = cms.EDProducer( "PFProducer",
     photon_SigmaiEtaiEta_endcap = cms.double( 0.034 ),
     minPtForPostCleaning = cms.double( 20.0 ),
@@ -6306,51 +6315,61 @@ hltLightPFPromptTracks = cms.EDProducer( "LightPFTrackProducer",
     UseQuality = cms.bool( False ),
     TkColList = cms.VInputTag( 'hltPFMuonMergingPromptTracks' )
 )
-hltParticleFlowBlockPromptTracks = cms.EDProducer(
-    "PFBlockProducer",
-    verbose = cms.untracked.bool(False),
-    debug = cms.untracked.bool(False),    
-    elementImporters = cms.VPSet(        
-        cms.PSet( importerName = cms.string("GeneralTracksImporter"),
-                  source = cms.InputTag("hltLightPFPromptTracks"),
-                  muonSrc = cms.InputTag("hltMuons"),
-                  useIterativeTracking = cms.bool(False),
-                  DPtOverPtCuts_byTrackAlgo = cms.vdouble(0.5,0.5,0.5,0.5,0.5),
-                  NHitCuts_byTrackAlgo = cms.vuint32(3,3,3,3,3)
-                  ),        
-        cms.PSet( importerName = cms.string("ECALClusterImporter"),
-                  source = cms.InputTag("hltParticleFlowClusterECAL"),
-                  BCtoPFCMap = cms.InputTag('') ),
-        cms.PSet( importerName = cms.string("GenericClusterImporter"),
-                  source = cms.InputTag("hltParticleFlowClusterHCAL") ),        
-        cms.PSet( importerName = cms.string("GenericClusterImporter"),
-                  source = cms.InputTag("hltParticleFlowClusterHFEM") ),
-        cms.PSet( importerName = cms.string("GenericClusterImporter"),
-                  source = cms.InputTag("hltParticleFlowClusterHFHAD") ),
-        cms.PSet( importerName = cms.string("GenericClusterImporter"),
-                  source = cms.InputTag("hltParticleFlowClusterPS") )        
-        ),   
-    linkDefinitions = cms.VPSet(
-        cms.PSet( linkerName = cms.string("PreshowerAndECALLinker"),
-                  linkType   = cms.string("PS1:ECAL"),
-                  useKDTree  = cms.bool(True) ),
-        cms.PSet( linkerName = cms.string("PreshowerAndECALLinker"),
-                  linkType   = cms.string("PS2:ECAL"),
-                  useKDTree  = cms.bool(True) ),
-        cms.PSet( linkerName = cms.string("TrackAndECALLinker"),
-                  linkType   = cms.string("TRACK:ECAL"),
-                  useKDTree  = cms.bool(True) ),
-        cms.PSet( linkerName = cms.string("TrackAndHCALLinker"),
-                  linkType   = cms.string("TRACK:HCAL"),
-                  useKDTree  = cms.bool(True) ),
-        cms.PSet( linkerName = cms.string("ECALAndHCALLinker"),
-                  linkType   = cms.string("ECAL:HCAL"),
-                  useKDTree  = cms.bool(False) ),       
-        cms.PSet( linkerName = cms.string("HFEMAndHFHADLinker"),
-                  linkType   = cms.string("HFEM:HFHAD"),
-                  useKDTree  = cms.bool(False) )
-        )
-) 
+hltParticleFlowBlockPromptTracks = cms.EDProducer( "PFBlockProducer",
+    debug = cms.untracked.bool( False ),
+    elementImporters = cms.VPSet( 
+      cms.PSet(  importerName = cms.string( "GeneralTracksImporter" ),
+        useIterativeTracking = cms.bool( False ),
+        source = cms.InputTag( "hltLightPFPromptTracks" ),
+        NHitCuts_byTrackAlgo = cms.vuint32( 3, 3, 3, 3, 3 ),
+        muonSrc = cms.InputTag( "hltMuons" ),
+        DPtOverPtCuts_byTrackAlgo = cms.vdouble( 0.5, 0.5, 0.5, 0.5, 0.5 )
+      ),
+      cms.PSet(  importerName = cms.string( "ECALClusterImporter" ),
+        source = cms.InputTag( "hltParticleFlowClusterECAL" ),
+        BCtoPFCMap = cms.InputTag( "" )
+      ),
+      cms.PSet(  importerName = cms.string( "GenericClusterImporter" ),
+        source = cms.InputTag( "hltParticleFlowClusterHCAL" )
+      ),
+      cms.PSet(  importerName = cms.string( "GenericClusterImporter" ),
+        source = cms.InputTag( "hltParticleFlowClusterHFEM" )
+      ),
+      cms.PSet(  importerName = cms.string( "GenericClusterImporter" ),
+        source = cms.InputTag( "hltParticleFlowClusterHFHAD" )
+      ),
+      cms.PSet(  importerName = cms.string( "GenericClusterImporter" ),
+        source = cms.InputTag( "hltParticleFlowClusterPS" )
+      )
+    ),
+    verbose = cms.untracked.bool( False ),
+    linkDefinitions = cms.VPSet( 
+      cms.PSet(  useKDTree = cms.bool( True ),
+        linkType = cms.string( "PS1:ECAL" ),
+        linkerName = cms.string( "PreshowerAndECALLinker" )
+      ),
+      cms.PSet(  useKDTree = cms.bool( True ),
+        linkType = cms.string( "PS2:ECAL" ),
+        linkerName = cms.string( "PreshowerAndECALLinker" )
+      ),
+      cms.PSet(  useKDTree = cms.bool( True ),
+        linkType = cms.string( "TRACK:ECAL" ),
+        linkerName = cms.string( "TrackAndECALLinker" )
+      ),
+      cms.PSet(  useKDTree = cms.bool( True ),
+        linkType = cms.string( "TRACK:HCAL" ),
+        linkerName = cms.string( "TrackAndHCALLinker" )
+      ),
+      cms.PSet(  useKDTree = cms.bool( False ),
+        linkType = cms.string( "ECAL:HCAL" ),
+        linkerName = cms.string( "ECALAndHCALLinker" )
+      ),
+      cms.PSet(  useKDTree = cms.bool( False ),
+        linkType = cms.string( "HFEM:HFHAD" ),
+        linkerName = cms.string( "HFEMAndHFHADLinker" )
+      )
+    )
+)
 hltParticleFlowPromptTracks = cms.EDProducer( "PFProducer",
     photon_SigmaiEtaiEta_endcap = cms.double( 0.034 ),
     minPtForPostCleaning = cms.double( 20.0 ),
@@ -20618,51 +20637,61 @@ hltFilterL2EtCutSingleIsoPFTau35Trk20 = cms.EDFilter( "HLT1CaloJet",
     MinE = cms.double( -1.0 ),
     triggerType = cms.int32( 84 )
 )
-hltParticleFlowBlockForTaus = cms.EDProducer(
-    "PFBlockProducer",
-    verbose = cms.untracked.bool(False),
-    debug = cms.untracked.bool(False),    
-    elementImporters = cms.VPSet(        
-        cms.PSet( importerName = cms.string("GeneralTracksImporter"),
-                  source = cms.InputTag("hltLightPFTracks"),
-                  muonSrc = cms.InputTag("hltMuons"),
-                  useIterativeTracking = cms.bool(False),
-                  DPtOverPtCuts_byTrackAlgo = cms.vdouble(-1.0,-1.0,-1.0,-1.0,-1.0),
-                  NHitCuts_byTrackAlgo = cms.vuint32(3,3,3,3,3)
-                  ),        
-        cms.PSet( importerName = cms.string("ECALClusterImporter"),
-                  source = cms.InputTag("hltParticleFlowClusterECAL"),
-                  BCtoPFCMap = cms.InputTag('') ),
-        cms.PSet( importerName = cms.string("GenericClusterImporter"),
-                  source = cms.InputTag("hltParticleFlowClusterHCAL") ),        
-        cms.PSet( importerName = cms.string("GenericClusterImporter"),
-                  source = cms.InputTag("hltParticleFlowClusterHFEM") ),
-        cms.PSet( importerName = cms.string("GenericClusterImporter"),
-                  source = cms.InputTag("hltParticleFlowClusterHFHAD") ),
-        cms.PSet( importerName = cms.string("GenericClusterImporter"),
-                  source = cms.InputTag("hltParticleFlowClusterPS") )        
-        ),   
-    linkDefinitions = cms.VPSet(
-        cms.PSet( linkerName = cms.string("PreshowerAndECALLinker"),
-                  linkType   = cms.string("PS1:ECAL"),
-                  useKDTree  = cms.bool(True) ),
-        cms.PSet( linkerName = cms.string("PreshowerAndECALLinker"),
-                  linkType   = cms.string("PS2:ECAL"),
-                  useKDTree  = cms.bool(True) ),
-        cms.PSet( linkerName = cms.string("TrackAndECALLinker"),
-                  linkType   = cms.string("TRACK:ECAL"),
-                  useKDTree  = cms.bool(True) ),
-        cms.PSet( linkerName = cms.string("TrackAndHCALLinker"),
-                  linkType   = cms.string("TRACK:HCAL"),
-                  useKDTree  = cms.bool(True) ),
-        cms.PSet( linkerName = cms.string("ECALAndHCALLinker"),
-                  linkType   = cms.string("ECAL:HCAL"),
-                  useKDTree  = cms.bool(False) ),       
-        cms.PSet( linkerName = cms.string("HFEMAndHFHADLinker"),
-                  linkType   = cms.string("HFEM:HFHAD"),
-                  useKDTree  = cms.bool(False) )
-        )
-) 
+hltParticleFlowBlockForTaus = cms.EDProducer( "PFBlockProducer",
+    debug = cms.untracked.bool( False ),
+    elementImporters = cms.VPSet( 
+      cms.PSet(  importerName = cms.string( "GeneralTracksImporter" ),
+        useIterativeTracking = cms.bool( False ),
+        source = cms.InputTag( "hltLightPFTracks" ),
+        NHitCuts_byTrackAlgo = cms.vuint32( 3, 3, 3, 3, 3 ),
+        muonSrc = cms.InputTag( "hltMuons" ),
+        DPtOverPtCuts_byTrackAlgo = cms.vdouble( -1.0, -1.0, -1.0, -1.0, -1.0 )
+      ),
+      cms.PSet(  importerName = cms.string( "ECALClusterImporter" ),
+        source = cms.InputTag( "hltParticleFlowClusterECAL" ),
+        BCtoPFCMap = cms.InputTag( "" )
+      ),
+      cms.PSet(  importerName = cms.string( "GenericClusterImporter" ),
+        source = cms.InputTag( "hltParticleFlowClusterHCAL" )
+      ),
+      cms.PSet(  importerName = cms.string( "GenericClusterImporter" ),
+        source = cms.InputTag( "hltParticleFlowClusterHFEM" )
+      ),
+      cms.PSet(  importerName = cms.string( "GenericClusterImporter" ),
+        source = cms.InputTag( "hltParticleFlowClusterHFHAD" )
+      ),
+      cms.PSet(  importerName = cms.string( "GenericClusterImporter" ),
+        source = cms.InputTag( "hltParticleFlowClusterPS" )
+      )
+    ),
+    verbose = cms.untracked.bool( False ),
+    linkDefinitions = cms.VPSet( 
+      cms.PSet(  useKDTree = cms.bool( True ),
+        linkType = cms.string( "PS1:ECAL" ),
+        linkerName = cms.string( "PreshowerAndECALLinker" )
+      ),
+      cms.PSet(  useKDTree = cms.bool( True ),
+        linkType = cms.string( "PS2:ECAL" ),
+        linkerName = cms.string( "PreshowerAndECALLinker" )
+      ),
+      cms.PSet(  useKDTree = cms.bool( True ),
+        linkType = cms.string( "TRACK:ECAL" ),
+        linkerName = cms.string( "TrackAndECALLinker" )
+      ),
+      cms.PSet(  useKDTree = cms.bool( True ),
+        linkType = cms.string( "TRACK:HCAL" ),
+        linkerName = cms.string( "TrackAndHCALLinker" )
+      ),
+      cms.PSet(  useKDTree = cms.bool( False ),
+        linkType = cms.string( "ECAL:HCAL" ),
+        linkerName = cms.string( "ECALAndHCALLinker" )
+      ),
+      cms.PSet(  useKDTree = cms.bool( False ),
+        linkType = cms.string( "HFEM:HFHAD" ),
+        linkerName = cms.string( "HFEMAndHFHADLinker" )
+      )
+    )
+)
 hltParticleFlowForTaus = cms.EDProducer( "PFProducer",
     photon_SigmaiEtaiEta_endcap = cms.double( 0.034 ),
     minPtForPostCleaning = cms.double( 20.0 ),
