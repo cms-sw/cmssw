@@ -622,7 +622,7 @@ hpsPFTauMVA3IsolationChargedIsoPtSum = hpsPFTauDiscriminationByLooseCombinedIsol
     applyDeltaBetaCorrection = cms.bool(False),
     storeRawSumPt = cms.bool(True),
     storeRawPUsumPt = cms.bool(False),
-    customOuterCone = PFRecoTauPFJetInputs.isolationConeSize,
+  #  customOuterCone = cms.double(0.5),
     isoConeSizeForDeltaBeta = cms.double(0.8),
     verbosity = cms.int32(0)
 )
@@ -631,6 +631,12 @@ hpsPFTauMVA3IsolationNeutralIsoPtSum = hpsPFTauMVA3IsolationChargedIsoPtSum.clon
     ApplyDiscriminationByTrackerIsolation = cms.bool(False),
     verbosity = cms.int32(0)
 )
+hpsPFTauMVA3IsolationNeutralHadronIsoPtSum = hpsPFTauMVA3IsolationChargedIsoPtSum.clone(
+    ApplyDiscriminationByHCALIsolation = cms.bool(True),
+    ApplyDiscriminationByTrackerIsolation = cms.bool(False),
+    verbosity = cms.int32(0)
+)
+
 hpsPFTauMVA3IsolationPUcorrPtSum = hpsPFTauMVA3IsolationChargedIsoPtSum.clone(
     ApplyDiscriminationByECALIsolation = cms.bool(False),
     ApplyDiscriminationByTrackerIsolation = cms.bool(False),
@@ -639,6 +645,48 @@ hpsPFTauMVA3IsolationPUcorrPtSum = hpsPFTauMVA3IsolationChargedIsoPtSum.clone(
     storeRawPUsumPt = cms.bool(True),
     verbosity = cms.int32(0)
 )
+
+hpsPFTauMVA3IsolationNeutralIsoPtSumWeight1 = hpsPFTauMVA3IsolationChargedIsoPtSum.clone(
+    ApplyDiscriminationByWeightedECALIsolation1 = cms.bool(True),
+    ApplyDiscriminationByTrackerIsolation = cms.bool(False),
+    verbosity = cms.int32(0)
+)
+
+hpsPFTauMVA3IsolationNeutralIsoPtSumWeight1NQ = hpsPFTauMVA3IsolationNeutralIsoPtSumWeight1.clone(
+     UseAllPFCandsForWeights = cms.bool(True)
+)
+
+hpsPFTauMVA3IsolationNeutralIsoPtSumWeight2 = hpsPFTauMVA3IsolationChargedIsoPtSum.clone(
+    ApplyDiscriminationByWeightedECALIsolation2 = cms.bool(True),
+    ApplyDiscriminationByTrackerIsolation = cms.bool(False),
+    verbosity = cms.int32(0)
+)
+
+hpsPFTauMVA3IsolationNeutralIsoPtSumWeight2NQ = hpsPFTauMVA3IsolationNeutralIsoPtSumWeight2.clone(
+     UseAllPFCandsForWeights = cms.bool(True)
+)
+
+hpsPFTauMVA3IsolationNeutralHadronIsoPtSumWeight1 = hpsPFTauMVA3IsolationChargedIsoPtSum.clone(
+    ApplyDiscriminationByWeightedHCALIsolation1 = cms.bool(True),
+    ApplyDiscriminationByTrackerIsolation = cms.bool(False),
+    verbosity = cms.int32(0)
+)
+
+hpsPFTauMVA3IsolationNeutralHadronIsoPtSumWeight1NQ = hpsPFTauMVA3IsolationNeutralHadronIsoPtSumWeight1.clone(
+     UseAllPFCandsForWeights = cms.bool(True)
+)
+
+hpsPFTauMVA3IsolationNeutralHadronIsoPtSumWeight2 = hpsPFTauMVA3IsolationChargedIsoPtSum.clone(
+    ApplyDiscriminationByWeightedHCALIsolation2 = cms.bool(True),
+    ApplyDiscriminationByTrackerIsolation = cms.bool(False),
+    verbosity = cms.int32(0)
+)
+
+hpsPFTauMVA3IsolationNeutralHadronIsoPtSumWeight2NQ = hpsPFTauMVA3IsolationNeutralHadronIsoPtSumWeight2.clone(
+     UseAllPFCandsForWeights = cms.bool(True)
+)
+
+
 hpsPFTauDiscriminationByIsolationMVA3oldDMwoLTraw = discriminationByIsolationMVA2raw.clone(
     PFTauProducer = cms.InputTag('hpsPFTauProducer'),
     Prediscriminants = requireDecayMode.clone(),
@@ -770,6 +818,14 @@ hpsPFTauMVAIsolation2Seq = cms.Sequence(
     hpsPFTauMVA3IsolationChargedIsoPtSum
    + hpsPFTauMVA3IsolationNeutralIsoPtSum
    + hpsPFTauMVA3IsolationPUcorrPtSum
+   + hpsPFTauMVA3IsolationNeutralIsoPtSumWeight1
+   + hpsPFTauMVA3IsolationNeutralHadronIsoPtSumWeight1
+   + hpsPFTauMVA3IsolationNeutralIsoPtSumWeight2
+   + hpsPFTauMVA3IsolationNeutralHadronIsoPtSumWeight2
+   + hpsPFTauMVA3IsolationNeutralIsoPtSumWeight1NQ
+   + hpsPFTauMVA3IsolationNeutralHadronIsoPtSumWeight1NQ
+   + hpsPFTauMVA3IsolationNeutralIsoPtSumWeight2NQ
+   + hpsPFTauMVA3IsolationNeutralHadronIsoPtSumWeight2NQ
    + hpsPFTauDiscriminationByIsolationMVA3oldDMwoLTraw
    + hpsPFTauDiscriminationByVLooseIsolationMVA3oldDMwoLT
    + hpsPFTauDiscriminationByLooseIsolationMVA3oldDMwoLT
