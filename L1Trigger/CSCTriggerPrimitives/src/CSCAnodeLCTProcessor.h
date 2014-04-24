@@ -154,6 +154,9 @@ class CSCAnodeLCTProcessor
   /** SLHC: whether to use narrow pattern mask for the rings close to the beam */
   bool narrow_mask_r1;
 
+  /** SLHC: run the ALCT processor for the Phase-II ME2/1 integrated local trigger */
+  bool runME21ILT_;
+
   /** Default values of configuration parameters. */
   static const unsigned int def_fifo_tbins, def_fifo_pretrig;
   static const unsigned int def_drift_delay;
