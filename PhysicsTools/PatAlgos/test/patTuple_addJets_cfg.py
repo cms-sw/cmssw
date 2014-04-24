@@ -63,6 +63,7 @@ switchJetCollection(
    )
 process.patJets.addJetID=True
 process.patJets.jetIDMap="ak5JetID"
+process.patJets.useLegacyJetMCFlavour=True # Need to use legacy flavour since the new flavour requires jet constituents which are dropped for CaloJets from AOD
 process.out.outputCommands.append( 'keep *_selectedPatJets_caloTowers_*' )
 process.out.outputCommands.append( 'drop *_selectedPatJets_pfCandidates_*' )
 
