@@ -40,4 +40,4 @@ GroupedCkfTrajectoryBuilderP5 = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuild
 ##CTF_P5_MeasurementTracker.ComponentName = 'CTF_P5' # useless duplication of MeasurementTracker
 ##GroupedCkfTrajectoryBuilderP5.MeasurementTrackerName = 'CTF_P5' # useless duplication of MeasurementTracker
 GroupedCkfTrajectoryBuilderP5.trajectoryFilter.refToPSet_ = 'ckfBaseTrajectoryFilterP5'
-
+GroupedCkfTrajectoryBuilderP5.maxCand = 1

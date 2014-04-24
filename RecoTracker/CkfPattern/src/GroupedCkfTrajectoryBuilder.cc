@@ -562,7 +562,7 @@ GroupedCkfTrajectoryBuilder::advanceOneLayer (const TrajectorySeed& seed,
     TrajectorySegmentBuilder layerBuilder(&layerMeasurements,
 					  **il,*propagator,
 					  *theUpdator,*theEstimator,
-					  theLockHits,theBestHitOnly);
+					  theLockHits,theBestHitOnly,theMaxCand);
 
 #ifdef EDM_ML_DEBUG
     LogDebug("CkfPattern")<<whatIsTheStateToUse(stateAndLayers.first,stateToUse,*il);

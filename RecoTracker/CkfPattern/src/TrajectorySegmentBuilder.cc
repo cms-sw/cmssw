@@ -247,8 +247,8 @@ TrajectorySegmentBuilder::addGroup (TempTrajectory const & traj,
   
   TempTrajectoryContainer updatedTrajectories; updatedTrajectories.reserve(2);
   if ( traj.measurements().empty() ) {
-    auto && firstMeasurements = unlockedMeasurements(begin->measurements());
-    if ( theBestHitOnly ) {
+    if ( theMaxCand == 1 ) {
+      auto && firstMeasurements = unlockedMeasurements(begin->measurements());
       if (!firstMeasurements.empty()) updateCandidatesWithBestHit(traj,std::move(firstMeasurements.front()),updatedTrajectories);
     } else {
       updateCandidates(traj,begin->measurements(),updatedTrajectories);
