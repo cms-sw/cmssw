@@ -214,7 +214,7 @@ KinematicConstrainedVertexFitterT< nTrk, nConstraint>::fit(const std::vector<Ref
   
   GlobalPoint lPoint  = linPoint;
   RefCountedKinematicVertex rVtx;
-  ROOT::Math::SMatrix<double, 3+7*nTrk,3+7*nTrk ,ROOT::Math::MatRepSym<double,3+7*nTrk> > refCCov;
+  ROOT::Math::SMatrix<double, 3+7*nTrk,3+7*nTrk ,ROOT::Math::MatRepSym<double,3+7*nTrk> > refCCov  = ROOT::Math::SMatrixNoInit();
   
   double chisq = 1e6;
   bool convergence = false;
