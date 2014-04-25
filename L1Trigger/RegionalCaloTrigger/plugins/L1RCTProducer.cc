@@ -51,6 +51,13 @@ L1RCTProducer::L1RCTProducer(const edm::ParameterSet& conf) :
   produces<L1CaloEmCollection>();
   produces<L1CaloRegionCollection>();
 
+  for(unsigned int ihc=0;ihc<hcalDigis.size();ihc++){
+	consumes<edm::SortedCollection<HcalTriggerPrimitiveDigi,edm::StrictWeakOrdering<HcalTriggerPrimitiveDigi> > >(hcalDigis[ihc]);
+  }
+
+  for(unsigned int iec=0;iec<ecalDigis.size();iec++){
+	consumes<edm::SortedCollection<EcalTriggerPrimitiveDigi,edm::StrictWeakOrdering<EcalTriggerPrimitiveDigi> > >(ecalDigis[iec]);
+  }
 }
 
 L1RCTProducer::~L1RCTProducer()
