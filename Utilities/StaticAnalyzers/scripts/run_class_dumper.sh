@@ -27,12 +27,12 @@ export USER_LLVM_CHECKERS="-disable-checker cplusplus -disable-checker unix -dis
 scram b -k -j $J checker SCRAM_IGNORE_PACKAGES=Fireworks/% SCRAM_IGNORE_SUBDIRS=test 2>&1 > $CMSSW_BASE/tmp/class+function-dumper.log
 find ${LOCALRT}/src/ -name classes\*.h.cc | xargs rm -fv
 cd ${LOCALRT}/tmp
-sort -u < classes.txt.dumperct.unsorted | grep -e"^class" >classes.txt.dumperct
-sort -u < classes.txt.dumperft.unsorted | grep -e"^class" >classes.txt.dumperft
+sort -u < classes.txt.dumperct.unsorted | grep -e"^class" >classes.txt.dumperct.sorted
+awk -F\' ' {print "class \47"$2"\47\nclass \47"$4"\47\nclass \47"$6"\47\n" } '  <classes.txt.dumperct.sorted | sort -u >classes.txt.dumperct
+sort -u < classes.txt.dumperft.unsorted | grep -e"^class" >classes.txt.dumperft.sorted
+awk -F\' ' {print "class \47"$2"\47\nclass \47"$4"\47\nclass \47"$6"\47\n" } '  <classes.txt.dumperft.sorted | sort -u >classes.txt.dumperft
 sort -u < classes.txt.dumperall.unsorted | grep -e"^class" >classes.txt.dumperall
 sort -u < function-dumper.txt.unsorted | grep -v -e"BareRootProductGetter::getIt.*overrides"> function-calls-db.txt
-for cl in `awk -F\' '{print $2}' classes.txt.dumperft  | sort -u`;do echo grep -e\"base class \'$cl\'\$\"  classes.txt.dumperall ; done >tmp.sh
-source tmp.sh | sort -u >classes.txt.inherits
-rm tmp.sh
+awk -F\' 'NR==FNR{a[$2]=1;next} {n=0;for(i in a){if($4==i && $3==" base class "){print "class \47"$2"\47";print;n=1}} }' classes.txt.dumperft classes.txt.dumperall >classes.txt.inherits 
 cat classes.txt.dumperct classes.txt.dumperft classes.txt.inherits | sort -u |grep -e"^class" >classes.txt
 touch dump-end

@@ -425,27 +425,23 @@ void WalkAST::VisitCXXMemberCallExpr( clang::CXXMemberCallExpr *CE) {
   Visit(CE->getImplicitObjectArgument()->IgnoreParenCasts());
 
   const Expr * IOA = CE->getImplicitObjectArgument()->IgnoreParenCasts();
-  if ( llvm::isa<clang::MemberExpr>(IOA) ) {
-	const MemberExpr * ME = dyn_cast<MemberExpr>(IOA);
-	if ( !MD->isConst() && ME->isImplicitAccess() ) ReportCall(CE);
-  }
+  const MemberExpr * ME = dyn_cast<MemberExpr>(IOA);
+  if ( !MD->isConst() && ME && ME->isImplicitAccess() ) ReportCall(CE);
 
   for(int i=0, j=CE->getNumArgs(); i<j; i++) {
     if (CE->getArg(i)) {
 	if ( const clang::Expr *E = llvm::dyn_cast<clang::Expr>(CE->getArg(i)))  {
-		clang::QualType qual_arg = E->getType();
-		if (const clang::MemberExpr *ME=llvm::dyn_cast<clang::MemberExpr>(E)) {
-			if (ME->isImplicitAccess()) {
-				clang::ParmVarDecl *PVD=llvm::dyn_cast<clang::ParmVarDecl>(MD->getParamDecl(i));
-				clang::QualType QT = PVD->getOriginalType();
-				const clang::Type * T = QT.getTypePtr();
-				if (!support::isConst(QT) && T->isReferenceType()) ReportCallArg(CE,i);
-			}
-		}
-	}
-    }
+	  clang::QualType qual_arg = E->getType();
+	  const clang::MemberExpr *AME=llvm::dyn_cast<clang::MemberExpr>(E);
+	    if (AME && AME->isImplicitAccess()) {
+		clang::ParmVarDecl *PVD=llvm::dyn_cast<clang::ParmVarDecl>(MD->getParamDecl(i));
+		clang::QualType QT = PVD->getOriginalType();
+		const clang::Type * T = QT.getTypePtr();
+		if (!support::isConst(QT) && T->isReferenceType() && ME && ME->isImplicitAccess()) ReportCallArg(CE,i);
+            }
+        }
+     }
   }
-
 }
 
 void WalkAST::ReportMember(const clang::MemberExpr *ME) {
@@ -555,7 +551,7 @@ void WalkAST::ReportCallArg(const clang::CXXMemberCallExpr *CE,const int i) {
   os <<" of CXX method '" << CMD->getQualifiedNameAsString() << "' in const function";
   os << "\n";
   const clang::CXXMethodDecl * MD = llvm::cast<clang::CXXMethodDecl>(AC->getDecl());
-  std::string tolog = "data class '"+CMD->getParent()->getNameAsString()+"' const function '" + support::getQualifiedName(*MD) + "' Warning: "+os.str();
+  std::string tolog = "data class '"+MD->getParent()->getNameAsString()+"' const function '" + support::getQualifiedName(*MD) + "' Warning: "+os.str();
 
   clang::ento::PathDiagnosticLocation ELoc =
    clang::ento::PathDiagnosticLocation::createBegin(CE, BR.getSourceManager(),AC);
@@ -599,12 +595,12 @@ void ClassChecker::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ento::Ana
                     clang::ento::BugReporter &BR) const {
 
 	const clang::SourceManager &SM = BR.getSourceManager();
- 	const char *sfile=SM.getPresumedLoc(RD->getLocation()).getFilename();
- 	if (!support::isCmsLocalFile(sfile)) return;
+	const char *sfile=SM.getPresumedLoc(RD->getLocation()).getFilename();
+	if (!support::isCmsLocalFile(sfile)) return;
 	
   	std::string buf;
   	llvm::raw_string_ostream os(buf);
-	std::string name = RD->getNameAsString();
+	std::string name = RD->getQualifiedNameAsString();
 	if ( ! support::isDataClass(name) ) return;
 	clang::ento::PathDiagnosticLocation DLoc =clang::ento::PathDiagnosticLocation::createBegin( RD, SM );
 	if (  !m_exception.reportClass( DLoc, BR ) ) return;

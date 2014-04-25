@@ -1,23 +1,51 @@
 autoCond = { 
     # GlobalTag for MC production with perfectly aligned and calibrated detector                                                                                                                              
-    'mc'                :   'PRE_MC_71_V3::All',
+    'mc'                :   'PRE_MC_71_V4::All',
     # GlobalTag for MC production with realistic alignment and calibrations
-    'startup'           :   'PRE_STA71_V2::All',
+    'startup'           :   'PRE_STA71_V3::All',
     # GlobalTag for MC production of Heavy Ions events with realistic alignment and calibrations
-    'starthi'           :   'PRE_SHI71_V3::All',
+    'starthi'           :   'PRE_SHI71_V5::All',
     # GlobalTag for MC production of p-Pb events with realistic alignment and calibrations
-    'startpa'           :   'PRE_SHI71_V4::All',
+    'startpa'           :   'PRE_SHI71_V6::All',
     # GlobalTag for data reprocessing: this should always be the GR_R tag
     'com10'             :   'PRE_R_71_V2::All',
     # GlobalTag for running HLT on recent data: this should be the GR_P (prompt reco) global tag until a compatible GR_H tag is available, 
     # then it should point to the GR_H tag and override the connection string and pfnPrefix for use offline
     'hltonline'         :   'GR_H_V36::All,frontier://FrontierProd/CMS_COND_31X_GLOBALTAG,frontier://FrontierProd/',
     # GlobalTag for POSTLS1 upgrade studies:
-    'upgradePLS1'       :   'PRE_LS171_V5::All',
-    'upgradePLS150ns'   :   'PRE_LS171_V6::All',
+    'upgradePLS1'       :   'PRE_LS171_V7::All',
+    'upgradePLS150ns'   :   'PRE_LS171_V8::All',
     'upgrade2017'       :   'DES17_70_V2::All', # placeholder (GT not meant for standard RelVal)
     'upgrade2019'       :   'DES19_70_V2::All', # placeholder (GT not meant for standard RelVal)
-    'upgradePLS3'       :   'POSTLS262_V1::All' # placeholder (GT not meant for standard RelVal)
+    'upgradePLS3'       :   'POSTLS262_V1::All', # placeholder (GT not meant for standard RelVal)
+
+    ### NEW KEYS ###
+    # GlobalTag for MC production with perfectly aligned and calibrated detector for Run1
+    'run1_design'       :   'PRE_MC_71_V4::All',
+    # GlobalTag for MC production (pp collisions) with realistic alignment and calibrations for Run1
+    'run1_mc'           :   'PRE_STA71_V3::All',
+    # GlobalTag for MC production (Heavy Ions collisions) with realistic alignment and calibrations for Run1
+    'run1_mc_hi'        :   'PRE_SHI71_V5::All',
+    # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run1
+    'run1_mc_pPb'       :   'PRE_SHI71_V6::All',
+    # GlobalTag for MC production with perfectly aligned and calibrated detector for Run2
+    'run2_design'       :   'PRE_DES71_V1::All',
+    # GlobalTag for MC production with pessimistic alignment and calibrations for Run2
+    'run2_mc_50ns'      :   'PRE_LS171_V8::All',
+    #GlobalTag for MC production with optimistic alignment and calibrations for Run2
+    'run2_mc'           :   'PRE_LS171_V7::All',
+    # GlobalTag for Run1 data reprocessing
+    'run1_data'         :   'PRE_R_71_V2::All',
+    # GlobalTag for Run2 data reprocessing
+    'run2_data'         :   'PRE_R_71_V2::All',
+    # GlobalTag for Run2 HLT: it points to the online GT and overrides the connection string and pfnPrefix for use offline
+    'run2_hlt'          :   'GR_H_V36::All,frontier://FrontierProd/CMS_COND_31X_GLOBALTAG,frontier://FrontierProd/',
+    # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017
+    'phase1_2017_design' :  'DES17_70_V2::All', # placeholder (GT not meant for standard RelVal)
+    # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2019
+    'phase1_2019_design' :  'DES19_70_V2::All', # placeholder (GT not meant for standard RelVal) 
+    # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase2
+    'phase2_design'     :   'POSTLS262_V1::All', # placeholder (GT not meant for standard RelVal)
 }
 
 aliases = {
