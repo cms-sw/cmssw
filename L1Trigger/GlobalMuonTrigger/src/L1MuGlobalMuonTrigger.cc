@@ -94,7 +94,7 @@ L1MuGlobalMuonTrigger::L1MuGlobalMuonTrigger(const edm::ParameterSet& ps) {
 
   // create new PSB
   if ( L1MuGMTConfig::Debug(2) ) edm::LogVerbatim("GMT_info") << "creating GMT PSB";
-  m_PSB = new L1MuGMTPSB(*this);
+  m_PSB = new L1MuGMTPSB(*this,consumesCollector());
 
   // create new matcher
   if ( L1MuGMTConfig::Debug(2) ) edm::LogVerbatim("GMT_info") << "creating GMT Matcher (0,1)";
