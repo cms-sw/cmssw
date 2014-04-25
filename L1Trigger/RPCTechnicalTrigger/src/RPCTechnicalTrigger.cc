@@ -101,7 +101,8 @@ RPCTechnicalTrigger::RPCTechnicalTrigger(const edm::ParameterSet& iConfig) {
   m_hasConfig = false;
   m_readConfig = NULL;
   produces<L1GtTechnicalTriggerRecord>();
-  
+  consumes<RPCDigiCollection>(m_rpcDigiLabel);
+  consumes<edm::DetSetVector<RPCDigiSimLink> >(edm::InputTag("simMuonRPCDigis", "RPCDigiSimLink",""));
 }
 
 
@@ -144,7 +145,6 @@ void RPCTechnicalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   std::auto_ptr<L1GtTechnicalTriggerRecord> output(new L1GtTechnicalTriggerRecord());
   
   if ( m_useRPCSimLink == 0 ) {
-
     iEvent.getByLabel(m_rpcDigiLabel, pIn);
     if ( ! pIn.isValid() ) {
       edm::LogError("RPCTechnicalTrigger") << "can't find RPCDigiCollection with label: " 
