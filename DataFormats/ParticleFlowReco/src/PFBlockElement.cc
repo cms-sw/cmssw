@@ -5,6 +5,14 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperCluster.h"
 
+const reco::TrackRef reco::PFBlockElement::nullTrack_ = reco::TrackRef();
+const reco::PFRecTrackRef reco::PFBlockElement::nullPFRecTrack_ = reco::PFRecTrackRef();
+const reco::PFClusterRef reco::PFBlockElement::nullPFCluster_ = reco::PFClusterRef();
+const reco::PFDisplacedTrackerVertexRef reco::PFBlockElement::nullPFDispVertex_ = 
+  reco::PFDisplacedTrackerVertexRef();
+const reco::ConversionRef reco::PFBlockElement::nullConv_ = reco::ConversionRef();
+const reco::MuonRef  reco::PFBlockElement::nullMuon_ = reco::MuonRef();
+const reco::VertexCompositeCandidateRef reco::PFBlockElement::nullVertex_ = reco::VertexCompositeCandidateRef();
 
 using namespace reco;
 
