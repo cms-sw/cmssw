@@ -30,7 +30,7 @@ using namespace XrdAdaptor;
 
 Source::Source(timespec now, std::unique_ptr<XrdCl::File> fh)
     : m_lastDowngrade({0, 0}),
-      m_id(fh.get() ? fh->GetDataServer() : "(unknown)"),
+      m_id("(unknown)"),
       m_fh(std::move(fh)),
       m_qm(QualityMetricFactory::get(now, m_id))
 #ifdef XRD_FAKE_SLOW
@@ -39,6 +39,14 @@ Source::Source(timespec now, std::unique_ptr<XrdCl::File> fh)
     //, m_slow(true)
 #endif
 {
+    if (m_fh.get())
+    {
+      if (!m_fh->GetProperty("DataServer", m_id))
+      {
+        edm::LogWarning("XrdFileWarning")
+          << "Source::Source() failed to determine data server name.'";
+      }
+    }
     assert(m_qm.get());
     assert(m_fh.get());
 }

@@ -337,21 +337,25 @@ XrdFile::readv (IOPosBuffer *into, IOSize n)
     IOSize result;
     try
     {
+      const int retry_count = 5;
+      for (int retries=0; retries<retry_count; retries++)
+      {
       try
       {
         result = m_requestmanager->handle(cl).get();
       }
       catch (XrootdException& ex)
       {
-        if (ex.getCode() == XrdCl::errInvalidResponse)
+        if ((retries != retry_count-1) && (ex.getCode() == XrdCl::errInvalidResponse))
         {
-          edm::LogWarning("XrdAdaptorInternal") << "Got an invalid response from Xrootd server; retrying once" << std::endl;
+          edm::LogWarning("XrdAdaptorInternal") << "Got an invalid response from Xrootd server; retrying" << std::endl;
           result = m_requestmanager->handle(cl).get();
         }
         else
         {
           throw;
         }
+      }
       }
     }
     catch (edm::Exception& ex)

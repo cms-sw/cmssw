@@ -156,6 +156,7 @@ private:
 
     public:
         OpenHandler(RequestManager & manager);
+        ~OpenHandler();
 
         /**
          * Handle the file-open response
@@ -177,6 +178,7 @@ private:
         // Can only be touched when m_mutex is held.
         std::unique_ptr<XrdCl::File> m_file;
         std::recursive_mutex m_mutex;
+        std::atomic_flag m_ignore_response;
     };
 
     OpenHandler m_open_handler;
