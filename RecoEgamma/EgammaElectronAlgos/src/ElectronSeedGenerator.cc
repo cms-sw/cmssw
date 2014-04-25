@@ -42,6 +42,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+
 #include <vector>
 #include <utility>
 
@@ -63,6 +64,7 @@ ElectronSeedGenerator::ElectronSeedGenerator(const edm::ParameterSet &pset,
    myMatchEle(0), myMatchPos(0),
    thePropagator(0),
    theMeasurementTracker(0),
+   theMeasurementTrackerEventTag(ts.token_measTrkEvt),
    theSetup(0), 
    cacheIDMagField_(0),/*cacheIDGeom_(0),*/cacheIDNavSchool_(0),cacheIDCkfComp_(0),cacheIDTrkGeom_(0)
  {
@@ -76,9 +78,6 @@ ElectronSeedGenerator::ElectronSeedGenerator(const edm::ParameterSet &pset,
   // use of a theMeasurementTrackerName
   if (pset.exists("measurementTrackerName"))
    { theMeasurementTrackerName = pset.getParameter<std::string>("measurementTrackerName") ; }
-  if (pset.existsAs<edm::InputTag>("measurementTrackerEvent")) {
-    theMeasurementTrackerEventTag = pset.getParameter<edm::InputTag>("measurementTrackerEvent");
-  }
 
   // use of reco vertex
   if (pset.exists("useRecoVertex"))
@@ -269,7 +268,7 @@ void  ElectronSeedGenerator::run
 
   // Step A: set Event for the TrajectoryBuilder
   edm::Handle<MeasurementTrackerEvent> data;
-  e.getByLabel(theMeasurementTrackerEventTag, data);
+  e.getByToken(theMeasurementTrackerEventTag, data);
   myMatchEle->setEvent(*data);
   myMatchPos->setEvent(*data);
 
