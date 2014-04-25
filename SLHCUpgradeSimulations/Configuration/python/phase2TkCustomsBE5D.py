@@ -198,6 +198,11 @@ def customise_Reco(process,pileup):
     process.pixelTracks.FilterPSet.tipMax = cms.double(0.05)
     process.pixelTracks.RegionFactoryPSet.RegionPSet.originRadius =  cms.double(0.02)
 
+    # Particle flow needs to know that the eta range has increased, for
+    # when linking tracks to HF clusters
+    for link in process.particleFlowBlock.linkDefinitions:
+        if hasattr(link,'trackerEtaBoundary') : link.trackerEtaBoundary = cms.double(3.8)
+
     return process
 
 def customise_condOverRides(process):
