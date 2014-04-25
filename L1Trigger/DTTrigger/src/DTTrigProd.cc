@@ -53,7 +53,7 @@ DTTrigProd::DTTrigProd(const ParameterSet& pset) : my_trig(0) {
 
   my_lut_dump_flag = pset.getUntrackedParameter<bool>("lutDumpFlag");
   my_lut_btic = pset.getUntrackedParameter<int>("lutBtic");
-
+  if(!(my_trig)) my_trig = new DTTrig(my_params,consumesCollector());
 }
 
 DTTrigProd::~DTTrigProd(){
@@ -72,20 +72,15 @@ void DTTrigProd::beginRun(edm::Run const& iRun, const edm::EventSetup& iEventSet
 
   my_CCBValid = dtConfig->CCBConfigValidity();
 
-  if (!my_trig) {
-    my_trig = new DTTrig(my_params);
-    my_trig->createTUs(iEventSetup);
-    if (my_debug)
+  my_trig->createTUs(iEventSetup);
+  if (my_debug)
       cout << "[DTTrigProd] TU's Created" << endl;
     
-    if(my_lut_dump_flag) {
+  if(my_lut_dump_flag) {
       cout << "Dumping luts...." << endl;
       my_trig->dumpLuts(my_lut_btic, dtConfig.product());
-    }	
-  }
+  }	
 
-
-  
 }
 
 
