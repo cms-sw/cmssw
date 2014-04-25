@@ -1,6 +1,12 @@
 #ifndef CondFormats_JetMETObjects_Utilities_h
 #define CondFormats_JetMETObjects_Utilities_h
 
+#ifdef STANDALONE
+#include <stdexcept>
+#else
+#include "FWCore/Utilities/interface/Exception.h"
+#endif
+
 #include <cstdlib>
 #include <sstream>
 #include <string>
