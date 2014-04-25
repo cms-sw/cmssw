@@ -345,10 +345,10 @@ namespace reco {
     int stripTOBLayersNull() const;                  // case 999999: strip TOB
     int stripTECLayersNull() const;                  // case 999999: strip TEC
 
-    int trackerLayersWithMeasurement(uint32_t MaxPixBarrel,uint32_t MaxPixForward) const;// case 0: tracker
-    int pixelLayersWithMeasurement(uint32_t MaxPixBarrel,uint32_t MaxPixForward) const;// case 0: pixel
-    int pixelBarrelLayersWithMeasurement(uint32_t MaxPixBarrel) const;// case 0: pixel PXB
-    int pixelEndcapLayersWithMeasurement(uint32_t MaxPixForward) const;// case 0: pixel PXF
+    int trackerLayersWithMeasurement(uint32_t MaxPixBarrelLayer,uint32_t MaxPixForwardDisk) const;// case 0: tracker
+    int pixelLayersWithMeasurement(uint32_t MaxPixBarrelLayer,uint32_t MaxPixForwardDisk) const;// case 0: pixel
+    int pixelBarrelLayersWithMeasurement(uint32_t MaxPixBarrelLayer) const;// case 0: pixel PXB
+    int pixelEndcapLayersWithMeasurement(uint32_t MaxPixForwardDisk) const;// case 0: pixel PXF
 
 
     /// subdet = 0(all), 1(DT), 2(CSC), 3(RPC); hitType=-1(all), 0=valid, 3=bad
@@ -788,22 +788,22 @@ inline int HitPattern::numberOfInactiveTrackerHits() const {
       pixelEndcapLayersWithMeasurement();
   }
 
-  inline int HitPattern::trackerLayersWithMeasurement(uint32_t MaxPixBarrel,uint32_t MaxPixForward) const {
-    return pixelLayersWithMeasurement(MaxPixBarrel,MaxPixForward) + 
+  inline int HitPattern::trackerLayersWithMeasurement(uint32_t MaxPixBarrelLayer,uint32_t MaxPixForwardDisk) const {
+    return pixelLayersWithMeasurement(MaxPixBarrelLayer,MaxPixForwardDisk) + 
       stripLayersWithMeasurement();
   }
   
-  inline int HitPattern::pixelLayersWithMeasurement(uint32_t MaxPixBarrel,uint32_t MaxPixForward) const {
-    return pixelBarrelLayersWithMeasurement(MaxPixBarrel) +
-      pixelEndcapLayersWithMeasurement(MaxPixForward);
+  inline int HitPattern::pixelLayersWithMeasurement(uint32_t MaxPixBarrelLayer,uint32_t MaxPixForwardDisk) const {
+    return pixelBarrelLayersWithMeasurement(MaxPixBarrelLayer) +
+      pixelEndcapLayersWithMeasurement(MaxPixForwardDisk);
   }
 
   inline int HitPattern::pixelBarrelLayersWithMeasurement() const {
-    return pixelBarrelLayersWithMeasurement(10);
+    return pixelBarrelLayersWithMeasurement(10);//all layers are "pixel" is SLHC geometry - fixme hardcoded
   }
 
   inline int HitPattern::pixelEndcapLayersWithMeasurement() const {
-    return pixelEndcapLayersWithMeasurement(15);
+    return pixelEndcapLayersWithMeasurement(15);//all layers are "pixel" is SLHC geometry - fixme hardcoded
   }
   
   inline int HitPattern::stripLayersWithMeasurement() const {
