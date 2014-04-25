@@ -16,6 +16,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
@@ -82,7 +83,7 @@ class TrackClusterRemover : public edm::stream::EDProducer<> {
         edm::ProductID pixelSourceProdID, stripSourceProdID; // ProdIDs refs must point to (for consistency tests)
 
         inline void process(const TrackingRecHit *hit, float chi2);
-        inline void process(const OmniClusterRef & cluRef, uint32_t subdet, bool fromTrack);
+        inline void process(const OmniClusterRef & cluRef, SiStripDetId & detid, bool fromTrack);
 
 
         template<typename T> 
@@ -101,7 +102,7 @@ class TrackClusterRemover : public edm::stream::EDProducer<> {
   std::vector<bool> collectedStrips_;
   std::vector<bool> collectedPixels_;
 
-
+  float sensorThickness (const SiStripDetId& detid) const;
 
 };
 
@@ -221,7 +222,7 @@ void TrackClusterRemover::mergeOld(ClusterRemovalInfo::Indices &refs,
        }
 }
 
- 
+
 template<typename T> 
 auto_ptr<edmNew::DetSetVector<T> >
 TrackClusterRemover::cleanup(const edmNew::DetSetVector<T> &oldClusters, const std::vector<uint8_t> &isGood, 
@@ -263,13 +264,25 @@ TrackClusterRemover::cleanup(const edmNew::DetSetVector<T> &oldClusters, const s
     return output;
 }
 
+float TrackClusterRemover::sensorThickness (const SiStripDetId& detid) const
+{
+  if (detid.subdetId()>=SiStripDetId::TIB) {
+    if (detid.subdetId()==SiStripDetId::TOB) return 0.047;
+    if (detid.moduleGeometry()==SiStripDetId::W5 || detid.moduleGeometry()==SiStripDetId::W6 ||
+        detid.moduleGeometry()==SiStripDetId::W7)
+	return 0.047;
+    return 0.029; // so it is TEC ring 1-4 or TIB or TOB;
+  } else if (detid.subdetId()==PixelSubdetector::PixelBarrel) return 0.0285;
+  else return 0.027;
+}
 
-void TrackClusterRemover::process(OmniClusterRef const & ocluster, uint32_t subdet, bool fromTrack) {
+void TrackClusterRemover::process(OmniClusterRef const & ocluster, SiStripDetId & detid, bool fromTrack) {
     SiStripRecHit2D::ClusterRef cluster = ocluster.cluster_strip();
   if (cluster.id() != stripSourceProdID) throw cms::Exception("Inconsistent Data") <<
     "TrackClusterRemover: strip cluster ref from Product ID = " << cluster.id() <<
     " does not match with source cluster collection (ID = " << stripSourceProdID << ")\n.";
   
+  uint32_t subdet = detid.subdetId();
   assert(cluster.id() == stripSourceProdID);
   if (pblocks_[subdet-1].usesSize_ && (cluster->amplitudes().size() > pblocks_[subdet-1].maxSize_)) return;
   if (!fromTrack) {
@@ -277,7 +290,7 @@ void TrackClusterRemover::process(OmniClusterRef const & ocluster, uint32_t subd
     for( std::vector<uint8_t>::const_iterator iAmp = cluster->amplitudes().begin(); iAmp != cluster->amplitudes().end(); ++iAmp){
       clusCharge += *iAmp;
     }
-    if (pblocks_[subdet-1].cutOnStripCharge_ && clusCharge > pblocks_[subdet-1].minGoodStripCharge_) return;
+    if (pblocks_[subdet-1].cutOnStripCharge_ && (clusCharge > (pblocks_[subdet-1].minGoodStripCharge_*sensorThickness(detid)))) return;
   }
   strips[cluster.key()] = false;  
   //if (!clusterWasteSolution_) collectedStrip[hit->geographicalId()].insert(cluster);
@@ -288,7 +301,7 @@ void TrackClusterRemover::process(OmniClusterRef const & ocluster, uint32_t subd
 
 
 void TrackClusterRemover::process(const TrackingRecHit *hit, float chi2) {
-    DetId detid = hit->geographicalId(); 
+    SiStripDetId detid = hit->geographicalId(); 
     uint32_t subdet = detid.subdetId();
 
     assert ((subdet > 0) && (subdet <= NumberOfParamBlocks));
@@ -327,19 +340,19 @@ void TrackClusterRemover::process(const TrackingRecHit *hit, float chi2) {
         if (hitType == typeid(SiStripRecHit2D)) {
             const SiStripRecHit2D *stripHit = static_cast<const SiStripRecHit2D *>(hit);
 //DBG//     cout << "Plain RecHit 2D: " << endl;
-            process(stripHit->omniClusterRef(),subdet, true);}
+            process(stripHit->omniClusterRef(),detid, true);}
 	else if (hitType == typeid(SiStripRecHit1D)) {
 	  const SiStripRecHit1D *hit1D = static_cast<const SiStripRecHit1D *>(hit);
-	  process(hit1D->omniClusterRef(),subdet, true);
+	  process(hit1D->omniClusterRef(),detid, true);
         } else if (hitType == typeid(SiStripMatchedRecHit2D)) {
             const SiStripMatchedRecHit2D *matchHit = static_cast<const SiStripMatchedRecHit2D *>(hit);
 //DBG//     cout << "Matched RecHit 2D: " << endl;
-            process(matchHit->monoClusterRef(),subdet, true);
-            process(matchHit->stereoClusterRef(),subdet, true);
+            process(matchHit->monoClusterRef(),detid, true);
+            process(matchHit->stereoClusterRef(),detid, true);
         } else if (hitType == typeid(ProjectedSiStripRecHit2D)) {
             const ProjectedSiStripRecHit2D *projHit = static_cast<const ProjectedSiStripRecHit2D *>(hit);
 //DBG//     cout << "Projected RecHit 2D: " << endl;
-            process(projHit->originalHit().omniClusterRef(),subdet, true);
+            process(projHit->originalHit().omniClusterRef(),detid, true);
         } else throw cms::Exception("NOT IMPLEMENTED") << "Don't know how to handle " << hitType.name() << " on detid " << detid.rawId() << "\n";
     }
 }
@@ -473,18 +486,16 @@ TrackClusterRemover::produce(Event& iEvent, const EventSetup& iSetup)
       const SiStripRecHit2DCollection::DataContainer * rphiRecHits = & (rechitsrphi).product()->data();
       for(  SiStripRecHit2DCollection::DataContainer::const_iterator
 	      recHit = rphiRecHits->begin(); recHit!= rphiRecHits->end(); recHit++){
-	DetId detid = recHit->geographicalId(); 
-	uint32_t subdet = detid.subdetId();
-	process(recHit->omniClusterRef(),subdet,false);
+	SiStripDetId detid = recHit->geographicalId(); 
+	process(recHit->omniClusterRef(),detid,false);
       }
       edm::Handle<SiStripRecHit2DCollection> rechitsstereo;
       iEvent.getByToken(stereoRecHitToken_, rechitsstereo);
       const SiStripRecHit2DCollection::DataContainer * stereoRecHits = & (rechitsstereo).product()->data();
       for(  SiStripRecHit2DCollection::DataContainer::const_iterator
 	      recHit = stereoRecHits->begin(); recHit!= stereoRecHits->end(); recHit++){
-	DetId detid = recHit->geographicalId(); 
-	uint32_t subdet = detid.subdetId();
-	process(recHit->omniClusterRef(),subdet,false);
+	SiStripDetId detid = recHit->geographicalId(); 
+	process(recHit->omniClusterRef(),detid,false);
       }
 
     }
