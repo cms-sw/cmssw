@@ -176,6 +176,19 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config) :
   preselCutValuesEndcap_.push_back(conf_.getParameter<double>("sigmaIetaIetaCutEndcap"));     
   //
 
+  //moved from beginRun to here, I dont see how this could cause harm as its just reading in the exactly same parameters each run
+  if ( reconstructionStep_ != "final"){
+    thePhotonIsolationCalculator_ = new PhotonIsolationCalculator();
+    edm::ParameterSet isolationSumsCalculatorSet = conf_.getParameter<edm::ParameterSet>("isolationSumsCalculatorSet"); 
+    thePhotonIsolationCalculator_->setup(isolationSumsCalculatorSet, flagsexclEB_, flagsexclEE_, severitiesexclEB_, severitiesexclEE_,consumesCollector());
+    thePhotonMIPHaloTagger_ = new PhotonMIPHaloTagger();
+    edm::ParameterSet mipVariableSet = conf_.getParameter<edm::ParameterSet>("mipVariableSet"); 
+    thePhotonMIPHaloTagger_->setup(mipVariableSet,consumesCollector());
+    
+  }else{
+    thePhotonIsolationCalculator_=0;
+    thePhotonMIPHaloTagger_=0;
+  }
   // Register the product
   produces< reco::PhotonCollection >(photonCollection_);
   produces< edm::ValueMap<reco::PhotonRef> > (valueMapPFCandPhoton_);
@@ -186,49 +199,30 @@ GEDPhotonProducer::GEDPhotonProducer(const edm::ParameterSet& config) :
 GEDPhotonProducer::~GEDPhotonProducer() 
 {
   delete thePhotonEnergyCorrector_;
-  //delete energyCorrectionF;
+  delete thePhotonIsolationCalculator_;
+  delete thePhotonMIPHaloTagger_;
+ //delete energyCorrectionF;
 }
 
 
 
 void  GEDPhotonProducer::beginRun (edm::Run const& r, edm::EventSetup const & theEventSetup) {
 
-
-  if ( reconstructionStep_ == "final" ) { 
-
-    
+ if ( reconstructionStep_ == "final" ) { 
     thePFBasedIsolationCalculator_ = new PFPhotonIsolationCalculator();
     edm::ParameterSet pfIsolationCalculatorSet = conf_.getParameter<edm::ParameterSet>("PFIsolationCalculatorSet"); 
     thePFBasedIsolationCalculator_->setup(pfIsolationCalculatorSet);
-
-  } else {
-
-    thePhotonIsolationCalculator_ = new PhotonIsolationCalculator();
-    edm::ParameterSet isolationSumsCalculatorSet = conf_.getParameter<edm::ParameterSet>("isolationSumsCalculatorSet"); 
-    thePhotonIsolationCalculator_->setup(isolationSumsCalculatorSet, flagsexclEB_, flagsexclEE_, severitiesexclEB_, severitiesexclEE_);
-
-
-    thePhotonMIPHaloTagger_ = new PhotonMIPHaloTagger();
-    edm::ParameterSet mipVariableSet = conf_.getParameter<edm::ParameterSet>("mipVariableSet"); 
-    thePhotonMIPHaloTagger_->setup(mipVariableSet);
-    
+ }else{ 
     thePhotonEnergyCorrector_ -> init(theEventSetup); 
-
   }
-
 
 }
 
 void  GEDPhotonProducer::endRun (edm::Run const& r, edm::EventSetup const & theEventSetup) {
 
-if ( reconstructionStep_ == "final" ) { 
-  delete thePFBasedIsolationCalculator_;
-  } else {
-  delete thePhotonIsolationCalculator_;
-  delete thePhotonMIPHaloTagger_;
-  
- }
-
+  if ( reconstructionStep_ == "final" ) { 
+    delete thePFBasedIsolationCalculator_;
+  }
 }
 
 

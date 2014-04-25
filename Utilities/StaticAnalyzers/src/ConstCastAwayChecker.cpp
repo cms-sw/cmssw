@@ -10,6 +10,10 @@
 #include "ConstCastAwayChecker.h"
 #include "CmsSupport.h" 
 
+using namespace clang;
+using namespace clang::ento;
+using namespace llvm;
+
 namespace clangcms
 {
 
@@ -17,6 +21,15 @@ namespace clangcms
 void ConstCastAwayChecker::checkPreStmt(const clang::ExplicitCastExpr *CE,
 		clang::ento::CheckerContext &C) const 
 {
+	const Expr * SE = CE->getSubExprAsWritten();	
+	const CXXRecordDecl * CRD = 0;
+	if (SE->getType()->isPointerType()) CRD = SE->getType()->getPointeeCXXRecordDecl();
+	else CRD = SE->getType()->getAsCXXRecordDecl();
+	if (CRD) {
+		std::string cname = CRD->getQualifiedNameAsString();
+		if (! support::isDataClass(cname) ) return; 
+	}
+
 	const clang::Expr *E = CE->getSubExpr();
 	clang::ASTContext &Ctx = C.getASTContext();
 	clang::QualType OrigTy = Ctx.getCanonicalType(E->getType());
