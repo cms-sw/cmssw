@@ -736,9 +736,10 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
           const int quality(clct->bestCLCT[bx_clct].getQuality());
           if (debug_gem_matching) std::cout << "++Valid ME1b CLCT: " << clct->bestCLCT[bx_clct] << std::endl;
 
+	  // pick the pad that corresponds 
+	  auto matchingPads(matchingGEMPads(clct->bestCLCT[bx_clct], alct->bestALCT[bx_alct], pads_[bx_clct], ME1B, false));
+	  auto matchingCoPads(matchingGEMPads(clct->bestCLCT[bx_clct], alct->bestALCT[bx_alct], coPads_[bx_clct], ME1B, true));
           if (runME11ILT_ and dropLowQualityCLCTsNoGEMs_ME1b_ and quality < 4 and hasPads){
-            // pick the pad that corresponds 
-            auto matchingPads(matchingGEMPads(clct->bestCLCT[bx_clct], alct->bestALCT[bx_alct], pads_[bx_clct], ME1B, false));
             int nFound(matchingPads.size());
             const bool clctInEdge(clct->bestCLCT[bx_clct].getKeyStrip() < 5 or clct->bestCLCT[bx_clct].getKeyStrip() > 124);
             if (clctInEdge){
@@ -757,7 +758,6 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
 
           // check timing
           if (runME11ILT_ and correctLCTtimingWithGEM_){
-            auto matchingCoPads(matchingGEMPads(clct->bestCLCT[bx_clct], alct->bestALCT[bx_alct], coPads_[bx_clct], ME1B, false));
             int nFound(matchingCoPads.size());
             if (nFound != 0 and bx_alct == 6 and bx_clct != 6){
               if (debug_gem_matching) std::cout << "\tInfo: CLCT with incorrect timing" << std::endl;
@@ -772,7 +772,7 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
           int mbx = bx_clct-bx_clct_start;
           correlateLCTsGEM(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
 			   clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct],
-			   allLCTs1b[bx_alct][mbx][0], allLCTs1b[bx_alct][mbx][1], ME1B, pads_[bx_clct], coPads_[bx_clct]);
+			   allLCTs1b[bx_alct][mbx][0], allLCTs1b[bx_alct][mbx][1], ME1B, matchingPads, matchingCoPads);
           if (debug_gem_matching) {
             std::cout << "Successful ALCT-CLCT match in ME1b: bx_alct = " << bx_alct
                       << "; match window: [" << bx_clct_start << "; " << bx_clct_stop
@@ -858,9 +858,10 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
           const int quality(clct1a->bestCLCT[bx_clct].getQuality());
           if (debug_gem_matching) std::cout << "++Valid ME1a CLCT: " << clct1a->bestCLCT[bx_clct] << std::endl;
 
+	  // pick the pad that corresponds 
+	  auto matchingPads(matchingGEMPads(clct1a->bestCLCT[bx_clct], alct->bestALCT[bx_alct], pads_[bx_clct], ME1A, false));
+	  auto matchingCoPads(matchingGEMPads(clct1a->bestCLCT[bx_clct], alct->bestALCT[bx_alct], coPads_[bx_clct], ME1A, true));
           if (runME11ILT_ and dropLowQualityCLCTsNoGEMs_ME1a_ and quality < 4 and hasPads){
-            // pick the pad that corresponds 
-            auto matchingPads(matchingGEMPads(clct1a->bestCLCT[bx_clct], alct->bestALCT[bx_alct], pads_[bx_clct], ME1A, false));
             int nFound(matchingPads.size());
             const bool clctInEdge(clct1a->bestCLCT[bx_clct].getKeyStrip() < 4 or clct1a->bestCLCT[bx_clct].getKeyStrip() > 93);
             if (clctInEdge){
@@ -880,7 +881,7 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
           int mbx = bx_clct-bx_clct_start;
           correlateLCTsGEM(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
 			   clct1a->bestCLCT[bx_clct], clct1a->secondCLCT[bx_clct],
-			   allLCTs1a[bx_alct][mbx][0], allLCTs1a[bx_alct][mbx][1], ME1A, pads_[bx_clct], coPads_[bx_clct]);
+			   allLCTs1a[bx_alct][mbx][0], allLCTs1a[bx_alct][mbx][1], ME1A, matchingPads, matchingCoPads);
           if (debug_gem_matching) {
             std::cout << "Successful ALCT-CLCT match in ME1a: bx_alct = " << bx_alct
                       << "; match window: [" << bx_clct_start << "; " << bx_clct_stop
