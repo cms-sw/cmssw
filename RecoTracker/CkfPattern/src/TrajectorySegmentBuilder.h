@@ -50,7 +50,7 @@ public:
 			    const Propagator& propagator,
 			    const TrajectoryStateUpdator& updator,
 			    const MeasurementEstimator& estimator,
-			    bool lockHits, bool bestHitOnly) :
+			    bool lockHits, bool bestHitOnly, int maxCand) :
     theLayerMeasurements(theInputLayerMeasurements),
     theLayer(layer),
     theFullPropagator(propagator),
@@ -58,7 +58,7 @@ public:
     theEstimator(estimator),
     theGeomPropagator(propagator),
 //     theGeomPropagator(propagator.propagationDirection()),
-    theLockHits(lockHits),theBestHitOnly(bestHitOnly)
+      theLockHits(lockHits),theBestHitOnly(bestHitOnly),theMaxCand(maxCand)
   {}
 
   /// destructor
@@ -115,6 +115,7 @@ private:
 
   bool theLockHits;
   bool theBestHitOnly;
+  int  theMaxCand;
   ConstRecHitContainer theLockedHits;
 
   bool theDbgFlg;
