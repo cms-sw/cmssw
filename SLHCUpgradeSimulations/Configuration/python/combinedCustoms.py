@@ -101,6 +101,14 @@ def cust_2023(process):
     process=customise_rpc(process)
     return process
 
+def cust_2023NoEE(process):
+    process=cust_2023(process)
+    if hasattr(process,'L1simulation_step'):
+        process.simEcalTriggerPrimitiveDigis.BarrelOnly = cms.bool(True)
+    if hasattr(process,'digitisation_step'):
+    	process.mix.digitizers.ecal.accumulatorType = cms.string('EcalPhaseIIDigiProducer')
+    return process
+
 def cust_2023Pixel(process):
     process=customisePostLS1(process)
     process=customiseBE5DPixel10D(process)
