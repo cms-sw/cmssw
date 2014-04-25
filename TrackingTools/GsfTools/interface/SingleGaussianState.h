@@ -1,6 +1,8 @@
 #ifndef SingleGaussianState_H
 #define SingleGaussianState_H
 
+#define SMATRIX_USE_CONSTEXPR
+
 #include "Math/SVector.h"
 #include "Math/SMatrix.h"
 
