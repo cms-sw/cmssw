@@ -45,12 +45,12 @@ namespace reco {
     }
 
     /// \return reference to the corresponding PFGsfRecTrack
-    GsfPFRecTrackRef GsftrackRefPF() const {
+    const GsfPFRecTrackRef& GsftrackRefPF() const {
       return GsftrackRefPF_;
     }
     
     /// \return reference to the corresponding GsfTrack
-    reco::GsfTrackRef GsftrackRef() const {
+    const reco::GsfTrackRef& GsftrackRef() const {
       return GsftrackRef_;
     }
  
