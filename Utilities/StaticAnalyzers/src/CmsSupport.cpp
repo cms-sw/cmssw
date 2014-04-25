@@ -129,17 +129,13 @@ bool support::isDataClass(const std::string & name) {
 	}
 		
 	std::string tname("/tmp/classes.txt");
-	std::string sname("/src/Utilities/StaticAnalyzers/scripts/classes.txt");
 	std::string fname1 = lname + tname;
-	std::string fname2 = rname + sname;
-	if (!FM.getFile(fname1) && !FM.getFile(fname2) ) {
+	if (!FM.getFile(fname1)) {
 		llvm::errs()<<"\n\nChecker cannot find classes.txt. Run \"USER_LLVM_CHECKERS='-enable-checker optional.ClassDumperCT -enable-checker optional.ClassDumperFT scram b checker to create $LOCALRT/tmp/classes.txt.\n\n\n";
 		exit(1);
 		}
 	if ( FM.getFile(fname1) ) 
 		iname = fname1;
-	else 
-		iname = fname2;	
 	os <<"class '"<< name <<"'";
 	std::ifstream ifile;
 	ifile.open(iname.c_str(),std::ifstream::in);
