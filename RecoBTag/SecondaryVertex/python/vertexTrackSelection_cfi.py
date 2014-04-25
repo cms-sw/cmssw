@@ -7,7 +7,7 @@ vertexTrackSelectionBlock = cms.PSet(
                 variableJTAPars,
 		totalHitsMin = cms.uint32(8),
 		jetDeltaRMax = cms.double(0.3),
-		qualityClass = cms.string('highPurity'),
+		qualityClass = cms.string('any'),
 		pixelHitsMin = cms.uint32(2),
 		maxDistToAxis = cms.double(0.2),
 		maxDecayLen = cms.double(99999.9),
