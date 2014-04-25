@@ -205,7 +205,11 @@ def customise_Reco(process,pileup):
 
     # Particle flow needs to know that the eta range has increased, for
     # when linking tracks to HF clusters
-    process.load('RecoParticleFlow.PFProducer.particleFlowBlock2024_cfi')
+    for link in process.particleFlowBlock.linkDefinitions:
+        if hasattr(link,'trackerEtaBoundary') : link.trackerEtaBoundary = cms.double(3.8)
+    for importer in process.particleFlowBlock.elementImporters :
+    	if importer.source.value()=="particleFlowClusterHFEM" : importer.importerName = cms.string("ClusterImporterForForwardTracker")
+    	if importer.source.value()=="particleFlowClusterHFHAD" : importer.importerName = cms.string("ClusterImporterForForwardTracker")
 
     return process
 
