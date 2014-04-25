@@ -1,4 +1,4 @@
-// This is the file "FactorizedJetCorrector.cc". 
+// This is the file "FactorizedJetCorrector.cc".
 // This is the implementation of the class FactorizedJetCorrector.
 // Author: Konstantinos Kousouris, Philipp Schieferdecker
 // Email:  kkousour@fnal.gov, philipp.schieferdecker@cern.ch
@@ -6,7 +6,7 @@
 #include "CondFormats/JetMETObjects/interface/FactorizedJetCorrector.h"
 #include "CondFormats/JetMETObjects/interface/SimpleJetCorrector.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
-#include "CondFormats/JetMETObjects/src/Utilities.cc"
+#include "CondFormats/JetMETObjects/interface/Utilities.h"
 #include "Math/PtEtaPhiE4D.h"
 #include "Math/Vector3D.h"
 #include "Math/LorentzVector.h"
@@ -14,13 +14,13 @@
 #include <string>
 #include <sstream>
 
-//------------------------------------------------------------------------ 
+//------------------------------------------------------------------------
 //--- Default FactorizedJetCorrector constructor -------------------------
 //------------------------------------------------------------------------
 FactorizedJetCorrector::FactorizedJetCorrector()
 {
 }
-//------------------------------------------------------------------------ 
+//------------------------------------------------------------------------
 //--- FactorizedJetCorrector constructor ---------------------------------
 //------------------------------------------------------------------------
 FactorizedJetCorrector::FactorizedJetCorrector(const std::string& fLevels, const std::string& fFiles, const std::string& fOptions):
@@ -35,21 +35,21 @@ FactorizedJetCorrector::FactorizedJetCorrector(const std::vector<JetCorrectorPar
 {
 }
 
-//------------------------------------------------------------------------ 
+//------------------------------------------------------------------------
 //--- Returns the correction ---------------------------------------------
 //------------------------------------------------------------------------
 float FactorizedJetCorrector::getCorrection()
 {
   return mCalc.getCorrection(mValues);
 }
-//------------------------------------------------------------------------ 
+//------------------------------------------------------------------------
 //--- Returns the vector of subcorrections, up to a given level ----------
 //------------------------------------------------------------------------
 std::vector<float> FactorizedJetCorrector::getSubCorrections()
 {
   return mCalc.getSubCorrections(mValues);
 }
-//------------------------------------------------------------------------ 
+//------------------------------------------------------------------------
 //--- Setters ------------------------------------------------------------
 //------------------------------------------------------------------------
 void FactorizedJetCorrector::setNPV(int fNPV)
