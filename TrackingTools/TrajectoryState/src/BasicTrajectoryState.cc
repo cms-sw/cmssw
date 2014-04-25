@@ -271,12 +271,9 @@ void
 BasicTrajectoryState::createLocalErrorFromCurvilinearError() const {
   
   JacobianCurvilinearToLocal curv2Loc(surface(), localParameters(), globalParameters(), *magneticField());
-  const AlgebraicMatrix55& jac = curv2Loc.jacobian();
+  const AlgebraicMatrix55 & jac = curv2Loc.jacobian();
   
-  const AlgebraicSymMatrix55 &cov = 
-    ROOT::Math::Similarity(jac, theFreeState.curvilinearError().matrix());
-  //    cout<<"Clocal via curvilinear error"<<endl;
-  theLocalError = LocalTrajectoryError(cov);
+  theLocalError = ROOT::Math::Similarity(jac, theFreeState.curvilinearError().matrix());
 
   verifyCurvErr(theFreeState.curvilinearError(),theFreeState);
   verifyLocalErr(theLocalError,theFreeState);

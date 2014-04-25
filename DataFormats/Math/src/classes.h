@@ -1,4 +1,17 @@
 #define G__DICTIONARY
+
+
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
+#ifdef CMS_NOCXX11
+#define SMATRIX_USE_COMPUTATION
+#else
+#define SMATRIX_USE_CONSTEXPR
+#endif
+
+
+#include <Math/SVector.h>
+#include <Math/SMatrix.h>
+
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "Rtypes.h" 
 #include "Math/PxPyPzE4D.h" 

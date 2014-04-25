@@ -121,7 +121,7 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
   double hv3 = hn1*v12 - hn2*v11;
   
   //   1/p - doesn't change since |p1| = |p2|
-  
+  theJacobian(0,0) = 1.;  for (auto i=1;i<5; ++i) theJacobian(0,i)=0.;  
   //   lambda
   
   theJacobian(1,0) = -qp*anv*(t21*dx1 + t22*dx2 + t23*dx3);
@@ -286,6 +286,8 @@ void AnalyticalCurvilinearJacobian::computeInfinitesimalJacobian
   double b2=-h.x()*sinp+h.y()*cosp;
   double b3=-b0*sinl+h.z()*cosl;
 
+  theJacobian = AlgebraicMatrixID();
+
   theJacobian(3,2)=absS*cosl;
   theJacobian(4,1)=absS;
 
@@ -318,6 +320,7 @@ AnalyticalCurvilinearJacobian::computeStraightLineJacobian
   // matrix: elements =1 on diagonal and =0 are already set
   // in initialisation
   //
+  theJacobian = AlgebraicMatrixID();
   GlobalVector p1 = globalParameters.momentum().unit();
   double cosl0 = p1.perp();
   theJacobian(3,2) = cosl0 * s;
