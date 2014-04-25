@@ -1,3 +1,17 @@
+<library   name="RecoParticleFlowPFBlockComparator" file="PFBlockComparator.cc">
+  <use   name="DataFormats/Common"/>
+  <use   name="DataFormats/EgammaReco"/>
+  <use   name="DataFormats/GsfTrackReco"/>
+  <use   name="DataFormats/ParticleFlowCandidate"/>
+  <use   name="DataFormats/ParticleFlowReco"/>
+  <use   name="SimDataFormats/GeneratorProducts"/>
+  <use   name="RecoParticleFlow/PFProducer"/>
+  <use   name="CommonTools/UtilAlgos"/>
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/MessageLogger"/>
+  <use   name="FWCore/ParameterSet"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
 <library   name="RecoParticleFlowEgGEDPhotonAnalyzer" file="EgGEDPhotonAnalyzer.cc">
   <use   name="DataFormats/Common"/>
   <use   name="DataFormats/EgammaReco"/>
