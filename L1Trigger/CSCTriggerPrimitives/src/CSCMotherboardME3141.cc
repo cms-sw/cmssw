@@ -90,7 +90,7 @@ CSCMotherboardME3141::CSCMotherboardME3141(unsigned endcap, unsigned station,
 
   match_earliest_clct_me3141_only = tmbParams.getUntrackedParameter<bool>("matchEarliestClctME3141Only",true);
 
-  tmb_cross_bx_algo = me3141tmbParams.getUntrackedParameter<unsigned int>("tmbCrossBxAlgorithm",3);
+  tmb_cross_bx_algo = me3141tmbParams.getUntrackedParameter<unsigned int>("tmbCrossBxAlgorithm",2);
 
   // maximum lcts per BX in ME2
   max_me3141_lcts = me3141tmbParams.getUntrackedParameter<unsigned int>("maxME3141LCTs",2);

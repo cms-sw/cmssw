@@ -95,7 +95,7 @@ def customise_L1Emulator(process, ptdphi):
         gemClearNomatchLCTs = cms.untracked.bool(False),
 
         ## cross BX algorithm
-        tmbCrossBxAlgorithm = cms.untracked.uint32(3),
+        tmbCrossBxAlgorithm = cms.untracked.uint32(2),
         firstTwoLCTsInChamber = cms.untracked.bool(True),
     )
     if tmb.me11ILT.runME11ILT:
@@ -150,7 +150,7 @@ def customise_L1Emulator(process, ptdphi):
         gemClearNomatchLCTs = cms.untracked.bool(ptdphi == 'pt0' and False),
 
         ## cross BX algorithm
-        tmbCrossBxAlgorithm = cms.untracked.uint32(3),
+        tmbCrossBxAlgorithm = cms.untracked.uint32(2),
         firstTwoLCTsInChamber = cms.untracked.bool(True),
     )
     

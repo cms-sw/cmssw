@@ -42,7 +42,7 @@ def customise_L1Emulator(process):
         dropLowQualityCLCTsNoRPC = cms.untracked.bool(True),
         
         ## cross BX algorithm
-        tmbCrossBxAlgorithm = cms.untracked.uint32(3),
+        tmbCrossBxAlgorithm = cms.untracked.uint32(2),
     )
     if tmb.me3141ILT.runME3141ILT:
         process.simCscTriggerPrimitiveDigis.clctSLHC.clctNplanesHitPattern = 3
