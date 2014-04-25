@@ -1,7 +1,14 @@
-#include "RecoParticleFlow/PFProducer/interface/KDTreeLinkerTrackEcal.h"
+#include "KDTreeLinkerTrackEcal.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "TMath.h"
+
+// the text name is different so that we can easily
+// construct it when calling the factory
+DEFINE_EDM_PLUGIN(KDTreeLinkerFactory, 
+		  KDTreeLinkerTrackEcal, 
+		  "KDTreeTrackAndECALLinker"); 
+
 
 KDTreeLinkerTrackEcal::KDTreeLinkerTrackEcal()
   : KDTreeLinkerBase()
@@ -15,7 +22,9 @@ KDTreeLinkerTrackEcal::~KDTreeLinkerTrackEcal()
 void
 KDTreeLinkerTrackEcal::insertTargetElt(reco::PFBlockElement	*track)
 {
-  targetSet_.insert(track);
+  if( track->trackRefPF()->extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax ).isValid() ) {
+    targetSet_.insert(track);
+  }
 }
 
 

@@ -1601,48 +1601,41 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       reco::PFClusterRef c0 = elements[0].clusterRef();
       reco::PFClusterRef c1 = elements[1].clusterRef();
       // 2 HF elements. Must be in each layer.
-      reco::PFClusterRef cem = c1;
-      reco::PFClusterRef chad = c0;
+      reco::PFClusterRef cem =  ( c0->layer() == PFLayer::HF_EM ? c0 : c1 );
+      reco::PFClusterRef chad = ( c1->layer() == PFLayer::HF_HAD ? c1 : c0 );
       
-      if( c0->layer()== PFLayer::HF_EM ) {
-	if ( c1->layer()== PFLayer::HF_HAD ) {
-	  cem = c0; chad = c1;
-	} else { 
-	  assert(0);
-	}
-	// do EM+HAD calibration here
-	double energyHfEm = cem->energy();
-	double energyHfHad = chad->energy();
-	double uncalibratedenergyHFEm = energyHfEm;
-	double uncalibratedenergyHFHad = energyHfHad;
-	if(thepfEnergyCalibrationHF_->getcalibHF_use()==true){
-
-	  energyHfEm = thepfEnergyCalibrationHF_->energyEmHad(uncalibratedenergyHFEm,
-							     0.0,
-							     c0->positionREP().Eta(),
-							     c0->positionREP().Phi()); 
-	  energyHfHad = thepfEnergyCalibrationHF_->energyEmHad(0.0,
-							      uncalibratedenergyHFHad,
-							      c1->positionREP().Eta(),
-							      c1->positionREP().Phi()); 
-	}
-	unsigned tmpi = reconstructCluster( *chad, energyHfEm+energyHfHad );     
-	(*pfCandidates_)[tmpi].setEcalEnergy( uncalibratedenergyHFEm, energyHfEm );
-	(*pfCandidates_)[tmpi].setHcalEnergy( uncalibratedenergyHFHad, energyHfHad);
-	(*pfCandidates_)[tmpi].setHoEnergy( 0., 0.);
-	(*pfCandidates_)[tmpi].setPs1Energy( 0. );
-	(*pfCandidates_)[tmpi].setPs2Energy( 0. );
-	(*pfCandidates_)[tmpi].addElementInBlock( blockref, hfEmIs[0] );
-	(*pfCandidates_)[tmpi].addElementInBlock( blockref, hfHadIs[0] );
-	//std::cout << "HF EM+HAD found ! " << energyHfEm << " " << energyHfHad << std::endl;
-
-      }
-      else {
-	cerr<<"Warning: 2 elements, but not 1 HFEM and 1 HFHAD"<<endl;
+      if( cem->layer() != PFLayer::HF_EM || chad->layer() != PFLayer::HF_HAD ) {
+	cerr<<"Error: 2 elements, but not 1 HFEM and 1 HFHAD"<<endl;
 	cerr<<block<<endl;
+	assert(0);
 // 	assert( c1->layer()== PFLayer::HF_EM &&
 // 		c0->layer()== PFLayer::HF_HAD );
-      }      
+      }    
+      // do EM+HAD calibration here
+      double energyHfEm = cem->energy();
+      double energyHfHad = chad->energy();
+      double uncalibratedenergyHFEm = energyHfEm;
+      double uncalibratedenergyHFHad = energyHfHad;
+      if(thepfEnergyCalibrationHF_->getcalibHF_use()==true){
+	
+	energyHfEm = thepfEnergyCalibrationHF_->energyEmHad(uncalibratedenergyHFEm,
+							    0.0,
+							    c0->positionREP().Eta(),
+							    c0->positionREP().Phi()); 
+	energyHfHad = thepfEnergyCalibrationHF_->energyEmHad(0.0,
+							     uncalibratedenergyHFHad,
+							     c1->positionREP().Eta(),
+							     c1->positionREP().Phi()); 
+      }
+      unsigned tmpi = reconstructCluster( *chad, energyHfEm+energyHfHad );     
+      (*pfCandidates_)[tmpi].setEcalEnergy( uncalibratedenergyHFEm, energyHfEm );
+      (*pfCandidates_)[tmpi].setHcalEnergy( uncalibratedenergyHFHad, energyHfHad);
+      (*pfCandidates_)[tmpi].setHoEnergy( 0., 0.);
+      (*pfCandidates_)[tmpi].setPs1Energy( 0. );
+      (*pfCandidates_)[tmpi].setPs2Energy( 0. );
+      (*pfCandidates_)[tmpi].addElementInBlock( blockref, hfEmIs[0] );
+      (*pfCandidates_)[tmpi].addElementInBlock( blockref, hfHadIs[0] );
+      //std::cout << "HF EM+HAD found ! " << energyHfEm << " " << energyHfHad << std::endl;     
     }
     else {
       // 1 HF element in the block, 

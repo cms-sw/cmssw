@@ -54,62 +54,9 @@ class PFBlockProducer : public edm::stream::EDProducer<> {
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
-
-  
-
-  edm::EDGetTokenT<reco::PFRecTrackCollection>  inputTagRecTracks_;
-  edm::EDGetTokenT<reco::GsfPFRecTrackCollection>  inputTagGsfRecTracks_;
-  edm::EDGetTokenT<reco::GsfPFRecTrackCollection>  inputTagConvBremGsfRecTracks_;
-  edm::EDGetTokenT<reco::MuonCollection>  inputTagRecMuons_;
-  edm::EDGetTokenT<reco::PFDisplacedTrackerVertexCollection> inputTagPFNuclear_;
-  edm::EDGetTokenT<reco::PFClusterCollection> inputTagPFClustersECAL_;
-  edm::EDGetTokenT<reco::PFClusterCollection> inputTagPFClustersHCAL_;
-  edm::EDGetTokenT<reco::PFClusterCollection> inputTagPFClustersHO_;
-  edm::EDGetTokenT<reco::PFClusterCollection> inputTagPFClustersHFEM_;
-  edm::EDGetTokenT<reco::PFClusterCollection> inputTagPFClustersHFHAD_;
-  edm::EDGetTokenT<reco::PFClusterCollection> inputTagPFClustersPS_;
-  edm::EDGetTokenT<reco::PFConversionCollection> inputTagPFConversions_;
-  edm::EDGetTokenT<reco::PFV0Collection>   inputTagPFV0_;
-  edm::EDGetTokenT<reco::PhotonCollection>  inputTagEGPhotons_;
-  edm::EDGetTokenT<reco::SuperClusterCollection>  inputTagSCBarrel_;
-  edm::EDGetTokenT<reco::SuperClusterCollection>  inputTagSCEndcap_;
-  edm::EDGetTokenT<edm::ValueMap<reco::CaloClusterPtr> > inputTagPFClusterAssociationEBEE_;
-  
-  // Link track and HCAL clusters to HO clusters ?
-  bool useHO_;
-
   /// verbose ?
   bool   verbose_;
-
-  /// use NuclearInteractions ?
-  bool   useNuclear_;
-
-  /// use EG photons ? 
-  bool useEGPhotons_;
   
-  /// use SuperClusters ? 
-  bool useSuperClusters_;  
-  
-  //match superclusters by ref
-  bool superClusterMatchByRef_;
-  
-  /// switch on/off Conversions
-  bool  useConversions_;  
-  
-  /// switch on/off Conversions Brem Recovery
-  bool   useConvBremGsfTracks_;
-
-  /// switch on/off V0
-  bool useV0_;
-
-  /// Particle Flow at HLT ?
-  bool usePFatHLT_;
-
-  // Glowinski & Gouzevitch
-  // Use the optimized KDTree Track/Ecal linker?
-  bool useKDTreeTrackEcalLinker_;
-  // !Glowinski & Gouzevitch
-
   /// Particle flow block algorithm 
   PFBlockAlgo            pfBlockAlgo_;
 

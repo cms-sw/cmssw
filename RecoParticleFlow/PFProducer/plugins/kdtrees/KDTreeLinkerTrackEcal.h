@@ -14,7 +14,7 @@ class KDTreeLinkerTrackEcal : public KDTreeLinkerBase
  public:
   KDTreeLinkerTrackEcal();
   ~KDTreeLinkerTrackEcal();
-
+  
   // With this method, we create the list of psCluster that we want to link.
   void insertTargetElt(reco::PFBlockElement		*track);
 
@@ -57,6 +57,5 @@ class KDTreeLinkerTrackEcal : public KDTreeLinkerBase
   KDTreeLinkerAlgo	tree_;
 
 };
-
 
 #endif /* !KDTreeLinkerTrackEcal_h */

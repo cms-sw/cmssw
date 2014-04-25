@@ -38,6 +38,9 @@ CSCTFTrackProducer::CSCTFTrackProducer(const edm::ParameterSet& pset)
   produces<L1CSCTrackCollection>();
   produces<CSCTriggerContainer<csctf::TrackStub> >();
   usesResource("CSCTFTrackProducer");
+  consumes<CSCCorrelatedLCTDigiCollection>(input_module);
+  consumes<L1MuDTChambPhContainer>(dt_producer);
+  consumes<CSCTriggerContainer<csctf::TrackStub> >(directProd);
 }
 
 CSCTFTrackProducer::~CSCTFTrackProducer()
