@@ -148,5 +148,11 @@ class CSCMotherboard
 
   // Method for tests
   void testLCT();
+
+  // utilities for sorting
+  static bool sortByQuality(const CSCCorrelatedLCTDigi&, const CSCCorrelatedLCTDigi&); 
+  static bool sortByGEMDphi(const CSCCorrelatedLCTDigi&, const CSCCorrelatedLCTDigi&); 
+  void sortLCTs(std::vector<CSCCorrelatedLCTDigi>&, bool (*sortOption) (const CSCCorrelatedLCTDigi&, const CSCCorrelatedLCTDigi&), 
+                unsigned maxLength=99);
 };
 #endif

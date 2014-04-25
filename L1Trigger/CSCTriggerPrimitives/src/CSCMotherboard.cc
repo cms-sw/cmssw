@@ -92,8 +92,8 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
   // Motherboard parameters:
   edm::ParameterSet tmbParams  =  conf.getParameter<edm::ParameterSet>("tmbParam");
 
-  if (isSLHC && theStation == 1 &&
-      CSCTriggerNumbering::ringFromTriggerLabels(theStation, theTrigChamber) == 1 ) {
+  // run upgrade TMBs for all MEX/1 stations
+  if (isSLHC && CSCTriggerNumbering::ringFromTriggerLabels(theStation, theTrigChamber) == 1 ) {
     alctParams = conf.getParameter<edm::ParameterSet>("alctSLHC");
     clctParams = conf.getParameter<edm::ParameterSet>("clctSLHC");
     tmbParams  =  conf.getParameter<edm::ParameterSet>("tmbSLHC");
@@ -810,4 +810,24 @@ void CSCMotherboard::dumpConfigParams() const {
   strm << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n";
   LogDebug("CSCMotherboard") << strm.str();
   //std::cerr << strm.str()<<std::endl;
+}
+
+// compare LCTs by quality
+bool CSCMotherboard::sortByQuality(const CSCCorrelatedLCTDigi& lct1, const CSCCorrelatedLCTDigi& lct2) 
+{ 
+  return lct1.getQuality() > lct2.getQuality();
+}
+
+// compare LCTs by GEM bending angle
+bool CSCMotherboard::sortByGEMDphi(const CSCCorrelatedLCTDigi& lct1, const CSCCorrelatedLCTDigi& lct2) 
+{ 
+  return lct1.getGEMDPhi() < lct2.getGEMDPhi();
+}
+
+// sort vector of LCTs
+void CSCMotherboard::sortLCTs(std::vector<CSCCorrelatedLCTDigi>& lcts, bool (*sortOption) (const CSCCorrelatedLCTDigi& lct1, const CSCCorrelatedLCTDigi& lct2), 
+              unsigned maxLength)
+{
+  std::sort(lcts.begin(), lcts.end(), sortOption);
+  if (lcts.size() > maxLength) lcts.erase(lcts.begin() + maxLength, lcts.end());
 }
