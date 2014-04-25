@@ -11,7 +11,7 @@ class ShashlikTopology : public CaloSubdetectorTopology {
 
 public:
   /// create a new Topology
-  ShashlikTopology(const ShashlikDDDConstants* sdcons);
+  ShashlikTopology(const ShashlikDDDConstants& sdcons);
 
   /// virtual destructor
   virtual ~ShashlikTopology() { }  
@@ -130,7 +130,7 @@ private:
   /// move the nagivator to smaller iy
   EKDetId decrementIy(const EKDetId& id) const;
 
-  const ShashlikDDDConstants* sdcons_;
+  const ShashlikDDDConstants& sdcons_;
   int                         smodules_, modules_, nRows_, kEKhalf_;
   unsigned int                kSizeForDenseIndexing;
 };
