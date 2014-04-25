@@ -162,9 +162,6 @@ CSCMotherboardME21::CSCMotherboardME21(unsigned endcap, unsigned station,
 
   // promote ALCT-GEM quality
   promoteALCTGEMquality_ = me21tmbParams.getUntrackedParameter<bool>("promoteALCTGEMquality",false);
-
-  // send first 2 LCTs
-  firstTwoLCTsInChamber_ = me21tmbParams.getUntrackedParameter<bool>("firstTwoLCTsInChamber",false);
 }
 
 CSCMotherboardME21::~CSCMotherboardME21() 
@@ -318,7 +315,6 @@ CSCMotherboardME21::run(const CSCWireDigiCollection* wiredc,
 
   const bool hasPads(padsLong_.size()!=0);
   const bool hasCoPads(hasPads and coPadsLong_.size()!=0);
-  bool hasLCTs(false);
 
   int used_clct_mask[20];
   for (int c=0;c<20;++c) used_clct_mask[c]=0;
@@ -419,9 +415,6 @@ CSCMotherboardME21::run(const CSCWireDigiCollection* wiredc,
             if (match_earliest_clct_me21_only) break;
           }
         }
-        else{
-          ///no valid clct
-        }
       }
 
       // ALCT-to-GEM matching
@@ -483,12 +476,6 @@ CSCMotherboardME21::run(const CSCWireDigiCollection* wiredc,
   // possibly use some discrimination from GEMs
   if (gemGeometryAvailable and runME21ILT_ and do_gem_matching) matchGEMPads();
 
-  if (hasLCTs and debug_gem_matching){
-    std::cout << "========================================================================" << std::endl;
-    std::cout << "Counting the LCTs" << std::endl;
-    std::cout << "========================================================================" << std::endl;
-  }
-
   // reduction of nLCTs per each BX
   for (int bx = 0; bx < MAX_LCT_BINS; bx++)
   {
@@ -501,15 +488,11 @@ CSCMotherboardME21::run(const CSCWireDigiCollection* wiredc,
         if (allLCTs[bx][mbx][i].isValid())
         {
           ++n;
-          //          if (infoV > 0) LogDebug("CSCMotherboard") 
-          if (debug_gem_matching)
-            std::cout 
-              << "LCT"<<i+1<<" "<<bx<<"/"<<cbx<<": "<<allLCTs[bx][mbx][i]<<std::endl;
+	  if (infoV > 0) LogDebug("CSCMotherboard") 
+	    << "LCT"<<i+1<<" "<<bx<<"/"<<cbx<<": "<<allLCTs[bx][mbx][i]<<std::endl;
         }
       }
-    //    if (infoV > 0 and n1a+n1b>0) LogDebug("CSCMotherboard") 
-    //    std::cout<<"bx "<<bx<<" nLCT:"<<n1a<<" "<<n1b<<" "<<n1a+n1b<<std::endl;
-
+    
     // some simple cross-bx sorting algorithms
     if (tmb_cross_bx_algo == 1 and (n>2))
     {
@@ -533,12 +516,10 @@ CSCMotherboardME21::run(const CSCWireDigiCollection* wiredc,
           {
             n++;
             if (infoV > 0) LogDebug("CSCMotherboard") 
-              //std::cout 
               << "LCT"<<i+1<<" "<<bx<<"/"<<cbx<<": "<<allLCTs[bx][mbx][i]<<std::cout;
           }
         }
       if (infoV > 0 and n>0) LogDebug("CSCMotherboard") 
-        //        std::cout
         <<"bx "<<bx<<" nnLCT:"<<n<<" "<<n<<std::endl;
     } // x-bx sorting
   }
@@ -557,10 +538,6 @@ CSCMotherboardME21::run(const CSCWireDigiCollection* wiredc,
     if (debug_gem_matching)
       std::cout << "LCT "<<n<<"  " << p <<std::endl;
   }
-  
-  //   if (infoV > 1) LogTrace("CSCMotherboardME21")<<"clct_count E:"<<theEndcap<<"S:"<<theStation<<"R:"<<1<<"C:"
-  // 					       <<CSCTriggerNumbering::chamberFromTriggerLabels(theSector,theSubsector, theStation, theTrigChamber)
-  // 					       <<"  a "<<n_clct_a<<"  b "<<n_clct_b<<"  ab "<<n_clct_a+n_clct_b;
 }
 
 
@@ -568,7 +545,6 @@ CSCMotherboardME21::run(const CSCWireDigiCollection* wiredc,
 std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME21::readoutLCTs()
 {
   return getLCTs();
- 
 }
 
 //getLCTs when we use different sort algorithm
@@ -594,13 +570,6 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME21::getLCTs()
   return result;
 }
 
-// compare LCTs by quality
-bool hasLowerQuality(const CSCCorrelatedLCTDigi& lct1, const CSCCorrelatedLCTDigi& lct2) 
-{ 
-  return lct1.getQuality() < lct2.getQuality();
-}
-
-
 //sort LCTs by Quality in each BX
 std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME21::sortLCTsByQuality(int bx)
 {
@@ -612,7 +581,7 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME21::sortLCTsByQuality(int bx)
         LCTs.push_back(allLCTs[bx][mbx][i]);
 
   // return sorted vector with 2 highest quality LCTs
-  std::sort(LCTs.begin(), LCTs.end(), hasLowerQuality);
+  std::sort(LCTs.begin(), LCTs.end(), CSCMotherboard::sortByQuality);
   if (LCTs.size()> max_me21_lcts) LCTs.erase(LCTs.begin()+max_me21_lcts, LCTs.end());
   return  LCTs;
 }
@@ -632,93 +601,6 @@ void CSCMotherboardME21::correlateLCTsGEM(CSCALCTDigi bestALCT,
   const bool hasPads(nPads!=0);
   const bool hasCoPads(nCoPads!=0);
 
-  /*
-  // assume that always anodeBestValid and cathodeBestValid
-  
-  if (secondALCT == bestALCT) secondALCT.clear();
-  if (secondCLCT == bestCLCT) secondCLCT.clear();
-
-  if (doLCTGhostBustingWithGEMs_ and hasPads){
-
-    if (debug_gem_matching) std::cout << "++Info: 2 valid ALCTs-CLCTs pairs with trigger pads. Call the GHOSTBUSTERS!!!" << std::endl;    
-    // first check if there are any copads
-    typedef std::pair<int,int> mypair;
-    // for each trigger pad, store (deltaRoll,deltaHS) for 11,22,12 and 21.
-    std::vector<std::tuple<mypair,mypair,mypair,mypair>> deltas;
-    deltas.clear();
-
-    if (hasCoPads){
-      for (auto p : copads) {
-        const GEMDetId detId(p.first);
-        const int rollN(detId.roll());
-        const int padN((p.second)->pad());
-        
-        auto t11(std::make_pair(deltaRoll(  bestALCT.getKeyWG(), rollN), deltaPad(  bestCLCT.getKeyStrip(), padN)));
-        auto t22(std::make_pair(deltaRoll(secondALCT.getKeyWG(), rollN), deltaPad(secondCLCT.getKeyStrip(), padN)));
-        auto t12(std::make_pair(deltaRoll(  bestALCT.getKeyWG(), rollN), deltaPad(secondCLCT.getKeyStrip(), padN)));
-        auto t21(std::make_pair(deltaRoll(secondALCT.getKeyWG(), rollN), deltaPad(  bestCLCT.getKeyStrip(), padN)));
-
-        deltas.push_back(std::make_tuple(t11,t22,t12,t21));
-      }
-      if (debug_gem_matching){
-        std::cout << "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - " << std::endl;
-        std::cout << "Printing (deltaRoll, deltaPad) for each (ALCT,CLCT) pair and for each trigger copad" << std::endl;
-        for (unsigned i =0; i < deltas.size(); ++i){
-          auto c(deltas.at(i));
-          std::cout << "\tCoPad " << i << std::endl;
-          std::cout << "\t11: " << "(" << std::get<0>(c).first << "," << std::get<0>(c).second << "); "
-                    << "22: "   << "(" << std::get<1>(c).first << "," << std::get<1>(c).second << "); " 
-                    << "12: "   << "(" << std::get<2>(c).first << "," << std::get<2>(c).second << "); "
-                    << "21: "   << "(" << std::get<3>(c).first << "," << std::get<3>(c).second << ")" << std::endl << std::endl;
-        }
-        std::cout << "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - " << std::endl;
-      }
-      
-      
-//      lct1 = constructLCTs(bestALCT, bestCLCT);
-//      lct1.setTrknmb(1);
-//      lct2 = constructLCTs(secondALCT, secondCLCT);
-//      lct2.setTrknmb(2);
-  
-//      lct1 = constructLCTs(bestALCT, secondCLCT);
-//      lct1.setTrknmb(1);
-//      lct2 = constructLCTs(secondLCT, bestCLCT);
-//      lct2.setTrknmb(2);
-      return;
-    }
-
-    // if no copads were found, do the same with pads...
-    if (hasPads){
-      for (auto p : pads) {
-        const GEMDetId detId(p.first);
-        const int rollN(detId.roll());
-        const int padN((p.second)->pad());
-        
-        auto t11(std::make_pair(deltaRoll(  bestALCT.getKeyWG(), rollN), deltaPad(  bestCLCT.getKeyStrip(), padN)));
-        auto t22(std::make_pair(deltaRoll(secondALCT.getKeyWG(), rollN), deltaPad(secondCLCT.getKeyStrip(), padN)));
-        auto t12(std::make_pair(deltaRoll(  bestALCT.getKeyWG(), rollN), deltaPad(secondCLCT.getKeyStrip(), padN)));
-        auto t21(std::make_pair(deltaRoll(secondALCT.getKeyWG(), rollN), deltaPad(  bestCLCT.getKeyStrip(), padN)));
-
-        deltas.push_back(std::make_tuple(t11,t22,t12,t21));
-      }
-      if (debug_gem_matching){
-        std::cout << "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - " << std::endl;
-        std::cout << "Printing (deltaRoll, deltaPad) for each (ALCT,CLCT) pair and for each trigger pad" << std::endl;
-        for (unsigned i =0; i < deltas.size(); ++i){
-          auto c(deltas.at(i));
-          std::cout << "\tPad " << i << std::endl;
-          std::cout << "\t11: " << "(" << std::get<0>(c).first << "," << std::get<0>(c).second << "); "
-                    << "22: "   << "(" << std::get<1>(c).first << "," << std::get<1>(c).second << "); " 
-                    << "12: "   << "(" << std::get<2>(c).first << "," << std::get<2>(c).second << "); "
-                    << "21: "   << "(" << std::get<3>(c).first << "," << std::get<3>(c).second << ")" << std::endl << std::endl;
-        }
-        std::cout << "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - " << std::endl;
-      }
-
-      return;
-    }
-  }
-  */
   bool anodeBestValid     = bestALCT.isValid();
   bool anodeSecondValid   = secondALCT.isValid();
   bool cathodeBestValid   = bestCLCT.isValid();

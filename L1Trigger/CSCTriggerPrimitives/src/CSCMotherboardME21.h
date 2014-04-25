@@ -24,8 +24,6 @@ class CSCMotherboardME21 : public CSCMotherboard
   typedef std::map<int, std::vector<std::pair<unsigned int, const GEMCSCPadDigi*> > > GEMPads;
   typedef std::pair<unsigned int, const GEMCSCPadDigi*> GEMPadBX;
   typedef std::vector<GEMPadBX> GEMPadsBX;
-  // roll, pad, isCopad?
-  typedef std::vector<std::tuple<unsigned int, const GEMCSCPadDigi*, bool> > GEMPadsBXGeneral;
 
  public:
   /** Normal constructor. */
@@ -197,9 +195,6 @@ class CSCMotherboardME21 : public CSCMotherboard
 
   bool useOldLCTDataFormatALCTGEM_;
   bool useOldLCTDataFormatCLCTGEM_;
-
-  // send only first 2 lcts
-  bool firstTwoLCTsInChamber_;
 
   // promote ALCT-GEM pattern
   bool promoteALCTGEMpattern_;
