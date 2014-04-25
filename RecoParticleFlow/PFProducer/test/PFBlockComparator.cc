@@ -249,6 +249,10 @@ void PFBlockComparator::analyze(const edm::Event& e,
     auto matched_block = std::find_if(oldblocks->begin(),oldblocks->end(),checker);
     if( matched_block != oldblocks->end() ) {
       ++matchedblocks;
+      if( block.elements().size() != matched_block->elements().size() ) {
+	std::cout << "Number of elements in the block is not the same!" << std::endl;
+	std::cout << block.elements().size() << ' ' << matched_block->elements().size() << std::endl;
+      }
       if( block.linkData().size() != matched_block->linkData().size() ) {
 	std::cout << "Something is really fucked up, captain..." << std::endl;
 	std::cout << block.elements().size() << ' ' << matched_block->elements().size() << std::endl;
