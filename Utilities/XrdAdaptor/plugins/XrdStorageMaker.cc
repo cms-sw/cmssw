@@ -22,6 +22,13 @@ public:
 class XrdStorageMaker : public StorageMaker
 {
 public:
+  static const unsigned int XRD_DEFAULT_TIMEOUT = 3*60;
+
+  XrdStorageMaker()
+  {
+    setTimeout(XRD_DEFAULT_TIMEOUT);
+  }
+
   /** Open a storage object for the given URL (protocol + path), using the
       @a mode bits.  No temporary files are downloaded.  */
   virtual Storage *open (const std::string &proto,
@@ -95,6 +102,17 @@ public:
         ex << "Invalid log level specified " << level;
         ex.addContext("Calling XrdStorageMaker::setDebugLevel()");
         throw ex;
+    }
+  }
+
+  virtual void setTimeout(unsigned int timeout) override
+  {
+    timeout = timeout ? timeout : XRD_DEFAULT_TIMEOUT;
+    XrdCl::Env *env = XrdCl::DefaultEnv::GetEnv();
+    if (env)
+    {
+      env->PutInt("RequestTimeout", timeout);
+      env->PutInt("ConnectionWindow", timeout);
     }
   }
 
