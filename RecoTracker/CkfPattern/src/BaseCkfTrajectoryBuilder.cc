@@ -12,38 +12,45 @@
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorBase.h"
+#include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilterFactory.h"
 
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "TrackingTools/PatternTools/interface/TempTrajectory.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilterFactory.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 
-
-BaseCkfTrajectoryBuilder::
-BaseCkfTrajectoryBuilder(const edm::ParameterSet&              conf,
-			 const TrajectoryStateUpdator*         updator,
-			 const Propagator*                     propagatorAlong,
-			 const Propagator*                     propagatorOpposite,
-			 const Chi2MeasurementEstimatorBase*   estimator,
-			 const TransientTrackingRecHitBuilder* recHitBuilder,
-			 const TrajectoryFilter*               filter,
-                         const TrajectoryFilter*               inOutFilter):
-  theUpdator(updator),
-  thePropagatorAlong(propagatorAlong),thePropagatorOpposite(propagatorOpposite),
-  theEstimator(estimator),theTTRHBuilder(recHitBuilder),
-  theMeasurementTracker(0),
-  theForwardPropagator(0),theBackwardPropagator(0),
+BaseCkfTrajectoryBuilder::BaseCkfTrajectoryBuilder(const edm::ParameterSet& conf,
+                                                   TrajectoryFilter *filter,
+                                                   TrajectoryFilter *inOutFilter):
+  theUpdator(nullptr),
+  thePropagatorAlong(nullptr),
+  thePropagatorOpposite(nullptr),
+  theEstimator(nullptr),
+  theTTRHBuilder(nullptr),
+  theMeasurementTracker(nullptr),
   theFilter(filter),
-  theInOutFilter(inOutFilter)
+  theInOutFilter(inOutFilter),
+  theUpdatorName(conf.getParameter<std::string>("updator")),
+  thePropagatorAlongName(conf.getParameter<std::string>("propagatorAlong")),
+  thePropagatorOppositeName(conf.getParameter<std::string>("propagatorOpposite")),
+  theEstimatorName(conf.getParameter<std::string>("estimator")),
+  theRecHitBuilderName(conf.getParameter<std::string>("TTRHBuilder"))
 {
-  if (conf.exists("clustersToSkip")) std::cerr << "ERROR: " << typeid(*this).name() << " with label " << conf.getParameter<std::string>("@module_label") << " has a clustersToSkip parameter set" << std::endl;
+  if (conf.exists("clustersToSkip")) edm::LogError("BaseCkfTrajectoryBuilder") << "ERROR: " << typeid(*this).name() << " has a clustersToSkip parameter set";
 }
 
 
 BaseCkfTrajectoryBuilder::~BaseCkfTrajectoryBuilder(){
 }
 
+TrajectoryFilter *BaseCkfTrajectoryBuilder::createTrajectoryFilter(const edm::ParameterSet& pset, edm::ConsumesCollector& iC) {
+  return TrajectoryFilterFactory::get()->create(pset.getParameter<std::string>("ComponentType"), pset, iC);
+}
 
 void
 BaseCkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed,  TempTrajectory & result) const
@@ -55,12 +62,12 @@ BaseCkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed,  TempTraj
   PTrajectoryStateOnDet pState( seed.startingState());
   const GeomDet* gdet = theMeasurementTracker->geomTracker()->idToDet(pState.detId());
   TSOS outerState = trajectoryStateTransform::transientState(pState, &(gdet->surface()),
-							     theForwardPropagator->magneticField());
+							     forwardPropagator(seed)->magneticField());
 
 
   for (TrajectorySeed::const_iterator ihit = hitRange.first; ihit != hitRange.second; ihit++) {
  
-   TransientTrackingRecHit::RecHitPointer recHit = theTTRHBuilder->build(&(*ihit));
+    TrackingRecHit::RecHitPointer recHit = ihit->cloneSH();
     const GeomDet* hitGeomDet = recHit->det();
  
     const DetLayer* hitLayer = 
@@ -78,7 +85,7 @@ BaseCkfTrajectoryBuilder::seedMeasurements(const TrajectorySeed& seed,  TempTraj
       result.emplace(invalidState, outerState, recHit, 0, hitLayer);
     }
     else {
-      TSOS innerState   = theBackwardPropagator->propagate(outerState,hitGeomDet->surface());
+      TSOS innerState   = backwardPropagator(seed)->propagate(outerState,hitGeomDet->surface());
       if(innerState.isValid()) {
 	TSOS innerUpdated = theUpdator->update(innerState,*recHit);
 	result.emplace(invalidState, innerUpdated, recHit, 0, hitLayer);
@@ -97,15 +104,6 @@ TempTrajectory BaseCkfTrajectoryBuilder::
 createStartingTrajectory( const TrajectorySeed& seed) const
 {
   TempTrajectory result(seed.direction());
-  if (  seed.direction() == alongMomentum) {
-    theForwardPropagator = &(*thePropagatorAlong);
-    theBackwardPropagator = &(*thePropagatorOpposite);
-  }
-  else {
-    theForwardPropagator = &(*thePropagatorOpposite);
-    theBackwardPropagator = &(*thePropagatorAlong);
-  }
-
   seedMeasurements(seed, result);
 
   LogDebug("CkfPattern")
@@ -210,7 +208,7 @@ BaseCkfTrajectoryBuilder::findStateAndLayers(const TrajectorySeed& seed, const T
       const Surface * surface=&g->surface();
       
       
-      TSOS currentState(trajectoryStateTransform::transientState(ptod,surface,theForwardPropagator->magneticField()));      
+      TSOS currentState(trajectoryStateTransform::transientState(ptod,surface,forwardPropagator(seed)->magneticField()));      
       const DetLayer* lastLayer = theMeasurementTracker->geometricSearchTracker()->detLayer(id);      
       return StateAndLayers(currentState,lastLayer->nextLayers( *currentState.freeState(), traj.direction()) );
     }
@@ -244,4 +242,29 @@ void BaseCkfTrajectoryBuilder::setEvent(const edm::Event& event) const
 void BaseCkfTrajectoryBuilder::unset() const
 {
     std::cerr << "ERROR unSet called on " << typeid(*this).name() << ( theMeasurementTracker ? " with valid " : "witout any ") << "MeasurementTrackerEvent" << std::endl;
+}
+
+void BaseCkfTrajectoryBuilder::setEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup, const MeasurementTrackerEvent *data) {
+  edm::ESHandle<TrajectoryStateUpdator> updatorHandle;
+  edm::ESHandle<Propagator>             propagatorAlongHandle;
+  edm::ESHandle<Propagator>             propagatorOppositeHandle;
+  edm::ESHandle<Chi2MeasurementEstimatorBase> estimatorHandle;
+  edm::ESHandle<TransientTrackingRecHitBuilder> recHitBuilderHandle;
+
+  iSetup.get<TrackingComponentsRecord>().get(theUpdatorName, updatorHandle);
+  iSetup.get<TrackingComponentsRecord>().get(thePropagatorAlongName, propagatorAlongHandle);
+  iSetup.get<TrackingComponentsRecord>().get(thePropagatorOppositeName, propagatorOppositeHandle);
+  iSetup.get<TrackingComponentsRecord>().get(theEstimatorName, estimatorHandle);
+  iSetup.get<TransientRecHitRecord>().get(theRecHitBuilderName, recHitBuilderHandle);
+
+  theUpdator = updatorHandle.product();
+  thePropagatorAlong = propagatorAlongHandle.product();
+  thePropagatorOpposite = propagatorOppositeHandle.product();
+  theEstimator = estimatorHandle.product();
+  theTTRHBuilder = recHitBuilderHandle.product();
+
+  setData(data);
+  if(theFilter) theFilter->setEvent(iEvent, iSetup);
+  if(theInOutFilter) theInOutFilter->setEvent(iEvent, iSetup);
+  setEvent_(iEvent, iSetup);
 }

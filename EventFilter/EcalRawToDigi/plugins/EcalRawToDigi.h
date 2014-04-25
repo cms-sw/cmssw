@@ -27,17 +27,18 @@
 
 #include <DataFormats/Common/interface/Handle.h>
 #include <FWCore/Framework/interface/Event.h>
-#include <FWCore/Framework/interface/EDProducer.h>
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <FWCore/Framework/interface/ESWatcher.h>
+#include "DataFormats/EcalRawData/interface/EcalListOfFEDS.h"
 #include <sys/time.h>
 
 class EcalElectronicsMapper;
 class EcalElectronicsMapping;
 class DCCDataUnpacker;
 
-class EcalRawToDigi : public edm::EDProducer{
+class EcalRawToDigi : public edm::stream::EDProducer<>{
 
  public:
   /**
@@ -85,12 +86,12 @@ class EcalRawToDigi : public edm::EDProducer{
   bool put_;
 
   
-  //std::string dataLabel_ ; 
-  edm::InputTag dataLabel_;
+  edm::EDGetTokenT<FEDRawDataCollection> dataToken_;
+  edm::EDGetTokenT<EcalListOfFEDS> fedsToken_;  
 
   // -- For regional unacking :
   bool REGIONAL_ ;
-  edm::InputTag fedsLabel_ ;
+    
 
   //an electronics mapper class 
   EcalElectronicsMapper * myMap_;

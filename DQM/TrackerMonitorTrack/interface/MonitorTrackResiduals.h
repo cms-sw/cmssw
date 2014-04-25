@@ -18,6 +18,7 @@ Monitoring source for track residuals on each detector module
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Run.h"
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 
 class MonitorElement;
@@ -27,18 +28,19 @@ namespace edm { class Event; }
 
 typedef std::map<int32_t, MonitorElement *> HistoClass;
 
-class MonitorTrackResiduals : public edm::EDAnalyzer {
+class MonitorTrackResiduals : public DQMEDAnalyzer {
  public:
   // constructors and EDAnalyzer Methods
   explicit MonitorTrackResiduals(const edm::ParameterSet&);
   ~MonitorTrackResiduals();
-  virtual void beginRun(edm::Run const& run, edm::EventSetup const& iSetup);
+  void dqmBeginRun(const edm::Run& , const edm::EventSetup& ) ;
   virtual void endRun(const edm::Run&, const edm::EventSetup&);
   virtual void beginJob(void);
   virtual void endJob(void);
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   // Own methods 
-  void createMEs(const edm::EventSetup&);
+  void createMEs( DQMStore::IBooker & , const edm::EventSetup&);
   void resetModuleMEs(int32_t modid);
   void resetLayerMEs(const std::pair<std::string, int32_t>&);
  private:

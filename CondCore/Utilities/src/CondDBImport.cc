@@ -23,10 +23,11 @@
     match = true; \
   }
 
-#include "CondCore/Utilities/interface/CondDBImport.h"
 #include "CondCore/CondDB/interface/Serialization.h"
+#include "CondCore/Utilities/interface/CondDBImport.h"
 #include "CondCore/CondDB/interface/Exception.h"
 #include "CondFormats.h"
+
 //
 #include <sstream>
 
@@ -80,6 +81,7 @@ namespace cond {
       IMPORT_PAYLOAD_CASE( DTLVStatus )
       IMPORT_PAYLOAD_CASE( DTMtime )
       IMPORT_PAYLOAD_CASE( DTReadOutMapping )
+      IMPORT_PAYLOAD_CASE( DTRecoUncertainties )
       IMPORT_PAYLOAD_CASE( DTStatusFlag )
       IMPORT_PAYLOAD_CASE( DTT0 )
       IMPORT_PAYLOAD_CASE( DTTPGParameters )
@@ -135,6 +137,7 @@ namespace cond {
       IMPORT_PAYLOAD_CASE( EcalTPGTowerStatus )
       IMPORT_PAYLOAD_CASE( EcalTPGWeightGroup )
       IMPORT_PAYLOAD_CASE( EcalTPGWeightIdMap )
+      IMPORT_PAYLOAD_CASE( EcalTimeBiasCorrections )
       IMPORT_PAYLOAD_CASE( EcalTimeOffsetConstant )
       IMPORT_PAYLOAD_CASE( EcalTimeDependentCorrections )
       IMPORT_PAYLOAD_CASE( EcalWeightXtalGroups )
@@ -288,7 +291,11 @@ namespace cond {
 	const PhysicsTools::Calibration::Histogram2D<double,double,double>& obj = *static_cast<const PhysicsTools::Calibration::Histogram2D<double,double,double>*>( inputPtr ); 
 	payloadId = destination.storePayload( obj, boost::posix_time::microsec_clock::universal_time() ); 
       } 
-
+      if( inputTypeName == "std::vector<unsignedlonglong,std::allocator<unsignedlonglong>>" ){
+	match = true;
+	const std::vector<unsigned long long>& obj = *static_cast<const std::vector<unsigned long long>*>( inputPtr );
+	payloadId = destination.storePayload( obj, boost::posix_time::microsec_clock::universal_time() );
+      }
       
       if( ! match ) throwException( "Payload type \""+inputTypeName+"\" is unknown.","import" );
       }
@@ -303,8 +310,8 @@ namespace cond {
       bool found = session.fetchPayloadData( payloadId, payloadTypeName, data, streamerInfo );
       if( !found ) throwException( "Payload with id "+boost::lexical_cast<std::string>(payloadId)+" has not been found in the database.","fetchAndCompare" );
       //std::cout <<"--> payload type "<<payloadTypeName<<" has blob size "<<data.size()<<std::endl;
-      bool match = false;
       bool isOra = session.isOraSession();
+      bool match = false;
     FETCH_PAYLOAD_CASE( std::string ) 
     FETCH_PAYLOAD_CASE( std::vector<unsigned long long> )
     FETCH_PAYLOAD_CASE( AlCaRecoTriggerBits )
@@ -346,6 +353,7 @@ namespace cond {
     FETCH_PAYLOAD_CASE( DTLVStatus )
     FETCH_PAYLOAD_CASE( DTMtime )
     FETCH_PAYLOAD_CASE( DTReadOutMapping )
+    FETCH_PAYLOAD_CASE( DTRecoUncertainties )
     FETCH_PAYLOAD_CASE( DTStatusFlag )
     FETCH_PAYLOAD_CASE( DTT0 )
     FETCH_PAYLOAD_CASE( DTTPGParameters )
@@ -385,6 +393,7 @@ namespace cond {
     FETCH_PAYLOAD_CASE( EcalSRSettings )
     FETCH_PAYLOAD_CASE( EcalSampleMask )
     FETCH_PAYLOAD_CASE( EcalTBWeights )
+    FETCH_PAYLOAD_CASE( EcalTimeBiasCorrections )
     FETCH_PAYLOAD_CASE( EcalTimeDependentCorrections )
     FETCH_PAYLOAD_CASE( EcalTPGCrystalStatus )
     FETCH_PAYLOAD_CASE( EcalTPGFineGrainEBGroup )
@@ -524,17 +533,21 @@ namespace cond {
 
     //   
     if( payloadTypeName == "PhysicsTools::Calibration::Histogram3D<double,double,double,double>" ){    
-      auto payload = deserialize<PhysicsTools::Calibration::Histogram3D<double,double,double,double> >(payloadTypeName, data, streamerInfo );
+      auto payload = deserialize<PhysicsTools::Calibration::Histogram3D<double,double,double,double> >(payloadTypeName, data, streamerInfo, isOra );
       payloadPtr = payload;
       match = true;
     }
     if( payloadTypeName == "PhysicsTools::Calibration::Histogram2D<double,double,double>" ){    
-      auto payload = deserialize<PhysicsTools::Calibration::Histogram2D<double,double,double> >(payloadTypeName, data, streamerInfo );
+      auto payload = deserialize<PhysicsTools::Calibration::Histogram2D<double,double,double> >(payloadTypeName, data, streamerInfo, isOra );
+      payloadPtr = payload;
+      match = true;
+    }
+    if( payloadTypeName == "std::vector<unsignedlonglong,std::allocator<unsignedlonglong>>" ){
+      auto payload = deserialize<std::vector<unsigned long long> >( payloadTypeName, data, streamerInfo, isOra );
       payloadPtr = payload;
       match = true;
     }
   
-
     if( ! match ) throwException( "Payload type \""+payloadTypeName+"\" is unknown.","fetch" );
     return std::make_pair( payloadTypeName, payloadPtr );
   }

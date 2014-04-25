@@ -7,7 +7,7 @@
  **
  ***/
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -34,7 +34,7 @@
 #include "RecoEgamma/EgammaPhotonAlgos/interface/PhotonEnergyCorrector.h"
 
 // PhotonProducer inherits from EDProducer, so it can be a module:
-class PhotonProducer : public edm::EDProducer {
+class PhotonProducer : public edm::stream::EDProducer<> {
 
  public:
 

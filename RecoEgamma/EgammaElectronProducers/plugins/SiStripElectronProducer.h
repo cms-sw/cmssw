@@ -23,7 +23,7 @@
 // user include files
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "DataFormats/EgammaCandidates/interface/SiStripElectron.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/SiStripElectronAlgo.h"
@@ -32,7 +32,7 @@
 
 // forward declarations
 
-class SiStripElectronProducer : public edm::EDProducer {
+class SiStripElectronProducer : public edm::stream::EDProducer<> {
    public:
       explicit SiStripElectronProducer(const edm::ParameterSet&);
       ~SiStripElectronProducer();

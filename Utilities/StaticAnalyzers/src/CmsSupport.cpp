@@ -140,10 +140,12 @@ bool support::isDataClass(const std::string & name) {
 		iname = fname1;
 	else 
 		iname = fname2;	
-	os <<"class '"<< name <<"'\n";
+	os <<"class '"<< name <<"'";
 	std::ifstream ifile;
 	ifile.open(iname.c_str(),std::ifstream::in);
-	std::string ifilecontents((std::istreambuf_iterator<char>(ifile)),std::istreambuf_iterator<char>() );
-	if (ifilecontents.find(os.str()) != std::string::npos ) return true;
+	std::string line;
+	while (std::getline(ifile,line)) {
+		if ( line == os.str() ) return true;
+	}
 	return false;
 }

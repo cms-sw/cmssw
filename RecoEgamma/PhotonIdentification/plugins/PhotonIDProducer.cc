@@ -1,14 +1,12 @@
 #include "RecoEgamma/PhotonIdentification/plugins/PhotonIDProducer.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
 
 
 PhotonIDProducer::PhotonIDProducer(const edm::ParameterSet& conf) : conf_(conf) {
-
-  photonProducer_ = conf_.getParameter<std::string>("photonProducer");
-  photonLabel_ = conf_.getParameter<std::string>("photonLabel");
+  photonToken_ = consumes<reco::PhotonCollection>(edm::InputTag(conf_.getParameter<std::string>("photonProducer"),
+								conf_.getParameter<std::string>("photonLabel")));
  
   photonCutBasedIDLooseLabel_ = conf.getParameter<std::string>("photonCutBasedIDLooseLabel");
   photonCutBasedIDTightLabel_ = conf.getParameter<std::string>("photonCutBasedIDTightLabel");
@@ -34,7 +32,7 @@ void PhotonIDProducer::produce(edm::Event& e, const edm::EventSetup& c) {
 
    // Read in photons
   edm::Handle<reco::PhotonCollection> photons;
-  e.getByLabel(photonProducer_,photonLabel_,photons);
+  e.getByToken(photonToken_,photons);
 
 
   // Loop over photons and calculate photon ID using specified technique(s)

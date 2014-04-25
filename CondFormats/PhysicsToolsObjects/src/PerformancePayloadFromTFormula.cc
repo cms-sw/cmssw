@@ -37,6 +37,10 @@ float PerformancePayloadFromTFormula::getResult(PerformanceResult::ResultType r 
   }
   //
   // i need a non const version #$%^
+  // Note, in current implementation of TFormula EvalPar should be
+  // thread safe as it does nothing more than call a function
+  // through a function pointer which is stateless. In spite of the
+  // fact that it is not const.
   return formula->EvalPar(values);
 }
 
@@ -68,6 +72,7 @@ void PerformancePayloadFromTFormula::printFormula(PerformanceResult::ResultType 
   //
   if (resultPos(res) == PerformancePayloadFromTFormula::InvalidPos)  {
     cout << "Warning: result not available!" << endl;
+    return;
   }
   
   // nice, what to do here???

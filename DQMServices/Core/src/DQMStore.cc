@@ -1,3 +1,4 @@
+#include "FWCore/ServiceRegistry/interface/SystemBounds.h"
 #include "DQMServices/Core/interface/Standalone.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/QReport.h"
@@ -387,14 +388,23 @@ DQMStore::DQMStore(const edm::ParameterSet &pset, edm::ActivityRegistry& ar)
     streamId_(0),
     moduleId_(0),
     pwd_ (""),
-    ibooker_(0)
+    ibooker_(0),
+    igetter_(0)
 {
   if (!ibooker_)
     ibooker_ = new DQMStore::IBooker(this);
+  if (!igetter_)
+    igetter_ = new DQMStore::IGetter(this);
   initializeFrom(pset);
   if(pset.getUntrackedParameter<bool>("forceResetOnBeginRun",false)) {
     ar.watchPostSourceRun(this,&DQMStore::forceReset);
   }
+  ar.preallocateSignal_.connect([this](edm::service::SystemBounds const& iBounds) {
+      if(iBounds.maxNumberOfStreams() > 1 ) {
+	enableMultiThread_ = true;
+      }
+    });
+
 }
 
 DQMStore::DQMStore(const edm::ParameterSet &pset)
@@ -408,10 +418,13 @@ DQMStore::DQMStore(const edm::ParameterSet &pset)
     streamId_(0),
     moduleId_(0),
     pwd_ (""),
-    ibooker_(0)
+    ibooker_(0),
+    igetter_(0)
 {
   if (!ibooker_)
     ibooker_ = new DQMStore::IBooker(this);
+  if (!igetter_)
+    igetter_ = new DQMStore::IGetter(this);
   initializeFrom(pset);
 }
 

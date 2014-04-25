@@ -6,7 +6,7 @@
 // user include files
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -21,6 +21,10 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "RecoParticleFlow/PFTracking/interface/PFGeometry.h"
+
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
+
 /// \brief Abstract
 /*!
 \author Michele Pioppi
@@ -45,7 +49,7 @@ class TrackerGeometry;
 class TrajectoryStateOnSurface;
 
 
-class GoodSeedProducer : public edm::EDProducer {
+class GoodSeedProducer : public edm::stream::EDProducer<> {
   typedef TrajectoryStateOnSurface TSOS;
    public:
       explicit GoodSeedProducer(const edm::ParameterSet&);
@@ -62,7 +66,7 @@ class GoodSeedProducer : public edm::EDProducer {
       void PSforTMVA(const math::XYZTLorentzVector& mom,
 		     const math::XYZTLorentzVector& pos);
       bool IsIsolated(float  charge,float P,
-	              math::XYZPointF, 
+	              GlobalPoint, 
                       const reco::PFClusterCollection &ecalColl,
                       const reco::PFClusterCollection &hcalColl);
 
@@ -72,8 +76,8 @@ class GoodSeedProducer : public edm::EDProducer {
       // ----------member data ---------------------------
 
       ///Vector of clusters of the PreShower
-      std::vector<reco::PFCluster> ps1Clus;
-      std::vector<reco::PFCluster> ps2Clus;
+      std::vector<reco::PFCluster const *> ps1Clus;
+      std::vector<reco::PFCluster const *> ps2Clus;
 
       ///Name of the Seed(Ckf) Collection
       std::string preidckf_;
@@ -85,10 +89,13 @@ class GoodSeedProducer : public edm::EDProducer {
       std::string preidname_;
 
       ///Fitter
-      edm::ESHandle<TrajectoryFitter> fitter_;
+      std::unique_ptr<TrajectoryFitter> fitter_;
 
       ///Smoother
-      edm::ESHandle<TrajectorySmoother> smoother_;
+      std::unique_ptr<TrajectorySmoother> smoother_;
+
+      // needed by the above
+      TkClonerImpl hitCloner;
 
       ///PFTrackTransformer
       PFTrackTransformer *pfTransformer_;
@@ -175,6 +182,7 @@ class GoodSeedProducer : public edm::EDProducer {
 
       /// Map used to create the TrackRef, PreIdRef value map
       std::map<reco::TrackRef,unsigned> refMap_;
-     
+
+      PFGeometry pfGeometry_;
 };
 #endif

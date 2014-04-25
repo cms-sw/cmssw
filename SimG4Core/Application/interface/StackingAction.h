@@ -25,12 +25,16 @@ public:
   void PrepareNewEvent();
 
 private:
-  void   initPointer();
-  bool   isThisVolume(const G4VTouchable*, std::vector<G4LogicalVolume*>&) const;
-  int    isItPrimaryDecayProductOrConversion(const G4Track*, const G4Track &) const;
-  int    isItFromPrimary(const G4Track &, int) const;
-  bool   rrApplicable(const G4Track*, const G4Track&) const;
-  bool   isItLongLived(const G4Track*) const;
+
+  void initPointer();
+
+  int  isItPrimaryDecayProductOrConversion(const G4Track*, const G4Track &) const;
+  int  isItFromPrimary(const G4Track &, int) const;
+  bool rrApplicable(const G4Track*, const G4Track&) const;
+  bool isItLongLived(const G4Track*) const;
+
+  bool isThisRegion(const G4Region*, std::vector<const G4Region*>&) const;
+  void printRegions(const std::vector<const G4Region*>& reg) const;
 
 private:
 
@@ -39,22 +43,29 @@ private:
   bool                          savePDandCinAll;
   bool                          killInCalo, killInCaloEfH;
   bool                          killHeavy, trackNeutrino, killDeltaRay;
+  bool                          killBeamPipe;
+  double                        limitEnergyForVacuum;
   double                        kmaxIon, kmaxNeutron, kmaxProton;
   double                        maxTrackTime;
+  unsigned int                  numberTimes;
   std::vector<double>           maxTrackTimes;
   std::vector<std::string>      maxTimeNames;
-  std::vector<G4Region*>        maxTimeRegions;
-  std::vector<G4LogicalVolume*> tracker, calo, muon;
+  std::vector<const G4Region*>  maxTimeRegions;
+
+  std::vector<const G4Region*>  trackerRegions;
+  std::vector<const G4Region*>  muonRegions;
+  std::vector<const G4Region*>  caloRegions;
+  std::vector<const G4Region*>  deadRegions;
 
   NewTrackAction*               newTA;
 
   // Russian roulette regions
-  G4Region*                     regionEcal;
-  G4Region*                     regionHcal;
-  G4Region*                     regionMuonIron;
-  G4Region*                     regionPreShower;
-  G4Region*                     regionCastor;
-  G4Region*                     regionWorld;
+  const G4Region*               regionEcal;
+  const G4Region*               regionHcal;
+  const G4Region*               regionMuonIron;
+  const G4Region*               regionPreShower;
+  const G4Region*               regionCastor;
+  const G4Region*               regionWorld;
 
   // Russian roulette energy limits
   double                        gRusRoEnerLim;

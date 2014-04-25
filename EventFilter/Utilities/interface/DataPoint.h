@@ -66,7 +66,7 @@ public:
 	//take new update for lumi
 	void snap(unsigned int lumi);
 	void snapGlobal(unsigned int lumi);
-	void snapStreamAtomic(unsigned int streamID, unsigned int lumi);
+	void snapStreamAtomic(unsigned int lumi, unsigned int streamID);
 
 	//set to track a variable
 	void trackMonitorable(JsonMonitorable *monitorable,bool NAifZeroUpdates);
@@ -113,6 +113,8 @@ public:
 	void setNBins(unsigned int *nBins) {nBinsPtr_ = nBins;}
 
 	std::string const& getName() {return name_;}
+
+        void updateDefinition(std::string const& definition) {definition_=definition;}
 
 	// JSON field names
 	static const std::string SOURCE;

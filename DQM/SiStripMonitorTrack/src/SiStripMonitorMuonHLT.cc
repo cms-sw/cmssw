@@ -410,7 +410,7 @@ void SiStripMonitorMuonHLT::analyzeOnTrackClusters( const reco::Track* l3tk, con
 }
 
 void
-SiStripMonitorMuonHLT::createMEs (const edm::EventSetup & es)
+SiStripMonitorMuonHLT::createMEs (DQMStore::IBooker & ibooker , const edm::EventSetup & es)
 {
 
   // vector used 
@@ -466,7 +466,7 @@ SiStripMonitorMuonHLT::createMEs (const edm::EventSetup & es)
       tkdetmap_->getSubDetLayerSide (layer, subDet, subdetlayer, side);
       folderOrg.getSubDetLayerFolderName (ss, subDet, subdetlayer, side);
       folder = ss.str ();
-      dbe_->setCurrentFolder (monitorName_ + folder);
+      ibooker.setCurrentFolder (monitorName_ + folder);
 
       LayerMEs layerMEs;
       layerMEs.EtaPhiAllClustersMap           = 0;
@@ -548,37 +548,37 @@ SiStripMonitorMuonHLT::createMEs (const edm::EventSetup & es)
       if(runOnClusters_){
       	histoname = "EtaAllClustersDistrib_" + labelHisto;
       	title = "#eta(All Clusters) in " + labelHisto;
-      	layerMEs.EtaDistribAllClustersMap = dbe_->book1D (histoname, title, sizeEta - 1, xbinsEta);
+      	layerMEs.EtaDistribAllClustersMap = ibooker.book1D (histoname, title, sizeEta - 1, xbinsEta);
       	histoname = "PhiAllClustersDistrib_" + labelHisto;
       	title = "#phi(All Clusters) in " + labelHisto;
-      	layerMEs.PhiDistribAllClustersMap = dbe_->book1D (histoname, title, sizePhi - 1, xbinsPhi);
+      	layerMEs.PhiDistribAllClustersMap = ibooker.book1D (histoname, title, sizePhi - 1, xbinsPhi);
       	histoname = "EtaPhiAllClustersMap_" + labelHisto;
       	title = "#eta-#phi All Clusters map in " + labelHisto;
-      	layerMEs.EtaPhiAllClustersMap = dbe_->book2D (histoname, title, sizeEta - 1, xbinsEta, sizePhi - 1, xbinsPhi);
+      	layerMEs.EtaPhiAllClustersMap = ibooker.book2D (histoname, title, sizeEta - 1, xbinsEta, sizePhi - 1, xbinsPhi);
       }
       // on track clusters
       if(runOnTracks_){
       	histoname = "EtaOnTrackClustersDistrib_" + labelHisto;
       	title = "#eta(OnTrack Clusters) in " + labelHisto;
-      	layerMEs.EtaDistribOnTrackClustersMap = dbe_->book1D (histoname, title, sizeEta - 1, xbinsEta);
+      	layerMEs.EtaDistribOnTrackClustersMap = ibooker.book1D (histoname, title, sizeEta - 1, xbinsEta);
       	histoname = "PhiOnTrackClustersDistrib_" + labelHisto;
       	title = "#phi(OnTrack Clusters) in " + labelHisto;
-      	layerMEs.PhiDistribOnTrackClustersMap = dbe_->book1D (histoname, title, sizePhi - 1, xbinsPhi);
+      	layerMEs.PhiDistribOnTrackClustersMap = ibooker.book1D (histoname, title, sizePhi - 1, xbinsPhi);
       	histoname = "EtaPhiOnTrackClustersMap_" + labelHisto;
       	title = "#eta-#phi OnTrack Clusters map in " + labelHisto;
-      	layerMEs.EtaPhiOnTrackClustersMap = dbe_->book2D (histoname, title, sizeEta - 1, xbinsEta, sizePhi - 1, xbinsPhi);
+      	layerMEs.EtaPhiOnTrackClustersMap = ibooker.book2D (histoname, title, sizeEta - 1, xbinsEta, sizePhi - 1, xbinsPhi);
       }
       if(runOnMuonCandidates_){
       	// L3 muon track clusters
       	histoname = "EtaL3MuTrackClustersDistrib_" + labelHisto;
       	title = "#eta(L3MuTrack Clusters) in " + labelHisto;
-      	layerMEs.EtaDistribL3MuTrackClustersMap = dbe_->book1D (histoname, title, sizeEta - 1, xbinsEta);
+      	layerMEs.EtaDistribL3MuTrackClustersMap = ibooker.book1D (histoname, title, sizeEta - 1, xbinsEta);
       	histoname = "PhiL3MuTrackClustersDistrib_" + labelHisto;
       	title = "#phi(L3MuTrack Clusters) in " + labelHisto;
-      	layerMEs.PhiDistribL3MuTrackClustersMap = dbe_->book1D (histoname, title, sizePhi - 1, xbinsPhi);
+      	layerMEs.PhiDistribL3MuTrackClustersMap = ibooker.book1D (histoname, title, sizePhi - 1, xbinsPhi);
       	histoname = "EtaPhiL3MuTrackClustersMap_" + labelHisto;
       	title = "#eta-#phi L3MuTrack Clusters map in " + labelHisto;
-      	layerMEs.EtaPhiL3MuTrackClustersMap = dbe_->book2D (histoname, title, sizeEta - 1, xbinsEta, sizePhi - 1, xbinsPhi);
+      	layerMEs.EtaPhiL3MuTrackClustersMap = ibooker.book2D (histoname, title, sizeEta - 1, xbinsEta, sizePhi - 1, xbinsPhi);
       }
       LayerMEMap[labelHisto] = layerMEs;
 
@@ -1254,24 +1254,22 @@ SiStripMonitorMuonHLT::PrintNormalization (const std::vector<std::string>& v_Lab
 } 
 
 
-// ------------ method called once each job just before starting event loop  ------------
-void
-SiStripMonitorMuonHLT::beginRun (const edm::Run& run, const edm::EventSetup & es)
+void SiStripMonitorMuonHLT::bookHistograms(DQMStore::IBooker & ibooker , const edm::Run & run, const edm::EventSetup & es)
 {
-  if (dbe_)
-    {
+  //if (dbe_)
+  //{
       if (monitorName_ != "")
-	monitorName_ = monitorName_ + "/";
+        monitorName_ = monitorName_ + "/";
       edm::LogInfo ("HLTMuonDQMSource") << "===>DQM event prescale = " << prescaleEvt_ << " events " << std::endl;
-      createMEs (es);
+      createMEs (ibooker , es);
       //create TKHistoMap
       if(runOnClusters_)
-      	tkmapAllClusters = new TkHistoMap("HLT/HLTMonMuon/SiStrip" ,"TkHMap_AllClusters",0.0,0);
+        tkmapAllClusters = new TkHistoMap(ibooker , "HLT/HLTMonMuon/SiStrip" ,"TkHMap_AllClusters",0.0,0);
       if(runOnTracks_)
-      	tkmapOnTrackClusters = new TkHistoMap("HLT/HLTMonMuon/SiStrip" ,"TkHMap_OnTrackClusters",0.0,0);
+        tkmapOnTrackClusters = new TkHistoMap(ibooker , "HLT/HLTMonMuon/SiStrip" ,"TkHMap_OnTrackClusters",0.0,0);
       if(runOnMuonCandidates_)
-      	tkmapL3MuTrackClusters = new TkHistoMap("HLT/HLTMonMuon/SiStrip" ,"TkHMap_L3MuTrackClusters",0.0,0);
-    }
+        tkmapL3MuTrackClusters = new TkHistoMap(ibooker , "HLT/HLTMonMuon/SiStrip" ,"TkHMap_L3MuTrackClusters",0.0,0);
+      //}
 }
 
 // ------------ method called once each job just after ending the event loop  ------------

@@ -35,8 +35,6 @@ namespace edm
   {  
                                                        // what's "label_"?
 
-
-
     // get the subdetector names
     this->getSubdetectorNames();  //something like this may be useful to check what we are supposed to do...
 

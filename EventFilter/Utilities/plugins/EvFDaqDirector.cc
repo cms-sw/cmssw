@@ -14,6 +14,7 @@
 #include <sys/time.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <sys/file.h>
 
 //#define DEBUG
 
@@ -42,13 +43,6 @@ namespace evf {
     bu_base_dir_(
 		 pset.getUntrackedParameter<std::string> ("buBaseDir", "/data")
 		 ),
-    sm_base_dir_(
-		 pset.getUntrackedParameter<std::string> ("smBaseDir", "/sm")
-		 ),
-    monitor_base_dir_(
-		      pset.getUntrackedParameter<std::string> ("monBaseDir",
-							       "MON")
-		      ),
     directorBu_(
 		pset.getUntrackedParameter<bool> ("directorIsBu", false)
 		),
@@ -58,12 +52,14 @@ namespace evf {
     bu_writelock_fd_(-1),
     fu_readwritelock_fd_(-1),
     data_readwrite_fd_(-1),
+    fulocal_rwlock_fd_(-1),
+    fulocal_rwlock_fd2_(-1),
 
     bu_w_lock_stream(0),
     bu_r_lock_stream(0),
     fu_rw_lock_stream(0),
-    bu_w_monitor_stream(0),
-    bu_t_monitor_stream(0),
+    //bu_w_monitor_stream(0),
+    //bu_t_monitor_stream(0),
     data_rw_stream(0),
 
     dirManager_(base_dir_),
@@ -80,6 +76,10 @@ namespace evf {
     fu_rw_fulk( make_flock( F_UNLCK, SEEK_SET, 0, 0, getpid() )),
     data_rw_flk( make_flock ( F_WRLCK, SEEK_SET, 0, 0, getpid() )),
     data_rw_fulk( make_flock( F_UNLCK, SEEK_SET, 0, 0, getpid() ))
+    //fulocal_rw_flk( make_flock( F_WRLCK, SEEK_SET, 0, 0, getpid() )),
+    //fulocal_rw_fulk( make_flock( F_UNLCK, SEEK_SET, 0, 0, getpid() )),
+    //fulocal_rw_flk2( make_flock( F_WRLCK, SEEK_SET, 0, 0, getpid() )),
+    //fulocal_rw_fulk2( make_flock( F_UNLCK, SEEK_SET, 0, 0, getpid() ))
   {
 
     reg.watchPreallocate(this, &EvFDaqDirector::preallocate);
@@ -100,8 +100,29 @@ namespace evf {
     int retval = mkdir(base_dir_.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     if (retval != 0 && errno != EEXIST) {
       throw cms::Exception("DaqDirector") << " Error checking for base dir "
-    					  << base_dir_ << " mkdir error:" << strerror(errno) << "\n";
+    					  << base_dir_ << " mkdir error:" << strerror(errno);
     }
+
+    //create run dir in base dir
+    umask(0);
+    retval = mkdir(run_dir_.c_str(),
+		       S_IRWXU | S_IRWXG | S_IROTH | S_IRWXO | S_IXOTH);
+    if (retval != 0 && errno != EEXIST) {
+      throw cms::Exception("DaqDirector") << " Error creating run dir "
+					  << run_dir_ << " mkdir error:" << strerror(errno);
+    }
+    //create fu-local.lock in run dir
+    std::string fulocal_lock_ = run_dir_+"/"+"fu-local.lock";
+    fulocal_rwlock_fd_ = open(fulocal_lock_.c_str(), O_RDWR | O_CREAT, S_IRWXU | S_IWGRP | S_IRGRP | S_IWOTH | S_IROTH);//O_RDWR?
+    if (fulocal_rwlock_fd_==-1)
+      throw cms::Exception("DaqDirector") << " Error creating/opening a local lock file " << fulocal_lock_.c_str() << " : " << strerror(errno);
+    chmod(fulocal_lock_.c_str(),0777);
+    fsync(fulocal_rwlock_fd_);
+    //open second fd for another input source thread
+    fulocal_rwlock_fd2_ = open(fulocal_lock_.c_str(), O_RDWR, S_IRWXU | S_IWGRP | S_IRGRP | S_IWOTH | S_IROTH);//O_RDWR?
+    if (fulocal_rwlock_fd2_==-1)
+      throw cms::Exception("DaqDirector") << " Error opening a local lock file " << fulocal_lock_.c_str() << " : " << strerror(errno);
+
 
     //bu_run_dir: for FU, for which the base dir is local and the BU is remote, it is expected to be there
     //for BU, it is created at this point
@@ -109,13 +130,13 @@ namespace evf {
 
     if (directorBu_)
       {
-	bu_run_dir_ = bu_base_dir_ + "/" + run_string_;
+	bu_run_dir_ = base_dir_ + "/" + run_string_;
 	std::string bulockfile = bu_run_dir_ + "/bu.lock";
 	std::string fulockfile = bu_run_dir_ + "/fu.lock";
 
 	//make or find bu run dir
 	retval = mkdir(bu_run_dir_.c_str(),
-		       S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+		       S_IRWXU | S_IRWXG | S_IRWXO);
 	if (retval != 0 && errno != EEXIST) {
 	  throw cms::Exception("DaqDirector")
 	    << " Error creating bu run dir " << bu_run_dir_
@@ -130,20 +151,6 @@ namespace evf {
 					      << "\n";
 	}
 
-	//make or find monitor base dir
-	//@@EM make sure this is still needed
-
-	std::stringstream ost;
-	ost << bu_run_dir_ << "/" << monitor_base_dir_;
-	monitor_base_dir_ = ost.str() + "_OLD";
-	retval = mkdir(monitor_base_dir_.c_str(),
-		       S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-	if (retval != 0 && errno != EEXIST) {
-	  throw cms::Exception("DaqDirector")
-	    << " Error creating monitor dir " << monitor_base_dir_
-	    << " mkdir error:" << strerror(errno) << "\n";
-	}
-
 	// the BU director does not need to know about the fu lock
 	bu_writelock_fd_ = open(bulockfile.c_str(),
 				O_WRONLY | O_CREAT | O_TRUNC, S_IRWXU);
@@ -156,12 +163,6 @@ namespace evf {
 	bu_w_lock_stream = fdopen(bu_writelock_fd_, "w");
 	if (bu_w_lock_stream == 0)
 	  edm::LogWarning("EvFDaqDirector")<< "Error creating write lock stream " << strerror(errno);
-	std::string filename = monitor_base_dir_ + "/bumonitor.txt";
-	bu_w_monitor_stream = fopen(filename.c_str(), "w+");
-	filename = monitor_base_dir_ + "/diskmonitor.txt";
-	bu_t_monitor_stream = fopen(filename.c_str(), "w+");
-	if (bu_t_monitor_stream == 0)
-	  edm::LogWarning("EvFDaqDirector") << "Error creating bu write lock stream " << strerror(errno);
 
 	// BU INITIALIZES LOCK FILE
 	// FU LOCK FILE OPEN
@@ -169,7 +170,6 @@ namespace evf {
 	tryInitializeFuLockFile();
 	fflush(fu_rw_lock_stream);
 	close(fu_readwritelock_fd_);
-	//createOutputDirectory(); // this should act not on the bu base dir but on the output disk
       }
     else
       {
@@ -178,7 +178,7 @@ namespace evf {
 	retval = mkdir(bu_base_dir_.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 	if (retval != 0 && errno != EEXIST) {
 	  throw cms::Exception("DaqDirector") << " Error checking for bu base dir "
-					      << base_dir_ << " mkdir error:" << strerror(errno) << "\n";
+					      << bu_base_dir_ << " mkdir error:" << strerror(errno) << "\n";
 	}
 
 	bu_run_dir_ = bu_base_dir_ + "/" + run_string_;
@@ -190,12 +190,25 @@ namespace evf {
 
   }
 
-//  void EvFDaqDirector::postEndRun(edm::Run const& run, edm::EventSetup const& es) {
+  EvFDaqDirector::~EvFDaqDirector()
+  {
+    if (fulocal_rwlock_fd_!=-1) {
+      unlockFULocal();
+      close(fulocal_rwlock_fd_);
+    }
+
+    if (fulocal_rwlock_fd2_!=-1) {
+      unlockFULocal2();
+      close(fulocal_rwlock_fd2_);
+    }
+
+  }
+
   void EvFDaqDirector::postEndRun(edm::GlobalContext const& globalContext) {
     close(bu_readlock_fd_);
     close(bu_writelock_fd_);
     if (directorBu_) {
-      std::string filename = bu_base_dir_ + "/bu.lock";
+      std::string filename = base_dir_ + "/bu.lock";
       removeFile(filename);
     }
   }
@@ -213,15 +226,6 @@ namespace evf {
 
 //    assert(run_ == id.run());
 
-    // check if run dir exists or make it.
-    umask(0);
-    int retval = mkdir(run_dir_.c_str(),
-		       S_IRWXU | S_IRWXG | S_IROTH | S_IRWXO | S_IXOTH);
-    if (retval != 0 && errno != EEXIST) {
-      throw cms::Exception("DaqDirector") << " Error creating run dir "
-					  << run_dir_ << " mkdir error:" << strerror(errno) << "\n";
-    }
-
     // check if the requested run is the latest one - issue a warning if it isn't
     if (dirManager_.findHighestRunDir() != run_dir_) {
       edm::LogWarning("EvFDaqDirector") << "DaqDirector Warning checking run dir "
@@ -234,49 +238,17 @@ namespace evf {
     streamFileTracker_[streamID]=currentFileIndex_;
   }
 
-  bool EvFDaqDirector::createOutputDirectory() {
-    int retval = mkdir(sm_base_dir_.c_str(),
-		       S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-    if (retval != 0 && errno != EEXIST) {
-      throw cms::Exception("DaqDirector") << " Error creating output dir "
-					  << sm_base_dir_ << " mkdir error:" << strerror(errno) << "\n";
-      return false;
-    }
-    std::string mergedRunDir = sm_base_dir_ + "/" + run_string_;
-    std::string mergedDataDir = mergedRunDir + "/data";
-    std::string mergedMonDir = mergedRunDir + "/mon";
-    retval = mkdir(mergedRunDir.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-    if (retval != 0 && errno != EEXIST) {
-      throw cms::Exception("DaqDirector")
-	<< " Error creating merged Run dir " << mergedDataDir
-	<< " mkdir error:" << strerror(errno) << "\n";
-      return false;
-    }
-    retval
-      = mkdir(mergedDataDir.c_str(),
-	      S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-    if (retval != 0 && errno != EEXIST) {
-      throw cms::Exception("DaqDirector")
-	<< " Error creating merged data dir " << mergedDataDir
-	<< " mkdir error:" << strerror(errno) << "\n";
-      return false;
-    }
-    retval = mkdir(mergedMonDir.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-    if (retval != 0 && errno != EEXIST) {
-      throw cms::Exception("DaqDirector")
-	<< " Error creating merged mon dir " << mergedMonDir
-	<< " mkdir error:" << strerror(errno) << "\n";
-      return false;
-    }
-    return true;
-  }
-
   std::string EvFDaqDirector::getRawFilePath(const unsigned int ls, const unsigned int index) const {
     return bu_run_dir_ + "/" + fffnaming::inputRawFileName(run_,ls,index);
   }
 
   std::string EvFDaqDirector::getOpenRawFilePath(const unsigned int ls, const unsigned int index) const {
     return bu_run_dir_ + "/open/" + fffnaming::inputRawFileName(run_,ls,index);
+  }
+
+
+  std::string EvFDaqDirector::getOpenInputJsonFilePath(const unsigned int ls, const unsigned int index) const {
+    return bu_run_dir_ + "/open/" + fffnaming::inputJsonFileName(run_,ls,index);
   }
 
   std::string EvFDaqDirector::getOpenDatFilePath(const unsigned int ls, std::string const& stream) const {
@@ -312,11 +284,6 @@ namespace evf {
     return run_dir_ + "/" + fffnaming::eorFileName(run_);
   }
 
-
-  std::string EvFDaqDirector::getPathForFU() const {
-    return sm_base_dir_;
-  }
-
   void EvFDaqDirector::removeFile(std::string filename) {
     int retval = remove(filename.c_str());
     if (retval != 0)
@@ -326,23 +293,6 @@ namespace evf {
 
   void EvFDaqDirector::removeFile(unsigned int ls, unsigned int index) {
     removeFile(getRawFilePath(ls,index));
-  }
-
-  void EvFDaqDirector::updateBuLock(unsigned int ls) {
-    int check = 0;
-    fcntl(bu_writelock_fd_, F_SETLKW, &bu_w_flk);
-    if (bu_w_lock_stream != 0) {
-      check = fseek(bu_w_lock_stream, 0, SEEK_SET);
-      if (check == 0)
-	fprintf(bu_w_lock_stream, "%u", ls);
-      else
-	edm::LogError("EvFDaqDirector")
-	  << "seek on bu write lock for updating failed with error "
-	  << strerror(errno);
-    } else
-      edm::LogError("EvFDaqDirector") << "bu write lock stream is invalid " << strerror(errno);
-
-    fcntl(bu_writelock_fd_, F_SETLKW, &bu_w_fulk);
   }
 
   EvFDaqDirector::FileStatus EvFDaqDirector::updateFuLock(unsigned int& ls, std::string& nextFile, uint32_t& fsize) {
@@ -431,6 +381,9 @@ namespace evf {
     double locked_period=locked_period_int+double(ts_preunlock.tv_usec - ts_lockend.tv_usec)/1000000;
 #endif
 
+    //if new json is present, lock file which FedRawDataInputSource will later unlock
+    if (fileStatus==newFile) lockFULocal();
+
     //release lock at this point
     int retvalu=-1;
     retvalu=fcntl(fu_readwritelock_fd_, F_SETLKW, &fu_rw_fulk);
@@ -449,89 +402,6 @@ namespace evf {
     return fileStatus;
   }
 
-  int EvFDaqDirector::readBuLock() {
-    int retval = -1;
-    // check if lock file has disappeared and if so whether directory is empty (signal end of run)
-    if (!bulock() && dirManager_.checkDirEmpty(bu_base_dir_))
-      return retval;
-    if (fcntl(bu_readlock_fd_, F_SETLKW, &bu_r_flk) != 0)
-      retval = 0;
-    if (bu_r_lock_stream) {
-      unsigned int readval;
-      int check = 0;
-      unsigned int *p = &readval;
-      check = fseek(bu_r_lock_stream, 0, SEEK_SET);
-      if (check == 0) {
-	fscanf(bu_r_lock_stream, "%u", p);
-	retval = readval;
-      }
-    } else {
-      edm::LogError("EvFDaqDirector") << "error reading bu lock file " << strerror(errno);
-      retval = -1;
-    }
-    fcntl(bu_readlock_fd_, F_SETLKW, &bu_r_fulk);
-     edm::LogInfo("EvFDaqDirector") << "readbulock returning " << retval;
-    return retval;
-  }
-
-
-
-  bool EvFDaqDirector::bulock() {
-    struct stat buf;
-    std::string lockfile = bu_base_dir_;
-    lockfile += "/bu.lock";
-    bool retval = (stat(lockfile.c_str(), &buf) == 0);
-    if (!retval) {
-      close(bu_readlock_fd_);
-      close(bu_writelock_fd_);
-    }
-    edm::LogInfo("EvFDaqDirector") << "stat of lockfile returned " << retval;
-    return retval;
-  }
-
-  bool EvFDaqDirector::fulock() {
-    struct stat buf;
-    std::string lockfile = bu_base_dir_;
-    lockfile += "/fu.lock";
-    bool retval = (stat(lockfile.c_str(), &buf) == 0);
-    if (!retval) {
-      close(fu_readwritelock_fd_);
-      close(fu_readwritelock_fd_); // why the second close ?
-    }
-    edm::LogInfo("EvFDaqDirector") << "stat of lockfile returned " << retval;
-    return retval;
-  }
-
-  void EvFDaqDirector::writeLsStatisticsBU(unsigned int ls, unsigned int events,
-					   unsigned long long totsize, long long lsusec) {
-    if (bu_w_monitor_stream != 0) {
-      int check = fseek(bu_w_monitor_stream, 0, SEEK_SET);
-      if (check == 0) {
-	fprintf(bu_w_monitor_stream, "%u %u %llu %f %f %012lld", ls,
-		events, totsize,
-		double(totsize) / double(events) / 1000000.,
-		double(totsize) / double(lsusec), lsusec);
-	fflush(bu_w_monitor_stream);
-      } else
-	edm::LogError("EvFDaqDirector") << "seek on bu write monitor for updating failed with error "
-	                                << strerror(errno);
-    } else
-      edm::LogError("EvFDaqDirector") << "bu write monitor stream is invalid " << strerror(errno);
-
-  }
-  void EvFDaqDirector::writeDiskAndThrottleStat(double fraction, int highWater,
-						int lowWater) {
-    if (bu_t_monitor_stream != 0) {
-      int check = fseek(bu_t_monitor_stream, 0, SEEK_SET);
-      if (check == 0)
-	fprintf(bu_t_monitor_stream, "%f %d %d", fraction, highWater,
-		lowWater);
-      else
-	edm::LogError("EvFDaqDirector") << "seek on disk write monitor for updating failed with error "
-	                                << strerror(errno);
-    } else
-      edm::LogError("EvFDaqDirector") << "disk write monitor stream is invalid " << strerror(errno);
-  }
 
   bool EvFDaqDirector::bumpFile(unsigned int& ls, unsigned int& index, std::string& nextFile, uint32_t& fsize) {
 
@@ -603,11 +473,6 @@ namespace evf {
     return false;
   }
 
-  std::string EvFDaqDirector::findHighestRunDirStem() {
-    boost::filesystem::path highestRunDirPath (findHighestRunDir());
-    return highestRunDirPath.filename().string();
-  }
-
   void EvFDaqDirector::tryInitializeFuLockFile() {
     if (fu_rw_lock_stream == 0)
       edm::LogError("EvFDaqDirector") << "Error creating fu read/write lock stream "
@@ -626,7 +491,8 @@ namespace evf {
   void EvFDaqDirector::openFULockfileStream(std::string& fulockfile, bool create) {
     if (create) {
       fu_readwritelock_fd_ = open(fulockfile.c_str(), O_RDWR | O_CREAT,
-				  S_IRWXU | S_IRWXG | S_IROTH | S_IRWXO | S_IXOTH);
+				  S_IRWXU | S_IWGRP | S_IRGRP | S_IWOTH | S_IROTH);
+      chmod(fulockfile.c_str(),0766);
     } else {
       fu_readwritelock_fd_ = open(fulockfile.c_str(), O_RDWR, S_IRWXU);
     }
@@ -668,5 +534,27 @@ namespace evf {
   void EvFDaqDirector::unlockInitLock() {
     pthread_mutex_unlock(&init_lock_);
   }
+
+  void EvFDaqDirector::lockFULocal() {
+    //fcntl(fulocal_rwlock_fd_, F_SETLKW, &fulocal_rw_flk);
+    flock(fulocal_rwlock_fd_,LOCK_EX);
+  }
+
+  void EvFDaqDirector::unlockFULocal() {
+    //fcntl(fulocal_rwlock_fd_, F_SETLKW, &fulocal_rw_fulk);
+    flock(fulocal_rwlock_fd_,LOCK_UN);
+  }
+
+
+  void EvFDaqDirector::lockFULocal2() {
+    //fcntl(fulocal_rwlock_fd2_, F_SETLKW, &fulocal_rw_flk2);
+    flock(fulocal_rwlock_fd2_,LOCK_EX);
+  }
+
+  void EvFDaqDirector::unlockFULocal2() {
+    //fcntl(fulocal_rwlock_fd2_, F_SETLKW, &fulocal_rw_fulk2);
+    flock(fulocal_rwlock_fd2_,LOCK_UN);
+  }
+
 
 }

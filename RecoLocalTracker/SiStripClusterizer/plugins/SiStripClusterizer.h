@@ -2,7 +2,7 @@
 #define RecoLocalTracker_SiStripClusterizer_h
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "RecoLocalTracker/SiStripClusterizer/interface/StripClusterizerAlgorithm.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -10,7 +10,7 @@
 #include <vector>
 #include <memory>
 
-class SiStripClusterizer : public edm::EDProducer  {
+class SiStripClusterizer : public edm::stream::EDProducer<>  {
 
 public:
 

@@ -30,8 +30,7 @@ class ConversionTrackFinder {
 
  public:
   
-  ConversionTrackFinder( const edm::EventSetup& es,
-			 const edm::ParameterSet& config );
+  ConversionTrackFinder( const edm::ParameterSet& config, const BaseCkfTrajectoryBuilder *trajectoryBuilder);
                        
   
   virtual ~ConversionTrackFinder();
@@ -41,25 +40,16 @@ class ConversionTrackFinder {
 
   /// Initialize EventSetup objects at each event
   void setEventSetup( const edm::EventSetup& es ) ; 
-  void setTrajectoryBuilder(const BaseCkfTrajectoryBuilder & builder) ; 
-
-
- private:
-
-   
-
-
 
  protected: 
   
-  edm::ParameterSet conf_;
   const MagneticField* theMF_;
 
   std::string theMeasurementTrackerName_;
   const MeasurementTracker*     theMeasurementTracker_;
   const BaseCkfTrajectoryBuilder*  theCkfTrajectoryBuilder_;
 
-  TransientInitialStateEstimator* theInitialState_;  
+  std::unique_ptr<TransientInitialStateEstimator> theInitialState_;
   const TrackerGeometry* theTrackerGeom_;
   KFUpdator*                          theUpdator_;
 
@@ -67,21 +57,18 @@ class ConversionTrackFinder {
 
   bool useSplitHits_;
 
-struct ExtractNumOfHits {
-  typedef int result_type;
-  result_type operator()(const Trajectory& t) const {return t.foundHits();}
-  result_type operator()(const Trajectory* t) const {return t->foundHits();}
-};
+  struct ExtractNumOfHits {
+    typedef int result_type;
+    result_type operator()(const Trajectory& t) const {return t.foundHits();}
+    result_type operator()(const Trajectory* t) const {return t->foundHits();}
+  };
 
 
-struct ExtractChi2 {
-  typedef float result_type;
-  result_type operator()(const Trajectory& t) const {return t.chiSquared();}
-  result_type operator()(const Trajectory* t) const {return t->chiSquared();}
-};
-
-
- 
+  struct ExtractChi2 {
+    typedef float result_type;
+    result_type operator()(const Trajectory& t) const {return t.chiSquared();}
+    result_type operator()(const Trajectory* t) const {return t->chiSquared();}
+  };
 
 };
 

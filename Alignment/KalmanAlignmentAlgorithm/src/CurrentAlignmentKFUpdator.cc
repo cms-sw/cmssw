@@ -92,7 +92,7 @@ void CurrentAlignmentKFUpdator::includeCurrentAlignmentEstimate( const TrackingR
     return;
   }
 
-  AlignmentParameters* alignmentParameters = getAlignmentParameters( alignableDet );
+  AlignmentParameters const* alignmentParameters = getAlignmentParameters( alignableDet );
 
   if ( alignmentParameters )
   {
@@ -119,17 +119,17 @@ void CurrentAlignmentKFUpdator::includeCurrentAlignmentEstimate( const TrackingR
 }
 
 
-AlignmentParameters* CurrentAlignmentKFUpdator::getAlignmentParameters( const AlignableDetOrUnitPtr& alignableDet ) const
+AlignmentParameters const* CurrentAlignmentKFUpdator::getAlignmentParameters( const AlignableDetOrUnitPtr& alignableDet ) const
 {
   // Get alignment parameters from AlignableDet ...
-  AlignmentParameters* alignmentParameters = alignableDet->alignmentParameters();
+  AlignmentParameters const* alignmentParameters = alignableDet->alignmentParameters();
   // ... or any higher level alignable.
   if ( !alignmentParameters ) alignmentParameters = getHigherLevelParameters( alignableDet );
   return alignmentParameters;
 }
 
 
-AlignmentParameters* CurrentAlignmentKFUpdator::getHigherLevelParameters( const Alignable* aAlignable ) const
+AlignmentParameters const* CurrentAlignmentKFUpdator::getHigherLevelParameters( const Alignable* aAlignable ) const
 {
   Alignable* higherLevelAlignable = aAlignable->mother();
   // Alignable has no mother ... most probably the alignable is already the full tracker.

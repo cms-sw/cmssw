@@ -16,6 +16,8 @@
 #include "DataFormats/PatCandidates/interface/GenericParticle.h"
 #include "DataFormats/PatCandidates/interface/Hemisphere.h"
 #include "DataFormats/PatCandidates/interface/Conversion.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+#include "DataFormats/PatCandidates/interface/PackedGenParticle.h"
 
 namespace DataFormats_PatCandidates {
   struct dictionaryobjects {
@@ -34,6 +36,8 @@ namespace DataFormats_PatCandidates {
   std::vector<pat::GenericParticle>::const_iterator v_p_gp_ci;
   std::vector<pat::Hemisphere>::const_iterator	    v_p_h_ci;
   std::vector<pat::Conversion>::const_iterator      v_p_c_ci;
+  std::vector<pat::PackedCandidate>::const_iterator      v_p_pc_ci;
+  std::vector<pat::PackedGenParticle>::const_iterator      v_p_pgc_ci;
 
   /*   PAT Object Collection Wrappers   */
   edm::Wrapper<std::vector<pat::Electron> >	    w_v_p_e;
@@ -49,6 +53,8 @@ namespace DataFormats_PatCandidates {
   edm::Wrapper<std::vector<pat::GenericParticle> >  w_v_p_gp;
   edm::Wrapper<std::vector<pat::Hemisphere> >	    w_v_p_h;
   edm::Wrapper<std::vector<pat::Conversion> >       w_v_p_c;
+  edm::Wrapper<std::vector<pat::PackedCandidate> >       w_v_pc_c;
+  edm::Wrapper<std::vector<pat::PackedGenParticle> >       w_v_pgc_c;
 
   /*   PAT Object References   */
   pat::ElectronRef	    p_r_e;
@@ -63,6 +69,8 @@ namespace DataFormats_PatCandidates {
   pat::GenericParticleRef   p_r_gp;
   pat::HemisphereRef	    p_r_h;
   pat::ConversionRef        p_r_c;
+  pat::PackedCandidateRef        p_r_pc;
+  pat::PackedGenParticleRef        p_r_pcg;
 
   /*   PAT Object Ref Vector Wrappers   */
   edm::Wrapper<pat::ElectronRefVector>	        p_rv_e;
@@ -77,6 +85,8 @@ namespace DataFormats_PatCandidates {
   edm::Wrapper<pat::GenericParticleRefVector>   p_rv_gp;
   edm::Wrapper<pat::HemisphereRefVector>	p_rv_h;
   edm::Wrapper<pat::ConversionRefVector>        p_rv_c;
+  edm::Wrapper<pat::PackedCandidateRefVector>        p_rv_pc;
+  edm::Wrapper<pat::PackedGenParticleRefVector>        p_rv_pcg;
 
   /*   RefToBase<Candidate> from PATObjects   */
     /*   With direct Holder   */
@@ -154,6 +164,9 @@ namespace DataFormats_PatCandidates {
   edm::Ptr<pat::Conversion> ptr_Conversion;
   edm::Ptr<pat::Muon> ptr_Muon;
   edm::Ptr<pat::Tau> ptr_Tau;
+
+  edm::Wrapper<edm::Association<pat::PackedCandidateCollection > > w_asso_pc;
+  edm::Wrapper<edm::Association<reco::PFCandidateCollection > >    w_asso_pfc;
 
   };
 

@@ -160,7 +160,8 @@ void TrackProducerWithSCAssociation::produce(edm::Event& theEvent, const edm::Ev
 	  
 	  //build Track
 	  // LogDebug("TrackProducerWithSCAssociation") << "TrackProducerWithSCAssociation going to buildTrack"<< "\n";
-	  bool ok = theAlgo.buildTrack(theFitter.product(),thePropagator.product(),algoResults, hits, theTSOS, seed, ndof, bs, theTC->seedRef());
+          FitterCloner fc(theFitter.product(),theBuilder.product());
+	  bool ok = theAlgo.buildTrack(fc.fitter.get(),thePropagator.product(),algoResults, hits, theTSOS, seed, ndof, bs, theTC->seedRef());
 	  // LogDebug("TrackProducerWithSCAssociation")  << "TrackProducerWithSCAssociation buildTrack result: " << ok << "\n";
 	  if(ok) {
 	    cont++;

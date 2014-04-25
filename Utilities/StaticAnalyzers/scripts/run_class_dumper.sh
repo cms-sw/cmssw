@@ -2,30 +2,37 @@
 export LC_ALL=C
 if [ $# -eq 0 ]
         then
-        echo "Passing -j1 to make."
-        echo "Supply a number argument to override."
-        J=1
+	echo "Supply a number argument to pass to scram b -j#"
+        exit 10
 else
         J=$1
 fi
 
-export SCRAM_ARCH=slc5_amd64_gcc481
 eval `scram runtime -sh`
 ulimit -m 2000000
 ulimit -v 2000000
 ulimit -t 1200
-for file in `cmsglimpse -l -F src/classes.*.h$ include`;do dir=`dirname $file`;echo \#include \<$file\> >${CMSSW_BASE}/src/$dir/`basename $file`.cc ; done
-export USER_LLVM_CHECKERS="-disable-checker cplusplus -disable-checker unix -disable-checker threadsafety -disable-checker core -disable-checker security -disable-checker deadcode -disable-checker cms -enable-checker optional.ClassDumperCT"
-scram b -k -j $J checker 
-sort -u < ${CMSSW_BASE}/tmp/classes.txt.dumperct.unsorted | grep -e"^class" >${CMSSW_BASE}/tmp/classes.txt.dumperct
-find ${CMSSW_BASE}/src/ -name classes\*.h.cc | xargs rm -f
-export USER_LLVM_CHECKERS="-disable-checker cplusplus -disable-checker unix -disable-checker threadsafety -disable-checker core -disable-checker security -disable-checker deadcode -disable-checker cms -enable-checker optional.ClassDumperFT"
-scram b -k -j $J checker 
-sort -u < ${CMSSW_BASE}/tmp/classes.txt.dumperft.unsorted | grep -e"^class" >${CMSSW_BASE}/tmp/classes.txt.dumperft
-export USER_LLVM_CHECKERS="-disable-checker cplusplus -disable-checker unix -disable-checker threadsafety -disable-checker core -disable-checker security -disable-checker deadcode -disable-checker cms -enable-checker optional.ClassDumperInherit"
-scram b -k -j $J checker 
-sort -u < ${CMSSW_BASE}/tmp/classes.txt.inherits.unsorted | grep -e"^class" >${CMSSW_BASE}/tmp/classes.txt.inherits
-cat ${CMSSW_BASE}/tmp/classes.txt.dumperct ${CMSSW_BASE}/tmp/classes.txt.dumperft ${CMSSW_BASE}/tmp/classes.txt.inherits | sort -u | grep -e"^class" >${CMSSW_BASE}/tmp/classes.txt
-export USER_LLVM_CHECKERS="-disable-checker cplusplus -disable-checker unix -disable-checker threadsafety -disable-checker core -disable-checker security -disable-checker deadcode -disable-checker cms -enable-checker optional.ClassDumper"
-scram b -k -j $J checker 
-sort -u < ${CMSSW_BASE}/tmp/classes.txt.dumperall.unsorted | grep -e"^class" >${CMSSW_BASE}/tmp/classes.txt.dumperall.sorted
+for file in `cmsglimpse -l -F src/classes.*.h$ include`;do 
+	dir=`dirname $file`;
+	echo \#include \<$file\> >${LOCALRT}/src/$dir/`basename $file`.cc ; 
+done
+cd ${LOCALRT}/tmp/
+touch dump-start
+touch function-dumper.txt.unsorted plugins.txt.unsorted classes.txt.dumperct.unsorted classes.txt.dumperft.unsorted classes.txt.dumperall.unsorted
+cd ${LOCALRT}/src/Utilities/StaticAnalyzers
+scram b -j $J
+cd ${LOCALRT}/
+export USER_CXXFLAGS="-DEDM_ML_DEBUG -w"
+export USER_LLVM_CHECKERS="-disable-checker cplusplus -disable-checker unix -disable-checker threadsafety -disable-checker core -disable-checker security -disable-checker deadcode -disable-checker cms -enable-checker cms.FunctionDumper -enable-checker optional.ClassDumper -enable-checker optional.ClassDumperCT -enable-checker optional.ClassDumperFT -enable-checker optional.EDMPluginDumper"
+scram b -k -j $J checker SCRAM_IGNORE_PACKAGES=Fireworks/% SCRAM_IGNORE_SUBDIRS=test 2>&1 > $CMSSW_BASE/tmp/class+function-dumper.log
+find ${LOCALRT}/src/ -name classes\*.h.cc | xargs rm -fv
+cd ${LOCALRT}/tmp
+sort -u < classes.txt.dumperct.unsorted | grep -e"^class" >classes.txt.dumperct
+sort -u < classes.txt.dumperft.unsorted | grep -e"^class" >classes.txt.dumperft
+sort -u < classes.txt.dumperall.unsorted | grep -e"^class" >classes.txt.dumperall
+sort -u < function-dumper.txt.unsorted | grep -v -e"BareRootProductGetter::getIt.*overrides"> function-calls-db.txt
+for cl in `awk -F\' '{print $2}' classes.txt.dumperft  | sort -u`;do echo grep -e\"base class \'$cl\'\$\"  classes.txt.dumperall ; done >tmp.sh
+source tmp.sh | sort -u >classes.txt.inherits
+rm tmp.sh
+cat classes.txt.dumperct classes.txt.dumperft classes.txt.inherits | sort -u |grep -e"^class" >classes.txt
+touch dump-end

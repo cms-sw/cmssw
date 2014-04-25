@@ -185,7 +185,7 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* measurement,
 	      
 	    MuonTransientTrackingRecHit::MuonRecHitPointer invalidRhPtr = MuonTransientTrackingRecHit::specificBuild( (*recHit)->det(), (*recHit)->hit() );
 	    invalidRhPtr->invalidateHit();
-	    TrajectoryMeasurement invalidRhMeasurement(propagatedTSOS, propagatedTSOS, invalidRhPtr.get(), thisChi2.second, detLayer);
+	    TrajectoryMeasurement invalidRhMeasurement(propagatedTSOS, propagatedTSOS, invalidRhPtr,  thisChi2.second, detLayer);
 	    trajectory.push(std::move(invalidRhMeasurement), thisChi2.second);	  	    
 	  }
 	}
@@ -196,7 +196,7 @@ MuonTrajectoryUpdator::update(const TrajectoryMeasurement* measurement,
 
 	    MuonTransientTrackingRecHit::MuonRecHitPointer invalidRhPtr = MuonTransientTrackingRecHit::specificBuild( (*recHit)->det(), (*recHit)->hit() );
 	    invalidRhPtr->invalidateHit();
-	    TrajectoryMeasurement invalidRhMeasurement(propagatedTSOS, propagatedTSOS, invalidRhPtr.get(), thisChi2.second, detLayer);
+	    TrajectoryMeasurement invalidRhMeasurement(propagatedTSOS, propagatedTSOS, invalidRhPtr, thisChi2.second, detLayer);
 	    trajectory.push(std::move(invalidRhMeasurement), thisChi2.second);	  
           }
 	}

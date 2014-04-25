@@ -79,16 +79,11 @@ bool ClusterShape::processColumn(pair<int,int> pos, bool inTheLoop)
 struct lessPixel : public binary_function<SiPixelCluster::Pixel,
                                           SiPixelCluster::Pixel,bool>
 {
-  bool operator()(SiPixelCluster::Pixel a,
-                  SiPixelCluster::Pixel b)
+  bool operator()(const SiPixelCluster::Pixel& a,
+                  const SiPixelCluster::Pixel& b) const
   {
-    if(a.x < b.x) return true;
-    if(a.x > b.x) return false;
-
-    if(a.y < b.y) return true;
-    if(a.y > b.y) return false;
-
-    return false;
+    // slightly faster by avoiding branches
+    return (a.x < b.x) | ((a.x == b.x) & (a.y < b.y));
   }
 };
 
@@ -96,6 +91,13 @@ struct lessPixel : public binary_function<SiPixelCluster::Pixel,
 void ClusterShape::determineShape
   (const PixelGeomDetUnit& pixelDet,
    const SiPixelRecHit& recHit, ClusterData& data)
+{
+  determineShape(pixelDet, *(recHit.cluster()), data);
+}
+
+void ClusterShape::determineShape
+  (const PixelGeomDetUnit& pixelDet,
+   const SiPixelCluster& cluster, ClusterData& data)
 {
   // Topology
   const PixelTopology * theTopology = (&(pixelDet.specificTopology())); 
@@ -112,17 +114,19 @@ void ClusterShape::determineShape
   pair<int,int> pos;
  
   // Get sorted pixels
-  vector<SiPixelCluster::Pixel> pixels = recHit.cluster()->pixels();
-  sort(pixels.begin(),pixels.end(),lessPixel());
+  size_t npixels = cluster.pixelADC().size();
+  pixels_.reserve(npixels);
+  for(size_t i=0; i<npixels; ++i) {
+    pixels_.push_back(cluster.pixel(i));
+  }
+  sort(pixels_.begin(),pixels_.end(),lessPixel());
 
   // Look at all the pixels
-  for(vector<SiPixelCluster::Pixel>::const_iterator pixel = pixels.begin();
-                                                    pixel!= pixels.end();
-                                                    pixel++)
+  for(const auto& pixel: pixels_)
   {
     // Position
-    pos.first  = (int)pixel->x;
-    pos.second = (int)pixel->y;
+    pos.first  = (int)pixel.x;
+    pos.second = (int)pixel.y;
 
     // Check if at the edge or big 
     if(theTopology->isItEdgePixelInX(pos.first) ||
@@ -143,51 +147,56 @@ void ClusterShape::determineShape
       hig = pos.second;
     }
   }
+  pixels_.clear();
 
   // Check if straight, process last column
   if(processColumn(pos, false) == false)
     data.isStraight = false;
 
   // Treat clusters with big pixel(s) inside
-  for(int ix = recHit.cluster()->minPixelRow() + 1;
-          ix < recHit.cluster()->maxPixelRow(); ix++)
-    if(theTopology->isItBigPixelInX(ix)) x[1]++;
+  const int minPixelRow = cluster.minPixelRow();
+  const int maxPixelRow = cluster.maxPixelRow();
+  for(int ix = minPixelRow + 1;
+          ix < maxPixelRow; ix++)
+    x[1] += theTopology->isItBigPixelInX(ix);
  
-  for(int iy = recHit.cluster()->minPixelCol() + 1;
-          iy < recHit.cluster()->maxPixelCol(); iy++)
-    if(theTopology->isItBigPixelInY(iy)) y[1]++;
+  const int minPixelCol = cluster.minPixelCol();
+  const int maxPixelCol = cluster.maxPixelCol();
+  for(int iy = minPixelCol + 1;
+          iy < maxPixelCol; iy++)
+    y[1] += theTopology->isItBigPixelInY(iy);
 
   // Treat clusters with bix pixel(s) outside, FIXME FIXME
-  int px = 0;
-  if(theTopology->isItBigPixelInX(recHit.cluster()->minPixelRow())) px++;
-  if(theTopology->isItBigPixelInX(recHit.cluster()->maxPixelRow())) px++;
+  unsigned int px = 0;
+  px += theTopology->isItBigPixelInX(minPixelRow);
+  px += theTopology->isItBigPixelInX(maxPixelRow);
 
-  int py = 0;
-  if(theTopology->isItBigPixelInY(recHit.cluster()->minPixelCol())) py++;
-  if(theTopology->isItBigPixelInY(recHit.cluster()->maxPixelCol())) py++;
+  unsigned int py = 0;
+  py += theTopology->isItBigPixelInY(minPixelCol);
+  py += theTopology->isItBigPixelInY(maxPixelCol);
 
-  if(px > 0 || py > 0)
-    data.hasBigPixelsOnlyInside = false;
-  else
-    data.hasBigPixelsOnlyInside = true;
+  data.hasBigPixelsOnlyInside = (px <= 0 && py <= 0);
 
-  if( (px > 0 || py > 0) && odir == 0)
+  //if( (px > 0 || py > 0) && odir == 0)
+  if( !data.hasBigPixelsOnlyInside && odir == 0)
   {
     // if outside and don't know the direction FIXME?
     data.isComplete = false;
   }
   // else
   { // FIXME do it
-    data.size.reserve(px*py);
-    for(int ax = 0; ax <= px; ax++)
-    for(int ay = 0; ay <= py; ay++)
+    assert((px+1)*(py+1) <= data.size.capacity());
+    const int pre_dx = x[1] - x[0];
+    const int pre_dy = y[1] - y[0];
+    for(unsigned int ax = 0; ax <= px; ax++)
+    for(unsigned int ay = 0; ay <= py; ay++)
     {
-      int dx = x[1] - x[0] + ax;
-      int dy = y[1] - y[0] + ay;
+      int dx = pre_dx + ax;
+      int dy = pre_dy + ay;
       if(odir != 0) dy *= odir;
   
       pair<int,int> s(dx,dy);
-      data.size.push_back(s); 
+      data.size.push_back_unchecked(s);
     }
   }
 }

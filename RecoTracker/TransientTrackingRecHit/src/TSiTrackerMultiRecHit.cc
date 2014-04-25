@@ -19,7 +19,7 @@ TransientTrackingRecHit::RecHitPointer TSiTrackerMultiRecHit::clone(const Trajec
       	RecHitPointer result = TSiTrackerMultiRecHit::build( det(), &better, theUpdator, updatedcomponents );
       	return result;
 */
-	return this->clone();
+	return RecHitPointer(this->clone());
 }
 
 /*

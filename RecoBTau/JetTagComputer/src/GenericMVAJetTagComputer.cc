@@ -69,7 +69,7 @@ float GenericMVAJetTagComputer::discriminator(const TagInfoHelper &info) const
 			return -10.0;
 	}
 
-	GenericMVAComputer *computer = computerCache.getComputer(index);
+	GenericMVAComputer const* computer = computerCache.getComputer(index);
 
 	if (!computer)
 		return -10.0;

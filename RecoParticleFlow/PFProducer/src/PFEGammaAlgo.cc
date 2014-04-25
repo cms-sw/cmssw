@@ -196,7 +196,11 @@ namespace {
 	 reinterpret_cast<const ClusterElement*>(&(block->elements()[test]));
 	  float cluster_e = elemasclus->clusterRef()->correctedEnergy();
 	  float trk_pin   = elemasgsf->Pin().P();
-	  if( cluster_e / trk_pin > EoPin_cut ) return false;
+	  if( cluster_e / trk_pin > EoPin_cut ) {
+	    LOGDRESSED("elementNotCloserToOther")
+	      << "GSF track failed EoP cut to match with cluster!";
+	    return false;
+	  }
 	}
       }
       break;
@@ -211,7 +215,11 @@ namespace {
 	  float cluster_e = elemasclus->clusterRef()->correctedEnergy();
 	  float trk_pin   = 
 	    std::sqrt(elemaskf->trackRef()->innerMomentum().mag2());
-	  if( cluster_e / trk_pin > EoPin_cut ) return false;
+	  if( cluster_e / trk_pin > EoPin_cut ) {
+	    LOGDRESSED("elementNotCloserToOther")
+	      << "KF track failed EoP cut to match with cluster!";
+	    return false;
+	  }
 	}
       }	
       break;
@@ -264,6 +272,10 @@ namespace {
 	break;
       }	        
       if( valdist.first < dist && idx != key ) {
+	LOGDRESSED("elementNotCloserToOther") 
+	  << "key element of type " << keytype 
+	  << " is closer to another element of type" << valtype 
+	  << std::endl;
 	return false; // false if closer element of specified type found
       }
     }
@@ -362,11 +374,17 @@ namespace {
 				  const PFEGammaAlgo::ProtoEGObject& RO2 ) {
     // also don't allow ROs where both have clusters
     // and GSF tracks to merge (10 Dec 2013)
-    if(RO1.primaryGSFs.size() && RO2.primaryGSFs.size()) return false;
+    if(RO1.primaryGSFs.size() && RO2.primaryGSFs.size()) {
+      LOGDRESSED("isROLinkedByClusterOrTrack") 
+	<< "cannot merge, both have GSFs!" << std::endl;
+      return false;
+    }
     // don't allow EB/EE to mix (11 Sept 2013)
     if( RO1.ecalclusters.size() && RO2.ecalclusters.size() ) {
       if(RO1.ecalclusters.front().first->clusterRef()->layer() !=
 	 RO2.ecalclusters.front().first->clusterRef()->layer() ) {
+	LOGDRESSED("isROLinkedByClusterOrTrack") 
+	  << "cannot merge, different ECAL types!" << std::endl;
 	return false;
       }
     }
@@ -381,7 +399,15 @@ namespace {
 				  cluster.first->index(),
 				  primgsf.first->type(),
 				  primgsf.first->index());
-	if( not_closer ) return true;	  
+	if( not_closer ) {
+	  LOGDRESSED("isROLinkedByClusterOrTrack") 
+	    << "merged by cluster to primary GSF" << std::endl;
+	  return true;	  
+	} else {
+	  LOGDRESSED("isROLinkedByClusterOrTrack") 
+	    << "cluster to primary GSF failed since"
+	    << " cluster closer to another GSF" << std::endl;
+	}
       }
       for( const auto& primkf : RO2.primaryKFs) {
 	not_closer = 
@@ -390,7 +416,11 @@ namespace {
 				  cluster.first->index(),
 				  primkf.first->type(),
 				  primkf.first->index());
-	if( not_closer ) return true;
+	if( not_closer ) {
+	   LOGDRESSED("isROLinkedByClusterOrTrack") 
+	     << "merged by cluster to primary KF" << std::endl;
+	  return true;
+	}
       }
       for( const auto& secdkf : RO2.secondaryKFs) {
 	not_closer = 
@@ -399,7 +429,11 @@ namespace {
 				    cluster.first->index(),
 				    secdkf.first->type(),
 				    secdkf.first->index());
-	if( not_closer ) return true;	  
+	if( not_closer ) {
+	  LOGDRESSED("isROLinkedByClusterOrTrack") 
+	     << "merged by cluster to secondary KF" << std::endl;
+	  return true;	  
+	}
       }
       // check links brem -> cluster
       for( const auto& brem : RO2.brems ) {
@@ -408,7 +442,11 @@ namespace {
 					     cluster.first->index(),
 					     brem.first->type(),
 					     brem.first->index());
-	if( not_closer ) return true;
+	if( not_closer ) {
+	  LOGDRESSED("isROLinkedByClusterOrTrack") 
+	     << "merged by cluster to brem KF" << std::endl;
+	  return true;
+	}
       }
     }    
     // check links primary gsf -> secondary kf
@@ -420,7 +458,11 @@ namespace {
 				    primgsf.first->index(),
 				    secdkf.first->type(),
 				    secdkf.first->index());
-	if( not_closer ) return true;	  
+	if( not_closer ) {
+	  LOGDRESSED("isROLinkedByClusterOrTrack") 
+	     << "merged by GSF to secondary KF" << std::endl;
+	  return true;	  
+	}
       }
     }
     // check links primary kf -> secondary kf
@@ -432,7 +474,11 @@ namespace {
 				    primkf.first->index(),
 				    secdkf.first->type(),
 				    secdkf.first->index());
-	if( not_closer ) return true;	  
+	if( not_closer ) {
+	  LOGDRESSED("isROLinkedByClusterOrTrack") 
+	     << "merged by primary KF to secondary KF" << std::endl;
+	  return true;	  
+	}
       }
     }
     // check links secondary kf -> secondary kf
@@ -444,9 +490,13 @@ namespace {
 					  secdkf1.first->index(),
 					  secdkf2.first->type(),
 					  secdkf2.first->index());
-	if( not_closer ) return true;	  
+	if( not_closer ) {
+	  LOGDRESSED("isROLinkedByClusterOrTrack") 
+	     << "merged by secondary KF to secondary KF" << std::endl;
+	  return true;	  
+	}
       }
-    }
+    }    
     return false;
   }
   
@@ -455,8 +505,9 @@ namespace {
     TestIfROMergableByLink(const PFEGammaAlgo::ProtoEGObject& RO) :
       comp(RO) {}
     bool operator() (const PFEGammaAlgo::ProtoEGObject& ro) {      
-      return ( isROLinkedByClusterOrTrack(comp,ro) || 
-	       isROLinkedByClusterOrTrack(ro,comp)   );      
+      const bool result = ( isROLinkedByClusterOrTrack(comp,ro) || 
+			    isROLinkedByClusterOrTrack(ro,comp)   );      
+      return result;      
     }
   }; 
 
@@ -806,7 +857,7 @@ void PFEGammaAlgo::buildAndRefineEGObjects(const reco::PFBlockRef& block) {
 
   _currentblock = block;
   _currentlinks = block->linkData();
-  LOGDRESSED("PFEGammaAlgo") << *_currentblock << std::endl;
+  //LOGDRESSED("PFEGammaAlgo") << *_currentblock << std::endl;
   LOGVERB("PFEGammaAlgo") << "Splaying block" << std::endl;  
   //unwrap the PF block into a fast access map
   for( const auto& pfelement : _currentblock->elements() ) {
@@ -944,7 +995,22 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
     // splay the supercluster so we can knock out used elements
     bool sc_success = 
       unwrapSuperCluster(fromSC.parentSC,fromSC.ecalclusters,fromSC.ecal2ps);
-    if( sc_success ) _refinableObjects.push_back(fromSC);
+    if( sc_success ) {
+      /*
+      auto ins_pos = std::lower_bound(_refinableObjects.begin(),
+				      _refinableObjects.end(),
+				      fromSC,
+				      [&](const ProtoEGObject& a,
+					  const ProtoEGObject& b){
+					const double a_en = 
+					a.parentSC->superClusterRef()->energy();
+					const double b_en = 
+					b.parentSC->superClusterRef()->energy();
+					return a_en < b_en;
+				      });
+      */
+      _refinableObjects.insert(_refinableObjects.end(),fromSC);
+    }
   }
   // step 2: build GSF-seed-based proto-candidates
   reco::GsfTrackRef gsfref_forextra;
@@ -1042,10 +1108,25 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
 	   << "was not found in the block!" << std::endl 
 	   << gsf_err.str() << std::endl;
        } // supercluster in block
-     } // is ECAL driven seed?
-     _refinableObjects.push_back(fromGSF);
+     } // is ECAL driven seed?   
+     /*
+     auto ins_pos = std::lower_bound(_refinableObjects.begin(),
+				     _refinableObjects.end(),
+				     fromGSF,
+				     [&](const ProtoEGObject& a,
+					 const ProtoEGObject& b){
+				       const double a_en = ( a.parentSC ?
+							     a.parentSC->superClusterRef()->energy() :
+							     a.primaryGSFs[0].first->GsftrackRef()->pt() );
+				       const double b_en = ( b.parentSC ?
+							     b.parentSC->superClusterRef()->energy() :
+							     b.primaryGSFs[0].first->GsftrackRef()->pt() );
+				       return a_en < b_en;
+				     });   
+     */
+     _refinableObjects.insert(_refinableObjects.end(),fromGSF);
    } // end loop on GSF elements of block
- }
+}
 
  bool PFEGammaAlgo::
  unwrapSuperCluster(const PFSCElement* thesc,
@@ -1359,14 +1440,28 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
  mergeROsByAnyLink(std::list<PFEGammaAlgo::ProtoEGObject>& ROs) {
    if( ROs.size() < 2 ) return; // nothing to do with one or zero ROs  
    bool check_for_merge = true;
-   while( check_for_merge ) {    
+   while( check_for_merge ) {   
+     // bugfix for early termination merging loop (15 April 2014)
+     // check all pairwise combinations in the list
+     // if one has a merge shuffle it to the front of the list
+     // if there are no merges left to do we can terminate
+     for( auto it1 = ROs.begin(); it1 != ROs.end(); ++it1 ) {
+       TestIfROMergableByLink mergeTest(*it1);
+       auto find_start = it1; ++find_start;
+       auto has_merge = std::find_if(find_start,ROs.end(),mergeTest);
+       if( has_merge != ROs.end() && it1 != ROs.begin() ) {
+	 std::swap(*(ROs.begin()),*it1);
+	 break;
+       }
+     }// ensure mergables are shuffled to the front
      ProtoEGObject& thefront = ROs.front();
      TestIfROMergableByLink mergeTest(thefront);
      auto mergestart = ROs.begin(); ++mergestart;    
      auto nomerge = std::partition(mergestart,ROs.end(),mergeTest);
      if( nomerge != mergestart ) {
-       LOGDRESSED("PFEGammaAlgo::mergeROsByAnyLink()")
-	 << "Found objects to merge by links to the front!" << std::endl;
+       LOGDRESSED("PFEGammaAlgo::mergeROsByAnyLink()")       
+	 << "Found objects " << std::distance(mergestart,nomerge)
+	 << " to merge by links to the front!" << std::endl;
        for( auto roToMerge = mergestart; roToMerge != nomerge; ++roToMerge) {
 	 thefront.ecalclusters.insert(thefront.ecalclusters.end(),
 				      roToMerge->ecalclusters.begin(),
@@ -1411,8 +1506,8 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
        // put the merged element in the back of the cleaned list
        ROs.push_back(ROs.front());
        ROs.pop_front();
-     } else {      
-       check_for_merge = false;
+     } else {       
+       check_for_merge = false;    
      }
    }
    LOGDRESSED("PFEGammaAlgo::mergeROsByAnyLink()") 

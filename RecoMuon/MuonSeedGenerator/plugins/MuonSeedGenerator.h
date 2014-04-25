@@ -29,7 +29,7 @@ class MuonSeedGenerator: public edm::EDProducer {
   // Operations
 
   /// reconstruct muon's seeds
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
  protected:
 

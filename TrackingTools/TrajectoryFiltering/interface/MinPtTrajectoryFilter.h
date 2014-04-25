@@ -22,7 +22,7 @@ public:
     thePtMin2(ptMin*ptMin),theInvPtMin(1.f/ptMin), theNSigma(nSigma), theMinHits(nH)  {}
 
 
-  explicit MinPtTrajectoryFilter( const edm::ParameterSet & pset) :
+  explicit MinPtTrajectoryFilter( const edm::ParameterSet & pset, edm::ConsumesCollector& iC) :
     thePtMin2(pset.getParameter<double>("minPt")),
     theInvPtMin(1.f/thePtMin2),
     theNSigma(pset.getParameter<double>("nSigmaMinPt")),

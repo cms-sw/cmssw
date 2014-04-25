@@ -21,6 +21,12 @@
 #include "DataFormats/EgammaCandidates/interface/ElectronIsolationAssociation.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidateIsolation.h"
 
+#include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
+
+#include "DataFormats/Common/interface/RefToPtr.h"
+
 #include <DataFormats/Math/interface/deltaR.h>
 
 EgammaHLTPFPhotonIsolationProducer::EgammaHLTPFPhotonIsolationProducer(const edm::ParameterSet& config) {
@@ -70,8 +76,8 @@ void EgammaHLTPFPhotonIsolationProducer::fillDescriptions(edm::ConfigurationDesc
   desc.add<bool>("useSCRefs", false);
   desc.add<double>("drMax", 0.3);
   desc.add<double>("drVetoBarrel", 0.0);
-  desc.add<double>("drVetoEndcap", 0.070);
-  desc.add<double>("etaStripBarrel", 0.015);
+  desc.add<double>("drVetoEndcap", 0.0);
+  desc.add<double>("etaStripBarrel", 0.0);
   desc.add<double>("etaStripEndcap", 0.0);
   desc.add<double>("energyBarrel", 0.0);
   desc.add<double>("energyEndcap", 0.0);
@@ -98,7 +104,6 @@ void EgammaHLTPFPhotonIsolationProducer::produce(edm::Event& iEvent, const edm::
   edm::Handle<reco::PFCandidateCollection> pfHandle;
 
   iEvent.getByToken(pfCandidateProducer_, pfHandle);
-  const reco::PFCandidateCollection* forIsolation = pfHandle.product();
 
   reco::ElectronIsolationMap eleMap;
   reco::RecoEcalCandidateIsolationMap recoEcalCandMap;
@@ -124,33 +129,55 @@ void EgammaHLTPFPhotonIsolationProducer::produce(edm::Event& iEvent, const edm::
       float sum = 0;
 
       // Loop over the PFCandidates
-      for(unsigned i=0; i<forIsolation->size(); i++) {
-	const reco::PFCandidate& pfc = (*forIsolation)[i];
+      for(unsigned i=0; i<pfHandle->size(); i++) {
+	reco::PFCandidateRef pfc(pfHandle, i);
 	
 	//require that the PFCandidate is a photon
-	if (pfc.particleId() ==  pfToUse_) {
-	  
+	if (pfc->particleId() == pfToUse_) {
+      
 	  if (fabs(candRef->eta()) < 1.479) {
-	    if (fabs(pfc.pt()) < energyBarrel_)
+	    if (fabs(pfc->pt()) < energyBarrel_)
 	      continue;
 	  } else {
-	    if (fabs(pfc.energy()) < energyEndcap_)
+	    if (fabs(pfc->energy()) < energyEndcap_)
 	      continue;
 	  }
 	  
 	  // Shift the RecoEcalCandidate direction vector according to the PF vertex
-	  math::XYZPoint pfvtx = pfc.vertex();
+	  math::XYZPoint pfvtx = pfc->vertex();
 	  math::XYZVector candDirectionWrtVtx(candRef->superCluster()->x() - pfvtx.x(),
 					      candRef->superCluster()->y() - pfvtx.y(),
 					      candRef->superCluster()->z() - pfvtx.z());
 	  
-	  float dEta = fabs(candDirectionWrtVtx.Eta() - pfc.momentum().Eta());
+	  float dEta = fabs(candDirectionWrtVtx.Eta() - pfc->momentum().Eta());
 	  if(dEta < etaStrip) continue;
 	  
-	  float dR = deltaR(candDirectionWrtVtx.Eta(), candDirectionWrtVtx.Phi(), pfc.momentum().Eta(), pfc.momentum().Phi());
+	  float dR = deltaR(candDirectionWrtVtx.Eta(), candDirectionWrtVtx.Phi(), pfc->momentum().Eta(), pfc->momentum().Phi());
 	  if(dR > drMax_ || dR < dRVeto) continue;
+
+	  // Exclude PF photons which clusters are part of the candidate 
+	  bool clusterOverlap = false;
+	  for(unsigned b=0; b<pfc->elementsInBlocks().size(); b++){
+	    reco::PFBlockRef blockRef = pfc->elementsInBlocks()[b].first;
+	    unsigned elementIndex = pfc->elementsInBlocks()[b].second;
+	    if(blockRef.isNull()) continue;
+	    const edm::OwnVector< reco::PFBlockElement >& elements = blockRef->elements();
+	    const reco::PFBlockElement& pfbe(elements[elementIndex]); 
+	    if( pfbe.type() == reco::PFBlockElement::ECAL ){
+	      reco::PFClusterRef myPFClusterRef = pfbe.clusterRef();
+	      if(myPFClusterRef.isNull()) continue;
+	      for(reco::CaloCluster_iterator it = candRef->superCluster()->clustersBegin(); it != candRef->superCluster()->clustersEnd(); ++it){
+		if( myPFClusterRef->seed() == (*it)->seed() ){
+		  clusterOverlap = true;
+		  break;
+		}
+	      }
+	    }
+	    if(clusterOverlap) break;
+	  }
+	  if(clusterOverlap) continue;
 	  
-	  sum += pfc.pt();
+	  sum += pfc->pt();
 	}
       }
 
@@ -185,32 +212,53 @@ void EgammaHLTPFPhotonIsolationProducer::produce(edm::Event& iEvent, const edm::
       float sum = 0;
 
       // Loop over the PFCandidates
-      for(unsigned i=0; i<forIsolation->size(); i++) {
-	const reco::PFCandidate& pfc = (*forIsolation)[i];
+      for(unsigned i=0; i<pfHandle->size(); i++) {
+	reco::PFCandidateRef pfc(pfHandle, i);
 	
 	//require that the PFCandidate is a photon
-	if (pfc.particleId() ==  pfToUse_) {
-	  
+	if (pfc->particleId() == pfToUse_) {
+      
 	  if (fabs(eleRef->eta()) < 1.479) {
-	    if (fabs(pfc.pt()) < energyBarrel_)
+	    if (fabs(pfc->pt()) < energyBarrel_)
 	      continue;
 	  } else {
-	    if (fabs(pfc.energy()) < energyEndcap_)
+	    if (fabs(pfc->energy()) < energyEndcap_)
 	      continue;
 	  }
 
-	  float dEta = fabs(eleRef->eta() - pfc.momentum().Eta());
+	  float dEta = fabs(eleRef->eta() - pfc->momentum().Eta());
 	  if(dEta < etaStrip) 
 	    continue;
 
-	  float dR = deltaR(eleRef->eta(), eleRef->phi(), pfc.momentum().Eta(), pfc.momentum().Phi());
+	  float dR = deltaR(eleRef->eta(), eleRef->phi(), pfc->momentum().Eta(), pfc->momentum().Phi());
 	  if(dR > drMax_ || dR < dRVeto) 
 	    continue;
-	  //std::cout << pfc.pt() << " " << dR << std::endl;
-	  sum += pfc.pt();
+
+	  // Exclude PF photons which clusters are part of the electron supercluster
+	  bool clusterOverlap = false;
+	  for(unsigned b=0; b<pfc->elementsInBlocks().size(); b++){
+	    reco::PFBlockRef blockRef = pfc->elementsInBlocks()[b].first;
+	    unsigned elementIndex = pfc->elementsInBlocks()[b].second;
+	    if(blockRef.isNull()) continue;
+	    const edm::OwnVector< reco::PFBlockElement >& elements = blockRef->elements();
+	    const reco::PFBlockElement& pfbe(elements[elementIndex]); 
+	    if( pfbe.type() == reco::PFBlockElement::ECAL ){
+	      reco::PFClusterRef myPFClusterRef = pfbe.clusterRef();
+	      if(myPFClusterRef.isNull()) continue;
+	      for(reco::CaloCluster_iterator it = eleRef->superCluster()->clustersBegin(); it != eleRef->superCluster()->clustersEnd(); ++it){
+		if( myPFClusterRef->seed() == (*it)->seed() ){
+		  clusterOverlap = true;
+		  break;
+		}
+	      }
+	    }
+	    if(clusterOverlap) break;
+	  }
+	  if(clusterOverlap) continue;
+
+	  sum += pfc->pt();
 	}
       }
-      //std::cout << "Sum: " << sum << " " << eleRef->pt() << std::endl;
 
       if (doRhoCorrection_) {
 	if (fabs(eleRef->eta()) < 1.479) 

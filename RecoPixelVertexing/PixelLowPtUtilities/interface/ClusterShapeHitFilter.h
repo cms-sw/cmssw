@@ -8,13 +8,14 @@
 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelClusterShapeCache.h"
 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 
+#include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterData.h"
 
 #include <utility>
 #include <unordered_map>
-#include <vector>
 #include <cstring>
 
 
@@ -165,14 +166,17 @@ class ClusterShapeHitFilter
 
   bool getSizes
   (const SiPixelRecHit & recHit, const LocalVector & ldir,
-   int & part, std::vector<std::pair<int,int> > & meas,
+   const SiPixelClusterShapeCache& clusterShapeCache,
+   int & part, ClusterData::ArrayType& meas,
    std::pair<float,float> & predr,
    PixelData const * pd=nullptr) const;
   bool isCompatible(const SiPixelRecHit   & recHit,
                     const LocalVector & ldir,
+                    const SiPixelClusterShapeCache& clusterShapeCache,
 		    PixelData const * pd=nullptr) const;
   bool isCompatible(const SiPixelRecHit   & recHit,
                     const GlobalVector & gdir,
+                    const SiPixelClusterShapeCache& clusterShapeCache,
 		    PixelData const * pd=nullptr ) const;
 
 

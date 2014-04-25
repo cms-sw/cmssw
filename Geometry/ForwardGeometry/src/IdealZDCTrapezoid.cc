@@ -24,7 +24,7 @@ IdealZDCTrapezoid::operator=( const IdealZDCTrapezoid& idzt )
 }
 
 IdealZDCTrapezoid::IdealZDCTrapezoid( const GlobalPoint& faceCenter,
-				      const CornersMgr*  mgr       ,
+				            CornersMgr*  mgr       ,
 				      const CCGFloat*    parm        ) :  
    CaloCellGeometry ( faceCenter, mgr, parm )  
 {initSpan();}
@@ -99,13 +99,11 @@ IdealZDCTrapezoid::localCorners( Pt3DVec&        lc  ,
    ref   = 0.25*( lc[0] + lc[1] + lc[2] + lc[3] ) ;
 }
 
-const CaloCellGeometry::CornersVec& 
-IdealZDCTrapezoid::getCorners() const 
+void
+IdealZDCTrapezoid::initCorners(CaloCellGeometry::CornersVec& corners)
 {
-   const CornersVec& co ( CaloCellGeometry::getCorners() ) ;
-   if( co.uninitialized() ) 
+   if( corners.uninitialized() ) 
    {
-      CaloCellGeometry::CornersVec& corners ( setCorners() ) ;
       const GlobalPoint& p ( getPosition() ) ;
       const CCGFloat zsign ( 0 < p.z() ? 1. : -1. ) ;
       const Pt3D  gf ( p.x(), p.y(), p.z() ) ;
@@ -131,7 +129,6 @@ IdealZDCTrapezoid::getCorners() const
 	 corners[i] = GlobalPoint( gl.x(), gl.y(), gl.z() ) ;
       }
    }
-   return co ;
 }
 
 std::ostream& operator<<( std::ostream& s, const IdealZDCTrapezoid& cell ) 
