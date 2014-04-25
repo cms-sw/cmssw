@@ -552,14 +552,17 @@ def usePF2PAT(process,runPF2PAT=True, jetAlgo='ak5', runOnMC=True, postfix="", j
         runOnData(process,postfix=postfix,outputModules=outputModules)
 
     # Configure Top Projections
-    getattr(process,"pfNoPileUp"+postfix).enable = True
-    getattr(process,"pfNoMuon"+postfix).enable = True
-    getattr(process,"pfNoElectron"+postfix).enable = True
+    getattr(process,"pfNoPileUpJME"+postfix).enable = True
+    getattr(process,"pfNoMuonJME"+postfix).enable = True
+    getattr(process,"pfNoElectronJME"+postfix).enable = True
     getattr(process,"pfNoTau"+postfix).enable = False
     getattr(process,"pfNoJet"+postfix).enable = True
     exclusionList = ''
     for object in excludeFromTopProjection:
-	   getattr(process,"pfNo"+object+postfix).enable = False
-	   exclusionList=exclusionList+object+','
+        jme = ''
+        if object in ['Muon','Electron']:
+            jme = 'JME'
+        getattr(process,"pfNo"+object+jme+postfix).enable = False
+        exclusionList=exclusionList+object+','
     exclusionList=exclusionList.rstrip(',')
     print "Done: PF2PAT interfaced to PAT, postfix=", postfix,", Exluded from Top Projection:",exclusionList
