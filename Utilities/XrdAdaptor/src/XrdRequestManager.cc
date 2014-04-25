@@ -67,11 +67,14 @@ RequestManager::RequestManager(const std::string &filename, XrdCl::OpenFlags::Fl
   // retry.
   edm::Exception ex(edm::errors::FileOpenError);
   bool validFile = false;
-  for (int idx=0; idx<5; idx++)
+  const int retries = 5;
+  for (int idx=0; idx<retries; idx++)
   {
     file.reset(new XrdCl::File());
     XrdCl::XRootDStatus status;
-    if ((status = file->Open(filename, flags, perms)).IsOK())
+    auto opaque = prepareOpaqueString();
+    std::string new_filename = m_name + (opaque.size() ? ((m_name.find("?") == m_name.npos) ? "?" : "&") + opaque : "");
+    if ((status = file->Open(new_filename, flags, perms)).IsOK())
     {
       validFile = true;
       break;
@@ -88,19 +91,30 @@ RequestManager::RequestManager(const std::string &filename, XrdCl::OpenFlags::Fl
          << "' (errno=" << status.errNo << ", code=" << status.code << ")";
       ex.addContext("Calling XrdFile::open()");
       addConnections(ex);
-/*    TODO: this requires Xrootd 4.0
       std::string dataServer, lastUrl;
       file->GetProperty("DataServer", dataServer);
-      file->GetProperty("LastUrl", lastUrl);
+      file->GetProperty("LastURL", lastUrl);
       if (dataServer.size())
       {
         ex.addAdditionalInfo("Problematic data server: " + dataServer);
+        m_disabledSourceStrings.insert(dataServer);
       }
       if (lastUrl.size())
       {
         ex.addAdditionalInfo("Last URL tried: " + lastUrl);
+        edm::LogWarning("XrdAdaptorInternal") << "Failed to open file at URL " << lastUrl << ".";
       }
- */
+      if (std::find(m_disabledSourceStrings.begin(), m_disabledSourceStrings.end(), dataServer) != m_disabledSourceStrings.end())
+      {
+        ex << ". No additional data servers were found.";
+        throw ex;
+      }
+      // In this case, we didn't go anywhere - we stayed at the redirector and it gave us a file-not-found.
+      if (lastUrl == new_filename)
+      {
+        edm::LogWarning("XrdAdaptorInternal") << lastUrl << ", " << new_filename;
+        throw ex;
+      }
     }
   }
   if (!validFile)
@@ -157,7 +171,7 @@ RequestManager::checkSourcesImpl(timespec &now, IOSize requestSize)
         ((m_activeSources[0]->getQuality() > 260) && (m_activeSources[1]->getQuality()*4 < m_activeSources[0]->getQuality())))
     {
         {std::unique_lock<std::mutex> sentry(g_ml_mutex);
-        edm::LogWarning("XrdAdaptorInternal") << "Removing "
+        edm::LogVerbatim("XrdAdaptorInternal") << "Removing "
           << m_activeSources[0]->ID() << " from active sources due to poor quality ("
           << m_activeSources[0]->getQuality() << " vs " << m_activeSources[1]->getQuality() << ")" << std::endl;
         }
@@ -170,7 +184,7 @@ RequestManager::checkSourcesImpl(timespec &now, IOSize requestSize)
         ((m_activeSources[1]->getQuality() > 260) && (m_activeSources[0]->getQuality()*4 < m_activeSources[1]->getQuality())))
     { 
         {std::unique_lock<std::mutex> sentry(g_ml_mutex);
-        edm::LogWarning("XrdAdaptorInternal") << "Removing "
+        edm::LogVerbatim("XrdAdaptorInternal") << "Removing "
           << m_activeSources[1]->ID() << " from active sources due to poor quality ("
           << m_activeSources[1]->getQuality() << " vs " <<m_activeSources[0]->getQuality() << ")" << std::endl;
         }
@@ -273,20 +287,12 @@ RequestManager::addConnections(cms::Exception &ex)
 {
   std::vector<std::string> sources;
   getActiveSourceNames(sources);
-  if (!sources.size())
-  {
-    ex.addAdditionalInfo("No active sources.");
-  }
   for (auto const& source : sources)
   {
     ex.addAdditionalInfo("Active source: " + source);
   }
   sources.clear();
   getDisabledSourceNames(sources);
-  if (!sources.size())
-  {
-    ex.addAdditionalInfo("No disabled sources.");
-  }
   for (auto const& source : sources)
   {
     ex.addAdditionalInfo("Disabled source: " + source);
@@ -482,6 +488,7 @@ RequestManager::requestFailure(std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr,
     // Fail early for invalid responses - XrdFile has a separate path for handling this.
     if (c_status.code == XrdCl::errInvalidResponse)
     {
+        edm::LogWarning("XrdAdaptorInternal") << "Invalid response when reading from " << source_ptr->ID();
         XrootdException ex(c_status, edm::errors::FileReadError);
         ex << "XrdAdaptor::RequestManager::requestFailure readv(name='" << m_name
                << "', flags=0x" << std::hex << m_flags
@@ -492,6 +499,7 @@ RequestManager::requestFailure(std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr,
         addConnections(ex);
         throw ex;
     }
+    edm::LogWarning("XrdAdaptorInternal") << "Request failure when reading from " << source_ptr->ID();
 
     // Note that we do not delete the Source itself.  That is because this
     // function may be called from within XrdCl::ResponseHandler::HandleResponseWithHosts
@@ -540,6 +548,7 @@ RequestManager::requestFailure(std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr,
             catch (edm::Exception &ex)
             {
                 ex.addContext("Handling XrdAdaptor::RequestManager::requestFailure()");
+                ex.addAdditionalInfo("Original failed source is " + source_ptr->ID());
                 throw;
             }
         }

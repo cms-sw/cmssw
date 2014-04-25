@@ -75,7 +75,7 @@ XrdAdaptor::ClientRequest::HandleResponse(XrdCl::XRootDStatus *stat, XrdCl::AnyO
             ex.addContext("XrdAdaptor::ClientRequest::HandleResponse() failure while running connection recovery");
             std::stringstream ss;
             ss << "Original error: '" << status->ToStr() << "' (errno="
-              << status->errNo << ", code=" << status->code << ").";
+              << status->errNo << ", code=" << status->code << ", source=" << (source ? source->ID() : "(unknown source)") << ").";
             ex.addAdditionalInfo(ss.str());
             m_promise.set_exception(std::current_exception());
             {std::unique_lock<std::mutex> sentry(g_ml_mutex);
@@ -92,6 +92,7 @@ XrdAdaptor::ClientRequest::HandleResponse(XrdCl::XRootDStatus *stat, XrdCl::AnyO
                << " connection recovery.";
             ex.addContext("Calling XrdRequestManager::handle()");
             m_manager.addConnections(ex);
+            ex.addAdditionalInfo("Original source of error is " + (source ? source->ID() : "(unknown source)"));
             m_promise.set_exception(std::make_exception_ptr(ex));
             {std::unique_lock<std::mutex> sentry(g_ml_mutex);
             edm::LogWarning("XrdAdaptorInternal") << "Caught a new exception when running connection recovery.";
