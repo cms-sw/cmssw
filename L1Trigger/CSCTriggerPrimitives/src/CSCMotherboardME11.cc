@@ -979,23 +979,19 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
         if (allLCTs1b[bx][mbx][i].isValid())
         {
           n1b++;
-          //          if (infoV > 0) LogDebug("CSCMotherboard") 
-          if (debug_gem_matching)
-            std::cout
-              << "1b LCT"<<i+1<<" "<<bx<<"/"<<cbx<<": "<<allLCTs1b[bx][mbx][i]<<std::endl;
+	  if (infoV > 0) LogDebug("CSCMotherboard") 
+	    << "1b LCT"<<i+1<<" "<<bx<<"/"<<cbx<<": "<<allLCTs1b[bx][mbx][i]<<std::endl;
         }
         if (allLCTs1a[bx][mbx][i].isValid())
         {
           n1a++;
-          //          if (infoV > 0) LogDebug("CSCMotherboard") 
-          if (debug_gem_matching)
-            std::cout 
-              << "1a LCT"<<i+1<<" "<<bx<<"/"<<cbx<<": "<<allLCTs1a[bx][mbx][i]<<std::endl;
+	  if (infoV > 0) LogDebug("CSCMotherboard") 
+	    << "1a LCT"<<i+1<<" "<<bx<<"/"<<cbx<<": "<<allLCTs1a[bx][mbx][i]<<std::endl;
         }
       }
-    //    if (infoV > 0 and n1a+n1b>0) LogDebug("CSCMotherboard") 
-    //    std::cout<<"bx "<<bx<<" nLCT:"<<n1a<<" "<<n1b<<" "<<n1a+n1b<<std::endl;
-
+    if (infoV > 0 and n1a+n1b>0) LogDebug("CSCMotherboard") 
+      <<"bx "<<bx<<" nLCT:"<<n1a<<" "<<n1b<<" "<<n1a+n1b<<std::endl;
+    
     // some simple cross-bx sorting algorithms
     if (tmb_cross_bx_algo == 1 and (n1a>2 or n1b>2) )
     {
@@ -1024,19 +1020,16 @@ void CSCMotherboardME11::run(const CSCWireDigiCollection* wiredc,
           {
             n1b++;
            if (infoV > 0) LogDebug("CSCMotherboard") 
-//             std::cout 
              << "1b LCT"<<i+1<<" "<<bx<<"/"<<cbx<<": "<<allLCTs1b[bx][mbx][i]<<std::cout;
           }
           if (allLCTs1a[bx][mbx][i].isValid())
           {
             n1a++;
             if (infoV > 0) LogDebug("CSCMotherboard") 
-//             std::cout 
               << "1a LCT"<<i+1<<" "<<bx<<"/"<<cbx<<": "<<allLCTs1a[bx][mbx][i]<<std::cout;
           }
         }
       if (infoV > 0 and n1a+n1b>0) LogDebug("CSCMotherboard") 
-        //        std::cout
         <<"bx "<<bx<<" nnLCT:"<<n1a<<" "<<n1b<<" "<<n1a+n1b<<std::endl;
     } // x-bx sorting
 
@@ -1221,20 +1214,9 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::sortLCTsByQuality(int bx, 
     for (int i=0;i<2;i++)
       if (allLCTs[bx][mbx][i].isValid())  
         LCTs.push_back(allLCTs[bx][mbx][i]);
-  std::vector<CSCCorrelatedLCTDigi>::iterator plct = LCTs.begin();
-  for (; plct != LCTs.end(); plct++)
-    {
-      if (!plct->isValid()) continue;
-      std::vector<CSCCorrelatedLCTDigi>::iterator itlct = tmpV.begin();
-      for (; itlct != tmpV.end(); itlct++)
-        if((*itlct).getQuality() < (*plct).getQuality()) break;
-    
-      if(itlct==tmpV.end()) tmpV.push_back(*plct);
-      else tmpV.insert(itlct--, *plct);
-          
-    }
-  // debug 
-  //  std::cout << "sort LCTs by quality" << std::endl;
+
+  std::sort(LCTs.begin(), LCTs.end(), CSCMotherboard::sortByQuality);
+  tmpV = LCTs;
   if (tmpV.size()> max_me11_lcts) tmpV.erase(tmpV.begin()+max_me11_lcts, tmpV.end());
   return  tmpV;
 }
@@ -1243,20 +1225,8 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::sortLCTsByQuality(std::vec
 {
   std::vector<CSCCorrelatedLCTDigi> tmpV;
   tmpV.clear();
-  std::vector<CSCCorrelatedLCTDigi>::iterator plct = LCTs.begin();
-  for (; plct != LCTs.end(); plct++)
-    {
-      if (!plct->isValid()) continue;
-      std::vector<CSCCorrelatedLCTDigi>::iterator itlct = tmpV.begin();
-      for (; itlct != tmpV.end(); itlct++)
-        if((*itlct).getQuality() < (*plct).getQuality()) break;
-    
-      if(itlct==tmpV.end()) tmpV.push_back(*plct);
-      else tmpV.insert(itlct--, *plct);
-          
-    }
-  // debug 
-  //  std::cout << "sort LCTs by quality" << std::endl;
+  std::sort(LCTs.begin(), LCTs.end(), CSCMotherboard::sortByQuality);
+  tmpV = LCTs;
   if (tmpV.size()> max_me11_lcts) tmpV.erase(tmpV.begin()+max_me11_lcts, tmpV.end());
   return  tmpV;
 }
@@ -1325,46 +1295,19 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::sortLCTsByGEMDPhi(int bx, 
     for (int i=0;i<2;i++)
       if (allLCTs[bx][mbx][i].isValid())  
         LCTs.push_back(allLCTs[bx][mbx][i]);
-  std::vector<CSCCorrelatedLCTDigi>::iterator plct = LCTs.begin();
-  for (; plct != LCTs.end(); plct++)
-    {
-      if (!plct->isValid()) continue;
-      std::vector<CSCCorrelatedLCTDigi>::iterator itlct = tmpV.begin();
-      for (; itlct != tmpV.end(); itlct++)
-        if(std::fabs((*itlct).getGEMDPhi()) > std::fabs((*plct).getGEMDPhi()) and std::fabs((*plct).getGEMDPhi())>0) break;
-    
-      if(itlct==tmpV.end()) tmpV.push_back(*plct);
-      else tmpV.insert(itlct--, *plct);
-          
-    }
-  //for debug 
-  //  std::cout << "sort LCTs  by GEMDPhi" << std::endl;
-  //  for (plct = tmpV.begin(); plct != tmpV.end(); plct++)
-  //     std::cout << *plct << std::endl;
+
+  std::sort(LCTs.begin(), LCTs.end(), CSCMotherboard::sortByGEMDphi);
+  tmpV = LCTs;
   if (tmpV.size() > max_me11_lcts) tmpV.erase(tmpV.begin()+max_me11_lcts, tmpV.end());
   return tmpV;
 }
 
 std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::sortLCTsByGEMDPhi(std::vector<CSCCorrelatedLCTDigi> LCTs)
 {
-   
   std::vector<CSCCorrelatedLCTDigi> tmpV;
   tmpV.clear();
-  std::vector<CSCCorrelatedLCTDigi>::iterator plct = LCTs.begin();
-  for (; plct != LCTs.end(); plct++)
-    {
-      if (!plct->isValid()) continue;
-      std::vector<CSCCorrelatedLCTDigi>::iterator itlct = tmpV.begin();
-      for (; itlct != tmpV.end(); itlct++)
-        if(std::fabs((*itlct).getGEMDPhi()) > std::fabs((*plct).getGEMDPhi()) and std::fabs((*plct).getGEMDPhi())>0) break;
-    
-      if(itlct==tmpV.end()) tmpV.push_back(*plct);
-      else tmpV.insert(itlct--, *plct);
-    }
-  //for debug 
-  //  std::cout << "sort LCTs  by GEMDPhi" << std::endl;
-  //  for (plct = tmpV.begin(); plct != tmpV.end(); plct++)
-  //     std::cout << *plct << std::endl;
+  std::sort(LCTs.begin(), LCTs.end(), CSCMotherboard::sortByGEMDphi);
+  tmpV = LCTs;
   if (tmpV.size() > max_me11_lcts) tmpV.erase(tmpV.begin()+max_me11_lcts, tmpV.end());
   return tmpV;
 }
