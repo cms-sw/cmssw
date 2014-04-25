@@ -1,7 +1,13 @@
-#include "RecoParticleFlow/PFProducer/interface/KDTreeLinkerPSEcal.h"
+#include "KDTreeLinkerPSEcal.h"
 
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "TMath.h"
+
+// the text name is different so that we can easily
+// construct it when calling the factory
+DEFINE_EDM_PLUGIN(KDTreeLinkerFactory, 
+		  KDTreeLinkerPSEcal, 
+		  "KDTreePreshowerAndECALLinker"); 
 
 KDTreeLinkerPSEcal::KDTreeLinkerPSEcal()
   : KDTreeLinkerBase(),
