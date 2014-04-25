@@ -818,6 +818,7 @@ hpsPFTauMVAIsolation2Seq = cms.Sequence(
     hpsPFTauMVA3IsolationChargedIsoPtSum
    + hpsPFTauMVA3IsolationNeutralIsoPtSum
    + hpsPFTauMVA3IsolationPUcorrPtSum
+   + hpsPFTauMVA3IsolationNeutralHadronIsoPtSum
    + hpsPFTauMVA3IsolationNeutralIsoPtSumWeight1
    + hpsPFTauMVA3IsolationNeutralHadronIsoPtSumWeight1
    + hpsPFTauMVA3IsolationNeutralIsoPtSumWeight2
