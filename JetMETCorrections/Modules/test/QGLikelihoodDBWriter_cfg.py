@@ -32,11 +32,11 @@ process.PoolDBOutputService = cms.Service('PoolDBOutputService',
 ) 
 
 process.dbWriterAK5PF = cms.EDAnalyzer('QGLikelihoodDBWriter', 
-   src    = cms.string('CondFormats/JetMETObjects/data/ReducedHisto_2012.root'),  
+   src    = cms.string('temp/ReducedHisto_2012.root'),  
    payload= cms.string('QGL_AK5PF') 
 ) 
 process.dbWriterAK5PFchs = cms.EDAnalyzer('QGLikelihoodDBWriter', 
-   src    = cms.string('CondFormats/JetMETObjects/data/ReducedHisto_2012_CHS.root'),  
+   src    = cms.string('temp/ReducedHisto_2012_CHS.root'),  
    payload= cms.string('QGL_AK5PFchs') 
 ) 
 

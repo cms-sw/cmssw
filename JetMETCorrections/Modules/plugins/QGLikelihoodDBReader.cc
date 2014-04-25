@@ -77,13 +77,15 @@ void QGLikelihoodDBReader::analyze(const edm::Event& iEvent, const edm::EventSet
 	  iend = data.end(), idata = ibegin; idata != iend; ++idata ) {    
     int varIndex = idata->category.VarIndex;
     int qgBin = idata->category.QGIndex;
-    int etaBin = idata->category.EtaBin;
-    double rhoVal = idata->category.RhoVal;
+    double etaMin = idata->category.EtaMin;
+    double etaMax = idata->category.EtaMax;
+    double rhoMin = idata->category.RhoMin;
+    double rhoMax = idata->category.RhoMax;
     double ptMin = idata->category.PtMin;
     double ptMax = idata->category.PtMax;
     // Print out for debugging
     char buff[1000];
-    sprintf( buff, "var=%1d, eta=%1d, qg=%1d, ptMin=%8.2f, ptMax=%8.2f, rhoVal=%6.2f", varIndex, etaBin, qgBin, ptMin, ptMax, rhoVal );
+    sprintf( buff, "var=%1d, eta=%3.2f to %3.2f, qg=%1d, pt=%8.2f to %8.2f, rho=%6.2f to %6.2f", varIndex, etaMin, etaMax, qgBin, ptMin, ptMax, rhoMin, rhoMax);
     edm::LogVerbatim   ("UserOutput") << buff << std::endl;
     
   }
