@@ -26,8 +26,8 @@ public:
 //   }
   
   SingleGaussianState(const Vector& aMean,
-			 const Matrix& aCovariance, 
-			 double aWeight = 1.) : 
+		      const Matrix& aCovariance, 
+		      double aWeight = 1.) : 
     theCovariance(aCovariance), theMean(aMean), theWeight(aWeight), 
     theHasWeightMatrix(false) {
 //     ++instances_;++maxInstances_;
@@ -65,7 +65,7 @@ private:
   Vector theMean;
   double theWeight;
 
-  mutable Matrix theWeightMatrix;
+  mutable Matrix theWeightMatrix = ROOT::Math::SMatrixNoInit();
   mutable bool theHasWeightMatrix;
 
 // public:
