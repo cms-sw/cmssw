@@ -242,12 +242,14 @@ LinkByRecHit::testTrackAndClusterByRecHit ( const reco::PFRecTrack& track,
 	= fabs(corners[0].Phi() - corners[2].Phi());
       if ( rhsizePhi > M_PI ) rhsizePhi = 2.*M_PI - rhsizePhi;
       if ( hcal ) { 
-	rhsizeEta = rhsizeEta * horesolscale * (1.50 + 0.5/fracs.size()) + 0.2*fabs(dHEta);
-	rhsizePhi = rhsizePhi * horesolscale * (1.50 + 0.5/fracs.size()) + 0.2*fabs(dHPhi); 
+	const double mult = horesolscale * (1.50 + 0.5/fracs.size());
+	rhsizeEta = rhsizeEta * mult + 0.2*fabs(dHEta);
+	rhsizePhi = rhsizePhi * mult + 0.2*fabs(dHPhi); 
 	
       } else { 
-	rhsizeEta *= 2.00 + 1.0/fracs.size()/std::min(1.,trackPt/2.);
-	rhsizePhi *= 2.00 + 1.0/fracs.size()/std::min(1.,trackPt/2.); 
+	const double mult =  2.00 + 1.0/(fracs.size()*std::min(1.,0.5*trackPt));
+	rhsizeEta *= mult;
+	rhsizePhi *= mult; 
       }
       
 #ifdef PFLOW_DEBUG
@@ -278,13 +280,13 @@ LinkByRecHit::testTrackAndClusterByRecHit ( const reco::PFRecTrack& track,
 	std::cout << "distance=" 
 	     << deta << " " 
 	     << dphi << " ";
-	if(deta < (rhsizeEta/2.) && dphi < (rhsizePhi/2.))
+	if(deta < (0.5*rhsizeEta) && dphi < (0.5*rhsizePhi))
 	  std::cout << " link here !" << std::endl;
 	else std::cout << std::endl;
       }
 #endif
       
-      if(deta < (rhsizeEta/2.) && dphi < (rhsizePhi/2.)){ 
+      if(deta < (0.5*rhsizeEta) && dphi < (0.5*rhsizePhi)){ 
 	linkedbyrechit = true;
 	break;
       }
@@ -310,11 +312,10 @@ LinkByRecHit::testTrackAndClusterByRecHit ( const reco::PFRecTrack& track,
       double y[5];
       
       for ( unsigned jc=0; jc<4; ++jc ) {
-	math::XYZPoint cornerposxyz = cornersxyz[jc];
-	x[jc] = cornerposxyz.X() + (cornerposxyz.X()-posxyz.X())
-	  * (1.00+0.50/fracs.size()/std::min(1.,trackPt/2.));
-	y[jc] = cornerposxyz.Y() + (cornerposxyz.Y()-posxyz.Y())
-	  * (1.00+0.50/fracs.size()/std::min(1.,trackPt/2.));
+	const math::XYZPoint& cornerposxyz = cornersxyz[jc];
+	const double mult = (1.00+0.50/(fracs.size()*std::min(1.,0.5*trackPt)));
+	x[jc] = cornerposxyz.X() + (cornerposxyz.X()-posxyz.X()) * mult;
+	y[jc] = cornerposxyz.Y() + (cornerposxyz.Y()-posxyz.Y()) * mult;
 	
 #ifdef PFLOW_DEBUG
 	if( debug ){
@@ -458,8 +459,8 @@ LinkByRecHit::testECALAndPSByRecHit( const reco::PFCluster& clusterECAL,
       // corner position projected onto the preshower
       math::XYZPoint cornerpos = corners[jc] * zPS/zECAL;
       // Inflate the size by the size of the PS strips, and by 5% to include ECAL cracks.
-      x[jc] = cornerpos.X() + (cornerpos.X()-posxyz.X()) * (0.05 +1.0/fabs((cornerpos.X()-posxyz.X()))*deltaX/2.);
-      y[jc] = cornerpos.Y() + (cornerpos.Y()-posxyz.Y()) * (0.05 +1.0/fabs((cornerpos.Y()-posxyz.Y()))*deltaY/2.);
+      x[jc] = cornerpos.X() + (cornerpos.X()-posxyz.X()) * (0.05 +1.0/fabs((cornerpos.X()-posxyz.X()))*0.5*deltaX);
+      y[jc] = cornerpos.Y() + (cornerpos.Y()-posxyz.Y()) * (0.05 +1.0/fabs((cornerpos.Y()-posxyz.Y()))*0.5*deltaY);
       
 #ifdef PFLOW_DEBUG
       if( debug ){
@@ -532,15 +533,13 @@ LinkByRecHit::computeDist( double eta1, double phi1,
 			   double eta2, double phi2,
 			   bool etaPhi )  {
   
-  double phicor = etaPhi ? normalizedPhi(phi1 - phi2) : phi1 - phi2;
+  const double phicor = etaPhi ? normalizedPhi(phi1 - phi2) : phi1 - phi2;
+  const double etadiff = eta1 - eta2;
   
   // double chi2 =  
   //  (eta1 - eta2)*(eta1 - eta2) / ( reta1*reta1+ reta2*reta2 ) +
   //  phicor*phicor / ( rphi1*rphi1+ rphi2*rphi2 );
 
-  double dist = std::sqrt( (eta1 - eta2)*(eta1 - eta2) 
-			  + phicor*phicor);
-
-  return dist;
+  return std::sqrt(etadiff*etadiff + phicor*phicor);
 
 }
