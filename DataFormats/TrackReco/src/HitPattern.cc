@@ -345,21 +345,19 @@ uint32_t HitPattern::getTrackerMonoStereo (uint32_t substr, uint32_t layer) cons
 
 
 
-int HitPattern::pixelBarrelLayersWithMeasurement() const {
+int HitPattern::pixelBarrelLayersWithMeasurement(uint32_t MaxPixBarrel) const {
   int count = 0;
   uint32_t substr = PixelSubdetector::PixelBarrel;
-  uint32_t NPixBarrel = 10;
-  for (uint32_t layer=1; layer<=NPixBarrel; layer++) {
+  for (uint32_t layer=1; layer<=MaxPixBarrel; layer++) {
     if (getTrackerLayerCase(substr, layer) == 0) count++;
   }
   return count;
 }
 
-int HitPattern::pixelEndcapLayersWithMeasurement() const {
+int HitPattern::pixelEndcapLayersWithMeasurement(uint32_t MaxPixForward) const {
   int count = 0;
   uint32_t substr = PixelSubdetector::PixelEndcap;
-  uint32_t NPixForward = 10;
-  for (uint32_t layer=1; layer<=NPixForward; layer++) {
+  for (uint32_t layer=1; layer<=MaxPixForward; layer++) {
     if (getTrackerLayerCase(substr, layer) == 0) count++;
   }
   return count;
