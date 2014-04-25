@@ -1,7 +1,7 @@
 
 import FWCore.ParameterSet.Config as cms
 
-from muonCustoms import customise_csc_PostLS1,customise_csc_hlt
+from SLHCUpgradeSimulations.Configuration.muonCustoms import customise_csc_PostLS1,customise_csc_hlt
 
 
 def customisePostLS1(process):
