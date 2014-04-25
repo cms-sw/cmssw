@@ -49,8 +49,10 @@ class CSCMotherboardME3141 : public CSCMotherboard
 
   // check that the RE31 and RE41 chambers are really there
   bool hasRE31andRE41();
-  int assignRPCRoll(double eta);
+
   void retrieveRPCDigis(const RPCDigiCollection* digis, unsigned id);
+  std::map<int,std::pair<double,double> > createRPCRollLUT(RPCDetId id);
+  int assignRPCRoll(double eta);
   void printRPCTriggerDigis(int minBX, int maxBx);
 
   RPCDigisBX matchingRPCDigis(const CSCCLCTDigi& cLCT, const RPCDigisBX& pads = RPCDigisBX(), bool first = true);  
@@ -58,7 +60,23 @@ class CSCMotherboardME3141 : public CSCMotherboard
   RPCDigisBX matchingRPCDigis(const CSCCLCTDigi& cLCT, const CSCALCTDigi& aLCT, const RPCDigisBX& pads = RPCDigisBX(), 
 			     bool first = true);  
 
-  std::map<int,std::pair<double,double> > createRPCRollLUT(RPCDetId id);
+  unsigned int findQualityRPC(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, bool hasRPC);
+
+  void correlateLCTsRPC(CSCALCTDigi bestALCT, CSCALCTDigi secondALCT,
+			CSCCLCTDigi bestCLCT, CSCCLCTDigi secondCLCT,
+			CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2,
+			const RPCDigisBX& digis = RPCDigisBX());
+ 
+  CSCCorrelatedLCTDigi constructLCTsRPC(const CSCALCTDigi& alct, const CSCCLCTDigi& clct, bool hasRPC); 
+
+  /** Methods to sort the LCTs */
+  std::vector<CSCCorrelatedLCTDigi> sortLCTsByQuality(int bx);
+  std::vector<CSCCorrelatedLCTDigi> sortLCTsByQuality(std::vector<CSCCorrelatedLCTDigi>);
+  std::vector<CSCCorrelatedLCTDigi> sortLCTsByGEMDPhi(int bx);
+  std::vector<CSCCorrelatedLCTDigi> sortLCTsByGEMDPhi(std::vector<CSCCorrelatedLCTDigi>);
+
+  std::vector<CSCCorrelatedLCTDigi> getLCTs();
+  std::vector<CSCCorrelatedLCTDigi> readoutLCTs();
 
  private: 
 
@@ -77,17 +95,27 @@ class CSCMotherboardME3141 : public CSCMotherboard
   std::vector<CSCALCTDigi> alctV;
   std::vector<CSCCLCTDigi> clctV;
 
+  /** "preferential" index array in matching window for cross-BX sorting */
+  int pref[MAX_LCT_BINS];
+
+  bool match_earliest_clct_me3141_only;
+
   // central LCT bx number 
   int lct_central_bx;
 
   bool drop_used_clcts;
 
+  unsigned int tmb_cross_bx_algo;
+
+  /** maximum lcts per BX in ME2 */
+  unsigned int max_me3141_lcts;
+
   // masterswitch
   bool runME3141ILT_;
 
   // debug 
-  bool debugLUTs_;
-  bool debugMatching_;
+  bool debug_rpc_matching_;
+  bool debug_luts_;
 
   //  deltas used to match to RPC pads
   int maxDeltaBXRPC_;
