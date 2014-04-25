@@ -34,7 +34,6 @@ class EcalCoder ;
 class EcalElectronicsSim ;
 class ESElectronicsSim ;
 class ESElectronicsSimFast ;
-class EcalBaseSignalGenerator;
 class CaloGeometry ;
 class EBDigiCollection ;
 class EEDigiCollection ;
@@ -61,7 +60,6 @@ class EcalDigiProducer : public DigiAccumulatorMixMod {
    public:
 
       EcalDigiProducer( const edm::ParameterSet& params , edm::one::EDProducerBase& mixMod, edm::ConsumesCollector& iC);
-      EcalDigiProducer( const edm::ParameterSet& params , edm::ConsumesCollector& iC);
       virtual ~EcalDigiProducer();
 
       virtual void initializeEvent(edm::Event const& e, edm::EventSetup const& c);
@@ -69,10 +67,6 @@ class EcalDigiProducer : public DigiAccumulatorMixMod {
       virtual void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c, edm::StreamID const&) override;
       virtual void finalizeEvent(edm::Event& e, edm::EventSetup const& c);
       virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) override;
-
-      void setEBNoiseSignalGenerator(EcalBaseSignalGenerator * noiseGenerator);
-      void setEENoiseSignalGenerator(EcalBaseSignalGenerator * noiseGenerator);
-      void setESNoiseSignalGenerator(EcalBaseSignalGenerator * noiseGenerator);
 
    private:
 
@@ -123,8 +117,6 @@ class EcalDigiProducer : public DigiAccumulatorMixMod {
       CaloHitResponse* m_ESOldResponse ;
 
       const bool m_addESNoise ;
-      const bool m_PreMix1 ;
-      const bool m_PreMix2 ;
 
       const bool m_doFastES   ;
 

@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -46,7 +46,7 @@
 // class declaration
 //
 
-class InterestingTrackEcalDetIdProducer : public edm::EDProducer {
+class InterestingTrackEcalDetIdProducer : public edm::stream::EDProducer<> {
    public:
       explicit InterestingTrackEcalDetIdProducer(const edm::ParameterSet&);
       ~InterestingTrackEcalDetIdProducer();

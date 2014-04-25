@@ -23,7 +23,7 @@ Implementation:
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -32,7 +32,7 @@ Implementation:
 
 class CaloTopology;
 
-class EleIsoDetIdCollectionProducer : public edm::EDProducer {
+class EleIsoDetIdCollectionProducer : public edm::stream::EDProducer<> {
    public:
       //! ctor
       explicit EleIsoDetIdCollectionProducer(const edm::ParameterSet&);

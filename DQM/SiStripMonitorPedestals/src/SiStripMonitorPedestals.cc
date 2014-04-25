@@ -90,28 +90,32 @@ void SiStripMonitorPedestals::beginJob() {
 //
 // -- BeginRun
 //
-void SiStripMonitorPedestals::beginRun(edm::Run const& run, edm::EventSetup const& eSetup) {
+
+void SiStripMonitorPedestals::bookHistograms(DQMStore::IBooker & ibooker, const edm::Run & run, const edm::EventSetup & eSetup)
+{
 
   unsigned long long cacheID = eSetup.get<SiStripDetCablingRcd>().cacheIdentifier();
   if (m_cacheID_ != cacheID) {
-    m_cacheID_ = cacheID;       
+    m_cacheID_ = cacheID;
     eSetup.get<SiStripDetCablingRcd>().get( detcabling );
-    edm::LogInfo("SiStripMonitorPedestals") <<"SiStripMonitorPedestals::beginRun: " 
-					  << " Creating MEs for new Cabling ";     
-    createMEs(eSetup);
+    edm::LogInfo("SiStripMonitorPedestals") <<"SiStripMonitorPedestals::bookHistograms: "
+					    << " Creating MEs for new Cabling ";
+    createMEs( ibooker , eSetup);
   } else {
-    edm::LogInfo("SiStripMonitorPedestals") <<"SiStripMonitorPedestals::beginRun: " 
-					  << " Resetting MEs ";        
+    edm::LogInfo("SiStripMonitorPedestals") <<"SiStripMonitorPedestals::bookHistograms: "
+					    << " Resetting MEs ";
     for (std::map<uint32_t, ModMEs >::const_iterator idet = PedMEs.begin() ; idet!=PedMEs.end() ; idet++) {
       resetMEs(idet->first);
     }
   }
   if (runTypeFlag_ == RunMode1 || runTypeFlag_ == RunMode3 ) fillCondDBMEs(eSetup);
 }
+
+
 //
 // -- Create Monitor Elements
 //
-void SiStripMonitorPedestals::createMEs(const edm::EventSetup& es) {
+void SiStripMonitorPedestals::createMEs(DQMStore::IBooker & ibooker , const edm::EventSetup& es) {
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
@@ -185,80 +189,80 @@ void SiStripMonitorPedestals::createMEs(const edm::EventSetup& es) {
       if (runTypeFlag_ == RunMode1 || runTypeFlag_ == RunMode3 ) {
 	//Pedestals histos
 	hid = hidmanager.createHistoId("PedestalFromCondDB","det", detid);
-	local_modmes.PedsPerStripDB = dqmStore_->book1D(hid, hid, nStrip,0.5,nStrip+0.5); //to modify the size binning 
-	dqmStore_->tag(local_modmes.PedsPerStripDB, detid);
+	local_modmes.PedsPerStripDB = ibooker.book1D(hid, hid, nStrip,0.5,nStrip+0.5); //to modify the size binning 
+	ibooker.tag(local_modmes.PedsPerStripDB, detid);
 	(local_modmes.PedsPerStripDB)->setAxisTitle("Pedestal from CondDB(ADC) vs Strip Number",1);
 	
 	hid = hidmanager.createHistoId("NoiseFromCondDB","det", detid);
-	local_modmes.CMSubNoisePerStripDB = dqmStore_->book1D(hid, hid, nStrip,0.5,nStrip+0.5);
-	dqmStore_->tag(local_modmes.CMSubNoisePerStripDB, detid);
+	local_modmes.CMSubNoisePerStripDB = ibooker.book1D(hid, hid, nStrip,0.5,nStrip+0.5);
+	ibooker.tag(local_modmes.CMSubNoisePerStripDB, detid);
 	(local_modmes.CMSubNoisePerStripDB)->setAxisTitle("CMSubNoise from CondDB(ADC) vs Strip Number",1);
 	
 	hid = hidmanager.createHistoId("BadStripFlagCondDB","det", detid);
-	local_modmes.BadStripsDB = dqmStore_->book2D(hid, hid, nStrip,0.5,nStrip+0.5,6,-0.5,5.5);
-	dqmStore_->tag(local_modmes.BadStripsDB, detid);
+	local_modmes.BadStripsDB = ibooker.book2D(hid, hid, nStrip,0.5,nStrip+0.5,6,-0.5,5.5);
+	ibooker.tag(local_modmes.BadStripsDB, detid);
 	(local_modmes.BadStripsDB)->setAxisTitle("Strip Flag from CondDB(ADC) vs Strip Number",1);
       }
       if (runTypeFlag_ == RunMode2 || runTypeFlag_ == RunMode3 ) { 
 	//Pedestals histos
 	hid = hidmanager.createHistoId("PedsPerStrip","det", detid);
-	local_modmes.PedsPerStrip = dqmStore_->book1D(hid, hid, nStrip,0.5,nStrip+0.5); //to modify the size binning 
-	dqmStore_->tag(local_modmes.PedsPerStrip, detid);
+	local_modmes.PedsPerStrip = ibooker.book1D(hid, hid, nStrip,0.5,nStrip+0.5); //to modify the size binning 
+	ibooker.tag(local_modmes.PedsPerStrip, detid);
 	(local_modmes.PedsPerStrip)->setAxisTitle("Pedestal (ADC)  vs Strip Number ",1);
 	
 	hid = hidmanager.createHistoId("PedsDistribution","det", detid);
-	local_modmes.PedsDistribution = dqmStore_->book2D(hid, hid, napvs,-0.5,napvs-0.5, 300, 200, 500); //to modify the size binning 
-	dqmStore_->tag(local_modmes.PedsDistribution, detid);
+	local_modmes.PedsDistribution = ibooker.book2D(hid, hid, napvs,-0.5,napvs-0.5, 300, 200, 500); //to modify the size binning 
+	ibooker.tag(local_modmes.PedsDistribution, detid);
 	(local_modmes.PedsDistribution)->setAxisTitle("Apv Number",1);
 	(local_modmes.PedsDistribution)->setAxisTitle("Mean Pedestal Value (ADC)",2);
 	
 	hid = hidmanager.createHistoId("PedsEvolution","det", detid);
-	local_modmes.PedsEvolution = dqmStore_->book2D(hid, hid, napvs,-0.5,napvs-0.5, 50, 0., 50.); //to modify the size binning 
-	dqmStore_->tag(local_modmes.PedsEvolution, detid);
+	local_modmes.PedsEvolution = ibooker.book2D(hid, hid, napvs,-0.5,napvs-0.5, 50, 0., 50.); //to modify the size binning 
+	ibooker.tag(local_modmes.PedsEvolution, detid);
 	(local_modmes.PedsEvolution)->setAxisTitle("Apv Number",1);
 	(local_modmes.PedsEvolution)->setAxisTitle("Iteration Number",2);
 	
 	//Noise histos
 	hid = hidmanager.createHistoId("CMSubNoisePerStrip","det", detid);
-	local_modmes.CMSubNoisePerStrip = dqmStore_->book1D(hid, hid, nStrip,0.5,nStrip+0.5);
-	dqmStore_->tag(local_modmes.CMSubNoisePerStrip, detid);
+	local_modmes.CMSubNoisePerStrip = ibooker.book1D(hid, hid, nStrip,0.5,nStrip+0.5);
+	ibooker.tag(local_modmes.CMSubNoisePerStrip, detid);
 	(local_modmes.CMSubNoisePerStrip)->setAxisTitle("CMSubNoise (ADC) vs Strip Number",1);
 	
 	hid = hidmanager.createHistoId("RawNoisePerStrip","det", detid);
-	local_modmes.RawNoisePerStrip = dqmStore_->book1D(hid, hid, nStrip,0.5,nStrip+0.5);
-	dqmStore_->tag(local_modmes.RawNoisePerStrip, detid);
+	local_modmes.RawNoisePerStrip = ibooker.book1D(hid, hid, nStrip,0.5,nStrip+0.5);
+	ibooker.tag(local_modmes.RawNoisePerStrip, detid);
 	(local_modmes.RawNoisePerStrip)->setAxisTitle("RawNoise(ADC) vs Strip Number",1);
 	
 	hid = hidmanager.createHistoId("CMSubNoiseProfile","det", detid);
-	local_modmes.CMSubNoiseProfile = dqmStore_->bookProfile(hid, hid, nStrip,0.5,nStrip+0.5, 100, 0., 100.);
-	dqmStore_->tag(local_modmes.CMSubNoiseProfile, detid);
+	local_modmes.CMSubNoiseProfile = ibooker.bookProfile(hid, hid, nStrip,0.5,nStrip+0.5, 100, 0., 100.);
+	ibooker.tag(local_modmes.CMSubNoiseProfile, detid);
 	(local_modmes.CMSubNoiseProfile)->setAxisTitle("Mean of CMSubNoise (ADC) vs Strip Number",1);
 	
 	hid = hidmanager.createHistoId("RawNoiseProfile","det", detid);
-	local_modmes.RawNoiseProfile = dqmStore_->bookProfile(hid, hid, nStrip,0.5,nStrip+0.5, 100, 0., 100.);
-	dqmStore_->tag(local_modmes.RawNoiseProfile, detid);
+	local_modmes.RawNoiseProfile = ibooker.bookProfile(hid, hid, nStrip,0.5,nStrip+0.5, 100, 0., 100.);
+	ibooker.tag(local_modmes.RawNoiseProfile, detid);
 	(local_modmes.RawNoiseProfile)->setAxisTitle("Mean of RawNoise (ADC) vs Strip Number",1);
 	
 	hid = hidmanager.createHistoId("NoisyStrips","det", detid);
-	local_modmes.NoisyStrips = dqmStore_->book2D(hid, hid, nStrip,0.5,nStrip+0.5,6,-0.5,5.5);
-	dqmStore_->tag(local_modmes.NoisyStrips, detid);
+	local_modmes.NoisyStrips = ibooker.book2D(hid, hid, nStrip,0.5,nStrip+0.5,6,-0.5,5.5);
+	ibooker.tag(local_modmes.NoisyStrips, detid);
 	(local_modmes.NoisyStrips)->setAxisTitle("Strip Number",1);
 	(local_modmes.NoisyStrips)->setAxisTitle("Flag Value",2);
 	
 	hid = hidmanager.createHistoId("NoisyStripDistribution","det", detid);
-	local_modmes.NoisyStripDistribution = dqmStore_->book1D(hid, hid, 11, -0.5,10.5);
-	dqmStore_->tag(local_modmes.NoisyStripDistribution, detid);
+	local_modmes.NoisyStripDistribution = ibooker.book1D(hid, hid, 11, -0.5,10.5);
+	ibooker.tag(local_modmes.NoisyStripDistribution, detid);
 	(local_modmes.NoisyStripDistribution)->setAxisTitle("Flag Value",1);
 	
 	//Common Mode histos
 	hid = hidmanager.createHistoId("CMDistribution","det", detid);
-	local_modmes.CMDistribution = dqmStore_->book2D(hid, hid, napvs,-0.5,napvs-0.5, 150, -15., 15.); 
-	dqmStore_->tag(local_modmes.CMDistribution, detid);
+	local_modmes.CMDistribution = ibooker.book2D(hid, hid, napvs,-0.5,napvs-0.5, 150, -15., 15.); 
+	ibooker.tag(local_modmes.CMDistribution, detid);
 	(local_modmes.CMDistribution)->setAxisTitle("Common Mode (ADC) vs APV Number",1);
       
 	hid = hidmanager.createHistoId("CMSlopeDistribution","det", detid);
-	local_modmes.CMSlopeDistribution = dqmStore_->book2D(hid, hid, napvs,-0.5,napvs-0.5, 100, -0.05, 0.05); 
-	dqmStore_->tag(local_modmes.CMSlopeDistribution, detid);
+	local_modmes.CMSlopeDistribution = ibooker.book2D(hid, hid, napvs,-0.5,napvs-0.5, 100, -0.05, 0.05); 
+	ibooker.tag(local_modmes.CMSlopeDistribution, detid);
 	(local_modmes.CMSlopeDistribution)->setAxisTitle("Common Mode Slope vs APV Number",1);
 	
       }

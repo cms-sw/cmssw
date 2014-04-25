@@ -6,7 +6,7 @@
  ** unpacking RPC raw data
  **/
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
 #include "CondFormats/DataRecord/interface/RPCEMapRcd.h"
@@ -17,7 +17,7 @@
 class RPCReadOutMapping;
 namespace edm { class Event; class EventSetup; class Run; }
 
-class RPCUnpackingModule: public edm::EDProducer {
+class RPCUnpackingModule: public edm::stream::EDProducer<> {
 public:
     
     ///Constructor

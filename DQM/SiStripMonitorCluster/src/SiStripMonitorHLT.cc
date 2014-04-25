@@ -30,33 +30,36 @@ SiStripMonitorHLT::SiStripMonitorHLT(const edm::ParameterSet& iConfig)
   clusterInSubComponentsToken_ = consumes<std::map<uint,std::vector<SiStripCluster> > >(conf_.getParameter<std::string>("HLTProducer") );
 }
 
-
 void SiStripMonitorHLT::beginJob(){
+}
 
-  dqmStore_->setCurrentFolder(HLTDirectory);
+void SiStripMonitorHLT::bookHistograms(DQMStore::IBooker & ibooker, const edm::Run & run, const edm::EventSetup & es)
+{
+  ibooker.setCurrentFolder(HLTDirectory);
   std::string HLTProducer = conf_.getParameter<std::string>("HLTProducer");
-  HLTDecision = dqmStore_->book1D(HLTProducer+"_HLTDecision", HLTProducer+"HLTDecision", 2, -0.5, 1.5);
+  HLTDecision = ibooker.book1D(HLTProducer+"_HLTDecision", HLTProducer+"HLTDecision", 2, -0.5, 1.5);
   // all
-  SumOfClusterCharges_all = dqmStore_->book1D("SumOfClusterCharges_all", "SumOfClusterCharges_all", 50, 0, 2000);
-  ChargeOfEachClusterTIB_all = dqmStore_->book1D("ChargeOfEachClusterTIB_all", "ChargeOfEachClusterTIB_all", 400, -0.5, 400.5);
-  ChargeOfEachClusterTOB_all = dqmStore_->book1D("ChargeOfEachClusterTOB_all", "ChargeOfEachClusterTOB_all", 400, -0.5, 400.5);
-  ChargeOfEachClusterTEC_all = dqmStore_->book1D("ChargeOfEachClusterTEC_all", "ChargeOfEachClusterTEC_all", 400, -0.5, 400.5);
-  NumberOfClustersAboveThreshold_all = dqmStore_->book1D("NumberOfClustersAboveThreshold_all", "NumberOfClustersAboveThreshold_all", 30, 30.5, 60.5);
+  SumOfClusterCharges_all = ibooker.book1D("SumOfClusterCharges_all", "SumOfClusterCharges_all", 50, 0, 2000);
+  ChargeOfEachClusterTIB_all = ibooker.book1D("ChargeOfEachClusterTIB_all", "ChargeOfEachClusterTIB_all", 400, -0.5, 400.5);
+  ChargeOfEachClusterTOB_all = ibooker.book1D("ChargeOfEachClusterTOB_all", "ChargeOfEachClusterTOB_all", 400, -0.5, 400.5);
+  ChargeOfEachClusterTEC_all = ibooker.book1D("ChargeOfEachClusterTEC_all", "ChargeOfEachClusterTEC_all", 400, -0.5, 400.5);
+  NumberOfClustersAboveThreshold_all = ibooker.book1D("NumberOfClustersAboveThreshold_all", "NumberOfClustersAboveThreshold_all", 30, 30.5, 60.5);
   // 31 = TIB2, 32 = TIB2, 33 = TIB3, 51 = TOB1, 52=TOB2, 60 = TEC
   // accepted from HLT
-  SumOfClusterCharges_hlt = dqmStore_->book1D("SumOfClusterCharges_hlt", "SumOfClusterCharges_hlt", 50, 0, 2000);
-  ChargeOfEachClusterTIB_hlt = dqmStore_->book1D("ChargeOfEachClusterTIB_hlt", "ChargeOfEachClusterTIB_hlt", 400, -0.5, 400.5);
-  ChargeOfEachClusterTOB_hlt = dqmStore_->book1D("ChargeOfEachClusterTOB_hlt", "ChargeOfEachClusterTOB_hlt", 400, -0.5, 400.5);
-  ChargeOfEachClusterTEC_hlt = dqmStore_->book1D("ChargeOfEachClusterTEC_hlt", "ChargeOfEachClusterTEC_hlt", 400, -0.5, 400.5);
-  NumberOfClustersAboveThreshold_hlt = dqmStore_->book1D("NumberOfClustersAboveThreshold_hlt", "NumberOfClustersAboveThreshold_hlt", 30, 30.5, 60.5);
+  SumOfClusterCharges_hlt = ibooker.book1D("SumOfClusterCharges_hlt", "SumOfClusterCharges_hlt", 50, 0, 2000);
+  ChargeOfEachClusterTIB_hlt = ibooker.book1D("ChargeOfEachClusterTIB_hlt", "ChargeOfEachClusterTIB_hlt", 400, -0.5, 400.5);
+  ChargeOfEachClusterTOB_hlt = ibooker.book1D("ChargeOfEachClusterTOB_hlt", "ChargeOfEachClusterTOB_hlt", 400, -0.5, 400.5);
+  ChargeOfEachClusterTEC_hlt = ibooker.book1D("ChargeOfEachClusterTEC_hlt", "ChargeOfEachClusterTEC_hlt", 400, -0.5, 400.5);
+  NumberOfClustersAboveThreshold_hlt = ibooker.book1D("NumberOfClustersAboveThreshold_hlt", "NumberOfClustersAboveThreshold_hlt", 30, 30.5, 60.5);
+
 }
+
 
 void SiStripMonitorHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 
   // get from event
   std::string HLTProducer = conf_.getParameter<std::string>("HLTProducer");
-
   edm::Handle<int> filter_decision; iEvent.getByToken(filerDecisionToken_,filter_decision); // filter decision
   edm::Handle<uint> sum_of_clustch; iEvent.getByToken(sumOfClusterToken_, sum_of_clustch); // sum of cluster charges
   // first element of pair: layer: TIB1, ...., TEC; second element: nr of clusters above threshold

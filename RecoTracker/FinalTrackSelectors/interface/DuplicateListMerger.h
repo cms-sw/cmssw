@@ -7,7 +7,7 @@
  * \author Matthew Walker
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -35,7 +35,7 @@
 #include "TMVA/Reader.h"
 
 namespace reco { namespace modules {
-    class DuplicateListMerger : public edm::EDProducer {
+    class DuplicateListMerger : public edm::stream::EDProducer<> {
        public:
          /// constructor
          explicit DuplicateListMerger(const edm::ParameterSet& iPara);

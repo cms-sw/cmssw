@@ -34,7 +34,7 @@ public:
   void setNoiseSignalGenerator(const CaloVNoiseSignalGenerator * noiseSignalGenerator) {
     theNoiseSignalGenerator = noiseSignalGenerator;
   }
-  void setTimeSlewSim(HcalTimeSlewSim * timeSlewSim) {
+  void setTimeSlewSim(const HcalTimeSlewSim * timeSlewSim) {
     theTimeSlewSim = timeSlewSim;
   }
 
@@ -63,11 +63,9 @@ private:
   const CaloVSimParameterMap * theParameterMap;
   const CaloVNoiseSignalGenerator * theNoiseSignalGenerator;
   HPDIonFeedbackSim * theIonFeedbackSim;
-  HcalTimeSlewSim * theTimeSlewSim;
+  const  HcalTimeSlewSim * theTimeSlewSim;
   unsigned theStartingCapId;
   bool addNoise_;
-  bool preMixDigi_;
-  bool preMixAdd_;
   bool useOldHB;
   bool useOldHE;
   bool useOldHF;

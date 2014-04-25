@@ -236,12 +236,21 @@ class DQMStore
     /* If enableMultiThread is not enabled we do not set run_,
        streamId_ and moduleId_ to 0, since we rely on their default
        initialization in DQMSTore constructor. */
+    uint32_t oldRun=0,oldStreamId=0,oldModuleId=0;
     if (enableMultiThread_) {
+      oldRun = run_;
       run_ = run;
+      oldStreamId = streamId_;
       streamId_ = streamId;
+      oldModuleId = moduleId_;
       moduleId_ = moduleId;
     }
     f(*ibooker_);
+    if (enableMultiThread_) {
+      run_ = oldRun;
+      streamId_ = oldStreamId;
+      moduleId_ = oldModuleId;
+    }
   }
   // Signature needed in the harvesting where the booking is done
   // in the endJob. No handles to the run there. Two arguments ensure

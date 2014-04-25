@@ -2,7 +2,7 @@
 
 // first revised prototype version for CMSSW 29.Aug.2012
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -20,7 +20,7 @@
 
 #include <algorithm>
 
-class BtoCharmDecayVertexMerger : public edm::EDProducer {
+class BtoCharmDecayVertexMerger : public edm::stream::EDProducer<> {
     public:
        BtoCharmDecayVertexMerger(const edm::ParameterSet &params);
 

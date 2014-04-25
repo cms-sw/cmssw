@@ -5,9 +5,8 @@
 
 #include <iostream>
 
-ESElectronicsSimFast::ESElectronicsSimFast( bool addNoise , bool PreMix1 ) :
+ESElectronicsSimFast::ESElectronicsSimFast( bool addNoise ) :
    m_addNoise ( addNoise ) ,
-   m_PreMix1  ( PreMix1  ) ,
    m_MIPToGeV (        0 ) ,
    m_peds     (        0 ) ,
    m_mips     (        0 )
@@ -81,8 +80,7 @@ ESElectronicsSimFast::analogToDigital( CLHEP::HepRandomEngine* engine,
       }
     
       adc = int( signal ) ;
-
-      if(!m_PreMix1) assert( 0 < adc ) ;
+      assert( 0 < adc ) ;
 
       if( 0.5 < signal - adc ) ++adc ;
 

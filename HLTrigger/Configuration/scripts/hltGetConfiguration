@@ -8,7 +8,11 @@ import HLTrigger.Configuration.Tools.confdb  as confdb
 import HLTrigger.Configuration.Tools.options as options
 
 # define an argparse parser to parse our options
-textwidth = int( os.popen("stty size", "r").read().split()[1] )
+textwidth = int( 80 )
+try:
+    textwidth = int( os.popen("stty size", "r").read().split()[1] )
+except:
+    pass
 formatter = FixedWidthFormatter( HelpFormatterRespectNewlines, width = textwidth )
 
 parser = argparse.ArgumentParser(

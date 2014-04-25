@@ -26,13 +26,16 @@ BTagPerformanceAnalyzerMC::BTagPerformanceAnalyzerMC(const edm::ParameterSet& pS
     pSet.getParameter<double>("ptRecJetMax"),
     0.0, 99999.0,
     pSet.getParameter<double>("ratioMin"),
-    pSet.getParameter<double>("ratioMax")
+    pSet.getParameter<double>("ratioMax"),
+    pSet.getParameter<bool>( "doJetID" )
   ),
   etaRanges(pSet.getParameter< vector<double> >("etaRanges")),
   ptRanges(pSet.getParameter< vector<double> >("ptRanges")),
   produceEps(pSet.getParameter< bool >("produceEps")),
   producePs(pSet.getParameter< bool >("producePs")),
   inputFile(pSet.getParameter<std::string>( "inputfile" )),
+  JECsource(pSet.getParameter<std::string>( "JECsource" )),
+  doJEC(pSet.getParameter<bool>( "doJEC" )),
   update(pSet.getParameter<bool>( "update" )),
   allHisto(pSet.getParameter<bool>( "allHistograms" )),
   finalize(pSet.getParameter< bool >("finalizePlots")),
@@ -110,12 +113,7 @@ BTagPerformanceAnalyzerMC::BTagPerformanceAnalyzerMC(const edm::ParameterSet& pS
   }
 }
 
-void BTagPerformanceAnalyzerMC::beginRun(const edm::Run & run, const edm::EventSetup & es)
-{
-  bookHistos();
-}
-
-void BTagPerformanceAnalyzerMC::bookHistos()
+void BTagPerformanceAnalyzerMC::bookHistograms(DQMStore::IBooker & ibook, edm::Run const & run, edm::EventSetup const & es)
 {
   //
   // Book all histograms.
@@ -164,14 +162,14 @@ void BTagPerformanceAnalyzerMC::bookHistos()
 	// the objects for the differential plots vs. eta,pt for
 	for ( int iEta = iEtaStart ; iEta < iEtaEnd ; iEta++ ) {
 	  BTagDifferentialPlot * etaConstDifferentialPlot = new BTagDifferentialPlot
-	    (effBConst, BTagDifferentialPlot::constETA, folderName);
+	    (effBConst, BTagDifferentialPlot::constETA, folderName, ibook);
 	  differentialPlotsConstantEta->push_back ( etaConstDifferentialPlot );
 	}
 
 	for ( int iPt = iPtStart ; iPt < iPtEnd ; iPt++ ) {
 	  // differentialPlots for this pt bin
 	  BTagDifferentialPlot * ptConstDifferentialPlot = new BTagDifferentialPlot
-	    (effBConst, BTagDifferentialPlot::constPT, folderName);
+	    (effBConst, BTagDifferentialPlot::constPT, folderName, ibook);
 	  differentialPlotsConstantPt->push_back ( ptConstDifferentialPlot );
 	}
       }
@@ -184,7 +182,7 @@ void BTagPerformanceAnalyzerMC::bookHistos()
 
 	  // Instantiate the genertic b tag plotter
 	  JetTagPlotter *jetTagPlotter = new JetTagPlotter(folderName, etaPtBin,
-							   iModule->getParameter<edm::ParameterSet>("parameters"),mcPlots_,update,finalize);
+							   iModule->getParameter<edm::ParameterSet>("parameters"),mcPlots_,update,finalize, ibook);
 	  binJetTagPlotters.at(iTag).push_back ( jetTagPlotter ) ;
 
 	  // Add to the corresponding differential plotters
@@ -220,7 +218,7 @@ void BTagPerformanceAnalyzerMC::bookHistos()
             // Instantiate the generic b tag correlation plotter
             TagCorrelationPlotter* tagCorrelationPlotter = new TagCorrelationPlotter(label1.label(), label2.label(), etaPtBin,
                                                                                      iModule->getParameter<edm::ParameterSet>("parameters"),
-                                                                                     mcPlots_, update);
+                                                                                     mcPlots_, update, ibook);
             binTagCorrelationPlotters.at(iTagCorr).push_back(tagCorrelationPlotter);
           }
         }
@@ -238,8 +236,8 @@ void BTagPerformanceAnalyzerMC::bookHistos()
 	  // Instantiate the tagInfo plotter
 
 	  BaseTagInfoPlotter *jetTagPlotter = theFactory.buildPlotter(dataFormatType, moduleLabel.label(), 
-			             etaPtBin, iModule->getParameter<edm::ParameterSet>("parameters"), folderName, 
-                                     update, mcPlots_,finalize);
+								      etaPtBin, iModule->getParameter<edm::ParameterSet>("parameters"), folderName, 
+								      update, mcPlots_,finalize, ibook);
 	  binTagInfoPlotters.at(iInfoTag).push_back ( jetTagPlotter ) ;
           binTagInfoPlottersToModuleConfig.insert(make_pair(jetTagPlotter, iModule - moduleConfig.begin()));
 	}
@@ -353,6 +351,17 @@ void BTagPerformanceAnalyzerMC::analyze(const edm::Event& iEvent, const edm::Eve
     iEvent.getByToken(genJetsMatchedToken, genJetsMatched);
   }
 
+  //Get JEC
+  const JetCorrector* corrector = 0;
+  if(doJEC) {
+    edm::Handle<GenEventInfoProduct> genInfoHandle; //check if data or MC
+    iEvent.getByToken(genToken, genInfoHandle);
+    std::string allJECsource = JECsource;
+    if( !genInfoHandle.isValid() ) allJECsource += "Residual";
+    corrector = JetCorrector::getJetCorrector (allJECsource,iSetup);   //Get the jet corrector from the event setup
+  }
+  //
+
 // Look first at the jetTags
   for (unsigned int iJetLabel = 0; iJetLabel != jetTagInputTags.size(); ++iJetLabel) {
     edm::Handle<reco::JetTagCollection> tagHandle;
@@ -372,22 +381,31 @@ void BTagPerformanceAnalyzerMC::analyze(const edm::Event& iEvent, const edm::Eve
            (tauPlots && !leptons[tagI->first].tau)))
         continue;
 
+      //JEC
+      reco::Jet correctedJet = *(tagI->first);
+      double jec = 1.0;
+      if(doJEC && corrector) {
+        jec = corrector->correction(*(tagI->first),iEvent,iSetup);
+	std::cout<<jec<<std::endl;
+      }
+      //
+
       JetWithFlavour jetWithFlavour;
       if (!getJetWithFlavour(tagI->first, flavours, jetWithFlavour, iSetup, genJetsMatched))
         continue;
-      if (!jetSelector(jetWithFlavour.first, std::abs(jetWithFlavour.second.getFlavour()), infoHandle))
+      if (!jetSelector(jetWithFlavour.first, std::abs(jetWithFlavour.second.getFlavour()), infoHandle, jec))
         continue;
 
       for (int iPlotter = 0; iPlotter != plotterSize; ++iPlotter) {
 	      bool inBin = false;
 	      if (partonKinematics)
                 inBin = binJetTagPlotters[iJetLabel][iPlotter]->etaPtBin().inBin(jetWithFlavour.second.getLorentzVector().Eta(),
-                                                                                 jetWithFlavour.second.getLorentzVector().Pt());
+                                                                                 jetWithFlavour.second.getLorentzVector().Pt()*jec);
 	      else
-                inBin = binJetTagPlotters[iJetLabel][iPlotter]->etaPtBin().inBin(jetWithFlavour.first);
+                inBin = binJetTagPlotters[iJetLabel][iPlotter]->etaPtBin().inBin(jetWithFlavour.first, jec);
 	      // Fill histograms if in desired pt/rapidity bin.
 	      if (inBin)
-	        binJetTagPlotters[iJetLabel][iPlotter]->analyzeTag(jetWithFlavour.first, tagI->second, std::abs(jetWithFlavour.second.getFlavour()),weight);
+	        binJetTagPlotters[iJetLabel][iPlotter]->analyzeTag(jetWithFlavour.first, jec, tagI->second, std::abs(jetWithFlavour.second.getFlavour()),weight);
       }
     }
     for (int iPlotter = 0; iPlotter != plotterSize; ++iPlotter) {
@@ -415,20 +433,29 @@ void BTagPerformanceAnalyzerMC::analyze(const edm::Event& iEvent, const edm::Eve
            (tauPlots && !leptons[tagI->first].tau)))
         continue;
 
+      //JEC
+      reco::Jet correctedJet = *(tagI->first);
+      double jec = 1.0;
+      if(doJEC && corrector) {
+        jec = corrector->correction(*(tagI->first),iEvent,iSetup);
+	std::cout<<jec<<std::endl;
+      }
+      //
+
       JetWithFlavour jetWithFlavour;
       if (!getJetWithFlavour(tagI->first, flavours, jetWithFlavour, iSetup, genJetsMatched))
         continue;
-      if (!jetSelector(jetWithFlavour.first, std::abs(jetWithFlavour.second.getFlavour()), infoHandle))
+      if (!jetSelector(jetWithFlavour.first, std::abs(jetWithFlavour.second.getFlavour()), infoHandle, jec))
         continue;
 
       for(int iPlotter = 0; iPlotter != plotterSize; ++iPlotter) {
         bool inBin = false;
         if (partonKinematics)
           inBin = binTagCorrelationPlotters[iJetLabel][iPlotter]->etaPtBin().inBin(jetWithFlavour.second.getLorentzVector().Eta(),
-                                                                                   jetWithFlavour.second.getLorentzVector().Pt());
+                                                                                   jetWithFlavour.second.getLorentzVector().Pt()*jec);
 
         else
-          inBin = binTagCorrelationPlotters[iJetLabel][iPlotter]->etaPtBin().inBin(jetWithFlavour.first);
+          inBin = binTagCorrelationPlotters[iJetLabel][iPlotter]->etaPtBin().inBin(jetWithFlavour.first, jec);
 
         if(inBin)
         {
@@ -505,22 +532,31 @@ void BTagPerformanceAnalyzerMC::analyze(const edm::Event& iEvent, const edm::Eve
            (tauPlots && !leptons[jetRef].tau)))
          continue;
 
+      //JEC
+      reco::Jet correctedJet = *(jetRef);
+      double jec = 1.0;
+      if(doJEC && corrector) {
+        jec = corrector->correction(*(jetRef),iEvent,iSetup);
+	std::cout<<jec<<std::endl;
+      }
+      //
+
       JetWithFlavour jetWithFlavour;
       if (!getJetWithFlavour(jetRef, flavours, jetWithFlavour, iSetup, genJetsMatched))
         continue;
-      if (!jetSelector(jetWithFlavour.first, std::abs(jetWithFlavour.second.getFlavour()), infoHandle))
+      if (!jetSelector(jetWithFlavour.first, std::abs(jetWithFlavour.second.getFlavour()), infoHandle, jec))
         continue;
 
       for (int iPlotter = 0; iPlotter != plotterSize; ++iPlotter) {
 	      bool inBin = false;
 	      if (partonKinematics)
                inBin = binTagInfoPlotters[iJetLabel][iPlotter]->etaPtBin().inBin(jetWithFlavour.second.getLorentzVector().Eta(),
-                                                                                 jetWithFlavour.second.getLorentzVector().Pt());
+                                                                                 jetWithFlavour.second.getLorentzVector().Pt()*jec);
 	      else
-               inBin = binTagInfoPlotters[iJetLabel][iPlotter]->etaPtBin().inBin(*jetRef);
+		inBin = binTagInfoPlotters[iJetLabel][iPlotter]->etaPtBin().inBin(*jetRef, jec);
 	      // Fill histograms if in desired pt/rapidity bin.
 	      if (inBin)
-	        binTagInfoPlotters[iJetLabel][iPlotter]->analyzeTag(baseTagInfos, std::abs(jetWithFlavour.second.getFlavour()),weight);
+	        binTagInfoPlotters[iJetLabel][iPlotter]->analyzeTag(baseTagInfos, jec, std::abs(jetWithFlavour.second.getFlavour()),weight);
       }
     }
   }
@@ -584,14 +620,14 @@ bool  BTagPerformanceAnalyzerMC::getJetWithFlavour(edm::RefToBase<Jet> jetRef, c
   return true;
 }
 
-void BTagPerformanceAnalyzerMC::endJob()
+void BTagPerformanceAnalyzerMC::endRun(const edm::Run & run, const edm::EventSetup & es)
 {
   if (!finalize) return;
   setTDRStyle();
   for (unsigned int iJetLabel = 0; iJetLabel != binJetTagPlotters.size(); ++iJetLabel) {
     int plotterSize =  binJetTagPlotters[iJetLabel].size();
     for (int iPlotter = 0; iPlotter != plotterSize; ++iPlotter) {
-       binJetTagPlotters[iJetLabel][iPlotter]->finalize();
+      binJetTagPlotters[iJetLabel][iPlotter]->finalize();
       //      binJetTagPlotters[iJetLabel][iPlotter]->write(allHisto);
       if (producePs)  (*binJetTagPlotters[iJetLabel][iPlotter]).psPlot(psBaseName);
       if (produceEps) (*binJetTagPlotters[iJetLabel][iPlotter]).epsPlot(epsBaseName);
