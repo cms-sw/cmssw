@@ -354,10 +354,11 @@ PFEGammaProducer::produce(edm::Event& iEvent,
   // single hcal and produce unbiased collection of EGamma Candidates
 
   //printf("loop over blocks\n");
-  //unsigned nblcks = 0;
+  unsigned nblcks = 0;
 
   // this auto is a const reco::PFBlockRef&
-  for( const auto& blockref : otherBlockRefs ) {   
+  for( const auto& blockref : otherBlockRefs ) {
+    ++nblcks;
     // this auto is a: const edm::OwnVector< reco::PFBlockElement >&
     const auto& elements = blockref->elements();
     // make a copy of the link data, which will be edited.
@@ -367,12 +368,14 @@ PFEGammaProducer::produce(edm::Event& iEvent,
     std::vector<bool> active( elements.size(), true );      
     
     pfeg_->RunPFEG(blockref,active);
-    
-    LOGDRESSED("PFEGammaProducer")
+
+    if( pfeg_->getCandidates().size() ) {
+      LOGDRESSED("PFEGammaProducer")
       << "Block with " << elements.size() 
       << " elements produced " 
       << pfeg_->getCandidates().size() 
-      << " e-g candidates!" << std::endl;
+      << " e-g candidates!" << std::endl;      
+    }
 
     const size_t egsize = egCandidates_->size();
     egCandidates_->resize(egsize + pfeg_->getCandidates().size());
@@ -398,12 +401,12 @@ PFEGammaProducer::produce(edm::Event& iEvent,
 	      pfeg_->getRefinedSCs().end(),
 	      rscinsertfrom);    
   }
-  
+
   LOGDRESSED("PFEGammaProducer")
       << "Running PFEGammaAlgo on all blocks produced = " 
       << egCandidates_->size() << " e-g candidates!"
       << std::endl;
-
+  
   edm::RefProd<reco::SuperClusterCollection> sClusterProd = 
     iEvent.getRefBeforePut<reco::SuperClusterCollection>();
 
