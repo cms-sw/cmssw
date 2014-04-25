@@ -363,9 +363,10 @@ CSCMotherboardME21::run(const CSCWireDigiCollection* wiredc,
           const bool lowQuality(quality<4 or lowQualityALCT);
           if (debug_gem_matching) std::cout << "++Valid ME21 CLCT: " << clct->bestCLCT[bx_clct] << std::endl;
 
-          if (runME21ILT_ and dropLowQualityCLCTsNoGEMs_ and lowQuality and hasPads){
             // pick the pad that corresponds 
-            auto matchingPads(matchingGEMPads(clct->bestCLCT[bx_clct], alct->bestALCT[bx_alct], padsLong_[bx_clct], false));
+	  auto matchingPads(matchingGEMPads(clct->bestCLCT[bx_clct], alct->bestALCT[bx_alct], padsLong_[bx_clct], false));
+	  auto matchingCoPads(matchingGEMPads(clct->bestCLCT[bx_clct], alct->bestALCT[bx_alct], coPadsLong_[bx_clct], true));
+          if (runME21ILT_ and dropLowQualityCLCTsNoGEMs_ and lowQuality and hasPads){
             int nFound(matchingPads.size());
             const bool clctInEdge(clct->bestCLCT[bx_clct].getKeyStrip() < 5 or clct->bestCLCT[bx_clct].getKeyStrip() > 155);
             if (clctInEdge){
@@ -384,7 +385,6 @@ CSCMotherboardME21::run(const CSCWireDigiCollection* wiredc,
 
           // check timing
           if (runME21ILT_ and correctLCTtimingWithGEM_){
-            auto matchingCoPads(matchingGEMPads(clct->bestCLCT[bx_clct], alct->bestALCT[bx_alct], coPadsLong_[bx_clct], false));
             int nFound(matchingCoPads.size());
             if (nFound != 0 and bx_alct == 6 and bx_clct != 6){
               if (debug_gem_matching) std::cout << "\tInfo: CLCT with incorrect timing" << std::endl;
@@ -394,14 +394,13 @@ CSCMotherboardME21::run(const CSCWireDigiCollection* wiredc,
           
           ++nSuccesFulMatches;
       
-          hasLCTs = true;
           int mbx = bx_clct-bx_clct_start;
 
-          //	    if (infoV > 1) LogTrace("CSCMotherboard")
           correlateLCTsGEM(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
 			   clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct],
-			   allLCTs[bx_alct][mbx][0], allLCTs[bx_alct][mbx][1], padsLong_[bx_clct], coPadsLong_[bx_clct]);
+			   allLCTs[bx_alct][mbx][0], allLCTs[bx_alct][mbx][1], matchingPads, matchingCoPads);
           if (debug_gem_matching) {
+          //	    if (infoV > 1) LogTrace("CSCMotherboard")
             std::cout << "Successful ALCT-CLCT match in ME21: bx_alct = " << bx_alct
                       << "; match window: [" << bx_clct_start << "; " << bx_clct_stop
                       << "]; bx_clct = " << bx_clct << std::endl;
