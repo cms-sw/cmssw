@@ -5,29 +5,26 @@
 using namespace std;
 
 void VertexFitterManager::registerFitter (
-    const string & name, AbstractConfFitter * o, const string & d )
+      const string & name, std::function<AbstractConfFitter*()> o, const string & d )
 {
   theAbstractConfFitters[name]=o;
   theDescription[name]=d;
 
   // every fitter registers as a reconstructor, also
-  VertexRecoManager::Instance().registerReconstructor ( name, new ReconstructorFromFitter ( *o ), d);
+  VertexRecoManager::Instance().registerReconstructor ( name, [o]()->AbstractConfReconstructor* { return new ReconstructorFromFitter ( *(o()) );}, d);
 }
 
 VertexFitterManager::~VertexFitterManager()
 {
-  /*
-   * Let the VertexRecoManager delete them (they all register there, as well!)
-  for ( map < string, AbstractConfFitter * >::iterator i=theAbstractConfFitters.begin(); 
-        i!=theAbstractConfFitters.end() ; ++i )
-  {
-    delete i->second;
-  }*/
 }
 
-std::string VertexFitterManager::describe ( const std::string & d )
+std::string VertexFitterManager::describe ( const std::string & d ) const
 {
-  return theDescription[d];
+  auto found = theDescription.find(d);
+  if(found == theDescription.end()) {
+    return std::string{};
+  }
+  return found->first;
 }
 
 VertexFitterManager * VertexFitterManager::clone() const
@@ -56,14 +53,24 @@ VertexFitterManager & VertexFitterManager::Instance()
   return singleton;
 }
 
-AbstractConfFitter * VertexFitterManager::get ( const string & s )
+std::unique_ptr<AbstractConfFitter> VertexFitterManager::get ( const string & s ) const
 {
-  return theAbstractConfFitters[s];
+  auto found = theAbstractConfFitters.find(s);
+  if(found == theAbstractConfFitters.end()) {
+    return std::unique_ptr<AbstractConfFitter>{};
+  }
+  return std::unique_ptr<AbstractConfFitter>{found->second()};
 }
 
-map < string, AbstractConfFitter * > VertexFitterManager::get()
+std::vector<std::string> VertexFitterManager::getNames() const 
 {
-  return theAbstractConfFitters;
+  std::vector<std::string> ret;
+  ret.reserve(theAbstractConfFitters.size());
+
+  for(const auto& i : theAbstractConfFitters) {
+    ret.push_back(i.first);
+  }
+  return ret;
 }
 
 VertexFitterManager::VertexFitterManager()
