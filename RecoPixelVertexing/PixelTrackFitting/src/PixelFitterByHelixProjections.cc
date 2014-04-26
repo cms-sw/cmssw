@@ -108,22 +108,20 @@ reco::Track* PixelFitterByHelixProjections::run(
   vector<GlobalPoint> points(nhits);
   vector<GlobalError> errors(nhits);
   vector<bool> isBarrel(nhits);
+
   
-  static edm::ESWatcher<TrackerDigiGeometryRecord> watcherTrackerDigiGeometryRecord;
   if (!theTracker || watcherTrackerDigiGeometryRecord.check(es)) {
     edm::ESHandle<TrackerGeometry> trackerESH;
     es.get<TrackerDigiGeometryRecord>().get(trackerESH);
     theTracker = trackerESH.product();
   }
 
-  static edm::ESWatcher<IdealMagneticFieldRecord>  watcherIdealMagneticFieldRecord;
   if (!theField || watcherIdealMagneticFieldRecord.check(es)) {
     edm::ESHandle<MagneticField> fieldESH;
     es.get<IdealMagneticFieldRecord>().get(fieldESH);
     theField = fieldESH.product();
   }
 
-  static edm::ESWatcher<TransientRecHitRecord> watcherTransientRecHitRecord;
   if (!theTTRecHitBuilder || watcherTransientRecHitRecord.check(es)) {
     edm::ESHandle<TransientTrackingRecHitBuilder> ttrhbESH;
     std::string builderName = theConfig.getParameter<std::string>("TTRHBuilder");
