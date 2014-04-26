@@ -21,6 +21,12 @@
 //____________________________________________________________________________||
 struct SpecificGenMETData
 {
+
+  SpecificGenMETData()
+    : NeutralEMEtFraction(0.0), NeutralHadEtFraction(0.0)
+    , ChargedEMEtFraction(0.0), ChargedHadEtFraction(0.0)
+    , MuonEtFraction(0.0), InvisibleEtFraction(0.0) { }
+
   double NeutralEMEtFraction;
   double NeutralHadEtFraction;
   double ChargedEMEtFraction;
