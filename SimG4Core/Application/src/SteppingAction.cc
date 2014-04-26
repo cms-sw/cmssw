@@ -14,19 +14,20 @@
 //#define DebugLog
 
 SteppingAction::SteppingAction(EventAction* e, const edm::ParameterSet & p) 
-  : eventAction_(e), tracker(0), calo(0), initialized(false) 
+  : eventAction_(e), tracker(0), calo(0), initialized(false), killBeamPipe(false) 
 {
-  killBeamPipe = (p.getParameter<bool>("KillBeamPipe"));
   theCriticalEnergyForVacuum = 
     (p.getParameter<double>("CriticalEnergyForVacuum")*CLHEP::MeV);
+  if(0.0 < theCriticalEnergyForVacuum) { killBeamPipe = true; } 
   theCriticalDensity = 
     (p.getParameter<double>("CriticalDensity")*CLHEP::g/CLHEP::cm3);
-  maxTrackTime  = (p.getParameter<double>("MaxTrackTime")*CLHEP::ns);
-  maxTrackTimes = (p.getParameter<std::vector<double> >("MaxTrackTimes"));
-  maxTimeNames  = (p.getParameter<std::vector<std::string> >("MaxTimeNames"));
-  ekinMins      = (p.getParameter<std::vector<double> >("EkinThresholds"));
-  ekinNames     = (p.getParameter<std::vector<std::string> >("EkinNames"));
-  ekinParticles = (p.getParameter<std::vector<std::string> >("EkinParticles"));
+  maxTrackTime    = p.getParameter<double>("MaxTrackTime")*CLHEP::ns;
+  maxTrackTimes   = p.getParameter<std::vector<double> >("MaxTrackTimes");
+  maxTimeNames    = p.getParameter<std::vector<std::string> >("MaxTimeNames");
+  deadRegionNames = p.getParameter<std::vector<std::string> >("DeadRegions");
+  ekinMins        = p.getParameter<std::vector<double> >("EkinThresholds");
+  ekinNames       = p.getParameter<std::vector<std::string> >("EkinNames");
+  ekinParticles   = p.getParameter<std::vector<std::string> >("EkinParticles");
 
   edm::LogInfo("SimG4CoreApplication") << "SteppingAction:: KillBeamPipe = "
 				       << killBeamPipe << " CriticalDensity = "
@@ -39,6 +40,8 @@ SteppingAction::SteppingAction(EventAction* e, const edm::ParameterSet & p)
 				       << maxTrackTime/CLHEP::ns 
 				       << " ns";
 
+  initialized = initPointer(); 
+
   numberTimes = maxTrackTimes.size();
   if(numberTimes > 0) {
     for (unsigned int i=0; i<numberTimes; i++) {
@@ -49,6 +52,15 @@ SteppingAction::SteppingAction(EventAction* e, const edm::ParameterSet & p)
     }
   }
 
+  if(ndeadRegions > 0) {
+    G4ExceptionDescription ed;   
+    ed << "SteppingAction: Number of DeadRegions where all trackes are killed: "
+       << ndeadRegions << " \n" << "     ";
+    for(unsigned int i=0; i<ndeadRegions; ++i) {
+      ed << deadRegionNames[i] << "   ";
+    }
+    edm::LogInfo("SimG4CoreApplication") << ed;
+  }
   numberEkins = ekinNames.size();
   numberPart  = ekinParticles.size();
   if(0 == numberPart) { numberEkins = 0; }
@@ -77,21 +89,21 @@ SteppingAction::~SteppingAction() {}
 
 void SteppingAction::UserSteppingAction(const G4Step * aStep) 
 {
-  if (!initialized) { initialized = initPointer(); }
+  //  if (!initialized) { initialized = initPointer(); }
   m_g4StepSignal(aStep);
 
   G4Track * theTrack = aStep->GetTrack();
   bool ok = (theTrack->GetTrackStatus() == fAlive);
-  G4double kinEnergy = theTrack->GetKineticEnergy();
-
-  if (ok && killBeamPipe && kinEnergy < theCriticalEnergyForVacuum
-      && theTrack->GetDefinition()->GetPDGCharge() != 0.0 && kinEnergy > 0.0) {
-    ok = catchLowEnergyInVacuum(theTrack);
-  }
-
   if(ok && aStep->GetPostStepPoint()->GetPhysicalVolume() != 0) {
 
-    ok = catchLongLived(aStep); 
+    G4double kinEnergy = theTrack->GetKineticEnergy();
+
+    if(ok && killBeamPipe && kinEnergy < theCriticalEnergyForVacuum
+	&& theTrack->GetDefinition()->GetPDGCharge() != 0.0 && kinEnergy > 0.0) {
+      ok = catchLowEnergyInVacuum(theTrack);
+    }
+    if(ok && 0 < ndeadRegions) { ok = killInsideDeadRegion(theTrack); }
+    if(ok) { ok = catchLongLived(aStep); }
 
     if(ok && numberEkins > 0) { ok = killLowEnergy(aStep); }
 
@@ -122,14 +134,30 @@ void SteppingAction::UserSteppingAction(const G4Step * aStep)
 bool SteppingAction::catchLowEnergyInVacuum(G4Track * theTrack) const
 {
   bool alive = true;
-  G4VPhysicalVolume* nextVolume = theTrack->GetNextVolume(); 
-  if (nextVolume && nextVolume->GetLogicalVolume()->GetMaterial()->GetDensity() 
+  if (theTrack->GetNextVolume()->GetLogicalVolume()->GetMaterial()->GetDensity() 
       <= theCriticalDensity) {
     theTrack->SetTrackStatus(fStopAndKill);
 #ifdef DebugLog
     PrintKilledTrack(theTrack, 0); 
 #endif
     alive = false;
+  }
+  return alive;
+}
+
+bool SteppingAction::killInsideDeadRegion(G4Track * theTrack) const
+{
+  bool alive = true;
+  const G4Region* reg = theTrack->GetNextVolume()->GetLogicalVolume()->GetRegion();
+  for(unsigned int i=0; i<ndeadRegions; ++i) {
+    if(reg == deadRegions[i]) {
+      alive = false;    
+      theTrack->SetTrackStatus(fStopAndKill);
+#ifdef DebugLog
+      PrintKilledTrack(theTrack, 0); 
+#endif
+      break;
+    }
   }
   return alive;
 }
@@ -264,6 +292,19 @@ bool SteppingAction::initPointer()
       for (unsigned int i=0; i<numberTimes; ++i) {
 	if ((*rcite)->GetName() == (G4String)(maxTimeNames[i])) {
 	  maxTimeRegions[i] = (*rcite);
+	  break;
+	}
+      }
+    }
+  }
+  ndeadRegions =  deadRegionNames.size();
+  if (ndeadRegions > 0) {
+    deadRegions.resize(ndeadRegions, 0);
+    std::vector<G4Region*>::const_iterator rcite;
+    for (rcite = rs->begin(); rcite != rs->end(); ++rcite) {
+      for (unsigned int i=0; i<ndeadRegions; ++i) {
+	if ((*rcite)->GetName() == (G4String)(deadRegionNames[i])) {
+	  deadRegions[i] = (*rcite);
 	  break;
 	}
       }
