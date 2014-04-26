@@ -38,7 +38,7 @@ namespace {
     Keepers() : keepers{&x0DetLayer,&x0AtEta,&x0Averaged}, isInitialised(false) {}
   };
 
-  const Keepers keepers;
+  thread_local const Keepers keepers;
 
 }
 
