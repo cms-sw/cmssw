@@ -70,8 +70,8 @@ template<class C> class EcalUncalibRecHitRecWeightsAlgo
     ROOT::Math::SVector <double,3> param = (*(weights[iGainSwitch])) * frame;
     amplitude_ = param(EcalUncalibRecHitRecAbsAlgo<C>::iAmplitude);
     pedestal_ = param(EcalUncalibRecHitRecAbsAlgo<C>::iPedestal);
-    if (amplitude_) jitter_ = param(EcalUncalibRecHitRecAbsAlgo<C>::iTime);
-
+    if (amplitude_) jitter_ = -param(EcalUncalibRecHitRecAbsAlgo<C>::iTime) / amplitude_;
+    else jitter_ = 0.;
 
     //When saturated gain flag i
     if (isSaturated)
