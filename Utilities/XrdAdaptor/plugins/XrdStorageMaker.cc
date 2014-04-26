@@ -111,6 +111,7 @@ public:
     XrdCl::Env *env = XrdCl::DefaultEnv::GetEnv();
     if (env)
     {
+      env->PutInt("StreamTimeout", timeout);
       env->PutInt("RequestTimeout", timeout);
       env->PutInt("ConnectionWindow", timeout);
     }

@@ -97,7 +97,6 @@ RequestManager::RequestManager(const std::string &filename, XrdCl::OpenFlags::Fl
       if (dataServer.size())
       {
         ex.addAdditionalInfo("Problematic data server: " + dataServer);
-        m_disabledSourceStrings.insert(dataServer);
       }
       if (lastUrl.size())
       {
@@ -109,6 +108,7 @@ RequestManager::RequestManager(const std::string &filename, XrdCl::OpenFlags::Fl
         ex << ". No additional data servers were found.";
         throw ex;
       }
+      if (dataServer.size()) { m_disabledSourceStrings.insert(dataServer); }
       // In this case, we didn't go anywhere - we stayed at the redirector and it gave us a file-not-found.
       if (lastUrl == new_filename)
       {
@@ -522,11 +522,11 @@ RequestManager::requestFailure(std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr,
         timespec now;
         GET_CLOCK_MONOTONIC(now);
         m_lastSourceCheck = now;
-        // Note we only wait for 60 seconds here.  This is because we've already failed
+        // Note we only wait for 180 seconds here.  This is because we've already failed
         // once and the likelihood the program has some inconsistent state is decent.
         // We'd much rather fail hard than deadlock!
         sentry.unlock();
-        std::future_status status = future.wait_for(std::chrono::seconds(60));
+        std::future_status status = future.wait_for(std::chrono::seconds(180));
         if (status == std::future_status::timeout)
         {
             XrootdException ex(c_status, edm::errors::FileOpenError);
@@ -534,6 +534,7 @@ RequestManager::requestFailure(std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr,
                << "', flags=0x" << std::hex << m_flags
                << ", permissions=0" << std::oct << m_perms << std::dec
                << ", old source=" << source_ptr->ID()
+               << ", current server=" << m_open_handler.current_source()
                << ") => timeout when waiting for file open";
             ex.addContext("In XrdAdaptor::RequestManager::requestFailure()");
             addConnections(ex);
@@ -785,6 +786,21 @@ XrdAdaptor::RequestManager::OpenHandler::HandleResponseWithHosts(XrdCl::XRootDSt
   {
     delete hostList;
   }
+}
+
+std::string
+XrdAdaptor::RequestManager::OpenHandler::current_source()
+{
+    std::lock_guard<std::recursive_mutex> sentry(m_mutex);
+
+    if (!m_file.get())
+    {
+        return "(no open in progress)";
+    }
+    std::string dataServer;
+    m_file->GetProperty("DataServer", dataServer);
+    if (!dataServer.size()) { return "(unknown source)"; }
+    return dataServer;
 }
 
 std::shared_future<std::shared_ptr<Source> >

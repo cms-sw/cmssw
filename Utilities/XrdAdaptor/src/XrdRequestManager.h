@@ -170,6 +170,11 @@ private:
          */
         std::shared_future<std::shared_ptr<Source> > open();
 
+        /**
+         * Returns the current source server name.  Useful primarily for debugging.
+         */
+        std::string current_source();
+
     private:
         RequestManager & m_manager;
         std::shared_future<std::shared_ptr<Source> > m_shared_future;
