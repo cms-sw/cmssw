@@ -568,6 +568,7 @@ RequestManager::requestFailure(std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr,
             addConnections(ex);
             throw ex;
         }
+        m_activeSources.push_back(new_source);
     }
     else
     {
