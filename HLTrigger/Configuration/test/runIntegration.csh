@@ -20,17 +20,21 @@ endif
 
 foreach gtag ( $1 )
 
-  if ( $gtag == DATA ) then
-    set basepy = OnData
-    set basegt = auto:hltonline
-    set flags  = ""
-  else
-    set basepy = OnLine
-    set basegt = auto:startup
-    set flags  = --mc
-  endif
-
   foreach table ( $tables )
+
+    if ( $gtag == DATA ) then
+      set basepy = OnData
+      set basegt = auto:hltonline
+      set flags  = ""
+    else
+      set basepy = OnLine
+      if ( $table == HIon ) then
+        set basegt = auto:starthi
+      else
+        set basegt = auto:startup
+      endif
+      set flags  = --mc
+    endif
 
     echo
     set name = HLT_Integration_${table}_${gtag}
