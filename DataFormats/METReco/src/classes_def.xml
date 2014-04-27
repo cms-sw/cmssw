@@ -49,8 +49,9 @@
    <version ClassVersion="11" checksum="1851051058"/>
   </class>
   <class name="std::vector<SpecificPFMETData> "/>
-  <class name="SpecificGenMETData" ClassVersion="10">
+  <class name="SpecificGenMETData" ClassVersion="11">
    <version ClassVersion="10" checksum="2173201550"/>
+   <version ClassVersion="11" checksum="2260055190"/>
   </class>
 
   <class name="reco::MET" ClassVersion="10">

@@ -27,18 +27,18 @@ struct SpecificGenMETData
     , ChargedEMEtFraction(0.0), ChargedHadEtFraction(0.0)
     , MuonEtFraction(0.0), InvisibleEtFraction(0.0) { }
 
-  double NeutralEMEtFraction;
-  double NeutralHadEtFraction;
-  double ChargedEMEtFraction;
-  double ChargedHadEtFraction;
-  double MuonEtFraction;
-  double InvisibleEtFraction;
+  float NeutralEMEtFraction;
+  float NeutralHadEtFraction;
+  float ChargedEMEtFraction;
+  float ChargedHadEtFraction;
+  float MuonEtFraction;
+  float InvisibleEtFraction;
 
   //Old, obsolete datamembers (to be removed as soon as possible e.g 4_X_Y)
-  double m_EmEnergy;         // Event energy from EM particles
-  double m_HadEnergy;        // Event energy from Hadronic particles
-  double m_InvisibleEnergy;  // Event energy from neutrinos, etc
-  double m_AuxiliaryEnergy;  // Event energy from undecayed particles
+  float m_EmEnergy;         // Event energy from EM particles
+  float m_HadEnergy;        // Event energy from Hadronic particles
+  float m_InvisibleEnergy;  // Event energy from neutrinos, etc
+  float m_AuxiliaryEnergy;  // Event energy from undecayed particles
 };
 
 //____________________________________________________________________________||
