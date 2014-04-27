@@ -102,7 +102,7 @@ namespace reco {
     virtual const PFRecTrackRef& trackRefPF()  const {return nullPFRecTrack_; }
     virtual const PFClusterRef& clusterRef() const {return nullPFCluster_; }
     virtual const PFDisplacedTrackerVertexRef& displacedVertexRef(TrackType trType) const { return nullPFDispVertex_; }
-    virtual const ConversionRef&    convRef() const { return nullConv_;}
+    virtual const ConversionRefVector&    convRefs() const { return nullConv_;}
     virtual const MuonRef& muonRef() const { return nullMuon_; }
     virtual const VertexCompositeCandidateRef& V0Ref()  const { return nullVertex_; }
     virtual void setDisplacedVertexRef(const PFDisplacedTrackerVertexRef& niref, TrackType trType) { 
@@ -155,7 +155,7 @@ namespace reco {
     const static PFRecTrackRef nullPFRecTrack_;
     const static PFClusterRef nullPFCluster_;
     const static PFDisplacedTrackerVertexRef nullPFDispVertex_;
-    const static ConversionRef nullConv_;
+    const static ConversionRefVector nullConv_;
     const static MuonRef nullMuon_;
     const static VertexCompositeCandidateRef nullVertex_;
   
