@@ -7,6 +7,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ESWatcher.h"
 
 #include <vector>
 
@@ -14,6 +15,9 @@
 class TransientTrackingRecHitBuilder;
 class TrackerGeometry;
 class MagneticField;
+class TrackerDigiGeometryRecord;
+class IdealMagneticFieldRecord;
+class TransientRecHitRecord;
 
 
 class PixelFitterByHelixProjections : public PixelFitter {
@@ -43,5 +47,8 @@ private:
   mutable const MagneticField * theField;
   mutable const TransientTrackingRecHitBuilder * theTTRecHitBuilder;
 
+  mutable edm::ESWatcher<TrackerDigiGeometryRecord> theTrackerWatcher;
+  mutable edm::ESWatcher<IdealMagneticFieldRecord> theFieldWatcher;
+  mutable edm::ESWatcher<TransientRecHitRecord> theTTRecHitBuilderWatcher;
 };
 #endif
