@@ -61,7 +61,8 @@ bool AcceptJet::operator() (const reco::Jet & jet, const int & jetFlavour, const
 	   && chargedEmEnergyFraction < 0.99)) 
 	return false; //2012 values
     }
-    else std::cout<<"Jets are not PF jets, put 'doJetID' to False."<<std::endl;
+    //Looks to not work -> to be fixed
+    //else std::cout<<"Jets are not PF jets, put 'doJetID' to False."<<std::endl;
   }
   
   return true;
