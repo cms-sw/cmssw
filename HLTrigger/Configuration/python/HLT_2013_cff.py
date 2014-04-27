@@ -1,10 +1,10 @@
-# /online/collisions/2012/8e33/v3.2/HLT/V15 (CMSSW_7_1_0_pre6_HLT2)
+# /online/collisions/2012/8e33/v3.2/HLT/V16 (CMSSW_7_1_0_pre6_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/online/collisions/2012/8e33/v3.2/HLT/V15')
+  tableName = cms.string('/online/collisions/2012/8e33/v3.2/HLT/V16')
 )
 
 HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -31377,7 +31377,7 @@ hltParticleFlowBlockReg = cms.EDProducer( "PFBlockProducer",
         useIterativeTracking = cms.bool( False ),
         source = cms.InputTag( "hltLightPFTracksReg" ),
         NHitCuts_byTrackAlgo = cms.vuint32( 3, 3, 3, 3, 3 ),
-        muonSrc = cms.InputTag( "hltMuons" ),
+        muonSrc = cms.InputTag( "hltMuonsReg" ),
         DPtOverPtCuts_byTrackAlgo = cms.vdouble( -1.0, -1.0, -1.0, -1.0, -1.0 )
       ),
       cms.PSet(  importerName = cms.string( "ECALClusterImporter" ),
