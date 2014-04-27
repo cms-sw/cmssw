@@ -10,7 +10,7 @@
 #define NOISEPREFIX "Profile_NoiseFromCondDB__det__"
 #define PEDESTALPREFIX "Profile_PedestalFromCondDB__det__"
 
-void printPlot(TH1D* hist, char* prefix);
+void printPlot(TH1D* hist, char* prefix, char* postfix);
 
 int main(int argc, char *argv[]) {
 
@@ -18,12 +18,14 @@ int main(int argc, char *argv[]) {
   char* modulelistname;
   int pnbits;
   char* prefix;
+  char* postfix;
 
-  if(argc==5) {
+  if(argc==6) {
     rootfilename = argv[1];
     modulelistname = argv[2];
     pnbits = atoi(argv[3]);
     prefix = argv[4];
+    postfix = argv[5];
   }
   else {
     std::cout << "Wrong number of parameters " << argc << std::endl;
@@ -52,7 +54,7 @@ int main(int argc, char *argv[]) {
       TH1D* hist = (TH1D*)rootfile->FindObjectAny(histoname.str().c_str());
       if(hist) { 
 	std:: cout << histoname.str() << " found!" << std::endl;
-	printPlot(hist,prefix);
+	printPlot(hist,prefix,postfix);
       } else {  
 	std:: cout << histoname.str() << " NOT found..." << std::endl;
       }
@@ -65,7 +67,7 @@ int main(int argc, char *argv[]) {
       TH1D* hist = (TH1D*)rootfile->FindObjectAny(histoname.str().c_str());
       if(hist) { 
 	std:: cout << histoname.str() << " found!" << std::endl;
-	printPlot(hist,prefix);
+	printPlot(hist,prefix,postfix);
       } else {  
 	std:: cout << histoname.str() << " NOT found..." << std::endl;
       }
@@ -76,12 +78,12 @@ int main(int argc, char *argv[]) {
 
 }
 
-void printPlot(TH1D* hist, char* prefix) {
+void printPlot(TH1D* hist, char* prefix, char* postfix) {
 
   TCanvas* cc= new TCanvas;
   hist->Draw();
   std::stringstream filename;
-  filename << prefix << hist->GetName() << ".png";
+  filename << prefix << hist->GetName() << postfix << ".png";
   cc->Print(filename.str().c_str());
   delete cc;
 
