@@ -560,7 +560,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	    if(elements[iEle].trackRef()->quality(reco::TrackBase::highPurity))continue;
 	    const reco::PFBlockElementTrack * trackRef = dynamic_cast<const reco::PFBlockElementTrack*>((&elements[iEle]));
 	    if(!(trackRef->trackType(reco::PFBlockElement::T_FROM_GAMMACONV)))continue;
-	    if(elements[iEle].convRef().isNonnull())active[iEle]=false;
+	    if(elements[iEle].convRefs().size())active[iEle]=false;
 	  }
       }
     }

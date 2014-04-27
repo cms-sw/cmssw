@@ -58,7 +58,7 @@ importToBlock( const edm::Event& e,
       if( (*itr)->type() == reco::PFBlockElement::TRACK ) {
 	const reco::PFBlockElementTrack* trkel =
 	  static_cast<reco::PFBlockElementTrack*>(itr->get());
-	const reco::ConversionRef& cRef = trkel->convRef();
+	const reco::ConversionRefVector& cRef = trkel->convRefs();
 	const reco::PFDisplacedTrackerVertexRef& dvRef = 
 	  trkel->displacedVertexRef(reco::PFBlockElement::T_FROM_DISP);
 	const reco::VertexCompositeCandidateRef& v0Ref =
@@ -66,7 +66,7 @@ importToBlock( const edm::Event& e,
 	// if there is no displaced vertex reference  and it is marked
 	// as a conversion it's gotta be a converted brem
 	if( trkel->trackType(reco::PFBlockElement::T_FROM_GAMMACONV) &&
-	    cRef.isNull() && dvRef.isNull() && v0Ref.isNull() ) {
+	    cRef.size() == 0 && dvRef.isNull() && v0Ref.isNull() ) {
 	  // if the Pt resolution is bad we kill this element
 	  if( !goodPtResolution( trkel->trackRef() ) ) {
 	    itr = elems.erase(itr);
