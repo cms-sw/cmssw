@@ -19,6 +19,7 @@
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitMatcher.h"
 
 #include<iostream>
+#include <memory>
 
 SiPixelRecHit * TkClonerImpl::operator()(SiPixelRecHit const & hit, TrajectoryStateOnSurface const& tsos) const {
   const SiPixelCluster& clust = *hit.cluster();  
@@ -121,7 +122,9 @@ SiStripMatchedRecHit2D * TkClonerImpl::operator()(SiStripMatchedRecHit2D const &
 						 hit.stereoClusterRef());
     
     // return theMatcher->match(&monoHit,&stereoHit,gdet,tkDir,true);
-    auto better =  theMatcher->match(&monoHit,&stereoHit,gdet,tkDir,false);
+    std::unique_ptr<SiStripMatchedRecHit2D> temp = theMatcher->match(&monoHit,&stereoHit,gdet,tkDir,false);
+    SiStripMatchedRecHit2D * better =  temp.release();
+
     return better ? better : hit.clone();
 
 }
