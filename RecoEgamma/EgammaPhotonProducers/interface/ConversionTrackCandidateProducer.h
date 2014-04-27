@@ -7,7 +7,7 @@
  **
  ***/
 
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -36,7 +36,7 @@ class OutInConversionTrackFinder;
 class InOutConversionTrackFinder;
 
 // ConversionTrackCandidateProducer inherits from EDProducer, so it can be a module:
-class ConversionTrackCandidateProducer : public edm::stream::EDProducer<> {
+class ConversionTrackCandidateProducer : public edm::EDProducer {
 
  public:
 
@@ -44,7 +44,7 @@ class ConversionTrackCandidateProducer : public edm::stream::EDProducer<> {
   ~ConversionTrackCandidateProducer();
   
   virtual void beginRun (edm::Run const&, edm::EventSetup const & es) override final;
-  virtual void produce(edm::Event& evt, const edm::EventSetup& es);
+  virtual void produce(edm::Event& evt, const edm::EventSetup& es) override;
 
  private:
 
