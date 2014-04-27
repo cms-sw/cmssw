@@ -106,14 +106,14 @@ def merge(dictlist,TELL=False):
 step1Defaults = {'--relval'      : None, # need to be explicitly set
                  '-s'            : 'GEN,SIM',
                  '-n'            : 10,
-                 '--conditions'  : 'auto:startup',
+                 '--conditions'  : 'auto:run1_mc',
                  '--datatier'    : 'GEN-SIM',
                  '--eventcontent': 'RAWSIM',
                  }
 # step1 gensim: for postLS1
 step1Up2015Defaults = {'-s' : 'GEN,SIM',
                              '-n'            : 10,
-                             '--conditions'  : 'auto:upgradePLS1',
+                             '--conditions'  : 'auto:run2_mc',
                              '--datatier'    : 'GEN-SIM',
                              '--eventcontent': 'FEVTDEBUG',
                              '--magField'    : '38T_PostLS1',
@@ -239,7 +239,7 @@ steps['ZElSkim2012D']={'INPUT':InputInfo(dataSet='/DoubleElectron/Run2012D-ZElec
 
 #### Standard release validation samples ####
 
-stCond={'--conditions':'auto:startup'}
+stCond={'--conditions':'auto:run1_mc'}
 def Kby(N,s):
     return {'--relval':'%s000,%s'%(N,s)}
 def Mby(N,s):
@@ -685,7 +685,7 @@ steps['ZMM_UPG2015_14']=gen2015('ZMM_14TeV_cfi',Kby(18,300))
 
 step1Up2017Defaults = {'-s' : 'GEN,SIM',
                              '-n' : 10,
-                             '--conditions' : 'auto:upgradePLS1', 
+                             '--conditions' : 'auto:run2_mc', 
                              '--beamspot' : 'Gauss',
                              '--datatier' : 'GEN-SIM',
                              '--eventcontent': 'FEVTDEBUG',
@@ -821,7 +821,7 @@ step1FastDefaults =merge([{'-s':'GEN,SIM,RECO,EI,HLT:@relval,VALIDATION',
                           step1Defaults])
 step1FastUpg2015Defaults =merge([{'-s':'GEN,SIM,RECO,EI,HLT:@relval,VALIDATION',
                            '--fast':'',
-                           '--conditions'  :'auto:upgradePLS1',
+                           '--conditions'  :'auto:run2_mc',
                            '--magField'    :'38T_PostLS1',
                            '--customise'   :'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
                            '--eventcontent':'FEVTDEBUGHLT,DQM',
@@ -936,18 +936,18 @@ steps['TTbarFSPU13AVE20']=merge([PUFSAVE20,Kby(100,500),steps['TTbarFS_13']] )
 step2Defaults = { '-s'            : 'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco',
                   '--datatier'    : 'GEN-SIM-DIGI-RAW-HLTDEBUG',
                   '--eventcontent': 'FEVTDEBUGHLT',
-                  '--conditions'  : 'auto:startup',
+                  '--conditions'  : 'auto:run1_mc',
                   }
 #for 2015
 step2Upg2015Defaults = {'-s'     :'DIGI:pdigi_valid,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco',
-                 '--conditions'  :'auto:upgradePLS1',
+                 '--conditions'  :'auto:run2_mc',
                  '--magField'    :'38T_PostLS1',
                  '--datatier'    :'GEN-SIM-DIGI-RAW-HLTDEBUG',
                  '--eventcontent':'FEVTDEBUGHLT',
                  '--customise'   :'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
                  '-n'            :'10'
                   }
-step2Upg2015Defaults50ns = merge([{'--conditions':'auto:upgradePLS150ns'},step2Upg2015Defaults])
+step2Upg2015Defaults50ns = merge([{'--conditions':'auto:run2_mc_50ns'},step2Upg2015Defaults])
 
 steps['DIGIUP15']=merge([step2Upg2015Defaults])
 steps['DIGIUP15PROD1']=merge([{'-s':'DIGI,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco','--eventcontent':'RAWSIM','--datatier':'GEN-SIM-RAW'},step2Upg2015Defaults])
@@ -987,7 +987,7 @@ steps['DIGIUP']=merge([step2Upgpixphase1Defaults])
 
 #for 2017
 step2Upg2017Defaults = {'-s':'DIGI:pdigi_valid,L1,DIGI2RAW',
-                 '--conditions':'auto:upgradePLS1', 
+                 '--conditions':'auto:run2_mc', 
                  '--datatier':'GEN-SIM-DIGI-RAW',
                  '-n':'10',
                  '--eventcontent':'FEVTDEBUGHLT',
@@ -998,7 +998,7 @@ steps['DIGIUP17']=merge([step2Upg2017Defaults])
 #add this line when testing from an input file that is not strictly GEN-SIM
 #addForAll(step2,{'--process':'DIGI'})
 
-dataReco={'--conditions':'auto:com10',
+dataReco={'--conditions':'auto:run1_data',
           '-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias,DQM',
           '--datatier':'RECO,DQMIO',
           '--eventcontent':'RECO,DQM',
@@ -1070,7 +1070,7 @@ steps['Pyquen_ZeemumuJets_pt10_2760GeV']=merge([{'cfg':'Pyquen_ZeemumuJets_pt10_
 # step3 
 step3Defaults = {
                   '-s'            : 'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
-                  '--conditions'  : 'auto:startup',
+                  '--conditions'  : 'auto:run1_mc',
                   '--no_exec'     : '',
                   '--datatier'    : 'GEN-SIM-RECO,DQMIO',
                   '--eventcontent': 'RECOSIM,DQM'
@@ -1080,17 +1080,17 @@ steps['DIGIPU']=merge([{'--process':'REDIGI'},steps['DIGIPU1']])
 
 #for 2015
 step3Up2015Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
-                 '--conditions':'auto:upgradePLS1', 
+                 '--conditions':'auto:run2_mc', 
                  '--magField'    : '38T_PostLS1',
                  '-n':'10',
                  '--datatier':'GEN-SIM-RECO,DQMIO',
                  '--eventcontent':'RECOSIM,DQM',
                  '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'
                  }
-step3Up2015Defaults50ns = merge([{'--conditions':'auto:upgradePLS150ns'},step3Up2015Defaults])
+step3Up2015Defaults50ns = merge([{'--conditions':'auto:run2_mc_50ns'},step3Up2015Defaults])
 
 step3Up2015Hal = {'-s'            :'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
-                 '--conditions'   :'auto:upgradePLS1', 
+                 '--conditions'   :'auto:run2_mc', 
                  '--magField'     :'38T_PostLS1',
                  '--datatier'     :'GEN-SIM-RECO,DQMIO',
                   '--eventcontent':'RECOSIM,DQM',
@@ -1154,7 +1154,7 @@ steps['RECOUP']=merge([step3Upgpixphase1Defaults])
 
 #for 2017
 step3Up2017Defaults = {'-s':'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM',
-                 '--conditions':'auto:upgradePLS1', 
+                 '--conditions':'auto:run2_mc', 
                  '--datatier':'GEN-SIM-RECO,DQMIO',
                  '-n':'10',
                  '--eventcontent':'FEVTDEBUGHLT,DQM',
@@ -1167,7 +1167,7 @@ steps['RECOUP17']=merge([step3Up2017Defaults])
 #add this line when testing from an input file that is not strictly GEN-SIM
 #addForAll(step3,{'--hltProcess':'DIGI'})
 
-steps['ALCACOSD']={'--conditions':'auto:com10',
+steps['ALCACOSD']={'--conditions':'auto:run1_data',
                    '--datatier':'ALCARECO',
                    '--eventcontent':'ALCARECO',
                    '--scenario':'cosmics',
@@ -1175,11 +1175,11 @@ steps['ALCACOSD']={'--conditions':'auto:com10',
                    }
 steps['ALCAPROMPT']={'-s':'ALCA:PromptCalibProd',
                      '--filein':'file:TkAlMinBias.root',
-                     '--conditions':'auto:com10',
+                     '--conditions':'auto:run1_data',
                      '--datatier':'ALCARECO',
                      '--eventcontent':'ALCARECO'}
 steps['ALCAEXP']={'-s':'ALCA:PromptCalibProd',
-                  '--conditions':'auto:com10',
+                  '--conditions':'auto:run1_data',
                   '--datatier':'ALCARECO',
                   '--eventcontent':'ALCARECO'}
 
@@ -1187,14 +1187,14 @@ steps['ALCAEXP']={'-s':'ALCA:PromptCalibProd',
 step4Defaults = { 
                   '-s'            : 'ALCA:TkAlMuonIsolated+TkAlMinBias+EcalCalElectron+HcalCalIsoTrk+MuAlOverlaps',
                   '-n'            : 1000,
-                  '--conditions'  : 'auto:startup',
+                  '--conditions'  : 'auto:run1_mc',
                   '--datatier'    : 'ALCARECO',
                   '--eventcontent': 'ALCARECO',
                   }
 step4Up2015Defaults = { 
                         '-s'            : 'ALCA:TkAlMuonIsolated+TkAlMinBias+EcalCalElectron+HcalCalIsoTrk+MuAlOverlaps',
                         '-n'            : 1000,
-                        '--conditions'  : 'auto:upgradePLS1',
+                        '--conditions'  : 'auto:run2_mc',
                         '--datatier'    : 'ALCARECO',
                         '--eventcontent': 'ALCARECO',
                   }
@@ -1209,7 +1209,7 @@ steps['ALCAHAL']=merge([{'-s':'ALCA:TkAlBeamHalo+MuAlBeamHaloOverlaps+MuAlBeamHa
 steps['ALCAELE']=merge([{'-s':'ALCA:EcalCalElectron','--filein':'file:step3.root'},stCond,step4Defaults])
 
 steps['ALCAHARVD']={'-s':'ALCAHARVEST:BeamSpotByRun+BeamSpotByLumi+SiStripQuality',
-                    '--conditions':'auto:com10',
+                    '--conditions':'auto:run1_data',
                     '--scenario':'pp',
                     '--data':'',
                     '--filein':'file:PromptCalibProd.root'}
@@ -1219,14 +1219,14 @@ steps['RECOHISt4']=steps['RECOHI']
 steps['ALCANZS']=merge([{'-s':'ALCA:HcalCalMinBias','--mc':''},step4Defaults])
 steps['HARVGEN']={'-s':'HARVESTING:genHarvesting',
                   '--harvesting':'AtJobEnd',
-                  '--conditions':'auto:startup',
+                  '--conditions':'auto:run1_mc',
                   '--mc':'',
                   '--filein':'file:step1.root'
                   }
 
 #data
 steps['HARVESTD']={'-s':'HARVESTING:dqmHarvesting',
-                   '--conditions':'auto:com10',
+                   '--conditions':'auto:run1_data',
                    '--data':'',
                    '--filetype':'DQM',
                    '--scenario':'pp'}
@@ -1238,31 +1238,31 @@ steps['HARVESTDDQM']=merge([{'-s':'HARVESTING:@common+@muon+@hcal+@jetmet+@ecal'
 steps['HARVESTDfst2']=merge([{'--filein':'file:step2_inDQM.root'},steps['HARVESTD']])
 
 steps['HARVESTDC']={'-s':'HARVESTING:dqmHarvesting',
-                   '--conditions':'auto:com10',
+                   '--conditions':'auto:run1_data',
                    '--filetype':'DQM',
                    '--data':'',
                     '--filein':'file:step2_inDQM.root',
                    '--scenario':'cosmics'}
 steps['HARVESTDHI']={'-s':'HARVESTING:dqmHarvesting',
-                   '--conditions':'auto:com10',
+                   '--conditions':'auto:run1_data',
                    '--filetype':'DQM',
                    '--data':'',
                    '--scenario':'HeavyIons'}
 
 #MC
 steps['HARVEST']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
-                   '--conditions':'auto:startup',
+                   '--conditions':'auto:run1_mc',
                    '--mc':'',
                    '--filetype':'DQM',
                    '--scenario':'pp'}
 steps['HARVESTCOS']={'-s':'HARVESTING:dqmHarvesting',
-                     '--conditions':'auto:startup',
+                     '--conditions':'auto:run1_mc',
                      '--mc':'',
                      '--filein':'file:step3_inDQM.root',
                      '--filetype':'DQM',
                      '--scenario':'cosmics'}
 steps['HARVESTHAL']={'-s'          :'HARVESTING:dqmHarvesting',
-                     '--conditions':'auto:upgradePLS1',
+                     '--conditions':'auto:run2_mc',
                      '--magField'  :'38T_PostLS1',
                      '--mc'        :'',
                      '--filein'    :'file:step3_inDQM.root',
@@ -1272,7 +1272,7 @@ steps['HARVESTHAL']={'-s'          :'HARVESTING:dqmHarvesting',
                      '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
                      }
 steps['HARVESTFS']={'-s':'HARVESTING:validationHarvestingFS',
-                   '--conditions':'auto:startup',
+                   '--conditions':'auto:run1_mc',
                    '--mc':'',
                     '--filetype':'DQM',
                    '--scenario':'pp'}
@@ -1292,7 +1292,7 @@ steps['HARVESTUP']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                    }
 		   
 steps['HARVESTUP15']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting', # todo: remove UP from label
-                   '--conditions':'auto:upgradePLS1', 
+                   '--conditions':'auto:run2_mc', 
                    '--magField'    : '38T_PostLS1',
                    '--mc':'',
                    '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
@@ -1300,27 +1300,27 @@ steps['HARVESTUP15']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting', # to
                    }
 
 steps['HARVESTUP15FS']={'-s':'HARVESTING:validationHarvestingFS',
-                        '--conditions':'auto:upgradePLS1',
+                        '--conditions':'auto:run2_mc',
                         '--mc':'',
                         '--filetype':'DQM',
                         '--scenario':'pp'}
 
 steps['HARVESTUP17']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
-                   '--conditions':'auto:upgradePLS1', 
+                   '--conditions':'auto:run2_mc', 
                    '--mc':'',
                    '--customise' : 'SLHCUpgradeSimulations/Configuration/phase1TkCustoms.customise',
                    '--filetype':'DQM',
                    '--geometry' : 'Extended2017' #check geo
                    }
 steps['ALCASPLIT']={'-s':'ALCAOUTPUT:@allForPrompt',
-                    '--conditions':'auto:com10',
+                    '--conditions':'auto:run1_data',
                     '--scenario':'pp',
                     '--data':'',
                     '--triggerResultsProcess':'RECO',
                     '--filein':'file:step2_inALCARECO.root'}
 
 steps['SKIMD']={'-s':'SKIM:all',
-                '--conditions':'auto:com10',
+                '--conditions':'auto:run1_data',
                 '--data':'',
                 '--scenario':'pp',
                 '--filein':'file:step2.root',
@@ -1329,7 +1329,7 @@ steps['SKIMD']={'-s':'SKIM:all',
 steps['SKIMDreHLT'] = merge([ {'--conditions':'auto:com10_%s'%menu,'--filein':'file:step3.root'}, steps['SKIMD'] ])
 
 steps['SKIMCOSD']={'-s':'SKIM:all',
-                   '--conditions':'auto:com10',
+                   '--conditions':'auto:run1_data',
                    '--data':'',
                    '--scenario':'cosmics',
                    '--filein':'file:step2.root',
@@ -1357,6 +1357,6 @@ steps['RECODFROMRAWRECO']=merge([{'-s':'RAW2DIGI:RawToDigi_noTk,L1Reco,RECO:reco
 
 
 steps['COPYPASTE']={'-s':'NONE',
-                    '--conditions':'auto:startup',
+                    '--conditions':'auto:run1_mc',
                     '--output':'\'[{"t":"RAW","e":"ALL"}]\'',
                     '--customise_commands':'"process.ALLRAWoutput.fastCloning=cms.untracked.bool(False)"'}
