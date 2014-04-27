@@ -140,9 +140,9 @@ public:
   void setCurvilinearError(const CurvilinearTrajectoryError &err) {
         theCurvilinearError = err;
   }
-  void setCurvilinearError(const AlgebraicSymMatrix55 &err) {
-        theCurvilinearError = CurvilinearTrajectoryError(err); 
-  }
+//  void setCurvilinearError(const AlgebraicSymMatrix55 &err) {
+//        theCurvilinearError = CurvilinearTrajectoryError(err); 
+//  }
 
 private:
 
