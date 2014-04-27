@@ -56,7 +56,7 @@ public:
   }
 
   template<typename... Args>
-  explicit TrajectoryStateOnSurface(Args && ...args) : Base(BTSOS::build<BasicSingleTrajectoryState>(std::forward<Args>(args)...)){}
+  explicit TrajectoryStateOnSurface(Args && ...args) : Base(BTSOS::churn<BasicSingleTrajectoryState>(std::forward<Args>(args)...)){}
 
 #endif
 

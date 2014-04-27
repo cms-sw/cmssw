@@ -42,6 +42,10 @@ public:
    */
   CurvilinearTrajectoryError(const AlgebraicSymMatrix55& aCovarianceMatrix) :
     theCovarianceMatrix(aCovarianceMatrix) { }
+  template<typename M55>
+  CurvilinearTrajectoryError(const M55& aCovarianceMatrix) :
+    theCovarianceMatrix(aCovarianceMatrix) { }
+
 
   bool invalid() const { return theCovarianceMatrix(0,0)<-1.e10;}
   bool valid() const { return !invalid();}
