@@ -49,7 +49,7 @@ namespace l1t {
 
       const unsigned char *data = l1tRcd.data();
       // FIXME is the 8 right?
-      const unsigned data_end = l1tRcd.size() - 8;
+      // const unsigned data_end = l1tRcd.size() - 8;
       unsigned idx = 16;
 
       // Extract header data
@@ -80,7 +80,8 @@ namespace l1t {
       for (auto& up: unpackers)
          up.second->setCollections(coll);
 
-      for (unsigned int b = 0; idx < data_end; ++b) {
+      auto payload_end = idx + payload_size * 4;
+      for (unsigned int b = 0; idx < payload_end; ++b) {
          // FIXME Number of blocks actually fixed by firmware
          if (b >= MAX_BLOCKS) {
             LogDebug("L1T") << "Reached block limit - bailing out from this event!";
