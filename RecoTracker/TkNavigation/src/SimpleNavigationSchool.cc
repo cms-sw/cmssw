@@ -12,7 +12,7 @@
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "TrackingTools/DetLayers/src/DetBelowZ.h"
 #include "TrackingTools/DetLayers/src/DetLessZ.h"
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
+// #include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 
 #include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
