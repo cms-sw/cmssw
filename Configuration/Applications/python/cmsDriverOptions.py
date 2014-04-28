@@ -97,7 +97,8 @@ def OptionsFromItems(items):
                  "DATAMIX":"DIGI",
                  "DIGI2RAW":"DATAMIX",
                  "HARVESTING":"RECO",
-                 "ALCAHARVEST":"RECO"}
+                 "ALCAHARVEST":"RECO",
+                 "PAT":"RECO"}
 
     trimmedEvtType=options.evt_type.split('/')[-1]
 
