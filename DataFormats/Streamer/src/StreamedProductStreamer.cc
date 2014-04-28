@@ -27,6 +27,11 @@ namespace edm {
       }
     }
   }
+  
+  TClassStreamer*
+  StreamedProductStreamer::Generate() const {
+    return new StreamedProductStreamer(*this);
+  }
 
   void
   setStreamedProductStreamer() {

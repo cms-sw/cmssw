@@ -20,8 +20,12 @@ namespace edm {
     private:
       virtual void enableWarnings_() override;
       virtual void ignoreWarnings_() override;
+      virtual void willBeUsingThreads() override;
+      virtual void initializeThisThreadForUse() override;
+
       bool unloadSigHandler_;
       bool resetErrHandler_;
+      bool loadAllDictionaries_;
       bool autoLibraryLoader_;
       std::shared_ptr<const void> sigBusHandler_;
       std::shared_ptr<const void> sigSegvHandler_;
