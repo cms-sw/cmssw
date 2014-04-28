@@ -136,6 +136,7 @@ namespace cms{
     edm::ESHandle<NavigationSchool> navigationSchoolH;
     es.get<NavigationSchoolRecord>().get(theNavigationSchoolName, navigationSchoolH);
     theNavigationSchool = navigationSchoolH.product();
+    theTrajectoryBuilder->setNavigationSchool(theNavigationSchool);
   }
 
   // Functions that gets called by framework every event
@@ -145,7 +146,7 @@ namespace cms{
     setEventSetup( es ); 
 
     // set the correct navigation
-    NavigationSetter setter( *theNavigationSchool);
+    // NavigationSetter setter( *theNavigationSchool);
     
     // propagator
     edm::ESHandle<Propagator> thePropagator;
