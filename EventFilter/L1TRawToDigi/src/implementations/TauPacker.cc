@@ -42,7 +42,9 @@ namespace l1t {
       res.id = 7;
 
       for (int i = taus->getFirstBX(); i <= taus->getLastBX(); ++i) {
-         for (auto j = taus->begin(i); j != taus->end(i); ++j) {
+         int n = 0;
+         for (auto j = taus->begin(i); j != taus->end(i) && n < 8; ++j, ++n) {
+            std::cout << "packing " << n << std::endl;
             uint32_t word = \
                             min(j->hwPt(), 0x1FF) |
                             (abs(j->hwEta()) & 0x7F) << 9 |
@@ -52,6 +54,10 @@ namespace l1t {
                             (j->hwQual() & 0x7) << 26;
             res.load.push_back(word);
          }
+
+         // pad for empty taus
+         for (; n < 8; ++n)
+            res.load.push_back(0);
       }
 
       return {res};

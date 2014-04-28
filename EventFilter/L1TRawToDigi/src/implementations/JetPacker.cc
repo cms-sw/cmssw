@@ -42,7 +42,8 @@ namespace l1t {
       res.id = 5;
 
       for (int i = jets->getFirstBX(); i <= jets->getLastBX(); ++i) {
-         for (auto j = jets->begin(i); j != jets->end(i); ++j) {
+         int n = 0;
+         for (auto j = jets->begin(i); j != jets->end(i) && n < 12; ++j, ++n) {
             uint32_t word = \
                             min(j->hwPt(), 0x7FF) |
                             (abs(j->hwEta()) & 0x7F) << 11 |
@@ -51,6 +52,9 @@ namespace l1t {
                             (j->hwQual() & 0x7) << 27;
             res.load.push_back(word);
          }
+
+         for (; n < 12; ++n)
+            res.load.push_back(0);
       }
 
       return {res};

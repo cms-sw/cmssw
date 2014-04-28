@@ -40,6 +40,9 @@ namespace l1t {
        for (unsigned nJet=0; nJet < 12 && nJet < size; nJet++){
          uint32_t raw_data = pop(data,i); // pop advances the index i internally
 
+         if (raw_data == 0)
+            continue;
+
          l1t::Jet jet = l1t::Jet();
 
          jet.setHwPt(raw_data & 0x7FF);

@@ -43,6 +43,9 @@ namespace l1t {
 
          uint32_t raw_data = pop(data,i); // pop advances the index i internally
 
+         if (raw_data == 0)
+            continue;
+
          l1t::Tau tau = l1t::Tau();
        
          tau.setHwPt(raw_data & 0x1FF);
