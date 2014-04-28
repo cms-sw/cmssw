@@ -6,6 +6,9 @@
 #include "NavigableLayer.h"
 #include "DetLayer.h"
 
+#include <iostream>
+#include <typeinfo>
+
 /** A base class for NavigationSchools.
  *  The links between layers are computed or loaded from 
  *  persistent store by a NavigationSchool.
@@ -16,7 +19,9 @@
 class NavigationSchool {
 public:
 
-  NavigationSchool() : theAllDetLayersInSystem(0){}
+  NavigationSchool() : theAllDetLayersInSystem(0){
+    std::cout << "NVSH: C "<< this << std::endl;
+  }
 
   virtual ~NavigationSchool() {}
 
@@ -50,6 +55,9 @@ public:
 protected:
 
   void setState( const StateType& state) {
+    std::cout << "NVSH: set "<< this << ' ' << typeid(*this).name() 
+	      << ' ' << state.size() << ' ' << theAllNavigableLayer.size() << std::endl;
+
     for (auto nl : state)
       if (nl) theAllNavigableLayer[nl->detLayer()->seqNum()]=nl;
   }
