@@ -38,6 +38,9 @@ using namespace std;
 MuonNavigationSchool::MuonNavigationSchool(const MuonDetLayerGeometry * muonLayout, bool enableRPC ) : theMuonDetLayerGeometry(muonLayout) {
 
   theAllDetLayersInSystem=&muonLayout->allLayers(); 
+  theAllNavigableLayer.resize(muonLayout->allLayers().size(),nullptr);
+
+
 
   // get all barrel DetLayers (DT + optional RPC) 
   vector<DetLayer*> barrel;
@@ -257,10 +260,13 @@ void MuonNavigationSchool::linkEndcapLayers(const MapE& layers,
 
 
 /// create inverse links (i.e. inwards)
-void MuonNavigationSchool::createInverseLinks() const {
+void MuonNavigationSchool::createInverseLinks()  {
 
   // set outward link
   NavigationSetter setter(*this);
+
+  setState(navigableLayers());
+
 
   // find for each layer which are the layers pointing to it
   typedef map<const DetLayer*, MapB, less<const DetLayer*> > BarrelMapType;

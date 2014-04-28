@@ -26,7 +26,8 @@ process.source = cms.Source("EmptySource")
 
 process.navigationSchoolAnalyzer = cms.EDAnalyzer("NavigationSchoolAnalyzer",
 #    navigationSchoolName = cms.string('BeamHaloNavigationSchool')
-    navigationSchoolName = cms.string('SimpleNavigationSchool')
+    navigationSchoolName = cms.string('CosmicNavigationSchool')
+#    navigationSchoolName = cms.string('SimpleNavigationSchool')
 )
 
 process.p = cms.Path(process.navigationSchoolAnalyzer)
