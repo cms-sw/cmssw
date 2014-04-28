@@ -36,6 +36,7 @@ double PVClusterComparer::pTSquaredSum(const PVCluster &v) {
       size_t ndof = v.tracks()[i]->ndof();
       if (ndof >= maxChi2_.size()) 
 	updateChisquareQuantile(ndof);
+      // cut on chi2 which corresponds to the configured probability
       if (v.tracks()[i]->chi2() > maxChi2_[ndof] ) continue ;   
     }
     if (v.tracks()[i]->normalizedChi2() > track_chi2_max_) continue;
@@ -58,14 +59,8 @@ double PVClusterComparer::pTSquaredSum(const reco::Vertex &v) {
     //      if (TMath::Prob((*i)->chi2(),(*i)->ndof()) < track_prob_min_) continue ; 
     if (track_prob_min_ >= 0. && track_prob_min_ <= 1.) {      
       unsigned int ndof = (*i)->ndof();
-      if (ndof >= maxChi2_.size()) {
-	size_t oldsize = maxChi2_.size();
-	//	maxChi2_.resize(ndof+1);
-	for (size_t i = oldsize; i <= ndof; ++i) {
-	  double chi2 = TMath::ChisquareQuantile(1- track_prob_min_, i);
-	  maxChi2_.push_back(chi2);
-	}
-      }
+      if (ndof >= maxChi2_.size()) 
+	updateChisquareQuantile(ndof);
       // cut on chi2 which corresponds to the configured probability
       if ((*i)->chi2() > maxChi2_[ndof] ) continue ;
     }
