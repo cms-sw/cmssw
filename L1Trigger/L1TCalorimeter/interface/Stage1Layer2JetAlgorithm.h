@@ -23,6 +23,10 @@ namespace l1t {
 			      std::vector<l1t::Jet> * jets) = 0;
     virtual ~Stage1Layer2JetAlgorithm(){};
     int jetSeedThreshold;
+    bool PUSubtract;
+    std::vector<double> regionSubtraction;
+    bool applyJetCalibration;
+    std::vector<double> jetSF;
 
     /* private: */
     /*   double regionLSB_; // least significant bit value. Usually = 0.5 */

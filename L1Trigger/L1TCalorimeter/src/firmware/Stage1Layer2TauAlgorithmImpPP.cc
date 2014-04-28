@@ -19,9 +19,10 @@ using namespace std;
 using namespace l1t;
 
 
-Stage1Layer2TauAlgorithmImpPP::Stage1Layer2TauAlgorithmImpPP(/*const CaloParams & dbPars*/) 
+Stage1Layer2TauAlgorithmImpPP::Stage1Layer2TauAlgorithmImpPP(CaloParams* params) : params_(params)
 {
-
+  PUSubtract = params_->PUSubtract();
+  regionSubtraction = params_->regionSubtraction();
 }
 
 Stage1Layer2TauAlgorithmImpPP::~Stage1Layer2TauAlgorithmImpPP(){};
@@ -39,17 +40,12 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
 
   std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
 
-  bool Correct=true;   //  default is to use the corrected regions
 
-  // ----- if using corrected regions ------
-  if (Correct) RegionCorrection(regions, EMCands, subRegions);
-  else { // --- else just take the uncorrected regions
-    for(std::vector<l1t::CaloRegion>::const_iterator region = regions.begin(); 
-	region!= regions.end(); region++){
-      CaloRegion newSubRegion= *region;
-      subRegions->push_back(newSubRegion);
-    }
-  }
+  
+  //Region Correction will return uncorrected subregions if 
+  //PUSubtract is set to False in the config
+  RegionCorrection(regions, EMCands, subRegions, regionSubtraction, PUSubtract);
+  
 
 
   // ----- need to cluster jets in order to compute jet isolation ----

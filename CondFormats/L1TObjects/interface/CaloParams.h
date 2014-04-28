@@ -15,7 +15,7 @@
 //#include "CondFormats/L1TObjects/interface/FirmwareVersion.h"
 
 #include <iostream>
-
+#include <vector>
 #include <cmath>
 
 namespace l1t {
@@ -47,6 +47,12 @@ namespace l1t {
     // jets
     double jetSeedThreshold() const { return jetSeedThreshold_; }
 
+    bool PUSubtract() const { return PUSubtract_; }           
+    std::vector<double> regionSubtraction() const { return regionSubtraction_; }
+
+    bool applyJetCalibration() const { return applyJetCalibration_; }           
+    std::vector<double> jetSF() const { return jetSF_; }
+
     //// setters ////
 
     // towers
@@ -61,6 +67,12 @@ namespace l1t {
 
     // jets
     void setJetSeedThreshold(double thresh) { jetSeedThreshold_ = thresh; }
+
+    void setPUSubtract(bool pusub) { PUSubtract_ = pusub; }            
+    void setregionSubtraction(std::vector<double> regsub) { regionSubtraction_ = regsub; }
+
+    void setapplyJetCalibration(bool jetcalib) { applyJetCalibration_ = jetcalib; }            
+    void setjetSF(std::vector<double> jetsf) { jetSF_ = jetsf; }
 
     // print parameters to stream:
     void print(std::ostream&) const;
@@ -125,7 +137,14 @@ namespace l1t {
     /* 	- calibration type */
     /* 	- calibration LUT parameters (xN, can set some maximum, say 20) */
     /* 	- the calibration LUT itself */
-    
+
+    bool PUSubtract_;
+    std::vector<double> regionSubtraction_;    //pu subtraction look up table, see region_cfi
+
+    bool applyJetCalibration_;
+    std::vector<double> jetSF_;    // jet correction table, see jet_sfi
+
+
     /* Sums */
     double etSumEtaMin_[10];       // minimum eta of input object (tower, region, jet)
     double etSumEtaMax_[10];       // maximum eta of input object

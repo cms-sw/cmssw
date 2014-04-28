@@ -28,7 +28,7 @@
 #include "CondFormats/DataRecord/interface/L1EmEtScaleRcd.h"
 #include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
 
-//#include <vector>
+#include <vector>
 #include "DataFormats/L1Trigger/interface/BXVector.h"
 
 //#include "CondFormats/DataRecord/interface/CaloParamsRcd.h"
@@ -112,6 +112,12 @@ namespace l1t {
     int maxGctEtaForSums(iConfig.getParameter<int>("maxGctEtaForSums"));
     double jetSeedThreshold(iConfig.getParameter<double>("jetSeedThreshold"));
 
+    bool PUSubtract(iConfig.getParameter<bool>("PUSubtract"));
+    std::vector<double> regionSubtraction(iConfig.getParameter<vector<double> >("regionSubtraction"));
+
+    bool applyJetCalibration(iConfig.getParameter<bool>("applyJetCalibration"));
+    std::vector<double> jetSF(iConfig.getParameter<vector<double> >("jetSF"));
+
     m_fwv = boost::shared_ptr<FirmwareVersion>(new FirmwareVersion()); //not const during testing
     if (ifwv == 1){
       LogDebug("l1t|stage 1 jets") << "Stage1Layer2Producer -- Running HI implementation\n";
@@ -132,6 +138,10 @@ namespace l1t {
     m_dbpars->setMinGctEtaForSums(minGctEtaForSums);
     m_dbpars->setMaxGctEtaForSums(maxGctEtaForSums);
     m_dbpars->setJetSeedThreshold(jetSeedThreshold);
+    m_dbpars->setPUSubtract(PUSubtract);
+    m_dbpars->setregionSubtraction(regionSubtraction);
+    m_dbpars->setapplyJetCalibration(applyJetCalibration);
+    m_dbpars->setjetSF(jetSF);
 
     m_fw = m_factory.create(*m_fwv ,m_dbpars);
     //printf("Success create.\n");
