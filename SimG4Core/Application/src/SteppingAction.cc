@@ -40,8 +40,6 @@ SteppingAction::SteppingAction(EventAction* e, const edm::ParameterSet & p)
 				       << maxTrackTime/CLHEP::ns 
 				       << " ns";
 
-  initialized = initPointer(); 
-
   numberTimes = maxTrackTimes.size();
   if(numberTimes > 0) {
     for (unsigned int i=0; i<numberTimes; i++) {
@@ -52,6 +50,7 @@ SteppingAction::SteppingAction(EventAction* e, const edm::ParameterSet & p)
     }
   }
 
+  ndeadRegions =  deadRegionNames.size();
   if(ndeadRegions > 0) {
     G4ExceptionDescription ed;   
     ed << "SteppingAction: Number of DeadRegions where all trackes are killed: "
@@ -89,7 +88,7 @@ SteppingAction::~SteppingAction() {}
 
 void SteppingAction::UserSteppingAction(const G4Step * aStep) 
 {
-  //  if (!initialized) { initialized = initPointer(); }
+  if (!initialized) { initialized = initPointer(); }
   m_g4StepSignal(aStep);
 
   G4Track * theTrack = aStep->GetTrack();
@@ -297,7 +296,6 @@ bool SteppingAction::initPointer()
       }
     }
   }
-  ndeadRegions =  deadRegionNames.size();
   if (ndeadRegions > 0) {
     deadRegions.resize(ndeadRegions, 0);
     std::vector<G4Region*>::const_iterator rcite;
