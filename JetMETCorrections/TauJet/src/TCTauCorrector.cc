@@ -3,9 +3,9 @@
 TCTauCorrector::TCTauCorrector(){
 	init();
 }
-TCTauCorrector::TCTauCorrector(const edm::ParameterSet& iConfig){
+TCTauCorrector::TCTauCorrector(const edm::ParameterSet& iConfig, edm::ConsumesCollector &&iC){
 	init();
-	inputConfig(iConfig);
+	inputConfig(iConfig, iC);
 }
 TCTauCorrector::~TCTauCorrector(){
 	delete tcTauAlgorithm;
@@ -15,8 +15,8 @@ void TCTauCorrector::init(){
 	tcTauAlgorithm = new TCTauAlgorithm;
 }
 
-void TCTauCorrector::inputConfig(const edm::ParameterSet& iConfig) const {
-        tcTauAlgorithm->inputConfig(iConfig);
+void TCTauCorrector::inputConfig(const edm::ParameterSet& iConfig, edm::ConsumesCollector &iC) const {
+        tcTauAlgorithm->inputConfig(iConfig, iC);
 }
 
 void TCTauCorrector::eventSetup(const edm::Event& iEvent, const edm::EventSetup& iSetup) const {

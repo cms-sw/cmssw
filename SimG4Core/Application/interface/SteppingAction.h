@@ -31,6 +31,7 @@ private:
   bool initPointer();
 
   bool catchLowEnergyInVacuum(G4Track * theTrack) const; 
+  bool killInsideDeadRegion(G4Track * theTrack) const;
   bool catchLongLived(const G4Step * aStep) const;
   bool killLowEnergy(const G4Step * aStep) const;
   bool isThisVolume(const G4VTouchable* touch, G4VPhysicalVolume* pv) const;
@@ -46,12 +47,15 @@ private:
   double                        maxTrackTime;
   std::vector<double>           maxTrackTimes, ekinMins;
   std::vector<std::string>      maxTimeNames, ekinNames, ekinParticles;
+  std::vector<std::string>      deadRegionNames;
   std::vector<const G4Region*>  maxTimeRegions;
+  std::vector<const G4Region*>  deadRegions;
   std::vector<G4LogicalVolume*> ekinVolumes;
   std::vector<int>              ekinPDG;
   unsigned int                  numberTimes;
   unsigned int                  numberEkins;
   unsigned int                  numberPart;
+  unsigned int                  ndeadRegions;
 
   bool                          initialized;
   bool                          killBeamPipe;
