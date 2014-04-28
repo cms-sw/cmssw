@@ -398,11 +398,11 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 
 	// Fill second auxiliaty word
 	auxflag=0;
-        fTS = (firstAuxTS_-4 < 0) ? 0 : firstAuxTS_-4;  
-	for (int xx = fTS; xx < fTS+4 && xx<i->size(); ++xx)
-	  auxflag+=(i->sample(xx).adc())<<(7*(xx-fTS)); 
+        int fTS2 = (firstAuxTS_-4 < 0) ? 0 : firstAuxTS_-4;  
+	for (int xx = fTS2; xx < fTS2+4 && xx<i->size(); ++xx)
+	  auxflag+=(i->sample(xx).adc())<<(7*(xx-fTS2)); 
 
-	auxflag+=((i->sample(fTS).capid())<<28);
+	auxflag+=((i->sample(fTS2).capid())<<28);
 	(rec->back()).setAuxHBHE(auxflag);
 
 
