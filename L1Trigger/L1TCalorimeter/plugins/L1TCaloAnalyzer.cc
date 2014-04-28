@@ -5,10 +5,10 @@
 // 
 /**\class L1TCaloAnalyzer L1TCaloAnalyzer.cc L1Trigger/L1TCalorimeter/plugins/L1TCaloAnalyzer.cc
 
- Description: [one line class summary]
+Description: [one line class summary]
 
- Implementation:
-     [Notes on implementation]
+Implementation:
+[Notes on implementation]
 */
 //
 // Original Author:  James Brooke
@@ -60,76 +60,79 @@
 //
 
 class L1TCaloAnalyzer : public edm::EDAnalyzer {
-public:
-  explicit L1TCaloAnalyzer(const edm::ParameterSet&);
-  ~L1TCaloAnalyzer();
-  
-  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  
-  
-private:
-  virtual void beginJob() override;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
-  
-  //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-  //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-  //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  
-  // ----------member data ---------------------------
-  edm::EDGetToken m_towerToken;
-  edm::EDGetToken m_towerPreCompressionToken;
-  edm::EDGetToken m_clusterToken;
-  edm::EDGetToken m_egToken;
-  edm::EDGetToken m_tauToken;
-  edm::EDGetToken m_jetToken;
-  edm::EDGetToken m_sumToken;
-  
-  enum ObjectType{Tower=0x1,
+  public:
+    explicit L1TCaloAnalyzer(const edm::ParameterSet&);
+    ~L1TCaloAnalyzer();
+
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
+      void make_cumu_hist(int32_t, TH1F *);
+
+  private:
+    virtual void beginJob() override;
+    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+    virtual void endJob() override;
+
+    //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+    //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
+    //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+    //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+
+    // ----------member data ---------------------------
+    edm::EDGetToken m_towerToken;
+    edm::EDGetToken m_towerPreCompressionToken;
+    edm::EDGetToken m_clusterToken;
+    edm::EDGetToken m_egToken;
+    edm::EDGetToken m_tauToken;
+    edm::EDGetToken m_jetToken;
+    edm::EDGetToken m_sumToken;
+
+    enum ObjectType{Tower=0x1,
       TowerPreCompression=0x2,
-		  Cluster=0x3,
-		  EG=0x4,
-		  Tau=0x5,
-		  Jet=0x6,
-		  Sum=0x7,
+      Cluster=0x3,
+      EG=0x4,
+      Tau=0x5,
+      Jet=0x6,
+      Sum=0x7,
       HSum=0x8};
-  
-  std::vector< ObjectType > types_;
-  std::vector< std::string > typeStr_;
-  
-  std::map< ObjectType, TFileDirectory > dirs_;
-  std::map< ObjectType, TH1F* > het_;
-  std::map< ObjectType, TH1F* > het2_;
-  std::map< ObjectType, TH1F* > heta_;
-  std::map< ObjectType, TH1F* > hphi_;
-  std::map< ObjectType, TH1F* > hem_;
-  std::map< ObjectType, TH1F* > hhad_;
-  std::map< ObjectType, TH1F* > hratio_;
 
-  //My own histograms
-  std::map< TString, std::vector<double> > bins_;
-  std::map< TString, std::vector<double> > binsESum_;
-  std::map< TString, TFileDirectory > jetDirs_;
-  std::map< TString, TH1F* > hjets_;//Histograms
-  std::vector< TString > vars_;//Variables to plot
-  std::vector< TString > categories_;//Categories of jets
-  std::vector< TString > eSumCategories_;//Categories of e sums 
+    std::vector< ObjectType > types_;
+    std::vector< std::string > typeStr_;
 
-  //Comparison histograms
-  std::map< TString, TH1F* > h1d_;
-  std::map< TString, TH2F* > h2d_;
+    std::map< ObjectType, TFileDirectory > dirs_;
+    std::map< ObjectType, TH1F* > het_;
+    std::map< ObjectType, TH1F* > hmet_;
+    std::map< ObjectType, TH1F* > hrateEt_;
+    std::map< ObjectType, TH1F* > hrateMet_;
+    std::map< ObjectType, TH1F* > heta_;
+    std::map< ObjectType, TH1F* > hphi_;
+    std::map< ObjectType, TH1F* > hem_;
+    std::map< ObjectType, TH1F* > hhad_;
+    std::map< ObjectType, TH1F* > hratio_;
 
-  //Turn on curves
-  std::map< TString, TGraphAsymmErrors* > gTurnons_;
-  std::map< TString, TH1F* > h1dTurnons_;
-  std::vector< TString > turnonCuts_;
-  std::vector< TString > turnonLevel_;
+    //My own histograms
+    std::map< TString, std::vector<double> > bins_;
+    std::map< TString, std::vector<double> > binsESum_;
+    std::map< TString, TFileDirectory > jetDirs_;
+    std::map< TString, TH1F* > hjets_;//Histograms
+    std::vector< TString > vars_;//Variables to plot
+    std::vector< TString > categories_;//Categories of jets
+    std::vector< TString > eSumCategories_;//Categories of e sums 
 
-  //Resolution histograms
-  std::map< TString, TH1F* > hResolution_;
+    //Comparison histograms
+    std::map< TString, TH1F* > h1d_;
+    std::map< TString, TH2F* > h2d_;
 
-  std::vector< TString > varLevel_;//The type of variable, eg gen or l1
+    //Turn on curves
+    std::map< TString, TGraphAsymmErrors* > gTurnons_;
+    std::map< TString, TH1F* > h1dTurnons_;
+    std::vector< TString > turnonCuts_;
+    std::vector< TString > turnonLevel_;
+
+    //Resolution histograms
+    std::map< TString, TH1F* > hResolution_;
+
+    std::vector< TString > varLevel_;//The type of variable, eg gen or l1
 };
 
 //
@@ -164,11 +167,11 @@ double iPhitoPhi(int iPhi){//Based on the map https://twiki.cern.ch/twiki/bin/vi
 
 double iEtatoEta(int iEta){
   double etaMapping[57]={-3.0,-2.65,-2.5,-2.322,-2.172,-2.043,-1.93,-1.83,-1.74,-1.653,
-                        -1.566,-1.4790,-1.3920,-1.3050,-1.2180,-1.1310,-1.0440,-0.9570,
-                        -0.8700,-0.7830,-0.6950,-0.6090,-0.5220,-0.4350,-0.3480,-0.2610,
-                        -0.1740,-0.0870,0.0,0.0870,0.1740,0.2610,0.3480,0.4350,0.5220,0.6090,
-                        0.6950,0.7830,0.8700,0.9570,1.0440,1.1310,1.2180,1.3050,1.3920,
-                        1.4790,1.566,1.653,1.74,1.83,1.93,2.043,2.172,2.322,2.5,2.65,3.0};
+    -1.566,-1.4790,-1.3920,-1.3050,-1.2180,-1.1310,-1.0440,-0.9570,
+    -0.8700,-0.7830,-0.6950,-0.6090,-0.5220,-0.4350,-0.3480,-0.2610,
+    -0.1740,-0.0870,0.0,0.0870,0.1740,0.2610,0.3480,0.4350,0.5220,0.6090,
+    0.6950,0.7830,0.8700,0.9570,1.0440,1.1310,1.2180,1.3050,1.3920,
+    1.4790,1.566,1.653,1.74,1.83,1.93,2.043,2.172,2.322,2.5,2.65,3.0};
   return etaMapping[iEta+28];
 }
 
@@ -250,7 +253,7 @@ L1TCaloAnalyzer::L1TCaloAnalyzer(const edm::ParameterSet& iConfig)
   binsESum_["met_phi"].push_back(72.);
   binsESum_["met_phi"].push_back(-3.15);
   binsESum_["met_phi"].push_back(3.15);
-  
+
   eSumCategories_.push_back( "ht" );
   binsESum_["ht"].push_back(200.);
   binsESum_["ht"].push_back(-0.5);
@@ -336,12 +339,12 @@ L1TCaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   }else{
     for(unsigned i=0; i<towers->size(0); ++i){
       if(towers->at(0,i).hwEtEm() != 0 || towersPreCompression->at(0,i).hwEtEm() != 0){ //Don't fill if both 0
-        h1d_["tow_em_diff"]->Fill(towers->at(0,i).hwEtEm() - towersPreCompression->at(0,i).hwEtEm());
-        h2d_["tow_em_comp"]->Fill(towers->at(0,i).hwEtEm(),towersPreCompression->at(0,i).hwEtEm());
+	h1d_["tow_em_diff"]->Fill(towers->at(0,i).hwEtEm() - towersPreCompression->at(0,i).hwEtEm());
+	h2d_["tow_em_comp"]->Fill(towers->at(0,i).hwEtEm(),towersPreCompression->at(0,i).hwEtEm());
       }
       if(towers->at(0,i).hwEtHad() != 0 || towersPreCompression->at(0,i).hwEtHad() != 0){
-        h1d_["tow_had_diff"]->Fill(towers->at(0,i).hwEtHad() - towersPreCompression->at(0,i).hwEtHad());
-        h2d_["tow_had_comp"]->Fill(towers->at(0,i).hwEtHad(),towersPreCompression->at(0,i).hwEtHad());
+	h1d_["tow_had_diff"]->Fill(towers->at(0,i).hwEtHad() - towersPreCompression->at(0,i).hwEtHad());
+	h2d_["tow_had_comp"]->Fill(towers->at(0,i).hwEtHad(),towersPreCompression->at(0,i).hwEtHad());
       }
     }
   }
@@ -429,50 +432,56 @@ L1TCaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   //For the energy sums
   for(auto itr = sums->begin(0); itr != sums->end(0); itr++){
 
-    if(itr->getType() == l1t::EtSum::EtSumType::kTotalEt && l1S1EtMiss->size()>0){
+    if(itr->getType() == l1t::EtSum::EtSumType::kTotalEt){
       het_.at(Sum)->Fill( itr->hwPt() );
+      L1TCaloAnalyzer::make_cumu_hist(itr->hwPt(), hrateEt_.at(Sum));
 
       double realEt=0.5*itr->hwPt();
 
-      h2d_["et_l1_stage1"]->Fill( l1S1EtMiss->at(0).etTotal(), realEt );
+      if (l1S1EtMiss->size()>0) h2d_["et_l1_stage1"]->Fill( l1S1EtMiss->at(0).etTotal(), realEt );
       h2d_["et_gen"]->Fill( genMet->at(0).sumEt(), realEt );
 
       //For the turnons
       for(auto cut=turnonCuts_.begin(); cut!=turnonCuts_.end();cut++ ){
-        if(realEt > atof(cut->Data())) h1dTurnons_.at("et_stage2_"+*cut)->Fill( genMet->at(0).sumEt() );
-        if(l1S1EtMiss->at(0).etTotal() > atof(cut->Data())) h1dTurnons_.at("et_stage1_"+*cut)->Fill( genMet->at(0).sumEt() );
+	if(realEt > atof(cut->Data())) h1dTurnons_.at("et_stage2_"+*cut)->Fill( genMet->at(0).sumEt() );
+	if(l1S1EtMiss->size() > 0 && l1S1EtMiss->at(0).etTotal() > atof(cut->Data())) h1dTurnons_.at("et_stage1_"+*cut)->Fill( genMet->at(0).sumEt() );
       }
     }
-    if(itr->getType() == l1t::EtSum::EtSumType::kMissingEt && l1S1EtMiss->size()>0 ){
-      het2_.at(Sum)->Fill( itr->hwPt() );
+    if(itr->getType() == l1t::EtSum::EtSumType::kMissingEt){
+      hmet_.at(Sum)->Fill( itr->hwPt() );
+      L1TCaloAnalyzer::make_cumu_hist(itr->hwPt(), hrateMet_.at(Sum));
       double realEt=(1.0/1022.0)*itr->hwPt();
 
-      h2d_["met_l1_stage1"]->Fill( l1S1EtMiss->at(0).etMiss(), realEt );
+      if(l1S1EtMiss->size()>0) h2d_["met_l1_stage1"]->Fill( l1S1EtMiss->at(0).etMiss(), realEt );
       h2d_["met_gen"]->Fill( genMet->at(0).et(), realEt );
       heta_.at(Sum)->Fill( itr->hwEta() );
       hphi_.at(Sum)->Fill( itr->hwPhi() );
-      h2d_["met_phi_l1_stage1"]->Fill( l1S1EtMiss->at(0).phi(), iPhitoPhi(itr->hwPhi()) );
+      if(l1S1EtMiss->size()>0) h2d_["met_phi_l1_stage1"]->Fill( l1S1EtMiss->at(0).phi(), iPhitoPhi(itr->hwPhi()) );
       h2d_["met_phi_gen"]->Fill( genMet->at(0).phi(), iPhitoPhi(itr->hwPhi()) );
 
       //For the turnons
       for(auto cut=turnonCuts_.begin(); cut!=turnonCuts_.end();cut++ ){
-        if(realEt > atof(cut->Data())) h1dTurnons_.at("met_stage2_"+*cut)->Fill( genMet->at(0).et() );
-        if(l1S1EtMiss->at(0).etMiss() > atof(cut->Data())) h1dTurnons_.at("met_stage1_"+*cut)->Fill( genMet->at(0).et() );
+	if(realEt > atof(cut->Data())) h1dTurnons_.at("met_stage2_"+*cut)->Fill( genMet->at(0).et() );
+	if(l1S1EtMiss->size()>0 && l1S1EtMiss->at(0).etMiss() > atof(cut->Data())) h1dTurnons_.at("met_stage1_"+*cut)->Fill( genMet->at(0).et() );
       }
 
     }
-    if(itr->getType() == l1t::EtSum::EtSumType::kTotalHt && l1S1HtMiss->size()>0 ){
+    if(itr->getType() == l1t::EtSum::EtSumType::kTotalHt){
       het_.at(HSum)->Fill( itr->hwPt() );
-      h2d_["ht_l1_stage1"]->Fill( l1S1HtMiss->at(0).etTotal(), 0.5*itr->hwPt() );
+      std::cout <<"HT" << itr->hwPt() << std::endl;
+      L1TCaloAnalyzer::make_cumu_hist(itr->hwPt(), hrateEt_.at(HSum));
+      if (l1S1HtMiss->size()>0) h2d_["ht_l1_stage1"]->Fill( l1S1HtMiss->at(0).etTotal(), 0.5*itr->hwPt() );
       //h2d_["ht_gen"]->Fill( genMHt->at(0).sumEt(), 0.5*itr->hwPt() );
     }
-    if(itr->getType() == l1t::EtSum::EtSumType::kMissingHt && l1S1HtMiss->size()>0 ){
-      het2_.at(HSum)->Fill( itr->hwPt() );
-      h2d_["mht_l1_stage1"]->Fill( l1S1HtMiss->at(0).etMiss(), (1.0/1022.0)*itr->hwPt() );
+    if(itr->getType() == l1t::EtSum::EtSumType::kMissingHt){
+      hmet_.at(HSum)->Fill( itr->hwPt() );
+      std::cout <<"MHT" << itr->hwPt() << std::endl;
+      L1TCaloAnalyzer::make_cumu_hist(itr->hwPt(), hrateMet_.at(HSum));
+      if(l1S1HtMiss->size()>0)      h2d_["mht_l1_stage1"]->Fill( l1S1HtMiss->at(0).etMiss(), (1.0/1022.0)*itr->hwPt() );
       //h2d_["mht_gen"]->Fill( genMht->at(0).et(), (1.0/511.0)*itr->hwPt() );
       heta_.at(HSum)->Fill( itr->hwEta() );
       hphi_.at(HSum)->Fill( itr->hwPhi() );
-      h2d_["mht_phi_l1_stage1"]->Fill( l1S1HtMiss->at(0).phi(), -1.0*iPhitoPhi(itr->hwPhi()) );
+      if(l1S1HtMiss->size()>0)     h2d_["mht_phi_l1_stage1"]->Fill( l1S1HtMiss->at(0).phi(), -1.0*iPhitoPhi(itr->hwPhi()) );
       //h2d_["mht_phi_gen"]->Fill( genMht->at(0).phi(), iPhitoPhi(itr->hwPhi()) );
     }
 
@@ -495,9 +504,9 @@ L1TCaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     if(itr->hwPt() > leadEt){
       //If there was a fourth jet, there are remaining jets
       if(fourthEt > 0.01){
-        hjets_["remaining_jets_et"]->Fill( fourthEt );
-        hjets_["remaining_jets_eta"]->Fill( fourthEta );
-        hjets_["remaining_jets_phi"]->Fill( fourthPhi );
+	hjets_["remaining_jets_et"]->Fill( fourthEt );
+	hjets_["remaining_jets_eta"]->Fill( fourthEta );
+	hjets_["remaining_jets_phi"]->Fill( fourthPhi );
       }
 
       //Find the leading energy and prop through
@@ -517,9 +526,9 @@ L1TCaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     else if(itr->hwPt() > secondEt){
       //If there was a fourth jet, there are remaining jets
       if(fourthEt > 0.01){
-        hjets_["remaining_jets_et"]->Fill( fourthEt );
-        hjets_["remaining_jets_eta"]->Fill( fourthEta );
-        hjets_["remaining_jets_phi"]->Fill( fourthPhi );
+	hjets_["remaining_jets_et"]->Fill( fourthEt );
+	hjets_["remaining_jets_eta"]->Fill( fourthEta );
+	hjets_["remaining_jets_phi"]->Fill( fourthPhi );
       }
       fourthEt=thirdEt;
       fourthEta=thirdEta;
@@ -534,9 +543,9 @@ L1TCaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     else if(itr->hwPt() > thirdEt){
       //If there was a fourth jet, there are remaining jets
       if(fourthEt>0.01){
-        hjets_["remaining_jets_et"]->Fill( fourthEt );
-        hjets_["remaining_jets_eta"]->Fill( fourthEta );
-        hjets_["remaining_jets_phi"]->Fill( fourthPhi );
+	hjets_["remaining_jets_et"]->Fill( fourthEt );
+	hjets_["remaining_jets_eta"]->Fill( fourthEta );
+	hjets_["remaining_jets_phi"]->Fill( fourthPhi );
       }
       fourthEt=thirdEt;
       fourthEta=thirdEta;
@@ -548,9 +557,9 @@ L1TCaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     else if(itr->hwPt() > fourthEt){
       //If there was a fourth jet, there are remaining jets
       if(fourthEt>0.01){
-        hjets_["remaining_jets_et"]->Fill( fourthEt );
-        hjets_["remaining_jets_eta"]->Fill( fourthEta );
-        hjets_["remaining_jets_phi"]->Fill( fourthPhi );
+	hjets_["remaining_jets_et"]->Fill( fourthEt );
+	hjets_["remaining_jets_eta"]->Fill( fourthEta );
+	hjets_["remaining_jets_phi"]->Fill( fourthPhi );
       }
       fourthEt=itr->hwPt();
       fourthEta=itr->hwEta();
@@ -577,10 +586,10 @@ L1TCaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       //For the turnons
       leadEt = 0.5*leadEt;
       for(auto cut=turnonCuts_.begin(); cut!=turnonCuts_.end();cut++ ){
-        if(leadEt > atof(cut->Data())) h1dTurnons_.at("lead_jet_stage2_"+*cut)->Fill( centralGenJet.at(0).pt() );
-        if(centralL1GctJet.size()>0){
-          if(centralL1GctJet.at(0).pt() > atof(cut->Data())) h1dTurnons_.at("lead_jet_stage1_"+*cut)->Fill( centralGenJet.at(0).pt() );
-        }
+	if(leadEt > atof(cut->Data())) h1dTurnons_.at("lead_jet_stage2_"+*cut)->Fill( centralGenJet.at(0).pt() );
+	if(centralL1GctJet.size()>0){
+	  if(centralL1GctJet.at(0).pt() > atof(cut->Data())) h1dTurnons_.at("lead_jet_stage1_"+*cut)->Fill( centralGenJet.at(0).pt() );
+	}
       }
     }
   }
@@ -600,10 +609,10 @@ L1TCaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       //For the turnons
       secondEt = 0.5*secondEt;
       for(auto cut=turnonCuts_.begin(); cut!=turnonCuts_.end();cut++ ){
-        if(secondEt > atof(cut->Data())) h1dTurnons_.at("second_jet_stage2_"+*cut)->Fill( centralGenJet.at(1).pt() );
-        if(centralL1GctJet.size()>1){
-          if(centralL1GctJet.at(1).pt() > atof(cut->Data())) h1dTurnons_.at("second_jet_stage1_"+*cut)->Fill( centralGenJet.at(1).pt() );
-        }
+	if(secondEt > atof(cut->Data())) h1dTurnons_.at("second_jet_stage2_"+*cut)->Fill( centralGenJet.at(1).pt() );
+	if(centralL1GctJet.size()>1){
+	  if(centralL1GctJet.at(1).pt() > atof(cut->Data())) h1dTurnons_.at("second_jet_stage1_"+*cut)->Fill( centralGenJet.at(1).pt() );
+	}
       }
     }
   }
@@ -624,10 +633,10 @@ L1TCaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       //For the turnons
       thirdEt = 0.5*thirdEt;
       for(auto cut=turnonCuts_.begin(); cut!=turnonCuts_.end();cut++ ){
-        if(thirdEt > atof(cut->Data())) h1dTurnons_.at("third_jet_stage2_"+*cut)->Fill( centralGenJet.at(2).pt() );
-        if(centralL1GctJet.size()>2){
-          if(centralL1GctJet.at(2).pt() > atof(cut->Data())) h1dTurnons_.at("third_jet_stage1_"+*cut)->Fill( centralGenJet.at(2).pt() );
-        }
+	if(thirdEt > atof(cut->Data())) h1dTurnons_.at("third_jet_stage2_"+*cut)->Fill( centralGenJet.at(2).pt() );
+	if(centralL1GctJet.size()>2){
+	  if(centralL1GctJet.at(2).pt() > atof(cut->Data())) h1dTurnons_.at("third_jet_stage1_"+*cut)->Fill( centralGenJet.at(2).pt() );
+	}
       }
     }
   }
@@ -648,15 +657,24 @@ L1TCaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       //For the turnons
       fourthEt = 0.5*fourthEt;
       for(auto cut=turnonCuts_.begin(); cut!=turnonCuts_.end();cut++ ){
-        if(fourthEt > atof(cut->Data())) h1dTurnons_.at("fourth_jet_stage2_"+*cut)->Fill( centralGenJet.at(3).pt() );
-        if(centralL1GctJet.size()>3){
-          if(centralL1GctJet.at(3).pt() > atof(cut->Data())) h1dTurnons_.at("fourth_jet_stage1_"+*cut)->Fill( centralGenJet.at(3).pt() );
-        }
+	if(fourthEt > atof(cut->Data())) h1dTurnons_.at("fourth_jet_stage2_"+*cut)->Fill( centralGenJet.at(3).pt() );
+	if(centralL1GctJet.size()>3){
+	  if(centralL1GctJet.at(3).pt() > atof(cut->Data())) h1dTurnons_.at("fourth_jet_stage1_"+*cut)->Fill( centralGenJet.at(3).pt() );
+	}
       }
     }
   }
 }
 
+void L1TCaloAnalyzer::make_cumu_hist(int32_t e_event,TH1F *h)
+{
+  //   std::cout << e_event << std::endl;
+  int nbins = h->GetXaxis()->FindBin(e_event);
+  for (int bins = 0; bins < nbins; bins++)
+  {
+    h->AddBinContent(bins,1);
+  }
+}
 
 // ------------ method called once each job just before starting event loop  ------------
   void 
@@ -672,8 +690,10 @@ L1TCaloAnalyzer::beginJob()
 
     dirs_.insert( std::pair< ObjectType, TFileDirectory >(*itr, fs->mkdir(*str) ) );
 
-    het_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("et", "Full ET;ET [l1 units];", 1000, 0., 2000.) ));
-    het2_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("et2", "MET;MET [l1 units];", 5000, -10., 99990.) ));
+    het_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("et", "Full ET;ET [l1 units];", 4000, 0., 8000.) ));
+    hrateEt_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("et rate", "Full ET;ET [l1 units];", 4000, 0., 8000.) ));
+    hmet_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("met", "MET;MET [l1 units];", 5000, -10., 99990.) ));
+    hrateMet_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("met rate", "MET;MET [l1 units];", 5000, -10., 99990.) ));
     heta_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("eta", "Eta;Eta [l1 units];", 70, -35., 35.) ));
     hphi_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("phi", "Phi;Phi [l1 units]", 72, 0., 72.) ));
 
@@ -694,7 +714,7 @@ L1TCaloAnalyzer::beginJob()
 
     for(auto varIt = vars_.cbegin(); varIt!=vars_.end(); ++varIt){
       hjets_[*catIt+"_"+*varIt] = jetDirs_.at(*catIt).make<TH1F>(*varIt, *catIt+";"+*varIt+" [l1 units]", 
-          (int)bins_.at(*varIt)[0],bins_.at(*varIt)[1],bins_.at(*varIt)[2]);
+	  (int)bins_.at(*varIt)[0],bins_.at(*varIt)[1],bins_.at(*varIt)[2]);
     }
 
   }
@@ -710,7 +730,6 @@ L1TCaloAnalyzer::beginJob()
   h1d_["tow_had_diff"]=jetDirs_.at("compression_comp").make<TH1F>("tow_had_diff",
       "Tower had (after - before) compression;(after-before) [L1 units];",200,-300.,300.);
 
-  std::cout << "1\n";
   //Add 2d histograms for comparison for the jets, based on var and var level
 
 
@@ -718,15 +737,14 @@ L1TCaloAnalyzer::beginJob()
     for(auto lvlIt = varLevel_.cbegin(); lvlIt!= varLevel_.end(); ++lvlIt){
       for(auto varIt = vars_.cbegin(); varIt!=vars_.end(); ++varIt){
 
-        h2d_[*catIt+"_"+*lvlIt+"_"+*varIt] = jetDirs_.at(*catIt).make<TH2F>(*varIt+"_"+*lvlIt, *catIt+"_"+*varIt+";"+*lvlIt+";new l1;[standard units]", 
-            (int)bins_.at("real_"+*varIt)[0],bins_.at("real_"+*varIt)[1],bins_.at("real_"+*varIt)[2],
-            (int)bins_.at("real_"+*varIt)[0],bins_.at("real_"+*varIt)[1],bins_.at("real_"+*varIt)[2]);
+	h2d_[*catIt+"_"+*lvlIt+"_"+*varIt] = jetDirs_.at(*catIt).make<TH2F>(*varIt+"_"+*lvlIt, *catIt+"_"+*varIt+";"+*lvlIt+";new l1;[standard units]", 
+	    (int)bins_.at("real_"+*varIt)[0],bins_.at("real_"+*varIt)[1],bins_.at("real_"+*varIt)[2],
+	    (int)bins_.at("real_"+*varIt)[0],bins_.at("real_"+*varIt)[1],bins_.at("real_"+*varIt)[2]);
 
       }
     }
   }
 
-  std::cout << "2\n";
   //Add 2d histograms for the energy sums
 
   jetDirs_["eSums"] = fs->mkdir("eSums");
@@ -734,13 +752,12 @@ L1TCaloAnalyzer::beginJob()
 
     for(auto varIt = varLevel_.cbegin(); varIt!=varLevel_.end(); ++varIt){
       h2d_[*lvlIt+"_"+*varIt] = jetDirs_["eSums"].make<TH2F>(*lvlIt+"_"+*varIt, *lvlIt+";"+*varIt+";new l1", 
-          (int)binsESum_.at(*lvlIt)[0],binsESum_.at(*lvlIt)[1],binsESum_.at(*lvlIt)[2],
-          (int)binsESum_.at(*lvlIt)[0],binsESum_.at(*lvlIt)[1],binsESum_.at(*lvlIt)[2]);
+	  (int)binsESum_.at(*lvlIt)[0],binsESum_.at(*lvlIt)[1],binsESum_.at(*lvlIt)[2],
+	  (int)binsESum_.at(*lvlIt)[0],binsESum_.at(*lvlIt)[1],binsESum_.at(*lvlIt)[2]);
     }
 
   }
 
-  std::cout << "3\n";
 
   //Add turnon curves for the et of the jets, and energy sums
 
@@ -748,19 +765,19 @@ L1TCaloAnalyzer::beginJob()
   for(auto cut = turnonCuts_.cbegin(); cut!=turnonCuts_.end(); ++cut){
     for(auto lvl = turnonLevel_.cbegin(); lvl!=turnonLevel_.end(); ++lvl){
       for(auto catIt = categories_.cbegin(); catIt!= categories_.end(); ++catIt){
-        h1dTurnons_[*catIt+"_"+*lvl+"_"+*cut] = jetDirs_.at(*catIt).make<TH1F>(*catIt+"_"+*lvl+"_cut"+*cut,*catIt+"_"+*lvl+"_cut"+*cut,
-            bins_.at("real_et")[0], bins_.at("real_et")[1], bins_.at("real_et")[2]);
-        gTurnons_[*catIt+"_"+*lvl+"_"+*cut] = jetDirs_.at(*catIt).make<TGraphAsymmErrors>();
-        gTurnons_[*catIt+"_"+*lvl+"_"+*cut]->SetName(*catIt+"_"+*lvl+"_turnon"+*cut);
-        gTurnons_[*catIt+"_"+*lvl+"_"+*cut]->SetTitle(*catIt+"_"+*lvl+"_turnon"+*cut+";Jet ET (GeV)");
+	h1dTurnons_[*catIt+"_"+*lvl+"_"+*cut] = jetDirs_.at(*catIt).make<TH1F>(*catIt+"_"+*lvl+"_cut"+*cut,*catIt+"_"+*lvl+"_cut"+*cut,
+	    bins_.at("real_et")[0], bins_.at("real_et")[1], bins_.at("real_et")[2]);
+	gTurnons_[*catIt+"_"+*lvl+"_"+*cut] = jetDirs_.at(*catIt).make<TGraphAsymmErrors>();
+	gTurnons_[*catIt+"_"+*lvl+"_"+*cut]->SetName(*catIt+"_"+*lvl+"_turnon"+*cut);
+	gTurnons_[*catIt+"_"+*lvl+"_"+*cut]->SetTitle(*catIt+"_"+*lvl+"_turnon"+*cut+";Jet ET (GeV)");
       }
       h1dTurnons_["et_"+*lvl+"_"+*cut] = jetDirs_.at("eSums").make<TH1F>("et_"+*lvl+"_cut"+*cut,"et_"+*lvl+"_cut"+*cut,
-          bins_.at("real_et")[0], bins_.at("real_et")[1], bins_.at("real_et")[2]);
+	  bins_.at("real_et")[0], bins_.at("real_et")[1], bins_.at("real_et")[2]);
       gTurnons_["et_"+*lvl+"_"+*cut] = jetDirs_.at("eSums").make<TGraphAsymmErrors>();
       gTurnons_["et_"+*lvl+"_"+*cut]->SetName("etTotal_"+*lvl+"_turnon"+*cut);
       gTurnons_["et_"+*lvl+"_"+*cut]->SetTitle("etTotal_"+*lvl+"_turnon"+*cut+";Total ET (GeV)");
       h1dTurnons_["met_"+*lvl+"_"+*cut] = jetDirs_.at("eSums").make<TH1F>("met_"+*lvl+"_cut"+*cut,"met_"+*lvl+"_cut"+*cut,
-          bins_.at("real_et")[0], bins_.at("real_et")[1], bins_.at("real_et")[2]);
+	  bins_.at("real_et")[0], bins_.at("real_et")[1], bins_.at("real_et")[2]);
       gTurnons_["met_"+*lvl+"_"+*cut] = jetDirs_.at("eSums").make<TGraphAsymmErrors>();
       gTurnons_["met_"+*lvl+"_"+*cut]->SetName("met_"+*lvl+"_turnon"+*cut);
       gTurnons_["met_"+*lvl+"_"+*cut]->SetTitle("met_"+*lvl+"_turnon"+*cut+";MET (GeV)");
@@ -780,7 +797,7 @@ L1TCaloAnalyzer::endJob()
     for(auto lvl = turnonLevel_.cbegin(); lvl!=turnonLevel_.end(); ++lvl){
 
       for(auto catIt = categories_.cbegin(); catIt!= categories_.end(); ++catIt){
-        gTurnons_[*catIt+"_"+*lvl+"_"+*cut]->Divide(h1dTurnons_[*catIt+"_"+*lvl+"_"+*cut], h1dTurnons_[*catIt+"_"+*lvl+"_0"]);
+	gTurnons_[*catIt+"_"+*lvl+"_"+*cut]->Divide(h1dTurnons_[*catIt+"_"+*lvl+"_"+*cut], h1dTurnons_[*catIt+"_"+*lvl+"_0"]);
       }
       gTurnons_["et_"+*lvl+"_"+*cut]->Divide(h1dTurnons_["et_"+*lvl+"_"+*cut], h1dTurnons_["et_"+*lvl+"_0"]);
       gTurnons_["met_"+*lvl+"_"+*cut]->Divide(h1dTurnons_["met_"+*lvl+"_"+*cut], h1dTurnons_["met_"+*lvl+"_0"]);
