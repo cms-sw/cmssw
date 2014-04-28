@@ -1,92 +1,126 @@
-#include "Geometry/CaloTopology/src/ShashlikGeometryBuilderFromDDD.h"
+#include "ShashlikGeometryBuilderFromDDD.h"
 #include "Geometry/CaloTopology/interface/ShashlikGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/Core/interface/DDFilteredView.h"
+#include "DetectorDescription/Core/interface/DDSolid.h"
 
-#include <DetectorDescription/Core/interface/DDFilter.h>
-#include <DetectorDescription/Core/interface/DDFilteredView.h>
-#include <DetectorDescription/Core/interface/DDSolid.h>
-#include "DataFormats/GeometrySurface/interface/Surface.h"
-#include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
+typedef CaloCellGeometry::CCGFloat CCGFloat;
+typedef std::vector<float> ParmVec;
+const double k_ScaleFromDDDtoGeant = 0.1;
 
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
+ShashlikGeometryBuilderFromDDD::ShashlikGeometryBuilderFromDDD () {}
+ShashlikGeometryBuilderFromDDD::~ShashlikGeometryBuilderFromDDD () {}
 
-ShashlikGeometryBuilderFromDDD::ShashlikGeometryBuilderFromDDD( void )
-{}
 
-ShashlikGeometryBuilderFromDDD::~ShashlikGeometryBuilderFromDDD( void )
-{}
+ShashlikGeometry* ShashlikGeometryBuilderFromDDD::build (const DDCompactView*  cpv) {
+  ShashlikTopology topology (*cpv);
+  // allocate geometry
+  ShashlikGeometry* geom = new ShashlikGeometry (topology);
+  unsigned int numberOfCells = (unsigned) topology.totalModules () * 2; // both sides
+  geom->allocateCorners( numberOfCells ) ;
+  geom->allocatePar( ShashlikGeometry::k_NumberOfParametersPerShape*ShashlikGeometry::k_NumberOfShapes,
+		     ShashlikGeometry::k_NumberOfParametersPerShape ) ;
 
-ShashlikGeometry*
-ShashlikGeometryBuilderFromDDD::build( const DDCompactView* cview, const ShashlikTopology& topology ) 
-{
-  std::string attribute = "ReadOutName";
-  std::string value     = "EcalHitsEK";
-  DDValue val( attribute, value, 0.0 );
- 
-  // Asking only for the Shashlik's
-  DDSpecificsFilter filter;
-  filter.setCriteria( val, // name & value of a variable 
-		      DDSpecificsFilter::matches,
-		      DDSpecificsFilter::AND, 
-		      true, // compare strings otherwise doubles
-		      true // use merged-specifics or simple-specifics
-    );
-  DDFilteredView fview( *cview );
-  fview.addFilter( filter );
-  
-  return this->buildGeometry( fview, topology );
-}
+  // loop over modules
+  DDFilteredView fv ( *cpv ) ;
+  DDSpecificsFilter filter; 
+  fv.addFilter(filter); // filter nothing. F.R.: Can we filter by LogicalPart?
+  fv.reset (); // walk the entire tree. F.R.: Can optimize here?
+  unsigned int counter = 0;
+  while (fv.next()) {
+    if (fv.logicalPart().name().name() == ShashlikGeometry::cellElement()) {
+      if (fv.copyNumbers().size() > 2) { // deep enough
+	int moduleNr = *(fv.copyNumbers().end()-1);
+	int supermoduleNr = *(fv.copyNumbers().end()-2);
+	int zSide = *(fv.copyNumbers().end()-3) == 1 ? 1 : -1;
+	std::pair<int,int> xy = topology.getXY (supermoduleNr, moduleNr); 
+	EKDetId detId (xy.first, xy.second, zSide);
+	if (!topology.validXY (xy.first, xy.second)) {
+	  edm::LogError("HGCalGeom") << "ShashlikGeometryLoaderFromDDD: ignore invalid DDD copy "
+				     << fv.logicalPart().name().name() 
+				     << " with indexes " 
+	    //<< fv.copyNumbers();
+				     << "( ..., " << *(fv.copyNumbers().end()-3)
+				     << ", " << *(fv.copyNumbers().end()-2)
+				     << ", " << *(fv.copyNumbers().end()-1)
+				     << ")"
+				     << " ix:iy " << xy.first << '/' << xy.second;
+	  continue;
+	}
+	++counter ;
+	
+	
+	DD3Vector x, y, z;
+	fv.rotation().GetComponents( x, y, z ) ;
+	const CLHEP::HepRep3x3 rotation ( x.X(), y.X(), z.X(),
+					  x.Y(), y.Y(), z.Y(),
+					  x.Z(), y.Z(), z.Z() );
+	const CLHEP::HepRotation hr ( rotation );
+	const CLHEP::Hep3Vector h3v ( fv.translation().X(),
+				      fv.translation().Y(),
+				      fv.translation().Z()  ) ;
+	const HepGeom::Transform3D ht3d ( hr,          // only scale translation
+					  k_ScaleFromDDDtoGeant*h3v ) ;    
+	
+	//	fillGeom( geom, parameters, ht3d, detId ) ;
+	const DDSolid& solid ( fv.logicalPart().solid() ) ;
+	ParmVec params (solid.parameters().begin(), solid.parameters().end());
+	for (size_t i=0 ; i < params.size() ; ++i) {
+	  if (i==1 || i==2 || i==6 || i==10) params[i] *= k_ScaleFromDDDtoGeant;
+	}
 
-ShashlikGeometry*
-ShashlikGeometryBuilderFromDDD::buildGeometry( DDFilteredView& fview, const ShashlikTopology& topology )
-{
-  ShashlikGeometry* geometry = new ShashlikGeometry( topology );
+	std::vector<GlobalPoint> corners (8);
 
-  bool doSubDets = fview.firstChild();
- 
-  while( doSubDets )
-  {
-    std::cout << fview.logicalPart().name().name() << "\n";    
-    int detid = 0;
- 
-    EKDetId ekid( detid );
-    
-//     std::vector<float> pv;
-//     std::vector<GlobalPoint> corners( 8 );
-//     const GlobalPoint front ( 0.25*( corners[0].x() + 
-//                                      corners[1].x() + 
-//                                      corners[2].x() + 
-//                                      corners[3].x()   ),
-//                               0.25*( corners[0].y() + 
-//                                      corners[1].y() + 
-//                                      corners[2].y() + 
-//                                      corners[3].y()   ),
-//                               0.25*( corners[0].z() + 
-//                                      corners[1].z() + 
-//                                      corners[2].z() + 
-//                                      corners[3].z()   ) ) ;
+	TruncatedPyramid::createCorners( params, ht3d, corners ) ;
 
-//     const GlobalPoint back  ( 0.25*( corners[4].x() + 
-// 				     corners[5].x() + 
-//                                      corners[6].x() + 
-//                                      corners[7].x()   ),
-//                               0.25*( corners[4].y() + 
-//                                      corners[5].y() + 
-//                                      corners[6].y() + 
-//                                      corners[7].y()   ),
-//                               0.25*( corners[4].z() + 
-//                                      corners[5].z() + 
-//                                      corners[6].z() + 
-//                                      corners[7].z()   ) ) ;
-    
-//     const CCGFloat* parmPtr ( CaloCellGeometry::getParmPtr( pv, 
-// 							    geometry->parMgr(), 
-//                                                             geometry->parVecVec()));
-//     geometry->newCell( front, back, corners[0],
-// 		       parmPtr, 
-// 		       ekid ) ;
-    
-    doSubDets = fview.nextSibling(); // go to next layer
+	const CCGFloat* parmPtr ( CaloCellGeometry::getParmPtr( params, 
+								geom->parMgr(), 
+								geom->parVecVec() ) ) ;
+	
+	GlobalPoint front ( 0.25*( corners[0].x() + 
+				   corners[1].x() + 
+				   corners[2].x() + 
+				   corners[3].x()   ),
+			    0.25*( corners[0].y() + 
+				   corners[1].y() + 
+				   corners[2].y() + 
+				   corners[3].y()   ),
+			    0.25*( corners[0].z() + 
+				   corners[1].z() + 
+				   corners[2].z() + 
+				   corners[3].z()   ) ) ;
+	
+	GlobalPoint back  ( 0.25*( corners[4].x() + 
+				   corners[5].x() + 
+				   corners[6].x() + 
+				   corners[7].x()   ),
+			    0.25*( corners[4].y() + 
+				   corners[5].y() + 
+				   corners[6].y() + 
+				   corners[7].y()   ),
+			    0.25*( corners[4].z() + 
+				   corners[5].z() + 
+				   corners[6].z() + 
+				   corners[7].z()   ) ) ;
+	
+	if (front.mag2() > back.mag2()) { // front should always point to the center, so swap front and back
+	  std::swap (front, back);
+	  std::swap_ranges (corners.begin(), corners.begin()+4, corners.begin()+4); 
+	}
+	
+	geom->newCell( front, back, corners[0],
+		       parmPtr, 
+		       detId ) ;
+      }
+    }
   }
-
-  return geometry;
+  
+  
+  assert( counter == numberOfCells ) ;
+  
+  geom->initializeParms() ;
+  return geom;
 }
+
