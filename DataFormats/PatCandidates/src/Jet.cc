@@ -14,6 +14,7 @@ Jet::Jet() :
   embeddedCaloTowers_(false),
   embeddedPFCandidates_(false),
   partonFlavour_(0),
+  hadronFlavour_(0),
   jetCharge_(0.)
 {
 }
@@ -24,6 +25,7 @@ Jet::Jet(const reco::Jet & aJet) :
   embeddedCaloTowers_(false),
   embeddedPFCandidates_(false),
   partonFlavour_(0),
+  hadronFlavour_(0),
   jetCharge_(0.0)
 {
   tryImportSpecific(aJet);
@@ -35,6 +37,7 @@ Jet::Jet(const edm::Ptr<reco::Jet> & aJetRef) :
   embeddedCaloTowers_(false),
   embeddedPFCandidates_(false),
   partonFlavour_(0),
+  hadronFlavour_(0),
   jetCharge_(0.0)
 {
   tryImportSpecific(*aJetRef);
@@ -46,6 +49,7 @@ Jet::Jet(const edm::RefToBase<reco::Jet> & aJetRef) :
   embeddedCaloTowers_(false),
   embeddedPFCandidates_(false),
   partonFlavour_(0),
+  hadronFlavour_(0),
   jetCharge_(0.0)
 {
   tryImportSpecific(*aJetRef);
@@ -221,9 +225,19 @@ const reco::GenJet * Jet::genJet() const {
   else return genJetFwdRef_.get();
 }
 
-/// return the flavour of the parton underlying the jet
+/// return the parton-based flavour of the jet
 int Jet::partonFlavour() const {
   return partonFlavour_;
+}
+
+/// return the hadron-based flavour of the jet
+int Jet::hadronFlavour() const {
+  return hadronFlavour_;
+}
+
+/// return the JetFlavourInfo of the jet
+const reco::JetFlavourInfo & Jet::jetFlavourInfo() const {
+  return jetFlavourInfo_;
 }
 
 /// ============= Jet Energy Correction methods ============
@@ -452,9 +466,19 @@ void Jet::setGenJetRef(const edm::FwdRef<reco::GenJetCollection> & gj)
 
 
 
-/// method to set the flavour of the parton underlying the jet
+/// method to set the parton-based flavour of the jet
 void Jet::setPartonFlavour(int partonFl) {
   partonFlavour_ = partonFl;
+}
+
+/// method to set the hadron-based flavour of the jet
+void Jet::setHadronFlavour(int hadronFl) {
+  hadronFlavour_ = hadronFl;
+}
+
+/// method to set the JetFlavourInfo of the jet
+void Jet::setJetFlavourInfo(const reco::JetFlavourInfo & jetFlavourInfo) {
+  jetFlavourInfo_ = jetFlavourInfo;
 }
 
 /// method to add a algolabel-discriminator pair
