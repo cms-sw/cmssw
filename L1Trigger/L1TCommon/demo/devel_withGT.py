@@ -15,6 +15,9 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 #process.load('L1Trigger/L1TYellow/l1t_debug_messages_cfi')
 #process.load('L1Trigger/L1TYellow/l1t_info_messages_cfi')
 
+from L1Trigger.L1TCalorimeter.regionSF_cfi import *
+from L1Trigger.L1TCalorimeter.jetSF_cfi import *
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10)
     )
@@ -34,7 +37,9 @@ process.output = cms.OutputModule(
     "PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
-    outputCommands = cms.untracked.vstring('keep *'),
+    #outputCommands = cms.untracked.vstring('keep *'),
+    outputCommands = cms.untracked.vstring('drop *',
+                                           'keep *_*_*_L1TEMULATION'),
     fileName = cms.untracked.string('demo_output_full.root'),
     dataset = cms.untracked.PSet(
     filterName = cms.untracked.string(''),
@@ -61,7 +66,12 @@ process.Layer2HW = cms.EDProducer(
     regionETCutForMET = cms.uint32(0),
     minGctEtaForSums = cms.int32(4),
     maxGctEtaForSums = cms.int32(17),
-    jetSeedThreshold = cms.double(0.) ## seed threshold in GeV
+    jetSeedThreshold = cms.double(0.), ## seed threshold in GeV
+    PUSubtract = cms.bool(True), # Correct regions for PU
+    regionSubtraction = regionSubtraction_PU20_MC13TeV,
+    #regionSubtraction = regionSubtraction_8TeV_data,
+    applyJetCalibration = cms.bool(True), # Do jet response correction
+    jetSF = jetSF_8TeV_data
     )
 
 process.Layer2Phys = cms.EDProducer("l1t::PhysicalEtAdder",
