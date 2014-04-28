@@ -13,6 +13,8 @@
 <use   name="DataFormats/L1Trigger"/>
 <use   name="DataFormats/L1CaloTrigger"/>
 <use   name="DataFormats/L1TCalorimeter"/>
+<use   name="DataFormats/JetReco"/>
+<use   name="DataFormats/METReco"/>
 <use   name="CondFormats/L1TObjects"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="L1Trigger/L1TCalorimeter"/>
