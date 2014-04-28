@@ -1,29 +1,28 @@
 import FWCore.ParameterSet.Config as cms
 
-from JetMETCorrections.Modules.qglESProducer_cfi import *
+# v0: only for tests (old PDFs retrieved with rho kt6PFJets binning, at 8TeV)
+qgDatabaseVersion = 'v0-test'
+
 from CondCore.DBCommon.CondDBSetup_cfi import *
-
-
-PoolDBESSource = cms.ESSource("PoolDBESSource",
+QGPoolDBESSource = cms.ESSource("PoolDBESSource",
       CondDBSetup,
       toGet = cms.VPSet(
-      cms.PSet(
+        cms.PSet(
             record = cms.string('QGLikelihoodRcd'),
-            tag    = cms.string('QGLikelihoodObject_V1_AK5PF'),
-            label  = cms.untracked.string('QGL_AK5PF')
-            ),
-      cms.PSet(
-            record = cms.string('QGLikelihoodRcd'),
-            tag    = cms.string('QGLikelihoodObject_V1_AK5PFchs'),
+            tag    = cms.string('QGLikelihoodObject_'+qgDatabaseVersion+'_AK5PFchs'),
             label  = cms.untracked.string('QGL_AK5PFchs')
-            ),
         ),
-      connect = cms.string('sqlite:QGL_V1.db')
+        cms.PSet(
+            record = cms.string('QGLikelihoodRcd'),
+            tag    = cms.string('QGLikelihoodObject_'+qgDatabaseVersion+'_AK5PF'),
+            label  = cms.untracked.string('QGL_AK5PF')
+        ),
+      ),
+      connect = cms.string('sqlite:QGL_'+qgDatabaseVersion+'.db')
 )
 
 QGTagger = cms.EDProducer('QGTagger',
-  srcRho 		= cms.InputTag('fixedGridRhoFastjetAll'),
+  srcRho 		= cms.InputTag('fixedGridRhoFastjetAll'),		
   srcVertexCollection	= cms.InputTag('offlinePrimaryVerticesWithBS'),
-  QGLParameters 	= cms.string('QGL_AK5PFchs'),
-  jec			= cms.string(''),
+  jec			= cms.string('')
 )
