@@ -21,7 +21,7 @@
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 #include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
-
+#include "RecoMuon/Navigation/interface/MuonNavigationSchool.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
@@ -36,7 +36,8 @@ using namespace std;
 #define PRINT(x) edm::LogInfo(x)
 #endif
 
-MuonNavigationPrinter::MuonNavigationPrinter(const MuonDetLayerGeometry * muonLayout, bool enableRPC) {
+MuonNavigationPrinter::MuonNavigationPrinter(const MuonDetLayerGeometry * muonLayout,  MuonNavigationSchool const & sh,  bool enableRPC) :
+  school(&sh) {
 
   PRINT("MuonNavigationPrinter")<< "MuonNavigationPrinter::MuonNavigationPrinter" << std::endl;
   vector<DetLayer*>::const_iterator iter;
@@ -68,7 +69,8 @@ MuonNavigationPrinter::MuonNavigationPrinter(const MuonDetLayerGeometry * muonLa
 
 }
 
-MuonNavigationPrinter::MuonNavigationPrinter(const MuonDetLayerGeometry * muonLayout, const GeometricSearchTracker * tracker) {
+MuonNavigationPrinter::MuonNavigationPrinter(const MuonDetLayerGeometry * muonLayout,  MuonNavigationSchool const & sh, const GeometricSearchTracker * tracker)  :
+  school(&sh){
 
   PRINT("MuonNavigationPrinter")<< "MuonNavigationPrinter::MuonNavigationPrinter" << std::endl ;
   vector<DetLayer*>::const_iterator iter;
@@ -104,8 +106,8 @@ MuonNavigationPrinter::MuonNavigationPrinter(const MuonDetLayerGeometry * muonLa
 
 /// print layer
 void MuonNavigationPrinter::printLayer(DetLayer* layer) const {
-  vector<const DetLayer*> nextLayers = layer->nextLayers(insideOut);
-  vector<const DetLayer*> compatibleLayers = layer->compatibleLayers(insideOut);
+  vector<const DetLayer*> nextLayers = school->nextLayers(*layer,insideOut);
+  vector<const DetLayer*> compatibleLayers = school->compatibleLayers(*layer,insideOut);
   if (BarrelDetLayer* bdl = dynamic_cast<BarrelDetLayer*>(layer)) {
     PRINT("MuonNavigationPrinter") 
          << layer->location() << " " << layer->subDetector() << " layer at R: "
@@ -131,7 +133,7 @@ void MuonNavigationPrinter::printLayer(DetLayer* layer) const {
   printLayers(nextLayers);
 
   nextLayers.clear();
-  nextLayers = layer->nextLayers(outsideIn);
+  nextLayers = school->nextLayers(*layer,outsideIn);
 
    PRINT("MuonNavigationPrinter") << " has " << nextLayers.size() << " next layers in the direction outside-in: " << std::endl;
   printLayers(nextLayers);
@@ -139,7 +141,7 @@ void MuonNavigationPrinter::printLayer(DetLayer* layer) const {
   PRINT("MuonNavigationPrinter") << " has " << compatibleLayers.size() << " compatible layers in the direction inside-out:: " << std::endl;
   printLayers(compatibleLayers);
   compatibleLayers.clear();
-  compatibleLayers = layer->compatibleLayers(outsideIn);
+  compatibleLayers = school->compatibleLayers(*layer,outsideIn);
   
   PRINT("MuonNavigationPrinter") << " has " << compatibleLayers.size() << " compatible layers in the direction outside-in: " << std::endl;
   printLayers(compatibleLayers);
