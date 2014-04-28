@@ -46,6 +46,9 @@ class DetLayer : public GeometricSearchDet {
   /// Which part of the detector (barrel, endcap)
   virtual Location location() const = 0;
 
+
+  // obsoleted my new interface
+
   /// Return the NavigableLayer associated with this DetLayer
   NavigableLayer* navigableLayer() const { return theNavigableLayer;}
 
