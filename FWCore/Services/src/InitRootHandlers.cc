@@ -24,6 +24,12 @@
 #include "TSystem.h"
 #include "TUnixSystem.h"
 #include "TTree.h"
+#include "TVirtualStreamerInfo.h"
+
+#include "TThread.h"
+#include "TClassTable.h"
+#include "Reflex/Type.h"
+
 
 namespace {
   enum class SeverityLevel {
@@ -35,6 +41,8 @@ namespace {
   };
   
   static thread_local bool s_ignoreWarnings = false;
+
+  static bool s_ignoreEverything = false;
 
   void RootErrorHandlerImpl(int level, char const* location, char const* message) {
 
@@ -52,6 +60,10 @@ namespace {
       el_severity = SeverityLevel::kError;
     } else if (level >= kWarning) {
       el_severity = s_ignoreWarnings ? SeverityLevel::kInfo : SeverityLevel::kWarning;
+    }
+
+    if(s_ignoreEverything) {
+      el_severity = SeverityLevel::kInfo;
     }
 
   // Adapt C-strings to std::strings
@@ -116,8 +128,11 @@ namespace {
           (el_location.find("THistPainter::PaintInit") != std::string::npos) ||
           (el_location.find("TUnixSystem::SetDisplay") != std::string::npos) ||
           (el_location.find("TGClient::GetFontByName") != std::string::npos) ||
-          (el_message.find("nbins is <=0 - set to nbins = 1") != std::string::npos) ||
-          (el_message.find("nbinsy is <=0 - set to nbinsy = 1") != std::string::npos)) {
+	        (el_message.find("nbins is <=0 - set to nbins = 1") != std::string::npos) ||
+	        (el_message.find("nbinsy is <=0 - set to nbinsy = 1") != std::string::npos) ||
+          (level < kError and
+           (el_location.find("CINTTypedefBuilder::Setup")!= std::string::npos) and
+           (el_message.find("possible entries are in use!") != std::string::npos))) {
         el_severity = SeverityLevel::kInfo;
       }
 
@@ -202,8 +217,10 @@ namespace edm {
       : RootHandlers(),
         unloadSigHandler_(pset.getUntrackedParameter<bool> ("UnloadRootSigHandler")),
         resetErrHandler_(pset.getUntrackedParameter<bool> ("ResetRootErrHandler")),
-        autoLibraryLoader_(pset.getUntrackedParameter<bool> ("AutoLibraryLoader")) {
-
+        loadAllDictionaries_(pset.getUntrackedParameter<bool>("LoadAllDictionaries")),
+        autoLibraryLoader_(loadAllDictionaries_ or pset.getUntrackedParameter<bool> ("AutoLibraryLoader"))
+    {
+      
       if(unloadSigHandler_) {
       // Deactivate all the Root signal handlers and restore the system defaults
         gSystem->ResetSignal(kSigChild);
@@ -278,6 +295,20 @@ namespace edm {
         if(f) f->Close();
       }
     }
+    
+    void InitRootHandlers::willBeUsingThreads() {
+      //Tell Root we want to be multi-threaded
+      TThread::Initialize();
+      //When threading, also have to keep ROOT from logging all TObjects into a list
+      TObject::SetObjectStat(false);
+      
+      //Have to avoid having Streamers modify themselves after they have been used
+      TVirtualStreamerInfo::Optimize(false);
+    }
+    
+    void InitRootHandlers::initializeThisThreadForUse() {
+      static thread_local TThread guard;
+    }
 
     void InitRootHandlers::fillDescriptions(ConfigurationDescriptions& descriptions) {
       ParameterSetDescription desc;
@@ -288,6 +319,8 @@ namespace edm {
           ->setComment("If True, ROOT messages (e.g. errors, warnings) are handled by this service, rather than by ROOT.");
       desc.addUntracked<bool>("AutoLibraryLoader", true)
           ->setComment("If True, enables automatic loading of data dictionaries.");
+      desc.addUntracked<bool>("LoadAllDictionaries",false)
+          ->setComment("If True, loads all ROOT dictionaries.");
       desc.addUntracked<bool>("AbortOnSignal",true)
       ->setComment("If True, do an abort when a signal occurs that causes a crash. If False, ROOT will do an exit which attempts to do a clean shutdown.");
       desc.addUntracked<int>("DebugLevel",0)

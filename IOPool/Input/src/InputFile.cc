@@ -1,6 +1,9 @@
 /*----------------------------------------------------------------------
 Holder for an input TFile.
 ----------------------------------------------------------------------*/
+#include "TList.h"
+#include "TStreamerInfo.h"
+#include "TClass.h"
 #include "InputFile.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -29,6 +32,7 @@ namespace edm {
       file_.reset();
       return;
     }
+    
     logFileAction("  Successfully opened file ", fileName);
   }
 
