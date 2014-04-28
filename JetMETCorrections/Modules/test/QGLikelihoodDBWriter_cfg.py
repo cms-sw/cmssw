@@ -10,9 +10,10 @@ process.MessageLogger = cms.Service("MessageLogger",
             ),
 )
 
+qgDatabaseVersion = 'v0-test'
 
 process.load('CondCore.DBCommon.CondDBCommon_cfi') 
-process.CondDBCommon.connect = 'sqlite_file:QGL_V1.db' 
+process.CondDBCommon.connect = 'sqlite_file:QGL_'+qgDatabaseVersion+'.db' 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1)) 
 process.source = cms.Source('EmptySource') 
 process.PoolDBOutputService = cms.Service('PoolDBOutputService', 
@@ -20,12 +21,12 @@ process.PoolDBOutputService = cms.Service('PoolDBOutputService',
    toPut = cms.VPSet( 
       cms.PSet(
          record = cms.string('QGL_AK5PF'), 
-         tag    = cms.string('QGLikelihoodObject_V1_AK5PF'), 
+         tag    = cms.string('QGLikelihoodObject_'+qgDatabaseVersion+'_AK5PF'), 
          label  = cms.string('QGL_AK5PF') 
       ),
       cms.PSet(
          record = cms.string('QGL_AK5PFchs'), 
-         tag    = cms.string('QGLikelihoodObject_V1_AK5PFchs'), 
+         tag    = cms.string('QGLikelihoodObject_'+qgDatabaseVersion+'_AK5PFchs'), 
          label  = cms.string('QGL_AK5PFchs') 
       ),
    ) 
@@ -41,7 +42,4 @@ process.dbWriterAK5PFchs = cms.EDAnalyzer('QGLikelihoodDBWriter',
 ) 
 
 
-process.p = cms.Path( 
-process.dbWriterAK5PF *
-process.dbWriterAK5PFchs
-) 
+process.p = cms.Path(process.dbWriterAK5PF * process.dbWriterAK5PFchs) 
