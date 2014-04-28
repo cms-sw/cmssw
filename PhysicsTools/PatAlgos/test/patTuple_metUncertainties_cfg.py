@@ -8,9 +8,10 @@ process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
 process.load("PhysicsTools.PatUtils.patPFMETCorrections_cff")
 
 from PhysicsTools.PatAlgos.tools.jetTools import switchJetCollection
-switchJetCollection(process,cms.InputTag('ak5PFJets'),
-                 jetCorrections = ('AK5PF', ['L1FastJet', 'L2Relative', 'L3Absolute'], '')
-                 )
+switchJetCollection(process,
+                    jetSource = cms.InputTag('ak5PFJets'),
+                    jetCorrections = ('AK5PF', ['L1FastJet', 'L2Relative', 'L3Absolute'], '')
+                    )
 
 ## let it run
 process.p = cms.Path(
