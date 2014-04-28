@@ -20,7 +20,7 @@
 /* Collaborating Class Header */
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
+// #include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 #include "DataFormats/GeometrySurface/interface/BoundCylinder.h"
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 #include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
@@ -263,7 +263,7 @@ void MuonNavigationSchool::linkEndcapLayers(const MapE& layers,
 void MuonNavigationSchool::createInverseLinks()  {
 
   // set outward link
-  NavigationSetter setter(*this);
+  // NavigationSetter setter(*this);
 
   setState(navigableLayers());
 
@@ -285,7 +285,7 @@ void MuonNavigationSchool::createInverseLinks()  {
               bli != theBarrelLayers.end(); bli++ ) {
     // barrel
     MuonBarrelNavigableLayer* mbnl =
-      dynamic_cast<MuonBarrelNavigableLayer*>(((*bli).first)->navigableLayer());
+      dynamic_cast<MuonBarrelNavigableLayer*>(theAllNavigableLayer[((*bli).first)->seqNum()]);
     MapB reacheableB = mbnl->getOuterBarrelLayers();
     for (MapBI i = reacheableB.begin(); i != reacheableB.end(); i++ ) {
       reachedBarrelLayersMap[(*i).first].insert(*bli);
@@ -317,13 +317,13 @@ void MuonNavigationSchool::createInverseLinks()  {
   for ( MapEI eli  = theBackwardLayers.begin(); 
               eli != theBackwardLayers.end(); eli++ ) {
     MapE reacheableE =
-      dynamic_cast<MuonForwardNavigableLayer*>(((*eli).first)->navigableLayer())->getOuterEndcapLayers();
+      dynamic_cast<MuonForwardNavigableLayer*>(theAllNavigableLayer[((*eli).first)->seqNum()])->getOuterEndcapLayers();
     for (MapEI i = reacheableE.begin(); i != reacheableE.end(); i++ ) {
       reachedForwardLayersMap[(*i).first].insert(*eli);
     }
   // collect all compatible layer starting from a backward layer
     MapE compatibleE =
-      dynamic_cast<MuonForwardNavigableLayer*>(((*eli).first)->navigableLayer())->getAllOuterEndcapLayers();
+      dynamic_cast<MuonForwardNavigableLayer*>(theAllNavigableLayer[((*eli).first)->seqNum()])->getAllOuterEndcapLayers();
     for (MapEI i = compatibleE.begin(); i != compatibleE.end(); i++ ) {
       compatibleForwardLayersMap[(*i).first].insert(*eli);
     }
@@ -333,13 +333,13 @@ void MuonNavigationSchool::createInverseLinks()  {
               eli != theForwardLayers.end(); eli++ ) {
   // collect all reacheable layer starting from a forward layer
     MapE reacheableE =
-      dynamic_cast<MuonForwardNavigableLayer*>(((*eli).first)->navigableLayer())->getOuterEndcapLayers();
+      dynamic_cast<MuonForwardNavigableLayer*>(theAllNavigableLayer[((*eli).first)->seqNum()])->getOuterEndcapLayers();
     for (MapEI i = reacheableE.begin(); i != reacheableE.end(); i++ ) {
       reachedForwardLayersMap[(*i).first].insert(*eli);
     }
   // collect all compatible layer starting from a forward layer
     MapE compatibleE =
-      dynamic_cast<MuonForwardNavigableLayer*>(((*eli).first)->navigableLayer())->getAllOuterEndcapLayers();
+      dynamic_cast<MuonForwardNavigableLayer*>(theAllNavigableLayer[((*eli).first)->seqNum()])->getAllOuterEndcapLayers();
     for (MapEI i = compatibleE.begin(); i != compatibleE.end(); i++ ) {
       compatibleForwardLayersMap[(*i).first].insert(*eli);
     }
@@ -349,7 +349,7 @@ void MuonNavigationSchool::createInverseLinks()  {
   for ( MapBI bli  = theBarrelLayers.begin(); 
               bli != theBarrelLayers.end(); bli++ ) {
     MuonBarrelNavigableLayer* mbnl =
-      dynamic_cast<MuonBarrelNavigableLayer*>(((*bli).first)->navigableLayer());
+      dynamic_cast<MuonBarrelNavigableLayer*>(theAllNavigableLayer[((*bli).first)->seqNum()]);
     mbnl->setInwardLinks(reachedBarrelLayersMap[(*bli).first]);
     mbnl->setInwardCompatibleLinks(compatibleBarrelLayersMap[(*bli).first]);
 
@@ -358,7 +358,7 @@ void MuonNavigationSchool::createInverseLinks()  {
   for ( MapEI eli  = theBackwardLayers.begin(); 
               eli != theBackwardLayers.end(); eli++ ) {
     MuonForwardNavigableLayer* mfnl =      
-      dynamic_cast<MuonForwardNavigableLayer*>(((*eli).first)->navigableLayer());
+      dynamic_cast<MuonForwardNavigableLayer*>(theAllNavigableLayer[((*eli).first)->seqNum()]);
     // for backward next layers
     mfnl->setInwardLinks(reachedBarrelLayersMap[(*eli).first],
                          reachedForwardLayersMap[(*eli).first]);
@@ -370,8 +370,8 @@ void MuonNavigationSchool::createInverseLinks()  {
   for ( MapEI eli  = theForwardLayers.begin(); 
               eli != theForwardLayers.end(); eli++ ) {
     MuonForwardNavigableLayer* mfnl = 
-      dynamic_cast<MuonForwardNavigableLayer*>(((*eli).first)->navigableLayer());
-  // and for forward next layers
+      dynamic_cast<MuonForwardNavigableLayer*>(theAllNavigableLayer[((*eli).first)->seqNum()]);
+    // and for forward next layers
     mfnl->setInwardLinks(reachedBarrelLayersMap[(*eli).first],
                          reachedForwardLayersMap[(*eli).first]);
   // and for forward compatible layers
