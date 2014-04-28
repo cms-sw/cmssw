@@ -386,7 +386,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 
 	rec->push_back(reco_.reconstruct(*i,first,toadd,coder,calibrations));
 
-	// Set auxiliary flag
+	// Fill first auxiliary word
 	int auxflag=0;
         int fTS = firstAuxTS_;
 	if (fTS<0) fTS=0; // silly protection against time slice <0
@@ -395,6 +395,16 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	// bits 28 and 29 are reserved for capid of the first time slice saved in aux
 	auxflag+=((i->sample(fTS).capid())<<28);
 	(rec->back()).setAux(auxflag);
+
+	// Fill second auxiliaty word
+	auxflag=0;
+        fTS = (firstAuxTS_-4 < 0) ? 0 : firstAuxTS_-4;  
+	for (int xx = fTS; xx < fTS+4 && xx<i->size(); ++xx)
+	  auxflag+=(i->sample(xx).adc())<<(7*(xx-fTS)); 
+
+	auxflag+=((i->sample(fTS).capid())<<28);
+	(rec->back()).setAuxHBHE(auxflag);
+
 
 	(rec->back()).setFlags(0);  // this sets all flag bits to 0
 	// Set presample flag
