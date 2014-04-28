@@ -288,7 +288,7 @@ void WalkAST::CheckReturnStmt(const clang::ReturnStmt * RS, const clang::MemberE
 			for (unsigned J = 0, F = SD->getTemplateArgs().size(); J!=F; ++J) {
 				if (SD->getTemplateArgs().get(J).getKind() == clang::TemplateArgument::Type) {
 					const QualType QAT = SD->getTemplateArgs().get(J).getAsType();
-					if ( QAT->isPointerType() ) {
+					if ( QAT->isPointerType() && !support::isConst(QAT)) {
 						std::string buf;
 						llvm::raw_string_ostream os(buf);
 						os << MD->getQualifiedNameAsString() << " is a const member function that returns a const std::vector<*> or const std::vector<*>& "<<rtname<<"\n";
@@ -666,7 +666,7 @@ void ClassChecker::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ento::Ana
 						for (unsigned J = 0, F = SD->getTemplateArgs().size(); J!=F; ++J) {
 							if (SD->getTemplateArgs().get(J).getKind() == clang::TemplateArgument::Type) {
 								const QualType QAT = SD->getTemplateArgs().get(J).getAsType();
-								if ( QAT->isPointerType() ) {
+								if ( QAT->isPointerType() && !support::isConst(QAT) ) {
 									std::string buf;
 									llvm::raw_string_ostream os(buf);
 									os << MD->getQualifiedNameAsString() << " is a const member function that returns a const std::vector<*> or const std::vector<*>& "<<rtname<<"\n";
