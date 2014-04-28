@@ -34,6 +34,7 @@ SimpleNavigationSchool::SimpleNavigationSchool(const GeometricSearchTracker* the
   theAllDetLayersInSystem=&theInputTracker->allLayers();
   theAllNavigableLayer.resize(theInputTracker->allLayers().size(),nullptr);
 
+
   // Get barrel layers
   vector<BarrelDetLayer*> blc = theTracker->barrelLayers(); 
   for ( vector<BarrelDetLayer*>::iterator i = blc.begin(); i != blc.end(); i++) {
@@ -376,19 +377,17 @@ void SimpleNavigationSchool::establishInverseRelations() {
     ForwardMapType reachedForwardLayersMap;
 
 
-    for ( BDLI bli = theBarrelLayers.begin();
-        bli!=theBarrelLayers.end(); bli++) {
-      DLC reachedLC = (**bli).nextLayers( insideOut);
-      for ( DLI i = reachedLC.begin(); i != reachedLC.end(); i++) {
-        reachedBarrelLayersMap[*i].push_back( *bli);
+    for ( auto bli :  theBarrelLayers) {
+      auto reachedLC = nextLayers(*bli, insideOut);
+      for ( auto i : reachedLC) {
+        reachedBarrelLayersMap[i].push_back(bli);
       }
     }
 
-    for ( FDLI fli = theForwardLayers.begin();
-        fli!=theForwardLayers.end(); fli++) {
-      DLC reachedLC = (**fli).nextLayers( insideOut);
-      for ( DLI i = reachedLC.begin(); i != reachedLC.end(); i++) {
-        reachedForwardLayersMap[*i].push_back( *fli);
+    for ( auto fli : theForwardLayers) {
+      auto reachedLC = nextLayers(*fli, insideOut);
+      for ( auto i : reachedLC) {
+        reachedForwardLayersMap[i].push_back(fli);
       }
     }
 
@@ -401,12 +400,14 @@ void SimpleNavigationSchool::establishInverseRelations() {
     }
     */
     
+    
     for(auto nl : theAllNavigableLayer) {
       if (!nl) continue;
-      SimpleNavigableLayer* navigableLayer = static_cast<SimpleNavigableLayer*>(nl);
+      auto navigableLayer = static_cast<SimpleNavigableLayer*>(nl);
       auto dl = nl->detLayer();
       navigableLayer->setInwardLinks( reachedBarrelLayersMap[dl],reachedForwardLayersMap[dl] );
     }
+    
     
 }
 
