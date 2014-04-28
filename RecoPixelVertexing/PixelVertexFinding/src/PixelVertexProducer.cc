@@ -31,10 +31,16 @@ PixelVertexProducer::PixelVertexProducer(const edm::ParameterSet& conf)
   token_BeamSpot = consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("beamSpot"));
   method2 = conf.getParameter<bool>("Method2");
 
-  edm::ParameterSet PVcomparerPSet = conf.getParameter<edm::ParameterSet>("PVcomparer");
-  double track_pt_max   = PVcomparerPSet.getParameter<double>("track_pt_max");
-  double track_chi2_max = PVcomparerPSet.getParameter<double>("track_chi2_max");
-  double track_prob_min = PVcomparerPSet.getParameter<double>("track_prob_min");
+  double track_pt_max   = 10.;
+  double track_chi2_max = 9999999.;
+  double track_prob_min = -1.;
+
+  if ( conf.exists("PVcomparer") ) {
+    edm::ParameterSet PVcomparerPSet = conf.getParameter<edm::ParameterSet>("PVcomparer");
+    track_pt_max   = PVcomparerPSet.getParameter<double>("track_pt_max");
+    track_chi2_max = PVcomparerPSet.getParameter<double>("track_chi2_max");
+    track_prob_min = PVcomparerPSet.getParameter<double>("track_prob_min");
+  }
 
   if (finder == "DivisiveVertexFinder") {
     if (verbose_ > 0) edm::LogInfo("PixelVertexProducer") << ": Using the DivisiveVertexFinder\n";
