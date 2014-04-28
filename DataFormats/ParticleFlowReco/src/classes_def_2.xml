@@ -116,13 +116,21 @@
   <class name="reco::PFBlockElement" ClassVersion="11">
    <version ClassVersion="11" checksum="3944635097"/>
     <!-- <field name="multilinkslinks_" transient="true"/> -->
+   <field name="nullTrack_" transient="true"/>
+   <field name="nullPFRecTrack_" transient="true"/>
+   <field name="nullPFCluster_" transient="true"/>
+   <field name="nullPFDispVertex_" transient="true"/>
+   <field name="nullConv_" transient="true"/>
+   <field name="nullMuon_" transient="true"/>
+   <field name="nullVertex_" transient="true"/>
   </class>
   <class name="std::vector<reco::PFBlockElement *>" />
   <class name="edm::OwnVector<reco::PFBlockElement, edm::ClonePolicy<reco::PFBlockElement> >"/>
   <class name="edm::Wrapper<edm::OwnVector<reco::PFBlockElement, edm::ClonePolicy<reco::PFBlockElement> > >" />
 
-  <class name="reco::PFBlockElementTrack" ClassVersion="10">
+  <class name="reco::PFBlockElementTrack" ClassVersion="11">
    <version ClassVersion="10" checksum="2342660248"/>
+   <version ClassVersion="11" checksum="1450496342"/>
 <!-- removed by Florian. It useful to have this Ref (especially for a reprocessing)   
     <field name="trackRefPF_" transient="true"/>
 -->
@@ -145,8 +153,9 @@
   </class>
 
 
-  <class name="reco::PFBlockElementCluster" ClassVersion="10">
+  <class name="reco::PFBlockElementCluster" ClassVersion="11">
    <version ClassVersion="10" checksum="2503385411"/>
+   <version ClassVersion="11" checksum="2936163017"/>
   </class>
 
   <class name="std::map<unsigned int,reco::PFBlock::Link>"/>
