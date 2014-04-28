@@ -240,10 +240,10 @@ class AddJetCollection(ConfigToolBase):
                     if not tagInfoCovered :
                         requiredTagInfos.append(requiredTagInfo)
             ## load sequences and setups needed fro btagging
-	    ## This loads all available btagger, but the ones we need are added to the process by hand lader. Only needed to get the ESProducer. Needs improvement
+            ## This loads all available btagger, but the ones we need are added to the process by hand later. Only needed to get the ESProducer. Needs improvement
             #loadWithPostFix(process,"RecoBTag.Configuration.RecoBTag_cff",postfix)
             process.load("RecoBTag.Configuration.RecoBTag_cff")
-	    #addESProducers(process,'RecoBTag.Configuration.RecoBTag_cff')
+            #addESProducers(process,'RecoBTag.Configuration.RecoBTag_cff')
             import RecoBTag.Configuration.RecoBTag_cff as btag
 
             ## prepare setups for simple secondary vertex infos
@@ -296,6 +296,8 @@ class AddJetCollection(ConfigToolBase):
                     process.load( 'RecoBTag.SecondaryVertex.secondaryVertex_cff' )
                 if not hasattr( process, 'bToCharmDecayVertexMerged' ):
                     process.load( 'RecoBTag.SecondaryVertex.bToCharmDecayVertexMerger_cfi' )
+            ## modify new patJets collection accordingly
+            _newPatJets.addBTagInfo = True
         else:
             _newPatJets.addBTagInfo = False
             ## adjust output module; these collections will be empty anyhow, but we do it to stay clean
