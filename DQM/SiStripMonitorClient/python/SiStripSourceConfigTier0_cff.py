@@ -109,7 +109,7 @@ dqmInfoSiStrip = cms.EDAnalyzer("DQMEventInfo",
 )
 
 # Services needed for TkHistoMap
-TkDetMap = cms.Service("TkDetMap")
+#TkDetMap = cms.Service("TkDetMap")
 SiStripDetInfoFileReade = cms.Service("SiStripDetInfoFileReader")
 
 # Event History Producer
@@ -122,18 +122,33 @@ from DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1tsDB_cfi import *
 from RecoLuminosity.LumiProducer.lumiProducer_cff import *
 
 # Sequence
+#removed modules using TkDetMap service
+#SiStripDQMTier0 = cms.Sequence(
+#    APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorClusterBPTX
+#    *SiStripMonitorTrackCommon*MonitorTrackResiduals
+#    *dqmInfoSiStrip)
+
+#SiStripDQMTier0Common = cms.Sequence(
+#    APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorClusterBPTX        
+#    *SiStripMonitorTrackCommon
+#    *dqmInfoSiStrip)
+
+#SiStripDQMTier0MinBias = cms.Sequence(
+#    APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorClusterBPTX
+#    *SiStripMonitorTrackMB*MonitorTrackResiduals
+#    *dqmInfoSiStrip)
+
 SiStripDQMTier0 = cms.Sequence(
-    APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorClusterBPTX
-    *SiStripMonitorTrackCommon*MonitorTrackResiduals
+    APVPhases*consecutiveHEs*siStripFEDCheck
+    *MonitorTrackResiduals
     *dqmInfoSiStrip)
 
 SiStripDQMTier0Common = cms.Sequence(
-    APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorClusterBPTX        
-    *SiStripMonitorTrackCommon
+    APVPhases*consecutiveHEs*siStripFEDCheck
     *dqmInfoSiStrip)
 
 SiStripDQMTier0MinBias = cms.Sequence(
-    APVPhases*consecutiveHEs*siStripFEDCheck*siStripFEDMonitor*SiStripMonitorDigi*SiStripMonitorClusterBPTX
+    APVPhases*consecutiveHEs*siStripFEDCheck
     *SiStripMonitorTrackMB*MonitorTrackResiduals
     *dqmInfoSiStrip)
 
