@@ -98,6 +98,12 @@ parser.add_option("--runsScenarioForMC",
                   default=None,
                   dest="runsScenarioForMC")
 
+parser.add_option("--runUnscheduled",
+                  help="Enable unscheduled mode",
+                  action="store_true",
+                  default=False,
+                  dest="runUnscheduled")
+
 # expert settings
 expertSettings.add_option("--beamspot",
                           help="What beam spot to use (from Configuration/StandardSequences). Default depends on scenario",

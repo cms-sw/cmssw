@@ -296,6 +296,10 @@ class ConfigBuilder(object):
                     self.process.options = cms.untracked.PSet( Rethrow = cms.untracked.vstring('ProductNotFound'),fileMode = cms.untracked.string('FULLMERGE'))
             else:
                     self.process.options = cms.untracked.PSet( )
+
+	    if self._options.runUnscheduled:
+		    self.process.options.allowUnscheduled=cms.untracked.bool(True)
+		    
             self.addedObjects.append(("","options"))
 
             if self._options.lazy_download:
@@ -844,6 +848,7 @@ class ConfigBuilder(object):
         self.L1RecoDefaultCFF="Configuration/StandardSequences/L1Reco_cff"
         self.L1TrackTriggerDefaultCFF="Configuration/StandardSequences/L1TrackTrigger_cff"
         self.RECODefaultCFF="Configuration/StandardSequences/Reconstruction_Data_cff"
+        self.PATDefaultCFF="Configuration/StandardSequences/PAT_cff"
 	self.EIDefaultCFF=None
         self.SKIMDefaultCFF="Configuration/StandardSequences/Skims_cff"
         self.POSTRECODefaultCFF="Configuration/StandardSequences/PostRecoGenerator_cff"
@@ -901,6 +906,7 @@ class ConfigBuilder(object):
         self.PATLayer0DefaultSeq='all'
         self.ENDJOBDefaultSeq='endOfProcess'
         self.REPACKDefaultSeq='DigiToRawRepack'
+	self.PATDefaultSeq='miniAOD'
 
         self.EVTCONTDefaultCFF="Configuration/EventContent/EventContent_cff"
 
@@ -911,6 +917,7 @@ class ConfigBuilder(object):
         if self._options.isMC==True:
                 self.RAW2DIGIDefaultCFF="Configuration/StandardSequences/RawToDigi_cff"
 		self.RECODefaultCFF="Configuration/StandardSequences/Reconstruction_cff"
+		self.PATDefaultCFF="Configuration/StandardSequences/PATMC_cff"
                 self.DQMOFFLINEDefaultCFF="DQMOffline/Configuration/DQMOfflineMC_cff"
                 self.ALCADefaultCFF="Configuration/StandardSequences/AlCaRecoStreamsMC_cff"
 	else:
@@ -1594,6 +1601,12 @@ class ConfigBuilder(object):
 	self.scheduleSequence(sequence.split('.')[-1],'reconstruction_step')
         return
 
+    def prepare_PAT(self, sequence = "miniAOD"):
+        ''' Enrich the schedule with PAT '''
+        self.loadDefaultOrSpecifiedCFF(sequence,self.PATDefaultCFF)
+	self.scheduleSequence(sequence.split('.')[-1],'pat_step')
+        return
+
     def prepare_EI(self, sequence = None):
         ''' Enrich the schedule with event interpretation '''
 	from Configuration.StandardSequences.EventInterpretation import EventInterpretation
@@ -2076,30 +2089,31 @@ class ConfigBuilder(object):
                 self.pythonCfgCode += dumpPython(self.process,endpath)
 
         # dump the schedule
-        self.pythonCfgCode += "\n# Schedule definition\n"
-        result = "process.schedule = cms.Schedule("
+	if not self._options.runUnscheduled:	
+		self.pythonCfgCode += "\n# Schedule definition\n"
+		result = "process.schedule = cms.Schedule("
 
-        # handling of the schedule
-        self.process.schedule = cms.Schedule()
-        for item in self.schedule:
-                if not isinstance(item, cms.Schedule):
-                        self.process.schedule.append(item)
-                else:
-                        self.process.schedule.extend(item)
+                # handling of the schedule
+		self.process.schedule = cms.Schedule()
+		for item in self.schedule:
+			if not isinstance(item, cms.Schedule):
+				self.process.schedule.append(item)
+			else:
+				self.process.schedule.extend(item)
 
-        if hasattr(self.process,"HLTSchedule"):
-            beforeHLT = self.schedule[:self.schedule.index(self.process.HLTSchedule)]
-            afterHLT = self.schedule[self.schedule.index(self.process.HLTSchedule)+1:]
-            pathNames = ['process.'+p.label_() for p in beforeHLT]
-            result += ','.join(pathNames)+')\n'
-            result += 'process.schedule.extend(process.HLTSchedule)\n'
-            pathNames = ['process.'+p.label_() for p in afterHLT]
-            result += 'process.schedule.extend(['+','.join(pathNames)+'])\n'
-        else:
-            pathNames = ['process.'+p.label_() for p in self.schedule]
-            result ='process.schedule = cms.Schedule('+','.join(pathNames)+')\n'
+		if hasattr(self.process,"HLTSchedule"):
+			beforeHLT = self.schedule[:self.schedule.index(self.process.HLTSchedule)]
+			afterHLT = self.schedule[self.schedule.index(self.process.HLTSchedule)+1:]
+			pathNames = ['process.'+p.label_() for p in beforeHLT]
+			result += ','.join(pathNames)+')\n'
+			result += 'process.schedule.extend(process.HLTSchedule)\n'
+			pathNames = ['process.'+p.label_() for p in afterHLT]
+			result += 'process.schedule.extend(['+','.join(pathNames)+'])\n'
+		else:
+			pathNames = ['process.'+p.label_() for p in self.schedule]
+			result ='process.schedule = cms.Schedule('+','.join(pathNames)+')\n'
 
-        self.pythonCfgCode += result
+	        self.pythonCfgCode += result
 
 	#repacked version
 	if self._options.isRepacked:
