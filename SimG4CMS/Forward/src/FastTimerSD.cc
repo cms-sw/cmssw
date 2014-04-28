@@ -4,13 +4,14 @@
 
 #include "SimDataFormats/SimHitMaker/interface/TrackingSlaveSD.h"
 #include "SimDataFormats/TrackingHit/interface/UpdatablePSimHit.h"
-#include "SimG4CMS/Forward/interface/BHMSD.h"
+#include "SimG4CMS/Forward/interface/FastTimerSD.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "SimG4Core/Notification/interface/TrackInformation.h"
+#include "DataFormats/ForwardDetId/interface/FastTimeDetId.h"
 
 #include "G4Track.hh"
 #include "G4SDManager.hh"
@@ -25,30 +26,31 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#define debug
+#define DebugLog
 //-------------------------------------------------------------------
-BHMSD::BHMSD(std::string name, const DDCompactView & cpv,
-	     SensitiveDetectorCatalog & clg, 
-	     edm::ParameterSet const & p, const SimTrackManager* manager) :
-  SensitiveTkDetector(name, cpv, clg, p), numberingScheme(0), name(name),
+FastTimerSD::FastTimerSD(std::string name, const DDCompactView & cpv,
+			 SensitiveDetectorCatalog & clg, 
+			 edm::ParameterSet const & p, 
+			 const SimTrackManager* manager) :
+  SensitiveTkDetector(name, cpv, clg, p), ftcons(0), name(name),
   hcID(-1), theHC(0), theManager(manager), currentHit(0), theTrack(0), 
   currentPV(0), unitID(0),  previousUnitID(0), preStepPoint(0), 
   postStepPoint(0), eventno(0){
     
-  //Add BHM Sentitive Detector Name
+  //Add FastTimer Sentitive Detector Name
   collectionName.insert(name);
     
     
   //Parameters
-  edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("BHMSD");
+  edm::ParameterSet m_p = p.getParameter<edm::ParameterSet>("FastTimerSD");
   int verbn = m_p.getUntrackedParameter<int>("Verbosity");
   //int verbn = 1;
     
   SetVerboseLevel(verbn);
-  LogDebug("BHMSim") 
+  LogDebug("FastTimerSim") 
     << "*******************************************************\n"
     << "*                                                     *\n"
-    << "* Constructing a BHMSD  with name " << name << "\n"
+    << "* Constructing a FastTimerSD  with name " << name << "\n"
     << "*                                                     *\n"
     << "*******************************************************";
     
@@ -65,31 +67,29 @@ BHMSD::BHMSD(std::string name, const DDCompactView & cpv,
   for (std::vector<std::string>::iterator it=lvNames.begin();  
        it !=lvNames.end(); it++) {
     this->AssignSD(*it);
-    edm::LogInfo("BHMSim") << "BHMSD : Assigns SD to LV " << (*it);
+    edm::LogInfo("FastTimerSim") << "FastTimerSD : Assigns SD to LV " << (*it);
   }
     
-  if (verbn > 0) {
-    edm::LogInfo("BHMSim") << "name = " <<name <<" and new BHMNumberingScheme";
-  }
-  numberingScheme = new BHMNumberingScheme() ;
+  ftcons = new FastTimeDDDConstants(cpv) ;
+  type   = ftcons->getType();
   
-  edm::LogInfo("BHMSim") << "BHMSD: Instantiation completed";
+  edm::LogInfo("FastTimerSim") << "FastTimerSD: Instantiation completed";
 }
 
 
-BHMSD::~BHMSD() { 
+FastTimerSD::~FastTimerSD() { 
 
-  if (slave)           delete slave; 
-  if (numberingScheme) delete numberingScheme;
+  if (slave)  delete slave; 
+  if (ftcons) delete ftcons;
 }
 
-double BHMSD::getEnergyDeposit(G4Step* aStep) {
+double FastTimerSD::getEnergyDeposit(G4Step* aStep) {
   return aStep->GetTotalEnergyDeposit();
 }
 
-void BHMSD::Initialize(G4HCofThisEvent * HCE) { 
-#ifdef debug
-  LogDebug("BHMSim") << "BHMSD : Initialize called for " << name << std::endl;
+void FastTimerSD::Initialize(G4HCofThisEvent * HCE) { 
+#ifdef DebugLog
+  LogDebug("FastTimerSim") << "FastTimerSD : Initialize called for " << name;
 #endif
 
   theHC = new BscG4HitCollection(name, collectionName[0]);
@@ -102,14 +102,15 @@ void BHMSD::Initialize(G4HCofThisEvent * HCE) {
 }
 
 
-bool BHMSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
+bool FastTimerSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
 
   if (aStep == NULL) {
     return true;
   } else {
     GetStepInfo(aStep);
-#ifdef debug
-    LogDebug("BHMSim") << "BHMSD :  number of hits = " << theHC->entries() << std::endl;
+#ifdef DebugLog
+    LogDebug("FastTimerSim") << "FastTimerSD :  number of hits = " 
+			     << theHC->entries();
 #endif
     if (HitExists() == false && edeposit>0. ){ 
       CreateNewHit();
@@ -119,7 +120,7 @@ bool BHMSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
   return true;
 } 
 
-void BHMSD::GetStepInfo(G4Step* aStep) {
+void FastTimerSD::GetStepInfo(G4Step* aStep) {
   
   preStepPoint = aStep->GetPreStepPoint(); 
   postStepPoint= aStep->GetPostStepPoint(); 
@@ -133,7 +134,10 @@ void BHMSD::GetStepInfo(G4Step* aStep) {
 
 
   G4int particleCode = theTrack->GetDefinition()->GetPDGEncoding();
-  LogDebug("BHMSim") <<  "  BHMSD :particleType =  " << theTrack->GetDefinition()->GetParticleName() <<std::endl;
+#ifdef DebugLog
+  edm::LogInfo("FastTimerSim") << "FastTimerSD :particleType =  " 
+			       << theTrack->GetDefinition()->GetParticleName();
+#endif
   if (particleCode == emPDG ||
       particleCode == epPDG ||
       particleCode == gammaPDG ) {
@@ -142,11 +146,12 @@ void BHMSD::GetStepInfo(G4Step* aStep) {
     edepositEM  = 0.; edepositHAD = getEnergyDeposit(aStep);
   }
   edeposit = aStep->GetTotalEnergyDeposit();
-  tSlice    = (postStepPoint->GetGlobalTime() )/nanosecond;
+  tSlice    = (100*postStepPoint->GetGlobalTime() )/nanosecond;
   tSliceID  = (int) tSlice;
   unitID    = setDetUnitId(aStep);
-#ifdef debug
-  LogDebug("BHMSim") << "unitID=" << unitID <<std::endl;
+#ifdef DebugLog
+  LogDebug("FastTimerSim") << "FastTimerSD:unitID = " << std::hex << unitID
+			   << std::dec;
 #endif
   primaryID    = theTrack->GetTrackID();
   //  Position     = hitPoint;
@@ -166,16 +171,33 @@ void BHMSD::GetStepInfo(G4Step* aStep) {
   Z  = hitPoint.z();
 }
 
-uint32_t BHMSD::setDetUnitId(G4Step * aStep) { 
-  return (numberingScheme == 0 ? 0 : numberingScheme->getUnitID(aStep));
+uint32_t FastTimerSD::setDetUnitId(G4Step * aStep) { 
+
+  //Find the depth segment
+  const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
+  int      iz = (touch->GetReplicaNumber(2)== 1) ? 1 : -1;
+  std::pair<int,int> ixy;
+  if (type == 1) {
+    ixy = ftcons->getXY(touch->GetReplicaNumber(0));
+  } else {
+    ixy = ftcons->getXY(hitPointLocal.x(),hitPointLocal.y());
+  }
+  uint32_t id = FastTimeDetId(ixy.first,ixy.second,iz).rawId();
+#ifdef DebugLog
+  edm::LogInfo("FastTimerSim") << "Levels " << touch->GetReplicaNumber(0) <<":"
+			       << touch->GetReplicaNumber(2) << " Ixyz "
+			       << ixy.first << ":" << ixy.second << ":" << iz
+			       << " id " << std::hex << id << std::dec;
+#endif
+  return id;
 }
 
 
-G4bool BHMSD::HitExists() {
+G4bool FastTimerSD::HitExists() {
   if (primaryID<1) {
-    edm::LogWarning("BHMSim") << "***** BHMSD error: primaryID = " 
-				  << primaryID
-				  << " maybe detector name changed";
+    edm::LogWarning("FastTimerSim") << "***** FastTimerSD error: primaryID = " 
+				    << primaryID
+				    << " maybe detector name changed";
   }
 
   // Update if in the same detector, time-slice and for same track   
@@ -211,7 +233,7 @@ G4bool BHMSD::HitExists() {
 }
 
 
-void BHMSD::ResetForNewPrimary() {
+void FastTimerSD::ResetForNewPrimary() {
   
   entrancePoint  = SetToLocal(hitPoint);
   exitPoint      = SetToLocalExit(hitPointExit);
@@ -219,42 +241,41 @@ void BHMSD::ResetForNewPrimary() {
 }
 
 
-void BHMSD::StoreHit(BscG4Hit* hit){
+void FastTimerSD::StoreHit(BscG4Hit* hit){
 
   if (primID<0) return;
-  if (hit == 0 ) {
-    edm::LogWarning("BHMSim") << "BHMSD: hit to be stored is NULL !!";
-    return;
+  if (hit == 0) {
+    edm::LogWarning("FastTimerSim") << "FastTimerSD: hit to be stored is NULL !!";
+  } else {
+    theHC->insert( hit );
   }
-
-  theHC->insert( hit );
 }
 
 
-void BHMSD::CreateNewHit() {
+void FastTimerSD::CreateNewHit() {
 
-#ifdef debug
-  LogDebug("BHMSim") << "BHMSD CreateNewHit for"
-		     << " PV "     << currentPV->GetName()
-		     << " PVid = " << currentPV->GetCopyNo()
-		     << " Unit "   << unitID <<std::endl;
-  LogDebug("BHMSim") << " primary "    << primaryID
-		     << " time slice " << tSliceID 
-		     << " For Track  " << theTrack->GetTrackID()
-		     << " which is a " << theTrack->GetDefinition()->GetParticleName();
+#ifdef DebugLog
+  LogDebug("FastTimerSim") << "FastTimerSD CreateNewHit for"
+			   << " PV "     << currentPV->GetName()
+			   << " PVid = " << currentPV->GetCopyNo()
+			   << " Unit "   << unitID <<std::endl;
+  LogDebug("FastTimerSim") << " primary "    << primaryID
+			   << " time slice " << tSliceID 
+			   << " For Track  " << theTrack->GetTrackID()
+			   << " which is a " << theTrack->GetDefinition()->GetParticleName();
 	   
   if (theTrack->GetTrackID()==1) {
-    LogDebug("BHMSim") << " of energy "     << theTrack->GetTotalEnergy();
+    LogDebug("FastTimerSim") << " of energy "     << theTrack->GetTotalEnergy();
   } else {
-    LogDebug("BHMSim") << " daughter of part. " << theTrack->GetParentID();
+    LogDebug("FastTimerSim") << " daughter of part. " << theTrack->GetParentID();
   }
 
-  LogDebug("BHMSim")  << " and created by " ;
+  LogDebug("FastTimerSim")  << " and created by " ;
   if (theTrack->GetCreatorProcess()!=NULL)
-    LogDebug("BHMSim") << theTrack->GetCreatorProcess()->GetProcessName() ;
+    LogDebug("FastTimerSim") << theTrack->GetCreatorProcess()->GetProcessName() ;
   else 
-    LogDebug("BHMSim") << "NO process";
-  LogDebug("BHMSim") << std::endl;
+    LogDebug("FastTimerSim") << "NO process";
+  LogDebug("FastTimerSim") << std::endl;
 #endif          
     
   currentHit = new BscG4Hit;
@@ -290,15 +311,15 @@ void BHMSD::CreateNewHit() {
 }	 
  
 
-void BHMSD::UpdateHit() {
+void FastTimerSD::UpdateHit() {
 
   if (Eloss > 0.) {
     currentHit->addEnergyDeposit(edepositEM,edepositHAD);
 
-#ifdef debug
-    LogDebug("BHMSim") << "updateHit: add eloss " << Eloss <<std::endl;
-    LogDebug("BHMSim") << "CurrentHit=" << currentHit
-		       << ", PostStepPoint=" << postStepPoint->GetPosition();
+#ifdef DebugLog
+    LogDebug("FastTimerSim") << "updateHit: add eloss " << Eloss <<std::endl;
+    LogDebug("FastTimerSim") << "CurrentHit="<< currentHit<< ", PostStepPoint="
+			     << postStepPoint->GetPosition();
 #endif
     currentHit->setEnergyLoss(Eloss);
   }  
@@ -310,7 +331,7 @@ void BHMSD::UpdateHit() {
 }
 
 
-G4ThreeVector BHMSD::SetToLocal(G4ThreeVector global){
+G4ThreeVector FastTimerSD::SetToLocal(G4ThreeVector global){
 
   const G4VTouchable* touch= preStepPoint->GetTouchable();
   theEntryPoint = touch->GetHistory()->GetTopTransform().TransformPoint(global);
@@ -318,7 +339,7 @@ G4ThreeVector BHMSD::SetToLocal(G4ThreeVector global){
 }
      
 
-G4ThreeVector BHMSD::SetToLocalExit(G4ThreeVector globalPoint){
+G4ThreeVector FastTimerSD::SetToLocalExit(G4ThreeVector globalPoint){
 
   const G4VTouchable* touch= postStepPoint->GetTouchable();
   theExitPoint = touch->GetHistory()->GetTopTransform().TransformPoint(globalPoint);
@@ -326,15 +347,17 @@ G4ThreeVector BHMSD::SetToLocalExit(G4ThreeVector globalPoint){
 }
      
 
-void BHMSD::EndOfEvent(G4HCofThisEvent* ) {
+void FastTimerSD::EndOfEvent(G4HCofThisEvent* ) {
 
   // here we loop over transient hits and make them persistent
   for (int j=0; j<theHC->entries(); j++) {
     BscG4Hit* aHit = (*theHC)[j];
-    LogDebug("BHMSim") << "hit number" << j << "unit ID = "<<aHit->getUnitID()<< "\n";
-    LogDebug("BHMSim") << "entry z " << aHit->getEntry().z()<< "\n";
-    LogDebug("BHMSim") << "entr theta " << aHit->getThetaAtEntry()<< "\n";
-
+#ifdef DebugLog
+    edm::LogInfo("FastTimerSim") << "hit number " << j << " unit ID = "
+				 << std::hex << aHit->getUnitID() << std::dec
+				 << " entry z " << aHit->getEntry().z()
+				 << " entry theta " << aHit->getThetaAtEntry();
+#endif
     Local3DPoint locExitPoint(0,0,0);
     Local3DPoint locEntryPoint(aHit->getEntry().x(),
 			       aHit->getEntry().y(),
@@ -352,37 +375,33 @@ void BHMSD::EndOfEvent(G4HCofThisEvent* ) {
   Summarize();
 }
      
+void FastTimerSD::Summarize() {}
 
-void BHMSD::Summarize() {
-}
+void FastTimerSD::clear() {} 
 
+void FastTimerSD::DrawAll() {} 
 
-void BHMSD::clear() {
-} 
-
-
-void BHMSD::DrawAll() {
-} 
-
-
-void BHMSD::PrintAll() {
-  LogDebug("BHMSim") << "BHMSD: Collection " << theHC->GetName() << "\n";
+void FastTimerSD::PrintAll() {
+#ifdef DebugLog
+  edm::LogInfo("FastTimerSim") << "FastTimerSD: Collection "<<theHC->GetName();
+#endif
   theHC->PrintAllHits();
 } 
 
-
-void BHMSD::fillHits(edm::PSimHitContainer& c, std::string n) {
+void FastTimerSD::fillHits(edm::PSimHitContainer& c, std::string n) {
   if (slave->name() == n) c=slave->hits();
 }
 
-void BHMSD::update (const BeginOfEvent * i) {
-  LogDebug("BHMSim") << " Dispatched BeginOfEvent for " << GetName()
-                       << " !" ;
+void FastTimerSD::update (const BeginOfEvent * i) {
+#ifdef DebugLog
+  edm::LogInfo("FastTimerSim") << "Dispatched BeginOfEvent for " << GetName()
+			       << " !" ;
+#endif
    clearHits();
    eventno = (*i)()->GetEventID();
 }
 
-void BHMSD::update(const BeginOfRun *) {
+void FastTimerSD::update(const BeginOfRun *) {
 
   G4ParticleTable * theParticleTable = G4ParticleTable::GetParticleTable();
   G4String particleName;
@@ -392,14 +411,13 @@ void BHMSD::update(const BeginOfRun *) {
 
 } 
 
-void BHMSD::update (const ::EndOfEvent*) {
-}
+void FastTimerSD::update (const ::EndOfEvent*) {}
 
-void BHMSD::clearHits(){
+void FastTimerSD::clearHits(){
   slave->Initialize();
 }
 
-std::vector<std::string> BHMSD::getNames(){
+std::vector<std::string> FastTimerSD::getNames(){
   std::vector<std::string> temp;
   temp.push_back(slave->name());
   return temp;

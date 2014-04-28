@@ -19,11 +19,19 @@
   <Numeric name="startCopyNo" value="1"/>
   <Numeric name="incrCopyNo"  value="1"/>
   <Numeric name="invert"      value="1"/>
-  <Numeric name="rMin"        value="[rInTiming]"/>
-  <Numeric name="rMax"        value="[rOutTiming]"/> 
+  <Numeric name="rMin"        value="[fastTiming:rInTiming]"/>
+  <Numeric name="rMax"        value="[fastTiming:rOutTiming]"/> 
   <Numeric name="tiltAngle"   value="0"/>
   <Numeric name="zoffset"     value="0"/>
-  <Numeric name="xyoffset"    value="[dxTiming]"/>
+  <Numeric name="xyoffset"    value="[fastTiming:dxTiming]"/>
 </Algorithm>
+
+<SpecParSection label="FastTimingElement.xml" eval="true">
+  <SpecPar name="fastTiminingElement">
+    <PartSelector path="//SFBX"/>
+    <Parameter name="Volume" value="SFBX" eval="false"/>
+    <Parameter name="geomType" value="1"/>
+   </SpecPar>
+</SpecParSection>
 
 </DDDefinition>
