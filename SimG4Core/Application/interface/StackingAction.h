@@ -43,18 +43,19 @@ private:
   bool                          savePDandCinAll;
   bool                          killInCalo, killInCaloEfH;
   bool                          killHeavy, trackNeutrino, killDeltaRay;
-  bool                          killBeamPipe;
   double                        limitEnergyForVacuum;
   double                        kmaxIon, kmaxNeutron, kmaxProton;
   double                        maxTrackTime;
   unsigned int                  numberTimes;
   std::vector<double>           maxTrackTimes;
   std::vector<std::string>      maxTimeNames;
-  std::vector<const G4Region*>  maxTimeRegions;
+  std::vector<std::string>      deadRegionNames;
 
+  std::vector<const G4Region*>  maxTimeRegions;
   std::vector<const G4Region*>  trackerRegions;
   std::vector<const G4Region*>  muonRegions;
   std::vector<const G4Region*>  caloRegions;
+  std::vector<const G4Region*>  lowdensRegions;
   std::vector<const G4Region*>  deadRegions;
 
   NewTrackAction*               newTA;
