@@ -11,7 +11,11 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.StandardSequences.MagneticField_38T_cff')
+process.load('Configuration.Geometry.GeometryExtended2023MuonReco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023Muon_cff')
+process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
+process.load('Configuration.StandardSequences.SimIdeal_cff')
+process.load('Configuration.StandardSequences.Generator_cff')
 process.load('Configuration.StandardSequences.Digi_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 #process.load('Geometry.GEMGeometry.cmsExtendedGeometryPostLS1plusGEMXML_cfi')
@@ -26,8 +30,8 @@ process.load('Geometry.CSCGeometryBuilder.idealForDigiCscGeometry_cff')
 process.load('Geometry.GEMGeometry.gemGeometry_cfi')
 
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'POSTLS161_V12::All'
-#process.GlobalTag.globaltag = 'DESIGN60_V5::All'
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
 
 # GEM digitizer
 process.load('SimMuon.GEMDigitizer.muonGEMDigis_cfi')
