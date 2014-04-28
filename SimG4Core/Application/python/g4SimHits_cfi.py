@@ -10,9 +10,9 @@ common_heavy_suppression = cms.PSet(
 
 common_maximum_time = cms.PSet(
     MaxTrackTime  = cms.double(500.0),
-    MaxTimeNames  = cms.vstring('ZDCRegion','QuadRegion','InterimRegion'),
-    MaxTrackTimes = cms.vdouble(2000.0,0.,0.),
-    KillBeamPipe            = cms.bool(True),
+    MaxTimeNames  = cms.vstring('ZDCRegion'),
+    MaxTrackTimes = cms.vdouble(2000.0),
+    DeadRegions   = cms.vstring('QuadRegion','CastorRegion','InterimRegion'),
     CriticalEnergyForVacuum = cms.double(2.0),
     CriticalDensity         = cms.double(1e-15)
 )

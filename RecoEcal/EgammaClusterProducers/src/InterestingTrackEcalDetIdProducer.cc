@@ -91,7 +91,8 @@ InterestingTrackEcalDetIdProducer::InterestingTrackEcalDetIdProducer(const edm::
   trackCollectionToken_=
 	  consumes<reco::TrackCollection> (iConfig.getParameter<edm::InputTag>("TrackCollection"));	 
   trackAssociator_.useDefaultPropagator();
-  trackAssociatorParameters_.loadParameters(trackAssociatorPS_);
+  edm::ConsumesCollector iC = consumesCollector();
+  trackAssociatorParameters_.loadParameters(trackAssociatorPS_, iC);
 
   produces<DetIdCollection>(); 
 }
