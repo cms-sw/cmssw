@@ -2,23 +2,22 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/JetReco/interface/Jet.h"
-#include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 
 #include "RecoJets/JetProducers/interface/QGTagger.h"
 #include "RecoJets/JetAlgorithms/interface/QGLikelihoodCalculator.h"
-
-
-#include "FWCore/Framework/interface/ESHandle.h"
 #include "CondFormats/DataRecord/interface/QGLikelihoodRcd.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 
 /**
  * EDProducer class to produced the qgLikelihood values and related variables
@@ -29,7 +28,7 @@ QGTagger::QGTagger(const edm::ParameterSet& iConfig) :
   srcJets        ( iConfig.getParameter<edm::InputTag>("srcJets")),
   srcRho         ( iConfig.getParameter<edm::InputTag>("srcRho")),
   srcVertexC     ( iConfig.getParameter<edm::InputTag>("srcVertexCollection")),
-  QGLParameters  ( iConfig.getParameter<std::string>("QGLParameters")),
+  jetsLabel	 ( iConfig.getParameter<std::string>("jetsLabel")),
   jecService     ( iConfig.getParameter<std::string>("jec"))
 {
   produces<edm::ValueMap<float>>("qgLikelihood");
@@ -65,7 +64,7 @@ void QGTagger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
 
   edm::ESHandle<QGLikelihoodObject> QGLParamsColl;
   QGLikelihoodRcd const & rcdhandle = iSetup.get<QGLikelihoodRcd>();
-  rcdhandle.get(QGLParameters, QGLParamsColl);
+  rcdhandle.get(jetsLabel, QGLParamsColl);
 
   for(auto pfJet = pfJets->begin(); pfJet != pfJets->end(); ++pfJet){
     if(jecService == "") pt = pfJet->pt();
@@ -172,7 +171,7 @@ void QGTagger::fillDescriptions(edm::ConfigurationDescriptions& descriptions){
   desc.add<edm::InputTag>("srcJets");
   desc.add<edm::InputTag>("srcRho");
   desc.add<edm::InputTag>("srcVertexCollection");
-  desc.add<std::string>("QGLParameters");
+  desc.add<std::string>("jetsLabel");
   desc.add<std::string>("jec");
   descriptions.add("QGTagger", desc);
 }

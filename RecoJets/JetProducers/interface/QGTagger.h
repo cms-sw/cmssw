@@ -4,11 +4,11 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "RecoJets/JetAlgorithms/interface/QGLikelihoodCalculator.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
 
 class QGTagger : public edm::EDProducer{
    public:
@@ -27,8 +27,7 @@ class QGTagger : public edm::EDProducer{
       edm::EDGetTokenT<reco::PFJetCollection> jets_token;
       edm::EDGetTokenT<reco::VertexCollection> vertex_token;
       edm::EDGetTokenT<double> rho_token;
-      std::string QGLParameters;
-      std::string jecService;
+      std::string jetsLabel, jecService;
       QGLikelihoodCalculator *qgLikelihood;
       float pt, axis2, ptD;
       int mult;
