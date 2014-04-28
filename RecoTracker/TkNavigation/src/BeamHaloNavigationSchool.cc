@@ -22,6 +22,11 @@ BeamHaloNavigationSchool::BeamHaloNavigationSchool(const GeometricSearchTracker*
   edm::LogInfo("BeamHaloNavigationSchool")<<"*********Running BeamHaloNavigationSchool *********";
   theBarrelLength = 0;theField = field; theTracker = theInputTracker;
   theAllDetLayersInSystem=&theInputTracker->allLayers();
+  theAllNavigableLayer.resize(theInputTracker->allLayers().size(),nullptr);
+
+
+
+
   // Get barrel layers
   /*sideways does not need barrels*/
   /*  vector<BarrelDetLayer*> blc = theTracker->barrelLayers(); 
@@ -47,12 +52,16 @@ BeamHaloNavigationSchool::BeamHaloNavigationSchool(const GeometricSearchTracker*
   //  linkBarrelLayers( symFinder);
 
   linkForwardLayers( symFinder);
+ 
+  setState(navigableLayers());
+
   LogDebug("BeamHaloNavigationSchool")<<"inverse relation";
   establishInverseRelations();
 
 
   //add the necessary inward links to end caps
   LogDebug("BeamHaloNavigationSchool")<<"linkOtherEndLayer";
+
   linkOtherEndLayers( symFinder);
 
   //set checkCrossing = false to all layers
@@ -73,6 +82,9 @@ BeamHaloNavigationSchool::BeamHaloNavigationSchool(const GeometricSearchTracker*
 
 void BeamHaloNavigationSchool::establishInverseRelations() {
   NavigationSetter setter(*this);
+
+
+
 
   // find for each layer which are the barrel and forward
   // layers that point to it
