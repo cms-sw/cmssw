@@ -2,6 +2,9 @@
   <lib   name="1"/>
 </export>
 <use   name="Geometry/CaloGeometry"/>
+<use   name="Geometry/CaloTopology"/>
+<use   name="Geometry/EcalCommonData"/>
+<use   name="Geometry/HGCalCommonData"/>
 <use   name="DataFormats/EcalDetId"/>
 <use   name="clhep"/>
   <use name="Utilities/General"/>

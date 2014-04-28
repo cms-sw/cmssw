@@ -25,9 +25,8 @@ ShashlikTopologyBuilder::produce(const ShashlikNumberingRecord& iRecord ) {
 
   edm::ESHandle<ShashlikDDDConstants>  pSDC;
   iRecord.get( pSDC ) ;
-  const ShashlikDDDConstants* sdc = &(*pSDC);
+  const ShashlikDDDConstants& sdc = *pSDC;
 
   ReturnType ct ( new ShashlikTopology(sdc) ) ;
-  std::cout << "Create ShashlikTopology(sdc)" << std::endl;
   return ct ;
 }

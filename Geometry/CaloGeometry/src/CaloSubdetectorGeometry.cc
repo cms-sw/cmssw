@@ -147,11 +147,12 @@ void
 CaloSubdetectorGeometry::getSummary( CaloSubdetectorGeometry::TrVec&  tVec ,
 				     CaloSubdetectorGeometry::IVec&   iVec ,   
 				     CaloSubdetectorGeometry::DimVec& dVec ,
-				     CaloSubdetectorGeometry::IVec& /*dins*/)  const
+				     CaloSubdetectorGeometry::IVec&   idVec)  const
 {
    tVec.reserve( m_validIds.size()*numberOfTransformParms() ) ;
    iVec.reserve( numberOfShapes()==1 ? 1 : m_validIds.size() ) ;
    dVec.reserve( numberOfShapes()*numberOfParametersPerShape() ) ;
+   idVec.reserve (m_validIds.size());
 
    for( ParVecVec::const_iterator ivv ( parVecVec().begin() ) ; ivv != parVecVec().end() ; ++ivv )
    {
@@ -191,6 +192,8 @@ CaloSubdetectorGeometry::getSummary( CaloSubdetectorGeometry::TrVec&  tVec ,
 	 tVec.push_back( ea.Theta() ) ;
 	 tVec.push_back( ea.Psi() ) ;
       }
+
+      idVec.push_back (m_validIds[i]);
 
       const CCGFloat* par ( ptr->param() ) ;
 
