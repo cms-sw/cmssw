@@ -16,7 +16,7 @@
 #include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
 
 
-void TrackAssociatorParameters::loadParameters( const edm::ParameterSet& iConfig )
+void TrackAssociatorParameters::loadParameters( const edm::ParameterSet& iConfig, edm::ConsumesCollector &iC )
 {
    dREcal = iConfig.getParameter<double>("dREcal");
    dRHcal = iConfig.getParameter<double>("dRHcal");
@@ -52,10 +52,23 @@ void TrackAssociatorParameters::loadParameters( const edm::ParameterSet& iConfig
    
    truthMatch = iConfig.getParameter<bool>("truthMatch");
    muonMaxDistanceSigmaY = iConfig.getParameter<double>("trajectoryUncertaintyTolerance");
+
+   EBRecHitsToken=iC.consumes<EBRecHitCollection>(theEBRecHitCollectionLabel);
+   EERecHitsToken=iC.consumes<EERecHitCollection>(theEERecHitCollectionLabel);
+   caloTowersToken=iC.consumes<CaloTowerCollection>(theCaloTowerCollectionLabel);
+   HBHEcollToken=iC.consumes<HBHERecHitCollection>(theHBHERecHitCollectionLabel);
+   HOcollToken=iC.consumes<HORecHitCollection>(theHORecHitCollectionLabel);
+   dtSegmentsToken=iC.consumes<DTRecSegment4DCollection>(theDTRecSegment4DCollectionLabel);
+   cscSegmentsToken=iC.consumes<CSCSegmentCollection>(theCSCSegmentCollectionLabel);
+   simTracksToken=iC.consumes<edm::SimTrackContainer>(edm::InputTag("g4SimHits"));
+   simVerticesToken=iC.consumes<edm::SimVertexContainer>(edm::InputTag("g4SimHits"));
+   simEcalHitsEBToken=iC.consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits","EcalHitsEB"));
+   simEcalHitsEEToken=iC.consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits","EcalHitsEE"));
+   simHcalHitsToken=iC.consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits","HcalHits"));
 }
 
-TrackAssociatorParameters::TrackAssociatorParameters( const edm::ParameterSet& iConfig )
+TrackAssociatorParameters::TrackAssociatorParameters( const edm::ParameterSet& iConfig, edm::ConsumesCollector &&iC )
 {
-   loadParameters( iConfig );
+  loadParameters( iConfig, iC );
 }
 

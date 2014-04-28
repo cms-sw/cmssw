@@ -59,7 +59,9 @@ CaloExtractorByAssociator::CaloExtractorByAssociator(const ParameterSet& par, ed
   ParameterSet serviceParameters = par.getParameter<ParameterSet>("ServiceParameters");
   theService = new MuonServiceProxy(serviceParameters);
 
-  theAssociatorParameters = new TrackAssociatorParameters(par.getParameter<edm::ParameterSet>("TrackAssociatorParameters"));
+  //theAssociatorParameters = new TrackAssociatorParameters(par.getParameter<edm::ParameterSet>("TrackAssociatorParameters"), iC);
+  theAssociatorParameters = new TrackAssociatorParameters();
+  theAssociatorParameters->loadParameters(par.getParameter<edm::ParameterSet>("TrackAssociatorParameters"), iC);
   theAssociator = new TrackDetectorAssociator();
 }
 
