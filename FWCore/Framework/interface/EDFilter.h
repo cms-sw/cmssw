@@ -14,11 +14,14 @@ These products should be informational products about the filter decision.
 #include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
+
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 
 #include <string>
 #include <vector>
+#include <mutex>
 
 namespace edm {
   namespace maker {
@@ -34,9 +37,7 @@ namespace edm {
     template <typename T> friend class WorkerT;
     typedef EDFilter ModuleType;
     
-     EDFilter() : ProducerBase() , moduleDescription_(),
-     previousParentage_(), previousParentageId_() {
-    }
+    EDFilter();
     virtual ~EDFilter();
 
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
@@ -90,6 +91,8 @@ namespace edm {
     }
     ModuleDescription moduleDescription_;
     std::vector<BranchID> previousParentage_;
+    SharedResourcesAcquirer resourceAcquirer_;
+    std::mutex mutex_;
     ParentageID previousParentageId_;
   };
 }
