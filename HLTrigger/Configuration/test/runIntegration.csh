@@ -49,8 +49,17 @@ foreach gtag ( $1 )
 
     echo "hltIntegrationTests $config -d $name -i $infile -n 100 -j 4 $flags -x ${autogt} >& $name.log"
     time  hltIntegrationTests $config -d $name -i $infile -n 100 -j 4 $flags -x ${autogt} >& $name.log
-    echo "exit status: $?"
+    set STATUS = $?
+    echo "exit status: $STATUS"
     rm -f  ${name}/*.root
+
+    if ($STATUS != 0) then
+      touch ${name}/issues.txt
+      foreach line ("`cat ${name}/issues.txt`")
+	cp ${name}/${line}.py   ${name}_${line}.py
+	cp ${name}/${line}.log  ${name}_${line}.log
+      end
+    endif
 
   end
 
