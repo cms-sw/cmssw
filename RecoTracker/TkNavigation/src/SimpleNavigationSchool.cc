@@ -32,6 +32,7 @@ SimpleNavigationSchool::SimpleNavigationSchool(const GeometricSearchTracker* the
 {
 
   theAllDetLayersInSystem=&theInputTracker->allLayers();
+  theAllNavigableLayer.resize(theInputTracker->allLayers().size(),nullptr);
 
   // Get barrel layers
   vector<BarrelDetLayer*> blc = theTracker->barrelLayers(); 
@@ -361,7 +362,9 @@ float SimpleNavigationSchool::barrelLength()
 
 void SimpleNavigationSchool::establishInverseRelations() {
 
-  NavigationSetter setter(*this);
+  // NavigationSetter setter(*this);
+
+  setState(navigableLayers());
 
     // find for each layer which are the barrel and forward
     // layers that point to it
@@ -389,12 +392,20 @@ void SimpleNavigationSchool::establishInverseRelations() {
       }
     }
 
-
+    /*
     vector<DetLayer*> lc = theTracker->allLayers();
     for ( vector<DetLayer*>::iterator i = lc.begin(); i != lc.end(); i++) {
       SimpleNavigableLayer* navigableLayer =
 	dynamic_cast<SimpleNavigableLayer*>((**i).navigableLayer());
       navigableLayer->setInwardLinks( reachedBarrelLayersMap[*i],reachedForwardLayersMap[*i] );
+    }
+    */
+    
+    for(auto nl : theAllNavigableLayer) {
+      if (!nl) continue;
+      SimpleNavigableLayer* navigableLayer = static_cast<SimpleNavigableLayer*>(nl);
+      auto dl = nl->detLayer();
+      navigableLayer->setInwardLinks( reachedBarrelLayersMap[dl],reachedForwardLayersMap[dl] );
     }
     
 }
