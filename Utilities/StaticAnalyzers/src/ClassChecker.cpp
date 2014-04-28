@@ -646,7 +646,8 @@ void ClassChecker::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ento::Ana
 					clang::QualType RTy = Ctx.getCanonicalType(RQT);
 					clang::QualType CTy = Ctx.getCanonicalType(CQT);
 					clang::ento::PathDiagnosticLocation ELoc =clang::ento::PathDiagnosticLocation::createBegin( MD , SM );
-					if ( (RTy->isPointerType() || RTy->isReferenceType() ) 	&&(!support::isConst(RTy) ) )  {
+					if ( (RTy->isPointerType() || RTy->isReferenceType() ) &&(!support::isConst(RTy) ) && ( MD->getNameAsString().find("clone")==std::string::npos ) )
+						{
 						std::string buf;
 						llvm::raw_string_ostream os(buf);
 						os << MD->getQualifiedNameAsString() << " is a const member function that returns a pointer or reference to a non-const object \n";
