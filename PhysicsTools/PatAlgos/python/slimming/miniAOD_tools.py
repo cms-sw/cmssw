@@ -14,15 +14,56 @@ def miniAOD_customizeCommon(process):
     process.patMuons.embedTpfmsMuon = False   # no, use best track
     process.patMuons.embedDytMuon   = False   # no, use best track
     #
-    process.patElectrons.embedPflowSuperCluster         = False
-    process.patElectrons.embedPflowBasicClusters        = False
-    process.patElectrons.embedPflowPreshowerClusters    = False
+    # disable embedding of electron and photon associated objects already stored by the ReducedEGProducer
+    process.patElectrons.embedGsfElectronCore = False  ## process.patElectrons.embed in AOD externally stored gsf electron core
+    process.patElectrons.embedSuperCluster    = False  ## process.patElectrons.embed in AOD externally stored supercluster
+    process.patElectrons.embedPflowSuperCluster         = False  ## process.patElectrons.embed in AOD externally stored supercluster
+    process.patElectrons.embedSeedCluster               = False  ## process.patElectrons.embed in AOD externally stored the electron's seedcluster 
+    process.patElectrons.embedBasicClusters             = False  ## process.patElectrons.embed in AOD externally stored the electron's basic clusters 
+    process.patElectrons.embedPreshowerClusters         = False  ## process.patElectrons.embed in AOD externally stored the electron's preshower clusters 
+    process.patElectrons.embedPflowBasicClusters        = False  ## process.patElectrons.embed in AOD externally stored the electron's pflow basic clusters 
+    process.patElectrons.embedPflowPreshowerClusters    = False  ## process.patElectrons.embed in AOD externally stored the electron's pflow preshower clusters 
+    process.patElectrons.embedRecHits         = False  ## process.patElectrons.embed in AOD externally stored the RecHits - can be called from the PATElectronProducer 
+    process.patElectrons.electronSource = cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
+    process.patElectrons.electronIDSources = cms.PSet(
+            # configure many IDs as InputTag <someName> = <someTag> you
+            # can comment out those you don't want to save some disk space
+            eidRobustLoose      = cms.InputTag("reducedEgamma","eidRobustLoose"),
+            eidRobustTight      = cms.InputTag("reducedEgamma","eidRobustTight"),
+            eidLoose            = cms.InputTag("reducedEgamma","eidLoose"),
+            eidTight            = cms.InputTag("reducedEgamma","eidTight"),
+            eidRobustHighEnergy = cms.InputTag("reducedEgamma","eidRobustHighEnergy"),
+        )
+    process.elPFIsoDepositCharged.src = cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
+    process.elPFIsoDepositChargedAll.src = cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
+    process.elPFIsoDepositNeutral.src = cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
+    process.elPFIsoDepositGamma.src = cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
+    process.elPFIsoDepositPU.src = cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
+    #
+    process.patPhotons.embedSuperCluster = False ## whether to process.patPhotons.embed in AOD externally stored supercluster
+    process.patPhotons.embedSeedCluster               = False  ## process.patPhotons.embed in AOD externally stored the photon's seedcluster 
+    process.patPhotons.embedBasicClusters             = False  ## process.patPhotons.embed in AOD externally stored the photon's basic clusters 
+    process.patPhotons.embedPreshowerClusters         = False  ## process.patPhotons.embed in AOD externally stored the photon's preshower clusters 
+    process.patPhotons.embedRecHits         = False  ## process.patPhotons.embed in AOD externally stored the RecHits - can be called from the PATPhotonProducer 
+    process.patPhotons.photonSource = cms.InputTag("reducedEgamma","reducedGedPhotons")
+    process.patPhotons.photonIDSources = cms.PSet(
+                PhotonCutBasedIDLoose = cms.InputTag('reducedEgamma',
+                                                      'PhotonCutBasedIDLoose'),
+                PhotonCutBasedIDTight = cms.InputTag('reducedEgamma',
+                                                      'PhotonCutBasedIDTight')
+              )
+
+    process.phPFIsoDepositCharged.src = cms.InputTag("reducedEgamma","reducedGedPhotons")
+    process.phPFIsoDepositChargedAll.src = cms.InputTag("reducedEgamma","reducedGedPhotons")
+    process.phPFIsoDepositNeutral.src = cms.InputTag("reducedEgamma","reducedGedPhotons")
+    process.phPFIsoDepositGamma.src = cms.InputTag("reducedEgamma","reducedGedPhotons")
+    process.phPFIsoDepositPU.src = cms.InputTag("reducedEgamma","reducedGedPhotons")
     #
     process.selectedPatJets.cut = cms.string("pt > 10")
     process.selectedPatMuons.cut = cms.string("pt > 5 || isPFMuon || (pt > 3 && (isGlobalMuon || isStandAloneMuon || numberOfMatches > 0 || muonID('RPCMuLoose')))") 
     process.selectedPatElectrons.cut = cms.string("") 
     process.selectedPatTaus.cut = cms.string("pt > 20 && tauID('decayModeFinding')> 0.5")
-    process.selectedPatPhotons.cut = cms.string("pt > 15 && hadTowOverEm()<0.15 ")
+    process.selectedPatPhotons.cut = cms.string("")
     #
     from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
     #
@@ -59,7 +100,9 @@ def miniAOD_customizeCommon(process):
 def miniAOD_customizeMC(process):
     process.muonMatch.matched = "prunedGenParticles"
     process.electronMatch.matched = "prunedGenParticles"
+    process.electronMatch.src = cms.InputTag("reducedEgamma","reducedGedGsfElectrons")
     process.photonMatch.matched = "prunedGenParticles"
+    process.photonMatch.src = cms.InputTag("reducedEgamma","reducedGedPhotons")
     process.tauMatch.matched = "prunedGenParticles"
     process.patJetPartonMatch.matched = "prunedGenParticles"
     process.patJetGenJetMatch.matched = "slimmedGenJets"
