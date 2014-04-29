@@ -66,12 +66,14 @@ namespace l1t {
     double egNeighbourThreshold() const { return egNeighbourThreshold_; }
     double egMaxHcalEt() const { return egMaxHcalEt_; }
     double egMaxHOverE() const { return egMaxHOverE_; }
+    double egRelativeJetIsolationCut() const { return egRelativeJetIsolationCut_; }
     std::string egIsoPUSType() const { return egIsoPUSType_; }
     l1t::LUT* egIsolationLUT() { return egIsolationLUT_; }
 
+    void setEgSeedThreshold(double thresh) { egSeedThreshold_ = thresh; }
     void setEgIsoPUSType(std::string type) { egIsoPUSType_ = type; }
     void setEgIsolationLUT(LUT* lut) { egIsolationLUT_ = lut; }
-
+    void setEgRelativeJetIsolationCut(double cutValue) { egRelativeJetIsolationCut_ = cutValue; }
 
     // tau
     double tauSeedThreshold() const { return tauSeedThreshold_; }
@@ -205,7 +207,8 @@ namespace l1t {
     // EG isolation LUT (indexed by eta, Et ?)
     l1t::LUT* egIsolationLUT_;
 
-    
+    // EG relative jet isolation cut (Stage1Layer2)
+    double egRelativeJetIsolationCut_;
 
     /* Jets */
 
