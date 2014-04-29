@@ -17,7 +17,7 @@ void CaloParams::print(std::ostream& out) const {
   out << " Mask H      : " << this->towerMaskH() << std::endl;  
   out << " Mask Sum    : " << this->towerMaskSum() << std::endl;  
   out << " Mask Ratio  : " << this->towerMaskRatio() << std::endl;  
-  out << " Compression : " << this->doTowerCompression() << std::endl;
+  out << " Compression : " << this->doTowerEncoding() << std::endl;
   out << "EG" << std::endl;
   out << "Tau" << std::endl;
   out << "Jets" << std::endl;
