@@ -247,7 +247,7 @@ class MatrixReader(object):
                         else:
                             cmd +=' '+self.addCommand
                     if self.wm and self.revertDqmio=='yes':
-                        cmd=cmd.replace('DQMROOT','DQM')
+                        cmd=cmd.replace('DQMIO','DQM')
                         cmd=cmd.replace('--filetype DQM','')
                 commands.append(cmd)
                 ranStepList.append(stepName)
@@ -337,7 +337,7 @@ class MatrixReader(object):
                 else:
                     line += ' @@@ '+commands[0]
                 if self.revertDqmio=='yes':
-                    line=line.replace('DQMROOT','DQM')
+                    line=line.replace('DQMIO','DQM')
                 writtenWF+=1
                 outFile.write(line+'\n')
 
@@ -351,7 +351,7 @@ class MatrixReader(object):
                     if 'dasquery.log' in cmd: continue
                     line = 'STEP%d ++ '%(stepIndex,) +stepName + ' @@@ '+cmd
                     if self.revertDqmio=='yes':
-                        line=line.replace('DQMROOT','DQM')
+                        line=line.replace('DQMIO','DQM')
                     outFile.write(line+'\n')
                 outFile.write('\n'+'\n')
             outFile.close()
