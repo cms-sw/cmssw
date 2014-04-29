@@ -504,7 +504,7 @@ TrajectoryStateOnSurface MuonTrackAnalyzer::getSeedTSOS(const TrajectorySeed& se
 
   // ask for compatible layers
   vector<const DetLayer*> detLayers;
-  detLayers = initialLayer->compatibleLayers( *initialState.freeState(),detLayerOrder);
+  detLayers = theService->muonNavigationSchool()->compatibleLayers(*initialLayer, *initialState.freeState(),detLayerOrder);
   
   TrajectoryStateOnSurface result = initialState;
   if(detLayers.size()){
