@@ -71,7 +71,7 @@ DTMeantimerPatternReco::reconstruct(const DTSuperLayer* sl,
   while (cand<candidates.end()) {
     
     DTSLRecSegment2D *segment = (**cand);
-    theUpdator->update(segment,1);
+    theUpdator->update(segment);
 
     if (debug) 
       cout<<"Reconstructed 2D segments "<<*segment<<endl;

@@ -51,7 +51,7 @@ class DTSegmentUpdator{
 
     /** do the linear fit on the hits of the segment candidate and update it.
      * Returns false if the segment candidate is not good() */
-    bool fit(DTSegmentCand* seg, bool allow3par, const bool fitdebug) const;
+    bool fit(DTSegmentCand* seg, bool allow3par = false, const bool fitdebug = false) const;
 
     /** ditto for true segment: since the fit is applied on a true segment, by
      * definition the segment is "good", while it's not the case for just
@@ -62,13 +62,13 @@ class DTSegmentUpdator{
      * the 4D direction and position is built. Since the fit is applied on a
      * true segment, by definition the segment is "good", while it's not the
      * case for just candidates */
-    void fit(DTRecSegment4D* seg, bool allow3par) const;
+    void fit(DTRecSegment4D* seg) const;
 
     /// recompute hits position and refit the segment4D
-    void update(DTRecSegment4D* seg, const bool calcT0, bool allow3par) const;
+    void update(DTRecSegment4D* seg, const bool calcT0 = false) const;
 
     /// recompute hits position and refit the segment2D
-    void update(DTRecSegment2D* seg, bool allow3par) const;
+    void update(DTRecSegment2D* seg) const;
 
     void calculateT0corr(DTRecSegment2D* seg) const;
     void calculateT0corr(DTRecSegment4D* seg) const;

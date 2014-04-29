@@ -125,7 +125,7 @@ DTRefitAndCombineReco4D::reconstruct(){
 	  //<<
 
           /// 4d segment: I have the pos along the wire => further update!
-          theUpdator->update(newSeg,0,1);
+          theUpdator->update(newSeg);
           if (debug) cout << "Created a 4D seg " << endl;
 	  result.push_back(newSeg);
         }
