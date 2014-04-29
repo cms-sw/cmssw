@@ -75,14 +75,22 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
 
    }
 
+   // VME produces additional bits on the front used by lumi but not the
+   // trigger, this shift corrects those out by right shifting over them.
+   int hf_lumi_shift = 0;
+   if (0.2 <= rctlsb && rctlsb < 0.3) {
+      hf_lumi_shift = 2;
+   } else if (0.3 <= rctlsb) {
+      hf_lumi_shift = 3;
+   }
    for(SumMap::iterator mapItr = theSumMap.begin(); mapItr != theSumMap.end(); ++mapItr) {
       result.push_back(HcalTriggerPrimitiveDigi(mapItr->first));
       HcalTrigTowerDetId detId(mapItr->second.id());
       if(detId.ietaAbs() >= theTrigTowerGeometry->firstHFTower(detId.version())) { 
          if (detId.version() == 0) {
-            analyzeHF(mapItr->second, result.back(), rctlsb);
+            analyzeHF(mapItr->second, result.back(), hf_lumi_shift);
          } else if (detId.version() == 1) {
-            analyzeHFV1(mapItr->second, result.back());
+            analyzeHFV1(mapItr->second, result.back(), hf_lumi_shift);
          } else {
             // Things are going to go poorly
          }
@@ -316,7 +324,8 @@ void HcalTriggerPrimitiveAlgo::analyze(IntegerCaloSamples & samples, HcalTrigger
 }
 
 
-void HcalTriggerPrimitiveAlgo::analyzeHF(IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result, float rctlsb) {
+void HcalTriggerPrimitiveAlgo::analyzeHF(IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result, const int hf_lumi_shift) {
+   std::vector<bool> finegrain(numberOfSamples_, false);
    HcalTrigTowerDetId detId(samples.id());
 
    // Align digis and TP
@@ -359,20 +368,25 @@ void HcalTriggerPrimitiveAlgo::analyzeHF(IntegerCaloSamples & samples, HcalTrigg
 
    for (int ibin = 0; ibin < tpSamples; ++ibin) {
       int idx = ibin + shift;
-      output[ibin] = samples[idx] / (rctlsb == 0.25 ? 4 : 8);
-      if (output[ibin] > 0x3FF) output[ibin] = 0x3FF;
+      output[ibin] = samples[idx] >> hf_lumi_shift;
+      static const int MAX_OUTPUT = 0x3FF;  // 0x3FF = 1023
+      if (output[ibin] > MAX_OUTPUT) output[ibin] = MAX_OUTPUT;
    }
    outcoder_->compress(output, finegrain, result);
 }
 
-void HcalTriggerPrimitiveAlgo::analyzeHFV1(const IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result) {
+void HcalTriggerPrimitiveAlgo::analyzeHFV1(
+        const IntegerCaloSamples& SAMPLES,
+        HcalTriggerPrimitiveDigi& result,
+        const int HF_LUMI_SHIFT
+        ) {
     // Align digis and TP
-    const int SHIFT = samples.presamples() - numberOfPresamples_;
+    const int SHIFT = SAMPLES.presamples() - numberOfPresamples_;
     assert(SHIFT >= 0);
-    assert((SHIFT + numberOfSamples_) <= samples.size());
+    assert((SHIFT + numberOfSamples_) <= SAMPLES.size());
 
     // Try to find the HFDetails from the map corresponding to our samples
-    const HcalTrigTowerDetId detId(samples.id());
+    const HcalTrigTowerDetId detId(SAMPLES.id());
     HFDetailMap::const_iterator it = theHFDetailMap.find(detId);
     // Missing values will give an empty digi
     if (it == theHFDetailMap.end()) {
@@ -383,7 +397,7 @@ void HcalTriggerPrimitiveAlgo::analyzeHFV1(const IntegerCaloSamples& samples, Hc
     std::vector<bool> finegrain(numberOfSamples_, false);
 
     // Set up out output of IntergerCaloSamples
-    IntegerCaloSamples output(samples.id(), numberOfSamples_);
+    IntegerCaloSamples output(SAMPLES.id(), numberOfSamples_);
     output.setPresamples(numberOfPresamples_);
     for (int ibin = 0; ibin < numberOfSamples_; ++ibin) {
         const int IDX = ibin + SHIFT;
@@ -395,8 +409,12 @@ void HcalTriggerPrimitiveAlgo::analyzeHFV1(const IntegerCaloSamples& samples, Hc
         if (IDX < HF_DETAILS->short_fiber.size()) {
             short_fiber_val = HF_DETAILS->long_fiber[IDX];
         }
-        output[ibin] = long_fiber_val + short_fiber_val;
-        // TODO: Do EM fine grain bit algo (still in development)
+        output[ibin] = (long_fiber_val + short_fiber_val) >> HF_LUMI_SHIFT;
+        static const int MAX_OUTPUT = 0x3FF;  // 0x3FF = 1023
+        if (output[ibin] > MAX_OUTPUT) {
+            output[ibin] = MAX_OUTPUT;
+        }
+        // TODO for Lesko: Do EM fine grain bit algo
     }
     outcoder_->compress(output, finegrain, result);
 }

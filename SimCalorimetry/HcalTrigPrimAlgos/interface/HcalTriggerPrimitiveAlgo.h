@@ -51,9 +51,13 @@ public:
   /// adds the actual RecHits
   void analyze(IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result);
   // Version 0: RCT
-  void analyzeHF(IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result, float rctlsb);
+  void analyzeHF(IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result, const int hf_lumi_shift);
   // Version 1: 1x1
-  void analyzeHFV1(const IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result);
+  void analyzeHFV1(
+          const IntegerCaloSamples& SAMPLES,
+          HcalTriggerPrimitiveDigi& result,
+          const int HF_LUMI_SHIFT
+          );
 
    // Member initialized by constructor
   const HcaluLUTTPGCoder* incoder_;
