@@ -58,8 +58,11 @@ protected:
   //  std::cout << "NVSH: set "<< this << ' ' << typeid(*this).name() 
   //	      << ' ' << state.size() << ' ' << theAllNavigableLayer.size() << std::endl;
 
-    for (auto nl : state)
-      if (nl) theAllNavigableLayer[nl->detLayer()->seqNum()]=nl;
+    for (auto nl : state) {
+      if (!nl) continue;
+      theAllNavigableLayer[nl->detLayer()->seqNum()]=nl;
+      nl->setSchool(this);
+    }
   }
 
   // index correspond to seqNum of DetLayers
