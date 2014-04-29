@@ -45,8 +45,10 @@
 
 ReducedEGProducer::ReducedEGProducer(const edm::ParameterSet& config) :
   keepPhotonSel_(config.getParameter<std::string>("keepPhotons")),
+  slimRelinkPhotonSel_(config.getParameter<std::string>("slimRelinkPhotons")),
   relinkPhotonSel_(config.getParameter<std::string>("relinkPhotons")),
   keepGsfElectronSel_(config.getParameter<std::string>("keepGsfElectrons")),
+  slimRelinkGsfElectronSel_(config.getParameter<std::string>("slimRelinkGsfElectrons")),
   relinkGsfElectronSel_(config.getParameter<std::string>("relinkGsfElectrons"))
 {
 
@@ -207,6 +209,8 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   std::map<reco::CaloClusterPtr, unsigned int> esClusterMap;
   std::set<DetId> rechitMap;
   
+  std::set<unsigned int> superClusterFullRelinkMap;
+  
   //vectors for pfcandidate valuemaps
   std::vector<std::vector<reco::PFCandidateRef>> pfCandIsoPairVecPho;  
   std::vector<std::vector<reco::PFCandidateRef>> pfCandIsoPairVecEle;
@@ -240,14 +244,31 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
       photonCoreMap[photonCore] = photonCores->size() - 1;
     }
     
-    bool relink = relinkPhotonSel_(photon);    
-    if (!relink) continue;
+    bool slimRelink = slimRelinkPhotonSel_(photon);
+    //no supercluster relinking unless slimRelink selection is satisfied
+    if (!slimRelink) continue;
+    
+    bool relink = relinkPhotonSel_(photon);
     
     const reco::SuperClusterRef &superCluster = photon.superCluster();
-    if (!superClusterMap.count(superCluster)) {
+    const auto &mappedsc = superClusterMap.find(superCluster);
+    //get index in output collection in order to keep track whether superCluster
+    //will be subject to full relinking
+    unsigned int mappedscidx = 0;
+    if (mappedsc==superClusterMap.end()) {
       superClusters->push_back(*superCluster);
-      superClusterMap[superCluster] = superClusters->size() - 1;
+      mappedscidx = superClusters->size() - 1;
+      superClusterMap[superCluster] = mappedscidx;
     }
+    else {
+      mappedscidx = mappedsc->second;
+    }
+    
+    //additionally mark supercluster for full relinking
+    if (relink) superClusterFullRelinkMap.insert(mappedscidx);
+    
+    //conversions only for full relinking
+    if (!relink) continue;
     
     const reco::ConversionRefVector &convrefs = photon.conversions();
     for (const reco::ConversionRef &convref : convrefs) {
@@ -291,14 +312,31 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
       gsfElectronCoreMap[gsfElectronCore] = gsfElectronCores->size() - 1;
     }    
     
+    bool slimRelink = slimRelinkGsfElectronSel_(gsfElectron);
+    //no supercluster relinking unless slimRelink selection is satisfied
+    if (!slimRelink) continue;
+    
     bool relink = relinkGsfElectronSel_(gsfElectron);
-    if (!relink) continue;
     
     const reco::SuperClusterRef &superCluster = gsfElectron.superCluster();
-    if (!superClusterMap.count(superCluster)) {
+    const auto &mappedsc = superClusterMap.find(superCluster);
+    //get index in output collection in order to keep track whether superCluster
+    //will be subject to full relinking
+    unsigned int mappedscidx = 0;
+    if (mappedsc==superClusterMap.end()) {
       superClusters->push_back(*superCluster);
-      superClusterMap[superCluster] = superClusters->size() - 1;
+      mappedscidx = superClusters->size() - 1;
+      superClusterMap[superCluster] = mappedscidx;
     }
+    else {
+      mappedscidx = mappedsc->second;
+    }
+    
+    //additionally mark supercluster for full relinking
+    if (relink) superClusterFullRelinkMap.insert(mappedscidx);
+    
+    //conversions only for full relinking
+    if (!relink) continue;
     
     //conversions matched by trackrefs
     for (unsigned int iconv = 0; iconv<conversionHandle->size(); ++iconv) {
@@ -333,10 +371,21 @@ void ReducedEGProducer::produce(edm::Event& theEvent, const edm::EventSetup& the
   }
   
   //loop over output SuperClusters and fill maps
-  for (const reco::SuperCluster &superCluster : *superClusters) {
+  for (unsigned int isc = 0; isc<superClusters->size(); ++isc) {
+    reco::SuperCluster &superCluster = (*superClusters)[isc];
+    
+    //link seed cluster no matter what
     if (!ebeeClusterMap.count(superCluster.seed())) {
       ebeeClusters->push_back(*superCluster.seed());
       ebeeClusterMap[superCluster.seed()] = ebeeClusters->size() - 1;
+    }
+        
+    //only proceed if superCluster is marked for full relinking
+    bool fullrelink = superClusterFullRelinkMap.count(isc);
+    if (!fullrelink) {
+      //zero detid vector which is anyways not useful without stored rechits
+      superCluster.clearHitsAndFractions();
+      continue; 
     }
     
     for (const reco::CaloClusterPtr &cluster : superCluster.clusters()) {

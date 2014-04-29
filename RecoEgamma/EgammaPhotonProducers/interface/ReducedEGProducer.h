@@ -92,8 +92,10 @@ class ReducedEGProducer : public edm::EDProducer {
  std::vector<std::string> outGsfElectronIds_;
  
  StringCutObjectSelector<reco::Photon> keepPhotonSel_;
+ StringCutObjectSelector<reco::Photon> slimRelinkPhotonSel_; 
  StringCutObjectSelector<reco::Photon> relinkPhotonSel_;
  StringCutObjectSelector<reco::GsfElectron> keepGsfElectronSel_;
+ StringCutObjectSelector<reco::GsfElectron> slimRelinkGsfElectronSel_;
  StringCutObjectSelector<reco::GsfElectron> relinkGsfElectronSel_; 
  
  
