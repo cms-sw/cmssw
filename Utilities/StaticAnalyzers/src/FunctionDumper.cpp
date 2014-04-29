@@ -52,7 +52,6 @@ void FDumper::VisitCXXConstructExpr( CXXConstructExpr *CCE ) {
 	CXXConstructorDecl * CCD = CCE->getConstructor();
 	if (!CCD) return;
 	const char *sfile=BR.getSourceManager().getPresumedLoc(CCE->getExprLoc()).getFilename();
-	if (!support::isCmsLocalFile(sfile)) return;
 	std::string sname(sfile);
 	if ( sname.find("/test/") != std::string::npos) return;
 	std::string mname = support::getQualifiedName(*CCD);
@@ -76,7 +75,6 @@ void FDumper::VisitCallExpr( CallExpr *CE ) {
 	FunctionDecl * FD = CE->getDirectCallee();
 	if (!FD) return;
  	const char *sfile=BR.getSourceManager().getPresumedLoc(CE->getExprLoc()).getFilename();
- 	if (!support::isCmsLocalFile(sfile)) return;
 	std::string sname(sfile);
 	if ( sname.find("/test/") != std::string::npos) return;
  	std::string mname = support::getQualifiedName(*FD);
@@ -94,7 +92,6 @@ void FunctionDumper::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager& mgr,
                     BugReporter &BR) const {
 
  	const char *sfile=BR.getSourceManager().getPresumedLoc(MD->getLocation()).getFilename();
-   	if (!support::isCmsLocalFile(sfile)) return;
 	std::string sname(sfile);
 	if ( sname.find("/test/") != std::string::npos) return;
 	if (!MD->doesThisDeclarationHaveABody()) return;
@@ -118,7 +115,6 @@ void FunctionDumper::checkASTDecl(const FunctionTemplateDecl *TD, AnalysisManage
                     BugReporter &BR) const {
 
  	const char *sfile=BR.getSourceManager().getPresumedLoc(TD->getLocation ()).getFilename();
-   	if (!support::isCmsLocalFile(sfile)) return;
 	std::string sname(sfile);
 	if ( sname.find("/test/") != std::string::npos) return;
   
