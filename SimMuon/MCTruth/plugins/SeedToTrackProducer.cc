@@ -21,7 +21,7 @@
 
 
 #include "SeedToTrackProducer.h"
-
+#include <iostream>
 //
 // class declaration
 //
@@ -144,6 +144,8 @@ SeedToTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         unsigned int index_hit = 0;
         for(TrajectorySeed::recHitContainer::const_iterator itRecHits=(L2seeds->at(i)).recHits().first; itRecHits!=(L2seeds->at(i)).recHits().second; ++itRecHits, ++countRH) {
             TrackingRecHit* hit = (itRecHits)->clone();
+            //theTrack.appendHitPatternIndex(*hit, index_hit);
+            std::cout<< "SeedToTrackProducer - insertion index: " << index_hit << std::endl;
             theTrack.appendHitPattern(*hit);
             selectedTrackHits->push_back(hit);
             index_hit++;

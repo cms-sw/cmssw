@@ -40,7 +40,10 @@
 using namespace edm;
 using namespace std;
 using namespace reco;
-//TODO jaldeaar remove all couts, there are some in the middle of the code.
+
+//#define JALDEAAR_PRINTS
+
+#ifdef JALDEAAR_PRINTS
 void printMuon(HitPattern track_hitPattern, HitPattern::HitCategory category)
 {
         cout << "numberOfHits ";
@@ -167,6 +170,8 @@ void printMuon(HitPattern track_hitPattern, HitPattern::HitCategory category)
         cout << track_hitPattern.numberOfDTStationsWithBothViews(category) << ' ';
         cout << endl;
 }
+#endif
+
 // constructor
 MuonTrackLoader::MuonTrackLoader(ParameterSet &parameterSet, edm::ConsumesCollector& iC, const MuonServiceProxy *service): 
   theService(service){
@@ -362,11 +367,12 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
       // set the TrackingRecHitRef (persitent reference of the tracking rec hits)
       trackExtra.add(TrackingRecHitRef(recHitCollectionRefProd, recHitsIndex++ ));
     }
+#ifdef JALDEAAR_PRINTS
     cout << "########################### MUON hitPattern ###########################" << endl;
     printMuon(track.getHitPattern(), HitPattern::TRACK_HITS);
     cout << "########################### MUON hitPattern ###########################" << endl;
     printMuon(updateResult.second.getHitPattern(), HitPattern::TRACK_HITS);
-
+#endif
     // fill the TrackExtraCollection
     trackExtraCollection->push_back(trackExtra);
     
@@ -674,11 +680,12 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
 	// set the TrackingRecHitRef (persitent reference of the tracking rec hits)
 	trackExtra.add(TrackingRecHitRef(recHitCollectionRefProd, recHitsIndex++ ));
     }
-   cout << "########################### MUON hitPattern ###########################" << endl;
+#ifdef JALDEAAR_PRINTS
+    cout << "########################### MUON hitPattern ###########################" << endl;
     printMuon(track.getHitPattern(), HitPattern::TRACK_HITS);
     cout << "########################### MUON hitPattern ###########################" << endl;
     printMuon(updateResult.second.getHitPattern(), HitPattern::TRACK_HITS);
- 
+#endif 
     // fill the TrackExtraCollection
     trackExtraCollection->push_back(trackExtra);
     

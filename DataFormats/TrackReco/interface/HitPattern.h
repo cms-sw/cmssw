@@ -157,8 +157,8 @@ public:
         MISSING_OUTER_HITS = 3
     };
 
-    static const unsigned short MaxHits = 200;
-    static const unsigned short ReservedSpaceForHits = 60;
+    static const unsigned short MaxHits = 72;
+//    static const unsigned short ReservedSpaceForHits = 0;
     static const uint32_t NULL_RETURN = 999999;
     static const uint16_t EMPTY_PATTERN = 0x0;
 
@@ -224,6 +224,7 @@ public:
     template<typename I>
     bool appendHits(const I &begin, const I &end);
     bool appendHit(const TrackingRecHit &hit);
+    bool appendHitIndex(const TrackingRecHit &hit, int index);
 
     // get the pattern of the position-th hit
     uint16_t getHitPattern(HitCategory category, int position) const;
@@ -404,7 +405,6 @@ private:
     bool insert(const TrackingRecHit &hit);
 
     bool insertTrackHit(const uint16_t pattern);
-
     bool insertExpectedInnerHit(const uint16_t pattern);
     bool insertExpectedOuterHit(const uint16_t pattern);
 

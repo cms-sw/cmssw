@@ -14,6 +14,8 @@
 using namespace reco;
 using namespace std;
 
+//#define JALDEAAR_PRINTS
+
 HitPattern::HitPattern() :
     hitCount(0),
     beginTrackHits(0),
@@ -274,6 +276,23 @@ uint16_t HitPattern::encode(const TrackingRecHit &hit)
     uint16_t hitType = (uint16_t) hit.getType();
     pattern |= (hitType & HitTypeMask) << HitTypeOffset;
     return pattern;
+}
+
+bool HitPattern::appendHitIndex(const TrackingRecHit &hit, int index)
+{
+    if unlikely((hitCount == HitPattern::MaxHits)) {
+        return false;
+    }
+    
+    if (index >= HitPattern::MaxHits){
+        return false;
+    }    
+   
+    hitCount = std::max((uint8_t)(index + 1), hitCount);
+    endTrackHits = hitCount;
+
+    hitPattern[index] = HitPattern::encode(hit);
+    return true;
 }
 
 bool HitPattern::appendHit(const TrackingRecHit &hit)
@@ -979,11 +998,13 @@ bool HitPattern::insertTrackHit(const uint16_t pattern)
     }
 
     // we know there is space available because trackHitsCache have preference and
-    // HitPattern is not full if we reached this far.
+    // HitPattern is not full if we've reached this far.
     hitPattern[hitCount] = pattern;
     hitCount++;
     endTrackHits++;
+#ifdef JALDEAAR_PRINTS
     std::cout << std::endl << "HITS TOTALES " << (int)hitCount << std::endl;
+#endif
     return true;
 }
 
@@ -992,10 +1013,12 @@ bool HitPattern::insertExpectedInnerHit(const uint16_t pattern)
     // Storing Hits has preference over storing expectedHits.
     // end == 0 means we haven't inserted any hits yet, but we still might,
     // so we neeed to check for reservations.
+
+    /*
     if unlikely((0 == endTrackHits && ((HitPattern::MaxHits - hitCount) <= HitPattern::ReservedSpaceForHits))) {
         return false;
     }
-
+    */
     if unlikely((0 == beginInner && 0 == endInner)) {
         beginInner = hitCount;
         endInner = beginInner;
@@ -1004,15 +1027,19 @@ bool HitPattern::insertExpectedInnerHit(const uint16_t pattern)
     hitPattern[hitCount] = pattern;
     hitCount++;
     endInner++;
-    std::cout << std::endl << "HITS TOTALES " << (int)hitCount << std::endl;
+#ifdef JALDEAAR_PRINTS
+   std::cout << std::endl << "HITS TOTALES " << (int)hitCount << std::endl;
+#endif
     return true;
 }
 
 bool HitPattern::insertExpectedOuterHit(const uint16_t pattern)
 {
+    /*
     if unlikely((0 == endTrackHits && ((HitPattern::MaxHits - hitCount) <= HitPattern::ReservedSpaceForHits))) {
         return false;
     }
+    */
 
     if unlikely((0 == beginOuter && 0 == endOuter)) {
         beginOuter = hitCount;
@@ -1022,7 +1049,9 @@ bool HitPattern::insertExpectedOuterHit(const uint16_t pattern)
     hitPattern[hitCount] = pattern;
     hitCount++;
     endOuter++;
+#ifdef JALDEAAR_PRINTS
     std::cout << std::endl << "HITS TOTALES " << (int)hitCount << std::endl;
+#endif
     return true;
 }
 

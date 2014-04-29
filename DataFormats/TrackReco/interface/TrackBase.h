@@ -310,6 +310,7 @@ public:
     bool setHitPattern(const I &begin, const I &end);
 
     bool appendHitPattern(const TrackingRecHit &hit);
+    bool appendHitPatternIndex(const TrackingRecHit &hit, int index);
 
     //Track algorithm
     void setAlgorithm(const TrackAlgorithm a, bool set = true);
@@ -344,7 +345,6 @@ public:
 private:
     // hit pattern
     HitPattern hitPattern_;
-
     // perigee 5x5 covariance matrix
     float covariance_[covarianceSize];
 
