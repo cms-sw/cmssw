@@ -34,14 +34,19 @@ ShashlikGeometry* ShashlikGeometryBuilderFromDDD::build (const DDCompactView*  c
 		      true                               );
   fv.addFilter(filter);
 
+  bool doSubDets = fv.firstChild();
+
   unsigned int counter = 0;
-  while (fv.next()) {
+  while (doSubDets) {
     if (fv.copyNumbers().size() > 2) { // deep enough
       int moduleNr = *(fv.copyNumbers().end()-1);
       int supermoduleNr = *(fv.copyNumbers().end()-2);
       int zSide = *(fv.copyNumbers().end()-3) == 1 ? 1 : -1;
       std::pair<int,int> xy = topology.getXY (supermoduleNr, moduleNr); 
       EKDetId detId (xy.first, xy.second, zSide);
+      EKDetId testDetId( topology.denseId2detId(counter));
+      std::cout << detId << ":" << testDetId << "\n";
+      
       if (!topology.validXY (xy.first, xy.second)) {
 	edm::LogError("HGCalGeom") << "ShashlikGeometryLoaderFromDDD: ignore invalid DDD copy "
 				   << fv.logicalPart().name().name() 
@@ -119,6 +124,8 @@ ShashlikGeometry* ShashlikGeometryBuilderFromDDD::build (const DDCompactView*  c
 		     parmPtr, 
 		     detId ) ;
     }
+
+    doSubDets = fv.nextSibling(); // go to next layer
   }
     
   assert( counter == numberOfCells ) ;
