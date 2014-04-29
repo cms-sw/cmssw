@@ -27,7 +27,8 @@ class QGTagger : public edm::EDProducer{
       edm::EDGetTokenT<reco::PFJetCollection> jets_token;
       edm::EDGetTokenT<reco::VertexCollection> vertex_token;
       edm::EDGetTokenT<double> rho_token;
-      std::string jetsLabel, jecService;
+      std::string jetsLabel, jecService, systLabel;
+      bool useJEC, produceSyst;
       QGLikelihoodCalculator *qgLikelihood;
       float pt, axis2, ptD;
       int mult;

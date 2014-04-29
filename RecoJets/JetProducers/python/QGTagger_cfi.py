@@ -17,6 +17,16 @@ QGPoolDBESSource = cms.ESSource("PoolDBESSource",
             tag    = cms.string('QGLikelihoodObject_'+qgDatabaseVersion+'_AK5PF'),
             label  = cms.untracked.string('QGL_AK5PF')
         ),
+        cms.PSet(
+            record = cms.string('QGLikelihoodSystematicsRcd'),
+            tag    = cms.string('QGLikelihoodSystematicsObject_'+qgDatabaseVersion+'_Pythia'),
+            label  = cms.untracked.string('QGL_Syst_Pythia')
+        ),
+        cms.PSet(
+            record = cms.string('QGLikelihoodSystematicsRcd'),
+            tag    = cms.string('QGLikelihoodSystematicsObject_'+qgDatabaseVersion+'_Herwig++'),
+            label  = cms.untracked.string('QGL_Syst_Herwig++')
+        ),
       ),
       connect = cms.string('sqlite:QGL_'+qgDatabaseVersion+'.db')
 )
@@ -24,5 +34,6 @@ QGPoolDBESSource = cms.ESSource("PoolDBESSource",
 QGTagger = cms.EDProducer('QGTagger',
   srcRho 		= cms.InputTag('fixedGridRhoFastjetAll'),		
   srcVertexCollection	= cms.InputTag('offlinePrimaryVerticesWithBS'),
-  jec			= cms.string('')
+  jec			= cms.string(''),
+  systematicsLabel	= cms.string('')
 )
