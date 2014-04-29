@@ -358,7 +358,7 @@ CSCMotherboardME21::run(const CSCWireDigiCollection* wiredc,
           // clct quality
           const int quality(clct->bestCLCT[bx_clct].getQuality());
           // low quality ALCT
-          const bool lowQualityALCT(alct->bestALCT[bx_alct].getQuality() == 4);
+          const bool lowQualityALCT(alct->bestALCT[bx_alct].getQuality() == 0);
           // low quality ALCT or CLCT
           const bool lowQuality(quality<4 or lowQualityALCT);
           if (debug_gem_matching) std::cout << "++Valid ME21 CLCT: " << clct->bestCLCT[bx_clct] << std::endl;
