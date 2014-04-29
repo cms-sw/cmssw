@@ -16,6 +16,7 @@
 
 //#include "CondFormats/L1TObjects/interface/FirmwareVersion.h"
 
+#include <memory>
 #include <iostream>
 #include <vector>
 #include <cmath>
@@ -68,38 +69,40 @@ namespace l1t {
     double egMaxHcalEt() const { return egMaxHcalEt_; }
     double egMaxHOverE() const { return egMaxHOverE_; }
     std::string egIsoPUSType() const { return egIsoPUSType_; }
-    l1t::LUT* egIsolationLUT() { return egIsolationLUT_; }
+    l1t::LUT* egIsolationLUT() { return egIsolationLUT_.get(); }
 
     void setEgSeedThreshold(double thresh) { egSeedThreshold_ = thresh; }
     void setEgNeighbourThreshold(double thresh) { egNeighbourThreshold_ = thresh; }
     void setEgMaxHcalEt(double cut) { egMaxHcalEt_ = cut; }
     void setEgMaxHOverE(double cut) { egMaxHOverE_ = cut; }
     void setEgIsoPUSType(std::string type) { egIsoPUSType_ = type; }
-    void setEgIsolationLUT(LUT* lut) { egIsolationLUT_ = lut; }
+    void setEgIsolationLUT(std::shared_ptr<LUT> lut) { egIsolationLUT_ = lut; }
 
 
     // tau
     double tauSeedThreshold() const { return tauSeedThreshold_; }
     double tauNeighbourThreshold() const { return tauNeighbourThreshold_; }
     std::string tauIsoPUSType() const { return tauIsoPUSType_; }
-    l1t::LUT* tauIsolationLUT() { return tauIsolationLUT_; }
+    l1t::LUT* tauIsolationLUT() { return tauIsolationLUT_.get(); }
 
     void setTauSeedThreshold(double thresh) { tauSeedThreshold_ = thresh; }
     void setTauNeighbourThreshold(double thresh) { tauNeighbourThreshold_ = thresh; }
     void setTauIsoPUSType(std::string type) { tauIsoPUSType_ = type; }
-    void setTauIsolationLUT(LUT* lut) { tauIsolationLUT_ = lut; }
+    void setTauIsolationLUT(std::shared_ptr<LUT> lut) { tauIsolationLUT_ = lut; }
 
 
     // jets
     double jetSeedThreshold() const { return jetSeedThreshold_; }
     double jetNeighbourThreshold() const { return jetNeighbourThreshold_; }
     std::string jetPUSType() const { return jetPUSType_; }
+    std::vector<double> jetPUSParams() { return jetPUSParams_; }
     std::string jetCalibrationType() const { return jetCalibrationType_; }
     std::vector<double> jetCalibrationParams() { return jetCalibrationParams_; }
 
     void setJetSeedThreshold(double thresh) { jetSeedThreshold_ = thresh; }
     void setJetNeighbourThreshold(double thresh) { jetNeighbourThreshold_ = thresh; }
     void setJetPUSType(std::string type) { jetPUSType_ = type; }
+    void setJetPUSParams(std::vector<double> params) { jetPUSParams_ = params; }
     void setJetCalibrationType(std::string type) { jetCalibrationType_ = type; }
     void setJetCalibrationParams(std::vector<double> params) { jetCalibrationParams_ = params; }
 
@@ -219,7 +222,7 @@ namespace l1t {
     std::string egIsoPUSType_;
 
     // EG isolation LUT (indexed by eta, Et ?)
-    l1t::LUT* egIsolationLUT_;
+    std::shared_ptr<l1t::LUT> egIsolationLUT_;
 
 
 
@@ -235,7 +238,7 @@ namespace l1t {
     std::string tauIsoPUSType_;
 
     // Tau isolation LUT (indexed by eta, Et ?)
-    l1t::LUT* tauIsolationLUT_;
+     std::shared_ptr<l1t::LUT> tauIsolationLUT_;
 
 
 
@@ -249,6 +252,9 @@ namespace l1t {
 
     // jet PUS scheme ("None" means no PU)
     std::string jetPUSType_;                    
+
+    // jet PU params
+    std::vector<double> jetPUSParams_;
 
     // jet calibration scheme ("None" means no JEC)
     std::string jetCalibrationType_;

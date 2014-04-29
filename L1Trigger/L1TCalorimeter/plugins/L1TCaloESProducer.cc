@@ -19,14 +19,15 @@
 #include <memory>
 #include "boost/shared_ptr.hpp"
 #include <iostream>
+#include <fstream>
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
-
 #include "FWCore/Framework/interface/ESHandle.h"
-
 #include "FWCore/Framework/interface/ESProducts.h"
+
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "CondFormats/L1TObjects/interface/CaloParams.h"
 #include "CondFormats/DataRecord/interface/L1TCaloParamsRcd.h"
@@ -80,7 +81,7 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
   m_params.setTowerNBitsE(conf.getParameter<int>("towerNBitsE"));
   m_params.setTowerNBitsSum(conf.getParameter<int>("towerNBitsSum"));
   m_params.setTowerNBitsRatio(conf.getParameter<int>("towerNBitsRatio"));
-  m_params.setTowerEncoding(conf.getParameter<bool>("towerCompression"));
+  m_params.setTowerEncoding(conf.getParameter<bool>("towerEncoding"));
 
   // regions
   m_params.setRegionPUSType(conf.getParameter<std::string>("regionPUSType"));
@@ -92,14 +93,22 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
   m_params.setEgMaxHcalEt(conf.getParameter<double>("egMaxHcalEt"));
   m_params.setEgMaxHOverE(conf.getParameter<double>("egMaxHOverE"));
   m_params.setEgIsoPUSType(conf.getParameter<std::string>("egIsoPUSType"));
-  //  m_params.setEgIsolationLUT(lut);
+  
+  edm::FileInPath egIsoLUTFile = conf.getParameter<edm::FileInPath>("egIsoLUTFile");
+  std::ifstream egIsoLUTStream(egIsoLUTFile.fullPath());
+  std::shared_ptr<l1t::LUT> egIsoLUT( new l1t::LUT(32,10,egIsoLUTStream) );
+  m_params.setEgIsolationLUT(egIsoLUT);
 
   // tau
   m_params.setTauSeedThreshold(conf.getParameter<double>("tauSeedThreshold"));
   m_params.setTauNeighbourThreshold(conf.getParameter<double>("tauNeighbourThreshold"));
   m_params.setTauIsoPUSType(conf.getParameter<std::string>("tauIsoPUSType"));
-  //  m_params.setTauIsolationLUT(lut);
-  
+
+  edm::FileInPath tauIsoLUTFile = conf.getParameter<edm::FileInPath>("tauIsoLUTFile");
+  std::ifstream tauIsoLUTStream(tauIsoLUTFile.fullPath());
+  std::shared_ptr<l1t::LUT> tauIsoLUT( new l1t::LUT(32,10,tauIsoLUTStream) );
+  m_params.setTauIsolationLUT(tauIsoLUT);
+
   // jets
   m_params.setJetSeedThreshold(conf.getParameter<double>("jetSeedThreshold"));
   m_params.setJetNeighbourThreshold(conf.getParameter<double>("jetNeighbourThreshold"));
@@ -108,17 +117,17 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
   m_params.setJetCalibrationParams(conf.getParameter<std::vector<double> >("jetCalibrationParams"));
   
   // sums
-  m_params.setEtSumEtaMin(0, conf.getParameter<double>("ettEtaMin"));
-  m_params.setEtSumEtaMax(0, conf.getParameter<double>("ettEtaMax"));
+  m_params.setEtSumEtaMin(0, conf.getParameter<int>("ettEtaMin"));
+  m_params.setEtSumEtaMax(0, conf.getParameter<int>("ettEtaMax"));
   m_params.setEtSumEtThreshold(0, conf.getParameter<double>("ettEtThreshold"));
-  m_params.setEtSumEtaMin(1, conf.getParameter<double>("httEtaMin"));
-  m_params.setEtSumEtaMax(1, conf.getParameter<double>("httEtaMax"));
+  m_params.setEtSumEtaMin(1, conf.getParameter<int>("httEtaMin"));
+  m_params.setEtSumEtaMax(1, conf.getParameter<int>("httEtaMax"));
   m_params.setEtSumEtThreshold(1, conf.getParameter<double>("httEtThreshold"));
-  m_params.setEtSumEtaMin(2, conf.getParameter<double>("metEtaMin"));
-  m_params.setEtSumEtaMax(2, conf.getParameter<double>("metEtaMax"));
+  m_params.setEtSumEtaMin(2, conf.getParameter<int>("metEtaMin"));
+  m_params.setEtSumEtaMax(2, conf.getParameter<int>("metEtaMax"));
   m_params.setEtSumEtThreshold(2, conf.getParameter<double>("metEtThreshold"));
-  m_params.setEtSumEtaMin(3, conf.getParameter<double>("mhtEtaMin"));
-  m_params.setEtSumEtaMax(3, conf.getParameter<double>("mhtEtaMax"));
+  m_params.setEtSumEtaMin(3, conf.getParameter<int>("mhtEtaMin"));
+  m_params.setEtSumEtaMax(3, conf.getParameter<int>("mhtEtaMax"));
   m_params.setEtSumEtThreshold(3, conf.getParameter<double>("mhtEtThreshold"));
   
 }
