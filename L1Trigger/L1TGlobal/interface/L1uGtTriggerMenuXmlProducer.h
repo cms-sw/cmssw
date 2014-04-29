@@ -32,7 +32,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "CondFormats/L1TObjects/interface/L1uGtTriggerMenu.h"
-#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
+#include "CondFormats/DataRecord/interface/L1uGtTriggerMenuRcd.h"
 
 // forward declarations
 
@@ -55,7 +55,7 @@ public:
 
     /// L1 GT parameters
     boost::shared_ptr<L1uGtTriggerMenu> produceGtTriggerMenu(
-        const L1GtTriggerMenuRcd&);
+        const L1uGtTriggerMenuRcd&);
 
 private:
 

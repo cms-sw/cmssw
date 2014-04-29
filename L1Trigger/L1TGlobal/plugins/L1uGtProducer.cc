@@ -63,8 +63,8 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 // ** UNknown Change ***
-#include "CondFormats/L1TObjects/interface/L1GtStableParameters.h"
-#include "CondFormats/DataRecord/interface/L1GtStableParametersRcd.h"
+#include "CondFormats/L1TObjects/interface/L1uGtStableParameters.h"
+#include "CondFormats/DataRecord/interface/L1uGtStableParametersRcd.h"
 
 #include "CondFormats/L1TObjects/interface/L1GtParameters.h"
 #include "CondFormats/DataRecord/interface/L1GtParametersRcd.h"
@@ -301,12 +301,12 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
     // local cache & check on cacheIdentifier
 
     unsigned long long l1GtStableParCacheID =
-            evSetup.get<L1GtStableParametersRcd>().cacheIdentifier();
+            evSetup.get<L1uGtStableParametersRcd>().cacheIdentifier();
 
     if (m_l1GtStableParCacheID != l1GtStableParCacheID) {
 
-        edm::ESHandle< L1GtStableParameters > l1GtStablePar;
-        evSetup.get< L1GtStableParametersRcd >().get( l1GtStablePar );
+        edm::ESHandle< L1uGtStableParameters > l1GtStablePar;
+        evSetup.get< L1uGtStableParametersRcd >().get( l1GtStablePar );
         m_l1GtStablePar = l1GtStablePar.product();
 
         // number of physics triggers

@@ -39,7 +39,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-class L1GtStableParameters;
+class L1uGtStableParameters;
 class L1GtParameters;
 class L1GtBoardMaps;
 
@@ -71,7 +71,7 @@ private:
     /// cached stuff
 
     /// stable parameters
-    const L1GtStableParameters* m_l1GtStablePar;
+    const L1uGtStableParameters* m_l1GtStablePar;
     unsigned long long m_l1GtStableParCacheID;
 
     /// number of physics triggers
