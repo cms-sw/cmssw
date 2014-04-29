@@ -76,7 +76,7 @@
 // class decleration
 //
 
-class SiStripMonitorMuonHLT : public DQMEDAnalyzer {
+class SiStripMonitorMuonHLT : public thread_unsafe::DQMEDAnalyzer {
 
   //structure which contains all MonitorElement for a Layer
   // there is 34 layers in the tracker
