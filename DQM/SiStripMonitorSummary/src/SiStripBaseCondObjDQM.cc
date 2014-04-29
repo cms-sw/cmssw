@@ -67,13 +67,15 @@ void SiStripBaseCondObjDQM::analysis(const edm::EventSetup & eSetup_){
   if(Mod_On_ )                                            { fillModMEs    (activeDetIds, eSetup_); }
   if(SummaryOnLayerLevel_On_ || SummaryOnStringLevel_On_ ){ fillSummaryMEs(activeDetIds, eSetup_); }
 
-  std::string filename = hPSet_.getParameter<std::string>("TkMapName");
-  if (filename!=""){
-    char sRun[128];
-    sprintf(sRun,"_Run_%d",eSetup_.iovSyncValue().eventID().run());
-    filename.insert(filename.find("."),sRun);
-    
-    saveTkMap(filename.c_str(), minValue, maxValue);
+  if(fPSet_.getParameter<bool>("TkMap_On") || hPSet_.getParameter<bool>("TkMap_On")) {
+    std::string filename = hPSet_.getParameter<std::string>("TkMapName");
+    if (filename!=""){
+      char sRun[128];
+      sprintf(sRun,"_Run_%d",eSetup_.iovSyncValue().eventID().run());
+      filename.insert(filename.find("."),sRun);
+      
+      saveTkMap(filename.c_str(), minValue, maxValue);
+    }
   }
 }
 // -----
