@@ -32,7 +32,7 @@ void l1t::Stage2TowerDecompressAlgorithmFirmwareImp1::processEvent(const std::ve
 	tow != inTowers.end();
 	++tow ) {
 
-    if (!params_->doTowerCompression()) {
+    if (!params_->doTowerEncoding()) {
       
       outTowers.push_back( *tow );
       
