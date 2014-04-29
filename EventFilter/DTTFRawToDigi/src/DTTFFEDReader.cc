@@ -34,7 +34,6 @@ DTTFFEDReader::DTTFFEDReader(const edm::ParameterSet& pset) {
   DTTFToken_ = consumes<FEDRawDataCollection>(pset.getParameter<edm::InputTag>("DTTF_FED_Source"));
 
   verbose_ =  pset.getUntrackedParameter<bool>("verbose",false);
-  consumes<FEDRawDataCollection>(getDTTFInputTag());
 }
 
 DTTFFEDReader::~DTTFFEDReader(){}
