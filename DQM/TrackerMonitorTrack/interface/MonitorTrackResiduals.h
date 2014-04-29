@@ -28,7 +28,7 @@ namespace edm { class Event; }
 
 typedef std::map<int32_t, MonitorElement *> HistoClass;
 
-class MonitorTrackResiduals : public DQMEDAnalyzer {
+class MonitorTrackResiduals : public thread_unsafe::DQMEDAnalyzer {
  public:
   // constructors and EDAnalyzer Methods
   explicit MonitorTrackResiduals(const edm::ParameterSet&);

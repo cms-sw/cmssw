@@ -56,7 +56,7 @@ class SimTrack;
 
 
 
-class PhotonValidator : public DQMEDAnalyzer
+class PhotonValidator : public thread_unsafe::DQMEDAnalyzer
 {
 
  public:
