@@ -272,8 +272,6 @@ namespace l1t {
 
 
 
-    /* CCLA */
-
     // probbaly redundant with above parameters  ?
     bool PUSubtract_;
     std::vector<double> regionSubtraction_;    //pu subtraction look up table, see region_cfi
