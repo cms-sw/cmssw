@@ -1,16 +1,10 @@
 // Author: Benedikt Hegner, Tom Cornelis
 // Email:  benedikt.hegner@cern.ch, tom.cornelis@cern.ch
 
-#include <sstream>
-#include <stdlib.h>  
 #include <vector>
-#include <iterator>
-#include <algorithm>
-#include <sstream>
 #include <memory>
 #include <string>
 #include <fstream>
-#include <iostream>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"

@@ -3,19 +3,13 @@
 
 #include "TFile.h"
 #include "TList.h"
-#include "TString.h"
 #include "TKey.h"
 #include "TH1.h"
 #include <sstream>
 #include <stdlib.h>  
 #include <vector>
-#include <iterator>
-#include <algorithm>
-#include <sstream>
 #include <memory>
 #include <string>
-#include <fstream>
-#include <iostream>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -62,7 +56,7 @@ void QGLikelihoodDBWriter::beginJob(){
 
   // Get the ROOT files and the keys to the histogram
   TFile *f = TFile::Open(edm::FileInPath(inputRootFile.c_str()).fullPath().c_str());
-  TList * keys = f->GetListOfKeys();
+  TList *keys = f->GetListOfKeys();
   if(!keys){
     edm::LogError("NoKeys") << "There are no keys in the input file." << std::endl;
     return;
@@ -147,7 +141,7 @@ void QGLikelihoodDBWriter::beginJob(){
       entry.category = category;
       entry.histogram = histogram; 
       entry.mean = th1hist->GetMean();
-      payload->data.push_back( entry );
+      payload->data.push_back(entry);
     }
   }
 
@@ -166,7 +160,7 @@ void QGLikelihoodDBWriter::beginJob(){
 
   edm::Service<cond::service::PoolDBOutputService> s;
   if(s.isAvailable()){ 
-    edm::LogInfo   ("UserOutput") <<  "Setting up payload with " << payload->data.size() <<  " entries and tag " << payloadTag << std::endl;
+    edm::LogInfo("UserOutput") <<  "Setting up payload with " << payload->data.size() <<  " entries and tag " << payloadTag << std::endl;
     if (s->isNewTagRequest(payloadTag))	s->createNewIOV<QGLikelihoodObject>(payload, s->beginOfTime(), s->endOfTime(), payloadTag);
     else s->appendSinceTime<QGLikelihoodObject>(payload, 111, payloadTag);
   }
