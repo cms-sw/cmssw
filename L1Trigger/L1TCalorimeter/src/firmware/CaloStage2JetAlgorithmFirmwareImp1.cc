@@ -36,8 +36,7 @@ void l1t::CaloStage2JetAlgorithmFirmwareImp1::processEvent(const std::vector<l1t
 
 
   // find all possible jets
-  //create(towers, jets, params_->doDonutSubtraction());
-  create(towers, jets, false);
+  create(towers, jets, (params_->jetPUSType()=="Donut"));
 
   // remove overlaps
   filter(jets);
