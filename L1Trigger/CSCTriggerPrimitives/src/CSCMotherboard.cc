@@ -97,7 +97,9 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
     alctParams = conf.getParameter<edm::ParameterSet>("alctSLHC");
     clctParams = conf.getParameter<edm::ParameterSet>("clctSLHC");
     tmbParams  =  conf.getParameter<edm::ParameterSet>("tmbSLHC");
-    if (theStation==2){
+    const edm::ParameterSet me21mbParams(tmbParams.getUntrackedParameter<edm::ParameterSet>("me21ILT",edm::ParameterSet()));
+    const bool runME21ILT(me21mbParams.getUntrackedParameter<bool>("runME21ILT",false));
+    if (theStation==2 and runME21ILT){
       alctParams = conf.getParameter<edm::ParameterSet>("alctSLHCME21");
       clctParams = conf.getParameter<edm::ParameterSet>("clctSLHCME21");
     }
