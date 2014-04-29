@@ -20,7 +20,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
-RPCRecHitBaseAlgo::RPCRecHitBaseAlgo(const edm::ParameterSet& config) {
+RPCRecHitBaseAlgo::RPCRecHitBaseAlgo(const edm::ParameterSet& config):
+  stationToUse_(config.getUntrackedParameter<int>("stationToUse",3))
+{
   //  theSync = RPCTTrigSyncFactory::get()->create(config.getParameter<string>("tTrigMode"),
   //config.getParameter<ParameterSet>("tTrigModeConfig"));
 }
@@ -56,8 +58,25 @@ edm::OwnVector<RPCRecHit> RPCRecHitBaseAlgo::reconstruct(const RPCRoll& roll,
     int clusterSize=cl->clusterSize(); 
     RPCRecHit*  recHit = new RPCRecHit(rpcId,cl->bx(),firstClustStrip,clusterSize,point,tmpErr);
 
+    int station = (int) rpcId.station();
+    int ring = (int) rpcId.ring();
 
-    result.push_back(recHit);
+    switch(stationToUse_){
+
+	case 0: if(!((station == 3 || station == 4) && ring == 1)) result.push_back(recHit); // NO RPC UPGRADE
+		break;
+	case 1: if(!(station == 4 && ring == 1)) result.push_back(recHit); // RE3/1
+		break;
+	case 2: if(!(station == 3 && ring == 1)) result.push_back(recHit); //RE4/1
+		break;
+	case 3: result.push_back(recHit); // RE3/1 + RE4/1
+		break;
+	default: result.push_back(recHit); // RE3/1 + RE4/1
+		break;
+
+    }
+
+    //result.push_back(recHit);
   }
   return result;
 }

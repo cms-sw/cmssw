@@ -65,5 +65,11 @@ class GEMRecHitBaseAlgo {
                        const GlobalPoint& globPos, 
                        LocalPoint& Point,
                        LocalError& error) const = 0;
+
+
+
+  private:
+
+    int stationToUse_;
 };
 #endif
