@@ -151,7 +151,10 @@ void  ConversionTrackCandidateProducer::beginRun (edm::Run const& r , edm::Event
 
   edm::ESHandle<NavigationSchool> nav;
   theEventSetup.get<NavigationSchoolRecord>().get("SimpleNavigationSchool", nav);
-  theTrajectoryBuilder_->setNavigationSchool(nav.product());
+  const NavigationSchool *navigation = nav.product();
+  theTrajectoryBuilder_->setNavigationSchool(navigation);
+  theOutInSeedFinder_->setNavigationSchool(navigation);
+  theInOutSeedFinder_->setNavigationSchool(navigation);
 }
 
 
