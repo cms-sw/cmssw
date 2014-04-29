@@ -83,7 +83,7 @@ void SeedGeneratorFromProtoTracksEDProducer::produce(edm::Event& ev, const edm::
 
     // check the compatibility with a primary vertex
     bool keepTrack = false;
-    if ( (!foundVertices) | vertices->empty() ) { 
+    if ( (!foundVertices) || vertices->empty() ) { 
       if (useEventsWithNoVertex) keepTrack = true;
     } 
     else if (usePV_){
