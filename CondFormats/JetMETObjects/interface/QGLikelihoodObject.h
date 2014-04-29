@@ -26,8 +26,17 @@ struct QGLikelihoodObject{
     float mean;
   };
 
- QGLikelihoodCategory qgValidRange;
- std::vector<Entry> data;
+  QGLikelihoodCategory qgValidRange;
+  std::vector<Entry> data;
+};
+
+/// QGLikelihoodSystematicsObject containing the parameters for the systematic smearing
+struct QGLikelihoodSystematicsObject{
+  struct EntrySystematics{
+    QGLikelihoodCategory systCategory;
+    float a, b, lmin, lmax;
+  };
+  std::vector<EntrySystematics> systData;
 };
 
 /// Test if parameters are compatible with category
