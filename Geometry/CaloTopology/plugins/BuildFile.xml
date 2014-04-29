@@ -1,0 +1,8 @@
+<library   file="*.cc" name="GeometryCaloTopologyPlugins">
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="Geometry/CaloTopology"/>
+  <use   name="Geometry/Records"/>
+  <use   name="boost"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
