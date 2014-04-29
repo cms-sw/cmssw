@@ -12,6 +12,7 @@
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include <sstream>
 
+#define JALDEAAR_PRINTS
 MuonTrackProducer::MuonTrackProducer(const edm::ParameterSet& parset) :
   muonsTag(parset.getParameter< edm::InputTag >("muonsTag")),
   inputDTRecSegment4DCollection_(parset.getParameter<edm::InputTag>("inputDTRecSegment4DCollection")),
@@ -173,11 +174,15 @@ void MuonTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 	    index_hit++;
         selectedTrackHits->push_back( hit );
         newExtra->add( TrackingRecHitRef( rHits, hidx++ ) );
+#ifdef JALDEAAR_PRINTS
         std::cout << "MuonTrackProducer - for skipping index: " << index_hit << std::endl;
+#endif
       }
 
       if (trackType == "innerTrackPlusSegments") { 
-	
+#ifdef JALDEAAR_PRINTS
+          std::cout << "Track type: " << trackType << std::endl;
+#endif
 	int wheel, station, sector;
 	int endcap, /*station, */ ring, chamber;
 	
@@ -254,11 +259,10 @@ void MuonTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 		  for(std::vector<const TrackingRecHit*>::const_iterator ihit = phiHits.begin();
 		      ihit != phiHits.end(); ++ihit) {
 		    TrackingRecHit* seghit = (*ihit)->clone();
-
-            //newTrk->appendHitPatternIndex(*seghit, index_hit);
 		    newTrk->appendHitPattern(*seghit);
+#ifdef JALDEAAR_PRINTS
             std::cout << "MuonTrackProducer - insertion index (1): " << index_hit << std::endl;
-
+#endif
             //		    edm::LogVerbatim("MuonTrackProducer")<<"hit pattern for position "<<index_hit<<" set to:";
 		    //		    newTrk->hitPattern().printHitPattern(index_hit, std::cout);
 		    index_hit++;
@@ -273,11 +277,10 @@ void MuonTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 		  for(std::vector<const TrackingRecHit*>::const_iterator ihit = zedHits.begin();
 		      ihit != zedHits.end(); ++ihit) {
 		    TrackingRecHit* seghit = (*ihit)->clone();
-
-            //newTrk->appendHitPatternIndex(*seghit, index_hit);
 		    newTrk->appendHitPattern(*seghit);
+#ifdef JALDEAAR_PRINTS
             std::cout << "MuonTrackProducer - insertion index (2): " << index_hit << std::endl;
-
+#endif
             //		    edm::LogVerbatim("MuonTrackProducer")<<"hit pattern for position "<<index_hit<<" set to:";
 		    //		    newTrk->hitPattern().printHitPattern(index_hit, std::cout);
 		    index_hit++;
@@ -305,11 +308,10 @@ void MuonTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 		for(std::vector<const TrackingRecHit*>::const_iterator ihit = hits.begin();
 		    ihit != hits.end(); ++ihit) {
 		  TrackingRecHit* seghit = (*ihit)->clone();
-
-          //newTrk->appendHitPatternIndex(*seghit, index_hit);
 		  newTrk->appendHitPattern(*seghit);
-          std::cout << "MuonTrackProducer - insertion index (333): " << index_hit << std::endl;
-
+#ifdef JALDEAAR_PRINTS
+          std::cout << "MuonTrackProducer - insertion index (3): " << index_hit << std::endl;
+#endif
           //		    edm::LogVerbatim("MuonTrackProducer")<<"hit pattern for position "<<index_hit<<" set to:";
 		  //		    newTrk->hitPattern().printHitPattern(index_hit, std::cout);
 		  index_hit++;
