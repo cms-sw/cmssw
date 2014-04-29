@@ -31,10 +31,9 @@ DTTFFEDReader::DTTFFEDReader(const edm::ParameterSet& pset) {
   produces<L1MuDTChambThContainer>();
   produces<L1MuDTTrackContainer>("DATA");
 
-  DTTFInputTag = pset.getParameter<edm::InputTag>("DTTF_FED_Source");
+  DTTFToken_ = consumes<FEDRawDataCollection>(pset.getParameter<edm::InputTag>("DTTF_FED_Source"));
 
   verbose_ =  pset.getUntrackedParameter<bool>("verbose",false);
-  consumes<FEDRawDataCollection>(getDTTFInputTag());
 }
 
 DTTFFEDReader::~DTTFFEDReader(){}
@@ -109,7 +108,7 @@ void DTTFFEDReader::process(edm::Event& e) {
   //--> Header
 
   edm::Handle<FEDRawDataCollection> data;
-  e.getByLabel(getDTTFInputTag(),data);
+  e.getByToken(DTTFToken_,data);
   FEDRawData dttfdata = data->FEDData(0x030C);
   if ( dttfdata.size() == 0 ) return;
 
