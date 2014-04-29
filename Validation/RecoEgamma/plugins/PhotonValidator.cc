@@ -724,9 +724,9 @@ void PhotonValidator::bookHistograms( DQMStore::IBooker & iBooker, edm::Run cons
 
     /////    //
     histname="pR9VsEta";
-    p_r9VsEta_[0] = dbe_->bookProfile(histname+"All"," All photons r9 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,1.1);
-    p_r9VsEta_[1] = dbe_->bookProfile(histname+"Unconv"," Unconv photons r9 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,1.1);
-    p_r9VsEta_[2] = dbe_->bookProfile(histname+"Conv"," Conv photons r9 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,1.1);
+    p_r9VsEta_[0] = iBooker.bookProfile(histname+"All"," All photons r9 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,1.1);
+    p_r9VsEta_[1] = iBooker.bookProfile(histname+"Unconv"," Unconv photons r9 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,1.1);
+    p_r9VsEta_[2] = iBooker.bookProfile(histname+"Conv"," Conv photons r9 vs #eta: all Ecal ",etaBin2,etaMin, etaMax,100, 0.,1.1);
     //
     histname="R9VsEt";
     if ( ! isRunCentrally_ ) h2_r9VsEt_[0] = dbe_->book2D(histname+"All"," All photons r9 vs Et: all Ecal ",etBin,etMin, etMax,100, 0.,1.1);
