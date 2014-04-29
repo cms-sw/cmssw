@@ -32,11 +32,11 @@ struct QGLikelihoodObject{
 
 /// QGLikelihoodSystematicsObject containing the parameters for the systematic smearing
 struct QGLikelihoodSystematicsObject{
-  struct EntrySystematics{
+  struct Entry{
     QGLikelihoodCategory systCategory;
     float a, b, lmin, lmax;
   };
-  std::vector<EntrySystematics> systData;
+  std::vector<Entry> data;
 };
 
 /// Test if parameters are compatible with category
