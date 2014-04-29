@@ -13,7 +13,7 @@
 #include <iostream>
 
 
-class DDCompactView;    
+//class DDCompactView;    
 
 class ShashlikTopology : public CaloSubdetectorTopology {
   
@@ -21,7 +21,7 @@ class ShashlikTopology : public CaloSubdetectorTopology {
   /// create a new Topology
   ShashlikTopology();
   ShashlikTopology(const ShashlikDDDConstants& sdcons);
-  ShashlikTopology(const DDCompactView& cpv);
+  //  ShashlikTopology(const DDCompactView& cpv);
   
   /// virtual destructor
   virtual ~ShashlikTopology() { }  

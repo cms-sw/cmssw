@@ -20,7 +20,7 @@
 
 class TruncatedPyramid;
 
-class ShashlikGeometry GCC11_FINAL: public CaloSubdetectorGeometry 
+class ShashlikGeometry : public CaloSubdetectorGeometry 
 {
  public:
   
@@ -33,7 +33,6 @@ class ShashlikGeometry GCC11_FINAL: public CaloSubdetectorGeometry
   enum { k_NumberOfParametersPerShape = 11 } ; // TruncatedPyramid
   enum { k_NumberOfShapes = 1 } ; 
  
-  ShashlikGeometry() ;
   ShashlikGeometry(const ShashlikTopology& topology) ;
   
   virtual ~ShashlikGeometry();
@@ -57,7 +56,6 @@ class ShashlikGeometry GCC11_FINAL: public CaloSubdetectorGeometry
   virtual void initializeParms() ;
   
   static std::string producerTag() { return "Shashlik" ; }
-  static const char* cellElement() { return "ShashlikModule" ; }
   
   const ShashlikTopology& topology () const;
   
@@ -73,8 +71,10 @@ class ShashlikGeometry GCC11_FINAL: public CaloSubdetectorGeometry
 
   
  private:
+  ShashlikGeometry() ;
+
   ShashlikTopology mTopology;
-  bool initializedTopology;
+
   struct SideConstants {
     double zMean;
     double xMin;
@@ -94,10 +94,6 @@ class ShashlikGeometry GCC11_FINAL: public CaloSubdetectorGeometry
     }
   };
   SideConstants mSide[2];
-  int xindex( CCGFloat x, CCGFloat z ) const ; 
-  int yindex( CCGFloat y, CCGFloat z ) const ; 
-  
-  EKDetId gId( float x, float y, float z ) const ; 
   
   CellVec m_cellVec ; 
 };

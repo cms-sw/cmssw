@@ -13,13 +13,11 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 ShashlikGeometry::ShashlikGeometry()
-  : initializedTopology (false)
 {
 }
 
 ShashlikGeometry::ShashlikGeometry(const ShashlikTopology& topology)
-  : mTopology (topology),
-    initializedTopology (true)
+  : mTopology (topology)
 {
 }
 
@@ -73,57 +71,7 @@ ShashlikGeometry::initializeParms() // assume only m_cellVec are available
       mSide[iz].yMax *= absZ;
     } 
   }
-  if (!initializedTopology) {
-    // recover topology
-    int ixMiddle = (mSide[1].ixMin + mSide[1].ixMax -1) / 2;
-    int iyMiddle = (mSide[1].iyMin + mSide[1].iyMax -1) / 2;
-    const int BIG_ROW = 25;
-    std::vector<int> firstY (BIG_ROW, 999);
-    std::vector<int> lastY (BIG_ROW, 0);
-    for (size_t i=0; i < m_cellVec.size(); ++i) {
-      const CaloCellGeometry* cell ( cellGeomPtr(i) ) ;
-      if (cell) {
-	if (cell->getPosition().z() > 0 && 
-	    cell->getPosition().x() > 0 && 
-	    cell->getPosition().y()> 0) {
-	  int ix = xindex (cell->getPosition().x(), 
-			   cell->getPosition().z()) - ixMiddle;
-	  int iy = yindex (cell->getPosition().x(), 
-			   cell->getPosition().z()) - iyMiddle + 1;
-	  if (ix < 0 || ix >= BIG_ROW || iy < 1 || iy > BIG_ROW) {
-	    throw cms::Exception("Topology") << "ShashlikGeometry: strange cells in input Geometry ix/iy: " << ix << '/' << iy;
-	  }
-	  if (iy < firstY[ix]) firstY[ix] = iy; 
-	  if (iy > lastY[ix]) lastY[ix] = iy; 
-	}
-      }
-    }
-    // check consistency
-    bool active = true;
-    int nRow = 0;
-    for (int i = 0; i < BIG_ROW; ++i) {
-      if (active) {
-	if (lastY[i] >= 1 && firstY[i] <= lastY[i]) {
-	  continue; // OK
-	}
-	else {
-	  active = false;
-	  nRow = i;
-	} 
-      }
-      if (!active) {
-	if (lastY[i] != 0 || firstY[i] != 999) {
-	  throw cms::Exception("Topology") << "ShashlikGeometry: inconsistent initialization: ix/minY/maxY: " << i << '/' << firstY[i] << '/' << lastY[i];
-	}
-      }
-    }
-    firstY.resize (nRow);
-    lastY.resize (nRow);
-    ShashlikDDDConstants dddConstants;
-    dddConstants.loadSpecPars (firstY, lastY);
-    mTopology = ShashlikTopology (dddConstants);
-    initializedTopology = true;
-  }
+
   // cross check
   for (size_t i = 0; i < m_validIds.size(); ++i) {
     if (i != mTopology.cell2denseId(m_validIds[i])) {
@@ -131,40 +79,6 @@ ShashlikGeometry::initializeParms() // assume only m_cellVec are available
 				 << EKDetId(m_validIds[i]) << " -> " << i << " -> " << EKDetId(mTopology.cell2denseId(m_validIds[i]));	
     }
   }
-}
-
-
-int ShashlikGeometry::xindex( CCGFloat x,
-			      CCGFloat z ) const
-{
-  int iz = (z>0)?1:0;
-  double xRef = x * fabs (mSide[iz].zMean / z); 
-  int result = int (0.5 + mSide[iz].ixMin +
-		    (xRef - mSide[iz].xMin) / (mSide[iz].xMax - mSide[iz].xMin) * 
-		    (mSide[iz].ixMax - mSide[iz].ixMin));
-//   std::cout << "ShashlikGeometry::xindex-> "
-// 	    << "min/max/ref:" << mSide[iz].xMin << '/' << mSide[iz].xMax << '/' << xRef
-// 	    << " imin/max:" << mSide[iz].ixMin << '/' << mSide[iz].ixMax
-// 	    << " result: " << result
-// 	    << std::endl;
-  return result;
-}
-
-int ShashlikGeometry::yindex( CCGFloat y,
-				     CCGFloat z ) const
-{
-  int iz = (z>0)?1:0;
-  double yRef = y * fabs (mSide[iz].zMean / z); 
-  int result = int (0.5 + mSide[iz].iyMin +
-		    (yRef - mSide[iz].yMin) / (mSide[iz].yMax - mSide[iz].yMin) * 
-		    (mSide[iz].iyMax - mSide[iz].iyMin));
-//   std::cout << "ShashlikGeometry::yindex-> "
-// 	    << "min/max/ref:" << mSide[iz].yMin << '/' << mSide[iz].yMax << '/' << yRef
-// 	    << " imin/max:" << mSide[iz].iyMin << '/' << mSide[iz].iyMax
-// 	    << " z/zref:" << z << '/' << mSide[iz].zMean
-// 	    << " result: " << result
-// 	    << std::endl;
-  return result;
 }
 
 void ShashlikGeometry::addValidID(const DetId& id) {
@@ -216,7 +130,6 @@ ShashlikGeometry::cellGeomPtr( uint32_t index ) const
 }
 
 const ShashlikTopology& ShashlikGeometry::topology () const {
-  if (initializedTopology) return mTopology;
-  throw cms::Exception("Topology") << "ShashlikGeometry: attempt to access uninitialized ECAL Shashlik topology";
+  return mTopology;
 }
 

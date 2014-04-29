@@ -38,8 +38,10 @@ ShashlikGeometryESProducer::produce( const ShashlikGeometryRecord & record )
   
   edm::ESTransientHandle<DDCompactView> cpv;
   record.getRecord<IdealGeometryRecord>().get( cpv );
+  edm::ESHandle<ShashlikTopology> shdc;
+  record.getRecord<ShashlikNumberingRecord>().get( shdc );
   ShashlikGeometryBuilderFromDDD builder;
-  return ReturnType( builder.build( &(*cpv)));
+  return ReturnType( builder.build( &(*cpv), *shdc ));
 }
 
 void

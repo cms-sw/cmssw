@@ -11,7 +11,7 @@ public:
   ShashlikGeometryBuilderFromDDD ();
   ~ShashlikGeometryBuilderFromDDD ();
 
-  ShashlikGeometry* build( const DDCompactView*);
+  ShashlikGeometry* build( const DDCompactView*, const ShashlikTopology& );
 };
 
 #endif // SHASHLIK_GEOMETRY_BUILDER_FROM_DDD_H

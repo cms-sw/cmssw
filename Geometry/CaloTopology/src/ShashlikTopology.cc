@@ -32,16 +32,16 @@ ShashlikTopology::ShashlikTopology(const ShashlikDDDConstants& sdcons)
 #endif
 }
 
-ShashlikTopology::ShashlikTopology(const DDCompactView& cpv)
-  : sdcons_(cpv)
-{
-  init ();
-#ifdef DebugLog
-  std::cout << "ShashlikTopology initialized from DDD with " << smodules_
-	    << " SuperModules " << modules_ << " modules and total channels "
-	    << kSizeForDenseIndexing << std::endl;
-#endif
-}
+// ShashlikTopology::ShashlikTopology(const DDCompactView& cpv)
+//   : sdcons_(cpv)
+// {
+//   init ();
+// #ifdef DebugLog
+//   std::cout << "ShashlikTopology initialized from DDD with " << smodules_
+// 	    << " SuperModules " << modules_ << " modules and total channels "
+// 	    << kSizeForDenseIndexing << std::endl;
+// #endif
+// }
 
 size_t ShashlikTopology::cell2denseId(const DetId& id) const {
   EKDetId id_(id);
