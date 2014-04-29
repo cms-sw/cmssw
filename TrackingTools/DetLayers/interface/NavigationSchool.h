@@ -20,7 +20,7 @@ class NavigationSchool {
 public:
 
   NavigationSchool() : theAllDetLayersInSystem(0){
-    std::cout << "NVSH: C "<< this << std::endl;
+//    std::cout << "NVSH: C "<< this << std::endl;
   }
 
   virtual ~NavigationSchool() {}
@@ -55,8 +55,8 @@ public:
 protected:
 
   void setState( const StateType& state) {
-    std::cout << "NVSH: set "<< this << ' ' << typeid(*this).name() 
-	      << ' ' << state.size() << ' ' << theAllNavigableLayer.size() << std::endl;
+  //  std::cout << "NVSH: set "<< this << ' ' << typeid(*this).name() 
+  //	      << ' ' << state.size() << ' ' << theAllNavigableLayer.size() << std::endl;
 
     for (auto nl : state)
       if (nl) theAllNavigableLayer[nl->detLayer()->seqNum()]=nl;
