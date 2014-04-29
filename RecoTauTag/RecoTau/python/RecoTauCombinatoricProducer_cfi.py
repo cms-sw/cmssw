@@ -88,6 +88,8 @@ _combinatoricTauConfig = cms.PSet(
 
 combinatoricRecoTaus = cms.EDProducer("RecoTauProducer",
     jetSrc = PFRecoTauPFJetInputs.inputJetCollection,
+    minJetPt = PFRecoTauPFJetInputs.minJetPt,
+    maxJetAbsEta = PFRecoTauPFJetInputs.maxJetAbsEta,
     jetRegionSrc = cms.InputTag("recoTauAK4PFJets08Region"),
     chargedHadronSrc = cms.InputTag('ak4PFJetsRecoTauChargedHadrons'),                                
     piZeroSrc = cms.InputTag("ak4PFJetsRecoTauPiZeros"),
