@@ -11,7 +11,7 @@ template < class O > class ConfRecoBuilder {
 public:
   ConfRecoBuilder < O > ( const std::string & name, const std::string & description  )
   {
-    VertexRecoManager::Instance().registerReconstructor ( name, new O(), description );
+    VertexRecoManager::Instance().registerReconstructor ( name,[]()->AbstractConfReconstructor*{ return new O(); } , description );
   }
 };
 
