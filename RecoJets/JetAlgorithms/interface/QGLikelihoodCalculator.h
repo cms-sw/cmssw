@@ -17,10 +17,12 @@ class QGLikelihoodCalculator{
    ~QGLikelihoodCalculator(){};
 
   float computeQGLikelihood(edm::ESHandle<QGLikelihoodObject> &QGLParamsColl, float pt, float eta, float rho, std::vector<float> vars);
+  float systematicSmearing(edm::ESHandle<QGLikelihoodSystematicsObject> &QGLParamsColl, float pt, float eta, float rho, float qgValue, int qgIndex);
 
  private:
   const QGLikelihoodObject::Entry* findEntry(std::vector<QGLikelihoodObject::Entry> const &data, float eta, float pt, float rho, int qgIndex, int varIndex);
   bool isValidRange(float pt, float rho, float eta, const QGLikelihoodCategory &qgValidRange);
+  float smearingFunction(float x0, float a ,float b,float min,float max);
 };
 
 #endif
