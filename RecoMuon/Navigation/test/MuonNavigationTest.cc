@@ -19,7 +19,6 @@
 #include "RecoMuon/Navigation/interface/MuonNavigationSchool.h"
 //#include "RecoMuon/Navigation/interface/MuonTkNavigationSchool.h"
 #include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
-// #include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 #include "RecoMuon/Navigation/interface/MuonNavigationPrinter.h"
 #include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
 //#include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
@@ -66,7 +65,6 @@ MuonNavigationTest::analyze( const edm::Event& iEvent, const edm::EventSetup& iS
 
    if ( testMuon ) {
       MuonNavigationSchool school(mm);
-      // NavigationSetter setter(school);
       MuonNavigationPrinter* printer = new MuonNavigationPrinter(mm, school );
       delete printer;
    }
@@ -82,7 +80,6 @@ MuonNavigationTest::analyze( const edm::Event& iEvent, const edm::EventSetup& iS
      const MagneticField * field(&(*theMF));
 
      MuonTkNavigationSchool school(mm,tt,field);
-     NavigationSetter setter(school);
      MuonNavigationPrinter* printer = new MuonNavigationPrinter(mm, tt);
      delete printer;
   }

@@ -47,7 +47,7 @@
 #include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
 
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
+// #include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 
 // class definition
 class NavigationSchoolAnalyzer : public edm::EDAnalyzer {
@@ -190,6 +190,7 @@ void printUsingGeom(std::ostream&os, const NavigationSchool & nav) {
 }
 
 void printOldStyle(std::ostream&os, const NavigationSchool & nav) {
+/*
   NavigationSetter setter(nav);
 
   auto dls = nav.allLayersInSystem(); // ok let's' keep it for debug
@@ -215,7 +216,7 @@ void printOldStyle(std::ostream&os, const NavigationSchool & nav) {
 	  {os<<(*nl)<<"-----------------\n";}}
   }
   os<<"\n";
-
+*/
 }
 
 

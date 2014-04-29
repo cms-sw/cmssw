@@ -7,9 +7,7 @@
  *  components and compatible components. 
  *  It extends the interface by providing navigation capability 
  *  from one layer to another. 
- *  The Navigation links must be created in a 
- *  NavigationSchool and activated with a NavigationSetter before they 
- *  can be used.
+ *  The Navigation links are managed by the NavigationSchool
  *
  */
 
@@ -26,7 +24,7 @@ class DetLayer : public GeometricSearchDet {
   typedef GeomDetEnumerators::SubDetector SubDetector;
   typedef GeomDetEnumerators::Location Location;
 
-  DetLayer(bool doHaveGroup, bool ibar) : GeometricSearchDet(doHaveGroup), theNavigableLayer(0), theSeqNum(-1), iAmBarrel(ibar) {}
+  DetLayer(bool doHaveGroup, bool ibar) : GeometricSearchDet(doHaveGroup), theSeqNum(-1), iAmBarrel(ibar) {}
 
   virtual ~DetLayer();
 
@@ -47,36 +45,8 @@ class DetLayer : public GeometricSearchDet {
   virtual Location location() const = 0;
 
 
-  // obsoleted my new interface
-
-  /// Return the NavigableLayer associated with this DetLayer
-  NavigableLayer* navigableLayer() const { return theNavigableLayer;}
-
-  /// Set the NavigableLayer associated with this DetLayer
-  void setNavigableLayer( NavigableLayer* nlp);
-
-  /// Return the next (closest) layer(s) that can be reached in the specified
-  /// NavigationDirection
-  template<typename... Args>
-  std::vector<const DetLayer*> 
-  nextLayers(Args && ...args) const {
-    return theNavigableLayer
-      ? theNavigableLayer->nextLayers(std::forward<Args>(args)...)
-      : std::vector<const DetLayer*>();
-  }
-  
-  /// Returns all layers compatible 
-  template<typename... Args>
-  std::vector<const DetLayer*> 
-  compatibleLayers(Args && ...args) const {
-    return theNavigableLayer
-      ? theNavigableLayer->compatibleLayers(std::forward<Args>(args)...)
-      : std::vector<const DetLayer*>();
-  }
-  
   
  private:
-  NavigableLayer* theNavigableLayer;
   int theSeqNum;
   bool iAmBarrel;
 };
