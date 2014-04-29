@@ -14,7 +14,7 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include <iostream>
 #include <fstream>
-
+#include <cassert>
 
 /*  Hcal Hit reconstructor allows for CaloRecHits with status words */
 
@@ -390,18 +390,23 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	int auxflag=0;
         int fTS = firstAuxTS_;
 	if (fTS<0) fTS=0; // silly protection against time slice <0
-	for (int xx=fTS; xx<fTS+4 && xx<i->size();++xx)
-	  auxflag+=(i->sample(xx).adc())<<(7*(xx-fTS)); // store the time slices in the first 28 bits of aux, a set of 4 7-bit adc values
+	for (int xx=fTS; xx<fTS+4 && xx<i->size();++xx) {
+          int adcv = i->sample(xx).adc();
+	  assert ( adcv < 128 && adcv >= 0);
+	  auxflag+=(adcv)<<(7*(xx-fTS)); // store the time slices in the first 28 bits of aux, a set of 4 7-bit adc values
 	// bits 28 and 29 are reserved for capid of the first time slice saved in aux
+	}
 	auxflag+=((i->sample(fTS).capid())<<28);
 	(rec->back()).setAux(auxflag);
 
-	// Fill second auxiliaty word
+	// Fill second auxiliary word
 	auxflag=0;
         int fTS2 = (firstAuxTS_-4 < 0) ? 0 : firstAuxTS_-4;  
-	for (int xx = fTS2; xx < fTS2+4 && xx<i->size(); ++xx)
-	  auxflag+=(i->sample(xx).adc())<<(7*(xx-fTS2)); 
-
+	for (int xx = fTS2; xx < fTS2+4 && xx<i->size(); ++xx) {
+          int adcv = i->sample(xx).adc();
+	  assert ( adcv < 128 && adcv >= 0);          
+	  auxflag+=(adcv)<<(7*(xx-fTS2)); 
+	}
 	auxflag+=((i->sample(fTS2).capid())<<28);
 	(rec->back()).setAuxHBHE(auxflag);
 
