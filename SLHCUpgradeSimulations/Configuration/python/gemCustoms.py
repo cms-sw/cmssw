@@ -159,6 +159,7 @@ def customise_L1Emulator(process, ptdphi):
         process.simCscTriggerPrimitiveDigis.clctSLHC.clctPidThreshPretrig = 2
         process.simCscTriggerPrimitiveDigis.clctParam07.clctPidThreshPretrig = 2
         process.simCscTriggerPrimitiveDigis.alctSLHC.runME21ILT = cms.untracked.bool(True)
+        process.simCscTriggerPrimitiveDigis.alctSLHC.alctNplanesHitPattern = 3
     
     return process
 
