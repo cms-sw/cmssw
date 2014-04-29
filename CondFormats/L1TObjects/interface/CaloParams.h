@@ -30,8 +30,6 @@ namespace l1t {
 
     ~CaloParams() {}
 
-    //// getters ////
-    
     // towers
     double towerLsbH() const { return towerLsbH_; }
     double towerLsbE() const { return towerLsbE_; }
@@ -56,15 +54,22 @@ namespace l1t {
     void setTowerEncoding(bool doit) { towerDoEncoding_ = doit; }
 
 
+    // regions
+    std::string regionPUSType() { return regionPUSType_; }
+    std::vector<double> regionPUSParams() { return regionPUSParams_; }
+
+    void setRegionPUSType(std::string type) { regionPUSType_ = type; }
+    void setRegionPUSParams(std::vector<double> params) { regionPUSParams_ = params; }
+
     // EG
     double egSeedThreshold() const { return egSeedThreshold_; }
     double egNeighbourThreshold() const { return egNeighbourThreshold_; }
     double egMaxHcalEt() const { return egMaxHcalEt_; }
     double egMaxHOverE() const { return egMaxHOverE_; }
-    bool egDoIsoPUS() const { return egDoIsoPUS_; }
+    std::string egIsoPUSType() const { return egIsoPUSType_; }
     l1t::LUT* egIsolationLUT() { return egIsolationLUT_; }
 
-    void setDoEgIsoPUS(bool doPUS) { egDoIsoPUS_ = doPUS; }
+    void setEgIsoPUSType(std::string type) { egIsoPUSType_ = type; }
     void setEgIsolationLUT(LUT* lut) { egIsolationLUT_ = lut; }
 
 
@@ -78,13 +83,13 @@ namespace l1t {
     double jetNeighbourThreshold() const { return jetNeighbourThreshold_; }
     std::string jetPUSType() const { return jetPUSType_; }
     std::string jetCalibrationType() const { return jetCalibrationType_; }
-    std::vector<double> jetCalibrationCoeffs() { return jetCalibrationCoeffs_; }
+    std::vector<double> jetCalibrationParams() { return jetCalibrationParams_; }
 
     void setJetSeedThreshold(double thresh) { jetSeedThreshold_ = thresh; }
     void setJetNeighbourThreshold(double thresh) { jetNeighbourThreshold_ = thresh; }
     void setJetPUSType(std::string type) { jetPUSType_ = type; }
     void setJetCalibrationType(std::string type) { jetCalibrationType_ = type; }
-    void setJetCalibrationCoeffs(std::vector<double> coeffs) { jetCalibrationCoeffs_ = coeffs; }
+    void setJetCalibrationParams(std::vector<double> params) { jetCalibrationParams_ = params; }
 
 
     // print parameters to stream:
@@ -161,6 +166,16 @@ namespace l1t {
     bool towerDoEncoding_;
 
 
+    /* Regions */
+
+    // PUS scheme
+    std::string regionPUSType_;
+
+    // PUS parameters
+    std::vector<double> regionPUSParams_;
+
+
+
     /* Clustering */
 
     // Et threshold on EG seed tower
@@ -185,7 +200,7 @@ namespace l1t {
     // need to decide implementation
     
     // EG isolation PUS
-    bool egDoIsoPUS_;
+    std::string egIsoPUSType_;
 
     // EG isolation LUT (indexed by eta, Et ?)
     l1t::LUT* egIsolationLUT_;
@@ -207,7 +222,7 @@ namespace l1t {
     std::string jetCalibrationType_;
 
     // jet calibration coefficients
-    std::vector<double> jetCalibrationCoeffs_;
+    std::vector<double> jetCalibrationParams_;
 
 
 
