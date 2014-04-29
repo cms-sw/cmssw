@@ -12,7 +12,7 @@
 #include "Validation/RecoTrack/interface/MTVHistoProducerAlgo.h"
 
 
-class MultiTrackValidator : public DQMEDAnalyzer, protected MultiTrackValidatorBase {
+class MultiTrackValidator : public thread_unsafe::DQMEDAnalyzer, protected MultiTrackValidatorBase {
  public:
   /// Constructor
   MultiTrackValidator(const edm::ParameterSet& pset);
