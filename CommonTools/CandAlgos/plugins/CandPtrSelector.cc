@@ -14,7 +14,7 @@
 
 typedef SingleObjectSelector<
           edm::View<reco::Candidate>,
-          StringCutObjectSelector<reco::Candidate>,
+          StringCutObjectSelector<reco::Candidate, true>,
           edm::PtrVector<reco::Candidate>
        > CandPtrSelector;
 

@@ -12,15 +12,13 @@
 using namespace reco;
 
 
-uint32_t HitPattern::encode(const TrackingRecHit & hit, unsigned int i){
+uint32_t HitPattern::encode(DetId id, uint32_t hitType, unsigned int i){
   
   // ignore the rec hit if the number of hit is larger than the max
   if (i >= 32 * PatternSize / HitSize) return 0;
 
   // get rec hit det id and rec hit type
-  DetId id = hit.geographicalId();
   uint32_t detid = id.det();
-  uint32_t hitType = (uint32_t) hit.getType();
 
   // init pattern of this hit to 0
   uint32_t pattern = 0;
