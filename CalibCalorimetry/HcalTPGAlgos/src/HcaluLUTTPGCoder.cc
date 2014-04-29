@@ -236,9 +236,9 @@ void HcaluLUTTPGCoder::update(const HcalDbService& conditions) {
                } // LUTGenerationMode_
 
                ped_[lutId] = ped;
-               gain_[lutId] = gain;
                bool isMasked = ( (status & bitToMask_) > 0 );
                float rcalib = meta->getRCalib();
+               gain_[lutId] = gain * rcalib;
 
                // Input LUT for HB/HE/HF
                if (subdet == HcalBarrel || subdet == HcalEndcap){
