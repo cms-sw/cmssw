@@ -6,7 +6,7 @@ patJetPartonsLegacy = cms.EDProducer("PartonSelector",
 )
 
 patJetPartonAssociationLegacy = cms.EDProducer("JetPartonMatcher",
-    jets    = cms.InputTag("ak5PFJetsCHS"),
+    jets    = cms.InputTag("ak4PFJetsCHS"),
     partons = cms.InputTag("patJetPartonsLegacy"),
     coneSizeToAssociate = cms.double(0.3),
 )
@@ -23,7 +23,7 @@ patJetPartons = cms.EDProducer('HadronAndPartonSelector',
 )
 
 patJetFlavourAssociation = cms.EDProducer("JetFlavourClustering",
-    jets = cms.InputTag("ak5PFJetsCHS"),
+    jets = cms.InputTag("ak4PFJetsCHS"),
     bHadrons = cms.InputTag("patJetPartons","bHadrons"),
     cHadrons = cms.InputTag("patJetPartons","cHadrons"),
     partons = cms.InputTag("patJetPartons","partons"),
