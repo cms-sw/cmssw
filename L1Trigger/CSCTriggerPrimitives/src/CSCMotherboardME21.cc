@@ -67,7 +67,7 @@ CSCMotherboardME21::CSCMotherboardME21(unsigned endcap, unsigned station,
   
   const edm::ParameterSet alctParams(conf.getParameter<edm::ParameterSet>("alctSLHCME21"));
   const edm::ParameterSet clctParams(conf.getParameter<edm::ParameterSet>("clctSLHCME21"));
-  const edm::ParameterSet tmbParams(conf.getParameter<edm::ParameterSet>("tmbSLHCME21"));
+  const edm::ParameterSet tmbParams(conf.getParameter<edm::ParameterSet>("tmbSLHC"));
   const edm::ParameterSet me21tmbParams(tmbParams.getUntrackedParameter<edm::ParameterSet>("me21ILT"));
 
   // central bx for LCT is 6 for simulation
