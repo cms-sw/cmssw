@@ -10,14 +10,14 @@ exoticaHSCPOutputModule = cms.OutputModule("PoolOutputModule",
         filterName = cms.untracked.string('EXOHSCP'), #name a name you like.
         dataTier = cms.untracked.string('EXOGroup')
     ),
-    fileName = cms.untracked.string('exoticahscptest.root') # can be modified later in EXOHSCP_cfg.py in  test directory. 
+    fileName = cms.untracked.string('exoticahscptest.root') # can be modified later in EXOHSCP_cfg.py in  test directory.
 )
 
 
 #default output contentRECOSIMEventContent
 exoticaHSCPOutputModule.outputCommands.extend(RECOSIMEventContent.outputCommands)
 
-#add specific content you need. 
+#add specific content you need.
 SpecifiedEvenetContent=cms.PSet(
     outputCommands = cms.untracked.vstring(
       "drop *",
@@ -49,7 +49,7 @@ SpecifiedEvenetContent=cms.PSet(
         'keep *_HSCPIsolation01__*',
 	'keep *_HSCPIsolation03__*',
 	'keep *_HSCPIsolation05__*',
-        'keep recoPFJets_ak5PFJets__*', 
+        'keep recoPFJets_ak4PFJets__*',
         'keep recoPFMETs_pfMet__*',
 	  'keep recoBeamSpot_offlineBeamSpot__*',
       )
