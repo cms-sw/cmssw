@@ -100,14 +100,10 @@ float QGLikelihoodCalculator::systematicSmearing(edm::ESHandle<QGLikelihoodSyste
   myParameters.QGIndex = qgIndex;
   myParameters.VarIndex = -1;
 
-  auto myDataObject = QGLSystematicsColl->systData.begin();
+  auto myDataObject = QGLSystematicsColl->data.begin();
   while(!(myParameters == myDataObject->systCategory)){
     ++myDataObject;
-    if(myDataObject == QGLSystematicsColl->systData.end()){
-      edm::LogWarning("QGLCategoryNotFound") << "No parameters found for systematic smearing on jet with rho=" << rho << ", pt=" << pt << ", eta=" << eta
-                                             << "\nPlease contact cms-qg-workinggroup@cern.ch" << std::endl;
-      return -1;
-    }
+    if(myDataObject == QGLSystematicsColl->data.end()) return -1; //Smearing not available in the whole qgValidRange: do not throw warnings or errors
   }
   return smearingFunction(qgValue, myDataObject->a, myDataObject->b, myDataObject->lmin, myDataObject->lmax);
 }
