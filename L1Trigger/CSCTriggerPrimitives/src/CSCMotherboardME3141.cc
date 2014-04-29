@@ -76,10 +76,8 @@ CSCMotherboardME3141::CSCMotherboardME3141(unsigned endcap, unsigned station,
   if (!isSLHC) edm::LogError("L1CSCTPEmulatorConfigError")
     << "+++ Upgrade CSCMotherboardME3141 constructed while isSLHC is not set! +++\n";
   
-  edm::ParameterSet alctParams = conf.getParameter<edm::ParameterSet>("alctSLHC");
-  edm::ParameterSet clctParams = conf.getParameter<edm::ParameterSet>("clctSLHC");
-  edm::ParameterSet tmbParams = conf.getParameter<edm::ParameterSet>("tmbSLHC");
-  edm::ParameterSet me3141tmbParams = tmbParams.getUntrackedParameter<edm::ParameterSet>("me3141ILT");
+  const edm::ParameterSet tmbParams(conf.getParameter<edm::ParameterSet>("tmbSLHC"));
+  const edm::ParameterSet me3141tmbParams(tmbParams.getUntrackedParameter<edm::ParameterSet>("me3141ILT"));
 
   // central bx for LCT is 6 for simulation
   lct_central_bx = tmbParams.getUntrackedParameter<int>("lctCentralBX", 6);

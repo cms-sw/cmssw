@@ -97,6 +97,10 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
     alctParams = conf.getParameter<edm::ParameterSet>("alctSLHC");
     clctParams = conf.getParameter<edm::ParameterSet>("clctSLHC");
     tmbParams  =  conf.getParameter<edm::ParameterSet>("tmbSLHC");
+    if (theStation==2){
+      alctParams = conf.getParameter<edm::ParameterSet>("alctSLHCME21");
+      clctParams = conf.getParameter<edm::ParameterSet>("clctSLHCME21");
+    }
   }
 
   mpc_block_me1a    = tmbParams.getParameter<unsigned int>("mpcBlockMe1a");
@@ -118,7 +122,7 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
   readout_earliest_2 = tmbParams.getUntrackedParameter<bool>("tmbReadoutEarliest2",false);
 
   infoV = tmbParams.getUntrackedParameter<int>("verbosity", 0);
-
+  
   alct = new CSCAnodeLCTProcessor(endcap, station, sector, subsector, chamber, alctParams, commonParams);
   clct = new CSCCathodeLCTProcessor(endcap, station, sector, subsector, chamber, clctParams, commonParams, tmbParams);
 

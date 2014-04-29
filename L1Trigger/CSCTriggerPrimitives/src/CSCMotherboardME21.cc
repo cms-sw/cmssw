@@ -65,8 +65,6 @@ CSCMotherboardME21::CSCMotherboardME21(unsigned endcap, unsigned station,
   if (!isSLHC) edm::LogError("L1CSCTPEmulatorConfigError")
     << "+++ Upgrade CSCMotherboardME21 constructed while isSLHC is not set! +++\n";
   
-  const edm::ParameterSet alctParams(conf.getParameter<edm::ParameterSet>("alctSLHCME21"));
-  const edm::ParameterSet clctParams(conf.getParameter<edm::ParameterSet>("clctSLHCME21"));
   const edm::ParameterSet tmbParams(conf.getParameter<edm::ParameterSet>("tmbSLHC"));
   const edm::ParameterSet me21tmbParams(tmbParams.getUntrackedParameter<edm::ParameterSet>("me21ILT"));
 
@@ -358,7 +356,7 @@ CSCMotherboardME21::run(const CSCWireDigiCollection* wiredc,
           // clct quality
           const int quality(clct->bestCLCT[bx_clct].getQuality());
           // low quality ALCT
-          const bool lowQualityALCT(alct->bestALCT[bx_alct].getQuality() == 4);
+          const bool lowQualityALCT(alct->bestALCT[bx_alct].getQuality() == 0);
           // low quality ALCT or CLCT
           const bool lowQuality(quality<4 or lowQualityALCT);
           if (debug_gem_matching) std::cout << "++Valid ME21 CLCT: " << clct->bestCLCT[bx_clct] << std::endl;
