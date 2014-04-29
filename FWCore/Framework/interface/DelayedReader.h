@@ -13,7 +13,7 @@ uses input sources to retrieve EDProducts from external storage.
 #include <memory>
 
 namespace edm {
-  struct BranchKey;
+  class BranchKey;
   class EDProductGetter;
   class WrapperInterfaceBase;
   class SharedResourcesAcquirer;
