@@ -78,6 +78,7 @@ namespace l1t {
     void setEgMaxHOverE(double cut) { egMaxHOverE_ = cut; }
     void setEgIsoPUSType(std::string type) { egIsoPUSType_ = type; }
     void setEgIsolationLUT(std::shared_ptr<LUT> lut) { egIsolationLUT_ = lut; }
+    void setEgRelativeJetIsolationCut(double cutValue) { egRelativeJetIsolationCut_ = cutValue; }
 
 
     // tau
@@ -225,7 +226,8 @@ namespace l1t {
     // EG isolation LUT (indexed by eta, Et ?)
     std::shared_ptr<l1t::LUT> egIsolationLUT_;
 
-
+    // EG relative jet isolation cut (Stage1Layer2)
+    double egRelativeJetIsolationCut_;
 
     /* Tau */
 
