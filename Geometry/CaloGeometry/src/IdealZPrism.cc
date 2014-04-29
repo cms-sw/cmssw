@@ -105,11 +105,6 @@ IdealZPrism::localCorners( Pt3DVec&        lc  ,
 			   Pt3D&           ref   )
 {
    assert( 8 == lc.size() ) ;
-   if( false )
-   {
-      GlobalPoint g1 ( etaPhiR(0,0,0) ) ;
-      GlobalPoint g2 ( etaPhiPerp(0,0,0) ) ;
-   }
    assert( 0 != pv ) ;
    
    const CCGFloat dEta ( pv[0] ) ;
