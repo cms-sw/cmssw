@@ -33,7 +33,7 @@ class ShashlikGeometry : public CaloSubdetectorGeometry
   enum { k_NumberOfParametersPerShape = 11 } ; // TruncatedPyramid
   enum { k_NumberOfShapes = 1 } ; 
  
-  ShashlikGeometry(const ShashlikTopology& topology) ;
+  explicit ShashlikGeometry(const ShashlikTopology& topology) ;
   
   virtual ~ShashlikGeometry();
   
@@ -63,7 +63,7 @@ class ShashlikGeometry : public CaloSubdetectorGeometry
   
   virtual const CaloCellGeometry* cellGeomPtr( uint32_t index ) const ;
   virtual unsigned int indexFor(const DetId& id) const { 
-    return  mTopology.cell2denseId(id); 
+    return  mTopology.detId2denseId(id); 
   }
   virtual unsigned int sizeForDenseIndex(const DetId& id) const { 
     return mTopology.cellHashSize(); 
@@ -71,9 +71,8 @@ class ShashlikGeometry : public CaloSubdetectorGeometry
 
   
  private:
-  ShashlikGeometry() ;
 
-  ShashlikTopology mTopology;
+  const ShashlikTopology& mTopology;
 
   struct SideConstants {
     double zMean;
