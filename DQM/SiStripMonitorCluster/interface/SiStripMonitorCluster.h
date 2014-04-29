@@ -36,7 +36,7 @@ class APVCyclePhaseCollection;
 class SiStripDCSStatus;
 class GenericTriggerEventFlag;
 
-class SiStripMonitorCluster : public DQMEDAnalyzer {
+class SiStripMonitorCluster : public thread_unsafe::DQMEDAnalyzer {
  public:
   explicit SiStripMonitorCluster(const edm::ParameterSet&);
   ~SiStripMonitorCluster();
