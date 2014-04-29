@@ -19,7 +19,7 @@ namespace l1t {
 
   int deltaGctPhi(const CaloRegion & region, const CaloRegion & neighbor);
   void slidingWindowJetFinder(const int, const std::vector<l1t::CaloRegion> * regions,
-			      std::vector<l1t::Jet> * jets);
+			      std::vector<l1t::Jet> * uncalibjets);
 }
 
 #endif

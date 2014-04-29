@@ -13,6 +13,9 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 #process.load('L1Trigger/L1TYellow/l1t_debug_messages_cfi')
 #process.load('L1Trigger/L1TYellow/l1t_info_messages_cfi')
 
+from L1Trigger.L1TCalorimeter.regionSF_cfi import *
+from L1Trigger.L1TCalorimeter.jetSF_cfi import *
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-10)
     )
@@ -23,7 +26,8 @@ process.source = cms.Source("PoolSource",
     #fileNames = cms.untracked.vstring("/store/relval/CMSSW_7_0_0_pre8/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START70_V1-v1/00000/262AA156-744A-E311-9829-002618943945.root")
     # fileNames = cms.untracked.vstring("/store/RelVal/CMSSW_7_0_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/PRE_ST62_V8-v1/00000/22610530-FC24-E311-AF35-003048FFD7C2.root")
     #fileNames = cms.untracked.vstring("/store/relval/CMSSW_7_0_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/PRE_ST62_V8-v1/00000/22610530-FC24-E311-AF35-003048FFD7C2.root")
-    fileNames = cms.untracked.vstring("file:/uscmst1b_scratch/lpc1/lpctrig/apana/L1Upgrade/262AA156-744A-E311-9829-002618943945.root")
+    # fileNames = cms.untracked.vstring("file:/uscmst1b_scratch/lpc1/lpctrig/apana/L1Upgrade/262AA156-744A-E311-9829-002618943945.root")
+    fileNames = cms.untracked.vstring("root://eoscms.cern.ch//eos/cms/store/group/comm_trigger/L1Trigger/apana/262AA156-744A-E311-9829-002618943945.root")                       
     #fileNames = cms.untracked.vstring("file:test.root")
     )
 
@@ -66,7 +70,12 @@ process.Layer2HW = cms.EDProducer(
     regionETCutForMET = cms.uint32(0),
     minGctEtaForSums = cms.int32(4),
     maxGctEtaForSums = cms.int32(17),
-    jetSeedThreshold = cms.double(10.) ## seed threshold in GeV
+    jetSeedThreshold = cms.double(10.), ## seed threshold in GeV
+    PUSubtract = cms.bool(True), # Correct regions for PU
+    regionSubtraction = regionSubtraction_PU20_MC13TeV,
+    #regionSubtraction = regionSubtraction_8TeV_data,
+    applyJetCalibration = cms.bool(True), # Do jet response correction
+    jetSF = jetSF_8TeV_data
     )
 
 process.Layer2Phys = cms.EDProducer("l1t::PhysicalEtAdder",
@@ -94,8 +103,8 @@ process.Layer2 = cms.Sequence(
         *process.Layer2HW
         *process.Layer2Phys
         *process.Layer2gctFormat
-        *process.L1Packer
-        *process.L1Unpacker
+        ## *process.L1Packer
+        ## *process.L1Unpacker
         )
 
 

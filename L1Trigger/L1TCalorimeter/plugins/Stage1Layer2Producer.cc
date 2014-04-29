@@ -28,13 +28,13 @@
 #include "CondFormats/DataRecord/interface/L1EmEtScaleRcd.h"
 #include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
 
-//#include <vector>
+#include <vector>
 #include "DataFormats/L1Trigger/interface/BXVector.h"
 
 //#include "CondFormats/DataRecord/interface/CaloParamsRcd.h"
 //#include "CondFormats/L1TCalorimeter/interface/CaloParams.h"
 #include "CondFormats/L1TObjects/interface/CaloParams.h"
-#include "CondFormats/L1TObjects/interface/FirmwareVersion.h"
+//#include "CondFormats/L1TObjects/interface/FirmwareVersion.h"
 
 #include "DataFormats/L1TCalorimeter/interface/CaloRegion.h"
 #include "DataFormats/L1TCalorimeter/interface/CaloEmCand.h"
@@ -79,7 +79,8 @@ namespace l1t {
 
     //boost::shared_ptr<const CaloParams> m_dbpars; // Database parameters for the trigger, to be updated as needed.
     //boost::shared_ptr<const FirmwareVersion> m_fwv;
-    boost::shared_ptr<FirmwareVersion> m_fwv; //not const during testing.
+    //boost::shared_ptr<FirmwareVersion> m_fwv; //not const during testing.
+    int m_fwv;
 
     boost::shared_ptr<Stage1Layer2MainProcessor> m_fw; // Firmware to run per event, depends on database parameters.
 
@@ -112,7 +113,15 @@ namespace l1t {
     int maxGctEtaForSums(iConfig.getParameter<int>("maxGctEtaForSums"));
     double jetSeedThreshold(iConfig.getParameter<double>("jetSeedThreshold"));
 
-    m_fwv = boost::shared_ptr<FirmwareVersion>(new FirmwareVersion()); //not const during testing
+
+    bool PUSubtract(iConfig.getParameter<bool>("PUSubtract"));
+    std::vector<double> regionSubtraction(iConfig.getParameter<vector<double> >("regionSubtraction"));
+
+    bool applyJetCalibration(iConfig.getParameter<bool>("applyJetCalibration"));
+    std::vector<double> jetSF(iConfig.getParameter<vector<double> >("jetSF"));
+
+    //m_fwv = boost::shared_ptr<FirmwareVersion>(new FirmwareVersion()); //not const during testing
+
     if (ifwv == 1){
       LogDebug("l1t|stage 1 jets") << "Stage1Layer2Producer -- Running HI implementation\n";
       std::cout << "Stage1Layer2Producer -- Running HI implementation\n";
@@ -123,8 +132,9 @@ namespace l1t {
       LogError("l1t|stage 1 jets") << "Stage1Layer2Producer -- Unknown implementation.\n";
       std::cout << "Stage1Layer2Producer -- Unknown implementation.\n";
     }
-    m_fwv->setFirmwareVersion(ifwv); // =1 HI, =2 PP
+    //m_fwv->setFirmwareVersion(ifwv); // =1 HI, =2 PP
     // m_fw = m_factory.create(*m_fwv /*,*m_dbpars*/);
+    m_fwv = ifwv;
 
     m_dbpars = new CaloParams;
     m_dbpars->setRegionETCutForHT(regionETCutForHT);
@@ -132,8 +142,12 @@ namespace l1t {
     m_dbpars->setMinGctEtaForSums(minGctEtaForSums);
     m_dbpars->setMaxGctEtaForSums(maxGctEtaForSums);
     m_dbpars->setJetSeedThreshold(jetSeedThreshold);
+    m_dbpars->setPUSubtract(PUSubtract);
+    m_dbpars->setregionSubtraction(regionSubtraction);
+    m_dbpars->setapplyJetCalibration(applyJetCalibration);
+    m_dbpars->setjetSF(jetSF);
 
-    m_fw = m_factory.create(*m_fwv ,m_dbpars);
+    m_fw = m_factory.create(m_fwv ,m_dbpars);
     //printf("Success create.\n");
     if (! m_fw) {
       // we complain here once per job
@@ -263,8 +277,8 @@ void Stage1Layer2Producer::beginRun(Run const&iR, EventSetup const&iE){
   iE.get< L1JetEtScaleRcd >().get( jetScale ) ;
 
 
-  m_dbpars->setEmScale(emScale->linearLsb());  
-  m_dbpars->setJetScale(jetScale->linearLsb());  
+  m_dbpars->setEmScale(emScale->linearLsb());
+  m_dbpars->setJetScale(jetScale->linearLsb());
 
   //unsigned long long id = iE.get<CaloParamsRcd>().cacheIdentifier();
 

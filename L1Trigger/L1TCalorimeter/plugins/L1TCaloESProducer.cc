@@ -80,7 +80,7 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
   m_params.setTowerNBitsE(conf.getParameter<int>("towerNBitsE"));
   m_params.setTowerNBitsSum(conf.getParameter<int>("towerNBitsSum"));
   m_params.setTowerNBitsRatio(conf.getParameter<int>("towerNBitsRatio"));
-  m_params.setTowerCompression(conf.getParameter<bool>("towerCompression"));
+  m_params.setTowerEncoding(conf.getParameter<bool>("towerCompression"));
 
   m_params.setJetSeedThreshold(conf.getParameter<double>("jetSeedThreshold"));
 

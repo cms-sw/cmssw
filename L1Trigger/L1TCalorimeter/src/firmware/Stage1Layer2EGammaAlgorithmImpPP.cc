@@ -17,9 +17,10 @@ using namespace std;
 using namespace l1t;
 
 
-Stage1Layer2EGammaAlgorithmImpPP::Stage1Layer2EGammaAlgorithmImpPP(/*const CaloParams & dbPars*/) 
+Stage1Layer2EGammaAlgorithmImpPP::Stage1Layer2EGammaAlgorithmImpPP(CaloParams* params) : params_(params)
 {
-
+  PUSubtract = params_->PUSubtract();
+  regionSubtraction = params_->regionSubtraction();
 }
 
 Stage1Layer2EGammaAlgorithmImpPP::~Stage1Layer2EGammaAlgorithmImpPP(){};
@@ -33,7 +34,11 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
   HoverECut = 0.05;
 
   std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
-  RegionCorrection(regions, EMCands, subRegions);
+
+  
+  //Region Correction will return uncorrected subregions if 
+  //PUSubtract is set to False in the config
+  RegionCorrection(regions, EMCands, subRegions, regionSubtraction, PUSubtract);
 
 
   for(CaloEmCandBxCollection::const_iterator egCand = EMCands.begin();

@@ -32,7 +32,7 @@ namespace l1t {
   }
 
   void slidingWindowJetFinder(const int jetSeedThreshold, const std::vector<l1t::CaloRegion> * regions,
-			      std::vector<l1t::Jet> * jets)
+			      std::vector<l1t::Jet> * uncalibjets)
   {
     // std::cout << "Jet Seed: " << jetSeedThreshold << std::endl;
     for(std::vector<CaloRegion>::const_iterator region = regions->begin(); region != regions->end(); region++) {
@@ -151,7 +151,7 @@ namespace l1t {
 	l1t::Jet theJet(*jetLorentz, jetET, jetEta, jetPhi, jetQual);
 	//l1t::Jet theJet(0, jetET, jetEta, jetPhi);
 
-	jets->push_back(theJet);
+	uncalibjets->push_back(theJet);
       }
     }
 
@@ -401,7 +401,7 @@ namespace l1t {
  
     //the jets should be sorted, highest pT first.
     // do not truncate the jet list, GT converter handles that
-    std::sort(jets->begin(), jets->end(), compareJets);
-    std::reverse(jets->begin(), jets->end());
+    std::sort(uncalibjets->begin(), uncalibjets->end(), compareJets);
+    std::reverse(uncalibjets->begin(), uncalibjets->end());
   }
 }

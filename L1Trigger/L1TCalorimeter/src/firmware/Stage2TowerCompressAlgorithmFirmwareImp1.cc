@@ -31,7 +31,7 @@ void l1t::Stage2TowerCompressAlgorithmFirmwareImp1::processEvent(const std::vect
 	tow != inTowers.end();
 	++tow ) {
 
-    if (!params_->doTowerCompression()) {
+    if (!params_->doTowerEncoding()) {
 
       outTowers.push_back( *tow );
 
@@ -59,7 +59,7 @@ void l1t::Stage2TowerCompressAlgorithmFirmwareImp1::processEvent(const std::vect
       
       l1t::CaloTower newTow;
       newTow.setHwEtEm(etEm);
-      newTow.setHwEtEm(etHad);
+      newTow.setHwEtHad(etHad);
       newTow.setHwEta( tow->hwEta() );
       newTow.setHwPhi( tow->hwPhi() );
       newTow.setHwPt( sum );

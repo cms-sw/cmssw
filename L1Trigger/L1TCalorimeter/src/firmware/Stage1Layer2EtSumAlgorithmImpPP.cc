@@ -7,6 +7,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "L1Trigger/L1TCalorimeter/interface/Stage1Layer2EtSumAlgorithmImp.h"
+#include "L1Trigger/L1TCalorimeter/interface/PUSubtractionMethods.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
 
@@ -19,6 +20,9 @@ l1t::Stage1Layer2EtSumAlgorithmImpPP::Stage1Layer2EtSumAlgorithmImpPP(const Calo
 
   emScale=params->emScale();
   jetScale=params->jetScale();
+
+  PUSubtract = params->PUSubtract();
+  regionSubtraction = params->regionSubtraction();
 
   //now do what ever initialization is needed
   for(unsigned int i = 0; i < L1CaloRegionDetId::N_PHI; i++) {
@@ -42,6 +46,7 @@ double l1t::Stage1Layer2EtSumAlgorithmImpPP::regionPhysicalEt(const l1t::CaloReg
 
 
 void l1t::Stage1Layer2EtSumAlgorithmImpPP::processEvent(const std::vector<l1t::CaloRegion> & regions,
+							const std::vector<l1t::CaloEmCand> & EMCands,
 							      std::vector<l1t::EtSum> * etsums) {
 
   double sumET = 0;
@@ -50,8 +55,15 @@ void l1t::Stage1Layer2EtSumAlgorithmImpPP::processEvent(const std::vector<l1t::C
   double sumHT = 0;
   double sumHx = 0;
   double sumHy = 0;
+
+  std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
+
   
-  for(std::vector<CaloRegion>::const_iterator region = regions.begin(); region != regions.end(); region++) {
+  //Region Correction will return uncorrected subregions if 
+  //PUSubtract is set to False in the config
+  RegionCorrection(regions, EMCands, subRegions, regionSubtraction, PUSubtract);
+
+  for(std::vector<CaloRegion>::const_iterator region = subRegions->begin(); region != subRegions->end(); region++) {
     if (region->hwEta() < minGctEtaForSums || region->hwEta() > maxGctEtaForSums) {
       continue;
     }
