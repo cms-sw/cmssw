@@ -5,7 +5,7 @@
 ///    Concrete firmware implementations
 ///
 /// \author: Jim Brooke - University of Bristol
-///
+/// Modified: Adam Elwood - ICL
 
 //
 //
@@ -27,7 +27,7 @@ namespace l1t {
 			      std::vector<Jet> & jets);
 
     void create(const std::vector<CaloTower> & towers,
-		std::vector<Jet> & jets);
+		std::vector<Jet> & jets, bool doDonutSubtraction);
     
     void filter(std::vector<Jet> & jets);
     
@@ -35,12 +35,15 @@ namespace l1t {
 
     bool jetIsZero(l1t::Jet jet);
 
+    void pusRing(int jetEta, int jetPhi, int size, std::vector<int>& ring, 
+        const std::vector<l1t::CaloTower> & towers);
+
   private:
 
     CaloParams* const params_;
-    
+
   };
-  
+
 }
 
 #endif
