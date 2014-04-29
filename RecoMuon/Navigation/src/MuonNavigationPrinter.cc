@@ -28,7 +28,7 @@
 #include <iomanip>
 using namespace std;
 
-#define VI_DEBUG
+// #define VI_DEBUG
 
 #ifdef VI_DEBUG
 #define PRINT(x) std::cout << x << ' '
