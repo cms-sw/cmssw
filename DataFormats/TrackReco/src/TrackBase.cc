@@ -16,11 +16,6 @@ bool TrackBase::appendHitPattern(const TrackingRecHit &hit)
     return hitPattern_.appendHit(hit);
 }
 
-bool TrackBase::appendHitPatternIndex(const TrackingRecHit &hit, int index)
-{
-    return hitPattern_.appendHitIndex(hit, index);
-}
-
 // To be kept in synch with the enumerator definitions in TrackBase.h file
 std::string const TrackBase::algoNames[] = {
     "undefAlgorithm",

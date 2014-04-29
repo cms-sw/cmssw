@@ -159,48 +159,9 @@ int HitPattern::countTypedHits(HitCategory category, filterType typeFilter, filt
     return count;
 }
 
-bool HitPattern::insert(const TrackingRecHit &hit)
+bool HitPattern::appendHit(const TrackingRecHitRef &ref)
 {
-    //if HitPattern is full, journey ends no matter what.
-    if unlikely((hitCount == HitPattern::MaxHits)) {
-        return false;
-    }
-
-    uint16_t pattern = HitPattern::encode(hit);
-    switch (hit.getType()) {
-    case TrackingRecHit::valid:
-    case TrackingRecHit::missing:
-    case TrackingRecHit::inactive:
-    case TrackingRecHit::bad:
-        // hitCount != endT => we are not inserting T type of hits but of T'
-        // 0 != beginT || 0 != endT => we already have hits of T type
-        // so we already have hits of T in the vector and we don't want to
-        // mess them with T' hits.
-        if unlikely(((hitCount != endTrackHits) && (0 != beginTrackHits || 0 != endTrackHits))) {
-            return false;
-        }
-        return insertTrackHit(pattern);
-        break;
-    case TrackingRecHit::missing_inner:
-        if unlikely(((hitCount != endInner) && (0 != beginInner || 0 != endInner))) {
-            return false;
-        }
-        return insertExpectedInnerHit(pattern);
-        break;
-    case TrackingRecHit::missing_outer:
-        if unlikely(((hitCount != endOuter) && (0 != beginOuter || 0 != endOuter))) {
-            return false;
-        }
-        return insertExpectedOuterHit(pattern);
-        break;
-    }
-
-    return false;
-}
-
-bool HitPattern::insert(const TrackingRecHitRef &ref)
-{
-    return insert(*ref);
+    return appendHit(*ref);
 }
 
 uint16_t HitPattern::encode(const TrackingRecHit &hit)
@@ -278,69 +239,42 @@ uint16_t HitPattern::encode(const TrackingRecHit &hit)
     return pattern;
 }
 
-bool HitPattern::appendHitIndex(const TrackingRecHit &hit, int index)
+bool HitPattern::appendHit(const TrackingRecHit &hit)
 {
+    //if HitPattern is full, journey ends no matter what.
     if unlikely((hitCount == HitPattern::MaxHits)) {
         return false;
     }
-    
-    if (index >= HitPattern::MaxHits){
-        return false;
-    }    
-   
-    hitCount = std::max((uint8_t)(index + 1), hitCount);
-    endTrackHits = hitCount;
 
-    hitPattern[index] = HitPattern::encode(hit);
-    return true;
-}
-
-bool HitPattern::appendHit(const TrackingRecHit &hit)
-{
-    // get rec hit det id and rec hit type
-    DetId id = hit.geographicalId();
-    uint16_t detid = id.det();
-
-    if (detid == DetId::Tracker) {
-        return insert(hit);
-    } else if (detid == DetId::Muon) {
-        std::vector<const TrackingRecHit*> hits;
-        uint16_t subdet = id.subdetId();
-        if (subdet == (uint16_t) MuonSubdetId::DT) {
-            if (hit.dimension() == 1) { // DT rechit (granularity 2)
-                hits.push_back(&hit);
-            } else if (hit.dimension() > 1) { // 4D segment (granularity 0).
-                // Both 2 and 4 dim cases. MB4s have 2D, but formatted in 4D segment
-                // 4D --> 2D
-                std::vector<const TrackingRecHit*> seg2D = hit.recHits();
-                // load 1D hits (2D --> 1D)
-                for (std::vector<const TrackingRecHit*>::const_iterator it = seg2D.begin(); it != seg2D.end(); ++it) {
-                    std::vector<const TrackingRecHit*> hits1D = (*it)->recHits();
-                    copy(hits1D.begin(), hits1D.end(), back_inserter(hits));
-                }
-            }
-        } else if (subdet == (uint16_t) MuonSubdetId::CSC) {
-            if (hit.dimension() == 2) { // CSC rechit (granularity 2)
-                hits.push_back(&hit);
-            } else if (hit.dimension() == 4) { // 4D segment (granularity 0)
-                // load 2D hits (4D --> 1D)
-                hits = hit.recHits();
-            }
-        } else if (subdet == (uint16_t) MuonSubdetId::RPC) {
-            hits.push_back(&hit);
+    uint16_t pattern = HitPattern::encode(hit);
+    switch (hit.getType()) {
+    case TrackingRecHit::valid:
+    case TrackingRecHit::missing:
+    case TrackingRecHit::inactive:
+    case TrackingRecHit::bad:
+        // hitCount != endT => we are not inserting T type of hits but of T'
+        // 0 != beginT || 0 != endT => we already have hits of T type
+        // so we already have hits of T in the vector and we don't want to
+        // mess them with T' hits.
+        if unlikely(((hitCount != endTrackHits) && (0 != beginTrackHits || 0 != endTrackHits))) {
+            return false;
         }
-
-        bool allInserted = true;
-        for (std::vector<const TrackingRecHit*>::const_iterator it = hits.begin(); it != hits.end(); ++it) {
-            allInserted &= insert(**it);
-            if unlikely((!allInserted)) {
-                break;
-            }
+        return insertTrackHit(pattern);
+        break;
+    case TrackingRecHit::missing_inner:
+        if unlikely(((hitCount != endInner) && (0 != beginInner || 0 != endInner))) {
+            return false;
         }
-        // notice it returns true only if all hits were inserted.
-        return allInserted;
+        return insertExpectedInnerHit(pattern);
+        break;
+    case TrackingRecHit::missing_outer:
+        if unlikely(((hitCount != endOuter) && (0 != beginOuter || 0 != endOuter))) {
+            return false;
+        }
+        return insertExpectedOuterHit(pattern);
+        break;
     }
-    //neither tracker nor muon, nothing inserted so returning false makes sense;
+
     return false;
 }
 

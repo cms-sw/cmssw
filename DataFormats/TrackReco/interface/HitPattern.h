@@ -224,11 +224,10 @@ public:
     template<typename I>
     bool appendHits(const I &begin, const I &end);
     bool appendHit(const TrackingRecHit &hit);
-    bool appendHitIndex(const TrackingRecHit &hit, int index);
+    bool appendHit(const TrackingRecHitRef &ref);
 
     // get the pattern of the position-th hit
     uint16_t getHitPattern(HitCategory category, int position) const;
-
 
     void clear();
 
@@ -400,9 +399,6 @@ private:
     typedef bool filterType(uint16_t);
     int countHits(HitCategory category, filterType filter) const;
     int countTypedHits(HitCategory category, filterType typeFilter, filterType filter) const;
-
-    bool insert(const TrackingRecHitRef &ref);
-    bool insert(const TrackingRecHit &hit);
 
     bool insertTrackHit(const uint16_t pattern);
     bool insertExpectedInnerHit(const uint16_t pattern);
