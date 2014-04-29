@@ -105,7 +105,7 @@ ShashlikGeometry::newCell( const GlobalPoint& f1 ,
 
 const CaloCellGeometry* ShashlikGeometry::getGeometry( const DetId& id ) const {
   if (id == DetId()) return 0; // nothing to get
-  EKDetId geoId = EKDetId(id).geometryCell ();
+  EKDetId geoId(id);
   const uint32_t cellIndex (topology().cell2denseId(geoId));
   const CaloCellGeometry* result = cellGeomPtr (cellIndex);
   if (m_validIds[cellIndex] != geoId.rawId()) {

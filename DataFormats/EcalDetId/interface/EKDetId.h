@@ -37,15 +37,6 @@ public:
    */
   EKDetId(int module_ix, int module_iy, int fiber, int ro, int iz); 
   
-  /** Constructor from geometry module ix,iy,iz (iz=+1/-1)
-   * <p>ix runs from 1 to N along x-axis of standard CMS coordinates<br>
-   * iy runs from 1 to N along y-axis of standard CMS coordinates<br>
-   * N depends on the configuration == see ShashlikDDDConstants<br>
-   * iz is -1 for EK- and +1 for EK+<br>
-   * fib and ro are forced to 0 as irrelevant for geometry
-   */
-  EKDetId(int module_ix, int module_iy, int iz); 
-  
   /** Constructor from a generic cell id
    * @param id source detid
    */
@@ -55,11 +46,6 @@ public:
    * @param id source det id
    */ 
   EKDetId& operator=(const DetId& id) {id_ = id.rawId(); return *this;}
-  
-  /** Converter for a geometry cell id
-   * @param id full EKDetId 
-   */
-  EKDetId geometryCell () const {return EKDetId (ix(), iy(), zside());}
   
   /** Set fiber number and RO type
    * @param fib number
@@ -113,22 +99,7 @@ public:
    * @param b det id of second module
    * @return distance
    */
-  static int distanceY(const EKDetId& a,const EKDetId& b);
-
-  /** static non-minimal hash index with holes
-   */
-  enum {
-    kSizeForDenseIndexing = 
-    2 * 4 *   // +-Z * 4 sectors
-    21 * 21 * // maximum supermodules in quadrant  
-    5 * 5     // modules in SM
-  };
-  uint32_t denseIndex() const;
-
-  /** static non-minimal hash index with holes
-   */
-  static EKDetId detIdFromDenseIndex( uint32_t din );
- 
+  static int distanceY(const EKDetId& a,const EKDetId& b); 
 };
 
 std::ostream& operator<<(std::ostream& s,const EKDetId& id);
