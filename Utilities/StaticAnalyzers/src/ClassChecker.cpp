@@ -276,6 +276,27 @@ void WalkAST::CheckReturnStmt(const clang::ReturnStmt * RS, const clang::MemberE
 		if ( (RTy->isPointerType() || RTy->isReferenceType() ) ) {
 		if( !support::isConst(RTy) ) {
 			ReportCallReturn(RS);
+			}	
+		}
+		std::string svname = "const class std::vector<";
+		std::string rtname = RTy.getAsString();
+		if (  (RTy->isReferenceType() || RTy ->isRecordType() ) && support::isConst(RTy) && rtname.substr(0,svname.length()) == svname ) {
+			const CXXRecordDecl *RD;
+			if ( RTy->isRecordType() ) RD = RTy->getAsCXXRecordDecl();
+			else RD = RTy->getPointeeCXXRecordDecl();
+			const ClassTemplateSpecializationDecl *SD = dyn_cast<ClassTemplateSpecializationDecl>(RD);
+			for (unsigned J = 0, F = SD->getTemplateArgs().size(); J!=F; ++J) {
+				if (SD->getTemplateArgs().get(J).getKind() == clang::TemplateArgument::Type) {
+					const QualType QAT = SD->getTemplateArgs().get(J).getAsType();
+					if ( QAT->isPointerType() && !support::isConst(QAT)) {
+						std::string buf;
+						llvm::raw_string_ostream os(buf);
+						os << MD->getQualifiedNameAsString() << " is a const member function that returns a const std::vector<*> or const std::vector<*>& "<<rtname<<"\n";
+						std::string tolog = "data class '"+MD->getParent()->getNameAsString()+"' const function '" + MD->getNameAsString() + "' Warning: "+os.str();
+						writeLog(tolog);
+						ReportCallReturn(RS);
+					}
+				}
 			}
 		}
 
@@ -573,6 +594,7 @@ void WalkAST::ReportCallReturn(const clang::ReturnStmt * RS) {
   clang::PrintingPolicy Policy(LangOpts);
 
   os << "Returns a pointer or reference to a non-const member data object ";
+  os << " or a const std::vector<*> or const std::vector<*>& ";
   os << "in const function in statement '";
   RS->printPretty(os,0,Policy);
   os << "\n";
@@ -584,7 +606,7 @@ void WalkAST::ReportCallReturn(const clang::ReturnStmt * RS) {
 
   if (!m_exception.reportClass( CELoc, BR ) ) return;
   writeLog(tolog);
-  BugType * BT = new BugType("Class Checker : Const function returns pointer or reference to non-const member data object","ThreadSafety");
+  BugType * BT = new BugType("Class Checker : Const function returns pointer or reference to non-const member data object or const std::vector<*> or const std::vector<*>&","ThreadSafety");
   BugReport * R = new BugReport(*BT,os.str(),CELoc);
   BR.emitReport(R);
 	 
@@ -624,10 +646,8 @@ void ClassChecker::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ento::Ana
 					clang::QualType RTy = Ctx.getCanonicalType(RQT);
 					clang::QualType CTy = Ctx.getCanonicalType(CQT);
 					clang::ento::PathDiagnosticLocation ELoc =clang::ento::PathDiagnosticLocation::createBegin( MD , SM );
-					if ( (RTy->isPointerType() || RTy->isReferenceType() ) 
-					&&(!support::isConst(RTy) ) 
-					&& ( MD->getNameAsString().find("clone")==std::string::npos ) )  
-					{
+					if ( (RTy->isPointerType() || RTy->isReferenceType() ) &&(!support::isConst(RTy) ) && ( MD->getNameAsString().find("clone")==std::string::npos ) )
+						{
 						std::string buf;
 						llvm::raw_string_ostream os(buf);
 						os << MD->getQualifiedNameAsString() << " is a const member function that returns a pointer or reference to a non-const object \n";
@@ -635,6 +655,28 @@ void ClassChecker::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ento::Ana
 						writeLog(tolog);
 						clang::SourceRange SR = MD->getSourceRange();
 						BR.EmitBasicReport(MD, "Class Checker : Const function returns pointer or reference to non-const object.","ThreadSafety",os.str(),ELoc);
+						}
+					std::string svname = "const class std::vector<";
+					std::string rtname = RTy.getAsString();
+					if (  (RTy->isReferenceType() || RTy ->isRecordType() ) && support::isConst(RTy) && rtname.substr(0,svname.length()) == svname ) {
+						const CXXRecordDecl *RD;
+						if ( RTy->isRecordType() ) RD = RTy->getAsCXXRecordDecl();
+						else RD = RTy->getPointeeCXXRecordDecl();
+						const ClassTemplateSpecializationDecl *SD = dyn_cast<ClassTemplateSpecializationDecl>(RD);
+						for (unsigned J = 0, F = SD->getTemplateArgs().size(); J!=F; ++J) {
+							if (SD->getTemplateArgs().get(J).getKind() == clang::TemplateArgument::Type) {
+								const QualType QAT = SD->getTemplateArgs().get(J).getAsType();
+								if ( QAT->isPointerType() && !support::isConst(QAT) ) {
+									std::string buf;
+									llvm::raw_string_ostream os(buf);
+									os << MD->getQualifiedNameAsString() << " is a const member function that returns a const std::vector<*> or const std::vector<*>& "<<rtname<<"\n";
+									std::string tolog = "data class '"+MD->getParent()->getNameAsString()+"' const function '" + MD->getNameAsString() + "' Warning: "+os.str();
+									writeLog(tolog);
+									clang::SourceRange SR = MD->getSourceRange();
+									BR.EmitBasicReport(MD, "Class Checker : Const function returns const std::vector<*> or const std::vector<*>&","ThreadSafety",os.str(),ELoc);
+								}
+							}
+						}
 					}
 				}
    	}	/* end of methods loop */
