@@ -26,6 +26,15 @@ public:
 
   XrdStorageMaker()
   {
+    // When CMSSW loads, both XrdCl and XrdClient end up being loaded
+    // (ROOT loads XrdClient).  XrdClient forces IPv4-only.  Accordingly,
+    // we must explicitly set the default network stack in XrdCl to
+    // whatever is available on the node (IPv4 or IPv6).
+    XrdCl::Env *env = XrdCl::DefaultEnv::GetEnv();
+    if (env)
+    {
+      env->PutString("NetworkStack", "IPAll");
+    }
     setTimeout(XRD_DEFAULT_TIMEOUT);
   }
 
