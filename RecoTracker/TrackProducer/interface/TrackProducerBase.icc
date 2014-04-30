@@ -21,7 +21,7 @@
 
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 #include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
+// #include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 
 #include <TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h>
 #include <TrackingTools/DetLayers/interface/GeometricSearchDet.h> 
@@ -188,10 +188,11 @@ TrackProducerBase<T>::setSecondHitPattern(Trajectory* traj, T& track,
     // ----------- this previous block of code is not very safe. It should rely less on the sorting of the trajectory measurements -----
 
    
+    
     LogDebug("TrackProducer") << "calling inner compLayers()...";
-    std::vector< const DetLayer * > innerCompLayers = innerLayer->compatibleLayers(*innerState,dirForInnerLayers);
+    auto innerCompLayers = (*theSchool).compatibleLayers(*innerLayer,*innerState,dirForInnerLayers);
     LogDebug("TrackProducer") << "calling outer compLayers()...";
-    std::vector< const DetLayer * > outerCompLayers = outerLayer->compatibleLayers(*outerState,dirForOuterLayers);
+    auto outerCompLayers = (*theSchool).compatibleLayers(*outerLayer,*outerState,dirForOuterLayers);
 
     LogDebug("TrackProducer")
       << "inner DetLayer  sub: " 

@@ -332,7 +332,7 @@ TrackingRecHitRefProd rHits = evt.getRefBeforePut<TrackingRecHitCollection>();
       {
         edm::Handle<MeasurementTrackerEvent> mte;
         evt.getByLabel(edm::InputTag("MeasurementTrackerEvent"), mte);
-	NavigationSetter setter( *theSchool );
+	// NavigationSetter setter( *theSchool );
 	setSecondHitPattern(theTraj,track,thePropagator,&*mte);
       }
     //==============================================================

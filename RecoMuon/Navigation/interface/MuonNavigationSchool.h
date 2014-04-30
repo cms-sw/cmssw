@@ -50,7 +50,7 @@ class MuonNavigationSchool : public NavigationSchool {
     /// link endcap layers
     void linkEndcapLayers(const MapE&,std::vector<MuonForwardNavigableLayer*>&);
     /// establish inward links
-    void createInverseLinks() const;
+    void createInverseLinks();
     float calculateEta(const float&, const float& ) const;
 
   private: 

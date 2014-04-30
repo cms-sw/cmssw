@@ -47,6 +47,7 @@
 #include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
 
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
+#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 
 // class definition
 class NavigationSchoolAnalyzer : public edm::EDAnalyzer {
@@ -123,6 +124,8 @@ std::ostream& operator<<(std::ostream& os,const DetLayer* dl){
   return os;
 }
 
+
+
 std::ostream& operator<<(std::ostream&os, const NavigationSchool::StateType & layers){
   for (NavigationSchool::StateType::const_iterator l = layers.begin(); l!=layers.end();++l)
     {
@@ -158,19 +161,116 @@ std::ostream& operator<<(std::ostream&os, const NavigationSchool *nav){
   return os;}
 
 
+
+void printUsingGeom(std::ostream&os, const NavigationSchool & nav) {
+  auto dls = nav.allLayersInSystem(); // ok let's' keep it for debug
+  for ( auto dl : dls) {
+     os<<"####################\n"	 
+	<< "Layer: \n"
+       << (dl);
+      
+     auto displayThose=  nav.nextLayers(*dl,insideOut);
+      if (displayThose.empty())
+        {os<<"*** no INsideOUT connection ***\n";}
+      else{
+	os<<"*** INsideOUT CONNECTED TO ***\n";
+	for(std::vector<const DetLayer*>::iterator nl =displayThose.begin();nl!=displayThose.end();++nl)
+	  {os<<(*nl)<<"-----------------\n";}}
+
+      displayThose = nav.nextLayers(*dl,outsideIn);
+      if (displayThose.empty())
+	{os<<"*** no OUTsideIN connection ***\n";}
+      else{
+	os<<"*** OUTsideIN CONNECTED TO ***\n";
+	for(std::vector<const DetLayer*>::iterator nl =displayThose.begin();nl!=displayThose.end();++nl)
+	  {os<<(*nl)<<"-----------------\n";}}
+  }
+  os<<"\n";
+
+}
+
+void printOldStyle(std::ostream&os, const NavigationSchool & nav) {
+  NavigationSetter setter(nav);
+
+  auto dls = nav.allLayersInSystem(); // ok let's' keep it for debug
+  for ( auto dl : dls) {
+     os<<"####################\n"	 
+	<< "Layer: \n"
+       << (dl);
+      
+     auto displayThose=  dl->nextLayers(insideOut);
+      if (displayThose.empty())
+        {os<<"*** no INsideOUT connection ***\n";}
+      else{
+	os<<"*** INsideOUT CONNECTED TO ***\n";
+	for(std::vector<const DetLayer*>::iterator nl =displayThose.begin();nl!=displayThose.end();++nl)
+	  {os<<(*nl)<<"-----------------\n";}}
+
+      displayThose = dl->nextLayers(outsideIn);
+      if (displayThose.empty())
+	{os<<"*** no OUTsideIN connection ***\n";}
+      else{
+	os<<"*** OUTsideIN CONNECTED TO ***\n";
+	for(std::vector<const DetLayer*>::iterator nl =displayThose.begin();nl!=displayThose.end();++nl)
+	  {os<<(*nl)<<"-----------------\n";}}
+  }
+  os<<"\n";
+
+}
+
+
+
+
 // the analyzer itself
 NavigationSchoolAnalyzer::NavigationSchoolAnalyzer(const edm::ParameterSet& iConfig) :theNavigationSchoolName(iConfig.getParameter<std::string>("navigationSchoolName")) {}
 
 NavigationSchoolAnalyzer::~NavigationSchoolAnalyzer() {}
 
-void NavigationSchoolAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {}
+
+#include <sstream>
+#include <fstream>
+
+
+void NavigationSchoolAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  std::ostringstream byNav;
+  std::ostringstream byGeom;
+  std::ostringstream oldStyle;
+
+  std::ofstream ByNavFile(theNavigationSchoolName+"_ByNav.log");
+  std::ofstream ByGeomFile(theNavigationSchoolName+"_ByGeom.log");
+  std::ofstream oldStyleFile(theNavigationSchoolName+"_oldStyle.log");
+
+  //get the navigation school
+  edm::ESHandle<NavigationSchool> nav;
+  iSetup.get<NavigationSchoolRecord>().get(theNavigationSchoolName, nav);
+  byNav <<nav.product();
+  printUsingGeom(byGeom,*nav.product());
+  printOldStyle(oldStyle,*nav.product());
+
+  ByNavFile << byNav.str() << std::endl;
+  ByGeomFile << byGeom.str() << std::endl;
+  oldStyleFile << oldStyle.str() << std::endl;
+
+  if (oldStyle.str()!=byGeom.str()) std::cout << "Error: Navigation by Geom is not consistent with old Style Navigation in " 
+					   << theNavigationSchoolName<<"\n"<< std::endl;
+
+  // NavigationSetter setter(*nav.product());
+  std::cout << "NavigationSchoolAnalyzer "<<"hello at event" << std::endl;
+  std::cout << "NavigationSchoolAnalyzer "<<"NavigationSchool display of: "<<theNavigationSchoolName<<"\n"
+	    << byNav.str() << std::endl;
+
+  std::cout << "\n\nNavigationSchoolAnalyzer "<<"NavigationSchool display using Geometry"  << std::endl;
+  std::cout << byGeom.str() << std::endl;
+
+}
 
 void NavigationSchoolAnalyzer::beginRun(edm::Run & run, const edm::EventSetup& iSetup) {
   //get the navigation school
   edm::ESHandle<NavigationSchool> nav;
   iSetup.get<NavigationSchoolRecord>().get(theNavigationSchoolName, nav);
-  edm::LogInfo("NavigationSchoolAnalyzer")<<"hello";
-  edm::LogInfo("NavigationSchoolAnalyzer")<<"NavigationSchool display of: "<<theNavigationSchoolName<<"\n"<<nav.product();
+  // NavigationSetter setter(*nav.product());
+  std::cout << "NavigationSchoolAnalyzer "<<"hello at run" << std::endl;
+  std::cout << "NavigationSchoolAnalyzer "<<"NavigationSchool display of: "<<theNavigationSchoolName<<"\n"<<nav.product() << std::endl;
 }
 
 void NavigationSchoolAnalyzer::endJob() {}

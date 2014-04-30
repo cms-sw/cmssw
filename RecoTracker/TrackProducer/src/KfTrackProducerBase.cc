@@ -102,7 +102,7 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
       {
         edm::Handle<MeasurementTrackerEvent> mte;
         evt.getByToken(mteSrc_, mte);
-	NavigationSetter setter( *theSchool );
+	// NavigationSetter setter( *theSchool );
 	setSecondHitPattern(theTraj,track,prop,&*mte);
       }
     //==============================================================
