@@ -13,8 +13,6 @@ Jet::Jet() :
   PATObject<reco::Jet>(reco::Jet()),
   embeddedCaloTowers_(false),
   embeddedPFCandidates_(false),
-  partonFlavour_(0),
-  hadronFlavour_(0),
   jetCharge_(0.)
 {
 }
@@ -24,8 +22,6 @@ Jet::Jet(const reco::Jet & aJet) :
   PATObject<reco::Jet>(aJet),
   embeddedCaloTowers_(false),
   embeddedPFCandidates_(false),
-  partonFlavour_(0),
-  hadronFlavour_(0),
   jetCharge_(0.0)
 {
   tryImportSpecific(aJet);
@@ -36,8 +32,6 @@ Jet::Jet(const edm::Ptr<reco::Jet> & aJetRef) :
   PATObject<reco::Jet>(aJetRef),
   embeddedCaloTowers_(false),
   embeddedPFCandidates_(false),
-  partonFlavour_(0),
-  hadronFlavour_(0),
   jetCharge_(0.0)
 {
   tryImportSpecific(*aJetRef);
@@ -48,8 +42,6 @@ Jet::Jet(const edm::RefToBase<reco::Jet> & aJetRef) :
   PATObject<reco::Jet>(aJetRef),
   embeddedCaloTowers_(false),
   embeddedPFCandidates_(false),
-  partonFlavour_(0),
-  hadronFlavour_(0),
   jetCharge_(0.0)
 {
   tryImportSpecific(*aJetRef);
@@ -193,12 +185,12 @@ const reco::GenJet * Jet::genJet() const {
 
 /// return the parton-based flavour of the jet
 int Jet::partonFlavour() const {
-  return partonFlavour_;
+  return jetFlavourInfo_.getPartonFlavour();
 }
 
 /// return the hadron-based flavour of the jet
 int Jet::hadronFlavour() const {
-  return hadronFlavour_;
+  return jetFlavourInfo_.getHadronFlavour();
 }
 
 /// return the JetFlavourInfo of the jet
@@ -434,12 +426,12 @@ void Jet::setGenJetRef(const edm::FwdRef<reco::GenJetCollection> & gj)
 
 /// method to set the parton-based flavour of the jet
 void Jet::setPartonFlavour(int partonFl) {
-  partonFlavour_ = partonFl;
+  jetFlavourInfo_.setPartonFlavour(partonFl);
 }
 
 /// method to set the hadron-based flavour of the jet
 void Jet::setHadronFlavour(int hadronFl) {
-  hadronFlavour_ = hadronFl;
+  jetFlavourInfo_.setHadronFlavour(hadronFl);
 }
 
 /// method to set the JetFlavourInfo of the jet
