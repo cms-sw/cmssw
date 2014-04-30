@@ -1864,8 +1864,8 @@ void CSCMotherboardME11::buildCoincidencePads(const GEMCSCPadDigiCollection* out
         // check the match in BX
         if (std::abs(p->bx() - co_p->bx()) > maxDeltaBXInCoPad_ ) continue;
 
-	// make a new coincidence pad digi
-	gemCoPadV.push_back(std::make_pair(*p,*co_p));
+        // make a new coincidence pad digi
+        gemCoPadV.push_back(GEMCSCCoPadDigi(*p,*co_p));
         
         // always use layer1 pad's BX as a copad's BX
         GEMCSCPadDigi co_pad_digi(p->pad(), p->bx());

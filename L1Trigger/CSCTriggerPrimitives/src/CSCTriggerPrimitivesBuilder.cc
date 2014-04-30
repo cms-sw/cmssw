@@ -410,10 +410,10 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
                 oc_pretrig.put(std::make_pair(preTriggerBXs.begin(),preTriggerBXs.end()), detid);
               }
 
-	      // 0th layer means whole chamber.
-	      GEMDetId gemId(endc, 1, 2, 1, chid, 0);
+              // 0th layer means whole chamber.
+              GEMDetId gemId(endc, 1, 2, 1, chid, 0);
 	      
-	      // GEM coincidence pads
+              // GEM coincidence pads
               if (!copads.empty()) {
                 LogTrace("L1CSCTrigger")
                   << "Put " << copads.size() << " GEM coincidence pad"
