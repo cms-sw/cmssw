@@ -1,3 +1,4 @@
+#ifndef __clang__
 // macro to check for GCC version
 #define GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
 
@@ -210,3 +211,7 @@ int main(void) {
 
   return 0;
 }
+#else
+int
+main(){}
+#endif // !__clang__
