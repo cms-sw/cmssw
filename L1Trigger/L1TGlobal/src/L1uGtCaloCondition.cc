@@ -36,8 +36,8 @@
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctJetCand.h"
 */
 
-#include "CondFormats/L1TObjects/interface/L1GtStableParameters.h"
-#include "CondFormats/DataRecord/interface/L1GtStableParametersRcd.h"
+#include "CondFormats/L1TObjects/interface/L1uGtStableParameters.h"
+#include "CondFormats/DataRecord/interface/L1uGtStableParametersRcd.h"
 
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerFunctions.h"
 #include "L1Trigger/L1TGlobal/interface/L1uGtBoard.h"

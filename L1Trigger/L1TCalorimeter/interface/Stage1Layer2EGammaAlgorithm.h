@@ -18,6 +18,7 @@
 #include "DataFormats/L1TCalorimeter/interface/CaloRegion.h"
 
 #include "DataFormats/L1Trigger/interface/EGamma.h"
+#include "DataFormats/L1Trigger/interface/Jet.h"
 
 #include "L1Trigger/L1TCalorimeter/interface/L1GObject.h"
 #include "DataFormats/L1TCalorimeter/interface/CaloEmCand.h"
@@ -31,6 +32,7 @@ namespace l1t {
   public:
     virtual void processEvent(const std::vector<l1t::CaloEmCand> & EMCands,
 			      const std::vector<l1t::CaloRegion> & regions,
+			      const std::vector<l1t::Jet> * jets,
 			      std::vector<l1t::EGamma>* egammas) = 0;
 
     virtual ~Stage1Layer2EGammaAlgorithm(){};
@@ -38,13 +40,13 @@ namespace l1t {
     std::vector<double> regionSubtraction;
 
   private:
-    double Isolation(int ieta, int iphi,
-		     const std::vector<l1t::CaloRegion> & regions)  const;
-    double HoverE(int et, int ieta, int iphi,
-		  const std::vector<l1t::CaloRegion> & regions)  const;
-    unsigned int egtSeed;
-    double relativeIsolationCut;
-    double HoverECut;
+    // double Isolation(int ieta, int iphi,
+    // 		     const std::vector<l1t::CaloRegion> & regions)  const;
+    // double HoverE(int et, int ieta, int iphi,
+    // 		  const std::vector<l1t::CaloRegion> & regions)  const;
+    // unsigned int egtSeed;
+    // double relativeIsolationCut;
+    // double HoverECut;
   };
 
 }

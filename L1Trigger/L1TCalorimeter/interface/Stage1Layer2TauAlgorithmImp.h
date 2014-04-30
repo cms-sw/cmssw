@@ -17,6 +17,7 @@ namespace l1t {
     virtual void processEvent(//const std::vector<l1t::CaloStage1> & clusters,
 			      const std::vector<l1t::CaloEmCand> & clusters,
                               const std::vector<l1t::CaloRegion> & regions,
+			      const std::vector<l1t::Jet> * jets,
                               std::vector<l1t::Tau> * taus);
 
   /* private: */
@@ -29,6 +30,7 @@ namespace l1t {
     virtual ~Stage1Layer2TauAlgorithmImpPP();
     virtual void processEvent(const std::vector<l1t::CaloEmCand> & EMCands,
                               const std::vector<l1t::CaloRegion> & regions,
+			      const std::vector<l1t::Jet> * jets,
                               std::vector<l1t::Tau> * taus);
 
   private: 
@@ -42,9 +44,15 @@ namespace l1t {
     double JetIsolation(int et, int ieta, int iphi, 
 			const std::vector<l1t::Jet> & jets) const;
 
-    int tauSeed;
-    double relativeIsolationCut;
-    double relativeJetIsolationCut;
+    //int tauSeed;
+    //double relativeIsolationCut;
+    //double relativeJetIsolationCut;
+    int tauSeedThreshold;
+    int jetSeedThreshold;
+    int switchOffTauIso;
+    bool do2x1Algo;
+    double jetScale;
+    double tauRelativeJetIsolationCut;
   };
 }
 #endif
