@@ -75,7 +75,7 @@ public:
   };
 
   static double bias(bool insec=true, unsigned int n=5000) {
-    static Bias it(n);
+    static const Bias it(n);
     return insec ? it.mes : double(it.met) ;
   }
 
@@ -141,7 +141,7 @@ struct DummyTime {
   };
   
   static double oneTick() {
-    static OneTick local;
+    static const OneTick local;
     return local.one;
   };
 
