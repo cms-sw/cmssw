@@ -75,7 +75,7 @@ void SimpleNavigationSchool::cleanMemory(){
 }
 
 SimpleNavigationSchool::StateType 
-SimpleNavigationSchool::navigableLayers() const
+SimpleNavigationSchool::navigableLayers()
 {
   StateType result;
   for ( vector< SimpleBarrelNavigableLayer*>::const_iterator 
