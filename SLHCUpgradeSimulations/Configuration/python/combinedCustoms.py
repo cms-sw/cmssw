@@ -29,11 +29,13 @@ from SLHCUpgradeSimulations.Configuration.fastsimCustoms import customisePhase2 
 from SLHCUpgradeSimulations.Configuration.customise_mixing import customise_noPixelDataloss as cNoPixDataloss
 from SLHCUpgradeSimulations.Configuration.customise_ecalTime import cust_ecalTime
 import SLHCUpgradeSimulations.Configuration.aging as aging
+import SLHCUpgradeSimulations.Configuration.jetCustoms as jetCustoms
 
 def cust_phase1_Pixel10D(process):
     process=customisePostLS1(process)
     process=customisePhase1TkPixel10D(process)
     process=customise_HcalPhase1(process)
+    process=jetCustoms.customise_jets(process)
     return process 
 
 def cust_phase2_BE5DPixel10D(process):
@@ -41,6 +43,7 @@ def cust_phase2_BE5DPixel10D(process):
     process=customiseBE5DPixel10D(process)
     process=customise_HcalPhase2(process)
     process=customise_ev_BE5DPixel10D(process)
+    process=jetCustoms.customise_jets(process)
     return process
 
 def cust_phase2_BE5D(process):
@@ -48,6 +51,7 @@ def cust_phase2_BE5D(process):
     process=customiseBE5D(process)
     process=customise_HcalPhase2(process)
     process=customise_ev_BE5D(process)
+    process=jetCustoms.customise_jets(process)
     return process
 
 def cust_phase2_BE(process):
@@ -55,6 +59,7 @@ def cust_phase2_BE(process):
     process=customiseBE(process)
     process=customise_HcalPhase2(process)
     process=customise_ev_BE(process)
+    process=jetCustoms.customise_jets(process)
     return process
 
 def cust_phase2_LB6PS(process): #obsolete
@@ -85,6 +90,7 @@ def cust_2019(process):
     process=customisePostLS1(process)
     process=customisePhase1Tk(process)
     process=customise_HcalPhase1(process)
+    process=jetCustoms.customise_jets(process)
 #    process=fixRPCConditions(process)
     return process
 
@@ -100,6 +106,7 @@ def cust_2023(process):
     process=customise_ev_BE5D(process)
     process=customise_gem2023(process)
     process=customise_rpc(process)
+    process=jetCustoms.customise_jets(process)
     return process
 
 def cust_2023NoEE(process):
@@ -116,6 +123,7 @@ def cust_2023Pixel(process):
     process=customise_HcalPhase2(process)
     process=customise_ev_BE5DPixel10D(process)
     process=customise_gem2023(process)
+    process=jetCustoms.customise_jets(process)
     return process
 
 def cust_2023Muon(process):
@@ -126,6 +134,7 @@ def cust_2023Muon(process):
     process=customise_gem2023(process)
     process=customise_rpc(process)
     process=customise_me0(process)
+    process=jetCustoms.customise_jets(process)
     return process
 
 def cust_2023TTI(process):
