@@ -115,6 +115,8 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
     freeChunks_.push(new InputChunk(i,eventChunkSize_));
   }
 
+  quit_threads_ = false;
+
   for (unsigned int i=0;i<numConcurrentReads_;i++)
   {
     std::unique_lock<std::mutex> lk(startupLock_);
@@ -778,8 +780,10 @@ void FedRawDataInputSource::readSupervisor()
       else {
         assert(!(workerPool_.empty() && !singleBufferMode_) || freeChunks_.empty());
       }
-      if (quit_threads_ || edm::shutdown_flag.load(std::memory_order_relaxed)) {stop=true;break;}
+      if (quit_threads_.load(std::memory_order_relaxed) || edm::shutdown_flag.load(std::memory_order_relaxed)) {stop=true;break;}
     }
+
+    if (stop) break;
 
     //look for a new file
     std::string nextFile;
@@ -793,7 +797,7 @@ void FedRawDataInputSource::readSupervisor()
     evf::EvFDaqDirector::FileStatus status =  evf::EvFDaqDirector::noFile;
 
     while (status == evf::EvFDaqDirector::noFile) {
-      if (quit_threads_ || edm::shutdown_flag.load(std::memory_order_relaxed)) {
+      if (quit_threads_.load(std::memory_order_relaxed) || edm::shutdown_flag.load(std::memory_order_relaxed)) {
 	stop=true;
 	break;
       }
@@ -845,19 +849,17 @@ void FedRawDataInputSource::readSupervisor()
 	  unsigned int newTid = 0xffffffff;
 	  while (!workerPool_.try_pop(newTid)) {
 	    usleep(100000);
-            if (edm::shutdown_flag.load(std::memory_order_relaxed)) break;
 	  }
 
 	  InputChunk * newChunk = nullptr;
 	  while (!freeChunks_.try_pop(newChunk)) {
-	    usleep(100000);
-            if (edm::shutdown_flag.load(std::memory_order_relaxed)) break;
+            usleep(100000);
+            if (quit_threads_.load(std::memory_order_relaxed)) break;
 	  }
 
-          if (edm::shutdown_flag.load(std::memory_order_relaxed)) {
-            //return objects if we received shutdown in this loop
+          if (newChunk == nullptr) {
+            //return unused tid if we received shutdown (nullptr chunk)
             if (newTid!=0xffffffff) workerPool_.push(newTid);
-            if (newChunk!=nullptr) freeChunks_.push(newChunk);
             stop = true;
             break;
           }
