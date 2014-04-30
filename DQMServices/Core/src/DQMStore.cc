@@ -21,6 +21,7 @@
 #include <cerrno>
 #include <boost/algorithm/string.hpp>
 #include <fstream>
+#include <sys/stat.h>
 
 /** @var DQMStore::verbose_
     Universal verbose flag for DQM. */
