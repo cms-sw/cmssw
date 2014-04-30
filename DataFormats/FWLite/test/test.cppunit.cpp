@@ -238,7 +238,7 @@ void testRefInROOT::testRefFirst()
     for(edmtest::OtherThingCollection::const_iterator itOther=pOthers->begin(), itEnd=pOthers->end() ;
         itOther != itEnd; ++itOther) {
       //std::cout <<"getting ref"<<std::endl;
-      itOther->ref.get()->a;
+      std:: cout << itOther->ref.get()->a << "\n";
     }
     //std::cout <<"get all Refs"<<std::endl;
     
