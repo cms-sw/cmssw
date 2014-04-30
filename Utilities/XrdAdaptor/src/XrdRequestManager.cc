@@ -8,6 +8,7 @@
 #include "FWCore/Utilities/interface/CPUTimer.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Utilities/StorageFactory/interface/StatisticsSenderService.h"
 
 #include "Utilities/XrdAdaptor/src/XrdRequestManager.h"
 
@@ -52,6 +53,49 @@ long long timeDiffMS(const timespec &a, const timespec &b)
   diff += (a.tv_nsec - b.tv_nsec) / 1e6;
   return diff;
 }
+
+
+class SendMonitoringInfoHandler : boost::noncopyable, public XrdCl::ResponseHandler
+{
+    virtual void HandleResponse(XrdCl::XRootDStatus *status, XrdCl::AnyObject *response) override
+    {
+        if (response)
+        {
+            XrdCl::Buffer *buffer = nullptr;
+            response->Get(buffer);
+            if (buffer)
+            {
+                delete buffer;
+            }
+        }
+    }
+};
+
+SendMonitoringInfoHandler nullHandler;
+
+
+static void
+SendMonitoringInfo(XrdCl::File &file)
+{
+    // Send the monitoring info, if available.
+    const char * jobId = edm::storage::StatisticsSenderService::getJobID();
+    std::string lastUrl;
+    file.GetProperty("LastURL", lastUrl);
+    if (jobId && lastUrl.size())
+    {
+        XrdCl::URL url(lastUrl);
+        XrdCl::URL::ParamsMap map = url.GetParams();
+        // Do not send this to a dCache data server as they return an error.
+        if (map.find("org.dcache.uuid") != map.end())
+        {
+            return;
+        }
+        XrdCl::FileSystem fs = XrdCl::FileSystem(XrdCl::URL(lastUrl));
+        fs.SendInfo(jobId, &nullHandler, 30);
+        edm::LogInfo("XrdAdaptorInternal") << "Set monitoring ID to " << jobId << ".";
+    }
+}
+
 
 RequestManager::RequestManager(const std::string &filename, XrdCl::OpenFlags::Flags flags, XrdCl::Access::Mode perms)
     : m_nextInitialSourceToggle(false),
@@ -121,6 +165,7 @@ RequestManager::RequestManager(const std::string &filename, XrdCl::OpenFlags::Fl
   {
       throw ex;
   }
+  SendMonitoringInfo(*file);
 
   timespec ts;
   GET_CLOCK_MONOTONIC(ts);
@@ -737,7 +782,9 @@ XrdAdaptor::RequestManager::OpenHandler::~OpenHandler()
     // Make sure there are no outstanding requests that may try to callback to us.
     if (m_shared_future.valid())
     {
-        m_shared_future.wait();
+        // Note that we wait for a maximum amount of time - this is as an extra
+        // safety net against issues in the XrdCl callback.
+        m_shared_future.wait_for(std::chrono::seconds(180+10));
     }
 }
 
@@ -760,6 +807,7 @@ XrdAdaptor::RequestManager::OpenHandler::HandleResponseWithHosts(XrdCl::XRootDSt
     m_ignore_response.clear();
     if (status->IsOK())
     {
+        SendMonitoringInfo(*m_file);
         timespec now;
         GET_CLOCK_MONOTONIC(now);
         source = std::shared_ptr<Source>(new Source(now, std::move(m_file)));
