@@ -156,7 +156,7 @@ std::ostream& operator<<(std::ostream&os, const NavigationSchool::StateType & la
 
 
 std::ostream& operator<<(std::ostream&os, const NavigationSchool *nav){
-  NavigationSchool::StateType layer=nav->navigableLayers();
+  NavigationSchool::StateType layer=const_cast<NavigationSchool *>(nav)->navigableLayers();
   os<<layer;
   return os;}
 
