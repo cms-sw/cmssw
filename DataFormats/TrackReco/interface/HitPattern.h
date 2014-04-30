@@ -44,8 +44,8 @@
 //      missingOuter = 5
 //
 //  padding: Padding content does not matter, but I will strongly encourage
-//           you to keep then under control and set as ZERO.
-//TODO ensure this comment is correct
+//           you to keep then under control and set to ZERO.
+
 // It had been shown by Zongru using a 100 GeV muon sample with 5000 events
 // uniform in eta and phi, the average (maximum) number of tracker hits is
 // 13 (17) and the average (maximum) number of muon detector hits is about
@@ -83,37 +83,6 @@
 //         STEREO: valid stereo hit
 //  MONO | STEREO: both
 //
-// Given a track, here is an example usage of hit pattern
-//
-//      // hit pattern of the track
-//      const reco::HitPattern &p = track->hitPattern();
-//
-//      // loop over the hits of the track
-//      for (int i=0; i<p.numberOfHits(); i++) {
-//        uint16_t hit = p.getHitPattern(i);
-//
-//        // if the hit is valid and in pixel barrel, print out the layer
-//        if (p.validHitFilter(hit) && p.pixelBarrelHitFilter(hit))
-//      std::cout << "valid hit found in pixel barrel layer "
-//                    << p.getLayer(hit) << std::endl;
-//
-//        // expert level: printout the hit in 10-bit binary format
-//        std::cout << "hit in 10-bit binary format = ";
-//        for (int j=9; j>=0; j--) {
-//          int bit = (hit >> j) & 0x1;
-//          std::cout << bit;
-//        }
-//        std::cout << std::endl;
-//      }
-//
-//      // count the number of valid pixel barrel *** hits ***
-//      std::cout << "number of of valid pixel barrel hits is "
-//                << p.numberOfValidPixelBarrelHits() << std::endl;
-//
-//      // count the number of pixel barrel *** layers *** with measurement
-//      std::cout << "number of of pixel barrel layers with measurement is "
-//                << p.pixelBarrelLayersWithMeasurement() << std::endl;
-//
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
@@ -140,7 +109,6 @@ public:
         STEREO = 2
     };
 
-    //TODO use this or use TrackingRecHit's, but we are not keeping both
     enum HIT_TYPE {
         VALID = 0,
         MISSING = 1,
@@ -158,7 +126,6 @@ public:
     };
 
     static const unsigned short MaxHits = 72;
-//    static const unsigned short ReservedSpaceForHits = 0;
     static const uint32_t NULL_RETURN = 999999;
     static const uint16_t EMPTY_PATTERN = 0x0;
 
