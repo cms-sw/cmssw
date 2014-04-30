@@ -5,7 +5,7 @@
  *
  * Digi for GEM-CSC trigger copads
  *  
- * \author Vadim Khotilovich
+ * \author Sven Dildick
  *
  */
 
