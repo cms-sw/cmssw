@@ -12,7 +12,16 @@
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include <sstream>
 
-TrackerMuonHitExtractor::TrackerMuonHitExtractor(const edm::ParameterSet& parset) :
+TrackerMuonHitExtractor::TrackerMuonHitExtractor(const edm::ParameterSet& parset,
+						 edm::ConsumesCollector && ic) :
+  inputDTRecSegment4DToken_(ic.consumes<DTRecSegment4DCollection>(parset.getParameter<edm::InputTag>("inputDTRecSegment4DCollection"))),
+  inputCSCSegmentToken_(ic.consumes<CSCSegmentCollection>(parset.getParameter<edm::InputTag>("inputCSCSegmentCollection"))),
+  inputDTRecSegment4DCollection_(parset.getParameter<edm::InputTag>("inputDTRecSegment4DCollection")),
+  inputCSCSegmentCollection_(parset.getParameter<edm::InputTag>("inputCSCSegmentCollection"))
+{
+}
+
+TrackerMuonHitExtractor::TrackerMuonHitExtractor(const edm::ParameterSet& parset ) :
   inputDTRecSegment4DCollection_(parset.getParameter<edm::InputTag>("inputDTRecSegment4DCollection")),
   inputCSCSegmentCollection_(parset.getParameter<edm::InputTag>("inputCSCSegmentCollection"))
 {

@@ -12,10 +12,12 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 class TrackerMuonHitExtractor {
   public:
-    explicit TrackerMuonHitExtractor(const edm::ParameterSet&);
+    explicit TrackerMuonHitExtractor(const edm::ParameterSet&, edm::ConsumesCollector && ic);
+    explicit TrackerMuonHitExtractor(const edm::ParameterSet& );
     ~TrackerMuonHitExtractor();
 
     void init(const edm::Event&, const edm::EventSetup&);
@@ -24,8 +26,11 @@ class TrackerMuonHitExtractor {
     edm::Handle<DTRecSegment4DCollection> dtSegmentCollectionH_;
     edm::Handle<CSCSegmentCollection> cscSegmentCollectionH_;
 
+    edm::EDGetTokenT<DTRecSegment4DCollection> inputDTRecSegment4DToken_;
+    edm::EDGetTokenT<CSCSegmentCollection> inputCSCSegmentToken_;
     edm::InputTag inputDTRecSegment4DCollection_;
     edm::InputTag inputCSCSegmentCollection_;
+
 };
 
 #endif
