@@ -1,12 +1,5 @@
-#ifndef UTIL_H
-#define UTIL_H
-
-#include <cstdlib>
-#include <sstream>
-#include <string>
-#include <vector>
-#include <cmath>
-
+#ifndef CondFormats_JetMETObjects_Utilities_h
+#define CondFormats_JetMETObjects_Utilities_h
 
 #ifdef STANDALONE
 #include <stdexcept>
@@ -14,42 +7,57 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #endif
 
-namespace 
+#include <cstdlib>
+#include <sstream>
+#include <string>
+#include <vector>
+#include <cmath>
+
+namespace
 {
-  void handleError(const std::string& fClass, const std::string& fMessage);
+  void handleError(const std::string& fClass, const std::string& fMessage)
+  {
+#ifdef STANDALONE
+    std::stringstream sserr;
+    sserr<<fClass<<" ERROR: "<<fMessage;
+    throw std::runtime_error(sserr.str());
+#else
+    throw cms::Exception(fClass)<<fMessage;
+#endif
+  }
   //----------------------------------------------------------------------
-  float getFloat(const std::string& token) 
+  float getFloat(const std::string& token)
   {
     char* endptr;
     float result = strtod (token.c_str(), &endptr);
-    if (endptr == token.c_str()) 
+    if (endptr == token.c_str())
       {
-        std::stringstream sserr; 
+        std::stringstream sserr;
         sserr<<"can't convert token "<<token<<" to float value";
 	handleError("getFloat",sserr.str());
       }
     return result;
-  } 
+  }
   //----------------------------------------------------------------------
-  unsigned getUnsigned(const std::string& token) 
+  unsigned getUnsigned(const std::string& token)
   {
     char* endptr;
     unsigned result = strtoul (token.c_str(), &endptr, 0);
-    if (endptr == token.c_str()) 
+    if (endptr == token.c_str())
       {
-        std::stringstream sserr; 
+        std::stringstream sserr;
         sserr<<"can't convert token "<<token<<" to unsigned value";
 	handleError("getUnsigned",sserr.str());
       }
     return result;
   }
   //----------------------------------------------------------------------
-  std::string getSection(const std::string& token) 
+  std::string getSection(const std::string& token)
   {
     size_t iFirst = token.find ('[');
     size_t iLast = token.find (']');
     if (iFirst != std::string::npos && iLast != std::string::npos && iFirst < iLast)
-      return std::string (token, iFirst+1, iLast-iFirst-1); 
+      return std::string (token, iFirst+1, iLast-iFirst-1);
     return "";
   }
   //----------------------------------------------------------------------
@@ -57,13 +65,13 @@ namespace
   {
     std::vector<std::string> tokens;
     std::string currentToken;
-    for (unsigned ipos = 0; ipos < fLine.length (); ++ipos) 
+    for (unsigned ipos = 0; ipos < fLine.length (); ++ipos)
       {
         char c = fLine[ipos];
         if (c == '#') break; // ignore comments
-        else if (c == ' ') 
+        else if (c == ' ')
           { // flush current token if any
-            if (!currentToken.empty()) 
+            if (!currentToken.empty())
               {
 	        tokens.push_back(currentToken);
 	        currentToken.clear();
@@ -72,30 +80,19 @@ namespace
         else
           currentToken += c;
       }
-    if (!currentToken.empty()) tokens.push_back(currentToken); // flush end 
+    if (!currentToken.empty()) tokens.push_back(currentToken); // flush end
     return tokens;
   }
-  //---------------------------------------------------------------------- 
-  std::string getDefinitions(const std::string& token) 
+  //----------------------------------------------------------------------
+  std::string getDefinitions(const std::string& token)
   {
     size_t iFirst = token.find ('{');
     size_t iLast = token.find ('}');
     if (iFirst != std::string::npos && iLast != std::string::npos && iFirst < iLast)
-      return std::string (token, iFirst+1, iLast-iFirst-1); 
+      return std::string (token, iFirst+1, iLast-iFirst-1);
     return "";
   }
-  //------------------------------------------------------------------------ 
-  void handleError(const std::string& fClass, const std::string& fMessage)
-  {
-#ifdef STANDALONE 
-    std::stringstream sserr;
-    sserr<<fClass<<" ERROR: "<<fMessage;
-    throw std::runtime_error(sserr.str());
-#else
-    throw cms::Exception(fClass)<<fMessage;
-#endif
-  }
-  //------------------------------------------------------------------------ 
+  //------------------------------------------------------------------------
   float quadraticInterpolation(float fZ, const float fX[3], const float fY[3])
   {
     // Quadratic interpolation through the points (x[i],y[i]). First find the parabola that
