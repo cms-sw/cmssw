@@ -21,8 +21,6 @@
 
 
 #include "SeedToTrackProducer.h"
-#include <iostream>
-#define JALDEAAR_PRINTS
 //
 // class declaration
 //
@@ -145,9 +143,6 @@ SeedToTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         unsigned int index_hit = 0;
         for(TrajectorySeed::recHitContainer::const_iterator itRecHits=(L2seeds->at(i)).recHits().first; itRecHits!=(L2seeds->at(i)).recHits().second; ++itRecHits, ++countRH) {
             TrackingRecHit* hit = (itRecHits)->clone();
-#ifdef JALDEAAR_PRINTS
-            std::cout<< "SeedToTrackProducer - insertion index: " << index_hit << std::endl;
-#endif
             theTrack.appendHitPattern(*hit);
             selectedTrackHits->push_back(hit);
             index_hit++;

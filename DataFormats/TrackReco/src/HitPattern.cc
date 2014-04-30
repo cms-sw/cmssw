@@ -14,8 +14,6 @@
 using namespace reco;
 using namespace std;
 
-//#define JALDEAAR_PRINTS
-
 HitPattern::HitPattern() :
     hitCount(0),
     beginTrackHits(0),
@@ -79,42 +77,7 @@ void HitPattern::clear(void)
 
     memset(this->hitPattern, EMPTY_PATTERN, sizeof(uint16_t) * HitPattern::MaxHits);
 }
-/*
-HitPattern HitPattern::getHitsByCategory(HitCategory category) const
-{
-    HitPattern hits;
 
-    std::pair<uint8_t, uint8_t> range = getCategoryIndexRange(category);
-
-    int hitsToCopy = range.second - range.first;
-    memcpy(hits.hitPattern, &hitPattern[range.first], sizeof(uint16_t) * hitsToCopy);
-
-    hits.hitCount = hitsToCopy;
-
-    switch (category) {
-    case ALL_HITS:
-        //same as copying
-        hits.beginTrackHits = this->beginTrackHits;
-        hits.endTrackHits = this->endTrackHits;
-        hits.beginInner = this->beginInner;
-        hits.endInner = this->endInner;
-        hits.beginOuter = this->beginOuter;
-        hits.endOuter = this->endOuter;
-        break;
-    case TRACK_HITS:
-        hits.endTrackHits = hitsToCopy;
-        break;
-    case MISSING_INNER_HITS:
-        hits.endInner = hitsToCopy;
-        break;
-    case MISSING_OUTER_HITS:
-        hits.endOuter = hitsToCopy;
-        break;
-    }
-
-    return hits;
-}
-*/
 std::pair<uint8_t, uint8_t> HitPattern::getCategoryIndexRange(HitCategory category) const
 {
     switch (category) {
@@ -936,9 +899,7 @@ bool HitPattern::insertTrackHit(const uint16_t pattern)
     hitPattern[hitCount] = pattern;
     hitCount++;
     endTrackHits++;
-#ifdef JALDEAAR_PRINTS
-    std::cout << std::endl << "HITS TOTALES " << (int)hitCount << std::endl;
-#endif
+
     return true;
 }
 
@@ -948,11 +909,6 @@ bool HitPattern::insertExpectedInnerHit(const uint16_t pattern)
     // end == 0 means we haven't inserted any hits yet, but we still might,
     // so we neeed to check for reservations.
 
-    /*
-    if unlikely((0 == endTrackHits && ((HitPattern::MaxHits - hitCount) <= HitPattern::ReservedSpaceForHits))) {
-        return false;
-    }
-    */
     if unlikely((0 == beginInner && 0 == endInner)) {
         beginInner = hitCount;
         endInner = beginInner;
@@ -961,20 +917,12 @@ bool HitPattern::insertExpectedInnerHit(const uint16_t pattern)
     hitPattern[hitCount] = pattern;
     hitCount++;
     endInner++;
-#ifdef JALDEAAR_PRINTS
-   std::cout << std::endl << "HITS TOTALES " << (int)hitCount << std::endl;
-#endif
+
     return true;
 }
 
 bool HitPattern::insertExpectedOuterHit(const uint16_t pattern)
 {
-    /*
-    if unlikely((0 == endTrackHits && ((HitPattern::MaxHits - hitCount) <= HitPattern::ReservedSpaceForHits))) {
-        return false;
-    }
-    */
-
     if unlikely((0 == beginOuter && 0 == endOuter)) {
         beginOuter = hitCount;
         endOuter = beginOuter;
@@ -983,9 +931,7 @@ bool HitPattern::insertExpectedOuterHit(const uint16_t pattern)
     hitPattern[hitCount] = pattern;
     hitCount++;
     endOuter++;
-#ifdef JALDEAAR_PRINTS
-    std::cout << std::endl << "HITS TOTALES " << (int)hitCount << std::endl;
-#endif
+
     return true;
 }
 
