@@ -8,6 +8,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "SimMuon/MCTruth/interface/MuonAssociatorByHits.h"
+#include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
 
 class MuonAssociatorEDProducer : public edm::EDProducer {
 public:
@@ -21,6 +22,9 @@ private:
 
   edm::InputTag tracksTag;
   edm::InputTag tpTag;
+  edm::EDGetTokenT<TrackingParticleCollection> tpToken_;
+  edm::EDGetTokenT<edm::View<reco::Track> > tracksToken_;
+
   bool ignoreMissingTrackCollection;
   edm::ParameterSet parset_;
   MuonAssociatorByHits * associatorByHits;
