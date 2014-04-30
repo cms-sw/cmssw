@@ -1,10 +1,15 @@
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
+#include "RecoTauTag/RecoTau/interface/RecoTauVertexAssociator.h"
+#include <boost/foreach.hpp>
+#include "DataFormats/VertexReco/interface/Vertex.h"
 
 /* class PFRecoTauDiscriminationByNProngs
  * created : August 30 2010,
  * contributors : Sami Lehti (sami.lehti@cern.ch ; HIP, Helsinki)
  * based on H+ tau ID by Lauri Wendland
+ * Modified April 16 2014 by S.Lehti
  */
 
 using namespace reco;
@@ -13,31 +18,58 @@ using namespace edm;
 
 class PFRecoTauDiscriminationByNProngs : public PFTauDiscriminationProducerBase  {
     public:
-	explicit PFRecoTauDiscriminationByNProngs(const ParameterSet& iConfig):PFTauDiscriminationProducerBase(iConfig){
-		nprongs			= iConfig.getParameter<uint32_t>("nProngs");
-		booleanOutput = iConfig.getParameter<bool>("BooleanOutput");
-	}
-
+	explicit PFRecoTauDiscriminationByNProngs(const ParameterSet&);
       	~PFRecoTauDiscriminationByNProngs(){}
 
 	void beginEvent(const edm::Event&, const edm::EventSetup&) override;
 	double discriminate(const reco::PFTauRef&) override;
 
     private:
+	std::auto_ptr<tau::RecoTauQualityCuts> qcuts_;
+	std::auto_ptr<tau::RecoTauVertexAssociator> vertexAssociator_;
 
-	uint32_t nprongs;
+	uint32_t minN,maxN;
 	bool booleanOutput;
+	edm::ParameterSet qualityCuts;
 };
 
-void PFRecoTauDiscriminationByNProngs::beginEvent(const Event& iEvent, const EventSetup& iSetup){}
+PFRecoTauDiscriminationByNProngs::PFRecoTauDiscriminationByNProngs(const ParameterSet& iConfig):
+  PFTauDiscriminationProducerBase(iConfig),
+  qualityCuts(iConfig.getParameterSet("qualityCuts"))
+{
+        minN          = iConfig.getParameter<uint32_t>("MinN");
+	maxN          = iConfig.getParameter<uint32_t>("MaxN");
+        booleanOutput = iConfig.getParameter<bool>("BooleanOutput");
+
+	qcuts_.reset(new tau::RecoTauQualityCuts(qualityCuts.getParameterSet("signalQualityCuts")));
+	vertexAssociator_.reset(new tau::RecoTauVertexAssociator(qualityCuts,consumesCollector()));
+}
+
+void PFRecoTauDiscriminationByNProngs::beginEvent(const Event& iEvent, const EventSetup& iSetup){
+	vertexAssociator_->setEvent(iEvent);
+}
 
 double PFRecoTauDiscriminationByNProngs::discriminate(const PFTauRef& tau){
 
-	bool accepted = false;
-	int np = tau->signalTracks().size();
+	reco::VertexRef pv = vertexAssociator_->associatedVertex(*tau);
+	const PFCandidatePtr leadingTrack = tau->leadPFChargedHadrCand();
 
-	if((np == 1 && (nprongs == 1 || nprongs == 0)) ||
-           (np == 3 && (nprongs == 3 || nprongs == 0)) ) accepted = true;
+	uint np = 0;
+	if(leadingTrack.isNonnull() && pv.isNonnull()){
+	    qcuts_->setPV(pv);
+	    qcuts_->setLeadTrack(tau->leadPFChargedHadrCand());
+
+	    BOOST_FOREACH( const reco::PFCandidatePtr& cand, tau->signalPFChargedHadrCands() ) {
+	        if ( qcuts_->filterCandRef(cand) ) np++;
+ 	    }
+	}
+
+	bool accepted = false;
+	if(maxN == 0){
+	    if(np == 1 || np == 3) accepted = true;
+	}else{
+	    if(np >= minN && np <= maxN) accepted = true;
+	}
 
 	if(!accepted) np = 0;
 	if(booleanOutput) return accepted;
@@ -45,4 +77,3 @@ double PFRecoTauDiscriminationByNProngs::discriminate(const PFTauRef& tau){
 }
 
 DEFINE_FWK_MODULE(PFRecoTauDiscriminationByNProngs);
-
