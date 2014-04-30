@@ -8597,7 +8597,7 @@ Int_t TEcnaHistos::GetHistoryRunListParameters(const TString& list_of_run_file_n
   Int_t nb_of_runs_in_list = 0;
   
   //========= immediate return if file name is an empty string
-  if( list_of_run_file_name.Data() == '\0' )
+  if( !strcmp(list_of_run_file_name.Data(), "\0") )
     {
       std::cout << "!TEcnaHistos::GetHistoryRunListParameters(...)> *** ERROR *** =====> "
 	   << " EMPTY STRING for list of run file name." << fTTBELL << std::endl;
@@ -12809,7 +12809,7 @@ void TEcnaHistos::PlotCloneOfCurrentCanvas()
     {
       if( (TCanvasImp*)fCurrentCanvas->GetCanvasImp() != 0 )
 	{
-	  (TCanvas*)fCurrentCanvas->DrawClone();
+	  static_cast<TCanvas*>(fCurrentCanvas)->DrawClone();
 	}
       else
 	{
