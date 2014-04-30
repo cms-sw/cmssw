@@ -238,7 +238,8 @@ void testRefInROOT::testRefFirst()
     for(edmtest::OtherThingCollection::const_iterator itOther=pOthers->begin(), itEnd=pOthers->end() ;
         itOther != itEnd; ++itOther) {
       //std::cout <<"getting ref"<<std::endl;
-      std:: cout << itOther->ref.get()->a << "\n";
+      int arbitraryBigNumber = 1000000; 
+      CPPUNIT_ASSERT(itOther->ref.get()->a < arbitraryBigNumber);
     }
     //std::cout <<"get all Refs"<<std::endl;
     
