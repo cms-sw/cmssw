@@ -69,6 +69,8 @@ public:
   void initG4(const edm::EventSetup & es);
   void initializeUserActions();
   void initializeRun();
+
+  void stopG4();
   void terminateRun();
   void abortRun(bool softAbort=false);
   const G4Run * currentRun() const { return m_currentRun; }
