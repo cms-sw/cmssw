@@ -1,8 +1,14 @@
 #ifndef RecoBTau_JetTagComputerRecord_h
 #define RecoBTau_JetTagComputerRecord_h
 
-#include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
+#include "FWCore/Framework/interface/DependentRecordImplementation.h"
+#include <boost/mpl/vector.hpp>
 
-class JetTagComputerRecord : public edm::eventsetup::EventSetupRecordImplementation<JetTagComputerRecord> {};
+class BTauGenericMVAJetTagComputerRcd;
 
-#endif 
+class JetTagComputerRecord :
+  public edm::eventsetup::DependentRecordImplementation<
+    JetTagComputerRecord,
+    boost::mpl::vector<BTauGenericMVAJetTagComputerRcd> > {};
+
+#endif
