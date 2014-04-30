@@ -842,15 +842,25 @@ void FedRawDataInputSource::readSupervisor()
 	for (unsigned int i=0;i<neededChunks;i++) {
 
 	  //get thread
-	  unsigned int newTid;
+	  unsigned int newTid = 0xffffffff;
 	  while (!workerPool_.try_pop(newTid)) {
 	    usleep(100000);
+            if (edm::shutdown_flag.load(std::memory_order_relaxed)) break;
 	  }
 
-	  InputChunk * newChunk;
+	  InputChunk * newChunk = nullptr;
 	  while (!freeChunks_.try_pop(newChunk)) {
 	    usleep(100000);
+            if (edm::shutdown_flag.load(std::memory_order_relaxed)) break;
 	  }
+
+          if (edm::shutdown_flag.load(std::memory_order_relaxed)) {
+            //return objects if we received shutdown in this loop
+            if (newTid!=0xffffffff) workerPool_.push(newTid);
+            if (newChunk!=nullptr) freeChunks_.push(newChunk);
+            stop = true;
+            break;
+          }
 
 	  std::unique_lock<std::mutex> lk(mReader_);
 
