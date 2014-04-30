@@ -889,8 +889,7 @@ unsigned int CSCMotherboardME21::findQualityGEM(const CSCALCTDigi& aLCT, const C
 	int n_gem = 0;  
 	if (hasPad) n_gem = 1;
 	if (hasCoPad) n_gem = 2;
-	const bool a4((aLCT.getQuality() >= 1) or
-		      (aLCT.getQuality() == 0 and n_gem >=1));
+	const bool a4((aLCT.getQuality() >= 1) or (aLCT.getQuality() >= 0 and n_gem >=1));
 	const bool c4((cLCT.getQuality() >= 4) or (cLCT.getQuality() >= 3 and n_gem>=1));
         //              quality = 4; "reserved for low-quality muons in future"
         if      (!a4 && !c4) quality = 5; // marginal anode and cathode
