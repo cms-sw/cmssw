@@ -104,6 +104,7 @@ class CSCMotherboardME21 : public CSCMotherboard
 
   std::vector<CSCCorrelatedLCTDigi> getLCTs();
   std::vector<CSCCorrelatedLCTDigi> readoutLCTs();
+  std::vector<GEMCSCCoPadDigi> readoutCoPads();
 
  private: 
 
@@ -120,6 +121,7 @@ class CSCMotherboardME21 : public CSCMotherboard
 
   std::vector<CSCALCTDigi> alctV;
   std::vector<CSCCLCTDigi> clctV;
+  std::vector<GEMCSCCoPadDigi> gemCoPadV;
 
   /** "preferential" index array in matching window for cross-BX sorting */
   int pref[MAX_LCT_BINS];

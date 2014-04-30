@@ -922,6 +922,8 @@ unsigned int CSCMotherboardME21::findQualityGEM(const CSCALCTDigi& aLCT, const C
 
 void CSCMotherboardME21::buildCoincidencePads(const GEMCSCPadDigiCollection* out_pads, GEMCSCPadDigiCollection& out_co_pads)
 {
+  gemCoPadV.clear();
+
   // build coincidences
   for (auto det_range = out_pads->begin(); det_range != out_pads->end(); ++det_range) {
     const GEMDetId& id = (*det_range).first;
@@ -948,6 +950,9 @@ void CSCMotherboardME21::buildCoincidencePads(const GEMCSCPadDigiCollection* out
         // check the match in BX
         if (std::abs(p->bx() - co_p->bx()) > maxDeltaBXInCoPad_ ) continue;
         
+	// make a new coincidence pad digi
+	gemCoPadV.push_back(std::make_pair(*p,*co_p));
+
         // always use layer1 pad's BX as a copad's BX
         GEMCSCPadDigi co_pad_digi(p->pad(), p->bx());
         out_co_pads.insertDigi(id, co_pad_digi);
@@ -1275,4 +1280,10 @@ int CSCMotherboardME21::assignGEMRoll(double eta)
     }
   }
   return result;
+}
+
+
+std::vector<GEMCSCCoPadDigi> CSCMotherboardME21::readoutCoPads()
+{
+  return gemCoPadV;
 }

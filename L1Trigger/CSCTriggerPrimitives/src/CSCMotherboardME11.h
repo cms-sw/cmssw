@@ -85,6 +85,7 @@ class CSCMotherboardME11 : public CSCMotherboard
   std::vector<CSCCorrelatedLCTDigi> readoutLCTs1a();
   std::vector<CSCCorrelatedLCTDigi> readoutLCTs1b();
   std::vector<CSCCorrelatedLCTDigi> readoutLCTs(enum ME11Part me1ab);
+  std::vector<GEMCSCCoPadDigi> readoutCoPads();
 
   /// set CSC and GEM geometries for the matching needs
   void setCSCGeometry(const CSCGeometry *g) { csc_g = g; }
@@ -170,6 +171,7 @@ class CSCMotherboardME11 : public CSCMotherboard
   std::vector<CSCALCTDigi> alctV;
   std::vector<CSCCLCTDigi> clctV1b;
   std::vector<CSCCLCTDigi> clctV1a;
+  std::vector<GEMCSCCoPadDigi> gemCoPadV;
 
   /** "preferential" index array in matching window for cross-BX sorting */
   int pref[MAX_LCT_BINS];

@@ -1839,7 +1839,9 @@ void CSCMotherboardME11::matchGEMPads(enum ME11Part ME)
 
 void CSCMotherboardME11::buildCoincidencePads(const GEMCSCPadDigiCollection* out_pads, GEMCSCPadDigiCollection& out_co_pads)
 {
-  // build coincidences
+  gemCoPadV.clear();
+
+  // Build coincidences
   for (auto det_range = out_pads->begin(); det_range != out_pads->end(); ++det_range) {
     const GEMDetId& id = (*det_range).first;
     
@@ -1861,6 +1863,9 @@ void CSCMotherboardME11::buildCoincidencePads(const GEMCSCPadDigiCollection* out
         if (std::abs(p->pad() - co_p->pad()) > maxDeltaPadInCoPad_) continue;
         // check the match in BX
         if (std::abs(p->bx() - co_p->bx()) > maxDeltaBXInCoPad_ ) continue;
+
+	// make a new coincidence pad digi
+	gemCoPadV.push_back(std::make_pair(*p,*co_p));
         
         // always use layer1 pad's BX as a copad's BX
         GEMCSCPadDigi co_pad_digi(p->pad(), p->bx());
@@ -2335,4 +2340,10 @@ CSCMotherboardME11::matchingGEMPads(const CSCCLCTDigi& clct, const CSCALCTDigi& 
   }
   if (debug) std::cout << "-----------------------------------------------------------------------"<<std::endl;
   return result;
+}
+
+
+std::vector<GEMCSCCoPadDigi> CSCMotherboardME11::readoutCoPads()
+{
+  return gemCoPadV;
 }

@@ -186,7 +186,8 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
 					CSCCLCTDigiCollection& oc_clct,
                                         CSCCLCTPreTriggerCollection & oc_pretrig,
 					CSCCorrelatedLCTDigiCollection& oc_lct,
-					CSCCorrelatedLCTDigiCollection& oc_sorted_lct)
+					CSCCorrelatedLCTDigiCollection& oc_sorted_lct,
+					GEMCSCCoPadDigiCollection& oc_gemcopad)
 {
   // CSC geometry.
   CSCTriggerGeomManager* theGeom = CSCTriggerGeometry::get();
@@ -251,6 +252,8 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               std::vector<CSCCLCTDigi> clctV1a = tmb11->clct1a->readoutCLCTs();
               std::vector<int> preTriggerBXs1a = tmb11->clct1a->preTriggerBXs();
 
+              std::vector<GEMCSCCoPadDigi> copads = tmb11->readoutCoPads();
+
               // perform simple separation of ALCTs into 1/a and 1/b
               // for 'smart' case. Some duplication occurs for WG [10,15]
               std::vector<CSCALCTDigi> tmpV(alctV);
@@ -302,6 +305,17 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
                 oc_pretrig.put(std::make_pair(preTriggerBXs.begin(),preTriggerBXs.end()), detid);
               }            
 
+	      // 0th layer means whole chamber.
+	      GEMDetId gemId(endc, 1, 1, 1, chid, 0);
+	      
+	      // GEM coincidence pads
+              if (!copads.empty()) {
+                LogTrace("L1CSCTrigger")
+                  << "Put " << copads.size() << " GEM coincidence pad"
+                  << ((copads.size() > 1) ? "s " : " ") << "in collection\n";
+                oc_gemcopad.put(std::make_pair(copads.begin(),copads.end()), detid);
+              }
+ 
               // ME1/a
 
               if (disableME1a) continue;
@@ -357,6 +371,8 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               std::vector<CSCCLCTDigi> clctV = tmb21->clct->readoutCLCTs();
               std::vector<int> preTriggerBXs = tmb21->clct->preTriggerBXs();
 
+              std::vector<GEMCSCCoPadDigi> copads = tmb21->readoutCoPads();
+
               if (!(alctV.empty() && clctV.empty() && lctV.empty())) {
                 LogTrace("L1CSCTrigger")
                   << "CSCTriggerPrimitivesBuilder got results in " <<detid;
@@ -392,6 +408,17 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
                   << "Put " << preTriggerBXs.size() << " CLCT pretrigger"
                   << ((preTriggerBXs.size() > 1) ? "s " : " ") << "in collection\n";
                 oc_pretrig.put(std::make_pair(preTriggerBXs.begin(),preTriggerBXs.end()), detid);
+              }
+
+	      // 0th layer means whole chamber.
+	      GEMDetId gemId(endc, 1, 2, 1, chid, 0);
+	      
+	      // GEM coincidence pads
+              if (!copads.empty()) {
+                LogTrace("L1CSCTrigger")
+                  << "Put " << copads.size() << " GEM coincidence pad"
+                  << ((copads.size() > 1) ? "s " : " ") << "in collection\n";
+                oc_gemcopad.put(std::make_pair(copads.begin(),copads.end()), detid);
               }
             }
 

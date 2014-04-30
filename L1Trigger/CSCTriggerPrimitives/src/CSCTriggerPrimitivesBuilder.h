@@ -62,7 +62,8 @@ class CSCTriggerPrimitivesBuilder
 	     CSCALCTDigiCollection& oc_alct, CSCCLCTDigiCollection& oc_clct,
              CSCCLCTPreTriggerCollection & oc_pretrig,
 	     CSCCorrelatedLCTDigiCollection& oc_lct,
-	     CSCCorrelatedLCTDigiCollection& oc_sorted_lct);
+	     CSCCorrelatedLCTDigiCollection& oc_sorted_lct,
+	     GEMCSCCoPadDigiCollection& oc_gemcopad);
 
   /** Max values of trigger labels for all CSCs; used to construct TMB
    *  processors. */

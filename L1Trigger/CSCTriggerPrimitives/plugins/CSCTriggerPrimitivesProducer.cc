@@ -55,6 +55,7 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
   produces<CSCCLCTPreTriggerCollection>();
   produces<CSCCorrelatedLCTDigiCollection>();
   produces<CSCCorrelatedLCTDigiCollection>("MPCSORTED");
+  produces<GEMCSCCoPadDigiCollection>();
 }
 
 CSCTriggerPrimitivesProducer::~CSCTriggerPrimitivesProducer() {
@@ -144,6 +145,7 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
   std::auto_ptr<CSCCLCTPreTriggerCollection> oc_pretrig(new CSCCLCTPreTriggerCollection);
   std::auto_ptr<CSCCorrelatedLCTDigiCollection> oc_lct(new CSCCorrelatedLCTDigiCollection);
   std::auto_ptr<CSCCorrelatedLCTDigiCollection> oc_sorted_lct(new CSCCorrelatedLCTDigiCollection);
+  std::auto_ptr<GEMCSCCoPadDigiCollection> oc_gemcopad(new GEMCSCCoPadDigiCollection);
 
   if (!wireDigis.isValid()) {
     edm::LogWarning("L1CSCTPEmulatorNoInputCollection")
@@ -166,7 +168,7 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
                                                 std::make_shared<const CSCBadChambers>());
     lctBuilder_->build(temp.get(),
                        wireDigis.product(), compDigis.product(), gemPads, rpcDigis,
-                       *oc_alct, *oc_clct, *oc_pretrig, *oc_lct, *oc_sorted_lct);
+                       *oc_alct, *oc_clct, *oc_pretrig, *oc_lct, *oc_sorted_lct, *oc_gemcopad);
   }
 
   // Put collections in event.
@@ -175,4 +177,5 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
   ev.put(oc_pretrig);
   ev.put(oc_lct);
   ev.put(oc_sorted_lct,"MPCSORTED");
+  ev.put(oc_gemcopad);
 }
