@@ -95,8 +95,6 @@ public:
       AC(ac),
       visitingCallExpr(0) {}
 
- 
-
   bool hasWork() const { return !WList.empty(); }
 
   /// This method adds a CallExpr to the worklist 
@@ -489,7 +487,7 @@ void WalkAST::ReportMember(const clang::MemberExpr *ME) {
   std::string tolog = "data class '"+MD->getParent()->getNameAsString()+"' const function '" + support::getQualifiedName(*MD) + "' Warning: " + os.str();
   if (!m_exception.reportClass( CELoc, BR ) ) return;
   writeLog(tolog);
-  BR.EmitBasicReport(AC->getDecl(),"Class Checker : Member data modified in const function","ThreadSafety",os.str(),CELoc,R);
+  BR.EmitBasicReport(AC->getDecl(),"Class Checker : Member data modified in const function","ThreadSafety",os.str(),CELoc);
 }
 
 void WalkAST::ReportCall(const clang::CXXMemberCallExpr *CE) {
@@ -580,7 +578,7 @@ void WalkAST::ReportCallArg(const clang::CXXMemberCallExpr *CE,const int i) {
 
   if (!m_exception.reportClass( ELoc, BR ) ) return;
   writeLog(tolog);
-  BR.EmitBasicReport(CE->getCalleeDecl(),"Class Checker :  Member data passed to non-const reference","ThreadSafety",os.str(),ELoc,L);
+  BR.EmitBasicReport(CE->getCalleeDecl(),"Class Checker :  Member data passed to non-const reference","ThreadSafety",os.str(),ELoc);
 
 }
 
