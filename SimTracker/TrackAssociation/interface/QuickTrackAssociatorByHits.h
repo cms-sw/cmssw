@@ -61,8 +61,6 @@ class QuickTrackAssociatorByHits : public TrackAssociatorBase
 public:
 	QuickTrackAssociatorByHits( const edm::ParameterSet& config );
 	~QuickTrackAssociatorByHits();
-	QuickTrackAssociatorByHits( const QuickTrackAssociatorByHits& otherAssociator );
-	QuickTrackAssociatorByHits& operator=( const QuickTrackAssociatorByHits& otherAssociator );
         virtual
 	reco::RecoToSimCollection associateRecoToSim( edm::Handle<edm::View<reco::Track> >& trackCollectionHandle,
 	                                              edm::Handle<TrackingParticleCollection>& trackingParticleCollectionHandle,
@@ -110,18 +108,21 @@ private:
 
 	/** @brief The method that does the work for both overloads of associateRecoToSim.
 	 */
-	reco::RecoToSimCollection associateRecoToSimImplementation() const;
+	template<class T_TrackCollection, class T_TrackingParticleCollection>
+	reco::RecoToSimCollection associateRecoToSimImplementation( T_TrackCollection trackCollection, T_TrackingParticleCollection trackingParticleCollection, const edm::Event* pEvent ) const;
 
 	/** @brief The method that does the work for both overloads of associateSimToReco.
 	 */
-	reco::SimToRecoCollection associateSimToRecoImplementation() const;
+	template<class T_TrackCollection, class T_TrackingParticleCollection>
+	reco::SimToRecoCollection associateSimToRecoImplementation( T_TrackCollection trackCollection, T_TrackingParticleCollection trackingParticleCollection, const edm::Event* pEvent ) const;
+
 
 	/** @brief Returns the TrackingParticle that has the most associated hits to the given track.
 	 *
 	 * Return value is a vector of pairs, where first is an edm::Ref to the associated TrackingParticle, and second is
 	 * the number of associated hits.
 	 */
-	template<typename iter> std::vector< std::pair<edm::Ref<TrackingParticleCollection>,size_t> > associateTrack( iter begin, iter end ) const;
+	template<typename T_TPCollection,typename iter> std::vector< std::pair<edm::Ref<TrackingParticleCollection>,size_t> > associateTrack( T_TPCollection trackingParticles, iter begin, iter end ) const;
 	template<typename iter> std::vector< std::pair<edm::Ref<TrackingParticleCollection>,size_t> > associateTrackByCluster( iter begin, iter end ) const;
 
 
@@ -166,37 +167,6 @@ private:
 	double cutRecoToSim_;
 	bool threeHitTracksAreSpecial_;
 	SimToRecoDenomType simToRecoDenominator_;
-
-	/** @brief Pointer to the handle to the track collection.
-	 *
-	 * Only one of pTrackCollectionHandle_ or pTrackCollection_ will ever be non Null. This is so that both flavours of the
-	 * associateRecoToSim (one takes a Handle, the other a RefToBaseVector) can use the same associateRecoToSimImplementation
-	 * method and keep the logic for both in one place.  The old implementation for the handle flavour copied everything into
-	 * a new RefToBaseVector, wasting memory.  I tried to do something clever with templates but couldn't get it to work, so
-	 * the associateRecoToSimImplementation method checks which is non Null and uses that to get the tracks.
-	 */
-	mutable edm::Handle<edm::View<reco::Track> >* pTrackCollectionHandle_;
-
-	/** @brief Pointer to the track collection.
-	 *
-	 * Either this or pTrackCollectionHandle_ will be set, the other will be Null. See the comment on pTrackCollectionHandle_
-	 * for reasons why.
-	 */
-	mutable const edm::RefToBaseVector<reco::Track>* pTrackCollection_;
-
-	/** @brief Pointer to the TrackingParticle collection handle
-	 *
-	 * Either this or pTrackingParticleCollection_ will be set, the other will be Null. See the comment on pTrackCollectionHandle_
-	 * for reasons why.
-	 */
-	mutable edm::Handle<TrackingParticleCollection>* pTrackingParticleCollectionHandle_;
-
-	/** @brief Pointer to the TrackingParticle collection handle
-	 *
-	 * Either this or pTrackingParticleCollectionHandle_ will be set, the other will be Null. See the comment on pTrackCollectionHandle_
-	 * for reasons why.
-	 */
-	mutable const edm::RefVector<TrackingParticleCollection>* pTrackingParticleCollection_;
 
         // Added by S. Sarkar
         mutable bool useClusterTPAssociation_;
