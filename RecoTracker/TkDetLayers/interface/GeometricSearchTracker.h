@@ -25,7 +25,7 @@ class GeometricSearchTracker: public DetLayerGeometry {
   
   virtual ~GeometricSearchTracker() __attribute__ ((cold));
 
-  std::vector<DetLayer*> const & allLayers()     const {return theAllLayers;}  
+  std::vector<DetLayer const*> const & allLayers()     const {return theAllLayers;}  
 
   std::vector<BarrelDetLayer*>  const &  barrelLayers()  const {return theBarrelLayers;}
 
@@ -53,7 +53,7 @@ class GeometricSearchTracker: public DetLayerGeometry {
   const DetLayer*   detLayer( const DetId& id) const {return idToLayer(id);};
 
  private:
-  std::vector<DetLayer*>        theAllLayers;
+  std::vector<DetLayer const*>        theAllLayers;
   std::vector<BarrelDetLayer*>  theBarrelLayers;
   std::vector<ForwardDetLayer*> theForwardLayers;
   std::vector<ForwardDetLayer*> theNegForwardLayers;

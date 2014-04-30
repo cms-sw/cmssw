@@ -45,7 +45,7 @@ GeometricSearchTracker::GeometricSearchTracker(const vector<BarrelDetLayer*>& px
   // number the layers 
   int sq=0;
   for (auto l : theAllLayers) 
-    (*l).setSeqNum(sq++);
+    const_cast<DetLayer&>(*l).setSeqNum(sq++);
 
   edm::LogInfo("TkDetLayers")
     << "------ GeometricSearchTracker constructed with: ------" << "\n"
@@ -73,9 +73,8 @@ GeometricSearchTracker::GeometricSearchTracker(const vector<BarrelDetLayer*>& px
 
 
 GeometricSearchTracker::~GeometricSearchTracker(){
-  for(vector<DetLayer*>::const_iterator it=theAllLayers.begin(); it!=theAllLayers.end();it++){
-    delete *it;
-  }
+    for (auto l : theAllLayers)
+    delete const_cast<DetLayer*>(l);
   
 }
 
