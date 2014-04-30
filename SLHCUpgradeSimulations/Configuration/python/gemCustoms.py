@@ -1,10 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-def customise(process):
+def customise2019(process):
     if hasattr(process,'digitisation_step'):
         process=customise_Digi(process)
     if hasattr(process,'L1simulation_step'):
-        process=customise_L1Emulator(process,'pt0')
+        process=customise_L1Emulator2019(process,'pt0')
     if hasattr(process,'DigiToRaw'):
         process=customise_DigiToRaw(process)
     if hasattr(process,'RawToDigi'):
@@ -17,7 +17,12 @@ def customise(process):
         process=customise_harvesting(process)
     if hasattr(process,'validation_step'):
         process=customise_Validation(process)
+    return process
 
+def customise2023(process):
+    process = customise2019(process)
+    if hasattr(process,'L1simulation_step'):
+        process=customise_L1Emulator2023(process,'pt0')
     return process
 
 def customise_Digi(process):
@@ -35,8 +40,12 @@ def customise_Digi(process):
     process=outputCustoms(process)
     return process
 
-def customise_L1Emulator(process, ptdphi):
+## TODO at migration to CMSSW 7X: make all params tracked!    
+def customise_L1Emulator2019(process, ptdphi):
     process.simCscTriggerPrimitiveDigis.gemPadProducer =  cms.untracked.InputTag("simMuonGEMCSCPadDigis","")
+    process.simCscTriggerPrimitiveDigis.clctSLHC.clctNplanesHitPattern = 3
+    process.simCscTriggerPrimitiveDigis.clctSLHC.clctPidThreshPretrig = 2
+    process.simCscTriggerPrimitiveDigis.clctParam07.clctPidThreshPretrig = 2
     ## GE1/1-ME1/1
     dphi_lct_pad98 = {
         'pt0'  : { 'odd' :  2.00000000 , 'even' :  2.00000000 },
@@ -82,7 +91,7 @@ def customise_L1Emulator(process, ptdphi):
         buildLCTfromALCTandGEM_ME1a = cms.untracked.bool(True),
         buildLCTfromALCTandGEM_ME1b = cms.untracked.bool(True),
         doLCTGhostBustingWithGEMs = cms.untracked.bool(False),
-        correctLCTtimingWithGEM = cms.untracked.bool(True),
+        correctLCTtimingWithGEM = cms.untracked.bool(False),
         promoteALCTGEMpattern = cms.untracked.bool(True),
         promoteALCTGEMquality = cms.untracked.bool(True),
         
@@ -98,14 +107,31 @@ def customise_L1Emulator(process, ptdphi):
         tmbCrossBxAlgorithm = cms.untracked.uint32(2),
         firstTwoLCTsInChamber = cms.untracked.bool(True),
     )
-    if tmb.me11ILT.runME11ILT:
-        process.simCscTriggerPrimitiveDigis.clctSLHC.clctNplanesHitPattern = 3
-        process.simCscTriggerPrimitiveDigis.clctSLHC.clctPidThreshPretrig = 2
-        process.simCscTriggerPrimitiveDigis.clctParam07.clctPidThreshPretrig = 2
-    if ptdphi != 'pt0' :
-        tmb.me11ILT.gemClearNomatchLCTs = True 
-        
+    return process
+
+## TODO at migration to CMSSW 7X: make all params tracked!    
+def customise_L1Emulator2023(process, ptdphi):
+    process.simCscTriggerPrimitiveDigis.gemPadProducer =  cms.untracked.InputTag("simMuonGEMCSCPadDigis","")
+    ## ME21 has its own SLHC processors
+    process.simCscTriggerPrimitiveDigis.alctSLHCME21 = process.simCscTriggerPrimitiveDigis.alctSLHC.clone()
+    process.simCscTriggerPrimitiveDigis.clctSLHCME21 = process.simCscTriggerPrimitiveDigis.clctSLHC.clone()
+    process.simCscTriggerPrimitiveDigis.alctSLHCME21.alctNplanesHitPattern = 3
+    process.simCscTriggerPrimitiveDigis.alctSLHCME21.runME21ILT = cms.untracked.bool(True)
+    process.simCscTriggerPrimitiveDigis.clctSLHCME21.clctNplanesHitPattern = 3
+    process.simCscTriggerPrimitiveDigis.clctSLHCME21.clctPidThreshPretrig = 2
+    process.simCscTriggerPrimitiveDigis.clctParam07.clctPidThreshPretrig = 2
+    tmb = process.simCscTriggerPrimitiveDigis.tmbSLHC
     ## GE2/1-ME2/1
+    dphi_lct_pad98 = {
+        'pt0'  : { 'odd' :  2.00000000 , 'even' :  2.00000000 },
+        'pt05' : { 'odd' :  0.02203510 , 'even' :  0.00930056 },
+        'pt06' : { 'odd' :  0.01825790 , 'even' :  0.00790009 },
+        'pt10' : { 'odd' :  0.01066000 , 'even' :  0.00483286 },
+        'pt15' : { 'odd' :  0.00722795 , 'even' :  0.00363230 },
+        'pt20' : { 'odd' :  0.00562598 , 'even' :  0.00304879 },
+        'pt30' : { 'odd' :  0.00416544 , 'even' :  0.00253782 },
+        'pt40' : { 'odd' :  0.00342827 , 'even' :  0.00230833 }
+    }
     tmb.me21ILT = cms.untracked.PSet(
         ## run the upgrade algorithm
         runME21ILT = cms.untracked.bool(True),
@@ -137,7 +163,7 @@ def customise_L1Emulator(process, ptdphi):
         dropLowQualityCLCTsNoGEMs = cms.untracked.bool(True),
         buildLCTfromALCTandGEM = cms.untracked.bool(True),
         doLCTGhostBustingWithGEMs = cms.untracked.bool(False),
-        correctLCTtimingWithGEM = cms.untracked.bool(True),
+        correctLCTtimingWithGEM = cms.untracked.bool(False),
         promoteALCTGEMpattern = cms.untracked.bool(True),
         promoteALCTGEMquality = cms.untracked.bool(True),
 
@@ -147,19 +173,12 @@ def customise_L1Emulator(process, ptdphi):
         gemMatchDeltaBX = cms.untracked.int32(1),
         gemMatchDeltaPhiOdd = cms.untracked.double(dphi_lct_pad98[ptdphi]['odd']),
         gemMatchDeltaPhiEven = cms.untracked.double(dphi_lct_pad98[ptdphi]['even']),
-        gemClearNomatchLCTs = cms.untracked.bool(ptdphi == 'pt0' and False),
+        gemClearNomatchLCTs = cms.untracked.bool(False),
 
         ## cross BX algorithm
         tmbCrossBxAlgorithm = cms.untracked.uint32(2),
         firstTwoLCTsInChamber = cms.untracked.bool(True),
     )
-    
-    if tmb.me21ILT.runME21ILT:
-        process.simCscTriggerPrimitiveDigis.clctSLHC.clctNplanesHitPattern = 3
-        process.simCscTriggerPrimitiveDigis.clctSLHC.clctPidThreshPretrig = 2
-        process.simCscTriggerPrimitiveDigis.clctParam07.clctPidThreshPretrig = 2
-        process.simCscTriggerPrimitiveDigis.alctSLHC.runME21ILT = cms.untracked.bool(True)
-    
     return process
 
 def customise_DigiToRaw(process):
@@ -191,7 +210,6 @@ def customise_Validation(process):
     process.muonTrackValidator.useGEMs = cms.bool(True)
     return process
 
-
 def customise_harvesting(process):
     process.load('Validation.Configuration.gemPostValidation_cff')
     process.genHarvesting += process.gemPostValidation
@@ -205,5 +223,6 @@ def outputCustoms(process):
             getattr(process,b).outputCommands.append('keep *_simMuonGEMDigis_*_*')
             getattr(process,b).outputCommands.append('keep *_simMuonGEMCSCPadDigis_*_*')
             getattr(process,b).outputCommands.append('keep *_gemRecHits_*_*')
-
     return process
+
+    

@@ -25,6 +25,6 @@ process.source = cms.Source("PoolSource",
     )
 )
 
-process.dumper = cms.EDAnalyzer("GEMDigiReader")
+process.dumper = cms.EDAnalyzer("GEMCSCPadDigiReader")
 
 process.p = cms.Path(process.dumper)
