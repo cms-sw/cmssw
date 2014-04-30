@@ -100,11 +100,11 @@ namespace reco {
     }
 
     /// \return ref to original recoConversion
-    const ConversionRef& convRef() const {return convRef_;} 
+    const ConversionRefVector& convRefs() const {return convRefs_;} 
 
     /// \set the ref to  gamma conversion
     void setConversionRef(const ConversionRef& convRef, TrackType trType) { 
-      convRef_ = convRef; setTrackType(trType,true); 
+      convRefs_.push_back(convRef); setTrackType(trType,true); 
     } 
 
     /// \return ref to original V0
@@ -140,7 +140,7 @@ namespace reco {
     reco::MuonRef muonRef_;
 
     /// reference to reco conversion
-    ConversionRef convRef_;      
+    ConversionRefVector convRefs_;      
 
     /// reference to V0
     VertexCompositeCandidateRef v0Ref_;
