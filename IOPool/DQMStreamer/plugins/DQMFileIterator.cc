@@ -9,7 +9,8 @@
 
 namespace edm {
 
-DQMFileIterator::LumiEntry DQMFileIterator::LumiEntry::load_json(const std::string& filename, int lumiNumber) {
+DQMFileIterator::LumiEntry DQMFileIterator::LumiEntry::load_json(
+    const std::string& filename, int lumiNumber) {
   boost::property_tree::ptree pt;
   read_json(filename, pt);
 
@@ -27,7 +28,8 @@ DQMFileIterator::LumiEntry DQMFileIterator::LumiEntry::load_json(const std::stri
   return lumi;
 }
 
-DQMFileIterator::EorEntry DQMFileIterator::EorEntry::load_json(const std::string& filename) {
+DQMFileIterator::EorEntry DQMFileIterator::EorEntry::load_json(
+    const std::string& filename) {
   boost::property_tree::ptree pt;
   read_json(filename, pt);
 
@@ -71,13 +73,9 @@ const DQMFileIterator::LumiEntry& DQMFileIterator::front() {
   return queue_.front();
 }
 
-void DQMFileIterator::pop() {
-  return queue_.pop();
-}
+void DQMFileIterator::pop() { return queue_.pop(); }
 
-bool DQMFileIterator::hasNext() {
-  return ! queue_.empty();
-}
+bool DQMFileIterator::hasNext() { return !queue_.empty(); }
 
 std::string DQMFileIterator::make_path_jsn(int lumi) {
   return str(boost::format("%s/run%06d_ls%04d.jsn") % run_path_ % run_ % lumi);
@@ -95,7 +93,7 @@ void DQMFileIterator::collect() {
   // search filesystem to find available lumi section files
   // or the end of run file
 
-  if (! eor_.loaded) {
+  if (!eor_.loaded) {
     // end of run is not yet read
     std::string fn_eor = make_path_eor();
     edm::LogAbsolute("DQMStreamerReader") << "Checking eor file: " << fn_eor;
@@ -107,13 +105,13 @@ void DQMFileIterator::collect() {
     }
   }
 
-  int nextLumi = lastLumiSeen_; // initiate lumi
+  int nextLumi = lastLumiSeen_;  // initiate lumi
   for (;;) {
     nextLumi += 1;
 
     std::string fn = make_path_jsn(nextLumi);
     edm::LogAbsolute("DQMStreamerReader") << "Checking json file: " << fn;
-    if (! boost::filesystem::exists(fn)) {
+    if (!boost::filesystem::exists(fn)) {
       // file not yet available
       break;
     }
@@ -145,7 +143,8 @@ void DQMFileIterator::update_state() {
   }
 
   if (state_ != old_state) {
-    edm::LogAbsolute("DQMStreamerReader") << "Streamer state changed: " << old_state << " -> " << state_;
+    edm::LogAbsolute("DQMStreamerReader")
+        << "Streamer state changed: " << old_state << " -> " << state_;
   }
 }
 

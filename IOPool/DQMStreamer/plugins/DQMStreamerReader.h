@@ -33,7 +33,6 @@ class DQMStreamerReader : public StreamerInputSource {
                     InputSourceDescription const& desc);
   virtual ~DQMStreamerReader();
 
-
   bool newHeader();
   static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
@@ -46,7 +45,7 @@ class DQMStreamerReader : public StreamerInputSource {
 
   // our own, but we do inherit reset(),
   // which will break things if called
-  void reset_(); 
+  void reset_();
 
   void openFile_(std::string filename);
   bool openNextFile_();

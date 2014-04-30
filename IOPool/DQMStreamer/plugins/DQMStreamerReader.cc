@@ -26,8 +26,8 @@ namespace edm {
 DQMStreamerReader::DQMStreamerReader(ParameterSet const& pset,
                                      InputSourceDescription const& desc)
     : StreamerInputSource(pset, desc),
-    streamReader_(),
-    eventSkipperByID_(EventSkipperByID::create(pset).release()) {
+      streamReader_(),
+      eventSkipperByID_(EventSkipperByID::create(pset).release()) {
 
   runNumber_ = pset.getUntrackedParameter<unsigned int>("runNumber");
   runInputDir_ = pset.getUntrackedParameter<std::string>("runInputDir");
@@ -40,12 +40,11 @@ DQMStreamerReader::DQMStreamerReader(ParameterSet const& pset,
   reset_();
 }
 
-DQMStreamerReader::~DQMStreamerReader() {
-  closeFile_();
-}
+DQMStreamerReader::~DQMStreamerReader() { closeFile_(); }
 
 void DQMStreamerReader::delay_() {
-  edm::LogAbsolute("DQMStreamerReader") << "No events available ... waiting for the next LS.";
+  edm::LogAbsolute("DQMStreamerReader")
+      << "No events available ... waiting for the next LS.";
   usleep(100000);
 }
 
@@ -60,12 +59,11 @@ void DQMStreamerReader::reset_() {
   // https://cmssdt.cern.ch/SDT/lxr/source/FWCore/Framework/src/Schedule.cc#441
 
   for (;;) {
-    if (! fiterator_.hasNext()) {
+    if (!fiterator_.hasNext()) {
       delay_();
-      continue; // restart
+      continue;  // restart
     } else {
-      if (openNextFile_())
-        break;
+      if (openNextFile_()) break;
     }
   }
 
@@ -114,13 +112,12 @@ bool DQMStreamerReader::openNextFile_() {
     return true;
   } else {
     /* dat file missing */
-    edm::LogAbsolute("DQMStreamerReader") << "Data file (specified in json) is missing: " 
-    << p << ", skipping.";
+    edm::LogAbsolute("DQMStreamerReader")
+        << "Data file (specified in json) is missing: " << p << ", skipping.";
 
     return false;
   }
 }
-
 
 InitMsgView const* DQMStreamerReader::getHeaderMsg() {
   InitMsgView const* header = streamReader_->startMessage();
@@ -156,8 +153,7 @@ EventMsgView const* DQMStreamerReader::prepareNextEvent() {
 
     // check for end of run and quit if everything has been processed.
     // this clean exit
-    if ((streamReader_.get() == nullptr) &&
-        (!fiterator_.hasNext()) &&
+    if ((streamReader_.get() == nullptr) && (!fiterator_.hasNext()) &&
         (fiterator_.state() == State::EOR)) {
 
       closeFile_();
@@ -168,14 +164,14 @@ EventMsgView const* DQMStreamerReader::prepareNextEvent() {
     if (streamReader_.get() == nullptr) {
       if (fiterator_.hasNext()) {
         openNextFile_();
-        continue; // we might need to open once more (if .dat is missing)
+        continue;  // we might need to open once more (if .dat is missing)
       }
     }
 
     // or if there is a next file and enough eventshas been processed.
     if (fiterator_.hasNext() && (processedEventPerLs_ > minEventsPerLs_)) {
-        openNextFile_();
-        continue;
+      openNextFile_();
+      continue;
     }
 
     // sleep
@@ -235,7 +231,7 @@ void DQMStreamerReader::skip(int toSkip) {
     // If the event would have been skipped anyway, don't count it as a skipped
     // event.
     if (eventSkipperByID_ && eventSkipperByID_->skipIt(
-      evMsg->run(), evMsg->lumi(), evMsg->event())) {
+                                 evMsg->run(), evMsg->lumi(), evMsg->event())) {
       --i;
     }
   }
@@ -253,26 +249,32 @@ void DQMStreamerReader::fillDescriptions(
       ->setComment("Directory where the DQM files will appear.");
 
   desc.addUntracked<int>("minEventsPerLumi", 1)
-    ->setComment("Minimum number of events to process per lumisection, "
-    "before switching to a new input file. If the next file does not yet exist, "
-    "the number of processed events will be bigger.");
+      ->setComment("Minimum number of events to process per lumisection, "
+                   "before switching to a new input file. If the next file "
+                   "does not yet exist, "
+                   "the number of processed events will be bigger.");
 
   desc.addUntracked<bool>("skipFirstLumis", false)
-    ->setComment("Skip (and ignore the minEventsPerLumi parameter) for the files which have been available at the begining of the processing. "
-    "If set to true, the reader will open last available file for processing.");
+      ->setComment(
+          "Skip (and ignore the minEventsPerLumi parameter) for the files "
+          "which have been available at the begining of the processing. "
+          "If set to true, the reader will open last available file for "
+          "processing.");
 
   desc.addUntracked<bool>("deleteDatFiles", false)
-    ->setComment("Delete data files after they have been closed, in order to save disk space.");
+      ->setComment("Delete data files after they have been closed, in order to "
+                   "save disk space.");
 
-  desc.addUntracked<bool>("endOfRunKills", false)
-    ->setComment("Kill the processing as soon as the end-of-run file appears, even if there are/will be unprocessed lumisections.");
-
+  desc.addUntracked<bool>("endOfRunKills", false)->setComment(
+      "Kill the processing as soon as the end-of-run file appears, even if "
+      "there are/will be unprocessed lumisections.");
 
   //desc.addUntracked<unsigned int>("skipEvents", 0U)
   //    ->setComment("Skip the first 'skipEvents' events that otherwise would "
   //                 "have been processed.");
 
-  // This next parameter is read in the base class, but its default value depends on the derived class, so it is set here.
+  // This next parameter is read in the base class, but its default value
+  // depends on the derived class, so it is set here.
   desc.addUntracked<bool>("inputFileTransitionsEachEvent", false);
 
   StreamerInputSource::fillDescription(desc);

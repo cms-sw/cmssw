@@ -41,7 +41,8 @@ class DQMFileIterator {
 
   enum State {
     OPEN = 0,
-    EOR_CLOSING = 1,  // EoR exists, but some lumisections are still write pending
+    EOR_CLOSING =
+        1,  // EoR exists, but some lumisections are still write pending
     EOR = 2,
   };
 
