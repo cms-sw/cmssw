@@ -356,7 +356,7 @@ CSCMotherboardME21::run(const CSCWireDigiCollection* wiredc,
           // clct quality
           const int quality(clct->bestCLCT[bx_clct].getQuality());
           // low quality ALCT
-          const bool lowQualityALCT(alct->bestALCT[bx_alct].getQuality() == 4);
+          const bool lowQualityALCT(alct->bestALCT[bx_alct].getQuality() == 0);
           // low quality ALCT or CLCT
           const bool lowQuality(quality<4 or lowQualityALCT);
           if (debug_gem_matching) std::cout << "++Valid ME21 CLCT: " << clct->bestCLCT[bx_clct] << std::endl;
@@ -889,8 +889,8 @@ unsigned int CSCMotherboardME21::findQualityGEM(const CSCALCTDigi& aLCT, const C
 	int n_gem = 0;  
 	if (hasPad) n_gem = 1;
 	if (hasCoPad) n_gem = 2;
-	const bool a4((aLCT.getQuality() >= 1 and aLCT.getQuality() != 4) or
-		      (aLCT.getQuality() == 4 and n_gem >=1));
+	const bool a4((aLCT.getQuality() >= 1) or
+		      (aLCT.getQuality() == 0 and n_gem >=1));
 	const bool c4((cLCT.getQuality() >= 4) or (cLCT.getQuality() >= 3 and n_gem>=1));
         //              quality = 4; "reserved for low-quality muons in future"
         if      (!a4 && !c4) quality = 5; // marginal anode and cathode
