@@ -7,7 +7,7 @@ process = cms.Process("TEST")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 ##____________________________________________________________________________||
-process.load("RecoMET.METProducers.pfChargedMET_cfi")
+process.load("RecoMET.METProducers.pfChMet_cfi")
 
 ##____________________________________________________________________________||
 from RecoMET.METProducers.testInputFiles_cff import recoMETtestInputFiles
@@ -20,7 +20,7 @@ process.source = cms.Source(
 ##____________________________________________________________________________||
 process.out = cms.OutputModule(
     "PoolOutputModule",
-    fileName = cms.untracked.string('reco_pfChargedMET.root'),
+    fileName = cms.untracked.string('reco_pfChMet.root'),
     SelectEvents   = cms.untracked.PSet( SelectEvents = cms.vstring('p') ),
     outputCommands = cms.untracked.vstring(
         'drop *',
@@ -36,7 +36,7 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
 ##____________________________________________________________________________||
 process.p = cms.Path(
     process.particleFlowForChargedMET *
-    process.pfChargedMET
+    process.pfChMet
     )
 
 process.e1 = cms.EndPath(
