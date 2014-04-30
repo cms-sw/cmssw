@@ -256,7 +256,7 @@ CSCMotherboardME11::CSCMotherboardME11(unsigned endcap, unsigned station,
   lct_central_bx = me11tmbParams.getUntrackedParameter<int>("lctCentralBX", 6);
 
   // debug gem matching
-  debug_gem_matching = me11tmbParams.getUntrackedParameter<bool>("debugGemMatching", false);
+  debug_gem_matching = me11tmbParams.getUntrackedParameter<bool>("debugMatching", false);
   debug_luts = me11tmbParams.getUntrackedParameter<bool>("debugLUTs", false);
 
   //  deltas used to construct GEM coincidence pads
