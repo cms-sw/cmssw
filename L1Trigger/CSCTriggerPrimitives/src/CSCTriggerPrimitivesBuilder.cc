@@ -305,15 +305,15 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
                 oc_pretrig.put(std::make_pair(preTriggerBXs.begin(),preTriggerBXs.end()), detid);
               }            
 
-	      // 0th layer means whole chamber.
-	      GEMDetId gemId(endc, 1, 1, 1, chid, 0);
-	      
-	      // GEM coincidence pads
+              // 0th layer means whole chamber.
+              GEMDetId gemId(detid.zendcap(), 1, 1, 1, chid, 0);
+              
+              // GEM coincidence pads
               if (!copads.empty()) {
                 LogTrace("L1CSCTrigger")
                   << "Put " << copads.size() << " GEM coincidence pad"
                   << ((copads.size() > 1) ? "s " : " ") << "in collection\n";
-                oc_gemcopad.put(std::make_pair(copads.begin(),copads.end()), detid);
+                oc_gemcopad.put(std::make_pair(copads.begin(),copads.end()), gemId);
               }
  
               // ME1/a
@@ -411,14 +411,14 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               }
 
               // 0th layer means whole chamber.
-              GEMDetId gemId(endc, 1, 2, 1, chid, 0);
+              GEMDetId gemId(detid.zendcap(), 1, 2, 1, chid, 0);
 	      
               // GEM coincidence pads
               if (!copads.empty()) {
                 LogTrace("L1CSCTrigger")
                   << "Put " << copads.size() << " GEM coincidence pad"
                   << ((copads.size() > 1) ? "s " : " ") << "in collection\n";
-                oc_gemcopad.put(std::make_pair(copads.begin(),copads.end()), detid);
+                oc_gemcopad.put(std::make_pair(copads.begin(),copads.end()), gemId);
               }
             }
 
