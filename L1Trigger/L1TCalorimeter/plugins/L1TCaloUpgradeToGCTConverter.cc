@@ -134,13 +134,11 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 	  isoCount++;
 	}
       }
-      else
+
+      if(nonIsoCount != 4)
       {
-	if(nonIsoCount != 4)
-	{
-	  nonIsoEmResult->push_back(EmCand);
-	  nonIsoCount++;
-	}
+	nonIsoEmResult->push_back(EmCand);
+	nonIsoCount++;
       }
     }
 
