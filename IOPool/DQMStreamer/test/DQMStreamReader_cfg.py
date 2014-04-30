@@ -44,9 +44,9 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("NewDQMStreamerFileReader",
-                            runNumber = cms.untracked.uint32(options.runNumber),
-                            dqmInputDir = cms.untracked.string(options.inputDir)
-                            )
+    runNumber = cms.untracked.uint32(options.runNumber),
+    dqmInputDir = cms.untracked.string(options.inputDir)
+)
 
 #process.source = cms.Source("NewEventStreamFileReader",
 #    fileNames = cms.untracked.vstring(
@@ -63,12 +63,10 @@ process.configurationMetadata = cms.untracked.PSet(
 )
 
 process.MessageLogger = cms.Service("MessageLogger",
-#    cout = cms.untracked.PSet(threshold = cms.untracked.string( "INFO" )),
-#    cout = cms.untracked.PSet(threshold = cms.untracked.string( "ERROR" )),
-#    destinations = cms.untracked.vstring( 'cout' )
-    threshold = cms.untracked.string('ERROR'),              
-    destinations = cms.untracked.vstring( 'info.txt' )
-    )
+    threshold = cms.untracked.string('INFO'),              
+#    destinations = cms.untracked.vstring( 'info.txt' )
+    destinations = cms.untracked.vstring( 'cout' )
+)
 
 process.options = cms.untracked.PSet( SkipEvent = cms.untracked.vstring('ProductNotFound') )
 
