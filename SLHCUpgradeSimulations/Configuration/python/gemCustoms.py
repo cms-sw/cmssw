@@ -40,6 +40,7 @@ def customise_Digi(process):
     process=outputCustoms(process)
     return process
 
+## TODO at migration to CMSSW 7X: make all params tracked!    
 def customise_L1Emulator2019(process, ptdphi):
     process.simCscTriggerPrimitiveDigis.gemPadProducer =  cms.untracked.InputTag("simMuonGEMCSCPadDigis","")
     process.simCscTriggerPrimitiveDigis.clctSLHC.clctNplanesHitPattern = 3
@@ -108,6 +109,7 @@ def customise_L1Emulator2019(process, ptdphi):
     )
     return process
 
+## TODO at migration to CMSSW 7X: make all params tracked!    
 def customise_L1Emulator2023(process, ptdphi):
     ## ME21 has its own SLHC processors
     process.simCscTriggerPrimitiveDigis.alctSLHCME21 = process.simCscTriggerPrimitiveDigis.alctSLHC.clone()
