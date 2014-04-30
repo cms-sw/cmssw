@@ -10,7 +10,7 @@ const reco::PFRecTrackRef reco::PFBlockElement::nullPFRecTrack_ = reco::PFRecTra
 const reco::PFClusterRef reco::PFBlockElement::nullPFCluster_ = reco::PFClusterRef();
 const reco::PFDisplacedTrackerVertexRef reco::PFBlockElement::nullPFDispVertex_ = 
   reco::PFDisplacedTrackerVertexRef();
-const reco::ConversionRef reco::PFBlockElement::nullConv_ = reco::ConversionRef();
+const reco::ConversionRefVector reco::PFBlockElement::nullConv_ = reco::ConversionRefVector();
 const reco::MuonRef  reco::PFBlockElement::nullMuon_ = reco::MuonRef();
 const reco::VertexCompositeCandidateRef reco::PFBlockElement::nullVertex_ = reco::VertexCompositeCandidateRef();
 
