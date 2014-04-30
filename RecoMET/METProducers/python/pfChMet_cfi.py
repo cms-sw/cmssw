@@ -13,7 +13,7 @@ particleFlowForChargedMET = cms.EDProducer(
 pfChMet = cms.EDProducer(
     "PFMETProducer",
     src = cms.InputTag("particleFlowForChargedMET"),
-    alias = cms.string('PFMET'),
+    alias = cms.string('PFCHMET'),
     globalThreshold = cms.double(0.0),
     calculateSignificance = cms.bool(False),
     )
