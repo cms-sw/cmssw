@@ -72,6 +72,12 @@ namespace l1t {
     std::string egIsoPUSType() const { return egIsoPUSType_; }
     l1t::LUT* egIsolationLUT() { return egIsolationLUT_.get(); }
 
+    unsigned egIsoAreaNrTowersEta()const{return egIsoAreaNrTowersEta_;}
+    unsigned egIsoAreaNrTowersPhi()const{return egIsoAreaNrTowersPhi_;}
+    unsigned egIsoVetoNrTowersPhi()const{return egIsoVetoNrTowersPhi_;}
+    unsigned egIsoPUEstTowerGranularity()const{return egIsoPUEstTowerGranularity_;}
+    unsigned egIsoMaxEtaAbsForTowerSum()const{return egIsoMaxEtaAbsForTowerSum_;}
+
     void setEgSeedThreshold(double thresh) { egSeedThreshold_ = thresh; }
     void setEgNeighbourThreshold(double thresh) { egNeighbourThreshold_ = thresh; }
     void setEgMaxHcalEt(double cut) { egMaxHcalEt_ = cut; }
@@ -79,6 +85,12 @@ namespace l1t {
     void setEgIsoPUSType(std::string type) { egIsoPUSType_ = type; }
     void setEgIsolationLUT(std::shared_ptr<LUT> lut) { egIsolationLUT_ = lut; }
     void setEgRelativeJetIsolationCut(double cutValue) { egRelativeJetIsolationCut_ = cutValue; }
+   
+    void setEgIsoAreaNrTowersEta(unsigned iEgIsoAreaNrTowersEta){egIsoAreaNrTowersEta_=iEgIsoAreaNrTowersEta;}
+    void setEgIsoAreaNrTowersPhi(unsigned iEgIsoAreaNrTowersPhi){egIsoAreaNrTowersPhi_=iEgIsoAreaNrTowersPhi;}
+    void setEgIsoVetoNrTowersPhi(unsigned iEgIsoVetoNrTowersPhi){egIsoVetoNrTowersPhi_=iEgIsoVetoNrTowersPhi;}
+    void setEgIsoPUEstTowerGranularity(unsigned iEgIsoPUEstTowerGranularity){egIsoPUEstTowerGranularity_=iEgIsoPUEstTowerGranularity;}
+    void setEgIsoMaxEtaAbsForTowerSum(unsigned iEgIsoMaxEtaAbsForTowerSum){egIsoMaxEtaAbsForTowerSum_=iEgIsoMaxEtaAbsForTowerSum;}
 
 
     // tau
@@ -229,6 +241,12 @@ namespace l1t {
 
     // Relative jet isolation cut for EG (Stage1Layer2)
     double egRelativeJetIsolationCut_;
+
+    unsigned egIsoAreaNrTowersEta_; //isolation area in eta is seed tower +/- <=egIsoAreaNrTowersPhi
+    unsigned egIsoAreaNrTowersPhi_; //isolation area in phi is seed tower +/- <=egIsoAreaNrTowersPhi
+    unsigned egIsoVetoNrTowersPhi_; //veto region is seed tower +/- <=egIsoVetoNrTowersPhi
+    unsigned egIsoPUEstTowerGranularity_; //for # towers based estimator, estimator is #towers/egIsoPUEstTowerGranularity_
+    unsigned egIsoMaxEtaAbsForTowerSum_; //tower sum is done from 
 
     /* Tau */
 
