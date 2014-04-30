@@ -12,6 +12,7 @@
 #include "DataFormats/L1TCalorimeter/interface/CaloRegion.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
 #include "L1Trigger/L1TCalorimeter/interface/PUSubtractionMethods.h"
+#include "L1Trigger/L1TCalorimeter/interface/JetFinderMethods.h"
 
 using namespace std;
 using namespace l1t;
@@ -26,6 +27,7 @@ Stage1Layer2EGammaAlgorithmImpPP::Stage1Layer2EGammaAlgorithmImpPP(CaloParams* p
   PUSubtract = params_->PUSubtract();
   regionSubtraction = params_->regionSubtraction();
   egSeedThreshold= floor( params_->egSeedThreshold()/emScale + 0.5);
+  jetSeedThreshold= floor( params_->jetSeedThreshold()/jetScale + 0.5);
   egRelativeJetIsolationCut = params_->egRelativeJetIsolationCut();
 }
 
@@ -44,6 +46,9 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
   //Region Correction will return uncorrected subregions if 
   //PUSubtract is set to False in the config
   RegionCorrection(regions, EMCands, subRegions, regionSubtraction, PUSubtract);
+  // ----- need to cluster jets in order to compute jet isolation ----
+  std::vector<l1t::Jet> *unCorrJets = new std::vector<l1t::Jet>();
+  slidingWindowJetFinder(jetSeedThreshold, subRegions, unCorrJets);
 
 
   for(CaloEmCandBxCollection::const_iterator egCand = EMCands.begin();
@@ -66,7 +71,7 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
      // double isolation = Isolation(eg_eta, eg_phi, *subRegions);
      //if( eg_et > 0 && (isolation / eg_et ) > relativeIsolationCut) isoFlag  = 0;
 
-     double jet_pt=AssociatedJetPt(eg_eta,eg_phi,jets);
+     double jet_pt=AssociatedJetPt(eg_eta,eg_phi,unCorrJets);
      jet_pt=jet_pt*jetScale;
      if (jet_pt>0){
        double jetIsolationEG = jet_pt - eg_et;        // Jet isolation

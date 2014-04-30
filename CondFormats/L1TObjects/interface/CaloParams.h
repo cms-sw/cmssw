@@ -84,6 +84,7 @@ namespace l1t {
     // tau
     double tauSeedThreshold() const { return tauSeedThreshold_; }
     double tauNeighbourThreshold() const { return tauNeighbourThreshold_; }
+    double tauRelativeJetIsolationCut() const { return tauRelativeJetIsolationCut_; }
     std::string tauIsoPUSType() const { return tauIsoPUSType_; }
     l1t::LUT* tauIsolationLUT() { return tauIsolationLUT_.get(); }
 
@@ -91,7 +92,7 @@ namespace l1t {
     void setTauNeighbourThreshold(double thresh) { tauNeighbourThreshold_ = thresh; }
     void setTauIsoPUSType(std::string type) { tauIsoPUSType_ = type; }
     void setTauIsolationLUT(std::shared_ptr<LUT> lut) { tauIsolationLUT_ = lut; }
-
+    void setTauRelativeJetIsolationCut(double cutValue) { tauRelativeJetIsolationCut_ = cutValue; }
 
     // jets
     double jetSeedThreshold() const { return jetSeedThreshold_; }
@@ -226,7 +227,7 @@ namespace l1t {
     // EG isolation LUT (indexed by eta, Et ?)
     std::shared_ptr<l1t::LUT> egIsolationLUT_;
 
-    // EG relative jet isolation cut (Stage1Layer2)
+    // Relative jet isolation cut for EG (Stage1Layer2)
     double egRelativeJetIsolationCut_;
 
     /* Tau */
@@ -237,6 +238,8 @@ namespace l1t {
     // Et threshold on tau neighbour towers
     double tauNeighbourThreshold_;
     
+    // Relative jet isolation cut for Taus (Stage1Layer2)
+    double tauRelativeJetIsolationCut_;
     // Tau isolation PUS
     std::string tauIsoPUSType_;
 

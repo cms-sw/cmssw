@@ -53,6 +53,6 @@ void Stage1Layer2MainProcessorFirmwareImp1::processEvent(const std::vector<CaloE
 
   m_jetAlgo->processEvent(regions, emcands, jets); // need to run jets before egammas and taus for rel. isol. cuts
   m_egAlgo->processEvent(emcands, regions, jets, egammas);
+  m_tauAlgo->processEvent(emcands, regions, jets, taus);
   m_sumAlgo->processEvent(regions, emcands, etsums);
-  m_tauAlgo->processEvent(emcands, regions, taus);
 }

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-OUTFILE='out_L1Emulator_default_newEG.root'
+OUTFILE='out_L1TEmulator.root'
 
 process = cms.Process('L1TEMULATION')
 
@@ -12,6 +12,7 @@ process.load('Configuration.EventContent.EventContent_cff')
 # Select the Message Logger output you would like to see:
 
 process.load('FWCore.MessageService.MessageLogger_cfi')
+process.MessageLogger.cerr.FwkReport.reportEvery = 100
 #process.load('L1Trigger/L1TYellow/l1t_debug_messages_cfi')
 #process.load('L1Trigger/L1TYellow/l1t_info_messages_cfi')
 
@@ -74,7 +75,9 @@ process.Layer2HW = cms.EDProducer(
     maxGctEtaForSums = cms.int32(17),
     jetSeedThreshold = cms.double(10.), ## jet seed threshold in GeV
     egSeedThreshold = cms.double(1.), ## eg seed threshold in GeV
-    egRelativeJetIsolationCut = cms.double(1.), ## eg isolation cut
+    tauSeedThreshold = cms.double(7.), ## tau seed threshold in GeV
+    egRelativeJetIsolationCut = cms.double(0.5), ## eg isolation cut
+    tauRelativeJetIsolationCut = cms.double(1.), ## tau isolation cut
     PUSubtract = cms.bool(True), # Correct regions for PU
     regionSubtraction = regionSubtraction_PU20_MC13TeV,
     #regionSubtraction = regionSubtraction_8TeV_data,

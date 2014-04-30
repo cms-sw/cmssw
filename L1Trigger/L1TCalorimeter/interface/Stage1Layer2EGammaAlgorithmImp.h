@@ -40,6 +40,7 @@ namespace l1t {
     double AssociatedJetPt(int ieta, int iphi,
 		           const std::vector<l1t::Jet> * jets) const;
     int egSeedThreshold;
+    int jetSeedThreshold;
     double emScale, jetScale;
     double egRelativeJetIsolationCut;
     // double HoverECut;
