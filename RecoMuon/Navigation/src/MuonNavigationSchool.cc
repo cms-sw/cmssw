@@ -87,7 +87,7 @@ MuonNavigationSchool::~MuonNavigationSchool() {
 
 /// return all Navigable layers
 MuonNavigationSchool::StateType 
-MuonNavigationSchool::navigableLayers() const {
+MuonNavigationSchool::navigableLayers() {
 
   StateType result;
   

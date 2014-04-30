@@ -39,7 +39,7 @@ class MuonNavigationSchool : public NavigationSchool {
     /// Destructor
     ~MuonNavigationSchool();
     /// return navigable layers, from base class
-    virtual StateType navigableLayers() const;
+    virtual StateType navigableLayers() override;
   private:
     /// add barrel layer
     void addBarrelLayer(BarrelDetLayer*);

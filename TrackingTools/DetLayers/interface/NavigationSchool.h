@@ -27,7 +27,7 @@ public:
 
   typedef std::vector<NavigableLayer*>   StateType;
 
-  virtual StateType navigableLayers() const = 0;
+  virtual StateType navigableLayers() = 0;
 
 
  /// Return the next (closest) layer(s) that can be reached in the specified
