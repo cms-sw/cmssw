@@ -249,7 +249,7 @@ PluginManager::load(const std::string& iCategory,
       {
 	//TEMPORARY: to avoid possible deadlocks from ROOT, we must
 	// take the lock ourselves
-	R__LOCKGUARD2(gCINTMutex);
+	R__LOCKGUARD2(gInterpreterMutex);
 	ptr.reset( new SharedLibrary(p) );
       }
       loadables_[p]=ptr;
@@ -289,7 +289,7 @@ PluginManager::tryToLoad(const std::string& iCategory,
       {
 	//TEMPORARY: to avoid possible deadlocks from ROOT, we must
 	// take the lock ourselves
-	R__LOCKGUARD(gCINTMutex);
+	R__LOCKGUARD(gInterpreterMutex);
 	ptr.reset( new SharedLibrary(p) );
       }
       loadables_[p]=ptr;
