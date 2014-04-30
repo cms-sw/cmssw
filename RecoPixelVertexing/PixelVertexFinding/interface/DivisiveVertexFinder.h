@@ -29,9 +29,12 @@
 //#include "CommonTools/Clustering1D/interface/DivisiveClusterizer1D.h"
 #include "RecoPixelVertexing/PixelVertexFinding/interface/DivisiveClusterizer1D.h"
 
+#include "RecoPixelVertexing/PixelVertexFinding/interface/PVClusterComparer.h"
+
 class DivisiveVertexFinder {
  public:
-  DivisiveVertexFinder(double zOffset=5.0, int ntrkMin=5, bool useError=true, 
+  DivisiveVertexFinder(double track_pt_min, double track_pt_max, double track_chi2_max, double track_prob_min,
+		       double zOffset=5.0, int ntrkMin=5, bool useError=true, 
 		       double zSeparation=0.05, bool wtAverage=true, int verbosity=0);
   ~DivisiveVertexFinder();
   
@@ -52,6 +55,9 @@ class DivisiveVertexFinder {
 
   // How loud should I be?
   int verbose_;
+
+  
+  PVClusterComparer* pvComparer_;
     
 };
 #endif
