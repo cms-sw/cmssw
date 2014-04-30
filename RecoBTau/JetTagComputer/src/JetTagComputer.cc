@@ -17,7 +17,7 @@ float JetTagComputer::operator () (const reco::BaseTagInfo& info) const
 
 void JetTagComputer::uses(unsigned int id, const std::string &label)
 {
-	if (m_setupDone)
+        if (m_setupDone)
 		throw cms::Exception("InvalidState")
 			<< "JetTagComputer::uses called outside of "
 			   "constructor" << std::endl;
