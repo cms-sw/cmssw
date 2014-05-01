@@ -23,7 +23,7 @@ public:
   explicit OscarProducer(edm::ParameterSet const & p);
   virtual ~OscarProducer();
   virtual void beginRun(const edm::Run & r,const edm::EventSetup& c) override;
-  virtual void endRun(const edm::Run & r,const edm::EventSetup& c) override { }
+  virtual void endRun(const edm::Run & r,const edm::EventSetup& c) override;
   virtual void produce(edm::Event & e, const edm::EventSetup& c) override;
 
 private:

@@ -10,10 +10,44 @@
 #include <vector>
 #include <map>
 
-ReferenceCountingPointer<BoundCylinder>  ConversionTrackEcalImpactPoint::theBarrel_ = 0;
-ReferenceCountingPointer<BoundDisk>      ConversionTrackEcalImpactPoint::theNegativeEtaEndcap_ = 0;
-ReferenceCountingPointer<BoundDisk>      ConversionTrackEcalImpactPoint::thePositiveEtaEndcap_ = 0;
-bool                                     ConversionTrackEcalImpactPoint::theInit_ = false;
+static const float epsilon = 0.001;
+
+/** Hard-wired numbers defining the surfaces on which the crystal front faces lie. */
+static float barrelRadius() {return 129.f;} //p81, p50, ECAL TDR
+static float barrelHalfLength() {return 270.9f;} //p81, p50, ECAL TDR
+static float endcapRadius() {return 171.1f;} // fig 3.26, p81, ECAL TDR
+static float endcapZ() {return 320.5f;} // fig 3.26, p81, ECAL TDR
+
+
+
+static BoundCylinder* initBarrel() {
+  Surface::RotationType rot; // unit rotation matrix
+
+
+  return new Cylinder(barrelRadius(), Surface::PositionType(0,0,0), rot, 
+				 new SimpleCylinderBounds( barrelRadius()-epsilon, 
+				       		       barrelRadius()+epsilon, 
+						       -barrelHalfLength(), 
+						       barrelHalfLength()));
+}
+
+static BoundDisk* initNegative() {
+  Surface::RotationType rot; // unit rotation matrix
+  return new BoundDisk( Surface::PositionType( 0, 0, -endcapZ()), rot, 
+		   new SimpleDiskBounds( 0, endcapRadius(), -epsilon, epsilon));
+}
+
+static BoundDisk* initPositive() {
+  Surface::RotationType rot; // unit rotation matrix
+
+  return new BoundDisk( Surface::PositionType( 0, 0, endcapZ()), rot, 
+		   new SimpleDiskBounds( 0, endcapRadius(), -epsilon, epsilon));
+  
+}
+
+const ReferenceCountingPointer<BoundCylinder>  ConversionTrackEcalImpactPoint::theBarrel_ = initBarrel();
+const ReferenceCountingPointer<BoundDisk>      ConversionTrackEcalImpactPoint::theNegativeEtaEndcap_ = initNegative();
+const ReferenceCountingPointer<BoundDisk>      ConversionTrackEcalImpactPoint::thePositiveEtaEndcap_ = initPositive();
 
 
 ConversionTrackEcalImpactPoint::ConversionTrackEcalImpactPoint(const MagneticField* field ): 
@@ -109,26 +143,3 @@ std::vector<math::XYZPointF> ConversionTrackEcalImpactPoint::find( const std::ve
 
 
 
-void ConversionTrackEcalImpactPoint::initialize() {
-
-  const float epsilon = 0.001;
-  Surface::RotationType rot; // unit rotation matrix
-
-
-  theBarrel_ = new Cylinder(barrelRadius(), Surface::PositionType(0,0,0), rot, 
-				 new SimpleCylinderBounds( barrelRadius()-epsilon, 
-				       		       barrelRadius()+epsilon, 
-						       -barrelHalfLength(), 
-						       barrelHalfLength()));
-  theNegativeEtaEndcap_ = 
-    new BoundDisk( Surface::PositionType( 0, 0, -endcapZ()), rot, 
-		   new SimpleDiskBounds( 0, endcapRadius(), -epsilon, epsilon));
-  
-  thePositiveEtaEndcap_ = 
-    new BoundDisk( Surface::PositionType( 0, 0, endcapZ()), rot, 
-		   new SimpleDiskBounds( 0, endcapRadius(), -epsilon, epsilon));
-  
-  theInit_ = true;
-
-
-}
