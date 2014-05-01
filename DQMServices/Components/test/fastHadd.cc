@@ -181,7 +181,7 @@ void writeMessage(const dqmstorepb::ROOTFilePB &dqmstore_output_msg,
   DEBUG(1, "Writing file" << std::endl);
 
   int out_fd = ::open(output_filename.c_str(),
-                      O_WRONLY | O_CREAT | O_TRUNC, S_IREAD | S_IWRITE);
+                      O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
   FileOutputStream out_stream(out_fd);
   GzipOutputStream::Options options;
   options.format = GzipOutputStream::GZIP;

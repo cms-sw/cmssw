@@ -21,7 +21,6 @@
 #include <cerrno>
 #include <boost/algorithm/string.hpp>
 #include <fstream>
-#include <sys/stat.h>
 
 /** @var DQMStore::verbose_
     Universal verbose flag for DQM. */
@@ -2352,7 +2351,7 @@ void DQMStore::savePB(const std::string &filename,
   }
   int filedescriptor = ::open(filename.c_str(),
 			      O_WRONLY | O_CREAT | O_TRUNC,
-			      S_IREAD | S_IWRITE);
+			      S_IRUSR | S_IWUSR);
   FileOutputStream file_stream(filedescriptor);
   GzipOutputStream::Options options;
   options.format = GzipOutputStream::GZIP;
