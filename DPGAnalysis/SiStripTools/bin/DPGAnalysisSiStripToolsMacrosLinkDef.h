@@ -4,6 +4,7 @@
 #include "ClusMultPlots.h"
 #include "SOF_profiles.h"
 #include "SiStripQualityHistoryPlots.h"
+#include "UtilityMacros.h"
 #ifdef __CINT__
 #pragma link off all functions;
 #pragma link C++ function PlotOccupancyMap;
@@ -27,5 +28,7 @@
 #pragma link C++ function printSOF;
 #pragma link C++ function AverageRunBadChannels;
 #pragma link C++ function StripCompletePlot;
-#pragma link C++ function PlotOnTrackOccupancyPhase2;;
+#pragma link C++ function PlotOnTrackOccupancyPhase2;
+#pragma link C++ function projectProfile2DAlongX;
+#pragma link C++ function projectProfile2DAlongY;
 #endif
