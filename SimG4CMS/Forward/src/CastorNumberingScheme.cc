@@ -10,7 +10,7 @@
 #include "G4LogicalVolumeStore.hh"
 #include <iostream>
 
-#define debug
+//#define castornumschemedebug
 
 CastorNumberingScheme::CastorNumberingScheme(): lvCASTFar(0),lvCASTNear(0),
                                                 lvCAST(0),lvCAES(0),lvCEDS(0),
@@ -38,7 +38,7 @@ CastorNumberingScheme::CastorNumberingScheme(): lvCASTFar(0),lvCASTNear(0),
     if (strcmp(((*lvcite)->GetName()).c_str(),"C4EF") == 0) lvC4EF = (*lvcite);
     if (strcmp(((*lvcite)->GetName()).c_str(),"C4HF") == 0) lvC4HF = (*lvcite);
   }
-#ifdef debug
+#ifdef castornumschemedebug
   LogDebug("ForwardSim") << "CastorNumberingScheme:: LogicalVolume pointers\n"
                          << lvCASTFar << " for CASTFar; " << lvCASTNear << " for CASTNear; "
 			 << lvCAST << " for CAST; " << lvCAES << " for CAES; "
@@ -47,26 +47,18 @@ CastorNumberingScheme::CastorNumberingScheme(): lvCASTFar(0),lvCASTNear(0),
 			 << lvCEDR << " for CEDR; " << lvCAHR << " for CAHR; "
 			 << lvCHDR << " for CHDR; " << lvC3EF << " for C3EF; "
 			 << lvC3HF << " for C3HF; " << lvC4EF << " for C4EF; "
-			 << lvC4HF << " for C4HF.";
-#endif
+	     << lvC4HF << " for C4HF.";
 
-  //array that matches separated-halves geometry to original sector numbering
-  copyNoToSector[1 ] = 12;
-  copyNoToSector[2 ] = 11;
-  copyNoToSector[3 ] = 10;
-  copyNoToSector[4 ] =  9;
-  copyNoToSector[5 ] =  8;
-  copyNoToSector[6 ] =  7;
-  copyNoToSector[7 ] =  6;
-  copyNoToSector[8 ] =  5;
-  copyNoToSector[9 ] =  4;
-  copyNoToSector[10] =  3;
-  copyNoToSector[11] =  2;
-  copyNoToSector[12] =  1;
-  copyNoToSector[13] = 16;
-  copyNoToSector[14] = 15;
-  copyNoToSector[15] = 14;
-  copyNoToSector[16] = 13;
+  LogDebug("ForwardSim") << "Call to init CastorNumberingScheme\n";
+  for (int mod=0; mod<15; mod++)
+    for (int sec=0; sec<17; sec++)
+      {
+	HcalCastorDetId castorId = HcalCastorDetId(false, sec, mod);
+	LogDebug("ForwardSim") << "Mod: " << mod << "  Sec: " << sec << "  Id: " << castorId.rawId() << "\n";
+      }
+
+#endif
+   
 }
 
 CastorNumberingScheme::~CastorNumberingScheme() {
@@ -75,14 +67,12 @@ CastorNumberingScheme::~CastorNumberingScheme() {
 
 uint32_t CastorNumberingScheme::getUnitID(const G4Step* aStep) const {
 
-  uint32_t intindex = 0;
-
   uint32_t index=0;
   int      level, copyno[20];
   lvp      lvs[20];
   detectorLevel(aStep, level, copyno, lvs);
 
-#ifdef debug
+#ifdef castornumschemedebug
   LogDebug("ForwardSim") << "CastorNumberingScheme number of levels= " <<level;
 #endif
 
@@ -93,97 +83,85 @@ uint32_t CastorNumberingScheme::getUnitID(const G4Step* aStep) const {
     int module = 0;
 
     bool farSide = false;
+    int castorGeoVersion = 0; //0 = original // 1 = separated-halves geometry
 
-    //   /*
     //    HcalCastorDetId::Section section;
-    for (int ich=0; ich  <  level; ich++) {
+    for (int ich=0; ich < level; ich++) {
       if(lvs[ich] == lvCAST) {
         // Z index +Z = 1 ; -Z = 2
-        zside   = copyno[ich];
-        if (copyno[ich] == 2) {
-          farSide = true;
-        }
-      }     // copyno 2 = Far : 3 = Near
-      
-      // fist do the numbering for the nearSide : sectors 1-8
-      if(lvs[ich] == lvCAES || lvs[ich] == lvCEDS) {
-        // sector number for dead material 1 - 8
-        //section = HcalCastorDetId::EM;
-        //if (copyno[ich]<5)
-        sector = copyno[ich];  // copy  1-4
-        //	 }else{sector = 13-copyno[ich] ;}
-      } else if(lvs[ich] == lvCAHS || lvs[ich] == lvCHDS) {
-        // sector number for dead material 1 - 8
-        //     if (copyno[ich]<5)
-        sector = copyno[ich];
-        //	 }else{sector = 13-copyno[ich] ;}
-        //section = HcalCastorDetId::HAD;
-      } else if(lvs[ich] == lvCAER || lvs[ich] == lvCEDR) {
-        // zmodule number 1-2 for EM section (2 copies)
-        module = copyno[ich];
-      } else if(lvs[ich] == lvCAHR || lvs[ich] == lvCHDR) {
-        //zmodule number 3-14 for HAD section (12 copies)
-        module = copyno[ich] + 2;
-      } else if(lvs[ich] == lvC3EF || lvs[ich] == lvC3HF) {
-        // sector number for sensitive material 1 - 16
-        sector = sector*2-1;
-        if (farSide)
-          sector += 8;
-        if (1 > sector || sector > 16)
-          {
-#ifdef debug
-            LogDebug("ForwardSim") << "--------- Wrong channel mapping";
-#endif
-            continue;
-          }
-        sector = copyNoToSector[sector];
-      } else if(lvs[ich] == lvC4EF || lvs[ich] == lvC4HF) {
-        // sector number for sensitive material 1 - 16
-        sector = sector*2;
-        if (farSide)
-          sector += 8;
-        if (1 > sector || sector > 16)
-          {
-#ifdef debug
-            LogDebug("ForwardSim") << "--------- Wrong channel mapping";
-#endif
-            continue;
-          }
-        sector = copyNoToSector[sector];
+	assert (1 <= copyno[ich] && copyno[ich] <= 3);
+        zside = copyno[ich] == 1 ? 1 : 2;
+      } // copyno 2 = Far : 3 = Near
+      else if(lvs[ich] == lvCASTFar || lvs[ich] == lvCASTNear) {
+	castorGeoVersion = 1; //detected separated-halves geometry
+	if(lvs[ich] == lvCASTFar)
+	  farSide = true;
       }
-      
-#ifdef debug
-      LogDebug("ForwardSim") << "CastorNumberingScheme :: " << "ich = " << ich
-			     << " copyno " << copyno[ich] << " name = "
-			     << lvs[ich]->GetName();
+      else if(lvs[ich] == lvCAES || lvs[ich] == lvCEDS ||
+	      lvs[ich] == lvCAHS || lvs[ich] == lvCHDS) {
+	// sector number for dead material 1 - 8
+	int copyn = copyno[ich];
+	if(castorGeoVersion == 1) {
+          //for separated-half geometry the copy numbers do not start at "3 o'clock" and go from 1-8.
+          //instead they start at "12 o'clock" for near side 1-4. and "6 o'clock" for far side 1-4 again
+          if(farSide) {
+            if (copyn<3)
+              copyn += 6; //maps 1->7, 2->8
+            else
+              copyn -= 2; //maps 3->1 and 4->2
+          }
+          else { //nearSide
+            copyn += 2; //maps 1->3, ...
+          }
+        } //endif separated-half geometry
+	if (copyn<5)
+	  sector = 5-copyn;
+	else
+	  sector = 13-copyn;
+      }
+      else if(lvs[ich] == lvCAER || lvs[ich] == lvCEDR) {
+	// zmodule number 1-2 for EM section (2 copies)
+	module = copyno[ich];
+      }
+      else if(lvs[ich] == lvCAHR || lvs[ich] == lvCHDR) {
+	//zmodule number 3-14 for HAD section (12 copies)
+	module = copyno[ich] + 2;
+      }
+      else if(lvs[ich] == lvC3EF || lvs[ich] == lvC3HF) {
+	// sector number for sensitive material 1 - 16
+	sector = sector*2;
+      }
+      else if(lvs[ich] == lvC4EF || lvs[ich] == lvC4HF) {
+	// sector number for sensitive material 1 - 16
+	sector = sector*2 - 1;
+      }
+    
+#ifdef castornumschemedebug
+      LogDebug("ForwardSim") << "CastorNumberingScheme  " << "ich = " << ich  
+			     << "copyno = " << copyno[ich] << "name = " 
+                             << lvs[ich]->GetName();
 #endif
-    }
-    // use for Castor number 9
+    } //end for loop over levels 
+
+    // use for Castor number det = 9
     //
     // Z index +Z = 1 ; -Z = 2
     // sector number 1 - 16
     // zmodule number  1 - 18
 
-
-    //    int det = 9;
-    //    intindex = packIndex (det, zside, sector, zmodule);
-
-    //intindex = packIndex (section, zside, sector, module);
-
-    intindex = packIndex(zside, sector, module);
-
     bool true_for_positive_eta = false;
-    if(zside == 1)true_for_positive_eta = true;
-    if(zside == -1)true_for_positive_eta = false;
+    if(zside == 1) true_for_positive_eta = true;
 
     HcalCastorDetId castorId = HcalCastorDetId(true_for_positive_eta, sector, module);
     index = castorId.rawId();
 
-#ifdef debug
-    LogDebug("ForwardSim") << "CastorNumberingScheme :" <<" zside "
-			   << zside << " sector " << sector << " module "
-			   << module << " UnitID 0x" << std::hex << intindex
-			   << std::dec;
+#ifdef castornumschemedebug
+    uint32_t intindex = 0;
+    intindex = packIndex(zside, sector, module);
+    LogDebug("ForwardSim") << "CastorNumberingScheme: " << " zside "
+                           << zside << " module " << module << " sector " 
+                           << sector << " UnitID 0x" << std::hex << intindex 
+                           << std::dec << " index: " << index;
 #endif
   }
   return index;
@@ -221,7 +199,7 @@ void CastorNumberingScheme::unpackIndex(const uint32_t& idx, int& z, int& sector
   z   = (idx>>8)&1;
   z  += 1;
   sector = (idx>>4)&15;
-  module= (idx&15);
+  module = (idx&15);
 }
 
 void CastorNumberingScheme::detectorLevel(const G4Step* aStep, int& level,

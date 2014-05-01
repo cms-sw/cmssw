@@ -19,7 +19,6 @@
 #include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
 #include "RecoMuon/Records/interface/MuonRecoGeometryRecord.h"
 #include "RecoMuon/Navigation/interface/MuonNavigationSchool.h"
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 #include "RecoMuon/Navigation/interface/MuonNavigationPrinter.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
