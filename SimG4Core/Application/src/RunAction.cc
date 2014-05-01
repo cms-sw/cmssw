@@ -19,7 +19,6 @@ void RunAction::BeginOfRunAction(const G4Run * aRun)
     {
       edm::LogWarning("SimG4CoreApplication")
         << "BeginOfRunAction: termination signal received";
-      //std::cout << "BeginOfRunAction: termination signal received" << std::endl;
       m_runInterface->abortRun(true);
     }
     BeginOfRun r(aRun);
@@ -32,7 +31,6 @@ void RunAction::EndOfRunAction(const G4Run * aRun)
     {
       edm::LogWarning("SimG4CoreApplication")
         << "EndOfRunAction: termination signal received";
-      //std::cout << "EndOfRunAction: termination signal received" << std::endl;
       m_runInterface->abortRun(true);
     }
   EndOfRun r(aRun);
