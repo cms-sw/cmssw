@@ -160,7 +160,7 @@ namespace cond {
       if( it == m_dbTypes.end() ){
 	bt = checkBackendType( coralSession, connectionString );
 	if( bt == UNKNOWN_DB && writeCapable) bt = backType;
-	m_dbTypes.insert( std::make_pair( connectionString, bt ) ).first;
+	m_dbTypes.insert( std::make_pair( connectionString, bt ) );
       } else {
 	bt = (BackendType) it->second;
       }
