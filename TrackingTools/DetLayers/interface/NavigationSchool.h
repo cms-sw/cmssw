@@ -71,9 +71,9 @@ protected:
 
   // will be obsoleted together with NAvigationSetter
 public:
-  const std::vector<DetLayer*> & allLayersInSystem() const {return *theAllDetLayersInSystem;}
+  const std::vector<const DetLayer*> & allLayersInSystem() const {return *theAllDetLayersInSystem;}
  protected:
-  const std::vector<DetLayer*> * theAllDetLayersInSystem;
+  const std::vector<const DetLayer*> * theAllDetLayersInSystem;
 };
 
 #endif // NavigationSchool_H
