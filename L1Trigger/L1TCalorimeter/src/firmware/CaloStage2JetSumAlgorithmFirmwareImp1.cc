@@ -28,16 +28,17 @@ void l1t::CaloStage2JetSumAlgorithmFirmwareImp1::processEvent(const std::vector<
 							      std::vector<l1t::EtSum> & etsums) {
    math::XYZTLorentzVector p4;
    int32_t totalHt(0);
-   int32_t phiMissingHt;
+   float phiMissingHt;
    int32_t missingHt(0);
    int32_t coefficientX;
    int32_t coefficientY;
    int32_t ptJet;
    double htXComponent(0.);
    double htYComponent(0.);
-   int32_t intPhiMissingHt;
+   int32_t intPhiMissingHt(0);
    const float pi = acos(-1.); 
    float jetPhi;
+
    for(size_t jetNr=0;jetNr<jets.size();jetNr++)
    {
       if (abs(jets[jetNr].hwEta()) > 28) continue;
@@ -45,7 +46,7 @@ void l1t::CaloStage2JetSumAlgorithmFirmwareImp1::processEvent(const std::vector<
 
       ptJet = (jets[jetNr]).hwPt();
       jetPhi=((jets[jetNr]).hwPhi()*5.0-2.5)*pi/180.;
-
+      std::cout << "jetphi\t" << jetPhi << std::endl;
       coefficientX = int32_t(511.*cos(jetPhi));
       coefficientY = int32_t(511.*sin(jetPhi));
 
@@ -55,19 +56,22 @@ void l1t::CaloStage2JetSumAlgorithmFirmwareImp1::processEvent(const std::vector<
    }
    htYComponent /= 511.;
    htXComponent /= 511.;  
-   phiMissingHt = -atan2(htYComponent,htXComponent);
 
-   if(phiMissingHt >= 0)
-   {
-      intPhiMissingHt = int32_t((36.*(phiMissingHt)+0.5)/pi);
-   }
-   else
-   {
-      intPhiMissingHt = int32_t((36.*(phiMissingHt+2.*pi)+0.5)/pi);
-   }
+   phiMissingHt = atan2(htYComponent,htXComponent)+pi;
+   if (phiMissingHt > pi) phiMissingHt = phiMissingHt - 2*pi;
+
+   double phi_degrees = phiMissingHt *  180.0 /pi;
+
+   if(phi_degrees < 0) {
+      intPhiMissingHt= 72 - (int32_t)(fabs(phi_degrees) / 5.0);
+   } else {
+      intPhiMissingHt= 1 + (int32_t)(phi_degrees / 5.0);
+   } 
 
    double doubmissingHt = htXComponent*htXComponent+htYComponent*htYComponent;
-   missingHt = int32_t(sqrt(doubmissingHt))*511.;
+   missingHt = int32_t(sqrt(doubmissingHt));
+   missingHt = missingHt & 0xfff;
+   totalHt = totalHt & 0xfff;
 
    l1t::EtSum::EtSumType typeTotalHt = l1t::EtSum::EtSumType::kTotalHt;
    l1t::EtSum::EtSumType typeMissingHt = l1t::EtSum::EtSumType::kMissingHt;

@@ -35,7 +35,7 @@ void l1t::CaloStage2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector<l
    int32_t ptTower;
    double etXComponent(0.);
    double etYComponent(0.);
-   int32_t intPhiMissingEt;
+   int32_t intPhiMissingEt(0);
    const float pi = acos(-1.); 
    float towerPhi;
 
@@ -53,18 +53,23 @@ void l1t::CaloStage2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector<l
    }
    etYComponent /= 511.;
    etXComponent /= 511.;  
-   phiMissingEt = -atan2(etYComponent,etXComponent);
-   if(phiMissingEt >= 0)
-   {
-      intPhiMissingEt = int32_t((36.*(phiMissingEt)+0.5)/pi);
-   }
-   else
-   {
-      intPhiMissingEt = int32_t((36.*(phiMissingEt+2.*pi)+0.5)/pi);
-   }
+
+   phiMissingEt = atan2(etYComponent,etXComponent)+pi;
+   if (phiMissingEt > pi) phiMissingEt = phiMissingEt - 2*pi;
+
+   double phi_degrees = phiMissingEt *  180.0 /pi;
+
+   if(phi_degrees < 0) {
+      intPhiMissingEt= 72 - (int32_t)(fabs(phi_degrees) / 5.0);
+   } else {
+      intPhiMissingEt= 1 + (int32_t)(phi_degrees / 5.0);
+   } 
 
    double doubmissingEt = etXComponent*etXComponent+etYComponent*etYComponent;
-   missingEt = int32_t(sqrt(doubmissingEt))*511.;
+   missingEt = int32_t(sqrt(doubmissingEt));
+
+   missingEt = missingEt & 0xfff;
+   totalEt = totalEt & 0xfff;
 
    l1t::EtSum::EtSumType typeTotalEt = l1t::EtSum::EtSumType::kTotalEt;
    l1t::EtSum::EtSumType typeMissingEt = l1t::EtSum::EtSumType::kMissingEt;
