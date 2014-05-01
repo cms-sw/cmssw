@@ -19,22 +19,28 @@
 //
 namespace
 {
+	//
+	// All of these functions are pretty straightforward but the implementation is type dependent.
+	// The templated methods call these for the type specific parts and the compiler will resolve
+	// the type and call the correct overload.
+	//
+
 	template<class T_element>
-	size_t collectionSize( const edm::RefToBaseVector<T_element>& trackCollection )
+	size_t collectionSize( const edm::RefToBaseVector<T_element>& collection )
 	{
-		return trackCollection.size();
+		return collection.size();
 	}
 
 	template<class T_element>
-	size_t collectionSize( const edm::Handle<T_element>& pTrackCollection )
+	size_t collectionSize( const edm::Handle<T_element>& hCollection )
 	{
-		return pTrackCollection->size();
+		return hCollection->size();
 	}
 
 	template<class T_element>
-	size_t collectionSize( const edm::RefVector<T_element>& trackCollection )
+	size_t collectionSize( const edm::RefVector<T_element>& collection )
 	{
-		return trackCollection.size();
+		return collection.size();
 	}
 
 	const reco::Track* getTrackAt( const edm::RefToBaseVector<reco::Track>& trackCollection, size_t index )
@@ -81,10 +87,13 @@ namespace
 
 
 QuickTrackAssociatorByHits::QuickTrackAssociatorByHits( const edm::ParameterSet& config ) :
-		pHitAssociator_( nullptr ), pEventForWhichAssociatorIsValid_( nullptr ), absoluteNumberOfHits_( config.getParameter<bool>( "AbsoluteNumberOfHits" ) ), qualitySimToReco_( config.getParameter<
-				double>( "Quality_SimToReco" ) ), puritySimToReco_( config.getParameter<double>( "Purity_SimToReco" ) ), cutRecoToSim_( config.getParameter<
-				double>( "Cut_RecoToSim" ) ), threeHitTracksAreSpecial_( config.getParameter<bool>( "ThreeHitTracksAreSpecial" ) ), useClusterTPAssociation_( config.getParameter<
-				bool>( "useClusterTPAssociation" ) ), cluster2TPSrc_( config.getParameter < edm::InputTag > ("cluster2TPSrc") )
+		absoluteNumberOfHits_( config.getParameter<bool>( "AbsoluteNumberOfHits" ) ),
+		qualitySimToReco_( config.getParameter<double>( "Quality_SimToReco" ) ),
+		puritySimToReco_( config.getParameter<double>( "Purity_SimToReco" ) ),
+		cutRecoToSim_( config.getParameter<double>( "Cut_RecoToSim" ) ),
+		threeHitTracksAreSpecial_( config.getParameter<bool>( "ThreeHitTracksAreSpecial" ) ),
+		useClusterTPAssociation_( config.getParameter<bool>( "useClusterTPAssociation" ) ),
+		cluster2TPSrc_( config.getParameter < edm::InputTag > ("cluster2TPSrc") )
 {
 	//
 	// Check whether the denominator when working out the percentage of shared hits should
@@ -127,60 +136,64 @@ QuickTrackAssociatorByHits::QuickTrackAssociatorByHits( const edm::ParameterSet&
 
 QuickTrackAssociatorByHits::~QuickTrackAssociatorByHits()
 {
-	delete pHitAssociator_;
+	// No operation
 }
 
 reco::RecoToSimCollection QuickTrackAssociatorByHits::associateRecoToSim( edm::Handle<edm::View<reco::Track> >& trackCollectionHandle, edm::Handle<
 		TrackingParticleCollection>& trackingParticleCollectionHandle, const edm::Event* pEvent, const edm::EventSetup* pSetup ) const
 {
+	std::unique_ptr<ClusterTPAssociationList> pClusterToTPMap;
+	std::unique_ptr<TrackerHitAssociator> pHitAssociator;
+	// This call will set EITHER pClusterToTPMap OR pHitAssociator depending on what the user requested in the configuration.
+	prepareEitherHitAssociatorOrClusterToTPMap( pEvent, pClusterToTPMap, pHitAssociator );
 
-	// get the Cluster2TPMap or initialize hit associator
-	if( useClusterTPAssociation_ ) prepareCluster2TPMap( pEvent );
-	else initialiseHitAssociator( pEvent );
-
-	// This method checks which collection type is set to null, and uses the other one.
-	return associateRecoToSimImplementation( trackCollectionHandle, trackingParticleCollectionHandle, pEvent );
+	// Only pass the one that was successfully created to the templated method.
+	if( pClusterToTPMap==nullptr ) return associateRecoToSimImplementation( trackCollectionHandle, trackingParticleCollectionHandle, *pHitAssociator );
+	else return associateRecoToSimImplementation( trackCollectionHandle, trackingParticleCollectionHandle, *pClusterToTPMap );
 }
 
 reco::SimToRecoCollection QuickTrackAssociatorByHits::associateSimToReco( edm::Handle<edm::View<reco::Track> >& trackCollectionHandle, edm::Handle<
 		TrackingParticleCollection>& trackingParticleCollectionHandle, const edm::Event * pEvent, const edm::EventSetup * pSetup ) const
 {
+	std::unique_ptr<ClusterTPAssociationList> pClusterToTPMap;
+	std::unique_ptr<TrackerHitAssociator> pHitAssociator;
+	// This call will set EITHER pClusterToTPMap OR pHitAssociator depending on what the user requested in the configuration.
+	prepareEitherHitAssociatorOrClusterToTPMap( pEvent, pClusterToTPMap, pHitAssociator );
 
-	// get the Cluster2TPMap or initialize hit associator
-	if( useClusterTPAssociation_ ) prepareCluster2TPMap( pEvent );
-	else initialiseHitAssociator( pEvent );
-
-	// This method checks which collection type is set to null, and uses the other one.
-	return associateSimToRecoImplementation( trackCollectionHandle, trackingParticleCollectionHandle, pEvent );
+	// Only pass the one that was successfully created to the templated method.
+	if( pClusterToTPMap==nullptr ) return associateSimToRecoImplementation( trackCollectionHandle, trackingParticleCollectionHandle, *pHitAssociator );
+	else return associateSimToRecoImplementation( trackCollectionHandle, trackingParticleCollectionHandle, *pClusterToTPMap );
 }
 
 reco::RecoToSimCollection QuickTrackAssociatorByHits::associateRecoToSim( const edm::RefToBaseVector<reco::Track>& trackCollection, const edm::RefVector<
 		TrackingParticleCollection>& trackingParticleCollection, const edm::Event* pEvent, const edm::EventSetup* pSetup ) const
 {
+	std::unique_ptr<ClusterTPAssociationList> pClusterToTPMap;
+	std::unique_ptr<TrackerHitAssociator> pHitAssociator;
+	// This call will set EITHER pClusterToTPMap OR pHitAssociator depending on what the user requested in the configuration.
+	prepareEitherHitAssociatorOrClusterToTPMap( pEvent, pClusterToTPMap, pHitAssociator );
 
-	// get the Cluster2TPMap or initialize hit associator
-	if( useClusterTPAssociation_ ) prepareCluster2TPMap( pEvent );
-	else initialiseHitAssociator( pEvent );
-
-	// This method checks which collection type is set to null, and uses the other one.
-	return associateRecoToSimImplementation( trackCollection, trackingParticleCollection, pEvent );
+	// Only pass the one that was successfully created to the templated method.
+	if( pClusterToTPMap==nullptr ) return associateRecoToSimImplementation( trackCollection, trackingParticleCollection, *pHitAssociator );
+	else return associateRecoToSimImplementation( trackCollection, trackingParticleCollection, *pClusterToTPMap );
 }
 
 reco::SimToRecoCollection QuickTrackAssociatorByHits::associateSimToReco( const edm::RefToBaseVector<reco::Track>& trackCollection, const edm::RefVector<
 		TrackingParticleCollection>& trackingParticleCollection, const edm::Event* pEvent, const edm::EventSetup* pSetup ) const
 {
+	std::unique_ptr<ClusterTPAssociationList> pClusterToTPMap;
+	std::unique_ptr<TrackerHitAssociator> pHitAssociator;
+	// This call will set EITHER pClusterToTPMap OR pHitAssociator depending on what the user requested in the configuration.
+	prepareEitherHitAssociatorOrClusterToTPMap( pEvent, pClusterToTPMap, pHitAssociator );
 
-	// get the Cluster2TPMap or initialize hit associator
-	if( useClusterTPAssociation_ ) prepareCluster2TPMap( pEvent );
-	else initialiseHitAssociator( pEvent );
-
-	// This method checks which collection type is set to null, and uses the other one.
-	return associateSimToRecoImplementation( trackCollection, trackingParticleCollection, pEvent );
+	// Only pass the one that was successfully created to the templated method.
+	if( pClusterToTPMap==nullptr ) return associateSimToRecoImplementation( trackCollection, trackingParticleCollection, *pHitAssociator );
+	else return associateSimToRecoImplementation( trackCollection, trackingParticleCollection, *pClusterToTPMap );
 }
 
 
-template<class T_TrackCollection, class T_TrackingParticleCollection>
-reco::RecoToSimCollection QuickTrackAssociatorByHits::associateRecoToSimImplementation( T_TrackCollection trackCollection, T_TrackingParticleCollection trackingParticleCollection, const edm::Event* pEvent ) const
+template<class T_TrackCollection, class T_TrackingParticleCollection, class T_hitOrClusterAssociator>
+reco::RecoToSimCollection QuickTrackAssociatorByHits::associateRecoToSimImplementation( T_TrackCollection trackCollection, T_TrackingParticleCollection trackingParticleCollection, T_hitOrClusterAssociator hitOrClusterAssociator ) const
 {
 	reco::RecoToSimCollection returnValue;
 
@@ -193,8 +206,7 @@ reco::RecoToSimCollection QuickTrackAssociatorByHits::associateRecoToSimImplemen
 		//    std::cout << ">>> recoTrack #index = " << i << " pt = " << pTrack->pt() << std::endl;
 
 		// The return of this function has first as the index and second as the number of associated hits
-		std::vector < std::pair<edm::Ref<TrackingParticleCollection>,size_t> > trackingParticleQualityPairs=
-				(useClusterTPAssociation_) ? associateTrackByCluster( pTrack->recHitsBegin(), pTrack->recHitsEnd() ) : associateTrack( trackingParticleCollection, pTrack->recHitsBegin(), pTrack->recHitsEnd() );
+		std::vector < std::pair<edm::Ref<TrackingParticleCollection>,size_t> > trackingParticleQualityPairs=associateTrack( hitOrClusterAssociator, trackingParticleCollection, pTrack->recHitsBegin(), pTrack->recHitsEnd() );
 
 		// int nt = 0;
 		for( std::vector<std::pair<edm::Ref<TrackingParticleCollection>,size_t> >::const_iterator iTrackingParticleQualityPair=
@@ -211,7 +223,7 @@ reco::RecoToSimCollection QuickTrackAssociatorByHits::associateRecoToSimImplemen
 			//if electron subtract double counting
 			if( abs( trackingParticleRef->pdgId() ) == 11 && (trackingParticleRef->g4Track_end() - trackingParticleRef->g4Track_begin()) > 1 )
 			{
-				numberOfSharedHits-=getDoubleCount( pTrack->recHitsBegin(), pTrack->recHitsEnd(), trackingParticleRef );
+				numberOfSharedHits-=getDoubleCount( hitOrClusterAssociator, pTrack->recHitsBegin(), pTrack->recHitsEnd(), trackingParticleRef );
 			}
 
 			double quality;
@@ -229,8 +241,8 @@ reco::RecoToSimCollection QuickTrackAssociatorByHits::associateRecoToSimImplemen
 	return returnValue;
 }
 
-template<class T_TrackCollection, class T_TrackingParticleCollection>
-reco::SimToRecoCollection QuickTrackAssociatorByHits::associateSimToRecoImplementation( T_TrackCollection trackCollection, T_TrackingParticleCollection trackingParticleCollection, const edm::Event* pEvent ) const
+template<class T_TrackCollection, class T_TrackingParticleCollection, class T_hitOrClusterAssociator>
+reco::SimToRecoCollection QuickTrackAssociatorByHits::associateSimToRecoImplementation( T_TrackCollection trackCollection, T_TrackingParticleCollection trackingParticleCollection, T_hitOrClusterAssociator hitOrClusterAssociator ) const
 {
 	reco::SimToRecoCollection returnValue;
 
@@ -241,8 +253,7 @@ reco::SimToRecoCollection QuickTrackAssociatorByHits::associateSimToRecoImplemen
 		const reco::Track* pTrack=::getTrackAt(trackCollection,i); // Get a normal pointer for ease of use. This part is type specific so delegate.
 
 		// The return of this function has first as an edm:Ref to the associated TrackingParticle, and second as the number of associated hits
-		std::vector < std::pair<edm::Ref<TrackingParticleCollection>,size_t> > trackingParticleQualityPairs=
-				(useClusterTPAssociation_) ? associateTrackByCluster( pTrack->recHitsBegin(), pTrack->recHitsEnd() ) : associateTrack( trackingParticleCollection, pTrack->recHitsBegin(), pTrack->recHitsEnd() );
+		std::vector < std::pair<edm::Ref<TrackingParticleCollection>,size_t> > trackingParticleQualityPairs=associateTrack( hitOrClusterAssociator, trackingParticleCollection, pTrack->recHitsBegin(), pTrack->recHitsEnd() );
 
 		// int nt = 0;
 		for( std::vector<std::pair<edm::Ref<TrackingParticleCollection>,size_t> >::const_iterator iTrackingParticleQualityPair=
@@ -269,7 +280,7 @@ reco::SimToRecoCollection QuickTrackAssociatorByHits::associateSimToRecoImplemen
 			//if electron subtract double counting
 			if( abs( trackingParticleRef->pdgId() ) == 11 && (trackingParticleRef->g4Track_end() - trackingParticleRef->g4Track_begin()) > 1 )
 			{
-				numberOfSharedHits-=getDoubleCount( pTrack->recHitsBegin(), pTrack->recHitsEnd(), trackingParticleRef );
+				numberOfSharedHits-=getDoubleCount( hitOrClusterAssociator, pTrack->recHitsBegin(), pTrack->recHitsEnd(), trackingParticleRef );
 			}
 
 			double purity=static_cast<double>( numberOfSharedHits ) / static_cast<double>( numberOfValidTrackHits );
@@ -292,7 +303,7 @@ reco::SimToRecoCollection QuickTrackAssociatorByHits::associateSimToRecoImplemen
 
 }
 
-template<typename T_TPCollection,typename iter> std::vector<std::pair<edm::Ref<TrackingParticleCollection>,size_t> > QuickTrackAssociatorByHits::associateTrack( T_TPCollection trackingParticles, iter begin, iter end ) const
+template<typename T_TPCollection,typename iter> std::vector<std::pair<edm::Ref<TrackingParticleCollection>,size_t> > QuickTrackAssociatorByHits::associateTrack( const TrackerHitAssociator& hitAssociator, T_TPCollection trackingParticles, iter begin, iter end ) const
 {
 	// The pairs in this vector have a Ref to the associated TrackingParticle as "first" and the number of associated hits as "second"
 	std::vector < std::pair<edm::Ref<TrackingParticleCollection>,size_t> > returnValue;
@@ -300,7 +311,7 @@ template<typename T_TPCollection,typename iter> std::vector<std::pair<edm::Ref<T
 	// The pairs in this vector have first as the sim track identifiers, and second the number of reco hits associated to that sim track.
 	// Most reco hits will probably have come from the same sim track, so the number of entries in this vector should be fewer than the
 	// number of reco hits.  The pair::second entries should add up to the total number of reco hits though.
-	std::vector < std::pair<SimTrackIdentifiers,size_t> > hitIdentifiers=getAllSimTrackIdentifiers( begin, end );
+	std::vector < std::pair<SimTrackIdentifiers,size_t> > hitIdentifiers=getAllSimTrackIdentifiers( hitAssociator, begin, end );
 
 	// Loop over the TrackingParticles
 	size_t collectionSize=::collectionSize(trackingParticles);
@@ -331,45 +342,60 @@ template<typename T_TPCollection,typename iter> std::vector<std::pair<edm::Ref<T
 	return returnValue;
 }
 
-void QuickTrackAssociatorByHits::prepareCluster2TPMap( const edm::Event* pEvent ) const
+void QuickTrackAssociatorByHits::prepareEitherHitAssociatorOrClusterToTPMap( const edm::Event* pEvent, std::unique_ptr<ClusterTPAssociationList>& pClusterToTPMap, std::unique_ptr<TrackerHitAssociator>& pHitAssociator ) const
 {
-	//get the Cluster2TPList
-	edm::Handle<ClusterTPAssociationList> pCluster2TPListH;
-	pEvent->getByLabel( cluster2TPSrc_, pCluster2TPListH );
-	if( pCluster2TPListH.isValid() )
+	if( useClusterTPAssociation_ )
 	{
-		pCluster2TPList_= *(pCluster2TPListH.product());
-		//make sure it is properly sorted
-		std::sort( pCluster2TPList_.begin(), pCluster2TPList_.end(), clusterTPAssociationListGreater );
+		edm::Handle<ClusterTPAssociationList> pCluster2TPListH;
+		pEvent->getByLabel( cluster2TPSrc_, pCluster2TPListH );
+		if( pCluster2TPListH.isValid() )
+		{
+			pClusterToTPMap.reset( new ClusterTPAssociationList( *(pCluster2TPListH.product()) ) );
+			//make sure it is properly sorted
+			std::sort( pClusterToTPMap->begin(), pClusterToTPMap->end(), clusterTPAssociationListGreater );
+			// Make sure that pHitAssociator is null. There may have been something there before the call.
+			pHitAssociator.reset();
+			return;
+		}
+		else
+		{
+			edm::LogInfo( "TrackAssociator" ) << "ClusterTPAssociationList with label "<< cluster2TPSrc_
+					<< " not found. Using DigiSimLink based associator";
+			// Can't do this next line anymore because useClusterTPAssociation_ is no longer mutable
+			//useClusterTPAssociation_=false;
+		}
 	}
-	else
-	{
-		edm::LogInfo( "TrackAssociator" ) << "ClusterTPAssociationList with label " << cluster2TPSrc_
-				<< " not found. Using DigiSimLink based associator";
-		initialiseHitAssociator( pEvent );
-		useClusterTPAssociation_=false;
-	}
+
+	// If control got this far then either useClusterTPAssociation_ was false or getting the cluster
+	// to TrackingParticle association from the event failed. Either way I need to create a hit associator.
+	pHitAssociator.reset( new TrackerHitAssociator( *pEvent, hitAssociatorParameters_ ) );
+	// Make sure that pClusterToTPMap is null. There may have been something there before the call.
+	pClusterToTPMap.reset();
 }
 
-template<typename iter> std::vector<std::pair<edm::Ref<TrackingParticleCollection>,size_t> > QuickTrackAssociatorByHits::associateTrackByCluster( iter begin, iter end ) const
+
+template<typename T_TPCollection,typename iter> std::vector< std::pair<edm::Ref<TrackingParticleCollection>,size_t> > QuickTrackAssociatorByHits::associateTrack( const ClusterTPAssociationList& clusterToTPMap, T_TPCollection trackingParticles, iter begin, iter end ) const
 {
+	// Note that the trackingParticles parameter is not actually required since all the information is in clusterToTPMap,
+	// but the method signature has to match the other overload because it is called from a templated method.
+
 	// The pairs in this vector have a Ref to the associated TrackingParticle as "first" and the number of associated clusters as "second"
 	// Note: typedef edm::Ref<TrackingParticleCollection> TrackingParticleRef;
 	std::vector < std::pair<edm::Ref<TrackingParticleCollection>,size_t> > returnValue;
-	if( !pCluster2TPList_.size() ) return returnValue;
+	if( clusterToTPMap.empty() ) return returnValue;
 
 	// The pairs in this vector have first as the TP, and second the number of reco clusters associated to that TP.
 	// Most reco clusters will probably have come from the same sim track (i.e TP), so the number of entries in this
 	// vector should be fewer than the number of clusters. The pair::second entries should add up to the total
 	// number of reco clusters though.
-	std::vector < OmniClusterRef > oClusters=getMatchedClusters( begin, end );
+	std::vector<OmniClusterRef> oClusters=getMatchedClusters( begin, end );
 
 	std::map < TrackingParticleRef, size_t > lmap;
 	for( std::vector<OmniClusterRef>::const_iterator it=oClusters.begin(); it != oClusters.end(); ++it )
 	{
 
 		std::pair < OmniClusterRef, TrackingParticleRef > clusterTPpairWithDummyTP( *it, TrackingParticleRef() ); //TP is dummy: for clusterTPAssociationListGreater sorting only the cluster is needed
-		auto range=std::equal_range( pCluster2TPList_.begin(), pCluster2TPList_.end(), clusterTPpairWithDummyTP, clusterTPAssociationListGreater );
+		auto range=std::equal_range( clusterToTPMap.begin(), clusterToTPMap.end(), clusterTPpairWithDummyTP, clusterTPAssociationListGreater );
 		if( range.first != range.second )
 		{
 			for( auto ip=range.first; ip != range.second; ++ip )
@@ -460,7 +486,7 @@ template<typename iter> std::vector<OmniClusterRef> QuickTrackAssociatorByHits::
 	return returnValue;
 }
 
-template<typename iter> std::vector<std::pair<QuickTrackAssociatorByHits::SimTrackIdentifiers,size_t> > QuickTrackAssociatorByHits::getAllSimTrackIdentifiers( iter begin, iter end ) const
+template<typename iter> std::vector<std::pair<QuickTrackAssociatorByHits::SimTrackIdentifiers,size_t> > QuickTrackAssociatorByHits::getAllSimTrackIdentifiers( const TrackerHitAssociator& hitAssociator, iter begin, iter end ) const
 {
 	// The pairs in this vector have first as the sim track identifiers, and second the number of reco hits associated to that sim track.
 	std::vector < std::pair<SimTrackIdentifiers,size_t> > returnValue;
@@ -476,7 +502,7 @@ template<typename iter> std::vector<std::pair<QuickTrackAssociatorByHits::SimTra
 
 			// Get the identifiers for the sim track that this hit came from. There should only be one entry unless clusters
 			// have merged (as far as I know).
-			pHitAssociator_->associateHitId( *(getHitFromIter( iRecHit )), simTrackIdentifiers ); // This call fills simTrackIdentifiers
+			hitAssociator.associateHitId( *(getHitFromIter( iRecHit )), simTrackIdentifiers ); // This call fills simTrackIdentifiers
 			// Loop over each identifier, and add it to the return value only if it's not already in there
 			for( std::vector<SimTrackIdentifiers>::const_iterator iIdentifier=simTrackIdentifiers.begin(); iIdentifier != simTrackIdentifiers.end();
 					++iIdentifier )
@@ -517,7 +543,7 @@ bool QuickTrackAssociatorByHits::trackingParticleContainsIdentifier( const Track
 	return false;
 }
 
-template<typename iter> int QuickTrackAssociatorByHits::getDoubleCount( iter startIterator, iter endIterator, TrackingParticleRef associatedTrackingParticle ) const
+template<typename iter> int QuickTrackAssociatorByHits::getDoubleCount( const TrackerHitAssociator& hitAssociator, iter startIterator, iter endIterator, TrackingParticleRef associatedTrackingParticle ) const
 {
 	// This method is largely copied from the standard TrackAssociatorByHits. Once I've tested how much difference
 	// it makes I'll go through and comment it properly.
@@ -529,41 +555,17 @@ template<typename iter> int QuickTrackAssociatorByHits::getDoubleCount( iter sta
 	{
 		int idcount=0;
 
-		if( useClusterTPAssociation_ )
+		SimTrackIdsDC.clear();
+		hitAssociator.associateHitId( *(getHitFromIter( iHit )), SimTrackIdsDC );
+		if( SimTrackIdsDC.size() > 1 )
 		{
-			std::vector < OmniClusterRef > oClusters=getMatchedClusters( iHit, iHit + 1 );  //only for the cluster being checked
-			for( std::vector<OmniClusterRef>::const_iterator it=oClusters.begin(); it != oClusters.end(); ++it )
+			for( TrackingParticle::g4t_iterator g4T=associatedTrackingParticle->g4Track_begin(); g4T != associatedTrackingParticle->g4Track_end();
+					++g4T )
 			{
-				std::pair < OmniClusterRef, TrackingParticleRef > clusterTPpairWithDummyTP( *it, TrackingParticleRef() ); //TP is dummy: for clusterTPAssociationListGreater sorting only the cluster is needed
-				auto range=
-						std::equal_range( pCluster2TPList_.begin(), pCluster2TPList_.end(), clusterTPpairWithDummyTP, clusterTPAssociationListGreater );
-				if( range.first != range.second )
+				if( find( SimTrackIdsDC.begin(), SimTrackIdsDC.end(), SimHitIdpr( ( *g4T).trackId(), SimTrackIdsDC.begin()->second ) )
+						!= SimTrackIdsDC.end() )
 				{
-					for( auto ip=range.first; ip != range.second; ++ip )
-					{
-						const TrackingParticleRef trackingParticle=(ip->second);
-						if( associatedTrackingParticle == trackingParticle )
-						{
-							idcount++;
-						}
-					}
-				}
-			}
-		}
-		else
-		{
-			SimTrackIdsDC.clear();
-			pHitAssociator_->associateHitId( *(getHitFromIter( iHit )), SimTrackIdsDC );
-			if( SimTrackIdsDC.size() > 1 )
-			{
-				for( TrackingParticle::g4t_iterator g4T=associatedTrackingParticle->g4Track_begin(); g4T != associatedTrackingParticle->g4Track_end();
-						++g4T )
-				{
-					if( find( SimTrackIdsDC.begin(), SimTrackIdsDC.end(), SimHitIdpr( ( *g4T).trackId(), SimTrackIdsDC.begin()->second ) )
-							!= SimTrackIdsDC.end() )
-					{
-						idcount++;
-					}
+					idcount++;
 				}
 			}
 		}
@@ -573,21 +575,40 @@ template<typename iter> int QuickTrackAssociatorByHits::getDoubleCount( iter sta
 	return doubleCount;
 }
 
-void QuickTrackAssociatorByHits::initialiseHitAssociator( const edm::Event* pEvent ) const
+template<typename iter> int QuickTrackAssociatorByHits::getDoubleCount( const ClusterTPAssociationList& clusterToTPList, iter startIterator, iter endIterator, TrackingParticleRef associatedTrackingParticle ) const
 {
-	// The intention of this function was to check whether the hit associator is still valid
-	// (since in general associateSimToReco and associateRecoToSim are called for the same
-	// event). I was doing this by recording the event pointer and checking it hasn't changed
-	// but this doesn't appear to work. Until I find a way of uniquely identifying an event
-	// I'll just create it anew each time.
-//	if( pEventForWhichAssociatorIsValid_==pEvent && pEventForWhichAssociatorIsValid_!=null ) return; // Already set up so no need to do anything
+	// This code here was written by Subir Sarkar. I'm just splitting it off into a
+	// separate method. - Grimes 01/May/2014
 
-	// Free up the previous instantiation
-	delete pHitAssociator_;
+	int doubleCount=0;
+	std::vector < SimHitIdpr > SimTrackIdsDC;
 
-	// Create a new instantiation using the new event
-	pHitAssociator_=new TrackerHitAssociator( *pEvent, hitAssociatorParameters_ );
-	pEventForWhichAssociatorIsValid_=pEvent;
+	for( iter iHit=startIterator; iHit != endIterator; iHit++ )
+	{
+		int idcount=0;
+
+		std::vector < OmniClusterRef > oClusters=getMatchedClusters( iHit, iHit + 1 );  //only for the cluster being checked
+		for( std::vector<OmniClusterRef>::const_iterator it=oClusters.begin(); it != oClusters.end(); ++it )
+		{
+			std::pair<OmniClusterRef,TrackingParticleRef> clusterTPpairWithDummyTP( *it, TrackingParticleRef() ); //TP is dummy: for clusterTPAssociationListGreater sorting only the cluster is needed
+			auto range=std::equal_range( clusterToTPList.begin(), clusterToTPList.end(), clusterTPpairWithDummyTP, clusterTPAssociationListGreater );
+			if( range.first != range.second )
+			{
+				for( auto ip=range.first; ip != range.second; ++ip )
+				{
+					const TrackingParticleRef trackingParticle=(ip->second);
+					if( associatedTrackingParticle == trackingParticle )
+					{
+						idcount++;
+					}
+				}
+			}
+		}
+
+		if( idcount > 1 ) doubleCount+=(idcount - 1);
+	}
+
+	return doubleCount;
 }
 
 reco::RecoToSimCollectionSeed QuickTrackAssociatorByHits::associateRecoToSim( edm::Handle<edm::View<TrajectorySeed> >& pSeedCollectionHandle_, edm::Handle<
@@ -597,8 +618,20 @@ reco::RecoToSimCollectionSeed QuickTrackAssociatorByHits::associateRecoToSim( ed
 	edm::LogVerbatim( "TrackAssociator" ) << "Starting TrackAssociatorByHits::associateRecoToSim - #seeds=" << pSeedCollectionHandle_->size()
 			<< " #TPs=" << trackingParticleCollectionHandle->size();
 
-	initialiseHitAssociator( pEvent );
+	//
+	// First create either the hit associator or the cluster to TrackingParticle map
+	// depending on how the user set the configuration. Depending on the logic here
+	// only one of pClusterToTPList or pTrackerHitAssociator will ever be non-null.
+	//
+	std::unique_ptr<ClusterTPAssociationList> pClusterToTPList;
+	std::unique_ptr<TrackerHitAssociator> pTrackerHitAssociator;
+	// This call will set EITHER pClusterToTPList OR pHitAssociator depending on what the user requested in the configuration.
+	prepareEitherHitAssociatorOrClusterToTPMap( pEvent, pClusterToTPList, pTrackerHitAssociator );
 
+	//
+	// Now that either pClusterToTPList or pTrackerHitAssociator have been initialised
+	// (never both) I can carry on and do the association.
+	//
 	reco::RecoToSimCollectionSeed returnValue;
 
 	size_t collectionSize=pSeedCollectionHandle_->size();
@@ -609,7 +642,7 @@ reco::RecoToSimCollectionSeed QuickTrackAssociatorByHits::associateRecoToSim( ed
 
 		// The return of this function has first as the index and second as the number of associated hits
 		std::vector < std::pair<edm::Ref<TrackingParticleCollection>,size_t> > trackingParticleQualityPairs=
-				(useClusterTPAssociation_) ? associateTrackByCluster( pSeed->recHits().first, pSeed->recHits().second ) : associateTrack( trackingParticleCollectionHandle, pSeed->recHits().first, pSeed->recHits().second );
+				(pClusterToTPList!=nullptr) ? associateTrack( *pClusterToTPList, trackingParticleCollectionHandle, pSeed->recHits().first, pSeed->recHits().second ) : associateTrack( *pTrackerHitAssociator, trackingParticleCollectionHandle, pSeed->recHits().first, pSeed->recHits().second );
 		for( std::vector<std::pair<edm::Ref<TrackingParticleCollection>,size_t> >::const_iterator iTrackingParticleQualityPair=
 				trackingParticleQualityPairs.begin(); iTrackingParticleQualityPair != trackingParticleQualityPairs.end();
 				++iTrackingParticleQualityPair )
@@ -623,7 +656,8 @@ reco::RecoToSimCollectionSeed QuickTrackAssociatorByHits::associateRecoToSim( ed
 			//if electron subtract double counting
 			if( abs( trackingParticleRef->pdgId() ) == 11 && (trackingParticleRef->g4Track_end() - trackingParticleRef->g4Track_begin()) > 1 )
 			{
-				numberOfSharedHits-=getDoubleCount( pSeed->recHits().first, pSeed->recHits().second, trackingParticleRef );
+				if( pClusterToTPList!=nullptr ) numberOfSharedHits-=getDoubleCount( *pClusterToTPList, pSeed->recHits().first, pSeed->recHits().second, trackingParticleRef );
+				else numberOfSharedHits-=getDoubleCount( *pTrackerHitAssociator, pSeed->recHits().first, pSeed->recHits().second, trackingParticleRef );
 			}
 
 			double quality;
@@ -652,8 +686,20 @@ reco::SimToRecoCollectionSeed QuickTrackAssociatorByHits::associateSimToReco( ed
 	edm::LogVerbatim( "TrackAssociator" ) << "Starting TrackAssociatorByHits::associateSimToReco - #seeds=" << pSeedCollectionHandle_->size()
 			<< " #TPs=" << trackingParticleCollectionHandle->size();
 
-	initialiseHitAssociator( pEvent );
+	//
+	// First create either the hit associator or the cluster to TrackingParticle map
+	// depending on how the user set the configuration. Depending on the logic here
+	// only one of pClusterToTPList or pTrackerHitAssociator will ever be non-null.
+	//
+	std::unique_ptr<ClusterTPAssociationList> pClusterToTPList;
+	std::unique_ptr<TrackerHitAssociator> pTrackerHitAssociator;
+	// This call will set EITHER pClusterToTPList OR pHitAssociator depending on what the user requested in the configuration.
+	prepareEitherHitAssociatorOrClusterToTPMap( pEvent, pClusterToTPList, pTrackerHitAssociator );
 
+	//
+	// Now that either pClusterToTPList or pTrackerHitAssociator have been initialised
+	// (never both) I can carry on and do the association.
+	//
 	reco::SimToRecoCollectionSeed returnValue;
 
 	size_t collectionSize=pSeedCollectionHandle_->size();
@@ -664,7 +710,7 @@ reco::SimToRecoCollectionSeed QuickTrackAssociatorByHits::associateSimToReco( ed
 
 		// The return of this function has first as an edm:Ref to the associated TrackingParticle, and second as the number of associated hits
 		std::vector < std::pair<edm::Ref<TrackingParticleCollection>,size_t> > trackingParticleQualityPairs=
-				(useClusterTPAssociation_) ? associateTrackByCluster( pSeed->recHits().first, pSeed->recHits().second ) : associateTrack( trackingParticleCollectionHandle, pSeed->recHits().first, pSeed->recHits().second );
+				(pClusterToTPList!=nullptr) ? associateTrack( *pClusterToTPList, trackingParticleCollectionHandle, pSeed->recHits().first, pSeed->recHits().second ) : associateTrack( *pTrackerHitAssociator, trackingParticleCollectionHandle, pSeed->recHits().first, pSeed->recHits().second );
 		for( std::vector<std::pair<edm::Ref<TrackingParticleCollection>,size_t> >::const_iterator iTrackingParticleQualityPair=
 				trackingParticleQualityPairs.begin(); iTrackingParticleQualityPair != trackingParticleQualityPairs.end();
 				++iTrackingParticleQualityPair )
@@ -679,7 +725,8 @@ reco::SimToRecoCollectionSeed QuickTrackAssociatorByHits::associateSimToReco( ed
 			//if electron subtract double counting
 			if( abs( trackingParticleRef->pdgId() ) == 11 && (trackingParticleRef->g4Track_end() - trackingParticleRef->g4Track_begin()) > 1 )
 			{
-				numberOfSharedHits-=getDoubleCount( pSeed->recHits().first, pSeed->recHits().second, trackingParticleRef );
+				if( pClusterToTPList!=nullptr ) numberOfSharedHits-=getDoubleCount( *pClusterToTPList, pSeed->recHits().first, pSeed->recHits().second, trackingParticleRef );
+				else numberOfSharedHits-=getDoubleCount( *pTrackerHitAssociator, pSeed->recHits().first, pSeed->recHits().second, trackingParticleRef );
 			}
 
 			if( simToRecoDenominator_ == denomsim || (numberOfSharedHits < 3 && threeHitTracksAreSpecial_) ) // the numberOfSimulatedHits is not always required, so can skip counting in some circumstances
