@@ -43,7 +43,7 @@ namespace l1t{
     static int offsetIEta(int iEta,int offset){
       if(iEta==0) return 0;//invalid starting position
       else if(iEta*offset>=0) return iEta+offset; //same sign so cant cross zero
-      else if(std::abs(iEta)>offset) return iEta+offset; //offset smaller than iEta, cant cross zero
+      else if(std::abs(iEta)>std::abs(offset)) return iEta+offset; //offset smaller than iEta, cant cross zero
       else if(iEta>0) return iEta+offset-1; //must cross zero, if initial iEta postive, then need to sub 1 from result 
       else return iEta+offset+1;
     }

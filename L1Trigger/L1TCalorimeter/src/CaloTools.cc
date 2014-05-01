@@ -66,7 +66,16 @@ bool l1t::CaloTools::isValidIEtaIPhi(int iEta,int iPhi)
 }
 
 int l1t::CaloTools::calHwEtSum(int iEta,int iPhi,const std::vector<l1t::CaloTower>& towers,
-			      int localEtaMin,int localEtaMax,int localPhiMin,int localPhiMax,SubDet etMode)
+			       int localEtaMin,int localEtaMax,int localPhiMin,int localPhiMax,
+			       SubDet etMode)
+{
+
+  return calHwEtSum(iEta,iPhi,towers,localEtaMin,localEtaMax,localPhiMin,localPhiMax,kHFEnd,etMode);
+}
+
+int l1t::CaloTools::calHwEtSum(int iEta,int iPhi,const std::vector<l1t::CaloTower>& towers,
+			       int localEtaMin,int localEtaMax,int localPhiMin,int localPhiMax,
+			       int iEtaAbsMax,SubDet etMode)
 {
   int hwEtSum=0;
   for(int etaNr=localEtaMin;etaNr<=localEtaMax;etaNr++){
@@ -74,11 +83,11 @@ int l1t::CaloTools::calHwEtSum(int iEta,int iPhi,const std::vector<l1t::CaloTowe
       
       int towerIEta = l1t::CaloStage2Nav::offsetIEta(iEta,etaNr);
       int towerIPhi = l1t::CaloStage2Nav::offsetIPhi(iPhi,phiNr);
-      
-      const l1t::CaloTower& tower = getTower(towers,towerIEta,towerIPhi);
-      if(etMode&ECAL) hwEtSum+=tower.hwEtEm();
-      if(etMode&HCAL) hwEtSum+=tower.hwEtHad();
-      
+      if(abs(towerIEta)<=iEtaAbsMax){
+	const l1t::CaloTower& tower = getTower(towers,towerIEta,towerIPhi);
+	if(etMode&ECAL) hwEtSum+=tower.hwEtEm();
+	if(etMode&HCAL) hwEtSum+=tower.hwEtHad();
+      }	
     }
   }
   return hwEtSum;

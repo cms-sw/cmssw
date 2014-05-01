@@ -57,6 +57,10 @@ namespace l1t {
     //sum is either ECAL, HCAL or CALO (ECAL+HCAL) Et
     static int calHwEtSum(int iEta,int iPhi,const std::vector<l1t::CaloTower>& towers,
 			  int localEtaMin,int localEtaMax,int localPhiMin,int localPhiMax,SubDet etMode=CALO);
+    static int calHwEtSum(int iEta,int iPhi,const std::vector<l1t::CaloTower>& towers,
+			  int localEtaMin,int localEtaMax,int localPhiMin,int localPhiMax,
+			  int iEtaAbsMax,SubDet etMode=CALO);
+
 
     //returns the number of towers with minHwEt<=hwEt<=maxHwEt and iEtaMin<=iEta<=iEtaMax and iPhiMin<=iPhi<=iPhiMax
     //hwEt is either ECAL, HCAL or CALO (ECAL+HCAL) Et

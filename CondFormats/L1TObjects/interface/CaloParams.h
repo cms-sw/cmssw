@@ -71,14 +71,16 @@ namespace l1t {
     double egNeighbourThreshold() const { return egNeighbourThreshold_; }
     int egMaxHcalEtHw() const { return floor(egMaxHcalEt_/egLsb_); }
     double egMaxHcalEt() const { return egMaxHcalEt_; }
-    int egMaxHOverEHw() const { return floor(egMaxHOverE_/egLsb_); }
-    double egMaxHOverE() const { return egMaxHOverE_; } //cut is H/E <= egMaxHOverE/128
+    int egEtToRemoveHECutHw() const {return floor(egEtToRemoveHECut_/egLsb_);}
+    double egEtToRemoveHECut() const {return egEtToRemoveHECut_;}
+    double egMaxHOverE() const { return egMaxHOverE_; } 
     double egRelativeJetIsolationCut() const { return egRelativeJetIsolationCut_; }
     unsigned egIsoAreaNrTowersEta()const{return egIsoAreaNrTowersEta_;}
     unsigned egIsoAreaNrTowersPhi()const{return egIsoAreaNrTowersPhi_;}
     unsigned egIsoVetoNrTowersPhi()const{return egIsoVetoNrTowersPhi_;}
     unsigned egIsoPUEstTowerGranularity()const{return egIsoPUEstTowerGranularity_;}
     unsigned egIsoMaxEtaAbsForTowerSum()const{return egIsoMaxEtaAbsForTowerSum_;}
+    unsigned egIsoMaxEtaAbsForIsoSum()const{return egIsoMaxEtaAbsForIsoSum_;}
     std::string egIsoPUSType() const { return egIsoPUSType_; }
     l1t::LUT* egIsolationLUT() { return egIsolationLUT_.get(); }
     std::string egCalibrationType() const { return egCalibrationType_; }
@@ -89,6 +91,7 @@ namespace l1t {
     void setEgSeedThreshold(double thresh) { egSeedThreshold_ = thresh; }
     void setEgNeighbourThreshold(double thresh) { egNeighbourThreshold_ = thresh; }
     void setEgMaxHcalEt(double cut) { egMaxHcalEt_ = cut; }
+    void setEgEtToRemoveHECut(double thresh) { egEtToRemoveHECut_ = thresh;}
     void setEgMaxHOverE(double cut) { egMaxHOverE_ = cut; }
     void setEgRelativeJetIsolationCut(double cutValue) { egRelativeJetIsolationCut_ = cutValue; }
    
@@ -97,6 +100,7 @@ namespace l1t {
     void setEgIsoVetoNrTowersPhi(unsigned iEgIsoVetoNrTowersPhi){egIsoVetoNrTowersPhi_=iEgIsoVetoNrTowersPhi;}
     void setEgIsoPUEstTowerGranularity(unsigned iEgIsoPUEstTowerGranularity){egIsoPUEstTowerGranularity_=iEgIsoPUEstTowerGranularity;}
     void setEgIsoMaxEtaAbsForTowerSum(unsigned iEgIsoMaxEtaAbsForTowerSum){egIsoMaxEtaAbsForTowerSum_=iEgIsoMaxEtaAbsForTowerSum;}
+    void setEgIsoMaxEtaAbsForIsoSum(unsigned iEgIsoMaxEtaAbsForIsoSum){egIsoMaxEtaAbsForIsoSum_=iEgIsoMaxEtaAbsForIsoSum;}
     void setEgIsoPUSType(std::string type) { egIsoPUSType_ = type; }
     void setEgIsolationLUT(std::shared_ptr<LUT> lut) { egIsolationLUT_ = lut; }
     void setEgCalibrationType(std::string type) { egCalibrationType_ = type; }
@@ -258,8 +262,11 @@ namespace l1t {
     // EG maximum value of HCAL Et
     int egMaxHcalEt_;
 
+    // Et threshold to remove the H/E cut from the EGammas
+    int egEtToRemoveHECut_;
+    
     // EG maximum value of H/E
-    int egMaxHOverE_;
+    double egMaxHOverE_;
 
     // Relative jet isolation cut for EG (Stage1Layer2)
     double egRelativeJetIsolationCut_;
@@ -278,6 +285,9 @@ namespace l1t {
 
     // eta range over which # towers is estimated
     unsigned egIsoMaxEtaAbsForTowerSum_;
+
+    // max abs eta for which a tower is included in the isolation sum
+    unsigned egIsoMaxEtaAbsForIsoSum_;
 
     // EG calibration
     std::string egCalibrationType_;

@@ -93,7 +93,8 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
   m_params.setEgSeedThreshold(conf.getParameter<double>("egSeedThreshold"));
   m_params.setEgNeighbourThreshold(conf.getParameter<double>("egNeighbourThreshold"));
   m_params.setEgMaxHcalEt(conf.getParameter<double>("egMaxHcalEt"));
-  m_params.setEgMaxHOverE(conf.getParameter<double>("egMaxHOverE"));
+  m_params.setEgEtToRemoveHECut(conf.getParameter<double>("egEtToRemoveHECut"));
+  m_params.setEgMaxHOverE(conf.getParameter<double>("egMaxHOverE"));  
   m_params.setEgIsoPUSType(conf.getParameter<std::string>("egIsoPUSType"));
   
   edm::FileInPath egIsoLUTFile = conf.getParameter<edm::FileInPath>("egIsoLUTFile");
@@ -106,7 +107,8 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
   m_params.setEgIsoVetoNrTowersPhi(conf.getParameter<unsigned int>("egIsoVetoNrTowersPhi"));
   m_params.setEgIsoPUEstTowerGranularity(conf.getParameter<unsigned int>("egIsoPUEstTowerGranularity"));
   m_params.setEgIsoMaxEtaAbsForTowerSum(conf.getParameter<unsigned int>("egIsoMaxEtaAbsForTowerSum"));
-
+  m_params.setEgIsoMaxEtaAbsForIsoSum(conf.getParameter<unsigned int>("egIsoMaxEtaAbsForIsoSum"));
+  
   // tau
   m_params.setTauLsb(conf.getParameter<double>("tauLSB"));
   m_params.setTauSeedThreshold(conf.getParameter<double>("tauSeedThreshold"));

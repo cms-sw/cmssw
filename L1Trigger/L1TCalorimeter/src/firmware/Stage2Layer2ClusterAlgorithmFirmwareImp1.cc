@@ -19,10 +19,10 @@ l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::Stage2Layer2ClusterAlgorithmFirmw
   params_(params)
 {
 
-  // thresholds hard-coded for the moment
-  m_seedThreshold    = 4; // 2 GeV
-  m_clusterThreshold = 2; // 1 GeV
 
+  m_seedThreshold    = params_->egSeedThresholdHw(); 
+  m_clusterThreshold = params_->egNeighbourThresholdHw(); 
+    
 }
 
 
