@@ -130,11 +130,17 @@ OscarProducer::~OscarProducer()
 { }
 
 void 
-OscarProducer::beginRun(const edm::Run & r, const edm::EventSetup & es)
+OscarProducer::beginRun(const edm::Run&, const edm::EventSetup & es)
 {
   // Random number generation not allowed here
   StaticRandomEngineSetUnset random(nullptr);
   m_runManager->initG4(es);
+}
+
+void 
+OscarProducer::endRun(const edm::Run&, const edm::EventSetup&)
+{
+  m_runManager->stopG4();
 }
 
 void OscarProducer::produce(edm::Event & e, const edm::EventSetup & es)
@@ -148,7 +154,7 @@ void OscarProducer::produce(edm::Event & e, const edm::EventSetup & es)
 
   try {
 
-    m_runManager->produce(e,es);
+    m_runManager->produce(e, es);
 
     std::auto_ptr<edm::SimTrackContainer> 
       p1(new edm::SimTrackContainer);

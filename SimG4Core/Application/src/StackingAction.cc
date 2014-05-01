@@ -117,13 +117,13 @@ StackingAction::StackingAction(const edm::ParameterSet & p)
                                        << " in Calo: " << savePDandCinCalo
                                        << " in Muon: " << savePDandCinMuon
                                        << " everywhere: " << savePDandCinAll
-				       << "\n               saveFirstSecondary"
+				       << "\n  saveFirstSecondary"
 				       << ": " << saveFirstSecondary
-				       << " Flag for tracking neutrino: "
+				       << " Tracking neutrino flag: "
 				       << trackNeutrino 
 				       << " Kill Delta Ray flag: "
 				       << killDeltaRay
-				       << " Killing Flag for hadrons/ions: "
+				       << " Kill hadrons/ions flag: "
 				       << killHeavy;
 
   if(killHeavy) {
@@ -144,6 +144,17 @@ StackingAction::StackingAction(const edm::ParameterSet & p)
 					   << maxTrackTimes[i] << " ns ";
       maxTrackTimes[i] *= ns;
     }
+  }
+  if(limitEnergyForVacuum > 0.0) {
+    edm::LogInfo("SimG4CoreApplication") 
+      << "StackingAction LowDensity regions - kill if E < " 
+      << limitEnergyForVacuum/MeV << " MeV";
+    printRegions(lowdensRegions,"LowDensity"); 
+  }
+  if(deadRegions.size() > 0.0) {
+    edm::LogInfo("SimG4CoreApplication") 
+      << "StackingAction Dead regions - kill all secondaries ";
+    printRegions(deadRegions, "Dead"); 
   }
   if(gRRactive) {
     edm::LogInfo("SimG4CoreApplication") 
@@ -183,27 +194,16 @@ StackingAction::StackingAction(const edm::ParameterSet & p)
   }
 
   if(savePDandCinTracker) {
-    edm::LogInfo("SimG4CoreApplication") << "StackingAction Tracker regions ";
-    printRegions(trackerRegions); 
+    edm::LogInfo("SimG4CoreApplication") << "StackingAction Tracker regions: ";
+    printRegions(trackerRegions,"Tracker"); 
   }
   if(savePDandCinCalo) {
-    edm::LogInfo("SimG4CoreApplication") << "StackingAction Calo regions ";
-    printRegions(caloRegions); 
+    edm::LogInfo("SimG4CoreApplication") << "StackingAction Calo regions: ";
+    printRegions(caloRegions, "Calo"); 
   }
   if(savePDandCinMuon) {
-    edm::LogInfo("SimG4CoreApplication") << "StackingAction Muon regions ";
-    printRegions(trackerRegions); 
-  }
-  if(limitEnergyForVacuum > 0.0) {
-    edm::LogInfo("SimG4CoreApplication") 
-      << "StackingAction Low-density regions - kill if E(MeV) < " 
-      << limitEnergyForVacuum/MeV;
-    printRegions(lowdensRegions); 
-  }
-  if(deadRegions.size() > 0.0) {
-    edm::LogInfo("SimG4CoreApplication") 
-      << "StackingAction Dead regions - kill all secondaries ";
-    printRegions(deadRegions); 
+    edm::LogInfo("SimG4CoreApplication") << "StackingAction Muon regions: ";
+    printRegions(muonRegions,"Muon"); 
   }
 }
 
@@ -563,12 +563,12 @@ bool StackingAction::isItLongLived(const G4Track * aTrack) const
   return flag;
 }
 
-void StackingAction::printRegions(const std::vector<const G4Region*>& reg) const 
+void StackingAction::printRegions(const std::vector<const G4Region*>& reg, 
+				  const std::string& word) const 
 {
-  G4ExceptionDescription ed;
-   
   for (unsigned int i=0; i<reg.size(); ++i) {
-    ed << "           " << i << ". " << reg[i]->GetName() << "\n";
+    edm::LogInfo("SimG4CoreApplication") << " StackingAction: " << word 
+					 << "Region " << i 
+					 << ". " << reg[i]->GetName();
   }
-  edm::LogInfo("SimG4CoreApplication") << ed;
 }

@@ -6,8 +6,6 @@
    \note This test is not exaustive     
 */
 
-static const char CVSId[] = "$Id: testEcalContainer.cpp,v 1.3 2008/01/31 10:39:44 muzaffar Exp $";
-
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
 #include <cppunit/extensions/HelperMacros.h>
 #include <DataFormats/EcalDetId/interface/EBDetId.h>
