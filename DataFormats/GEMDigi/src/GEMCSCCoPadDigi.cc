@@ -52,5 +52,5 @@ void GEMCSCCoPadDigi::print() const
 
 std::ostream & operator<<(std::ostream & o, const GEMCSCCoPadDigi& digi)
 {
-  return o << " 1: " << digi.first() << ", 2: " << digi.second();
+  return o << " 1:" << digi.first() << ", 2:" << digi.second();
 }
