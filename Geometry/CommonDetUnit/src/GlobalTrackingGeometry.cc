@@ -14,15 +14,15 @@ GlobalTrackingGeometry::GlobalTrackingGeometry(std::vector<const TrackingGeometr
 
 GlobalTrackingGeometry::~GlobalTrackingGeometry()
 {
-    delete theDetTypes;
+    delete theDetTypes.load();
     theDetTypes = nullptr;
-    delete theDetUnits;
+    delete theDetUnits.load();
     theDetUnits = nullptr;
-    delete theDets;
+    delete theDets.load();
     theDets = nullptr;
-    delete theDetUnitIds;
+    delete theDetUnitIds.load();
     theDetUnitIds = nullptr;
-    delete theDetIds;
+    delete theDetIds.load();
     theDetIds = nullptr;
 }
 
