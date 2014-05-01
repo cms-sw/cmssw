@@ -242,7 +242,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	  int ibin=ipteta*9;
 	  
 	  float oPTOB=1.f/Tj[i].lastMeasurement().updatedState().globalMomentum().mag();
-	  float nchi=Tk[i].normalizedChi2();
+	  float chikfred=Tk[i].normalizedChi2();
 	  int nhitpi=Tj[i].foundHits();
 	  float EP=0;
       
@@ -384,7 +384,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	    chiRatio=1000;
 	    dpt=0;
 	    nhit=nhitpi;
-	    chikfred = nchi;
+	    //	    chikfred = nchi;
 	    trk_ecalDeta = trk_ecalDeta_;
 	    trk_ecalDphi = trk_ecalDphi_;
       
