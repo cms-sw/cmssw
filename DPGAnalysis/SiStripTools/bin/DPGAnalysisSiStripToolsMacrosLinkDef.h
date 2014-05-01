@@ -5,6 +5,8 @@
 #include "SOF_profiles.h"
 #include "SiStripQualityHistoryPlots.h"
 #include "UtilityMacros.h"
+#include "TrackPlots.h"
+#include "SeedMultiplicityPlots.h"
 #ifdef __CINT__
 #pragma link off all functions;
 #pragma link C++ function PlotOccupancyMap;
@@ -31,4 +33,7 @@
 #pragma link C++ function PlotOnTrackOccupancyPhase2;
 #pragma link C++ function projectProfile2DAlongX;
 #pragma link C++ function projectProfile2DAlongY;
+#pragma link C++ function TrackPlots;
+#pragma link C++ function SeedMultiplicityPlots;
+#pragma link C++ function SeedMultiplicityComparisonPlot;
 #endif
