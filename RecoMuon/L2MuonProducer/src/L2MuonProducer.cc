@@ -31,7 +31,6 @@
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/View.h"
@@ -116,7 +115,6 @@ void L2MuonProducer::produce(Event& event, const EventSetup& eventSetup){
 
   // Update the services
   theService->update(eventSetup);
-  NavigationSetter setter(*theService->muonNavigationSchool());
   
   // Reconstruct 
   LogTrace(metname)<<"Track Reconstruction"<<endl;
