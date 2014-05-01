@@ -1,6 +1,6 @@
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVNoiseSignalGenerator.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
-
+#include <iostream>
 
 CaloVNoiseSignalGenerator::CaloVNoiseSignalGenerator()
 : theNoiseSignals(),
@@ -34,7 +34,11 @@ void CaloVNoiseSignalGenerator::fillDetIds()
   for(std::vector<CaloSamples>::const_iterator sampleItr = theNoiseSignals.begin();
       sampleItr != theNoiseSignals.end(); ++sampleItr)
   {
+
     theDetIds.push_back(sampleItr->id().rawId());
+
+    //    std::cout << "Noise DetId " << sampleItr->id().rawId() << std::endl;
+
   }
   edm::sort_all(theDetIds);
 }

@@ -18,10 +18,11 @@ import FWCore.ParameterSet.Config as cms
 #    slimmed-down version of RAWSIM for small transient disk size during MC production, contains Gen+Rawdata
 #
 #  PREMIX
-#    special Digi collections for pre-mixing minbias events for pileup simulation
+#    extension of GENRAW with special Digi collection(s) for pre-mixing minbias events for pileup simulation
+#    Raw2Digi step is done on this file.
 #
 #  PREMIXRAW
-#    extension of GENRAW for pre-mixing minbias events for pileup simulation.  Raw2Digi step is done.
+#    extension of GENRAW for output of second stage of PreMixing using the DataMixer.  
 #
 #  RAWDEBUG(RAWSIM+ALL_SIM_INFO), RAWDEBUGHLT(RAWDEBUG+HLTDEBUG)
 #
@@ -373,33 +374,10 @@ DATAMIXEREventContent = cms.PSet(
         )
 
 PREMIXEventContent = cms.PSet(
-        outputCommands = cms.untracked.vstring('drop *',
-                                               'keep CSCDetIdCSCALCTDigiMuonDigiCollection_simMuonCSCDigis_MuonCSCALCTDigi_*',
-                                               'keep CSCDetIdCSCCLCTDigiMuonDigiCollection_simMuonCSCDigis_MuonCSCCLCTDigi_*',
-                                               'keep CSCDetIdCSCComparatorDigiMuonDigiCollection_simMuonCSCDigis_MuonCSCComparatorDigi_*',
-                                               'keep CSCDetIdCSCCorrelatedLCTDigiMuonDigiCollection_csctfDigis_*_*',
-                                               'keep CSCDetIdCSCCorrelatedLCTDigiMuonDigiCollection_simMuonCSCDigis_MuonCSCCorrelatedLCTDigi_*',
-                                               'keep CSCDetIdCSCRPCDigiMuonDigiCollection_simMuonCSCDigis_MuonCSCRPCDigi_*',
-                                               'keep CSCDetIdCSCStripDigiMuonDigiCollection_simMuonCSCDigis_MuonCSCStripDigi_*',
-                                               'keep CSCDetIdCSCWireDigiMuonDigiCollection_simMuonCSCDigis_MuonCSCWireDigi_*',
-                                               'keep DTLayerIdDTDigiMuonDigiCollection_simMuonDTDigis_*_*',
-                                               'keep PixelDigiedmDetSetVector_simSiPixelDigis_*_*',
-                                               'keep SiStripDigiedmDetSetVector_simSiStripDigis_ZeroSuppressed_*',
-                                               'keep RPCDetIdRPCDigiMuonDigiCollection_simMuonRPCDigis_*_*',
-                                               'keep HBHEDataFramesSorted_simHcalDigis_*_*',
-                                               'keep HFDataFramesSorted_simHcalDigis_*_*',
-                                               'keep HODataFramesSorted_simHcalDigis_*_*',
-                                               'keep ZDCDataFramesSorted_simHcalDigis_*_*',
-                                               'keep CastorDataFramesSorted_castorDigis_*_*',
-                                               'keep EBDigiCollection_simEcalUnsuppressedDigis_*_*',
-                                               'keep EEDigiCollection_simEcalUnsuppressedDigis_*_*',
-                                               'keep ESDigiCollection_simEcalPreshowerDigis_*_*',
-                                               'keep CrossingFramePlaybackInfoExtended_*_*_*',
-                                               'keep PileupSummaryInfos_*_*_*'),
+        outputCommands = cms.untracked.vstring('drop *'),
         splitLevel = cms.untracked.int32(0),
         eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
         )
-
 
 MIXINGMODULEEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *',
@@ -532,6 +510,10 @@ GENRAWEventContent.outputCommands.extend(MEtoEDMConverterFEVT.outputCommands)
 GENRAWEventContent.outputCommands.extend(IOMCRAW.outputCommands)
 GENRAWEventContent.outputCommands.extend(DigiToRawFEVT.outputCommands)
 GENRAWEventContent.outputCommands.extend(CommonEventContent.outputCommands)
+
+PREMIXEventContent.outputCommands.extend(GENRAWEventContent.outputCommands)
+PREMIXEventContent.outputCommands.append('keep RPCDetIdRPCDigiMuonDigiCollection_simMuonRPCDigis_*_*')
+PREMIXEventContent.outputCommands.append('keep CrossingFramePlaybackInfoExtended_*_*_*')
 
 PREMIXRAWEventContent.outputCommands.extend(GENRAWEventContent.outputCommands)
 PREMIXRAWEventContent.outputCommands.append('keep CrossingFramePlaybackInfoExtended_*_*_*')
