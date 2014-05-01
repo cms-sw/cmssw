@@ -88,7 +88,7 @@ process.load('L1Trigger.L1TCalorimeter.L1TCaloStage2_cff')
 process.l1tCaloStage2Layer1Digis.ecalToken = cms.InputTag("simEcalTriggerPrimitiveDigis")
 process.l1tCaloStage2Layer1Digis.hcalToken = cms.InputTag("simHcalTriggerPrimitiveDigis")
 
-process.load('L1Trigger.L1TCalorimeter.l1tCaloAnalyzer_cfi')
+process.load('L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi')
 
 # enable debug message logging for our modules
 process.MessageLogger = cms.Service(
@@ -114,7 +114,7 @@ process.TFileService.fileName = cms.string('l1t.root')
 process.generation_step = cms.Path(process.pgen)
 process.simulation_step = cms.Path(process.psim)
 process.digitisation_step = cms.Path(process.pdigi)
-process.L1simulation_step = cms.Path(process.SimL1Emulator+process.L1TCaloStage2+process.l1tCaloAnalyzer)
+process.L1simulation_step = cms.Path(process.SimL1Emulator+process.L1TCaloStage2+process.l1tStage2CaloAnalyzer)
 #process.L1simulation_step = cms.Path(process.SimL1Emulator+process.L1TCaloStage2)
 process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
 process.endjob_step = cms.EndPath(process.endOfProcess)

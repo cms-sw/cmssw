@@ -7,7 +7,7 @@ l1tCaloParamsSource = cms.ESSource(
     firstValid = cms.vuint32(1)
 )
 
-l1tCaloParams = cms.ESProducer(
+l1tStage2CaloParams = cms.ESProducer(
     "l1t::CaloParamsESProducer",
 
     # towers

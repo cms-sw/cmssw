@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from L1Trigger.L1TCalorimeter.l1tCaloParams_cfi import *
+from L1Trigger.L1TCalorimeter.l1tCaloStage2Params_cfi import *
 from L1Trigger.L1TCalorimeter.l1tCaloStage2Layer1Digis_cfi import *
 from L1Trigger.L1TCalorimeter.l1tCaloStage2Digis_cfi import *
 
