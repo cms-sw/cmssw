@@ -30,8 +30,6 @@
 
 // Framework
 
-const static int XBINS=2000;
-
 EcalPileUpDepMonitor::EcalPileUpDepMonitor(const edm::ParameterSet& ps)
 {
   VertexCollection_ = consumes<reco::VertexCollection>(ps.getParameter<edm::InputTag>("VertexCollection"));
