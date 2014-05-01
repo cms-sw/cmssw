@@ -1,12 +1,19 @@
 #ifndef CSCTFUnpacker_h
 #define CSCTFUnpacker_h
 
+
 #include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <FWCore/Utilities/interface/InputTag.h>
 
 //CSC Track Finder Raw Data Format
 #include "EventFilter/CSCTFRawToDigi/src/CSCTFEvent.h"
+
+//FEDRawData
+#include "DataFormats/FEDRawData/interface/FEDRawData.h"
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 #include <vector>
 #include <string>
@@ -28,6 +35,8 @@ private:
 
 	// label of the module which produced raw data
 	edm::InputTag producer;
+
+	edm::EDGetTokenT<FEDRawDataCollection> Raw_token;
 
 public:
 	void produce(edm::Event& e, const edm::EventSetup& c);
