@@ -19,14 +19,15 @@
 class DetLayer;
 class MuonDetLayerGeometry;
 class GeometricSearchTracker;
+class MuonNavigationSchool;
 
 #include <vector>
 #include <string>
 
 class MuonNavigationPrinter {
   public:
-    MuonNavigationPrinter(const MuonDetLayerGeometry *, bool enableRPC = true );
-    MuonNavigationPrinter(const MuonDetLayerGeometry *,const GeometricSearchTracker *);
+  MuonNavigationPrinter(const MuonDetLayerGeometry *, MuonNavigationSchool const &, bool enableRPC = true );
+  MuonNavigationPrinter(const MuonDetLayerGeometry *,MuonNavigationSchool const &, const GeometricSearchTracker *);
 
   private:
     void printLayer(DetLayer*) const;
@@ -35,6 +36,9 @@ class MuonNavigationPrinter {
 //    std::string layerPart(const DetLayer*) const;
     /// return detector module (pixel, silicon, msgc, dt, csc, rpc)
 //    std::string layerModule(const DetLayer*) const;
+
+
+  MuonNavigationSchool const * school=nullptr;
 
 };
 #endif

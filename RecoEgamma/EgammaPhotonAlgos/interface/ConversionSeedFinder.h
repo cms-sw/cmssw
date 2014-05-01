@@ -44,6 +44,7 @@
 class DetLayer;
 class FreeTrajectoryState;
 class TrajectoryStateOnSurface;
+class NavigationSchool;
 
 
 class ConversionSeedFinder {
@@ -71,6 +72,7 @@ class ConversionSeedFinder {
 
   /// Initialize EventSetup objects at each event
   void setEventSetup( const edm::EventSetup& es ) ; 
+  void setNavigationSchool(const NavigationSchool *navigation) { theNavigationSchool_ = navigation; }
   void setEvent( const edm::Event& e ) ; 
 
   void clear() {
@@ -100,6 +102,7 @@ class ConversionSeedFinder {
   std::string theMeasurementTrackerName_;
   const MeasurementTracker*     theMeasurementTracker_;
   const TrackingGeometry* theTrackerGeom_;
+  const NavigationSchool *theNavigationSchool_ = nullptr;
 
  
   edm::ESHandle<MagneticField> theMF_;

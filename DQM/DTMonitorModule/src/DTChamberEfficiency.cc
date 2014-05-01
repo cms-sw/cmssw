@@ -47,8 +47,6 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
-
 #include <cmath>
 
 using namespace std;
@@ -174,8 +172,6 @@ void DTChamberEfficiency::analyze(const Event & event,
 
   theService->update(eventSetup);
   theMeasurementExtractor->setEvent(event);
-  // set navigation school
-  NavigationSetter setter(*theService->muonNavigationSchool());
 
   //Read tracks from event
   Handle<reco::TrackCollection> tracks;
@@ -214,8 +210,8 @@ void DTChamberEfficiency::analyze(const Event & event,
       const FreeTrajectoryState *init_fs_free = init_fs.freeState();
 
       //get the list of compatible layers
-      vector<const DetLayer*> layer_list = compatibleLayers(initialLayer,*init_fs_free,alongMomentum);
-      vector<const DetLayer*> layer_list_2 = compatibleLayers(initialLayer,*init_fs_free,oppositeToMomentum);
+      vector<const DetLayer*> layer_list = compatibleLayers(*theService->muonNavigationSchool(), initialLayer,*init_fs_free,alongMomentum);
+      vector<const DetLayer*> layer_list_2 = compatibleLayers(*theService->muonNavigationSchool(), initialLayer,*init_fs_free,oppositeToMomentum);
 
       layer_list.insert(layer_list.end(),layer_list_2.begin(),layer_list_2.end());
 
@@ -318,7 +314,7 @@ MeasurementContainer DTChamberEfficiency::segQualityCut(const MeasurementContain
   return result;
 }
 
-vector<const DetLayer*> DTChamberEfficiency::compatibleLayers(const DetLayer *initialLayer,
+vector<const DetLayer*> DTChamberEfficiency::compatibleLayers(const NavigationSchool& navigationSchool, const DetLayer *initialLayer,
                                 const FreeTrajectoryState& fts, PropagationDirection propDir)
 {
 
@@ -326,7 +322,7 @@ vector<const DetLayer*> detLayers;
 
 if(theNavigationType == "Standard"){
    // ask for compatible layers
-   detLayers = initialLayer->compatibleLayers(fts,propDir);
+   detLayers = navigationSchool.compatibleLayers(*initialLayer,fts,propDir);
     // I have to fit by hand the first layer until the seedTSOS is defined on the first rechit layer
    // In fact the first layer is not returned by initialLayer->compatibleLayers.
 

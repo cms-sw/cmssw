@@ -34,7 +34,6 @@
 #include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
 
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 
 #include <string>
 
@@ -117,7 +116,6 @@ void StandAloneMuonProducer::produce(Event& event, const EventSetup& eventSetup)
 
   // Update the services
   theService->update(eventSetup);
-  NavigationSetter setter(*theService->muonNavigationSchool());
 
   // Reconstruct 
   LogTrace(metname)<<"Track Reconstruction"<<endl;

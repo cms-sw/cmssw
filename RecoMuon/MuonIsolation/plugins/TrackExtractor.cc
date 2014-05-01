@@ -45,7 +45,7 @@ reco::IsoDeposit::Veto TrackExtractor::veto(const reco::IsoDeposit::Direction & 
 
 IsoDeposit TrackExtractor::deposit(const Event & event, const EventSetup & eventSetup, const Track & muon) const
 {
-  static std::string metname = "MuonIsolation|TrackExtractor";
+  static const std::string metname = "MuonIsolation|TrackExtractor";
 
   reco::isodeposit::Direction muonDir(muon.eta(), muon.phi());
   IsoDeposit deposit(muonDir );

@@ -64,3 +64,7 @@ tcMet = cms.EDProducer(
     )
 
 ##____________________________________________________________________________||
+tcMetWithPFclusters = tcMet.clone()
+tcMetWithPFclusters.usePFClusters = cms.bool(True)
+
+##____________________________________________________________________________||
