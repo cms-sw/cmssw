@@ -7,8 +7,8 @@ l1tCaloParamsSource = cms.ESSource(
     firstValid = cms.vuint32(1)
 )
 
-l1tStage2CaloParams = cms.ESProducer(
-    "l1t::L1TCaloParamsESProducer",
+l1tCaloParams = cms.ESProducer(
+    "l1t::CaloParamsESProducer",
 
     # towers
     towerLsbH        = cms.double(0.5),
@@ -21,10 +21,12 @@ l1tStage2CaloParams = cms.ESProducer(
     towerEncoding    = cms.bool(False),
 
     # regions
+    regionLsb        = cms.double(0.5),
     regionPUSType    = cms.string("None"),
     regionPUSParams  = cms.vdouble(),
 
     # EG
+    egLsb        = cms.double(0.5),
     egSeedThreshold      = cms.double(0.),
     egNeighbourThreshold = cms.double(0.),
     egMaxHcalEt          = cms.double(0.),
@@ -38,12 +40,14 @@ l1tStage2CaloParams = cms.ESProducer(
     egIsoMaxEtaAbsForTowerSum = cms.uint32(4),
 
     # Tau
+    tauLsb                = cms.double(0.5),
     tauSeedThreshold      = cms.double(0.),
     tauNeighbourThreshold = cms.double(0.),
     tauIsoPUSType         = cms.string("None"),
     tauIsoLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauIsoLUT.txt"),
 
     # jets
+    jetLsb                = cms.double(0.5),
     jetSeedThreshold      = cms.double(0.),
     jetNeighbourThreshold = cms.double(0.),
     jetPUSType            = cms.string("None"),
@@ -51,6 +55,7 @@ l1tStage2CaloParams = cms.ESProducer(
     jetCalibrationParams  = cms.vdouble(),
 
     # sums
+    etSumLsb                = cms.double(0.5),
     ettEtaMin             = cms.int32(-999),
     ettEtaMax             = cms.int32(999),
     ettEtThreshold        = cms.double(0.),

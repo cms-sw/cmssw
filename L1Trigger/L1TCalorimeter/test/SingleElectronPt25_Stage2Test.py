@@ -95,7 +95,7 @@ process.esTest = cms.EDAnalyzer("EventSetupRecordDataGetter",
 				)
 	    
 
-process.load('L1Trigger.L1TCalorimeter.l1tCaloAnalyzer_cfi')
+process.load('L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi')
 
 process.load('L1Trigger.L1TCalorimeter.l1tStage2InputPatternWriter_cfi')
 
@@ -126,7 +126,7 @@ process.digitisation_step = cms.Path(process.pdigi)
 process.L1simulation_step = cms.Path(process.SimL1Emulator
 				     +process.esTest
 				     +process.L1TCaloStage2
-				     +process.l1tCaloAnalyzer
+				     +process.l1tStage2CaloAnalyzer
 				     +process.l1tStage2InputPatternWriter)
 process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
 process.endjob_step = cms.EndPath(process.endOfProcess)
