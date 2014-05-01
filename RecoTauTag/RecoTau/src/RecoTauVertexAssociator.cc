@@ -14,8 +14,6 @@
 
 namespace reco { namespace tau {
 
-  bool vxTrkFiltering;
-
 // Get the highest pt track in a jet.
 // Get the KF track if it exists.  Otherwise, see if it has a GSF track.
   reco::TrackBaseRef RecoTauVertexAssociator::getLeadTrack(const PFJet& jet) const{
