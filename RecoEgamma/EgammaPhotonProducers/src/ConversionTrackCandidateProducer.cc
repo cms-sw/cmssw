@@ -54,7 +54,6 @@ namespace {
 
 ConversionTrackCandidateProducer::ConversionTrackCandidateProducer(const edm::ParameterSet& config) : 
   theTrajectoryBuilder_(createBaseCkfTrajectoryBuilder(config.getParameter<edm::ParameterSet>("TrajectoryBuilderPSet"), consumesCollector())),
-  theNavigationSchool_(0), 
   theOutInSeedFinder_(new OutInConversionSeedFinder(config)),
   theOutInTrackFinder_(new OutInConversionTrackFinder(config, theTrajectoryBuilder_.get())),
   theInOutSeedFinder_(new InOutConversionSeedFinder(config)),
@@ -152,7 +151,10 @@ void  ConversionTrackCandidateProducer::beginRun (edm::Run const& r , edm::Event
 
   edm::ESHandle<NavigationSchool> nav;
   theEventSetup.get<NavigationSchoolRecord>().get("SimpleNavigationSchool", nav);
-  theNavigationSchool_ = nav.product();
+  const NavigationSchool *navigation = nav.product();
+  theTrajectoryBuilder_->setNavigationSchool(navigation);
+  theOutInSeedFinder_->setNavigationSchool(navigation);
+  theInOutSeedFinder_->setNavigationSchool(navigation);
 }
 
 
@@ -177,9 +179,6 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
 
   theOutInSeedFinder_->setEvent(theEvent);
   theInOutSeedFinder_->setEvent(theEvent);
-
-// Set the navigation school  
-  NavigationSetter setter(*theNavigationSchool_);  
 
   //
   // create empty output collections

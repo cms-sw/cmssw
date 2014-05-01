@@ -172,7 +172,7 @@ vector<const DetLayer*> StandAloneMuonFilter::compatibleLayers(const DetLayer *i
 
   if(theNavigationType == "Standard"){
     // ask for compatible layers
-    detLayers = initialLayer->compatibleLayers(fts,propDir);  
+    detLayers = theService->muonNavigationSchool()->compatibleLayers(*initialLayer,fts,propDir);
     // I have to fit by hand the first layer until the seedTSOS is defined on the first rechit layer
     // In fact the first layer is not returned by initialLayer->compatibleLayers.
     detLayers.insert(detLayers.begin(),initialLayer);
