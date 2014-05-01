@@ -26,9 +26,9 @@ class MuonTrackProducer : public edm::EDProducer {
     edm::Handle<DTRecSegment4DCollection> dtSegmentCollectionH_;
     edm::Handle<CSCSegmentCollection> cscSegmentCollectionH_;
 
-    edm::InputTag muonsTag;
-    edm::InputTag inputDTRecSegment4DCollection_;
-    edm::InputTag inputCSCSegmentCollection_;
+    edm::EDGetTokenT<reco::MuonCollection> muonsToken;
+    edm::EDGetTokenT<DTRecSegment4DCollection> inputDTRecSegment4DCollectionToken_;
+    edm::EDGetTokenT<CSCSegmentCollection> inputCSCSegmentCollectionToken_;
     std::vector<std::string> selectionTags;
     std::string trackType;
     const edm::ParameterSet parset_;

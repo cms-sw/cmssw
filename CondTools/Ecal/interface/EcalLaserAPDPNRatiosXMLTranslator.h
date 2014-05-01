@@ -22,11 +22,6 @@
 #include <xercesc/sax/SAXException.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
 
-static const char CVSId__EcalLaserAPDPNRatiosXMLTranslator[] = 
-"$Id: EcalLaserAPDPNRatiosXMLTranslator.h,v 1.1 2009/10/20 13:48:05 argiro Exp $";
-
-
-
 
 class EcalLaserAPDPNRatiosXMLTranslator {
 
