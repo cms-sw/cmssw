@@ -118,13 +118,13 @@ TrackerHitAssociator::TrackerHitAssociator(const edm::Event& e, const edm::Param
   
 }
 
-std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & thit) 
+std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & thit) const
 {
 
   //vector with the matched SimHit
   std::vector<PSimHit> result; 
   //initialize vectors!
-  simtrackid.clear();
+  std::vector<SimHitIdpr> simtrackid;
   
   //get the Detector type of the rechit
   DetId detid=  thit.geographicalId();
@@ -191,14 +191,14 @@ std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & t
   return result;  
 }
 
-std::vector< SimHitIdpr > TrackerHitAssociator::associateHitId(const TrackingRecHit & thit) 
+std::vector< SimHitIdpr > TrackerHitAssociator::associateHitId(const TrackingRecHit & thit) const
 {
   std::vector< SimHitIdpr > simhitid;
   associateHitId(thit, simhitid);
   return simhitid;
 }
 
-void TrackerHitAssociator::associateHitId(const TrackingRecHit & thit, std::vector< SimHitIdpr > & simtkid) 
+void TrackerHitAssociator::associateHitId(const TrackingRecHit & thit, std::vector< SimHitIdpr > & simtkid) const
 {
   
     simtkid.clear();
@@ -267,7 +267,7 @@ void TrackerHitAssociator::associateHitId(const TrackingRecHit & thit, std::vect
 }
 
 template<typename T>
-void TrackerHitAssociator::associateSiStripRecHit(const T *simplerechit, std::vector<SimHitIdpr>& simtrackid)
+void TrackerHitAssociator::associateSiStripRecHit(const T *simplerechit, std::vector<SimHitIdpr>& simtrackid) const
 {
   const SiStripCluster* clust = &(*simplerechit->cluster());
   associateSimpleRecHitCluster(clust,simplerechit->geographicalId(),simtrackid);
@@ -275,7 +275,7 @@ void TrackerHitAssociator::associateSiStripRecHit(const T *simplerechit, std::ve
 
 void TrackerHitAssociator::associateSimpleRecHitCluster(const SiStripCluster* clust,
 							const uint32_t& detID,
-							std::vector<SimHitIdpr>& simtrackid){
+							std::vector<SimHitIdpr>& simtrackid) const{
   //  std::cout <<"ASSOCIATE SIMPLE RECHIT" << std::endl;	    
   
   //to store temporary charge information
@@ -339,7 +339,7 @@ void TrackerHitAssociator::associateSimpleRecHitCluster(const SiStripCluster* cl
   }
 }
 
-std::vector<SimHitIdpr>  TrackerHitAssociator::associateMatchedRecHit(const SiStripMatchedRecHit2D * matchedrechit)
+std::vector<SimHitIdpr>  TrackerHitAssociator::associateMatchedRecHit(const SiStripMatchedRecHit2D * matchedrechit) const
 {
   vector<SimHitIdpr> matched_mono;
   vector<SimHitIdpr> matched_st;
@@ -353,8 +353,8 @@ std::vector<SimHitIdpr>  TrackerHitAssociator::associateMatchedRecHit(const SiSt
   associateSiStripRecHit(&st, matched_st );
   
   //save in a vector all the simtrack-id's that are common to mono and stereo hits
+  std::vector<SimHitIdpr> simtrackid;
   if(!matched_mono.empty() && !matched_st.empty()){
-    simtrackid.clear(); //final result vector
     std::vector<SimHitIdpr> idcachev;
     for(vector<SimHitIdpr>::iterator mhit=matched_mono.begin(); mhit != matched_mono.end(); mhit++){
       //save only once the ID
@@ -372,7 +372,7 @@ std::vector<SimHitIdpr>  TrackerHitAssociator::associateMatchedRecHit(const SiSt
 }
 
 
-std::vector<SimHitIdpr>  TrackerHitAssociator::associateProjectedRecHit(const ProjectedSiStripRecHit2D * projectedrechit)
+std::vector<SimHitIdpr>  TrackerHitAssociator::associateProjectedRecHit(const ProjectedSiStripRecHit2D * projectedrechit) const
 {
   //projectedRecHit is a "matched" rechit with only one component
 
@@ -385,7 +385,7 @@ std::vector<SimHitIdpr>  TrackerHitAssociator::associateProjectedRecHit(const Pr
 }
 
 //std::vector<unsigned int>  TrackerHitAssociator::associatePixelRecHit(const SiPixelRecHit * pixelrechit)
-void  TrackerHitAssociator::associatePixelRecHit(const SiPixelRecHit * pixelrechit, std::vector<SimHitIdpr> & simtrackid)
+void  TrackerHitAssociator::associatePixelRecHit(const SiPixelRecHit * pixelrechit, std::vector<SimHitIdpr> & simtrackid) const
 {
   //
   // Pixel associator
@@ -437,7 +437,7 @@ void  TrackerHitAssociator::associatePixelRecHit(const SiPixelRecHit * pixelrech
   }
 }
 
-std::vector<SimHitIdpr>  TrackerHitAssociator::associateGSRecHit(const SiTrackerGSRecHit2D * gsrechit)
+std::vector<SimHitIdpr>  TrackerHitAssociator::associateGSRecHit(const SiTrackerGSRecHit2D * gsrechit) const
 {
   //GSRecHit is the FastSimulation RecHit that contains the TrackId already
 
@@ -448,7 +448,7 @@ std::vector<SimHitIdpr>  TrackerHitAssociator::associateGSRecHit(const SiTracker
   return simtrackid;
 }
 
-std::vector<PSimHit> TrackerHitAssociator::associateMultiRecHit(const SiTrackerMultiRecHit * multirechit){
+std::vector<PSimHit> TrackerHitAssociator::associateMultiRecHit(const SiTrackerMultiRecHit * multirechit) const{
   std::vector<const TrackingRecHit*> componenthits = multirechit->recHits();
   //        std::vector<PSimHit> assimhits;
   int size=multirechit->weights().size(), idmostprobable=0;
@@ -460,7 +460,7 @@ std::vector<PSimHit> TrackerHitAssociator::associateMultiRecHit(const SiTrackerM
   return associateHit(*componenthits[idmostprobable]);
 }
 
-std::vector<SimHitIdpr> TrackerHitAssociator::associateMultiRecHitId(const SiTrackerMultiRecHit * multirechit){
+std::vector<SimHitIdpr> TrackerHitAssociator::associateMultiRecHitId(const SiTrackerMultiRecHit * multirechit) const{
   std::vector<const TrackingRecHit*> componenthits = multirechit->recHits();
   int size=multirechit->weights().size(), idmostprobable=0;
   
@@ -471,7 +471,7 @@ std::vector<SimHitIdpr> TrackerHitAssociator::associateMultiRecHitId(const SiTra
   return associateHitId(*componenthits[idmostprobable]);
 }
 
-std::vector<SimHitIdpr>  TrackerHitAssociator::associateGSMatchedRecHit(const SiTrackerGSMatchedRecHit2D * gsmrechit)
+std::vector<SimHitIdpr>  TrackerHitAssociator::associateGSMatchedRecHit(const SiTrackerGSMatchedRecHit2D * gsmrechit) const
 {
   //GSRecHit is the FastSimulation RecHit that contains the TrackId already
   
