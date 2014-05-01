@@ -100,6 +100,8 @@ bool support::isSafeClassName(const std::string &name) {
   std::string ctbb = "class tbb::";
   std::string eap = "edm::AtomicPtrCache";
   std::string ceap = "class edm::AtomicPtrCache";
+  std::string once = "std::once_flag";
+  std::string conce = "struct std::once_flag";
   
   if ( name.substr(0,atomic.length()) == atomic || name.substr(0,catomic.length()) == catomic
 	|| name.substr(0,uatomic.length()) == uatomic  || name.substr(0,cuatomic.length()) == cuatomic
@@ -108,6 +110,7 @@ bool support::isSafeClassName(const std::string &name) {
 	|| name.substr(0,btsp.length()) == btsp || name.substr(0,cbtsp.length()) == cbtsp 
 	|| name.substr(0,ctbb.length()) == ctbb 
 	|| name.substr(0,eap.length()) == eap || name.substr(0,ceap.length()) == ceap
+	|| name.substr(0,once.length()) == once || name.substr(0,conce.length()) == conce
 	) 
 	return true;	
   return false;

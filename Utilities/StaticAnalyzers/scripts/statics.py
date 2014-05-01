@@ -5,6 +5,8 @@ baseclass = re.compile("edm::(one::|stream::|global::)?ED(Producer|Filter|Analyz
 farg = re.compile("\(.*\)")
 statics = set()
 toplevelfuncs = set()
+skipfunc = re.compile("(edm::eventsetup::EventSetupRecord::get\(.*\) const)|(BareRootProductGetter::getIt\(.*\) const)|(edm::eventsetup::DataProxy::getImpl\(.*\))|(edm::EventPrincipal::unscheduledFill\(.*\) const)|(edm::ServiceRegistry::get\(.*\) const)|(fwlite::internal::ProductGetter::getIt\(.*\) const)|(edm::eventsetup::EventSetupRecord::getImplementation\(.*\) const)|(edm::eventsetup::EventSetupRecord::getFromProxy\(.*\) const)|(edm::eventsetup::DataProxy::get\(.*\) const)")
+skipfuncs=set()
 
 import networkx as nx
 G=nx.DiGraph()
@@ -14,18 +16,19 @@ f = open('db.txt')
 for line in f :
 	fields = line.split("'")
 	if fields[2] == ' calls function ' :
-		G.add_edge(fields[1],fields[3],kind=fields[2])
+		if skipfunc.search(fields[3]) : skipfuncs.add(line)
+		else : G.add_edge(fields[1],fields[3],kind=fields[2])
 	if fields[2] == ' overrides function ' :
 		if baseclass.search(fields[3]) :
 			if topfunc.search(fields[3]) : toplevelfuncs.add(fields[1])
 			G.add_edge(fields[1],fields[3],kind=' overrides function ')
 		else :
-			G.add_edge(fields[3],fields[1],kind=' calls function ')
+			if skipfunc.search(fields[3]) : skipfuncs.add(line)
+			else : G.add_edge(fields[3],fields[1],kind=' calls function ')
 	if fields[2] == ' static variable ' :
 		G.add_edge(fields[1],fields[3],kind=' static variable ')
 		statics.add(fields[3])
 f.close()
-
 
 for static in statics:
 	for tfunc in toplevelfuncs:

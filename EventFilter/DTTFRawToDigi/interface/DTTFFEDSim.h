@@ -13,15 +13,16 @@
 #ifndef DTTFRawToDigi_DTTFFEDSim_h
 #define DTTFRawToDigi_DTTFFEDSim_h
 
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
-#include <FWCore/Framework/interface/EDProducer.h>
-#include <FWCore/ParameterSet/interface/ParameterSet.h>
-#include <FWCore/Utilities/interface/InputTag.h>
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include <DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h>
 #include <DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h>
 #include <DataFormats/L1DTTrackFinder/interface/L1MuDTTrackContainer.h>
 
+#include <FWCore/Framework/interface/EDProducer.h>
+#include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include <FWCore/Utilities/interface/InputTag.h>
 
 #include <string>
 
@@ -46,11 +47,8 @@ class DTTFFEDSim : public edm::EDProducer {
   
   unsigned int eventNum;
 
-  edm::EDGetTokenT<FEDRawDataCollection> DTTFToken_;
-
-  edm::EDGetTokenT<L1MuDTChambPhContainer> DTDigiPhToken_;
-  edm::EDGetTokenT<L1MuDTChambThContainer> DTDigiThToken_;
-  edm::EDGetTokenT<L1MuDTTrackContainer> DTPHTFToken_;
+  edm::InputTag DTDigiInputTag;
+  edm::InputTag DTPHTFInputTag;
 
  // utilities
   int channel(int wheel, int sector, int bx);
@@ -62,6 +60,14 @@ class DTTFFEDSim : public edm::EDProducer {
   int wheel(int channel);
 
   void calcCRC(int myD1, int myD2, int &myC);
+
+  edm::InputTag getDTDigiInputTag() { return DTDigiInputTag; }
+  edm::InputTag getDTPHTFInputTag() { return DTPHTFInputTag; }
+
+  edm::EDGetTokenT<L1MuDTChambPhContainer> ChPh_tok;
+  edm::EDGetTokenT<L1MuDTChambThContainer> ChTh_tok;
+  edm::EDGetTokenT<L1MuDTTrackContainer>   Trk_tok;
+
 
 };
 #endif

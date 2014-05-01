@@ -385,8 +385,8 @@ LinkByRecHit::testECALAndPSByRecHit( const reco::PFCluster& clusterECAL,
 
 // 0.19 <-> strip_pitch
 // 6.1  <-> strip_length
-  static double resPSpitch = 0.19/sqrt(12.);
-  static double resPSlength = 6.1/sqrt(12.);
+  static const double resPSpitch = 0.19/sqrt(12.);
+  static const double resPSlength = 6.1/sqrt(12.);
 
   // Check that clusterECAL is in ECAL endcap and that clusterPS is a preshower cluster
   if ( clusterECAL.layer() != PFLayer::ECAL_ENDCAP ||
