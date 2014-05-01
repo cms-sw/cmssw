@@ -99,38 +99,37 @@ QuickTrackAssociatorByHits::QuickTrackAssociatorByHits( const edm::ParameterSet&
 	// Check whether the denominator when working out the percentage of shared hits should
 	// be the number of simulated hits or the number of reconstructed hits.
 	//
-	std::string denominatorString=config.getParameter < std::string > ("SimToRecoDenominator");
-	if( denominatorString == "sim" ) simToRecoDenominator_=denomsim;
-	else if( denominatorString == "reco" ) simToRecoDenominator_=denomreco;
+	std::string denominatorString=config.getParameter<std::string>("SimToRecoDenominator");
+	if( denominatorString=="sim" ) simToRecoDenominator_=denomsim;
+	else if( denominatorString=="reco" ) simToRecoDenominator_=denomreco;
 	else throw cms::Exception( "QuickTrackAssociatorByHits" ) << "SimToRecoDenominator not specified as sim or reco";
 
 	//
 	// Set up the parameter set for the hit associator
 	//
-	hitAssociatorParameters_.addParameter<bool>( "associatePixel", config.getParameter<bool>( "associatePixel" ) );
-	hitAssociatorParameters_.addParameter<bool>( "associateStrip", config.getParameter<bool>( "associateStrip" ) );
+	hitAssociatorParameters_.addParameter<bool>( "associatePixel", config.getParameter<bool>("associatePixel") );
+	hitAssociatorParameters_.addParameter<bool>( "associateStrip", config.getParameter<bool>("associateStrip") );
 	// This is the important one, it stops the hit associator searching through the list of sim hits.
 	// I only want to use the hit associator methods that work on the hit IDs (i.e. the uint32_t trackId
 	// and the EncodedEventId eventId) so I'm not interested in matching that to the PSimHit objects.
-	hitAssociatorParameters_.addParameter<bool>( "associateRecoTracks", true );
+	hitAssociatorParameters_.addParameter<bool>("associateRecoTracks",true);
 
 	//
 	// Do some checks on whether UseGrouped or UseSplitting have been set. They're not used
 	// unlike the standard TrackAssociatorByHits so show a warning.
 	//
 	bool useGrouped, useSplitting;
-	if( config.exists( "UseGrouped" ) ) useGrouped=config.getParameter<bool>( "UseGrouped" );
+	if( config.exists("UseGrouped") ) useGrouped=config.getParameter<bool>("UseGrouped");
 	else useGrouped=true;
 
-	if( config.exists( "UseSplitting" ) ) useSplitting=config.getParameter<bool>( "UseSplitting" );
+	if( config.exists("UseSplitting") ) useSplitting=config.getParameter<bool>("UseSplitting");
 	else useSplitting=true;
 
 	// This associator works as though both UseGrouped and UseSplitting were set to true, so show a
 	// warning if this isn't the case.
 	if( !(useGrouped && useSplitting) )
 	{
-		edm::LogWarning( "QuickTrackAssociatorByHits" )
-				<< "UseGrouped and/or UseSplitting has been set to false, but this associator ignores that setting.";
+		edm::LogWarning("QuickTrackAssociatorByHits") << "UseGrouped and/or UseSplitting has been set to false, but this associator ignores that setting.";
 	}
 }
 
@@ -248,7 +247,7 @@ reco::SimToRecoCollection QuickTrackAssociatorByHits::associateSimToRecoImplemen
 
 	size_t collectionSize=::collectionSize(trackCollection); // Delegate away type specific part
 
-	for( size_t i=0; i < collectionSize; ++i )
+	for( size_t i=0; i<collectionSize; ++i )
 	{
 		const reco::Track* pTrack=::getTrackAt(trackCollection,i); // Get a normal pointer for ease of use. This part is type specific so delegate.
 
@@ -256,9 +255,8 @@ reco::SimToRecoCollection QuickTrackAssociatorByHits::associateSimToRecoImplemen
 		std::vector < std::pair<edm::Ref<TrackingParticleCollection>,size_t> > trackingParticleQualityPairs=associateTrack( hitOrClusterAssociator, trackingParticleCollection, pTrack->recHitsBegin(), pTrack->recHitsEnd() );
 
 		// int nt = 0;
-		for( std::vector<std::pair<edm::Ref<TrackingParticleCollection>,size_t> >::const_iterator iTrackingParticleQualityPair=
-				trackingParticleQualityPairs.begin(); iTrackingParticleQualityPair != trackingParticleQualityPairs.end();
-				++iTrackingParticleQualityPair )
+		for( std::vector< std::pair<edm::Ref<TrackingParticleCollection>,size_t> >::const_iterator iTrackingParticleQualityPair=trackingParticleQualityPairs.begin();
+				iTrackingParticleQualityPair!=trackingParticleQualityPairs.end(); ++iTrackingParticleQualityPair )
 		{
 			const edm::Ref<TrackingParticleCollection>& trackingParticleRef=iTrackingParticleQualityPair->first;
 			size_t numberOfSharedHits=iTrackingParticleQualityPair->second;
@@ -266,9 +264,9 @@ reco::SimToRecoCollection QuickTrackAssociatorByHits::associateSimToRecoImplemen
 			size_t numberOfSimulatedHits=0; // Set a few lines below, but only if required.
 
 			//std::cout << ">>> sim2reco. numberOfSharedHits = " << nt++ << ", " << numberOfSharedHits << std::endl;
-			if( numberOfSharedHits == 0 ) continue; // No point in continuing if there was no association
+			if( numberOfSharedHits==0 ) continue; // No point in continuing if there was no association
 
-			if( simToRecoDenominator_ == denomsim || (numberOfSharedHits < 3 && threeHitTracksAreSpecial_) ) // the numberOfSimulatedHits is not always required, so can skip counting in some circumstances
+			if( simToRecoDenominator_==denomsim || (numberOfSharedHits<3 && threeHitTracksAreSpecial_) ) // the numberOfSimulatedHits is not always required, so can skip counting in some circumstances
 			{
 				// Note that in the standard TrackAssociatorByHits, all of the hits in associatedTrackingParticleHits are checked for
 				// various things.  I'm not sure what these checks are for but they depend on the UseGrouping and UseSplitting settings.
@@ -278,21 +276,19 @@ reco::SimToRecoCollection QuickTrackAssociatorByHits::associateSimToRecoImplemen
 			}
 
 			//if electron subtract double counting
-			if( abs( trackingParticleRef->pdgId() ) == 11 && (trackingParticleRef->g4Track_end() - trackingParticleRef->g4Track_begin()) > 1 )
+			if (abs(trackingParticleRef->pdgId())==11 && (trackingParticleRef->g4Track_end() - trackingParticleRef->g4Track_begin()) > 1 )
 			{
-				numberOfSharedHits-=getDoubleCount( hitOrClusterAssociator, pTrack->recHitsBegin(), pTrack->recHitsEnd(), trackingParticleRef );
+				numberOfSharedHits -= getDoubleCount( hitOrClusterAssociator, pTrack->recHitsBegin(), pTrack->recHitsEnd(), trackingParticleRef );
 			}
 
-			double purity=static_cast<double>( numberOfSharedHits ) / static_cast<double>( numberOfValidTrackHits );
+			double purity=static_cast<double>(numberOfSharedHits)/static_cast<double>(numberOfValidTrackHits);
 			double quality;
-			if( absoluteNumberOfHits_ ) quality=static_cast<double>( numberOfSharedHits );
-			else if( simToRecoDenominator_ == denomsim && numberOfSimulatedHits != 0 ) quality=static_cast<double>( numberOfSharedHits )
-					/ static_cast<double>( numberOfSimulatedHits );
-			else if( simToRecoDenominator_ == denomreco && numberOfValidTrackHits != 0 ) quality=purity;
+			if( absoluteNumberOfHits_ ) quality=static_cast<double>(numberOfSharedHits);
+			else if( simToRecoDenominator_==denomsim && numberOfSimulatedHits != 0 ) quality=static_cast<double>(numberOfSharedHits)/static_cast<double>(numberOfSimulatedHits);
+			else if( simToRecoDenominator_==denomreco && numberOfValidTrackHits != 0 ) quality=purity;
 			else quality=0;
 
-			if( quality > qualitySimToReco_ && !(threeHitTracksAreSpecial_ && numberOfSimulatedHits == 3 && numberOfSharedHits < 3)
-					&& (absoluteNumberOfHits_ || (purity > puritySimToReco_)) )
+			if( quality>qualitySimToReco_ && !( threeHitTracksAreSpecial_ && numberOfSimulatedHits==3 && numberOfSharedHits<3 ) && ( absoluteNumberOfHits_ || (purity>puritySimToReco_) ) )
 			{
 				// Getting the RefToBase is dependent on the type of trackCollection, so delegate that to an overload.
 				returnValue.insert( trackingParticleRef, std::make_pair( ::getRefToTrackAt(trackCollection,i), quality ) );
@@ -306,34 +302,32 @@ reco::SimToRecoCollection QuickTrackAssociatorByHits::associateSimToRecoImplemen
 template<typename T_TPCollection,typename iter> std::vector<std::pair<edm::Ref<TrackingParticleCollection>,size_t> > QuickTrackAssociatorByHits::associateTrack( const TrackerHitAssociator& hitAssociator, T_TPCollection trackingParticles, iter begin, iter end ) const
 {
 	// The pairs in this vector have a Ref to the associated TrackingParticle as "first" and the number of associated hits as "second"
-	std::vector < std::pair<edm::Ref<TrackingParticleCollection>,size_t> > returnValue;
+	std::vector< std::pair<edm::Ref<TrackingParticleCollection>,size_t> > returnValue;
 
 	// The pairs in this vector have first as the sim track identifiers, and second the number of reco hits associated to that sim track.
 	// Most reco hits will probably have come from the same sim track, so the number of entries in this vector should be fewer than the
 	// number of reco hits.  The pair::second entries should add up to the total number of reco hits though.
-	std::vector < std::pair<SimTrackIdentifiers,size_t> > hitIdentifiers=getAllSimTrackIdentifiers( hitAssociator, begin, end );
+	std::vector< std::pair<SimTrackIdentifiers,size_t> > hitIdentifiers=getAllSimTrackIdentifiers( hitAssociator, begin, end );
 
 	// Loop over the TrackingParticles
 	size_t collectionSize=::collectionSize(trackingParticles);
 
-	for( size_t i=0; i < collectionSize; ++i )
+	for( size_t i=0; i<collectionSize; ++i )
 	{
 		const TrackingParticle* pTrackingParticle=getTrackingParticleAt( trackingParticles, i );
 
 		// Ignore TrackingParticles with no hits
-		if( pTrackingParticle->numberOfHits() == 0 ) continue;
+		if( pTrackingParticle->numberOfHits()==0 ) continue;
 
 		size_t numberOfAssociatedHits=0;
 		// Loop over all of the sim track identifiers and see if any of them are part of this TrackingParticle. If they are, add
 		// the number of reco hits associated to that sim track to the total number of associated hits.
-		for( std::vector<std::pair<SimTrackIdentifiers,size_t> >::const_iterator iIdentifierCountPair=hitIdentifiers.begin();
-				iIdentifierCountPair != hitIdentifiers.end(); ++iIdentifierCountPair )
+		for( std::vector< std::pair<SimTrackIdentifiers,size_t> >::const_iterator iIdentifierCountPair=hitIdentifiers.begin(); iIdentifierCountPair!=hitIdentifiers.end(); ++iIdentifierCountPair )
 		{
-			if( trackingParticleContainsIdentifier( pTrackingParticle, iIdentifierCountPair->first ) ) numberOfAssociatedHits+=
-					iIdentifierCountPair->second;
+			if( trackingParticleContainsIdentifier( pTrackingParticle, iIdentifierCountPair->first ) ) numberOfAssociatedHits+=iIdentifierCountPair->second;
 		}
 
-		if( numberOfAssociatedHits > 0 )
+		if( numberOfAssociatedHits>0 )
 		{
 			returnValue.push_back( std::make_pair( getRefToTrackingParticleAt(trackingParticles,i), numberOfAssociatedHits ) );
 		}
@@ -433,60 +427,53 @@ template<typename T_TPCollection,typename iter> std::vector< std::pair<edm::Ref<
 	return returnValue;
 }
 
-template<typename iter> std::vector<OmniClusterRef> QuickTrackAssociatorByHits::getMatchedClusters( iter begin, iter end ) const
+template<typename iter> std::vector<OmniClusterRef> QuickTrackAssociatorByHits::getMatchedClusters(iter begin, iter end) const
 {
-	std::vector < OmniClusterRef > returnValue;
-	for( iter iRecHit=begin; iRecHit != end; ++iRecHit )
-	{
-		const TrackingRecHit* rhit=getHitFromIter( iRecHit );
-		if( rhit->isValid() )
-		{
-			int subdetid=rhit->geographicalId().subdetId();
-			if( subdetid == PixelSubdetector::PixelBarrel || subdetid == PixelSubdetector::PixelEndcap )
-			{
-				const SiPixelRecHit* pRHit=dynamic_cast<const SiPixelRecHit*>( rhit );
-				if( !pRHit->cluster().isNonnull() ) edm::LogError( "TrackAssociator" ) << ">>> RecHit does not have an associated cluster!" << " file: " << __FILE__ << " line: " << __LINE__;
-				returnValue.push_back( pRHit->omniClusterRef() );
+	std::vector<OmniClusterRef> returnValue;
+	for (iter iRecHit = begin; iRecHit != end; ++iRecHit) {
+		const TrackingRecHit* rhit = getHitFromIter(iRecHit);
+		if (rhit->isValid()) {
+			int subdetid = rhit->geographicalId().subdetId();
+			if (subdetid==PixelSubdetector::PixelBarrel||subdetid==PixelSubdetector::PixelEndcap) {
+				const SiPixelRecHit* pRHit = dynamic_cast<const SiPixelRecHit*>(rhit);
+				if (!pRHit->cluster().isNonnull())
+					edm::LogError("TrackAssociator") << ">>> RecHit does not have an associated cluster!" << " file: " << __FILE__ << " line: " << __LINE__;
+				returnValue.push_back(pRHit->omniClusterRef());
 			}
-			else if( subdetid == SiStripDetId::TIB || subdetid == SiStripDetId::TOB || subdetid == SiStripDetId::TID
-					|| subdetid == SiStripDetId::TEC )
-			{
-				const std::type_info &tid=typeid( *rhit);
-				if( tid == typeid(SiStripMatchedRecHit2D) )
-				{
-					const SiStripMatchedRecHit2D* sMatchedRHit=dynamic_cast<const SiStripMatchedRecHit2D*>( rhit );
-					if( !sMatchedRHit->monoHit().cluster().isNonnull() || !sMatchedRHit->stereoHit().cluster().isNonnull() ) edm::LogError( "TrackAssociator" ) << ">>> RecHit does not have an associated cluster!" << " file: " << __FILE__ << " line: " << __LINE__;
-					returnValue.push_back( sMatchedRHit->monoClusterRef() );
-					returnValue.push_back( sMatchedRHit->stereoClusterRef() );
+			else if (subdetid==SiStripDetId::TIB||subdetid==SiStripDetId::TOB||subdetid==SiStripDetId::TID||subdetid==SiStripDetId::TEC) {
+				const std::type_info &tid = typeid(*rhit);
+				if (tid == typeid(SiStripMatchedRecHit2D)) {
+					const SiStripMatchedRecHit2D* sMatchedRHit = dynamic_cast<const SiStripMatchedRecHit2D*>(rhit);
+					if (!sMatchedRHit->monoHit().cluster().isNonnull() || !sMatchedRHit->stereoHit().cluster().isNonnull())
+						edm::LogError("TrackAssociator") << ">>> RecHit does not have an associated cluster!" << " file: " << __FILE__ << " line: " << __LINE__;
+					returnValue.push_back(sMatchedRHit->monoClusterRef());
+					returnValue.push_back(sMatchedRHit->stereoClusterRef());
 				}
-				else if( tid == typeid(SiStripRecHit2D) )
-				{
-					const SiStripRecHit2D* sRHit=dynamic_cast<const SiStripRecHit2D*>( rhit );
-					if( !sRHit->cluster().isNonnull() ) edm::LogError( "TrackAssociator" ) << ">>> RecHit does not have an associated cluster!" << " file: " << __FILE__ << " line: " << __LINE__;
-					returnValue.push_back( sRHit->omniClusterRef() );
+				else if (tid == typeid(SiStripRecHit2D)) {
+					const SiStripRecHit2D* sRHit = dynamic_cast<const SiStripRecHit2D*>(rhit);
+					if (!sRHit->cluster().isNonnull())
+						edm::LogError("TrackAssociator") << ">>> RecHit does not have an associated cluster!" << " file: " << __FILE__ << " line: " << __LINE__;
+					returnValue.push_back(sRHit->omniClusterRef());
 				}
-				else if( tid == typeid(SiStripRecHit1D) )
-				{
-					const SiStripRecHit1D* sRHit=dynamic_cast<const SiStripRecHit1D*>( rhit );
-					if( !sRHit->cluster().isNonnull() ) edm::LogError( "TrackAssociator" ) << ">>> RecHit does not have an associated cluster!" << " file: " << __FILE__ << " line: " << __LINE__;
-					returnValue.push_back( sRHit->omniClusterRef() );
+				else if (tid == typeid(SiStripRecHit1D)) {
+					const SiStripRecHit1D* sRHit = dynamic_cast<const SiStripRecHit1D*>(rhit);
+					if (!sRHit->cluster().isNonnull())
+						edm::LogError("TrackAssociator") << ">>> RecHit does not have an associated cluster!" << " file: " << __FILE__ << " line: " << __LINE__;
+					returnValue.push_back(sRHit->omniClusterRef());
 				}
-				else
-				{
-					edm::LogError( "TrackAssociator" ) << ">>> getMatchedClusters: TrackingRecHit not associated to any SiStripCluster! subdetid = "
-							<< subdetid;
+				else {
+					edm::LogError("TrackAssociator") << ">>> getMatchedClusters: TrackingRecHit not associated to any SiStripCluster! subdetid = " << subdetid;
 				}
 			}
-			else
-			{
-				edm::LogError( "TrackAssociator" ) << ">>> getMatchedClusters: TrackingRecHit not associated to any cluster! subdetid = " << subdetid;
+			else {
+				edm::LogError("TrackAssociator") << ">>> getMatchedClusters: TrackingRecHit not associated to any cluster! subdetid = " << subdetid;
 			}
 		}
 	}
 	return returnValue;
 }
 
-template<typename iter> std::vector<std::pair<QuickTrackAssociatorByHits::SimTrackIdentifiers,size_t> > QuickTrackAssociatorByHits::getAllSimTrackIdentifiers( const TrackerHitAssociator& hitAssociator, iter begin, iter end ) const
+template<typename iter> std::vector< std::pair<QuickTrackAssociatorByHits::SimTrackIdentifiers,size_t> > QuickTrackAssociatorByHits::getAllSimTrackIdentifiers( const TrackerHitAssociator& hitAssociator, iter begin, iter end ) const
 {
 	// The pairs in this vector have first as the sim track identifiers, and second the number of reco hits associated to that sim track.
 	std::vector < std::pair<SimTrackIdentifiers,size_t> > returnValue;
@@ -755,7 +742,7 @@ reco::SimToRecoCollectionSeed QuickTrackAssociatorByHits::associateSimToReco( ed
 	}
 	return returnValue;
 
-	LogTrace( "TrackAssociator" ) << "% of Assoc TPs=" << ((double)returnValue.size()) / ((double)trackingParticleCollectionHandle->size());
+	LogTrace("TrackAssociator") << "% of Assoc TPs=" << ((double)returnValue.size())/((double)trackingParticleCollectionHandle->size());
 	returnValue.post_insert();
 	return returnValue;
 }
