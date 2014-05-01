@@ -263,7 +263,6 @@ void  ElectronSeedGenerator::run
   const TrackerTopology *tTopo=tTopoHand.product();
 
   theSetup= &setup;
-  NavigationSetter theSetter(*theNavigationSchool);
 
 
   // Step A: set Event for the TrajectoryBuilder
@@ -364,12 +363,12 @@ void ElectronSeedGenerator::seedsFromThisCluster
       // try electron
       std::vector<std::pair<RecHitWithDist,ConstRecHitPointer> > elePixelHits
        = myMatchEle->compatibleHits(clusterPos,vertexPos,
-				    clusterEnergy,-1., tTopo) ;
+				    clusterEnergy,-1., tTopo, *theNavigationSchool) ;
       GlobalPoint eleVertex(theBeamSpot->position().x(),theBeamSpot->position().y(),myMatchEle->getVertex()) ;
       seedsFromRecHits(elePixelHits,dir,eleVertex,caloCluster,out,false) ;
       // try positron
       std::vector<std::pair<RecHitWithDist,ConstRecHitPointer> > posPixelHits
-	= myMatchPos->compatibleHits(clusterPos,vertexPos,clusterEnergy,1.,tTopo) ;
+	= myMatchPos->compatibleHits(clusterPos,vertexPos,clusterEnergy,1.,tTopo, *theNavigationSchool) ;
       GlobalPoint posVertex(theBeamSpot->position().x(),theBeamSpot->position().y(),myMatchPos->getVertex()) ;
       seedsFromRecHits(posPixelHits,dir,posVertex,caloCluster,out,true) ;
      }
@@ -420,11 +419,11 @@ void ElectronSeedGenerator::seedsFromThisCluster
        {
         // try electron
         std::vector<std::pair<RecHitWithDist,ConstRecHitPointer> > elePixelHits
-	  = myMatchEle->compatibleHits(clusterPos,vertexPos,clusterEnergy,-1.,tTopo) ;
+	  = myMatchEle->compatibleHits(clusterPos,vertexPos,clusterEnergy,-1.,tTopo, *theNavigationSchool) ;
         seedsFromRecHits(elePixelHits,dir,vertexPos,caloCluster,out,false) ;
         // try positron
 	      std::vector<std::pair<RecHitWithDist,ConstRecHitPointer> > posPixelHits
-		= myMatchPos->compatibleHits(clusterPos,vertexPos,clusterEnergy,1.,tTopo) ;
+		= myMatchPos->compatibleHits(clusterPos,vertexPos,clusterEnergy,1.,tTopo, *theNavigationSchool) ;
         seedsFromRecHits(posPixelHits,dir,vertexPos,caloCluster,out,true) ;
        }
       else

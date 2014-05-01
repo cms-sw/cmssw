@@ -185,8 +185,7 @@ TkGluedMeasurementDet::collectRecHits( const TrajectoryStateOnSurface& ts, const
       projectOnGluedDet( collector, theStereoDet->recHits(ts, data), glbDir);
   } else {
     // collect simple stereo hits
-    static std::vector<SiStripRecHit2D> simpleSteroHitsByValue;
-    simpleSteroHitsByValue.clear();
+    std::vector<SiStripRecHit2D> simpleSteroHitsByValue;
     theStereoDet->simpleRecHits(ts, data, simpleSteroHitsByValue);
     
     if (simpleSteroHitsByValue.empty()) {
@@ -194,7 +193,7 @@ TkGluedMeasurementDet::collectRecHits( const TrajectoryStateOnSurface& ts, const
     } else {
       
       LocalVector tkDir = (ts.isValid() ? ts.localDirection() : surface().toLocal( position()-GlobalPoint(0,0,0)));
-      static SiStripRecHitMatcher::SimpleHitCollection vsStereoHits;
+      SiStripRecHitMatcher::SimpleHitCollection vsStereoHits;
       vsStereoHits.resize(simpleSteroHitsByValue.size());
       std::transform(simpleSteroHitsByValue.begin(), simpleSteroHitsByValue.end(), vsStereoHits.begin(), take_address()); 
       

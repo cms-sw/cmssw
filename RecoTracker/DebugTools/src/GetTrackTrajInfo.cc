@@ -16,7 +16,6 @@
 
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 #include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
@@ -38,7 +37,7 @@ std::vector< GetTrackTrajInfo::Result > GetTrackTrajInfo::analyze(const edm::Eve
   // This is also needed to extrapolate amongst the tracker layers.
   edm::ESHandle<NavigationSchool> theSchool;
   iSetup.get<NavigationSchoolRecord>().get("SimpleNavigationSchool",theSchool);
-  NavigationSetter junk(*theSchool);
+  // NavigationSetter junk(*theSchool);  // FIXME FIXME
 
   // Get the magnetic field and use it to define a propagator for extrapolating the track trajectory.
   edm::ESHandle<MagneticField> magField;

@@ -36,6 +36,7 @@ class TrajectoryStateOnSurface;
 class MagneticField;
 class Chi2MeasurementEstimator;
 class Propagator;
+class NavigationSchool;
 
 typedef TransientTrackingRecHit::ConstRecHitPointer CTTRHp;
 
@@ -104,6 +105,7 @@ class CkfDebugger {
   const MeasurementTracker*        theMeasurementTracker;
   const TransientTrackingRecHitBuilder* theTTRHBuilder;
   const TrackerTopology *theTopo;
+  NavigationSchool const * theNavSchool;
 
   std::map<unsigned int, std::vector<PSimHit*> > idHitsMap;
 
