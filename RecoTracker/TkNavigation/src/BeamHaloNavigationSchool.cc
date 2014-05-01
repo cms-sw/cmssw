@@ -33,9 +33,8 @@ BeamHaloNavigationSchool::BeamHaloNavigationSchool(const GeometricSearchTracker*
       }*/
 
   // get forward layers
-  vector<ForwardDetLayer*> flc = theTracker->forwardLayers(); 
-  for ( vector<ForwardDetLayer*>::iterator i = flc.begin(); i != flc.end(); i++) {
-    theForwardLayers.push_back( (*i) );
+  for( auto const& l : theTracker->forwardLayers()) {
+    theForwardLayers.push_back(l);
   }
   
   FDLI middle = find_if( theForwardLayers.begin(), theForwardLayers.end(),
@@ -82,8 +81,8 @@ void BeamHaloNavigationSchool::establishInverseRelations() {
 
   // find for each layer which are the barrel and forward
   // layers that point to it
-  typedef map<const DetLayer*, vector<BarrelDetLayer*>, less<const DetLayer*> > BarrelMapType;
-  typedef map<const DetLayer*, vector<ForwardDetLayer*>, less<const DetLayer*> > ForwardMapType;
+  typedef map<const DetLayer*, vector<BarrelDetLayer const*>, less<const DetLayer*> > BarrelMapType;
+  typedef map<const DetLayer*, vector<ForwardDetLayer const*>, less<const DetLayer*> > ForwardMapType;
 
 
   BarrelMapType reachedBarrelLayersMap;
@@ -106,12 +105,11 @@ void BeamHaloNavigationSchool::establishInverseRelations() {
   }
 
 
-  vector<DetLayer*> lc = theTracker->allLayers();
-  for ( vector<DetLayer*>::iterator i = lc.begin(); i != lc.end(); i++) {
+  for ( auto const i : theTracker->allLayers()) {
     SimpleNavigableLayer* navigableLayer =
-     dynamic_cast<SimpleNavigableLayer*>(theAllNavigableLayer[(*i)->seqNum()]);
+     dynamic_cast<SimpleNavigableLayer*>(theAllNavigableLayer[i->seqNum()]);
     if (!navigableLayer) {edm::LogInfo("BeamHaloNavigationSchool")<<"a detlayer does not have a navigable layer, which is normal in beam halo navigation.";}
-    if (navigableLayer){navigableLayer->setInwardLinks( reachedBarrelLayersMap[*i],reachedForwardLayersMap[*i], TkLayerLess(outsideIn, (*i)) );}
+    if (navigableLayer){navigableLayer->setInwardLinks( reachedBarrelLayersMap[i],reachedForwardLayersMap[i], TkLayerLess(outsideIn, i) );}
   }
 
 }
@@ -130,10 +128,10 @@ linkOtherEndLayers(  SymmetricLayerFinder& symFinder){
     {
       LogDebug("BeamHaloNavigationSchool")<<"adding inward from right";
       //link it inward to the mirror reachable from horizontal
-      addInward((DetLayer*)*fl,symFinder.mirror(*fl));
+      addInward(static_cast<DetLayer const*>(*fl),symFinder.mirror(*fl));
       
       LogDebug("BeamHaloNavigationSchool")<<"adding inward from mirror of right (left?)";
-      addInward((DetLayer*)symFinder.mirror(*fl),*fl);
+      addInward(static_cast<DetLayer const*>(symFinder.mirror(*fl)),*fl);
     }
 
 
@@ -142,7 +140,7 @@ linkOtherEndLayers(  SymmetricLayerFinder& symFinder){
 }
 
 void BeamHaloNavigationSchool::
-addInward(DetLayer * det, ForwardDetLayer * newF){
+addInward(const DetLayer * det, const ForwardDetLayer * newF){
   //get the navigable layer for this DetLayer
   SimpleNavigableLayer* navigableLayer =
     dynamic_cast<SimpleNavigableLayer*>(theAllNavigableLayer[(det)->seqNum()]);
@@ -183,7 +181,7 @@ addInward(DetLayer * det, ForwardDetLayer * newF){
 }
 
 void BeamHaloNavigationSchool::
-addInward(DetLayer * det, const FDLC& news){
+addInward(const DetLayer * det, const FDLC& news){
   //get the navigable layer for this DetLayer
   SimpleNavigableLayer* navigableLayer =
     dynamic_cast<SimpleNavigableLayer*>(theAllNavigableLayer[(det)->seqNum()]);

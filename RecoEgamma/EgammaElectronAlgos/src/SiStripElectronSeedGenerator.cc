@@ -213,12 +213,12 @@ void SiStripElectronSeedGenerator::findSeedsFromCluster
   //Use GST to retrieve hits from various DetLayers using layerMeasurements class
   const GeometricSearchTracker* gst = theMeasurementTracker->geometricSearchTracker();
 
-  std::vector<BarrelDetLayer*> tibLayers = gst->tibLayers();
-  DetLayer* tib1 = tibLayers.at(0);
-  DetLayer* tib2 = tibLayers.at(1);
+  std::vector<const BarrelDetLayer*> tibLayers = gst->tibLayers();
+  const DetLayer* tib1 = tibLayers.at(0);
+  const DetLayer* tib2 = tibLayers.at(1);
 
-  std::vector<ForwardDetLayer*> tecLayers;
-  std::vector<ForwardDetLayer*> tidLayers;
+  std::vector<const ForwardDetLayer*> tecLayers;
+  std::vector<const ForwardDetLayer*> tidLayers;
   if(scEta < 0){
     tecLayers = gst->negTecLayers();
     tidLayers = gst->negTidLayers();
@@ -228,12 +228,12 @@ void SiStripElectronSeedGenerator::findSeedsFromCluster
     tidLayers = gst->posTidLayers();
   }
 
-  DetLayer* tid1 = tidLayers.at(0);
-  DetLayer* tid2 = tidLayers.at(1);
-  DetLayer* tid3 = tidLayers.at(2);
-  DetLayer* tec1 = tecLayers.at(0);
-  DetLayer* tec2 = tecLayers.at(1);
-  DetLayer* tec3 = tecLayers.at(2);
+  const DetLayer* tid1 = tidLayers.at(0);
+  const DetLayer* tid2 = tidLayers.at(1);
+  const DetLayer* tid3 = tidLayers.at(2);
+  const DetLayer* tec1 = tecLayers.at(0);
+  const DetLayer* tec2 = tecLayers.at(1);
+  const DetLayer* tec3 = tecLayers.at(2);
 
   //Figure out which DetLayers to use based on SC Eta
   std::vector<bool> useDL = useDetLayer(scEta);

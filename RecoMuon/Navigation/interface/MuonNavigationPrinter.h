@@ -30,7 +30,7 @@ class MuonNavigationPrinter {
   MuonNavigationPrinter(const MuonDetLayerGeometry *,MuonNavigationSchool const &, const GeometricSearchTracker *);
 
   private:
-    void printLayer(DetLayer*) const;
+    void printLayer(const DetLayer*) const;
     void printLayers(const std::vector<const DetLayer*>&) const;
     /// return detector part (barrel, forward, backward)
 //    std::string layerPart(const DetLayer*) const;

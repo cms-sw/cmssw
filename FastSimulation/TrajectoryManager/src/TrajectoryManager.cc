@@ -829,18 +829,18 @@ TrajectoryManager::initializeLayerMap()
 /// ATTENTION: HARD CODED LOGIC! If Famos layer numbering changes this logic needs to 
 /// be adapted to the new numbering!
 
-  std::vector< BarrelDetLayer*>   barrelLayers = 
+  const std::vector< const BarrelDetLayer*>&   barrelLayers = 
     theGeomSearchTracker->barrelLayers();
   LogDebug("FastTracking") << "Barrel DetLayer dump: ";
-  for (std::vector< BarrelDetLayer*>::const_iterator bl=barrelLayers.begin();
+  for (auto bl=barrelLayers.begin();
        bl != barrelLayers.end(); ++bl) {
     LogDebug("FastTracking")<< "radius " << (**bl).specificSurface().radius(); 
   }
 
-  std::vector< ForwardDetLayer*>  posForwardLayers = 
+  const std::vector< const ForwardDetLayer*>&  posForwardLayers = 
     theGeomSearchTracker->posForwardLayers();
   LogDebug("FastTracking") << "Positive Forward DetLayer dump: ";
-  for (std::vector< ForwardDetLayer*>::const_iterator fl=posForwardLayers.begin();
+  for (auto fl=posForwardLayers.begin();
        fl != posForwardLayers.end(); ++fl) {
     LogDebug("FastTracking") << "Z pos "
 			    << (**fl).surface().position().z()
@@ -867,7 +867,7 @@ TrajectoryManager::initializeLayerMap()
     if (cyl != 0) {
       LogDebug("FastTracking") << " cylinder radius " << cyl->radius();
       bool found = false;
-      for (std::vector< BarrelDetLayer*>::const_iterator 
+      for (auto
 	     bl=barrelLayers.begin(); bl != barrelLayers.end(); ++bl) {
 
 	if (fabs( cyl->radius() - (**bl).specificSurface().radius()) < rTolerance) {
@@ -886,7 +886,7 @@ TrajectoryManager::initializeLayerMap()
       LogDebug("FastTracking") << " disk radii " << disk->innerRadius() 
 		 << ", " << disk->outerRadius();
       bool found = false;
-      for (std::vector< ForwardDetLayer*>::const_iterator fl=posForwardLayers.begin();
+      for (auto fl=posForwardLayers.begin();
 	   fl != posForwardLayers.end(); ++fl) {
 	
 	if (fabs( disk->position().z() - (**fl).surface().position().z()) < zTolerance) {
@@ -908,8 +908,8 @@ TrajectoryManager::initializeLayerMap()
   }
 
   // Put the negative layers in the same map but with an offset
-  std::vector< ForwardDetLayer*>  negForwardLayers = theGeomSearchTracker->negForwardLayers();
-  for (std::vector< ForwardDetLayer*>::const_iterator nl=negForwardLayers.begin();
+ const  std::vector< const ForwardDetLayer*>&  negForwardLayers = theGeomSearchTracker->negForwardLayers();
+  for (auto nl=negForwardLayers.begin();
        nl != negForwardLayers.end(); ++nl) {
     for (int i=0; i<=theNegLayerOffset; i++) {
       if (theLayerMap[i] == 0) continue;

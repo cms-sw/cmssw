@@ -37,7 +37,7 @@ using namespace std;
 /// Constructor
 MuonNavigationSchool::MuonNavigationSchool(const MuonDetLayerGeometry * muonLayout, bool enableRPC ) : theMuonDetLayerGeometry(muonLayout) {
 
-  theAllDetLayersInSystem=&muonLayout->allLayers(); 
+  theAllDetLayersInSystem=reinterpret_cast<const std::vector<const DetLayer*>*>(&muonLayout->allLayers()); 
   theAllNavigableLayer.resize(muonLayout->allLayers().size(),nullptr);
 
 
@@ -47,8 +47,8 @@ MuonNavigationSchool::MuonNavigationSchool(const MuonDetLayerGeometry * muonLayo
   if ( enableRPC ) barrel = muonLayout->allBarrelLayers();
   else barrel = muonLayout->allDTLayers();
 
-  for ( vector<DetLayer*>::const_iterator i = barrel.begin(); i != barrel.end(); i++ ) {
-    BarrelDetLayer* mbp = dynamic_cast<BarrelDetLayer*>(*i);
+  for ( auto i = barrel.begin(); i != barrel.end(); i++ ) {
+    const BarrelDetLayer* mbp = dynamic_cast<const BarrelDetLayer*>(*i);
     if ( mbp == 0 ) throw cms::Exception("MuonNavigationSchool", "Bad BarrelDetLayer");
     addBarrelLayer(mbp);
   }
@@ -58,8 +58,8 @@ MuonNavigationSchool::MuonNavigationSchool(const MuonDetLayerGeometry * muonLayo
   if ( enableRPC ) endcap = muonLayout->allEndcapLayers();
   else endcap = muonLayout->allCSCLayers();
 
-  for ( vector<DetLayer*>::const_iterator i = endcap.begin(); i != endcap.end(); i++ ) {
-    ForwardDetLayer* mep = dynamic_cast<ForwardDetLayer*>(*i);
+  for ( auto i = endcap.begin(); i != endcap.end(); i++ ) {
+    const ForwardDetLayer* mep = dynamic_cast<const ForwardDetLayer*>(*i);
     if ( mep == 0 ) throw cms::Exception("MuonNavigationSchool", "Bad ForwardDetLayer");
     addEndcapLayer(mep);
   }
@@ -112,7 +112,7 @@ MuonNavigationSchool::navigableLayers() {
 
 
 /// create barrel layer map
-void MuonNavigationSchool::addBarrelLayer(BarrelDetLayer* mbp) {
+void MuonNavigationSchool::addBarrelLayer(const BarrelDetLayer* mbp) {
 
   const BoundCylinder& bc = mbp->specificSurface();
   float radius = bc.radius();
@@ -127,7 +127,7 @@ void MuonNavigationSchool::addBarrelLayer(BarrelDetLayer* mbp) {
 
 
 /// create forwrad/backward layer maps
-void MuonNavigationSchool::addEndcapLayer(ForwardDetLayer* mep) {
+void MuonNavigationSchool::addEndcapLayer(const ForwardDetLayer* mep) {
 
   const BoundDisk& bd = mep->specificSurface();
   float outRadius = bd.outerRadius();
