@@ -101,6 +101,12 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
   std::shared_ptr<l1t::LUT> egIsoLUT( new l1t::LUT(32,10,egIsoLUTStream) );
   m_params.setEgIsolationLUT(egIsoLUT);
 
+  m_params.setEgIsoAreaNrTowersEta(conf.getParameter<unsigned int>("egIsoAreaNrTowersEta"));
+  m_params.setEgIsoAreaNrTowersPhi(conf.getParameter<unsigned int>("egIsoAreaNrTowersPhi"));
+  m_params.setEgIsoVetoNrTowersPhi(conf.getParameter<unsigned int>("egIsoVetoNrTowersPhi"));
+  m_params.setEgIsoPUEstTowerGranularity(conf.getParameter<unsigned int>("egIsoPUEstTowerGranularity"));
+  m_params.setEgIsoMaxEtaAbsForTowerSum(conf.getParameter<unsigned int>("egIsoMaxEtaAbsForTowerSum"));
+
   // tau
   m_params.setTauLsb(conf.getParameter<double>("tauLSB"));
   m_params.setTauSeedThreshold(conf.getParameter<double>("tauSeedThreshold"));

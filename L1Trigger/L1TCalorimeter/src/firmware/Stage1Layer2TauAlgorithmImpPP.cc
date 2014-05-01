@@ -21,8 +21,18 @@ using namespace l1t;
 
 Stage1Layer2TauAlgorithmImpPP::Stage1Layer2TauAlgorithmImpPP(CaloParams* params) : params_(params)
 {
+  jetScale=params_->jetScale();
+
   PUSubtract = params_->PUSubtract();
   regionSubtraction = params_->regionSubtraction();
+  tauSeedThreshold= floor( params_->tauSeedThreshold()/jetScale + 0.5); // convert GeV to HW units
+  jetSeedThreshold= floor( params_->jetSeedThreshold()/jetScale + 0.5); // convert GeV to HW units
+  tauRelativeJetIsolationCut = params_->tauRelativeJetIsolationCut();
+
+  double dswitchOffTauIso(60.); // value at which to switch of Tau iso requirement (GeV)
+  do2x1Algo=false;
+
+  switchOffTauIso= floor( dswitchOffTauIso/jetScale + 0.5);  // convert GeV to HW units
 }
 
 Stage1Layer2TauAlgorithmImpPP::~Stage1Layer2TauAlgorithmImpPP(){};
@@ -32,11 +42,8 @@ Stage1Layer2TauAlgorithmImpPP::~Stage1Layer2TauAlgorithmImpPP(){};
 
 void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::CaloEmCand> & EMCands, 
 						      const std::vector<l1t::CaloRegion> & regions, 
+						      const std::vector<l1t::Jet> * jets,
 						      std::vector<l1t::Tau> * taus) {
-
-  tauSeed = 5;
-  relativeIsolationCut = 0.1;
-  relativeJetIsolationCut = 0.1;
 
   std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
 
@@ -49,8 +56,8 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
 
 
   // ----- need to cluster jets in order to compute jet isolation ----
-  std::vector<l1t::Jet> *jets = new std::vector<l1t::Jet>();
-  slidingWindowJetFinder(tauSeed, subRegions, jets);
+  std::vector<l1t::Jet> *unCorrJets = new std::vector<l1t::Jet>();
+  slidingWindowJetFinder(jetSeedThreshold, subRegions, unCorrJets);
 
 
 
@@ -58,7 +65,7 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
       region != subRegions->end(); region++) {
 
     int regionEt = region->hwPt(); 
-    if(regionEt < tauSeed) continue;
+    if(regionEt < tauSeedThreshold) continue;
             
     double isolation;
     int associatedSecondRegionEt = 
@@ -66,10 +73,7 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
 			       *subRegions, isolation);
     
     int tauEt=regionEt;
-    if(associatedSecondRegionEt>tauSeed) tauEt +=associatedSecondRegionEt;
-
-
-    double jetIsolation = JetIsolation(tauEt, region->hwEta(), region->hwPhi(), *jets);
+    if(do2x1Algo && associatedSecondRegionEt>tauSeedThreshold) tauEt +=associatedSecondRegionEt;
 
 
     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *tauLorentz =
@@ -77,8 +81,14 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
 
     l1t::Tau theTau(*tauLorentz, tauEt, region->hwEta(), region->hwPhi());
 
-    if( tauEt >0 && (isolation/tauEt) < relativeIsolationCut 
-	&& jetIsolation < relativeJetIsolationCut) 
+
+    double jetIsolation = JetIsolation(tauEt, region->hwEta(), region->hwPhi(), *unCorrJets);
+    // if (tauEt >200)
+    //   cout << "tauET: " << tauEt << " tauETA: " << region->hwEta() << " tauPHI: " << region->hwPhi()
+    // 	   << " jetIso: " << jetIsolation << " Cut: " << tauRelativeJetIsolationCut 
+    // 	   << " Seed Threshold: " << tauSeedThreshold << endl;
+
+    if( tauEt >0 && (jetIsolation < tauRelativeJetIsolationCut || tauEt > switchOffTauIso)) 
       taus->push_back(theTau);
   }
 
@@ -139,15 +149,19 @@ int l1t::Stage1Layer2TauAlgorithmImpPP::AssociatedSecondRegionEt(int ieta, int i
 double l1t::Stage1Layer2TauAlgorithmImpPP::JetIsolation(int et, int ieta, int iphi,
 							const std::vector<l1t::Jet> & jets) const {
 
-  double isolation = 0;
-
   for(JetBxCollection::const_iterator jet = jets.begin();
       jet != jets.end(); jet++) {
 
-    if (ieta==jet->hwEta() && iphi==jet->hwPhi())
-      isolation = (double) (jet->hwPt() - et);
+    if (ieta==jet->hwEta() && iphi==jet->hwPhi()){
+      
+      //if (et >200)
+      //  cout << "ISOL:  tauET: " << et << " jetET: " << jet->hwPt() << endl;
+
+      double isolation = (double) (jet->hwPt() - et);
+      return isolation/et;
+    }
   }
 
   // set output
-  return isolation/et;
+  return 999.;
 }

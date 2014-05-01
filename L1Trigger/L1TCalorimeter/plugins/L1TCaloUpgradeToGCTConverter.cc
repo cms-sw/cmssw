@@ -116,6 +116,8 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
   for(int itBX=firstBX; itBX!=lastBX+1; ++itBX){
 
     //looping over EGamma elments with a specific BX
+    int nonIsoCount = 0;
+    int isoCount = 0;
     for(l1t::EGammaBxCollection::const_iterator itEGamma = EGamma->begin(itBX);
 	itEGamma != EGamma->end(itBX); ++itEGamma){
       bool iso = itEGamma->hwIso();
@@ -125,8 +127,19 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
       //L1GctEmCand(unsigned rank, unsigned phi, unsigned eta,
       //                 bool iso, uint16_t block, uint16_t index, int16_t bx);
 
-      if(iso) isoEmResult->push_back(EmCand);
-      else nonIsoEmResult->push_back(EmCand);
+      if(iso){
+	if(isoCount != 4)
+	{
+	  isoEmResult->push_back(EmCand);
+	  isoCount++;
+	}
+      }
+
+      if(nonIsoCount != 4)
+      {
+	nonIsoEmResult->push_back(EmCand);
+	nonIsoCount++;
+      }
     }
 
     //looping over Tau elments with a specific BX

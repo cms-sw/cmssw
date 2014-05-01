@@ -14,7 +14,6 @@
 #define CaloStage2EGammaAlgorithmFirmware_H
 
 #include "L1Trigger/L1TCalorimeter/interface/CaloStage2EGammaAlgorithm.h"
-#include "CondFormats/L1TObjects/interface/LUT.h"
 #include "CondFormats/L1TObjects/interface/CaloParams.h"
 
 namespace l1t {
@@ -29,8 +28,12 @@ namespace l1t {
 			      std::vector<EGamma> & egammas);
     
   private:
+    int calEgHwFootPrint(const l1t::CaloCluster&,const std::vector<l1t::CaloTower>&);
+    unsigned lutIndex(int iEta,unsigned int nrTowers);
+    
+  private:
     CaloParams* params_;
-    LUT lut_;
+
   };
   
 }
