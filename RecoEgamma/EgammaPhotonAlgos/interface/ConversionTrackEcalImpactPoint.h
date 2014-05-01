@@ -65,29 +65,13 @@ private:
   PropagationDirection       dir_;
   std::vector<reco::CaloClusterPtr> matchingBC_;
 
+  static const ReferenceCountingPointer<BoundCylinder>  theBarrel_;
+  static const ReferenceCountingPointer<BoundDisk>      theNegativeEtaEndcap_;
+  static const ReferenceCountingPointer<BoundDisk>      thePositiveEtaEndcap_;
 
-
-/** Hard-wired numbers defining the surfaces on which the crystal front faces lie. */
-  static float barrelRadius() {return 129.f;} //p81, p50, ECAL TDR
-  static float barrelHalfLength() {return 270.9f;} //p81, p50, ECAL TDR
-  static float endcapRadius() {return 171.1f;} // fig 3.26, p81, ECAL TDR
-  static float endcapZ() {return 320.5f;} // fig 3.26, p81, ECAL TDR
-
-  static void initialize();
-  static void check() {if (!theInit_) initialize();}
-
-
-
-
-  static ReferenceCountingPointer<BoundCylinder>  theBarrel_;
-  static ReferenceCountingPointer<BoundDisk>      theNegativeEtaEndcap_;
-  static ReferenceCountingPointer<BoundDisk>      thePositiveEtaEndcap_;
-
-  static const BoundCylinder& barrel()        { check(); return *theBarrel_;}
-  static const BoundDisk& negativeEtaEndcap() { check(); return *theNegativeEtaEndcap_;}
-  static const BoundDisk& positiveEtaEndcap() { check(); return *thePositiveEtaEndcap_;}
-  static bool theInit_;
-
+  static const BoundCylinder& barrel()        { return *theBarrel_;}
+  static const BoundDisk& negativeEtaEndcap() { return *theNegativeEtaEndcap_;}
+  static const BoundDisk& positiveEtaEndcap() { return *thePositiveEtaEndcap_;}
 
 };
 

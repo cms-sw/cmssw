@@ -16,11 +16,6 @@
 #include <string>
 #include <xercesc/dom/DOMNode.hpp>
 
-static const char CVSId__EcalChannelStatusXMLTranslator[] = 
-"$Id: EcalChannelStatusXMLTranslator.h,v 1.1 2008/11/14 15:46:05 argiro Exp $";
-
-
-
 
 class EcalChannelStatusXMLTranslator {
 
