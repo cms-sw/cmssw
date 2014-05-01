@@ -36,7 +36,6 @@
 #include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
 #include "RecoMuon/DetLayers/interface/MuonDetLayerGeometry.h"
 #include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 #include "RecoMuon/Navigation/interface/DirectMuonNavigation.h"
 #include "Alignment/MuonAlignment/interface/MuonAlignment.h"

@@ -222,7 +222,8 @@ PixelHitMatcher::compatibleHits
  ( const GlobalPoint & xmeas,
    const GlobalPoint & vprim,
    float energy, float fcharge,
-   const TrackerTopology *tTopo)
+   const TrackerTopology *tTopo,
+   const NavigationSchool& navigationSchool)
  {
   float SCl_phi = xmeas.phi();
 
@@ -400,7 +401,7 @@ PixelHitMatcher::compatibleHits
 
     PixelMatchNextLayers secondHit(&theLayerMeasurements, newLayer, secondFTS,
 				   prop2ndLayer, &meas2ndBLayer,&meas2ndFLayer,
-				   tTopo,searchInTIDTEC_);
+				   tTopo,navigationSchool,searchInTIDTEC_);
     vector<CLHEP::Hep3Vector> predictions = secondHit.predictionInNextLayers();
 
     for (unsigned it = 0; it < predictions.size(); it++) pred2Meas.push_back(predictions[it]);

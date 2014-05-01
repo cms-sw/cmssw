@@ -17,7 +17,6 @@
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 #include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"

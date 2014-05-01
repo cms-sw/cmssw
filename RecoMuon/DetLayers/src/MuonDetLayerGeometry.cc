@@ -309,5 +309,10 @@ void MuonDetLayerGeometry::sortLayers() {
   std::copy(allBarrel.begin(),allBarrel.end(),back_inserter(allDetLayers));
   std::copy(allForward.begin(),allForward.end(),back_inserter(allDetLayers));
 
+  // number layers
+  int sq=0;
+  for (auto l : allDetLayers) 
+    (*l).setSeqNum(sq++);
+
 
 }

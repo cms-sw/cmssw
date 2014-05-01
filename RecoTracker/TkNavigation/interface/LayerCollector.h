@@ -15,7 +15,7 @@
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 
 
-
+class NavigationSchool;
 
 class LayerCollector {
 
@@ -27,10 +27,12 @@ private:
 
 public:
 
-  LayerCollector(const Propagator* aPropagator,
+  LayerCollector(NavigationSchool const * aSchool,
+                 const Propagator* aPropagator,
 		 const StartingLayerFinder* aFinder,
 		 float dr, 
 		 float dz) : 
+    theSchool(aSchool),
     thePropagator(aPropagator),
     theStartingLayerFinder(aFinder),
     theDeltaR(dr),
@@ -48,7 +50,7 @@ public:
   float deltaZ() const {return theDeltaZ;}
   
 private:
-
+  NavigationSchool const * theSchool;
   const Propagator* thePropagator;
   const StartingLayerFinder* theStartingLayerFinder;
   float theDeltaR;
