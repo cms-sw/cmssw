@@ -15,12 +15,12 @@
 
 #include "L1Trigger/L1TCalorimeter/interface/Stage2MainProcessor.h"
 #include "L1Trigger/L1TCalorimeter/interface/Stage2TowerDecompressAlgorithm.h"
-#include "L1Trigger/L1TCalorimeter/interface/CaloStage2ClusterAlgorithm.h"
-#include "L1Trigger/L1TCalorimeter/interface/CaloStage2EGammaAlgorithm.h"
-#include "L1Trigger/L1TCalorimeter/interface/CaloStage2TauAlgorithm.h"
-#include "L1Trigger/L1TCalorimeter/interface/CaloStage2JetAlgorithm.h"
-#include "L1Trigger/L1TCalorimeter/interface/CaloStage2EtSumAlgorithm.h"
-#include "L1Trigger/L1TCalorimeter/interface/CaloStage2JetSumAlgorithm.h"
+#include "L1Trigger/L1TCalorimeter/interface/Stage2Layer2ClusterAlgorithm.h"
+#include "L1Trigger/L1TCalorimeter/interface/Stage2Layer2EGammaAlgorithm.h"
+#include "L1Trigger/L1TCalorimeter/interface/Stage2Layer2TauAlgorithm.h"
+#include "L1Trigger/L1TCalorimeter/interface/Stage2Layer2JetAlgorithm.h"
+#include "L1Trigger/L1TCalorimeter/interface/Stage2Layer2EtSumAlgorithm.h"
+#include "L1Trigger/L1TCalorimeter/interface/Stage2Layer2JetSumAlgorithm.h"
 
 #include "CondFormats/L1TObjects/interface/FirmwareVersion.h"
 #include "CondFormats/L1TObjects/interface/CaloParams.h"
@@ -53,13 +53,13 @@ namespace l1t {
     CaloParams* m_params;
 
     Stage2TowerDecompressAlgorithm* m_towerAlgo;
-    CaloStage2ClusterAlgorithm* m_egClusterAlgo;
-    CaloStage2EGammaAlgorithm* m_egAlgo;
-    CaloStage2ClusterAlgorithm* m_tauClusterAlgo;
-    CaloStage2TauAlgorithm* m_tauAlgo;
-    CaloStage2JetAlgorithm* m_jetAlgo;
-    CaloStage2EtSumAlgorithm* m_sumAlgo;
-    CaloStage2JetSumAlgorithm* m_jetSumAlgo;
+    Stage2Layer2ClusterAlgorithm* m_egClusterAlgo;
+    Stage2Layer2EGammaAlgorithm* m_egAlgo;
+    Stage2Layer2ClusterAlgorithm* m_tauClusterAlgo;
+    Stage2Layer2TauAlgorithm* m_tauAlgo;
+    Stage2Layer2JetAlgorithm* m_jetAlgo;
+    Stage2Layer2EtSumAlgorithm* m_sumAlgo;
+    Stage2Layer2JetSumAlgorithm* m_jetSumAlgo;
     
   };
   

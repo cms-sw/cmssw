@@ -1,5 +1,5 @@
 ///
-/// \class l1t::CaloStage2MainProcessorFirmwareImp1
+/// \class l1t::Stage2Layer2MainProcessorFirmwareImp1
 ///
 /// \author: Jim Brooke
 ///
@@ -8,12 +8,12 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "L1Trigger/L1TCalorimeter/interface/Stage2MainProcessorFirmware.h"
 #include "L1Trigger/L1TCalorimeter/interface/Stage2TowerDecompressAlgorithmFirmware.h"
-#include "L1Trigger/L1TCalorimeter/interface/CaloStage2ClusterAlgorithmFirmware.h"
-#include "L1Trigger/L1TCalorimeter/interface/CaloStage2EGammaAlgorithmFirmware.h"
-#include "L1Trigger/L1TCalorimeter/interface/CaloStage2TauAlgorithmFirmware.h"
-#include "L1Trigger/L1TCalorimeter/interface/CaloStage2JetAlgorithmFirmware.h"
-#include "L1Trigger/L1TCalorimeter/interface/CaloStage2EtSumAlgorithmFirmware.h"
-#include "L1Trigger/L1TCalorimeter/interface/CaloStage2JetSumAlgorithmFirmware.h"
+#include "L1Trigger/L1TCalorimeter/interface/Stage2Layer2ClusterAlgorithmFirmware.h"
+#include "L1Trigger/L1TCalorimeter/interface/Stage2Layer2EGammaAlgorithmFirmware.h"
+#include "L1Trigger/L1TCalorimeter/interface/Stage2Layer2TauAlgorithmFirmware.h"
+#include "L1Trigger/L1TCalorimeter/interface/Stage2Layer2JetAlgorithmFirmware.h"
+#include "L1Trigger/L1TCalorimeter/interface/Stage2Layer2EtSumAlgorithmFirmware.h"
+#include "L1Trigger/L1TCalorimeter/interface/Stage2Layer2JetSumAlgorithmFirmware.h"
 
 #include "CondFormats/L1TObjects/interface/FirmwareVersion.h"
 #include "CondFormats/L1TObjects/interface/CaloParams.h"
@@ -26,15 +26,15 @@ l1t::Stage2MainProcessorFirmwareImp1::Stage2MainProcessorFirmwareImp1(const Firm
 {
 
   m_towerAlgo = new Stage2TowerDecompressAlgorithmFirmwareImp1(m_params);
-  m_egClusterAlgo = new CaloStage2ClusterAlgorithmFirmwareImp1(m_params,
-							       CaloStage2ClusterAlgorithmFirmwareImp1::ClusterInput::E);
-  m_egAlgo = new CaloStage2EGammaAlgorithmFirmwareImp1(m_params);
-  m_tauClusterAlgo = new CaloStage2ClusterAlgorithmFirmwareImp1(m_params, 
-								CaloStage2ClusterAlgorithmFirmwareImp1::ClusterInput::EH);
-  m_tauAlgo = new CaloStage2TauAlgorithmFirmwareImp1(m_params);
-  m_jetAlgo = new CaloStage2JetAlgorithmFirmwareImp1(m_params);
-  m_sumAlgo = new CaloStage2EtSumAlgorithmFirmwareImp1(m_params);
-  m_jetSumAlgo = new CaloStage2JetSumAlgorithmFirmwareImp1(m_params);
+  m_egClusterAlgo = new Stage2Layer2ClusterAlgorithmFirmwareImp1(m_params,
+							       Stage2Layer2ClusterAlgorithmFirmwareImp1::ClusterInput::E);
+  m_egAlgo = new Stage2Layer2EGammaAlgorithmFirmwareImp1(m_params);
+  m_tauClusterAlgo = new Stage2Layer2ClusterAlgorithmFirmwareImp1(m_params, 
+								Stage2Layer2ClusterAlgorithmFirmwareImp1::ClusterInput::EH);
+  m_tauAlgo = new Stage2Layer2TauAlgorithmFirmwareImp1(m_params);
+  m_jetAlgo = new Stage2Layer2JetAlgorithmFirmwareImp1(m_params);
+  m_sumAlgo = new Stage2Layer2EtSumAlgorithmFirmwareImp1(m_params);
+  m_jetSumAlgo = new Stage2Layer2JetSumAlgorithmFirmwareImp1(m_params);
   
 }
 
@@ -42,11 +42,6 @@ l1t::Stage2MainProcessorFirmwareImp1::~Stage2MainProcessorFirmwareImp1()
 { 
 
 };
-
-
-//void l1t::CaloStage2MainProcessorFirmwareImp1::setParams(CaloParams* params) {
-//  m_params = params;
-//}
 
 
 //need to switch to BXVector
