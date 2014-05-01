@@ -18,9 +18,45 @@ l1tStage2CaloParams = cms.ESProducer(
     towerNBitsE      = cms.int32(8),
     towerNBitsSum    = cms.int32(9),
     towerNBitsRatio  = cms.int32(3),
-    towerCompression = cms.bool(True),
+    towerEncoding    = cms.bool(False),
+
+    # regions
+    regionPUSType    = cms.string("None"),
+    regionPUSParams  = cms.vdouble(),
+
+    # EG
+    egSeedThreshold      = cms.double(0.),
+    egNeighbourThreshold = cms.double(0.),
+    egMaxHcalEt          = cms.double(0.),
+    egMaxHOverE          = cms.double(0.),
+    egIsoPUSType         = cms.string("None"),
+    egIsoLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egIsoLUT.txt"),
+
+    # Tau
+    tauSeedThreshold      = cms.double(0.),
+    tauNeighbourThreshold = cms.double(0.),
+    tauIsoPUSType         = cms.string("None"),
+    tauIsoLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauIsoLUT.txt"),
 
     # jets
-    jetSeedThreshold = cms.double(5.)
+    jetSeedThreshold      = cms.double(0.),
+    jetNeighbourThreshold = cms.double(0.),
+    jetPUSType            = cms.string("None"),
+    jetCalibrationType    = cms.string("None"),
+    jetCalibrationParams  = cms.vdouble(),
+
+    # sums
+    ettEtaMin             = cms.int32(-999),
+    ettEtaMax             = cms.int32(999),
+    ettEtThreshold        = cms.double(0.),
+    httEtaMin             = cms.int32(-999),
+    httEtaMax             = cms.int32(999),
+    httEtThreshold        = cms.double(0.),
+    metEtaMin             = cms.int32(-999),
+    metEtaMax             = cms.int32(999),
+    metEtThreshold        = cms.double(0.),
+    mhtEtaMin             = cms.int32(-999),
+    mhtEtaMax             = cms.int32(999),
+    mhtEtThreshold        = cms.double(0.)
 
 )

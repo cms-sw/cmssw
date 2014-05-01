@@ -112,8 +112,10 @@ namespace l1t {
     int minGctEtaForSums(iConfig.getParameter<int>("minGctEtaForSums"));
     int maxGctEtaForSums(iConfig.getParameter<int>("maxGctEtaForSums"));
     double jetSeedThreshold(iConfig.getParameter<double>("jetSeedThreshold"));
-
-
+    double egSeedThreshold(iConfig.getParameter<double>("egSeedThreshold"));
+    double tauSeedThreshold(iConfig.getParameter<double>("tauSeedThreshold"));
+    double egRelativeJetIsolationCut(iConfig.getParameter<double>("egRelativeJetIsolationCut"));
+    double tauRelativeJetIsolationCut(iConfig.getParameter<double>("tauRelativeJetIsolationCut"));
     bool PUSubtract(iConfig.getParameter<bool>("PUSubtract"));
     std::vector<double> regionSubtraction(iConfig.getParameter<vector<double> >("regionSubtraction"));
 
@@ -142,6 +144,10 @@ namespace l1t {
     m_dbpars->setMinGctEtaForSums(minGctEtaForSums);
     m_dbpars->setMaxGctEtaForSums(maxGctEtaForSums);
     m_dbpars->setJetSeedThreshold(jetSeedThreshold);
+    m_dbpars->setEgSeedThreshold(egSeedThreshold);
+    m_dbpars->setTauSeedThreshold(tauSeedThreshold);
+    m_dbpars->setEgRelativeJetIsolationCut(egRelativeJetIsolationCut);
+    m_dbpars->setTauRelativeJetIsolationCut(tauRelativeJetIsolationCut);
     m_dbpars->setPUSubtract(PUSubtract);
     m_dbpars->setregionSubtraction(regionSubtraction);
     m_dbpars->setapplyJetCalibration(applyJetCalibration);

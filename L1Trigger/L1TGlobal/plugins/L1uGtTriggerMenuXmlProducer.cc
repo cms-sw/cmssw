@@ -34,10 +34,10 @@
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 
 #include "CondFormats/L1TObjects/interface/L1uGtTriggerMenu.h"
-#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
+#include "CondFormats/DataRecord/interface/L1uGtTriggerMenuRcd.h"
 
-#include "CondFormats/L1TObjects/interface/L1GtStableParameters.h"
-#include "CondFormats/DataRecord/interface/L1GtStableParametersRcd.h"
+#include "CondFormats/L1TObjects/interface/L1uGtStableParameters.h"
+#include "CondFormats/DataRecord/interface/L1uGtStableParametersRcd.h"
 
 #include "L1Trigger/L1TGlobal/interface/L1uGtTriggerMenuXmlParser.h"
 
@@ -102,14 +102,14 @@ l1t::L1uGtTriggerMenuXmlProducer::~L1uGtTriggerMenuXmlProducer()
 
 // method called to produce the data
 boost::shared_ptr<L1uGtTriggerMenu> l1t::L1uGtTriggerMenuXmlProducer::produceGtTriggerMenu(
-    const L1GtTriggerMenuRcd& l1MenuRecord)
+    const L1uGtTriggerMenuRcd& l1MenuRecord)
 {
 
     // get the parameters needed from other records
-    const L1GtStableParametersRcd& stableParametersRcd =
-        l1MenuRecord.getRecord<L1GtStableParametersRcd>();
+    const L1uGtStableParametersRcd& stableParametersRcd =
+        l1MenuRecord.getRecord<L1uGtStableParametersRcd>();
 
-    edm::ESHandle<L1GtStableParameters> stableParameters;
+    edm::ESHandle<L1uGtStableParameters> stableParameters;
     stableParametersRcd.get(stableParameters);
 
     unsigned int numberConditionChips = stableParameters->gtNumberConditionChips();
@@ -132,6 +132,78 @@ boost::shared_ptr<L1uGtTriggerMenu> l1t::L1uGtTriggerMenuXmlProducer::produceGtT
       << "\n\t numberTechTriggers = " << numberTechTriggers 
       << "\n\t numberL1JetCounts = " << numberL1JetCounts 
       << std::endl;
+
+
+
+    // Added by DP 4/25/2014
+
+    /// get / set the number of physics trigger algorithms
+    unsigned int gtNumberPhysTriggers = stableParameters->gtNumberPhysTriggers();
+    /// get / set the additional number of physics trigger algorithms
+    unsigned int gtNumberPhysTriggersExtended = stableParameters->gtNumberPhysTriggersExtended();
+    /// get / set the number of technical triggers
+    unsigned int gtNumberTechnicalTriggers = stableParameters->gtNumberTechnicalTriggers();
+    ///  get / set the number of L1 muons received by GT
+    unsigned int gtNumberL1Mu = stableParameters->gtNumberL1Mu();
+    ///  get / set the number of L1 e/gamma objects received by GT
+    unsigned int gtNumberL1NoIsoEG = stableParameters->gtNumberL1NoIsoEG();
+    ///  get / set the number of L1 isolated e/gamma objects received by GT
+    unsigned int gtNumberL1IsoEG = stableParameters->gtNumberL1IsoEG();
+    ///  get / set the number of L1 central jets received by GT
+    unsigned int gtNumberL1CenJet = stableParameters->gtNumberL1CenJet();
+    ///  get / set the number of L1 forward jets received by GT
+    unsigned int gtNumberL1ForJet = stableParameters->gtNumberL1ForJet();
+    ///  get / set the number of L1 tau jets received by GT
+    unsigned int gtNumberL1TauJet = stableParameters->gtNumberL1TauJet();
+    ///  get / set the number of L1 jet counts received by GT
+    unsigned int gtNumberL1JetCounts = stableParameters->gtNumberL1JetCounts();
+
+    /// hardware stuff
+
+    ///   get / set the number of condition chips in GTL
+    unsigned int gtNumberConditionChips = stableParameters->gtNumberConditionChips();
+    ///   get / set the number of pins on the GTL condition chips
+    unsigned int gtPinsOnConditionChip = stableParameters->gtPinsOnConditionChip();
+    ///   get / set the correspondence "condition chip - GTL algorithm word"
+    ///   in the hardware
+    std::vector<int> gtOrderConditionChip = stableParameters->gtOrderConditionChip();
+    ///   get / set the number of PSB boards in GT
+    int gtNumberPsbBoards = stableParameters->gtNumberPsbBoards();
+    ///   get / set the number of bits for eta of calorimeter objects
+    unsigned int gtIfCaloEtaNumberBits = stableParameters->gtIfCaloEtaNumberBits();
+    ///   get / set the number of bits for eta of muon objects
+    unsigned int gtIfMuEtaNumberBits = stableParameters->gtIfMuEtaNumberBits();
+    ///    get / set WordLength
+    int gtWordLength = stableParameters->gtWordLength();
+    ///    get / set one UnitLength
+    int gtUnitLength = stableParameters->gtUnitLength();
+
+    std::cout
+      << "\n\t gtNumberPhysTriggers = " << gtNumberPhysTriggers
+      << "\n\t gtNumberPhysTriggersExtended = " << gtNumberPhysTriggersExtended
+      << "\n\t gtNumberTechnicalTriggers = " << gtNumberTechnicalTriggers
+      << "\n\t gtNumberL1Mu = " << gtNumberL1Mu
+      << "\n\t gtNumberL1NoIsoEG = " << gtNumberL1NoIsoEG
+      << "\n\t gtNumberL1IsoEG = " << gtNumberL1IsoEG
+      << "\n\t gtNumberL1CenJet = " << gtNumberL1CenJet
+      << "\n\t gtNumberL1ForJet = " << gtNumberL1ForJet
+      << "\n\t gtNumberL1TauJet = " << gtNumberL1TauJet
+      << "\n\t gtNumberL1JetCounts = " << gtNumberL1JetCounts
+      << "\n\t gtNumberConditionChips = " << gtNumberConditionChips
+      << "\n\t gtPinsOnConditionChip = " << gtPinsOnConditionChip
+      << "\n\t gtNumberPsbBoards = " << gtNumberPsbBoards
+      << "\n\t gtIfCaloEtaNumberBits = " << gtIfCaloEtaNumberBits
+      << "\n\t gtIfMuEtaNumberBits = " << gtIfMuEtaNumberBits
+      << "\n\t gtWordLength = " << gtWordLength
+      << "\n\t gtUnitLength = " << gtUnitLength
+      << std::endl;
+
+    for( int i=0; i<int(gtOrderConditionChip.size()); i++ ){
+      std::cout << "\t\t " << i << "\t" << gtOrderConditionChip[i] << std::endl;
+    }
+
+    // End add
+
 
     l1t::L1uGtTriggerMenuXmlParser gtXmlParser = l1t::L1uGtTriggerMenuXmlParser();
 

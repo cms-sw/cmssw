@@ -12,6 +12,7 @@
 #include "DataFormats/L1TCalorimeter/interface/CaloRegion.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
 #include "L1Trigger/L1TCalorimeter/interface/PUSubtractionMethods.h"
+#include "L1Trigger/L1TCalorimeter/interface/JetFinderMethods.h"
 
 using namespace std;
 using namespace l1t;
@@ -19,19 +20,25 @@ using namespace l1t;
 
 Stage1Layer2EGammaAlgorithmImpPP::Stage1Layer2EGammaAlgorithmImpPP(CaloParams* params) : params_(params)
 {
+
+  emScale=params_->emScale();
+  jetScale=params_->jetScale();
+
   PUSubtract = params_->PUSubtract();
   regionSubtraction = params_->regionSubtraction();
+  egSeedThreshold= floor( params_->egSeedThreshold()/emScale + 0.5);
+  jetSeedThreshold= floor( params_->jetSeedThreshold()/jetScale + 0.5);
+  egRelativeJetIsolationCut = params_->egRelativeJetIsolationCut();
 }
 
 Stage1Layer2EGammaAlgorithmImpPP::~Stage1Layer2EGammaAlgorithmImpPP(){};
 
 
 
-void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::CaloEmCand> & EMCands, const std::vector<l1t::CaloRegion> & regions, std::vector<l1t::EGamma>* egammas) {
+void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::CaloEmCand> & EMCands, const std::vector<l1t::CaloRegion> & regions, const std::vector<l1t::Jet> * jets, std::vector<l1t::EGamma>* egammas) {
 
-  egtSeed = 5;
-  relativeIsolationCut = 0.1;
-  HoverECut = 0.05;
+  // double EGrelativeJetIsolationCut = 1;
+  // HoverECut = 0.05;
 
   std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
 
@@ -39,6 +46,9 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
   //Region Correction will return uncorrected subregions if 
   //PUSubtract is set to False in the config
   RegionCorrection(regions, EMCands, subRegions, regionSubtraction, PUSubtract);
+  // ----- need to cluster jets in order to compute jet isolation ----
+  std::vector<l1t::Jet> *unCorrJets = new std::vector<l1t::Jet>();
+  slidingWindowJetFinder(jetSeedThreshold, subRegions, unCorrJets);
 
 
   for(CaloEmCandBxCollection::const_iterator egCand = EMCands.begin();
@@ -47,26 +57,38 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
      int eg_et = egCand->hwPt();
      int eg_eta = egCand->hwEta();
      int eg_phi = egCand->hwPhi();
-     if(eg_et < egtSeed) continue;
+     if(eg_et <= egSeedThreshold) continue;
 
 
      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *egLorentz =
         new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
 
      int quality = 1;
-     int isoFlag = 1;
+     int isoFlag = 0;
 
 
      // ------- isolation and H/E ---------------
-     double isolation = Isolation(eg_eta, eg_phi, *subRegions);
-     if( eg_et > 0 && (isolation / eg_et ) > relativeIsolationCut) isoFlag  = 0;
+     // double isolation = Isolation(eg_eta, eg_phi, *subRegions);
+     //if( eg_et > 0 && (isolation / eg_et ) > relativeIsolationCut) isoFlag  = 0;
 
-     double hoe = HoverE(eg_et, eg_eta, eg_phi, *subRegions);
+     double jet_pt=AssociatedJetPt(eg_eta,eg_phi,unCorrJets);
+     jet_pt=jet_pt*jetScale;
+     if (jet_pt>0){
+       double jetIsolationEG = jet_pt - eg_et;        // Jet isolation
+       double relativeJetIsolationEG = jetIsolationEG / eg_et;
+
+       if(eg_et >0 && eg_et<63 && relativeJetIsolationEG < egRelativeJetIsolationCut)  isoFlag=1; 
+       if( eg_et >= 63) isoFlag=1;
+     }
+
+
+     // double hoe = HoverE(eg_et, eg_eta, eg_phi, *subRegions);
   
 
      // ------- fill the EG candidate vector ---------
      l1t::EGamma theEG(*egLorentz, eg_et, eg_eta, eg_phi, quality, isoFlag);
-      if( hoe < HoverECut) egammas->push_back(theEG);
+     //?? if( hoe < HoverECut) egammas->push_back(theEG);
+     egammas->push_back(theEG);
   }
 
 
@@ -111,6 +133,31 @@ double l1t::Stage1Layer2EGammaAlgorithmImpPP::Isolation(int ieta, int iphi,
 
 
 
+double l1t::Stage1Layer2EGammaAlgorithmImpPP::AssociatedJetPt(int ieta, int iphi,
+						      const std::vector<l1t::Jet> * jets)  const {
+
+  bool Debug=false;
+
+  if (Debug) cout << "Number of jets: " << jets->size() << endl;
+  double pt = -1;
+
+
+  for(JetBxCollection::const_iterator itJet = jets->begin();
+      itJet != jets->end(); ++itJet){
+
+    int jetEta = itJet->hwEta();
+    int jetPhi = itJet->hwPhi();
+    if (Debug) cout << "Matching ETA: " << ieta << " " << jetEta << endl;
+    if (Debug) cout << "Matching PHI: " << iphi << " " << jetPhi << endl;
+    if ((jetEta == ieta) && (jetPhi == iphi)){
+      pt = itJet->hwPt();
+      break;
+    }
+  }
+
+  // set output
+  return pt;
+}
 
 
 

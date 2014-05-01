@@ -27,7 +27,7 @@
 #include "CondFormats/L1TObjects/interface/L1GtFwd.h"
 
 #include "CondFormats/L1TObjects/interface/L1uGtTriggerMenu.h"
-#include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
+#include "CondFormats/DataRecord/interface/L1uGtTriggerMenuRcd.h"
 
 #include "CondFormats/L1TObjects/interface/L1GtCondition.h"
 #include "CondFormats/L1TObjects/interface/L1GtAlgorithm.h"
@@ -403,12 +403,12 @@ void l1t::L1uGtBoard::runGTL(
 
 	// get / update the trigger menu from the EventSetup
     // local cache & check on cacheIdentifier
-    unsigned long long l1GtMenuCacheID = evSetup.get<L1GtTriggerMenuRcd>().cacheIdentifier();
+    unsigned long long l1GtMenuCacheID = evSetup.get<L1uGtTriggerMenuRcd>().cacheIdentifier();
 
     if (m_l1GtMenuCacheID != l1GtMenuCacheID) {
 
         edm::ESHandle< L1uGtTriggerMenu> l1GtMenu;
-        evSetup.get< L1GtTriggerMenuRcd>().get(l1GtMenu) ;
+        evSetup.get< L1uGtTriggerMenuRcd>().get(l1GtMenu) ;
         m_l1GtMenu =  l1GtMenu.product();
        (const_cast<L1uGtTriggerMenu*>(m_l1GtMenu))->buildGtConditionMap();
 
