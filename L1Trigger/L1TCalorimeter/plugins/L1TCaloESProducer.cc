@@ -84,10 +84,12 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
   m_params.setTowerEncoding(conf.getParameter<bool>("towerEncoding"));
 
   // regions
+  m_params.setRegionLsb(conf.getParameter<double>("regionLSB"));
   m_params.setRegionPUSType(conf.getParameter<std::string>("regionPUSType"));
   m_params.setRegionPUSParams(conf.getParameter<std::vector<double> >("regionPUSParams"));
     
   // EG
+  m_params.setEgLsb(conf.getParameter<double>("egLSB"));
   m_params.setEgSeedThreshold(conf.getParameter<double>("egSeedThreshold"));
   m_params.setEgNeighbourThreshold(conf.getParameter<double>("egNeighbourThreshold"));
   m_params.setEgMaxHcalEt(conf.getParameter<double>("egMaxHcalEt"));
@@ -99,7 +101,14 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
   std::shared_ptr<l1t::LUT> egIsoLUT( new l1t::LUT(32,10,egIsoLUTStream) );
   m_params.setEgIsolationLUT(egIsoLUT);
 
+  m_params.setEgIsoAreaNrTowersEta(conf.getParameter<unsigned int>("egIsoAreaNrTowersEta"));
+  m_params.setEgIsoAreaNrTowersPhi(conf.getParameter<unsigned int>("egIsoAreaNrTowersPhi"));
+  m_params.setEgIsoVetoNrTowersPhi(conf.getParameter<unsigned int>("egIsoVetoNrTowersPhi"));
+  m_params.setEgIsoPUEstTowerGranularity(conf.getParameter<unsigned int>("egIsoPUEstTowerGranularity"));
+  m_params.setEgIsoMaxEtaAbsForTowerSum(conf.getParameter<unsigned int>("egIsoMaxEtaAbsForTowerSum"));
+
   // tau
+  m_params.setTauLsb(conf.getParameter<double>("tauLSB"));
   m_params.setTauSeedThreshold(conf.getParameter<double>("tauSeedThreshold"));
   m_params.setTauNeighbourThreshold(conf.getParameter<double>("tauNeighbourThreshold"));
   m_params.setTauIsoPUSType(conf.getParameter<std::string>("tauIsoPUSType"));
@@ -110,6 +119,7 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
   m_params.setTauIsolationLUT(tauIsoLUT);
 
   // jets
+  m_params.setJetLsb(conf.getParameter<double>("jetLSB"));
   m_params.setJetSeedThreshold(conf.getParameter<double>("jetSeedThreshold"));
   m_params.setJetNeighbourThreshold(conf.getParameter<double>("jetNeighbourThreshold"));
   m_params.setJetPUSType(conf.getParameter<std::string>("jetPUSType"));
@@ -117,6 +127,7 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
   m_params.setJetCalibrationParams(conf.getParameter<std::vector<double> >("jetCalibrationParams"));
   
   // sums
+  m_params.setEtSumLsb(conf.getParameter<double>("etSumLSB"));
   m_params.setEtSumEtaMin(0, conf.getParameter<int>("ettEtaMin"));
   m_params.setEtSumEtaMax(0, conf.getParameter<int>("ettEtaMax"));
   m_params.setEtSumEtThreshold(0, conf.getParameter<double>("ettEtThreshold"));

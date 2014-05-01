@@ -12,19 +12,10 @@
 #include "L1Trigger/L1TCalorimeter/interface/CaloTools.h"
 
 
-//NOTE: this is NOT finished and doesnt do anything. 
-
-namespace l1t{
-  int calEgHwFootPrint(const l1t::CaloCluster&,const std::vector<l1t::CaloTower>&);//still needs a permenant home
-  unsigned lutIndex(int iEta,unsigned int nrTowers);//also needs a permenant home
-  void genLUT(LUT& lut);//a temporary function to generate the LUT (I couldnt bring myself to have a hardcoded filename)
-}
 
 l1t::CaloStage2EGammaAlgorithmFirmwareImp1::CaloStage2EGammaAlgorithmFirmwareImp1(CaloParams* params) :
-  params_(params),
-  lut_(32,10)
+  params_(params)
 {
-  genLUT(lut_);
 
 }
 
@@ -41,24 +32,31 @@ void l1t::CaloStage2EGammaAlgorithmFirmwareImp1::processEvent(const std::vector<
   
   egammas.clear();
   for(size_t clusNr=0;clusNr<clusters.size();clusNr++){
-    egammas.push_back(clusters[clusNr]);
+    if(clusters[clusNr].hOverE()<=params_->egMaxHOverE()){ //all E/gammas have to pass H/E cut, later on this might be set to a flag...
+      egammas.push_back(clusters[clusNr]);
+      
+      int hwEtSum = CaloTools::calHwEtSum(clusters[clusNr].hwEta(),clusters[clusNr].hwPhi(),towers,
+					  -1*params_->egIsoAreaNrTowersEta(),params_->egIsoAreaNrTowersEta(),
+					  -1*params_->egIsoAreaNrTowersPhi(),params_->egIsoAreaNrTowersPhi());
+      int hwFootPrint = calEgHwFootPrint(clusters[clusNr],towers);
    
-    int hwEtSum = CaloTools::calHwEtSum(clusters[clusNr].hwEta(),clusters[clusNr].hwPhi(),towers,-2,2,-3,3);
-    int hwFootPrint = calEgHwFootPrint(clusters[clusNr],towers);
-   
-    int nrTowers = CaloTools::calNrTowers(-4,4,1,72,towers,1,999,CaloTools::CALO);
-    unsigned int lutAddress = lutIndex(egammas.back().hwEta(),nrTowers);
-   
-    int isolBit = hwEtSum-hwFootPrint <= lut_.data(lutAddress); 
-    //std::cout <<"hwEtSum "<<hwEtSum<<" hwFootPrint "<<hwFootPrint<<" isol "<<hwEtSum-hwFootPrint<<" bit "<<isolBit<<std::endl;
-    
-    egammas.back().setHwIso(isolBit);
+      int nrTowers = CaloTools::calNrTowers(-1*params_->egIsoMaxEtaAbsForTowerSum(),
+					  params_->egIsoMaxEtaAbsForTowerSum(),
+					    1,72,towers,1,999,CaloTools::CALO);
+      unsigned int lutAddress = lutIndex(egammas.back().hwEta(),nrTowers);
+      
+      int isolBit = hwEtSum-hwFootPrint <= params_->egIsolationLUT()->data(lutAddress); 
+      // std::cout <<"hwEtSum "<<hwEtSum<<" hwFootPrint "<<hwFootPrint<<" isol "<<hwEtSum-hwFootPrint<<" bit "<<isolBit<<" area "<<params_->egIsoAreaNrTowersEta()<<" "<<params_->egIsoAreaNrTowersPhi()<< " veto "<<params_->egIsoVetoNrTowersPhi()<<std::endl;
+      
+      egammas.back().setHwIso(isolBit);
+      egammas.back().setHwIso(hwEtSum-hwFootPrint); //naughtly little debug hack, shouldnt be in release, comment out if it is
+    }
   }
 }
 
 
 //calculates the footprint of the electron in hardware values
-int l1t::calEgHwFootPrint(const l1t::CaloCluster& clus,const std::vector<l1t::CaloTower>& towers)
+int l1t::CaloStage2EGammaAlgorithmFirmwareImp1::calEgHwFootPrint(const l1t::CaloCluster& clus,const std::vector<l1t::CaloTower>& towers) 
 {
   int iEta=clus.hwEta();
   int iPhi=clus.hwPhi();
@@ -68,20 +66,23 @@ int l1t::calEgHwFootPrint(const l1t::CaloCluster& clus,const std::vector<l1t::Ca
   
   int etaSide = clus.checkClusterFlag(CaloCluster::TRIM_LEFT) ? 1 : -1; //if we trimed left, its the right (ie +ve) side we want
   int phiSide = iEta>0 ? 1 : -1;
-
-  int ecalHwFootPrint = CaloTools::calHwEtSum(iEta,iPhi,towers,0,0,2,2,CaloTools::ECAL) +
-    CaloTools::calHwEtSum(iEta,iPhi,towers,etaSide,etaSide,2,2,CaloTools::ECAL);
+  
+  int ecalHwFootPrint = CaloTools::calHwEtSum(iEta,iPhi,towers,0,0,
+					      -1*params_->egIsoVetoNrTowersPhi(),params_->egIsoVetoNrTowersPhi(),
+					      CaloTools::ECAL) +
+    CaloTools::calHwEtSum(iEta,iPhi,towers,etaSide,etaSide,
+			  -1*params_->egIsoVetoNrTowersPhi(),params_->egIsoVetoNrTowersPhi(),
+			  CaloTools::ECAL);
   int hcalHwFootPrint = CaloTools::calHwEtSum(iEta,iPhi,towers,0,0,0,0,CaloTools::HCAL) +
     CaloTools::calHwEtSum(iEta,iPhi,towers,0,0,phiSide,phiSide,CaloTools::HCAL);
   return ecalHwFootPrint+hcalHwFootPrint;
-
 }
 
 //ieta =-28, nrTowers 0 is 0, increases to ieta28, nrTowers=kNrTowersInSum
-unsigned l1t::lutIndex(int iEta,unsigned int nrTowers)
+unsigned l1t::CaloStage2EGammaAlgorithmFirmwareImp1::lutIndex(int iEta,unsigned int nrTowers)
 {
-  const unsigned int kNrTowersInSum=72*4*2;
-  const unsigned int kTowerGranularity=1;
+  const unsigned int kNrTowersInSum=72*params_->egIsoMaxEtaAbsForTowerSum()*2;
+  const unsigned int kTowerGranularity=params_->egIsoPUEstTowerGranularity();
   const unsigned int kMaxAddress = kNrTowersInSum%kTowerGranularity==0 ? (kNrTowersInSum/kTowerGranularity+1)*28*2 : 
                                                                          (kNrTowersInSum/kTowerGranularity)*28*2;
   
@@ -93,21 +94,4 @@ unsigned l1t::lutIndex(int iEta,unsigned int nrTowers)
   if(std::abs(iEta)>28 || iEta==0 || nrTowers>kNrTowersInSum) return kMaxAddress;
   else return iEtaNormed*(kNrTowersInSum/kTowerGranularity+1)+nrTowersNormed;
   
-}
-
-#include <sstream>
-void l1t::genLUT(LUT& lut)
-{
-  std::stringstream stream;
-  int address=0;
-  for(int iEta=-28;iEta<=28;iEta++){
-    if(iEta==0) continue;
-    for(int nrTowers=0;nrTowers<=72*4*2;nrTowers++){
-      stream <<address<<" "<<nrTowers/4<<std::endl;
-      address++;
-    }
-  }
-  lut.read(stream);  
-  //std::cout <<"writing lut "<<std::endl;
-  //lut.write(std::cout);
 }

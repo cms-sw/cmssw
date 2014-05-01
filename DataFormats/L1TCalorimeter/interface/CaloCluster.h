@@ -45,6 +45,7 @@ namespace l1t {
       int fgEta() const;
       int fgPhi() const;
       int hOverE() const;
+      int clusterFlags() const{return m_clusterFlags;}
 
     private:
       // Summary of clustering outcomes
