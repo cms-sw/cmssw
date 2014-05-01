@@ -5,6 +5,7 @@
 #include "CondFormats/PhysicsToolsObjects/interface/MVAComputer.h"
 #include "RecoBTau/JetTagComputer/interface/GenericMVAComputer.h"
 #include "RecoBTau/JetTagComputer/interface/GenericMVAComputerCache.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 using namespace PhysicsTools::Calibration;
 
@@ -27,7 +28,8 @@ GenericMVAComputerCache::GenericMVAComputerCache(
 	computers(labels.size()),
 	cacheId(MVAComputerContainer::CacheId()),
 	initialized(false),
-	empty(true)
+	empty(true),
+        errorUpdatingLabel()
 {
 	std::vector<IndividualComputer>::iterator computer = computers.begin();
 	for(std::vector<std::string>::const_iterator iter = labels.begin();
@@ -40,6 +42,27 @@ GenericMVAComputerCache::GenericMVAComputerCache(
 
 GenericMVAComputerCache::~GenericMVAComputerCache()
 {
+}
+
+GenericMVAComputer const* GenericMVAComputerCache::getComputer(int index) const
+{
+  if(!errorUpdatingLabel.empty()) {
+    throw cms::Exception("MVAComputerCalibration")
+      << "GenericMVAComputerCache::getComputer Error occurred during update.\n"
+      << "Calibration record " << errorUpdatingLabel
+      << " not found in MVAComputerContainer." << std::endl;
+  }
+  return index >= 0 ? computers[index].computer.get() : 0;
+}
+
+bool GenericMVAComputerCache::isEmpty() const {
+  if(!errorUpdatingLabel.empty()) {
+    throw cms::Exception("MVAComputerCalibration")
+      << "GenericMVAComputerCache::isEmpty Error occurred during update.\n"
+      << "Calibration record " << errorUpdatingLabel
+      << " not found in MVAComputerContainer." << std::endl;
+  }
+  return empty;
 }
 
 bool GenericMVAComputerCache::update(const MVAComputerContainer *calib)
@@ -56,6 +79,13 @@ bool GenericMVAComputerCache::update(const MVAComputerContainer *calib)
 		// empty labels means we don't want a computer
 		if (iter->label.empty())
 			continue;
+
+                // Delay throwing if the label cannot be found until getComputer is called
+                // Sometimes this cache is updated and never used.
+		if (!calib->contains(iter->label)) {
+                  errorUpdatingLabel = iter->label;
+                  continue;
+                }
 
 		const MVAComputer *computerCalib = &calib->find(iter->label);
 		if (!computerCalib) {
