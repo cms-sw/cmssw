@@ -13,8 +13,14 @@
 l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::Stage2Layer2EtSumAlgorithmFirmwareImp1(CaloParams* params) :
    params_(params)
 {
+etSumEtThresholdHwEt_ = params_->etSumEtThresholdHw(1);
+etSumEtThresholdHwMet_ = params_->etSumEtThresholdHw(3);
 
+etSumEtaMinEt_ = params_->etSumEtaMin(1);
+etSumEtaMaxEt_ = params_->etSumEtaMax(1);
 
+etSumEtaMinMet_ = params_->etSumEtaMin(3);
+etSumEtaMaxMet_ = params_->etSumEtaMax(3);
 }
 
 
@@ -41,15 +47,20 @@ void l1t::Stage2Layer2EtSumAlgorithmFirmwareImp1::processEvent(const std::vector
 
    for(size_t towerNr=0;towerNr<towers.size();towerNr++)
    {
-      if (abs((towers[towerNr]).hwEta()) > 28) continue;
-      ptTower = (towers[towerNr]).hwPt();
-      towerPhi=((towers[towerNr]).hwPhi()*5.0-2.5)*pi/180.;
-      coefficientX = int32_t(511.*cos(towerPhi));
-      coefficientY = int32_t(511.*sin(towerPhi));
+	 ptTower = (towers[towerNr]).hwPt();
+      if ((towers[towerNr]).hwEta() > etSumEtaMinMet_ && (towers[towerNr]).hwEta() < etSumEtaMaxMet_ && (towers[towerNr]).hwPt() > etSumEtThresholdHwMet_ )
+      {
+	 towerPhi=((towers[towerNr]).hwPhi()*5.0-2.5)*pi/180.;
+	 coefficientX = int32_t(511.*cos(towerPhi));
+	 coefficientY = int32_t(511.*sin(towerPhi));
 
-      totalEt += ptTower;
-      etXComponent += coefficientX*ptTower;  
-      etYComponent += coefficientY*ptTower;  
+	 etXComponent += coefficientX*ptTower;  
+	 etYComponent += coefficientY*ptTower;  
+      }
+      if ((towers[towerNr]).hwEta() > etSumEtaMinEt_ && (towers[towerNr]).hwEta() < etSumEtaMaxEt_&& (towers[towerNr]).hwPt() > etSumEtThresholdHwEt_ )
+      {
+	 totalEt += ptTower;
+      } 
    }
    etYComponent /= 511.;
    etXComponent /= 511.;  
