@@ -67,7 +67,7 @@ namespace l1t {
     double egSeedThreshold() const { return egSeedThreshold_; }
     double egNeighbourThreshold() const { return egNeighbourThreshold_; }
     double egMaxHcalEt() const { return egMaxHcalEt_; }
-    double egMaxHOverE() const { return egMaxHOverE_; }
+    double egMaxHOverE() const { return egMaxHOverE_; } //cut is H/E <= egMaxHOverE/128
     double egRelativeJetIsolationCut() const { return egRelativeJetIsolationCut_; }
     std::string egIsoPUSType() const { return egIsoPUSType_; }
     l1t::LUT* egIsolationLUT() { return egIsolationLUT_.get(); }

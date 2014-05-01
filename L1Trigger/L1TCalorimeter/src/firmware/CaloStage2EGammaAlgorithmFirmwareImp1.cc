@@ -32,23 +32,25 @@ void l1t::CaloStage2EGammaAlgorithmFirmwareImp1::processEvent(const std::vector<
   
   egammas.clear();
   for(size_t clusNr=0;clusNr<clusters.size();clusNr++){
-    egammas.push_back(clusters[clusNr]);
+    if(clusters[clusNr].hOverE()<=params_->egMaxHOverE()){ //all E/gammas have to pass H/E cut, later on this might be set to a flag...
+      egammas.push_back(clusters[clusNr]);
+      
+      int hwEtSum = CaloTools::calHwEtSum(clusters[clusNr].hwEta(),clusters[clusNr].hwPhi(),towers,
+					  -1*params_->egIsoAreaNrTowersEta(),params_->egIsoAreaNrTowersEta(),
+					  -1*params_->egIsoAreaNrTowersPhi(),params_->egIsoAreaNrTowersPhi());
+      int hwFootPrint = calEgHwFootPrint(clusters[clusNr],towers);
    
-    int hwEtSum = CaloTools::calHwEtSum(clusters[clusNr].hwEta(),clusters[clusNr].hwPhi(),towers,
-					-1*params_->egIsoAreaNrTowersEta(),params_->egIsoAreaNrTowersEta(),
-					-1*params_->egIsoAreaNrTowersPhi(),params_->egIsoAreaNrTowersPhi());
-    int hwFootPrint = calEgHwFootPrint(clusters[clusNr],towers);
-   
-    int nrTowers = CaloTools::calNrTowers(-1*params_->egIsoMaxEtaAbsForTowerSum(),
+      int nrTowers = CaloTools::calNrTowers(-1*params_->egIsoMaxEtaAbsForTowerSum(),
 					  params_->egIsoMaxEtaAbsForTowerSum(),
-					  1,72,towers,1,999,CaloTools::CALO);
-    unsigned int lutAddress = lutIndex(egammas.back().hwEta(),nrTowers);
-   
-    int isolBit = hwEtSum-hwFootPrint <= params_->egIsolationLUT()->data(lutAddress); 
-    // std::cout <<"hwEtSum "<<hwEtSum<<" hwFootPrint "<<hwFootPrint<<" isol "<<hwEtSum-hwFootPrint<<" bit "<<isolBit<<" area "<<params_->egIsoAreaNrTowersEta()<<" "<<params_->egIsoAreaNrTowersPhi()<< " veto "<<params_->egIsoVetoNrTowersPhi()<<std::endl;
-    
-    egammas.back().setHwIso(isolBit);
-    egammas.back().setHwIso(hwEtSum-hwFootPrint);
+					    1,72,towers,1,999,CaloTools::CALO);
+      unsigned int lutAddress = lutIndex(egammas.back().hwEta(),nrTowers);
+      
+      int isolBit = hwEtSum-hwFootPrint <= params_->egIsolationLUT()->data(lutAddress); 
+      // std::cout <<"hwEtSum "<<hwEtSum<<" hwFootPrint "<<hwFootPrint<<" isol "<<hwEtSum-hwFootPrint<<" bit "<<isolBit<<" area "<<params_->egIsoAreaNrTowersEta()<<" "<<params_->egIsoAreaNrTowersPhi()<< " veto "<<params_->egIsoVetoNrTowersPhi()<<std::endl;
+      
+      egammas.back().setHwIso(isolBit);
+      egammas.back().setHwIso(hwEtSum-hwFootPrint); //naughtly little debug hack, shouldnt be in release, comment out if it is
+    }
   }
 }
 
