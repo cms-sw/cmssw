@@ -597,16 +597,29 @@ void WalkAST::ReportCallReturn(const clang::ReturnStmt * RS) {
   RS->printPretty(os,0,Policy);
   os << "\n";
   const clang::CXXMethodDecl * MD = llvm::cast<clang::CXXMethodDecl>(AC->getDecl());
-  std::string tolog = "data class '"+MD->getParent()->getNameAsString()+"' const function '" + support::getQualifiedName(*MD) + "' Warning: "+os.str();
   clang::ento::PathDiagnosticLocation CELoc =
     clang::ento::PathDiagnosticLocation::createBegin(RS, BR.getSourceManager(),AC);
-  
-
   if (!m_exception.reportClass( CELoc, BR ) ) return;
+  std::string tolog = "data class '"+MD->getParent()->getNameAsString()+"' const function '" + support::getQualifiedName(*MD) + "' Warning: "+os.str();
   writeLog(tolog);
-  BugType * BT = new BugType("Class Checker : Const function returns pointer or reference to non-const member data object or const std::vector<*> or const std::vector<*>&","ThreadSafety");
-  BugReport * R = new BugReport(*BT,os.str(),CELoc);
-  BR.emitReport(R);
+  clang::ASTContext &Ctx = AC->getASTContext();
+  clang::QualType RQT = MD->getResultType();
+  clang::QualType RTy = Ctx.getCanonicalType(RQT);
+  if ( (RTy->isPointerType() || RTy->isReferenceType() ) ) {
+	if( !support::isConst(RTy) ) {
+		BugType * BT = new BugType("Class Checker : Const function returns pointer or reference to non-const member data object","ThreadSafety");
+		BugReport * R = new BugReport(*BT,os.str(),CELoc);
+		BR.emitReport(R);
+	}
+  }
+  std::string svname = "const class std::vector<";
+  std::string rtname = RTy.getAsString();
+  if (  (RTy->isReferenceType() || RTy ->isRecordType() ) && support::isConst(RTy) && rtname.substr(0,svname.length()) == svname ) {
+	BugType * BT = new BugType("Class Checker : Const function returns member data object of type const std::vector<*> or const std::vector<*>&","ThreadSafety");
+	BugReport * R = new BugReport(*BT,os.str(),CELoc);
+	BR.emitReport(R);
+  }
+
 	 
 }
 
@@ -667,7 +680,7 @@ void ClassChecker::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ento::Ana
 								if ( QAT->isPointerType() && !support::isConst(QAT) ) {
 									std::string buf;
 									llvm::raw_string_ostream os(buf);
-									os << MD->getQualifiedNameAsString() << " is a const member function that returns a const std::vector<*> or const std::vector<*>& "<<rtname<<"\n";
+									os << MD->getQualifiedNameAsString() << " is a const member function that returns an object of type const std::vector<*> or const std::vector<*>& "<<rtname<<"\n";
 									std::string tolog = "data class '"+MD->getParent()->getNameAsString()+"' const function '" + MD->getNameAsString() + "' Warning: "+os.str();
 									writeLog(tolog);
 									clang::SourceRange SR = MD->getSourceRange();

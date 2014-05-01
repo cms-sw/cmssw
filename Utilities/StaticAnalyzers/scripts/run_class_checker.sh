@@ -12,6 +12,7 @@ eval `scram runtime -sh`
 ulimit -m 2000000
 ulimit -v 2000000
 ulimit -t 1200
+ulimit -f 40000000
 if [ ! -f ${LOCALRT}/tmp/classes.txt ] 
 	then 
 	echo "run ${CMSSW_BASE}/src/Utilities/StaticAnalyzers/scripts/run_class_dumper.sh first"
