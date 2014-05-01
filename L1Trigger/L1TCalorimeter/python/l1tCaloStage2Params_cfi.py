@@ -27,8 +27,8 @@ l1tCaloStage2Params = cms.ESProducer(
 
     # EG
     egLsb        = cms.double(0.5),
-    egSeedThreshold      = cms.double(0.),
-    egNeighbourThreshold = cms.double(0.),
+    egSeedThreshold      = cms.double(2.),
+    egNeighbourThreshold = cms.double(1.),
     egMaxHcalEt          = cms.double(0.),
     egEtToRemoveHECut    = cms.double(128.),
     egMaxHOverE          = cms.double(0.15),  
