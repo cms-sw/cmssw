@@ -136,14 +136,14 @@ process.MessageLogger = cms.Service("MessageLogger",
                                                                          options.qualityLogDestination,
                                                                          options.cablingLogDestination,
                                                                          options.condLogDestination,
-                                                                         'cout'
+                                                                         'cerr'
                                                                          ), #Reader, cout
                                     categories = cms.untracked.vstring('SiStripQualityStatistics',
                                                                        'SiStripQualityDQM',
                                                                        'SiStripFedCablingReader',
                                                                        'DummyCondObjContentPrinter',
                                                                        ),
-                                    cout = cms.untracked.PSet(threshold = cms.untracked.string('WARNING'))
+                                    cerr = cms.untracked.PSet(threshold = cms.untracked.string('WARNING'))
 )
 setattr(process.MessageLogger,options.logDestination,cms.untracked.PSet(threshold = cms.untracked.string('INFO')))
 setattr(process.MessageLogger,options.qualityLogDestination,cms.untracked.PSet(
