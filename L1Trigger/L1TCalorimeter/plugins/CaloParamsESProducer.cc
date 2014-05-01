@@ -1,5 +1,5 @@
 ///
-/// \class l1t::
+/// \class l1t::CaloParamsESProducer
 ///
 /// Description: Produces configuration parameters for the fictitious Yellow trigger.
 ///
@@ -40,10 +40,10 @@ using namespace std;
 
 namespace l1t {
 
-class L1TCaloParamsESProducer : public edm::ESProducer {
+class CaloParamsESProducer : public edm::ESProducer {
 public:
-  L1TCaloParamsESProducer(const edm::ParameterSet&);
-  ~L1TCaloParamsESProducer();
+  CaloParamsESProducer(const edm::ParameterSet&);
+  ~CaloParamsESProducer();
   
   typedef boost::shared_ptr<CaloParams> ReturnType;
   
@@ -65,7 +65,7 @@ private:
 //
 // constructors and destructor
 //
-L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
+CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
 {
   
   //the following line is needed to tell the framework what
@@ -84,12 +84,12 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
   m_params.setTowerEncoding(conf.getParameter<bool>("towerEncoding"));
 
   // regions
-  m_params.setRegionLsb(conf.getParameter<double>("regionLSB"));
+  m_params.setRegionLsb(conf.getParameter<double>("regionLsb"));
   m_params.setRegionPUSType(conf.getParameter<std::string>("regionPUSType"));
   m_params.setRegionPUSParams(conf.getParameter<std::vector<double> >("regionPUSParams"));
     
   // EG
-  m_params.setEgLsb(conf.getParameter<double>("egLSB"));
+  m_params.setEgLsb(conf.getParameter<double>("egLsb"));
   m_params.setEgSeedThreshold(conf.getParameter<double>("egSeedThreshold"));
   m_params.setEgNeighbourThreshold(conf.getParameter<double>("egNeighbourThreshold"));
   m_params.setEgMaxHcalEt(conf.getParameter<double>("egMaxHcalEt"));
@@ -108,7 +108,7 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
   m_params.setEgIsoMaxEtaAbsForTowerSum(conf.getParameter<unsigned int>("egIsoMaxEtaAbsForTowerSum"));
 
   // tau
-  m_params.setTauLsb(conf.getParameter<double>("tauLSB"));
+  m_params.setTauLsb(conf.getParameter<double>("tauLsb"));
   m_params.setTauSeedThreshold(conf.getParameter<double>("tauSeedThreshold"));
   m_params.setTauNeighbourThreshold(conf.getParameter<double>("tauNeighbourThreshold"));
   m_params.setTauIsoPUSType(conf.getParameter<std::string>("tauIsoPUSType"));
@@ -119,7 +119,7 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
   m_params.setTauIsolationLUT(tauIsoLUT);
 
   // jets
-  m_params.setJetLsb(conf.getParameter<double>("jetLSB"));
+  m_params.setJetLsb(conf.getParameter<double>("jetLsb"));
   m_params.setJetSeedThreshold(conf.getParameter<double>("jetSeedThreshold"));
   m_params.setJetNeighbourThreshold(conf.getParameter<double>("jetNeighbourThreshold"));
   m_params.setJetPUSType(conf.getParameter<std::string>("jetPUSType"));
@@ -127,7 +127,7 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
   m_params.setJetCalibrationParams(conf.getParameter<std::vector<double> >("jetCalibrationParams"));
   
   // sums
-  m_params.setEtSumLsb(conf.getParameter<double>("etSumLSB"));
+  m_params.setEtSumLsb(conf.getParameter<double>("etSumLsb"));
   m_params.setEtSumEtaMin(0, conf.getParameter<int>("ettEtaMin"));
   m_params.setEtSumEtaMax(0, conf.getParameter<int>("ettEtaMax"));
   m_params.setEtSumEtThreshold(0, conf.getParameter<double>("ettEtThreshold"));
@@ -144,7 +144,7 @@ L1TCaloParamsESProducer::L1TCaloParamsESProducer(const edm::ParameterSet& conf)
 }
 
 
-L1TCaloParamsESProducer::~L1TCaloParamsESProducer()
+CaloParamsESProducer::~CaloParamsESProducer()
 {
  
    // do anything here that needs to be done at desctruction time
@@ -158,8 +158,8 @@ L1TCaloParamsESProducer::~L1TCaloParamsESProducer()
 //
 
 // ------------ method called to produce the data  ------------
-L1TCaloParamsESProducer::ReturnType
-L1TCaloParamsESProducer::produce(const L1TCaloParamsRcd& iRecord)
+CaloParamsESProducer::ReturnType
+CaloParamsESProducer::produce(const L1TCaloParamsRcd& iRecord)
 {
    using namespace edm::es;
    boost::shared_ptr<CaloParams> pCaloParams ;
@@ -171,4 +171,4 @@ L1TCaloParamsESProducer::produce(const L1TCaloParamsRcd& iRecord)
 }
 
 //define this as a plug-in
-DEFINE_FWK_EVENTSETUP_MODULE(l1t::L1TCaloParamsESProducer);
+DEFINE_FWK_EVENTSETUP_MODULE(l1t::CaloParamsESProducer);
