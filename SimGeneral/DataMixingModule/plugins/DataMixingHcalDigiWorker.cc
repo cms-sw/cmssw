@@ -324,7 +324,7 @@ namespace edm
 #endif
        }
     }
-    else {std::cout << "NO HBHE Digis!!!!" << std::endl;}
+    //else {std::cout << "NO HBHE Digis!!!!" << std::endl;}
     // HO Next
 
     boost::shared_ptr<Wrapper<HODigiCollection>  const> HODigisPTR = 
