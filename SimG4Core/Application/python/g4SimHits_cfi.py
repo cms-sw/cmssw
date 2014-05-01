@@ -379,6 +379,9 @@ g4SimHits = cms.EDProducer("OscarProducer",
     BHMSD = cms.PSet(
         Verbosity = cms.untracked.int32(0)
     ),
+    FastTimerSD = cms.PSet(
+        Verbosity = cms.untracked.int32(0)
+    ),
     CFCSD = cms.PSet(
         Verbosity        = cms.untracked.int32(0),
         TimeSliceUnit    = cms.int32(1),

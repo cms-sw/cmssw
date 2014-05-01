@@ -124,8 +124,9 @@
   <class name="edm::OwnVector<reco::PFBlockElement, edm::ClonePolicy<reco::PFBlockElement> >"/>
   <class name="edm::Wrapper<edm::OwnVector<reco::PFBlockElement, edm::ClonePolicy<reco::PFBlockElement> > >" />
 
-  <class name="reco::PFBlockElementTrack" ClassVersion="10">
+  <class name="reco::PFBlockElementTrack" ClassVersion="11">
    <version ClassVersion="10" checksum="2342660248"/>
+   <version ClassVersion="11" checksum="1450496342"/>
 <!-- removed by Florian. It useful to have this Ref (especially for a reprocessing)   
     <field name="trackRefPF_" transient="true"/>
 -->

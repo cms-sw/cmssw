@@ -17,6 +17,7 @@ public:
     _DPtovPtCut(conf.getParameter<std::vector<double> >("DPtOverPtCuts_byTrackAlgo")),
     _NHitCut(conf.getParameter<std::vector<unsigned> >("NHitCuts_byTrackAlgo")),
     _useIterTracking(conf.getParameter<bool>("useIterativeTracking")),
+    _cleanBadConvBrems(conf.existsAs<bool>("cleanBadConvertedBrems") ? conf.getParameter<bool>("cleanBadConvertedBrems") : false),
     _debug(conf.getUntrackedParameter<bool>("debug",false)) {}
   
   void importToBlock( const edm::Event& ,
@@ -31,7 +32,7 @@ private:
   edm::EDGetTokenT<reco::MuonCollection> _muons;
   const std::vector<double> _DPtovPtCut;
   const std::vector<unsigned> _NHitCut;
-  const bool _useIterTracking,_debug;
+  const bool _useIterTracking,_cleanBadConvBrems,_debug;
 };
 
 DEFINE_EDM_PLUGIN(BlockElementImporterFactory, 
@@ -49,13 +50,40 @@ importToBlock( const edm::Event& e,
   elems.reserve(elems.size() + tracks->size());
   std::vector<bool> mask(tracks->size(),true);
   reco::MuonRef muonref;
+  // remove converted brems with bad pT resolution if requested
+  // this reproduces the old behavior of PFBlockAlgo
+  if( _cleanBadConvBrems ) {
+    auto itr = elems.begin();
+    while( itr != elems.end() ) {
+      if( (*itr)->type() == reco::PFBlockElement::TRACK ) {
+	const reco::PFBlockElementTrack* trkel =
+	  static_cast<reco::PFBlockElementTrack*>(itr->get());
+	const reco::ConversionRefVector& cRef = trkel->convRefs();
+	const reco::PFDisplacedTrackerVertexRef& dvRef = 
+	  trkel->displacedVertexRef(reco::PFBlockElement::T_FROM_DISP);
+	const reco::VertexCompositeCandidateRef& v0Ref =
+	  trkel->V0Ref();
+	// if there is no displaced vertex reference  and it is marked
+	// as a conversion it's gotta be a converted brem
+	if( trkel->trackType(reco::PFBlockElement::T_FROM_GAMMACONV) &&
+	    cRef.size() == 0 && dvRef.isNull() && v0Ref.isNull() ) {
+	  // if the Pt resolution is bad we kill this element
+	  if( !goodPtResolution( trkel->trackRef() ) ) {
+	    itr = elems.erase(itr);
+	    continue;
+	  }
+	}
+      }
+      ++itr;
+    } // loop on existing elements
+  }
   // preprocess existing tracks in the element list and create a mask
   // so that we do not import tracks twice, tag muons we find 
-  // in this collection
+  // in this collection  
   auto TKs_end = std::partition(elems.begin(),elems.end(),
 				[](const ElementType& a){
 			        return a->type() == reco::PFBlockElement::TRACK;
-				});
+				});  
   auto btk_elems = elems.begin();
   auto btrack = tracks->cbegin();
   auto etrack = tracks->cend();

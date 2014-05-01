@@ -131,7 +131,10 @@ class RemoveMCMatching(ConfigToolBase):
                     jetProducer.addGenJetMatch      = False
                     jetProducer.genJetMatch         = ''
                     jetProducer.getJetMCFlavour     = False
+                    jetProducer.useLegacyJetMCFlavour = False
+                    jetProducer.addJetFlavourInfo   = False
                     jetProducer.JetPartonMapSource  = ''
+                    jetProducer.JetFlavourInfoSource = ''
                 ## adjust output
                 for outMod in outputModules:
                     if hasattr(process,outMod):
