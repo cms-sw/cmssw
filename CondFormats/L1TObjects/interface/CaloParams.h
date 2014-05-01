@@ -56,21 +56,29 @@ namespace l1t {
 
 
     // regions
+    double regionLsb() const { return regionLsb_; }
     std::string regionPUSType() const { return regionPUSType_; }
     std::vector<double> regionPUSParams() { return regionPUSParams_; }
 
+    void setRegionLsb(double lsb) { regionLsb_ = lsb; }
     void setRegionPUSType(std::string type) { regionPUSType_ = type; }
     void setRegionPUSParams(std::vector<double> params) { regionPUSParams_ = params; }
 
 
     // EG
+    double egLsb() const { return egLsb_; }
+    int egSeedThresholdHw() const { return floor(egSeedThreshold_/egLsb_); }
     double egSeedThreshold() const { return egSeedThreshold_; }
+    int egNeighbourThresholdHw() const { return floor(egNeighbourThreshold_/egLsb_); }
     double egNeighbourThreshold() const { return egNeighbourThreshold_; }
+    int egMaxHcalEtHw() const { return floor(egMaxHcalEt_/egLsb_); }
     double egMaxHcalEt() const { return egMaxHcalEt_; }
+    int egMaxHOverEHw() const { return floor(egMaxHOverE_/egLsb_); }
     double egMaxHOverE() const { return egMaxHOverE_; }
     std::string egIsoPUSType() const { return egIsoPUSType_; }
     l1t::LUT* egIsolationLUT() { return egIsolationLUT_.get(); }
 
+    void setEgLsb(double lsb) { egLsb_ = lsb; }
     void setEgSeedThreshold(double thresh) { egSeedThreshold_ = thresh; }
     void setEgNeighbourThreshold(double thresh) { egNeighbourThreshold_ = thresh; }
     void setEgMaxHcalEt(double cut) { egMaxHcalEt_ = cut; }
@@ -80,11 +88,15 @@ namespace l1t {
 
 
     // tau
+    double tauLsb() const { return tauLsb_; }
+    int tauSeedThresholdHw() const { return floor(tauSeedThreshold_/tauLsb_); }
     double tauSeedThreshold() const { return tauSeedThreshold_; }
+    int tauNeighbourThresholdHw() const { return floor(tauNeighbourThreshold_/tauLsb_); }
     double tauNeighbourThreshold() const { return tauNeighbourThreshold_; }
     std::string tauIsoPUSType() const { return tauIsoPUSType_; }
     l1t::LUT* tauIsolationLUT() { return tauIsolationLUT_.get(); }
 
+    void setTauLsb(double lsb) { tauLsb_ = lsb; }
     void setTauSeedThreshold(double thresh) { tauSeedThreshold_ = thresh; }
     void setTauNeighbourThreshold(double thresh) { tauNeighbourThreshold_ = thresh; }
     void setTauIsoPUSType(std::string type) { tauIsoPUSType_ = type; }
@@ -92,13 +104,17 @@ namespace l1t {
 
 
     // jets
+    double jetLsb() const { return jetLsb_; }
+    int jetSeedThresholdHw() const { return floor(jetSeedThreshold_/jetLsb_); }
     double jetSeedThreshold() const { return jetSeedThreshold_; }
+    int jetNeighbourThresholdHw() const { return floor(jetNeighbourThreshold_/jetLsb_); }
     double jetNeighbourThreshold() const { return jetNeighbourThreshold_; }
     std::string jetPUSType() const { return jetPUSType_; }
     std::vector<double> jetPUSParams() { return jetPUSParams_; }
     std::string jetCalibrationType() const { return jetCalibrationType_; }
     std::vector<double> jetCalibrationParams() { return jetCalibrationParams_; }
 
+    void setJetLsb(double lsb) { jetLsb_ = lsb; }
     void setJetSeedThreshold(double thresh) { jetSeedThreshold_ = thresh; }
     void setJetNeighbourThreshold(double thresh) { jetNeighbourThreshold_ = thresh; }
     void setJetPUSType(std::string type) { jetPUSType_ = type; }
@@ -108,14 +124,16 @@ namespace l1t {
 
     
     // sums
+    double etSumLsb() const { return etSumLsb_; }
     int etSumEtaMin(unsigned isum) const;
     int etSumEtaMax(unsigned isum) const;
+    int etSumEtThresholdHw(unsigned isum) const { return floor(etSumEtThreshold(isum)/etSumLsb_); }
     double etSumEtThreshold(unsigned isum) const;
     
+    void setEtSumLsb(double lsb) { etSumLsb_ = lsb; }
     void setEtSumEtaMin(unsigned isum, int eta);
     void setEtSumEtaMax(unsigned isum, int eta);
-    void setEtSumEtThreshold(unsigned isum, double thresh); 
-   
+    void setEtSumEtThreshold(unsigned isum, double thresh);    
 
     // print parameters to stream:
     void print(std::ostream&) const;
@@ -193,6 +211,9 @@ namespace l1t {
 
     /* Regions */
 
+    // Region LSB
+    double regionLsb_;
+
     // PUS scheme
     std::string regionPUSType_;
 
@@ -203,17 +224,20 @@ namespace l1t {
 
     /* EG */
 
+    // EG LSB
+    double egLsb_;
+
     // Et threshold on EG seed tower
-    double egSeedThreshold_;
+    int egSeedThreshold_;
 
     // Et threshold on EG neighbour tower(s)
-    double egNeighbourThreshold_;
+    int egNeighbourThreshold_;
 
     // EG maximum value of HCAL Et
-    double egMaxHcalEt_;
+    int egMaxHcalEt_;
 
     // EG maximum value of H/E
-    double egMaxHOverE_;
+    int egMaxHOverE_;
 
     // EG calibration
     // need to decide implementation
@@ -227,6 +251,9 @@ namespace l1t {
 
 
     /* Tau */
+
+    // Tau LSB
+    double tauLsb_;
 
     // Et threshold on tau seed tower
     double tauSeedThreshold_;
@@ -243,6 +270,9 @@ namespace l1t {
 
 
     /* Jets */
+
+    // Jet LSB
+    double jetLsb_;
 
     // Et threshold on jet seed tower/region
     double jetSeedThreshold_;
@@ -265,6 +295,9 @@ namespace l1t {
 
 
     /* Sums */
+
+    // EtSum LSB
+    double etSumLsb_;
 
     // minimum eta for EtSums (index is particular EtSum.  ETT=1, HTT=2, MET=3, MHT=4, other values reserved).
     std::vector<int> etSumEtaMin_;
