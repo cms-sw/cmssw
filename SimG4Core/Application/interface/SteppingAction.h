@@ -8,13 +8,14 @@
 #include "G4Region.hh"
 #include "G4UserSteppingAction.hh"
 #include "G4VPhysicalVolume.hh"
+#include "G4Track.hh"
 
 #include <string>
 #include <vector>
 
 class EventAction;
 class G4VTouchable;
-class G4Track;
+//class G4Track;
 
 class SteppingAction: public G4UserSteppingAction {
 
@@ -30,13 +31,12 @@ private:
 
   bool initPointer();
 
-  bool catchLowEnergyInVacuum(G4Track * theTrack) const; 
-  bool killInsideDeadRegion(G4Track * theTrack) const;
-  bool catchLongLived(const G4Step * aStep) const;
+  bool killInsideDeadRegion(G4Track * theTrack, const G4Region* reg) const;
+  bool catchLongLived(G4Track* theTrack, const G4Region* reg) const;
   bool killLowEnergy(const G4Step * aStep) const;
-  bool isThisVolume(const G4VTouchable* touch, G4VPhysicalVolume* pv) const;
 
-  void PrintKilledTrack(const G4Track*, int type) const;
+  bool isThisVolume(const G4VTouchable* touch, G4VPhysicalVolume* pv) const;
+  void PrintKilledTrack(const G4Track*, const std::string&) const;
 
 private:
 

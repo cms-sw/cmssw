@@ -344,7 +344,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
         FillHisto       = cms.untracked.bool(True)
     ),
     CastorSD = cms.PSet(
-        useShowerLibrary               = cms.bool(True),
+        useShowerLibrary               = cms.bool(False),
         minEnergyInGeVforUsingSLibrary = cms.double(1.0),
         nonCompensationFactor          = cms.double(0.85),
         Verbosity                      = cms.untracked.int32(0)
