@@ -254,16 +254,16 @@ namespace l1t {
     double egLsb_;
 
     // Et threshold on EG seed tower
-    int egSeedThreshold_;
+    double egSeedThreshold_;
 
     // Et threshold on EG neighbour tower(s)
-    int egNeighbourThreshold_;
+    double egNeighbourThreshold_;
 
     // EG maximum value of HCAL Et
-    int egMaxHcalEt_;
+    double egMaxHcalEt_;
 
     // Et threshold to remove the H/E cut from the EGammas
-    int egEtToRemoveHECut_;
+    double egEtToRemoveHECut_;
     
     // EG maximum value of H/E
     double egMaxHOverE_;
