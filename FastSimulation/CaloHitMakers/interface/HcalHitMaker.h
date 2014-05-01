@@ -5,6 +5,7 @@
 #include "FastSimulation/CaloHitMakers/interface/CaloHitMaker.h"
 #include "FastSimulation/CaloHitMakers/interface/EcalHitMaker.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
+#include "SimDataFormats/CaloTest/interface/HcalTestNumbering.h"
 
 //#include "Math/GenVector/Transform3D.h"
 #include "FastSimulation/CaloGeometryTools/interface/Transform3DPJ.h"
@@ -38,6 +39,9 @@ class HcalHitMaker : public CaloHitMaker
 
   /// set the depth in X0 or Lambda0 units depending on showerType
   bool setDepth(double,bool inCm=false); 
+
+  int getLayerNumHE(double);
+  int getLayerNumHB(int,double,double);
 
  private:
     EcalHitMaker& myGrid;

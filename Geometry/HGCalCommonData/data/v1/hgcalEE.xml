@@ -75,9 +75,9 @@
  </Algorithm>
 </PosPartSection> 
 
-<SpecParSection label="hgcalEE.xml">
-  <SpecPar name="HGCalEE readout granularity per layer">
-    <PartSelector path="//HGCalEEM"/>
+<SpecParSection label="hgcalEE.xml" eval="true">
+  <SpecPar name="HGCalEE">
+    <PartSelector path="//HGCalEESensitive.*"/>
     <Parameter name="Volume" value="HGCalEESensitive" eval="false"/>
     <Parameter name="Granularity" value="2.5*mm"/>
     <Parameter name="Granularity" value="2.5*mm"/>

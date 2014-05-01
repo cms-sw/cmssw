@@ -100,6 +100,7 @@ private:
     edm::InputTag gemSimHitInput_;
     edm::InputTag simTrackInput_;
     std::string folderPath_;
+    bool EffSaveRootFile_;
     std::string outputFile_;
     
     DQMStore * dbe_;
@@ -129,6 +130,7 @@ MuonGEMRecHits::MuonGEMRecHits(const edm::ParameterSet& iConfig) :
   gemSimHitInput_(iConfig.getUntrackedParameter<edm::InputTag>("gemSimHitInput")),
   simTrackInput_(iConfig.getUntrackedParameter<edm::InputTag>("simTrackInput")),
   folderPath_(iConfig.getUntrackedParameter<std::string>("folderPath")),
+  EffSaveRootFile_(iConfig.getUntrackedParameter<bool>("EffSaveRootFile")),
   outputFile_(iConfig.getUntrackedParameter<std::string>("outputFile"))
 {
   hasGEMGeometry_ = false;
@@ -506,7 +508,7 @@ MuonGEMRecHits::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 void 
 MuonGEMRecHits::endRun(edm::Run const&, edm::EventSetup const&)
 {
-  if (outputFile_.size() != 0 && dbe_) dbe_->save(outputFile_);
+  if (EffSaveRootFile_ && outputFile_.size() != 0 && dbe_) dbe_->save(outputFile_);
 }
 
 

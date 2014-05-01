@@ -20,8 +20,6 @@
 #include "SimCalorimetry/CastorSim/src/CastorDigitizerTraits.h"
 #include "SimCalorimetry/CastorSim/src/CastorHitCorrection.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/HcalTowerAlgo/interface/HcalHardcodeGeometryLoader.h"
-#include "Geometry/ForwardGeometry/interface/CastorHardcodeGeometryLoader.h"
 #include "CLHEP/Random/JamesRandom.h"
 #include <vector>
 #include<iostream>

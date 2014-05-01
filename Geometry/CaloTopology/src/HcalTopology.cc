@@ -813,6 +813,37 @@ std::pair<int, int> HcalTopology::segmentBoundaries(unsigned ring, unsigned dept
   return std::pair<int, int>(d1, d2);
 }
 
+double HcalTopology::etaMax(HcalSubdetector subdet) const {
+  double eta(0);
+  switch (subdet) {
+  case(HcalBarrel):  
+    if (lastHBRing_ < (int)(etaTable.size())) eta=etaTable[lastHBRing_]; break;
+  case(HcalEndcap):  
+    if (lastHERing_ < (int)(etaTable.size()) && nEtaHE_ > 0) eta=etaTable[lastHERing_]; break;
+  case(HcalOuter): 
+    if (lastHORing_ < (int)(etaTable.size())) eta=etaTable[lastHORing_]; break;
+  case(HcalForward): 
+    if (etaTableHF.size() > 0) eta=etaTableHF[etaTableHF.size()-1]; break;
+  default: eta=0;
+  }
+  return eta;
+}
+
+std::pair<double,double> HcalTopology::etaRange(HcalSubdetector subdet, 
+						int ieta) const {
+
+  if (subdet == HcalForward) {
+    unsigned int ii = (unsigned int)(ieta-firstHFRing_);
+    return std::pair<double,double>(etaTableHF[ii],etaTableHF[ii+1]);
+  } else {
+    if (mode_==HcalTopologyMode::LHC && ieta == lastHERing_-1) {
+      return std::pair<double,double>(etaTable[ieta-1],etaTable[ieta+1]);
+    } else {
+      return std::pair<double,double>(etaTable[ieta-1],etaTable[ieta]);
+    }
+  }
+}
+    
 unsigned int HcalTopology::detId2denseIdPreLS1 (const DetId& id) const {
 
   HcalDetId hid(id);

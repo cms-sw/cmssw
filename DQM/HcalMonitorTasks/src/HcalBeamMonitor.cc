@@ -1,7 +1,7 @@
 #include "DQM/HcalMonitorTasks/interface/HcalBeamMonitor.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 #include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
-#include "Geometry/HcalTowerAlgo/src/HcalHardcodeGeometryData.h"
+#include "Geometry//Records/interface/HcalRecNumberingRecord.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -403,17 +403,16 @@ void HcalBeamMonitor::beginRun(const edm::Run& run, const edm::EventSetup& c)
 
   lastProcessedLS_=0;
   runNumber_=run.id().run();
-  if (lumiqualitydir_.size()>0 && Online_==true)
-    {
-      if (Overwrite_==false)
-	outfile_ <<lumiqualitydir_<<"HcalHFLumistatus_"<<runNumber_<<".txt";
-      else
-	outfile_ <<lumiqualitydir_<<"HcalHFLumistatus.txt";
-      std::ofstream outStream(outfile_.str().c_str()); // recreate the file, rather than appending to it
-      outStream<<"## Run "<<runNumber_<<std::endl;
-      outStream<<"## LumiBlock\tRing1Status\t\tRing2Status\t\tGlobalStatus\tNentries"<<std::endl;
-      outStream.close();
-    }
+  if (lumiqualitydir_.size()>0 && Online_==true) {
+    if (Overwrite_==false)
+      outfile_ <<lumiqualitydir_<<"HcalHFLumistatus_"<<runNumber_<<".txt";
+    else
+      outfile_ <<lumiqualitydir_<<"HcalHFLumistatus.txt";
+    std::ofstream outStream(outfile_.str().c_str()); // recreate the file, rather than appending to it
+    outStream<<"## Run "<<runNumber_<<std::endl;
+    outStream<<"## LumiBlock\tRing1Status\t\tRing2Status\t\tGlobalStatus\tNentries"<<std::endl;
+    outStream.close();
+  }
 
   // Get expected good channels in run according to channel quality database
   // Get channel quality status info for each run
@@ -429,32 +428,29 @@ void HcalBeamMonitor::beginRun(const edm::Run& run, const edm::EventSetup& c)
   HcalChannelQuality* chanquality = new HcalChannelQuality(*p.product());
   std::vector<DetId> mydetids = chanquality->getAllChannels();
   
-  for (unsigned int i=0;i<mydetids.size();++i)
-    {
-      if (mydetids[i].det()!=DetId::Hcal) continue;
-      HcalDetId id=mydetids[i];
+  for (unsigned int i=0;i<mydetids.size();++i) {
+    if (mydetids[i].det()!=DetId::Hcal) continue;
+    HcalDetId id=mydetids[i];
       
-      if (id.subdet()!=HcalForward) continue;
-      if ((id.depth()==1 && (abs(id.ieta())==33 || abs(id.ieta())==34)) ||
-	  (id.depth()==2 && (abs(id.ieta())==35 || abs(id.ieta())==36)))
-	{
-	  const HcalChannelStatus* origstatus=chanquality->getValues(id);
-	  HcalChannelStatus* mystatus=new HcalChannelStatus(origstatus->rawId(),origstatus->getValue());
-	  if (mystatus->isBitSet(HcalChannelStatus::HcalCellHot)) 
-	    BadCells_[id]=HcalChannelStatus::HcalCellHot;
+    if (id.subdet()!=HcalForward) continue;
+    if ((id.depth()==1 && (abs(id.ieta())==33 || abs(id.ieta())==34)) ||
+	(id.depth()==2 && (abs(id.ieta())==35 || abs(id.ieta())==36))) {
+      const HcalChannelStatus* origstatus=chanquality->getValues(id);
+      HcalChannelStatus* mystatus=new HcalChannelStatus(origstatus->rawId(),origstatus->getValue());
+      if (mystatus->isBitSet(HcalChannelStatus::HcalCellHot)) 
+	BadCells_[id]=HcalChannelStatus::HcalCellHot;
 	  
-	  else if (mystatus->isBitSet(HcalChannelStatus::HcalCellDead))
-	    BadCells_[id]=HcalChannelStatus::HcalCellDead;
+      else if (mystatus->isBitSet(HcalChannelStatus::HcalCellDead))
+	BadCells_[id]=HcalChannelStatus::HcalCellDead;
 	  
-	  if (mystatus->isBitSet(HcalChannelStatus::HcalCellHot) || 
-	      mystatus->isBitSet(HcalChannelStatus::HcalCellDead))
-	    {
-	      if (id.depth()==1) --ring1totalchannels_;
-	      else if (id.depth()==2) --ring2totalchannels_;
-	    }
-	  delete mystatus;
-	} // if ((id.depth()==1) ...
-    } // for (unsigned int i=0;...)
+      if (mystatus->isBitSet(HcalChannelStatus::HcalCellHot) || 
+	  mystatus->isBitSet(HcalChannelStatus::HcalCellDead)) {
+	if (id.depth()==1) --ring1totalchannels_;
+	else if (id.depth()==2) --ring2totalchannels_;
+      }
+      delete mystatus;
+    } // if ((id.depth()==1) ...
+  } // for (unsigned int i=0;...)
     
   if (tevt_==0) this->setup(); // create all histograms; not necessary if merging runs together
   if (mergeRuns_==false) this->reset(); // call reset at start of all runs
@@ -464,8 +460,7 @@ void HcalBeamMonitor::beginRun(const edm::Run& run, const edm::EventSetup& c)
 } // void HcalBeamMonitor::beginRun(const edm::Run& run, const edm::EventSetup& c)
 
 
-void HcalBeamMonitor::analyze(const edm::Event& e, const edm::EventSetup& c)
-{
+void HcalBeamMonitor::analyze(const edm::Event& e, const edm::EventSetup& c) {
   if (!IsAllowedCalibType()) return;
   if (LumiInOrder(e.luminosityBlock())==false) return;
 
@@ -476,32 +471,31 @@ void HcalBeamMonitor::analyze(const edm::Event& e, const edm::EventSetup& c)
   edm::Handle<HORecHitCollection> ho_rechit;
   edm::Handle<HFRecHitCollection> hf_rechit;
   
-  if (!(e.getByLabel(digiLabel_,hf_digi)))
-    {
-      edm::LogWarning("HcalBeamMonitor")<< digiLabel_<<" hf_digi not available";
-      return;
-    }
+  if (!(e.getByLabel(digiLabel_,hf_digi))) {
+    edm::LogWarning("HcalBeamMonitor")<< digiLabel_<<" hf_digi not available";
+    return;
+  }
 
-  if (!(e.getByLabel(hbheRechitLabel_,hbhe_rechit)))
-    {
-      edm::LogWarning("HcalBeamMonitor")<< hbheRechitLabel_<<" hbhe_rechit not available";
-      return;
-    }
+  if (!(e.getByLabel(hbheRechitLabel_,hbhe_rechit))) {
+    edm::LogWarning("HcalBeamMonitor")<< hbheRechitLabel_<<" hbhe_rechit not available";
+    return;
+  }
 
-  if (!(e.getByLabel(hfRechitLabel_,hf_rechit)))
-    {
-      edm::LogWarning("HcalBeamMonitor")<< hfRechitLabel_<<" hf_rechit not available";
-      return;
-    }
-  if (!(e.getByLabel(hoRechitLabel_,ho_rechit)))
-    {
-      edm::LogWarning("HcalBeamMonitor")<< hoRechitLabel_<<" ho_rechit not available";
-      return;
-    }
+  if (!(e.getByLabel(hfRechitLabel_,hf_rechit))) {
+    edm::LogWarning("HcalBeamMonitor")<< hfRechitLabel_<<" hf_rechit not available";
+    return;
+  }
+  if (!(e.getByLabel(hoRechitLabel_,ho_rechit))) {
+    edm::LogWarning("HcalBeamMonitor")<< hoRechitLabel_<<" ho_rechit not available";
+    return;
+  }
+
+  edm::ESHandle<HcalTopology> topo;
+  c.get<HcalRecNumberingRecord>().get(topo);
 
   //good event; increment counters and process
   HcalBaseDQMonitor::analyze(e,c);
-  processEvent(*hbhe_rechit, *ho_rechit, *hf_rechit, *hf_digi, e.bunchCrossing());
+  processEvent(*hbhe_rechit, *ho_rechit, *hf_rechit, *hf_digi, e.bunchCrossing(), *topo);
 
 } //void HcalBeamMonitor::analyze(const edm::Event& e, const edm::EventSetup& c)
 
@@ -510,16 +504,13 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 				   const HORecHitCollection& hoHits,
 				   const HFRecHitCollection& hfHits,
                                    const HFDigiCollection& hf,
-				   int   bunchCrossing
-				   )
-  
-{ 
+				   int   bunchCrossing,
+				   const HcalTopology& topology) { 
   //processEvent loop
-  if (!dbe_)
-    {
-      if (debug_>0) std::cout <<"HcalBeamMonitor::processEvent   DQMStore not instantiated!!!"<<std::endl;
-      return;
-    }
+  if (!dbe_) {
+    if (debug_>0) std::cout <<"HcalBeamMonitor::processEvent   DQMStore not instantiated!!!"<<std::endl;
+    return;
+  }
 
   HBHERecHitCollection::const_iterator HBHEiter;
   HORecHitCollection::const_iterator HOiter;
@@ -755,7 +746,9 @@ void HcalBeamMonitor::processEvent(const HBHERecHitCollection& hbheHits,
 
 	    if (HFiter->energy()<0) continue;  // don't include negative-energy cells?
 
-	    eta=theHFEtaBounds[abs(ieta)-29];
+	    std::pair<double,double> etas = topology.etaRange(HcalForward,abs(ieta));
+	    eta=fabs(0.5*(etas.first+etas.second));
+	    //	    eta=theHFEtaBounds[abs(ieta)-29];
 	    et=HFiter->energy()/cosh(eta)/area[abs(ieta)-29];
 	    if (abs(ieta)>=33 && abs(ieta)<=36) // Luminosity ring check
 	      {

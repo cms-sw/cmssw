@@ -9,6 +9,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
+#include "Geometry/HGCalCommonData/interface/HGCalDDDConstants.h"
 
 #include "G4Step.hh"
 #include <boost/cstdint.hpp>
@@ -20,36 +21,30 @@ public:
 
   enum HGCNumberingParameters { HGCCellSize };
 
-  HGCNumberingScheme(std::vector<double> gpar);
+  HGCNumberingScheme(const DDCompactView & cpv, std::string& name);
 
   virtual ~HGCNumberingScheme();
 
   /**
      @short assigns the det id to a hit
    */
-  virtual uint32_t getUnitID(ForwardSubdetector &subdet, int &layer, int &module, int &iz, G4ThreeVector &pos, float &dz, float &bl1, float &tl1, float &h1);
+  virtual uint32_t getUnitID(ForwardSubdetector &subdet, int &layer, int &module, int &iz, G4ThreeVector &pos);
 
   /**
      @short maps a hit position to a sequential cell in a trapezoid surface defined by h,b,t
    */
-  int assignCell(float x, float y, float cellSize, float h, float bl, float tl);
+  int assignCell(float x, float y, int layer);
 
   /**
      @short inverts the cell number in a trapezoid surface to local coordinates
    */
-  std::pair<float,float> getLocalCoords(int cell, float cellSize, float h, float bl, float tl);
-
-  /**
-     @short returns the cell size
-   */
-  inline float getCellSize() { return gpar.size()>0 ? gpar[HGCCellSize] : 0; }
+  std::pair<float,float> getLocalCoords(int cell, int layer);
 
 private:
   
   HGCNumberingScheme();
 
-  //a vector of parameters read from the xml
-  std::vector<double>    gpar;
+  HGCalDDDConstants     *hgcons;
 };
 
 #endif

@@ -52,8 +52,9 @@ MuonGEMHits::MuonGEMHits(const edm::ParameterSet& ps)
 
   dbe_ = edm::Service<DQMStore>().operator->();
   outputFile_ =  ps.getParameter<std::string>("outputFile");
+  const edm::ParameterSet& pbInfo = ps.getParameterSet("PlotBinInfo");
 
-  theGEMHitsValidation = new GEMHitsValidation(dbe_, edm::InputTag(simInputLabel_,"MuonGEMHits") );
+  theGEMHitsValidation = new GEMHitsValidation(dbe_, edm::InputTag(simInputLabel_,"MuonGEMHits"), pbInfo );
   theGEMSimTrackMatch  = new GEMSimTrackMatch(dbe_, simInputLabel_ , ps.getParameterSet("simTrackMatching") );
 }
 

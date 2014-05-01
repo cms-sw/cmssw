@@ -7,8 +7,9 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "Geometry/HcalTowerAlgo/src/HcalHardcodeGeometryData.h" // for eta bounds
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
 // constructor
 HcalDigiMonitor::HcalDigiMonitor(const edm::ParameterSet& ps) 
@@ -448,112 +449,99 @@ void HcalDigiMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
   // Get HLT trigger information for HF timing study
   passedMinBiasHLT_=false;
 
+  edm::ESHandle<HcalTopology> topo;
+  s.get<HcalRecNumberingRecord>().get(topo);
+  const HcalTopology & topology = *topo;
+
   /////////////////////////////////////////////////////////////////
   // check if detectors whether they were ON
   edm::Handle<DcsStatusCollection> dcsStatus;
   e.getByLabel("scalersRawToDigi", dcsStatus);
   
-  if (dcsStatus.isValid() && dcsStatus->size() != 0) 
-    {      
-      if ((*dcsStatus)[0].ready(DcsStatus::HBHEa) &&
-	  (*dcsStatus)[0].ready(DcsStatus::HBHEb) &&   
-	  (*dcsStatus)[0].ready(DcsStatus::HBHEc))
-	{	
-	  hbhedcsON = true;
-	  if (debug_) std::cout << "hbhe on" << std::endl;
-	} 
-      else hbhedcsON = false;
+  if (dcsStatus.isValid() && dcsStatus->size() != 0) {      
+    if ((*dcsStatus)[0].ready(DcsStatus::HBHEa) &&
+	(*dcsStatus)[0].ready(DcsStatus::HBHEb) &&   
+	(*dcsStatus)[0].ready(DcsStatus::HBHEc)) {	
+      hbhedcsON = true;
+      if (debug_) std::cout << "hbhe on" << std::endl;
+    } else 
+      hbhedcsON = false;
 
-      if ((*dcsStatus)[0].ready(DcsStatus::HF))
-	{
-	  hfdcsON = true;
-	  if (debug_) std::cout << "hf on" << std::endl;
-	} 
-      else hfdcsON = false;
-    }
+    if ((*dcsStatus)[0].ready(DcsStatus::HF)) {
+      hfdcsON = true;
+      if (debug_) std::cout << "hf on" << std::endl;
+    } else 
+      hfdcsON = false;
+  }
   ///////////////////////////////////////////////////////////////
 
   edm::Handle<edm::TriggerResults> hltRes;
-  if (!(e.getByLabel(hltresultsLabel_,hltRes)))
-    {
-      if (debug_>0) edm::LogWarning("HcalDigiMonitor")<<" Could not get HLT results with tag "<<hltresultsLabel_<<std::endl;
-    }
-  else
-    {
-      const edm::TriggerNames & triggerNames = e.triggerNames(*hltRes);
-      const unsigned int nTrig(triggerNames.size());
-      for (unsigned int i=0;i<nTrig;++i){
-	  // repeat for minbias triggers
-	  for (unsigned int k=0;k<MinBiasHLTBits_.size();++k)
-	    {
-	      // if (triggerNames.triggerName(i)==MinBiasHLTBits_[k] && hltRes->accept(i))
-	      if (triggerNames.triggerName(i).find(MinBiasHLTBits_[k])!=std::string::npos && hltRes->accept(i))
-		{ 
-		  passedMinBiasHLT_=true;
-		  break;
-		}
-	    }
+  if (!(e.getByLabel(hltresultsLabel_,hltRes))){
+    if (debug_>0) edm::LogWarning("HcalDigiMonitor")<<" Could not get HLT results with tag "<<hltresultsLabel_<<std::endl;
+  } else {
+    const edm::TriggerNames & triggerNames = e.triggerNames(*hltRes);
+    const unsigned int nTrig(triggerNames.size());
+    for (unsigned int i=0;i<nTrig;++i){
+      // repeat for minbias triggers
+      for (unsigned int k=0;k<MinBiasHLTBits_.size();++k) {
+	// if (triggerNames.triggerName(i)==MinBiasHLTBits_[k] && hltRes->accept(i))
+	if (triggerNames.triggerName(i).find(MinBiasHLTBits_[k])!=std::string::npos && hltRes->accept(i)) { 
+	  passedMinBiasHLT_=true;
+	  break;
 	}
-    } //else
+      }
+    }
+  } //else
   
   // Now get collections we need
   HT_HFP_=0;
   HT_HFM_=0;
   //  bool rechitsFound=false;
   edm::Handle<HFRecHitCollection> hf_rechit;
-  if (e.getByLabel(hfRechitLabel_,hf_rechit))
-    {
-      //      rechitsFound=true;
-      for (HFRecHitCollection::const_iterator HF=hf_rechit->begin();HF!=hf_rechit->end();++HF)
-	{
-	  float en=HF->energy();
-	  int ieta=HF->id().ieta();
-	  // ieta for HF starts at 29, so subtract away 29 when computing fEta
-	  double fEta=fabs(0.5*(theHFEtaBounds[abs(ieta)-28]+theHFEtaBounds[abs(ieta)-29]));
-	  ieta>0 ?  HT_HFP_+=en/cosh(fEta) : HT_HFM_+=en/cosh(fEta);
-	}
+  if (e.getByLabel(hfRechitLabel_,hf_rechit)) {
+    //      rechitsFound=true;
+    for (HFRecHitCollection::const_iterator HF=hf_rechit->begin();HF!=hf_rechit->end();++HF) {
+      float en=HF->energy();
+      int ieta=HF->id().ieta();
+      std::pair<double,double> etas = topology.etaRange(HF->id().subdet(),abs(ieta));
+      double fEta=fabs(0.5*(etas.first+etas.second));
+      ieta>0 ?  HT_HFP_+=en/cosh(fEta) : HT_HFM_+=en/cosh(fEta);
     }
-  else
-    {
-      // if no rechits found, form above-threshold plots based only on digi comparison to ADC threshold 
-      HT_HFP_=999;
-      HT_HFM_=999;
-    }
+  } else {
+    // if no rechits found, form above-threshold plots based only on digi comparison to ADC threshold 
+    HT_HFP_=999;
+    HT_HFM_=999;
+  }
 
   // try to get digis
   edm::Handle<HBHEDigiCollection> hbhe_digi;
   edm::Handle<HODigiCollection> ho_digi;
   edm::Handle<HFDigiCollection> hf_digi;
 
-  if (!(e.getByLabel(digiLabel_,hbhe_digi)))
-    {
-      edm::LogWarning("HcalDigiMonitor")<< digiLabel_<<" hbhe_digi not available";
-      return;
-    }
+  if (!(e.getByLabel(digiLabel_,hbhe_digi))) {
+    edm::LogWarning("HcalDigiMonitor")<< digiLabel_<<" hbhe_digi not available";
+    return;
+  }
   
-  if (!(e.getByLabel(digiLabel_,hf_digi)))
-    {
-      edm::LogWarning("HcalDigiMonitor")<< digiLabel_<<" hf_digi not available";
-      return;
-    }
-  if (!(e.getByLabel(digiLabel_,ho_digi)))
-    {
-      edm::LogWarning("HcalDigiMonitor")<< digiLabel_<<" ho_digi not available";
-      return;
-    }
+  if (!(e.getByLabel(digiLabel_,hf_digi))) {
+    edm::LogWarning("HcalDigiMonitor")<< digiLabel_<<" hf_digi not available";
+    return;
+  }
+  if (!(e.getByLabel(digiLabel_,ho_digi))) {
+    edm::LogWarning("HcalDigiMonitor")<< digiLabel_<<" ho_digi not available";
+    return;
+  }
   edm::Handle<HcalUnpackerReport> report;  
-  if (!(e.getByLabel(digiLabel_,report)))
-    {
-      edm::LogWarning("HcalDigiMonitor")<< digiLabel_<<" unpacker report not available";
-      return;
-    }
+  if (!(e.getByLabel(digiLabel_,report))) {
+    edm::LogWarning("HcalDigiMonitor")<< digiLabel_<<" unpacker report not available";
+    return;
+  }
   // try to get Raw Data
   edm::Handle<FEDRawDataCollection> rawraw;
-  if (!(e.getByLabel(FEDRawDataCollection_,rawraw)))
-    {
-      edm::LogWarning("HcalRawDataMonitor")<<" raw data with label "<<FEDRawDataCollection_<<" not available";
-      return;
-    }
+  if (!(e.getByLabel(FEDRawDataCollection_,rawraw)))  {
+    edm::LogWarning("HcalRawDataMonitor")<<" raw data with label "<<FEDRawDataCollection_<<" not available";
+    return;
+  }
 
   // get the DCC header & trailer (or bail out)
   // this needs to be done better, for now basically getting only one number per HBHE/HO/HF

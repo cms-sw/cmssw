@@ -20,7 +20,8 @@ from SLHCUpgradeSimulations.Configuration.combinedCustoms_TTI import l1EventCont
 from SLHCUpgradeSimulations.Configuration.customise_mixing import customise_NoCrossing
 from SLHCUpgradeSimulations.Configuration.phase1TkCustoms import customise as customisePhase1Tk
 from SLHCUpgradeSimulations.Configuration.HCalCustoms import customise_HcalPhase1, customise_HcalPhase0, customise_HcalPhase2
-from SLHCUpgradeSimulations.Configuration.gemCustoms import customise as customise_gem
+from SLHCUpgradeSimulations.Configuration.gemCustoms import customise2019 as customise_gem2019
+from SLHCUpgradeSimulations.Configuration.gemCustoms import customise2023 as customise_gem2023
 from SLHCUpgradeSimulations.Configuration.me0Customs import customise as customise_me0
 from SLHCUpgradeSimulations.Configuration.rpcCustoms import customise as customise_rpc
 from SLHCUpgradeSimulations.Configuration.fastsimCustoms import customiseDefault as fastCustomiseDefault
@@ -28,11 +29,13 @@ from SLHCUpgradeSimulations.Configuration.fastsimCustoms import customisePhase2 
 from SLHCUpgradeSimulations.Configuration.customise_mixing import customise_noPixelDataloss as cNoPixDataloss
 from SLHCUpgradeSimulations.Configuration.customise_ecalTime import cust_ecalTime
 import SLHCUpgradeSimulations.Configuration.aging as aging
+import SLHCUpgradeSimulations.Configuration.jetCustoms as jetCustoms
 
 def cust_phase1_Pixel10D(process):
     process=customisePostLS1(process)
     process=customisePhase1TkPixel10D(process)
     process=customise_HcalPhase1(process)
+    process=jetCustoms.customise_jets(process)
     return process 
 
 def cust_phase2_BE5DPixel10D(process):
@@ -40,6 +43,7 @@ def cust_phase2_BE5DPixel10D(process):
     process=customiseBE5DPixel10D(process)
     process=customise_HcalPhase2(process)
     process=customise_ev_BE5DPixel10D(process)
+    process=jetCustoms.customise_jets(process)
     return process
 
 def cust_phase2_BE5D(process):
@@ -47,6 +51,7 @@ def cust_phase2_BE5D(process):
     process=customiseBE5D(process)
     process=customise_HcalPhase2(process)
     process=customise_ev_BE5D(process)
+    process=jetCustoms.customise_jets(process)
     return process
 
 def cust_phase2_BE(process):
@@ -54,6 +59,7 @@ def cust_phase2_BE(process):
     process=customiseBE(process)
     process=customise_HcalPhase2(process)
     process=customise_ev_BE(process)
+    process=jetCustoms.customise_jets(process)
     return process
 
 def cust_phase2_LB6PS(process): #obsolete
@@ -84,12 +90,13 @@ def cust_2019(process):
     process=customisePostLS1(process)
     process=customisePhase1Tk(process)
     process=customise_HcalPhase1(process)
+    process=jetCustoms.customise_jets(process)
 #    process=fixRPCConditions(process)
     return process
 
 def cust_2019WithGem(process):
     process=cust_2019(process)
-    process=customise_gem(process)
+    process=customise_gem2019(process)
     return process
 
 def cust_2023(process):
@@ -97,8 +104,17 @@ def cust_2023(process):
     process=customiseBE5D(process)
     process=customise_HcalPhase2(process)
     process=customise_ev_BE5D(process)
-    process=customise_gem(process)
+    process=customise_gem2023(process)
     process=customise_rpc(process)
+    process=jetCustoms.customise_jets(process)
+    return process
+
+def cust_2023NoEE(process):
+    process=cust_2023(process)
+    if hasattr(process,'L1simulation_step'):
+        process.simEcalTriggerPrimitiveDigis.BarrelOnly = cms.bool(True)
+    if hasattr(process,'digitisation_step'):
+    	process.mix.digitizers.ecal.accumulatorType = cms.string('EcalPhaseIIDigiProducer')
     return process
 
 def cust_2023Pixel(process):
@@ -106,7 +122,8 @@ def cust_2023Pixel(process):
     process=customiseBE5DPixel10D(process)
     process=customise_HcalPhase2(process)
     process=customise_ev_BE5DPixel10D(process)
-    process=customise_gem(process)
+    process=customise_gem2023(process)
+    process=jetCustoms.customise_jets(process)
     return process
 
 def cust_2023Muon(process):
@@ -114,9 +131,10 @@ def cust_2023Muon(process):
     process=customiseBE5DPixel10D(process)
     process=customise_HcalPhase2(process)
     process=customise_ev_BE5DPixel10D(process)
-    process=customise_gem(process)
+    process=customise_gem2023(process)
     process=customise_rpc(process)
     process=customise_me0(process)
+    process=jetCustoms.customise_jets(process)
     return process
 
 def cust_2023TTI(process):

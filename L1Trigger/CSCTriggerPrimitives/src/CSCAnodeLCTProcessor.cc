@@ -267,6 +267,12 @@ CSCAnodeLCTProcessor::CSCAnodeLCTProcessor(unsigned endcap, unsigned station,
     use_corrected_bx = conf.getUntrackedParameter<bool>("alctUseCorrectedBx", false);
   }
 
+  // run the ALCT processor for the Phase-II ME2/1 integrated local trigger
+  runME21ILT_ = conf.getUntrackedParameter<bool>("runME21ILT",false);
+
+  // run the ALCT processor for the Phase-II ME3/1-ME4/1 integrated local trigger
+  runME3141ILT_ = conf.getUntrackedParameter<bool>("runME3141ILT",false);
+
   //if (theStation==1 && theRing==2) infoV = 3;
 
   // Load appropriate pattern mask.
@@ -969,6 +975,8 @@ bool CSCAnodeLCTProcessor::patternDetection(const int key_wire) {
         // Quality definition changed on 22 June 2007: it no longer depends
         // on pattern_thresh.
         if (temp_quality > 3) temp_quality -= 3;
+        // hack to run the Phase-II ME2/1, ME3/1 and ME4/1 ILT
+        else if (temp_quality == 3 and (runME21ILT_ or runME3141ILT_)) temp_quality = 4;
         else                  temp_quality  = 0; // quality code 0 is valid!
       }
 

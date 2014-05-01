@@ -1,6 +1,5 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
-#include "Geometry/HcalTowerAlgo//src/HcalHardcodeGeometryData.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <algorithm>
 
@@ -77,46 +76,40 @@ DetId HcalGeometry::getClosestCell(const GlobalPoint& r) const {
   
   // figure out subdetector, giving preference to HE in HE/HF overlap region
   HcalSubdetector bc= HcalEmpty;
-  if (abseta <= theHBHEEtaBounds[theTopology.lastHBRing()] ) {
+  if (abseta <= theTopology.etaMax(HcalBarrel) ) {
     bc = HcalBarrel;
   } else if (absz >= z_long) {
     bc = HcalForward;
-  } else if (abseta <= theHBHEEtaBounds[theTopology.lastHERing()] ) {
+  } else if (theTopology.etaMax(HcalEndcap) ) {
     bc = HcalEndcap;
   } else {
     bc = HcalForward;
   }
 
+  // find eta bin
+  int etaring = etaRing(bc, abseta);
+
+  int phibin = phiBin(bc, etaring, r.phi());
+
+  // add a sign to the etaring
+  int etabin = (r.z() > 0) ? etaring : -etaring;
+
   if (bc == HcalForward) {
     static const double z_short=1137.0;
-    int etaring = etaRing(bc, abseta);  // This is safer
     /*
       // determine front-face eta
       double radius=sqrt(pow(r.x(),2)+pow(r.y(),2));
       double trueAeta=asinh(z_long/radius);
       // find eta bin
       int etaring = etaRing(bc, trueAeta);
-    */
-    if (etaring>theTopology.lastHFRing()) etaring=theTopology.lastHFRing(); 
-  
-    int phibin = phiBin(bc, etaring, r.phi());
-
-    // add a sign to the etaring
-    int etabin = (r.z() > 0) ? etaring : -etaring;
+      if (etaring>theTopology.lastHFRing()) etaring = theTopology.lastHFRing();
+    */  
     // Next line is premature depth 1 and 2 can coexist for large z-extent
     //    HcalDetId bestId(bc,etabin,phibin,((fabs(r.z())>=z_short)?(2):(1)));
     // above line is no good with finite precision
     HcalDetId bestId(bc,etabin,phibin,((fabs(r.z()) - z_short >-0.1)?(2):(1)));
     return bestId;
   } else {
-
-    // find eta bin
-    int etaring = etaRing(bc, abseta);
-    
-    int phibin = phiBin(bc, etaring, r.phi());
-    
-    // add a sign to the etaring
-    int etabin = (r.z() > 0) ? etaring : -etaring;
     
     //Now do depth if required
     int dbin = 1;
@@ -150,17 +143,7 @@ DetId HcalGeometry::getClosestCell(const GlobalPoint& r) const {
 
 
 int HcalGeometry::etaRing(HcalSubdetector bc, double abseta) const {
-
-  if (bc == HcalForward) {
-    int etaring;
-    for (etaring = theTopology.firstHFRing();
-        etaring <= theTopology.lastHFRing(); ++etaring)  {
-      if(theHFEtaBounds[etaring-theTopology.firstHFRing()+1] > abseta) break;
-    }
-    return etaring;
-  } else {
-    return theTopology.etaRing(bc, abseta);
-  }
+  return theTopology.etaRing(bc, abseta);
 }
 
 
@@ -184,9 +167,7 @@ HcalGeometry::getCells( const GlobalPoint& r,
       const double highEta ( reta + dR ) ;
       const double lowPhi  ( rphi - dR ) ;
       const double highPhi ( rphi + dR ) ;
-	 
-      const double hfEtaHi ( theHFEtaBounds[ theTopology.lastHFRing() -
-					     theTopology.firstHFRing() + 1 ] ) ;
+      const double hfEtaHi ( theTopology.etaMax(HcalForward) );
 	 
       if( highEta > -hfEtaHi &&
 	  lowEta  <  hfEtaHi    ) {// in hcal

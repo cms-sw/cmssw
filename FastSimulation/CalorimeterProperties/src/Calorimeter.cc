@@ -1,6 +1,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
@@ -16,7 +17,6 @@
 #include "FastSimulation/CalorimeterProperties/interface/HCALBarrelProperties.h"
 #include "FastSimulation/CalorimeterProperties/interface/HCALEndcapProperties.h"
 #include "FastSimulation/CalorimeterProperties/interface/HCALForwardProperties.h"
-#include "Geometry/HcalTowerAlgo/interface/HcalHardcodeGeometryLoader.h"
 
 Calorimeter::Calorimeter():
   myPreshowerLayer1Properties_(NULL),

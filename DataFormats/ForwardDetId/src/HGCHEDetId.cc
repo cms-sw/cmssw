@@ -10,22 +10,21 @@ HGCHEDetId::HGCHEDetId() : DetId() {
 HGCHEDetId::HGCHEDetId(uint32_t rawid) : DetId(rawid) {
 }
 
-HGCHEDetId::HGCHEDetId(ForwardSubdetector subdet, int zp, int lay, int sec, int subsec, int cell) : DetId(Forward,subdet) 
-{  
-  uint32_t rawid=0;
-  rawid |= ((cell   & 0xffff) << 0 );
-  rawid |= ((sec    & 0x7f)   << 16);
-  rawid |= ((subsec & 0x1)    << 23);
-  rawid |= ((lay    & 0x7f)   << 24);
-  if(zp>0) rawid |= ((zp     & 0x1)    << 31);
-  id_=rawid;
+HGCHEDetId::HGCHEDetId(ForwardSubdetector subdet, int zp, int lay, int sec, int subsec, int cell) : DetId(Forward,subdet) {  
+
+  id_ |= ((cell   & 0xfff) << 0 );
+  id_ |= ((sec    & 0x3f)  << 12);
+  id_ |= ((subsec & 0x1)   << 18);
+  id_ |= ((lay    & 0x1f)  << 19);
+  if(zp>0) id_ |= ((zp & 0x1) << 24);
 }
 
 HGCHEDetId::HGCHEDetId(const DetId& gen) {
   if (!gen.null()) {
     ForwardSubdetector subdet=(ForwardSubdetector(gen.subdetId()));
-    if (gen.det()!=Forward || (subdet!=HGCHE)) {
-      throw cms::Exception("Invalid DetId") << "Cannot initialize HGCHEDetId from " << std::hex << gen.rawId() << std::dec; 
+    if ((gen.det()!=Forward) ||
+	(subdet!=HGCHEF && subdet!=HGCHEB && subdet!=HGCHET)) {
+      throw cms::Exception("Invalid DetId") << "Cannot initialize HGCHEDetId from " << std::hex << gen.rawId() << std::dec << " Det|SubDet " << gen.det() << "|" << subdet; 
     }  
   }
   id_ = gen.rawId();
@@ -34,8 +33,9 @@ HGCHEDetId::HGCHEDetId(const DetId& gen) {
 HGCHEDetId& HGCHEDetId::operator=(const DetId& gen) {
   if (!gen.null()) {
     ForwardSubdetector subdet=(ForwardSubdetector(gen.subdetId()));
-    if (gen.det()!=Forward || (subdet!=HGCHE)) {
-      throw cms::Exception("Invalid DetId") << "Cannot assign HGCHEDetId from " << std::hex << gen.rawId() << std::dec; 
+    if ((gen.det()!=Forward) ||
+	(subdet!=HGCHEF && subdet!=HGCHEB && subdet!=HGCHET)) {
+      throw cms::Exception("Invalid DetId") << "Cannot assign HGCHEDetId from " << std::hex << gen.rawId() << std::dec << " Det|SubDet " << gen.det() << "|" << subdet; 
     }  
   }
   id_ = gen.rawId();
@@ -43,14 +43,13 @@ HGCHEDetId& HGCHEDetId::operator=(const DetId& gen) {
 }
 
 std::ostream& operator<<(std::ostream& s,const HGCHEDetId& id) {
-  switch (id.subdet()) {
-  case(HGCHE) : return s << "isHE=" << id.isHE() 
-			 << " zpos=" << id.zside() 
-			 << " layer=" << id.layer() 
-			 << " phi sub-sector" << id.subsector()
-			 << " sector=" << id.sector() 
-			 << " cell=" << id.cell();
-  default : return s << id.rawId();
+  if  (id.subdet() == HGCHEF || id.subdet() == HGCHEB ||
+       id.subdet() == HGCHET) {
+    return s << "isHE=" << id.isHE() << " zpos=" << id.zside() 
+	     << " layer=" << id.layer() << " phi sub-sector" << id.subsector()
+	     << " sector=" << id.sector() << " cell=" << id.cell();
+  } else {
+    return s << std::hex << id.rawId() << std::dec;
   }
 }
 

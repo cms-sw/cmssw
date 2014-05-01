@@ -78,7 +78,7 @@ math::PtEtaPhiMLorentzVector CaloTower::hadP4(Point v) const {
   // note: for now we use the same position for HO as for the other detectors
 
   double hcalTot;
-  if (abs(ieta())<lastHORing_) hcalTot = (energy() - emE_);
+  if (abs(ieta())<=lastHORing_) hcalTot = (energy() - emE_);
   else hcalTot = hadE_;
 
   if (hcalTot>0) {

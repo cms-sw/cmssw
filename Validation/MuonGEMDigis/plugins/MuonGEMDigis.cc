@@ -58,13 +58,14 @@ MuonGEMDigis::MuonGEMDigis(const edm::ParameterSet& ps)
   cscCopadLabel_ = ps.getParameter<edm::InputTag>("cscCopadLabel");
   simInputLabel_ = ps.getUntrackedParameter<std::string>("simInputLabel", "g4SimHits");
   simTrackMatching_ = ps.getParameterSet("simTrackMatching");
+  const edm::ParameterSet& pbInfo = ps.getParameterSet("PlotBinInfo");
   
   dbe_ = edm::Service<DQMStore>().operator->();
   outputFile_ =  ps.getParameter<std::string>("outputFile");
 
-  theGEMStripDigiValidation  = new  GEMStripDigiValidation(dbe_, stripLabel_ );
-  theGEMCSCPadDigiValidation = new GEMCSCPadDigiValidation(dbe_, cscPadLabel_ );
-  theGEMCSCCoPadDigiValidation = new GEMCSCCoPadDigiValidation(dbe_, cscCopadLabel_ );
+  theGEMStripDigiValidation  = new  GEMStripDigiValidation(dbe_, stripLabel_ , pbInfo);
+  theGEMCSCPadDigiValidation = new GEMCSCPadDigiValidation(dbe_, cscPadLabel_, pbInfo );
+  theGEMCSCCoPadDigiValidation = new GEMCSCCoPadDigiValidation(dbe_, cscCopadLabel_, pbInfo );
   theGEMDigiTrackMatch = new GEMDigiTrackMatch(dbe_, simInputLabel_ , simTrackMatching_ );
 }
 
@@ -121,7 +122,7 @@ MuonGEMDigis::endJob()
 void 
 MuonGEMDigis::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
 {
-  dbe_->setCurrentFolder("MuonGEMDigisV/GEMDigiTask");
+  dbe_->setCurrentFolder("MuonGEMDigisV/GEMDigisTask");
   try{
     iSetup.get<MuonGeometryRecord>().get(gem_geo_);
     gem_geometry_ = &*gem_geo_;

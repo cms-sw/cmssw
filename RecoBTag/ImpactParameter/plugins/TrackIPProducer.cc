@@ -73,6 +73,8 @@ TrackIPProducer::TrackIPProducer(const edm::ParameterSet& iConfig) :
   m_computeGhostTrack       = m_config.getParameter<bool>("computeGhostTrack");
   m_ghostTrackPriorDeltaR   = m_config.getParameter<double>("ghostTrackPriorDeltaR");
   m_cutPixelHits            = m_config.getParameter<int>("minimumNumberOfPixelHits");
+  m_maxPixelBarrelLayer     = m_config.getParameter<uint32_t>("maxPixelBarrelLayer");
+  m_maxPixelEndcapLayer     = m_config.getParameter<uint32_t>("maxPixelEndcapLayer");
   m_cutTotalHits            = m_config.getParameter<int>("minimumNumberOfHits");
   m_cutMaxTIP               = m_config.getParameter<double>("maximumTransverseImpactParameter");
   m_cutMinPt                = m_config.getParameter<double>("minimumTransverseMomentum");
@@ -170,9 +172,11 @@ TrackIPProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                " chi2 " <<  track.normalizedChi2()<<
                " #pixel " <<    track.hitPattern().numberOfValidPixelHits()<< endl;
 */
+
+
        if (track.pt() > m_cutMinPt &&
            track.hitPattern().numberOfValidHits() >= m_cutTotalHits &&         // min num tracker hits
-           track.hitPattern().numberOfValidPixelHits() >= m_cutPixelHits &&
+           track.hitPattern().numberOfValidPixelHits(m_maxPixelBarrelLayer, m_maxPixelEndcapLayer) >= m_cutPixelHits &&
            track.normalizedChi2() < m_cutMaxChiSquared &&
            std::abs(track.dxy(pv->position())) < m_cutMaxTIP &&
            std::abs(track.dz(pv->position())) < m_cutMaxLIP) {
@@ -325,7 +329,7 @@ void TrackIPProducer::checkEventSetup(const EventSetup & iSetup)
      const TrackProbabilityCalibration *  ca2D= calib2DHandle.product();
      const TrackProbabilityCalibration *  ca3D= calib3DHandle.product();
 
-     m_probabilityEstimator.reset(new HistogramProbabilityEstimator(ca3D,ca2D));
+     m_probabilityEstimator.reset(new HistogramProbabilityEstimator(ca3D,ca2D, m_maxPixelBarrelLayer, m_maxPixelEndcapLayer));
 
    }
    m_calibrationCacheId3D=cacheId3D;

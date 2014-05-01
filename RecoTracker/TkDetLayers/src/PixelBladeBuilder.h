@@ -8,19 +8,19 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 
-/** A concrete builder for PixelBlade 
+/** A concrete builder for PixelBlade
  */
 
 #pragma GCC visibility push(hidden)
-class PixelBladeBuilder {  
+class PixelBladeBuilder {
  public:
   PixelBladeBuilder(){};
   PixelBlade* build(const GeometricDet* geometricDetFrontPanel,
 		    const GeometricDet* geometricDetBackPanel,
 		    const TrackerGeometry* theGeomDetGeometry);
-  
+
 };
 
 
 #pragma GCC visibility pop
-#endif 
+#endif

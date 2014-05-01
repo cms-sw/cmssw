@@ -5,9 +5,8 @@
   <SpecPar name="hcal">
     <PartSelector path="//SHCalEE"/>
     <Parameter name="OnlyForShashlikNumbering" value="SHCal" eval="false"/>
-    <Parameter name="firstRow" value="4"/>
     <Parameter name="firstRow" value="3"/>
-    <Parameter name="firstRow" value="2"/>
+    <Parameter name="firstRow" value="3"/>
     <Parameter name="firstRow" value="1"/>
     <Parameter name="firstRow" value="1"/>
     <Parameter name="firstRow" value="1"/>
@@ -25,17 +24,20 @@
     <Parameter name="firstRow" value="1"/>
     <Parameter name="firstRow" value="1"/>
     <Parameter name="firstRow" value="1"/>
+    <Parameter name="firstRow" value="1"/>
+    <Parameter name="firstRow" value="1"/>
+    <Parameter name="lastRow"  value="21"/>
+    <Parameter name="lastRow"  value="21"/>
+    <Parameter name="lastRow"  value="21"/>
+    <Parameter name="lastRow"  value="21"/>
+    <Parameter name="lastRow"  value="21"/>
     <Parameter name="lastRow"  value="20"/>
     <Parameter name="lastRow"  value="20"/>
     <Parameter name="lastRow"  value="20"/>
-    <Parameter name="lastRow"  value="20"/>
-    <Parameter name="lastRow"  value="20"/>
-    <Parameter name="lastRow"  value="19"/>
     <Parameter name="lastRow"  value="19"/>
     <Parameter name="lastRow"  value="19"/>
     <Parameter name="lastRow"  value="18"/>
     <Parameter name="lastRow"  value="18"/>
-    <Parameter name="lastRow"  value="17"/>
     <Parameter name="lastRow"  value="17"/>
     <Parameter name="lastRow"  value="16"/>
     <Parameter name="lastRow"  value="15"/>
