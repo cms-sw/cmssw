@@ -39,7 +39,7 @@
   <Constant name="z70S"  value="([z60S]-[dzS6S]-2*[dzGap]-[dzS7S])"/> 
   <Constant name="z80S"  value="([z70S]-[dzS7S]-2*[dzGap]-[dzS8S])"/> 
   <Constant name="dxTop" value="22.2929*cm"/>
-  <Constant name="Angle" value="5.0*deg"/>
+  <Constant name="Angle" value="5.07347*deg"/>
   <Constant name="slope" value="tan([Angle])"/>
   <Constant name="dx11L" value="([dxTop]-[slope]*([dzInL]-[z10L]+[dzS1L]))"/>
   <Constant name="dx12L" value="([dxTop]-[slope]*([dzInL]-[z10L]-[dzS1L]))"/>
@@ -124,7 +124,7 @@
   <Constant name="yReadOut"    value="(-[dyGBI11]+7.0*mm+[dyReadOut])"/>
   <Constant name="dzCardL"     value="63.150*cm"/>
   <Constant name="dzCardS"     value="([dzCardL]-[dzLS])"/>
-  <Constant name="dxTopCardL"  value="25.4115*cm"/>
+  <Constant name="dxTopCardL"  value="25.4*cm"/>
   <Constant name="dxBotCard"   value="([dxTopCardL]-2*[slope]*[dzCardL])"/>
   <Constant name="dxTopCardS"  value="([dxBotCard]+2*[slope]*[dzCardS])"/>
   <Constant name="dzFoilL"     value="60.450*cm"/>
@@ -209,10 +209,8 @@
 
 <SolidSection label="gem11.xml">
   <Polycone name="GE11" startPhi="0*deg" deltaPhi="360*deg">
-   <ZSection z="-4.5*cm" rMin="1.300*m" rMax="2.64*m"/>
-   <ZSection z="-1.2*cm" rMin="1.300*m" rMax="2.64*m"/>
-   <ZSection z="-1.2*cm" rMin="1.269*m" rMax="2.64*m"/>
-   <ZSection z="+4.5*cm" rMin="1.269*m" rMax="2.64*m"/>
+   <ZSection z="-4.5*cm" rMin="1.265*m" rMax="2.64*m"/>
+   <ZSection z="+4.5*cm" rMin="1.265*m" rMax="2.64*m"/>
   </Polycone>
 
   <Trd1 name="GB11L" dz="[dzGB11L]" dy1="[dyGB11]" dy2="[dyGB11]" dx1="[dxBotGB11]" dx2="[dxTopGB11L]" />
