@@ -51,7 +51,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Ca
       std::vector<l1t::Jet> & jets, bool doDonutSubtraction) {
 
   //Declare the range to carry out the algorithm over
-  int etaMax=27, etaMin=-27, phiMax=72, phiMin=1;
+  int etaMax=28, etaMin=-28, phiMax=72, phiMin=1;
 
    // generate jet mask
    // needs to be configurable at some point
@@ -81,6 +81,9 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Ca
 
       int iEt(seedEt);
       bool vetoCandidate(false);
+
+      //Check it passes the seed threshold
+      if(iEt < params_->jetSeedThresholdHw()) continue;
 
       // loop over towers in this jet
       for( int deta = -4; deta < 5; ++deta ) {
@@ -122,7 +125,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Ca
       }
 
       // add the jet to the list
-      if (iEt>params_->jetSeedThreshold() && !vetoCandidate) {
+      if (!vetoCandidate) {
         math::XYZTLorentzVector p4;
         
         //If doing donut PUS find the outer ring around the jet
@@ -155,7 +158,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Ca
 void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::pusRing(int jetEta, int jetPhi, int size, std::vector<int>& ring, const std::vector<l1t::CaloTower> & towers) {
 
   //Declare the range to carry out the algorithm over
-  int etaMax=27, etaMin=-27, phiMax=72, phiMin=1;
+  int etaMax=28, etaMin=-28, phiMax=72, phiMin=1;
 
   //ring is a vector with 4 ring strips, one for each side of the ring
   for(int i=0; i<4; ++i) ring.push_back(0);
