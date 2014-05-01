@@ -258,6 +258,7 @@ CSCMotherboardME11::CSCMotherboardME11(unsigned endcap, unsigned station,
   // debug gem matching
   debug_gem_matching = me11tmbParams.getUntrackedParameter<bool>("debugMatching", false);
   debug_luts = me11tmbParams.getUntrackedParameter<bool>("debugLUTs", false);
+  debug_gem_dphi = me11tmbParams.getUntrackedParameter<bool>("debugGEMDphi", false);
 
   //  deltas used to construct GEM coincidence pads
   maxDeltaBXInCoPad_ = me11tmbParams.getUntrackedParameter<int>("maxDeltaBXInCoPad",1);
@@ -1706,14 +1707,14 @@ void CSCMotherboardME11::matchGEMPads(enum ME11Part ME)
   const int chamber(me1abId.chamber());
   const bool is_odd(chamber%2==1);
 
-  if (debug_gem_matching) std::cout<<"++++++++  matchGEMPads "<< me1abId <<" +++++++++ "<<std::endl;
+  if (debug_gem_dphi) std::cout<<"++++++++  matchGEMPads "<< me1abId <<" +++++++++ "<<std::endl;
 
   // "key" layer id is used to calculate global position of stub
   CSCDetId key_id(me1abId.endcap(), me1abId.station(), me1abId.ring(), me1abId.chamber(), CSCConstants::KEY_CLCT_LAYER);
 
   // check if there are any pads 
   if (pads_.empty()) {
-    if (debug_gem_matching) std::cout<<"igotnopads"<<std::endl;
+    if (debug_gem_dphi) std::cout<<"igotnopads"<<std::endl;
     return;
   }
 
@@ -1728,7 +1729,7 @@ void CSCMotherboardME11::matchGEMPads(enum ME11Part ME)
       {
         CSCCorrelatedLCTDigi& lct = allLCTs[bx][mbx][i];
         if (!lct.isValid() or fabs(lct.getGEMDPhi()) < 0.000001) continue;
-        if (debug_gem_matching) std::cout<<"LCTbefore "<<bx<<" "<<mbx<<" "<<i<<" "<<lct;
+        if (debug_gem_dphi) std::cout<<"LCTbefore "<<bx<<" "<<mbx<<" "<<i<<" "<<lct;
 
         // use -99 as default value whe we don't know if there could have been a gem match
         lct.setGEMDPhi(-99.);
@@ -1746,21 +1747,21 @@ void CSCMotherboardME11::matchGEMPads(enum ME11Part ME)
         // is LCT located in the high efficiency GEM eta range?
         bool gem_fid = ( std::abs(csc_gp.eta()) >= gem_match_min_eta );
 
-        if (debug_gem_matching) std::cout<<" lct eta "<<csc_gp.eta()<<" phi "<<csc_gp.phi()<<std::endl;
+        if (debug_gem_dphi) std::cout<<" lct eta "<<csc_gp.eta()<<" phi "<<csc_gp.phi()<<std::endl;
 
         if (!gem_fid)
         {
-          if (debug_gem_matching) std::cout<<"    -- lct pass no gem req"<<std::endl;
+          if (debug_gem_dphi) std::cout<<"    -- lct pass no gem req"<<std::endl;
           continue;
         }
 
         if (in_pads == pads_.end()) // has no potential GEM hits with similar BX -> zap it
         {
           if (gem_clear_nomatch_lcts) lct.clear();
-          if (debug_gem_matching) std::cout<<"    -- no gem"<<std::endl;
+          if (debug_gem_dphi) std::cout<<"    -- no gem"<<std::endl;
           continue;
         }
-        if (debug_gem_matching) std::cout<<"    -- gem possible"<<std::endl;
+        if (debug_gem_dphi) std::cout<<"    -- gem possible"<<std::endl;
 
         // use 99 ad default value whe we expect there to be a gem match
         lct.setGEMDPhi(99.);
@@ -1778,7 +1779,7 @@ void CSCMotherboardME11::matchGEMPads(enum ME11Part ME)
           GlobalPoint gem_gp = gem_g->idToDet(gem_id)->surface().toGlobal(gem_lp);
           float dphi = deltaPhi(csc_gp.phi(), gem_gp.phi());
           float deta = csc_gp.eta() - gem_gp.eta();
-          if (debug_gem_matching) std::cout<<"    gem with dphi "<< std::abs(dphi) <<" deta "<< std::abs(deta) <<std::endl;
+          if (debug_gem_dphi) std::cout<<"    gem with dphi "<< std::abs(dphi) <<" deta "<< std::abs(deta) <<std::endl;
 
           if( (              std::abs(deta) <= gem_match_delta_eta        ) and // within delta_eta
               ( (  is_odd and std::abs(dphi) <= gem_match_delta_phi_odd ) or
@@ -1793,7 +1794,7 @@ void CSCMotherboardME11::matchGEMPads(enum ME11Part ME)
         }
         if (gem_matched)
         {
-          if (debug_gem_matching) std::cout<<" GOT MATCHED GEM!"<<std::endl;
+          if (debug_gem_dphi) std::cout<<" GOT MATCHED GEM!"<<std::endl;
           lct.setGEMDPhi(min_dphi);
 	  // assing the bit value
 	  int oddEven = int(not is_odd) + 1;
@@ -1802,25 +1803,25 @@ void CSCMotherboardME11::matchGEMPads(enum ME11Part ME)
 	  if (abs(min_dphi) < lut_pt_vs_dphi_gemcsc[numberOfBendAngles-1][oddEven]) iFound = numberOfBendAngles;
 	  else {
 	    for (int i=0; i< numberOfBendAngles-1; ++i) {
-	      if (debug_gem_matching) std::cout<<"is_odd "<<is_odd <<" min_dphi "<<abs(min_dphi)<<" bend angle lib "<<i<<" "<<lut_pt_vs_dphi_gemcsc[i][oddEven]<< std::endl;
+	      if (debug_gem_dphi) std::cout<<"is_odd "<<is_odd <<" min_dphi "<<abs(min_dphi)<<" bend angle lib "<<i<<" "<<lut_pt_vs_dphi_gemcsc[i][oddEven]<< std::endl;
 	      if (abs(min_dphi) < lut_pt_vs_dphi_gemcsc[i][oddEven] and abs(min_dphi) > lut_pt_vs_dphi_gemcsc[i+1][oddEven]) 
 		iFound = i+1;
 	    }
 	  }
 	  lct.setGEMDPhiBits(iFound);
-	  if (debug_gem_matching) std::cout<<"found bend angle "<<abs(min_dphi)<<" "<<lct.getGEMDPhiBits()<<" "<<lut_pt_vs_dphi_gemcsc[iFound][oddEven]<<" "<<iFound << std::endl;
+	  if (debug_gem_dphi) std::cout<<"found bend angle "<<abs(min_dphi)<<" "<<lct.getGEMDPhiBits()<<" "<<lut_pt_vs_dphi_gemcsc[iFound][oddEven]<<" "<<iFound << std::endl;
         }
         else
         {
-          if (debug_gem_matching) std::cout<<" no gem match";
+          if (debug_gem_dphi) std::cout<<" no gem match";
           if (gem_clear_nomatch_lcts)
           {
             lct.clear();
-            if (debug_gem_matching) std::cout<<" - cleared lct";
+            if (debug_gem_dphi) std::cout<<" - cleared lct";
           }
-          if (debug_gem_matching) std::cout<<std::endl;
+          if (debug_gem_dphi) std::cout<<std::endl;
         }
-        if (debug_gem_matching) std::cout<<"LCTafter "<<bx<<" "<<mbx<<" "<<i<<" "<<lct;
+        if (debug_gem_dphi) std::cout<<"LCTafter "<<bx<<" "<<mbx<<" "<<i<<" "<<lct;
       }
   }
 
@@ -1832,7 +1833,7 @@ void CSCMotherboardME11::matchGEMPads(enum ME11Part ME)
       {
         if (allLCTs[bx][mbx][i].isValid()) nlct_after++;
       }
-  if (debug_gem_matching) std::cout<<"before "<<nlct<<"  after "<<nlct_after<<std::endl;
+  if (debug_gem_dphi) std::cout<<"before "<<nlct<<"  after "<<nlct_after<<std::endl;
 }
 
 

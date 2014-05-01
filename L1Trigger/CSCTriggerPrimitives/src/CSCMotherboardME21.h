@@ -161,6 +161,7 @@ class CSCMotherboardME21 : public CSCMotherboard
   // debug gem matching
   bool debug_gem_matching;
   bool debug_luts;
+  bool debug_gem_dphi;
 
   //  deltas used to construct GEM coincidence pads
   int maxDeltaBXInCoPad_;

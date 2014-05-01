@@ -65,6 +65,7 @@ def customise_L1Emulator2019(process, ptdphi):
         ## run in debug mode
         debugLUTs = cms.untracked.bool(False),
         debugMatching = cms.untracked.bool(False),
+        debugGEMDhpi = cms.untracked.bool(False),
 
         ## use old dataformat
         useOldLCTDataFormatALCTGEM = cms.untracked.bool(True),
@@ -139,6 +140,7 @@ def customise_L1Emulator2023(process, ptdphi):
         ## run in debug mode
         debugLUTs = cms.untracked.bool(False),
         debugMatching = cms.untracked.bool(False),
+        debugGEMDhpi = cms.untracked.bool(False),
 
         ## use old dataformat
         useOldLCTDataFormatALCTGEM = cms.untracked.bool(True),
