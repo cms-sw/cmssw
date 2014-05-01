@@ -46,7 +46,6 @@ void l1t::CaloStage2JetSumAlgorithmFirmwareImp1::processEvent(const std::vector<
 
       ptJet = (jets[jetNr]).hwPt();
       jetPhi=((jets[jetNr]).hwPhi()*5.0-2.5)*pi/180.;
-      std::cout << "jetphi\t" << jetPhi << std::endl;
       coefficientX = int32_t(511.*cos(jetPhi));
       coefficientY = int32_t(511.*sin(jetPhi));
 
