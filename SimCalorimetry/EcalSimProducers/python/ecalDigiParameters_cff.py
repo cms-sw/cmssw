@@ -2,9 +2,14 @@ import FWCore.ParameterSet.Config as cms
 
 ecal_digi_parameters = cms.PSet(
     hitsProducer     = cms.string('g4SimHits'),
+    EBhitsCollection = cms.string('EcalHitsEB'),
+#    EEhitsCollection = cms.string('EcalHitsEE'),
+    EEhitsCollection = cms.string('EcalHitsEK'),
+    EShitsCollection = cms.string('EcalHitsES'),
     EEdigiCollection = cms.string(''),
     EBdigiCollection = cms.string(''),
     ESdigiCollection = cms.string(''),
+
     UseLCcorrection  = cms.untracked.bool(True),
 
     EBCorrNoiseMatrixG12 = cms.vdouble (

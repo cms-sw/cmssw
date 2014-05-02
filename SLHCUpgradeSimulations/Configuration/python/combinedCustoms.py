@@ -115,6 +115,32 @@ def cust_2023SHCal(process):
         process.simEcalTriggerPrimitiveDigis.BarrelOnly = cms.bool(True)
     if hasattr(process,'digitisation_step'):
     	process.mix.digitizers.ecal.accumulatorType = cms.string('EcalPhaseIIDigiProducer')
+        process.simEcalUnsuppressedDigis = cms.EDAlias(
+            mix = cms.VPSet(
+            cms.PSet(type = cms.string('EBDigiCollection')),
+            cms.PSet(type = cms.string('EEDigiCollection')),
+            cms.PSet(type = cms.string('EKDigiCollection')),
+            cms.PSet(type = cms.string('ESDigiCollection'))
+            )
+            )
+        
+    if hasattr(process,'reconstruction_step'):
+    	process.ecalRecHit.EEuncalibRecHitCollection = cms.InputTag("","")
+        #remove the old EE pfrechit producer
+        del process.particleFlowRecHitECALWithTime.producers[1]
+        del process.particleFlowRecHitECAL.producers[1]
+        process.particleFlowClusterEBEKMerger = cms.EDProducer('PFClusterCollectionMerger',
+                                                               inputs = cms.VInputTag(cms.InputTag('particleFlowClusterECALWithTimeSelected'),
+                                                                                      cms.InputTag('particleFlowClusterEKUncorrected')
+                                                                                      )
+                                                               )   
+        process.pfClusteringECAL.remove(process.particleFlowClusterECAL)
+        process.pfClusteringEK += process.particleFlowClusterEBEKMerger
+        process.pfClusteringEK += process.particleFlowClusterECAL
+        process.particleFlowClusterECAL.inputECAL = cms.InputTag('particleFlowClusterEBEKMerger')
+        process.particleFlowCluster += process.pfClusteringEK
+       
+>>>>>>> ddc4403... fixup EcalDigi for Shashlik in EcalPhaseIIDigiProducer.cc
     return process
 
 def cust_2023HGCal(process):
