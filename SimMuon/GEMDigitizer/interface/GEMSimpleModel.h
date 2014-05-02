@@ -17,10 +17,6 @@ class GEMGeometry;
 namespace CLHEP
 {
   class HepRandomEngine;
-  class RandFlat;
-  class RandPoissonQ;
-  class RandGaussQ;
-  class RandGamma;
 }
 
 class GEMSimpleModel: public GEMDigiModel

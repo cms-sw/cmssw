@@ -16,7 +16,6 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
-#include "CLHEP/Random/RandomEngine.h"
 
 #include <map>
 #include <set>
