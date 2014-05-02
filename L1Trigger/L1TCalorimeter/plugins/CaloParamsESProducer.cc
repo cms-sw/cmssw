@@ -99,7 +99,7 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
   
   edm::FileInPath egIsoLUTFile = conf.getParameter<edm::FileInPath>("egIsoLUTFile");
   std::ifstream egIsoLUTStream(egIsoLUTFile.fullPath());
-  std::shared_ptr<l1t::LUT> egIsoLUT( new l1t::LUT(32,10,egIsoLUTStream) );
+  std::shared_ptr<l1t::LUT> egIsoLUT( new l1t::LUT(egIsoLUTStream) );
   m_params.setEgIsolationLUT(egIsoLUT);
 
   m_params.setEgIsoAreaNrTowersEta(conf.getParameter<unsigned int>("egIsoAreaNrTowersEta"));
@@ -117,7 +117,7 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
 
   edm::FileInPath tauIsoLUTFile = conf.getParameter<edm::FileInPath>("tauIsoLUTFile");
   std::ifstream tauIsoLUTStream(tauIsoLUTFile.fullPath());
-  std::shared_ptr<l1t::LUT> tauIsoLUT( new l1t::LUT(32,10,tauIsoLUTStream) );
+  std::shared_ptr<l1t::LUT> tauIsoLUT( new l1t::LUT(tauIsoLUTStream) );
   m_params.setTauIsolationLUT(tauIsoLUT);
 
   // jets
