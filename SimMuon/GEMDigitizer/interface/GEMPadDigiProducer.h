@@ -30,8 +30,6 @@ public:
 
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
-  virtual void endRun(edm::Run&, const edm::EventSetup&) {}
-
 private:
   
   void buildPads(const GEMDigiCollection &digis, GEMPadDigiCollection &out_pads);

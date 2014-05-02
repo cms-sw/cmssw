@@ -1,7 +1,6 @@
 #ifndef GEMDigitizer_GEMDigiProducer_h
 #define GEMDigitizer_GEMDigiProducer_h
 
-
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -29,8 +28,6 @@ public:
   virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
 
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
-
-  virtual void endRun(edm::Run&, const edm::EventSetup&) {}
 
 private:
 
