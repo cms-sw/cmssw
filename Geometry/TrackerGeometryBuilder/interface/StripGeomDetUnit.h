@@ -18,7 +18,7 @@ class SurfaceDeformation;
 class StripGeomDetUnit : public GeomDetUnit {
 public:
 
-  StripGeomDetUnit( BoundPlane* sp, StripGeomDetType* type, const GeometricDet* gd);
+  StripGeomDetUnit( BoundPlane* sp, StripGeomDetType const * type, GeometricDet const * gd);
 
   // Det interface
 
@@ -39,7 +39,7 @@ public:
   /// the proxy topology (through topology() and specificTopology()) which includes
   /// corrections for the surface deformations, and once via the GeomDetType
   /// (through type().topology() and the like).
-  virtual StripGeomDetType& specificType() const;
+  virtual StripGeomDetType const & specificType() const;
 
   /// Returns a reference to the strip proxy topology
   virtual const StripTopology& specificTopology() const;

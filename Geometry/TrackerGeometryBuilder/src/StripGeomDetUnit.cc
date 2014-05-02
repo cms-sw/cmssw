@@ -4,7 +4,7 @@
 
 #include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
 
-StripGeomDetUnit::StripGeomDetUnit( BoundPlane* sp, StripGeomDetType* type,const GeometricDet* gd) : 
+StripGeomDetUnit::StripGeomDetUnit( BoundPlane* sp, StripGeomDetType const * type, GeometricDet const * gd) : 
   GeomDetUnit(sp), theTopology(new ProxyStripTopology(type, sp)), theGD(gd)
 {
   if(theGD) setDetId(theGD->geographicalID());
@@ -12,7 +12,7 @@ StripGeomDetUnit::StripGeomDetUnit( BoundPlane* sp, StripGeomDetType* type,const
 
 const GeomDetType& StripGeomDetUnit::type() const { return theTopology->type(); }
 
-StripGeomDetType& StripGeomDetUnit::specificType() const { return theTopology->specificType(); }
+const StripGeomDetType& StripGeomDetUnit::specificType() const { return theTopology->specificType(); }
 
 const Topology& StripGeomDetUnit::topology() const { return *theTopology; }
 
