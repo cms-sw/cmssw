@@ -25,6 +25,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 namespace reco {class TransientTrack;}
@@ -42,8 +43,9 @@ class MuonPatternRecoDumper;
 class TrajectorySeed;
 class MuonUpdatorAtVertex;
 
-class MuonTrackAnalyzer: public edm::EDAnalyzer {
+//class MuonTrackAnalyzer: public edm::EDAnalyzer {
 
+class MuonTrackAnalyzer: public DQMEDAnalyzer {
  public:
   enum EtaRange{all,barrel,endcap};
 
@@ -65,8 +67,10 @@ class MuonTrackAnalyzer: public edm::EDAnalyzer {
 
   virtual void beginJob() ;
   virtual void endJob() ;
-  virtual void beginRun() ;
-  virtual void endRun() ;
+  //  virtual void beginRun() ;
+  virtual void endRun(DQMStore::IBooker & ibooker) ;
+  //  void dqmEndJob(DQMStore::IBooker & ibooker);
+void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
  protected:
 
  private:
@@ -91,6 +95,8 @@ class MuonTrackAnalyzer: public edm::EDAnalyzer {
   std::string dirName_;
 
   std::string out;
+  std::string subsystemname_;
+  edm::ParameterSet pset;
   //TFile* theFile;
 
   EtaRange theEtaRange;

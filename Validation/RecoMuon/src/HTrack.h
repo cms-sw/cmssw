@@ -4,15 +4,17 @@ class TFile;
 class SimTrack;
 class TrajectoryStateOnSurface;
 class FreeTrajectoryState;
-class DQMStore;
+//class DQMStore;
 
 #include "TString.h" 
 #include <string>
+#include <DQMServices/Core/interface/DQMStore.h>
+#include <DQMServices/Core/interface/MonitorElement.h>
 
 class HTrack{
 
  public: 
-  HTrack(std::string, std::string name, std::string whereIs ="");
+  HTrack(DQMStore::IBooker &, std::string, std::string name, std::string whereIs ="");
   
   
   double pull(double rec,double sim, double sigmarec);
@@ -42,7 +44,7 @@ class HTrack{
   void Fill(const FreeTrajectoryState &);
   void FillDeltaR(double);
 
-  double computeEfficiency(HTrackVariables *sim);
+  double computeEfficiency(HTrackVariables *sim, DQMStore::IBooker&);
 
  private:
   DQMStore * dbe_;
