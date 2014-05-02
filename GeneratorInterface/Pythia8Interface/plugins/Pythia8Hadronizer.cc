@@ -18,7 +18,7 @@
 // PS matchning prototype
 //
 #include "GeneratorInterface/Pythia8Interface/plugins/JetMatchingHook.h"
-
+#include "GeneratorInterface/PartonShowerVeto/interface/JetMatchingPy8Internal.h"
 
 // Emission Veto Hooks
 //
@@ -98,7 +98,8 @@ class Pythia8Hadronizer : public BaseHadronizer, public Py8InterfaceBase {
     // PS matching prototype
     //
     JetMatchingHook* fJetMatchingHook;
-	
+    UserHooks *fJetMatchingPy8InternalHook;
+    
     // Emission Veto Hooks
     //
     EmissionVetoHook* fEmissionVetoHook;
@@ -126,7 +127,7 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   LHEInputFileName(params.getUntrackedParameter<string>("LHEInputFileName","")),
   fInitialState(PP),
   fReweightUserHook(0),fReweightRapUserHook(0),fReweightPtHatRapUserHook(0),
-  fJetMatchingHook(0),
+  fJetMatchingHook(0),fJetMatchingPy8InternalHook(0),
   fEmissionVetoHook(0),fEmissionVetoHook1(0)
 {
 
@@ -230,6 +231,9 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
       {
          fJetMatchingHook = new JetMatchingHook( jmParams, &fMasterGen->info );
       }
+      else if (scheme == "MadgraphPy8Internal") {
+        fJetMatchingPy8InternalHook = new ::JetMatchingMadgraph;
+      }
   }
 
   // Emission vetos
@@ -270,6 +274,7 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   if(fReweightRapUserHook) NHooks++;
   if(fReweightPtHatRapUserHook) NHooks++;
   if(fJetMatchingHook) NHooks++;
+  if(fJetMatchingPy8InternalHook) NHooks++;
   if(fEmissionVetoHook) NHooks++;
   if(fEmissionVetoHook1) NHooks++;
   if(NHooks > 1)
@@ -279,6 +284,7 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   if(fReweightRapUserHook) fMasterGen->setUserHooksPtr(fReweightRapUserHook);
   if(fReweightPtHatRapUserHook) fMasterGen->setUserHooksPtr(fReweightPtHatRapUserHook);
   if(fJetMatchingHook) fMasterGen->setUserHooksPtr(fJetMatchingHook);
+  if(fJetMatchingPy8InternalHook) fMasterGen->setUserHooksPtr(fJetMatchingPy8InternalHook);
   if(fEmissionVetoHook || fEmissionVetoHook1) {
     std::cout << "Turning on Emission Veto Hook";
     if(fEmissionVetoHook1) std::cout << " 1";
