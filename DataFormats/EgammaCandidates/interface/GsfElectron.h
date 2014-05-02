@@ -1,4 +1,4 @@
- #ifndef GsfElectron_h
+#ifndef GsfElectron_h
 #define GsfElectron_h
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
@@ -411,24 +411,24 @@ class GsfElectron : public RecoCandidate
     const ShowerShape & showerShape() const { return showerShape_ ; }
     // non-zero-suppressed and no-fractions shower shapes
     // ecal energy is always that from the full 5x5 
-    float noZS_sigmaEtaEta() const { return noZS_showerShape_.sigmaEtaEta ; }
-    float noZS_sigmaIetaIeta() const { return noZS_showerShape_.sigmaIetaIeta ; }
-    float noZS_sigmaIphiIphi() const { return noZS_showerShape_.sigmaIphiIphi ; }
-    float noZS_e1x5() const { return noZS_showerShape_.e1x5 ; }
-    float noZS_e2x5Max() const { return noZS_showerShape_.e2x5Max ; }
-    float noZS_e5x5() const { return noZS_showerShape_.e5x5 ; }
-    float noZS_r9() const { return noZS_showerShape_.r9 ; }
-    float noZS_hcalDepth1OverEcal() const { return noZS_showerShape_.hcalDepth1OverEcal ; }
-    float noZS_hcalDepth2OverEcal() const { return noZS_showerShape_.hcalDepth2OverEcal ; }
-    float noZS_hcalOverEcal() const { return noZS_hcalDepth1OverEcal() + noZS_hcalDepth2OverEcal() ; }    
-    float noZS_hcalDepth1OverEcalBc() const { return noZS_showerShape_.hcalDepth1OverEcalBc ; }
-    float noZS_hcalDepth2OverEcalBc() const { return noZS_showerShape_.hcalDepth2OverEcalBc ; }
-    float noZS_hcalOverEcalBc() const { return noZS_hcalDepth1OverEcalBc() + noZS_hcalDepth2OverEcalBc() ; }
-    const ShowerShape & noZS_showerShape() const { return noZS_showerShape_ ; }
+    float full5x5_sigmaEtaEta() const { return full5x5_showerShape_.sigmaEtaEta ; }
+    float full5x5_sigmaIetaIeta() const { return full5x5_showerShape_.sigmaIetaIeta ; }
+    float full5x5_sigmaIphiIphi() const { return full5x5_showerShape_.sigmaIphiIphi ; }
+    float full5x5_e1x5() const { return full5x5_showerShape_.e1x5 ; }
+    float full5x5_e2x5Max() const { return full5x5_showerShape_.e2x5Max ; }
+    float full5x5_e5x5() const { return full5x5_showerShape_.e5x5 ; }
+    float full5x5_r9() const { return full5x5_showerShape_.r9 ; }
+    float full5x5_hcalDepth1OverEcal() const { return full5x5_showerShape_.hcalDepth1OverEcal ; }
+    float full5x5_hcalDepth2OverEcal() const { return full5x5_showerShape_.hcalDepth2OverEcal ; }
+    float full5x5_hcalOverEcal() const { return full5x5_hcalDepth1OverEcal() + full5x5_hcalDepth2OverEcal() ; }    
+    float full5x5_hcalDepth1OverEcalBc() const { return full5x5_showerShape_.hcalDepth1OverEcalBc ; }
+    float full5x5_hcalDepth2OverEcalBc() const { return full5x5_showerShape_.hcalDepth2OverEcalBc ; }
+    float full5x5_hcalOverEcalBc() const { return full5x5_hcalDepth1OverEcalBc() + full5x5_hcalDepth2OverEcalBc() ; }
+    const ShowerShape & full5x5_showerShape() const { return full5x5_showerShape_ ; }
 
     // setters (if you know what you're doing)
     void setShowerShape(const ShowerShape &s) { showerShape_ = s; }
-    void noZS_setShowerShape(const ShowerShape &s) { noZS_showerShape_ = s; }
+    void full5x5_setShowerShape(const ShowerShape &s) { full5x5_showerShape_ = s; }
 
     // for backward compatibility (this will only ever be the ZS shapes!)
     float scSigmaEtaEta() const { return sigmaEtaEta() ; }
@@ -445,7 +445,7 @@ class GsfElectron : public RecoCandidate
 
     // attributes
     ShowerShape showerShape_ ;
-    ShowerShape noZS_showerShape_ ;
+    ShowerShape full5x5_showerShape_ ;
 
 
   //=======================================================

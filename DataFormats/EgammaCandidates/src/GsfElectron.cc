@@ -51,14 +51,14 @@ GsfElectron::GsfElectron
    const TrackClusterMatching & tcm, const TrackExtrapolations & te,
    const ClosestCtfTrack & ctfInfo,
    const FiducialFlags & ff, const ShowerShape & ss,
-   const ShowerShape& noZS_ss,
+   const ShowerShape& full5x5_ss,
    const ConversionRejection & crv
  )
  : chargeInfo_(chargeInfo),
    core_(core),
    trackClusterMatching_(tcm), trackExtrapolations_(te),
    //closestCtfTrack_(ctfInfo),
-   fiducialFlags_(ff), showerShape_(ss), noZS_showerShape_(noZS_ss),
+   fiducialFlags_(ff), showerShape_(ss), full5x5_showerShape_(full5x5_ss),
    conversionRejection_(crv)
  {
   init() ;
@@ -115,6 +115,7 @@ GsfElectron::GsfElectron
    //closestCtfTrack_(electron.closestCtfTrack_),
    fiducialFlags_(electron.fiducialFlags_),
    showerShape_(electron.showerShape_),
+   full5x5_showerShape_(electron.full5x5_showerShape_),
    dr03_(electron.dr03_), dr04_(electron.dr04_),
    conversionRejection_(electron.conversionRejection_),
    pfShowerShape_(electron.pfShowerShape_),

@@ -577,7 +577,7 @@ void GsfElectronAlgo::calculateShowerShape( const reco::SuperClusterRef & theClu
    }
  }
 
-void GsfElectronAlgo::calculateShowerShape_noZS( const reco::SuperClusterRef & theClus, bool pflow, reco::GsfElectron::ShowerShape & showerShape )
+void GsfElectronAlgo::calculateShowerShape_full5x5( const reco::SuperClusterRef & theClus, bool pflow, reco::GsfElectron::ShowerShape & showerShape )
  {
   const reco::CaloCluster & seedCluster = *(theClus->seed()) ;
   // temporary, till CaloCluster->seed() is made available
@@ -1363,8 +1363,8 @@ void GsfElectronAlgo::createElectron()
   reco::GsfElectron::ShowerShape showerShape ;
   calculateShowerShape(electronData_->superClusterRef,!(electronData_->coreRef->ecalDrivenSeed()),showerShape) ;
 
-  reco::GsfElectron::ShowerShape noZS_showerShape ;
-  calculateShowerShape_noZS(electronData_->superClusterRef,!(electronData_->coreRef->ecalDrivenSeed()),showerShape) ;
+  reco::GsfElectron::ShowerShape full5x5_showerShape ;
+  calculateShowerShape_full5x5(electronData_->superClusterRef,!(electronData_->coreRef->ecalDrivenSeed()),showerShape) ;
 
   //====================================================
   // ConversionRejection
@@ -1405,7 +1405,7 @@ void GsfElectronAlgo::createElectron()
     GsfElectron
      ( eleCharge,eleChargeInfo,electronData_->coreRef,
        tcMatching, tkExtra, ctfInfo,
-       fiducialFlags,showerShape, noZS_showerShape,
+       fiducialFlags,showerShape, full5x5_showerShape,
        conversionVars ) ;
   // Will be overwritten later in the case of the regression
   ele->setCorrectedEcalEnergyError(generalData_->superClusterErrorFunction->getValue(*(ele->superCluster()),0)) ;
