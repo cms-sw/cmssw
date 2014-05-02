@@ -37,13 +37,13 @@ using namespace std;
 /// Constructor
 MuonNavigationSchool::MuonNavigationSchool(const MuonDetLayerGeometry * muonLayout, bool enableRPC ) : theMuonDetLayerGeometry(muonLayout) {
 
-  theAllDetLayersInSystem=reinterpret_cast<const std::vector<const DetLayer*>*>(&muonLayout->allLayers()); 
+  theAllDetLayersInSystem=&muonLayout->allLayers(); 
   theAllNavigableLayer.resize(muonLayout->allLayers().size(),nullptr);
 
 
 
   // get all barrel DetLayers (DT + optional RPC) 
-  vector<DetLayer*> barrel;
+  vector<const DetLayer*> barrel;
   if ( enableRPC ) barrel = muonLayout->allBarrelLayers();
   else barrel = muonLayout->allDTLayers();
 
@@ -54,7 +54,7 @@ MuonNavigationSchool::MuonNavigationSchool(const MuonDetLayerGeometry * muonLayo
   }
 
   // get all endcap DetLayers (CSC + optional RPC)
-  vector<DetLayer*> endcap;
+  vector<const DetLayer*> endcap;
   if ( enableRPC ) endcap = muonLayout->allEndcapLayers();
   else endcap = muonLayout->allCSCLayers();
 
