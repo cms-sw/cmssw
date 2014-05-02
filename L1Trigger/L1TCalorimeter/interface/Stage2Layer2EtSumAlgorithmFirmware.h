@@ -27,6 +27,13 @@ namespace l1t {
 			      std::vector<l1t::EtSum> & sums);
   private:
     CaloParams* params_;
+    int32_t etSumEtThresholdHwEt_;
+    int32_t etSumEtThresholdHwMet_; 
+    int32_t etSumEtaMinEt_;
+    int32_t etSumEtaMaxEt_;
+    int32_t etSumEtaMinMet_;
+    int32_t etSumEtaMaxMet_;
+
   };
   
 }
