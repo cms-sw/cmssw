@@ -451,8 +451,8 @@ FWTGeoRecoGeometryESProducer::addRPCGeometry( TGeoVolume* top, const std::string
   TGeoVolume *assembly = new TGeoVolumeAssembly( iName.c_str());
   DetId detId( DetId::Muon, 3 );
   const RPCGeometry* rpcGeom = (const RPCGeometry*) m_geomRecord->slaveGeometry( detId );
-  for( std::vector<RPCRoll *>::const_iterator it = rpcGeom->rolls().begin(),
-					     end = rpcGeom->rolls().end(); 
+  for( auto it = rpcGeom->rolls().begin(),
+	     end = rpcGeom->rolls().end(); 
        it != end; ++it )
   {
     RPCRoll const* roll = (*it);

@@ -225,11 +225,11 @@ FWRecoGeometryESProducer::addRPCGeometry( void )
   //
   DetId detId( DetId::Muon, 3 );
   const RPCGeometry* rpcGeom = (const RPCGeometry*) m_geomRecord->slaveGeometry( detId );
-  for( std::vector<RPCRoll *>::const_iterator it = rpcGeom->rolls().begin(),
-					     end = rpcGeom->rolls().end(); 
+  for( auto it = rpcGeom->rolls().begin(),
+	   end = rpcGeom->rolls().end(); 
        it != end; ++it )
   {
-    RPCRoll* roll = (*it);
+    const RPCRoll* roll = (*it);
     if( roll )
     {
       unsigned int rawid = roll->geographicalId().rawId();
@@ -252,11 +252,11 @@ FWRecoGeometryESProducer::addGEMGeometry( void )
   //
   DetId detId( DetId::Muon, 4 );
   const GEMGeometry* gemGeom = (const GEMGeometry*) m_geomRecord->slaveGeometry( detId );
-  for( std::vector<GEMEtaPartition *>::const_iterator it = gemGeom->etaPartitions().begin(),
-						     end = gemGeom->etaPartitions().end(); 
+  for( auto it = gemGeom->etaPartitions().begin(),
+	   end = gemGeom->etaPartitions().end(); 
        it != end; ++it )
   {
-    GEMEtaPartition* roll = (*it);
+    const GEMEtaPartition* roll = (*it);
     if( roll )
     {
       unsigned int rawid = (*it)->geographicalId().rawId();
