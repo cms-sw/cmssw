@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-ak5JetFlavourInfos = cms.EDProducer("JetFlavourClustering",
-    jets                     = cms.InputTag("ak5PFJets"),
+ak4JetFlavourInfos = cms.EDProducer("JetFlavourClustering",
+    jets                     = cms.InputTag("ak4PFJets"),
     bHadrons                 = cms.InputTag("selectedHadronsAndPartons","bHadrons"),
     cHadrons                 = cms.InputTag("selectedHadronsAndPartons","cHadrons"),
     partons                  = cms.InputTag("selectedHadronsAndPartons","partons"),
