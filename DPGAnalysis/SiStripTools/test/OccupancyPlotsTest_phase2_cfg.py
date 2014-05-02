@@ -165,14 +165,14 @@ process.AlignmentTrackSelector.etaMax = cms.double(5.)
 
 process.seqProducers = cms.Sequence(process.AlignmentTrackSelector + process.seqMultProd)
 
-#process.load("trackCount.TrackCount.trackcount_cfi")
-#process.trackcount.trackCollection = cms.InputTag("generalTracks")
+process.load("DPGAnalysis.SiStripTools.trackcount_cfi")
+process.trackcount.trackCollection = cms.InputTag("generalTracks")
 
 process.p0 = cms.Path(
     process.seqHLTSelection +
     process.seqProducers +
-    process.seqAnalyzers #+
-#    process.trackcount
+    process.seqAnalyzers +
+    process.trackcount
     )
 
 #----GlobalTag ------------------------
