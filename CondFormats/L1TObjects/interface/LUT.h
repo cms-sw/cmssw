@@ -15,8 +15,8 @@
 
 //
 
-#ifndef L1Trigger_L1TCalorimeter_LUT_h
-#define L1Trigger_L1TCalorimeter_LUT_h
+#ifndef CondFormats_L1TObjects_LUT_h
+#define CondFormats_L1TObjects_LUT_h
 
 #include <iostream>
 #include <vector>
