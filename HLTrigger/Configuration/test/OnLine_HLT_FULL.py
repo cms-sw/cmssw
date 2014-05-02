@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_1_0/HLT/V52 (CMSSW_7_1_0_pre7_HLT2)
+# /dev/CMSSW_7_1_0/HLT/V53 (CMSSW_7_1_0_pre7_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTFULL" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_1_0/HLT/V52')
+  tableName = cms.string('/dev/CMSSW_7_1_0/HLT/V53')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -4931,14 +4931,7 @@ process.MessageLogger = cms.Service( "MessageLogger",
       suppressError = cms.untracked.vstring(  )
     ),
     suppressDebug = cms.untracked.vstring(  ),
-    cout = cms.untracked.PSet( 
-      threshold = cms.untracked.string( "ERROR" ),
-      suppressInfo = cms.untracked.vstring(  ),
-      suppressWarning = cms.untracked.vstring(  ),
-      suppressDebug = cms.untracked.vstring(  ),
-      suppressError = cms.untracked.vstring(  ),
-      ERROR = cms.untracked.PSet(  limit = cms.untracked.int32( 0 ) )
-    ),
+    cout = cms.untracked.PSet(  placeholder = cms.untracked.bool( True ) ),
     cerr_stats = cms.untracked.PSet( 
       threshold = cms.untracked.string( "WARNING" ),
       output = cms.untracked.string( "cerr" ),
