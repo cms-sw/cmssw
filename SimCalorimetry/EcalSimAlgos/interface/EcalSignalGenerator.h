@@ -183,6 +183,10 @@ private:
     return(DigiSum>0);
   }
 
+  virtual void fillNoiseSignals() override {}
+  virtual void fillNoiseSignals(CLHEP::HepRandomEngine*) override {}
+
+
   // much of this stolen from EcalSimAlgos/EcalCoder
 
   enum { NBITS         =   12 , // number of available bits

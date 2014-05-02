@@ -111,6 +111,7 @@ private:
 
 
   virtual void fillNoiseSignals(CLHEP::HepRandomEngine*) override {}
+  virtual void fillNoiseSignals() override {}
 
   bool validDigi(const DIGI & digi)
   {

@@ -16,6 +16,15 @@ void CaloVNoiseSignalGenerator::fillEvent(CLHEP::HepRandomEngine* engine)
   fillDetIds();
 }
 
+
+void CaloVNoiseSignalGenerator::fillEvent()
+{
+  theDetIds.clear();
+  fillNoiseSignals();
+  fillDetIds();
+}
+
+
 void CaloVNoiseSignalGenerator::setNoiseSignals(const std::vector<CaloSamples> & noiseSignals)
 {
   theNoiseSignals = noiseSignals;

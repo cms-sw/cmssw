@@ -1,7 +1,7 @@
 #include "SimCalorimetry/EcalSimAlgos/interface/ESElectronicsSimFast.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
-//#include "CLHEP/Random/RandGaussQ.h"
+#include "CLHEP/Random/RandGaussQ.h"
 
 #include <iostream>
 
