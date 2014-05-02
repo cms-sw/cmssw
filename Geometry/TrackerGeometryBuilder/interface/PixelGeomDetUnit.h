@@ -18,7 +18,7 @@ class SurfaceDeformation;
 class PixelGeomDetUnit : public GeomDetUnit {
 public:
 
-  PixelGeomDetUnit(BoundPlane* sp, PixelGeomDetType* type, const GeometricDet* gd);
+  PixelGeomDetUnit(BoundPlane* sp, PixelGeomDetType const * type, GeometricDet const * gd);
 
   // DetUnit interface
 
