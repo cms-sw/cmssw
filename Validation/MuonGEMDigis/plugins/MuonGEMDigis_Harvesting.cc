@@ -56,6 +56,33 @@ MuonGEMDigis_Harvesting::MuonGEMDigis_Harvesting(const edm::ParameterSet& ps)
 MuonGEMDigis_Harvesting::~MuonGEMDigis_Harvesting()
 {
 }
+TProfile* MuonGEMDigis_Harvesting::ComputeEff(TH1F* num, TH1F* denum )
+{
+	std::string name  = "eff_"+std::string(num->GetName());
+	std::string title = "Eff. "+std::string(num->GetTitle());
+	TProfile * efficHist = new TProfile(name.c_str(), title.c_str(),num->GetXaxis()->GetNbins(), num->GetXaxis()->GetXmin(),num->GetXaxis()->GetXmax());
+  for (int i=1; i <= num->GetNbinsX(); i++) {
+
+	  const double nNum = num->GetBinContent(i);
+    const double nDenum = denum->GetBinContent(i);
+
+    if ( nDenum == 0 || nNum > nDenum ) continue;
+    if ( nNum == 0 ) continue;
+    const double effVal = nNum/nDenum;
+
+    const double errLo = TEfficiency::ClopperPearson((int)nDenum,(int)nNum,0.683,false);
+    const double errUp = TEfficiency::ClopperPearson((int)nDenum,(int)nNum,0.683,true);
+    const double errVal = (effVal - errLo > errUp - effVal) ? effVal - errLo : errUp - effVal;
+    efficHist->SetBinContent(i, effVal);
+    efficHist->SetBinEntries(i, 1);
+    efficHist->SetBinError(i, sqrt(effVal * effVal + errVal * errVal));
+  }
+
+	//TF1 *f1 = new TF1("eff_fit", "pol0", num->GetXaxis()->GetXmin(), num->GetXaxis()->GetXmax());
+	//f1->SetParameter(0,98.);
+  //efficHist->Fit("eff_fit","MES");	
+	return efficHist;
+}
 
 
 void
@@ -117,68 +144,80 @@ MuonGEMDigis_Harvesting::endRun(edm::Run const&, edm::EventSetup const&)
   if( dbe_->get("MuonGEMDigisV/GEMDigisTask/dg_eta"+suffix[0]) !=nullptr && sh_eta[0] !=nullptr && gem_trk_eta !=nullptr ) {
     for ( int i =0 ; i< 4 ; i++) {
       TH1F* dg_eta =    (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigisTask/dg_eta"+suffix[i])->getTH1F()->Clone();
-      TH1F* dg_eta_2 =  (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigisTask/dg_eta"+suffix[i])->getTH1F()->Clone();
-      dg_eta->Sumw2();
-      dg_eta_2->Sumw2();
-      dg_eta->Divide(gem_trk_eta);
-      dg_eta_2->Divide(sh_eta[i]);
-      dbe_->book1D( TString::Format("eff_%s",dg_eta->GetName()),dg_eta); 
-      dbe_->book1D( TString::Format("eff_%s_with_sh",dg_eta_2->GetName()),dg_eta_2); 
+			TProfile* p_dg_eta = ComputeEff( dg_eta, gem_trk_eta);
+			TProfile* p_dg_eta_2 = ComputeEff( dg_eta, sh_eta[i] );
+			p_dg_eta_2->SetName( (p_dg_eta_2->GetName()+std::string("_sh")).c_str());
+			TString title  = TString::Format("Eff. for a SimTrack to have an associated GEM Strip in %s;|#eta|;Eff.",suffix[i].c_str());
+			TString title2 = TString::Format("Eff. for a SimTrack to have an associated GEM Strip in %s with a matched SimHit;|#eta|;Eff.",suffix[i].c_str());
+			p_dg_eta->SetTitle( title.Data());
+			p_dg_eta_2->SetTitle( title2.Data() );
+      dbe_->bookProfile( p_dg_eta->GetName(),p_dg_eta); 
+      dbe_->bookProfile( p_dg_eta_2->GetName(),p_dg_eta_2); 
     }
   }
   if( dbe_->get("MuonGEMDigisV/GEMDigisTask/pad_eta"+suffix[0]) !=nullptr && sh_eta[0] !=nullptr && gem_trk_eta !=nullptr )  {
     for ( int i =0 ; i< 4 ; i++) {
       TH1F* pad_eta;
-      TH1F* pad_eta_2;
       if ( i <3) { 
         pad_eta = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigisTask/pad_eta"+suffix[i])->getTH1F()->Clone();
-        pad_eta_2 = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigisTask/pad_eta"+suffix[i])->getTH1F()->Clone();
       }
       else       {
         pad_eta = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigisTask/copad_eta")->getTH1F()->Clone();
-        pad_eta_2 = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigisTask/copad_eta")->getTH1F()->Clone();
       }
       pad_eta->Sumw2();
-      pad_eta_2->Sumw2();
-      gem_trk_eta = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigisTask/track_eta")->getTH1F()->Clone();
       
-      pad_eta->Divide(gem_trk_eta);
-      pad_eta_2->Divide(sh_eta[i]);
-      dbe_->book1D( TString::Format("eff_%s",pad_eta->GetName()),pad_eta); 
-      dbe_->book1D( TString::Format("eff_%s_with_sh",pad_eta_2->GetName()),pad_eta_2); 
+      TProfile* p_pad_eta = ComputeEff( pad_eta, gem_trk_eta);
+      TProfile* p_pad_eta_2 = ComputeEff( pad_eta, sh_eta[i]);
+			p_pad_eta_2->SetName( (p_pad_eta_2->GetName()+std::string("_sh")).c_str());
+
+			TString title  = TString::Format("Eff. for a SimTrack to have an associated GEM Pad in %s;|#eta|;Eff.",suffix[i].c_str());
+			TString title2 = TString::Format("Eff. for a SimTrack to have an associated GEM Pad in %s with a matched SimHit;|#eta|;Eff.",suffix[i].c_str());
+			p_pad_eta->SetTitle( title.Data() );
+			p_pad_eta_2->SetTitle( title2.Data());
+      dbe_->bookProfile( p_pad_eta->GetName(),p_pad_eta); 
+      dbe_->bookProfile( p_pad_eta_2->GetName(),p_pad_eta_2); 
     }
   }
 
   if( dbe_->get("MuonGEMDigisV/GEMDigisTask/dg_phi"+suffix[0]) !=nullptr && sh_eta[0] !=nullptr && gem_trk_phi !=nullptr) {
     for ( int i =0 ; i< 4 ; i++) {
       TH1F* dg_phi =    (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigisTask/dg_phi"+suffix[i])->getTH1F()->Clone();
-      TH1F* dg_phi_2 =  (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigisTask/dg_phi"+suffix[i])->getTH1F()->Clone();
       dg_phi->Sumw2();
-      dg_phi_2->Sumw2();
-      dg_phi->Divide(gem_trk_phi);
-      dg_phi_2->Divide(sh_phi[i]);
-      dbe_->book1D( TString::Format("eff_%s",dg_phi->GetName()),dg_phi); 
-      dbe_->book1D( TString::Format("eff_%s_with_sh",dg_phi_2->GetName()),dg_phi_2); 
+
+			TProfile* p_dg_phi = ComputeEff( dg_phi, gem_trk_phi);
+			TProfile* p_dg_phi_2 = ComputeEff( dg_phi, sh_phi[i]);
+
+			p_dg_phi_2->SetName( (p_dg_phi_2->GetName()+std::string("_sh")).c_str());
+
+			TString title  = TString::Format("Eff. for a SimTrack to have an associated GEM Strip in %s;|#phi|;Eff.",suffix[i].c_str());
+			TString title2 = TString::Format("Eff. for a SimTrack to have an associated GEM Strip in %s with a matched SimHit;|#phi|;Eff.",suffix[i].c_str());
+			p_dg_phi->SetTitle( title.Data() );
+			p_dg_phi_2->SetTitle( title2.Data() );
+      dbe_->bookProfile( p_dg_phi->GetName(), p_dg_phi) ; 
+      dbe_->bookProfile( p_dg_phi_2->GetName(),p_dg_phi_2); 
     }
   }
   if( dbe_->get("MuonGEMDigisV/GEMDigisTask/pad_phi"+suffix[0]) !=nullptr && sh_phi[0] !=nullptr && gem_trk_phi !=nullptr)  {
     for ( int i =0 ; i< 4 ; i++) {
       TH1F* pad_phi;
-      TH1F* pad_phi_2;
       if ( i <3) { 
         pad_phi = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigisTask/pad_phi"+suffix[i])->getTH1F()->Clone();
-        pad_phi_2 = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigisTask/pad_phi"+suffix[i])->getTH1F()->Clone();
       }
       else       {
         pad_phi = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigisTask/copad_phi")->getTH1F()->Clone();
-        pad_phi_2 = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigisTask/copad_phi")->getTH1F()->Clone();
       }
       pad_phi->Sumw2();
-      pad_phi_2->Sumw2();
-      pad_phi->Divide(gem_trk_phi);
-      pad_phi_2->Divide(sh_phi[i]);
-      dbe_->book1D( TString::Format("eff_%s",pad_phi->GetName()),pad_phi); 
-      dbe_->book1D( TString::Format("eff_%s_with_sh",pad_phi_2->GetName()),pad_phi_2); 
+			TProfile* p_pad_phi   = ComputeEff( pad_phi, gem_trk_phi);
+			TProfile* p_pad_phi_2 = ComputeEff( pad_phi, sh_phi[i]);
+			p_pad_phi_2->SetName( (p_pad_phi_2->GetName()+std::string("_sh")).c_str());
+
+			TString title  = TString::Format("Eff. for a SimTrack to have an associated GEM Pad in %s;|#phi|;Eff.",suffix[i].c_str());
+			TString title2 = TString::Format("Eff. for a SimTrack to have an associated GEM Pad in %s with a matched SimHit;|#phi|;Eff.",suffix[i].c_str());
+			p_pad_phi->SetTitle( title.Data());
+			p_pad_phi_2->SetTitle( title2.Data()); 
+
+      dbe_->bookProfile( p_pad_phi->GetName(),p_pad_phi); 
+      dbe_->bookProfile( p_pad_phi_2->GetName(),p_pad_phi_2); 
     }
   }
 
@@ -220,15 +259,21 @@ MuonGEMDigis_Harvesting::endRun(edm::Run const&, edm::EventSetup const&)
  
     }
     for( int i=1 ; i<5 ; i++) {
-      gem_dg_lx_even[i]->Divide( gem_dg_lx_even[0]);
-      gem_dg_ly_even[i]->Divide( gem_dg_ly_even[0]);
-      gem_dg_lx_odd[i]->Divide( gem_dg_lx_odd[0]);
-      gem_dg_ly_odd[i]->Divide( gem_dg_ly_odd[0]);
+      //gem_dg_lx_even[i]->Divide( gem_dg_lx_even[i], gem_dg_lx_even[0],1.0,1.0,"B");
+			TProfile* eff_dg_lx_even = ComputeEff(gem_dg_lx_even[i],gem_dg_lx_even[0]);
+			TProfile* eff_dg_ly_even = ComputeEff(gem_dg_ly_even[i],gem_dg_ly_even[0]);
+			TProfile* eff_dg_lx_odd  = ComputeEff(gem_dg_lx_odd[i] ,gem_dg_lx_odd[0]);
+			TProfile* eff_dg_ly_odd  = ComputeEff(gem_dg_ly_odd[i] ,gem_dg_ly_odd[0]);
       
-      dbe_->book1D( TString::Format("%s%s","eff_",gem_dg_lx_even[i]->GetName()),gem_dg_lx_even[i] ); 
-      dbe_->book1D( TString::Format("%s%s","eff_",gem_dg_ly_even[i]->GetName()),gem_dg_ly_even[i] ); 
-      dbe_->book1D( TString::Format("%s%s","eff_",gem_dg_lx_odd[i]->GetName()),gem_dg_lx_odd[i] ); 
-      dbe_->book1D( TString::Format("%s%s","eff_",gem_dg_ly_odd[i]->GetName()),gem_dg_ly_odd[i] ); 
+      dbe_->bookProfile( eff_dg_lx_even->GetName(), eff_dg_lx_even ); 
+      dbe_->bookProfile( eff_dg_ly_even->GetName(), eff_dg_ly_even ); 
+      dbe_->bookProfile( eff_dg_lx_odd->GetName(), eff_dg_lx_odd ); 
+      dbe_->bookProfile( eff_dg_ly_odd->GetName(), eff_dg_ly_odd ); 
+
+			delete eff_dg_lx_even;
+			delete eff_dg_ly_even;
+			delete eff_dg_lx_odd;
+			delete eff_dg_ly_odd;
     }
   }
 }
