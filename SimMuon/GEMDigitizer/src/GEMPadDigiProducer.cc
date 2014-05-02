@@ -1,4 +1,4 @@
-#include "SimMuon/GEMDigitizer/src/GEMPadDigiProducer.h"
+#include "SimMuon/GEMDigitizer/interface/GEMPadDigiProducer.h"
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -16,10 +16,13 @@
 GEMPadDigiProducer::GEMPadDigiProducer(const edm::ParameterSet& ps)
 : geometry_(nullptr)
 {
-  produces<GEMPadDigiCollection>();
-
-  input_ = ps.getParameter<edm::InputTag>("InputCollection");
+  digis_ = ps.getParameter<edm::InputTag>("InputCollection");
   maxDeltaBX_ = ps.getParameter<int>("maxDeltaBX");
+
+  digi_token_ = consumes<GEMDigiCollection>(digis_);
+
+  produces<GEMPadDigiCollection>();
+  consumes<GEMDigiCollection>(digis_);
 }
 
 
@@ -27,22 +30,18 @@ GEMPadDigiProducer::~GEMPadDigiProducer()
 {}
 
 
-void GEMPadDigiProducer::beginRun( const edm::Run& r, const edm::EventSetup& eventSetup)
+void GEMPadDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
 {
+  // set geometry
   edm::ESHandle<GEMGeometry> hGeom;
   eventSetup.get<MuonGeometryRecord>().get( hGeom );
   geometry_ = &*hGeom;
-}
-
-
-void GEMPadDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
-{
+  
   edm::Handle<GEMDigiCollection> hdigis;
-  e.getByLabel(input_, hdigis);
+  e.getByToken(digi_token_, hdigis);
 
   // Create empty output
   std::auto_ptr<GEMPadDigiCollection> pPads(new GEMPadDigiCollection());
-  std::auto_ptr<GEMPadDigiCollection> pCoPads(new GEMPadDigiCollection());
 
   // build the pads
   buildPads(*(hdigis.product()), *pPads);

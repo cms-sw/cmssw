@@ -92,7 +92,6 @@ def customize_random_GEMDigi(process):
 def customize_digi_addGEM(process):
     process = customize_random_GEMDigi(process)
     process = customize_mix_addGEM(process)
-    process.muonDigi = cms.Sequence(process.simMuonCSCDigis + process.simMuonDTDigis + process.simMuonRPCDigis + process.simMuonGEMDigis + process.simMuonGEMPadDigis)
     process.doAllDigi = cms.Sequence(process.trDigi + process.calDigi + process.muonDigi)
     process.pdigi = cms.Sequence(
         cms.SequencePlaceholder("randomEngineStateProducer")*
