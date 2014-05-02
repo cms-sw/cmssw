@@ -388,16 +388,16 @@ void TriggerValidator::beginRun(const edm::Run& run, const edm::EventSetup& c)
     return;
   }
 
-  nHltPaths = hltPathsToCheck_.size();  
 
   // Get the set of trigger paths we want to make plots for
-  for (size_t i = 0; i < nHltPaths; i++) {
+  for (size_t i = 0; i < hltPathsToCheck_.size(); i++) {
     TPRegexp pattern(hltPathsToCheck_[i]);
     for (size_t j = 0; j < hltConfig_.triggerNames().size(); j++)
       if (TString(hltConfig_.triggerNames()[j]).Contains(pattern))
         hlNames_.push_back(hltConfig_.triggerNames()[j]);
   }
   hlNames_.push_back("Total");
+  nHltPaths = hlNames_.size();  
 
   nL1Bits = 128; 
 
