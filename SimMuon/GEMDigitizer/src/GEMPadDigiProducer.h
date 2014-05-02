@@ -1,5 +1,5 @@
-#ifndef GEMCSCPadDigiProducer_h
-#define GEMCSCPadDigiProducer_h
+#ifndef GEMPadDigiProducer_h
+#define GEMPadDigiProducer_h
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -8,21 +8,21 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
-#include "DataFormats/GEMDigi/interface/GEMCSCPadDigiCollection.h"
+#include "DataFormats/GEMDigi/interface/GEMPadDigiCollection.h"
 
 class GEMGeometry;
 
-/// \class GEMCSCPadDigiProducer 
+/// \class GEMPadDigiProducer 
 /// producer for GEM-CSC trigger pads
 
-class GEMCSCPadDigiProducer : public edm::EDProducer
+class GEMPadDigiProducer : public edm::EDProducer
 {
 public:
 
   //typedef GEMDigitizer::StripDigiSimLinks StripDigiSimLinks;
 
-  explicit GEMCSCPadDigiProducer(const edm::ParameterSet& ps);
-  virtual ~GEMCSCPadDigiProducer();
+  explicit GEMPadDigiProducer(const edm::ParameterSet& ps);
+  virtual ~GEMPadDigiProducer();
 
   virtual void beginRun( const edm::Run&, const edm::EventSetup& ) override;
 
@@ -31,7 +31,7 @@ public:
 
 private:
   
-  void buildPads(const GEMDigiCollection &digis, GEMCSCPadDigiCollection &out_pads, GEMCSCPadDigiCollection &out_co_pads);
+  void buildPads(const GEMDigiCollection &digis, GEMPadDigiCollection &out_pads);
 
   /// Name of input digi Collection
   edm::InputTag input_;

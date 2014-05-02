@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # Module to create simulated GEM-CSC trigger pad digis.
-simMuonGEMCSCPadDigis = cms.EDProducer("GEMCSCPadDigiProducer",
+simMuonGEMPadDigis = cms.EDProducer("GEMPadDigiProducer",
     InputCollection = cms.InputTag('simMuonGEMDigis'),
     maxDeltaBX = cms.int32(1)
 )

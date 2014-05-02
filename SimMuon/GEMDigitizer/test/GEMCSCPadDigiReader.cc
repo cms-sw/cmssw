@@ -1,5 +1,5 @@
-#ifndef SimMuon_GEMCSCPadDigiReader_h
-#define SimMuon_GEMCSCPadDigiReader_h
+#ifndef SimMuon_GEMPadDigiReader_h
+#define SimMuon_GEMPadDigiReader_h
 
 /** \class GEMDigiReader
  *  Dumps GEM-CSC trigger pad digis 
@@ -17,7 +17,7 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
-#include "DataFormats/GEMDigi/interface/GEMCSCPadDigiCollection.h"
+#include "DataFormats/GEMDigi/interface/GEMPadDigiCollection.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include <map>
 #include <vector>
@@ -30,13 +30,13 @@
 using namespace std;
 
 
-class GEMCSCPadDigiReader: public edm::EDAnalyzer
+class GEMPadDigiReader: public edm::EDAnalyzer
 {
 public:
 
-  explicit GEMCSCPadDigiReader(const edm::ParameterSet& pset);
+  explicit GEMPadDigiReader(const edm::ParameterSet& pset);
   
-  virtual ~GEMCSCPadDigiReader(){}
+  virtual ~GEMPadDigiReader(){}
   
   void analyze(const edm::Event &, const edm::EventSetup&); 
   
@@ -48,23 +48,23 @@ private:
 
 
 
-GEMCSCPadDigiReader::GEMCSCPadDigiReader(const edm::ParameterSet& pset)
+GEMPadDigiReader::GEMPadDigiReader(const edm::ParameterSet& pset)
 {
-  label_pads_ = pset.getUntrackedParameter<string>("labelPads", "simMuonGEMCSCPadDigis");
+  label_pads_ = pset.getUntrackedParameter<string>("labelPads", "simMuonGEMPadDigis");
   label_digis_ = pset.getUntrackedParameter<string>("labelDigis", "simMuonGEMDigis");
 }
 
 
-void GEMCSCPadDigiReader::analyze(const edm::Event & event, const edm::EventSetup& eventSetup)
+void GEMPadDigiReader::analyze(const edm::Event & event, const edm::EventSetup& eventSetup)
 {
   //cout << "--- Run: " << event.id().run() << " Event: " << event.id().event() << endl;
 
-  edm::Handle<GEMCSCPadDigiCollection> pads;
+  edm::Handle<GEMPadDigiCollection> pads;
   event.getByLabel(label_pads_, pads);
 
   if (pads->begin() == pads->end()) return; // no pads in event
 
-  edm::Handle<GEMCSCPadDigiCollection> co_pads;
+  edm::Handle<GEMPadDigiCollection> co_pads;
   event.getByLabel(edm::InputTag(label_pads_, "Coincidence"), co_pads);
 
   edm::Handle<GEMDigiCollection> digis;
@@ -144,4 +144,4 @@ void GEMCSCPadDigiReader::analyze(const edm::Event & event, const edm::EventSetu
 
 #endif
 #include <FWCore/Framework/interface/MakerMacros.h>
-DEFINE_FWK_MODULE(GEMCSCPadDigiReader);
+DEFINE_FWK_MODULE(GEMPadDigiReader);
