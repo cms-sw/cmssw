@@ -7,6 +7,7 @@
 #include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
 
   
+#include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
@@ -210,12 +211,12 @@ BaseCkfTrajectoryBuilder::findStateAndLayers(const TrajectorySeed& seed, const T
       
       TSOS currentState(trajectoryStateTransform::transientState(ptod,surface,forwardPropagator(seed)->magneticField()));      
       const DetLayer* lastLayer = theMeasurementTracker->geometricSearchTracker()->detLayer(id);      
-      return StateAndLayers(currentState,lastLayer->nextLayers( *currentState.freeState(), traj.direction()) );
+      return StateAndLayers(currentState,theNavigationSchool->nextLayers(*lastLayer,*currentState.freeState(), traj.direction()) );
     }
   else
     {  
       TSOS const & currentState = traj.lastMeasurement().updatedState();
-      return StateAndLayers(currentState,traj.lastLayer()->nextLayers( *currentState.freeState(), traj.direction()) );
+      return StateAndLayers(currentState,theNavigationSchool->nextLayers(*traj.lastLayer(), *currentState.freeState(), traj.direction()) );
     }
 }
 
@@ -224,7 +225,7 @@ BaseCkfTrajectoryBuilder::findStateAndLayers(const TempTrajectory& traj) const{
   assert(!traj.empty());
  
   TSOS const & currentState = traj.lastMeasurement().updatedState();
-  return StateAndLayers(currentState,traj.lastLayer()->nextLayers( *currentState.freeState(), traj.direction()) );
+  return StateAndLayers(currentState,theNavigationSchool->nextLayers(*traj.lastLayer(), *currentState.freeState(), traj.direction()) );
 }
 
 

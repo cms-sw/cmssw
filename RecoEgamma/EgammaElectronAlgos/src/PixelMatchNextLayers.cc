@@ -17,6 +17,7 @@
 //
 
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
+#include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h" 
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchNextLayers.h"
@@ -34,15 +35,16 @@ PixelMatchNextLayers::PixelMatchNextLayers(const LayerMeasurements * theLayerMea
 					   const BarrelMeasurementEstimator *aBarrelMeas,
 					   const ForwardMeasurementEstimator *aForwardMeas,
 					   const TrackerTopology *tTopo,
+                                           const NavigationSchool& navigationSchool,
 					   bool searchInTIDTEC)
  {
 
   typedef std::vector<TrajectoryMeasurement>::const_iterator aMeas;
   std::vector<const DetLayer*> allayers;
-  std::vector<const DetLayer*> nl = ilayer->nextLayers( aFTS, alongMomentum);
+  std::vector<const DetLayer*> nl = navigationSchool.nextLayers(*ilayer, aFTS, alongMomentum);
   for (std::vector<const DetLayer*>::const_iterator il = nl.begin(); il != nl.end(); il++) {
     allayers.push_back(*il);
-    std::vector<const DetLayer*> n2l = (*il)->nextLayers( aFTS, alongMomentum);
+    std::vector<const DetLayer*> n2l = navigationSchool.nextLayers(**il, aFTS, alongMomentum);
     for (std::vector<const DetLayer*>::const_iterator i2l = n2l.begin(); i2l != n2l.end(); i2l++) {
       allayers.push_back(*i2l);
     }

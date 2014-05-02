@@ -61,7 +61,6 @@ class BeamSpotTransientTrackingRecHit GCC11_FINAL : public TValidTrackingRecHit 
   }
 
   virtual AlgebraicMatrix projectionMatrix() const {
-    if (!isInitialized) initialize();
     return theProjectionMatrix;
   }
 
@@ -83,9 +82,7 @@ class BeamSpotTransientTrackingRecHit GCC11_FINAL : public TValidTrackingRecHit 
      return new BeamSpotTransientTrackingRecHit(*this);
    }
    
-   static bool isInitialized;
-   static AlgebraicMatrix theProjectionMatrix;
-   void initialize() const;
+   static const AlgebraicMatrix theProjectionMatrix;
 };
 
 #endif

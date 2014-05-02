@@ -12,6 +12,7 @@ eval `scram runtime -sh`
 ulimit -m 2000000
 ulimit -v 2000000
 ulimit -t 1200
+ulimit -f 40000000
 for file in `cmsglimpse -l -F src/classes.*.h$ include`;do 
 	dir=`dirname $file`;
 	echo \#include \<$file\> >${LOCALRT}/src/$dir/`basename $file`.cc ; 

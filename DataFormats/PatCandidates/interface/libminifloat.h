@@ -1,5 +1,6 @@
 #ifndef libminifloat_h
 #define libminifloat_h
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include <cstdint>
 
 // ftp://ftp.fox-toolkit.org/pub/fasthalffloatconversion.pdf
@@ -35,11 +36,11 @@ class MiniFloatConverter {
             }
         }
     private:
-        static uint32_t mantissatable[2048];
-        static uint32_t exponenttable[64];
-        static uint16_t offsettable[64];
-        static uint16_t basetable[512];
-        static uint8_t  shifttable[512];
+        CMS_THREAD_SAFE static uint32_t mantissatable[2048];
+        CMS_THREAD_SAFE static uint32_t exponenttable[64];
+        CMS_THREAD_SAFE static uint16_t offsettable[64];
+        CMS_THREAD_SAFE static uint16_t basetable[512];
+        CMS_THREAD_SAFE static uint8_t  shifttable[512];
         static void filltables() ;
 };
 #endif

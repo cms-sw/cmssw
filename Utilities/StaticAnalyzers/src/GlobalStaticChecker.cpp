@@ -30,7 +30,7 @@ void GlobalStaticChecker::checkASTDecl(const clang::VarDecl *D,
 
 	    if ( ! m_exception.reportGlobalStaticForType( t, DLoc, BR ) )
 		   return;
-	    if ( support::isSafeClassName( D->getCanonicalDecl()->getQualifiedNameAsString() ) ) return;
+	    if ( support::isSafeClassName( t.getCanonicalType().getAsString() ) ) return;
 
 	    std::string buf;
 	    llvm::raw_string_ostream os(buf);
