@@ -198,7 +198,7 @@ void RPCConeBuilder::buildCones(const edm::ESHandle<RPCGeometry> & rpcGeom ){
       ++it)
   {
   
-      if( dynamic_cast< RPCRoll* >( *it ) == 0 ) continue;
+      if( dynamic_cast< RPCRoll const * >( *it ) == 0 ) continue;
       
       ++rolls;
       RPCRoll* roll = dynamic_cast< RPCRoll*>( *it );

@@ -56,9 +56,9 @@ int GEMSynchronizer::getSimHitBx(const PSimHit* simhit, CLHEP::HepRandomEngine* 
 
   for(const auto &det: geometry->dets())
   {
-    if( dynamic_cast< GEMEtaPartition* >( det ) != 0 )
+    if( dynamic_cast< GEMEtaPartition const * >( det ) != 0 )
     {
-      GEMEtaPartition* roll = dynamic_cast< GEMEtaPartition* >( det );
+      auto roll = dynamic_cast< GEMEtaPartition const * >( det );
 
       if(roll->id() == shdetid)
       {

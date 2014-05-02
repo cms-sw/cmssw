@@ -255,7 +255,7 @@ SiStripGainFromCalibTree::algoBeginJob(const edm::EventSetup& iSetup)
       if( SubDet == StripSubdetector::TIB ||  SubDet == StripSubdetector::TID ||
           SubDet == StripSubdetector::TOB ||  SubDet == StripSubdetector::TEC  ){
 
-          StripGeomDetUnit* DetUnit     = dynamic_cast<StripGeomDetUnit*> (Det[i]);
+          auto DetUnit     = dynamic_cast<const StripGeomDetUnit*> (Det[i]);
 	  if(!DetUnit)continue;
 
           const StripTopology& Topo     = DetUnit->specificTopology();	

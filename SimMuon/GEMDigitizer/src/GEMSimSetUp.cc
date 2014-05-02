@@ -76,7 +76,7 @@ void GEMSimSetUp::setup()
   // Loop over the detIds                                                                                                                                             
   for(const auto &det: geometry_->dets())
     {
-      GEMEtaPartition* roll = dynamic_cast< GEMEtaPartition* >( det );
+      auto roll = dynamic_cast< GEMEtaPartition const * >( det );
       
       // check for valid rolls     
       if(roll == nullptr) continue;
