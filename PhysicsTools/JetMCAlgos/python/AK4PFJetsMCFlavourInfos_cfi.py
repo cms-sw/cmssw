@@ -6,7 +6,7 @@ ak4JetFlavourInfos = cms.EDProducer("JetFlavourClustering",
     cHadrons                 = cms.InputTag("selectedHadronsAndPartons","cHadrons"),
     partons                  = cms.InputTag("selectedHadronsAndPartons","partons"),
     jetAlgorithm             = cms.string("AntiKt"),
-    rParam                   = cms.double(0.5),
+    rParam                   = cms.double(0.4),
     ghostRescaling           = cms.double(1e-18),
     hadronFlavourHasPriority = cms.bool(True)
 )

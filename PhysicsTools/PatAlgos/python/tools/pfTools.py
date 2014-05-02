@@ -355,7 +355,7 @@ def switchToPFJets(process, input=cms.InputTag('pfNoTauClones'), algo='AK4', pos
 
     if algo == 'AK4':
         genJetCollection = cms.InputTag('ak4GenJetsNoNu'+postfix)
-        rParam=0.5
+        rParam=0.4
     elif algo == 'AK7':
         genJetCollection = cms.InputTag('ak7GenJetsNoNu'+postfix)
         rParam=0.7

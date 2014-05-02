@@ -28,7 +28,7 @@ patJetFlavourAssociation = cms.EDProducer("JetFlavourClustering",
     cHadrons = cms.InputTag("patJetPartons","cHadrons"),
     partons = cms.InputTag("patJetPartons","partons"),
     jetAlgorithm = cms.string("AntiKt"),
-    rParam = cms.double(0.5),
+    rParam = cms.double(0.4),
     ghostRescaling = cms.double(1e-18),
     hadronFlavourHasPriority = cms.bool(True)
 )
