@@ -10,7 +10,7 @@
 #include <DataFormats/Common/interface/Wrapper.h>
 #include <vector>
 
-namespace DataFormats_GEMDigi { 
+namespace DataFormats_GEMDigi {
   struct dictionary {
     
     GEMDigi g;
