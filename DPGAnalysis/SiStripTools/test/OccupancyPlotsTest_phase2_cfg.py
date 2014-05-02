@@ -167,6 +167,15 @@ process.seqProducers = cms.Sequence(process.AlignmentTrackSelector + process.seq
 
 process.load("DPGAnalysis.SiStripTools.trackcount_cfi")
 process.trackcount.trackCollection = cms.InputTag("generalTracks")
+process.trackcount.etaMin= cms.untracked.double(-4.)
+process.trackcount.etaMax= cms.untracked.double(4.)
+process.trackcount.netabin1D=cms.untracked.uint32(160)
+process.trackcount.netabin2D=cms.untracked.uint32(50)
+process.trackcount.nchi2bin1D=cms.untracked.uint32(1000)
+process.trackcount.nndofbin1D=cms.untracked.uint32(200)
+process.trackcount.nchi2bin2D=cms.untracked.uint32(400)
+process.trackcount.nndofbin2D=cms.untracked.uint32(100)
+process.trackcount.wanted2DHistos=cms.untracked.bool(True)
 
 process.p0 = cms.Path(
     process.seqHLTSelection +
