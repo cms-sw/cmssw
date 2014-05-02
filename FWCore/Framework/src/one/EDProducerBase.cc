@@ -51,13 +51,25 @@ namespace edm {
                             ModuleCallingContext const* mcc) {
       Event e(ep, moduleDescription_, mcc);
       e.setConsumer(this);
-      this->produce(e, c);
-      commit_(e,&previousParentage_, &previousParentageId_);
+      {
+        std::lock_guard<std::mutex> guard(mutex_);
+        {
+          std::lock_guard<SharedResourcesAcquirer> guard(resourcesAcquirer_);
+          this->produce(e, c);
+        }
+        commit_(e,&previousParentage_, &previousParentageId_);
+      }
       return true;
     }
     
+    SharedResourcesAcquirer EDProducerBase::createAcquirer() {
+      return SharedResourcesAcquirer{};
+    }
+
     void
     EDProducerBase::doBeginJob() {
+      resourcesAcquirer_ = createAcquirer();
+      
       this->beginJob();
     }
     

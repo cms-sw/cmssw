@@ -31,7 +31,6 @@ static char const* const kBranchNameOpt = "branchName";
 static char const* const kFileNameOpt = "fileName";
 static char const* const kHelpOpt = "help";
 static char const* const kHelpCommandOpt="help,h";
-static char const* const kProgramName = "edmBranchStorageSize";
 static char const* const kEntryNumberCommandOpt = "entryNumber,e";
 static char const* const kEntryNumberOpt = "entryNumber";
 

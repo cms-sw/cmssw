@@ -27,6 +27,26 @@ CondDataMonitoring = cms.EDAnalyzer("SiStripMonitorCondData",
         
       #  exclude OR include a set of modules
       restrictModules         = cms.bool(False),
+      ModulesToBeIncluded_DetIdSelector = cms.vstring(
+#            "0x1e000000-0x16000000",  #TIB
+#            "0x1e000000-0x18000000",  #TID
+#            "0x1e006000-0x18002000", #TIDm
+#            "0x1e006000-0x18004000", #TIDp
+#            "0x1e000000-0x1a000000", #TOB
+#            "0x1e000000-0x1c000000", #TEC
+#            "0x1e0c0000-0x1c040000", #TECm
+#            "0x1e0c0000-0x1c080000"  #TECp
+      ),
+      ModulesToBeExcluded_DetIdSelector = cms.vstring(
+#            "0x1e000000-0x16000000",  #TIB
+#            "0x1e000000-0x18000000",  #TID
+#            "0x1e006000-0x18002000", #TIDm
+#            "0x1e006000-0x18004000", #TIDp
+#            "0x1e000000-0x1a000000", #TOB
+#            "0x1e000000-0x1c000000", #TEC
+#            "0x1e0c0000-0x1c040000", #TECm
+#            "0x1e0c0000-0x1c080000"  #TECp
+      ),
 
       ModulesToBeIncluded     = cms.vuint32(), #e.g. {369120277, 369120278, 369120282}
       ModulesToBeExcluded     = cms.vuint32(),

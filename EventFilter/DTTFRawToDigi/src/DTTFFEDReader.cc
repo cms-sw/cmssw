@@ -17,9 +17,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <DataFormats/FEDRawData/interface/FEDRawData.h>
-#include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
-
 #include <iostream>
 
 using namespace std;
@@ -34,6 +31,8 @@ DTTFFEDReader::DTTFFEDReader(const edm::ParameterSet& pset) {
   DTTFInputTag = pset.getParameter<edm::InputTag>("DTTF_FED_Source");
 
   verbose_ =  pset.getUntrackedParameter<bool>("verbose",false);
+
+  Raw_token = consumes<FEDRawDataCollection>(DTTFInputTag);
 
 }
 
@@ -109,7 +108,7 @@ void DTTFFEDReader::process(edm::Event& e) {
   //--> Header
 
   edm::Handle<FEDRawDataCollection> data;
-  e.getByLabel(getDTTFInputTag(),data);
+  e.getByToken(Raw_token,data);
   FEDRawData dttfdata = data->FEDData(0x030C);
   if ( dttfdata.size() == 0 ) return;
 

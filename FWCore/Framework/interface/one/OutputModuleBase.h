@@ -23,7 +23,8 @@
 #include <string>
 #include <vector>
 #include <map>
-
+#include <atomic>
+#include <mutex>
 
 // user include files
 #include "DataFormats/Provenance/interface/BranchChildren.h"
@@ -39,6 +40,7 @@
 #include "FWCore/Framework/interface/ProductSelector.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/getAllTriggerNames.h"
+#include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
 // forward declarations
@@ -133,7 +135,7 @@ namespace edm {
     private:
       
       int maxEvents_;
-      int remainingEvents_;
+      std::atomic<int> remainingEvents_;
       
       // TODO: Give OutputModule
       // an interface (protected?) that supplies client code with the
@@ -175,9 +177,14 @@ namespace edm {
       
       BranchChildren branchChildren_;
       
+      SharedResourcesAcquirer resourcesAcquirer_;
+      std::mutex mutex_;
       //------------------------------------------------------------------
       // private member functions
       //------------------------------------------------------------------
+      
+      virtual SharedResourcesAcquirer createAcquirer();
+      
       void doWriteRun(RunPrincipal const& rp, ModuleCallingContext const*);
       void doWriteLuminosityBlock(LuminosityBlockPrincipal const& lbp, ModuleCallingContext const*);
       void doOpenFile(FileBlock const& fb);

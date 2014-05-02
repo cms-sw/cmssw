@@ -20,17 +20,21 @@ endif
 
 foreach gtag ( $1 )
 
-  if ( $gtag == DATA ) then
-    set basepy = OnData
-    set basegt = auto:hltonline
-    set flags  = ""
-  else
-    set basepy = OnLine
-    set basegt = auto:startup
-    set flags  = --mc
-  endif
-
   foreach table ( $tables )
+
+    if ( $gtag == DATA ) then
+      set basepy = OnData
+      set basegt = auto:hltonline
+      set flags  = ""
+    else
+      set basepy = OnLine
+      if ( $table == HIon ) then
+        set basegt = auto:starthi
+      else
+        set basegt = auto:startup
+      endif
+      set flags  = --mc
+    endif
 
     echo
     set name = HLT_Integration_${table}_${gtag}
@@ -45,8 +49,17 @@ foreach gtag ( $1 )
 
     echo "hltIntegrationTests $config -d $name -i $infile -n 100 -j 4 $flags -x ${autogt} >& $name.log"
     time  hltIntegrationTests $config -d $name -i $infile -n 100 -j 4 $flags -x ${autogt} >& $name.log
-    echo "exit status: $?"
+    set STATUS = $?
+    echo "exit status: $STATUS"
     rm -f  ${name}/*.root
+
+    if ($STATUS != 0) then
+      touch ${name}/issues.txt
+      foreach line ("`cat ${name}/issues.txt`")
+	cp ${name}/${line}.py   ${name}_${line}.py
+	cp ${name}/${line}.log  ${name}_${line}.log
+      end
+    endif
 
   end
 

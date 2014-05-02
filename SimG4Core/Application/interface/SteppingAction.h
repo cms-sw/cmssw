@@ -8,13 +8,14 @@
 #include "G4Region.hh"
 #include "G4UserSteppingAction.hh"
 #include "G4VPhysicalVolume.hh"
+#include "G4Track.hh"
 
 #include <string>
 #include <vector>
 
 class EventAction;
 class G4VTouchable;
-class G4Track;
+//class G4Track;
 
 class SteppingAction: public G4UserSteppingAction {
 
@@ -30,12 +31,12 @@ private:
 
   bool initPointer();
 
-  bool catchLowEnergyInVacuum(G4Track * theTrack) const; 
-  bool catchLongLived(const G4Step * aStep) const;
+  bool killInsideDeadRegion(G4Track * theTrack, const G4Region* reg) const;
+  bool catchLongLived(G4Track* theTrack, const G4Region* reg) const;
   bool killLowEnergy(const G4Step * aStep) const;
-  bool isThisVolume(const G4VTouchable* touch, G4VPhysicalVolume* pv) const;
 
-  void PrintKilledTrack(const G4Track*, int type) const;
+  bool isThisVolume(const G4VTouchable* touch, G4VPhysicalVolume* pv) const;
+  void PrintKilledTrack(const G4Track*, const std::string&) const;
 
 private:
 
@@ -46,12 +47,15 @@ private:
   double                        maxTrackTime;
   std::vector<double>           maxTrackTimes, ekinMins;
   std::vector<std::string>      maxTimeNames, ekinNames, ekinParticles;
+  std::vector<std::string>      deadRegionNames;
   std::vector<const G4Region*>  maxTimeRegions;
+  std::vector<const G4Region*>  deadRegions;
   std::vector<G4LogicalVolume*> ekinVolumes;
   std::vector<int>              ekinPDG;
   unsigned int                  numberTimes;
   unsigned int                  numberEkins;
   unsigned int                  numberPart;
+  unsigned int                  ndeadRegions;
 
   bool                          initialized;
   bool                          killBeamPipe;

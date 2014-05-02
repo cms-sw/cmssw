@@ -1,10 +1,10 @@
-# /dev/CMSSW_7_1_0/HIon/V29 (CMSSW_7_1_0_pre6_HLT1)
+# /dev/CMSSW_7_1_0/HIon/V39 (CMSSW_7_1_0_pre7_HLT2)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_1_0/HIon/V29')
+  tableName = cms.string('/dev/CMSSW_7_1_0/HIon/V39')
 )
 
 HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -962,7 +962,6 @@ hltESSHcalSeverityLevel = cms.ESSource( "EmptyESSource",
 AnyDirectionAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
   MaxDPhi = cms.double( 1.6 ),
   ComponentName = cms.string( "AnyDirectionAnalyticalPropagator" ),
-  SimpleMagneticField = cms.string( "" ),
   PropagationDirection = cms.string( "anyDirection" )
 )
 CSCChannelMapperESProducer = cms.ESProducer( "CSCChannelMapperESProducer",
@@ -1228,13 +1227,11 @@ hltESPAK4PFNoPUL1L2L3 = cms.ESProducer( "JetCorrectionESChain",
 hltESPAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
   MaxDPhi = cms.double( 1.6 ),
   ComponentName = cms.string( "hltESPAnalyticalPropagator" ),
-  SimpleMagneticField = cms.string( "" ),
   PropagationDirection = cms.string( "alongMomentum" )
 )
 hltESPBwdAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
   MaxDPhi = cms.double( 1.6 ),
   ComponentName = cms.string( "hltESPBwdAnalyticalPropagator" ),
-  SimpleMagneticField = cms.string( "" ),
   PropagationDirection = cms.string( "oppositeToMomentum" )
 )
 hltESPBwdElectronPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
@@ -2798,7 +2795,6 @@ hltSiPixelDigis = cms.EDProducer( "SiPixelRawToDigi",
     UseQualityInfo = cms.bool( False ),
     CheckPixelOrder = cms.bool( False ),
     IncludeErrors = cms.bool( False ),
-    UseCablingTree = cms.untracked.bool( True ),
     InputLabel = cms.InputTag( "rawDataCollector" ),
     ErrorList = cms.vint32(  ),
     Regions = cms.PSet(  ),
@@ -2838,7 +2834,9 @@ hltHIPixelLayerTriplets = cms.EDProducer( "SeedingLayersEDProducer",
       'BPix1+BPix2+FPix1_neg',
       'BPix1+FPix1_pos+FPix2_pos',
       'BPix1+FPix1_neg+FPix2_neg' ),
+    MTOB = cms.PSet(  ),
     TEC = cms.PSet(  ),
+    MTID = cms.PSet(  ),
     FPix = cms.PSet( 
       useErrorsFromParam = cms.bool( True ),
       hitErrorRPhi = cms.double( 0.0051 ),
@@ -2846,7 +2844,10 @@ hltHIPixelLayerTriplets = cms.EDProducer( "SeedingLayersEDProducer",
       HitProducer = cms.string( "hltHISiPixelRecHits" ),
       hitErrorRZ = cms.double( 0.0036 )
     ),
+    MTEC = cms.PSet(  ),
+    MTIB = cms.PSet(  ),
     TID = cms.PSet(  ),
+    TOB = cms.PSet(  ),
     BPix = cms.PSet( 
       useErrorsFromParam = cms.bool( True ),
       hitErrorRPhi = cms.double( 0.0027 ),
@@ -2854,8 +2855,7 @@ hltHIPixelLayerTriplets = cms.EDProducer( "SeedingLayersEDProducer",
       HitProducer = cms.string( "hltHISiPixelRecHits" ),
       hitErrorRZ = cms.double( 0.006 )
     ),
-    TIB = cms.PSet(  ),
-    TOB = cms.PSet(  )
+    TIB = cms.PSet(  )
 )
 hltPixelTracksForHITrackTrigger = cms.EDProducer( "PixelTrackProducer",
     FilterPSet = cms.PSet( 
@@ -3986,6 +3986,7 @@ hltHIL3TrackCandidateFromL2OIState = cms.EDProducer( "CkfTrajectoryMaker",
 )
 hltHIL3TkTracksFromL2OIState = cms.EDProducer( "TrackProducer",
     src = cms.InputTag( "hltHIL3TrackCandidateFromL2OIState" ),
+    SimpleMagneticField = cms.string( "" ),
     clusterRemovalInfo = cms.InputTag( "" ),
     beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
     MeasurementTrackerEvent = cms.InputTag( "hltHISiStripClusters" ),
@@ -3998,6 +3999,7 @@ hltHIL3TkTracksFromL2OIState = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( True ),
     TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
     GeometricInnerState = cms.bool( True ),
+    useSimpleMF = cms.bool( False ),
     Propagator = cms.string( "PropagatorWithMaterial" )
 )
 hltHIL3MuonsOIState = cms.EDProducer( "L3MuonProducer",
@@ -4246,6 +4248,7 @@ hltHIL3TrackCandidateFromL2OIHit = cms.EDProducer( "CkfTrajectoryMaker",
 )
 hltHIL3TkTracksFromL2OIHit = cms.EDProducer( "TrackProducer",
     src = cms.InputTag( "hltHIL3TrackCandidateFromL2OIHit" ),
+    SimpleMagneticField = cms.string( "" ),
     clusterRemovalInfo = cms.InputTag( "" ),
     beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
     MeasurementTrackerEvent = cms.InputTag( "hltHISiStripClusters" ),
@@ -4258,6 +4261,7 @@ hltHIL3TkTracksFromL2OIHit = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( True ),
     TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
     GeometricInnerState = cms.bool( True ),
+    useSimpleMF = cms.bool( False ),
     Propagator = cms.string( "PropagatorWithMaterial" )
 )
 hltHIL3MuonsOIHit = cms.EDProducer( "L3MuonProducer",
@@ -4392,7 +4396,9 @@ hltHIPixelLayerPairs = cms.EDProducer( "SeedingLayersEDProducer",
       'BPix2+FPix2_neg',
       'FPix1_pos+FPix2_pos',
       'FPix1_neg+FPix2_neg' ),
+    MTOB = cms.PSet(  ),
     TEC = cms.PSet(  ),
+    MTID = cms.PSet(  ),
     FPix = cms.PSet( 
       useErrorsFromParam = cms.bool( True ),
       hitErrorRPhi = cms.double( 0.0051 ),
@@ -4400,7 +4406,10 @@ hltHIPixelLayerPairs = cms.EDProducer( "SeedingLayersEDProducer",
       HitProducer = cms.string( "hltHISiPixelRecHits" ),
       hitErrorRZ = cms.double( 0.0036 )
     ),
+    MTEC = cms.PSet(  ),
+    MTIB = cms.PSet(  ),
     TID = cms.PSet(  ),
+    TOB = cms.PSet(  ),
     BPix = cms.PSet( 
       useErrorsFromParam = cms.bool( True ),
       hitErrorRPhi = cms.double( 0.0027 ),
@@ -4408,8 +4417,7 @@ hltHIPixelLayerPairs = cms.EDProducer( "SeedingLayersEDProducer",
       HitProducer = cms.string( "hltHISiPixelRecHits" ),
       hitErrorRZ = cms.double( 0.006 )
     ),
-    TIB = cms.PSet(  ),
-    TOB = cms.PSet(  )
+    TIB = cms.PSet(  )
 )
 hltHIMixedLayerPairs = cms.EDProducer( "SeedingLayersEDProducer",
     layerList = cms.vstring( 'BPix1+BPix2',
@@ -4433,12 +4441,14 @@ hltHIMixedLayerPairs = cms.EDProducer( "SeedingLayersEDProducer",
       'FPix2_neg+TEC2_neg',
       'TEC1_neg+TEC2_neg',
       'TEC2_neg+TEC3_neg' ),
+    MTOB = cms.PSet(  ),
     TEC = cms.PSet( 
       useRingSlector = cms.bool( True ),
       TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
       minRing = cms.int32( 1 ),
       maxRing = cms.int32( 1 )
     ),
+    MTID = cms.PSet(  ),
     FPix = cms.PSet( 
       useErrorsFromParam = cms.bool( True ),
       hitErrorRPhi = cms.double( 0.0051 ),
@@ -4446,7 +4456,10 @@ hltHIMixedLayerPairs = cms.EDProducer( "SeedingLayersEDProducer",
       HitProducer = cms.string( "hltHISiPixelRecHits" ),
       hitErrorRZ = cms.double( 0.0036 )
     ),
+    MTEC = cms.PSet(  ),
+    MTIB = cms.PSet(  ),
     TID = cms.PSet(  ),
+    TOB = cms.PSet(  ),
     BPix = cms.PSet( 
       useErrorsFromParam = cms.bool( True ),
       hitErrorRPhi = cms.double( 0.0027 ),
@@ -4454,8 +4467,7 @@ hltHIMixedLayerPairs = cms.EDProducer( "SeedingLayersEDProducer",
       HitProducer = cms.string( "hltHISiPixelRecHits" ),
       hitErrorRZ = cms.double( 0.006 )
     ),
-    TIB = cms.PSet(  ),
-    TOB = cms.PSet(  )
+    TIB = cms.PSet(  )
 )
 hltHIL3TrajSeedIOHit = cms.EDProducer( "TSGFromL2Muon",
     TkSeedGenerator = cms.PSet( 
@@ -4576,6 +4588,7 @@ hltHIL3TrackCandidateFromL2IOHit = cms.EDProducer( "CkfTrajectoryMaker",
 )
 hltHIL3TkTracksFromL2IOHit = cms.EDProducer( "TrackProducer",
     src = cms.InputTag( "hltHIL3TrackCandidateFromL2IOHit" ),
+    SimpleMagneticField = cms.string( "" ),
     clusterRemovalInfo = cms.InputTag( "" ),
     beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
     MeasurementTrackerEvent = cms.InputTag( "hltHISiStripClusters" ),
@@ -4588,6 +4601,7 @@ hltHIL3TkTracksFromL2IOHit = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( True ),
     TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
     GeometricInnerState = cms.bool( True ),
+    useSimpleMF = cms.bool( False ),
     Propagator = cms.string( "PropagatorWithMaterial" )
 )
 hltHIAllL3MuonsIOHit = cms.EDProducer( "L3MuonProducer",
@@ -5863,6 +5877,7 @@ hltHIPrimTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
 )
 hltHIGlobalPrimTracks = cms.EDProducer( "TrackProducer",
     src = cms.InputTag( "hltHIPrimTrackCandidates" ),
+    SimpleMagneticField = cms.string( "" ),
     clusterRemovalInfo = cms.InputTag( "" ),
     beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
     MeasurementTrackerEvent = cms.InputTag( "hltSiStripClusters" ),
@@ -5875,6 +5890,7 @@ hltHIGlobalPrimTracks = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( True ),
     TTRHBuilder = cms.string( "hltESPTTRHBuilderAngleAndTemplate" ),
     GeometricInnerState = cms.bool( True ),
+    useSimpleMF = cms.bool( False ),
     Propagator = cms.string( "hltESPRungeKuttaTrackerPropagator" )
 )
 hltHIGoodLooseTracks = cms.EDProducer( "AnalyticalTrackSelector",

@@ -1,50 +1,51 @@
+*** TestRandomNumberServiceGlobal constructor 83
 
 
 RandomNumberGeneratorService dump
 
-    Contents of seedMap
-        t1   81
-        t2   1   2
-        t3   83
-        t4   84
-        t5   191
-
-    Contents of engineNameMap
-        t1   HepJamesRandom
-        t2   RanecuEngine
-        t3   TRandom3
-        t4   HepJamesRandom
-        t5   TRandom3
-
-    Contents of engineMap
-        t1   HepJamesRandom   81
-        t2   RanecuEngine   Engine does not know original seed
-        t3   TRandom3   Engine does not know original seed
-        t4   HepJamesRandom   84
-        t5   TRandom3   Engine does not know original seed
-
-    currentLabel_ = t1
-    labelStack_ size = 2
-                 0  
-                 1  t1
-    currentEngine_ = t1  HepJamesRandom  81
-    engineStack_ size = 2
-                 0  Points to end of engine map
-                 1  t1  HepJamesRandom  81
-    restoreStateTag_ = InputTag:  label = , instance = , process = @skipCurrentProcess
+    Contents of seedsAndNameMap (label moduleID engineType seeds)
+        t1  2  HepJamesRandom  81
+        t2  3  RanecuEngine  1  2
+        t3  4  TRandom3  83
+        t4  5  HepJamesRandom  84
+        t5  4294967295  TRandom3  191
+    nStreams_ = 1
     saveFileName_ = StashState1.data
+    saveFileNameRecorded_ = 0
     restoreFileName_ = 
-*** TestRandomNumberServiceAnalyzer constructor 81
-*** TestRandomNumberServiceAnalyzer beginJob 81
-*** TestRandomNumberServiceAnalyzer beginRun 81
-*** TestRandomNumberServiceAnalyzer beginLuminosityBlock 81
-*** TestRandomNumberServiceAnalyzer analyze 81
-*** TestRandomNumberServiceAnalyzer analyze 81
-*** TestRandomNumberServiceAnalyzer analyze 81
-*** TestRandomNumberServiceAnalyzer endLuminosityBlock 81
-*** TestRandomNumberServiceAnalyzer beginLuminosityBlock 81
-*** TestRandomNumberServiceAnalyzer analyze 81
-*** TestRandomNumberServiceAnalyzer analyze 81
-*** TestRandomNumberServiceAnalyzer endLuminosityBlock 81
-*** TestRandomNumberServiceAnalyzer endRun 81
-*** TestRandomNumberServiceAnalyzer endJob 81
+    enableChecking_ = 1
+    childIndex_ = 0
+    eventSeedOffset_ = 0
+    verbose_ = 1
+    restoreStateTag_ = InputTag:  label = , instance = , process = @skipCurrentProcess
+    restoreStateBeginLumiTag_ = InputTag:  label = , instance = beginLumi, process = @skipCurrentProcess
+
+    streamEngines_
+        Stream 0
+        t1 81 HepJamesRandom  81
+        t2 1 2 RanecuEngine  engine does not know seeds
+        t3 83 TRandom3  engine does not know seeds
+        t4 84 HepJamesRandom  84
+
+    lumiEngines_
+        lumiIndex 0
+        t1 82 HepJamesRandom  82
+        t2 2 2 RanecuEngine  engine does not know seeds
+        t3 84 TRandom3  engine does not know seeds
+        t4 85 HepJamesRandom  85
+*** TestRandomNumberServiceGlobal beginJob 83
+*** TestRandomNumberServiceGlobal beginLuminosityBlock 83
+TRandom3
+*** TestRandomNumberServiceGlobal analyze 83
+TRandom3
+*** TestRandomNumberServiceGlobal analyze 83
+TRandom3
+*** TestRandomNumberServiceGlobal analyze 83
+TRandom3
+*** TestRandomNumberServiceGlobal beginLuminosityBlock 83
+TRandom3
+*** TestRandomNumberServiceGlobal analyze 83
+TRandom3
+*** TestRandomNumberServiceGlobal analyze 83
+TRandom3
+*** TestRandomNumberServiceGlobal endJob 83

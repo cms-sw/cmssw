@@ -13,7 +13,7 @@ namespace edm {
   class ExceptionToActionTable;
   class ActivityRegistry;
   class BranchIDListHelper;
-  class CommonParams;
+  struct CommonParams;
   class SubProcess;
   class ParameterSet;
   class ProcessConfiguration;

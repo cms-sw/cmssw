@@ -386,7 +386,6 @@ void BTagPerformanceAnalyzerMC::analyze(const edm::Event& iEvent, const edm::Eve
       double jec = 1.0;
       if(doJEC && corrector) {
         jec = corrector->correction(*(tagI->first),iEvent,iSetup);
-	std::cout<<jec<<std::endl;
       }
       //
 
@@ -438,7 +437,6 @@ void BTagPerformanceAnalyzerMC::analyze(const edm::Event& iEvent, const edm::Eve
       double jec = 1.0;
       if(doJEC && corrector) {
         jec = corrector->correction(*(tagI->first),iEvent,iSetup);
-	std::cout<<jec<<std::endl;
       }
       //
 
@@ -537,7 +535,6 @@ void BTagPerformanceAnalyzerMC::analyze(const edm::Event& iEvent, const edm::Eve
       double jec = 1.0;
       if(doJEC && corrector) {
         jec = corrector->correction(*(jetRef),iEvent,iSetup);
-	std::cout<<jec<<std::endl;
       }
       //
 

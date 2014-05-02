@@ -15,7 +15,11 @@ ClusterShapeHitFilterESProducer::ClusterShapeHitFilterESProducer
 {
   
   std::string componentName = iConfig.getParameter<std::string>("ComponentName");
-  
+  cutOnPixelCharge_ = iConfig.exists("minGoodPixelCharge");
+  cutOnStripCharge_ = iConfig.exists("minGoodStripCharge");
+  minGoodPixelCharge_= (cutOnPixelCharge_ ? iConfig.getParameter<double>("minGoodPixelCharge") : 0); 
+  minGoodStripCharge_= (cutOnStripCharge_ ? iConfig.getParameter<double>("minGoodStripCharge") : 0);
+
   edm::LogInfo("ClusterShapeHitFilterESProducer")
     << " with name: "            << componentName;
       
@@ -63,6 +67,7 @@ ClusterShapeHitFilterESProducer::produce
                                       pixel.product(),
                                       strip.product(),
                                       &use_PixelShapeFile));
-
+  aFilter->setChargeCuts(cutOnPixelCharge_, minGoodPixelCharge_, cutOnStripCharge_,
+    minGoodStripCharge_);
   return aFilter;
 }

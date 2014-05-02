@@ -46,8 +46,6 @@ namespace edm {
     FDEBUG(6) << "StreamSerializer::serializeRegistry" << std::endl;
     SendJobHeader sd;
 
-    SelectedProducts::const_iterator i(selections_->begin()), e(selections_->end());
-
     FDEBUG(9) << "Product List: " << std::endl;
 
 
@@ -135,7 +133,6 @@ namespace edm {
     selectionIDs.push_back(selectorConfig);
     SendEvent se(eventPrincipal.aux(), eventPrincipal.processHistory(), selectionIDs, eventPrincipal.branchListIndexes());
 
-    SelectedProducts::const_iterator i(selections_->begin()),ie(selections_->end());
     // Loop over EDProducts, fill the provenance, and write.
 
     for(SelectedProducts::const_iterator i = selections_->begin(), iEnd = selections_->end(); i != iEnd; ++i) {

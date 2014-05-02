@@ -7,13 +7,13 @@
  *  \author cerati
  */
 
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/EDProducer.h"
 #include "RecoTracker/TrackProducer/interface/KfTrackProducerBase.h"
 #include "RecoTracker/TrackProducer/interface/TrackProducerAlgorithm.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
-class TrackProducer : public KfTrackProducerBase, public edm::stream::EDProducer<> {
+class TrackProducer : public KfTrackProducerBase, public edm::EDProducer {
 public:
 
   /// Constructor

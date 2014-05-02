@@ -102,7 +102,7 @@ namespace edm {
   class PreallocationConfiguration;
   class StreamSchedule;
   class GlobalSchedule;
-  class TriggerTimingReport;
+  struct TriggerTimingReport;
   class ModuleRegistry;
   class TriggerResultInserter;
   

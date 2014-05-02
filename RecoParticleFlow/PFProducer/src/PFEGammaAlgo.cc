@@ -1959,11 +1959,15 @@ fillPFCandidates(const std::list<PFEGammaAlgo::ProtoEGObject>& ROs,
     for( const auto& secdkf : RO.secondaryKFs ) {
       const PFKFElement* kf = secdkf.first;
       cand.addElementInBlock(_currentblock,kf->index());
-      reco::ConversionRef convref = kf->convRef();
-      if( convref.isNonnull() && convref.isAvailable() ) {
-	xtra.addConversionRef(convref);
+      const reco::ConversionRefVector& convrefs = kf->convRefs();
+      bool no_conv_ref = true;
+      for( const auto& convref : convrefs ) {
+	if( convref.isNonnull() && convref.isAvailable() ) {
+	  xtra.addConversionRef(convref);
+	  no_conv_ref = false;
+	}
       }
-      else {
+      if( no_conv_ref ) {
         //single leg conversions
         
         //look for stored mva value in map or else recompute

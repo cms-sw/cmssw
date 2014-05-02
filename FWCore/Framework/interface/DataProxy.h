@@ -20,6 +20,7 @@
 //
 
 // system include files
+#include <atomic>
 
 // user include files
 
@@ -37,7 +38,7 @@ namespace edm {
          virtual ~DataProxy();
 
          // ---------- const member functions ---------------------
-         bool cacheIsValid() const { return cacheIsValid_; }
+         bool cacheIsValid() const { return cacheIsValid_.load(std::memory_order_acquire); }
 
          void doGet(EventSetupRecord const& iRecord, DataKey const& iKey, bool iTransiently) const;
          void const* get(EventSetupRecord const&, DataKey const& iKey, bool iTransiently) const;
@@ -85,12 +86,11 @@ namespace edm {
          DataProxy(DataProxy const&); // stop default
 
          DataProxy const& operator=(DataProxy const&); // stop default
-         void setCacheIsValidAndAccessType(bool iTransientAccessOnly) const;
 
          // ---------- member data --------------------------------
-         mutable void const* cache_;
-         mutable bool cacheIsValid_;
-         mutable bool nonTransientAccessRequested_;
+         mutable void const* cache_; //protected by a global mutex
+         mutable std::atomic<bool> cacheIsValid_;
+         mutable std::atomic<bool> nonTransientAccessRequested_;
          ComponentDescription const* description_;
       };
    }

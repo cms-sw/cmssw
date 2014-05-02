@@ -82,6 +82,8 @@ public:
 				    TrajectoryContainer& result) const { assert(0==1);}
 
 
+  void setNavigationSchool(NavigationSchool const * nv) { theNavigationSchool=nv;}
+
   virtual void setEvent(const edm::Event& event) const ;
   virtual void unset() const;
 
@@ -158,6 +160,8 @@ public:
   const Chi2MeasurementEstimatorBase*   theEstimator;
   const TransientTrackingRecHitBuilder* theTTRHBuilder;
   const MeasurementTrackerEvent*        theMeasurementTracker;
+  const NavigationSchool *              theNavigationSchool = nullptr;
+
 
  private:
   //  int theMaxLostHit;            /**< Maximum number of lost hits per trajectory candidate.*/

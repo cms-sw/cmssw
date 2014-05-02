@@ -54,6 +54,7 @@ public:
   };
 
 private:
+  std::vector<float> theTemperatures;
   unsigned int theIndex;
   double theChi2cut;
   bool theIsAnnealed;

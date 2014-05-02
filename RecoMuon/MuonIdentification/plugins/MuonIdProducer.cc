@@ -89,7 +89,8 @@ muIsoExtractorCalo_(0),muIsoExtractorTrack_(0),muIsoExtractorJet_(0)
 
    // Load TrackDetectorAssociator parameters
    edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
-   parameters_.loadParameters( parameters );
+   edm::ConsumesCollector iC = consumesCollector();
+   parameters_.loadParameters( parameters, iC );
 
    // Load parameters for the TimingFiller
    edm::ParameterSet timingParameters = iConfig.getParameter<edm::ParameterSet>("TimingFillerParameters");

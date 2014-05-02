@@ -1,7 +1,7 @@
 
 import FWCore.ParameterSet.Config as cms
 
-from muonCustoms import customise_csc_PostLS1,customise_csc_hlt
+from SLHCUpgradeSimulations.Configuration.muonCustoms import customise_csc_PostLS1,customise_csc_hlt
 
 
 def customisePostLS1(process):
@@ -61,10 +61,11 @@ def customise_Validation(process):
 
 def customise_Digi(process):
     process=digiEventContent(process)
-    process.mix.digitizers.hcal.ho.photoelectronsToAnalog = cms.vdouble([4.0]*16)
-    process.mix.digitizers.hcal.ho.siPMCode = cms.int32(1)
-    process.mix.digitizers.hcal.ho.pixels = cms.int32(2500)
-    process.mix.digitizers.hcal.ho.doSiPMSmearing = cms.bool(False)
+    if hasattr(process,"mix.digitizers.hcal.ho"):
+        process.mix.digitizers.hcal.ho.photoelectronsToAnalog = cms.vdouble([4.0]*16)
+        process.mix.digitizers.hcal.ho.siPMCode = cms.int32(1)
+        process.mix.digitizers.hcal.ho.pixels = cms.int32(2500)
+        process.mix.digitizers.hcal.ho.doSiPMSmearing = cms.bool(False)
     return process
 
 

@@ -50,6 +50,7 @@ class MagneticField;
 class GeometricSearchTracker;
 class TrackerGeometry;
 class TrackerTopology;
+class NavigationSchool;
 
 namespace std{
   template<>
@@ -188,7 +189,8 @@ class PixelHitMatcher
     std::vector<std::pair<RecHitWithDist,ConstRecHitPointer> >
     compatibleHits(const GlobalPoint& xmeas, const GlobalPoint& vprim, 
 		   float energy, float charge,
-		   const TrackerTopology *tTopo) ;
+		   const TrackerTopology *tTopo,
+                   const NavigationSchool& navigationSchool) ;
 
     // compatibleSeeds(edm::Handle<TrajectorySeedCollection> &seeds, const GlobalPoint& xmeas,
     std::vector<SeedWithInfo>

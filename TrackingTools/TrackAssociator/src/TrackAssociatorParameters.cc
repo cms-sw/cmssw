@@ -16,7 +16,7 @@
 #include "TrackingTools/TrackAssociator/interface/TrackAssociatorParameters.h"
 
 
-void TrackAssociatorParameters::loadParameters( const edm::ParameterSet& iConfig )
+void TrackAssociatorParameters::loadParameters( const edm::ParameterSet& iConfig, edm::ConsumesCollector &iC )
 {
    dREcal = iConfig.getParameter<double>("dREcal");
    dRHcal = iConfig.getParameter<double>("dRHcal");
@@ -52,10 +52,29 @@ void TrackAssociatorParameters::loadParameters( const edm::ParameterSet& iConfig
    
    truthMatch = iConfig.getParameter<bool>("truthMatch");
    muonMaxDistanceSigmaY = iConfig.getParameter<double>("trajectoryUncertaintyTolerance");
+
+   if (useEcal) {
+     EBRecHitsToken=iC.consumes<EBRecHitCollection>(theEBRecHitCollectionLabel);
+     EERecHitsToken=iC.consumes<EERecHitCollection>(theEERecHitCollectionLabel);
+   }
+   if (useCalo) caloTowersToken=iC.consumes<CaloTowerCollection>(theCaloTowerCollectionLabel);
+   if (useHcal) HBHEcollToken=iC.consumes<HBHERecHitCollection>(theHBHERecHitCollectionLabel);
+   if (useHO) HOcollToken=iC.consumes<HORecHitCollection>(theHORecHitCollectionLabel);
+   if (useMuon) {
+     dtSegmentsToken=iC.consumes<DTRecSegment4DCollection>(theDTRecSegment4DCollectionLabel);
+     cscSegmentsToken=iC.consumes<CSCSegmentCollection>(theCSCSegmentCollectionLabel);
+   }
+   if (truthMatch) {
+     simTracksToken=iC.consumes<edm::SimTrackContainer>(edm::InputTag("g4SimHits"));
+     simVerticesToken=iC.consumes<edm::SimVertexContainer>(edm::InputTag("g4SimHits"));
+     simEcalHitsEBToken=iC.consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits","EcalHitsEB"));
+     simEcalHitsEEToken=iC.consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits","EcalHitsEE"));
+     simHcalHitsToken=iC.consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits","HcalHits"));
+   }
 }
 
-TrackAssociatorParameters::TrackAssociatorParameters( const edm::ParameterSet& iConfig )
+TrackAssociatorParameters::TrackAssociatorParameters( const edm::ParameterSet& iConfig, edm::ConsumesCollector &&iC )
 {
-   loadParameters( iConfig );
+  loadParameters( iConfig, iC );
 }
 
