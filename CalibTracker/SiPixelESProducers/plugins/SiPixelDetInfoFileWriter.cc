@@ -54,7 +54,7 @@ void SiPixelDetInfoFileWriter::beginRun(const edm::Run &run , const edm::EventSe
 
     for(TrackerGeometry::DetUnitContainer::const_iterator it = pDD->detUnits().begin(); it != pDD->detUnits().end(); it++){
   
-      const PixelGeomDetUnit* mit = dynamic_cast<PixelGeomDetUnit*>(*it);
+      const PixelGeomDetUnit* mit = dynamic_cast<PixelGeomDetUnit const *>(*it);
 
       if(mit!=0){
 	nPixelDets++;
