@@ -184,7 +184,7 @@ L1ParticleMap::L1ParticleMap(
    const L1IndexComboVector& indexCombos )
    : triggerType_( triggerType ),
      triggerDecision_( triggerDecision ),
-     indexCombosState_{indexCombos.size()>0? kSet:kUnset},
+     indexCombosState_{static_cast<char>(indexCombos.size()>0? kSet:kUnset)},
      objectTypes_( objectTypes ),
      emParticles_( emParticles ),
      jetParticles_( jetParticles ),
