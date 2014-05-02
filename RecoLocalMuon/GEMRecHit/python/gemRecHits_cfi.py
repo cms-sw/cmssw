@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 gemRecHits = cms.EDProducer("GEMRecHitProducer",
     recAlgoConfig = cms.PSet(
-
+    	stationToUse = cms.untracked.int32(3),
     ),
     recAlgo = cms.string('GEMRecHitStandardAlgo'),
     gemDigiLabel = cms.InputTag("simMuonGEMDigis"),

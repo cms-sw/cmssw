@@ -27,7 +27,10 @@
 #include <iostream>
 
 
-CSCRecHitDBuilder::CSCRecHitDBuilder( const edm::ParameterSet& ps ) : geom_(0) {
+CSCRecHitDBuilder::CSCRecHitDBuilder( const edm::ParameterSet& ps ): 
+  geom_(0),
+  stationToUse_(ps.getUntrackedParameter<int>("stationToUse",1))
+{
   
   // Receives ParameterSet percolated down from EDProducer	
 
@@ -137,6 +140,8 @@ void CSCRecHitDBuilder::build( const CSCStripDigiCollection* stripdc, const CSCW
     }
 
     CSCDetId compId = sDetId;
+    int station = (int) sDetId.station();
+    int ring = (int) sDetId.ring();
     CSCWireDigiCollection::Range rwired = wiredc->get( sDetId );
     // Skip if no wire digis in this layer
     // But for ME11, real wire digis are labelled as belonging to ME1b, so that's where ME1a must look
@@ -193,8 +198,24 @@ void CSCRecHitDBuilder::build( const CSCStripDigiCollection* stripdc, const CSCW
 
             bool isInFiducial = make2DHits_->isHitInFiducial( layer, rechit );
             if ( isInFiducial ) {
-              hitsInLayer.push_back( rechit );
-              hits_in_layer++;
+
+    		switch(stationToUse_){
+
+              		case 0: if(station != 1 && ring != 1){
+				hitsInLayer.push_back( rechit );
+              			hits_in_layer++;}
+				break;
+
+              		case 1:
+				hitsInLayer.push_back( rechit );
+              			hits_in_layer++;
+				break;
+
+              		default:
+				hitsInLayer.push_back( rechit );
+              			hits_in_layer++;
+				break;
+		}
             }
           }
         }
