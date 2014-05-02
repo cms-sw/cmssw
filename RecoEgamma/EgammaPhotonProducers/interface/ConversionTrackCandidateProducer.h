@@ -17,7 +17,6 @@
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 #include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
@@ -92,7 +91,6 @@ class ConversionTrackCandidateProducer : public edm::EDProducer {
 
   std::unique_ptr<BaseCkfTrajectoryBuilder> theTrajectoryBuilder_;
 
-  const NavigationSchool*     theNavigationSchool_;
   std::unique_ptr<OutInConversionSeedFinder>  theOutInSeedFinder_;
   std::unique_ptr<OutInConversionTrackFinder> theOutInTrackFinder_;
   std::unique_ptr<InOutConversionSeedFinder>  theInOutSeedFinder_;

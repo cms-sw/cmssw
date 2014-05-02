@@ -73,13 +73,13 @@ class GenericMVAComputer : public PhysicsTools::MVAComputer {
 		    protected:
 			friend class TaggingVariableIterator;
 
-			inline Value(TaggingVariableMapping *mapping,
+			inline Value(TaggingVariableMapping const* mapping,
 			             const Iter_t &iter) :
 				mapping(mapping), iter(iter) {}
 
 		    private:
 			// pointer to the current mapping
-			TaggingVariableMapping	*mapping;
+			TaggingVariableMapping	const* mapping;
 			// iterator to reco::TaggingVariable in orig. container
 			Iter_t			iter;
 		};
@@ -115,7 +115,7 @@ class GenericMVAComputer : public PhysicsTools::MVAComputer {
 
 	    protected:
 		friend class GenericMVAComputer;
-		inline TaggingVariableIterator(TaggingVariableMapping *mapping,
+		inline TaggingVariableIterator(TaggingVariableMapping const* mapping,
 		                               const Iter_t &iter) :
 			value(mapping, iter) {}
 
@@ -143,7 +143,7 @@ class GenericMVAComputer : public PhysicsTools::MVAComputer {
 	};
 
     private:
-	static TaggingVariableMapping	mapping;
+	static const TaggingVariableMapping	mapping;
 };
 
 #endif // RecoBTau_BTauComputer_GenericMVAComputer_h

@@ -5,11 +5,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//FEDRawData
-#include "DataFormats/FEDRawData/interface/FEDRawData.h"
-#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-
 //Digi
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
 #include "DataFormats/L1CSCTrackFinder/interface/L1Track.h"
@@ -82,7 +77,9 @@ CSCTFUnpacker::CSCTFUnpacker(const edm::ParameterSet& pset):edm::stream::EDProdu
 	produces<L1CSCTrackCollection>();
 	produces<L1CSCStatusDigiCollection>();
 	produces<CSCTriggerContainer<csctf::TrackStub> >("DT");
-	consumes<FEDRawDataCollection>(producer);
+
+	Raw_token = consumes<FEDRawDataCollection>(edm::InputTag(producer.label(),producer.instance() ));
+
 }
 
 CSCTFUnpacker::~CSCTFUnpacker(){
@@ -92,7 +89,7 @@ CSCTFUnpacker::~CSCTFUnpacker(){
 void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c){
 	// Get a handle to the FED data collection
 	edm::Handle<FEDRawDataCollection> rawdata;
-	e.getByLabel(producer.label(),producer.instance(),rawdata);
+	e.getByToken(Raw_token,rawdata);
 
 	// create the collection of CSC wire and strip digis as well as of DT stubs, which we receive from DTTF
 	std::auto_ptr<CSCCorrelatedLCTDigiCollection> LCTProduct(new CSCCorrelatedLCTDigiCollection);

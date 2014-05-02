@@ -27,6 +27,14 @@ class MVATrainerContainer : public Calibration::MVAComputerContainer {
 		return Calibration::MVAComputerContainer::find(label);
 	}
 
+	virtual bool
+	contains(const std::string &label) const
+	{
+		Map_t::const_iterator pos = trainCalibs.find(label);
+		if (pos != trainCalibs.end()) return true;
+		return Calibration::MVAComputerContainer::contains(label);
+	}
+
 	void addTrainer(const std::string &label, const Value_t &calibration)
 	{ trainCalibs[label] = calibration; }
 

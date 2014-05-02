@@ -10,6 +10,7 @@ namespace edm {
 
     void operator() (TBuffer &R__b, void *objp);
 
+    TClassStreamer* Generate() const;
   private:
     TClassRef cl_;
   };

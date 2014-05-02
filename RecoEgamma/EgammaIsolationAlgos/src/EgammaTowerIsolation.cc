@@ -11,6 +11,7 @@
 #include<cassert>
 
 
+#ifdef ETISTATDEBUG
 // #include<iostream>
 namespace etiStat {
   Count::~Count() { 
@@ -20,12 +21,12 @@ namespace etiStat {
 
   Count Count::count;
 }
+#endif
 
 
-
-EgammaTowerIsolationNew<1> *EgammaTowerIsolation::newAlgo=nullptr;
-const CaloTowerCollection* EgammaTowerIsolation::oldTowers=nullptr;
-uint32_t EgammaTowerIsolation::id15=0;
+thread_local EgammaTowerIsolationNew<1> *EgammaTowerIsolation::newAlgo=nullptr;
+thread_local const CaloTowerCollection* EgammaTowerIsolation::oldTowers=nullptr;
+thread_local uint32_t EgammaTowerIsolation::id15=0;
 
 EgammaTowerIsolation::EgammaTowerIsolation (float extRadiusI,
 					    float intRadiusI,

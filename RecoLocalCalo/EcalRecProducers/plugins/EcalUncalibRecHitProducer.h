@@ -1,7 +1,7 @@
 #ifndef RecoLocalCalo_EcalRecProducers_EcalUncalibRecHitProducer_hh
 #define RecoLocalCalo_EcalRecProducers_EcalUncalibRecHitProducer_hh
 
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -15,12 +15,12 @@
 class EBDigiCollection;
 class EEDigiCollection;
 
-class EcalUncalibRecHitProducer : public edm::stream::EDProducer<> {
+class EcalUncalibRecHitProducer : public edm::EDProducer {
 
         public:
                 explicit EcalUncalibRecHitProducer(const edm::ParameterSet& ps);
                 ~EcalUncalibRecHitProducer();
-                virtual void produce(edm::Event& evt, const edm::EventSetup& es);
+                virtual void produce(edm::Event& evt, const edm::EventSetup& es) override;
 
         private:
 

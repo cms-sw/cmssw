@@ -6,10 +6,6 @@
 #include <iostream>
 #include <cstdio>
 
-#include "DataFormats/L1CSCTrackFinder/interface/L1CSCTrackCollection.h"
-#include "DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h"
-#include "DataFormats/L1CSCTrackFinder/interface/TrackStub.h"
-
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -56,6 +52,12 @@ CSCTFPacker::CSCTFPacker(const edm::ParameterSet &conf):edm::EDProducer(){
 	central_sp_bx = int(nTBINs/2);
 
 	produces<FEDRawDataCollection>("CSCTFRawData");
+
+	CSCTC_Tok = consumes<CSCTriggerContainer<csctf::TrackStub> >( edm::InputTag(mbProducer.label(),mbProducer.instance()) ); 
+	CSCCDC_Tok = consumes<CSCCorrelatedLCTDigiCollection>( edm::InputTag(lctProducer.label(),lctProducer.instance()) );  
+	L1CSCTr_Tok = consumes<L1CSCTrackCollection>( edm::InputTag(trackProducer.label(),trackProducer.instance()) );  
+
+
 }
 
 CSCTFPacker::~CSCTFPacker(void){
@@ -64,7 +66,7 @@ CSCTFPacker::~CSCTFPacker(void){
 
 void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c){
 	edm::Handle<CSCCorrelatedLCTDigiCollection> corrlcts;
-	e.getByLabel(lctProducer.label(),lctProducer.instance(),corrlcts);
+	e.getByToken(CSCCDC_Tok ,corrlcts);
 
 	CSCSP_MEblock meDataRecord[12][7][5][9][2]; // LCT in sector X, tbin Y, station Z, csc W, and lct I
 	bzero(&meDataRecord,sizeof(meDataRecord));
@@ -142,7 +144,7 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c){
 	bzero(&mbDataRecord,sizeof(mbDataRecord));
 	edm::Handle< CSCTriggerContainer<csctf::TrackStub> > barrelStubs;
 	if( mbProducer.label() != "null" ){
-		e.getByLabel(mbProducer.label(),mbProducer.instance(),barrelStubs);
+		e.getByToken(CSCTC_Tok ,barrelStubs);
 		if( barrelStubs.isValid() ){
 			std::vector<csctf::TrackStub> stubs = barrelStubs.product()->get();
 			for(std::vector<csctf::TrackStub>::const_iterator dt=stubs.begin(); dt!=stubs.end(); dt++){
@@ -179,7 +181,7 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c){
 
 	edm::Handle<L1CSCTrackCollection> tracks;
 	if( trackProducer.label() != "null" ){
-		e.getByLabel(trackProducer.label(),trackProducer.instance(),tracks);
+		e.getByToken(L1CSCTr_Tok ,tracks);
 
 		for(L1CSCTrackCollection::const_iterator trk=tracks->begin(); trk!=tracks->end(); trk++){
 			int sector = 6*(trk->first.endcap()-1)+trk->first.sector()-1;

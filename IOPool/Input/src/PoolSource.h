@@ -64,6 +64,9 @@ namespace edm {
     virtual ProcessingController::ForwardState forwardState_() const;
     virtual ProcessingController::ReverseState reverseState_() const;
 
+    SharedResourcesAcquirer* resourceSharedWithDelayedReader_() const override;
+
+    
     RootServiceChecker rootServiceChecker_;
     std::unique_ptr<RootInputFileSequence> primaryFileSequence_;
     std::unique_ptr<RootInputFileSequence> secondaryFileSequence_;
@@ -71,6 +74,8 @@ namespace edm {
     boost::shared_ptr<LuminosityBlockPrincipal> secondaryLumiPrincipal_;
     std::vector<std::unique_ptr<EventPrincipal>> secondaryEventPrincipals_;
     std::array<std::vector<BranchID>, NumBranchTypes>  branchIDsToReplace_;
+    
+    std::unique_ptr<SharedResourcesAcquirer> resourceSharedWithDelayedReaderPtr_;
   }; // class PoolSource
   typedef PoolSource PoolRASource;
 }

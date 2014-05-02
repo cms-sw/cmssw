@@ -11,6 +11,7 @@
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorBase.h"
 #include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
+#include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 #include "RecoMuon/L3TrackFinder/src/EtaPhiEstimator.h"
 #include <sstream>
 
@@ -180,12 +181,12 @@ MuonCkfTrajectoryBuilder::findCompatibleMeasurements(const TrajectorySeed&seed,
           result.clear();
 	  LogDebug("CkfPattern")<<"Need to go to next layer to get measurements";
           //the following will "JUMP" the first layer measurements
-	  nl = l->nextLayers(*currentState.freeState(), traj.direction());
+	  nl = theNavigationSchool->nextLayers(*l, *currentState.freeState(), traj.direction());
 	  if (nl.size()==0){
             LogDebug("CkfPattern")<<" there was no next layer with wellInside. Use the next with no check.";
             //means you did not get any compatible layer on the next 1/2 tracker layer.
             // use the next layers with no checking
-            nl = l->nextLayers(((traj.direction()==alongMomentum)?insideOut:outsideIn));
+            nl = theNavigationSchool->nextLayers(*l, ((traj.direction()==alongMomentum)?insideOut:outsideIn));
           }
           invalidHits=0;
           collectMeasurement(l,nl,currentState,result,invalidHits,forwardPropagator(seed));
@@ -208,7 +209,7 @@ MuonCkfTrajectoryBuilder::findCompatibleMeasurements(const TrajectorySeed&seed,
 
       TSOS currentState( traj.lastMeasurement().updatedState());
 
-      nl = traj.lastLayer()->nextLayers( *currentState.freeState(), traj.direction());
+      nl = theNavigationSchool->nextLayers(*traj.lastLayer(), *currentState.freeState(), traj.direction());
       if (nl.empty()){LogDebug("CkfPattern")<<" no next layers... going "<<traj.direction()<<"\n from: \n"<<currentState<<"\n from detId: "<<traj.lastMeasurement().recHit()->geographicalId().rawId(); return ;}
 
       collectMeasurement(traj.lastLayer(),nl,currentState,result,invalidHits,forwardPropagator(seed));
