@@ -48,7 +48,7 @@
 <use   name="Geometry/Records"/>
 <use   name="DataFormats/TrackerCommon"/>
 <use   name="SimDataFormats/TrackingAnalysis"/>
-<use   name="SimDataFormats/TrackingHits"/>
+<use   name="SimDataFormats/TrackingHit"/>
 <use   name="SimTracker/TrackAssociation"/>
 <use   name="SimTracker/Records"/>
 
