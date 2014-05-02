@@ -80,8 +80,8 @@ void AlignableMuon::buildDTBarrel( const DTGeometry* pDT  )
     for( int ist = 1 ; ist < 5 ; ist++ ){
   
       // Loop over geom DT Chambers
-      std::vector<GeomDet*> theSLs;
-      for( std::vector<DTChamber*>::const_iterator det = pDT->chambers().begin(); 
+      std::vector<const GeomDet*> theSLs;
+      for(auto  det = pDT->chambers().begin(); 
 		   det != pDT->chambers().end(); ++det ){
         // Get the chamber ID
         DTChamberId chamberId = (*det)->id(); 

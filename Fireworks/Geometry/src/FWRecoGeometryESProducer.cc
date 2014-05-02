@@ -172,8 +172,8 @@ FWRecoGeometryESProducer::addDTGeometry( void )
   //
   // DT chambers geometry
   //
-  for( std::vector<DTChamber *>::const_iterator it = dtGeometry->chambers().begin(),
-					       end = dtGeometry->chambers().end(); 
+  for( auto it = dtGeometry->chambers().begin(),
+	   end = dtGeometry->chambers().end(); 
        it != end; ++it )
   {
     const DTChamber *chamber = *it;
@@ -187,8 +187,8 @@ FWRecoGeometryESProducer::addDTGeometry( void )
   }
 
   // Fill in DT layer parameters
-  for( std::vector<DTLayer*>::const_iterator it = dtGeometry->layers().begin(),
-					    end = dtGeometry->layers().end(); 
+  for( auto it = dtGeometry->layers().begin(),
+	   end = dtGeometry->layers().end(); 
        it != end; ++it )
   {
     const DTLayer* layer = *it;
