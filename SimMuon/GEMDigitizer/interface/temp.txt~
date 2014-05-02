@@ -1,1 +1,0 @@
-wget --no-check-certificate https://raw.githubusercontent.com/cms-sw/cmssw/CMSSW_6_2_X_SLHC/SimMuon/GEMDigitizer/python/muonGEMCSCPadDigis_cfi.py 
