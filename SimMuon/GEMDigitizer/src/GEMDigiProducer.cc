@@ -54,14 +54,17 @@ GEMDigiProducer::~GEMDigiProducer()
 }
 
 
-void GEMDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
+void GEMDigiProducer::beginRun(const edm::Run&, const edm::EventSetup& eventSetup)
 {
-  // set geometry
   edm::ESHandle<GEMGeometry> hGeom;
   eventSetup.get<MuonGeometryRecord>().get(hGeom);
   gemDigiModel_->setGeometry(&*hGeom);
   gemDigiModel_->setup();
+}
 
+
+void GEMDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
+{
   edm::Service<edm::RandomNumberGenerator> rng;
   CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
 

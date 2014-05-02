@@ -17,7 +17,6 @@ GEMPadDigiProducer::GEMPadDigiProducer(const edm::ParameterSet& ps)
 : geometry_(nullptr)
 {
   digis_ = ps.getParameter<edm::InputTag>("InputCollection");
-  maxDeltaBX_ = ps.getParameter<int>("maxDeltaBX");
 
   digi_token_ = consumes<GEMDigiCollection>(digis_);
 
@@ -30,13 +29,16 @@ GEMPadDigiProducer::~GEMPadDigiProducer()
 {}
 
 
+void GEMPadDigiProducer::beginRun(const edm::Run& run, const edm::EventSetup& eventSetup)
+{
+  edm::ESHandle<GEMGeometry> hGeom;
+  eventSetup.get<MuonGeometryRecord>().get(hGeom);
+  geometry_ = &*hGeom;
+}
+
+
 void GEMPadDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
 {
-  // set geometry
-  edm::ESHandle<GEMGeometry> hGeom;
-  eventSetup.get<MuonGeometryRecord>().get( hGeom );
-  geometry_ = &*hGeom;
-  
   edm::Handle<GEMDigiCollection> hdigis;
   e.getByToken(digi_token_, hdigis);
 
