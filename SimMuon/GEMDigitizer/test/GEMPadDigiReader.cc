@@ -42,16 +42,16 @@ public:
   
 private:
 
-  string label_pads_;
-  string label_digis_;
+  edm::EDGetTokenT<GEMDigiCollection> gemDigiToken_;
+  edm::EDGetTokenT<GEMPadDigiCollection> gemPadToken_;
 };
 
 
 
-GEMPadDigiReader::GEMPadDigiReader(const edm::ParameterSet& pset)
+GEMPadDigiReader::GEMPadDigiReader(const edm::ParameterSet& pset) : 
+  gemDigiToken_(consumes<GEMDigiCollection>(pset.getParameter<edm::InputTag>("gemDigiToken"))),
+  gemPadToken_(consumes<GEMPadDigiCollection>(pset.getParameter<edm::InputTag>("gemPadToken")))
 {
-  label_pads_ = pset.getUntrackedParameter<string>("labelPads", "simMuonGEMPadDigis");
-  label_digis_ = pset.getUntrackedParameter<string>("labelDigis", "simMuonGEMDigis");
 }
 
 
@@ -59,19 +59,16 @@ void GEMPadDigiReader::analyze(const edm::Event & event, const edm::EventSetup& 
 {
   //cout << "--- Run: " << event.id().run() << " Event: " << event.id().event() << endl;
 
-  edm::Handle<GEMPadDigiCollection> pads;
-  event.getByLabel(label_pads_, pads);
-
-  if (pads->begin() == pads->end()) return; // no pads in event
-
-  edm::Handle<GEMPadDigiCollection> co_pads;
-  event.getByLabel(edm::InputTag(label_pads_, "Coincidence"), co_pads);
+  edm::ESHandle<GEMGeometry> geometry;
+  eventSetup.get<MuonGeometryRecord>().get(geometry);
 
   edm::Handle<GEMDigiCollection> digis;
-  event.getByLabel(label_digis_, digis);
+  event.getByToken(gemDigiToken_, digis);
 
-  edm::ESHandle<GEMGeometry> geometry;
-  eventSetup.get<MuonGeometryRecord>().get( geometry );
+  edm::Handle<GEMPadDigiCollection> pads;
+  event.getByToken(gemPadToken_, pads);
+
+  if (pads->begin() == pads->end()) return; // no pads in event
  
   for (auto pad_range_it = pads->begin(); pad_range_it != pads->end(); ++pad_range_it)
   {
@@ -123,22 +120,6 @@ void GEMPadDigiReader::analyze(const edm::Event & event, const edm::EventSetup& 
     }
 
   }// for (detids with pads)
-
-  cout<<"--------------"<<endl;
-  cout<<" Coincidence pads:"<<endl;
-
-  for (auto pad_range_it = co_pads->begin(); pad_range_it != co_pads->end(); ++pad_range_it)
-  {
-    auto id = (*pad_range_it).first;
-
-    // loop over copads of this DetUnit and print stuff
-    auto pads_range = (*pad_range_it).second;
-    for (auto p = pads_range.first; p != pads_range.second; ++p)
-    {
-      cout<< id <<" copad(pad,bx) "<<*p<<endl;
-    }
-    cout<<"----- end event -----"<<endl;
-  }
 }
 
 

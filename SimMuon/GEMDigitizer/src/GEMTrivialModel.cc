@@ -18,7 +18,7 @@ GEMTrivialModel::GEMTrivialModel(const edm::ParameterSet& config)
 
 void 
 GEMTrivialModel::simulateSignal(const GEMEtaPartition* roll,
-				const edm::PSimHitContainer& simHits)
+				const edm::PSimHitContainer& simHits, CLHEP::HepRandomEngine* engine)
 {
   stripDigiSimLinks_.clear();
   detectorHitMap_.clear();
@@ -39,7 +39,7 @@ GEMTrivialModel::simulateSignal(const GEMEtaPartition* roll,
 
 
 std::vector<std::pair<int,int> > 
-GEMTrivialModel::simulateClustering(const GEMEtaPartition* roll, const PSimHit* simHit, const int bx)
+GEMTrivialModel::simulateClustering(const GEMEtaPartition* roll, const PSimHit* simHit, const int bx, CLHEP::HepRandomEngine* engine)
 {
   return std::vector<std::pair<int,int> >();
 }

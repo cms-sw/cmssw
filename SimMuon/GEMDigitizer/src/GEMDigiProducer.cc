@@ -64,7 +64,6 @@ void GEMDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
 
   edm::Service<edm::RandomNumberGenerator> rng;
   CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
-  gemDigiModel_->setRandomEngine(engine);
 
   edm::Handle<CrossingFrame<PSimHit> > cf;
   e.getByToken(cf_token, cf);
@@ -92,8 +91,8 @@ void GEMDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSetup)
     LogDebug("GEMDigiProducer") 
       << "GEMDigiProducer: found " << simHits.size() << " hit(s) in eta partition" << rawId;
     
-    gemDigiModel_->simulateSignal(roll, simHits);
-    gemDigiModel_->simulateNoise(roll);
+    gemDigiModel_->simulateSignal(roll, simHits, engine);
+    gemDigiModel_->simulateNoise(roll, engine);
     gemDigiModel_->fillDigis(rawId, *digis);
     (*stripDigiSimLinks).insert(gemDigiModel_->stripDigiSimLinks());
   }

@@ -21,14 +21,12 @@ public:
 
   ~GEMTrivialModel() {}
 
-  void simulateSignal(const GEMEtaPartition*, const edm::PSimHitContainer&);
+  void simulateSignal(const GEMEtaPartition*, const edm::PSimHitContainer&, CLHEP::HepRandomEngine* engine);
 
-  void simulateNoise(const GEMEtaPartition*) {}
+  void simulateNoise(const GEMEtaPartition*, CLHEP::HepRandomEngine* engine) {}
 
   std::vector<std::pair<int,int> > 
-    simulateClustering(const GEMEtaPartition*, const PSimHit*, const int);
-
-  void setRandomEngine(CLHEP::HepRandomEngine&) {}
+    simulateClustering(const GEMEtaPartition*, const PSimHit*, const int, CLHEP::HepRandomEngine* engine);
 
   void setup() {}
 

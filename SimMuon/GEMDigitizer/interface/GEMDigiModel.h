@@ -15,10 +15,15 @@
 #include "DataFormats/Common/interface/DetSet.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/TrackerDigiSimLink/interface/StripDigiSimLink.h"
+#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "CLHEP/Random/RandomEngine.h"
 
 #include <map>
 #include <set>
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 class GEMEtaPartition;
 class GEMGeometry;
