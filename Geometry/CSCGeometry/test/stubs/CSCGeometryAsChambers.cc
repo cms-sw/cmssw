@@ -66,7 +66,7 @@ void
 
    int icount = 0;
 
-   std::vector<CSCChamber*> vc = pDD->chambers();
+   const CSCGeometry::ChamberContainer& vc = pDD->chambers();
    std::cout << "No. of chambers stored = " << vc.size() << std::endl;
 
    std::cout << "\n  #     id(dec)      id(oct)    labels      length       width      thickness   "
@@ -74,7 +74,7 @@ void
      "  phi(0)" << std::endl;
    std::cout << dashedLine_ << std::endl;
 
-   for( std::vector<CSCChamber*>::const_iterator it = vc.begin(); it != vc.end(); ++it ){
+   for( auto it = vc.begin(); it != vc.end(); ++it ){
 
       const CSCChamber* chamber = *it;
 

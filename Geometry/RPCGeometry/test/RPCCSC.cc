@@ -231,8 +231,8 @@ RPCCSC::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
 
 
   // Now check binding
-  const std::vector<CSCChamber*> cscChambers = cscGeometry->chambers();
-  for(std::vector<CSCChamber*>::const_iterator CSCChamberIter = cscChambers.begin(); CSCChamberIter != cscChambers.end(); CSCChamberIter++){   
+  const CSCGeometry::ChamberContainer& cscChambers = cscGeometry->chambers();
+  for(auto CSCChamberIter = cscChambers.begin(); CSCChamberIter != cscChambers.end(); CSCChamberIter++){   
     
     CSCDetId CSCId = (*CSCChamberIter)->id();
 

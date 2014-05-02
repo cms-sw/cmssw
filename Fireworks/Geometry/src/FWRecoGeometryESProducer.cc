@@ -120,8 +120,8 @@ FWRecoGeometryESProducer::addCSCGeometry( void )
 {
   DetId detId( DetId::Muon, 2 ); 
   const CSCGeometry* cscGeometry = (const CSCGeometry*) m_geomRecord->slaveGeometry( detId );
-  for( std::vector<CSCChamber*>::const_iterator it = cscGeometry->chambers().begin(),
-					       end = cscGeometry->chambers().end(); 
+  for( auto it = cscGeometry->chambers().begin(),
+	   end = cscGeometry->chambers().end(); 
        it != end; ++it )
   {
     const CSCChamber *chamber = *it;

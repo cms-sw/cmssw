@@ -181,8 +181,8 @@ void AlignableMuon::buildCSCEndcap( const CSCGeometry* pCSC  )
       for ( int iri = 1; iri < 5; iri++ ){
 	 
 	 // Loop over geom CSC Chambers
-	 std::vector<CSCChamber*> vc = pCSC->chambers();
-	 for( std::vector<CSCChamber*>::const_iterator det = vc.begin();  det != vc.end(); ++det ){
+ 	 const CSCGeometry::ChamberContainer& vc = pCSC->chambers();
+	 for( auto det = vc.begin();  det != vc.end(); ++det ){
 
 	    // Get the CSCDet ID
 	    CSCDetId cscId = (*det)->id();
