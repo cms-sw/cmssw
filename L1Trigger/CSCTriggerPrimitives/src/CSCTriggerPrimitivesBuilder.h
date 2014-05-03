@@ -95,8 +95,8 @@ class CSCTriggerPrimitivesBuilder
   /** SLHC: special switch for disabling ME42 */
   bool disableME42;
 
-  /** SLHC: special switch for the factorized ME1/1 TMB */
-  bool runFactorizedModel_;
+  /** SLHC: special switch for the upgrade ME1/1 TMB */
+  bool runME11ILT_;
 
   /** SLHC: special switch for the upgrade ME2/1 TMB */
   bool runME21ILT_;

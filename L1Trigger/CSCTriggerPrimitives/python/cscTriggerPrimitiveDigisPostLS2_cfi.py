@@ -1,9 +1,22 @@
 import FWCore.ParameterSet.Config as cms
 
+## GE1/1-ME1/1
+dphi_lct_pad98 = {
+    'pt0'  : { 'odd' :  2.00000000 , 'even' :  2.00000000 },
+    'pt05' : { 'odd' :  0.02203510 , 'even' :  0.00930056 },
+    'pt06' : { 'odd' :  0.01825790 , 'even' :  0.00790009 },
+    'pt10' : { 'odd' :  0.01066000 , 'even' :  0.00483286 },
+    'pt15' : { 'odd' :  0.00722795 , 'even' :  0.00363230 },
+    'pt20' : { 'odd' :  0.00562598 , 'even' :  0.00304879 },
+    'pt30' : { 'odd' :  0.00416544 , 'even' :  0.00253782 },
+    'pt40' : { 'odd' :  0.00342827 , 'even' :  0.00230833 }
+    }
+
 from L1Trigger.CSCCommonTrigger.CSCCommonTrigger_cfi import *
 # Default parameters for CSCTriggerPrimitives generator
+# for GEM-CSC-RPC integrated local trigger in Post-LS2 era
 # =====================================================
-cscTriggerPrimitiveDigisPostLS1 = cms.EDProducer("CSCTriggerPrimitivesProducer",
+cscTriggerPrimitiveDigisPostLS2 = cms.EDProducer("CSCTriggerPrimitivesProducer",
     CSCCommonTrigger,
 
     # if False, parameters will be read in from DB using EventSetup mechanism
@@ -13,6 +26,7 @@ cscTriggerPrimitiveDigisPostLS1 = cms.EDProducer("CSCTriggerPrimitivesProducer",
     # Name of digi producer module(s)
     CSCComparatorDigiProducer = cms.InputTag("simMuonCSCDigis","MuonCSCComparatorDigi"),
     CSCWireDigiProducer = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi"),
+    GEMCSCPadDigiProducer = cms.InputTag("simMuonGEMCSCPadDigis"),
 
     # for SLHC studies we don't want bad chambers checks so far
     checkBadChambers = cms.bool(False),
@@ -320,6 +334,58 @@ cscTriggerPrimitiveDigisPostLS1 = cms.EDProducer("CSCTriggerPrimitivesProducer",
         maxME11LCTs = cms.uint32(2)
     ),
 
+    # to be used by ME11 chambers with GEM-CSC ILT
+    me11tmbSLHCGEM = cms.PSet(
+        ## run the upgrade algorithm
+        runME11ILT = cms.bool(True),
+
+        ## run in debug mode
+        debugLUTs = cms.bool(False),
+        debugMatching = cms.bool(False),
+        debugGEMDhpi = cms.bool(False),
+
+        ## use old dataformat
+        useOldLCTDataFormatALCTGEM = cms.bool(True),
+        
+        ## copad construction
+        maxDeltaBXInCoPad = cms.int32(1),
+        maxDeltaPadInCoPad = cms.int32(1),
+
+        ## matching to pads in case LowQ CLCT
+        maxDeltaBXPadEven = cms.int32(1),
+        maxDeltaBXPadOdd = cms.int32(1),
+        maxDeltaPadPadEven = cms.int32(2),
+        maxDeltaPadPadOdd = cms.int32(3),
+
+        ## matching to pads in case absent CLCT
+        maxDeltaBXCoPadEven = cms.int32(0),
+        maxDeltaBXCoPadOdd = cms.int32(0),
+        maxDeltaPadCoPadEven = cms.int32(2),
+        maxDeltaPadCoPadOdd = cms.int32(3),
+
+        ## efficiency recovery switches
+        dropLowQualityCLCTsNoGEMs_ME1a = cms.bool(False),
+        dropLowQualityCLCTsNoGEMs_ME1b = cms.bool(True),
+        buildLCTfromALCTandGEM_ME1a = cms.bool(True),
+        buildLCTfromALCTandGEM_ME1b = cms.bool(True),
+        doLCTGhostBustingWithGEMs = cms.bool(False),
+        correctLCTtimingWithGEM = cms.bool(False),
+        promoteALCTGEMpattern = cms.bool(True),
+        promoteALCTGEMquality = cms.bool(True),
+        
+        ## rate reduction 
+        doGemMatching = cms.bool(True),
+        gemMatchDeltaEta = cms.double(0.08),
+        gemMatchDeltaBX = cms.int32(1),
+        gemMatchDeltaPhiOdd = cms.double(dphi_lct_pad98[ptdphi]['odd']),
+        gemMatchDeltaPhiEven = cms.double(dphi_lct_pad98[ptdphi]['even']),
+        gemClearNomatchLCTs = cms.bool(False),
+
+        ## cross BX algorithm
+        tmbCrossBxAlgorithm = cms.uint32(2),
+        firstTwoLCTsInChamber = cms.bool(True),
+    ),
+                                                 
     # MPC sorter config for SLHC studies
     mpcSLHC = cms.PSet(
         mpcMaxStubs = cms.uint32(3)

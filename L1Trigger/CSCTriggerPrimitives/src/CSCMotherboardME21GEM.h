@@ -1,13 +1,13 @@
-#ifndef CSCTriggerPrimitives_CSCMotherboardME21_h
-#define CSCTriggerPrimitives_CSCMotherboardME21_h
+#ifndef CSCTriggerPrimitives_CSCMotherboardME21GEM_h
+#define CSCTriggerPrimitives_CSCMotherboardME21GEM_h
 
 /** \class CSCMotherboardME11
  *
- * Extended CSCMotherboardME21 for ME21 TMB upgrade
+ * Extended CSCMotherboardME21GEM for ME21 TMB upgrade
  *
  * \author Sven Dildick March 2014
  *
- * Based on CSCMotherboardME21 code
+ * Based on CSCMotherboardME21GEM code
  *
  */
 
@@ -20,7 +20,7 @@ class CSCChamber;
 class GEMGeometry;
 class GEMSuperChamber;
 
-class CSCMotherboardME21 : public CSCMotherboard
+class CSCMotherboardME21GEM : public CSCMotherboard
 {
   typedef std::map<int, std::vector<std::pair<unsigned int, const GEMCSCPadDigi*> > > GEMPads;
   typedef std::pair<unsigned int, const GEMCSCPadDigi*> GEMPadBX;
@@ -28,12 +28,12 @@ class CSCMotherboardME21 : public CSCMotherboard
 
  public:
   /** Normal constructor. */
-  CSCMotherboardME21(unsigned endcap, unsigned station, unsigned sector, 
+  CSCMotherboardME21GEM(unsigned endcap, unsigned station, unsigned sector, 
 		 unsigned subsector, unsigned chamber,
 		 const edm::ParameterSet& conf);
 
   /** Default destructor. */
-  ~CSCMotherboardME21();
+  ~CSCMotherboardME21GEM();
 
   void clear();
 
@@ -128,9 +128,6 @@ class CSCMotherboardME21 : public CSCMotherboard
   int pref[MAX_LCT_BINS];
 
   bool match_earliest_clct_me21_only;
-
-  // central LCT bx number
-  int lct_central_bx;
 
   /** whether to not reuse CLCTs that were used by previous matching ALCTs
       in ALCT-to-CLCT algorithm */

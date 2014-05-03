@@ -1,11 +1,11 @@
-#include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME3141.h>
+#include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME3141RPC.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
 #include <L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h>
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
 #include <Geometry/RPCGeometry/interface/RPCRollSpecs.h>
 
-const double CSCMotherboardME3141::lut_wg_me31_eta_odd[96][2] = {
+const double CSCMotherboardME3141RPC::lut_wg_me31_eta_odd[96][2] = {
 { 0,2.421},{ 1,2.415},{ 2,2.406},{ 3,2.397},{ 4,2.388},{ 5,2.379},{ 6,2.371},{ 7,2.362},
 { 8,2.353},{ 9,2.345},{10,2.336},{11,2.328},{12,2.319},{13,2.311},{14,2.303},{15,2.295},
 {16,2.287},{17,2.279},{18,2.271},{19,2.263},{20,2.255},{21,2.248},{22,2.240},{23,2.232},
@@ -20,7 +20,7 @@ const double CSCMotherboardME3141::lut_wg_me31_eta_odd[96][2] = {
 {88,1.787},{89,1.781},{90,1.776},{91,1.770},{92,1.765},{93,1.759},{94,1.754},{95,1.749},
 };
 
-const double CSCMotherboardME3141::lut_wg_me31_eta_even[96][2] = {
+const double CSCMotherboardME3141RPC::lut_wg_me31_eta_even[96][2] = {
 { 0,2.447},{ 1,2.441},{ 2,2.432},{ 3,2.423},{ 4,2.414},{ 5,2.405},{ 6,2.396},{ 7,2.388},
 { 8,2.379},{ 9,2.371},{10,2.362},{11,2.354},{12,2.345},{13,2.337},{14,2.329},{15,2.321},
 {16,2.313},{17,2.305},{18,2.297},{19,2.289},{20,2.281},{21,2.273},{22,2.266},{23,2.258},
@@ -35,7 +35,7 @@ const double CSCMotherboardME3141::lut_wg_me31_eta_even[96][2] = {
 {88,1.811},{89,1.806},{90,1.800},{91,1.795},{92,1.790},{93,1.784},{94,1.779},{95,1.774},
 };
 
-const double CSCMotherboardME3141::lut_wg_me41_eta_odd[96][2] = {
+const double CSCMotherboardME3141RPC::lut_wg_me41_eta_odd[96][2] = {
 { 0,2.399},{ 1,2.394},{ 2,2.386},{ 3,2.378},{ 4,2.370},{ 5,2.362},{ 6,2.354},{ 7,2.346},
 { 8,2.339},{ 9,2.331},{10,2.323},{11,2.316},{12,2.308},{13,2.301},{14,2.293},{15,2.286},
 {16,2.279},{17,2.272},{18,2.264},{19,2.257},{20,2.250},{21,2.243},{22,2.236},{23,2.229},
@@ -50,7 +50,7 @@ const double CSCMotherboardME3141::lut_wg_me41_eta_odd[96][2] = {
 {88,1.866},{89,1.861},{90,1.856},{91,1.852},{92,1.847},{93,1.843},{94,1.838},{95,1.834},
 };
 
-const double CSCMotherboardME3141::lut_wg_me41_eta_even[96][2] = {
+const double CSCMotherboardME3141RPC::lut_wg_me41_eta_even[96][2] = {
 { 0,2.423},{ 1,2.418},{ 2,2.410},{ 3,2.402},{ 4,2.394},{ 5,2.386},{ 6,2.378},{ 7,2.370},
 { 8,2.362},{ 9,2.355},{10,2.347},{11,2.339},{12,2.332},{13,2.324},{14,2.317},{15,2.310},
 {16,2.302},{17,2.295},{18,2.288},{19,2.281},{20,2.274},{21,2.267},{22,2.260},{23,2.253},
@@ -65,7 +65,7 @@ const double CSCMotherboardME3141::lut_wg_me41_eta_even[96][2] = {
 {88,1.889},{89,1.884},{90,1.879},{91,1.875},{92,1.870},{93,1.866},{94,1.861},{95,1.857},
 };
 
-CSCMotherboardME3141::CSCMotherboardME3141(unsigned endcap, unsigned station,
+CSCMotherboardME3141RPC::CSCMotherboardME3141RPC(unsigned endcap, unsigned station,
                                unsigned sector, unsigned subsector,
                                unsigned chamber,
                                const edm::ParameterSet& conf) :
@@ -74,24 +74,21 @@ CSCMotherboardME3141::CSCMotherboardME3141(unsigned endcap, unsigned station,
   edm::ParameterSet commonParams = conf.getParameter<edm::ParameterSet>("commonParam");
   
   if (!isSLHC) edm::LogError("L1CSCTPEmulatorConfigError")
-    << "+++ Upgrade CSCMotherboardME3141 constructed while isSLHC is not set! +++\n";
+    << "+++ Upgrade CSCMotherboardME3141RPC constructed while isSLHC is not set! +++\n";
   
   const edm::ParameterSet tmbParams(conf.getParameter<edm::ParameterSet>("tmbSLHC"));
-  const edm::ParameterSet me3141tmbParams(tmbParams.getUntrackedParameter<edm::ParameterSet>("me3141ILT"));
-
-  // central bx for LCT is 6 for simulation
-  lct_central_bx = tmbParams.getUntrackedParameter<int>("lctCentralBX", 6);
+  const edm::ParameterSet me3141tmbParams(tmbParams.getParameter<edm::ParameterSet>("me3141ILT"));
 
   // whether to not reuse CLCTs that were used by previous matching ALCTs
   // in ALCT-to-CLCT algorithm
-  drop_used_clcts = me3141tmbParams.getUntrackedParameter<bool>("tmbDropUsedClcts",true);
+  drop_used_clcts = me3141tmbParams.getParameter<bool>("tmbDropUsedClcts");
 
-  match_earliest_clct_me3141_only = tmbParams.getUntrackedParameter<bool>("matchEarliestClctME3141Only",true);
+  match_earliest_clct_me3141_only = tmbParams.getParameter<bool>("matchEarliestClctME3141Only");
 
-  tmb_cross_bx_algo = me3141tmbParams.getUntrackedParameter<unsigned int>("tmbCrossBxAlgorithm",2);
+  tmb_cross_bx_algo = me3141tmbParams.getParameter<unsigned int>("tmbCrossBxAlgorithm");
 
   // maximum lcts per BX in ME2
-  max_me3141_lcts = me3141tmbParams.getUntrackedParameter<unsigned int>("maxME3141LCTs",2);
+  max_me3141_lcts = me3141tmbParams.getParameter<unsigned int>("maxME3141LCTs");
 
   //----------------------------------------------------------------------------------------//
 
@@ -100,26 +97,26 @@ CSCMotherboardME3141::CSCMotherboardME3141(unsigned endcap, unsigned station,
   //----------------------------------------------------------------------------------------//
 
   // masterswitch
-  runME3141ILT_ = me3141tmbParams.getUntrackedParameter<bool>("runME3141ILT",false);
+  runME3141ILT_ = me3141tmbParams.getParameter<bool>("runME3141ILT");
 
   // debug
-  debug_luts_ = tmbParams.getUntrackedParameter<bool>("debugLUTs", false);
-  debug_rpc_matching_ = tmbParams.getUntrackedParameter<bool>("debugMatching", false);
+  debug_luts_ = tmbParams.getParameter<bool>("debugLUTs");
+  debug_rpc_matching_ = tmbParams.getParameter<bool>("debugMatching");
 
   // deltas used to match to RPC digis
-  maxDeltaBXRPC_ = tmbParams.getUntrackedParameter<int>("maxDeltaBXRPC",0);
-  maxDeltaRollRPC_ = tmbParams.getUntrackedParameter<int>("maxDeltaRollRPC",0);
-  maxDeltaStripRPC_ = tmbParams.getUntrackedParameter<int>("maxDeltaStripRPC",1);
+  maxDeltaBXRPC_ = tmbParams.getParameter<int>("maxDeltaBXRPC");
+  maxDeltaRollRPC_ = tmbParams.getParameter<int>("maxDeltaRollRPC");
+  maxDeltaStripRPC_ = tmbParams.getParameter<int>("maxDeltaStripRPC");
 
   // drop low quality stubs if they don't have RPCs
-  dropLowQualityCLCTsNoRPCs_ = tmbParams.getUntrackedParameter<bool>("dropLowQualityCLCTsNoRPCs",false);
+  dropLowQualityCLCTsNoRPCs_ = tmbParams.getParameter<bool>("dropLowQualityCLCTsNoRPCs");
 }
 
-CSCMotherboardME3141::~CSCMotherboardME3141() 
+CSCMotherboardME3141RPC::~CSCMotherboardME3141RPC() 
 {
 }
 
-void CSCMotherboardME3141::clear()
+void CSCMotherboardME3141RPC::clear()
 {
   CSCMotherboard::clear();
 
@@ -136,7 +133,7 @@ void CSCMotherboardME3141::clear()
 }
 
 void
-CSCMotherboardME3141::run(const CSCWireDigiCollection* wiredc,
+CSCMotherboardME3141RPC::run(const CSCWireDigiCollection* wiredc,
 			  const CSCComparatorDigiCollection* compdc,
 			  const RPCDigiCollection* rpcDigis) 
 {
@@ -269,6 +266,8 @@ CSCMotherboardME3141::run(const CSCWireDigiCollection* wiredc,
     rpcDigis_.clear();
     retrieveRPCDigis(rpcDigis, rpc_id.rawId());
   }
+
+  return;
 
   const bool hasRPCDigis(rpcDigis_.size()!=0);
   
@@ -418,7 +417,7 @@ CSCMotherboardME3141::run(const CSCWireDigiCollection* wiredc,
 }
 
 // check that the RE31 and RE41 chambers are really there
-bool CSCMotherboardME3141::hasRE31andRE41()
+bool CSCMotherboardME3141RPC::hasRE31andRE41()
 {
   // just pick two random chambers
   auto aRE31(rpc_g->chamber(RPCDetId(1,1,3,2,1,1,0)));
@@ -427,7 +426,7 @@ bool CSCMotherboardME3141::hasRE31andRE41()
 }
 
 
-std::map<int,std::pair<double,double> > CSCMotherboardME3141::createRPCRollLUT(RPCDetId id)
+std::map<int,std::pair<double,double> > CSCMotherboardME3141RPC::createRPCRollLUT(RPCDetId id)
 {
   std::map<int,std::pair<double,double> > result;
   
@@ -449,7 +448,7 @@ std::map<int,std::pair<double,double> > CSCMotherboardME3141::createRPCRollLUT(R
 }
 
 
-int CSCMotherboardME3141::assignRPCRoll(double eta)
+int CSCMotherboardME3141RPC::assignRPCRoll(double eta)
 {
   int result = -99;
   for(auto p : rpcRollToEtaLimits_) {
@@ -464,7 +463,7 @@ int CSCMotherboardME3141::assignRPCRoll(double eta)
 }
 
 
-void CSCMotherboardME3141::retrieveRPCDigis(const RPCDigiCollection* rpcDigis, unsigned id)
+void CSCMotherboardME3141RPC::retrieveRPCDigis(const RPCDigiCollection* rpcDigis, unsigned id)
 {
   auto chamber(rpc_g->chamber(RPCDetId(id)));
   for (auto roll : chamber->rolls()) {
@@ -482,7 +481,7 @@ void CSCMotherboardME3141::retrieveRPCDigis(const RPCDigiCollection* rpcDigis, u
 }
 
 
-void CSCMotherboardME3141::printRPCTriggerDigis(int bx_start, int bx_stop)
+void CSCMotherboardME3141RPC::printRPCTriggerDigis(int bx_start, int bx_stop)
 {
   std::cout << "------------------------------------------------------------------------" << std::endl;
   bool first = true;
@@ -505,10 +504,10 @@ void CSCMotherboardME3141::printRPCTriggerDigis(int bx_start, int bx_stop)
 }
 
 
-CSCMotherboardME3141::RPCDigisBX  
-CSCMotherboardME3141::matchingRPCDigis(const CSCCLCTDigi& clct, const RPCDigisBX& digis, bool first)
+CSCMotherboardME3141RPC::RPCDigisBX  
+CSCMotherboardME3141RPC::matchingRPCDigis(const CSCCLCTDigi& clct, const RPCDigisBX& digis, bool first)
 {
-  CSCMotherboardME3141::RPCDigisBX result;
+  CSCMotherboardME3141RPC::RPCDigisBX result;
 
   const int lowStrip(cscHsToRpcStrip_[clct.getKeyStrip()].first);
   const int highStrip(cscHsToRpcStrip_[clct.getKeyStrip()].second);
@@ -527,10 +526,10 @@ CSCMotherboardME3141::matchingRPCDigis(const CSCCLCTDigi& clct, const RPCDigisBX
 }
 
 
-CSCMotherboardME3141::RPCDigisBX 
-CSCMotherboardME3141::matchingRPCDigis(const CSCALCTDigi& alct, const RPCDigisBX& digis, bool first)
+CSCMotherboardME3141RPC::RPCDigisBX 
+CSCMotherboardME3141RPC::matchingRPCDigis(const CSCALCTDigi& alct, const RPCDigisBX& digis, bool first)
 {
-  CSCMotherboardME3141::RPCDigisBX result;
+  CSCMotherboardME3141RPC::RPCDigisBX result;
   
   auto alctRoll(cscWgToRpcRoll_[alct.getKeyWG()]);
   const bool debug(false);
@@ -547,10 +546,10 @@ CSCMotherboardME3141::matchingRPCDigis(const CSCALCTDigi& alct, const RPCDigisBX
 }
 
 
-CSCMotherboardME3141::RPCDigisBX 
-CSCMotherboardME3141::matchingRPCDigis(const CSCCLCTDigi& clct, const CSCALCTDigi& alct, const RPCDigisBX& digis, bool first)
+CSCMotherboardME3141RPC::RPCDigisBX 
+CSCMotherboardME3141RPC::matchingRPCDigis(const CSCCLCTDigi& clct, const CSCALCTDigi& alct, const RPCDigisBX& digis, bool first)
 {
-  CSCMotherboardME3141::RPCDigisBX result;
+  CSCMotherboardME3141RPC::RPCDigisBX result;
 
   // Fetch all (!) digis matching to ALCTs and CLCTs
   auto digisClct(matchingRPCDigis(clct, digis, false));
@@ -575,7 +574,7 @@ CSCMotherboardME3141::matchingRPCDigis(const CSCCLCTDigi& clct, const CSCALCTDig
   return result;
 }
 
-unsigned int CSCMotherboardME3141::findQualityRPC(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, bool hasRPC)
+unsigned int CSCMotherboardME3141RPC::findQualityRPC(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, bool hasRPC)
 {
 
   /*
@@ -699,7 +698,7 @@ unsigned int CSCMotherboardME3141::findQualityRPC(const CSCALCTDigi& aLCT, const
   return quality;
 }
 
-void CSCMotherboardME3141::correlateLCTsRPC(CSCALCTDigi bestALCT, CSCALCTDigi secondALCT,
+void CSCMotherboardME3141RPC::correlateLCTsRPC(CSCALCTDigi bestALCT, CSCALCTDigi secondALCT,
 					    CSCCLCTDigi bestCLCT, CSCCLCTDigi secondCLCT,
 					    CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2,
 					    const RPCDigisBX& digis)
@@ -735,7 +734,7 @@ void CSCMotherboardME3141::correlateLCTsRPC(CSCALCTDigi bestALCT, CSCALCTDigi se
   }
 }
 
-CSCCorrelatedLCTDigi CSCMotherboardME3141::constructLCTsRPC(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, bool hasRPC) 
+CSCCorrelatedLCTDigi CSCMotherboardME3141RPC::constructLCTsRPC(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, bool hasRPC) 
 {
   // CLCT pattern number
   unsigned int pattern = encodePattern(cLCT.getPattern(), cLCT.getStripType());
@@ -756,13 +755,13 @@ CSCCorrelatedLCTDigi CSCMotherboardME3141::constructLCTsRPC(const CSCALCTDigi& a
 
 
 //readout LCTs 
-std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME3141::readoutLCTs()
+std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME3141RPC::readoutLCTs()
 {
   return getLCTs();
 }
 
 //getLCTs when we use different sort algorithm
-std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME3141::getLCTs()
+std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME3141RPC::getLCTs()
 {
   std::vector<CSCCorrelatedLCTDigi> result;
   for (int bx = 0; bx < MAX_LCT_BINS; bx++) {
@@ -785,7 +784,7 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME3141::getLCTs()
 }
 
 //sort LCTs by Quality in each BX
-std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME3141::sortLCTsByQuality(int bx)
+std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME3141RPC::sortLCTsByQuality(int bx)
 {
   std::vector<CSCCorrelatedLCTDigi> LCTs;
   LCTs.clear();
