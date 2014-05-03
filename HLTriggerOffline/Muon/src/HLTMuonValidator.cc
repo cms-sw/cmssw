@@ -17,7 +17,7 @@
 #include "HLTriggerOffline/Muon/interface/HLTMuonPlotter.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -39,7 +39,7 @@
 
 
 
-class HLTMuonValidator : public edm::EDAnalyzer {
+class HLTMuonValidator : public DQMEDAnalyzer {
 
 public:
 
@@ -48,11 +48,12 @@ public:
 private:
 
   // Analyzer Methods
-  virtual void beginJob() override;
-  virtual void beginRun(const edm::Run &, const edm::EventSetup &) override;
+  virtual void beginJob();
+  virtual void dqmBeginRun(const edm::Run &, const edm::EventSetup &) override;
+  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   virtual void analyze(const edm::Event &, const edm::EventSetup &) override;
   virtual void endRun(const edm::Run &, const edm::EventSetup &) override;
-  virtual void endJob() override;
+  virtual void endJob();
 
   // Extra Methods
   std::vector<std::string> moduleLabels(std::string);
@@ -70,9 +71,6 @@ private:
     edm::EDGetTokenT<trigger::TriggerEventWithRefs>,
     edm::EDGetTokenT<reco::GenParticleCollection>,
     edm::EDGetTokenT<reco::MuonCollection> > myTokens_;
-
-  // Access to the DQM
-  DQMStore * dbe_;
 
 };
 
@@ -121,6 +119,8 @@ HLTMuonValidator::moduleLabels(string path) {
 
 }
 
+
+
 vector<string>
 HLTMuonValidator::stepLabels(const vector<string>& modules) {
   vector<string> steps(1, "All");
@@ -147,9 +147,10 @@ HLTMuonValidator::stepLabels(const vector<string>& modules) {
 }
 
 
+
 void 
-HLTMuonValidator::beginRun(const edm::Run & iRun, 
-                         const edm::EventSetup & iSetup) 
+HLTMuonValidator::dqmBeginRun(const edm::Run & iRun, 
+			      const edm::EventSetup & iSetup) 
 {  
   // Initialize hltConfig
   bool changedConfig;
@@ -185,25 +186,36 @@ HLTMuonValidator::beginRun(const edm::Run & iRun,
       analyzers_.push_back(analyzer);
     }
   }
-  
+
+}
+
+
+
+void HLTMuonValidator::bookHistograms(DQMStore::IBooker & iBooker, 
+				      edm::Run const & iRun, 
+				      edm::EventSetup const & iSetup)
+{
+
   // Call the beginRun (which books all the histograms)
   vector<HLTMuonPlotter>::iterator iter;
   for (iter = analyzers_.begin(); iter != analyzers_.end(); ++iter) {
-    iter->beginRun(iRun, iSetup);
+    iter->beginRun(iBooker, iRun, iSetup);
   }
   
 }
 
+
+
 void
 HLTMuonValidator::analyze(const Event& iEvent, 
-                                     const EventSetup& iSetup)
+			  const EventSetup& iSetup)
 {
-
+  
   vector<HLTMuonPlotter>::iterator iter;
   for (iter = analyzers_.begin(); iter != analyzers_.end(); ++iter) {
     iter->analyze(iEvent, iSetup);
   }
-
+  
 }
 
 
@@ -211,13 +223,14 @@ HLTMuonValidator::analyze(const Event& iEvent,
 void 
 HLTMuonValidator::beginJob()
 {
+
 }
 
 
 
 void 
 HLTMuonValidator::endRun(const edm::Run & iRun, 
-                                    const edm::EventSetup& iSetup)
+			 const edm::EventSetup& iSetup)
 {
 
   // vector<HLTMuonPlotter>::iterator iter;
@@ -232,6 +245,7 @@ HLTMuonValidator::endRun(const edm::Run & iRun,
 void 
 HLTMuonValidator::endJob()
 {
+
 }
 
 
