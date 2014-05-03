@@ -21,7 +21,7 @@ clean_up() {
 generate() {
     echo "Generating files"
 
-    python test_fastHaddMerge.py -a produce -n $numFiles 2>&1 > /dev/null
+    python ${LOCAL_TEST_DIR}/test_fastHaddMerge.py -a produce -n $numFiles 2>&1 > /dev/null
 
     if [ $? -ne 0 ]; then
 	exit $?
@@ -64,7 +64,7 @@ hadd_merge() {
 check_hadd() {
     echo "Checking ROOT result..."
 
-    python test_fastHaddMerge.py -a check -n $numFiles -c $cumRootFile 2>&1 > /dev/null
+    python ${LOCAL_TEST_DIR}/test_fastHaddMerge.py -a check -n $numFiles -c $cumRootFile 2>&1 > /dev/null
 
     if [ $? -ne 0 ]; then
 	exit $?
@@ -100,7 +100,7 @@ convertPB2ROOT() {
 check_fasthadd() {
     echo "Checking PB result... on ${cumPBFile_inROOT}"
 
-    python test_fastHaddMerge.py -a check -n $numFiles -c $cumPBFile_inROOT 2>&1 > /dev/null
+    python ${LOCAL_TEST_DIR}/test_fastHaddMerge.py -a check -n $numFiles -c $cumPBFile_inROOT 2>&1 > /dev/null
 
     if [ $? -ne 0 ]; then
 	exit $?
@@ -134,7 +134,7 @@ convert() {
 check_fasthadd_parallel() {
     echo "Checking PB result... on ${cumPBFileThreaded_inROOT}"
 
-    python test_fastHaddMerge.py -a check -n $numFiles -c $cumPBFileThreaded_inROOT 2>&1 > /dev/null
+    python ${LOCAL_TEST_DIR}/test_fastHaddMerge.py -a check -n $numFiles -c $cumPBFileThreaded_inROOT 2>&1 > /dev/null
 
     if [ $? -ne 0 ]; then
 	exit $?
