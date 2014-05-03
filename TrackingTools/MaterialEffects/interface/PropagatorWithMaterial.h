@@ -41,50 +41,26 @@ public:
 
   virtual ~PropagatorWithMaterial();
 
-  virtual TrajectoryStateOnSurface propagate (const TrajectoryStateOnSurface& tsos,
-					      const Plane& plane) const
-  {
-    // should be implemented (in case underlying propagator has an independent
-    // implementation)
-    return propagateWithPath(tsos,plane).first;
-  }
 
-  virtual TrajectoryStateOnSurface propagate (const FreeTrajectoryState& fts,
-					      const Plane& plane) const
-  {
-    // should be implemented (in case underlying propagator has an independent
-    // implementation)
-    return propagateWithPath(fts,plane).first;
-  }
 
+  using Propagator::propagate;
+  using Propagator::propagateWithPath;
+
+
+private:
   virtual std::pair<TrajectoryStateOnSurface,double> propagateWithPath (const TrajectoryStateOnSurface& tsos,
-									const Plane& plane) const;
+									const Plane& plane) const override;
 
   virtual std::pair<TrajectoryStateOnSurface,double> propagateWithPath (const FreeTrajectoryState& fts,
-									const Plane& plane) const;
-
-  virtual TrajectoryStateOnSurface propagate (const TrajectoryStateOnSurface& tsos,
-					      const Cylinder& cylinder) const
-  {
-    // should be implemented (in case underlying propagator has an independent
-    // implementation)
-    return propagateWithPath(tsos,cylinder).first;
-  }
-
-  virtual TrajectoryStateOnSurface propagate (const FreeTrajectoryState& fts,
-					      const Cylinder& cylinder) const
-  {
-    // should be implemented (in case underlying propagator has an independent
-    // implementation)
-    return propagateWithPath(fts,cylinder).first;
-  }
+									const Plane& plane) const override;
 
   virtual std::pair<TrajectoryStateOnSurface,double> propagateWithPath (const TrajectoryStateOnSurface& tsos,
-									const Cylinder& cylinder) const;
+									const Cylinder& cylinder) const override;
 
   virtual std::pair<TrajectoryStateOnSurface,double> propagateWithPath (const FreeTrajectoryState& fts,
-									const Cylinder& cylinder) const;
+									const Cylinder& cylinder) const override;
 
+public:
   /// Limit on change in azimuthal angle
   virtual bool setMaxDirectionChange( float phiMax) {
     return theGeometricalPropagator->setMaxDirectionChange(phiMax);

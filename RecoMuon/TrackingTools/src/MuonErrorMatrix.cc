@@ -520,10 +520,11 @@ void MuonErrorMatrix::adjust(TrajectoryStateOnSurface & state){
   LogDebug(theCategory+"|Adjust")<<"updated state COV(i,j): \n"<<finalTerms;  
 
   CurvilinearTrajectoryError oMat(finalTerms);
-  state = TrajectoryStateOnSurface(state.globalParameters(),
+  state = TrajectoryStateOnSurface(state.weight(),
+                                   state.globalParameters(),
 				   oMat,
 				   state.surface(),
-				   state.surfaceSide(),
-				   state.weight());
+				   state.surfaceSide()
+				  );
   LogDebug(theCategory+"|Adjust")<<"updated state:\n"<<state;
 }

@@ -32,6 +32,9 @@ class DetGroupElement {
      state_ = std::move(rhs.state_);
      return *this;
   }
+  DetGroupElement( const Det* d, TrajectoryStateOnSurface&& s) noexcept :
+    det_(d), state_(std::move(s)) {}
+
 #endif
 
   const Det* det() const {return det_;}
