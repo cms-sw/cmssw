@@ -181,7 +181,7 @@ reco::Track * PixelTrackBuilder::build(
   // (twice just to be sure!)
   impPointPlane.addReference(); impPointPlane.addReference();
   // use Base (to avoid a useless new) 
-  BasicTrajectoryStateOnSurface impactPointState( lpar , error, impPointPlane, mf, 1.0);
+  BasicTrajectoryStateOnSurface impactPointState( lpar , error, impPointPlane, mf);
   
   //checkState(impactPointState,mf);
   LogTrace("")<<"constructed TSOS :\n"<<print(impactPointState);

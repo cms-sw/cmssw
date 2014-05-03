@@ -54,64 +54,20 @@ class BeamHaloPropagator GCC11_FINAL : public Propagator {
       theCrossTkProp->setPropagationDirection(dir);
     }
 
+    using Propagator::propagate;
+    using Propagator::propagateWithPath;
 
-
-    /* Operations as propagator*/
-    TrajectoryStateOnSurface propagate(const FreeTrajectoryState& fts,
-                                       const Surface& surface) const;
-
-    TrajectoryStateOnSurface propagate(const TrajectoryStateOnSurface& tsos,
-                                       const Surface& surface) const {
-      return Propagator::propagate(tsos,surface);
-    }
-
-    TrajectoryStateOnSurface propagate(const FreeTrajectoryState& fts,
-                                       const Plane& plane) const;
-
-    TrajectoryStateOnSurface propagate(const TrajectoryStateOnSurface& tsos,
-                                       const Plane& plane) const {
-      return Propagator::propagate(tsos, plane);
-    }
-
-    TrajectoryStateOnSurface propagate(const FreeTrajectoryState& fts,
-                                       const Cylinder& cylinder) const;
-
-    TrajectoryStateOnSurface propagate(const TrajectoryStateOnSurface& tsos,
-                                       const Cylinder& cylinder) const {
-      return Propagator::propagate(tsos, cylinder);
-    }
-
-    std::pair<TrajectoryStateOnSurface,double>
-      propagateWithPath(const FreeTrajectoryState& fts,
-                        const Surface& surface) const {
-        return Propagator::propagateWithPath(fts,surface);
-      }
-
-    std::pair<TrajectoryStateOnSurface,double>
-      propagateWithPath(const TrajectoryStateOnSurface& tsos,
-                        const Surface& surface) const {
-        return Propagator::propagateWithPath(tsos,surface);
-      }
+ private:
 
     std::pair<TrajectoryStateOnSurface,double>
       propagateWithPath(const FreeTrajectoryState& fts,
                         const Plane& plane) const;
 
-    std::pair<TrajectoryStateOnSurface,double>
-      propagateWithPath(const TrajectoryStateOnSurface& tsos,
-                        const Plane& plane) const {
-        return Propagator::propagateWithPath(tsos, plane);
-      }
 
     std::pair<TrajectoryStateOnSurface,double>
       propagateWithPath(const FreeTrajectoryState& fts,
                         const Cylinder& cylinder) const;
 
-    std::pair<TrajectoryStateOnSurface,double>
-      propagateWithPath(const TrajectoryStateOnSurface& tsos,
-                        const Cylinder& cylinder) const {
-        return Propagator::propagateWithPath(tsos, cylinder);
-      }
 
     ///true if the plane and the fts z position have different sign
       bool crossingTk(const FreeTrajectoryState& fts, const Plane& plane)  const ;
