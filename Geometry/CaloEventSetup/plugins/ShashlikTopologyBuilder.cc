@@ -27,7 +27,7 @@ ShashlikTopologyBuilder::produce(const ShashlikNumberingRecord& iRecord ) {
   iRecord.get( pSDC ) ;
   const ShashlikDDDConstants* sdc = &(*pSDC);
 
-  ReturnType ct ( new ShashlikTopology(sdc) ) ;
+  ReturnType ct ( new ShashlikTopology(*sdc) ) ;
   std::cout << "Create ShashlikTopology(sdc)" << std::endl;
   return ct ;
 }
