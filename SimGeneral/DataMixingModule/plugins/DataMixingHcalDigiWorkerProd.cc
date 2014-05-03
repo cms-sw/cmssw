@@ -50,7 +50,7 @@ namespace edm {
 
     // initialize HcalDigitizer here...
 
-    myHcalDigitizer_ = new HcalDigitizer( ps, iC );
+    myHcalDigitizer_ = new HcalDigiProducer( ps, iC );
 
     myHcalDigitizer_->setHBHENoiseSignalGenerator( & theHBHESignalGenerator );
     myHcalDigitizer_->setHFNoiseSignalGenerator( & theHFSignalGenerator );
@@ -64,9 +64,9 @@ namespace edm {
     delete myHcalDigitizer_;
   }  
 
-  void DataMixingHcalDigiWorkerProd::beginRun(const edm::EventSetup& ES) {
+  void DataMixingHcalDigiWorkerProd::beginRun(const edm::Run& run, const edm::EventSetup& ES) {
 
-    myHcalDigitizer_->beginRun(ES); 
+    myHcalDigitizer_->beginRun(run, ES); 
   }
 
   void DataMixingHcalDigiWorkerProd::initializeEvent(const edm::Event &e, const edm::EventSetup& ES) {
@@ -100,12 +100,13 @@ namespace edm {
   void DataMixingHcalDigiWorkerProd::putHcal(edm::Event &e,const edm::EventSetup& ES) {
 
     // Digitize
-    edm::Service<edm::RandomNumberGenerator> rng;
-    CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
+    //edm::Service<edm::RandomNumberGenerator> rng;
+    //CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
 
     //myHcalDigitizer_->initializeEvent( e, ES );
 
-    myHcalDigitizer_->finalizeEvent( e, ES, engine );
+    //    myHcalDigitizer_->finalizeEvent( e, ES, engine );
+    myHcalDigitizer_->finalizeEvent( e, ES);
 
   }
 

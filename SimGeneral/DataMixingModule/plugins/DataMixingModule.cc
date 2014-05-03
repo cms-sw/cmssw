@@ -152,7 +152,7 @@ namespace edm
         EcalDigiWorkerProd_->setEEAccess(tok_ee_);
         EcalDigiWorkerProd_->setESAccess(tok_es_);
       }
-      else { EMDigiWorker_ = new DataMixingEMDigiWorker(ps); }
+      else { EMDigiWorker_ = new DataMixingEMDigiWorker(ps, consumesCollector()); }
     }
     else { // merge RecHits 
       EBRecHitCollectionDM_        = ps.getParameter<std::string>("EBRecHitCollectionDM");
@@ -326,7 +326,7 @@ namespace edm
     BMixingModule::beginRun( run, ES);
     if( addMCDigiNoise_ ) {
       EcalDigiWorkerProd_->beginRun( ES );
-      HcalDigiWorkerProd_->beginRun( ES );
+      HcalDigiWorkerProd_->beginRun( run, ES );
     }
   }
 
