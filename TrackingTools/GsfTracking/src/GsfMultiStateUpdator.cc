@@ -13,13 +13,13 @@
 TrajectoryStateOnSurface GsfMultiStateUpdator::update(const TrajectoryStateOnSurface& tsos,
 						      const TrackingRecHit& aRecHit) const {
   
-  std::vector<TrajectoryStateOnSurface> predictedComponents = tsos.components();
+  std::vector<TrajectoryStateOnSurface> && predictedComponents = tsos.components();
   if (predictedComponents.empty()) {
     edm::LogError("GsfMultiStateUpdator") << "Trying to update trajectory state with zero components! " ;
     return TrajectoryStateOnSurface();
   }
 
-  std::vector<double> weights = PosteriorWeightsCalculator(predictedComponents).weights(aRecHit);
+  std::vector<double> && weights = PosteriorWeightsCalculator(predictedComponents).weights(aRecHit);
   if ( weights.empty() ) {
     edm::LogError("GsfMultiStateUpdator") << " no weights could be retreived. invalid updated state !.";
     return TrajectoryStateOnSurface();
@@ -32,10 +32,12 @@ TrajectoryStateOnSurface GsfMultiStateUpdator::update(const TrajectoryStateOnSur
        iter != predictedComponents.end(); iter++) {
     TrajectoryStateOnSurface updatedTSOS = KFUpdator().update(*iter, aRecHit);
     if (updatedTSOS.isValid()){
-      result.addState(TrajectoryStateOnSurface(updatedTSOS.localParameters(),
+      result.addState(TrajectoryStateOnSurface(weights[i], 
+                                               updatedTSOS.localParameters(),
 					       updatedTSOS.localError(), updatedTSOS.surface(), 
 					       &(tsos.globalParameters().magneticField()),
-					       (*iter).surfaceSide(), weights[i]));
+					       (*iter).surfaceSide()
+                                              ));
     i++;
     }
     else{

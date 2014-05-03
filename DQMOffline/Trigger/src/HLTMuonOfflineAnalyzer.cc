@@ -19,7 +19,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -40,7 +40,7 @@
 
 
 
-class HLTMuonOfflineAnalyzer : public edm::EDAnalyzer {
+class HLTMuonOfflineAnalyzer : public DQMEDAnalyzer {
 
 public:
 
@@ -49,11 +49,12 @@ public:
 private:
 
   // Analyzer Methods
-  virtual void beginJob() override;
-  virtual void beginRun(const edm::Run &, const edm::EventSetup &) override;
+  virtual void beginJob();
+  virtual void dqmBeginRun(const edm::Run &, const edm::EventSetup &) override;
+  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;  
   virtual void analyze(const edm::Event &, const edm::EventSetup &) override;
   virtual void endRun(const edm::Run &, const edm::EventSetup &) override;
-  virtual void endJob() override;
+  virtual void endJob();
 
   // Extra Methods
   std::vector<std::string> moduleLabels(std::string);
@@ -61,15 +62,11 @@ private:
   // Input from Configuration File
   edm::ParameterSet pset_;
   std::string hltProcessName_;
-  std::string destination_;
   std::vector<std::string> hltPathsToCheck_;
 
   // Member Variables
   HLTMuonMatchAndPlotContainer plotterContainer_;
   HLTConfigProvider hltConfig_;
-
-  // Access to the DQM
-  DQMStore * dbe_;
 
 };
 
@@ -93,15 +90,9 @@ typedef vector<string> vstring;
 HLTMuonOfflineAnalyzer::HLTMuonOfflineAnalyzer(const ParameterSet& pset) :
   pset_(pset),
   hltProcessName_(pset.getParameter<string>("hltProcessName")),
-  destination_(pset.getUntrackedParameter<string>("destination")),
   hltPathsToCheck_(pset.getParameter<vstring>("hltPathsToCheck")),
   plotterContainer_(consumesCollector(),pset)
 {
-
-  // Prepare the DQMStore object.
-  dbe_ = edm::Service<DQMStore>().operator->();
-  dbe_->setVerbose(0);
-  dbe_->setCurrentFolder(destination_);
 
 }
 
@@ -127,8 +118,8 @@ HLTMuonOfflineAnalyzer::moduleLabels(string path)
 
 
 void 
-HLTMuonOfflineAnalyzer::beginRun(const edm::Run & iRun, 
-				 const edm::EventSetup & iSetup) 
+HLTMuonOfflineAnalyzer::dqmBeginRun(const edm::Run & iRun, 
+				    const edm::EventSetup & iSetup) 
 {
 
   // Initialize hltConfig
@@ -157,9 +148,20 @@ HLTMuonOfflineAnalyzer::beginRun(const edm::Run & iRun,
     }
   }
 
-  plotterContainer_.beginRun(iRun, iSetup);
+}
+
+
+
+void 
+HLTMuonOfflineAnalyzer::bookHistograms(DQMStore::IBooker & iBooker, 
+				       edm::Run const & iRun, edm::EventSetup const & iSetup)
+{
+
+  plotterContainer_.beginRun(iBooker, iRun, iSetup);
 
 }
+
+
 
 void
 HLTMuonOfflineAnalyzer::analyze(const Event& iEvent, 

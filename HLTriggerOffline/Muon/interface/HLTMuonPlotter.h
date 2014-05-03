@@ -67,7 +67,7 @@ class HLTMuonPlotter {
 		 );
 
   void beginJob();
-  void beginRun(const edm::Run &, const edm::EventSetup &);
+  void beginRun(DQMStore::IBooker &, const edm::Run &, const edm::EventSetup &);
   void analyze(const edm::Event &, const edm::EventSetup &);
 
   static boost::tuple<
@@ -111,7 +111,8 @@ class HLTMuonPlotter {
       const std::vector<l1extra::L1MuonParticleRef>&,
       const std::vector< std::vector< const reco::RecoChargedCandidate *> >&
       );
-  void bookHist(std::string, std::string, std::string, std::string);
+  void bookHist(DQMStore::IBooker &, std::string,
+		std::string, std::string, std::string);
 
   std::string  hltPath_;
   std::string  hltProcessName_;
@@ -139,7 +140,6 @@ class HLTMuonPlotter {
 
   L1MuonMatcherAlgo l1Matcher_;
 
-  DQMStore* dbe_;
   std::map<std::string, MonitorElement *> elements_;
 
 };

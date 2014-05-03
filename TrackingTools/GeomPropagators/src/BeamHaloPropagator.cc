@@ -86,26 +86,7 @@ bool BeamHaloPropagator::crossingTk(const FreeTrajectoryState& fts, const Plane&
 				<<"and hence "<<((fts.position().z()*plane.position().z()<0)?"crossing":"not crossing");
   return (fts.position().z()*plane.position().z()<0);}
 
-TrajectoryStateOnSurface BeamHaloPropagator::propagate(const FreeTrajectoryState& fts,
-                                                    const Surface& surface) const {
-  return Propagator::propagate( fts, surface);
-}
 
-
-TrajectoryStateOnSurface BeamHaloPropagator::propagate(const FreeTrajectoryState& fts,
-                                                    const Plane& plane) const {
-
-  if (crossingTk(fts,plane)){
-    return getCrossTkPropagator()->propagate(fts, plane);}
-  else{
-    return getEndCapTkPropagator()->propagate(fts, plane);}
-}
-
-
-TrajectoryStateOnSurface BeamHaloPropagator::propagate(const FreeTrajectoryState& fts,
-                                                    const Cylinder& cylinder) const {
-  return getCrossTkPropagator()->propagate(fts, cylinder);
-}
 
 std::pair<TrajectoryStateOnSurface,double>
 BeamHaloPropagator::propagateWithPath(const FreeTrajectoryState& fts,
