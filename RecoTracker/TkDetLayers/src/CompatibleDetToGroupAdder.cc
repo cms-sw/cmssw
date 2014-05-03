@@ -47,11 +47,9 @@ bool CompatibleDetToGroupAdder::add( const GeomDet& det,
 				     vector<DetGroup>& result) {
   //TkGeomDetCompatibilityChecker theCompatibilityChecker;
   GeomDetCompatibilityChecker theCompatibilityChecker;
-  pair<bool, TrajectoryStateOnSurface> compat = theCompatibilityChecker.isCompatible( &det,tsos, prop, est);
+  auto && compat = theCompatibilityChecker.isCompatible( &det,tsos, prop, est);
 
   if (!compat.first) return false;
-
-  DetGroupElement ge( &det, compat.second);
 
   if (result.empty())
     result.push_back( DetGroup( 0, 1)); // empty group for ge insertion
@@ -60,7 +58,7 @@ bool CompatibleDetToGroupAdder::add( const GeomDet& det,
       edm::LogError("TkDetLayers") << "CompatibleDetToGroupAdder: det is not grouped but result has more than one group!" ;
     
 
-  result.front().push_back(ge); 
+  result.front().emplace_back(&det, std::move(compat.second)); 
   return true;  
 }
 

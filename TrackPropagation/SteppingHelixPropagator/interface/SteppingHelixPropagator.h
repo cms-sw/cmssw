@@ -82,31 +82,16 @@ class SteppingHelixPropagator GCC11_FINAL : public Propagator {
   SteppingHelixPropagator();
   SteppingHelixPropagator(const MagneticField* field, PropagationDirection dir = alongMomentum);
 
-  virtual SteppingHelixPropagator* clone() const {return new SteppingHelixPropagator(*this);}
+  virtual SteppingHelixPropagator* clone() const  override {return new SteppingHelixPropagator(*this);}
 
   //! Destructor
-  ~SteppingHelixPropagator() {}
+  virtual ~SteppingHelixPropagator();
   
-  virtual const MagneticField* magneticField() const { return field_;}
-  
-  //! Propagate to Plane given a starting point
-  virtual TrajectoryStateOnSurface 
-    propagate(const FreeTrajectoryState& ftsStart, const Plane& pDest) const override;
-  //! Propagate to Cylinder given a starting point (a Cylinder is assumed to be positioned at 0,0,0)
-  virtual TrajectoryStateOnSurface 
-    propagate(const FreeTrajectoryState& ftsStart, const Cylinder& cDest) const override;
-  //! Propagate to PCA to point given a starting point 
-  virtual FreeTrajectoryState 
-    propagate(const FreeTrajectoryState& ftsStart, const GlobalPoint& pDest) const;
-  //! Propagate to PCA to a line (given by 2 points) given a starting point 
-  virtual FreeTrajectoryState 
-    propagate(const FreeTrajectoryState& ftsStart, 
-	      const GlobalPoint& pDest1, const GlobalPoint& pDest2) const;
-  //! Propagate to PCA to a line determined by BeamSpot position and slope given a starting point 
-  virtual FreeTrajectoryState 
-    propagate(const FreeTrajectoryState& ftsStart, 
-	      const reco::BeamSpot& beamSpot) const override;
+  virtual const MagneticField* magneticField() const override { return field_;}
 
+  using Propagator::propagate;
+  using Propagator::propagateWithPath;
+  
   //! Propagate to Plane given a starting point: return final 
   //! TrajectoryState and path length from start to this point
   virtual std::pair<TrajectoryStateOnSurface, double> 
@@ -117,7 +102,7 @@ class SteppingHelixPropagator GCC11_FINAL : public Propagator {
     propagateWithPath(const FreeTrajectoryState& ftsStart, const Cylinder& cDest) const override;
   //! Propagate to PCA to point given a starting point 
   virtual std::pair<FreeTrajectoryState, double> 
-    propagateWithPath(const FreeTrajectoryState& ftsStart, const GlobalPoint& pDest) const;
+    propagateWithPath(const FreeTrajectoryState& ftsStart, const GlobalPoint& pDest) const override;
   //! Propagate to PCA to a line (given by 2 points) given a starting point 
   virtual std::pair<FreeTrajectoryState, double> 
     propagateWithPath(const FreeTrajectoryState& ftsStart, 
@@ -125,8 +110,11 @@ class SteppingHelixPropagator GCC11_FINAL : public Propagator {
   //! Propagate to PCA to a line (given by beamSpot position and slope) given a starting point 
   virtual std::pair<FreeTrajectoryState, double> 
     propagateWithPath(const FreeTrajectoryState& ftsStart, 
-		      const reco::BeamSpot& beamSpot) const;
-    
+		      const reco::BeamSpot& beamSpot) const override;
+
+
+
+  //----------------------------------------------------------------------------------------------------------    
     
   //! Propagate to Plane given a starting point
   void
