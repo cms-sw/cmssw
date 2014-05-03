@@ -29,20 +29,8 @@ MuonKinVsEtaAnalyzer::MuonKinVsEtaAnalyzer(const edm::ParameterSet& pSet) {
   theMuonCollectionLabel_  = consumes<reco::MuonCollection>(parameters.getParameter<InputTag>("MuonCollection"));
   theVertexLabel_          = consumes<reco::VertexCollection>(parameters.getParameter<edm::InputTag>("VertexLabel"));
   theBeamSpotLabel_        = mayConsume<reco::BeamSpot>      (parameters.getParameter<edm::InputTag>("BeamSpotLabel"));
-}
-MuonKinVsEtaAnalyzer::~MuonKinVsEtaAnalyzer() { 
-  delete theService;
-}
 
-void MuonKinVsEtaAnalyzer::beginJob(){
-  metname = "muonKinVsEta";
-}
-
-void MuonKinVsEtaAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup){
-  metname = "muonKinVsEta";                                                                                                   
-  theDbe->cd();
-  theDbe->setCurrentFolder("Muons/MuonKinVsEtaAnalyzer");
-
+  // Parameters
   etaBin = parameters.getParameter<int>("etaBin");
   etaMin = parameters.getParameter<double>("etaMin");
   etaMax = parameters.getParameter<double>("etaMax");
@@ -72,6 +60,18 @@ void MuonKinVsEtaAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup&
   etaOvlpMin = parameters.getParameter<double>("etaOvlpMin");
   etaOvlpMax = parameters.getParameter<double>("etaOvlpMax");
 
+}
+MuonKinVsEtaAnalyzer::~MuonKinVsEtaAnalyzer() { 
+  delete theService;
+}
+
+void MuonKinVsEtaAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
+					  edm::Run const & /*iRun*/,
+					  edm::EventSetup const& /*iSetup*/){
+  ibooker.cd();
+  ibooker.setCurrentFolder("Muons/MuonKinVsEtaAnalyzer");
+
+
   std::string EtaName;
   for(unsigned int iEtaRegion=0;iEtaRegion<4;iEtaRegion++){
     if (iEtaRegion==0) EtaName = "Barrel";   
@@ -80,56 +80,56 @@ void MuonKinVsEtaAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup&
     if (iEtaRegion==3) EtaName = "";
 
     // monitoring of eta parameter
-    etaGlbTrack.push_back(theDbe->book1D("GlbMuon_eta_"+EtaName, "#eta_{GLB} "+EtaName, etaBin, etaMin, etaMax));
-    etaTrack.push_back(theDbe->book1D("TkMuon_eta_"+EtaName, "#eta_{TK} "+EtaName, etaBin, etaMin, etaMax));
-    etaStaTrack.push_back(theDbe->book1D("StaMuon_eta_"+EtaName, "#eta_{STA} "+EtaName, etaBin, etaMin, etaMax));
-    etaTightTrack.push_back(theDbe->book1D("TightMuon_eta_"+EtaName, "#eta_{Tight} "+EtaName, etaBin, etaMin, etaMax));
-    etaLooseTrack.push_back(theDbe->book1D("LooseMuon_eta_"+EtaName, "#eta_{Loose} "+EtaName, etaBin, etaMin, etaMax));
-    etaSoftTrack.push_back(theDbe->book1D("SoftMuon_eta_"+EtaName, "#eta_{Soft} "+EtaName, etaBin, etaMin, etaMax));
-    etaHighPtTrack.push_back(theDbe->book1D("HighPtMuon_eta_"+EtaName, "#eta_{HighPt} "+EtaName, etaBin, etaMin, etaMax));
+    etaGlbTrack.push_back(ibooker.book1D("GlbMuon_eta_"+EtaName, "#eta_{GLB} "+EtaName, etaBin, etaMin, etaMax));
+    etaTrack.push_back(ibooker.book1D("TkMuon_eta_"+EtaName, "#eta_{TK} "+EtaName, etaBin, etaMin, etaMax));
+    etaStaTrack.push_back(ibooker.book1D("StaMuon_eta_"+EtaName, "#eta_{STA} "+EtaName, etaBin, etaMin, etaMax));
+    etaTightTrack.push_back(ibooker.book1D("TightMuon_eta_"+EtaName, "#eta_{Tight} "+EtaName, etaBin, etaMin, etaMax));
+    etaLooseTrack.push_back(ibooker.book1D("LooseMuon_eta_"+EtaName, "#eta_{Loose} "+EtaName, etaBin, etaMin, etaMax));
+    etaSoftTrack.push_back(ibooker.book1D("SoftMuon_eta_"+EtaName, "#eta_{Soft} "+EtaName, etaBin, etaMin, etaMax));
+    etaHighPtTrack.push_back(ibooker.book1D("HighPtMuon_eta_"+EtaName, "#eta_{HighPt} "+EtaName, etaBin, etaMin, etaMax));
     
     // monitoring of phi paramater
-    phiGlbTrack.push_back(theDbe->book1D("GlbMuon_phi_"+EtaName, "#phi_{GLB} "+EtaName+ "(rad)", phiBin, phiMin, phiMax));
-    phiTrack.push_back(theDbe->book1D("TkMuon_phi_"+EtaName, "#phi_{TK}" +EtaName +"(rad)", phiBin, phiMin, phiMax));
-    phiStaTrack.push_back(theDbe->book1D("StaMuon_phi_"+EtaName, "#phi_{STA}"+EtaName+" (rad)", phiBin, phiMin, phiMax));
-    phiTightTrack.push_back(theDbe->book1D("TightMuon_phi_"+EtaName, "#phi_{Tight}_"+EtaName, phiBin, phiMin, phiMax));
-    phiLooseTrack.push_back(theDbe->book1D("LooseMuon_phi_"+EtaName, "#phi_{Loose}_"+EtaName, phiBin, phiMin, phiMax));
-    phiSoftTrack.push_back(theDbe->book1D("SoftMuon_phi_"+EtaName, "#phi_{Soft}_"+EtaName, phiBin, phiMin, phiMax));
-    phiHighPtTrack.push_back(theDbe->book1D("HighPtMuon_phi_"+EtaName, "#phi_{HighPt}_"+EtaName, phiBin, phiMin, phiMax));
+    phiGlbTrack.push_back(ibooker.book1D("GlbMuon_phi_"+EtaName, "#phi_{GLB} "+EtaName+ "(rad)", phiBin, phiMin, phiMax));
+    phiTrack.push_back(ibooker.book1D("TkMuon_phi_"+EtaName, "#phi_{TK}" +EtaName +"(rad)", phiBin, phiMin, phiMax));
+    phiStaTrack.push_back(ibooker.book1D("StaMuon_phi_"+EtaName, "#phi_{STA}"+EtaName+" (rad)", phiBin, phiMin, phiMax));
+    phiTightTrack.push_back(ibooker.book1D("TightMuon_phi_"+EtaName, "#phi_{Tight}_"+EtaName, phiBin, phiMin, phiMax));
+    phiLooseTrack.push_back(ibooker.book1D("LooseMuon_phi_"+EtaName, "#phi_{Loose}_"+EtaName, phiBin, phiMin, phiMax));
+    phiSoftTrack.push_back(ibooker.book1D("SoftMuon_phi_"+EtaName, "#phi_{Soft}_"+EtaName, phiBin, phiMin, phiMax));
+    phiHighPtTrack.push_back(ibooker.book1D("HighPtMuon_phi_"+EtaName, "#phi_{HighPt}_"+EtaName, phiBin, phiMin, phiMax));
     
     // monitoring of the momentum
-    pGlbTrack.push_back(theDbe->book1D("GlbMuon_p_"+EtaName, "p_{GLB} "+EtaName, pBin, pMin, pMax));
-    pTrack.push_back(theDbe->book1D("TkMuon_p"+EtaName, "p_{TK} "+EtaName, pBin, pMin, pMax));
-    pStaTrack.push_back(theDbe->book1D("StaMuon_p"+EtaName, "p_{STA} "+EtaName, pBin, pMin, pMax));
-    pTightTrack.push_back(theDbe->book1D("TightMuon_p_"+EtaName, "p_{Tight} "+EtaName, pBin, pMin, pMax));
-    pLooseTrack.push_back(theDbe->book1D("LooseMuon_p_"+EtaName, "p_{Loose} "+EtaName, pBin, pMin, pMax));
-    pSoftTrack.push_back(theDbe->book1D("SoftMuon_p_"+EtaName, "p_{Soft} "+EtaName, pBin, pMin, pMax));
-    pHighPtTrack.push_back(theDbe->book1D("HighPtMuon_p_"+EtaName, "p_{HighPt} "+EtaName, pBin, pMin, pMax));
+    pGlbTrack.push_back(ibooker.book1D("GlbMuon_p_"+EtaName, "p_{GLB} "+EtaName, pBin, pMin, pMax));
+    pTrack.push_back(ibooker.book1D("TkMuon_p"+EtaName, "p_{TK} "+EtaName, pBin, pMin, pMax));
+    pStaTrack.push_back(ibooker.book1D("StaMuon_p"+EtaName, "p_{STA} "+EtaName, pBin, pMin, pMax));
+    pTightTrack.push_back(ibooker.book1D("TightMuon_p_"+EtaName, "p_{Tight} "+EtaName, pBin, pMin, pMax));
+    pLooseTrack.push_back(ibooker.book1D("LooseMuon_p_"+EtaName, "p_{Loose} "+EtaName, pBin, pMin, pMax));
+    pSoftTrack.push_back(ibooker.book1D("SoftMuon_p_"+EtaName, "p_{Soft} "+EtaName, pBin, pMin, pMax));
+    pHighPtTrack.push_back(ibooker.book1D("HighPtMuon_p_"+EtaName, "p_{HighPt} "+EtaName, pBin, pMin, pMax));
 
     // monitoring of the transverse momentum
-    ptGlbTrack.push_back(theDbe->book1D("GlbMuon_pt_" +EtaName, "pt_{GLB} "+EtaName, ptBin, ptMin, ptMax));
-    ptTrack.push_back(theDbe->book1D("TkMuon_pt_"+EtaName, "pt_{TK} "+EtaName, ptBin, ptMin, ptMax));
-    ptStaTrack.push_back(theDbe->book1D("StaMuon_pt_"+EtaName, "pt_{STA} "+EtaName, ptBin, ptMin, pMax));
-    ptTightTrack.push_back(theDbe->book1D("TightMuon_pt_"+EtaName, "pt_{Tight} "+EtaName, ptBin, ptMin, ptMax));
-    ptLooseTrack.push_back(theDbe->book1D("LooseMuon_pt_"+EtaName, "pt_{Loose} "+EtaName, ptBin, ptMin, ptMax));
-    ptSoftTrack.push_back(theDbe->book1D("SoftMuon_pt_"+EtaName, "pt_{Soft} "+EtaName, ptBin, ptMin, ptMax));
-    ptHighPtTrack.push_back(theDbe->book1D("HighPtMuon_pt_"+EtaName, "pt_{HighPt} "+EtaName, ptBin, ptMin, ptMax));
+    ptGlbTrack.push_back(ibooker.book1D("GlbMuon_pt_" +EtaName, "pt_{GLB} "+EtaName, ptBin, ptMin, ptMax));
+    ptTrack.push_back(ibooker.book1D("TkMuon_pt_"+EtaName, "pt_{TK} "+EtaName, ptBin, ptMin, ptMax));
+    ptStaTrack.push_back(ibooker.book1D("StaMuon_pt_"+EtaName, "pt_{STA} "+EtaName, ptBin, ptMin, pMax));
+    ptTightTrack.push_back(ibooker.book1D("TightMuon_pt_"+EtaName, "pt_{Tight} "+EtaName, ptBin, ptMin, ptMax));
+    ptLooseTrack.push_back(ibooker.book1D("LooseMuon_pt_"+EtaName, "pt_{Loose} "+EtaName, ptBin, ptMin, ptMax));
+    ptSoftTrack.push_back(ibooker.book1D("SoftMuon_pt_"+EtaName, "pt_{Soft} "+EtaName, ptBin, ptMin, ptMax));
+    ptHighPtTrack.push_back(ibooker.book1D("HighPtMuon_pt_"+EtaName, "pt_{HighPt} "+EtaName, ptBin, ptMin, ptMax));
 
     // monitoring chi2 and Prob.Chi2
-    chi2GlbTrack.push_back(theDbe->book1D("GlbMuon_chi2_"+EtaName, "#chi^{2}_{GLB} " + EtaName, chiBin, chiMin, chiMax));
-    chi2probGlbTrack.push_back(theDbe->book1D("GlbMuon_chi2prob_"+EtaName, "#chi^{2}_{GLB} prob." + EtaName, chiBin, chiprobMin, chiprobMax));
-    chi2Track.push_back(theDbe->book1D("TkMuon_chi2_"+EtaName, "#chi^{2}_{TK} " + EtaName, chiBin, chiMin, chiMax));
-    chi2probTrack.push_back(theDbe->book1D("TkMuon_chi2prob_"+EtaName, "#chi^{2}_{TK} prob." + EtaName, chiBin, chiprobMin, chiprobMax));
-    chi2StaTrack.push_back(theDbe->book1D("StaMuon_chi2_"+EtaName, "#chi^{2}_{STA} " + EtaName, chiBin, chiMin, chiMax));
-    chi2probStaTrack.push_back(theDbe->book1D("StaMuon_chi2prob_"+EtaName, "#chi^{2}_{STA} prob." + EtaName, chiBin, chiprobMin, chiprobMax));
-    chi2TightTrack.push_back(theDbe->book1D("TightMuon_chi2_"+EtaName, "#chi^{2}_{Tight} " + EtaName, chiBin, chiMin, chiMax));
-    chi2probTightTrack.push_back(theDbe->book1D("TightMuon_chi2prob_"+EtaName, "#chi^{2}_{Tight} prob." + EtaName, chiBin, chiprobMin, chiprobMax));
-    chi2LooseTrack.push_back(theDbe->book1D("LooseMuon_chi2_"+EtaName, "#chi^{2}_{Loose} " + EtaName, chiBin, chiMin, chiMax));
-    chi2probLooseTrack.push_back(theDbe->book1D("LooseMuon_chi2prob_"+EtaName, "#chi^{2}_{Loose} prob." + EtaName, chiBin, chiprobMin, chiprobMax));
-    chi2SoftTrack.push_back(theDbe->book1D("SoftMuon_chi2_"+EtaName, "#chi^{2}_{Soft} " + EtaName, chiBin, chiMin, chiMax));
-    chi2probSoftTrack.push_back(theDbe->book1D("SoftMuon_chi2prob_"+EtaName, "#chi^{2}_{Soft} prob." + EtaName, chiBin, chiprobMin, chiprobMax));
-    chi2HighPtTrack.push_back(theDbe->book1D("HighPtMuon_chi2_"+EtaName, "#chi^{2}_{HighPt} " + EtaName, chiBin, chiMin, chiMax));
-    chi2probHighPtTrack.push_back(theDbe->book1D("HighPtMuon_chi2prob_"+EtaName, "#chi^{2}_{HighPt} prob." + EtaName, chiBin, chiprobMin, chiprobMax));
+    chi2GlbTrack.push_back(ibooker.book1D("GlbMuon_chi2_"+EtaName, "#chi^{2}_{GLB} " + EtaName, chiBin, chiMin, chiMax));
+    chi2probGlbTrack.push_back(ibooker.book1D("GlbMuon_chi2prob_"+EtaName, "#chi^{2}_{GLB} prob." + EtaName, chiBin, chiprobMin, chiprobMax));
+    chi2Track.push_back(ibooker.book1D("TkMuon_chi2_"+EtaName, "#chi^{2}_{TK} " + EtaName, chiBin, chiMin, chiMax));
+    chi2probTrack.push_back(ibooker.book1D("TkMuon_chi2prob_"+EtaName, "#chi^{2}_{TK} prob." + EtaName, chiBin, chiprobMin, chiprobMax));
+    chi2StaTrack.push_back(ibooker.book1D("StaMuon_chi2_"+EtaName, "#chi^{2}_{STA} " + EtaName, chiBin, chiMin, chiMax));
+    chi2probStaTrack.push_back(ibooker.book1D("StaMuon_chi2prob_"+EtaName, "#chi^{2}_{STA} prob." + EtaName, chiBin, chiprobMin, chiprobMax));
+    chi2TightTrack.push_back(ibooker.book1D("TightMuon_chi2_"+EtaName, "#chi^{2}_{Tight} " + EtaName, chiBin, chiMin, chiMax));
+    chi2probTightTrack.push_back(ibooker.book1D("TightMuon_chi2prob_"+EtaName, "#chi^{2}_{Tight} prob." + EtaName, chiBin, chiprobMin, chiprobMax));
+    chi2LooseTrack.push_back(ibooker.book1D("LooseMuon_chi2_"+EtaName, "#chi^{2}_{Loose} " + EtaName, chiBin, chiMin, chiMax));
+    chi2probLooseTrack.push_back(ibooker.book1D("LooseMuon_chi2prob_"+EtaName, "#chi^{2}_{Loose} prob." + EtaName, chiBin, chiprobMin, chiprobMax));
+    chi2SoftTrack.push_back(ibooker.book1D("SoftMuon_chi2_"+EtaName, "#chi^{2}_{Soft} " + EtaName, chiBin, chiMin, chiMax));
+    chi2probSoftTrack.push_back(ibooker.book1D("SoftMuon_chi2prob_"+EtaName, "#chi^{2}_{Soft} prob." + EtaName, chiBin, chiprobMin, chiprobMax));
+    chi2HighPtTrack.push_back(ibooker.book1D("HighPtMuon_chi2_"+EtaName, "#chi^{2}_{HighPt} " + EtaName, chiBin, chiMin, chiMax));
+    chi2probHighPtTrack.push_back(ibooker.book1D("HighPtMuon_chi2prob_"+EtaName, "#chi^{2}_{HighPt} prob." + EtaName, chiBin, chiprobMin, chiprobMax));
   }
 }
 void MuonKinVsEtaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
