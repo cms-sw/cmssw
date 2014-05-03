@@ -5,7 +5,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
 
 ////////////////////////////////////////////////////////////////////////////////
-ProxyStripTopology::ProxyStripTopology(StripGeomDetType* type, BoundPlane * bp)
+ProxyStripTopology::ProxyStripTopology(StripGeomDetType const * type, BoundPlane * bp)
   :theType(type), theLength(bp->bounds().length()), theWidth(bp->bounds().width())
 {
 }

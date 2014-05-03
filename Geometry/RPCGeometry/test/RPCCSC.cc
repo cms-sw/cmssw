@@ -145,8 +145,8 @@ RPCCSC::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
   const CSCGeometry* cscGeometry = (const CSCGeometry*)&*pCSCGeom;
 
   for (TrackingGeometry::DetContainer::const_iterator it=rpcGeometry->dets().begin();it<rpcGeometry->dets().end();it++){
-    if(dynamic_cast< RPCChamber* >( *it ) != 0 ){
-      RPCChamber* ch = dynamic_cast< RPCChamber* >( *it ); 
+    if(dynamic_cast< const RPCChamber* >( *it ) != 0 ){
+      const RPCChamber* ch = dynamic_cast< const RPCChamber* >( *it ); 
       std::vector< const RPCRoll*> roles = (ch->rolls());
       for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
 	RPCDetId rpcId = (*r)->id();
@@ -186,8 +186,8 @@ RPCCSC::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
     }
   }
   for (TrackingGeometry::DetContainer::const_iterator it=rpcGeometry->dets().begin();it<rpcGeometry->dets().end();it++){
-    if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
-      RPCChamber* ch = dynamic_cast< RPCChamber* >( *it );                                                                         std::vector< const RPCRoll*> roles = (ch->rolls());                                                                          for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){                              
+    if( dynamic_cast< const RPCChamber* >( *it ) != 0 ){
+      const RPCChamber* ch = dynamic_cast< const RPCChamber* >( *it );                                                                         std::vector< const RPCRoll*> roles = (ch->rolls());                                                                          for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){                              
 	RPCDetId rpcId = (*r)->id();
 	int region = rpcId.region();                                        
 	if(region!=0 && (rpcId.ring()==2 || rpcId.ring()==3)){                                                    

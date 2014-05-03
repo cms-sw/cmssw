@@ -105,7 +105,7 @@ void SiStripGainCosmicCalculator::algoBeginJob(const edm::EventSetup& iSetup)
    // get tracker geometry and find nr. of apv pairs for each active detector 
    edm::ESHandle<TrackerGeometry> tkGeom; iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );     
    for(TrackerGeometry::DetContainer::const_iterator it = tkGeom->dets().begin(); it != tkGeom->dets().end(); it++){ // loop over detector modules
-     if( dynamic_cast<StripGeomDetUnit*>((*it))!=0){
+     if( dynamic_cast<const StripGeomDetUnit*>((*it))!=0){
        uint32_t detid= ((*it)->geographicalId()).rawId();
        // get thickness for all detector modules, not just for active, this is strange 
        double module_thickness = (*it)->surface().bounds().thickness(); // get thickness of detector from GeomDet (DetContainer == vector<GeomDet*>)
@@ -126,7 +126,7 @@ void SiStripGainCosmicCalculator::algoBeginJob(const edm::EventSetup& iSetup)
        }
        //
        if(is_active_detector && (!exclude_this_detid)){ // check whether is active detector and that should not be excluded
-	 const StripTopology& p = dynamic_cast<StripGeomDetUnit*>((*it))->specificTopology();
+	 const StripTopology& p = dynamic_cast<const StripGeomDetUnit*>((*it))->specificTopology();
 	 unsigned short NAPVPairs = p.nstrips()/256;
          if( NAPVPairs<2 || NAPVPairs>3 ) {
            edm::LogError("SiStripGainCosmicCalculator")<<"Problem with Number of strips in detector: "<<p.nstrips()<<" Exiting program";
