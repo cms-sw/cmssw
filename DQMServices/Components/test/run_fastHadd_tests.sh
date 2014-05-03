@@ -112,7 +112,7 @@ check_fasthadd() {
 fasthadd_parallel_merge() {
     echo "Merging with parallel fastHadd, $numThreads threads with $numGroup groups"
 
-    $timecmd python fastParallelHadd.py -j $numThreads -g $numGroup -o $cumPBFileThreaded $(ls Merge*.pb) 2>&1 > /dev/null
+    $timecmd python ${LOCAL_TEST_DIR}/fastParallelHadd.py -j $numThreads -g $numGroup -o $cumPBFileThreaded $(ls Merge*.pb) 2>&1 > /dev/null
 
     if [ $? -ne 0 ]; then
 	exit $?
