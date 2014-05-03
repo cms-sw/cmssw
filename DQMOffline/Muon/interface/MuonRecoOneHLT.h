@@ -44,7 +44,7 @@
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
-class MuonRecoOneHLT : public DQMEDAnalyzer { 
+class MuonRecoOneHLT : public thread_unsafe::DQMEDAnalyzer { 
  public:
 
   /// Constructor
