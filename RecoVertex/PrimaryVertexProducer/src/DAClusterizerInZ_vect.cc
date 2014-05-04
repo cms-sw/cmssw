@@ -241,12 +241,11 @@ double DAClusterizerInZ_vect::update(double beta, track_t & gtracks,
 				}
 			}
 #endif
+                }
 			// dont do, if rho cut
-			if ( ! useRho0 )
-			{
-				vertices._pk[ ivertex ] = vertices._pk[ ivertex ] * vertices._se[ ivertex ] / sumpi;
-			}
-		}
+		if ( ! useRho0 )
+                for (unsigned int ivertex = 0; ivertex < nv; ++ ivertex )
+                    vertices._pk[ ivertex ] = vertices._pk[ ivertex ] * vertices._se[ ivertex ] / sumpi;
 	};
 
 	kernel_calc_z(gvertices);
