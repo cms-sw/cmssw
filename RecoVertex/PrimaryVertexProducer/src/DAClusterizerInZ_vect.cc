@@ -83,14 +83,13 @@ DAClusterizerInZ_vect::track_t DAClusterizerInZ_vect::fill(const vector<
 		//  get the beam-spot
 		reco::BeamSpot beamspot = (it->stateAtBeamLine()).beamSpot();
  		double t_dz2 = 
-		      pow((*it).track().dzError(), 2) // track errror
- 		  + (pow(beamspot.BeamWidthX()*cos(phi),2)+pow(beamspot.BeamWidthY()*sin(phi),2))/pow(tantheta,2)  // beam-width
- 		  + pow(vertexSize_, 2); // intrinsic vertex size, safer for outliers and short lived decays
+		      std::pow((*it).track().dzError(), 2) // track errror
+ 		  + (std::pow(beamspot.BeamWidthX()*cos(phi),2)+std::pow(beamspot.BeamWidthY()*sin(phi),2))/std::pow(tantheta,2)  // beam-width
+ 		  + std::pow(vertexSize_, 2); // intrinsic vertex size, safer for outliers and short lived decays
 		if (d0CutOff_ > 0) {
 			Measurement1D IP =
 					(*it).stateAtBeamLine().transverseImpactParameter();// error constains beamspot
-			t_pi = 1. / (1. + local_exp(pow(IP.value() / IP.error(), 2) - pow(
-					d0CutOff_, 2))); // reduce weight for high ip tracks
+			t_pi = 1. / (1. + local_exp(std::pow(IP.value() / IP.error(), 2) - std::pow(d0CutOff_, 2))); // reduce weight for high ip tracks
 		} else {
 			t_pi = 1.;
 		}
@@ -109,7 +108,7 @@ DAClusterizerInZ_vect::track_t DAClusterizerInZ_vect::fill(const vector<
 
 double DAClusterizerInZ_vect::Eik(double const& t_z, double const& k_z, double const& t_dz2) const
 {
-	return pow(t_z - k_z, 2) / t_dz2;
+	return std::pow(t_z - k_z, 2) / t_dz2;
 }
 
 
@@ -222,26 +221,26 @@ double DAClusterizerInZ_vect::update(double beta, track_t & gtracks,
 	// now update z and pk
 	auto kernel_calc_z = [ &delta, &sumpi, nv, this, useRho0 ] (vertex_t & vertices )
 	{
+
 		// does not vectorizes
 		for (unsigned int ivertex = 0; ivertex < nv; ++ ivertex )
 		{
 			if (vertices._sw[ivertex] > 0)
 			{
 				double znew = vertices._swz[ ivertex ] / vertices._sw[ ivertex ];
-
-				// prevents from vectorizing
-				delta += pow( vertices._z[ ivertex ] - znew, 2 );
+				// prevents from vectorizing if 
+				delta += std::pow( vertices._z[ ivertex ] - znew, 2 );
 				vertices._z[ ivertex ] = znew;
 			}
+#ifdef VI_DEBUG
 			else {
-				edm::LogInfo("sumw") << "invalid sum of weights in fit: " << vertices._sw[ivertex]
-				<< endl;
+				edm::LogInfo("sumw") << "invalid sum of weights in fit: " << vertices._sw[ivertex] << endl;
 				if (this->verbose_) {
 					LogDebug("DAClusterizerinZ_vectorized")  << " a cluster melted away ?  pk=" << vertices._pk[ ivertex ] << " sumw="
 					<< vertices._sw[ivertex] << endl;
 				}
 			}
-
+#endif
 			// dont do, if rho cut
 			if ( ! useRho0 )
 			{
@@ -271,7 +270,7 @@ bool DAClusterizerInZ_vect::merge(vertex_t & y, double & beta)const{
   for (unsigned int k = 0; (k + 1) < nv; k++) {
     if (fabs(y._z[k + 1] - y._z[k]) < 2.e-2) {
       double rho=y._pk[k] + y._pk[k+1];
-      double swE=y._swE[k]+y._swE[k+1] - y._pk[k]*y._pk[k+1] /rho *pow(y._z[k+1]-y._z[k],2);
+      double swE=y._swE[k]+y._swE[k+1] - y._pk[k]*y._pk[k+1] /rho *std::pow(y._z[k+1]-y._z[k],2);
       double Tc=2*swE/(y._sw[k]+y._sw[k+1]);
 
       if(Tc*beta<1){
@@ -399,7 +398,7 @@ double DAClusterizerInZ_vect::beta0(double betamax, track_t & tks, vertex_t & y)
 		for (unsigned int i = 0; i < nt; i++) {
 			double dx = tks._z[i] - (y._z[k]);
 			double w = tks._pi[i] / tks._dz2[i];
-			a += w * pow(dx, 2) / tks._dz2[i];
+			a += w * std::pow(dx, 2) / tks._dz2[i];
 			b += w;
 		}
 		double Tc = 2. * a / b; // the critical temperature of this vertex
@@ -408,7 +407,7 @@ double DAClusterizerInZ_vect::beta0(double betamax, track_t & tks, vertex_t & y)
 	}// vertex loop (normally there should be only one vertex at beta=0)
 
 	if (T0 > 1. / betamax) {
-		return betamax / pow(coolingFactor_, int(log(T0 * betamax) / log(
+		return betamax / std::pow(coolingFactor_, int(std::log(T0 * betamax) / std::log(
 				coolingFactor_)) - 1);
 	} else {
 		// ensure at least one annealing step
@@ -576,7 +575,7 @@ void DAClusterizerInZ_vect::dump(const double beta, const vertex_t & y,
 		LogDebug("DAClusterizerinZ_vectorized")  << setprecision(4);
 		for (unsigned int i = 0; i < nt; i++) {
 			if (tks._Z_sum[i] > 0) {
-				F -= log(tks._Z_sum[i]) / beta;
+				F -= std::log(tks._Z_sum[i]) / beta;
 			}
 			double tz = tks._z[i];
 			LogDebug("DAClusterizerinZ_vectorized")  << setw(3) << i << ")" << setw(8) << fixed << setprecision(4)
