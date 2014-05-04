@@ -4,11 +4,15 @@ import sys
 process = cms.Process("SiPixelGenErrorDBReaderTest")
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.load("CalibTracker.SiPixelESProducers.SiPixelGenErrorDBObjectESProducer_cfi")
+#process.load("CalibTracker.SiPixelESProducers.SiPixelGenErrorDBObjectESProducer_cfi")
 
-magfield = float(sys.argv[2])
-#version = "v3"
-version = sys.argv[3]
+#magfield and version are argument #1 and #2
+#magfield = float(sys.argv[2])
+#version = sys.argv[3]
+
+#magfield and version are hardcoded for the record
+magfield = 38
+version = "v1"
 
 ## Change to False if you do not want to test the global tag
 testGlobalTag = False
@@ -60,9 +64,13 @@ else:
         record = cms.string('SiPixelGenErrorDBObjectRcd'),
         tag = cms.string('SiPixelGenErrorDBObject' + magfieldString + version)
         )),
-                                          timetype = cms.string('runnumber'),
-                                          connect = cms.string('sqlite_file:siPixelGenErrors' + magfieldString + '.db')
-                                          )
+                              timetype = cms.string('runnumber'),
+                              #when arguments used
+                              connect = cms.string('sqlite_file:siPixelGenErrors' + magfieldString + version + '.db')
+                              #when parameters hardcoded
+                              #connect = cms.string('sqlite_file:siPixelGenErrors38Tv1.db')
+                              #connect = cms.string('sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERCALIB/Pixels/PixelDB2014/SiPixelGenErrorDBObject/SiPixelGenErrorDBObject_710pre7/builder/siPixelGenErrors38T.db')
+                              )
     process.PoolDBESSource.DBParameters.authenticationPath='.'
     process.PoolDBESSource.DBParameters.messageLevel=0
 
@@ -74,7 +82,7 @@ process.reader = cms.EDAnalyzer("SiPixelGenErrorDBObjectReader",
                               TestGlobalTag = cms.bool(testGlobalTag)
                               )
 
-process.myprint = cms.OutputModule("AsciiOutputModule")
+#process.myprint = cms.OutputModule("AsciiOutputModule")
 
 process.p = cms.Path(process.reader)
 
