@@ -10,6 +10,8 @@ dqmSaver = cms.EDAnalyzer("DQMFileSaver",
     workflow = cms.untracked.string(''),
     # Directory in which to save the files.
     dirName = cms.untracked.string('.'),
+    # Only save this directory
+    filterName = cms.untracked.string(''),
     # Version name to be used in file name.
     version = cms.untracked.int32(1),
     # runIsComplete

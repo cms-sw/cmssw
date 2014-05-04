@@ -30,6 +30,24 @@ getAnInt(const edm::ParameterSet &ps, int &value, const std::string &name)
 }
 
 void
+DQMFileSaver::saveForOfflinePB(const std::string &workflow,
+                               int run)
+{
+  char suffix[64];
+  sprintf(suffix, "R%09d", run);
+
+  size_t pos = 0;
+  std::string wflow;
+  wflow.reserve(workflow.size() + 3);
+  wflow = workflow;
+  while ((pos = wflow.find('/', pos)) != std::string::npos)
+    wflow.replace(pos++, 1, "__");
+
+  std::string filename = fileBaseName_ + suffix + wflow + ".pb";
+  dbe_->savePB(filename, filterName_);
+}
+
+void
 DQMFileSaver::saveForOffline(const std::string &workflow, int run, int lumi)
 {
 
@@ -58,14 +76,14 @@ DQMFileSaver::saveForOffline(const std::string &workflow, int run, int lumi)
     dbe_->setCurrentFolder("Info/ProvInfo");
 
     // do this, because ProvInfo is not yet run in offline DQM
-    MonitorElement* me = dbe_->get("Info/ProvInfo/CMSSW"); 
+    MonitorElement* me = dbe_->get("Info/ProvInfo/CMSSW");
     if (!me) me = dbe_->bookString("CMSSW",edm::getReleaseVersion().c_str() );
-    
+
     me = dbe_->get("Info/ProvInfo/runIsComplete");
     if (!me) me = dbe_->bookFloat("runIsComplete");
 
     if (me)
-    { 
+    {
       if (runIsComplete_)
         me->Fill(1.);
       else
@@ -85,9 +103,9 @@ DQMFileSaver::saveForOffline(const std::string &workflow, int run, int lumi)
   {
     std::vector<std::string> systems = (dbe_->cd(), dbe_->getSubdirs());
 
-    std::cout << " DQMFileSaver: storing EventInfo folders for Run: " 
+    std::cout << " DQMFileSaver: storing EventInfo folders for Run: "
               << irun_ << ", Lumi Section: " << ilumi_ << ", Subsystems: " ;
-	      
+
     for (size_t i = 0, e = systems.size(); i != e; ++i) {
       if (systems[i] != "Reference") {
         dbe_->cd();
@@ -112,7 +130,6 @@ DQMFileSaver::saveForOffline(const std::string &workflow, int run, int lumi)
     saveJobReport(filename);
     pastSavedFiles_.push_back(filename);
   }
-  
 }
 
 static void
@@ -164,11 +181,11 @@ DQMFileSaver::saveForOnline(const std::string &suffix, const std::string &rewrit
       }
     }
   }
-  
+
   // look for EventInfo folder in an unorthodox location
   for (size_t i = 0, e = systems.size(); i != e; ++i)
     if (systems[i] != "Reference")
-    { 
+    {
       dbe_->cd();
       std::vector<MonitorElement*> pNamesVector = dbe_->getMatchingContents("^" + systems[i] + "/.*/EventInfo/processName",lat::Regexp::Perl);
       if (pNamesVector.size() > 0){
@@ -215,6 +232,7 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
     producer_ ("DQM"),
     dirName_ ("."),
     child_ (""),
+    filterName_(""),
     version_ (1),
     runIsComplete_ (false),
     enableMultiThread_(ps.getUntrackedParameter<bool>("enableMultiThread", false)),
@@ -245,6 +263,8 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
     convention_ = Offline;
   else if (convention == "Online")
     convention_ = Online;
+  else if (convention == "PB")
+    convention_ = PB;
   else
     throw cms::Exception("DQMFileSaver")
       << "Invalid 'convention' parameter '" << convention << "'."
@@ -273,7 +293,7 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
   {
     workflow_="/Global/Online/P5";
   }
-    
+
   // Allow file producer to be set to specific values in certain conditions.
   producer_ = ps.getUntrackedParameter<std::string>("producer", producer_);
   if (convention_ == Online
@@ -301,7 +321,7 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
   std::string refsave = ps.getUntrackedParameter<std::string>("referenceHandling", "default");
   if (refsave == "default")
     ;
-  else if (refsave == "skip") 
+  else if (refsave == "skip")
   {
     saveReference_ = DQMStore::SaveWithoutReference;
   //  std::cout << "skip saving all references" << std::endl;
@@ -331,6 +351,7 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
     throw cms::Exception("DQMFileSaver")
       << "Invalid 'dirName' parameter '" << dirName_ << "'.";
 
+  filterName_ = ps.getUntrackedParameter<std::string>("filterName", filterName_);
   // Find out when and how to save files.  The following contraints apply:
   // - For online, allow files to be saved at event and time intervals.
   // - For online and offline, allow files to be saved per run, lumi and job end
@@ -489,6 +510,8 @@ DQMFileSaver::endRun(const edm::Run &, const edm::EventSetup &)
     }
     else if (convention_ == Offline)
       saveForOffline(workflow_, irun_, 0);
+    else if (convention_ == PB)
+      saveForOfflinePB(workflow_, irun_);
     else
       throw cms::Exception("DQMFileSaver")
 	<< "Internal error.  Can only save files in endRun()"
@@ -500,7 +523,7 @@ DQMFileSaver::endRun(const edm::Run &, const edm::EventSetup &)
 
 void
 DQMFileSaver::endJob(void)
-{ 
+{
   if (saveAtJobEnd_)
   {
     if (convention_ == Offline && forceRunNumber_ > 0)
@@ -511,7 +534,7 @@ DQMFileSaver::endJob(void)
       throw cms::Exception("DQMFileSaver")
 	<< "Internal error.  Can only save files at the end of the"
 	<< " job in Offline mode.";
-  } 
+  }
 }
 
 void

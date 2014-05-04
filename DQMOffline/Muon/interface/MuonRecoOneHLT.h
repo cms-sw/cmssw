@@ -11,6 +11,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -18,7 +19,6 @@
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 
 #include "DataFormats/Common/interface/Handle.h"
@@ -44,27 +44,20 @@
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
-class MuonRecoOneHLT : public edm::EDAnalyzer { //MuonAnalyzerBase {
+class MuonRecoOneHLT : public thread_unsafe::DQMEDAnalyzer { 
  public:
 
   /// Constructor
-  MuonRecoOneHLT(const edm::ParameterSet&); //, MuonServiceProxy *theService);
+  MuonRecoOneHLT(const edm::ParameterSet&); 
   
   /// Destructor
   ~MuonRecoOneHLT();
 
-  /// Inizialize parameters for histo binning
-  void beginJob();
-  void beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
-  
-  /// Get the analysis
-  //  void analyze(const edm::Event&, const edm::EventSetup&, const reco::Muon&, const edm::TriggerResults&);
-  //  void analyze(const edm::Event&, const edm::EventSetup&, const edm::TriggerResults&, const reco::Vertex&);
   void analyze(const edm::Event&, const edm::EventSetup&);
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
  private:
   // ----------member data ---------------------------
-  DQMStore* dbe;
   edm::ParameterSet parameters;
   MuonServiceProxy *theService;
 
