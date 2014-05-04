@@ -659,7 +659,7 @@ namespace gs {
     //
     //===================================================================
     template <class Stream, class State, class Container>
-    class GenericReader<Stream, State, Container, InContainerCycle>
+    struct GenericReader<Stream, State, Container, InContainerCycle>
     {
     private:
         typedef typename Container::value_type item_type;
