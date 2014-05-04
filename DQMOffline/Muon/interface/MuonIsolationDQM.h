@@ -27,7 +27,7 @@ method, even the simple types.
 //
 
 //Base class
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 //Member types
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -57,7 +57,7 @@ class TProfile;
 //------------------------------------------
 //  Class Declaration: MuonIsolationDQM
 //--------------------------------------
-class MuonIsolationDQM : public edm::EDAnalyzer {
+class MuonIsolationDQM : public DQMEDAnalyzer {
   //---------namespace and typedefs--------------
   typedef edm::View<reco::Muon>::const_iterator MuonIterator;
   typedef edm::RefToBase<reco::Muon> MuonBaseRef;
@@ -69,13 +69,11 @@ public:
   explicit MuonIsolationDQM(const edm::ParameterSet&);
   ~MuonIsolationDQM();
   
-  
+  void analyze(const edm::Event&, const edm::EventSetup&);
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+
 private:
   //---------methods----------------------------
-  virtual void beginJob(void) ;
-  virtual void beginRun(void) ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
   void InitStatics();
   void RecordData(const reco::Muon& muon);//Fills Histograms with info from single muo
   //  void doPFIsoPlots(MuonIterator muon); //Fills Histograms with PF info from single muo (only for GLB)
@@ -130,9 +128,6 @@ private:
   std::vector<std::string> names_NVtxs;
   std::vector<std::string> axis_titles_NVtxs;
   //---------------Dynamic Variables---------------------
-  
-  //MonitorElement
-  DQMStore* dbe;
   
   //The Data
   double theData[NUM_VARS];
