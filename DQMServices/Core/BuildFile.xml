@@ -6,6 +6,7 @@
 <use   name="FWCore/Version"/>
 <use   name="classlib"/>
 <use   name="roothistmatrix"/>
+<use   name="protobuf"/>
 <export>
   <lib   name="1"/>
 </export>
