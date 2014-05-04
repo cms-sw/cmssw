@@ -15,6 +15,7 @@ typedef edm::RefProd<EcalRecHitCollection> EcalRecHitsRef;
 
 typedef EcalRecHitCollection EBRecHitCollection;
 typedef EcalRecHitCollection EERecHitCollection;
+typedef EcalRecHitCollection EKRecHitCollection;
 typedef EcalRecHitCollection ESRecHitCollection;
 
 typedef edm::SortedCollection<EcalUncalibratedRecHit> EcalUncalibratedRecHitCollection;
@@ -24,5 +25,6 @@ typedef edm::RefProd<EcalUncalibratedRecHitCollection> EcalUncalibratedRecHitsRe
 
 typedef EcalUncalibratedRecHitCollection EBUncalibratedRecHitCollection;
 typedef EcalUncalibratedRecHitCollection EEUncalibratedRecHitCollection;
+typedef EcalUncalibratedRecHitCollection EKUncalibratedRecHitCollection;
 
 #endif
