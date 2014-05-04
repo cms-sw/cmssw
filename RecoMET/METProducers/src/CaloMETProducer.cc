@@ -41,7 +41,7 @@ namespace cms
     std::string alias(iConfig.getParameter<std::string>("alias"));
     produces<reco::CaloMETCollection>().setBranchAlias(alias.c_str());
 
-    resolutions_ = new metsig::SignAlgoResolutions(iConfig);
+    if (calculateSignificance_) resolutions_ = new metsig::SignAlgoResolutions(iConfig);
   }
 
 //____________________________________________________________________________||
