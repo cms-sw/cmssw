@@ -22,10 +22,12 @@
 
 namespace edm { class DQMHttpSource; class ParameterSet; class ActivityRegistry;}
 namespace lat { class Regexp; }
+namespace dqmstorepb {class ROOTFilePB; class ROOTFilePB_Histo;}
 
 class MonitorElement;
 class QCriterion;
 class TFile;
+class TBufferFile;
 class TObject;
 class TH1;
 class TObjString;
@@ -520,6 +522,8 @@ class DQMStore
 
   //-------------------------------------------------------------------------
   // ---------------------- public I/O --------------------------------------
+  void                          savePB(const std::string &filename,
+                                       const std::string &path = "");
   void                          save(const std::string &filename,
                                      const std::string &path = "",
                                      const std::string &pattern = "",
@@ -553,7 +557,7 @@ class DQMStore
   int                           useQTestByMatch(const std::string &pattern, const std::string &qtname);
   void                          runQTests(void);
   int                           getStatus(const std::string &path = "") const;
-  void        scaleElements(void);
+  void                          scaleElements(void);
 
  private:
   // ---------------- Navigation -----------------------
@@ -563,6 +567,12 @@ class DQMStore
   bool                          isCollateME(MonitorElement *me) const;
 
   // ------------------- Private "getters" ------------------------------
+  bool                          readFilePB(const std::string &filename,
+                                           bool overwrite = false,
+                                           const std::string &path ="",
+                                           const std::string &prepend = "",
+                                           OpenRunDirs stripdirs = StripRunDirs,
+                                           bool fileMustExist = true);
   bool                          readFile(const std::string &filename,
                                          bool overwrite = false,
                                          const std::string &path ="",
@@ -583,6 +593,10 @@ class DQMStore
                                            const uint32_t lumi = 0,
                                            const uint32_t streamId = 0,
                                            const uint32_t moduleId = 0) const;
+  void                          get_info(const  dqmstorepb::ROOTFilePB_Histo &,
+                                         std::string & dirname,
+                                         std::string & objname,
+                                         TH1 ** obj);
 
  public:
   void                          getAllTags(std::vector<std::string> &into) const;
@@ -606,7 +620,8 @@ class DQMStore
   void                          reset(void);
   void        forceReset(void);
 
-  bool                          extract(TObject *obj, const std::string &dir, bool overwrite);
+  bool        extract(TObject *obj, const std::string &dir, bool overwrite);
+  TObject *   extractNextObject(TBufferFile&) const;
 
   // ---------------------- Booking ------------------------------------
   MonitorElement *              initialise(MonitorElement *me, const std::string &path);
