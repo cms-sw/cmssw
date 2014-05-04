@@ -119,7 +119,7 @@ EcalPhaseIIDigiProducer::EcalPhaseIIDigiProducer( const edm::ParameterSet& param
    m_ESOldResponse ( new CaloHitResponse( m_ParameterMap, &m_ESShape ) ) ,
 
    m_addESNoise           ( params.getParameter<bool> ("doESNoise") ) ,
-   m_doFastES             ( params.getParameter<bool> ("doFast"   ) ) ,
+   m_doFastES             ( true ), //params.getParameter<bool> ("doFast"   ) ) ,
 
    m_ESElectronicsSim     ( m_doFastES ? 0 :
 			    new ESElectronicsSim( m_addESNoise ) ) ,
@@ -432,9 +432,9 @@ EcalPhaseIIDigiProducer::finalizeEvent(edm::Event& event, edm::EventSetup const&
    cacheEKDigis( &*shashlikResult ) ;
 
    if(m_doFastES) {
-      m_ESDigitizer->run( *preshowerResult ) ; 
+     //m_ESDigitizer->run( *preshowerResult ) ; 
    } else {
-      m_ESOldDigitizer->run( *preshowerResult ) ; 
+     //m_ESOldDigitizer->run( *preshowerResult ) ; 
    }
    edm::LogInfo("EcalDigi") << "ES Digis: " << preshowerResult->size();
 
@@ -569,31 +569,31 @@ EcalPhaseIIDigiProducer::checkCalibrations(const edm::Event& event, const edm::E
       eventSetup.get<ESPedestalsRcd>().          get( hesPedestals ) ;
       eventSetup.get<ESIntercalibConstantsRcd>().get( hesMIPs      ) ;
 
-      const ESGain*                esgain     ( hesgain.product()      ) ;
-      const ESPedestals*           espeds     ( hesPedestals.product() ) ;
-      const ESIntercalibConstants* esmips     ( hesMIPs.product()      ) ;
-      const ESMIPToGeVConstant*    esMipToGeV ( hesMIPToGeV.product()  ) ;
-      const int ESGain ( 1.1 > esgain->getESGain() ? 1 : 2 ) ;
-      const double ESMIPToGeV ( ( 1 == ESGain ) ?
-				esMipToGeV->getESValueLow()  :
-				esMipToGeV->getESValueHigh()   ) ; 
+      //const ESGain*                esgain     ( hesgain.product()      ) ;
+      //const ESPedestals*           espeds     ( hesPedestals.product() ) ;
+      //const ESIntercalibConstants* esmips     ( hesMIPs.product()      ) ;
+      //   const ESMIPToGeVConstant*    esMipToGeV ( hesMIPToGeV.product()  ) ;
+      //const int ESGain ( 1.1 > esgain->getESGain() ? 1 : 2 ) ;
+      // const double ESMIPToGeV ( ( 1 == ESGain ) ?
+// 				esMipToGeV->getESValueLow()  :
+// 				esMipToGeV->getESValueHigh()   ) ; 
    
-      m_ESShape.setGain( ESGain );
+      //m_ESShape.setGain( ESGain ); // Shervin
 
-      if( !m_doFastES )
-      {
-	 m_ESElectronicsSim->setGain(      ESGain     ) ;
-	 m_ESElectronicsSim->setPedestals( espeds     ) ;
-	 m_ESElectronicsSim->setMIPs(      esmips     ) ;
-	 m_ESElectronicsSim->setMIPToGeV(  ESMIPToGeV ) ;
-      }
-      else
-      {
-	 m_ESDigitizer->setGain(               ESGain     ) ;
-	 m_ESElectronicsSimFast->setPedestals( espeds     ) ;
-	 m_ESElectronicsSimFast->setMIPs(      esmips     ) ;
-	 m_ESElectronicsSimFast->setMIPToGeV(  ESMIPToGeV ) ;
-      }
+//       if( !m_doFastES )
+//       {
+// 	 m_ESElectronicsSim->setGain(      ESGain     ) ;
+// 	 m_ESElectronicsSim->setPedestals( espeds     ) ;
+// 	 m_ESElectronicsSim->setMIPs(      esmips     ) ;
+// 	 m_ESElectronicsSim->setMIPToGeV(  ESMIPToGeV ) ;
+//       }
+//       else
+//       {
+// 	 m_ESDigitizer->setGain(               ESGain     ) ;
+// 	 m_ESElectronicsSimFast->setPedestals( espeds     ) ;
+// 	 m_ESElectronicsSimFast->setMIPs(      esmips     ) ;
+// 	 m_ESElectronicsSimFast->setMIPToGeV(  ESMIPToGeV ) ;
+//       }
    }
 }
 
