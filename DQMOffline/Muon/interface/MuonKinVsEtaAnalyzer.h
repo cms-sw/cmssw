@@ -15,9 +15,9 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -31,7 +31,7 @@
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
-class MuonKinVsEtaAnalyzer : public edm::EDAnalyzer {
+class MuonKinVsEtaAnalyzer : public thread_unsafe::DQMEDAnalyzer {
  public:
   
   /// Constructor
@@ -39,14 +39,10 @@ class MuonKinVsEtaAnalyzer : public edm::EDAnalyzer {
   
   /// Destructor
   ~MuonKinVsEtaAnalyzer();
-
-  /// Initialize parameters for histo binning
-  void beginJob(void);
-  void beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
   
-  /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&);
-  
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+
  private:
   
   // ----------member data ---------------------------

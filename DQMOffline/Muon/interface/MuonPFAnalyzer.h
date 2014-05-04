@@ -11,7 +11,7 @@
 
 
 //Base class
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -31,7 +31,7 @@
 #include <map>
 #include <string>
 
-class MuonPFAnalyzer : public edm::EDAnalyzer {
+class MuonPFAnalyzer : public DQMEDAnalyzer {
 
 public:
 
@@ -44,16 +44,13 @@ public:
   /// Destructor
   ~MuonPFAnalyzer();
 
-  /// Initialize an book plots
-  virtual void beginRun(edm::Run const &, edm::EventSetup const &);
-
-  /// Perform the PF - TUNEP muon analysis
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  void analyze(const edm::Event&, const edm::EventSetup&);
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   
 private:
 
   // Book histos for a given group of plots (e.g. for Tight TUNEP muons)
-  void bookHistos(const std::string & group);
+  void bookHistos(DQMStore::IBooker &, const std::string &);
 
   // Get a specific plot for a given group
   MonitorElement* getPlot(const std::string & group, const std::string & type);
@@ -89,7 +86,6 @@ private:
 
   std::vector<std::string> theMuonKinds;
 
-  DQMStore *theDbe;
 
   std::map<std::string,std::map<std::string,MonitorElement*> > thePlots;
   RecoGenCollection theRecoGen;
