@@ -16,7 +16,6 @@ MuonRecoOneHLT::MuonRecoOneHLT(const edm::ParameterSet& pSet) { //, MuonServiceP
   // the services
   theService = new MuonServiceProxy(parameters.getParameter<ParameterSet>("ServiceParameters"));
 
-  dbe = edm::Service<DQMStore>().operator->();
 
   ParameterSet muonparms   = parameters.getParameter<edm::ParameterSet>("SingleMuonTrigger");
   ParameterSet dimuonparms = parameters.getParameter<edm::ParameterSet>("DoubleMuonTrigger");
@@ -31,30 +30,37 @@ MuonRecoOneHLT::MuonRecoOneHLT(const edm::ParameterSet& pSet) { //, MuonServiceP
   theVertexLabel_          = consumes<reco::VertexCollection>(parameters.getParameter<edm::InputTag>("VertexLabel"));
   theBeamSpotLabel_        = mayConsume<reco::BeamSpot>(parameters.getParameter<edm::InputTag>("BeamSpotLabel"));
   theTriggerResultsLabel_  = consumes<TriggerResults>(parameters.getParameter<InputTag>("TriggerResultsLabel"));
+
+  // Parameters
+  etaBin = parameters.getParameter<int>("etaBin");
+  etaMin = parameters.getParameter<double>("etaMin");
+  etaMax = parameters.getParameter<double>("etaMax");
+  ptBin = parameters.getParameter<int>("ptBin");
+  ptMin = parameters.getParameter<double>("ptMin");
+  ptMax = parameters.getParameter<double>("ptMax");
+  chi2Bin = parameters.getParameter<int>("chi2Bin");
+  chi2Min = parameters.getParameter<double>("chi2Min");
+  chi2Max = parameters.getParameter<double>("chi2Max");
+  phiBin = parameters.getParameter<int>("phiBin");
+  phiMin = parameters.getParameter<double>("phiMin");
+  phiMax = parameters.getParameter<double>("phiMax");
 }
-
-
 MuonRecoOneHLT::~MuonRecoOneHLT() {
   delete _SingleMuonEventFlag;
   delete _DoubleMuonEventFlag;
 }
-void MuonRecoOneHLT::beginJob() {
-#ifdef DEBUG
-  cout << "[MuonRecoOneHLT]  beginJob " << endl;
-#endif
-
-  }
-
-void MuonRecoOneHLT::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup){
+void MuonRecoOneHLT::bookHistograms(DQMStore::IBooker & ibooker, 
+				    edm::Run const & iRun, 
+				    edm::EventSetup const & iSetup) {
 #ifdef DEBUG
   cout << "[MuonRecoOneHLT]  beginRun " << endl;
   cout << "[MuonRecoOneHLT]  Is MuonEventFlag On? "<< _SingleMuonEventFlag->on() << endl;
 #endif
   
-  dbe->cd();
-  dbe->setCurrentFolder("Muons/MuonRecoOneHLT");
+  ibooker.cd();
+  ibooker.setCurrentFolder("Muons/MuonRecoOneHLT");
 
-  muReco = dbe->book1D("Muon_Reco", "Muon Reconstructed Tracks", 6, 1, 7);
+  muReco = ibooker.book1D("Muon_Reco", "Muon Reconstructed Tracks", 6, 1, 7);
   muReco->setBinLabel(1,"glb+tk+sta");
   muReco->setBinLabel(2,"glb+sta");
   muReco->setBinLabel(3,"tk+sta");
@@ -63,60 +69,47 @@ void MuonRecoOneHLT::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
   muReco->setBinLabel(6,"calo");
 
   // monitoring of eta parameter
-  etaBin = parameters.getParameter<int>("etaBin");
-  etaMin = parameters.getParameter<double>("etaMin");
-  etaMax = parameters.getParameter<double>("etaMax");
-
   std::string histname = "GlbMuon_";
-  etaGlbTrack.push_back(dbe->book1D(histname+"Glb_eta", "#eta_{GLB}", etaBin, etaMin, etaMax));
-  etaGlbTrack.push_back(dbe->book1D(histname+"Tk_eta", "#eta_{TKfromGLB}", etaBin, etaMin, etaMax));
-  etaGlbTrack.push_back(dbe->book1D(histname+"Sta_eta", "#eta_{STAfromGLB}", etaBin, etaMin, etaMax));
-  etaTight = dbe->book1D("TightMuon_eta", "#eta_{GLB}", etaBin, etaMin, etaMax);
-  etaTrack = dbe->book1D("TkMuon_eta", "#eta_{TK}", etaBin, etaMin, etaMax);
-  etaStaTrack = dbe->book1D("StaMuon_eta", "#eta_{STA}", etaBin, etaMin, etaMax);
+  etaGlbTrack.push_back(ibooker.book1D(histname+"Glb_eta", "#eta_{GLB}", etaBin, etaMin, etaMax));
+  etaGlbTrack.push_back(ibooker.book1D(histname+"Tk_eta", "#eta_{TKfromGLB}", etaBin, etaMin, etaMax));
+  etaGlbTrack.push_back(ibooker.book1D(histname+"Sta_eta", "#eta_{STAfromGLB}", etaBin, etaMin, etaMax));
+  etaTight = ibooker.book1D("TightMuon_eta", "#eta_{GLB}", etaBin, etaMin, etaMax);
+  etaTrack = ibooker.book1D("TkMuon_eta", "#eta_{TK}", etaBin, etaMin, etaMax);
+  etaStaTrack = ibooker.book1D("StaMuon_eta", "#eta_{STA}", etaBin, etaMin, etaMax);
 
   // monitoring of phi paramater
-  phiBin = parameters.getParameter<int>("phiBin");
-  phiMin = parameters.getParameter<double>("phiMin");
-  phiMax = parameters.getParameter<double>("phiMax");
-  phiGlbTrack.push_back(dbe->book1D(histname+"Glb_phi", "#phi_{GLB}", phiBin, phiMin, phiMax));
+  phiGlbTrack.push_back(ibooker.book1D(histname+"Glb_phi", "#phi_{GLB}", phiBin, phiMin, phiMax));
   phiGlbTrack[0]->setAxisTitle("rad");
-  phiGlbTrack.push_back(dbe->book1D(histname+"Tk_phi", "#phi_{TKfromGLB}", phiBin, phiMin, phiMax));
+  phiGlbTrack.push_back(ibooker.book1D(histname+"Tk_phi", "#phi_{TKfromGLB}", phiBin, phiMin, phiMax));
   phiGlbTrack[1]->setAxisTitle("rad");
-  phiGlbTrack.push_back(dbe->book1D(histname+"Sta_phi", "#phi_{STAfromGLB}", phiBin, phiMin, phiMax));
+  phiGlbTrack.push_back(ibooker.book1D(histname+"Sta_phi", "#phi_{STAfromGLB}", phiBin, phiMin, phiMax));
   phiGlbTrack[2]->setAxisTitle("rad");
-  phiTight = dbe->book1D("TightMuon_phi", "#phi_{GLB}", phiBin, phiMin, phiMax);
-  phiTrack = dbe->book1D("TkMuon_phi", "#phi_{TK}", phiBin, phiMin, phiMax);
+  phiTight = ibooker.book1D("TightMuon_phi", "#phi_{GLB}", phiBin, phiMin, phiMax);
+  phiTrack = ibooker.book1D("TkMuon_phi", "#phi_{TK}", phiBin, phiMin, phiMax);
   phiTrack->setAxisTitle("rad");
-  phiStaTrack = dbe->book1D("StaMuon_phi", "#phi_{STA}", phiBin, phiMin, phiMax);
+  phiStaTrack = ibooker.book1D("StaMuon_phi", "#phi_{STA}", phiBin, phiMin, phiMax);
   phiStaTrack->setAxisTitle("rad");
 
   // monitoring of the chi2 parameter
-  chi2Bin = parameters.getParameter<int>("chi2Bin");
-  chi2Min = parameters.getParameter<double>("chi2Min");
-  chi2Max = parameters.getParameter<double>("chi2Max");
-  chi2OvDFGlbTrack.push_back(dbe->book1D(histname+"Glb_chi2OverDf", "#chi_{2}OverDF_{GLB}", chi2Bin, chi2Min, chi2Max));
-  chi2OvDFGlbTrack.push_back(dbe->book1D(histname+"Tk_chi2OverDf",  "#chi_{2}OverDF_{TKfromGLB}", phiBin, chi2Min, chi2Max));
-  chi2OvDFGlbTrack.push_back(dbe->book1D(histname+"Sta_chi2OverDf", "#chi_{2}OverDF_{STAfromGLB}", chi2Bin, chi2Min, chi2Max));
-  chi2OvDFTight    = dbe->book1D("TightMuon_chi2OverDf", "#chi_{2}OverDF_{GLB}", chi2Bin, chi2Min, chi2Max);
-  chi2OvDFTrack    = dbe->book1D("TkMuon_chi2OverDf",    "#chi_{2}OverDF_{TK}", chi2Bin, chi2Min, chi2Max);
-  chi2OvDFStaTrack = dbe->book1D("StaMuon_chi2OverDf",   "#chi_{2}OverDF_{STA}", chi2Bin, chi2Min, chi2Max);
+  chi2OvDFGlbTrack.push_back(ibooker.book1D(histname+"Glb_chi2OverDf", "#chi_{2}OverDF_{GLB}", chi2Bin, chi2Min, chi2Max));
+  chi2OvDFGlbTrack.push_back(ibooker.book1D(histname+"Tk_chi2OverDf",  "#chi_{2}OverDF_{TKfromGLB}", phiBin, chi2Min, chi2Max));
+  chi2OvDFGlbTrack.push_back(ibooker.book1D(histname+"Sta_chi2OverDf", "#chi_{2}OverDF_{STAfromGLB}", chi2Bin, chi2Min, chi2Max));
+  chi2OvDFTight    = ibooker.book1D("TightMuon_chi2OverDf", "#chi_{2}OverDF_{GLB}", chi2Bin, chi2Min, chi2Max);
+  chi2OvDFTrack    = ibooker.book1D("TkMuon_chi2OverDf",    "#chi_{2}OverDF_{TK}", chi2Bin, chi2Min, chi2Max);
+  chi2OvDFStaTrack = ibooker.book1D("StaMuon_chi2OverDf",   "#chi_{2}OverDF_{STA}", chi2Bin, chi2Min, chi2Max);
 
   // monitoring of the transverse momentum
-  ptBin = parameters.getParameter<int>("ptBin");
-  ptMin = parameters.getParameter<double>("ptMin");
-  ptMax = parameters.getParameter<double>("ptMax");
-  ptGlbTrack.push_back(dbe->book1D(histname+"Glb_pt", "pt_{GLB}", ptBin, ptMin, ptMax));
+  ptGlbTrack.push_back(ibooker.book1D(histname+"Glb_pt", "pt_{GLB}", ptBin, ptMin, ptMax));
   ptGlbTrack[0]->setAxisTitle("GeV");
-  ptGlbTrack.push_back(dbe->book1D(histname+"Tk_pt", "pt_{TKfromGLB}", ptBin, ptMin, ptMax));
+  ptGlbTrack.push_back(ibooker.book1D(histname+"Tk_pt", "pt_{TKfromGLB}", ptBin, ptMin, ptMax));
   ptGlbTrack[1]->setAxisTitle("GeV");
-  ptGlbTrack.push_back(dbe->book1D(histname+"Sta_pt", "pt_{STAfromGLB}", ptBin, ptMin, ptMax));
+  ptGlbTrack.push_back(ibooker.book1D(histname+"Sta_pt", "pt_{STAfromGLB}", ptBin, ptMin, ptMax));
   ptGlbTrack[2]->setAxisTitle("GeV");
-  ptTight = dbe->book1D("TightMuon_pt", "pt_{GLB}", ptBin, ptMin, ptMax);
+  ptTight = ibooker.book1D("TightMuon_pt", "pt_{GLB}", ptBin, ptMin, ptMax);
   ptTight->setAxisTitle("GeV");
-  ptTrack = dbe->book1D("TkMuon_pt", "pt_{TK}", ptBin, ptMin, ptMax);
+  ptTrack = ibooker.book1D("TkMuon_pt", "pt_{TK}", ptBin, ptMin, ptMax);
   ptTrack->setAxisTitle("GeV");
-  ptStaTrack = dbe->book1D("StaMuon_pt", "pt_{STA}", ptBin, ptMin, ptMax);
+  ptStaTrack = ibooker.book1D("StaMuon_pt", "pt_{STA}", ptBin, ptMin, ptMax);
   ptStaTrack->setAxisTitle("GeV");
 
   if ( _SingleMuonEventFlag->on() ) _SingleMuonEventFlag->initRun( iRun, iSetup );
