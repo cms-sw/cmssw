@@ -35,6 +35,7 @@
 
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EEDataFrame.h"
+#include "DataFormats/EcalDigi/interface/EKDataFrame.h"
 #include "DataFormats/EcalDigi/interface/ESDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
@@ -84,12 +85,14 @@ private:
 
  edm::InputTag EBdigiCollection_;
  edm::InputTag EEdigiCollection_;
+ edm::InputTag EKdigiCollection_;
  edm::InputTag ESdigiCollection_;
  
  std::map<int, double, std::less<int> > gainConv_;
 
  double barrelADCtoGeV_;
  double endcapADCtoGeV_;
+ double shashlikADCtoGeV_;
  
  MonitorElement* meGunEnergy_;
  MonitorElement* meGunEta_;
@@ -97,12 +100,15 @@ private:
 
  MonitorElement* meEBDigiSimRatio_;
  MonitorElement* meEEDigiSimRatio_;
+ MonitorElement* meEKDigiSimRatio_;
 
  MonitorElement* meEBDigiSimRatiogt10ADC_;
  MonitorElement* meEEDigiSimRatiogt20ADC_;
+ MonitorElement* meEKDigiSimRatiogt20ADC_;
 
  MonitorElement* meEBDigiSimRatiogt100ADC_;
  MonitorElement* meEEDigiSimRatiogt100ADC_;
+ MonitorElement* meEKDigiSimRatiogt100ADC_;
 
 };
 
