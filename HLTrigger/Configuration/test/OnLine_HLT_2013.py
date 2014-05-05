@@ -1,11 +1,11 @@
-# /online/collisions/2012/8e33/v3.2/HLT/V22 (CMSSW_7_1_0_pre7_HLT2)
+# /online/collisions/2012/8e33/v3.2/HLT/V26 (CMSSW_7_1_0_pre7_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT2013" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/online/collisions/2012/8e33/v3.2/HLT/V22')
+  tableName = cms.string('/online/collisions/2012/8e33/v3.2/HLT/V26')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -2620,7 +2620,8 @@ process.caloDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
   includeBadChambers = cms.bool( False )
 )
 process.cosmicsNavigationSchoolESProducer = cms.ESProducer( "NavigationSchoolESProducer",
-  ComponentName = cms.string( "CosmicNavigationSchool" )
+  ComponentName = cms.string( "CosmicNavigationSchool" ),
+  SimpleMagneticField = cms.string( "" )
 )
 process.ecalDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
   ComponentName = cms.string( "EcalDetIdAssociator" ),
@@ -3527,7 +3528,8 @@ process.muonDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
   includeBadChambers = cms.bool( False )
 )
 process.navigationSchoolESProducer = cms.ESProducer( "NavigationSchoolESProducer",
-  ComponentName = cms.string( "SimpleNavigationSchool" )
+  ComponentName = cms.string( "SimpleNavigationSchool" ),
+  SimpleMagneticField = cms.string( "" )
 )
 process.preshowerDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
   ComponentName = cms.string( "PreshowerDetIdAssociator" ),
