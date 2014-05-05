@@ -474,17 +474,16 @@ PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau)
 
         sumNPU=1.0;
         sumPU=1.0;
-	double pt2=isoObject->pt()*isoObject->pt();
 	double eta=isoObject->eta();
 	double phi=isoObject->phi();
         BOOST_FOREACH( const PFCandidatePtr& chPVObject,chPV_) {
-	  double sum = pt2/(deltaR2(eta,phi,chPVObject->eta(),chPVObject->phi()));
+	  double sum = (chPVObject->pt()*chPVObject->pt())/(deltaR2(eta,phi,chPVObject->eta(),chPVObject->phi()));
 	  if(sum > 1.0) sumNPU *= sum;
         }
 	sumNPU=0.5*log(sumNPU);
 
 	BOOST_FOREACH( const PFCandidatePtr& isoPUObject,isoPU_) {
-          double sum = pt2/(deltaR2(eta,phi,isoPUObject->eta(),isoPUObject->phi()));
+          double sum = (isoPUObject->pt()*isoPUObject->pt())/(deltaR2(eta,phi,isoPUObject->eta(),isoPUObject->phi()));
 	  if(sum > 1.0) sumPU*=sum;
         }
 	sumPU=0.5*log(sumPU);
@@ -535,17 +534,16 @@ PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau)
 
         sumNPU=1.0;
         sumPU=1.0;
-        double pt2=isoObject->pt()*isoObject->pt();
         double eta=isoObject->eta();
         double phi=isoObject->phi();
         BOOST_FOREACH( const PFCandidatePtr& chPVObject,chPV_) {
-          double sum = pt2/(deltaR2(eta,phi,chPVObject->eta(),chPVObject->phi()));
+          double sum = (chPVObject->pt()*chPVObject->pt())/(deltaR2(eta,phi,chPVObject->eta(),chPVObject->phi()));
           if(sum > 1.0) sumNPU *= sum;
         }
         sumNPU=0.5*log(sumNPU);
 
         BOOST_FOREACH( const PFCandidatePtr& isoPUObject,isoPU_) {
-          double sum = pt2/(deltaR2(eta,phi,isoPUObject->eta(),isoPUObject->phi()));
+          double sum = (isoPUObject->pt()*isoPUObject->pt())/(deltaR2(eta,phi,isoPUObject->eta(),isoPUObject->phi()));
           if(sum > 1.0) sumPU*=sum;
         }
         sumPU=0.5*log(sumPU);
