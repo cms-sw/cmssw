@@ -1,14 +1,3 @@
-//-----------------------------------------------------------------------------
-//
-//   Class: CSCMotherboardME11GEM
-//
-//   Description:
-//    Extended CSCMotherboard for ME11 to handle ME1a and ME1b separately
-//
-//   Author List: Vadim Khotilovich 12 May 2009
-//
-//-----------------------------------------------------------------------------
-
 #include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME11GEM.h>
 //#include <Utilities/Timing/interface/TimingReport.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>

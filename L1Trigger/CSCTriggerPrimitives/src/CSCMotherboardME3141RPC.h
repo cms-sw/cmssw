@@ -1,13 +1,13 @@
 #ifndef CSCTriggerPrimitives_CSCMotherboardME3141RPC_h
 #define CSCTriggerPrimitives_CSCMotherboardME3141RPC_h
 
-/** \class CSCMotherboardME11
+/** \class CSCMotherboardME3141R0C
  *
- * Extended CSCMotherboardME3141RPC for ME3141 TMB upgrade
+ * Extended CSCMotherboard for ME3141 TMB upgrade
  *
  * \author Sven Dildick March 2014
  *
- * Based on CSCMotherboardME3141RPC code
+ * Based on CSCMotherboard code
  *
  */
 

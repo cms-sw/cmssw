@@ -4,9 +4,8 @@
 /** \class CSCMotherboardME11GEM
  *
  * Extended CSCMotherboard for ME11 TMB upgrade
- * to handle ME1b and (primarily unganged) ME1a separately
  *
- * \author Vadim Khotilovich 12 May 2009
+ * \author Sven Dildick March 2014
  *
  * Based on CSCMotherboard code
  *

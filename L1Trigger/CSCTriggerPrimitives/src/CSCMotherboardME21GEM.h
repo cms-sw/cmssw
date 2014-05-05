@@ -1,13 +1,13 @@
 #ifndef CSCTriggerPrimitives_CSCMotherboardME21GEM_h
 #define CSCTriggerPrimitives_CSCMotherboardME21GEM_h
 
-/** \class CSCMotherboardME11
+/** \class CSCMotherboardME21GEM
  *
- * Extended CSCMotherboardME21GEM for ME21 TMB upgrade
+ * Extended CSCMotherboard for ME21 TMB upgrade
  *
  * \author Sven Dildick March 2014
  *
- * Based on CSCMotherboardME21GEM code
+ * Based on CSCMotherboard code
  *
  */
 
