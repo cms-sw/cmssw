@@ -84,7 +84,7 @@ def miniAOD_customizeCommon(process):
     process.patJets.userData.userFloats.src = [ cms.InputTag("pileupJetId:fullDiscriminant"), ]
     #
     from PhysicsTools.PatAlgos.tools.trigTools import switchOnTriggerStandAlone
-    switchOnTriggerStandAlone( process )
+    switchOnTriggerStandAlone( process, outputModule = '' )
     process.patTrigger.packTriggerPathNames = cms.bool(True)
     #
     # apply type I/type I + II PFMEt corrections to pat::MET object
@@ -132,5 +132,14 @@ def miniAOD_customizeOutput(out):
 
 def miniAOD_customizeData(process):
     from PhysicsTools.PatAlgos.tools.coreTools import runOnData
-    runOnData( process )
+    runOnData( process, outputModules = [] )
 
+def miniAOD_customizeAllData(process):
+    miniAOD_customizeCommon(process)
+    miniAOD_customizeData(process)
+    return process
+
+def miniAOD_customizeAllMC(process):
+    miniAOD_customizeCommon(process)
+    miniAOD_customizeMC(process)
+    return process

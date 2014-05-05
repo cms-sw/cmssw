@@ -903,7 +903,6 @@ class ConfigBuilder(object):
         self.DQMDefaultSeq='DQMOffline'
         self.FASTSIMDefaultSeq='all'
         self.VALIDATIONDefaultSeq=''
-        self.PATLayer0DefaultSeq='all'
         self.ENDJOBDefaultSeq='endOfProcess'
         self.REPACKDefaultSeq='DigiToRawRepack'
 	self.PATDefaultSeq='miniAOD'
@@ -1604,7 +1603,12 @@ class ConfigBuilder(object):
     def prepare_PAT(self, sequence = "miniAOD"):
         ''' Enrich the schedule with PAT '''
         self.loadDefaultOrSpecifiedCFF(sequence,self.PATDefaultCFF)
-	self.scheduleSequence(sequence.split('.')[-1],'pat_step')
+	if not self._options.runUnscheduled:	
+		raise Exception("MiniAOD production can only run in unscheduled mode, please run cmsDriver with --runUnscheduled")
+        if self._options.isData:
+            self._options.customisation_file.append("PhysicsTools/PatAlgos/slimming/miniAOD_tools.miniAOD_customizeAllData")
+        else:
+            self._options.customisation_file.append("PhysicsTools/PatAlgos/slimming/miniAOD_tools.miniAOD_customizeAllMC")
         return
 
     def prepare_EI(self, sequence = None):
