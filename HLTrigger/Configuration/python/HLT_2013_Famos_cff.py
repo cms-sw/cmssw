@@ -1,11 +1,11 @@
-# /online/collisions/2012/8e33/v3.2/HLT/V22 (CMSSW_7_1_0_pre7_HLT2)
+# /online/collisions/2012/8e33/v3.2/HLT/V26 (CMSSW_7_1_0_pre7_HLT3)
 
 import FWCore.ParameterSet.Config as cms
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import *
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/online/collisions/2012/8e33/v3.2/HLT/V22')
+  tableName = cms.string('/online/collisions/2012/8e33/v3.2/HLT/V26')
 )
 
 HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -733,7 +733,8 @@ caloDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
   includeBadChambers = cms.bool( False )
 )
 cosmicsNavigationSchoolESProducer = cms.ESProducer( "NavigationSchoolESProducer",
-  ComponentName = cms.string( "CosmicNavigationSchool" )
+  ComponentName = cms.string( "CosmicNavigationSchool" ),
+  SimpleMagneticField = cms.string( "" )
 )
 ecalDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
   ComponentName = cms.string( "EcalDetIdAssociator" ),
