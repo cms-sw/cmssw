@@ -395,16 +395,16 @@ void BTagPerformanceAnalyzerMC::analyze(const edm::Event& iEvent, const edm::Eve
       //
 
       JetWithFlavour jetWithFlavour;
-      if (!getJetWithFlavour(tagI->first, flavours, jetWithFlavour, iSetup, genJetsMatched))
+      if (!jetSelector(*(tagI->first), infoHandle, jec))
         continue;
-      if (!jetSelector(jetWithFlavour.first, std::abs(jetWithFlavour.second.getFlavour()), infoHandle, jec))
+      if (!getJetWithFlavour(tagI->first, flavours, jetWithFlavour, iSetup, genJetsMatched))
         continue;
 
       for (int iPlotter = 0; iPlotter != plotterSize; ++iPlotter) {
 	      bool inBin = false;
 	      if (partonKinematics)
-                inBin = binJetTagPlotters[iJetLabel][iPlotter]->etaPtBin().inBin(jetWithFlavour.second.getLorentzVector().Eta(),
-                                                                                 jetWithFlavour.second.getLorentzVector().Pt()*jec);
+                inBin = binJetTagPlotters[iJetLabel][iPlotter]->etaPtBin().inBin(jetWithFlavour.first.eta(),
+                                                                                 jetWithFlavour.first.pt()*jec);
 	      else
                 inBin = binJetTagPlotters[iJetLabel][iPlotter]->etaPtBin().inBin(jetWithFlavour.first, jec);
 	      // Fill histograms if in desired pt/rapidity bin.
@@ -446,16 +446,16 @@ void BTagPerformanceAnalyzerMC::analyze(const edm::Event& iEvent, const edm::Eve
       //
 
       JetWithFlavour jetWithFlavour;
-      if (!getJetWithFlavour(tagI->first, flavours, jetWithFlavour, iSetup, genJetsMatched))
+      if (!jetSelector(*(tagI->first), infoHandle, jec))
         continue;
-      if (!jetSelector(jetWithFlavour.first, std::abs(jetWithFlavour.second.getFlavour()), infoHandle, jec))
+      if (!getJetWithFlavour(tagI->first, flavours, jetWithFlavour, iSetup, genJetsMatched))
         continue;
 
       for(int iPlotter = 0; iPlotter != plotterSize; ++iPlotter) {
         bool inBin = false;
         if (partonKinematics)
-          inBin = binTagCorrelationPlotters[iJetLabel][iPlotter]->etaPtBin().inBin(jetWithFlavour.second.getLorentzVector().Eta(),
-                                                                                   jetWithFlavour.second.getLorentzVector().Pt()*jec);
+          inBin = binTagCorrelationPlotters[iJetLabel][iPlotter]->etaPtBin().inBin(jetWithFlavour.first.eta(),
+                                                                                   jetWithFlavour.first.pt()*jec);
 
         else
           inBin = binTagCorrelationPlotters[iJetLabel][iPlotter]->etaPtBin().inBin(jetWithFlavour.first, jec);
@@ -544,16 +544,16 @@ void BTagPerformanceAnalyzerMC::analyze(const edm::Event& iEvent, const edm::Eve
       //
 
       JetWithFlavour jetWithFlavour;
-      if (!getJetWithFlavour(jetRef, flavours, jetWithFlavour, iSetup, genJetsMatched))
+      if (!jetSelector(*jetRef, infoHandle, jec))
         continue;
-      if (!jetSelector(jetWithFlavour.first, std::abs(jetWithFlavour.second.getFlavour()), infoHandle, jec))
+      if (!getJetWithFlavour(jetRef, flavours, jetWithFlavour, iSetup, genJetsMatched))
         continue;
 
       for (int iPlotter = 0; iPlotter != plotterSize; ++iPlotter) {
 	      bool inBin = false;
 	      if (partonKinematics)
-               inBin = binTagInfoPlotters[iJetLabel][iPlotter]->etaPtBin().inBin(jetWithFlavour.second.getLorentzVector().Eta(),
-                                                                                 jetWithFlavour.second.getLorentzVector().Pt()*jec);
+               inBin = binTagInfoPlotters[iJetLabel][iPlotter]->etaPtBin().inBin(jetWithFlavour.first.eta(),
+                                                                                 jetWithFlavour.first.pt()*jec);
 	      else
 		inBin = binTagInfoPlotters[iJetLabel][iPlotter]->etaPtBin().inBin(*jetRef, jec);
 	      // Fill histograms if in desired pt/rapidity bin.
@@ -582,7 +582,8 @@ bool  BTagPerformanceAnalyzerMC::getJetWithFlavour(edm::RefToBase<Jet> jetRef, c
     : flavours.begin()->first.id();
 
   if (!eventInitialized) {
-    jetCorrector.setEventSetup(es);
+    //jetCorrector not used but it's probably possible to use this funtion to simplify the code in order to correct the jet when asked
+    //jetCorrector.setEventSetup(es);
     if (recProdId != refProdId) {
       edm::RefToBaseVector<Jet> refJets;
       for(FlavourMap::const_iterator iter = flavours.begin();
@@ -602,8 +603,10 @@ bool  BTagPerformanceAnalyzerMC::getJetWithFlavour(edm::RefToBase<Jet> jetRef, c
     if (jetRef.isNull())
       return false;
   }
-
-  jetWithFlavour.first = jetCorrector(*jetRef);
+  
+  //jetCorrector not used but it's probably possible to use this funtion to simplify the code in order to correct the jet when asked
+  //jetWithFlavour.first = jetCorrector(*jetRef);
+  jetWithFlavour.first = *jetRef;
 
   auto itFound = flavours.find(jetRef);
   unsigned int flavour = itFound != flavours.end()? itFound->second : 0;
@@ -613,6 +616,7 @@ bool  BTagPerformanceAnalyzerMC::getJetWithFlavour(edm::RefToBase<Jet> jetRef, c
     if(!isNotPU) flavour=20;
   }
 
+  //add reco::Jet info instead of parton info (as we don't keep the parton info, see JetFlavourMatchingCollection above for more info)
   jetWithFlavour.second = reco::JetFlavour(jetWithFlavour.first.p4(), math::XYZPoint (0,0,0), flavour);
 
   LogTrace("Info") << "Found jet with flavour "<<jetWithFlavour.second.getFlavour()<<endl;

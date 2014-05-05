@@ -13,20 +13,10 @@ AcceptJet::AcceptJet(const double& etaMin_, const double& etaMax_, const double&
   pRecJetMax(pMax_), ratioMin(ratioMin_), ratioMax(ratioMax_), doJetID(doJetID_) {}
 
 
-bool AcceptJet::operator() (const reco::Jet & jet, const int & jetFlavour, const edm::Handle<reco::SoftLeptonTagInfoCollection> & infos, const double jec) const
+bool AcceptJet::operator() (const reco::Jet & jet, const edm::Handle<reco::SoftLeptonTagInfoCollection> & infos, const double jec) const
 {
-
-  // temporary fudge to correct for double loop error
-  //  jetPartonMomentum /= 2.0;
-
   if ( fabs(jet.eta()) < etaMin  ||
        fabs(jet.eta()) > etaMax  ) return false;
-
-//   if ( jetFlavour.underlyingParton4Vec().P() < pPartonMin  ||
-//        jetFlavour.underlyingParton4Vec().P() > pPartonMax  ) accept = false;
-// 
-//   if ( jetFlavour.underlyingParton4Vec().Pt() < ptPartonMin  ||
-//        jetFlavour.underlyingParton4Vec().Pt() > ptPartonMax  ) accept = false;
 
   if ( jet.pt()*jec < ptRecJetMin ||
        jet.pt()*jec > ptRecJetMax ) return false;
@@ -61,7 +51,7 @@ bool AcceptJet::operator() (const reco::Jet & jet, const int & jetFlavour, const
 	   && chargedEmEnergyFraction < 0.99)) 
 	return false; //2012 values
     }
-    //else std::cout<<"Jets are not PF jets, put 'doJetID' to False."<<std::endl;
+    else std::cout<<"Jets are not PF jets, put 'doJetID' to False."<<std::endl;
   }
   
   return true;

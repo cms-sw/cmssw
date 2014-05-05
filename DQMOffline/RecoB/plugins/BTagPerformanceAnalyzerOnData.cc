@@ -339,8 +339,7 @@ void BTagPerformanceAnalyzerOnData::analyze(const edm::Event& iEvent, const edm:
 	jec = corrector->correction(*(tagI->first),iEvent,iSetup);
       }
       //
-
-      if (!jetSelector(*(tagI->first), -1, infoHandle, jec)) 
+      if (!jetSelector(*(tagI->first), infoHandle, jec)) 
 	continue;
       
       for (int iPlotter = 0; iPlotter != plotterSize; ++iPlotter) {
@@ -376,7 +375,7 @@ void BTagPerformanceAnalyzerOnData::analyze(const edm::Event& iEvent, const edm:
       }
       //
 
-      if (!jetSelector(*(tagI->first), -1, infoHandle, jec))
+      if (!jetSelector(*(tagI->first), infoHandle, jec))
         continue;
       
       for(int iPlotter = 0; iPlotter != plotterSize; ++iPlotter) {
@@ -462,8 +461,7 @@ void BTagPerformanceAnalyzerOnData::analyze(const edm::Event& iEvent, const edm:
 	jec = corrector->correction(*(jetRef),iEvent,iSetup);
       }
       //
-
-      if (!jetSelector(*jetRef, -1, infoHandle, jec))
+      if (!jetSelector(*jetRef, infoHandle, jec))
         continue;
       
       for (int iPlotter = 0; iPlotter != plotterSize; ++iPlotter) {
