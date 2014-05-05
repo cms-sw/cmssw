@@ -52,7 +52,7 @@ class RecoTauVertexAssociator {
     };
 
     RecoTauVertexAssociator (const edm::ParameterSet& pset);
-    virtual ~RecoTauVertexAssociator ();
+    virtual ~RecoTauVertexAssociator (){ delete JetToVertexAssociation; }
     /// Get the primary vertex associated to a given jet. Returns a null Ref if
     /// no vertex is found.
     reco::VertexRef associatedVertex(const PFJet& tau) const;
