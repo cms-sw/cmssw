@@ -89,12 +89,13 @@ EcalTPInputAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   edm::Handle<EEDigiCollection> eeDigis;
   if (!iEvent.getByToken(producerEblabel_,ebDigis)) {
     barrel=false;
-    // emi edm::LogWarning("EcalTPG") <<" Couldnt find Barrel dataframes with Producer:"<<producerEbLabel_.label()<<" and label: "<<producerEbLabel_.instance();
+    edm::LogWarning("EcalTPG") <<" Couldnt find Barrel dataframes with Producer:"<< EBtag_;
+
   }
   bool endcap=true;
   if (!iEvent.getByToken(producerEelabel_,eeDigis)) {
     endcap=false;
-    //emi edm::LogWarning("EcalTPG") <<" Couldnt find Endcap dataframes with Producer:"<<producer_<<" and label: "<<eeLabel_;
+    edm::LogWarning("EcalTPG") <<" Couldnt find Endcap dataframes with Producer:"<< EEtag_;
   }
   //barrel
   if (barrel) {
