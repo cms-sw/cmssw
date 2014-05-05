@@ -220,13 +220,11 @@ EcalTrigPrimProducer::produce(edm::Event& e, const edm::EventSetup&  iSetup)
 
   if (!e.getByToken(Eblabel_,ebDigis)) {
     barrel=false;
-    //emi edm::LogWarning("EcalTPG") <<" Couldnt find Barrel dataframes with producer "<<label_<<" and label "<<instanceNameEB_<<"!!!";
     edm::LogWarning("EcalTPG") <<" Couldnt find Barrel dataframes with producer "<< EBtag_ <<"!!!";
   }
   if (!barrelOnly_) {
     if (!e.getByToken(Eelabel_,eeDigis)) {
       endcap=false;
-      // edm::LogWarning("EcalTPG") <<" Couldnt find Endcap dataframes with producer "<<label_<<" and label "<<instanceNameEE_<<"!!!";
       edm::LogWarning("EcalTPG") <<" Couldnt find Endcap dataframes with producer "<< EEtag_ <<"!!!";
     }
   }
