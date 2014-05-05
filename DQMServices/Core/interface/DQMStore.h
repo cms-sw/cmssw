@@ -706,8 +706,3 @@ class DQMStore
 };
 
 #endif // DQMSERVICES_CORE_DQM_STORE_H
-
-/* Local Variables: */
-/* show-trailing-whitespace: t */
-/* truncate-lines: t */
-/* End: */
