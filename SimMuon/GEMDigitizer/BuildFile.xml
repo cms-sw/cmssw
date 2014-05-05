@@ -27,4 +27,5 @@
 <use   name="SimDataFormats/CrossingFrame"/>
 <use   name="SimGeneral/HepPDTRecord"/>
 <use   name="Utilities/General"/>
+<use   name="CommonTools/UtilAlgos"/>
 <flags   EDM_PLUGIN="1"/>

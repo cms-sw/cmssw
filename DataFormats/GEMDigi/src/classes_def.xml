@@ -8,12 +8,20 @@
 <class name="MuonDigiCollection<GEMDetId,GEMDigi>"/> 
 <class name="edm::Wrapper<MuonDigiCollection<GEMDetId,GEMDigi> >" splitLevel="0"/> 
 
-<class name="GEMCSCPadDigi" ClassVersion="10">
- <version ClassVersion="10" checksum="1196724793"/>
+<class name="GEMPadDigi" ClassVersion="11">
+ <version ClassVersion="11" checksum="426510066"/>
 </class>
-<class name="std::vector<GEMCSCPadDigi>"/>
-<class name="std::map<GEMDetId,std::vector<GEMCSCPadDigi> >"/>
-<class name="MuonDigiCollection<GEMDetId,GEMCSCPadDigi>"/> 
-<class name="edm::Wrapper<MuonDigiCollection<GEMDetId,GEMCSCPadDigi> >" splitLevel="0"/> 
+<class name="std::vector<GEMPadDigi>"/>
+<class name="std::map<GEMDetId,std::vector<GEMPadDigi> >"/>
+<class name="MuonDigiCollection<GEMDetId,GEMPadDigi>"/> 
+<class name="edm::Wrapper<MuonDigiCollection<GEMDetId,GEMPadDigi> >" splitLevel="0"/> 
+
+<class name="GEMCoPadDigi" ClassVersion="11">
+ <version ClassVersion="11" checksum="1150395405"/>
+</class>
+<class name="std::vector<GEMCoPadDigi>"/>
+<class name="std::map<GEMDetId,std::vector<GEMCoPadDigi> >"/>
+<class name="MuonDigiCollection<GEMDetId,GEMCoPadDigi>"/> 
+<class name="edm::Wrapper<MuonDigiCollection<GEMDetId,GEMCoPadDigi> >" splitLevel="0"/> 
 
 </lcgdict>
