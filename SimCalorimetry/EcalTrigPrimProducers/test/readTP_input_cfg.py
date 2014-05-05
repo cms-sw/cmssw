@@ -9,9 +9,8 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 process.tpInputAnalyzer = cms.EDAnalyzer("EcalTPInputAnalyzer",
-    EBLabel = cms.string(''),
-    EELabel = cms.string(''),
-    Producer = cms.string('RecHits')
+    ProducerEblabel = cms.InputTag('RecHits',''),
+    ProducerEelabel = cms.InputTag('RecHits','')
 )
 
 process.p = cms.Path(process.tpInputAnalyzer)
