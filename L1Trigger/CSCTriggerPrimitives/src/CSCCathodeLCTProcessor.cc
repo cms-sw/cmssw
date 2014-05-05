@@ -297,8 +297,6 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
 
   if (smartME1aME1b) {
     // use of localized dead-time zones
-    std::cout << "conf ME" << theStation << " " << CSCTriggerNumbering::ringFromTriggerLabels(theStation, theTrigChamber) << " " << conf << std::endl;
-
     use_dead_time_zoning = conf.existsAs<bool>("useDeadTimeZoning")?conf.getParameter<bool>("useDeadTimeZoning"):true;
     clct_state_machine_zone = conf.existsAs<unsigned int>("clctStateMachineZone")?conf.getParameter<unsigned int>("clctStateMachineZone"):8;
     dynamic_state_machine_zone = conf.existsAs<bool>("useDynamicStateMachineZone")?conf.getParameter<bool>("useDynamicStateMachineZone"):true;
