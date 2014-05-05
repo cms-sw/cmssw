@@ -228,6 +228,7 @@ DQMFileSaver::saveJobReport(const std::string &filename)
 //--------------------------------------------------------
 DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
   : convention_ (Offline),
+    serialization_(ROOT),
     workflow_ (""),
     producer_ ("DQM"),
     dirName_ ("."),
@@ -263,15 +264,17 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
     convention_ = Offline;
   else if (convention == "Online")
     convention_ = Online;
-  else if (convention == "PB")
-    convention_ = PB;
+  else if (convention == "FilterUnit")
+    convention_ = FilterUnit;
   else
     throw cms::Exception("DQMFileSaver")
       << "Invalid 'convention' parameter '" << convention << "'."
-      << "  Expected one of 'Online' or 'Offline'.";
+      << "  Expected one of 'Online' or 'Offline' or 'FilterUnit'.";
 
-  // If this isn't online convention, check workflow.
-  if (convention_ != Online)
+  // If this is neither online nor FU convention, check workflow.
+  //FIXME(diguida): in this way, FU is treated as online,
+  //so we cannot specify a workflow. TBC
+  if (convention_ != Online && convention_ != FilterUnit)
   {
     workflow_ = ps.getUntrackedParameter<std::string>("workflow", workflow_);
     if (workflow_.empty()
@@ -288,15 +291,26 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
   }
   else if (! ps.getUntrackedParameter<std::string>("workflow", "").empty())
     throw cms::Exception("DQMFileSaver")
-      << "The 'workflow' parameter must be empty in 'Online' convention.";
+      << "The 'workflow' parameter must be empty in 'Online' and 'FilterUnit' conventions.";
   else // for online set parameters
   {
     workflow_="/Global/Online/P5";
   }
 
+  // Determine the file serialization technology, and adjust defaults accordingly.
+  std::string serialization = ps.getUntrackedParameter<std::string>("serialization", "ROOT");
+  if (serialization == "ROOT")
+    serialization_ = ROOT;
+  else if (serialization == "PB")
+    serialization_ = PB;
+  else
+    throw cms::Exception("DQMFileSaver")
+      << "Invalid 'serialization' parameter '" << serialization << "'."
+      << "  Expected one of 'ROOT' or 'PB'.";
+
   // Allow file producer to be set to specific values in certain conditions.
   producer_ = ps.getUntrackedParameter<std::string>("producer", producer_);
-  if (convention_ == Online
+  if ((convention_ == Online || convention_ == FilterUnit)
       && producer_ != "DQM"
       && producer_ != "HLTDQM"
       && producer_ != "Playback")
@@ -305,12 +319,16 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
       << "Invalid 'producer' parameter '" << producer_
       << "'.  Expected 'DQM', 'HLTDQM' or 'Playback'.";
   }
-  else if (convention_ != Online && producer_ != "DQM")
+  else if (convention_ != Online
+           && convention != FilterUnit
+           && producer_ != "DQM")
   {
     throw cms::Exception("DQMFileSaver")
       << "Invalid 'producer' parameter '" << producer_
       << "'.  Expected 'DQM'.";
   }
+  //FIXME(diguida): setting the same file producer constraints as in online for FU.
+  //HLTDQM should be set to be the only producer for FUs?
 
   // version number to be used in filename
   version_ = ps.getUntrackedParameter<int>("version", version_);
@@ -353,9 +371,15 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
 
   filterName_ = ps.getUntrackedParameter<std::string>("filterName", filterName_);
   // Find out when and how to save files.  The following contraints apply:
+  // - For online, filter unit, and offline, allow files to be saved per run, lumi and job end
   // - For online, allow files to be saved at event and time intervals.
-  // - For online and offline, allow files to be saved per run, lumi and job end
   // - For offline allow run number to be overridden (for mc data).
+  if (convention_ == Online || convention_ == Offline || convention_ == FilterUnit)
+  {
+  getAnInt(ps, saveByRun_, "saveByRun");
+  getAnInt(ps, saveByLumiSection_, "saveByLumiSection");
+  }
+
   if (convention_ == Online)
   {
     getAnInt(ps, saveByEvent_, "saveByEvent");
@@ -364,23 +388,24 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
     getAnInt(ps, numKeepSavedFiles_, "maxSavedFilesCount");
   }
 
-  if (convention_ == Online || convention_ == Offline)
-  {
-    getAnInt(ps, saveByRun_, "saveByRun");
-    getAnInt(ps, saveByLumiSection_, "saveByLumiSection");
-  }
-
-  if (convention_ != Online)
+  if (convention_ == Offline)
   {
     getAnInt(ps, forceRunNumber_, "forceRunNumber");
     saveAtJobEnd_ = ps.getUntrackedParameter<bool>("saveAtJobEnd", saveAtJobEnd_);
   }
 
-  // Set up base file name and determine the start time.
-  char version[8];
-  sprintf(version, "_V%04d_", int(version_));
-  version[7]='\0';
-  fileBaseName_ = dirName_ + "/" + producer_ + version;
+  // Set up base file name:
+  // - for online and offline, follow the convention <dirName>/<producer>_V<4digits>_
+  // - for FU, follow the convention <dirName>/ (we need the run and lumisection).
+  fileBaseName_ = dirName_ + "/";
+  if (convention_ != FilterUnit)
+  {
+    char version[8];
+    sprintf(version, "_V%04d_", int(version_));
+    version[7]='\0';
+    fileBaseName_ = fileBaseName_ + producer_ + version;
+  }
+  //Determine the start time.
   gettimeofday(&start_, 0);
   saved_ = start_;
 
@@ -508,9 +533,9 @@ DQMFileSaver::endRun(const edm::Run &, const edm::EventSetup &)
       char rewrite[64]; sprintf(rewrite, "\\1Run %d/\\2/Run summary", irun_);
       saveForOnline(suffix, rewrite);
     }
-    else if (convention_ == Offline)
+    else if (convention_ == Offline && serialization_ == ROOT)
       saveForOffline(workflow_, irun_, 0);
-    else if (convention_ == PB)
+    else if (convention_ == Offline && serialization_ == PB)
       saveForOfflinePB(workflow_, irun_);
     else
       throw cms::Exception("DQMFileSaver")

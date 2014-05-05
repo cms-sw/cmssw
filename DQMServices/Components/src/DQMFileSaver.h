@@ -32,10 +32,17 @@ private:
   {
     Online,
     Offline,
+    FilterUnit
+  };
+
+  enum Serialization
+  {
+    ROOT,
     PB
   };
 
   Convention	convention_;
+  Serialization serialization_;
   std::string	workflow_;
   std::string	producer_;
   std::string	dirName_;
