@@ -165,17 +165,14 @@ class CSCMotherboardME21GEM : public CSCMotherboard
 
   //  deltas used to construct GEM coincidence pads
   int maxDeltaBXInCoPad_;
-  int maxDeltaRollInCoPad_;
   int maxDeltaPadInCoPad_;
 
   //  deltas used to match to GEM pads
   int maxDeltaBXPad_;
-  int maxDeltaRollPad_;
   int maxDeltaPadPad_;
 
   //  deltas used to match to GEM coincidence pads
   int maxDeltaBXCoPad_;
-  int maxDeltaRollCoPad_;
   int maxDeltaPadCoPad_;
 
   bool doLCTGhostBustingWithGEMs_;
@@ -187,9 +184,6 @@ class CSCMotherboardME21GEM : public CSCMotherboard
   // correct LCT timing with GEMs
   bool correctLCTtimingWithGEM_;
 
-  // use only the central BX for GEM matching
-  bool centralBXonlyGEM_;
-  
   // build LCT from ALCT and GEM
   bool buildLCTfromALCTandGEM_;
   bool buildLCTfromCLCTandGEM_;

@@ -77,15 +77,15 @@ CSCMotherboardME3141RPC::CSCMotherboardME3141RPC(unsigned endcap, unsigned stati
     << "+++ Upgrade CSCMotherboardME3141RPC constructed while isSLHC is not set! +++\n";
   
   const edm::ParameterSet tmbParams(conf.getParameter<edm::ParameterSet>("tmbSLHC"));
-  const edm::ParameterSet me3141tmbParams(tmbParams.getParameter<edm::ParameterSet>("me3141ILT"));
+  const edm::ParameterSet me3141tmbParams(conf.getParameter<edm::ParameterSet>("me3141tmbSLHCRPC"));
 
   // whether to not reuse CLCTs that were used by previous matching ALCTs
   // in ALCT-to-CLCT algorithm
-  drop_used_clcts = me3141tmbParams.getParameter<bool>("tmbDropUsedClcts");
+  drop_used_clcts = tmbParams.getParameter<bool>("tmbDropUsedClcts");
 
-  match_earliest_clct_me3141_only = tmbParams.getParameter<bool>("matchEarliestClctME3141Only");
+  match_earliest_clct_me3141_only = me3141tmbParams.getParameter<bool>("matchEarliestClctME3141Only");
 
-  tmb_cross_bx_algo = me3141tmbParams.getParameter<unsigned int>("tmbCrossBxAlgorithm");
+  tmb_cross_bx_algo = tmbParams.getParameter<unsigned int>("tmbCrossBxAlgorithm");
 
   // maximum lcts per BX in ME2
   max_me3141_lcts = me3141tmbParams.getParameter<unsigned int>("maxME3141LCTs");
@@ -100,16 +100,15 @@ CSCMotherboardME3141RPC::CSCMotherboardME3141RPC(unsigned endcap, unsigned stati
   runME3141ILT_ = me3141tmbParams.getParameter<bool>("runME3141ILT");
 
   // debug
-  debug_luts_ = tmbParams.getParameter<bool>("debugLUTs");
-  debug_rpc_matching_ = tmbParams.getParameter<bool>("debugMatching");
+  debug_luts_ = me3141tmbParams.getParameter<bool>("debugLUTs");
+  debug_rpc_matching_ = me3141tmbParams.getParameter<bool>("debugMatching");
 
   // deltas used to match to RPC digis
-  maxDeltaBXRPC_ = tmbParams.getParameter<int>("maxDeltaBXRPC");
-  maxDeltaRollRPC_ = tmbParams.getParameter<int>("maxDeltaRollRPC");
-  maxDeltaStripRPC_ = tmbParams.getParameter<int>("maxDeltaStripRPC");
+  maxDeltaBXRPC_ = me3141tmbParams.getParameter<int>("maxDeltaBXRPC");
+  maxDeltaStripRPC_ = me3141tmbParams.getParameter<int>("maxDeltaStripRPC");
 
   // drop low quality stubs if they don't have RPCs
-  dropLowQualityCLCTsNoRPCs_ = tmbParams.getParameter<bool>("dropLowQualityCLCTsNoRPCs");
+  dropLowQualityCLCTsNoRPCs_ = me3141tmbParams.getParameter<bool>("dropLowQualityCLCTsNoRPCs");
 }
 
 CSCMotherboardME3141RPC::~CSCMotherboardME3141RPC() 
@@ -228,7 +227,6 @@ CSCMotherboardME3141RPC::run(const CSCWireDigiCollection* wiredc,
     auto randRoll(rpcChamber->roll(2));
 
     auto nStrips(keyLayerGeometry->numberOfStrips());
-    std::cout << "nStrips " << nStrips << std::endl;
     for (float i = 0; i< nStrips; i = i+0.5){
       const LocalPoint lpCSC(keyLayerGeometry->topology()->localPosition(i));
       const GlobalPoint gp(keyLayer->toGlobal(lpCSC));

@@ -247,9 +247,6 @@ class CSCMotherboardME11GEM : public CSCMotherboard
   bool dropLowQualityALCTsNoGEMs_ME1a_;
   bool dropLowQualityALCTsNoGEMs_ME1b_;
 
-  // use only the central BX for GEM matching
-  bool centralBXonlyGEM_;
-  
   // build LCT from ALCT and GEM
   bool buildLCTfromALCTandGEM_ME1a_;
   bool buildLCTfromALCTandGEM_ME1b_;

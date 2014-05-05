@@ -279,9 +279,6 @@ CSCMotherboardME11GEM::CSCMotherboardME11GEM(unsigned endcap, unsigned station,
   dropLowQualityALCTsNoGEMs_ME1a_ = me11tmbParams.getParameter<bool>("dropLowQualityALCTsNoGEMs_ME1a");
   dropLowQualityALCTsNoGEMs_ME1b_ = me11tmbParams.getParameter<bool>("dropLowQualityALCTsNoGEMs_ME1b");
 
-  // use only the central BX for GEM matching
-  centralBXonlyGEM_ = me11tmbParams.getParameter<bool>("centralBXonlyGEM");
-  
   // build LCT from ALCT and GEM
   buildLCTfromALCTandGEM_ME1a_ = me11tmbParams.getParameter<bool>("buildLCTfromALCTandGEM_ME1a");
   buildLCTfromALCTandGEM_ME1b_ = me11tmbParams.getParameter<bool>("buildLCTfromALCTandGEM_ME1b");
@@ -2187,7 +2184,6 @@ void CSCMotherboardME11GEM::printGEMTriggerPads(int bx_start, int bx_stop, bool 
   bool first = true;
   for (int bx = bx_start; bx <= bx_stop; bx++) {
     // print only the pads for the central BX
-    if (centralBXonlyGEM_ and bx!=lct_central_bx) continue;
     if (bx!=lct_central_bx and iscopad) continue;
     std::vector<std::pair<unsigned int, const GEMCSCPadDigi*> > in_pads = thePads[bx];
     if (first) {

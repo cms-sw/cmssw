@@ -1,22 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-## GE1/1-ME1/1
-dphi_lct_pad98 = {
-    'pt0'  : { 'odd' :  2.00000000 , 'even' :  2.00000000 },
-    'pt05' : { 'odd' :  0.02203510 , 'even' :  0.00930056 },
-    'pt06' : { 'odd' :  0.01825790 , 'even' :  0.00790009 },
-    'pt10' : { 'odd' :  0.01066000 , 'even' :  0.00483286 },
-    'pt15' : { 'odd' :  0.00722795 , 'even' :  0.00363230 },
-    'pt20' : { 'odd' :  0.00562598 , 'even' :  0.00304879 },
-    'pt30' : { 'odd' :  0.00416544 , 'even' :  0.00253782 },
-    'pt40' : { 'odd' :  0.00342827 , 'even' :  0.00230833 }
-    }
-
 from L1Trigger.CSCCommonTrigger.CSCCommonTrigger_cfi import *
 # Default parameters for CSCTriggerPrimitives generator
-# for GEM-CSC-RPC integrated local trigger in Post-LS2 era
+# for GEM-CSC-RPC integrated local trigger in Post-LS3 era
 # =====================================================
-cscTriggerPrimitiveDigisPostLS2 = cms.EDProducer("CSCTriggerPrimitivesProducer",
+cscTriggerPrimitiveDigisPostLS3 = cms.EDProducer("CSCTriggerPrimitivesProducer",
     CSCCommonTrigger,
 
     # if False, parameters will be read in from DB using EventSetup mechanism
@@ -165,8 +153,50 @@ cscTriggerPrimitiveDigisPostLS2 = cms.EDProducer("CSCTriggerPrimitivesProducer",
         # (currently it is median time of particular hits in a pattern) into the ASCCLCTDigi bx,
         # and temporary store the regular "key layer hit" time into the CSCCLCTDigi fullBX:
         alctUseCorrectedBx = cms.bool(True),
+    ),
 
+    # Parameters for ALCT processors: SLHC studies
+    alctSLHCME21 = cms.PSet(
+        alctFifoTbins   = cms.uint32(16),
+        alctFifoPretrig = cms.uint32(10),
+        alctDriftDelay  = cms.uint32(2),
+        alctNplanesHitPretrig = cms.uint32(3),
+        alctNplanesHitPattern = cms.uint32(4),
+        alctNplanesHitAccelPretrig = cms.uint32(3),
+        alctNplanesHitAccelPattern = cms.uint32(4),
+        alctTrigMode       = cms.uint32(2),
+        alctAccelMode      = cms.uint32(0),
+        alctL1aWindowWidth = cms.uint32(7),
+        verbosity = cms.int32(0),
+        alctEarlyTbins = cms.int32(4),
+        alctNarrowMaskForR1 = cms.bool(True),
+        alctHitPersist  = cms.uint32(6),
+        alctGhostCancellationBxDepth = cms.int32(1),
+        alctGhostCancellationSideQuality = cms.bool(True),
+        alctPretrigDeadtime = cms.uint32(0),
+        alctUseCorrectedBx = cms.bool(True),
         runME21ILT = cms.bool(True),
+    ),
+
+    alctSLHCME3141 = cms.PSet(
+        alctFifoTbins   = cms.uint32(16),
+        alctFifoPretrig = cms.uint32(10),
+        alctDriftDelay  = cms.uint32(2),
+        alctNplanesHitPretrig = cms.uint32(3),
+        alctNplanesHitPattern = cms.uint32(4),
+        alctNplanesHitAccelPretrig = cms.uint32(3),
+        alctNplanesHitAccelPattern = cms.uint32(4),
+        alctTrigMode       = cms.uint32(2),
+        alctAccelMode      = cms.uint32(0),
+        alctL1aWindowWidth = cms.uint32(7),
+        verbosity = cms.int32(0),
+        alctEarlyTbins = cms.int32(4),
+        alctNarrowMaskForR1 = cms.bool(True),
+        alctHitPersist  = cms.uint32(6),
+        alctGhostCancellationBxDepth = cms.int32(1),
+        alctGhostCancellationSideQuality = cms.bool(True),
+        alctPretrigDeadtime = cms.uint32(0),
+        alctUseCorrectedBx = cms.bool(True),
         runME3141ILT = cms.bool(True),
     ),
 
@@ -254,6 +284,42 @@ cscTriggerPrimitiveDigisPostLS2 = cms.EDProducer("CSCTriggerPrimitivesProducer",
         # whether to store the "corrected" CLCT stub time 
         # (currently it is median time of all hits in a pattern) into the CSCCLCTDigi bx,
         # and temporary store the regular "key layer hit" time into the CSCCLCTDigi fullBX:
+        clctUseCorrectedBx = cms.bool(True)
+    ),
+
+    clctSLHCME21 = cms.PSet(
+        clctFifoTbins   = cms.uint32(12),
+        clctFifoPretrig = cms.uint32(7),
+        clctHitPersist  = cms.uint32(4),
+        clctDriftDelay  = cms.uint32(2),
+        clctNplanesHitPretrig = cms.uint32(3),
+        clctNplanesHitPattern = cms.uint32(4),
+        clctPidThreshPretrig  = cms.uint32(4),
+        clctMinSeparation     = cms.uint32(5),
+        verbosity = cms.int32(0),
+        clctStartBxShift  = cms.int32(0),
+        useDeadTimeZoning = cms.bool(True),
+        clctStateMachineZone = cms.uint32(8),
+        useDynamicStateMachineZone = cms.bool(True),
+        clctPretriggerTriggerZone = cms.uint32(5),
+        clctUseCorrectedBx = cms.bool(True)
+    ),
+                                                 
+    clctSLHCME3141 = cms.PSet(
+        clctFifoTbins   = cms.uint32(12),
+        clctFifoPretrig = cms.uint32(7),
+        clctHitPersist  = cms.uint32(4),
+        clctDriftDelay  = cms.uint32(2),
+        clctNplanesHitPretrig = cms.uint32(3),
+        clctNplanesHitPattern = cms.uint32(4),
+        clctPidThreshPretrig  = cms.uint32(4),
+        clctMinSeparation     = cms.uint32(5),
+        verbosity = cms.int32(0),
+        clctStartBxShift  = cms.int32(0),
+        useDeadTimeZoning = cms.bool(True),
+        clctStateMachineZone = cms.uint32(8),
+        useDynamicStateMachineZone = cms.bool(True),
+        clctPretriggerTriggerZone = cms.uint32(5),
         clctUseCorrectedBx = cms.bool(True)
     ),
 
@@ -346,10 +412,11 @@ cscTriggerPrimitiveDigisPostLS2 = cms.EDProducer("CSCTriggerPrimitivesProducer",
         ## run in debug mode
         debugLUTs = cms.bool(False),
         debugMatching = cms.bool(False),
-        debugGEMDhpi = cms.bool(False),
+        debugGEMDphi = cms.bool(False),
 
         ## use old dataformat
         useOldLCTDataFormatALCTGEM = cms.bool(True),
+        useOldLCTDataFormatCLCTGEM = cms.bool(True),
         
         ## copad construction
         maxDeltaBXInCoPad = cms.int32(1),
@@ -370,8 +437,12 @@ cscTriggerPrimitiveDigisPostLS2 = cms.EDProducer("CSCTriggerPrimitivesProducer",
         ## efficiency recovery switches
         dropLowQualityCLCTsNoGEMs_ME1a = cms.bool(False),
         dropLowQualityCLCTsNoGEMs_ME1b = cms.bool(True),
+        dropLowQualityALCTsNoGEMs_ME1a = cms.bool(False),
+        dropLowQualityALCTsNoGEMs_ME1b = cms.bool(False),
         buildLCTfromALCTandGEM_ME1a = cms.bool(True),
         buildLCTfromALCTandGEM_ME1b = cms.bool(True),
+        buildLCTfromCLCTandGEM_ME1a = cms.bool(False),
+        buildLCTfromCLCTandGEM_ME1b = cms.bool(False),
         doLCTGhostBustingWithGEMs = cms.bool(False),
         correctLCTtimingWithGEM = cms.bool(False),
         promoteALCTGEMpattern = cms.bool(True),
@@ -381,8 +452,9 @@ cscTriggerPrimitiveDigisPostLS2 = cms.EDProducer("CSCTriggerPrimitivesProducer",
         doGemMatching = cms.bool(True),
         gemMatchDeltaEta = cms.double(0.08),
         gemMatchDeltaBX = cms.int32(1),
-        gemMatchDeltaPhiOdd = cms.double(dphi_lct_pad98[ptdphi]['odd']),
-        gemMatchDeltaPhiEven = cms.double(dphi_lct_pad98[ptdphi]['even']),
+        gemMatchDeltaPhiOdd = cms.double(1),
+        gemMatchDeltaPhiEven = cms.double(1),
+        gemMatchMinEta = cms.double(1.5),
         gemClearNomatchLCTs = cms.bool(False),
 
         ## cross BX algorithm
@@ -398,30 +470,29 @@ cscTriggerPrimitiveDigisPostLS2 = cms.EDProducer("CSCTriggerPrimitivesProducer",
         ## run in debug mode
         debugLUTs = cms.bool(False),
         debugMatching = cms.bool(False),
-        debugGEMDhpi = cms.bool(False),
+        debugGEMDphi = cms.bool(False),
 
         ## use old dataformat
         useOldLCTDataFormatALCTGEM = cms.bool(True),
+        useOldLCTDataFormatCLCTGEM = cms.bool(True),
         
         ## copad construction
         maxDeltaBXInCoPad = cms.int32(1),
         maxDeltaPadInCoPad = cms.int32(1),
 
         ## matching to pads in case LowQ CLCT
-        maxDeltaBXPadEven = cms.int32(1),
-        maxDeltaBXPadOdd = cms.int32(1),
-        maxDeltaPadPadEven = cms.int32(2),
-        maxDeltaPadPadOdd = cms.int32(3),
+        maxDeltaBXPad = cms.int32(1),
+        maxDeltaPadPad = cms.int32(2),
 
         ## matching to pads in case absent CLCT
-        maxDeltaBXCoPadEven = cms.int32(0),
-        maxDeltaBXCoPadOdd = cms.int32(0),
-        maxDeltaPadCoPadEven = cms.int32(2),
-        maxDeltaPadCoPadOdd = cms.int32(3),
+        maxDeltaBXCoPad = cms.int32(0),
+        maxDeltaPadCoPad = cms.int32(2),
 
         ## efficiency recovery switches
+        dropLowQualityALCTsNoGEMs = cms.bool(False),
         dropLowQualityCLCTsNoGEMs = cms.bool(True),
         buildLCTfromALCTandGEM = cms.bool(True),
+        buildLCTfromCLCTandGEM = cms.bool(True),
         doLCTGhostBustingWithGEMs = cms.bool(False),
         correctLCTtimingWithGEM = cms.bool(False),
         promoteALCTGEMpattern = cms.bool(True),
@@ -431,19 +502,27 @@ cscTriggerPrimitiveDigisPostLS2 = cms.EDProducer("CSCTriggerPrimitivesProducer",
         doGemMatching = cms.bool(True),
         gemMatchDeltaEta = cms.double(0.08),
         gemMatchDeltaBX = cms.int32(1),
-        gemMatchDeltaPhiOdd = cms.double(dphi_lct_pad98[ptdphi]['odd']),
-        gemMatchDeltaPhiEven = cms.double(dphi_lct_pad98[ptdphi]['even']),
+        gemMatchDeltaPhiOdd = cms.double(1),
+        gemMatchDeltaPhiEven = cms.double(1),
+        gemMatchMinEta = cms.double(1.5),
         gemClearNomatchLCTs = cms.bool(False),
 
         ## cross BX algorithm
         tmbCrossBxAlgorithm = cms.uint32(2),
         firstTwoLCTsInChamber = cms.bool(True),
+        
+        # How many maximum LCTs per whole chamber per BX to keep
+        maxME21LCTs = cms.uint32(2),
+        
+        # For ALCT-centric matching in ME21, break after finding 
+        # the first BX with matching CLCT 
+        matchEarliestClctME21Only = cms.bool(False),
     ),
 
     # to be used by ME31-ME41 chambers with RPC-CSC ILT
     me3141tmbSLHCRPC = cms.PSet(
         ## run the upgrade algorithm
-        runME3141ILT = cms.bool(False),
+        runME3141ILT = cms.bool(True),
         
         ## run in debug mode
         debugLUTs = cms.bool(False),
@@ -451,14 +530,20 @@ cscTriggerPrimitiveDigisPostLS2 = cms.EDProducer("CSCTriggerPrimitivesProducer",
 
         ## matching to digis in case LowQ CLCT
         maxDeltaBXRPC = cms.int32(0),
-        maxDeltaRollRPC = cms.int32(0),
         maxDeltaStripRPC = cms.int32(1),
 
         ## efficiency recovery switches
-        dropLowQualityCLCTsNoRPC = cms.bool(True),
+        dropLowQualityCLCTsNoRPCs = cms.bool(True),
         
         ## cross BX algorithm
         tmbCrossBxAlgorithm = cms.uint32(2),
+        
+        # How many maximum LCTs per whole chamber per BX to keep
+        maxME3141LCTs = cms.uint32(2),
+
+        # For ALCT-centric matching in ME21, break after finding 
+        # the first BX with matching CLCT 
+        matchEarliestClctME3141Only = cms.bool(False),
     ),
 
     # MPC sorter config for SLHC studies

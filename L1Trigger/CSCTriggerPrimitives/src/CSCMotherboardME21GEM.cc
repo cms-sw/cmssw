@@ -72,9 +72,9 @@ CSCMotherboardME21GEM::CSCMotherboardME21GEM(unsigned endcap, unsigned station,
   // in ALCT-to-CLCT algorithm
   drop_used_clcts = tmbParams.getParameter<bool>("tmbDropUsedClcts");
 
-  match_earliest_clct_me21_only = tmbParams.getParameter<bool>("matchEarliestClctME21Only");
+  match_earliest_clct_me21_only = me21tmbParams.getParameter<bool>("matchEarliestClctME21Only");
 
-  tmb_cross_bx_algo = me21tmbParams.getParameter<unsigned int>("tmbCrossBxAlgorithm");
+  tmb_cross_bx_algo = tmbParams.getParameter<unsigned int>("tmbCrossBxAlgorithm");
 
   // maximum lcts per BX in ME2
   max_me21_lcts = me21tmbParams.getParameter<unsigned int>("maxME21LCTs");
@@ -119,17 +119,14 @@ CSCMotherboardME21GEM::CSCMotherboardME21GEM(unsigned endcap, unsigned station,
 
   //  deltas used to construct GEM coincidence pads
   maxDeltaBXInCoPad_ = me21tmbParams.getParameter<int>("maxDeltaBXInCoPad");
-  maxDeltaRollInCoPad_ = me21tmbParams.getParameter<int>("maxDeltaRollInCoPad");
   maxDeltaPadInCoPad_ = me21tmbParams.getParameter<int>("maxDeltaPadInCoPad");
 
   //  deltas used to match to GEM pads
   maxDeltaBXPad_ = me21tmbParams.getParameter<int>("maxDeltaBXPad");
-  maxDeltaRollPad_ = me21tmbParams.getParameter<int>("maxDeltaRollPad");
   maxDeltaPadPad_ = me21tmbParams.getParameter<int>("maxDeltaPadPad");
 
   //  deltas used to match to GEM coincidence pads
   maxDeltaBXCoPad_ = me21tmbParams.getParameter<int>("maxDeltaBXCoPad");
-  maxDeltaRollCoPad_ = me21tmbParams.getParameter<int>("maxDeltaRollCoPad");
   maxDeltaPadCoPad_ = me21tmbParams.getParameter<int>("maxDeltaPadCoPad");
 
   // drop low quality stubs if they don't have GEMs
@@ -139,9 +136,6 @@ CSCMotherboardME21GEM::CSCMotherboardME21GEM(unsigned endcap, unsigned station,
   // correct LCT timing with GEMs
   correctLCTtimingWithGEM_ = me21tmbParams.getParameter<bool>("correctLCTtimingWithGEM");
 
-  // use only the central BX for GEM matching
-  centralBXonlyGEM_ = me21tmbParams.getParameter<bool>("centralBXonlyGEM");
-  
   // build LCT from ALCT and GEM
   buildLCTfromALCTandGEM_ = me21tmbParams.getParameter<bool>("buildLCTfromALCTandGEM");
   buildLCTfromCLCTandGEM_ = me21tmbParams.getParameter<bool>("buildLCTfromCLCTandGEM");
@@ -1021,7 +1015,6 @@ void CSCMotherboardME21GEM::printGEMTriggerPads(int bx_start, int bx_stop, bool 
   bool first = true;
   for (int bx = bx_start; bx <= bx_stop; bx++) {
     // print only the pads for the central BX
-    if (centralBXonlyGEM_ and bx!=lct_central_bx) continue;
     if (bx!=lct_central_bx and iscopad) continue;
     std::vector<std::pair<unsigned int, const GEMCSCPadDigi*> > in_pads = thePads[bx];
     if (first) {

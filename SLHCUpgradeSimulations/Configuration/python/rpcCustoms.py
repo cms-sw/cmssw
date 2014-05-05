@@ -23,15 +23,13 @@ def customise_Digi(process):
     return process
 
 def customise_L1Emulator(process):
+    ## this comes after gemCustoms.py
     from L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigisPostLS3_cfi import cscTriggerPrimitiveDigisPostLS3
-    process.simCscTriggerPrimitiveDigis = cscTriggerPrimitiveDigisPostLS3
-    
-    tmb = process.simCscTriggerPrimitiveDigis.tmbSLHC
-    process.simCscTriggerPrimitiveDigis.clctSLHC.clctNplanesHitPattern = 3
-    process.simCscTriggerPrimitiveDigis.clctSLHC.clctPidThreshPretrig = 2
-    process.simCscTriggerPrimitiveDigis.clctParam07.clctPidThreshPretrig = 2
-    process.simCscTriggerPrimitiveDigis.alctSLHC.runME3141ILT = cms.untracked.bool(True)
-    
+    process.simCscTriggerPrimitiveDigis.alctSLHCME3141 = process.simCscTriggerPrimitiveDigis.alctSLHC.clone()
+    process.simCscTriggerPrimitiveDigis.clctSLHCME3141 = process.simCscTriggerPrimitiveDigis.clctSLHC.clone()
+    process.simCscTriggerPrimitiveDigis.alctSLHCME3141.alctNplanesHitPattern = 3
+    process.simCscTriggerPrimitiveDigis.clctSLHCME3141.clctNplanesHitPattern = 3
+    process.simCscTriggerPrimitiveDigis.clctSLHCME3141.clctPidThreshPretrig = 2
     return process
 
 def customise_DigiToRaw(process):

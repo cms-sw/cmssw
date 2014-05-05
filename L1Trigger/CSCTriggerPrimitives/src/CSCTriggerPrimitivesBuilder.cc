@@ -58,15 +58,13 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
 
   checkBadChambers_ = conf.getParameter<bool>("checkBadChambers");
 
-  const edm::ParameterSet tmbParams(conf.getParameter<edm::ParameterSet>("tmbSLHC"));
-
   const edm::ParameterSet me11tmbGemParams(conf.existsAs<edm::ParameterSet>("me11tmbSLHCGEM")?
     conf.getParameter<edm::ParameterSet>("me11tmbSLHCGEM"):edm::ParameterSet());
   const edm::ParameterSet me21tmbGemParams(conf.existsAs<edm::ParameterSet>("me21tmbSLHCGEM")?
     conf.getParameter<edm::ParameterSet>("me21tmbSLHCGEM"):edm::ParameterSet());
-  const edm::ParameterSet me3141tmbRpcParams(conf.existsAs<edm::ParameterSet>("me3141tmbSLHCGEM")?
-   conf.getParameter<edm::ParameterSet>("me3141tmbSLHCGEM"):edm::ParameterSet());
-
+  const edm::ParameterSet me3141tmbRpcParams(conf.existsAs<edm::ParameterSet>("me3141tmbSLHCRPC")?
+    conf.getParameter<edm::ParameterSet>("me3141tmbSLHCRPC"):edm::ParameterSet());
+  
   runME11ILT_ = me11tmbGemParams.existsAs<bool>("runME11ILT")?
     me11tmbGemParams.getParameter<bool>("runME11ILT"):false;
   runME21ILT_ = me21tmbGemParams.existsAs<bool>("runME21ILT")?

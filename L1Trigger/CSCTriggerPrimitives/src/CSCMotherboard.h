@@ -94,6 +94,7 @@ class CSCMotherboard
   const unsigned theSector;
   const unsigned theSubsector;
   const unsigned theTrigChamber;
+  unsigned theRing;
 
   /** Flag for MTCC data. */
   bool isMTCC;

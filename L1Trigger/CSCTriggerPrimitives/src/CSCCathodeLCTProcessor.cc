@@ -243,7 +243,16 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
 					       const edm::ParameterSet& comm,
 					       const edm::ParameterSet& ctmb) :
 		     theEndcap(endcap), theStation(station), theSector(sector),
-                     theSubsector(subsector), theTrigChamber(chamber) {
+                     theSubsector(subsector), theTrigChamber(chamber) 
+{
+  theRing = CSCTriggerNumbering::ringFromTriggerLabels(theStation, theTrigChamber);
+
+  theChamber = CSCTriggerNumbering::chamberFromTriggerLabels(theSector, theSubsector,
+                                                             theStation, theTrigChamber);
+
+  // trigger numbering doesn't distinguish between ME1a and ME1b chambers:
+  isME11 = (theStation == 1 && theRing == 1);
+
   static bool config_dumped = false;
 
   // CLCT configuration parameters.
@@ -288,15 +297,17 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
 
   if (smartME1aME1b) {
     // use of localized dead-time zones
-    use_dead_time_zoning = conf.getParameter<bool>("useDeadTimeZoning");
-    clct_state_machine_zone = conf.getParameter<unsigned int>("clctStateMachineZone");
-    dynamic_state_machine_zone = conf.getParameter<bool>("useDynamicStateMachineZone");
+    std::cout << "conf ME" << theStation << " " << CSCTriggerNumbering::ringFromTriggerLabels(theStation, theTrigChamber) << " " << conf << std::endl;
+
+    use_dead_time_zoning = conf.existsAs<bool>("useDeadTimeZoning")?conf.getParameter<bool>("useDeadTimeZoning"):true;
+    clct_state_machine_zone = conf.existsAs<unsigned int>("clctStateMachineZone")?conf.getParameter<unsigned int>("clctStateMachineZone"):8;
+    dynamic_state_machine_zone = conf.existsAs<bool>("useDynamicStateMachineZone")?conf.getParameter<bool>("useDynamicStateMachineZone"):true;
 
     // how far away may trigger happen from pretrigger
-    pretrig_trig_zone = conf.getParameter<unsigned int>("clctPretriggerTriggerZone");
+    pretrig_trig_zone = conf.existsAs<unsigned int>("clctPretriggerTriggerZone")?conf.getParameter<unsigned int>("clctPretriggerTriggerZone"):5;
 
     // whether to calculate bx as corrected_bx instead of pretrigger one
-    use_corrected_bx = conf.getParameter<bool>("clctUseCorrectedBx");
+    use_corrected_bx = conf.existsAs<bool>("clctUseCorrectedBx")?conf.getParameter<bool>("clctUseCorrectedBx"):true;
   }
   
   // Motherboard parameters: common for all configurations. // Common to CLCT and TMB
@@ -327,14 +338,6 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
     if ((i_layer+1)%2 == 0) stagger[i_layer] = 0;
     else                    stagger[i_layer] = 1;
   }
-
-  theRing = CSCTriggerNumbering::ringFromTriggerLabels(theStation, theTrigChamber);
-
-  theChamber = CSCTriggerNumbering::chamberFromTriggerLabels(theSector, theSubsector,
-                                                             theStation, theTrigChamber);
-
-  // trigger numbering doesn't distinguish between ME1a and ME1b chambers:
-  isME11 = (theStation == 1 && theRing == 1);
 
   //if (theStation==1 && theRing==2) infoV = 3;
 

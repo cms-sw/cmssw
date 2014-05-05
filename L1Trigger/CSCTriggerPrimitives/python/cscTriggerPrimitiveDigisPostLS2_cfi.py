@@ -1,17 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-## GE1/1-ME1/1
-dphi_lct_pad98 = {
-    'pt0'  : { 'odd' :  2.00000000 , 'even' :  2.00000000 },
-    'pt05' : { 'odd' :  0.02203510 , 'even' :  0.00930056 },
-    'pt06' : { 'odd' :  0.01825790 , 'even' :  0.00790009 },
-    'pt10' : { 'odd' :  0.01066000 , 'even' :  0.00483286 },
-    'pt15' : { 'odd' :  0.00722795 , 'even' :  0.00363230 },
-    'pt20' : { 'odd' :  0.00562598 , 'even' :  0.00304879 },
-    'pt30' : { 'odd' :  0.00416544 , 'even' :  0.00253782 },
-    'pt40' : { 'odd' :  0.00342827 , 'even' :  0.00230833 }
-    }
-
 from L1Trigger.CSCCommonTrigger.CSCCommonTrigger_cfi import *
 # Default parameters for CSCTriggerPrimitives generator
 # for GEM-CSC-RPC integrated local trigger in Post-LS2 era
@@ -336,16 +324,70 @@ cscTriggerPrimitiveDigisPostLS2 = cms.EDProducer("CSCTriggerPrimitivesProducer",
 
     # to be used by ME11 chambers with GEM-CSC ILT
     me11tmbSLHCGEM = cms.PSet(
+        mpcBlockMe1a    = cms.uint32(0),
+        alctTrigEnable  = cms.uint32(0),
+        clctTrigEnable  = cms.uint32(0),
+        matchTrigEnable = cms.uint32(1),
+        # reduce ALCT-CLCT matching window size from 7 to 3
+        matchTrigWindowSize = cms.uint32(3),
+        tmbL1aWindowSize = cms.uint32(7),
+        # Debug
+        verbosity = cms.int32(0),
+
+        # Configure early_tbins instead of hardcoding it
+        tmbEarlyTbins = cms.int32(4),
+        
+        # Flag for whether to readout only the earliest max two LCTs in a 
+        # L1A readout window, as there is only room just for two in the TMB header.
+        # If false, all LCTs would be readout in L1A window.
+        tmbReadoutEarliest2 = cms.bool(False),
+
+        # For CLCT-centric matching, whether to drop ALCTs that were matched
+        # to CLCTs in this BX, and not use them in the following BX 
+        # (default non-upgrade TMB behavior).
+        tmbDropUsedAlcts = cms.bool(False),
+
+        # Switch to enable
+        #  True = CLCT-centric matching (default non-upgrade behavior, 
+        #         take CLCTs in BX look for matching ALCTs in window)
+        #  False = ALCT-centric matching (recommended for SLHC, 
+        #         take ALCTs in BX look for matching CLCTs in window)
+        clctToAlct = cms.bool(False),
+
+        # For ALCT-centric matching, whether to drop CLCTs that were matched
+        # to ALCTs in this BX, and not use them in the following BX 
+        tmbDropUsedClcts = cms.bool(False),
+        
+        # For CLCT-centric matching in ME11, break after finding 
+        # the first BX with matching ALCT 
+        matchEarliestAlctME11Only = cms.bool(False),
+        
+        # For ALCT-centric matching in ME11, break after finding 
+        # the first BX with matching CLCT 
+        matchEarliestClctME11Only = cms.bool(False),
+        
+        # 0 = default "non-X-BX" sorting algorithm, 
+        #     where the first BX with match goes first
+        # 1 = simple X-BX sorting algorithm, 
+        #     where the central match BX goes first, 
+        #     then the closest early, the slocest late, etc.
+        tmbCrossBxAlgorithm = cms.uint32(2),
+        
+        # How many maximum LCTs per whole chamber per BX to keep
+        # (supposedly, 1b and 1a can have max 2 each)
+        maxME11LCTs = cms.uint32(2),
+
         ## run the upgrade algorithm
         runME11ILT = cms.bool(True),
 
         ## run in debug mode
         debugLUTs = cms.bool(False),
         debugMatching = cms.bool(False),
-        debugGEMDhpi = cms.bool(False),
+        debugGEMDphi = cms.bool(False),
 
         ## use old dataformat
         useOldLCTDataFormatALCTGEM = cms.bool(True),
+        useOldLCTDataFormatCLCTGEM = cms.bool(True),
         
         ## copad construction
         maxDeltaBXInCoPad = cms.int32(1),
@@ -366,8 +408,12 @@ cscTriggerPrimitiveDigisPostLS2 = cms.EDProducer("CSCTriggerPrimitivesProducer",
         ## efficiency recovery switches
         dropLowQualityCLCTsNoGEMs_ME1a = cms.bool(False),
         dropLowQualityCLCTsNoGEMs_ME1b = cms.bool(True),
+        dropLowQualityALCTsNoGEMs_ME1a = cms.bool(False),
+        dropLowQualityALCTsNoGEMs_ME1b = cms.bool(False),
         buildLCTfromALCTandGEM_ME1a = cms.bool(True),
         buildLCTfromALCTandGEM_ME1b = cms.bool(True),
+        buildLCTfromCLCTandGEM_ME1a = cms.bool(False),
+        buildLCTfromCLCTandGEM_ME1b = cms.bool(False),
         doLCTGhostBustingWithGEMs = cms.bool(False),
         correctLCTtimingWithGEM = cms.bool(False),
         promoteALCTGEMpattern = cms.bool(True),
@@ -377,12 +423,12 @@ cscTriggerPrimitiveDigisPostLS2 = cms.EDProducer("CSCTriggerPrimitivesProducer",
         doGemMatching = cms.bool(True),
         gemMatchDeltaEta = cms.double(0.08),
         gemMatchDeltaBX = cms.int32(1),
-        gemMatchDeltaPhiOdd = cms.double(dphi_lct_pad98[ptdphi]['odd']),
-        gemMatchDeltaPhiEven = cms.double(dphi_lct_pad98[ptdphi]['even']),
+        gemMatchDeltaPhiOdd = cms.double(1),
+        gemMatchDeltaPhiEven = cms.double(1),
+        gemMatchMinEta = cms.double(1.55),
         gemClearNomatchLCTs = cms.bool(False),
 
         ## cross BX algorithm
-        tmbCrossBxAlgorithm = cms.uint32(2),
         firstTwoLCTsInChamber = cms.bool(True),
     ),
                                                  
