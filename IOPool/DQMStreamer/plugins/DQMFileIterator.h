@@ -9,6 +9,7 @@
 #include <string>
 #include <queue>
 #include <iterator>
+#include <chrono>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 
@@ -41,8 +42,7 @@ class DQMFileIterator {
 
   enum State {
     OPEN = 0,
-    EOR_CLOSING =
-        1,  // EoR exists, but some lumisections are still write pending
+    EOR_CLOSING = 1,  // EoR file found, but lumis are still pending
     EOR = 2,
   };
 
@@ -72,6 +72,8 @@ class DQMFileIterator {
   EorEntry eor_;
   State state_;
   std::queue<LumiEntry> queue_;
+
+  std::chrono::high_resolution_clock::time_point last_collect_;
 };
 
 } /* end of namespace */

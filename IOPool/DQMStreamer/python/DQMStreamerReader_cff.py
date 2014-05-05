@@ -18,8 +18,14 @@ options.register('runInputDir',
 options.register('minEventsPerLumi',
                  1, # default value
                  VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.bool,
+                 VarParsing.VarParsing.varType.int,
                  "Minimum number of events to process per lumisection.")
+
+options.register('delayMillis',
+                 500, # default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.int,
+                 "Number of milliseconds to wait between file checks.")
 
 options.register('skipFirstLumis',
                  False, # default value
@@ -42,11 +48,12 @@ options.register('endOfRunKills',
 options.parseArguments()
 
 # Input source
-source = cms.Source("DQMStreamerReader",
+DQMStreamerReader = cms.Source("DQMStreamerReader",
     runNumber = cms.untracked.uint32(options.runNumber),
     runInputDir = cms.untracked.string(options.runInputDir),
 
     minEventsPerLumi = cms.untracked.int32(options.minEventsPerLumi),
+    delayMillis = cms.untracked.uint32(options.delayMillis),
     skipFirstLumis = cms.untracked.bool(options.skipFirstLumis),
     deleteDatFiles = cms.untracked.bool(options.deleteDatFiles),
     endOfRunKills  = cms.untracked.bool(options.endOfRunKills),

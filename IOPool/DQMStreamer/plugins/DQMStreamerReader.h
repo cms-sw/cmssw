@@ -61,6 +61,7 @@ class DQMStreamerReader : public StreamerInputSource {
 
   unsigned int processedEventPerLs_;
   unsigned int minEventsPerLs_;
+  unsigned int delayMillis_;
 
   bool flagSkipFirstLumis_;
   bool flagEndOfRunKills_;

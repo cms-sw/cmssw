@@ -1,5 +1,6 @@
 #include "IOPool/Streamer/interface/MsgTools.h"
 #include "IOPool/Streamer/interface/StreamerInputFile.h"
+#include "IOPool/Streamer/interface/DumpTools.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -36,6 +37,8 @@ DQMStreamerReader::DQMStreamerReader(ParameterSet const& pset,
   flagSkipFirstLumis_ = pset.getUntrackedParameter<bool>("skipFirstLumis");
   flagEndOfRunKills_ = pset.getUntrackedParameter<bool>("endOfRunKills");
   flagDeleteDatFiles_ = pset.getUntrackedParameter<bool>("deleteDatFiles");
+  
+  delayMillis_ = pset.getUntrackedParameter<unsigned int>("delayMillis");
 
   reset_();
 }
@@ -45,7 +48,8 @@ DQMStreamerReader::~DQMStreamerReader() { closeFile_(); }
 void DQMStreamerReader::delay_() {
   edm::LogAbsolute("DQMStreamerReader")
       << "No events available ... waiting for the next LS.";
-  usleep(100000);
+
+  usleep(delayMillis_ * 1000);
 }
 
 void DQMStreamerReader::reset_() {
@@ -73,6 +77,9 @@ void DQMStreamerReader::reset_() {
       openNextFile_();
     }
   }
+
+  edm::LogAbsolute("DQMStreamerReader")
+    << "DQMStreamerReader initialised.";
 }
 
 void DQMStreamerReader::openFile_(std::string newStreamerFile_) {
@@ -128,6 +135,7 @@ InitMsgView const* DQMStreamerReader::getHeaderMsg() {
         << "\n";
   }
 
+
   return header;
 }
 
@@ -136,7 +144,10 @@ EventMsgView const* DQMStreamerReader::getEventMsg() {
     return nullptr;
   }
 
-  return streamReader_->currentRecord();
+  EventMsgView const* msg = streamReader_->currentRecord();
+
+  //dumpEventView(msg);
+  return msg;
 }
 
 EventMsgView const* DQMStreamerReader::prepareNextEvent() {
@@ -169,7 +180,7 @@ EventMsgView const* DQMStreamerReader::prepareNextEvent() {
     }
 
     // or if there is a next file and enough eventshas been processed.
-    if (fiterator_.hasNext() && (processedEventPerLs_ > minEventsPerLs_)) {
+    if (fiterator_.hasNext() && (processedEventPerLs_ >= minEventsPerLs_)) {
       openNextFile_();
       continue;
     }
@@ -244,6 +255,9 @@ void DQMStreamerReader::fillDescriptions(
 
   desc.addUntracked<unsigned int>("runNumber")
       ->setComment("Run number passed via configuration file.");
+
+  desc.addUntracked<unsigned int>("delayMillis")
+      ->setComment("Number of milliseconds to wait between file checks.");
 
   desc.addUntracked<std::string>("runInputDir")
       ->setComment("Directory where the DQM files will appear.");

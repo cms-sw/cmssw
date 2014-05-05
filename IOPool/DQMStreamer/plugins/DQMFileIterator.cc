@@ -54,7 +54,7 @@ DQMFileIterator::~DQMFileIterator() {}
 
 void DQMFileIterator::initialise(int run, const std::string& path) {
   run_ = run;
-  run_path_ = str(boost::format("%srun%06d") % path % run_);
+  run_path_ = str(boost::format("%s/run%06d") % path % run_);
 
   eor_.loaded = false;
   state_ = State::OPEN;
@@ -75,7 +75,10 @@ const DQMFileIterator::LumiEntry& DQMFileIterator::front() {
 
 void DQMFileIterator::pop() { return queue_.pop(); }
 
-bool DQMFileIterator::hasNext() { return !queue_.empty(); }
+bool DQMFileIterator::hasNext() {
+  update_state();
+  return !queue_.empty();
+}
 
 std::string DQMFileIterator::make_path_jsn(int lumi) {
   return str(boost::format("%s/run%06d_ls%04d.jsn") % run_path_ % run_ % lumi);
@@ -92,6 +95,15 @@ std::string DQMFileIterator::make_path_data(const LumiEntry& lumi) {
 void DQMFileIterator::collect() {
   // search filesystem to find available lumi section files
   // or the end of run file
+  
+  auto now = std::chrono::high_resolution_clock::now();
+  auto last_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+    now - last_collect_).count();
+
+  if (last_ms < 100)
+    return;
+
+  last_collect_ = now;
 
   if (!eor_.loaded) {
     // end of run is not yet read
