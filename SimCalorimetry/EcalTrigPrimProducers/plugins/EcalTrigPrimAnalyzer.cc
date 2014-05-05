@@ -73,7 +73,7 @@ EcalTrigPrimAnalyzer::EcalTrigPrimAnalyzer(const edm::ParameterSet&  iConfig)
   }
 
   recHits_= iConfig.getParameter<bool>("AnalyzeRecHits");
-  label_=consumes<edm::InputTag>(iConfig.getParameter<edm::InputTag>("inputTP"));
+  label_=consumes<EcalTrigPrimDigiCollection>(iConfig.getParameter<edm::InputTag>("inputTP"));
   if (recHits_) {
     hTPvsRechit_= new TH2F("TP_vs_RecHit","TP vs  rechit",256,-1,255,255,0,255);
     hTPoverRechit_= new TH1F("TP_over_RecHit","TP over rechit",500,0,4);
