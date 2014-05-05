@@ -8,6 +8,7 @@
 
 EDM_REGISTER_PLUGINFACTORY(PFRecHitFactory, "PFRecHitFactory");
 DEFINE_EDM_PLUGIN(PFRecHitFactory, PFEERecHitCreator, "PFEERecHitCreator");
+DEFINE_EDM_PLUGIN(PFRecHitFactory, PFEKRecHitCreator, "PFEKRecHitCreator");
 DEFINE_EDM_PLUGIN(PFRecHitFactory, PFEBRecHitCreator, "PFEBRecHitCreator");
 DEFINE_EDM_PLUGIN(PFRecHitFactory, PFHERecHitCreator, "PFHERecHitCreator");
 DEFINE_EDM_PLUGIN(PFRecHitFactory, PFHBRecHitCreator, "PFHBRecHitCreator");
