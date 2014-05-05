@@ -28,8 +28,6 @@
 
 #include "TThread.h"
 #include "TClassTable.h"
-#include "Reflex/Type.h"
-
 
 namespace {
   enum class SeverityLevel {
