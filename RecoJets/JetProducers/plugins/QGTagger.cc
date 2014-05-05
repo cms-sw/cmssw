@@ -14,6 +14,7 @@
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 
 #include "RecoJets/JetProducers/interface/QGTagger.h"
 #include "RecoJets/JetAlgorithms/interface/QGLikelihoodCalculator.h"
@@ -160,7 +161,7 @@ template <class jetClass> void QGTagger::calcVariables(const jetClass *jet, edm:
 	  
     if(usePart){
       float deta = part->eta() - jet->eta();
-      float dphi = 2*atan(tan(((part->phi()-jet->phi()))/2));           
+      float dphi = reco::deltaPhi(part->phi(), jet->phi());
       float partPt = part->pt(); 
       float weight = partPt*partPt;
 
