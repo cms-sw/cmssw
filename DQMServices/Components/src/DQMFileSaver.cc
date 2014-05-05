@@ -132,6 +132,31 @@ DQMFileSaver::saveForOffline(const std::string &workflow, int run, int lumi)
   }
 }
 
+void
+DQMFileSaver::saveForOnlinePB(const std::string &suffix)
+{
+  // The file name contains the Online workflow name
+  // as we do not want to look inside the DQMStore.
+  // and the @a suffix, defined in the run/lumi transitions
+  // FIXME(diguida): add the possibility to change the dir structure with rewrite.
+  size_t pos = 0;
+  std::string wflow;
+  wflow.reserve(workflow_.size() + 3);
+  wflow = workflow_;
+  while ((pos = wflow.find('/', pos)) != std::string::npos)
+    wflow.replace(pos++, 1, "__");
+
+  std::string filename = fileBaseName_ + suffix + wflow + child_ + ".pb";
+  dbe_->savePB(filename, filterName_);
+
+  pastSavedFiles_.push_back(filename);
+  if (pastSavedFiles_.size() > size_t(numKeepSavedFiles_))
+  {
+    remove(pastSavedFiles_.front().c_str());
+    pastSavedFiles_.pop_front();
+  }
+}
+
 static void
 doSaveForOnline(std::list<std::string> &pastSavedFiles,
 		size_t numKeepSavedFiles,
@@ -207,6 +232,43 @@ DQMFileSaver::saveForOnline(const std::string &suffix, const std::string &rewrit
 	              systems[i], "^(Reference/)?([^/]+)", rewrite,
 	              (DQMStore::SaveReferenceTag) saveReference_,
 	              saveReferenceQMin_);
+}
+
+void
+DQMFileSaver::saveForFilterUnitPB(int run, int lumi)
+{
+
+  // Create the file name using the convention for DAQ2
+  char daqFileName[64]; // with current conventions, max size is 42
+  sprintf(daqFileName, "run%06d_ls%04d_stream%sFU_pid%05d", run, lumi, producer_.c_str(), getpid());
+  std::string filename = fileBaseName_ + daqFileName + ".pb";
+  // Save the file
+  // FIXME(diguida): support mutithreading!
+  dbe_->savePB(filename, filterName_);
+}
+
+void
+DQMFileSaver::saveForFilterUnit(const std::string& rewrite, int run, int lumi)
+{
+
+  // Create the file name using the convention for DAQ2
+  char daqFileName[64]; // with current conventions, max size is 42
+  sprintf(daqFileName, "run%06d_ls%04d_stream%sFU_pid%05d", run, lumi, producer_.c_str(), getpid());
+  std::string filename = fileBaseName_ + daqFileName + ".root";
+
+  // FIXME(diguida): save the file with the full directory tree,
+  // modifying it according to @a rewrite,
+  // but not looking for MEs inside the DQMStore, as in the online case,
+  // nor filling new MEs, as in the offline case.
+  // FIXME(diguida): support mutithreading!
+  dbe_->save(filename,
+             "",
+             "^(Reference/)?([^/]+)",
+             rewrite,
+             0,
+             (DQMStore::SaveReferenceTag) saveReference_,
+             saveReferenceQMin_,
+             fileUpdate_);
 }
 
 void

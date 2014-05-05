@@ -25,7 +25,10 @@ protected:
 private:
   void saveForOfflinePB(const std::string &workflow, int run);
   void saveForOffline(const std::string &workflow, int run, int lumi);
+  void saveForOnlinePB(const std::string &suffix);
   void saveForOnline(const std::string &suffix, const std::string &rewrite);
+  void saveForFilterUnitPB(int run, int lumi);
+  void saveForFilterUnit(const std::string& rewrite, int run, int lumi);
   void saveJobReport(const std::string &filename);
 
   enum Convention
