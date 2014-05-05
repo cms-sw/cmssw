@@ -203,7 +203,6 @@ private:
   float betastop_;
   double dzCutOff_;
   double d0CutOff_;
-  bool use_vdt_;
   bool useTc_;
 };
 
