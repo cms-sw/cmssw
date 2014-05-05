@@ -1,0 +1,9 @@
+DataFormats/BTauReco
+DataFormats/Candidate
+DataFormats/EgammaCandidates
+DataFormats/EgammaReco
+DataFormats/PatCandidates
+RecoEcal/EgammaClusterProducers
+RecoEcal/EgammaCoreTools
+RecoEgamma/EgammaPhotonProducers
+RecoEgamma/EgammaTools
