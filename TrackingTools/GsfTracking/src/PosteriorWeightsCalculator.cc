@@ -40,6 +40,7 @@ std::vector<double> PosteriorWeightsCalculator::weights(const TrackingRecHit& re
   VecD r, rMeas; 
   SMatDD V, R;
   AlgebraicVector5 x;
+  ProjectMatrix<double,5,D> p;
   //
   // calculate chi2 and determinant / component and find
   //   minimum / maximum of chi2
@@ -57,7 +58,7 @@ std::vector<double> PosteriorWeightsCalculator::weights(const TrackingRecHit& re
 
     KfComponentsHolder holder; 
     x = predictedComponents[i].localParameters().vector();
-    holder.template setup<D>(&r, &V, &H, &rMeas, &R, 
+    holder.template setup<D>(&r, &V, &H, &p, &rMeas, &R, 
 			     x, predictedComponents[i].localError().matrix());
     recHit.getKfComponents(holder);
 
