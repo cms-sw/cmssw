@@ -433,9 +433,9 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
 
   filterName_ = ps.getUntrackedParameter<std::string>("filterName", filterName_);
   // Find out when and how to save files.  The following contraints apply:
-  // - For online, filter unit, and offline, allow files to be saved per run, lumi and job end
+  // - For online, filter unit, and offline, allow files to be saved per run, and lumi
   // - For online, allow files to be saved at event and time intervals.
-  // - For offline allow run number to be overridden (for mc data).
+  // - For offline allow files to be saved at job end, and run number to be overridden (for mc data).
   if (convention_ == Online || convention_ == Offline || convention_ == FilterUnit)
   {
   getAnInt(ps, saveByRun_, "saveByRun");
@@ -524,7 +524,14 @@ void DQMFileSaver::analyze(const edm::Event &e, const edm::EventSetup &)
 	<< " only in Online mode.";
 
     sprintf(suffix, "_R%09d_E%08d", irun_, ievent_);
-    saveForOnline(suffix, "\\1\\2");
+    if (serialization_ == ROOT)
+      saveForOnline(suffix, "\\1\\2");
+    else if (serialization_ == PB)
+      saveForOnlinePB(suffix);
+    else
+      throw cms::Exception("DQMFileSaver")
+        << "Internal error, can save files"
+        << " only in ROOT or ProtocolBuffer format.";
     nevent_ = 0;
   }
 
@@ -552,8 +559,16 @@ void DQMFileSaver::analyze(const edm::Event &e, const edm::EventSetup &)
       if ( saveByTime_ > 0 ) saveByTime_ *= 2;
       saved_ = tv;
       sprintf(suffix, "_R%09d_T%08d", irun_, int(totalelapsed));
-      char rewrite[64]; sprintf(rewrite, "\\1Run %d/\\2/Run summary", irun_);
-      saveForOnline(suffix, rewrite);
+      char rewrite[64];
+      sprintf(rewrite, "\\1Run %d/\\2/Run summary", irun_);
+      if (serialization_ == ROOT)
+        saveForOnline(suffix, rewrite);
+      else if (serialization_ == PB)
+        saveForOnlinePB(suffix);
+      else
+        throw cms::Exception("DQMFileSaver")
+          << "Internal error, can save files"
+          << " only in ROOT or ProtocolBuffer format.";
     }
   }
 }
@@ -564,10 +579,10 @@ DQMFileSaver::endLuminosityBlock(const edm::LuminosityBlock &, const edm::EventS
 
   if (ilumi_ > 0 && saveByLumiSection_ > 0 )
   {
-    if (convention_ != Online && convention_ != Offline )
+    if (convention_ != Online && convention_ != FilterUnit && convention_ != Offline )
       throw cms::Exception("DQMFileSaver")
 	<< "Internal error, can save files at end of lumi block"
-	<< " only in Online or Offline mode.";
+	<< " only in Online, FilterUnit or Offline mode.";
 
     if (convention_ == Online && nlumi_ == saveByLumiSection_) // insist on lumi section ordering
     {
@@ -575,12 +590,43 @@ DQMFileSaver::endLuminosityBlock(const edm::LuminosityBlock &, const edm::EventS
       char rewrite[128];
       sprintf(suffix, "_R%09d_L%06d", irun_, ilumi_);
       sprintf(rewrite, "\\1Run %d/\\2/By Lumi Section %d-%d", irun_, ilumiprev_, ilumi_);
-      saveForOnline(suffix, rewrite);
+      if (serialization_ == ROOT)
+        saveForOnline(suffix, rewrite);
+      else if (serialization_ == PB)
+        saveForOnlinePB(suffix);
+      else
+        throw cms::Exception("DQMFileSaver")
+          << "Internal error, can save files"
+          << " only in ROOT or ProtocolBuffer format.";
       ilumiprev_ = -1;
       nlumi_ = 0;
     }
+    if (convention_ == FilterUnit) // store at every lumi section end
+    {
+      if (serialization_ == ROOT)
+      {
+        char rewrite[128];
+        sprintf(rewrite, "\\1Run %d/\\2/By Lumi Section %d-%d", irun_, ilumi_, ilumi_);
+        saveForFilterUnit(rewrite, irun_, ilumi_);
+      }
+      else if (serialization_ == PB)
+        saveForFilterUnitPB(irun_, ilumi_);
+      else
+        throw cms::Exception("DQMFileSaver")
+          << "Internal error, can save files"
+          << " only in ROOT or ProtocolBuffer format.";
+    }
     if (convention_ == Offline)
-      saveForOffline(workflow_, irun_, ilumi_);
+    {
+      if (serialization_ == ROOT)
+        saveForOffline(workflow_, irun_, ilumi_);
+      else
+      // FIXME(diguida): do we need to support lumisection saving in Offline for PB?
+      // In this case, for ROOT, we only save EventInfo folders: we can filter them...
+        throw cms::Exception("DQMFileSaver")
+          << "Internal error, can save files"
+          << " only in ROOT format.";
+    }
   }
 }
 
@@ -591,9 +637,33 @@ DQMFileSaver::endRun(const edm::Run &, const edm::EventSetup &)
   {
     if (convention_ == Online)
     {
-      char suffix[64]; sprintf(suffix, "_R%09d", irun_);
-      char rewrite[64]; sprintf(rewrite, "\\1Run %d/\\2/Run summary", irun_);
-      saveForOnline(suffix, rewrite);
+      char suffix[64];
+      sprintf(suffix, "_R%09d", irun_);
+      char rewrite[64];
+      sprintf(rewrite, "\\1Run %d/\\2/Run summary", irun_);
+      if (serialization_ == ROOT)
+        saveForOnline(suffix, rewrite);
+      else if (serialization_ == PB)
+        saveForOnlinePB(suffix);
+      else
+        throw cms::Exception("DQMFileSaver")
+          << "Internal error, can save files"
+          << " only in ROOT or ProtocolBuffer format.";
+    }
+    if (convention_ == FilterUnit)
+    {
+      if (serialization_ == ROOT)
+      {
+        char rewrite[64];
+        sprintf(rewrite, "\\1Run %d/\\2/Run summary", irun_);
+        saveForFilterUnit(rewrite, irun_, 0);
+      }
+      else if (serialization_ == PB)
+	saveForFilterUnitPB(irun_, 0);
+      else
+        throw cms::Exception("DQMFileSaver")
+          << "Internal error, can save files"
+          << " only in ROOT or ProtocolBuffer format.";
     }
     else if (convention_ == Offline && serialization_ == ROOT)
       saveForOffline(workflow_, irun_, 0);
@@ -602,7 +672,7 @@ DQMFileSaver::endRun(const edm::Run &, const edm::EventSetup &)
     else
       throw cms::Exception("DQMFileSaver")
 	<< "Internal error.  Can only save files in endRun()"
-	<< " in Online and Offline modes.";
+	<< " in Online, FilterUnit, and Offline modes.";
 
     nrun_ = 0;
   }
