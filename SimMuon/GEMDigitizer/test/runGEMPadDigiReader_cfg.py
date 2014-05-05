@@ -20,16 +20,19 @@ process.GlobalTag.globaltag = 'POSTLS161_V12::All'
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
-process.load('SimMuon.GEMDigitizer.muonGEMCSCPadDigis_cfi')
+process.load('SimMuon.GEMDigitizer.muonGEMPadDigis_cfi')
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-        'file:/afs/cern.ch/cms/MUON/gem/SingleMuPt40Fwd/SingleMuPt40Fwd_20121128_Pilot_DIGI.root'
+        'file:out_digi.root'
     )
 )
 
-process.dumper = cms.EDAnalyzer("GEMCSCPadDigiReader")
+process.dumper = cms.EDAnalyzer("GEMPadDigiReader"
+    gemDigiToken = cms.InputTag("simMuonGEMDigis"), 
+    gemPadToken = cms.InputTag("simMuonGEMPadDigis") 
+)
 
 
-process.p    = cms.Path(process.simMuonGEMCSCPadDigis * process.dumper)
+process.p    = cms.Path(process.simMuonGEMPadDigis * process.dumper)
 
