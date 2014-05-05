@@ -64,8 +64,11 @@ void FDumper::VisitChildren( clang::Stmt *S) {
 }
 
 void FDumper::VisitCXXConstructExpr( CXXConstructExpr *CCE ) {
-//	if (wasVisited(CCE)) return;
-//	setVisited(CCE);
+
+	if (!wasVisited(CCE)) {
+		setVisited(CCE);
+		VisitChildren(CCE);
+	}
 	LangOptions LangOpts;
 	LangOpts.CPlusPlus = true;
 	PrintingPolicy Policy(LangOpts);
@@ -85,13 +88,14 @@ void FDumper::VisitCXXConstructExpr( CXXConstructExpr *CCE ) {
 	std::string ostring = "function '"+ mdname +  "' " + "calls function '" + mname + "'\n"; 
 	std::ofstream file(tname.c_str(),std::ios::app);
 	file<<ostring;	
-	VisitChildren(CCE);
 }
 
 
 void FDumper::VisitCallExpr( CallExpr *CE ) {
-//	if (wasVisited(CE)) return;
-//	setVisited(CE);
+	if (!wasVisited(CE)) {
+		setVisited(CE);
+		VisitChildren(CE);
+	}
 	LangOptions LangOpts;
 	LangOpts.CPlusPlus = true;
 	PrintingPolicy Policy(LangOpts);
@@ -112,7 +116,6 @@ void FDumper::VisitCallExpr( CallExpr *CE ) {
 	std::ofstream file(tname.c_str(),std::ios::app);
 	file<<ostring;
 	Visit(CE->getCallee()->IgnoreParens());
-	VisitChildren(CE);
 }
 
 void FunctionDumper::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager& mgr,
