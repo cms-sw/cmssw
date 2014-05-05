@@ -20,6 +20,8 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -52,9 +54,9 @@ class EcalTPInputAnalyzer : public edm::EDAnalyzer {
   TH1I *histEndc,*histBar;
   TFile *histfile_;
   
-  std::string ebLabel_;
-  std::string eeLabel_;
-  std::string producer_;
-
+  edm::InputTag EBtag_;
+  edm::InputTag EEtag_;
+  edm::EDGetTokenT<EBDigiCollection> producerEblabel_;
+  edm::EDGetTokenT<EEDigiCollection> producerEelabel_;
 };
 #endif
