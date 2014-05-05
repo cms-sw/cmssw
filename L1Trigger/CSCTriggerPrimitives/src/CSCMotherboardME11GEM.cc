@@ -186,27 +186,27 @@ CSCMotherboardME11GEM::CSCMotherboardME11GEM(unsigned endcap, unsigned station,
 
   const edm::ParameterSet alctParams(conf.getParameter<edm::ParameterSet>("alctSLHC"));
   const edm::ParameterSet clctParams(conf.getParameter<edm::ParameterSet>("clctSLHC"));
-  const edm::ParameterSet tmbParams(conf.getParameter<edm::ParameterSet>("tmbSLHC"));
+//   const edm::ParameterSet tmbParams(conf.getParameter<edm::ParameterSet>("tmbSLHC"));
   const edm::ParameterSet me11tmbParams(conf.getParameter<edm::ParameterSet>("me11tmbSLHCGEM"));
 
-  clct1a = new CSCCathodeLCTProcessor(endcap, station, sector, subsector, chamber, clctParams, commonParams, tmbParams);
+  clct1a = new CSCCathodeLCTProcessor(endcap, station, sector, subsector, chamber, clctParams, commonParams, me11tmbParams);
   clct1a->setRing(4);
 
-  match_earliest_alct_me11_only = tmbParams.getParameter<bool>("matchEarliestAlctME11Only");
-  match_earliest_clct_me11_only = tmbParams.getParameter<bool>("matchEarliestClctME11Only");
+  match_earliest_alct_me11_only = me11tmbParams.getParameter<bool>("matchEarliestAlctME11Only");
+  match_earliest_clct_me11_only = me11tmbParams.getParameter<bool>("matchEarliestClctME11Only");
 
   // if true: use regular CLCT-to-ALCT matching in TMB
   // if false: do ALCT-to-CLCT matching
-  clct_to_alct = tmbParams.getParameter<bool>("clctToAlct");
+  clct_to_alct = me11tmbParams.getParameter<bool>("clctToAlct");
 
   // whether to not reuse CLCTs that were used by previous matching ALCTs
   // in ALCT-to-CLCT algorithm
-  drop_used_clcts = tmbParams.getParameter<bool>("tmbDropUsedClcts");
+  drop_used_clcts = me11tmbParams.getParameter<bool>("tmbDropUsedClcts");
 
-  tmb_cross_bx_algo = tmbParams.getParameter<unsigned int>("tmbCrossBxAlgorithm");
+  tmb_cross_bx_algo = me11tmbParams.getParameter<unsigned int>("tmbCrossBxAlgorithm");
 
   // maximum lcts per BX in ME11: 2, 3, 4 or 999
-  max_me11_lcts = tmbParams.getParameter<unsigned int>("maxME11LCTs");
+  max_me11_lcts = me11tmbParams.getParameter<unsigned int>("maxME11LCTs");
 
   pref[0] = match_trig_window_size/2;
   for (unsigned int m=2; m<match_trig_window_size; m+=2)

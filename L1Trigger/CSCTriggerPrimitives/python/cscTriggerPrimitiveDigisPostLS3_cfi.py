@@ -406,6 +406,23 @@ cscTriggerPrimitiveDigisPostLS3 = cms.EDProducer("CSCTriggerPrimitivesProducer",
 
     # to be used by ME11 chambers with GEM-CSC ILT
     me11tmbSLHCGEM = cms.PSet(
+        mpcBlockMe1a    = cms.uint32(0),
+        alctTrigEnable  = cms.uint32(0),
+        clctTrigEnable  = cms.uint32(0),
+        matchTrigEnable = cms.uint32(1),
+        matchTrigWindowSize = cms.uint32(3),
+        tmbL1aWindowSize = cms.uint32(7),
+        verbosity = cms.int32(0),
+        tmbEarlyTbins = cms.int32(4),
+        tmbReadoutEarliest2 = cms.bool(False),
+        tmbDropUsedAlcts = cms.bool(False),
+        clctToAlct = cms.bool(False),
+        tmbDropUsedClcts = cms.bool(False),
+        matchEarliestAlctME11Only = cms.bool(False),
+        matchEarliestClctME11Only = cms.bool(False),
+        tmbCrossBxAlgorithm = cms.uint32(2),
+        maxME11LCTs = cms.uint32(2),
+
         ## run the upgrade algorithm
         runME11ILT = cms.bool(True),
 
@@ -454,16 +471,32 @@ cscTriggerPrimitiveDigisPostLS3 = cms.EDProducer("CSCTriggerPrimitivesProducer",
         gemMatchDeltaBX = cms.int32(1),
         gemMatchDeltaPhiOdd = cms.double(1),
         gemMatchDeltaPhiEven = cms.double(1),
-        gemMatchMinEta = cms.double(1.5),
+        gemMatchMinEta = cms.double(1.55),
         gemClearNomatchLCTs = cms.bool(False),
 
         ## cross BX algorithm
-        tmbCrossBxAlgorithm = cms.uint32(2),
         firstTwoLCTsInChamber = cms.bool(True),
     ),
                                                  
     # to be used by ME21 chambers with GEM-CSC ILT
     me21tmbSLHCGEM = cms.PSet(
+        mpcBlockMe1a    = cms.uint32(0),
+        alctTrigEnable  = cms.uint32(0),
+        clctTrigEnable  = cms.uint32(0),
+        matchTrigEnable = cms.uint32(1),
+        matchTrigWindowSize = cms.uint32(3),
+        tmbL1aWindowSize = cms.uint32(7),
+        verbosity = cms.int32(0),
+        tmbEarlyTbins = cms.int32(4),
+        tmbReadoutEarliest2 = cms.bool(False),
+        tmbDropUsedAlcts = cms.bool(False),
+        clctToAlct = cms.bool(False),
+        tmbDropUsedClcts = cms.bool(False),
+        matchEarliestAlctME21Only = cms.bool(False),
+        matchEarliestClctME21Only = cms.bool(False),
+        tmbCrossBxAlgorithm = cms.uint32(2),
+        maxME21LCTs = cms.uint32(2),
+
         ## run the upgrade algorithm
         runME21ILT = cms.bool(True),
 
@@ -507,43 +540,40 @@ cscTriggerPrimitiveDigisPostLS3 = cms.EDProducer("CSCTriggerPrimitivesProducer",
         gemMatchMinEta = cms.double(1.5),
         gemClearNomatchLCTs = cms.bool(False),
 
-        ## cross BX algorithm
-        tmbCrossBxAlgorithm = cms.uint32(2),
         firstTwoLCTsInChamber = cms.bool(True),
-        
-        # How many maximum LCTs per whole chamber per BX to keep
-        maxME21LCTs = cms.uint32(2),
-        
-        # For ALCT-centric matching in ME21, break after finding 
-        # the first BX with matching CLCT 
-        matchEarliestClctME21Only = cms.bool(False),
     ),
 
     # to be used by ME31-ME41 chambers with RPC-CSC ILT
     me3141tmbSLHCRPC = cms.PSet(
+        mpcBlockMe1a    = cms.uint32(0),
+        alctTrigEnable  = cms.uint32(0),
+        clctTrigEnable  = cms.uint32(0),
+        matchTrigEnable = cms.uint32(1),
+        matchTrigWindowSize = cms.uint32(3),
+        tmbL1aWindowSize = cms.uint32(7),
+        verbosity = cms.int32(0),
+        tmbEarlyTbins = cms.int32(4),
+        tmbReadoutEarliest2 = cms.bool(False),
+        tmbDropUsedAlcts = cms.bool(False),
+        clctToAlct = cms.bool(False),
+        tmbDropUsedClcts = cms.bool(False),
+        matchEarliestClctME3141Only = cms.bool(False),
+        tmbCrossBxAlgorithm = cms.uint32(2),
+        maxME3141LCTs = cms.uint32(2),
+
         ## run the upgrade algorithm
         runME3141ILT = cms.bool(True),
         
         ## run in debug mode
-        debugLUTs = cms.bool(False),
+        debugLUTs = cms.bool(True),
         debugMatching = cms.bool(False),
 
         ## matching to digis in case LowQ CLCT
-        maxDeltaBXRPC = cms.int32(0),
+        maxDeltaBXRPC = cms.int32(1),
         maxDeltaStripRPC = cms.int32(1),
 
         ## efficiency recovery switches
         dropLowQualityCLCTsNoRPCs = cms.bool(True),
-        
-        ## cross BX algorithm
-        tmbCrossBxAlgorithm = cms.uint32(2),
-        
-        # How many maximum LCTs per whole chamber per BX to keep
-        maxME3141LCTs = cms.uint32(2),
-
-        # For ALCT-centric matching in ME21, break after finding 
-        # the first BX with matching CLCT 
-        matchEarliestClctME3141Only = cms.bool(False),
     ),
 
     # MPC sorter config for SLHC studies

@@ -65,16 +65,15 @@ CSCMotherboardME21GEM::CSCMotherboardME21GEM(unsigned endcap, unsigned station,
   if (!isSLHC) edm::LogError("L1CSCTPEmulatorConfigError")
     << "+++ Upgrade CSCMotherboardME21GEM constructed while isSLHC is not set! +++\n";
   
-  const edm::ParameterSet tmbParams(conf.getParameter<edm::ParameterSet>("tmbSLHC"));
   const edm::ParameterSet me21tmbParams(conf.getParameter<edm::ParameterSet>("me21tmbSLHCGEM"));
 
   // whether to not reuse CLCTs that were used by previous matching ALCTs
   // in ALCT-to-CLCT algorithm
-  drop_used_clcts = tmbParams.getParameter<bool>("tmbDropUsedClcts");
+  drop_used_clcts = me21tmbParams.getParameter<bool>("tmbDropUsedClcts");
 
   match_earliest_clct_me21_only = me21tmbParams.getParameter<bool>("matchEarliestClctME21Only");
 
-  tmb_cross_bx_algo = tmbParams.getParameter<unsigned int>("tmbCrossBxAlgorithm");
+  tmb_cross_bx_algo = me21tmbParams.getParameter<unsigned int>("tmbCrossBxAlgorithm");
 
   // maximum lcts per BX in ME2
   max_me21_lcts = me21tmbParams.getParameter<unsigned int>("maxME21LCTs");

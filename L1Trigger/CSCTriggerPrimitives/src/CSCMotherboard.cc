@@ -100,32 +100,32 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
                                            conf.getParameter<edm::ParameterSet>("me21tmbSLHCGEM"):edm::ParameterSet());
   const edm::ParameterSet me3141tmbRpcParams(conf.existsAs<edm::ParameterSet>("me3141tmbSLHCRPC")?
                                              conf.getParameter<edm::ParameterSet>("me3141tmbSLHCRPC"):edm::ParameterSet());
-//   const bool runME11ILT(me11tmbGemParams.existsAs<bool>("runME11ILT")?
-//                         me11tmbGemParams.getParameter<bool>("runME11ILT"):false);  
+  const bool runME11ILT(me11tmbGemParams.existsAs<bool>("runME11ILT")?
+                        me11tmbGemParams.getParameter<bool>("runME11ILT"):false);  
   const bool runME21ILT(me21tmbGemParams.existsAs<bool>("runME21ILT")?
                         me21tmbGemParams.getParameter<bool>("runME21ILT"):false);  
   const bool runME3141ILT(me3141tmbRpcParams.existsAs<bool>("runME3141ILT")?
                           me3141tmbRpcParams.getParameter<bool>("runME3141ILT"):false);
 
   // run upgrade TMBs for all MEX/1 stations
-  if (isSLHC and theRing == 1) {
-    tmbParams = conf.getParameter<edm::ParameterSet>("tmbSLHC");
+  if (isSLHC and theRing == 1){    
     if (theStation == 1) {
+      tmbParams = conf.getParameter<edm::ParameterSet>("tmbSLHC");
       alctParams = conf.getParameter<edm::ParameterSet>("alctSLHC");
       clctParams = conf.getParameter<edm::ParameterSet>("clctSLHC");
-//       if (runME11ILT) {
-//         tmbParams = me11tmbGemParams;
-//       }
+      if (runME11ILT) {
+        tmbParams = me11tmbGemParams;
+      }
     }
     else if (theStation == 2 and runME21ILT) {
       alctParams = conf.getParameter<edm::ParameterSet>("alctSLHCME21");
       clctParams = conf.getParameter<edm::ParameterSet>("clctSLHCME21");
-//       tmbParams = me21tmbGemParams;
+      tmbParams = me21tmbGemParams;
     }
     else if ((theStation == 3 or theStation == 4) and runME3141ILT) {
       alctParams = conf.getParameter<edm::ParameterSet>("alctSLHCME3141");
       clctParams = conf.getParameter<edm::ParameterSet>("clctSLHCME3141");
-//       tmbParams = me3141tmbRpcParams;
+      tmbParams = me3141tmbRpcParams;
     }
   }
   

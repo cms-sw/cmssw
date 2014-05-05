@@ -100,7 +100,7 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
             int ring = CSCTriggerNumbering::ringFromTriggerLabels(stat, cham);
             // When the motherboard is instantiated, it instantiates ALCT
             // and CLCT processors.
-            if (stat==1 && ring==1 && smartME1aME1b)
+            if (stat==1 && ring==1 && smartME1aME1b && !runME11ILT_)
               tmb_[endc-1][stat-1][sect-1][subs-1][cham-1] = new CSCMotherboardME11(endc, stat, sect, subs, cham, conf);
             if (stat==1 && ring==1 && smartME1aME1b && runME11ILT_)
               tmb_[endc-1][stat-1][sect-1][subs-1][cham-1] = new CSCMotherboardME11GEM(endc, stat, sect, subs, cham, conf);
@@ -238,7 +238,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
             if (checkBadChambers_ && badChambers->isInBadChamber(detid)) continue;
 
             // running upgraded ME1/1 TMBs
-            if (stat==1 && ring==1 && smartME1aME1b)
+            if (stat==1 && ring==1 && smartME1aME1b && !runME11ILT_)
             {
               CSCMotherboardME11* tmb11 = static_cast<CSCMotherboardME11*>(tmb);
 
