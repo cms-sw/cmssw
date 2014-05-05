@@ -22,6 +22,8 @@ public:
   double mt_equalized() const{ return mt_posteq; }
   double mt_initial() const{ return mt_preeq; }
 
+  double area() const{ return voronoi_area; }
+
 protected:
 
   double pt_preeq;
