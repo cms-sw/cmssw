@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-beamHaloNavigationSchoolESProducer = cms.ESProducer("NavigationSchoolESProducer",
-    ComponentName = cms.string('BeamHaloNavigationSchool')
-)
+from RecoTracker.TkNavigation.NavigationSchoolESProducer_cfi import *
+beamHaloNavigationSchoolESProducer = navigationSchoolESProducer.clone()
+beamHaloNavigationSchoolESProducer.ComponentName       = cms.string('BeamHaloNavigationSchool')
+beamHaloNavigationSchoolESProducer.SimpleMagneticField = cms.string('')
 
 
