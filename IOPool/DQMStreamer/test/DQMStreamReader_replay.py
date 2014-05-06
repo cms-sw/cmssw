@@ -7,7 +7,8 @@ import multiprocessing
 import subprocess
 import inspect
 
-cmsRunConf = "test/DQMStreamReader_dm_cfg.py"
+my_path = os.path.dirname(__file__)
+cmsRunConf = os.path.join(my_path, "DQMStreamReader_replay_cfg.py")
 source = {
     "run": 100,
     "root": "/build1/micius/OnlineDQM_sample/",
