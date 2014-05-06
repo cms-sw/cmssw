@@ -40,7 +40,6 @@ def customise_Digi(process):
     process=outputCustoms(process)
     return process
 
-## TODO at migration to CMSSW 7X: make all params tracked!    
 def customise_L1Emulator2019(process, ptdphi):
     from L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigisPostLS2_cfi import cscTriggerPrimitiveDigisPostLS2
     process.simCscTriggerPrimitiveDigis = cscTriggerPrimitiveDigisPostLS2
@@ -49,7 +48,6 @@ def customise_L1Emulator2019(process, ptdphi):
     process.simCscTriggerPrimitiveDigis.clctParam07.clctPidThreshPretrig = 2
     return process
 
-## TODO at migration to CMSSW 7X: make all params tracked!    
 def customise_L1Emulator2023(process, ptdphi):
     from L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigisPostLS3_cfi import cscTriggerPrimitiveDigisPostLS3
     process.simCscTriggerPrimitiveDigis = cscTriggerPrimitiveDigisPostLS3
