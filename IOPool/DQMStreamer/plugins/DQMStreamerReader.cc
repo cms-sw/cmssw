@@ -158,6 +158,16 @@ EventMsgView const* DQMStreamerReader::getEventMsg() {
   return msg;
 }
 
+/**
+ * Prepare (open) the next file for reading.
+ * It is used by prepareNextEvent and in the constructor.
+ *
+ * Does not block/wait.
+ *
+ * Return false if this is end of run and/or no more file are available.
+ * However, return of "true" does not imply the file has been openned,
+ * but we need to wait until some future file becomes available.
+ */
 bool DQMStreamerReader::prepareNextFile() {
   typedef DQMFileIterator::State State;
 
@@ -197,6 +207,10 @@ bool DQMStreamerReader::prepareNextFile() {
   }
 }
 
+/**
+ * Waits and reads the event header.
+ * If end-of-run nullptr is returned.
+ */
 EventMsgView const* DQMStreamerReader::prepareNextEvent() {
   EventMsgView const* eview = nullptr;
   typedef DQMFileIterator::State State;
