@@ -7,6 +7,8 @@
  **/
 
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <map>
 #include <boost/cstdint.hpp>
 
@@ -22,5 +24,7 @@ class EcalDCUTemperatures {
 
  private:
   EcalDCUTemperatureMap map_;
+
+ COND_SERIALIZABLE;
 };
 #endif

@@ -18,6 +18,8 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "FWCore/Utilities/interface/ConstRespectingPtr.h"
 
@@ -48,6 +50,8 @@ class DTStatusFlagId {
   int   layerId;
   int    cellId;
 
+
+ COND_SERIALIZABLE;
 };
 
 
@@ -65,6 +69,8 @@ class DTStatusFlagData {
   bool  deadFlag;
   bool  nohvFlag;
 
+
+ COND_SERIALIZABLE;
 };
 
 
@@ -268,9 +274,11 @@ class DTStatusFlag {
 
   std::vector< std::pair<DTStatusFlagId,DTStatusFlagData> > dataList;
 
-  edm::ConstRespectingPtr<DTBufferTree<int,int> > dBuf;
+  edm::ConstRespectingPtr<DTBufferTree<int,int> > dBuf COND_TRANSIENT;
 
   std::string mapName() const;
 
+
+ COND_SERIALIZABLE;
 };
 #endif // DTStatusFlag_H

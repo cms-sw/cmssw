@@ -1,6 +1,8 @@
 #ifndef CSCObjects_CSCDBCrosstalk_h
 #define CSCObjects_CSCDBCrosstalk_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <iosfwd>
 #include <vector>
 
@@ -15,7 +17,9 @@ class CSCDBCrosstalk
     short int xtalk_intercept_right;
     short int xtalk_slope_left;
     short int xtalk_intercept_left;
-  };
+  
+  COND_SERIALIZABLE;
+};
   int factor_slope;
   int factor_intercept;
 
@@ -31,6 +35,8 @@ class CSCDBCrosstalk
   short int linter( int index ) const { return crosstalk[index].xtalk_intercept_left; }
   int sscale() const { return factor_slope; }
   int iscale() const { return factor_intercept; }
+
+ COND_SERIALIZABLE;
 };
 
 std::ostream & operator<<(std::ostream & os, const CSCDBCrosstalk & cscdb);

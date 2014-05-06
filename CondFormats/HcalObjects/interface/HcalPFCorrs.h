@@ -7,6 +7,8 @@
 POOL object to store PF Corrections
 */
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
 #include "CondFormats/HcalObjects/interface/HcalPFCorr.h"
 
@@ -23,6 +25,8 @@ class HcalPFCorrs: public HcalCondObjectContainer<HcalPFCorr>
   std::string myname() const {return (std::string)"HcalPFCorrs";}
 
  private:
+
+ COND_SERIALIZABLE;
 };
 
 #endif

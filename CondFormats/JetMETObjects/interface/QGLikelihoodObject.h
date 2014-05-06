@@ -2,12 +2,14 @@
 #define QGLikelihoodObject_h
 
 #include "CondFormats/PhysicsToolsObjects/interface/Histogram.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 #include <vector>
 
 /// Category structure: ranges associated with QGLikelihood histograms
 struct QGLikelihoodCategory{
   float RhoMin, RhoMax, PtMin, PtMax, EtaMin, EtaMax;
   int QGIndex, VarIndex;
+  COND_SERIALIZABLE;  
 };
 
 /// Parameters structure

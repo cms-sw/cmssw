@@ -18,6 +18,8 @@
  */
 
 // system include files
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 #include <ostream>
 
@@ -63,6 +65,8 @@ private:
     std::vector<unsigned int> m_triggerMask;
 
 
+
+    COND_SERIALIZABLE;
 };
 
 #endif /*CondFormats_L1TObjects_L1GtTriggerMask_h*/
