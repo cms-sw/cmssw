@@ -57,8 +57,8 @@ void HLTTauDQMPathPlotter::bookHistograms(DQMStore::IBooker &iBooker) {
       hL2TrigTauEtaEffDenom_ = iBooker.book1D("L2TrigTauEtaEffDenom", "L2 #tau #eta denominator;Ref #tau #eta;entries", etabins_, -2.5, 2.5);
       hL2TrigTauPhiEffNum_   = iBooker.book1D("L2TrigTauPhiEffNum",   "L2 #tau #phi efficiency;Ref #tau #phi;entries", phibins_, -3.2, 3.2);
       hL2TrigTauPhiEffDenom_ = iBooker.book1D("L2TrigTauPhiEffDenom", "L2 #tau #phi denominator;Ref #tau #phi;entries", phibins_, -3.2, 3.2);
-      hL2TrigTauHighEtEffNum_   = iBooker.book1D("L2TrigTauHighEtEffNum",    "L2 #tau p_{T} efficiency (high p_{T})Ref #tau p_{T};entries", ptbins_, 0, highptmax_);
-      hL2TrigTauHighEtEffDenom_ = iBooker.book1D("L2TrigTauHighEtEffDenom",  "L2 #tau p_{T} denominator (high p_{T})Ref #tau p_{T};entries", ptbins_, 0, highptmax_);
+      hL2TrigTauHighEtEffNum_   = iBooker.book1D("L2TrigTauHighEtEffNum",    "L2 #tau p_{T} efficiency (high p_{T});Ref #tau p_{T};entries", ptbins_, 0, highptmax_);
+      hL2TrigTauHighEtEffDenom_ = iBooker.book1D("L2TrigTauHighEtEffDenom",  "L2 #tau p_{T} denominator (high p_{T});Ref #tau p_{T};entries", ptbins_, 0, highptmax_);
     }
 
     if(hltPath_.hasL3Taus()) {
