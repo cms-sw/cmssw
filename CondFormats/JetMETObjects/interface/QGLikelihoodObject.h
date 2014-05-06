@@ -26,10 +26,12 @@ struct QGLikelihoodObject{
     QGLikelihoodCategory category;
     Histogram histogram;
     float mean;
+    COND_SERIALIZABLE;
   };
 
   QGLikelihoodCategory qgValidRange;
   std::vector<Entry> data;
+  COND_SERIALIZABLE;
 };
 
 /// QGLikelihoodSystematicsObject containing the parameters for the systematic smearing
@@ -39,6 +41,7 @@ struct QGLikelihoodSystematicsObject{
     float a, b, lmin, lmax;
   };
   std::vector<Entry> data;
+  COND_SERIALIZABLE;
 };
 
 /// Test if parameters are compatible with category
