@@ -40,9 +40,6 @@ namespace l1t {
       jpt = jetPt*alpha+gamma;
       unsigned int corjetET =(int) (jpt/jetLSB);
       
-      //std::cout << "L1T JEC  ET:  " << jetPt << " Eta: " << jetEta << " Phi: "<< jetPhi 
-      //		<< " alpha: " << alpha << " gamma: " << gamma << " CorrectedPt: " << jpt << std::endl;
-
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *jetLorentz =
 	new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
       l1t::Jet corrjets(*jetLorentz, corjetET, jetEta, jetPhi, jetQual);
