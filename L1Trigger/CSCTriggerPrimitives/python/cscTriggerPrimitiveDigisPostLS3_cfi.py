@@ -530,6 +530,7 @@ cscTriggerPrimitiveDigisPostLS3 = cms.EDProducer("CSCTriggerPrimitivesProducer",
         correctLCTtimingWithGEM = cms.bool(False),
         promoteALCTGEMpattern = cms.bool(True),
         promoteALCTGEMquality = cms.bool(True),
+        promoteCLCTGEMquality = cms.bool(True),
 
         ## rate reduction 
         doGemMatching = cms.bool(True),

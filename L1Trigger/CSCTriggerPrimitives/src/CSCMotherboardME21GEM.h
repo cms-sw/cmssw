@@ -57,6 +57,7 @@ class CSCMotherboardME21GEM : public CSCMotherboard
   int assignGEMRoll(double eta);
   int deltaRoll(int wg, int roll);
   int deltaPad(int hs, int pad);
+  int getRandomWGForGEMRoll(int roll);
 
   void printGEMTriggerPads(int minBX, int maxBx, bool isShort, bool iscopad = false);
 
@@ -82,7 +83,7 @@ class CSCMotherboardME21GEM : public CSCMotherboard
 			CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2);
 
   void correlateLCTsGEM(CSCCLCTDigi bestCLCT, CSCCLCTDigi secondCLCT,
-			GEMCSCPadDigi gemPad,
+                        GEMCSCPadDigi gemPad, int roll,
 			CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2);
 
   void correlateLCTsGEM(CSCALCTDigi bestALCT, CSCALCTDigi secondALCT,
@@ -92,7 +93,7 @@ class CSCMotherboardME21GEM : public CSCMotherboard
 
   CSCCorrelatedLCTDigi constructLCTsGEM(const CSCALCTDigi& alct, const GEMCSCPadDigi& gem,
                                         bool oldDataFormat = false); 
-  CSCCorrelatedLCTDigi constructLCTsGEM(const CSCCLCTDigi& clct, const GEMCSCPadDigi& gem,
+  CSCCorrelatedLCTDigi constructLCTsGEM(const CSCCLCTDigi& clct, const GEMCSCPadDigi& gem, int roll,
                                         bool oldDataFormat = true); 
   CSCCorrelatedLCTDigi constructLCTsGEM(const CSCALCTDigi& alct, const CSCCLCTDigi& clct, 
 					bool hasPad, bool hasCoPad); 
@@ -196,6 +197,7 @@ class CSCMotherboardME21GEM : public CSCMotherboard
 
   // promote ALCT-GEM quality
   bool promoteALCTGEMquality_;
+  bool promoteCLCTGEMquality_;
 
   std::map<int,std::pair<double,double> > gemRollToEtaLimitsShort_;
   std::map<int,std::pair<double,double> > gemRollToEtaLimitsLong_;
