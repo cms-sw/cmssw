@@ -1,25 +1,26 @@
-#ifndef CSCTriggerPrimitives_CSCMotherboardME21_h
-#define CSCTriggerPrimitives_CSCMotherboardME21_h
+#ifndef CSCTriggerPrimitives_CSCMotherboardME21GEM_h
+#define CSCTriggerPrimitives_CSCMotherboardME21GEM_h
 
-/** \class CSCMotherboardME11
+/** \class CSCMotherboardME21GEM
  *
- * Extended CSCMotherboardME21 for ME21 TMB upgrade
+ * Extended CSCMotherboard for ME21 TMB upgrade
  *
  * \author Sven Dildick March 2014
  *
- * Based on CSCMotherboardME21 code
+ * Based on CSCMotherboard code
  *
  */
 
 #include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboard.h>
 #include <DataFormats/GEMDigi/interface/GEMCSCPadDigiCollection.h>
+#include "DataFormats/GEMDigi/interface/GEMCSCCoPadDigiCollection.h"
 
 class CSCGeometry;
 class CSCChamber;
 class GEMGeometry;
 class GEMSuperChamber;
 
-class CSCMotherboardME21 : public CSCMotherboard
+class CSCMotherboardME21GEM : public CSCMotherboard
 {
   typedef std::map<int, std::vector<std::pair<unsigned int, const GEMCSCPadDigi*> > > GEMPads;
   typedef std::pair<unsigned int, const GEMCSCPadDigi*> GEMPadBX;
@@ -27,12 +28,12 @@ class CSCMotherboardME21 : public CSCMotherboard
 
  public:
   /** Normal constructor. */
-  CSCMotherboardME21(unsigned endcap, unsigned station, unsigned sector, 
+  CSCMotherboardME21GEM(unsigned endcap, unsigned station, unsigned sector, 
 		 unsigned subsector, unsigned chamber,
 		 const edm::ParameterSet& conf);
 
   /** Default destructor. */
-  ~CSCMotherboardME21();
+  ~CSCMotherboardME21GEM();
 
   void clear();
 
@@ -104,6 +105,7 @@ class CSCMotherboardME21 : public CSCMotherboard
 
   std::vector<CSCCorrelatedLCTDigi> getLCTs();
   std::vector<CSCCorrelatedLCTDigi> readoutLCTs();
+  std::vector<GEMCSCCoPadDigi> readoutCoPads();
 
  private: 
 
@@ -120,14 +122,12 @@ class CSCMotherboardME21 : public CSCMotherboard
 
   std::vector<CSCALCTDigi> alctV;
   std::vector<CSCCLCTDigi> clctV;
+  std::vector<GEMCSCCoPadDigi> gemCoPadV;
 
   /** "preferential" index array in matching window for cross-BX sorting */
   int pref[MAX_LCT_BINS];
 
   bool match_earliest_clct_me21_only;
-
-  // central LCT bx number
-  int lct_central_bx;
 
   /** whether to not reuse CLCTs that were used by previous matching ALCTs
       in ALCT-to-CLCT algorithm */
@@ -161,20 +161,18 @@ class CSCMotherboardME21 : public CSCMotherboard
   // debug gem matching
   bool debug_gem_matching;
   bool debug_luts;
+  bool debug_gem_dphi;
 
   //  deltas used to construct GEM coincidence pads
   int maxDeltaBXInCoPad_;
-  int maxDeltaRollInCoPad_;
   int maxDeltaPadInCoPad_;
 
   //  deltas used to match to GEM pads
   int maxDeltaBXPad_;
-  int maxDeltaRollPad_;
   int maxDeltaPadPad_;
 
   //  deltas used to match to GEM coincidence pads
   int maxDeltaBXCoPad_;
-  int maxDeltaRollCoPad_;
   int maxDeltaPadCoPad_;
 
   bool doLCTGhostBustingWithGEMs_;
@@ -186,9 +184,6 @@ class CSCMotherboardME21 : public CSCMotherboard
   // correct LCT timing with GEMs
   bool correctLCTtimingWithGEM_;
 
-  // use only the central BX for GEM matching
-  bool centralBXonlyGEM_;
-  
   // build LCT from ALCT and GEM
   bool buildLCTfromALCTandGEM_;
   bool buildLCTfromCLCTandGEM_;

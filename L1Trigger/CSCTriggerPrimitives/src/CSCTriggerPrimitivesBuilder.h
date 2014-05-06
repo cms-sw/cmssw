@@ -21,6 +21,7 @@
 #include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h>
 #include <DataFormats/CSCDigi/interface/CSCCLCTPreTriggerCollection.h>
 #include <DataFormats/GEMDigi/interface/GEMCSCPadDigiCollection.h>
+#include "DataFormats/GEMDigi/interface/GEMCSCCoPadDigiCollection.h"
 #include <DataFormats/RPCDigi/interface/RPCDigiCollection.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
@@ -62,7 +63,8 @@ class CSCTriggerPrimitivesBuilder
 	     CSCALCTDigiCollection& oc_alct, CSCCLCTDigiCollection& oc_clct,
              CSCCLCTPreTriggerCollection & oc_pretrig,
 	     CSCCorrelatedLCTDigiCollection& oc_lct,
-	     CSCCorrelatedLCTDigiCollection& oc_sorted_lct);
+	     CSCCorrelatedLCTDigiCollection& oc_sorted_lct,
+	     GEMCSCCoPadDigiCollection& oc_gemcopad);
 
   /** Max values of trigger labels for all CSCs; used to construct TMB
    *  processors. */
@@ -93,8 +95,8 @@ class CSCTriggerPrimitivesBuilder
   /** SLHC: special switch for disabling ME42 */
   bool disableME42;
 
-  /** SLHC: special switch for the factorized ME1/1 TMB */
-  bool runFactorizedModel_;
+  /** SLHC: special switch for the upgrade ME1/1 TMB */
+  bool runME11ILT_;
 
   /** SLHC: special switch for the upgrade ME2/1 TMB */
   bool runME21ILT_;

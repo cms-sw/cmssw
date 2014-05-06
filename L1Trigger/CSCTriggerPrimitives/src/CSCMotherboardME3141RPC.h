@@ -1,13 +1,13 @@
-#ifndef CSCTriggerPrimitives_CSCMotherboardME3141_h
-#define CSCTriggerPrimitives_CSCMotherboardME3141_h
+#ifndef CSCTriggerPrimitives_CSCMotherboardME3141RPC_h
+#define CSCTriggerPrimitives_CSCMotherboardME3141RPC_h
 
-/** \class CSCMotherboardME11
+/** \class CSCMotherboardME3141R0C
  *
- * Extended CSCMotherboardME3141 for ME3141 TMB upgrade
+ * Extended CSCMotherboard for ME3141 TMB upgrade
  *
  * \author Sven Dildick March 2014
  *
- * Based on CSCMotherboardME3141 code
+ * Based on CSCMotherboard code
  *
  */
 
@@ -18,7 +18,7 @@ class CSCGeometry;
 class CSCChamber;
 class RPCGeometry;
 
-class CSCMotherboardME3141 : public CSCMotherboard
+class CSCMotherboardME3141RPC : public CSCMotherboard
 {
   typedef std::pair<unsigned int, const RPCDigi*> RPCDigiBX;
   typedef std::vector<RPCDigiBX> RPCDigisBX;
@@ -26,12 +26,12 @@ class CSCMotherboardME3141 : public CSCMotherboard
 
  public:
   /** Normal constructor. */
-  CSCMotherboardME3141(unsigned endcap, unsigned station, unsigned sector, 
+  CSCMotherboardME3141RPC(unsigned endcap, unsigned station, unsigned sector, 
 		 unsigned subsector, unsigned chamber,
 		 const edm::ParameterSet& conf);
 
   /** Default destructor. */
-  ~CSCMotherboardME3141();
+  ~CSCMotherboardME3141RPC();
 
   /** Run function for normal usage.  Runs cathode and anode LCT processors,
       takes results and correlates into CorrelatedLCT. */
@@ -99,9 +99,6 @@ class CSCMotherboardME3141 : public CSCMotherboard
   int pref[MAX_LCT_BINS];
 
   bool match_earliest_clct_me3141_only;
-
-  // central LCT bx number 
-  int lct_central_bx;
 
   bool drop_used_clcts;
 

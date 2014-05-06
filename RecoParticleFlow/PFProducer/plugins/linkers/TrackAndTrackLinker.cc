@@ -60,12 +60,16 @@ testLink( const reco::PFBlockElement* elem1,
     if( ni1_FROM_DISP == ni2_FROM_DISP ) { dist = 1.0; }
 
   if (  elem1->trackType(reco::PFBlockElement::T_FROM_GAMMACONV)  &&
-	elem2->trackType(reco::PFBlockElement::T_FROM_GAMMACONV)  ) {    
-    if ( elem1->convRef().isNonnull() && elem2->convRef().isNonnull() ) {
-      if ( elem1->convRef() ==  elem2->convRef() ) {
-	dist=1.0;
+	elem2->trackType(reco::PFBlockElement::T_FROM_GAMMACONV)  ) {
+    for( const auto& conv1 : elem1->convRefs() ) {
+      for( const auto& conv2 : elem2->convRefs() ) {
+	if( conv1.isNonnull() && conv2.isNonnull() &&
+	    conv1 == conv2 ) {
+	  dist=1.0;
+	  break;
+	}
       }
-    }     
+    }
   }
   
   if (  elem1->trackType(reco::PFBlockElement::T_FROM_V0)  &&

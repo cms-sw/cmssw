@@ -84,7 +84,8 @@ namespace {
 	case reco::PFBlockElement::TRACK:
 	  result = ( cmpElem.trackRef().isNonnull() &&
 		     chkElem.trackRef().isNonnull() &&
-		     cmpElem.trackRef()->momentum() == chkElem.trackRef()->momentum() );	    
+		     cmpElem.trackRef()->momentum() == 
+		     chkElem.trackRef()->momentum() );	    
 	  break;
 	case reco::PFBlockElement::PS1:
 	case reco::PFBlockElement::PS2:
@@ -117,7 +118,8 @@ namespace {
 	      static_cast<const reco::PFBlockElementGsfTrack&>(chkElem);	      
 	    result = ( cmpGSF.GsftrackRef().isNonnull() &&
 		       chkGSF.GsftrackRef().isNonnull() &&
-		       cmpGSF.GsftrackRef()->momentum() == chkGSF.GsftrackRef()->momentum() );	      
+		       cmpGSF.GsftrackRef()->momentum() == 
+		       chkGSF.GsftrackRef()->momentum() );	      
 	  }
 	  break;
 	case reco::PFBlockElement::BREM:
@@ -128,7 +130,8 @@ namespace {
 	      static_cast<const reco::PFBlockElementBrem&>(chkElem);	      
 	    result = ( cmpBREM.GsftrackRef().isNonnull() &&
 		       chkBREM.GsftrackRef().isNonnull() &&
-		       cmpBREM.GsftrackRef()->momentum() == chkBREM.GsftrackRef()->momentum() &&
+		       cmpBREM.GsftrackRef()->momentum() == 
+		       chkBREM.GsftrackRef()->momentum() &&
 		       cmpBREM.indTrajPoint() == chkBREM.indTrajPoint() );	      
 	  }
 	  break;
@@ -249,8 +252,13 @@ void PFBlockComparator::analyze(const edm::Event& e,
     auto matched_block = std::find_if(oldblocks->begin(),oldblocks->end(),checker);
     if( matched_block != oldblocks->end() ) {
       ++matchedblocks;
+      if( block.elements().size() != matched_block->elements().size() ) {
+	std::cout << "Number of elements in the block is not the same!" << std::endl;
+	std::cout << block.elements().size() << ' ' << matched_block->elements().size() << std::endl;
+      }
       if( block.linkData().size() != matched_block->linkData().size() ) {
 	std::cout << "Something is really fucked up, captain..." << std::endl;
+	std::cout << block.elements().size() << ' ' << matched_block->elements().size() << std::endl;
       }
       unsigned found_elements = 0;
       for( const auto& elem : block.elements() ) {
@@ -278,19 +286,24 @@ void PFBlockComparator::analyze(const edm::Event& e,
 	    std::cout << "new: ";
 	    for(auto newassc : new_elems ) { 
 	      std::cout << "( " << newassc.first << " , " 
+			<< newassc.second << " , " 
 			<< block.elements()[newassc.second].type() << " ), "; 
 	    }
 	    std::cout << std::endl;
 	    std::cout << "old: ";
 	    for(auto oldassc : old_elems ) { 
 	      std::cout << "( " << oldassc.first << " , " 
+			<< oldassc.second << " , "
 			<< matched_block->elements()[oldassc.second].type() << " ), "; 
 	    }
 	    std::cout << std::endl;	      
 	  }
+	} else {
+	  std::cout << "+++WARNING+++ : couldn't find match for element: " << elem << std::endl;
 	}
-      }          
-      if( found_elements != block.elements().size() ) {
+      }     
+      if( found_elements != block.elements().size() ||
+	  found_elements != matched_block->elements().size() ) {
 	std::cout << "+++WARNING+++ : couldn't find all elements in block with " 
 		  << block.elements().size() << " elements matched to block with " 
 		  << matched_block->elements().size() << "!" << std::endl;

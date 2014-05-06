@@ -1,4 +1,4 @@
-#include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME21.h>
+#include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME21GEM.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
 #include <L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h>
@@ -7,7 +7,7 @@
 #include <DataFormats/Math/interface/deltaPhi.h>
 #include <iomanip> 
 
-const double CSCMotherboardME21::lut_wg_eta_odd[112][2] = {
+const double CSCMotherboardME21GEM::lut_wg_eta_odd[112][2] = {
 { 0,2.441},{ 1,2.435},{ 2,2.425},{ 3,2.414},{ 4,2.404},{ 5,2.394},{ 6,2.384},{ 7,2.374},
 { 8,2.365},{ 9,2.355},{10,2.346},{11,2.336},{12,2.327},{13,2.317},{14,2.308},{15,2.299},
 {16,2.290},{17,2.281},{18,2.273},{19,2.264},{20,2.255},{21,2.247},{22,2.238},{23,2.230},
@@ -24,7 +24,7 @@ const double CSCMotherboardME21::lut_wg_eta_odd[112][2] = {
 {104,1.686},{105,1.680},{106,1.675},{107,1.670},{108,1.664},{109,1.659},{110,1.654},{111,1.648},
 };
 
-const double CSCMotherboardME21::lut_wg_eta_even[112][2] = {
+const double CSCMotherboardME21GEM::lut_wg_eta_even[112][2] = {
 { 0,2.412},{ 1,2.405},{ 2,2.395},{ 3,2.385},{ 4,2.375},{ 5,2.365},{ 6,2.355},{ 7,2.345},
 { 8,2.335},{ 9,2.325},{10,2.316},{11,2.306},{12,2.297},{13,2.288},{14,2.279},{15,2.270},
 {16,2.261},{17,2.252},{18,2.243},{19,2.234},{20,2.226},{21,2.217},{22,2.209},{23,2.200},
@@ -45,7 +45,7 @@ const double CSCMotherboardME21::lut_wg_eta_even[112][2] = {
 // 1st index: pt value = {5,10,15,20,30,40}
 // 2nd index: bending angle for odd numbered chambers
 // 3rd index: bending angle for even numbered chambers
-const double CSCMotherboardME21::lut_pt_vs_dphi_gemcsc[7][3] = {
+const double CSCMotherboardME21GEM::lut_pt_vs_dphi_gemcsc[7][3] = {
   {5.,  0.02203511, 0.00930056},
   {6 ,  0.0182579 , 0.00790009},
   {10., 0.01066000, 0.00483286},
@@ -54,7 +54,7 @@ const double CSCMotherboardME21::lut_pt_vs_dphi_gemcsc[7][3] = {
   {30., 0.00416544, 0.00253782},
   {40., 0.00342827, 0.00230833} };
 
-CSCMotherboardME21::CSCMotherboardME21(unsigned endcap, unsigned station,
+CSCMotherboardME21GEM::CSCMotherboardME21GEM(unsigned endcap, unsigned station,
                                unsigned sector, unsigned subsector,
                                unsigned chamber,
                                const edm::ParameterSet& conf) :
@@ -63,26 +63,20 @@ CSCMotherboardME21::CSCMotherboardME21(unsigned endcap, unsigned station,
   edm::ParameterSet commonParams = conf.getParameter<edm::ParameterSet>("commonParam");
   
   if (!isSLHC) edm::LogError("L1CSCTPEmulatorConfigError")
-    << "+++ Upgrade CSCMotherboardME21 constructed while isSLHC is not set! +++\n";
+    << "+++ Upgrade CSCMotherboardME21GEM constructed while isSLHC is not set! +++\n";
   
-  const edm::ParameterSet alctParams(conf.getParameter<edm::ParameterSet>("alctSLHC"));
-  const edm::ParameterSet clctParams(conf.getParameter<edm::ParameterSet>("clctSLHC"));
-  const edm::ParameterSet tmbParams(conf.getParameter<edm::ParameterSet>("tmbSLHC"));
-  const edm::ParameterSet me21tmbParams(tmbParams.getUntrackedParameter<edm::ParameterSet>("me21ILT"));
-
-  // central bx for LCT is 6 for simulation
-  lct_central_bx = tmbParams.getUntrackedParameter<int>("lctCentralBX", 6);
+  const edm::ParameterSet me21tmbParams(conf.getParameter<edm::ParameterSet>("me21tmbSLHCGEM"));
 
   // whether to not reuse CLCTs that were used by previous matching ALCTs
   // in ALCT-to-CLCT algorithm
-  drop_used_clcts = tmbParams.getUntrackedParameter<bool>("tmbDropUsedClcts",true);
+  drop_used_clcts = me21tmbParams.getParameter<bool>("tmbDropUsedClcts");
 
-  match_earliest_clct_me21_only = tmbParams.getUntrackedParameter<bool>("matchEarliestClctME21Only",true);
+  match_earliest_clct_me21_only = me21tmbParams.getParameter<bool>("matchEarliestClctME21Only");
 
-  tmb_cross_bx_algo = me21tmbParams.getUntrackedParameter<unsigned int>("tmbCrossBxAlgorithm",2);
+  tmb_cross_bx_algo = me21tmbParams.getParameter<unsigned int>("tmbCrossBxAlgorithm");
 
   // maximum lcts per BX in ME2
-  max_me21_lcts = me21tmbParams.getUntrackedParameter<unsigned int>("maxME21LCTs",2);
+  max_me21_lcts = me21tmbParams.getParameter<unsigned int>("maxME21LCTs");
 
   pref[0] = match_trig_window_size/2;
   for (unsigned int m=2; m<match_trig_window_size; m+=2)
@@ -98,77 +92,72 @@ CSCMotherboardME21::CSCMotherboardME21(unsigned endcap, unsigned station,
   //----------------------------------------------------------------------------------------//
 
   // masterswitch
-  runME21ILT_ = me21tmbParams.getUntrackedParameter<bool>("runME21ILT",false);
+  runME21ILT_ = me21tmbParams.getParameter<bool>("runME21ILT");
 
   /// Do GEM matching?
-  do_gem_matching = me21tmbParams.getUntrackedParameter<bool>("doGemMatching", false);
+  do_gem_matching = me21tmbParams.getParameter<bool>("doGemMatching");
 
   /// GEM matching dphi and deta
-  gem_match_delta_phi_odd = me21tmbParams.getUntrackedParameter<double>("gemMatchDeltaPhiOdd", 0.0055);
-  gem_match_delta_phi_even = me21tmbParams.getUntrackedParameter<double>("gemMatchDeltaPhiEven", 0.0031);
-  gem_match_delta_eta = me21tmbParams.getUntrackedParameter<double>("gemMatchDeltaEta", 0.08);
+  gem_match_delta_phi_odd = me21tmbParams.getParameter<double>("gemMatchDeltaPhiOdd");
+  gem_match_delta_phi_even = me21tmbParams.getParameter<double>("gemMatchDeltaPhiEven");
+  gem_match_delta_eta = me21tmbParams.getParameter<double>("gemMatchDeltaEta");
 
   /// delta BX for GEM pads matching
-  gem_match_delta_bx = me21tmbParams.getUntrackedParameter<int>("gemMatchDeltaBX", 1);
+  gem_match_delta_bx = me21tmbParams.getParameter<int>("gemMatchDeltaBX");
 
   /// min eta of LCT for which we require GEM match (we don't throw out LCTs below this min eta)
-  gem_match_min_eta = me21tmbParams.getUntrackedParameter<double>("gemMatchMinEta", 1.5);
+  gem_match_min_eta = me21tmbParams.getParameter<double>("gemMatchMinEta");
 
   /// whether to throw out GEM-fiducial LCTs that have no gem match
-  gem_clear_nomatch_lcts = me21tmbParams.getUntrackedParameter<bool>("gemClearNomatchLCTs", false);
+  gem_clear_nomatch_lcts = me21tmbParams.getParameter<bool>("gemClearNomatchLCTs");
 
   // debug gem matching
-  debug_gem_matching = me21tmbParams.getUntrackedParameter<bool>("debugGemMatching", false);
-  debug_luts = me21tmbParams.getUntrackedParameter<bool>("debugLUTs", false);
+  debug_gem_matching = me21tmbParams.getParameter<bool>("debugMatching");
+  debug_luts = me21tmbParams.getParameter<bool>("debugLUTs");
+  debug_gem_dphi = me21tmbParams.getParameter<bool>("debugGEMDphi");
 
   //  deltas used to construct GEM coincidence pads
-  maxDeltaBXInCoPad_ = me21tmbParams.getUntrackedParameter<int>("maxDeltaBXInCoPad",1);
-  maxDeltaRollInCoPad_ = me21tmbParams.getUntrackedParameter<int>("maxDeltaRollInCoPad",0);
-  maxDeltaPadInCoPad_ = me21tmbParams.getUntrackedParameter<int>("maxDeltaPadInCoPad",0);
+  maxDeltaBXInCoPad_ = me21tmbParams.getParameter<int>("maxDeltaBXInCoPad");
+  maxDeltaPadInCoPad_ = me21tmbParams.getParameter<int>("maxDeltaPadInCoPad");
 
   //  deltas used to match to GEM pads
-  maxDeltaBXPad_ = me21tmbParams.getUntrackedParameter<int>("maxDeltaBXPad",1);
-  maxDeltaRollPad_ = me21tmbParams.getUntrackedParameter<int>("maxDeltaRollPad",0);
-  maxDeltaPadPad_ = me21tmbParams.getUntrackedParameter<int>("maxDeltaPadPad",0);
+  maxDeltaBXPad_ = me21tmbParams.getParameter<int>("maxDeltaBXPad");
+  maxDeltaPadPad_ = me21tmbParams.getParameter<int>("maxDeltaPadPad");
 
   //  deltas used to match to GEM coincidence pads
-  maxDeltaBXCoPad_ = me21tmbParams.getUntrackedParameter<int>("maxDeltaBXCoPad",1);
-  maxDeltaRollCoPad_ = me21tmbParams.getUntrackedParameter<int>("maxDeltaRollCoPad",0);
-  maxDeltaPadCoPad_ = me21tmbParams.getUntrackedParameter<int>("maxDeltaPadCoPad",0);
+  maxDeltaBXCoPad_ = me21tmbParams.getParameter<int>("maxDeltaBXCoPad");
+  maxDeltaPadCoPad_ = me21tmbParams.getParameter<int>("maxDeltaPadCoPad");
 
   // drop low quality stubs if they don't have GEMs
-  dropLowQualityCLCTsNoGEMs_ = me21tmbParams.getUntrackedParameter<bool>("dropLowQualityCLCTsNoGEMs",false);
-  dropLowQualityALCTsNoGEMs_ = me21tmbParams.getUntrackedParameter<bool>("dropLowQualityALCTsNoGEMs",false);
+  dropLowQualityCLCTsNoGEMs_ = me21tmbParams.getParameter<bool>("dropLowQualityCLCTsNoGEMs");
+  dropLowQualityALCTsNoGEMs_ = me21tmbParams.getParameter<bool>("dropLowQualityALCTsNoGEMs");
 
   // correct LCT timing with GEMs
-  correctLCTtimingWithGEM_ = me21tmbParams.getUntrackedParameter<bool>("correctLCTtimingWithGEM",false);
+  correctLCTtimingWithGEM_ = me21tmbParams.getParameter<bool>("correctLCTtimingWithGEM");
 
-  // use only the central BX for GEM matching
-  centralBXonlyGEM_ = me21tmbParams.getUntrackedParameter<bool>("centralBXonlyGEM",false);
-  
   // build LCT from ALCT and GEM
-  buildLCTfromALCTandGEM_ = me21tmbParams.getUntrackedParameter<bool>("buildLCTfromALCTandGEM",false);
-  buildLCTfromCLCTandGEM_ = me21tmbParams.getUntrackedParameter<bool>("buildLCTfromCLCTandGEM",false);
+  buildLCTfromALCTandGEM_ = me21tmbParams.getParameter<bool>("buildLCTfromALCTandGEM");
+  buildLCTfromCLCTandGEM_ = me21tmbParams.getParameter<bool>("buildLCTfromCLCTandGEM");
 
   // LCT ghostbusting
-  doLCTGhostBustingWithGEMs_ = me21tmbParams.getUntrackedParameter<bool>("doLCTGhostBustingWithGEMs",false);
+  doLCTGhostBustingWithGEMs_ = me21tmbParams.getParameter<bool>("doLCTGhostBustingWithGEMs");
 
   // use "old" or "new" dataformat for integrated LCTs?
-  useOldLCTDataFormatALCTGEM_ = me21tmbParams.getUntrackedParameter<bool>("useOldLCTDataFormatALCTGEM",true);
-  useOldLCTDataFormatCLCTGEM_ = me21tmbParams.getUntrackedParameter<bool>("useOldLCTDataFormatCLCTGEM",true);
+  useOldLCTDataFormatALCTGEM_ = me21tmbParams.getParameter<bool>("useOldLCTDataFormatALCTGEM");
+  useOldLCTDataFormatCLCTGEM_ = me21tmbParams.getParameter<bool>("useOldLCTDataFormatCLCTGEM");
 
   // promote ALCT-GEM pattern
-  promoteALCTGEMpattern_ = me21tmbParams.getUntrackedParameter<bool>("promoteALCTGEMpattern",false);
+  promoteALCTGEMpattern_ = me21tmbParams.getParameter<bool>("promoteALCTGEMpattern");
 
   // promote ALCT-GEM quality
-  promoteALCTGEMquality_ = me21tmbParams.getUntrackedParameter<bool>("promoteALCTGEMquality",false);
+  promoteALCTGEMquality_ = me21tmbParams.getParameter<bool>("promoteALCTGEMquality");
 }
 
-CSCMotherboardME21::~CSCMotherboardME21() 
+CSCMotherboardME21GEM::~CSCMotherboardME21GEM() 
 {
 }
 
-void CSCMotherboardME21::clear()
+void CSCMotherboardME21GEM::clear()
 {
   CSCMotherboard::clear();
   
@@ -190,7 +179,7 @@ void CSCMotherboardME21::clear()
 }
 
 void
-CSCMotherboardME21::run(const CSCWireDigiCollection* wiredc,
+CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
                     const CSCComparatorDigiCollection* compdc,
                     const GEMCSCPadDigiCollection* gemPads) 
 {
@@ -358,7 +347,7 @@ CSCMotherboardME21::run(const CSCWireDigiCollection* wiredc,
           // clct quality
           const int quality(clct->bestCLCT[bx_clct].getQuality());
           // low quality ALCT
-          const bool lowQualityALCT(alct->bestALCT[bx_alct].getQuality() == 4);
+          const bool lowQualityALCT(alct->bestALCT[bx_alct].getQuality() == 0);
           // low quality ALCT or CLCT
           const bool lowQuality(quality<4 or lowQualityALCT);
           if (debug_gem_matching) std::cout << "++Valid ME21 CLCT: " << clct->bestCLCT[bx_clct] << std::endl;
@@ -541,13 +530,13 @@ CSCMotherboardME21::run(const CSCWireDigiCollection* wiredc,
 
 
 //readout LCTs 
-std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME21::readoutLCTs()
+std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME21GEM::readoutLCTs()
 {
   return getLCTs();
 }
 
 //getLCTs when we use different sort algorithm
-std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME21::getLCTs()
+std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME21GEM::getLCTs()
 {
   std::vector<CSCCorrelatedLCTDigi> result;
   for (int bx = 0; bx < MAX_LCT_BINS; bx++) {
@@ -570,7 +559,7 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME21::getLCTs()
 }
 
 //sort LCTs by Quality in each BX
-std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME21::sortLCTsByQuality(int bx)
+std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME21GEM::sortLCTsByQuality(int bx)
 {
   std::vector<CSCCorrelatedLCTDigi> LCTs;
   LCTs.clear();
@@ -585,7 +574,7 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME21::sortLCTsByQuality(int bx)
   return  LCTs;
 }
 
-void CSCMotherboardME21::correlateLCTsGEM(CSCALCTDigi bestALCT,
+void CSCMotherboardME21GEM::correlateLCTsGEM(CSCALCTDigi bestALCT,
 					  CSCALCTDigi secondALCT,
 					  CSCCLCTDigi bestCLCT,
 					  CSCCLCTDigi secondCLCT,
@@ -631,7 +620,7 @@ void CSCMotherboardME21::correlateLCTsGEM(CSCALCTDigi bestALCT,
 }
 
 
-void CSCMotherboardME21::correlateLCTsGEM(CSCALCTDigi bestALCT,
+void CSCMotherboardME21GEM::correlateLCTsGEM(CSCALCTDigi bestALCT,
 					  CSCALCTDigi secondALCT,
 					  GEMCSCPadDigi gemPad,
 					  CSCCorrelatedLCTDigi& lct1,
@@ -661,7 +650,7 @@ void CSCMotherboardME21::correlateLCTsGEM(CSCALCTDigi bestALCT,
 }
 
 
-void CSCMotherboardME21::correlateLCTsGEM(CSCCLCTDigi bestCLCT,
+void CSCMotherboardME21GEM::correlateLCTsGEM(CSCCLCTDigi bestCLCT,
 					  CSCCLCTDigi secondCLCT,
 					  GEMCSCPadDigi gemPad,
 					  CSCCorrelatedLCTDigi& lct1,
@@ -689,7 +678,7 @@ void CSCMotherboardME21::correlateLCTsGEM(CSCCLCTDigi bestCLCT,
 }
 
 
-CSCCorrelatedLCTDigi CSCMotherboardME21::constructLCTsGEM(const CSCALCTDigi& alct,
+CSCCorrelatedLCTDigi CSCMotherboardME21GEM::constructLCTsGEM(const CSCALCTDigi& alct,
                                                           const GEMCSCPadDigi& gem, 
                                                           bool oldDataFormat) 
 {    
@@ -734,7 +723,7 @@ CSCCorrelatedLCTDigi CSCMotherboardME21::constructLCTsGEM(const CSCALCTDigi& alc
   }
 }
 
-CSCCorrelatedLCTDigi CSCMotherboardME21::constructLCTsGEM(const CSCCLCTDigi& clct,
+CSCCorrelatedLCTDigi CSCMotherboardME21GEM::constructLCTsGEM(const CSCCLCTDigi& clct,
                                                           const GEMCSCPadDigi& gem, 
                                                           bool oldDataFormat) 
 {
@@ -774,7 +763,7 @@ CSCCorrelatedLCTDigi CSCMotherboardME21::constructLCTsGEM(const CSCCLCTDigi& clc
 }
 
 
-CSCCorrelatedLCTDigi CSCMotherboardME21::constructLCTsGEM(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, 
+CSCCorrelatedLCTDigi CSCMotherboardME21GEM::constructLCTsGEM(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, 
 							  bool hasPad, bool hasCoPad)
 {
   // CLCT pattern number
@@ -795,7 +784,7 @@ CSCCorrelatedLCTDigi CSCMotherboardME21::constructLCTsGEM(const CSCALCTDigi& aLC
 }
 
 
-unsigned int CSCMotherboardME21::findQualityGEM(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT,
+unsigned int CSCMotherboardME21GEM::findQualityGEM(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT,
 						bool hasPad, bool hasCoPad)
 {
 
@@ -891,8 +880,7 @@ unsigned int CSCMotherboardME21::findQualityGEM(const CSCALCTDigi& aLCT, const C
 	int n_gem = 0;  
 	if (hasPad) n_gem = 1;
 	if (hasCoPad) n_gem = 2;
-	const bool a4((aLCT.getQuality() >= 1 and aLCT.getQuality() != 4) or
-		      (aLCT.getQuality() == 4 and n_gem >=1));
+	const bool a4((aLCT.getQuality() >= 1) or (aLCT.getQuality() >= 0 and n_gem >=1));
 	const bool c4((cLCT.getQuality() >= 4) or (cLCT.getQuality() >= 3 and n_gem>=1));
         //              quality = 4; "reserved for low-quality muons in future"
         if      (!a4 && !c4) quality = 5; // marginal anode and cathode
@@ -922,8 +910,10 @@ unsigned int CSCMotherboardME21::findQualityGEM(const CSCALCTDigi& aLCT, const C
 }
 
 
-void CSCMotherboardME21::buildCoincidencePads(const GEMCSCPadDigiCollection* out_pads, GEMCSCPadDigiCollection& out_co_pads)
+void CSCMotherboardME21GEM::buildCoincidencePads(const GEMCSCPadDigiCollection* out_pads, GEMCSCPadDigiCollection& out_co_pads)
 {
+  gemCoPadV.clear();
+
   // build coincidences
   for (auto det_range = out_pads->begin(); det_range != out_pads->end(); ++det_range) {
     const GEMDetId& id = (*det_range).first;
@@ -950,6 +940,9 @@ void CSCMotherboardME21::buildCoincidencePads(const GEMCSCPadDigiCollection* out
         // check the match in BX
         if (std::abs(p->bx() - co_p->bx()) > maxDeltaBXInCoPad_ ) continue;
         
+        // make a new coincidence pad digi
+        gemCoPadV.push_back(GEMCSCCoPadDigi(*p,*co_p));
+
         // always use layer1 pad's BX as a copad's BX
         GEMCSCPadDigi co_pad_digi(p->pad(), p->bx());
         out_co_pads.insertDigi(id, co_pad_digi);
@@ -960,7 +953,7 @@ void CSCMotherboardME21::buildCoincidencePads(const GEMCSCPadDigiCollection* out
 
 
 std::map<int,std::pair<double,double> >
-CSCMotherboardME21::createGEMRollEtaLUT(bool isLong)
+CSCMotherboardME21GEM::createGEMRollEtaLUT(bool isLong)
 {
   std::map<int,std::pair<double,double> > result;
 
@@ -983,7 +976,7 @@ CSCMotherboardME21::createGEMRollEtaLUT(bool isLong)
 }
 
 std::map<int, std::vector<std::pair<unsigned int, const GEMCSCPadDigi*> > >
-CSCMotherboardME21::retrieveGEMPads(const GEMCSCPadDigiCollection* gemPads, unsigned id, bool iscopad)
+CSCMotherboardME21GEM::retrieveGEMPads(const GEMCSCPadDigiCollection* gemPads, unsigned id, bool iscopad)
 {
   int deltaBX(iscopad ? maxDeltaBXCoPad_ : maxDeltaBXPad_);
   GEMPads result;
@@ -1011,7 +1004,7 @@ CSCMotherboardME21::retrieveGEMPads(const GEMCSCPadDigiCollection* gemPads, unsi
 }
 
 
-void CSCMotherboardME21::printGEMTriggerPads(int bx_start, int bx_stop, bool isShort, bool iscopad)
+void CSCMotherboardME21GEM::printGEMTriggerPads(int bx_start, int bx_stop, bool isShort, bool iscopad)
 {
   // pads or copads?
   auto thePads(!iscopad ? (isShort ? padsShort_ : padsLong_) : (isShort ? coPadsShort_ : coPadsLong_));
@@ -1021,7 +1014,6 @@ void CSCMotherboardME21::printGEMTriggerPads(int bx_start, int bx_stop, bool isS
   bool first = true;
   for (int bx = bx_start; bx <= bx_stop; bx++) {
     // print only the pads for the central BX
-    if (centralBXonlyGEM_ and bx!=lct_central_bx) continue;
     if (bx!=lct_central_bx and iscopad) continue;
     std::vector<std::pair<unsigned int, const GEMCSCPadDigi*> > in_pads = thePads[bx];
     if (first) {
@@ -1034,7 +1026,7 @@ void CSCMotherboardME21::printGEMTriggerPads(int bx_start, int bx_stop, bool isS
     if (hasPads){
       for (auto pad : in_pads){
         auto roll_id(GEMDetId(pad.first));
-        std::cout << "\tdetId " << pad.first << " " << roll_id << ", pad = " << pad.second->pad() << ", BX = " << pad.second->bx() + 6;
+        std::cout << "\tdetId " << pad.first << " " << roll_id << ", pad = " << pad.second->pad() << ", BX = " << pad.second->bx() + 6 << std::endl;
       }
     }
     else
@@ -1043,10 +1035,10 @@ void CSCMotherboardME21::printGEMTriggerPads(int bx_start, int bx_stop, bool isS
 }
 
 
-CSCMotherboardME21::GEMPadsBX  
-CSCMotherboardME21::matchingGEMPads(const CSCCLCTDigi& clct, const GEMPadsBX& pads, bool isCoPad, bool first)
+CSCMotherboardME21GEM::GEMPadsBX  
+CSCMotherboardME21GEM::matchingGEMPads(const CSCCLCTDigi& clct, const GEMPadsBX& pads, bool isCoPad, bool first)
 {
-  CSCMotherboardME21::GEMPadsBX result;
+  CSCMotherboardME21GEM::GEMPadsBX result;
 
   // fetch the low and high pad edges for the long superchambers
   int deltaPad(isCoPad ? maxDeltaPadCoPad_ : maxDeltaPadPad_);
@@ -1067,10 +1059,10 @@ CSCMotherboardME21::matchingGEMPads(const CSCCLCTDigi& clct, const GEMPadsBX& pa
 }
 
 
-CSCMotherboardME21::GEMPadsBX 
-CSCMotherboardME21::matchingGEMPads(const CSCALCTDigi& alct, const GEMPadsBX& pads, bool isCoPad, bool first)
+CSCMotherboardME21GEM::GEMPadsBX 
+CSCMotherboardME21GEM::matchingGEMPads(const CSCALCTDigi& alct, const GEMPadsBX& pads, bool isCoPad, bool first)
 {
-  CSCMotherboardME21::GEMPadsBX result;
+  CSCMotherboardME21GEM::GEMPadsBX result;
   
   auto alctRoll(cscWgToGemRollLong_[alct.getKeyWG()]);
   const bool debug(false);
@@ -1087,11 +1079,11 @@ CSCMotherboardME21::matchingGEMPads(const CSCALCTDigi& alct, const GEMPadsBX& pa
 }
 
 
-CSCMotherboardME21::GEMPadsBX 
-CSCMotherboardME21::matchingGEMPads(const CSCCLCTDigi& clct, const CSCALCTDigi& alct, const GEMPadsBX& pads, 
+CSCMotherboardME21GEM::GEMPadsBX 
+CSCMotherboardME21GEM::matchingGEMPads(const CSCCLCTDigi& clct, const CSCALCTDigi& alct, const GEMPadsBX& pads, 
                                     bool isCoPad, bool first)
 {
-  CSCMotherboardME21::GEMPadsBX result;
+  CSCMotherboardME21GEM::GEMPadsBX result;
 
   // Fetch all (!) pads matching to ALCTs and CLCTs
   auto padsClct(matchingGEMPads(clct, pads, isCoPad, false));
@@ -1115,7 +1107,7 @@ CSCMotherboardME21::matchingGEMPads(const CSCCLCTDigi& clct, const CSCALCTDigi& 
   return result;
 }
 
-void CSCMotherboardME21::matchGEMPads()
+void CSCMotherboardME21GEM::matchGEMPads()
 {
   using namespace std;
 
@@ -1138,11 +1130,11 @@ void CSCMotherboardME21::matchGEMPads()
   const bool is_odd(chamber%2==1);
   
 
-  if (debug_gem_matching) std::cout<<"++++++++  matchGEMPads "<< csc_id <<" +++++++++ "<<std::endl;
+  if (debug_gem_dphi) std::cout<<"++++++++  matchGEMPads "<< csc_id <<" +++++++++ "<<std::endl;
 
   // check if there are any pads 
   if (padsLong_.empty()) {
-    if (debug_gem_matching) std::cout<<"igotnopads"<<std::endl;
+    if (debug_gem_dphi) std::cout<<"igotnopads"<<std::endl;
     return;
   }
 
@@ -1157,7 +1149,7 @@ void CSCMotherboardME21::matchGEMPads()
       {
         CSCCorrelatedLCTDigi& lct = allLCTs[bx][mbx][i];
         if (!lct.isValid() or fabs(lct.getGEMDPhi()) < 0.000001) continue;
-        if (debug_gem_matching) std::cout<<"LCTbefore "<<bx<<" "<<mbx<<" "<<i<<" "<<lct;
+        if (debug_gem_dphi) std::cout<<"LCTbefore "<<bx<<" "<<mbx<<" "<<i<<" "<<lct;
 
         // use -99 as default value whe we don't know if there could have been a gem match
         lct.setGEMDPhi(-99.);
@@ -1175,21 +1167,21 @@ void CSCMotherboardME21::matchGEMPads()
         // is LCT located in the high efficiency GEM eta range?
         bool gem_fid = ( std::abs(csc_gp.eta()) >= gem_match_min_eta );
 
-        if (debug_gem_matching) std::cout<<" lct eta "<<csc_gp.eta()<<" phi "<<csc_gp.phi()<<std::endl;
+        if (debug_gem_dphi) std::cout<<" lct eta "<<csc_gp.eta()<<" phi "<<csc_gp.phi()<<std::endl;
 
         if (!gem_fid)
         {
-          if (debug_gem_matching) std::cout<<"    -- lct pass no gem req"<<std::endl;
+          if (debug_gem_dphi) std::cout<<"    -- lct pass no gem req"<<std::endl;
           continue;
         }
 
         if (in_pads == padsLong_.end()) // has no potential GEM hits with similar BX -> zap it
         {
           if (gem_clear_nomatch_lcts) lct.clear();
-          if (debug_gem_matching) std::cout<<"    -- no gem"<<std::endl;
+          if (debug_gem_dphi) std::cout<<"    -- no gem"<<std::endl;
           continue;
         }
-        if (debug_gem_matching) std::cout<<"    -- gem possible"<<std::endl;
+        if (debug_gem_dphi) std::cout<<"    -- gem possible"<<std::endl;
 
         // use 99 ad default value whe we expect there to be a gem match
         lct.setGEMDPhi(99.);
@@ -1207,7 +1199,7 @@ void CSCMotherboardME21::matchGEMPads()
           GlobalPoint gem_gp = gem_g->idToDet(gem_id)->surface().toGlobal(gem_lp);
           float dphi = deltaPhi(csc_gp.phi(), gem_gp.phi());
           float deta = csc_gp.eta() - gem_gp.eta();
-          if (debug_gem_matching) std::cout<<"    gem with dphi "<< std::abs(dphi) <<" deta "<< std::abs(deta) <<std::endl;
+          if (debug_gem_dphi) std::cout<<"    gem with dphi "<< std::abs(dphi) <<" deta "<< std::abs(deta) <<std::endl;
 
           if( (              std::abs(deta) <= gem_match_delta_eta        ) and // within delta_eta
               ( (  is_odd and std::abs(dphi) <= gem_match_delta_phi_odd ) or
@@ -1222,7 +1214,7 @@ void CSCMotherboardME21::matchGEMPads()
         }
         if (gem_matched)
         {
-          if (debug_gem_matching) std::cout<<" GOT MATCHED GEM!"<<std::endl;
+          if (debug_gem_dphi) std::cout<<" GOT MATCHED GEM!"<<std::endl;
           lct.setGEMDPhi(min_dphi);
 	  // assing the bit value
 	  int oddEven = int(not is_odd) + 1;
@@ -1231,25 +1223,25 @@ void CSCMotherboardME21::matchGEMPads()
 	  if (abs(min_dphi) < lut_pt_vs_dphi_gemcsc[numberOfBendAngles-1][oddEven]) iFound = numberOfBendAngles;
 	  else {
 	    for (int i=0; i< numberOfBendAngles-1; ++i) {
-	      if (debug_gem_matching) std::cout<<"is_odd "<<is_odd <<" min_dphi "<<abs(min_dphi)<<" bend angle lib "<<i<<" "<<lut_pt_vs_dphi_gemcsc[i][oddEven]<< std::endl;
+	      if (debug_gem_dphi) std::cout<<"is_odd "<<is_odd <<" min_dphi "<<abs(min_dphi)<<" bend angle lib "<<i<<" "<<lut_pt_vs_dphi_gemcsc[i][oddEven]<< std::endl;
 	      if (abs(min_dphi) < lut_pt_vs_dphi_gemcsc[i][oddEven] and abs(min_dphi) > lut_pt_vs_dphi_gemcsc[i+1][oddEven]) 
 		iFound = i+1;
 	    }
 	  }
 	  lct.setGEMDPhiBits(iFound);
-	  if (debug_gem_matching) std::cout<<"found bend angle "<<abs(min_dphi)<<" "<<lct.getGEMDPhiBits()<<" "<<lut_pt_vs_dphi_gemcsc[iFound][oddEven]<<" "<<iFound << std::endl;
+	  if (debug_gem_dphi) std::cout<<"found bend angle "<<abs(min_dphi)<<" "<<lct.getGEMDPhiBits()<<" "<<lut_pt_vs_dphi_gemcsc[iFound][oddEven]<<" "<<iFound << std::endl;
         }
         else
         {
-          if (debug_gem_matching) std::cout<<" no gem match";
+          if (debug_gem_dphi) std::cout<<" no gem match";
           if (gem_clear_nomatch_lcts)
           {
             lct.clear();
-            if (debug_gem_matching) std::cout<<" - cleared lct";
+            if (debug_gem_dphi) std::cout<<" - cleared lct";
           }
-          if (debug_gem_matching) std::cout<<std::endl;
+          if (debug_gem_dphi) std::cout<<std::endl;
         }
-        if (debug_gem_matching) std::cout<<"LCTafter "<<bx<<" "<<mbx<<" "<<i<<" "<<lct;
+        if (debug_gem_dphi) std::cout<<"LCTafter "<<bx<<" "<<mbx<<" "<<i<<" "<<lct;
       }
   }
 
@@ -1261,11 +1253,11 @@ void CSCMotherboardME21::matchGEMPads()
       {
         if (allLCTs[bx][mbx][i].isValid()) nlct_after++;
       }
-  if (debug_gem_matching) std::cout<<"before "<<nlct<<"  after "<<nlct_after<<std::endl;
+  if (debug_gem_dphi) std::cout<<"before "<<nlct<<"  after "<<nlct_after<<std::endl;
 }
 
 
-int CSCMotherboardME21::assignGEMRoll(double eta)
+int CSCMotherboardME21GEM::assignGEMRoll(double eta)
 {
   int result = -99;
   for(auto p : gemRollToEtaLimitsLong_) {  
@@ -1277,4 +1269,10 @@ int CSCMotherboardME21::assignGEMRoll(double eta)
     }
   }
   return result;
+}
+
+
+std::vector<GEMCSCCoPadDigi> CSCMotherboardME21GEM::readoutCoPads()
+{
+  return gemCoPadV;
 }
