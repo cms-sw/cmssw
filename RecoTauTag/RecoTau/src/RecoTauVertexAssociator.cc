@@ -209,6 +209,7 @@ RecoTauVertexAssociator::~RecoTauVertexAssociator()
 { 
   delete vertexSelector_; 
   delete qcuts_;
+  delete jetToVertexAssociation_;
 }
 
 
