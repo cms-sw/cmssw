@@ -11,7 +11,7 @@ hltMultiTrackValidator.dirName = cms.string('HLT/Tracking/ValidationWRTtp/')
 hltMultiTrackValidator.label   = cms.VInputTag(
     cms.InputTag("hltPixelTracks"),
 #    cms.InputTag("hltPFJetCtfWithMaterialTracks"),
-    cms.InputTag("hltPFlowTrackSelectionHighPurity"),
+#    cms.InputTag("hltPFlowTrackSelectionHighPurity"), # it is not yet available :(
 #    cms.InputTag("hltIter1PFJetCtfWithMaterialTracks"),
 #    cms.InputTag("hltIter1PFlowTrackSelectionHighPurityLoose"),
 #    cms.InputTag("hltIter1PFlowTrackSelectionHighPurityTight"),
