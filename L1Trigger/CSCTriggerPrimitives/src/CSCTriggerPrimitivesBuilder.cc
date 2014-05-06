@@ -102,7 +102,7 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
             // and CLCT processors.
             if (stat==1 && ring==1 && smartME1aME1b && !runME11ILT_)
               tmb_[endc-1][stat-1][sect-1][subs-1][cham-1] = new CSCMotherboardME11(endc, stat, sect, subs, cham, conf);
-            if (stat==1 && ring==1 && smartME1aME1b && runME11ILT_)
+            else if (stat==1 && ring==1 && smartME1aME1b && runME11ILT_)
               tmb_[endc-1][stat-1][sect-1][subs-1][cham-1] = new CSCMotherboardME11GEM(endc, stat, sect, subs, cham, conf);
             else if (stat==2 && ring==1 && runME21ILT_)
               tmb_[endc-1][stat-1][sect-1][subs-1][cham-1] = new CSCMotherboardME21GEM(endc, stat, sect, subs, cham, conf);
