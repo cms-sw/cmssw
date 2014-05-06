@@ -165,19 +165,6 @@ CombinedSVSoftLeptonComputer::operator () (const TrackIPTagInfo &ipInfo,
 	vars.insert(btau::jetPt, jet->pt(), true);
 	vars.insert(btau::jetEta, jet->eta(), true);
 
-	TrackKinematics jetKinematics;
-	
-	const edm::RefVector<TrackCollection> &jettracks = ipInfo.selectedTracks();
-	std::vector<std::size_t> trackIndices = ipInfo.sortedIndexes(sortCriterium);
-  IterationRange range = flipIterate(trackIndices.size(), false);
-	range_for(i, range) {
-		std::size_t idx = trackIndices[i];
-		const TrackRef &trackRef = jettracks[idx];
-		const Track &track = *trackRef;
-		jetKinematics.add(track);
-	}	
-	vars.insert(btau::trackJetPt, jetKinematics.vectorSum().Pt(), true);
-
 	if (ipInfo.selectedTracks().size() < trackMultiplicityMin)
 		return vars;
 	
@@ -185,6 +172,7 @@ CombinedSVSoftLeptonComputer::operator () (const TrackIPTagInfo &ipInfo,
 
 	TrackKinematics allKinematics;
 	TrackKinematics vertexKinematics;
+	TrackKinematics trackJetKinematics;
 
 	double vtx_track_ptSum= 0.; 
 	double vtx_track_ESum= 0.; 
@@ -194,7 +182,7 @@ CombinedSVSoftLeptonComputer::operator () (const TrackIPTagInfo &ipInfo,
 	unsigned int numberofvertextracks = 0;
 
 	//IF THERE ARE SECONDARY VERTICES THE JET FALLS IN THE RECOVERTEX CATEGORY
-	range = flipIterate(svInfo.nVertices(), true);
+	IterationRange range = flipIterate(svInfo.nVertices(), true);
 	range_for(i, range) {
 		if (vtx < 0) vtx = i; //RecoVertex category (vtx=0) if we enter at least one time in this loop!
 
@@ -326,6 +314,8 @@ CombinedSVSoftLeptonComputer::operator () (const TrackIPTagInfo &ipInfo,
 		if (!ok)
 			continue;
 
+		trackJetKinematics.add(track);
+
 		// add track variables
 		math::XYZVector trackMom = track.momentum();
 		double trackMag = std::sqrt(trackMom.Mag2());
@@ -343,6 +333,8 @@ CombinedSVSoftLeptonComputer::operator () (const TrackIPTagInfo &ipInfo,
 		vars.insert(btau::trackPtRatio, VectorUtil::Perp(trackMom, jetDir) / trackMag, true);
 		vars.insert(btau::trackPParRatio, jetDir.Dot(trackMom) / trackMag, true);
 	} 
+	
+	vars.insert(btau::trackJetPt, trackJetKinematics.vectorSum().Pt(), true);
 
 	vars.insert(btau::trackSumJetDeltaR,VectorUtil::DeltaR(allKinematics.vectorSum(), jetDir), true);
 	vars.insert(btau::trackSumJetEtRatio,allKinematics.vectorSum().Et() / ipInfo.jet()->et(), true);
