@@ -52,8 +52,8 @@ void CosmicNavigationSchool::build(const GeometricSearchTracker* theInputTracker
 
 
   // Get barrel layers
-  vector<BarrelDetLayer*> blc = theTracker->barrelLayers();
-  for ( vector<BarrelDetLayer*>::iterator i = blc.begin(); i != blc.end(); i++) {
+  vector<BarrelDetLayer const*> const& blc = theTracker->barrelLayers();
+  for ( auto i = blc.begin(); i != blc.end(); i++) {
     if (conf.noPXB && (*i)->subDetector() == GeomDetEnumerators::PixelBarrel) continue;
     if (conf.noTOB && (*i)->subDetector() == GeomDetEnumerators::TOB) continue;
     if (conf.noTIB && (*i)->subDetector() == GeomDetEnumerators::TIB) continue;
@@ -61,8 +61,8 @@ void CosmicNavigationSchool::build(const GeometricSearchTracker* theInputTracker
   }
 
   // get forward layers
-  vector<ForwardDetLayer*> flc = theTracker->forwardLayers();
-  for ( vector<ForwardDetLayer*>::iterator i = flc.begin(); i != flc.end(); i++) {
+  vector<ForwardDetLayer const*> const& flc = theTracker->forwardLayers();
+  for ( auto i = flc.begin(); i != flc.end(); i++) {
     if (conf.noPXF && (*i)->subDetector() == GeomDetEnumerators::PixelEndcap) continue;
     if (conf.noTEC && (*i)->subDetector() == GeomDetEnumerators::TEC) continue;
     if (conf.noTID && (*i)->subDetector() == GeomDetEnumerators::TID) continue;
@@ -87,11 +87,11 @@ void CosmicNavigationSchool::build(const GeometricSearchTracker* theInputTracker
     //   NavigationSetter setter(*this);
 
     //add TOB1->TOB1 inward link
-    const std::vector< BarrelDetLayer * > &  tobL = theInputTracker->tobLayers();
+    const std::vector< const BarrelDetLayer * > &  tobL = theInputTracker->tobLayers();
     if (tobL.size()>=1){
       if (conf.allSelf){
 	LogDebug("CosmicNavigationSchool")<<" adding all TOB self search.";
-	for (std::vector< BarrelDetLayer * >::const_iterator lIt = tobL.begin(); lIt!=tobL.end(); ++lIt)
+	for (auto lIt = tobL.begin(); lIt!=tobL.end(); ++lIt)
 	  dynamic_cast<SimpleNavigableLayer*>(theAllNavigableLayer[(*lIt)->seqNum()])->theSelfSearch = true;
       }else{
 	SimpleNavigableLayer* navigableLayer = 
@@ -100,11 +100,11 @@ void CosmicNavigationSchool::build(const GeometricSearchTracker* theInputTracker
 	navigableLayer->theSelfSearch = true;
       }
     }
-    const std::vector< BarrelDetLayer * > &  tibL = theInputTracker->tibLayers();
+    const std::vector< const BarrelDetLayer * > &  tibL = theInputTracker->tibLayers();
     if (tibL.size()>=1){
       if (conf.allSelf){
 	LogDebug("CosmicNavigationSchool")<<" adding all TIB self search.";
-	for (std::vector< BarrelDetLayer * >::const_iterator lIt = tibL.begin(); lIt!=tibL.end(); ++lIt)
+	for (auto lIt = tibL.begin(); lIt!=tibL.end(); ++lIt)
 	  dynamic_cast<SimpleNavigableLayer*>(theAllNavigableLayer[(*lIt)->seqNum()])->theSelfSearch = true;
       }else{
 	SimpleNavigableLayer* navigableLayer = 
@@ -113,11 +113,11 @@ void CosmicNavigationSchool::build(const GeometricSearchTracker* theInputTracker
 	navigableLayer->theSelfSearch = true;
       }
     }
-    const std::vector< BarrelDetLayer * > &  pxbL = theInputTracker->pixelBarrelLayers();
+    const std::vector< const BarrelDetLayer * > &  pxbL = theInputTracker->pixelBarrelLayers();
     if (pxbL.size()>=1){
       if (conf.allSelf){
 	LogDebug("CosmicNavigationSchool")<<" adding all PXB self search.";
-        for (std::vector< BarrelDetLayer * >::const_iterator lIt = pxbL.begin(); lIt!=pxbL.end(); ++lIt)
+        for (auto lIt = pxbL.begin(); lIt!=pxbL.end(); ++lIt)
           dynamic_cast<SimpleNavigableLayer*>(theAllNavigableLayer[(*lIt)->seqNum()])->theSelfSearch = true;
       }else{
 	SimpleNavigableLayer* navigableLayer =
@@ -175,8 +175,8 @@ void CosmicNavigationSchool::establishInverseRelations(SymmetricLayerFinder& sym
 
     // find for each layer which are the barrel and forward
     // layers that point to it
-    typedef map<const DetLayer*, vector<BarrelDetLayer*>, less<const DetLayer*> > BarrelMapType;
-    typedef map<const DetLayer*, vector<ForwardDetLayer*>, less<const DetLayer*> > ForwardMapType;
+    typedef map<const DetLayer*, vector<const BarrelDetLayer*>, less<const DetLayer*> > BarrelMapType;
+    typedef map<const DetLayer*, vector<const ForwardDetLayer*>, less<const DetLayer*> > ForwardMapType;
 
 
     BarrelMapType reachedBarrelLayersMap;

@@ -66,11 +66,11 @@ TrackerRecoGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::Event
    iSetup.get<TrackerRecoGeometryRecord>().get( track );     
    
    //---- testing access to barrelLayers ----
-   vector<BarrelDetLayer*> theBarrelLayers = track->barrelLayers();
+   vector<const BarrelDetLayer*> theBarrelLayers = track->barrelLayers();
    edm::LogInfo("analyzer") << "number of BarrelLayers: " << theBarrelLayers.size() ;
 
    for(unsigned int i=0; i<3; i++){
-     BarrelDetLayer* theLayer = theBarrelLayers[i];   
+     const BarrelDetLayer* theLayer = theBarrelLayers[i];   
      edm::LogInfo("analyzer") << "theLayer[" << i << "]->position().perp(): " 
 	  << theLayer->components().front()->surface().position().perp() ;     
    }   
