@@ -168,7 +168,7 @@ namespace cond {
 
       auto iiov = p.find( sourceSince );
       if( iiov == p.end() ){
-	if( log ) std::cout <<"    No Iov valid found for target time "<<sourceSince<<std::endl;
+	if( log ) std::cout <<"ERROR: No Iov valid found for target time "<<sourceSince<<std::endl;
 	return false;
       }
 
