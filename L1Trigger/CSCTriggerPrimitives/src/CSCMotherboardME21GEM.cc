@@ -481,6 +481,10 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
           if (drop_used_clcts and used_clct_mask[bx_clct]) continue;
           if (clct->bestCLCT[bx_clct].isValid())
           {          
+            const int quality(clct->bestCLCT[bx_clct].getQuality());
+            // only use high-Q stubs for the time being
+            if (quality < 4) continue;
+
             ++nSuccesFulMatches;
             
             int mbx = bx_clct-bx_clct_start;
