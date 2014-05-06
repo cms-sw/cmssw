@@ -2,7 +2,7 @@
 import FWCore.ParameterSet.Config as cms
 from RecoTauTag.RecoTau.PFRecoTauQualityCuts_cfi import PFTauQualityCuts
 from RecoTauTag.RecoTau.PFRecoTauEnergyAlgorithmPlugin_cfi import pfTauEnergyAlgorithmPlugin
-
+from RecoTauTag.RecoTau.PFRecoTauPFJetInputs_cfi import PFRecoTauPFJetInputs
 '''
 
 Configuration for combinatoric PFTau producer plugins.
@@ -74,7 +74,7 @@ _combinatoricTauConfig = cms.PSet(
     name = cms.string("combinatoric"),
     plugin = cms.string("RecoTauBuilderCombinatoricPlugin"),
     pfCandSrc = cms.InputTag("particleFlow"),
-    isolationConeSize = cms.double(0.5),
+    isolationConeSize = PFRecoTauPFJetInputs.isolationConeSize,
     qualityCuts = PFTauQualityCuts,
     decayModes = cms.VPSet(
         combinatoricDecayModeConfigs.config1prong0pi0,
@@ -87,7 +87,9 @@ _combinatoricTauConfig = cms.PSet(
 )
 
 combinatoricRecoTaus = cms.EDProducer("RecoTauProducer",
-    jetSrc = cms.InputTag("ak5PFJets"),
+    jetSrc = PFRecoTauPFJetInputs.inputJetCollection,
+    minJetPt = PFRecoTauPFJetInputs.minJetPt,
+    maxJetAbsEta = PFRecoTauPFJetInputs.maxJetAbsEta,
     jetRegionSrc = cms.InputTag("recoTauAK5PFJets08Region"),
     chargedHadronSrc = cms.InputTag('ak5PFJetsRecoTauChargedHadrons'),                                
     piZeroSrc = cms.InputTag("ak5PFJetsRecoTauPiZeros"),
