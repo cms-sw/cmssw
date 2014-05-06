@@ -10,7 +10,7 @@ class SimpleForwardNavigableLayer GCC11_FINAL : public SimpleNavigableLayer {
 
 public:
 
-  SimpleForwardNavigableLayer( ForwardDetLayer* detLayer,
+  SimpleForwardNavigableLayer( const ForwardDetLayer* detLayer,
 			       const BDLC& outerBL, 
 			       const FDLC& outerFL, 
 			       const MagneticField* field,
@@ -19,31 +19,31 @@ public:
 
   // NavigableLayer interface
   virtual std::vector<const DetLayer*> 
-  nextLayers( NavigationDirection direction) const;
+  nextLayers( NavigationDirection direction) const override;
 
   virtual std::vector<const DetLayer*> 
   nextLayers( const FreeTrajectoryState& fts, 
-	      PropagationDirection timeDirection) const;
+	      PropagationDirection timeDirection) const override;
 
   virtual std::vector<const DetLayer*> 
-  compatibleLayers( NavigationDirection direction) const;
+  compatibleLayers( NavigationDirection direction) const override;
 
   virtual std::vector<const DetLayer*> 
   compatibleLayers( const FreeTrajectoryState& fts, 
-		    PropagationDirection dir) const {
+		    PropagationDirection dir) const override {
     int counter=0;
     return SimpleNavigableLayer::compatibleLayers(fts,dir,counter);
   }
 
-  virtual void setAdditionalLink(DetLayer*, NavigationDirection direction=insideOut);
+  virtual void setAdditionalLink(const DetLayer*, NavigationDirection direction=insideOut) override;
 
-  virtual DetLayer* detLayer() const { return theDetLayer;}
-  virtual void   setDetLayer( DetLayer* dl);
+  virtual const DetLayer* detLayer() const override { return theDetLayer;} 
+  virtual void   setDetLayer( const DetLayer* dl) override;
 
-  virtual void setInwardLinks( const BDLC&, const FDLC&, TkLayerLess sorter = TkLayerLess(outsideIn));
+  virtual void setInwardLinks( const BDLC&, const FDLC&, TkLayerLess sorter = TkLayerLess(outsideIn)) override;
 
 private:
-  ForwardDetLayer*  theDetLayer;
+  const ForwardDetLayer*  theDetLayer;
   BDLC              theOuterBarrelLayers;
   BDLC              theInnerBarrelLayers;
 

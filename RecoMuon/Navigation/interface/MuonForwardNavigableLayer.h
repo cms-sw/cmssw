@@ -34,7 +34,7 @@ class MuonForwardNavigableLayer : public MuonNavigableLayer {
 
   public:
 
-    MuonForwardNavigableLayer(ForwardDetLayer* fdl,
+    MuonForwardNavigableLayer(const ForwardDetLayer* fdl,
                               const MapB& innerBarrel, 
                               const MapE& outerEndcap,
                               const MapE& innerEndcap,
@@ -50,12 +50,12 @@ class MuonForwardNavigableLayer : public MuonNavigableLayer {
       theAllInnerEndcapLayers(allInnerEndcap)  {}
 
     /// Constructor with outer layers only
-    MuonForwardNavigableLayer(ForwardDetLayer* fdl,
+    MuonForwardNavigableLayer(const ForwardDetLayer* fdl,
                               const MapE& outerEndcap) :
       theDetLayer(fdl),
       theOuterEndcapLayers(outerEndcap) {}
     /// Constructor with all outer layers only
-    MuonForwardNavigableLayer(ForwardDetLayer* fdl,
+    MuonForwardNavigableLayer(const ForwardDetLayer* fdl,
                               const MapE& outerEndcap, 
                               const MapE& allOuterEndcap) :
       theDetLayer(fdl),
@@ -64,22 +64,22 @@ class MuonForwardNavigableLayer : public MuonNavigableLayer {
 
 
     /// NavigableLayer interface
-    virtual std::vector<const DetLayer*> nextLayers(NavigationDirection dir) const;
+    virtual std::vector<const DetLayer*> nextLayers(NavigationDirection dir) const override;
 
     /// NavigableLayer interface
     virtual std::vector<const DetLayer*> nextLayers(const FreeTrajectoryState& fts, 
-                                               PropagationDirection dir) const;
+                                               PropagationDirection dir) const override;
 
-    virtual std::vector<const DetLayer*> compatibleLayers(NavigationDirection dir) const;
+    virtual std::vector<const DetLayer*> compatibleLayers(NavigationDirection dir) const override;
 
     /// NavigableLayer interface
     virtual std::vector<const DetLayer*> compatibleLayers(const FreeTrajectoryState& fts,
-                                               PropagationDirection dir) const;
+                                               PropagationDirection dir) const override;
     /// return DetLayer
-    virtual DetLayer* detLayer() const;
+    virtual const DetLayer* detLayer() const override;
 
     /// set DetLayer
-    virtual void setDetLayer(DetLayer*);
+    virtual void setDetLayer(const DetLayer*) override;
 
     /// Operations
     MapE getOuterEndcapLayers() const { return theOuterEndcapLayers; }
@@ -121,7 +121,7 @@ class MuonForwardNavigableLayer : public MuonNavigableLayer {
 
   private:
 
-    ForwardDetLayer* theDetLayer;
+    const ForwardDetLayer* theDetLayer;
     MapB theInnerBarrelLayers;
     MapE theOuterEndcapLayers;
     MapE theInnerEndcapLayers;
