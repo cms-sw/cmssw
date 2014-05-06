@@ -1,5 +1,6 @@
 <flags   GENREFLEX_ARGS="--"/>
 <use   name="boost"/>
+<use   name="boost_serialization"/>
 <use   name="DataFormats/MuonDetId"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/Utilities"/>
