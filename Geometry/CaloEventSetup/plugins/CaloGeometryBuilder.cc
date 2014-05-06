@@ -27,6 +27,7 @@
 #include "Geometry/EcalAlgo/interface/EcalBarrelGeometry.h"
 #include "Geometry/EcalAlgo/interface/EcalEndcapGeometry.h"
 #include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
+#include "Geometry/CaloTopology/interface/ShashlikGeometry.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 #include "Geometry/HcalTowerAlgo/interface/CaloTowerGeometry.h"
 #include "Geometry/ForwardGeometry/interface/CastorGeometry.h"
@@ -74,6 +75,12 @@ CaloGeometryBuilder::produceAligned( const CaloGeometryRecord& iRecord )
 	 pCalo->setSubdetGeometry( DetId::Hcal, HcalEndcap , pG.product() );
 	 pCalo->setSubdetGeometry( DetId::Hcal, HcalOuter  , pG.product() );
 	 pCalo->setSubdetGeometry( DetId::Hcal, HcalForward, pG.product() );
+      }
+      else if ( (*ite) == ShashlikGeometry::producerTag() ) 
+      {
+	 edm::LogInfo("CaloGeometryBuilder") << "Building Shashlik reconstruction geometry";
+	 iRecord.getRecord< ShashlikGeometryRecord >().get( ShashlikGeometry::producerTag(), pG );  
+	 pCalo->setSubdetGeometry( DetId::Ecal, EcalShashlik , pG.product() );
       }
       else if ( (*ite) == ZdcGeometry::producerTag() ) 
       {
