@@ -16,7 +16,8 @@ namespace l1t {
   void JetCalibration1(std::vector<l1t::Jet> * uncalibjets,
 		       std::vector<double> jetSF,
 		       std::vector<l1t::Jet> * jets,
-		       bool applyJetCalibration); 
+		       bool applyJetCalibration,
+		       double jetLSB); 
   
 }
 

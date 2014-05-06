@@ -16,7 +16,8 @@ namespace l1t {
   void JetCalibration1(std::vector<l1t::Jet> * uncalibjets,
 		       std::vector<double> jetSF,
 		       std::vector<l1t::Jet> * jets,
-		       bool applyJetCalibration) 
+		       bool applyJetCalibration,
+		       double jetLSB) 
   {
 
     for (std::vector<l1t::Jet>::const_iterator uncalibjet = uncalibjets->begin(); uncalibjet != uncalibjets->end(); ++uncalibjet){
@@ -27,7 +28,7 @@ namespace l1t {
 	continue;
       }
     
-      int jetPt = uncalibjet->hwPt();
+      int jetPt = (uncalibjet->hwPt())*jetLSB;  // correction factors are parameterized as functions of physical pt
       int jetPhi = uncalibjet->hwPhi();
       int jetEta = uncalibjet->hwEta();
       int jetQual = uncalibjet->hwQual();
@@ -37,7 +38,7 @@ namespace l1t {
       double gamma = ((jetSF[2*jetEta + 1])); //Offset
       
       jpt = jetPt*alpha+gamma;
-      unsigned int corjetET =(int) jpt;
+      unsigned int corjetET =(int) (jpt/jetLSB);
       
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *jetLorentz =
 	new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
