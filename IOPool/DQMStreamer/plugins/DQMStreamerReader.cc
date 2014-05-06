@@ -37,7 +37,7 @@ DQMStreamerReader::DQMStreamerReader(ParameterSet const& pset,
   flagSkipFirstLumis_ = pset.getUntrackedParameter<bool>("skipFirstLumis");
   flagEndOfRunKills_ = pset.getUntrackedParameter<bool>("endOfRunKills");
   flagDeleteDatFiles_ = pset.getUntrackedParameter<bool>("deleteDatFiles");
-  
+
   delayMillis_ = pset.getUntrackedParameter<unsigned int>("delayMillis");
 
   reset_();
@@ -88,8 +88,7 @@ void DQMStreamerReader::reset_() {
     }
   }
 
-  edm::LogAbsolute("DQMStreamerReader")
-    << "DQMStreamerReader initialised.";
+  edm::LogAbsolute("DQMStreamerReader") << "DQMStreamerReader initialised.";
 }
 
 void DQMStreamerReader::openFile_(std::string newStreamerFile_) {
@@ -144,7 +143,6 @@ InitMsgView const* DQMStreamerReader::getHeaderMsg() {
         << "received wrong message type: expected INIT, got " << header->code()
         << "\n";
   }
-
 
   return header;
 }
@@ -208,9 +206,8 @@ EventMsgView const* DQMStreamerReader::prepareNextEvent() {
     //edm::LogAbsolute("DQMStreamerReader")
     //    << "State loop.";
     bool next = prepareNextFile();
-    if (!next)
-      return nullptr;
-   
+    if (!next) return nullptr;
+
     // sleep
     if (streamReader_.get() == nullptr) {
       // the reader does not exist
@@ -294,12 +291,11 @@ void DQMStreamerReader::fillDescriptions(
                    "does not yet exist, "
                    "the number of processed events will be bigger.");
 
-  desc.addUntracked<bool>("skipFirstLumis", false)
-      ->setComment(
-          "Skip (and ignore the minEventsPerLumi parameter) for the files "
-          "which have been available at the begining of the processing. "
-          "If set to true, the reader will open last available file for "
-          "processing.");
+  desc.addUntracked<bool>("skipFirstLumis", false)->setComment(
+      "Skip (and ignore the minEventsPerLumi parameter) for the files "
+      "which have been available at the begining of the processing. "
+      "If set to true, the reader will open last available file for "
+      "processing.");
 
   desc.addUntracked<bool>("deleteDatFiles", false)
       ->setComment("Delete data files after they have been closed, in order to "

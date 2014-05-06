@@ -95,13 +95,12 @@ std::string DQMFileIterator::make_path_data(const LumiEntry& lumi) {
 void DQMFileIterator::collect() {
   // search filesystem to find available lumi section files
   // or the end of run file
-  
+
   auto now = std::chrono::high_resolution_clock::now();
   auto last_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-    now - last_collect_).count();
+      now - last_collect_).count();
 
-  if (last_ms < 100)
-    return;
+  if (last_ms < 100) return;
 
   last_collect_ = now;
 
