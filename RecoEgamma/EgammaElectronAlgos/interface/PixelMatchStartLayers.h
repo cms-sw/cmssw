@@ -31,11 +31,11 @@ class GeometricSearchTracker;
 class PixelMatchStartLayers {
 
 public:
-  typedef std::vector<ForwardDetLayer*> ForwardLayerContainer;
-  typedef std::vector<ForwardDetLayer*>::const_iterator ForwardLayerIterator;
+  typedef std::vector<const ForwardDetLayer*> ForwardLayerContainer;
+  typedef std::vector<const ForwardDetLayer*>::const_iterator ForwardLayerIterator;
 
-  typedef std::vector<BarrelDetLayer*> BarrelLayerContainer;
-  typedef std::vector<BarrelDetLayer*>::const_iterator BarrelLayerIterator;
+  typedef std::vector<const BarrelDetLayer*> BarrelLayerContainer;
+  typedef std::vector<const BarrelDetLayer*>::const_iterator BarrelLayerIterator;
 
   PixelMatchStartLayers();
   void setup(const GeometricSearchTracker *);

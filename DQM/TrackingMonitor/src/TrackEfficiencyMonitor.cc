@@ -647,7 +647,7 @@ int TrackEfficiencyMonitor::compatibleLayers(const NavigationSchool& navigationS
   // check the number of compatible layers
   //---------------------------------------------------   
   
-  std::vector< BarrelDetLayer*> barrelTOBLayers = measurementTrackerHandle->geometricSearchTracker()->tobLayers() ;
+  std::vector< const BarrelDetLayer*> barrelTOBLayers = measurementTrackerHandle->geometricSearchTracker()->tobLayers() ;
   
   unsigned int layers = 0;
   for ( unsigned int k=0 ; k < barrelTOBLayers.size() ; k++ ) 

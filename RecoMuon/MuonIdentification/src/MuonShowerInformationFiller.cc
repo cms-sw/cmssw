@@ -379,9 +379,9 @@ vector<const GeomDet*> MuonShowerInformationFiller::getCompatibleDets(const reco
 
   vector<GlobalPoint> allCrossingPoints;
 
-  const vector<DetLayer*>& dtlayers = theService->detLayerGeometry()->allDTLayers();
+  const vector<const DetLayer*>& dtlayers = theService->detLayerGeometry()->allDTLayers();
 
-  for (vector<DetLayer*>::const_iterator iLayer = dtlayers.begin(); iLayer != dtlayers.end(); ++iLayer) {
+  for (auto iLayer = dtlayers.begin(); iLayer != dtlayers.end(); ++iLayer) {
 
     // crossing points of track with cylinder
     GlobalPoint xPoint = crossingPoint(innerPos, outerPos, dynamic_cast<const BarrelDetLayer*>(*iLayer));
@@ -408,8 +408,8 @@ vector<const GeomDet*> MuonShowerInformationFiller::getCompatibleDets(const reco
   }
   allCrossingPoints.clear();
 
-  const vector<DetLayer*>& csclayers = theService->detLayerGeometry()->allCSCLayers();
-  for (vector<DetLayer*>::const_iterator iLayer = csclayers.begin(); iLayer != csclayers.end(); ++iLayer) {
+  const vector<const DetLayer*>& csclayers = theService->detLayerGeometry()->allCSCLayers();
+  for (auto iLayer = csclayers.begin(); iLayer != csclayers.end(); ++iLayer) {
 
     GlobalPoint xPoint = crossingPoint(innerPos, outerPos, dynamic_cast<const ForwardDetLayer*>(*iLayer));
 
