@@ -58,19 +58,9 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
 
   checkBadChambers_ = conf.getParameter<bool>("checkBadChambers");
 
-  const edm::ParameterSet me11tmbGemParams(conf.existsAs<edm::ParameterSet>("me11tmbSLHCGEM")?
-    conf.getParameter<edm::ParameterSet>("me11tmbSLHCGEM"):edm::ParameterSet());
-  const edm::ParameterSet me21tmbGemParams(conf.existsAs<edm::ParameterSet>("me21tmbSLHCGEM")?
-    conf.getParameter<edm::ParameterSet>("me21tmbSLHCGEM"):edm::ParameterSet());
-  const edm::ParameterSet me3141tmbRpcParams(conf.existsAs<edm::ParameterSet>("me3141tmbSLHCRPC")?
-    conf.getParameter<edm::ParameterSet>("me3141tmbSLHCRPC"):edm::ParameterSet());
-  
-  runME11ILT_ = me11tmbGemParams.existsAs<bool>("runME11ILT")?
-    me11tmbGemParams.getParameter<bool>("runME11ILT"):false;
-  runME21ILT_ = me21tmbGemParams.existsAs<bool>("runME21ILT")?
-    me21tmbGemParams.getParameter<bool>("runME21ILT"):false;
-  runME3141ILT_ = me3141tmbRpcParams.existsAs<bool>("runME3141ILT")?
-    me3141tmbRpcParams.getParameter<bool>("runME3141ILT"):false;
+  runME11ILT_ = commonParams.existsAs<bool>("runME11ILT")?commonParams.getParameter<bool>("runME11ILT"):false;
+  runME21ILT_ = commonParams.existsAs<bool>("runME21ILT")?commonParams.getParameter<bool>("runME21ILT"):false;
+  runME3141ILT_ = commonParams.existsAs<bool>("runME3141ILT")?commonParams.getParameter<bool>("runME3141ILT"):false;
 
   // ORCA way of initializing boards.
   for (int endc = min_endcap; endc <= max_endcap; endc++)
