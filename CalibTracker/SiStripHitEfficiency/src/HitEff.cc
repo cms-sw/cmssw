@@ -364,7 +364,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 	if ( TKlayers==9 && isValid && isLastTOB5 ) {
 	  //	  if ( TKlayers==9 && itm==TMeas.rbegin()) {
 	//	  if ( TKlayers==9 && (itm==TMeas.back()) ) {	  // to check for only the last entry in the trajectory for propagation
-	  std::vector< BarrelDetLayer*> barrelTOBLayers = measurementTrackerHandle->geometricSearchTracker()->tobLayers() ;
+	  std::vector< BarrelDetLayer const*> barrelTOBLayers = measurementTrackerHandle->geometricSearchTracker()->tobLayers() ;
 	  const DetLayer* tob6 = barrelTOBLayers[barrelTOBLayers.size()-1];
 	  const MeasurementEstimator* estimator = est.product();
 	  const LayerMeasurements* theLayerMeasurements = new LayerMeasurements(*measurementTrackerHandle, *measurementTrackerEvent);
@@ -396,9 +396,9 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 	
 	if ( TKlayers==21 && isValid && isLastTEC8 ) {
 	  
-	  std::vector< ForwardDetLayer*> posTecLayers = measurementTrackerHandle->geometricSearchTracker()->posTecLayers() ;
+	  std::vector< const ForwardDetLayer*> posTecLayers = measurementTrackerHandle->geometricSearchTracker()->posTecLayers() ;
 	  const DetLayer* tec9pos = posTecLayers[posTecLayers.size()-1];
-	  std::vector< ForwardDetLayer*> negTecLayers = measurementTrackerHandle->geometricSearchTracker()->negTecLayers() ;
+	  std::vector< const ForwardDetLayer*> negTecLayers = measurementTrackerHandle->geometricSearchTracker()->negTecLayers() ;
 	  const DetLayer* tec9neg = negTecLayers[negTecLayers.size()-1];
 	  
 	  const MeasurementEstimator* estimator = est.product();

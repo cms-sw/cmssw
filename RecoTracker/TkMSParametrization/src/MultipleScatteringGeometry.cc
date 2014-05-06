@@ -25,11 +25,11 @@ MultipleScatteringGeometry::MultipleScatteringGeometry(const edm::EventSetup &iS
   edm::ESHandle<GeometricSearchTracker> track;
   iSetup.get<TrackerRecoGeometryRecord>().get( track ); 
 
-  vector<BarrelDetLayer*> barrelLayers=track->barrelLayers();
-  vector<BarrelDetLayer*>::const_iterator ib;
-  vector<ForwardDetLayer*> forwardPosLayers=track->posForwardLayers();
-  vector<ForwardDetLayer*> forwardNegLayers=track->negForwardLayers();
-  vector<ForwardDetLayer*>::const_iterator ie;
+  vector<BarrelDetLayer const*> barrelLayers=track->barrelLayers();
+  vector<BarrelDetLayer const*>::const_iterator ib;
+  vector<ForwardDetLayer const*> forwardPosLayers=track->posForwardLayers();
+  vector<ForwardDetLayer const*> forwardNegLayers=track->negForwardLayers();
+  vector<ForwardDetLayer const*>::const_iterator ie;
   // barrelLayers = accessor.barrelLayers();
   for (ib = barrelLayers.begin(); ib != barrelLayers.end(); ib++)
     theLayers.push_back(*ib);
