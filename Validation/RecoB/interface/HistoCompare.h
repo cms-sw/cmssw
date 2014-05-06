@@ -9,7 +9,6 @@
  author: Victor Bazterra, UIC
          Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: HistoCompare.h,v 1.2 2007/02/14 20:09:41 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -26,13 +25,13 @@ class HistoCompare {
 
   public:
 	HistoCompare();
-	HistoCompare(TString refFilename);
+	HistoCompare(const TString& refFilename);
 
 	~HistoCompare();
 
-	TH1* Compare(TH1* h, TString hname);
+	TH1* Compare(TH1* h, const TString& hname);
 
-	void SetReferenceFilename(TString filename) {
+	void SetReferenceFilename(const TString& filename) {
 	  refFilename_ = filename;
 	  //if (refFile_) delete refFile_;
 	  refFile_ = new TFile(refFilename_);
