@@ -916,9 +916,9 @@ class ConfigBuilder(object):
             self.DQMDefaultSeq='DQMOfflineCosmics'
 
         if self._options.himix:
-                print "From the presence of the himix option, we have determined that this is heavy ions and will use '--scenario HeavyIons'."
-                self._options.scenario='HeavyIons'
-
+                print "From the presence of the himix option, we have determined that this production should use the HeavyIon EventContent"
+		self.EVTCONTDefaultCFF="Configuration/EventContent/EventContentHeavyIons_cff"
+	    
         if self._options.scenario=='HeavyIons':
 	    if not self._options.beamspot:
 		    self._options.beamspot=VtxSmearedHIDefaultKey
