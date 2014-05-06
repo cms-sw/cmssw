@@ -562,10 +562,10 @@ cscTriggerPrimitiveDigisPostLS3 = cms.EDProducer("CSCTriggerPrimitivesProducer",
         maxME3141LCTs = cms.uint32(2),
 
         ## run the upgrade algorithm
-        runME3141ILT = cms.bool(True),
+        runME3141ILT = cms.bool(False),
         
         ## run in debug mode
-        debugLUTs = cms.bool(True),
+        debugLUTs = cms.bool(False),
         debugMatching = cms.bool(False),
 
         ## matching to digis in case LowQ CLCT
