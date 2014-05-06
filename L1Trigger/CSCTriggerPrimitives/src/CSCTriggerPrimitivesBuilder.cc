@@ -350,7 +350,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
             } // upgraded TMB
 
             // running upgraded ME1/1 TMBs
-            if (stat==1 && ring==1 && smartME1aME1b && runME11ILT_)
+            else if (stat==1 && ring==1 && smartME1aME1b && runME11ILT_)
             {
               CSCMotherboardME11GEM* tmb11GEM = static_cast<CSCMotherboardME11GEM*>(tmb);
 
