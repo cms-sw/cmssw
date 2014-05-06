@@ -15,6 +15,7 @@ struct dso_internal RealQuadEquation {
   bool hasSolution;
 
   RealQuadEquation( double A, double B, double C) {
+    if (A==0) { first=second = -C/B; hasSolution = true; return;}
     double D = B*B - 4*A*C;
     if (D<0) hasSolution = false;
     else {

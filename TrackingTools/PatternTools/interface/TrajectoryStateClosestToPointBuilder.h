@@ -27,7 +27,8 @@ public:
     const GlobalPoint& referencePoint) const = 0;
 
   static bool positionEqual(const GlobalPoint& ptB, const GlobalPoint& ptA) {
-    return ptA==ptB;
+    auto d = (ptA-ptB);
+    return std::max(std::max(std::abs(d.x()),std::abs(d.y())),std::abs(d.z())) < 0.1e-3;
   }
 
 protected:

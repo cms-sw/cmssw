@@ -36,7 +36,7 @@ public:
     theField(field), theRefPoint(referencePoint), 
     theParameters(perigeeParameters), thePt( pt ), 
     valid(true),  theFTSavailable(false), errorIsAvailable(false)
-  {}
+  { assert(pt>0);}
 
   /**
    * Public constructor, which is used to convert perigee 
@@ -48,7 +48,7 @@ public:
 				const MagneticField* field):
     theField(field),  theRefPoint(referencePoint),
     theParameters(perigeeParameters), thePt( pt ), thePerigeeError(perigeeError),
-    valid(true), theFTSavailable(false), errorIsAvailable(true){}
+    valid(true), theFTSavailable(false), errorIsAvailable(true){assert(pt>0);}
 
 
   /**
