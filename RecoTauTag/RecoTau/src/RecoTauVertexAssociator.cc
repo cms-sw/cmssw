@@ -205,6 +205,7 @@ RecoTauVertexAssociator::~RecoTauVertexAssociator()
 { 
   delete vertexSelector_; 
   delete qcuts_;
+  delete jetToVertexAssociation_;
 }
 
 void RecoTauVertexAssociator::setEvent(const edm::Event& evt) 
