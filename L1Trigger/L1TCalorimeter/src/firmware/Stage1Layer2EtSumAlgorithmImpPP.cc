@@ -74,12 +74,12 @@ void l1t::Stage1Layer2EtSumAlgorithmImpPP::processEvent(const std::vector<l1t::C
     //   std::cout << "ETA/PHI:" << region->hwEta() <<"/" << region->hwPhi() << "\tPhysical Region ET: " << regionET << "\tHardware Region ET: " << region->hwPt() << std::endl;
 
     if(regionET >= regionETCutForMET){
-      sumET += regionET;
+      sumET += (int) regionET;
       sumEx += (int) (((double) regionET) * cosPhi[region->hwPhi()]);
       sumEy += (int) (((double) regionET) * sinPhi[region->hwPhi()]);
     }
     if(regionET >= regionETCutForHT) {
-      sumHT += regionET;
+      sumHT += (int) regionET;
       sumHx += (int) (((double) regionET) * cosPhi[region->hwPhi()]);
       sumHy += (int) (((double) regionET) * sinPhi[region->hwPhi()]);
     }

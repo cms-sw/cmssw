@@ -52,7 +52,7 @@ void Stage1Layer2JetAlgorithmImpPP::processEvent(const std::vector<l1t::CaloRegi
 
   //will return jets with no response corrections
   //if applyJetCalibration is set to False in the config
-  JetCalibration1(uncalibjets, jetSF, jets, applyJetCalibration);
+  JetCalibration1(uncalibjets, jetSF, jets, applyJetCalibration,params_->jetScale());
 
 
   delete subRegions;

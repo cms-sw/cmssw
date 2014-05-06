@@ -37,7 +37,7 @@ namespace l1t {
     // std::cout << "Jet Seed: " << jetSeedThreshold << std::endl;
     for(std::vector<CaloRegion>::const_iterator region = regions->begin(); region != regions->end(); region++) {
       double regionET = region->hwPt(); //regionPhysicalEt(*region);
-      if (regionET  < jetSeedThreshold) continue;
+      if (regionET  <= jetSeedThreshold) continue;
       double neighborN_et = 0;
       double neighborS_et = 0;
       double neighborE_et = 0;
