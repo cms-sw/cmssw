@@ -23,8 +23,7 @@ def customise_Digi(process):
     return process
 
 def customise_L1Emulator(process):
-    ## this comes after gemCustoms.py
-    from L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigisPostLS3_cfi import cscTriggerPrimitiveDigisPostLS3
+    ## this comes after GE2/1 in gemCustoms.py
     process.simCscTriggerPrimitiveDigis.alctSLHCME3141 = process.simCscTriggerPrimitiveDigis.alctSLHC.clone()
     process.simCscTriggerPrimitiveDigis.clctSLHCME3141 = process.simCscTriggerPrimitiveDigis.clctSLHC.clone()
     process.simCscTriggerPrimitiveDigis.alctSLHCME3141.alctNplanesHitPattern = 3

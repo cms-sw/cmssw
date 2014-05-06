@@ -76,16 +76,15 @@ CSCMotherboardME3141RPC::CSCMotherboardME3141RPC(unsigned endcap, unsigned stati
   if (!isSLHC) edm::LogError("L1CSCTPEmulatorConfigError")
     << "+++ Upgrade CSCMotherboardME3141RPC constructed while isSLHC is not set! +++\n";
   
-  const edm::ParameterSet tmbParams(conf.getParameter<edm::ParameterSet>("tmbSLHC"));
   const edm::ParameterSet me3141tmbParams(conf.getParameter<edm::ParameterSet>("me3141tmbSLHCRPC"));
 
   // whether to not reuse CLCTs that were used by previous matching ALCTs
   // in ALCT-to-CLCT algorithm
-  drop_used_clcts = tmbParams.getParameter<bool>("tmbDropUsedClcts");
+  drop_used_clcts = me3141tmbParams.getParameter<bool>("tmbDropUsedClcts");
 
   match_earliest_clct_me3141_only = me3141tmbParams.getParameter<bool>("matchEarliestClctME3141Only");
 
-  tmb_cross_bx_algo = tmbParams.getParameter<unsigned int>("tmbCrossBxAlgorithm");
+  tmb_cross_bx_algo = me3141tmbParams.getParameter<unsigned int>("tmbCrossBxAlgorithm");
 
   // maximum lcts per BX in ME2
   max_me3141_lcts = me3141tmbParams.getParameter<unsigned int>("maxME3141LCTs");
@@ -176,11 +175,7 @@ CSCMotherboardME3141RPC::run(const CSCWireDigiCollection* wiredc,
   const CSCLayerGeometry* keyLayerGeometry(keyLayer->geometry());
   const int region((theEndcap == 1) ? 1: -1);
   const bool isEven(csc_id%2==0);
-  //  const int nSubSectors(3);
-  //  const int chamber(CSCTriggerNumbering::chamberFromTriggerLabels(theSector,theSubsector,theStation,theTrigChamber));
-  //  const int chamber((theSector-1)*3 + theTrigChamber);
-  const RPCDetId rpc_id(region,1,theStation,theSector,1,theTrigChamber,0);
-  //  std::cout << "csc id " << csc_id << ", rpc id " << rpc_id << ", chamber number from trigger " << chamber << std::endl;
+  const RPCDetId rpc_id(region,1,theStation,CSCTriggerNumbering::triggerSectorFromLabels(csc_id),1,CSCTriggerNumbering::triggerCscIdFromLabels(csc_id),0);
   const RPCChamber* rpcChamber(rpc_g->chamber(rpc_id));
   
   if (runME3141ILT_){
