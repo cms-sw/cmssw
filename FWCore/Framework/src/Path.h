@@ -62,7 +62,7 @@ namespace edm {
                               StreamID const&, typename T::Context const*);
 
     int bitPosition() const { return bitpos_; }
-    std::string const& name() const { return name_; }
+    std::string const& name() const { return pathContext_.pathName(); }
 
     std::pair<double, double> timeCpuReal() const {
       if(stopwatch_) {
@@ -109,7 +109,6 @@ namespace edm {
     State state_;
 
     int bitpos_;
-    std::string name_;
     TrigResPtr trptr_;
     boost::shared_ptr<ActivityRegistry> actReg_;
     ExceptionToActionTable const* act_table_;
@@ -148,20 +147,18 @@ namespace edm {
     class PathSignalSentry {
     public:
       PathSignalSentry(ActivityRegistry *a,
-                       std::string const& name,
                        int const& nwrwue,
                        hlt::HLTState const& state,
                        PathContext const* pathContext) :
-        a_(a), name_(name), nwrwue_(nwrwue), state_(state), pathContext_(pathContext) {
-        if (a_) T::prePathSignal(a_, name_, pathContext_);
+        a_(a), nwrwue_(nwrwue), state_(state), pathContext_(pathContext) {
+        if (a_) T::prePathSignal(a_, pathContext_);
       }
       ~PathSignalSentry() {
         HLTPathStatus status(state_, nwrwue_);
-        if(a_) T::postPathSignal(a_, name_, status, pathContext_);
+        if(a_) T::postPathSignal(a_, status, pathContext_);
       }
     private:
       ActivityRegistry* a_;
-      std::string const& name_;
       int const& nwrwue_;
       hlt::HLTState const& state_;
       PathContext const* pathContext_;
@@ -175,7 +172,7 @@ namespace edm {
     //Create the PathSignalSentry before the RunStopwatch so that
     // we only record the time spent in the path not from the signal
     int nwrwue = -1;
-    PathSignalSentry<T> signaler(actReg_.get(), name_, nwrwue, state_, &pathContext_);
+    PathSignalSentry<T> signaler(actReg_.get(), nwrwue, state_, &pathContext_);
 
     // A RunStopwatch, but only if we are processing an event.
     RunStopwatch stopwatch(T::isEvent_ ? stopwatch_ : RunStopwatch::StopwatchPointer());
