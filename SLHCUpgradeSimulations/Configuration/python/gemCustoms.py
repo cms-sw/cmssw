@@ -51,6 +51,10 @@ def customise_L1Emulator2019(process, ptdphi):
 def customise_L1Emulator2023(process, ptdphi):
     from L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigisPostLS3_cfi import cscTriggerPrimitiveDigisPostLS3
     process.simCscTriggerPrimitiveDigis = cscTriggerPrimitiveDigisPostLS3
+    process.simCscTriggerPrimitiveDigis.clctSLHC.clctNplanesHitPattern = 3
+    process.simCscTriggerPrimitiveDigis.clctSLHC.clctPidThreshPretrig = 2
+    process.simCscTriggerPrimitiveDigis.clctParam07.clctPidThreshPretrig = 2
+
     ## ME21 has its own SLHC processors
     process.simCscTriggerPrimitiveDigis.alctSLHCME21 = process.simCscTriggerPrimitiveDigis.alctSLHC.clone()
     process.simCscTriggerPrimitiveDigis.clctSLHCME21 = process.simCscTriggerPrimitiveDigis.clctSLHC.clone()
