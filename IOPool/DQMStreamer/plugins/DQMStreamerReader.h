@@ -55,6 +55,7 @@ class DQMStreamerReader : public StreamerInputSource {
   EventMsgView const* getEventMsg();
 
   EventMsgView const* prepareNextEvent();
+  bool prepareNextFile();
 
   unsigned int runNumber_;
   std::string runInputDir_;

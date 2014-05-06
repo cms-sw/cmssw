@@ -63,12 +63,22 @@ void DQMStreamerReader::reset_() {
   // https://cmssdt.cern.ch/SDT/lxr/source/FWCore/Framework/src/Schedule.cc#441
 
   for (;;) {
-    if (!fiterator_.hasNext()) {
-      delay_();
-      continue;  // restart
-    } else {
-      if (openNextFile_()) break;
+    bool next = prepareNextFile();
+    // check for end of run
+    if (!next) {
+      edm::LogAbsolute("DQMStreamerReader")
+          << "End of run reached before DQMStreamerReader was initialised.";
+      return;
     }
+
+    // check if we have a file openned
+    if (streamReader_.get() != nullptr) {
+      // we are now initialised
+      break;
+    }
+
+    // wait
+    delay_();
   }
 
   // Fast-forward to the last open file.
@@ -150,16 +160,14 @@ EventMsgView const* DQMStreamerReader::getEventMsg() {
   return msg;
 }
 
-EventMsgView const* DQMStreamerReader::prepareNextEvent() {
-  EventMsgView const* eview = nullptr;
+bool DQMStreamerReader::prepareNextFile() {
   typedef DQMFileIterator::State State;
 
-  // wait for the next event
   for (;;) {
     // check for end of run file and force quit
     if (flagEndOfRunKills_ && (fiterator_.state() != State::OPEN)) {
       closeFile_();
-      return nullptr;
+      return false;
     }
 
     // check for end of run and quit if everything has been processed.
@@ -168,23 +176,41 @@ EventMsgView const* DQMStreamerReader::prepareNextEvent() {
         (fiterator_.state() == State::EOR)) {
 
       closeFile_();
-      return nullptr;
+      return false;
     }
 
     // skip to the next file if we have no files openned yet
     if (streamReader_.get() == nullptr) {
       if (fiterator_.hasNext()) {
         openNextFile_();
-        continue;  // we might need to open once more (if .dat is missing)
+        // we might need to open once more (if .dat is missing)
+        continue;
       }
     }
 
     // or if there is a next file and enough eventshas been processed.
     if (fiterator_.hasNext() && (processedEventPerLs_ >= minEventsPerLs_)) {
       openNextFile_();
+      // we might need to open once more (if .dat is missing)
       continue;
     }
 
+    return true;
+  }
+}
+
+EventMsgView const* DQMStreamerReader::prepareNextEvent() {
+  EventMsgView const* eview = nullptr;
+  typedef DQMFileIterator::State State;
+
+  // wait for the next event
+  for (;;) {
+    //edm::LogAbsolute("DQMStreamerReader")
+    //    << "State loop.";
+    bool next = prepareNextFile();
+    if (!next)
+      return nullptr;
+   
     // sleep
     if (streamReader_.get() == nullptr) {
       // the reader does not exist

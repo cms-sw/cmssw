@@ -1,10 +1,11 @@
-import subprocess
 import shutil
 import os
 import atexit
 import signal
 import time
 import multiprocessing
+import subprocess
+import inspect
 
 cmsRunConf = "test/DQMStreamReader_dm_cfg.py"
 source = {
@@ -40,6 +41,8 @@ class CMSRun(multiprocessing.Process):
                 print "received stderr:", line
                 self.queue.put(line)
 
+            print "cmsRun exit, code: ", self.p.wait()
+
         except KeyboardInterrupt:
             if self.p and self.p.poll() is None:
                 self.p.send_signal(signal.SIGTERM)
@@ -65,7 +68,10 @@ def spawn_cmsrun(**kwargs):
 
     return t 
 
-def prepare_scenario(name):
+def prepare_scenario():
+    # use the caller name as a name 
+    name = inspect.stack()[1][3]
+
     tmpDir = "/tmp/dqmtmp_%s" % name
     runDir = tmpDir + "/run%06d" % source["run"]
     shutil.rmtree(tmpDir, ignore_errors=True)
@@ -82,7 +88,7 @@ def prepare_scenario(name):
     return tmpDir, runDir, in_prefix, out_prefix
 
 def scenario1():
-    tmpDir, runDir, in_prefix, out_prefix = prepare_scenario("scenario1")
+    tmpDir, runDir, in_prefix, out_prefix = prepare_scenario()
     p = spawn_cmsrun(runNumber=source["run"], runInputDir=tmpDir)
 
     p.wait_for_line(lambda x: x.startswith("Checking eor file"))
@@ -116,4 +122,75 @@ def scenario1():
     atomic_cp(in_prefix + "ls0000_EoR.jsn", out_prefix + "ls0000_EoR.jsn")
     p.wait_for_line(lambda x: "Streamer state changed: 0 -> 2" in x)
 
-scenario1()
+def scenario2_end_of_run_kills():
+    tmpDir, runDir, in_prefix, out_prefix = prepare_scenario()
+    p = spawn_cmsrun(runNumber=source["run"], runInputDir=tmpDir, endOfRunKills="True")
+
+    p.wait_for_line(lambda x: x.startswith("Checking eor file"))
+
+    # copy the first lumi
+    atomic_cp(in_prefix + "ls0001_streamA.dat", out_prefix + "ls0001_streamA.dat")
+    atomic_cp(in_prefix + "ls0001.jsn", out_prefix + "ls0001.jsn")
+
+
+    p.wait_for_line(lambda x: "Run 100, Event 4, LumiSection 1" in x)
+    p.wait_for_line(lambda x: "Run 100, Event 14, LumiSection 1" in x)
+    p.wait_for_line(lambda x: "Run 100, Event 94, LumiSection 1" in x)
+
+    # copy the end of run 
+    atomic_cp(in_prefix + "ls0000_EoR.jsn", out_prefix + "ls0000_EoR.jsn")
+
+    # copy the second lumi
+    atomic_cp(in_prefix + "ls0002_streamA.dat", out_prefix + "ls0002_streamA.dat")
+    atomic_cp(in_prefix + "ls0002.jsn", out_prefix + "ls0002.jsn")
+ 
+    rejected = p.wait_for_line(lambda x: "Streamer state changed: 0 -> 1" in x)
+
+    # second lumi should not be processed 
+    assert not ("LumiSection 2" in "".join(rejected))
+
+def scenario3_no_data_file():
+    tmpDir, runDir, in_prefix, out_prefix = prepare_scenario()
+    p = spawn_cmsrun(runNumber=source["run"], runInputDir=tmpDir, endOfRunKills="True")
+
+    p.wait_for_line(lambda x: x.startswith("Checking eor file"))
+
+    # copy the first lumi
+    atomic_cp(in_prefix + "ls0001.jsn", out_prefix + "ls0001.jsn")
+
+    # copy the second lumi
+    atomic_cp(in_prefix + "ls0002_streamA.dat", out_prefix + "ls0002_streamA.dat")
+    atomic_cp(in_prefix + "ls0002.jsn", out_prefix + "ls0002.jsn")
+    
+    p.wait_for_line(lambda x: "Run 100, Event 104, LumiSection 2" in x)
+ 
+    # copy the end of run 
+    atomic_cp(in_prefix + "ls0000_EoR.jsn", out_prefix + "ls0000_EoR.jsn")
+    p.wait_for_line(lambda x: "Streamer state changed: 0 -> 1" in x)
+
+def scenario4_end_of_run_in_constructor():
+    tmpDir, runDir, in_prefix, out_prefix = prepare_scenario()
+    p = spawn_cmsrun(runNumber=source["run"], runInputDir=tmpDir, endOfRunKills="True")
+
+    p.wait_for_line(lambda x: x.startswith("Checking eor file"))
+    atomic_cp(in_prefix + "ls0000_EoR.jsn", out_prefix + "ls0000_EoR.jsn")
+
+    # copy the end of run 
+    p.wait_for_line(lambda x: "Streamer state changed: 0 -> 1" in x)
+
+
+tests = [
+    scenario1,
+    scenario2_end_of_run_kills,
+    scenario3_no_data_file,
+    scenario4_end_of_run_in_constructor,
+]
+
+if __name__ == "__main__":
+    for test in tests:
+        test()
+
+#scenario1()
+#scenario2_end_of_run_kills()
+#scenario3_no_data_file()
+#scenario4_end_of_run_in_constructor()
