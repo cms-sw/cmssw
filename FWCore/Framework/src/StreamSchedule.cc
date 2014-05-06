@@ -81,10 +81,6 @@ namespace edm {
       return ptr;
     }
 
-    inline bool binary_search_string(std::vector<std::string> const& v, std::string const& s) {
-      return std::binary_search(v.begin(), v.end(), s);
-    }
-    
     void
     initializeBranchToReadingWorker(ParameterSet const& opts,
                                     ProductRegistry const& preg,
