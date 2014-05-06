@@ -19,4 +19,12 @@
   </PosPart>
 </PosPartSection>
 
+<SpecParSection label="FastTimingElement.xml" eval="true">
+  <SpecPar name="fastTiminingElement">
+    <PartSelector path="//SFBX"/>
+    <Parameter name="Volume" value="SFBX" eval="false"/>
+    <Parameter name="geomType" value="2"/>
+   </SpecPar>
+</SpecParSection>
+
 </DDDefinition>

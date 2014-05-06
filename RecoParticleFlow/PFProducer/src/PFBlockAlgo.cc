@@ -285,6 +285,7 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
 void PFBlockAlgo::buildElements(const edm::Event& evt) {
   // import block elements as defined in python configuration
   for( const auto& importer : _importers ) {
+
     importer->importToBlock(evt,elements_);
   }
   
@@ -304,7 +305,7 @@ void PFBlockAlgo::buildElements(const edm::Event& evt) {
       }
     }    
   }
-  //std::cout << "(new) imported: " << elements_.size() << std::endl;
+  //std::cout << "(new) imported: " << elements_.size() << " elements!" << std::endl;
 }
 
 std::ostream& operator<<(std::ostream& out, const PFBlockAlgo& a) {

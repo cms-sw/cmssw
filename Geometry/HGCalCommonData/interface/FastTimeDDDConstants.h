@@ -1,7 +1,7 @@
-#ifndef HGCalCommonData_FastTimingDDDConstants_h
-#define HGCalCommonData_FastTimingDDDConstants_h
+#ifndef HGCalCommonData_FastTimeDDDConstants_h
+#define HGCalCommonData_FastTimeDDDConstants_h
 
-/** \class FastTimingDDDConstants
+/** \class FastTimeDDDConstants
  *
  * this class reads the constant section of
  * the shashlik-numbering xml-file
@@ -20,14 +20,16 @@
 class DDCompactView;    
 class DDFilteredView;
 
-class FastTimingDDDConstants {
+class FastTimeDDDConstants {
 
 public:
 
-  FastTimingDDDConstants();
-  FastTimingDDDConstants( const DDCompactView& cpv );
-  ~FastTimingDDDConstants();
+  FastTimeDDDConstants();
+  FastTimeDDDConstants( const DDCompactView& cpv );
+  ~FastTimeDDDConstants();
 
+  int                 computeCells()            const;
+  int                 getType()                 const {return cellType;}
   std::pair<int,int>  getXY(int copy)           const;
   std::pair<int,int>  getXY(double x, double y) const;
   int                 getCells()                const {return 4*nCells;}
@@ -44,7 +46,7 @@ private:
                                   const DDsvalues_type &) const;
 
   bool                tobeInitialized;
-  int                 nCells, nCols, nRows;
+  int                 nCells, nCols, nRows, cellType;
   double              rIn, rOut, cellSize;
   std::vector<int>    firstY, lastY, firstCell, lastCell;
 };
