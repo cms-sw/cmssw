@@ -28,9 +28,7 @@ export USER_CXXFLAGS="-DEDM_ML_DEBUG -w"
 export USER_LLVM_CHECKERS="-disable-checker cplusplus -disable-checker unix -enable-checker threadsafety -disable-checker core -disable-checker security -disable-checker deadcode -disable-checker cms -enable-checker optional.ClassChecker -enable-checker cms.FunctionChecker"
 scram b -k -j $J checker  SCRAM_IGNORE_PACKAGES=Fireworks/% SCRAM_IGNORE_SUBDIRS=test 2>&1 > ${LOCALRT}/tmp/class+function-checker.log
 cd ${LOCALRT}/tmp/
+touch check-end
 sort -u < class-checker.txt.unsorted | grep -e"^data class">class-checker.txt
 sort -u < function-checker.txt.unsorted >function-statics-db.txt
-sort -u < function-checker.txt.unsorted >function-statics-db.txt
-sort -u < plugins.txt.unsorted > plugins.txt
-cat  function-calls-db.txt function-statics-db.txt >db.txt
-touch check-end
+rm *.txt.unsorted
