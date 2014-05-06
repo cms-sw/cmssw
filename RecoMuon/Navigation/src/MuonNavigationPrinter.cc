@@ -40,32 +40,31 @@ MuonNavigationPrinter::MuonNavigationPrinter(const MuonDetLayerGeometry * muonLa
   school(&sh) {
 
   PRINT("MuonNavigationPrinter")<< "MuonNavigationPrinter::MuonNavigationPrinter" << std::endl;
-  vector<DetLayer*>::const_iterator iter;
   PRINT("MuonNavigationPrinter")<<"================================" << std::endl;
   PRINT("MuonNavigationPrinter")<< "BARREL:" << std::endl;
-  vector<DetLayer*> barrel;
+  vector<const DetLayer*> barrel;
   if ( enableRPC ) barrel = muonLayout->allBarrelLayers();
   else barrel = muonLayout->allDTLayers();
 
   PRINT("MuonNavigationPrinter")<<"There are "<<barrel.size()<<" Barrel DetLayers";
-  for ( iter = barrel.begin(); iter != barrel.end(); iter++ ) printLayer(*iter);
+  for (auto i: barrel ) printLayer(i);
   PRINT("MuonNavigationPrinter")<<"================================" << std::endl;
   PRINT("MuonNavigationPrinter")  << "BACKWARD:" << std::endl;
 
-  vector<DetLayer*> backward;
+  vector<const DetLayer*> backward;
   if ( enableRPC ) backward = muonLayout->allBackwardLayers();
   else backward = muonLayout->backwardCSCLayers();
 
   PRINT("MuonNavigationPrinter")<<"There are "<<backward.size()<<" Backward DetLayers";
-  for ( iter = backward.begin(); iter != backward.end(); iter++ ) printLayer(*iter);
+  for (auto i : backward ) printLayer(i);
   PRINT("MuonNavigationPrinter") << "==============================" << std::endl;
   PRINT("MuonNavigationPrinter") << "FORWARD:" << std::endl;
-  vector<DetLayer*> forward;
+  vector<const DetLayer*> forward;
   if ( enableRPC ) forward = muonLayout->allForwardLayers();
   else forward = muonLayout->forwardCSCLayers();
 
   PRINT("MuonNavigationPrinter")<<"There are "<<forward.size()<<" Forward DetLayers" << std::endl;
-  for ( iter = forward.begin(); iter != forward.end(); iter++ ) printLayer(*iter);
+  for (auto i : forward ) printLayer(i);
 
 }
 
@@ -73,42 +72,41 @@ MuonNavigationPrinter::MuonNavigationPrinter(const MuonDetLayerGeometry * muonLa
   school(&sh){
 
   PRINT("MuonNavigationPrinter")<< "MuonNavigationPrinter::MuonNavigationPrinter" << std::endl ;
-  vector<DetLayer*>::const_iterator iter;
 //  vector<BarrelDetLayer*>::const_iterator tkiter;
 //  vector<ForwardDetLayer*>::const_iterator tkfiter;
   PRINT("MuonNavigationPrinter")<<"================================" << std::endl;
   PRINT("MuonNavigationPrinter")<< "BARREL:" << std::endl;
-  vector<BarrelDetLayer*> tkbarrel = tracker->barrelLayers();
+  vector<const BarrelDetLayer*> tkbarrel = tracker->barrelLayers();
   PRINT("MuonNavigationPrinter")<<"There are "<<tkbarrel.size()<<" Tk Barrel DetLayers" << std::endl;
 //  for ( tkiter = tkbarrel.begin(); tkiter != tkbarrel.end(); tkiter++ ) printLayer(*tkiter);
-  vector<DetLayer*> barrel = muonLayout->allBarrelLayers();
+  vector<const DetLayer*> barrel = muonLayout->allBarrelLayers();
   PRINT("MuonNavigationPrinter")<<"There are "<<barrel.size()<<" Mu Barrel DetLayers";
-  for ( iter = barrel.begin(); iter != barrel.end(); iter++ ) printLayer(*iter);
+  for ( auto i : barrel ) printLayer(i);
   PRINT("MuonNavigationPrinter")<<"================================" << std::endl;
   PRINT("MuonNavigationPrinter")  << "BACKWARD:" << std::endl;
-  vector<ForwardDetLayer*> tkbackward = tracker->negForwardLayers();
+  vector<const ForwardDetLayer*> tkbackward = tracker->negForwardLayers();
   PRINT("MuonNavigationPrinter")<<"There are "<<tkbackward.size()<<" Tk Backward DetLayers" << std::endl;
 ///  for ( tkfiter = tkbackward.begin(); tkfiter != tkbackward.end(); tkfiter++ ) printLayer(*tkfiter);
-  vector<DetLayer*> backward = muonLayout->allBackwardLayers();
+  vector<const DetLayer*> backward = muonLayout->allBackwardLayers();
   PRINT("MuonNavigationPrinter")<<"There are "<<backward.size()<<" Mu Backward DetLayers << std::endl";
-  for ( iter = backward.begin(); iter != backward.end(); iter++ ) printLayer(*iter);
+  for (auto i : backward ) printLayer(i);
   PRINT("MuonNavigationPrinter") << "==============================" << std::endl;
   PRINT("MuonNavigationPrinter") << "FORWARD:" << std::endl;
-  vector<ForwardDetLayer*> tkforward =  tracker->posForwardLayers();
+  vector<const ForwardDetLayer*> tkforward =  tracker->posForwardLayers();
   PRINT("MuonNavigationPrinter")<<"There are "<<tkforward.size()<<" Tk Forward DetLayers" << std::endl;
 //  for ( tkfiter = tkforward.begin(); tkfiter != tkforward.end(); tkfiter++ ) printLayer(*tkfiter);
 
-  vector<DetLayer*> forward = muonLayout->allForwardLayers();
+  vector<const DetLayer*> forward = muonLayout->allForwardLayers();
   PRINT("MuonNavigationPrinter")<<"There are "<<forward.size()<<" Mu Forward DetLayers";
-  for ( iter = forward.begin(); iter != forward.end(); iter++ ) printLayer(*iter);
+  for ( auto i : forward ) printLayer(i);
 
 }
 
 /// print layer
-void MuonNavigationPrinter::printLayer(DetLayer* layer) const {
+void MuonNavigationPrinter::printLayer(const DetLayer* layer) const {
   vector<const DetLayer*> nextLayers = school->nextLayers(*layer,insideOut);
   vector<const DetLayer*> compatibleLayers = school->compatibleLayers(*layer,insideOut);
-  if (BarrelDetLayer* bdl = dynamic_cast<BarrelDetLayer*>(layer)) {
+  if (const BarrelDetLayer* bdl = dynamic_cast<const BarrelDetLayer*>(layer)) {
     PRINT("MuonNavigationPrinter") 
          << layer->location() << " " << layer->subDetector() << " layer at R: "
          << setiosflags(ios::showpoint | ios::fixed)
@@ -118,7 +116,7 @@ void MuonNavigationPrinter::printLayer(DetLayer* layer) const {
          << layer->surface().bounds().length() << std::endl;
           
   }
-  else if (ForwardDetLayer* fdl = dynamic_cast<ForwardDetLayer*>(layer)) {
+  else if (const ForwardDetLayer* fdl = dynamic_cast<const ForwardDetLayer*>(layer)) {
     PRINT("MuonNavigationPrinter") << endl
          << layer->location() << " " << layer->subDetector() << "layer at z: "
          << setiosflags(ios::showpoint | ios::fixed)
