@@ -350,7 +350,7 @@ void SiPixelHitEfficiencySource::analyze(const edm::Event& iEvent, const edm::Ev
 	}
       }//end check last valid layer
       if (lastValidL2) {
-	std::vector< BarrelDetLayer*> pxbLayers = measurementTrackerHandle->geometricSearchTracker()->pixelBarrelLayers();
+	std::vector< const BarrelDetLayer*> pxbLayers = measurementTrackerHandle->geometricSearchTracker()->pixelBarrelLayers();
 	const DetLayer* pxb1 = pxbLayers[extrapolateTo_-1];
 	const MeasurementEstimator* estimator = est.product();
 	const LayerMeasurements* theLayerMeasurements =    new LayerMeasurements(*measurementTrackerHandle, *measurementTrackerEventHandle);  

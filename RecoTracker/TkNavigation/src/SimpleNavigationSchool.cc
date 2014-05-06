@@ -36,15 +36,13 @@ SimpleNavigationSchool::SimpleNavigationSchool(const GeometricSearchTracker* the
 
 
   // Get barrel layers
-  vector<BarrelDetLayer*> blc = theTracker->barrelLayers(); 
-  for ( vector<BarrelDetLayer*>::iterator i = blc.begin(); i != blc.end(); i++) {
-    theBarrelLayers.push_back( (*i) );
+  for( auto i : theTracker->barrelLayers()) {
+    theBarrelLayers.push_back( i );
   }
 
   // get forward layers
-  vector<ForwardDetLayer*> flc = theTracker->forwardLayers(); 
-  for ( vector<ForwardDetLayer*>::iterator i = flc.begin(); i != flc.end(); i++) {
-    theForwardLayers.push_back( (*i) );
+  for( auto i : theTracker->forwardLayers()) {
+    theForwardLayers.push_back( i );
   }
   
   FDLI middle = find_if( theForwardLayers.begin(), theForwardLayers.end(),
@@ -118,7 +116,7 @@ linkBarrelLayers( SymmetricLayerFinder& symFinder)
   }
 }
 
-void SimpleNavigationSchool::linkNextForwardLayer( BarrelDetLayer* bl, 
+void SimpleNavigationSchool::linkNextForwardLayer( const BarrelDetLayer* bl, 
 						   FDLC& rightFL)
 {
   // find first forward layer with larger Z and larger outer radius
@@ -209,7 +207,7 @@ linkForwardLayers( SymmetricLayerFinder& symFinder)
 //    }
 }
 
-void SimpleNavigationSchool::linkNextBarrelLayer( ForwardDetLayer* fl,
+void SimpleNavigationSchool::linkNextBarrelLayer( const ForwardDetLayer* fl,
 						  BDLC& reachableBL)
 {
   if ( fl->position().z() > barrelLength()) return;
@@ -259,7 +257,7 @@ void SimpleNavigationSchool::linkNextLayerInGroup( FDLI fli,
 }
 
 
-void SimpleNavigationSchool::linkOuterGroup( ForwardDetLayer* fl,
+void SimpleNavigationSchool::linkOuterGroup( const ForwardDetLayer* fl,
 					     const FDLC& group,
 					     FDLC& reachableFL)
 {
@@ -369,8 +367,8 @@ void SimpleNavigationSchool::establishInverseRelations() {
 
     // find for each layer which are the barrel and forward
     // layers that point to it
-    typedef map<const DetLayer*, vector<BarrelDetLayer*>, less<const DetLayer*> > BarrelMapType;
-    typedef map<const DetLayer*, vector<ForwardDetLayer*>, less<const DetLayer*> > ForwardMapType;
+    typedef map<const DetLayer*, vector<const BarrelDetLayer*>, less<const DetLayer*> > BarrelMapType;
+    typedef map<const DetLayer*, vector<const ForwardDetLayer*>, less<const DetLayer*> > ForwardMapType;
 
 
     BarrelMapType reachedBarrelLayersMap;
