@@ -30,7 +30,7 @@
 #include "CondFormats/L1TObjects/interface/L1uGtCondition.h"
 
 #include "CondFormats/L1TObjects/interface/L1GtFwd.h"
-
+#include "CondFormats/L1TObjects/interface/L1uGtDefinitions.h"
 // forward declarations
 
 // class declaration
