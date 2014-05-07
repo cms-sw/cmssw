@@ -31,8 +31,8 @@ private:
   PlaneBuilderFromGeometricDet::ResultType
   buildPlaneWithMaterial(const GeometricDet* gd,double scaleFactor=1.) const;
 
-  std::map<std::string,PixelGeomDetType*> thePixelDetTypeMap;
-  std::map<std::string,StripGeomDetType*> theStripDetTypeMap;
+  std::map<std::string,const PixelGeomDetType*> thePixelDetTypeMap;
+  std::map<std::string,const StripGeomDetType*> theStripDetTypeMap;
 };
 
 #endif

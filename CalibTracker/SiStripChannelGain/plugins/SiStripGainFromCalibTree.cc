@@ -231,7 +231,7 @@ SiStripGainFromCalibTree::algoBeginJob(const edm::EventSetup& iSetup)
 
    edm::ESHandle<TrackerGeometry> tkGeom;
    iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );
-   vector<GeomDet*> Det = tkGeom->dets();
+   auto const & Det = tkGeom->dets();
 
    edm::ESHandle<SiStripGain> gainHandle;
    iSetup.get<SiStripGainRcd>().get(gainHandle);
@@ -255,7 +255,7 @@ SiStripGainFromCalibTree::algoBeginJob(const edm::EventSetup& iSetup)
       if( SubDet == StripSubdetector::TIB ||  SubDet == StripSubdetector::TID ||
           SubDet == StripSubdetector::TOB ||  SubDet == StripSubdetector::TEC  ){
 
-          StripGeomDetUnit* DetUnit     = dynamic_cast<StripGeomDetUnit*> (Det[i]);
+          auto DetUnit     = dynamic_cast<const StripGeomDetUnit*> (Det[i]);
 	  if(!DetUnit)continue;
 
           const StripTopology& Topo     = DetUnit->specificTopology();	

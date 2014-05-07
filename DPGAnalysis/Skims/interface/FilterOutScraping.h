@@ -43,8 +43,7 @@ private:
   bool debugOn;
   double thresh;
   unsigned int numtrack;
-  edm::InputTag tracks_;
-
+  edm::EDGetTokenT<reco::TrackCollection> tracks_;
   reco::TrackBase::TrackQuality _trackQuality;
 };
 

@@ -123,9 +123,9 @@ void  RPCDqmClient::getMonitorElements(const edm::Run& r, const edm::EventSetup&
 
   //loop on all geometry and get all histos
   for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
-    if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
+    if( dynamic_cast< const RPCChamber* >( *it ) != 0 ){
        
-       RPCChamber* ch = dynamic_cast< RPCChamber* >( *it ); 
+       const RPCChamber* ch = dynamic_cast< const RPCChamber* >( *it ); 
        std::vector< const RPCRoll*> roles = (ch->rolls());
        
        //Loop on rolls in given chamber

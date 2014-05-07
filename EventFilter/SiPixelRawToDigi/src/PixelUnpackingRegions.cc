@@ -111,7 +111,7 @@ void PixelUnpackingRegions::initialize(const edm::EventSetup& es)
     phiFPIXp_.reserve(512);
     phiFPIXm_.reserve(512);
 
-    std::vector<GeomDet*>::const_iterator it = geom->dets().begin();
+    auto it = geom->dets().begin();
     for ( ; it != geom->dets().end(); ++it)
     {
       int subdet = (*it)->geographicalId().subdetId();
