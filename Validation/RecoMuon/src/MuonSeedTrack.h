@@ -37,7 +37,7 @@ namespace reco {class Track;}
 class MuonServiceProxy;
 class TrajectorySeed;
 class MuonUpdatorAtVertex;
-
+class DQMStore;
 //
 // class decleration
 //
