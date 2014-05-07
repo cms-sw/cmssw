@@ -117,6 +117,7 @@ hpsTauIDSources = [
     ("chargedIsoPtSum", "MVA3IsolationChargedIsoPtSum"),
     ("neutralIsoPtSum", "MVA3IsolationNeutralIsoPtSum"),
     ("puCorrPtSum", "MVA3IsolationPUcorrPtSum"),
+    ("rhoCorrPtSum", "MVA3IsolationRhoCorrPtSum"),
     ("neutralHadronIsoPtSum", "MVA3IsolationNeutralHadronIsoPtSum"),
     ("weightedNeutralIsoPtSum1", "MVA3IsolationNeutralIsoPtSumWeight1"),
     ("weightedNeutralIsoPtSum2", "MVA3IsolationNeutralIsoPtSumWeight2"),

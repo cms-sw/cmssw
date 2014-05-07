@@ -646,6 +646,11 @@ hpsPFTauMVA3IsolationPUcorrPtSum = hpsPFTauMVA3IsolationChargedIsoPtSum.clone(
     verbosity = cms.int32(0)
 )
 
+hpsPFTauMVA3IsolationRhoCorrPtSum = hpsPFTauMVA3IsolationPUcorrPtSum.clone(
+    applyRhoCorrection = cms.bool(True),
+    applyDeltaBetaCorrection = cms.bool(False)
+)
+
 hpsPFTauMVA3IsolationNeutralIsoPtSumWeight1 = hpsPFTauMVA3IsolationChargedIsoPtSum.clone(
     ApplyDiscriminationByWeightedECALIsolation1 = cms.bool(True),
     ApplyDiscriminationByTrackerIsolation = cms.bool(False),
@@ -818,6 +823,7 @@ hpsPFTauMVAIsolation2Seq = cms.Sequence(
     hpsPFTauMVA3IsolationChargedIsoPtSum
    + hpsPFTauMVA3IsolationNeutralIsoPtSum
    + hpsPFTauMVA3IsolationPUcorrPtSum
+   + hpsPFTauMVA3IsolationRhoCorrPtSum
    + hpsPFTauMVA3IsolationNeutralHadronIsoPtSum
    + hpsPFTauMVA3IsolationNeutralIsoPtSumWeight1
    + hpsPFTauMVA3IsolationNeutralHadronIsoPtSumWeight1
