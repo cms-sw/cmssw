@@ -541,7 +541,8 @@ def main():
     if opts.output:
        logging.info("Writing serialization code to %s " % opts.output)
 
-    SerializationCodeGenerator( scramFlags=args ).generate( opts.output )
+    clangUnsupported = ["-fipa-pta"]
+    SerializationCodeGenerator( scramFlags=[x for x in args[1:] if not x in clangUnsupported]).generate( opts.output )
 
 if __name__ == '__main__':
     main()
