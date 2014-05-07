@@ -43,6 +43,9 @@ TrackProducerWithSCAssociation::TrackProducerWithSCAssociation(const edm::Parame
     consumes<reco::TrackCandidateCaloClusterPtrAssociation>(
 		    edm::InputTag(conversionTrackCandidateProducer_,
 				  trackCSuperClusterAssociationCollection_));
+  measurementTrkToken_=
+    consumes<MeasurementTrackerEvent>(edm::InputTag("MeasurementTrackerEvent")); //hardcoded because the original was and no time to fix (sigh)
+  
  
   //register your products
   produces<reco::TrackCollection>().setBranchAlias( alias_ + "Tracks" );
@@ -331,7 +334,7 @@ TrackingRecHitRefProd rHits = evt.getRefBeforePut<TrackingRecHitCollection>();
     if (theSchool.isValid())
       {
         edm::Handle<MeasurementTrackerEvent> mte;
-        evt.getByLabel(edm::InputTag("MeasurementTrackerEvent"), mte);
+        evt.getByToken(measurementTrkToken_, mte);
 	setSecondHitPattern(theTraj,track,thePropagator,&*mte);
       }
     //==============================================================

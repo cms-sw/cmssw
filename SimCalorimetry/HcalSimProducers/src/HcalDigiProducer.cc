@@ -1,4 +1,4 @@
-#include "SimCalorimetry/HcalSimProducers/plugins/HcalDigiProducer.h"
+#include "SimCalorimetry/HcalSimProducers/interface/HcalDigiProducer.h"
 #include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -16,6 +16,13 @@ HcalDigiProducer::HcalDigiProducer(edm::ParameterSet const& pset, edm::one::EDPr
   mixMod.produces<HFUpgradeDigiCollection>("HFUpgradeDigiCollection");
 
 }
+
+
+HcalDigiProducer::HcalDigiProducer(edm::ParameterSet const& pset, edm::ConsumesCollector& iC) :
+  DigiAccumulatorMixMod(),
+  theDigitizer_(pset, iC) {
+}
+
 
 void
 HcalDigiProducer::initializeEvent(edm::Event const& event, edm::EventSetup const& es) {
@@ -46,6 +53,28 @@ void
 HcalDigiProducer::endRun(edm::Run const&, edm::EventSetup const&) {
   theDigitizer_.endRun();
 }
+
+void
+HcalDigiProducer::setHBHENoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator) {
+  theDigitizer_.setHBHENoiseSignalGenerator(noiseGenerator);
+}
+
+void
+HcalDigiProducer::setHFNoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator) {
+  theDigitizer_.setHFNoiseSignalGenerator(noiseGenerator);
+}
+
+void
+HcalDigiProducer::setHONoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator) {
+  theDigitizer_.setHONoiseSignalGenerator(noiseGenerator);
+}
+
+void
+HcalDigiProducer::setZDCNoiseSignalGenerator(HcalBaseSignalGenerator * noiseGenerator) {
+  theDigitizer_.setZDCNoiseSignalGenerator(noiseGenerator);
+}
+
+
 
 CLHEP::HepRandomEngine* HcalDigiProducer::randomEngine(edm::StreamID const& streamID) {
   unsigned int index = streamID.value();

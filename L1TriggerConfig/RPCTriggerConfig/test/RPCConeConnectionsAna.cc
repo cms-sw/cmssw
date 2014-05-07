@@ -64,7 +64,7 @@ class RPCConeConnectionsAna : public edm::EDAnalyzer {
       int getDCCNumber(int iTower, int iSec);
       int getDCC(int iSec);
       void printSymetric(RPCDetId det, edm::ESHandle<RPCGeometry> rpcGeom);
-      void printRoll(RPCRoll * roll); 
+      void printRoll(RPCRoll const * roll); 
       int   m_towerBeg;
       int   m_towerEnd;
       int   m_sectorBeg;
@@ -146,9 +146,9 @@ RPCConeConnectionsAna::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       ++it)
     {
 
-      if( dynamic_cast< RPCRoll* >( *it ) == 0 ) continue;
+      if( dynamic_cast<const RPCRoll* >( *it ) == 0 ) continue;
 
-      RPCRoll* roll = dynamic_cast< RPCRoll*>( *it );
+      RPCRoll const* roll = dynamic_cast< RPCRoll const*>( *it );
 
       int detId = roll->id().rawId();
 //      if ( detId != 637567014) continue;
@@ -313,8 +313,8 @@ void RPCConeConnectionsAna::printSymetric(RPCDetId det,  edm::ESHandle<RPCGeomet
       ++it)
     {
 
-      if( dynamic_cast< RPCRoll* >( *it ) == 0 ) continue;
-      RPCRoll* roll = dynamic_cast< RPCRoll*>( *it );
+      if( dynamic_cast<const RPCRoll* >( *it ) == 0 ) continue;
+      RPCRoll const* roll = dynamic_cast< RPCRoll const*>( *it );
 
       if (roll->id() != detSym) continue;
       printRoll(roll);
@@ -323,7 +323,7 @@ void RPCConeConnectionsAna::printSymetric(RPCDetId det,  edm::ESHandle<RPCGeomet
     }
 }
 
-void RPCConeConnectionsAna::printRoll(RPCRoll * roll){ 
+void RPCConeConnectionsAna::printRoll(const RPCRoll * roll){ 
 
                      LocalPoint lStripCentre1 = roll->centreOfStrip(1);
                      LocalPoint lStripCentreMax = roll->centreOfStrip(roll->nstrips() );
