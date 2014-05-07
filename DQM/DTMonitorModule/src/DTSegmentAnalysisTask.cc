@@ -84,9 +84,9 @@ void DTSegmentAnalysisTask::beginRun(const Run& run, const edm::EventSetup& cont
   }
 
   // loop over all the DT chambers & book the histos
-  vector<DTChamber*> chambers = dtGeom->chambers();
-  vector<DTChamber*>::const_iterator ch_it = chambers.begin();
-  vector<DTChamber*>::const_iterator ch_end = chambers.end();
+  const vector<const DTChamber*>& chambers = dtGeom->chambers();
+  vector<const DTChamber*>::const_iterator ch_it = chambers.begin();
+  vector<const DTChamber*>::const_iterator ch_end = chambers.end();
   for (; ch_it != ch_end; ++ch_it) {
     bookHistos((*ch_it)->id());
   }

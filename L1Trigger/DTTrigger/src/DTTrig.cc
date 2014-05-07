@@ -101,9 +101,9 @@ DTTrig::createTUs(const edm::EventSetup& iSetup ){
   
   edm::ESHandle<DTGeometry>dtGeom;
   iSetup.get<MuonGeometryRecord>().get(dtGeom);
-  for (std::vector<DTChamber*>::const_iterator ich=dtGeom->chambers().begin(); ich!=dtGeom->chambers().end();ich++){
+  for (std::vector<const DTChamber*>::const_iterator ich=dtGeom->chambers().begin(); ich!=dtGeom->chambers().end();ich++){
        
-    DTChamber* chamb = (*ich);
+    const DTChamber* chamb = (*ich);
     DTChamberId chid = chamb->id();
     TU_iterator it = _cache.find(chid);
     if ( it != _cache.end()) {

@@ -66,6 +66,7 @@ class ConversionTrackCandidateProducer : public edm::EDProducer {
   edm::EDGetTokenT<CaloTowerCollection> hcalTowers_;
   edm::EDGetTokenT<EcalRecHitCollection> barrelecalCollection_;
   edm::EDGetTokenT<EcalRecHitCollection> endcapecalCollection_;
+  edm::EDGetTokenT<MeasurementTrackerEvent> measurementTrkEvtToken_;
  
   double hOverEConeSize_;
   double maxHOverE_;

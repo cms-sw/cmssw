@@ -76,7 +76,7 @@ void
 
      // Do we really have a CSC layer?
 
-     CSCLayer* layer = dynamic_cast<CSCLayer*>( *it );
+     auto layer = dynamic_cast<CSCLayer const*>( *it );
      
       if( layer ) {
         ++icount;
