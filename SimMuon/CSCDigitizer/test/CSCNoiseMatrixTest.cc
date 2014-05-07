@@ -43,8 +43,8 @@ public:
     const CSCGeometry *pGeom = &*hGeom;
 
     // try making a noisifier and using it
-    std::vector<CSCLayer*> layers = pGeom->layers();
-    for(std::vector<CSCLayer*>::const_iterator layerItr = layers.begin();
+    const CSCGeometry::LayerContainer& layers = pGeom->layers();
+    for(auto layerItr = layers.begin();
         layerItr != layers.end(); ++layerItr)
     {
       unsigned nstrips = (**layerItr).geometry()->numberOfStrips();

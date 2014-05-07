@@ -198,10 +198,10 @@ void RPCConeBuilder::buildCones(const edm::ESHandle<RPCGeometry> & rpcGeom ){
       ++it)
   {
   
-      if( dynamic_cast< RPCRoll* >( *it ) == 0 ) continue;
+      if( dynamic_cast< RPCRoll const * >( *it ) == 0 ) continue;
       
       ++rolls;
-      RPCRoll* roll = dynamic_cast< RPCRoll*>( *it );
+      RPCRoll const* roll = dynamic_cast< RPCRoll const*>( *it );
       
       int ringId = RPCStripsRing::getRingId(roll);
       if ( m_ringsMap.find(ringId)  == m_ringsMap.end() ) {

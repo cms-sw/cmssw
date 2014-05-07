@@ -54,9 +54,9 @@ namespace {
 
 ConversionTrackCandidateProducer::ConversionTrackCandidateProducer(const edm::ParameterSet& config) : 
   theTrajectoryBuilder_(createBaseCkfTrajectoryBuilder(config.getParameter<edm::ParameterSet>("TrajectoryBuilderPSet"), consumesCollector())),
-  theOutInSeedFinder_(new OutInConversionSeedFinder(config)),
+  theOutInSeedFinder_(new OutInConversionSeedFinder(config,consumesCollector())),
   theOutInTrackFinder_(new OutInConversionTrackFinder(config, theTrajectoryBuilder_.get())),
-  theInOutSeedFinder_(new InOutConversionSeedFinder(config)),
+  theInOutSeedFinder_(new InOutConversionSeedFinder(config,consumesCollector())),
   theInOutTrackFinder_(new InOutConversionTrackFinder(config, theTrajectoryBuilder_.get()))
 {  
   //std::cout << "ConversionTrackCandidateProducer CTOR " << "\n";
@@ -86,9 +86,10 @@ ConversionTrackCandidateProducer::ConversionTrackCandidateProducer(const edm::Pa
     consumes<EcalRecHitCollection>(config.getParameter<edm::InputTag>("barrelEcalRecHitCollection"));
   endcapecalCollection_ = 
     consumes<EcalRecHitCollection>(config.getParameter<edm::InputTag>("endcapEcalRecHitCollection"));
-  
   hcalTowers_        = 
     consumes<CaloTowerCollection>(config.getParameter<edm::InputTag>("hcalTowers"));
+  measurementTrkEvtToken_ = 
+    consumes<MeasurementTrackerEvent>(edm::InputTag("MeasurementTrackerEvent"));
   hOverEConeSize_    = config.getParameter<double>("hOverEConeSize");
   maxHOverE_         = config.getParameter<double>("maxHOverE");
   minSCEt_           = config.getParameter<double>("minSCEt");
@@ -137,7 +138,7 @@ ConversionTrackCandidateProducer::ConversionTrackCandidateProducer(const edm::Pa
 
 }
 
-ConversionTrackCandidateProducer::~ConversionTrackCandidateProducer() {}
+ConversionTrackCandidateProducer::~ConversionTrackCandidateProducer(){}
 
 void  ConversionTrackCandidateProducer::setEventSetup (const edm::EventSetup & theEventSetup) {
   theOutInSeedFinder_->setEventSetup(theEventSetup);
@@ -168,7 +169,7 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
   
   // get the trajectory builder and initialize it with the data
   edm::Handle<MeasurementTrackerEvent> data;
-  theEvent.getByLabel(edm::InputTag("MeasurementTrackerEvent"), data);
+  theEvent.getByToken( measurementTrkEvtToken_, data);
   theTrajectoryBuilder_->setEvent(theEvent, theEventSetup, &*data);
 
 

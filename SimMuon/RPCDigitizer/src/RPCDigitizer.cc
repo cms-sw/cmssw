@@ -42,8 +42,8 @@ void RPCDigitizer::doAction(MixCollection<PSimHit> & simHits,
   }
 
 
-  std::vector<RPCRoll*>  rpcRolls = theGeometry->rolls() ;
-  for(std::vector<RPCRoll*>::iterator r = rpcRolls.begin();
+  const std::vector<const RPCRoll*>&  rpcRolls = theGeometry->rolls() ;
+  for(auto r = rpcRolls.begin();
       r != rpcRolls.end(); r++){
 
     const edm::PSimHitContainer & rollSimHits = hitMap[(*r)->id()];

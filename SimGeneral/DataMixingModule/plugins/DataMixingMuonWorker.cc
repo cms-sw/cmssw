@@ -158,6 +158,13 @@ namespace edm
 	// Get the iterators over the digis associated with this LayerId
 	const CSCStripDigiCollection::Range& range = (*CSLayerIt).second;
 
+	//std::cout << " Signal CSC layer " << (*CSLayerIt).first << std::endl;
+
+	//for(CSCStripDigiCollection::const_iterator dtdigi=range.first; dtdigi!=range.second; dtdigi++){
+	//  std::cout << "Digi " << (*dtdigi) << std::endl;
+	//}
+
+
 	OurCSCStripDigis_->put(range, layerId);
       }
     }
@@ -252,6 +259,7 @@ namespace edm
 	// Get the iterators over the Digis associated with this LayerId
 	const DTDigiCollection::Range& range = (*DTLayerIt).second;
 
+
 	OurDTDigis_->put(range, layerId);
       
       }
@@ -301,6 +309,12 @@ namespace edm
 
 	// Get the iterators over the digis associated with this LayerId
 	const CSCStripDigiCollection::Range& range = (*CSCStripLayerIt).second;
+
+	//std::cout << " Pileup CSC layer " << (*CSCStripLayerIt).first << std::endl;
+
+	//for(CSCStripDigiCollection::const_iterator dtdigi=range.first; dtdigi!=range.second; dtdigi++){
+	//  std::cout << "Digi " << (*dtdigi) << std::endl;
+	//	}
 
 	OurCSCStripDigis_->put(range, layerId);
       
@@ -379,6 +393,7 @@ namespace edm
       // Get the iterators over the digis associated with this LayerId
       const DTDigiCollection::Range& range = (*DLayerIt).second;
 
+
       DTDigiMerge->put(range, layerId);
       
     }
@@ -405,6 +420,12 @@ namespace edm
 
       // Get the iterators over the digis associated with this LayerId
       const CSCStripDigiCollection::Range& range = (*CSLayerIt).second;
+
+      //std::cout << " merging CSC layer " << (*CSLayerIt).first << std::endl;
+
+      //for(CSCStripDigiCollection::const_iterator dtdigi=range.first; dtdigi!=range.second; dtdigi++){
+      //  std::cout << "Digi " << (*dtdigi) << std::endl;
+      //}
 
       CSCStripDigiMerge->put(range, layerId);
       
