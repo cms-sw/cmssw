@@ -46,6 +46,11 @@ def customise_L1Emulator2019(process, ptdphi):
     process.simCscTriggerPrimitiveDigis.clctSLHC.clctNplanesHitPattern = 3
     process.simCscTriggerPrimitiveDigis.clctSLHC.clctPidThreshPretrig = 2
     process.simCscTriggerPrimitiveDigis.clctParam07.clctPidThreshPretrig = 2
+    ## give a random number generator
+    process.RandomNumberGeneratorService.simCscTriggerPrimitiveDigis = cms.PSet(
+        initialSeed = cms.untracked.uint32(1234567),
+        engineName = cms.untracked.string('HepJamesRandom')
+    )
     return process
 
 def customise_L1Emulator2023(process, ptdphi):
@@ -59,9 +64,9 @@ def customise_L1Emulator2023(process, ptdphi):
     process.simCscTriggerPrimitiveDigis.alctSLHCME21 = process.simCscTriggerPrimitiveDigis.alctSLHC.clone()
     process.simCscTriggerPrimitiveDigis.clctSLHCME21 = process.simCscTriggerPrimitiveDigis.clctSLHC.clone()
     process.simCscTriggerPrimitiveDigis.alctSLHCME21.alctNplanesHitPattern = 3
+    process.simCscTriggerPrimitiveDigis.alctSLHCME21.runME21ILT = cms.bool(True)
     process.simCscTriggerPrimitiveDigis.clctSLHCME21.clctNplanesHitPattern = 3
     process.simCscTriggerPrimitiveDigis.clctSLHCME21.clctPidThreshPretrig = 2
-    process.simCscTriggerPrimitiveDigis.clctSLHCME21.runME21ILT = cms.bool(True)
     return process
 
 def customise_DigiToRaw(process):

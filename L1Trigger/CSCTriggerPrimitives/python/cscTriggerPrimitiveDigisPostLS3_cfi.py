@@ -19,6 +19,7 @@ cscTriggerPrimitiveDigisPostLS3 = cms.EDProducer("CSCTriggerPrimitivesProducer",
 
     # for SLHC studies we don't want bad chambers checks so far
     checkBadChambers = cms.bool(False),
+    fractionBrokenCSCs = cms.double(0.0),
 
     # Parameters common for all boards
     commonParam = cms.PSet(
@@ -49,7 +50,7 @@ cscTriggerPrimitiveDigisPostLS3 = cms.EDProducer("CSCTriggerPrimitivesProducer",
         # run integrated local triggers
         runME11ILT = cms.bool(True),
         runME21ILT = cms.bool(True),
-        runME3141ILT = cms.bool(False),
+        runME3141ILT = cms.bool(True),
     ),
 
     # Parameters for ALCT processors: old MC studies
@@ -484,11 +485,11 @@ cscTriggerPrimitiveDigisPostLS3 = cms.EDProducer("CSCTriggerPrimitivesProducer",
 
         ## run in debug mode
         debugLUTs = cms.bool(False),
-        debugMatching = cms.bool(False),
+        debugMatching = cms.bool(True),
 
         ## matching to digis in case LowQ CLCT
-        maxDeltaBXRPC = cms.int32(1),
-        maxDeltaStripRPC = cms.int32(1),
+        maxDeltaBXRPC = cms.int32(0),
+        maxDeltaStripRPC = cms.int32(3),
 
         ## efficiency recovery switches
         dropLowQualityCLCTsNoRPCs = cms.bool(True),

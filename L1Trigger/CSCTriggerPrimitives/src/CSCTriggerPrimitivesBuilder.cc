@@ -28,6 +28,7 @@
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <Geometry/GEMGeometry/interface/GEMGeometry.h>
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
+#include "CLHEP/Random/RandFlat.h"
 
 //------------------
 // Static variables
@@ -57,6 +58,7 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
   disableME42 = commonParams.getParameter<bool>("disableME42");
 
   checkBadChambers_ = conf.getParameter<bool>("checkBadChambers");
+  fractionBrokenCSCs_ = conf.getParameter<double>("fractionBrokenCSCs");
 
   runME11ILT_ = commonParams.existsAs<bool>("runME11ILT")?commonParams.getParameter<bool>("runME11ILT"):false;
   runME21ILT_ = commonParams.existsAs<bool>("runME21ILT")?commonParams.getParameter<bool>("runME21ILT"):false;
@@ -96,7 +98,7 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
               tmb_[endc-1][stat-1][sect-1][subs-1][cham-1] = new CSCMotherboardME11GEM(endc, stat, sect, subs, cham, conf);
             else if (stat==2 && ring==1 && runME21ILT_)
               tmb_[endc-1][stat-1][sect-1][subs-1][cham-1] = new CSCMotherboardME21GEM(endc, stat, sect, subs, cham, conf);
-            else if ((stat==3 || stat==4) && ring==1 && runME3141ILT_)
+            else if ((stat==3 || stat==4) && ring==1 && runME3141ILT_ and endc==2)
               tmb_[endc-1][stat-1][sect-1][subs-1][cham-1] = new CSCMotherboardME3141RPC(endc, stat, sect, subs, cham, conf);
             else
               tmb_[endc-1][stat-1][sect-1][subs-1][cham-1] = new CSCMotherboard(endc, stat, sect, subs, cham, conf);
@@ -226,6 +228,12 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
             // Skip chambers marked as bad (usually includes most of ME4/2 chambers;
             // also, there's no ME1/a-1/b separation, it's whole ME1/1)
             if (checkBadChambers_ && badChambers->isInBadChamber(detid)) continue;
+
+            // randomly disable X% of CSC chambers
+            if (flat_->fire(1) < fractionBrokenCSCs_) {
+              edm::LogInfo("L1CSCTrigger") << "Skipping bad chamber: " << detid << std::endl;              
+              continue;
+            }
 
             // running upgraded ME1/1 TMBs
             if (stat==1 && ring==1 && smartME1aME1b && !runME11ILT_)
@@ -530,7 +538,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
             }
 
             // running upgraded ME3/1-ME4/1 TMBs
-            else if ((stat==3 or stat==4) && ring==1 && runME3141ILT_)
+            else if ((stat==3 or stat==4) && ring==1 && runME3141ILT_  and endc==2)
             {
               CSCMotherboardME3141RPC* tmb3141RPC = static_cast<CSCMotherboardME3141RPC*>(tmb);
               tmb3141RPC->setCSCGeometry(csc_g);
@@ -681,4 +689,10 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
       << " (sector " << itr->sector()
       << " trig id. " << itr->cscid() << ")" << "\n";
   }
+}
+
+
+void CSCTriggerPrimitivesBuilder::setRandomEngine(CLHEP::HepRandomEngine& eng)
+{
+  flat_ = new CLHEP::RandFlat(eng);
 }

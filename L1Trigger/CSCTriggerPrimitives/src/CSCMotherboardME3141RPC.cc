@@ -145,7 +145,7 @@ CSCMotherboardME3141RPC::run(const CSCWireDigiCollection* wiredc,
   alctV = alct->run(wiredc); // run anodeLCT
   clctV = clct->run(compdc); // run cathodeLCT
   
-  const bool debugStubs(true);
+  const bool debugStubs(false);
   if (debugStubs){
     for (auto& p : alctV){
       std::cout << "ALCT: " << p << std::endl;
@@ -173,9 +173,14 @@ CSCMotherboardME3141RPC::run(const CSCWireDigiCollection* wiredc,
   const CSCLayerGeometry* keyLayerGeometry(keyLayer->geometry());
   const int region((theEndcap == 1) ? 1: -1);
   const bool isEven(csc_id%2==0);
-  const RPCDetId rpc_id(region,1,theStation,CSCTriggerNumbering::triggerSectorFromLabels(csc_id),1,CSCTriggerNumbering::triggerCscIdFromLabels(csc_id),0);
+  const int csc_trig_sect(CSCTriggerNumbering::triggerSectorFromLabels(csc_id));
+  const int csc_trig_id( CSCTriggerNumbering::triggerCscIdFromLabels(csc_id));
+  const int csc_trig_chid((3*(csc_trig_sect-1)+csc_trig_id)%18 +1);
+  const int rpc_trig_sect((csc_trig_chid-1)/3+1);
+  const int rpc_trig_subsect((csc_trig_chid-1)%3+1);
+  const RPCDetId rpc_id(region,1,theStation,rpc_trig_sect,1,rpc_trig_subsect,0);
   const RPCChamber* rpcChamber(rpc_g->chamber(rpc_id));
-  
+
   if (runME3141ILT_){
     
     // check for RE3/1-RE4/1 geometry
@@ -258,8 +263,6 @@ CSCMotherboardME3141RPC::run(const CSCWireDigiCollection* wiredc,
     retrieveRPCDigis(rpcDigis, rpc_id.rawId());
   }
 
-  return;
-
   const bool hasRPCDigis(rpcDigis_.size()!=0);
   
   int used_clct_mask[20];
@@ -298,7 +301,7 @@ CSCMotherboardME3141RPC::run(const CSCWireDigiCollection* wiredc,
 	    // clct quality
 	    const int quality(clct->bestCLCT[bx_clct].getQuality());
 	    // low quality ALCT
-	    const bool lowQualityALCT(alct->bestALCT[bx_alct].getQuality() == 4);
+	    const bool lowQualityALCT(alct->bestALCT[bx_alct].getQuality() == 0);
 	    // low quality ALCT or CLCT
 	    const bool lowQuality(quality<4 or lowQualityALCT);
 
@@ -306,16 +309,16 @@ CSCMotherboardME3141RPC::run(const CSCWireDigiCollection* wiredc,
 	      int nFound(matchingDigis.size());
 	      const bool clctInEdge(clct->bestCLCT[bx_clct].getKeyStrip() < 5 or clct->bestCLCT[bx_clct].getKeyStrip() > 155);
 	      if (clctInEdge){
-		if (debug_rpc_matching_) std::cout << "\tInfo: low quality CLCT in CSC chamber edge, don't care about RPC digis" << std::endl;
+          if (debug_rpc_matching_) std::cout << "\tInfo: low quality CLCT in CSC chamber edge, don't care about RPC digis" << std::endl;
 	      }
 	      else {
-		if (nFound != 0){
-		  if (debug_rpc_matching_) std::cout << "\tInfo: low quality CLCT with " << nFound << " matching RPC trigger digis" << std::endl;
-		}
-		else {
-		  if (debug_rpc_matching_) std::cout << "\tWarning: low quality CLCT without matching RPC trigger digi" << std::endl;
-		  continue;
-		}
+          if (nFound != 0){
+            if (debug_rpc_matching_) std::cout << "\tInfo: low quality CLCT with " << nFound << " matching RPC trigger digis" << std::endl;
+          }
+          else {
+            if (debug_rpc_matching_) std::cout << "\tWarning: low quality CLCT without matching RPC trigger digi" << std::endl;
+            continue;
+          }
 	      }
 	    }
 	    
@@ -461,7 +464,6 @@ void CSCMotherboardME3141RPC::retrieveRPCDigis(const RPCDigiCollection* rpcDigis
     RPCDetId roll_id(roll->id());
     auto digis_in_det = rpcDigis->get(roll_id);
     for (auto digi = digis_in_det.first; digi != digis_in_det.second; ++digi) {
-      std::cout << roll_id << " " << &(*digi) << std::endl;
       auto id_digi = std::make_pair(roll_id(), &(*digi));
       const int bx_shifted(lct_central_bx + digi->bx());
       for (int bx = bx_shifted - maxDeltaBXRPC_;bx <= bx_shifted + maxDeltaBXRPC_; ++bx) {
@@ -486,7 +488,7 @@ void CSCMotherboardME3141RPC::printRPCTriggerDigis(int bx_start, int bx_stop)
     if (rpcDigis_.size()!=0){
       for (auto digi : in_strips){
         auto roll_id(RPCDetId(digi.first));
-        std::cout << "\tdetId " << digi.first << " " << roll_id << ", digi = " << digi.second->strip() << ", BX = " << digi.second->bx() + 6;
+        std::cout << "\tdetId " << digi.first << " " << roll_id << ", digi = " << digi.second->strip() << ", BX = " << digi.second->bx() + 6 << std::endl;
       }
     }
     else
