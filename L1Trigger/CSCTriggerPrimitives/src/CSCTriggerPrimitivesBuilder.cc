@@ -22,7 +22,6 @@
 #include <L1Trigger/CSCTriggerPrimitives/src/CSCMuonPortCard.h>
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
-#include <iostream>
 
 #include <L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h>
 #include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
@@ -232,8 +231,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
 
             // randomly disable X% of CSC chambers
             if (flat_->fire(1) < fractionBrokenCSCs_) {
-              std::cout<<//              edm::LogInfo("L1CSCTrigger")
-                "Skipping bad chamber " << detid << std::endl;              
+              edm::LogInfo("L1CSCTrigger") << "Skipping bad chamber: " << detid << std::endl;              
               continue;
             }
 
