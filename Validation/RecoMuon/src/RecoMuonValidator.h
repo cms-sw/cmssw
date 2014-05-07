@@ -36,7 +36,7 @@ class RecoMuonValidator : public DQMEDAnalyzer
   RecoMuonValidator(const edm::ParameterSet& pset);
   ~RecoMuonValidator();
 
-  virtual void dqmbeginRun(const edm::Run&, const edm::EventSetup& eventSetup);
+  virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup& eventSetup);
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   virtual void endRun();
   virtual void analyze(const edm::Event& event, const edm::EventSetup& eventSetup);
@@ -67,7 +67,7 @@ class RecoMuonValidator : public DQMEDAnalyzer
   edm::ParameterSet pset;
 
   MuonServiceProxy * theMuonService;
-  DQMStore * theDQM;
+  DQMStore * dbe_;
   
   bool doAbsEta_;
   bool doAssoc_;
