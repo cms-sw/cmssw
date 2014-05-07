@@ -54,7 +54,7 @@ void testSiStripHashedDetId::initialize( const edm::EventSetup& setup ) {
   dets.reserve(16000);
   TrackerGeometry::DetUnitContainer::const_iterator iter = geom->detUnits().begin();
   for( ; iter != geom->detUnits().end(); ++iter ) {
-    const StripGeomDetUnit* strip = dynamic_cast<StripGeomDetUnit*>(*iter);
+    const auto strip = dynamic_cast<const StripGeomDetUnit*>(*iter);
     if( strip ) {
       dets.push_back( (strip->geographicalId()).rawId() );
     }

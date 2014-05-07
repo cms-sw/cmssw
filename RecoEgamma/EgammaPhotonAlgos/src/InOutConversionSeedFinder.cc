@@ -18,8 +18,8 @@
 //
 //
 
-InOutConversionSeedFinder::InOutConversionSeedFinder( const edm::ParameterSet& conf ):
-  ConversionSeedFinder( conf ), conf_(conf)  
+InOutConversionSeedFinder::InOutConversionSeedFinder( const edm::ParameterSet& conf,edm::ConsumesCollector && iC ):
+  ConversionSeedFinder( conf,iC ), conf_(conf)  
 {
   
   

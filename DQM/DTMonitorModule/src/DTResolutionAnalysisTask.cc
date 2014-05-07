@@ -67,8 +67,8 @@ void DTResolutionAnalysisTask::beginRun(const Run& run, const EventSetup& setup)
   setup.get<MuonGeometryRecord>().get(dtGeom);
 
   // Book the histograms
-  vector<DTChamber*> chambers = dtGeom->chambers();
-  for(vector<DTChamber*>::const_iterator chamber = chambers.begin();
+  vector<const DTChamber*> chambers = dtGeom->chambers();
+  for(vector<const DTChamber*>::const_iterator chamber = chambers.begin();
       chamber != chambers.end(); ++chamber) {  // Loop over all chambers
     DTChamberId dtChId = (*chamber)->id();
     for(int sl = 1; sl <= 3; ++sl) { // Loop over SLs

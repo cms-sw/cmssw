@@ -55,7 +55,7 @@ class DTSCTrigUnit {
 
     /// Constructor
     //DTSCTrigUnit(DTChamber* stat, edm::ParameterSet& tu_pset) ;
-    DTSCTrigUnit(DTChamber *stat) ;  
+    DTSCTrigUnit(const DTChamber *stat) ;  
 
     /// Destructor 
     ~DTSCTrigUnit() ;
