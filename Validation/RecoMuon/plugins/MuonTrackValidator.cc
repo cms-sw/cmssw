@@ -25,9 +25,9 @@
 using namespace std;
 using namespace edm;
 
-//void MuonTrackValidator::beginRun(Run const&, EventSetup const& setup) {
+
 void MuonTrackValidator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const& setup) {
-  // ibooker.showDirStructure();
+
 
   int j=0;
   for (unsigned int ww=0;ww<associators.size();ww++){
