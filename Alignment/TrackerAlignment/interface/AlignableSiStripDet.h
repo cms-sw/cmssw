@@ -44,8 +44,8 @@ class AlignableSiStripDet: public AlignableDet {
   /// the same way as for the bounds. Sigh!
   const Bounds     *theMonoBounds;
   const Bounds     *theStereoBounds;
-  StripGeomDetType &theMonoType;
-  StripGeomDetType &theStereoType;
+  const StripGeomDetType &theMonoType;
+  const StripGeomDetType &theStereoType;
 };
 
 #endif

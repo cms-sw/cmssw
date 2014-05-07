@@ -71,7 +71,7 @@ namespace edm
 
       virtual void initializeEvent(const edm::Event &e, edm::EventSetup const& iSetup);
 
-      void DMinitializeDetUnit(StripGeomDetUnit* det, const edm::EventSetup& iSetup );
+      void DMinitializeDetUnit(StripGeomDetUnit const * det, const edm::EventSetup& iSetup );
 
     private:
       // data specifiers

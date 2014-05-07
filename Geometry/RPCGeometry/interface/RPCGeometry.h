@@ -29,34 +29,34 @@ class RPCGeometry : public TrackingGeometry {
   virtual ~RPCGeometry();
 
   // Return a vector of all det types
-  virtual const DetTypeContainer&  detTypes() const;
+  virtual const DetTypeContainer&  detTypes() const override;
 
   // Return a vector of all GeomDetUnit
-  virtual const DetUnitContainer& detUnits() const;
+  virtual const DetUnitContainer& detUnits() const override;
 
   // Return a vector of all GeomDet
-  virtual const DetContainer& dets() const;
+  virtual const DetContainer& dets() const override;
   
   // Return a vector of all GeomDetUnit DetIds
-  virtual const DetIdContainer& detUnitIds() const;
+  virtual const DetIdContainer& detUnitIds() const override;
 
   // Return a vector of all GeomDet DetIds
-  virtual const DetIdContainer& detIds() const;
+  virtual const DetIdContainer& detIds() const override;
 
   // Return the pointer to the GeomDetUnit corresponding to a given DetId
-  virtual const GeomDetUnit* idToDetUnit(DetId) const;
+  virtual const GeomDetUnit* idToDetUnit(DetId) const override;
 
   // Return the pointer to the GeomDet corresponding to a given DetId
-  virtual const GeomDet* idToDet(DetId) const;
+  virtual const GeomDet* idToDet(DetId) const override;
 
 
   //---- Extension of the interface
 
   /// Return a vector of all RPC chambers
-  const std::vector<RPCChamber*>& chambers() const;
+  const std::vector<const RPCChamber*>& chambers() const;
 
   /// Return a vector of all RPC rolls
-  const std::vector<RPCRoll*>& rolls() const;
+  const std::vector<const RPCRoll*>& rolls() const;
 
   // Return a RPCChamber given its id
   const RPCChamber* chamber(RPCDetId id) const;
@@ -80,8 +80,8 @@ class RPCGeometry : public TrackingGeometry {
   // Map for efficient lookup by DetId 
   mapIdToDet theMap;
 
-  std::vector<RPCRoll*> allRolls; // Are not owned by this class; are owned by their chamber.
-  std::vector<RPCChamber*> allChambers; // Are owned by this class.
+  std::vector<const RPCRoll*> allRolls; // Are not owned by this class; are owned by their chamber.
+  std::vector<const RPCChamber*> allChambers; // Are owned by this class.
 
 };
 

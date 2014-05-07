@@ -78,9 +78,9 @@ int RPCSynchronizer::getSimHitBx(const PSimHit* simhit, CLHEP::HepRandomEngine* 
 
   for(TrackingGeometry::DetContainer::const_iterator it = geometry->dets().begin(); it != geometry->dets().end(); it++){
     
-    if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
+    if( dynamic_cast< const RPCChamber* >( *it ) != 0 ){
       
-      RPCChamber* ch = dynamic_cast< RPCChamber* >( *it ); 
+      auto ch = dynamic_cast<const RPCChamber* >( *it ); 
 
       std::vector< const RPCRoll*> rollsRaf = (ch->rolls());
       for(std::vector<const RPCRoll*>::iterator r = rollsRaf.begin();

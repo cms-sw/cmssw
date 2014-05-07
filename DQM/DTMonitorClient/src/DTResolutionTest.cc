@@ -77,8 +77,8 @@ void DTResolutionTest::beginRun(const edm::Run& run, const edm::EventSetup& cont
   for(int wheel=-2; wheel<3; wheel++){
     bookHistos(wheel);
   }
-  vector<DTChamber*> chambers = muonGeom->chambers();
-  for(vector<DTChamber*>::const_iterator chamber = chambers.begin();
+  vector<const DTChamber*> chambers = muonGeom->chambers();
+  for(vector<const DTChamber*>::const_iterator chamber = chambers.begin();
       chamber != chambers.end(); ++chamber) {
     bookHistos((*chamber)->id());
   }
@@ -194,8 +194,8 @@ void DTResolutionTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
 
   edm::LogVerbatim ("resolution") <<"[DTResolutionTest]: "<<nLumiSegs<<" updates";
 
-  vector<DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
-  vector<DTChamber*>::const_iterator ch_end = muonGeom->chambers().end();
+  vector<const DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
+  vector<const DTChamber*>::const_iterator ch_end = muonGeom->chambers().end();
 
   edm::LogVerbatim ("resolution") << "[DTResolutionTest]: Residual Distribution tests results";
   

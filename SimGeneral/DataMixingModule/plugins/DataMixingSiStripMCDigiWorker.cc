@@ -81,7 +81,7 @@ namespace edm
 
     iSetup.get<TrackerDigiGeometryRecord>().get(geometryType,pDD);
 
-    for(TrackingGeometry::DetUnitContainer::const_iterator iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); ++iu) {
+    for(auto iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); ++iu) {
       unsigned int detId = (*iu)->geographicalId().rawId();
       DetId idet=DetId(detId);
       unsigned int isub=idet.subdetId();
@@ -89,7 +89,7 @@ namespace edm
 	 (isub == StripSubdetector::TID) ||
 	 (isub == StripSubdetector::TOB) ||
 	 (isub == StripSubdetector::TEC)) {
-	StripGeomDetUnit* stripdet = dynamic_cast<StripGeomDetUnit*>((*iu));
+	auto stripdet = dynamic_cast<StripGeomDetUnit const*>((*iu));
 	assert(stripdet != 0);
 	DMinitializeDetUnit(stripdet, iSetup);
       }
@@ -99,7 +99,7 @@ namespace edm
   }
 
 
-  void DataMixingSiStripMCDigiWorker::DMinitializeDetUnit(StripGeomDetUnit* det, const edm::EventSetup& iSetup ) { 
+  void DataMixingSiStripMCDigiWorker::DMinitializeDetUnit(StripGeomDetUnit const * det, const edm::EventSetup& iSetup ) { 
 
     edm::ESHandle<SiStripBadStrip> deadChannelHandle;
     iSetup.get<SiStripBadChannelRcd>().get(deadChannelHandle);
