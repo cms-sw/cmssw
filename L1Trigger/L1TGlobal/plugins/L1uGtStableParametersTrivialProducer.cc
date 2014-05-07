@@ -7,13 +7,11 @@
  * Implementation:
  *    <TODO: enter implementation details>
  *   
- * \author: Vasile Mihai Ghete - HEPHY Vienna
- * 
  *
  */
 
 // this class header
-#include "L1Trigger/L1TGlobal/interface/L1uGtStableParametersTrivialProducer.h"
+#include "L1uGtStableParametersTrivialProducer.h"
 
 // system include files
 #include <memory>
@@ -31,7 +29,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 
-#include "CondFormats/DataRecord/interface/L1uGtStableParametersRcd.h"
+#include "CondFormats/DataRecord/interface/L1TGlobalStableParametersRcd.h"
 
 // forward declarations
 
@@ -119,12 +117,12 @@ L1uGtStableParametersTrivialProducer::~L1uGtStableParametersTrivialProducer() {
 // member functions
 
 // method called to produce the data
-boost::shared_ptr<L1uGtStableParameters> 
+boost::shared_ptr<GlobalStableParameters> 
     L1uGtStableParametersTrivialProducer::produceGtStableParameters(
-        const L1uGtStableParametersRcd& iRecord) {
+        const L1TGlobalStableParametersRcd& iRecord) {
 
-    boost::shared_ptr<L1uGtStableParameters> pL1uGtStableParameters =
-        boost::shared_ptr<L1uGtStableParameters>(new L1uGtStableParameters());
+    boost::shared_ptr<GlobalStableParameters> pL1uGtStableParameters =
+        boost::shared_ptr<GlobalStableParameters>(new GlobalStableParameters());
 
     // set the number of physics trigger algorithms
     pL1uGtStableParameters->setGtNumberPhysTriggers(m_numberPhysTriggers);

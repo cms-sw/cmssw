@@ -28,7 +28,7 @@
 // user include files
 
 // Upgrade Board
-#include "L1Trigger/L1TGlobal/interface/L1uGtBoard.h"
+#include "L1Trigger/L1TGlobal/interface/Board.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -39,7 +39,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-class L1uGtStableParameters;
+class GlobalStableParameters;
 class L1GtParameters;
 class L1GtBoardMaps;
 
@@ -61,7 +61,7 @@ public:
     virtual void produce(edm::Event&, const edm::EventSetup&);
 
     // return pointer to uGt Board  QUESTION: Is this used anywhere?
-    inline const L1uGtBoard* gtBrd() const
+    inline const Board* gtBrd() const
     {
         return m_uGtBrd;
     }    
@@ -71,7 +71,7 @@ private:
     /// cached stuff
 
     /// stable parameters
-    const L1uGtStableParameters* m_l1GtStablePar;
+    const GlobalStableParameters* m_l1GtStablePar;
     unsigned long long m_l1GtStableParCacheID;
 
     /// number of physics triggers
@@ -143,7 +143,7 @@ private:
     L1uGtProducerGTL* m_gtGTL;
     L1uGtProducerFDL* m_gtFDL;
 */
-    L1uGtBoard* m_uGtBrd;
+    Board* m_uGtBrd;
 
     /// input tag for muon collection from GMT
     edm::InputTag m_muInputTag;

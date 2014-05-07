@@ -7,15 +7,10 @@
  * Implementation:
  *    <TODO: enter implementation details>
  *
- * \author: Vasile Mihai Ghete - HEPHY Vienna
- *
- * $Date$
- * $Revision$
- *
  */
 
 // this class header
-#include "L1Trigger/L1TGlobal/interface/L1uGtTriggerMenuXmlProducer.h"
+#include "L1uGtTriggerMenuXmlProducer.h"
 
 // system include files
 #include <memory>
@@ -33,13 +28,13 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 
-#include "CondFormats/L1TObjects/interface/L1uGtTriggerMenu.h"
-#include "CondFormats/DataRecord/interface/L1uGtTriggerMenuRcd.h"
+#include "CondFormats/L1TObjects/interface/GlobalTriggerMenu.h"
+#include "CondFormats/DataRecord/interface/L1TGlobalTriggerMenuRcd.h"
 
-#include "CondFormats/L1TObjects/interface/L1uGtStableParameters.h"
-#include "CondFormats/DataRecord/interface/L1uGtStableParametersRcd.h"
+#include "CondFormats/L1TObjects/interface/GlobalStableParameters.h"
+#include "CondFormats/DataRecord/interface/L1TGlobalStableParametersRcd.h"
 
-#include "L1Trigger/L1TGlobal/interface/L1uGtTriggerMenuXmlParser.h"
+#include "L1uGtTriggerMenuXmlParser.h"
 
 
 
@@ -98,18 +93,16 @@ l1t::L1uGtTriggerMenuXmlProducer::~L1uGtTriggerMenuXmlProducer()
 }
 
 
-// member functions
-
 // method called to produce the data
-boost::shared_ptr<L1uGtTriggerMenu> l1t::L1uGtTriggerMenuXmlProducer::produceGtTriggerMenu(
-    const L1uGtTriggerMenuRcd& l1MenuRecord)
+boost::shared_ptr<GlobalTriggerMenu> l1t::L1uGtTriggerMenuXmlProducer::produceGtTriggerMenu(
+    const L1TGlobalTriggerMenuRcd& l1MenuRecord)
 {
 
     // get the parameters needed from other records
-    const L1uGtStableParametersRcd& stableParametersRcd =
-        l1MenuRecord.getRecord<L1uGtStableParametersRcd>();
+    const L1TGlobalStableParametersRcd& stableParametersRcd =
+    l1MenuRecord.getRecord<L1TGlobalStableParametersRcd>();
 
-    edm::ESHandle<L1uGtStableParameters> stableParameters;
+    edm::ESHandle<GlobalStableParameters> stableParameters;
     stableParametersRcd.get(stableParameters);
 
     unsigned int numberConditionChips = stableParameters->gtNumberConditionChips();
@@ -218,8 +211,8 @@ boost::shared_ptr<L1uGtTriggerMenu> l1t::L1uGtTriggerMenuXmlProducer::produceGtT
 
     // transfer the condition map and algorithm map from parser to L1uGtTriggerMenu
 
-    boost::shared_ptr<L1uGtTriggerMenu> pL1uGtTriggerMenu = boost::shared_ptr<L1uGtTriggerMenu>(
-                new L1uGtTriggerMenu(gtXmlParser.gtTriggerMenuName(), numberConditionChips,
+    boost::shared_ptr<GlobalTriggerMenu> pL1uGtTriggerMenu = boost::shared_ptr<GlobalTriggerMenu>(
+                new GlobalTriggerMenu(gtXmlParser.gtTriggerMenuName(), numberConditionChips,
                         gtXmlParser.vecMuonTemplate(),
                         gtXmlParser.vecCaloTemplate(),
                         gtXmlParser.vecEnergySumTemplate(),

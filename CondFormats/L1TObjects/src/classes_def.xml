@@ -117,7 +117,7 @@
   <class name="L1GtStableParameters">
     <field name="m_orderConditionChip" mapping="blob" />
   </class>
-  <class name="L1uGtStableParameters">
+  <class name="GlobalStableParameters">
     <field name="m_orderConditionChip" mapping="blob" />
   </class>
   <class name="L1GtParameters">
@@ -190,10 +190,10 @@
   <class name="L1GtCorrelationTemplate::CorrelationParameter"/>
   <class name="std::vector<L1GtCorrelationTemplate>"/>
   <class name="std::vector<std::vector<L1GtCorrelationTemplate> >"/>
-  <class name="L1uGtCorrelationTemplate"/>
-  <class name="L1uGtCorrelationTemplate::CorrelationParameter"/>
-  <class name="std::vector<L1uGtCorrelationTemplate>"/>
-  <class name="std::vector<std::vector<L1uGtCorrelationTemplate> >"/>
+  <class name="GlobalCorrelationTemplate"/>
+  <class name="GlobalCorrelationTemplate::CorrelationParameter"/>
+  <class name="std::vector<GlobalCorrelationTemplate>"/>
+  <class name="std::vector<std::vector<GlobalCorrelationTemplate> >"/>
   <class name="L1GtAlgorithm"/>
   <class name="std::map<std::string, L1GtAlgorithm>"/>
   <class name="std::map<std::string, L1GtAlgorithm>::value_type"/>
@@ -217,7 +217,7 @@
     <field name="m_vecJetCountsTemplate" mapping="blob" />
     <field name="m_vecMuonTemplate" mapping="blob" />
   </class>
-  <class name="L1uGtTriggerMenu" class_version="L1uGtTriggerMenu_V01">
+  <class name="GlobalTriggerMenu" class_version="GlobalTriggerMenu_V01">
     <field name="m_conditionMap" transient="true" />
     <field name="m_algorithmAliasMap" mapping="blob" />
     <field name="m_algorithmMap" mapping="blob" />
@@ -239,16 +239,16 @@
   <class name="L1CaloGeometry" class_version="L1CaloGeometry_V01">
     <field name="m_gctEtaBinBoundaries" mapping="blob" />
   </class>
-  <class name="L1uGtMuonTemplate"/>
-  <class name="L1uGtMuonTemplate::ObjectParameter"/>
-  <class name="std::vector<L1uGtMuonTemplate::ObjectParameter>"/>
-  <class name="L1uGtMuonTemplate::CorrelationParameter"/>
-  <class name="std::vector<L1uGtMuonTemplate>"/>
-  <class name="std::vector<std::vector<L1uGtMuonTemplate> >"/>
-  <class name="L1uGtCaloTemplate"/>
-  <class name="L1uGtCaloTemplate::ObjectParameter"/>
-  <class name="std::vector<L1uGtCaloTemplate::ObjectParameter>"/>
-  <class name="L1uGtCaloTemplate::CorrelationParameter"/>
-  <class name="std::vector<L1uGtCaloTemplate>"/>
-  <class name="std::vector<std::vector<L1uGtCaloTemplate> >"/>
+  <class name="GlobalMuonTemplate"/>
+  <class name="GlobalMuonTemplate::ObjectParameter"/>
+  <class name="std::vector<GlobalMuonTemplate::ObjectParameter>"/>
+  <class name="GlobalMuonTemplate::CorrelationParameter"/>
+  <class name="std::vector<GlobalMuonTemplate>"/>
+  <class name="std::vector<std::vector<GlobalMuonTemplate> >"/>
+  <class name="GlobalCaloTemplate"/>
+  <class name="GlobalCaloTemplate::ObjectParameter"/>
+  <class name="std::vector<GlobalCaloTemplate::ObjectParameter>"/>
+  <class name="GlobalCaloTemplate::CorrelationParameter"/>
+  <class name="std::vector<GlobalCaloTemplate>"/>
+  <class name="std::vector<std::vector<GlobalCaloTemplate> >"/>
 </lcgdict>

@@ -30,53 +30,22 @@
 // user include files
 #include "FWCore/Utilities/interface/typedefs.h"
 
-/* *** MODIFY LOCATION *****
-//#include "DataFormats/L1uGtProducer/interface/L1uGtProducerReadoutSetupFwd.h"
-#include "DataFormats/L1uGtProducer/interface/L1uGtProducerReadoutRecord.h"
-#include "DataFormats/L1uGtProducer/interface/L1uGtProducerObjectMapRecord.h"
-
-#include "DataFormats/L1uGtProducer/interface/L1uGtProducerObjectMap.h"
-
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTReadoutCollection.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
-#include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTExtendedCand.h"
-*/
-
 // Objects to produce for the output record.
-#include "DataFormats/L1Trigger/interface/L1uGtRecBlk.h"
-#include "DataFormats/L1Trigger/interface/L1uGtAlgBlk.h"
-#include "DataFormats/L1Trigger/interface/L1uGtExtBlk.h"
-
+#include "DataFormats/L1TGlobal/interface/RecBlk.h"
+#include "DataFormats/L1TGlobal/interface/AlgBlk.h"
+#include "DataFormats/L1TGlobal/interface/ExtBlk.h"
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
-
-/*
-// Trigger Objects
-#include "DataFormats/L1Trigger/interface/EGamma.h"
-#include "DataFormats/L1Trigger/interface/Tau.h"
-#include "DataFormats/L1Trigger/interface/Jet.h"
-#include "DataFormats/L1Trigger/interface/EtSum.h"
-*/
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-// ** UNknown Change ***
-#include "CondFormats/L1TObjects/interface/L1uGtStableParameters.h"
-#include "CondFormats/DataRecord/interface/L1uGtStableParametersRcd.h"
+#include "CondFormats/L1TObjects/interface/GlobalStableParameters.h"
+#include "CondFormats/DataRecord/interface/L1TGlobalStableParametersRcd.h"
 
 #include "CondFormats/L1TObjects/interface/L1GtParameters.h"
 #include "CondFormats/DataRecord/interface/L1GtParametersRcd.h"
-
-
-/* ** UNKnown Change ****  Drop Board Mapping for Now
-#include "CondFormats/L1TObjects/interface/L1GtFwd.h"
-#include "CondFormats/L1TObjects/interface/L1GtBoard.h"
-#include "CondFormats/L1TObjects/interface/L1GtBoardMaps.h"
-#include "CondFormats/DataRecord/interface/L1GtBoardMapsRcd.h"
-*/
-
 
 #include "CondFormats/L1TObjects/interface/L1GtPrescaleFactors.h"
 #include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsAlgoTrigRcd.h"
@@ -84,12 +53,6 @@
 #include "CondFormats/DataRecord/interface/L1GtTriggerMaskAlgoTrigRcd.h"
 #include "CondFormats/DataRecord/interface/L1GtTriggerMaskVetoAlgoTrigRcd.h"
 
-
-/* ** Unknow Drop?/Change?
-#include "DataFormats/L1uGtProducer/interface/L1GtfeWord.h"
-#include "DataFormats/L1uGtProducer/interface/L1GtfeExtWord.h"
-#include "DataFormats/L1uGtProducer/interface/L1TcsWord.h"
-*/
 
 #include "DataFormats/Common/interface/RefProd.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -100,7 +63,7 @@
 
 
 // constructors
-//  *** Drop some of these??  ****
+
 l1t::L1uGtProducer::L1uGtProducer(const edm::ParameterSet& parSet) :
             m_muInputTag(parSet.getParameter<edm::InputTag> ("GmtInputTag")),
             m_caloInputTag(parSet.getParameter<edm::InputTag> ("caloInputTag")),
@@ -118,8 +81,6 @@ l1t::L1uGtProducer::L1uGtProducer(const edm::ParameterSet& parSet) :
 
             m_verbosity(parSet.getUntrackedParameter<int>("Verbosity", 0)),
             m_isDebugEnabled(edm::isDebugEnabled())
-
-
 {
 
   
@@ -190,9 +151,9 @@ l1t::L1uGtProducer::L1uGtProducer(const edm::ParameterSet& parSet) :
   
     // register products
     if (m_produceL1GtDaqRecord) {
-        produces<L1uGtRecBxCollection>();
-	produces<L1uGtAlgBxCollection>();
-	produces<L1uGtExtBxCollection>();
+        produces<RecBxCollection>();
+	produces<AlgBxCollection>();
+	produces<ExtBxCollection>();
     }
 
 /*  **** Needs Modifying ***
@@ -203,7 +164,7 @@ l1t::L1uGtProducer::L1uGtProducer(const edm::ParameterSet& parSet) :
 
 
     // create new uGt Board
-    m_uGtBrd = new L1uGtBoard();
+    m_uGtBrd = new Board();
     m_uGtBrd->setVerbosity(m_verbosity);
 
     // initialize cached IDs
@@ -301,12 +262,12 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
     // local cache & check on cacheIdentifier
 
     unsigned long long l1GtStableParCacheID =
-            evSetup.get<L1uGtStableParametersRcd>().cacheIdentifier();
+            evSetup.get<L1TGlobalStableParametersRcd>().cacheIdentifier();
 
     if (m_l1GtStableParCacheID != l1GtStableParCacheID) {
 
-        edm::ESHandle< L1uGtStableParameters > l1GtStablePar;
-        evSetup.get< L1uGtStableParametersRcd >().get( l1GtStablePar );
+        edm::ESHandle< GlobalStableParameters > l1GtStablePar;
+        evSetup.get< L1TGlobalStableParametersRcd >().get( l1GtStablePar );
         m_l1GtStablePar = l1GtStablePar.product();
 
         // number of physics triggers
@@ -487,9 +448,9 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
 */
 
     // Produce the Output Records for the GT
-    std::auto_ptr<L1uGtRecBxCollection> uGtRecord( new L1uGtRecBxCollection());
-    std::auto_ptr<L1uGtAlgBxCollection> uGtAlgRecord( new L1uGtAlgBxCollection(0,minEmulBxInEvent,maxEmulBxInEvent));
-    std::auto_ptr<L1uGtExtBxCollection> uGtExtRecord( new L1uGtExtBxCollection(0,minEmulBxInEvent,maxEmulBxInEvent));
+    std::auto_ptr<RecBxCollection> uGtRecord( new RecBxCollection());
+    std::auto_ptr<AlgBxCollection> uGtAlgRecord( new AlgBxCollection(0,minEmulBxInEvent,maxEmulBxInEvent));
+    std::auto_ptr<ExtBxCollection> uGtExtRecord( new ExtBxCollection(0,minEmulBxInEvent,maxEmulBxInEvent));
    
 
     // * produce the L1GlobalTriggerObjectMapRecord
@@ -693,7 +654,7 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
     } //End Loop over Bx
 
 
-    // Add explicit reset of L1uGtBoard
+    // Add explicit reset of Board
     m_uGtBrd->reset();
 
 

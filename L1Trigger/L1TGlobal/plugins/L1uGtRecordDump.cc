@@ -43,10 +43,9 @@
 #include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
-#include "DataFormats/L1Trigger/interface/L1uGtRecBlk.h"
-#include "DataFormats/L1Trigger/interface/L1uGtAlgBlk.h"
-#include "DataFormats/L1Trigger/interface/L1uGtExtBlk.h"
-
+#include "DataFormats/L1TGlobal/interface/RecBlk.h"
+#include "DataFormats/L1TGlobal/interface/AlgBlk.h"
+#include "DataFormats/L1TGlobal/interface/ExtBlk.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
@@ -79,8 +78,8 @@ namespace l1t {
 			 Handle<BXVector<l1t::Tau>> taus,
 			 Handle<BXVector<l1t::Jet>> jets,
 			 Handle<BXVector<l1t::EtSum>> etsums,
-			 Handle<BXVector<L1uGtAlgBlk>> uGtAlg,
-			 Handle<BXVector<L1uGtExtBlk>> uGtExt );
+			 Handle<BXVector<AlgBlk>> uGtAlg,
+			 Handle<BXVector<ExtBlk>> uGtExt );
 				          
     cms_uint64_t formatMuon(std::vector<l1t::Muon>::const_iterator mu);
     unsigned int formatEG(std::vector<l1t::EGamma>::const_iterator eg);
@@ -111,9 +110,9 @@ namespace l1t {
       tauToken    = consumes<BXVector<l1t::Tau>>(iConfig.getParameter<InputTag>("tauInputTag"));
       jetToken    = consumes<BXVector<l1t::Jet>>(iConfig.getParameter<InputTag>("jetInputTag"));
       etsumToken  = consumes<BXVector<l1t::EtSum>>(iConfig.getParameter<InputTag>("etsumInputTag"));
-      uGtRecToken = consumes<std::vector<L1uGtRecBlk>>(iConfig.getParameter<InputTag>("uGtRecInputTag"));
-      uGtAlgToken = consumes<BXVector<L1uGtAlgBlk>>(iConfig.getParameter<InputTag>("uGtAlgInputTag"));
-      uGtExtToken = consumes<BXVector<L1uGtExtBlk>>(iConfig.getParameter<InputTag>("uGtExtInputTag"));
+      uGtRecToken = consumes<std::vector<RecBlk>>(iConfig.getParameter<InputTag>("uGtRecInputTag"));
+      uGtAlgToken = consumes<BXVector<AlgBlk>>(iConfig.getParameter<InputTag>("uGtAlgInputTag"));
+      uGtExtToken = consumes<BXVector<ExtBlk>>(iConfig.getParameter<InputTag>("uGtExtInputTag"));
 
       m_minBx           = iConfig.getParameter<int>("minBx");
       m_maxBx           = iConfig.getParameter<int>("maxBx");     
@@ -152,13 +151,13 @@ namespace l1t {
   Handle<BXVector<l1t::EtSum>> etsums;
   iEvent.getByToken(etsumToken,etsums); 
   
-  Handle<std::vector<L1uGtRecBlk>> uGtRec;
+  Handle<std::vector<RecBlk>> uGtRec;
   iEvent.getByToken(uGtRecToken,uGtRec);   
 
-  Handle<BXVector<L1uGtAlgBlk>> uGtAlg;
+  Handle<BXVector<AlgBlk>> uGtAlg;
   iEvent.getByToken(uGtAlgToken,uGtAlg);   
 
-  Handle<BXVector<L1uGtExtBlk>> uGtExt;
+  Handle<BXVector<ExtBlk>> uGtExt;
   iEvent.getByToken(uGtExtToken,uGtExt);   
   
 
@@ -169,7 +168,7 @@ namespace l1t {
        cout << " ----------------------------------------------------- " << endl; 
 
       // Dump the output record	  
-       for(std::vector<L1uGtRecBlk>::const_iterator recBlk = uGtRec->begin(); recBlk != uGtRec->end(); ++recBlk) {
+       for(std::vector<RecBlk>::const_iterator recBlk = uGtRec->begin(); recBlk != uGtRec->end(); ++recBlk) {
            recBlk->print(std::cout);
        }    
 
@@ -278,7 +277,7 @@ namespace l1t {
      // Dump the output record
  	  cout << " ------ uGtAlg ----------" << endl;
 	  if(i>=uGtAlg->getFirstBX() && i<=uGtAlg->getLastBX()) {	  
-	     for(std::vector<L1uGtAlgBlk>::const_iterator algBlk = uGtAlg->begin(i); algBlk != uGtAlg->end(i); ++algBlk) {
+	     for(std::vector<AlgBlk>::const_iterator algBlk = uGtAlg->begin(i); algBlk != uGtAlg->end(i); ++algBlk) {
         	  algBlk->print(std::cout);
 	     } 
 	  } else {
@@ -288,7 +287,7 @@ namespace l1t {
       // Dump the output record
  	  cout << " ------ uGtExt ----------" << endl;
 	  if(i>=uGtExt->getFirstBX() && i<=uGtExt->getLastBX()) { 	  
-	     for(std::vector<L1uGtExtBlk>::const_iterator extBlk = uGtExt->begin(i); extBlk != uGtExt->end(i); ++extBlk) {
+	     for(std::vector<ExtBlk>::const_iterator extBlk = uGtExt->begin(i); extBlk != uGtExt->end(i); ++extBlk) {
         	  extBlk->print(std::cout);
 	     } 
 	  } else {
@@ -328,8 +327,8 @@ void L1uGtRecordDump::dumpTestVectors(int bx, std::ofstream& myOutFile,
 				      Handle<BXVector<l1t::Tau>> taus,
 				      Handle<BXVector<l1t::Jet>> jets,
 				      Handle<BXVector<l1t::EtSum>> etsums,
-				      Handle<BXVector<L1uGtAlgBlk>> uGtAlg,
-				      Handle<BXVector<L1uGtExtBlk>> uGtExt
+				      Handle<BXVector<AlgBlk>> uGtAlg,
+				      Handle<BXVector<ExtBlk>> uGtExt
 				      ) {
 
 
@@ -406,7 +405,7 @@ void L1uGtRecordDump::dumpTestVectors(int bx, std::ofstream& myOutFile,
 // External Condition (64 digits + space)
     int digit = 0;
     myOutFile << " ";
-    for(std::vector<L1uGtExtBlk>::const_iterator extBlk = uGtExt->begin(bx); extBlk != uGtExt->end(bx); ++extBlk) {
+    for(std::vector<ExtBlk>::const_iterator extBlk = uGtExt->begin(bx); extBlk != uGtExt->end(bx); ++extBlk) {
         for(int i=255; i>-1; i--) {
           if(extBlk->getExternalDecision(i)) digit |= (1 << (i%4));
              if((i%4) == 0){
@@ -419,7 +418,7 @@ void L1uGtRecordDump::dumpTestVectors(int bx, std::ofstream& myOutFile,
 // Algorithm Dump (128 digits + space)
     digit = 0;
     myOutFile << " ";
-    for(std::vector<L1uGtAlgBlk>::const_iterator algBlk = uGtAlg->begin(bx); algBlk != uGtAlg->end(bx); ++algBlk) {
+    for(std::vector<AlgBlk>::const_iterator algBlk = uGtAlg->begin(bx); algBlk != uGtAlg->end(bx); ++algBlk) {
         for(int i=511; i>-1; i--) {
           if(algBlk->getAlgoDecisionFinal(i)) digit |= (1 << (i%4));
              if((i%4) == 0){
