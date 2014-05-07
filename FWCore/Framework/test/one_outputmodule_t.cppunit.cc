@@ -57,8 +57,6 @@ public:
   void fileTest();
   void resourceTest();
 
-private:
-
   enum class Trans {
     kBeginJob,
     kGlobalOpenInputFile,
@@ -72,8 +70,11 @@ private:
     kEndJob
   };
   
-  std::map<Trans,std::function<void(edm::Worker*,edm::OutputModuleCommunicator*)>> m_transToFunc;
   typedef std::vector<Trans> Expectations;
+
+private:
+
+  std::map<Trans,std::function<void(edm::Worker*,edm::OutputModuleCommunicator*)>> m_transToFunc;
   
   edm::ProcessConfiguration m_procConfig;
   boost::shared_ptr<edm::ProductRegistry> m_prodReg;
