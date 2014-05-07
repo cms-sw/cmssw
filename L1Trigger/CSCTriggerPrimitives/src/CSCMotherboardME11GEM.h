@@ -128,7 +128,7 @@ class CSCMotherboardME11GEM : public CSCMotherboard
   void correlateLCTsGEM(CSCALCTDigi bestALCT, CSCALCTDigi secondALCT, GEMCSCPadDigi gemPad,
 			CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2, int me);
 
-  void correlateLCTsGEM(CSCCLCTDigi bestCLCT, CSCCLCTDigi secondCLCT, GEMCSCPadDigi gemPad,
+  void correlateLCTsGEM(CSCCLCTDigi bestCLCT, CSCCLCTDigi secondCLCT, GEMCSCPadDigi gemPad, int roll,
 			CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2, int me);
 
   void matchGEMPads(enum ME11Part = ME1B);
@@ -143,10 +143,11 @@ class CSCMotherboardME11GEM : public CSCMotherboard
   int assignGEMRoll(double eta);
   int deltaRoll(int wg, int roll);
   int deltaPad(int hs, int pad);
+  int getRandomWGForGEMRoll(int roll);
 
   CSCCorrelatedLCTDigi constructLCTsGEM(const CSCALCTDigi& alct, const GEMCSCPadDigi& gem,
                                         int me, bool oldDataFormat = false); 
-  CSCCorrelatedLCTDigi constructLCTsGEM(const CSCCLCTDigi& clct, const GEMCSCPadDigi& gem,
+  CSCCorrelatedLCTDigi constructLCTsGEM(const CSCCLCTDigi& clct, const GEMCSCPadDigi& gem, int roll,
                                         int me, bool oldDataFormat = true); 
   CSCCorrelatedLCTDigi constructLCTsGEM(const CSCALCTDigi& alct, const CSCCLCTDigi& clct, 
 					bool hasPad, bool hasCoPad); 
@@ -270,6 +271,8 @@ class CSCMotherboardME11GEM : public CSCMotherboard
 
   // promote ALCT-GEM quality
   bool promoteALCTGEMquality_;
+  bool promoteCLCTGEMquality_ME1a_;
+  bool promoteCLCTGEMquality_ME1b_;
 
   // map of roll N to min and max eta
   std::map<int,std::pair<double,double> > gemRollToEtaLimits_;

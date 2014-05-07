@@ -44,7 +44,12 @@ cscTriggerPrimitiveDigisPostLS3 = cms.EDProducer("CSCTriggerPrimitivesProducer",
         
         # flagis to optionally disable finding stubs in ME42 or ME1a
         disableME1a = cms.bool(False),
-        disableME42 = cms.bool(False)
+        disableME42 = cms.bool(False),
+        
+        # run integrated local triggers
+        runME11ILT = cms.bool(True),
+        runME21ILT = cms.bool(True),
+        runME3141ILT = cms.bool(False),
     ),
 
     # Parameters for ALCT processors: old MC studies
@@ -152,52 +157,7 @@ cscTriggerPrimitiveDigisPostLS3 = cms.EDProducer("CSCTriggerPrimitivesProducer",
         # whether to store the "corrected" ALCT stub time 
         # (currently it is median time of particular hits in a pattern) into the ASCCLCTDigi bx,
         # and temporary store the regular "key layer hit" time into the CSCCLCTDigi fullBX:
-        alctUseCorrectedBx = cms.bool(True),
-    ),
-
-    # Parameters for ALCT processors: SLHC studies
-    alctSLHCME21 = cms.PSet(
-        alctFifoTbins   = cms.uint32(16),
-        alctFifoPretrig = cms.uint32(10),
-        alctDriftDelay  = cms.uint32(2),
-        alctNplanesHitPretrig = cms.uint32(3),
-        alctNplanesHitPattern = cms.uint32(4),
-        alctNplanesHitAccelPretrig = cms.uint32(3),
-        alctNplanesHitAccelPattern = cms.uint32(4),
-        alctTrigMode       = cms.uint32(2),
-        alctAccelMode      = cms.uint32(0),
-        alctL1aWindowWidth = cms.uint32(7),
-        verbosity = cms.int32(0),
-        alctEarlyTbins = cms.int32(4),
-        alctNarrowMaskForR1 = cms.bool(True),
-        alctHitPersist  = cms.uint32(6),
-        alctGhostCancellationBxDepth = cms.int32(1),
-        alctGhostCancellationSideQuality = cms.bool(True),
-        alctPretrigDeadtime = cms.uint32(0),
-        alctUseCorrectedBx = cms.bool(True),
-        runME21ILT = cms.bool(True),
-    ),
-
-    alctSLHCME3141 = cms.PSet(
-        alctFifoTbins   = cms.uint32(16),
-        alctFifoPretrig = cms.uint32(10),
-        alctDriftDelay  = cms.uint32(2),
-        alctNplanesHitPretrig = cms.uint32(3),
-        alctNplanesHitPattern = cms.uint32(4),
-        alctNplanesHitAccelPretrig = cms.uint32(3),
-        alctNplanesHitAccelPattern = cms.uint32(4),
-        alctTrigMode       = cms.uint32(2),
-        alctAccelMode      = cms.uint32(0),
-        alctL1aWindowWidth = cms.uint32(7),
-        verbosity = cms.int32(0),
-        alctEarlyTbins = cms.int32(4),
-        alctNarrowMaskForR1 = cms.bool(True),
-        alctHitPersist  = cms.uint32(6),
-        alctGhostCancellationBxDepth = cms.int32(1),
-        alctGhostCancellationSideQuality = cms.bool(True),
-        alctPretrigDeadtime = cms.uint32(0),
-        alctUseCorrectedBx = cms.bool(True),
-        runME3141ILT = cms.bool(True),
+        alctUseCorrectedBx = cms.bool(True)
     ),
 
     # Parameters for CLCT processors: old MC studies
@@ -284,42 +244,6 @@ cscTriggerPrimitiveDigisPostLS3 = cms.EDProducer("CSCTriggerPrimitivesProducer",
         # whether to store the "corrected" CLCT stub time 
         # (currently it is median time of all hits in a pattern) into the CSCCLCTDigi bx,
         # and temporary store the regular "key layer hit" time into the CSCCLCTDigi fullBX:
-        clctUseCorrectedBx = cms.bool(True)
-    ),
-
-    clctSLHCME21 = cms.PSet(
-        clctFifoTbins   = cms.uint32(12),
-        clctFifoPretrig = cms.uint32(7),
-        clctHitPersist  = cms.uint32(4),
-        clctDriftDelay  = cms.uint32(2),
-        clctNplanesHitPretrig = cms.uint32(3),
-        clctNplanesHitPattern = cms.uint32(4),
-        clctPidThreshPretrig  = cms.uint32(4),
-        clctMinSeparation     = cms.uint32(5),
-        verbosity = cms.int32(0),
-        clctStartBxShift  = cms.int32(0),
-        useDeadTimeZoning = cms.bool(True),
-        clctStateMachineZone = cms.uint32(8),
-        useDynamicStateMachineZone = cms.bool(True),
-        clctPretriggerTriggerZone = cms.uint32(5),
-        clctUseCorrectedBx = cms.bool(True)
-    ),
-                                                 
-    clctSLHCME3141 = cms.PSet(
-        clctFifoTbins   = cms.uint32(12),
-        clctFifoPretrig = cms.uint32(7),
-        clctHitPersist  = cms.uint32(4),
-        clctDriftDelay  = cms.uint32(2),
-        clctNplanesHitPretrig = cms.uint32(3),
-        clctNplanesHitPattern = cms.uint32(4),
-        clctPidThreshPretrig  = cms.uint32(4),
-        clctMinSeparation     = cms.uint32(5),
-        verbosity = cms.int32(0),
-        clctStartBxShift  = cms.int32(0),
-        useDeadTimeZoning = cms.bool(True),
-        clctStateMachineZone = cms.uint32(8),
-        useDynamicStateMachineZone = cms.bool(True),
-        clctPretriggerTriggerZone = cms.uint32(5),
         clctUseCorrectedBx = cms.bool(True)
     ),
 
@@ -423,9 +347,6 @@ cscTriggerPrimitiveDigisPostLS3 = cms.EDProducer("CSCTriggerPrimitivesProducer",
         tmbCrossBxAlgorithm = cms.uint32(2),
         maxME11LCTs = cms.uint32(2),
 
-        ## run the upgrade algorithm
-        runME11ILT = cms.bool(True),
-
         ## run in debug mode
         debugLUTs = cms.bool(False),
         debugMatching = cms.bool(False),
@@ -458,12 +379,14 @@ cscTriggerPrimitiveDigisPostLS3 = cms.EDProducer("CSCTriggerPrimitivesProducer",
         dropLowQualityALCTsNoGEMs_ME1b = cms.bool(False),
         buildLCTfromALCTandGEM_ME1a = cms.bool(True),
         buildLCTfromALCTandGEM_ME1b = cms.bool(True),
-        buildLCTfromCLCTandGEM_ME1a = cms.bool(False),
-        buildLCTfromCLCTandGEM_ME1b = cms.bool(False),
+        buildLCTfromCLCTandGEM_ME1a = cms.bool(True),
+        buildLCTfromCLCTandGEM_ME1b = cms.bool(True),
         doLCTGhostBustingWithGEMs = cms.bool(False),
         correctLCTtimingWithGEM = cms.bool(False),
         promoteALCTGEMpattern = cms.bool(True),
         promoteALCTGEMquality = cms.bool(True),
+        promoteCLCTGEMquality_ME1a = cms.bool(True),
+        promoteCLCTGEMquality_ME1b = cms.bool(True),
         
         ## rate reduction 
         doGemMatching = cms.bool(True),
@@ -496,9 +419,6 @@ cscTriggerPrimitiveDigisPostLS3 = cms.EDProducer("CSCTriggerPrimitivesProducer",
         matchEarliestClctME21Only = cms.bool(False),
         tmbCrossBxAlgorithm = cms.uint32(2),
         maxME21LCTs = cms.uint32(2),
-
-        ## run the upgrade algorithm
-        runME21ILT = cms.bool(True),
 
         ## run in debug mode
         debugLUTs = cms.bool(False),
@@ -562,9 +482,6 @@ cscTriggerPrimitiveDigisPostLS3 = cms.EDProducer("CSCTriggerPrimitivesProducer",
         tmbCrossBxAlgorithm = cms.uint32(2),
         maxME3141LCTs = cms.uint32(2),
 
-        ## run the upgrade algorithm
-        runME3141ILT = cms.bool(False),
-        
         ## run in debug mode
         debugLUTs = cms.bool(False),
         debugMatching = cms.bool(False),

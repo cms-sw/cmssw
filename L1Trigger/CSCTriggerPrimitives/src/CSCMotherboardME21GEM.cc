@@ -61,7 +61,8 @@ CSCMotherboardME21GEM::CSCMotherboardME21GEM(unsigned endcap, unsigned station,
                                const edm::ParameterSet& conf) :
   CSCMotherboard(endcap, station, sector, subsector, chamber, conf)
 {
-  edm::ParameterSet commonParams = conf.getParameter<edm::ParameterSet>("commonParam");
+  const edm::ParameterSet commonParams(conf.getParameter<edm::ParameterSet>("commonParam"));
+  runME21ILT_ = commonParams.getParameter<bool>("runME21ILT");
   
   if (!isSLHC) edm::LogError("L1CSCTPEmulatorConfigError")
     << "+++ Upgrade CSCMotherboardME21GEM constructed while isSLHC is not set! +++\n";
@@ -91,9 +92,6 @@ CSCMotherboardME21GEM::CSCMotherboardME21GEM(unsigned endcap, unsigned station,
   //       G E M  -  C S C   I N T E G R A T E D   L O C A L   A L G O R I T H M
 
   //----------------------------------------------------------------------------------------//
-
-  // masterswitch
-  runME21ILT_ = me21tmbParams.getParameter<bool>("runME21ILT");
 
   /// Do GEM matching?
   do_gem_matching = me21tmbParams.getParameter<bool>("doGemMatching");
@@ -487,8 +485,7 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
 
             ++nSuccesFulMatches;
             
-            int mbx = bx_clct-bx_clct_start;
-            
+            int mbx = bx_clct-bx_clct_start;            
             correlateLCTsGEM(clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct], *(coPads[0].second), GEMDetId(coPads[0].first).roll(),
                              allLCTs[bx_alct][mbx][0], allLCTs[bx_alct][mbx][1]);
             if (debug_gem_matching) {

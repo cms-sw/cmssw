@@ -43,7 +43,10 @@ cscTriggerPrimitiveDigisPostLS2 = cms.EDProducer("CSCTriggerPrimitivesProducer",
         
         # flagis to optionally disable finding stubs in ME42 or ME1a
         disableME1a = cms.bool(False),
-        disableME42 = cms.bool(False)
+        disableME42 = cms.bool(False),
+
+        # run integrated local triggers
+        runME11ILT = cms.bool(True),
     ),
 
     # Parameters for ALCT processors: old MC studies
@@ -341,9 +344,6 @@ cscTriggerPrimitiveDigisPostLS2 = cms.EDProducer("CSCTriggerPrimitivesProducer",
         tmbCrossBxAlgorithm = cms.uint32(2),
         maxME11LCTs = cms.uint32(2),
 
-        ## run the upgrade algorithm
-        runME11ILT = cms.bool(True),
-
         ## run in debug mode
         debugLUTs = cms.bool(False),
         debugMatching = cms.bool(False),
@@ -376,12 +376,14 @@ cscTriggerPrimitiveDigisPostLS2 = cms.EDProducer("CSCTriggerPrimitivesProducer",
         dropLowQualityALCTsNoGEMs_ME1b = cms.bool(False),
         buildLCTfromALCTandGEM_ME1a = cms.bool(True),
         buildLCTfromALCTandGEM_ME1b = cms.bool(True),
-        buildLCTfromCLCTandGEM_ME1a = cms.bool(False),
-        buildLCTfromCLCTandGEM_ME1b = cms.bool(False),
+        buildLCTfromCLCTandGEM_ME1a = cms.bool(True),
+        buildLCTfromCLCTandGEM_ME1b = cms.bool(True),
         doLCTGhostBustingWithGEMs = cms.bool(False),
         correctLCTtimingWithGEM = cms.bool(False),
         promoteALCTGEMpattern = cms.bool(True),
         promoteALCTGEMquality = cms.bool(True),
+        promoteCLCTGEMquality_ME1a = cms.bool(True),
+        promoteCLCTGEMquality_ME1b = cms.bool(True),
         
         ## rate reduction 
         doGemMatching = cms.bool(True),

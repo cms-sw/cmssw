@@ -71,7 +71,8 @@ CSCMotherboardME3141RPC::CSCMotherboardME3141RPC(unsigned endcap, unsigned stati
                                const edm::ParameterSet& conf) :
   CSCMotherboard(endcap, station, sector, subsector, chamber, conf)
 {
-  edm::ParameterSet commonParams = conf.getParameter<edm::ParameterSet>("commonParam");
+  const edm::ParameterSet commonParams(conf.getParameter<edm::ParameterSet>("commonParam"));
+  runME3141ILT_ = commonParams.getParameter<bool>("runME3141ILT");
   
   if (!isSLHC) edm::LogError("L1CSCTPEmulatorConfigError")
     << "+++ Upgrade CSCMotherboardME3141RPC constructed while isSLHC is not set! +++\n";
@@ -94,9 +95,6 @@ CSCMotherboardME3141RPC::CSCMotherboardME3141RPC(unsigned endcap, unsigned stati
   //       R P C  -  C S C   I N T E G R A T E D   L O C A L   A L G O R I T H M
 
   //----------------------------------------------------------------------------------------//
-
-  // masterswitch
-  runME3141ILT_ = me3141tmbParams.getParameter<bool>("runME3141ILT");
 
   // debug
   debug_luts_ = me3141tmbParams.getParameter<bool>("debugLUTs");
