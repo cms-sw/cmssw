@@ -43,7 +43,7 @@ namespace l1t {
 
       for (int i = etSums->getFirstBX(); i <= etSums->getLastBX(); ++i) {
          for (auto j = etSums->begin(i); j != etSums->end(i); ++j) {
-	   uint32_t word = (j->hwPt() & 0xFFF);
+	   uint32_t word = min(j->hwPt(), 0xFFF);
 	   if ((j->getType()==l1t::EtSum::kMissingEt) || (j->getType()==l1t::EtSum::kMissingHt))
 	     word = word | ((j->hwPhi() & 0xFF) << 12);
 	   res.load.push_back(word);

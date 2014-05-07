@@ -44,7 +44,7 @@ namespace l1t {
       for (int i = taus->getFirstBX(); i <= taus->getLastBX(); ++i) {
          for (auto j = taus->begin(i); j != taus->end(i); ++j) {
             uint32_t word = \
-                            (j->hwPt() & 0x1FF) |
+                            min(j->hwPt(), 0x1FF) |
                             (abs(j->hwEta()) & 0x7F) << 9 |
                             ((j->hwEta() < 0) & 0x1) << 16 |
                             (j->hwPhi() & 0xFF) << 17 |

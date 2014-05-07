@@ -44,7 +44,7 @@ namespace l1t {
       for (int i = egs->getFirstBX(); i <= egs->getLastBX(); ++i) {
          for (auto j = egs->begin(i); j != egs->end(i); ++j) {
             uint32_t word = \
-                            (j->hwPt() & 0x1FF) |
+                            min(j->hwPt(), 0x1FF) |
                             (abs(j->hwEta()) & 0x7F) << 9 |
                             ((j->hwEta() < 0) & 0x1) << 16 |
                             (j->hwPhi() & 0xFF) << 17 |
