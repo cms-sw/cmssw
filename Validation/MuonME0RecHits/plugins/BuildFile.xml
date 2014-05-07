@@ -1,0 +1,18 @@
+<library name="ValidationMuonME0RecHits_plugins" file="*.cc">
+<use name="root"/>
+<use name="boost"/>
+<use name="FWCore/Framework"/>
+<use name="FWCore/ServiceRegistry"/>
+<use name="FWCore/ParameterSet"/>
+<use name="DQMServices/Core"/>
+<use name="Geometry/CommonTopologies"/>
+<use name="Geometry/Records"/>
+<use name="Geometry/GEMGeometry"/>
+<use name="SimDataFormats/Track"/>
+<use name="SimDataFormats/TrackingHit"/>
+<use name="SimDataFormats/TrackingAnalysis"/>
+<use name="CommonTools/UtilAlgos"/>
+<use name="Utilities/General"/>
+<use name="DataFormats/GEMRecHit"/>
+<flags EDM_PLUGIN="1" />
+</library>

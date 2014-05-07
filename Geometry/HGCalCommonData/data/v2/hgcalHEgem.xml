@@ -74,9 +74,9 @@
  </Algorithm>
 </PosPartSection>
 
-<SpecParSection label="hgcalHEgem.xml">
-  <SpecPar name="HGCalHEGem readout granularity per layer">
-    <PartSelector path="//HGCalHEGem"/>
+<SpecParSection label="hgcalHEgem.xml" eval="true">
+  <SpecPar name="HGCalHEGem">
+    <PartSelector path="//HGCalHEGemSensitive.*"/>
     <Parameter name="Volume" value="HGCalHEGemSensitive" eval="false"/>
     <Parameter name="Granularity" value="10*mm"/>
     <Parameter name="Granularity" value="10*mm"/>

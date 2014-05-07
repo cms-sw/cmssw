@@ -410,10 +410,7 @@ PFEGammaProducer::produce(Event& iEvent,
         egCandidates_->insert(egCandidates_->end(),pfeg_->getCandidates().begin(), pfeg_->getCandidates().end());
         egExtra_->insert(egExtra_->end(), pfeg_->getEGExtra().begin(), pfeg_->getEGExtra().end());   
       }
-     // printf("post algo: egCandidates size = %i\n",int(egCandidates_->size()));
-     
-     
-    
+     // printf("post algo: egCandidates size = %i\n",int(egCandidates_->size()));    
   }
   
 //   edm::RefProd<reco::CaloClusterCollection> ebeeClusterProd = iEvent.getRefBeforePut<reco::CaloClusterCollection>("EBEEClusters");

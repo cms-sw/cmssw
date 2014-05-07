@@ -69,9 +69,9 @@
  </Algorithm>
 </PosPartSection>
 
-<SpecParSection label="hgcalHEsil.xml">
-  <SpecPar name="HGCalHESilicon readout granularity per layer">
-    <PartSelector path="//HGCalHESilicon"/>
+<SpecParSection label="hgcalHEsil.xml" eval="true">
+  <SpecPar name="HGCalHESilicon">
+    <PartSelector path="//HGCalHESiliconSensitive.*"/>
     <Parameter name="Volume" value="HGCalHESiliconSensitive" eval="false"/>
     <Parameter name="Granularity" value="2.5*mm"/>
     <Parameter name="Granularity" value="2.5*mm"/>

@@ -5,11 +5,15 @@ gemDigiValidation = cms.EDAnalyzer('MuonGEMDigis',
 	stripLabel= cms.InputTag('simMuonGEMDigis'),
 	cscPadLabel = cms.InputTag('simMuonGEMCSCPadDigis'),
 	cscCopadLabel = cms.InputTag('simMuonGEMCSCPadDigis','Coincidence') ,
-        simInputLabel = cms.untracked.string('g4SimHits'),
+	simInputLabel = cms.untracked.string('g4SimHits'),
 	minPt = cms.untracked.double(5.),
-	maxEta = cms.untracked.double(2.18),
+	maxEta = cms.untracked.double(2.45),
 	minEta = cms.untracked.double(1.55), 
-        simTrackMatching = cms.PSet(
+	PlotBinInfo = cms.PSet(
+			nBinGlobalZR = cms.untracked.vdouble(200,200,200,110,140,210), 
+			RangeGlobalZR = cms.untracked.vdouble(564,572,786,794,794,802,130,240,190,330,120,330), 
+  ),
+	simTrackMatching = cms.PSet(
             verboseSimHit = cms.untracked.int32(0),
             simInputLabel = cms.untracked.string('g4SimHits'),
             # GEM digi matching:
@@ -23,5 +27,5 @@ gemDigiValidation = cms.EDAnalyzer('MuonGEMDigis',
             gemDigiMinEta  = cms.untracked.double(1.55),
             gemDigiMaxEta  = cms.untracked.double(2.18),
             gemDigiMinPt = cms.untracked.double(5.0),
-            )
+  ),
 )

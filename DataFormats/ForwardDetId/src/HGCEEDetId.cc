@@ -11,15 +11,13 @@ HGCEEDetId::HGCEEDetId() : DetId() {
 HGCEEDetId::HGCEEDetId(uint32_t rawid) : DetId(rawid) {
 }
 
-HGCEEDetId::HGCEEDetId(ForwardSubdetector subdet, int zp, int lay, int sec, int subsec, int cell) : DetId(Forward,subdet) 
-{  
-  uint32_t rawid=0;
-  rawid |= ((cell   & 0xffff) << 0 );
-  rawid |= ((sec    & 0x7f)   << 16);
-  rawid |= ((subsec & 0x1)    << 23);
-  rawid |= ((lay    & 0x7f)   << 24);
-  if(zp>0) rawid |= ((zp     & 0x1)    << 31);
-  id_=rawid;
+HGCEEDetId::HGCEEDetId(ForwardSubdetector subdet, int zp, int lay, int sec, int subsec, int cell) : DetId(Forward,subdet) {  
+
+  id_ |= ((cell   & 0xfff) << 0 );
+  id_ |= ((sec    & 0x3f)  << 12);
+  id_ |= ((subsec & 0x1)   << 18);
+  id_ |= ((lay    & 0x1f)  << 19);
+  if (zp>0) id_ |= ((zp & 0x1) << 24);
 }
 
 HGCEEDetId::HGCEEDetId(const DetId& gen) {

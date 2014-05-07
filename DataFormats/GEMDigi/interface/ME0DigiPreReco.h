@@ -5,9 +5,6 @@
  *
  * Digi for ME0
  *  
- *  $Date: 2014/02/02 21:53:31 $
- *  $Revision: 1.0 $
- *
  * \author Marcello Maggi
  *
  */
@@ -22,6 +19,7 @@ public:
   ME0DigiPreReco ();
 
   bool operator==(const ME0DigiPreReco& digi) const;
+  bool operator!=(const ME0DigiPreReco& digi) const;
   bool operator<(const ME0DigiPreReco& digi) const;
 
   float x() const { return x_; }

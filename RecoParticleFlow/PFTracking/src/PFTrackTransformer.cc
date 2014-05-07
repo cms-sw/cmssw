@@ -168,29 +168,55 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
  
    pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::ECALShowerMax,
 				      meanShower,
-				      math::XYZTLorentzVector(theOutParticle.momentum())));}
+				      math::XYZTLorentzVector(theOutParticle.momentum())));
+}
    else {
-     if (PT>5. && msgwarning)
-       LogWarning("PFTrackTransformer")<<"KF TRACK "<<pftrack<< " PROPAGATION TO THE ECAL HAS FAILED";
-     PFTrajectoryPoint dummyECAL;
-     pftrack.addPoint(dummyECAL); 
-     PFTrajectoryPoint dummyMaxSh;
-     pftrack.addPoint(dummyMaxSh); 
+	theOutParticle.propagateToVFcalEntrance(false);
+	if(theOutParticle.getSuccess()!=0) {
+	  pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::ECALEntrance,
+					   math::XYZPoint(theOutParticle.vertex()),
+					   math::XYZTLorentzVector(theOutParticle.momentum())));
+	  pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::ECALShowerMax,
+					   math::XYZPoint(theOutParticle.vertex()),
+					   math::XYZTLorentzVector(theOutParticle.momentum())));
+	}else {
+
+
+
+	  if (PT>5. && msgwarning)
+	    LogWarning("PFTrackTransformer")<<"KF TRACK "<<pftrack<< " PROPAGATION TO THE ECAL HAS FAILED";
+	  PFTrajectoryPoint dummyECAL;
+	  pftrack.addPoint(dummyECAL); 
+	  PFTrajectoryPoint dummyMaxSh;
+	  pftrack.addPoint(dummyMaxSh); 
+	}
    }
+
 
 
  
    //HCAL entrance
    theOutParticle.propagateToHcalEntrance(false);
-   if(theOutParticle.getSuccess()!=0)
+   if(theOutParticle.getSuccess()!=0) {
      pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HCALEntrance,
 					math::XYZPoint(theOutParticle.vertex()),
 					math::XYZTLorentzVector(theOutParticle.momentum())));
-   else{
-     if (PT>5.&& msgwarning)
-       LogWarning("PFTrackTransformer")<<"KF TRACK "<<pftrack<< " PROPAGATION TO THE HCAL ENTRANCE HAS FAILED";
-     PFTrajectoryPoint dummyHCALentrance;
-     pftrack.addPoint(dummyHCALentrance); 
+   } else{
+     theOutParticle.propagateToVFcalEntrance(false);
+     if(theOutParticle.getSuccess()!=0) {
+       pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HCALEntrance,
+					  math::XYZPoint(theOutParticle.vertex()),
+					  math::XYZTLorentzVector(theOutParticle.momentum())));
+       pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HCALExit,
+					  math::XYZPoint(theOutParticle.vertex()),
+					  math::XYZTLorentzVector(theOutParticle.momentum())));
+     }else {
+       
+       if (PT>5.&& msgwarning)
+	 LogWarning("PFTrackTransformer")<<"KF TRACK "<<pftrack<< " PROPAGATION TO THE HCAL ENTRANCE HAS FAILED";
+       PFTrajectoryPoint dummyHCALentrance;
+       pftrack.addPoint(dummyHCALentrance); 
+     }
    }
 
    //HCAL exit
@@ -376,28 +402,54 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 					   meanShower,
 					   math::XYZTLorentzVector(theOutParticle.momentum())));}
       else {
-	if (PT>5.)
-	  LogWarning("PFTrackTransformer")<<"GSF TRACK "<<pftrack<< " PROPAGATION TO THE ECAL HAS FAILED";
-	PFTrajectoryPoint dummyECAL;
-	pftrack.addPoint(dummyECAL); 
-	PFTrajectoryPoint dummyMaxSh;
-	pftrack.addPoint(dummyMaxSh); 
+	theOutParticle.propagateToVFcalEntrance(false);
+	if(theOutParticle.getSuccess()!=0) {
+	  pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::ECALEntrance,
+					   math::XYZPoint(theOutParticle.vertex()),
+					   math::XYZTLorentzVector(theOutParticle.momentum())));
+	  pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::ECALShowerMax,
+					   math::XYZPoint(theOutParticle.vertex()),
+					   math::XYZTLorentzVector(theOutParticle.momentum())));
+	}else {
+
+	  if (PT>5.)
+	    LogWarning("PFTrackTransformer")<<"GSF TRACK "<<pftrack<< " PROPAGATION TO THE ECAL HAS FAILED";
+	  PFTrajectoryPoint dummyECAL;
+	  pftrack.addPoint(dummyECAL); 
+	  PFTrajectoryPoint dummyMaxSh;
+	  pftrack.addPoint(dummyMaxSh); 
+	}
       }
+    
       
       
       
       //HCAL entrance
       theOutParticle.propagateToHcalEntrance(false);
-      if(theOutParticle.getSuccess()!=0)
+      if(theOutParticle.getSuccess()!=0) {
 	pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HCALEntrance,
 					   math::XYZPoint(theOutParticle.vertex()),
 					   math::XYZTLorentzVector(theOutParticle.momentum())));
-      else{
-	if (PT>5.)
-	  LogWarning("PFTrackTransformer")<<"GSF TRACK "<<pftrack<< " PROPAGATION TO THE HCAL ENTRANCE HAS FAILED";
-	PFTrajectoryPoint dummyHCALentrance;
-	pftrack.addPoint(dummyHCALentrance); 
-      }  
+      } else{
+	//try to propagate to HF
+	theOutParticle.propagateToVFcalEntrance(false);
+	if(theOutParticle.getSuccess()!=0) {
+	  pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HCALEntrance,
+					   math::XYZPoint(theOutParticle.vertex()),
+					     math::XYZTLorentzVector(theOutParticle.momentum()))); 
+	  pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HCALExit,
+					   math::XYZPoint(theOutParticle.vertex()),
+					     math::XYZTLorentzVector(theOutParticle.momentum()))); }
+	else {
+
+	  if (PT>5.)
+	    LogWarning("PFTrackTransformer")<<"GSF TRACK "<<pftrack<< " PROPAGATION TO THE HCAL ENTRANCE HAS FAILED";
+	  PFTrajectoryPoint dummyHCALentrance;
+	  pftrack.addPoint(dummyHCALentrance); 
+	}
+      }
+
+  
       //HCAL exit
       theOutParticle.propagateToHcalExit(false);
       if(theOutParticle.getSuccess()!=0)
@@ -1044,11 +1096,21 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
 					 math::XYZPoint(theOutParticle.vertex()),
 					 math::XYZTLorentzVector(theOutParticle.momentum())));
     else{
+	theOutParticle.propagateToVFcalEntrance(false);
+	if(theOutParticle.getSuccess()!=0) {
+	  pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HCALEntrance,
+					   math::XYZPoint(theOutParticle.vertex()),
+					   math::XYZTLorentzVector(theOutParticle.momentum())));
+	  pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HCALExit,
+					   math::XYZPoint(theOutParticle.vertex()),
+					   math::XYZTLorentzVector(theOutParticle.momentum())));
+	} else {
       if (pTtot_out>5.)
 	LogWarning("PFTrackTransformer")<<"GSF TRACK "<<pftrack<< " PROPAGATION TO THE HCAL ENTRANCE HAS FAILED";
       PFTrajectoryPoint dummyHCALentrance;
       pftrack.addPoint(dummyHCALentrance); 
     }  
+    }
     //HCAL exit
     theOutParticle.propagateToHcalExit(false);
     if(theOutParticle.getSuccess()!=0)

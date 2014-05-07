@@ -550,7 +550,17 @@ void CalorimetryManager::reconstructHCAL(const FSimTrack& myTrack)
   if(emeas > 0.) {  
     DetId cell = myCalorimeter_->getClosestCell(trackPosition.Vect(),false,false);
 	double tof = (myCalorimeter_->getHcalGeometry()->getGeometry(cell)->getPosition().mag())/29.98;//speed of light
-	CaloHitID current_id(cell.rawId(),tof,myTrack.id());
+        uint32_t newId;
+        if( HcalTestNumbering_ )
+        {
+          HcalDetId myDetId(cell);
+          int nZside = (myDetId.zside()==1) ? 1 : 0;
+          newId = HcalTestNumbering::packHcalIndex(myDetId.subdet(),nZside,
+                        myDetId.depth(),myDetId.ietaAbs(),myDetId.iphi(),1);
+        } 
+        else newId = cell.rawId();
+
+	CaloHitID current_id(newId,tof,myTrack.id());
 	std::map<CaloHitID,float> hitMap;
 	hitMap[current_id] = emeas;
 	updateHCAL(hitMap,myTrack.id());
@@ -827,7 +837,17 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack){//,
 	{
 	  DetId cell = myCalorimeter_->getClosestCell(trackPosition.Vect(),false,false);
 	  double tof = (myCalorimeter_->getHcalGeometry()->getGeometry(cell)->getPosition().mag())/29.98;//speed of light
-      CaloHitID current_id(cell.rawId(),tof,myTrack.id());
+          uint32_t newId;
+          if( HcalTestNumbering_ )
+          {
+            HcalDetId myDetId(cell);
+            int nZside = (myDetId.zside()==1) ? 1 : 0;
+            newId = HcalTestNumbering::packHcalIndex(myDetId.subdet(),nZside,
+                    myDetId.depth(),myDetId.ietaAbs(),myDetId.iphi(),myDetId.depth());
+          } 
+          else newId = cell.rawId();
+
+          CaloHitID current_id(newId,tof,myTrack.id());
 	  std::map<CaloHitID,float> hitMap;
 	  hitMap[current_id] = emeas;
 	  updateHCAL(hitMap,myTrack.id());
@@ -1195,6 +1215,10 @@ void CalorimetryManager::readParameters(const edm::ParameterSet& fastCalo) {
   timeShiftHF_  = HCALparameters.getParameter< std::vector<double> >("timeShiftHF");
   timeShiftHO_  = HCALparameters.getParameter< std::vector<double> >("timeShiftHO");
 
+  // VA
+  edm::ParameterSet s0 = fastCalo.getParameter<edm::ParameterSet>("CalorimeterProperties");
+  edm::ParameterSet s1 = s0.getParameter<edm::ParameterSet>("HadronicCalorimeterProperties");
+  HcalTestNumbering_   = s1.getUntrackedParameter<bool>("HcalTestNumbering",false);
 }
 
 void CalorimetryManager::respCorr(double p) {
@@ -1293,23 +1317,30 @@ void CalorimetryManager::updateHCAL(const std::map<CaloHitID,float>& hitMap, int
 	float time = mapitr->first.timeSlice();
 	//put energy into uncalibrated state for digitizer && correct timing
 	if(HcalDigitizer_){
-	  HcalDetId hdetid = HcalDetId(mapitr->first.unitID());
+          HcalDetId hdetid = HcalDetId(mapitr->first.unitID());
+          if( HcalTestNumbering_ ) 
+          {
+            int det, z, depth, eta, phi, lay;
+            HcalTestNumbering::unpackHcalIndex(hdetid,det,z,depth,eta,phi,lay);
+            HcalDetId newCell((HcalSubdetector)det,eta,phi,depth);
+            hdetid = newCell;
+          }
 	  if (hdetid.subdetId()== HcalBarrel){
-        energy /= samplingHBHE_[hdetid.ietaAbs()-1]; //re-convert to GeV
-		time = timeShiftHB_[hdetid.ietaAbs()-ietaShiftHB_];
-      }
+            energy /= samplingHBHE_[hdetid.ietaAbs()-1]; //re-convert to GeV
+	    time = timeShiftHB_[hdetid.ietaAbs()-ietaShiftHB_];
+          }
 	  else if (hdetid.subdetId()== HcalEndcap){
 	    energy /= samplingHBHE_[hdetid.ietaAbs()-1]; //re-convert to GeV
-		time = timeShiftHE_[hdetid.ietaAbs()-ietaShiftHE_];
+            time = timeShiftHE_[hdetid.ietaAbs()-ietaShiftHE_];
 	  }
 	  else if (hdetid.subdetId()== HcalForward){
 	    if(hdetid.depth()== 1) energy *= samplingHF_[0];
 	    if(hdetid.depth()== 2) energy *= samplingHF_[1];
-		time = timeShiftHF_[hdetid.ietaAbs()-ietaShiftHF_];
+	    time = timeShiftHF_[hdetid.ietaAbs()-ietaShiftHF_];
 	  }
 	  else if (hdetid.subdetId()== HcalOuter){
-        energy /= samplingHO_[hdetid.ietaAbs()-1];
-		time = timeShiftHO_[hdetid.ietaAbs()-ietaShiftHO_];
+            energy /= samplingHO_[hdetid.ietaAbs()-1];
+            time = timeShiftHO_[hdetid.ietaAbs()-ietaShiftHO_];
 	  }
 	}	
 	

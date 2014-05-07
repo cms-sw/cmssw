@@ -169,7 +169,6 @@ void L1CaloTowerProducer::produce( edm::Event & aEvent,
 	{
           // Detect if the upgrade HCAL header file is included
 #ifdef DIGIHCAL_HCALUPGRADETRIGGERPRIMITIVEDIGI_H
-#warning Not really a warning: just letting you know that Im enabling upgrade HCAL digis
 		//getting data from event takes 3 orders of magnitude longer than anything else in the program : O(10-100ms) cf O(10-100us)
 		edm::Handle < HcalUpgradeTrigPrimDigiCollection > lHcalDigiHandle;
 		aEvent.getByLabel( mHcalDigiInputTag, lHcalDigiHandle );
@@ -177,7 +176,6 @@ void L1CaloTowerProducer::produce( edm::Event & aEvent,
 		for ( HcalUpgradeTrigPrimDigiCollection::const_iterator lHcalTPItr = lHcalDigiHandle->begin(  ); lHcalTPItr != lHcalDigiHandle->end(  ); ++lHcalTPItr )
 			addHcal( lHcalTPItr->SOI_compressedEt(  ), lHcalTPItr->id(  ).ieta(  ), lHcalTPItr->id(  ).iphi(  ), lHcalTPItr->SOI_fineGrain(  ) );
 #else
-#warning Not really a warning: just letting you know that Im NOT enabling upgrade HCAL digis
                 // If the user tries to specify this option, but it isn't
                 // available, throw an exception.
                 throw cms::Exception("NotImplmented") <<

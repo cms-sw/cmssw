@@ -115,8 +115,8 @@ void localRegressionCPU(float xp,float yp,float* d,float* res)
   res[5]=R;
   res[6]=pt;
   res[7]=xi;
-  res[8]=-log(fabs(tan(atan(a)/2)));
-  if (z<0) res[8]=-res[8];
+  res[8]=-log(fabs((1+sqrt(1+a*a))/a) );
+  if (a>0) res[8]=-res[8];
   res[9]=n;
 
  
@@ -270,7 +270,7 @@ void copyFromValCPU(int maxblock,int maxthread,unsigned int ith,unsigned int ir,
 	{
 	  float x=d_xi[ib],y=d_yi[ib],r=d_ri[ib],z=d_zi[ib];
 	  unsigned int la=di_layer[ib]; 
-	  unsigned int zinfo=(di_layer[ib]>>16)&0xF; 
+	  unsigned int zinfo=(di_layer[ib]>>16)&0x3; 
 	  d_xo[id]=x;
 	  d_yo[id]=y;
 	  d_ro[id]=r;

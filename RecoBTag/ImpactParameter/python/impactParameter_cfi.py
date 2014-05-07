@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
+from RecoBTag.Configuration.SLHCPixelBarrelLayerDef_cfi import *
 
 impactParameterTagInfos = cms.EDProducer("TrackIPProducer",
+    PixelBarrelLayerDefBlock,
     jetTracks = cms.InputTag("ak5JetTracksAssociatorAtVertexPF"),
     primaryVertex = cms.InputTag("offlinePrimaryVertices"),
     computeProbabilities = cms.bool(True),

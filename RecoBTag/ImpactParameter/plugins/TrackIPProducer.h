@@ -33,6 +33,8 @@ class TrackIPProducer : public edm::EDProducer {
     bool m_useDB;
 
     int  m_cutPixelHits;
+    uint32_t  m_maxPixelBarrelLayer;
+    uint32_t  m_maxPixelEndcapLayer;
     int  m_cutTotalHits;
     double  m_cutMaxTIP;
     double  m_cutMinPt;

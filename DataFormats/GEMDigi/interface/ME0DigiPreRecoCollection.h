@@ -3,8 +3,6 @@
 /** \class ME0DigiPreRecoCollection
  *  
  *  \author Marcello Maggi
- *  \version $Id: ME0DigiPreRecoCollection.h,v 1.0  2014/02/02 10:09:22 mmaggi Exp $
- *  \date 2 February 2014
  */
 
 #include <DataFormats/MuonDetId/interface/ME0DetId.h>

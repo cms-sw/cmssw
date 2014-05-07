@@ -30,7 +30,15 @@ def customise_pixelMixing_PU(process):
         n=0
         if hasattr(process.mix,'input'):
             n=process.mix.input.nbPileupEvents.averageNumber.value()
-        if n>0:
+        if n>50:
+            process.mix.digitizers.pixel.thePixelColEfficiency_BPix1 = cms.double(1.0-(0.0238*n/50.0))
+            process.mix.digitizers.pixel.thePixelColEfficiency_BPix2 = cms.double(1.0-(0.0046*n*n/(50.0*50.0)))
+            process.mix.digitizers.pixel.thePixelColEfficiency_BPix3 = cms.double(1.0-(0.0018*n*n/(50.0*50.0)))
+            process.mix.digitizers.pixel.thePixelColEfficiency_BPix4 = cms.double(1.0-(0.0008*n*n/(50.0*50.0)))
+            process.mix.digitizers.pixel.thePixelColEfficiency_FPix1 = cms.double(1.0-(0.0018*n*n/(50.0*50.0)))
+            process.mix.digitizers.pixel.thePixelColEfficiency_FPix2 = cms.double(1.0-(0.0018*n*n/(50.0*50.0)))
+            process.mix.digitizers.pixel.thePixelColEfficiency_FPix3 = cms.double(1.0-(0.0018*n*n/(50.0*50.0)))
+        else:
             process.mix.digitizers.pixel.thePixelColEfficiency_BPix1 = cms.double(1.0-(0.0238*n/50.0))
             process.mix.digitizers.pixel.thePixelColEfficiency_BPix2 = cms.double(1.0-(0.0046*n/50.0))
             process.mix.digitizers.pixel.thePixelColEfficiency_BPix3 = cms.double(1.0-(0.0018*n/50.0))
@@ -38,7 +46,6 @@ def customise_pixelMixing_PU(process):
             process.mix.digitizers.pixel.thePixelColEfficiency_FPix1 = cms.double(1.0-(0.0018*n/50.0))
             process.mix.digitizers.pixel.thePixelColEfficiency_FPix2 = cms.double(1.0-(0.0018*n/50.0))
             process.mix.digitizers.pixel.thePixelColEfficiency_FPix3 = cms.double(1.0-(0.0018*n/50.0))
-        
     return (process)
 
 def customise_NoCrossing_PU(process):

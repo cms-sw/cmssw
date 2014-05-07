@@ -51,10 +51,10 @@ namespace reco {
     
     /// \return reference to the corresponding PFRecTrack
     /// please do not use this function after the block production stage!
-    PFRecTrackRef trackRefPF() const { return trackRefPF_; }
+    const PFRecTrackRef& trackRefPF() const { return trackRefPF_; }
     
     /// \return reference to the corresponding Track
-    reco::TrackRef trackRef() const { return trackRef_; }
+    const reco::TrackRef& trackRef() const { return trackRef_; }
 
     /// check if the track is secondary
     bool isSecondary() const { 
@@ -73,12 +73,13 @@ namespace reco {
     }
 
     /// \return the displaced vertex associated
-    PFDisplacedTrackerVertexRef displacedVertexRef(TrackType trType) const {
+    const PFDisplacedTrackerVertexRef& 
+      displacedVertexRef(TrackType trType) const {
       if (trType == T_TO_DISP)
 	return displacedVertexDaughterRef_;
       else if (trType == T_FROM_DISP)
 	return displacedVertexMotherRef_;
-      else return PFDisplacedTrackerVertexRef();
+      else return nullPFDispVertex_;
     }
 
     /// \set the ref to the displaced vertex interaction
@@ -91,7 +92,7 @@ namespace reco {
     } 
     
     /// \return reference to the corresponding Muon
-    reco::MuonRef muonRef() const { return muonRef_; }
+    const reco::MuonRef& muonRef() const { return muonRef_; }
 
     /// \set reference to the Muon
     void setMuonRef(const MuonRef& muref) { 
@@ -99,15 +100,15 @@ namespace reco {
     }
 
     /// \return ref to original recoConversion
-    ConversionRef convRef() const {return convRef_;} 
+    const ConversionRefVector& convRefs() const {return convRefs_;} 
 
     /// \set the ref to  gamma conversion
     void setConversionRef(const ConversionRef& convRef, TrackType trType) { 
-      convRef_ = convRef; setTrackType(trType,true); 
+      convRefs_.push_back(convRef); setTrackType(trType,true); 
     } 
 
     /// \return ref to original V0
-    VertexCompositeCandidateRef V0Ref() const {return v0Ref_;} 
+    const VertexCompositeCandidateRef& V0Ref() const {return v0Ref_;} 
 
     /// \set the ref to  V0
     void setV0Ref(const VertexCompositeCandidateRef& V0Ref, TrackType trType) { 
@@ -139,7 +140,7 @@ namespace reco {
     reco::MuonRef muonRef_;
 
     /// reference to reco conversion
-    ConversionRef convRef_;      
+    ConversionRefVector convRefs_;      
 
     /// reference to V0
     VertexCompositeCandidateRef v0Ref_;
