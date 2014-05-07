@@ -1,4 +1,4 @@
-<flags   CXXFLAGS="-O3 -mrecip"/>
+<flags   CXXFLAGS="-Ofast -mrecip"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/GeometrySurface"/>
 <use   name="DataFormats/GeometryVector"/>
