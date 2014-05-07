@@ -139,7 +139,7 @@ namespace cms
            // The insert succeeded, so this detector element has not yet been processed.
            unsigned int isub = DetId(detId).subdetId();
            if((isub == PixelSubdetector::PixelBarrel) || (isub == PixelSubdetector::PixelEndcap)) {
-             PixelGeomDetUnit* pixdet = detectorUnits[detId];
+             auto pixdet = detectorUnits[detId];
              //access to magnetic field in global coordinates
              GlobalVector bfield = pSetup->inTesla(pixdet->surface().position());
              LogDebug ("PixelDigitizer ") << "B-field(T) at " << pixdet->surface().position() << "(cm): " 
@@ -169,7 +169,7 @@ namespace cms
         DetId idet=DetId(detId);
         unsigned int isub=idet.subdetId();
         if((isub == PixelSubdetector::PixelBarrel) || (isub == PixelSubdetector::PixelEndcap)) {  
-          PixelGeomDetUnit* pixdet = dynamic_cast<PixelGeomDetUnit*>((*iu));
+          auto pixdet = dynamic_cast<const PixelGeomDetUnit*>((*iu));
           assert(pixdet != 0);
           detectorUnits.insert(std::make_pair(detId, pixdet));
         }
@@ -230,7 +230,7 @@ namespace cms
         edm::DetSet<PixelDigiSimLink> linkcollector((*iu)->geographicalId().rawId());
         
         
-        _pixeldigialgo->digitize(dynamic_cast<PixelGeomDetUnit*>((*iu)),
+        _pixeldigialgo->digitize(dynamic_cast<const PixelGeomDetUnit*>((*iu)),
                                  collector.data,
                                  linkcollector.data,
 				 tTopo,

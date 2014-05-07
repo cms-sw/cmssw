@@ -107,9 +107,9 @@ RPCGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetu
 
 //      //----------------------- RPCCHAMBER TEST -------------------------------------------------------
 
-      if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
+      if( dynamic_cast< const RPCChamber* >( *it ) != 0 ){
        ++iRPCCHcount;
-       RPCChamber* ch = dynamic_cast< RPCChamber* >( *it ); 
+       const RPCChamber* ch = dynamic_cast< const RPCChamber* >( *it ); 
 
        
        RPCDetId detId=ch->id();

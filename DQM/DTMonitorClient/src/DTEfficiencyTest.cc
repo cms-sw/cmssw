@@ -115,8 +115,8 @@ void DTEfficiencyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
 
   edm::LogVerbatim ("efficiency") <<"[DTEfficiencyTest]: "<<nLumiSegs<<" updates";
   
-  vector<DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
-  vector<DTChamber*>::const_iterator ch_end = muonGeom->chambers().end();
+  vector<const DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
+  vector<const DTChamber*>::const_iterator ch_end = muonGeom->chambers().end();
 
   edm::LogVerbatim ("efficiency") << "[DTEfficiencyTest]: Efficiency tests results";
 
@@ -257,8 +257,8 @@ void DTEfficiencyTest::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventS
   }
 
   
-  vector<DTChamber*>::const_iterator ch2_it = muonGeom->chambers().begin();
-  vector<DTChamber*>::const_iterator ch2_end = muonGeom->chambers().end();
+  vector<const DTChamber*>::const_iterator ch2_it = muonGeom->chambers().begin();
+  vector<const DTChamber*>::const_iterator ch2_end = muonGeom->chambers().end();
   for (; ch2_it != ch2_end; ++ch2_it) {
     vector<const DTSuperLayer*>::const_iterator sl2_it = (*ch2_it)->superLayers().begin(); 
     vector<const DTSuperLayer*>::const_iterator sl2_end = (*ch2_it)->superLayers().end();
