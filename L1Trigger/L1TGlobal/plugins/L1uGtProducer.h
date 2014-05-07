@@ -28,7 +28,7 @@
 // user include files
 
 // Upgrade Board
-#include "L1Trigger/L1TGlobal/interface/Board.h"
+#include "L1Trigger/L1TGlobal/interface/GtBoard.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -60,8 +60,8 @@ public:
 
     virtual void produce(edm::Event&, const edm::EventSetup&);
 
-    // return pointer to uGt Board  QUESTION: Is this used anywhere?
-    inline const Board* gtBrd() const
+    // return pointer to uGt GtBoard  QUESTION: Is this used anywhere?
+    inline const GtBoard* gtBrd() const
     {
         return m_uGtBrd;
     }    
@@ -143,7 +143,7 @@ private:
     L1uGtProducerGTL* m_gtGTL;
     L1uGtProducerFDL* m_gtFDL;
 */
-    Board* m_uGtBrd;
+    GtBoard* m_uGtBrd;
 
     /// input tag for muon collection from GMT
     edm::InputTag m_muInputTag;

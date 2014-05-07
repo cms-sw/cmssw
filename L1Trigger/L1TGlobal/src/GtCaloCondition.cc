@@ -1,5 +1,5 @@
 /**
- * \class CaloCondition
+ * \class GtCaloCondition
  *
  *
  * Description: evaluation of a CondCalo condition.
@@ -11,7 +11,7 @@
  */
 
 // this class header
-#include "L1Trigger/L1TGlobal/interface/CaloCondition.h"
+#include "L1Trigger/L1TGlobal/interface/GtCaloCondition.h"
 
 // system include files
 #include <iostream>
@@ -38,14 +38,14 @@
 #include "CondFormats/DataRecord/interface/L1TGlobalStableParametersRcd.h"
 
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerFunctions.h"
-#include "L1Trigger/L1TGlobal/interface/Board.h"
+#include "L1Trigger/L1TGlobal/interface/GtBoard.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 
 // constructors
 //     default
-l1t::CaloCondition::CaloCondition() :
+l1t::GtCaloCondition::GtCaloCondition() :
     ConditionEvaluation() {
 
     m_ifCaloEtaNumberBits = -1;
@@ -54,7 +54,7 @@ l1t::CaloCondition::CaloCondition() :
 }
 
 //     from base template condition (from event setup usually)
-l1t::CaloCondition::CaloCondition(const GlobalCondition* caloTemplate, const Board* ptrGTB,
+l1t::GtCaloCondition::GtCaloCondition(const GlobalCondition* caloTemplate, const GtBoard* ptrGTB,
         const int nrL1EG,
         const int nrL1Jet,
         const int nrL1Tau,
@@ -98,7 +98,7 @@ l1t::CaloCondition::CaloCondition(const GlobalCondition* caloTemplate, const Boa
 }
 
 // copy constructor
-void l1t::CaloCondition::copy(const l1t::CaloCondition& cp) {
+void l1t::GtCaloCondition::copy(const l1t::GtCaloCondition& cp) {
 
     m_gtCaloTemplate = cp.gtCaloTemplate();
     m_uGtB = cp.getuGtB();
@@ -114,7 +114,7 @@ void l1t::CaloCondition::copy(const l1t::CaloCondition& cp) {
 
 }
 
-l1t::CaloCondition::CaloCondition(const l1t::CaloCondition& cp) :
+l1t::GtCaloCondition::GtCaloCondition(const l1t::GtCaloCondition& cp) :
     ConditionEvaluation() {
 
     copy(cp);
@@ -122,41 +122,41 @@ l1t::CaloCondition::CaloCondition(const l1t::CaloCondition& cp) :
 }
 
 // destructor
-l1t::CaloCondition::~CaloCondition() {
+l1t::GtCaloCondition::~GtCaloCondition() {
 
     // empty
 
 }
 
 // equal operator
-l1t::CaloCondition& l1t::CaloCondition::operator=(const l1t::CaloCondition& cp) {
+l1t::GtCaloCondition& l1t::GtCaloCondition::operator=(const l1t::GtCaloCondition& cp) {
     copy(cp);
     return *this;
 }
 
 // methods
-void l1t::CaloCondition::setGtCaloTemplate(const GlobalCaloTemplate* caloTempl) {
+void l1t::GtCaloCondition::setGtCaloTemplate(const GlobalCaloTemplate* caloTempl) {
 
     m_gtCaloTemplate = caloTempl;
 
 }
 
-///   set the pointer to uGT Board
-void l1t::CaloCondition::setuGtB(const Board* ptrGTB) {
+///   set the pointer to uGT GtBoard
+void l1t::GtCaloCondition::setuGtB(const GtBoard* ptrGTB) {
 
     m_uGtB = ptrGTB;
 
 }
 
 //   set the number of bits for eta of calorimeter objects
-void l1t::CaloCondition::setGtIfCaloEtaNumberBits(const int& ifCaloEtaNumberBitsValue) {
+void l1t::GtCaloCondition::setGtIfCaloEtaNumberBits(const int& ifCaloEtaNumberBitsValue) {
 
     m_ifCaloEtaNumberBits = ifCaloEtaNumberBitsValue;
 
 }
 
 //   set the maximum number of bins for the delta phi scales
-void l1t::CaloCondition::setGtCorrParDeltaPhiNrBins(
+void l1t::GtCaloCondition::setGtCorrParDeltaPhiNrBins(
         const int& corrParDeltaPhiNrBins) {
 
     m_corrParDeltaPhiNrBins = corrParDeltaPhiNrBins;
@@ -164,7 +164,7 @@ void l1t::CaloCondition::setGtCorrParDeltaPhiNrBins(
 }
 
 // try all object permutations and check spatial correlations, if required
-const bool l1t::CaloCondition::evaluateCondition(const int bxEval) const {
+const bool l1t::GtCaloCondition::evaluateCondition(const int bxEval) const {
 
     // number of trigger objects in the condition
     int nObjInCond = m_gtCaloTemplate->nrObjects();
@@ -463,8 +463,8 @@ const bool l1t::CaloCondition::evaluateCondition(const int bxEval) const {
 
 
     LogTrace("L1GlobalTrigger")
-       << "\n  CaloCondition: total number of permutations found:          " << totalLoops
-       << "\n  CaloCondition: number of permutations passing requirements: " << passLoops
+       << "\n  GtCaloCondition: total number of permutations found:          " << totalLoops
+       << "\n  GtCaloCondition: number of permutations passing requirements: " << passLoops
        << "\n" << std::endl;
 
     return condResult;
@@ -472,7 +472,7 @@ const bool l1t::CaloCondition::evaluateCondition(const int bxEval) const {
 }
 
 // load calo candidates
-const l1t::L1Candidate* l1t::CaloCondition::getCandidate(const int bx, const int indexCand) const {
+const l1t::L1Candidate* l1t::GtCaloCondition::getCandidate(const int bx, const int indexCand) const {
 
     // objectType() gives the type for nrObjects() only,
     // but in a CondCalo all objects have the same type
@@ -506,7 +506,7 @@ const l1t::L1Candidate* l1t::CaloCondition::getCandidate(const int bx, const int
  * @return The result of the comparison (false if a condition does not exist).
  */
 
-const bool l1t::CaloCondition::checkObjectParameter(const int iCondition, const l1t::L1Candidate& cand) const {
+const bool l1t::GtCaloCondition::checkObjectParameter(const int iCondition, const l1t::L1Candidate& cand) const {
 
     // number of objects in condition
     int nObjInCond = m_gtCaloTemplate->nrObjects();
@@ -573,7 +573,7 @@ const bool l1t::CaloCondition::checkObjectParameter(const int iCondition, const 
     return true;
 }
 
-void l1t::CaloCondition::print(std::ostream& myCout) const {
+void l1t::GtCaloCondition::print(std::ostream& myCout) const {
 
     m_gtCaloTemplate->print(myCout);
 

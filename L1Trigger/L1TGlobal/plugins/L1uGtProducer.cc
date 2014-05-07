@@ -164,7 +164,7 @@ l1t::L1uGtProducer::L1uGtProducer(const edm::ParameterSet& parSet) :
 
 
     // create new uGt Board
-    m_uGtBrd = new Board();
+    m_uGtBrd = new GtBoard();
     m_uGtBrd->setVerbosity(m_verbosity);
 
     // initialize cached IDs

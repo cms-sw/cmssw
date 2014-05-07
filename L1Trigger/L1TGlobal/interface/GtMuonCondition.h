@@ -1,8 +1,8 @@
-#ifndef GlobalTrigger_MyMuonCondition_h
-#define GlobalTrigger_MyMuonCondition_h
+#ifndef GlobalTrigger_GtMuonCondition_h
+#define GlobalTrigger_GtMuonCondition_h
 
 /**
- * \class MyMuonCondition
+ * \class GtMuonCondition
  * 
  * 
  * Description: evaluation of a CondMuon condition.
@@ -30,31 +30,31 @@ namespace l1t {
 
 class L1MuGMTCand;
 
-class Board;
+class GtBoard;
 
 // class declaration
-class MyMuonCondition : public ConditionEvaluation
+class GtMuonCondition : public ConditionEvaluation
 {
 
 public:
 
     /// constructors
     ///     default
-    MyMuonCondition();
+    GtMuonCondition();
 
     ///     from base template condition (from event setup usually)
-    MyMuonCondition(const GlobalCondition*, const Board*,
+    GtMuonCondition(const GlobalCondition*, const GtBoard*,
             const int nrL1Mu,
             const int ifMuEtaNumberBits);
 
     // copy constructor
-    MyMuonCondition(const MyMuonCondition&);
+    GtMuonCondition(const GtMuonCondition&);
 
     // destructor
-    virtual ~MyMuonCondition();
+    virtual ~GtMuonCondition();
 
     // assign operator
-    MyMuonCondition& operator=(const MyMuonCondition&);
+    GtMuonCondition& operator=(const GtMuonCondition&);
 
 public:
 
@@ -74,11 +74,11 @@ public:
     void setGtMuonTemplate(const GlobalMuonTemplate*);
 
     ///   get / set the pointer to GTL
-    inline const Board* gtGTL() const {
+    inline const GtBoard* gtGTL() const {
         return m_gtGTL;
     }
 
-    void setGtGTL(const Board*);
+    void setGtGTL(const GtBoard*);
 
 
     ///   get / set the number of bits for eta of muon objects
@@ -100,7 +100,7 @@ public:
 private:
 
     /// copy function for copy constructor and operator=
-    void copy(const MyMuonCondition& cp);
+    void copy(const GtMuonCondition& cp);
 
     /// load muon candidates
     const l1t::Muon* getCandidate(const int bx, const int indexCand) const;
@@ -115,7 +115,7 @@ private:
     const GlobalMuonTemplate* m_gtMuonTemplate;
 
     /// pointer to GTL, to be able to get the trigger objects
-    const Board* m_gtGTL;
+    const GtBoard* m_gtGTL;
 
     /// number of bits for eta of muon objects
     int m_ifMuEtaNumberBits;

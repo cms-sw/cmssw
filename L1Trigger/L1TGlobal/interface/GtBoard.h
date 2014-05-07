@@ -1,8 +1,8 @@
-#ifndef Board_h
-#define Board_h
+#ifndef GtBoard_h
+#define GtBoard_h
 
 /**
- * \class Board
+ * \class GtBoard
  *
  *
  * Description: Global Trigger Logic board.
@@ -52,16 +52,16 @@ class L1GtEtaPhiConversions;
 
 namespace l1t {
 
-class Board
+class GtBoard
 {
 
 public:
 
     // constructors
-    Board();
+    GtBoard();
 
     // destructor
-    virtual ~Board();
+    virtual ~GtBoard();
 
 public:
 

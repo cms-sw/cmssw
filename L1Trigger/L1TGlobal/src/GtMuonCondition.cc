@@ -1,5 +1,5 @@
 /**
- * \class MyMuonCondition
+ * \class GtMuonCondition
  *
  *
  * Description: evaluation of a CondMuon condition.
@@ -13,7 +13,7 @@
  */
 
 // this class header
-#include "L1Trigger/L1TGlobal/interface/MyMuonCondition.h"
+#include "L1Trigger/L1TGlobal/interface/GtMuonCondition.h"
 
 // system include files
 #include <iostream>
@@ -33,14 +33,14 @@
 #include "DataFormats/L1Trigger/interface/Muon.h"
 
 #include "L1Trigger/GlobalTrigger/interface/L1GlobalTriggerFunctions.h"
-#include "L1Trigger/L1TGlobal/interface/Board.h"
+#include "L1Trigger/L1TGlobal/interface/GtBoard.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 
 // constructors
 //     default
-l1t::MyMuonCondition::MyMuonCondition() :
+l1t::GtMuonCondition::GtMuonCondition() :
     ConditionEvaluation() {
 
     // empty
@@ -48,8 +48,8 @@ l1t::MyMuonCondition::MyMuonCondition() :
 }
 
 //     from base template condition (from event setup usually)
-l1t::MyMuonCondition::MyMuonCondition(const GlobalCondition* muonTemplate,
-        const Board* ptrGTL, const int nrL1Mu,
+l1t::GtMuonCondition::GtMuonCondition(const GlobalCondition* muonTemplate,
+        const GtBoard* ptrGTL, const int nrL1Mu,
         const int ifMuEtaNumberBits) :
     ConditionEvaluation(),
     m_gtMuonTemplate(static_cast<const GlobalMuonTemplate*>(muonTemplate)),
@@ -61,7 +61,7 @@ l1t::MyMuonCondition::MyMuonCondition(const GlobalCondition* muonTemplate,
 }
 
 // copy constructor
-void l1t::MyMuonCondition::copy(const l1t::MyMuonCondition &cp) {
+void l1t::GtMuonCondition::copy(const l1t::GtMuonCondition &cp) {
 
     m_gtMuonTemplate = cp.gtMuonTemplate();
     m_gtGTL = cp.gtGTL();
@@ -77,34 +77,34 @@ void l1t::MyMuonCondition::copy(const l1t::MyMuonCondition &cp) {
 
 }
 
-l1t::MyMuonCondition::MyMuonCondition(const l1t::MyMuonCondition& cp) :
+l1t::GtMuonCondition::GtMuonCondition(const l1t::GtMuonCondition& cp) :
     ConditionEvaluation() {
     copy(cp);
 }
 
 // destructor
-l1t::MyMuonCondition::~MyMuonCondition() {
+l1t::GtMuonCondition::~GtMuonCondition() {
 
     // empty
 
 }
 
 // equal operator
-l1t::MyMuonCondition& l1t::MyMuonCondition::operator= (const l1t::MyMuonCondition& cp)
+l1t::GtMuonCondition& l1t::GtMuonCondition::operator= (const l1t::GtMuonCondition& cp)
 {
     copy(cp);
     return *this;
 }
 
 // methods
-void l1t::MyMuonCondition::setGtMuonTemplate(const GlobalMuonTemplate* muonTempl) {
+void l1t::GtMuonCondition::setGtMuonTemplate(const GlobalMuonTemplate* muonTempl) {
 
     m_gtMuonTemplate = muonTempl;
 
 }
 
 ///   set the pointer to GTL
-void l1t::MyMuonCondition::setGtGTL(const Board* ptrGTL) {
+void l1t::GtMuonCondition::setGtGTL(const GtBoard* ptrGTL) {
 
     m_gtGTL = ptrGTL;
 
@@ -112,7 +112,7 @@ void l1t::MyMuonCondition::setGtGTL(const Board* ptrGTL) {
 
 
 //   set the number of bits for eta of muon objects
-void l1t::MyMuonCondition::setGtIfMuEtaNumberBits(
+void l1t::GtMuonCondition::setGtIfMuEtaNumberBits(
         const int& ifMuEtaNumberBitsValue) {
 
     m_ifMuEtaNumberBits = ifMuEtaNumberBitsValue;
@@ -120,7 +120,7 @@ void l1t::MyMuonCondition::setGtIfMuEtaNumberBits(
 }
 
 //   set the maximum number of bins for the delta phi scales
-void l1t::MyMuonCondition::setGtCorrParDeltaPhiNrBins(
+void l1t::GtMuonCondition::setGtCorrParDeltaPhiNrBins(
         const int& corrParDeltaPhiNrBins) {
 
     m_corrParDeltaPhiNrBins = corrParDeltaPhiNrBins;
@@ -129,7 +129,7 @@ void l1t::MyMuonCondition::setGtCorrParDeltaPhiNrBins(
 
 
 // try all object permutations and check spatial correlations, if required
-const bool l1t::MyMuonCondition::evaluateCondition(const int bxEval) const {  
+const bool l1t::GtMuonCondition::evaluateCondition(const int bxEval) const {  
  
     // BLW Need to pass this as an argument
     //const int bxEval=0;   //BLW Change for BXVector
@@ -201,9 +201,9 @@ const bool l1t::MyMuonCondition::evaluateCondition(const int bxEval) const {
 	    passCondition = checkObjectParameter(i,  *(candVec->at(useBx,index[i]) )); //BLW Change for BXVector
 	    tmpResult &= passCondition;
 	    if( passCondition ) 
-	      LogDebug("l1t|Global") << "===> MyMuonCondition::evaluateCondition, CONGRATS!! This muon passed the condition." << std::endl;
+	      LogDebug("l1t|Global") << "===> GtMuonCondition::evaluateCondition, CONGRATS!! This muon passed the condition." << std::endl;
 	    else 
-	      LogDebug("l1t|Global") << "===> MyMuonCondition::evaluateCondition, FAIL!! This muon failed the condition." << std::endl;
+	      LogDebug("l1t|Global") << "===> GtMuonCondition::evaluateCondition, FAIL!! This muon failed the condition." << std::endl;
             objectsInComb.push_back(index[i]);
 
         }
@@ -404,8 +404,8 @@ const bool l1t::MyMuonCondition::evaluateCondition(const int bxEval) const {
     } while (std::next_permutation(index.begin(), index.end()) );
 
     //LogTrace("L1GlobalTrigger")
-    //    << "\n  MyMuonCondition: total number of permutations found:          " << totalLoops
-    //    << "\n  MyMuonCondition: number of permutations passing requirements: " << passLoops
+    //    << "\n  GtMuonCondition: total number of permutations found:          " << totalLoops
+    //    << "\n  GtMuonCondition: number of permutations passing requirements: " << passLoops
     //    << "\n" << std::endl;
 
     return condResult;
@@ -413,7 +413,7 @@ const bool l1t::MyMuonCondition::evaluateCondition(const int bxEval) const {
 }
 
 // load muon candidates
-const l1t::Muon* l1t::MyMuonCondition::getCandidate(const int bx, const int indexCand) const {
+const l1t::Muon* l1t::GtMuonCondition::getCandidate(const int bx, const int indexCand) const {
 
     return (m_gtGTL->getCandL1Mu())->at(bx,indexCand);  //BLW Change for BXVector
 }
@@ -427,7 +427,7 @@ const l1t::Muon* l1t::MyMuonCondition::getCandidate(const int bx, const int inde
  * @return The result of the comparison (false if a condition does not exist).
  */
 
-const bool l1t::MyMuonCondition::checkObjectParameter(const int iCondition, const l1t::Muon& cand) const {
+const bool l1t::GtMuonCondition::checkObjectParameter(const int iCondition, const l1t::Muon& cand) const {
 
     // number of objects in condition
     int nObjInCond = m_gtMuonTemplate->nrObjects();
@@ -589,7 +589,7 @@ const bool l1t::MyMuonCondition::checkObjectParameter(const int iCondition, cons
     return true;
 }
 
-void l1t::MyMuonCondition::print(std::ostream& myCout) const {
+void l1t::GtMuonCondition::print(std::ostream& myCout) const {
 
     m_gtMuonTemplate->print(myCout);
 

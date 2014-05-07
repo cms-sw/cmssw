@@ -1,8 +1,8 @@
-#ifndef GlobalTrigger_CaloCondition_h
-#define GlobalTrigger_CaloCondition_h
+#ifndef GlobalTrigger_GtCaloCondition_h
+#define GlobalTrigger_GtCaloCondition_h
 
 /**
- * \class CaloCondition
+ * \class GtCaloCondition
  * 
  * 
  * Description: evaluation of a CondCalo condition.
@@ -31,33 +31,33 @@ namespace l1t {
 
 class L1Candidate;
 
-class Board;
+class GtBoard;
 
 // class declaration
-class CaloCondition : public ConditionEvaluation
+class GtCaloCondition : public ConditionEvaluation
 {
 
 public:
 
     /// constructors
     ///     default
-    CaloCondition();
+    GtCaloCondition();
 
     ///     from base template condition (from event setup usually)
-    CaloCondition(const GlobalCondition*, const Board*,
+    GtCaloCondition(const GlobalCondition*, const GtBoard*,
             const int nrL1EG,
             const int nrL1Jet,
             const int nrL1Tau,
             const int ifCaloEtaNumberBits);
 
     // copy constructor
-    CaloCondition(const CaloCondition&);
+    GtCaloCondition(const GtCaloCondition&);
 
     // destructor
-    virtual ~CaloCondition();
+    virtual ~GtCaloCondition();
 
     // assign operator
-    CaloCondition& operator=(const CaloCondition&);
+    GtCaloCondition& operator=(const GtCaloCondition&);
 
 public:
 
@@ -76,12 +76,12 @@ public:
 
     void setGtCaloTemplate(const GlobalCaloTemplate*);
 
-    ///   get / set the pointer to uGt Board
-    inline const Board* getuGtB() const {
+    ///   get / set the pointer to uGt GtBoard
+    inline const GtBoard* getuGtB() const {
         return m_uGtB;
     }
 
-    void setuGtB(const Board*);
+    void setuGtB(const GtBoard*);
 
 
     ///   get / set the number of bits for eta of calorimeter objects
@@ -101,7 +101,7 @@ public:
 private:
 
     ///  copy function for copy constructor and operator=
-    void copy(const CaloCondition& cp);
+    void copy(const GtCaloCondition& cp);
 
     /// load calo candidates
     const l1t::L1Candidate* getCandidate(const int bx, const int indexCand) const;
@@ -115,8 +115,8 @@ private:
     /// pointer to a GlobalCaloTemplate
     const GlobalCaloTemplate* m_gtCaloTemplate;
 
-    /// pointer to uGt Board, to be able to get the trigger objects
-    const Board* m_uGtB;
+    /// pointer to uGt GtBoard, to be able to get the trigger objects
+    const GtBoard* m_uGtB;
 
     /// number of bits for eta of calorimeter objects
     int m_ifCaloEtaNumberBits;
