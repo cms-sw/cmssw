@@ -206,7 +206,7 @@ JetFlavourClustering::JetFlavourClustering(const edm::ParameterSet& iConfig) :
    bHadronsToken_(consumes<reco::GenParticleRefVector>( iConfig.getParameter<edm::InputTag>("bHadrons") )),
    cHadronsToken_(consumes<reco::GenParticleRefVector>( iConfig.getParameter<edm::InputTag>("cHadrons") )),
    partonsToken_(consumes<reco::GenParticleRefVector>( iConfig.getParameter<edm::InputTag>("partons") )),
-   leptonsToken_(consumes<reco::GenParticleRefVector>( iConfig.exists("leptons") ? iConfig.getParameter<edm::InputTag>("leptons") : edm::InputTag() )),
+   leptonsToken_(mayConsume<reco::GenParticleRefVector>( iConfig.exists("leptons") ? iConfig.getParameter<edm::InputTag>("leptons") : edm::InputTag() )),
    jetAlgorithm_(iConfig.getParameter<std::string>("jetAlgorithm")),
    rParam_(iConfig.getParameter<double>("rParam")),
    jetPtMin_(0.), // hardcoded to 0. since we simply want to recluster all input jets which already had some PtMin applied
