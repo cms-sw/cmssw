@@ -132,7 +132,7 @@ reco::Track* KFBasedPixelFitter::run(
     float valPt = 1.f/invPt;
     float chargeTmp =    (points[1].x()-points[0].x())*(points[2].y()-points[1].y())
                        - (points[1].y()-points[0].y())*(points[2].x()-points[1].x()); 
-    int charge =  (chargeTmp>0) ? -1 : 1;
+    charge =  (chargeTmp>0) ? -1 : 1;
     float valPhi = (charge>0) ? std::atan2(circle.center().x(),-circle.center().y()) :  std::atan2(-circle.center().x(),circle.center().y());
     theta = GlobalVector(points[1]-points[0]).theta();
     initMom = GlobalVector(valPt*cos(valPhi), valPt*sin(valPhi), valPt/tan(theta)); 
