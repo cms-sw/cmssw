@@ -64,9 +64,9 @@ def customise_L1Emulator2023(process, ptdphi):
     process.simCscTriggerPrimitiveDigis.alctSLHCME21 = process.simCscTriggerPrimitiveDigis.alctSLHC.clone()
     process.simCscTriggerPrimitiveDigis.clctSLHCME21 = process.simCscTriggerPrimitiveDigis.clctSLHC.clone()
     process.simCscTriggerPrimitiveDigis.alctSLHCME21.alctNplanesHitPattern = 3
+    process.simCscTriggerPrimitiveDigis.alctSLHCME21.runME21ILT = cms.bool(True)
     process.simCscTriggerPrimitiveDigis.clctSLHCME21.clctNplanesHitPattern = 3
     process.simCscTriggerPrimitiveDigis.clctSLHCME21.clctPidThreshPretrig = 2
-    process.simCscTriggerPrimitiveDigis.clctSLHCME21.runME21ILT = cms.bool(True)
     return process
 
 def customise_DigiToRaw(process):
