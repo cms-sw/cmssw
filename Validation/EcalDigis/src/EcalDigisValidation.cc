@@ -246,8 +246,8 @@ void EcalDigisValidation::analyze(Event const & e, EventSetup const & c){
   // BARREL
 
   // loop over simHits
-
   if ( isBarrel ) {
+#ifdef simhits
 
     const std::string barrelHitsName(g4InfoLabel+"EcalHitsEB");
     e.getByLabel("mix",barrelHitsName,crossingFrame);
@@ -273,7 +273,7 @@ void EcalDigisValidation::analyze(Event const & e, EventSetup const & c){
       ebSimMap[crystid] += hitItr->energy();
       
     }
-    
+#endif
     // loop over Digis
     
     const EBDigiCollection * barrelDigi = EcalDigiEB.product () ;
@@ -290,7 +290,6 @@ void EcalDigisValidation::analyze(Event const & e, EventSetup const & c){
       EBDataFrame ebdf=(*barrelDigi)[digis];
       int nrSamples=ebdf.size();
       
-      EBDetId ebid = ebdf.id () ;
       
       double Emax = 0. ;
       int Pmax = 0 ;
@@ -323,8 +322,11 @@ void EcalDigisValidation::analyze(Event const & e, EventSetup const & c){
       
       pedestalPreSample /= 3. ; 
       pedestalPreSampleAnalog /= 3. ; 
-      double Erec = Emax - pedestalPreSampleAnalog*gainConv_[(int)ebADCGains[Pmax]];
       
+#ifdef simhit      
+      EBDetId ebid = ebdf.id () ;
+      double Erec = Emax - pedestalPreSampleAnalog*gainConv_[(int)ebADCGains[Pmax]];
+
       if ( ebSimMap[ebid.rawId()] != 0. ) {
 	LogDebug("DigiInfo") << " Digi / Hit = " << Erec << " / " << ebSimMap[ebid.rawId()] << " gainConv " << gainConv_[(int)ebADCGains[Pmax]];
 	if ( meEBDigiSimRatio_ ) meEBDigiSimRatio_->Fill( Erec/ebSimMap[ebid.rawId()] ) ; 
@@ -332,7 +334,9 @@ void EcalDigisValidation::analyze(Event const & e, EventSetup const & c){
 	if ( Erec > 100.*barrelADCtoGeV_  && meEBDigiSimRatiogt100ADC_  ) meEBDigiSimRatiogt100ADC_->Fill( Erec/ebSimMap[ebid.rawId()] );
 	
       }
-      
+#else
+      if(Pmax && false) std::cout << "Pmax = " << Pmax << std::endl;
+#endif
     } 
     
   }
@@ -340,8 +344,8 @@ void EcalDigisValidation::analyze(Event const & e, EventSetup const & c){
   // ENDCAP
 
   // loop over simHits
-
   if ( isEndcap ) {
+#ifdef simhits
 
     const std::string endcapHitsName(g4InfoLabel+"EcalHitsEE");
     e.getByLabel("mix",endcapHitsName,crossingFrame);
@@ -367,7 +371,7 @@ void EcalDigisValidation::analyze(Event const & e, EventSetup const & c){
       eeSimMap[crystid] += hitItr->energy();
 
     }
-    
+#endif
     // loop over Digis
     
     const EEDigiCollection * endcapDigi = EcalDigiEE.product () ;
@@ -383,8 +387,6 @@ void EcalDigisValidation::analyze(Event const & e, EventSetup const & c){
       
       EEDataFrame eedf=(*endcapDigi)[digis];
       int nrSamples=eedf.size();
-      
-      EEDetId eeid = eedf.id () ;
       
       double Emax = 0. ;
       int Pmax = 0 ;
@@ -416,15 +418,18 @@ void EcalDigisValidation::analyze(Event const & e, EventSetup const & c){
       }
       pedestalPreSample /= 3. ; 
       pedestalPreSampleAnalog /= 3. ; 
+#ifdef simhit      
+      EEDetId eeid = eedf.id () ;
       double Erec = Emax - pedestalPreSampleAnalog*gainConv_[(int)eeADCGains[Pmax]];
-      
       if (eeSimMap[eeid.rawId()] != 0. ) {
 	LogDebug("DigiInfo") << " Digi / Hit = " << Erec << " / " << eeSimMap[eeid.rawId()] << " gainConv " << gainConv_[(int)eeADCGains[Pmax]];
 	if ( meEEDigiSimRatio_) meEEDigiSimRatio_->Fill( Erec/eeSimMap[eeid.rawId()] ) ; 
 	if ( Erec > 20.*endcapADCtoGeV_  && meEEDigiSimRatiogt20ADC_  ) meEEDigiSimRatiogt20ADC_->Fill( Erec/eeSimMap[eeid.rawId()] );
 	if ( Erec > 100.*endcapADCtoGeV_  && meEEDigiSimRatiogt100ADC_  ) meEEDigiSimRatiogt100ADC_->Fill( Erec/eeSimMap[eeid.rawId()] );
       }
-      
+#else
+      if(Pmax && false) std::cout << "Pmax = " << Pmax << std::endl;
+#endif
     } 
     
   }
@@ -432,6 +437,7 @@ void EcalDigisValidation::analyze(Event const & e, EventSetup const & c){
   // SHASHLIK
   // loop over simHits
   if ( isShashlik ) {
+#ifdef simhits
 
     const std::string shashlikHitsName(g4InfoLabel+"EcalHitsEK");
     e.getByLabel("mix",shashlikHitsName,crossingFrame);
@@ -457,7 +463,7 @@ void EcalDigisValidation::analyze(Event const & e, EventSetup const & c){
       ekSimMap[crystid] += hitItr->energy();
 
     }
-    
+#endif    
     // loop over Digis
     
     const EKDigiCollection * shashlikDigi = EcalDigiEK.product () ;
@@ -468,13 +474,12 @@ void EcalDigisValidation::analyze(Event const & e, EventSetup const & c){
     ekAnalogSignal.reserve(EKDataFrame::MAXSAMPLES);
     ekADCCounts.reserve(EKDataFrame::MAXSAMPLES);
     ekADCGains.reserve(EKDataFrame::MAXSAMPLES);
-    
+
+    LogDebug("EcalDigisValidation") << "EcalDigiEK size = " << EcalDigiEK->size();    
     for (unsigned int digis=0; digis<EcalDigiEK->size(); ++digis) {
-      
+
       EKDataFrame ekdf=(*shashlikDigi)[digis];
       int nrSamples=ekdf.size();
-      
-      EKDetId ekid = ekdf.id () ;
       
       double Emax = 0. ;
       int Pmax = 0 ;
@@ -506,21 +511,24 @@ void EcalDigisValidation::analyze(Event const & e, EventSetup const & c){
       }
       pedestalPreSample /= 3. ; 
       pedestalPreSampleAnalog /= 3. ; 
+#ifdef simhit
+      EKDetId ekid = ekdf.id () ;
       double Erec = Emax - pedestalPreSampleAnalog*gainConv_[(int)ekADCGains[Pmax]];
-      
       if (ekSimMap[ekid.rawId()] != 0. ) {
 	LogDebug("DigiInfo") << " Digi / Hit = " << Erec << " / " << ekSimMap[ekid.rawId()] << " gainConv " << gainConv_[(int)ekADCGains[Pmax]];
 	if ( meEKDigiSimRatio_) meEKDigiSimRatio_->Fill( Erec/ekSimMap[ekid.rawId()] ) ; 
 	if ( Erec > 20.*shashlikADCtoGeV_  && meEKDigiSimRatiogt20ADC_  ) meEKDigiSimRatiogt20ADC_->Fill( Erec/ekSimMap[ekid.rawId()] );
 	if ( Erec > 100.*shashlikADCtoGeV_  && meEKDigiSimRatiogt100ADC_  ) meEKDigiSimRatiogt100ADC_->Fill( Erec/ekSimMap[ekid.rawId()] );
       }
-      
+#else
+      if(Pmax && false) std::cout << "Pmax = " << Pmax << std::endl;
+#endif
     } 
     
   }
 
   if ( isPreshower) {
-
+#ifdef simhits
     const std::string preshowerHitsName(g4InfoLabel+"EcalHitsES");
     e.getByLabel("mix",preshowerHitsName,crossingFrame);
     std::auto_ptr<MixCollection<PCaloHit> > 
@@ -540,7 +548,7 @@ void EcalDigisValidation::analyze(Event const & e, EventSetup const & c){
         << " Energy = "   << hitItr->energy();
 
     }
-    
+#endif 
   }
   
 }                                                                                       
