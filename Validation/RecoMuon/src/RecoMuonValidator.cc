@@ -1,16 +1,14 @@
 #include "Validation/RecoMuon/src/RecoMuonValidator.h"
 
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
-
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorByHits.h"
-
 #include "SimMuon/MCTruth/interface/MuonAssociatorByHits.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DQMServices/Core/interface/DQMStore.h"
+//#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
@@ -538,14 +536,14 @@ RecoMuonValidator::RecoMuonValidator(const edm::ParameterSet& pset):
   theMuonService = new MuonServiceProxy(serviceParameters);
 
   // retrieve the instance of DQMService
-  theDQM = 0;
-  theDQM = Service<DQMStore>().operator->();
+  dbe_ = 0;
+  dbe_ = Service<DQMStore>().operator->();
   subsystemname_ = pset.getUntrackedParameter<std::string>("subSystemFolder", "YourSubsystem") ;
 
-  if ( ! theDQM ) {
-    LogError("RecoMuonValidator") << "DQMService not initialized\n";
-    return;
-  }
+  if ( ! dbe_ ) {
+   LogError("RecoMuonValidator") << "DQMService not initialized\n";
+   return;
+   }
 
   subDir_ = pset.getUntrackedParameter<string>("subDir");
   if ( subDir_.empty() ) subDir_ = "RecoMuonV";
@@ -623,7 +621,7 @@ RecoMuonValidator::~RecoMuonValidator()
 //Begin run
 //
 
-void RecoMuonValidator::dqmbeginRun(const edm::Run& , const EventSetup& eventSetup)
+void RecoMuonValidator::dqmBeginRun(const edm::Run& , const EventSetup& eventSetup)
 {
   if ( theMuonService ) theMuonService->update(eventSetup);
 
@@ -641,7 +639,7 @@ void RecoMuonValidator::dqmbeginRun(const edm::Run& , const EventSetup& eventSet
 //
 void RecoMuonValidator::endRun()
 {
-  if ( theDQM && ! outputFileName_.empty() ) theDQM->save(outputFileName_);
+  if ( dbe_ && ! outputFileName_.empty() ) dbe_->save(outputFileName_);
 }
 
 //
@@ -649,10 +647,10 @@ void RecoMuonValidator::endRun()
 //
 void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup)
 {
-  if ( ! theDQM ) {
-    LogError("RecoMuonValidator") << "DQMService not initialized\n";
+  if ( ! dbe_ ) {
+      LogError("RecoMuonValidator") << "DQMService not initialized\n";
     return;
-  }
+    }
 
   // Look for the Primary Vertex (and use the BeamSpot instead, if you can't find it):
   reco::Vertex::Point posVtx;
