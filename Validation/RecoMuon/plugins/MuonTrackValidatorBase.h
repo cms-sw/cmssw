@@ -22,7 +22,7 @@
 
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
+
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -36,6 +36,7 @@
 #include <TH1F.h>
 #include <TH2F.h>
 
+class DQMStore;
 class MuonTrackValidatorBase {
  public:
   /// Constructor
