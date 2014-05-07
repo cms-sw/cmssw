@@ -6,10 +6,8 @@ from RecoMET.METProducers.CaloMET_cfi import *
 from RecoMET.METProducers.CaloMETSignif_cfi import *
 from RecoMET.METProducers.hcalnoiseinfoproducer_cfi import *
 from RecoMET.METProducers.MuonMETValueMapProducer_cff import *
-from RecoMET.METProducers.MuonTCMETValueMapProducer_cff import *
 from RecoMET.METProducers.MetMuonCorrections_cff import *
 from RecoMET.Configuration.RecoMET_BeamHaloId_cff import *
-from RecoMET.Configuration.RecoTCMET_cff import *
 
 ##____________________________________________________________________________||
 metreco = cms.Sequence(
@@ -18,8 +16,6 @@ metreco = cms.Sequence(
         metHO+
         muonMETValueMapProducer+
         corMetGlobalMuons+
-        muonTCMETValueMapProducer+
-        tcMetSequence+
         BeamHaloId
         )
 
