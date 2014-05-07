@@ -28,7 +28,7 @@
 #include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
+
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -90,15 +90,12 @@ GlobalMuonMatchAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 
    Handle<View<Track> > staHandle;
    iEvent.getByToken(staToken_,staHandle);
-   //   const reco::TrackCollection staColl = *(staHandle.product());
 
    Handle<View<Track> > glbHandle;
    iEvent.getByToken(glbToken_,glbHandle);
-   //   const reco::TrackCollection glbColl = *(glbHandle.product());
 
    Handle<View<Track> > tkHandle;
    iEvent.getByToken(tkToken_,tkHandle);
-   //   const reco::TrackCollection mtkColl = *(tkHandle.product());
 
    reco::RecoToSimCollection tkrecoToSimCollection;
    reco::SimToRecoCollection tksimToRecoCollection;
