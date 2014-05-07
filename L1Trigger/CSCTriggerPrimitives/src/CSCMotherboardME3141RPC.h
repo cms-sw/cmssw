@@ -56,9 +56,9 @@ class CSCMotherboardME3141RPC : public CSCMotherboard
   void printRPCTriggerDigis(int minBX, int maxBx);
   int getRandomWGForRPCRoll(int roll);
   
-  RPCDigisBX matchingRPCDigis(const CSCCLCTDigi& cLCT, const RPCDigisBX& pads = RPCDigisBX(), bool first = true);  
-  RPCDigisBX matchingRPCDigis(const CSCALCTDigi& aLCT, const RPCDigisBX& pads = RPCDigisBX(), bool first = true);  
-  RPCDigisBX matchingRPCDigis(const CSCCLCTDigi& cLCT, const CSCALCTDigi& aLCT, const RPCDigisBX& pads = RPCDigisBX(), 
+  RPCDigisBX matchingRPCDigis(const CSCCLCTDigi& cLCT, const RPCDigisBX& digis = RPCDigisBX(), bool first = true);  
+  RPCDigisBX matchingRPCDigis(const CSCALCTDigi& aLCT, const RPCDigisBX& digis = RPCDigisBX(), bool first = true);  
+  RPCDigisBX matchingRPCDigis(const CSCCLCTDigi& cLCT, const CSCALCTDigi& aLCT, const RPCDigisBX& digis = RPCDigisBX(), 
 			     bool first = true);  
 
   unsigned int findQualityRPC(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, bool hasRPC);
@@ -72,9 +72,15 @@ class CSCMotherboardME3141RPC : public CSCMotherboard
                         RPCDigi rpcDigi, int roll,
                         CSCCorrelatedLCTDigi& lct1,CSCCorrelatedLCTDigi& lct2);
  
+  void correlateLCTsRPC(CSCALCTDigi bestALCT, CSCALCTDigi secondALCT,
+                        RPCDigi gemPad,
+                        CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2);
+
   CSCCorrelatedLCTDigi constructLCTsRPC(const CSCALCTDigi& alct, const CSCCLCTDigi& clct, bool hasRPC); 
   CSCCorrelatedLCTDigi constructLCTsRPC(const CSCCLCTDigi& clct, const RPCDigi& rpc, int roll, 
                                         bool oldDataFormat);
+  CSCCorrelatedLCTDigi constructLCTsRPC(const CSCALCTDigi& alct, const RPCDigi& rpc, bool oldDataFormat);
+
 
   /** Methods to sort the LCTs */
   std::vector<CSCCorrelatedLCTDigi> sortLCTsByQuality(int bx);
@@ -121,18 +127,22 @@ class CSCMotherboardME3141RPC : public CSCMotherboard
   bool debug_rpc_matching_;
   bool debug_luts_;
 
-  //  deltas used to match to RPC pads
+  //  deltas used to match to RPC digis
   int maxDeltaBXRPC_;
   int maxDeltaStripRPC_;
 
   bool useOldLCTDataFormatCLCTRPC_;
+  bool useOldLCTDataFormatALCTRPC_;
   
   // drop low quality stubs if they don't have RPCs
   bool dropLowQualityCLCTsNoRPCs_;
 
+  bool buildLCTfromALCTandRPC_;
   bool buildLCTfromCLCTandRPC_;
 
   bool promoteCLCTRPCquality_;
+  bool promoteALCTRPCquality_;
+  bool promoteALCTRPCpattern_;
 
   std::map<int,std::pair<double,double> > rpcRollToEtaLimits_;
   std::map<int,int> cscWgToRpcRoll_;

@@ -485,10 +485,11 @@ cscTriggerPrimitiveDigisPostLS3 = cms.EDProducer("CSCTriggerPrimitivesProducer",
 
         ## run in debug mode
         debugLUTs = cms.bool(False),
-        debugMatching = cms.bool(False),
+        debugMatching = cms.bool(True),
 
         ## use old dataformat
         useOldLCTDataFormatCLCTRPC = cms.bool(True),
+        useOldLCTDataFormatALCTRPC = cms.bool(True),
 
         ## matching to digis in case LowQ CLCT
         maxDeltaBXRPC = cms.int32(0),
@@ -496,8 +497,11 @@ cscTriggerPrimitiveDigisPostLS3 = cms.EDProducer("CSCTriggerPrimitivesProducer",
 
         ## efficiency recovery switches
         dropLowQualityCLCTsNoRPCs = cms.bool(True),
+        buildLCTfromALCTandRPC = cms.bool(True),
         buildLCTfromCLCTandRPC = cms.bool(True),
         promoteCLCTRPCquality = cms.bool(True),
+        promoteALCTRPCpattern = cms.bool(True),
+        promoteALCTRPCquality = cms.bool(True)
     ),
 
     # MPC sorter config for SLHC studies
