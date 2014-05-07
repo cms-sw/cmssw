@@ -13,7 +13,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
+
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -35,7 +35,7 @@ namespace edm {
   class Event;
   class EventSetup;
 }
-
+class DQMStore;
 class HTracks;
 class HResolution;
 
@@ -62,7 +62,6 @@ public:
 
   virtual void beginJob() ;
   virtual void endJob() ;
-  //  virtual void beginRun() ;
 void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   virtual void endRun() ;
 
