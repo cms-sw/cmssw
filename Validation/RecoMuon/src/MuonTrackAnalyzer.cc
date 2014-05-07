@@ -179,7 +179,7 @@ void MuonTrackAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
 void MuonTrackAnalyzer::endJob(){
 
 }
-//void MuonTrackAnalyzer::endRun(){
+
 void MuonTrackAnalyzer::endRun(DQMStore::IBooker & ibooker) {
   LogInfo("MuonTrackAnalyzer")<< "Number of Sim tracks: " << numberOfSimTracks;
 
@@ -445,7 +445,7 @@ bool MuonTrackAnalyzer::checkMuonSimHitPresence(const Event & event,
   // Get the SimHit collection from the event
   Handle<PSimHitContainer> dtSimHits;
   event.getByToken(theDTSimHitToken, dtSimHits);
-  //  event.getByToken(theDTSimHitLabel.instance(),theDTSimHitLabel.label(), dtSimHits);
+
   
   Handle<PSimHitContainer> cscSimHits;
   event.getByToken(theCSCSimHitToken, cscSimHits);
