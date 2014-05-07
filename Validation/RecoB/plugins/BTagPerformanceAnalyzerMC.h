@@ -50,7 +50,8 @@ class BTagPerformanceAnalyzerMC : public DQMEDAnalyzer {
 
       virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
-      virtual void endRun(const edm::Run & run, const edm::EventSetup & es);
+      //virtual void endRun(const edm::Run & run, const edm::EventSetup & es);
+      virtual void endJob();
       
    private:
 
