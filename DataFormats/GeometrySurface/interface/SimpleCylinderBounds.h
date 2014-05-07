@@ -29,6 +29,7 @@ public:
   /// Thikness of the "pipe", i.e. difference between outer and inner radius
   virtual float thickness() const { return theRmax-theRmin;}
 
+  using Bounds::inside;
   virtual bool inside( const Local3DPoint& p) const;
 
     
