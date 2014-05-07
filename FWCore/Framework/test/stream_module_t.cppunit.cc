@@ -66,8 +66,6 @@ public:
   void endRunSummaryProdTest();
   void endLumiSummaryProdTest();
 
-private:
-
   enum class Trans {
     kBeginJob, //0
     kBeginStream, //1
@@ -84,8 +82,11 @@ private:
     kEndJob //12
   };
   
-  std::map<Trans,std::function<void(edm::Worker*)>> m_transToFunc;
   typedef std::vector<Trans> Expectations;
+
+private:
+
+  std::map<Trans,std::function<void(edm::Worker*)>> m_transToFunc;
   
   edm::ProcessConfiguration m_procConfig;
   boost::shared_ptr<edm::ProductRegistry> m_prodReg;
