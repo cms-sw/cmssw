@@ -16,7 +16,7 @@ namespace l1t {
          EGammaBxCollection* res;
    };
 
-   std::vector<UnpackerItem> EGammaUnpackerFactory::create(const FirmwareVersion& fw, const int fedid) {
+  std::vector<UnpackerItem> EGammaUnpackerFactory::create(unsigned fw, const int fedid) {
       return {std::make_pair(1, std::shared_ptr<BaseUnpacker>(new EGammaUnpacker()))};
    };
 

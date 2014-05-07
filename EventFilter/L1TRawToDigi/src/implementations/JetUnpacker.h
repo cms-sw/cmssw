@@ -3,6 +3,6 @@
 namespace l1t {
    class JetUnpackerFactory : public UnpackerFactory {
       public:
-         virtual std::vector<UnpackerItem> create(const FirmwareVersion& fw, const int fedid);
+    virtual std::vector<UnpackerItem> create(unsigned fw, const int fedid);
    };
 }

@@ -16,10 +16,10 @@ using namespace std;
 using namespace edm;
 
 l1t::Stage2Layer2FirmwareFactory::ReturnType
-l1t::Stage2Layer2FirmwareFactory::create(const FirmwareVersion & fwv, CaloParams* params) {
+l1t::Stage2Layer2FirmwareFactory::create(unsigned fwv, CaloParams* params) {
 
   ReturnType p;
-  unsigned v = fwv.firmwareVersion();
+  unsigned v = fwv;
   
   switch (v){
   case 1:

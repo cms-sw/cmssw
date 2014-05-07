@@ -76,7 +76,7 @@ namespace l1t {
 
     // parameters
     unsigned long long m_paramsCacheId;
-    FirmwareVersion m_fwv;
+    unsigned m_fwv;
     CaloParams* m_params;
 
     // the processor
@@ -104,7 +104,7 @@ l1t::Stage2Layer2Producer::Stage2Layer2Producer(const edm::ParameterSet& ps) {
   m_params = new CaloParams;
 
   // set firmware version from python config for now
-  m_fwv.setFirmwareVersion(ps.getParameter<int>("firmware"));
+  m_fwv = ps.getParameter<int>("firmware");
  
 }
 

@@ -28,8 +28,6 @@
 //#include <vector>
 #include "DataFormats/L1Trigger/interface/BXVector.h"
 
-#include "CondFormats/L1TObjects/interface/FirmwareVersion.h"
-
 #include "DataFormats/L1Trigger/interface/EGamma.h"
 #include "DataFormats/L1Trigger/interface/Muon.h"
 #include "DataFormats/L1Trigger/interface/Tau.h"

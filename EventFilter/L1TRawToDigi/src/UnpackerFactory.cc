@@ -25,7 +25,7 @@ namespace l1t {
    }
 
    UnpackerMap
-   UnpackerFactory::createUnpackers(const FirmwareVersion &fw, const int fedid)
+   UnpackerFactory::createUnpackers(unsigned fw, const int fedid)
    {
       UnpackerMap res;
       for (const auto& f: factories_) {

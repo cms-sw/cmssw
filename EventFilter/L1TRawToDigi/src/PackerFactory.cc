@@ -15,7 +15,7 @@ namespace l1t {
    }
 
    PackerList
-   PackerFactory::createPackers(const edm::ParameterSet& cfg, const FirmwareVersion& fw, const int fedid)
+   PackerFactory::createPackers(const edm::ParameterSet& cfg, unsigned fw, const int fedid)
    {
       PackerList res;
       for (const auto& f: factories_) {

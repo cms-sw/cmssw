@@ -15,7 +15,6 @@
 
 #include "L1Trigger/L1TCalorimeter/interface/Stage2PreProcessor.h"
 
-#include "CondFormats/L1TObjects/interface/FirmwareVersion.h"
 #include "CondFormats/L1TObjects/interface/CaloParams.h"
 
 
@@ -25,11 +24,8 @@ namespace l1t {
   public:
     typedef boost::shared_ptr<Stage2PreProcessor> ReturnType;
 
-    ReturnType create(const FirmwareVersion & fwv, CaloParams* params);
+    ReturnType create(unsigned fwv, CaloParams* params);
 
-    // (Why not make "create" a static member function? You could...
-    // But this way allows you to add additional customizations to the
-    // factory not necessarily coming from the DB.)
   };
 
 } // namespace

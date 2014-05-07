@@ -9,12 +9,11 @@
 #include "L1Trigger/L1TCalorimeter/interface/Stage2PreProcessorFirmware.h"
 #include "L1Trigger/L1TCalorimeter/interface/Stage2TowerCompressAlgorithmFirmware.h"
 
-#include "CondFormats/L1TObjects/interface/FirmwareVersion.h"
 #include "CondFormats/L1TObjects/interface/CaloParams.h"
 
 using namespace std;
 
-l1t::Stage2PreProcessorFirmwareImp1::Stage2PreProcessorFirmwareImp1(const FirmwareVersion & fwv, CaloParams* params) :
+l1t::Stage2PreProcessorFirmwareImp1::Stage2PreProcessorFirmwareImp1(unsigned fwv, CaloParams* params) :
   m_fwv(fwv),
   m_params(params)
 {

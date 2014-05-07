@@ -60,7 +60,7 @@ namespace l1t {
 
          edm::InputTag inputLabel_;
          int fedId_;
-         FirmwareVersion fwId_;
+         unsigned fwId_;
 
          PackerList packers_;
    };

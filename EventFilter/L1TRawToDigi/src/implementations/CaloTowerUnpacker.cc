@@ -16,7 +16,7 @@ namespace l1t {
          CaloTowerBxCollection* res;
    };
 
-  std::vector<UnpackerItem> CaloTowerUnpackerFactory::create(const FirmwareVersion& fw, const int fedid) {
+  std::vector<UnpackerItem> CaloTowerUnpackerFactory::create(unsigned fw, const int fedid) {
     std::vector<UnpackerItem> towersMap;
     
      // Map all even number links, which are Rx links and need unpacking to the same instance of the CaloTowerUnpacker

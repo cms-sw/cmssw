@@ -15,7 +15,7 @@ namespace l1t {
          JetBxCollection* res;
    };
 
-   std::vector<UnpackerItem> JetUnpackerFactory::create(const FirmwareVersion& fw, const int fedid) {
+   std::vector<UnpackerItem> JetUnpackerFactory::create(unsigned fw, const int fedid) {
       return {std::make_pair(5, std::shared_ptr<BaseUnpacker>(new JetUnpacker()))};
    };
 

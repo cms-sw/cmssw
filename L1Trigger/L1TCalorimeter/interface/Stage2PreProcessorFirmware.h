@@ -15,17 +15,14 @@
 
 #include "L1Trigger/L1TCalorimeter/interface/Stage2PreProcessor.h"
 #include "L1Trigger/L1TCalorimeter/interface/Stage2TowerCompressAlgorithm.h"
-
-#include "CondFormats/L1TObjects/interface/FirmwareVersion.h"
 #include "CondFormats/L1TObjects/interface/CaloParams.h"
-
 
 namespace l1t {
 
   // first iteration
   class Stage2PreProcessorFirmwareImp1 : public Stage2PreProcessor {
   public:
-    Stage2PreProcessorFirmwareImp1(const FirmwareVersion & fwv, CaloParams* params);
+    Stage2PreProcessorFirmwareImp1(unsigned fwv, CaloParams* params);
 
     virtual ~Stage2PreProcessorFirmwareImp1();
 
@@ -38,7 +35,8 @@ namespace l1t {
 
   private:
     
-    FirmwareVersion const & m_fwv;
+    //FirmwareVersion const & m_fwv;
+    int const & m_fwv;
     CaloParams* m_params;
 
     Stage2TowerCompressAlgorithm* m_towerAlgo;

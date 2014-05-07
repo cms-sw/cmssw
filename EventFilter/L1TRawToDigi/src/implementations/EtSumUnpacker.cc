@@ -16,7 +16,7 @@ namespace l1t {
          EtSumBxCollection* res;
    };
 
-   std::vector<UnpackerItem> EtSumUnpackerFactory::create(const FirmwareVersion& fw, const int fedid) {
+   std::vector<UnpackerItem> EtSumUnpackerFactory::create(unsigned fw, const int fedid) {
       return {std::make_pair(3, std::shared_ptr<BaseUnpacker>(new EtSumUnpacker()))};
    };
 

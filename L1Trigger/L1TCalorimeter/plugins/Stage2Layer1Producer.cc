@@ -43,8 +43,7 @@
 #include "CondFormats/DataRecord/interface/L1CaloEcalScaleRcd.h"
 #include "CondFormats/L1TObjects/interface/L1CaloHcalScale.h"
 #include "CondFormats/DataRecord/interface/L1CaloHcalScaleRcd.h"
-#include "CondFormats/L1TObjects/interface/CaloParams.h"
-#include "CondFormats/DataRecord/interface/L1TCaloParamsRcd.h"
+
 
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
@@ -89,7 +88,7 @@ namespace l1t {
 
     // parameters
     unsigned long long paramsCacheId_;
-    FirmwareVersion fwv_;
+    unsigned fwv_;
     CaloParams* params_;
 
     // the processor
@@ -127,7 +126,7 @@ l1t::Stage2Layer1Producer::Stage2Layer1Producer(const edm::ParameterSet& ps) :
   params_ = new CaloParams;
 
   // set firmware version from python config for now
-  fwv_.setFirmwareVersion(ps.getParameter<int>("firmware"));
+  fwv_ = ps.getParameter<int>("firmware");
 
 }
 

@@ -5,7 +5,6 @@
 #include <unordered_map>
 #include <vector>
 
-#include "CondFormats/L1TObjects/interface/FirmwareVersion.h"
 #include "EventFilter/L1TRawToDigi/interface/BaseUnpacker.h"
 #include "EventFilter/L1TRawToDigi/interface/Block.h"
 
@@ -21,10 +20,10 @@ namespace l1t {
 
    class UnpackerFactory {
       public:
-         static UnpackerMap createUnpackers(const FirmwareVersion&, const int fedid);
+         static UnpackerMap createUnpackers(unsigned fw, const int fedid);
 
       private:
-         virtual std::vector<UnpackerItem> create(const FirmwareVersion&, const int fedid) = 0;
+         virtual std::vector<UnpackerItem> create(unsigned fw, const int fedid) = 0;
 
          static std::vector<UnpackerFactory*> createFactories();
          static std::vector<UnpackerFactory*> factories_;

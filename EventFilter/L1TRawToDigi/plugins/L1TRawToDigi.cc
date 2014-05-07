@@ -73,8 +73,7 @@ namespace l1t {
          return;
       }
 
-      FirmwareVersion fw;
-      fw.setFirmwareVersion(fw_id);
+      unsigned fw = fw_id;
 
       UnpackerCollections coll(event);
       auto unpackers = UnpackerFactory::createUnpackers(fw, fedId_);

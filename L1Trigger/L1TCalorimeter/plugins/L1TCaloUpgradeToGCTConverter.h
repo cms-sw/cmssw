@@ -28,7 +28,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/L1Trigger/interface/BXVector.h"
-#include "CondFormats/L1TObjects/interface/FirmwareVersion.h"
 
 #include "DataFormats/L1TCalorimeter/interface/CaloRegion.h"
 #include "DataFormats/L1TCalorimeter/interface/CaloEmCand.h"

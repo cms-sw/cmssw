@@ -22,7 +22,6 @@
 #include "L1Trigger/L1TCalorimeter/interface/Stage2Layer2EtSumAlgorithm.h"
 #include "L1Trigger/L1TCalorimeter/interface/Stage2Layer2JetSumAlgorithm.h"
 
-#include "CondFormats/L1TObjects/interface/FirmwareVersion.h"
 #include "CondFormats/L1TObjects/interface/CaloParams.h"
 
 
@@ -31,7 +30,7 @@ namespace l1t {
   // first iteration
   class Stage2MainProcessorFirmwareImp1 : public Stage2MainProcessor {
   public:
-    Stage2MainProcessorFirmwareImp1(const FirmwareVersion & fwv, CaloParams* params);
+    Stage2MainProcessorFirmwareImp1(unsigned fwv, CaloParams* params);
 
     virtual ~Stage2MainProcessorFirmwareImp1();
 
@@ -49,7 +48,7 @@ namespace l1t {
 
   private:
     
-    FirmwareVersion const & m_fwv;
+    unsigned const & m_fwv;
     CaloParams* m_params;
 
     Stage2TowerDecompressAlgorithm* m_towerAlgo;

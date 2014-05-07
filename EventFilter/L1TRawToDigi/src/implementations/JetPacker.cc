@@ -21,7 +21,7 @@ namespace l1t {
    };
 
    PackerList
-   JetPackerFactory::create(const edm::ParameterSet& cfg, const FirmwareVersion& fw, const int fedid)
+   JetPackerFactory::create(const edm::ParameterSet& cfg, unsigned fw, const int fedid)
    {
       return {std::shared_ptr<BasePacker>(new JetPacker(cfg))};
    }

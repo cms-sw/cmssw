@@ -17,7 +17,7 @@ namespace l1t {
       // Register products
       produces<FEDRawDataCollection>();
 
-      fwId_.setFirmwareVersion(config.getParameter<unsigned int>("FWId"));
+      fwId_ = config.getParameter<unsigned int>("FWId");
       packers_ = PackerFactory::createPackers(config, fwId_, fedId_);
 
       for (auto& packer: packers_)
@@ -76,7 +76,7 @@ namespace l1t {
       // create the header
       payload = push(payload, 0);
       payload = push(payload, 0);
-      payload = push(payload, (fwId_.firmwareVersion() << 24) | (words << 8)); // FW ID, payload size (words)
+      payload = push(payload, (fwId_ << 24) | (words << 8)); // FW ID, payload size (words)
 
       for (const auto& block: blocks) {
          payload = push(payload, (block.id << 24) | (block.load.size() << 16));
