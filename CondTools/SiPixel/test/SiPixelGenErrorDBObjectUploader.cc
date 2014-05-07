@@ -114,7 +114,7 @@ SiPixelGenErrorDBObjectUploader::analyze(const edm::Event& iEvent, const edm::Ev
 		}
 		for(TrackerGeometry::DetUnitContainer::const_iterator it = pDD->detUnits().begin(); it != pDD->detUnits().end(); it++){
 			
-			if( dynamic_cast<PixelGeomDetUnit*>((*it))!=0){
+			if( dynamic_cast<PixelGeomDetUnit const*>((*it))!=0){
 				DetId detid=(*it)->geographicalId();
 				
 				if(detid.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel) &&

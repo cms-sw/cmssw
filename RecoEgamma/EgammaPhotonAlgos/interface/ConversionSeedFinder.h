@@ -39,7 +39,9 @@
 
 
 //
-
+namespace edm {
+  class ConsumesCollector;
+}
 
 class DetLayer;
 class FreeTrajectoryState;
@@ -53,7 +55,7 @@ class ConversionSeedFinder {
   
 
   ConversionSeedFinder();
-  ConversionSeedFinder( const edm::ParameterSet& config );
+  ConversionSeedFinder( const edm::ParameterSet& config,edm::ConsumesCollector & iC );
   
   virtual ~ConversionSeedFinder(){}
 
@@ -82,7 +84,7 @@ class ConversionSeedFinder {
  protected:
 
 
-  edm::ParameterSet conf_;
+  //edm::ParameterSet conf_; found this to be completely unused
   void findLayers() const ;
   void findLayers(const FreeTrajectoryState & fts) const  ; 
 
@@ -107,6 +109,9 @@ class ConversionSeedFinder {
  
   edm::ESHandle<MagneticField> theMF_;
   edm::ESHandle<GeometricSearchTracker>       theGeomSearchTracker_;
+
+  edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
+  edm::EDGetTokenT<MeasurementTrackerEvent> measurementTrkToken_;
 
 
   KFUpdator                  theUpdator_;

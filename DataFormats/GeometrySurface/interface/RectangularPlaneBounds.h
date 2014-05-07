@@ -27,6 +27,8 @@ public:
   virtual float thickness() const { return 2*halfThickness;}
 
   // basic bounds function
+  using Bounds::inside;
+
   virtual bool inside( const Local2DPoint& p) const {
     return
      (std::abs(p.x()) < halfWidth) &

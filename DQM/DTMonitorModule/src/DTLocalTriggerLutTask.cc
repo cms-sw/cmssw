@@ -121,8 +121,8 @@ void DTLocalTriggerLutTask::beginRun(const edm::Run& run, const edm::EventSetup&
   context.get<MuonGeometryRecord>().get(theGeomLabel,muonGeom);
   trigGeomUtils = new DTTrigGeomUtils(muonGeom);
 
-  std::vector<DTChamber*>::const_iterator chambIt  = muonGeom->chambers().begin();
-  std::vector<DTChamber*>::const_iterator chambEnd = muonGeom->chambers().end();
+  std::vector<const DTChamber*>::const_iterator chambIt  = muonGeom->chambers().begin();
+  std::vector<const DTChamber*>::const_iterator chambEnd = muonGeom->chambers().end();
 
   for (; chambIt!=chambEnd; ++chambIt)
     bookHistos((*chambIt)->id());
