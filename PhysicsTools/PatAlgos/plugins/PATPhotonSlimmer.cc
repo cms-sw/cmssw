@@ -18,6 +18,8 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 namespace pat {
 
@@ -37,6 +39,8 @@ namespace pat {
       edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection>> pf2pc_;
       edm::EDGetTokenT<pat::PackedCandidateCollection>  pc_;
       bool linkToPackedPF_;
+      StringCutObjectSelector<pat::Photon> saveNonZSClusterShapes_;
+      edm::EDGetTokenT<EcalRecHitCollection> reducedBarrelRecHitCollectionToken_, reducedEndcapRecHitCollectionToken_;
   };
 
 } // namespace
@@ -48,7 +52,10 @@ pat::PATPhotonSlimmer::PATPhotonSlimmer(const edm::ParameterSet & iConfig) :
     dropPreshowerClusters_(iConfig.getParameter<std::string>("dropPreshowerClusters")),
     dropSeedCluster_(iConfig.getParameter<std::string>("dropSeedCluster")),
     dropRecHits_(iConfig.getParameter<std::string>("dropRecHits")),
-    linkToPackedPF_(iConfig.getParameter<bool>("linkToPackedPFCandidates"))
+    linkToPackedPF_(iConfig.getParameter<bool>("linkToPackedPFCandidates")),
+    saveNonZSClusterShapes_(iConfig.getParameter<std::string>("saveNonZSClusterShapes")),
+    reducedBarrelRecHitCollectionToken_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("reducedBarrelRecHitCollection"))),
+    reducedEndcapRecHitCollectionToken_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("reducedEndcapRecHitCollection")))
 {
     produces<std::vector<pat::Photon> >();
     if (linkToPackedPF_) {
@@ -74,6 +81,7 @@ pat::PATPhotonSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSet
         iEvent.getByToken(pf2pc_, pf2pc);
         iEvent.getByToken(pc_, pc);
     }
+    noZS::EcalClusterLazyTools lazyToolsNoZS(iEvent, iSetup, reducedBarrelRecHitCollectionToken_, reducedEndcapRecHitCollectionToken_);
 
     auto_ptr<vector<pat::Photon> >  out(new vector<pat::Photon>());
     out->reserve(src->size());
@@ -105,6 +113,19 @@ pat::PATPhotonSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSet
             } else {
                 photon.refToOrig_ = reco::CandidatePtr(pc.id());
             }
+        }
+        if (saveNonZSClusterShapes_(photon)) {
+            std::vector<float> vCov = lazyToolsNoZS.localCovariances(*( photon.superCluster()->seed()));
+            float r9 = lazyToolsNoZS.e3x3( *( photon.superCluster()->seed())) / photon.superCluster()->rawEnergy() ;
+            float sigmaIetaIeta = ( !edm::isNotFinite(vCov[0]) ) ? sqrt(vCov[0]) : 0;
+            float sigmaIetaIphi = vCov[1];
+            float sigmaIphiIphi = ( !edm::isNotFinite(vCov[2]) ) ? sqrt(vCov[2]) : 0;
+            float e15o55 = lazyToolsNoZS.e1x5( *( photon.superCluster()->seed()) ) / lazyToolsNoZS.e5x5( *( photon.superCluster()->seed()) );
+            photon.addUserFloat("sigmaIetaIeta_NoZS", sigmaIetaIeta);
+            photon.addUserFloat("sigmaIetaIphi_NoZS", sigmaIetaIphi);
+            photon.addUserFloat("sigmaIphiIphi_NoZS", sigmaIphiIphi);
+            photon.addUserFloat("r9_NoZS", r9);
+            photon.addUserFloat("e1x5_over_e5x5_NoZS", e15o55);
         }
      }
 

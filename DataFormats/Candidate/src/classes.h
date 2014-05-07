@@ -8,6 +8,7 @@
 #include "Math/PxPyPzE4D.h" 
 #include "DataFormats/Candidate/interface/CompositeCandidate.h"
 #include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
+#include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
 #include "DataFormats/Candidate/interface/CompositeRefCandidate.h"
 #include "DataFormats/Candidate/interface/CompositePtrCandidate.h"
 #include "DataFormats/Candidate/interface/CompositeRefBaseCandidate.h"
@@ -102,6 +103,11 @@ namespace DataFormats_Candidate {
     edm::reftobase::RefHolder<reco::CompositeCandidateRef> hcc2;
     edm::reftobase::VectorHolder<reco::Candidate, reco::CompositeCandidateRefVector> hcc3;
     edm::reftobase::RefVectorHolder<reco::CompositeCandidateRefVector> hcc4;
+    edm::Wrapper<reco::VertexCompositePtrCandidateCollection> wcc2p;
+    edm::reftobase::Holder<reco::Candidate, reco::VertexCompositePtrCandidateRef> hcc5p;
+    edm::reftobase::RefHolder<reco::VertexCompositePtrCandidateRef> hcc6p;
+    edm::reftobase::VectorHolder<reco::Candidate, reco::VertexCompositePtrCandidateRefVector> hcc7p;
+    edm::reftobase::RefVectorHolder<reco::VertexCompositePtrCandidateRefVector> hcc8p;
     edm::Wrapper<reco::VertexCompositeCandidateCollection> wcc2;
     edm::reftobase::Holder<reco::Candidate, reco::VertexCompositeCandidateRef> hcc5;
     edm::reftobase::RefHolder<reco::VertexCompositeCandidateRef> hcc6;
