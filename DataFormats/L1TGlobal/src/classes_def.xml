@@ -1,0 +1,20 @@
+<lcgdict>
+  <class name="AlgBlk" ClassVersion="10">
+   <version ClassVersion="10" checksum="1944739786"/>
+  </class>
+  <class name="AlgBxCollection"/>
+  <class name="edm::Wrapper<AlgBxCollection>"/>
+
+  <class name="ExtBlk" ClassVersion="10">
+   <version ClassVersion="10" checksum="243895672"/>
+  </class>
+  <class name="ExtBxCollection"/>
+  <class name="edm::Wrapper<ExtBxCollection>"/>
+
+  <class name="RecBlk" ClassVersion="10">
+   <version ClassVersion="10" checksum="2626915627"/>
+  </class>
+  <class name="RecBxCollection"/>
+  <class name="edm::Wrapper<RecBxCollection>"/>
+</lcgdict>
+
