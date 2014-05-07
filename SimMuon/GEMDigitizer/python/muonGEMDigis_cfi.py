@@ -19,7 +19,7 @@ simMuonGEMDigis = cms.EDProducer("GEMDigiProducer",
     maxBunch = cms.int32(3),
     inputCollection = cms.string('g4SimHitsMuonGEMHits'),
     digiModelString = cms.string('Simple'),
-    digitizeOnlyMuons = cms.bool(True),
+    digitizeOnlyMuons = cms.bool(False),
     doBkgNoise = cms.bool(True), #False == No background simulation
     doNoiseCLS = cms.bool(True),
     fixedRollRadius = cms.bool(True), #Uses fixed radius in the center of the roll
