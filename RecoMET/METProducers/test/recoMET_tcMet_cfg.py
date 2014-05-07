@@ -7,7 +7,8 @@ process = cms.Process("TEST")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 ##____________________________________________________________________________||
-process.load("RecoMET.Configuration.RecoMET_cff")
+process.load("RecoMET.METProducers.MuonTCMETValueMapProducer_cff")
+process.load("RecoMET.METProducers.TCMET_cfi")
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")

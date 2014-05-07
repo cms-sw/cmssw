@@ -293,7 +293,7 @@ namespace edm
     // This section stolen from SiStripDigitizerAlgorithm
     // must loop over all detIds in the tracker to get all of the noise added properly.
     for(TrackingGeometry::DetUnitContainer::const_iterator iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); iu ++){
-      StripGeomDetUnit* sgd = dynamic_cast<StripGeomDetUnit*>((*iu));
+      const StripGeomDetUnit* sgd = dynamic_cast<const StripGeomDetUnit*>((*iu));
       if (sgd != 0){
 
 	uint32_t detID = sgd->geographicalId().rawId();

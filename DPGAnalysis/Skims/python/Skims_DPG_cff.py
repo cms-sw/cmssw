@@ -342,11 +342,10 @@ SKIMStreamZElectron = cms.FilteredStream(
 
 from DPGAnalysis.Skims.HighMETSkim_cff import *
 pfPath = cms.Path(pfMETSelSeq)
-tcPath = cms.Path(tcMETSelSeq)
 SKIMStreamHighMET   = cms.FilteredStream(
             responsible = 'MET Group',
             name = 'HighMET',
-            paths = (pfPath,tcPath),
+            paths = (pfPath),
             content = skimContent.outputCommands,
             selectEvents = cms.untracked.PSet(),
             dataTier = cms.untracked.string('RAW-RECO')
