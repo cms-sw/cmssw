@@ -1,8 +1,8 @@
-#ifndef L1Trigger_AlgBlk_h
-#define L1Trigger_AlgBlk_h
+#ifndef L1Trigger_GlobalAlgBlk_h
+#define L1Trigger_GlobalAlgBlk_h
 
 /**
-* \class AlgBlk
+* \class GlobalAlgBlk
 *
 *
 * Description: L1 micro Global Trigger - Block holding Algorithm Information
@@ -28,24 +28,24 @@
 // forward declarations
 
 
-class AlgBlk;
-typedef BXVector<AlgBlk> AlgBxCollection;
+class GlobalAlgBlk;
+typedef BXVector<GlobalAlgBlk> GlobalAlgBlkBxCollection;
 
 // class interface
 
-class AlgBlk
+class GlobalAlgBlk
 {
 
     
 
 public:
     /// constructors
-    AlgBlk(); // empty constructor, all members set to zero;
+    GlobalAlgBlk(); // empty constructor, all members set to zero;
 
-    AlgBlk(int orbitNr, int bxNr, int bxInEvent);
+    GlobalAlgBlk(int orbitNr, int bxNr, int bxInEvent);
 
     /// destructor
-    virtual ~AlgBlk();
+    virtual ~GlobalAlgBlk();
 
 
 public:
@@ -76,10 +76,10 @@ public:
     bool getAlgoDecisionPreScaled(unsigned int bit) const;
     bool getAlgoDecisionFinal(unsigned int bit) const;
 
-    /// reset the content of a AlgBlk
+    /// reset the content of a GlobalAlgBlk
     void reset();
 
-    /// pretty print the content of a AlgBlk
+    /// pretty print the content of a GlobalAlgBlk
     void print(std::ostream& myCout) const;
 
 
@@ -106,4 +106,4 @@ private:
 
 };
 
-#endif /*L1Trigger_AlgBlk_h*/
+#endif /*L1Trigger_GlobalAlgBlk_h*/

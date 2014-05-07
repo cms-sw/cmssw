@@ -32,8 +32,8 @@
 #include "DataFormats/L1Trigger/interface/EtSum.h"
 
 // Objects to produce for the output record.
-#include "DataFormats/L1TGlobal/interface/AlgBlk.h"
-#include "DataFormats/L1TGlobal/interface/ExtBlk.h"
+#include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
+#include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -102,12 +102,12 @@ public:
 
      /// Fill the Daq Records
      void fillAlgRecord(int iBxInEvent, 
-                        std::auto_ptr<AlgBxCollection>& uGtAlgRecord,
+                        std::auto_ptr<GlobalAlgBlkBxCollection>& uGtAlgRecord,
 			cms_uint64_t orbNr,
 			int bxNr);
 			
      void fillExtRecord(int iBxInEvent,
-     		        std::auto_ptr<ExtBxCollection>& uGtExtRecord,
+     		        std::auto_ptr<GlobalExtBlkBxCollection>& uGtExtRecord,
 			cms_uint64_t orbNr,
 			int bxNr);
 
@@ -238,8 +238,8 @@ private:
     std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers> m_gtlAlgorithmOR;
     std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers> m_gtlDecisionWord;
     
-    AlgBlk m_uGtAlgBlk;
-    ExtBlk m_uGtExtBlk;
+    GlobalAlgBlk m_uGtAlgBlk;
+    GlobalExtBlk m_uGtExtBlk;
 
   // cache  of maps
   std::vector<AlgorithmEvaluation::ConditionEvaluationMap> m_conditionResultMaps;

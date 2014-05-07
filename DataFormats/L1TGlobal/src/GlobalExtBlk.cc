@@ -1,5 +1,5 @@
 /**
-* \class L1uGtExtBlk
+* \class GlobalExtBlk
 *
 *
 * Description: see header file.
@@ -13,7 +13,7 @@
 */
 
 // this class header
-#include "DataFormats/L1TGlobal/interface/ExtBlk.h"
+#include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
 
 
 // system include files
@@ -27,7 +27,7 @@
 // constructors
 
 // empty constructor, all members set to zero;
-ExtBlk::ExtBlk(int orbitNr, int bxNr, int bxInEvent):
+GlobalExtBlk::GlobalExtBlk(int orbitNr, int bxNr, int bxInEvent):
    m_orbitNr(orbitNr), m_bxNr(bxNr), m_bxInEvent(bxInEvent)
 {
 
@@ -42,7 +42,7 @@ ExtBlk::ExtBlk(int orbitNr, int bxNr, int bxInEvent):
 
 
 // empty constructor, all members set to zero;
-ExtBlk::ExtBlk( )
+GlobalExtBlk::GlobalExtBlk( )
 {
 
     //Clear out the header data
@@ -60,7 +60,7 @@ ExtBlk::ExtBlk( )
 
 
 // destructor
-ExtBlk::~ExtBlk()
+GlobalExtBlk::~GlobalExtBlk()
 {
 
     // empty now
@@ -68,7 +68,7 @@ ExtBlk::~ExtBlk()
 
 
 /// Set decision bits
-void ExtBlk::setExternalDecision(int bit, bool val)   
+void GlobalExtBlk::setExternalDecision(int bit, bool val)   
 { 
 //   if(bit < m_algoDecision.size()) {
        
@@ -81,15 +81,15 @@ void ExtBlk::setExternalDecision(int bit, bool val)
 
 
 /// Get decision bits
-bool ExtBlk::getExternalDecision(unsigned int bit) const  
+bool GlobalExtBlk::getExternalDecision(unsigned int bit) const  
 { 
    if(bit>=m_extDecision.size()) return false;
    return m_extDecision.at(bit); 
 }
 
 
-// reset the content of a ExtBlk
-void ExtBlk::reset()
+// reset the content of a GlobalExtBlk
+void GlobalExtBlk::reset()
 {
 
     //Clear out the header data
@@ -105,11 +105,11 @@ void ExtBlk::reset()
 
 }
 
-// pretty print the content of a ExtBlk
-void ExtBlk::print(std::ostream& myCout) const
+// pretty print the content of a GlobalExtBlk
+void GlobalExtBlk::print(std::ostream& myCout) const
 {
 
-    myCout << " uGtExtBlk " << std::endl;
+    myCout << " GlobalExtBlk " << std::endl;
     
     myCout << "    Orbit Number (hex):  0x" << std::hex << std::setw(8) << std::setfill('0') << m_orbitNr << std::endl;
 

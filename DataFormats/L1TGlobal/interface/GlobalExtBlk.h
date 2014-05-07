@@ -1,8 +1,8 @@
-#ifndef L1Trigger_ExtBlk_h
-#define L1Trigger_ExtBlk_h
+#ifndef L1Trigger_GlobalExtBlk_h
+#define L1Trigger_GlobalExtBlk_h
 
 /**
-* \class ExtBlk
+* \class GlobalExtBlk
 *
 *
 * Description: L1 micro Global Trigger - Block holding Algorithm Information
@@ -27,22 +27,22 @@
 
 // forward declarations
 
-class ExtBlk;
-typedef BXVector<ExtBlk> ExtBxCollection;
+class GlobalExtBlk;
+typedef BXVector<GlobalExtBlk> GlobalExtBlkBxCollection;
 
 // class interface
 
-class ExtBlk
+class GlobalExtBlk
 {
 
 public:
     /// constructors
-    ExtBlk(); // empty constructor, all members set to zero;
+    GlobalExtBlk(); // empty constructor, all members set to zero;
 
-    ExtBlk(int orbitNr, int bxNr, int bxInEvent);
+    GlobalExtBlk(int orbitNr, int bxNr, int bxInEvent);
 
     /// destructor
-    virtual ~ExtBlk();
+    virtual ~GlobalExtBlk();
 
 
 public:
@@ -65,10 +65,10 @@ public:
     /// Get decision bits
     bool getExternalDecision(unsigned int bit) const;
 
-    /// reset the content of a ExtBlk
+    /// reset the content of a GlobalExtBlk
     void reset();
 
-    /// pretty print the content of a ExtBlk
+    /// pretty print the content of a GlobalExtBlk
     void print(std::ostream& myCout) const;
 
 
@@ -92,4 +92,4 @@ private:
 
 };
 
-#endif /*L1Trigger_ExtBlk_h*/
+#endif /*L1Trigger_GlobalExtBlk_h*/

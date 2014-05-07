@@ -1,15 +1,16 @@
 <lcgdict>
-  <class name="AlgBlk" ClassVersion="10">
-   <version ClassVersion="10" checksum="1944739786"/>
+  <class name="GlobalAlgBlk" ClassVersion="10">
+   <version ClassVersion="10" checksum="2404151857"/>
   </class>
-  <class name="AlgBxCollection"/>
-  <class name="edm::Wrapper<AlgBxCollection>"/>
+  <class name="GlobalAlgBlkBxCollection"/>
+  <class name="edm::Wrapper<GlobalAlgBlkBxCollection>"/>
 
-  <class name="ExtBlk" ClassVersion="10">
-   <version ClassVersion="10" checksum="243895672"/>
+  <class name="GlobalExtBlk" ClassVersion="10">
+   <version ClassVersion="10" checksum="3371214087"/>
   </class>
-  <class name="ExtBxCollection"/>
-  <class name="edm::Wrapper<ExtBxCollection>"/>
+  <class name="GlobalExtBlkBxCollection"/>
+  <class name="edm::Wrapper<GlobalExtBlkBxCollection>"/>
 
 </lcgdict>
+
 

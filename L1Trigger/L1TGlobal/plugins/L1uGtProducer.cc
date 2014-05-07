@@ -31,8 +31,8 @@
 #include "FWCore/Utilities/interface/typedefs.h"
 
 // Objects to produce for the output record.
-#include "DataFormats/L1TGlobal/interface/AlgBlk.h"
-#include "DataFormats/L1TGlobal/interface/ExtBlk.h"
+#include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
+#include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
 
@@ -150,8 +150,8 @@ l1t::L1uGtProducer::L1uGtProducer(const edm::ParameterSet& parSet) :
   
     // register products
     if (m_produceL1GtDaqRecord) {
-	produces<AlgBxCollection>();
-	produces<ExtBxCollection>();
+	produces<GlobalAlgBlkBxCollection>();
+	produces<GlobalExtBlkBxCollection>();
     }
 
 /*  **** Needs Modifying ***
@@ -446,8 +446,8 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
 */
 
     // Produce the Output Records for the GT
-    std::auto_ptr<AlgBxCollection> uGtAlgRecord( new AlgBxCollection(0,minEmulBxInEvent,maxEmulBxInEvent));
-    std::auto_ptr<ExtBxCollection> uGtExtRecord( new ExtBxCollection(0,minEmulBxInEvent,maxEmulBxInEvent));
+    std::auto_ptr<GlobalAlgBlkBxCollection> uGtAlgRecord( new GlobalAlgBlkBxCollection(0,minEmulBxInEvent,maxEmulBxInEvent));
+    std::auto_ptr<GlobalExtBlkBxCollection> uGtExtRecord( new GlobalExtBlkBxCollection(0,minEmulBxInEvent,maxEmulBxInEvent));
 
     // * produce the L1GlobalTriggerObjectMapRecord
     std::auto_ptr<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord(

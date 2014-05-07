@@ -991,7 +991,7 @@ void l1t::GtBoard::runFDL(edm::Event& iEvent,
 
 // Fill DAQ Record
 void l1t::GtBoard::fillAlgRecord(int iBxInEvent, 
-				    std::auto_ptr<AlgBxCollection>& uGtAlgRecord,
+				    std::auto_ptr<GlobalAlgBlkBxCollection>& uGtAlgRecord,
 				    cms_uint64_t orbNr,
 				    int bxNr
 				    ) 
@@ -1025,7 +1025,7 @@ void l1t::GtBoard::fillAlgRecord(int iBxInEvent,
 
 // Fill DAQ Record
 void l1t::GtBoard::fillExtRecord(int iBxInEvent, 
-				    std::auto_ptr<ExtBxCollection>& uGtExtRecord,
+				    std::auto_ptr<GlobalExtBlkBxCollection>& uGtExtRecord,
 				    cms_uint64_t orbNr,
 				    int bxNr
 				    ) 

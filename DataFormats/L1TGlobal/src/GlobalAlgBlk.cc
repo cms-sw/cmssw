@@ -1,5 +1,5 @@
 /**
-* \class AlgBlk
+* \class GlobalAlgBlk
 *
 *
 * Description: see header file.
@@ -13,7 +13,7 @@
 */
 
 // this class header
-#include "DataFormats/L1TGlobal/interface/AlgBlk.h"
+#include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
 
 
 // system include files
@@ -27,7 +27,7 @@
 // constructors
 
 // empty constructor, all members set to zero;
-AlgBlk::AlgBlk(int orbitNr, int bxNr, int bxInEvent):
+GlobalAlgBlk::GlobalAlgBlk(int orbitNr, int bxNr, int bxInEvent):
    m_orbitNr(orbitNr), m_bxNr(bxNr), m_bxInEvent(bxInEvent)
 {
 
@@ -48,7 +48,7 @@ AlgBlk::AlgBlk(int orbitNr, int bxNr, int bxInEvent):
 
 
 // empty constructor, all members set to zero;
-AlgBlk::AlgBlk( )
+GlobalAlgBlk::GlobalAlgBlk( )
 {
 
     //Clear out the header data
@@ -72,7 +72,7 @@ AlgBlk::AlgBlk( )
 
 
 // destructor
-AlgBlk::~AlgBlk()
+GlobalAlgBlk::~GlobalAlgBlk()
 {
 
     // empty now
@@ -80,7 +80,7 @@ AlgBlk::~AlgBlk()
 
 
 /// Set decision bits
-void AlgBlk::setAlgoDecisionInitial(int bit, bool val)   
+void GlobalAlgBlk::setAlgoDecisionInitial(int bit, bool val)   
 { 
 //   if(bit < m_algoDecisionInitial.size()) {
        
@@ -91,35 +91,35 @@ void AlgBlk::setAlgoDecisionInitial(int bit, bool val)
    
    
 }
-void AlgBlk::setAlgoDecisionPreScaled(int bit, bool val) 
+void GlobalAlgBlk::setAlgoDecisionPreScaled(int bit, bool val) 
 { 
    m_algoDecisionPreScaled.at(bit) = val; 
 }
-void AlgBlk::setAlgoDecisionFinal(int bit, bool val)     
+void GlobalAlgBlk::setAlgoDecisionFinal(int bit, bool val)     
 { 
    m_algoDecisionFinal.at(bit) = val; 
 }
 
 /// Get decision bits
-bool AlgBlk::getAlgoDecisionInitial(unsigned int bit) const  
+bool GlobalAlgBlk::getAlgoDecisionInitial(unsigned int bit) const  
 { 
    if(bit>=m_algoDecisionInitial.size()) return false;
    return m_algoDecisionInitial.at(bit); 
 }
-bool AlgBlk::getAlgoDecisionPreScaled(unsigned int bit) const
+bool GlobalAlgBlk::getAlgoDecisionPreScaled(unsigned int bit) const
 { 
    if(bit>=m_algoDecisionPreScaled.size()) return false;
    return m_algoDecisionPreScaled.at(bit); 
 }
-bool AlgBlk::getAlgoDecisionFinal(unsigned int bit)  const   
+bool GlobalAlgBlk::getAlgoDecisionFinal(unsigned int bit)  const   
 {
    if(bit>=m_algoDecisionFinal.size()) return false;
    return m_algoDecisionFinal.at(bit); 
 }
 
 
-// reset the content of a AlgBlk
-void AlgBlk::reset()
+// reset the content of a GlobalAlgBlk
+void GlobalAlgBlk::reset()
 {
 
     //Clear out the header data
@@ -137,12 +137,12 @@ void AlgBlk::reset()
 
 }
 
-// pretty print the content of a AlgBlk
-void AlgBlk::print(std::ostream& myCout) const
+// pretty print the content of a GlobalAlgBlk
+void GlobalAlgBlk::print(std::ostream& myCout) const
 {
 
     
-    myCout << " uGtAlgBlk: " << std::endl;
+    myCout << " uGtGlobalAlgBlk: " << std::endl;
     
     myCout << "    Orbit Number (hex):  0x" << std::hex << std::setw(8) << std::setfill('0') << m_orbitNr << std::endl;
 

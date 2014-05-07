@@ -1,14 +1,14 @@
 #include "DataFormats/Common/interface/Wrapper.h"
-#include "DataFormats/L1TGlobal/interface/AlgBlk.h"
-#include "DataFormats/L1TGlobal/interface/ExtBlk.h"
+#include "DataFormats/L1TGlobal/interface/GlobalAlgBlk.h"
+#include "DataFormats/L1TGlobal/interface/GlobalExtBlk.h"
 
 namespace DataFormats_L1Trigger {
   struct dictionary {
 
-    AlgBxCollection    uGtAlgBxColl;
-    ExtBxCollection    uGtExtBxColl;
+    GlobalAlgBlkBxCollection    uGtAlgBxColl;
+    GlobalExtBlkBxCollection    uGtExtBxColl;
 
-    edm::Wrapper<AlgBxCollection>    w_uGtAlgBxColl;
-    edm::Wrapper<ExtBxCollection>    w_uGtExtBxColl;
+    edm::Wrapper<GlobalAlgBlkBxCollection>    w_uGtAlgBxColl;
+    edm::Wrapper<GlobalExtBlkBxCollection>    w_uGtExtBxColl;
   };
 }
