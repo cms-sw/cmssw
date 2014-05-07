@@ -1,4 +1,4 @@
-#ifndef FwCore_Framework_SubProcess_h
+#ifndef FWCore_Framework_SubProcess_h
 #define FWCore_Framework_SubProcess_h
 
 #include "FWCore/Framework/interface/EventSetupProvider.h"

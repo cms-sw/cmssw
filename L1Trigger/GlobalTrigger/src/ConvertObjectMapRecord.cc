@@ -23,7 +23,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMap.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMaps.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -32,7 +31,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 ConvertObjectMapRecord::ConvertObjectMapRecord(const edm::ParameterSet& pset) :
-  m_l1GtObjectMapTag(pset.getParameter<edm::InputTag>("L1GtObjectMapTag")) {
+  m_l1GtObjectMapToken(consumes<L1GlobalTriggerObjectMapRecord>(pset.getParameter<edm::InputTag>("L1GtObjectMapTag"))) {
 
   produces<L1GlobalTriggerObjectMaps>();
 }
@@ -45,7 +44,7 @@ produce(edm::Event& event, const edm::EventSetup& es) {
 
   // Read in the existing object from the data
   edm::Handle<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord;
-  event.getByLabel(m_l1GtObjectMapTag, gtObjectMapRecord);
+  event.getByToken(m_l1GtObjectMapToken, gtObjectMapRecord);
 
   if (!gtObjectMapRecord.isValid()) {
     return;
