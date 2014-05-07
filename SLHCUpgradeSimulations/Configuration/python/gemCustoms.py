@@ -46,6 +46,11 @@ def customise_L1Emulator2019(process, ptdphi):
     process.simCscTriggerPrimitiveDigis.clctSLHC.clctNplanesHitPattern = 3
     process.simCscTriggerPrimitiveDigis.clctSLHC.clctPidThreshPretrig = 2
     process.simCscTriggerPrimitiveDigis.clctParam07.clctPidThreshPretrig = 2
+    ## give a random number generator
+    process.RandomNumberGeneratorService.simCscTriggerPrimitiveDigis = cms.PSet(
+        initialSeed = cms.untracked.uint32(1234567),
+        engineName = cms.untracked.string('HepJamesRandom')
+    )
     return process
 
 def customise_L1Emulator2023(process, ptdphi):

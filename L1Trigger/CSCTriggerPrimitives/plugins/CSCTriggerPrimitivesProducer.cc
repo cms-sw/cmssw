@@ -17,6 +17,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h"
@@ -51,6 +52,15 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
   checkBadChambers_ = conf.getParameter<bool>("checkBadChambers");
 
   lctBuilder_ = new CSCTriggerPrimitivesBuilder(conf); // pass on the conf
+
+  edm::Service<edm::RandomNumberGenerator> rng;
+  if (!rng.isAvailable()){
+    throw cms::Exception("Configuration")
+      << "GEMDigiProducer::GEMDigiProducer() - RandomNumberGeneratorService is not present in configuration file.\n"
+      << "Add the service in the configuration file or remove the modules that require it.";
+  }
+  CLHEP::HepRandomEngine& engine = rng->getEngine();
+  lctBuilder_->setRandomEngine(engine);
 
   // register what this produces
   produces<CSCALCTDigiCollection>();

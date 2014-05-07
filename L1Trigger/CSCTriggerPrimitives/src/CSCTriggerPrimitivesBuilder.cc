@@ -22,12 +22,14 @@
 #include <L1Trigger/CSCTriggerPrimitives/src/CSCMuonPortCard.h>
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
+#include <iostream>
 
 #include <L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h>
 #include <DataFormats/MuonDetId/interface/CSCTriggerNumbering.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <Geometry/GEMGeometry/interface/GEMGeometry.h>
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
+#include "CLHEP/Random/RandFlat.h"
 
 //------------------
 // Static variables
@@ -57,6 +59,7 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
   disableME42 = commonParams.getParameter<bool>("disableME42");
 
   checkBadChambers_ = conf.getParameter<bool>("checkBadChambers");
+  fractionBrokenCSCs_ = conf.getParameter<double>("fractionBrokenCSCs");
 
   runME11ILT_ = commonParams.existsAs<bool>("runME11ILT")?commonParams.getParameter<bool>("runME11ILT"):false;
   runME21ILT_ = commonParams.existsAs<bool>("runME21ILT")?commonParams.getParameter<bool>("runME21ILT"):false;
@@ -226,6 +229,13 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
             // Skip chambers marked as bad (usually includes most of ME4/2 chambers;
             // also, there's no ME1/a-1/b separation, it's whole ME1/1)
             if (checkBadChambers_ && badChambers->isInBadChamber(detid)) continue;
+
+            // randomly disable X% of CSC chambers
+            if (flat_->fire(1) < fractionBrokenCSCs_) {
+              std::cout<<//              edm::LogInfo("L1CSCTrigger")
+                "Skipping bad chamber " << detid << std::endl;              
+              continue;
+            }
 
             // running upgraded ME1/1 TMBs
             if (stat==1 && ring==1 && smartME1aME1b && !runME11ILT_)
@@ -681,4 +691,10 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
       << " (sector " << itr->sector()
       << " trig id. " << itr->cscid() << ")" << "\n";
   }
+}
+
+
+void CSCTriggerPrimitivesBuilder::setRandomEngine(CLHEP::HepRandomEngine& eng)
+{
+  flat_ = new CLHEP::RandFlat(eng);
 }

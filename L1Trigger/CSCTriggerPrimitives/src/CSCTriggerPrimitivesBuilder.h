@@ -24,6 +24,7 @@
 #include "DataFormats/GEMDigi/interface/GEMCSCCoPadDigiCollection.h"
 #include <DataFormats/RPCDigi/interface/RPCDigiCollection.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include "CLHEP/Random/RandomEngine.h"
 
 class CSCDBL1TPParameters;
 class CSCMotherboard;
@@ -31,6 +32,13 @@ class CSCMuonPortCard;
 class CSCGeometry;
 class GEMGeometry;
 class RPCGeometry;
+
+namespace CLHEP
+{
+  class HepRandomEngine;
+  class RandFlat;
+}
+
 
 class CSCTriggerPrimitivesBuilder
 {
@@ -51,6 +59,9 @@ class CSCTriggerPrimitivesBuilder
   void setCSCGeometry(const CSCGeometry *g) { csc_g = g; }
   void setGEMGeometry(const GEMGeometry *g) { gem_g = g; }
   void setRPCGeometry(const RPCGeometry *g) { rpc_g = g; }
+
+  /// random engine to disable X% of chambers
+  void setRandomEngine(CLHEP::HepRandomEngine&);
 
   /** Build anode, cathode, and correlated LCTs in each chamber and fill
    *  them into output collections.  Select up to three best correlated LCTs
@@ -89,6 +100,10 @@ class CSCTriggerPrimitivesBuilder
   /// a flag whether to skip chambers from the bad chambers map
   bool checkBadChambers_;
 
+  /** SLHC: randomly disable X% of CSC chambers */
+  double fractionBrokenCSCs_;
+
+
   /** SLHC: special configuration parameters for ME11 treatment. */
   bool smartME1aME1b, disableME1a;
 
@@ -116,6 +131,8 @@ class CSCTriggerPrimitivesBuilder
   const CSCGeometry* csc_g;
   const GEMGeometry* gem_g;
   const RPCGeometry* rpc_g;
+
+  CLHEP::RandFlat* flat_;
 };
 
 #endif

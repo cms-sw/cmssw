@@ -145,7 +145,7 @@ CSCMotherboardME3141RPC::run(const CSCWireDigiCollection* wiredc,
   alctV = alct->run(wiredc); // run anodeLCT
   clctV = clct->run(compdc); // run cathodeLCT
   
-  const bool debugStubs(true);
+  const bool debugStubs(false);
   if (debugStubs){
     for (auto& p : alctV){
       std::cout << "ALCT: " << p << std::endl;
@@ -257,8 +257,6 @@ CSCMotherboardME3141RPC::run(const CSCWireDigiCollection* wiredc,
     rpcDigis_.clear();
     retrieveRPCDigis(rpcDigis, rpc_id.rawId());
   }
-
-  return;
 
   const bool hasRPCDigis(rpcDigis_.size()!=0);
   

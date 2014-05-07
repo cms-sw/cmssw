@@ -49,7 +49,7 @@ cscTriggerPrimitiveDigisPostLS3 = cms.EDProducer("CSCTriggerPrimitivesProducer",
         # run integrated local triggers
         runME11ILT = cms.bool(True),
         runME21ILT = cms.bool(True),
-        runME3141ILT = cms.bool(False),
+        runME3141ILT = cms.bool(True),
     ),
 
     # Parameters for ALCT processors: old MC studies
