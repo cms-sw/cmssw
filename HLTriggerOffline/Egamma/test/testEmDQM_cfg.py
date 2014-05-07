@@ -55,7 +55,8 @@ process.load("DQMServices.Core.DQM_cfg")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.DQMStore.verbose = 0
 #process.DQM.collectorHost = ''
-process.dqmSaver.convention = 'Online'
+process.dqmSaver.convention = 'Offline'
+process.dqmSaver.workflow = '/A/B/C'
 process.dqmSaver.saveByRun = 1
 process.dqmSaver.saveAtJobEnd = True
 
