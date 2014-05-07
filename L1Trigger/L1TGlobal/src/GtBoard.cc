@@ -90,8 +90,7 @@ l1t::GtBoard::GtBoard() :
     m_candL1EtSum( new BXVector<const l1t::EtSum*>),
     m_isDebugEnabled(edm::isDebugEnabled())
 {
-  
-    m_uGtRecBlk.reset();
+
     m_uGtAlgBlk.reset();
     m_uGtExtBlk.reset();
     
@@ -156,8 +155,7 @@ void l1t::GtBoard::init(const int numberPhysTriggers, const int nrL1Mu, const in
   m_candL1Tau->setBXRange( m_bxFirst_, m_bxLast_ );
   m_candL1Jet->setBXRange( m_bxFirst_, m_bxLast_ );
   m_candL1EtSum->setBXRange( m_bxFirst_, m_bxLast_ );
-  
-  m_uGtRecBlk.reset();
+
   m_uGtAlgBlk.reset();
   m_uGtExtBlk.reset();
   
@@ -992,40 +990,6 @@ void l1t::GtBoard::runFDL(edm::Event& iEvent,
 }
 
 // Fill DAQ Record
-void l1t::GtBoard::fillGtRecord( std::auto_ptr<RecBxCollection>& uGtRecord,
-		      int ver, int algBx, int extBx, int muBx, int calBx, int psInd,
-		      cms_uint64_t trgNr, cms_uint64_t orbNr, int abBx, int lumSec ) 
-{
-
-    if (m_verbosity) {
-        LogDebug("l1t|Global")
-                << "\n**** GtBoard fill DAQ Records for bx= " 
-                << std::endl;
-
-    }
-
-
-    // Fill information into the Record 
-    m_uGtRecBlk.setFirmwareVer(ver);  
-    m_uGtRecBlk.setTotBxAlg(algBx);
-    m_uGtRecBlk.setTotBxExt(extBx);
-    m_uGtRecBlk.setTotBxMuData(muBx);
-    m_uGtRecBlk.setTotBxCalData(calBx);
-    m_uGtRecBlk.setPreScIndex(psInd);
-    m_uGtRecBlk.setTrigNr(trgNr);
-    m_uGtRecBlk.setOrbitNr(orbNr);
-    m_uGtRecBlk.setbxNr(abBx);
-    m_uGtRecBlk.setLumiSec(lumSec);
-    m_uGtRecBlk.setuGtNr(m_boardEventCount);
-    
-    uGtRecord->push_back(m_uGtRecBlk);
-
-    // gt Event counter for Record
-    m_boardEventCount++;
-
-}    
-
-// Fill DAQ Record
 void l1t::GtBoard::fillAlgRecord(int iBxInEvent, 
 				    std::auto_ptr<AlgBxCollection>& uGtAlgRecord,
 				    cms_uint64_t orbNr,
@@ -1088,8 +1052,7 @@ void l1t::GtBoard::reset() {
 
   resetMu();
   resetCalo();
-  
-  m_uGtRecBlk.reset();
+
   m_uGtAlgBlk.reset();
   m_uGtExtBlk.reset();
 

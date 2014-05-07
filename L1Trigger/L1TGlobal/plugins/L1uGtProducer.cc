@@ -31,7 +31,6 @@
 #include "FWCore/Utilities/interface/typedefs.h"
 
 // Objects to produce for the output record.
-#include "DataFormats/L1TGlobal/interface/RecBlk.h"
 #include "DataFormats/L1TGlobal/interface/AlgBlk.h"
 #include "DataFormats/L1TGlobal/interface/ExtBlk.h"
 
@@ -151,7 +150,6 @@ l1t::L1uGtProducer::L1uGtProducer(const edm::ParameterSet& parSet) :
   
     // register products
     if (m_produceL1GtDaqRecord) {
-        produces<RecBxCollection>();
 	produces<AlgBxCollection>();
 	produces<ExtBxCollection>();
     }
@@ -448,10 +446,8 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
 */
 
     // Produce the Output Records for the GT
-    std::auto_ptr<RecBxCollection> uGtRecord( new RecBxCollection());
     std::auto_ptr<AlgBxCollection> uGtAlgRecord( new AlgBxCollection(0,minEmulBxInEvent,maxEmulBxInEvent));
     std::auto_ptr<ExtBxCollection> uGtExtRecord( new ExtBxCollection(0,minEmulBxInEvent,maxEmulBxInEvent));
-   
 
     // * produce the L1GlobalTriggerObjectMapRecord
     std::auto_ptr<L1GlobalTriggerObjectMapRecord> gtObjectMapRecord(
@@ -584,25 +580,6 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
                                      receiveMu, m_nrL1Mu  );
 
 
-// Fill the Gt Record (Main Header of GT Payload)
-    if (m_produceL1GtDaqRecord) {
-    
-        // These need to be defined elsewhere
-	int ver =   0;
-	int algBx = 5;
-	int extBx = 5;
-	int muBx  = 1;
-	int calBx = 1;
-	int psInd = 0;
-	cms_uint64_t trgNr = iEvent.id().event();
-	cms_uint64_t orbNr = iEvent.orbitNumber();
-	int abBx = iEvent.bunchCrossing();
-	int lumSec = iEvent.luminosityBlock();
-	m_uGtBrd->fillGtRecord(uGtRecord,
-		               ver, algBx, extBx, muBx, calBx, psInd,
-		               trgNr, orbNr, abBx, lumSec );
-    }
-
     // loop over BxInEvent
     for (int iBxInEvent = minEmulBxInEvent; iBxInEvent <= maxEmulBxInEvent;
             ++iBxInEvent) {
@@ -666,7 +643,6 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
        for(int bx=minEmulBxInEvent; bx<maxEmulBxInEvent; bx++) {
         
 	   /// Needs error checking that something exists at this bx.
-	   (uGtRecord->at(0)).print(myCoutStream); 
 	   (uGtAlgRecord->at(bx,0)).print(myCoutStream); 
 	   (uGtExtRecord->at(bx,0)).print(myCoutStream);   
                 
@@ -704,8 +680,7 @@ void l1t::L1uGtProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSe
 
     
     // register products
-    if (m_produceL1GtDaqRecord) {    
-        iEvent.put( uGtRecord );
+    if (m_produceL1GtDaqRecord) {
 	iEvent.put( uGtAlgRecord );
 	iEvent.put( uGtExtRecord );
     }

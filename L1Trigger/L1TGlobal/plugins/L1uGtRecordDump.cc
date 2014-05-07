@@ -43,7 +43,7 @@
 #include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
-#include "DataFormats/L1TGlobal/interface/RecBlk.h"
+
 #include "DataFormats/L1TGlobal/interface/AlgBlk.h"
 #include "DataFormats/L1TGlobal/interface/ExtBlk.h"
 
@@ -66,8 +66,7 @@ namespace l1t {
     EDGetToken muToken;
     EDGetToken tauToken;
     EDGetToken jetToken;
-    EDGetToken etsumToken;
-    EDGetToken uGtRecToken; 
+    EDGetToken etsumToken; 
     EDGetToken uGtAlgToken;
     EDGetToken uGtExtToken;
     
@@ -110,9 +109,9 @@ namespace l1t {
       tauToken    = consumes<BXVector<l1t::Tau>>(iConfig.getParameter<InputTag>("tauInputTag"));
       jetToken    = consumes<BXVector<l1t::Jet>>(iConfig.getParameter<InputTag>("jetInputTag"));
       etsumToken  = consumes<BXVector<l1t::EtSum>>(iConfig.getParameter<InputTag>("etsumInputTag"));
-      uGtRecToken = consumes<std::vector<RecBlk>>(iConfig.getParameter<InputTag>("uGtRecInputTag"));
       uGtAlgToken = consumes<BXVector<AlgBlk>>(iConfig.getParameter<InputTag>("uGtAlgInputTag"));
       uGtExtToken = consumes<BXVector<ExtBlk>>(iConfig.getParameter<InputTag>("uGtExtInputTag"));
+
 
       m_minBx           = iConfig.getParameter<int>("minBx");
       m_maxBx           = iConfig.getParameter<int>("maxBx");     
@@ -150,9 +149,6 @@ namespace l1t {
  
   Handle<BXVector<l1t::EtSum>> etsums;
   iEvent.getByToken(etsumToken,etsums); 
-  
-  Handle<std::vector<RecBlk>> uGtRec;
-  iEvent.getByToken(uGtRecToken,uGtRec);   
 
   Handle<BXVector<AlgBlk>> uGtAlg;
   iEvent.getByToken(uGtAlgToken,uGtAlg);   
@@ -166,11 +162,6 @@ namespace l1t {
        cout << " -----------------------------------------------------  " << endl;
        cout << " *********** Run " << iEvent.id().run()  <<" Event " << iEvent.id().event()  << " **************  " << endl;
        cout << " ----------------------------------------------------- " << endl; 
-
-      // Dump the output record	  
-       for(std::vector<RecBlk>::const_iterator recBlk = uGtRec->begin(); recBlk != uGtRec->end(); ++recBlk) {
-           recBlk->print(std::cout);
-       }    
 
     //Loop over BX
        for(int i =m_minBx; i <= m_maxBx; ++i) {

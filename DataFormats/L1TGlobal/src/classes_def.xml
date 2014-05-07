@@ -11,10 +11,5 @@
   <class name="ExtBxCollection"/>
   <class name="edm::Wrapper<ExtBxCollection>"/>
 
-  <class name="RecBlk" ClassVersion="10">
-   <version ClassVersion="10" checksum="2626915627"/>
-  </class>
-  <class name="RecBxCollection"/>
-  <class name="edm::Wrapper<RecBxCollection>"/>
 </lcgdict>
 

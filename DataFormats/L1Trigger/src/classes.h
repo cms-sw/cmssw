@@ -29,7 +29,6 @@
 #include "DataFormats/L1Trigger/interface/Muon.h"
 #include "DataFormats/L1Trigger/interface/Tau.h"
 
-
 namespace DataFormats_L1Trigger {
   struct dictionary {
 
