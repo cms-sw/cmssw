@@ -4,6 +4,7 @@
 #include <L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h>
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
 #include <Geometry/RPCGeometry/interface/RPCRollSpecs.h>
+#include "boost/container/flat_set.hpp"
 
 const double CSCMotherboardME3141RPC::lut_wg_me31_eta_odd[96][2] = {
 { 0,2.421},{ 1,2.415},{ 2,2.406},{ 3,2.397},{ 4,2.388},{ 5,2.379},{ 6,2.371},{ 7,2.362},
@@ -90,6 +91,13 @@ CSCMotherboardME3141RPC::CSCMotherboardME3141RPC(unsigned endcap, unsigned stati
   // maximum lcts per BX in ME2
   max_me3141_lcts = me3141tmbParams.getParameter<unsigned int>("maxME3141LCTs");
 
+  pref[0] = match_trig_window_size/2;
+  for (unsigned int m=2; m<match_trig_window_size; m+=2)
+  {
+    pref[m-1] = pref[0] - m/2;
+    pref[m]   = pref[0] + m/2;
+  }
+
   //----------------------------------------------------------------------------------------//
 
   //       R P C  -  C S C   I N T E G R A T E D   L O C A L   A L G O R I T H M
@@ -104,8 +112,18 @@ CSCMotherboardME3141RPC::CSCMotherboardME3141RPC(unsigned endcap, unsigned stati
   maxDeltaBXRPC_ = me3141tmbParams.getParameter<int>("maxDeltaBXRPC");
   maxDeltaStripRPC_ = me3141tmbParams.getParameter<int>("maxDeltaStripRPC");
 
+  // use "old" or "new" dataformat for integrated LCTs?
+  useOldLCTDataFormatCLCTRPC_ = me3141tmbParams.getParameter<bool>("useOldLCTDataFormatCLCTRPC");
+
   // drop low quality stubs if they don't have RPCs
   dropLowQualityCLCTsNoRPCs_ = me3141tmbParams.getParameter<bool>("dropLowQualityCLCTsNoRPCs");
+
+  // build LCT from CLCT and RPC
+  buildLCTfromCLCTandRPC_ = me3141tmbParams.getParameter<bool>("buildLCTfromCLCTandRPC");
+
+  // promote CLCT-RPC quality
+  promoteCLCTRPCquality_ = me3141tmbParams.getParameter<bool>("promoteCLCTRPCquality");
+
 }
 
 CSCMotherboardME3141RPC::~CSCMotherboardME3141RPC() 
@@ -289,58 +307,103 @@ CSCMotherboardME3141RPC::run(const CSCWireDigiCollection* wiredc,
         
         std::cout << "------------------------------------------------------------------------" << std::endl;
         std::cout << "Attempt ALCT-CLCT matching in ME" << theStation << "/1 in bx range: [" << bx_clct_start << "," << bx_clct_stop << "]" << std::endl;
-
+        
         for (int bx_clct = bx_clct_start; bx_clct <= bx_clct_stop; bx_clct++) {
           if (bx_clct < 0 or bx_clct >= CSCCathodeLCTProcessor::MAX_CLCT_BINS) continue;          
           if (drop_used_clcts and used_clct_mask[bx_clct]) continue;
           if (clct->bestCLCT[bx_clct].isValid()) {
-
-	    // pick the digi that corresponds 
-	    auto matchingDigis(matchingRPCDigis(clct->bestCLCT[bx_clct], alct->bestALCT[bx_alct], rpcDigis_[bx_alct], false));
-	    
-	    // clct quality
-	    const int quality(clct->bestCLCT[bx_clct].getQuality());
-	    // low quality ALCT
-	    const bool lowQualityALCT(alct->bestALCT[bx_alct].getQuality() == 0);
-	    // low quality ALCT or CLCT
-	    const bool lowQuality(quality<4 or lowQualityALCT);
-
-	    if (runME3141ILT_ and dropLowQualityCLCTsNoRPCs_ and lowQuality and hasRPCDigis){
-	      int nFound(matchingDigis.size());
-	      const bool clctInEdge(clct->bestCLCT[bx_clct].getKeyStrip() < 5 or clct->bestCLCT[bx_clct].getKeyStrip() > 155);
-	      if (clctInEdge){
-          if (debug_rpc_matching_) std::cout << "\tInfo: low quality CLCT in CSC chamber edge, don't care about RPC digis" << std::endl;
-	      }
-	      else {
-          if (nFound != 0){
-            if (debug_rpc_matching_) std::cout << "\tInfo: low quality CLCT with " << nFound << " matching RPC trigger digis" << std::endl;
+            
+            // pick the digi that corresponds 
+            auto matchingDigis(matchingRPCDigis(clct->bestCLCT[bx_clct], alct->bestALCT[bx_alct], rpcDigis_[bx_alct], false));
+            
+            // clct quality
+            const int quality(clct->bestCLCT[bx_clct].getQuality());
+            // low quality ALCT
+            const bool lowQualityALCT(alct->bestALCT[bx_alct].getQuality() == 0);
+            // low quality ALCT or CLCT
+            const bool lowQuality(quality<4 or lowQualityALCT);
+            
+            if (runME3141ILT_ and dropLowQualityCLCTsNoRPCs_ and lowQuality and hasRPCDigis){
+              int nFound(matchingDigis.size());
+              const bool clctInEdge(clct->bestCLCT[bx_clct].getKeyStrip() < 5 or clct->bestCLCT[bx_clct].getKeyStrip() > 155);
+              if (clctInEdge){
+                if (debug_rpc_matching_) std::cout << "\tInfo: low quality ALCT or CLCT in CSC chamber edge, don't care about RPC digis" << std::endl;
+              }
+              else {
+                if (nFound != 0){
+                  if (debug_rpc_matching_) std::cout << "\tInfo: low quality ALCT or CLCT with " << nFound << " matching RPC trigger digis" << std::endl;
+                }
+                else {
+                  if (debug_rpc_matching_) std::cout << "\tWarning: low quality ALCT or CLCT without matching RPC trigger digi" << std::endl;
+                  continue;
+                }
+              }
+            }
+            
+            int mbx = bx_clct-bx_clct_start;
+            correlateLCTsRPC(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
+                             clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct], 
+                             allLCTs[bx_alct][mbx][0], allLCTs[bx_alct][mbx][1], matchingDigis);            
+            if (debug_rpc_matching_) {
+              //            if (infoV > 1) LogTrace("CSCMotherboard")
+              std::cout
+                << "Successful ALCT-CLCT match: bx_clct = " << bx_clct
+                << "; match window: [" << bx_clct_start << "; " << bx_clct_stop
+                << "]; bx_alct = " << bx_alct;
+              std::cout << "+++ Best CLCT Details: ";
+              clct->bestCLCT[bx_clct].print();
+              std::cout << "+++ Second CLCT Details: ";
+              clct->secondCLCT[bx_clct].print();
+            }
+            if (allLCTs[bx_alct][mbx][0].isValid()) {
+              used_clct_mask[bx_clct] += 1;
+              if (match_earliest_clct_me3141_only) break;
+            }
           }
-          else {
-            if (debug_rpc_matching_) std::cout << "\tWarning: low quality CLCT without matching RPC trigger digi" << std::endl;
-            continue;
-          }
-	      }
-	    }
-	    
-	    int mbx = bx_clct-bx_clct_start;
-	    correlateLCTsRPC(alct->bestALCT[bx_alct], alct->secondALCT[bx_alct],
-			     clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct], 
-			     allLCTs[bx_alct][mbx][0], allLCTs[bx_alct][mbx][1], matchingDigis);            
-	    if (debug_rpc_matching_) {
-	      //            if (infoV > 1) LogTrace("CSCMotherboard")
-	      std::cout
-		<< "Successful ALCT-CLCT match: bx_clct = " << bx_clct
-		<< "; match window: [" << bx_clct_start << "; " << bx_clct_stop
-		<< "]; bx_alct = " << bx_alct;
-	      std::cout << "+++ Best CLCT Details: ";
-	      clct->bestCLCT[bx_clct].print();
-	      std::cout << "+++ Second CLCT Details: ";
-	      clct->secondCLCT[bx_clct].print();
-	    }
-	    if (allLCTs[bx_alct][mbx][0].isValid()) {
-	      used_clct_mask[bx_clct] += 1;
-	      if (match_earliest_clct_me3141_only) break;
-	    }
+        }
+      }
+    }
+    else{
+      auto digis(rpcDigis_[bx_alct]);
+      if (runME3141ILT_ and digis.size() and buildLCTfromCLCTandRPC_) {
+        const int bx_clct_start(bx_alct - match_trig_window_size/2);
+        const int bx_clct_stop(bx_alct + match_trig_window_size/2);
+        // RPC-to-CLCT
+        int nSuccesFulMatches = 0;
+        for (int bx_clct = bx_clct_start; bx_clct <= bx_clct_stop; bx_clct++)
+        {
+          if (bx_clct < 0 or bx_clct >= CSCCathodeLCTProcessor::MAX_CLCT_BINS) continue;
+          if (drop_used_clcts and used_clct_mask[bx_clct]) continue;
+          if (clct->bestCLCT[bx_clct].isValid())
+          {          
+            if (debug_rpc_matching_){ 
+              std::cout << "========================================================================" << std::endl;
+              std::cout << "RPC-CLCT matching in ME" << theStation << "/1 chamber: " << cscChamber->id() << " in bx range: [" << bx_clct_start << "," << bx_clct_stop << "]" << std::endl;
+              std::cout << "------------------------------------------------------------------------" << std::endl;
+            }
+            const int quality(clct->bestCLCT[bx_clct].getQuality());
+            // only use high-Q stubs for the time being
+            if (quality < 4) continue;
+            
+            ++nSuccesFulMatches;
+            
+            int mbx = bx_clct-bx_clct_start;            
+            correlateLCTsRPC(clct->bestCLCT[bx_clct], clct->secondCLCT[bx_clct], *(digis[0].second), RPCDetId(digis[0].first).roll(),
+                             allLCTs[bx_alct][mbx][0], allLCTs[bx_alct][mbx][1]);
+            if (debug_rpc_matching_) {
+              //	    if (infoV > 1) LogTrace("CSCMotherboard")
+              std::cout << "Successful RPC-CLCT match in ME"<<theStation<<"/1: bx_alct = " << bx_alct
+                        << "; match window: [" << bx_clct_start << "; " << bx_clct_stop
+                        << "]; bx_clct = " << bx_clct << std::endl;
+              std::cout << "+++ Best CLCT Details: ";
+              clct->bestCLCT[bx_clct].print();
+              std::cout << "+++ Second CLCT Details: ";
+              clct->secondCLCT[bx_clct].print();
+            }
+            if (allLCTs[bx_alct][mbx][0].isValid()) {
+              used_clct_mask[bx_clct] += 1;
+              if (match_earliest_clct_me3141_only) break;
+            }
           }
         }
       }
@@ -691,6 +754,35 @@ unsigned int CSCMotherboardME3141RPC::findQualityRPC(const CSCALCTDigi& aLCT, co
   return quality;
 }
 
+
+void CSCMotherboardME3141RPC::correlateLCTsRPC(CSCCLCTDigi bestCLCT,
+                                             CSCCLCTDigi secondCLCT,
+                                             RPCDigi rpcDigi, int roll,
+                                             CSCCorrelatedLCTDigi& lct1,
+                                             CSCCorrelatedLCTDigi& lct2)
+{
+  bool cathodeBestValid     = bestCLCT.isValid();
+  bool cathodeSecondValid   = secondCLCT.isValid();
+
+  if (cathodeBestValid and !cathodeSecondValid)     secondCLCT = bestCLCT;
+  if (!cathodeBestValid and cathodeSecondValid)     bestCLCT   = secondCLCT;
+
+  if ((clct_trig_enable  and bestCLCT.isValid()) or
+      (match_trig_enable and bestCLCT.isValid()))
+  {
+    lct1 = constructLCTsRPC(bestCLCT, rpcDigi, roll, useOldLCTDataFormatCLCTRPC_);
+    lct1.setTrknmb(1);
+  }
+
+  if ((clct_trig_enable  and secondCLCT.isValid()) or
+       (match_trig_enable and secondCLCT.isValid() and secondCLCT != bestCLCT))
+    {
+    lct2 = constructLCTsRPC(secondCLCT, rpcDigi, roll, useOldLCTDataFormatCLCTRPC_);
+    lct2.setTrknmb(2);
+  }
+}
+
+
 void CSCMotherboardME3141RPC::correlateLCTsRPC(CSCALCTDigi bestALCT, CSCALCTDigi secondALCT,
 					    CSCCLCTDigi bestCLCT, CSCCLCTDigi secondCLCT,
 					    CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2,
@@ -747,6 +839,45 @@ CSCCorrelatedLCTDigi CSCMotherboardME3141RPC::constructLCTsRPC(const CSCALCTDigi
 }
 
 
+CSCCorrelatedLCTDigi CSCMotherboardME3141RPC::constructLCTsRPC(const CSCCLCTDigi& clct,
+                                                          const RPCDigi& rpc, int roll, 
+                                                          bool oldDataFormat) 
+{
+  if (oldDataFormat){
+    // CLCT pattern number - for the time being, do not include RPCs in the pattern
+    unsigned int pattern = encodePattern(clct.getPattern(), clct.getStripType());
+    
+    // LCT quality number -  dummy quality
+    unsigned int quality = promoteCLCTRPCquality_ ? 14 : 11;
+    
+    // Bunch crossing: pick RPC bx
+    int bx = rpc.bx() + lct_central_bx;
+    
+    // pick a random WG in the roll range    
+    int wg(getRandomWGForRPCRoll(roll));
+    
+    // construct correlated LCT; temporarily assign track number of 0.
+    return CSCCorrelatedLCTDigi(0, 1, quality, wg, clct.getKeyStrip(), pattern, clct.getBend(), bx, 0, 0, 0, theTrigChamber);
+  }
+  else {
+    // CLCT pattern number - no pattern
+    unsigned int pattern = 0;//encodePatternRPC(clct.getPattern(), clct.getStripType());
+    
+    // LCT quality number -  dummy quality
+    unsigned int quality = 5;//findQualityRPC(alct, gem);
+    
+    // Bunch crossing: get it from cathode LCT if anode LCT is not there.
+    int bx = rpc.bx() + lct_central_bx;;
+    
+    // ALCT WG
+    int wg(0);
+    
+    // construct correlated LCT; temporarily assign track number of 0.
+    return CSCCorrelatedLCTDigi(0, 1, quality, wg, 0, pattern, 0, bx, 0, 0, 0, theTrigChamber);
+  }
+}
+
+
 //readout LCTs 
 std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME3141RPC::readoutLCTs()
 {
@@ -790,4 +921,15 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME3141RPC::sortLCTsByQuality(int
   std::sort(LCTs.begin(), LCTs.end(), CSCMotherboard::sortByQuality);
   if (LCTs.size()> max_me3141_lcts) LCTs.erase(LCTs.begin()+max_me3141_lcts, LCTs.end());
   return  LCTs;
+}
+
+
+int CSCMotherboardME3141RPC::getRandomWGForRPCRoll(int roll)
+{
+  boost::container::flat_set<int> wgs;
+  for (auto p: cscWgToRpcRoll_)
+    if (p.first == roll) 
+      wgs.insert(p.first);
+  // return a random one
+  return *(wgs.begin() + rand() % wgs.size());
 }
