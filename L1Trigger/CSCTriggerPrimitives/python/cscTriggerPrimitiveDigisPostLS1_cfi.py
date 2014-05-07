@@ -16,6 +16,7 @@ cscTriggerPrimitiveDigisPostLS1 = cms.EDProducer("CSCTriggerPrimitivesProducer",
 
     # for SLHC studies we don't want bad chambers checks so far
     checkBadChambers = cms.bool(False),
+    fractionBrokenCSCs = cms.double(0.0),
 
     # Parameters common for all boards
     commonParam = cms.PSet(
