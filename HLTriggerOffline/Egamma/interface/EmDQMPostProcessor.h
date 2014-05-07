@@ -3,20 +3,20 @@
 
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 
-class EmDQMPostProcessor : public edm::EDAnalyzer {
+class EmDQMPostProcessor : public DQMEDHarvester {
  public:
   EmDQMPostProcessor(const edm::ParameterSet& pset);
   ~EmDQMPostProcessor() {};
 
-  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {};
-  void endRun(edm::Run const&, edm::EventSetup const&);
-  TProfile* dividehistos(DQMStore * dqm, const std::string& num, const std::string& denom, const std::string& out,const std::string& label, const std::string& titel= "");
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
+  TProfile* dividehistos(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, const std::string& num, const std::string& denom, const std::string& out,const std::string& label, const std::string& titel= "");
 
  private:
   
+  DQMStore * dqm;
+
   /** a replacement for the function TGraphAsymmErrors::Efficiency(..) used with earlier 
       versions of ROOT (this functionality has been moved to a separate class TEfficiency) */
   static void Efficiency(int passing, int total, double level, double &mode, double &lowerBound, double &upperBound);
@@ -31,7 +31,7 @@ class EmDQMPostProcessor : public edm::EDAnalyzer {
   /** convenience method to get a histogram but checks first
       whether the corresponding MonitorElement is non-null.
       @return null if the MonitorElement is null */
-  TH1F *getHistogram(DQMStore *dqm, const std::string &histoPath);
+  TH1F *getHistogram(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, const std::string &histoPath);
 
   std::string subDir_;
   
