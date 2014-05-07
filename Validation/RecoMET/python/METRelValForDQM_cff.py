@@ -29,7 +29,7 @@ METRelValSequence = cms.Sequence(
     #metOptNoHFAnalyzer*
     #metOptNoHFHOAnalyzer
     pfMetAnalyzer*
-    tcMetAnalyzer*
+    #tcMetAnalyzer*
     #corMetGlobalMuonsAnalyzer*
     genMetTrueAnalyzer*
     #genMetCaloAnalyzer*
@@ -55,7 +55,7 @@ METValidation = cms.Sequence(
     #metOptNoHFAnalyzer*
     #metOptNoHFHOAnalyzer*
     pfMetAnalyzer*
-    tcMetAnalyzer*
+    #tcMetAnalyzer*
     #corMetGlobalMuonsAnalyzer*
     genMetTrueAnalyzer*#*
     #genMetCaloAnalyzer*
