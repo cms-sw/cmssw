@@ -54,7 +54,8 @@ class CSCMotherboardME3141RPC : public CSCMotherboard
   std::map<int,std::pair<double,double> > createRPCRollLUT(RPCDetId id);
   int assignRPCRoll(double eta);
   void printRPCTriggerDigis(int minBX, int maxBx);
-
+  int getRandomWGForRPCRoll(int roll);
+  
   RPCDigisBX matchingRPCDigis(const CSCCLCTDigi& cLCT, const RPCDigisBX& pads = RPCDigisBX(), bool first = true);  
   RPCDigisBX matchingRPCDigis(const CSCALCTDigi& aLCT, const RPCDigisBX& pads = RPCDigisBX(), bool first = true);  
   RPCDigisBX matchingRPCDigis(const CSCCLCTDigi& cLCT, const CSCALCTDigi& aLCT, const RPCDigisBX& pads = RPCDigisBX(), 
@@ -66,8 +67,14 @@ class CSCMotherboardME3141RPC : public CSCMotherboard
 			CSCCLCTDigi bestCLCT, CSCCLCTDigi secondCLCT,
 			CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2,
 			const RPCDigisBX& digis = RPCDigisBX());
+
+  void correlateLCTsRPC(CSCCLCTDigi bestCLCT,CSCCLCTDigi secondCLCT,
+                        RPCDigi rpcDigi, int roll,
+                        CSCCorrelatedLCTDigi& lct1,CSCCorrelatedLCTDigi& lct2);
  
   CSCCorrelatedLCTDigi constructLCTsRPC(const CSCALCTDigi& alct, const CSCCLCTDigi& clct, bool hasRPC); 
+  CSCCorrelatedLCTDigi constructLCTsRPC(const CSCCLCTDigi& clct, const RPCDigi& rpc, int roll, 
+                                        bool oldDataFormat);
 
   /** Methods to sort the LCTs */
   std::vector<CSCCorrelatedLCTDigi> sortLCTsByQuality(int bx);
@@ -116,11 +123,16 @@ class CSCMotherboardME3141RPC : public CSCMotherboard
 
   //  deltas used to match to RPC pads
   int maxDeltaBXRPC_;
-  int maxDeltaRollRPC_;
   int maxDeltaStripRPC_;
 
+  bool useOldLCTDataFormatCLCTRPC_;
+  
   // drop low quality stubs if they don't have RPCs
   bool dropLowQualityCLCTsNoRPCs_;
+
+  bool buildLCTfromCLCTandRPC_;
+
+  bool promoteCLCTRPCquality_;
 
   std::map<int,std::pair<double,double> > rpcRollToEtaLimits_;
   std::map<int,int> cscWgToRpcRoll_;
