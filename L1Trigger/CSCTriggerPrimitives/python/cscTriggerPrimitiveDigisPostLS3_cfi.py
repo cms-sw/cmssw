@@ -485,7 +485,7 @@ cscTriggerPrimitiveDigisPostLS3 = cms.EDProducer("CSCTriggerPrimitivesProducer",
 
         ## run in debug mode
         debugLUTs = cms.bool(False),
-        debugMatching = cms.bool(True),
+        debugMatching = cms.bool(False),
 
         ## matching to digis in case LowQ CLCT
         maxDeltaBXRPC = cms.int32(0),
