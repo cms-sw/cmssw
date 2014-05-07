@@ -11,6 +11,7 @@ from PhysicsTools.PatAlgos.slimming.slimmedElectrons_cfi import *
 from PhysicsTools.PatAlgos.slimming.slimmedMuons_cfi     import *
 from PhysicsTools.PatAlgos.slimming.slimmedPhotons_cfi   import *
 from PhysicsTools.PatAlgos.slimming.slimmedTaus_cfi      import *
+from PhysicsTools.PatAlgos.slimming.slimmedSecondaryVertices_cfi      import *
 from PhysicsTools.PatAlgos.slimming.slimmedMETs_cfi      import *
 from PhysicsTools.PatAlgos.slimming.metFilterPaths_cff   import *
 
@@ -23,6 +24,7 @@ MicroEventContent = cms.PSet(
         'keep *_slimmedTaus*_*_*',
         'keep *_slimmedJets*_*_*',
         'keep *_slimmedMETs*_*_*',
+        'keep *_slimmedSecondaryVertices*_*_*',
         ## add extra METs
 
         'drop *_*_caloTowers_*',
@@ -40,9 +42,10 @@ MicroEventContent = cms.PSet(
         'keep *_selectedPatTrigger_*_PAT',
         'keep patPackedTriggerPrescales_patTrigger__PAT',
         'keep *_l1extraParticles_*_HLT',
+        'keep L1GlobalTriggerReadoutRecord_gtDigis_*_HLT',
         'keep *_TriggerResults_*_HLT',
         'keep *_TriggerResults_*_PAT', # for MET filters
-	'keep *_lostTracks_*_PAT',
+	'keep patPackedCandidates_lostTracks_*_PAT',
     )
 )
 MicroEventContentMC = cms.PSet(
@@ -51,7 +54,7 @@ MicroEventContentMC = cms.PSet(
 MicroEventContentMC.outputCommands += [
         'keep *_slimmedGenJets_*_*',
         'keep *_packedGenParticles_*_*',
-        'keep *_prunedGenParticles_*_*',
+        'keep recoGenParticles_prunedGenParticles_*_*',
         'keep LHEEventProduct_source_*_*',
         'keep LHERunInfoProduct_*_*_*',
         'keep PileupSummaryInfos_*_*_*',
