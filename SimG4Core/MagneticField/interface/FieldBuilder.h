@@ -61,6 +61,7 @@ namespace sim {
     double maxLoopCount;
     double minEpsilonStep;
     double maxEpsilonStep;
+    double delta;
     edm::ParameterSet thePSet ;
   };
 }

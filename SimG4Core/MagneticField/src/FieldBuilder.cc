@@ -32,20 +32,20 @@ using namespace sim;
 
 FieldBuilder::FieldBuilder(const MagneticField * f, 
 			   const edm::ParameterSet & p) 
-   : theField( new Field(f,p.getParameter<double>("delta"))), 
-     theFieldEquation(new G4Mag_UsualEqRhs(theField.get())),
-     theTopVolume(0), fChordFinder(0), fChordFinderMonopole(0),
-     fieldValue(0.), minStep(0.), dChord(0.), dOneStep(0.),
-     dIntersection(0.), dIntersectionAndOneStep(0.), 
-     maxLoopCount(0), minEpsilonStep(0.), maxEpsilonStep(0.), 
-     thePSet(p) {
-
+  : theField(new Field(f, p.getParameter<double>("delta"))),
+    theFieldEquation(new G4Mag_UsualEqRhs(theField.get())),
+    theTopVolume(0), fChordFinder(0), fChordFinderMonopole(0),
+    fieldValue(0.), minStep(0.), dChord(0.), dOneStep(0.),
+    dIntersection(0.), dIntersectionAndOneStep(0.), 
+    maxLoopCount(0), minEpsilonStep(0.), maxEpsilonStep(0.), 
+    thePSet(p) 
+{
+  delta = p.getParameter<double>("delta");
   theField->fieldEquation(theFieldEquation);
 }
 
-
-void FieldBuilder::build( G4FieldManager* fM, G4PropagatorInField* fP) {
-    
+void FieldBuilder::build( G4FieldManager* fM, G4PropagatorInField* fP) 
+{    
   edm::ParameterSet thePSetForGMFM =
     thePSet.getParameter<edm::ParameterSet>("ConfGlobalMFM");
 
@@ -59,6 +59,9 @@ void FieldBuilder::build( G4FieldManager* fM, G4PropagatorInField* fP) {
   // configure( "MagneticFieldType", fM, fP ) ;
 
   if ( thePSet.getParameter<bool>("UseLocalMagFieldManager") )  {
+
+    edm::LogInfo("SimG4CoreApplication") 
+      << " FieldBuilder: Local magnetic field is used";
 
     edm::ParameterSet defpset ;
     edm::ParameterSet thePSetForLMFM = 
@@ -85,16 +88,17 @@ void FieldBuilder::build( G4FieldManager* fM, G4PropagatorInField* fP) {
       fLM->SetVerbosity(thePSet.getUntrackedParameter<bool>("Verbosity",false));
       theTopVolume->SetFieldManager( fLM, true ) ;
     }
+  } else {
+    edm::LogInfo("SimG4CoreApplication") 
+      << " FieldBuilder: Global magnetic field is used";
   }
-  return ;
- 
 }
 
 void FieldBuilder::configureForVolume( const std::string& volName,
                                        edm::ParameterSet& volPSet,
 				       G4FieldManager * fM,
-				       G4PropagatorInField * fP ) {
-
+				       G4PropagatorInField * fP ) 
+{
   G4LogicalVolumeStore* theStore = G4LogicalVolumeStore::GetInstance();
   for (unsigned int i=0; i<(*theStore).size(); ++i ) {
     std::string curVolName = ((*theStore)[i])->GetName();
@@ -111,7 +115,8 @@ void FieldBuilder::configureForVolume( const std::string& volName,
   dChord        = stpPSet.getParameter<double>("DeltaChord") ;
   dOneStep      = stpPSet.getParameter<double>("DeltaOneStep") ;
   dIntersection = stpPSet.getParameter<double>("DeltaIntersection") ;
-  dIntersectionAndOneStep = stpPSet.getUntrackedParameter<double>("DeltaIntersectionAndOneStep",-1.);
+  dIntersectionAndOneStep = 
+    stpPSet.getUntrackedParameter<double>("DeltaIntersectionAndOneStep",-1.);
   maxLoopCount = stpPSet.getUntrackedParameter<double>("MaximumLoopCounts",1000);
   minEpsilonStep = stpPSet.getUntrackedParameter<double>("MinimumEpsilonStep",0.00001);
   maxEpsilonStep = stpPSet.getUntrackedParameter<double>("MaximumEpsilonStep",0.01);
@@ -119,8 +124,9 @@ void FieldBuilder::configureForVolume( const std::string& volName,
   if (fM!=0) configureFieldManager(fM);
   if (fP!=0) configurePropagatorInField(fP);	
 
-  return;
-
+  edm::LogInfo("SimG4CoreApplication") 
+    << " FieldBuilder: Selected stepper: <" << stepper 
+    << ">  const field delta(mm)= " << delta;
 }
 
 G4LogicalVolume * FieldBuilder::fieldTopVolume() { return theTopVolume; }
@@ -136,13 +142,12 @@ void FieldBuilder::setStepperAndChordFinder(G4FieldManager * fM, int val) {
     }
   }
 }
-
  
 void FieldBuilder::configureFieldManager(G4FieldManager * fM) {
 
   if (fM!=0) {
     fM->SetDetectorField(theField.get());
-    FieldStepper * theStepper = new FieldStepper(theField->fieldEquation());
+    FieldStepper * theStepper = new FieldStepper(theField->fieldEquation(), delta);
     theStepper->select(stepper);
     G4ChordFinder * CF = new G4ChordFinder(theField.get(),minStep,theStepper);
     CF->SetDeltaChord(dChord);
@@ -161,11 +166,11 @@ void FieldBuilder::configureFieldManager(G4FieldManager * fM) {
 }
 
 void FieldBuilder::configurePropagatorInField(G4PropagatorInField * fP) {
-  if (fP==0) return;
-  fP->SetMaxLoopCount(int(maxLoopCount));
-  fP->SetMinimumEpsilonStep(minEpsilonStep);
-  fP->SetMaximumEpsilonStep(maxEpsilonStep);
-  fP->SetVerboseLevel(0);
-  return;
+  if(fP!=0) {
+    fP->SetMaxLoopCount(int(maxLoopCount));
+    fP->SetMinimumEpsilonStep(minEpsilonStep);
+    fP->SetMaximumEpsilonStep(maxEpsilonStep);
+    fP->SetVerboseLevel(0);
+  }
 }
 
