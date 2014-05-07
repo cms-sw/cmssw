@@ -22,7 +22,8 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
-
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 namespace pat {
 
@@ -43,6 +44,8 @@ namespace pat {
       edm::EDGetTokenT<edm::Association<pat::PackedCandidateCollection>> pf2pc_;
       edm::EDGetTokenT<pat::PackedCandidateCollection>  pc_;
       bool linkToPackedPF_;
+      StringCutObjectSelector<pat::Electron> saveNonZSClusterShapes_;
+      edm::EDGetTokenT<EcalRecHitCollection> reducedBarrelRecHitCollectionToken_, reducedEndcapRecHitCollectionToken_;
   };
 
 } // namespace
@@ -60,7 +63,10 @@ pat::PATElectronSlimmer::PATElectronSlimmer(const edm::ParameterSet & iConfig) :
     dropShapes_(iConfig.getParameter<std::string>("dropShapes")),
     dropExtrapolations_(iConfig.getParameter<std::string>("dropExtrapolations")),
     dropClassifications_(iConfig.getParameter<std::string>("dropClassifications")),
-    linkToPackedPF_(iConfig.getParameter<bool>("linkToPackedPFCandidates"))
+    linkToPackedPF_(iConfig.getParameter<bool>("linkToPackedPFCandidates")),
+    saveNonZSClusterShapes_(iConfig.getParameter<std::string>("saveNonZSClusterShapes")),
+    reducedBarrelRecHitCollectionToken_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("reducedBarrelRecHitCollection"))),
+    reducedEndcapRecHitCollectionToken_(consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("reducedEndcapRecHitCollection")))
 {
     produces<std::vector<pat::Electron> >();
     if (linkToPackedPF_) {
@@ -86,6 +92,7 @@ pat::PATElectronSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iS
         iEvent.getByToken(pf2pc_, pf2pc);
         iEvent.getByToken(pc_, pc);
     }
+    noZS::EcalClusterLazyTools lazyToolsNoZS(iEvent, iSetup, reducedBarrelRecHitCollectionToken_, reducedEndcapRecHitCollectionToken_);
 
     auto_ptr<vector<pat::Electron> >  out(new vector<pat::Electron>());
     out->reserve(src->size());
@@ -97,7 +104,7 @@ pat::PATElectronSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iS
 	if (dropBasicClusters_(electron)) { electron.basicClusters_.clear();  }
 	if (dropSuperClusters_(electron) || dropPFlowClusters_(electron)) { electron.pflowSuperCluster_.clear(); electron.embeddedPflowSuperCluster_ = false; }
 	if (dropBasicClusters_(electron) || dropPFlowClusters_(electron)) { electron.pflowBasicClusters_.clear(); }
-	if (dropPreshowerClusters_(electron)) { electron.preshowerClusters_.clear(); electron.embeddedSuperCluster_ = false; }
+	if (dropPreshowerClusters_(electron)) { electron.preshowerClusters_.clear();  }
 	if (dropPreshowerClusters_(electron) || dropPFlowClusters_(electron)) { electron.pflowPreshowerClusters_.clear(); }
 	if (dropSeedCluster_(electron)) { electron.seedCluster_.clear(); electron.embeddedSeedCluster_ = false; }
         if (dropRecHits_(electron)) { electron.recHits_ = EcalRecHitCollection(); electron.embeddedRecHits_ = false; }
@@ -123,7 +130,20 @@ pat::PATElectronSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iS
             } else {
                 electron.refToOrig_ = reco::CandidatePtr(pc.id());
             }
-       }
+        }
+        if (saveNonZSClusterShapes_(electron)) {
+            std::vector<float> vCov = lazyToolsNoZS.localCovariances(*( electron.superCluster()->seed()));
+            float r9 = lazyToolsNoZS.e3x3( *( electron.superCluster()->seed())) / electron.superCluster()->rawEnergy() ;
+            float sigmaIetaIeta = ( !edm::isNotFinite(vCov[0]) ) ? sqrt(vCov[0]) : 0;
+            float sigmaIetaIphi = vCov[1];
+            float sigmaIphiIphi = ( !edm::isNotFinite(vCov[2]) ) ? sqrt(vCov[2]) : 0;
+            float e15o55 = lazyToolsNoZS.e1x5( *( electron.superCluster()->seed()) ) / lazyToolsNoZS.e5x5( *( electron.superCluster()->seed()) );
+            electron.addUserFloat("sigmaIetaIeta_NoZS", sigmaIetaIeta);
+            electron.addUserFloat("sigmaIetaIphi_NoZS", sigmaIetaIphi);
+            electron.addUserFloat("sigmaIphiIphi_NoZS", sigmaIphiIphi);
+            electron.addUserFloat("r9_NoZS", r9);
+            electron.addUserFloat("e1x5_over_e5x5_NoZS", e15o55);
+        }
 
     }
 
