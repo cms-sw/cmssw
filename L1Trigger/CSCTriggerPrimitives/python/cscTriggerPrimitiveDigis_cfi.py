@@ -9,13 +9,13 @@ cscTriggerPrimitiveDigis = cms.EDProducer("CSCTriggerPrimitivesProducer",
     # if False, parameters will be read in from DB using EventSetup mechanism
     # else will use parameters from this config
     debugParameters = cms.untracked.bool(False),
-    
+   
     # Name of digi producer module(s)
     CSCComparatorDigiProducer = cms.InputTag("simMuonCSCDigis","MuonCSCComparatorDigi"),
     CSCWireDigiProducer = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi"),
 
     # for SLHC studies we don't want bad chambers checks so far
-    checkBadChambers_ = cms.untracked.bool(True),
+    checkBadChambers = cms.untracked.bool(True),
 
     # Parameters common for all boards
     commonParam = cms.PSet(
