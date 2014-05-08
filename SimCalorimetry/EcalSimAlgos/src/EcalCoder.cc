@@ -50,7 +50,7 @@ EcalCoder::setFullScaleEnergy( double EBscale ,
 {
    m_maxEneEB = EBscale ;
    m_maxEneEE = EEscale ;
-   m_maxEneEK = EEscale ; // fixed to EE value
+   m_maxEneEK = EEscale ; // fixed to EE value // Shervin
 }
 
 
@@ -75,7 +75,7 @@ EcalCoder::setIntercalibConstants( const EcalIntercalibConstantsMC* ical )
 double 
 EcalCoder::fullScaleEnergy( const DetId & detId ) const 
 {
-   return detId.subdetId() == EcalBarrel ? m_maxEneEB : m_maxEneEE ;
+  return detId.subdetId() == EcalBarrel ? m_maxEneEB : m_maxEneEE ; //fixed EE // Shervin
 }
 
 void 

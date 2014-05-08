@@ -77,8 +77,10 @@ EcalPhaseIIDigiProducer::EcalPhaseIIDigiProducer( const edm::ParameterSet& param
    m_ParameterMap     ( new EcalSimParameterMap(
 			   params.getParameter<double> ("simHitToPhotoelectronsBarrel") ,
 			   params.getParameter<double> ("simHitToPhotoelectronsEndcap") , 
+			   params.getParameter<double> ("simHitToPhotoelectronsShashlik") , 
 			   params.getParameter<double> ("photoelectronsToAnalogBarrel") ,
 			   params.getParameter<double> ("photoelectronsToAnalogEndcap") , 
+			   params.getParameter<double> ("photoelectronsToAnalogShashlik") , 
 			   params.getParameter<double> ("samplingFactor") ,
 			   params.getParameter<double> ("timePhase") ,
 			   m_readoutFrameSize ,
