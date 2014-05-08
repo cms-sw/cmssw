@@ -51,8 +51,8 @@ workflows[25205]=['',['ZTT_13','DIGIUP15_PU25','RECOUP15_PU25','HARVEST']]
 workflows[250199]=['',['PREMIXUP15_PU25']]
 workflows[500199]=['',['PREMIXUP15_PU50']]
 
-#workflows[250200]=['',['ZEE_13','ZEE_13_PREMIXUP15_PU25','RECOUP15_PU25_PM','HARVEST']]
-#workflows[500200]=['',['ZEE_13','ZEE_13_PREMIXUP15_PU50','RECOUP15_PU50_PM','HARVEST']]
+# pile up overlay using premix
+workflows[250200]=['',['ZEE_13','DIGIPRMXUP15_PU25','RECOPRMXUP15_PU25','HARVESTCOS']]
+workflows[500200]=['',['ZEE_13','DIGIPRMXUP15_PU25','RECOPRMXUP15_PU50','HARVESTCOS']]
 
-## workflows[250200]=['',['ZEE_13','ZEE_13_PREMIXUP15_PU25','RECOUP15_PU25_PM']]
-## workflows[500200]=['',['ZEE_13','ZEE_13_PREMIXUP15_PU50','RECOUP15_PU50_PM']]
+# develop pile up overlay using premix prod-like!

@@ -994,7 +994,30 @@ premixUp2015Defaults50ns = merge([{'--conditions':'auto:upgradePLS150ns'},premix
 steps['PREMIXUP15_PU25']=merge([PU25,Kby(25,100),premixUp2015Defaults])
 steps['PREMIXUP15_PU50']=merge([PU50,Kby(25,100),premixUp2015Defaults50ns])
 
+digiPremixUp2015Defaults25ns = { 
+    '--conditions'   : 'auto:upgradePLS1',
+    '-s'             : 'DIGI:pdigi_valid,DATAMIX,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco',  # pdigi_valid?
 
+ # input premixed events: needs be set to the outout of the previous step; local file as a temporary escamotage for tests
+   '--pileup_input'  :  'file:/afs/cern.ch/user/f/franzoni/public/4mikeH/premixed-CMSSW_7_0_X_2014-05-06-0200.root',
+# option below to be specified once the actual sample will be available
+#    '--pileup_input' : 'das:/RelValPREMIXUP15_PU25/CMSSW_7_0_1-PU25ns_POSTLS170_V7-v1/GEN-SIM-DIGI-RAW',
+
+    '--eventcontent' : 'FEVTDEBUGHLT', # => error in validation : std::vector<TrackingParticle> missing
+    '--datatier'     : 'GEN-SIM-DIGI-RAW-HLTDEBUG',
+#    '--eventcontent' : 'PREMIXRAW,', # =>  error : MuonDigiCollection<CSCDetId,CSCWireDigi> missing
+#    '--datatier'     : 'PREMIXRAW',
+#    '--eventcontent' : 'PREMIXRAW,FEVTDEBUGHLT', => same as PREMIXRAW, since FEVTDEBUGHLT ends up in another file
+#    '--datatier'     : 'PREMIXRAW,GEN-SIM-DIGI-RAW-HLTDEBUG',
+
+    '--datamix'      : 'PreMix',
+    '--customise'    : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
+    '--magField'     : '38T_PostLS1',
+    }
+steps['DIGIPRMXUP15_PU25']=merge([digiPremixUp2015Defaults25ns])
+steps['DIGIPRMXUP15_PU50']=merge([{'--conditions':'auto:upgradePLS150ns'},
+                                  {'--pileup_input' : 'file:/afs/cern.ch/user/f/franzoni/public/4mikeH/premixed-CMSSW_7_0_X_2014-05-06-0200.root'},
+                                  digiPremixUp2015Defaults25ns])
 
 
 dataReco={'--conditions':'auto:com10',
@@ -1119,6 +1142,21 @@ steps['RECODDQM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,DQM:@common+@muon+@hcal+
 steps['RECOPU1']=merge([PU,steps['RECO']])
 steps['RECOUP15_PU25']=merge([PU25,step3Up2015Defaults])
 steps['RECOUP15_PU50']=merge([PU50,step3Up2015Defaults50ns])
+
+#
+#
+# temporary attempt of simplifying step 3, to see if things would work w/o validation
+steps['RECOPRMXUP15_PU25']=merge([
+        {'-s':'RAW2DIGI,L1Reco,RECO,EI,DQM'},
+        step3Up2015Defaults])
+steps['RECOPRMXUP15_PU50']=merge([
+        {'-s':'RAW2DIGI,L1Reco,RECO,EI,DQM'},
+        step3Up2015Defaults50ns])
+#
+#
+#
+
+
 #wmsplit['RECOPU1']=1
 steps['RECOPUDBG']=merge([{'--eventcontent':'RECODEBUG,DQM'},steps['RECOPU1']])
 steps['RERECOPU1']=merge([{'--hltProcess':'REDIGI'},steps['RECOPU1']])
@@ -1255,7 +1293,7 @@ steps['HARVEST']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                    '--mc':'',
                    '--filetype':'DQM',
                    '--scenario':'pp'}
-steps['HARVESTCOS']={'-s':'HARVESTING:dqmHarvesting',
+steps['HARVESTCOS']={'-s':'HARVESTING:dqmHarvesting', # validation harv ?
                      '--conditions':'auto:startup',
                      '--mc':'',
                      '--filein':'file:step3_inDQM.root',
@@ -1267,7 +1305,7 @@ steps['HARVESTHAL']={'-s'          :'HARVESTING:dqmHarvesting',
                      '--mc'        :'',
                      '--filein'    :'file:step3_inDQM.root',
                      '--scenario'    :'cosmics',
-                     '--filein':'file:step3_inDQM.root',
+                     '--filein':'file:step3_inDQM.root', # unnnecessary
                      '--filetype':'DQM',
                      '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
                      }
