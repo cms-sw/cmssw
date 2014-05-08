@@ -262,6 +262,7 @@ bool fastmatch::match(std::string const& s) const
   }
 }
 
+//IBooker methods
 void DQMStore::IBooker::cd(void) {
   owner_->cd();
 }
@@ -274,8 +275,49 @@ void DQMStore::IBooker::setCurrentFolder(const std::string &fullpath) {
   owner_->setCurrentFolder(fullpath);
 }
 
+void DQMStore::IBooker::goUp(void) {
+  owner_->goUp();
+}
+
+const std::string & DQMStore::IBooker::pwd(void) {
+  return owner_->pwd();
+}
+
 void DQMStore::IBooker::tag(MonitorElement *me, unsigned int tag) {
   owner_->tag(me, tag);
+}
+
+//IGetter methods
+MonitorElement * DQMStore::IGetter::get(const std::string &path) {
+  return owner_->get(path);
+}
+
+std::vector<std::string> DQMStore::IGetter::getSubdirs(void) {
+  return owner_->getSubdirs();
+}
+
+std::vector<std::string> DQMStore::IGetter::getMEs(void) {
+  return owner_->getMEs();
+}
+
+bool DQMStore::IGetter::containsAnyMonitorable(const std::string &path) {
+  return owner_->containsAnyMonitorable(path);
+}
+
+bool DQMStore::IGetter::dirExists(const std::string &path) {
+  return owner_->dirExists(path);
+}
+
+void DQMStore::IGetter::cd(void) {
+  owner_->cd();
+}
+
+void DQMStore::IGetter::cd(const std::string &dir) {
+  owner_->cd(dir);
+}
+
+void DQMStore::IGetter::setCurrentFolder(const std::string &fullpath) {
+  owner_->setCurrentFolder(fullpath);
 }
 
 /** Function to transfer the local copies of histograms from each
@@ -3237,8 +3279,3 @@ DQMStore::scaleElements(void)
       }
   }
 }
-
-// Local Variables:
-// show-trailing-whitespace: t
-// truncate-lines: t
-// End:

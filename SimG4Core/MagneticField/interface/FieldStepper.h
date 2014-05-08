@@ -9,7 +9,7 @@ namespace sim {
    class FieldStepper : public G4MagIntegratorStepper
    {
       public:
-	 FieldStepper(G4Mag_UsualEqRhs * eq);
+     FieldStepper(G4Mag_UsualEqRhs * eq, double del = 0.0);
 	 ~FieldStepper();
 	 virtual void Stepper(const double y[],const double dydx[],double h,
 			      double yout[],double yerr[]);
@@ -19,6 +19,7 @@ namespace sim {
       private:
 	 G4MagIntegratorStepper * theStepper;
 	 G4Mag_UsualEqRhs * theEquation;  
+         double delta;
    };
 }
 
