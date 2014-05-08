@@ -68,10 +68,7 @@ void HLTHiggsValidator::bookHistograms(DQMStore::IBooker &ibooker, const edm::Ru
 
 void HLTHiggsValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-      	static int eventNumber = 0;
-      	eventNumber++;
-      	LogTrace("HiggsValidation") << "In HLTHiggsSubAnalysis::analyze,  " 
-		<< "Event: " << eventNumber;
+
 	
 	// Initialize the event collections
 	this->_collections->reset();
