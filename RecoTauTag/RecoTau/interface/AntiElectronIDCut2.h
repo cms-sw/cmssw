@@ -26,26 +26,26 @@ class AntiElectronIDCut2
     AntiElectronIDCut2();
     ~AntiElectronIDCut2(); 
 
-    double Discriminator(Float_t TauPt,
-                         Float_t TauEta,
-                         Float_t TauLeadChargedPFCandPt,
-                         Float_t TauLeadChargedPFCandEtaAtEcalEntrance,
-                         Float_t TauLeadPFChargedHadrEoP,
-                         Float_t TauHcal3x3OverPLead,
-                         Float_t TauGammaEtaMom,
-                         Float_t TauGammaPhiMom,
-                         Float_t TauGammaEnFrac
+    double Discriminator(float TauPt,
+                         float TauEta,
+                         float TauLeadChargedPFCandPt,
+                         float TauLeadChargedPFCandEtaAtEcalEntrance,
+                         float TauLeadPFChargedHadrEoP,
+                         float TauHcal3x3OverPLead,
+                         float TauGammaEtaMom,
+                         float TauGammaPhiMom,
+                         float TauGammaEnFrac
 			 );
 
-    double Discriminator(Float_t TauPt,
-			 Float_t TauEta,
-			 Float_t TauLeadChargedPFCandPt,
-			 Float_t TauLeadChargedPFCandEtaAtEcalEntrance,
-			 Float_t TauLeadPFChargedHadrEoP,
-			 Float_t TauHcal3x3OverPLead,
-			 const std::vector<Float_t>& GammasdEta,
-			 const std::vector<Float_t>& GammasdPhi,
-			 const std::vector<Float_t>& GammasPt
+    double Discriminator(float TauPt,
+			 float TauEta,
+			 float TauLeadChargedPFCandPt,
+			 float TauLeadChargedPFCandEtaAtEcalEntrance,
+			 float TauLeadPFChargedHadrEoP,
+			 float TauHcal3x3OverPLead,
+			 const std::vector<float>& GammasdEta,
+			 const std::vector<float>& GammasdPhi,
+			 const std::vector<float>& GammasPt
 			 );
 
     template<typename T> 
@@ -70,18 +70,18 @@ class AntiElectronIDCut2
 	  }
 	}
 	
-	Float_t TauPt = thePFTau.pt();
-	Float_t TauEta = thePFTau.eta();
-	//Float_t TauLeadPFChargedHadrHoP = 0.;
-	Float_t TauLeadPFChargedHadrEoP = 0.;
+	float TauPt = thePFTau.pt();
+	float TauEta = thePFTau.eta();
+	//float TauLeadPFChargedHadrHoP = 0.;
+	float TauLeadPFChargedHadrEoP = 0.;
 	if ( thePFTau.leadPFChargedHadrCand()->p() > 0. ) {
 	  //TauLeadPFChargedHadrHoP = thePFTau.leadPFChargedHadrCand()->hcalEnergy()/thePFTau.leadPFChargedHadrCand()->p();
 	  TauLeadPFChargedHadrEoP = thePFTau.leadPFChargedHadrCand()->ecalEnergy()/thePFTau.leadPFChargedHadrCand()->p();
 	}
 	
-	std::vector<Float_t> GammasdEta;
-	std::vector<Float_t> GammasdPhi;
-	std::vector<Float_t> GammasPt;
+	std::vector<float> GammasdEta;
+	std::vector<float> GammasdPhi;
+	std::vector<float> GammasPt;
 	for ( unsigned i = 0 ; i < thePFTau.signalPFGammaCands().size(); ++i ) {
 	  reco::PFCandidatePtr gamma = thePFTau.signalPFGammaCands().at(i);
 	  if ( thePFTau.leadPFChargedHadrCand().isNonnull() ) {
@@ -94,7 +94,7 @@ class AntiElectronIDCut2
 	  GammasPt.push_back(gamma->pt());
 	}
 	
-	Float_t TauHcal3x3OverPLead = thePFTau.hcal3x3OverPLead();
+	float TauHcal3x3OverPLead = thePFTau.hcal3x3OverPLead();
 	
 	return Discriminator(TauPt,
 			     TauEta,
@@ -108,22 +108,22 @@ class AntiElectronIDCut2
 			     );
       };
     
-    void SetBarrelCutValues(Float_t TauLeadPFChargedHadrEoP_min,
-			    Float_t TauLeadPFChargedHadrEoP_max,
-			    Float_t TauHcal3x3OverPLead_max,
-			    Float_t TauGammaEtaMom_max,
-			    Float_t TauGammaPhiMom_max,
-			    Float_t TauGammaEnFrac_max
+    void SetBarrelCutValues(float TauLeadPFChargedHadrEoP_min,
+			    float TauLeadPFChargedHadrEoP_max,
+			    float TauHcal3x3OverPLead_max,
+			    float TauGammaEtaMom_max,
+			    float TauGammaPhiMom_max,
+			    float TauGammaEnFrac_max
 			    );
 
-    void SetEndcapCutValues(Float_t TauLeadPFChargedHadrEoP_min_1,
-                            Float_t TauLeadPFChargedHadrEoP_max_1,
-			    Float_t TauLeadPFChargedHadrEoP_min_2,
-                            Float_t TauLeadPFChargedHadrEoP_max_2,
-                            Float_t TauHcal3x3OverPLead_max,
-                            Float_t TauGammaEtaMom_max,
-                            Float_t TauGammaPhiMom_max,
-                            Float_t TauGammaEnFrac_max
+    void SetEndcapCutValues(float TauLeadPFChargedHadrEoP_min_1,
+                            float TauLeadPFChargedHadrEoP_max_1,
+			    float TauLeadPFChargedHadrEoP_min_2,
+                            float TauLeadPFChargedHadrEoP_max_2,
+                            float TauHcal3x3OverPLead_max,
+                            float TauGammaEtaMom_max,
+                            float TauGammaPhiMom_max,
+                            float TauGammaEnFrac_max
                             );
     void ApplyCut_EcalCrack(bool keepAll_, bool rejectAll_){
       keepAllInEcalCrack_ = keepAll_;

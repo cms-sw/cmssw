@@ -10,22 +10,6 @@
 
 AntiElectronIDCut2::AntiElectronIDCut2()
 {
-  //Default values for the HLT
-  TauLeadPFChargedHadrEoP_barrel_min_ = 0.99;
-  TauLeadPFChargedHadrEoP_barrel_max_ = 1.01;
-  TauHcal3x3OverPLead_barrel_max_ = 0.2;
-  TauGammaEtaMom_barrel_max_ = 1.5;
-  TauGammaPhiMom_barrel_max_ = 1.5;
-  TauGammaEnFrac_barrel_max_ = 0.15;
-  TauLeadPFChargedHadrEoP_endcap_min1_ = 0.7;
-  TauLeadPFChargedHadrEoP_endcap_max1_ = 1.3;
-  TauLeadPFChargedHadrEoP_endcap_min2_ = 0.99;
-  TauLeadPFChargedHadrEoP_endcap_max2_ = 1.01;
-  TauHcal3x3OverPLead_endcap_max_ = 0.1;
-  TauGammaEtaMom_endcap_max_ = 1.5;
-  TauGammaPhiMom_endcap_max_ = 1.5;
-  TauGammaEnFrac_endcap_max_ = 0.2;
-
   //default, keep all taus in cracks for HLT 
   keepAllInEcalCrack_ = true;
   rejectAllInEcalCrack_ = false;
@@ -40,23 +24,21 @@ AntiElectronIDCut2::AntiElectronIDCut2()
 
   verbosity_ = 0;
 
-  //Set default ecal crack region
-  ecalCracks_.push_back(pdouble(1.460, 1.558));
 }
 
 AntiElectronIDCut2::~AntiElectronIDCut2()
 {}
 
 double
-AntiElectronIDCut2::Discriminator(Float_t TauPt,
-                                  Float_t TauEta,
-                                  Float_t TauLeadChargedPFCandPt,
-                                  Float_t TauLeadChargedPFCandEtaAtEcalEntrance,
-                                  Float_t TauLeadPFChargedHadrEoP,
-                                  Float_t TauHcal3x3OverPLead,
-				  Float_t TauGammaEtaMom,
-				  Float_t TauGammaPhiMom,
-				  Float_t TauGammaEnFrac)
+AntiElectronIDCut2::Discriminator(float TauPt,
+                                  float TauEta,
+                                  float TauLeadChargedPFCandPt,
+                                  float TauLeadChargedPFCandEtaAtEcalEntrance,
+                                  float TauLeadPFChargedHadrEoP,
+                                  float TauHcal3x3OverPLead,
+				  float TauGammaEtaMom,
+				  float TauGammaPhiMom,
+				  float TauGammaEnFrac)
 {
 
   if(verbosity_){  
@@ -142,15 +124,15 @@ AntiElectronIDCut2::Discriminator(Float_t TauPt,
 }  
 
 double
-AntiElectronIDCut2::Discriminator(Float_t TauPt,
-				  Float_t TauEta,
-				  Float_t TauLeadChargedPFCandPt,
-				  Float_t TauLeadChargedPFCandEtaAtEcalEntrance,
-				  Float_t TauLeadPFChargedHadrEoP,
-				  Float_t TauHcal3x3OverPLead,
-				  const std::vector<Float_t>& GammasdEta,
-				  const std::vector<Float_t>& GammasdPhi,
-				  const std::vector<Float_t>& GammasPt
+AntiElectronIDCut2::Discriminator(float TauPt,
+				  float TauEta,
+				  float TauLeadChargedPFCandPt,
+				  float TauLeadChargedPFCandEtaAtEcalEntrance,
+				  float TauLeadPFChargedHadrEoP,
+				  float TauHcal3x3OverPLead,
+				  const std::vector<float>& GammasdEta,
+				  const std::vector<float>& GammasdPhi,
+				  const std::vector<float>& GammasPt
 				  )
 {
 
@@ -174,7 +156,7 @@ AntiElectronIDCut2::Discriminator(Float_t TauPt,
     dPhi2  += (pt_i*phi_i*phi_i);
   }
 
-  Float_t TauGammaEnFrac = sumPt/TauPt;
+  float TauGammaEnFrac = sumPt/TauPt;
 
   if ( sumPt > 0. ) {
     dEta  /= sumPt;
@@ -183,8 +165,8 @@ AntiElectronIDCut2::Discriminator(Float_t TauPt,
     dPhi2 /= sumPt;
   }
 
-  Float_t TauGammaEtaMom = TMath::Sqrt(dEta2)*TMath::Sqrt(TauGammaEnFrac)*TauPt;
-  Float_t TauGammaPhiMom = TMath::Sqrt(dPhi2)*TMath::Sqrt(TauGammaEnFrac)*TauPt;
+  float TauGammaEtaMom = TMath::Sqrt(dEta2)*TMath::Sqrt(TauGammaEnFrac)*TauPt;
+  float TauGammaPhiMom = TMath::Sqrt(dPhi2)*TMath::Sqrt(TauGammaEnFrac)*TauPt;
 
   return Discriminator(TauPt,
                        TauEta,
@@ -199,12 +181,12 @@ AntiElectronIDCut2::Discriminator(Float_t TauPt,
 }
 
 void 
-AntiElectronIDCut2::SetBarrelCutValues(Float_t TauLeadPFChargedHadrEoP_min,
-				       Float_t TauLeadPFChargedHadrEoP_max,
-				       Float_t TauHcal3x3OverPLead_max,
-				       Float_t TauGammaEtaMom_max,
-				       Float_t TauGammaPhiMom_max,
-				       Float_t TauGammaEnFrac_max
+AntiElectronIDCut2::SetBarrelCutValues(float TauLeadPFChargedHadrEoP_min,
+				       float TauLeadPFChargedHadrEoP_max,
+				       float TauHcal3x3OverPLead_max,
+				       float TauGammaEtaMom_max,
+				       float TauGammaPhiMom_max,
+				       float TauGammaEnFrac_max
 				       )
 {
   TauLeadPFChargedHadrEoP_barrel_min_ = TauLeadPFChargedHadrEoP_min;
@@ -216,14 +198,14 @@ AntiElectronIDCut2::SetBarrelCutValues(Float_t TauLeadPFChargedHadrEoP_min,
 }
 
 void 
-AntiElectronIDCut2::SetEndcapCutValues(Float_t TauLeadPFChargedHadrEoP_min_1,
-				       Float_t TauLeadPFChargedHadrEoP_max_1,
-				       Float_t TauLeadPFChargedHadrEoP_min_2,
-				       Float_t TauLeadPFChargedHadrEoP_max_2,
-				       Float_t TauHcal3x3OverPLead_max,
-				       Float_t TauGammaEtaMom_max,
-				       Float_t TauGammaPhiMom_max,
-				       Float_t TauGammaEnFrac_max
+AntiElectronIDCut2::SetEndcapCutValues(float TauLeadPFChargedHadrEoP_min_1,
+				       float TauLeadPFChargedHadrEoP_max_1,
+				       float TauLeadPFChargedHadrEoP_min_2,
+				       float TauLeadPFChargedHadrEoP_max_2,
+				       float TauHcal3x3OverPLead_max,
+				       float TauGammaEtaMom_max,
+				       float TauGammaPhiMom_max,
+				       float TauGammaEnFrac_max
 				       )
 {
   TauLeadPFChargedHadrEoP_endcap_min1_ = TauLeadPFChargedHadrEoP_min_1;
