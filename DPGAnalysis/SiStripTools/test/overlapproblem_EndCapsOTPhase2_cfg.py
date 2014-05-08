@@ -54,10 +54,14 @@ process.load('Configuration.Geometry.GeometryExtendedPhase2TkBE5DPixel10DReco_cf
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 #process.load("Configuration.Geometry.GeometryExtendedPhaseIPixelReco_cff")
 #process.load("Configuration.Geometry.GeometryExtendedPhaseIPixel_cff")
+process.load("Configuration.StandardSequences.Reconstruction_cff")
+
+
+
 process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
 
 
-from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5DPixel10D import customise
+from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5DPixel10D import *
 
 process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
 process.refittedTracks = process.TrackRefitter.clone(src = cms.InputTag("generalTracks"))
@@ -80,117 +84,32 @@ process.seqTrackRefitting = cms.Sequence(process.refittedTracks)
 
 
 process.load("DPGAnalysis.SiStripTools.overlapproblemtsosanalyzer_cfi")
-#process.overlapproblemtsosanalyzer.tsosHMConf.wanted2DHistos = cms.untracked.bool(True)
-process.overlapproblemtsosanalyzer.tsosHMConf.wantedSubDets = cms.VPSet(
-    cms.PSet(title=cms.string("title"),name = cms.string("TECmD1r1m1"),selection=cms.vstring("0x1fbff004-0x14ac1004")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECmD1r2m1"),selection=cms.vstring("0x1fbff004-0x14ac2004")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECmD1r3m1"),selection=cms.vstring("0x1fbff004-0x14ac3004")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECmD1r4m1"),selection=cms.vstring("0x1fbff004-0x14ac4004")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECmD1r5m1"),selection=cms.vstring("0x1fbff004-0x14ac5004")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECmD1r6m1"),selection=cms.vstring("0x1fbff004-0x14ac6004")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECmD1r7m1"),selection=cms.vstring("0x1fbff004-0x14ac7004")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECmD1r8m1"),selection=cms.vstring("0x1fbff004-0x14ac8004")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECmD1r9m1"),selection=cms.vstring("0x1fbff004-0x14ac9004")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECmD1r10m1"),selection=cms.vstring("0x1fbff004-0x14aca004")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECmD1r11m1"),selection=cms.vstring("0x1fbff004-0x14acb004")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECmD1r12m1"),selection=cms.vstring("0x1fbff004-0x14acc004")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECmD1r13m1"),selection=cms.vstring("0x1fbff004-0x14acd004")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECmD1r14m1"),selection=cms.vstring("0x1fbff004-0x14ace004")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECmD1r15m1"),selection=cms.vstring("0x1fbff004-0x14acf004")),
-#
-    cms.PSet(title=cms.string("title"),name = cms.string("TECmD1r1m2"),selection=cms.vstring("0x1fbff004-0x14ac1000")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECmD1r2m2"),selection=cms.vstring("0x1fbff004-0x14ac2000")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECmD1r3m2"),selection=cms.vstring("0x1fbff004-0x14ac3000")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECmD1r4m2"),selection=cms.vstring("0x1fbff004-0x14ac4000")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECmD1r5m2"),selection=cms.vstring("0x1fbff004-0x14ac5000")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECmD1r6m2"),selection=cms.vstring("0x1fbff004-0x14ac6000")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECmD1r7m2"),selection=cms.vstring("0x1fbff004-0x14ac7000")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECmD1r8m2"),selection=cms.vstring("0x1fbff004-0x14ac8000")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECmD1r9m2"),selection=cms.vstring("0x1fbff004-0x14ac9000")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECmD1r10m2"),selection=cms.vstring("0x1fbff004-0x14aca000")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECmD1r11m2"),selection=cms.vstring("0x1fbff004-0x14acb000")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECmD1r12m2"),selection=cms.vstring("0x1fbff004-0x14acc000")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECmD1r13m2"),selection=cms.vstring("0x1fbff004-0x14acd000")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECmD1r14m2"),selection=cms.vstring("0x1fbff004-0x14ace000")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECmD1r15m2"),selection=cms.vstring("0x1fbff004-0x14acf000")),
-#
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxD1r1m1"),selection=cms.vstring("0x1e3ff004-0x142c1004")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxD1r2m1"),selection=cms.vstring("0x1e3ff004-0x142c2004")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxD1r3m1"),selection=cms.vstring("0x1e3ff004-0x142c3004")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxD1r4m1"),selection=cms.vstring("0x1e3ff004-0x142c4004")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxD1r5m1"),selection=cms.vstring("0x1e3ff004-0x142c5004")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxD1r6m1"),selection=cms.vstring("0x1e3ff004-0x142c6004")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxD1r7m1"),selection=cms.vstring("0x1e3ff004-0x142c7004")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxD1r8m1"),selection=cms.vstring("0x1e3ff004-0x142c8004")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxD1r9m1"),selection=cms.vstring("0x1e3ff004-0x142c9004")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxD1r10m1"),selection=cms.vstring("0x1e3ff004-0x142ca004")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxD1r11m1"),selection=cms.vstring("0x1e3ff004-0x142cb004")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxD1r12m1"),selection=cms.vstring("0x1e3ff004-0x142cc004")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxD1r13m1"),selection=cms.vstring("0x1e3ff004-0x142cd004")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxD1r14m1"),selection=cms.vstring("0x1e3ff004-0x142ce004")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxD1r15m1"),selection=cms.vstring("0x1e3ff004-0x142cf004")),
-#
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxD1r1m2"),selection=cms.vstring("0x1e3ff004-0x142c1000")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxD1r2m2"),selection=cms.vstring("0x1e3ff004-0x142c2000")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxD1r3m2"),selection=cms.vstring("0x1e3ff004-0x142c3000")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxD1r4m2"),selection=cms.vstring("0x1e3ff004-0x142c4000")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxD1r5m2"),selection=cms.vstring("0x1e3ff004-0x142c5000")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxD1r6m2"),selection=cms.vstring("0x1e3ff004-0x142c6000")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxD1r7m2"),selection=cms.vstring("0x1e3ff004-0x142c7000")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxD1r8m2"),selection=cms.vstring("0x1e3ff004-0x142c8000")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxD1r9m2"),selection=cms.vstring("0x1e3ff004-0x142c9000")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxD1r10m2"),selection=cms.vstring("0x1e3ff004-0x142ca000")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxD1r11m2"),selection=cms.vstring("0x1e3ff004-0x142cb000")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxD1r12m2"),selection=cms.vstring("0x1e3ff004-0x142cc000")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxD1r13m2"),selection=cms.vstring("0x1e3ff004-0x142cd000")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxD1r14m2"),selection=cms.vstring("0x1e3ff004-0x142ce000")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxD1r15m2"),selection=cms.vstring("0x1e3ff004-0x142cf000")),
-#
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxDxr1m1"),selection=cms.vstring("0x1e33f004-0x14301004")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxDxr2m1"),selection=cms.vstring("0x1e33f004-0x14302004")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxDxr3m1"),selection=cms.vstring("0x1e33f004-0x14303004")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxDxr4m1"),selection=cms.vstring("0x1e33f004-0x14304004")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxDxr5m1"),selection=cms.vstring("0x1e33f004-0x14305004")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxDxr6m1"),selection=cms.vstring("0x1e33f004-0x14306004")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxDxr7m1"),selection=cms.vstring("0x1e33f004-0x14307004")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxDxr8m1"),selection=cms.vstring("0x1e33f004-0x14308004")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxDxr9m1"),selection=cms.vstring("0x1e33f004-0x14309004")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxDxr10m1"),selection=cms.vstring("0x1e33f004-0x1430a004")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxDxr11m1"),selection=cms.vstring("0x1e33f004-0x1430b004")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxDxr12m1"),selection=cms.vstring("0x1e33f004-0x1430c004")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxDxr13m1"),selection=cms.vstring("0x1e33f004-0x1430d004")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxDxr14m1"),selection=cms.vstring("0x1e33f004-0x1430e004")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxDxr15m1"),selection=cms.vstring("0x1e33f004-0x1430f004")),
-#
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxDxr1m2"),selection=cms.vstring("0x1e33f004-0x14301000")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxDxr2m2"),selection=cms.vstring("0x1e33f004-0x14302000")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxDxr3m2"),selection=cms.vstring("0x1e33f004-0x14303000")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxDxr4m2"),selection=cms.vstring("0x1e33f004-0x14304000")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxDxr5m2"),selection=cms.vstring("0x1e33f004-0x14305000")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxDxr6m2"),selection=cms.vstring("0x1e33f004-0x14306000")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxDxr7m2"),selection=cms.vstring("0x1e33f004-0x14307000")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxDxr8m2"),selection=cms.vstring("0x1e33f004-0x14308000")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxDxr9m2"),selection=cms.vstring("0x1e33f004-0x14309000")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxDxr10m2"),selection=cms.vstring("0x1e33f004-0x1430a000")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxDxr11m2"),selection=cms.vstring("0x1e33f004-0x1430b000")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxDxr12m2"),selection=cms.vstring("0x1e33f004-0x1430c000")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxDxr13m2"),selection=cms.vstring("0x1e33f004-0x1430d000")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxDxr14m2"),selection=cms.vstring("0x1e33f004-0x1430e000")),
-    cms.PSet(title=cms.string("title"),name = cms.string("TECxDxr15m2"),selection=cms.vstring("0x1e33f004-0x1430f000")),
-    )
+process.overlapproblemtsosanalyzer.tsosHMConf.wanted2DHistos = cms.untracked.bool(True)
+
+from DPGAnalysis.SiStripTools.occupancyplotsselections_phase2_cff import *
+
+process.overlapproblemtsosanalyzer.tsosHMConf.wantedSubDets = OccupancyPlotsTECxWantedSubDets
+process.overlapproblemtsosanalyzer.tsosHMConf.wantedSubDets.extend(OccupancyPlotsTECxOddEvenWantedSubDets)
+process.overlapproblemtsosanalyzer.tsosHMConf.wantedSubDets.extend(OccupancyPlotsFPIXR1WantedSubDets)
+process.overlapproblemtsosanalyzer.tsosHMConf.wantedSubDets.extend(OccupancyPlotsFPIXR2WantedSubDets)
+process.overlapproblemtsosanalyzer.tsosHMConf.wantedSubDets.extend(OccupancyPlotsFPIXmD810R2DetailedWantedSubDets)
+process.overlapproblemtsosanalyzer.tsosHMConf.wantedSubDets.extend(OccupancyPlotsFPIXpD810R2DetailedWantedSubDets)
 
 process.overlapproblemtsosall = process.overlapproblemtsosanalyzer.clone(onlyValidRecHit = cms.bool(False))
 
 #process.overlapproblemtsosanalyzer.debugMode = cms.untracked.bool(True)
     
-from DPGAnalysis.SiStripTools.occupancyplotsselections_phase2_cff import *
-
 process.spclusmultprod = cms.EDProducer("SiPixelClusterMultiplicityProducer",
                                         clusterdigiCollection = cms.InputTag("siPixelClusters"),
                                         wantedSubDets = cms.VPSet()
                                         )
 process.spclusmultprod.wantedSubDets.extend(OccupancyPlotsPixelWantedSubDets)
 process.spclusmultprodontrack=process.spclusmultprod.clone(clusterdigiCollection = cms.InputTag("AlignmentTrackSelector"))
+
+process.spclusmultprodxy = process.spclusmultprod.clone()
+process.spclusmultprodxy.wantedSubDets = OccupancyPlotsFPIXmD810R2DetailedWantedSubDets
+process.spclusmultprodxy.wantedSubDets.extend(OccupancyPlotsFPIXpD810R2DetailedWantedSubDets)
+process.spclusmultprodxyontrack=process.spclusmultprodxy.clone(clusterdigiCollection = cms.InputTag("AlignmentTrackSelector"))
 
 process.spclusoccuprod = cms.EDProducer("SiPixelClusterMultiplicityProducer",
                                         clusterdigiCollection = cms.InputTag("siPixelClusters"),
@@ -200,23 +119,40 @@ process.spclusoccuprod = cms.EDProducer("SiPixelClusterMultiplicityProducer",
 process.spclusoccuprod.wantedSubDets.extend(OccupancyPlotsPixelWantedSubDets)
 process.spclusoccuprodontrack=process.spclusoccuprod.clone(clusterdigiCollection = cms.InputTag("AlignmentTrackSelector"))
 
+process.spclusoccuprodxy = process.spclusoccuprod.clone()
+process.spclusoccuprodxy.wantedSubDets = OccupancyPlotsFPIXmD810R2DetailedWantedSubDets
+process.spclusoccuprodxy.wantedSubDets.extend(OccupancyPlotsFPIXpD810R2DetailedWantedSubDets)
+process.spclusoccuprodxyontrack=process.spclusoccuprodxy.clone(clusterdigiCollection = cms.InputTag("AlignmentTrackSelector"))
+
 process.seqMultProd = cms.Sequence(
                                    process.spclusmultprod + process.spclusoccuprod +
-                                   process.spclusmultprodontrack + process.spclusoccuprodontrack 
+                                   process.spclusmultprodontrack + process.spclusoccuprodontrack +
+                                   process.spclusmultprodxy + process.spclusoccuprodxy +
+                                   process.spclusmultprodxyontrack + process.spclusoccuprodxyontrack 
                                    )
 
 process.load("DPGAnalysis.SiStripTools.occupancyplots_cfi")
 process.occupancyplots.file = cms.untracked.FileInPath("SLHCUpgradeSimulations/Geometry/data/PhaseII/Pixel10D/PixelSkimmedGeometry.txt")
 
 process.pixeloccupancyplots = process.occupancyplots.clone()
-process.pixeloccupancyplots.wantedSubDets = cms.VPSet()
-process.pixeloccupancyplots.wantedSubDets.extend(OccupancyPlotsPixelWantedSubDets)
+process.pixeloccupancyplots.wantedSubDets = process.spclusmultprod.wantedSubDets
 process.pixeloccupancyplots.multiplicityMaps = cms.VInputTag(cms.InputTag("spclusmultprod"))
 process.pixeloccupancyplots.occupancyMaps = cms.VInputTag(cms.InputTag("spclusoccuprod"))
 
-process.pixeloccupancyplotsontrack = process.occupancyplots.clone()
+process.pixeloccupancyxyplots = process.occupancyplots.clone()
+process.pixeloccupancyxyplots.wantedSubDets = process.spclusmultprodxy.wantedSubDets
+process.pixeloccupancyxyplots.multiplicityMaps = cms.VInputTag(cms.InputTag("spclusmultprodxy"))
+process.pixeloccupancyxyplots.occupancyMaps = cms.VInputTag(cms.InputTag("spclusoccuprodxy"))
+
+process.pixeloccupancyplotsontrack = process.pixeloccupancyplots.clone()
+process.pixeloccupancyplotsontrack.wantedSubDets = process.spclusmultprodontrack.wantedSubDets
 process.pixeloccupancyplotsontrack.multiplicityMaps = cms.VInputTag(cms.InputTag("spclusmultprodontrack"))
 process.pixeloccupancyplotsontrack.occupancyMaps = cms.VInputTag(cms.InputTag("spclusoccuprodontrack"))
+
+process.pixeloccupancyxyplotsontrack = process.pixeloccupancyxyplots.clone()
+process.pixeloccupancyxyplotsontrack.wantedSubDets = process.spclusmultprodxyontrack.wantedSubDets
+process.pixeloccupancyxyplotsontrack.multiplicityMaps = cms.VInputTag(cms.InputTag("spclusmultprodxyontrack"))
+process.pixeloccupancyxyplotsontrack.occupancyMaps = cms.VInputTag(cms.InputTag("spclusoccuprodxyontrack"))
 
 process.goodVertices = cms.EDFilter("VertexSelector",
    src = cms.InputTag("offlinePrimaryVertices"),
@@ -232,7 +168,8 @@ process.primaryvertexanalyzer.vHistogramMakerPSet.runHistoBXProfile=cms.untracke
 
 process.seqAnalyzers = cms.Sequence(
     process.goodVertices + process.primaryvertexanalyzer +
-    process.pixeloccupancyplots + process.pixeloccupancyplotsontrack)
+    process.pixeloccupancyplots + process.pixeloccupancyplotsontrack +
+    process.pixeloccupancyxyplots + process.pixeloccupancyxyplotsontrack)
 
 #-------------------------------------------------------------------------------------------
 
@@ -254,13 +191,6 @@ process.trackcount.nchi2bin2D=cms.untracked.uint32(400)
 process.trackcount.nndofbin2D=cms.untracked.uint32(100)
 process.trackcount.wanted2DHistos=cms.untracked.bool(True)
 
-process.p0 = cms.Path( process.seqTrackRefitting
-                       + process.overlapproblemtsosanalyzer
-                       + process.overlapproblemtsosall
-                       + process.seqProducers
-                       + process.seqAnalyzers
-                       + process.trackcount
-                       )
 
 #----GlobalTag ------------------------
 
@@ -285,6 +215,20 @@ process.TFileService = cms.Service('TFileService',
                                    fileName = cms.string('OverlapProblem_tpanalyzer.root')
                                    )
 
-process = customise(process)
+process = customise_Reco(process,0)
+process = customise_condOverRides(process)
+
+process.myrereco = cms.Sequence(
+    process.siPixelRecHits +
+    process.trackingGlobalReco)
+
+process.p0 = cms.Path(   process.myrereco +
+                         process.seqTrackRefitting
+                       + process.overlapproblemtsosanalyzer
+                       + process.overlapproblemtsosall
+                       + process.seqProducers
+                       + process.seqAnalyzers
+                       + process.trackcount
+                       )
 
 #print process.dumpPython()
