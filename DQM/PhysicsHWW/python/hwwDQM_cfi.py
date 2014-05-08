@@ -4,7 +4,7 @@ from RecoJets.JetAssociationProducers.ic5PFJetTracksAssociatorAtVertex_cfi impor
 from RecoBTag.Configuration.RecoBTag_cff import *
 
 PFJetTracksAssociatorAtVertex = ic5PFJetTracksAssociatorAtVertex.clone()
-PFJetTracksAssociatorAtVertex.jets = "ak5PFJets"
+PFJetTracksAssociatorAtVertex.jets = "ak4PFJets"
 PFJetTracksAssociatorAtVertex.tracks = "generalTracks"
 PFImpactParameterTagInfos = impactParameterTagInfos.clone()
 PFImpactParameterTagInfos.jetTracks = "PFJetTracksAssociatorAtVertex"

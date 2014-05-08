@@ -57,7 +57,7 @@ void ExpressionVar::initObjects_() {
 bool
 ExpressionVar::makeStorage(edm::ObjectWithDict &obj, const edm::TypeWithDict &retType) {
     bool ret = false;
-    static edm::TypeWithDict tVoid(edm::TypeWithDict::byName("void"));
+    static const edm::TypeWithDict tVoid(edm::TypeWithDict::byName("void"));
     if (retType == tVoid) {
         obj = edm::ObjectWithDict::byType(tVoid);
     } else if (retType.isPointer() || retType.isReference()) {

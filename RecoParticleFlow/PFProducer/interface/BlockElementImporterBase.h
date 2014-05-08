@@ -2,6 +2,7 @@
 #define __BlockElementImporterBase_H__
 
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -18,6 +19,8 @@ class BlockElementImporterBase {
   _importerName( conf.getParameter<std::string>("importerName") ) { }
   BlockElementImporterBase(const BlockElementImporterBase& ) = delete;
   BlockElementImporterBase& operator=(const BlockElementImporterBase&) = delete;
+
+  virtual void updateEventSetup(const edm::EventSetup& ) {}
 
   virtual void importToBlock( const edm::Event& ,
 			      ElementList& ) const = 0;
