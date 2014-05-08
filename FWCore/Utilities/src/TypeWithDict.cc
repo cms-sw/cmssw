@@ -18,6 +18,8 @@
 
 #include "boost/thread/tss.hpp"
 
+#include "tbb/concurrent_unordered_map.h"
+
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>
@@ -35,8 +37,7 @@ namespace edm {
     //       ignores those properties, so we must store them
     //       separately.
 
-    // Yes, I know this is not thread safe
-    typedef std::map<std::string, TypeWithDict> TypeMap;
+    typedef tbb::concurrent_unordered_map<std::string, TypeWithDict> TypeMap;
     static TypeMap typeMap;
     TypeMap::const_iterator it = typeMap.find(name);
     if(it != typeMap.end()) {
