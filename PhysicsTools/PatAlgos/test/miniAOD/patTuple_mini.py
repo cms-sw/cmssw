@@ -4,7 +4,6 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import cms, process
 process.options.allowUnscheduled = cms.untracked.bool(True)
 #process.Tracer = cms.Service("Tracer")
 
-process.load("RecoEgamma.EgammaPhotonProducers.reducedEgamma_cfi")
 process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
 process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
 
