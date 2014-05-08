@@ -1,4 +1,4 @@
 <bin name="fastHadd" file="fastHadd.cc">
-  <use name="DQMServices/Components">
-  </use>
+  <use name="DQMServices/Core"/>
+  <use name="protobuf"/>
 </bin>

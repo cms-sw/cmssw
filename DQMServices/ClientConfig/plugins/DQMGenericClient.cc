@@ -417,6 +417,10 @@ void DQMGenericClient::computeEfficiency (DQMStore::IBooker& ibooker, DQMStore::
       new TProfile(newEfficMEName.c_str(), efficMETitle.c_str(),
                    hReco->GetXaxis()->GetNbins(),
                    hReco->GetXaxis()->GetXbins()->GetArray());
+
+    efficHist->GetXaxis()->SetTitle(hSim->GetXaxis()->GetTitle());
+    efficHist->GetYaxis()->SetTitle(hSim->GetYaxis()->GetTitle());
+
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,27,0)
     for (int i=1; i <= hReco->GetNbinsX(); i++) {
 
@@ -429,6 +433,9 @@ void DQMGenericClient::computeEfficiency (DQMStore::IBooker& ibooker, DQMStore::
  	  return;
  	}
 
+      if(std::string(hSim->GetXaxis()->GetBinLabel(i)) != "")
+	efficHist->GetXaxis()->SetBinLabel(i, hSim->GetXaxis()->GetBinLabel(i));
+      
       if ( nSim == 0 || nReco > nSim ) continue;
       const double effVal = nReco/nSim;
 
@@ -466,6 +473,8 @@ void DQMGenericClient::computeEfficiency (DQMStore::IBooker& ibooker, DQMStore::
         efficHist->SetBinEntries(i, 1);
         efficHist->SetBinError(i, sqrt(effVal * effVal + errVal * errVal));
       }
+      if(std::string(hSim->GetXaxis()->GetBinLabel(i)) != "")
+	efficHist->GetXaxis()->SetBinLabel(i, hSim->GetXaxis()->GetBinLabel(i));
     }
 #endif
     ibooker.bookProfile(newEfficMEName.c_str(),efficHist);

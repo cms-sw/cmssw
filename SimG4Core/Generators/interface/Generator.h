@@ -32,8 +32,6 @@ public:
   virtual const double eventWeight() const { return weight_; }
 private:
   bool particlePassesPrimaryCuts(const G4PrimaryParticle * p) const;
-  bool particlePassesPrimaryCuts( const math::XYZTLorentzVector& mom, 
-				  const double zimp ) const ;
   void particleAssignDaughters(G4PrimaryParticle * p, HepMC::GenParticle * hp, 
 			       double length);
   void setGenId(G4PrimaryParticle* p, int id) const 
@@ -41,6 +39,7 @@ private:
 
 private:
   bool   fPCuts;
+  bool   fPtransCut;
   bool   fEtaCuts;
   bool   fPhiCuts;
   double theMinPhiCut;
@@ -48,8 +47,9 @@ private:
   double theMinEtaCut;
   double theMaxEtaCut;
   double theMinPCut;
+  double theMinPtCut2;
   double theMaxPCut;
-  double theRDecLenCut;
+  double theRDecLenCut2;
   double theEtaCutForHector; 
   int verbose;
   HepMC::GenEvent*  evt_;
