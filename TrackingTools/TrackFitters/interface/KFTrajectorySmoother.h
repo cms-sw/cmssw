@@ -32,13 +32,20 @@ public:
                        const MeasurementEstimator& aEstimator,
 		       float errorRescaling = 100.f,
 		       int minHits = 3) :
-    thePropagator(aPropagator.clone()),
+  theAlongPropagator(nullptr),
+    theOppositePropagator(nullptr),
     theUpdator(aUpdator.clone()),
     theEstimator(aEstimator.clone()),
     theErrorRescaling(errorRescaling),
     minHits_(minHits),
     theGeometry(nullptr){ // to be fixed. Why this first constructor is needed? who is using it? Can it be removed?
       if(!theGeometry) theGeometry = &dummyGeometry;
+      auto p = aPropagator.clone();
+      p->setPropagationDirection(alongMomentum);
+      theAlongPropagator = p;
+      p = aPropagator.clone();
+      p->setPropagationDirection(oppositeToMomentum);
+      theOppositePropagator = p;
     }
 
 
@@ -49,7 +56,8 @@ public:
 		       int minHits = 3,
 		       const DetLayerGeometry* detLayerGeometry=nullptr,
                        TkCloner const * hc=nullptr) :
-    thePropagator(aPropagator->clone()),
+    theAlongPropagator(nullptr),
+    theOppositePropagator(nullptr),
     theUpdator(aUpdator->clone()),
     theEstimator(aEstimator->clone()),
     theHitCloner(hc),
@@ -57,18 +65,26 @@ public:
     minHits_(minHits),
     theGeometry(detLayerGeometry){
       if(!theGeometry) theGeometry = &dummyGeometry;
+      auto p = aPropagator->clone();
+      p->setPropagationDirection(alongMomentum);
+      theAlongPropagator = p;
+      p = aPropagator->clone();
+      p->setPropagationDirection(oppositeToMomentum);
+      theOppositePropagator = p;
     }
 
   virtual ~KFTrajectorySmoother();
 
-  virtual Trajectory trajectory(const Trajectory& aTraj) const;
+  virtual Trajectory trajectory(const Trajectory& aTraj) const override;
 
-  const Propagator* propagator() const {return thePropagator;}
+  const Propagator* alongPropagator() const { return theAlongPropagator;}
+  const Propagator* oppositePropagator() const {return theOppositePropagator;}
+
   const TrajectoryStateUpdator* updator() const {return theUpdator;}
   const MeasurementEstimator* estimator() const {return theEstimator;}
 
-  virtual KFTrajectorySmoother* clone() const{
-    return new KFTrajectorySmoother(thePropagator,theUpdator,theEstimator,theErrorRescaling,minHits_,theGeometry,theHitCloner);
+  virtual KFTrajectorySmoother* clone() const override{
+    return new KFTrajectorySmoother(theAlongPropagator,theUpdator,theEstimator,theErrorRescaling,minHits_,theGeometry,theHitCloner);
   }
 
  // FIXME a prototype:  final inplementaiton may differ
@@ -77,7 +93,8 @@ public:
 
 private:
   const DetLayerGeometry dummyGeometry;
-  Propagator* thePropagator;
+  const Propagator* theAlongPropagator;
+  const Propagator* theOppositePropagator;
   const TrajectoryStateUpdator* theUpdator;
   const MeasurementEstimator* theEstimator;
   TkCloner const * theHitCloner=nullptr;

@@ -160,7 +160,7 @@ void KfComponentsHolder::setup(
     assert(size_ == 0); // which means it was uninitialized
     size_ = D;
 #endif
-    static ProjectMatrix<double,5,D> dummy;
+    static thread_local ProjectMatrix<double,5,D> dummy;
     params_     = params;
     errors_     = errors;
     projection_ = projection;
