@@ -21,7 +21,7 @@ MIsoJetExtractorBlock = cms.PSet(
     Threshold = cms.double(5.0),
     #    InputTag JetCollectionLabel = midPointCone5CaloJets
     #    JetCollectionLabel = cms.InputTag("sisCone5CaloJets")
-    JetCollectionLabel = cms.InputTag("ak5CaloJets") 
+    JetCollectionLabel = cms.InputTag("ak4CaloJets")
 )
 
 

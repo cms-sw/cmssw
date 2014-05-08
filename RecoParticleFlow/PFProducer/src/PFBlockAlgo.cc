@@ -61,7 +61,7 @@ void PFBlockAlgo::setLinkers(const std::vector<edm::ParameterSet>& confs) {
     const PFBlockElement::Type type1 = _elementTypes.at(link1);
     const PFBlockElement::Type type2 = _elementTypes.at(link2);    
     const unsigned index = rowsize*std::max(type1,type2)+std::min(type1,type2);
-    const BlockElementLinkerBase * linker =
+    BlockElementLinkerBase * linker =
       BlockElementLinkerFactory::get()->create(linkerName,conf);
     _linkTests[index].reset(linker);
     // setup KDtree if requested
@@ -81,7 +81,7 @@ void PFBlockAlgo::setImporters(const std::vector<edm::ParameterSet>& confs,
   for( const auto& conf : confs ) {
     const std::string& importerName = 
       conf.getParameter<std::string>("importerName");    
-    const BlockElementImporterBase * importer =
+    BlockElementImporterBase * importer =
       BlockElementImporterFactory::get()->create(importerName,conf,sumes);
     _importers.emplace_back(importer);
   }
@@ -277,6 +277,12 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
   
   // index is always checked in the preFilter above, no need to check here
   dist = _linkTests[index]->testLink(el1,el2);
+}
+
+void PFBlockAlgo::updateEventSetup(const edm::EventSetup& es) {
+  for( auto& importer : _importers ) {
+    importer->updateEventSetup(es);
+  }
 }
 
 // see plugins/importers and plugins/kdtrees
