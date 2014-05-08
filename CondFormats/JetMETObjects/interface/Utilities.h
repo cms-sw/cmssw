@@ -26,7 +26,7 @@ namespace
 #endif
   }
   //----------------------------------------------------------------------
-  float getFloat(const std::string& token)
+  inline float getFloat(const std::string& token)
   {
     char* endptr;
     float result = strtod (token.c_str(), &endptr);
@@ -39,7 +39,7 @@ namespace
     return result;
   }
   //----------------------------------------------------------------------
-  unsigned getUnsigned(const std::string& token)
+  inline unsigned getUnsigned(const std::string& token)
   {
     char* endptr;
     unsigned result = strtoul (token.c_str(), &endptr, 0);
@@ -52,7 +52,7 @@ namespace
     return result;
   }
   //----------------------------------------------------------------------
-  std::string getSection(const std::string& token)
+  inline std::string getSection(const std::string& token)
   {
     size_t iFirst = token.find ('[');
     size_t iLast = token.find (']');
@@ -61,7 +61,7 @@ namespace
     return "";
   }
   //----------------------------------------------------------------------
-  std::vector<std::string> getTokens(const std::string& fLine)
+  inline std::vector<std::string> getTokens(const std::string& fLine)
   {
     std::vector<std::string> tokens;
     std::string currentToken;
@@ -84,7 +84,7 @@ namespace
     return tokens;
   }
   //----------------------------------------------------------------------
-  std::string getDefinitions(const std::string& token)
+  inline std::string getDefinitions(const std::string& token)
   {
     size_t iFirst = token.find ('{');
     size_t iLast = token.find ('}');
@@ -93,7 +93,7 @@ namespace
     return "";
   }
   //------------------------------------------------------------------------
-  float quadraticInterpolation(float fZ, const float fX[3], const float fY[3])
+  inline float quadraticInterpolation(float fZ, const float fX[3], const float fY[3])
   {
     // Quadratic interpolation through the points (x[i],y[i]). First find the parabola that
     // is defined by the points and then calculate the y(z).
