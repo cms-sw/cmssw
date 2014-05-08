@@ -68,14 +68,10 @@ BHMSD::BHMSD(std::string name, const DDCompactView & cpv,
     edm::LogInfo("BHMSim") << "BHMSD : Assigns SD to LV " << (*it);
   }
     
-  if      (name == "BSCHits") {
-    if (verbn > 0) {
-      edm::LogInfo("BHMSim") << "name = BSCHits and  new BHMNumberingSchem";
-    }
-    numberingScheme = new BHMNumberingScheme() ;
-  } else {
-    edm::LogWarning("BHMSim") << "BHMSD: ReadoutName "<<name<<" not supported";
+  if (verbn > 0) {
+    edm::LogInfo("BHMSim") << "name = " <<name <<" and new BHMNumberingScheme";
   }
+  numberingScheme = new BHMNumberingScheme() ;
   
   edm::LogInfo("BHMSim") << "BHMSD: Instantiation completed";
 }

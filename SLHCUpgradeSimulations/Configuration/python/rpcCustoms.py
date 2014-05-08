@@ -23,33 +23,13 @@ def customise_Digi(process):
     return process
 
 def customise_L1Emulator(process):
-    process.simCscTriggerPrimitiveDigis.rpcDigiProducer =  cms.untracked.InputTag("simMuonRPCDigis","")
-    tmb = process.simCscTriggerPrimitiveDigis.tmbSLHC
-    tmb.me3141ILT = cms.untracked.PSet(
-        ## run the upgrade algorithm
-        runME3141ILT = cms.untracked.bool(False),
-        
-        ## run in debug mode
-        debugLUTs = cms.untracked.bool(False),
-        debugMatching = cms.untracked.bool(False),
-
-        ## matching to digis in case LowQ CLCT
-        maxDeltaBXRPC = cms.untracked.int32(0),
-        maxDeltaRollRPC = cms.untracked.int32(0),
-        maxDeltaStripRPC = cms.untracked.int32(1),
-
-        ## efficiency recovery switches
-        dropLowQualityCLCTsNoRPC = cms.untracked.bool(True),
-        
-        ## cross BX algorithm
-        tmbCrossBxAlgorithm = cms.untracked.uint32(2),
-    )
-    if tmb.me3141ILT.runME3141ILT:
-        process.simCscTriggerPrimitiveDigis.clctSLHC.clctNplanesHitPattern = 3
-        process.simCscTriggerPrimitiveDigis.clctSLHC.clctPidThreshPretrig = 2
-        process.simCscTriggerPrimitiveDigis.clctParam07.clctPidThreshPretrig = 2
-        process.simCscTriggerPrimitiveDigis.alctSLHC.runME3141ILT = cms.untracked.bool(True)
-
+    ## this comes after GE2/1 in gemCustoms.py
+    process.simCscTriggerPrimitiveDigis.alctSLHCME3141 = process.simCscTriggerPrimitiveDigis.alctSLHC.clone()
+    process.simCscTriggerPrimitiveDigis.clctSLHCME3141 = process.simCscTriggerPrimitiveDigis.clctSLHC.clone()
+    process.simCscTriggerPrimitiveDigis.alctSLHCME3141.alctNplanesHitPattern = 3
+    process.simCscTriggerPrimitiveDigis.alctSLHCME3141.runME3141ILT = cms.bool(True)
+    process.simCscTriggerPrimitiveDigis.clctSLHCME3141.clctNplanesHitPattern = 3
+    process.simCscTriggerPrimitiveDigis.clctSLHCME3141.clctPidThreshPretrig = 2
     return process
 
 def customise_DigiToRaw(process):

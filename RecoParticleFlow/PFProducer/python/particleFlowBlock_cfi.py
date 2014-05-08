@@ -50,6 +50,7 @@ particleFlowBlock = cms.EDProducer(
         cms.PSet( importerName = cms.string("GeneralTracksImporter"),
                   source = cms.InputTag("pfTrack"),
                   muonSrc = cms.InputTag("muons1stStep"),
+                  cleanBadConvertedBrems = cms.bool(True),
                   useIterativeTracking = cms.bool(True),
                   DPtOverPtCuts_byTrackAlgo = cms.vdouble(-1.0,-1.0,-1.0,
                                                            1.0,1.0),

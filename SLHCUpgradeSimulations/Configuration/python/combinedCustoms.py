@@ -20,7 +20,8 @@ from SLHCUpgradeSimulations.Configuration.combinedCustoms_TTI import l1EventCont
 from SLHCUpgradeSimulations.Configuration.customise_mixing import customise_NoCrossing
 from SLHCUpgradeSimulations.Configuration.phase1TkCustoms import customise as customisePhase1Tk
 from SLHCUpgradeSimulations.Configuration.HCalCustoms import customise_HcalPhase1, customise_HcalPhase0, customise_HcalPhase2
-from SLHCUpgradeSimulations.Configuration.gemCustoms import customise as customise_gem
+from SLHCUpgradeSimulations.Configuration.gemCustoms import customise2019 as customise_gem2019
+from SLHCUpgradeSimulations.Configuration.gemCustoms import customise2023 as customise_gem2023
 from SLHCUpgradeSimulations.Configuration.me0Customs import customise as customise_me0
 from SLHCUpgradeSimulations.Configuration.rpcCustoms import customise as customise_rpc
 from SLHCUpgradeSimulations.Configuration.fastsimCustoms import customiseDefault as fastCustomiseDefault
@@ -89,7 +90,7 @@ def cust_2019(process):
 
 def cust_2019WithGem(process):
     process=cust_2019(process)
-    process=customise_gem(process)
+    process=customise_gem2019(process)
     return process
 
 def cust_2023(process):
@@ -97,7 +98,7 @@ def cust_2023(process):
     process=customiseBE5D(process)
     process=customise_HcalPhase2(process)
     process=customise_ev_BE5D(process)
-    process=customise_gem(process)
+    process=customise_gem2023(process)
     process=customise_rpc(process)
     return process
 
@@ -114,7 +115,7 @@ def cust_2023Pixel(process):
     process=customiseBE5DPixel10D(process)
     process=customise_HcalPhase2(process)
     process=customise_ev_BE5DPixel10D(process)
-    process=customise_gem(process)
+    process=customise_gem2023(process)
     return process
 
 def cust_2023Muon(process):
@@ -122,7 +123,7 @@ def cust_2023Muon(process):
     process=customiseBE5DPixel10D(process)
     process=customise_HcalPhase2(process)
     process=customise_ev_BE5DPixel10D(process)
-    process=customise_gem(process)
+    process=customise_gem2023(process)
     process=customise_rpc(process)
     process=customise_me0(process)
     return process
