@@ -44,6 +44,7 @@ process.post=cms.EDAnalyzer("EmDQMPostProcessor",
                             subDir = cms.untracked.string("HLT/HLTEgammaValidation"),
                             dataSet = cms.untracked.string("unknown"),
                             noPhiPlots = cms.untracked.bool(False),
+                            ignoreEmpty = cms.untracked.bool(False),
                            )
 
 #process.options = cms.untracked.PSet(wantSummary = cms.untracked.bool(True))

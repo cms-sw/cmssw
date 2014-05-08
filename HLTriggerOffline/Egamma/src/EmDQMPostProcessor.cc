@@ -23,6 +23,8 @@ EmDQMPostProcessor::EmDQMPostProcessor(const edm::ParameterSet& pset)
   noPhiPlots = pset.getUntrackedParameter<bool>("noPhiPlots", true);
 
   normalizeToReco = pset.getUntrackedParameter<bool>("normalizeToReco",false);
+
+  ignoreEmpty = pset.getUntrackedParameter<bool>("ignoreEmpty", true);
 }
 
 //----------------------------------------------------------------------
@@ -43,9 +45,6 @@ void EmDQMPostProcessor::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGette
     shortReferenceName = "RECO";
   else
     shortReferenceName = "gen";
-
-
-
   //--------------------
 
 
@@ -87,8 +86,8 @@ void EmDQMPostProcessor::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGette
 
   // find the number of electron and photon paths
   for(std::vector<std::string>::iterator dir = subdirectories.begin() ;dir!= subdirectories.end(); ++dir) {
-    if (dir->find("HLT_Ele") != std::string::npos || dir->find("HLT_DoubleEle") != std::string::npos || dir->find("HLT_TripleEle") != std::string::npos) ++nEle;
-    else if (dir->find("HLT_Photon") != std::string::npos || dir->find("HLT_DoublePhoton") != std::string::npos) ++nPhoton;
+    if (dir->find("Ele") != std::string::npos || dir->find("_SC") != std::string::npos) ++nEle;
+    else if (dir->find("Photon") != std::string::npos) ++nPhoton;
   }
 
   std::vector<TProfile *> allPhotonPaths;
@@ -114,6 +113,33 @@ void EmDQMPostProcessor::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGette
     for(std::vector<std::string>::iterator dir = subdirectories.begin(); dir!= subdirectories.end(); dir++) {
       ibooker.cd(*dir);
 
+      // get the current trigger name
+      std::string trigName = dir->substr(dir->rfind("/") + 1);
+      trigName = trigName.replace(trigName.rfind("_DQM"),4,"");
+
+      // Get the gen-level (or reco, for data) plots
+      std::string genName;
+
+      // only generate efficiency plots if there are generated/recoed events selected
+      // but label the bin in the overview plot, even if the bin is empty
+      if (ignoreEmpty) {
+        if (normalizeToReco) genName = ibooker.pwd() + "/reco_et";
+        else genName = ibooker.pwd() + "/gen_et";
+        TH1F* genHist = getHistogram(ibooker, igetter, genName);
+        if (genHist->GetEntries() == 0) {
+          edm::LogInfo("EmDQMPostProcessor") << "Zero events were selected for path '" << trigName << "'. No efficiency plots will be generated.";
+          if (trigName.find("Ele") != std::string::npos || trigName.find("_SC") != std::string::npos) {
+             allElePaths.back()->GetXaxis()->SetBinLabel(elePos, trigName.c_str());
+             ++elePos;
+          } else if (trigName.find("Photon") != std::string::npos) {
+             allPhotonPaths.back()->GetXaxis()->SetBinLabel(photonPos, trigName.c_str());
+             ++photonPos;
+          }
+          ibooker.goUp();
+          continue;
+        }
+      }
+
       TH1F* basehist = getHistogram(ibooker, igetter, ibooker.pwd() + "/" + baseName);
       if (basehist == NULL)
 	{
@@ -124,8 +150,12 @@ void EmDQMPostProcessor::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGette
 	}
       // at least one histogram with postfix was found
       pop = false;
-          
-      TProfile* total = ibooker.bookProfile(histoName,histoName,basehist->GetXaxis()->GetNbins(),basehist->GetXaxis()->GetXmin(),basehist->GetXaxis()->GetXmax(),0.,1.2)->getTProfile();
+
+      ibooker.goUp();
+      MonitorElement* meTotal = ibooker.bookProfile(trigName + "__" + histoName,trigName + "__" + histoName,basehist->GetXaxis()->GetNbins(),basehist->GetXaxis()->GetXmin(),basehist->GetXaxis()->GetXmax(),0.,1.2);
+      meTotal->setEfficiencyFlag();
+      TProfile* total = meTotal->getTProfile();
+      ibooker.cd(*dir);
       total->GetXaxis()->SetBinLabel(1,basehist->GetXaxis()->GetBinLabel(1));
       
 //       std::vector<std::string> mes = igetter.getMEs();
@@ -202,9 +232,6 @@ void EmDQMPostProcessor::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGette
       std::string denomName;
       std::string numName;
 
-      // Get the gen-level (or reco, for data) plots
-      std::string genName;
-
       // Get the L1 over gen filter first
       filterName2= total->GetXaxis()->GetBinLabel(1);
 	
@@ -253,23 +280,17 @@ void EmDQMPostProcessor::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGette
 
       ibooker.goUp();
 
-      // have a per-step histogram of the path on the front page
-      std::string trigName = dir->substr(dir->rfind("/") + 1);
-      trigName = trigName.replace(trigName.rfind("_DQM"),4,"");
-      TProfile* pathEffPerStep = ibooker.bookProfile(trigName + "__" + histoName, total)->getTProfile();
-      pathEffPerStep->SetTitle((trigName + "__" + histoName).c_str());
-
       // fill overall efficiency histograms
       double totCont = total->GetBinContent(total->GetNbinsX());
       double totErr = total->GetBinError(total->GetNbinsX());
-      if (trigName.find("HLT_Ele") != std::string::npos || trigName.find("HLT_DoubleEle") != std::string::npos || trigName.find("HLT_TripleEle") != std::string::npos) {
+      if (trigName.find("Ele") != std::string::npos || trigName.find("_SC") != std::string::npos) {
         allElePaths.back()->SetBinContent(elePos, totCont);
         allElePaths.back()->SetBinEntries(elePos, 1);
         allElePaths.back()->SetBinError(elePos, sqrt(totCont * totCont + totErr * totErr));
         allElePaths.back()->GetXaxis()->SetBinLabel(elePos, trigName.c_str());
         ++elePos;
       }
-      else if (trigName.find("HLT_Photon") != std::string::npos || trigName.find("HLT_DoublePhoton") != std::string::npos) {
+      else if (trigName.find("Photon") != std::string::npos) {
         allPhotonPaths.back()->SetBinContent(photonPos, totCont);
         allPhotonPaths.back()->SetBinEntries(photonPos, 1);
         allPhotonPaths.back()->SetBinError(photonPos, sqrt(totCont * totCont + totErr * totErr));
@@ -285,8 +306,8 @@ void EmDQMPostProcessor::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGette
     else {
       allElePaths.back()->GetXaxis()->SetLabelSize(0.03);
       allPhotonPaths.back()->GetXaxis()->SetLabelSize(0.03);
-      ibooker.bookProfile(allEleHistoName, allElePaths.back());
-      ibooker.bookProfile(allPhotonHistoName, allPhotonPaths.back());
+      ibooker.bookProfile(allEleHistoName, allElePaths.back())->setEfficiencyFlag();
+      ibooker.bookProfile(allPhotonHistoName, allPhotonPaths.back())->setEfficiencyFlag();
     }
   } // loop over postfixes
   
@@ -312,7 +333,9 @@ TProfile* EmDQMPostProcessor::dividehistos(DQMStore::IBooker & ibooker, DQMStore
 
   if(!num || !denom) return 0;
 
-  TProfile* out = ibooker.bookProfile(outName,titel,num->GetXaxis()->GetNbins(),num->GetXaxis()->GetXmin(),num->GetXaxis()->GetXmax(),0.,1.2)->getTProfile();
+  MonitorElement* meOut = ibooker.bookProfile(outName,titel,num->GetXaxis()->GetNbins(),num->GetXaxis()->GetXmin(),num->GetXaxis()->GetXmax(),0.,1.2);
+  meOut->setEfficiencyFlag();
+  TProfile* out = meOut->getTProfile();
   out->GetXaxis()->SetTitle(label.c_str());
   out->SetYTitle("Efficiency");
   out->SetOption("PE");
