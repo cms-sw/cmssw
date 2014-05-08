@@ -617,7 +617,8 @@ bool  BTagPerformanceAnalyzerMC::getJetWithFlavour(edm::RefToBase<Jet> jetRef, c
   return true;
 }
 
-void BTagPerformanceAnalyzerMC::endRun(const edm::Run & run, const edm::EventSetup & es)
+//void BTagPerformanceAnalyzerMC::endRun(const edm::Run & run, const edm::EventSetup & es)
+void BTagPerformanceAnalyzerMC::endJob()
 {
   if (!finalize) return;
   setTDRStyle();
