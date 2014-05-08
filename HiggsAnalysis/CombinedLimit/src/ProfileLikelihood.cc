@@ -265,7 +265,7 @@ bool ProfileLikelihood::runSignificance(RooWorkspace *w, RooStats::ModelConfig *
       limit = result->Significance();
   }
   coutSentry.clear();
-  if (limit == 0 && signbit(limit)) {
+  if (limit == 0 && std::signbit(limit)) {
       //..... This is not an error, it just means we have a deficit of events.....
       std::cerr << "The minimum of the likelihood is for r <= " << signalForSignificance_ << ", so the significance is zero" << std::endl;
       limit = 0;

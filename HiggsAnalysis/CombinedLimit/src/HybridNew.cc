@@ -312,7 +312,7 @@ bool HybridNew::runSignificance(RooWorkspace *w, RooStats::ModelConfig *mc_s, Ro
     std::cout << "\n -- Hybrid New -- \n";
     std::cout << "Significance: " << sig << "  " << sigLo << "/+" << sigHi << "\n";
     std::cout << "Null p-value: " << hcResult->NullPValue() << " +/- " << hcResult->NullPValueError() << "\n";
-    return isfinite(limit);
+    return std::isfinite(limit);
 }
 
 bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
