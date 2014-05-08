@@ -378,7 +378,6 @@ def get_default_gcc_search_paths(gcc = 'g++', language = 'c++'):
 
     return paths
 
-
 class SerializationCodeGenerator(object):
 
     def __init__(self, scramFlags=None):
@@ -416,7 +415,7 @@ class SerializationCodeGenerator(object):
 	   cpp_flags = get_flags(product_name, 'CPPFLAGS')
            cxx_flags = get_flags(product_name, 'CXXFLAGS')
 	else:
-	   cpp_flags = scramFlags
+	   cpp_flags = self.cleanFlags( scramFlags )
 	   cxx_flags = []
 
         std_flags = get_default_gcc_search_paths()
@@ -461,6 +460,9 @@ class SerializationCodeGenerator(object):
     def _join_package_path(self, *path):
         return os.path.join(self.cmssw_base, self.split_path[0], self.split_path[1], self.split_path[2], *path)
 
+    def cleanFlags(self, flags):
+        blackList = ['--', '-fipa-pta']
+        return [x for x in flags if x not in blackList]
 
     def generate(self, outFileName):
 
@@ -504,7 +506,9 @@ class SerializationCodeGenerator(object):
         if n_serializable_classes == 0:
             raise Exception('No serializable classes found, while this package has a headers.h file.')
 
-        source += '#include "%s/%s/src/SerializationManual.h"\n' % (self.split_path[1], self.split_path[2])
+        # check if we have a file for template instantiations and other "special" code:
+        if os.path.exists( './src/SerializationManual.h' ) :
+            source += '#include "%s/%s/src/SerializationManual.h"\n' % (self.split_path[1], self.split_path[2])
 
         logging.info('Writing serialization code for %s classes in %s ...', n_serializable_classes, filename)
         with open(filename, 'wb') as fd:
@@ -536,13 +540,12 @@ def main():
 	if pkgDir.endswith('/src') :
 	    pkgDir, srcDir = os.path.split( opts.package )
         os.chdir( pkgDir )
-	logging.info("Wrocessing package in %s " % pkgDir)
+	logging.info("Processing package in %s " % pkgDir)
 
     if opts.output:
        logging.info("Writing serialization code to %s " % opts.output)
 
-    clangUnsupported = ["-fipa-pta"]
-    SerializationCodeGenerator( scramFlags=[x for x in args[1:] if not x in clangUnsupported]).generate( opts.output )
+    SerializationCodeGenerator( scramFlags=args[1:] ).generate( opts.output )
 
 if __name__ == '__main__':
     main()
