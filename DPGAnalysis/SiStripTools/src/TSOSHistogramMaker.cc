@@ -31,57 +31,65 @@ TSOSHistogramMaker::TSOSHistogramMaker(const edm::ParameterSet& iConfig):
   std::cout << "selections found: " << wantedsubds.size() << std::endl;
 
   for(std::vector<edm::ParameterSet>::iterator ps=wantedsubds.begin();ps!=wantedsubds.end();++ps) {
-    m_selnames.push_back(ps->getParameter<std::string>("name"));
-    m_seltitles.push_back(ps->getParameter<std::string>("title"));
-    m_detsels.push_back(DetIdSelector(ps->getParameter<std::vector<std::string> >("selection")));
+    m_selnames.push_back(ps->getParameter<std::string>("detLabel"));
+    if(ps->existsAs<std::string>("title")) {
+      m_seltitles.push_back(ps->getParameter<std::string>("title"));
+    }
+    else {
+      m_seltitles.push_back(ps->getParameter<std::string>("detLabel"));
+    }
+    m_detsels.push_back(DetIdSelector(ps->getUntrackedParameter<std::vector<std::string> >("selection")));
+  }
 
-    TFileDirectory subdir = tfserv->mkdir(ps->getParameter<std::string>("name"));
+  for(unsigned int isel=0;isel<m_detsels.size();++isel) {
 
-    std::string name = "tsosy_" + ps->getParameter<std::string>("name");
-    std::string title = "TSOS y " + ps->getParameter<std::string>("title");
+    TFileDirectory subdir = tfserv->mkdir(m_selnames[isel]);
+
+    std::string name = "tsosy_" + m_selnames[isel];
+    std::string title = "TSOS y " + m_seltitles[isel];
     m_tsosy.push_back(subdir.make<TH1F>(name.c_str(),title.c_str(),200,-20.,20.));
-    name = "tsosx_" + ps->getParameter<std::string>("name");
-    title = "TSOS x " + ps->getParameter<std::string>("title");
+    name = "tsosx_" + m_selnames[isel];
+    title = "TSOS x " + m_seltitles[isel];
     m_tsosx.push_back(subdir.make<TH1F>(name.c_str(),title.c_str(),200,-20.,20.));
     if(m_2dhistos) {
-      name = "tsosxy_" + ps->getParameter<std::string>("name");
-      title = "TSOS y vs x " + ps->getParameter<std::string>("title");
+      name = "tsosxy_" + m_selnames[isel];
+      title = "TSOS y vs x " + m_seltitles[isel];
       m_tsosxy.push_back(subdir.make<TH2F>(name.c_str(),title.c_str(),200,-20.,20.,200,-20.,20.));
     }
 
-    name = "tsosprojx_" + ps->getParameter<std::string>("name");
-    title = "TSOS x projection " + ps->getParameter<std::string>("title");
+    name = "tsosprojx_" + m_selnames[isel];
+    title = "TSOS x projection " + m_seltitles[isel];
     m_tsosprojx.push_back(subdir.make<TH1F>(name.c_str(),title.c_str(),400,-2.,2.));
-    name = "tsosprojy_" + ps->getParameter<std::string>("name");
-    title = "TSOS y projection " + ps->getParameter<std::string>("title");
+    name = "tsosprojy_" + m_selnames[isel];
+    title = "TSOS y projection " + m_seltitles[isel];
     m_tsosprojy.push_back(subdir.make<TH1F>(name.c_str(),title.c_str(),400,-2.,2.));
 
-    name = "ttrhy_" + ps->getParameter<std::string>("name");
-    title = "TT RecHit y " + ps->getParameter<std::string>("title");
+    name = "ttrhy_" + m_selnames[isel];
+    title = "TT RecHit y " + m_seltitles[isel];
     m_ttrhy.push_back(subdir.make<TH1F>(name.c_str(),title.c_str(),200,-20.,20.));
-    name = "ttrhx_" + ps->getParameter<std::string>("name");
-    title = "TT RecHit x " + ps->getParameter<std::string>("title");
+    name = "ttrhx_" + m_selnames[isel];
+    title = "TT RecHit x " + m_seltitles[isel];
     m_ttrhx.push_back(subdir.make<TH1F>(name.c_str(),title.c_str(),200,-20.,20.));
     if(m_2dhistos) {
-      name = "ttrhxy_" + ps->getParameter<std::string>("name");
-      title = "TT RecHit y vs x  " + ps->getParameter<std::string>("title");
+      name = "ttrhxy_" + m_selnames[isel];
+      title = "TT RecHit y vs x  " + m_seltitles[isel];
       m_ttrhxy.push_back(subdir.make<TH2F>(name.c_str(),title.c_str(),200,-20.,20.,200,-20.,20.));
     }
 
-    name = "tsosdy_" + ps->getParameter<std::string>("name");
-    title = "TSOS-TTRH y " + ps->getParameter<std::string>("title");
+    name = "tsosdy_" + m_selnames[isel];
+    title = "TSOS-TTRH y " + m_seltitles[isel];
     m_tsosdy.push_back(subdir.make<TH1F>(name.c_str(),title.c_str(),200,-5.,5.));
-    name = "tsosdx_" + ps->getParameter<std::string>("name");
-    title = "TSOS-TTRH x " + ps->getParameter<std::string>("title");
+    name = "tsosdx_" + m_selnames[isel];
+    title = "TSOS-TTRH x " + m_seltitles[isel];
     m_tsosdx.push_back(subdir.make<TH1F>(name.c_str(),title.c_str(),200,-0.1,0.1));
     if(m_2dhistos) {
-      name = "tsosdxdy_" + ps->getParameter<std::string>("name");
-      title = "TSOS-TTRH dy vs dy " + ps->getParameter<std::string>("title");
+      name = "tsosdxdy_" + m_selnames[isel];
+      title = "TSOS-TTRH dy vs dy " + m_seltitles[isel];
       m_tsosdxdy.push_back(subdir.make<TH2F>(name.c_str(),title.c_str(),200,-0.1,0.1,200,-5.,5.));
     }
 
-    name = "cluslenangle_" + ps->getParameter<std::string>("name");
-    title = "Cluster Length vs Track Angle " + ps->getParameter<std::string>("title");
+    name = "cluslenangle_" + m_selnames[isel];
+    title = "Cluster Length vs Track Angle " + m_seltitles[isel];
     m_histocluslenangle.push_back(subdir.make<TH2F>(name.c_str(),title.c_str(),200,-1.,1.,40,-0.5,39.5));
 		       
   }
