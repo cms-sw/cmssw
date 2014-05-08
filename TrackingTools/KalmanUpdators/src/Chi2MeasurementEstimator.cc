@@ -1,6 +1,7 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 #include "TrackingTools/PatternTools/interface/MeasurementExtractor.h"
+#include "DataFormats/TrackingRecHit/interface/KfComponentsHolder.h"
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/Math/interface/invertPosDefMatrix.h"
 
