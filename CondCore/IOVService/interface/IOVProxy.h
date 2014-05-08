@@ -233,7 +233,7 @@ namespace cond {
       return SequenceState(iov());
     }
 
-    DbSession& db() const;
+    DbSession& db();
 
   private:
     boost::shared_ptr<IOVProxyData> m_iov;
