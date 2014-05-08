@@ -166,10 +166,8 @@ void InclusiveVertexFinder::produce(edm::Event &event, const edm::EventSetup &es
 	for(std::vector<TracksClusteringFromDisplacedSeed::Cluster>::iterator cluster = clusters.begin();
 	    cluster != clusters.end(); ++cluster,++i)
         {
-                if(cluster->tracks.size() == 0 || cluster->tracks.size() > maxNTracks ) 
+                if(cluster->tracks.size() < 2 || cluster->tracks.size() > maxNTracks ) 
 		     continue;
-        
- 	        cluster->tracks.push_back(cluster->seedingTrack); //add the seed to the list of tracks to fit
 	 	std::vector<TransientVertex> vertices;
 		if(useVertexReco) {
 			vertices = vtxReco->vertices(cluster->tracks, bs);  // attempt with config given reconstructor
