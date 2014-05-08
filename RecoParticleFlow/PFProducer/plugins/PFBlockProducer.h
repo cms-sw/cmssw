@@ -51,6 +51,9 @@ class PFBlockProducer : public edm::stream::EDProducer<> {
 
   ~PFBlockProducer();
   
+  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, 
+				    edm::EventSetup const&) override;
+
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:

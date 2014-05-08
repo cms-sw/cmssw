@@ -2,17 +2,17 @@ import FWCore.ParameterSet.Config as cms
 
 from DQMOffline.JetMET.jetMETDQMCleanup_cff import *
 
-from JetMETCorrections.Configuration.JetCorrectionServices_cff import ak5CaloL2L3,ak5CaloL2Relative,ak5CaloL3Absolute
-newAk5CaloL2L3 = ak5CaloL2L3.clone()
+from JetMETCorrections.Configuration.JetCorrectionServices_cff import ak4CaloL2L3,ak4CaloL2Relative,ak4CaloL3Absolute
+newAk4CaloL2L3 = ak4CaloL2L3.clone()
 
 from JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff import ak7CaloL2L3,ak7CaloL2Relative,ak7CaloL3Absolute
 newAk7CaloL2L3 = ak7CaloL2L3.clone()
 
-from JetMETCorrections.Configuration.JetCorrectionServices_cff import ak5PFL1FastL2L3,ak5PFL1Fastjet,ak5PFL2Relative,ak5PFL3Absolute
-newAk5PFL1FastL2L3 = ak5PFL1FastL2L3.clone()
+from JetMETCorrections.Configuration.JetCorrectionServices_cff import ak4PFL1FastL2L3,ak4PFL1Fastjet,ak4PFL2Relative,ak4PFL3Absolute
+newAk4PFL1FastL2L3 = ak4PFL1FastL2L3.clone()
 
-#from JetMETCorrections.Configuration.JetCorrectionServices_cff import ak5JPTL1FastL2L3,ak5JPTL1Fastjet,ak5JPTL2Relative,ak5JPTL3Absolute
-#newAk5JPTL1FastL2L3 = ak5JPTL1FastL2L3.clone()
+#from JetMETCorrections.Configuration.JetCorrectionServices_cff import ak4JPTL1FastL2L3,ak4JPTL1Fastjet,ak4JPTL2Relative,ak4JPTL3Absolute
+#newAk4JPTL1FastL2L3 = ak4JPTL1FastL2L3.clone()
 
 
 caloMetDQMAnalyzer = cms.EDAnalyzer("METAnalyzer",
@@ -21,10 +21,10 @@ caloMetDQMAnalyzer = cms.EDAnalyzer("METAnalyzer",
 
     METType=cms.untracked.string('calo'),
     METCollectionLabel     = cms.InputTag("met"),
-    JetCollectionLabel  = cms.InputTag("ak5CaloJets"),
-    JetCorrections = cms.string("newAk5CaloL2L3"),
+    JetCollectionLabel  = cms.InputTag("ak4CaloJets"),
+    JetCorrections = cms.string("newAk4CaloL2L3"),
 
-    InputJetIDValueMap         = cms.InputTag("ak5JetID"), 
+    InputJetIDValueMap         = cms.InputTag("ak4JetID"), 
     ptThreshold                =cms.double(30),
     
     FolderName = cms.untracked.string("JetMET/MET/"),
@@ -135,7 +135,7 @@ caloMetDQMAnalyzer = cms.EDAnalyzer("METAnalyzer",
 #    METType=cms.untracked.string('tc'),
 #    METCollectionLabel     = cms.InputTag("tcMet"),
 #    JetCollectionLabel  = cms.InputTag("JetPlusTrackZSPCorJetAntiKt5"),
-#    JetCorrections = cms.string("newAk5JPTL1FastL2L3"),
+#    JetCorrections = cms.string("newAk4JPTL1FastL2L3"),
 #    fillMetHighLevel = cms.bool(False),
 #    DCSFilter = cms.PSet(
 #        DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon"),
@@ -147,8 +147,8 @@ caloMetDQMAnalyzer = cms.EDAnalyzer("METAnalyzer",
 pfMetDQMAnalyzer = caloMetDQMAnalyzer.clone(
     METType=cms.untracked.string('pf'),
     METCollectionLabel     = cms.InputTag("pfMet"),
-    JetCollectionLabel  = cms.InputTag("ak5PFJets"),
-    JetCorrections = cms.string("newAk5PFL1FastL2L3"),
+    JetCollectionLabel  = cms.InputTag("ak4PFJets"),
+    JetCorrections = cms.string("newAk4PFL1FastL2L3"),
     fillMetHighLevel = cms.bool(False),
     DCSFilter = cms.PSet(
         DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon"),
