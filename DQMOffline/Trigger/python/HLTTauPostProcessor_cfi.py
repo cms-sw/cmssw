@@ -4,7 +4,7 @@ from DQMOffline.Trigger.HLTTauDQMOffline_cfi import *
 
 def makeInclusiveAnalyzer(monitorModule):
     return cms.EDAnalyzer("DQMGenericClient",
-        subDirs        = cms.untracked.vstring(monitorModule.DQMBaseFolder.value()+monitorModule.PathSummaryPlotter.DQMFolder.value()),
+        subDirs        = cms.untracked.vstring(monitorModule.DQMBaseFolder.value()+"/"+monitorModule.PathSummaryPlotter.DQMFolder.value()),
         verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
         outputFileName = cms.untracked.string(''),
         resolution     = cms.vstring(),
@@ -16,8 +16,8 @@ def makeInclusiveAnalyzer(monitorModule):
 
 def makePFTauAnalyzer(monitorModule):
     m = makeInclusiveAnalyzer(monitorModule)
-    m.subDirs.extend([monitorModule.DQMBaseFolder.value()+"HLT_.*",
-                      monitorModule.DQMBaseFolder.value()+monitorModule.L1Plotter.DQMFolder.value()])
+    m.subDirs.extend([monitorModule.DQMBaseFolder.value()+"/HLT_.*",
+                      monitorModule.DQMBaseFolder.value()+"/"+monitorModule.L1Plotter.DQMFolder.value()])
 
     def _addEfficiencies(level, quantities, nameFormat, titleObject="#tau", postfix=""):
         if postfix != "":
