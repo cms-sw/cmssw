@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.JetMCAlgos.TauGenJets_cfi import tauGenJets
 from PhysicsTools.HepMCCandAlgos.genParticles_cfi import genParticles
-from RecoJets.JetProducers.ak5GenJets_cfi import ak5GenJets
+from RecoJets.JetProducers.ak4GenJets_cfi import ak4GenJets
 from RecoJets.Configuration.GenJetParticles_cff import genParticlesForJets
 
 trueHadronicTaus = cms.EDFilter(
@@ -40,7 +40,7 @@ trueElecronicTaus = cms.EDFilter(
 tauTruthSequence = cms.Sequence(
     genParticles *
     genParticlesForJets *
-    ak5GenJets *
+    ak4GenJets *
     tauGenJets *
     trueHadronicTaus *
     trueMuonicTaus *
