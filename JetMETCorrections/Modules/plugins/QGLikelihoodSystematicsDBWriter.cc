@@ -44,8 +44,7 @@ void QGLikelihoodSystematicsDBWriter::beginJob(){
   database.open(edm::FileInPath(fileName.c_str()).fullPath().c_str(),std::ios::in);
   if(!database.is_open()){ edm::LogError("FileNotFound") << "Could not open file "<< fileName << std::endl; return;}
   std::string line;
-  while(database.good()){
-    std::getline(database,line);
+  while(std::getline(database,line)){
     float ptMin, ptMax, etaMin, etaMax, rhoMin, rhoMax, a_q, b_q, a_g, b_g, lmin, lmax;
     char tag[1023],leadchar;
     sscanf(line.c_str(),"%c",&leadchar);
@@ -66,7 +65,7 @@ void QGLikelihoodSystematicsDBWriter::beginJob(){
     QGLikelihoodSystematicsObject::Entry quarkEntry;
     quarkEntry.systCategory = category;
     quarkEntry.a = a_q;
-    quarkEntry.b = a_q;
+    quarkEntry.b = b_q;
     quarkEntry.lmin = lmin;
     quarkEntry.lmax = lmax;
 
