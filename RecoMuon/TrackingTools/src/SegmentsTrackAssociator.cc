@@ -54,9 +54,6 @@ SegmentsTrackAssociator::SegmentsTrackAssociator(const ParameterSet& iConfig)
 }
 
 
-SegmentsTrackAssociator::~SegmentsTrackAssociator();
-
-
 MuonTransientTrackingRecHit::MuonRecHitContainer SegmentsTrackAssociator::associate(const Event& iEvent, const EventSetup& iSetup, const reco::Track& Track){
 
   // The segment collections
