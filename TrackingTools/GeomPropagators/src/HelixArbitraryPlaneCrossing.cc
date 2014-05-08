@@ -8,15 +8,22 @@
 #include "FWCore/Utilities/interface/Likely.h"
 
 #ifdef VI_DEBUG
+#include <atomic>
 struct MaxIter {
    ~MaxIter() { std::cout << "maxiter " << v << std::endl; }
-    void operator()(int i) { v= std::min(v,i);}    
-  int v=100;
+   void operator()(int i) const { 
+     int old = v;
+     int t = std::min(old,i);
+     while(not v.compare_exchange_weak(old,t)) {
+       t = std::min(old,i);
+     }
+   }    
+  mutable std::atomic<int> v {100};
 };
 #else
 struct MaxIter { void operator()(int)const{}};
 #endif
-static MaxIter maxiter;
+static const MaxIter maxiter;
 
 
 HelixArbitraryPlaneCrossing::HelixArbitraryPlaneCrossing(const PositionType& point,
