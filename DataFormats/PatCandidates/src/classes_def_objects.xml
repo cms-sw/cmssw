@@ -16,8 +16,9 @@
   <class name="pat::Lepton<reco::BaseTau>" />
 
   <!-- PAT Objects, and embedded data  -->
-  <class name="pat::Electron"  ClassVersion="23">
+  <class name="pat::Electron"  ClassVersion="24">
    <field name="superClusterRelinked_" transient="true"/>
+   <version ClassVersion="24" checksum="2646043873"/>
    <version ClassVersion="23" checksum="434577157"/>
    <version ClassVersion="22" checksum="4113394532"/>
    <version ClassVersion="21" checksum="366535823"/>
