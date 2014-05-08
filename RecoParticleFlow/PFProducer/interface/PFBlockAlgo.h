@@ -92,8 +92,8 @@ class PFBlockAlgo {
  public:
   // the element list should **always** be a list of (smart) pointers
   typedef std::vector<std::unique_ptr<reco::PFBlockElement> > ElementList;
-  typedef std::unique_ptr<const BlockElementImporterBase> ImporterPtr;
-  typedef std::unique_ptr<const BlockElementLinkerBase> LinkTestPtr;  
+  typedef std::unique_ptr<BlockElementImporterBase> ImporterPtr;
+  typedef std::unique_ptr<BlockElementLinkerBase> LinkTestPtr;  
   typedef std::unique_ptr<KDTreeLinkerBase> KDTreePtr;
   /// define these in *Fwd files in DataFormats/ParticleFlowReco?
   typedef ElementList::iterator IE;
@@ -109,6 +109,9 @@ class PFBlockAlgo {
   void setImporters(const std::vector<edm::ParameterSet>&,
 		    edm::ConsumesCollector&);
   
+  // update event setup info of all linkers
+  void updateEventSetup(const edm::EventSetup&);
+
   // run all of the importers and build KDtrees
   void buildElements(const edm::Event&);
   
