@@ -3,15 +3,15 @@ import FWCore.ParameterSet.Config as cms
 def customise_HcalPhase0(process):
     process.load("CalibCalorimetry/HcalPlugins/Hcal_Conditions_forGlobalTag_cff")
 
-    if hasattr(process,'mix') and hasattr(process.mix,'digitizers') and hasattr(process.mix.digitizers,'hcal'):    
+    if hasattr(process,'mix') and hasattr(process.mix,'digitizers') and hasattr(process.mix.digitizers,'hcal'):
         process.mix.digitizers.hcal.HcalReLabel.RelabelHits=cms.untracked.bool(True)
         process.mix.digitizers.hcal.HcalReLabel.RelabelRules.Eta1  = cms.untracked.vint32(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1)
         process.mix.digitizers.hcal.HcalReLabel.RelabelRules.Eta16 = cms.untracked.vint32(1,1,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3)
         process.mix.digitizers.hcal.HcalReLabel.RelabelRules.Eta17 = cms.untracked.vint32(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1)
         process.mix.digitizers.hcal.HcalReLabel.RelabelRules.Eta18 = cms.untracked.vint32(1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2,2)
         process.mix.digitizers.hcal.HcalReLabel.RelabelRules.Eta19 = cms.untracked.vint32(1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,2)
-        process.mix.digitizers.hcal.HcalReLabel.RelabelRules.Eta27 = cms.untracked.vint32(1,1,1,1,2,2,3,3,3,3,3,3,3,3,3,3,3,3,3)	
-	
+        process.mix.digitizers.hcal.HcalReLabel.RelabelRules.Eta27 = cms.untracked.vint32(1,1,1,1,2,2,3,3,3,3,3,3,3,3,3,3,3,3,3)
+
     process.es_hardcode.HcalReLabel.RelabelHits = cms.untracked.bool(True)
     process.es_hardcode.HcalReLabel.RelabelRules.Eta1  = cms.untracked.vint32(1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1)
     process.es_hardcode.HcalReLabel.RelabelRules.Eta16 = cms.untracked.vint32(1,1,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3)
@@ -31,7 +31,7 @@ def customise_HcalPhase0(process):
         process=customise_Sim(process)
     if hasattr(process,'validation_step'):
         process=customise_Validation(process)
-		
+
     return process
 
 def customise_HcalPhase1(process):
@@ -57,7 +57,7 @@ def customise_HcalPhase1(process):
                 'CholeskyMatrices',
                 'CovarianceMatrices'
                 )
-    
+
     process.es_hardcode.hcalTopologyConstants.mode=cms.string('HcalTopologyMode::SLHC')
     process.es_hardcode.hcalTopologyConstants.maxDepthHB=cms.int32(3)
     process.es_hardcode.hcalTopologyConstants.maxDepthHB=cms.int32(3)
@@ -66,11 +66,11 @@ def customise_HcalPhase1(process):
     # Special Upgrade trick (if absent - regular case assumed)
     process.es_hardcode.GainWidthsForTrigPrims = cms.bool(True)
     process.es_hardcode.HEreCalibCutoff = cms.double(100.) #for aging
-    
+
     process.hcalTopologyIdeal.hcalTopologyConstants.mode=cms.string('HcalTopologyMode::SLHC')
     process.hcalTopologyIdeal.hcalTopologyConstants.maxDepthHB=cms.int32(3)
     process.hcalTopologyIdeal.hcalTopologyConstants.maxDepthHE=cms.int32(5)
-    
+
 
     if hasattr(process,'g4SimHits'):
         process=customise_Sim(process)
@@ -99,7 +99,7 @@ def customise_Sim(process):
 
 def customise_DigiToRaw(process):
     process.digi2raw_step.remove(process.hcalRawData)
-        
+
     return process
 
 def customise_RawToDigi(process):
@@ -132,21 +132,21 @@ def customise_Digi(process):
 
     process.digitisation_step.remove(process.simHcalTriggerPrimitiveDigis)
     process.digitisation_step.remove(process.simHcalTTPDigis)
-    
+
     return process
 
 def customise_Reco(process):
     #--- CaloTowers maker input customization
     process.towerMaker.hfInput = cms.InputTag("hfUpgradeReco")
-    process.towerMaker.hbheInput = cms.InputTag("hbheUpgradeReco") 
+    process.towerMaker.hbheInput = cms.InputTag("hbheUpgradeReco")
     process.towerMakerPF.hfInput = cms.InputTag("hfUpgradeReco")
-    process.towerMakerPF.hbheInput = cms.InputTag("hbheUpgradeReco") 
+    process.towerMakerPF.hbheInput = cms.InputTag("hbheUpgradeReco")
     process.towerMakerWithHO.hfInput = cms.InputTag("hfUpgradeReco")
-    process.towerMakerWithHO.hbheInput = cms.InputTag("hbheUpgradeReco") 
+    process.towerMakerWithHO.hbheInput = cms.InputTag("hbheUpgradeReco")
     process.particleFlowRecHitHCAL.hcalRecHitsHBHE = cms.InputTag("hbheUpgradeReco")
     process.particleFlowRecHitHCAL.hcalRecHitsHF = cms.InputTag("hfUpgradeReco")
-    process.ak5JetID.hfRecHitsColl = cms.InputTag("hfUpgradeReco")
-    process.ak5JetID.hbheRecHitsColl = cms.InputTag("hbheUpgradeReco")
+    process.ak4JetID.hfRecHitsColl = cms.InputTag("hfUpgradeReco")
+    process.ak4JetID.hbheRecHitsColl = cms.InputTag("hbheUpgradeReco")
     process.ak7JetID.hfRecHitsColl = cms.InputTag("hfUpgradeReco")
     process.ak7JetID.hbheRecHitsColl = cms.InputTag("hbheUpgradeReco")
     process.ca4JetID.hfRecHitsColl = cms.InputTag("hfUpgradeReco")
@@ -172,7 +172,7 @@ def customise_Reco(process):
     process.hfEMClusters.hits = cms.InputTag("hfUpgradeReco")
     process.caloRecoTauProducer.TrackAssociatorParameters.HBHERecHitCollectionLabel = cms.InputTag("hbheUpgradeReco")
     process.caloRecoTauProducer.HFRecHitCollection=cms.InputTag("hfUpgradeReco")
-    
+
     process.muons1stStep.TrackAssociatorParameters.HBHERecHitCollectionLabel=cms.InputTag("hbheUpgradeReco")
     process.muons1stStep.CaloExtractorPSet.TrackAssociatorParameters.HBHERecHitCollectionLabel=cms.InputTag("hbheUpgradeReco")
     process.muons1stStep.JetExtractorPSet.HBHERecHitCollectionLabel=cms.InputTag("hbheUpgradeReco")
@@ -192,16 +192,16 @@ def customise_Reco(process):
 
     process.caloRecoTauProducer.HBHERecHitCollection=cms.InputTag("hbheUpgradeReco")
     process.caloRecoTauProducer.HFRecHitCollection=cms.InputTag("hfUpgradeReco")
-    
+
     process.load("RecoLocalCalo.HcalRecProducers.HBHEUpgradeReconstructor_cfi")
     process.load("RecoLocalCalo.HcalRecProducers.HFUpgradeReconstructor_cfi")
-###    process.load("RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi") 
+###    process.load("RecoLocalCalo.HcalRecProducers.HcalSimpleReconstructor_ho_cfi")
 
     process.reconstruction_step.replace(process.hfreco,process.hfUpgradeReco)
     process.reconstruction_step.remove(process.hbhereco)
     process.reconstruction_step.replace(process.hbheprereco,process.hbheUpgradeReco)
 
-    process.horeco.digiLabel = "simHcalDigis" 
+    process.horeco.digiLabel = "simHcalDigis"
     process.hbhereco.digiLabel = cms.InputTag("simHcalDigis","HBHEUpgradeDigiCollection")
     process.hfreco.digiLabel = cms.InputTag("simHcalDigis","HBHEUpgradeDigiCollection")
 

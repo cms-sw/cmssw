@@ -23,7 +23,7 @@ process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
 # otherwise both standard PAT and PF2PAT are run. In the latter case PF2PAT
 # collections have standard names + postfix (e.g. patElectronPFlow)
 postfix = "PFlow"
-jetAlgo = "AK5"
+jetAlgo = "AK4"
 #Define Objects to be excluded from Top Projection. Default is Tau, so objects are not cleaned for taus
 excludeFromTopProjection=['Tau']
 
@@ -67,6 +67,11 @@ process.out.outputCommands = cms.untracked.vstring('drop *',
 						   'keep *_selectedPatTaus*_*_*',
                                                    )
 
+# Temporary fix to have AK5 payloads until the AK4 payloads are ready
+process.patJetCorrFactorsPFlow.payload = 'AK5PFchs' 
+
+
+
 ## ------------------------------------------------------
 #  In addition you usually want to change the following
 #  parameters:
@@ -74,7 +79,7 @@ process.out.outputCommands = cms.untracked.vstring('drop *',
 #
 #   process.GlobalTag.globaltag =  ...    ##  (according to https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions)
 #                                         ##
-#   process.source.fileNames =  ...       ##  (e.g. 'file:AOD.root')
+#   process.source.fileNames =  ...
 #
 process.maxEvents.input = 10
 #                                         ##

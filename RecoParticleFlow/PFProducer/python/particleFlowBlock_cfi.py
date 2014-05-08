@@ -20,24 +20,14 @@ particleFlowBlock = cms.EDProducer(
                   superClustersArePF = cms.bool(True) ),    
         cms.PSet( importerName = cms.string("ConvBremTrackImporter"),
                   source = cms.InputTag("pfTrackElec") ),
-        cms.PSet( importerName = cms.string("EGPhotonImporter"),
-                  source = cms.InputTag("mustachePhotons"),
-                  superClustersArePF = cms.bool(True),
-                  SelectionChoice = cms.string("CombinedDetectorIso"),
-                  SelectionDefinition = cms.PSet( 
-                             minEt = cms.double(-99),
-                             # for SeperateDetectorIso
-                             trackIsoConstTerm = cms.double(2.0),
-                             trackIsoSlopeTerm = cms.double(0.001),
-                             ecalIsoConstTerm = cms.double(4.2),
-                             ecalIsoSlopeTerm = cms.double(0.003),
-                             hcalIsoConstTerm = cms.double(2.2),
-                             hcalIsoSlopeTerm = cms.double(0.001),
-                             HoverE = cms.double(0.05),
-                             #for CombinedDetectorIso
-                             LooseHoverE = cms.double(99999.0),
-                             combIsoConstTerm = cms.double(99999.0)
-                             ) ),         
+        cms.PSet( importerName = cms.string("SuperClusterImporter"),
+                  source_eb = cms.InputTag("particleFlowSuperClusterECAL:particleFlowSuperClusterECALBarrel"),
+                  source_ee = cms.InputTag("particleFlowSuperClusterECAL:particleFlowSuperClusterECALEndcapWithPreshower"),
+                  source_towers = cms.InputTag("towerMaker"),
+                  maximumHoverE = cms.double(0.5),
+                  minSuperClusterPt = cms.double(10.0),
+                  minPTforBypass = cms.double(100.0),
+                  superClustersArePF = cms.bool(True) ),        
         cms.PSet( importerName = cms.string("ConversionTrackImporter"),
                   source = cms.InputTag("pfConversions") ),
         # V0's not actually used in particle flow block building so far
