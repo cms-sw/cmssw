@@ -31,6 +31,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtTrigReportEntry.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerRecord.h"
+
 
 // forward declarations
 class L1GtStableParameters;
@@ -120,6 +123,9 @@ private:
 
     /// input tag for GT record (L1 GT DAQ record or L1 GT "lite" record):
     edm::InputTag m_l1GtRecordInputTag;
+
+    edm::EDGetTokenT<L1GlobalTriggerRecord> m_l1GtRecordInputToken1;
+    edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_l1GtRecordInputToken2;
 
     /// print verbosity
     int m_printVerbosity;
