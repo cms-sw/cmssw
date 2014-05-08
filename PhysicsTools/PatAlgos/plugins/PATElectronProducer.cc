@@ -393,14 +393,8 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 	  }
 
           // add missing mva variables
-          double r9 = lazyTools.e3x3( *( itElectron->superCluster()->seed())) / itElectron->superCluster()->rawEnergy() ;
-          double sigmaIphiIphi;
-          double sigmaIetaIphi;
           std::vector<float> vCov = lazyTools.localCovariances(*( itElectron->superCluster()->seed()));
-          if( !edm::isNotFinite(vCov[2])) sigmaIphiIphi = sqrt(vCov[2]);
-          else sigmaIphiIphi = 0;
-          sigmaIetaIphi = vCov[1];
-          anElectron.setMvaVariables( r9, sigmaIphiIphi, sigmaIetaIphi, ip3d);
+          anElectron.setMvaVariables(vCov[1], ip3d);
 
 	  std::vector<DetId> selectedCells;
           bool barrel = itElectron->isEB();
@@ -612,14 +606,8 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
       }
 
       // add mva variables
-      double r9 = lazyTools.e3x3( *( itElectron->superCluster()->seed())) / itElectron->superCluster()->rawEnergy() ;
-      double sigmaIphiIphi;
-      double sigmaIetaIphi;
       std::vector<float> vCov = lazyTools.localCovariances(*( itElectron->superCluster()->seed()));
-      if( !edm::isNotFinite(vCov[2])) sigmaIphiIphi = sqrt(vCov[2]);
-      else sigmaIphiIphi = 0;
-      sigmaIetaIphi = vCov[1];
-      anElectron.setMvaVariables( r9, sigmaIphiIphi, sigmaIetaIphi, ip3d);
+      anElectron.setMvaVariables(vCov[1], ip3d);
 
       std::vector<DetId> selectedCells;
       bool barrel = itElectron->isEB();
