@@ -18,8 +18,10 @@
 
 using namespace jsoncollector;
 
-template class HistoJ<unsigned int>;
-template class HistoJ<double>;
+namespace jsoncollector {
+  template class HistoJ<unsigned int>;
+  template class HistoJ<double>;
+}
 
 const std::string DataPoint::SOURCE = "source";
 const std::string DataPoint::DEFINITION = "definition";

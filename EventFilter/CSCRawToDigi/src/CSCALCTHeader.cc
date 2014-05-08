@@ -54,7 +54,7 @@ CSCALCTHeader::CSCALCTHeader(const unsigned short * buf) {
   LogTrace("CSCALCTHeader|CSCRawToDigi") << "firmware version - " << firmwareVersion;
 
   ///Now fill data 
-  switch (firmwareVersion) {
+  switch (firmwareVersion.load()) {
   case 2006:
     memcpy(&header2006, buf, header2006.sizeInWords()*2);///the header part
     buf +=header2006.sizeInWords();
@@ -140,7 +140,7 @@ std::vector<CSCALCTDigi> CSCALCTHeader::ALCTDigis() const
 { 
   std::vector<CSCALCTDigi> result;
 
-  switch (firmwareVersion) {
+  switch (firmwareVersion.load()) {
   case 2006:
     {
       result = alcts2006.ALCTDigis();
