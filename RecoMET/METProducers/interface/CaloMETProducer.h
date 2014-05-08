@@ -43,7 +43,7 @@ namespace cms
     {
     public:
       explicit CaloMETProducer(const edm::ParameterSet&);
-      virtual ~CaloMETProducer() { }
+      virtual ~CaloMETProducer();
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
     private:
