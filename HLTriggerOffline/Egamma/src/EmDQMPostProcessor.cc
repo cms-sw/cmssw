@@ -29,12 +29,6 @@ EmDQMPostProcessor::EmDQMPostProcessor(const edm::ParameterSet& pset)
 
 void EmDQMPostProcessor::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter)
 {
-  //////////////////////////////////
-  // setup DQM stor               //
-  //////////////////////////////////
-  dqm = 0;
-  dqm = edm::Service<DQMStore>().operator->();
-
   //go to the directory to be processed
   if(igetter.dirExists(subDir_)) ibooker.cd(subDir_);
   else {
@@ -120,12 +114,12 @@ void EmDQMPostProcessor::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGette
     for(std::vector<std::string>::iterator dir = subdirectories.begin(); dir!= subdirectories.end(); dir++) {
       ibooker.cd(*dir);
 
-      TH1F* basehist = getHistogram(ibooker, igetter, dqm->pwd() + "/" + baseName);
+      TH1F* basehist = getHistogram(ibooker, igetter, ibooker.pwd() + "/" + baseName);
       if (basehist == NULL)
 	{
-	  //edm::LogWarning("EmDQMPostProcessor") << "histogram " << (dqm->pwd() + "/" + baseName) << " does not exist, skipping postfix '" << *postfix << "'";
+	  //edm::LogWarning("EmDQMPostProcessor") << "histogram " << (ibooker.pwd() + "/" + baseName) << " does not exist, skipping postfix '" << *postfix << "'";
           pop = true;
-          dqm->goUp();
+          ibooker.goUp();
 	  continue;
 	}
       // at least one histogram with postfix was found
@@ -217,12 +211,12 @@ void EmDQMPostProcessor::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGette
       //loop over variables (eta/phi/et)
       for(std::vector<std::string>::iterator var = varNames.begin(); var != varNames.end() ; var++){
 	
-	numName   = dqm->pwd() + "/" + filterName2 + *var + *postfix;
+	numName   = ibooker.pwd() + "/" + filterName2 + *var + *postfix;
 
 	if (normalizeToReco)
-	  genName   = dqm->pwd() + "/reco_" + *var ;
+	  genName   = ibooker.pwd() + "/reco_" + *var ;
 	else
-	  genName   = dqm->pwd() + "/gen_" + *var ;
+	  genName   = ibooker.pwd() + "/gen_" + *var ;
 
 	// Create the efficiency plot
 	if(!dividehistos(ibooker,igetter,numName,genName,"efficiency_"+filterName2+"_vs_"+*var +*postfix,*var,"eff. of"+filterName2+" vs "+*var +*postfix))
@@ -236,16 +230,16 @@ void EmDQMPostProcessor::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGette
 	
 	//loop over variables (eta/et/phi)
 	for(std::vector<std::string>::iterator var = varNames.begin(); var != varNames.end() ; var++){
-	  numName   = dqm->pwd() + "/" + filterName2 + *var + *postfix;
-	  denomName = dqm->pwd() + "/" + filterName  + *var + *postfix;
+	  numName   = ibooker.pwd() + "/" + filterName2 + *var + *postfix;
+	  denomName = ibooker.pwd() + "/" + filterName  + *var + *postfix;
 
 	  // Is this the last filter? Book efficiency vs gen (or reco, for data) level
 	  std::string temp = *postfix;
           if (filter==total->GetNbinsX()-3 && temp.find("matched")!=std::string::npos) {
 	    if (normalizeToReco)
-	      genName = dqm->pwd() + "/reco_" + *var;
+	      genName = ibooker.pwd() + "/reco_" + *var;
 	    else
-	      genName = dqm->pwd() + "/gen_" + *var;
+	      genName = ibooker.pwd() + "/gen_" + *var;
 
 	    if(!dividehistos(ibooker,igetter,numName,genName,"final_eff_vs_"+*var,*var,"Efficiency Compared to " + shortReferenceName + " vs "+*var))
 	      break;
@@ -257,7 +251,7 @@ void EmDQMPostProcessor::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGette
 	} // loop over variables
       } // loop over monitoring modules within path
 
-      dqm->goUp();
+      ibooker.goUp();
 
       // have a per-step histogram of the path on the front page
       std::string trigName = dir->substr(dir->rfind("/") + 1);

@@ -15,8 +15,6 @@ class EmDQMPostProcessor : public DQMEDHarvester {
 
  private:
   
-  DQMStore * dqm;
-
   /** a replacement for the function TGraphAsymmErrors::Efficiency(..) used with earlier 
       versions of ROOT (this functionality has been moved to a separate class TEfficiency) */
   static void Efficiency(int passing, int total, double level, double &mode, double &lowerBound, double &upperBound);

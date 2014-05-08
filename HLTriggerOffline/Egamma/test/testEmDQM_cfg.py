@@ -15,10 +15,10 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-#        '/store/relval/CMSSW_7_1_0_pre7/RelValZEE_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PRE_LS171_V7-v1/00000/06D540C7-B1D0-E311-A86E-02163E00E81C.root',
+        '/store/relval/CMSSW_7_1_0_pre7/RelValZEE_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PRE_LS171_V7-v1/00000/06D540C7-B1D0-E311-A86E-02163E00E81C.root',
 #        '/store/relval/CMSSW_7_1_0_pre7/RelValH130GGgluonfusion_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PRE_LS171_V7-v1/00000/C87CDC3A-B1D0-E311-8890-02163E00E6DE.root',
 #        '/store/relval/CMSSW_7_1_0_pre7/RelValWE_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PRE_LS171_V7-v1/00000/665BE840-B4D0-E311-BBA6-02163E00E694.root',
-        '/store/relval/CMSSW_7_1_0_pre7/RelValPhotonJets_Pt_10_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PRE_LS171_V7-v1/00000/C0AB31B9-A2D0-E311-A15D-02163E00E725.root',
+#        '/store/relval/CMSSW_7_1_0_pre7/RelValPhotonJets_Pt_10_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PRE_LS171_V7-v1/00000/C0AB31B9-A2D0-E311-A15D-02163E00E725.root',
     )
 )
 
@@ -53,12 +53,10 @@ process.post=cms.EDAnalyzer("EmDQMPostProcessor",
 #----------------------------------------
 process.load("DQMServices.Core.DQM_cfg")
 process.load("DQMServices.Components.DQMEnvironment_cfi")
-process.DQMStore.verbose = 0
-#process.DQM.collectorHost = ''
 process.dqmSaver.convention = 'Offline'
-process.dqmSaver.workflow = '/A/B/C'
-process.dqmSaver.saveByRun = 1
-process.dqmSaver.saveAtJobEnd = True
+process.dqmSaver.workflow = '/RelVal/HLTriggerOffline/Egamma'
+process.dqmSaver.saveByRun = cms.untracked.int32(-1)
+process.dqmSaver.saveAtJobEnd = cms.untracked.bool(True)
 
 process.ppost = cms.EndPath(process.post+process.dqmSaver)
 
