@@ -991,8 +991,8 @@ premixUp2015Defaults = {
 }
 premixUp2015Defaults50ns = merge([{'--conditions':'auto:upgradePLS150ns'},premixUp2015Defaults])
 
-steps['PREMIXUP15_PU25']=merge([PU25,Kby(25,100),premixUp2015Defaults])
-steps['PREMIXUP15_PU50']=merge([PU50,Kby(25,100),premixUp2015Defaults50ns])
+steps['PREMIXUP15_PU25']=merge([PU25,Kby(100,100),premixUp2015Defaults])
+steps['PREMIXUP15_PU50']=merge([PU50,Kby(100,100),premixUp2015Defaults50ns])
 
 digiPremixUp2015Defaults25ns = { 
     '--conditions'   : 'auto:upgradePLS1',
