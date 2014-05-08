@@ -15,10 +15,10 @@ dt4DSegments = cms.EDProducer("DTRecSegment4DProducer",
 )
 
 #add cosmics reconstruction in collisions
-from RecoLocalMuon.DTSegment.DTCombinatorialPatternReco4DAlgo_LinearDriftFromDB_CosmicData_cfi import *
+from RecoLocalMuon.DTSegment.DTMeantimerPatternReco4DAlgo_LinearDriftFromDBLoose_cfi import *
 dt4DCosmicSegments = cms.EDProducer("DTRecSegment4DProducer",
     # The reconstruction algo and its parameter set
-    DTCombinatorialPatternReco4DAlgo_LinearDriftFromDB_CosmicData,
+    DTMeantimerPatternReco4DAlgo_LinearDriftFromDBLoose,
     # debuggin opt
     debug = cms.untracked.bool(False),
     # name of the rechit 1D collection in the event

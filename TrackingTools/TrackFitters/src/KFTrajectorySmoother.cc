@@ -27,7 +27,8 @@
 
 KFTrajectorySmoother::~KFTrajectorySmoother() {
 
-  delete thePropagator;
+  delete theAlongPropagator;
+  delete theOppositePropagator;
   delete theUpdator;
   delete theEstimator;
 
@@ -38,15 +39,14 @@ KFTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
 
   if(aTraj.empty()) return Trajectory();
 
-  if (  aTraj.direction() == alongMomentum) {
-    thePropagator->setPropagationDirection(oppositeToMomentum);
-  } else {
-    thePropagator->setPropagationDirection(alongMomentum);
+  const Propagator* usePropagator = theAlongPropagator;
+  if(aTraj.direction() == alongMomentum) {
+    usePropagator = theOppositePropagator;
   }
-  
+
   const std::vector<TM> & avtm = aTraj.measurements();
   
-  Trajectory ret(aTraj.seed(), thePropagator->propagationDirection());
+  Trajectory ret(aTraj.seed(), usePropagator->propagationDirection());
   Trajectory & myTraj = ret;
   myTraj.reserve(avtm.size());
   
@@ -87,7 +87,7 @@ KFTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
 
 
     if (hitcounter != avtm.size())//no propagation needed for first smoothed (==last fitted) hit 
-      predTsos = thePropagator->propagate( currTsos, *(hit->surface()) );
+      predTsos = usePropagator->propagate( currTsos, *(hit->surface()) );
 
     if unlikely(!predTsos.isValid()) {
 	LogDebug("TrackFitters") << "KFTrajectorySmoother: predicted tsos not valid!";
