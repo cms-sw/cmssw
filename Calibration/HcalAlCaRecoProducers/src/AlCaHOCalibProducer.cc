@@ -163,10 +163,6 @@ const int ntrgp_gm = 11;
 const int netahbmx = 60;
 const int netahb3mx = 32;
 
-static const unsigned int nL1trg = 200;
-
-static const unsigned int nL1mx=140;
-static const unsigned int nHLTmx=140;
 //GMA #endif
 
 class AlCaHOCalibProducer : public edm::EDProducer {
