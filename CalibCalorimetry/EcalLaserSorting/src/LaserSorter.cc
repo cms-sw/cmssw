@@ -38,12 +38,6 @@ using namespace std;
 const int LaserSorter::ecalDccFedIdMin_ = 601;
 const int LaserSorter::ecalDccFedIdMax_ = 654;
 
-
-static const int laserTrigger = 4;
-static const int ledTrigger   = 5;
-static const int tpTrigger    = 6;
-static const int pedTrigger   = 7;
-
 size_t LaserSorter::OutStreamRecord::indexReserve_ = 2000;
 
 static const char* const detailedTrigNames[] = {
@@ -280,15 +274,6 @@ LaserSorter::analyze(const edm::Event& event, const edm::EventSetup& es){
       restoreStreamsOfLumiBlock(lb1);
     }
   }
-    
-//     if(event.luminosityBlock() < lumiBlock_){
-//       throw cms::Exception("LaserSorter") 
-//         << "Process event has a lumi block (" << event.luminosityBlock() << ")"
-//         << "older than previous one (" << lumiBlock_ << "). "
-//         << "This can be due by wrong input file ordering or bad luminosity "
-//         << "block indication is the event header. "
-//         << "Event cannot be processed";
-//     }
 
     if(disableOutput_){
       /* NO OP*/
@@ -905,7 +890,7 @@ void LaserSorter::getOutputFedList(const edm::Event& event,
                                    std::vector<unsigned>& fedIds) const{
   fedIds.erase(fedIds.begin(), fedIds.end());
   for(int id=ecalDccFedIdMin_; id<=ecalDccFedIdMax_; ++id){
-    size_t dccLen;
+    size_t dccLen = 0;
     const FEDRawData& dccEvent = data.FEDData(id);
     if(id==matacqFedId_
        || !isDccEventEmpty(dccEvent, &dccLen)){
