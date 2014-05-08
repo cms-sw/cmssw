@@ -164,6 +164,8 @@ class DQMStore
     void cd(void);
     void cd(const std::string &dir);
     void setCurrentFolder(const std::string &fullpath);
+    void goUp(void);
+    const std::string & pwd(void);
     void tag(MonitorElement *, unsigned int);
 
    private:
@@ -186,26 +188,20 @@ class DQMStore
    public:
     friend class DQMStore;
 
-    MonitorElement * get(const std::string &path) {
-      return owner_->get(path);
-    }
-    std::vector<std::string> getSubdirs(void) {
-      return owner_->getSubdirs();
-    }
-    std::vector<std::string> getMEs(void) {
-      return owner_->getMEs();
-    }
-    bool containsAnyMonitorable(const std::string &path) {
-      return owner_->containsAnyMonitorable(path);
-    }
     // for the supported syntaxes, see the declarations of DQMStore::getContents
     template <typename... Args>
     std::vector<MonitorElement *> getContents(Args && ... args) {
       return owner_->getContents(std::forward<Args>(args)...);
     }
-    bool dirExists(const std::string &path) {
-      return owner_->dirExists(path);
-    }
+
+    MonitorElement * get(const std::string &path);
+    std::vector<std::string> getSubdirs(void);
+    std::vector<std::string> getMEs(void);
+    bool containsAnyMonitorable(const std::string &path);
+    bool dirExists(const std::string &path);
+    void cd(void);
+    void cd(const std::string &dir);
+    void setCurrentFolder(const std::string &fullpath);
 
    private:
     explicit IGetter(DQMStore * store):owner_(0) {
@@ -706,8 +702,3 @@ class DQMStore
 };
 
 #endif // DQMSERVICES_CORE_DQM_STORE_H
-
-/* Local Variables: */
-/* show-trailing-whitespace: t */
-/* truncate-lines: t */
-/* End: */
