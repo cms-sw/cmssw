@@ -39,6 +39,7 @@ private:
 
 private:
   bool   fPCuts;
+  bool   fPtransCut;
   bool   fEtaCuts;
   bool   fPhiCuts;
   double theMinPhiCut;
@@ -46,7 +47,7 @@ private:
   double theMinEtaCut;
   double theMaxEtaCut;
   double theMinPCut;
-  double theMinPCut2;
+  double theMinPtCut2;
   double theMaxPCut;
   double theRDecLenCut2;
   double theEtaCutForHector; 

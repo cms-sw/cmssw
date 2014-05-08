@@ -1,4 +1,5 @@
 #include "SimG4Core/MagneticField/interface/FieldStepper.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4Mag_UsualEqRhs.hh"
 #include "G4ClassicalRK4.hh"
@@ -46,8 +47,9 @@ G4MagIntegratorStepper * FieldStepper::select(const std::string & ss)
     else if (ss == "G4HelixHeum")          theStepper = new G4HelixHeum(theEquation);
     else
     {
-        std::cout << " FieldStepper invalid choice, defaulting to G4ClassicalRK4 " << std::endl;
-        theStepper = new G4ClassicalRK4(theEquation);
+      edm::LogWarning("SimG4CoreMagneticField") 
+        << " FieldStepper invalid choice, defaulting to G4ClassicalRK4 ";
+      theStepper = new G4ClassicalRK4(theEquation);
     }
     return theStepper;
 }

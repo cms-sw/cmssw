@@ -19,6 +19,7 @@ using namespace edm;
 
 Generator::Generator(const ParameterSet & p) : 
   fPCuts(p.getParameter<bool>("ApplyPCuts")),
+  fPtransCut(p.getParameter<bool>("ApplyPtransCut")),
   fEtaCuts(p.getParameter<bool>("ApplyEtaCuts")), 
   fPhiCuts(p.getParameter<bool>("ApplyPhiCuts")),
   theMinPhiCut(p.getParameter<double>("MinPhiCut")), // in radians (CMS standard)
@@ -39,7 +40,7 @@ Generator::Generator(const ParameterSet & p) :
 {
   double theRDecLenCut = p.getParameter<double>("RDecLenCut")*cm;
   theRDecLenCut2 = theRDecLenCut*theRDecLenCut;
-  theMinPCut2 = theMinPCut*theMinPCut;
+  theMinPtCut2 = theMinPCut*theMinPCut;
 
   pdgFilter.resize(0);
   if ( p.exists("PDGselection") ) {
@@ -261,7 +262,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
 
 	  // Ptot cut (was assumed to be Pt?)
 	  //if (fPCuts && (ptot < theMinPCut || ptot > theMaxPCut)) {
-	  if (fPCuts && (px*px + py*py < theMinPCut2 || ptot > theMaxPCut)) {
+	  if (fPCuts && (ptot < theMinPCut || ptot > theMaxPCut)) {
             continue;
 	  }
           // phi cut
@@ -320,7 +321,14 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
         
         if ( g4prim->GetG4code() != 0 ){ 
           g4prim->SetMass( g4prim->GetG4code()->GetPDGMass() );
-          g4prim->SetCharge( g4prim->GetG4code()->GetPDGCharge() );  
+          double charge = g4prim->GetG4code()->GetPDGCharge();
+
+	  // apply Pt cut
+	  if (fPtransCut && 0.0 != charge && px*px + py*py < theMinPtCut2) {
+            delete g4prim;
+            continue;
+	  }
+          g4prim->SetCharge(charge);  
         }
 
 	// V.I. do not use SetWeight but the same code
