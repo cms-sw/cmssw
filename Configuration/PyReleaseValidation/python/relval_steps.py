@@ -1015,6 +1015,11 @@ digiPremixUp2015Defaults25ns = {
     '--magField'     : '38T_PostLS1',
     }
 steps['DIGIPRMXUP15_PU25']=merge([digiPremixUp2015Defaults25ns])
+steps['DIGIPRMXUP15_PROD_PU25']=merge([
+        {'--eventcontent' : 'PREMIXRAW'},
+        {'--datatier'     : 'PREMIXRAW'},        
+        digiPremixUp2015Defaults25ns
+        ])
 steps['DIGIPRMXUP15_PU50']=merge([{'--conditions':'auto:upgradePLS150ns'},
                                   {'--pileup_input' : 'file:/afs/cern.ch/user/f/franzoni/public/4mikeH/premixed-CMSSW_7_0_X_2014-05-06-0200.root'},
                                   digiPremixUp2015Defaults25ns])
