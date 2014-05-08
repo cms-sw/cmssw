@@ -16,24 +16,24 @@ DiJetAveSkim_EventContent = cms.PSet(
         #------- CaloJet collections ------
         'keep recoCaloJets_kt4CaloJets_*_*',
         'keep recoCaloJets_kt6CaloJets_*_*',
-        'keep recoCaloJets_ak5CaloJets_*_*',
+        'keep recoCaloJets_ak4CaloJets_*_*',
         'keep recoCaloJets_ak7CaloJets_*_*',
         'keep recoCaloJets_iterativeCone5CaloJets_*_*',
         #------- CaloJet ID ---------------
         'keep *_kt4JetID_*_*',
         'keep *_kt6JetID_*_*',
-        'keep *_ak5JetID_*_*',
+        'keep *_ak4JetID_*_*',
         'keep *_ak7JetID_*_*',
-        'keep *_ic5JetID_*_*', 
-        #------- PFJet collections ------  
+        'keep *_ic5JetID_*_*',
+        #------- PFJet collections ------
         'keep recoPFJets_kt4PFJets_*_*',
         'keep recoPFJets_kt6PFJets_*_*',
-        'keep recoPFJets_ak5PFJets_*_*',
+        'keep recoPFJets_ak4PFJets_*_*',
         'keep recoPFJets_ak7PFJets_*_*',
         'keep recoPFJets_iterativeCone5PFJets_*_*',
         #------- JPTJet collections ------
         'keep *_JetPlusTrackZSPCorJetAntiKt5_*_*',
-        #'keep *_ak5JPTJets_*_*',
+        #'keep *_ak4JPTJets_*_*',
         #'keep *_iterativeCone5JPTJets_*_*',
         #------- Trigger collections ------
         'keep edmTriggerResults_TriggerResults_*_*',
@@ -51,7 +51,7 @@ DiJetAveSkim_EventContent = cms.PSet(
         #------- MET collections ----------
         'keep *_metHO_*_*',
         'keep *_metNoHF_*_*',
-        'keep *_metNoHFHO_*_*', 
-        'keep *_met_*_*')    
+        'keep *_metNoHFHO_*_*',
+        'keep *_met_*_*')
 )
 

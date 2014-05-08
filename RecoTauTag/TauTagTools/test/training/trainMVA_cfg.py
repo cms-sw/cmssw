@@ -200,7 +200,7 @@ process.signalJetsDMMatched = cms.EDFilter(
 process.signalSequence += process.signalJetsDMMatched
 
 # Rebuild PiZeros for signal FIXME: remove this once skimming okay
-process.signalPiZeros = process.ak5PFJetsRecoTauPiZeros.clone(
+process.signalPiZeros = process.ak4PFJetsRecoTauPiZeros.clone(
     jetSrc = cms.InputTag("signalJetsDMMatched")
 )
 process.signalSequence += process.signalPiZeros
@@ -278,7 +278,7 @@ process.backgroundSelectEvents = cms.EDFilter(
 )
 
 # Rebuild PiZeros for signal FIXME: remove this once skimming okay
-process.backgroundPiZeros = process.ak5PFJetsRecoTauPiZeros.clone(
+process.backgroundPiZeros = process.ak4PFJetsRecoTauPiZeros.clone(
     jetSrc = cms.InputTag("preselectedBackgroundJets")
 )
 
