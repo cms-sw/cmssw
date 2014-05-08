@@ -24,8 +24,7 @@
 HLTHiggsValidator::HLTHiggsValidator(const edm::ParameterSet& pset) :
       	_pset(pset),
 	_analysisnames(pset.getParameter<std::vector<std::string> >("analysis")),
-	_collections(0),
-	_dbe(0)
+	_collections(0)
 {
 	_collections = new EVTColContainer;
 

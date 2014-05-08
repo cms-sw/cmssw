@@ -54,8 +54,6 @@ class HLTHiggsValidator : public DQMEDAnalyzer
 		//! The container with all the collections needed
 		EVTColContainer * _collections;
 		
-		// Access to the DQM
-		DQMStore * _dbe;      	
 };
 
 #endif
