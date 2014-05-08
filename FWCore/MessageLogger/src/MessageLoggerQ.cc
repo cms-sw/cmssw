@@ -131,7 +131,7 @@ MessageLoggerQ::~MessageLoggerQ()
 MessageLoggerQ *
   MessageLoggerQ::instance()
 {
-  [[cms::thread_safe]] static MessageLoggerQ queue;
+  static MessageLoggerQ queue;
   return &queue;
 }  // MessageLoggerQ::instance()
 
