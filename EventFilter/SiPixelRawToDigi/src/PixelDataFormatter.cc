@@ -41,7 +41,6 @@ namespace {
   constexpr PixelDataFormatter::Word32 PXID_mask = ~(~PixelDataFormatter::Word32(0) << PXID_bits);
   constexpr PixelDataFormatter::Word32 ADC_mask  = ~(~PixelDataFormatter::Word32(0) << ADC_bits);
 
-  constexpr PixelDataFormatter::Word64 WORD32_mask = 0xffffffff;
 }
 
 PixelDataFormatter::PixelDataFormatter( const SiPixelFedCabling* map)
