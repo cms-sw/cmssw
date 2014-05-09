@@ -746,7 +746,7 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
   // -------------------------------------------------------------------
   // SHASHLIK
 
-  if ( ! skipShashlik ) {
+  if ( ! skipShashlik && false) {
 
     // 1) loop over simHits
     const std::string shashlikHitsName(hitsProducer_+"EcalHitsEK");
