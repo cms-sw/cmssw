@@ -92,10 +92,8 @@ void MuonTrackAnalyzer::beginJob(){
   //theFile->cd();
 }
 void MuonTrackAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
-                                  edm::Run const & iRun,
+				       edm::Run const & iRun,
 				       edm::EventSetup const & /* iSetup */){
-//void MuonTrackAnalyzer::beginRun(){
-  //ibooker.showDirStructure();
   
   ibooker.cd();
 
@@ -173,10 +171,6 @@ void MuonTrackAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
     hDeltaPtVsEta = ibooker.book2D("DeltaPtVsEta","#Delta P_{t} vs #eta gen",120,-3.,3.,500,-250.,250.);
     hDeltaPt_In_Out_VsEta = ibooker.book2D("DeltaPt_In_Out_VsEta_","P^{in}_{t} - P^{out}_{t} vs #eta gen",120,-3.,3.,500,-250.,250.);
   }    
-
-}
-
-void MuonTrackAnalyzer::endJob(){
 
 }
 

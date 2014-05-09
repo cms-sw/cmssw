@@ -45,7 +45,7 @@ class MuonUpdatorAtVertex;
 class DQMStore;
 
 
-class MuonTrackAnalyzer: public DQMEDAnalyzer {
+class MuonTrackAnalyzer: public thread_unsafe::DQMEDAnalyzer {
  public:
   enum EtaRange{all,barrel,endcap};
 
@@ -66,11 +66,8 @@ class MuonTrackAnalyzer: public DQMEDAnalyzer {
     
 
   virtual void beginJob() ;
-  virtual void endJob() ;
-  //  virtual void beginRun() ;
   virtual void endRun(DQMStore::IBooker & ibooker) ;
-  //  void dqmEndJob(DQMStore::IBooker & ibooker);
-void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
  protected:
 
  private:

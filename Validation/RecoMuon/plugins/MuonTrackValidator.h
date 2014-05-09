@@ -14,7 +14,7 @@
 #include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-class MuonTrackValidator : public DQMEDAnalyzer, protected MuonTrackValidatorBase {
+class MuonTrackValidator : public thread_unsafe::DQMEDAnalyzer, protected MuonTrackValidatorBase {
  public:
   /// Constructor
   MuonTrackValidator(const edm::ParameterSet& pset):MuonTrackValidatorBase(pset){
@@ -86,44 +86,44 @@ class MuonTrackValidator : public DQMEDAnalyzer, protected MuonTrackValidatorBas
       
       // tracks with hits only on tracker
       if (recoTracksLabel=="generalTracks" ||
-(recoTracksLabel.find("cutsRecoTracks") != std::string::npos) ||
-recoTracksLabel=="ctfWithMaterialTracksP5LHCNavigation" ||
-recoTracksLabel=="hltL3TkTracksFromL2" ||
-(recoTracksLabel=="hltL3Muons" && recoTracksInstance=="L2Seeded"))
-{
-if (usemuon) {
-edm::LogWarning("MuonTrackValidator")
-<<"\n*** WARNING : inconsistent input tracksTag = "<<label[www]
-<<"\n with usemuon == true"<<"\n ---> please change to usemuon == false ";
-}
-if (!usetracker) {
-edm::LogWarning("MuonTrackValidator")
-<<"\n*** WARNING : inconsistent input tracksTag = "<<label[www]
-<<"\n with usetracker == false"<<"\n ---> please change to usetracker == true ";
-}	
-}
+	  (recoTracksLabel.find("cutsRecoTracks") != std::string::npos) ||
+	  recoTracksLabel=="ctfWithMaterialTracksP5LHCNavigation" ||
+	  recoTracksLabel=="hltL3TkTracksFromL2" ||
+	  (recoTracksLabel=="hltL3Muons" && recoTracksInstance=="L2Seeded"))
+	{
+	  if (usemuon) {
+	    edm::LogWarning("MuonTrackValidator")
+	      <<"\n*** WARNING : inconsistent input tracksTag = "<<label[www]
+	      <<"\n with usemuon == true"<<"\n ---> please change to usemuon == false ";
+	  }
+	  if (!usetracker) {
+	    edm::LogWarning("MuonTrackValidator")
+	      <<"\n*** WARNING : inconsistent input tracksTag = "<<label[www]
+	      <<"\n with usetracker == false"<<"\n ---> please change to usetracker == true ";
+	  }	
+	}
       
       // tracks with hits only on muon detectors
       else if (recoTracksLabel=="standAloneMuons" ||
-recoTracksLabel=="standAloneSETMuons" ||
-recoTracksLabel=="cosmicMuons" ||
-recoTracksLabel=="hltL2Muons")
-{
-if (usetracker) {
-edm::LogWarning("MuonTrackValidator")
-<<"\n*** WARNING : inconsistent input tracksTag = "<<label[www]
-<<"\n with usetracker == true"<<"\n ---> please change to usetracker == false ";
-}
-if (!usemuon) {
-edm::LogWarning("MuonTrackValidator")
-<<"\n*** WARNING : inconsistent input tracksTag = "<<label[www]
-<<"\n with usemuon == false"<<"\n ---> please change to usemuon == true ";
-}
-}
+	       recoTracksLabel=="standAloneSETMuons" ||
+	       recoTracksLabel=="cosmicMuons" ||
+	       recoTracksLabel=="hltL2Muons")
+	{
+	  if (usetracker) {
+	    edm::LogWarning("MuonTrackValidator")
+	      <<"\n*** WARNING : inconsistent input tracksTag = "<<label[www]
+	      <<"\n with usetracker == true"<<"\n ---> please change to usetracker == false ";
+	  }
+	  if (!usemuon) {
+	    edm::LogWarning("MuonTrackValidator")
+	      <<"\n*** WARNING : inconsistent input tracksTag = "<<label[www]
+	      <<"\n with usemuon == false"<<"\n ---> please change to usemuon == true ";
+	  }
+	}
       
     } // for (unsigned int www=0;www<label.size();www++)
   }
-    
+  
   /// Destructor
   virtual ~MuonTrackValidator(){ }
 
@@ -133,19 +133,17 @@ edm::LogWarning("MuonTrackValidator")
   void analyze(const edm::Event&, const edm::EventSetup& );
   /// Method called at the end of the event loop
   void endRun(edm::Run const&, edm::EventSetup const&);
-
-
-void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&);
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&);
 
 private:
   /// retrieval of reconstructed momentum components from reco::Track (== mean values for GSF)
   void getRecoMomentum (const reco::Track& track, double& pt, double& ptError,
-double& qoverp, double& qoverpError, double& lambda, double& lambdaError,
-double& phi, double& phiError ) const;
+			double& qoverp, double& qoverpError, double& lambda, double& lambdaError,
+			double& phi, double& phiError ) const;
   /// retrieval of reconstructed momentum components based on the mode of a reco::GsfTrack
   void getRecoMomentum (const reco::GsfTrack& gsfTrack, double& pt, double& ptError,
-double& qoverp, double& qoverpError, double& lambda, double& lambdaError,
-double& phi, double& phiError) const;
+			double& qoverp, double& qoverpError, double& lambda, double& lambdaError,
+			double& phi, double& phiError) const;
 
  private:
   std::string dirName_;

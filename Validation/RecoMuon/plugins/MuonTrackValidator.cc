@@ -37,17 +37,17 @@ void MuonTrackValidator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run con
       InputTag algo = label[www];
       string dirName=dirName_;
       if (algo.process()!="")
-dirName+=algo.process()+"_";
+	dirName+=algo.process()+"_";
       if(algo.label()!="")
-dirName+=algo.label()+"_";
+	dirName+=algo.label()+"_";
       if(algo.instance()!="")
-dirName+=algo.instance()+"_";
+	dirName+=algo.instance()+"_";
       if (dirName.find("Tracks")<dirName.length()){
-dirName.replace(dirName.find("Tracks"),6,"");
+	dirName.replace(dirName.find("Tracks"),6,"");
       }
       string assoc= associators[ww];
       if (assoc.find("Track")<assoc.length()){
-assoc.replace(assoc.find("Track"),5,"");
+	assoc.replace(assoc.find("Track"),5,"");
       }
       dirName+=assoc;
       std::replace(dirName.begin(), dirName.end(), ':', '_');
@@ -55,7 +55,7 @@ assoc.replace(assoc.find("Track"),5,"");
 
       setUpVectors();
 
-      dbe_->goUp();
+      ibooker.goUp();
       string subDirName = dirName + "/simulation";
       ibooker.setCurrentFolder(subDirName.c_str());
       h_ptSIM.push_back( ibooker.book1D("ptSIM", "generated p_{t}", 5500, 0, 110 ) );
@@ -121,13 +121,13 @@ assoc.replace(assoc.find("Track"),5,"");
       h_pullQoverp.push_back( ibooker.book1D("pullQoverp","pull of qoverp parameter",250,-25,25) );
       
       if (associators[ww]=="TrackAssociatorByChi2"){
-h_assochi2.push_back( ibooker.book1D("assocChi2","track association #chi^{2}",1000000,0,100000) );
-h_assochi2_prob.push_back(ibooker.book1D("assocChi2_prob","probability of association #chi^{2}",100,0,1));
+	h_assochi2.push_back( ibooker.book1D("assocChi2","track association #chi^{2}",1000000,0,100000) );
+	h_assochi2_prob.push_back(ibooker.book1D("assocChi2_prob","probability of association #chi^{2}",100,0,1));
       } else if (associators[ww]=="TrackAssociatorByHits"){
-h_assocFraction.push_back( ibooker.book1D("assocFraction","fraction of shared hits",200,0,2) );
-h_assocSharedHit.push_back(ibooker.book1D("assocSharedHit","number of shared hits",20,0,20));
+	h_assocFraction.push_back( ibooker.book1D("assocFraction","fraction of shared hits",200,0,2) );
+	h_assocSharedHit.push_back(ibooker.book1D("assocSharedHit","number of shared hits",20,0,20));
       }
-
+      
       chi2_vs_nhits.push_back( ibooker.book2D("chi2_vs_nhits","#chi^{2} vs nhits",25,0,25,100,0,10) );
       h_chi2meanhitsh.push_back( ibooker.bookProfile("chi2mean_vs_nhits","mean #chi^{2} vs nhits",25,0,25,100,0,10) );
 

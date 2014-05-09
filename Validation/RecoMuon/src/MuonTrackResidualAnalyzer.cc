@@ -84,9 +84,6 @@ void MuonTrackResidualAnalyzer::beginJob(){
  
 }
 
-void MuonTrackResidualAnalyzer::endJob(){
-}
-
 void MuonTrackResidualAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
                                   edm::Run const & iRun,
                                   edm::EventSetup const & /* iSetup */) 

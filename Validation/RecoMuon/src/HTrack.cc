@@ -16,7 +16,6 @@ using namespace std;
 
 HTrack::HTrack( DQMStore::IBooker & ibooker, string dirName_,string name,string whereIs):theName(name.c_str()),where(whereIs.c_str()){
 
-  dbe_ = edm::Service<DQMStore>().operator->();
   ibooker.cd();
   std::string dirName=dirName_;
   dirName+="/";
@@ -24,14 +23,9 @@ HTrack::HTrack( DQMStore::IBooker & ibooker, string dirName_,string name,string 
   dirName+="_";
   dirName+=whereIs.c_str();
 
-  //  dbe_->cd();
-  // dbe_->setCurrentFolder(dirName.c_str());
   ibooker.setCurrentFolder(dirName.c_str());
   hVariables = new HTrackVariables(ibooker, dirName.c_str(),name,whereIs);
 
-
-  //  dbe_->cd();
-  // dbe_->setCurrentFolder(dirName.c_str());
   ibooker.cd();
   string resName = dirName;
   resName+="/Resolution";

@@ -44,7 +44,7 @@ class KFUpdator;
 class MeasurementEstimator;
 class HResolution1DRecHit;
 
-class MuonTrackResidualAnalyzer: public DQMEDAnalyzer {
+class MuonTrackResidualAnalyzer: public thread_unsafe::DQMEDAnalyzer {
   
  public:
   enum EtaRange{all,barrel,endcap};
@@ -61,8 +61,7 @@ public:
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
 
   virtual void beginJob() ;
-  virtual void endJob() ;
-void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   virtual void endRun() ;
 
 protected:

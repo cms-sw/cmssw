@@ -31,7 +31,6 @@
 
 //Member types
 #include "FWCore/Utilities/interface/InputTag.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -41,7 +40,7 @@
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 #include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
 
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 //----------------------------------------
 
@@ -57,7 +56,7 @@ class TProfile;
 //--------------------------------------
 //class MuIsoValidation : public edm::EDAnalyzer {
 
-class MuIsoValidation : public DQMEDAnalyzer {
+class MuIsoValidation : public thread_unsafe::DQMEDAnalyzer {
   //---------namespace and typedefs--------------
   typedef edm::View<reco::Muon>::const_iterator MuonIterator;
   typedef edm::RefToBase<reco::Muon> MuonBaseRef;
@@ -72,13 +71,10 @@ public:
   
 private:
   //---------methods----------------------------
-  virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
   void InitStatics();
   void RecordData(MuonIterator muon);//Fills Histograms with info from single muon
-  //  void InitHistos();//adds title, bin information to member histograms
-void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
   void MakeLogBinsForProfile(Double_t* bin_edges, const double min, const double max);
   void FillHistos();//Fills histograms with data

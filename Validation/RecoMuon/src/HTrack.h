@@ -47,8 +47,6 @@ class HTrack{
   double computeEfficiency(HTrackVariables *sim, DQMStore::IBooker&);
 
  private:
-  DQMStore * dbe_;
-
   HTrackVariables *hVariables;  
   
   // Global Resolution

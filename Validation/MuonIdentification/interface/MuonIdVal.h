@@ -38,9 +38,6 @@
 #include "DataFormats/MuonReco/interface/MuonCosmicCompatibility.h"
 #include "DataFormats/MuonReco/interface/MuonShower.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -53,28 +50,26 @@
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/Records/interface/GlobalTrackingGeometryRecord.h"
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 //class MuonIdVal : public edm::EDAnalyzer {
-class MuonIdVal : public DQMEDAnalyzer {
+class MuonIdVal : public thread_unsafe::DQMEDAnalyzer {
    public:
       explicit MuonIdVal(const edm::ParameterSet&);
       ~MuonIdVal();
 
    private:
       virtual void beginJob();
-  //      virtual void beginRun(const edm::Run&, const edm::EventSetup& );
-  void bookHistograms(DQMStore::IBooker &,  edm::Run const &, edm::EventSetup const &) override;
-// void BeginRun(const edm::Run& r, const edm::EventSetup& c)
+      void bookHistograms(DQMStore::IBooker &,  edm::Run const &, edm::EventSetup const &) override;
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob();
       virtual void Fill(MonitorElement*, float);
 
       edm::ParameterSet iConfig;
-      DQMStore* dbe_;
-  edm::ParameterSet parameters_;
-  std::string eventInfoFolder_;
-  std::string subsystemname_;
+      edm::ParameterSet parameters_;
+      std::string eventInfoFolder_;
+      std::string subsystemname_;
   
       // ----------member data ---------------------------
       edm::InputTag inputMuonCollection_;

@@ -46,7 +46,7 @@ class MuonTrackValidatorBase {
       tp_effic_Token = iC.consumes<TrackingParticleCollection>(label_tp_effic);
       tp_fake_Token = iC.consumes<TrackingParticleCollection>(label_tp_fake);
       for (unsigned int www=0;www<label.size();www++){
-track_Collection_Token[www] = iC.consumes<edm::View<reco::Track> >(label[www]);
+	track_Collection_Token[www] = iC.consumes<edm::View<reco::Track> >(label[www]);
       }
     }
 
@@ -108,8 +108,8 @@ track_Collection_Token[www] = iC.consumes<edm::View<reco::Track> >(label[www]);
     {
       dbe_ = edm::Service<DQMStore>().operator->();
       if(useLogPt){
-maxpT=log10(maxpT);
-minpT=log10(minpT);
+	maxpT=log10(maxpT);
+	minpT=log10(minpT);
       }
     }
   

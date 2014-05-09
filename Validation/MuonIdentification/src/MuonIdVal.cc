@@ -30,12 +30,7 @@ MuonIdVal::MuonIdVal(const edm::ParameterSet& ps)
    inputMuonCosmicCompatibilityValueMapToken_ = consumes<edm::ValueMap<reco::MuonCosmicCompatibility> >(inputMuonCosmicCompatibilityValueMap_);
    inputMuonShowerInformationValueMapToken_ = consumes<edm::ValueMap<reco::MuonShower> >(inputMuonShowerInformationValueMap_);
 
-   dbe_ = 0;
-   dbe_ = edm::Service<DQMStore>().operator->();
-   
-   //   std::string folder = parameters_.getUntrackedParameter<std::string>("eventInfoFolder", "EventInfo") ;
    subsystemname_ = iConfig.getUntrackedParameter<std::string>("subSystemFolder", "YourSubsystem") ;
-   //eventInfoFolder_ = subsystemname_ + "/" +  folder ;
 }
 
 MuonIdVal::~MuonIdVal() {}
@@ -44,7 +39,6 @@ void MuonIdVal::beginJob()
 {
 }
 
-//void MuonIdVal::beginRun(const edm::Run&, const edm::EventSetup&)
 void MuonIdVal::bookHistograms(DQMStore::IBooker & ibooker, const edm::Run&, const edm::EventSetup&)
 {
    char name[100], title[200];

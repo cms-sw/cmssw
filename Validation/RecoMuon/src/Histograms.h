@@ -26,7 +26,6 @@ class HTrackVariables{
 public:
   
   HTrackVariables(DQMStore::IBooker &ibooker,std::string dirName_, std::string name,std::string whereIs =""):theName(name.c_str()),where(whereIs.c_str()){
-    dbe_ = edm::Service<DQMStore>().operator->();
     ibooker.cd();
     std::string dirName=dirName_;
     //dirName+="/";
@@ -92,9 +91,7 @@ public:
     
     efficiencyHistos.push_back(computeEfficiency(hEtaVsGen,sim->eta(),ibooker));
     efficiencyHistos.push_back(computeEfficiency(hPhiVsGen,sim->phi(),ibooker));
-    //    efficiencyHistos.push_back(computeEfficiency(p(),sim->p()));
     efficiencyHistos.push_back(computeEfficiency(hPtVsGen,sim->pt(),ibooker));
-    //    efficiencyHistos.push_back(computeEfficiency(charge(),sim->charge()),ibooker);
 
     double efficiency = 100*entries()/sim->entries();
     return efficiency;
@@ -135,7 +132,6 @@ public:
   
   
  private:
-  DQMStore* dbe_;
 
   std::string theName;
   std::string where;
@@ -165,7 +161,6 @@ public:
   
   HResolution(DQMStore::IBooker &ibooker, std::string dirName_,std::string name,std::string whereIs):theName(name.c_str()),where(whereIs.c_str()){
     
-    dbe_ = edm::Service<DQMStore>().operator->();
     ibooker.cd();
     std::string dirName=dirName_;
     //dirName+="/";
@@ -262,7 +257,6 @@ public:
 
 
 private:
-  DQMStore* dbe_;
 
   std::string theName;
   std::string where;
@@ -409,8 +403,6 @@ class HResolution1DRecHit{
   MonitorElement *hYPullVsPos;
   MonitorElement *hZPullVsPos;
 
- private:
-  DQMStore* dbe_;
 };
 #endif
 

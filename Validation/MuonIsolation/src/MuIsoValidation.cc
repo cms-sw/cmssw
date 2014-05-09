@@ -88,23 +88,10 @@ MuIsoValidation::MuIsoValidation(const edm::ParameterSet& ps)
   subsystemname_ = iConfig.getUntrackedParameter<std::string>("subSystemFolder", "YourSubsystem") ;
   
   //------"allocate" space for the data vectors-------
-  
-  /*
-    h_1D        is a 2D vector with indices [var][muon#]
-    cd_plots    is a 2D vector with indices [var][muon#]  
-    h_2D        is a 3D vector with indices [var][var][muon#]
-    p_2D        is a 3D vector with indices [var][var][muon#]
-  */
-  //NOTE:the total number of muons and events is initially unknown, 
-  //	   so that dimension is not initialized. Hence, theMuonData
-  //     needs no resizing.
-  
   h_1D.resize    (NUM_VARS);
   cd_plots.resize(NUM_VARS);
-  //  h_2D.resize(NUM_VARS, vector<MonitorElement*>     (NUM_VARS));
   p_2D.resize(NUM_VARS, vector<MonitorElement*>(NUM_VARS));
   
-  //  dbe->cd();
 }
 
 //
@@ -310,18 +297,14 @@ void MuIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   
   //Fill historgams concerning muon isolation 
   uint iMuon=0;
-  //dbe_->setCurrentFolder(dirName.c_str());
   for (MuonIterator muon = muonsHandle->begin(); muon != muonsHandle->end(); ++muon, ++iMuon ) {
     ++nIncMuons;
     if (requireCombinedMuon) {
       if (muon->combinedMuon().isNull()) continue;
     }
-    //    ++nCombinedMuons;
     RecordData(muon);
     FillHistos();
   }
-  //  dbe->cd();
-  
 }
 
 //---------------Record data for a signle muon's data---------------------
@@ -368,47 +351,6 @@ void MuIsoValidation::RecordData(MuonIterator muon){
 
 }
 
-// ------------ method called once each job just before starting event loop  ------------
-void 
-MuIsoValidation::beginJob()
-{
-  
-  edm::LogInfo("Tutorial") << "\n#########################################\n\n"
-			   << "Lets get started! " 
-			   << "\n\n#########################################\n";
-  //  
-  // InitHistos();
-  //dbe->cd();  
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-MuIsoValidation::endJob() {
-  
-  // check if ME still there (and not killed by MEtoEDM for memory saving)
-  if( dbe )
-    {
-      // check existence of first histo in the list
-      if (! dbe->get(dirName+"/nMuons")) return;
-    }
-  else
-    return;
-
-  edm::LogInfo("Tutorial") << "\n#########################################\n\n"
-			   << "Total Number of Events: " << nEvents
-			   << "\nTotal Number of Muons: " << nIncMuons
-			   << "\n\n#########################################\n"
-			   << "\nInitializing Histograms...\n";
-  
-  edm::LogInfo("Tutorial") << "\nIntializing Finished.  Filling...\n";
-  NormalizeHistos();
-  edm::LogInfo("Tutorial") << "\nFilled.  Saving...\n";
-  dbe->save(rootfilename); // comment out for incorporation
-  edm::LogInfo("Tutorial") << "\nSaved.  Peace, homie, I'm out.\n";
-  
-}
-
-//void MuIsoValidation::InitHistos(){
   
 void MuIsoValidation::bookHistograms(DQMStore::IBooker & ibooker,edm::Run const & iRun,edm::EventSetup const &){
 
