@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 rpcRecHits = cms.EDProducer("RPCRecHitProducer",
     recAlgoConfig = cms.PSet(
-
+    	stationToUse = cms.untracked.int32(3),
     ),
     recAlgo = cms.string('RPCRecHitStandardAlgo'),
     rpcDigiLabel = cms.InputTag("simMuonRPCDigis"), # hack to bypass D2R and R2D (only for SLHC simulations)
