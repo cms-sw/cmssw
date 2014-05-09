@@ -160,14 +160,19 @@ if top_dir == None:
 # determine the length of the longest path name (for nice printout)
 #--------------------
 
-maxPathNameLen = None
+maxPathNameLen = 100
 allPathNames = []
 
 for path_key in top_dir.GetListOfKeys():
-
     pathName = path_key.GetName()
 
-    if len(options.selected_paths) != 0 and not path_name in options.selected_paths:
+    # just select directories (there are also other
+    # objects in the top directory)
+    path_dir = top_dir.Get(pathName)
+    if not isinstance(path_dir,ROOT.TDirectoryFile):
+        continue
+
+    if len(options.selected_paths) != 0 and not pathName in options.selected_paths:
         continue
 
     # further checks which are done in the next
@@ -227,7 +232,7 @@ for path_name in allPathNames:
     print ("PATH: %-" + str(maxPathNameLen) + "s") % path_name,
 
     if num_gen_events > 0:
-        print "(%.1f%% eff.)" % (100 * total / float(num_gen_events)),
+        print "(%5.1f%% eff.)" % (100 * total / float(num_gen_events)),
 
     elif options.summary_mode:
         print "(no entries)",
