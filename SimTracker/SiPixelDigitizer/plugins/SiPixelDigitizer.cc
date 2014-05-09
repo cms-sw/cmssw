@@ -142,7 +142,7 @@ namespace cms
            // The insert succeeded, so this detector element has not yet been processed.
            unsigned int isub = DetId(detId).subdetId();
            if((isub == PixelSubdetector::PixelBarrel) || (isub == PixelSubdetector::PixelEndcap)) {
-	     std::map<unsigned int, PixelGeomDetUnit*>::iterator itDet = detectorUnits.find(detId);	     
+	     std::map<unsigned int, PixelGeomDetUnit const *>::iterator itDet = detectorUnits.find(detId);	     
 	     if (itDet == detectorUnits.end()) continue;
              auto pixdet = itDet->second;
              //access to magnetic field in global coordinates
