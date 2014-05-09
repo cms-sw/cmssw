@@ -60,15 +60,16 @@ using std::string;
 //
 //-----------------Constructors---------------------
 //
-MuIsoValidation::MuIsoValidation(const edm::ParameterSet& iConfig)
+MuIsoValidation::MuIsoValidation(const edm::ParameterSet& ps)
 {
+  iConfig=ps;
   
   //  rootfilename = iConfig.getUntrackedParameter<string>("rootfilename"); // comment out for inclusion
   requireCombinedMuon = iConfig.getUntrackedParameter<bool>("requireCombinedMuon");
-  dirName = iConfig.getParameter<std::string>("directory");
-  //  subDirName = iConfig.getParameter<std::string>("@module_label");
+  dirName = iConfig.getUntrackedParameter<std::string>("directory");
+  //subDirName = iConfig.getParameter<std::string>("@module_label");
   
-  //  dirName += subDirName;
+  //dirName += subDirName;
   
   //--------Initialize tags-------
   Muon_Tag = iConfig.getUntrackedParameter<edm::InputTag>("Global_Muon_Label");
@@ -84,6 +85,7 @@ MuIsoValidation::MuIsoValidation(const edm::ParameterSet& iConfig)
   //Set up DAQ
   dbe = 0;
   dbe = edm::Service<DQMStore>().operator->();
+  subsystemname_ = iConfig.getUntrackedParameter<std::string>("subSystemFolder", "YourSubsystem") ;
   
   //------"allocate" space for the data vectors-------
   
@@ -102,7 +104,7 @@ MuIsoValidation::MuIsoValidation(const edm::ParameterSet& iConfig)
   //  h_2D.resize(NUM_VARS, vector<MonitorElement*>     (NUM_VARS));
   p_2D.resize(NUM_VARS, vector<MonitorElement*>(NUM_VARS));
   
-  dbe->cd();
+  //  dbe->cd();
 }
 
 //
@@ -308,7 +310,7 @@ void MuIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   
   //Fill historgams concerning muon isolation 
   uint iMuon=0;
-  dbe->setCurrentFolder(dirName.c_str());
+  //dbe_->setCurrentFolder(dirName.c_str());
   for (MuonIterator muon = muonsHandle->begin(); muon != muonsHandle->end(); ++muon, ++iMuon ) {
     ++nIncMuons;
     if (requireCombinedMuon) {
@@ -318,7 +320,7 @@ void MuIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     RecordData(muon);
     FillHistos();
   }
-  dbe->cd();
+  //  dbe->cd();
   
 }
 
@@ -374,10 +376,9 @@ MuIsoValidation::beginJob()
   edm::LogInfo("Tutorial") << "\n#########################################\n\n"
 			   << "Lets get started! " 
 			   << "\n\n#########################################\n";
-  dbe->setCurrentFolder(dirName.c_str());
-  InitHistos();
-  dbe->cd();
-  
+  //  
+  // InitHistos();
+  //dbe->cd();  
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
@@ -402,22 +403,25 @@ MuIsoValidation::endJob() {
   edm::LogInfo("Tutorial") << "\nIntializing Finished.  Filling...\n";
   NormalizeHistos();
   edm::LogInfo("Tutorial") << "\nFilled.  Saving...\n";
-  //  dbe->save(rootfilename); // comment out for incorporation
+  dbe->save(rootfilename); // comment out for incorporation
   edm::LogInfo("Tutorial") << "\nSaved.  Peace, homie, I'm out.\n";
   
 }
 
-void MuIsoValidation::InitHistos(){
+//void MuIsoValidation::InitHistos(){
   
+void MuIsoValidation::bookHistograms(DQMStore::IBooker & ibooker,edm::Run const & iRun,edm::EventSetup const &){
+
+  ibooker.setCurrentFolder(dirName.c_str());
   //---initialize number of muons histogram---
-  h_nMuons = dbe->book1D("nMuons", title_sam + "Number of Muons", 20, 0., 20.);
+  h_nMuons = ibooker.book1D("nMuons", title_sam + "Number of Muons", 20, 0., 20.);
   h_nMuons->setAxisTitle("Number of Muons",XAXIS);
   h_nMuons->setAxisTitle("Fraction of Events",YAXIS);
   
   
   //---Initialize 1D Histograms---
   for(int var = 0; var < NUM_VARS; var++){
-    h_1D[var] = dbe->book1D(
+    h_1D[var] = ibooker.book1D(
 			    names[var], 
 			    title_sam + main_titles[var] + title_cone, 
 			    (int)param[var][0], 
@@ -429,7 +433,7 @@ void MuIsoValidation::InitHistos(){
     GetTH1FromMonitorElement(h_1D[var])->Sumw2();
 
     if (cdCompNeeded[var]) {
-      cd_plots[var] = dbe->book1D(
+      cd_plots[var] = ibooker.book1D(
 				  names[var] + "_cd", 
 				  title_sam + title_cd + main_titles[var] + title_cone, 
 				  (int)param[var][0], 
@@ -447,7 +451,7 @@ void MuIsoValidation::InitHistos(){
     for(int var2 = 0; var2 < NUM_VARS; var2++){
       if(var1 == var2) continue;
       
-      /*      h_2D[var1][var2] = dbe->book2D(
+      /*      h_2D[var1][var2] = ibooker.book2D(
 	      names[var1] + "_" + names[var2] + "_s",
 	      //title is in "y-var vs. x-var" format
 	      title_sam + main_titles[var2] + " <vs> " + main_titles[var1] + title_cone, 
@@ -461,7 +465,7 @@ void MuIsoValidation::InitHistos(){
       */
       //Monitor elements is weird and takes y axis parameters as well
       //as x axis parameters for a 1D profile plot
-      p_2D[var1][var2] = dbe->bookProfile(
+      p_2D[var1][var2] = ibooker.bookProfile(
 					  names[var1] + "_" + names[var2],
 					  title_sam + main_titles[var2] + " <vs> " + main_titles[var1] + title_cone,
 					  (int)param[var1][0],

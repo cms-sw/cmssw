@@ -41,6 +41,8 @@
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
 #include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h"
 
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+
 //----------------------------------------
 
 //Forward declarations
@@ -53,7 +55,9 @@ class TProfile;
 //------------------------------------------
 //  Class Declaration: MuIsoValidation
 //--------------------------------------
-class MuIsoValidation : public edm::EDAnalyzer {
+//class MuIsoValidation : public edm::EDAnalyzer {
+
+class MuIsoValidation : public DQMEDAnalyzer {
   //---------namespace and typedefs--------------
   typedef edm::View<reco::Muon>::const_iterator MuonIterator;
   typedef edm::RefToBase<reco::Muon> MuonBaseRef;
@@ -73,7 +77,9 @@ private:
   virtual void endJob() ;
   void InitStatics();
   void RecordData(MuonIterator muon);//Fills Histograms with info from single muon
-  void InitHistos();//adds title, bin information to member histograms
+  //  void InitHistos();//adds title, bin information to member histograms
+void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+
   void MakeLogBinsForProfile(Double_t* bin_edges, const double min, const double max);
   void FillHistos();//Fills histograms with data
   void NormalizeHistos(); //Normalize to number of muons
@@ -97,6 +103,8 @@ private:
   // Directories within the rootfile
   std::string dirName;
   std::string subDirName;
+
+  std::string subsystemname_;
 
   //Histogram parameters
   static const int NUM_VARS = 21;
@@ -122,7 +130,8 @@ private:
   
   //MonitorElement
   DQMStore* dbe;
-  
+
+  edm::ParameterSet iConfig;  
   //The Data
   int theMuonData;//[number of muons]
   double theData[NUM_VARS];
