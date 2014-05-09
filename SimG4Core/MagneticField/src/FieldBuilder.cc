@@ -110,16 +110,19 @@ void FieldBuilder::configureForVolume( const std::string& volName,
   fieldType     = volPSet.getParameter<std::string>("Type") ;
   stepper       = volPSet.getParameter<std::string>("Stepper") ;
   edm::ParameterSet stpPSet = 
-    volPSet.getParameter<edm::ParameterSet>(stepper) ;
+    volPSet.getParameter<edm::ParameterSet>("StepperParam") ;
   minStep       = stpPSet.getParameter<double>("MinStep") ;
   dChord        = stpPSet.getParameter<double>("DeltaChord") ;
   dOneStep      = stpPSet.getParameter<double>("DeltaOneStep") ;
   dIntersection = stpPSet.getParameter<double>("DeltaIntersection") ;
   dIntersectionAndOneStep = 
     stpPSet.getUntrackedParameter<double>("DeltaIntersectionAndOneStep",-1.);
-  maxLoopCount = stpPSet.getUntrackedParameter<double>("MaximumLoopCounts",1000);
-  minEpsilonStep = stpPSet.getUntrackedParameter<double>("MinimumEpsilonStep",0.00001);
-  maxEpsilonStep = stpPSet.getUntrackedParameter<double>("MaximumEpsilonStep",0.01);
+  maxLoopCount = 
+    stpPSet.getUntrackedParameter<double>("MaximumLoopCounts",1000);
+  minEpsilonStep = 
+    stpPSet.getUntrackedParameter<double>("MinimumEpsilonStep",0.00001);
+  maxEpsilonStep = 
+    stpPSet.getUntrackedParameter<double>("MaximumEpsilonStep",0.01);
    
   if (fM!=0) configureFieldManager(fM);
   if (fP!=0) configurePropagatorInField(fP);	
@@ -147,7 +150,8 @@ void FieldBuilder::configureFieldManager(G4FieldManager * fM) {
 
   if (fM!=0) {
     fM->SetDetectorField(theField.get());
-    FieldStepper * theStepper = new FieldStepper(theField->fieldEquation(), delta);
+    FieldStepper * theStepper = 
+      new FieldStepper(theField->fieldEquation(), delta);
     theStepper->select(stepper);
     G4ChordFinder * CF = new G4ChordFinder(theField.get(),minStep,theStepper);
     CF->SetDeltaChord(dChord);
@@ -158,9 +162,12 @@ void FieldBuilder::configureFieldManager(G4FieldManager * fM) {
       fM->SetAccuraciesWithDeltaOneStep(dIntersectionAndOneStep);
   }
   if (fChordFinderMonopole == 0) {
-    G4MonopoleEquation* fMonopoleEquation = new G4MonopoleEquation(theField.get());
-    G4MagIntegratorStepper* theStepper = new G4ClassicalRK4(fMonopoleEquation,8);
-    fChordFinderMonopole = new G4ChordFinder(theField.get(),minStep,theStepper);
+    G4MonopoleEquation* fMonopoleEquation = 
+      new G4MonopoleEquation(theField.get());
+    G4MagIntegratorStepper* theStepper = 
+      new G4ClassicalRK4(fMonopoleEquation,8);
+    fChordFinderMonopole = 
+      new G4ChordFinder(theField.get(),minStep,theStepper);
     fChordFinderMonopole->SetDeltaChord(dChord);
   }
 }
