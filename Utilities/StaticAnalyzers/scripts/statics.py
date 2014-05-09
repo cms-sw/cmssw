@@ -5,7 +5,7 @@ baseclass = re.compile("edm::(one::|stream::|global::)?ED(Producer|Filter|Analyz
 farg = re.compile("\(.*\)")
 statics = set()
 toplevelfuncs = set()
-skipfunc = re.compile("(edm::eventsetup::EventSetupRecord::get\(.*\) const)|(BareRootProductGetter::getIt\(.*\) const)|(edm::eventsetup::DataProxy::getImpl\(.*\))|(edm::EventPrincipal::unscheduledFill\(.*\) const)|(edm::ServiceRegistry::get\(.*\) const)|(fwlite::internal::ProductGetter::getIt\(.*\) const)|(edm::eventsetup::EventSetupRecord::getImplementation\(.*\) const)|(edm::eventsetup::EventSetupRecord::getFromProxy\(.*\) const)|(edm::eventsetup::DataProxy::get\(.*\) const)")
+skipfunc = re.compile("(edm::Event::getByLabel\()|(edm::Event::getByToken\()|(edm::eventsetup::EventSetupRecord::get\()|(BareRootProductGetter::getIt\()|(edm::eventsetup::DataProxy::getImpl\()|(edm::EventPrincipal::unscheduledFill\()|(edm::ServiceRegistry::get\()|(fwlite::internal::ProductGetter::getIt\()|(edm::eventsetup::EventSetupRecord::getImplementation\()|(edm::eventsetup::EventSetupRecord::getFromProxy\()|(edm::eventsetup::DataProxy::get\()")
 skipfuncs=set()
 
 import networkx as nx

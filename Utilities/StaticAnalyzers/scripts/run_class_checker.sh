@@ -1,12 +1,6 @@
 #!/usr/bin/env bash
 export LC_ALL=C 
-if [ $# -eq 0 ] 
- 	then
-	echo "Supply a number argument to pass to scram b -j#"
-	exit 10
-else
-	J=$1
-fi
+if [ $# -eq 0 ] ;then J=$(getconf _NPROCESSORS_ONLN); else J=$1; fi
 
 eval `scram runtime -sh`
 ulimit -m 2000000
