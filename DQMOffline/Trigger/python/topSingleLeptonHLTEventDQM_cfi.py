@@ -16,7 +16,7 @@ topSingleLeptonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
       elecs = cms.InputTag("gedGsfElectrons"),
-      jets  = cms.InputTag("PFJetsFilter"),
+      jets  = cms.InputTag("ak5PFJetsCHS"),
       mets  = cms.VInputTag("met", "tcMet", "pfMet"),
       pvs   = cms.InputTag("offlinePrimaryVertices")
     ),
@@ -113,7 +113,7 @@ topSingleLeptonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
     ),
     cms.PSet(
       label  = cms.string("jets/pf:step1"),
-      src  = cms.InputTag("PFJetsFilter"),
+      src  = cms.InputTag("ak5PFJetsCHS"),
       select = cms.string("pt>20 & abs(eta)<2.5"),
       min = cms.int32(4),
     ),
@@ -136,7 +136,7 @@ topSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
       elecs = cms.InputTag("gedGsfElectrons"),
-      jets  = cms.InputTag("PFJetsFilter"),
+      jets  = cms.InputTag("ak5PFJetsCHS"),
       mets  = cms.VInputTag("met", "tcMet", "pfMet"),
       pvs   = cms.InputTag("offlinePrimaryVertices")
 
@@ -171,15 +171,15 @@ topSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
       ## when omitted monitor histograms for b-tagging will not be filled
       jetBTaggers  = cms.PSet(
          trackCountingEff = cms.PSet(
-           label = cms.InputTag("pfJetProbabilityBJetTags" ),
+           label = cms.InputTag("jetProbabilityBJetTags" ),
            workingPoint = cms.double(0.275)
          ),
          trackCountingPur = cms.PSet(
-           label = cms.InputTag("pfTrackCountingHighPurBJetTags" ),
+           label = cms.InputTag("trackCountingHighPurBJetTags" ),
            workingPoint = cms.double(3.41)
          ),
          secondaryVertex  = cms.PSet(
-           label = cms.InputTag("pfCombinedSecondaryVertexBJetTags"),
+           label = cms.InputTag("combinedSecondaryVertexBJetTags"),
            workingPoint = cms.double(0.679)
          )
        ),
@@ -240,21 +240,21 @@ topSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
     ),
 #    cms.PSet(
 #      label  = cms.string("jets/pf:step2"),
-#      src  = cms.InputTag("PFJetsFilter"),
+#      src  = cms.InputTag("ak5PFJetsCHS"),
 #      jetCorrector = cms.string("ak5PFL2L3"),
 #      select = cms.string("pt>20 & abs(eta)<2.5"),
 #      min = cms.int32(1),                                                
 #    ), 
 #    cms.PSet(
 #      label  = cms.string("jets/pf:step3"),
-#      src  = cms.InputTag("PFJetsFilter"),
+#      src  = cms.InputTag("ak5PFJetsCHS"),
 #      jetCorrector = cms.string("ak5PFL2L3"),
 #      select = cms.string("pt>20 & abs(eta)<2.5"),
 #      min = cms.int32(2),                                                
 #    ), 
 #    cms.PSet(
 #      label  = cms.string("jets/pf:step4"),
-#      src  = cms.InputTag("PFJetsFilter"),
+#      src  = cms.InputTag("ak5PFJetsCHS"),
 #      jetCorrector = cms.string("ak5PFL2L3"),
 #      select = cms.string("pt>20 & abs(eta)<2.5"),
 #      min = cms.int32(3),                                                
@@ -262,7 +262,7 @@ topSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
     cms.PSet(
 #      label  = cms.string("jets/pf:step5"),
       label  = cms.string("jets/pf:step2"),
-      src  = cms.InputTag("PFJetsFilter"),
+      src  = cms.InputTag("ak5PFJetsCHS"),
       jetCorrector = cms.string("ak5PFL2L3"),
       select = cms.string("pt>20 & abs(eta)<2.5"),
       min = cms.int32(4),                                                
@@ -286,7 +286,7 @@ topSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
       elecs = cms.InputTag("gedGsfElectrons"),
-      jets  = cms.InputTag("PFJetsFilter"),
+      jets  = cms.InputTag("ak5PFJetsCHS"),
       mets  = cms.VInputTag("met", "tcMet", "pfMet"),
       pvs   = cms.InputTag("offlinePrimaryVertices")
 
@@ -323,15 +323,15 @@ topSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
       ## when omitted monitor histograms for b-tagging will not be filled
       jetBTaggers  = cms.PSet(
          trackCountingEff = cms.PSet(
-           label = cms.InputTag("pfJetProbabilityBJetTags" ),
+           label = cms.InputTag("jetProbabilityBJetTags" ),
            workingPoint = cms.double(0.275)
          ),
          trackCountingPur = cms.PSet(
-           label = cms.InputTag("pfTrackCountingHighPurBJetTags" ),
+           label = cms.InputTag("trackCountingHighPurBJetTags" ),
            workingPoint = cms.double(3.41)
          ),
          secondaryVertex  = cms.PSet(
-           label = cms.InputTag("pfCombinedSecondaryVertexBJetTags"),
+           label = cms.InputTag("combinedSecondaryVertexBJetTags"),
            workingPoint = cms.double(0.679)
          )
        ),
@@ -393,21 +393,21 @@ topSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
     ),
 #    cms.PSet(
 #      label  = cms.string("jets/pf:step2"),
-#      src  = cms.InputTag("PFJetsFilter"),
+#      src  = cms.InputTag("ak5PFJetsCHS"),
 #      jetCorrector = cms.string("ak5PFL2L3"),
 #      select = cms.string("pt>20 & abs(eta)<2.5"),
 #      min = cms.int32(1),                                                
 #    ), 
 #    cms.PSet(
 #      label  = cms.string("jets/pf:step3"),
-#      src  = cms.InputTag("PFJetsFilter"),
+#      src  = cms.InputTag("ak5PFJetsCHS"),
 #      jetCorrector = cms.string("ak5PFL2L3"),
 #      select = cms.string("pt>20 & abs(eta)<2.5"),
 #      min = cms.int32(2),                                                
 #    ), 
 #    cms.PSet(
 #      label  = cms.string("jets/pf:step4"),
-#      src  = cms.InputTag("PFJetsFilter"),
+#      src  = cms.InputTag("ak5PFJetsCHS"),
 #      jetCorrector = cms.string("ak5PFL2L3"),
 #      select = cms.string("pt>20 & abs(eta)<2.5"),
 #      min = cms.int32(3),                                                
@@ -415,7 +415,7 @@ topSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
     cms.PSet(
 #      label  = cms.string("jets/pf:step5"),
       label  = cms.string("jets/pf:step2"),
-      src  = cms.InputTag("PFJetsFilter"),
+      src  = cms.InputTag("ak5PFJetsCHS"),
       jetCorrector = cms.string("ak5PFL2L3"),
       select = cms.string("pt>20 & abs(eta)<2.5"),
       min = cms.int32(4),                                                
