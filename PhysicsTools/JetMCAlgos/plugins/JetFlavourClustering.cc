@@ -339,7 +339,7 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    std::vector<fastjet::PseudoJet> inclusiveJets = fastjet::sorted_by_pt( fjClusterSeq_->inclusive_jets(jetPtMin_) );
 
    if( inclusiveJets.size() < jets->size() )
-     throw cms::Exception("TooFewReclusteredJets") << "There are fewer reclustered (" << inclusiveJets.size() << ") than original jets (" << jets->size() << "). Please check that the jet algorithm and jet size match those used for the original jet collection.";
+     edm::LogError("TooFewReclusteredJets") << "There are fewer reclustered (" << inclusiveJets.size() << ") than original jets (" << jets->size() << "). Please check that the jet algorithm and jet size match those used for the original jet collection.";
 
    // match reclustered and original jets
    std::vector<int> reclusteredIndices;
@@ -350,7 +350,7 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    if( useSubjets_ )
    {
      if( groomedJets->size() > jets->size() )
-       throw cms::Exception("TooManyGroomedJets") << "There are more groomed (" << groomedJets->size() << ") than original jets (" << jets->size() << "). Please check that the jet algorithm, jet size, and Pt threshold match for the two jet collections.";
+       edm::LogError("TooManyGroomedJets") << "There are more groomed (" << groomedJets->size() << ") than original jets (" << jets->size() << "). Please check that the two jet collections belong to each other.";
 
      matchGroomedJets(jets,groomedJets,groomedIndices);
    }
@@ -370,13 +370,13 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      {
        if( jets->at(i).pt() < 10. )  // special handling for low-Pt jets (Pt<10 GeV)
          edm::LogWarning("JetPtMismatchAtLowPt") << "The reclustered and original jet " << i << " have different Pt's (" << inclusiveJets.at(reclusteredIndices.at(i)).pt() << " vs " << jets->at(i).pt() << " GeV, respectively).\n"
-                                                 << "Please check that the jet algorithm and jet size match those used for the original jet collection and also make sure the original jets are uncorrected.\n"
-                                                 << "Since the mismatch is at low Pt, it is ignored and only a warning is printed out.\n"
+                                                 << "Please check that the jet algorithm and jet size match those used for the original jet collection and also make sure the original jets are uncorrected. In addition, make sure you are not using CaloJets which are presently not supported.\n"
+                                                 << "Since the mismatch is at low Pt, it is ignored and only a warning is issued.\n"
                                                  << "\nIn extremely rare instances the mismatch could be caused by a difference in the machine precision in which case make sure the original jet collection is produced and reclustering is performed in the same job.";
        else
-         throw cms::Exception("JetPtMismatch") << "The reclustered and original jet " << i << " have different Pt's (" << inclusiveJets.at(reclusteredIndices.at(i)).pt() << " vs " << jets->at(i).pt() << " GeV, respectively).\n"
-                                               << "Please check that the jet algorithm and jet size match those used for the original jet collection and also make sure the original jets are uncorrected.\n"
-                                               << "\nIn extremely rare instances the mismatch could be caused by a difference in the machine precision in which case make sure the original jet collection is produced and reclustering is performed in the same job.";
+         edm::LogError("JetPtMismatch") << "The reclustered and original jet " << i << " have different Pt's (" << inclusiveJets.at(reclusteredIndices.at(i)).pt() << " vs " << jets->at(i).pt() << " GeV, respectively).\n"
+                                        << "Please check that the jet algorithm and jet size match those used for the original jet collection and also make sure the original jets are uncorrected. In addition, make sure you are not using CaloJets which are presently not supported.\n"
+                                        << "\nIn extremely rare instances the mismatch could be caused by a difference in the machine precision in which case make sure the original jet collection is produced and reclustering is performed in the same job.";
      }
 
      reco::GenParticleRefVector clusteredbHadrons;
@@ -538,7 +538,7 @@ JetFlavourClustering::matchReclusteredJets(const edm::Handle<edm::View<reco::Jet
    }
 
    if( std::find( matchedIndices.begin(), matchedIndices.end(), -1 ) != matchedIndices.end() )
-     throw cms::Exception("JetMatchingFailed") << "Matching reclustered to original jets failed. Please check that the jet algorithm and jet size match those used for the original jet collection.";
+     edm::LogError("JetMatchingFailed") << "Matching reclustered to original jets failed. Please check that the jet algorithm and jet size match those used for the original jet collection.";
 }
 
 // ------------ method that matches groomed and original jets based on minimum dR ------------
@@ -572,7 +572,7 @@ JetFlavourClustering::matchGroomedJets(const edm::Handle<edm::View<reco::Jet> >&
    }
 
    if( std::find( jetIndices.begin(), jetIndices.end(), -1 ) != jetIndices.end() )
-     throw cms::Exception("JetMatchingFailed") << "Matching groomed to original jets failed. Please check that the jet algorithm, jet size, and Pt threshold match for the two jet collections.";
+     edm::LogError("JetMatchingFailed") << "Matching groomed to original jets failed. Please check that the two jet collections belong to each other.";
 
    for(size_t j=0; j<jets->size(); ++j)
    {
@@ -582,7 +582,7 @@ JetFlavourClustering::matchGroomedJets(const edm::Handle<edm::View<reco::Jet> >&
    }
 }
 
-// ------------ method that matches groomed and original jets ------------
+// ------------ method that matches subjets and original jets ------------
 void
 JetFlavourClustering::matchSubjets(const std::vector<int>& groomedIndices,
                                    const edm::Handle<edm::View<reco::Jet> >& groomedJets,
@@ -610,7 +610,7 @@ JetFlavourClustering::matchSubjets(const std::vector<int>& groomedIndices,
        }
 
        if( subjetIndices.size() == 0 )
-         throw cms::Exception("SubjetMatchingFailed") << "Matching subjets to original jets failed. Please check that the groomed jet and subjet collections belong to each other.";
+         edm::LogError("SubjetMatchingFailed") << "Matching subjets to original jets failed. Please check that the groomed jet and subjet collections belong to each other.";
 
        matchedIndices.push_back(subjetIndices);
      }
