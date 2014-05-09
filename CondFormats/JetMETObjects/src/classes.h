@@ -25,6 +25,9 @@ namespace CondFormats_JetMETObjects {
     QGLikelihoodObject qgobj;
     QGLikelihoodObject::Entry qgentry;
     std::vector< QGLikelihoodObject::Entry > qgentryv;
+    QGLikelihoodSystematicsObject qgsystobj;
+    QGLikelihoodSystematicsObject::Entry qgsystentry;
+    std::vector< QGLikelihoodSystematicsObject::Entry > qgsystentryv;
 
   };
 }

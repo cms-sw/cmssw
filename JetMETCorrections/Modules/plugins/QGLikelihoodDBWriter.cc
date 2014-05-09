@@ -1,20 +1,15 @@
-// Author: Benedikt Hegner
-// Email:  benedikt.hegner@cern.ch
+// Author: Benedikt Hegner, Tom Cornelis
+// Email:  benedikt.hegner@cern.ch, tom.cornelis@cern.ch
 
 #include "TFile.h"
 #include "TList.h"
-#include "TString.h"
 #include "TKey.h"
 #include "TH1.h"
 #include <sstream>
+#include <stdlib.h>  
 #include <vector>
-#include <iterator>
-#include <algorithm>
-#include <sstream>
 #include <memory>
 #include <string>
-#include <fstream>
-#include <iostream>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -25,8 +20,7 @@
 #include "CondFormats/JetMETObjects/interface/QGLikelihoodObject.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
-class  QGLikelihoodDBWriter : public edm::EDAnalyzer
-{
+class  QGLikelihoodDBWriter : public edm::EDAnalyzer{
  public:
   QGLikelihoodDBWriter(const edm::ParameterSet&);
   virtual void beginJob() override;
@@ -35,188 +29,142 @@ class  QGLikelihoodDBWriter : public edm::EDAnalyzer
   ~QGLikelihoodDBWriter() {}
 
  private:
+  bool extractString(std::string, std::string&);
   std::string inputRootFile;
   std::string payloadTag;
 };
 
 // Constructor
-QGLikelihoodDBWriter::QGLikelihoodDBWriter(const edm::ParameterSet& pSet)
-{
+QGLikelihoodDBWriter::QGLikelihoodDBWriter(const edm::ParameterSet& pSet){
   inputRootFile    = pSet.getParameter<std::string>("src");
   payloadTag       = pSet.getParameter<std::string>("payload");
 }
 
+bool QGLikelihoodDBWriter::extractString(std::string mySubstring, std::string& myString){
+  size_t subStringPos = myString.find(mySubstring);
+  if(subStringPos != std::string::npos){
+    myString = myString.substr(subStringPos + mySubstring.length(), std::string::npos);
+    return true;
+  } else return false;
+}
+
 // Begin Job
-void QGLikelihoodDBWriter::beginJob()
-{
+void QGLikelihoodDBWriter::beginJob(){
 
   QGLikelihoodObject *payload = new QGLikelihoodObject();
   payload->data.clear();
 
-  TFile * f = TFile::Open(edm::FileInPath(inputRootFile.c_str()).fullPath().c_str());
-  
-  // For easy keeping, here are the various strings in the histogram name. 
-  std::string varName0 = "nPFCand_QC_ptCutJet0";
-  std::string varName1 = "ptD_QCJet0";
-  std::string varName2 = "axis1_QCJet0";
-  std::string varName3 = "axis2_QCJet0";
-  std::string etaName0 = "_F";
-  std::string etaName1 = "";
-  std::string quarkName= "_quark_";
-  std::string gluonName= "_gluon_";
-  std::string rhoName  = "_rho";
-
-  // The structure of the root file is that it is in a bunch of 
-  // subdirectories. Need to traverse through them and add the histograms. 
-  TList * keys = f->GetListOfKeys();
-  if ( !keys ) {
-    edm::LogError  ("NoKeys") << "There are no keys in the input file." << std::endl;
+  // Get the ROOT files and the keys to the histogram
+  TFile *f = TFile::Open(edm::FileInPath(inputRootFile.c_str()).fullPath().c_str());
+  TList *keys = f->GetListOfKeys();
+  if(!keys){
+    edm::LogError("NoKeys") << "There are no keys in the input file." << std::endl;
     return;
   }
-
-
+  
+  // Loop over directories/histograms
   TIter nextdir(keys);
   TKey *keydir;
-  while ((keydir = (TKey*)nextdir())) {
-    TDirectory * dir = (TDirectory*)keydir->ReadObj() ;
+  while((keydir = (TKey*)nextdir())){
+    TDirectory *dir = (TDirectory*)keydir->ReadObj() ;
     TIter nexthist(dir->GetListOfKeys());
-    TKey * keyhist;
-    while ( (keyhist = (TKey*)nexthist())) {
+    TKey *keyhist;
+    while((keyhist = (TKey*)nexthist())){
 
-      double ptMin=0.0, ptMax=0.0, rhoVal=-99.99;
-      int etaBin=-1;
-      int varIndex=-1;
-      int qgBin=-1;
+      float ptMin, ptMax, rhoMin, rhoMax, etaMin, etaMax;
+      int varIndex, qgIndex;
 
       std::string histname = keyhist->GetName();
+      std::string histname_ = keyhist->GetName();
 
-      // Histogram names encode the binning. Examples: 
-      //     nPFCand_QC_ptCutJet0_gluon_pt40_51_rho0
-      //     ptD_QCJet0_gluon_pt40_51_rho0
-      //     axis1_QCJet0_gluon_pt40_51_rho0
-      //     axis2_QCJet0_gluon_pt40_51_rho0
-      size_t varName0Pos = histname.find( varName0 );
-      size_t varName1Pos = histname.find( varName1 );
-      size_t varName2Pos = histname.find( varName2 );
-      size_t varName3Pos = histname.find( varName3 );
-      size_t eta_qg_0Pos = histname.find( etaName0 + quarkName );
-      size_t eta_qg_1Pos = histname.find( etaName1 + quarkName );
-      size_t eta_qg_2Pos = histname.find( etaName0 + gluonName );
-      size_t eta_qg_3Pos = histname.find( etaName1 + gluonName );
-      size_t rhoPos      = histname.find( rhoName );
-      size_t ptFirstPos  = 0;
+      // First check the variable name, and use index in same order as RecoJets/JetProducers/plugins/QGTagger.cc:73
+      if(extractString("nPFCand_QC_ptCutJet0", histname)) varIndex = 0;
+      else if(extractString("ptD_QCJet0", histname)) varIndex = 1;
+      else if(extractString("axis2_QCJet0", histname)) varIndex = 2;
+      else continue;
 
+      // Check pseudorapidity range
+      if(extractString("_F", histname)){ etaMin = 2.5; etaMax = 4.7;}
+      else { etaMin = 0.;etaMax = 2.5;}
 
-      // First check the variable name, and offset the first position of the "pt" substring
-      if ( varName0Pos != std::string::npos ) {
-	varIndex = 0;
-	ptFirstPos += varName0.size();
-      }
-      else if ( varName1Pos != std::string::npos ) {
-	varIndex = 1;
-	ptFirstPos += varName1.size();
-      }
-      else if ( varName2Pos != std::string::npos ) {
-	varIndex = 2;
-	ptFirstPos += varName2.size();
-      }
-      else if ( varName3Pos != std::string::npos ) {
-	varIndex = 3;
-	ptFirstPos += varName3.size();
-      }
-      else {
-	edm::LogError  ("NoName") << "Cannot find the variable name " << std::endl;
-	return;
-      }
-
-      // Next check central vs. forward eta, q vs g, and get the offest of the position where the pt is stored
-      if ( eta_qg_0Pos != std::string::npos ) {
-	etaBin = 0;
-	qgBin = 0;
-	ptFirstPos += etaName0.size() + quarkName.size();
-      }
-      else if ( eta_qg_1Pos != std::string::npos ) {
-	etaBin = 1;
-	qgBin = 0;
-	ptFirstPos += etaName1.size() + quarkName.size();
-      }
-      else if ( eta_qg_2Pos != std::string::npos ) {
-	etaBin = 0;
-	qgBin = 1;
-	ptFirstPos += etaName0.size() + gluonName.size();
-      }
-      else if ( eta_qg_3Pos != std::string::npos ) {
-	etaBin = 1;
-	qgBin = 1;
-	ptFirstPos += etaName1.size() + gluonName.size();
-      } else {
-	edm::LogError  ("NoBins") << "Cannot find eta, qg and pt bins." << std::endl;
-	return;
-      }
+      // Check quark or gluon
+      if(extractString("quark", histname)) qgIndex = 0;
+      else if(extractString("gluon", histname)) qgIndex = 1;
+      else continue;
 
       // Access the pt information
-      ptFirstPos += 2;
-      char junk('_');
-      std::stringstream sptVal ( histname.substr( ptFirstPos, rhoPos ) );
-      sptVal >> ptMin >> junk >> ptMax;
+      extractString("pt", histname);
+      ptMin = std::atof(histname.substr(0, histname.find("_")).c_str());
+      extractString("_", histname);
+      ptMax = std::atof(histname.substr(0, histname.find("rho")).c_str());
+
+      if(etaMin == 2.5 && ptMin > 128) continue;		//In forward use one bin for 127->2000
+      if(etaMin == 2.5 && ptMin == 127) ptMax = 4000;
 
       // Access the rho information
-      size_t rhoEndPos = rhoPos + rhoName.size();
-      std::stringstream srhoVal ( histname.substr( rhoEndPos, histname.size() ) );
-      srhoVal >> rhoVal;
-       
+      extractString("rho", histname);
+      rhoMin = std::atof(histname.c_str());
+      rhoMax = rhoMin + 1.; // WARNING: Check if this is still valid when changed to fixedGrid rho (try to move it in the name...)
 
       // Print out for debugging      
       char buff[1000];
-      sprintf( buff, "%50s : var=%1d, eta=%1d, qg=%1d, ptMin=%8.2f, ptMax=%8.2f, rhoVal=%6.2f", histname.c_str(), varIndex, etaBin, qgBin, ptMin, ptMax, rhoVal );
-      edm::LogVerbatim   ("HistName") << buff << std::endl;
+      sprintf(buff, "%50s : var=%1d, qg=%1d, etaMin=%6.2f, etaMax=%6.2f, ptMin=%8.2f, ptMax=%8.2f, rhoMin=%6.2f, rhoMax=%6.2f", histname_.c_str(), varIndex, qgIndex, etaMin, etaMax, ptMin, ptMax, rhoMin, rhoMax );
+      edm::LogVerbatim("HistName") << buff << std::endl;
 
-      // Create the new QGLikelihoodCategory and add to the list. 
-      TObject * objhist = keyhist->ReadObj();
-      TH1* th1hist = (TH1*)objhist;
-      
-
-
+      // Define category parameters
       QGLikelihoodCategory category;
-      category.RhoVal = rhoVal;
+      category.RhoMin = rhoMin;
+      category.RhoMax = rhoMax;
       category.PtMin = ptMin;
       category.PtMax = ptMax;
-      category.EtaBin = etaBin;
-      category.QGIndex = qgBin;
+      category.EtaMin = etaMin;
+      category.EtaMax = etaMax;
+      category.QGIndex = qgIndex;
       category.VarIndex = varIndex;
-      QGLikelihoodObject::Histogram histogram (th1hist->GetNbinsX(), 
-					       th1hist->GetXaxis()->GetBinLowEdge(1), 
-					       th1hist->GetXaxis()->GetBinUpEdge( th1hist->GetNbinsX() )
-					       );
-      for ( int ibin = 0; ibin < th1hist->GetNbinsX(); ++ibin ) {
-	histogram.setBinContent( ibin, th1hist->GetBinContent( ibin+1 ) ); // ROOT TH1 indexing off-by-one
+
+      // Get TH1 
+      TH1* th1hist = (TH1*) keyhist->ReadObj();
+
+      // In the future, this part will (preferably) move to the making of the root files
+      if(th1hist->GetEntries()<50 ) 		th1hist->Rebin(5); 	// try to make it more stable
+      else if(th1hist->GetEntries()<500 ) 	th1hist->Rebin(2); 	// try to make it more stable
+      th1hist->Scale(1./th1hist->Integral("width")); 
+
+      // Transform ROOT TH1 to QGLikelihoodObject (same indexing)
+      QGLikelihoodObject::Histogram histogram(th1hist->GetNbinsX(), th1hist->GetXaxis()->GetBinLowEdge(1), th1hist->GetXaxis()->GetBinUpEdge(th1hist->GetNbinsX()));
+      for(int ibin = 0; ibin <= th1hist->GetNbinsX() + 1; ++ibin){
+	histogram.setBinContent(ibin, th1hist->GetBinContent(ibin));
       }
 
+      // Add this entry with its category parameters, histogram and mean
       QGLikelihoodObject::Entry entry;
       entry.category = category;
       entry.histogram = histogram; 
-      payload->data.push_back( entry );
-
+      entry.mean = th1hist->GetMean();
+      payload->data.push_back(entry);
     }
-
   }
 
-   
-  
+  // Define the valid range, if no category is found within these bounds a warning will be thrown
+  payload->qgValidRange.RhoMin = 0;
+  payload->qgValidRange.RhoMax = 46;
+  payload->qgValidRange.EtaMin = 0;
+  payload->qgValidRange.EtaMax = 4.7;
+  payload->qgValidRange.PtMin  = 20;
+  payload->qgValidRange.PtMax  = 4000;
+  payload->qgValidRange.QGIndex = -1;
+  payload->qgValidRange.VarIndex = -1;
 
-  edm::LogInfo   ("UserOutput") << "Opening PoolDBOutputService" << std::endl;
+  // Now write it into the DB
+  edm::LogInfo("UserOutput") << "Opening PoolDBOutputService" << std::endl;
 
-  // now write it into the DB
   edm::Service<cond::service::PoolDBOutputService> s;
-  if (s.isAvailable()) 
-    {
-      edm::LogInfo   ("UserOutput") <<  "Setting up payload with " << payload->data.size() <<  " entries and tag " << payloadTag << std::endl;
-      if (s->isNewTagRequest(payloadTag)) 
-	s->createNewIOV<QGLikelihoodObject>(payload, s->beginOfTime(), s->endOfTime(), payloadTag);
-      else 
-	s->appendSinceTime<QGLikelihoodObject>(payload, 111, payloadTag);
-    }
-  edm::LogInfo   ("UserOutput") <<  "Wrote in CondDB QGLikelihood payload label: " << payloadTag << std::endl;
+  if(s.isAvailable()){ 
+    edm::LogInfo("UserOutput") <<  "Setting up payload with " << payload->data.size() <<  " entries and tag " << payloadTag << std::endl;
+    if (s->isNewTagRequest(payloadTag))	s->createNewIOV<QGLikelihoodObject>(payload, s->beginOfTime(), s->endOfTime(), payloadTag);
+    else s->appendSinceTime<QGLikelihoodObject>(payload, 111, payloadTag);
+  }
+  edm::LogInfo("UserOutput") <<  "Wrote in CondDB QGLikelihood payload label: " << payloadTag << std::endl;
 }
 
 
