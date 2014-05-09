@@ -157,7 +157,7 @@ namespace spr{
     std::vector< typename T::const_iterator> matchedhit;
     for (int ihit=0; ihit < hit.size(); ihit++) {
       bool keephit = false;
-      for (int idetid=0; idetid < coneRecHitDetIds.size(); idetid++) {
+      for (size_t idetid=0; idetid < coneRecHitDetIds.size(); idetid++) {
 	if (hit.at(ihit)->id() ==  coneRecHitDetIds.at(idetid)) {
 	  keephit = true;
 	  break;
