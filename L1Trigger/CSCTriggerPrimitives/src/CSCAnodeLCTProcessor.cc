@@ -1128,6 +1128,8 @@ void CSCAnodeLCTProcessor::ghostCancellationLogicSLHC() {
       int qual_this = quality[key_wire][i_pattern];
       if (qual_this > 0) {
 
+          if (runME21ILT_ or runME3141ILT_)
+            qual_this = (qual_this & 0x03); 
         // Previous wire.
         int dt = -1;
         int qual_prev = (key_wire > 0) ? quality[key_wire-1][i_pattern] : 0;
