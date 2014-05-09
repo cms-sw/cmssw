@@ -11,7 +11,7 @@ topDiLeptonHLTOfflineDQM = cms.EDAnalyzer("TopDiLeptonHLTOfflineDQM",
     ## sub-directory to write the monitor histograms to
     ## [mandatory] : should not be changed w/o explicit 
     ## communication to TopCom!
-    directory = cms.string("HLTriggerOffline/Top/DiLeptonic/"),
+    directory = cms.string("HLT/TopHLTOffline/Top/DiLeptonic/"),
 
     ## [mandatory]
     sources = cms.PSet(
@@ -137,7 +137,7 @@ DiMuonHLTOfflineDQM = cms.EDAnalyzer("TopDiLeptonHLTOfflineDQM",
     ## sub-directory to write the monitor histograms to
     ## [mandatory] : should not be changed w/o explicit 
     ## communication to TopCom!
-    directory = cms.string("HLTriggerOffline/Top/DiMuon/"),
+    directory = cms.string("HLT/TopHLTOffline/Top/DiMuon/"),
 
     ## [mandatory]
     sources = cms.PSet(
@@ -270,7 +270,7 @@ DiElectronHLTOfflineDQM = cms.EDAnalyzer("TopDiLeptonHLTOfflineDQM",
     ## sub-directory to write the monitor histograms to
     ## [mandatory] : should not be changed w/o explicit 
     ## communication to TopCom!
-    directory = cms.string("HLTriggerOffline/Top/DiElectron/"),
+    directory = cms.string("HLT/TopHLTOffline/Top/DiElectron/"),
 
     ## [mandatory]
     sources = cms.PSet(
@@ -404,7 +404,7 @@ ElecMuonHLTOfflineDQM = cms.EDAnalyzer("TopDiLeptonHLTOfflineDQM",
     ## sub-directory to write the monitor histograms to
     ## [mandatory] : should not be changed w/o explicit 
     ## communication to TopCom!
-    directory = cms.string("HLTriggerOffline/Top/ElecMuon/"),
+    directory = cms.string("HLT/TopHLTOffline/Top/ElecMuon/"),
 
     ## [mandatory]
     sources = cms.PSet(
