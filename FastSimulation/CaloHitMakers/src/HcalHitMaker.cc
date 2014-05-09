@@ -95,8 +95,25 @@ bool HcalHitMaker::addHit(const XYZPoint& point, unsigned layer)
   
   if(!thecellID.null()  && myDetId.depth()>0)
     {	
-      CaloHitID current_id(thecellID.rawId(),tof,0); //no track yet
-      
+      uint32_t NewId;
+      if( numbering )
+      {
+        int lay = 1;
+        if(myDetId.subdet()==1) 
+          lay = getLayerNumHB(myDetId.iphi(),point.X(),point.Y())+1;
+        else if(myDetId.subdet()==2) lay = getLayerNumHE(point.Z())+1;
+        else if(myDetId.subdet()==3) lay = 1;
+        else lay = myDetId.depth();
+
+        int nZside = (myDetId.zside()==1) ? 1 : 0;
+        NewId = HcalTestNumbering::packHcalIndex(myDetId.subdet(),nZside,
+                    myDetId.depth(),myDetId.ietaAbs(),myDetId.iphi(),lay);
+      }
+      else 
+        NewId = thecellID.rawId();
+
+      CaloHitID current_id(NewId,tof,0); //no track yet
+
       //      std::cout << " FamosHcalHitMaker::addHit - the cell num " << cell
       //      		<< std::endl;
 
@@ -180,3 +197,26 @@ HcalHitMaker::setDepth(double depth,bool inCm)
 			   (Point)(origin+planeVec1));
   return true;
 }
+
+int HcalHitMaker::getLayerNumHE(double z)
+{
+  int lay = 0;
+  for (unsigned int i=0; i<heLayers_.size()-1; ++i) {
+    if(abs(z) <=heLayers_[0]) break; 
+    else if (abs(z) > heLayers_[i]) lay = i;
+  }
+  return lay;
+}
+
+int HcalHitMaker::getLayerNumHB(int phi, double x, double y)
+{
+  int lay = 0;
+  double alfa  = (2.*M_PI/174.) + (2.*M_PI/72.0)*(phi-1);  
+  double xPrim = x*cos(alfa) + y*sin(alfa);
+  for (unsigned int i=0; i<hbLayers_.size()-1; ++i) {
+    if(abs(xPrim) <=hbLayers_[0]) break;
+    else if (abs(xPrim) > hbLayers_[i]) lay = i;
+  }
+  return lay;
+}
+

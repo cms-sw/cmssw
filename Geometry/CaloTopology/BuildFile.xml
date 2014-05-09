@@ -1,6 +1,7 @@
 <use   name="DataFormats/CaloTowers"/>
 <use   name="DataFormats/HcalDetId"/>
 <use   name="DataFormats/EcalDetId"/>
+<use   name="DataFormats/ForwardDetId"/>
 <use   name="DataFormats/Common"/>
 <use   name="boost"/>
 <use   name="Geometry/CaloGeometry"/>

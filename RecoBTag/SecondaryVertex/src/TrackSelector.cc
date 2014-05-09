@@ -15,6 +15,8 @@ using namespace ROOT::Math;
 
 TrackSelector::TrackSelector(const edm::ParameterSet &params) :
 	minPixelHits(params.getParameter<unsigned int>("pixelHitsMin")),
+        maxBpixLayer(params.getParameter<unsigned int>("maxPixelBarrelLayer")),
+        maxEpixLayer(params.getParameter<unsigned int>("maxPixelEndcapLayer")),
 	minTotalHits(params.getParameter<unsigned int>("totalHitsMin")),
 	minPt(params.getParameter<double>("ptMin")),
 	maxNormChi2(params.getParameter<double>("normChi2Max")),
@@ -73,7 +75,7 @@ TrackSelector::operator () (const Track &track,
 
   return (!selectQuality || track.quality(quality)) &&
     (minPixelHits <= 0 ||
-     track.hitPattern().numberOfValidPixelHits() >= (int)minPixelHits) &&
+     track.hitPattern().numberOfValidPixelHits(maxBpixLayer, maxEpixLayer) >= (int)minPixelHits) &&
     (minTotalHits <= 0 ||
      track.hitPattern().numberOfValidHits() >= (int)minTotalHits) &&
     track.pt() >= minPt &&

@@ -10,3 +10,7 @@
 <flags   EDM_PLUGIN="1"/>
 <library file="DD*.cc,module.cc" name="GeometryHGCalCommonDataPlugin"> </library>
 <library file="ShashlikNumberingInitialization.cc" name="GeometryShashlikNumberingInitialization"> </library>
+
+<library file="HGCalNumberingInitialization.cc" name="GeometryHGCalNumberingInitialization"> </library>
+
+<library file="FastTimeNumberingInitialization.cc" name="GeometryFastTimeNumberingInitialization"> </library>

@@ -15,7 +15,7 @@ namespace {
 }
 
 TkPixelMeasurementDet::TkPixelMeasurementDet( const GeomDet* gdet,
-					      const PixelClusterParameterEstimator* cpe) : 
+					      const PixelClusterParameterEstimator* cpe) :
     MeasurementDet (gdet),
     theCPE(cpe),
     skipClusters_(0),
@@ -35,7 +35,7 @@ bool TkPixelMeasurementDet::measurements( const TrajectoryStateOnSurface& stateO
     result.add(InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::inactive), 0.F);
     return true;
   }
-  
+
   auto oldSize = result.size();
   MeasurementDet::RecHitContainer && allHits = recHits(stateOnThisDet);
   for (auto && hit : allHits) {
@@ -64,7 +64,7 @@ TkPixelMeasurementDet::buildRecHit( const SiPixelClusterRef & cluster,
   return TSiPixelRecHit::build( lv.first, lv.second, &fastGeomDet(), cluster, theCPE);
 }
 
-TkPixelMeasurementDet::RecHitContainer 
+TkPixelMeasurementDet::RecHitContainer
 TkPixelMeasurementDet::recHits( const TrajectoryStateOnSurface& ts ) const
 {
   RecHitContainer result;
@@ -76,7 +76,7 @@ TkPixelMeasurementDet::recHits( const TrajectoryStateOnSurface& ts ) const
   }
   result.reserve(detSet_.size());
   for ( const_iterator ci = detSet_.begin(); ci != detSet_.end(); ++ ci ) {
-    
+
     if (ci < begin){
       edm::LogError("IndexMisMatch")<<"TkPixelMeasurementDet cannot create hit because of index mismatch.";
       return result;
@@ -89,7 +89,7 @@ TkPixelMeasurementDet::recHits( const TrajectoryStateOnSurface& ts ) const
      if(0==skipClusters_ or skipClusters_->empty() or (not (*skipClusters_)[index]) ) {
        SiPixelClusterRef cluster = edmNew::makeRefTo( handle_, ci );
        result.push_back( buildRecHit( cluster, ts.localParameters() ) );
-     }else{   
+     }else{
        LogDebug("TkPixelMeasurementDet")<<"skipping this cluster from last iteration on "<<fastGeomDet().geographicalId().rawId()<<" key: "<<index;
      }
   }
@@ -105,6 +105,6 @@ TkPixelMeasurementDet::hasBadComponents( const TrajectoryStateOnSurface &tsos ) 
     for (std::vector<LocalPoint>::const_iterator it = badRocPositions_.begin(), ed = badRocPositions_.end(); it != ed; ++it) {
         if ( (std::abs(it->x() - lp.x()) < dx) &&
              (std::abs(it->y() - lp.y()) < dy) ) return true;
-    } 
+    }
     return false;
 }

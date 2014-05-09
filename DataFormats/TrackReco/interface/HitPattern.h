@@ -345,6 +345,10 @@ namespace reco {
     int stripTOBLayersNull() const;                  // case 999999: strip TOB
     int stripTECLayersNull() const;                  // case 999999: strip TEC
 
+    int trackerLayersWithMeasurement(uint32_t MaxPixBarrelLayer,uint32_t MaxPixForwardDisk) const;// case 0: tracker
+    int pixelLayersWithMeasurement(uint32_t MaxPixBarrelLayer,uint32_t MaxPixForwardDisk) const;// case 0: pixel
+    int pixelBarrelLayersWithMeasurement(uint32_t MaxPixBarrelLayer) const;// case 0: pixel PXB
+    int pixelEndcapLayersWithMeasurement(uint32_t MaxPixForwardDisk) const;// case 0: pixel PXF
 
 
     /// subdet = 0(all), 1(DT), 2(CSC), 3(RPC); hitType=-1(all), 0=valid, 3=bad
@@ -773,7 +777,6 @@ inline int HitPattern::numberOfInactiveTrackerHits() const {
 
 
 
-
   
   inline int HitPattern::trackerLayersWithMeasurement() const {
     return pixelLayersWithMeasurement() + 
@@ -783,6 +786,24 @@ inline int HitPattern::numberOfInactiveTrackerHits() const {
   inline int HitPattern::pixelLayersWithMeasurement() const {
     return pixelBarrelLayersWithMeasurement() +
       pixelEndcapLayersWithMeasurement();
+  }
+
+  inline int HitPattern::trackerLayersWithMeasurement(uint32_t MaxPixBarrelLayer,uint32_t MaxPixForwardDisk) const {
+    return pixelLayersWithMeasurement(MaxPixBarrelLayer,MaxPixForwardDisk) + 
+      stripLayersWithMeasurement();
+  }
+  
+  inline int HitPattern::pixelLayersWithMeasurement(uint32_t MaxPixBarrelLayer,uint32_t MaxPixForwardDisk) const {
+    return pixelBarrelLayersWithMeasurement(MaxPixBarrelLayer) +
+      pixelEndcapLayersWithMeasurement(MaxPixForwardDisk);
+  }
+
+  inline int HitPattern::pixelBarrelLayersWithMeasurement() const {
+    return pixelBarrelLayersWithMeasurement(10);//all layers are "pixel" is SLHC geometry - fixme hardcoded
+  }
+
+  inline int HitPattern::pixelEndcapLayersWithMeasurement() const {
+    return pixelEndcapLayersWithMeasurement(15);//all layers are "pixel" is SLHC geometry - fixme hardcoded
   }
   
   inline int HitPattern::stripLayersWithMeasurement() const {

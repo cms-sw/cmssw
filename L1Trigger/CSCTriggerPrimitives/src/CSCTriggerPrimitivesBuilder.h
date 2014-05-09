@@ -21,13 +21,24 @@
 #include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h>
 #include <DataFormats/CSCDigi/interface/CSCCLCTPreTriggerCollection.h>
 #include <DataFormats/GEMDigi/interface/GEMCSCPadDigiCollection.h>
+#include "DataFormats/GEMDigi/interface/GEMCSCCoPadDigiCollection.h"
+#include <DataFormats/RPCDigi/interface/RPCDigiCollection.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include "CLHEP/Random/RandomEngine.h"
 
 class CSCDBL1TPParameters;
 class CSCMotherboard;
 class CSCMuonPortCard;
 class CSCGeometry;
 class GEMGeometry;
+class RPCGeometry;
+
+namespace CLHEP
+{
+  class HepRandomEngine;
+  class RandFlat;
+}
+
 
 class CSCTriggerPrimitivesBuilder
 {
@@ -47,6 +58,10 @@ class CSCTriggerPrimitivesBuilder
   /// set CSC and GEM geometries for the matching needs
   void setCSCGeometry(const CSCGeometry *g) { csc_g = g; }
   void setGEMGeometry(const GEMGeometry *g) { gem_g = g; }
+  void setRPCGeometry(const RPCGeometry *g) { rpc_g = g; }
+
+  /// random engine to disable X% of chambers
+  void setRandomEngine(CLHEP::HepRandomEngine&);
 
   /** Build anode, cathode, and correlated LCTs in each chamber and fill
    *  them into output collections.  Select up to three best correlated LCTs
@@ -55,15 +70,18 @@ class CSCTriggerPrimitivesBuilder
 	     const CSCWireDigiCollection* wiredc,
 	     const CSCComparatorDigiCollection* compdc,
 	     const GEMCSCPadDigiCollection* gemPads,
+	     const RPCDigiCollection* rpcDigis,
 	     CSCALCTDigiCollection& oc_alct, CSCCLCTDigiCollection& oc_clct,
              CSCCLCTPreTriggerCollection & oc_pretrig,
 	     CSCCorrelatedLCTDigiCollection& oc_lct,
-	     CSCCorrelatedLCTDigiCollection& oc_sorted_lct);
+	     CSCCorrelatedLCTDigiCollection& oc_sorted_lct,
+	     GEMCSCCoPadDigiCollection& oc_gemcopad);
 
   /** Max values of trigger labels for all CSCs; used to construct TMB
    *  processors. */
   enum trig_cscs {MAX_ENDCAPS = 2, MAX_STATIONS = 4, MAX_SECTORS = 6,
 		  MAX_SUBSECTORS = 2, MAX_CHAMBERS = 9};
+
  private:
 
   /** Min and max allowed values for various CSC elements, defined in
@@ -82,11 +100,24 @@ class CSCTriggerPrimitivesBuilder
   /// a flag whether to skip chambers from the bad chambers map
   bool checkBadChambers_;
 
+  /** SLHC: randomly disable X% of CSC chambers */
+  double fractionBrokenCSCs_;
+
+
   /** SLHC: special configuration parameters for ME11 treatment. */
   bool smartME1aME1b, disableME1a;
 
   /** SLHC: special switch for disabling ME42 */
   bool disableME42;
+
+  /** SLHC: special switch for the upgrade ME1/1 TMB */
+  bool runME11ILT_;
+
+  /** SLHC: special switch for the upgrade ME2/1 TMB */
+  bool runME21ILT_;
+
+  /** SLHC: special switch for the upgrade ME3/1 and ME4/1 TMB */
+  bool runME3141ILT_;
 
   int m_minBX, m_maxBX; // min and max BX to sort.
 
@@ -99,6 +130,9 @@ class CSCTriggerPrimitivesBuilder
 
   const CSCGeometry* csc_g;
   const GEMGeometry* gem_g;
+  const RPCGeometry* rpc_g;
+
+  CLHEP::RandFlat* flat_;
 };
 
 #endif

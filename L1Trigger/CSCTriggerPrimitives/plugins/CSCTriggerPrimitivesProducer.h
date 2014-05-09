@@ -24,6 +24,8 @@
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <FWCore/Utilities/interface/InputTag.h>
+#include "CLHEP/Random/RandomEngine.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 class CSCTriggerPrimitivesBuilder;
 
@@ -41,6 +43,7 @@ class CSCTriggerPrimitivesProducer : public edm::EDProducer
   edm::InputTag compDigiProducer_;
   edm::InputTag wireDigiProducer_;
   edm::InputTag gemPadProducer_;
+  edm::InputTag rpcDigiProducer_;
   // swich to force the use of parameters from config file rather then from DB
   bool debugParameters_;
   // switch to for enabling checking against the list of bad chambers

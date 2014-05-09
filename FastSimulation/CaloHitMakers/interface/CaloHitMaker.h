@@ -14,9 +14,11 @@
 //STL headers
 #include <string>
 #include <map>
+#include <vector>
 
 class CaloGeometryHelper;
 class CalorimeterProperties;
+class HCALProperties;
 
 class CaloHitMaker
 {
@@ -46,6 +48,7 @@ class CaloHitMaker
 
   const CaloGeometryHelper * myCalorimeter;    
   const CalorimeterProperties * theCaloProperties;
+  const HCALProperties * theHCALProperties;
   double moliereRadius;
   double interactionLength;
   double spotEnergy;
@@ -53,6 +56,9 @@ class CaloHitMaker
   bool EMSHOWER;
   bool HADSHOWER;
   bool MIP;
+  bool numbering;
+  std::vector <double> hbLayers_;
+  std::vector <double> heLayers_;
 
  private:
   DetId::Detector base_;

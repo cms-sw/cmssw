@@ -13,12 +13,12 @@ def customise(process):
         process=customise_RecoFull(process)
     if hasattr(process,'famosWithEverything'):
         process=customise_RecoFast(process)
-    if hasattr(process,'validation_step'):
-        process=customise_Validation(process)
     if hasattr(process,'dqmoffline_step'):
         process=customise_DQM(process)
     if hasattr(process,'dqmHarvesting'):
         process=customise_harvesting(process)
+    if hasattr(process,'validation_step'):
+        process=customise_Validation(process)
     return process
 
 def customise_Digi(process):
@@ -80,6 +80,8 @@ def customise_RecoFull(process):
     return process
 
 def customise_Validation(process):
+    process.load('Validation.Configuration.gemSimValid_cff')
+    process.genvalid_all += process.me0SimValid
     return process
 
 def customise_DQM(process):

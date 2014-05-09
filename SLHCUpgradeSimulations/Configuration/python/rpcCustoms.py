@@ -23,6 +23,13 @@ def customise_Digi(process):
     return process
 
 def customise_L1Emulator(process):
+    ## this comes after GE2/1 in gemCustoms.py
+    process.simCscTriggerPrimitiveDigis.alctSLHCME3141 = process.simCscTriggerPrimitiveDigis.alctSLHC.clone()
+    process.simCscTriggerPrimitiveDigis.clctSLHCME3141 = process.simCscTriggerPrimitiveDigis.clctSLHC.clone()
+    process.simCscTriggerPrimitiveDigis.alctSLHCME3141.alctNplanesHitPattern = 3
+    process.simCscTriggerPrimitiveDigis.clctSLHCME3141.clctNplanesHitPattern = 3
+    process.simCscTriggerPrimitiveDigis.clctSLHCME3141.clctPidThreshPretrig = 2
+    process.simCscTriggerPrimitiveDigis.clctSLHCME21.runME3141ILT = cms.bool(True)        
     return process
 
 def customise_DigiToRaw(process):
