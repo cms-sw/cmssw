@@ -16,7 +16,7 @@ SingleTopSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM"
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
       elecs = cms.InputTag("gedGsfElectrons"),
-      jets  = cms.InputTag("PFJetsFilter"),
+      jets  = cms.InputTag("ak5PFJetsCHS"),
       mets  = cms.VInputTag("met", "tcMet", "pfMet"),
       pvs   = cms.InputTag("offlinePrimaryVertices")
 
@@ -51,15 +51,15 @@ SingleTopSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM"
       ## when omitted monitor histograms for b-tagging will not be filled 
       jetBTaggers  = cms.PSet(
          trackCountingEff = cms.PSet(
-           label = cms.InputTag("pfJetProbabilityBJetTags" ),
+           label = cms.InputTag("jetProbabilityBJetTags" ),
            workingPoint = cms.double(0.275)
          ),
          trackCountingPur = cms.PSet(
-           label = cms.InputTag("pfTrackCountingHighPurBJetTags" ),
+           label = cms.InputTag("trackCountingHighPurBJetTags" ),
            workingPoint = cms.double(3.41)
          ),
          secondaryVertex  = cms.PSet(
-           label = cms.InputTag("pfCombinedSecondaryVertexBJetTags"),
+           label = cms.InputTag("combinedSecondaryVertexBJetTags"),
            workingPoint = cms.double(0.679)
          )
        ),
@@ -120,15 +120,25 @@ SingleTopSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM"
     ),
     #cms.PSet(
     #  label  = cms.string("jets/pf:step2"),
+<<<<<<< HEAD
     #  src    = cms.InputTag("PFJetsFilter"),
     #  jetCorrector = cms.string("ak4PFL2L3"),
+=======
+    #  src    = cms.InputTag("ak5PFJetsCHS"),
+    #  jetCorrector = cms.string("ak5PFL2L3"),
+>>>>>>> 754cc1b... fix btagging in DQMOffline/Trigger, only partially moving to ak4 because of btagging
     #  select = cms.string("pt>40 & abs(eta)<5.0"),
     #  min = cms.int32(1),
     #), 
     cms.PSet(
       label  = cms.string("jets/pf:step2"),
+<<<<<<< HEAD
       src    = cms.InputTag("PFJetsFilter"),
       jetCorrector = cms.string("ak4PFL2L3"),
+=======
+      src    = cms.InputTag("ak5PFJetsCHS"),
+      jetCorrector = cms.string("ak5PFL2L3"),
+>>>>>>> 754cc1b... fix btagging in DQMOffline/Trigger, only partially moving to ak4 because of btagging
       select = cms.string("pt>40 & abs(eta)<5.0"),
       min = cms.int32(2),
     ), 
@@ -151,7 +161,7 @@ SingleTopSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOffline
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
       elecs = cms.InputTag("gedGsfElectrons"),
-      jets  = cms.InputTag("PFJetsFilter"),
+      jets  = cms.InputTag("ak5PFJetsCHS"),
       mets  = cms.VInputTag("met", "tcMet", "pfMet"),
       pvs   = cms.InputTag("offlinePrimaryVertices")
 
@@ -188,15 +198,15 @@ SingleTopSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOffline
       ## when omitted monitor histograms for b-tagging will not be filled  
       jetBTaggers  = cms.PSet(
          trackCountingEff = cms.PSet(
-           label = cms.InputTag("pfJetProbabilityBJetTags" ),
+           label = cms.InputTag("jetProbabilityBJetTags" ),
            workingPoint = cms.double(0.275)
          ),
          trackCountingPur = cms.PSet(
-           label = cms.InputTag("pfTrackCountingHighPurBJetTags" ),
+           label = cms.InputTag("trackCountingHighPurBJetTags" ),
            workingPoint = cms.double(3.41)
          ),
          secondaryVertex  = cms.PSet(
-           label = cms.InputTag("pfCombinedSecondaryVertexBJetTags"),
+           label = cms.InputTag("combinedSecondaryVertexBJetTags"),
            workingPoint = cms.double(0.679)
          )
        ),
@@ -258,15 +268,25 @@ SingleTopSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOffline
     ),
     #cms.PSet(
     #  label  = cms.string("jets/pf:step2"),
+<<<<<<< HEAD
     #  src    = cms.InputTag("PFJetsFilter"),
     #  jetCorrector = cms.string("ak4PFL2L3"),
+=======
+    #  src    = cms.InputTag("ak5PFJetsCHS"),
+    #  jetCorrector = cms.string("ak5PFL2L3"),
+>>>>>>> 754cc1b... fix btagging in DQMOffline/Trigger, only partially moving to ak4 because of btagging
     #  select = cms.string("pt>40 & abs(eta)<5.0"),
     #  min = cms.int32(1),
     #), 
     cms.PSet(
       label  = cms.string("jets/pf:step2"),
+<<<<<<< HEAD
       src    = cms.InputTag("PFJetsFilter"),
       jetCorrector = cms.string("ak4PFL2L3"),
+=======
+      src    = cms.InputTag("ak5PFJetsCHS"),
+      jetCorrector = cms.string("ak5PFL2L3"),
+>>>>>>> 754cc1b... fix btagging in DQMOffline/Trigger, only partially moving to ak4 because of btagging
       select = cms.string("pt>40 & abs(eta)<5.0"),
       min = cms.int32(2),
     ), 
