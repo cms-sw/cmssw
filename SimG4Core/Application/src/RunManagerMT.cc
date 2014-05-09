@@ -45,6 +45,7 @@
 #include "HepPDT/ParticleDataTable.hh"
 #include "SimGeneral/HepPDTRecord/interface/PDTRecord.h"
 
+#include "G4GeometryManager.hh"
 #include "G4StateManager.hh"
 #include "G4ApplicationState.hh"
 #include "G4RunManagerKernel.hh"
@@ -143,9 +144,6 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const & p)
   m_FieldFile = p.getUntrackedParameter<std::string>("FileNameField","");
   if("" != m_FieldFile) { m_FieldFile += ".txt"; } 
 
-  m_currentRun = 0;
-  m_currentEvent = 0;
-  m_simEvent = 0;
   m_userRunAction = 0;
   m_runInterface = 0;
 
@@ -167,6 +165,7 @@ RunManagerMT::~RunManagerMT()
 { 
   if (!m_runTerminated) { terminateRun(); }
   G4StateManager::GetStateManager()->SetNewState(G4State_Quit);
+  G4GeometryManager::GetInstance()->OpenGeometry();
   //   if (m_kernel!=0) delete m_kernel; 
   delete m_runInterface;
 }
@@ -316,8 +315,8 @@ void RunManagerMT::initG4(const edm::EventSetup & es)
 void RunManagerMT::stopG4()
 {
   //std::cout << "RunManagerMT::stopG4" << std::endl;
-  if (!m_runTerminated) { terminateRun(); }
   G4StateManager::GetStateManager()->SetNewState(G4State_Quit);
+  if (!m_runTerminated) { terminateRun(); }
 }
 
 void RunManagerMT::produce(edm::Event& inpevt, const edm::EventSetup & es)
@@ -462,8 +461,6 @@ void RunManagerMT::initializeRun()
  
 void RunManagerMT::terminateRun()
 {
-  G4StateManager::GetStateManager()->SetNewState(G4State_Quit);
-  m_runTerminated = false;
   if (m_userRunAction!=0) {
     m_userRunAction->EndOfRunAction(m_currentRun);
     delete m_userRunAction; 
@@ -493,7 +490,7 @@ void RunManagerMT::abortRun(bool softAbort)
   if (m_currentRun!=0) { delete m_currentRun; m_currentRun = 0; }
   m_runInitialized = false;
   m_runAborted = true;
-  G4StateManager::GetStateManager()->SetNewState(G4State_Quit);
+  terminateRun();
 }
 
 void RunManagerMT::resetGenParticleId( edm::Event& inpevt ) 
