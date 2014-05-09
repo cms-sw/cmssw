@@ -36,7 +36,6 @@ public:
   void initializeEvent(edm::Event const& e, edm::EventSetup const& c);
   void finalizeEvent(edm::Event& e, edm::EventSetup const& c);
 
-
   /**
    */
   bool producesEEDigis()      { return (hitCollection_.find("EE")!=std::string::npos);      } 

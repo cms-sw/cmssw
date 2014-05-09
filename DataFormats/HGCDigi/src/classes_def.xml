@@ -1,0 +1,8 @@
+<lcgdict>
+   <class name="HGCSample"/>
+   <class name="HGCEEDetId"/>
+   <class name="HGCDataFrame<HGCEEDetId,HGCSample>"/>
+   <class name="std::vector<HGCDataFrame<HGCEEDetId,HGCSample> >"/>
+   <class name="edm::SortedCollection<HGCDataFrame<HGCEEDetId,HGCSample>, edm::StrictWeakOrdering<HGCDataFrame<HGCEEDetId,HGCSample> > >"/>
+   <class name="edm::Wrapper<edm::SortedCollection<HGCDataFrame<HGCEEDetId,HGCSample>,edm::StrictWeakOrdering<HGCDataFrame<HGCEEDetId,HGCSample> > > >" />
+</lcgdict>

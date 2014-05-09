@@ -1,21 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
-from SimCalorimetry.HGCSimProducers.hgcDigiProducers_cff import *
-
-hgceeDigitizer = cms.PSet( digiBlock        = hgceeDigiBlock,
-                           accumulatorType  = cms.string("HGCDigiProducer"),
+hgceeDigitizer = cms.PSet( accumulatorType  = cms.string("HGCDigiProducer"),
+                           hitCollection     = cms.untracked.string("HGCHitsEE"),
+                           maxSimHitsAccTime = cms.untracked.uint32(100),
+                           doTrivialDigis    = cms.untracked.bool(True),
                            makeDigiSimLinks = cms.untracked.bool(False)
                            )
 
-hgchefrontDigitizer = cms.PSet( digiBlock        = hgchefrontDigiBlock,
-                                accumulatorType  = cms.string("HGCDigiProducer"),
-                                makeDigiSimLinks = cms.untracked.bool(False)
-                                )
+hgchefrontDigitizer = hgceeDigitizer.clone( hitCollection = cms.untracked.string("HGCHitsHEfront") )
 
-hgchebackDigitizer = cms.PSet( digiBlock        = hgchebackDigiBlock,
-                               accumulatorType  = cms.string("HGCDigiProducer"),
-                               makeDigiSimLinks = cms.untracked.bool(False)                               
-                               )
+hgchebackDigitizer = hgceeDigitizer.clone( hitCollection = cms.untracked.string("HGCHitsHEback") )
 
 
 

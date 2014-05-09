@@ -39,8 +39,7 @@ void HGCDigitizer::finalizeEvent(edm::Event& e, edm::EventSetup const& es)
   if( producesEEDigis()     ) 
     {
       std::auto_ptr<HGCEEDigiCollection> digiResult(new HGCEEDigiCollection() );
-      if(doTrivialDigis_){ }
-      //theHGCEEDigitizer->run(*digiResult);
+      //theHGCEEDigitizer->run(*digiResult,simHitAccumulator_,doTrivialDigis_);
       edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " << digiResult->size() <<  " EE hits";
       e.put(digiResult);
     }
