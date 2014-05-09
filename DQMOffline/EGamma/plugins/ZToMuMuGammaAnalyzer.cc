@@ -44,7 +44,9 @@ ZToMuMuGammaAnalyzer::ZToMuMuGammaAnalyzer( const edm::ParameterSet& pset )
   muon_token_             = consumes<vector<reco::Muon> >(pset.getParameter<edm::InputTag>("muonProducer"));
   pfCandidates_           = consumes<reco::PFCandidateCollection>(pset.getParameter<edm::InputTag>("pfCandidates"));
 
-  photonIsoValmap_token_    =  consumes<edm::ValueMap<std::vector<reco::PFCandidateRef> > > (pset.getParameter<edm::InputTag>("valueMapPhoToParticleBasedIso"));
+ 
+  photonIsoValmap_token_    =  consumes<edm::ValueMap<std::vector<reco::PFCandidateRef> > >(pset.getParameter<edm::InputTag>("particleBasedIso"));
+
 
   barrelRecHit_token_     = consumes<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > >(pset.getParameter<edm::InputTag>("barrelRecHitProducer"));
   
