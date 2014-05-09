@@ -210,7 +210,7 @@ JetFlavourClustering::JetFlavourClustering(const edm::ParameterSet& iConfig) :
    jetAlgorithm_(iConfig.getParameter<std::string>("jetAlgorithm")),
    rParam_(iConfig.getParameter<double>("rParam")),
    jetPtMin_(0.), // hardcoded to 0. since we simply want to recluster all input jets which already had some PtMin applied
-   ghostRescaling_(iConfig.getParameter<double>("ghostRescaling")),
+   ghostRescaling_(iConfig.exists("ghostRescaling") ? iConfig.getParameter<double>("ghostRescaling") : 1e-18),
    hadronFlavourHasPriority_(iConfig.getParameter<bool>("hadronFlavourHasPriority")),
    useSubjets_(iConfig.exists("groomedJets") && iConfig.exists("subjets")),
    useLeptons_(iConfig.exists("leptons"))
