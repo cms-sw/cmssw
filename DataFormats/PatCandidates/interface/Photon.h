@@ -221,6 +221,36 @@ namespace pat {
       /// Sets user-level IsoDeposit
       void userIsoDeposit(const IsoDeposit &dep, uint8_t index=0) { setIsoDeposit(IsolationKeys(UserBaseIso + index), dep); }
 
+      //// normal shower shape variables
+      //float sigmaIphiIphi() const { return sigmaIphiIphi_; }
+      //float sigmaIetaIphi() const { return sigmaIetaIphi_; }
+      // non-zero-suppressed and no-fractions shower shapes
+      float full5x5_e1x5() const { return full5x5_showerShape_.e1x5; }
+      float full5x5_e2x5() const { return full5x5_showerShape_.e2x5; }
+      float full3x3_e3x3() const { return full5x5_showerShape_.e3x3; }
+      float full5x5_e5x5() const { return full5x5_showerShape_.e5x5; }
+      float full5x5_maxEnergyXtal() const { return full5x5_showerShape_.maxEnergyXtal; }
+      float full5x5_sigmaEtaEta()   const { return full5x5_showerShape_.sigmaEtaEta; }
+      float full5x5_sigmaIetaIeta() const { return full5x5_showerShape_.sigmaIetaIeta; }
+      //float full5x5_sigmaIphiIphi() const { return full5x5_sigmaIphiIphi_; }
+      //float full5x5_sigmaIetaIphi() const { return full5x5_sigmaIetaIphi_; }
+      float full5x5_r1x5() const { return full5x5_showerShape_.e1x5 / full5x5_showerShape_.e5x5; }
+      float full5x5_r2x5() const { return full5x5_showerShape_.e2x5 / full5x5_showerShape_.e5x5; }
+      float full5x5_r9()   const { return full5x5_showerShape_.e3x3 / superCluster()->rawEnergy(); }
+      // the hcal ones only differ in the denominator and so aren't really worth saving
+      float full5x5_hadronicDepth1OverEm() const { return hadronicDepth1OverEm(); /* this is identical to the ZS one */ }
+      float full5x5_hadronicDepth2OverEm() const { return hadronicDepth1OverEm(); /* this is identical to the ZS one */ }
+      float full5x5_hadronicOverEm() const { return full5x5_hadronicDepth1OverEm() + full5x5_hadronicDepth2OverEm() ; }    
+      float full5x5_hadTowDepth1OverEm() const { return hadTowDepth1OverEm() * (superCluster()->energy()/full5x5_e5x5()); }
+      float full5x5_hadTowDepth2OverEm() const { return hadTowDepth2OverEm() * (superCluster()->energy()/full5x5_e5x5()); }
+      float full5x5_hadTowOverEm() const { return full5x5_hadTowDepth1OverEm() + full5x5_hadTowDepth2OverEm(); }
+      // setters
+      void full5x5_setShowerShape(const ShowerShape &s) { full5x5_showerShape_ = s; }
+      //void full5x5_setSigmaIphiIphi(float sigmaIphiIphi) { full5x5_sigmaIphiIphi_ = sigmaIphiIphi; }
+      //void full5x5_setSigmaIetaIphi(float sigmaIetaIphi) { full5x5_sigmaIetaIphi_ = sigmaIetaIphi; }
+
+
+
       /// pipe operator (introduced to use pat::Photon with PFTopProjectors)
       friend std::ostream& reco::operator<<(std::ostream& out, const pat::Photon& obj);
 
@@ -267,6 +297,12 @@ namespace pat {
       // ---- link to PackedPFCandidates
       edm::RefProd<pat::PackedCandidateCollection> packedPFCandidates_;
       std::vector<uint16_t> associatedPackedFCandidateIndices_;
+
+      ///// ---- normal shower shapes (if needed)
+      //float sigmaIetaIphi_, sigmaIphiIphi_;
+      // ---- full5x5 shower shapes
+      ShowerShape full5x5_showerShape_;
+      //float full5x5_sigmaIetaIphi_, full5x5_sigmaIphiIphi_;
   };
 
 

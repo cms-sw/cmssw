@@ -116,17 +116,23 @@ pat::PATPhotonSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iSet
             }
         }
         if (saveNonZSClusterShapes_(photon)) {
-            std::vector<float> vCov = lazyToolsNoZS.localCovariances(*( photon.superCluster()->seed()));
-            float r9 = lazyToolsNoZS.e3x3( *( photon.superCluster()->seed())) / photon.superCluster()->rawEnergy() ;
-            float sigmaIetaIeta = ( !edm::isNotFinite(vCov[0]) ) ? sqrt(vCov[0]) : 0;
-            float sigmaIetaIphi = vCov[1];
-            float sigmaIphiIphi = ( !edm::isNotFinite(vCov[2]) ) ? sqrt(vCov[2]) : 0;
-            float e15o55 = lazyToolsNoZS.e1x5( *( photon.superCluster()->seed()) ) / lazyToolsNoZS.e5x5( *( photon.superCluster()->seed()) );
-            photon.addUserFloat("sigmaIetaIeta_NoZS", sigmaIetaIeta);
-            photon.addUserFloat("sigmaIetaIphi_NoZS", sigmaIetaIphi);
-            photon.addUserFloat("sigmaIphiIphi_NoZS", sigmaIphiIphi);
-            photon.addUserFloat("r9_NoZS", r9);
-            photon.addUserFloat("e1x5_over_e5x5_NoZS", e15o55);
+            reco::Photon::ShowerShape ss;
+            const auto & seedCluster = *photon.superCluster()->seed();
+            std::vector<float> vCov = lazyToolsNoZS.localCovariances(seedCluster);
+            std::vector<float> Cov  = lazyToolsNoZS.covariances(seedCluster);
+            ss.sigmaEtaEta   = ( !edm::isNotFinite(Cov[0]) ) ? sqrt(Cov[0]) : 0;
+            ss.sigmaIetaIeta = ( !edm::isNotFinite(vCov[0]) ) ? sqrt(vCov[0]) : 0;
+            //float sigmaIphiIphi = ( !edm::isNotFinite(vCov[2]) ) ? sqrt(vCov[2]) : 0;
+            //float sigmaIetaIphi = vCov[1]; // this is missing in the struct
+            ss.e1x5 = lazyToolsNoZS.e1x5(seedCluster);
+            ss.e2x5 = lazyToolsNoZS.e2x5Max(seedCluster);
+            ss.e3x3 = lazyToolsNoZS.e3x3(seedCluster);
+            ss.e5x5 = lazyToolsNoZS.e5x5(seedCluster);
+            ss.maxEnergyXtal = lazyToolsNoZS.eMax(seedCluster);
+            // hcal stuff is not filled
+            photon.full5x5_setShowerShape(ss);
+            //electron.full5x5_setSigmaIphiIphi(sigmaIphiIphi);
+            //electron.full5x5_setSigmaIetaIphi(sigmaIetaIphi);
         }
      }
 
