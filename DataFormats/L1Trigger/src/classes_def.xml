@@ -1,14 +1,17 @@
 <lcgdict>
-  <class name="l1extra::L1EmParticle" ClassVersion="10">
+  <class name="l1extra::L1EmParticle" ClassVersion="11">
+   <version ClassVersion="11" checksum="9999999999"/>
    <version ClassVersion="10" checksum="2019457791"/>
   </class>
-  <class name="l1extra::L1JetParticle" ClassVersion="10">
+  <class name="l1extra::L1JetParticle" ClassVersion="11">
+   <version ClassVersion="11" checksum="9999999999"/>
    <version ClassVersion="10" checksum="2992828146"/>
   </class>
   <class name="l1extra::L1MuonParticle" ClassVersion="10">
    <version ClassVersion="10" checksum="404862417"/>
   </class>
-  <class name="l1extra::L1EtMissParticle" ClassVersion="10">
+  <class name="l1extra::L1EtMissParticle" ClassVersion="11">
+   <version ClassVersion="11" checksum="999999999"/>
    <version ClassVersion="10" checksum="256436604"/>
   </class>
   <class name="l1extra::L1ParticleMap" ClassVersion="10">
