@@ -15,5 +15,5 @@ combinedSecondaryVertexV1PositiveBJetTags = cms.EDProducer("JetTagProducer",
 combinedSecondaryVertexV2PositiveBJetTags = cms.EDProducer("JetTagProducer",
 	jetTagComputer = cms.string('combinedSecondaryVertexV2Positive'),
 	tagInfos = cms.VInputTag(cms.InputTag("impactParameterTagInfos"),
-	                         cms.InputTag("secondaryVertexTagInfos"))
+	                         cms.InputTag("secondaryVertexTagInfosV2"))
 )
