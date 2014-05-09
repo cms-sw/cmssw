@@ -35,7 +35,7 @@ bool DataPointDefinition::getDataPointDefinitionFor(std::string& defFilePath, Da
   bool readOK = FileIO::readStringFromFile(defFilePath, dpdString);
   // data point definition is missing!
   if (!readOK) {
-    edm::LogWarning("DataPointDefinition") << "Cannot read from JSON definition path: " << defFilePath;
+    edm::LogWarning("DataPointDefinition") << "Cannot read from JSON definition path -: " << defFilePath;
     return false;
   }
   if (!defaultGroup) dpd->setDefaultGroup(LEGEND);

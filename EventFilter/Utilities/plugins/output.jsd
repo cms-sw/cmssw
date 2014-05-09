@@ -26,6 +26,11 @@
          "type" : "string"
       },
       {
+         "name" : "Filesize",
+         "operation" : "sum",
+         "type" : "integer"
+      },
+      {
          "name" : "InputFiles",
          "operation" : "cat",
          "type" : "string"

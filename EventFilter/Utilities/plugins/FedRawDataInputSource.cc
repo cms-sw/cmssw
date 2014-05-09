@@ -67,9 +67,11 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
 {
   char thishost[256];
   gethostname(thishost, 255);
-  edm::LogInfo("FedRawDataInputSource") << "test mode: "
-                                        << testModeNoBuilderUnit_ << ", read-ahead chunk size: " << (eventChunkSize_/1048576)
+  edm::LogInfo("FedRawDataInputSource") << "Construction. read-ahead chunk size -: "
+                                        << std::endl << (eventChunkSize_/1048576)
                                         << " MB on host " << thishost;
+  if (testModeNoBuilderUnit_)
+    edm::LogInfo("FedRawDataInputSource") << "Test mode is ON!";
 
   processHistoryID_ = daqProvenanceHelper_.daqInit(productRegistryUpdate(), processHistoryRegistryForUpdate());
   setNewRun();
@@ -210,7 +212,6 @@ bool FedRawDataInputSource::checkNextEvent()
       return true;
     }
     case evf::EvFDaqDirector::newLumi: {
-      edm::LogInfo("FedRawDataInputSource") << "New lumisection was detected: " << currentLumiSection_;
       //std::cout << "--------------NEW LUMI---------------" << std::endl;
       return true;
     }
@@ -267,14 +268,17 @@ void FedRawDataInputSource::maybeOpenNewLumiSection(const uint32_t lumiSection)
     setLuminosityBlockAuxiliary(lumiBlockAuxiliary);
     luminosityBlockAuxiliary()->setProcessHistoryID(processHistoryID_);
 
-    edm::LogInfo("FedRawDataInputSource") << "New lumi section " << lumiSection << " opened";
+    edm::LogInfo("FedRawDataInputSource") << "New lumi section was opened. LUMI -: "<< lumiSection;
   }
 }
 
 inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::nextEvent()
 {
    evf::EvFDaqDirector::FileStatus status = evf::EvFDaqDirector::noFile;
-   while ((status = getNextEvent())==evf::EvFDaqDirector::noFile) {}
+   while ((status = getNextEvent())==evf::EvFDaqDirector::noFile)
+   {
+       if (edm::shutdown_flag.load(std::memory_order_relaxed)) break;
+   }
    return status;
 }
 
@@ -513,14 +517,14 @@ void FedRawDataInputSource::deleteFile(std::string const& fileName)
 {
   const boost::filesystem::path filePath(fileName);
   if (!testModeNoBuilderUnit_) {
-    edm::LogInfo("FedRawDataInputSource") << "Deleting input file " << fileName;
+    edm::LogInfo("FedRawDataInputSource") << "Deleting input file -:" << fileName;
     try {
       //sometimes this fails but file gets deleted
       boost::filesystem::remove(filePath);
     }
     catch (const boost::filesystem::filesystem_error& ex)
     {
-      edm::LogError("FedRawDataInputSource") << " - deleteFile BOOST FILESYSTEM ERROR CAUGHT: " << ex.what()
+      edm::LogError("FedRawDataInputSource") << " - deleteFile BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what()
                                                << ". Trying again.";
       usleep(100000);
       try {
@@ -530,7 +534,7 @@ void FedRawDataInputSource::deleteFile(std::string const& fileName)
     }
     catch (std::exception& ex)
     {
-      edm::LogError("FedRawDataInputSource") << " - deleteFile std::exception CAUGHT: " << ex.what()
+      edm::LogError("FedRawDataInputSource") << " - deleteFile std::exception CAUGHT -: " << ex.what()
                                                << ". Trying again.";
       usleep(100000);
       try {
@@ -538,7 +542,6 @@ void FedRawDataInputSource::deleteFile(std::string const& fileName)
       } catch (...) {/*file gets deleted first time but exception is still thrown*/}
     }
   } else {
-    edm::LogInfo("FedRawDataInputSource") << "Renaming input file " << fileName;
     renameToNextFree(fileName);
   }
 }
@@ -632,7 +635,7 @@ int FedRawDataInputSource::grabNextJsonFile(boost::filesystem::path const& jsonS
                     << std::setfill('0') << std::setw(5) << getpid() << ".jsn";
     jsonDestPath /= fileNameWithPID.str();
 
-    edm::LogInfo("FedRawDataInputSource") << " JSON rename " << jsonSourcePath << " to "
+    edm::LogInfo("FedRawDataInputSource") << "JSON rename -: " << jsonSourcePath << " to "
                                           << jsonDestPath;
 
     if ( testModeNoBuilderUnit_ )
@@ -644,7 +647,7 @@ int FedRawDataInputSource::grabNextJsonFile(boost::filesystem::path const& jsonS
       catch (const boost::filesystem::filesystem_error& ex)
       {
         // Input dir gone?
-        edm::LogError("FedRawDataInputSource") << " - grabNextFile BOOST FILESYSTEM ERROR CAUGHT: " << ex.what()
+        edm::LogError("FedRawDataInputSource") << "grabNextFile BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what()
                                                << " Maybe the file is not yet visible by FU. Trying again in one second";
         sleep(1);
         boost::filesystem::copy(jsonSourcePath,jsonDestPath);
@@ -659,12 +662,12 @@ int FedRawDataInputSource::grabNextJsonFile(boost::filesystem::path const& jsonS
       catch (const boost::filesystem::filesystem_error& ex)
       {
         // Input dir gone?
-        edm::LogError("FedRawDataInputSource") << " - grabNextFile BOOST FILESYSTEM ERROR CAUGHT: " << ex.what();
+        edm::LogError("FedRawDataInputSource") << "grabNextFile BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what();
       }
       catch (std::exception& ex)
       {
         // Input dir gone?
-        edm::LogError("FedRawDataInputSource") << " - grabNextFile std::exception CAUGHT: " << ex.what();
+        edm::LogError("FedRawDataInputSource") << "grabNextFile std::exception CAUGHT -: " << ex.what();
       }
 
     }
@@ -693,7 +696,7 @@ int FedRawDataInputSource::grabNextJsonFile(boost::filesystem::path const& jsonS
 	data = dp.getData()[0];
       else
 	throw cms::Exception("FedRawDataInputSource::grabNextJsonFile") <<
-	  " error reading number of events from BU JSON: No input value" << data;
+	  " error reading number of events from BU JSON -: No input value " << data;
     }
     return boost::lexical_cast<int>(data);
 
@@ -702,7 +705,7 @@ int FedRawDataInputSource::grabNextJsonFile(boost::filesystem::path const& jsonS
   {
     // Input dir gone?
     daqDirector_->unlockFULocal();
-    edm::LogError("FedRawDataInputSource") << " - grabNextFile - BOOST FILESYSTEM ERROR CAUGHT: " << ex.what()
+    edm::LogError("FedRawDataInputSource") << "grabNextFile - BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what()
                   << " - Maybe the BU run dir disappeared? Ending process with code 0...";
     _exit(-1);
   }
@@ -710,18 +713,19 @@ int FedRawDataInputSource::grabNextJsonFile(boost::filesystem::path const& jsonS
   {
     // Another process grabbed the file and NFS did not register this
     daqDirector_->unlockFULocal();
-    edm::LogError("FedRawDataInputSource") << " - grabNextFile - runtime Exception: " << e.what();
+    edm::LogError("FedRawDataInputSource") << "grabNextFile - runtime Exception -: " << e.what();
   }
 
   catch( boost::bad_lexical_cast const& ) {
-    edm::LogError("FedRawDataInputSource") << " - grabNextFile - error parsing number of events from BU JSON. Input value is " << data;
+    edm::LogError("FedRawDataInputSource") << "grabNextFile - error parsing number of events from BU JSON. "
+                                           << "Input value is -: " << data;
   }
 
   catch (std::exception e)
   {
     // BU run directory disappeared?
     daqDirector_->unlockFULocal();
-    edm::LogError("FedRawDataInputSource") << " - grabNextFile - SOME OTHER EXCEPTION OCCURED!!!! ->" << e.what();
+    edm::LogError("FedRawDataInputSource") << "grabNextFile - SOME OTHER EXCEPTION OCCURED!!!! -: " << e.what();
   }
 
   return -1;
@@ -732,7 +736,7 @@ void FedRawDataInputSource::renameToNextFree(std::string const& fileName) const
   boost::filesystem::path source(fileName);
   boost::filesystem::path destination( daqDirector_->getJumpFilePath() );
 
-  edm::LogInfo("FedRawDataInputSource") << "Instead of delete, RENAME: " << fileName
+  edm::LogInfo("FedRawDataInputSource") << "Instead of delete, RENAME -: " << fileName
                                         << " to: " << destination.string();
   boost::filesystem::rename(source,destination);
   boost::filesystem::rename(source.replace_extension(".jsn"),destination.replace_extension(".jsn"));
@@ -774,7 +778,7 @@ void FedRawDataInputSource::readSupervisor()
       //sleep until woken up by condition or a timeout
       if (cvWakeup_.wait_for(lkw, std::chrono::milliseconds(100)) == std::cv_status::timeout) {
         counter++;
-        if (!(counter%10)) edm::LogInfo("FedRawDataInputSource") << " No free chunks or threads...";
+        if (!(counter%20)) edm::LogInfo("FedRawDataInputSource") << "No free chunks or threads...";
       }
       else {
         assert(!(workerPool_.empty() && !singleBufferMode_) || freeChunks_.empty());
@@ -788,8 +792,6 @@ void FedRawDataInputSource::readSupervisor()
     std::string nextFile;
     uint32_t ls;
     uint32_t fileSize;
-
-    edm::LogInfo("FedRawDataInputSource") << "Asking for next file... to the DaqDirector";
 
     if (fms_) fms_->startedLookingForFile();
 
@@ -818,13 +820,13 @@ void FedRawDataInputSource::readSupervisor()
       int dbgcount=0;
       if (status == evf::EvFDaqDirector::noFile) {
 	dbgcount++;
-	if (!(dbgcount%10))
+	if (!(dbgcount%20))
 	  edm::LogInfo("FedRawDataInputSource") << "No file for me... sleep and try again...";
 	usleep(100000);
       }
     }
     if ( status == evf::EvFDaqDirector::newFile ) {
-      edm::LogInfo("FedRawDataInputSource") << "The director says to grab: " << nextFile;
+      edm::LogInfo("FedRawDataInputSource") << "The director says to grab -: " << nextFile;
 
 
       boost::filesystem::path jsonFile(nextFile);
@@ -956,11 +958,11 @@ void FedRawDataInputSource::readWorker(unsigned int tid)
     off_t pos = lseek(fileDescriptor,chunk->offset_,SEEK_SET);
 
     if (fileDescriptor>=1)
-      edm::LogInfo("FedRawDataInputSource") << " thread id " << tid << " opened file " << file->fileName_ << " at offset " << pos; 
+      edm::LogInfo("FedRawDataInputSource") << "Reader thread opened file -: TID: " << tid << " file: " << file->fileName_ << " at offset " << pos; 
     else
     {
       edm::LogError("FedRawDataInputSource") <<
-      "readWorker failed to open file " << file->fileName_ << " fd:" << fileDescriptor <<
+      "readWorker failed to open file -: " << file->fileName_ << " fd:" << fileDescriptor <<
       " or seek to offset " << chunk->offset_ << ", lseek returned:" << pos;
       setExceptionState_=true;
       return;
@@ -982,7 +984,7 @@ void FedRawDataInputSource::readWorker(unsigned int tid)
     auto end = std::chrono::high_resolution_clock::now();
     auto diff = end-start;
     std::chrono::milliseconds msec = std::chrono::duration_cast<std::chrono::milliseconds>(diff);
-    edm::LogInfo("FedRawDataInputSource") << " finished reading block of " << (bufferLeft >> 20) << " MB" << " in " << msec.count() << " ms ("<< (bufferLeft >> 20)/double(msec.count())<<" GB/s)";
+    edm::LogInfo("FedRawDataInputSource") << " finished reading block -: " << (bufferLeft >> 20) << " MB" << " in " << msec.count() << " ms ("<< (bufferLeft >> 20)/double(msec.count())<<" GB/s)";
     close(fileDescriptor);
 
     chunk->readComplete_=true;//this is atomic to secure the sequential buffer fill before becoming available for processing)
@@ -1059,10 +1061,10 @@ void FedRawDataInputSource::readNextChunkIntoBuffer(InputFile *file)
     bufferInputRead_ = 0;
     //off_t pos = lseek(fileDescriptor,0,SEEK_SET);
     if (fileDescriptor_>=0) 
-      edm::LogInfo("FedRawDataInputSource") << " opened file " << file->fileName_;
+      edm::LogInfo("FedRawDataInputSource") << "opened file -: " << std::endl << file->fileName_;
     else
     {
-      throw cms::Exception("FedRawDataInputSource:readNextChunkIntoBuffer") << "failed to open file "
+      throw cms::Exception("FedRawDataInputSource:readNextChunkIntoBuffer") << "failed to open file " << std::endl
             << file->fileName_ << " fd:" << fileDescriptor_;
     }
   }
@@ -1098,7 +1100,7 @@ void FedRawDataInputSource::readNextChunkIntoBuffer(InputFile *file)
   if (bufferInputRead_ == file->fileSize_) { // no more data in this file 
     if (fileDescriptor_!=-1)
     {
-      edm::LogInfo("FedRawDataInputSource") << "Closing input file " << file->fileName_;
+      edm::LogInfo("FedRawDataInputSource") << "Closing input file -: " << std::endl << file->fileName_;
       close(fileDescriptor_);
       fileDescriptor_=-1;
     }
