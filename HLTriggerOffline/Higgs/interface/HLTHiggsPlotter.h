@@ -47,21 +47,21 @@ class HLTHiggsPlotter
        	public:
 	      	HLTHiggsPlotter(const edm::ParameterSet & pset, const std::string & hltPath,
 				//const std::string & lastFilter,
-				const std::vector<unsigned int> & objectsType,
-			       	DQMStore * dbe);
+				const std::vector<unsigned int> & objectsType);
 		~HLTHiggsPlotter();
 	      	void beginJob();
 	      	void beginRun(const edm::Run &, const edm::EventSetup &);
-		void analyze(const bool & isPassTrigger,const std::string & source,
+            void bookHistograms(DQMStore::IBooker &);
+            void analyze(const bool & isPassTrigger,const std::string & source,
 				const std::vector<MatchStruct> & matches);
 		
 		inline const std::string gethltpath() const { return _hltPath; }
 		
        	private:
-	      	void bookHist(const std::string & source, const std::string & objType, const std::string & variable);
+	      	void bookHist(const std::string & source, const std::string & objType, const std::string & variable,  DQMStore::IBooker &);
 	      	void fillHist(const bool & passTrigger, const std::string & source, 
-				const std::string & objType, const std::string & var, 
-				const float & value);
+                          const std::string & objType, const std::string & var,
+                          const float & value);
 		
 	      	std::string _hltPath;
 		//std::string _lastFilter;
@@ -81,7 +81,6 @@ class HLTHiggsPlotter
 		std::map<unsigned int,std::vector<double> > _cutsDr;
 		
 		
-	      	DQMStore* _dbe;
-	      	std::map<std::string, MonitorElement *> _elements;		
+        std::map<std::string, MonitorElement *> _elements;
 };
 #endif
