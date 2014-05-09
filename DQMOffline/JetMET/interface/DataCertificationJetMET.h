@@ -21,26 +21,26 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 //
 // class decleration
 //
 
-class DataCertificationJetMET : public edm::EDAnalyzer {
+class DataCertificationJetMET : public DQMEDHarvester {
    public:
       explicit DataCertificationJetMET(const edm::ParameterSet&);
       ~DataCertificationJetMET();
 
    private:
-      virtual void beginJob(void) ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      //virtual void beginJob(void) ;
+      //virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) ;
 
 
-      virtual void endRun(const edm::Run&, const edm::EventSetup&) ;
+      //virtual void endRun(const edm::Run&, const edm::EventSetup&) ;
 
-      virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
-      virtual void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
+      //virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
+      //virtual void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
 
       MonitorElement*  reportSummary;
       MonitorElement*  CertificationSummary;
