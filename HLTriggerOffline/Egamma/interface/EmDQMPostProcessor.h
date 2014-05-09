@@ -25,6 +25,7 @@ class EmDQMPostProcessor : public DQMEDHarvester {
       running on data. */
   bool noPhiPlots;
   bool normalizeToReco;
+  bool ignoreEmpty;
 
   /** convenience method to get a histogram but checks first
       whether the corresponding MonitorElement is non-null.
