@@ -48,7 +48,7 @@ namespace SingleTopTChannelLepton {
     /// default contructor
     MonitorEnsemble(const char* label, const edm::ParameterSet& cfg, const edm::VParameterSet& vcfg, edm::ConsumesCollector && iC );
     /// default destructor
-    ~MonitorEnsemble(){};
+    ~MonitorEnsemble(){ delete pvSelect_; pvSelect_=0; delete jetSelectCalo_; jetSelectCalo_=0; delete jetSelectReco_; jetSelectReco_=0; delete jetSelectPF_; jetSelectPF_=0; delete elecSelect_; elecSelect_=0; delete elecIso_; elecIso_=0; delete muonSelect_; muonSelect_=0; delete muonIso_; muonIso_=0;};
     
     /// book histograms in subdirectory _directory_
     void book(std::string directory);
@@ -119,21 +119,21 @@ namespace SingleTopTChannelLepton {
     int eidPattern_;
     /// extra isolation criterion on electron
     //    StringCutObjectSelector<reco::GsfElectron>* elecIso_;
-    std::string elecIso_;
+    StringCutObjectSelector<reco::PFCandidate,true>* elecIso_;
     /// extra selection on electrons
-    //StringCutObjectSelector<reco::GsfElectron>* elecSelect_;
-    std::string elecSelect_;
+    StringCutObjectSelector<reco::PFCandidate,true>* elecSelect_;
+
+    StringCutObjectSelector<reco::PFCandidate, true> *muonSelect_;
+    StringCutObjectSelector<reco::PFCandidate, true> *muonIso_; 
+
+    StringCutObjectSelector<reco::CaloJet> *jetSelectCalo_;
+    StringCutObjectSelector<reco::PFJet> *jetSelectPF_;
+    StringCutObjectSelector<reco::Jet> *jetSelectReco_;
+
     
     /// extra selection on primary vertices; meant to investigate the pile-up effect
     StringCutObjectSelector<reco::Vertex>* pvSelect_;
     
-    /// extra isolation criterion on muon
-    //StringCutObjectSelector<reco::Muon>* muonIso_;
-    std::string muonIso_;
-    /// extra selection on muons
-    //StringCutObjectSelector<reco::Muon>* muonSelect_;
-    std::string muonSelect_;
-
     /// jetCorrector
     std::string jetCorrector_;
     /// jetID as an extra selection type 
@@ -290,6 +290,7 @@ class SingleTopTChannelLeptonDQM : public edm::EDAnalyzer  {
   /// string cut selector
   StringCutObjectSelector<reco::BeamSpot>* beamspotSelect_;
 
+
   /// needed to guarantee the selection order as defined by the order of
   /// ParameterSets in the _selection_ vector as defined in the config
   std::vector<std::string> selectionOrder_;
@@ -308,6 +309,8 @@ class SingleTopTChannelLeptonDQM : public edm::EDAnalyzer  {
   std::vector<SelectionStep<reco::CaloJet> * > CaloJetSteps;
   std::vector<SelectionStep<reco::PFJet> * > PFJetSteps;
   SelectionStep<reco::MET> * METStep;
+
+
 
 
 };
