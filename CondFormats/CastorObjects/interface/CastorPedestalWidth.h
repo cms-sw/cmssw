@@ -35,21 +35,6 @@ class CastorPedestalWidth {
  private:
   uint32_t mId;
   float mSigma00;
-  float mSigma01;
-  float mSigma02;
-  float mSigma03;
-  float mSigma10;
-  float mSigma11;
-  float mSigma12;
-  float mSigma13;
-  float mSigma20;
-  float mSigma21;
-  float mSigma22;
-  float mSigma23;
-  float mSigma30;
-  float mSigma31;
-  float mSigma32;
-  float mSigma33;
 };
 
 #endif
