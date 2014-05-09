@@ -58,8 +58,6 @@
        typedef edm::DetSet<SiPixelRawDataError>::const_iterator    ErrorIterator;
        
        virtual void analyze(const edm::Event&, const edm::EventSetup&);
-       virtual void beginJob() ;
-       virtual void endJob() ;
        virtual void dqmBeginRun(const edm::Run&, edm::EventSetup const&) ;
        virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
@@ -79,7 +77,6 @@
        bool bladeOn;
        bool isUpgrade;
        int eventNo;
-       DQMStore* theDMBE;
        std::map<uint32_t,SiPixelRawDataErrorModule*> thePixelStructure;
        std::map<uint32_t,SiPixelRawDataErrorModule*> theFEDStructure;
        bool firstRun;

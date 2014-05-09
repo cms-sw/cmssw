@@ -62,7 +62,8 @@ SiPixelRawDataErrorSource::SiPixelRawDataErrorSource(const edm::ParameterSet& iC
   bladeOn( conf_.getUntrackedParameter<bool>("bladeOn",false) ),
   isUpgrade( conf_.getUntrackedParameter<bool>("isUpgrade",false) )
 {
-   LogInfo ("PixelDQM") << "SiPixelRawDataErrorSource::SiPixelRawDataErrorSource: Got DQM BackEnd interface"<<endl;
+  firstRun = true;
+  LogInfo ("PixelDQM") << "SiPixelRawDataErrorSource::SiPixelRawDataErrorSource: Got DQM BackEnd interface"<<endl;
 }
 
 
@@ -71,11 +72,6 @@ SiPixelRawDataErrorSource::~SiPixelRawDataErrorSource()
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
   LogInfo ("PixelDQM") << "SiPixelRawDataErrorSource::~SiPixelRawDataErrorSource: Destructor"<<endl;
-}
-
-
-void SiPixelRawDataErrorSource::beginJob(){
-  firstRun = true;
 }
 
 void SiPixelRawDataErrorSource::dqmBeginRun(const edm::Run& r, const edm::EventSetup& iSetup){
@@ -88,24 +84,14 @@ void SiPixelRawDataErrorSource::dqmBeginRun(const edm::Run& r, const edm::EventS
     
     firstRun = false;
   }
+
+  // Build map
+  buildStructure(iSetup);
 }
 
 void SiPixelRawDataErrorSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run const &, edm::EventSetup const & iSetup){
-  // Build map
-  buildStructure(iSetup);
   // Book Monitoring Elements
   bookMEs(iBooker);
-}
-
-
-void SiPixelRawDataErrorSource::endJob(void){
-
-  if(saveFile) {
-    LogInfo ("PixelDQM") << " SiPixelRawDataErrorSource::endJob - Saving Root File " << std::endl;
-    std::string outputFile = conf_.getParameter<std::string>("outputFile");
-    //    theDMBE->save( outputFile.c_str() );
-  }
-
 }
 
 //------------------------------------------------------------------

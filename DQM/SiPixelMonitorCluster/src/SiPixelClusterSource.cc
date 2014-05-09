@@ -130,14 +130,6 @@ void SiPixelClusterSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run 
   }
 }
 
-void SiPixelClusterSource::endJob(void){
-  if(saveFile){
-    LogInfo ("PixelDQM") << " SiPixelClusterSource::endJob - Saving Root File " << std::endl;
-    std::string outputFile = conf_.getParameter<std::string>("outputFile");
-    //    theDMBE->save( outputFile.c_str() ); //Find out what to do with this later.
-  }
-}
-
 //------------------------------------------------------------------
 // Method called for every event
 //------------------------------------------------------------------

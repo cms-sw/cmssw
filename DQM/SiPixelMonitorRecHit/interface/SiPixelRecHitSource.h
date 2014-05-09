@@ -51,7 +51,7 @@
 
 #include <boost/cstdint.hpp>
 
- class SiPixelRecHitSource : public DQMEDAnalyzer {
+class SiPixelRecHitSource : public thread_unsafe::DQMEDAnalyzer {
     public:
        explicit SiPixelRecHitSource(const edm::ParameterSet& conf);
        ~SiPixelRecHitSource();
@@ -59,9 +59,7 @@
 //       typedef edm::DetSet<PixelRecHit>::const_iterator    RecHitIterator;
        
        virtual void analyze(const edm::Event&, const edm::EventSetup&);
-       virtual void beginJob() ;
        virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
-       virtual void endJob() ;
        virtual void dqmBeginRun(const edm::Run&, edm::EventSetup const&) ;
 
        virtual void buildStructure(edm::EventSetup const&);

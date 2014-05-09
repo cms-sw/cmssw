@@ -54,7 +54,8 @@ SiPixelHLTSource::SiPixelHLTSource(const edm::ParameterSet& iConfig) :
   slowDown( conf_.getUntrackedParameter<bool>("slowDown",false) ),
   dirName_( conf_.getUntrackedParameter<std::string>("DirName","Pixel/FEDIntegrity/") )
 {
-   LogInfo ("PixelDQM") << "SiPixelHLTSource::SiPixelHLTSource: Got DQM BackEnd interface"<<endl;
+  firstRun = true;
+  LogInfo ("PixelDQM") << "SiPixelHLTSource::SiPixelHLTSource: Got DQM BackEnd interface"<<endl;
 }
 
 
@@ -65,10 +66,6 @@ SiPixelHLTSource::~SiPixelHLTSource()
   LogInfo ("PixelDQM") << "SiPixelHLTSource::~SiPixelHLTSource: Destructor"<<endl;
 }
 
-
-void SiPixelHLTSource::beginJob(){
-  firstRun = true;
-}
 
 void SiPixelHLTSource::dqmBeginRun(const edm::Run& r, const edm::EventSetup& iSetup){
   LogInfo ("PixelDQM") << " SiPixelHLTSource::beginJob - Initialisation ... " << std::endl;
@@ -83,16 +80,6 @@ void SiPixelHLTSource::dqmBeginRun(const edm::Run& r, const edm::EventSetup& iSe
 
 void SiPixelHLTSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run const &, edm::EventSetup const &){
       bookMEs(iBooker);
-}
-
-void SiPixelHLTSource::endJob(void){
-
-  if(saveFile) {
-    LogInfo ("PixelDQM") << " SiPixelHLTSource::endJob - Saving Root File " << std::endl;
-    std::string outputFile = conf_.getParameter<std::string>("outputFile");
-    //theDMBE->save( outputFile.c_str() );
-  }
-
 }
 
 //------------------------------------------------------------------

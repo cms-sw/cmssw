@@ -86,18 +86,19 @@ SiPixelHitEfficiencySource::SiPixelHitEfficiencySource(const edm::ParameterSet& 
    //tracksrc_ = pSet_.getParameter<edm::InputTag>("trajectoryInput");
    applyEdgeCut_ = pSet_.getUntrackedParameter<bool>("applyEdgeCut");
    nSigma_EdgeCut_ = pSet_.getUntrackedParameter<double>("nSigma_EdgeCut");
-   dbe_ = edm::Service<DQMStore>().operator->();
    vertexCollectionToken_ = consumes<reco::VertexCollection>(std::string("offlinePrimaryVertices"));
    tracksrc_ = consumes<TrajTrackAssociationCollection>(pSet_.getParameter<edm::InputTag>("trajectoryInput"));
    clusterCollectionToken_ = consumes<edmNew::DetSetVector<SiPixelCluster> >(std::string("siPixelClusters"));
 
    measurementTrackerEventToken_ = consumes<MeasurementTrackerEvent>(std::string("MeasurementTrackerEvent"));
 
-  LogInfo("PixelDQM") << "SiPixelHitEfficiencySource constructor" << endl;
-  LogInfo ("PixelDQM") << "Mod/Lad/Lay/Phi " << modOn << "/" << ladOn << "/" 
-            << layOn << "/" << phiOn << std::endl;
-  LogInfo ("PixelDQM") << "Blade/Disk/Ring" << bladeOn << "/" << diskOn << "/" 
-            << ringOn << std::endl;
+   firstRun = true;
+   
+   LogInfo("PixelDQM") << "SiPixelHitEfficiencySource constructor" << endl;
+   LogInfo ("PixelDQM") << "Mod/Lad/Lay/Phi " << modOn << "/" << ladOn << "/" 
+			<< layOn << "/" << phiOn << std::endl;
+   LogInfo ("PixelDQM") << "Blade/Disk/Ring" << bladeOn << "/" << diskOn << "/" 
+			<< ringOn << std::endl;
 }
 
 
@@ -111,10 +112,6 @@ SiPixelHitEfficiencySource::~SiPixelHitEfficiencySource() {
   }
 }
 
-void SiPixelHitEfficiencySource::beginJob() {
-  LogInfo("PixelDQM") << "SiPixelHitEfficiencySource beginJob()" << endl;
-  firstRun = true;
-}
 
 void SiPixelHitEfficiencySource::dqmBeginRun(const edm::Run& r, edm::EventSetup const& iSetup) {
   LogInfo("PixelDQM") << "SiPixelHitEfficiencySource beginRun()" << endl;
@@ -127,9 +124,6 @@ void SiPixelHitEfficiencySource::dqmBeginRun(const edm::Run& r, edm::EventSetup 
   
   firstRun = false;
   }
-}
-
-void SiPixelHitEfficiencySource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run const & iRun, edm::EventSetup const & iSetup){
 
   edm::ESHandle<TrackerGeometry> TG;
   iSetup.get<TrackerDigiGeometryRecord>().get(TG);
@@ -151,6 +145,10 @@ void SiPixelHitEfficiencySource::bookHistograms(DQMStore::IBooker & iBooker, edm
     }
   }
   LogInfo("PixelDQM") << "SiPixelStructure size is " << theSiPixelStructure.size() << endl;
+
+}
+
+void SiPixelHitEfficiencySource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run const & iRun, edm::EventSetup const & iSetup){
 
   // book residual histograms in theSiPixelFolder - one (x,y) pair of histograms per det
   SiPixelFolderOrganizer theSiPixelFolder;
@@ -189,24 +187,6 @@ void SiPixelHitEfficiencySource::bookHistograms(DQMStore::IBooker & iBooker, edm
 
 
 }
-
-void SiPixelHitEfficiencySource::endJob(void) {
-  LogInfo("PixelDQM") << "SiPixelHitEfficiencySource endJob()";
-
-  // save the residual histograms to an output root file
-  bool saveFile = pSet_.getUntrackedParameter<bool>("saveFile", true);
-  if (saveFile) { 
-    std::string outputFile = pSet_.getParameter<std::string>("outputFile");
-    LogInfo("PixelDQM") << " - saving histograms to "<< outputFile.data();
-    //    dbe_->save(outputFile);
-  } 
-  LogInfo("PixelDQM") << endl; // dbe_->showDirStructure();
-  
-  //std::cout<< "********** SUMMARY **********"<<std::endl;
-  //std::cout<< "number of valid hits: "<<nvalid<<std::endl;
-  //std::cout<< "number of missing hits: "<<nmissing<<std::endl;
-}
-
 
 void SiPixelHitEfficiencySource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 

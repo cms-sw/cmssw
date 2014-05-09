@@ -68,6 +68,20 @@ SiPixelDigiSource::SiPixelDigiSource(const edm::ParameterSet& iConfig) :
    //set Token(-s)
    srcToken_ = consumes<edm::DetSetVector<PixelDigi> >(conf_.getParameter<edm::InputTag>( "src" ));
 
+   firstRun = true;  
+   // find a FED# for the current detId:
+   ifstream infile(edm::FileInPath("DQM/SiPixelMonitorClient/test/detId.dat").fullPath().c_str(),ios::in);
+   int nModsInFile=0;
+   assert(!infile.fail());
+   int nTOTmodules;
+   if (isUpgrade) { nTOTmodules=1856; } else { nTOTmodules=1440; }
+   while(!infile.eof()&&nModsInFile<nTOTmodules) {
+     infile >> I_name[nModsInFile] >> I_detId[nModsInFile] >> I_fedId[nModsInFile] >> I_linkId1[nModsInFile] >> I_linkId2[nModsInFile];
+     //cout<<nModsInFile<<" , "<<I_name[nModsInFile]<<" , "<<I_detId[nModsInFile]<<" , "<<I_fedId[nModsInFile]<<" , "<<I_linkId[nModsInFile]<<endl; ;
+     nModsInFile++;
+   }
+   infile.close();
+   
    LogInfo ("PixelDQM") << "SiPixelDigiSource::SiPixelDigiSource: Got DQM BackEnd interface"<<endl;
 }
 
@@ -79,22 +93,6 @@ SiPixelDigiSource::~SiPixelDigiSource()
   LogInfo ("PixelDQM") << "SiPixelDigiSource::~SiPixelDigiSource: Destructor"<<endl;
 }
 
-
-void SiPixelDigiSource::beginJob(){
-  firstRun = true;  
-  // find a FED# for the current detId:
-  ifstream infile(edm::FileInPath("DQM/SiPixelMonitorClient/test/detId.dat").fullPath().c_str(),ios::in);
-  int nModsInFile=0;
-  assert(!infile.fail());
-  int nTOTmodules;
-  if (isUpgrade) { nTOTmodules=1856; } else { nTOTmodules=1440; }
-  while(!infile.eof()&&nModsInFile<nTOTmodules) {
-    infile >> I_name[nModsInFile] >> I_detId[nModsInFile] >> I_fedId[nModsInFile] >> I_linkId1[nModsInFile] >> I_linkId2[nModsInFile];
-    //cout<<nModsInFile<<" , "<<I_name[nModsInFile]<<" , "<<I_detId[nModsInFile]<<" , "<<I_fedId[nModsInFile]<<" , "<<I_linkId[nModsInFile]<<endl; ;
-    nModsInFile++;
-  }
-  infile.close();
-}
 
 void SiPixelDigiSource::dqmBeginRun(const edm::Run& r, const edm::EventSetup& iSetup){
   LogInfo ("PixelDQM") << " SiPixelDigiSource::beginJob - Initialisation ... " << std::endl;
@@ -172,17 +170,6 @@ void SiPixelDigiSource::dqmBeginRun(const edm::Run& r, const edm::EventSetup& iS
 
 void SiPixelDigiSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run const &, edm::EventSetup const &){
   bookMEs(iBooker);
-}
-
-
-void SiPixelDigiSource::endJob(void){
-
-  if(saveFile) {
-    LogInfo ("PixelDQM") << " SiPixelDigiSource::endJob - Saving Root File " << std::endl;
-    std::string outputFile = conf_.getParameter<std::string>("outputFile");
-    //    theDMBE->save( outputFile.c_str() );
-  }
-
 }
 
 //------------------------------------------------------------------

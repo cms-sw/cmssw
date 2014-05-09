@@ -64,7 +64,8 @@ SiPixelRecHitSource::SiPixelRecHitSource(const edm::ParameterSet& iConfig) :
   diskOn( conf_.getUntrackedParameter<bool>("diskOn",false) ), 
   isUpgrade( conf_.getUntrackedParameter<bool>("isUpgrade",false) )
 {
-   LogInfo ("PixelDQM") << "SiPixelRecHitSource::SiPixelRecHitSource: Got DQM BackEnd interface"<<endl;
+  firstRun = true;
+  LogInfo ("PixelDQM") << "SiPixelRecHitSource::SiPixelRecHitSource: Got DQM BackEnd interface"<<endl;
 }
 
 
@@ -78,11 +79,6 @@ SiPixelRecHitSource::~SiPixelRecHitSource()
     delete struct_iter->second;
     struct_iter->second = 0;
   }
-}
-
-
-void SiPixelRecHitSource::beginJob(){
-  firstRun = true;
 }
 
 
@@ -106,17 +102,6 @@ void SiPixelRecHitSource::dqmBeginRun(const edm::Run& r, const edm::EventSetup& 
 
 void SiPixelRecHitSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run const &, edm::EventSetup const &){
   bookMEs(iBooker);
-}
-
-void SiPixelRecHitSource::endJob(void){
-
-
-  if(saveFile){
-    LogInfo ("PixelDQM") << " SiPixelRecHitSource::endJob - Saving Root File " << std::endl;
-    std::string outputFile = conf_.getParameter<std::string>("outputFile");
-    //theDMBE->save( outputFile );
-  }
-
 }
 
 //------------------------------------------------------------------

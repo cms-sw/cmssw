@@ -44,13 +44,11 @@
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
 
-class SiPixelTrackResidualSource : public DQMEDAnalyzer {
+class SiPixelTrackResidualSource : public thread_unsafe::DQMEDAnalyzer {
   public:
     explicit SiPixelTrackResidualSource(const edm::ParameterSet&);
             ~SiPixelTrackResidualSource();
 
-    virtual void beginJob();
-    virtual void endJob(void);
     virtual void dqmBeginRun(const edm::Run& r, edm::EventSetup const& iSetup);
     virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
     virtual void analyze(const edm::Event&, const edm::EventSetup&);

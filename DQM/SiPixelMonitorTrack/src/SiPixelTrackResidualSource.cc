@@ -92,6 +92,10 @@ SiPixelTrackResidualSource::SiPixelTrackResidualSource(const edm::ParameterSet& 
             << layOn << "/" << phiOn << std::endl;
   LogInfo ("PixelDQM") << "Blade/Disk/Ring" << bladeOn << "/" << diskOn << "/" 
             << ringOn << std::endl;
+
+  firstRun = true;
+  NTotal=0;
+  NLowProb=0;
 }
 
 
@@ -105,20 +109,9 @@ SiPixelTrackResidualSource::~SiPixelTrackResidualSource() {
   }
 }
 
-void SiPixelTrackResidualSource::beginJob() {
-  LogInfo("PixelDQM") << "SiPixelTrackResidualSource beginJob()" << endl;
-  firstRun = true;
-  NTotal=0;
-  NLowProb=0;
-}
-
 
 void SiPixelTrackResidualSource::dqmBeginRun(const edm::Run& r, edm::EventSetup const& iSetup) {
   LogInfo("PixelDQM") << "SiPixelTrackResidualSource beginRun()" << endl;
-}
-
-void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run const &, edm::EventSetup const & iSetup){
-
   // retrieve TrackerGeometry for pixel dets
   edm::ESHandle<TrackerGeometry> TG;
   iSetup.get<TrackerDigiGeometryRecord>().get(TG);
@@ -140,6 +133,9 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker & iBooker, edm
     }
   }
   LogInfo("PixelDQM") << "SiPixelStructure size is " << theSiPixelStructure.size() << endl;
+}
+
+void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run const &, edm::EventSetup const & iSetup){
 
   // book residual histograms in theSiPixelFolder - one (x,y) pair of histograms per det
   SiPixelFolderOrganizer theSiPixelFolder;
@@ -648,20 +644,6 @@ void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker & iBooker, edm
   }
   
   firstRun = false;
-}
-
-
-void SiPixelTrackResidualSource::endJob(void) {
-  LogInfo("PixelDQM") << "SiPixelTrackResidualSource endJob()";
-
-  // save the residual histograms to an output root file
-  bool saveFile = pSet_.getUntrackedParameter<bool>("saveFile", true);
-  if (saveFile) { 
-    std::string outputFile = pSet_.getParameter<std::string>("outputFile");
-    LogInfo("PixelDQM") << " - saving histograms to "<< outputFile.data();
-    //dbe_.save(outputFile);
-  } 
-  LogInfo("PixelDQM") << endl; // iBooker.showDirStructure();
 }
 
 
