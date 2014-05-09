@@ -23,7 +23,9 @@ private: // Private Data Members
   edm::MemberWithDict member_;
   std::vector<AnyMethodArgument> ints_; // already fixed to the correct type
   std::vector<void*> args_;
+
   bool isFunction_;
+  edm::TypeWithDict retTypeFinal_;
 private: // Private Function Members
   void setArgs();
 public: // Public Function Members

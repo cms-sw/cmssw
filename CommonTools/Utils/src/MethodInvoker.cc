@@ -7,7 +7,6 @@
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include <algorithm>
-
 using namespace reco::parser;
 using namespace std;
 
@@ -20,6 +19,9 @@ MethodInvoker(const edm::FunctionWithDict& method,
   , isFunction_(true)
 {
   setArgs();
+  if (isFunction_) {
+    retTypeFinal_ = method_.finalReturnType();
+  }
   //std::cout <<
   //   "Booking " <<
   //   methodName() <<
@@ -62,6 +64,7 @@ MethodInvoker(const MethodInvoker& rhs)
   , member_(rhs.member_)
   , ints_(rhs.ints_)
   , isFunction_(rhs.isFunction_)
+  , retTypeFinal_(rhs.retTypeFinal_)
 {
   setArgs();
 }
@@ -75,6 +78,8 @@ operator=(const MethodInvoker& rhs)
     member_ = rhs.member_;
     ints_ = rhs.ints_;
     isFunction_ = rhs.isFunction_;
+    retTypeFinal_ =rhs.retTypeFinal_;
+
     setArgs();
   }
   return *this;
@@ -124,7 +129,7 @@ invoke(const edm::ObjectWithDict& o, edm::ObjectWithDict& retstore) const
     //  << std::endl;
     method_.invoke(o, &ret, args_);
     // this is correct, it takes pointers and refs into account
-    retType = method_.finalReturnType();
+    retType = retTypeFinal_; 
   }
   else {
     //std::cout << "Invoking " << methodName()
