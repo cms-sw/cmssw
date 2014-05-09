@@ -21,6 +21,21 @@ theDigitizersMixPreMix = cms.PSet(
   )
 )
 
+theDigitizersMixPreMixValid = cms.PSet(
+  pixel = cms.PSet(
+    pixelDigitizer
+  ),
+  strip = cms.PSet(
+    stripDigitizer
+  ),
+  castor  = cms.PSet(
+    castorDigitizer
+  ),
+  mergedtruth = cms.PSet(
+    trackingParticles
+  )
+)
+        
 
 #theDigitizersNoNoise.pixel.AddNoise = cms.bool(True)
 #theDigitizersNoNoise.pixel.addNoisyPixels = cms.bool(False)
