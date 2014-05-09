@@ -30,37 +30,6 @@ class CastorCalibrationQIECoder {
  private:
   uint32_t mId;
   float bin0;
-  float bin1;
-  float bin2;
-  float bin3;
-  float bin4;
-  float bin5;
-  float bin6;
-  float bin7;
-  float bin8;
-  float bin9;
-  float bin10;
-  float bin11;
-  float bin12;
-  float bin13;
-  float bin14;
-  float bin15;
-  float bin16;
-  float bin17;
-  float bin18;
-  float bin19;
-  float bin20;
-  float bin21;
-  float bin22;
-  float bin23;
-  float bin24;
-  float bin25;
-  float bin26;
-  float bin27;
-  float bin28;
-  float bin29;
-  float bin30;
-  float bin31;
   const float* base () const {return &bin0;}
   float* base () {return &bin0;}
 };

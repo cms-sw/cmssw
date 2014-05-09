@@ -26,25 +26,17 @@ class CastorPedestal {
 
   // functions below are not supposed to be used by consumer applications
 
-  CastorPedestal () : mId (0), mValue0 (0), mValue1 (0), mValue2 (0), mValue3 (0), 
-    mWidth0 (0), mWidth1 (0), mWidth2 (0), mWidth3 (0) {}
-  
+  CastorPedestal () : mId (0), mValue0 (0), mWidth0 (0) {}
+
   CastorPedestal (unsigned long fId, float fCap0, float fCap1, float fCap2, float fCap3,
 		float wCap0 = 0, float wCap1 = 0, float wCap2 = 0, float wCap3 = 0) :
-  mId (fId), mValue0 (fCap0), mValue1 (fCap1), mValue2 (fCap2), mValue3 (fCap3),
-    mWidth0 (wCap0), mWidth1 (wCap1), mWidth2 (wCap2), mWidth3 (wCap3) {}
+  mId (fId), mValue0 (fCap0), mWidth0 (wCap0) {}
 
     uint32_t rawId () const {return mId;}
  private:
   uint32_t mId;
   float mValue0;
-  float mValue1;
-  float mValue2;
-  float mValue3;
   float mWidth0;
-  float mWidth1;
-  float mWidth2;
-  float mWidth3;
 };
 
 #endif

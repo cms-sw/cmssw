@@ -14,7 +14,7 @@ Adapted for CASTOR by L. Mundim
 #include "CondFormats/CastorObjects/interface/CastorElectronicsMap.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-CastorElectronicsMap::CastorElectronicsMap() : 
+CastorElectronicsMap::CastorElectronicsMap() :
   mPItems(CastorElectronicsId::maxLinearIndex+1),
   mTItems(CastorElectronicsId::maxLinearIndex+1),
   mPItemsById(nullptr), mTItemsByTrigId(nullptr)
@@ -26,14 +26,12 @@ namespace castor_impl {
 }
 
 CastorElectronicsMap::~CastorElectronicsMap() {
-    if (mPItemsById) {
-        delete mPItemsById;
-        mPItemsById = nullptr;
-    }
-    if (mTItemsByTrigId) {
-        delete mTItemsByTrigId;
-        mTItemsByTrigId = nullptr;
-    }
+	std::vector<const PrecisionItem*>* temp_point = nullptr;
+	mPItemsById.compare_exchange_weak(temp_point, nullptr);
+	delete temp_point;
+	std::vector<const TriggerItem*>* temp_point2 = nullptr;
+	mTItemsByTrigId.compare_exchange_weak(temp_point2, nullptr);
+	delete temp_point2;
 }
 // copy-ctor
 CastorElectronicsMap::CastorElectronicsMap(const CastorElectronicsMap& src)
