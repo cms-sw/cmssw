@@ -186,15 +186,9 @@ void MVAComputer::evalInternal(T &ctx) const
 			                          ? next->nOutput : 0;
 
 #ifdef DEBUG_EVAL
-<<<<<<< HEAD
-                        std::string demangledName;
-                        edm::typeDemangle(typeid(*iter->processor).name(), demangledName);
-			std::cout << demangledName << std::endl;
-=======
 		std::string demangledName;
 		edm::typeDemangle(typeid(*iter->processor).name(), demangledName);
 		std::cout << demangledName << std::endl;
->>>>>>> minor fixes
 #endif
 			if (status != VarProcessor::kSkip)
 				ctx.eval(&*iter->processor, outConf, output,
