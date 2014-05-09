@@ -6,9 +6,11 @@
 HGCDigiProducer::HGCDigiProducer(edm::ParameterSet const& pset, edm::EDProducer& mixMod) :
   DigiAccumulatorMixMod(),
   theDigitizer_(pset) {
-  if( theDigitizer_.producesEEDigis()     ) mixMod.produces<HGCEEDigiCollection>("HGCEEDigis");
-  if( theDigitizer_.producesHEfrontDigis()) mixMod.produces<HGCHEfrontDigiCollection>("HGCHEfrontDigis");
-  if( theDigitizer_.producesHEbackDigis() ) mixMod.produces<HGCHEbackDigiCollection>("HGCHEbackDigis");
+  if( theDigitizer_.producesEEDigis()     )
+    mixMod.produces<HGCEEDigiCollection>(theDigitizer_.digiCollection());
+  if( theDigitizer_.producesHEfrontDigis() || theDigitizer_.producesHEbackDigis() )
+    mixMod.produces<HGCHEDigiCollection>(theDigitizer_.digiCollection());
+  
 }
 
 //

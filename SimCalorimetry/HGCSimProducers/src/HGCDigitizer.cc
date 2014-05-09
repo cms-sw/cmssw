@@ -15,7 +15,9 @@ HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps)
 {
   //configure from cfg
   hitCollection_     = ps.getUntrackedParameter< std::string >("hitCollection");
+  digiCollection_    = ps.getUntrackedParameter< std::string >("digiCollection");
   maxSimHitsAccTime_ = ps.getUntrackedParameter< uint32_t >("maxSimHitsAccTime");
+  bxTime_            = ps.getUntrackedParameter< int32_t >("bxTime");
   doTrivialDigis_    = ps.getUntrackedParameter< bool >("doTrivialDigis");
 
   //get the random number generator
@@ -36,28 +38,27 @@ void HGCDigitizer::initializeEvent(edm::Event const& e, edm::EventSetup const& e
 void HGCDigitizer::finalizeEvent(edm::Event& e, edm::EventSetup const& es)
 {
   
-  if( producesEEDigis()     ) 
+  if( producesEEDigis() ) 
     {
       std::auto_ptr<HGCEEDigiCollection> digiResult(new HGCEEDigiCollection() );
-      //theHGCEEDigitizer->run(*digiResult,simHitAccumulator_,doTrivialDigis_);
+      theHGCEEDigitizer_.run(digiResult,simHitAccumulator_,doTrivialDigis_);
       edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " << digiResult->size() <<  " EE hits";
-      e.put(digiResult);
+      std::cout << "[HGCDigizitzer][finalizeEvent] @ finalize event - produced " << digiResult->size() <<  " EE hits" << std::endl;
+      e.put(digiResult,digiCollection());
     }
   if( producesHEfrontDigis())
     {
-      std::auto_ptr<HGCHEfrontDigiCollection> digiResult(new HGCHEfrontDigiCollection() );
-      if(doTrivialDigis_){ }
-      //theHGCHEfrontDigitizer->run(*digiResult);
+      std::auto_ptr<HGCHEDigiCollection> digiResult(new HGCHEDigiCollection() );
+      theHGCHEfrontDigitizer_.run(digiResult,simHitAccumulator_,doTrivialDigis_);
       edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " << digiResult->size() <<  " HE front hits";
-      e.put(digiResult);
+      e.put(digiResult,digiCollection());
     }
   if( producesHEbackDigis() )
     {
-      std::auto_ptr<HGCHEbackDigiCollection> digiResult(new HGCHEbackDigiCollection() );
-      if(doTrivialDigis_){ }
-      //theHGCHEbackDigitizer->run(*digiResult);
+      std::auto_ptr<HGCHEDigiCollection> digiResult(new HGCHEDigiCollection() );
+      theHGCHEbackDigitizer_.run(digiResult,simHitAccumulator_,doTrivialDigis_);
       edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " << digiResult->size() <<  " HE back hits";
-      e.put(digiResult);
+      e.put(digiResult,digiCollection());
     }
 }
 
@@ -96,20 +97,20 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, i
 {
   for(edm::PCaloHitContainer::const_iterator hit_it = hits->begin(); hit_it != hits->end(); ++hit_it)
     {
+      //for now use a single time sample
+      int    itime = 0; //(int) ( hit_it->time() - bxTime_*bxCrossing ); // - jitter etc.;
       uint32_t id  = hit_it->id();
       double ien   = hit_it->energy();
-      int    itime = (int) hit_it->time(); // - 25*bxCrossing - jitter etc.;
 
-      CaloSimHitDataAccumulator::iterator simHitIt=simHitAccumulator_.find(id);
+      HGCSimHitDataAccumulator::iterator simHitIt=simHitAccumulator_.find(id);
       if(simHitIt==simHitAccumulator_.end())
 	{
-	  CaloSimHitData baseData(25,0);
+	  HGCSimHitData baseData(10,0);
 	  simHitAccumulator_[id]=baseData;
 	  simHitIt=simHitAccumulator_.find(id);
 	}
       if(itime<0 || itime>(int)simHitIt->second.size()) continue;
       (simHitIt->second)[itime] += ien;
-
     }
 }
 
@@ -129,7 +130,7 @@ void HGCDigitizer::endRun()
 //
 void HGCDigitizer::resetSimHitDataAccumulator()
 {
-  for( CaloSimHitDataAccumulator::iterator it = simHitAccumulator_.begin(); it!=simHitAccumulator_.end(); it++) 
+  for( HGCSimHitDataAccumulator::iterator it = simHitAccumulator_.begin(); it!=simHitAccumulator_.end(); it++) 
     std::fill(it->second.begin(), it->second.end(),0.); 
 }
 

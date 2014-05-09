@@ -3,15 +3,25 @@
 
 namespace {
   struct dictionary {
-
     HGCSample anHGCsample;
+
+    //EE specific
     HGCEEDetId anHGCEEDetId;
     HGCDataFrame<HGCEEDetId,HGCSample> anHGCEEDataFrame;
     std::vector<HGCDataFrame<HGCEEDetId,HGCSample> > vHGCEEDataFrames;
     edm::SortedCollection< HGCDataFrame<HGCEEDetId,HGCSample> > scHGCEEDataFrames;
     edm::Wrapper< edm::SortedCollection< HGCDataFrame<HGCEEDetId,HGCSample> > > prodHGCEEDataFrames;
-    HGCEEDigiCollection theHGCEE_;
+    HGCEEDigiCollection dcHGCEE;
+    edm::Wrapper<HGCEEDigiCollection> wdcHGCEE;
 
+    //HE specific
+    HGCHEDetId anHGCHEDetId;
+    HGCDataFrame<HGCHEDetId,HGCSample> anHGCHEDataFrame;
+    std::vector<HGCDataFrame<HGCHEDetId,HGCSample> > vHGCHEDataFrames;
+    edm::SortedCollection< HGCDataFrame<HGCHEDetId,HGCSample> > scHGCHEDataFrames;
+    edm::Wrapper< edm::SortedCollection< HGCDataFrame<HGCHEDetId,HGCSample> > > prodHGCHEDataFrames;
+    HGCHEDigiCollection dcHGCHE;
+    edm::Wrapper<HGCHEDigiCollection> wdcHGCHE;
   };
 }
 
