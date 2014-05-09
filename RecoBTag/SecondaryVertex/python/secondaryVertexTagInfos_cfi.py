@@ -22,20 +22,5 @@ secondaryVertexTagInfos = cms.EDProducer("SecondaryVertexProducer",
 
 )
 
-secondaryVertexTagInfosV2 = cms.EDProducer("SecondaryVertexProducer",
-	vertexTrackSelectionBlock,
-	vertexSelectionBlock,
-	vertexCutsBlock,
-	vertexRecoBlock,
-	constraint = cms.string("BeamSpot"),
-	trackIPTagInfos = cms.InputTag("impactParameterTagInfos"),
-	minimumTrackWeight = cms.double(0.5),
-	usePVError = cms.bool(True),
-	trackSort = cms.string('sip3dSig'),
-        beamSpotTag = cms.InputTag('offlineBeamSpot'),                                        
-        useExternalSV       = cms.bool(False),
-        extSVCollection     = cms.InputTag('secondaryVertices'),
-        extSVDeltaRToJet    = cms.double(0.3)
-
-)
+secondaryVertexTagInfosV2 = secondaryVertexTagInfos.clone()
 secondaryVertexTagInfosV2.trackSelection.qualityClass = cms.string('any')
