@@ -106,9 +106,9 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
   if(verbose > 0) {
     evt->print();
     LogDebug("SimG4CoreGenerator") << "Primary Vertex = (" 
-					<< vtx_->x() << "," 
-					<< vtx_->y() << ","
-					<< vtx_->z() << ")";
+				   << vtx_->x() << "," 
+				   << vtx_->y() << ","
+				   << vtx_->z() << ")";
   }
     
   unsigned int ng4vtx = 0;
@@ -261,7 +261,6 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
 	   (fabs(zimpact) < Z_hector || rimpact2 > theRDecLenCut2)) {
 
 	  // Ptot cut (was assumed to be Pt?)
-	  //if (fPCuts && (ptot < theMinPCut || ptot > theMaxPCut)) {
 	  if (fPCuts && (ptot < theMinPCut || ptot > theMaxPCut)) {
             continue;
 	  }
@@ -280,9 +279,9 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
 
 	  // can be propagated along Z
 	  if(fabs(pz) >= minTan*ptot) {
-	    if(zi >= Z_lmax && pz < 0.0) {
+	    if((zi >= Z_lmax) & (pz < 0.0)) {
               zi = Z_lmax;
-	    } else if(zi <= Z_lmin && pz > 0.0) {
+	    } else if((zi <= Z_lmin) & (pz > 0.0)) {
               zi = Z_lmin;
 	    } else {
               if(pz > 0) { zi = Z_lmax; }
@@ -293,18 +292,19 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
 	    yi += del*py;
 	  }
 	  // check eta cut
-	  if(xi*xi + yi*yi < theRDecLenCut2) {
+	  if((zi >= Z_lmin) & (zi <= Z_lmax) 
+	     & (xi*xi + yi*yi < theRDecLenCut2)) {
 	    continue;
 	  }
 	  toBeAdded = true;
 	  if ( verbose > 1 ) LogDebug("SimG4CoreGenerator") 
 	    << "GenParticle barcode = " << (*pitr)->barcode() 
 	    << " passed case 1";
-	}
-      
-	// Decay chain entering exiting the fiducial cylinder 
-	// defined by theRDecLenCut
-	if(2 == status && x2*x2 + y2*y2 >= theRDecLenCut2 && fabs(z2) < Z_hector) {
+	} else if(2 == status && 
+		  x2*x2 + y2*y2 >= theRDecLenCut2 && fabs(z2) < Z_hector){
+
+	  // Decay chain entering exiting the fiducial cylinder 
+	  // defined by theRDecLenCut
 	  toBeAdded=true;
 
 	  if ( verbose > 1 ) LogDebug("SimG4CoreGenerator") 
@@ -324,7 +324,8 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
           double charge = g4prim->GetG4code()->GetPDGCharge();
 
 	  // apply Pt cut
-	  if (fPtransCut && 0.0 != charge && px*px + py*py < theMinPtCut2) {
+	  if (fPtransCut && 
+	      0.0 != charge && px*px + py*py < theMinPtCut2) {
             delete g4prim;
             continue;
 	  }
@@ -386,15 +387,16 @@ void Generator::particleAssignDaughters( G4PrimaryParticle* g4p,
   double proper_time = decaylength/(p.Beta()*p.Gamma()*c_light);
   if( verbose > 1 ) {
     LogDebug("SimG4CoreGenerator") <<" px= "<< p.px()
-					<<" py= "<< p.py()
-					<<" pz= "<< p.pz()
-					<<" e= " <<  p.e()
-					<<" beta= "<< p.Beta()
-					<<" gamma= " << p.Gamma()
-					<<" Proper time= " <<proper_time/ns <<" ns";
+				   <<" py= "<< p.py()
+				   <<" pz= "<< p.pz()
+				   <<" e= " <<  p.e()
+				   <<" beta= "<< p.Beta()
+				   <<" gamma= " << p.Gamma()
+				   <<" Proper time= " <<proper_time/ns <<" ns";
   }
   g4p->SetProperTime(proper_time); 
-  // the particle will decay after the same length if it has not interacted before
+  // the particle will decay after the same length if it 
+  // has not interacted before
   double x1 = vp->end_vertex()->position().x();
   double y1 = vp->end_vertex()->position().y();
   double z1 = vp->end_vertex()->position().z();
