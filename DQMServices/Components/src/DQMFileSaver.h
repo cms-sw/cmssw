@@ -31,6 +31,8 @@ private:
   void saveForFilterUnit(const std::string& rewrite, int run, int lumi);
   void saveJobReport(const std::string &filename);
 
+  void saveJson(int run, int lumi, const std::string& fn, const std::string& data_fn);
+
   enum Convention
   {
     Online,

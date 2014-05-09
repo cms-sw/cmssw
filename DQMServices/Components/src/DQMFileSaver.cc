@@ -18,6 +18,9 @@
 #include <TString.h>
 #include <TSystem.h>
 
+#include <boost/property_tree/json_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
+
 //--------------------------------------------------------
 static void
 getAnInt(const edm::ParameterSet &ps, int &value, const std::string &name)
@@ -234,6 +237,28 @@ DQMFileSaver::saveForOnline(const std::string &suffix, const std::string &rewrit
 	              saveReferenceQMin_);
 }
 
+
+void
+DQMFileSaver::saveJson(int run, int lumi, const std::string& fn, const std::string& data_fn) {
+  using namespace boost::property_tree;
+  ptree pt;
+  ptree data;
+
+  ptree child1, child2, child3;
+
+  child1.put("", -1); // Processed
+  child2.put("", -1); // Accepted
+  child3.put("", data_fn); // filelist
+
+  data.push_back(std::make_pair("", child1));
+  data.push_back(std::make_pair("", child2));
+  data.push_back(std::make_pair("", child3));
+
+  pt.add_child("data", data);
+  pt.put("definition", "/non-existant/");
+  pt.put("source", "--hostname--");
+}
+
 void
 DQMFileSaver::saveForFilterUnitPB(int run, int lumi)
 {
@@ -242,9 +267,12 @@ DQMFileSaver::saveForFilterUnitPB(int run, int lumi)
   char daqFileName[64]; // with current conventions, max size is 42
   sprintf(daqFileName, "run%06d_ls%04d_stream%sFU_pid%05d", run, lumi, producer_.c_str(), getpid());
   std::string filename = fileBaseName_ + daqFileName + ".pb";
+  std::string filename_json = fileBaseName_ + daqFileName + ".jsn";
+
   // Save the file
   // FIXME(diguida): support mutithreading!
   dbe_->savePB(filename, filterName_);
+  saveJson(run, lumi, filename_json, filename);
 }
 
 void
