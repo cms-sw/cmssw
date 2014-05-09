@@ -1,5 +1,5 @@
-#ifndef JetMETCorrections_Modules_QGLikelihoodESProducer_h
-#define JetMETCorrections_Modules_QGLikelihoodESProducer_h
+#ifndef JetMETCorrections_Modules_QGLikelihoodSystematicsESProducer_h
+#define JetMETCorrections_Modules_QGLikelihoodSystematicsESProducer_h
 
 // system include files
 #include <memory>
@@ -14,17 +14,16 @@
 
 #include "FWCore/Framework/interface/ESProducts.h"
 #include "CondFormats/JetMETObjects/interface/QGLikelihoodObject.h"
-#include "CondFormats/DataRecord/interface/QGLikelihoodRcd.h"
+#include "CondFormats/DataRecord/interface/QGLikelihoodSystematicsRcd.h"
 
 
-class QGLikelihoodESProducer : public edm::ESProducer{
+class QGLikelihoodSystematicsESProducer : public edm::ESProducer{
    public:
-      QGLikelihoodESProducer(const edm::ParameterSet&);
-      ~QGLikelihoodESProducer(){};
+      QGLikelihoodSystematicsESProducer(const edm::ParameterSet&);
+      ~QGLikelihoodSystematicsESProducer(){};
 
-      boost::shared_ptr<QGLikelihoodObject> produce(const QGLikelihoodRcd&);
+      boost::shared_ptr<QGLikelihoodSystematicsObject> produce(const QGLikelihoodSystematicsRcd&);
       void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue &, edm::ValidityInterval &);
-
    private:
       std::string mAlgo;
 };
