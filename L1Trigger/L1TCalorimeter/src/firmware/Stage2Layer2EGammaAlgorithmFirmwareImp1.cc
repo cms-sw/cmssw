@@ -34,7 +34,7 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
   for(size_t clusNr=0;clusNr<clusters.size();clusNr++){
     if(clusters[clusNr].checkClusterFlag(l1t::CaloCluster::PASS_THRES_SEED) && 
        clusters[clusNr].checkClusterFlag(l1t::CaloCluster::PASS_FILTER_CLUSTER) &&
-       (clusters[clusNr].hOverE()<=floor(params_->egMaxHOverE()*128) || clusters[clusNr].hwPt()>=params_->egEtToRemoveHECutHw())){ //all E/gammas have to pass H/E cut or be above the Et threshold, later on this might be set to a flag...
+       (clusters[clusNr].hOverE()<=floor(params_->egMaxHOverE()*128) || clusters[clusNr].hwPt()>=floor(params_->egEtToRemoveHECut()/params_->egLsb()))){ //all E/gammas have to pass H/E cut or be above the Et threshold, later on this might be set to a flag...
       
       //H/E has 7 bits and is represented by an int from 0-1, params_->egMaxHOverE() is a real number (ie something like 0.15) so has to be multiplied by 128
       egammas.push_back(clusters[clusNr]);

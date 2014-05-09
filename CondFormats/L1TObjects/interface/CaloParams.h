@@ -65,13 +65,13 @@ namespace l1t {
 
     // EG
     double egLsb() const { return egLsb_; }
-    int egSeedThresholdHw() const { return floor(egSeedThreshold_/egLsb_); }
+    //int egSeedThresholdHw() const { return floor(egSeedThreshold_/egLsb_); }
     double egSeedThreshold() const { return egSeedThreshold_; }
-    int egNeighbourThresholdHw() const { return floor(egNeighbourThreshold_/egLsb_); }
+    //int egNeighbourThresholdHw() const { return floor(egNeighbourThreshold_/egLsb_); }
     double egNeighbourThreshold() const { return egNeighbourThreshold_; }
-    int egMaxHcalEtHw() const { return floor(egMaxHcalEt_/egLsb_); }
+    //int egMaxHcalEtHw() const { return floor(egMaxHcalEt_/egLsb_); }
     double egMaxHcalEt() const { return egMaxHcalEt_; }
-    int egEtToRemoveHECutHw() const {return floor(egEtToRemoveHECut_/egLsb_);}
+    //int egEtToRemoveHECutHw() const {return floor(egEtToRemoveHECut_/egLsb_);}
     double egEtToRemoveHECut() const {return egEtToRemoveHECut_;}
     double egMaxHOverE() const { return egMaxHOverE_; }
     double egRelativeJetIsolationCut() const { return egRelativeJetIsolationCut_; }
@@ -108,9 +108,9 @@ namespace l1t {
 
     // tau
     double tauLsb() const { return tauLsb_; }
-    int tauSeedThresholdHw() const { return floor(tauSeedThreshold_/tauLsb_); }
+    //int tauSeedThresholdHw() const { return floor(tauSeedThreshold_/tauLsb_); }
     double tauSeedThreshold() const { return tauSeedThreshold_; }
-    int tauNeighbourThresholdHw() const { return floor(tauNeighbourThreshold_/tauLsb_); }
+    //int tauNeighbourThresholdHw() const { return floor(tauNeighbourThreshold_/tauLsb_); }
     double tauNeighbourThreshold() const { return tauNeighbourThreshold_; }
     double tauRelativeJetIsolationCut() const { return tauRelativeJetIsolationCut_; }
     std::string tauIsoPUSType() const { return tauIsoPUSType_; }
@@ -129,9 +129,9 @@ namespace l1t {
 
     // jets
     double jetLsb() const { return jetLsb_; }
-    int jetSeedThresholdHw() const { return floor(jetSeedThreshold_/jetLsb_); }
+    //int jetSeedThresholdHw() const { return floor(jetSeedThreshold_/jetLsb_); }
     double jetSeedThreshold() const { return jetSeedThreshold_; }
-    int jetNeighbourThresholdHw() const { return floor(jetNeighbourThreshold_/jetLsb_); }
+    //xint jetNeighbourThresholdHw() const { return floor(jetNeighbourThreshold_/jetLsb_); }
     double jetNeighbourThreshold() const { return jetNeighbourThreshold_; }
     std::string jetPUSType() const { return jetPUSType_; }
     std::vector<double> jetPUSParams() { return jetPUSParams_; }
@@ -151,7 +151,7 @@ namespace l1t {
     double etSumLsb() const { return etSumLsb_; }
     int etSumEtaMin(unsigned isum) const;
     int etSumEtaMax(unsigned isum) const;
-    int etSumEtThresholdHw(unsigned isum) const { return floor(etSumEtThreshold(isum)/etSumLsb_); }
+    //int etSumEtThresholdHw(unsigned isum) const { return floor(etSumEtThreshold(isum)/etSumLsb_); }
     double etSumEtThreshold(unsigned isum) const;
 
     void setEtSumLsb(double lsb) { etSumLsb_ = lsb; }
