@@ -14,7 +14,12 @@ particleFlowRecHitShashlik = cms.EDProducer("PFRecHitProducer",
            cms.PSet(
              name = cms.string("PFEKRecHitCreator"),
              src  = cms.InputTag("shashlikRecHit"),
-             qualityTests = cms.VPSet( )
+             qualityTests = cms.VPSet( 
+                cms.PSet(
+                  name = cms.string("PFRecHitQTestThreshold"),
+                  threshold = cms.double(0.08)
+                  ),
+                )
            )          
     )          
 )

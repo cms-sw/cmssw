@@ -37,8 +37,8 @@ _positionCalcECAL_all_nodepth = cms.PSet(
     posCalcNCrystals = cms.int32(-1),
     logWeightDenominator = cms.double(0.08), # same as gathering threshold
     minAllowedNormalization = cms.double(1e-9),
-    timeResolutionCalcBarrel = _timeResolutionECALBarrel,
-    timeResolutionCalcEndcap = _timeResolutionECALEndcap,
+    #timeResolutionCalcBarrel = _timeResolutionECALBarrel,
+    #timeResolutionCalcEndcap = _timeResolutionECALEndcap,
 )
 _positionCalcECAL_3x3_nodepth = _positionCalcECAL_all_nodepth.clone(
     posCalcNCrystals = cms.int32(9)
@@ -65,7 +65,7 @@ _pfClusterizer_EK = cms.PSet(
 
 particleFlowClusterEKUncorrected = cms.EDProducer(
     "PFClusterProducer",
-    recHitsSource = cms.InputTag("particleFlowRecHitEK"),
+    recHitsSource = cms.InputTag("particleFlowRecHitShashlik"),
     recHitCleaners = cms.VPSet( ),
     seedFinder = _localMaxSeeds_EK,
     initialClusteringStep = _topoClusterizer_EK,

@@ -2,6 +2,7 @@
 
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitCreatorBase.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFEcalRecHitCreator.h"
+#include "RecoParticleFlow/PFClusterProducer/interface/PFEcalRecHitCreatorGeomHack.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFHcalRecHitCreator.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFPSRecHitCreator.h"
 

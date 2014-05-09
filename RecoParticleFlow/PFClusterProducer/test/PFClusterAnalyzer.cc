@@ -29,12 +29,21 @@ PFClusterAnalyzer::PFClusterAnalyzer(const edm::ParameterSet& iConfig) {
 
   LogDebug("PFClusterAnalyzer")
     <<" input collection : "<<inputTagPFClusters_ ;
-   
+ 
+  hack = TFile::Open("dump.root","RECREATE");
+  
+  deltaEnergy = new TH1F("e_reso","Shashlik Energy Resolution (Et = 45 GeV, #eta = 2.0)",100,0.0,1.2);
+
 }
 
 
 
-PFClusterAnalyzer::~PFClusterAnalyzer() { }
+PFClusterAnalyzer::~PFClusterAnalyzer() { 
+  hack->cd();
+  deltaEnergy->Write();
+  hack->Close();
+  delete hack;
+}
 
 
 
@@ -61,11 +70,14 @@ void PFClusterAnalyzer::analyze(const Event& iEvent,
   // get PFClusters for isolation
   
   
-  
+  hack->cd();
+
   for( unsigned i=0; i<pfClusters->size(); i++ ) {
     
     const reco::PFCluster& cluster = (*pfClusters)[i];
     
+    deltaEnergy->Fill(cluster.energy()/276.0);
+
     if( verbose_ ) {
       cout<<"PFCluster "<<endl;
       cout<<cluster<<endl;
