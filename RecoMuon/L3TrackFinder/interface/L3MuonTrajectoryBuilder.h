@@ -35,6 +35,7 @@ class L3MuonTrajectoryBuilder : public GlobalTrajectoryBuilderBase {
     /// destructor
     ~L3MuonTrajectoryBuilder();
     /// reconstruct trajectories from standalone and tracker only Tracks    
+    using GlobalTrajectoryBuilderBase::trajectories;
     MuonTrajectoryBuilder::CandidateContainer trajectories(const TrackCand&);
     /// pass the Event to the algo at each event
     virtual void setEvent(const edm::Event&);

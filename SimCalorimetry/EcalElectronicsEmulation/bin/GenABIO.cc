@@ -106,12 +106,6 @@ end:
 
 using namespace std;
 
-/** Number of crystals along eta in barrel
- */
-const static int nBarrelEtaBins = 170;
-/** Number of crystals in a eta ring of the barrel
- */
-const static int nBarrelPhiBins = 360;
 /** Range of the x-index of endcap crystals (xman-xmin+1).
  */
 const static int nEndcapXBins = 100;
@@ -127,12 +121,6 @@ const static int nSupercrystalXBins = nEndcapXBins/supercrystalEdge;
 /** Range of endcap supercrystal y-index (ymay-ymin+1)
  */
 const static int nSupercrystalYBins = nEndcapYBins/supercrystalEdge;
-/** Number of trigger tower along eta in the barrel
- */
-const static int nBarrelTowerEtaBins = nBarrelEtaBins/5;
-/** Number of trigger tower in a eta ring of the barrel
- */
-const static int nBarrelTowerPhiBins = nBarrelPhiBins/5;
 /** Number of endcap, obviously tow
  */
 const static int nEndcaps = 2;
@@ -163,7 +151,6 @@ const int nABTCCCh = 12;//nbr of TCC inputs on an AB
 const int nDCCCh = 12;//nbr of DCC outputs on an AB
 const int nTCCInEta = 6; //nbr of TCC bins along eta
 const int nAB = nABInPhi*nABInEta;
-const int nTTInABAlongEta=nTTInEta/nABInEta;
 const int nTTInABAlongPhi=nTTInPhi/nABInPhi;
 const int iTTEtaMin[nABInEta] = {0,11,28,45};
 const int iTTEtaMax[nABInEta] = {10,27,44,55};
