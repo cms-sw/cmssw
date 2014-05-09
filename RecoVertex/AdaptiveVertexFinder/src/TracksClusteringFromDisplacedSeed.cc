@@ -4,11 +4,13 @@
 
 TracksClusteringFromDisplacedSeed::TracksClusteringFromDisplacedSeed(const edm::ParameterSet &params) :
 //	maxNTracks(params.getParameter<unsigned int>("maxNTracks")),
+	max3DIPSignificance(params.getParameter<double>("seedMax3DIPSignificance")),
+	max3DIPValue(params.getParameter<double>("seedMax3DIPValue")),
 	min3DIPSignificance(params.getParameter<double>("seedMin3DIPSignificance")),
 	min3DIPValue(params.getParameter<double>("seedMin3DIPValue")),
 	clusterMaxDistance(params.getParameter<double>("clusterMaxDistance")),
         clusterMaxSignificance(params.getParameter<double>("clusterMaxSignificance")), //3
-        clusterScale(params.getParameter<double>("clusterScale")),//10.
+        distanceRatio(params.getParameter<double>("distanceRatio")),//was clusterScale/densityFactor
         clusterMinAngleCosine(params.getParameter<double>("clusterMinAngleCosine")) //0.0
 
 {
@@ -25,13 +27,10 @@ std::pair<std::vector<reco::TransientTrack>,GlobalPoint> TracksClusteringFromDis
       float sumWeights=0;
       std::pair<bool,Measurement1D> ipSeed = IPTools::absoluteImpactParameter3D(seed,primaryVertex);
       float pvDistance = ipSeed.second.value();
-//      float densityFactor = 2./sqrt(20.*tracks.size()); // assuming all tracks being in 2 narrow jets of cone 0.3
-      float densityFactor = 2./sqrt(20.*80); // assuming 80 tracks being in 2 narrow jets of cone 0.3
       for(std::vector<reco::TransientTrack>::const_iterator tt = tracks.begin();tt!=tracks.end(); ++tt )   {
 
        if(*tt==seed) continue;
 
-       std::pair<bool,Measurement1D> ip = IPTools::absoluteImpactParameter3D(*tt,primaryVertex);
        if(dist.calculate(tt->impactPointState(),seed.impactPointState()))
             {
 		 GlobalPoint ttPoint          = dist.points().first;
@@ -57,7 +56,7 @@ std::pair<std::vector<reco::TransientTrack>,GlobalPoint> TracksClusteringFromDis
                     dotprodTrack > clusterMinAngleCosine && //Angles between PV-PCAonTrack vectors and track directions
 //                    dotprodTrackSeed2D > clusterMinAngleCosine && //Angle between track and seed
         //      distance*clusterScale*tracks.size() < (distanceFromPV+pvDistance)*(distanceFromPV+pvDistance)/pvDistance && // cut scaling with track density
-                   distance*clusterScale < densityFactor*distanceFromPV && // cut scaling with track density
+                   distance*distanceRatio < distanceFromPV && // cut scaling with track density
                     distance < clusterMaxDistance);  // absolute distance cut
 
 #ifdef VTXDEBUG
@@ -65,7 +64,7 @@ std::pair<std::vector<reco::TransientTrack>,GlobalPoint> TracksClusteringFromDis
                     dotprodSeed  << " > " <<  clusterMinAngleCosine << "  && " << 
                     dotprodTrack  << " > " <<  clusterMinAngleCosine << "  && " << 
                     dotprodTrackSeed2D  << " > " <<  clusterMinAngleCosine << "  &&  "  << 
-                    distance*clusterScale  << " < " <<  densityFactor*distanceFromPV << "  crossingtoPV: " << distanceFromPV << " dis*scal " <<  distance*clusterScale << "  <  " << densityFactor*distanceFromPV << " dist: " << distance << " < " << clusterMaxDistance <<  std::endl; // cut scaling with track density
+                    distance*distanceRatio  << " < " <<  distanceFromPV << "  crossingtoPV: " << distanceFromPV << " dis*scal " <<  distance*distanceRatio << "  <  " << distanceFromPV << " dist: " << distance << " < " << clusterMaxDistance <<  std::endl; // cut scaling with track density
 #endif           
                  if(selected)
                  {
@@ -94,7 +93,7 @@ std::vector<TracksClusteringFromDisplacedSeed::Cluster> TracksClusteringFromDisp
 	std::vector<TransientTrack> seeds;
 	for(std::vector<TransientTrack>::const_iterator it = selectedTracks.begin(); it != selectedTracks.end(); it++){
                 std::pair<bool,Measurement1D> ip = IPTools::absoluteImpactParameter3D(*it,pv);
-                if(ip.first && ip.second.value() >= min3DIPValue && ip.second.significance() >= min3DIPSignificance)
+                if(ip.first && ip.second.value() >= min3DIPValue && ip.second.significance() >= min3DIPSignificance && ip.second.value() <= max3DIPValue && ip.second.significance() <= max3DIPSignificance)
                   { 
 #ifdef VTXDEBUG
                     std::cout << "new seed " <<  it-selectedTracks.begin() << " ref " << it->trackBaseRef().key()  << " " << ip.second.value() << " " << ip.second.significance() << " " << it->track().hitPattern().trackerLayersWithMeasurement() << " " << it->track().pt() << " " << it->track().eta() << std::endl;
