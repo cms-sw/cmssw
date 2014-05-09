@@ -4,7 +4,8 @@ SimCalorimetryFEVTDEBUG = cms.PSet(
     outputCommands = cms.untracked.vstring('keep *_simEcalDigis_*_*', 
         'keep *_simEcalPreshowerDigis_*_*', 
         'keep *_simEcalTriggerPrimitiveDigis_*_*', 
-        'keep *_simHcalDigis_*_*', 
+        'keep *_simHcalDigis_*_*',
+        'keep *_*_HGCDigis*_*',                                          
         'keep ZDCDataFramesSorted_simHcalUnsuppressedDigis_*_*',
         'drop ZDCDataFramesSorted_mix_simHcalUnsuppressedDigis*_*',
         'keep *_simHcalTriggerPrimitiveDigis_*_*')

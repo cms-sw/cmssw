@@ -37,13 +37,11 @@ void HGCDigitizer::initializeEvent(edm::Event const& e, edm::EventSetup const& e
 //
 void HGCDigitizer::finalizeEvent(edm::Event& e, edm::EventSetup const& es)
 {
-  
   if( producesEEDigis() ) 
     {
       std::auto_ptr<HGCEEDigiCollection> digiResult(new HGCEEDigiCollection() );
       theHGCEEDigitizer_.run(digiResult,simHitAccumulator_,doTrivialDigis_);
       edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " << digiResult->size() <<  " EE hits";
-      std::cout << "[HGCDigizitzer][finalizeEvent] @ finalize event - produced " << digiResult->size() <<  " EE hits" << std::endl;
       e.put(digiResult,digiCollection());
     }
   if( producesHEfrontDigis())
