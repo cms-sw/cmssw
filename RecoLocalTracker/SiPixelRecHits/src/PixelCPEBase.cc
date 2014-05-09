@@ -31,9 +31,6 @@ using namespace std;
 //#define NEW_CPEERROR // must be constistent with base.cc, generic cc/h and genericProducer.cc 
 
 namespace {
-  constexpr float degsPerRad = 57.29578;
-  constexpr float HALF_PI = 1.57079632679489656;
-  constexpr float PI = 2*HALF_PI;
 #ifndef NEW_CPEERROR  
   //const bool useNewSimplerErrors = true;
   const bool useNewSimplerErrors = false; // must be tha same as in generic 
