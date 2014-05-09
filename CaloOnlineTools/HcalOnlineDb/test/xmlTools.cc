@@ -1201,7 +1201,7 @@ int createZSLoader2( std::string & tag, std::string & comment, std::string & zs2
       conf . depth = depth;
       conf . detector_name = subdet;
 
-      int _zs;
+      int _zs = 0;
       HcalSubdetector _subdet;
       if ( subdet == "HB" ){
 	_subdet = HcalBarrel;
