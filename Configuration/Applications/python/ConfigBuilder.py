@@ -875,6 +875,7 @@ class ConfigBuilder(object):
         self.SIMDefaultSeq='psim'
         self.DIGIDefaultSeq='pdigi'
 	self.DIGIPREMIXDefaultSeq='pdigi'
+	self.DIGIPREMIX_S2DefaultSeq='pdigi'
         self.DATAMIXDefaultSeq=None
         self.DIGI2RAWDefaultSeq='DigiToRaw'
         self.HLTDefaultSeq='GRun'
@@ -1379,6 +1380,21 @@ class ConfigBuilder(object):
 	self.scheduleSequence(sequence.split('.')[-1],'digitisation_step')
         return
 
+    def prepare_DIGIPREMIX_S2(self, sequence = None):
+        """ Enrich the schedule with the digitisation step"""
+        self.loadDefaultOrSpecifiedCFF(sequence,self.DIGIDefaultCFF)
+
+	self.loadAndRemember("SimGeneral/MixingModule/digi_MixPreMix_cfi")
+
+
+        if sequence == 'pdigi_valid':
+            self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersMixPreMixValid)")
+	else:
+	    elf.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersMixPreMix)")
+
+	self.scheduleSequence(sequence.split('.')[-1],'digitisation_step')
+        return
+
     def prepare_CFWRITER(self, sequence = None):
 	    """ Enrich the schedule with the crossing frame writer step"""
 	    self.loadAndRemember(self.CFWRITERDefaultCFF)
@@ -1389,9 +1405,6 @@ class ConfigBuilder(object):
 	    """ Enrich the schedule with the digitisation step"""
 	    self.loadAndRemember(self.DATAMIXDefaultCFF)
 	    self.scheduleSequence('pdatamix','datamixing_step')
-	    if self._options.datamix == 'PreMix':
-		    self.loadAndRemember("SimGeneral/MixingModule/digi_MixPreMix_cfi")
-		    self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersMixPreMix)")
 
 	    if self._options.pileup_input:
 		    theFiles=''
