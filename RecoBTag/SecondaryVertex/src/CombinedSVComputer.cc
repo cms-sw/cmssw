@@ -158,23 +158,19 @@ CombinedSVComputer::operator () (const TrackIPTagInfo &ipInfo,
 	vars.insert(btau::jetPt, jet->pt(), true);
 	vars.insert(btau::jetEta, jet->eta(), true);
 
-	if (ipInfo.selectedTracks().size() < trackMultiplicityMin)
+	if (ipInfo.tracks().size() < trackMultiplicityMin)
 		return vars;
 
 	TrackKinematics allKinematics;
 	TrackKinematics vertexKinematics;
 
 	int vtx = -1;
-	unsigned int numberofvertextracks = 0;
-
-		IterationRange range = flipIterate(svInfo.nVertices(), true);
+	IterationRange range = flipIterate(svInfo.nVertices(), true);
 	range_for(i, range) {
 		if (vtx < 0)
 			vtx = i;
-	
-		numberofvertextracks = numberofvertextracks + (svInfo.secondaryVertex(i)).nTracks();
 
-				const Vertex &vertex = svInfo.secondaryVertex(i);
+		const Vertex &vertex = svInfo.secondaryVertex(i);
 		bool hasRefittedTracks = vertex.hasRefittedTracks();
 		TrackRefVector tracks = svInfo.vertexTracks(i);
 		for(TrackRefVector::const_iterator track = tracks.begin();
@@ -222,7 +218,7 @@ CombinedSVComputer::operator () (const TrackIPTagInfo &ipInfo,
 		vars.insert(btau::vertexJetDeltaR,
 		            Geom::deltaR(svInfo.flightDirection(vtx), jetDir),true);
 		vars.insert(btau::jetNSecondaryVertices, svInfo.nVertices(), true);
-		vars.insert(btau::vertexNTracks, numberofvertextracks, true);
+		vars.insert(btau::vertexNTracks, svInfo.nVertexTracks(), true);
 	}
 
 	std::vector<std::size_t> indices = ipInfo.sortedIndexes(sortCriterium);

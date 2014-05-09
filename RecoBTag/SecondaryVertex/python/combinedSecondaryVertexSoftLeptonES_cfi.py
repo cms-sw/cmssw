@@ -17,4 +17,7 @@ combinedSecondaryVertexSoftLepton = cms.ESProducer("CombinedSecondaryVertexSoftL
 		'CombinedSVNoVertexSoftElectron'),
 	categoryVariableName = cms.string('vertexLeptonCategory')
 )
+combinedSecondaryVertexSoftLepton.trackSelection.qualityClass = cms.string('any')
+combinedSecondaryVertexSoftLepton.trackPseudoSelection.qualityClass = cms.string('any')
+combinedSecondaryVertexSoftLepton.trackMultiplicityMin = cms.uint32(2)
 
