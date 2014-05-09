@@ -50,7 +50,11 @@ class InclusiveVertexFinder : public edm::EDProducer {
         double 					vertexMinAngleCosine;
         double 					vertexMinDLen2DSig;
         double 					vertexMinDLenSig;
-
+	double					fitterSigmacut;
+	double  				fitterTini;
+	double 					fitterRatio;
+	bool 					useVertexFitter;
+	bool 					useVertexReco;
 	std::auto_ptr<VertexReconstructor>	vtxReco;
 	std::auto_ptr<TracksClusteringFromDisplacedSeed>	clusterizer;
 
@@ -64,6 +68,11 @@ InclusiveVertexFinder::InclusiveVertexFinder(const edm::ParameterSet &params) :
         vertexMinAngleCosine(params.getParameter<double>("vertexMinAngleCosine")), //0.98
         vertexMinDLen2DSig(params.getParameter<double>("vertexMinDLen2DSig")), //2.5
         vertexMinDLenSig(params.getParameter<double>("vertexMinDLenSig")), //0.5
+        fitterSigmacut(params.getParameter<double>("fitterSigmacut")),
+        fitterTini(params.getParameter<double>("fitterTini")),
+        fitterRatio(params.getParameter<double>("fitterRatio")),
+	useVertexFitter(params.getParameter<bool>("useDirectVertexFitter")),
+	useVertexReco(params.getParameter<bool>("useVertexReco")),
 	vtxReco(new ConfigurableVertexReconstructor(params.getParameter<edm::ParameterSet>("vertexReco"))),
         clusterizer(new TracksClusteringFromDisplacedSeed(params.getParameter<edm::ParameterSet>("clusterizer")))
 
@@ -90,14 +99,11 @@ void InclusiveVertexFinder::produce(edm::Event &event, const edm::EventSetup &es
 {
 	using namespace reco;
 
-  double sigmacut = 3.0;
-  double Tini = 256.;
-  double ratio = 0.25;
   VertexDistance3D vdist;
   VertexDistanceXY vdist2d;
   MultiVertexFitter theMultiVertexFitter;
   AdaptiveVertexFitter theAdaptiveFitter(
-                                            GeometricAnnealing(sigmacut, Tini, ratio),
+                                            GeometricAnnealing(fitterSigmacut, fitterTini, fitterRatio),
                                             DefaultLinearizationPointFinder(),
                                             KalmanVertexUpdator<5>(),
                                             KalmanVertexTrackCompatibilityEstimator<5>(),
@@ -165,11 +171,15 @@ void InclusiveVertexFinder::produce(edm::Event &event, const edm::EventSetup &es
         
  	        cluster->tracks.push_back(cluster->seedingTrack); //add the seed to the list of tracks to fit
 	 	std::vector<TransientVertex> vertices;
-		vertices = vtxReco->vertices(cluster->tracks, bs);  // attempt with config given reconstructor
+		if(useVertexReco) {
+			vertices = vtxReco->vertices(cluster->tracks, bs);  // attempt with config given reconstructor
+		}
                 TransientVertex singleFitVertex;
-                singleFitVertex = theAdaptiveFitter.vertex(cluster->tracks,cluster->seedPoint); //attempt with direct fitting
-                if(singleFitVertex.isValid())
-                          vertices.push_back(singleFitVertex);
+		if(useVertexFitter) {
+			singleFitVertex = theAdaptiveFitter.vertex(cluster->tracks,cluster->seedPoint); //attempt with direct fitting
+			if(singleFitVertex.isValid())
+				vertices.push_back(singleFitVertex);
+		}
 		for(std::vector<TransientVertex>::const_iterator v = vertices.begin();
 		    v != vertices.end(); ++v) {
 //			if(v->degreesOfFreedom() > 0.2)
