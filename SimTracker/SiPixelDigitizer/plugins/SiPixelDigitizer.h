@@ -83,7 +83,10 @@ namespace cms {
     std::vector<CLHEP::HepRandomEngine*> randomEngines_;
 
     PileupMixingContent* PileupInfo_;
-
+    
+    const bool pilotBlades; // Default = false
+    const int NumberOfEndcapDisks; // Default = 2
+    
     // infrastructure to reject dead pixels as defined in db (added by F.Blekman)
   };
 }
