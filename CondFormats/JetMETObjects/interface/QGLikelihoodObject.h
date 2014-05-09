@@ -39,6 +39,7 @@ struct QGLikelihoodSystematicsObject{
   struct Entry{
     QGLikelihoodCategory systCategory;
     float a, b, lmin, lmax;
+    COND_SERIALIZABLE;
   };
   std::vector<Entry> data;
   COND_SERIALIZABLE;
