@@ -8,8 +8,8 @@ from CalibCalorimetry.Configuration.Ecal_FakeConditions_cff import *
 simEcalTriggerPrimitiveDigis = cms.EDProducer("EcalTrigPrimProducer",
     BarrelOnly = cms.bool(True),
     TTFHighEnergyEB = cms.double(1.0),
-    EBLabel = cms.InputTag('ecalEBunpacker','ebDigis'),
-    EELabel = cms.InputTag('ecalEBunpacker',''),
+    EBlabel = cms.InputTag('ecalEBunpacker','ebDigis'),
+    EElabel = cms.InputTag('ecalEBunpacker',''),
     TTFHighEnergyEE = cms.double(1.0),
     binOfMaximum = cms.int32(6), ## optional from release 200 on, from 1-10
     Famos = cms.bool(False),

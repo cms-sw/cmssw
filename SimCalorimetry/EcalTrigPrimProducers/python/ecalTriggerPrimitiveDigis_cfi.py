@@ -5,8 +5,8 @@ import FWCore.ParameterSet.Config as cms
 #
 simEcalTriggerPrimitiveDigis = cms.EDProducer("EcalTrigPrimProducer",
     BarrelOnly = cms.bool(False),
-    EBLabel = cms.InputTag('simEcalUnsuppressedDigis',''),
-    EELabel = cms.InputTag('simEcalUnsuppressedDigis',''),
+    EBlabel = cms.InputTag('simEcalUnsuppressedDigis',''),
+    EElabel = cms.InputTag('simEcalUnsuppressedDigis',''),
     binOfMaximum = cms.int32(6), ## optional from release 200 on, from 1-10
     TcpOutput = cms.bool(False),
     Debug = cms.bool(False),
