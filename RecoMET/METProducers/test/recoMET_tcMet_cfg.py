@@ -56,6 +56,7 @@ process.tcMetVedu.vetoDuplicates = cms.bool(True)
 ##____________________________________________________________________________||
 process.p = cms.Path(
     process.particleFlowCluster *
+    process.caloMet *
     process.tcMet *
     process.tcMetCST *
     process.tcMetRft2 *
