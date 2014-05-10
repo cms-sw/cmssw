@@ -14,6 +14,9 @@ metreco = cms.Sequence(
         met+
         metNoHF+
         metHO+
+        caloMet+
+        caloMetBE+
+        caloMetBEFO+
         muonMETValueMapProducer+
         corMetGlobalMuons+
         BeamHaloId
