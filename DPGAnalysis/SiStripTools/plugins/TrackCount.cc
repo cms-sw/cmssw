@@ -69,11 +69,8 @@ public:
   
   
 private:
-  virtual void beginJob() ;
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-  virtual void endRun(const edm::Run&, const edm::EventSetup&);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   
       // ----------member data ---------------------------
 
@@ -117,7 +114,8 @@ private:
   const bool m_2dhistos;
   const bool m_runHisto;
   const bool m_dump;
-  edm::InputTag m_trkcollection;
+  edm::EDGetTokenT<reco::TrackCollection> m_trkcollToken;
+  edm::EDGetTokenT<LumiDetails> m_lumiProducerToken;
   const unsigned int m_nptbin;
   const double m_ptmin;
   const double m_ptmax;
@@ -135,12 +133,13 @@ private:
 // constructors and destructor
 //
 TrackCount::TrackCount(const edm::ParameterSet& iConfig):
-  m_rhm(),
+  m_rhm(consumesCollector()),
   m_maxLS(100),m_LSfrac(16),
   m_2dhistos(iConfig.getUntrackedParameter<bool>("wanted2DHistos",false)),
   m_runHisto(iConfig.getUntrackedParameter<bool>("runHisto",false)),
   m_dump(iConfig.getUntrackedParameter<bool>("dumpTracks",false)),
-  m_trkcollection(iConfig.getParameter<edm::InputTag>("trackCollection")),
+  m_trkcollToken(consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("trackCollection"))),
+  m_lumiProducerToken(consumes<LumiDetails>(edm::InputTag("lumiProducer"))),
   m_nptbin(iConfig.getUntrackedParameter<unsigned int>("numberPtBins",200)),
   m_ptmin(iConfig.getUntrackedParameter<double>("ptMin",0.)),
   m_ptmax(iConfig.getUntrackedParameter<double>("ptMax",20.))
@@ -160,7 +159,7 @@ TrackCount::TrackCount(const edm::ParameterSet& iConfig):
   const unsigned int nchisqbin2d = iConfig.getUntrackedParameter<unsigned int>("nchi2bin2D",50);
   const unsigned int nndofbin2d = iConfig.getUntrackedParameter<unsigned int>("nndofbin2D",50);
 
-  edm::LogInfo("TrackCollection") << "Using collection " << m_trkcollection.label().c_str() ;
+  edm::LogInfo("TrackCollection") << "Using collection " << iConfig.getParameter<edm::InputTag>("trackCollection").label().c_str() ;
 
 
   edm::Service<TFileService> tfserv;
@@ -266,7 +265,7 @@ TrackCount::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    edm::Service<TFileService> tfserv;
 
    Handle<reco::TrackCollection> tracks;
-   iEvent.getByLabel(m_trkcollection,tracks);
+   iEvent.getByToken(m_trkcollToken,tracks);
 
    //
 
@@ -275,7 +274,7 @@ TrackCount::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   // get luminosity
 
   edm::Handle<LumiDetails> ld;
-  iEvent.getLuminosityBlock().getByLabel("lumiProducer",ld);
+  iEvent.getLuminosityBlock().getByToken(m_lumiProducerToken,ld);
 
   if(ld.isValid()) {
     if(ld->isValid()) {
@@ -369,24 +368,6 @@ TrackCount::beginRun(const edm::Run& iRun, const edm::EventSetup&)
   }
 }
 
-void 
-TrackCount::endRun(const edm::Run& iRun, const edm::EventSetup&)
-{
-}
-
-
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-TrackCount::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-TrackCount::endJob() 
-{
-}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(TrackCount);

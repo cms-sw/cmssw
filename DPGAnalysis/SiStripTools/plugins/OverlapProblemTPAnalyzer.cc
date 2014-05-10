@@ -65,11 +65,9 @@ public:
   ~OverlapProblemTPAnalyzer();
   
 private:
-  virtual void beginJob() ;
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-  virtual void endRun(const edm::Run&, const edm::EventSetup&);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  virtual void endRun(const edm::Run&, const edm::EventSetup&) override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   
       // ----------member data ---------------------------
 
@@ -87,8 +85,8 @@ private:
   std::vector<TH1F*> m_assosimhitytecr;
 
 
-  edm::InputTag m_tpcollection;
-  edm::InputTag m_trkcollection;
+  edm::EDGetTokenT<TrackingParticleCollection> m_tpcollToken;
+  edm::EDGetTokenT<edm::View<reco::Track> > m_trkcollToken;
 };
 
 //
@@ -104,8 +102,8 @@ private:
 //
 OverlapProblemTPAnalyzer::OverlapProblemTPAnalyzer(const edm::ParameterSet& iConfig):
   m_simhitytecr(),  m_assosimhitytecr(),
-  m_tpcollection(iConfig.getParameter<edm::InputTag>("trackingParticlesCollection")),
-  m_trkcollection(iConfig.getParameter<edm::InputTag>("trackCollection"))
+  m_tpcollToken(consumes<TrackingParticleCollection>(iConfig.getParameter<edm::InputTag>("trackingParticlesCollection"))),
+  m_trkcollToken(consumes<edm::View<reco::Track> >(iConfig.getParameter<edm::InputTag>("trackCollection")))
 
 {
    //now do what ever initialization is needed
@@ -169,10 +167,10 @@ OverlapProblemTPAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
 
    //   Handle<reco::TrackCollection> trkcoll;
   Handle<edm::View<reco::Track> > trkcoll;
-  iEvent.getByLabel(m_trkcollection,trkcoll);
+  iEvent.getByToken(m_trkcollToken,trkcoll);
   
   Handle<TrackingParticleCollection> tpcoll;
-  iEvent.getByLabel(m_tpcollection,tpcoll);
+  iEvent.getByToken(m_tpcollToken,tpcoll);
     
   // TrackAssociator ESHandle
   
@@ -295,18 +293,6 @@ OverlapProblemTPAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup&)
 }
 
 
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-OverlapProblemTPAnalyzer::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-OverlapProblemTPAnalyzer::endJob() 
-{
-}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(OverlapProblemTPAnalyzer);

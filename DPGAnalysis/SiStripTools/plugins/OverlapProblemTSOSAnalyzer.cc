@@ -70,11 +70,9 @@ public:
   ~OverlapProblemTSOSAnalyzer();
   
 private:
-  virtual void beginJob() ;
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-  virtual void endRun(const edm::Run&, const edm::EventSetup&);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  virtual void beginRun(const edm::Run&, const edm::EventSetup&) override;
+  virtual void endRun(const edm::Run&, const edm::EventSetup&) override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   
       // ----------member data ---------------------------
 
@@ -82,7 +80,7 @@ private:
   TH1F* m_etatrk;
 
   bool m_validOnly;
-  edm::InputTag m_ttacollection;
+  edm::EDGetTokenT<TrajTrackAssociationCollection> m_ttacollToken;
   const bool m_debug;
 
   TSOSHistogramMaker m_tsoshm;
@@ -102,7 +100,7 @@ private:
 //
 OverlapProblemTSOSAnalyzer::OverlapProblemTSOSAnalyzer(const edm::ParameterSet& iConfig):
   m_validOnly(iConfig.getParameter<bool>("onlyValidRecHit")),
-  m_ttacollection(iConfig.getParameter<edm::InputTag>("trajTrackAssoCollection")),
+  m_ttacollToken(consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>("trajTrackAssoCollection"))),
   m_debug(iConfig.getUntrackedParameter<bool>("debugMode",false)),
   m_tsoshm(iConfig.getParameter<edm::ParameterSet>("tsosHMConf"))
 {
@@ -147,7 +145,7 @@ OverlapProblemTSOSAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
   DetIdSelector selector("0x1fbff004-0x14ac1004");
   
   Handle<TrajTrackAssociationCollection> ttac;
-  iEvent.getByLabel(m_ttacollection,ttac);
+  iEvent.getByToken(m_ttacollToken,ttac);
   
   for(TrajTrackAssociationCollection::const_iterator pair=ttac->begin();pair!=ttac->end();++pair) {
     
@@ -200,18 +198,6 @@ OverlapProblemTSOSAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup&)
 }
 
 
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-OverlapProblemTSOSAnalyzer::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-OverlapProblemTSOSAnalyzer::endJob() 
-{
-}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(OverlapProblemTSOSAnalyzer);

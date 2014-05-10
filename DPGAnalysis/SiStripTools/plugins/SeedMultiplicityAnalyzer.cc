@@ -29,6 +29,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -76,7 +77,7 @@ public:
   class FromTrackRefSeedFilter {
   public:
     FromTrackRefSeedFilter();
-    FromTrackRefSeedFilter(const edm::ParameterSet& iConfig);
+    FromTrackRefSeedFilter(edm::ConsumesCollector&& iC, const edm::ParameterSet& iConfig);
     const std::string& suffix() const;
     void prepareEvent(const edm::Event& iEvent);
     bool isSelected(const unsigned int iseed) const;
@@ -85,28 +86,24 @@ public:
 
     std::string m_suffix;
     bool m_passthrough;
-    edm::InputTag m_trackcoll;
-    edm::InputTag m_seltrackrefcoll;
+    edm::EDGetTokenT<reco::TrackCollection> m_trackcollToken;
+    edm::EDGetTokenT<reco::TrackRefVector> m_seltrackrefcollToken;
     edm::Handle<reco::TrackCollection> m_tracks;
     edm::Handle<reco::TrackRefVector> m_seltrackrefs;
     
   };
   
 private:
-  virtual void beginJob() ;
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-  virtual void endRun(const edm::Run&, const edm::EventSetup&);
-  virtual void endJob() ;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 
       // ----------member data ---------------------------
 
   std::string _buildername;
-  std::vector<edm::InputTag> _seedcollections;
+  std::vector<edm::EDGetTokenT<TrajectorySeedCollection> > _seedcollTokens;
   std::vector<unsigned int> _seedbins;
   std::vector<double> _seedmax;
   std::vector<FromTrackRefSeedFilter> _seedfilters;
-  std::vector<edm::InputTag> _multiplicityMaps;
+  std::vector<edm::EDGetTokenT<std::map<unsigned int, int> > > _multiplicityMapTokens;
   std::vector<std::string> _labels;
   std::vector<unsigned int> _selections;
   std::vector<unsigned int> _binsmult;
@@ -139,8 +136,8 @@ private:
 //
 SeedMultiplicityAnalyzer::SeedMultiplicityAnalyzer(const edm::ParameterSet& iConfig):
   _buildername(iConfig.getParameter<std::string>("TTRHBuilder")),
-  _seedcollections(),_seedbins(),_seedmax(),_seedfilters(),
-  _multiplicityMaps(),_labels(),_selections(),_binsmult(),_binseta(),_maxs(),_hseedmult2D(),_hseedeta2D()
+  _seedcollTokens(),_seedbins(),_seedmax(),_seedfilters(),
+  _multiplicityMapTokens(),_labels(),_selections(),_binsmult(),_binseta(),_maxs(),_hseedmult2D(),_hseedeta2D()
 {
   //now do what ever initialization is needed
   
@@ -152,12 +149,12 @@ SeedMultiplicityAnalyzer::SeedMultiplicityAnalyzer(const edm::ParameterSet& iCon
   
   for(std::vector<edm::ParameterSet>::const_iterator scps=seedCollectionConfigs.begin();scps!=seedCollectionConfigs.end();++scps) {
     
-    _seedcollections.push_back(scps->getParameter<edm::InputTag>("src"));
+    _seedcollTokens.push_back(consumes<TrajectorySeedCollection>(scps->getParameter<edm::InputTag>("src")));
     _seedbins.push_back(scps->getUntrackedParameter<unsigned int>("nBins",1000));
     _seedmax.push_back(scps->getUntrackedParameter<double>("maxValue",100000.));
 
     if(scps->exists("trackFilter")) {
-      _seedfilters.push_back(FromTrackRefSeedFilter(scps->getParameter<edm::ParameterSet>("trackFilter")));
+      _seedfilters.push_back(FromTrackRefSeedFilter(consumesCollector(),scps->getParameter<edm::ParameterSet>("trackFilter")));
     }
     else {
       _seedfilters.push_back(FromTrackRefSeedFilter());
@@ -169,7 +166,7 @@ SeedMultiplicityAnalyzer::SeedMultiplicityAnalyzer(const edm::ParameterSet& iCon
   
   for(std::vector<edm::ParameterSet>::const_iterator ps=correlationConfigs.begin();ps!=correlationConfigs.end();++ps) {
     
-    _multiplicityMaps.push_back(ps->getParameter<edm::InputTag>("multiplicityMap"));
+    _multiplicityMapTokens.push_back(consumes<std::map<unsigned int, int> >(ps->getParameter<edm::InputTag>("multiplicityMap")));
     _labels.push_back(ps->getParameter<std::string>("detLabel"));
     _selections.push_back(ps->getParameter<unsigned int>("detSelection"));
     _binsmult.push_back(ps->getParameter<unsigned int>("nBins"));
@@ -186,9 +183,9 @@ SeedMultiplicityAnalyzer::SeedMultiplicityAnalyzer(const edm::ParameterSet& iCon
   std::vector<double>::const_iterator seedmax = _seedmax.begin();
   std::vector<FromTrackRefSeedFilter>::const_iterator filter = _seedfilters.begin();
 
-  for(std::vector<edm::InputTag>::const_iterator coll=_seedcollections.begin();coll!=_seedcollections.end();++coll,++nseedbins,++seedmax,++filter) {
+  for(std::vector<edm::ParameterSet>::const_iterator scps=seedCollectionConfigs.begin();scps!=seedCollectionConfigs.end();++scps,++nseedbins,++seedmax,++filter) {
     
-    std::string extendedlabel = std::string(coll->encode()) + filter->suffix();
+    std::string extendedlabel = std::string(scps->getParameter<edm::InputTag>("src").encode()) + filter->suffix();
 
     std::string hname = extendedlabel + std::string("_mult");
     std::string htitle = extendedlabel + std::string(" seed multiplicity");
@@ -235,7 +232,7 @@ SeedMultiplicityAnalyzer::SeedMultiplicityAnalyzer(const edm::ParameterSet& iCon
     _hfpixcluslenangle[_hfpixcluslenangle.size()-1]->GetXaxis()->SetTitle("projection");  _hfpixcluslenangle[_hfpixcluslenangle.size()-1]->GetYaxis()->SetTitle("length"); 
 
 
-    for(unsigned int i=0;i< _multiplicityMaps.size() ; ++i) {
+    for(unsigned int i=0;i< _multiplicityMapTokens.size() ; ++i) {
       
       
       std::string hname2D = extendedlabel + _labels[i];
@@ -289,10 +286,10 @@ SeedMultiplicityAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
 
   // compute cluster multiplicities
   
-  std::vector<int> tmpmult(_multiplicityMaps.size(),-1);
-  for(unsigned int i=0;i<_multiplicityMaps.size();++i) {
+  std::vector<int> tmpmult(_multiplicityMapTokens.size(),-1);
+  for(unsigned int i=0;i<_multiplicityMapTokens.size();++i) {
     Handle<std::map<unsigned int, int> > mults;
-    iEvent.getByLabel(_multiplicityMaps[i],mults);
+    iEvent.getByToken(_multiplicityMapTokens[i],mults);
     
     // check if the selection exists
     
@@ -335,8 +332,8 @@ SeedMultiplicityAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
   
   // loop on seed collections
   
-  for(std::vector<edm::InputTag>::const_iterator coll=_seedcollections.begin();
-      coll!=_seedcollections.end() && 
+  for(std::vector<edm::EDGetTokenT<TrajectorySeedCollection>>::const_iterator coll=_seedcollTokens.begin();
+      coll!=_seedcollTokens.end() && 
 	histomult!=_hseedmult.end() && histomult2D!=_hseedmult2D.end() && 
 	histoeta!=_hseedeta.end() && histoeta2D!=_hseedeta2D.end() &&
 	histophieta!=_hseedphieta.end() &&
@@ -349,7 +346,7 @@ SeedMultiplicityAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
     filter->prepareEvent(iEvent);
 
     Handle<TrajectorySeedCollection> seeds;
-    iEvent.getByLabel(*coll,seeds);
+    iEvent.getByToken(*coll,seeds);
     
     /*
     (*histomult)->Fill(seeds->size());
@@ -379,7 +376,7 @@ SeedMultiplicityAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
 	(*histoeta)->Fill(eta);
 	(*histophieta)->Fill(eta,phi);
 	
-	for(unsigned int i=0;i<_multiplicityMaps.size();++i) {
+	for(unsigned int i=0;i<_multiplicityMapTokens.size();++i) {
 	  if(tmpmult[i]>=0) (*histoeta2D)[i]->Fill(tmpmult[i],eta);
 	}
 	
@@ -424,7 +421,7 @@ SeedMultiplicityAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
     }
     (*histomult)->Fill(nseeds);
     
-    for(unsigned int i=0;i<_multiplicityMaps.size();++i) {
+    for(unsigned int i=0;i<_multiplicityMapTokens.size();++i) {
       if(tmpmult[i]>=0)	(*histomult2D)[i]->Fill(tmpmult[i],nseeds);
     }
 
@@ -433,34 +430,16 @@ SeedMultiplicityAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
 
  
 
-// ------------ method called once each job just before starting event loop  ------------
-void 
-SeedMultiplicityAnalyzer::beginJob()
-{ }
-
-void
-SeedMultiplicityAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-
-}
-
-void
-SeedMultiplicityAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
-
-}
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-SeedMultiplicityAnalyzer::endJob() {
-}
 
 SeedMultiplicityAnalyzer::FromTrackRefSeedFilter::FromTrackRefSeedFilter():
   m_suffix(""),m_passthrough(true),
-  m_trackcoll(),m_seltrackrefcoll(),m_tracks(),m_seltrackrefs() { }
+  m_trackcollToken(),m_seltrackrefcollToken(),m_tracks(),m_seltrackrefs() { }
 
-SeedMultiplicityAnalyzer::FromTrackRefSeedFilter::FromTrackRefSeedFilter(const edm::ParameterSet& iConfig):
+SeedMultiplicityAnalyzer::FromTrackRefSeedFilter::FromTrackRefSeedFilter(edm::ConsumesCollector&& iC, const edm::ParameterSet& iConfig):
   m_suffix(iConfig.getParameter<std::string>("suffix")),
   m_passthrough(false),
-  m_trackcoll(iConfig.getParameter<edm::InputTag>("trkCollection")),
-  m_seltrackrefcoll(iConfig.getParameter<edm::InputTag>("selRefTrkCollection")),
+  m_trackcollToken(iC.consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("trkCollection"))),
+  m_seltrackrefcollToken(iC.consumes<reco::TrackRefVector>(iConfig.getParameter<edm::InputTag>("selRefTrkCollection"))),
   m_tracks(),m_seltrackrefs() { }
 
 const std::string&  SeedMultiplicityAnalyzer::FromTrackRefSeedFilter::suffix() const {return m_suffix; }
@@ -469,8 +448,8 @@ void SeedMultiplicityAnalyzer::FromTrackRefSeedFilter::prepareEvent(const edm::E
 
   if(!m_passthrough) {
 
-    iEvent.getByLabel(m_trackcoll,m_tracks);
-    iEvent.getByLabel(m_seltrackrefcoll,m_seltrackrefs);
+    iEvent.getByToken(m_trackcollToken,m_tracks);
+    iEvent.getByToken(m_seltrackrefcollToken,m_seltrackrefs);
 
   }
 

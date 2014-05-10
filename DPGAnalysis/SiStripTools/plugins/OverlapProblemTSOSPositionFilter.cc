@@ -66,14 +66,12 @@ public:
   ~OverlapProblemTSOSPositionFilter();
   
 private:
-  virtual void beginJob() ;
-  virtual bool filter(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  virtual bool filter(edm::Event&, const edm::EventSetup&) override;
   
       // ----------member data ---------------------------
 
   const bool m_validOnly; 
-  edm::InputTag m_ttacollection;
+  edm::EDGetTokenT<TrajTrackAssociationCollection> m_ttacollToken;
 
 };
 
@@ -90,7 +88,7 @@ private:
 //
 OverlapProblemTSOSPositionFilter::OverlapProblemTSOSPositionFilter(const edm::ParameterSet& iConfig):
   m_validOnly(iConfig.getParameter<bool>("onlyValidRecHit")),
-  m_ttacollection(iConfig.getParameter<edm::InputTag>("trajTrackAssoCollection"))
+  m_ttacollToken(consumes<TrajTrackAssociationCollection>(iConfig.getParameter<edm::InputTag>("trajTrackAssoCollection")))
 
 {
    //now do what ever initialization is needed
@@ -126,7 +124,7 @@ OverlapProblemTSOSPositionFilter::filter(edm::Event& iEvent, const edm::EventSet
   // Trajectory Handle
   
   Handle<TrajTrackAssociationCollection> ttac;
-  iEvent.getByLabel(m_ttacollection,ttac);
+  iEvent.getByToken(m_ttacollToken,ttac);
   
   for(TrajTrackAssociationCollection::const_iterator pair=ttac->begin();pair!=ttac->end();++pair) {
     
@@ -160,18 +158,6 @@ OverlapProblemTSOSPositionFilter::filter(edm::Event& iEvent, const edm::EventSet
   
   return false;
 
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-OverlapProblemTSOSPositionFilter::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-OverlapProblemTSOSPositionFilter::endJob() 
-{
 }
 
 //define this as a plug-in
