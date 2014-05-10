@@ -153,6 +153,11 @@ class JetFlavourClustering : public edm::EDProducer {
       virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
       virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
 
+      void insertGhosts(const edm::Handle<reco::GenParticleRefVector>& particles,
+                        const double ghostRescaling,
+                        const bool isHadron, const bool isbHadron, const bool isParton, const bool isLepton,
+                        std::vector<fastjet::PseudoJet>& constituents);
+
       void matchReclusteredJets(const edm::Handle<edm::View<reco::Jet> >& jets,
                                 const std::vector<fastjet::PseudoJet>& matchedJets,
                                 std::vector<int>& matchedIndices);
@@ -169,6 +174,11 @@ class JetFlavourClustering : public edm::EDProducer {
                        const reco::GenParticleRefVector& clusteredPartons,
                        int&  hadronFlavour,
                        int&  partonFlavour);
+
+      void assignToSubjets(const reco::GenParticleRefVector& clusteredParticles,
+                           const edm::Handle<edm::View<reco::Jet> >& subjets,
+                           const std::vector<int>& subjetIndices,
+                           std::vector<reco::GenParticleRefVector>& assignedParticles);
 
       // ----------member data ---------------------------
       const edm::EDGetTokenT<edm::View<reco::Jet> >      jetsToken_;        // Input jet collection
@@ -298,40 +308,14 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
    }
    // insert "ghost" b hadrons in the vector of constituents
-   for(reco::GenParticleRefVector::const_iterator it = bHadrons->begin(); it != bHadrons->end(); ++it)
-   {
-     fastjet::PseudoJet p((*it)->px(),(*it)->py(),(*it)->pz(),(*it)->energy());
-     p*=ghostRescaling_; // rescale hadron momentum
-     p.set_user_info(new GhostInfo(true, true, false, false, *it));
-     fjInputs.push_back(p);
-   }
+   insertGhosts(bHadrons, ghostRescaling_, true, true, false, false, fjInputs);
    // insert "ghost" c hadrons in the vector of constituents
-   for(reco::GenParticleRefVector::const_iterator it = cHadrons->begin(); it != cHadrons->end(); ++it)
-   {
-     fastjet::PseudoJet p((*it)->px(),(*it)->py(),(*it)->pz(),(*it)->energy());
-     p*=ghostRescaling_; // rescale hadron momentum
-     p.set_user_info(new GhostInfo(true, false, false, false, *it));
-     fjInputs.push_back(p);
-   }
+   insertGhosts(cHadrons, ghostRescaling_, true, false, false, false, fjInputs);
    // insert "ghost" partons in the vector of constituents
-   for(reco::GenParticleRefVector::const_iterator it = partons->begin(); it != partons->end(); ++it)
-   {
-     fastjet::PseudoJet p((*it)->px(),(*it)->py(),(*it)->pz(),(*it)->energy());
-     p*=ghostRescaling_; // rescale parton momentum
-     p.set_user_info(new GhostInfo(false, false, true, false, *it));
-     fjInputs.push_back(p);
-   }
+   insertGhosts(partons, ghostRescaling_, false, false, true, false, fjInputs);
    // if used, insert "ghost" leptons in the vector of constituents
    if( useLeptons_ )
-   {
-     for(reco::GenParticleRefVector::const_iterator it = leptons->begin(); it != leptons->end(); ++it)
-     {
-       fastjet::PseudoJet p((*it)->px(),(*it)->py(),(*it)->pz(),(*it)->energy());
-       p*=ghostRescaling_; // rescale lepton momentum
-       p.set_user_info(new GhostInfo(false, false, false, true, *it));
-       fjInputs.push_back(p);
-     }
-   }
+     insertGhosts(leptons, ghostRescaling_, false, false, false, true, fjInputs);
 
    // define jet clustering sequence
    fjClusterSeq_ = ClusterSequencePtr( new fastjet::ClusterSequence( fjInputs, *fjJetDefinition_ ) );
@@ -431,60 +415,14 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        std::vector<reco::GenParticleRefVector> assignedLeptons(subjetIndices.at(i).size(),reco::GenParticleRefVector());
 
        // loop over clustered b hadrons and assign them to different subjets based on smallest dR
-       for(reco::GenParticleRefVector::const_iterator it = clusteredbHadrons.begin(); it != clusteredbHadrons.end(); ++it)
-       {
-         std::vector<double> dRtoSubjets;
-
-         for(size_t sj=0; sj<subjetIndices.at(i).size(); ++sj)
-           dRtoSubjets.push_back( reco::deltaR( (*it)->rapidity(), (*it)->phi(), subjets->at(subjetIndices.at(i).at(sj)).rapidity(), subjets->at(subjetIndices.at(i).at(sj)).phi() ) );
-
-         // find the closest subjet
-         int closestSubjetIdx = std::distance( dRtoSubjets.begin(), std::min_element(dRtoSubjets.begin(), dRtoSubjets.end()) );
-
-         assignedbHadrons.at(closestSubjetIdx).push_back( *it );
-       }
+       assignToSubjets(clusteredbHadrons, subjets, subjetIndices.at(i), assignedbHadrons);
        // loop over clustered c hadrons and assign them to different subjets based on smallest dR
-       for(reco::GenParticleRefVector::const_iterator it = clusteredcHadrons.begin(); it != clusteredcHadrons.end(); ++it)
-       {
-         std::vector<double> dRtoSubjets;
-
-         for(size_t sj=0; sj<subjetIndices.at(i).size(); ++sj)
-           dRtoSubjets.push_back( reco::deltaR( (*it)->rapidity(), (*it)->phi(), subjets->at(subjetIndices.at(i).at(sj)).rapidity(), subjets->at(subjetIndices.at(i).at(sj)).phi() ) );
-
-         // find the closest subjet
-         int closestSubjetIdx = std::distance( dRtoSubjets.begin(), std::min_element(dRtoSubjets.begin(), dRtoSubjets.end()) );
-
-         assignedcHadrons.at(closestSubjetIdx).push_back( *it );
-       }
+       assignToSubjets(clusteredcHadrons, subjets, subjetIndices.at(i), assignedcHadrons);
        // loop over clustered partons and assign them to different subjets based on smallest dR
-       for(reco::GenParticleRefVector::const_iterator it = clusteredPartons.begin(); it != clusteredPartons.end(); ++it)
-       {
-         std::vector<double> dRtoSubjets;
-
-         for(size_t sj=0; sj<subjetIndices.at(i).size(); ++sj)
-           dRtoSubjets.push_back( reco::deltaR( (*it)->rapidity(), (*it)->phi(), subjets->at(subjetIndices.at(i).at(sj)).rapidity(), subjets->at(subjetIndices.at(i).at(sj)).phi() ) );
-
-         // find the closest subjet
-         int closestSubjetIdx = std::distance( dRtoSubjets.begin(), std::min_element(dRtoSubjets.begin(), dRtoSubjets.end()) );
-
-         assignedPartons.at(closestSubjetIdx).push_back( *it );
-       }
+       assignToSubjets(clusteredPartons, subjets, subjetIndices.at(i), assignedPartons);
        // if used, loop over clustered leptons and assign them to different subjets based on smallest dR
        if( useLeptons_ )
-       {
-         for(reco::GenParticleRefVector::const_iterator it = clusteredLeptons.begin(); it != clusteredLeptons.end(); ++it)
-         {
-           std::vector<double> dRtoSubjets;
-
-           for(size_t sj=0; sj<subjetIndices.at(i).size(); ++sj)
-             dRtoSubjets.push_back( reco::deltaR( (*it)->rapidity(), (*it)->phi(), subjets->at(subjetIndices.at(i).at(sj)).rapidity(), subjets->at(subjetIndices.at(i).at(sj)).phi() ) );
-
-           // find the closest subjet
-           int closestSubjetIdx = std::distance( dRtoSubjets.begin(), std::min_element(dRtoSubjets.begin(), dRtoSubjets.end()) );
-
-           assignedLeptons.at(closestSubjetIdx).push_back( *it );
-         }
-       }
+         assignToSubjets(clusteredLeptons, subjets, subjetIndices.at(i), assignedLeptons);
 
        // loop over subjets and determine their flavour
        for(size_t sj=0; sj<subjetIndices.at(i).size(); ++sj)
@@ -506,6 +444,23 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // put subjet flavour infos in the event
    if( useSubjets_ )
      iEvent.put( subjetFlavourInfos, "SubJets" );
+}
+
+// ------------ method that inserts "ghost" particles in the vector of jet constituents ------------
+void
+JetFlavourClustering::insertGhosts(const edm::Handle<reco::GenParticleRefVector>& particles,
+                                   const double ghostRescaling,
+                                   const bool isHadron, const bool isbHadron, const bool isParton, const bool isLepton,
+                                   std::vector<fastjet::PseudoJet>& constituents)
+{
+   // insert "ghost" particles in the vector of jet constituents
+   for(reco::GenParticleRefVector::const_iterator it = particles->begin(); it != particles->end(); ++it)
+   {
+     fastjet::PseudoJet p((*it)->px(),(*it)->py(),(*it)->pz(),(*it)->energy());
+     p*=ghostRescaling; // rescale particle momentum
+     p.set_user_info(new GhostInfo(isHadron, isbHadron, isParton, isLepton, *it));
+     constituents.push_back(p);
+   }
 }
 
 // ------------ method that matches reclustered and original jets based on minimum dR ------------
@@ -676,6 +631,28 @@ JetFlavourClustering::setFlavours(const reco::GenParticleRefVector& clusteredbHa
        partonFlavour = ( hardestLightParton.isNonnull() ? hardestLightParton->pdgId() : 0 );
      else if( hadronFlavour!=0 && abs(partonFlavour)!=hadronFlavour )
        partonFlavour = hadronFlavour;
+   }
+}
+
+// ------------ method that assigns clustered particles to subjets ------------
+void
+JetFlavourClustering::assignToSubjets(const reco::GenParticleRefVector& clusteredParticles,
+                                      const edm::Handle<edm::View<reco::Jet> >& subjets,
+                                      const std::vector<int>& subjetIndices,
+                                      std::vector<reco::GenParticleRefVector>& assignedParticles)
+{
+   // loop over clustered particles and assign them to different subjets based on smallest dR
+   for(reco::GenParticleRefVector::const_iterator it = clusteredParticles.begin(); it != clusteredParticles.end(); ++it)
+   {
+     std::vector<double> dR2toSubjets;
+
+     for(size_t sj=0; sj<subjetIndices.size(); ++sj)
+       dR2toSubjets.push_back( reco::deltaR2( (*it)->rapidity(), (*it)->phi(), subjets->at(subjetIndices.at(sj)).rapidity(), subjets->at(subjetIndices.at(sj)).phi() ) );
+
+     // find the closest subjet
+     int closestSubjetIdx = std::distance( dR2toSubjets.begin(), std::min_element(dR2toSubjets.begin(), dR2toSubjets.end()) );
+
+     assignedParticles.at(closestSubjetIdx).push_back( *it );
    }
 }
 
