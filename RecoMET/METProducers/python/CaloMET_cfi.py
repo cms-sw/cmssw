@@ -1,13 +1,33 @@
 import FWCore.ParameterSet.Config as cms
 
 ##____________________________________________________________________________||
-from RecoMET.METProducers.CaloMET_OldNames_cfi import *
-from RecoMET.METProducers.CaloMET_OldNamesOpt_cfi import *
+caloMet = cms.EDProducer(
+    "CaloMETProducer",
+    src = cms.InputTag("towerMaker"),
+    alias = cms.string('RawCaloMET'),
+    noHF = cms.bool(False),
+    globalThreshold = cms.double(0.3),
+    calculateSignificance = cms.bool(False)
+    )
 
 ##____________________________________________________________________________||
-caloMet = met.clone()
-caloMetBEFO = metHO.clone()
-caloMetBE = metNoHF.clone()
-caloMetBEO = metNoHFHO.clone()
+caloMetBEFO = caloMet.clone()
+caloMetBEFO.src = "towerMakerWithHO"
+caloMetBEFO.alias = 'RawCaloMETHO'
+
+##____________________________________________________________________________||
+caloMetBE = cms.EDProducer(
+    "CaloMETProducer",
+    src = cms.InputTag("towerMaker"),
+    alias = cms.string('RawCaloMETNoHF'),
+    noHF = cms.bool(True),
+    globalThreshold = cms.double(0.3),
+    calculateSignificance = cms.bool(False)
+)
+
+##____________________________________________________________________________||
+caloMetBEO = caloMetBE.clone()
+caloMetBEO.src = "towerMakerWithHO"
+caloMetBEO.alias = 'RawCaloMETNoHFHO'
 
 ##____________________________________________________________________________||
