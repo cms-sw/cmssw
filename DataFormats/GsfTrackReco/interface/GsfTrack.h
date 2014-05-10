@@ -5,6 +5,7 @@
  */
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackExtraFwd.h" 
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 namespace reco {
 
@@ -94,7 +95,7 @@ namespace reco {
 
   private:
     /// fill 3x3 SMatrix
-    CovarianceMatrixMode & fill( CovarianceMatrixMode & v ) const;
+    CovarianceMatrixMode & fill CMS_THREAD_SAFE ( CovarianceMatrixMode & v ) const;
 
 
   private:
