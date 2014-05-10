@@ -9,6 +9,8 @@ $Author: ratnikov
 $Date: 2008/11/07 16:05:50 $
 $Revision: 1.9 $
 */
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <boost/cstdint.hpp>
 
 class HcalPedestalWidth {
@@ -46,6 +48,8 @@ class HcalPedestalWidth {
   float mSigma31;
   float mSigma32;
   float mSigma33;
+
+ COND_SERIALIZABLE;
 };
 
 #endif

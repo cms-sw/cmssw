@@ -100,6 +100,8 @@ from CalibMuon.DTCalibration.ALCARECODtCalibCosmics_Output_cff import *
 ###############################################################
 from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProd_Output_cff import *
 from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiStrip_Output_cff import *
+from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdSiStripGains_Output_cff import *
+
 from Calibration.TkAlCaRecoProducers.ALCARECOSiStripPCLHistos_Output_cff import *
 
 # stream for the LumiPixels workflow

@@ -2,12 +2,14 @@
 #define QGLikelihoodObject_h
 
 #include "CondFormats/PhysicsToolsObjects/interface/Histogram.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
 #include <vector>
 
 /// Category structure: ranges associated with QGLikelihood histograms
 struct QGLikelihoodCategory{
   float RhoMin, RhoMax, PtMin, PtMax, EtaMin, EtaMax;
   int QGIndex, VarIndex;
+  COND_SERIALIZABLE;  
 };
 
 /// Parameters structure
@@ -24,10 +26,12 @@ struct QGLikelihoodObject{
     QGLikelihoodCategory category;
     Histogram histogram;
     float mean;
+    COND_SERIALIZABLE;
   };
 
   QGLikelihoodCategory qgValidRange;
   std::vector<Entry> data;
+  COND_SERIALIZABLE;
 };
 
 /// QGLikelihoodSystematicsObject containing the parameters for the systematic smearing
@@ -35,8 +39,10 @@ struct QGLikelihoodSystematicsObject{
   struct Entry{
     QGLikelihoodCategory systCategory;
     float a, b, lmin, lmax;
+    COND_SERIALIZABLE;
   };
   std::vector<Entry> data;
+  COND_SERIALIZABLE;
 };
 
 /// Test if parameters are compatible with category

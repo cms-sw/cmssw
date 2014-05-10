@@ -1,6 +1,8 @@
 #ifndef PerformancePayloadFromBinnedTFormula_h
 #define PerformancePayloadFromBinnedTFormula_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/PhysicsToolsObjects/interface/PhysicsTFormulaPayload.h"
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayload.h"
 
@@ -78,8 +80,14 @@ class PerformancePayloadFromBinnedTFormula : public PerformancePayload {
   std::vector<PerformanceResult::ResultType> results_;
   std::vector<BinningVariables::BinningVariablesType> variables_;
   
+  //
+  // the transient part; now a vector of vector; CHANGE CHECK!!!!!
+  //
+
   // the compiled functions
-  std::vector<std::vector<boost::shared_ptr<TFormula> > > compiledFormulas_;
+  std::vector<std::vector<boost::shared_ptr<TFormula> > > compiledFormulas_ COND_TRANSIENT;;
+
+ COND_SERIALIZABLE;
 };
 
 #endif

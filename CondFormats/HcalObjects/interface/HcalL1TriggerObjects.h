@@ -2,6 +2,8 @@
 #define HcalL1TriggerObjects_h
 
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <cstring>
 #include <string>
 
@@ -30,5 +32,7 @@ class HcalL1TriggerObjects: public HcalCondObjectContainer<HcalL1TriggerObject>
   char mTag[128];
   char mAlgo[128];
 
+
+ COND_SERIALIZABLE;
 };
 #endif

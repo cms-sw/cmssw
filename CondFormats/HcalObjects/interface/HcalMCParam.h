@@ -7,6 +7,8 @@
 POOL object to store MC information
 */
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <boost/cstdint.hpp>
 
 // definition 8.Feb.2011
@@ -47,6 +49,8 @@ class HcalMCParam {
 
   uint32_t mId;
   uint32_t mParam1;
+
+ COND_SERIALIZABLE;
 };
 
 #endif

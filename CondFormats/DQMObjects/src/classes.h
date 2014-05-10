@@ -1,5 +1,5 @@
-#include "CondFormats/DQMObjects/interface/DQMSummary.h"
-#include "CondFormats/DQMObjects/interface/HDQMSummary.h"
+#include "CondFormats/DQMObjects/src/headers.h"
+
 
 
 namespace CondFormats_DQMObjects {

@@ -43,6 +43,7 @@
 
 //
 #include "CondCore/CondDB/interface/Serialization.h"
+#include "CondFormats/External/interface/DetID.h"
 
 namespace cond {
 
