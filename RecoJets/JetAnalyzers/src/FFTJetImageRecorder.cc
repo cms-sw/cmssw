@@ -59,6 +59,8 @@ private:
 
     edm::InputTag histoLabel;
     unsigned long counter;
+
+    edm::EDGetTokenT<TH3F> histoToken;
 };
 
 //
@@ -68,6 +70,7 @@ FFTJetImageRecorder::FFTJetImageRecorder(const edm::ParameterSet& ps)
     : init_param(edm::InputTag, histoLabel),
       counter(0)
 {
+    histoToken = consumes<TH3F>(histoLabel);
 }
 
 
@@ -90,13 +93,13 @@ void FFTJetImageRecorder::beginJob()
 
 // ------------ method called to for each event  ------------
 void FFTJetImageRecorder::analyze(const edm::Event& iEvent,
-                                   const edm::EventSetup& iSetup)
+                                  const edm::EventSetup& iSetup)
 {
     const long runnumber = iEvent.id().run();
     const long eventnumber = iEvent.id().event();
 
     edm::Handle<TH3F> input;
-    iEvent.getByLabel(histoLabel, input);
+    iEvent.getByToken(histoToken, input);
 
     edm::Service<TFileService> fs;
     TH3F* copy = new TH3F(*input);
