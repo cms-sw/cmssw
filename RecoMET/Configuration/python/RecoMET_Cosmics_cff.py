@@ -13,6 +13,9 @@ metrecoCosmics = cms.Sequence(
       met+
       metNoHF+
       metHO+
+      caloMet+
+      caloMetBE+
+      caloMetBEFO+
       muonMETValueMapProducer+
       corMetGlobalMuons+
       hcalnoise+
@@ -24,6 +27,9 @@ metrecoCosmics_woBeamHaloId = cms.Sequence(
     met+
     metNoHF+
     metHO+
+    caloMet+
+    caloMetBE+
+    caloMetBEFO+
     muonMETValueMapProducer+
     corMetGlobalMuons+
     hcalnoise
@@ -34,6 +40,9 @@ metrecoCosmics_woHcalNoise = cms.Sequence(
     met+
     metNoHF+
     metHO+
+    caloMet+
+    caloMetBE+
+    caloMetBEFO+
     muonMETValueMapProducer+
     corMetGlobalMuons+
     BeamHaloId
