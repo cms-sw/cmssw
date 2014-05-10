@@ -972,4 +972,51 @@ void PlotOnTrackOccupancyPhase2(TFile* ff, const char* module, const char* ontrk
   
 }
 
+void PlotDebugFPIX_XYMap(TFile* ff, const char* module, const unsigned int ioffset, const char* name) {
 
+  gROOT->SetStyle("Plain");
+
+  TCanvas* cc = new TCanvas(name,name,750,750);
+  cc->Range(-25,-25,25,25);
+  TFrame* fr1 = new TFrame(-20,-20,20,20);
+  fr1->UseCurrentStyle();
+  fr1->Draw();
+  ff->cd(module);
+  gDirectory->ls();
+  TProfile* avex = (TProfile*)gDirectory->Get("avex");
+  TProfile* avey = (TProfile*)gDirectory->Get("avey");
+  TProfile* avez = (TProfile*)gDirectory->Get("avez");
+
+  if(avex && avey && avez) {
+    TText* tittext = new TText(0,0,name);
+    tittext->SetTextSize(.04); tittext->SetTextAlign(22); 
+    tittext->Draw();
+    for(unsigned int mod=ioffset+1;mod<ioffset+57;++mod) {
+      double x = avex->GetBinContent(mod);
+      double y = avey->GetBinContent(mod);
+      //      TBox* modbox = new TBox(x-1,y-1,x+1,y+1);
+      char modstring[30];
+      sprintf(modstring,"%d",mod%100);
+      TText* modtext = new TText(x,y,modstring);
+      modtext->SetTextAngle(atan(y/x)*180/3.14159);
+      modtext->SetTextSize(.02); modtext->SetTextAlign(22); modtext->SetTextColor(kRed);
+      std::cout << mod << " " << x << " " << y << std::endl;
+      //      modbox->Draw();
+      modtext->Draw();
+    }
+    for(unsigned int mod=ioffset+101;mod<ioffset+157;++mod) {
+      double x = avex->GetBinContent(mod);
+      double y = avey->GetBinContent(mod);
+      //      TBox* modbox = new TBox(x-1,y-1,x+1,y+1);
+      char modstring[30];
+      sprintf(modstring,"%d",mod%100);
+      TText* modtext = new TText(x,y,modstring);
+      modtext->SetTextAngle(atan(y/x)*180/3.14159);
+      modtext->SetTextSize(.02); modtext->SetTextAlign(22); modtext->SetTextColor(kBlue);
+      std::cout << mod << " " << x << " " << y << " " << atan(y/x) << std::endl;
+      //      modbox->Draw();
+      modtext->Draw();
+    }
+
+  }
+}

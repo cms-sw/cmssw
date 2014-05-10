@@ -36,4 +36,5 @@
 #pragma link C++ function TrackPlots;
 #pragma link C++ function SeedMultiplicityPlots;
 #pragma link C++ function SeedMultiplicityComparisonPlot;
+#pragma link C++ function PlotDebugFPIX_XYMap;
 #endif
