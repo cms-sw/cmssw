@@ -1,6 +1,8 @@
 #ifndef CondFormats_MultiFileBlob_h
 #define CondFormats_MultiFileBlob_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 #include <string>
 #include <map>
@@ -54,7 +56,9 @@ class MultiFileBlob{
   Positions positions;
   bool compressed; // persistent status
   unsigned long long isize;
-  bool expanded; // transient status
+  bool expanded COND_TRANSIENT; // transient status
+
+ COND_SERIALIZABLE;
 };
 
 #endif

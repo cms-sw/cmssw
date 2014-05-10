@@ -1,6 +1,8 @@
 #ifndef Cond_UpdateStamp_h
 #define Cond_UpdateStamp_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/Common/interface/Time.h"
 #include <string>
 
@@ -34,7 +36,9 @@ namespace cond {
     int m_revision;
     cond::Time_t m_timestamp;
     std::string m_comment;
-  };
+  
+  COND_SERIALIZABLE;
+};
 
 } // nc cond
 

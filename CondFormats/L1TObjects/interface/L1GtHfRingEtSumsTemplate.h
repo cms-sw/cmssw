@@ -18,6 +18,8 @@
  */
 
 // system include files
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <string>
 #include <iosfwd>
 
@@ -60,7 +62,9 @@ public:
         unsigned int etSumIndex;
         unsigned int etSumThreshold;
 
-    };
+    
+    COND_SERIALIZABLE;
+};
 
 
 public:
@@ -92,6 +96,8 @@ private:
     /// variables containing the parameters
     std::vector<ObjectParameter> m_objectParameter;
 
+
+    COND_SERIALIZABLE;
 };
 
 #endif

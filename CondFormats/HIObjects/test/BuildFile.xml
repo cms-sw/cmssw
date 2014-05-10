@@ -1,0 +1,3 @@
+<bin file="testSerializationHIObjects.cpp">
+    <use   name="CondFormats/HIObjects"/>
+</bin>

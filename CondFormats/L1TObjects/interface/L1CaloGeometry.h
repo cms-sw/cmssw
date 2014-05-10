@@ -20,6 +20,8 @@
 //
 
 // system include files
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 #include <ostream>
 
@@ -148,6 +150,8 @@ class L1CaloGeometry
       double m_gctEmJetPhiOffset ;
       double m_gctEtSumPhiOffset ;
       double m_gctHtSumPhiOffset ;
+
+   COND_SERIALIZABLE;
 };
 
 std::ostream& operator << ( std::ostream& os, const L1CaloGeometry& obj ) ;

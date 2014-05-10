@@ -19,6 +19,8 @@
  */
 
 // system include files
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <string>
 #include <iosfwd>
 
@@ -71,7 +73,9 @@ public:
 
         std::string deltaPhiRange;
         unsigned int deltaPhiMaxbits;
-    };
+    
+    COND_SERIALIZABLE;
+};
 
 
 public:
@@ -131,6 +135,8 @@ private:
     int m_cond1Index;
     CorrelationParameter m_correlationParameter;
 
+
+    COND_SERIALIZABLE;
 };
 
 #endif

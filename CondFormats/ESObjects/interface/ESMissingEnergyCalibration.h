@@ -1,5 +1,7 @@
 #ifndef CondFormats_ESObjects_ESMissingEnergyCalibration_H
 #define CondFormats_ESObjects_ESMissingEnergyCalibration_H
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <iostream>
 
 class ESMissingEnergyCalibration {
@@ -53,6 +55,8 @@ class ESMissingEnergyCalibration {
     float ConstAEta3_;
     float ConstBEta3_;
 
+
+  COND_SERIALIZABLE;
 };
 
 #endif

@@ -19,6 +19,8 @@
 // C++ Headers --
 //---------------
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 #include <map>
 
@@ -76,6 +78,8 @@ class L1MuDTPtaLut {
 
     unsigned short int nbit_phi;
     
+
+  COND_SERIALIZABLE;
 };
 
 #endif

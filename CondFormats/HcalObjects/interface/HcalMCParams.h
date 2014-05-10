@@ -2,6 +2,8 @@
 #define HcalMCParams_h
 
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/HcalObjects/interface/HcalMCParam.h"
 #include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
 
@@ -18,5 +20,7 @@ class HcalMCParams: public HcalCondObjectContainer<HcalMCParam>
 
  private:
 
+
+ COND_SERIALIZABLE;
 };
 #endif

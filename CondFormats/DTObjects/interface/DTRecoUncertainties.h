@@ -8,6 +8,8 @@
  */
 
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <map>
 #include <vector>
 #include <string>
@@ -54,6 +56,7 @@ private:
   
   int theVersion;
 
+  COND_SERIALIZABLE;
 };
 #endif
 

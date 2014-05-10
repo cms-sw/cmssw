@@ -1,6 +1,8 @@
 #ifndef SiStripThreshold_h
 #define SiStripThreshold_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include<vector>
 #include<map>
 #include<iostream>
@@ -72,13 +74,17 @@ class SiStripThreshold {
     uint16_t FirstStrip_and_Hth;
     uint8_t lowTh;
     uint8_t clusTh;
-  };
+  
+  COND_SERIALIZABLE;
+};
   
   struct DetRegistry{
     uint32_t detid;
     uint32_t ibegin;
     uint32_t iend;
-  };
+  
+  COND_SERIALIZABLE;
+};
 
 
   class StrictWeakOrdering{
@@ -135,6 +141,8 @@ class SiStripThreshold {
  private:
   Container v_threshold; 
   Registry indexes;
+
+ COND_SERIALIZABLE;
 };
 
 #endif

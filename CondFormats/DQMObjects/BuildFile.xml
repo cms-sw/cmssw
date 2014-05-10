@@ -1,6 +1,7 @@
 <flags   GENREFLEX_ARGS="--"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/Utilities"/>
+<use   name="boost_serialization"/>
 <use   name="rootrflx"/>
 <export>
   <lib   name="1"/>

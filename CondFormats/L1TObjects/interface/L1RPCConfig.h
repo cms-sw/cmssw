@@ -19,6 +19,8 @@
 // $Id: L1RPCConfig.h,v 1.3 2007/11/20 17:32:50 michals Exp $
 //
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <string>
 #include <vector>
 
@@ -48,6 +50,8 @@ class L1RPCConfig
       
       // m_pats[tower][sector][segment][patternNo]
       
+
+   COND_SERIALIZABLE;
 };
 
 
