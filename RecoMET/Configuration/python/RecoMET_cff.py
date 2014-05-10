@@ -11,9 +11,6 @@ from RecoMET.Configuration.RecoMET_BeamHaloId_cff import *
 
 ##____________________________________________________________________________||
 metreco = cms.Sequence(
-        met+
-        metNoHF+
-        metHO+
         caloMet+
         caloMetBE+
         caloMetBEFO+
