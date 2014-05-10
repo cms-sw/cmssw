@@ -1,5 +1,7 @@
 #ifndef CondFormats_ESObjects_ESThresholds_H
 #define CondFormats_ESObjects_ESThresholds_H
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <iostream>
 
 class ESThresholds {
@@ -23,6 +25,8 @@ class ESThresholds {
 
     float ts2_;
     float zs_;
+
+  COND_SERIALIZABLE;
 };
 
 

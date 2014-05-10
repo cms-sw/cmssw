@@ -1,6 +1,8 @@
 #ifndef CondFormats_L1TObjects_L1RPCConeDefinition_h
 #define CondFormats_L1TObjects_L1RPCConeDefinition_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 
 class L1RPCConeDefinition {
@@ -17,7 +19,9 @@ class L1RPCConeDefinition {
       signed char m_tower;
       signed char m_LP;
       unsigned char m_size;
-    };
+    
+    COND_SERIALIZABLE;
+};
     typedef std::vector<TLPSize> TLPSizeVec;
 
     
@@ -35,7 +39,9 @@ class L1RPCConeDefinition {
       signed char m_hwPlane;
       signed char m_tower;
       unsigned char m_index;
-    };
+    
+    COND_SERIALIZABLE;
+};
     typedef std::vector<TRingToTower> TRingToTowerVec;
     
     // For (roll,hwplane)->logplane mapping
@@ -53,7 +59,9 @@ class L1RPCConeDefinition {
       signed char m_hwPlane;
       signed char m_LP;
       unsigned char m_index;
-    };
+    
+    COND_SERIALIZABLE;
+};
     typedef std::vector<TRingToLP> TRingToLPVec;
 
     
@@ -106,6 +114,8 @@ class L1RPCConeDefinition {
 
 
 
+
+  COND_SERIALIZABLE;
 };
 
 

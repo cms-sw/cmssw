@@ -1,6 +1,8 @@
 #ifndef SiStripLatency_h
 #define SiStripLatency_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 #include <algorithm>
 #include <stdint.h>
@@ -75,7 +77,9 @@ class SiStripLatency
     uint32_t detIdAndApv;
     unsigned char latency;
     unsigned char mode;
-  };
+  
+  COND_SERIALIZABLE;
+};
   typedef std::vector<Latency>::iterator latIt;
   typedef std::vector<Latency>::const_iterator latConstIt;
 
@@ -153,6 +157,8 @@ class SiStripLatency
     return pos;
   }
   std::vector<Latency> latencies_;
+
+ COND_SERIALIZABLE;
 };
 
 #endif

@@ -1,6 +1,8 @@
 #ifndef CondFormats_ESObjects_ESTBWeights_H
 #define CondFormats_ESObjects_ESTBWeights_H
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <map>
 #include <boost/cstdint.hpp>
 #include "CondFormats/ESObjects/interface/ESStripGroupId.h"
@@ -22,5 +24,7 @@ class ESTBWeights {
 
   private:
     ESTBWeightMap map_;
+
+  COND_SERIALIZABLE;
 };
 #endif

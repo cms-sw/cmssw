@@ -8,6 +8,8 @@
 #ifndef SiPixelQuality_H
 #define SiPixelQuality_H
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 #include <utility>
 
@@ -33,7 +35,9 @@ class SiPixelQuality {
     uint32_t DetID;  
     int      errorType;
     unsigned short BadRocs;
-  };
+  
+  COND_SERIALIZABLE;
+};
 
       //////////////////////////////////////
       //  errortype "whole" = int 0 in DB //
@@ -119,6 +123,8 @@ class SiPixelQuality {
   std::vector<disabledModuleType> theDisabledModules;
   bool IsFedBad(const uint32_t & detid) const; 
 
+
+ COND_SERIALIZABLE;
 }; // class SiPixelQuality
 
 

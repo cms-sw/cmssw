@@ -24,6 +24,13 @@
   }
 
 #include "CondCore/CondDB/interface/Serialization.h"
+#include "CondFormats/External/interface/DetID.h"
+#include "CondFormats/External/interface/EcalDetID.h"
+#include "CondFormats/External/interface/SMatrix.h"
+#include "CondFormats/External/interface/L1GtLogicParser.h"
+#include "CondFormats/External/interface/Timestamp.h"
+#include "CondFormats/External/interface/HLTPrescaleTable.h"
+
 #include "CondCore/Utilities/interface/CondDBImport.h"
 #include "CondCore/CondDB/interface/Exception.h"
 #include "CondFormats.h"
@@ -311,6 +318,10 @@ namespace cond {
       if( !found ) throwException( "Payload with id "+boost::lexical_cast<std::string>(payloadId)+" has not been found in the database.","fetchAndCompare" );
       //std::cout <<"--> payload type "<<payloadTypeName<<" has blob size "<<data.size()<<std::endl;
       bool isOra = session.isOraSession();
+      return fetchOne(payloadTypeName, data, streamerInfo, payloadPtr, isOra);
+    }
+    std::pair<std::string, boost::shared_ptr<void> > fetchOne( const std::string &payloadTypeName, const cond::Binary &data, const cond::Binary &streamerInfo, boost::shared_ptr<void> payloadPtr, bool isOra ){
+
       bool match = false;
     FETCH_PAYLOAD_CASE( std::string ) 
     FETCH_PAYLOAD_CASE( std::vector<unsigned long long> )
