@@ -129,8 +129,10 @@ AnalyticalPropagator::propagatedStateWithPath (const FreeTrajectoryState& fts,
     //
     AnalyticalCurvilinearJacobian analyticalJacobian(fts.parameters(), gtp.position(), gtp.momentum(), s);
     const AlgebraicMatrix55 &jacobian = analyticalJacobian.jacobian();
-    CurvilinearTrajectoryError cte(ROOT::Math::Similarity(jacobian, fts.curvilinearError().matrix()));
-    return TsosWP(TrajectoryStateOnSurface(gtp,cte,surface,side),s);
+    // CurvilinearTrajectoryError cte(ROOT::Math::Similarity(jacobian, fts.curvilinearError().matrix()));
+    return TsosWP(TrajectoryStateOnSurface(gtp,
+					   ROOT::Math::Similarity(jacobian, fts.curvilinearError().matrix()),
+					   surface,side),s);
   }
   else {
     //

@@ -2,6 +2,8 @@
 #define HcalLongRecoParams_h
 
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/HcalObjects/interface/HcalLongRecoParam.h"
 #include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
 
@@ -18,5 +20,7 @@ class HcalLongRecoParams: public HcalCondObjectContainer<HcalLongRecoParam>
 
  private:
 
+
+ COND_SERIALIZABLE;
 };
 #endif

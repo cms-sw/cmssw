@@ -15,6 +15,8 @@
 */
 
 // forward declarations
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <set>
 #include <vector>
 #include <sstream>
@@ -40,6 +42,8 @@ class L1RPCHsbConfig
       int m_hsb1[8];
 
 
+
+   COND_SERIALIZABLE;
 };
 
 

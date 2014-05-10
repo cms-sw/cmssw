@@ -44,6 +44,11 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
 PFBlockProducer::~PFBlockProducer() { }
 
 
+void PFBlockProducer::
+beginLuminosityBlock(edm::LuminosityBlock const& lb, 
+		     edm::EventSetup const& es) {
+  pfBlockAlgo_.updateEventSetup(es);
+}
 
 void 
 PFBlockProducer::produce(Event& iEvent, 

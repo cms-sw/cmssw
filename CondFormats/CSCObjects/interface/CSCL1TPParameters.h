@@ -1,6 +1,8 @@
 #ifndef CSCObjects_CSCL1TPParameters_h
 #define CSCObjects_CSCL1TPParameters_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 /** \class CSCL1TPParameters
  *  \author Slava Valuev
  *
@@ -181,6 +183,8 @@ class CSCL1TPParameters
   unsigned int m_clct_nplanes_hit_pretrig, m_clct_nplanes_hit_pattern;
   unsigned int m_clct_pid_thresh_pretrig;
   unsigned int m_clct_min_separation;
+
+ COND_SERIALIZABLE;
 };
 
 #endif

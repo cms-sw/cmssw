@@ -20,6 +20,8 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/Common/interface/AtomicPtrCache.h"
 #include "FWCore/Utilities/interface/ConstRespectingPtr.h"
@@ -56,6 +58,8 @@ class DTReadOutGeometryLink {
   int   layerId;
   int    cellId;
 
+
+ COND_SERIALIZABLE;
 };
 
 
@@ -164,9 +168,9 @@ class DTReadOutMapping {
 
   std::vector<DTReadOutGeometryLink> readOutChannelDriftTubeMap;
 
-  edm::AtomicPtrCache<DTReadOutMappingCache> atomicCache_;
-  edm::ConstRespectingPtr<DTBufferTree<int,int> > rgBuf;
-  edm::ConstRespectingPtr<DTBufferTree<int,int> > grBuf;
+  edm::AtomicPtrCache<DTReadOutMappingCache> atomicCache_ COND_TRANSIENT;
+  edm::ConstRespectingPtr<DTBufferTree<int,int> > rgBuf   COND_TRANSIENT;
+  edm::ConstRespectingPtr<DTBufferTree<int,int> > grBuf   COND_TRANSIENT;
 
   /// read and store full content
   void cacheMap() const;
@@ -174,5 +178,7 @@ class DTReadOutMapping {
   std::string mapNameRG() const;
   std::string mapNameGR() const;
 
+
+ COND_SERIALIZABLE;
 };
 #endif // DTReadOutMapping_H

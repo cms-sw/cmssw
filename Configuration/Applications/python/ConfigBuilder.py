@@ -864,7 +864,10 @@ class ConfigBuilder(object):
 
         if "DATAMIX" in self.stepMap.keys():
             self.DATAMIXDefaultCFF="Configuration/StandardSequences/DataMixer"+self._options.datamix+"_cff"
-            self.DIGIDefaultCFF="Configuration/StandardSequences/DigiDM_cff"
+	    if self._options.datamix == 'PreMix':
+		    self.DIGIDefaultCFF="Configuration/StandardSequences/DigiDMPreMix_cff"
+	    else:
+	            self.DIGIDefaultCFF="Configuration/StandardSequences/DigiDM_cff"
             self.DIGI2RAWDefaultCFF="Configuration/StandardSequences/DigiToRawDM_cff"
             self.L1EMDefaultCFF='Configuration/StandardSequences/SimL1EmulatorDM_cff'
 
@@ -877,6 +880,7 @@ class ConfigBuilder(object):
         self.SIMDefaultSeq='psim'
         self.DIGIDefaultSeq='pdigi'
 	self.DIGIPREMIXDefaultSeq='pdigi'
+	self.DIGIPREMIX_S2DefaultSeq='pdigi'
         self.DATAMIXDefaultSeq=None
         self.DIGI2RAWDefaultSeq='DigiToRaw'
         self.HLTDefaultSeq='GRun'
@@ -1380,6 +1384,20 @@ class ConfigBuilder(object):
 	self.loadAndRemember("SimGeneral/MixingModule/digi_noNoise_cfi")
 	self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersNoNoise)")
 
+	self.scheduleSequence(sequence.split('.')[-1],'digitisation_step')
+        return
+
+    def prepare_DIGIPREMIX_S2(self, sequence = None):
+        """ Enrich the schedule with the digitisation step"""
+        self.loadDefaultOrSpecifiedCFF(sequence,self.DIGIDefaultCFF)
+
+	self.loadAndRemember("SimGeneral/MixingModule/digi_MixPreMix_cfi")
+
+
+        if sequence == 'pdigi_valid':
+            self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersMixPreMixValid)")
+	else:
+	    elf.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersMixPreMix)")
 
 	self.scheduleSequence(sequence.split('.')[-1],'digitisation_step')
         return
@@ -1394,6 +1412,7 @@ class ConfigBuilder(object):
 	    """ Enrich the schedule with the digitisation step"""
 	    self.loadAndRemember(self.DATAMIXDefaultCFF)
 	    self.scheduleSequence('pdatamix','datamixing_step')
+
 	    if self._options.pileup_input:
 		    theFiles=''
 		    if self._options.pileup_input.startswith('dbs:') or self._options.pileup_input.startswith('das:'):
@@ -1410,6 +1429,9 @@ class ConfigBuilder(object):
     def prepare_DIGI2RAW(self, sequence = None):
             self.loadDefaultOrSpecifiedCFF(sequence,self.DIGI2RAWDefaultCFF)
 	    self.scheduleSequence(sequence.split('.')[-1],'digi2raw_step')
+	    if "DIGIPREMIX" in self.stepMap.keys():
+		    self.executeAndRemember("process.esDigiToRaw.Label = cms.string('mix')")  ##terrible hack - bypass zero suppression
+
             return
 
     def prepare_REPACK(self, sequence = None):

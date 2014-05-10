@@ -6,6 +6,8 @@
  * $Id: EcalADCToGeVConstant.h,v 1.3 2006/02/23 16:56:34 rahatlou Exp $
  **/
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <iostream>
 
 class EcalADCToGeVConstant {
@@ -23,6 +25,8 @@ class EcalADCToGeVConstant {
   private:
     float EBvalue_;
     float EEvalue_;
+
+  COND_SERIALIZABLE;
 };
 
 /**

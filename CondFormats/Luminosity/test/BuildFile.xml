@@ -1,0 +1,3 @@
+<bin file="testSerializationLuminosity.cpp">
+    <use   name="CondFormats/Luminosity"/>
+</bin>

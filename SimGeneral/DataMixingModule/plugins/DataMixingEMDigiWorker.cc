@@ -90,7 +90,6 @@ namespace edm
      EBDigis = pEBDigis.product(); // get a ptr to the product
      LogDebug("DataMixingEMDigiWorker") << "total # EB digis: " << EBDigis->size();
    }
-   else { std::cout << "NO EBDigis! " << EBProducerSig_.label() << " " << EBdigiCollectionSig_.label() << std::endl;}
  
    if (EBDigis)
      {

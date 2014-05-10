@@ -194,21 +194,19 @@ namespace edm {
     class ModuleSignalSentry {
     public:
       ModuleSignalSentry(ActivityRegistry *a,
-                         ModuleDescription const& md,
                          typename T::Context const* context,
                          ModuleCallingContext* moduleCallingContext) :
-        a_(a), md_(&md), context_(context), moduleCallingContext_(moduleCallingContext) {
+        a_(a), context_(context), moduleCallingContext_(moduleCallingContext) {
 
-	if(a_) T::preModuleSignal(a_, md_, context, moduleCallingContext_);
+	if(a_) T::preModuleSignal(a_, context, moduleCallingContext_);
       }
 
       ~ModuleSignalSentry() {
-	if(a_) T::postModuleSignal(a_, md_, context_, moduleCallingContext_);
+	if(a_) T::postModuleSignal(a_, context_, moduleCallingContext_);
       }
 
     private:
       ActivityRegistry* a_;
-      ModuleDescription const* md_;
       typename T::Context const* context_;
       ModuleCallingContext* moduleCallingContext_;
     };
@@ -394,7 +392,7 @@ namespace edm {
         }
 
         moduleCallingContext_.setState(ModuleCallingContext::State::kRunning);
-        ModuleSignalSentry<T> cpp(actReg_.get(), description(), context, &moduleCallingContext_);
+        ModuleSignalSentry<T> cpp(actReg_.get(), context, &moduleCallingContext_);
         rc = workerhelper::CallImpl<T>::call(this,streamID,ep,es, &moduleCallingContext_);
 
         if (rc) {

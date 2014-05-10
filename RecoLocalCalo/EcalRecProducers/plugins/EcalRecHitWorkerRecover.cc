@@ -430,6 +430,7 @@ float EcalRecHitWorkerRecover::recCheckCalib(float eTT, int ieta){
 
 // return false is the channel has status  in the list of statusestoexclude
 // true otherwise (channel ok)
+// Careful: this function works on raw (encoded) channel statuses
 bool EcalRecHitWorkerRecover::checkChannelStatus(const DetId& id, 
 						 const std::vector<int>& statusestoexclude){
   
@@ -441,7 +442,7 @@ bool EcalRecHitWorkerRecover::checkChannelStatus(const DetId& id,
   EcalChannelStatus::const_iterator chIt = chStatus_->find( id );
   uint16_t dbStatus = 0;
   if ( chIt != chStatus_->end() ) {
-    dbStatus = chIt->getStatusCode();
+    dbStatus = chIt->getEncodedStatusCode();
   } else {
     edm::LogError("ObjectNotFound") << "No channel status found for xtal " 
 				    << id.rawId() 

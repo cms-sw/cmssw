@@ -46,7 +46,7 @@ class InOutConversionSeedFinder : public ConversionSeedFinder {
     
     
     
-    InOutConversionSeedFinder( const edm::ParameterSet& config );
+  InOutConversionSeedFinder( const edm::ParameterSet& config,edm::ConsumesCollector && iC);
   
   
   

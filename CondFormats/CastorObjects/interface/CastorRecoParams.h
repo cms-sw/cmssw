@@ -2,6 +2,8 @@
 #define CastorRecoParams_h
 
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/CastorObjects/interface/CastorRecoParam.h"
 #include "CondFormats/CastorObjects/interface/CastorCondObjectContainer.h"
 
@@ -15,5 +17,7 @@ class CastorRecoParams: public CastorCondObjectContainer<CastorRecoParam>
 
  private:
 
+
+ COND_SERIALIZABLE;
 };
 #endif

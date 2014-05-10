@@ -22,6 +22,8 @@
 #ifndef CondFormatsL1TObjects_L1MuGMTScales_h
 #define CondFormatsL1TObjects_L1MuGMTScales_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <cmath>
 #include <iostream>
 
@@ -236,6 +238,8 @@ class L1MuGMTScales {
   L1MuBinnedScale m_DeltaPhiScale;
   L1MuSymmetricBinnedScale m_OvlEtaScale[4];
 /*   L1MuBinnedScale m_CaloEtaScale; */
+
+ COND_SERIALIZABLE;
 };
 
 

@@ -17,6 +17,8 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "FWCore/Utilities/interface/ConstRespectingPtr.h"
 
@@ -43,6 +45,9 @@ class DTCCBId {
   int   wheelId;
   int stationId;
   int  sectorId;
+
+
+ COND_SERIALIZABLE;
 };
 
 
@@ -55,6 +60,9 @@ class DTConfigKey {
 
   int confType;
   int confKey;
+
+
+ COND_SERIALIZABLE;
 };
 
 
@@ -122,6 +130,8 @@ class DTCCBConfig {
   std::vector<DTConfigKey> fullConfigKey;
   std::vector< std::pair<DTCCBId,int> > dataList;
 
-  edm::ConstRespectingPtr<DTBufferTreeUniquePtr> dBuf;
+  edm::ConstRespectingPtr<DTBufferTreeUniquePtr> dBuf COND_TRANSIENT;
+
+ COND_SERIALIZABLE;
 };
 #endif // DTCCBConfig_H

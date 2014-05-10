@@ -1,6 +1,8 @@
 #ifndef EcalTPGLutIdMap_h
 #define EcalTPGLutIdMap_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <map>
 #include <boost/cstdint.hpp>
 #include "CondFormats/EcalObjects/interface/EcalTPGLut.h"
@@ -20,6 +22,8 @@ class EcalTPGLutIdMap
  private:
   EcalTPGLutMap map_ ;
 
+
+ COND_SERIALIZABLE;
 };
 
 #endif

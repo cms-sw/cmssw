@@ -60,21 +60,15 @@ g4SimHits = cms.EDProducer("OscarProducer",
             OCMS = cms.PSet(
                 Stepper = cms.string('G4ClassicalRK4'),
                 Type = cms.string('CMSIMField'),
-                G4ClassicalRK4 = cms.PSet(
+                StepperParam = cms.PSet(
                     MaximumEpsilonStep = cms.untracked.double(0.01), ## in mm
-
                     DeltaOneStep = cms.double(0.001), ## in mm
-
                     MaximumLoopCounts = cms.untracked.double(1000.0),
                     DeltaChord = cms.double(0.001), ## in mm
-
                     MinStep = cms.double(0.1), ## in mm
-
                     DeltaIntersectionAndOneStep = cms.untracked.double(-1.0),
                     DeltaIntersection = cms.double(0.0001), ## in mm
-
                     MinimumEpsilonStep = cms.untracked.double(1e-05) ## in mm
-
                 )
             )
         ),
@@ -131,8 +125,9 @@ g4SimHits = cms.EDProducer("OscarProducer",
         # string HepMCProductLabel = "VtxSmeared"
         HepMCProductLabel = cms.string('generator'),
         ApplyPCuts = cms.bool(True),
-        MinPCut = cms.double(0.04), ## the pt-cut is in GeV (CMS conventions)
-        MaxPCut = cms.double(99999.0), ## the ptmax=99.TeV in this case
+        ApplyPtransCut = cms.bool(False),
+        MinPCut = cms.double(0.04), ## the cut is in GeV 
+        MaxPCut = cms.double(99999.0), ## the pmax=99.TeV in this case
         ApplyEtaCuts = cms.bool(True),
         MinEtaCut = cms.double(-5.5),
         MaxEtaCut = cms.double(5.5),

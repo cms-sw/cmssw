@@ -22,10 +22,12 @@
 
 namespace edm { class DQMHttpSource; class ParameterSet; class ActivityRegistry;}
 namespace lat { class Regexp; }
+namespace dqmstorepb {class ROOTFilePB; class ROOTFilePB_Histo;}
 
 class MonitorElement;
 class QCriterion;
 class TFile;
+class TBufferFile;
 class TObject;
 class TH1;
 class TObjString;
@@ -162,6 +164,8 @@ class DQMStore
     void cd(void);
     void cd(const std::string &dir);
     void setCurrentFolder(const std::string &fullpath);
+    void goUp(void);
+    const std::string & pwd(void);
     void tag(MonitorElement *, unsigned int);
 
    private:
@@ -184,26 +188,20 @@ class DQMStore
    public:
     friend class DQMStore;
 
-    MonitorElement * get(const std::string &path) {
-      return owner_->get(path);
-    }
-    std::vector<std::string> getSubdirs(void) {
-      return owner_->getSubdirs();
-    }
-    std::vector<std::string> getMEs(void) {
-      return owner_->getMEs();
-    }
-    bool containsAnyMonitorable(const std::string &path) {
-      return owner_->containsAnyMonitorable(path);
-    }
     // for the supported syntaxes, see the declarations of DQMStore::getContents
     template <typename... Args>
     std::vector<MonitorElement *> getContents(Args && ... args) {
       return owner_->getContents(std::forward<Args>(args)...);
     }
-    bool dirExists(const std::string &path) {
-      return owner_->dirExists(path);
-    }
+
+    MonitorElement * get(const std::string &path);
+    std::vector<std::string> getSubdirs(void);
+    std::vector<std::string> getMEs(void);
+    bool containsAnyMonitorable(const std::string &path);
+    bool dirExists(const std::string &path);
+    void cd(void);
+    void cd(const std::string &dir);
+    void setCurrentFolder(const std::string &fullpath);
 
    private:
     explicit IGetter(DQMStore * store):owner_(0) {
@@ -520,6 +518,8 @@ class DQMStore
 
   //-------------------------------------------------------------------------
   // ---------------------- public I/O --------------------------------------
+  void                          savePB(const std::string &filename,
+                                       const std::string &path = "");
   void                          save(const std::string &filename,
                                      const std::string &path = "",
                                      const std::string &pattern = "",
@@ -553,7 +553,7 @@ class DQMStore
   int                           useQTestByMatch(const std::string &pattern, const std::string &qtname);
   void                          runQTests(void);
   int                           getStatus(const std::string &path = "") const;
-  void        scaleElements(void);
+  void                          scaleElements(void);
 
  private:
   // ---------------- Navigation -----------------------
@@ -563,6 +563,12 @@ class DQMStore
   bool                          isCollateME(MonitorElement *me) const;
 
   // ------------------- Private "getters" ------------------------------
+  bool                          readFilePB(const std::string &filename,
+                                           bool overwrite = false,
+                                           const std::string &path ="",
+                                           const std::string &prepend = "",
+                                           OpenRunDirs stripdirs = StripRunDirs,
+                                           bool fileMustExist = true);
   bool                          readFile(const std::string &filename,
                                          bool overwrite = false,
                                          const std::string &path ="",
@@ -583,6 +589,10 @@ class DQMStore
                                            const uint32_t lumi = 0,
                                            const uint32_t streamId = 0,
                                            const uint32_t moduleId = 0) const;
+  void                          get_info(const  dqmstorepb::ROOTFilePB_Histo &,
+                                         std::string & dirname,
+                                         std::string & objname,
+                                         TH1 ** obj);
 
  public:
   void                          getAllTags(std::vector<std::string> &into) const;
@@ -606,7 +616,8 @@ class DQMStore
   void                          reset(void);
   void        forceReset(void);
 
-  bool                          extract(TObject *obj, const std::string &dir, bool overwrite);
+  bool        extract(TObject *obj, const std::string &dir, bool overwrite);
+  TObject *   extractNextObject(TBufferFile&) const;
 
   // ---------------------- Booking ------------------------------------
   MonitorElement *              initialise(MonitorElement *me, const std::string &path);
@@ -691,8 +702,3 @@ class DQMStore
 };
 
 #endif // DQMSERVICES_CORE_DQM_STORE_H
-
-/* Local Variables: */
-/* show-trailing-whitespace: t */
-/* truncate-lines: t */
-/* End: */

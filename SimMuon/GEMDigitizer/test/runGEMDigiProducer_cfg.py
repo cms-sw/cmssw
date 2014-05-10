@@ -33,7 +33,7 @@ process.GlobalTag.globaltag = 'POSTLS161_V12::All'
 process.load('SimMuon.GEMDigitizer.muonGEMDigis_cfi')
 
 # GEM-CSC trigger pad digi producer
-process.load('SimMuon.GEMDigitizer.muonGEMCSCPadDigis_cfi')
+process.load('SimMuon.GEMDigitizer.muonGEMPadDigis_cfi')
 
 # customization of the process.pdigi sequence to add the GEM digitizer 
 from SimMuon.GEMDigitizer.customizeGEMDigi import *

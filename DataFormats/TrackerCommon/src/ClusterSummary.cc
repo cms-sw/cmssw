@@ -8,7 +8,7 @@ ClusterSummary::ClusterSummary()
 
 ClusterSummary::~ClusterSummary()
 {
-    delete userContent;
+    delete userContent.load();
     userContent = nullptr;
 }
 

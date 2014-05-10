@@ -44,6 +44,9 @@
 #include <unordered_map>
 
 #include <iostream>
+#ifdef EDM_ML_DEBUG
+#include <atomic>
+#endif
 
 class RectangularPixelTopology;
 class MagneticField;
@@ -217,8 +220,8 @@ private:
 
   //--- Counters
 #ifdef EDM_ML_DEBUG
-  mutable int    nRecHitsTotal_ ; //for debugging only
-  mutable int    nRecHitsUsedEdge_ ; //for debugging only
+  mutable std::atomic<int>    nRecHitsTotal_ ; //for debugging only
+  mutable std::atomic<int>    nRecHitsUsedEdge_ ; //for debugging only
 #endif 
 
   // Added new members

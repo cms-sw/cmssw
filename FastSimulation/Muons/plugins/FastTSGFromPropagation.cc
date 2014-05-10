@@ -556,11 +556,11 @@ void FastTSGFromPropagation::adjust(TrajectoryStateOnSurface & state) const {
   CurvilinearTrajectoryError sfMat = theErrorMatrixAdjuster->get(state.globalMomentum());//FIXME with position
   MuonErrorMatrix::multiply(oMat, sfMat);
   
-  state = TrajectoryStateOnSurface(state.globalParameters(),
+  state = TrajectoryStateOnSurface(state.weight(),
+                                   state.globalParameters(),
 				   oMat,
 				   state.surface(),
-				   state.surfaceSide(),
-				   state.weight());
+				   state.surfaceSide());
 }
 
 void FastTSGFromPropagation::stateOnDet(const TrajectoryStateOnSurface& ts,

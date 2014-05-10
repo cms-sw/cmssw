@@ -1,6 +1,8 @@
 #ifndef HcalCovarianceMatrices_h
 #define HcalCovarianceMatrices_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
 #include <iostream>
 #include <vector>
@@ -32,6 +34,8 @@ class HcalCovarianceMatrices: public HcalCondObjectContainerBase
       std::vector<HcalCovarianceMatrix> HEcontainer;
       std::vector<HcalCovarianceMatrix> HOcontainer;
       std::vector<HcalCovarianceMatrix> HFcontainer;
+
+ COND_SERIALIZABLE;
 };
 
 #endif

@@ -41,7 +41,7 @@ SiStripHashedDetId* SiStripHashedDetIdESModule::make( const SiStripHashedDetIdRc
 
   TrackerGeometry::DetUnitContainer::const_iterator iter = geom->detUnits().begin();
   for( ; iter != geom->detUnits().end(); ++iter ) {
-    const StripGeomDetUnit* strip = dynamic_cast<StripGeomDetUnit*>(*iter);
+    const auto strip = dynamic_cast<StripGeomDetUnit const*>(*iter);
     if ( strip ) { dets.push_back( (strip->geographicalId()).rawId() ); }
   }
   edm::LogVerbatim(mlDqmCommon_)

@@ -33,7 +33,7 @@ pfRecoTauDiscriminationByIsolation = cms.EDProducer("PFRecoTauDiscriminationByIs
 
     # This must correspond to the cone size of the algorithm which built the
     # tau. (or if customOuterCone option is used, the custom cone size)
-    isoConeSizeForDeltaBeta = cms.double(0.5),
+    isoConeSizeForDeltaBeta = cms.double(0.4),
     # The delta beta factor maps the expected neutral contribution in the
     # isolation cone from the observed PU charged contribution.  This factor can
     # optionally be a function (use 'x') of the number of vertices in the event
@@ -47,7 +47,7 @@ pfRecoTauDiscriminationByIsolation = cms.EDProducer("PFRecoTauDiscriminationByIs
 
     # Rho corrections
     applyRhoCorrection = cms.bool(False),
-    rhoProducer = cms.InputTag("kt6PFJets", "rho"),
-    rhoConeSize = cms.double(0.5),
+    rhoProducer = cms.InputTag("fixedGridRhoFastjetAll"),
+    rhoConeSize = cms.double(0.4),
     rhoUEOffsetCorrection = cms.double(1.0)
 )

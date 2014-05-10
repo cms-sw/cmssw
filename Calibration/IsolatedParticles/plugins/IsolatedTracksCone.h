@@ -202,17 +202,6 @@ private:
 
   std::vector<double>* t_nRH_h3x3         ;
   std::vector<double>* t_nRH_h5x5         ;
-  std::vector<double>* t_nRH_h3x3dR       ;
-  std::vector<double>* t_nRH_h5x5dR       ;
-  std::vector<double>* t_nRH_h7x7dR       ;
-  std::vector<double>* t_nRH_h9x9dR       ;
-  std::vector<double>* t_nRH_h40cm        ;
-
-  std::vector<double>* t_nRH_hsim3x3dR    ;
-  std::vector<double>* t_nRH_hsim5x5dR    ;
-  std::vector<double>* t_nRH_hsim7x7dR    ;
-  std::vector<double>* t_nRH_hsim9x9dR    ;
-  std::vector<double>* t_nRH_hsim40cm     ;
 
   std::vector<double>* t_hsim3x3Matched   ;
   std::vector<double>* t_hsim5x5Matched   ;

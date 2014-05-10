@@ -17,7 +17,9 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
+#include "CondFormats/Serialization/interface/Serializable.h"
 #include "FWCore/Utilities/interface/ConstRespectingPtr.h"
+
 class DTChamberId;
 
 //---------------
@@ -44,6 +46,8 @@ class DTLVStatusId {
   int stationId;
   int  sectorId;
 
+
+ COND_SERIALIZABLE;
 };
 
 
@@ -59,6 +63,8 @@ class DTLVStatusData {
   int flagCMC;
   int flagDMC;
 
+
+ COND_SERIALIZABLE;
 };
 
 
@@ -153,10 +159,12 @@ class DTLVStatus {
 
   std::vector< std::pair<DTLVStatusId,DTLVStatusData> > dataList;
 
-  edm::ConstRespectingPtr<DTBufferTree<int,int> > dBuf;
+  edm::ConstRespectingPtr<DTBufferTree<int,int> > dBuf COND_TRANSIENT;
 
   /// read and store full content
   std::string mapName() const;
 
+
+ COND_SERIALIZABLE;
 };
 #endif // DTLVStatus_H
