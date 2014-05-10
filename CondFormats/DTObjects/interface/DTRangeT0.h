@@ -18,6 +18,8 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
 #include "FWCore/Utilities/interface/ConstRespectingPtr.h"
 
@@ -46,6 +48,8 @@ class DTRangeT0Id {
   int  sectorId;
   int      slId;
 
+
+ COND_SERIALIZABLE;
 };
 
 
@@ -59,6 +63,8 @@ class DTRangeT0Data {
   int t0min;
   int t0max;
 
+
+ COND_SERIALIZABLE;
 };
 
 
@@ -147,10 +153,12 @@ class DTRangeT0 {
 
   std::vector< std::pair<DTRangeT0Id,DTRangeT0Data> > dataList;
 
-  edm::ConstRespectingPtr<DTBufferTree<int,int> > dBuf;
+  DTBufferTree<int,int>* dBuf COND_TRANSIENT;
 
   /// read and store full content
   std::string mapName() const;
 
+
+ COND_SERIALIZABLE;
 };
 #endif // DTRangeT0_H

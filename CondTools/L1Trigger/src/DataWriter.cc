@@ -6,6 +6,8 @@
 #include "CondCore/IOVService/interface/IOVProxy.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 
+#include "CondCore/CondDB/interface/Serialization.h"
+
 #include <utility>
 
 namespace l1t

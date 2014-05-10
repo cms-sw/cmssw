@@ -124,6 +124,8 @@ namespace cond {
           coral::Context::instance().loadComponent( authServiceName, m_pluginManager );
       }
       
+      std::cout << "==> using " << servName << " for auth, sys " << authSys << std::endl;
+      
       coralConfig.setAuthenticationService( authServiceName );
     }
     

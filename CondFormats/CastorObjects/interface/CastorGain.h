@@ -7,6 +7,8 @@
 POOL object to store Gain values 4xCapId
 */
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <boost/cstdint.hpp>
 
 class CastorGain {
@@ -35,6 +37,8 @@ class CastorGain {
   float mValue1;
   float mValue2;
   float mValue3;
+
+ COND_SERIALIZABLE;
 };
 
 #endif

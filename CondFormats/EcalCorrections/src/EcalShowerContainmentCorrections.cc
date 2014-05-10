@@ -7,6 +7,8 @@
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 //#include <iostream>
 
+#include "CondCore/CondDB/interface/Serialization.h"
+#include "CondFormats/External/interface/EcalDetID.h"
 
 const EcalShowerContainmentCorrections::Coefficients
 EcalShowerContainmentCorrections::correctionCoefficients(const EBDetId& centerxtal) const 
