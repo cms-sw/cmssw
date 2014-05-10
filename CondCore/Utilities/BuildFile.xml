@@ -28,6 +28,7 @@
 <use   name="CondFormats/L1TObjects"/>
 <use   name="CondFormats/PhysicsToolsObjects"/>
 <use   name="CondFormats/GeometryObjects"/>
+<use   name="CondFormats/RecoMuonObjects"/>
 <use   name="CondFormats/RPCObjects"/>
 <use   name="CondFormats/RunInfo"/>
 <use   name="CondFormats/SiPixelObjects"/>

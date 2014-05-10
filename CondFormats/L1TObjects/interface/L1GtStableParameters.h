@@ -18,6 +18,8 @@
  */
 
 // system include files
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 
 #include <ostream>
@@ -236,6 +238,8 @@ private:
     /// one unit in the word is UnitLength bits
     int m_unitLength;
 
+
+    COND_SERIALIZABLE;
 };
 
 #endif /*CondFormats_L1TObjects_L1GtStableParameters_h*/

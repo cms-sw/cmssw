@@ -7,6 +7,8 @@
 POOL object to store time offsets
 */
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
 #include "CondFormats/HcalObjects/interface/HcalTimeCorr.h"
 
@@ -23,6 +25,8 @@ class HcalTimeCorrs: public HcalCondObjectContainer<HcalTimeCorr>
   std::string myname() const {return (std::string)"HcalTimeCorrs";}
 
  private:
+
+ COND_SERIALIZABLE;
 };
 
 #endif

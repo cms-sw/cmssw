@@ -1,5 +1,5 @@
-#include "CondFormats/RecoMuonObjects/interface/MuScleFitDBobject.h"
-#include "CondFormats/RecoMuonObjects/interface/DYTThrObject.h"
+#include "CondFormats/RecoMuonObjects/src/headers.h"
+
 
 namespace CondFormats_RecoMuonObjects {
   struct dictionary {
