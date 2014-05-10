@@ -20,8 +20,11 @@
 
 namespace reco {
   class TrackExtrapolation {
-    typedef ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t> > Point;
-    typedef ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<Double32_t> > Vector;
+    // Next two typedefs use double in ROOT 6 rather than Double32_t due to a bug in ROOT 5,
+    // which otherwise would make ROOT5 files unreadable in ROOT6.  This does not increase
+    // the size on disk, because due to the bug, double was actually stored on disk in ROOT 5.
+    typedef ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double> > Point;
+    typedef ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double> > Vector;
   public:
 
 
