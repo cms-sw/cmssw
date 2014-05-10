@@ -40,7 +40,7 @@ process.MessageLogger.cout.ClusterFound = cms.untracked.PSet(
 
 
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(options.maxEvents) )
 
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(options.inputFiles),
@@ -92,8 +92,8 @@ process.overlapproblemtsosanalyzer.tsosHMConf.wantedSubDets = OccupancyPlotsTECx
 process.overlapproblemtsosanalyzer.tsosHMConf.wantedSubDets.extend(OccupancyPlotsTECxOddEvenWantedSubDets)
 process.overlapproblemtsosanalyzer.tsosHMConf.wantedSubDets.extend(OccupancyPlotsFPIXR1WantedSubDets)
 process.overlapproblemtsosanalyzer.tsosHMConf.wantedSubDets.extend(OccupancyPlotsFPIXR2WantedSubDets)
-process.overlapproblemtsosanalyzer.tsosHMConf.wantedSubDets.extend(OccupancyPlotsFPIXmD810R2DetailedWantedSubDets)
-process.overlapproblemtsosanalyzer.tsosHMConf.wantedSubDets.extend(OccupancyPlotsFPIXpD810R2DetailedWantedSubDets)
+process.overlapproblemtsosanalyzer.tsosHMConf.wantedSubDets.extend(OccupancyPlotsFPIXmDetailedWantedSubDets)
+process.overlapproblemtsosanalyzer.tsosHMConf.wantedSubDets.extend(OccupancyPlotsFPIXpDetailedWantedSubDets)
 
 process.overlapproblemtsosall = process.overlapproblemtsosanalyzer.clone(onlyValidRecHit = cms.bool(False))
 
@@ -107,8 +107,8 @@ process.spclusmultprod.wantedSubDets.extend(OccupancyPlotsPixelWantedSubDets)
 process.spclusmultprodontrack=process.spclusmultprod.clone(clusterdigiCollection = cms.InputTag("AlignmentTrackSelector"))
 
 process.spclusmultprodxy = process.spclusmultprod.clone()
-process.spclusmultprodxy.wantedSubDets = OccupancyPlotsFPIXmD810R2DetailedWantedSubDets
-process.spclusmultprodxy.wantedSubDets.extend(OccupancyPlotsFPIXpD810R2DetailedWantedSubDets)
+process.spclusmultprodxy.wantedSubDets = OccupancyPlotsFPIXmDetailedWantedSubDets
+process.spclusmultprodxy.wantedSubDets.extend(OccupancyPlotsFPIXpDetailedWantedSubDets)
 process.spclusmultprodxyontrack=process.spclusmultprodxy.clone(clusterdigiCollection = cms.InputTag("AlignmentTrackSelector"))
 
 process.spclusoccuprod = cms.EDProducer("SiPixelClusterMultiplicityProducer",
@@ -120,8 +120,8 @@ process.spclusoccuprod.wantedSubDets.extend(OccupancyPlotsPixelWantedSubDets)
 process.spclusoccuprodontrack=process.spclusoccuprod.clone(clusterdigiCollection = cms.InputTag("AlignmentTrackSelector"))
 
 process.spclusoccuprodxy = process.spclusoccuprod.clone()
-process.spclusoccuprodxy.wantedSubDets = OccupancyPlotsFPIXmD810R2DetailedWantedSubDets
-process.spclusoccuprodxy.wantedSubDets.extend(OccupancyPlotsFPIXpD810R2DetailedWantedSubDets)
+process.spclusoccuprodxy.wantedSubDets = OccupancyPlotsFPIXmDetailedWantedSubDets
+process.spclusoccuprodxy.wantedSubDets.extend(OccupancyPlotsFPIXpDetailedWantedSubDets)
 process.spclusoccuprodxyontrack=process.spclusoccuprodxy.clone(clusterdigiCollection = cms.InputTag("AlignmentTrackSelector"))
 
 process.seqMultProd = cms.Sequence(
@@ -212,7 +212,7 @@ process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 
 
 process.TFileService = cms.Service('TFileService',
-                                   fileName = cms.string('OverlapProblem_tpanalyzer.root')
+                                   fileName = cms.string('OverlapProblem_tpanalyzer_'+options.tag+'.root')
                                    )
 
 process = customise_Reco(process,0)
