@@ -7,6 +7,8 @@
 POOL container to store Pedestal values 4xCapId, using template
 */
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/HcalObjects/interface/HcalPedestal.h"
 #include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
 
@@ -32,6 +34,8 @@ class HcalPedestals: public HcalCondObjectContainer<HcalPedestal>
  private:
   bool unitIsADC;
 
+
+ COND_SERIALIZABLE;
 };
 
 #endif

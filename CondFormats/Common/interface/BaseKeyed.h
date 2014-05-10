@@ -1,6 +1,8 @@
 #ifndef Cond_BaseKeyed_h
 #define Cond_BaseKeyed_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <string>
 
 /*  A Simple base class to avoid useless templates and infinite declaration of
@@ -21,7 +23,9 @@ namespace cond {
   private:
     // the key as string
     std::string m_key;
-  };
+  
+  COND_SERIALIZABLE;
+};
 
 }
 #endif

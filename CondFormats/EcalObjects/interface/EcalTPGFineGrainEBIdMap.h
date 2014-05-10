@@ -1,6 +1,8 @@
 #ifndef EcalTPGFineGrainEBIdMap_h
 #define EcalTPGFineGrainEBIdMap_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <map>
 #include <boost/cstdint.hpp>
 #include "CondFormats/EcalObjects/interface/EcalTPGFineGrainConstEB.h"
@@ -20,6 +22,8 @@ class EcalTPGFineGrainEBIdMap
  private:
   EcalTPGFineGrainEBMap map_ ;
 
+
+ COND_SERIALIZABLE;
 };
 
 #endif

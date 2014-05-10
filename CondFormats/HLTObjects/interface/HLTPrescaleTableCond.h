@@ -1,6 +1,8 @@
 #ifndef CondFormats_HLTObjects_HLTPrescaleTableCond_h
 #define CondFormats_HLTObjects_HLTPrescaleTableCond_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "DataFormats/HLTReco/interface/HLTPrescaleTable.h"
 
 namespace trigger {
@@ -15,6 +17,8 @@ namespace trigger {
     const trigger::HLTPrescaleTable& hltPrescaleTable() const {return hltPrescaleTable_;}
     /// data member
     trigger::HLTPrescaleTable hltPrescaleTable_;
+    
+    COND_SERIALIZABLE;
   };
 }
 #endif

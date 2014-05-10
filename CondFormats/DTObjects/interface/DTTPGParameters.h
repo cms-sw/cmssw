@@ -17,6 +17,8 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/DTObjects/interface/DTTimeUnits.h"
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "FWCore/Utilities/interface/ConstRespectingPtr.h"
@@ -45,6 +47,8 @@ class DTTPGParametersId   {
   int stationId;
   int  sectorId;
 
+
+ COND_SERIALIZABLE;
 };
 
 
@@ -58,6 +62,8 @@ class DTTPGParametersData {
   int   nClock;
   float tPhase;
 
+
+ COND_SERIALIZABLE;
 };
 
 
@@ -138,9 +144,11 @@ class DTTPGParameters {
 
   std::vector< std::pair<DTTPGParametersId,DTTPGParametersData> > dataList;
 
-  edm::ConstRespectingPtr<DTBufferTree<int,int> > dBuf;
+  edm::ConstRespectingPtr<DTBufferTree<int,int> > dBuf COND_TRANSIENT;
 
   std::string mapName() const;
 
+
+ COND_SERIALIZABLE;
 };
 #endif // DTTPGParameters_H

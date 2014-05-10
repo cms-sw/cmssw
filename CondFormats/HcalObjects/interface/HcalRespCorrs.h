@@ -7,6 +7,8 @@
 POOL object to store Hcal Response Corrections
 */
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
 #include "CondFormats/HcalObjects/interface/HcalRespCorr.h"
 
@@ -23,6 +25,8 @@ class HcalRespCorrs: public HcalCondObjectContainer<HcalRespCorr>
   std::string myname() const {return (std::string)"HcalRespCorrs";}
 
  private:
+
+ COND_SERIALIZABLE;
 };
 
 #endif
