@@ -72,12 +72,6 @@ namespace edm {
 
          ObsoleteSignal() = default;
 
-         template<typename... Args>
-         void emit(Args&&... args) const {}
-         
-         template<typename... Args>
-         void operator()(Args&&... args) const {}
-
          template<typename U>
          void connect(U iFunc) {
             throwObsoleteSignalException();
