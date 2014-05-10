@@ -55,6 +55,10 @@ process.p = cms.Path(
     process.calotoweroptmaker *
     process.calotoweroptmakerWithHO *
     process.towerMakerWithHO *
+    process.caloMet *
+    process.caloMetBEFO *
+    process.caloMetBE *
+    process.caloMetBEO *
     process.met *
     process.metNoHF *
     process.metHO *
