@@ -142,7 +142,7 @@ process.out.outputCommands += ['keep *_QJetsAdderAK8_*_*']
                                    
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #Grooming valueMaps
-"""
+
 process.load('RecoJets.Configuration.RecoPFJets_cff')
 
 patJetsCA8.userData.userFloats.src += ['ca8PFJetsCHSPrunedLinks','ca8PFJetsCHSTrimmedLinks','ca8PFJetsCHSFilteredLinks']
@@ -168,7 +168,7 @@ process.cmsTopTagPFJetsCHSLinksAK8.matched = cms.InputTag("cmsTopTagPFJetsCHS")
 
 patJetsAK8.userData.userFloats.src += ['cmsTopTagPFJetsCHSLinksAK8']
 process.out.outputCommands += ['keep *_cmsTopTagPFJetsCHSLinksAK8_*_*']
-"""
+
 ####################################################################################################
 
 ## ------------------------------------------------------
