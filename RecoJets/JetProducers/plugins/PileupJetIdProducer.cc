@@ -33,7 +33,7 @@ PileupJetIdProducer::PileupJetIdProducer(const edm::ParameterSet& iConfig)
 	jec_ =  iConfig.getParameter<std::string>("jec");
 	rho_ = iConfig.getParameter<edm::InputTag>("rho");
 	residualsFromTxt_ = iConfig.getParameter<bool>("residualsFromTxt");
-	residualsTxt_ = iConfig.getParameter<edm::FileInPath>("residualsTxt");
+	if(residualsFromTxt_) residualsTxt_ = iConfig.getParameter<edm::FileInPath>("residualsTxt");
 	std::vector<edm::ParameterSet> algos = iConfig.getParameter<std::vector<edm::ParameterSet> >("algos");
 	
 	jecCor_ = 0;

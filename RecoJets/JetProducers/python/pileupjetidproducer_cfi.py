@@ -13,7 +13,7 @@ pileupJetIdCalculator = cms.EDProducer('PileupJetIdProducer',
                                        applyJec = cms.bool(False),
                                        inputIsCorrected = cms.bool(True),
                                        residualsFromTxt = cms.bool(False),
-                                       residualsTxt     = cms.FileInPath("RecoJets/JetProducers/data/dummy.txt"),
+                                       #residualsTxt     = cms.FileInPath("RecoJets/JetProducers/data/dummy.txt"),
                                        )
 
 pileupJetIdEvaluator = cms.EDProducer('PileupJetIdProducer',
@@ -29,5 +29,5 @@ pileupJetIdEvaluator = cms.EDProducer('PileupJetIdProducer',
                                       applyJec = cms.bool(False),
                                       inputIsCorrected = cms.bool(True),
                                       residualsFromTxt = cms.bool(False),
-                                      residualsTxt     = cms.FileInPath("RecoJets/JetProducers/data/dummy.txt"),
+                                      #residualsTxt     = cms.FileInPath("RecoJets/JetProducers/data/dummy.txt"),
                                       )
