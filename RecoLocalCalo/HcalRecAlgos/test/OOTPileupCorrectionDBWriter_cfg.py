@@ -11,6 +11,7 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1))
 
 process.load("CondCore.CondDB.CondDB_cfi")
 process.CondDB.connect = database
+process.CondDB.dbFormat = cms.untracked.int32(1)
 
 # Data is tagged in the database by the "tag" parameter specified in the
 # PoolDBOutputService configuration. We then check if the tag already exists.
