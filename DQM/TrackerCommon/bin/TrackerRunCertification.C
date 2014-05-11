@@ -160,7 +160,6 @@ enum Flags { // flags' enumeration
 };
 const Double_t minGood_( 0.95 );
 const Double_t maxBad_( 0.85 );
-const Int_t    iRunStartDecon_( 110213 ); // first run in deconvolution mode
 
 // Certificates and flags
 vector< TString > sRunNumbers_;

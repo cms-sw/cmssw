@@ -16,7 +16,6 @@
 //
 //
 
-static const int MAXGEN =10;
 static const int MAXRPC =20;
 static const int MAXDTBX=20;
 static const int MAXCSC =20;    

@@ -1090,7 +1090,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 		meClSizeYOnTrack_bpix->Fill((*clust).sizeY());
 		uint32_t DBlayer;
 		if (!isUpgrade) { DBlayer = PixelBarrelName(DetId((*hit).geographicalId())).layerName(); }
-                else if (isUpgrade) { DBlayer = PixelBarrelNameUpgrade(DetId((*hit).geographicalId())).layerName(); }
+                else { DBlayer = PixelBarrelNameUpgrade(DetId((*hit).geographicalId())).layerName(); }
 		float phi = clustgp.phi(); 
 		float z = clustgp.z();
 		switch(DBlayer){
