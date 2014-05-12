@@ -267,7 +267,7 @@ bool TwoBodyDecayTrajectoryFactory::match( const TrajectoryStateOnSurface& state
   double varX = le.xx();
   double varY = le.yy();
 
-  AlignmentPositionError* gape = recHit->det()->alignmentPositionError();
+  AlignmentPositionError const* gape = recHit->det()->alignmentPositionError();
   if ( gape )
   {
     ErrorFrameTransformer eft;
