@@ -166,7 +166,7 @@ workflows[34] = ['', ['QQH1352T_Tauola','DIGI','RECO','HARVEST']]
 workflows[46] = ['', ['ZmumuJets_Pt_20_300']]
 
 # wip gen-sim being made in 71x_pre7: GF wf uncomment once available 
-# workflows[7]  = ['', ['Cosmics','DIGICOS','RECOCOS','ALCACOS','HARVESTCOS']]
+workflows[7]  = ['', ['Cosmics','DIGICOS','RECOCOS','ALCACOS','HARVESTCOS']]
 workflows[8]  = ['', ['BeamHalo','DIGICOS','RECOCOS','ALCABH','HARVESTCOS']]
 workflows[11] = ['', ['MinBias','DIGI','RECOMIN','HARVEST','ALCAMIN']]
 workflows[28] = ['', ['QCD_Pt_80_120','DIGI','RECO','HARVEST']]
