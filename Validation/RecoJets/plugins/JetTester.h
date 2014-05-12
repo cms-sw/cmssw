@@ -36,9 +36,11 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 class MonitorElement;
 
-class JetTester : public edm::EDAnalyzer {
+//class JetTester : public edm::EDAnalyzer {
+class JetTester : public DQMEDAnalyzer {
  public:
 
   JetTester (const edm::ParameterSet&);
@@ -47,6 +49,7 @@ class JetTester : public edm::EDAnalyzer {
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void beginJob();
   virtual void endJob();
+  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
  private:
   
