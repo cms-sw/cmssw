@@ -230,7 +230,7 @@ void B2GDQM::analyzeEventInterpretation(const Event & iEvent, const edm::EventSe
     //const JetCorrector* pfcorrector = JetCorrector::getJetCorrector(PFJetCorService_,iSetup);
     
     for ( edm::View<reco::Jet>::const_iterator jet = pfjets.begin(),
-	    jetEnd = pfjets.end(), jetBegin = pfjets.begin();
+	    jetEnd = pfjets.end();
 	  jet != jetEnd; ++jet ) {
       if(jet->pt()<jetPtMins_[icoll]) continue;
       pfJet_pt  [icoll]->Fill(jet->pt());
