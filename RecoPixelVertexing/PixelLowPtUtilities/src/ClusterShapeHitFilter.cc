@@ -55,6 +55,7 @@ ClusterShapeHitFilter::ClusterShapeHitFilter
   // Load strip limits
   loadStripLimits();
   cutOnPixelCharge_ = cutOnStripCharge_ = false;
+  cutOnPixelShape_ = cutOnStripShape_ = true;
 }
 
 /*****************************************************************************/
@@ -306,6 +307,7 @@ bool ClusterShapeHitFilter::isCompatible
 {
  // Get detector
   if (cutOnPixelCharge_ && (!checkClusterCharge(recHit.geographicalId(), *(recHit.cluster()), ldir))) return false;
+  if (!cutOnPixelShape_) return true;
 
   const PixelData & pd = getpd(recHit,ipd);
 
@@ -387,6 +389,7 @@ bool ClusterShapeHitFilter::isCompatible
   float pred;
 
   if (cutOnStripCharge_ && (!checkClusterCharge(detId, cluster, ldir))) return false;
+  if (!cutOnStripShape_) return true;
 
   if(getSizes(detId, cluster, ldir, meas, pred))
   {
