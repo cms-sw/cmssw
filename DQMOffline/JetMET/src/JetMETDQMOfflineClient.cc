@@ -35,61 +35,29 @@ JetMETDQMOfflineClient::~JetMETDQMOfflineClient()
 { 
 }
 
-void JetMETDQMOfflineClient::beginJob(void)
+void JetMETDQMOfflineClient::dqmEndJob(DQMStore::IBooker & ibook_, DQMStore::IGetter & iget_) 
 {
- 
-
-}
-
-void JetMETDQMOfflineClient::endJob() 
-{
-}
-
-// void JetMETDQMOfflineClient::beginRun(const edm::Run& run, const edm::EventSetup& c)
-// {
-// }
-
-
-
-void JetMETDQMOfflineClient::endRun(const edm::Run& run, const edm::EventSetup& c)
-{
-  //runClient_();
-}
-
-//dummy analysis function
-void JetMETDQMOfflineClient::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup)
-{
-}
-
-void JetMETDQMOfflineClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c)
-{ 
-}
-
-void JetMETDQMOfflineClient::runClient_()
-{
-  /* -> calculates right now a histogram out of the JID pass fraction with binomial errors, but histogram is later on never used
-  if(!dbe_) return; //we dont have the DQMStore so we cant do anything
+  /*
+  // -> calculates right now a histogram out of the JID pass fraction with binomial errors, but histogram is later on never used
 
   LogDebug("JetMETDQMOfflineClient") << "runClient" << std::endl;
   if (verbose_) std::cout << "runClient" << std::endl; 
 
   std::vector<MonitorElement*> MEs;
-  std::vector<std::string> fullPathDQMFolders = dbe_->getSubdirs();
+  std::vector<std::string> fullPathDQMFolders = iget_.getSubdirs();
 
-  dbe_->setCurrentFolder(dirName_+"/"+dirNameJet_);
+  ibook_.setCurrentFolder(dirName_+"/"+dirNameJet_);
 
   // Look at all folders (JetMET/Jet/AntiKtJets,JetMET/Jet/CleanedAntiKtJets, etc)
-  fullPathDQMFolders.clear();
-  fullPathDQMFolders = dbe_->getSubdirs();
   for(unsigned int i=0;i<fullPathDQMFolders.size();i++) {
     if (verbose_) std::cout << fullPathDQMFolders[i] << std::endl;      
-    dbe_->setCurrentFolder(fullPathDQMFolders[i]);
-    std::vector<std::string> getMEs = dbe_->getMEs();
+    ibook_.setCurrentFolder(fullPathDQMFolders[i]);
+    std::vector<std::string> getMEs = iget_.getMEs();
     std::vector<std::string>::const_iterator cii;
     for(cii=getMEs.begin(); cii!=getMEs.end(); cii++) {
       if ((*cii).find("_binom")!=std::string::npos) continue;
       if ((*cii).find("JIDPassFractionVS")!=std::string::npos){  // Look for MEs with "JIDPassFractionVS"
-	me = dbe_->get(fullPathDQMFolders[i]+"/"+(*cii));
+	me = iget_.get(fullPathDQMFolders[i]+"/"+(*cii));
 	if ( me ) {	  
 	  if ( me->getRootObject() ) {
 	    TProfile *tpro = (TProfile*) me->getRootObject();

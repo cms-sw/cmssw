@@ -33,7 +33,7 @@
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
@@ -46,7 +46,7 @@
 class DQMStore;
 class MonitorElement;
 
-class JetMETDQMOfflineClient : public edm::EDAnalyzer {
+class JetMETDQMOfflineClient : public DQMEDHarvester {
  
  private:
   DQMStore* dbe_; //dbe seems to be the standard name for this, I dont know why. We of course dont own it
@@ -66,13 +66,8 @@ class JetMETDQMOfflineClient : public edm::EDAnalyzer {
   explicit JetMETDQMOfflineClient(const edm::ParameterSet& );
   virtual ~JetMETDQMOfflineClient();
   
-  virtual void beginJob(void);
-  virtual void endJob();
-  //virtual void beginRun(const edm::Run& run, const edm::EventSetup& c);
-  virtual void endRun(const edm::Run& run, const edm::EventSetup& c);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);
-  virtual void runClient_();   
+  virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) ;
+
 
 };
  
