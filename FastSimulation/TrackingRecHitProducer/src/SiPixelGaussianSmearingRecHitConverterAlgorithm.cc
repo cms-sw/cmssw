@@ -34,7 +34,6 @@
 
 //#define FAMOS_DEBUG
 
-const double PI = 3.14159265358979323;
 const double microntocm = 0.0001;
 using namespace std;
 
