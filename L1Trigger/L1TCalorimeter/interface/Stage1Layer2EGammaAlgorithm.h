@@ -36,8 +36,8 @@ namespace l1t {
 			      std::vector<l1t::EGamma>* egammas) = 0;
 
     virtual ~Stage1Layer2EGammaAlgorithm(){};
-    bool PUSubtract;
-    std::vector<double> regionSubtraction;
+    std::string regionPUSType;
+    std::vector<double> regionPUSParams;
 
   private:
     // double Isolation(int ieta, int iphi,

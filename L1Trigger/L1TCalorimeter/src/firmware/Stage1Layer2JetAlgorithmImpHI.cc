@@ -22,8 +22,8 @@ using namespace l1t;
 
 Stage1Layer2JetAlgorithmImpHI::Stage1Layer2JetAlgorithmImpHI(CaloParams* params) : params_(params)
 {
-  double jetScale=params_->jetScale();
-  jetSeedThreshold= floor( params_->jetSeedThreshold()/jetScale + 0.5);
+  double jetLsb=params_->jetLsb();
+  jetSeedThreshold= floor( params_->jetSeedThreshold()/jetLsb + 0.5);
 }
 //: regionLSB_(0.5) {}
 

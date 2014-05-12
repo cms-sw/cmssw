@@ -34,6 +34,7 @@
 //#include "CondFormats/DataRecord/interface/CaloParamsRcd.h"
 //#include "CondFormats/L1TCalorimeter/interface/CaloParams.h"
 #include "CondFormats/L1TObjects/interface/CaloParams.h"
+#include "CondFormats/DataRecord/interface/L1TCaloParamsRcd.h"
 //#include "CondFormats/L1TObjects/interface/FirmwareVersion.h"
 
 #include "DataFormats/L1TCalorimeter/interface/CaloRegion.h"
@@ -75,9 +76,9 @@ namespace l1t {
 
     // ----------member data ---------------------------
     unsigned long long m_paramsCacheId; // Cache-ID from current parameters, to check if needs to be updated.
-    CaloParams* m_dbpars;
+    CaloParams* m_params;
 
-    //boost::shared_ptr<const CaloParams> m_dbpars; // Database parameters for the trigger, to be updated as needed.
+    //boost::shared_ptr<const CaloParams> m_params; // Database parameters for the trigger, to be updated as needed.
     //boost::shared_ptr<const FirmwareVersion> m_fwv;
     //boost::shared_ptr<FirmwareVersion> m_fwv; //not const during testing.
     int m_fwv;
@@ -89,6 +90,13 @@ namespace l1t {
     // to be extended with other "consumes" stuff
     EDGetToken regionToken;
     EDGetToken candsToken;
+
+    unsigned regionETCutForHT;
+    unsigned regionETCutForMET;
+    int minGctEtaForSums;
+    int maxGctEtaForSums;
+    double egRelativeJetIsolationCut;
+    double tauRelativeJetIsolationCut;
   };
 
   //
@@ -107,20 +115,14 @@ namespace l1t {
     candsToken = consumes<BXVector<l1t::CaloEmCand>>(iConfig.getParameter<InputTag>("CaloEmCands"));
     int ifwv=iConfig.getParameter<unsigned>("FirmwareVersion");  // LenA  make configurable for now
 
-    unsigned regionETCutForHT(iConfig.getParameter<unsigned int>("regionETCutForHT"));
-    unsigned regionETCutForMET(iConfig.getParameter<unsigned int>("regionETCutForMET"));
-    int minGctEtaForSums(iConfig.getParameter<int>("minGctEtaForSums"));
-    int maxGctEtaForSums(iConfig.getParameter<int>("maxGctEtaForSums"));
-    double jetSeedThreshold(iConfig.getParameter<double>("jetSeedThreshold"));
-    double egSeedThreshold(iConfig.getParameter<double>("egSeedThreshold"));
-    double tauSeedThreshold(iConfig.getParameter<double>("tauSeedThreshold"));
-    double egRelativeJetIsolationCut(iConfig.getParameter<double>("egRelativeJetIsolationCut"));
-    double tauRelativeJetIsolationCut(iConfig.getParameter<double>("tauRelativeJetIsolationCut"));
-    bool PUSubtract(iConfig.getParameter<bool>("PUSubtract"));
-    std::vector<double> regionSubtraction(iConfig.getParameter<vector<double> >("regionSubtraction"));
 
-    bool applyJetCalibration(iConfig.getParameter<bool>("applyJetCalibration"));
-    std::vector<double> jetSF(iConfig.getParameter<vector<double> >("jetSF"));
+    regionETCutForHT = iConfig.getParameter<unsigned int>("regionETCutForHT");
+    regionETCutForMET = iConfig.getParameter<unsigned int>("regionETCutForMET");
+    minGctEtaForSums = iConfig.getParameter<int>("minGctEtaForSums");
+    maxGctEtaForSums = iConfig.getParameter<int>("maxGctEtaForSums");
+    egRelativeJetIsolationCut = iConfig.getParameter<double>("egRelativeJetIsolationCut");
+    tauRelativeJetIsolationCut = iConfig.getParameter<double>("tauRelativeJetIsolationCut");
+
 
     //m_fwv = boost::shared_ptr<FirmwareVersion>(new FirmwareVersion()); //not const during testing
 
@@ -135,25 +137,12 @@ namespace l1t {
       std::cout << "Stage1Layer2Producer -- Unknown implementation.\n";
     }
     //m_fwv->setFirmwareVersion(ifwv); // =1 HI, =2 PP
-    // m_fw = m_factory.create(*m_fwv /*,*m_dbpars*/);
+    // m_fw = m_factory.create(*m_fwv /*,*m_params*/);
     m_fwv = ifwv;
 
-    m_dbpars = new CaloParams;
-    m_dbpars->setRegionETCutForHT(regionETCutForHT);
-    m_dbpars->setRegionETCutForMET(regionETCutForMET);
-    m_dbpars->setMinGctEtaForSums(minGctEtaForSums);
-    m_dbpars->setMaxGctEtaForSums(maxGctEtaForSums);
-    m_dbpars->setJetSeedThreshold(jetSeedThreshold);
-    m_dbpars->setEgSeedThreshold(egSeedThreshold);
-    m_dbpars->setTauSeedThreshold(tauSeedThreshold);
-    m_dbpars->setEgRelativeJetIsolationCut(egRelativeJetIsolationCut);
-    m_dbpars->setTauRelativeJetIsolationCut(tauRelativeJetIsolationCut);
-    m_dbpars->setPUSubtract(PUSubtract);
-    m_dbpars->setregionSubtraction(regionSubtraction);
-    m_dbpars->setapplyJetCalibration(applyJetCalibration);
-    m_dbpars->setjetSF(jetSF);
+    m_params = new CaloParams;
 
-    m_fw = m_factory.create(m_fwv ,m_dbpars);
+    m_fw = m_factory.create(m_fwv ,m_params);
     //printf("Success create.\n");
     if (! m_fw) {
       // we complain here once per job
@@ -273,18 +262,48 @@ Stage1Layer2Producer::endJob() {
 
 void Stage1Layer2Producer::beginRun(Run const&iR, EventSetup const&iE){
 
+  unsigned long long id = iE.get<L1TCaloParamsRcd>().cacheIdentifier();  
+  
+  if (id != m_paramsCacheId) {
+
+    m_paramsCacheId = id;
+
+    edm::ESHandle<CaloParams> paramsHandle;
+    iE.get<L1TCaloParamsRcd>().get(paramsHandle);
+
+    // replace our local copy of the parameters with a new one using placement new
+    m_params->~CaloParams();
+    m_params = new (m_params) CaloParams(*paramsHandle.product());
+    
+    LogDebug("L1TDebug") << *m_params << std::endl;
+
+    if (! m_params){
+      edm::LogError("l1t|caloStage1") << "Could not retrieve params from Event Setup" << std::endl;            
+    }
+
+  }
+
+
+  m_params->setRegionETCutForHT(regionETCutForHT);
+  m_params->setRegionETCutForMET(regionETCutForMET);
+  m_params->setMinGctEtaForSums(minGctEtaForSums);
+  m_params->setMaxGctEtaForSums(maxGctEtaForSums);
+  m_params->setEgRelativeJetIsolationCut(egRelativeJetIsolationCut);
+  m_params->setTauRelativeJetIsolationCut(tauRelativeJetIsolationCut);
+    
   LogDebug("l1t|stage 1 jets") << "Stage1Layer2Producer::beginRun function called...\n";
 
   //get the proper scales for conversion to physical et
-  edm::ESHandle< L1CaloEtScale > emScale ;
-  iE.get< L1EmEtScaleRcd >().get( emScale ) ;
+  //right now just set them in the Params cfi, rename them egLsb, jetLsb
+  //edm::ESHandle< L1CaloEtScale > emScale ;
+  //iE.get< L1EmEtScaleRcd >().get( emScale ) ;
 
-  edm::ESHandle< L1CaloEtScale > jetScale ;
-  iE.get< L1JetEtScaleRcd >().get( jetScale ) ;
+  //edm::ESHandle< L1CaloEtScale > jetScale ;
+  //iE.get< L1JetEtScaleRcd >().get( jetScale ) ;
 
 
-  m_dbpars->setEmScale(emScale->linearLsb());
-  m_dbpars->setJetScale(jetScale->linearLsb());
+  //m_params->setEgLsb(emScale->linearLsb());
+  //m_params->setJetLsb(jetScale->linearLsb());
 
   //unsigned long long id = iE.get<CaloParamsRcd>().cacheIdentifier();
 
@@ -297,7 +316,7 @@ void Stage1Layer2Producer::beginRun(Run const&iR, EventSetup const&iE){
 
     // LenA move the setting of the firmware version to the Stage1Layer2Producer constructor
 
-    //m_dbpars = boost::shared_ptr<const CaloParams>(parameters.product());
+    //m_params = boost::shared_ptr<const CaloParams>(parameters.product());
     //m_fwv = boost::shared_ptr<const FirmwareVersion>(new FirmwareVersion());
     //printf("Begin.\n");
     //m_fwv = boost::shared_ptr<FirmwareVersion>(new FirmwareVersion()); //not const during testing
@@ -305,12 +324,12 @@ void Stage1Layer2Producer::beginRun(Run const&iR, EventSetup const&iE){
     //m_fwv->setFirmwareVersion(1); //hardcode for now, 1=HI, 2=PP
     //printf("Success m_fwv version set.\n");
 
-    // if (! m_dbpars){
+    // if (! m_params){
     //   LogError("l1t|stage 1 jets") << "Stage1Layer2Producer: could not retreive DB params from Event Setup\n";
     // }
 
     // Set the current algorithm version based on DB pars from database:
-    //m_fw = m_factory.create(*m_fwv /*,*m_dbpars*/);
+    //m_fw = m_factory.create(*m_fwv /*,*m_params*/);
     //printf("Success create.\n");
 
     //if (! m_fw) {

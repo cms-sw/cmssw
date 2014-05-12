@@ -41,7 +41,7 @@ namespace l1t {
 		           const std::vector<l1t::Jet> * jets) const;
     int egSeedThreshold;
     int jetSeedThreshold;
-    double emScale, jetScale;
+    double egLsb, jetLsb;
     double egRelativeJetIsolationCut;
     // double HoverECut;
   };

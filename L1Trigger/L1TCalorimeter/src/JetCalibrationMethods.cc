@@ -13,39 +13,40 @@ namespace l1t {
     return (m.hwPt() < n.hwPt() );
   }
 
-  void JetCalibration1(std::vector<l1t::Jet> * uncalibjets,
-		       std::vector<double> jetSF,
+  void JetCalibration(std::vector<l1t::Jet> * uncalibjets,
+		       std::vector<double> jetCalibrationParams,
 		       std::vector<l1t::Jet> * jets,
-		       bool applyJetCalibration,
+		       std::string jetCalibrationType,
 		       double jetLSB) 
   {
 
     for (std::vector<l1t::Jet>::const_iterator uncalibjet = uncalibjets->begin(); uncalibjet != uncalibjets->end(); ++uncalibjet){
 
-      if (!applyJetCalibration) {
+      if (jetCalibrationType == "None") {
 	l1t::Jet corrjets = *uncalibjet;
 	jets->push_back(corrjets);
 	continue;
       }
-    
-      int jetPt = (uncalibjet->hwPt())*jetLSB;  // correction factors are parameterized as functions of physical pt
-      int jetPhi = uncalibjet->hwPhi();
-      int jetEta = uncalibjet->hwEta();
-      int jetQual = uncalibjet->hwQual();
-      double jpt = 0.0;
       
-      double alpha = jetSF[2*jetEta + 0]; //Scale factor (See jetSF_cfi.py)
-      double gamma = ((jetSF[2*jetEta + 1])); //Offset
+      if (jetCalibrationType == "Stage1JEC") {
+	int jetPt = (uncalibjet->hwPt())*jetLSB;  // correction factors are parameterized as functions of physical pt
+	int jetPhi = uncalibjet->hwPhi();
+	int jetEta = uncalibjet->hwEta();
+	int jetQual = uncalibjet->hwQual();
+	double jpt = 0.0;
       
-      jpt = jetPt*alpha+gamma;
-      unsigned int corjetET =(int) (jpt/jetLSB);
+	double alpha = jetCalibrationParams[2*jetEta + 0]; //Scale factor (See jetSF_cfi.py)
+	double gamma = ((jetCalibrationParams[2*jetEta + 1])); //Offset
       
-      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *jetLorentz =
-	new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
-      l1t::Jet corrjets(*jetLorentz, corjetET, jetEta, jetPhi, jetQual);
+	jpt = jetPt*alpha+gamma;
+	unsigned int corjetET =(int) (jpt/jetLSB);
       
-      jets->push_back(corrjets);
+	ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *jetLorentz =
+	  new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
+	l1t::Jet corrjets(*jetLorentz, corjetET, jetEta, jetPhi, jetQual);
       
+	jets->push_back(corrjets);
+      }
       
     }
     

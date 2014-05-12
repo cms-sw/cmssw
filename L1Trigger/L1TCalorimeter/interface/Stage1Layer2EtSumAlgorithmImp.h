@@ -25,7 +25,7 @@ namespace l1t {
 
   class Stage1Layer2EtSumAlgorithmImpPP : public Stage1Layer2EtSumAlgorithm {
   public:
-    Stage1Layer2EtSumAlgorithmImpPP(const CaloParams*);
+    Stage1Layer2EtSumAlgorithmImpPP(CaloParams* params);
     virtual ~Stage1Layer2EtSumAlgorithmImpPP();
     virtual void processEvent(const std::vector<l1t::CaloRegion> & regions,
 			      const std::vector<l1t::CaloEmCand> & EMCands,
@@ -35,10 +35,11 @@ namespace l1t {
     int regionETCutForHT;
     int regionETCutForMET;
     int minGctEtaForSums;
-    int maxGctEtaForSums;
+    int maxGctEtaForSums;    
 
-    double emScale,jetScale;
+    double egLsb,jetLsb;
   private:
+    CaloParams* const params_;
     double regionPhysicalEt(const l1t::CaloRegion&) const;
 
     std::vector<double> sinPhi;

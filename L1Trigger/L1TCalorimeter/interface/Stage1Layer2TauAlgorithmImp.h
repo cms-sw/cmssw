@@ -51,7 +51,7 @@ namespace l1t {
     int jetSeedThreshold;
     int switchOffTauIso;
     bool do2x1Algo;
-    double jetScale;
+    double jetLsb;
     double tauRelativeJetIsolationCut;
   };
 }

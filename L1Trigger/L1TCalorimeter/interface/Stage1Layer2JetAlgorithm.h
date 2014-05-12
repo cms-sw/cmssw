@@ -22,11 +22,12 @@ namespace l1t {
 			      const std::vector<l1t::CaloEmCand> & EMCands,
 			      std::vector<l1t::Jet> * jets) = 0;
     virtual ~Stage1Layer2JetAlgorithm(){};
+    double jetLsb;
     int jetSeedThreshold;
-    bool PUSubtract;
-    std::vector<double> regionSubtraction;
-    bool applyJetCalibration;
-    std::vector<double> jetSF;
+    std::string regionPUSType;
+    std::vector<double> regionPUSParams;
+    std::string jetCalibrationType;
+    std::vector<double> jetCalibrationParams;
 
     /* private: */
     /*   double regionLSB_; // least significant bit value. Usually = 0.5 */

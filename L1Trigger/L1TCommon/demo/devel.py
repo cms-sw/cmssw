@@ -12,9 +12,7 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 #process.load('L1Trigger/L1TYellow/l1t_debug_messages_cfi')
 #process.load('L1Trigger/L1TYellow/l1t_info_messages_cfi')
-
-from L1Trigger.L1TCalorimeter.regionSF_cfi import *
-from L1Trigger.L1TCalorimeter.jetSF_cfi import *
+process.load('L1Trigger/L1TCalorimeter/l1tStage1CaloParams_cfi')
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10)
@@ -68,16 +66,8 @@ process.Layer2HW = cms.EDProducer(
     regionETCutForMET = cms.uint32(0),
     minGctEtaForSums = cms.int32(4),
     maxGctEtaForSums = cms.int32(17),
-    jetSeedThreshold = cms.double(0.), ## seed threshold in GeV
-    egSeedThreshold = cms.double(1.), ## eg seed threshold in GeV
-    tauSeedThreshold = cms.double(7.), ## tau seed threshold in GeV
     egRelativeJetIsolationCut = cms.double(1.), ## eg isolation cut
-    tauRelativeJetIsolationCut = cms.double(1.), ## tau isolation cut
-    PUSubtract = cms.bool(True), # Correct regions for PU
-    regionSubtraction = regionSubtraction_PU40_MC13TeV,
-    #regionSubtraction = regionSubtraction_8TeV_data,
-    applyJetCalibration = cms.bool(True), # Do jet response correction for PP
-    jetSF = jetSF_8TeV_data               # jet response correction vector
+    tauRelativeJetIsolationCut = cms.double(1.) ## tau isolation cut
     )
 
 process.Layer2Phys = cms.EDProducer("l1t::PhysicalEtAdder",

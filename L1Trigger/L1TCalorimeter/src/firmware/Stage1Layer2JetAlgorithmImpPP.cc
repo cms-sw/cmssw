@@ -22,12 +22,12 @@ using namespace l1t;
 
 Stage1Layer2JetAlgorithmImpPP::Stage1Layer2JetAlgorithmImpPP(CaloParams* params) : params_(params)
 {
-  double jetScale=params_->jetScale();
-  jetSeedThreshold= floor( params_->jetSeedThreshold()/jetScale + 0.5);
-  PUSubtract = params_->PUSubtract();
-  regionSubtraction = params_->regionSubtraction();
-  applyJetCalibration = params_->applyJetCalibration();
-  jetSF = params_->jetSF();
+  jetLsb=params_->jetLsb();
+  jetSeedThreshold= floor( params_->jetSeedThreshold()/jetLsb + 0.5);
+  regionPUSType = params_->regionPUSType();
+  regionPUSParams = params_->regionPUSParams();
+  jetCalibrationType = params_->jetCalibrationType();
+  jetCalibrationParams = params_->jetCalibrationParams();
 }
 //: regionLSB_(0.5) {}
 
@@ -44,15 +44,15 @@ void Stage1Layer2JetAlgorithmImpPP::processEvent(const std::vector<l1t::CaloRegi
 
   
   //Region Correction will return uncorrected subregions 
-  //if PUSubtract is set to False in the config
-  RegionCorrection(regions, EMCands, subRegions, regionSubtraction, PUSubtract);
+  //if regionPUSType is set to None in the config
+  RegionCorrection(regions, EMCands, subRegions, regionPUSParams, regionPUSType);
   
   
   slidingWindowJetFinder(jetSeedThreshold, subRegions, uncalibjets);
 
   //will return jets with no response corrections
-  //if applyJetCalibration is set to False in the config
-  JetCalibration1(uncalibjets, jetSF, jets, applyJetCalibration,params_->jetScale());
+  //if jetCalibrationType is set to None in the config
+  JetCalibration(uncalibjets, jetCalibrationParams, jets, jetCalibrationType, jetLsb);
 
 
   delete subRegions;

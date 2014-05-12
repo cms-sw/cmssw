@@ -21,18 +21,18 @@ using namespace l1t;
 
 Stage1Layer2TauAlgorithmImpPP::Stage1Layer2TauAlgorithmImpPP(CaloParams* params) : params_(params)
 {
-  jetScale=params_->jetScale();
+  jetLsb=params_->jetLsb();
 
-  PUSubtract = params_->PUSubtract();
-  regionSubtraction = params_->regionSubtraction();
-  tauSeedThreshold= floor( params_->tauSeedThreshold()/jetScale + 0.5); // convert GeV to HW units
-  jetSeedThreshold= floor( params_->jetSeedThreshold()/jetScale + 0.5); // convert GeV to HW units
+  regionPUSType = params_->regionPUSType();
+  regionPUSParams = params_->regionPUSParams();
+  tauSeedThreshold= floor( params_->tauSeedThreshold()/jetLsb + 0.5); // convert GeV to HW units
+  jetSeedThreshold= floor( params_->jetSeedThreshold()/jetLsb + 0.5); // convert GeV to HW units
   tauRelativeJetIsolationCut = params_->tauRelativeJetIsolationCut();
 
   double dswitchOffTauIso(60.); // value at which to switch of Tau iso requirement (GeV)
   do2x1Algo=false;
 
-  switchOffTauIso= floor( dswitchOffTauIso/jetScale + 0.5);  // convert GeV to HW units
+  switchOffTauIso= floor( dswitchOffTauIso/jetLsb + 0.5);  // convert GeV to HW units
 }
 
 Stage1Layer2TauAlgorithmImpPP::~Stage1Layer2TauAlgorithmImpPP(){};
@@ -50,8 +50,8 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
 
   
   //Region Correction will return uncorrected subregions if 
-  //PUSubtract is set to False in the config
-  RegionCorrection(regions, EMCands, subRegions, regionSubtraction, PUSubtract);
+  //regionPUSType is set to None in the config
+  RegionCorrection(regions, EMCands, subRegions, regionPUSParams, regionPUSType);
   
 
 

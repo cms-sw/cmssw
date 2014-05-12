@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-OUTFILE='out_L1TEmulator.root'
+OUTFILE='out_L1TEmulatorTEST.root'
 
 process = cms.Process('L1TEMULATION')
 
@@ -16,8 +16,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 100
 #process.load('L1Trigger/L1TYellow/l1t_debug_messages_cfi')
 #process.load('L1Trigger/L1TYellow/l1t_info_messages_cfi')
 
-from L1Trigger.L1TCalorimeter.regionSF_cfi import *
-from L1Trigger.L1TCalorimeter.jetSF_cfi import *
+process.load('L1Trigger/L1TCalorimeter/l1tStage1CaloParams_cfi')
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-10)
@@ -30,7 +29,8 @@ process.source = cms.Source("PoolSource",
     # fileNames = cms.untracked.vstring("/store/RelVal/CMSSW_7_0_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/PRE_ST62_V8-v1/00000/22610530-FC24-E311-AF35-003048FFD7C2.root")
     #fileNames = cms.untracked.vstring("/store/relval/CMSSW_7_0_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/PRE_ST62_V8-v1/00000/22610530-FC24-E311-AF35-003048FFD7C2.root")
     # fileNames = cms.untracked.vstring("file:/uscmst1b_scratch/lpc1/lpctrig/apana/L1Upgrade/262AA156-744A-E311-9829-002618943945.root")
-    fileNames = cms.untracked.vstring("root://eoscms.cern.ch//eos/cms/store/group/comm_trigger/L1Trigger/apana/262AA156-744A-E311-9829-002618943945.root")                       
+    #fileNames = cms.untracked.vstring("root://eoscms.cern.ch//eos/cms/store/group/comm_trigger/L1Trigger/apana/262AA156-744A-E311-9829-002618943945.root")   
+    fileNames = cms.untracked.vstring("root://eoscms.cern.ch//eos/cms/store/group/comm_trigger/L1Trigger/apana/DYJetsToLL_M-50_13TeV-pythia6_Fall13dr-tsg_PU40bx25__skim_150_1_6UN.root")
     #fileNames = cms.untracked.vstring("file:test.root")
     )
 
@@ -69,20 +69,12 @@ process.Layer2HW = cms.EDProducer(
     CaloRegions = cms.InputTag("rctLayer2Format"),
     CaloEmCands = cms.InputTag("rctLayer2Format"),
     FirmwareVersion = cms.uint32(2),  ## 1=HI algo, 2= pp algo
+    egRelativeJetIsolationCut = cms.double(0.5), ## eg isolation cut
+    tauRelativeJetIsolationCut = cms.double(1.), ## tau isolation cut
     regionETCutForHT = cms.uint32(7),
     regionETCutForMET = cms.uint32(0),
     minGctEtaForSums = cms.int32(4),
-    maxGctEtaForSums = cms.int32(17),
-    jetSeedThreshold = cms.double(10.), ## jet seed threshold in GeV
-    egSeedThreshold = cms.double(1.), ## eg seed threshold in GeV
-    tauSeedThreshold = cms.double(7.), ## tau seed threshold in GeV
-    egRelativeJetIsolationCut = cms.double(0.5), ## eg isolation cut
-    tauRelativeJetIsolationCut = cms.double(1.), ## tau isolation cut
-    PUSubtract = cms.bool(True), # Correct regions for PU
-    regionSubtraction = regionSubtraction_PU40_MC13TeV,
-    #regionSubtraction = regionSubtraction_8TeV_data,
-    applyJetCalibration = cms.bool(True), # Do jet response correction
-    jetSF = jetSF_8TeV_data
+    maxGctEtaForSums = cms.int32(17)
     )
 
 process.Layer2Phys = cms.EDProducer("l1t::PhysicalEtAdder",
@@ -105,6 +97,17 @@ process.L1Unpacker = cms.EDProducer("l1t::L1TRawToDigi",
         InputLabel = cms.InputTag("L1Packer"),
         FedIds = cms.vint32(100))
 
+process.gctDigis = cms.EDProducer("GctRawToDigi",
+    unpackSharedRegions = cms.bool(False),
+    numberOfGctSamplesToUnpack = cms.uint32(1),
+    verbose = cms.untracked.bool(False),
+    numberOfRctSamplesToUnpack = cms.uint32(1),
+    inputLabel = cms.InputTag("rawDataCollector"),
+    unpackerVersion = cms.uint32(0),
+    gctFedId = cms.untracked.int32(745),
+    hltMode = cms.bool(False)
+)
+
 process.Layer2 = cms.Sequence(
         process.rctLayer2Format
         *process.Layer2HW
@@ -116,6 +119,7 @@ process.Layer2 = cms.Sequence(
 
 
 process.p1 = cms.Path(
+    process.gctDigis*
     process.Layer2
     )
 

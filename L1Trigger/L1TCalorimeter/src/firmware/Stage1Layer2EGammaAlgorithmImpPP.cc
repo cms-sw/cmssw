@@ -21,13 +21,13 @@ using namespace l1t;
 Stage1Layer2EGammaAlgorithmImpPP::Stage1Layer2EGammaAlgorithmImpPP(CaloParams* params) : params_(params)
 {
 
-  emScale=params_->emScale();
-  jetScale=params_->jetScale();
+  egLsb=params_->egLsb();
+  jetLsb=params_->jetLsb();
 
-  PUSubtract = params_->PUSubtract();
-  regionSubtraction = params_->regionSubtraction();
-  egSeedThreshold= floor( params_->egSeedThreshold()/emScale + 0.5);
-  jetSeedThreshold= floor( params_->jetSeedThreshold()/jetScale + 0.5);
+  regionPUSType = params_->regionPUSType();
+  regionPUSParams = params_->regionPUSParams();
+  egSeedThreshold= floor( params_->egSeedThreshold()/egLsb + 0.5);
+  jetSeedThreshold= floor( params_->jetSeedThreshold()/jetLsb + 0.5);
   egRelativeJetIsolationCut = params_->egRelativeJetIsolationCut();
 }
 
@@ -44,8 +44,9 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
 
   
   //Region Correction will return uncorrected subregions if 
-  //PUSubtract is set to False in the config
-  RegionCorrection(regions, EMCands, subRegions, regionSubtraction, PUSubtract);
+  //regionPUSType is set to None in the config
+  RegionCorrection(regions, EMCands, subRegions, regionPUSParams, regionPUSType);
+
   // ----- need to cluster jets in order to compute jet isolation ----
   std::vector<l1t::Jet> *unCorrJets = new std::vector<l1t::Jet>();
   slidingWindowJetFinder(jetSeedThreshold, subRegions, unCorrJets);
@@ -72,7 +73,7 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
      //if( eg_et > 0 && (isolation / eg_et ) > relativeIsolationCut) isoFlag  = 0;
 
      double jet_pt=AssociatedJetPt(eg_eta,eg_phi,unCorrJets);
-     jet_pt=jet_pt*jetScale;
+     jet_pt=jet_pt*jetLsb;
      if (jet_pt>0){
        double jetIsolationEG = jet_pt - eg_et;        // Jet isolation
        double relativeJetIsolationEG = jetIsolationEG / eg_et;

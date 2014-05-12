@@ -53,6 +53,7 @@ l1tCaloParams = cms.ESProducer(
     jetSeedThreshold      = cms.double(0.),
     jetNeighbourThreshold = cms.double(0.),
     jetPUSType            = cms.string("None"),
+    jetPUSParams          = cms.vdouble(),
     jetCalibrationType    = cms.string("None"),
     jetCalibrationParams  = cms.vdouble(),
 

@@ -168,30 +168,15 @@ namespace l1t {
 
     // redundant ?
 
-    bool PUSubtract() const { return PUSubtract_; }           
-    std::vector<double> regionSubtraction() const { return regionSubtraction_; }
-    bool applyJetCalibration() const { return applyJetCalibration_; }           
-    std::vector<double> jetSF() const { return jetSF_; }
-
-    void setPUSubtract(bool pusub) { PUSubtract_ = pusub; }            
-    void setregionSubtraction(std::vector<double> regsub) { regionSubtraction_ = regsub; }
-    void setapplyJetCalibration(bool jetcalib) { applyJetCalibration_ = jetcalib; }            
-    void setjetSF(std::vector<double> jetsf) { jetSF_ = jetsf; }
     void setRegionETCutForHT(unsigned etcut) { regionETCutForHT_ = etcut; }
     void setRegionETCutForMET(unsigned etcut) { regionETCutForMET_ = etcut; }
     void setMinGctEtaForSums(int eta) { minGctEtaForSums_ = eta; }
     void setMaxGctEtaForSums(int eta) { maxGctEtaForSums_ = eta; }
 
-    void setEmScale(double scale) { emScale_ = scale; }
-    void setJetScale(double scale) { jetScale_ = scale; }
-
     unsigned int regionETCutForHT() const { return regionETCutForHT_; }
     unsigned int regionETCutForMET() const { return regionETCutForMET_; }
     int minGctEtaForSums() const { return minGctEtaForSums_; }
     int maxGctEtaForSums() const { return maxGctEtaForSums_; }
-    
-    double emScale() const { return emScale_; }
-    double jetScale() const { return jetScale_; }
 
   private:
 
@@ -370,24 +355,12 @@ namespace l1t {
     std::vector<double> etSumEtThreshold_;
 
 
-
-
-    // probbaly redundant with above parameters  ?
-    bool PUSubtract_;
-    std::vector<double> regionSubtraction_;    //pu subtraction look up table, see region_cfi
-    bool applyJetCalibration_;
-    std::vector<double> jetSF_;    // jet correction table, see jet_sfi
-
     // these are redundant with etSumEtaMin_, etSumEtaMax_, etSumEtThreshold_ etc.
     unsigned regionETCutForHT_;
     unsigned regionETCutForMET_;
     int minGctEtaForSums_;
     int maxGctEtaForSums_;
 
-    //redundant with L1CaloEtScale for stage 1
-    // discussion needed for stage 2
-    double emScale_;
-    double jetScale_;
   };
 
 }// namespace
