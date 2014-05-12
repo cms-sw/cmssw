@@ -19,7 +19,9 @@
 #include "SimMuon/MCTruth/interface/RPCHitAssociator.h"
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
-
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 
 #include <boost/ptr_container/ptr_vector.hpp>
 
@@ -33,7 +35,8 @@ class MuonAssociatorByHits : public TrackAssociatorBase {
   typedef std::pair<unsigned int,std::vector<SimHitIdpr> > uint_SimHitIdpr_pair;
   typedef boost::ptr_vector<uint_SimHitIdpr_pair> MapOfMatchedIds;
   
-  MuonAssociatorByHits( const edm::ParameterSet& );  
+  MuonAssociatorByHits (const edm::ParameterSet& conf, edm::ConsumesCollector && iC);   
+  MuonAssociatorByHits (const edm::ParameterSet& conf);   
   ~MuonAssociatorByHits();
   
   // Get base methods from base class
@@ -49,7 +52,7 @@ class MuonAssociatorByHits : public TrackAssociatorBase {
   /// Association Sim To Reco with Collections
   reco::SimToRecoCollection associateSimToReco(const edm::RefToBaseVector<reco::Track>&,
 					       const edm::RefVector<TrackingParticleCollection>&,
-					       const edm::Event * event = 0, const edm::EventSetup * setup = 0) const ;
+					       const edm::Event * event = 0, const edm::EventSetup * setup = 0) const;
 
  
   void getMatchedIds
@@ -60,7 +63,7 @@ class MuonAssociatorByHits : public TrackAssociatorBase {
      int& n_tracker_INVALID, int& n_dt_INVALID, int& n_csc_INVALID, int& n_rpc_INVALID,
      int& n_tracker_matched_INVALID, int& n_dt_matched_INVALID, int& n_csc_matched_INVALID, int& n_rpc_matched_INVALID,
      trackingRecHit_iterator begin, trackingRecHit_iterator end,
-     TrackerHitAssociator* trackertruth, DTHitAssociator& dttruth, MuonTruth& csctruth, RPCHitAssociator& rpctruth, 
+     TrackerHitAssociator* trackertruth, DTHitAssociator& dttruth, MuonTruth& csctruth, RPCHitAssociator& rpctruth,
      bool printRts, const TrackerTopology *) const;
   
   int getShared(MapOfMatchedIds & matchedIds, TrackingParticleCollection::const_iterator trpart) const;
@@ -110,6 +113,11 @@ class MuonAssociatorByHits : public TrackAssociatorBase {
   edm::InputTag simtracksXFTag;
   const edm::ParameterSet& conf_;
 
+  edm::EDGetTokenT<CrossingFrame<SimTrack> > simtracksXFToken_;
+  edm::EDGetTokenT<CrossingFrame<SimVertex> > simvertsXFToken_;
+  edm::EDGetTokenT<edm::SimTrackContainer> simtracksToken_;
+  edm::EDGetTokenT<edm::SimVertexContainer> simvertsToken_;
+
   int LayerFromDetid(const DetId&) const;
   const TrackingRecHit* getHitPtr(edm::OwnVector<TrackingRecHit>::const_iterator iter) const {return &*iter;}
   const TrackingRecHit* getHitPtr(const trackingRecHit_iterator& iter) const {return &**iter;}
@@ -127,10 +135,10 @@ class MuonAssociatorByHits : public TrackAssociatorBase {
  
   IndexAssociation associateSimToRecoIndices(const TrackHitsCollection &, 
                                              const edm::RefVector<TrackingParticleCollection>&,
-					     const edm::Event * event = 0, const edm::EventSetup * setup = 0) const ; 
+					     const edm::Event * event = 0, const edm::EventSetup * setup = 0)  const; 
   IndexAssociation associateRecoToSimIndices(const TrackHitsCollection &, 
                                              const edm::RefVector<TrackingParticleCollection>&,
-					     const edm::Event * event = 0, const edm::EventSetup * setup = 0) const ;
+					     const edm::Event * event = 0, const edm::EventSetup * setup = 0) const;
   
 
 
