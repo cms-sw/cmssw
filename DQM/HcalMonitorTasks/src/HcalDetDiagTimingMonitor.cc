@@ -26,11 +26,9 @@ static const float adc2fC[128]={-0.5,0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5, 10
 		   3109.5,3234.5,3359.5,3484.5,3609.5,3797.,4047.,4297.,4547.,4797.,5047.,
 		   5297.,5609.5,5984.5,6359.5,6734.5,7172.,7672.,8172.,8734.5,9359.5,9984.5};
 ////////////////////////////////////////////////////////////////////////////////////////////
-static const int MAXGEN =10;
 static const int MAXRPC =20;
 static const int MAXDTBX=20;
 static const int MAXCSC =20;    
-static const int MAXGMT =20;
 static const int TRIG_DT =1;
 static const int TRIG_RPC=2;
 static const int TRIG_GCT=4;
