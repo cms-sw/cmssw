@@ -137,10 +137,6 @@ void MuonMaker::SetVars(HWW& hww, const edm::Event& iEvent, const edm::EventSetu
     const TrackRef                siTrack                 = muon->innerTrack();
     const TrackRef                staTrack                = muon->outerTrack();
     const MuonQuality             quality                 = muon->combinedQuality();
-    const VertexCollection*       vertexCollection        = vertexHandle.product();
-
-    // Iterators
-    VertexCollection::const_iterator firstGoodVertex = vertexCollection->end();
 
 
     /////////
