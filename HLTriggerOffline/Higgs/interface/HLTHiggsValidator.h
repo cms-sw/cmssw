@@ -29,7 +29,7 @@
 
 class EVTColContainer;
 
-class HLTHiggsValidator : public DQMEDAnalyzer
+class HLTHiggsValidator : public thread_unsafe::DQMEDAnalyzer
 {
 	public:
 		//! Constructor

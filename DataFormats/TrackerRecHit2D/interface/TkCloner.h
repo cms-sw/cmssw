@@ -2,6 +2,7 @@
 #define TKClonerRecHit_H
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 class SiPixelRecHit;
 class SiStripRecHit2D;
@@ -11,7 +12,7 @@ class ProjectedSiStripRecHit2D;
 
 class TkCloner {
 public:
-  TrackingRecHit * operator()(TrackingRecHit const & hit, TrajectoryStateOnSurface const& tsos) const {
+  TrackingRecHit * operator() CMS_THREAD_SAFE (TrackingRecHit const & hit, TrajectoryStateOnSurface const& tsos) const {
     return hit.clone(*this, tsos);
   }
 
