@@ -94,6 +94,8 @@ private:
 
   TProfile** m_averadius;
   TProfile** m_avez;
+  TProfile** m_avex;
+  TProfile** m_avey;
   TProfile** m_zavedr;
   TProfile** m_zavedz;
   TProfile** m_zavedrphi;
@@ -134,6 +136,8 @@ OccupancyPlots::OccupancyPlots(const edm::ParameterSet& iConfig):
 
   m_averadius = m_rhm.makeTProfile("averadius","Average Module Radius",6000,0.5,6000.5);
   m_avez = m_rhm.makeTProfile("avez","Average Module z coordinate",6000,0.5,6000.5);
+  m_avex = m_rhm.makeTProfile("avex","Average Module x coordinate",6000,0.5,6000.5);
+  m_avey = m_rhm.makeTProfile("avey","Average Module y coordinate",6000,0.5,6000.5);
 
   m_zavedr = m_rhm.makeTProfile("zavedr","Average z unit vector dr",6000,0.5,6000.5);
   m_zavedz = m_rhm.makeTProfile("zavedz","Average z unit vector dz",6000,0.5,6000.5);
@@ -265,6 +269,8 @@ OccupancyPlots::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
 	 // average positions
 	 if(m_averadius && *m_averadius) (*m_averadius)->Fill(sel->first,position.perp());
 	 if(m_avez && *m_avez) (*m_avez)->Fill(sel->first,position.z());
+	 if(m_avex && *m_avex) (*m_avex)->Fill(sel->first,position.x());
+	 if(m_avey && *m_avey) (*m_avey)->Fill(sel->first,position.y());
 	 if(m_zavedr && *m_zavedr) (*m_zavedr)->Fill(sel->first,dzdr);
 	 if(m_zavedz && *m_zavedz) (*m_zavedz)->Fill(sel->first,dz.z());
 	 if(m_zavedrphi && *m_zavedrphi) (*m_zavedrphi)->Fill(sel->first,dzdrphi);
