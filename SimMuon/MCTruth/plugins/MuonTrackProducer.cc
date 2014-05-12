@@ -14,8 +14,8 @@
 
 MuonTrackProducer::MuonTrackProducer(const edm::ParameterSet& parset) :
   muonsToken(consumes<reco::MuonCollection>(parset.getParameter< edm::InputTag >("muonsTag"))),
-  inputDTRecSegment4DCollectionToken_(consumes<DTRecSegment4DCollection>(parset.getParameter<edm::InputTag>("inputDTRecSegment4DCollection"))),
-  inputCSCSegmentCollectionToken_(consumes<CSCSegmentCollection>(parset.getParameter<edm::InputTag>("inputCSCSegmentCollection"))),
+  inputDTRecSegment4DToken_(consumes<DTRecSegment4DCollection>(parset.getParameter<edm::InputTag>("inputDTRecSegment4DCollection"))),
+  inputCSCSegmentToken_(consumes<CSCSegmentCollection>(parset.getParameter<edm::InputTag>("inputCSCSegmentCollection"))),
   selectionTags(parset.getParameter< std::vector<std::string> >("selectionTags")),
   trackType(parset.getParameter< std::string >("trackType")),
   parset_(parset)
@@ -32,8 +32,8 @@ MuonTrackProducer::~MuonTrackProducer() {
 void MuonTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 {
   iEvent.getByToken(muonsToken,muonCollectionH);
-  iEvent.getByToken(inputDTRecSegment4DCollectionToken_, dtSegmentCollectionH_);
-  iEvent.getByToken(inputCSCSegmentCollectionToken_, cscSegmentCollectionH_);
+  iEvent.getByToken(inputDTRecSegment4DToken_, dtSegmentCollectionH_);
+  iEvent.getByToken(inputCSCSegmentToken_, cscSegmentCollectionH_);
   
   std::auto_ptr<reco::TrackCollection> selectedTracks(new reco::TrackCollection);
   std::auto_ptr<reco::TrackExtraCollection> selectedTrackExtras( new reco::TrackExtraCollection() );
