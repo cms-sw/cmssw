@@ -26,12 +26,8 @@ namespace castor_impl {
 }
 
 CastorElectronicsMap::~CastorElectronicsMap() {
-	std::vector<const PrecisionItem*>* temp_point = nullptr;
-	mPItemsById.compare_exchange_weak(temp_point, nullptr);
-	delete temp_point;
-	std::vector<const TriggerItem*>* temp_point2 = nullptr;
-	mTItemsByTrigId.compare_exchange_weak(temp_point2, nullptr);
-	delete temp_point2;
+	delete mPItemsById.load();
+	delete mTItemsByTrigId.load();
 }
 // copy-ctor
 CastorElectronicsMap::CastorElectronicsMap(const CastorElectronicsMap& src)
