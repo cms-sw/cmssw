@@ -16,6 +16,32 @@ MuonTruth::MuonTruth(const edm::Event& event, const edm::EventSetup& setup, cons
   CSCsimHitsXFTag(conf.getParameter<edm::InputTag>("CSCsimHitsXFTag"))
 
 {
+  initEvent(event,setup);
+}
+
+MuonTruth::MuonTruth( const edm::ParameterSet& conf, edm::ConsumesCollector && iC ): 
+  theDigiSimLinks(0),
+  theWireDigiSimLinks(0),
+  linksTag(conf.getParameter<edm::InputTag>("CSClinksTag")),
+  wireLinksTag(conf.getParameter<edm::InputTag>("CSCwireLinksTag")),
+  // CrossingFrame used or not ?
+  crossingframe(conf.getParameter<bool>("crossingframe")),
+  CSCsimHitsTag(conf.getParameter<edm::InputTag>("CSCsimHitsTag")),
+  CSCsimHitsXFTag(conf.getParameter<edm::InputTag>("CSCsimHitsXFTag"))
+
+{
+  iC.consumes<DigiSimLinks>(linksTag);
+  iC.consumes<DigiSimLinks>(wireLinksTag);
+  if ( crossingframe ) {
+    iC.consumes<CrossingFrame<PSimHit> >(CSCsimHitsXFTag);
+  } else if (!CSCsimHitsTag.label().empty()){
+    iC.consumes<edm::PSimHitContainer>(CSCsimHitsTag);
+  }
+
+}
+
+void MuonTruth::initEvent(const edm::Event& event, const edm::EventSetup& setup) {
+
   edm::Handle<DigiSimLinks> digiSimLinks;
   LogTrace("MuonTruth") <<"getting CSC Strip DigiSimLink collection - "<<linksTag;
   event.getByLabel(linksTag, digiSimLinks);
