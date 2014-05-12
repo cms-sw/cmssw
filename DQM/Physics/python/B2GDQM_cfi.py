@@ -11,7 +11,7 @@ B2GDQM = cms.EDAnalyzer(
     jetLabels = cms.VInputTag(
         'ak5PFJets',
         'ak5PFJetsCHS',
-        'ca8PFJetsCHS',
+        #'ca8PFJetsCHS',
         'ca8PFJetsCHSPruned',
         'cmsTopTagPFJetsCHS'
         ),
