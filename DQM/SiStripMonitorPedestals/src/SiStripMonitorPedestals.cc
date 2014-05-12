@@ -68,6 +68,11 @@ SiStripMonitorPedestals::SiStripMonitorPedestals(edm::ParameterSet const& iConfi
 
   edm::LogInfo("SiStripMonitorPedestals") <<"SiStripMonitorPedestals  " 
 					  << " Constructing....... ";     
+
+  theEventInitNumber_ = pedsPSet_.getParameter<int>("NumberOfEventsForInit");
+  theEventIterNumber_ = pedsPSet_.getParameter<int>("NumberOfEventsForIteration");
+  NumCMstripsInGroup_ = pedsPSet_.getParameter<int>("NumCMstripsInGroup");
+        runTypeFlag_  = conf_.getParameter<std::string>("RunTypeFlag");
 }
 //
 // -- Destructor
@@ -82,10 +87,6 @@ SiStripMonitorPedestals::~SiStripMonitorPedestals()
 // -- Begin Job
 //
 void SiStripMonitorPedestals::beginJob() {
-  theEventInitNumber_ = pedsPSet_.getParameter<int>("NumberOfEventsForInit");
-  theEventIterNumber_ = pedsPSet_.getParameter<int>("NumberOfEventsForIteration");
-  NumCMstripsInGroup_ = pedsPSet_.getParameter<int>("NumCMstripsInGroup");
-        runTypeFlag_  = conf_.getParameter<std::string>("RunTypeFlag");
 }
 //
 // -- BeginRun
@@ -101,13 +102,8 @@ void SiStripMonitorPedestals::bookHistograms(DQMStore::IBooker & ibooker, const 
     edm::LogInfo("SiStripMonitorPedestals") <<"SiStripMonitorPedestals::bookHistograms: "
 					    << " Creating MEs for new Cabling ";
     createMEs( ibooker , eSetup);
-  } else {
-    edm::LogInfo("SiStripMonitorPedestals") <<"SiStripMonitorPedestals::bookHistograms: "
-					    << " Resetting MEs ";
-    for (std::map<uint32_t, ModMEs >::const_iterator idet = PedMEs.begin() ; idet!=PedMEs.end() ; idet++) {
-      resetMEs(idet->first);
-    }
   }
+
   if (runTypeFlag_ == RunMode1 || runTypeFlag_ == RunMode3 ) fillCondDBMEs(eSetup);
 }
 
