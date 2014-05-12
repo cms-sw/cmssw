@@ -100,7 +100,8 @@ import RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cf
 tobTecStepClusterShapeHitFilter  = RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi.ClusterShapeHitFilterESProducer.clone(
 	ComponentName = cms.string('tobTecStepClusterShapeHitFilter'),
         PixelShapeFile= cms.string('RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape.par'),
-	minGoodStripCharge = cms.double(2069)
+	minGoodStripCharge = cms.double(2069),
+	doStripShapeCut  = cms.bool(False)
 	)
 
 import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff
