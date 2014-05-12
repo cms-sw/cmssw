@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/src/edmodule_mightGet_config.h"
+#include "FWCore/Framework/src/EventSignalsSentry.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -28,6 +29,7 @@ namespace edm {
 
   bool
   EDProducer::doEvent(EventPrincipal& ep, EventSetup const& c,
+                      ActivityRegistry* act,
                       ModuleCallingContext const* mcc) {
     Event e(ep, moduleDescription_, mcc);
     e.setConsumer(this);
@@ -35,6 +37,7 @@ namespace edm {
       std::lock_guard<std::mutex> guard(mutex_);
       {
         std::lock_guard<SharedResourcesAcquirer> guardAcq(resourceAcquirer_);
+        EventSignalsSentry sentry(act,mcc);
         this->produce(e, c);
       }
       commit_(e, &previousParentage_, &previousParentageId_);
