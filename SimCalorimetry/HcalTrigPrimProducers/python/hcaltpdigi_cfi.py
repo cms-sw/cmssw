@@ -10,6 +10,12 @@ simHcalTriggerPrimitiveDigis = cms.EDProducer("HcalTrigPrimDigiProducer",
     numberOfPresamples = cms.int32(2),
     MinSignalThreshold = cms.uint32(0), # For HF PMT veto
     PMTNoiseThreshold = cms.uint32(0),  # For HF PMT veto
+    
+    Min_Long_EnergyInput= cms.double(10),
+    Min_Short_EnergyInput= cms.double(11),
+    Long_vrs_Short_SlopeInput= cms.double(1.2),
+    Long_Short_OffsetInput= cms.double(1.1),
+    
 #
     #vdouble weights = { -1, -1, 1, 1} //low lumi algo
     # Input digi label (_must_ be without zero-suppression!)

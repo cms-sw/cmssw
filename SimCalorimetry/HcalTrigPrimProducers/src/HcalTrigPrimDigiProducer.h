@@ -32,7 +32,8 @@ private:
   /// input tag for FEDRawDataCollection
   edm::InputTag inputTagFEDRaw_;
   edm::EDGetTokenT<FEDRawDataCollection> tok_raw_;
-
+  double MinLongEnergy_, MinShortEnergy_, LongShortSlope_, LongShortOffset_;
+  
   bool runZS_;
 
   bool runFrontEndFormatError_;

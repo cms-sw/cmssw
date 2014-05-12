@@ -6,8 +6,9 @@
 class HcalFeatureBit {
 	public:
 		HcalFeatureBit(){}
-		virtual ~HcalFeatureBit(){} // needs to be virtual to avoid memory leaks
-		virtual bool fineGrainbit(int ADCShort, HcalDetId Sid, int ADCLong, HcalDetId Lid ){return false;}
+		virtual ~HcalFeatureBit(){} //the virutal function is responcible for applying a cut based on a linear relationship of the energy
+        //deposited in the short vers long fibers.
+		virtual bool fineGrainbit(int ADCShort, HcalDetId Sid, int CapIdS, int ADCLong, HcalDetId Lid, int CapIdL) const {return false;}
 		
 };
 #endif

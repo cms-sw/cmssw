@@ -7,6 +7,7 @@
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
 
 
+
 HcalFeatureHFEMBit::HcalFeatureHFEMBit(double ShortMinE, double LongMinE,
                                        double ShortLongCutSlope, double ShortLongCutOffset, const HcalDbService& conditions) : conditions_(conditions)
 {

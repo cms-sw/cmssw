@@ -6,10 +6,10 @@
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 
 class HcalFeatureHFEMBit : public HcalFeatureBit {
-public:
+public:    
     HcalFeatureHFEMBit(double ShortMinE, double LongMinE, double ShortLongCutSlope, double ShortLongCutOffset, const HcalDbService& conditions);
     ~HcalFeatureHFEMBit();
-    virtual bool fineGrainbit(int ADCShort, HcalDetId Sid, int CapIdS, int ADCLong, HcalDetId Lid, int CapIdL) const;//cuts based on energy
+    virtual bool fineGrainbit(int ADCShort, HcalDetId Sid, int CapIdS, int ADCLong, HcalDetId Lid, int CapIdL) const;//cuts based on energy 
     //depoisted in the long and short fibers
 private:
     double ShortMinE_, LongMinE_, ShortLongCutSlope_, ShortLongCutOffset_;

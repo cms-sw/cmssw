@@ -1,7 +1,7 @@
 #include "SimCalorimetry/HcalTrigPrimAlgos/interface/HcalTriggerPrimitiveAlgo.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <iostream>
+
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
 #include "DataFormats/HcalDetId/interface/HcalTrigTowerDetId.h"
@@ -9,7 +9,8 @@
 #include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalDCCHeader.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalHTRData.h"
-
+#include "SimCalorimetry/HcalTrigPrimAlgos/interface/HcalFeatureHFEMBit.h"//cuts based on short and long energy deposited.
+#include <iostream>
 using namespace std;
 
 HcalTriggerPrimitiveAlgo::HcalTriggerPrimitiveAlgo( bool pf, const std::vector<double>& w, int latency,
@@ -45,7 +46,7 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
                                    const HFDigiCollection& hfDigis,
                                    HcalTrigPrimDigiCollection& result,
 				   const HcalTrigTowerGeometry* trigTowerGeometry,
-                                   float rctlsb) {
+                                   float rctlsb, const HcalFeatureBit* LongvrsShortCut) {
    theTrigTowerGeometry = trigTowerGeometry;
     
    incoder_=dynamic_cast<const HcaluLUTTPGCoder*>(incoder);
@@ -85,7 +86,7 @@ void HcalTriggerPrimitiveAlgo::run(const HcalTPGCoder* incoder,
          if (detId.version() == 0) {
             analyzeHF(mapItr->second, result.back(), hf_lumi_shift);
          } else if (detId.version() == 1) {
-            analyzeHFV1(mapItr->second, result.back(), hf_lumi_shift);
+            analyzeHFV1(mapItr->second, result.back(), hf_lumi_shift, LongvrsShortCut);
          } else {
             // Things are going to go poorly
          }
@@ -209,8 +210,10 @@ void HcalTriggerPrimitiveAlgo::addSignal(const HFDataFrame & frame) {
             // Check the frame type to determine long vs short
             if (frame.id().depth() == 1) { // Long
                dit->second.long_fiber = samples;
+               dit->second.LongDigi = frame;
             } else if (frame.id().depth() == 2) { // Short
                dit->second.short_fiber = samples;
+               dit->second.ShortDigi = frame;
             } else {
                 // Neither long nor short... So we have no idea what to do
                 return;
@@ -353,7 +356,8 @@ void HcalTriggerPrimitiveAlgo::analyzeHF(IntegerCaloSamples & samples, HcalTrigg
 void HcalTriggerPrimitiveAlgo::analyzeHFV1(
         const IntegerCaloSamples& SAMPLES,
         HcalTriggerPrimitiveDigi& result,
-        const int HF_LUMI_SHIFT
+        const int HF_LUMI_SHIFT,
+        const HcalFeatureBit* HCALFEM
         ) {
     // Align digis and TP
     const int SHIFT = SAMPLES.presamples() - numberOfPresamples_;
@@ -389,7 +393,19 @@ void HcalTriggerPrimitiveAlgo::analyzeHFV1(
         if (output[ibin] > MAX_OUTPUT) {
             output[ibin] = MAX_OUTPUT;
         }
-        // TODO for Lesko: Do EM fine grain bit algo
+        // TODO: Do EM fine grain bit algo
+        int ADCLong = HF_DETAILS->LongDigi[ibin].adc();
+        int ADCShort = HF_DETAILS->ShortDigi[ibin].adc();
+
+
+
+        if(HCALFEM != 0)
+        {
+
+           
+            finegrain[ibin] = HCALFEM->fineGrainbit(ADCShort, HF_DETAILS->ShortDigi.id(), HF_DETAILS->ShortDigi[ibin].capid(), ADCLong, HF_DETAILS->LongDigi.id(), HF_DETAILS->LongDigi[ibin].capid());
+            
+        }
     }
     outcoder_->compress(output, finegrain, result);
 }
