@@ -1,7 +1,7 @@
 #ifndef RecoTracker_TkSeedGenerator_SeedGeneratorFromRegionHitsEDProducer_H
 #define RecoTracker_TkSeedGenerator_SeedGeneratorFromRegionHitsEDProducer_H
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoTracker/SpecialSeedGenerators/interface/ClusterChecker.h"
 
@@ -11,7 +11,7 @@ class SeedGeneratorFromRegionHits;
 class TrackingRegionProducer;
 class QuadrupletSeedMerger;
 
-class SeedGeneratorFromRegionHitsEDProducer : public edm::EDProducer {
+class SeedGeneratorFromRegionHitsEDProducer : public edm::stream::EDProducer<> {
 public:
 
   SeedGeneratorFromRegionHitsEDProducer(const edm::ParameterSet& cfg);
