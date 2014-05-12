@@ -25,6 +25,7 @@ MonitorTrackResiduals::MonitorTrackResiduals(const edm::ParameterSet& iConfig)
    : dqmStore_( edm::Service<DQMStore>().operator->() )
    , conf_(iConfig), m_cacheID_(0)
    , genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig, consumesCollector())) {
+  ModOn = conf_.getParameter<bool>("Mod_On");
 }
 
 MonitorTrackResiduals::~MonitorTrackResiduals() {
@@ -33,38 +34,15 @@ MonitorTrackResiduals::~MonitorTrackResiduals() {
 
 
 void MonitorTrackResiduals::beginJob(void) {
-  ModOn = conf_.getParameter<bool>("Mod_On");
-  reset_me_after_each_run = conf_.getParameter<bool>("ResetAfterRun");
 }
 
 void MonitorTrackResiduals::bookHistograms(DQMStore::IBooker & ibooker , const edm::Run & run, const edm::EventSetup & iSetup)
 {
-
-  //Retrieve tracker topology from geometry
-  edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
-  const TrackerTopology* const tTopo = tTopoHandle.product();
-
   unsigned long long cacheID = iSetup.get<SiStripDetCablingRcd>().cacheIdentifier();
   if (m_cacheID_ != cacheID) {
     m_cacheID_ = cacheID;
     this->createMEs( ibooker , iSetup);
   }
-  if(reset_me_after_each_run) {
-    if(ModOn) {
-      for(std::map<int32_t, MonitorElement*>::const_iterator it = HitResidual.begin(),
-	    itEnd = HitResidual.end(); it!= itEnd;++it) {
-	this->resetModuleMEs(it->first);
-	this->resetLayerMEs(folder_organizer.GetSubDetAndLayer(it->first, tTopo));
-      }
-    } else {
-      for(std::map< std::pair<std::string,int32_t>, MonitorElement*>::const_iterator it = m_SubdetLayerResiduals.begin(),
-	    itEnd = m_SubdetLayerResiduals.end(); it!= itEnd;++it) {
-	this->resetLayerMEs(it->first);
-      }
-    } // end if-else Module level on
-  } // end reset after run
-
 }
 
 void MonitorTrackResiduals::dqmBeginRun(edm::Run const& run, edm::EventSetup const& iSetup) {
@@ -152,18 +130,6 @@ void MonitorTrackResiduals::createMEs( DQMStore::IBooker & ibooker , const edm::
       } // end 'is strip module'
     } // end loop over activeDets
 }
-
-
-void MonitorTrackResiduals::resetModuleMEs(int32_t modid) {
-  HitResidual[modid]->Reset();
-  NormedHitResiduals[modid]->Reset();
-}
-
-void MonitorTrackResiduals::resetLayerMEs(const std::pair<std::string, int32_t> &subdetandlayer) {
-  m_SubdetLayerResiduals      [subdetandlayer]->Reset();
-  m_SubdetLayerNormedResiduals[subdetandlayer]->Reset();
-}
-
 
 
 void MonitorTrackResiduals::endRun(const edm::Run&, const edm::EventSetup&){

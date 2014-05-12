@@ -41,8 +41,6 @@ class MonitorTrackResiduals : public thread_unsafe::DQMEDAnalyzer {
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   // Own methods 
   void createMEs( DQMStore::IBooker & , const edm::EventSetup&);
-  void resetModuleMEs(int32_t modid);
-  void resetLayerMEs(const std::pair<std::string, int32_t>&);
  private:
 
   DQMStore * dqmStore_;
@@ -54,7 +52,6 @@ class MonitorTrackResiduals : public thread_unsafe::DQMEDAnalyzer {
   HistoClass NormedHitResiduals;
   SiStripFolderOrganizer folder_organizer;
   unsigned long long m_cacheID_;
-  bool reset_me_after_each_run;
   bool ModOn;
   GenericTriggerEventFlag* genTriggerEventFlag_;
 };
