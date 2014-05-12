@@ -20,6 +20,7 @@ void GlobalStaticChecker::checkASTDecl(const clang::VarDecl *D,
                     clang::ento::BugReporter &BR) const
 {
 	if ( D->hasAttr<CMSThreadGuardAttr>() || D->hasAttr<CMSThreadSafeAttr>()) return;
+	if ( D->getTSCSpec() == clang::ThreadStorageClassSpecifier::TSCS_thread_local ) return;
 	clang::QualType t =  D->getType();
 	if ( D->hasGlobalStorage() &&
 			  !D->isStaticDataMember() &&
