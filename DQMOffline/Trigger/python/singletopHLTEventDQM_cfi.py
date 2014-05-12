@@ -120,31 +120,15 @@ SingleTopSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM"
     ),
     #cms.PSet(
     #  label  = cms.string("jets/pf:step2"),
-<<<<<<< HEAD
-<<<<<<< HEAD
-    #  src    = cms.InputTag("PFJetsFilter"),
-    #  jetCorrector = cms.string("ak4PFL2L3"),
-=======
-=======
->>>>>>> 754cc1beaedd51b84ec7d650a47a4981cdabdb1b
     #  src    = cms.InputTag("ak5PFJetsCHS"),
     #  jetCorrector = cms.string("ak5PFL2L3"),
->>>>>>> 754cc1b... fix btagging in DQMOffline/Trigger, only partially moving to ak4 because of btagging
     #  select = cms.string("pt>40 & abs(eta)<5.0"),
     #  min = cms.int32(1),
     #), 
     cms.PSet(
       label  = cms.string("jets/pf:step2"),
-<<<<<<< HEAD
-<<<<<<< HEAD
-      src    = cms.InputTag("PFJetsFilter"),
-      jetCorrector = cms.string("ak4PFL2L3"),
-=======
-=======
->>>>>>> 754cc1beaedd51b84ec7d650a47a4981cdabdb1b
       src    = cms.InputTag("ak5PFJetsCHS"),
       jetCorrector = cms.string("ak5PFL2L3"),
->>>>>>> 754cc1b... fix btagging in DQMOffline/Trigger, only partially moving to ak4 because of btagging
       select = cms.string("pt>40 & abs(eta)<5.0"),
       min = cms.int32(2),
     ), 
@@ -274,31 +258,15 @@ SingleTopSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOffline
     ),
     #cms.PSet(
     #  label  = cms.string("jets/pf:step2"),
-<<<<<<< HEAD
-<<<<<<< HEAD
-    #  src    = cms.InputTag("PFJetsFilter"),
-    #  jetCorrector = cms.string("ak4PFL2L3"),
-=======
-=======
->>>>>>> 754cc1beaedd51b84ec7d650a47a4981cdabdb1b
     #  src    = cms.InputTag("ak5PFJetsCHS"),
     #  jetCorrector = cms.string("ak5PFL2L3"),
->>>>>>> 754cc1b... fix btagging in DQMOffline/Trigger, only partially moving to ak4 because of btagging
     #  select = cms.string("pt>40 & abs(eta)<5.0"),
     #  min = cms.int32(1),
     #), 
     cms.PSet(
       label  = cms.string("jets/pf:step2"),
-<<<<<<< HEAD
-<<<<<<< HEAD
-      src    = cms.InputTag("PFJetsFilter"),
-      jetCorrector = cms.string("ak4PFL2L3"),
-=======
-=======
->>>>>>> 754cc1beaedd51b84ec7d650a47a4981cdabdb1b
       src    = cms.InputTag("ak5PFJetsCHS"),
       jetCorrector = cms.string("ak5PFL2L3"),
->>>>>>> 754cc1b... fix btagging in DQMOffline/Trigger, only partially moving to ak4 because of btagging
       select = cms.string("pt>40 & abs(eta)<5.0"),
       min = cms.int32(2),
     ), 
