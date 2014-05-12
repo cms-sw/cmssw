@@ -57,10 +57,10 @@ class JetMETDQMOfflineClient : public DQMEDHarvester {
 
   std::string dirName_;
   std::string dirNameJet_;
-  std::string dirNameMET_;
-  MonitorElement *hMETRate;
+  //std::string dirNameMET_;
+  //MonitorElement *hMETRate;
   MonitorElement *me;
-  TH1F *tMET;
+  //TH1F *tMET;
 
  public:
   explicit JetMETDQMOfflineClient(const edm::ParameterSet& );

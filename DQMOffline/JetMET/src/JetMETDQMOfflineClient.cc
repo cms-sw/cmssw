@@ -26,7 +26,7 @@ JetMETDQMOfflineClient::JetMETDQMOfflineClient(const edm::ParameterSet& iConfig)
   if(dbe_) dbe_->setCurrentFolder(dirName_);
 
   dirNameJet_=iConfig.getUntrackedParameter<std::string>("DQMJetDirName");
-  dirNameMET_=iConfig.getUntrackedParameter<std::string>("DQMMETDirName");
+  //dirNameMET_=iConfig.getUntrackedParameter<std::string>("DQMMETDirName");
  
 }
 
