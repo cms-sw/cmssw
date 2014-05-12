@@ -85,7 +85,7 @@ public:
   virtual const GeomDet* component(DetId /*id*/) const {return 0;}
 
   /// Return pointer to alignment errors. 
-  AlignmentPositionError* alignmentPositionError() const { return theAlignmentPositionError;}
+  AlignmentPositionError const* alignmentPositionError() const { return theAlignmentPositionError;}
 
 
   // specific unix index in a given subdetector (such as Tracker)
