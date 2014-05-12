@@ -17,6 +17,7 @@
 
 #include <fstream>
 #include <queue>
+#include <cstdlib>
 #include <boost/regex.hpp>
 #include <boost/format.hpp>
 #include <boost/range.hpp>
@@ -45,11 +46,21 @@ DQMStreamerReader::DQMStreamerReader(ParameterSet const& pset,
 
 DQMStreamerReader::~DQMStreamerReader() { closeFile_(); }
 
+void DQMStreamerReader::update_watchdog_() {
+  const char *x = getenv("WATCHDOG_FD");
+  if (x) {
+    int fd = atoi(x);
+    write(fd, ".\n", 2);
+  }
+}
+
 void DQMStreamerReader::delay_() {
   edm::LogAbsolute("DQMStreamerReader")
       << "No events available ... waiting for the next LS.";
 
+  update_watchdog_();
   usleep(delayMillis_ * 1000);
+  update_watchdog_();
 }
 
 void DQMStreamerReader::reset_() {
@@ -212,6 +223,8 @@ bool DQMStreamerReader::prepareNextFile() {
  * If end-of-run nullptr is returned.
  */
 EventMsgView const* DQMStreamerReader::prepareNextEvent() {
+  update_watchdog_();
+
   EventMsgView const* eview = nullptr;
   typedef DQMFileIterator::State State;
 
@@ -247,7 +260,6 @@ EventMsgView const* DQMStreamerReader::prepareNextEvent() {
  * This is the actual code for checking the new event and/or deserializing it.
  */
 bool DQMStreamerReader::checkNextEvent() {
-
   EventMsgView const* eview = prepareNextEvent();
   if (eview == nullptr) {
     return false;

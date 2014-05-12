@@ -42,6 +42,7 @@ class DQMStreamerReader : public StreamerInputSource {
 
  private:
   void delay_();
+  void update_watchdog_();
 
   // our own, but we do inherit reset(),
   // which will break things if called

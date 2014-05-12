@@ -16,7 +16,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(200),
 )
 
-from IOPool.DQMStreamer.DQMStreamerReader_cff import DQMStreamerReader
+from DQMServices.StreamerIO.DQMStreamerReader_cff import DQMStreamerReader
 process.source = DQMStreamerReader
 
 process.MessageLogger = cms.Service("MessageLogger",
