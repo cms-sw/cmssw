@@ -401,10 +401,7 @@ void HcalTriggerPrimitiveAlgo::analyzeHFV1(
 
         if(HCALFEM != 0)
         {
-
-           
             finegrain[ibin] = HCALFEM->fineGrainbit(ADCShort, HF_DETAILS->ShortDigi.id(), HF_DETAILS->ShortDigi[ibin].capid(), ADCLong, HF_DETAILS->LongDigi.id(), HF_DETAILS->LongDigi[ibin].capid());
-            
         }
     }
     outcoder_->compress(output, finegrain, result);
