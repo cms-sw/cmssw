@@ -37,7 +37,6 @@ template<class C> class EcalUncalibRecHitRecAnalFitAlgo : public EcalUncalibRecH
   };
 
   double pedestalFunction(double* var, double* par) {
-    double  x     = var[0];
     double ped    = par[0];
     return ped;
   };
