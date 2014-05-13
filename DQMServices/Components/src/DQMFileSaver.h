@@ -40,14 +40,14 @@ private:
     FilterUnit
   };
 
-  enum Serialization
+  enum FileFormat
   {
     ROOT,
     PB
   };
 
   Convention	convention_;
-  Serialization serialization_;
+  FileFormat    fileFormat_;
   std::string	workflow_;
   std::string	producer_;
   std::string	dirName_;

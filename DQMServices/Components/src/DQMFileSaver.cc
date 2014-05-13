@@ -318,7 +318,7 @@ DQMFileSaver::saveJobReport(const std::string &filename)
 //--------------------------------------------------------
 DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
   : convention_ (Offline),
-    serialization_(ROOT),
+    fileFormat_(ROOT),
     workflow_ (""),
     producer_ ("DQM"),
     dirName_ ("."),
@@ -387,15 +387,15 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
     workflow_="/Global/Online/P5";
   }
 
-  // Determine the file serialization technology, and adjust defaults accordingly.
-  std::string serialization = ps.getUntrackedParameter<std::string>("serialization", "ROOT");
-  if (serialization == "ROOT")
-    serialization_ = ROOT;
-  else if (serialization == "PB")
-    serialization_ = PB;
+  // Determine the file format, and adjust defaults accordingly.
+  std::string fileFormat = ps.getUntrackedParameter<std::string>("fileFormat", "ROOT");
+  if (fileFormat == "ROOT")
+    fileFormat_ = ROOT;
+  else if (fileFormat == "PB")
+    fileFormat_ = PB;
   else
     throw cms::Exception("DQMFileSaver")
-      << "Invalid 'serialization' parameter '" << serialization << "'."
+      << "Invalid 'fileFormat' parameter '" << fileFormat << "'."
       << "  Expected one of 'ROOT' or 'PB'.";
 
   // Allow file producer to be set to specific values in certain conditions.
@@ -552,9 +552,9 @@ void DQMFileSaver::analyze(const edm::Event &e, const edm::EventSetup &)
 	<< " only in Online mode.";
 
     sprintf(suffix, "_R%09d_E%08d", irun_, ievent_);
-    if (serialization_ == ROOT)
+    if (fileFormat_ == ROOT)
       saveForOnline(suffix, "\\1\\2");
-    else if (serialization_ == PB)
+    else if (fileFormat_ == PB)
       saveForOnlinePB(suffix);
     else
       throw cms::Exception("DQMFileSaver")
@@ -589,9 +589,9 @@ void DQMFileSaver::analyze(const edm::Event &e, const edm::EventSetup &)
       sprintf(suffix, "_R%09d_T%08d", irun_, int(totalelapsed));
       char rewrite[64];
       sprintf(rewrite, "\\1Run %d/\\2/Run summary", irun_);
-      if (serialization_ == ROOT)
+      if (fileFormat_ == ROOT)
         saveForOnline(suffix, rewrite);
-      else if (serialization_ == PB)
+      else if (fileFormat_ == PB)
         saveForOnlinePB(suffix);
       else
         throw cms::Exception("DQMFileSaver")
@@ -618,9 +618,9 @@ DQMFileSaver::endLuminosityBlock(const edm::LuminosityBlock &, const edm::EventS
       char rewrite[128];
       sprintf(suffix, "_R%09d_L%06d", irun_, ilumi_);
       sprintf(rewrite, "\\1Run %d/\\2/By Lumi Section %d-%d", irun_, ilumiprev_, ilumi_);
-      if (serialization_ == ROOT)
+      if (fileFormat_ == ROOT)
         saveForOnline(suffix, rewrite);
-      else if (serialization_ == PB)
+      else if (fileFormat_ == PB)
         saveForOnlinePB(suffix);
       else
         throw cms::Exception("DQMFileSaver")
@@ -631,13 +631,13 @@ DQMFileSaver::endLuminosityBlock(const edm::LuminosityBlock &, const edm::EventS
     }
     if (convention_ == FilterUnit) // store at every lumi section end
     {
-      if (serialization_ == ROOT)
+      if (fileFormat_ == ROOT)
       {
         char rewrite[128];
         sprintf(rewrite, "\\1Run %d/\\2/By Lumi Section %d-%d", irun_, ilumi_, ilumi_);
         saveForFilterUnit(rewrite, irun_, ilumi_);
       }
-      else if (serialization_ == PB)
+      else if (fileFormat_ == PB)
         saveForFilterUnitPB(irun_, ilumi_);
       else
         throw cms::Exception("DQMFileSaver")
@@ -646,7 +646,7 @@ DQMFileSaver::endLuminosityBlock(const edm::LuminosityBlock &, const edm::EventS
     }
     if (convention_ == Offline)
     {
-      if (serialization_ == ROOT)
+      if (fileFormat_ == ROOT)
         saveForOffline(workflow_, irun_, ilumi_);
       else
       // FIXME(diguida): do we need to support lumisection saving in Offline for PB?
@@ -669,9 +669,9 @@ DQMFileSaver::endRun(const edm::Run &, const edm::EventSetup &)
       sprintf(suffix, "_R%09d", irun_);
       char rewrite[64];
       sprintf(rewrite, "\\1Run %d/\\2/Run summary", irun_);
-      if (serialization_ == ROOT)
+      if (fileFormat_ == ROOT)
         saveForOnline(suffix, rewrite);
-      else if (serialization_ == PB)
+      else if (fileFormat_ == PB)
         saveForOnlinePB(suffix);
       else
         throw cms::Exception("DQMFileSaver")
@@ -680,22 +680,22 @@ DQMFileSaver::endRun(const edm::Run &, const edm::EventSetup &)
     }
     if (convention_ == FilterUnit)
     {
-      if (serialization_ == ROOT)
+      if (fileFormat_ == ROOT)
       {
         char rewrite[64];
         sprintf(rewrite, "\\1Run %d/\\2/Run summary", irun_);
         saveForFilterUnit(rewrite, irun_, 0);
       }
-      else if (serialization_ == PB)
+      else if (fileFormat_ == PB)
 	saveForFilterUnitPB(irun_, 0);
       else
         throw cms::Exception("DQMFileSaver")
           << "Internal error, can save files"
           << " only in ROOT or ProtocolBuffer format.";
     }
-    else if (convention_ == Offline && serialization_ == ROOT)
+    else if (convention_ == Offline && fileFormat_ == ROOT)
       saveForOffline(workflow_, irun_, 0);
-    else if (convention_ == Offline && serialization_ == PB)
+    else if (convention_ == Offline && fileFormat_ == PB)
       saveForOfflinePB(workflow_, irun_);
     else
       throw cms::Exception("DQMFileSaver")
