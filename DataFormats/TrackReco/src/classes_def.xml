@@ -4,8 +4,13 @@
       <version ClassVersion="11" checksum="1621684703"/>
   </class>
 
-  <class name="reco::TrackBase" ClassVersion="13">
+  <class name="reco::HitPatternConversorHitProxy" ClassVersion="0">
+      <version ClassVersion="0" checksum="1389560278"/>
+  </class>
+ 
 
+  <class name="reco::TrackBase" ClassVersion="13">
+  <!-- I think there should only one copy of those <field /> since they are not nested. -->
    <version ClassVersion="13" checksum="1244921154"/>
     <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
     <field name="momentum_" iotype="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
@@ -18,7 +23,219 @@
     <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
     <field name="momentum_" iotype="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
   </class>
+  
 
+ <!--
+
+In this rule source should be source="uint32_t hitPattern_[]"
+but arrays of references "type &array[];" are not valid in C++.
+
+Proper way to have as source a variable that is an array?
+I don't know how source binding is being done given that types do no match
+ -->  
+ <!-- 
+ <ioread
+      sourceClass="reco::HitPattern"
+      source="uint32_t* hitPattern_"
+      targetClass="reco::HitPattern"
+      target="hitPattern"
+      include="iostream; DataFormats/TrackReco/interface/HitPatternConversorHitProxy.h"
+      version="[-11]">
+      <![CDATA[
+        const unsigned short HitSize = 11;
+        const unsigned short PatternSize = 25;
+        const int MaxHits = (PatternSize * sizeof(uint32_t)) / HitSize;
+        
+        enum HitPatternCategory {TRACK_HITS, EXPECTED_HITS_INNER, EXPECTED_HITS_OUTER};
+        
+        auto getHitFromOldHitPattern = [HitSize] (const uint32_t hitPattern[], const int position)
+        {
+            uint16_t bitEndOffset = (position + 1) * HitSize;
+            uint8_t secondWord   = (bitEndOffset >> 5);
+            uint8_t secondWordBits = bitEndOffset & (32 - 1); // that is, bitEndOffset % 32
+            if (secondWordBits >= HitSize) { // full block is in this word
+                uint8_t lowBitsToTrash = secondWordBits - HitSize;
+                return (hitPattern[secondWord] >> lowBitsToTrash) & ((1 << HitSize) - 1);
+            } else {
+                uint8_t  firstWordBits   = HitSize - secondWordBits;
+                uint32_t firstWordBlock  = hitPattern[secondWord - 1] >> (32 - firstWordBits);
+                uint32_t secondWordBlock = hitPattern[secondWord] & ((1 << secondWordBits) - 1);
+                return firstWordBlock + (secondWordBlock << firstWordBits);
+            }
+        };
+
+        auto hitPatternToTrackingRecHitProxy = [&] (const uint32_t pattern)
+        {
+            const static unsigned short HitTypeMask = 0x3;
+            const static unsigned short HitTypeOffset = 0;
+            const static unsigned short SubstrMask = 0x7;
+            const static unsigned short SubstrOffset = 7;
+            const static unsigned short SubDetectorMask = 0x1;
+            const static unsigned short SubDetectorOffset = 10;
+    
+            const uint32_t VALID_CONST = (uint32_t) TrackingRecHit::valid;
+            const uint32_t MISSING_CONST = (uint32_t) TrackingRecHit::missing;
+            const uint32_t INACTIVE_CONST = (uint32_t) TrackingRecHit::inactive;
+
+            uint32_t rawHitType = (pattern >> HitTypeOffset)  & HitTypeMask;
+            uint32_t subdet = (pattern >> SubstrOffset) & SubstrMask;
+            uint32_t detid = (pattern >> SubDetectorOffset) & SubDetectorMask;
+
+            TrackingRecHit::Type hitType = TrackingRecHit::valid;
+            switch (rawHitType){
+              case VALID_CONST:
+                hitType = TrackingRecHit::valid;
+              break;
+              case MISSING_CONST:
+                hitType = TrackingRecHit::missing;
+              break;
+              case INACTIVE_CONST:
+                hitType = TrackingRecHit::inactive;
+              break;
+            }
+            return reco::HitPatternConversorHitProxy(DetId((detid == DetId::Tracker ? DetId::Tracker : DetId::Muon), subdet), hitType);
+        };
+
+        auto fillHitPatternWithOldHitPattern = [&] (const uint32_t oldHitPattern[])
+        {
+            if (newObj->numberOfHits(reco::HitPattern::ALL_HITS) >= MaxHits){
+                return false;
+            }
+
+            for (int i = 0; i < MaxHits; i++) {
+                uint16_t pattern = getHitFromOldHitPattern(oldHitPattern, i);
+                if (pattern == 0){
+                    break;
+                }
+
+                if(!newObj->appendHit(hitPatternToTrackingRecHitProxy(pattern))){
+                    return false;
+                }
+            }
+            return true;
+        };
+        
+        fillHitPatternWithOldHitPattern(onfile.hitPattern_);
+      ]]>
+ </ioread>
+ -->
+<!-- toy rule to investigate how to investigate the array-as-source problem -->
+<!--
+<ioread
+      sourceClass="reco::HitPattern"
+      source="uint32_t hitPattern_"
+      targetClass="reco::HitPattern"
+      target="hitPattern"
+      include="iostream"
+      version="[-11]">
+      <![CDATA[
+
+        const unsigned short HitSize = 11;
+        const unsigned short PatternSize = 25;
+        const int MaxHits = (PatternSize * 32) / HitSize;
+
+        auto getHitFromOldHitPattern = [HitSize] (const uint32_t hitPattern[], const int position)
+        {
+            uint16_t bitEndOffset = (position + 1) * HitSize;
+            uint8_t secondWord   = (bitEndOffset >> 5);
+            uint8_t secondWordBits = bitEndOffset & (32 - 1); // that is, bitEndOffset % 32
+            if (secondWordBits >= HitSize) { // full block is in this word
+                uint8_t lowBitsToTrash = secondWordBits - HitSize;
+                return (hitPattern[secondWord] >> lowBitsToTrash) & ((1 << HitSize) - 1);
+            } else {
+                uint8_t  firstWordBits   = HitSize - secondWordBits;
+                uint32_t firstWordBlock  = hitPattern[secondWord - 1] >> (32 - firstWordBits);
+                uint32_t secondWordBlock = hitPattern[secondWord] & ((1 << secondWordBits) - 1);
+                return firstWordBlock + (secondWordBlock << firstWordBits);
+            }
+        };
+
+
+        for(int i=0; i < MaxHits; i++){
+            std::cout << getHitFromOldHitPattern(&onfile.hitPattern_, i) << ' ';
+        }
+        std::cout << std::endl;
+      ]]>
+</ioread>
+-->
+
+<!-- TrackBase to TrackBase conversion rule. Reads and merges the tree into one. --> 
+<!--
+<ioread
+      sourceClass="reco::TrackBase"
+      source="reco::HitPattern hitPattern_; reco::HitPattern trackerExpectedHitsInner_; reco::HitPattern::trackerExpectedHitsOuter_"
+      targetClass="reco::TrackBase"
+      target="hitPattern_" 
+      include="iostream; DataFormats/TrackReco/interface/HitPatternConversorHitProxy.h"
+      version="[-12]">
+      <![CDATA[
+        using namespace reco;
+    
+        enum HitPatternCategory {TRACK_HITS, EXPECTED_HITS_INNER, EXPECTED_HITS_OUTER};
+        
+        auto hitPatternToTrackingRecHitProxy = [&] (const uint32_t pattern, const HitPatternCategory category)
+        {
+            const static unsigned short HitTypeMask = 0x3;
+            const static unsigned short HitTypeOffset = 0;
+            const static unsigned short SubstrMask = 0x7;
+            const static unsigned short SubstrOffset = 7;
+            const static unsigned short SubDetectorMask = 0x1;
+            const static unsigned short SubDetectorOffset = 10;
+
+            const uint32_t VALID_CONST = (uint32_t) TrackingRecHit::valid;
+            const uint32_t MISSING_CONST = (uint32_t) TrackingRecHit::missing;
+            const uint32_t INACTIVE_CONST = (uint32_t) TrackingRecHit::inactive;
+
+            uint32_t rawHitType = (pattern >> HitTypeOffset)  & HitTypeMask;
+            uint32_t subdet = (pattern >> SubstrOffset) & SubstrMask;
+            uint32_t detid = (pattern >> SubDetectorOffset) & SubDetectorMask;
+        
+            TrackingRecHit::Type hitType = TrackingRecHit::valid;
+            switch (rawHitType){
+              case VALID_CONST:
+                hitType = TrackingRecHit::valid;
+              break;
+              case MISSING_CONST:
+                hitType = TrackingRecHit::missing;
+              break;
+              case INACTIVE_CONST:
+                hitType = TrackingRecHit::inactive;
+              break;
+            }
+            
+            if (category == EXPECTED_HITS_INNER){
+                hitType = TrackingRecHit::missing_inner;
+            }else if (category == EXPECTED_HITS_OUTER){
+                hitType = TrackingRecHit::missing_outer;
+            }
+            return reco::HitPatternConversorHitProxy(DetId((detid == DetId::Tracker ? DetId::Tracker : DetId::Muon), subdet), hitType);
+        };
+
+        //none of the methods called using the object oldHitPattern will work because they belong to the HitPattern(old)
+        //but HitPattern(old) methods have to be used within this context in order to access its private members.
+        auto fillHitPatternWithOldHitPattern = [&] (const HitPattern oldHitPattern, HitPatternCategory category)
+        {
+            const uint8_t MaxHits = 72;
+            if (newObj->getHitPattern().numberOfHits(reco::HitPattern::ALL_HITS) >= MaxHits){
+                return false;
+            }
+
+            int numberOfHits = oldHitPattern.numberOfHits();
+            for (int i = 0; i < numberOfHits; i++) {
+                uint32_t pattern = oldHitPattern.getHitPattern(i);
+                if(!newObj->appendHitPattern(hitPatternToTrackingRecHitProxy(pattern, category))){
+                    return false;
+                }
+            }
+            return true;
+        };
+
+        fillHitPatternWithOldHitPattern(onfile.hitPattern_, TRACK_HITS);
+        //fillHitPatternWithOldHitPattern(onfile.trackerExpectedHitsInner_, EXPECTED_HITS_INNER);
+        //fillHitPatternWithOldHitPattern(onfile.trackerExpectedHitsOuter_, EXPECTED_HITS_OUTER);
+      ]]>
+ </ioread>
+ -->
   <class name="reco::TrackResiduals" ClassVersion="10">
    <version ClassVersion="10" checksum="2022291691"/>
   </class>
