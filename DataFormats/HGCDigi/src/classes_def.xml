@@ -2,6 +2,7 @@
 
    <!-- common -->
    <class name="HGCSample"/>
+   <class name="std::vector<HGCSample>"/>
 
    <!-- EE specific -->
    <class name="HGCEEDetId"/>

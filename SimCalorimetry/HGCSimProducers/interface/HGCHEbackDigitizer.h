@@ -7,7 +7,7 @@
 class HGCHEbackDigitizer : public HGCDigitizerBase<HGCHEDataFrame>
 {
  public:
-  HGCHEbackDigitizer();
+  HGCHEbackDigitizer(const edm::ParameterSet& ps);
   void runDigitizer(std::auto_ptr<HGCHEDigiCollection> &digiColl,HGCSimHitDataAccumulator &simData);
   ~HGCHEbackDigitizer();
  private:

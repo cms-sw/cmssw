@@ -1,7 +1,7 @@
 #include "SimCalorimetry/HGCSimProducers/interface/HGCHEfrontDigitizer.h"
 
 //
-HGCHEfrontDigitizer::HGCHEfrontDigitizer()
+HGCHEfrontDigitizer::HGCHEfrontDigitizer(const edm::ParameterSet &ps) : HGCDigitizerBase(ps)
 {
 }
 

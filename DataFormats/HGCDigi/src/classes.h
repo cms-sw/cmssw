@@ -4,6 +4,7 @@
 namespace {
   struct dictionary {
     HGCSample anHGCsample;
+    std::vector<HGCSample> vHGCsample;
 
     //EE specific
     HGCEEDetId anHGCEEDetId;

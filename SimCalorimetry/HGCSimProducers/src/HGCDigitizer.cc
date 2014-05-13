@@ -9,9 +9,11 @@
 #include <boost/foreach.hpp>
 
 
-
 //
-HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps)
+HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps) :
+  theHGCEEDigitizer_(ps),
+  theHGCHEbackDigitizer_(ps),
+  theHGCHEfrontDigitizer_(ps)
 {
   //configure from cfg
   hitCollection_     = ps.getUntrackedParameter< std::string >("hitCollection");
@@ -25,7 +27,10 @@ HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps)
   if ( ! rng.isAvailable()) {
     throw cms::Exception("Configuration") << "HGCDigitizer requires the RandomNumberGeneratorService - please add this service or remove the modules that require it";
   }
-  //CLHEP::HepRandomEngine& engine = rng->getEngine();
+  CLHEP::HepRandomEngine& engine = rng->getEngine();
+  theHGCEEDigitizer_.setRandomNumberEngine(engine);
+  theHGCHEbackDigitizer_.setRandomNumberEngine(engine);
+  theHGCHEfrontDigitizer_.setRandomNumberEngine(engine);
 }
 
 //

@@ -7,7 +7,7 @@
 class HGCHEfrontDigitizer : public HGCDigitizerBase<HGCHEDataFrame>
 {
  public:
-  HGCHEfrontDigitizer();
+  HGCHEfrontDigitizer(const edm::ParameterSet& ps);
   void runDigitizer(std::auto_ptr<HGCHEDigiCollection> &digiColl,HGCSimHitDataAccumulator &simData);
   ~HGCHEfrontDigitizer();
  private:

@@ -7,6 +7,9 @@ hgceeDigitizer = cms.PSet( accumulatorType   = cms.string("HGCDigiProducer"),
                            bxTime            = cms.untracked.int32(25),
                            doTrivialDigis    = cms.untracked.bool(True),
                            makeDigiSimLinks  = cms.untracked.bool(False),
+                           digiCfg = cms.untracked.PSet( lsbInMeV   = cms.untracked.double(10),
+                                                         noiseInMeV = cms.untracked.double(10)
+                                                         )
                            )
 
 hgchefrontDigitizer = hgceeDigitizer.clone()

@@ -1,7 +1,7 @@
 #include "SimCalorimetry/HGCSimProducers/interface/HGCHEbackDigitizer.h"
 
 //
-HGCHEbackDigitizer::HGCHEbackDigitizer()
+HGCHEbackDigitizer::HGCHEbackDigitizer(const edm::ParameterSet &ps) : HGCDigitizerBase(ps)
 {
 }
 

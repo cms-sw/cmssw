@@ -7,6 +7,8 @@
 
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "CLHEP/Random/RandGauss.h"
 
 typedef std::vector<double> HGCSimHitData;
 typedef std::map<uint32_t, HGCSimHitData> HGCSimHitDataAccumulator;
@@ -14,13 +16,26 @@ typedef std::map<uint32_t, HGCSimHitData> HGCSimHitDataAccumulator;
 template <class D>
 class HGCDigitizerBase {
  public:
-  
+ 
   typedef edm::SortedCollection<D> DColl;
 
   /**
      @short CTOR
    */
-  HGCDigitizerBase() {};
+  HGCDigitizerBase(const edm::ParameterSet &ps) : simpleNoiseGen_(0)
+    {
+      myCfg_      = ps.getUntrackedParameter<edm::ParameterSet>("digiCfg"); 
+      lsbInMeV_   = myCfg_.getUntrackedParameter<double>("lsbInMeV");
+      noiseInMeV_ = myCfg_.getUntrackedParameter<double>("noiseInMeV");
+    }
+
+  /**
+     @short init a random number generator for noise
+   */
+  void setRandomNumberEngine(CLHEP::HepRandomEngine& engine) 
+  { 
+    simpleNoiseGen_ = new CLHEP::RandGauss(engine,0,noiseInMeV_);
+  }
 
   /**
      @short steer digitization mode
@@ -42,11 +57,19 @@ class HGCDigitizerBase {
 	it++)
       {
 
-	//convert total energy GeV->10 keV=LSB
+	//convert total energy GeV->ADC counts
 	double totalEn(0);
 	for(size_t i=0; i<it->second.size(); i++) totalEn+= (it->second)[i];
-	totalEn*=1e5;
-	HGCSample singleSample( (uint16_t) totalEn );
+	totalEn*=1e6;
+
+	//add noise (in MeV)
+	double noiseEn=simpleNoiseGen_->fire();
+	if(noiseEn<0) noiseEn=0;
+ 
+	//round to integer
+	uint16_t totalEnInt = floor((totalEn+noiseEn)/lsbInMeV_);
+
+	HGCSample singleSample( totalEnInt );
 	if(singleSample.adc()==0) continue;
  
 	//no time information
@@ -69,9 +92,21 @@ class HGCDigitizerBase {
   /**
      @short DTOR
    */
-  ~HGCDigitizerBase() {};
+  ~HGCDigitizerBase() 
+    {
+      if(simpleNoiseGen_) delete simpleNoiseGen_;
+    };
   
+  //baseline configuration
+  edm::ParameterSet myCfg_;
+
  private:
+
+  //
+  double lsbInMeV_,noiseInMeV_;
+
+  //
+  mutable CLHEP::RandGauss *simpleNoiseGen_;
 
 };
 

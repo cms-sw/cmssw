@@ -1,7 +1,7 @@
 #include "SimCalorimetry/HGCSimProducers/interface/HGCEEDigitizer.h"
 
 //
-HGCEEDigitizer::HGCEEDigitizer()
+HGCEEDigitizer::HGCEEDigitizer(const edm::ParameterSet& ps) : HGCDigitizerBase(ps)
 {
 }
 
