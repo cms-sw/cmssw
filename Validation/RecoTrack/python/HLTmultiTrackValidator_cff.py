@@ -7,6 +7,7 @@ hltLhcParametersDefinerForTP.beamSpot      = cms.untracked.InputTag('hltOnlineBe
 
 from Validation.RecoTrack.MultiTrackValidator_cfi import *
 hltMultiTrackValidator = multiTrackValidator.clone()
+hltMultiTrackValidator.ignoremissingtkcollection = cms.bool(True)
 hltMultiTrackValidator.dirName = cms.string('HLT/Tracking/ValidationWRTtp/')
 hltMultiTrackValidator.label   = cms.VInputTag(
     cms.InputTag("hltPixelTracks"),
@@ -79,11 +80,11 @@ hltTrackingParticleRecoTrackAsssociation = cms.EDProducer("TrackAssociatorEDProd
     label_tr = cms.InputTag("hltIter4Merged"),
     associator = cms.string('hltQuickTrackAssociatorByHits'),
     label_tp = cms.InputTag("mix","MergedTrackTruth"),
-    ignoremissingtrackcollection = cms.untracked.bool(False)
+    ignoremissingtrackcollection = cms.untracked.bool(True)
 )
 
 hltMultiTrackValidator.associatormap = cms.InputTag("hltTrackingParticleRecoTrackAsssociation")
-
+hltMultiTrackValidator.ignoremissingtrackcollection = cms.untracked.bool(True)
 
 hltTPClusterProducer = cms.EDProducer("ClusterTPAssociationProducer",
     stripSimLinkSrc = cms.InputTag("simSiStripDigis"),
