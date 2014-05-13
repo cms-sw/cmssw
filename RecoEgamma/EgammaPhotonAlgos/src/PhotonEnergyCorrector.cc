@@ -59,7 +59,7 @@ PhotonEnergyCorrector::PhotonEnergyCorrector( const edm::ParameterSet& config, e
   weightsfromDB_= config.getParameter<bool>("regressionWeightsFromDB");
   w_file_ = config.getParameter<std::string>("energyRegressionWeightsFileLocation");
   if (weightsfromDB_) w_db_   = config.getParameter<std::string>("energyRegressionWeightsDBLocation");
-  else  w_db_ == "none" ;
+  else  w_db_ = "none" ;
   regressionCorrector_ = new EGEnergyCorrector(); 
 
 

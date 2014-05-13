@@ -30,9 +30,6 @@ using namespace SiPixelTemplateReco;
 using namespace std;
 
 namespace {
-  constexpr float PI = 3.141593;
-  constexpr float HALFPI = PI * 0.5;
-  constexpr float degsPerRad = 57.29578;
   constexpr float micronsToCm = 1.0e-4;  
   constexpr int cluster_matrix_size_x = 13;
   constexpr int cluster_matrix_size_y = 21;
