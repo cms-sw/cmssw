@@ -15,7 +15,6 @@ namespace clangcms {
 void EDMPluginDumper::checkASTDecl(const clang::ClassTemplateDecl *TD,clang::ento::AnalysisManager& mgr,
                     clang::ento::BugReporter &BR ) const {
 
-	const clang::SourceManager &SM = BR.getSourceManager();
 	std::string tname = TD->getTemplatedDecl()->getQualifiedNameAsString();
 	if ( tname == "edm::WorkerMaker" ) {
 		for ( auto I = TD->spec_begin(), E = TD->spec_end(); I != E; ++I) {
