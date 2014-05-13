@@ -27,6 +27,7 @@ class ConfigurableTertiaryTracksVertexFinder : public VertexReconstructor {
 
   virtual ~ConfigurableTertiaryTracksVertexFinder();
 
+  using VertexReconstructor::vertices;
   virtual std::vector<TransientVertex> 
     vertices(const std::vector<reco::TransientTrack> &) const; 
 

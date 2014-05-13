@@ -28,7 +28,6 @@ const  int       nrFiles  	  		= 51;
 const  TString   path     	  		= "dcap://maite.iihe.ac.be:/pnfs/iihe/becms/heyninck/TtSemiMuEvents_TopRex_Juni/TtSemiMuEvents_";
 
 //matching variables
-const  bool  	 useSpaceAngle    		= true;
 const  double 	 SumAlphaCut  	  		= 0.7;
 
 //select which observables to use
