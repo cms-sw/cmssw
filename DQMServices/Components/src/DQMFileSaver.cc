@@ -141,7 +141,7 @@ DQMFileSaver::saveForOnlinePB(const std::string &suffix)
   // The file name contains the Online workflow name
   // as we do not want to look inside the DQMStore.
   // and the @a suffix, defined in the run/lumi transitions
-  // FIXME(diguida): add the possibility to change the dir structure with rewrite.
+  // TODO(diguida): add the possibility to change the dir structure with rewrite.
   size_t pos = 0;
   std::string wflow;
   wflow.reserve(workflow_.size() + 3);
@@ -270,7 +270,7 @@ DQMFileSaver::saveForFilterUnitPB(int run, int lumi)
   std::string filename_json = fileBaseName_ + daqFileName + ".jsn";
 
   // Save the file
-  // FIXME(diguida): support mutithreading!
+  // TODO(diguida): check if this is mutithread friendly!
   dbe_->savePB(filename, filterName_);
   saveJson(run, lumi, filename_json, filename);
 }
@@ -284,11 +284,11 @@ DQMFileSaver::saveForFilterUnit(const std::string& rewrite, int run, int lumi)
   sprintf(daqFileName, "run%06d_ls%04d_stream%sFU_pid%05d", run, lumi, producer_.c_str(), getpid());
   std::string filename = fileBaseName_ + daqFileName + ".root";
 
-  // FIXME(diguida): save the file with the full directory tree,
+  // Save the file with the full directory tree,
   // modifying it according to @a rewrite,
   // but not looking for MEs inside the DQMStore, as in the online case,
   // nor filling new MEs, as in the offline case.
-  // FIXME(diguida): support mutithreading!
+  // TODO(diguida): check if this is mutithread friendly!
   dbe_->save(filename,
              "",
              "^(Reference/)?([^/]+)",
@@ -362,8 +362,7 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
       << "  Expected one of 'Online' or 'Offline' or 'FilterUnit'.";
 
   // If this is neither online nor FU convention, check workflow.
-  //FIXME(diguida): in this way, FU is treated as online,
-  //so we cannot specify a workflow. TBC
+  // In this way, FU is treated as online, so we cannot specify a workflow. TBC
   if (convention_ != Online && convention_ != FilterUnit)
   {
     workflow_ = ps.getUntrackedParameter<std::string>("workflow", workflow_);
@@ -400,6 +399,8 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
 
   // Allow file producer to be set to specific values in certain conditions.
   producer_ = ps.getUntrackedParameter<std::string>("producer", producer_);
+  // Setting the same constraints on file producer both for online and FilterUnit conventions
+  // TODO(diguida): limit the producer for FilterUnit to be 'HLTDQM'?
   if ((convention_ == Online || convention_ == FilterUnit)
       && producer_ != "DQM"
       && producer_ != "HLTDQM"
@@ -417,8 +418,6 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
       << "Invalid 'producer' parameter '" << producer_
       << "'.  Expected 'DQM'.";
   }
-  //FIXME(diguida): setting the same file producer constraints as in online for FU.
-  //HLTDQM should be set to be the only producer for FUs?
 
   // version number to be used in filename
   version_ = ps.getUntrackedParameter<int>("version", version_);
@@ -486,7 +485,8 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
 
   // Set up base file name:
   // - for online and offline, follow the convention <dirName>/<producer>_V<4digits>_
-  // - for FU, follow the convention <dirName>/ (we need the run and lumisection).
+  // - for FilterUnit, we need to follow the DAQ2 convention, so we need the run and lumisection:
+  //   for the moment, the base file name is set to <dirName>/ .
   fileBaseName_ = dirName_ + "/";
   if (convention_ != FilterUnit)
   {
@@ -649,7 +649,7 @@ DQMFileSaver::endLuminosityBlock(const edm::LuminosityBlock &, const edm::EventS
       if (fileFormat_ == ROOT)
         saveForOffline(workflow_, irun_, ilumi_);
       else
-      // FIXME(diguida): do we need to support lumisection saving in Offline for PB?
+      // TODO(diguida): do we need to support lumisection saving in Offline for PB?
       // In this case, for ROOT, we only save EventInfo folders: we can filter them...
         throw cms::Exception("DQMFileSaver")
           << "Internal error, can save files"
