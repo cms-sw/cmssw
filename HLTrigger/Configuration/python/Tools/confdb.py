@@ -48,17 +48,6 @@ class HLTProcess(object):
     "HLT_HcalUTCA_v*",
     
 # TODO: paths not supported by FastSim, but for which a recovery should be attempted
-    
-    "HLT_DoubleMediumIsoPFTau30_Trk1_eta2p1_Reg_Jet30_v*", 
-    "HLT_DoubleMediumIsoPFTau30_Trk1_eta2p1_Reg_v*",
-    "HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Prong1_Reg_v*",
-    "HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg_v*",
-    "HLT_IsoMu18_eta2p1_MediumIsoPFTau25_Trk1_eta2p1_Reg_v*",
-# (not really needed for the five above, because the corresponding paths without regional
-#  tracking are already in the HLT menu)
-    "HLT_DoubleMediumIsoPFTau45_Trk1_eta2p1_Reg_Jet30_v*",
-    "HLT_DoubleMediumIsoPFTau50_Trk1_eta2p1_Prong1_Reg_v*",
-    "HLT_IsoMu26_eta2p1_MediumIsoPFTau30_Trk1_eta2p1_Reg_v*",
   
     )
 
@@ -997,6 +986,8 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltFEDSelector" )
       self.options['modules'].append( "-hltL3TrajSeedOIHit" )
       self.options['modules'].append( "-hltL3TrajSeedIOHit" )
+      self.options['modules'].append( "-hltL3NoFiltersTrajSeedOIHit" )
+      self.options['modules'].append( "-hltL3NoFiltersTrajSeedIOHit" )
       self.options['modules'].append( "-hltL3TrackCandidateFromL2OIState" )
       self.options['modules'].append( "-hltL3TrackCandidateFromL2OIHit" )
       self.options['modules'].append( "-hltL3TrackCandidateFromL2IOHit" )
@@ -1064,7 +1055,21 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltPixelTracksForHighMult" )
       self.options['modules'].append( "-hltRegionalPixelTracks" )
       self.options['modules'].append( "-hltPixelTracksReg" )
+      self.options['modules'].append( "-hltPixelTracksL3MuonReg" )
+      self.options['modules'].append( "-hltPixelTracksHybrid" )
+      self.options['modules'].append( "-hltPixelTracksL3MuonReg" )
+      self.options['modules'].append( "-hltPixelTracksForPhotons" )
+      self.options['modules'].append( "-hltPixelTracksForEgamma" )
+      self.options['modules'].append( "-hltPixelTracksGlbTrkMuonReg" )
       self.options['modules'].append( "-hltIter4Merged" )
+      self.options['modules'].append( "-hltIter4Tau3MuMerged" )
+      self.options['modules'].append( "-hltIter4MergedReg" )
+      self.options['modules'].append( "-hltIter2MergedForElectrons" )
+      self.options['modules'].append( "-hltIter2MergedForPhotons" )
+      self.options['modules'].append( "-hltIter2L3MuonMergedReg" )
+      self.options['modules'].append( "-hltIter2GlbTrkMuonMergedReg" )
+      self.options['modules'].append( "-hltForBTagIter2Merged" )
+
       self.options['modules'].append( "-hltFastPixelHitsVertex" )
       self.options['modules'].append( "-hltFastPixelTracks")
       self.options['modules'].append( "-hltFastPixelTracksRecover")
@@ -1084,6 +1089,7 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltFastPixelTracksRecoverVHbb" )
 
       self.options['modules'].append( "-hltFastPrimaryVertex")
+      self.options['modules'].append( "-hltFastPVPixelVertexFilter")
       self.options['modules'].append( "-hltFastPVPixelTracks")
       self.options['modules'].append( "-hltFastPVPixelTracksRecover" )
 
@@ -1106,6 +1112,10 @@ if 'GlobalTag' in %%(dict)s:
       self.options['sequences'].append( "-HLTDoLocalStripSequence" )
       self.options['sequences'].append( "-HLTDoLocalPixelSequence" )
       self.options['sequences'].append( "-HLTDoLocalPixelSequenceRegL2Tau" )
+      self.options['sequences'].append( "-HLTDoLocalStripSequenceReg" )
+      self.options['sequences'].append( "-HLTDoLocalPixelSequenceReg" )
+      self.options['sequences'].append( "-HLTDoLocalStripSequenceRegForBTag" )
+      self.options['sequences'].append( "-HLTDoLocalPixelSequenceRegForBTag" )
       self.options['sequences'].append( "-hltSiPixelDigis" )
       self.options['sequences'].append( "-hltSiPixelClusters" )
       self.options['sequences'].append( "-hltSiPixelRecHits" )
@@ -1118,6 +1128,12 @@ if 'GlobalTag' in %%(dict)s:
       self.options['sequences'].append( "-HLTHBHENoiseSequence" )
       self.options['sequences'].append( "-HLTIterativeTracking" )
       self.options['sequences'].append( "-HLTIterativeTrackingTau3Mu" )
+      self.options['sequences'].append( "-HLTIterativeTrackingReg" )
+      self.options['sequences'].append( "-HLTIterativeTrackingForEgamma" )
+      self.options['sequences'].append( "-HLTIterativeTrackingForPhotons" )
+      self.options['sequences'].append( "-HLTIterativeTrackingL3MuonRegIter02" )
+      self.options['sequences'].append( "-HLTIterativeTrackingGlbTrkMuonReg" )
+      self.options['sequences'].append( "-HLTForBTagIterativeTracking" )
       self.options['sequences'].append( "-HLTRegionalCKFTracksForL3Isolation" )
       self.options['sequences'].append( "-HLTHBHENoiseCleanerSequence" )
 
