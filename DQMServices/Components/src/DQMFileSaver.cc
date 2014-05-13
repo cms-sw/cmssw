@@ -460,17 +460,17 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
 
   filterName_ = ps.getUntrackedParameter<std::string>("filterName", filterName_);
   // Find out when and how to save files.  The following contraints apply:
-  // - For online, filter unit, and offline, allow files to be saved per run, and lumi
-  // - For online, allow files to be saved at event and time intervals.
-  // - For offline allow files to be saved at job end, and run number to be overridden (for mc data).
+  // - For online, filter unit, and offline, allow files to be saved per lumi
+  // - For online, allow files to be saved per run, at event and time intervals.
+  // - For offline allow files to be saved per run, at job end, and run number to be overridden (for mc data).
   if (convention_ == Online || convention_ == Offline || convention_ == FilterUnit)
   {
-    getAnInt(ps, saveByRun_, "saveByRun");
     getAnInt(ps, saveByLumiSection_, "saveByLumiSection");
   }
 
   if (convention_ == Online)
   {
+    getAnInt(ps, saveByRun_, "saveByRun");
     getAnInt(ps, saveByEvent_, "saveByEvent");
     getAnInt(ps, saveByMinute_, "saveByMinute");
     getAnInt(ps, saveByTime_, "saveByTime");
@@ -479,6 +479,7 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
 
   if (convention_ == Offline)
   {
+    getAnInt(ps, saveByRun_, "saveByRun");
     getAnInt(ps, forceRunNumber_, "forceRunNumber");
     saveAtJobEnd_ = ps.getUntrackedParameter<bool>("saveAtJobEnd", saveAtJobEnd_);
   }
@@ -678,21 +679,6 @@ DQMFileSaver::endRun(const edm::Run &, const edm::EventSetup &)
           << "Internal error, can save files"
           << " only in ROOT or ProtocolBuffer format.";
     }
-    if (convention_ == FilterUnit)
-    {
-      if (fileFormat_ == ROOT)
-      {
-        char rewrite[64];
-        sprintf(rewrite, "\\1Run %d/\\2/Run summary", irun_);
-        saveForFilterUnit(rewrite, irun_, 0);
-      }
-      else if (fileFormat_ == PB)
-	saveForFilterUnitPB(irun_, 0);
-      else
-        throw cms::Exception("DQMFileSaver")
-          << "Internal error, can save files"
-          << " only in ROOT or ProtocolBuffer format.";
-    }
     else if (convention_ == Offline && fileFormat_ == ROOT)
       saveForOffline(workflow_, irun_, 0);
     else if (convention_ == Offline && fileFormat_ == PB)
@@ -700,7 +686,7 @@ DQMFileSaver::endRun(const edm::Run &, const edm::EventSetup &)
     else
       throw cms::Exception("DQMFileSaver")
 	<< "Internal error.  Can only save files in endRun()"
-	<< " in Online, FilterUnit, and Offline modes.";
+	<< " in Online and Offline modes.";
 
     nrun_ = 0;
   }
