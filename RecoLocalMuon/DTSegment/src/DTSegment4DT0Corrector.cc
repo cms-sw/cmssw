@@ -82,7 +82,7 @@ void DTSegment4DT0Corrector::produce(Event& event, const EventSetup& setup){
 
       if(newSeg == 0) continue;
 
-      theUpdator->update(newSeg,true);
+      theUpdator->update(newSeg,true,0);
       result.push_back(*newSeg);
 
     }
