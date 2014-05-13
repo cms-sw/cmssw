@@ -465,8 +465,8 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
   // - For offline allow files to be saved at job end, and run number to be overridden (for mc data).
   if (convention_ == Online || convention_ == Offline || convention_ == FilterUnit)
   {
-  getAnInt(ps, saveByRun_, "saveByRun");
-  getAnInt(ps, saveByLumiSection_, "saveByLumiSection");
+    getAnInt(ps, saveByRun_, "saveByRun");
+    getAnInt(ps, saveByLumiSection_, "saveByLumiSection");
   }
 
   if (convention_ == Online)
