@@ -11,6 +11,7 @@
 #include "L1Trigger/L1TCalorimeter/interface/JetFinderMethods.h"
 #include "L1Trigger/L1TCalorimeter/interface/PUSubtractionMethods.h"
 #include "L1Trigger/L1TCalorimeter/interface/JetCalibrationMethods.h"
+#include "L1Trigger/L1TCalorimeter/interface/legacyGtHelper.h"
 
 // Taken from UCT code. Might not be appropriate. Refers to legacy L1 objects.
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
@@ -41,22 +42,26 @@ void Stage1Layer2JetAlgorithmImpPP::processEvent(const std::vector<l1t::CaloRegi
 
   std::vector<l1t::CaloRegion> * subRegions = new std::vector<l1t::CaloRegion>();
   std::vector<l1t::Jet> * uncalibjets = new std::vector<l1t::Jet>();
+  std::vector<l1t::Jet> * preGtJets = new std::vector<l1t::Jet>();
 
-  
-  //Region Correction will return uncorrected subregions 
+
+  //Region Correction will return uncorrected subregions
   //if regionPUSType is set to None in the config
   RegionCorrection(regions, EMCands, subRegions, regionPUSParams, regionPUSType);
-  
-  
+
+
   slidingWindowJetFinder(jetSeedThreshold, subRegions, uncalibjets);
 
   //will return jets with no response corrections
   //if jetCalibrationType is set to None in the config
-  JetCalibration(uncalibjets, jetCalibrationParams, jets, jetCalibrationType, jetLsb);
+  JetCalibration(uncalibjets, jetCalibrationParams, preGtJets, jetCalibrationType, jetLsb);
 
+  // takes input jets (using region scales/eta) and outputs jets using Gt scales/eta
+  JetToGtScales(params_, preGtJets, jets);
 
   delete subRegions;
   delete uncalibjets;
+  delete preGtJets;
 
   // std::vector<l1t::CaloRegion>::const_iterator incell;
   // for (incell = regions.begin(); incell != regions.end(); ++incell){
@@ -64,4 +69,3 @@ void Stage1Layer2JetAlgorithmImpPP::processEvent(const std::vector<l1t::CaloRegi
   // }
 
 }
-

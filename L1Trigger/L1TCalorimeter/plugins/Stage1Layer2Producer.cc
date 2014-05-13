@@ -27,6 +27,8 @@
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 #include "CondFormats/DataRecord/interface/L1EmEtScaleRcd.h"
 #include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
+#include "CondFormats/DataRecord/interface/L1HtMissScaleRcd.h"
+#include "CondFormats/DataRecord/interface/L1HfRingEtScaleRcd.h"
 
 #include <vector>
 #include "DataFormats/L1Trigger/interface/BXVector.h"
@@ -262,8 +264,8 @@ Stage1Layer2Producer::endJob() {
 
 void Stage1Layer2Producer::beginRun(Run const&iR, EventSetup const&iE){
 
-  unsigned long long id = iE.get<L1TCaloParamsRcd>().cacheIdentifier();  
-  
+  unsigned long long id = iE.get<L1TCaloParamsRcd>().cacheIdentifier();
+
   if (id != m_paramsCacheId) {
 
     m_paramsCacheId = id;
@@ -274,11 +276,11 @@ void Stage1Layer2Producer::beginRun(Run const&iR, EventSetup const&iE){
     // replace our local copy of the parameters with a new one using placement new
     m_params->~CaloParams();
     m_params = new (m_params) CaloParams(*paramsHandle.product());
-    
+
     LogDebug("L1TDebug") << *m_params << std::endl;
 
     if (! m_params){
-      edm::LogError("l1t|caloStage1") << "Could not retrieve params from Event Setup" << std::endl;            
+      edm::LogError("l1t|caloStage1") << "Could not retrieve params from Event Setup" << std::endl;
     }
 
   }
@@ -290,16 +292,26 @@ void Stage1Layer2Producer::beginRun(Run const&iR, EventSetup const&iE){
   m_params->setMaxGctEtaForSums(maxGctEtaForSums);
   m_params->setEgRelativeJetIsolationCut(egRelativeJetIsolationCut);
   m_params->setTauRelativeJetIsolationCut(tauRelativeJetIsolationCut);
-    
+
   LogDebug("l1t|stage 1 jets") << "Stage1Layer2Producer::beginRun function called...\n";
 
-  //get the proper scales for conversion to physical et
-  //right now just set them in the Params cfi, rename them egLsb, jetLsb
-  //edm::ESHandle< L1CaloEtScale > emScale ;
-  //iE.get< L1EmEtScaleRcd >().get( emScale ) ;
+  //get the proper scales for conversion to physical et AND gt scales
+  edm::ESHandle< L1CaloEtScale > emScale ;
+  iE.get< L1EmEtScaleRcd >().get( emScale ) ;
+  m_params->setEmScale(*emScale);
 
-  //edm::ESHandle< L1CaloEtScale > jetScale ;
-  //iE.get< L1JetEtScaleRcd >().get( jetScale ) ;
+  edm::ESHandle< L1CaloEtScale > jetScale ;
+  iE.get< L1JetEtScaleRcd >().get( jetScale ) ;
+  m_params->setJetScale(*jetScale);
+
+  edm::ESHandle< L1CaloEtScale > HtMissScale;
+  iE.get< L1HtMissScaleRcd >().get( HtMissScale ) ;
+  m_params->setHtMissScale(*HtMissScale);
+
+  //not sure if I need this one
+  edm::ESHandle< L1CaloEtScale > HfRingScale;
+  iE.get< L1HfRingEtScaleRcd >().get( HfRingScale );
+  m_params->setHfRingScale(*HfRingScale);
 
 
   //m_params->setEgLsb(emScale->linearLsb());

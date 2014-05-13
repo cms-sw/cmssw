@@ -4,7 +4,7 @@
 /// Description: Placeholder for calorimeter trigger parameters
 ///
 /// Implementation:
-///    
+///
 ///
 /// \author: Jim Brooke
 ///
@@ -14,15 +14,21 @@
 
 #include "CondFormats/L1TObjects/interface/LUT.h"
 
+#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
+#include "CondFormats/DataRecord/interface/L1EmEtScaleRcd.h"
+#include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
+#include "CondFormats/DataRecord/interface/L1HtMissScaleRcd.h"
+#include "CondFormats/DataRecord/interface/L1HfRingEtScaleRcd.h"
+
 #include <memory>
 #include <iostream>
 #include <vector>
 #include <cmath>
 
 namespace l1t {
-  
+
   class CaloParams {
-    
+
   public:
 
     CaloParams() {}
@@ -73,7 +79,7 @@ namespace l1t {
     double egMaxHcalEt() const { return egMaxHcalEt_; }
     int egEtToRemoveHECutHw() const {return floor(egEtToRemoveHECut_/egLsb_);}
     double egEtToRemoveHECut() const {return egEtToRemoveHECut_;}
-    double egMaxHOverE() const { return egMaxHOverE_; } 
+    double egMaxHOverE() const { return egMaxHOverE_; }
     double egRelativeJetIsolationCut() const { return egRelativeJetIsolationCut_; }
     unsigned egIsoAreaNrTowersEta()const{return egIsoAreaNrTowersEta_;}
     unsigned egIsoAreaNrTowersPhi()const{return egIsoAreaNrTowersPhi_;}
@@ -85,7 +91,7 @@ namespace l1t {
     l1t::LUT* egIsolationLUT() { return egIsolationLUT_.get(); }
     std::string egCalibrationType() const { return egCalibrationType_; }
     std::vector<double> egCalibrationParams() { return egCalibrationParams_; }
-
+    L1CaloEtScale emScale() { return emScale_; }
 
     void setEgLsb(double lsb) { egLsb_ = lsb; }
     void setEgSeedThreshold(double thresh) { egSeedThreshold_ = thresh; }
@@ -94,7 +100,7 @@ namespace l1t {
     void setEgEtToRemoveHECut(double thresh) { egEtToRemoveHECut_ = thresh;}
     void setEgMaxHOverE(double cut) { egMaxHOverE_ = cut; }
     void setEgRelativeJetIsolationCut(double cutValue) { egRelativeJetIsolationCut_ = cutValue; }
-   
+
     void setEgIsoAreaNrTowersEta(unsigned iEgIsoAreaNrTowersEta){egIsoAreaNrTowersEta_=iEgIsoAreaNrTowersEta;}
     void setEgIsoAreaNrTowersPhi(unsigned iEgIsoAreaNrTowersPhi){egIsoAreaNrTowersPhi_=iEgIsoAreaNrTowersPhi;}
     void setEgIsoVetoNrTowersPhi(unsigned iEgIsoVetoNrTowersPhi){egIsoVetoNrTowersPhi_=iEgIsoVetoNrTowersPhi;}
@@ -105,6 +111,7 @@ namespace l1t {
     void setEgIsolationLUT(std::shared_ptr<LUT> lut) { egIsolationLUT_ = lut; }
     void setEgCalibrationType(std::string type) { egCalibrationType_ = type; }
     void setEgCalibrationParams(std::vector<double> params) { egCalibrationParams_ = params; }
+    void setEmScale(L1CaloEtScale emScale) { emScale_ = emScale; }
 
 
     // tau
@@ -138,6 +145,7 @@ namespace l1t {
     std::vector<double> jetPUSParams() { return jetPUSParams_; }
     std::string jetCalibrationType() const { return jetCalibrationType_; }
     std::vector<double> jetCalibrationParams() { return jetCalibrationParams_; }
+    L1CaloEtScale jetScale() { return jetScale_; }
 
     void setJetLsb(double lsb) { jetLsb_ = lsb; }
     void setJetSeedThreshold(double thresh) { jetSeedThreshold_ = thresh; }
@@ -146,19 +154,24 @@ namespace l1t {
     void setJetPUSParams(std::vector<double> params) { jetPUSParams_ = params; }
     void setJetCalibrationType(std::string type) { jetCalibrationType_ = type; }
     void setJetCalibrationParams(std::vector<double> params) { jetCalibrationParams_ = params; }
+    void setJetScale(L1CaloEtScale jetScale) { jetScale_ = jetScale; }
 
-    
+
     // sums
     double etSumLsb() const { return etSumLsb_; }
     int etSumEtaMin(unsigned isum) const;
     int etSumEtaMax(unsigned isum) const;
     int etSumEtThresholdHw(unsigned isum) const { return floor(etSumEtThreshold(isum)/etSumLsb_); }
     double etSumEtThreshold(unsigned isum) const;
-    
+    L1CaloEtScale HtMissScale() {return HtMissScale_;}
+    L1CaloEtScale HfRingScale() {return HfRingScale_;}
+
     void setEtSumLsb(double lsb) { etSumLsb_ = lsb; }
     void setEtSumEtaMin(unsigned isum, int eta);
     void setEtSumEtaMax(unsigned isum, int eta);
-    void setEtSumEtThreshold(unsigned isum, double thresh);    
+    void setEtSumEtThreshold(unsigned isum, double thresh);
+    void setHtMissScale(L1CaloEtScale HtMissScale){HtMissScale_ = HtMissScale;}
+    void setHfRingScale(L1CaloEtScale HfRingScale){HfRingScale_ = HfRingScale;}
 
     // print parameters to stream:
     void print(std::ostream&) const;
@@ -214,7 +227,7 @@ namespace l1t {
 
     // bitmask for storing ECAL/HCAL ratio in tower object
     int towerMaskRatio_;
-    
+
     // turn encoding on/off
     bool towerDoEncoding_;
 
@@ -249,7 +262,7 @@ namespace l1t {
 
     // Et threshold to remove the H/E cut from the EGammas
     double egEtToRemoveHECut_;
-    
+
     // EG maximum value of H/E
     double egMaxHOverE_;
 
@@ -257,16 +270,16 @@ namespace l1t {
     double egRelativeJetIsolationCut_;
 
     // isolation area in eta is seed tower +/- <=egIsoAreaNrTowersPhi
-    unsigned egIsoAreaNrTowersEta_; 
+    unsigned egIsoAreaNrTowersEta_;
 
     // isolation area in phi is seed tower +/- <=egIsoAreaNrTowersPhi
-    unsigned egIsoAreaNrTowersPhi_; 
+    unsigned egIsoAreaNrTowersPhi_;
 
     // veto region is seed tower +/- <=egIsoVetoNrTowersPhi
-    unsigned egIsoVetoNrTowersPhi_; 
-    
+    unsigned egIsoVetoNrTowersPhi_;
+
     // for # towers based PU estimator, estimator is #towers/egIsoPUEstTowerGranularity_
-    unsigned egIsoPUEstTowerGranularity_; 
+    unsigned egIsoPUEstTowerGranularity_;
 
     // eta range over which # towers is estimated
     unsigned egIsoMaxEtaAbsForTowerSum_;
@@ -279,14 +292,16 @@ namespace l1t {
 
     // EG calibration coefficients
     std::vector<double> egCalibrationParams_;
-    
+
     // EG isolation PUS
     std::string egIsoPUSType_;
 
     // EG isolation LUT (indexed by eta, Et ?)
     std::shared_ptr<l1t::LUT> egIsolationLUT_;
 
- 
+    L1CaloEtScale emScale_;
+
+
 
     /* Tau */
 
@@ -298,7 +313,7 @@ namespace l1t {
 
     // Et threshold on tau neighbour towers
     double tauNeighbourThreshold_;
-    
+
     // Relative jet isolation cut for Taus (Stage1Layer2)
     double tauRelativeJetIsolationCut_;
     // Tau isolation PUS
@@ -327,7 +342,7 @@ namespace l1t {
     double jetNeighbourThreshold_;
 
     // jet PUS scheme ("None" means no PU)
-    std::string jetPUSType_;                    
+    std::string jetPUSType_;
 
     // jet PU params
     std::vector<double> jetPUSParams_;
@@ -337,6 +352,8 @@ namespace l1t {
 
     // jet calibration coefficients
     std::vector<double> jetCalibrationParams_;
+
+    L1CaloEtScale jetScale_;
 
 
 
@@ -360,6 +377,9 @@ namespace l1t {
     unsigned regionETCutForMET_;
     int minGctEtaForSums_;
     int maxGctEtaForSums_;
+
+    L1CaloEtScale HtMissScale_;
+    L1CaloEtScale HfRingScale_;
 
   };
 

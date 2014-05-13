@@ -172,13 +172,7 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 	itJet != Jet->end(itBX); ++itJet){
       // use 2nd quality bit to define forward
       const bool forward = ((itJet->hwQual() & 0x2) != 0);
-      const uint16_t rankPt = jetScale->rank((uint16_t)itJet->hwPt());
-      
-      unsigned iEta = itJet->hwEta();
-      unsigned rctEta = (iEta<11 ? 10-iEta : iEta-11);
-      unsigned gtEta=(((rctEta % 7) & 0x7) | (iEta<11 ? 0x8 : 0));
-
-      L1GctJetCand JetCand(rankPt, itJet->hwPhi(), gtEta,
+      L1GctJetCand JetCand(itJet->hwPt(), itJet->hwPhi(), itJet->hwEta(),
 			   false, forward,0, 0, itBX);
       //L1GctJetCand(unsigned rank, unsigned phi, unsigned eta,
       //             bool isTau, bool isFor, uint16_t block, uint16_t index, int16_t bx);
@@ -216,28 +210,6 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
       }
     }
   }
-
-
-
-  //*isoEmResult =
-  //this->ConvertToNonIsoEmCand(EGamma);
-  //  DataFormatter.ConvertToNonIsoEmCand(*EGamma, nonIsoEmResult);
-  //  DataFormatter.ConvertToCenJetCand(*Jet, cenJetResult);
-  //  DataFormatter.ConvertToForJetCand(*Jet, forJetResult);
-  //  DataFormatter.ConvertToTauJetCand(*Tau, tauJetResult);
-
-  //  DataFormatter.ConvertToEtTotal(EtSum, etTotResult);
-  // DataFormatter.ConvertToEtHad(EtSum,etHadResult);
-  // DataFormatter.ConvertToEtMiss(EtSum,etMissResult);
-  // DataFormatter.ConvertToHtMiss(EtSum,htMissResult);
-  // DataFormatter.ConvertToHFBitCounts(EtSum,hfBitCountResult);
-  // DataFormatter.ConvertToHFRingEtSums(EtSum, hfRingEtSumResult);
-
-  //  DataFormatter.ConvertToIntJet(Jet, internalJetResult);
-  //  DataFormatter.ConvertToIntEtSum(EtSum,internalEtSumResult);
-  //  DataFormatter.ConvertToIntHtMiss(EtSum,internalHtMissResult);
-
-
 
   e.put(isoEmResult,"isoEm");
   e.put(nonIsoEmResult,"nonIsoEm");

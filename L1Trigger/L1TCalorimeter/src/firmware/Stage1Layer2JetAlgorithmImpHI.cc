@@ -10,6 +10,7 @@
 #include "L1Trigger/L1TCalorimeter/interface/Stage1Layer2JetAlgorithmImp.h"
 #include "L1Trigger/L1TCalorimeter/interface/JetFinderMethods.h"
 #include "L1Trigger/L1TCalorimeter/interface/PUSubtractionMethods.h"
+#include "L1Trigger/L1TCalorimeter/interface/legacyGtHelper.h"
 
 // Taken from UCT code. Might not be appropriate. Refers to legacy L1 objects.
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
@@ -22,7 +23,6 @@ using namespace l1t;
 
 Stage1Layer2JetAlgorithmImpHI::Stage1Layer2JetAlgorithmImpHI(CaloParams* params) : params_(params)
 {
-  double jetLsb=params_->jetLsb();
   jetSeedThreshold= floor( params_->jetSeedThreshold()/jetLsb + 0.5);
 }
 //: regionLSB_(0.5) {}
@@ -34,8 +34,12 @@ void Stage1Layer2JetAlgorithmImpHI::processEvent(const std::vector<l1t::CaloRegi
 					       std::vector<l1t::Jet> * jets){
 
   std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
+  std::vector<l1t::Jet> *preGtJets = new std::vector<l1t::Jet>();
+
   HICaloRingSubtraction(regions, subRegions);
-  slidingWindowJetFinder(jetSeedThreshold, subRegions, jets);
+  slidingWindowJetFinder(jetSeedThreshold, subRegions, preGtJets);
+  JetToGtScales(params_, preGtJets, jets);
 
   delete subRegions;
+  delete preGtJets;
 }
