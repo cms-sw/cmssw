@@ -23,6 +23,7 @@
 #include "FWCore/Framework/interface/RunPrincipal.h"
 
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
+#include "FWCore/Framework/src/EventSignalsSentry.h"
 
 using namespace edm::stream;
 //
@@ -120,11 +121,13 @@ EDAnalyzerAdaptorBase::modulesDependentUpon(const std::string& iProcessName,
 
 bool
 EDAnalyzerAdaptorBase::doEvent(EventPrincipal& ep, EventSetup const& c,
+                               ActivityRegistry* act,
                                ModuleCallingContext const* mcc) {
   assert(ep.streamID()<m_streamModules.size());
   auto mod = m_streamModules[ep.streamID()];
   Event e(ep, moduleDescription_, mcc);
   e.setConsumer(mod);
+  EventSignalsSentry sentry(act,mcc);
   mod->analyze(e, c);
   return true;
 }
