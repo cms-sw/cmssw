@@ -1364,7 +1364,7 @@ void GsfElectronAlgo::createElectron()
   calculateShowerShape(electronData_->superClusterRef,!(electronData_->coreRef->ecalDrivenSeed()),showerShape) ;
 
   reco::GsfElectron::ShowerShape full5x5_showerShape ;
-  calculateShowerShape_full5x5(electronData_->superClusterRef,!(electronData_->coreRef->ecalDrivenSeed()),showerShape) ;
+  calculateShowerShape_full5x5(electronData_->superClusterRef,!(electronData_->coreRef->ecalDrivenSeed()),full5x5_showerShape) ;
 
   //====================================================
   // ConversionRejection
