@@ -111,23 +111,23 @@ namespace evf {
       throw cms::Exception("DaqDirector") << " Error creating run dir -: "
 					  << run_dir_ << " mkdir error:" << strerror(errno);
     }
-    //create fu-local.lock in run dir
-    std::string fulocal_lock_ = run_dir_+"/"+"fu-local.lock";
-    fulocal_rwlock_fd_ = open(fulocal_lock_.c_str(), O_RDWR | O_CREAT, S_IRWXU | S_IWGRP | S_IRGRP | S_IWOTH | S_IROTH);//O_RDWR?
-    if (fulocal_rwlock_fd_==-1)
-      throw cms::Exception("DaqDirector") << " Error creating/opening a local lock file -: " << fulocal_lock_.c_str() << " : " << strerror(errno);
-    chmod(fulocal_lock_.c_str(),0777);
-    fsync(fulocal_rwlock_fd_);
-    //open second fd for another input source thread
-    fulocal_rwlock_fd2_ = open(fulocal_lock_.c_str(), O_RDWR, S_IRWXU | S_IWGRP | S_IRGRP | S_IWOTH | S_IROTH);//O_RDWR?
-    if (fulocal_rwlock_fd2_==-1)
-      throw cms::Exception("DaqDirector") << " Error opening a local lock file -: " << fulocal_lock_.c_str() << " : " << strerror(errno);
 
+    //create fu-local.lock in run dir
+    if (!directorBu_) {
+      std::string fulocal_lock_ = run_dir_+"/"+"fu-local.lock";
+      fulocal_rwlock_fd_ = open(fulocal_lock_.c_str(), O_RDWR | O_CREAT, S_IRWXU | S_IWGRP | S_IRGRP | S_IWOTH | S_IROTH);//O_RDWR?
+      if (fulocal_rwlock_fd_==-1)
+        throw cms::Exception("DaqDirector") << " Error creating/opening a local lock file -: " << fulocal_lock_.c_str() << " : " << strerror(errno);
+      chmod(fulocal_lock_.c_str(),0777);
+      fsync(fulocal_rwlock_fd_);
+      //open second fd for another input source thread
+      fulocal_rwlock_fd2_ = open(fulocal_lock_.c_str(), O_RDWR, S_IRWXU | S_IWGRP | S_IRGRP | S_IWOTH | S_IROTH);//O_RDWR?
+      if (fulocal_rwlock_fd2_==-1)
+        throw cms::Exception("DaqDirector") << " Error opening a local lock file -: " << fulocal_lock_.c_str() << " : " << strerror(errno);
+    }
 
     //bu_run_dir: for FU, for which the base dir is local and the BU is remote, it is expected to be there
     //for BU, it is created at this point
-
-
     if (directorBu_)
       {
 	bu_run_dir_ = base_dir_ + "/" + run_string_;
@@ -497,8 +497,8 @@ namespace evf {
       fu_readwritelock_fd_ = open(fulockfile.c_str(), O_RDWR, S_IRWXU);
     }
     if (fu_readwritelock_fd_ == -1)
-      edm::LogError("EvFDaqDirector") << "problem with creating filedesc for fuwritelock "
-		<< strerror(errno);
+      edm::LogError("EvFDaqDirector") << "problem with creating filedesc for fuwritelock -: " << fulockfile.c_str()
+                                      << " create:" << create << " error:" << strerror(errno);
     else
       edm::LogInfo("EvFDaqDirector") << "creating filedesc for fureadwritelock -: "
 		<< fu_readwritelock_fd_;

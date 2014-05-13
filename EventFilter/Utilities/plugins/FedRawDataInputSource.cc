@@ -778,7 +778,7 @@ void FedRawDataInputSource::readSupervisor()
       //sleep until woken up by condition or a timeout
       if (cvWakeup_.wait_for(lkw, std::chrono::milliseconds(100)) == std::cv_status::timeout) {
         counter++;
-        if (!(counter%20)) edm::LogInfo("FedRawDataInputSource") << "No free chunks or threads...";
+        if (!(counter%50)) edm::LogInfo("FedRawDataInputSource") << "No free chunks or threads...";
       }
       else {
         assert(!(workerPool_.empty() && !singleBufferMode_) || freeChunks_.empty());
