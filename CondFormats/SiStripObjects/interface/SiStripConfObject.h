@@ -63,7 +63,7 @@ class SiStripConfObject
   template <class valueType>
   valueType get( const std::string & name ) const
   {
-    valueType returnValue;
+    valueType returnValue = 0;
     parMap::const_iterator it = parameters.find(name);
     std::stringstream ss;
     if( it != parameters.end() ) {
@@ -75,7 +75,6 @@ class SiStripConfObject
     }
     return returnValue;
   }
-
 
   bool isParameter( const std::string & name ) const
   {
@@ -94,6 +93,8 @@ class SiStripConfObject
  COND_SERIALIZABLE;
 };
 
+template <>
+std::string SiStripConfObject::get<std::string>( const std::string & name ) const;
 template <>
 bool SiStripConfObject::put<std::vector<int> >( const std::string & name, const std::vector<int> & inputValue );
 template <>
