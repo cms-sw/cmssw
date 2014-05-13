@@ -67,92 +67,80 @@ fixedGridRhoFastjetCentralNeutral = fixedGridRhoFastjetAll.clone(
     )
 
 
-
+# Constituents for preclustering R=0.8 and R=1.5 jets
 ak8PFJetsCHSConstituents = cms.EDFilter("PFJetConstituentSelector",
                                         src = cms.InputTag("ak8PFJetsCHS"),
                                         cut = cms.string("pt > 100.0 && abs(rapidity()) < 2.4")
                                         )
-
+ak15PFJetsCHSConstituents = cms.EDFilter("PFJetConstituentSelector",
+                                        src = cms.InputTag("ak15PFJetsCHS"),
+                                        cut = cms.string("pt > 100.0 && abs(rapidity()) < 2.4")
+                                        )
 
 # Advanced Algorithms for AK4, AK5, AK8 and CA8 :
 #   - CHS, ungroomed
 #   - CHS, pruned
 #   - CHS, filtered
 #   - CHS, trimmed
-ak5PFJetsCHS = ak5PFJets.clone(
-    src = cms.InputTag("pfNoPileUpJME")
-    )
-
-ak5PFJetsCHSPruned = ak5PFJetsPruned.clone(
-    src = cms.InputTag("pfNoPileUpJME")
-    )
-
-ak5PFJetsCHSFiltered = ak5PFJetsFiltered.clone(
-    src = cms.InputTag("pfNoPileUpJME")
-    )
-
-ak5PFJetsCHSTrimmed = ak5PFJetsTrimmed.clone(
-    src = cms.InputTag("pfNoPileUpJME")
-    )
-    
-ak4PFJetsCHS = ak5PFJetsCHS.clone(
+ak4PFJetsCHS = ak5PFJets.clone(
+    src = cms.InputTag("pfNoPileUpJME"),
     rParam = 0.4
     )    
 
+ak5PFJetsCHS = ak5PFJets.clone(
+    src = cms.InputTag("pfNoPileUpJME")
+    )
+    
 ak8PFJetsCHS = ak5PFJetsCHS.clone(
     rParam = 0.8,
     jetPtMin = 15.0
     )
 
-ak8PFJetsCHSPruned = ak5PFJetsCHSPruned.clone(
+ak15PFJetsCHS = ak5PFJetsCHS.clone(
+    rParam = 1.5,
+    jetPtMin = 100.0
+    )
+
+ca8PFJetsCHSPruned = ak5PFJetsPruned.clone(
     rParam = 0.8,
-    jetPtMin = 15.0
+    jetPtMin = 100.0,
+    jetAlgorithm = cms.string("CambridgeAachen"),
+    src = cms.InputTag("ak8PFJetsCHSConstituents", "constituents")
     )
 
-ak8PFJetsCHSFiltered = ak5PFJetsCHSFiltered.clone(
+ca8PFJetsCHSFiltered = ak5PFJetsFiltered.clone(
     rParam = 0.8,
-    jetPtMin = 15.0
+    jetPtMin = 100.0,
+    jetAlgorithm = cms.string("CambridgeAachen"),
+    src = cms.InputTag("ak8PFJetsCHSConstituents", "constituents")
     )
 
-ak8PFJetsCHSTrimmed = ak5PFJetsCHSTrimmed.clone(
+ca8PFJetsCHSTrimmed = ak5PFJetsTrimmed.clone(
     rParam = 0.8,
-    jetPtMin = 15.0
-    )
-
-ca8PFJetsCHS = ak8PFJetsCHS.clone(
-    jetAlgorithm = cms.string("CambridgeAachen")
-    )
-
-ca8PFJetsCHSPruned = ak8PFJetsCHSPruned.clone(
-    jetAlgorithm = cms.string("CambridgeAachen")
-    )
-
-ca8PFJetsCHSFiltered = ak8PFJetsCHSFiltered.clone(
-    jetAlgorithm = cms.string("CambridgeAachen")
-    )
-
-ca8PFJetsCHSTrimmed = ak8PFJetsCHSTrimmed.clone(
-    jetAlgorithm = cms.string("CambridgeAachen")
+    jetPtMin = 100.0,
+    jetAlgorithm = cms.string("CambridgeAachen"),
+    src = cms.InputTag("ak8PFJetsCHSConstituents", "constituents")
     )
 
 
 # Higgs taggers
 ca15PFJetsCHSMassDropFiltered = ak5PFJetsMassDropFiltered.clone(
     jetAlgorithm = cms.string("CambridgeAachen"),
-    src = cms.InputTag("pfNoPileUpJME"),
+    src = cms.InputTag("ak15PFJetsCHSConstituents", "constituents"),
     rParam = 1.5,
     jetPtMin=100.0
     )
 
 ca15PFJetsCHSFiltered = ak5PFJetsFiltered.clone(
     jetAlgorithm = cms.string("CambridgeAachen"),
-    src = cms.InputTag("pfNoPileUpJME"),
+    src = cms.InputTag("ak15PFJetsCHSConstituents", "constituents"),
     rParam = 1.5,
     jetPtMin=100.0
     )
 
+# Top taggers
 cmsTopTagPFJetsCHS.src = cms.InputTag("ak8PFJetsCHSConstituents", "constituents")
-hepTopTagPFJetsCHS.src = cms.InputTag("ak8PFJetsCHSConstituents", "constituents")
+hepTopTagPFJetsCHS.src = cms.InputTag("ak15PFJetsCHSConstituents", "constituents")
 
 
 
@@ -167,11 +155,12 @@ recoPFJets   =cms.Sequence(#kt4PFJets+kt6PFJets+
                            fixedGridRhoFastjetCentralNeutral+
                            ak4PFJets+ak5PFJets+ak8PFJets+
                            pfNoPileUpJMESequence+
+                           ak4PFJetsCHS+
                            ak5PFJetsCHS+
-                           ak4PFJetsCHS+                           
                            ak8PFJetsCHS+
-                           ca8PFJetsCHS+
+                           ak15PFJetsCHS+
                            ak8PFJetsCHSConstituents+
+                           ak15PFJetsCHSConstituents+
                            ca8PFJetsCHSPruned+
                            ca8PFJetsCHSPrunedLinks+
                            cmsTopTagPFJetsCHS+
@@ -197,21 +186,16 @@ recoAllPFJets=cms.Sequence(sisCone5PFJets+sisCone7PFJets+
                            ca4PFJets+ca8PFJets+
                            pfNoPileUpJMESequence+
                            ak5PFJetsCHS+
-                           ak5PFJetsCHSPruned+
-                           ak5PFJetsCHSFiltered+
-                           ak5PFJetsCHSTrimmed+
-                           ak4PFJetsCHS+                                                      
+                           ak4PFJetsCHS+
                            ak8PFJetsCHS+
-                           ak8PFJetsCHSPruned+
-                           ak8PFJetsCHSFiltered+
-                           ak8PFJetsCHSTrimmed+
-                           ca8PFJetsCHS+
                            ca8PFJetsCHSPruned+
                            ca8PFJetsCHSFiltered+
                            ca8PFJetsCHSTrimmed+
                            ca8PFJetsCHSPrunedLinks+
                            ca8PFJetsCHSTrimmedLinks+
                            ca8PFJetsCHSFilteredLinks+
+                           ak15PFJetsCHS+
+                           ak15PFJetsCHSConstituents+
                            cmsTopTagPFJetsCHS+
                            hepTopTagPFJetsCHS+
                            ca15PFJetsCHSMassDropFiltered+
