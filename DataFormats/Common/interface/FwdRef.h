@@ -140,7 +140,7 @@ namespace edm {
     /// General purpose constructor from 2 refs (forward and backward.
     FwdRef(Ref<C,T,F> const & ref,
 	   Ref<C,T,F> const & backRef) :
-        ref_(ref), backRef_(backRef) {}
+        ref_(ref), backRef_(backRef) { assert(ref.isNull() == backRef.isNull()); }
   
     /// Destructor
     ~FwdRef() {}
@@ -155,12 +155,10 @@ namespace edm {
 
     /// Returns C++ pointer to the item
     T const* get() const {
-      if ( ref_.isNonnull() ) {
+      if ( ref_.isAvailable() ) {
 	return ref_.get();
-      } else if ( backRef_.isNonnull() ) {
-	return backRef_.get();
       } else {
-	return 0;
+	return backRef_.get();
       }
     }
 
