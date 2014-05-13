@@ -26,7 +26,9 @@ namespace reco {
             scale_(-1),
             nearestD_(-1),
             clusterRadius_(-1),
-            clusterSeparation_(-1)
+	    clusterSeparation_(-1),
+	    splitTime_(-1),
+            mergeTime_(-1)
         {
             hessian_[0] = 0;
             hessian_[1] = 0;
@@ -37,7 +39,8 @@ namespace reco {
                             const double hessianIn[3], double driftSpeed,
                             double magSpeed, double lifetime,
                             double scale, double nearestDistance,
-                            double clusterRadius, double clusterSeparation)
+                            double clusterRadius, double clusterSeparation,
+                            double splitT, double mergeT)
           : eta_(eta),
             phi_(phi),
             magnitude_(mag),
@@ -47,7 +50,9 @@ namespace reco {
             scale_(scale),
             nearestD_(nearestDistance),
             clusterRadius_(clusterRadius),
-            clusterSeparation_(clusterSeparation)
+	    clusterSeparation_(clusterSeparation),
+	    splitTime_(splitT),
+	    mergeTime_(mergeT)
         {
             hessian_[0] = hessianIn[0];
             hessian_[1] = hessianIn[1];
@@ -60,6 +65,8 @@ namespace reco {
         inline Real driftSpeed() const {return speed_;}
         inline Real magSpeed() const {return magSpeed_;}
         inline Real lifetime() const {return lifetime_;}
+        inline Real splitTime() const {return splitTime_;}
+        inline Real mergeTime() const {return mergeTime_;}
         inline Real scale() const {return scale_;}
         inline Real nearestNeighborDistance() const {return nearestD_;}
         inline Real clusterRadius() const {return clusterRadius_;}
@@ -83,6 +90,8 @@ namespace reco {
         Real clusterRadius_;
         Real clusterSeparation_;
         Real hessian_[3];
+        Real splitTime_;
+        Real mergeTime_;
     };
 }
 
