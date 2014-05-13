@@ -67,7 +67,7 @@ class JetTester : public DQMEDAnalyzer {
   edm::EDGetTokenT<CaloTowerCollection > caloTowersToken_;
   edm::EDGetTokenT<reco::CaloJetCollection> caloJetsToken_;
   edm::EDGetTokenT<reco::PFJetCollection> pfJetsToken_;
-  edm::EDGetTokenT<reco::JPTJetCollection> jptJetsToken_;
+//  edm::EDGetTokenT<reco::JPTJetCollection> jptJetsToken_;
   edm::EDGetTokenT<reco::GenJetCollection> genJetsToken_;
   edm::EDGetTokenT<edm::HepMCProduct> evtToken_;
 
@@ -188,7 +188,7 @@ class JetTester : public DQMEDAnalyzer {
   MonitorElement* n90;
   MonitorElement* n60;
   // ---- JPT Jet specific information ----
-  MonitorElement* elecMultiplicity;
+  //MonitorElement* elecMultiplicity;
   // ---- JPT or PF Jet specific information ----
   MonitorElement* muonMultiplicity;
   MonitorElement* chargedMultiplicity;
@@ -228,7 +228,7 @@ class JetTester : public DQMEDAnalyzer {
   double          mGenEnergyFractionThreshold;
   double          mRThreshold;
   bool            isCaloJet;
-  bool            isJPTJet;
+//  bool            isJPTJet;
   bool            isPFJet;
   
 

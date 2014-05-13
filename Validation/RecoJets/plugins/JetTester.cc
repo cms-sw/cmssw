@@ -28,14 +28,14 @@ JetTester::JetTester(const edm::ParameterSet& iConfig) :
 //  std::size_t foundPFCollection   = inputCollectionLabel.find("PF");
 
   isCaloJet = (std::string("calo")==JetType);
-  isJPTJet  = (std::string("jpt") ==JetType);
   isPFJet   = (std::string("pf")  ==JetType);
+//  isJPTJet  = (std::string("jpt") ==JetType); //jpt not used anymore
 
   //consumes
    pvToken_ = consumes<std::vector<reco::Vertex> >(edm::InputTag("offlinePrimaryVertices"));
    caloTowersToken_ = consumes<CaloTowerCollection>(edm::InputTag("towerMaker"));
    if (isCaloJet) caloJetsToken_  = consumes<reco::CaloJetCollection>(mInputCollection);
-   if (isJPTJet)  jptJetsToken_   = consumes<reco::JPTJetCollection>(mInputCollection);
+//   if (isJPTJet)  jptJetsToken_   = consumes<reco::JPTJetCollection>(mInputCollection);
    if (isPFJet)   pfJetsToken_    = consumes<reco::PFJetCollection>(mInputCollection);
    genJetsToken_ = consumes<reco::GenJetCollection>(edm::InputTag(mInputGenCollection));
    evtToken_ = consumes<edm::HepMCProduct>(edm::InputTag("generator"));
@@ -174,7 +174,7 @@ JetTester::JetTester(const edm::ParameterSet& iConfig) :
 
   // ---- JPT Jet specific information ----
   /// chargedMultiplicity
-  elecMultiplicity = 0;
+//  elecMultiplicity = 0;
 
   // ---- JPT or PF Jet specific information ----
   /// muonMultiplicity
@@ -392,11 +392,12 @@ void JetTester::bookHistograms(DQMStore::IBooker & ibooker,
       n60                         = ibooker.book1D("n60", "n60", 30,0,30);
     }
     // ---- JPT Jet specific information ----
-    if (isJPTJet) {
-      elecMultiplicity = ibooker.book1D("elecMultiplicity", "elecMultiplicity", 10,0,10);
-    }
+//    if (isJPTJet) {
+//      elecMultiplicity = ibooker.book1D("elecMultiplicity", "elecMultiplicity", 10,0,10);
+//    }
     // ---- JPT or PF Jet specific information ----
-    if (isPFJet or isJPTJet) {
+//    if (isPFJet or isJPTJet) {
+    if (isPFJet) {
       muonMultiplicity = ibooker.book1D("muonMultiplicity", "muonMultiplicity", 10,0,10);
       chargedMultiplicity = ibooker.book1D("chargedMultiplicity", "chargedMultiplicity", 100,0,100);
       chargedEmEnergy = ibooker.book1D("chargedEmEnergy", "chargedEmEnergy", 100,0,500);
@@ -407,9 +408,6 @@ void JetTester::bookHistograms(DQMStore::IBooker & ibooker,
       neutralHadronEnergyFraction = ibooker.book1D("neutralHadronEnergyFraction", "neutralHadronEnergyFraction", 50,0,1);
       chargedEmEnergyFraction = ibooker.book1D("chargedEmEnergyFraction", "chargedEmEnergyFraction", 50,0,1);
       neutralEmEnergyFraction = ibooker.book1D("neutralEmEnergyFraction", "neutralEmEnergyFraction", 50,0,1);
-    }
-    // ---- PF Jet specific information ----
-    if (isPFJet) {
       photonEnergy = ibooker.book1D("photonEnergy", "photonEnergy", 50,0,500);
       photonEnergyFraction = ibooker.book1D("photonEnergyFraction", "photonEnergyFraction", 50,0,1);
       electronEnergy = ibooker.book1D("electronEnergy", "electronEnergy", 50,0,500);
@@ -530,16 +528,17 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
   recoJets.clear();
 
   edm::Handle<CaloJetCollection> caloJets;
-  edm::Handle<JPTJetCollection>  jptJets;
   edm::Handle<PFJetCollection>   pfJets;
+//  edm::Handle<JPTJetCollection>  jptJets;
 
   if (isCaloJet) mEvent.getByToken(caloJetsToken_, caloJets);
-  if (isJPTJet)  mEvent.getByToken(jptJetsToken_, jptJets);
   if (isPFJet)   mEvent.getByToken(pfJetsToken_, pfJets);
+//  if (isJPTJet)  mEvent.getByToken(jptJetsToken_, jptJets);
 
   if (isCaloJet && !caloJets.isValid()) return;
-  if (isJPTJet  && !jptJets.isValid())  return;
   if (isPFJet   && !pfJets.isValid())   return;
+//  if (isJPTJet  && !jptJets.isValid())  return;
+
 
   if (isCaloJet)
     {
@@ -547,11 +546,11 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
 	recoJets.push_back((*caloJets)[ijet]);
     }
 
-  if (isJPTJet)
+/*  if (isJPTJet)
     {
       for (unsigned ijet=0; ijet<jptJets->size(); ijet++)
 	recoJets.push_back((*jptJets)[ijet]);
-    }
+    }*/
 
   if (isPFJet) {
     for (unsigned ijet=0; ijet<pfJets->size(); ijet++)
@@ -626,11 +625,7 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
         n90                         ->Fill((*caloJets)[ijet].n90());
         n60                         ->Fill((*caloJets)[ijet].n60());
       }
-      // ---- JPT Jet specific information ----
-      if (isJPTJet) {
-        elecMultiplicity ->Fill((*jptJets)[ijet].elecMultiplicity());
-      }
-      // ---- JPT or PF Jet specific information ----
+      // ---- PF Jet specific information ----
       if (isPFJet) {
         muonMultiplicity ->Fill((*pfJets)[ijet].muonMultiplicity());
         chargedMultiplicity ->Fill((*pfJets)[ijet].chargedMultiplicity());
@@ -642,21 +637,6 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
         neutralHadronEnergyFraction ->Fill((*pfJets)[ijet].neutralHadronEnergyFraction());
         chargedEmEnergyFraction ->Fill((*pfJets)[ijet].chargedEmEnergyFraction());
         neutralEmEnergyFraction ->Fill((*pfJets)[ijet].neutralEmEnergyFraction());
-      }
-      if (isJPTJet) {
-        muonMultiplicity ->Fill((*jptJets)[ijet].muonMultiplicity());
-        chargedMultiplicity ->Fill((*jptJets)[ijet].chargedMultiplicity());
-        chargedEmEnergy ->Fill((*jptJets)[ijet].chargedEmEnergy());
-        neutralEmEnergy ->Fill((*jptJets)[ijet].neutralEmEnergy());
-        chargedHadronEnergy ->Fill((*jptJets)[ijet].chargedHadronEnergy());
-        neutralHadronEnergy ->Fill((*jptJets)[ijet].neutralHadronEnergy());
-        chargedHadronEnergyFraction ->Fill((*jptJets)[ijet].chargedHadronEnergyFraction());
-        neutralHadronEnergyFraction ->Fill((*jptJets)[ijet].neutralHadronEnergyFraction());
-        chargedEmEnergyFraction ->Fill((*jptJets)[ijet].chargedEmEnergyFraction());
-        neutralEmEnergyFraction ->Fill((*jptJets)[ijet].neutralEmEnergyFraction());
-      }
-      // ---- PF Jet specific information ----
-      if (isPFJet) {
         photonEnergy ->Fill((*pfJets)[ijet].photonEnergy());
         photonEnergyFraction ->Fill((*pfJets)[ijet].photonEnergyFraction());
         electronEnergy ->Fill((*pfJets)[ijet].electronEnergy());
@@ -675,8 +655,22 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
         HFEMMultiplicity ->Fill((*pfJets)[ijet].HFEMMultiplicity());
         chargedMuEnergy ->Fill((*pfJets)[ijet].chargedMuEnergy());
         chargedMuEnergyFraction ->Fill((*pfJets)[ijet].chargedMuEnergyFraction());
-        neutralMultiplicity ->Fill((*pfJets)[ijet].neutralMultiplicity());
-      }
+        neutralMultiplicity ->Fill((*pfJets)[ijet].neutralMultiplicity()); 
+     }
+      // ---- JPT Jet specific information ----
+     /* if (isJPTJet) {
+        elecMultiplicity ->Fill((*jptJets)[ijet].elecMultiplicity());
+        muonMultiplicity ->Fill((*jptJets)[ijet].muonMultiplicity());
+        chargedMultiplicity ->Fill((*jptJets)[ijet].chargedMultiplicity());
+        chargedEmEnergy ->Fill((*jptJets)[ijet].chargedEmEnergy());
+        neutralEmEnergy ->Fill((*jptJets)[ijet].neutralEmEnergy());
+        chargedHadronEnergy ->Fill((*jptJets)[ijet].chargedHadronEnergy());
+        neutralHadronEnergy ->Fill((*jptJets)[ijet].neutralHadronEnergy());
+        chargedHadronEnergyFraction ->Fill((*jptJets)[ijet].chargedHadronEnergyFraction());
+        neutralHadronEnergyFraction ->Fill((*jptJets)[ijet].neutralHadronEnergyFraction());
+        chargedEmEnergyFraction ->Fill((*jptJets)[ijet].chargedEmEnergyFraction());
+        neutralEmEnergyFraction ->Fill((*jptJets)[ijet].neutralEmEnergyFraction());
+      }*/
     }
   }
 
@@ -721,8 +715,8 @@ void JetTester::analyze(const edm::Event& mEvent, const edm::EventSetup& mSetup)
         Jet correctedJet = recoJets[ijet];
 
         if (isCaloJet) scale = corrector->correction((*caloJets)[ijet], mEvent, mSetup); 
-        if (isJPTJet)  scale = corrector->correction((*jptJets)[ijet],  mEvent, mSetup); 
         if (isPFJet)   scale = corrector->correction((*pfJets)[ijet],   mEvent, mSetup); 
+        //if (isJPTJet)  scale = corrector->correction((*jptJets)[ijet],  mEvent, mSetup);
 
         correctedJet.scaleEnergy(scale); 
         

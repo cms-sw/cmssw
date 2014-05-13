@@ -40,11 +40,11 @@ METTester::METTester(const edm::ParameterSet& iConfig)
 
   isCaloMET = (std::string("calo")==METType_);
 //  isCorMET  = (std::string("cor") ==METType_);
-  isTcMET   = (std::string("tc")  ==METType_);
+//  isTcMET   = (std::string("tc")  ==METType_);
   isPFMET   = (std::string("pf")  ==METType_);
   isGenMET  = (std::string("gen") ==METType_);
 
-  if(isTcMET) {
+  /*  if(isTcMET) {
     inputCaloMETLabel_       =iConfig.getParameter<edm::InputTag>("InputCaloMETLabel");     
     inputTrackLabel_         =iConfig.getParameter<edm::InputTag>("InputTrackLabel");    
     inputMuonLabel_          =iConfig.getParameter<edm::InputTag>("InputMuonLabel");
@@ -59,14 +59,14 @@ METTester::METTester(const edm::ParameterSet& iConfig)
     trkQuality_              =iConfig.getParameter<std::vector<int> >("trkQuality");
     trkAlgos_                =iConfig.getParameter<std::vector<int> >("trkAlgos");
     sample_                  =iConfig.getUntrackedParameter<std::string>("sample");
-  }
+    }*/
 
   pvToken_ = consumes<std::vector<reco::Vertex> >(edm::InputTag("offlinePrimaryVertices"));
   if (isCaloMET)  caloMETsToken_ = consumes<reco::CaloMETCollection> (inputMETLabel_);
-  if (isTcMET)    tcMETsToken_ = consumes<reco::METCollection> (inputMETLabel_);  
+  //  if (isTcMET)    tcMETsToken_ = consumes<reco::METCollection> (inputMETLabel_);  
   if (isPFMET)    pfMETsToken_ = consumes<reco::PFMETCollection> (inputMETLabel_); 
   if (isGenMET)   genMETsToken_ = consumes<reco::GenMETCollection> (inputMETLabel_); 
-  if (isTcMET) {
+  /*  if (isTcMET) {
     caloMETsToken_ = consumes<reco::CaloMETCollection> (inputCaloMETLabel_);  
     muonToken_  = consumes<reco::MuonCollection>(inputMuonLabel_); 
     trackToken_ = consumes<reco::TrackCollection>(inputTrackLabel_); 
@@ -74,7 +74,7 @@ METTester::METTester(const edm::ParameterSet& iConfig)
     beamSpotToken_ = consumes<reco::BeamSpot>(inputBeamSpotLabel_);
     tcMet_ValueMap_Token_ = consumes<edm::ValueMap<reco::MuonMETCorrectionData> >(edm::InputTag("muonTCMETValueMapProducer" , "muCorrData")); 
     met_ValueMap_Token_ = consumes<edm::ValueMap<reco::MuonMETCorrectionData> >(edm::InputTag("muonMETValueMapProducer" , "muCorrData")); 
-  }
+  }*/
   genMETsTrueToken_ = consumes<reco::GenMETCollection> (edm::InputTag("genMetTrue"));
   genMETsCaloToken_ = consumes<reco::GenMETCollection> (edm::InputTag("genMetCalo"));
   //Events variables
@@ -248,13 +248,12 @@ METTester::METTester(const edm::ParameterSet& iConfig)
 
     }
 
-    if ( isTcMET){
-      //TCMET or MuonCorrectedCaloMET Histograms                                                                                                                  
-
+/*
+   if ( isTcMET){
+      //TCMET or MuonCorrectedCaloMET Histograms                                                                                   
       mMExCorrection       = ibooker.book1D("MExCorrection","MExCorrection", 1000, -500.0,500.0);
       mMEyCorrection       = ibooker.book1D("MEyCorrection","MEyCorrection", 1000, -500.0,500.0);
       mMuonCorrectionFlag      = ibooker.book1D("CorrectionFlag", "CorrectionFlag", 6, -0.5, 5.5);
-
       if(isTcMET) {//TCMET only histograms
         mtrkPt = ibooker.book1D("trackPt", "trackPt", 50, 0, 500);
         mtrkEta = ibooker.book1D("trackEta", "trackEta", 50, -2.5, 2.5);
@@ -306,6 +305,7 @@ METTester::METTester(const edm::ParameterSet& iConfig)
     else {
       edm::LogInfo("OutputInfo") << " METType not correctly specified!'";// << outputFile_.c_str();
     }
+*/
     //  } //if (dbe_)
   if (mOutputFile.empty ())
     {
@@ -315,7 +315,7 @@ METTester::METTester(const edm::ParameterSet& iConfig)
     {
       LogInfo("OutputInfo") << " Histograms will be saved to file:" << mOutputFile;
     }
-}
+  }
 
 
 //void METTester::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
@@ -336,27 +336,29 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //Collections for all MET collections
 
   edm::Handle<CaloMETCollection> caloMETs;
-  edm::Handle<METCollection> tcMETs;
+  //  edm::Handle<METCollection> tcMETs;
 //  edm::Handle<CaloMETCollection> corMETs;
   edm::Handle<PFMETCollection> pfMETs;
   edm::Handle<GenMETCollection> genMETs;
 
-  if (isCaloMET or isTcMET) iEvent.getByToken(caloMETsToken_, caloMETs);
-  if (isTcMET)   iEvent.getByToken(tcMETsToken_,   tcMETs);
+  //  if (isCaloMET or isTcMET) iEvent.getByToken(caloMETsToken_, caloMETs);
+  //  if (isTcMET)   iEvent.getByToken(tcMETsToken_,   tcMETs);
+  //  if ((isCaloMET or isTcMET) and !caloMETs.isValid()) return;
+  //  if ((isTcMET)   and !tcMETs.isValid())   return;                                                                  
+  //  if ((isCorMET)  and !caloMETs.isValid()) return;  
+  if (isCaloMET) iEvent.getByToken(caloMETsToken_, caloMETs);
   if (isPFMET)   iEvent.getByToken(pfMETsToken_,   pfMETs);
   if (isGenMET)  iEvent.getByToken(genMETsToken_,  genMETs);
-  if ((isCaloMET or isTcMET) and !caloMETs.isValid()) return;
-  if ((isTcMET)   and !tcMETs.isValid())   return;
-//  if ((isCorMET)  and !caloMETs.isValid()) return;
+  if ((isCaloMET) and !caloMETs.isValid()) return; 
   if ((isPFMET)   and !pfMETs.isValid())   return;
   if ((isGenMET)  and !genMETs.isValid())  return;
 
   reco::MET met;
   if (isCaloMET) { met = caloMETs->front();}
-  if (isTcMET)   { met = tcMETs->front()  ;}
-//  if (isCorMET)  { met = caloMETs->front();}
   if (isPFMET)   { met = pfMETs->front()  ;}
   if (isGenMET)  { met = genMETs->front() ;}
+  //  if (isTcMET)   { met = tcMETs->front()  ;}                                                                                   
+  //  if (isCorMET)  { met = caloMETs->front();}      
 
   const double SumET = met.sumEt();
   const double METSig = met.mEtSig();
@@ -486,7 +488,8 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     // Reconstructed MET Information                                                                                                     
 
   } 
-  if(isTcMET) 
+
+  /*  if(isTcMET) 
   {
 
     const CaloMET *caloMet;
@@ -685,7 +688,7 @@ void METTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     mnMusPis->Fill(nMusPis);
     mdMUx->Fill(muDx);
     mdMUy->Fill(muDy);
-  }
+    } */ //if (isTcMET)
   
 //  if(isCorMET )
 //  {
