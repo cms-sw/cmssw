@@ -21,8 +21,8 @@ public:
   /**
      @short CTOR
   */
-  HGCDataFrame() : id_(0), maxSampleSize_(10) { data_.resize(maxSampleSize_, D(0)); }
-  explicit HGCDataFrame(const D& id) : id_(id), maxSampleSize_(10) { data_.resize(maxSampleSize_,D(0)); }
+  HGCDataFrame() : id_(0), maxSampleSize_(1)                      { data_.resize(maxSampleSize_); }
+  explicit HGCDataFrame(const D& id) : id_(id), maxSampleSize_(1) { data_.resize(maxSampleSize_); }
     
 
   /**
@@ -40,7 +40,7 @@ public:
   */
   const S& operator[](int i) const { return data_[i]; }
   const S& sample(int i)     const { return data_[i]; }
-  void setSample(int i, const S &sample) { if(i<data_.size()) data_[i]=sample; }
+  void setSample(int i, const S &sample) { if(i<(int)data_.size()) data_[i]=sample; }
 
 
 private:
