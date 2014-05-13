@@ -643,8 +643,7 @@ namespace edm {
                                                      file_,
                                                      branchListIndexesUnchanged(),
                                                      modifiedIDs(),
-                                                     branchChildren_,
-                                                     branchIDLists_));
+                                                     branchChildren_));
   }
 
   std::string const&
