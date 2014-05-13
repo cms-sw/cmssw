@@ -77,7 +77,6 @@ SiPixelTrackResidualSource::SiPixelTrackResidualSource(const edm::ParameterSet& 
    src_ = pSet_.getParameter<edm::InputTag>("src"); 
    clustersrc_ = pSet_.getParameter<edm::InputTag>("clustersrc");
    tracksrc_ = pSet_.getParameter<edm::InputTag>("trajectoryInput");
-   dbe_ = edm::Service<DQMStore>().operator->();
    ttrhbuilder_ = pSet_.getParameter<std::string>("TTRHBuilder");
    ptminres_= pSet.getUntrackedParameter<double>("PtMinRes",4.0) ;
    beamSpotToken_ = consumes<reco::BeamSpot>(std::string("offlineBeamSpot"));
@@ -93,6 +92,10 @@ SiPixelTrackResidualSource::SiPixelTrackResidualSource(const edm::ParameterSet& 
             << layOn << "/" << phiOn << std::endl;
   LogInfo ("PixelDQM") << "Blade/Disk/Ring" << bladeOn << "/" << diskOn << "/" 
             << ringOn << std::endl;
+
+  firstRun = true;
+  NTotal=0;
+  NLowProb=0;
 }
 
 
@@ -106,18 +109,9 @@ SiPixelTrackResidualSource::~SiPixelTrackResidualSource() {
   }
 }
 
-void SiPixelTrackResidualSource::beginJob() {
-  LogInfo("PixelDQM") << "SiPixelTrackResidualSource beginJob()" << endl;
-  firstRun = true;
-  NTotal=0;
-  NLowProb=0;
-}
 
-
-void SiPixelTrackResidualSource::beginRun(const edm::Run& r, edm::EventSetup const& iSetup) {
+void SiPixelTrackResidualSource::dqmBeginRun(const edm::Run& r, edm::EventSetup const& iSetup) {
   LogInfo("PixelDQM") << "SiPixelTrackResidualSource beginRun()" << endl;
-
-  if(firstRun){
   // retrieve TrackerGeometry for pixel dets
   edm::ESHandle<TrackerGeometry> TG;
   iSetup.get<TrackerDigiGeometryRecord>().get(TG);
@@ -139,6 +133,9 @@ void SiPixelTrackResidualSource::beginRun(const edm::Run& r, edm::EventSetup con
     }
   }
   LogInfo("PixelDQM") << "SiPixelStructure size is " << theSiPixelStructure.size() << endl;
+}
+
+void SiPixelTrackResidualSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run const &, edm::EventSetup const & iSetup){
 
   // book residual histograms in theSiPixelFolder - one (x,y) pair of histograms per det
   SiPixelFolderOrganizer theSiPixelFolder;
@@ -146,34 +143,34 @@ void SiPixelTrackResidualSource::beginRun(const edm::Run& r, edm::EventSetup con
        pxd!=theSiPixelStructure.end(); pxd++) {
 
     if(modOn){
-      if (theSiPixelFolder.setModuleFolder((*pxd).first,0,isUpgrade)) (*pxd).second->book(pSet_,reducedSet,0,isUpgrade);
+      if (theSiPixelFolder.setModuleFolder((*pxd).first,0,isUpgrade)) (*pxd).second->book(pSet_,iBooker,reducedSet,0,isUpgrade);
       else throw cms::Exception("LogicError") << "SiPixelTrackResidualSource Folder Creation Failed! "; 
     }
     if(ladOn){
       if (theSiPixelFolder.setModuleFolder((*pxd).first,1,isUpgrade)) {
 	
-	(*pxd).second->book(pSet_,reducedSet,1,isUpgrade);
+	(*pxd).second->book(pSet_,iBooker,reducedSet,1,isUpgrade);
       }
       else throw cms::Exception("LogicError") << "SiPixelTrackResidualSource ladder Folder Creation Failed! "; 
     }
     if(layOn){
-      if (theSiPixelFolder.setModuleFolder((*pxd).first,2,isUpgrade)) (*pxd).second->book(pSet_,reducedSet,2,isUpgrade);
+      if (theSiPixelFolder.setModuleFolder((*pxd).first,2,isUpgrade)) (*pxd).second->book(pSet_,iBooker,reducedSet,2,isUpgrade);
       else throw cms::Exception("LogicError") << "SiPixelTrackResidualSource layer Folder Creation Failed! "; 
     }
     if(phiOn){
-      if (theSiPixelFolder.setModuleFolder((*pxd).first,3,isUpgrade)) (*pxd).second->book(pSet_,reducedSet,3,isUpgrade);
+      if (theSiPixelFolder.setModuleFolder((*pxd).first,3,isUpgrade)) (*pxd).second->book(pSet_,iBooker,reducedSet,3,isUpgrade);
       else throw cms::Exception("LogicError") << "SiPixelTrackResidualSource phi Folder Creation Failed! "; 
     }
     if(bladeOn){
-      if (theSiPixelFolder.setModuleFolder((*pxd).first,4,isUpgrade)) (*pxd).second->book(pSet_,reducedSet,4,isUpgrade);
+      if (theSiPixelFolder.setModuleFolder((*pxd).first,4,isUpgrade)) (*pxd).second->book(pSet_,iBooker,reducedSet,4,isUpgrade);
       else throw cms::Exception("LogicError") << "SiPixelTrackResidualSource Blade Folder Creation Failed! "; 
     }
     if(diskOn){
-      if (theSiPixelFolder.setModuleFolder((*pxd).first,5,isUpgrade)) (*pxd).second->book(pSet_,reducedSet,5,isUpgrade);
+      if (theSiPixelFolder.setModuleFolder((*pxd).first,5,isUpgrade)) (*pxd).second->book(pSet_,iBooker,reducedSet,5,isUpgrade);
       else throw cms::Exception("LogicError") << "SiPixelTrackResidualSource Disk Folder Creation Failed! "; 
     }
     if(ringOn){
-      if (theSiPixelFolder.setModuleFolder((*pxd).first,6,isUpgrade)) (*pxd).second->book(pSet_,reducedSet,6,isUpgrade);
+      if (theSiPixelFolder.setModuleFolder((*pxd).first,6,isUpgrade)) (*pxd).second->book(pSet_,iBooker,reducedSet,6,isUpgrade);
       else throw cms::Exception("LogicError") << "SiPixelTrackResidualSource Ring Folder Creation Failed! "; 
     }
   }
@@ -183,8 +180,8 @@ void SiPixelTrackResidualSource::beginRun(const edm::Run& r, edm::EventSetup con
 //   edm::InputTag clustersrc = pSet_.getParameter<edm::InputTag>("clustersrc");
 
   //number of tracks
-  dbe_->setCurrentFolder("Pixel/Tracks");
-  meNofTracks_ = dbe_->book1D("ntracks_" + tracksrc_.label(),"Number of Tracks",4,0,4);
+  iBooker.setCurrentFolder("Pixel/Tracks");
+  meNofTracks_ = iBooker.book1D("ntracks_" + tracksrc_.label(),"Number of Tracks",4,0,4);
   meNofTracks_->setAxisTitle("Number of Tracks",1);
   meNofTracks_->setBinLabel(1,"All");
   meNofTracks_->setBinLabel(2,"Pixel");
@@ -192,21 +189,21 @@ void SiPixelTrackResidualSource::beginRun(const edm::Run& r, edm::EventSetup con
   meNofTracks_->setBinLabel(4,"FPix");
 
   //number of tracks in pixel fiducial volume
-  dbe_->setCurrentFolder("Pixel/Tracks");
-  meNofTracksInPixVol_ = dbe_->book1D("ntracksInPixVol_" + tracksrc_.label(),"Number of Tracks crossing Pixel fiducial Volume",2,0,2);
+  iBooker.setCurrentFolder("Pixel/Tracks");
+  meNofTracksInPixVol_ = iBooker.book1D("ntracksInPixVol_" + tracksrc_.label(),"Number of Tracks crossing Pixel fiducial Volume",2,0,2);
   meNofTracksInPixVol_->setAxisTitle("Number of Tracks",1);
   meNofTracksInPixVol_->setBinLabel(1,"With Hits");
   meNofTracksInPixVol_->setBinLabel(2,"Without Hits");
 
   //number of clusters (associated to track / not associated)
-  dbe_->setCurrentFolder("Pixel/Clusters/OnTrack");
-  meNofClustersOnTrack_ = dbe_->book1D("nclusters_" + clustersrc_.label() + "_tot","Number of Clusters (on track)",3,0,3);
+  iBooker.setCurrentFolder("Pixel/Clusters/OnTrack");
+  meNofClustersOnTrack_ = iBooker.book1D("nclusters_" + clustersrc_.label() + "_tot","Number of Clusters (on track)",3,0,3);
   meNofClustersOnTrack_->setAxisTitle("Number of Clusters on Track",1);
   meNofClustersOnTrack_->setBinLabel(1,"All");
   meNofClustersOnTrack_->setBinLabel(2,"BPix");
   meNofClustersOnTrack_->setBinLabel(3,"FPix");
-  dbe_->setCurrentFolder("Pixel/Clusters/OffTrack");
-  meNofClustersNotOnTrack_ = dbe_->book1D("nclusters_" + clustersrc_.label() + "_tot","Number of Clusters (off track)",3,0,3);
+  iBooker.setCurrentFolder("Pixel/Clusters/OffTrack");
+  meNofClustersNotOnTrack_ = iBooker.book1D("nclusters_" + clustersrc_.label() + "_tot","Number of Clusters (off track)",3,0,3);
   meNofClustersNotOnTrack_->setAxisTitle("Number of Clusters off Track",1);
   meNofClustersNotOnTrack_->setBinLabel(1,"All");
   meNofClustersNotOnTrack_->setBinLabel(2,"BPix");
@@ -215,453 +212,438 @@ void SiPixelTrackResidualSource::beginRun(const edm::Run& r, edm::EventSetup con
   //cluster charge and size
   //charge
   //on track
-  dbe_->setCurrentFolder("Pixel/Clusters/OnTrack");
-  meClChargeOnTrack_all = dbe_->book1D("charge_" + clustersrc_.label(),"Charge (on track)",500,0.,500.);
+  iBooker.setCurrentFolder("Pixel/Clusters/OnTrack");
+  meClChargeOnTrack_all = iBooker.book1D("charge_" + clustersrc_.label(),"Charge (on track)",500,0.,500.);
   meClChargeOnTrack_all->setAxisTitle("Charge size (in ke)",1);
-  meClChargeOnTrack_bpix = dbe_->book1D("charge_" + clustersrc_.label() + "_Barrel","Charge (on track, barrel)",500,0.,500.);
+  meClChargeOnTrack_bpix = iBooker.book1D("charge_" + clustersrc_.label() + "_Barrel","Charge (on track, barrel)",500,0.,500.);
   meClChargeOnTrack_bpix->setAxisTitle("Charge size (in ke)",1);
-  meClChargeOnTrack_fpix = dbe_->book1D("charge_" + clustersrc_.label() + "_Endcap","Charge (on track, endcap)",500,0.,500.);
+  meClChargeOnTrack_fpix = iBooker.book1D("charge_" + clustersrc_.label() + "_Endcap","Charge (on track, endcap)",500,0.,500.);
   meClChargeOnTrack_fpix->setAxisTitle("Charge size (in ke)",1);
-  meClChargeOnTrack_layer1 = dbe_->book1D("charge_" + clustersrc_.label() + "_Layer_1","Charge (on track, layer1)",500,0.,500.);
+  meClChargeOnTrack_layer1 = iBooker.book1D("charge_" + clustersrc_.label() + "_Layer_1","Charge (on track, layer1)",500,0.,500.);
   meClChargeOnTrack_layer1->setAxisTitle("Charge size (in ke)",1);
-  meClChargeOnTrack_layer2 = dbe_->book1D("charge_" + clustersrc_.label() + "_Layer_2","Charge (on track, layer2)",500,0.,500.);
+  meClChargeOnTrack_layer2 = iBooker.book1D("charge_" + clustersrc_.label() + "_Layer_2","Charge (on track, layer2)",500,0.,500.);
   meClChargeOnTrack_layer2->setAxisTitle("Charge size (in ke)",1);
-  meClChargeOnTrack_layer3 = dbe_->book1D("charge_" + clustersrc_.label() + "_Layer_3","Charge (on track, layer3)",500,0.,500.);
+  meClChargeOnTrack_layer3 = iBooker.book1D("charge_" + clustersrc_.label() + "_Layer_3","Charge (on track, layer3)",500,0.,500.);
   meClChargeOnTrack_layer3->setAxisTitle("Charge size (in ke)",1);
   if (isUpgrade) {
-    meClChargeOnTrack_layer4 = dbe_->book1D("charge_" + clustersrc_.label() + "_Layer_4","Charge (on track, layer4)",500,0.,500.);
+    meClChargeOnTrack_layer4 = iBooker.book1D("charge_" + clustersrc_.label() + "_Layer_4","Charge (on track, layer4)",500,0.,500.);
     meClChargeOnTrack_layer4->setAxisTitle("Charge size (in ke)",1);
   }
-  meClChargeOnTrack_diskp1 = dbe_->book1D("charge_" + clustersrc_.label() + "_Disk_p1","Charge (on track, diskp1)",500,0.,500.);
+  meClChargeOnTrack_diskp1 = iBooker.book1D("charge_" + clustersrc_.label() + "_Disk_p1","Charge (on track, diskp1)",500,0.,500.);
   meClChargeOnTrack_diskp1->setAxisTitle("Charge size (in ke)",1);
-  meClChargeOnTrack_diskp2 = dbe_->book1D("charge_" + clustersrc_.label() + "_Disk_p2","Charge (on track, diskp2)",500,0.,500.);
+  meClChargeOnTrack_diskp2 = iBooker.book1D("charge_" + clustersrc_.label() + "_Disk_p2","Charge (on track, diskp2)",500,0.,500.);
   meClChargeOnTrack_diskp2->setAxisTitle("Charge size (in ke)",1);
   if (isUpgrade) {
-    meClChargeOnTrack_diskp3 = dbe_->book1D("charge_" + clustersrc_.label() + "_Disk_p3","Charge (on track, diskp3)",500,0.,500.);
+    meClChargeOnTrack_diskp3 = iBooker.book1D("charge_" + clustersrc_.label() + "_Disk_p3","Charge (on track, diskp3)",500,0.,500.);
     meClChargeOnTrack_diskp3->setAxisTitle("Charge size (in ke)",1);
   }
-  meClChargeOnTrack_diskm1 = dbe_->book1D("charge_" + clustersrc_.label() + "_Disk_m1","Charge (on track, diskm1)",500,0.,500.);
+  meClChargeOnTrack_diskm1 = iBooker.book1D("charge_" + clustersrc_.label() + "_Disk_m1","Charge (on track, diskm1)",500,0.,500.);
   meClChargeOnTrack_diskm1->setAxisTitle("Charge size (in ke)",1);
-  meClChargeOnTrack_diskm2 = dbe_->book1D("charge_" + clustersrc_.label() + "_Disk_m2","Charge (on track, diskm2)",500,0.,500.);
+  meClChargeOnTrack_diskm2 = iBooker.book1D("charge_" + clustersrc_.label() + "_Disk_m2","Charge (on track, diskm2)",500,0.,500.);
   meClChargeOnTrack_diskm2->setAxisTitle("Charge size (in ke)",1);
   if (isUpgrade) {
-    meClChargeOnTrack_diskm3 = dbe_->book1D("charge_" + clustersrc_.label() + "_Disk_m3","Charge (on track, diskm3)",500,0.,500.);
+    meClChargeOnTrack_diskm3 = iBooker.book1D("charge_" + clustersrc_.label() + "_Disk_m3","Charge (on track, diskm3)",500,0.,500.);
     meClChargeOnTrack_diskm3->setAxisTitle("Charge size (in ke)",1);
   }
   //off track
-  dbe_->setCurrentFolder("Pixel/Clusters/OffTrack");
-  meClChargeNotOnTrack_all = dbe_->book1D("charge_" + clustersrc_.label(),"Charge (off track)",500,0.,500.);
+  iBooker.setCurrentFolder("Pixel/Clusters/OffTrack");
+  meClChargeNotOnTrack_all = iBooker.book1D("charge_" + clustersrc_.label(),"Charge (off track)",500,0.,500.);
   meClChargeNotOnTrack_all->setAxisTitle("Charge size (in ke)",1);
-  meClChargeNotOnTrack_bpix = dbe_->book1D("charge_" + clustersrc_.label() + "_Barrel","Charge (off track, barrel)",500,0.,500.);
+  meClChargeNotOnTrack_bpix = iBooker.book1D("charge_" + clustersrc_.label() + "_Barrel","Charge (off track, barrel)",500,0.,500.);
   meClChargeNotOnTrack_bpix->setAxisTitle("Charge size (in ke)",1);
-  meClChargeNotOnTrack_fpix = dbe_->book1D("charge_" + clustersrc_.label() + "_Endcap","Charge (off track, endcap)",500,0.,500.);
+  meClChargeNotOnTrack_fpix = iBooker.book1D("charge_" + clustersrc_.label() + "_Endcap","Charge (off track, endcap)",500,0.,500.);
   meClChargeNotOnTrack_fpix->setAxisTitle("Charge size (in ke)",1);
-  meClChargeNotOnTrack_layer1 = dbe_->book1D("charge_" + clustersrc_.label() + "_Layer_1","Charge (off track, layer1)",500,0.,500.);
+  meClChargeNotOnTrack_layer1 = iBooker.book1D("charge_" + clustersrc_.label() + "_Layer_1","Charge (off track, layer1)",500,0.,500.);
   meClChargeNotOnTrack_layer1->setAxisTitle("Charge size (in ke)",1);
-  meClChargeNotOnTrack_layer2 = dbe_->book1D("charge_" + clustersrc_.label() + "_Layer_2","Charge (off track, layer2)",500,0.,500.);
+  meClChargeNotOnTrack_layer2 = iBooker.book1D("charge_" + clustersrc_.label() + "_Layer_2","Charge (off track, layer2)",500,0.,500.);
   meClChargeNotOnTrack_layer2->setAxisTitle("Charge size (in ke)",1);
-  meClChargeNotOnTrack_layer3 = dbe_->book1D("charge_" + clustersrc_.label() + "_Layer_3","Charge (off track, layer3)",500,0.,500.);
+  meClChargeNotOnTrack_layer3 = iBooker.book1D("charge_" + clustersrc_.label() + "_Layer_3","Charge (off track, layer3)",500,0.,500.);
   meClChargeNotOnTrack_layer3->setAxisTitle("Charge size (in ke)",1);
   if (isUpgrade) {
-    meClChargeNotOnTrack_layer4 = dbe_->book1D("charge_" + clustersrc_.label() + "_Layer_4","Charge (off track, layer4)",500,0.,500.);
+    meClChargeNotOnTrack_layer4 = iBooker.book1D("charge_" + clustersrc_.label() + "_Layer_4","Charge (off track, layer4)",500,0.,500.);
     meClChargeNotOnTrack_layer4->setAxisTitle("Charge size (in ke)",1);
   }
-  meClChargeNotOnTrack_diskp1 = dbe_->book1D("charge_" + clustersrc_.label() + "_Disk_p1","Charge (off track, diskp1)",500,0.,500.);
+  meClChargeNotOnTrack_diskp1 = iBooker.book1D("charge_" + clustersrc_.label() + "_Disk_p1","Charge (off track, diskp1)",500,0.,500.);
   meClChargeNotOnTrack_diskp1->setAxisTitle("Charge size (in ke)",1);
-  meClChargeNotOnTrack_diskp2 = dbe_->book1D("charge_" + clustersrc_.label() + "_Disk_p2","Charge (off track, diskp2)",500,0.,500.);
+  meClChargeNotOnTrack_diskp2 = iBooker.book1D("charge_" + clustersrc_.label() + "_Disk_p2","Charge (off track, diskp2)",500,0.,500.);
   meClChargeNotOnTrack_diskp2->setAxisTitle("Charge size (in ke)",1);
   if (isUpgrade) {
-    meClChargeNotOnTrack_diskp3 = dbe_->book1D("charge_" + clustersrc_.label() + "_Disk_p3","Charge (off track, diskp3)",500,0.,500.);
+    meClChargeNotOnTrack_diskp3 = iBooker.book1D("charge_" + clustersrc_.label() + "_Disk_p3","Charge (off track, diskp3)",500,0.,500.);
     meClChargeNotOnTrack_diskp3->setAxisTitle("Charge size (in ke)",1);
   }
-  meClChargeNotOnTrack_diskm1 = dbe_->book1D("charge_" + clustersrc_.label() + "_Disk_m1","Charge (off track, diskm1)",500,0.,500.);
+  meClChargeNotOnTrack_diskm1 = iBooker.book1D("charge_" + clustersrc_.label() + "_Disk_m1","Charge (off track, diskm1)",500,0.,500.);
   meClChargeNotOnTrack_diskm1->setAxisTitle("Charge size (in ke)",1);
-  meClChargeNotOnTrack_diskm2 = dbe_->book1D("charge_" + clustersrc_.label() + "_Disk_m2","Charge (off track, diskm2)",500,0.,500.);
+  meClChargeNotOnTrack_diskm2 = iBooker.book1D("charge_" + clustersrc_.label() + "_Disk_m2","Charge (off track, diskm2)",500,0.,500.);
   meClChargeNotOnTrack_diskm2->setAxisTitle("Charge size (in ke)",1);
   if (isUpgrade) {
-    meClChargeNotOnTrack_diskm3 = dbe_->book1D("charge_" + clustersrc_.label() + "_Disk_m3","Charge (off track, diskm3)",500,0.,500.);
+    meClChargeNotOnTrack_diskm3 = iBooker.book1D("charge_" + clustersrc_.label() + "_Disk_m3","Charge (off track, diskm3)",500,0.,500.);
     meClChargeNotOnTrack_diskm3->setAxisTitle("Charge size (in ke)",1);
   }
 
   //size
   //on track
-  dbe_->setCurrentFolder("Pixel/Clusters/OnTrack");
-  meClSizeOnTrack_all = dbe_->book1D("size_" + clustersrc_.label(),"Size (on track)",100,0.,100.);
+  iBooker.setCurrentFolder("Pixel/Clusters/OnTrack");
+  meClSizeOnTrack_all = iBooker.book1D("size_" + clustersrc_.label(),"Size (on track)",100,0.,100.);
   meClSizeOnTrack_all->setAxisTitle("Cluster size (in pixels)",1);
-  meClSizeOnTrack_bpix = dbe_->book1D("size_" + clustersrc_.label() + "_Barrel","Size (on track, barrel)",100,0.,100.);
+  meClSizeOnTrack_bpix = iBooker.book1D("size_" + clustersrc_.label() + "_Barrel","Size (on track, barrel)",100,0.,100.);
   meClSizeOnTrack_bpix->setAxisTitle("Cluster size (in pixels)",1);
-  meClSizeOnTrack_fpix = dbe_->book1D("size_" + clustersrc_.label() + "_Endcap","Size (on track, endcap)",100,0.,100.);
+  meClSizeOnTrack_fpix = iBooker.book1D("size_" + clustersrc_.label() + "_Endcap","Size (on track, endcap)",100,0.,100.);
   meClSizeOnTrack_fpix->setAxisTitle("Cluster size (in pixels)",1);
-  meClSizeOnTrack_layer1 = dbe_->book1D("size_" + clustersrc_.label() + "_Layer_1","Size (on track, layer1)",100,0.,100.);
+  meClSizeOnTrack_layer1 = iBooker.book1D("size_" + clustersrc_.label() + "_Layer_1","Size (on track, layer1)",100,0.,100.);
   meClSizeOnTrack_layer1->setAxisTitle("Cluster size (in pixels)",1);
-  meClSizeOnTrack_layer2 = dbe_->book1D("size_" + clustersrc_.label() + "_Layer_2","Size (on track, layer2)",100,0.,100.);
+  meClSizeOnTrack_layer2 = iBooker.book1D("size_" + clustersrc_.label() + "_Layer_2","Size (on track, layer2)",100,0.,100.);
   meClSizeOnTrack_layer2->setAxisTitle("Cluster size (in pixels)",1);
-  meClSizeOnTrack_layer3 = dbe_->book1D("size_" + clustersrc_.label() + "_Layer_3","Size (on track, layer3)",100,0.,100.);
+  meClSizeOnTrack_layer3 = iBooker.book1D("size_" + clustersrc_.label() + "_Layer_3","Size (on track, layer3)",100,0.,100.);
   meClSizeOnTrack_layer3->setAxisTitle("Cluster size (in pixels)",1);
   if (isUpgrade) {
-    meClSizeOnTrack_layer4 = dbe_->book1D("size_" + clustersrc_.label() + "_Layer_4","Size (on track, layer4)",100,0.,100.);
+    meClSizeOnTrack_layer4 = iBooker.book1D("size_" + clustersrc_.label() + "_Layer_4","Size (on track, layer4)",100,0.,100.);
     meClSizeOnTrack_layer4->setAxisTitle("Cluster size (in pixels)",1);
   }
-  meClSizeOnTrack_diskp1 = dbe_->book1D("size_" + clustersrc_.label() + "_Disk_p1","Size (on track, diskp1)",100,0.,100.);
+  meClSizeOnTrack_diskp1 = iBooker.book1D("size_" + clustersrc_.label() + "_Disk_p1","Size (on track, diskp1)",100,0.,100.);
   meClSizeOnTrack_diskp1->setAxisTitle("Cluster size (in pixels)",1);
-  meClSizeOnTrack_diskp2 = dbe_->book1D("size_" + clustersrc_.label() + "_Disk_p2","Size (on track, diskp2)",100,0.,100.);
+  meClSizeOnTrack_diskp2 = iBooker.book1D("size_" + clustersrc_.label() + "_Disk_p2","Size (on track, diskp2)",100,0.,100.);
   meClSizeOnTrack_diskp2->setAxisTitle("Cluster size (in pixels)",1);
   if (isUpgrade) {
-    meClSizeOnTrack_diskp3 = dbe_->book1D("size_" + clustersrc_.label() + "_Disk_p3","Size (on track, diskp3)",100,0.,100.);
+    meClSizeOnTrack_diskp3 = iBooker.book1D("size_" + clustersrc_.label() + "_Disk_p3","Size (on track, diskp3)",100,0.,100.);
     meClSizeOnTrack_diskp3->setAxisTitle("Cluster size (in pixels)",1);
   }
-  meClSizeOnTrack_diskm1 = dbe_->book1D("size_" + clustersrc_.label() + "_Disk_m1","Size (on track, diskm1)",100,0.,100.);
+  meClSizeOnTrack_diskm1 = iBooker.book1D("size_" + clustersrc_.label() + "_Disk_m1","Size (on track, diskm1)",100,0.,100.);
   meClSizeOnTrack_diskm1->setAxisTitle("Cluster size (in pixels)",1);
-  meClSizeOnTrack_diskm2 = dbe_->book1D("size_" + clustersrc_.label() + "_Disk_m2","Size (on track, diskm2)",100,0.,100.);
+  meClSizeOnTrack_diskm2 = iBooker.book1D("size_" + clustersrc_.label() + "_Disk_m2","Size (on track, diskm2)",100,0.,100.);
   meClSizeOnTrack_diskm2->setAxisTitle("Cluster size (in pixels)",1);
   if (isUpgrade) {
-    meClSizeOnTrack_diskm3 = dbe_->book1D("size_" + clustersrc_.label() + "_Disk_m3","Size (on track, diskm3)",100,0.,100.);
+    meClSizeOnTrack_diskm3 = iBooker.book1D("size_" + clustersrc_.label() + "_Disk_m3","Size (on track, diskm3)",100,0.,100.);
     meClSizeOnTrack_diskm3->setAxisTitle("Cluster size (in pixels)",1);
   }
-  meClSizeXOnTrack_all = dbe_->book1D("sizeX_" + clustersrc_.label(),"SizeX (on track)",100,0.,100.);
+  meClSizeXOnTrack_all = iBooker.book1D("sizeX_" + clustersrc_.label(),"SizeX (on track)",100,0.,100.);
   meClSizeXOnTrack_all->setAxisTitle("Cluster sizeX (in pixels)",1);
-  meClSizeXOnTrack_bpix = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Barrel","SizeX (on track, barrel)",100,0.,100.);
+  meClSizeXOnTrack_bpix = iBooker.book1D("sizeX_" + clustersrc_.label() + "_Barrel","SizeX (on track, barrel)",100,0.,100.);
   meClSizeXOnTrack_bpix->setAxisTitle("Cluster sizeX (in pixels)",1);
-  meClSizeXOnTrack_fpix = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Endcap","SizeX (on track, endcap)",100,0.,100.);
+  meClSizeXOnTrack_fpix = iBooker.book1D("sizeX_" + clustersrc_.label() + "_Endcap","SizeX (on track, endcap)",100,0.,100.);
   meClSizeXOnTrack_fpix->setAxisTitle("Cluster sizeX (in pixels)",1);
-  meClSizeXOnTrack_layer1 = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Layer_1","SizeX (on track, layer1)",100,0.,100.);
+  meClSizeXOnTrack_layer1 = iBooker.book1D("sizeX_" + clustersrc_.label() + "_Layer_1","SizeX (on track, layer1)",100,0.,100.);
   meClSizeXOnTrack_layer1->setAxisTitle("Cluster size (in pixels)",1);
-  meClSizeXOnTrack_layer2 = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Layer_2","SizeX (on track, layer2)",100,0.,100.);
+  meClSizeXOnTrack_layer2 = iBooker.book1D("sizeX_" + clustersrc_.label() + "_Layer_2","SizeX (on track, layer2)",100,0.,100.);
   meClSizeXOnTrack_layer2->setAxisTitle("Cluster size (in pixels)",1);
-  meClSizeXOnTrack_layer3 = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Layer_3","SizeX (on track, layer3)",100,0.,100.);
+  meClSizeXOnTrack_layer3 = iBooker.book1D("sizeX_" + clustersrc_.label() + "_Layer_3","SizeX (on track, layer3)",100,0.,100.);
   meClSizeXOnTrack_layer3->setAxisTitle("Cluster size (in pixels)",1);
   if (isUpgrade) {
-    meClSizeXOnTrack_layer4 = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Layer_4","SizeX (on track, layer4)",100,0.,100.);
+    meClSizeXOnTrack_layer4 = iBooker.book1D("sizeX_" + clustersrc_.label() + "_Layer_4","SizeX (on track, layer4)",100,0.,100.);
     meClSizeXOnTrack_layer4->setAxisTitle("Cluster size (in pixels)",1);
   }
-  meClSizeXOnTrack_diskp1 = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Disk_p1","SizeX (on track, diskp1)",100,0.,100.);
+  meClSizeXOnTrack_diskp1 = iBooker.book1D("sizeX_" + clustersrc_.label() + "_Disk_p1","SizeX (on track, diskp1)",100,0.,100.);
   meClSizeXOnTrack_diskp1->setAxisTitle("Cluster size (in pixels)",1);
-  meClSizeXOnTrack_diskp2 = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Disk_p2","SizeX (on track, diskp2)",100,0.,100.);
+  meClSizeXOnTrack_diskp2 = iBooker.book1D("sizeX_" + clustersrc_.label() + "_Disk_p2","SizeX (on track, diskp2)",100,0.,100.);
   meClSizeXOnTrack_diskp2->setAxisTitle("Cluster size (in pixels)",1);
   if (isUpgrade) {
-    meClSizeXOnTrack_diskp3 = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Disk_p3","SizeX (on track, diskp3)",100,0.,100.);
+    meClSizeXOnTrack_diskp3 = iBooker.book1D("sizeX_" + clustersrc_.label() + "_Disk_p3","SizeX (on track, diskp3)",100,0.,100.);
     meClSizeXOnTrack_diskp3->setAxisTitle("Cluster size (in pixels)",1);
   }
-  meClSizeXOnTrack_diskm1 = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Disk_m1","SizeX (on track, diskm1)",100,0.,100.);
+  meClSizeXOnTrack_diskm1 = iBooker.book1D("sizeX_" + clustersrc_.label() + "_Disk_m1","SizeX (on track, diskm1)",100,0.,100.);
   meClSizeXOnTrack_diskm1->setAxisTitle("Cluster size (in pixels)",1);
-  meClSizeXOnTrack_diskm2 = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Disk_m2","SizeX (on track, diskm2)",100,0.,100.);
+  meClSizeXOnTrack_diskm2 = iBooker.book1D("sizeX_" + clustersrc_.label() + "_Disk_m2","SizeX (on track, diskm2)",100,0.,100.);
   meClSizeXOnTrack_diskm2->setAxisTitle("Cluster size (in pixels)",1);
   if (isUpgrade) {
-    meClSizeXOnTrack_diskm3 = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Disk_m3","SizeX (on track, diskm3)",100,0.,100.);
+    meClSizeXOnTrack_diskm3 = iBooker.book1D("sizeX_" + clustersrc_.label() + "_Disk_m3","SizeX (on track, diskm3)",100,0.,100.);
     meClSizeXOnTrack_diskm3->setAxisTitle("Cluster size (in pixels)",1);
   }
-  meClSizeYOnTrack_all = dbe_->book1D("sizeY_" + clustersrc_.label(),"SizeY (on track)",100,0.,100.);
+  meClSizeYOnTrack_all = iBooker.book1D("sizeY_" + clustersrc_.label(),"SizeY (on track)",100,0.,100.);
   meClSizeYOnTrack_all->setAxisTitle("Cluster sizeY (in pixels)",1);
-  meClSizeYOnTrack_bpix = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Barrel","SizeY (on track, barrel)",100,0.,100.);
+  meClSizeYOnTrack_bpix = iBooker.book1D("sizeY_" + clustersrc_.label() + "_Barrel","SizeY (on track, barrel)",100,0.,100.);
   meClSizeYOnTrack_bpix->setAxisTitle("Cluster sizeY (in pixels)",1);
-  meClSizeYOnTrack_fpix = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Endcap","SizeY (on track, endcap)",100,0.,100.);
+  meClSizeYOnTrack_fpix = iBooker.book1D("sizeY_" + clustersrc_.label() + "_Endcap","SizeY (on track, endcap)",100,0.,100.);
   meClSizeYOnTrack_fpix->setAxisTitle("Cluster sizeY (in pixels)",1);
-  meClSizeYOnTrack_layer1 = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Layer_1","SizeY (on track, layer1)",100,0.,100.);
+  meClSizeYOnTrack_layer1 = iBooker.book1D("sizeY_" + clustersrc_.label() + "_Layer_1","SizeY (on track, layer1)",100,0.,100.);
   meClSizeYOnTrack_layer1->setAxisTitle("Cluster size (in pixels)",1);
-  meClSizeYOnTrack_layer2 = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Layer_2","SizeY (on track, layer2)",100,0.,100.);
+  meClSizeYOnTrack_layer2 = iBooker.book1D("sizeY_" + clustersrc_.label() + "_Layer_2","SizeY (on track, layer2)",100,0.,100.);
   meClSizeYOnTrack_layer2->setAxisTitle("Cluster size (in pixels)",1);
-  meClSizeYOnTrack_layer3 = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Layer_3","SizeY (on track, layer3)",100,0.,100.);
+  meClSizeYOnTrack_layer3 = iBooker.book1D("sizeY_" + clustersrc_.label() + "_Layer_3","SizeY (on track, layer3)",100,0.,100.);
   meClSizeYOnTrack_layer3->setAxisTitle("Cluster size (in pixels)",1);
   if (isUpgrade) {
-    meClSizeYOnTrack_layer4 = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Layer_4","SizeY (on track, layer4)",100,0.,100.);
+    meClSizeYOnTrack_layer4 = iBooker.book1D("sizeY_" + clustersrc_.label() + "_Layer_4","SizeY (on track, layer4)",100,0.,100.);
     meClSizeYOnTrack_layer4->setAxisTitle("Cluster size (in pixels)",1);
   }
-  meClSizeYOnTrack_diskp1 = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Disk_p1","SizeY (on track, diskp1)",100,0.,100.);
+  meClSizeYOnTrack_diskp1 = iBooker.book1D("sizeY_" + clustersrc_.label() + "_Disk_p1","SizeY (on track, diskp1)",100,0.,100.);
   meClSizeYOnTrack_diskp1->setAxisTitle("Cluster size (in pixels)",1);
-  meClSizeYOnTrack_diskp2 = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Disk_p2","SizeY (on track, diskp2)",100,0.,100.);
+  meClSizeYOnTrack_diskp2 = iBooker.book1D("sizeY_" + clustersrc_.label() + "_Disk_p2","SizeY (on track, diskp2)",100,0.,100.);
   meClSizeYOnTrack_diskp2->setAxisTitle("Cluster size (in pixels)",1);
   if (isUpgrade) {
-    meClSizeYOnTrack_diskp3 = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Disk_p3","SizeY (on track, diskp3)",100,0.,100.);
+    meClSizeYOnTrack_diskp3 = iBooker.book1D("sizeY_" + clustersrc_.label() + "_Disk_p3","SizeY (on track, diskp3)",100,0.,100.);
     meClSizeYOnTrack_diskp3->setAxisTitle("Cluster size (in pixels)",1);
   }
-  meClSizeYOnTrack_diskm1 = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Disk_m1","SizeY (on track, diskm1)",100,0.,100.);
+  meClSizeYOnTrack_diskm1 = iBooker.book1D("sizeY_" + clustersrc_.label() + "_Disk_m1","SizeY (on track, diskm1)",100,0.,100.);
   meClSizeYOnTrack_diskm1->setAxisTitle("Cluster size (in pixels)",1);
-  meClSizeYOnTrack_diskm2 = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Disk_m2","SizeY (on track, diskm2)",100,0.,100.);
+  meClSizeYOnTrack_diskm2 = iBooker.book1D("sizeY_" + clustersrc_.label() + "_Disk_m2","SizeY (on track, diskm2)",100,0.,100.);
   meClSizeYOnTrack_diskm2->setAxisTitle("Cluster size (in pixels)",1);
   if (isUpgrade) {
-    meClSizeYOnTrack_diskm3 = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Disk_m3","SizeY (on track, diskm3)",100,0.,100.);
+    meClSizeYOnTrack_diskm3 = iBooker.book1D("sizeY_" + clustersrc_.label() + "_Disk_m3","SizeY (on track, diskm3)",100,0.,100.);
     meClSizeYOnTrack_diskm3->setAxisTitle("Cluster size (in pixels)",1);
   }
   //off track
-  dbe_->setCurrentFolder("Pixel/Clusters/OffTrack");
-  meClSizeNotOnTrack_all = dbe_->book1D("size_" + clustersrc_.label(),"Size (off track)",100,0.,100.);
+  iBooker.setCurrentFolder("Pixel/Clusters/OffTrack");
+  meClSizeNotOnTrack_all = iBooker.book1D("size_" + clustersrc_.label(),"Size (off track)",100,0.,100.);
   meClSizeNotOnTrack_all->setAxisTitle("Cluster size (in pixels)",1); 
-  meClSizeNotOnTrack_bpix = dbe_->book1D("size_" + clustersrc_.label() + "_Barrel","Size (off track, barrel)",100,0.,100.);
+  meClSizeNotOnTrack_bpix = iBooker.book1D("size_" + clustersrc_.label() + "_Barrel","Size (off track, barrel)",100,0.,100.);
   meClSizeNotOnTrack_bpix->setAxisTitle("Cluster size (in pixels)",1);
-  meClSizeNotOnTrack_fpix = dbe_->book1D("size_" + clustersrc_.label() + "_Endcap","Size (off track, endcap)",100,0.,100.);
+  meClSizeNotOnTrack_fpix = iBooker.book1D("size_" + clustersrc_.label() + "_Endcap","Size (off track, endcap)",100,0.,100.);
   meClSizeNotOnTrack_fpix->setAxisTitle("Cluster size (in pixels)",1);
-  meClSizeNotOnTrack_layer1 = dbe_->book1D("size_" + clustersrc_.label() + "_Layer_1","Size (off track, layer1)",100,0.,100.);
+  meClSizeNotOnTrack_layer1 = iBooker.book1D("size_" + clustersrc_.label() + "_Layer_1","Size (off track, layer1)",100,0.,100.);
   meClSizeNotOnTrack_layer1->setAxisTitle("Cluster size (in pixels)",1);
-  meClSizeNotOnTrack_layer2 = dbe_->book1D("size_" + clustersrc_.label() + "_Layer_2","Size (off track, layer2)",100,0.,100.);
+  meClSizeNotOnTrack_layer2 = iBooker.book1D("size_" + clustersrc_.label() + "_Layer_2","Size (off track, layer2)",100,0.,100.);
   meClSizeNotOnTrack_layer2->setAxisTitle("Cluster size (in pixels)",1);
-  meClSizeNotOnTrack_layer3 = dbe_->book1D("size_" + clustersrc_.label() + "_Layer_3","Size (off track, layer3)",100,0.,100.);
+  meClSizeNotOnTrack_layer3 = iBooker.book1D("size_" + clustersrc_.label() + "_Layer_3","Size (off track, layer3)",100,0.,100.);
   meClSizeNotOnTrack_layer3->setAxisTitle("Cluster size (in pixels)",1);
   if (isUpgrade) {
-    meClSizeNotOnTrack_layer4 = dbe_->book1D("size_" + clustersrc_.label() + "_Layer_4","Size (off track, layer4)",100,0.,100.);
+    meClSizeNotOnTrack_layer4 = iBooker.book1D("size_" + clustersrc_.label() + "_Layer_4","Size (off track, layer4)",100,0.,100.);
     meClSizeNotOnTrack_layer4->setAxisTitle("Cluster size (in pixels)",1);
   }
-  meClSizeNotOnTrack_diskp1 = dbe_->book1D("size_" + clustersrc_.label() + "_Disk_p1","Size (off track, diskp1)",100,0.,100.);
+  meClSizeNotOnTrack_diskp1 = iBooker.book1D("size_" + clustersrc_.label() + "_Disk_p1","Size (off track, diskp1)",100,0.,100.);
   meClSizeNotOnTrack_diskp1->setAxisTitle("Cluster size (in pixels)",1);
-  meClSizeNotOnTrack_diskp2 = dbe_->book1D("size_" + clustersrc_.label() + "_Disk_p2","Size (off track, diskp2)",100,0.,100.);
+  meClSizeNotOnTrack_diskp2 = iBooker.book1D("size_" + clustersrc_.label() + "_Disk_p2","Size (off track, diskp2)",100,0.,100.);
   meClSizeNotOnTrack_diskp2->setAxisTitle("Cluster size (in pixels)",1);
   if (isUpgrade) {
-    meClSizeNotOnTrack_diskp3 = dbe_->book1D("size_" + clustersrc_.label() + "_Disk_p3","Size (off track, diskp3)",100,0.,100.);
+    meClSizeNotOnTrack_diskp3 = iBooker.book1D("size_" + clustersrc_.label() + "_Disk_p3","Size (off track, diskp3)",100,0.,100.);
     meClSizeNotOnTrack_diskp3->setAxisTitle("Cluster size (in pixels)",1);
   }
-  meClSizeNotOnTrack_diskm1 = dbe_->book1D("size_" + clustersrc_.label() + "_Disk_m1","Size (off track, diskm1)",100,0.,100.);
+  meClSizeNotOnTrack_diskm1 = iBooker.book1D("size_" + clustersrc_.label() + "_Disk_m1","Size (off track, diskm1)",100,0.,100.);
   meClSizeNotOnTrack_diskm1->setAxisTitle("Cluster size (in pixels)",1);
-  meClSizeNotOnTrack_diskm2 = dbe_->book1D("size_" + clustersrc_.label() + "_Disk_m2","Size (off track, diskm2)",100,0.,100.);
+  meClSizeNotOnTrack_diskm2 = iBooker.book1D("size_" + clustersrc_.label() + "_Disk_m2","Size (off track, diskm2)",100,0.,100.);
   meClSizeNotOnTrack_diskm2->setAxisTitle("Cluster size (in pixels)",1);
   if (isUpgrade) {
-    meClSizeNotOnTrack_diskm3 = dbe_->book1D("size_" + clustersrc_.label() + "_Disk_m3","Size (off track, diskm3)",100,0.,100.);
+    meClSizeNotOnTrack_diskm3 = iBooker.book1D("size_" + clustersrc_.label() + "_Disk_m3","Size (off track, diskm3)",100,0.,100.);
     meClSizeNotOnTrack_diskm3->setAxisTitle("Cluster size (in pixels)",1);
   }
-  meClSizeXNotOnTrack_all = dbe_->book1D("sizeX_" + clustersrc_.label(),"SizeX (off track)",100,0.,100.);
+  meClSizeXNotOnTrack_all = iBooker.book1D("sizeX_" + clustersrc_.label(),"SizeX (off track)",100,0.,100.);
   meClSizeXNotOnTrack_all->setAxisTitle("Cluster sizeX (in pixels)",1);
-  meClSizeXNotOnTrack_bpix = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Barrel","SizeX (off track, barrel)",100,0.,100.);
+  meClSizeXNotOnTrack_bpix = iBooker.book1D("sizeX_" + clustersrc_.label() + "_Barrel","SizeX (off track, barrel)",100,0.,100.);
   meClSizeXNotOnTrack_bpix->setAxisTitle("Cluster sizeX (in pixels)",1);
-  meClSizeXNotOnTrack_fpix = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Endcap","SizeX (off track, endcap)",100,0.,100.);
+  meClSizeXNotOnTrack_fpix = iBooker.book1D("sizeX_" + clustersrc_.label() + "_Endcap","SizeX (off track, endcap)",100,0.,100.);
   meClSizeXNotOnTrack_fpix->setAxisTitle("Cluster sizeX (in pixels)",1);
-  meClSizeXNotOnTrack_layer1 = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Layer_1","SizeX (off track, layer1)",100,0.,100.);
+  meClSizeXNotOnTrack_layer1 = iBooker.book1D("sizeX_" + clustersrc_.label() + "_Layer_1","SizeX (off track, layer1)",100,0.,100.);
   meClSizeXNotOnTrack_layer1->setAxisTitle("Cluster size (in pixels)",1);
-  meClSizeXNotOnTrack_layer2 = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Layer_2","SizeX (off track, layer2)",100,0.,100.);
+  meClSizeXNotOnTrack_layer2 = iBooker.book1D("sizeX_" + clustersrc_.label() + "_Layer_2","SizeX (off track, layer2)",100,0.,100.);
   meClSizeXNotOnTrack_layer2->setAxisTitle("Cluster size (in pixels)",1);
-  meClSizeXNotOnTrack_layer3 = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Layer_3","SizeX (off track, layer3)",100,0.,100.);
+  meClSizeXNotOnTrack_layer3 = iBooker.book1D("sizeX_" + clustersrc_.label() + "_Layer_3","SizeX (off track, layer3)",100,0.,100.);
   meClSizeXNotOnTrack_layer3->setAxisTitle("Cluster size (in pixels)",1);
   if (isUpgrade) {
-    meClSizeXNotOnTrack_layer4 = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Layer_4","SizeX (off track, layer4)",100,0.,100.);
+    meClSizeXNotOnTrack_layer4 = iBooker.book1D("sizeX_" + clustersrc_.label() + "_Layer_4","SizeX (off track, layer4)",100,0.,100.);
     meClSizeXNotOnTrack_layer4->setAxisTitle("Cluster size (in pixels)",1);
   }
-  meClSizeXNotOnTrack_diskp1 = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Disk_p1","SizeX (off track, diskp1)",100,0.,100.);
+  meClSizeXNotOnTrack_diskp1 = iBooker.book1D("sizeX_" + clustersrc_.label() + "_Disk_p1","SizeX (off track, diskp1)",100,0.,100.);
   meClSizeXNotOnTrack_diskp1->setAxisTitle("Cluster size (in pixels)",1);
-  meClSizeXNotOnTrack_diskp2 = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Disk_p2","SizeX (off track, diskp2)",100,0.,100.);
+  meClSizeXNotOnTrack_diskp2 = iBooker.book1D("sizeX_" + clustersrc_.label() + "_Disk_p2","SizeX (off track, diskp2)",100,0.,100.);
   meClSizeXNotOnTrack_diskp2->setAxisTitle("Cluster size (in pixels)",1);
   if (isUpgrade) {
-    meClSizeXNotOnTrack_diskp3 = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Disk_p3","SizeX (off track, diskp3)",100,0.,100.);
+    meClSizeXNotOnTrack_diskp3 = iBooker.book1D("sizeX_" + clustersrc_.label() + "_Disk_p3","SizeX (off track, diskp3)",100,0.,100.);
     meClSizeXNotOnTrack_diskp3->setAxisTitle("Cluster size (in pixels)",1);
   }
-  meClSizeXNotOnTrack_diskm1 = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Disk_m1","SizeX (off track, diskm1)",100,0.,100.);
+  meClSizeXNotOnTrack_diskm1 = iBooker.book1D("sizeX_" + clustersrc_.label() + "_Disk_m1","SizeX (off track, diskm1)",100,0.,100.);
   meClSizeXNotOnTrack_diskm1->setAxisTitle("Cluster size (in pixels)",1);
-  meClSizeXNotOnTrack_diskm2 = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Disk_m2","SizeX (off track, diskm2)",100,0.,100.);
+  meClSizeXNotOnTrack_diskm2 = iBooker.book1D("sizeX_" + clustersrc_.label() + "_Disk_m2","SizeX (off track, diskm2)",100,0.,100.);
   meClSizeXNotOnTrack_diskm2->setAxisTitle("Cluster size (in pixels)",1);
   if (isUpgrade) {
-    meClSizeXNotOnTrack_diskm3 = dbe_->book1D("sizeX_" + clustersrc_.label() + "_Disk_m3","SizeX (off track, diskm3)",100,0.,100.);
+    meClSizeXNotOnTrack_diskm3 = iBooker.book1D("sizeX_" + clustersrc_.label() + "_Disk_m3","SizeX (off track, diskm3)",100,0.,100.);
     meClSizeXNotOnTrack_diskm3->setAxisTitle("Cluster size (in pixels)",1);
   }
-  meClSizeYNotOnTrack_all = dbe_->book1D("sizeY_" + clustersrc_.label(),"SizeY (off track)",100,0.,100.);
+  meClSizeYNotOnTrack_all = iBooker.book1D("sizeY_" + clustersrc_.label(),"SizeY (off track)",100,0.,100.);
   meClSizeYNotOnTrack_all->setAxisTitle("Cluster sizeY (in pixels)",1);
-  meClSizeYNotOnTrack_bpix = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Barrel","SizeY (off track, barrel)",100,0.,100.);
+  meClSizeYNotOnTrack_bpix = iBooker.book1D("sizeY_" + clustersrc_.label() + "_Barrel","SizeY (off track, barrel)",100,0.,100.);
   meClSizeYNotOnTrack_bpix->setAxisTitle("Cluster sizeY (in pixels)",1);
-  meClSizeYNotOnTrack_fpix = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Endcap","SizeY (off track, endcap)",100,0.,100.);
+  meClSizeYNotOnTrack_fpix = iBooker.book1D("sizeY_" + clustersrc_.label() + "_Endcap","SizeY (off track, endcap)",100,0.,100.);
   meClSizeYNotOnTrack_fpix->setAxisTitle("Cluster sizeY (in pixels)",1);
-  meClSizeYNotOnTrack_layer1 = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Layer_1","SizeY (off track, layer1)",100,0.,100.);
+  meClSizeYNotOnTrack_layer1 = iBooker.book1D("sizeY_" + clustersrc_.label() + "_Layer_1","SizeY (off track, layer1)",100,0.,100.);
   meClSizeYNotOnTrack_layer1->setAxisTitle("Cluster size (in pixels)",1);
-  meClSizeYNotOnTrack_layer2 = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Layer_2","SizeY (off track, layer2)",100,0.,100.);
+  meClSizeYNotOnTrack_layer2 = iBooker.book1D("sizeY_" + clustersrc_.label() + "_Layer_2","SizeY (off track, layer2)",100,0.,100.);
   meClSizeYNotOnTrack_layer2->setAxisTitle("Cluster size (in pixels)",1);
-  meClSizeYNotOnTrack_layer3 = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Layer_3","SizeY (off track, layer3)",100,0.,100.);
+  meClSizeYNotOnTrack_layer3 = iBooker.book1D("sizeY_" + clustersrc_.label() + "_Layer_3","SizeY (off track, layer3)",100,0.,100.);
   meClSizeYNotOnTrack_layer3->setAxisTitle("Cluster size (in pixels)",1);
   if (isUpgrade) {
-    meClSizeYNotOnTrack_layer4 = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Layer_4","SizeY (off track, layer4)",100,0.,100.);
+    meClSizeYNotOnTrack_layer4 = iBooker.book1D("sizeY_" + clustersrc_.label() + "_Layer_4","SizeY (off track, layer4)",100,0.,100.);
     meClSizeYNotOnTrack_layer4->setAxisTitle("Cluster size (in pixels)",1);
   }
-  meClSizeYNotOnTrack_diskp1 = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Disk_p1","SizeY (off track, diskp1)",100,0.,100.);
+  meClSizeYNotOnTrack_diskp1 = iBooker.book1D("sizeY_" + clustersrc_.label() + "_Disk_p1","SizeY (off track, diskp1)",100,0.,100.);
   meClSizeYNotOnTrack_diskp1->setAxisTitle("Cluster size (in pixels)",1);
-  meClSizeYNotOnTrack_diskp2 = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Disk_p2","SizeY (off track, diskp2)",100,0.,100.);
+  meClSizeYNotOnTrack_diskp2 = iBooker.book1D("sizeY_" + clustersrc_.label() + "_Disk_p2","SizeY (off track, diskp2)",100,0.,100.);
   meClSizeYNotOnTrack_diskp2->setAxisTitle("Cluster size (in pixels)",1);
   if (isUpgrade) {
-    meClSizeYNotOnTrack_diskp3 = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Disk_p3","SizeY (off track, diskp3)",100,0.,100.);
+    meClSizeYNotOnTrack_diskp3 = iBooker.book1D("sizeY_" + clustersrc_.label() + "_Disk_p3","SizeY (off track, diskp3)",100,0.,100.);
     meClSizeYNotOnTrack_diskp3->setAxisTitle("Cluster size (in pixels)",1);
   }
-  meClSizeYNotOnTrack_diskm1 = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Disk_m1","SizeY (off track, diskm1)",100,0.,100.);
+  meClSizeYNotOnTrack_diskm1 = iBooker.book1D("sizeY_" + clustersrc_.label() + "_Disk_m1","SizeY (off track, diskm1)",100,0.,100.);
   meClSizeYNotOnTrack_diskm1->setAxisTitle("Cluster size (in pixels)",1);
-  meClSizeYNotOnTrack_diskm2 = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Disk_m2","SizeY (off track, diskm2)",100,0.,100.);
+  meClSizeYNotOnTrack_diskm2 = iBooker.book1D("sizeY_" + clustersrc_.label() + "_Disk_m2","SizeY (off track, diskm2)",100,0.,100.);
   meClSizeYNotOnTrack_diskm2->setAxisTitle("Cluster size (in pixels)",1);
   if (isUpgrade) {
-    meClSizeYNotOnTrack_diskm3 = dbe_->book1D("sizeY_" + clustersrc_.label() + "_Disk_m3","SizeY (off track, diskm3)",100,0.,100.);
+    meClSizeYNotOnTrack_diskm3 = iBooker.book1D("sizeY_" + clustersrc_.label() + "_Disk_m3","SizeY (off track, diskm3)",100,0.,100.);
     meClSizeYNotOnTrack_diskm3->setAxisTitle("Cluster size (in pixels)",1);
   }
 
   //cluster global position
   //on track
-  dbe_->setCurrentFolder("Pixel/Clusters/OnTrack");
+  iBooker.setCurrentFolder("Pixel/Clusters/OnTrack");
   //bpix
-  meClPosLayer1OnTrack = dbe_->book2D("position_" + clustersrc_.label() + "_Layer_1","Clusters Layer1 (on track)",200,-30.,30.,128,-3.2,3.2);
+  meClPosLayer1OnTrack = iBooker.book2D("position_" + clustersrc_.label() + "_Layer_1","Clusters Layer1 (on track)",200,-30.,30.,128,-3.2,3.2);
   meClPosLayer1OnTrack->setAxisTitle("Global Z (cm)",1);
   meClPosLayer1OnTrack->setAxisTitle("Global #phi",2);
-  meClPosLayer2OnTrack = dbe_->book2D("position_" + clustersrc_.label() + "_Layer_2","Clusters Layer2 (on track)",200,-30.,30.,128,-3.2,3.2);
+  meClPosLayer2OnTrack = iBooker.book2D("position_" + clustersrc_.label() + "_Layer_2","Clusters Layer2 (on track)",200,-30.,30.,128,-3.2,3.2);
   meClPosLayer2OnTrack->setAxisTitle("Global Z (cm)",1);
   meClPosLayer2OnTrack->setAxisTitle("Global #phi",2);
-  meClPosLayer3OnTrack = dbe_->book2D("position_" + clustersrc_.label() + "_Layer_3","Clusters Layer3 (on track)",200,-30.,30.,128,-3.2,3.2);
+  meClPosLayer3OnTrack = iBooker.book2D("position_" + clustersrc_.label() + "_Layer_3","Clusters Layer3 (on track)",200,-30.,30.,128,-3.2,3.2);
   meClPosLayer3OnTrack->setAxisTitle("Global Z (cm)",1);
   meClPosLayer3OnTrack->setAxisTitle("Global #phi",2);
   if (isUpgrade) {
-    meClPosLayer4OnTrack = dbe_->book2D("position_" + clustersrc_.label() + "_Layer_4","Clusters Layer4 (on track)",200,-30.,30.,128,-3.2,3.2);
+    meClPosLayer4OnTrack = iBooker.book2D("position_" + clustersrc_.label() + "_Layer_4","Clusters Layer4 (on track)",200,-30.,30.,128,-3.2,3.2);
     meClPosLayer4OnTrack->setAxisTitle("Global Z (cm)",1);
     meClPosLayer4OnTrack->setAxisTitle("Global #phi",2);
   }
   //fpix
-  meClPosDisk1pzOnTrack = dbe_->book2D("position_" + clustersrc_.label() + "_pz_Disk_1","Clusters +Z Disk1 (on track)",80,-20.,20.,80,-20.,20.);
+  meClPosDisk1pzOnTrack = iBooker.book2D("position_" + clustersrc_.label() + "_pz_Disk_1","Clusters +Z Disk1 (on track)",80,-20.,20.,80,-20.,20.);
   meClPosDisk1pzOnTrack->setAxisTitle("Global X (cm)",1);
   meClPosDisk1pzOnTrack->setAxisTitle("Global Y (cm)",2);
-  meClPosDisk2pzOnTrack = dbe_->book2D("position_" + clustersrc_.label() + "_pz_Disk_2","Clusters +Z Disk2 (on track)",80,-20.,20.,80,-20.,20.);
+  meClPosDisk2pzOnTrack = iBooker.book2D("position_" + clustersrc_.label() + "_pz_Disk_2","Clusters +Z Disk2 (on track)",80,-20.,20.,80,-20.,20.);
   meClPosDisk2pzOnTrack->setAxisTitle("Global X (cm)",1);
   meClPosDisk2pzOnTrack->setAxisTitle("Global Y (cm)",2);
   if (isUpgrade) {
-    meClPosDisk3pzOnTrack = dbe_->book2D("position_" + clustersrc_.label() + "_pz_Disk_3","Clusters +Z Disk3 (on track)",80,-20.,20.,80,-20.,20.);
+    meClPosDisk3pzOnTrack = iBooker.book2D("position_" + clustersrc_.label() + "_pz_Disk_3","Clusters +Z Disk3 (on track)",80,-20.,20.,80,-20.,20.);
     meClPosDisk3pzOnTrack->setAxisTitle("Global X (cm)",1);
     meClPosDisk3pzOnTrack->setAxisTitle("Global Y (cm)",2);
   }
-  meClPosDisk1mzOnTrack = dbe_->book2D("position_" + clustersrc_.label() + "_mz_Disk_1","Clusters -Z Disk1 (on track)",80,-20.,20.,80,-20.,20.);
+  meClPosDisk1mzOnTrack = iBooker.book2D("position_" + clustersrc_.label() + "_mz_Disk_1","Clusters -Z Disk1 (on track)",80,-20.,20.,80,-20.,20.);
   meClPosDisk1mzOnTrack->setAxisTitle("Global X (cm)",1);
   meClPosDisk1mzOnTrack->setAxisTitle("Global Y (cm)",2);
-  meClPosDisk2mzOnTrack = dbe_->book2D("position_" + clustersrc_.label() + "_mz_Disk_2","Clusters -Z Disk2 (on track)",80,-20.,20.,80,-20.,20.);
+  meClPosDisk2mzOnTrack = iBooker.book2D("position_" + clustersrc_.label() + "_mz_Disk_2","Clusters -Z Disk2 (on track)",80,-20.,20.,80,-20.,20.);
   meClPosDisk2mzOnTrack->setAxisTitle("Global X (cm)",1);
   meClPosDisk2mzOnTrack->setAxisTitle("Global Y (cm)",2);
   if (isUpgrade) {
-    meClPosDisk3mzOnTrack = dbe_->book2D("position_" + clustersrc_.label() + "_mz_Disk_3","Clusters -Z Disk3 (on track)",80,-20.,20.,80,-20.,20.);
+    meClPosDisk3mzOnTrack = iBooker.book2D("position_" + clustersrc_.label() + "_mz_Disk_3","Clusters -Z Disk3 (on track)",80,-20.,20.,80,-20.,20.);
     meClPosDisk3mzOnTrack->setAxisTitle("Global X (cm)",1);
     meClPosDisk3mzOnTrack->setAxisTitle("Global Y (cm)",2);
   }
-  meNClustersOnTrack_all = dbe_->book1D("nclusters_" + clustersrc_.label(),"Number of Clusters (on Track)",50,0.,50.);
+  meNClustersOnTrack_all = iBooker.book1D("nclusters_" + clustersrc_.label(),"Number of Clusters (on Track)",50,0.,50.);
   meNClustersOnTrack_all->setAxisTitle("Number of Clusters",1);
-  meNClustersOnTrack_bpix = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Barrel","Number of Clusters (on track, barrel)",50,0.,50.);
+  meNClustersOnTrack_bpix = iBooker.book1D("nclusters_" + clustersrc_.label() + "_Barrel","Number of Clusters (on track, barrel)",50,0.,50.);
   meNClustersOnTrack_bpix->setAxisTitle("Number of Clusters",1);
-  meNClustersOnTrack_fpix = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Endcap","Number of Clusters (on track, endcap)",50,0.,50.);
+  meNClustersOnTrack_fpix = iBooker.book1D("nclusters_" + clustersrc_.label() + "_Endcap","Number of Clusters (on track, endcap)",50,0.,50.);
   meNClustersOnTrack_fpix->setAxisTitle("Number of Clusters",1);
-  meNClustersOnTrack_layer1 = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Layer_1","Number of Clusters (on track, layer1)",50,0.,50.);
+  meNClustersOnTrack_layer1 = iBooker.book1D("nclusters_" + clustersrc_.label() + "_Layer_1","Number of Clusters (on track, layer1)",50,0.,50.);
   meNClustersOnTrack_layer1->setAxisTitle("Number of Clusters",1);
-  meNClustersOnTrack_layer2 = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Layer_2","Number of Clusters (on track, layer2)",50,0.,50.);
+  meNClustersOnTrack_layer2 = iBooker.book1D("nclusters_" + clustersrc_.label() + "_Layer_2","Number of Clusters (on track, layer2)",50,0.,50.);
   meNClustersOnTrack_layer2->setAxisTitle("Number of Clusters",1);
-  meNClustersOnTrack_layer3 = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Layer_3","Number of Clusters (on track, layer3)",50,0.,50.);
+  meNClustersOnTrack_layer3 = iBooker.book1D("nclusters_" + clustersrc_.label() + "_Layer_3","Number of Clusters (on track, layer3)",50,0.,50.);
   meNClustersOnTrack_layer3->setAxisTitle("Number of Clusters",1);
   if (isUpgrade) {
-    meNClustersOnTrack_layer4 = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Layer_4","Number of Clusters (on track, layer4)",50,0.,50.);
+    meNClustersOnTrack_layer4 = iBooker.book1D("nclusters_" + clustersrc_.label() + "_Layer_4","Number of Clusters (on track, layer4)",50,0.,50.);
     meNClustersOnTrack_layer4->setAxisTitle("Number of Clusters",1);
   }
-  meNClustersOnTrack_diskp1 = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Disk_p1","Number of Clusters (on track, diskp1)",50,0.,50.);
+  meNClustersOnTrack_diskp1 = iBooker.book1D("nclusters_" + clustersrc_.label() + "_Disk_p1","Number of Clusters (on track, diskp1)",50,0.,50.);
   meNClustersOnTrack_diskp1->setAxisTitle("Number of Clusters",1);
-  meNClustersOnTrack_diskp2 = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Disk_p2","Number of Clusters (on track, diskp2)",50,0.,50.);
+  meNClustersOnTrack_diskp2 = iBooker.book1D("nclusters_" + clustersrc_.label() + "_Disk_p2","Number of Clusters (on track, diskp2)",50,0.,50.);
   meNClustersOnTrack_diskp2->setAxisTitle("Number of Clusters",1);
   if (isUpgrade) {
-    meNClustersOnTrack_diskp3 = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Disk_p3","Number of Clusters (on track, diskp3)",50,0.,50.);
+    meNClustersOnTrack_diskp3 = iBooker.book1D("nclusters_" + clustersrc_.label() + "_Disk_p3","Number of Clusters (on track, diskp3)",50,0.,50.);
     meNClustersOnTrack_diskp3->setAxisTitle("Number of Clusters",1);
   }
-  meNClustersOnTrack_diskm1 = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Disk_m1","Number of Clusters (on track, diskm1)",50,0.,50.);
+  meNClustersOnTrack_diskm1 = iBooker.book1D("nclusters_" + clustersrc_.label() + "_Disk_m1","Number of Clusters (on track, diskm1)",50,0.,50.);
   meNClustersOnTrack_diskm1->setAxisTitle("Number of Clusters",1);
-  meNClustersOnTrack_diskm2 = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Disk_m2","Number of Clusters (on track, diskm2)",50,0.,50.);
+  meNClustersOnTrack_diskm2 = iBooker.book1D("nclusters_" + clustersrc_.label() + "_Disk_m2","Number of Clusters (on track, diskm2)",50,0.,50.);
   meNClustersOnTrack_diskm2->setAxisTitle("Number of Clusters",1);
   if (isUpgrade) {
-    meNClustersOnTrack_diskm3 = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Disk_m3","Number of Clusters (on track, diskm3)",50,0.,50.);
+    meNClustersOnTrack_diskm3 = iBooker.book1D("nclusters_" + clustersrc_.label() + "_Disk_m3","Number of Clusters (on track, diskm3)",50,0.,50.);
     meNClustersOnTrack_diskm3->setAxisTitle("Number of Clusters",1);
   }
 
   //not on track
-  dbe_->setCurrentFolder("Pixel/Clusters/OffTrack");
+  iBooker.setCurrentFolder("Pixel/Clusters/OffTrack");
   //bpix
-  meClPosLayer1NotOnTrack = dbe_->book2D("position_" + clustersrc_.label() + "_Layer_1","Clusters Layer1 (off track)",200,-30.,30.,128,-3.2,3.2);
+  meClPosLayer1NotOnTrack = iBooker.book2D("position_" + clustersrc_.label() + "_Layer_1","Clusters Layer1 (off track)",200,-30.,30.,128,-3.2,3.2);
   meClPosLayer1NotOnTrack->setAxisTitle("Global Z (cm)",1);
   meClPosLayer1NotOnTrack->setAxisTitle("Global #phi",2);
-  meClPosLayer2NotOnTrack = dbe_->book2D("position_" + clustersrc_.label() + "_Layer_2","Clusters Layer2 (off track)",200,-30.,30.,128,-3.2,3.2);
+  meClPosLayer2NotOnTrack = iBooker.book2D("position_" + clustersrc_.label() + "_Layer_2","Clusters Layer2 (off track)",200,-30.,30.,128,-3.2,3.2);
   meClPosLayer2NotOnTrack->setAxisTitle("Global Z (cm)",1);
   meClPosLayer2NotOnTrack->setAxisTitle("Global #phi",2);
-  meClPosLayer3NotOnTrack = dbe_->book2D("position_" + clustersrc_.label() + "_Layer_3","Clusters Layer3 (off track)",200,-30.,30.,128,-3.2,3.2);
+  meClPosLayer3NotOnTrack = iBooker.book2D("position_" + clustersrc_.label() + "_Layer_3","Clusters Layer3 (off track)",200,-30.,30.,128,-3.2,3.2);
   meClPosLayer3NotOnTrack->setAxisTitle("Global Z (cm)",1);
   meClPosLayer3NotOnTrack->setAxisTitle("Global #phi",2);
   if (isUpgrade) {
-    meClPosLayer4NotOnTrack = dbe_->book2D("position_" + clustersrc_.label() + "_Layer_4","Clusters Layer4 (off track)",200,-30.,30.,128,-3.2,3.2);
+    meClPosLayer4NotOnTrack = iBooker.book2D("position_" + clustersrc_.label() + "_Layer_4","Clusters Layer4 (off track)",200,-30.,30.,128,-3.2,3.2);
     meClPosLayer4NotOnTrack->setAxisTitle("Global Z (cm)",1);
     meClPosLayer4NotOnTrack->setAxisTitle("Global #phi",2);
   }
   //fpix
-  meClPosDisk1pzNotOnTrack = dbe_->book2D("position_" + clustersrc_.label() + "_pz_Disk_1","Clusters +Z Disk1 (off track)",80,-20.,20.,80,-20.,20.);
+  meClPosDisk1pzNotOnTrack = iBooker.book2D("position_" + clustersrc_.label() + "_pz_Disk_1","Clusters +Z Disk1 (off track)",80,-20.,20.,80,-20.,20.);
   meClPosDisk1pzNotOnTrack->setAxisTitle("Global X (cm)",1);
   meClPosDisk1pzNotOnTrack->setAxisTitle("Global Y (cm)",2);
-  meClPosDisk2pzNotOnTrack = dbe_->book2D("position_" + clustersrc_.label() + "_pz_Disk_2","Clusters +Z Disk2 (off track)",80,-20.,20.,80,-20.,20.);
+  meClPosDisk2pzNotOnTrack = iBooker.book2D("position_" + clustersrc_.label() + "_pz_Disk_2","Clusters +Z Disk2 (off track)",80,-20.,20.,80,-20.,20.);
   meClPosDisk2pzNotOnTrack->setAxisTitle("Global X (cm)",1);
   meClPosDisk2pzNotOnTrack->setAxisTitle("Global Y (cm)",2);
   if (isUpgrade) {
-    meClPosDisk3pzNotOnTrack = dbe_->book2D("position_" + clustersrc_.label() + "_pz_Disk_3","Clusters +Z Disk3 (off track)",80,-20.,20.,80,-20.,20.);
+    meClPosDisk3pzNotOnTrack = iBooker.book2D("position_" + clustersrc_.label() + "_pz_Disk_3","Clusters +Z Disk3 (off track)",80,-20.,20.,80,-20.,20.);
     meClPosDisk3pzNotOnTrack->setAxisTitle("Global X (cm)",1);
     meClPosDisk3pzNotOnTrack->setAxisTitle("Global Y (cm)",2);
   }
-  meClPosDisk1mzNotOnTrack = dbe_->book2D("position_" + clustersrc_.label() + "_mz_Disk_1","Clusters -Z Disk1 (off track)",80,-20.,20.,80,-20.,20.);
+  meClPosDisk1mzNotOnTrack = iBooker.book2D("position_" + clustersrc_.label() + "_mz_Disk_1","Clusters -Z Disk1 (off track)",80,-20.,20.,80,-20.,20.);
   meClPosDisk1mzNotOnTrack->setAxisTitle("Global X (cm)",1);
   meClPosDisk1mzNotOnTrack->setAxisTitle("Global Y (cm)",2);
-  meClPosDisk2mzNotOnTrack = dbe_->book2D("position_" + clustersrc_.label() + "_mz_Disk_2","Clusters -Z Disk2 (off track)",80,-20.,20.,80,-20.,20.);
+  meClPosDisk2mzNotOnTrack = iBooker.book2D("position_" + clustersrc_.label() + "_mz_Disk_2","Clusters -Z Disk2 (off track)",80,-20.,20.,80,-20.,20.);
   meClPosDisk2mzNotOnTrack->setAxisTitle("Global X (cm)",1);
   meClPosDisk2mzNotOnTrack->setAxisTitle("Global Y (cm)",2);
   if (isUpgrade) {
-    meClPosDisk3mzNotOnTrack = dbe_->book2D("position_" + clustersrc_.label() + "_mz_Disk_3","Clusters -Z Disk3 (off track)",80,-20.,20.,80,-20.,20.);
+    meClPosDisk3mzNotOnTrack = iBooker.book2D("position_" + clustersrc_.label() + "_mz_Disk_3","Clusters -Z Disk3 (off track)",80,-20.,20.,80,-20.,20.);
     meClPosDisk3mzNotOnTrack->setAxisTitle("Global X (cm)",1);
     meClPosDisk3mzNotOnTrack->setAxisTitle("Global Y (cm)",2);
   }
-  meNClustersNotOnTrack_all = dbe_->book1D("nclusters_" + clustersrc_.label(),"Number of Clusters (off Track)",50,0.,50.);
+  meNClustersNotOnTrack_all = iBooker.book1D("nclusters_" + clustersrc_.label(),"Number of Clusters (off Track)",50,0.,50.);
   meNClustersNotOnTrack_all->setAxisTitle("Number of Clusters",1);
-  meNClustersNotOnTrack_bpix = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Barrel","Number of Clusters (off track, barrel)",50,0.,50.);
+  meNClustersNotOnTrack_bpix = iBooker.book1D("nclusters_" + clustersrc_.label() + "_Barrel","Number of Clusters (off track, barrel)",50,0.,50.);
   meNClustersNotOnTrack_bpix->setAxisTitle("Number of Clusters",1);
-  meNClustersNotOnTrack_fpix = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Endcap","Number of Clusters (off track, endcap)",50,0.,50.);
+  meNClustersNotOnTrack_fpix = iBooker.book1D("nclusters_" + clustersrc_.label() + "_Endcap","Number of Clusters (off track, endcap)",50,0.,50.);
   meNClustersNotOnTrack_fpix->setAxisTitle("Number of Clusters",1);
-  meNClustersNotOnTrack_layer1 = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Layer_1","Number of Clusters (off track, layer1)",50,0.,50.);
+  meNClustersNotOnTrack_layer1 = iBooker.book1D("nclusters_" + clustersrc_.label() + "_Layer_1","Number of Clusters (off track, layer1)",50,0.,50.);
   meNClustersNotOnTrack_layer1->setAxisTitle("Number of Clusters",1);
-  meNClustersNotOnTrack_layer2 = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Layer_2","Number of Clusters (off track, layer2)",50,0.,50.);
+  meNClustersNotOnTrack_layer2 = iBooker.book1D("nclusters_" + clustersrc_.label() + "_Layer_2","Number of Clusters (off track, layer2)",50,0.,50.);
   meNClustersNotOnTrack_layer2->setAxisTitle("Number of Clusters",1);
-  meNClustersNotOnTrack_layer3 = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Layer_3","Number of Clusters (off track, layer3)",50,0.,50.);
+  meNClustersNotOnTrack_layer3 = iBooker.book1D("nclusters_" + clustersrc_.label() + "_Layer_3","Number of Clusters (off track, layer3)",50,0.,50.);
   meNClustersNotOnTrack_layer3->setAxisTitle("Number of Clusters",1);
   if (isUpgrade) {
-    meNClustersNotOnTrack_layer4 = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Layer_4","Number of Clusters (off track, layer4)",50,0.,50.);
+    meNClustersNotOnTrack_layer4 = iBooker.book1D("nclusters_" + clustersrc_.label() + "_Layer_4","Number of Clusters (off track, layer4)",50,0.,50.);
     meNClustersNotOnTrack_layer4->setAxisTitle("Number of Clusters",1);
   }
-  meNClustersNotOnTrack_diskp1 = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Disk_p1","Number of Clusters (off track, diskp1)",50,0.,50.);
+  meNClustersNotOnTrack_diskp1 = iBooker.book1D("nclusters_" + clustersrc_.label() + "_Disk_p1","Number of Clusters (off track, diskp1)",50,0.,50.);
   meNClustersNotOnTrack_diskp1->setAxisTitle("Number of Clusters",1);
-  meNClustersNotOnTrack_diskp2 = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Disk_p2","Number of Clusters (off track, diskp2)",50,0.,50.);
+  meNClustersNotOnTrack_diskp2 = iBooker.book1D("nclusters_" + clustersrc_.label() + "_Disk_p2","Number of Clusters (off track, diskp2)",50,0.,50.);
   meNClustersNotOnTrack_diskp2->setAxisTitle("Number of Clusters",1);
   if (isUpgrade) {
-    meNClustersNotOnTrack_diskp3 = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Disk_p3","Number of Clusters (off track, diskp3)",50,0.,50.);
+    meNClustersNotOnTrack_diskp3 = iBooker.book1D("nclusters_" + clustersrc_.label() + "_Disk_p3","Number of Clusters (off track, diskp3)",50,0.,50.);
     meNClustersNotOnTrack_diskp3->setAxisTitle("Number of Clusters",1);
   }
-  meNClustersNotOnTrack_diskm1 = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Disk_m1","Number of Clusters (off track, diskm1)",50,0.,50.);
+  meNClustersNotOnTrack_diskm1 = iBooker.book1D("nclusters_" + clustersrc_.label() + "_Disk_m1","Number of Clusters (off track, diskm1)",50,0.,50.);
   meNClustersNotOnTrack_diskm1->setAxisTitle("Number of Clusters",1);
-  meNClustersNotOnTrack_diskm2 = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Disk_m2","Number of Clusters (off track, diskm2)",50,0.,50.);
+  meNClustersNotOnTrack_diskm2 = iBooker.book1D("nclusters_" + clustersrc_.label() + "_Disk_m2","Number of Clusters (off track, diskm2)",50,0.,50.);
   meNClustersNotOnTrack_diskm2->setAxisTitle("Number of Clusters",1);
   if (isUpgrade) {
-    meNClustersNotOnTrack_diskm3 = dbe_->book1D("nclusters_" + clustersrc_.label() + "_Disk_m3","Number of Clusters (off track, diskm3)",50,0.,50.);
+    meNClustersNotOnTrack_diskm3 = iBooker.book1D("nclusters_" + clustersrc_.label() + "_Disk_m3","Number of Clusters (off track, diskm3)",50,0.,50.);
     meNClustersNotOnTrack_diskm3->setAxisTitle("Number of Clusters",1);
   }
 
   //HitProbability
   //on track
-  dbe_->setCurrentFolder("Pixel/Clusters/OnTrack");
-  meHitProbability = dbe_->book1D("FractionLowProb","Fraction of hits with low probability;FractionLowProb;#HitsOnTrack",100,0.,1.);
+  iBooker.setCurrentFolder("Pixel/Clusters/OnTrack");
+  meHitProbability = iBooker.book1D("FractionLowProb","Fraction of hits with low probability;FractionLowProb;#HitsOnTrack",100,0.,1.);
 
   if (debug_) {
     // book summary residual histograms in a debugging folder - one (x,y) pair of histograms per subdetector 
-    dbe_->setCurrentFolder("debugging"); 
+    iBooker.setCurrentFolder("debugging"); 
     char hisID[80]; 
     for (int s=0; s<3; s++) {
       sprintf(hisID,"residual_x_subdet_%i",s); 
-      meSubdetResidualX[s] = dbe_->book1D(hisID,"Pixel Hit-to-Track Residual in X",500,-5.,5.);
+      meSubdetResidualX[s] = iBooker.book1D(hisID,"Pixel Hit-to-Track Residual in X",500,-5.,5.);
       
       sprintf(hisID,"residual_y_subdet_%i",s);
-      meSubdetResidualY[s] = dbe_->book1D(hisID,"Pixel Hit-to-Track Residual in Y",500,-5.,5.);  
+      meSubdetResidualY[s] = iBooker.book1D(hisID,"Pixel Hit-to-Track Residual in Y",500,-5.,5.);  
     }
   }
   
   firstRun = false;
-  }
-}
-
-
-void SiPixelTrackResidualSource::endJob(void) {
-  LogInfo("PixelDQM") << "SiPixelTrackResidualSource endJob()";
-
-  // save the residual histograms to an output root file
-  bool saveFile = pSet_.getUntrackedParameter<bool>("saveFile", true);
-  if (saveFile) { 
-    std::string outputFile = pSet_.getParameter<std::string>("outputFile");
-    LogInfo("PixelDQM") << " - saving histograms to "<< outputFile.data();
-    dbe_->save(outputFile);
-  } 
-  LogInfo("PixelDQM") << endl; // dbe_->showDirStructure();
 }
 
 
