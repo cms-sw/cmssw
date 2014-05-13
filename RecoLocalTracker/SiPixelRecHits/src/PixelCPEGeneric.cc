@@ -21,8 +21,6 @@ using namespace std;
 //#define NEW_CPEERROR // must be constistent with base.cc, generic cc/h and genericProducer.cc 
 
 namespace {
-  constexpr float HALF_PI = 1.57079632679489656;
-  constexpr float PI = 2*HALF_PI;
   constexpr float micronsToCm = 1.0e-4;
 #ifndef NEW_CPEERROR
   //const bool useNewSimplerErrors = true; // must be the same as in base
