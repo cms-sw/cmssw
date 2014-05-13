@@ -21,6 +21,8 @@
 #include <functional>
 #include <algorithm>
 
+#include "fftjet/peakEtLifetime.hh"
+
 // Header for this class
 #include "RecoJets/FFTJetProducers/plugins/FFTJetProducer.h"
 
@@ -213,6 +215,8 @@ void FFTJetProducer::loadSparseTreeData(const edm::Event& iEvent)
     sparsePeakTreeFromStorable(*input, iniScales.get(),
                                getEventScale(), &sparseTree);
     sparseTree.sortNodes();
+    fftjet::updateSplitMergeTimes(sparseTree, sparseTree.minScale(),
+                                  sparseTree.maxScale());
 }
 
 
