@@ -30,6 +30,7 @@ public :
 private:
   
   // See RecoParticleFlow/PFProducer/interface/PFProducer.h
+  std::unique_ptr<ParticleTable::Sentry> pTableSentry_;
   bool isGeant;
   edm::ParameterSet particleFilter_;
   std::vector<FSimEvent*> mySimEvent;
@@ -74,7 +75,9 @@ void testEvent::beginRun(edm::Run const&, edm::EventSetup const& es)
   // init Particle data table (from Pythia)
   edm::ESHandle < HepPDT::ParticleDataTable > pdt;
   es.getData(pdt);
-  if ( !ParticleTable::instance() ) ParticleTable::instance(&(*pdt));
+  if ( !ParticleTable::instance() ) {
+    pTableSentry_.reset( new ParticleTable::Sentry(pdt.product()) );
+  }
   if ( isGeant ) mySimEvent[0]->initializePdt(&(*pdt));
   mySimEvent[1]->initializePdt(&(*pdt));
 

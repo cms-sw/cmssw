@@ -121,7 +121,9 @@ PFSimParticleProducer::beginRun(const edm::Run& run,
   edm::ESHandle < HepPDT::ParticleDataTable > pdt;
   //  edm::ESHandle < DefaultConfig::ParticleDataTable > pdt;
   es.getData(pdt);
-  if ( !ParticleTable::instance() ) ParticleTable::instance(&(*pdt));
+  if ( !ParticleTable::instance() ) {
+    pTableSentry_.reset( new ParticleTable::Sentry(pdt.product()) );
+  }
   mySimEvent->initializePdt(&(*pdt));
 
 }

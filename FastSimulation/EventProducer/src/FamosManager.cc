@@ -54,6 +54,7 @@ FamosManager::FamosManager(edm::ParameterSet const & p)
       m_pRunNumber(p.getUntrackedParameter<int>("RunNumber",1)),
       m_pVerbose(p.getUntrackedParameter<int>("Verbosity",1))
 {
+  pTableSentry_.reset((ParticleTable::Sentry*)NULL);
   // Initialize the FSimEvent
   mySimEvent = 
     new FSimEvent(p.getParameter<edm::ParameterSet>("VertexGenerator"),
@@ -94,7 +95,10 @@ FamosManager::setupGeometryAndField(edm::Run const& run, const edm::EventSetup &
   edm::ESHandle < HepPDT::ParticleDataTable > pdt;
   es.getData(pdt);
   mySimEvent->initializePdt(&(*pdt));
-  ParticleTable::instance(&(*pdt));
+  
+  if( !ParticleTable::instance() ) {
+    pTableSentry_.reset( new ParticleTable::Sentry(pdt.product()) );
+  }
 
   // Initialize the full (misaligned) tracker geometry 
   // (only if tracking is requested)

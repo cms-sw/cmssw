@@ -22,6 +22,7 @@
 
 #include "RecoParticleFlow/PFProducer/interface/PFBlockAlgo.h"
 
+#include "FastSimulation/Particle/interface/ParticleTable.h"
 
 /**\class PFSimParticleProducer 
 \brief Producer for PFRecTracks and PFSimParticles
@@ -78,6 +79,8 @@ class PFSimParticleProducer : public edm::EDProducer {
 
   /// verbose ?
   bool   verbose_;
+
+  std::unique_ptr<ParticleTable::Sentry> pTableSentry_;
 
 };  
 

@@ -52,6 +52,7 @@ private:
   
   // See RecoParticleFlow/PFProducer/interface/PFProducer.h
   edm::ParameterSet particleFilter_;
+  std::unique_ptr<ParticleTable::Sentry> pTableSentry_;
   std::vector<edm::InputTag> zeroTracks;
   std::vector<edm::InputTag> firstTracks;
   std::vector<edm::InputTag> secondTracks;
@@ -332,7 +333,9 @@ void testTrackingIterations::beginRun(edm::Run const&, edm::EventSetup const& es
   // init Particle data table (from Pythia)
   edm::ESHandle < HepPDT::ParticleDataTable > pdt;
   es.getData(pdt);
-  if ( !ParticleTable::instance() ) ParticleTable::instance(&(*pdt));
+  if ( !ParticleTable::instance() ) {
+    pTableSentry_.reset( new ParticleTable::Sentry(pdt.product()) );
+  }
   mySimEvent[0]->initializePdt(&(*pdt));
   mySimEvent[1]->initializePdt(&(*pdt));
 
