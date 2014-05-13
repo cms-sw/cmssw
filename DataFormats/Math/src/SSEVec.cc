@@ -1,4 +1,4 @@
-#if !defined(__arm__) && !defined(__MIC__) 
+#if !defined(__arm__) && !defined(__aarch64__) && !defined(__MIC__)
 #include "DataFormats/Math/interface/SSEVec.h"
 #include "DataFormats/Math/interface/SSERot.h"
 using namespace mathSSE;
@@ -41,4 +41,4 @@ std::ostream & operator<<(std::ostream & out, Rot2D const & r){
   return out << r.axis[0] << '\n' << r.axis[1];
 }
 
-#endif // __arm__
+#endif /* !defined(__arm__) && !defined(__aarch64__) && !defined(__MIC__) */
