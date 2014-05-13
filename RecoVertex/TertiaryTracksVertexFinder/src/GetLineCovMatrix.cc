@@ -37,13 +37,13 @@ GlobalError GetLineCovMatrix::GetMatrix(GlobalPoint PointThree)
 { 
   // the linear equation is  K = PointOne + (PointTwo-PointOne)*s
   double s;  
-  if( !fabs(PointTwo.x() - PointOne.x()) < 0.00000001 ) 
+  if( !(fabs(PointTwo.x() - PointOne.x()) < 0.00000001) ) 
     s =  (PointThree.x() - PointOne.x()) / (PointTwo.x() -  PointOne.x()) ; 
   else {
-    if( !fabs(PointTwo.y() - PointOne.y()) < 0.00000001 ) 
+    if( !(fabs(PointTwo.y() - PointOne.y()) < 0.00000001) ) 
       s =  (PointThree.y() - PointOne.y()) / (PointTwo.y() -  PointOne.y()) ;   
     else { 
-      if( !fabs(PointTwo.z() - PointOne.z()) < 0.00000001 ) 
+      if( !(fabs(PointTwo.z() - PointOne.z()) < 0.00000001) ) 
 	s =  (PointThree.z() - PointOne.z()) / (PointTwo.z() -  PointOne.z()) ;
       else {
         GlobalError EmptyError(0, 0, 0, 0, 0, 0);
