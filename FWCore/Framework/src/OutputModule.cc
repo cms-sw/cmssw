@@ -13,6 +13,7 @@
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/OutputModuleDescription.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
+#include "FWCore/Framework/src/EventSignalsSentry.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -180,6 +181,7 @@ namespace edm {
   bool
   OutputModule::doEvent(EventPrincipal const& ep,
                         EventSetup const&,
+                        ActivityRegistry* act,
                         ModuleCallingContext const* mcc) {
 
     FDEBUG(2) << "writeEvent called\n";
@@ -195,6 +197,7 @@ namespace edm {
       
       {
         std::lock_guard<SharedResourcesAcquirer> guardAcq(resourceAcquirer_);
+        EventSignalsSentry signals(act,mcc);
         write(ep, mcc);
       }
       updateBranchParents(ep);

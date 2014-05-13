@@ -30,6 +30,7 @@ namespace edm {
 
   class ModuleCallingContext;
   class PreallocationConfiguration;
+  class ActivityRegistry;
 
   class EDFilter : public ProducerBase, public EDConsumerBase {
   public:
@@ -50,6 +51,7 @@ namespace edm {
 
   private:    
     bool doEvent(EventPrincipal& ep, EventSetup const& c,
+                 ActivityRegistry* act,
                  ModuleCallingContext const* mcc);
     void doPreallocate(PreallocationConfiguration const&) {}
     void doBeginJob();
