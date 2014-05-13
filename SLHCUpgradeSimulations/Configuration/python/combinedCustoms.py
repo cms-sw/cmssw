@@ -109,12 +109,24 @@ def cust_2023(process):
     process=jetCustoms.customise_jets(process)
     return process
 
-def cust_2023NoEE(process):
+def cust_2023SHCal(process):
     process=cust_2023(process)
     if hasattr(process,'L1simulation_step'):
         process.simEcalTriggerPrimitiveDigis.BarrelOnly = cms.bool(True)
     if hasattr(process,'digitisation_step'):
     	process.mix.digitizers.ecal.accumulatorType = cms.string('EcalPhaseIIDigiProducer')
+    return process
+
+def cust_2023HGCal(process):
+    process=cust_2023(process)
+    if hasattr(process,'L1simulation_step'):
+    	process.simEcalTriggerPrimitiveDigis.BarrelOnly = cms.bool(True)
+    if hasattr(process,'digitisation_step'):
+    	process.mix.digitizers.ecal.accumulatorType = cms.string('EcalPhaseIIDigiProducer')
+        process.load('SimGeneral.MixingModule.hgcalDigitizer_cfi')
+        process.mix.digitizers.hgceeDigitizer=process.hgceeDigitizer
+        process.mix.digitizers.hgchebackDigitizer=process.hgchebackDigitizer
+        process.mix.digitizers.hgchefrontDigitizer=process.hgchefrontDigitizer
     return process
 
 def cust_2023Pixel(process):
