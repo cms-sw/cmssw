@@ -19,6 +19,7 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/src/edmodule_mightGet_config.h"
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
+#include "FWCore/Framework/src/EventSignalsSentry.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -48,9 +49,11 @@ namespace edm {
     
     bool
     EDFilterBase::doEvent(EventPrincipal& ep, EventSetup const& c,
+                          ActivityRegistry* act,
                           ModuleCallingContext const* mcc) {
       Event e(ep, moduleDescription_, mcc);
       e.setConsumer(this);
+      EventSignalsSentry sentry(act,mcc);
       bool returnValue = this->filter(e.streamID(), e, c);
       const auto streamIndex =e.streamID().value();
       commit_(e,&previousParentages_[streamIndex], &previousParentageIds_[streamIndex]);
