@@ -61,6 +61,10 @@ private:
 
     const edm::InputTag beamSpotLabel;
     const edm::InputTag existingVerticesLabel;
+
+    edm::EDGetTokenT<reco::BeamSpot> beamSpotToken;
+    edm::EDGetTokenT<reco::VertexCollection> existingVerticesToken;
+
     const std::string outputLabel;
 
     const bool useBeamSpot;
@@ -105,6 +109,10 @@ FFTJetVertexAdder::FFTJetVertexAdder(const edm::ParameterSet& ps)
       init_param(double, errZ),
       init_param(unsigned, nVerticesToMake)
 {
+    if (useBeamSpot)
+        beamSpotToken = consumes<reco::BeamSpot>(beamSpotLabel);
+    if (addExistingVertices)
+        existingVerticesToken = consumes<reco::VertexCollection>(existingVerticesLabel);
     produces<reco::VertexCollection>(outputLabel);
 }
 
@@ -135,7 +143,7 @@ void FFTJetVertexAdder::produce(
     if (useBeamSpot)
     {
         edm::Handle<reco::BeamSpot> beamSpotHandle;
-        iEvent.getByLabel(beamSpotLabel, beamSpotHandle);
+        iEvent.getByToken(beamSpotToken, beamSpotHandle);
         if (!beamSpotHandle.isValid())
             throw cms::Exception("FFTJetBadConfig")
                 << "ERROR in FFTJetVertexAdder:"
@@ -173,7 +181,7 @@ void FFTJetVertexAdder::produce(
         typedef reco::VertexCollection::const_iterator IV;
 
         edm::Handle<reco::VertexCollection> vertices;
-        iEvent.getByLabel(existingVerticesLabel, vertices);
+        iEvent.getByToken(existingVerticesToken, vertices);
         if (!vertices.isValid())
             throw cms::Exception("FFTJetBadConfig")
                 << "ERROR in FFTJetVertexAdder:"

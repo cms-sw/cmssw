@@ -28,6 +28,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Framework/interface/EDProducer.h"
 
 #include "DataFormats/Candidate/interface/Particle.h"
 
@@ -37,6 +38,9 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include "DataFormats/Common/interface/Handle.h"
 
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
 // local FFTJet-related definitions
 #include "RecoJets/FFTJetAlgorithms/interface/fftjetTypedefs.h"
 #include "RecoJets/FFTJetProducers/interface/JetType.h"
@@ -45,7 +49,7 @@
 // class declaration
 //
 namespace fftjetcms {
-  class FFTJetInterface
+  class FFTJetInterface : public edm::EDProducer
   {
   public:
     virtual ~FFTJetInterface() {}
@@ -109,6 +113,9 @@ namespace fftjetcms {
     const bool insertCompleteEvent;
     const double completeEventScale;
     reco::Particle::Point vertex_;
+
+    edm::EDGetTokenT<reco::CandidateView> inputToken;
+    edm::EDGetTokenT<reco::VertexCollection> srcPVsToken;
   };
 }
 

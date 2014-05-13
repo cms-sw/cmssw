@@ -83,7 +83,7 @@ float MSLayersAtAngle::sumX0D( int il, int ol,
 
 //------------------------------------------------------------------------------
 
-bool doPrint=false;
+static const bool doPrint=false;
 
 float MSLayersAtAngle::sumX0D(
     const PixelRecoPointRZ & pointI,
