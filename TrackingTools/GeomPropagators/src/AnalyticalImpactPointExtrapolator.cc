@@ -10,7 +10,7 @@
 // #include "CommonDet/DetUtilities/interface/DetailedDetTimer.h"
 
 AnalyticalImpactPointExtrapolator::AnalyticalImpactPointExtrapolator (const MagneticField* field) :
-  thePropagator(new AnalyticalPropagator(theField, anyDirection)),
+  thePropagator(new AnalyticalPropagator(field, anyDirection)),
   theField(field)
 {}
 

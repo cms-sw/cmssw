@@ -70,6 +70,8 @@ private:
     int m_driftSpeed;
     int m_magSpeed;
     int m_lifetime;
+    int m_splitTime;
+    int m_mergeTime;
     int m_scale;
     int m_logScale;
     int m_nearestNeighborDistance;
