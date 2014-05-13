@@ -43,7 +43,7 @@ SingleTopSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM"
     jetExtras = cms.PSet(
       ## when omitted monitor plots for pt will be filled from uncorrected
       ## jets
-      jetCorrector = cms.string("ak4PFL1L2L3"),
+      #jetCorrector = cms.string("ak4PFCHSL1L2L3"),
       ## when omitted no extra selection will be applied on jets before
       ## filling the monitor histograms; if jetCorrector is present the
       ## selection will be applied to corrected jets                                                
@@ -128,7 +128,7 @@ SingleTopSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM"
     cms.PSet(
       label  = cms.string("jets/pf:step2"),
       src    = cms.InputTag("ak5PFJetsCHS"),
-      jetCorrector = cms.string("ak4PFL1L2L3"),
+      #jetCorrector = cms.string("ak4PFCHSL1L2L3"),
       select = cms.string("pt>40 & abs(eta)<5.0"),
       min = cms.int32(2),
     ), 
@@ -180,7 +180,7 @@ SingleTopSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOffline
     jetExtras = cms.PSet(
       ## when omitted monitor plots for pt will be filled from uncorrected
       ## jets
-      jetCorrector = cms.string("ak4PFL1L2L3"),
+      #jetCorrector = cms.string("ak4PFCHSL1L2L3"),
       ## when omitted no extra selection will be applied on jets before
       ## filling the monitor histograms; if jetCorrector is present the
       ## selection will be applied to corrected jets                                                
@@ -259,14 +259,14 @@ SingleTopSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOffline
     #cms.PSet(
     #  label  = cms.string("jets/pf:step2"),
     #  src    = cms.InputTag("ak5PFJetsCHS"),
-    #  jetCorrector = cms.string("ak4PFL1L2L3"),
+    #  jetCorrector = cms.string("ak4PFCHSL1L2L3"),
     #  select = cms.string("pt>40 & abs(eta)<5.0"),
     #  min = cms.int32(1),
     #), 
     cms.PSet(
       label  = cms.string("jets/pf:step2"),
       src    = cms.InputTag("ak5PFJetsCHS"),
-      jetCorrector = cms.string("ak4PFL1L2L3"),
+      #jetCorrector = cms.string("ak4PFCHSL1L2L3"),
       select = cms.string("pt>40 & abs(eta)<5.0"),
       min = cms.int32(2),
     ), 
