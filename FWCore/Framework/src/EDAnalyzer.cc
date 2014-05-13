@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/src/edmodule_mightGet_config.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
+#include "FWCore/Framework/src/EventSignalsSentry.h"
 
 #include "SharedResourcesRegistry.h"
 
@@ -30,12 +31,14 @@ namespace edm {
 
   bool
   EDAnalyzer::doEvent(EventPrincipal const& ep, EventSetup const& c,
+                      ActivityRegistry* act,
                       ModuleCallingContext const* mcc) {
     Event e(const_cast<EventPrincipal&>(ep), moduleDescription_, mcc);
     e.setConsumer(this);
     {
       std::lock_guard<std::mutex> guard(mutex_);
       std::lock_guard<SharedResourcesAcquirer> guardAcq(resourceAcquirer_);
+      EventSignalsSentry sentry(act,mcc);
       this->analyze(e, c);
     }
     return true;

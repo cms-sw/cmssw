@@ -6,7 +6,6 @@
 // Original Author:  Michele Pioppi
 // March 2010. F. Beaudette. Produce PreId information
 
-
 #include "RecoParticleFlow/PFTracking/interface/GoodSeedProducer.h"
 #include "RecoParticleFlow/PFTracking/interface/PFTrackTransformer.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFResolutionMap.h"
@@ -42,13 +41,11 @@ GoodSeedProducer::GoodSeedProducer(const ParameterSet& iConfig):
   pfTransformer_(nullptr),
   conf_(iConfig),
   resMapEtaECAL_(nullptr),
-  resMapPhiECAL_(nullptr),
-  reader(nullptr)
+  resMapPhiECAL_(nullptr)
 {
   LogInfo("GoodSeedProducer")<<"Electron PreIdentification started  ";
   
   //now do what ever initialization is needed
- 
   std::vector<edm::InputTag> tags =   iConfig.getParameter< vector < InputTag > >("TkColList");
   for(unsigned int i=0;i<tags.size();++i) {
     trajContainers_.push_back(consumes<vector<Trajectory> >(tags[i]));
@@ -59,23 +56,19 @@ GoodSeedProducer::GoodSeedProducer(const ParameterSet& iConfig):
   maxPt_=iConfig.getParameter<double>("MaxPt");
   maxEta_=iConfig.getParameter<double>("MaxEta");
 
-
-  //ISOLATION REQUEST AS DONE IN THE TAU GROUP(Michalis: Do we still need this crazy stuff??)
-  applyIsolation_ =iConfig.getParameter<bool>("ApplyIsolation");
   HcalIsolWindow_                       =iConfig.getParameter<double>("HcalWindow");
   EcalStripSumE_minClusEnergy_ = iConfig.getParameter<double>("EcalStripSumE_minClusEnergy");
   EcalStripSumE_deltaEta_ = iConfig.getParameter<double>("EcalStripSumE_deltaEta");
   EcalStripSumE_deltaPhiOverQ_minValue_ = iConfig.getParameter<double>("EcalStripSumE_deltaPhiOverQ_minValue");
   EcalStripSumE_deltaPhiOverQ_maxValue_ = iConfig.getParameter<double>("EcalStripSumE_deltaPhiOverQ_maxValue");
-   minEoverP_= iConfig.getParameter<double>("EOverPLead_minValue");
-   maxHoverP_= iConfig.getParameter<double>("HOverPLead_maxValue");
+  minEoverP_= iConfig.getParameter<double>("EOverPLead_minValue");
+  maxHoverP_= iConfig.getParameter<double>("HOverPLead_maxValue");
  
-  //
-   pfCLusTagECLabel_=consumes<reco::PFClusterCollection>(iConfig.getParameter<InputTag>("PFEcalClusterLabel"));
+  pfCLusTagECLabel_=consumes<reco::PFClusterCollection>(iConfig.getParameter<InputTag>("PFEcalClusterLabel"));
 
-   pfCLusTagHCLabel_=consumes<reco::PFClusterCollection>(iConfig.getParameter<InputTag>("PFHcalClusterLabel"));  
+  pfCLusTagHCLabel_=consumes<reco::PFClusterCollection>(iConfig.getParameter<InputTag>("PFHcalClusterLabel"));  
 
-   pfCLusTagPSLabel_=consumes<reco::PFClusterCollection>(iConfig.getParameter<InputTag>("PFPSClusterLabel"));
+  pfCLusTagPSLabel_=consumes<reco::PFClusterCollection>(iConfig.getParameter<InputTag>("PFPSClusterLabel"));
   
   preidgsf_ = iConfig.getParameter<string>("PreGsfLabel");
   preidckf_ = iConfig.getParameter<string>("PreCkfLabel");
@@ -114,7 +107,6 @@ GoodSeedProducer::GoodSeedProducer(const ParameterSet& iConfig):
     LogDebug("GoodSeedProducer")<<"Seeds for CKF will be produced ";
     produces<TrajectorySeedCollection>(preidckf_);
   }
-  
 
   if(producePreId_){
     LogDebug("GoodSeedProducer")<<"PreId debugging information will be produced ";
@@ -128,9 +120,8 @@ GoodSeedProducer::GoodSeedProducer(const ParameterSet& iConfig):
   trackQuality_=TrackBase::qualityByName(iConfig.getParameter<std::string>("TrackQuality"));
 
   useTmva_= iConfig.getUntrackedParameter<bool>("UseTMVA",false);
-  
-  usePreshower_ = iConfig.getParameter<bool>("UsePreShower");
 
+  Min_dr_ = iConfig.getParameter<double>("Min_dr");
 }
 
 
@@ -144,7 +135,9 @@ GoodSeedProducer::~GoodSeedProducer()
   delete resMapEtaECAL_;
   delete resMapPhiECAL_;
   if(useTmva_) {
-    delete reader;
+    for (UInt_t j = 0; j < 9; ++j){
+      delete reader[j];
+    }
   }
 }
 
@@ -198,9 +191,10 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
   Handle<PFClusterCollection> theECPfClustCollection;
   iEvent.getByToken(pfCLusTagECLabel_,theECPfClustCollection);
   
-  vector<PFCluster const *> basClus;
+
+ vector<PFCluster const *> basClus;
   for ( auto const & klus : *theECPfClustCollection.product() ) {
-    if(klus.energy()>clusThreshold_) basClus.push_back(&klus);
+    if(klus.correctedEnergy()>clusThreshold_) basClus.push_back(&klus);
   }
 
   //HCAL clusters
@@ -210,19 +204,9 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
   //PS clusters
   Handle<PFClusterCollection> thePSPfClustCollection;
   iEvent.getByToken(pfCLusTagPSLabel_,thePSPfClustCollection);
-  
-  ps1Clus.clear();
-  ps2Clus.clear();
-  
-  for ( auto const & klus : *thePSPfClustCollection.product()) {
-    //layer==-11 first layer of PS
-    //layer==-12 secon layer of PS
-    if (klus.layer()==-11) ps1Clus.push_back(&klus);
-    if (klus.layer()==-12) ps2Clus.push_back(&klus);
-  }
-  
+
   //Vector of track collections
-  for (unsigned int istr=0; istr<tracksContainers_.size();istr++){
+  for (unsigned int istr=0; istr<tracksContainers_.size();++istr){
     
     //Track collection
     Handle<TrackCollection> tkRefCollection;
@@ -234,14 +218,12 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
     iEvent.getByToken(trajContainers_[istr], tjCollection);
     auto const & Tj=*(tjCollection.product());
     
-    
     LogDebug("GoodSeedProducer")<<"Number of tracks in collection "
                                 <<tracksContainers_[istr] <<" to be analyzed "
                                 <<Tj.size();
-    
 
     //loop over the track collection
-    for(unsigned int i=0;i<Tk.size();i++){		
+    for(unsigned int i=0;i<Tk.size();++i){		
       if (useQuality_ &&
 	  (!(Tk[i].quality(trackQuality_)))) continue;
       
@@ -256,11 +238,13 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
       auto const & Seed=(*trackRef->seedRef());
       if(!disablePreId_)
 	{
-	  int ipteta=getBin(tketa,tkpt);
-	  int ibin=ipteta*8;
+	  int ipteta=getBin(Tk[i].eta(),Tk[i].pt());
+	  int ibin=ipteta*9;
 	  
 	  float oPTOB=1.f/Tj[i].lastMeasurement().updatedState().globalMomentum().mag();
-	  float chikfred=Tk[i].normalizedChi2();
+	  //  float chikfred=Tk[i].normalizedChi2();
+	  float nchi=Tk[i].normalizedChi2();
+
 	  int nhitpi=Tj[i].foundHits();
 	  float EP=0;
       
@@ -270,6 +254,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
       
 	  auto pfmass=  0.0005;
 	  auto pfoutenergy=sqrt((pfmass*pfmass)+Tk[i].outerMomentum().Mag2());
+
 	  XYZTLorentzVector mom =XYZTLorentzVector(Tk[i].outerMomentum().x(),
 						   Tk[i].outerMomentum().y(),
 						   Tk[i].outerMomentum().z(),
@@ -285,6 +270,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
       
 	  theOutParticle.propagateToEcalEntrance(false);
       
+
       
 	  float toteta=1000.f;
 	  float totphi=1000.f;
@@ -292,6 +278,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	  float EE=0.f;
 	  float feta=0.f;
 	  GlobalPoint ElecTrkEcalPos(0,0,0);
+
 	  PFClusterRef clusterRef;
 	  math::XYZPoint meanShowerSaved;
 	  if(theOutParticle.getSuccess()!=0){
@@ -305,14 +292,14 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	    // bool isBelowPS=(std::abs(ElecTrkEcalPos.eta())>1.65f);	
 	
 	    unsigned clusCounter=0;
-
+	    float max_ee = 0;
 	    for(auto aClus : basClus) {
-             
-              float tmp_ep=float(aClus->energy())*oPTOB;
-              if ((tmp_ep<minEp_)|(tmp_ep>maxEp_)) { ++clusCounter; continue;}
 
+	      float tmp_ep=float(aClus->correctedEnergy())*oPTOB;
+              if ((tmp_ep<minEp_)|(tmp_ep>maxEp_)) { ++clusCounter; continue;}
+	    
 	      double ecalShowerDepth
-		= PFCluster::getDepthCorrection(aClus->energy(),
+		= PFCluster::getDepthCorrection(aClus->correctedEnergy(),
 						isBelowPS,
 						false);
 	      auto mom = theOutParticle.momentum().Vect();
@@ -321,24 +308,35 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	  
 	      float etarec=meanShower.eta();
 	      float phirec=meanShower.phi();
+	     
+
 	      float tmp_phi=std::abs(aClus->positionREP().phi()-phirec);
 	      if (tmp_phi>float(TMath::Pi())) tmp_phi-= float(TMath::TwoPi());
+	      
 	      float tmp_dr=std::sqrt(std::pow(tmp_phi,2.f)+
 				std::pow(aClus->positionREP().eta()-etarec,2.f));
 	  
 	      if (tmp_dr<dr){
 		dr=tmp_dr;
-		toteta=aClus->positionREP().eta()-etarec;
-		totphi=tmp_phi;
-		EP=tmp_ep;
-		EE=aClus->energy();
-		feta= aClus->positionREP().eta();
-		clusterRef = PFClusterRef(theECPfClustCollection,clusCounter);
-		meanShowerSaved = meanShower;
+		if(dr < Min_dr_){ // find the most closest and energetic ECAL cluster
+		  if(aClus->correctedEnergy() > max_ee){
+
+		    toteta=aClus->positionREP().eta()-etarec;
+		    totphi=tmp_phi;
+		    EP=tmp_ep;
+		    EE=aClus->correctedEnergy();
+		    feta= aClus->positionREP().eta();
+		    clusterRef = PFClusterRef(theECPfClustCollection,clusCounter);
+		    meanShowerSaved = meanShower;
+		    
+		  }
+		}
 	      }
               ++clusCounter;
 	    }
 	  }
+	  float trk_ecalDeta_ = fabs(toteta);
+	  float trk_ecalDphi_ = fabs(totphi);
 
 	  //Resolution maps
 	  auto ecaletares 
@@ -351,65 +349,46 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	  float chiphi=(totphi!=1000.f)? totphi/ecalphires : totphi;
 	  float chichi= sqrt(chieta*chieta + chiphi*chiphi);
       
-      
 	  //Matching criteria
-	  float chi2cut=thr[ibin+0];
-	  float ep_cutmin=thr[ibin+1];
-	  bool GoodMatching= ((chichi<chi2cut) &(EP>ep_cutmin) & (nhitpi>10));
+	  float eta_cut = thr[ibin+0];
+	  float phi_cut = thr[ibin+1];
+	  float ep_cutmin=thr[ibin+2];
+	  bool GoodMatching= ((trk_ecalDeta_<eta_cut) && (trk_ecalDphi_<phi_cut) && (EP>ep_cutmin) && (nhitpi>10));
+
 	  bool EcalMatching=GoodMatching;
       
 	  if (tkpt>maxPt_) GoodMatching=true;
 	  if (tkpt<minPt_) GoodMatching=false;
 
-	  //ENDCAP
-	  //USE OF PRESHOWER 
-	  bool GoodPSMatching=false;
-	  if ((std::abs(tketa)>1.68f)&(usePreshower_)){
-	    int iptbin =4*getBin(tkpt);
-	    ps2En=0;ps1En=0;
-	    ps2chi=100.; ps1chi=100.;
-	    PSforTMVA(mom,pos);
-	    float p1e=thrPS[iptbin];
-	    float p2e=thrPS[iptbin+1];
-	    float p1c=thrPS[iptbin+2];
-	    float p2c=thrPS[iptbin+3];
-	    GoodPSMatching= 
-	      ((ps2En>p2e)
-	       &(ps1En>p1e)
-	       &(ps1chi<p1c)
-	       &(ps2chi<p2c));
-	    GoodMatching = (GoodMatching & GoodPSMatching);
-	  }
+
   
 	  math::XYZPoint myPoint(ElecTrkEcalPos.x(),ElecTrkEcalPos.y(),ElecTrkEcalPos.z());
 	  myPreId.setECALMatchingProperties(clusterRef,myPoint,meanShowerSaved,std::abs(toteta),std::abs(totphi),chieta,
 					    chiphi,chichi,EP);
 	  myPreId.setECALMatching(EcalMatching);
-	  myPreId.setESMatching(GoodPSMatching);
 
-	  if(applyIsolation_){
-	    if(IsIsolated(float(Tk[i].charge()),Tk[i].p(),
-			  ElecTrkEcalPos,*theECPfClustCollection,*theHCPfClustCollection)) 
-	      GoodMatching=true;
-	  }
+
 	  bool GoodRange= ((std::abs(tketa)<maxEta_) & 
 			   (tkpt>minPt_));
 	  //KF FILTERING FOR UNMATCHED EVENTS
-	  int hit1max=int(thr[ibin+2]);
-	  float chiredmin=thr[ibin+3];
+	  int hit1max=int(thr[ibin+3]);
+	  float chiredmin=thr[ibin+4];
 	  bool GoodKFFiltering =
-	    ((chikfred>chiredmin) | (nhitpi<hit1max));
+	    ((nchi>chiredmin) | (nhitpi<hit1max));
       
+
 	  myPreId.setTrackFiltering(GoodKFFiltering);
 
 	  bool GoodTkId= false;
       
-	  if((!GoodMatching) &(GoodKFFiltering) &(GoodRange)){
-	    chi=chichi;
+	  if((!GoodMatching) &&(GoodKFFiltering) &&(GoodRange)){
 	    chired=1000;
 	    chiRatio=1000;
 	    dpt=0;
 	    nhit=nhitpi;
+	    chikfred = nchi;
+	    trk_ecalDeta = trk_ecalDeta_;
+	    trk_ecalDphi = trk_ecalDphi_;
       
 	    Trajectory::ConstRecHitContainer tmp;
 	    Trajectory::ConstRecHitContainer && hits=Tj[i].recHits();
@@ -430,6 +409,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 		    // the following is simply the number of degrees of freedom
 		    chiRatio=SmooTjs.chiSquared()/Tj[i].chiSquared();
 		    chired=chiRatio*chikfred;
+
 		  }
 		}
 	     
@@ -441,18 +421,17 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	      pt=tkpt;
 	      eP=EP;
 	  
-	      float Ytmva=reader->EvaluateMVA( method_ );
+	      float Ytmva=reader[ipteta]->EvaluateMVA( method_ );
 	      
-	      float BDTcut=thr[ibin+4]; 
+	      float BDTcut=thr[ibin+5]; 
 	      if ( Ytmva>BDTcut) GoodTkId=true;
 	      myPreId.setMVA(GoodTkId,Ytmva);
 	      myPreId.setTrackProperties(chired,chiRatio,dpt);
 	    }else{ 
 	  	 	  
-	      //
-	      float chiratiocut=thr[ibin+5]; 
-	      float gschicut=thr[ibin+6]; 
-	      float gsptmin=thr[ibin+7];
+	      float chiratiocut=thr[ibin+6]; 
+	      float gschicut=thr[ibin+7]; 
+	      float gsptmin=thr[ibin+8];
 
 	      GoodTkId=((dpt>gsptmin)&(chired<gschicut)&(chiRatio<chiratiocut));      
        
@@ -475,7 +454,6 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	} // end of !disablePreId_
       
       if (GoodPreId){
-
 	//NEW SEED with n hits	
 	ElectronSeed NewSeed(Seed);
 	NewSeed.setCtfTrack(trackRef);
@@ -511,10 +489,8 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	  iEvent.put(preIdMap_p,preidname_);
 	}
     }
-
-   // clear temporary maps
+  // clear temporary maps
   refMap_.clear();
-
 }
 // ------------ method called once each job just before starting event loop  ------------
 void 
@@ -528,8 +504,6 @@ GoodSeedProducer::beginRun(const edm::Run & run,
   
   pfTransformer_= new PFTrackTransformer(B_);
   pfTransformer_->OnlyProp();
-
-
   
   //Resolution maps
   FileInPath ecalEtaMap(conf_.getParameter<string>("EtaMap"));
@@ -538,32 +512,46 @@ GoodSeedProducer::beginRun(const edm::Run & run,
   resMapPhiECAL_ = new PFResolutionMap("ECAL_phi",ecalPhiMap.fullPath().c_str());
 
   if(useTmva_){
-    reader = new TMVA::Reader("!Color:Silent");
     method_ = conf_.getParameter<string>("TMVAMethod");
-    
-    reader->AddVariable("eP",&eP);
-    reader->AddVariable("chi",&chi);
-    reader->AddVariable("chired",&chired);
-    reader->AddVariable("chiRatio",&chiRatio);
-    reader->AddVariable("dpt",&dpt);
-    reader->AddVariable("nhit",&nhit);
-    reader->AddVariable("eta",&eta);
-    reader->AddVariable("pt",&pt);
-    FileInPath Weigths(conf_.getParameter<string>("Weights"));
-    reader->BookMVA( method_, Weigths.fullPath().c_str()  );	
-    }
+    FileInPath Weigths1(conf_.getParameter<string>("Weights1"));
+    FileInPath Weigths2(conf_.getParameter<string>("Weights2"));
+    FileInPath Weigths3(conf_.getParameter<string>("Weights3"));
+    FileInPath Weigths4(conf_.getParameter<string>("Weights4"));
+    FileInPath Weigths5(conf_.getParameter<string>("Weights5"));
+    FileInPath Weigths6(conf_.getParameter<string>("Weights6"));
+    FileInPath Weigths7(conf_.getParameter<string>("Weights7"));
+    FileInPath Weigths8(conf_.getParameter<string>("Weights8"));
+    FileInPath Weigths9(conf_.getParameter<string>("Weights9"));
 
-    
-    //read threshold
-    FileInPath parFile(conf_.getParameter<string>("ThresholdFile"));
-    ifstream ifs(parFile.fullPath().c_str());
-    for (int iy=0;iy<72;iy++) ifs >> thr[iy];
-    
-    //read PS threshold
-    FileInPath parPSFile(conf_.getParameter<string>("PSThresholdFile"));
-    ifstream ifsPS(parPSFile.fullPath().c_str());
-    for (int iy=0;iy<12;iy++) ifsPS >> thrPS[iy];
-
+    for(UInt_t j = 0; j < 9; ++j){
+      reader[j] = new TMVA::Reader("!Color:Silent");
+      
+      reader[j]->AddVariable("NHits", &nhit);
+      reader[j]->AddVariable("NormChi", &chikfred);
+      reader[j]->AddVariable("dPtGSF", &dpt);
+      reader[j]->AddVariable("EoP", &eP);
+      reader[j]->AddVariable("ChiRatio", &chiRatio);
+      reader[j]->AddVariable("RedChi", &chired);
+      reader[j]->AddVariable("EcalDEta", &trk_ecalDeta);
+      reader[j]->AddVariable("EcalDPhi", &trk_ecalDphi);
+      reader[j]->AddVariable("pt", &pt);
+      reader[j]->AddVariable("eta", &eta);
+      
+      if(j==0) reader[j]->BookMVA(method_, Weigths1.fullPath().c_str());
+      if(j==1) reader[j]->BookMVA(method_, Weigths2.fullPath().c_str());
+      if(j==2) reader[j]->BookMVA(method_, Weigths3.fullPath().c_str());
+      if(j==3) reader[j]->BookMVA(method_, Weigths4.fullPath().c_str());
+      if(j==4) reader[j]->BookMVA(method_, Weigths5.fullPath().c_str());
+      if(j==5) reader[j]->BookMVA(method_, Weigths6.fullPath().c_str());
+      if(j==6) reader[j]->BookMVA(method_, Weigths7.fullPath().c_str());
+      if(j==7) reader[j]->BookMVA(method_, Weigths8.fullPath().c_str());
+      if(j==8) reader[j]->BookMVA(method_, Weigths9.fullPath().c_str());
+    }    
+  }
+  //read threshold
+  FileInPath parFile(conf_.getParameter<string>("ThresholdFile"));
+  ifstream ifs(parFile.fullPath().c_str());
+  for (int iy=0;iy<81;++iy) ifs >> thr[iy];
 }
 
 void 
@@ -574,28 +562,14 @@ GoodSeedProducer::endRun(const edm::Run &, const edm::EventSetup&) {
   resMapEtaECAL_ = nullptr;
   delete resMapPhiECAL_;
   resMapPhiECAL_ = nullptr;
-  if(useTmva_) {
-    delete reader;
-    reader = nullptr;
-  }
-}
-
-int 
-GoodSeedProducer::getBin(float pt){
-int ip=0;
-  if (pt<6) ip=0;
-  else {  if (pt<12) ip=1;
-        else ip=2;
-  }
-return ip;
 }
 
 int 
 GoodSeedProducer::getBin(float eta, float pt){
   int ie=0;
   int ip=0;
-  if (fabs(eta)<1.2) ie=0;
-  else{ if (fabs(eta)<1.68) ie=1;
+  if (fabs(eta)<0.8) ie=0;
+  else{ if (fabs(eta)<1.479) ie=1;
     else ie=2;
   }
   if (pt<6) ip=0;
@@ -605,118 +579,6 @@ GoodSeedProducer::getBin(float eta, float pt){
   int iep= ie*3+ip;
   LogDebug("GoodSeedProducer")<<"Track pt ="<<pt<<" eta="<<eta<<" bin="<<iep;
   return iep;
-}
-
-void 
-GoodSeedProducer::PSforTMVA(const XYZTLorentzVector& mom,const XYZTLorentzVector& pos ){
-
-  BaseParticlePropagator OutParticle(RawParticle(mom,pos)
-				     ,0.,0.,B_.z()) ;
-
-  OutParticle.propagateToPreshowerLayer1(false);
-  if (OutParticle.getSuccess()!=0){
-    //   GlobalPoint v1=ps1TSOS.globalPosition();
-    math::XYZPoint v1=math::XYZPoint(OutParticle.vertex());
-    if ((v1.Rho() >=
-	 pfGeometry_.innerRadius(PFGeometry::PS1)) &&
-	(v1.Rho() <=
-	 pfGeometry_.outerRadius(PFGeometry::PS1))) {
-      float enPScl1=0;
-      float chi1=100;
-      for ( auto ips : ps1Clus){
-	float ax=((*ips).position().x()-v1.x())/0.114;
-	float ay=((*ips).position().y()-v1.y())/2.43;
-	float pschi= sqrt(ax*ax+ay*ay);
-	if (pschi<chi1){
-	  chi1=pschi;
-	  enPScl1=(*ips).energy();
-	}
-      }
-      ps1En=enPScl1;
-      ps1chi=chi1;
-
-
-      OutParticle.propagateToPreshowerLayer2(false);
-      if (OutParticle.getSuccess()!=0){
-	math::XYZPoint v2=math::XYZPoint(OutParticle.vertex());
-	if ((v2.Rho() >=
-	     pfGeometry_.innerRadius(PFGeometry::PS2)) &&
-	    (v2.Rho() <=
-	     pfGeometry_.outerRadius(PFGeometry::PS2))){
-	  float enPScl2=0;
-	  float chi2=100;
-	  for ( auto ips : ps2Clus ){
-	    float ax=((*ips).position().x()-v2.x())/1.88;
-	    float ay=((*ips).position().y()-v2.y())/0.1449;
-	    float pschi= sqrt(ax*ax+ay*ay);
-	    if (pschi<chi2){
-	      chi2=pschi;
-	      enPScl2=(*ips).energy();
-	    }
-	  }
-
-	  ps2En=enPScl2;
-	  ps2chi=chi2;
-
-	}
-      }
-      
-    }
-    
-  }
-}
-
-bool 
-GoodSeedProducer::IsIsolated(float charge, float P,
-			     GlobalPoint myElecTrkEcalPos,
-			     const PFClusterCollection &ecalColl,
-			     const PFClusterCollection &hcalColl){
-
-
-  double myHCALenergy3x3=0.;
-  double myStripClusterE=0.;
- 
-
-  //  reco::TrackRef myElecTrk;
-  
-  if (fabs(myElecTrkEcalPos.z())<1. && myElecTrkEcalPos.x()<1. && myElecTrkEcalPos.y()<1. ) return false; 
-
-  
-  
-  PFClusterCollection::const_iterator hc=hcalColl.begin();
-  PFClusterCollection::const_iterator hcend=hcalColl.end();
-  for (;hc!=hcend;++hc){
-    auto const &  clusPos = hc->positionREP();
-    auto en = hc->energy();
-    auto deltaR2 = reco::deltaR2(myElecTrkEcalPos,clusPos);
-    if (deltaR2<HcalIsolWindow_*HcalIsolWindow_) {
-      myHCALenergy3x3 += en;
-      
-    }
-  }
-
-
-
-  PFClusterCollection::const_iterator ec=ecalColl.begin();
-  PFClusterCollection::const_iterator ecend=ecalColl.end();
-  for (;ec!=ecend;++ec){
-    auto const & clusPos = ec->positionREP();
-    auto en = ec->energy();
-
-
-    auto deltaPhi = reco::deltaPhi(myElecTrkEcalPos,clusPos);
-    auto  deltaEta = std::abs(myElecTrkEcalPos.eta()-clusPos.eta());
-    auto deltaPhiOverQ = deltaPhi/charge;
-    if (en >= EcalStripSumE_minClusEnergy_ && deltaEta<EcalStripSumE_deltaEta_ && deltaPhiOverQ > EcalStripSumE_deltaPhiOverQ_minValue_ && deltaPhiOverQ < EcalStripSumE_deltaPhiOverQ_maxValue_) { 
-      myStripClusterE += en;
-    }
-  }	  
-  
-  double EoP=myStripClusterE/P;
-  double HoP=myHCALenergy3x3/P;
-
-
-  return ((EoP>minEoverP_)&(EoP<2.5) & (HoP<maxHoverP_));
 }
 
 void GoodSeedProducer::fillPreIdRefValueMap( Handle<TrackCollection> tracks,
