@@ -35,6 +35,7 @@
 namespace edm {
 
   class ModuleCallingContext;
+  class ActivityRegistry;
   
   namespace maker {
     template<typename T> class ModuleHolderT;
@@ -67,6 +68,7 @@ namespace edm {
       const EDProducerAdaptorBase& operator=(const EDProducerAdaptorBase&) =delete; // stop default
       
       bool doEvent(EventPrincipal& ep, EventSetup const& c,
+                   ActivityRegistry*,
                    ModuleCallingContext const*) ;
     };
   }

@@ -48,6 +48,7 @@ namespace edm {
 
   class ModuleCallingContext;
   class PreallocationConfiguration;
+  class ActivityRegistry;
   template <typename T> class OutputModuleCommunicatorT;
   
   namespace maker {
@@ -113,6 +114,7 @@ namespace edm {
       void doBeginJob();
       void doEndJob();
       bool doEvent(EventPrincipal const& ep, EventSetup const& c,
+                   ActivityRegistry*,
                    ModuleCallingContext const*);
       bool doBeginRun(RunPrincipal const& rp, EventSetup const& c,
                       ModuleCallingContext const*);

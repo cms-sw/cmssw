@@ -156,6 +156,8 @@ namespace edm {
     virtual void implEndStream(StreamID) = 0;
     
     void resetModuleDescription(ModuleDescription const*);
+    
+    ActivityRegistry* activityRegistry() { return actReg_.get(); }
 
   private:
 
@@ -195,7 +197,7 @@ namespace edm {
     public:
       ModuleSignalSentry(ActivityRegistry *a,
                          typename T::Context const* context,
-                         ModuleCallingContext* moduleCallingContext) :
+                         ModuleCallingContext const* moduleCallingContext) :
         a_(a), context_(context), moduleCallingContext_(moduleCallingContext) {
 
 	if(a_) T::preModuleSignal(a_, context, moduleCallingContext_);
@@ -208,7 +210,7 @@ namespace edm {
     private:
       ActivityRegistry* a_;
       typename T::Context const* context_;
-      ModuleCallingContext* moduleCallingContext_;
+      ModuleCallingContext const* moduleCallingContext_;
     };
 
     template <typename T>
@@ -272,8 +274,13 @@ namespace edm {
     template<>
     class CallImpl<OccurrenceTraits<EventPrincipal, BranchActionStreamBegin>> {
     public:
-      static bool call(Worker* iWorker, StreamID, EventPrincipal& ep, EventSetup const& es,
-                       ModuleCallingContext const* mcc) {
+      typedef OccurrenceTraits<EventPrincipal, BranchActionStreamBegin> Arg;
+      static bool call(Worker* iWorker, StreamID,
+                       EventPrincipal& ep, EventSetup const& es,
+                       ActivityRegistry* actReg,
+                       ModuleCallingContext const* mcc,
+                       Arg::Context const* context) {
+        //Signal sentry is handled by the module
         return iWorker->implDo(ep,es, mcc);
       }
     };
@@ -281,32 +288,52 @@ namespace edm {
     template<>
     class CallImpl<OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin>>{
     public:
-      static bool call(Worker* iWorker,StreamID, RunPrincipal& ep, EventSetup const& es,
-                       ModuleCallingContext const* mcc) {
+      typedef OccurrenceTraits<RunPrincipal, BranchActionGlobalBegin> Arg;
+      static bool call(Worker* iWorker,StreamID,
+                       RunPrincipal& ep, EventSetup const& es,
+                       ActivityRegistry* actReg,
+                       ModuleCallingContext const* mcc,
+                       Arg::Context const* context) {
+        ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
         return iWorker->implDoBegin(ep,es, mcc);
       }
     };
     template<>
     class CallImpl<OccurrenceTraits<RunPrincipal, BranchActionStreamBegin>>{
     public:
-      static bool call(Worker* iWorker,StreamID id, RunPrincipal& ep, EventSetup const& es,
-                       ModuleCallingContext const* mcc) {
+      typedef OccurrenceTraits<RunPrincipal, BranchActionStreamBegin> Arg;
+      static bool call(Worker* iWorker,StreamID id,
+                       RunPrincipal& ep, EventSetup const& es,
+                       ActivityRegistry* actReg,
+                       ModuleCallingContext const* mcc,
+                       Arg::Context const* context) {
+        ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
         return iWorker->implDoStreamBegin(id,ep,es, mcc);
       }
     };
     template<>
     class CallImpl<OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd>>{
     public:
-      static bool call(Worker* iWorker,StreamID, RunPrincipal& ep, EventSetup const& es,
-                       ModuleCallingContext const* mcc) {
+      typedef OccurrenceTraits<RunPrincipal, BranchActionGlobalEnd> Arg;
+      static bool call(Worker* iWorker,StreamID,
+                       RunPrincipal& ep, EventSetup const& es,
+                       ActivityRegistry* actReg,
+                       ModuleCallingContext const* mcc,
+                       Arg::Context const* context) {
+        ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
         return iWorker->implDoEnd(ep,es, mcc);
       }
     };
     template<>
     class CallImpl<OccurrenceTraits<RunPrincipal, BranchActionStreamEnd>>{
     public:
-      static bool call(Worker* iWorker,StreamID id, RunPrincipal& ep, EventSetup const& es,
-                       ModuleCallingContext const* mcc) {
+      typedef OccurrenceTraits<RunPrincipal, BranchActionStreamEnd> Arg;
+      static bool call(Worker* iWorker,StreamID id,
+                       RunPrincipal& ep, EventSetup const& es,
+                       ActivityRegistry* actReg,
+                       ModuleCallingContext const* mcc,
+                       Arg::Context const* context) {
+        ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
         return iWorker->implDoStreamEnd(id,ep,es, mcc);
       }
     };
@@ -314,16 +341,26 @@ namespace edm {
     template<>
     class CallImpl<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin>>{
     public:
-      static bool call(Worker* iWorker,StreamID, LuminosityBlockPrincipal& ep, EventSetup const& es,
-                       ModuleCallingContext const* mcc) {
+      typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalBegin> Arg;
+      static bool call(Worker* iWorker,StreamID,
+                       LuminosityBlockPrincipal& ep, EventSetup const& es,
+                       ActivityRegistry* actReg,
+                       ModuleCallingContext const* mcc,
+                       Arg::Context const* context) {
+        ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
         return iWorker->implDoBegin(ep,es, mcc);
       }
     };
     template<>
     class CallImpl<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin>>{
     public:
-      static bool call(Worker* iWorker,StreamID id, LuminosityBlockPrincipal& ep, EventSetup const& es,
-                       ModuleCallingContext const* mcc) {
+      typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamBegin> Arg;
+      static bool call(Worker* iWorker,StreamID id,
+                       LuminosityBlockPrincipal& ep, EventSetup const& es,
+                       ActivityRegistry* actReg,
+                       ModuleCallingContext const* mcc,
+                       Arg::Context const* context) {
+        ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
         return iWorker->implDoStreamBegin(id,ep,es, mcc);
       }
     };
@@ -331,16 +368,26 @@ namespace edm {
     template<>
     class CallImpl<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd>>{
     public:
-      static bool call(Worker* iWorker,StreamID, LuminosityBlockPrincipal& ep, EventSetup const& es,
-                       ModuleCallingContext const* mcc) {
+      typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionGlobalEnd> Arg;
+      static bool call(Worker* iWorker,StreamID,
+                       LuminosityBlockPrincipal& ep, EventSetup const& es,
+                       ActivityRegistry* actReg,
+                       ModuleCallingContext const* mcc,
+                       Arg::Context const* context) {
+        ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
         return iWorker->implDoEnd(ep,es, mcc);
       }
     };
     template<>
     class CallImpl<OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd>>{
     public:
-      static bool call(Worker* iWorker,StreamID id, LuminosityBlockPrincipal& ep, EventSetup const& es,
-                       ModuleCallingContext const* mcc) {
+      typedef OccurrenceTraits<LuminosityBlockPrincipal, BranchActionStreamEnd> Arg;
+      static bool call(Worker* iWorker,StreamID id,
+                       LuminosityBlockPrincipal& ep, EventSetup const& es,
+                       ActivityRegistry* actReg,
+                       ModuleCallingContext const* mcc,
+                       Arg::Context const* context) {
+        ModuleSignalSentry<Arg> cpp(actReg, context, mcc);
         return iWorker->implDoStreamEnd(id,ep,es, mcc);
       }
     };
@@ -392,8 +439,7 @@ namespace edm {
         }
 
         moduleCallingContext_.setState(ModuleCallingContext::State::kRunning);
-        ModuleSignalSentry<T> cpp(actReg_.get(), context, &moduleCallingContext_);
-        rc = workerhelper::CallImpl<T>::call(this,streamID,ep,es, &moduleCallingContext_);
+        rc = workerhelper::CallImpl<T>::call(this,streamID,ep,es, actReg_.get(), &moduleCallingContext_, context);
 
         if (rc) {
           state_ = Pass;
