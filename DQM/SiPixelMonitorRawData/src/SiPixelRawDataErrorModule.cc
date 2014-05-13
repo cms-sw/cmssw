@@ -93,59 +93,60 @@ SiPixelRawDataErrorModule::~SiPixelRawDataErrorModule() {}
 //
 // Book histograms for errors with detId
 //
-void SiPixelRawDataErrorModule::book(const edm::ParameterSet& iConfig, int type, bool isUpgrade) {
+void SiPixelRawDataErrorModule::book(const edm::ParameterSet& iConfig, DQMStore::IBooker & iBooker, int type, bool isUpgrade) {
+   
 }
 //
 // Book histograms for errors within a FED
 //
-void SiPixelRawDataErrorModule::bookFED(const edm::ParameterSet& iConfig) {
+void SiPixelRawDataErrorModule::bookFED(const edm::ParameterSet& iConfig, DQMStore::IBooker & iBooker) {
 //std::cout<<"Entering SiPixelRawDataErrorModule::bookFED: "<<std::endl;
   std::string hid;
   // Get collection name and instantiate Histo Id builder
   edm::InputTag src = iConfig.getParameter<edm::InputTag>( "src" );
   SiPixelHistogramId* theHistogramId = new SiPixelHistogramId( src.label() );
-  // Get DQM interface
-  DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
-  // Types of errors
-  hid = theHistogramId->setHistoId("errorType",id_);
-  meErrorType_ = theDMBE->book1D(hid,"Type of errors",15,24.5,39.5);
-  meErrorType_->setAxisTitle("Type of errors",1);
-  // Number of errors
-  hid = theHistogramId->setHistoId("NErrors",id_);
-  meNErrors_ = theDMBE->book1D(hid,"Number of errors",36,0.,36.);
-  meNErrors_->setAxisTitle("Number of errors",1);
-  // Type of FIFO full (errorType = 28).  FIFO 1 is 1-5 (where fullType = channel of FIFO 1), 
-  // fullType = 6 signifies FIFO 2 nearly full, 7 signifies trigger FIFO nearly full, 8 
-  // indicates an unexpected result
-  hid = theHistogramId->setHistoId("fullType",id_);
-  meFullType_ = theDMBE->book1D(hid,"Type of FIFO full",7,0.5,7.5);
-  meFullType_->setAxisTitle("FIFO type",1);
-  // For error type 30, the type of problem encoded in the TBM trailer
-  // 0 = stack full, 1 = Pre-cal issued, 2 = clear trigger counter, 3 = sync trigger, 
-  // 4 = sync trigger error, 5 = reset ROC, 6 = reset TBM, 7 = no token bit pass
-  hid = theHistogramId->setHistoId("TBMMessage",id_);
-  meTBMMessage_ = theDMBE->book1D(hid,"TBM trailer message",8,-0.5,7.5);
-  meTBMMessage_->setAxisTitle("TBM message",1);
-  // For error type 30, the type of problem encoded in the TBM error trailer 0 = none
-  // 1 = data stream too long, 2 = FSM errors, 3 = invalid # of ROCs, 4 = multiple
-  hid = theHistogramId->setHistoId("TBMType",id_);
-  meTBMType_ = theDMBE->book1D(hid,"Type of TBM trailer",5,-0.5,4.5);
-  meTBMType_->setAxisTitle("TBM Type",1);
-  // For error type 31, the event number of the TBM header with the error
-  hid = theHistogramId->setHistoId("EvtNbr",id_);
-  meEvtNbr_ = theDMBE->bookInt(hid);
-  // For errorType = 34, datastream size according to error word
-  hid = theHistogramId->setHistoId("evtSize",id_);
-  meEvtSize_ = theDMBE->bookInt(hid);
-  
+
+  //This booking moved to the source code, but kept here for posterity.
+//   // Types of errors
+//   hid = theHistogramId->setHistoId("errorType",id_);
+//   meErrorType_ = iBooker.book1D(hid,"Type of errors",15,24.5,39.5);
+//   meErrorType_->setAxisTitle("Type of errors",1);
+//   // Number of errors
+//   hid = theHistogramId->setHistoId("NErrors",id_);
+//   meNErrors_ = iBooker.book1D(hid,"Number of errors",36,0.,36.);
+//   meNErrors_->setAxisTitle("Number of errors",1);
+//   // Type of FIFO full (errorType = 28).  FIFO 1 is 1-5 (where fullType = channel of FIFO 1), 
+//   // fullType = 6 signifies FIFO 2 nearly full, 7 signifies trigger FIFO nearly full, 8 
+//   // indicates an unexpected result
+//   hid = theHistogramId->setHistoId("fullType",id_);
+//   meFullType_ = iBooker.book1D(hid,"Type of FIFO full",7,0.5,7.5);
+//   meFullType_->setAxisTitle("FIFO type",1);
+//   // For error type 30, the type of problem encoded in the TBM trailer
+//   // 0 = stack full, 1 = Pre-cal issued, 2 = clear trigger counter, 3 = sync trigger, 
+//   // 4 = sync trigger error, 5 = reset ROC, 6 = reset TBM, 7 = no token bit pass
+//   hid = theHistogramId->setHistoId("TBMMessage",id_);
+//   meTBMMessage_ = iBooker.book1D(hid,"TBM trailer message",8,-0.5,7.5);
+//   meTBMMessage_->setAxisTitle("TBM message",1);
+//   // For error type 30, the type of problem encoded in the TBM error trailer 0 = none
+//   // 1 = data stream too long, 2 = FSM errors, 3 = invalid # of ROCs, 4 = multiple
+//   hid = theHistogramId->setHistoId("TBMType",id_);
+//   meTBMType_ = iBooker.book1D(hid,"Type of TBM trailer",5,-0.5,4.5);
+//   meTBMType_->setAxisTitle("TBM Type",1);
+//   // For error type 31, the event number of the TBM header with the error
+//   hid = theHistogramId->setHistoId("EvtNbr",id_);
+//   meEvtNbr_ = iBooker.bookInt(hid);
+//   // For errorType = 34, datastream size according to error word
+//   hid = theHistogramId->setHistoId("evtSize",id_);
+//  meEvtSize_ = iBooker.bookInt(hid);
+    
   for(int j=0; j!=37; j++){
     std::stringstream temp; temp << j;
     hid = "FedChNErrArray_" + temp.str();
-    meFedChNErrArray_[j] = theDMBE->bookInt(hid);
+    meFedChNErrArray_[j] = iBooker.bookInt(hid);
     hid = "FedChLErrArray_" + temp.str();
-    meFedChLErrArray_[j] = theDMBE->bookInt(hid);
+    meFedChLErrArray_[j] = iBooker.bookInt(hid);
     hid = "FedETypeNErrArray_" + temp.str();
-    if(j<21) meFedETypeNErrArray_[j] = theDMBE->bookInt(hid);
+    if(j<21) meFedETypeNErrArray_[j] = iBooker.bookInt(hid);
   }
   delete theHistogramId;
 //std::cout<<"...leaving SiPixelRawDataErrorModule::bookFED. "<<std::endl;
@@ -153,13 +154,12 @@ void SiPixelRawDataErrorModule::bookFED(const edm::ParameterSet& iConfig) {
 //
 // Fill histograms
 //
-int SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError>& input, bool modon, bool ladon, bool bladeon) {
+int SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError>& input, std::map<std::string,MonitorElement**> *meMapFEDs, bool modon, bool ladon, bool bladeon) {
 //std::cout<<"Entering SiPixelRawDataErrorModule::fill: "<<std::endl;
   bool barrel = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
   bool endcap = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
   
   // Get DQM interface
-  DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
   
   unsigned int numberOfSeriousErrors = 0;
   
@@ -195,13 +195,13 @@ int SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError>
 	    int NFe = (errorWord >> DB4_shift) & DataBit_mask;
 	    int NF2 = (errorWord >> DB6_shift) & DataBit_mask;
 	    int L1A = (errorWord >> DB7_shift) & DataBit_mask;
-	    if (NFa==1) fullType = 1; (meFullType_)->Fill((int)fullType);
-	    if (NFb==1) fullType = 2; (meFullType_)->Fill((int)fullType);
-	    if (NFc==1) fullType = 3; (meFullType_)->Fill((int)fullType);
-	    if (NFd==1) fullType = 4; (meFullType_)->Fill((int)fullType);
-	    if (NFe==1) fullType = 5; (meFullType_)->Fill((int)fullType);
-	    if (NF2==1) fullType = 6; (meFullType_)->Fill((int)fullType);
-	    if (L1A==1) fullType = 7; (meFullType_)->Fill((int)fullType);
+	    if (NFa==1) fullType = 1; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);
+	    if (NFb==1) fullType = 2; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);
+	    if (NFc==1) fullType = 3; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);
+	    if (NFd==1) fullType = 4; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);
+	    if (NFe==1) fullType = 5; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);
+	    if (NF2==1) fullType = 6; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);
+	    if (L1A==1) fullType = 7; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);
 	    chanNmbr = 0;  // signifies channel not known
 	    break; }
 	  case(29) : {
@@ -292,13 +292,13 @@ int SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError>
 	    int NFe = (errorWord >> DB4_shift) & DataBit_mask;
 	    int NF2 = (errorWord >> DB6_shift) & DataBit_mask;
 	    int L1A = (errorWord >> DB7_shift) & DataBit_mask;
-	    if (NFa==1) fullType = 1; (meFullType_)->Fill((int)fullType);
-	    if (NFb==1) fullType = 2; (meFullType_)->Fill((int)fullType);
-	    if (NFc==1) fullType = 3; (meFullType_)->Fill((int)fullType);
-	    if (NFd==1) fullType = 4; (meFullType_)->Fill((int)fullType);
-	    if (NFe==1) fullType = 5; (meFullType_)->Fill((int)fullType);
-	    if (NF2==1) fullType = 6; (meFullType_)->Fill((int)fullType);
-	    if (L1A==1) fullType = 7; (meFullType_)->Fill((int)fullType);
+	    if (NFa==1) fullType = 1; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);
+	    if (NFb==1) fullType = 2; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);
+	    if (NFc==1) fullType = 3; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);
+	    if (NFd==1) fullType = 4; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);
+	    if (NFe==1) fullType = 5; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);
+	    if (NF2==1) fullType = 6; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);
+	    if (L1A==1) fullType = 7; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);
 	    chanNmbr = 0;
 	    break; }
 	  case(29) : {
@@ -388,13 +388,13 @@ int SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError>
 	    int NFe = (errorWord >> DB4_shift) & DataBit_mask;
 	    int NF2 = (errorWord >> DB6_shift) & DataBit_mask;
 	    int L1A = (errorWord >> DB7_shift) & DataBit_mask;
-	    if (NFa==1) fullType = 1; (meFullType_)->Fill((int)fullType);
-	    if (NFb==1) fullType = 2; (meFullType_)->Fill((int)fullType);
-	    if (NFc==1) fullType = 3; (meFullType_)->Fill((int)fullType);
-	    if (NFd==1) fullType = 4; (meFullType_)->Fill((int)fullType);
-	    if (NFe==1) fullType = 5; (meFullType_)->Fill((int)fullType);
-	    if (NF2==1) fullType = 6; (meFullType_)->Fill((int)fullType);
-	    if (L1A==1) fullType = 7; (meFullType_)->Fill((int)fullType);
+	    if (NFa==1) fullType = 1; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);
+	    if (NFb==1) fullType = 2; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);
+	    if (NFc==1) fullType = 3; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);
+	    if (NFd==1) fullType = 4; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);
+	    if (NFe==1) fullType = 5; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);
+	    if (NF2==1) fullType = 6; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);
+	    if (L1A==1) fullType = 7; ((*meMapFEDs)["meFullType_"][FedId])->Fill((int)fullType);
 	    chanNmbr = 0;
 	    break; }
 	  case(29) : {
@@ -476,14 +476,12 @@ int SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError>
           char chNbuf[sizeof(chNfmt) + 2*32]; // 32 digits is enough for up to 2^105 + sign.
           sprintf(chNbuf, chNfmt, FedId, chanNmbr);
           hid = chNbuf;
-          meFedChNErrArray_[chanNmbr] = theDMBE->get(hid);
           if(meFedChNErrArray_[chanNmbr]) meFedChNErrArray_[chanNmbr]->Fill(meFedChNErrArray_[chanNmbr]->getIntValue()+1);
 
           static const char chLfmt[] = "Pixel/AdditionalPixelErrors/FED_%d/FedChLErrArray_%d";
           char chLbuf[sizeof(chLfmt) + 2*32]; // 32 digits is enough for up to 2^105 + sign.
           sprintf(chLbuf, chLfmt, FedId, chanNmbr);
           hid = chLbuf;
-          meFedChLErrArray_[chanNmbr] = theDMBE->get(hid); 
           if(meFedChLErrArray_[chanNmbr]) meFedChLErrArray_[chanNmbr]->Fill(errorType); 
 
           numberOfSeriousErrors++;
@@ -502,53 +500,17 @@ int SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError>
             char buf[sizeof(fmt) + 2*32]; // 32 digits is enough for up to 2^105 + sign.
             sprintf(buf, fmt, FedId, messageType);
             hid = buf;
-            meFedETypeNErrArray_[messageType] = theDMBE->get(hid); 
             if(meFedETypeNErrArray_[messageType]) meFedETypeNErrArray_[messageType]->Fill(meFedETypeNErrArray_[messageType]->getIntValue()+1); 
           }
 	}
 
-        std::string currDir = theDMBE->pwd();
-        static const char buf[] = "Pixel/AdditionalPixelErrors/FED_%d";
-        char feddir[sizeof(buf)+2]; 
-        sprintf(feddir,buf,FedId);
-        theDMBE->cd(feddir);
-        MonitorElement* me;
-        static const char buf1[] = "Pixel/AdditionalPixelErrors/FED_%d/NErrors_siPixelDigis_%d";
-        char hname1[sizeof(buf1)+4];
-        sprintf(hname1,buf1,FedId,FedId);
-        me = theDMBE->get(hname1);
-        if(me) me->Fill((int)numberOfSeriousErrors);
-        static const char buf2[] = "Pixel/AdditionalPixelErrors/FED_%d/TBMMessage_siPixelDigis_%d";
-        char hname2[sizeof(buf2)+4];
-        sprintf(hname2,buf2,FedId,FedId);
-        me = theDMBE->get(hname2);
-        if(me) me->Fill((int)TBMMessage);
-        static const char buf3[] = "Pixel/AdditionalPixelErrors/FED_%d/TBMType_siPixelDigis_%d";
-        char hname3[sizeof(buf3)+4];
-        sprintf(hname3,buf3,FedId,FedId);
-        me = theDMBE->get(hname3);
-        if(me) me->Fill((int)TBMType);
-        static const char buf4[] = "Pixel/AdditionalPixelErrors/FED_%d/errorType_siPixelDigis_%d";
-        char hname4[sizeof(buf4)+4];
-        sprintf(hname4,buf4,FedId,FedId);
-        me = theDMBE->get(hname4);
-        if(me) me->Fill((int)errorType);
-        static const char buf5[] = "Pixel/AdditionalPixelErrors/FED_%d/fullType_siPixelDigis_%d";
-        char hname5[sizeof(buf5)+4];
-        sprintf(hname5,buf5,FedId,FedId);
-        me = theDMBE->get(hname5);
-        if(me) me->Fill((int)fullType);
-        static const char buf6[] = "Pixel/AdditionalPixelErrors/FED_%d/EvtNbr_siPixelDigis_%d";
-        char hname6[sizeof(buf6)+4];
-        sprintf(hname6,buf6,FedId,FedId);
-        me = theDMBE->get(hname6);
-        if(me) me->Fill((int)evtNbr);
-        static const char buf7[] = "Pixel/AdditionalPixelErrors/FED_%d/evtSize_siPixelDigis_%d";
-        char hname7[sizeof(buf7)+4];
-        sprintf(hname7,buf7,FedId,FedId);
-        me = theDMBE->get(hname7);
-        if(me) me->Fill((int)evtSize);
-        theDMBE->cd(currDir);
+	(*meMapFEDs)["meNErrors_"][FedId]->Fill((int)numberOfSeriousErrors);
+	(*meMapFEDs)["meTBMMessage_"][FedId]->Fill((int)TBMMessage);
+	(*meMapFEDs)["meTBMType_"][FedId]->Fill((int)TBMType);
+        (*meMapFEDs)["meErrorType_"][FedId]->Fill((int)errorType);
+        (*meMapFEDs)["meFullType_"][FedId]->Fill((int)fullType);
+        (*meMapFEDs)["meEvtNbr_"][FedId]->Fill((int)evtNbr);
+        (*meMapFEDs)["meEvtSize_"][FedId]->Fill((int)evtSize);
       }
     }//end for loop over all errors on module
   }//end if not an empty iterator
@@ -556,9 +518,8 @@ int SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError>
   return numberOfSeriousErrors;
 }
 
-int SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataError>& input) {
+int SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataError>& input, std::map<std::string,MonitorElement**> *meMapFEDs) {
   //std::cout<<"Entering   SiPixelRawDataErrorModule::fillFED: "<<static_cast<int>(id_)<<std::endl;
-  DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
   unsigned int numberOfSeriousErrors = 0;
   
   edm::DetSetVector<SiPixelRawDataError>::const_iterator isearch = input.find(0xffffffff); // search  errors of detid
@@ -571,7 +532,7 @@ int SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataErr
       int errorType = 0;               // type of error
       if(FedId==static_cast<int>(id_)) {
 	errorType = di->getType();               // type of error
-	(meErrorType_)->Fill((int)errorType);
+	((*meMapFEDs)["meErrorType_"][id_])->Fill((int)errorType);
 	//bool notReset=true;
         int TBMType=-1; int TBMMessage=-1; int evtSize=-1; int fullType=-1;
         const int LINK_bits = 6;
@@ -587,7 +548,7 @@ int SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataErr
 	    break; }
 	  case(34) : {
 	    evtSize = (errorWord >> EVTLGT_shift) & EVTLGT_mask;
-	    if(!(FedId==38&&chanNmbr==7)) (meEvtSize_)->Fill((int)evtSize); 
+	    if(!(FedId==38&&chanNmbr==7)) ((*meMapFEDs)["meEvtSize_"][id_])->Fill((int)evtSize); 
 	    break; }
 	  default : break;
 	  };
@@ -605,13 +566,13 @@ int SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataErr
 	    int NFe = (errorWord >> DB4_shift) & DataBit_mask;
 	    int NF2 = (errorWord >> DB6_shift) & DataBit_mask;
 	    int L1A = (errorWord >> DB7_shift) & DataBit_mask;
-	    if (NFa==1) fullType = 1; (meFullType_)->Fill((int)fullType);
-	    if (NFb==1) fullType = 2; (meFullType_)->Fill((int)fullType);
-	    if (NFc==1) fullType = 3; (meFullType_)->Fill((int)fullType);
-	    if (NFd==1) fullType = 4; (meFullType_)->Fill((int)fullType);
-	    if (NFe==1) fullType = 5; (meFullType_)->Fill((int)fullType);
-	    if (NF2==1) fullType = 6; (meFullType_)->Fill((int)fullType);
-	    if (L1A==1) fullType = 7; (meFullType_)->Fill((int)fullType);
+	    if (NFa==1) fullType = 1; ((*meMapFEDs)["meFullType_"][id_])->Fill((int)fullType);
+	    if (NFb==1) fullType = 2; ((*meMapFEDs)["meFullType_"][id_])->Fill((int)fullType);
+	    if (NFc==1) fullType = 3; ((*meMapFEDs)["meFullType_"][id_])->Fill((int)fullType);
+	    if (NFd==1) fullType = 4; ((*meMapFEDs)["meFullType_"][id_])->Fill((int)fullType);
+	    if (NFe==1) fullType = 5; ((*meMapFEDs)["meFullType_"][id_])->Fill((int)fullType);
+	    if (NF2==1) fullType = 6; ((*meMapFEDs)["meFullType_"][id_])->Fill((int)fullType);
+	    if (L1A==1) fullType = 7; ((*meMapFEDs)["meFullType_"][id_])->Fill((int)fullType);
 	    chanNmbr = 0;
 	    break; }
 	  case(29) : {
@@ -639,14 +600,14 @@ int SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataErr
 	    int T6 = (errorWord >> DB6_shift) & DataBit_mask;
 	    int T7 = (errorWord >> DB7_shift) & DataBit_mask;
 	    if(!(FedId==38&&chanNmbr==7)){
-	      if (T0==1) { TBMMessage=0; (meTBMMessage_)->Fill((int)TBMMessage); }
-	      if (T1==1) { TBMMessage=1; (meTBMMessage_)->Fill((int)TBMMessage); }
-	      if (T2==1) { TBMMessage=2; (meTBMMessage_)->Fill((int)TBMMessage); }
-	      if (T3==1) { TBMMessage=3; (meTBMMessage_)->Fill((int)TBMMessage); }
-	      if (T4==1) { TBMMessage=4; (meTBMMessage_)->Fill((int)TBMMessage); }
-	      if (T5==1) { TBMMessage=5; (meTBMMessage_)->Fill((int)TBMMessage); }
-	      if (T6==1) { TBMMessage=6; (meTBMMessage_)->Fill((int)TBMMessage); }
-	      if (T7==1) { TBMMessage=7; (meTBMMessage_)->Fill((int)TBMMessage); }
+	      if (T0==1) { TBMMessage=0; ((*meMapFEDs)["meTBMMessage_"][id_])->Fill((int)TBMMessage); }
+	      if (T1==1) { TBMMessage=1; ((*meMapFEDs)["meTBMMessage_"][id_])->Fill((int)TBMMessage); }
+	      if (T2==1) { TBMMessage=2; ((*meMapFEDs)["meTBMMessage_"][id_])->Fill((int)TBMMessage); }
+	      if (T3==1) { TBMMessage=3; ((*meMapFEDs)["meTBMMessage_"][id_])->Fill((int)TBMMessage); }
+	      if (T4==1) { TBMMessage=4; ((*meMapFEDs)["meTBMMessage_"][id_])->Fill((int)TBMMessage); }
+	      if (T5==1) { TBMMessage=5; ((*meMapFEDs)["meTBMMessage_"][id_])->Fill((int)TBMMessage); }
+	      if (T6==1) { TBMMessage=6; ((*meMapFEDs)["meTBMMessage_"][id_])->Fill((int)TBMMessage); }
+	      if (T7==1) { TBMMessage=7; ((*meMapFEDs)["meTBMMessage_"][id_])->Fill((int)TBMMessage); }
 	    }
 	    //if(TBMMessage==5 || TBMMessage==6) notReset=false;
 	    int StateMach_bits      = 4;
@@ -668,12 +629,12 @@ int SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataErr
 	      break; }
 	    default : TBMType = 4;
 	    };
-	    if(!(FedId==38&&chanNmbr==7)) (meTBMType_)->Fill((int)TBMType);
+	    if(!(FedId==38&&chanNmbr==7)) ((*meMapFEDs)["meTBMType_"][id_])->Fill((int)TBMType);
 	    chanNmbr = (errorWord >> LINK_shift) & LINK_mask;
 	    break; }
 	  case(31) : {
 	    int evtNbr = (errorWord >> ADC_shift) & ADC_mask;
-	    if(!(FedId==38&&chanNmbr==7))(meEvtNbr_)->Fill((int)evtNbr);
+	    if(!(FedId==38&&chanNmbr==7))((*meMapFEDs)["meEvtNbr_"][id_])->Fill((int)evtNbr);
 	    chanNmbr = (errorWord >> LINK_shift) & LINK_mask;
 	    break; }
 	  case(35) : case(36) : case(37) : case(38) : {
@@ -692,14 +653,12 @@ int SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataErr
             char chNbuf[sizeof(chNfmt) + 2*32]; // 32 digits is enough for up to 2^105 + sign.
             sprintf(chNbuf, chNfmt, FedId, chanNmbr);
             hid = chNbuf;
-            meFedChNErrArray_[chanNmbr] = theDMBE->get(hid);
             if(meFedChNErrArray_[chanNmbr]) meFedChNErrArray_[chanNmbr]->Fill(meFedChNErrArray_[chanNmbr]->getIntValue()+1);
 
             static const char chLfmt[] = "Pixel/AdditionalPixelErrors/FED_%d/FedChLErrArray_%d";
             char chLbuf[sizeof(chLfmt) + 2*32]; // 32 digits is enough for up to 2^105 + sign.
             sprintf(chLbuf, chLfmt, FedId, chanNmbr);
             hid = chLbuf;
-            meFedChLErrArray_[chanNmbr] = theDMBE->get(hid); 
             if(meFedChLErrArray_[chanNmbr]) meFedChLErrArray_[chanNmbr]->Fill(errorType); 
 
             numberOfSeriousErrors++;
@@ -718,14 +677,13 @@ int SiPixelRawDataErrorModule::fillFED(const edm::DetSetVector<SiPixelRawDataErr
               char buf[sizeof(fmt) + 2*32]; // 32 digits is enough for up to 2^105 + sign.
               sprintf(buf, fmt, FedId, messageType);
               hid = buf;
-              meFedETypeNErrArray_[messageType] = theDMBE->get(hid); 
               if(meFedETypeNErrArray_[messageType]) meFedETypeNErrArray_[messageType]->Fill(meFedETypeNErrArray_[messageType]->getIntValue()+1);
             }
 	  }//end if bad channel
         }//end if not 30 || notReset
       }//end if
     }//end for
-    if(numberOfSeriousErrors>0) (meNErrors_)->Fill((float)numberOfSeriousErrors);
+    if(numberOfSeriousErrors>0) ((*meMapFEDs)["meNErrors_"][id_])->Fill((float)numberOfSeriousErrors);
 
   }// end if not an empty iterator
   
