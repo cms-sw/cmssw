@@ -120,6 +120,8 @@ def miniAOD_customizeMC(process):
     process.patPhotons.embedGenMatch = False
     process.patTaus.embedGenMatch = False
     process.patJets.embedGenPartonMatch = False
+    #also jet flavour must be switched to ak4
+    process.patJetFlavourAssociation.rParam = 0.4
     #only for 70X/CSA14 to get ak4
     process.load("RecoJets.JetProducers.ak4GenJets_cfi")
     process.load("RecoJets.Configuration.GenJetParticles_cff") 
