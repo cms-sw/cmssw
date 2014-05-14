@@ -22,7 +22,7 @@ public:
   virtual ~Generator();
 
   void setGenEvent( const HepMC::GenEvent* inpevt ) 
-    { evt_ = (HepMC::GenEvent*)inpevt; }
+    { evt_ = (HepMC::GenEvent*)inpevt; return ; }
   void HepMC2G4(const HepMC::GenEvent * g,G4Event * e);
   void nonBeamEvent2G4(const HepMC::GenEvent * g,G4Event * e);
   virtual const HepMC::GenEvent*  genEvent() const { return evt_; }
@@ -35,7 +35,7 @@ private:
   void particleAssignDaughters(G4PrimaryParticle * p, HepMC::GenParticle * hp, 
 			       double length);
   void setGenId(G4PrimaryParticle* p, int id) const 
-  { p->SetUserInformation(new GenParticleInfo(id)); }
+  { p->SetUserInformation(new GenParticleInfo(id));}
 
 private:
   bool   fPCuts;

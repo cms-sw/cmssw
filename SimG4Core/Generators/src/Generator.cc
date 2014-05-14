@@ -23,7 +23,7 @@ Generator::Generator(const ParameterSet & p) :
   fPtransCut(p.getParameter<bool>("ApplyPtransCut")),
   fEtaCuts(p.getParameter<bool>("ApplyEtaCuts")), 
   fPhiCuts(p.getParameter<bool>("ApplyPhiCuts")),
-  theMinPhiCut(p.getParameter<double>("MinPhiCut")),// in radians (CMS standard)
+  theMinPhiCut(p.getParameter<double>("MinPhiCut")), // in radians (CMS standard)
   theMaxPhiCut(p.getParameter<double>("MaxPhiCut")),
   theMinEtaCut(p.getParameter<double>("MinEtaCut")),
   theMaxEtaCut(p.getParameter<double>("MaxEtaCut")),
@@ -142,7 +142,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
         break;
       }  
       // The selection is made considering if the partcile with status = 2 
-      // have the end_vertex with a radius (R) greater then the beampipe 
+      // have the end_vertex with a radius greater than the radius of beampipe 
       // cilinder (no requirement on the Z of the vertex is applyed).
       else if (2 == (*pitr)->status()) {
 
@@ -166,7 +166,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
       }
     }
 
-    // if this vertex is inside fiductial volume inside beam pipe
+    // if this vertex is inside fiductial volume inside the beam pipe
     // and has no long-lived secondary the vertex is not saved 
     if (!qvtx) {
       continue;
