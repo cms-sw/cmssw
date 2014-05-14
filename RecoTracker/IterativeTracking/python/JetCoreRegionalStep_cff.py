@@ -6,7 +6,9 @@ import FWCore.ParameterSet.Config as cms
 from RecoJets.JetProducers.TracksForJets_cff import trackRefsForJets
 iter0TrackRefsForJets = trackRefsForJets.clone(src = cms.InputTag('initialStepTracks'))
 from RecoJets.JetProducers.ak4CaloJets_cfi import ak4CaloJets
-ak4CaloJetsForTrk = ak4CaloJets.clone(srcPVs = cms.InputTag('pixelVertices'))
+from RecoLocalCalo.CaloTowersCreator.calotowermaker_cfi import calotowermaker
+caloTowerForTrk = calotowermaker.clone(hbheInput=cms.InputTag('hbheprereco'))
+ak4CaloJetsForTrk = ak4CaloJets.clone(srcPVs = cms.InputTag('pixelVertices'), src= cms.InputTag('caloTowerForTrk'))
 jetsForCoreTracking = cms.EDFilter("CandPtrSelector", src = cms.InputTag("ak4CaloJetsForTrk"), cut = cms.string("pt > 100 && abs(eta) < 2.5"))
 
 # care only at tracks from main PV
@@ -148,7 +150,7 @@ jetCoreRegionalStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector
     ) #end of clone
 
 # Final sequence
-JetCoreRegionalStep = cms.Sequence(iter0TrackRefsForJets*ak4CaloJetsForTrk*jetsForCoreTracking*
+JetCoreRegionalStep = cms.Sequence(iter0TrackRefsForJets*caloTowerForTrk*ak4CaloJetsForTrk*jetsForCoreTracking*
                                    firstStepPrimaryVertices*
                                    firstStepGoodPrimaryVertices*
                                    #jetCoreRegionalStepClusters*
