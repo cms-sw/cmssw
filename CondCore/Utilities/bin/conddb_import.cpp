@@ -52,6 +52,10 @@ int cond::ImportUtilities::execute(){
 
 
   persistency::ConnectionPool connPool;
+  if( hasOptionValue("authPath") ){
+    connPool.setAuthenticationPath( getOptionValue<std::string>( "authPath") ); 
+  }
+  connPool.configure();
   std::cout <<"# Connecting to source database on "<<sourceConnect<<std::endl;
   persistency::Session sourceSession = connPool.createSession( sourceConnect );
 

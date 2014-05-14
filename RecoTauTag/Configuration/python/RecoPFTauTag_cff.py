@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoTauTag.RecoTau.PFRecoTauPFJetInputs_cfi import PFRecoTauPFJetInputs
+
 #-------------------------------------------------------------------------------
 #------------------ Jet Production and Preselection-----------------------------
 #-------------------------------------------------------------------------------
@@ -19,7 +21,7 @@ import FWCore.ParameterSet.Config as cms
 from RecoTauTag.RecoTau.RecoTauJetRegionProducer_cfi import \
       RecoTauJetRegionProducer
 recoTauAK4PFJets08Region=RecoTauJetRegionProducer.clone(
-    src = cms.InputTag("ak4PFJets")
+    src = PFRecoTauPFJetInputs.inputJetCollection
 )
 
 
@@ -27,7 +29,7 @@ recoTauAK4PFJets08Region=RecoTauJetRegionProducer.clone(
 # Reconstruct the pi zeros in our pre-selected jets.
 from RecoTauTag.RecoTau.RecoTauPiZeroProducer_cfi import \
          ak4PFJetsLegacyHPSPiZeros
-ak4PFJetsLegacyHPSPiZeros.jetSrc = cms.InputTag("ak4PFJets")
+ak4PFJetsLegacyHPSPiZeros.jetSrc = PFRecoTauPFJetInputs.inputJetCollection
 # import charged hadrons
 from RecoTauTag.RecoTau.PFRecoTauChargedHadronProducer_cfi import \
           ak4PFJetsRecoTauChargedHadrons
@@ -43,7 +45,7 @@ from RecoTauTag.RecoTau.PFRecoTauChargedHadronProducer_cfi import \
 from RecoTauTag.RecoTau.RecoTauCombinatoricProducer_cfi import \
         combinatoricRecoTaus
 
-combinatoricRecoTaus.jetSrc = cms.InputTag("ak4PFJets")
+combinatoricRecoTaus.jetSrc = PFRecoTauPFJetInputs.inputJetCollection
 
 
 #-------------------------------------------------------------------------------
@@ -63,6 +65,7 @@ from RecoTauTag.RecoTau.PFRecoTauTagInfoProducer_cfi import \
 from RecoJets.JetAssociationProducers.ak4JTA_cff \
         import ak4JetTracksAssociatorAtVertexPF
 ak4PFJetTracksAssociatorAtVertex = ak4JetTracksAssociatorAtVertexPF.clone()
+ak4PFJetTracksAssociatorAtVertex.jets = PFRecoTauPFJetInputs.inputJetCollection
 tautagInfoModifer = cms.PSet(
     name = cms.string("TTIworkaround"),
     plugin = cms.string("RecoTauTagInfoWorkaroundModifer"),
