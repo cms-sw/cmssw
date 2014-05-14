@@ -49,8 +49,8 @@ process.p = cms.Path(#process.fileSaver*
                      #                     process.tcMet*
                      process.METValidation
 )
-process.DQM.collectorHost = ''
 
+#process.DQM.collectorHost = ''
 #process.dqmoffline_step = cms.Path(process.dqmStoreStats)
 
 #process.schedule = cms.Schedule(process.p,process.dqmoffline_step)
