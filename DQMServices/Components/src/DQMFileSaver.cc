@@ -33,6 +33,17 @@ getAnInt(const edm::ParameterSet &ps, int &value, const std::string &name)
 }
 
 static std::string
+dataFileExtension(DQMFileSaver::FileFormat fileFormat)
+{
+  std::string extension;
+  if (fileFormat == DQMFileSaver::ROOT)
+    extension = ".root";
+  else if (fileFormat ==  DQMFileSaver::PB)
+    extension = ".pb";
+  return extension;
+}
+
+static std::string
 onlineOfflineFileName(const std::string &fileBaseName,
                       const std::string &suffix,
                       const std::string &workflow,
@@ -46,11 +57,7 @@ onlineOfflineFileName(const std::string &fileBaseName,
   while ((pos = wflow.find('/', pos)) != std::string::npos)
     wflow.replace(pos++, 1, "__");
 
-  std::string filename = fileBaseName + suffix + wflow + child;
-  if (fileFormat == DQMFileSaver::ROOT)
-    filename += ".root";
-  else if (fileFormat ==  DQMFileSaver::PB)
-    filename += ".pb";
+  std::string filename = fileBaseName + suffix + wflow + child + dataFileExtension(fileFormat);
   return filename;
 }
 
@@ -243,6 +250,22 @@ DQMFileSaver::saveForOnline(const std::string &suffix, const std::string &rewrit
                       "", ROOT);
 }
 
+static std::string
+filterUnitFilePrefix(const std::string &fileBaseName, const std::string &producer, int run, int lumi)
+{
+  // Create the file name using the convention for DAQ2
+  char daqFileName[64]; // with current conventions, max size is 42
+  sprintf(daqFileName, "run%06d_ls%04d_stream%sFU_pid%05d", run, lumi, producer.c_str(), getpid());
+  std::string fileprefix = fileBaseName + daqFileName;
+  return fileprefix;
+}
+
+static std::string
+filterUnitFileName(const std::string &fileBaseName, const std::string &producer, int run, int lumi, DQMFileSaver::FileFormat fileFormat)
+{
+  std::string filename = filterUnitFilePrefix(fileBaseName, producer, run, lumi) + dataFileExtension(fileFormat);
+  return filename;
+}
 
 void
 DQMFileSaver::saveJson(int run, int lumi, const std::string& fn, const std::string& data_fn) {
@@ -263,17 +286,16 @@ DQMFileSaver::saveJson(int run, int lumi, const std::string& fn, const std::stri
   pt.add_child("data", data);
   pt.put("definition", "/non-existant/");
   pt.put("source", "--hostname--");
+  
+  // TODO(diguida): write to a temporary file, then rename it.
 }
 
 void
 DQMFileSaver::saveForFilterUnitPB(int run, int lumi)
 {
-
-  // Create the file name using the convention for DAQ2
-  char daqFileName[64]; // with current conventions, max size is 42
-  sprintf(daqFileName, "run%06d_ls%04d_stream%sFU_pid%05d", run, lumi, producer_.c_str(), getpid());
-  std::string filename = fileBaseName_ + daqFileName + ".pb";
-  std::string filename_json = fileBaseName_ + daqFileName + ".jsn";
+  std::string filePrefix = filterUnitFilePrefix(fileBaseName_, producer_, run, lumi);
+  std::string filename = filePrefix + dataFileExtension(PB);
+  std::string filename_json = filePrefix + ".jsn";
 
   // Save the file
   // TODO(diguida): check if this is mutithread friendly!
@@ -284,11 +306,7 @@ DQMFileSaver::saveForFilterUnitPB(int run, int lumi)
 void
 DQMFileSaver::saveForFilterUnit(const std::string& rewrite, int run, int lumi)
 {
-
-  // Create the file name using the convention for DAQ2
-  char daqFileName[64]; // with current conventions, max size is 42
-  sprintf(daqFileName, "run%06d_ls%04d_stream%sFU_pid%05d", run, lumi, producer_.c_str(), getpid());
-  std::string filename = fileBaseName_ + daqFileName + ".root";
+  std::string filename = filterUnitFileName(fileBaseName_, producer_, run, lumi, ROOT);
 
   // Save the file with the full directory tree,
   // modifying it according to @a rewrite,
