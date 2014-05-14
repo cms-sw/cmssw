@@ -32,13 +32,13 @@ getAnInt(const edm::ParameterSet &ps, int &value, const std::string &name)
       << "'.  Must be -1 or >= 1.";
 }
 
-void
-DQMFileSaver::saveForOfflinePB(const std::string &workflow,
-                               int run)
+static std::string
+onlineOfflineFileName(const std::string &fileBaseName,
+                      const std::string &suffix,
+                      const std::string &workflow,
+                      const std::string &child,
+                      DQMFileSaver::FileFormat fileFormat)
 {
-  char suffix[64];
-  sprintf(suffix, "R%09d", run);
-
   size_t pos = 0;
   std::string wflow;
   wflow.reserve(workflow.size() + 3);
@@ -46,14 +46,27 @@ DQMFileSaver::saveForOfflinePB(const std::string &workflow,
   while ((pos = wflow.find('/', pos)) != std::string::npos)
     wflow.replace(pos++, 1, "__");
 
-  std::string filename = fileBaseName_ + suffix + wflow + ".pb";
+  std::string filename = fileBaseName + suffix + wflow + child;
+  if (fileFormat == DQMFileSaver::ROOT)
+    filename += ".root";
+  else if (fileFormat ==  DQMFileSaver::PB)
+    filename += ".pb";
+  return filename;
+}
+
+void
+DQMFileSaver::saveForOfflinePB(const std::string &workflow,
+                               int run)
+{
+  char suffix[64];
+  sprintf(suffix, "R%09d", run);
+  std::string filename = onlineOfflineFileName(fileBaseName_, std::string(suffix), workflow, child_, PB);
   dbe_->savePB(filename, filterName_);
 }
 
 void
 DQMFileSaver::saveForOffline(const std::string &workflow, int run, int lumi)
 {
-
   char suffix[64];
   sprintf(suffix, "R%09d", run);
 
@@ -63,14 +76,7 @@ DQMFileSaver::saveForOffline(const std::string &workflow, int run, int lumi)
   else
     sprintf(rewrite, "\\1Run %d/\\2/By Lumi Section %d-%d", irun_, ilumi_, ilumi_);
 
-  size_t pos = 0;
-  std::string wflow;
-  wflow.reserve(workflow.size() + 3);
-  wflow = workflow;
-  while ((pos = wflow.find('/', pos)) != std::string::npos)
-    wflow.replace(pos++, 1, "__");
-
-  std::string filename = fileBaseName_ + suffix + wflow + child_ + ".root";
+  std::string filename = onlineOfflineFileName(fileBaseName_, std::string(suffix), workflow, child_, ROOT);
 
   if (lumi == 0) // save for run
   {
@@ -135,31 +141,6 @@ DQMFileSaver::saveForOffline(const std::string &workflow, int run, int lumi)
   }
 }
 
-void
-DQMFileSaver::saveForOnlinePB(const std::string &suffix)
-{
-  // The file name contains the Online workflow name
-  // as we do not want to look inside the DQMStore.
-  // and the @a suffix, defined in the run/lumi transitions
-  // TODO(diguida): add the possibility to change the dir structure with rewrite.
-  size_t pos = 0;
-  std::string wflow;
-  wflow.reserve(workflow_.size() + 3);
-  wflow = workflow_;
-  while ((pos = wflow.find('/', pos)) != std::string::npos)
-    wflow.replace(pos++, 1, "__");
-
-  std::string filename = fileBaseName_ + suffix + wflow + child_ + ".pb";
-  dbe_->savePB(filename, filterName_);
-
-  pastSavedFiles_.push_back(filename);
-  if (pastSavedFiles_.size() > size_t(numKeepSavedFiles_))
-  {
-    remove(pastSavedFiles_.front().c_str());
-    pastSavedFiles_.pop_front();
-  }
-}
-
 static void
 doSaveForOnline(std::list<std::string> &pastSavedFiles,
 		size_t numKeepSavedFiles,
@@ -169,23 +150,45 @@ doSaveForOnline(std::list<std::string> &pastSavedFiles,
 		const std::string &rxpat,
 		const std::string &rewrite,
 		DQMStore::SaveReferenceTag saveref,
-		int saveRefQMin)
+		int saveRefQMin,
+                const std::string &filterName,
+                DQMFileSaver::FileFormat fileFormat)
 {
   // TODO(rovere): fix the online case. so far we simply rely on the
   // fact that we assume we will not run multithreaded in online.
-  store->save(filename,
-              directory ,
-              rxpat,
-              rewrite,
-              0,
-              saveref,
-              saveRefQMin);
+  if (fileFormat == DQMFileSaver::ROOT)
+    store->save(filename,
+                directory,
+                rxpat,
+                rewrite,
+                0,
+                saveref,
+                saveRefQMin);
+  else if (fileFormat == DQMFileSaver::PB)
+    store->savePB(filename, filterName);
   pastSavedFiles.push_back(filename);
   if (pastSavedFiles.size() > numKeepSavedFiles)
   {
     remove(pastSavedFiles.front().c_str());
     pastSavedFiles.pop_front();
   }
+}
+
+void
+DQMFileSaver::saveForOnlinePB(const std::string &suffix)
+{
+  // The file name contains the Online workflow name,
+  // as we do not want to look inside the DQMStore,
+  // and the @a suffix, defined in the run/lumi transitions.
+  // TODO(diguida): add the possibility to change the dir structure with rewrite.
+  std::string filename = onlineOfflineFileName(fileBaseName_, suffix, workflow_, child_, PB);
+  doSaveForOnline(pastSavedFiles_, numKeepSavedFiles_, dbe_,
+		  filename,
+		  "", "^(Reference/)?([^/]+)", "\\1\\2",
+		  (DQMStore::SaveReferenceTag) saveReference_,
+		  saveReferenceQMin_,
+		  filterName_,
+		  PB);
 }
 
 void
@@ -204,7 +207,8 @@ DQMFileSaver::saveForOnline(const std::string &suffix, const std::string &rewrit
 			fileBaseName_ + me->getStringValue() + suffix + child_ + ".root",
 			"", "^(Reference/)?([^/]+)", rewrite,
 	                (DQMStore::SaveReferenceTag) saveReference_,
-	                saveReferenceQMin_);
+	                saveReferenceQMin_,
+			"", ROOT);
         return;
       }
     }
@@ -221,7 +225,8 @@ DQMFileSaver::saveForOnline(const std::string &suffix, const std::string &rewrit
                         fileBaseName_ + systems[i] + suffix + child_ + ".root",
                         "", "^(Reference/)?([^/]+)", rewrite,
                         (DQMStore::SaveReferenceTag) saveReference_,
-                        saveReferenceQMin_);
+                        saveReferenceQMin_,
+			"", ROOT);
         pNamesVector.clear();
         return;
       }
@@ -234,7 +239,8 @@ DQMFileSaver::saveForOnline(const std::string &suffix, const std::string &rewrit
                       fileBaseName_ + systems[i] + suffix + child_ + ".root",
 	              systems[i], "^(Reference/)?([^/]+)", rewrite,
 	              (DQMStore::SaveReferenceTag) saveReference_,
-	              saveReferenceQMin_);
+                      saveReferenceQMin_,
+                      "", ROOT);
 }
 
 
