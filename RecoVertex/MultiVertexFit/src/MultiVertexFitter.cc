@@ -652,7 +652,7 @@ void MultiVertexFitter::printSeeds() const
 
 void MultiVertexFitter::lostVertexClaimer()
 {
-  if ( !theReviveBelow < 0. ) return;
+  if ( !(theReviveBelow < 0.) ) return;
   // this experimental method is used to get almost lost vertices
   // back into the play by upweighting vertices with very low total weights
 
