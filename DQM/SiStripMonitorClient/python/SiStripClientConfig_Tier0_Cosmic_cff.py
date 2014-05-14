@@ -41,11 +41,11 @@ TrackEffClient.FolderName = 'Tracking/TrackParameters/TrackEfficiency'
 TrackEffClient.AlgoName   = 'CKFTk'
 
 # Sequence
+SiStripCosmicDQMClient = cms.Sequence(siStripQTester*siStripOfflineAnalyser*TrackEffClient)
 #removed modules using TkDetMap
-#SiStripCosmicDQMClient = cms.Sequence(siStripQTester*siStripOfflineAnalyser*TrackEffClient)
-SiStripCosmicDQMClient = cms.Sequence(siStripQTester*TrackEffClient)
+#SiStripCosmicDQMClient = cms.Sequence(siStripQTester*TrackEffClient)
 
 
 # Services needed for TkHistoMap
-#TkDetMap = cms.Service("TkDetMap")
+TkDetMap = cms.Service("TkDetMap")
 SiStripDetInfoFileReade = cms.Service("SiStripDetInfoFileReader")
