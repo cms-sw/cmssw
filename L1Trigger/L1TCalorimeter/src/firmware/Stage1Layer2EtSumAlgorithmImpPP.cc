@@ -114,4 +114,7 @@ void l1t::Stage1Layer2EtSumAlgorithmImpPP::processEvent(const std::vector<l1t::C
 
   EtSumToGtScales(params_, preGtEtSums, etsums);
 
+  delete subRegions;
+  delete preGtEtSums;
+
 }

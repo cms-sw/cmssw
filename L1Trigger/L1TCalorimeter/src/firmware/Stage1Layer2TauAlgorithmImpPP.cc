@@ -96,6 +96,9 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
 
   TauToGtScales(params_, preGtTaus, taus);
 
+  delete subRegions;
+  delete unCorrJets;
+  delete preGtTaus;
 
   //the taus should be sorted, highest pT first.
   // do not truncate the tau list, GT converter handles that

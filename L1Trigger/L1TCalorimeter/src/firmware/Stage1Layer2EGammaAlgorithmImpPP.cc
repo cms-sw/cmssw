@@ -13,6 +13,7 @@
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
 #include "L1Trigger/L1TCalorimeter/interface/PUSubtractionMethods.h"
 #include "L1Trigger/L1TCalorimeter/interface/JetFinderMethods.h"
+#include "L1Trigger/L1TCalorimeter/interface/legacyGtHelper.h"
 
 using namespace std;
 using namespace l1t;
@@ -41,6 +42,7 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
   // HoverECut = 0.05;
 
   std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
+  std::vector<l1t::EGamma> *preGtEGammas = new std::vector<l1t::EGamma>();
 
 
   //Region Correction will return uncorrected subregions if
@@ -53,57 +55,60 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
 
 
   for(CaloEmCandBxCollection::const_iterator egCand = EMCands.begin();
-	  egCand != EMCands.end(); egCand++) {
+      egCand != EMCands.end(); egCand++) {
 
-     int eg_et = egCand->hwPt();
-     int eg_eta = egCand->hwEta();
-     int eg_phi = egCand->hwPhi();
-     if(eg_et <= egSeedThreshold) continue;
-
-
-     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *egLorentz =
-        new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
-
-     int quality = 1;
-     int isoFlag = 0;
+    int eg_et = egCand->hwPt();
+    int eg_eta = egCand->hwEta();
+    int eg_phi = egCand->hwPhi();
+    if(eg_et <= egSeedThreshold) continue;
 
 
-     // ------- isolation and H/E ---------------
-     // double isolation = Isolation(eg_eta, eg_phi, *subRegions);
-     //if( eg_et > 0 && (isolation / eg_et ) > relativeIsolationCut) isoFlag  = 0;
+    ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *egLorentz =
+      new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
 
-     double jet_pt=AssociatedJetPt(eg_eta,eg_phi,unCorrJets);
-     jet_pt=jet_pt*jetLsb;
-     if (jet_pt>0){
-       double jetIsolationEG = jet_pt - eg_et;        // Jet isolation
-       double relativeJetIsolationEG = jetIsolationEG / eg_et;
-
-       if(eg_et >0 && eg_et<63 && relativeJetIsolationEG < egRelativeJetIsolationCut)  isoFlag=1;
-       if( eg_et >= 63) isoFlag=1;
-     }
+    int quality = 1;
+    int isoFlag = 0;
 
 
-     // double hoe = HoverE(eg_et, eg_eta, eg_phi, *subRegions);
+    // ------- isolation and H/E ---------------
+    // double isolation = Isolation(eg_eta, eg_phi, *subRegions);
+    //if( eg_et > 0 && (isolation / eg_et ) > relativeIsolationCut) isoFlag  = 0;
+
+    double jet_pt=AssociatedJetPt(eg_eta,eg_phi,unCorrJets);
+    jet_pt=jet_pt*jetLsb;
+    if (jet_pt>0){
+      double jetIsolationEG = jet_pt - eg_et;        // Jet isolation
+      double relativeJetIsolationEG = jetIsolationEG / eg_et;
+
+      if(eg_et >0 && eg_et<63 && relativeJetIsolationEG < egRelativeJetIsolationCut)  isoFlag=1;
+      if( eg_et >= 63) isoFlag=1;
+    }
 
 
-     // ------- fill the EG candidate vector ---------
-     l1t::EGamma theEG(*egLorentz, eg_et, eg_eta, eg_phi, quality, isoFlag);
-     //?? if( hoe < HoverECut) egammas->push_back(theEG);
-     egammas->push_back(theEG);
+    // double hoe = HoverE(eg_et, eg_eta, eg_phi, *subRegions);
+
+
+    // ------- fill the EG candidate vector ---------
+    l1t::EGamma theEG(*egLorentz, eg_et, eg_eta, eg_phi, quality, isoFlag);
+    //?? if( hoe < HoverECut) egammas->push_back(theEG);
+    preGtEGammas->push_back(theEG);
   }
 
+  EGammaToGtScales(params_, preGtEGammas, egammas);
 
-   //the EG candidates should be sorted, highest pT first.
-   // do not truncate the EG list, GT converter handles that
-   auto comp = [&](l1t::EGamma i, l1t::EGamma j)-> bool {
-        return (i.hwPt() < j.hwPt() );
-    };
 
-   delete subRegions;
-   delete unCorrJets;
+  //the EG candidates should be sorted, highest pT first.
+  // do not truncate the EG list, GT converter handles that
+  auto comp = [&](l1t::EGamma i, l1t::EGamma j)-> bool {
+    return (i.hwPt() < j.hwPt() );
+  };
 
-   std::sort(egammas->begin(), egammas->end(), comp);
-   std::reverse(egammas->begin(), egammas->end());
+  delete subRegions;
+  delete unCorrJets;
+  delete preGtEGammas;
+
+  std::sort(egammas->begin(), egammas->end(), comp);
+  std::reverse(egammas->begin(), egammas->end());
 }
 
 
@@ -112,7 +117,7 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
 
 /// -----  Compute isolation sum --------------------
 double l1t::Stage1Layer2EGammaAlgorithmImpPP::Isolation(int ieta, int iphi,
-						      const std::vector<l1t::CaloRegion> & regions)  const {
+							const std::vector<l1t::CaloRegion> & regions)  const {
   double isolation = 0;
 
   for(CaloRegionBxCollection::const_iterator region = regions.begin();
@@ -138,7 +143,7 @@ double l1t::Stage1Layer2EGammaAlgorithmImpPP::Isolation(int ieta, int iphi,
 
 
 double l1t::Stage1Layer2EGammaAlgorithmImpPP::AssociatedJetPt(int ieta, int iphi,
-						      const std::vector<l1t::Jet> * jets)  const {
+							      const std::vector<l1t::Jet> * jets)  const {
 
   bool Debug=false;
 
@@ -167,7 +172,7 @@ double l1t::Stage1Layer2EGammaAlgorithmImpPP::AssociatedJetPt(int ieta, int iphi
 
 /// -----  Compute H/E --------------------
 double l1t::Stage1Layer2EGammaAlgorithmImpPP::HoverE(int et, int ieta, int iphi,
-						      const std::vector<l1t::CaloRegion> & regions)  const {
+						     const std::vector<l1t::CaloRegion> & regions)  const {
   int hadronicET = 0;
 
   for(CaloRegionBxCollection::const_iterator region = regions.begin();
