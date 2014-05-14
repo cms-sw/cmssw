@@ -13,6 +13,7 @@
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
 #include "L1Trigger/L1TCalorimeter/interface/PUSubtractionMethods.h"
 #include "L1Trigger/L1TCalorimeter/interface/JetFinderMethods.h"
+#include "L1Trigger/L1TCalorimeter/interface/legacyGtHelper.h"
 
 
 using namespace std;
@@ -40,38 +41,39 @@ Stage1Layer2TauAlgorithmImpPP::~Stage1Layer2TauAlgorithmImpPP(){};
 
 
 
-void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::CaloEmCand> & EMCands, 
-						      const std::vector<l1t::CaloRegion> & regions, 
+void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::CaloEmCand> & EMCands,
+						      const std::vector<l1t::CaloRegion> & regions,
 						      const std::vector<l1t::Jet> * jets,
 						      std::vector<l1t::Tau> * taus) {
 
   std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
 
 
-  
-  //Region Correction will return uncorrected subregions if 
+
+  //Region Correction will return uncorrected subregions if
   //regionPUSType is set to None in the config
   RegionCorrection(regions, EMCands, subRegions, regionPUSParams, regionPUSType);
-  
+
 
 
   // ----- need to cluster jets in order to compute jet isolation ----
   std::vector<l1t::Jet> *unCorrJets = new std::vector<l1t::Jet>();
   slidingWindowJetFinder(jetSeedThreshold, subRegions, unCorrJets);
 
+  std::vector<l1t::Tau> *preGtTaus = new std::vector<l1t::Tau>();
 
 
   for(CaloRegionBxCollection::const_iterator region = subRegions->begin();
       region != subRegions->end(); region++) {
 
-    int regionEt = region->hwPt(); 
+    int regionEt = region->hwPt();
     if(regionEt < tauSeedThreshold) continue;
-            
+
     double isolation;
-    int associatedSecondRegionEt = 
+    int associatedSecondRegionEt =
       AssociatedSecondRegionEt(region->hwEta(), region->hwPhi(),
 			       *subRegions, isolation);
-    
+
     int tauEt=regionEt;
     if(do2x1Algo && associatedSecondRegionEt>tauSeedThreshold) tauEt +=associatedSecondRegionEt;
 
@@ -85,18 +87,20 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
     double jetIsolation = JetIsolation(tauEt, region->hwEta(), region->hwPhi(), *unCorrJets);
     // if (tauEt >200)
     //   cout << "tauET: " << tauEt << " tauETA: " << region->hwEta() << " tauPHI: " << region->hwPhi()
-    // 	   << " jetIso: " << jetIsolation << " Cut: " << tauRelativeJetIsolationCut 
+    // 	   << " jetIso: " << jetIsolation << " Cut: " << tauRelativeJetIsolationCut
     // 	   << " Seed Threshold: " << tauSeedThreshold << endl;
 
-    if( tauEt >0 && (jetIsolation < tauRelativeJetIsolationCut || tauEt > switchOffTauIso)) 
-      taus->push_back(theTau);
+    if( tauEt >0 && (jetIsolation < tauRelativeJetIsolationCut || tauEt > switchOffTauIso))
+      preGtTaus->push_back(theTau);
   }
+
+  TauToGtScales(params_, preGtTaus, taus);
 
 
   //the taus should be sorted, highest pT first.
   // do not truncate the tau list, GT converter handles that
   auto comp = [&](l1t::Tau i, l1t::Tau j)-> bool {
-    return (i.hwPt() < j.hwPt() ); 
+    return (i.hwPt() < j.hwPt() );
   };
 
   std::sort(taus->begin(), taus->end(), comp);
@@ -113,7 +117,7 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
 // regions. Also compute isolation.
 
 int l1t::Stage1Layer2TauAlgorithmImpPP::AssociatedSecondRegionEt(int ieta, int iphi,
-								 const std::vector<l1t::CaloRegion> & regions, 
+								 const std::vector<l1t::CaloRegion> & regions,
 								 double& isolation) const {
   int highestNeighborEt = 0;
   isolation = 0;
@@ -124,14 +128,14 @@ int l1t::Stage1Layer2TauAlgorithmImpPP::AssociatedSecondRegionEt(int ieta, int i
     int regionPhi = region->hwPhi();
     int regionEta = region->hwEta();
     unsigned int deltaPhi = iphi - regionPhi;
-    if (std::abs(deltaPhi) == L1CaloRegionDetId::N_PHI-1) 
+    if (std::abs(deltaPhi) == L1CaloRegionDetId::N_PHI-1)
       deltaPhi = -deltaPhi/std::abs(deltaPhi); //18 regions in phi
 
     unsigned int deltaEta = std::abs(ieta - regionEta);
 
     if ((deltaPhi + deltaEta) > 0 && deltaPhi < 2 && deltaEta < 2) {
 
-      int regionEt = region->hwPt(); 
+      int regionEt = region->hwPt();
       isolation += regionEt;
       if (regionEt > highestNeighborEt) highestNeighborEt = regionEt;
     }
@@ -153,7 +157,7 @@ double l1t::Stage1Layer2TauAlgorithmImpPP::JetIsolation(int et, int ieta, int ip
       jet != jets.end(); jet++) {
 
     if (ieta==jet->hwEta() && iphi==jet->hwPhi()){
-      
+
       //if (et >200)
       //  cout << "ISOL:  tauET: " << et << " jetET: " << jet->hwPt() << endl;
 
