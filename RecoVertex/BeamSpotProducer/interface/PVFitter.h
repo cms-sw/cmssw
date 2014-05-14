@@ -145,7 +145,7 @@ class PVFitter {
   bool debug_;
   bool do3DFit_;
   edm::EDGetTokenT<reco::VertexCollection> vertexToken_;
-  bool writeTxt_;
+  // bool writeTxt_;
   std::string outputTxt_;
 
   unsigned int maxNrVertices_;
@@ -159,8 +159,8 @@ class PVFitter {
   double errorScale_;
   double sigmaCut_;         
   
-  int frun;
-  int flumi;
+  //  int frun;
+  //  int flumi;
   std::time_t freftime[2];
 
   TH2F* hPVx; TH2F* hPVy; 
@@ -174,11 +174,11 @@ class PVFitter {
 
   //beam fit results
   //TTree* ftreeFit_;
-  int frunFit;
+  //  int frunFit;
   int fbeginLumiOfFit;
   int fendLumiOfFit;
-  char fbeginTimeOfFit[32];
-  char fendTimeOfFit[32];
+  //  char fbeginTimeOfFit[32];
+  //  char fendTimeOfFit[32];
   double fwidthX;
   double fwidthY;
   double fwidthZ;
@@ -186,7 +186,7 @@ class PVFitter {
   double fwidthYerr;
   double fwidthZerr;
   
-  double fx;
+  /*  double fx;
   double fy;
   double fz;
   double fsigmaZ;
@@ -197,7 +197,7 @@ class PVFitter {
   double fzErr;
   double fsigmaZErr;
   double fdxdzErr;
-  double fdydzErr;
+  double fdydzErr;*/
 
   std::vector<BeamSpotFitPVData> pvStore_; //< cache for PV data
   std::map< int, std::vector<BeamSpotFitPVData> > bxMap_; // store PV data as a function of bunch crossings
