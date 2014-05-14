@@ -17,6 +17,7 @@ private:
    FWCaloClusterProxyBuilder( const FWCaloClusterProxyBuilder& ); 			// stop default
    const FWCaloClusterProxyBuilder& operator=( const FWCaloClusterProxyBuilder& ); 	// stop default
 
+   using FWSimpleProxyBuilderTemplate<reco::CaloCluster>::build;
    void build( const reco::CaloCluster& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* );
 };
 

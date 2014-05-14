@@ -29,6 +29,7 @@ private:
    FWElectronLegoProxyBuilder(const FWElectronLegoProxyBuilder&);
    const FWElectronLegoProxyBuilder& operator=(const FWElectronLegoProxyBuilder&);
 
+   using FWSimpleProxyBuilderTemplate<reco::GsfElectron>  ::build;
    virtual void build(const reco::GsfElectron& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) override;
 };
 
