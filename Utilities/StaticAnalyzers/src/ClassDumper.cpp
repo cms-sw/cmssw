@@ -1,5 +1,4 @@
 #include "ClassDumper.h"
-#include <boost/interprocess/sync/interprocess_semaphore.hpp>
 #include <iostream>
 #include <fstream>
 #include <iterator>
