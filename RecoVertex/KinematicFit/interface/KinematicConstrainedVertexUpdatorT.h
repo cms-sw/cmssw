@@ -7,10 +7,11 @@
 #include "DataFormats/Math/interface/invertPosDefMatrix.h"
 #include<cassert>
 #include<iostream>
+#include <atomic>
 // the usual stupid counter
 namespace KineDebug3 {
   struct Count {
-    int n;
+  std::atomic<int> n;
     Count() : n(0){}
     ~Count() {
     }
