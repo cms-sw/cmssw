@@ -98,19 +98,23 @@ CmsTrackerDiskBuilder::PhiPosNegSplit_innerOuter_corrected( std::vector< Geometr
   std::vector<const GeometricDet*> theCompsInnerOuter;
   theCompsInnerOuter.empty();
   theCompsInnerOuter.clear();
-  //  unsigned int num_inner = 0;
+  unsigned int num_inner = 0;
   for(vector<const GeometricDet*>::const_iterator it=theCompsPosNeg.begin();
       it!=theCompsPosNeg.end();it++){
     if((**it).rho() <= radius_split) {
       theCompsInnerOuter.push_back(*it);
-      //      num_inner++;
+      num_inner++;
     }
   }
+
   for(vector<const GeometricDet*>::const_iterator it=theCompsPosNeg.begin();
       it!=theCompsPosNeg.end();it++){
     if((**it).rho() > radius_split) theCompsInnerOuter.push_back(*it);
   }
   //  std::cout << "num of inner = " << num_inner << " with radius less than " << radius_split << std::endl;
+  // now shift outer by one
+
+  std::rotate(theCompsInnerOuter.begin()+num_inner,theCompsInnerOuter.begin()+num_inner+1,theCompsInnerOuter.end());
   std::copy(theCompsInnerOuter.begin(), theCompsInnerOuter.end(), begin);
 }
 
