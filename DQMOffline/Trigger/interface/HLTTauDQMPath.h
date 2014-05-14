@@ -23,6 +23,11 @@ class HLTTauDQMPath {
 public:
   typedef math::XYZTLorentzVectorD LV;
   typedef std::vector<LV> LVColl;
+  typedef std::tuple<std::string, size_t> FilterIndex;
+
+  constexpr static size_t kName = 0;
+  constexpr static size_t kModuleIndex = 1;
+  constexpr static size_t kInvalidIndex = std::numeric_limits<size_t>::max();
 
   struct Object {
     const trigger::TriggerObject& object;
@@ -44,23 +49,23 @@ public:
   const unsigned int getPathIndex() const { return pathIndex_; }
 
   size_t filtersSize() const { return filterIndices_.size(); }
-  const std::string& getFilterName(size_t i) const { return std::get<0>(filterIndices_[i]); }
+  const std::string& getFilterName(size_t i) const { return std::get<kName>(filterIndices_[i]); }
   int getFilterNTaus(size_t i) const { return filterTauN_[i]; }
   int getFilterNElectrons(size_t i) const {return filterElectronN_[i]; }
   int getFilterNMuons(size_t i) const {return filterMuonN_[i]; }
 
   bool isFirstFilterL1Seed() const { return isFirstL1Seed_; }
-  const std::string& getLastFilterName() const { return std::get<0>(filterIndices_.back()); }
+  const std::string& getLastFilterName() const { return std::get<kName>(filterIndices_.back()); }
 
-  bool hasL2Taus() const { return lastL2TauFilterIndex_ != std::numeric_limits<size_t>::max(); }
-  bool hasL3Taus() const { return lastL3TauFilterIndex_ != std::numeric_limits<size_t>::max(); }
+  bool hasL2Taus() const { return lastL2TauFilterIndex_ != kInvalidIndex; }
+  bool hasL3Taus() const { return lastL3TauFilterIndex_ != kInvalidIndex; }
   size_t getLastFilterBeforeL2TauIndex() const { return lastFilterBeforeL2TauIndex_; }
   size_t getLastL2TauFilterIndex() const { return lastL2TauFilterIndex_; }
   size_t getLastFilterBeforeL3TauIndex() const { return lastFilterBeforeL3TauIndex_; }
   size_t getLastL3TauFilterIndex() const { return lastL3TauFilterIndex_; }
 
   // index (to edm::TriggerResults) of a filter
-  size_t getFilterIndex(size_t i) const { return std::get<1>(filterIndices_[i]); }
+  size_t getFilterIndex(size_t i) const { return std::get<kModuleIndex>(filterIndices_[i]); }
 
   // Get objects associated to a filter, i is the "internal" index
   void getFilterObjects(const trigger::TriggerEvent& triggerEvent, size_t i, std::vector<Object>& retval) const;
@@ -70,7 +75,6 @@ public:
 
   bool goodOfflineEvent(size_t i, const HLTTauDQMOfflineObjects& offlineObjects) const;
 
-  typedef std::tuple<std::string, size_t> FilterIndex;
 private:
   const std::string hltProcess_;
   const bool doRefAnalysis_;

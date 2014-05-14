@@ -17,7 +17,7 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripDetCabling.h"
 
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -173,7 +173,7 @@ namespace {
 
 
 
-class SiStripClusterizerFromRaw final : public edm::EDProducer  {
+class SiStripClusterizerFromRaw final : public edm::stream::EDProducer<>  {
   
  public:
   
