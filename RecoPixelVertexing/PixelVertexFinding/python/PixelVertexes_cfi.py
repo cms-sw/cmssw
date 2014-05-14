@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoPixelVertexing.PixelVertexFinding.PVClusterComparer_cfi import *
+
 pixelVertices = cms.EDProducer("PixelVertexProducer",
     WtAverage = cms.bool(True),
     ZOffset = cms.double(5.0),
