@@ -21,29 +21,36 @@ namespace {
     {}
 
     typedef HLTTauDQMPath::FilterIndex FilterIndex;
+    typedef std::tuple<typename std::tuple_element<0, FilterIndex>::type,
+                       typename std::tuple_element<1, FilterIndex>::type,
+                       bool> FilterIndexSave;
 
-    std::vector<FilterIndex> interestingFilters(const HLTConfigProvider& HLTCP, bool doRefAnalysis) const {
+    constexpr static size_t kName = HLTTauDQMPath::kName;
+    constexpr static size_t kModuleIndex = HLTTauDQMPath::kModuleIndex;
+    constexpr static size_t kSaveTags = 2;
+
+    std::vector<FilterIndex> interestingFilters(const HLTConfigProvider& HLTCP, bool doRefAnalysis) {
       const std::vector<std::string>& moduleLabels = HLTCP.moduleLabels(name_);
-      std::vector<FilterIndex> selectedFilters;
       std::vector<std::string> leptonTauFilters;
+      allInterestingFilters_.clear();
 
       // Ignore all "Selector"s, for ref-analysis keep only those with saveTags=True
       // Also record HLT2(Electron|Muon)(PF)?Tau module names
+      LogTrace("HLTTauDQMOffline") << "Path " << name_ << ", list of all filters (preceded by the module index in the path)";
       for(std::vector<std::string>::const_iterator iLabel = moduleLabels.begin(); iLabel != moduleLabels.end(); ++iLabel) {
         if(HLTCP.moduleEDMType(*iLabel) != "EDFilter")
           continue;
         const std::string type = HLTCP.moduleType(*iLabel);
+        LogTrace("HLTTauDQMOffline") << "  " << std::distance(moduleLabels.begin(), iLabel) << " " << *iLabel << " " << type << " saveTags " << HLTCP.saveTags(*iLabel);
         if(type.find("Selector") != std::string::npos)
           continue;
         if(type == "HLTTriggerTypeFilter" || type == "HLTBool")
-          continue;
-        if(doRefAnalysis && !HLTCP.saveTags(*iLabel))
           continue;
         if(type == "HLT2ElectronPFTau" || type == "HLT2MuonPFTau" || type == "HLT2ElectronTau" || type == "HLT2MuonTau")
           leptonTauFilters.emplace_back(*iLabel);
         else if(type.find("Electron") != std::string::npos || type.find("Egamma") != std::string::npos || type.find("Muon") != std::string::npos)
           continue;
-        selectedFilters.emplace_back(*iLabel, iLabel-moduleLabels.begin());
+        allInterestingFilters_.emplace_back(*iLabel, iLabel-moduleLabels.begin(), HLTCP.saveTags(*iLabel));
       }
 
       // Insert the last filters of lepton legs
@@ -54,33 +61,57 @@ namespace {
         unsigned idx1 = HLTCP.moduleIndex(name_, input1);
         unsigned idx2 = HLTCP.moduleIndex(name_, input2);
 
-        auto func = [&](const FilterIndex& a, unsigned idxb) {
-          return std::get<1>(a) < idxb;
+        auto func = [&](const FilterIndexSave& a, unsigned idxb) {
+          return std::get<kModuleIndex>(a) < idxb;
         };
-        std::vector<FilterIndex>::iterator found = std::lower_bound(selectedFilters.begin(), selectedFilters.end(), idx1, func);
-        if(found == selectedFilters.end() || std::get<1>(*found) != idx1)
-          selectedFilters.emplace(found, input1, idx1);
-        found = std::lower_bound(selectedFilters.begin(), selectedFilters.end(), idx2, func);
-        if(found == selectedFilters.end() || std::get<1>(*found) != idx2)
-          selectedFilters.emplace(found, input2, idx2);
+        std::vector<FilterIndexSave>::iterator found = std::lower_bound(allInterestingFilters_.begin(), allInterestingFilters_.end(), idx1, func);
+        if(found == allInterestingFilters_.end() || std::get<kModuleIndex>(*found) != idx1)
+          allInterestingFilters_.emplace(found, input1, idx1, HLTCP.saveTags(input1));
+        found = std::lower_bound(allInterestingFilters_.begin(), allInterestingFilters_.end(), idx2, func);
+        if(found == allInterestingFilters_.end() || std::get<kModuleIndex>(*found) != idx2)
+          allInterestingFilters_.emplace(found, input2, idx2, HLTCP.saveTags(input1));
+      }
+
+      std::vector<FilterIndex> selectedFilters;
+      // For reference-matched case exclude filters with saveTags=False.
+      // However, they are needed a bit later to find the position of the
+      // first L3 tau filter.
+      for(const auto& item: allInterestingFilters_) {
+        if(!doRefAnalysis || (doRefAnalysis && std::get<kSaveTags>(item)))
+          selectedFilters.emplace_back(std::get<kName>(item), std::get<kModuleIndex>(item));
       }
 
       return selectedFilters;
     }
 
-    size_t tauProducerIndex(const HLTConfigProvider& HLTCP) const {
-      const std::vector<std::string>& moduleLabels = HLTCP.moduleLabels(name_);
-      for(std::vector<std::string>::const_iterator iLabel = moduleLabels.begin(); iLabel != moduleLabels.end(); ++iLabel) {
-        const std::string type = HLTCP.moduleType(*iLabel);
-        // FIXME: this will not work in unscheduled mode, where
-        // producers are not in paths. Try looking first filter using
-        // the PFRecoTauProducer output instead.
-        if(type == "PFRecoTauProducer" || type == "RecoTauPiZeroUnembedder") {
-          LogDebug("HLTTauDQMOffline") << "Found tau producer " << type << " " << *iLabel << " index " << (iLabel-moduleLabels.begin());
-          return iLabel-moduleLabels.begin();
-        }
+    bool isL3TauProducer(const HLTConfigProvider& HLTCP, const std::string& producerLabel) const {
+      const std::string type = HLTCP.moduleType(producerLabel);
+      if(type == "PFRecoTauProducer" || type == "RecoTauPiZeroUnembedder") {
+        LogDebug("HLTTauDQMOffline") << "Found tau producer " << type << " with label " << producerLabel << " from path " << name_;
+        return true;
       }
-      return std::numeric_limits<size_t>::max();
+      return false;
+    }
+
+    bool isL3TauFilter(const HLTConfigProvider& HLTCP, const std::string& filterLabel) const {
+      const edm::ParameterSet& pset = HLTCP.modulePSet(filterLabel);
+      if(pset.exists("inputTag"))
+        return isL3TauProducer(HLTCP, pset.getParameter<edm::InputTag>("inputTag").label());
+      if(pset.exists("inputTag1"))
+        return isL3TauProducer(HLTCP, pset.getParameter<edm::InputTag>("inputTag1").label());
+      if(pset.exists("inputTag2"))
+        return isL3TauProducer(HLTCP, pset.getParameter<edm::InputTag>("inputTag2").label());
+      return false;
+    }
+
+    size_t firstL3TauFilterIndex(const HLTConfigProvider& HLTCP) const {
+      // Loop over filters and check if a filter uses L3 tau producer
+      // output.
+      for(const auto& filter: allInterestingFilters_) {
+        if(isL3TauFilter(HLTCP, std::get<kName>(filter)))
+          return std::get<kModuleIndex>(filter);
+      }
+      return HLTTauDQMPath::kInvalidIndex;
     }
 
     const std::string& name() const { return name_; }
@@ -88,7 +119,7 @@ namespace {
   private:
     std::string name_;
 
-    std::vector<int> thresholds_;
+    std::vector<FilterIndexSave> allInterestingFilters_;
   };
 
   int getParameterSafe(const HLTConfigProvider& HLTCP, const std::string& filterName, const std::string& parameterName) {
@@ -209,7 +240,7 @@ HLTTauDQMPath::HLTTauDQMPath(const std::string& pathName, const std::string& hlt
   isFirstL1Seed_(false),
   isValid_(false)
 {
-#ifdef EDM_ML_LOGDEBUG
+#ifdef EDM_ML_DEBUG
   std::stringstream ss;
   ss << "HLTTauDQMPath: " << pathName_ << "\n";
 #endif
@@ -221,9 +252,9 @@ HLTTauDQMPath::HLTTauDQMPath(const std::string& pathName, const std::string& hlt
     edm::LogInfo("HLTTauDQMOffline") << "HLTTauDQMPath: " << pathName_ << " no interesting filters found";
     return;
   }
-  isFirstL1Seed_ = HLTCP.moduleType(std::get<0>(filterIndices_[0])) == "HLTLevel1GTSeed";
-#ifdef EDM_ML_LOGDEBUG
-  ss << "  Filters";
+  isFirstL1Seed_ = HLTCP.moduleType(std::get<kName>(filterIndices_[0])) == "HLTLevel1GTSeed";
+#ifdef EDM_ML_DEBUG
+  ss << "  Interesting filters (preceded by the module index in the path)";
 #endif
   // Set the filter multiplicity counts
   filterTauN_.clear();
@@ -233,7 +264,7 @@ HLTTauDQMPath::HLTTauDQMPath(const std::string& pathName, const std::string& hlt
   filterElectronN_.reserve(filterIndices_.size());
   filterMuonN_.reserve(filterIndices_.size());
   for(size_t i=0; i<filterIndices_.size(); ++i) {
-    const std::string& filterName = std::get<0>(filterIndices_[i]);
+    const std::string& filterName = std::get<kName>(filterIndices_[i]);
     const std::string& moduleType = HLTCP.moduleType(filterName);
 
     TauLeptonMultiplicity n = inferTauLeptonMultiplicity(HLTCP, filterName, moduleType, pathName_);
@@ -241,8 +272,8 @@ HLTTauDQMPath::HLTTauDQMPath(const std::string& pathName, const std::string& hlt
     filterElectronN_.push_back(n.electron);
     filterMuonN_.push_back(n.muon);
 
-#ifdef EDM_ML_LOGDEBUG
-    ss << "\n    " << std::get<1>(filterIndices_[i])
+#ifdef EDM_ML_DEBUG
+    ss << "\n    " << std::get<kModuleIndex>(filterIndices_[i])
        << " " << filterName
        << " " << moduleType
        << " ntau " << n.tau
@@ -251,33 +282,36 @@ HLTTauDQMPath::HLTTauDQMPath(const std::string& pathName, const std::string& hlt
 #endif
 
   }
-#ifdef EDM_ML_LOGDEBUG
+#ifdef EDM_ML_DEBUG
   LogDebug("HLTTauDQMOffline") << ss.str();
 #endif
 
 
-  // Find the position of tau producer, use filters with taus
-  // before it for L2 tau efficiency, and filters with taus after it
-  // for L3 tau efficiency
-  const size_t tauProducerIndex = thePath.tauProducerIndex(HLTCP);
-  if(tauProducerIndex == std::numeric_limits<size_t>::max()) {
-    edm::LogWarning("HLTTauDQMOffline") << "HLTTauDQMPath::beginRun(): Did not find tau producer from HLT path " << pathName_;
+  // Find the position of tau producer, use filters with taus before
+  // it for L2 tau efficiency, and filters with taus after it for L3
+  // tau efficiency. Here we have to take into account that for
+  // reference-matched case filterIndices_ contains only those filters
+  // that have saveTags=True, while for searching the first L3 tau
+  // filter we have to consider all filters
+  const size_t firstL3TauFilterIndex = thePath.firstL3TauFilterIndex(HLTCP);
+  if(firstL3TauFilterIndex == kInvalidIndex) {
+    edm::LogInfo("HLTTauDQMOffline") << "Did not find a filter with L3 tau producer as input in path " << pathName_;
   }
-  //lastFilterBeforeL2TauIndex_ = std::numeric_limits<size_t>::max();
-  lastL2TauFilterIndex_ = std::numeric_limits<size_t>::max();
-  //lastFilterBeforeL3TauIndex_ = std::numeric_limits<size_t>::max();
-  lastL3TauFilterIndex_ = std::numeric_limits<size_t>::max();
-  size_t i = 0;
+
   lastFilterBeforeL2TauIndex_ = 0;
-  for(; i<filtersSize() && getFilterIndex(i) < tauProducerIndex; ++i) {
-    if(lastL2TauFilterIndex_ == std::numeric_limits<size_t>::max() && getFilterNTaus(i) == 0)
+  lastL2TauFilterIndex_ = kInvalidIndex;
+  lastFilterBeforeL3TauIndex_ = 0;
+  lastL3TauFilterIndex_ = kInvalidIndex;
+  size_t i = 0;
+  for(; i<filtersSize() && getFilterIndex(i) < firstL3TauFilterIndex; ++i) {
+    if(lastL2TauFilterIndex_ == kInvalidIndex && getFilterNTaus(i) == 0)
       lastFilterBeforeL2TauIndex_ = i;
     if(getFilterNTaus(i) > 0 && getFilterNElectrons(i) == 0 && getFilterNMuons(i) == 0)
       lastL2TauFilterIndex_ = i;
   }
   lastFilterBeforeL3TauIndex_ = i-1;
   for(; i<filtersSize(); ++i) {
-    if(lastL3TauFilterIndex_ == std::numeric_limits<size_t>::max() && getFilterNTaus(i) == 0)
+    if(lastL3TauFilterIndex_ == kInvalidIndex && getFilterNTaus(i) == 0)
       lastFilterBeforeL3TauIndex_ = i;
     if(getFilterNTaus(i) > 0 && getFilterNElectrons(i) == 0 && getFilterNMuons(i) == 0)
       lastL3TauFilterIndex_ = i;
@@ -305,11 +339,11 @@ int HLTTauDQMPath::lastPassedFilter(const edm::TriggerResults& triggerResults) c
   unsigned int firstFailedFilter = triggerResults.index(pathIndex_);
   int lastPassedFilter = -1;
   for(size_t i=0; i<filterIndices_.size(); ++i) {
-    if(std::get<1>(filterIndices_[i]) < firstFailedFilter) {
+    if(std::get<kModuleIndex>(filterIndices_[i]) < firstFailedFilter) {
       lastPassedFilter = i;
     }
     else {
-      //std::cout << "Decision-making filter " << firstFailedFilter << " this " << std::get<1>(filterIndices_[i]) << std::endl;
+      //std::cout << "Decision-making filter " << firstFailedFilter << " this " << std::get<kModuleIndex>(filterIndices_[i]) << std::endl;
       break;
     }
   }
