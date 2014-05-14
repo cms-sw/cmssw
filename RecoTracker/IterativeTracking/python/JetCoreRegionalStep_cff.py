@@ -5,9 +5,9 @@ import FWCore.ParameterSet.Config as cms
 # run only if there are high pT jets
 from RecoJets.JetProducers.TracksForJets_cff import trackRefsForJets
 iter0TrackRefsForJets = trackRefsForJets.clone(src = cms.InputTag('initialStepTracks'))
-from RecoJets.JetProducers.ak4TrackJets_cfi import ak4TrackJets
-ak4TrackJetsForTrk = ak4TrackJets.clone(src = cms.InputTag('iter0TrackRefsForJets'),srcPVs = cms.InputTag('pixelVertices'))
-jetsForCoreTracking = cms.EDFilter("CandPtrSelector", src = cms.InputTag("ak4TrackJetsForTrk"), cut = cms.string("pt > 100 && abs(eta) < 2.5"))
+from RecoJets.JetProducers.ak4CaloJets_cfi import ak4CaloJets
+ak4CaloJetsForTrk = ak4CaloJets.clone(srcPVs = cms.InputTag('pixelVertices'))
+jetsForCoreTracking = cms.EDFilter("CandPtrSelector", src = cms.InputTag("ak4CaloJetsForTrk"), cut = cms.string("pt > 100 && abs(eta) < 2.5"))
 
 # care only at tracks from main PV
 import RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi
@@ -65,6 +65,7 @@ jetCoreRegionalStepSeeds.RegionFactoryPSet = cms.PSet(
         deltaPhiRegion = cms.double( 0.10 ), 
         deltaEtaRegion = cms.double( 0.10 ), 
         JetSrc = cms.InputTag( "jetsForCoreTracking" ),
+#       JetSrc = cms.InputTag( "ak5CaloJets" ),
         vertexSrc = cms.InputTag( "firstStepGoodPrimaryVertices" ),
         measurementTrackerName = cms.string( "MeasurementTrackerEvent" ),
         howToUseMeasurementTracker = cms.double( -1.0 )
@@ -147,7 +148,7 @@ jetCoreRegionalStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector
     ) #end of clone
 
 # Final sequence
-JetCoreRegionalStep = cms.Sequence(iter0TrackRefsForJets*ak4TrackJetsForTrk*jetsForCoreTracking*
+JetCoreRegionalStep = cms.Sequence(iter0TrackRefsForJets*ak4CaloJetsForTrk*jetsForCoreTracking*
                                    firstStepPrimaryVertices*
                                    firstStepGoodPrimaryVertices*
                                    #jetCoreRegionalStepClusters*

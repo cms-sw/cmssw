@@ -85,8 +85,8 @@ void SeedFromConsecutiveHitsCreator::makeSeed(TrajectorySeedCollection & seedCol
   	C[0][0] = std::max(sin2Theta/sqr(ptMin), minC00);
   	float zErr = vertexErr.czz();
   	float transverseErr = vertexErr.cxx(); // assume equal cxx cyy
-        float deltaEta = (etaPhiRegion->etaRange().first-etaPhiRegion->etaRange().first)/2.;
-        float deltaPhi = (etaPhiRegion->phiMargin().right()-etaPhiRegion->phiMargin().left())/2.;
+        float deltaEta = (etaPhiRegion->etaRange().first-etaPhiRegion->etaRange().second)/2.;
+        float deltaPhi = (etaPhiRegion->phiMargin().right()+etaPhiRegion->phiMargin().left())/2.;
 	C[1][1] = deltaEta*deltaEta*4; //2 sigma of what given in input
   	C[2][2] = deltaPhi*deltaPhi*4;
   	C[3][3] = transverseErr;
