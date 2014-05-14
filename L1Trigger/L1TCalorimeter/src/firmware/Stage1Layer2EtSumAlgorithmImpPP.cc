@@ -12,7 +12,7 @@
 #include "DataFormats/L1Trigger/interface/EtSum.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
 
-l1t::Stage1Layer2EtSumAlgorithmImpPP::Stage1Layer2EtSumAlgorithmImpPP(CaloParams* params) : params_(params)
+l1t::Stage1Layer2EtSumAlgorithmImpPP::Stage1Layer2EtSumAlgorithmImpPP(CaloParamsStage1* params) : params_(params)
 {
   regionETCutForHT=params->regionETCutForHT();
   regionETCutForMET=params->regionETCutForMET();

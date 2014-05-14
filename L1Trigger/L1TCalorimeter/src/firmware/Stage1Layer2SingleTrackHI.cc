@@ -14,7 +14,7 @@
 #include "L1Trigger/L1TCalorimeter/interface/PUSubtractionMethods.h"
 #include "L1Trigger/L1TCalorimeter/interface/legacyGtHelper.h"
 
-l1t::Stage1Layer2SingleTrackHI::Stage1Layer2SingleTrackHI(CaloParams* params) : params_(params) {}
+l1t::Stage1Layer2SingleTrackHI::Stage1Layer2SingleTrackHI(CaloParamsStage1* params) : params_(params) {}
 
 l1t::Stage1Layer2SingleTrackHI::~Stage1Layer2SingleTrackHI(){};
 

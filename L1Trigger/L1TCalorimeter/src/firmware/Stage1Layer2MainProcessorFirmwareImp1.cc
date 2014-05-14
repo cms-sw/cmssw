@@ -15,8 +15,8 @@
 using namespace std;
 using namespace l1t;
 
-// Stage1Layer2MainProcessorFirmwareImp1::Stage1Layer2MainProcessorFirmwareImp1(/*const CaloParams & dbPars*/
-Stage1Layer2MainProcessorFirmwareImp1::Stage1Layer2MainProcessorFirmwareImp1(const int fwv, CaloParams* dbPars) : m_fwv(fwv), m_db(dbPars) {}
+// Stage1Layer2MainProcessorFirmwareImp1::Stage1Layer2MainProcessorFirmwareImp1(/*const CaloParamsStage1 & dbPars*/
+Stage1Layer2MainProcessorFirmwareImp1::Stage1Layer2MainProcessorFirmwareImp1(const int fwv, CaloParamsStage1* dbPars) : m_fwv(fwv), m_db(dbPars) {}
 
 Stage1Layer2MainProcessorFirmwareImp1::~Stage1Layer2MainProcessorFirmwareImp1(){};
 

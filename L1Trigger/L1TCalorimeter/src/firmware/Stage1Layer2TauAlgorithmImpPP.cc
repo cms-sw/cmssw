@@ -20,7 +20,7 @@ using namespace std;
 using namespace l1t;
 
 
-Stage1Layer2TauAlgorithmImpPP::Stage1Layer2TauAlgorithmImpPP(CaloParams* params) : params_(params)
+Stage1Layer2TauAlgorithmImpPP::Stage1Layer2TauAlgorithmImpPP(CaloParamsStage1* params) : params_(params)
 {
   jetLsb=params_->jetLsb();
 

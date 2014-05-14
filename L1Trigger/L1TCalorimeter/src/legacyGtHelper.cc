@@ -11,7 +11,7 @@ const unsigned int gtEta(const unsigned int iEta);
 
 namespace l1t {
 
-  void JetToGtScales(CaloParams *params,
+  void JetToGtScales(CaloParamsStage1 *params,
 		     const std::vector<l1t::Jet> * input,
 		     std::vector<l1t::Jet> *output){
 
@@ -28,7 +28,7 @@ namespace l1t {
     }
   }
 
-  void EGammaToGtScales(CaloParams *params,
+  void EGammaToGtScales(CaloParamsStage1 *params,
 			const std::vector<l1t::EGamma> * input,
 			std::vector<l1t::EGamma> *output){
 
@@ -46,7 +46,7 @@ namespace l1t {
     }
   }
 
-  void TauToGtScales(CaloParams *params,
+  void TauToGtScales(CaloParamsStage1 *params,
 		     const std::vector<l1t::Tau> * input,
 		     std::vector<l1t::Tau> *output){
     for(std::vector<l1t::Tau>::const_iterator itTau = input->begin();
@@ -62,7 +62,7 @@ namespace l1t {
     }
   }
 
-  void EtSumToGtScales(CaloParams *params,
+  void EtSumToGtScales(CaloParamsStage1 *params,
 		       const std::vector<l1t::EtSum> * input,
 		       std::vector<l1t::EtSum> *output){
     for(std::vector<l1t::EtSum>::const_iterator itEtSum = input->begin();

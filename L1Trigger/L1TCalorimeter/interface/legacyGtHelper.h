@@ -12,25 +12,27 @@
 #include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
-#include "CondFormats/L1TObjects/interface/CaloParams.h"
+//#include "CondFormats/L1TObjects/interface/CaloParams.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloParamsStage1.h"
+
 
 #include <vector>
 
 namespace l1t {
 
-void JetToGtScales(CaloParams *params,
+void JetToGtScales(CaloParamsStage1 *params,
 		     const std::vector<l1t::Jet> * input,
 		     std::vector<l1t::Jet> *output);
 
-void EGammaToGtScales(CaloParams *params,
+void EGammaToGtScales(CaloParamsStage1 *params,
 			const std::vector<l1t::EGamma> * input,
 			std::vector<l1t::EGamma> *output);
 
-void TauToGtScales(CaloParams *params,
+void TauToGtScales(CaloParamsStage1 *params,
 		     const std::vector<l1t::Tau> * input,
 		     std::vector<l1t::Tau> *output);
 
-void EtSumToGtScales(CaloParams *params,
+void EtSumToGtScales(CaloParamsStage1 *params,
 		       const std::vector<l1t::EtSum> * input,
 		       std::vector<l1t::EtSum> *output);
 

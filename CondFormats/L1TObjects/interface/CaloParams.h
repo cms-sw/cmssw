@@ -14,12 +14,6 @@
 
 #include "CondFormats/L1TObjects/interface/LUT.h"
 
-#include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
-#include "CondFormats/DataRecord/interface/L1EmEtScaleRcd.h"
-#include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
-#include "CondFormats/DataRecord/interface/L1HtMissScaleRcd.h"
-#include "CondFormats/DataRecord/interface/L1HfRingEtScaleRcd.h"
-
 #include <memory>
 #include <iostream>
 #include <vector>
@@ -91,7 +85,6 @@ namespace l1t {
     l1t::LUT* egIsolationLUT() { return egIsolationLUT_.get(); }
     std::string egCalibrationType() const { return egCalibrationType_; }
     std::vector<double> egCalibrationParams() { return egCalibrationParams_; }
-    L1CaloEtScale emScale() { return emScale_; }
 
     void setEgLsb(double lsb) { egLsb_ = lsb; }
     void setEgSeedThreshold(double thresh) { egSeedThreshold_ = thresh; }
@@ -111,7 +104,6 @@ namespace l1t {
     void setEgIsolationLUT(std::shared_ptr<LUT> lut) { egIsolationLUT_ = lut; }
     void setEgCalibrationType(std::string type) { egCalibrationType_ = type; }
     void setEgCalibrationParams(std::vector<double> params) { egCalibrationParams_ = params; }
-    void setEmScale(L1CaloEtScale emScale) { emScale_ = emScale; }
 
 
     // tau
@@ -145,7 +137,6 @@ namespace l1t {
     std::vector<double> jetPUSParams() { return jetPUSParams_; }
     std::string jetCalibrationType() const { return jetCalibrationType_; }
     std::vector<double> jetCalibrationParams() { return jetCalibrationParams_; }
-    L1CaloEtScale jetScale() { return jetScale_; }
 
     void setJetLsb(double lsb) { jetLsb_ = lsb; }
     void setJetSeedThreshold(double thresh) { jetSeedThreshold_ = thresh; }
@@ -154,7 +145,6 @@ namespace l1t {
     void setJetPUSParams(std::vector<double> params) { jetPUSParams_ = params; }
     void setJetCalibrationType(std::string type) { jetCalibrationType_ = type; }
     void setJetCalibrationParams(std::vector<double> params) { jetCalibrationParams_ = params; }
-    void setJetScale(L1CaloEtScale jetScale) { jetScale_ = jetScale; }
 
 
     // sums
@@ -163,15 +153,11 @@ namespace l1t {
     int etSumEtaMax(unsigned isum) const;
     int etSumEtThresholdHw(unsigned isum) const { return floor(etSumEtThreshold(isum)/etSumLsb_); }
     double etSumEtThreshold(unsigned isum) const;
-    L1CaloEtScale HtMissScale() {return HtMissScale_;}
-    L1CaloEtScale HfRingScale() {return HfRingScale_;}
 
     void setEtSumLsb(double lsb) { etSumLsb_ = lsb; }
     void setEtSumEtaMin(unsigned isum, int eta);
     void setEtSumEtaMax(unsigned isum, int eta);
     void setEtSumEtThreshold(unsigned isum, double thresh);
-    void setHtMissScale(L1CaloEtScale HtMissScale){HtMissScale_ = HtMissScale;}
-    void setHfRingScale(L1CaloEtScale HfRingScale){HfRingScale_ = HfRingScale;}
 
     // print parameters to stream:
     void print(std::ostream&) const;
@@ -299,7 +285,6 @@ namespace l1t {
     // EG isolation LUT (indexed by eta, Et ?)
     std::shared_ptr<l1t::LUT> egIsolationLUT_;
 
-    L1CaloEtScale emScale_;
 
 
 
@@ -353,7 +338,6 @@ namespace l1t {
     // jet calibration coefficients
     std::vector<double> jetCalibrationParams_;
 
-    L1CaloEtScale jetScale_;
 
 
 
@@ -378,8 +362,6 @@ namespace l1t {
     int minGctEtaForSums_;
     int maxGctEtaForSums_;
 
-    L1CaloEtScale HtMissScale_;
-    L1CaloEtScale HfRingScale_;
 
   };
 

@@ -16,7 +16,7 @@
 using namespace std;
 using namespace l1t;
 
-Stage1Layer2JetAlgorithmImpPP::Stage1Layer2JetAlgorithmImpPP(CaloParams* params) : params_(params)
+Stage1Layer2JetAlgorithmImpPP::Stage1Layer2JetAlgorithmImpPP(CaloParamsStage1* params) : params_(params)
 {
   jetLsb=params_->jetLsb();
   jetSeedThreshold= floor( params_->jetSeedThreshold()/jetLsb + 0.5);

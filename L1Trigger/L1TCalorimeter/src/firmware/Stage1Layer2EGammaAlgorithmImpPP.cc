@@ -19,7 +19,7 @@ using namespace std;
 using namespace l1t;
 
 
-Stage1Layer2EGammaAlgorithmImpPP::Stage1Layer2EGammaAlgorithmImpPP(CaloParams* params) : params_(params)
+Stage1Layer2EGammaAlgorithmImpPP::Stage1Layer2EGammaAlgorithmImpPP(CaloParamsStage1* params) : params_(params)
 {
 
   egLsb=params_->egLsb();
