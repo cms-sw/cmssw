@@ -34,6 +34,7 @@ private:
   // Disable default assignment operator
   const FWDTRecHitProxyBuilder& operator=( const FWDTRecHitProxyBuilder& );
 
+  using FWSimpleProxyBuilderTemplate<DTRecHit1DPair>::buildViewType;
   virtual void buildViewType( const DTRecHit1DPair& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext* ) override;
 };
 
