@@ -38,7 +38,6 @@ private:
   
   // See RecoParticleFlow/PFProducer/interface/PFProducer.h
   edm::ParameterSet particleFilter_;
-  std::unique_ptr<ParticleTable::Sentry> pTableSentry_;
   bool saveNU;
   std::vector<FSimEvent*> mySimEvent;
   NUEvent* nuEvent;
@@ -649,9 +648,7 @@ void testNuclearInteractions::beginRun(edm::Run const&, const edm::EventSetup & 
   // init Particle data table (from Pythia)
   edm::ESHandle < HepPDT::ParticleDataTable > pdt;
   es.getData(pdt);
-  if ( !ParticleTable::instance() ) {
-    pTableSentry_.reset( new ParticleTable::Sentry(pdt.product()) );
-  }
+ 
   mySimEvent[0]->initializePdt(&(*pdt));
   mySimEvent[1]->initializePdt(&(*pdt));
 
@@ -660,6 +657,7 @@ void testNuclearInteractions::beginRun(edm::Run const&, const edm::EventSetup & 
 void
 testNuclearInteractions::produce(edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
+  ParticleTable::Sentry ptable(mySimEvent[0]->theTable());
 
   ++totalNEvt;
   if ( totalNEvt/1000*1000 == totalNEvt ) 

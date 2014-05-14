@@ -38,7 +38,6 @@ private:
   
   // See RecoParticleFlow/PFProducer/interface/PFProducer.h
   edm::ParameterSet particleFilter_;
-  std::unique_ptr<ParticleTable::Sentry> pTableSentry_;
   FSimEvent* mySimEvent;
   PUEvent* puEvent;
   TTree* puTree;
@@ -137,9 +136,7 @@ void producePileUpEvents::beginRun(edm::Run const&, edm::EventSetup const& es)
   // init Particle data table (from Pythia)
   edm::ESHandle < HepPDT::ParticleDataTable > pdt;
   es.getData(pdt);
-  if ( !ParticleTable::instance() ) {
-    pTableSentry_.reset( new ParticleTable::Sentry(pdt.product()) );
-  }
+  
   mySimEvent->initializePdt(&(*pdt));
 
 }
@@ -147,7 +144,7 @@ void producePileUpEvents::beginRun(edm::Run const&, edm::EventSetup const& es)
 void
 producePileUpEvents::produce(edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-
+  ParticleTable::Sentry(mySimEvent->theTable());
   ++totalPU;
   if ( totalPU/1000*1000 == totalPU ) 
     std::cout << "Number of events produced "

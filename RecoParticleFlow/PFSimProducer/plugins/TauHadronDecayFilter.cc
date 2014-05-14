@@ -54,8 +54,8 @@ TauHadronDecayFilter::~TauHadronDecayFilter() {
 bool
 TauHadronDecayFilter::filter(edm::Event& iEvent, 
 			     const edm::EventSetup& iSetup) {
-
-  
+  ParticleTable::Sentry ptable(mySimEvent->theTable());
+    
   Handle<vector<SimTrack> > simTracks;
   iEvent.getByLabel("g4SimHits",simTracks);
   Handle<vector<SimVertex> > simVertices;
@@ -96,9 +96,6 @@ TauHadronDecayFilter::beginRun(const edm::Run& run,
   // edm::ESHandle < DefaultConfig::ParticleDataTable > pdt;
 
   es.getData(pdt);
-  if ( !ParticleTable::instance() ) {
-    pTableSentry_.reset( new ParticleTable::Sentry(pdt.product()) );
-  }
   mySimEvent->initializePdt(&(*pdt));
 
 }

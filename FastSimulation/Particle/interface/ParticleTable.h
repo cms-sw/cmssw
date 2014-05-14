@@ -5,29 +5,52 @@
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include <memory>
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class ParticleTable {
 
 public:
   struct Sentry{
-    Sentry(const HepPDT::ParticleDataTable* pdt) { ParticleTable::set(pdt); }
-    ~Sentry() { ParticleTable::set(NULL); }
+    Sentry(const HepPDT::ParticleDataTable* pdt) { 
+      edm::LogError("particletable") << "  Sentry() - set pdt to: " << pdt 
+				     << ' ' << ParticleTable::myself 
+				     << std::endl;
+      ParticleTable::myself->set(pdt); 
+    }
+    ~Sentry() { 
+      edm::LogError("particletable") << " ~Sentry() - set pdt to NULL" 
+				      << ' ' << ParticleTable::myself 
+				     << std::endl;
+      ParticleTable::myself->set(nullptr); 
+    }
   };
 
-  /// Get the pointer to the particle data table
-  const HepPDT::ParticleDataTable* theTable() const { return pdt_; }
+  ~ParticleTable() { 
+    edm::LogError("particletable") << "~ParticleTable()" << std::endl;
+  }
 
-  static const ParticleTable* instance() 
-  { return myself.get(); }
+  /// Get the pointer to the particle data table
+  const HepPDT::ParticleDataTable* theTable() const { 
+    edm::LogError("particletable") << "Asked for theTable at : " << pdt_ << std::endl;
+    return pdt_; 
+  }
+
+  static ParticleTable* const instance() { 
+    edm::LogError("particletable") << "Asked for myself : " << &myself << std::endl;
+    return myself; 
+  }
 
 private:
- ParticleTable(const HepPDT::ParticleDataTable* pdt) : pdt_(pdt) {}
-  static void set( const HepPDT::ParticleDataTable* );
-  static thread_local std::unique_ptr<const ParticleTable> myself;
+  ParticleTable() : pdt_(nullptr) {}
+  ParticleTable(const HepPDT::ParticleDataTable* pdt=nullptr) : pdt_(pdt) {}
+  void set( const HepPDT::ParticleDataTable* pdt) { pdt_ = pdt; } 
+  static thread_local ParticleTable* myself;
 
   const HepPDT::ParticleDataTable* pdt_;
 
   friend struct Sentry;
 };
+
+
 
 #endif // FastSimulation_Particle_ParticleTable_H

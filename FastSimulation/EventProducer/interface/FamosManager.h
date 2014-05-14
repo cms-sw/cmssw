@@ -70,7 +70,6 @@ class FamosManager
 
   int iEvent;
   //  const HepMC::GenEvent* myGenEvent;
-  std::unique_ptr<ParticleTable::Sentry> pTableSentry_;
   FSimEvent* mySimEvent;
   TrajectoryManager* myTrajectoryManager;
   PileUpSimulator* myPileUpSimulator;

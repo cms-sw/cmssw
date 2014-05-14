@@ -31,7 +31,6 @@ private:
   
   // See RecoParticleFlow/PFProducer/interface/PFProducer.h
   edm::ParameterSet particleFilter_;
-  std::unique_ptr<ParticleTable::Sentry> pTableSentry_;
   std::vector<FSimEvent*> mySimEvent;
   std::string simModuleLabel_;  
   DQMStore * dbe;
@@ -569,9 +568,6 @@ void testMaterialEffects::beginRun(edm::Run const&, edm::EventSetup const& es)
   // init Particle data table (from Pythia)
   edm::ESHandle < HepPDT::ParticleDataTable > pdt;
   es.getData(pdt);
-  if ( !ParticleTable::instance() ) {
-    pTableSentry_.reset( new ParticleTable::Sentry(pdt.product()) );
-  }
   mySimEvent[0]->initializePdt(&(*pdt));
   mySimEvent[1]->initializePdt(&(*pdt));
 
@@ -580,6 +576,7 @@ void testMaterialEffects::beginRun(edm::Run const&, edm::EventSetup const& es)
 void
 testMaterialEffects::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
+  ParticleTable::Sentry(mySimEvent[0]->theTable());
 
   if( ( nevt < 100 && nevt%10 == 0)   || 
       ( nevt < 1000 && nevt%100 == 0) || 

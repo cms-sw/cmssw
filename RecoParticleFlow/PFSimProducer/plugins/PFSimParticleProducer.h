@@ -80,8 +80,6 @@ class PFSimParticleProducer : public edm::EDProducer {
   /// verbose ?
   bool   verbose_;
 
-  std::unique_ptr<ParticleTable::Sentry> pTableSentry_;
-
 };  
 
 #endif
