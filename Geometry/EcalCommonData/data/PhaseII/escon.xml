@@ -28,6 +28,11 @@
   <Constant name="Front_NM_RMAX_inner" value="122.3*cm"/>
   <Constant name="Rear_NM_RMAX_outer"  value="[Front_NM_RMAX_outer]+0.1*cm"/>
   <Constant name="Rear_NM_RMAX_inner"  value="[Front_NM_RMAX_inner]-0.1*cm"/>
-</ConstantsSection>
+  <Constant name="PRESH_Z_OFFSET"      value="307.46*cm"/>
+  <Constant name="PRESH_Z_TOTAL"       value="19.52*cm"/>
+  <Constant name="PRESH_MID_Z"         value="1.8*cm"/>
+  <Constant name="PRESH_RMAX_BACK"     value="140.0*cm"/>
+  <Constant name="PRESH_RMAX_FRONT"    value="131.0*cm"/>
+ </ConstantsSection>
 
 </DDDefinition>
