@@ -49,7 +49,6 @@ DQMOfflinePrePOG = cms.Sequence( muonMonitors *
                                  l1TriggerDqmOffline *
                                  triggerOfflineDQMSource *
                                  pvMonitor *
-                                 prebTagSequence *
                                  bTagPlotsDATA *
                                  alcaBeamMonitor *
                                  dqmPhysics *
@@ -64,7 +63,6 @@ DQMOffline = cms.Sequence( DQMOfflinePreDPG *
                            DQMMessageLogger )
 
 DQMOfflinePrePOGMC = cms.Sequence( pvMonitor *
-                                   prebTagSequence *
                                    bTagPlotsDATA *
                                    dqmPhysics )
 
@@ -114,7 +112,6 @@ DQMOfflineJetMET = cms.Sequence( jetMETDQMOfflineSource )
 
 DQMOfflineEGamma = cms.Sequence( egammaDQMOffline )
 
-DQMOfflineBTag = cms.Sequence( prebTagSequence *
-                               bTagPlotsDATA )
+DQMOfflineBTag = cms.Sequence( bTagPlotsDATA )
                                                                  
 
