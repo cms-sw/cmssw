@@ -127,7 +127,6 @@ class EcalTPGParamBuilder : public edm::EDAnalyzer {
   EcalTPGDBApp * db_ ;
   bool writeToDB_ ;
   bool writeToFiles_ ;
-  unsigned int DBrunNb_ ;
   bool DBEE_ ;
 
   int ped_conf_id_;
