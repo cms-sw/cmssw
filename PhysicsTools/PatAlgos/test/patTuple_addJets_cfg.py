@@ -57,7 +57,7 @@ addJetCollection(
    algo = 'CA8',
    rParam = 0.8,
    genJetCollection = cms.InputTag('ak8GenJets'),
-   jetCorrections = ('AK5PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'), # FIXME: Use proper JECs, as soon as available
+   jetCorrections = ('AK5PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'), # FIXME: Use proper JECs, as soon as available
    btagDiscriminators = [
        'combinedSecondaryVertexBJetTags'
      ],
