@@ -24,7 +24,7 @@ addJetCollection(
    postfix   = postfixAK4PFCHS,
    labelName = 'AK4PFCHS',
    jetSource = cms.InputTag('ak4PFJetsCHS'),
-   jetCorrections = ('AK5PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2')
+   jetCorrections = ('AK5PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2') # FIXME: Use proper JECs, as soon as available
    )
 process.out.outputCommands.append( 'drop *_selectedPatJetsAK4PFCHS%s_caloTowers_*'%( postfixAK4PFCHS ) )
 
@@ -33,7 +33,7 @@ addJetCollection(
    process,
    labelName = 'AK4PF',
    jetSource = cms.InputTag('ak4PFJets'),
-   jetCorrections = ('AK5PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-1'),
+   jetCorrections = ('AK5PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-1'), # FIXME: Use proper JECs, as soon as available
    btagDiscriminators = [
        'jetBProbabilityBJetTags'
      , 'jetProbabilityBJetTags'
@@ -46,11 +46,25 @@ addJetCollection(
    )
 process.out.outputCommands.append( 'drop *_selectedPatJetsAK4PF_caloTowers_*' )
 
+# uncomment the following lines to add ak4PFJets to your PAT output
+addJetCollection(
+   process,
+   labelName = 'CA8PFCHSPruned',
+   jetSource = cms.InputTag('ca8PFJetsCHSPruned'),
+   algo = 'CA8',
+   rParam = 0.8,
+   genJetCollection = cms.InputTag('ak8GenJets'),
+   btagDiscriminators = [
+       'combinedSecondaryVertexBJetTags'
+     ],
+   )
+process.out.outputCommands.append( 'drop *_selectedPatJetsCA8PF_caloTowers_*' )
+
 # uncomment the following lines to switch to ak4CaloJets in your PAT output
 switchJetCollection(
    process,
    jetSource = cms.InputTag('ak4CaloJets'),
-   jetCorrections = ('AK5Calo', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-1'),
+   jetCorrections = ('AK5Calo', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-1'), # FIXME: Use proper JECs, as soon as available
    btagDiscriminators = [
        'jetBProbabilityBJetTags'
      , 'jetProbabilityBJetTags'

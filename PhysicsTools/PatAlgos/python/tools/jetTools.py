@@ -203,9 +203,10 @@ class AddJetCollection(ConfigToolBase):
         if 'patJetGenJetMatch'+_labelName+postfix in knownModules :
             _newPatJetGenJetMatch=getattr(process, 'patJetGenJetMatch'+_labelName+postfix)
             _newPatJetGenJetMatch.src=jetSource
+            _newPatJetGenJetMatch.maxDeltaR=rParam
             _newPatJetGenJetMatch.matched=genJetCollection
         else :
-            setattr(process, 'patJetGenJetMatch'+_labelName+postfix, patJetGenJetMatch.clone(src=jetSource, matched=genJetCollection))
+            setattr(process, 'patJetGenJetMatch'+_labelName+postfix, patJetGenJetMatch.clone(src=jetSource, maxDeltaR=rParam, matched=genJetCollection))
             knownModules.append('patJetGenJetMatch'+_labelName+postfix)
         ## modify new patJets collection accordingly
         _newPatJets.genJetMatch.setModuleLabel('patJetGenJetMatch'+_labelName+postfix)
@@ -253,7 +254,7 @@ class AddJetCollection(ConfigToolBase):
                 _newPatJetFlavourAssociation.cHadrons=cms.InputTag("patJetPartons"+postfix,"cHadrons")
                 _newPatJetFlavourAssociation.partons=cms.InputTag("patJetPartons"+postfix,"partons")
             else :
-                setattr(process, 'patJetFlavourAssociation'+_labelName+postfix, 
+                setattr(process, 'patJetFlavourAssociation'+_labelName+postfix,
                         patJetFlavourAssociation.clone(
                             jets=jetSource,
                             jetAlgorithm=_algo,
@@ -430,7 +431,7 @@ class AddJetCollection(ConfigToolBase):
                             raise TypeError, "In addJetCollection: L1FastJet corrections are only supported for PF and Calo jets."
                         ## configure module
                         _newPatJetCorrFactors.useRho=True
-                        if "PF" in _type : 
+                        if "PF" in _type :
                             _newPatJetCorrFactors.rho=cms.InputTag('fixedGridRhoFastjetAll')
                         else :
                             _newPatJetCorrFactors.rho=cms.InputTag('fixedGridRhoFastjetAllCalo')
@@ -456,7 +457,7 @@ class AddJetCollection(ConfigToolBase):
                 from JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff import ak4PFL3Absolute
                 from JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff import ak4PFResidual
 
-                if "PF" in _type : 
+                if "PF" in _type :
                     setattr(process, jetCorrections[0]+'L1FastJet', ak4PFL1Fastjet.clone(algorithm=jetCorrections[0], srcRho=cms.InputTag('fixedGridRhoFastjetAll')))
                 else :
                     setattr(process, jetCorrections[0]+'L1FastJet', ak4PFL1Fastjet.clone(algorithm=jetCorrections[0], srcRho=cms.InputTag('fixedGridRhoFastjetAllCalo')))
@@ -472,6 +473,7 @@ class AddJetCollection(ConfigToolBase):
                         getattr(process, jetCorrections[0]+'CombinedCorrector').correctors.append(jetCorrections[0]+x)
 
                 ## set up MET(Type1) correction modules
+                # FIXME: Overwrites existing modules, if the same jet corrections are used. _labelName should be added, too.
                 if _type == 'Calo':
                     from JetMETCorrections.Type1MET.caloMETCorrections_cff import caloJetMETcorr
                     from JetMETCorrections.Type1MET.caloMETCorrections_cff import caloType1CorrectedMet
