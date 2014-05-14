@@ -577,6 +577,59 @@ void GsfElectronAlgo::calculateShowerShape( const reco::SuperClusterRef & theClu
    }
  }
 
+void GsfElectronAlgo::calculateShowerShape_full5x5( const reco::SuperClusterRef & theClus, bool pflow, reco::GsfElectron::ShowerShape & showerShape )
+ {
+  const reco::CaloCluster & seedCluster = *(theClus->seed()) ;
+  // temporary, till CaloCluster->seed() is made available
+  DetId seedXtalId = seedCluster.hitsAndFractions()[0].first ;
+  int detector = seedXtalId.subdetId() ;
+
+  const CaloTopology * topology = eventSetupData_->caloTopo.product() ;
+  const CaloGeometry * geometry = eventSetupData_->caloGeom.product() ;
+  const EcalRecHitCollection * recHits = 0 ;
+  std::vector<int> recHitFlagsToBeExcluded ;
+  std::vector<int> recHitSeverityToBeExcluded ;
+  if (detector==EcalBarrel)
+   {
+    recHits = eventData_->barrelRecHits.product() ;
+    recHitFlagsToBeExcluded = generalData_->recHitsCfg.recHitFlagsToBeExcludedBarrel ;
+    recHitSeverityToBeExcluded = generalData_->recHitsCfg.recHitSeverityToBeExcludedBarrel ;
+   }
+  else
+   {
+    recHits = eventData_->endcapRecHits.product() ;
+    recHitFlagsToBeExcluded = generalData_->recHitsCfg.recHitFlagsToBeExcludedEndcaps ;
+    recHitSeverityToBeExcluded = generalData_->recHitsCfg.recHitSeverityToBeExcludedEndcaps ;
+   }
+
+  std::vector<float> covariances = noZS::EcalClusterTools::covariances(seedCluster,recHits,topology,geometry) ;
+  std::vector<float> localCovariances = noZS::EcalClusterTools::localCovariances(seedCluster,recHits,topology) ;
+  showerShape.sigmaEtaEta = sqrt(covariances[0]) ;
+  showerShape.sigmaIetaIeta = sqrt(localCovariances[0]) ;
+  if (!edm::isNotFinite(localCovariances[2])) showerShape.sigmaIphiIphi = sqrt(localCovariances[2]) ;
+  showerShape.e1x5 = noZS::EcalClusterTools::e1x5(seedCluster,recHits,topology)  ;
+  showerShape.e2x5Max = noZS::EcalClusterTools::e2x5Max(seedCluster,recHits,topology)  ;
+  showerShape.e5x5 = noZS::EcalClusterTools::e5x5(seedCluster,recHits,topology) ;
+  showerShape.r9 = noZS::EcalClusterTools::e3x3(seedCluster,recHits,topology)/theClus->rawEnergy() ;
+
+  if (pflow)
+   {
+    showerShape.hcalDepth1OverEcal = generalData_->hcalHelperPflow->hcalESumDepth1(*theClus)/theClus->energy() ;
+    showerShape.hcalDepth2OverEcal = generalData_->hcalHelperPflow->hcalESumDepth2(*theClus)/theClus->energy() ;
+    showerShape.hcalTowersBehindClusters = generalData_->hcalHelperPflow->hcalTowersBehindClusters(*theClus) ;
+    showerShape.hcalDepth1OverEcalBc = generalData_->hcalHelperPflow->hcalESumDepth1BehindClusters(showerShape.hcalTowersBehindClusters)/showerShape.e5x5 ;
+    showerShape.hcalDepth2OverEcalBc = generalData_->hcalHelperPflow->hcalESumDepth2BehindClusters(showerShape.hcalTowersBehindClusters)/showerShape.e5x5 ;
+   }
+  else
+   {
+    showerShape.hcalDepth1OverEcal = generalData_->hcalHelper->hcalESumDepth1(*theClus)/theClus->energy() ;
+    showerShape.hcalDepth2OverEcal = generalData_->hcalHelper->hcalESumDepth2(*theClus)/theClus->energy() ;
+    showerShape.hcalTowersBehindClusters = generalData_->hcalHelper->hcalTowersBehindClusters(*theClus) ;
+    showerShape.hcalDepth1OverEcalBc = generalData_->hcalHelper->hcalESumDepth1BehindClusters(showerShape.hcalTowersBehindClusters)/showerShape.e5x5 ;
+    showerShape.hcalDepth2OverEcalBc = generalData_->hcalHelper->hcalESumDepth2BehindClusters(showerShape.hcalTowersBehindClusters)/showerShape.e5x5 ;
+   }
+ }
+
 
 //===================================================================
 // GsfElectronAlgo
@@ -1310,6 +1363,8 @@ void GsfElectronAlgo::createElectron()
   reco::GsfElectron::ShowerShape showerShape ;
   calculateShowerShape(electronData_->superClusterRef,!(electronData_->coreRef->ecalDrivenSeed()),showerShape) ;
 
+  reco::GsfElectron::ShowerShape full5x5_showerShape ;
+  calculateShowerShape_full5x5(electronData_->superClusterRef,!(electronData_->coreRef->ecalDrivenSeed()),full5x5_showerShape) ;
 
   //====================================================
   // ConversionRejection
@@ -1350,7 +1405,7 @@ void GsfElectronAlgo::createElectron()
     GsfElectron
      ( eleCharge,eleChargeInfo,electronData_->coreRef,
        tcMatching, tkExtra, ctfInfo,
-       fiducialFlags,showerShape,
+       fiducialFlags,showerShape, full5x5_showerShape,
        conversionVars ) ;
   // Will be overwritten later in the case of the regression
   ele->setCorrectedEcalEnergyError(generalData_->superClusterErrorFunction->getValue(*(ele->superCluster()),0)) ;

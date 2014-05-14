@@ -12,6 +12,7 @@
 #include "GsfElectronEcalDrivenProducer.h"
 #include "GsfElectronCoreProducer.h"
 #include "GsfElectronProducer.h"
+#include "GsfElectronFull5x5Filler.h"
 //#include "GlobalGsfElectronProducer.h"
 
 #include "GEDGsfElectronCoreProducer.h"
@@ -22,6 +23,7 @@ DEFINE_FWK_MODULE(SiStripElectronProducer);
 DEFINE_FWK_MODULE(SiStripElectronAssociator);
 DEFINE_FWK_MODULE(ElectronSeedProducer);
 //DEFINE_FWK_MODULE(GlobalSeedProducer);
+DEFINE_FWK_MODULE(GsfElectronFull5x5Filler);
 DEFINE_FWK_MODULE(GsfElectronCoreEcalDrivenProducer);
 DEFINE_FWK_MODULE(GsfElectronEcalDrivenProducer);
 DEFINE_FWK_MODULE(GsfElectronCoreProducer);
