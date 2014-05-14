@@ -164,6 +164,9 @@ class ClusterShapeHitFilter
  
   ~ClusterShapeHitFilter();
 
+  void setShapeCuts(bool cutOnPixelShape, bool cutOnStripShape) {
+    cutOnPixelShape_ = cutOnPixelShape; cutOnStripShape_ = cutOnStripShape;}
+
   void setChargeCuts(bool cutOnPixelCharge, float minGoodPixelCharge,
 	bool cutOnStripCharge, float minGoodStripCharge) {
     cutOnPixelCharge_ = cutOnPixelCharge; minGoodPixelCharge_= minGoodPixelCharge;
@@ -248,6 +251,7 @@ class ClusterShapeHitFilter
   float theAngle[6];
   bool cutOnPixelCharge_, cutOnStripCharge_;
   float minGoodPixelCharge_, minGoodStripCharge_;
+  bool cutOnPixelShape_, cutOnStripShape_;
   bool checkClusterCharge(DetId detId, const SiStripCluster& cluster, const LocalVector & ldir) const;
   bool checkClusterCharge(DetId detId, const SiPixelCluster& cluster, const LocalVector & ldir) const;
 };
