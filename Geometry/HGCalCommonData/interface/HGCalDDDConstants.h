@@ -60,6 +60,8 @@ public:
   int                 sectors() const {return nSectors;}
   std::pair<int,int>  simToReco(int cell, int layer, bool half) const;
        
+  std::vector<hgtrap> &getModules() const;
+
 private:
   void                checkInitialized() const;
   void                loadGeometry(const DDFilteredView& fv, std::string& tag);
