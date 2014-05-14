@@ -45,6 +45,7 @@ class FWCandidateLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Ca
       const FWCandidateLegoProxyBuilder& operator=( const FWCandidateLegoProxyBuilder& );
 
    // --------------------- Member Functions --------------------------
+      using FWSimpleProxyBuilderTemplate<reco::Candidate>::build;
       void build( const reco::Candidate&, unsigned int, TEveElement&, const FWViewContext* ) override;
 };
 #endif

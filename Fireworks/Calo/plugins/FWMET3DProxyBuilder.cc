@@ -77,6 +77,7 @@ private:
    FWMET3DProxyBuilder(const FWMET3DProxyBuilder&); // stop default
    const FWMET3DProxyBuilder& operator=(const FWMET3DProxyBuilder&); // stop default
    
+   using FWSimpleProxyBuilderTemplate<reco::MET>::build;
    void build(const reco::MET&, unsigned int, TEveElement&, const FWViewContext*);
 
    // ---------- member data --------------------------------

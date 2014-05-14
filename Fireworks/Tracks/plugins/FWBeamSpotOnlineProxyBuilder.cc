@@ -28,6 +28,7 @@ private:
   // Disable default assignment operator
   const FWBeamSpotOnlineProxyBuilder& operator=( const FWBeamSpotOnlineProxyBuilder& );
 
+  using FWSimpleProxyBuilderTemplate<BeamSpotOnline>::build;
   virtual void build( const BeamSpotOnline& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;
 };
 

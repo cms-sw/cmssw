@@ -42,6 +42,7 @@ private:
    FWCaloTauProxyBuilder(const FWCaloTauProxyBuilder&);    // stop default
    const FWCaloTauProxyBuilder& operator=(const FWCaloTauProxyBuilder&);    // stop default
 
+   using FWTauProxyBuilderBase::buildViewType;
    virtual void buildViewType( const FWEventItem* iItem, TEveElementList* product, FWViewType::EType viewType , const FWViewContext* vc);
 
 };
