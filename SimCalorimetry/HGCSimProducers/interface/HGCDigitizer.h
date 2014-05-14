@@ -7,6 +7,9 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
+#include "SimCalorimetry/HGCSimProducers/interface/HGCEEDigitizer.h"
+#include "SimCalorimetry/HGCSimProducers/interface/HGCHEfrontDigitizer.h"
+#include "SimCalorimetry/HGCSimProducers/interface/HGCHEbackDigitizer.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 
 #include <vector>
@@ -36,12 +39,12 @@ public:
   void initializeEvent(edm::Event const& e, edm::EventSetup const& c);
   void finalizeEvent(edm::Event& e, edm::EventSetup const& c);
 
-
   /**
    */
-  bool producesEEDigis()      { return (hitCollection_.find("EE")!=std::string::npos);      } 
-  bool producesHEfrontDigis() { return (hitCollection_.find("HEfront")!=std::string::npos); } 
-  bool producesHEbackDigis()  { return (hitCollection_.find("HEback")!=std::string::npos);  } 
+  bool producesEEDigis()       { return (hitCollection_.find("EE")!=std::string::npos);      } 
+  bool producesHEfrontDigis()  { return (hitCollection_.find("HEfront")!=std::string::npos); } 
+  bool producesHEbackDigis()   { return (hitCollection_.find("HEback")!=std::string::npos);  } 
+  std::string digiCollection() { return digiCollection_; }
 
   /**
       @short actions at the start/end of run
@@ -51,18 +54,22 @@ public:
 
 private :
 
-  std::string hitCollection_;
+  //input/output names
+  std::string hitCollection_,digiCollection_;
 
   //flag for trivial digitization
   bool doTrivialDigis_;
 
   //handle sim hits
   int maxSimHitsAccTime_;
-  typedef std::vector<double> CaloSimHitData;
-  typedef std::map<uint32_t, CaloSimHitData> CaloSimHitDataAccumulator;
-  CaloSimHitDataAccumulator simHitAccumulator_;  
+  int bxTime_;
+  HGCSimHitDataAccumulator simHitAccumulator_;  
   void resetSimHitDataAccumulator();
-  
+
+  //digitizers
+  HGCEEDigitizer theHGCEEDigitizer_;
+  HGCHEbackDigitizer theHGCHEbackDigitizer_;
+  HGCHEfrontDigitizer theHGCHEfrontDigitizer_;
 };
 
 #endif
