@@ -999,7 +999,8 @@ digiPremixUp2015Defaults25ns = {
     '-s'             : 'DIGI:pdigi_valid,DATAMIX,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco',  # pdigi_valid?
 
  # input premixed events: needs be set to the outout of the previous step; local file as a temporary escamotage for tests
-   '--pileup_input'  :  'file:/afs/cern.ch/user/f/franzoni/public/4mikeH/premixed-CMSSW_7_0_X_2014-05-06-0200.root',
+#   '--pileup_input'  :  'file:/afs/cern.ch/user/f/franzoni/public/4mikeH/premixed-CMSSW_7_0_X_2014-05-06-0200.root',
+   '--pileup_input'  :  'das:/RelValPREMIXUP15_PU25/CMSSW_7_0_4-PU25ns_POSTLS170_V7-v1/GEN-SIM-DIGI-RAW',
 # option below to be specified once the actual sample will be available
 #    '--pileup_input' : 'das:/RelValPREMIXUP15_PU25/CMSSW_7_0_1-PU25ns_POSTLS170_V7-v1/GEN-SIM-DIGI-RAW',
 
@@ -1021,7 +1022,7 @@ steps['DIGIPRMXUP15_PROD_PU25']=merge([
         digiPremixUp2015Defaults25ns
         ])
 steps['DIGIPRMXUP15_PU50']=merge([{'--conditions':'auto:upgradePLS150ns'},
-                                  {'--pileup_input' : 'file:/afs/cern.ch/user/f/franzoni/public/4mikeH/premixed-CMSSW_7_0_X_2014-05-06-0200.root'},
+                                  {'--pileup_input' : 'das:/RelValPREMIXUP15_PU50/CMSSW_7_0_4-PU50ns_POSTLS170_V6-v1/GEN-SIM-DIGI-RAW'},
                                   digiPremixUp2015Defaults25ns])
 
 

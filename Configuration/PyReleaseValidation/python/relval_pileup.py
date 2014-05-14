@@ -53,7 +53,7 @@ workflows[500199]=['',['PREMIXUP15_PU50']]
 
 # pile up overlay using premix
 workflows[250200]=['',['ZEE_13','DIGIPRMXUP15_PU25','RECOPRMXUP15_PU25','HARVESTCOS']]
-workflows[500200]=['',['ZEE_13','DIGIPRMXUP15_PU25','RECOPRMXUP15_PU50','HARVESTCOS']]
+workflows[500200]=['',['ZEE_13','DIGIPRMXUP15_PU50','RECOPRMXUP15_PU50','HARVESTCOS']]
 
 # develop pile up overlay using premix prod-like!
 workflows[250200.1]=['',['ZEE_13','DIGIPRMXUP15_PROD_PU25','RECOPRMXUP15_PU25']]
