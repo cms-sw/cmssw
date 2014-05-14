@@ -107,8 +107,11 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       //const double et = jetScale->et( rankPt ) ;
 
       // or use the emScale to get finer-grained et
-      const double et = itTau->hwPt() * emScale->linearLsb();
-      
+      //const double et = itTau->hwPt() * emScale->linearLsb();
+
+      // we are now already in the rankPt
+      const double et = jetScale->et( itTau->hwPt() );
+
       const double eta = getPhysicalEta(itTau->hwEta());
       const double phi = getPhysicalPhi(itTau->hwPhi());
       math::PtEtaPhiMLorentzVector *p4 = new math::PtEtaPhiMLorentzVector(et, eta, phi, 0);
@@ -126,10 +129,13 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       // use the full-circle conversion to match l1extra, accounts for linearLsb and max value automatically
       //const uint16_t rankPt = jetScale->rank((uint16_t)itJet->hwPt());
       //const double et = jetScale->et( rankPt ) ;
-      
+
       // or use the emScale to get finer-grained et
-      const double et = itJet->hwPt() * emScale->linearLsb();
-      
+      //const double et = itJet->hwPt() * emScale->linearLsb();
+
+      // we are now already in the rankPt
+      const double et = jetScale->et( itJet->hwPt() );
+
       const double eta = getPhysicalEta(itJet->hwEta());
       const double phi = getPhysicalPhi(itJet->hwPhi());
       math::PtEtaPhiMLorentzVector *p4 = new math::PtEtaPhiMLorentzVector(et, eta, phi, 0);
