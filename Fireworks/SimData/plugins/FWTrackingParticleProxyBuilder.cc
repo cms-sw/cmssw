@@ -36,6 +36,7 @@ private:
    // Disable default assignment operator
    const FWTrackingParticleProxyBuilder& operator=( const FWTrackingParticleProxyBuilder& );
 
+   using FWSimpleProxyBuilderTemplate<TrackingParticle>::build;
    void build( const TrackingParticle& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;
 };
 

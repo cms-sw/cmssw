@@ -45,6 +45,7 @@ private:
    FWElectronProxyBuilder( const FWElectronProxyBuilder& ); // stop default
    const FWElectronProxyBuilder& operator=( const FWElectronProxyBuilder& ); // stop default
   
+   using FWSimpleProxyBuilderTemplate<reco::GsfElectron> {::buildViewType;
    virtual void buildViewType(const reco::GsfElectron& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext*) override;
 
    TEveElementList* requestCommon();
@@ -137,6 +138,7 @@ private:
 
    const FWElectronGlimpseProxyBuilder& operator=(const FWElectronGlimpseProxyBuilder&); // stop default
 
+   using FWSimpleProxyBuilderTemplate<reco::GsfElectron> {::build;
    virtual void build(const reco::GsfElectron& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) override;
 };
 
