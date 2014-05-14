@@ -42,8 +42,14 @@ namespace L1TkElectronTrackMatchAlgo {
   double deltaPhi(const GlobalPoint& epos, const edm::Ptr< L1TkTrackType > & pTrk){
     double er = epos.perp();
 
-    // Using track fit curvature
-    //  double curv = 0.003 * magnetStrength * trk->getCharge()/ trk->getMomentum().perp(); 
+    double curv = pTrk->getRInv();
+    double dphi_curv= (asin(er*curv/(2.0)));
+    double trk_phi_ecal = reco::deltaPhi(pTrk->getMomentum().phi(),dphi_curv);
+
+    double dphi = reco::deltaPhi(trk_phi_ecal,epos.phi());
+    return dphi;
+
+/*
     double curv = pTrk->getRInv();
     double x1 = (asin(er*curv/(2.0)));
     double phi1 = reco::deltaPhi(pTrk->getMomentum().phi(), epos.phi());
@@ -53,6 +59,7 @@ namespace L1TkElectronTrackMatchAlgo {
 
     if (fabs(dif1) < fabs(dif2)) return dif1;
     else return dif2; 
+*/
   
   }
 // --------------- calculate deltaPhi between Track and EGamma object                 

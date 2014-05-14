@@ -8,7 +8,9 @@ L1TkEtMiss = cms.EDProducer('L1TkEtMissProducer',
      PTMINTRA = cms.double( 2. ),       # in GeV
      DeltaZ = cms.double( 1. ),       # in cm
      nStubsmin = cms.int32( 4 ),      # min number of stubs for the tracks to enter in TrkMET calculation
-     nStubsPSmin = cms.int32( 0)      # min number of stubs in the PS Modules
+     nStubsPSmin = cms.int32( 0),      # min number of stubs in the PS Modules
+     PTMAX = cms.double( 50. )	       # in GeV. When PTMAX > 0, tracks with PT above PTMAX are considered as
+				       # mismeasured are are ignored in the calculation of TrkMET.
 )
 
 
