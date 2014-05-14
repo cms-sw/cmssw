@@ -17,7 +17,7 @@ addMETCollection(process, labelName='patMETTC', metSource='tcMet')
 from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
 from PhysicsTools.PatAlgos.tools.jetTools import switchJetCollection
 
-## uncomment the following lines to add ak5PFJetsCHS to your PAT output
+## uncomment the following lines to add ak4PFJetsCHS to your PAT output
 postfixAK4PFCHS = 'Copy'
 addJetCollection(
    process,
@@ -26,9 +26,9 @@ addJetCollection(
    jetSource = cms.InputTag('ak4PFJetsCHS'),
    jetCorrections = ('AK5PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2')
    )
-process.out.outputCommands.append( 'drop *_selectedPatJetsAK5PFCHS%s_caloTowers_*'%( postfixAK4PFCHS ) )
+process.out.outputCommands.append( 'drop *_selectedPatJetsAK4PFCHS%s_caloTowers_*'%( postfixAK4PFCHS ) )
 
-# uncomment the following lines to add ak5PFJets to your PAT output
+# uncomment the following lines to add ak4PFJets to your PAT output
 addJetCollection(
    process,
    labelName = 'AK4PF',
@@ -44,9 +44,9 @@ addJetCollection(
      , 'combinedSecondaryVertexBJetTags'
      ],
    )
-process.out.outputCommands.append( 'drop *_selectedPatJetsAK5PF_caloTowers_*' )
+process.out.outputCommands.append( 'drop *_selectedPatJetsAK4PF_caloTowers_*' )
 
-# uncomment the following lines to switch to ak5CaloJets in your PAT output
+# uncomment the following lines to switch to ak4CaloJets in your PAT output
 switchJetCollection(
    process,
    jetSource = cms.InputTag('ak4CaloJets'),

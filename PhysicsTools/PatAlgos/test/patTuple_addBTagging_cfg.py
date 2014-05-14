@@ -11,7 +11,7 @@ process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
 ## to the event content
 from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
 
-# uncomment the following lines to add ak5PFJets with new b-tags to your PAT output
+# uncomment the following lines to add ak4PFJets with new b-tags to your PAT output
 addJetCollection(
    process,
    labelName = 'AK4PF',
