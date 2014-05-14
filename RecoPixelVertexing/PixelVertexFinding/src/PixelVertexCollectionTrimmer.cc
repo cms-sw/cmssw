@@ -68,13 +68,12 @@ PixelVertexCollectionTrimmer::PixelVertexCollectionTrimmer(const edm::ParameterS
   double track_chi2_max = 9999999.;
   double track_prob_min = -1.;
 
-  if ( iConfig.exists("PVcomparer") ) {
-    edm::ParameterSet PVcomparerPSet = iConfig.getParameter<edm::ParameterSet>("PVcomparer");
-    track_pt_min   = PVcomparerPSet.getParameter<double>("track_pt_min");
-    track_pt_max   = PVcomparerPSet.getParameter<double>("track_pt_max");
-    track_chi2_max = PVcomparerPSet.getParameter<double>("track_chi2_max");
-    track_prob_min = PVcomparerPSet.getParameter<double>("track_prob_min");
-  }
+  edm::ParameterSet PVcomparerPSet = iConfig.getParameter<edm::ParameterSet>("PVcomparer");
+  track_pt_min   = PVcomparerPSet.getParameter<double>("track_pt_min");
+  track_pt_max   = PVcomparerPSet.getParameter<double>("track_pt_max");
+  track_chi2_max = PVcomparerPSet.getParameter<double>("track_chi2_max");
+  track_prob_min = PVcomparerPSet.getParameter<double>("track_prob_min");
+
   pvComparer_ = new PVClusterComparer(track_pt_min, track_pt_max, track_chi2_max, track_prob_min);
 
   produces<reco::VertexCollection>();
