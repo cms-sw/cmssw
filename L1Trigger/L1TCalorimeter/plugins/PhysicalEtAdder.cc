@@ -18,7 +18,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include <vector>
 
-double getPhysicalEta(int etaIndex);
+double getPhysicalEta(int etaIndex, bool forward = false);
 double getPhysicalPhi(int phiIndex);
 
 l1t::PhysicalEtAdder::PhysicalEtAdder(const edm::ParameterSet& ps) {
@@ -86,10 +86,11 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     for(l1t::EGammaBxCollection::const_iterator itEGamma = old_egammas->begin(bx);
 	itEGamma != old_egammas->end(bx); ++itEGamma)
     {
-      const double pt = itEGamma->hwPt() * emScale->linearLsb();
+      //const double pt = itEGamma->hwPt() * emScale->linearLsb();
+      const double et = emScale->et( itEGamma->hwPt() );
       const double eta = getPhysicalEta(itEGamma->hwEta());
       const double phi = getPhysicalPhi(itEGamma->hwPhi());
-      math::PtEtaPhiMLorentzVector *p4 = new math::PtEtaPhiMLorentzVector(pt, eta, phi, 0);
+      math::PtEtaPhiMLorentzVector *p4 = new math::PtEtaPhiMLorentzVector(et, eta, phi, 0);
 
       l1t::EGamma *eg = new l1t::EGamma(*p4, itEGamma->hwPt(),
 				       itEGamma->hwEta(), itEGamma->hwPhi(),
@@ -118,7 +119,7 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       l1t::Tau *tau = new l1t::Tau(*p4, itTau->hwPt(),
 				   itTau->hwEta(), itTau->hwPhi(),
-				   itTau->hwQual());
+				   itTau->hwQual(), itTau->hwIso());
       new_taus->push_back(bx, *tau);
 
     }
@@ -136,7 +137,8 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       // we are now already in the rankPt
       const double et = jetScale->et( itJet->hwPt() );
 
-      const double eta = getPhysicalEta(itJet->hwEta());
+      const bool forward = ((itJet->hwQual() & 0x2) != 0);
+      const double eta = getPhysicalEta(itJet->hwEta(), forward);
       const double phi = getPhysicalPhi(itJet->hwPhi());
       math::PtEtaPhiMLorentzVector *p4 = new math::PtEtaPhiMLorentzVector(et, eta, phi, 0);
 
@@ -150,12 +152,16 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     for(l1t::EtSumBxCollection::const_iterator itEtSum = old_etsums->begin(bx);
 	itEtSum != old_etsums->end(bx); ++itEtSum)
     {
-      const double pt = itEtSum->hwPt() * emScale->linearLsb();
+      //const double pt = itEtSum->hwPt() * emScale->linearLsb();
+      double et = emScale->et( itEtSum->hwPt() );
+      const l1t::EtSum::EtSumType sumType = itEtSum->getType();
+      if(sumType == EtSum::EtSumType::kMissingHt)
+	et = htMissScale->et( itEtSum->hwPt() );
+
       const double eta = getPhysicalEta(itEtSum->hwEta());
       const double phi = getPhysicalPhi(itEtSum->hwPhi());
-      const l1t::EtSum::EtSumType sumType = itEtSum->getType();
-      //std::cout << "SumType: " << sumType << std::endl;
-      math::PtEtaPhiMLorentzVector *p4 = new math::PtEtaPhiMLorentzVector(pt, eta, phi, 0);
+
+      math::PtEtaPhiMLorentzVector *p4 = new math::PtEtaPhiMLorentzVector(et, eta, phi, 0);
 
       l1t::EtSum *eg = new l1t::EtSum(*p4, sumType, itEtSum->hwPt(),
 				      itEtSum->hwEta(), itEtSum->hwPhi(),
@@ -230,9 +236,26 @@ l1t::PhysicalEtAdder::fillDescriptions(edm::ConfigurationDescriptions& descripti
 //define this as a plug-in
 DEFINE_FWK_MODULE(l1t::PhysicalEtAdder);
 
-// grabbed these from the UCT2015 codebase.
-double getPhysicalEta(int etaIndex)
+int getRegionEta(int gtEta, bool forward)
 {
+  // backwards conversion is
+  // unsigned rctEta = (iEta<11 ? 10-iEta : iEta-11);
+  // return (((rctEta % 7) & 0x7) | (iEta<11 ? 0x8 : 0));
+  int centralGtEta[] = {11, 12, 13, 14, 15, 16, 17, -100, 10, 9, 8, 7, 6, 5, 4};
+  int forwardGtEta[] = {18, 19, 20, 21, -100, -100, -100, -100, 3, 2, 1, 0};
+
+  if(!forward)
+  {
+    return centralGtEta[gtEta];
+  } else
+    return forwardGtEta[gtEta];
+}
+
+// adapted these from the UCT2015 codebase.
+double getPhysicalEta(int gtEta, bool forward)
+{
+  int etaIndex = getRegionEta(gtEta, forward);
+
   const double rgnEtaValues[11] = {
      0.174, // HB and inner HE bins are 0.348 wide
      0.522,
