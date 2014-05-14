@@ -34,6 +34,9 @@ Implementation:
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "RecoPixelVertexing/PixelVertexFinding/interface/PVClusterComparer.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
 class PixelVertexCollectionTrimmer : public edm::EDProducer {
 public:
   explicit PixelVertexCollectionTrimmer(const edm::ParameterSet&);
@@ -135,8 +138,26 @@ PixelVertexCollectionTrimmer::fillDescriptions(edm::ConfigurationDescriptions& d
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  desc.add<edm::InputTag>    ("src",           edm::InputTag(""))
+    ->setComment("input (pixel) vertex collection");
+  desc.add<int>              ("maxVtx",        100)
+    ->setComment("max output collection size (number of accepted vertices)");
+  desc.add<double>           ("fractionSumPt2",  0.3)
+    ->setComment("threshold on sumPt2 fraction of the leading vertex");
+  desc.add<double>           ("minSumPt2",       0. )
+    ->setComment("min sumPt2");
+  edm::ParameterSetDescription PVcomparerPSet;
+  PVcomparerPSet.add<double>("track_pt_min",1.0)
+    ->setComment("min track p_T");
+  PVcomparerPSet.add<double>("track_pt_max",10.0)
+    ->setComment("max track p_T");
+  PVcomparerPSet.add<double>("track_chi2_max",99999.)
+    ->setComment("max track chi2");
+  PVcomparerPSet.add<double>("track_prob_min",-1.)
+    ->setComment("min track prob");
+  desc.add<edm::ParameterSetDescription>("PVcomparer", PVcomparerPSet)
+    ->setComment("from RecoPixelVertexing/PixelVertexFinding/python/PVClusterComparer_cfi.py");
+  descriptions.add("hltPixelVertexCollectionTrimmer",desc);
 }
 
 //define this as a plug-in
