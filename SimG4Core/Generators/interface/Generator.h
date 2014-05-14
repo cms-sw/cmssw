@@ -11,8 +11,6 @@
 #include "HepMC/GenParticle.h"
 
 #include <vector>
-//#include <map>
-//#include <string>
     
 class G4Event;
 class G4PrimaryParticle;
@@ -22,20 +20,22 @@ class Generator
 public:
   Generator(const edm::ParameterSet & p);
   virtual ~Generator();
-  // temp.(?) method
+
   void setGenEvent( const HepMC::GenEvent* inpevt ) 
-    { evt_ = (HepMC::GenEvent*)inpevt; return ; }
+    { evt_ = (HepMC::GenEvent*)inpevt; }
   void HepMC2G4(const HepMC::GenEvent * g,G4Event * e);
   void nonBeamEvent2G4(const HepMC::GenEvent * g,G4Event * e);
   virtual const HepMC::GenEvent*  genEvent() const { return evt_; }
   virtual const math::XYZTLorentzVector* genVertex() const { return vtx_; }
   virtual const double eventWeight() const { return weight_; }
+
 private:
-  bool particlePassesPrimaryCuts(const G4PrimaryParticle * p) const;
+
+  bool particlePassesPrimaryCuts(const G4ThreeVector& p) const;
   void particleAssignDaughters(G4PrimaryParticle * p, HepMC::GenParticle * hp, 
 			       double length);
   void setGenId(G4PrimaryParticle* p, int id) const 
-  {p->SetUserInformation(new GenParticleInfo(id));}
+  { p->SetUserInformation(new GenParticleInfo(id)); }
 
 private:
   bool   fPCuts;
@@ -49,8 +49,9 @@ private:
   double theMinPCut;
   double theMinPtCut2;
   double theMaxPCut;
-  double theRDecLenCut2;
+  double theDecRCut2;
   double theEtaCutForHector; 
+  double theDecLenCut;
   int verbose;
   HepMC::GenEvent*  evt_;
   math::XYZTLorentzVector* vtx_;
@@ -58,6 +59,7 @@ private:
   double Z_lmin,Z_lmax,Z_hector;
   std::vector<int> pdgFilter;
   bool pdgFilterSel;
+  bool fPDGFilter;
 };
 
 #endif

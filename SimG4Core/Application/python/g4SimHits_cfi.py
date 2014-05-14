@@ -127,14 +127,15 @@ g4SimHits = cms.EDProducer("OscarProducer",
         ApplyPCuts = cms.bool(True),
         ApplyPtransCut = cms.bool(False),
         MinPCut = cms.double(0.04), ## the cut is in GeV 
-        MaxPCut = cms.double(99999.0), ## the pmax=99.TeV in this case
+        MaxPCut = cms.double(99999.0), ## the pmax=99.TeV 
         ApplyEtaCuts = cms.bool(True),
         MinEtaCut = cms.double(-5.5),
         MaxEtaCut = cms.double(5.5),
+        RDecLenCut = cms.double(2.9), ## (cm) the cut on vertex radius
+        LDecLenCut = cms.double(30.0), ## (cm) decay volume length
         ApplyPhiCuts = cms.bool(False),
-        MinPhiCut = cms.double(-3.14159265359), ## in radians
+        MinPhiCut = cms.double(-3.14159265359), ## (radians)
         MaxPhiCut = cms.double(3.14159265359), ## according to CMS conventions
-        RDecLenCut = cms.double(2.9), ## the minimum decay length in cm (!) for mother tracking
         Verbosity = cms.untracked.int32(0)
     ),
     RunAction = cms.PSet(
