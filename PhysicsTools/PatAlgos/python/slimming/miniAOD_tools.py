@@ -26,9 +26,9 @@ def miniAOD_customizeCommon(process):
     #
     from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
     #
-    addJetCollection(process, labelName = 'CA8', jetSource = cms.InputTag('ca8PFJetsCHS') )
+    addJetCollection(process, labelName = 'CA8', jetSource = cms.InputTag('ca8PFJetsCHS'),algo= 'CA', rParam = 0.8)
     process.selectedPatJetsCA8.cut = cms.string("pt > 100")
-    process.patJetGenJetMatchPatJetsCA8.matched =  'slimmedGenJets'
+    process.patJetGenJetMatchCA8.matched =  'slimmedGenJets'
     #
     ## PU JetID
     process.load("PhysicsTools.PatAlgos.slimming.pileupJetId_cfi")
