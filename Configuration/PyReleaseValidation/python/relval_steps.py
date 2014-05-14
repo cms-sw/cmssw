@@ -319,15 +319,17 @@ steps['SingleMuPt10_ID']=identitySim(steps['SingleMuPt10'])
 steps['TTbar_ID']=identitySim(steps['TTbar'])
 
 baseDataSetRelease=[
-    'CMSSW_6_2_0_pre8-PRE_ST62_V8-v1', 
+    'CMSSW_6_2_0_pre8-PRE_ST62_V8-v1',
     'CMSSW_6_2_0_pre8-PRE_SH62_V15-v1',
     'CMSSW_6_2_0_pre8-PRE_ST62_V8_FastSim-v1',
     'CMSSW_6_2_0_pre8-PRE_SH62_V15-v2',
     'CMSSW_6_1_0_pre6-STARTHI61_V6-v1',
     'CMSSW_6_2_0_pre8-PRE_ST62_V8-v3',
-    'CMSSW_6_2_0_patch1-POSTLS162_V1_30Aug2013-v2', # for _13  TeV samples with postLs1 geometry and updated mag field
+    'CMSSW_6_2_0_patch1-POSTLS162_V1_30Aug2013-v2',  # for _13  TeV samples with postLs1 geometry and updated mag field
     'CMSSW_6_2_0_patch1-POSTLS162_V1_30Aug2013HS-v3',# only for MB, to go away once GEN-SIM will be remade
-    'CMSSW_6_2_0_patch1-POSTLS162_V1_30Aug2013-v3' # for _13  RelValZmumuJets_Pt_20_300_GEN_13 and two others
+    'CMSSW_6_2_0_patch1-POSTLS162_V1_30Aug2013-v3',  # for _13  RelValZmumuJets_Pt_20_300_GEN_13 and two others
+    'CMSSW_7_0_4-PU25ns_POSTLS170_V7-v1',            # 25ns premixed dataset
+    'CMSSW_7_0_4-PU50ns_POSTLS170_V7-v1'             # 50ns premixed dataset
     ]
 
 # note: INPUT commands to be added once GEN-SIM w/ 13TeV+PostLS1Geo will be available 
@@ -1000,7 +1002,7 @@ digiPremixUp2015Defaults25ns = {
 
  # input premixed events: needs be set to the outout of the previous step; local file as a temporary escamotage for tests
 #   '--pileup_input'  :  'file:/afs/cern.ch/user/f/franzoni/public/4mikeH/premixed-CMSSW_7_0_X_2014-05-06-0200.root',
-   '--pileup_input'  :  'das:/RelValPREMIXUP15_PU25/CMSSW_7_0_4-PU25ns_POSTLS170_V7-v1/GEN-SIM-DIGI-RAW',
+   '--pileup_input'  :  'das:/RelValPREMIXUP15_PU25/%s/GEN-SIM-DIGI-RAW'%baseDataSetRelease[9],
 # option below to be specified once the actual sample will be available
 #    '--pileup_input' : 'das:/RelValPREMIXUP15_PU25/CMSSW_7_0_1-PU25ns_POSTLS170_V7-v1/GEN-SIM-DIGI-RAW',
 
@@ -1022,7 +1024,7 @@ steps['DIGIPRMXUP15_PROD_PU25']=merge([
         digiPremixUp2015Defaults25ns
         ])
 steps['DIGIPRMXUP15_PU50']=merge([{'--conditions':'auto:upgradePLS150ns'},
-                                  {'--pileup_input' : 'das:/RelValPREMIXUP15_PU50/CMSSW_7_0_4-PU50ns_POSTLS170_V6-v1/GEN-SIM-DIGI-RAW'},
+                                  {'--pileup_input' : 'das:/RelValPREMIXUP15_PU50/%s/GEN-SIM-DIGI-RAW'%baseDataSetRelease[10]},
                                   digiPremixUp2015Defaults25ns])
 
 
