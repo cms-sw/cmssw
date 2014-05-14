@@ -36,8 +36,12 @@ public:
    FWElectronProxyBuilder() ;
    virtual ~FWElectronProxyBuilder();
 
+   using FWProxyBuilderBase::haveSingleProduct;
    virtual bool haveSingleProduct() const override { return false; }
+   using FWProxyBuilderBase::cleanLocal;
    virtual void cleanLocal() override;
+   using FWSimpleProxyBuilderTemplate<reco::GsfElectron>::buildViewType;
+   virtual void buildViewType(const reco::GsfElectron& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext*) override;
 
    REGISTER_PROXYBUILDER_METHODS();
 
@@ -45,9 +49,7 @@ private:
    FWElectronProxyBuilder( const FWElectronProxyBuilder& ); // stop default
    const FWElectronProxyBuilder& operator=( const FWElectronProxyBuilder& ); // stop default
   
-   using FWSimpleProxyBuilderTemplate<reco::GsfElectron> {::buildViewType;
-   virtual void buildViewType(const reco::GsfElectron& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext*) override;
-
+ 
    TEveElementList* requestCommon();
 
    TEveElementList* m_common;
@@ -130,6 +132,7 @@ class FWElectronGlimpseProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::
 public:
    FWElectronGlimpseProxyBuilder() {}
    virtual ~FWElectronGlimpseProxyBuilder() {}
+   using FWSimpleProxyBuilderTemplate<reco::GsfElectron>::build;
 
    REGISTER_PROXYBUILDER_METHODS();
 
@@ -138,7 +141,6 @@ private:
 
    const FWElectronGlimpseProxyBuilder& operator=(const FWElectronGlimpseProxyBuilder&); // stop default
 
-   using FWSimpleProxyBuilderTemplate<reco::GsfElectron> {::build;
    virtual void build(const reco::GsfElectron& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) override;
 };
 

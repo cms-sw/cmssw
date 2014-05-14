@@ -33,8 +33,11 @@ class FWPFPatJetLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<T>
       virtual ~FWPFPatJetLegoProxyBuilder();
 
    // --------------------- Member Functions --------------------------
+      using FWSimpleProxyBuilderTemplate<T>::havePerViewProduct;
       virtual bool havePerViewProduct(FWViewType::EType) const { return true; }
+      using FWSimpleProxyBuilderTemplate<T>::scaleProduct;
       virtual void scaleProduct(TEveElementList* parent, FWViewType::EType, const FWViewContext* vc);
+      using FWSimpleProxyBuilderTemplate<T>::localModelChanges;
       virtual void localModelChanges(const FWModelId& iId, TEveElement* iCompound, FWViewType::EType viewType, const FWViewContext* vc);
 
    private:

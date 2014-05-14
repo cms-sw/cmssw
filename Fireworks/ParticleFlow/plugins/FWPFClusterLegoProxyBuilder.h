@@ -38,8 +38,11 @@ class FWPFClusterLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::PF
       virtual ~FWPFClusterLegoProxyBuilder(){}
 
    // --------------------- Member Functions --------------------------
+      using FWSimpleProxyBuilderTemplate<reco::PFCluster>::scaleProduct;
       virtual void scaleProduct( TEveElementList *parent, FWViewType::EType, const FWViewContext *vc );
+      using FWSimpleProxyBuilderTemplate<reco::PFCluster>::havePerViewProduct;
       virtual bool havePerViewProduct(FWViewType::EType) const { return true; }
+      using FWSimpleProxyBuilderTemplate<reco::PFCluster>::localModelChanges;
       virtual void localModelChanges( const FWModelId &iId, TEveElement *el,
                                         FWViewType::EType viewType, const FWViewContext *vc );
    
@@ -70,6 +73,7 @@ class FWPFEcalClusterLegoProxyBuilder : public FWPFClusterLegoProxyBuilder
       virtual ~FWPFEcalClusterLegoProxyBuilder(){}
 
    // --------------------- Member Functions --------------------------
+      using FWSimpleProxyBuilderTemplate<reco::PFCluster>::build;
       virtual void build( const reco::PFCluster&, unsigned int, TEveElement&, const FWViewContext* );
 
       REGISTER_PROXYBUILDER_METHODS();
@@ -92,6 +96,7 @@ class FWPFHcalClusterLegoProxyBuilder : public FWPFClusterLegoProxyBuilder
       virtual ~FWPFHcalClusterLegoProxyBuilder(){}
 
    // --------------------- Member Functions --------------------------
+      using FWSimpleProxyBuilderTemplate<reco::PFCluster>::build;
       virtual void build( const reco::PFCluster&, unsigned int, TEveElement&, const FWViewContext* );
 
       REGISTER_PROXYBUILDER_METHODS();
