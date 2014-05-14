@@ -23,19 +23,13 @@ JetTester::JetTester(const edm::ParameterSet& iConfig) :
 {
   std::string inputCollectionLabel(mInputCollection.label());
 
-//  std::size_t foundCaloCollection = inputCollectionLabel.find("Calo");
-//  std::size_t foundJPTCollection  = inputCollectionLabel.find("JetPlusTrack");
-//  std::size_t foundPFCollection   = inputCollectionLabel.find("PF");
-
   isCaloJet = (std::string("calo")==JetType);
   isPFJet   = (std::string("pf")  ==JetType);
-//  isJPTJet  = (std::string("jpt") ==JetType); //jpt not used anymore
 
   //consumes
    pvToken_ = consumes<std::vector<reco::Vertex> >(edm::InputTag("offlinePrimaryVertices"));
    caloTowersToken_ = consumes<CaloTowerCollection>(edm::InputTag("towerMaker"));
    if (isCaloJet) caloJetsToken_  = consumes<reco::CaloJetCollection>(mInputCollection);
-//   if (isJPTJet)  jptJetsToken_   = consumes<reco::JPTJetCollection>(mInputCollection);
    if (isPFJet)   pfJetsToken_    = consumes<reco::PFJetCollection>(mInputCollection);
    genJetsToken_ = consumes<reco::GenJetCollection>(edm::InputTag(mInputGenCollection));
    evtToken_ = consumes<edm::HepMCProduct>(edm::InputTag("generator"));
@@ -243,10 +237,7 @@ JetTester::JetTester(const edm::ParameterSet& iConfig) :
 void JetTester::bookHistograms(DQMStore::IBooker & ibooker,
                                   edm::Run const & iRun,
                                   edm::EventSetup const & ) { 
-//  DQMStore* dbe = &*edm::Service<DQMStore>();
-    
-//  if (dbe) {
-//    dbe->setCurrentFolder("JetMET/JetValidation/"+mInputCollection.label());
+
   ibooker.setCurrentFolder("JetMET/JetValidation/"+mInputCollection.label());  
 
     double log10PtMin  = 0.50;
@@ -278,7 +269,6 @@ void JetTester::bookHistograms(DQMStore::IBooker & ibooker,
     mHadTiming    = ibooker.book1D("HadTiming",    "HadTiming",     75,  -50,  100);
     mEmTiming     = ibooker.book1D("EmTiming",     "EmTiming",      75,  -50,  100);
     mJetArea      = ibooker.book1D("JetArea",      "JetArea",       100,   0, 4);
-//    mRho          = ibooker.book1D("Rho",          "Rho",           100,    0,   5);
 
     // Corrected jets
     if (!JetCorrectionService.empty())	{
@@ -364,17 +354,6 @@ void JetTester::bookHistograms(DQMStore::IBooker & ibooker,
     mNJets2 = ibooker.bookProfile("NJets2", "Number of jets above Pt threshold", 100, 0, 4000, 100, 0, 50, "s");
 
 
-    // PFJet specific
-    //------------------------------------------------------------------------
-//    if (isPFJet) {
-//      mChargedEmEnergy     = ibooker.book1D("ChargedEmEnergy",     "ChargedEmEnergy",     100,   0,  500);
-//      mChargedHadronEnergy = ibooker.book1D("ChargedHadronEnergy", "ChargedHadronEnergy", 100,   0,  500);
-//      mNeutralEmEnergy     = ibooker.book1D("NeutralEmEnergy",     "NeutralEmEnergy",     100,   0,  500);
-//      mNeutralHadronEnergy = ibooker.book1D("NeutralHadronEnergy", "NeutralHadronEnergy", 100,   0,  500);
-//      mHadEnergyInHF       = ibooker.book1D("HadEnergyInHF",       "HadEnergyInHF",       100,   0, 2500); 
-//      mEmEnergyInHF        = ibooker.book1D("EmEnergyInHF",        "EmEnergyInHF",        100, -20,  450); 
-//    }
-    // ---- Calo Jet specific information ----
     if (isCaloJet) {
       maxEInEmTowers              = ibooker.book1D("maxEInEmTowers", "maxEInEmTowers", 50,0,500);
       maxEInHadTowers             = ibooker.book1D("maxEInHadTowers", "maxEInHadTowers", 50,0,500);
@@ -391,12 +370,7 @@ void JetTester::bookHistograms(DQMStore::IBooker & ibooker,
       n90                         = ibooker.book1D("n90", "n90", 30,0,30);
       n60                         = ibooker.book1D("n60", "n60", 30,0,30);
     }
-    // ---- JPT Jet specific information ----
-//    if (isJPTJet) {
-//      elecMultiplicity = ibooker.book1D("elecMultiplicity", "elecMultiplicity", 10,0,10);
-//    }
-    // ---- JPT or PF Jet specific information ----
-//    if (isPFJet or isJPTJet) {
+
     if (isPFJet) {
       muonMultiplicity = ibooker.book1D("muonMultiplicity", "muonMultiplicity", 10,0,10);
       chargedMultiplicity = ibooker.book1D("chargedMultiplicity", "chargedMultiplicity", 100,0,100);
@@ -428,7 +402,6 @@ void JetTester::bookHistograms(DQMStore::IBooker & ibooker,
       chargedMuEnergyFraction = ibooker.book1D("chargedMuEnergyFraction", "chargedMuEnergyFraction", 50,0,1);
       neutralMultiplicity = ibooker.book1D("neutralMultiplicity", "neutralMultiplicity", 50,0,50);
     }
-    //  } //if(dbe)
 
   if (mOutputFile.empty ())
     {
@@ -445,24 +418,6 @@ void JetTester::bookHistograms(DQMStore::IBooker & ibooker,
 // ~JetTester
 //------------------------------------------------------------------------------
 JetTester::~JetTester() {}
-
-
-//------------------------------------------------------------------------------
-// beginJob
-//------------------------------------------------------------------------------
-void JetTester::beginJob() {}
-
-
-//------------------------------------------------------------------------------
-// endJob
-//------------------------------------------------------------------------------
-void JetTester::endJob()
-{
-  if (!mOutputFile.empty() && &*edm::Service<DQMStore>())
-    {
-      edm::Service<DQMStore>()->save(mOutputFile);
-    }
-}
 
 
 //------------------------------------------------------------------------------
