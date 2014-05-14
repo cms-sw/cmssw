@@ -31,6 +31,7 @@ private:
    const FWSecVertexProxyBuilder& operator=(const FWSecVertexProxyBuilder&); // stop default
    
    // ---------- member data --------------------------------
+   using FWSimpleProxyBuilderTemplate<reco::SecondaryVertexTagInfo>::build;
    void build(const reco::SecondaryVertexTagInfo& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) override;
 };
 

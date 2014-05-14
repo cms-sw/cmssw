@@ -52,12 +52,22 @@ class FWPFBlockProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::PFBlock>
                                           FWViewType::EType, float r );
       void           clusterSharedBuild( const reco::PFCluster&, TEveElement&, const FWViewContext* );
 
+      using FWProxyBuilderBase::havePerViewProduct;
       virtual bool   havePerViewProduct( FWViewType::EType ) const { return true; }
+
+      using FWProxyBuilderBase::haveSingleProduct;
       virtual bool   haveSingleProduct() const { return false; } // different view types
-      virtual void   buildViewType( const reco::PFBlock&, unsigned int, TEveElement&, FWViewType::EType, const FWViewContext* );
+
+       using FWProxyBuilderBase::scaleProduct;
       virtual void   scaleProduct( TEveElementList *parent, FWViewType::EType, const FWViewContext *vc );
+
+      using FWProxyBuilderBase::cleanLocal;
       virtual void   cleanLocal() { m_clusters.clear(); }
       
+      using FWSimpleProxyBuilderTemplate<reco::PFBlock>::buildViewType;
+      virtual void   buildViewType( const reco::PFBlock&, unsigned int, TEveElement&, FWViewType::EType, const FWViewContext* );
+
+    
    // ----------------------- Data Members ----------------------------
       BuilderType e_builderType;
       std::vector<ScalableLines> m_clusters;
