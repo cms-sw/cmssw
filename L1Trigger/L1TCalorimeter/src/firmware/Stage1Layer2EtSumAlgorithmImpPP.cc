@@ -8,6 +8,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "L1Trigger/L1TCalorimeter/interface/Stage1Layer2EtSumAlgorithmImp.h"
 #include "L1Trigger/L1TCalorimeter/interface/PUSubtractionMethods.h"
+#include "L1Trigger/L1TCalorimeter/interface/legacyGtHelper.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
 #include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
 
@@ -16,7 +17,7 @@ l1t::Stage1Layer2EtSumAlgorithmImpPP::Stage1Layer2EtSumAlgorithmImpPP(CaloParams
   regionETCutForHT=params->regionETCutForHT();
   regionETCutForMET=params->regionETCutForMET();
   minGctEtaForSums=params->minGctEtaForSums();
-  maxGctEtaForSums=params->maxGctEtaForSums();  
+  maxGctEtaForSums=params->maxGctEtaForSums();
 
   egLsb=params_->egLsb();
   jetLsb=params_->jetLsb();
@@ -58,8 +59,8 @@ void l1t::Stage1Layer2EtSumAlgorithmImpPP::processEvent(const std::vector<l1t::C
 
   std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
 
-  
-  //Region Correction will return uncorrected subregions if 
+
+  //Region Correction will return uncorrected subregions if
   //regionPUSType is set to None in the config
   RegionCorrection(regions, EMCands, subRegions, regionPUSParams, regionPUSType);
 
@@ -104,10 +105,13 @@ void l1t::Stage1Layer2EtSumAlgorithmImpPP::processEvent(const std::vector<l1t::C
   l1t::EtSum etTot (*etLorentz,EtSum::EtSumType::kTotalEt,sumET/jetLsb,0,0,0);
   l1t::EtSum htTot (*etLorentz,EtSum::EtSumType::kTotalHt,sumHT/jetLsb ,0,0,0);
 
-  etsums->push_back(etMiss);
-  etsums->push_back(htMiss);
-  etsums->push_back(etTot);
-  etsums->push_back(htTot);
+  std::vector<l1t::EtSum> *preGtEtSums = new std::vector<l1t::EtSum>();
+
+  preGtEtSums->push_back(etMiss);
+  preGtEtSums->push_back(htMiss);
+  preGtEtSums->push_back(etTot);
+  preGtEtSums->push_back(htTot);
+
+  EtSumToGtScales(params_, preGtEtSums, etsums);
 
 }
-

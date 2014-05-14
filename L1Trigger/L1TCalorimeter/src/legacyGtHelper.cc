@@ -20,10 +20,10 @@ namespace l1t {
       const unsigned newEta = gtEta(itJet->hwEta());
       const uint16_t rankPt = params->jetScale().rank((uint16_t)itJet->hwPt());
 
-      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *jetLorentz =
+      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *lorentz =
 	  new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
 
-      l1t::Jet gtJet(*jetLorentz, rankPt, newEta, itJet->hwPhi(), itJet->hwQual());
+      l1t::Jet gtJet(*lorentz, rankPt, newEta, itJet->hwPhi(), itJet->hwQual());
       output->push_back(gtJet);
     }
   }
@@ -31,6 +31,19 @@ namespace l1t {
   void EGammaToGtScales(CaloParams *params,
 			const std::vector<l1t::EGamma> * input,
 			std::vector<l1t::EGamma> *output){
+
+    for(std::vector<l1t::EGamma>::const_iterator itEGamma = input->begin();
+	itEGamma != input->end(); ++itEGamma){
+      const unsigned newEta = gtEta(itEGamma->hwEta());
+      const uint16_t rankPt = params->emScale().rank((uint16_t)itEGamma->hwPt());
+
+      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *lorentz =
+	  new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
+
+      l1t::EGamma gtEGamma(*lorentz, rankPt, newEta, itEGamma->hwPhi(),
+			   itEGamma->hwQual(), itEGamma->hwIso());
+      output->push_back(gtEGamma);
+    }
   }
 
   void TauToGtScales(CaloParams *params,
@@ -41,21 +54,34 @@ namespace l1t {
       const unsigned newEta = gtEta(itTau->hwEta());
       const uint16_t rankPt = params->jetScale().rank((uint16_t)itTau->hwPt());
 
-      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *tauLorentz =
+      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *lorentz =
 	  new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
 
-      l1t::Tau gtTau(*tauLorentz, rankPt, newEta, itTau->hwPhi(), itTau->hwQual());
+      l1t::Tau gtTau(*lorentz, rankPt, newEta, itTau->hwPhi(), itTau->hwQual());
       output->push_back(gtTau);
     }
-
   }
 
   void EtSumToGtScales(CaloParams *params,
 		       const std::vector<l1t::EtSum> * input,
 		       std::vector<l1t::EtSum> *output){
+    for(std::vector<l1t::EtSum>::const_iterator itEtSum = input->begin();
+	itEtSum != input->end(); ++itEtSum){
+
+      uint16_t rankPt;
+      rankPt = params->emScale().rank((uint16_t)itEtSum->hwPt());
+      if (EtSum::EtSumType::kMissingHt == itEtSum->getType())
+	rankPt = params->HtMissScale().rank((uint16_t)itEtSum->hwPt());
+
+      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *lorentz =
+	  new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
+
+      l1t::EtSum gtEtSum(*lorentz, itEtSum->getType(), rankPt, 0,
+			 itEtSum->hwPhi(), itEtSum->hwQual());
+
+      output->push_back(gtEtSum);
+    }
   }
-
-
 }
 
 const unsigned int gtEta(const unsigned int iEta)
