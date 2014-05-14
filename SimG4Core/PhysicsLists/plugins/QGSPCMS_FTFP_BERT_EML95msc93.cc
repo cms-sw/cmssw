@@ -1,6 +1,7 @@
 #include "QGSPCMS_FTFP_BERT_EML95msc93.hh"
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics95msc93.h"
 #include "SimG4Core/PhysicsLists/interface/CMSMonopolePhysics.h"
+#include "SimG4Core/PhysicsLists/interface/HadronPhysicsQGSPCMS_FTFP_BERT.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4DecayPhysics.hh"
@@ -51,7 +52,7 @@ QGSPCMS_FTFP_BERT_EML95msc93::QGSPCMS_FTFP_BERT_EML95msc93(G4LogicalVolumeToDDLo
     RegisterPhysics( new G4HadronElasticPhysics(ver));
 
     // Hadron Physics
-    RegisterPhysics(  new G4HadronPhysicsQGSP_FTFP_BERT(ver));
+    RegisterPhysics( new HadronPhysicsQGSPCMS_FTFP_BERT(ver));
 
     // Stopping Physics
     RegisterPhysics( new G4StoppingPhysics(ver));
