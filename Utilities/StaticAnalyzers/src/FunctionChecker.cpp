@@ -13,7 +13,6 @@
 #include <clang/StaticAnalyzer/Core/BugReporter/BugReporter.h>
 #include <clang/StaticAnalyzer/Core/BugReporter/BugType.h>
 #include <llvm/ADT/SmallString.h>
-#include <boost/interprocess/sync/interprocess_semaphore.hpp>
 #include <iostream>
 #include <fstream>
 #include <iterator>
