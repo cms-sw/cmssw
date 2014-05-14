@@ -63,16 +63,11 @@ PixelVertexCollectionTrimmer::PixelVertexCollectionTrimmer(const edm::ParameterS
   fractionSumPt2_ = iConfig.getParameter<double> ("fractionSumPt2" );
   minSumPt2_      = iConfig.getParameter<double> ("minSumPt2" );
 
-  double track_pt_min =  1.0;
-  double track_pt_max = 10.;
-  double track_chi2_max = 9999999.;
-  double track_prob_min = -1.;
-
   edm::ParameterSet PVcomparerPSet = iConfig.getParameter<edm::ParameterSet>("PVcomparer");
-  track_pt_min   = PVcomparerPSet.getParameter<double>("track_pt_min");
-  track_pt_max   = PVcomparerPSet.getParameter<double>("track_pt_max");
-  track_chi2_max = PVcomparerPSet.getParameter<double>("track_chi2_max");
-  track_prob_min = PVcomparerPSet.getParameter<double>("track_prob_min");
+  double track_pt_min   = PVcomparerPSet.getParameter<double>("track_pt_min");
+  double track_pt_max   = PVcomparerPSet.getParameter<double>("track_pt_max");
+  double track_chi2_max = PVcomparerPSet.getParameter<double>("track_chi2_max");
+  double track_prob_min = PVcomparerPSet.getParameter<double>("track_prob_min");
 
   pvComparer_ = new PVClusterComparer(track_pt_min, track_pt_max, track_chi2_max, track_prob_min);
 
