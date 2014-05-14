@@ -64,7 +64,7 @@ private:
   TFile *             hf;
   TBranch             *emBranch, *hadBranch;
 
-  bool                verbose, applyFidCut;
+  bool                verbose, applyFidCut, newForm;
   int                 nMomBin, totEvents, evtPerBin;
   float               libVers, listVersion; 
   std::vector<double> pmom;
@@ -78,8 +78,9 @@ private:
   int                 anuePDG, anumuPDG, anutauPDG, geantinoPDG;
 
   int                 npe;
-  std::vector<HFShowerPhoton> pe;
-  std::vector<HFShowerPhoton> photon;
+  HFShowerPhotonCollection pe;
+  HFShowerPhotonCollection* photo;
+  HFShowerPhotonCollection photon;
 
 };
 #endif
