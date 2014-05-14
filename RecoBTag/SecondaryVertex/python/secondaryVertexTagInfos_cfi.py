@@ -21,3 +21,6 @@ secondaryVertexTagInfos = cms.EDProducer("SecondaryVertexProducer",
         extSVDeltaRToJet    = cms.double(0.3)
 
 )
+
+secondaryVertexTagInfosV2 = secondaryVertexTagInfos.clone()
+secondaryVertexTagInfosV2.trackSelection.qualityClass = cms.string('any')
