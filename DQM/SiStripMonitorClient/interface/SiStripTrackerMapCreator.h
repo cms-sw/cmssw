@@ -60,5 +60,7 @@ class SiStripTrackerMapCreator {
   const edm::EventSetup& eSetup_;
   edm::ESHandle< SiStripDetCabling > detcabling_;
   //  SiStripPsuDetIdMap psumap_;
+  uint32_t cached_detid;
+  int16_t cached_layer;
 };
 #endif

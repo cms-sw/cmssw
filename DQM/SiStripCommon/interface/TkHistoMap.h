@@ -54,6 +54,8 @@ class TkHistoMap{
 
   DQMStore* dqmStore_;
   TkDetMap* tkdetmap_;
+  uint32_t cached_detid;
+  int16_t cached_layer;
   std::vector<MonitorElement*> tkHistoMap_;
   int HistoNumber;
   std::string MapName_;

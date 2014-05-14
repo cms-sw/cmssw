@@ -112,12 +112,12 @@ class TkDetMap{
   TkDetMap(const edm::ParameterSet&,const edm::ActivityRegistry&);
   ~TkDetMap();
 
-  const TkLayerMap::XYbin& getXY(uint32_t&);
+  const TkLayerMap::XYbin& getXY(uint32_t& , uint32_t& cached_detid , int16_t& cached_layer);
   std::string getLayerName(int& in);
   int getLayerNum(std::string& in);
   void getSubDetLayerSide(int& in,SiStripDetId::SubDetector&,uint32_t& layer,uint32_t& side);
 
-  int16_t FindLayer(uint32_t& detid);
+  int16_t FindLayer(uint32_t& detid , uint32_t& cached_detid , int16_t& cached_layer);
 
   void getComponents(int& layer,
 		     int& nchX,double& lowX,double& highX,
@@ -135,8 +135,8 @@ class TkDetMap{
  private:
   typedef std::vector<TkLayerMap*> detmapType;
   detmapType TkMap;
-  uint32_t cached_detid;
-  int16_t cached_layer;
+  //uint32_t cached_detid;
+  //int16_t cached_layer;
   TkLayerMap::XYbin cached_XYbin;
 };
 
