@@ -86,7 +86,7 @@ CaloTowerConstituentsMapBuilder::produce(const CaloGeometryRecord& iRecord)
   if (!mapFile_.empty()) {
     parseTextMap(mapFile_,*prod);
   } else {
-    assignEEtoHE(geometry, *prod);
+    assignEEtoHE(geometry, *prod, &*cttopo);
   }
   prod->sort();
   
@@ -117,7 +117,7 @@ CaloTowerConstituentsMapBuilder::parseTextMap( const std::string& filename, Calo
 }
 
 //algorithm to assign EE cells to HE towers if no text map is provided
-void CaloTowerConstituentsMapBuilder::assignEEtoHE(const CaloGeometry* geometry, CaloTowerConstituentsMap& theMap){
+void CaloTowerConstituentsMapBuilder::assignEEtoHE(const CaloGeometry* geometry, CaloTowerConstituentsMap& theMap, const CaloTowerTopology * cttopo){
   //get EE and HE geometries
   const CaloSubdetectorGeometry* geomEE ( geometry->getSubdetectorGeometry( DetId::Ecal, EcalEndcap ) );
   const CaloSubdetectorGeometry* geomHE ( geometry->getSubdetectorGeometry( DetId::Hcal, HcalEndcap ) );
@@ -135,7 +135,7 @@ void CaloTowerConstituentsMapBuilder::assignEEtoHE(const CaloGeometry* geometry,
     const HcalDetId closestCell ( geomHE->getClosestCell( gp ) ) ;
     
     //assign to appropriate CaloTower
-    CaloTowerDetId tid(closestCell.ieta(), closestCell.iphi());
+    CaloTowerDetId tid(cttopo->convertHcaltoCT(closestCell.ietaAbs(),closestCell.subdet())*closestCell.zside(), closestCell.iphi());
     theMap.assign(vec[ic],tid);
   }
 }
