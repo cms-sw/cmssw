@@ -468,10 +468,23 @@ PixelForwardLayer::computeCrossings( const TrajectoryStateOnSurface& startingSta
     // 0-_num_innerpanels, while outer to the remainings).
     for (auto blade : theComps) {
       ++closestIndex;
-      if (dynamic_cast<const PixelBlade*>(blade)->inRange(target_radius, innerDisk) ||
-          dynamic_cast<const PixelBlade*>(blade)->inRange(target_radius, !innerDisk)) {
-        found = true;
-        break;
+      // Another horrible hack: once we land on the last ring/blade,
+      // we need to look only in one region(outer) and not the
+      // other(inner) to avoid double counting of hits.
+      if (closestIndex < (int)theComps.size()) {
+        if (dynamic_cast<const PixelBlade*>(blade)->inRange(target_radius, innerDisk) ||
+            dynamic_cast<const PixelBlade*>(blade)->inRange(target_radius, !innerDisk)) {
+          found = true;
+          break;
+        }
+      } else {
+        assert(closestIndex == (int)theComps.size());
+        if (!innerDisk) {
+          if (dynamic_cast<const PixelBlade*>(blade)->inRange(target_radius, innerDisk)) {
+            found = true;
+            break;
+          }
+        }
       }
     }
     int counter = 0;
@@ -487,13 +500,24 @@ PixelForwardLayer::computeCrossings( const TrajectoryStateOnSurface& startingSta
           continue ;
         }
         ++nextIndex;
-      if (dynamic_cast<const PixelBlade*>(blade)->inRange(target_radius, innerDisk) ||
-          dynamic_cast<const PixelBlade*>(blade)->inRange(target_radius, !innerDisk)) {
-          foundNext = true;
-          break;
+        if (nextIndex < (int)theComps.size()) {
+          if (dynamic_cast<const PixelBlade*>(blade)->inRange(target_radius, innerDisk) ||
+              dynamic_cast<const PixelBlade*>(blade)->inRange(target_radius, !innerDisk)) {
+            foundNext = true;
+            break;
+          }
+        } else {
+          assert(nextIndex == (int)theComps.size());
+          if (!innerDisk) {
+            if (dynamic_cast<const PixelBlade*>(blade)->inRange(target_radius, innerDisk)) {
+              foundNext = true;
+              break;
+            }
+          }
         }
       }
     }
+
     --closestIndex;
     --nextIndex;
     if (!found && !foundNext) {
@@ -505,7 +529,7 @@ PixelForwardLayer::computeCrossings( const TrajectoryStateOnSurface& startingSta
       }
       // Carefully avoid having closestIndex == nextIndex, since this
       // will trigger a likely double counting of hits.
-      nextIndex = closestIndex - 1;
+      nextIndex = closestIndex + 1;
     }
     if (found && foundNext) {
       if (closestIndex >= (int)_num_innerpanels) {
