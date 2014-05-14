@@ -42,8 +42,8 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
 
   std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
 
-  
-  //Region Correction will return uncorrected subregions if 
+
+  //Region Correction will return uncorrected subregions if
   //regionPUSType is set to None in the config
   RegionCorrection(regions, EMCands, subRegions, regionPUSParams, regionPUSType);
 
@@ -78,13 +78,13 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
        double jetIsolationEG = jet_pt - eg_et;        // Jet isolation
        double relativeJetIsolationEG = jetIsolationEG / eg_et;
 
-       if(eg_et >0 && eg_et<63 && relativeJetIsolationEG < egRelativeJetIsolationCut)  isoFlag=1; 
+       if(eg_et >0 && eg_et<63 && relativeJetIsolationEG < egRelativeJetIsolationCut)  isoFlag=1;
        if( eg_et >= 63) isoFlag=1;
      }
 
 
      // double hoe = HoverE(eg_et, eg_eta, eg_phi, *subRegions);
-  
+
 
      // ------- fill the EG candidate vector ---------
      l1t::EGamma theEG(*egLorentz, eg_et, eg_eta, eg_phi, quality, isoFlag);
@@ -96,8 +96,11 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
    //the EG candidates should be sorted, highest pT first.
    // do not truncate the EG list, GT converter handles that
    auto comp = [&](l1t::EGamma i, l1t::EGamma j)-> bool {
-        return (i.hwPt() < j.hwPt() ); 
+        return (i.hwPt() < j.hwPt() );
     };
+
+   delete subRegions;
+   delete unCorrJets;
 
    std::sort(egammas->begin(), egammas->end(), comp);
    std::reverse(egammas->begin(), egammas->end());
@@ -107,7 +110,7 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
 
 
 
-/// -----  Compute isolation sum --------------------  
+/// -----  Compute isolation sum --------------------
 double l1t::Stage1Layer2EGammaAlgorithmImpPP::Isolation(int ieta, int iphi,
 						      const std::vector<l1t::CaloRegion> & regions)  const {
   double isolation = 0;
@@ -118,12 +121,12 @@ double l1t::Stage1Layer2EGammaAlgorithmImpPP::Isolation(int ieta, int iphi,
     int regionPhi = region->hwPhi();
     int regionEta = region->hwEta();
     unsigned int deltaPhi = iphi - regionPhi;
-    if (std::abs(deltaPhi) == L1CaloRegionDetId::N_PHI-1) 
+    if (std::abs(deltaPhi) == L1CaloRegionDetId::N_PHI-1)
       deltaPhi = -deltaPhi/std::abs(deltaPhi); //18 regions in phi
 
     unsigned int deltaEta = std::abs(ieta - regionEta);
 
-    if ((deltaPhi + deltaEta) > 0 && deltaPhi < 2 && deltaEta < 2) 
+    if ((deltaPhi + deltaEta) > 0 && deltaPhi < 2 && deltaEta < 2)
       isolation += region->hwPt();
   }
 
@@ -162,7 +165,7 @@ double l1t::Stage1Layer2EGammaAlgorithmImpPP::AssociatedJetPt(int ieta, int iphi
 
 
 
-/// -----  Compute H/E --------------------  
+/// -----  Compute H/E --------------------
 double l1t::Stage1Layer2EGammaAlgorithmImpPP::HoverE(int et, int ieta, int iphi,
 						      const std::vector<l1t::CaloRegion> & regions)  const {
   int hadronicET = 0;
@@ -176,15 +179,15 @@ double l1t::Stage1Layer2EGammaAlgorithmImpPP::HoverE(int et, int ieta, int iphi,
 
     if(iphi == regionPhi && ieta == regionEta) {
       hadronicET = regionET;
-      break; 
+      break;
     }
   }
 
   hadronicET -= et;
- 
+
   double hoe = 0.0;
 
-  if( hadronicET >0 && et > 0) 
+  if( hadronicET >0 && et > 0)
     hoe =  (double) hadronicET / (double) et;
 
   // set output
