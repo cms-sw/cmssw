@@ -40,6 +40,7 @@ private:
    FWPFTauProxyBuilder( const FWPFTauProxyBuilder& );    // stop default
    const FWPFTauProxyBuilder& operator=( const FWPFTauProxyBuilder& );    // stop default
 
+   using FWTauProxyBuilderBase::buildViewType;
    virtual void buildViewType( const FWEventItem* iItem, TEveElementList* product, FWViewType::EType type , const FWViewContext*);
 };
 

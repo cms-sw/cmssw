@@ -42,6 +42,7 @@ class FWPFCandidate3DProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::PF
       const FWPFCandidate3DProxyBuilder& operator=( const FWPFCandidate3DProxyBuilder& );   // Stop default
 
    // --------------------- Member Functions --------------------------
+      using FWSimpleProxyBuilderTemplate<reco::PFCandidate>::build;
       void build( const reco::PFCandidate& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* );
 
 };

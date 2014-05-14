@@ -34,13 +34,17 @@ public:
    void camera2Callback();
    void camera3Callback();
    void switchProjection();
+
       
 private:
    FWConvTrackHitsDetailView(const FWConvTrackHitsDetailView&); // stop default
    const FWConvTrackHitsDetailView& operator=(const FWConvTrackHitsDetailView&); // stop default
    
+   using FWDetailViewGL<reco::Conversion>::build;
    void build (const FWModelId &id, const reco::Conversion*);
+   using FWDetailViewGL<reco::Conversion>::setTextInfo;
    void setTextInfo (const FWModelId &id, const reco::Conversion*);
+ 
    
    void
    addTrackerHits3D( std::vector<TVector3> &points,

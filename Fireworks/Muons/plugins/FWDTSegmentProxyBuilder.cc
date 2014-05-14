@@ -39,6 +39,7 @@ private:
    FWDTSegmentProxyBuilder( const FWDTSegmentProxyBuilder& );
    const FWDTSegmentProxyBuilder& operator=( const FWDTSegmentProxyBuilder& );
 
+   using FWSimpleProxyBuilderTemplate<DTRecSegment4D>::buildViewType;
    void buildViewType( const DTRecSegment4D& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type, const FWViewContext* ) override;
 };
 

@@ -19,6 +19,7 @@ public:
    REGISTER_PROXYBUILDER_METHODS();
   
 private:
+   using FWSimpleProxyBuilderTemplate<reco::Track>::build;
    void build( const reco::Track& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;
 
    FWTrackTrackingRecHitProxyBuilder( const FWTrackTrackingRecHitProxyBuilder& );    // stop default
