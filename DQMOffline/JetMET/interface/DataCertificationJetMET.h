@@ -17,7 +17,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
@@ -32,15 +31,7 @@ class DataCertificationJetMET : public DQMEDHarvester {
       ~DataCertificationJetMET();
 
    private:
-      //virtual void beginJob(void) ;
-      //virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) ;
-
-
-      //virtual void endRun(const edm::Run&, const edm::EventSetup&) ;
-
-      //virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
-      //virtual void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
 
       MonitorElement*  reportSummary;
       MonitorElement*  CertificationSummary;
@@ -50,7 +41,6 @@ class DataCertificationJetMET : public DQMEDHarvester {
    // ----------member data ---------------------------
 
    edm::ParameterSet conf_;
-   DQMStore * dbe_;
    edm::Service<TFileService> fs_;
    int verbose_;
    bool InMemory_;

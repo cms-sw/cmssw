@@ -20,7 +20,6 @@
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -43,24 +42,18 @@
 #include <fstream>
 #include <vector>
 
-class DQMStore;
 class MonitorElement;
 
 class JetMETDQMOfflineClient : public DQMEDHarvester {
  
  private:
-  DQMStore* dbe_; //dbe seems to be the standard name for this, I dont know why. We of course dont own it
-
   edm::ParameterSet conf_;
 
   bool verbose_;
 
   std::string dirName_;
   std::string dirNameJet_;
-  //std::string dirNameMET_;
-  //MonitorElement *hMETRate;
   MonitorElement *me;
-  //TH1F *tMET;
 
  public:
   explicit JetMETDQMOfflineClient(const edm::ParameterSet& );
