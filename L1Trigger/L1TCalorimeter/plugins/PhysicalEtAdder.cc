@@ -1,4 +1,5 @@
 #include "L1Trigger/L1TCalorimeter/plugins/PhysicalEtAdder.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 #include "CondFormats/DataRecord/interface/L1JetEtScaleRcd.h"
@@ -17,6 +18,8 @@
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include <vector>
+
+#include <stdio.h>
 
 double getPhysicalEta(int etaIndex, bool forward = false);
 double getPhysicalPhi(int phiIndex);
@@ -66,11 +69,7 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::ESHandle< L1CaloEtScale > jetScale ;
   iSetup.get< L1JetEtScaleRcd >().get( jetScale ) ;
 
-  edm::ESHandle< L1CaloEtScale > hwForJetScale ;
-  iSetup.get< L1JetEtScaleRcd >().get( hwForJetScale ) ;
-
   edm::ESHandle< L1CaloEtScale > htMissScale ;
-  std::vector< bool > htMissMatched ;
   iSetup.get< L1HtMissScaleRcd >().get( htMissScale ) ;
 
   int firstBX = old_egammas->getFirstBX();
@@ -244,11 +243,21 @@ int getRegionEta(int gtEta, bool forward)
   int centralGtEta[] = {11, 12, 13, 14, 15, 16, 17, -100, 10, 9, 8, 7, 6, 5, 4};
   int forwardGtEta[] = {18, 19, 20, 21, -100, -100, -100, -100, 3, 2, 1, 0};
 
+  //printf("%i, %i\n",gtEta,forward);
+
+  int regionEta;
+
   if(!forward)
   {
-    return centralGtEta[gtEta];
+    regionEta = centralGtEta[gtEta];
   } else
-    return forwardGtEta[gtEta];
+    regionEta = forwardGtEta[gtEta];
+
+  if(regionEta == -100)
+    edm::LogError("EtaIndexError")
+      << "Bad eta index passed to PhysicalEtAdder::getRegionEta, " << gtEta << std::endl;
+
+  return regionEta;
 }
 
 // adapted these from the UCT2015 codebase.
