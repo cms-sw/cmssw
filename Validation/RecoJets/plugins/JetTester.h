@@ -36,9 +36,11 @@
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 class MonitorElement;
 
-class JetTester : public edm::EDAnalyzer {
+//class JetTester : public edm::EDAnalyzer {
+class JetTester : public DQMEDAnalyzer {
  public:
 
   JetTester (const edm::ParameterSet&);
@@ -47,6 +49,7 @@ class JetTester : public edm::EDAnalyzer {
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void beginJob();
   virtual void endJob();
+  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
  private:
   
@@ -64,7 +67,7 @@ class JetTester : public edm::EDAnalyzer {
   edm::EDGetTokenT<CaloTowerCollection > caloTowersToken_;
   edm::EDGetTokenT<reco::CaloJetCollection> caloJetsToken_;
   edm::EDGetTokenT<reco::PFJetCollection> pfJetsToken_;
-  edm::EDGetTokenT<reco::JPTJetCollection> jptJetsToken_;
+//  edm::EDGetTokenT<reco::JPTJetCollection> jptJetsToken_;
   edm::EDGetTokenT<reco::GenJetCollection> genJetsToken_;
   edm::EDGetTokenT<edm::HepMCProduct> evtToken_;
 
@@ -185,7 +188,7 @@ class JetTester : public edm::EDAnalyzer {
   MonitorElement* n90;
   MonitorElement* n60;
   // ---- JPT Jet specific information ----
-  MonitorElement* elecMultiplicity;
+  //MonitorElement* elecMultiplicity;
   // ---- JPT or PF Jet specific information ----
   MonitorElement* muonMultiplicity;
   MonitorElement* chargedMultiplicity;
@@ -225,7 +228,7 @@ class JetTester : public edm::EDAnalyzer {
   double          mGenEnergyFractionThreshold;
   double          mRThreshold;
   bool            isCaloJet;
-  bool            isJPTJet;
+//  bool            isJPTJet;
   bool            isPFJet;
   
 

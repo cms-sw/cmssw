@@ -78,18 +78,18 @@ JetAnalyzerAk4PF = cms.EDAnalyzer("JetTester",
 
 # AntiKt5 JPT jets
 #-------------------------------------------------------------------------------
-JetAnalyzerAk4JPT = cms.EDAnalyzer("JetTester",
-                                   JetType = cms.untracked.string('jpt'),
-                                   OutputFile = cms.untracked.string(''),
-                                   src            = cms.InputTag("JetPlusTrackZSPCorJetAntiKt4"),
-#                                   srcRho         = cms.InputTag("JetPlusTrackZSPCorJetAntiKt4","rho"),
-                                   srcGen         = cms.InputTag("ak4GenJets"),
-                                   JetCorrections = cms.string("newAk4JPTL1FastL2L3"),
-                                   recoJetPtThreshold = cms.double(40),
-                                   genEnergyFractionThreshold     = cms.double(0.05),
-                                   matchGenPtThreshold                 = cms.double(20.0),
-                                   RThreshold                     = cms.double(0.3)
-                                   )
+#JetAnalyzerAk4JPT = cms.EDAnalyzer("JetTester",
+#                                   JetType = cms.untracked.string('jpt'),
+#                                   OutputFile = cms.untracked.string(''),
+#                                   src            = cms.InputTag("JetPlusTrackZSPCorJetAntiKt4"),
+##                                   srcRho         = cms.InputTag("JetPlusTrackZSPCorJetAntiKt4","rho"),
+#                                   srcGen         = cms.InputTag("ak4GenJets"),
+#                                   JetCorrections = cms.string("newAk4JPTL1FastL2L3"),
+#                                   recoJetPtThreshold = cms.double(40),
+#                                   genEnergyFractionThreshold     = cms.double(0.05),
+#                                   matchGenPtThreshold                 = cms.double(20.0),
+#                                   RThreshold                     = cms.double(0.3)
+#                                   )
 # AntiKt5 PF CHS jets
 #-------------------------------------------------------------------------------
 JetAnalyzerAk4PFCHS = cms.EDAnalyzer("JetTester",
