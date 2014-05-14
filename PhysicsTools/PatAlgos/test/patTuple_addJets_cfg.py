@@ -18,20 +18,22 @@ from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
 from PhysicsTools.PatAlgos.tools.jetTools import switchJetCollection
 
 ## uncomment the following lines to add ak4PFJetsCHS to your PAT output
+labelAK4PFCHS = 'AK4PFCHS'
 postfixAK4PFCHS = 'Copy'
 addJetCollection(
    process,
    postfix   = postfixAK4PFCHS,
-   labelName = 'AK4PFCHS',
+   labelName = labelAK4PFCHS,
    jetSource = cms.InputTag('ak4PFJetsCHS'),
    jetCorrections = ('AK5PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2') # FIXME: Use proper JECs, as soon as available
    )
-process.out.outputCommands.append( 'drop *_selectedPatJetsAK4PFCHS%s_caloTowers_*'%( postfixAK4PFCHS ) )
+process.out.outputCommands.append( 'drop *_selectedPatJets%s%s_caloTowers_*'%( labelAK4PFCHS, postfixAK4PFCHS ) )
 
 # uncomment the following lines to add ak4PFJets to your PAT output
+labelAK4PF = 'AK4PF'
 addJetCollection(
    process,
-   labelName = 'AK4PF',
+   labelName = labelAK4PF,
    jetSource = cms.InputTag('ak4PFJets'),
    jetCorrections = ('AK5PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-1'), # FIXME: Use proper JECs, as soon as available
    btagDiscriminators = [
@@ -44,21 +46,23 @@ addJetCollection(
      , 'combinedSecondaryVertexBJetTags'
      ],
    )
-process.out.outputCommands.append( 'drop *_selectedPatJetsAK4PF_caloTowers_*' )
+process.out.outputCommands.append( 'drop *_selectedPatJets%s_caloTowers_*'%( labelAK4PF ) )
 
 # uncomment the following lines to add ak4PFJets to your PAT output
+labelCA8PFCHSPruned = 'CA8PFCHSPruned'
 addJetCollection(
    process,
-   labelName = 'CA8PFCHSPruned',
+   labelName = labelCA8PFCHSPruned,
    jetSource = cms.InputTag('ca8PFJetsCHSPruned'),
    algo = 'CA8',
    rParam = 0.8,
    genJetCollection = cms.InputTag('ak8GenJets'),
+   jetCorrections = ('AK5PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'), # FIXME: Use proper JECs, as soon as available
    btagDiscriminators = [
        'combinedSecondaryVertexBJetTags'
      ],
    )
-process.out.outputCommands.append( 'drop *_selectedPatJetsCA8PF_caloTowers_*' )
+process.out.outputCommands.append( 'drop *_selectedPatJets%s_caloTowers_*'%( labelCA8PFCHSPruned ) )
 
 # uncomment the following lines to switch to ak4CaloJets in your PAT output
 switchJetCollection(
