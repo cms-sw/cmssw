@@ -58,6 +58,9 @@ class RecoTauProducer : public edm::stream::EDProducer<>
   edm::InputTag jetRegionSrc_;
   edm::InputTag chargedHadronSrc_;
   edm::InputTag piZeroSrc_;
+
+  double minJetPt_;
+  double maxJetAbsEta_;
  //token definition
   edm::EDGetTokenT<reco::CandidateView> jet_token;
   edm::EDGetTokenT<edm::Association<reco::PFJetCollection> > jetRegion_token;
@@ -81,6 +84,8 @@ RecoTauProducer::RecoTauProducer(const edm::ParameterSet& pset)
   chargedHadronSrc_ = pset.getParameter<edm::InputTag>("chargedHadronSrc");
   piZeroSrc_ = pset.getParameter<edm::InputTag>("piZeroSrc");
   
+  minJetPt_ = ( pset.exists("minJetPt") ) ? pset.getParameter<double>("minJetPt") : -1.0;
+  maxJetAbsEta_ = ( pset.exists("maxJetAbsEta") ) ? pset.getParameter<double>("maxJetAbsEta") : 99.0;
   //consumes definition
   jet_token=consumes<reco::CandidateView>(jetSrc_);
   jetRegion_token = consumes<edm::Association<reco::PFJetCollection> >(jetRegionSrc_);
@@ -159,6 +164,8 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   // Loop over the jets and build the taus for each jet
   BOOST_FOREACH( reco::PFJetRef jetRef, jets ) {
     // Get the jet with extra constituents from an area around the jet
+    if(jetRef->pt() - minJetPt_ < 1e-5) continue;
+    if(fabs(jetRef->eta()) - maxJetAbsEta_ > -1e-5) continue;
     reco::PFJetRef jetRegionRef = (*jetRegionHandle)[jetRef];
     if ( jetRegionRef.isNull() ) {
       throw cms::Exception("BadJetRegionRef") 
@@ -189,7 +196,6 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 
     // Get the pizeros associated with this jet
     const std::vector<reco::RecoTauPiZero>& piZeros = (*piZeroAssoc)[jetRef];
-
     // Loop over our builders and create the set of taus for this jet
     unsigned int nTausBuilt = 0;
     for ( BuilderList::const_iterator builder = builders_.begin();
