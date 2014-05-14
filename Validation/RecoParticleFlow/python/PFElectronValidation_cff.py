@@ -2,11 +2,25 @@ import FWCore.ParameterSet.Config as cms
 
 from DQMOffline.PFTau.PFElectronDQMAnalyzer_cfi import pfElectronDQMAnalyzer
 
+pfAllElectrons = cms.EDFilter("PdgIdPFCandidateSelector",
+                                      pdgId = cms.vint32(11, -11),
+                                      src = cms.InputTag("particleFlow")
+                                      )
+
+gensource = cms.EDProducer("GenParticlePruner",
+                           src = cms.InputTag("genParticles"),
+                           select = cms.vstring('drop *',
+                                                'keep pdgId = 11',
+                                                'keep pdgId = -11'
+                                                )
+                           )
+
+
 pfElectronValidation1 = pfElectronDQMAnalyzer.clone()
 pfElectronValidation1.InputCollection = cms.InputTag('pfAllElectrons') # for global Validation
 pfElectronValidation1.MatchCollection = cms.InputTag('gensource') # for global Validation
 pfElectronValidation1.BenchmarkLabel  = cms.string('PFElectronValidation/CompWithGenElectron')
-pfElectronValidationSequence = cms.Sequence( pfElectronValidation1 )
+pfElectronValidationSequence = cms.Sequence( pfAllElectrons + gensource + pfElectronValidation1 )
 
 
 # NoTracking
