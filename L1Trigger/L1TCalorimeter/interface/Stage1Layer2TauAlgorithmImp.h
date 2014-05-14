@@ -12,16 +12,16 @@ namespace l1t {
 
   class Stage1Layer2SingleTrackHI : public Stage1Layer2TauAlgorithm {
   public:
-    Stage1Layer2SingleTrackHI();
+    Stage1Layer2SingleTrackHI(CaloParams* params);
     virtual ~Stage1Layer2SingleTrackHI();
-    virtual void processEvent(//const std::vector<l1t::CaloStage1> & clusters,
-			      const std::vector<l1t::CaloEmCand> & clusters,
+    virtual void processEvent(const std::vector<l1t::CaloEmCand> & clusters,
                               const std::vector<l1t::CaloRegion> & regions,
 			      const std::vector<l1t::Jet> * jets,
                               std::vector<l1t::Tau> * taus);
 
-  /* private: */
-  /*   double regionLSB_; */
+  private:
+    CaloParams* const params_;
+
  };
 
   class Stage1Layer2TauAlgorithmImpPP : public Stage1Layer2TauAlgorithm {
@@ -33,7 +33,7 @@ namespace l1t {
 			      const std::vector<l1t::Jet> * jets,
                               std::vector<l1t::Tau> * taus);
 
-  private: 
+  private:
 
     CaloParams* const params_;
 
@@ -41,7 +41,7 @@ namespace l1t {
 				 const std::vector<l1t::CaloRegion> & regions,
 				 double& isolation) const;
 
-    double JetIsolation(int et, int ieta, int iphi, 
+    double JetIsolation(int et, int ieta, int iphi,
 			const std::vector<l1t::Jet> & jets) const;
 
     //int tauSeed;
