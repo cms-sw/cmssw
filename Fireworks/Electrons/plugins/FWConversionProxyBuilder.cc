@@ -46,6 +46,7 @@ private:
    FWConversionProxyBuilder( const FWConversionProxyBuilder& ); // stop default
    const FWConversionProxyBuilder& operator=( const FWConversionProxyBuilder& ); // stop default
   
+   using FWSimpleProxyBuilderTemplate<reco::Conversion>::buildViewType;
    virtual void buildViewType(const reco::Conversion& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext*) override;
 
    TEveElementList* requestCommon();

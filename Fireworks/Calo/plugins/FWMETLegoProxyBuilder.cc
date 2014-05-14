@@ -23,6 +23,7 @@ private:
    FWMETLegoProxyBuilder( const FWMETLegoProxyBuilder& );    // stop default
    const FWMETLegoProxyBuilder& operator=( const FWMETLegoProxyBuilder& );    // stop default
    
+   using FWSimpleProxyBuilderTemplate<reco::MET>::build;
    virtual void build( const reco::MET& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext* );
 };
 
