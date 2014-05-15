@@ -26,6 +26,11 @@
   <Constant name="mr_eplane" value="3*[level]"/>
   <Constant name="mr_esector" value="4*[level]"/>
   <Constant name="mr_eroll" value="5*[level]"/>
+  <Constant name="mg_region" value="[mb_region]"/>
+  <Constant name="mg_station" value="[me_station]"/>
+  <Constant name="mg_ring" value="3*[level]"/>
+  <Constant name="mg_sector" value="4*[level]"/>
+  <Constant name="mg_roll" value="5*[level]"/>
  </ConstantsSection>
  <SpecParSection label="muonregionnumbering" eval="true">
   <SpecPar name="MuonCommonNumbering">
@@ -56,6 +61,11 @@
    <Parameter name="mr_eplane"     value="[mr_eplane]"/>
    <Parameter name="mr_esector"    value="[mr_esector]"/>
    <Parameter name="mr_eroll"      value="[mr_eroll]"/>
+   <Parameter name="mg_region"     value="[mg_region]"/>
+   <Parameter name="mg_station"    value="[mg_station]"/>
+   <Parameter name="mg_ring"       value="[mg_ring]"/>
+   <Parameter name="mg_sector"     value="[mg_sector]"/>
+   <Parameter name="mg_roll"       value="[mg_roll]"/>
   </SpecPar>
   <SpecPar name="MuonBarrel">
    <PartSelector path="//MB"/>
@@ -455,6 +465,32 @@
   <SpecPar name="MuonEndcapRingA">
    <PartSelector path="//ME1A_ActiveGasVol"/>
    <Parameter name="CopyNoTag" value="[me_ring]"/>
+   <Parameter name="CopyNoOffset" value="4*[super]"/>
+  </SpecPar>
+ </SpecParSection>
+ <SpecParSection label="muonGEMnumbering" eval="true">
+  <SpecPar name="MuonGEMEndcap">
+   <PartSelector path="//GEMDisk11."/>
+   <PartSelector path="//GEMDisk21S."/>
+   <Parameter name="CopyNoTag" value="[mg_ring]"/>
+   <Parameter name="CopyNoOffset" value="1*[super]"/>
+  </SpecPar>
+  <SpecPar name="MuonGEMEndcap2">
+   <PartSelector path="//GEMDisk21L."/>
+   <Parameter name="CopyNoTag" value="[mg_ring]"/>
+   <Parameter name="CopyNoOffset" value="2*[super]"/>
+  </SpecPar>
+  <SpecPar name="MuonGEMSector">
+   <PartSelector path="//GEMBox11."/>
+   <PartSelector path="//GEMBox21"/>
+   <PartSelector path="//GEMBox21L"/>
+   <Parameter name="CopyNoTag" value="[mg_sector]"/>
+   <Parameter name="CopyNoOffset" value="3*[super]"/>
+  </SpecPar>
+  <SpecPar name="MuonGEMChamber">
+   <PartSelector path="//GHA1.*"/>
+   <PartSelector path="//GHA2.*"/>
+   <Parameter name="CopyNoTag" value="[mg_roll]"/>
    <Parameter name="CopyNoOffset" value="4*[super]"/>
   </SpecPar>
  </SpecParSection>

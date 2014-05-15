@@ -34,6 +34,7 @@
    <PartSelector path="//MB.*P"/>
    <PartSelector path="//ME.*Space"/>
    <PartSelector path="//RR.*"/>
+   <PartSelector path="//GE.*"/>
    <Parameter name="CMSCutsRegion" value="MuonChamber" eval="false"/>
    <Parameter name="ProdCutsForGamma" value="1.*mm"/>
    <Parameter name="ProdCutsForElectrons" value="0.002*mm"/>
