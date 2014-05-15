@@ -203,8 +203,8 @@ EOF
 else if [ "$precompile" == "true" ];
 then
     echo "Using a precompiled tar ball $tarball.tar.gz"
-#    wget --no-check-certificate http://cms-project-generators.web.cern.ch/cms-project-generators/${tarballRepo}/${tarball}.tar.gz
     fn-fileget -c `cmsGetFnConnect frontier://smallfiles` ${tarballRepo}/${tarball}.tar.gz || true
+
 
     if [[ -e ./${tarball}.tar.gz ]]; then
 	tar xvzf ${tarball}.tar.gz
@@ -219,9 +219,16 @@ fi
 
 mkdir workdir
 cd workdir
+if [[ -e ../../pwggrid.dat && "$precompile" == "true" ]]; then
+ cp -p ../../*grid*.dat .
+ cp -p ../../pwgubound.dat .
+fi
+
 cat ${card} | sed -e "s#SEED#${seed}#g" | sed -e "s#NEVENTS#${nevt}#g" > powheg.input
 cat powheg.input
 ../pwhg_main &> log_${process}_${seed}.txt
+
+
 #remove the spurious random seed output that is non LHE standard 
 cat pwgevents.lhe | grep -v "Random number generator exit values" > ${file}_final.lhe
 ls -l ${file}_final.lhe
@@ -229,6 +236,16 @@ pwd
 cp ${file}_final.lhe ${WORKDIR}/.
 #cp ${file}_final.lhe ${WORKDIR}/${file}_final.lhe
 #cp ${file}_final.lhe ${WORKDIR}/output.lhe
+
+if [[ -e ./pwggrid.dat && "$createTarball" == "true" ]]; then
+ cp -p *grid*.dat ${WORKDIR}/.
+ cp -p pwgubound.dat ${WORKDIR}/.
+ cd ${WORKDIR}
+ gunzip ${tarball}.tar.gz
+ tar rf ${tarball}.tar *grid*.dat pwgubound.dat
+ gzip ${tarball}.tar
+ echo "Copy the grid file pwggrid.dat and the upper bound file pwgubound.dat to the  tar ball $tarball.tar.gz "
+fi
 
 echo "Output ready with log_${process}_${seed}.txt and ${file}_final.lhe at `pwd` and $WORKDIR"
 echo "End of job on " `date`
