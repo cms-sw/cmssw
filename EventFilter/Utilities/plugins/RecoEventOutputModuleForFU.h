@@ -48,7 +48,7 @@ namespace evf {
       boost::filesystem::path runDirectory(
 					   edm::Service<evf::EvFDaqDirector>()->findCurrentRunDir());
       datapath_ = runDirectory.string();
-      edm::LogInfo("RecoEventOutputModuleForFU") << "Writing .dat files to "
+      LogDebug("RecoEventOutputModuleForFU") << "writing .dat files to -: "
 						 << datapath_;
       // create open dir if not already there
       boost::filesystem::path openPath = runDirectory;
@@ -58,7 +58,7 @@ namespace evf {
       if (boost::filesystem::is_directory(openPath))
 	foundOpenDir = true;
       if (!foundOpenDir) {
-	edm::LogInfo("RecoEventOutputModuleForFU") << "<open> FU dir not found. Creating...";
+	LogDebug("RecoEventOutputModuleForFU") << "<open> FU dir not found. Creating... -:" << openPath.string();
 	boost::filesystem::create_directories(openPath);
       }
     }
@@ -74,6 +74,7 @@ namespace evf {
     IntJ errorEvents_; 
     IntJ retCodeMask_; 
     StringJ filelist_;
+    IntJ filesize_; 
     StringJ inputFiles_;
     boost::shared_ptr<FastMonitor> jsonMonitor_;
     evf::FastMonitoringService *fms_;
@@ -92,6 +93,7 @@ namespace evf {
     errorEvents_(0),
     retCodeMask_(0),
     filelist_(),
+    filesize_(0),
     inputFiles_()
   {
     initializeStreams();
@@ -102,6 +104,7 @@ namespace evf {
     errorEvents_.setName("ErrorEvents");
     retCodeMask_.setName("ReturnCodeMask");
     filelist_.setName("Filelist");
+    filesize_.setName("Filesize");
     inputFiles_.setName("InputFiles");
 
     outJsonDef_.setDefaultGroup("data");
@@ -110,6 +113,7 @@ namespace evf {
     outJsonDef_.addLegendItem("ErrorEvents","integer",DataPointDefinition::SUM);
     outJsonDef_.addLegendItem("ReturnCodeMask","integer",DataPointDefinition::BINARYOR);
     outJsonDef_.addLegendItem("Filelist","string",DataPointDefinition::MERGE);
+    outJsonDef_.addLegendItem("Filesize","integer",DataPointDefinition::SUM);
     outJsonDef_.addLegendItem("InputFiles","string",DataPointDefinition::CAT);
     std::stringstream ss;
     ss << edm::Service<evf::EvFDaqDirector>()->baseRunDir() << "/" << "output_" << getpid() << ".jsd";
@@ -118,7 +122,7 @@ namespace evf {
     edm::Service<evf::EvFDaqDirector>()->lockInitLock();
     struct stat   fstat;
     if (stat (outJsonDefName.c_str(), &fstat) != 0) { //file does not exist
-      edm::LogInfo("RecoEventOutputModuleForFU") << " writing output definition file " << outJsonDefName;
+      LogDebug("RecoEventOutputModuleForFU") << "writing output definition file -: " << outJsonDefName;
       std::string content;
       JSONSerializer::serialize(&outJsonDef_,content);
       FileIO::writeStringToFile(outJsonDefName, content);
@@ -132,6 +136,7 @@ namespace evf {
     jsonMonitor_->registerGlobalMonitorable(&errorEvents_,false);
     jsonMonitor_->registerGlobalMonitorable(&retCodeMask_,false);
     jsonMonitor_->registerGlobalMonitorable(&filelist_,false);
+    jsonMonitor_->registerGlobalMonitorable(&filesize_,false);
     jsonMonitor_->registerGlobalMonitorable(&inputFiles_,false);
     jsonMonitor_->commit(nullptr);
   }
@@ -144,7 +149,7 @@ namespace evf {
   RecoEventOutputModuleForFU<Consumer>::start() const
   {
     const std::string initFileName = edm::Service<evf::EvFDaqDirector>()->getInitFilePath(stream_label_);
-    edm::LogInfo("RecoEventOutputModuleForFU") << "RecoEventOutputModuleForFU start() method, initializing streams. init stream: " 
+    edm::LogInfo("RecoEventOutputModuleForFU") << "start() method, initializing streams. init stream -: "  
 	                                       << initFileName;
     c_->setInitMessageFile(initFileName);
     c_->start();
@@ -193,6 +198,7 @@ namespace evf {
   void RecoEventOutputModuleForFU<Consumer>::endLuminosityBlock(edm::LuminosityBlockPrincipal const &ls, edm::ModuleCallingContext const*)
   {
     //edm::LogInfo("RecoEventOutputModuleForFU") << "end lumi";
+    long filesize=0;
     c_->closeOutputFile();
     processed_.value() = fms_->getEventsProcessedForLumi(ls.luminosityBlock());
     if(processed_.value()!=0){
@@ -204,6 +210,7 @@ namespace evf {
       if(des != 0 && src !=0){
 	while((b=fgetc(src))!= EOF){
 	  fputc((unsigned char)b,des);
+          filesize++;
 	}
       }
 
@@ -212,6 +219,7 @@ namespace evf {
     }
     //remove file
     remove(openDatFilePath_.string().c_str());
+    filesize_=filesize;
 
     // output jsn file
     if(processed_.value()!=0){
