@@ -97,7 +97,7 @@ process.prec = cms.EDProducer("CaloSimhitToRechitProducerShashlik",
 			      energyScale = cms.double (1.64)
 )
 
-process.particleFlowRecHitShashlik.producers[0].src = cms.InputTag("prec:EKSimRecoHits")
+process.particleFlowRecHitEK.producers[0].src = cms.InputTag("prec:EKSimRecoHits")
 
 process.pfClusterAnalyzer = cms.EDAnalyzer("PFClusterAnalyzer",
     PFClusters = cms.InputTag("particleFlowClusterEKUncorrected"),
@@ -108,7 +108,7 @@ process.pfClusterAnalyzer = cms.EDAnalyzer("PFClusterAnalyzer",
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)
 process.simulation_step = cms.Path(process.psim)
-process.reco_step = cms.Path(process.prec+process.particleFlowRecHitShashlik+process.particleFlowClusterEKUncorrected)#+process.pfClusterAnalyzer)
+process.reco_step = cms.Path(process.prec+process.particleFlowRecHitEK+process.particleFlowClusterEKUncorrected)#+process.pfClusterAnalyzer)
 process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
 process.endjob_step = cms.EndPath(process.endOfProcess)
 process.FEVTDEBUGoutput_step = cms.EndPath(process.FEVTDEBUGoutput)

@@ -1,4 +1,4 @@
-#include "CaloSimhitToRechitProducer.h"
+#include "CaloSimhitToRechitProducerShashlik.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -18,19 +18,19 @@ using namespace edm;
 
 //#define debugPrintout
 
-CaloSimhitToRechitProducer::CaloSimhitToRechitProducer (const edm::ParameterSet& iConfig)
+CaloSimhitToRechitProducerShashlik::CaloSimhitToRechitProducerShashlik (const edm::ParameterSet& iConfig)
   : mSource        (iConfig.getParameter<edm::InputTag>("src")),
     mEnergyScale (iConfig.getParameter<double>("energyScale"))
 {
   produces<EcalRecHitCollection>("EKSimRecoHits");
 }
 
-CaloSimhitToRechitProducer::~CaloSimhitToRechitProducer ()
+CaloSimhitToRechitProducerShashlik::~CaloSimhitToRechitProducerShashlik ()
 {
 } 
 
 
-void CaloSimhitToRechitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup)
+void CaloSimhitToRechitProducerShashlik::produce(edm::Event& iEvent,const edm::EventSetup& iSetup)
 {
   edm::ESHandle<ShashlikGeometry> hGeometry;
   iSetup.get<ShashlikGeometryRecord>().get( hGeometry );
@@ -49,7 +49,7 @@ void CaloSimhitToRechitProducer::produce(edm::Event& iEvent,const edm::EventSetu
     if (id.det() == DetId::Ecal && id.subdetId() == EcalShashlik) {
       const CaloCellGeometry * cell = geometry->getGeometry(id);
       if (!cell) {
-	std::cout << "CaloSimhitToRechitProducer-> can not find geometry for cell " << EKDetId (id) << std::endl;
+	std::cout << "CaloSimhitToRechitProducerShashlik-> can not find geometry for cell " << EKDetId (id) << std::endl;
 	continue;
       }
       double scaledEnergy  = scaleEnergy (id, energy, *cell);
@@ -62,12 +62,12 @@ void CaloSimhitToRechitProducer::produce(edm::Event& iEvent,const edm::EventSetu
 	recHits->push_back (newHit);
 	ihit = recHits->find (geoid);
 // #ifdef debugPrintout
-// 	cout << "CaloSimhitToRechitProducer-> new cell " << EKDetId (geoid) << ", original " << EKDetId (id) << endl; 
+// 	cout << "CaloSimhitToRechitProducerShashlik-> new cell " << EKDetId (geoid) << ", original " << EKDetId (id) << endl; 
 // #endif
       }
       ihit->setEnergy (ihit->energy() + scaledEnergy);
 // #ifdef debugPrintout
-//       cout << "CaloSimhitToRechitProducer-> add energy: cell " << EKDetId (geoid) 
+//       cout << "CaloSimhitToRechitProducerShashlik-> add energy: cell " << EKDetId (geoid) 
 // 	   << ", de/energy: " << scaledEnergy << '/' << ihit->energy() << endl; 
 // #endif
     }
@@ -77,7 +77,7 @@ void CaloSimhitToRechitProducer::produce(edm::Event& iEvent,const edm::EventSetu
 
   double totalEnergy = 0;
 
-  cout << "CaloSimhitToRechitProducer-> collected cells " << endl;
+  cout << "CaloSimhitToRechitProducerShashlik-> collected cells " << endl;
   for (size_t i = 0; i < recHits->size(); ++i) {
     //    cout << i << "   " << EKDetId((*recHits)[i].id()) << " energy: " << (*recHits)[i].energy() << endl;
     totalEnergy += (*recHits)[i].energy();
@@ -87,9 +87,9 @@ void CaloSimhitToRechitProducer::produce(edm::Event& iEvent,const edm::EventSetu
   iEvent.put(std::auto_ptr<EcalRecHitCollection>(recHits),"EKSimRecoHits");
 }
 
-double CaloSimhitToRechitProducer::scaleEnergy (DetId id, double energy, const CaloCellGeometry& cell) const {
+double CaloSimhitToRechitProducerShashlik::scaleEnergy (DetId id, double energy, const CaloCellGeometry& cell) const {
   return energy * mEnergyScale;
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE( CaloSimhitToRechitProducer );
+DEFINE_FWK_MODULE( CaloSimhitToRechitProducerShashlik );

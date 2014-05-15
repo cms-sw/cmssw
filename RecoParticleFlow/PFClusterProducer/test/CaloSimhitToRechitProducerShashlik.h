@@ -1,5 +1,5 @@
-#ifndef ExtraCode_CaloSimhitToRechit_CaloSimhitToRechitProducer_h
-#define ExtraCode_CaloSimhitToRechit_CaloSimhitToRechitProducer_h
+#ifndef ExtraCode_CaloSimhitToRechit_CaloSimhitToRechitProducerShashlik_h
+#define ExtraCode_CaloSimhitToRechit_CaloSimhitToRechitProducerShashlik_h
 
 
 #include "FWCore/Framework/interface/EDProducer.h"
@@ -11,11 +11,11 @@
 
 class CaloCellGeometry;
 
-class CaloSimhitToRechitProducer : public edm::EDProducer
+class CaloSimhitToRechitProducerShashlik : public edm::EDProducer
 {
 public:
-  explicit CaloSimhitToRechitProducer(const edm::ParameterSet& iConfig);
-  virtual ~CaloSimhitToRechitProducer();
+  explicit CaloSimhitToRechitProducerShashlik(const edm::ParameterSet& iConfig);
+  virtual ~CaloSimhitToRechitProducerShashlik();
 
   virtual void  produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
   
