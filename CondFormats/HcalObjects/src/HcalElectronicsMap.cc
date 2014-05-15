@@ -25,10 +25,8 @@ namespace hcal_impl {
 }
 
 HcalElectronicsMap::~HcalElectronicsMap() {
-    delete mPItemsById;
-    mPItemsById = nullptr;
-    delete mTItemsByTrigId;
-    mTItemsByTrigId = nullptr;
+    delete mPItemsById.load();
+    delete mTItemsByTrigId.load();
 }
 // copy-ctor
 HcalElectronicsMap::HcalElectronicsMap(const HcalElectronicsMap& src)
@@ -192,7 +190,7 @@ bool HcalElectronicsMap::mapEId2tId (HcalElectronicsId fElectronicsId, HcalTrigT
   TriggerItem& item = mTItems[fElectronicsId.linearIndex()];
 
   if (mTItemsByTrigId) {
-      delete mTItemsByTrigId;
+      delete mTItemsByTrigId.load();
       mTItemsByTrigId = nullptr;
   }
 
@@ -211,7 +209,7 @@ bool HcalElectronicsMap::mapEId2tId (HcalElectronicsId fElectronicsId, HcalTrigT
 bool HcalElectronicsMap::mapEId2chId (HcalElectronicsId fElectronicsId, DetId fId) {
   PrecisionItem& item = mPItems[fElectronicsId.linearIndex()];
 
-  delete mPItemsById;
+  delete mPItemsById.load();
   mPItemsById = nullptr;
 
   if (item.mElId==0) item.mElId=fElectronicsId.rawId();
