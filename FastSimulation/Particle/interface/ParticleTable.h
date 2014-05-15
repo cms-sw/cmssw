@@ -11,37 +11,29 @@ class ParticleTable {
 
 public:
   struct Sentry{
-    Sentry(const HepPDT::ParticleDataTable* pdt) { 
-      edm::LogError("particletable") << "  Sentry() - set pdt to: " << pdt 
-				     << ' ' << ParticleTable::myself 
-				     << std::endl;
-      ParticleTable::myself->set(pdt); 
+    Sentry(const HepPDT::ParticleDataTable* pdt) {       
+      ParticleTable::instance()->set(pdt); 
     }
-    ~Sentry() { 
-      edm::LogError("particletable") << " ~Sentry() - set pdt to NULL" 
-				      << ' ' << ParticleTable::myself 
-				     << std::endl;
-      ParticleTable::myself->set(nullptr); 
+    ~Sentry() {       
+      ParticleTable::instance()->set(nullptr); 
     }
   };
 
-  ~ParticleTable() { 
-    edm::LogError("particletable") << "~ParticleTable()" << std::endl;
+  ~ParticleTable() {     
   }
 
   /// Get the pointer to the particle data table
-  const HepPDT::ParticleDataTable* theTable() const { 
-    edm::LogError("particletable") << "Asked for theTable at : " << pdt_ << std::endl;
+  const HepPDT::ParticleDataTable* theTable() const {    
     return pdt_; 
   }
 
-  static ParticleTable* const instance() { 
-    edm::LogError("particletable") << "Asked for myself : " << &myself << std::endl;
+  static ParticleTable* const instance() {     
+    if( !myself ) myself = new ParticleTable();
     return myself; 
   }
 
 private:
-  ParticleTable() : pdt_(nullptr) {}
+  
   ParticleTable(const HepPDT::ParticleDataTable* pdt=nullptr) : pdt_(pdt) {}
   void set( const HepPDT::ParticleDataTable* pdt) { pdt_ = pdt; } 
   static thread_local ParticleTable* myself;

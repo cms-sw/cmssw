@@ -56,6 +56,8 @@
 #include "DataFormats/GeometrySurface/interface/PlaneBuilder.h"
 #include "DataFormats/GeometrySurface/interface/TangentPlane.h"
 
+// for particle table
+#include "FastSimulation/Particle/interface/ParticleTable.h"
 
 ////////////////////////////////////////////////////////////////////////////
 // Geometry, Magnetic Field
@@ -153,6 +155,9 @@ void
 MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
   // using namespace edm;
   // using namespace std;
+  edm::ESHandle < HepPDT::ParticleDataTable > pdg;
+  iSetup.getData(pdg);
+  ParticleTable::Sentry ptable(pdg.product());
 
   RandomEngineAndDistribution random(iEvent.streamID());
 
