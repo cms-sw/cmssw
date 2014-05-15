@@ -86,6 +86,7 @@ public:
 private:
 
   ConfigurableTrimmedVertexFinder * theFinder;
+  using VertexReconstructor::vertices;
 
 };
 
