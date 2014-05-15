@@ -17,8 +17,9 @@
 using namespace reco;
 
 namespace {
+#ifndef __clang__
   inline double sqr(double arg) { return arg * arg; }
-  
+#endif  
   typedef ROOT::Math::SMatrix<double, 3, 4> Matrix34;
   typedef ROOT::Math::SMatrix<double, 4, 5> Matrix45;
   typedef ROOT::Math::SMatrix<double, 5, 4> Matrix54;
