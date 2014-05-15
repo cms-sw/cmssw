@@ -100,8 +100,10 @@
    <version ClassVersion="10" checksum="2692173055"/>
   </class>
   <class name="std::vector<pat::tau::TauCaloSpecific>" />
-  <class name="pat::Photon"  ClassVersion="12">
-   <field name="superClusterRelinked_" transient="true"/>
+  <class name="pat::Photon"  ClassVersion="13">
+    <field name="superClusterRelinked_" transient="true"/>
+   <!--FIXME-->
+   <version ClassVersion="13" checksum="0"/>
    <version ClassVersion="12" checksum="2518470540"/>
    <version ClassVersion="11" checksum="3277818926"/>
    <version ClassVersion="10" checksum="865744757"/>
