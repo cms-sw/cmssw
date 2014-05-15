@@ -13,7 +13,7 @@ Photon::Photon() :
     PATObject<reco::Photon>(reco::Photon()),
     embeddedSuperCluster_(false),
     embeddedSeedCluster_(false),
-    embeddedRecHits_(false)
+    embeddedRecHits_(false),
     passElectronVeto_(false),
     hasPixelSeed_(false),
     seedEnergy_(0.0),
@@ -52,7 +52,7 @@ Photon::Photon(const reco::Photon & aPhoton) :
     PATObject<reco::Photon>(aPhoton),
     embeddedSuperCluster_(false),
     embeddedSeedCluster_(false),
-    embeddedRecHits_(false)
+    embeddedRecHits_(false),
     passElectronVeto_(false),
     hasPixelSeed_(false),
     seedEnergy_(0.0),
@@ -91,7 +91,7 @@ Photon::Photon(const edm::RefToBase<reco::Photon> & aPhotonRef) :
     PATObject<reco::Photon>(aPhotonRef),
     embeddedSuperCluster_(false),
     embeddedSeedCluster_(false),
-    embeddedRecHits_(false)
+    embeddedRecHits_(false),
     passElectronVeto_(false),
     hasPixelSeed_(false),
     seedEnergy_(0.0),
@@ -130,7 +130,7 @@ Photon::Photon(const edm::Ptr<reco::Photon> & aPhotonRef) :
     PATObject<reco::Photon>(aPhotonRef),
     embeddedSuperCluster_(false),
     embeddedSeedCluster_(false),
-    embeddedRecHits_(false)
+    embeddedRecHits_(false),
     passElectronVeto_(false),
     hasPixelSeed_(false),
     seedEnergy_(0.0),

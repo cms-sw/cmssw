@@ -33,12 +33,6 @@ PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet & iConfig) :
   // initialize the configurables
   photonToken_ = consumes<edm::View<reco::Photon> >(iConfig.getParameter<edm::InputTag>("photonSource"));
   electronToken_ = consumes<reco::GsfElectronCollection>(edm::InputTag("gedGsfElectrons"));
-  // mva input variables
-  reducedBarrelRecHitCollection_ = iConfig.getParameter<edm::InputTag>("reducedBarrelRecHitCollection");
-  reducedBarrelRecHitCollectionToken_ = mayConsume<EcalRecHitCollection>(reducedBarrelRecHitCollection_);
-  reducedEndcapRecHitCollection_ = iConfig.getParameter<edm::InputTag>("reducedEndcapRecHitCollection");
-  reducedEndcapRecHitCollectionToken_ = mayConsume<EcalRecHitCollection>(reducedEndcapRecHitCollection_);
-
   hConversionsToken_ = consumes<reco::ConversionCollection>(edm::InputTag("allConversions"));
   beamLineToken_ = consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamLineSrc"));
   embedSuperCluster_ = iConfig.getParameter<bool>("embedSuperCluster");
@@ -137,21 +131,10 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
   edm::InputTag  reducedEERecHitCollection(std::string("reducedEcalRecHitsEE"));
   EcalClusterLazyTools lazyTools(iEvent, iSetup, reducedBarrelRecHitCollection_, reducedEndcapRecHitCollection_);
 
-  // Get calo topology
-  edm::ESHandle<CaloTopology> theCaloTopology;
-  iSetup.get<CaloTopologyRecord>().get(theCaloTopology);
-  ecalTopology_ = & (*theCaloTopology);
-
   // Get calo geometry
   edm::ESHandle<CaloGeometry> theCaloGeometry;
   iSetup.get<CaloGeometryRecord>().get(theCaloGeometry);
   ecalGeometry_ = & (*theCaloGeometry);
-
-  //Retrieve the corresponding RecHits
-  edm::Handle< EcalRecHitCollection > rechitsEB ;
-  edm::Handle< EcalRecHitCollection > rechitsEE ;
-  iEvent.getByToken(reducedBarrelRecHitCollectionToken_,rechitsEB);
-  iEvent.getByToken(reducedEndcapRecHitCollectionToken_,rechitsEE);
 
   // for conversion veto selection
   edm::Handle<reco::ConversionCollection> hConversions;
@@ -240,10 +223,24 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
     // Retrieve the corresponding RecHits
 
     edm::Handle< EcalRecHitCollection > rechitsH ;
-    if(barrel)
-      iEvent.getByToken(reducedBarrelRecHitCollectionToken_,rechitsH);
-    else
-      iEvent.getByToken(reducedEndcapRecHitCollectionToken_,rechitsH);
+    float cryPhi, cryEta, thetatilt, phitilt;
+    int ieta, iphi;
+
+    switch( photonRef->superCluster()->seed()->hitsAndFractions().at(0).first.subdetId() ) {
+    case EcalBarrel:
+      {
+        iEvent.getByToken(reducedBarrelRecHitCollectionToken_,rechitsH);
+        ecl_.localCoordsEB( *photonRef->superCluster()->seed(), *ecalGeometry_, cryEta, cryPhi, ieta, iphi, thetatilt, phitilt);
+      }
+      break;
+    case EcalEndcap:
+      {
+        iEvent.getByToken(reducedEndcapRecHitCollectionToken_,rechitsH);
+      }
+      break;
+    default:
+     edm::LogError("PFECALSuperClusterProducer::calculateRegressedEnergy") << "Supercluster seed is either EB nor EE!" << std::endl;
+    }
 
     EcalRecHitCollection selectedRecHits;
     const EcalRecHitCollection *recHits = rechitsH.product();
@@ -341,27 +338,6 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
         subClusDEta[iclus] = this_deta;
         subClusDPhi[iclus] = this_dphi;
       }
-    }
-
-    edm::Handle< EcalRecHitCollection > rechitsH;
-
-    float cryPhi, cryEta, thetatilt, phitilt;
-    int ieta, iphi;
-
-    switch( photonRef->superCluster()->seed()->hitsAndFractions().at(0).first.subdetId() ) {
-    case EcalBarrel:
-      {
-        rechitsH = rechitsEB;
-        ecl_.localCoordsEB( *photonRef->superCluster()->seed(), *ecalGeometry_, cryEta, cryPhi, ieta, iphi, thetatilt, phitilt);
-      }
-      break;
-    case EcalEndcap:
-      {
-        rechitsH = rechitsEE;
-      }
-      break;
-    default:
-     throw cms::Exception("PFECALSuperClusterProducer::calculateRegressedEnergy") << "Supercluster seed is either EB nor EE!" << std::endl;
     }
 
     const float eMax = EcalClusterTools::eMax( *photonRef->superCluster()->seed(), &*rechitsH );
