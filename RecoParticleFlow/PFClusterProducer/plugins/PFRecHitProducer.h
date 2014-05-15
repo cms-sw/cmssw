@@ -4,7 +4,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -18,7 +18,7 @@
 // class declaration
 //
 
-class PFRecHitProducer : public edm::stream::EDProducer<> {
+class PFRecHitProducer : public edm::EDProducer {
    public:
       explicit PFRecHitProducer(const edm::ParameterSet& iConfig);
       ~PFRecHitProducer();
