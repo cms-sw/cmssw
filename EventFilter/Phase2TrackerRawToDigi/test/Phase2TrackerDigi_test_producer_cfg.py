@@ -12,8 +12,9 @@ process.source = cms.Source("NewEventStreamFileReader",
     fileNames = cms.untracked.vstring( 'file:'+sys.argv[-1])
 )
 
+process.load('CalibTracker.SiStripESProducers.fake.Phase2TrackerConfigurableCablingESSource_cfi')
 process.load('EventFilter.Phase2TrackerRawToDigi.Phase2TrackerDigi_test_producer_cfi')
-process.load('EventFilter.Phase2TrackerRawToDigi.Phase2TrackerDigi_CondData_producer_cfi')
+# process.load('EventFilter.Phase2TrackerRawToDigi.Phase2TrackerDigi_CondData_producer_cfi')
 
 process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('myOutputFile.root')
@@ -28,6 +29,7 @@ process.out = cms.OutputModule("PoolOutputModule",
 #       )
 #     )
   
-process.p = cms.Path(process.Phase2TrackerDigitestproducer*process.Phase2TrackerDigiCondDataproducer)
+process.p = cms.Path(process.Phase2TrackerDigitestproducer)
+# process.p = cms.Path(process.Phase2TrackerDigitestproducer*process.Phase2TrackerDigiCondDataproducer)
 
 process.e = cms.EndPath(process.out)

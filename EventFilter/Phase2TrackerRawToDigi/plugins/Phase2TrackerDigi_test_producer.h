@@ -13,7 +13,7 @@
 #include "DataFormats/DetId/interface/DetIdCollection.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDBuffer.h"
-#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
+#include "CondFormats/SiStripObjects/interface/Phase2TrackerCabling.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
 #include "boost/cstdint.hpp"
 #include <iostream>
@@ -37,7 +37,7 @@ namespace sistrip {
   private:
     unsigned int runNumber_;
     edm::InputTag productLabel_;
-    const SiStripFedCabling * cabling_;
+    const Phase2TrackerCabling * cabling_;
     uint32_t cacheId_;
     DetIdCollection detids_;
 
