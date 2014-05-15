@@ -1,6 +1,9 @@
 #ifndef HCALSIMPLERECALGO_H
 #define HCALSIMPLERECALGO_H 1
 
+#include <memory>
+#include "boost/shared_ptr.hpp"
+
 #include "DataFormats/HcalDigi/interface/HcalUpgradeDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HBHEDataFrame.h"
 #include "DataFormats/HcalDigi/interface/HFDataFrame.h"
@@ -15,7 +18,7 @@
 #include "CalibFormats/HcalObjects/interface/HcalCoder.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPulseContainmentManager.h"
-#include <memory>
+#include "CondFormats/HcalObjects/interface/AbsOOTPileupCorrection.h"
 
 /** \class HcalSimpleRecAlgo
 
@@ -33,8 +36,10 @@ public:
   /** Full featured constructor for HB/HE and HO (HPD-based detectors) */
   HcalSimpleRecAlgo(bool correctForTimeslew, 
 		    bool correctForContainment, float fixedPhaseNs);
+
   /** Simple constructor for PMT-based detectors */
   HcalSimpleRecAlgo();
+
   void beginRun(edm::EventSetup const & es);
   void endRun();
 
@@ -45,8 +50,19 @@ public:
 
   // ugly hack related to HB- e-dependent corrections
   void setForData(int runnum);
+
   // usage of leak correction 
   void setLeakCorrection();
+
+  // set OOT pileup corrections
+  void setHBHEPileupCorrection(boost::shared_ptr<AbsOOTPileupCorrection> corr);
+  void setHFPileupCorrection(boost::shared_ptr<AbsOOTPileupCorrection> corr);
+  void setHOPileupCorrection(boost::shared_ptr<AbsOOTPileupCorrection> corr);
+
+  // Set bunch crossing information.
+  // This object will not manage the pointer.
+  void setBXInfo(const BunchXParameter* info, unsigned lenInfo);
+
 
   HBHERecHit reconstruct(const HBHEDataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
   HBHERecHit reconstructHBHEUpgrade(const HcalUpgradeDataFrame& digi,  int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
@@ -58,7 +74,6 @@ public:
   HcalCalibRecHit reconstruct(const HcalCalibDataFrame& digi,  int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const;
 
 
-
 private:
   bool correctForTimeslew_;
   bool correctForPulse_;
@@ -67,6 +82,11 @@ private:
   int runnum_;  // data run numer
   bool setLeakCorrection_;
   int pileupCleaningID_;
+  const BunchXParameter* bunchCrossingInfo_;
+  unsigned lenBunchCrossingInfo_;
+  boost::shared_ptr<AbsOOTPileupCorrection> hbhePileupCorr_;
+  boost::shared_ptr<AbsOOTPileupCorrection> hfPileupCorr_;
+  boost::shared_ptr<AbsOOTPileupCorrection> hoPileupCorr_;
 };
 
 #endif
