@@ -22,7 +22,7 @@ Implementation:
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -37,7 +37,7 @@ Implementation:
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-class PixelVertexCollectionTrimmer : public edm::EDProducer {
+class PixelVertexCollectionTrimmer : public edm::stream::EDProducer<> {
 public:
   explicit PixelVertexCollectionTrimmer(const edm::ParameterSet&);
   ~PixelVertexCollectionTrimmer();
@@ -45,9 +45,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void beginJob() override;
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() override;
 
   edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
   int maxVtx_ ;
@@ -121,17 +119,6 @@ PixelVertexCollectionTrimmer::produce(edm::Event& iEvent, const edm::EventSetup&
     
 }
 
-// ------------ method called once each job just before starting event loop ------------
-void
-PixelVertexCollectionTrimmer::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop ------------
-void
-PixelVertexCollectionTrimmer::endJob() {
-}
- 
 // ------------ method fills 'descriptions' with the allowed parameters for the module ------------
 void
 PixelVertexCollectionTrimmer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
