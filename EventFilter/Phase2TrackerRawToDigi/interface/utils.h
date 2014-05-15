@@ -15,7 +15,7 @@ namespace sistrip {
   static const int MAX_CBC_PER_FE = 16;
   static const int STRIPS_PER_CBC = 254;
   static const int STRIPS_PADDING = 2;
-  static const int TRIGGER_SIZE = 8;
+  static const int TRIGGER_SIZE = 0; 
 
   static const uint8_t INVALID=0xFF;
 
