@@ -109,7 +109,7 @@ protected:
     /// check if a value is greater than a threshold or
     /// greater-or-equal depending on the value of the condGEqValue flag
     template<class Type1, class Type2> const bool checkThreshold(const Type1& threshold,
-        const Type2& value, const bool condGEqValue) const;
+        const Type2& value, bool condGEqValue) const;
 
     /// check if a bit with a given number is set in a mask
     template<class Type1> const bool checkBit(const Type1& mask, const unsigned int bitNumber) const;
@@ -166,7 +166,7 @@ template<class Type1, class Type2> const bool ConditionEvaluation::checkThreshol
     //}
 
     if (condGEqValue) {
-        if (value >= threshold) {
+        if (value >= (Type2) threshold) {
 
             //LogTrace("L1GlobalTrigger") << "    condGEqValue: value >= threshold"
             //    << std::endl;
@@ -179,7 +179,7 @@ template<class Type1, class Type2> const bool ConditionEvaluation::checkThreshol
     }
     else {
 
-        if (value == threshold) {
+        if (value == (Type2) threshold) {
 
             //LogTrace("L1GlobalTrigger") << "    condGEqValue: value = threshold"
             //    << std::endl;
@@ -228,7 +228,7 @@ template<class Type1> const bool ConditionEvaluation::checkRangeEta(const unsign
 									 const Type1& beginVetoR, const Type1& endVetoR ) const {
 
   // set condtion to true if beginR==endR = default -1
-  if( beginR==endR && beginR==-1 ){
+  if( beginR==endR && beginR==(Type1)-1 ){
     return true;
   }
 
@@ -266,7 +266,7 @@ template<class Type1> const bool ConditionEvaluation::checkRangeEta(const unsign
   }
 
   if( passWindow ){
-    if( beginVetoR==endVetoR && beginVetoR==-1 ) return true;
+    if( beginVetoR==endVetoR && beginVetoR==(Type1)-1 ) return true;
 
     unsigned int diffV1 = endVetoR - beginVetoR;
     unsigned int diffV2 = bitNumber - beginVetoR;
@@ -299,7 +299,7 @@ template<class Type1> const bool ConditionEvaluation::checkRangePhi(const unsign
 									 const Type1& beginVetoR, const Type1& endVetoR ) const {
 
   // set condtion to true if beginR==endR = default -1
-  if( beginR==endR && beginR==-1 ){
+  if( beginR==endR && beginR==(Type1)-1 ){
     return true;
   }
 
@@ -337,7 +337,7 @@ template<class Type1> const bool ConditionEvaluation::checkRangePhi(const unsign
   }
 
   if( passWindow ){
-    if( beginVetoR==endVetoR && beginVetoR==-1 ) return true;
+    if( beginVetoR==endVetoR && beginVetoR==(Type1)-1 ) return true;
 
     int diffV1 = endVetoR - beginVetoR;
     int diffV2 = bitNumber - beginVetoR;
