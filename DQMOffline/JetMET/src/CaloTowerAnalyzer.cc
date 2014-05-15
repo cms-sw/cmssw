@@ -96,7 +96,7 @@ void CaloTowerAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
       {
 	if( HLTBitLabel_[i].label().size() )
 	  {
-	    hCT_NEvents_HLT.push_back( ibooker->book1D("METTask_CT_"+HLTBitLabel_[i].label(),HLTBitLabel_[i].label(),2,-0.5,1.5) );
+	    hCT_NEvents_HLT.push_back( ibooker.book1D("METTask_CT_"+HLTBitLabel_[i].label(),HLTBitLabel_[i].label(),2,-0.5,1.5) );
 	  }
       } 
     
