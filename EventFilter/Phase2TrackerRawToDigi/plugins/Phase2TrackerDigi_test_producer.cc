@@ -7,7 +7,7 @@
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "DataFormats/SiStripCommon/interface/SiStripEventSummary.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDBuffer.h"
-#include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
+#include "CondFormats/DataRecord/interface/Phase2TrackerCablingRcd.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
@@ -25,6 +25,7 @@ namespace sistrip {
     cabling_(0),
     cacheId_(0)
   {
+    // define product
     produces< edm::DetSetVector<Phase2TrackerDigi> >("ProcessedRaw");
   }
   
@@ -38,6 +39,10 @@ namespace sistrip {
   
   void Phase2TrackerDigi_test_producer::beginRun( edm::Run & run, const edm::EventSetup & es)
   {
+    // fetch cabling from event setup
+    edm::ESHandle<Phase2TrackerCabling> c;
+    es.get<Phase2TrackerCablingRcd>().get( c );
+    cabling_ = c.product();
   }
   
   void Phase2TrackerDigi_test_producer::endJob()
@@ -117,6 +122,11 @@ namespace sistrip {
 	  {
             // build fake fed id
             uint32_t key = fedIndex*1000 + ife*10;
+
+            // get fedid from cabling
+            const Phase2TrackerModule mod = cabling_->findFedCh(std::make_pair(fedIndex, ife));
+            uint32_t detid_test = mod.getDetid();
+            ss << dec << " id from cabling : " << detid_test << endl;
 
 	    const FEDChannel& channel = buffer->channel(ichan);
 	    if(channel.length() > 0)
