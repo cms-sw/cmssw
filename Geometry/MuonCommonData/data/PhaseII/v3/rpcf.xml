@@ -186,7 +186,11 @@
    <rSolid name="RR3X"/>
    <rMaterial name="materials:ME_free_space"/>
   </LogicalPart>
-  <LogicalPart name="RR3XX" category="unspecified">
+  <LogicalPart name="RR3XXP" category="unspecified">
+   <rSolid name="RR3XX"/>
+   <rMaterial name="materials:ME_free_space"/>
+  </LogicalPart>
+  <LogicalPart name="RR3XXN" category="unspecified">
    <rSolid name="RR3XX"/>
    <rMaterial name="materials:ME_free_space"/>
   </LogicalPart>
@@ -451,13 +455,13 @@
   </PosPart>
   <PosPart copyNumber="1">
    <rParent name="mf:ME3RingP"/>
-   <rChild name="rpcf:RR3XX"/>
+   <rChild name="rpcf:RR3XXP"/>
    <rRotation name="rotations:R005"/>
    <Translation x="0*fm " y="0*fm " z="21.95*cm "/>
   </PosPart>
   <PosPart copyNumber="1">
    <rParent name="mf:ME3RingN"/>
-   <rChild name="rpcf:RR3XX"/>
+   <rChild name="rpcf:RR3XXN"/>
    <rRotation name="rotations:R005"/>
    <Translation x="0*fm " y="0*fm " z="21.95*cm "/>
   </PosPart>
@@ -630,7 +634,29 @@
 </Algorithm>
 
 <Algorithm name="muon:DDMuonAngular">
-    <rParent name="rpcf:RR3XX"/>
+    <rParent name="rpcf:RR3XXP"/>
+    <String name="ChildName" value="RT3G"/>
+    <String name="RotNameSpace" value="rotations"/>
+    <Numeric name="n" value="9"/>
+    <Numeric name="startCopyNo" value="1"/>
+    <Numeric name="incrCopyNo"  value="2"/>
+    <Numeric name="stepAngle"   value="40*deg"/>
+    <Numeric name="startAngle"  value="0*deg"/>
+    <Numeric name="zoffset"     value="-2.2*cm"/>
+</Algorithm>
+<Algorithm name="muon:DDMuonAngular">
+    <rParent name="rpcf:RR3XXP"/>
+    <String name="ChildName" value="RT3G"/>
+    <String name="RotNameSpace" value="rotations"/>
+    <Numeric name="n" value="9"/>
+    <Numeric name="startCopyNo" value="2"/>
+    <Numeric name="incrCopyNo"  value="2"/>
+    <Numeric name="stepAngle"   value="40*deg"/>
+    <Numeric name="startAngle"  value="20*deg"/>
+    <Numeric name="zoffset"     value="2.2*cm"/>
+</Algorithm>
+<Algorithm name="muon:DDMuonAngular">
+    <rParent name="rpcf:RR3XXN"/>
     <String name="ChildName" value="RT3G"/>
     <String name="RotNameSpace" value="rotations"/>
     <Numeric name="n" value="9"/>
@@ -641,7 +667,7 @@
     <Numeric name="zoffset"     value="-2.2*cm"/>
 </Algorithm>
 <Algorithm name="muon:DDMuonAngular">
-    <rParent name="rpcf:RR3XX"/>
+    <rParent name="rpcf:RR3XXN"/>
     <String name="ChildName" value="RT3G"/>
     <String name="RotNameSpace" value="rotations"/>
     <Numeric name="n" value="9"/>
@@ -705,7 +731,7 @@
     <Numeric name="startCopyNo" value="1"/>
     <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="stepAngle"   value="40*deg"/>
-    <Numeric name="startAngle"  value="10*deg"/>
+    <Numeric name="startAngle"  value="0*deg"/>
     <Numeric name="zoffset"     value="-2.2*cm"/>
 </Algorithm>
 <Algorithm name="muon:DDMuonAngular">
@@ -716,7 +742,7 @@
     <Numeric name="startCopyNo" value="2"/>
     <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="stepAngle"   value="40*deg"/>
-    <Numeric name="startAngle"  value="30*deg"/>
+    <Numeric name="startAngle"  value="20*deg"/>
     <Numeric name="zoffset"     value="2.2*cm"/>
 </Algorithm>
 <Algorithm name="muon:DDMuonAngular">
