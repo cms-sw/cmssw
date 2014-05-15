@@ -61,11 +61,12 @@ def customise_Validation(process):
 
 def customise_Digi(process):
     process=digiEventContent(process)
-    if hasattr(process,"mix.digitizers.hcal.ho"):
-        process.mix.digitizers.hcal.ho.photoelectronsToAnalog = cms.vdouble([4.0]*16)
-        process.mix.digitizers.hcal.ho.siPMCode = cms.int32(1)
-        process.mix.digitizers.hcal.ho.pixels = cms.int32(2500)
-        process.mix.digitizers.hcal.ho.doSiPMSmearing = cms.bool(False)
+    if hasattr(process,'mix') and hasattr(process.mix,'digitizers'): 
+        if hasattr(process.mix.digitizers,'hcal') and hasattr(process.mix.digitiziers.hcal,'ho'):
+            process.mix.digitizers.hcal.ho.photoelectronsToAnalog = cms.vdouble([4.0]*16)
+            process.mix.digitizers.hcal.ho.siPMCode = cms.int32(1)
+            process.mix.digitizers.hcal.ho.pixels = cms.int32(2500)
+            process.mix.digitizers.hcal.ho.doSiPMSmearing = cms.bool(False)
     return process
 
 
