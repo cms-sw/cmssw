@@ -29,46 +29,39 @@ using namespace SiPixelTemplateReco;
 //using namespace SiPixelTemplateSplit;
 using namespace std;
 
-const float PI = 3.141593;
-const float HALFPI = PI * 0.5;
-const float degsPerRad = 57.29578;
-
-// &&& need a class const
-const float micronsToCm = 1.0e-4;
-
-const int cluster_matrix_size_x = 13;
-const int cluster_matrix_size_y = 21;
+namespace {
+  constexpr float micronsToCm = 1.0e-4;  
+  constexpr int cluster_matrix_size_x = 13;
+  constexpr int cluster_matrix_size_y = 21;
+}
 
 //-----------------------------------------------------------------------------
-//  Constructor.  All detUnit-dependent quantities will be initialized later,
-//  in setTheDet().  Here we only load the templates into the template store templ .
+//  Constructor. 
+//  
 //-----------------------------------------------------------------------------
 PixelCPETemplateReco::PixelCPETemplateReco(edm::ParameterSet const & conf, 
 					   const MagneticField * mag,
                                            const TrackerGeometry& geom,
                                            const SiPixelLorentzAngle * lorentzAngle, 
 					   const SiPixelTemplateDBObject * templateDBobject) 
-  : PixelCPEBase(conf, mag, geom, lorentzAngle, 0, templateDBobject, 0)
+  : PixelCPEBase(conf, mag, geom, lorentzAngle, 0, templateDBobject, 0,1)
 {
   //cout << endl;
   //cout << "Constructing PixelCPETemplateReco::PixelCPETemplateReco(...)................................................." << endl;
   //cout << endl;
 
-  // &&& initialize the templates, etc.
-  
-  //-- Use Magnetic field at (0,0,0) to select a template ID [Morris, 6/25/08] (temporary until we implement DB access)
-  
-  DoCosmics_ = conf.getParameter<bool>("DoCosmics");
-
-  LoadTemplatesFromDB_ = conf.getParameter<bool>("LoadTemplatesFromDB");
+  // Configurable parameters
+  //DoCosmics_ = conf.getParameter<bool>("DoCosmics"); // Not used in templates
+  //LoadTemplatesFromDB_ = conf.getParameter<bool>("LoadTemplatesFromDB"); // Moved to Base
 
   //cout << " PixelCPETemplateReco : (int)LoadTemplatesFromDB_ = " << (int)LoadTemplatesFromDB_ << endl;
   //cout << "field_magnitude = " << field_magnitude << endl;
   
-  // ggiurgiu@fnal.gov, 12/17/2008: use configuration parameter to decide between DB or text file template access
+  // configuration parameter to decide between DB or text file template access
+
   if ( LoadTemplatesFromDB_ )
     {
-      //cout << "PixelCPETemplateReco: Loading templates from database (DB) ------------------------------- " << endl;
+      //cout << "PixelCPETemplateReco: Loading templates from database (DB) --------- " << endl;
       
       // Initialize template store to the selected ID [Morris, 6/25/08]  
       if ( !SiPixelTemplate::pushfile( *templateDBobject_, thePixelTemp_) )
@@ -130,25 +123,18 @@ PixelCPETemplateReco::localPosition(DetParam const & theDetParam, ClusterParam &
   else                                              
     fpix = true;     // yes, it's forward
   
-
   int ID = -9999;
-
-  if ( LoadTemplatesFromDB_ )
-    {
-      ID = templateDBobject_->getTemplateID(theDetParam.theDet->geographicalId());
-    }
-  else
-    {
-      if ( !fpix )
-	ID = 40; // barrel
-      else 
-	ID = 41; // endcap
-    }
-  
-  SiPixelTemplate templ(thePixelTemp_);
-
+  if ( LoadTemplatesFromDB_ ) {
+    int ID0 = templateDBobject_->getTemplateID(theDetParam.theDet->geographicalId()); // just to comapre 
+      ID = theDetParam.detTemplateId;
+      if(ID0!=ID) cout<<" different id"<< ID<<" "<<ID0<<endl;
+  } else { // from asci file 
+    if ( !fpix ) ID = 40; // barrel
+    else ID = 41; // endcap
+  }
   //cout << "PixelCPETemplateReco : ID = " << ID << endl;
   
+  SiPixelTemplate templ(thePixelTemp_);
 
   // Make from cluster (a SiPixelCluster) a boost multi_array_2d called 
   // clust_array_2d.
@@ -189,39 +175,6 @@ PixelCPETemplateReco::localPosition(DetParam const & theDetParam, ClusterParam &
       lp = theDetParam.theTopol->localPosition( MeasurementPoint(tmp_x, tmp_y) );
     }
     
-  
-  // Visualize large clusters ---------------------------------------------------------
-  // From Petar: maybe this should be moved into a method in the base class?
-  /*
-    char cluster_matrix[100][100];
-    for (int i=0; i<100; i++)
-    for (int j=0; j<100; j++)
-    cluster_matrix[i][j] = '.';
-    
-    if ( theClusterParam.theCluster->sizeX()>cluster_matrix_size_x || theClusterParam.theCluster->sizeY()>cluster_matrix_size_y )
-    {		
-    cout << "theClusterParam.theCluster->size()  = " << theClusterParam.theCluster->size()  << endl;
-    cout << "theClusterParam.theCluster->sizeX() = " << theClusterParam.theCluster->sizeX() << endl;
-    cout << "theClusterParam.theCluster->sizeY() = " << theClusterParam.theCluster->sizeY() << endl;
-    
-    for ( std::vector<SiPixelCluster::Pixel>::const_iterator pix = pixVec.begin(); pix != pixVec.end(); ++pix )
-    {
-    int i = (int)(pix->x) - row_offset;
-    int j = (int)(pix->y) - col_offset;
-    cluster_matrix[i][j] = '*';
-    }
-    
-    for (int i=0; i<(int)theClusterParam.theCluster->sizeX()+2; i++)
-    {
-    for (int j=0; j<(int)theClusterParam.theCluster->sizeY()+2; j++)
-    cout << cluster_matrix[i][j];
-    cout << endl;
-    }
-    } // if ( theClusterParam.theCluster->sizeX()>cluster_matrix_size_x || theClusterParam.theCluster->sizeY()>cluster_matrix_size_y )
-  */
-  // End Visualize clusters ---------------------------------------------------------
-  
-
   // Copy clust's pixels (calibrated in electrons) into clust_array_2d;
   for (int i=0 ; i!=theClusterParam.theCluster->size(); ++i ) 
     {
@@ -462,15 +415,15 @@ PixelCPETemplateReco::localPosition(DetParam const & theDetParam, ClusterParam &
 
       // Compute the Alignment Group Corrections [template ID should already be selected from call to reco procedure]
       if ( DoLorentz_ ) {
-	  // D only if the lotentzshift has meaningfull numbers
+	// Do only if the lotentzshift has meaningfull numbers
 	if( theDetParam.lorentzShiftInCmX!= 0.0 ||  theDetParam.lorentzShiftInCmY!= 0.0 ) {   
 	  // the LA width/shift returned by templates use (+)
 	  // the LA width/shift produced by PixelCPEBase for positive LA is (-)
 	  // correct this by iserting (-)
-	  float templateLorbiasCmX = -micronsToCm*templ.lorxwidth();  // old
-	  float templateLorbiasCmY = -micronsToCm*templ.lorywidth();
-	  //float templateLorbiasCmX = -micronsToCm*templ.lorxbias();  // new 
-	  //float templateLorbiasCmY = -micronsToCm*templ.lorybias();
+	  //float templateLorbiasCmX = -micronsToCm*templ.lorxwidth();  // old
+	  //float templateLorbiasCmY = -micronsToCm*templ.lorywidth();
+	  float templateLorbiasCmX = -micronsToCm*templ.lorxbias();  // new 
+	  float templateLorbiasCmY = -micronsToCm*templ.lorybias();
 	  // now, correctly, we can use the difference of shifts  
 	  theClusterParam.templXrec_ += 0.5*(theDetParam.lorentzShiftInCmX - templateLorbiasCmX);
 	  theClusterParam.templYrec_ += 0.5*(theDetParam.lorentzShiftInCmY - templateLorbiasCmY);

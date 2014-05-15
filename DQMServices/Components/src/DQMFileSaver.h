@@ -22,22 +22,37 @@ protected:
   virtual void endJob(void);
   virtual void postForkReacquireResources(unsigned int childIndex, unsigned int numberOfChildren);
 
-private:
-  void saveForOffline(const std::string &workflow, int run, int lumi);
-  void saveForOnline(const std::string &suffix, const std::string &rewrite);
-  void saveJobReport(const std::string &filename);
-
+public:
   enum Convention
   {
     Online,
-    Offline
+    Offline,
+    FilterUnit
   };
 
+  enum FileFormat
+  {
+    ROOT,
+    PB
+  };
+
+private:
+  void saveForOfflinePB(const std::string &workflow, int run);
+  void saveForOffline(const std::string &workflow, int run, int lumi);
+  void saveForOnlinePB(const std::string &suffix);
+  void saveForOnline(const std::string &suffix, const std::string &rewrite);
+  void saveForFilterUnitPB(int run, int lumi);
+  void saveForFilterUnit(const std::string& rewrite, int run, int lumi);
+  void saveJobReport(const std::string &filename);
+  void saveJson(int run, int lumi, const std::string& fn, const std::string& data_fn);
+
   Convention	convention_;
+  FileFormat    fileFormat_;
   std::string	workflow_;
   std::string	producer_;
   std::string	dirName_;
   std::string   child_;
+  std::string	filterName_;
   int        	version_;
   bool		runIsComplete_;
   bool          enableMultiThread_;

@@ -90,15 +90,9 @@ RawEventFileWriterForBU::RawEventFileWriterForBU(std::string const& fileName)
 
 RawEventFileWriterForBU::~RawEventFileWriterForBU()
 {
-
-  if (fileMon_ != 0)
-    delete fileMon_;
-
-  if (lumiMon_ != 0)
-    delete lumiMon_;
-
-  if (runMon_ != 0)
-    delete lumiMon_;
+  delete fileMon_;
+  delete lumiMon_;
+  delete runMon_;
 }
 
 void RawEventFileWriterForBU::doOutputEvent(FRDEventMsgView const& msg)

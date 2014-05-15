@@ -7,10 +7,11 @@
 #include "DataFormats/Math/interface/invertPosDefMatrix.h"
 #include<cassert>
 #include<iostream>
+#include <atomic>
 // the usual stupid counter
 namespace KineDebug3 {
   struct Count {
-    int n;
+  std::atomic<int> n;
     Count() : n(0){}
     ~Count() {
     }
@@ -59,14 +60,11 @@ private:
   ROOT::Math::SVector<double,3+7*nTrk> delta_alpha;
   ROOT::Math::SMatrix<double,nConstraint+4,3+7*nTrk> g;
   ROOT::Math::SVector<double,nConstraint+4> val;
-  // ROOT::Math::SMatrix<double,3+7*nTrk,3+7*nTrk,ROOT::Math::MatRepSym<double,3+7*nTrk> > in_cov_sym;
-  // ROOT::Math::SMatrix<double,3+7*nTrk>  rCov;
   ROOT::Math::SVector<double, 3+7*nTrk> finPar;
   ROOT::Math::SVector<double, nConstraint+4> lambda;
-  // ROOT::Math::SMatrix<double,3+7*nTrk,3+7*nTrk,ROOT::Math::MatRepSym<double,3+7*nTrk> > r_cov_sym;
-  ROOT::Math::SMatrix<double,3,3,ROOT::Math::MatRepSym<double,3> > pCov; 
-  ROOT::Math::SMatrix<double,7,7,ROOT::Math::MatRepSym<double,7> > nCovariance;
-  ROOT::Math::SMatrix<double,nConstraint+4,nConstraint+4,ROOT::Math::MatRepSym<double,nConstraint+4> > v_g_sym;   
+  ROOT::Math::SMatrix<double,3,3,ROOT::Math::MatRepSym<double,3> > pCov = ROOT::Math::SMatrixNoInit(); 
+  ROOT::Math::SMatrix<double,7,7,ROOT::Math::MatRepSym<double,7> > nCovariance = ROOT::Math::SMatrixNoInit();
+  ROOT::Math::SMatrix<double,nConstraint+4,nConstraint+4,ROOT::Math::MatRepSym<double,nConstraint+4> > v_g_sym = ROOT::Math::SMatrixNoInit();   
   
 };
 

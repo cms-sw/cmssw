@@ -11,7 +11,7 @@
 class TagCorrelationPlotter : public BaseBTagPlotter {
   public:
     TagCorrelationPlotter(const std::string& tagName1, const std::string& tagName2, const EtaPtBin& etaPtBin,
-                          const edm::ParameterSet& pSet, const unsigned int& mc , const bool& update);
+                          const edm::ParameterSet& pSet, const unsigned int& mc , const bool& update, DQMStore::IBooker & ibook);
 
     virtual ~TagCorrelationPlotter();
 

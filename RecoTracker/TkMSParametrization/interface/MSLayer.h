@@ -71,7 +71,7 @@ private:
 
   DataX0 theX0Data;
 
-  friend struct MSLayersKeeper;
+  friend class MSLayersKeeper;
   friend std::ostream& operator<<( std::ostream& s, const MSLayer & l);
 
 };

@@ -67,11 +67,11 @@ void MuonSeedOrcaPatternRecognition::produce(const edm::Event& event, const edm:
   eSetup.get<MuonRecoGeometryRecord>().get(muonLayers);
 
   // get the DT layers
-  vector<DetLayer*> dtLayers = muonLayers->allDTLayers();
+  vector<const DetLayer*> dtLayers = muonLayers->allDTLayers();
 
   // get the CSC layers
-  vector<DetLayer*> cscForwardLayers = muonLayers->forwardCSCLayers();
-  vector<DetLayer*> cscBackwardLayers = muonLayers->backwardCSCLayers();
+  vector<const DetLayer*> cscForwardLayers = muonLayers->forwardCSCLayers();
+  vector<const DetLayer*> cscBackwardLayers = muonLayers->backwardCSCLayers();
     
   // Backward (z<0) EndCap disk
   const DetLayer* ME4Bwd = cscBackwardLayers[4];

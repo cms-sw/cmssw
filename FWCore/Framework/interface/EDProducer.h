@@ -11,17 +11,20 @@ EDProducts into an Event.
 
 #include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
+#include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
 #include <string>
 #include <vector>
+#include <mutex>
 
 namespace edm {
 
   class ModuleCallingContext;
   class PreallocationConfiguration;
+  class ActivityRegistry;
   
   namespace maker {
     template<typename T> class ModuleHolderT;
@@ -45,6 +48,7 @@ namespace edm {
 
   private:
     bool doEvent(EventPrincipal& ep, EventSetup const& c,
+                 ActivityRegistry* act,
                  ModuleCallingContext const* mcc);
     void doPreallocate(PreallocationConfiguration const&) {}
     void doBeginJob();
@@ -85,6 +89,8 @@ namespace edm {
     }
     ModuleDescription moduleDescription_;
     std::vector<BranchID> previousParentage_;
+    SharedResourcesAcquirer resourceAcquirer_;
+    std::mutex mutex_;
     ParentageID previousParentageId_;
   };
 }

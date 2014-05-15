@@ -1,5 +1,4 @@
 #include "ClassDumper.h"
-#include <boost/interprocess/sync/interprocess_semaphore.hpp>
 #include <iostream>
 #include <fstream>
 #include <iterator>
@@ -27,8 +26,6 @@ void writeLog(std::string ostring,std::string tfstring) {
 void ClassDumper::checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::AnalysisManager& mgr,
                     clang::ento::BugReporter &BR, std::string tname ) const {
 
- 	const char *sfile=BR.getSourceManager().getPresumedLoc(RD->getLocation()).getFilename();
- 	if (!support::isCmsLocalFile(sfile)) return;
 
 	if (!RD->hasDefinition()) return;
 	std::string rname = RD->getQualifiedNameAsString();
@@ -47,13 +44,22 @@ void ClassDumper::checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::Analy
 		crname = crname+os.str()+"'";
 		writeLog(crname, tname);
 		for (unsigned J = 0, F = SD->getTemplateArgs().size(); J!=F; ++J) {
-			if (SD->getTemplateArgs().get(J).getKind() == clang::TemplateArgument::Type
-				&& SD->getTemplateArgs().get(J).getAsType().getTypePtr()->isRecordType() ) {
-				const clang::CXXRecordDecl * TAD = SD->getTemplateArgs().get(J).getAsType().getTypePtr()->getAsCXXRecordDecl();
-				std::string taname = TAD->getQualifiedNameAsString();
-				std::string sdname = SD->getQualifiedNameAsString();
-				std::string cfname = "templated data class '"+sdname+"' template type class '"+taname+"'";
-				writeLog(crname+" "+cfname,tname);
+			if (SD->getTemplateArgs().get(J).getKind() == clang::TemplateArgument::Type) {
+				std::string taname;
+				auto tt = SD->getTemplateArgs().get(J).getAsType().getTypePtr();
+				if (tt->isRecordType()) {
+					auto TAD = tt->getAsCXXRecordDecl();
+					if (TAD) taname = TAD->getQualifiedNameAsString();
+				}
+				if (tt->isPointerType() || tt->isReferenceType() ) {
+					auto TAD = tt->getPointeeCXXRecordDecl();
+					if (TAD) taname = TAD->getQualifiedNameAsString();
+				}
+				if ( ! ( taname == "")  ) {
+					std::string sdname = SD->getQualifiedNameAsString();
+					std::string cfname = "templated data class '"+sdname+"' template type class '"+taname+"'";
+					writeLog(crname+" "+cfname,tname);
+				}
 			}
 		}
 
@@ -65,7 +71,7 @@ void ClassDumper::checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::Analy
 	}
 
 // Dump the class member classes
-		for (clang::RecordDecl::field_iterator I = RD->field_begin(), E = RD->field_end(); I != E; ++I) {
+		for ( auto I = RD->field_begin(), E = RD->field_end(); I != E; ++I) {
 				clang::QualType qual;
 				if (I->getType().getTypePtr()->isAnyPointerType())
 					qual = I->getType().getTypePtr()->getPointeeType();
@@ -83,13 +89,22 @@ void ClassDumper::checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::Analy
 							writeLog(crname+" "+cfname,tname);
 					// Recurse the template args
 							for (unsigned J = 0, F = SD->getTemplateArgs().size(); J!=F; ++J) {
-								if (SD->getTemplateArgs().get(J).getKind() == clang::TemplateArgument::Type
-								&& SD->getTemplateArgs().get(J).getAsType().getTypePtr()->isRecordType() ) {
-								const clang::CXXRecordDecl * TAD = SD->getTemplateArgs().get(J).getAsType().getTypePtr()->getAsCXXRecordDecl();
-								std::string taname = TAD->getQualifiedNameAsString();
-								std::string sdname = SD->getQualifiedNameAsString();
-								std::string cfname = "templated member data class '"+sdname+"' template type class '"+taname+"'";
-								writeLog(crname+" "+cfname,tname);
+								if (SD->getTemplateArgs().get(J).getKind() == clang::TemplateArgument::Type) {
+									std::string taname;
+									const Type * tt = SD->getTemplateArgs().get(J).getAsType().getTypePtr();
+									if ( tt->isRecordType() ) {
+										const clang::CXXRecordDecl * TAD = tt->getAsCXXRecordDecl();
+										if (TAD) taname = TAD->getQualifiedNameAsString();
+									}
+									if ( tt->isPointerType() || tt->isReferenceType() ) {
+										const clang::CXXRecordDecl * TAD = tt->getPointeeCXXRecordDecl();
+										if (TAD) taname = TAD->getQualifiedNameAsString();
+									}
+									if (!(taname == "")) {
+										std::string sdname = SD->getQualifiedNameAsString();
+										std::string cfname = "templated member data class '"+sdname+"' template type class '"+taname+"'";
+										writeLog(crname+" "+cfname,tname);
+									}
 								}
 							}
 					} else {
@@ -105,8 +120,8 @@ void ClassDumper::checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::Analy
 
 // Dump the base classes
 
-		for (clang::CXXRecordDecl::base_class_const_iterator J=RD->bases_begin(), F=RD->bases_end();J != F; ++J) {
-			const clang::CXXRecordDecl * BRD = J->getType()->getAsCXXRecordDecl();
+		for ( auto J=RD->bases_begin(), F=RD->bases_end();J != F; ++J) {
+			auto BRD = J->getType()->getAsCXXRecordDecl();
 			if (!BRD) continue;
 			std::string bname = BRD->getQualifiedNameAsString();
 			std::string cbname = "base class '"+bname+"'";
@@ -125,17 +140,16 @@ void ClassDumperCT::checkASTDecl(const clang::ClassTemplateDecl *TD,clang::ento:
 	std::string pname = "/tmp/classes.txt.dumperct.unsorted";
 	std::string tname = TD->getTemplatedDecl()->getQualifiedNameAsString();
 	if ( tname == "edm::Wrapper" || tname == "edm::RunCache" || tname == "edm::LuminosityBlockCache" || tname == "edm::GlobalCache" ) {
-		for (ClassTemplateDecl::spec_iterator I = const_cast<clang::ClassTemplateDecl *>(TD)->spec_begin(),
-			E = const_cast<clang::ClassTemplateDecl *>(TD)->spec_end(); I != E; ++I)
-			{
-			for (unsigned J = 0, F = I->getTemplateArgs().size(); J!=F; ++J)
-                               {
-                               if (const clang::CXXRecordDecl * D = I->getTemplateArgs().get(J).getAsType()->getAsCXXRecordDecl() )
-                                       {
-                                       ClassDumper dumper;
-                                       dumper.checkASTDecl( D, mgr, BR,pname );
-                                       }
-                               }
+		for ( auto I = TD->spec_begin(),
+			E = TD->spec_end(); I != E; ++I) {
+			for ( unsigned J = 0, F = I->getTemplateArgs().size(); J!=F; ++J) {
+                               		if (auto D = I->getTemplateArgs().get(J).getAsType()->getAsCXXRecordDecl() ) {
+                                       		if (D) {ClassDumper dumper; dumper.checkASTDecl( D, mgr, BR,pname );}
+                                       	}
+                               		if (auto D = I->getTemplateArgs().get(J).getAsType()->getPointeeCXXRecordDecl() ) {
+                                       		if (D) {ClassDumper dumper; dumper.checkASTDecl( D, mgr, BR,pname );}
+                               		}
+			}
 		}
 	}
 
@@ -148,22 +162,19 @@ void ClassDumperFT::checkASTDecl(const clang::FunctionTemplateDecl *TD,clang::en
  	if (!support::isCmsLocalFile(sfile)) return;
 
 	std::string pname = "/tmp/classes.txt.dumperft.unsorted";
-	if (TD->getTemplatedDecl()->getQualifiedNameAsString().find("typelookup") != std::string::npos )
-		{
-		for (FunctionTemplateDecl::spec_iterator I = const_cast<clang::FunctionTemplateDecl *>(TD)->spec_begin(),
-				E = const_cast<clang::FunctionTemplateDecl *>(TD)->spec_end(); I != E; ++I)
-			{
-			for (unsigned J = 0, F = (*I)->getTemplateSpecializationArgs()->size(); J!=F;++J)
-				{
-				if (const clang::CXXRecordDecl * D = (*I)->getTemplateSpecializationArgs()->get(J).getAsType()->getAsCXXRecordDecl())
-					{
-					ClassDumper dumper;
-					dumper.checkASTDecl( D, mgr, BR,pname );
-					}
+	if (TD->getTemplatedDecl()->getQualifiedNameAsString().find("typelookup") != std::string::npos ) {
+		for ( auto I = TD->spec_begin(),
+				E = TD->spec_end(); I != E; ++I) {
+			for (unsigned J = 0, F = (*I)->getTemplateSpecializationArgs()->size(); J!=F;++J){
+				if (auto D = (*I)->getTemplateSpecializationArgs()->get(J).getAsType()->getAsCXXRecordDecl()) {
+					if (D) {ClassDumper dumper; dumper.checkASTDecl( D, mgr, BR,pname );}
 				}
-
+				if (auto D = (*I)->getTemplateSpecializationArgs()->get(J).getAsType()->getPointeeCXXRecordDecl()) {
+					if (D) {ClassDumper dumper; dumper.checkASTDecl( D, mgr, BR,pname );}
+				}
 			}
-		};
+		}
+	}
 } //end class
 
 void ClassDumperInherit::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ento::AnalysisManager& mgr,

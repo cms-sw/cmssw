@@ -124,6 +124,8 @@ namespace cond {
           coral::Context::instance().loadComponent( authServiceName, m_pluginManager );
       }
       
+      std::cout << "==> using " << servName << " for auth, sys " << authSys << std::endl;
+      
       coralConfig.setAuthenticationService( authServiceName );
     }
     
@@ -158,7 +160,7 @@ namespace cond {
       if( it == m_dbTypes.end() ){
 	bt = checkBackendType( coralSession, connectionString );
 	if( bt == UNKNOWN_DB && writeCapable) bt = backType;
-	m_dbTypes.insert( std::make_pair( connectionString, bt ) ).first;
+	m_dbTypes.insert( std::make_pair( connectionString, bt ) );
       } else {
 	bt = (BackendType) it->second;
       }

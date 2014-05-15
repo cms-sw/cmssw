@@ -10,7 +10,7 @@
 */
 
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -41,7 +41,7 @@
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/PatternTools/interface/TrajMeasLessEstim.h"
 
-class OutsideInMuonSeeder : public edm::EDProducer {
+class OutsideInMuonSeeder : public edm::stream::EDProducer<> {
     public:
       explicit OutsideInMuonSeeder(const edm::ParameterSet & iConfig);
       virtual ~OutsideInMuonSeeder() { }
@@ -165,9 +165,9 @@ OutsideInMuonSeeder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
             state = trajectoryStateTransform::innerStateOnSurface(tk, *geometry_, magfield_.product());
         }
         if (std::abs(tk.eta()) < maxEtaForTOB_) {
-            std::vector< BarrelDetLayer * > const & tob = measurementTracker->geometricSearchTracker()->tobLayers();
+            std::vector< BarrelDetLayer const* > const & tob = measurementTracker->geometricSearchTracker()->tobLayers();
             int iLayer = 6, found = 0;
-            for (std::vector<BarrelDetLayer *>::const_reverse_iterator it = tob.rbegin(), ed = tob.rend(); it != ed; ++it, --iLayer) {
+            for (auto it = tob.rbegin(), ed = tob.rend(); it != ed; ++it, --iLayer) {
                 if (debug_) std::cout << "\n ==== Trying TOB " << iLayer << " ====" << std::endl;
                 if (doLayer(**it, state, *out,
                             *(pmuon_cloned.get()),
@@ -179,8 +179,8 @@ OutsideInMuonSeeder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
         }
         if (tk.eta() > minEtaForTEC_) {
             int iLayer = 9, found = 0;
-            std::vector< ForwardDetLayer * > const & tec = measurementTracker->geometricSearchTracker()->posTecLayers();
-            for (std::vector<ForwardDetLayer *>::const_reverse_iterator it = tec.rbegin(), ed = tec.rend(); it != ed; ++it, --iLayer) {
+            std::vector< ForwardDetLayer const* > const & tec = measurementTracker->geometricSearchTracker()->posTecLayers();
+            for (auto it = tec.rbegin(), ed = tec.rend(); it != ed; ++it, --iLayer) {
                 if (debug_) std::cout << "\n ==== Trying TEC " << +iLayer << " ====" << std::endl;
                 if (doLayer(**it, state, *out,
                             *(pmuon_cloned.get()),
@@ -192,8 +192,8 @@ OutsideInMuonSeeder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
         }
         if (tk.eta() < -minEtaForTEC_) {
             int iLayer = 9, found = 0;
-            std::vector< ForwardDetLayer * > const & tec = measurementTracker->geometricSearchTracker()->negTecLayers();
-            for (std::vector<ForwardDetLayer *>::const_reverse_iterator it = tec.rbegin(), ed = tec.rend(); it != ed; ++it, --iLayer) {
+            std::vector< ForwardDetLayer const* > const & tec = measurementTracker->geometricSearchTracker()->negTecLayers();
+            for (auto it = tec.rbegin(), ed = tec.rend(); it != ed; ++it, --iLayer) {
                 if (debug_) std::cout << "\n ==== Trying TEC " << -iLayer << " ====" << std::endl;
                 if (doLayer(**it, state, *out,
                             *(pmuon_cloned.get()),

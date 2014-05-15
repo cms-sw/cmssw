@@ -13,7 +13,6 @@
 #include <clang/StaticAnalyzer/Core/BugReporter/BugReporter.h>
 #include <clang/StaticAnalyzer/Core/BugReporter/BugType.h>
 #include <llvm/ADT/SmallString.h>
-#include <boost/interprocess/sync/interprocess_semaphore.hpp>
 #include <iostream>
 #include <fstream>
 #include <iterator>
@@ -104,8 +103,8 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 
 	std::string vname = support::getQualifiedName(*D);
 	std::string svname = D->getNameAsString();
-
-	if ( (D->isStaticLocal() && D->getTSCSpec() != clang::ThreadStorageClassSpecifier::TSCS_thread_local ) && ! clangcms::support::isConst( t ) )
+	if ( D->getTSCSpec() == clang::ThreadStorageClassSpecifier::TSCS_thread_local ) return;
+	if ( D->isStaticLocal()  && ! clangcms::support::isConst( t ) )
 	{
 		std::string buf;
 	    	llvm::raw_string_ostream os(buf);
@@ -117,7 +116,7 @@ void FWalker::ReportDeclRef ( const clang::DeclRefExpr * DRE) {
 		return;
 	}
 
-	if ( (D->isStaticDataMember() && D->getTSCSpec() != clang::ThreadStorageClassSpecifier::TSCS_thread_local ) && ! clangcms::support::isConst( t ) )
+	if ( D->isStaticDataMember() && ! clangcms::support::isConst( t ) )
 	{
 	    	std::string buf;
 	    	llvm::raw_string_ostream os(buf);

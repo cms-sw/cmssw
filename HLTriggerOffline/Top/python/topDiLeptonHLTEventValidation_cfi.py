@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 # ttbar dimuon
 DiMuonHLTValidation = cms.EDAnalyzer('TopDiLeptonHLTValidation',
         # Directory
-        sDir         = cms.untracked.string('HLTValidation/Top/DiMuon/'),
+        sDir         = cms.untracked.string('HLT/TopHLTValidation/Top/DiMuon/'),
         # Electrons
         sElectrons   = cms.untracked.string('gedGsfElectrons'),
         ptElectrons  = cms.untracked.double(20.),
@@ -17,7 +17,7 @@ DiMuonHLTValidation = cms.EDAnalyzer('TopDiLeptonHLTValidation',
         isoMuons     = cms.untracked.double(0.2),
         minMuons     = cms.untracked.uint32(2),
         # Jets
-        sJets        = cms.untracked.string('ak5PFJets'),
+        sJets        = cms.untracked.string('ak4PFJetsCHS'),
         ptJets       = cms.untracked.double(30.),
         etaJets      = cms.untracked.double(2.5),
         minJets      = cms.untracked.uint32(2),
@@ -29,7 +29,7 @@ DiMuonHLTValidation = cms.EDAnalyzer('TopDiLeptonHLTValidation',
 # ttbar dielec
 DiElectronHLTValidation = cms.EDAnalyzer('TopDiLeptonHLTValidation',
         # Directory
-        sDir         = cms.untracked.string('HLTValidation/Top/DiElectron/'),
+        sDir         = cms.untracked.string('HLT/TopHLTValidation/Top/DiElectron/'),
         # Electrons
         sElectrons   = cms.untracked.string('gedGsfElectrons'),
         ptElectrons  = cms.untracked.double(20.),
@@ -43,7 +43,7 @@ DiElectronHLTValidation = cms.EDAnalyzer('TopDiLeptonHLTValidation',
         isoMuons     = cms.untracked.double(0.2),
         minMuons     = cms.untracked.uint32(0),
         # Jets
-        sJets        = cms.untracked.string('ak5PFJets'),
+        sJets        = cms.untracked.string('ak4PFJetsCHS'),
         ptJets       = cms.untracked.double(30.),
         etaJets      = cms.untracked.double(2.5),
         minJets      = cms.untracked.uint32(2),
@@ -55,7 +55,7 @@ DiElectronHLTValidation = cms.EDAnalyzer('TopDiLeptonHLTValidation',
 # ttbar elec-muon
 ElecMuonHLTValidation = cms.EDAnalyzer('TopDiLeptonHLTValidation',
         # Directory
-        sDir         = cms.untracked.string('HLTValidation/Top/ElecMuon/'),
+        sDir         = cms.untracked.string('HLT/TopHLTValidation/Top/ElecMuon/'),
         # Electrons
         sElectrons   = cms.untracked.string('gedGsfElectrons'),
         ptElectrons  = cms.untracked.double(20.),
@@ -69,7 +69,7 @@ ElecMuonHLTValidation = cms.EDAnalyzer('TopDiLeptonHLTValidation',
         isoMuons     = cms.untracked.double(0.2),
         minMuons     = cms.untracked.uint32(1),
         # Jets
-        sJets        = cms.untracked.string('ak5PFJets'),
+        sJets        = cms.untracked.string('ak4PFJetsCHS'),
         ptJets       = cms.untracked.double(30.),
         etaJets      = cms.untracked.double(2.5),
         minJets      = cms.untracked.uint32(2),

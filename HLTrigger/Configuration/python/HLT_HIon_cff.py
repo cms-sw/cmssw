@@ -1,10 +1,10 @@
-# /dev/CMSSW_7_1_0/HIon/V28 (CMSSW_7_1_0_pre6_HLT1)
+# /dev/CMSSW_7_1_0/HIon/V45 (CMSSW_7_1_0_pre7_HLT5)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_1_0/HIon/V28')
+  tableName = cms.string('/dev/CMSSW_7_1_0/HIon/V45')
 )
 
 HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -962,7 +962,6 @@ hltESSHcalSeverityLevel = cms.ESSource( "EmptyESSource",
 AnyDirectionAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
   MaxDPhi = cms.double( 1.6 ),
   ComponentName = cms.string( "AnyDirectionAnalyticalPropagator" ),
-  SimpleMagneticField = cms.string( "" ),
   PropagationDirection = cms.string( "anyDirection" )
 )
 CSCChannelMapperESProducer = cms.ESProducer( "CSCChannelMapperESProducer",
@@ -984,6 +983,7 @@ ClusterShapeHitFilterESProducer = cms.ESProducer( "ClusterShapeHitFilterESProduc
   PixelShapeFile = cms.string( "RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape.par" )
 )
 MaterialPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
+  SimpleMagneticField = cms.string( "" ),
   PropagationDirection = cms.string( "alongMomentum" ),
   ComponentName = cms.string( "PropagatorWithMaterial" ),
   Mass = cms.double( 0.105 ),
@@ -992,6 +992,7 @@ MaterialPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
   useRungeKutta = cms.bool( False )
 )
 MaterialPropagatorForHI = cms.ESProducer( "PropagatorWithMaterialESProducer",
+  SimpleMagneticField = cms.string( "" ),
   PropagationDirection = cms.string( "alongMomentum" ),
   ComponentName = cms.string( "PropagatorWithMaterialForHI" ),
   Mass = cms.double( 0.139 ),
@@ -1000,6 +1001,7 @@ MaterialPropagatorForHI = cms.ESProducer( "PropagatorWithMaterialESProducer",
   useRungeKutta = cms.bool( False )
 )
 OppositeMaterialPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
+  SimpleMagneticField = cms.string( "" ),
   PropagationDirection = cms.string( "oppositeToMomentum" ),
   ComponentName = cms.string( "PropagatorWithMaterialOpposite" ),
   Mass = cms.double( 0.105 ),
@@ -1008,6 +1010,7 @@ OppositeMaterialPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
   useRungeKutta = cms.bool( False )
 )
 OppositeMaterialPropagatorForHI = cms.ESProducer( "PropagatorWithMaterialESProducer",
+  SimpleMagneticField = cms.string( "" ),
   PropagationDirection = cms.string( "oppositeToMomentum" ),
   ComponentName = cms.string( "PropagatorWithMaterialOppositeForHI" ),
   Mass = cms.double( 0.139 ),
@@ -1046,7 +1049,8 @@ caloDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
   includeBadChambers = cms.bool( False )
 )
 cosmicsNavigationSchoolESProducer = cms.ESProducer( "NavigationSchoolESProducer",
-  ComponentName = cms.string( "CosmicNavigationSchool" )
+  ComponentName = cms.string( "CosmicNavigationSchool" ),
+  SimpleMagneticField = cms.string( "" )
 )
 ecalDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
   ComponentName = cms.string( "EcalDetIdAssociator" ),
@@ -1057,12 +1061,24 @@ ecalDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
 )
 ecalSeverityLevel = cms.ESProducer( "EcalSeverityLevelESProducer",
   dbstatusMask = cms.PSet( 
-    kGood = cms.vuint32( 0 ),
-    kProblematic = cms.vuint32( 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ),
-    kRecovered = cms.vuint32(  ),
-    kTime = cms.vuint32(  ),
-    kWeird = cms.vuint32(  ),
-    kBad = cms.vuint32( 11, 12, 13, 14, 15, 16 )
+    kGood = cms.vstring( 'kOk' ),
+    kProblematic = cms.vstring( 'kDAC',
+      'kNoLaser',
+      'kNoisy',
+      'kNNoisy',
+      'kNNNoisy',
+      'kNNNNoisy',
+      'kNNNNNoisy',
+      'kFixedG6',
+      'kFixedG1',
+      'kFixedG0' ),
+    kRecovered = cms.vstring(  ),
+    kTime = cms.vstring(  ),
+    kWeird = cms.vstring(  ),
+    kBad = cms.vstring( 'kNonRespondingIsolated',
+      'kDeadVFE',
+      'kDeadFE',
+      'kNoDataNoTP' )
   ),
   timeThresh = cms.double( 2.0 ),
   flagMask = cms.PSet( 
@@ -1228,16 +1244,15 @@ hltESPAK4PFNoPUL1L2L3 = cms.ESProducer( "JetCorrectionESChain",
 hltESPAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
   MaxDPhi = cms.double( 1.6 ),
   ComponentName = cms.string( "hltESPAnalyticalPropagator" ),
-  SimpleMagneticField = cms.string( "" ),
   PropagationDirection = cms.string( "alongMomentum" )
 )
 hltESPBwdAnalyticalPropagator = cms.ESProducer( "AnalyticalPropagatorESProducer",
   MaxDPhi = cms.double( 1.6 ),
   ComponentName = cms.string( "hltESPBwdAnalyticalPropagator" ),
-  SimpleMagneticField = cms.string( "" ),
   PropagationDirection = cms.string( "oppositeToMomentum" )
 )
 hltESPBwdElectronPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
+  SimpleMagneticField = cms.string( "" ),
   PropagationDirection = cms.string( "oppositeToMomentum" ),
   ComponentName = cms.string( "hltESPBwdElectronPropagator" ),
   Mass = cms.double( 5.11E-4 ),
@@ -1352,6 +1367,7 @@ hltESPFittingSmootherRK = cms.ESProducer( "KFFittingSmootherESProducer",
   RejectTracks = cms.bool( True )
 )
 hltESPFwdElectronPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
+  SimpleMagneticField = cms.string( "" ),
   PropagationDirection = cms.string( "alongMomentum" ),
   ComponentName = cms.string( "hltESPFwdElectronPropagator" ),
   Mass = cms.double( 5.11E-4 ),
@@ -1707,6 +1723,7 @@ hltESPRKTrajectorySmoother = cms.ESProducer( "KFTrajectorySmootherESProducer",
   RecoGeometry = cms.string( "hltESPGlobalDetLayerGeometry" )
 )
 hltESPRungeKuttaTrackerPropagator = cms.ESProducer( "PropagatorWithMaterialESProducer",
+  SimpleMagneticField = cms.string( "" ),
   PropagationDirection = cms.string( "alongMomentum" ),
   ComponentName = cms.string( "hltESPRungeKuttaTrackerPropagator" ),
   Mass = cms.double( 0.105 ),
@@ -1955,7 +1972,8 @@ muonDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
   includeBadChambers = cms.bool( False )
 )
 navigationSchoolESProducer = cms.ESProducer( "NavigationSchoolESProducer",
-  ComponentName = cms.string( "SimpleNavigationSchool" )
+  ComponentName = cms.string( "SimpleNavigationSchool" ),
+  SimpleMagneticField = cms.string( "" )
 )
 preshowerDetIdAssociator = cms.ESProducer( "DetIdAssociatorESProducer",
   ComponentName = cms.string( "PreshowerDetIdAssociator" ),
@@ -2254,13 +2272,26 @@ hltEcalRecHit = cms.EDProducer( "EcalRecHitProducer",
     eeFEToBeRecovered = cms.InputTag( 'hltEcalDetIdToBeRecovered','eeFE' ),
     ebDetIdToBeRecovered = cms.InputTag( 'hltEcalDetIdToBeRecovered','ebDetId' ),
     singleChannelRecoveryThreshold = cms.double( 8.0 ),
-    ChannelStatusToBeExcluded = cms.vint32(  ),
+    ChannelStatusToBeExcluded = cms.vstring(  ),
     EBrechitCollection = cms.string( "EcalRecHitsEB" ),
     triggerPrimitiveDigiCollection = cms.InputTag( 'hltEcalDigis','EcalTriggerPrimitives' ),
     recoverEEFE = cms.bool( True ),
     singleChannelRecoveryMethod = cms.string( "NeuralNetworks" ),
     EBLaserMAX = cms.double( 3.0 ),
-    flagsMapDBReco = cms.vint32( 0, 0, 0, 0, 4, -1, -1, -1, 4, 4, 7, 7, 7, 8, 9 ),
+    flagsMapDBReco = cms.PSet( 
+      kGood = cms.vstring( 'kOk',
+        'kDAC',
+        'kNoLaser',
+        'kNoisy' ),
+      kNeighboursRecovered = cms.vstring( 'kFixedG0',
+        'kNonRespondingIsolated',
+        'kDeadVFE' ),
+      kDead = cms.vstring( 'kNoDataNoTP' ),
+      kNoisy = cms.vstring( 'kNNoisy',
+        'kFixedG6',
+        'kFixedG1' ),
+      kTowerRecovered = cms.vstring( 'kDeadFE' )
+    ),
     EBuncalibRecHitCollection = cms.InputTag( 'hltEcalUncalibRecHit','EcalUncalibRecHitsEB' ),
     algoRecover = cms.string( "EcalRecHitWorkerRecover" ),
     algo = cms.string( "EcalRecHitWorkerSimple" ),
@@ -2798,7 +2829,6 @@ hltSiPixelDigis = cms.EDProducer( "SiPixelRawToDigi",
     UseQualityInfo = cms.bool( False ),
     CheckPixelOrder = cms.bool( False ),
     IncludeErrors = cms.bool( False ),
-    UseCablingTree = cms.untracked.bool( True ),
     InputLabel = cms.InputTag( "rawDataCollector" ),
     ErrorList = cms.vint32(  ),
     Regions = cms.PSet(  ),
@@ -2838,7 +2868,9 @@ hltHIPixelLayerTriplets = cms.EDProducer( "SeedingLayersEDProducer",
       'BPix1+BPix2+FPix1_neg',
       'BPix1+FPix1_pos+FPix2_pos',
       'BPix1+FPix1_neg+FPix2_neg' ),
+    MTOB = cms.PSet(  ),
     TEC = cms.PSet(  ),
+    MTID = cms.PSet(  ),
     FPix = cms.PSet( 
       useErrorsFromParam = cms.bool( True ),
       hitErrorRPhi = cms.double( 0.0051 ),
@@ -2846,7 +2878,10 @@ hltHIPixelLayerTriplets = cms.EDProducer( "SeedingLayersEDProducer",
       HitProducer = cms.string( "hltHISiPixelRecHits" ),
       hitErrorRZ = cms.double( 0.0036 )
     ),
+    MTEC = cms.PSet(  ),
+    MTIB = cms.PSet(  ),
     TID = cms.PSet(  ),
+    TOB = cms.PSet(  ),
     BPix = cms.PSet( 
       useErrorsFromParam = cms.bool( True ),
       hitErrorRPhi = cms.double( 0.0027 ),
@@ -2854,8 +2889,7 @@ hltHIPixelLayerTriplets = cms.EDProducer( "SeedingLayersEDProducer",
       HitProducer = cms.string( "hltHISiPixelRecHits" ),
       hitErrorRZ = cms.double( 0.006 )
     ),
-    TIB = cms.PSet(  ),
-    TOB = cms.PSet(  )
+    TIB = cms.PSet(  )
 )
 hltPixelTracksForHITrackTrigger = cms.EDProducer( "PixelTrackProducer",
     FilterPSet = cms.PSet( 
@@ -3196,7 +3230,8 @@ hltDt1DRecHits = cms.EDProducer( "DTRecHitProducer",
         doWirePropCorrection = cms.bool( True ),
         doT0Correction = cms.bool( True ),
         debug = cms.untracked.bool( False )
-      )
+      ),
+      useUncertDB = cms.bool( False )
     ),
     dtDigiLabel = cms.InputTag( "hltMuonDTDigis" ),
     recAlgo = cms.string( "DTLinearDriftFromDBAlgo" )
@@ -3986,6 +4021,7 @@ hltHIL3TrackCandidateFromL2OIState = cms.EDProducer( "CkfTrajectoryMaker",
 )
 hltHIL3TkTracksFromL2OIState = cms.EDProducer( "TrackProducer",
     src = cms.InputTag( "hltHIL3TrackCandidateFromL2OIState" ),
+    SimpleMagneticField = cms.string( "" ),
     clusterRemovalInfo = cms.InputTag( "" ),
     beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
     MeasurementTrackerEvent = cms.InputTag( "hltHISiStripClusters" ),
@@ -3998,6 +4034,7 @@ hltHIL3TkTracksFromL2OIState = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( True ),
     TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
     GeometricInnerState = cms.bool( True ),
+    useSimpleMF = cms.bool( False ),
     Propagator = cms.string( "PropagatorWithMaterial" )
 )
 hltHIL3MuonsOIState = cms.EDProducer( "L3MuonProducer",
@@ -4246,6 +4283,7 @@ hltHIL3TrackCandidateFromL2OIHit = cms.EDProducer( "CkfTrajectoryMaker",
 )
 hltHIL3TkTracksFromL2OIHit = cms.EDProducer( "TrackProducer",
     src = cms.InputTag( "hltHIL3TrackCandidateFromL2OIHit" ),
+    SimpleMagneticField = cms.string( "" ),
     clusterRemovalInfo = cms.InputTag( "" ),
     beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
     MeasurementTrackerEvent = cms.InputTag( "hltHISiStripClusters" ),
@@ -4258,6 +4296,7 @@ hltHIL3TkTracksFromL2OIHit = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( True ),
     TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
     GeometricInnerState = cms.bool( True ),
+    useSimpleMF = cms.bool( False ),
     Propagator = cms.string( "PropagatorWithMaterial" )
 )
 hltHIL3MuonsOIHit = cms.EDProducer( "L3MuonProducer",
@@ -4392,7 +4431,9 @@ hltHIPixelLayerPairs = cms.EDProducer( "SeedingLayersEDProducer",
       'BPix2+FPix2_neg',
       'FPix1_pos+FPix2_pos',
       'FPix1_neg+FPix2_neg' ),
+    MTOB = cms.PSet(  ),
     TEC = cms.PSet(  ),
+    MTID = cms.PSet(  ),
     FPix = cms.PSet( 
       useErrorsFromParam = cms.bool( True ),
       hitErrorRPhi = cms.double( 0.0051 ),
@@ -4400,7 +4441,10 @@ hltHIPixelLayerPairs = cms.EDProducer( "SeedingLayersEDProducer",
       HitProducer = cms.string( "hltHISiPixelRecHits" ),
       hitErrorRZ = cms.double( 0.0036 )
     ),
+    MTEC = cms.PSet(  ),
+    MTIB = cms.PSet(  ),
     TID = cms.PSet(  ),
+    TOB = cms.PSet(  ),
     BPix = cms.PSet( 
       useErrorsFromParam = cms.bool( True ),
       hitErrorRPhi = cms.double( 0.0027 ),
@@ -4408,8 +4452,7 @@ hltHIPixelLayerPairs = cms.EDProducer( "SeedingLayersEDProducer",
       HitProducer = cms.string( "hltHISiPixelRecHits" ),
       hitErrorRZ = cms.double( 0.006 )
     ),
-    TIB = cms.PSet(  ),
-    TOB = cms.PSet(  )
+    TIB = cms.PSet(  )
 )
 hltHIMixedLayerPairs = cms.EDProducer( "SeedingLayersEDProducer",
     layerList = cms.vstring( 'BPix1+BPix2',
@@ -4433,12 +4476,14 @@ hltHIMixedLayerPairs = cms.EDProducer( "SeedingLayersEDProducer",
       'FPix2_neg+TEC2_neg',
       'TEC1_neg+TEC2_neg',
       'TEC2_neg+TEC3_neg' ),
+    MTOB = cms.PSet(  ),
     TEC = cms.PSet( 
       useRingSlector = cms.bool( True ),
       TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
       minRing = cms.int32( 1 ),
       maxRing = cms.int32( 1 )
     ),
+    MTID = cms.PSet(  ),
     FPix = cms.PSet( 
       useErrorsFromParam = cms.bool( True ),
       hitErrorRPhi = cms.double( 0.0051 ),
@@ -4446,7 +4491,10 @@ hltHIMixedLayerPairs = cms.EDProducer( "SeedingLayersEDProducer",
       HitProducer = cms.string( "hltHISiPixelRecHits" ),
       hitErrorRZ = cms.double( 0.0036 )
     ),
+    MTEC = cms.PSet(  ),
+    MTIB = cms.PSet(  ),
     TID = cms.PSet(  ),
+    TOB = cms.PSet(  ),
     BPix = cms.PSet( 
       useErrorsFromParam = cms.bool( True ),
       hitErrorRPhi = cms.double( 0.0027 ),
@@ -4454,8 +4502,7 @@ hltHIMixedLayerPairs = cms.EDProducer( "SeedingLayersEDProducer",
       HitProducer = cms.string( "hltHISiPixelRecHits" ),
       hitErrorRZ = cms.double( 0.006 )
     ),
-    TIB = cms.PSet(  ),
-    TOB = cms.PSet(  )
+    TIB = cms.PSet(  )
 )
 hltHIL3TrajSeedIOHit = cms.EDProducer( "TSGFromL2Muon",
     TkSeedGenerator = cms.PSet( 
@@ -4576,6 +4623,7 @@ hltHIL3TrackCandidateFromL2IOHit = cms.EDProducer( "CkfTrajectoryMaker",
 )
 hltHIL3TkTracksFromL2IOHit = cms.EDProducer( "TrackProducer",
     src = cms.InputTag( "hltHIL3TrackCandidateFromL2IOHit" ),
+    SimpleMagneticField = cms.string( "" ),
     clusterRemovalInfo = cms.InputTag( "" ),
     beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
     MeasurementTrackerEvent = cms.InputTag( "hltHISiStripClusters" ),
@@ -4588,6 +4636,7 @@ hltHIL3TkTracksFromL2IOHit = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( True ),
     TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
     GeometricInnerState = cms.bool( True ),
+    useSimpleMF = cms.bool( False ),
     Propagator = cms.string( "PropagatorWithMaterial" )
 )
 hltHIAllL3MuonsIOHit = cms.EDProducer( "L3MuonProducer",
@@ -5863,6 +5912,7 @@ hltHIPrimTrackCandidates = cms.EDProducer( "CkfTrackCandidateMaker",
 )
 hltHIGlobalPrimTracks = cms.EDProducer( "TrackProducer",
     src = cms.InputTag( "hltHIPrimTrackCandidates" ),
+    SimpleMagneticField = cms.string( "" ),
     clusterRemovalInfo = cms.InputTag( "" ),
     beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
     MeasurementTrackerEvent = cms.InputTag( "hltSiStripClusters" ),
@@ -5875,6 +5925,7 @@ hltHIGlobalPrimTracks = cms.EDProducer( "TrackProducer",
     TrajectoryInEvent = cms.bool( True ),
     TTRHBuilder = cms.string( "hltESPTTRHBuilderAngleAndTemplate" ),
     GeometricInnerState = cms.bool( True ),
+    useSimpleMF = cms.bool( False ),
     Propagator = cms.string( "hltESPRungeKuttaTrackerPropagator" )
 )
 hltHIGoodLooseTracks = cms.EDProducer( "AnalyticalTrackSelector",

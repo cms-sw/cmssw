@@ -67,13 +67,15 @@ void SiStripBaseCondObjDQM::analysis(const edm::EventSetup & eSetup_){
   if(Mod_On_ )                                            { fillModMEs    (activeDetIds, eSetup_); }
   if(SummaryOnLayerLevel_On_ || SummaryOnStringLevel_On_ ){ fillSummaryMEs(activeDetIds, eSetup_); }
 
-  std::string filename = hPSet_.getParameter<std::string>("TkMapName");
-  if (filename!=""){
-    char sRun[128];
-    sprintf(sRun,"_Run_%d",eSetup_.iovSyncValue().eventID().run());
-    filename.insert(filename.find("."),sRun);
-    
-    saveTkMap(filename.c_str(), minValue, maxValue);
+  if(fPSet_.getParameter<bool>("TkMap_On") || hPSet_.getParameter<bool>("TkMap_On")) {
+    std::string filename = hPSet_.getParameter<std::string>("TkMapName");
+    if (filename!=""){
+      char sRun[128];
+      sprintf(sRun,"_Run_%d",eSetup_.iovSyncValue().eventID().run());
+      filename.insert(filename.find("."),sRun);
+      
+      saveTkMap(filename.c_str(), minValue, maxValue);
+    }
   }
 }
 // -----
@@ -169,21 +171,18 @@ void SiStripBaseCondObjDQM::selectModules(std::vector<uint32_t> & detIds_){
   
   if( fPSet_.getParameter<bool>("restrictModules")){
 
-    std::map<unsigned int, std::string> m_included_subdets;
-    std::map<unsigned int, DetIdSelector> m_included_subdetsels;
-    std::vector<edm::ParameterSet> included_subdets = fPSet_.getParameter<std::vector<edm::ParameterSet> >("ModulesToBeIncluded_DetIdSelector");
-    for(std::vector<edm::ParameterSet>::const_iterator wsdps = included_subdets.begin();wsdps!=included_subdets.end();++wsdps) {
-      m_included_subdets   [wsdps->getParameter<unsigned int>("detSelection")] = wsdps->getParameter<std::string>("detLabel");
-      m_included_subdetsels[wsdps->getParameter<unsigned int>("detSelection")] = 
-	DetIdSelector(wsdps->getUntrackedParameter<std::vector<std::string> >("selection",std::vector<std::string>()));
+    std::vector<DetIdSelector> included_subdetsels;
+    std::vector<std::string> included_subdets = fPSet_.getParameter<std::vector<std::string> >("ModulesToBeIncluded_DetIdSelector");
+    for(std::vector<std::string>::const_iterator wsdps = included_subdets.begin();wsdps!=included_subdets.end();++wsdps) {
+      included_subdetsels.push_back(DetIdSelector(*wsdps));
     }
     
     std::vector<uint32_t> modulesToBeIncluded;
     for(std::vector<uint32_t>::const_iterator detid=detIds_.begin();detid!=detIds_.end();++detid) {
-      for(std::map<unsigned int,DetIdSelector>::const_iterator detidsel=m_included_subdetsels.begin();detidsel!=m_included_subdetsels.end();++detidsel) {
-	DetIdSelector detIdSel = detidsel->second;
-	if(detIdSel.isSelected(*detid)) {
+      for(std::vector<DetIdSelector>::const_iterator detidsel=included_subdetsels.begin();detidsel!=included_subdetsels.end();++detidsel) {
+	if(detidsel->isSelected(*detid)) {
 	  modulesToBeIncluded.push_back(*detid);
+	  break;
 	  //	  std::cout << "detId: " << *detid << " is selected" << std::endl;
 	}
       }
@@ -191,21 +190,18 @@ void SiStripBaseCondObjDQM::selectModules(std::vector<uint32_t> & detIds_){
     
     // -----
     // *** exclude modules ***
-    std::map<unsigned int, std::string> m_excluded_subdets;
-    std::map<unsigned int, DetIdSelector> m_excluded_subdetsels;
-    std::vector<edm::ParameterSet> excluded_subdets = fPSet_.getParameter<std::vector<edm::ParameterSet> >("ModulesToBeExcluded_DetIdSelector");
-    for(std::vector<edm::ParameterSet>::const_iterator wsdps = excluded_subdets.begin();wsdps!=excluded_subdets.end();++wsdps) {
-      m_excluded_subdets   [wsdps->getParameter<unsigned int>("detSelection")] = wsdps->getParameter<std::string>("detLabel");
-      m_excluded_subdetsels[wsdps->getParameter<unsigned int>("detSelection")] = 
-	DetIdSelector(wsdps->getUntrackedParameter<std::vector<std::string> >("selection",std::vector<std::string>()));
+    std::vector<DetIdSelector> excluded_subdetsels;
+    std::vector<std::string> excluded_subdets = fPSet_.getParameter<std::vector<std::string> >("ModulesToBeExcluded_DetIdSelector");
+    for(std::vector<std::string>::const_iterator wsdps = excluded_subdets.begin();wsdps!=excluded_subdets.end();++wsdps) {
+      excluded_subdetsels.push_back(DetIdSelector(*wsdps));
     }
     
     std::vector<uint32_t> modulesToBeExcluded;
     for(std::vector<uint32_t>::const_iterator detid=detIds_.begin();detid!=detIds_.end();++detid) {
-      for(std::map<unsigned int,DetIdSelector>::const_iterator detidsel=m_excluded_subdetsels.begin();detidsel!=m_excluded_subdetsels.end();++detidsel) {
-	DetIdSelector detIdSel = detidsel->second;
-	if(detIdSel.isSelected(*detid)) {
+      for(std::vector<DetIdSelector>::const_iterator detidsel=excluded_subdetsels.begin();detidsel!=excluded_subdetsels.end();++detidsel) {
+	if(detidsel->isSelected(*detid)) {
 	  modulesToBeExcluded.push_back(*detid);
+	  break;
 	}
       }
     }

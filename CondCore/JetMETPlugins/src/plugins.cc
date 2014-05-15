@@ -2,6 +2,7 @@
 
 #include "CondFormats/JetMETObjects/interface/QGLikelihoodObject.h"
 #include "CondFormats/DataRecord/interface/QGLikelihoodRcd.h"
+#include "CondFormats/DataRecord/interface/QGLikelihoodSystematicsRcd.h"
 
 #include "CondFormats/JetMETObjects/interface/FFTJetCorrectorParameters.h"
 #include "CondFormats/DataRecord/interface/FFTJetCorrectorParametersRcdTypes.h"
@@ -9,6 +10,7 @@
 
 
 REGISTER_PLUGIN(QGLikelihoodRcd, QGLikelihoodObject);
+REGISTER_PLUGIN(QGLikelihoodSystematicsRcd, QGLikelihoodSystematicsObject);
 
 REGISTER_PLUGIN(FFTBasicJetCorrectorParametersRcd, FFTJetCorrectorParameters);
 REGISTER_PLUGIN(FFTGenJetCorrectorParametersRcd, FFTJetCorrectorParameters);

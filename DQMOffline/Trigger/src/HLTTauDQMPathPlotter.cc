@@ -3,11 +3,21 @@
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 
-HLTTauDQMPathPlotter::HLTTauDQMPathPlotter(const edm::ParameterSet& pset, bool doRefAnalysis, const std::string& dqmBaseFolder,
+namespace {
+  std::string stripVersion(const std::string& pathName) {
+    size_t versionStart = pathName.rfind("_v");
+    if(versionStart == std::string::npos)
+      return pathName;
+    return pathName.substr(0, versionStart);
+  }
+}
+
+HLTTauDQMPathPlotter::HLTTauDQMPathPlotter(const std::string& pathName, const HLTConfigProvider& HLTCP,
+                                           bool doRefAnalysis, const std::string& dqmBaseFolder,
                                            const std::string& hltProcess, int ptbins, int etabins, int phibins,
                                            double ptmax, double highptmax,
                                            double l1MatchDr, double hltMatchDr):
-  HLTTauDQMPlotter(pset, dqmBaseFolder),
+  HLTTauDQMPlotter(stripVersion(pathName), dqmBaseFolder),
   ptbins_(ptbins),
   etabins_(etabins),
   phibins_(phibins),
@@ -16,35 +26,9 @@ HLTTauDQMPathPlotter::HLTTauDQMPathPlotter(const edm::ParameterSet& pset, bool d
   l1MatchDr_(l1MatchDr),
   hltMatchDr_(hltMatchDr),
   doRefAnalysis_(doRefAnalysis),
-  hltPath_(hltProcess, dqmFolder_, doRefAnalysis_)
+  hltPath_(pathName, hltProcess, doRefAnalysis_, HLTCP)
 {
-  if(!configValid_)
-    return;
-
-  // Parse configuration
-  try {
-    hltPath_.initialize(pset);
-  } catch(cms::Exception& e) {
-    edm::LogWarning("HLTTauDQMOffline") << "HLTTauDQMPathPlotter::HLTTauDQMPathPlotter(): " << e.what();
-    configValid_ = false;
-    return;
-  }
-  configValid_ = true;
-}
-
-void HLTTauDQMPathPlotter::updateHLTMenu(const HLTConfigProvider& HLTCP) {
-  if(!configValid_)
-    return;
-
-  // Identify the correct HLT path
-  if(!HLTCP.inited()) {
-    edm::LogWarning("HLTTauDQMOffline") << "HLTTauDQMPathPlotter::beginRun(): HLTConfigProvider is not initialized!";
-    runValid_ = false;
-    return;
-  }
-
-  // Search path candidates
-  runValid_ = hltPath_.beginRun(HLTCP);
+  configValid_ = configValid_ && hltPath_.isValid();
 }
 
 void HLTTauDQMPathPlotter::bookHistograms(DQMStore::IBooker &iBooker) {
@@ -68,24 +52,24 @@ void HLTTauDQMPathPlotter::bookHistograms(DQMStore::IBooker &iBooker) {
     iBooker.setCurrentFolder(triggerTag()+"/helpers");
     if(hltPath_.hasL2Taus()) {
       hL2TrigTauEtEffNum_    = iBooker.book1D("L2TrigTauEtEffNum",    "L2 #tau p_{T} efficiency;Ref #tau p_{T};entries", ptbins_, 0, ptmax_);
-      hL2TrigTauEtEffDenom_  = iBooker.book1D("L2TrigTauEtEffDenom",  "L2 #tau p_{T} denominator;Ref #tau p_{T};entries", ptbins_, 0, ptmax_);
+      hL2TrigTauEtEffDenom_  = iBooker.book1D("L2TrigTauEtEffDenom",  "L2 #tau p_{T} denominator;Ref #tau p_{T};Efficiency", ptbins_, 0, ptmax_);
       hL2TrigTauEtaEffNum_   = iBooker.book1D("L2TrigTauEtaEffNum",   "L2 #tau #eta efficiency;Ref #tau #eta;entries", etabins_, -2.5, 2.5);
-      hL2TrigTauEtaEffDenom_ = iBooker.book1D("L2TrigTauEtaEffDenom", "L2 #tau #eta denominator;Ref #tau #eta;entries", etabins_, -2.5, 2.5);
+      hL2TrigTauEtaEffDenom_ = iBooker.book1D("L2TrigTauEtaEffDenom", "L2 #tau #eta denominator;Ref #tau #eta;Efficiency", etabins_, -2.5, 2.5);
       hL2TrigTauPhiEffNum_   = iBooker.book1D("L2TrigTauPhiEffNum",   "L2 #tau #phi efficiency;Ref #tau #phi;entries", phibins_, -3.2, 3.2);
-      hL2TrigTauPhiEffDenom_ = iBooker.book1D("L2TrigTauPhiEffDenom", "L2 #tau #phi denominator;Ref #tau #phi;entries", phibins_, -3.2, 3.2);
-      hL2TrigTauHighEtEffNum_   = iBooker.book1D("L2TrigTauHighEtEffNum",    "L2 #tau p_{T} efficiency (high p_{T})Ref #tau p_{T};entries", ptbins_, 0, highptmax_);
-      hL2TrigTauHighEtEffDenom_ = iBooker.book1D("L2TrigTauHighEtEffDenom",  "L2 #tau p_{T} denominator (high p_{T})Ref #tau p_{T};entries", ptbins_, 0, highptmax_);
+      hL2TrigTauPhiEffDenom_ = iBooker.book1D("L2TrigTauPhiEffDenom", "L2 #tau #phi denominator;Ref #tau #phi;Efficiency", phibins_, -3.2, 3.2);
+      hL2TrigTauHighEtEffNum_   = iBooker.book1D("L2TrigTauHighEtEffNum",    "L2 #tau p_{T} efficiency (high p_{T});Ref #tau p_{T};entries", ptbins_, 0, highptmax_);
+      hL2TrigTauHighEtEffDenom_ = iBooker.book1D("L2TrigTauHighEtEffDenom",  "L2 #tau p_{T} denominator (high p_{T});Ref #tau p_{T};Efficiency", ptbins_, 0, highptmax_);
     }
 
     if(hltPath_.hasL3Taus()) {
       hL3TrigTauEtEffNum_    = iBooker.book1D("L3TrigTauEtEffNum",    "L3 #tau p_{T} efficiency;Ref #tau p_{T};entries", ptbins_, 0, ptmax_);
-      hL3TrigTauEtEffDenom_  = iBooker.book1D("L3TrigTauEtEffDenom",  "L3 #tau p_{T} denominator;Ref #tau p_{T};entries", ptbins_, 0, ptmax_);
+      hL3TrigTauEtEffDenom_  = iBooker.book1D("L3TrigTauEtEffDenom",  "L3 #tau p_{T} denominator;Ref #tau p_{T};Efficiency", ptbins_, 0, ptmax_);
       hL3TrigTauEtaEffNum_   = iBooker.book1D("L3TrigTauEtaEffNum",   "L3 #tau #eta efficiency;Ref #tau #eta;entries", etabins_, -2.5, 2.5);
-      hL3TrigTauEtaEffDenom_ = iBooker.book1D("L3TrigTauEtaEffDenom", "L3 #tau #eta denominator;Ref #tau #eta;entries", etabins_, -2.5, 2.5);
+      hL3TrigTauEtaEffDenom_ = iBooker.book1D("L3TrigTauEtaEffDenom", "L3 #tau #eta denominator;Ref #tau #eta;Efficiency", etabins_, -2.5, 2.5);
       hL3TrigTauPhiEffNum_   = iBooker.book1D("L3TrigTauPhiEffNum",   "L3 #tau #phi efficiency;Ref #tau #phi;entries", phibins_, -3.2, 3.2);
-      hL3TrigTauPhiEffDenom_ = iBooker.book1D("L3TrigTauPhiEffDenom", "L3 #tau #phi denominator;Ref #tau #phi;entries", phibins_, -3.2, 3.2);
+      hL3TrigTauPhiEffDenom_ = iBooker.book1D("L3TrigTauPhiEffDenom", "L3 #tau #phi denominator;Ref #tau #phi;Efficiency", phibins_, -3.2, 3.2);
       hL3TrigTauHighEtEffNum_    = iBooker.book1D("L3TrigTauHighEtEffNum",    "L3 #tau p_{T} efficiency (high p_{T});Ref #tau p_{T};entries", ptbins_, 0, highptmax_);
-      hL3TrigTauHighEtEffDenom_  = iBooker.book1D("L3TrigTauHighEtEffDenom",  "L3 #tau p_{T} denominator (high p_{T});Ref #tau p_{T};entries", ptbins_, 0, highptmax_);
+      hL3TrigTauHighEtEffDenom_  = iBooker.book1D("L3TrigTauHighEtEffDenom",  "L3 #tau p_{T} denominator (high p_{T});Ref #tau p_{T};Efficiency", ptbins_, 0, highptmax_);
     }
     iBooker.setCurrentFolder(triggerTag());
   }
@@ -97,8 +81,19 @@ void HLTTauDQMPathPlotter::bookHistograms(DQMStore::IBooker &iBooker) {
     const int ntaus = hltPath_.getFilterNTaus(lastFilter);
     const int neles = hltPath_.getFilterNElectrons(lastFilter);
     const int nmus = hltPath_.getFilterNMuons(lastFilter);
-    if(ntaus+neles+nmus == 2) {
-      hMass_ = iBooker.book1D("ReferenceMass", "Invariant mass of reference "+dqmFolder_+";Reference invariant mass;entries", 100, 0, 500);
+    auto create = [&](const std::string& name) {
+      this->hMass_ = iBooker.book1D("ReferenceMass", "Invariant mass of reference "+name+";Reference invariant mass;entries", 100, 0, 500);
+    };
+
+    LogDebug("HLTTauDQMOffline") << "Path " << hltPath_.getPathName() << " number of taus " << ntaus << " electrons " << neles << " muons " << nmus;
+
+    if(ntaus == 2)
+      create("di-tau");
+    else if(ntaus == 1) {
+      if(neles == 1)
+        create("electron-tau");
+      else if(nmus == 1)
+        create("muon-tau");
     }
   }
 }

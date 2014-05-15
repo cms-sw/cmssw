@@ -4,12 +4,16 @@ import FWCore.ParameterSet.Config as cms
 dqmSaver = cms.EDAnalyzer("DQMFileSaver",
     # Possible conventions are "Online", "Offline" and "RelVal".
     convention = cms.untracked.string('Offline'),
+    # Save files in plain ROOT or encode ROOT objects in ProtocolBuffer
+    fileFormat = cms.untracked.string('ROOT'),
     # Name of the producer.
     producer = cms.untracked.string('DQM'),
     # Name of the processing workflow.
     workflow = cms.untracked.string(''),
     # Directory in which to save the files.
     dirName = cms.untracked.string('.'),
+    # Only save this directory
+    filterName = cms.untracked.string(''),
     # Version name to be used in file name.
     version = cms.untracked.int32(1),
     # runIsComplete

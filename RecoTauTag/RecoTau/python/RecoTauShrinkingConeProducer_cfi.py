@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 from RecoTauTag.RecoTau.PFRecoTauQualityCuts_cfi import PFTauQualityCuts
-
+from RecoTauTag.RecoTau.PFRecoTauPFJetInputs_cfi import PFRecoTauPFJetInputs
 '''
 
 Configuration for 'shrinkingCone' PFTau Producer
@@ -29,9 +29,12 @@ _shrinkingConeRecoTausConfig = cms.PSet(
 
 shrinkingConeRecoTaus = cms.EDProducer(
     "RecoTauProducer",
-    jetSrc = cms.InputTag("ak5PFJets"),
-    piZeroSrc = cms.InputTag("ak5PFJetsRecoTauPiZeros"),
-    jetRegionSrc = cms.InputTag("recoTauAK5PFJets08Region"),
+    jetSrc = PFRecoTauPFJetInputs.inputJetCollection,
+    piZeroSrc = cms.InputTag("ak4PFJetsRecoTauPiZeros"),
+    jetRegionSrc = cms.InputTag("recoTauAK4PFJets08Region"),
+    chargedHadronSrc = cms.InputTag('ak4PFJetsRecoTauChargedHadrons'),
+    minJetPt = cms.double(-1.0),
+    maxJetAbsEta = cms.double(99.0),
     builders = cms.VPSet(
         _shrinkingConeRecoTausConfig
     ),

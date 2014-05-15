@@ -84,6 +84,7 @@ def OptionsFromItems(items):
                  "reSIM":"SIM",
                  "DIGI":"SIM",
                  "DIGIPREMIX":"SIM",
+                 "DIGIPREMIX_S2":"SIM",
                  "reDIGI":"DIGI",
                  "L1REPACK":"RAW",
                  "HLT":"RAW",
@@ -97,7 +98,8 @@ def OptionsFromItems(items):
                  "DATAMIX":"DIGI",
                  "DIGI2RAW":"DATAMIX",
                  "HARVESTING":"RECO",
-                 "ALCAHARVEST":"RECO"}
+                 "ALCAHARVEST":"RECO",
+                 "PAT":"RECO"}
 
     trimmedEvtType=options.evt_type.split('/')[-1]
 

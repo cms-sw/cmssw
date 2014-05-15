@@ -120,6 +120,8 @@ namespace pat {
       trigger::HLTPrescaleTable hltPrescaleTableLumi_;
       bool                       addPathModuleLabels_;  // configuration (optional with default)
       std::vector< std::string > exludeCollections_;    // configuration (optional)
+      bool                      packPathNames_;         // configuration (optional width default)
+      bool                      packPrescales_;         // configuration (optional width default)
 
       class ModuleLabelToPathAndFlags {
           public:

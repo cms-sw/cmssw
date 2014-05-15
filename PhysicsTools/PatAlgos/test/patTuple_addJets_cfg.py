@@ -18,21 +18,21 @@ from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
 from PhysicsTools.PatAlgos.tools.jetTools import switchJetCollection
 
 ## uncomment the following lines to add ak5PFJetsCHS to your PAT output
-postfixAK5PFCHS = 'Copy'
+postfixAK4PFCHS = 'Copy'
 addJetCollection(
    process,
-   postfix   = postfixAK5PFCHS,
-   labelName = 'AK5PFCHS',
-   jetSource = cms.InputTag('ak5PFJetsCHS'),
+   postfix   = postfixAK4PFCHS,
+   labelName = 'AK4PFCHS',
+   jetSource = cms.InputTag('ak4PFJetsCHS'),
    jetCorrections = ('AK5PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2')
    )
-process.out.outputCommands.append( 'drop *_selectedPatJetsAK5PFCHS%s_caloTowers_*'%( postfixAK5PFCHS ) )
+process.out.outputCommands.append( 'drop *_selectedPatJetsAK5PFCHS%s_caloTowers_*'%( postfixAK4PFCHS ) )
 
 # uncomment the following lines to add ak5PFJets to your PAT output
 addJetCollection(
    process,
-   labelName = 'AK5PF',
-   jetSource = cms.InputTag('ak5PFJets'),
+   labelName = 'AK4PF',
+   jetSource = cms.InputTag('ak4PFJets'),
    jetCorrections = ('AK5PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-1'),
    btagDiscriminators = [
        'jetBProbabilityBJetTags'
@@ -49,8 +49,8 @@ process.out.outputCommands.append( 'drop *_selectedPatJetsAK5PF_caloTowers_*' )
 # uncomment the following lines to switch to ak5CaloJets in your PAT output
 switchJetCollection(
    process,
-   jetSource = cms.InputTag('ak5CaloJets'),
-   jetCorrections = ('AK5Calo', cms.vstring(['L1Offset', 'L2Relative', 'L3Absolute']), 'Type-1'),
+   jetSource = cms.InputTag('ak4CaloJets'),
+   jetCorrections = ('AK5Calo', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-1'),
    btagDiscriminators = [
        'jetBProbabilityBJetTags'
      , 'jetProbabilityBJetTags'
@@ -61,8 +61,11 @@ switchJetCollection(
      , 'combinedSecondaryVertexBJetTags'
      ],
    )
-process.patJets.addJetID=True
-process.patJets.jetIDMap="ak5JetID"
+## JetID works only with RECO input for the CaloTowers (s. below for 'process.source.fileNames')
+#process.patJets.addJetID=True
+#process.load("RecoJets.JetProducers.ak4JetID_cfi")
+#process.patJets.jetIDMap="ak4JetID"
+process.patJets.useLegacyJetMCFlavour=True # Need to use legacy flavour since the new flavour requires jet constituents which are dropped for CaloJets from AOD
 process.out.outputCommands.append( 'keep *_selectedPatJets_caloTowers_*' )
 process.out.outputCommands.append( 'drop *_selectedPatJets_pfCandidates_*' )
 
@@ -77,6 +80,8 @@ process.out.outputCommands.append( 'drop *_selectedPatJets_pfCandidates_*' )
 #                                         ##
 from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarAODSIM
 process.source.fileNames = filesRelValProdTTbarAODSIM
+#from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarGENSIMRECO
+#process.source.fileNames = filesRelValProdTTbarGENSIMRECO
 #                                         ##
 process.maxEvents.input = 10
 #                                         ##

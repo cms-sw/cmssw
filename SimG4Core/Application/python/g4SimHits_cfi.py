@@ -10,9 +10,9 @@ common_heavy_suppression = cms.PSet(
 
 common_maximum_time = cms.PSet(
     MaxTrackTime  = cms.double(500.0),
-    MaxTimeNames  = cms.vstring('ZDCRegion','QuadRegion','InterimRegion'),
-    MaxTrackTimes = cms.vdouble(2000.0,0.,0.),
-    KillBeamPipe            = cms.bool(True),
+    MaxTimeNames  = cms.vstring('ZDCRegion'),
+    MaxTrackTimes = cms.vdouble(2000.0),
+    DeadRegions   = cms.vstring('QuadRegion','CastorRegion','InterimRegion'),
     CriticalEnergyForVacuum = cms.double(2.0),
     CriticalDensity         = cms.double(1e-15)
 )
@@ -47,9 +47,10 @@ g4SimHits = cms.EDProducer("OscarProducer",
     RestorePhysicsTables = cms.bool(False),
     CheckOverlap = cms.untracked.bool(False),
     G4Commands = cms.vstring(),
+    FileNameField = cms.untracked.string(''),
     FileNameGDML = cms.untracked.string(''),
     Watchers = cms.VPSet(),
-    HepMCProduct = cms.InputTag("HepMCProduct"),
+    HepMCProductLabel = cms.InputTag("generator"),
     theLHCTlinkTag = cms.InputTag("LHCTransport"),
     MagneticField = cms.PSet(
         UseLocalMagFieldManager = cms.bool(False),
@@ -59,21 +60,15 @@ g4SimHits = cms.EDProducer("OscarProducer",
             OCMS = cms.PSet(
                 Stepper = cms.string('G4ClassicalRK4'),
                 Type = cms.string('CMSIMField'),
-                G4ClassicalRK4 = cms.PSet(
+                StepperParam = cms.PSet(
                     MaximumEpsilonStep = cms.untracked.double(0.01), ## in mm
-
                     DeltaOneStep = cms.double(0.001), ## in mm
-
                     MaximumLoopCounts = cms.untracked.double(1000.0),
                     DeltaChord = cms.double(0.001), ## in mm
-
                     MinStep = cms.double(0.1), ## in mm
-
                     DeltaIntersectionAndOneStep = cms.untracked.double(-1.0),
                     DeltaIntersection = cms.double(0.0001), ## in mm
-
                     MinimumEpsilonStep = cms.untracked.double(1e-05) ## in mm
-
                 )
             )
         ),
@@ -130,15 +125,17 @@ g4SimHits = cms.EDProducer("OscarProducer",
         # string HepMCProductLabel = "VtxSmeared"
         HepMCProductLabel = cms.string('generator'),
         ApplyPCuts = cms.bool(True),
-        MinPCut = cms.double(0.04), ## the pt-cut is in GeV (CMS conventions)
-        MaxPCut = cms.double(99999.0), ## the ptmax=99.TeV in this case
+        ApplyPtransCut = cms.bool(False),
+        MinPCut = cms.double(0.04), ## the cut is in GeV 
+        MaxPCut = cms.double(99999.0), ## the pmax=99.TeV 
         ApplyEtaCuts = cms.bool(True),
         MinEtaCut = cms.double(-5.5),
         MaxEtaCut = cms.double(5.5),
+        RDecLenCut = cms.double(2.9), ## (cm) the cut on vertex radius
+        LDecLenCut = cms.double(30.0), ## (cm) decay volume length
         ApplyPhiCuts = cms.bool(False),
-        MinPhiCut = cms.double(-3.14159265359), ## in radians
+        MinPhiCut = cms.double(-3.14159265359), ## (radians)
         MaxPhiCut = cms.double(3.14159265359), ## according to CMS conventions
-        RDecLenCut = cms.double(2.9), ## the minimum decay length in cm (!) for mother tracking
         Verbosity = cms.untracked.int32(0)
     ),
     RunAction = cms.PSet(
@@ -343,7 +340,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
         FillHisto       = cms.untracked.bool(True)
     ),
     CastorSD = cms.PSet(
-        useShowerLibrary               = cms.bool(True),
+        useShowerLibrary               = cms.bool(False),
         minEnergyInGeVforUsingSLibrary = cms.double(1.0),
         nonCompensationFactor          = cms.double(0.85),
         Verbosity                      = cms.untracked.int32(0)

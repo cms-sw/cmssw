@@ -11,7 +11,7 @@
 CSCRecHitValidation::CSCRecHitValidation(const edm::ParameterSet & ps)
 : dbe_( edm::Service<DQMStore>().operator->() ),
   theOutputFile( ps.getParameter<std::string>("outputFile") ),
-  theSimHitMap(ps.getParameter<edm::InputTag>("simHitsTag")),
+  theSimHitMap(ps.getParameter<edm::InputTag>("simHitsTag"), consumesCollector() ),
   theCSCGeometry(0),
   the2DValidation(0),
   theSegmentValidation(0)

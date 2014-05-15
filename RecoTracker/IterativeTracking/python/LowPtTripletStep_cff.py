@@ -55,11 +55,12 @@ lowPtTripletStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryF
                  cms.PSet(refToPSet_ = cms.string('ClusterShapeTrajectoryFilter'))]
     )
 
-import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi
-lowPtTripletStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi.Chi2MeasurementEstimator.clone(
+import TrackingTools.KalmanUpdators.Chi2ChargeMeasurementEstimatorESProducer_cfi
+lowPtTripletStepChi2Est = TrackingTools.KalmanUpdators.Chi2ChargeMeasurementEstimatorESProducer_cfi.Chi2ChargeMeasurementEstimator.clone(
     ComponentName = cms.string('lowPtTripletStepChi2Est'),
     nSigma = cms.double(3.0),
-    MaxChi2 = cms.double(9.0)
+    MaxChi2 = cms.double(9.0),
+    minGoodStripCharge = cms.double(2069),
 )
 
 # TRACK BUILDING
@@ -110,18 +111,26 @@ import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 lowPtTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
     src='lowPtTripletStepTracks',
     useAnyMVA = cms.bool(True),
-    GBRForestLabel = cms.string('MVASelectorIter1'),
+    GBRForestLabel = cms.string('MVASelectorIter1_13TeV_v0'),
     trackSelectors= cms.VPSet(
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             name = 'lowPtTripletStepLoose',
+            useMVA = cms.bool(True),
+            minMVA = cms.double(-0.6),
+            chi2n_par = cms.double(9999),
             ), #end of pset
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
             name = 'lowPtTripletStepTight',
             preFilterName = 'lowPtTripletStepLoose',
             ),
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             name = 'lowPtTripletStep',
-            preFilterName = 'lowPtTripletStepTight',
+            preFilterName = 'lowPtTripletStepLoose',
+            useMVA = cms.bool(True),
+            minMVA = cms.double(0.4),
+            qualityBit = cms.string('highPurity'),
+            keepAllTracks = cms.bool(True),
+            chi2n_par = cms.double(9999),
             ),
         ) #end of vpset
     ) #end of clone

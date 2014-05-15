@@ -10,6 +10,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 using namespace edm;
 
 #include "Geometry/DTGeometry/interface/DTLayer.h"
@@ -18,8 +19,6 @@ using namespace edm;
 
 #include "DataFormats/DTRecHit/interface/DTRecHit1DPair.h"
 #include "DataFormats/DTRecHit/interface/DTRecHit1D.h"
-#include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
-#include "DataFormats/DTRecHit/interface/DTRecClusterCollection.h"
 #include "DataFormats/DTRecHit/interface/DTSLRecSegment2D.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment2DCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRangeMapAccessor.h"
@@ -38,8 +37,8 @@ DTRecSegment2DExtendedProducer::DTRecSegment2DExtendedProducer(const edm::Parame
   debug = pset.getUntrackedParameter<bool>("debug"); 
 
   // the name of the 1D rec hits collection
-  theRecHits1DLabel = pset.getParameter<InputTag>("recHits1DLabel");
-  theRecClusLabel = pset.getParameter<InputTag>("recClusLabel");
+  recHits1DToken_ = consumes<DTRecHitCollection>(pset.getParameter<InputTag>("recHits1DLabel"));
+  recClusToken_ = consumes<DTRecClusterCollection>(pset.getParameter<InputTag>("recClusLabel"));
 
   if(debug)
     cout << "[DTRecSegment2DExtendedProducer] Constructor called" << endl;
@@ -70,11 +69,11 @@ void DTRecSegment2DExtendedProducer::produce(edm::Event& event, const
   
   // Get the 1D rechits from the event
   Handle<DTRecHitCollection> allHits; 
-  event.getByLabel(theRecHits1DLabel, allHits);
+  event.getByToken(recHits1DToken_, allHits);
 
   // Get the 1D clusters from the event
   Handle<DTRecClusterCollection> dtClusters; 
-  event.getByLabel(theRecClusLabel, dtClusters);
+  event.getByToken(recClusToken_, dtClusters);
   theAlgo->setClusters(vector<DTSLRecCluster>(dtClusters->begin(),
                                               dtClusters->end()));
 

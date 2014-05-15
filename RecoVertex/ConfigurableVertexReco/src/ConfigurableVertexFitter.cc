@@ -8,13 +8,12 @@ namespace {
   {
     cout << "[ConfigurableVertexFitter] got no fitter for \""
          << finder << "\"" << endl;
-    map < string, AbstractConfFitter * > valid = 
-      VertexFitterManager::Instance().get();
+    std::vector<std::string> valid =
+      VertexFitterManager::Instance().getNames();
     cout << "  Valid fitters are:";
-    for ( map < string, AbstractConfFitter * >::const_iterator i=valid.begin(); 
-          i!=valid.end() ; ++i )
+    for (const auto& i: valid)
     {
-      if ( i->second ) cout << "  " << i->first;
+      cout << "  " << i;
     }
     cout << endl;
     throw std::string ( finder + " not available!" );
@@ -25,7 +24,7 @@ ConfigurableVertexFitter::ConfigurableVertexFitter (
     const edm::ParameterSet & p ) : theFitter ( 0 )
 {
   string fitter=p.getParameter<string>("fitter");
-  theFitter = VertexFitterManager::Instance().get ( fitter );
+  theFitter = VertexFitterManager::Instance().get ( fitter ).release();
   if (!theFitter)
   {
     errorNoFitter ( fitter );
@@ -35,6 +34,7 @@ ConfigurableVertexFitter::ConfigurableVertexFitter (
 
 ConfigurableVertexFitter::~ConfigurableVertexFitter()
 {
+  delete theFitter;
 }
 
 ConfigurableVertexFitter::ConfigurableVertexFitter 

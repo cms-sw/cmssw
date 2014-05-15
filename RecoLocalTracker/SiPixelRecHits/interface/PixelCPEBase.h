@@ -11,8 +11,6 @@
 // Change to use Generic error & Template calibration from DB - D.Fehling 11/08
 //-----------------------------------------------------------------------------
 
-#define NEW_PIXELCPEERROR
-
 #include <utility>
 #include <vector>
 #include "TMath.h"
@@ -36,19 +34,19 @@
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelLorentzAngle.h"
 
-#ifdef NEW_PIXELCPEERROR
 // new errors 
 #include "CondFormats/SiPixelObjects/interface/SiPixelGenErrorDBObject.h"
-#else
 // old errors
-#include "CondFormats/SiPixelObjects/interface/SiPixelCPEGenericErrorParm.h"
-#endif
+//#include "CondFormats/SiPixelObjects/interface/SiPixelCPEGenericErrorParm.h"
 
 #include "CondFormats/SiPixelObjects/interface/SiPixelTemplateDBObject.h"
 
 #include <unordered_map>
 
 #include <iostream>
+#ifdef EDM_ML_DEBUG
+#include <atomic>
+#endif
 
 class RectangularPixelTopology;
 class MagneticField;
@@ -74,12 +72,13 @@ class PixelCPEBase : public PixelClusterParameterEstimator
     //float theNumOfCol; //Not used, AH
     //float theSign; //Not used, AH
 
-    float lAWidth;  // la used to calculate the cluster width from conf.
     float bz; // local Bz
     LocalVector driftDirection;
-    float widthLAFraction; // Width-LA to Offset-LA
+    float widthLAFractionX;    // Width-LA to Offset-LA in X
+    float widthLAFractionY;    // same in Y
     float lorentzShiftInCmX;   // a FULL shift, in cm
     float lorentzShiftInCmY;   // a FULL shift, in cm
+    int   detTemplateId;       // det if for templates & generic errors
   };
 
   struct ClusterParam
@@ -118,21 +117,13 @@ class PixelCPEBase : public PixelClusterParameterEstimator
   };
 
 public:
-#ifdef NEW_PIXELCPEERROR
   PixelCPEBase(edm::ParameterSet const& conf, const MagneticField * mag, const TrackerGeometry& geom,
 	       const SiPixelLorentzAngle * lorentzAngle, 
 	       const SiPixelGenErrorDBObject * genErrorDBObject, 
 	       const SiPixelTemplateDBObject * templateDBobject,
-	       const SiPixelLorentzAngle * lorentzAngleWidth
+	       const SiPixelLorentzAngle * lorentzAngleWidth,
+	       int flag=0  // flag=0 for generic, =1 for templates
 	       );  // NEW
-#else
-  PixelCPEBase(edm::ParameterSet const& conf, const MagneticField * mag, const TrackerGeometry& geom,
-	       const SiPixelLorentzAngle * lorentzAngle, 
-	       const SiPixelCPEGenericErrorParm * genErrorParm, 
-	       const SiPixelTemplateDBObject * templateDBobject,
-	       const SiPixelLorentzAngle * lorentzAngleWidth
-	       ); // OLD
- #endif 
 
   //--------------------------------------------------------------------------
   // Allow the magnetic field to be set/updated later.
@@ -154,7 +145,7 @@ public:
 
       DetParam const & theDetParam = detParam(det);
       ClusterParam * theClusterParam = createClusterParam(cl);
-      setTheDet( theDetParam, *theClusterParam );
+      setTheClu( theDetParam, *theClusterParam );
       computeAnglesFromDetPosition(theDetParam, *theClusterParam);
       
       // localPosition( cl, det ) must be called before localError( cl, det ) !!!
@@ -182,7 +173,7 @@ public:
 
     DetParam const & theDetParam = detParam(det);
     ClusterParam *  theClusterParam = createClusterParam(cl);
-    setTheDet( theDetParam, *theClusterParam );
+    setTheClu( theDetParam, *theClusterParam );
     computeAnglesFromTrajectory(theDetParam, *theClusterParam, ltp);
     
     // localPosition( cl, det ) must be called before localError( cl, det ) !!!
@@ -229,21 +220,22 @@ private:
 
   //--- Counters
 #ifdef EDM_ML_DEBUG
-  mutable int    nRecHitsTotal_ ; //for debugging only
-  mutable int    nRecHitsUsedEdge_ ; //for debugging only
+  mutable std::atomic<int>    nRecHitsTotal_ ; //for debugging only
+  mutable std::atomic<int>    nRecHitsUsedEdge_ ; //for debugging only
 #endif 
 
   // Added new members
   float lAOffset_; // la used to calculate the offset from configuration (for testing) 
   float lAWidthBPix_;  // la used to calculate the cluster width from conf.  
   float lAWidthFPix_;  // la used to calculate the cluster width from conf.
-  bool useLAAlignmentOffsets_; // lorentz angle offsets detrmined by alignment
+  //bool useLAAlignmentOffsets_; // lorentz angle offsets detrmined by alignment
   bool useLAOffsetFromConfig_; // lorentz angle used to calculate the offset
   bool useLAWidthFromConfig_; // lorentz angle used to calculate the cluster width
   bool useLAWidthFromDB_;     // lorentz angle used to calculate the cluster width
 
   //--- Global quantities
   int     theVerboseLevel;                    // algorithm's verbosity
+  int     theFlag_;   // flag to recognice if we are in generic or templates
 
   const MagneticField * magfield_;          // magnetic field
   const TrackerGeometry & geom_;          // geometry
@@ -251,17 +243,14 @@ private:
   const SiPixelLorentzAngle * lorentzAngle_;
   const SiPixelLorentzAngle * lorentzAngleWidth_;  // for the charge width (generic)
   
-
-#ifdef NEW_PIXELCPEERROR
   const SiPixelGenErrorDBObject * genErrorDBObject_;  // NEW
-#else  
-  const SiPixelCPEGenericErrorParm * genErrorParm_;  // OLD
-#endif
+  //const SiPixelCPEGenericErrorParm * genErrorParm_;  // OLD
   
   const SiPixelTemplateDBObject * templateDBobject_;
   bool  alpha2Order;                          // switch on/off E.B effect.
   
   bool DoLorentz_;
+  bool LoadTemplatesFromDB_;
 
   //---------------------------------------------------------------------------
   //  Geometrical services to subclasses.
@@ -272,7 +261,7 @@ private:
   void computeAnglesFromTrajectory ( DetParam const & theDetParam, ClusterParam & theClusterParam,
 				    const LocalTrajectoryParameters & ltp) const;
 
-  void  setTheDet( DetParam const &, ClusterParam & theClusterParam ) const ;
+  void  setTheClu( DetParam const &, ClusterParam & theClusterParam ) const ;
 
   LocalVector driftDirection       (DetParam & theDetParam, GlobalVector bfield ) const ; 
   LocalVector driftDirection       (DetParam & theDetParam, LocalVector bfield ) const ; 

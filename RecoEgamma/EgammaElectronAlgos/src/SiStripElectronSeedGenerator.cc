@@ -213,12 +213,12 @@ void SiStripElectronSeedGenerator::findSeedsFromCluster
   //Use GST to retrieve hits from various DetLayers using layerMeasurements class
   const GeometricSearchTracker* gst = theMeasurementTracker->geometricSearchTracker();
 
-  std::vector<BarrelDetLayer*> tibLayers = gst->tibLayers();
-  DetLayer* tib1 = tibLayers.at(0);
-  DetLayer* tib2 = tibLayers.at(1);
+  std::vector<const BarrelDetLayer*> tibLayers = gst->tibLayers();
+  const DetLayer* tib1 = tibLayers.at(0);
+  const DetLayer* tib2 = tibLayers.at(1);
 
-  std::vector<ForwardDetLayer*> tecLayers;
-  std::vector<ForwardDetLayer*> tidLayers;
+  std::vector<const ForwardDetLayer*> tecLayers;
+  std::vector<const ForwardDetLayer*> tidLayers;
   if(scEta < 0){
     tecLayers = gst->negTecLayers();
     tidLayers = gst->negTidLayers();
@@ -228,12 +228,12 @@ void SiStripElectronSeedGenerator::findSeedsFromCluster
     tidLayers = gst->posTidLayers();
   }
 
-  DetLayer* tid1 = tidLayers.at(0);
-  DetLayer* tid2 = tidLayers.at(1);
-  DetLayer* tid3 = tidLayers.at(2);
-  DetLayer* tec1 = tecLayers.at(0);
-  DetLayer* tec2 = tecLayers.at(1);
-  DetLayer* tec3 = tecLayers.at(2);
+  const DetLayer* tid1 = tidLayers.at(0);
+  const DetLayer* tid2 = tidLayers.at(1);
+  const DetLayer* tid3 = tidLayers.at(2);
+  const DetLayer* tec1 = tecLayers.at(0);
+  const DetLayer* tec2 = tecLayers.at(1);
+  const DetLayer* tec3 = tecLayers.at(2);
 
   //Figure out which DetLayers to use based on SC Eta
   std::vector<bool> useDL = useDetLayer(scEta);
@@ -584,12 +584,6 @@ bool SiStripElectronSeedGenerator::checkHitsAndTSOS(std::vector<const SiStripMat
   // seed checks borrowed from pixel-based algoritm
 
 
-  /* Some of this code could be better optimized.  The Pixel algorithm natively
-     takes Transient rec hits, so to recycle code we have to build them.
-  */
-
-  RecHitPointer hit1Trans = TSiStripMatchedRecHit::build(trackerGeometryHandle->idToDet((*hit1)->geographicalId()), *hit1, theMatcher_);
-  RecHitPointer hit2Trans = TSiStripMatchedRecHit::build(trackerGeometryHandle->idToDet((*hit2)->geographicalId()), *hit2, theMatcher_);
 
   typedef TrajectoryStateOnSurface TSOS;
 
@@ -606,20 +600,20 @@ bool SiStripElectronSeedGenerator::checkHitsAndTSOS(std::vector<const SiStripMat
   if (!helix.isValid()) return false;
 
   FreeTrajectoryState fts(helix.stateAtVertex());
-  TSOS propagatedState = thePropagator->propagate(fts,hit1Trans->det()->surface());
+  TSOS propagatedState = thePropagator->propagate(fts,(*hit1)->det()->surface());
 
   if (!propagatedState.isValid()) return false;
 
-  TSOS updatedState = theUpdator->update(propagatedState, *hit1Trans);
-  TSOS propagatedState_out = thePropagator->propagate(fts,hit2Trans->det()->surface()) ;
+  TSOS updatedState = theUpdator->update(propagatedState, **hit1);
+  TSOS propagatedState_out = thePropagator->propagate(fts,(*hit2)->det()->surface()) ;
 
   if (!propagatedState_out.isValid()) return false;
 
   // the seed has now passed all the cuts
 
-  TSOS updatedState_out = theUpdator->update(propagatedState_out, *hit2Trans);
+  TSOS updatedState_out = theUpdator->update(propagatedState_out, **hit2);
 
-  pts_ =  trajectoryStateTransform::persistentState(updatedState_out, hit2Trans->geographicalId().rawId());
+  pts_ =  trajectoryStateTransform::persistentState(updatedState_out, (*hit2)->geographicalId().rawId());
 
   return true;
 }
@@ -665,12 +659,6 @@ bool SiStripElectronSeedGenerator::altCheckHitsAndTSOS(std::vector<const SiStrip
 
  
 
-  /* Some of this code could be better optimized.  The Pixel algorithm natively
-     takes Transient rec hits, so to recycle code we have to build them.
-  */
-
-  RecHitPointer hit1Trans = TSiStripMatchedRecHit::build(trackerGeometryHandle->idToDet((*hit1)->geographicalId()), *hit1, theMatcher_);
-  RecHitPointer hit2Trans = TSiStripMatchedRecHit::build(trackerGeometryHandle->idToDet((*hit2)->geographicalId()), *hit2, theMatcher_);
 
   typedef TrajectoryStateOnSurface TSOS;
 
@@ -687,20 +675,20 @@ bool SiStripElectronSeedGenerator::altCheckHitsAndTSOS(std::vector<const SiStrip
   if (!helix.isValid()) return false;
 
   FreeTrajectoryState fts(helix.stateAtVertex());
-  TSOS propagatedState = thePropagator->propagate(fts,hit1Trans->det()->surface());
+  TSOS propagatedState = thePropagator->propagate(fts,(*hit1)->det()->surface());
 
   if (!propagatedState.isValid()) return false;
 
-  TSOS updatedState = theUpdator->update(propagatedState, *hit1Trans);
-  TSOS propagatedState_out = thePropagator->propagate(fts,hit2Trans->det()->surface()) ;
+  TSOS updatedState = theUpdator->update(propagatedState, **hit1);
+  TSOS propagatedState_out = thePropagator->propagate(fts,(*hit2)->det()->surface()) ;
 
   if (!propagatedState_out.isValid()) return false;
 
   // the seed has now passed all the cuts
 
-  TSOS updatedState_out = theUpdator->update(propagatedState_out, *hit2Trans);
+  TSOS updatedState_out = theUpdator->update(propagatedState_out, **hit2);
 
-  pts_ =  trajectoryStateTransform::persistentState(updatedState_out, hit2Trans->geographicalId().rawId());
+  pts_ =  trajectoryStateTransform::persistentState(updatedState_out, (*hit2)->geographicalId().rawId());
 
   return true;
 }

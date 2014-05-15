@@ -18,6 +18,7 @@ public:
   virtual ~HPDNoiseGenerator() {}
 
   void fillNoiseSignals(CLHEP::HepRandomEngine*) override;
+  void fillNoiseSignals() override {}
 
 private:
   HPDNoiseLibraryReader theLibraryReader;

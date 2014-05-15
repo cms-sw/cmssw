@@ -7,7 +7,8 @@ class StripCPEfromTrackAngle : public StripCPE
 {
 
  public:
-  StripClusterParameterEstimator::LocalValues 
+  using StripCPE::localParameters;
+  StripClusterParameterEstimator::LocalValues
   localParameters( const SiStripCluster&, const GeomDetUnit&, const LocalTrajectoryParameters&) const;
   
   StripCPEfromTrackAngle( edm::ParameterSet & conf, 

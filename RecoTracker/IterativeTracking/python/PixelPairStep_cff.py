@@ -58,11 +58,13 @@ pixelPairStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilt
     minPt = 0.1
     )
 
-import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi
-pixelPairStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi.Chi2MeasurementEstimator.clone(
+import TrackingTools.KalmanUpdators.Chi2ChargeMeasurementEstimatorESProducer_cfi
+pixelPairStepChi2Est = TrackingTools.KalmanUpdators.Chi2ChargeMeasurementEstimatorESProducer_cfi.Chi2ChargeMeasurementEstimator.clone(
     ComponentName = cms.string('pixelPairStepChi2Est'),
     nSigma = cms.double(3.0),
-    MaxChi2 = cms.double(9.0)
+    MaxChi2 = cms.double(9.0),
+    minGoodStripCharge = cms.double(2069),
+    pTChargeCutThreshold = cms.double(15.)
 )
 
 # TRACK BUILDING
@@ -103,7 +105,7 @@ import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 pixelPairStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
     src='pixelPairStepTracks',
     useAnyMVA = cms.bool(True),
-    GBRForestLabel = cms.string('MVASelectorIter2'),
+    GBRForestLabel = cms.string('MVASelectorIter2_13TeV_v0'),
     trackSelectors= cms.VPSet(
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             name = 'pixelPairStepLoose',

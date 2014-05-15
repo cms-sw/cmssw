@@ -227,10 +227,10 @@ void TrackerTrackHitFilter::parseStoN(const std::string &str) {
     throw cms::Exception("Configuration") << "Rule for S to N cut '" << str << "' not understood.\n";
   }
   else{
-    std::string match_0=(match[0].first,match[0].second);
-    match_1=(match[1].first,match[1].second);
-    match_2=(match[2].first,match[2].second);
-    match_3=(match[3].first,match[3].second);
+    std::string match_0=match[0].second;
+    match_1=match[1].second;
+    match_2=match[2].second;
+    match_3=match[3].second;
 
   }
 
@@ -579,7 +579,7 @@ void TrackerTrackHitFilter::produceFromTrack(const edm::EventSetup &iSetup, cons
 	    else if(verdict<-2){//hit rejected because did not pass the selections
 	                        // still, if replaceWithInactiveHits is true we have to put a new hit
 	      if (replaceWithInactiveHits_) {
-		hits.push_back(new InvalidTrackingRecHit(detid, TrackingRecHit::inactive));
+		hits.push_back(new InvalidTrackingRecHit(*(hit->det()), TrackingRecHit::inactive));
 	      }
 	    }
 	    else if(verdict==-2) hits.push_back(hit->clone());//hit not in the tracker
@@ -687,7 +687,7 @@ void TrackerTrackHitFilter::produceFromTrajectory(const edm::EventSetup &iSetup,
     else if(verdict<-2){//hit rejected because did not pass the selections
       // still, if replaceWithInactiveHits is true we have to put a new hit
       if (replaceWithInactiveHits_) {
-	hits.push_back(new InvalidTrackingRecHit(detid, TrackingRecHit::inactive));
+	hits.push_back(new InvalidTrackingRecHit(*hit->det(), TrackingRecHit::inactive));
       }
     }
     else if(verdict==-2) hits.push_back(hit->clone());//hit not in the tracker

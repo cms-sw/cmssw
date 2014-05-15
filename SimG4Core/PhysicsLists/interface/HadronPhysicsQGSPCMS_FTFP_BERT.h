@@ -5,59 +5,63 @@
 #include "G4ios.hh"
 
 #include "G4VPhysicsConstructor.hh"
-//#include "G4MiscLHEPBuilder.hh"
 
 #include "G4PiKBuilder.hh"
-#include "SimG4Core/PhysicsLists/interface/CMSFTFPPiKBuilder.hh"
+#include "G4FTFPPiKBuilder.hh"
 #include "G4QGSPPiKBuilder.hh"
 #include "G4BertiniPiKBuilder.hh"
 
 #include "G4ProtonBuilder.hh"
-#include "SimG4Core/PhysicsLists/interface/CMSFTFPProtonBuilder.hh"
+#include "G4FTFPProtonBuilder.hh"
 #include "G4QGSPProtonBuilder.hh"
 #include "G4BertiniProtonBuilder.hh"
 
 #include "G4NeutronBuilder.hh"
-#include "SimG4Core/PhysicsLists/interface/CMSFTFPNeutronBuilder.hh"
+#include "G4FTFPNeutronBuilder.hh"
 #include "G4QGSPNeutronBuilder.hh"
 #include "G4BertiniNeutronBuilder.hh"
-//#include "G4LEPNeutronBuilder.hh"
+
+#include "G4HyperonFTFPBuilder.hh"
+#include "G4AntiBarionBuilder.hh"
+#include "G4FTFPAntiBarionBuilder.hh"
 
 class HadronPhysicsQGSPCMS_FTFP_BERT : public G4VPhysicsConstructor
 {
   public: 
-    HadronPhysicsQGSPCMS_FTFP_BERT(const G4String& name ="hadron",G4bool quasiElastic=true);
+    HadronPhysicsQGSPCMS_FTFP_BERT(G4int verbose);
     virtual ~HadronPhysicsQGSPCMS_FTFP_BERT();
 
-  public: 
     virtual void ConstructParticle();
     virtual void ConstructProcess();
 
-    void SetQuasiElastic(G4bool value) {QuasiElastic = value;}; 
-    void SetProjectileDiffraction(G4bool value) {ProjectileDiffraction = value;}; 
-
   private:
     void CreateModels();
-    G4NeutronBuilder * theNeutrons;
-    CMSFTFPNeutronBuilder * theFTFPNeutron;
-    G4QGSPNeutronBuilder * theQGSPNeutron;
-    G4BertiniNeutronBuilder * theBertiniNeutron;
-    //    G4LEPNeutronBuilder * theLEPNeutron;
+
+    struct ThreadPrivate {
+      G4NeutronBuilder * theNeutrons;
+      G4FTFPNeutronBuilder * theFTFPNeutron;
+      G4QGSPNeutronBuilder * theQGSPNeutron;
+      G4BertiniNeutronBuilder * theBertiniNeutron;
     
-    G4PiKBuilder * thePiK;
-    CMSFTFPPiKBuilder * theFTFPPiK;
-    G4QGSPPiKBuilder * theQGSPPiK;
-    G4BertiniPiKBuilder * theBertiniPiK;
+      G4PiKBuilder * thePiK;
+      G4FTFPPiKBuilder * theFTFPPiK;
+      G4QGSPPiKBuilder * theQGSPPiK;
+      G4BertiniPiKBuilder * theBertiniPiK;
     
-    G4ProtonBuilder * thePro;
-    CMSFTFPProtonBuilder * theFTFPPro;
-    G4QGSPProtonBuilder * theQGSPPro; 
-    G4BertiniProtonBuilder * theBertiniPro;
+      G4ProtonBuilder * thePro;
+      G4FTFPProtonBuilder * theFTFPPro;
+      G4QGSPProtonBuilder * theQGSPPro; 
+      G4BertiniProtonBuilder * theBertiniPro;
     
-    // G4MiscLHEPBuilder * theMiscLHEP;
-    
-    G4bool QuasiElastic;
-    G4bool ProjectileDiffraction;
+      G4HyperonFTFPBuilder *theHyperon;
+
+      G4AntiBarionBuilder     *theAntiBaryon;
+      G4FTFPAntiBarionBuilder *theFTFPAntiBaryon;
+
+      G4VCrossSectionDataSet * xsNeutronInelasticXS;
+      G4VCrossSectionDataSet * xsNeutronCaptureXS;
+    };
+    static G4ThreadLocal ThreadPrivate* tpdata;    
 };
 
 #endif

@@ -235,7 +235,7 @@ MuonShowerInformationFiller::hitsFromSegments(const GeomDet* geomDet,
 
   if (segments.empty()) return allhitscorrelated;  
 
-  TransientTrackingRecHit::ConstRecHitPointer muonRecHit(segments.front().get());
+  TransientTrackingRecHit::ConstRecHitPointer muonRecHit(segments.front());
   allhitscorrelated = MuonTransientTrackingRecHitBreaker::breakInSubRecHits(muonRecHit,2);
 
   if (segments.size() == 1) return allhitscorrelated;
@@ -243,7 +243,7 @@ MuonShowerInformationFiller::hitsFromSegments(const GeomDet* geomDet,
   for (MuonTransientTrackingRecHit::MuonRecHitContainer::const_iterator iseg = segments.begin() + 1;
        iseg != segments.end(); ++iseg) {
 
-    TransientTrackingRecHit::ConstRecHitPointer muonRecHit((*iseg).get());
+    TransientTrackingRecHit::ConstRecHitPointer muonRecHit((*iseg));
     TransientTrackingRecHit::ConstRecHitContainer hits1 = MuonTransientTrackingRecHitBreaker::breakInSubRecHits(muonRecHit,2);
 
     for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator ihit1 = hits1.begin();
@@ -379,9 +379,9 @@ vector<const GeomDet*> MuonShowerInformationFiller::getCompatibleDets(const reco
 
   vector<GlobalPoint> allCrossingPoints;
 
-  const vector<DetLayer*>& dtlayers = theService->detLayerGeometry()->allDTLayers();
+  const vector<const DetLayer*>& dtlayers = theService->detLayerGeometry()->allDTLayers();
 
-  for (vector<DetLayer*>::const_iterator iLayer = dtlayers.begin(); iLayer != dtlayers.end(); ++iLayer) {
+  for (auto iLayer = dtlayers.begin(); iLayer != dtlayers.end(); ++iLayer) {
 
     // crossing points of track with cylinder
     GlobalPoint xPoint = crossingPoint(innerPos, outerPos, dynamic_cast<const BarrelDetLayer*>(*iLayer));
@@ -408,8 +408,8 @@ vector<const GeomDet*> MuonShowerInformationFiller::getCompatibleDets(const reco
   }
   allCrossingPoints.clear();
 
-  const vector<DetLayer*>& csclayers = theService->detLayerGeometry()->allCSCLayers();
-  for (vector<DetLayer*>::const_iterator iLayer = csclayers.begin(); iLayer != csclayers.end(); ++iLayer) {
+  const vector<const DetLayer*>& csclayers = theService->detLayerGeometry()->allCSCLayers();
+  for (auto iLayer = csclayers.begin(); iLayer != csclayers.end(); ++iLayer) {
 
     GlobalPoint xPoint = crossingPoint(innerPos, outerPos, dynamic_cast<const ForwardDetLayer*>(*iLayer));
 

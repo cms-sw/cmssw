@@ -18,11 +18,11 @@ using namespace std ;
 
 
 BTagDifferentialPlot::BTagDifferentialPlot (const double& bEff, const ConstVarType& constVariable,
-	const std::string & tagName) :
+					    const std::string & tagName, DQMStore::IBooker & ibook) :
 	fixedBEfficiency     ( bEff )  ,
 	noProcessing         ( false ) , processed(false), constVar(constVariable),
 	constVariableName    ( "" )    , diffVariableName     ( "" )    ,
-	constVariableValue   ( 999.9 , 999.9 ) , commonName( "MisidForBEff_" + tagName+"_") ,
+	constVariableValue   ( 999.9 , 999.9 ) , commonName( "MisidForBEff_" + tagName+"_") , ibook_(ibook),
 	theDifferentialHistoB_d    ( 0 ) ,
 	theDifferentialHistoB_u    ( 0 ) ,
 	theDifferentialHistoB_s    ( 0 ) ,
@@ -249,7 +249,7 @@ void BTagDifferentialPlot::bookHisto () {
   std::replace(commonName.begin(), commonName.end(), '.' , 'v' ) ;
 
   std::string label(commonName);
-  HistoProviderDQM prov ("Btag",label);
+  HistoProviderDQM prov ("Btag",label,ibook_);
 
   theDifferentialHistoB_d    = (prov.book1D ( "D_"    + commonName , "D_"    + commonName , nBins , binArray )) ;
   theDifferentialHistoB_u    = (prov.book1D ( "U_"    + commonName , "U_"    + commonName , nBins , binArray )) ;

@@ -6,6 +6,8 @@
 #include <stdint.h>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 // ******************************************************************************************
 //! \class SiPixelGenErrorDBObject
 //!
@@ -107,5 +109,8 @@ private:
 	bool isInvalid_;
 	std::vector<float> sVector_;
 	std::map<unsigned int,short> templ_ID;
+
+  COND_SERIALIZABLE;
+
 };//end SiPixelGenErrorDBObject
 #endif

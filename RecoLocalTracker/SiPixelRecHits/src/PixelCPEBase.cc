@@ -1,17 +1,10 @@
 // Move geomCorrection to the concrete class. d.k. 06/06.
 // Change drift direction. d.k. 06/06
-
 // G. Giurgiu (ggiurgiu@pha.jhu.edu), 12/01/06, implemented the function: 
 // computeAnglesFromDetPosition(const SiPixelCluster & cl, 
-//			        const GeomDetUnit    & det ) const
-//                                    09/09/07, replaced assert statements with throw cms::Exception 
-//                                              and fix an invalid pointer check in setTheDet function 
-//                                    09/21/07, implement caching of Lorentz drift direction
-//                                    01/24/09, use atan2 to get the alpha and beta angles
 // change to use Lorentz angle from DB Lotte Wilke, Jan. 31st, 2008
 // Change to use Generic error & Template calibration from DB - D.Fehling 11/08
 
-#define NEW_PIXELCPEERROR
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
@@ -35,32 +28,30 @@
 
 using namespace std;
 
+//#define NEW_CPEERROR // must be constistent with base.cc, generic cc/h and genericProducer.cc 
 
 namespace {
-  constexpr float degsPerRad = 57.29578;
-  constexpr float HALF_PI = 1.57079632679489656;
-  constexpr float PI = 2*HALF_PI;
+#ifndef NEW_CPEERROR  
+  //const bool useNewSimplerErrors = true;
+  const bool useNewSimplerErrors = false; // must be tha same as in generic 
+#endif
 }
 
 //-----------------------------------------------------------------------------
-//  A fairly boring constructor.  All quantities are DetUnit-dependent, and
-//  will be initialized in setTheDet().
+//  A constructor run for generic and templates
+//  
 //-----------------------------------------------------------------------------
-#ifdef NEW_PIXELCPEERROR
-PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *mag, const TrackerGeometry& geom,
+PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, 
+                           const MagneticField *mag, 
+                           const TrackerGeometry& geom,
 			   const SiPixelLorentzAngle * lorentzAngle, 
 			   const SiPixelGenErrorDBObject * genErrorDBObject, 
 			   const SiPixelTemplateDBObject * templateDBobject,
-			   const SiPixelLorentzAngle * lorentzAngleWidth)
-#else
-PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *mag, const TrackerGeometry& geom,
-			   const SiPixelLorentzAngle * lorentzAngle, 
-			   const SiPixelCPEGenericErrorParm * genErrorParm, 
-			   const SiPixelTemplateDBObject * templateDBobject,
-			   const SiPixelLorentzAngle * lorentzAngleWidth)
-#endif
-  : useLAAlignmentOffsets_(false), useLAOffsetFromConfig_(false),
-    useLAWidthFromConfig_(false), useLAWidthFromDB_(false),
+			   const SiPixelLorentzAngle * lorentzAngleWidth,
+			   int flag)
+  //  : useLAAlignmentOffsets_(false), useLAOffsetFromConfig_(false),
+  : useLAOffsetFromConfig_(false),
+    useLAWidthFromConfig_(false), useLAWidthFromDB_(false), theFlag_(flag),
     magfield_(mag), geom_(geom)
 {
 
@@ -70,25 +61,30 @@ PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *
 #endif 
     
   //--- Lorentz angle tangent per Tesla
-
   lorentzAngle_ = lorentzAngle;
   lorentzAngleWidth_ = lorentzAngleWidth;
  
+  //-- GenError Calibration Object (different from SiPixelCPEGenericErrorParm) from DB
+  genErrorDBObject_ = genErrorDBObject;
+  //cout<<" new errors "<<genErrorDBObject<<" "<<genErrorDBObject_<<endl;
+
+  //-- Template Calibration Object from DB
+#ifdef NEW_CPEERROR
+  if(theFlag_!=0) templateDBobject_ = templateDBobject;
+#else
+  templateDBobject_ = templateDBobject;
+#endif
+
+  // Configurables 
+  // For both templates & generic 
+
+  // Read templates and/or generic errors from DB
+  LoadTemplatesFromDB_ = conf.getParameter<bool>("LoadTemplatesFromDB"); 
+
   //--- Algorithm's verbosity
   theVerboseLevel = 
     conf.getUntrackedParameter<int>("VerboseLevel",0);
   
-#ifdef NEW_PIXELCPEERROR
-   //-- GenError Calibration Object (different from SiPixelCPEGenericErrorParm) from DB
-   genErrorDBObject_ = genErrorDBObject;
-#else
-  //-- Error Parametriaztion from DB for CPE Generic
-  genErrorParm_ = genErrorParm;
-#endif
-
-  //-- Template Calibration Object from DB
-  templateDBobject_ = templateDBobject;
-
   //-- Switch on/off E.B 
   alpha2Order = conf.getParameter<bool>("Alpha2Order");
   
@@ -102,16 +98,24 @@ PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *
     = (unsigned int) conf.getParameter<int>("ClusterProbComputationFlag");
 
   // This LA related parameters are only relevant for the Generic algo
-  // Not really true since there is a switch to compute them for the alignment group also in the template algo
+  // They still have to be used in Base since the LA computation is in Base
 
-  //lAOffset_ = conf.getUntrackedParameter<double>("lAOffset",0.0);
-  lAOffset_ = conf.existsAs<double>("lAOffset")?
+  // Use LA-width from DB. 
+  // If both (this and from config) are false LA-width is calcuated from LA-offset
+  useLAWidthFromDB_ = conf.existsAs<bool>("useLAWidthFromDB")?
+    conf.getParameter<bool>("useLAWidthFromDB"):false;
+
+  // Use Alignment LA-offset in generic
+  //useLAAlignmentOffsets_ = conf.existsAs<bool>("useLAAlignmentOffsets")?
+  //conf.getParameter<bool>("useLAAlignmentOffsets"):false;
+
+
+  // Used only for testing
+  lAOffset_ = conf.existsAs<double>("lAOffset")?  // fixed LA value 
               conf.getParameter<double>("lAOffset"):0.0;
-  //lAWidthBPix_  = conf.getUntrackedParameter<double>("lAWidthBPix",0.0);
-  lAWidthBPix_ = conf.existsAs<double>("lAWidthBPix")?
+  lAWidthBPix_ = conf.existsAs<double>("lAWidthBPix")?   // fixed LA width 
                  conf.getParameter<double>("lAWidthBPix"):0.0;
-  //lAWidthFPix_  = conf.getUntrackedParameter<double>("lAWidthFPix",0.0);
-  lAWidthFPix_ = conf.existsAs<double>("lAWidthFPix")?
+  lAWidthFPix_ = conf.existsAs<double>("lAWidthFPix")?   // fixed LA width
                  conf.getParameter<double>("lAWidthFPix"):0.0;
 
   // Use LA-offset from config, for testing only
@@ -119,17 +123,10 @@ PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *
   // Use LA-width from config, split into fpix & bpix, for testing only
   if(lAWidthBPix_>0.0 || lAWidthFPix_>0.0) useLAWidthFromConfig_ = true;
 
-  // Use LA-width from DB. If both (upper and this) are false LA-width is calcuated from LA-offset
-  //useLAWidthFromDB_ = conf.getParameter<bool>("useLAWidthFromDB");
-  useLAWidthFromDB_ = conf.existsAs<bool>("useLAWidthFromDB")?
-    conf.getParameter<bool>("useLAWidthFromDB"):false;
 
-  // Use Alignment LA-offset 
-  useLAAlignmentOffsets_ = conf.existsAs<bool>("useLAAlignmentOffsets")?
-    conf.getParameter<bool>("useLAAlignmentOffsets"):false;
-
-  // Compute the Lorentz shifts for this detector element for the Alignment Group, and always for CPEgeneric
-  DoLorentz_ = conf.existsAs<bool>("DoLorentz")?conf.getParameter<bool>("DoLorentz"):true;
+  // For Templates only 
+  // Compute the Lorentz shifts for this detector element for templates (from Alignment)
+  DoLorentz_ = conf.existsAs<bool>("DoLorentz")?conf.getParameter<bool>("DoLorentz"):false;
 
   LogDebug("PixelCPEBase") <<" LA constants - "
 			   <<lAOffset_<<" "<<lAWidthBPix_<<" "<<lAWidthFPix_<<endl; //dk
@@ -143,6 +140,8 @@ PixelCPEBase::PixelCPEBase(edm::ParameterSet const & conf, const MagneticField *
 //-----------------------------------------------------------------------------
 void PixelCPEBase::fillDetParams()
 {
+  //cout<<" in fillDetParams "<<theFlag_<<endl;
+
   const unsigned m_detectors = geom_.offsetDU(GeomDetEnumerators::TIB); //first non-pixel detector unit
   auto const & dus = geom_.detUnits();
   m_DetParams.resize(m_detectors);
@@ -158,25 +157,9 @@ void PixelCPEBase::fillDetParams()
     //--- p.theDet->type() returns a GeomDetType, which implements subDetector()
     p.thePart = p.theDet->type().subDetector();
     
-    //cout<<" in PixelCPEBase:settheDet - in det "<<thePart<<endl; //dk
+    //cout<<" in PixelCPEBase - in det "<<thePart<<endl; //dk
 
-    switch ( p.thePart ) {
-    case GeomDetEnumerators::PixelBarrel:
-      // A barrel!  A barrel!
-      p.lAWidth = lAWidthBPix_;
-      break;
-    case GeomDetEnumerators::PixelEndcap:
-      // A forward!  A forward!
-      p.lAWidth = lAWidthFPix_;
-      break;
-     default:
-       // does one need this exception?
-       //cout<<" something wrong"<<endl;
-       throw cms::Exception("PixelCPEBase::settheDet :")
-	 << "PixelCPEBase: A non-pixel detector type in here?" ;
-    }
-    
-    //--- The location in of this DetUnit in a cyllindrical coord system (R,Z)
+        //--- The location in of this DetUnit in a cyllindrical coord system (R,Z)
     //--- The call goes via BoundSurface, returned by p.theDet->surface(), but
     //--- position() is implemented in GloballyPositioned<> template
     //--- ( BoundSurface : Surface : GloballyPositioned<float> )
@@ -187,11 +170,29 @@ void PixelCPEBase::fillDetParams()
     //--- bounds() is implemented in BoundSurface itself.
     p.theThickness = p.theDet->surface().bounds().thickness();
     
-    //--- Cache the topology.
-    // ggiurgiu@jhu.edu 12/09/2010 : no longer need to dynamyc cast to RectangularPixelTopology
-    //theTopol
-    //= dynamic_cast<const RectangularPixelTopology*>( & (p.theDet->specificTopology()) );
+    // Cache the det id for templates and generic erros 
 
+    if(theFlag_==0) { // for generic
+#ifdef NEW_CPEERROR
+	p.detTemplateId = genErrorDBObject_->getGenErrorID(p.theDet->geographicalId().rawId());
+#else   
+      if(useNewSimplerErrors) 
+	p.detTemplateId = genErrorDBObject_->getGenErrorID(p.theDet->geographicalId().rawId());
+      else 
+        p.detTemplateId = templateDBobject_->getTemplateID(p.theDet->geographicalId().rawId());
+#endif
+    } else {          // for templates
+      p.detTemplateId = templateDBobject_->getTemplateID(p.theDet->geographicalId());
+    }
+
+    // just for testing
+    //int i1 = 0;
+    //if(theFlag_==0) i1 = genErrorDBObject_->getGenErrorID(p.theDet->geographicalId().rawId());
+    //int i2= templateDBobject_->getTemplateID(p.theDet->geographicalId().rawId());
+    //int i3= templateDBobject_->getTemplateID(p.theDet->geographicalId());
+    //if(i2!=i3) cout<<i2<<" != "<<i3<<endl;
+    //cout<<i<<" "<<p.detTemplateId<<" "<<i1<<" "<<i2<<" "<<i3<<endl;
+    
     auto topol = &(p.theDet->specificTopology());
     if unlikely(topol!=p.theTopol) { // there is ONE topology!)
        p.theTopol=topol;
@@ -213,11 +214,13 @@ void PixelCPEBase::fillDetParams()
     LocalVector Bfield = p.theDet->surface().toLocal(magfield_->inTesla(p.theDet->surface().position()));
     p.bz = Bfield.z();
 
-    // Compute the Lorentz shifts for this detector element for the Alignment Group, and always for CPEgeneric
-    if ( DoLorentz_ ) {
+
+    // Compute the Lorentz shifts for this detector element
+    if ( (theFlag_==0) || DoLorentz_ ) {  // do always for generic and if(DOLorentz) for templates
       p.driftDirection = driftDirection(p, Bfield );
       computeLorentzShifts(p);
     }
+
 
     LogDebug("PixelCPEBase") << "***** PIXEL LAYOUT *****" 
 			     << " thePart = " << p.thePart
@@ -234,7 +237,7 @@ void PixelCPEBase::fillDetParams()
 //  One function to cache the variables common for one DetUnit.
 //-----------------------------------------------------------------------------
 void
-PixelCPEBase::setTheDet( DetParam const & theDetParam, ClusterParam & theClusterParam ) const 
+PixelCPEBase::setTheClu( DetParam const & theDetParam, ClusterParam & theClusterParam ) const 
 {
 
   //--- Geometric Quality Information
@@ -408,7 +411,6 @@ computeAnglesFromDetPosition(DetParam const & theDetParam, ClusterParam & theClu
   auto alpha_ = atan2( gv_dot_gvz, gv_dot_gvx );
   auto beta_  = atan2( gv_dot_gvz, gv_dot_gvy );
 
-  std::cout << "alpha/beta " << alpha_ <<','<<alpha <<' '<< beta_<<','<<beta <<','<< HALF_PI-beta << std::endl;
   assert(std::abs(std::round(alpha*10000.f)-std::round(alpha_*10000.f))<2);
   assert(std::abs(std::round(beta*10000.f)-std::round(beta_*10000.f))<2);
   */
@@ -453,7 +455,6 @@ PixelCPEBase::DetParam const & PixelCPEBase::detParam(const GeomDetUnit & det) c
 //  Works OK for barrel and forward.
 //  The formulas used for dir_x,y,z have to be exactly the same as the ones
 //  used in the digitizer (SiPixelDigitizerAlgorithm.cc).
-//  Assumption: setTheDet() has been called already.
 //
 //-----------------------------------------------------------------------------
 LocalVector 
@@ -468,14 +469,13 @@ PixelCPEBase::driftDirection(DetParam & theDetParam, GlobalVector bfield ) const
 LocalVector 
 PixelCPEBase::driftDirection(DetParam & theDetParam, LocalVector Bfield ) const {
   const bool LocalPrint = false;
-  const bool useLAWidthFromGenError = false;
 
-  //auto langle = lorentzAngle_->getLorentzAngle(theDet->geographicalId().rawId());
   // Use LA from DB or from config 
   float langle = 0.;
   if( !useLAOffsetFromConfig_ ) {  // get it from DB
     if(lorentzAngle_ != NULL) {  // a real LA object 
       langle = lorentzAngle_->getLorentzAngle(theDetParam.theDet->geographicalId().rawId());
+      //cout<<" la "<<langle<<" "<< theDetParam.theDet->geographicalId().rawId() <<endl;
     } else { // no LA, unused 
       //cout<<" LA object is NULL, assume LA = 0"<<endl; //dk
       langle = 0; // set to a fake value
@@ -485,39 +485,47 @@ PixelCPEBase::driftDirection(DetParam & theDetParam, LocalVector Bfield ) const 
     langle = lAOffset_;
     if(LocalPrint) cout<<" Will use LA Offset from config "<<langle<<endl;
   } 
- 
-  //We also need the LA values used for the charge width
-  // I do not know where to put it best, try here!
-  if(useLAWidthFromDB_ && (lorentzAngleWidth_ != NULL) ) {  // get it from DB
-
-    float langleWidth = 0.;
-    if(useLAWidthFromGenError) {
-      // or from the new error object
-      // for the moment this does not compile, gtemp_ is defined only in generic
-      //auto gtemplid = genErrorDBObject_->getGenErrorID(theDetParam.theDet->geographicalId().rawId());
-      //cout<<gtemplid<<endl;
-      //auto qbin = gtempl_.qbin( gtemplid);  // inputs
-      //langleWidth = -micronsToCm*gtempl_.lorxwidth();
-      ////chargeWidthY = -micronsToCm*gtempl_.lorywidth();
-    } else {
-      // take it from LA object label=from-width
-      langleWidth = lorentzAngleWidth_->getLorentzAngle(theDetParam.theDet->geographicalId().rawId());
-    }
-
-    if(langleWidth!=0.0) theDetParam.widthLAFraction = std::abs(langleWidth/langle);
-    else theDetParam.widthLAFraction = 1.0;
-    if(LocalPrint)  cout<<" Will use LA Width from DB "<<langleWidth<<" "<<theDetParam.widthLAFraction<<endl;
-  } else if(useLAWidthFromConfig_) { // get from config 
-    if(langle!=0.0) theDetParam.widthLAFraction = std::abs(theDetParam.lAWidth/langle);
-    if(LocalPrint)  cout<<" Will use LA Width from config "<<theDetParam.lAWidth<<endl;
-  } else { // get if from the offset LA (old method used until 2013)
-    theDetParam.widthLAFraction = 1.0; // use the same angle
-    if(LocalPrint)  cout<<" Will use LA Width from LA Offset "<<theDetParam.widthLAFraction<<endl;
-  }
     
-  float alpha2 = alpha2Order ?  langle*langle : 0;
+  // Now do the LA width stuff 
+  theDetParam.widthLAFractionX = 1.; // predefine to 1 (default) if things fail
+  theDetParam.widthLAFractionY = 1.;
+
+  // Compute the charge width, generic only
+  if(theFlag_==0) {
+      
+    if(useLAWidthFromDB_ && (lorentzAngleWidth_ != NULL) ) {  
+      // take it from a seperate, special LA DB object (forWidth)
+      
+      auto langleWidth = lorentzAngleWidth_->getLorentzAngle(theDetParam.theDet->geographicalId().rawId());	  
+      if(langleWidth!=0.0) theDetParam.widthLAFractionX = std::abs(langleWidth/langle);
+      // leave the widthLAFractionY=1.
+      //cout<<" LAWidth lorentz width "<<theDetParam.widthLAFractionX<<" "<<theDetParam.widthLAFractionY<<endl;
+            
+    } else if(useLAWidthFromConfig_) { // get from config 
+      
+      double lAWidth=0;
+      if( theDetParam.thePart == GeomDetEnumerators::PixelBarrel) lAWidth = lAWidthBPix_; // barrel
+      else lAWidth = lAWidthFPix_;
+      
+      if(langle!=0.0) theDetParam.widthLAFractionX = std::abs(lAWidth/langle);
+      // fix the FractionY at 1
+      
+      //cout<<" Lorentz width from config "<<theDetParam.widthLAFractionX<<" "<<theDetParam.widthLAFractionY<<endl;
+      
+    } else { // get if from the offset LA (old method used until 2013)
+      // do nothing      
+      //cout<<" Old default LA width method "<<theDetParam.widthLAFractionX<<" "<<theDetParam.widthLAFractionY<<endl;
+      
+    }
+    
+    //cout<<" Final LA fraction  "<<theDetParam.widthLAFractionX<<" "<<theDetParam.widthLAFractionY<<endl;
+    
+  }  // if flag 
+
 
   if(LocalPrint) cout<<" in PixelCPEBase:driftDirection - "<<langle<<" "<<Bfield<<endl; //dk
+
+  float alpha2 = alpha2Order ?  langle*langle : 0; // 
 
   // **********************************************************************
   // Our convention is the following:

@@ -21,6 +21,7 @@
 #include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
+#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 
 
@@ -65,8 +66,6 @@ public:
   void endRunSummaryProdTest();
   void endLumiSummaryProdTest();
 
-private:
-
   enum class Trans {
     kBeginJob,
     kBeginStream,
@@ -83,9 +82,12 @@ private:
     kEndStream,
     kEndJob
   };
+  typedef std::vector<Trans> Expectations;
+
+private:
+
   
   std::map<Trans,std::function<void(edm::Worker*)>> m_transToFunc;
-  typedef std::vector<Trans> Expectations;
   
   edm::ProcessConfiguration m_procConfig;
   boost::shared_ptr<edm::ProductRegistry> m_prodReg;
@@ -94,6 +96,7 @@ private:
   edm::HistoryAppender historyAppender_;
   boost::shared_ptr<edm::LuminosityBlockPrincipal> m_lbp;
   boost::shared_ptr<edm::RunPrincipal> m_rp;
+  boost::shared_ptr<edm::ActivityRegistry> m_actReg;
   edm::EventSetup* m_es = nullptr;
   edm::ModuleDescription m_desc = {"Dummy","dummy"};
   edm::CPUTimer* m_timer = nullptr;
@@ -363,6 +366,7 @@ m_ep()
   edm::ProcessHistoryRegistry phr;
   m_ep->fillEventPrincipal(eventAux, phr);
   m_ep->setLuminosityBlockPrincipal(m_lbp);
+  m_actReg.reset(new edm::ActivityRegistry);
 
 
   //For each transition, bind a lambda which will call the proper method of the Worker
@@ -391,7 +395,9 @@ m_ep()
   
   m_transToFunc[Trans::kEvent] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::EventPrincipal, edm::BranchActionStreamBegin> Traits;
-    edm::ParentContext nullParentContext;
+    edm::StreamContext streamContext(s_streamID0, nullptr);
+    edm::ParentContext nullParentContext(&streamContext);
+    iBase->setActivityRegistry(m_actReg);
     iBase->doWork<Traits>(*m_ep,*m_es,m_timer, s_streamID0, nullParentContext, nullptr); };
 
   m_transToFunc[Trans::kStreamEndLuminosityBlock] = [this](edm::Worker* iBase) {

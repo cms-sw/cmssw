@@ -5,11 +5,6 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//FEDRawData
-#include "DataFormats/FEDRawData/interface/FEDRawData.h"
-#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
-
 //Digi
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
 #include "DataFormats/L1CSCTrackFinder/interface/L1Track.h"
@@ -36,7 +31,7 @@
 //#include <iostream>
 #include <sstream>
 
-CSCTFUnpacker::CSCTFUnpacker(const edm::ParameterSet& pset):edm::EDProducer(),mapping(0){
+CSCTFUnpacker::CSCTFUnpacker(const edm::ParameterSet& pset):edm::stream::EDProducer<>(),mapping(0){
 	LogDebug("CSCTFUnpacker|ctor")<<"Started ...";
 
 	// Edges of the time window, which LCTs are put into (unlike tracks, which are always centred around 0):
@@ -82,6 +77,9 @@ CSCTFUnpacker::CSCTFUnpacker(const edm::ParameterSet& pset):edm::EDProducer(),ma
 	produces<L1CSCTrackCollection>();
 	produces<L1CSCStatusDigiCollection>();
 	produces<CSCTriggerContainer<csctf::TrackStub> >("DT");
+
+	Raw_token = consumes<FEDRawDataCollection>(edm::InputTag(producer.label(),producer.instance() ));
+
 }
 
 CSCTFUnpacker::~CSCTFUnpacker(){
@@ -91,7 +89,7 @@ CSCTFUnpacker::~CSCTFUnpacker(){
 void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c){
 	// Get a handle to the FED data collection
 	edm::Handle<FEDRawDataCollection> rawdata;
-	e.getByLabel(producer.label(),producer.instance(),rawdata);
+	e.getByToken(Raw_token,rawdata);
 
 	// create the collection of CSC wire and strip digis as well as of DT stubs, which we receive from DTTF
 	std::auto_ptr<CSCCorrelatedLCTDigiCollection> LCTProduct(new CSCCorrelatedLCTDigiCollection);

@@ -27,6 +27,7 @@ private:
    FWL1EtMissParticleProxyBuilder( const FWL1EtMissParticleProxyBuilder& );    // stop default
    const FWL1EtMissParticleProxyBuilder& operator=( const FWL1EtMissParticleProxyBuilder& );    // stop default
   
+   using FWSimpleProxyBuilderTemplate<l1extra::L1EtMissParticle>::build;
    virtual void build( const l1extra::L1EtMissParticle& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* );
 };
 

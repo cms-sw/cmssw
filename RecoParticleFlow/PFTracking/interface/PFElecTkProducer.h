@@ -4,7 +4,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFConversion.h"
 #include "DataFormats/ParticleFlowReco/interface/PFV0.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -41,7 +41,7 @@ class ConvBremPFTrackFinder;
  and transform them in PFGsfRecTracks.
 */
 
-class PFElecTkProducer : public edm::EDProducer {
+class PFElecTkProducer : public edm::stream::EDProducer<> {
  public:
   
      ///Constructor
@@ -131,7 +131,6 @@ class PFElecTkProducer : public edm::EDProducer {
       bool modemomentum_;
       bool applySel_;
       bool applyGsfClean_;
-      bool useFifthStep_;
       bool useFifthStepForEcalDriven_;
       bool useFifthStepForTrackDriven_;
       //   bool useFifthStepSec_;

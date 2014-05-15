@@ -37,6 +37,7 @@ private:
    FWPhotonProxyBuilder( const FWPhotonProxyBuilder& );
    const FWPhotonProxyBuilder& operator=( const FWPhotonProxyBuilder& );
   
+   using FWSimpleProxyBuilderTemplate<reco::Photon> ::buildViewType;
    virtual void buildViewType( const reco::Photon& photon, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext*) override;
 };
 

@@ -79,7 +79,7 @@ public:
   void limitedCandidates(const TrajectorySeed&seed, TempTrajectory& startingTraj, TrajectoryContainer& result) const;
   void limitedCandidates(const boost::shared_ptr<const TrajectorySeed> & sharedSeed, TempTrajectoryContainer &candidates, TrajectoryContainer& result) const;
   
-  void updateTrajectory( TempTrajectory& traj, const TM& tm) const;
+  void updateTrajectory( TempTrajectory& traj, TM && tm) const;
 
   /*  
       //not mature for integration.  

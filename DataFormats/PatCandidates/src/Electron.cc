@@ -3,6 +3,7 @@
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "DataFormats/Common/interface/RefToPtr.h"
 
 #include <limits>
 
@@ -32,7 +33,9 @@ Electron::Electron() :
     ecalRegressionScale_(-99999.),
     ecalRegressionSmear_(-99999.),
     ecalTrackRegressionScale_(-99999.),
-    ecalTrackRegressionSmear_(-99999.)
+    ecalTrackRegressionSmear_(-99999.),
+    packedPFCandidates_(),
+    associatedPackedFCandidateIndices_()
 {
   initImpactParameters();
 }
@@ -148,6 +151,33 @@ reco::GsfElectronCoreRef Electron::core() const {
 /// override the reco::GsfElectron::superCluster method, to access the internal storage of the supercluster
 reco::SuperClusterRef Electron::superCluster() const {
   if (embeddedSuperCluster_) {
+    if (embeddedSeedCluster_ || !basicClusters_.empty() || !preshowerClusters_.empty()) {
+        if (!superClusterRelinked_.isSet()) {
+            std::unique_ptr<std::vector<reco::SuperCluster> > sc(new std::vector<reco::SuperCluster>(superCluster_));
+            if (embeddedSeedCluster_ && !(*sc)[0].seed().isAvailable()) {
+                (*sc)[0].setSeed(seed());
+            }
+            if (basicClusters_.size() && !(*sc)[0].clusters().isAvailable()) {
+                reco::CaloClusterPtrVector clusters;
+                for (unsigned int iclus=0; iclus<basicClusters_.size(); ++iclus) {
+                    clusters.push_back(reco::CaloClusterPtr(&basicClusters_,iclus));
+                }
+                (*sc)[0].setClusters(clusters);
+            }
+            if (preshowerClusters_.size() && !(*sc)[0].preshowerClusters().isAvailable()) {
+                reco::CaloClusterPtrVector clusters;
+                for (unsigned int iclus=0; iclus<preshowerClusters_.size(); ++iclus) {
+                    clusters.push_back(reco::CaloClusterPtr(&preshowerClusters_,iclus));
+                }
+                (*sc)[0].setPreshowerClusters(clusters);
+            }
+            superClusterRelinked_.set(std::move(sc));
+        }
+        return reco::SuperClusterRef(&*superClusterRelinked_, 0);
+    } else {
+        return reco::SuperClusterRef(&superCluster_, 0);
+    }
+    //relink caloclusters if needed
     return reco::SuperClusterRef(&superCluster_, 0);
   } else {
     return reco::GsfElectron::superCluster();
@@ -355,11 +385,18 @@ void Electron::embedPFCandidate() {
 /// Returns the reference to the parent PF candidate with index i.
 /// For use in TopProjector.
 reco::CandidatePtr Electron::sourceCandidatePtr( size_type i ) const {
-  if (embeddedPFCandidate_) {
-    return reco::CandidatePtr( pfCandidateRef_.id(), pfCandidateRef_.get(), pfCandidateRef_.key() );
-  } else {
-    return reco::CandidatePtr();
-  }
+    if (pfCandidateRef_.isNonnull()) {
+        if (i == 0) {
+            return reco::CandidatePtr(edm::refToPtr(pfCandidateRef_));
+        } else {
+            i--;
+        }
+    }
+    if (i >= associatedPackedFCandidateIndices_.size()) {
+        return reco::CandidatePtr();
+    } else {
+        return reco::CandidatePtr(edm::refToPtr(edm::Ref<pat::PackedCandidateCollection>(packedPFCandidates_, i)));
+    }
 }
 
 
@@ -438,3 +475,31 @@ void Electron::setMvaVariables( double r9, double sigmaIphiIphi, double sigmaIet
   sigmaIetaIphi_ = sigmaIetaIphi;
   ip3d_ = ip3d;
 } 
+
+void Electron::setPackedPFCandidateCollection(const edm::RefProd<pat::PackedCandidateCollection> & refprod) {
+    if (!associatedPackedFCandidateIndices_.empty()) throw cms::Exception("Unsupported", "You can't call setPackedPFCandidateCollection _after_ having called setAssociatedPackedPFCandidates");
+    packedPFCandidates_ = refprod;
+}
+
+edm::RefVector<pat::PackedCandidateCollection> Electron::associatedPackedPFCandidates() const {
+    edm::RefVector<pat::PackedCandidateCollection> ret(packedPFCandidates_.id());
+    for (uint16_t idx : associatedPackedFCandidateIndices_) {
+        ret.push_back(edm::Ref<pat::PackedCandidateCollection>(packedPFCandidates_, idx));
+    }
+    return ret;
+}
+
+void Electron::setAssociatedPackedPFCandidates(const edm::RefVector<pat::PackedCandidateCollection> &refvector) {
+    if (packedPFCandidates_.isNonnull()) {
+        if (refvector.id().isValid() && refvector.id() != packedPFCandidates_.id()) {
+            throw cms::Exception("Unsupported", "setAssociatedPackedPFCandidates pointing to a collection other than the one from setPackedPFCandidateCollection");
+        }
+    } else {
+        packedPFCandidates_ = edm::RefProd<pat::PackedCandidateCollection>(refvector);
+    }
+    associatedPackedFCandidateIndices_.clear();
+    for (const edm::Ref<pat::PackedCandidateCollection> & ref : refvector) {
+        associatedPackedFCandidateIndices_.push_back(ref.key());
+    }
+}
+

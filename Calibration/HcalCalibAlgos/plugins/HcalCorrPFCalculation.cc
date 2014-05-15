@@ -136,7 +136,8 @@ HcalCorrPFCalculation::HcalCorrPFCalculation(edm::ParameterSet const& iConfig) {
   //energyECALmip = iConfig.getParameter<double>("energyECALmip");
 
   edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
-  parameters_.loadParameters( parameters );
+  edm::ConsumesCollector iC = consumesCollector();
+  parameters_.loadParameters( parameters, iC );
   trackAssociator_.useDefaultPropagator();
 
   associationConeSize_=iConfig.getParameter<double>("associationConeSize");

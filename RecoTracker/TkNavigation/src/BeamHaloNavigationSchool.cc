@@ -12,8 +12,6 @@
 #include "RecoTracker/TkNavigation/interface/SimpleForwardNavigableLayer.h"
 #include "RecoTracker/TkNavigation/interface/SimpleNavigableLayer.h"
 
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
-
 using namespace std;
 
 BeamHaloNavigationSchool::BeamHaloNavigationSchool(const GeometricSearchTracker* theInputTracker,
@@ -22,6 +20,11 @@ BeamHaloNavigationSchool::BeamHaloNavigationSchool(const GeometricSearchTracker*
   edm::LogInfo("BeamHaloNavigationSchool")<<"*********Running BeamHaloNavigationSchool *********";
   theBarrelLength = 0;theField = field; theTracker = theInputTracker;
   theAllDetLayersInSystem=&theInputTracker->allLayers();
+  theAllNavigableLayer.resize(theInputTracker->allLayers().size(),nullptr);
+
+
+
+
   // Get barrel layers
   /*sideways does not need barrels*/
   /*  vector<BarrelDetLayer*> blc = theTracker->barrelLayers(); 
@@ -30,9 +33,8 @@ BeamHaloNavigationSchool::BeamHaloNavigationSchool(const GeometricSearchTracker*
       }*/
 
   // get forward layers
-  vector<ForwardDetLayer*> flc = theTracker->forwardLayers(); 
-  for ( vector<ForwardDetLayer*>::iterator i = flc.begin(); i != flc.end(); i++) {
-    theForwardLayers.push_back( (*i) );
+  for( auto const& l : theTracker->forwardLayers()) {
+    theForwardLayers.push_back(l);
   }
   
   FDLI middle = find_if( theForwardLayers.begin(), theForwardLayers.end(),
@@ -47,12 +49,16 @@ BeamHaloNavigationSchool::BeamHaloNavigationSchool(const GeometricSearchTracker*
   //  linkBarrelLayers( symFinder);
 
   linkForwardLayers( symFinder);
+ 
+  setState(navigableLayers());
+
   LogDebug("BeamHaloNavigationSchool")<<"inverse relation";
   establishInverseRelations();
 
 
   //add the necessary inward links to end caps
   LogDebug("BeamHaloNavigationSchool")<<"linkOtherEndLayer";
+
   linkOtherEndLayers( symFinder);
 
   //set checkCrossing = false to all layers
@@ -72,12 +78,11 @@ BeamHaloNavigationSchool::BeamHaloNavigationSchool(const GeometricSearchTracker*
 }
 
 void BeamHaloNavigationSchool::establishInverseRelations() {
-  NavigationSetter setter(*this);
 
   // find for each layer which are the barrel and forward
   // layers that point to it
-  typedef map<const DetLayer*, vector<BarrelDetLayer*>, less<const DetLayer*> > BarrelMapType;
-  typedef map<const DetLayer*, vector<ForwardDetLayer*>, less<const DetLayer*> > ForwardMapType;
+  typedef map<const DetLayer*, vector<BarrelDetLayer const*>, less<const DetLayer*> > BarrelMapType;
+  typedef map<const DetLayer*, vector<ForwardDetLayer const*>, less<const DetLayer*> > ForwardMapType;
 
 
   BarrelMapType reachedBarrelLayersMap;
@@ -85,7 +90,7 @@ void BeamHaloNavigationSchool::establishInverseRelations() {
 
   for ( BDLI bli = theBarrelLayers.begin();
         bli!=theBarrelLayers.end(); bli++) {
-    DLC reachedLC = (**bli).nextLayers( insideOut);
+    DLC reachedLC = nextLayers(**bli, insideOut);
     for ( DLI i = reachedLC.begin(); i != reachedLC.end(); i++) {
       reachedBarrelLayersMap[*i].push_back( *bli);
     }
@@ -93,19 +98,18 @@ void BeamHaloNavigationSchool::establishInverseRelations() {
 
   for ( FDLI fli = theForwardLayers.begin();
         fli!=theForwardLayers.end(); fli++) {
-    DLC reachedLC = (**fli).nextLayers( insideOut);
+    DLC reachedLC = nextLayers(**fli, insideOut);
     for ( DLI i = reachedLC.begin(); i != reachedLC.end(); i++) {
       reachedForwardLayersMap[*i].push_back( *fli);
     }
   }
 
 
-  vector<DetLayer*> lc = theTracker->allLayers();
-  for ( vector<DetLayer*>::iterator i = lc.begin(); i != lc.end(); i++) {
+  for ( auto const i : theTracker->allLayers()) {
     SimpleNavigableLayer* navigableLayer =
-      dynamic_cast<SimpleNavigableLayer*>((**i).navigableLayer());
+     dynamic_cast<SimpleNavigableLayer*>(theAllNavigableLayer[i->seqNum()]);
     if (!navigableLayer) {edm::LogInfo("BeamHaloNavigationSchool")<<"a detlayer does not have a navigable layer, which is normal in beam halo navigation.";}
-    if (navigableLayer){navigableLayer->setInwardLinks( reachedBarrelLayersMap[*i],reachedForwardLayersMap[*i], TkLayerLess(outsideIn, (*i)) );}
+    if (navigableLayer){navigableLayer->setInwardLinks( reachedBarrelLayersMap[i],reachedForwardLayersMap[i], TkLayerLess(outsideIn, i) );}
   }
 
 }
@@ -113,7 +117,6 @@ void BeamHaloNavigationSchool::establishInverseRelations() {
 
 void BeamHaloNavigationSchool::
 linkOtherEndLayers(  SymmetricLayerFinder& symFinder){
-  NavigationSetter setter(*this);
 
   LogDebug("BeamHaloNavigationSchool")<<"reachable from horizontal";
   //generally, on the right side, what are the forward layers reachable from the horizontal
@@ -125,128 +128,22 @@ linkOtherEndLayers(  SymmetricLayerFinder& symFinder){
     {
       LogDebug("BeamHaloNavigationSchool")<<"adding inward from right";
       //link it inward to the mirror reachable from horizontal
-      addInward((DetLayer*)*fl,symFinder.mirror(*fl));
+      addInward(static_cast<DetLayer const*>(*fl),symFinder.mirror(*fl));
       
       LogDebug("BeamHaloNavigationSchool")<<"adding inward from mirror of right (left?)";
-      addInward((DetLayer*)symFinder.mirror(*fl),*fl);
+      addInward(static_cast<DetLayer const*>(symFinder.mirror(*fl)),*fl);
     }
 
-  /* this is not enough to set reachable from each of them: too few links
-     //this is enough in the end
-     //for each of them
-     for (FDLI fl=reachableFL.begin();fl!=reachableFL.end();fl++)
-     {
-     LogDebug("BeamHaloNavigationSchool")<<"adding inward from right";
-     //link it inward to the mirror reachable from horizontal
-     addInward((DetLayer*)*fl,symFinder.mirror(reachableFL));
-     
-     LogDebug("BeamHaloNavigationSchool")<<"adding inward from mirror of right (left?)";
-     //do the same from the the mirrored layer to the reachable from horizontal
-     addInward((DetLayer*)symFinder.mirror(*fl),reachableFL);
-     }
-  */
 
-
-  /* what about linking every not masked layer in each group.
-     except for within the same group
-     
-     vector<FDLC> groups splitForwardLayers();
-     FDLC reachable;
-     
-     for ( vector<FDLC>::iterator group = groups.begin();
-     group != groups.end(); group++) {
-     //for each group
-     
-     for ( FDLI i = group->begin(); i != group->end(); i++) {
-     
-     for ( vector<FDLC>::iterator other_group = groups.begin();
-     other_group != groups.end(); other_group++) {
-     //for each other group
-     
-     if (other_group==group && i==group->begin()){
-     //other_group is the same as group and dealing with the first layer of the group
-     //link the first of each group
-     reachable.push_back(other_group.front());
-     continue;}
-     
-     //now dealing as if other_group is different than group
-     for ( FDLI other_i = other_group->begin(); other_i != other_group->end(); other_i++) {
-     //for each of other group
-     //is the layer in the other group "masking" this one
-     //inner radius smaller OR outer radius bigger
-     if ((**other_i).specificSurface().innerRadius() < (**i).specificSurface().innerRadius() ||
-     (**other_i).specificSurface().outerRadius() > (**i).specificSurface().outerRadius())
-     {         //not masked
-     reachableFL.push_back(*other_i);
-     }
-     }
-     //do something special with the first of each group
-     //do somethign special with layers in its own group
-     }
-     }
-     } 
-  */
-
-
-
-   /* this is too much links between layers
-      FDLC myRightLayers( theRightLayers);
-      FDLI begin = myRightLayers.begin();
-      FDLI end   = myRightLayers.end();
-      
-      //  for each of the right layers
-      for (FDLI fl = begin;fl!=end;++fl)
-      {
-      //get the navigable layer for this DetLayer
-      SimpleNavigableLayer* navigableLayer =
-      dynamic_cast<SimpleNavigableLayer*>((*fl)->navigableLayer());
-      
-      LogDebug("BeamHaloNavigationSchool")<<"retreive the next layers outsidein";
-      //get the OUTward reachable layers.
-      DLC inwardsLayers(navigableLayer->nextLayers(insideOut));
-
-      //what is reachable horizontaly
-      FDLC thisReachableFL (reachableFL);
-
-      LogDebug("BeamHaloNavigationSchool")<<"combine";
-      //combine the two vector with a conversion to forward layer
-      for (DLI i=inwardsLayers.begin();i!=inwardsLayers.end();++i)
-      {
-      ForwardDetLayer* fd=dynamic_cast<ForwardDetLayer*>(const_cast<DetLayer*>(*i));
-      //	  ForwardDetLayer* fd=const_cast<ForwardDetLayer*>(*i);
-      if (fd){
-      //	    if (thisReachableFL.find(fd)==thisReachableFL.end())
-      //	      {//no duplicate. insert it
-      thisReachableFL.push_back(fd);
-      //}
-      }
-      LogDebug("BeamHaloNavigationSchool")<<"investigate";
-      }
-      
-      //please no duplicate !!!
-      LogDebug("BeamHaloNavigationSchool")<<"no duplicate";
-      FDLI new_end =unique(thisReachableFL.begin(),thisReachableFL.end());
-      thisReachableFL.erase(new_end,thisReachableFL.end());
-
-      //then set the inwards links
-      LogDebug("BeamHaloNavigationSchool")<<"adding inward from right";
-      //link it inward to the mirror reachable from horizontal
-      addInward((DetLayer*)*fl,symFinder.mirror(thisReachableFL));
-      
-      LogDebug("BeamHaloNavigationSchool")<<"adding inward from mirror of right (left?)";
-      //do the same from the the mirrored layer to the reachable from horizontal
-      addInward((DetLayer*)symFinder.mirror(*fl),thisReachableFL);
-      }
-   */
 
 
 }
 
 void BeamHaloNavigationSchool::
-addInward(DetLayer * det, ForwardDetLayer * newF){
+addInward(const DetLayer * det, const ForwardDetLayer * newF){
   //get the navigable layer for this DetLayer
   SimpleNavigableLayer* navigableLayer =
-    dynamic_cast<SimpleNavigableLayer*>((*det).navigableLayer());
+    dynamic_cast<SimpleNavigableLayer*>(theAllNavigableLayer[(det)->seqNum()]);
 
   LogDebug("BeamHaloNavigationSchool")<<"retreive the nextlayer outsidein";
   //get the inward reachable layers.
@@ -284,10 +181,10 @@ addInward(DetLayer * det, ForwardDetLayer * newF){
 }
 
 void BeamHaloNavigationSchool::
-addInward(DetLayer * det, const FDLC& news){
+addInward(const DetLayer * det, const FDLC& news){
   //get the navigable layer for this DetLayer
   SimpleNavigableLayer* navigableLayer =
-    dynamic_cast<SimpleNavigableLayer*>((*det).navigableLayer());
+    dynamic_cast<SimpleNavigableLayer*>(theAllNavigableLayer[(det)->seqNum()]);
 
   LogDebug("BeamHaloNavigationSchool")<<"retreive the nextlayer outsidein";
   //get the inward reachable layers.

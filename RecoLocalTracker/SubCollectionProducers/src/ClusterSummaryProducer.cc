@@ -189,7 +189,7 @@ ClusterSummaryProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
 
 void 
-ClusterSummaryProducer::beginJob()
+ClusterSummaryProducer::beginStream(edm::StreamID)
 {
    
   if (doStrips) decodeInput(v_stripModuleTypes,stripModules.c_str());

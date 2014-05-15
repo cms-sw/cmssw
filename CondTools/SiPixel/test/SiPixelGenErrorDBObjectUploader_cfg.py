@@ -18,20 +18,20 @@ print '\nMagField = %f \n' % (MagFieldValue)
 version = sys.argv[3]
 
 if ( MagFieldValue==0 ):
-    MagFieldString = '0'
+    MagFieldString = '0T'
     files_to_upload = cms.vstring(
         "CalibTracker/SiPixelESProducers/data/generror_summary_zp0022.out",
         "CalibTracker/SiPixelESProducers/data/generror_summary_zp0023.out")
     theDetIds      = cms.vuint32( 1, 2) # 0 is for all, 1 is Barrel, 2 is EndCap theGenErrorIds = cms.vuint32(22,23)
 elif ( MagFieldValue==4 or MagFieldValue==40 ):
-    MagFieldString = '4'
+    MagFieldString = '4T'
     files_to_upload = cms.vstring(
         "CalibTracker/SiPixelESProducers/data/generror_summary_zp0018.out",
         "CalibTracker/SiPixelESProducers/data/generror_summary_zp0019.out")
     theDetIds      = cms.vuint32( 1, 2)
     theGenErrorIds = cms.vuint32(18,19)
 elif ( MagFieldValue==3.8 or MagFieldValue==38 ):
-    MagFieldString = '38'
+    MagFieldString = '38T'
     files_to_upload = cms.vstring(
 #        "CalibTracker/SiPixelESProducers/data/generror_summary_zp0020.out",
 #        "CalibTracker/SiPixelESProducers/data/generror_summary_zp0021.out")
@@ -40,21 +40,21 @@ elif ( MagFieldValue==3.8 or MagFieldValue==38 ):
     theDetIds      = cms.vuint32( 1, 2)
     theGenErrorIds = cms.vuint32(30,31)
 elif ( MagFieldValue==2 or MagFieldValue==20 ):
-    MagFieldString = '2'
+    MagFieldString = '2T'
     files_to_upload = cms.vstring(
         "CalibTracker/SiPixelESProducers/data/generror_summary_zp0030.out",
         "CalibTracker/SiPixelESProducers/data/generror_summary_zp0031.out")
     theDetIds      = cms.vuint32( 1, 2)
     theGenErrorIds = cms.vuint32(30,31)
 elif ( MagFieldValue==3 or MagFieldValue==30 ):
-    MagFieldString = '3'
+    MagFieldString = '3T'
     files_to_upload = cms.vstring(
         "CalibTracker/SiPixelESProducers/data/generror_summary_zp0032.out",
         "CalibTracker/SiPixelESProducers/data/generror_summary_zp0033.out")
     theDetIds      = cms.vuint32( 1, 2)
     theGenErrorIds = cms.vuint32(32,33)
 elif( MagFieldValue==3.5 or MagFieldValue==35 ):
-    MagFieldString = '35'
+    MagFieldString = '35T'
     files_to_upload = cms.vstring(
         "CalibTracker/SiPixelESProducers/data/generror_summary_zp0034.out",
         "CalibTracker/SiPixelESProducers/data/generror_summary_zp0035.out")
@@ -63,10 +63,10 @@ elif( MagFieldValue==3.5 or MagFieldValue==35 ):
 
 
 
-generror_base = 'SiPixelGenErrorDBObject' + MagFieldString + 'T'
+generror_base = 'SiPixelGenErrorDBObject' + MagFieldString + version
 #theGenErrorBaseString = cms.string(generic_base)
 
-print '\nUploading %s%s with record SiPixelGenErrorDBObjectRcd in file siPixelGenErrors%sT.db\n' % (generror_base,version,MagFieldString)
+print '\nUploading %s with record SiPixelGenErrorDBObjectRcd in file siPixelGenErrors%s%s.db\n' % (generror_base,MagFieldString,version)
 
 process.source = cms.Source("EmptyIOVSource",
                             timetype = cms.string('runnumber'),
@@ -85,10 +85,10 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     authenticationPath = cms.untracked.string('.')
     ),
                                           timetype = cms.untracked.string('runnumber'),
-                                          connect = cms.string('sqlite_file:siPixelGenErrors' + MagFieldString + 'T.db'),
+                                          connect = cms.string('sqlite_file:siPixelGenErrors' + MagFieldString + version + '.db'),
                                           toPut = cms.VPSet(cms.PSet(
     record = cms.string('SiPixelGenErrorDBObjectRcd'),
-    tag = cms.string(generror_base + version)
+    tag = cms.string(generror_base)
     ))
                                           )
 
@@ -105,6 +105,6 @@ process.uploader = cms.EDAnalyzer("SiPixelGenErrorDBObjectUploader",
 process.myprint = cms.OutputModule("AsciiOutputModule")
 
 process.p = cms.Path(process.uploader)
-process.CondDBCommon.connect = 'sqlite_file:siPixelGenErrors' + MagFieldString + 'T.db'
+process.CondDBCommon.connect = 'sqlite_file:siPixelGenErrors' + MagFieldString + '.db'
 process.CondDBCommon.DBParameters.messageLevel = 0
 process.CondDBCommon.DBParameters.authenticationPath = './'

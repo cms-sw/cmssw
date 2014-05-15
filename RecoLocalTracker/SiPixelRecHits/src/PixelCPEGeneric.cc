@@ -18,18 +18,29 @@
 #include <iostream>
 using namespace std;
 
-namespace {
-  constexpr float HALF_PI = 1.57079632679489656;
-  constexpr float PI = 2*HALF_PI;
-  const bool useNewSimplerErrors = false;
-}
+//#define NEW_CPEERROR // must be constistent with base.cc, generic cc/h and genericProducer.cc 
 
-#define NEW_PIXELCPEERROR 
+namespace {
+  constexpr float micronsToCm = 1.0e-4;
+#ifndef NEW_CPEERROR
+  //const bool useNewSimplerErrors = true; // must be the same as in base
+  const bool useNewSimplerErrors = false; // must be the same as in base
+#endif
+  const bool MYDEBUG = false;
+}
 
 //-----------------------------------------------------------------------------
 //!  The constructor.
 //-----------------------------------------------------------------------------
-#ifdef NEW_PIXELCPEERROR
+#ifdef NEW_CPEERROR
+PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf, 
+				 const MagneticField * mag,
+                                 const TrackerGeometry& geom,
+				 const SiPixelLorentzAngle * lorentzAngle, 
+				 const SiPixelGenErrorDBObject * genErrorDBObject, 
+				 const SiPixelLorentzAngle * lorentzAngleWidth=0) 
+  : PixelCPEBase(conf, mag, geom, lorentzAngle, genErrorDBObject, 0,lorentzAngleWidth,0) {
+#else
 PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf, 
 				 const MagneticField * mag,
                                  const TrackerGeometry& geom,
@@ -37,18 +48,8 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
 				 const SiPixelGenErrorDBObject * genErrorDBObject, 
 				 const SiPixelTemplateDBObject * templateDBobject,
 				 const SiPixelLorentzAngle * lorentzAngleWidth=0) 
-  : PixelCPEBase(conf, mag, geom, lorentzAngle, genErrorDBObject, templateDBobject,lorentzAngleWidth)
-#else
-PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf, 
-				 const MagneticField * mag, 
-                                 const TrackerGeometry& geom,
-				 const SiPixelLorentzAngle * lorentzAngle, 
-				 const SiPixelCPEGenericErrorParm * genErrorParm, 
-				 const SiPixelTemplateDBObject * templateDBobject,
-				 const SiPixelLorentzAngle * lorentzAngleWidth=0) 
-  : PixelCPEBase(conf, mag, geom, lorentzAngle, genErrorParm, templateDBobject,lorentzAngleWidth)
+  : PixelCPEBase(conf, mag, geom, lorentzAngle, genErrorDBObject, templateDBobject,lorentzAngleWidth,0) {
 #endif
-{
   
   if (theVerboseLevel > 0) 
     LogDebug("PixelCPEGeneric") 
@@ -74,7 +75,7 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
   TruncatePixelCharge_       = conf.getParameter<bool>("TruncatePixelCharge");
   IrradiationBiasCorrection_ = conf.getParameter<bool>("IrradiationBiasCorrection");
   DoCosmics_                 = conf.getParameter<bool>("DoCosmics");
-  LoadTemplatesFromDB_       = conf.getParameter<bool>("LoadTemplatesFromDB");
+  //LoadTemplatesFromDB_       = conf.getParameter<bool>("LoadTemplatesFromDB");
 
   bool isUpgrade=false;
   if ( conf.exists("Upgrade") && conf.getParameter<bool>("Upgrade")) {
@@ -121,7 +122,24 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
   // Use errors from templates 
   if ( UseErrorsFromTemplates_ ) {
 
+#ifdef NEW_CPEERROR
+
+      if ( LoadTemplatesFromDB_ )  {  // From DB
+	if ( !SiPixelGenError::pushfile( *genErrorDBObject_, thePixelGenError_) )
+          throw cms::Exception("InvalidCalibrationLoaded") 
+            << "ERROR: Templates not filled correctly. Check the sqlite file. Using SiPixelTemplateDBObject version " 
+            << ( *genErrorDBObject_ ).version();
+      } else  { // From file      
+        if ( !SiPixelGenError::pushfile( -999, thePixelGenError_ ) )
+          throw cms::Exception("InvalidCalibrationLoaded") 
+            << "ERROR: Templates not loaded correctly from text file. Reconstruction will fail.";
+      } // if load from DB
+
+#else 
+
     if(useNewSimplerErrors) {  // use new errors from mini templates 
+
+      //cout<<" load errors "<<LoadTemplatesFromDB_<<endl;
 
       if ( LoadTemplatesFromDB_ )  {  // From DB
 	if ( !SiPixelGenError::pushfile( *genErrorDBObject_, thePixelGenError_) )
@@ -149,6 +167,8 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
       } // if load from DB
 
     } // if useNewSimpleErrors 
+#endif // NEW_CPEERROR
+
   } // if ( UseErrorsFromTemplates_ )
   
   //cout << endl;
@@ -198,13 +218,14 @@ PixelCPEGeneric::localPosition(DetParam const & theDetParam, ClusterParam & theC
 
   //cout<<" in PixelCPEGeneric:localPosition - "<<endl; //dk
 
-  float chargeWidthX = (theDetParam.lorentzShiftInCmX * theDetParam.widthLAFraction);
-  float chargeWidthY = (theDetParam.lorentzShiftInCmY * theDetParam.widthLAFraction);
+  float chargeWidthX = (theDetParam.lorentzShiftInCmX * theDetParam.widthLAFractionX);
+  float chargeWidthY = (theDetParam.lorentzShiftInCmY * theDetParam.widthLAFractionY);
   float shiftX = 0.5f*theDetParam.lorentzShiftInCmX;
   float shiftY = 0.5f*theDetParam.lorentzShiftInCmY;
 
+  //cout<<" main la width "<<chargeWidthX<<" "<<chargeWidthY<<endl;
+
   if ( UseErrorsFromTemplates_ ) {
-      const float micronsToCm = 1.0e-4;
 
       float qclus = theClusterParam.theCluster->charge();     
       float locBz = theDetParam.bz;
@@ -224,9 +245,41 @@ PixelCPEGeneric::localPosition(DetParam const & theDetParam, ClusterParam & theC
       theClusterParam.sx2    = -999.9; // CPE Generic x-error for single double-pixel cluster
       theClusterParam.dx2    = -999.9; // CPE Generic x-bias for single double-pixel cluster
   
-      if(useNewSimplerErrors) { // errors from new light templates
+
+#ifdef NEW_CPEERROR
+
         SiPixelGenError gtempl(thePixelGenError_);
-	int gtemplID_ = genErrorDBObject_->getGenErrorID(theDetParam.theDet->geographicalId().rawId());
+	int gtemplID_ = theDetParam.detTemplateId;
+
+	//int gtemplID0 = genErrorDBObject_->getGenErrorID(theDetParam.theDet->geographicalId().rawId());
+	//if(gtemplID0!=gtemplID_) cout<<" different id "<< gtemplID_<<" "<<gtemplID0<<endl;
+
+	theClusterParam.qBin_ = gtempl.qbin( gtemplID_, theClusterParam.cotalpha, theClusterParam.cotbeta, locBz, qclus,  
+			      theClusterParam.pixmx, theClusterParam.sigmay, theClusterParam.deltay, 
+			      theClusterParam.sigmax, theClusterParam.deltax, theClusterParam.sy1, 
+                              theClusterParam.dy1, theClusterParam.sy2, theClusterParam.dy2, theClusterParam.sx1, 
+                              theClusterParam.dx1, theClusterParam.sx2, theClusterParam.dx2 );  
+	
+	// now use the charge widths stored in the new generic template headers (change to the
+	// incorrect sign convention of the base class)       
+	bool useLAWidthFromGenError = false;
+	if(useLAWidthFromGenError) {
+	  chargeWidthX = (-micronsToCm*gtempl.lorxwidth());
+	  chargeWidthY = (-micronsToCm*gtempl.lorywidth());
+	  //cout<< " redefine la width (gen-error) "<< chargeWidthX<<" "<< chargeWidthY <<endl;
+	}
+	if(MYDEBUG) cout<<" new errors "<<gtemplID_<<" "<<theClusterParam.sy1<<endl;
+
+#else // select which one 
+
+      if(useNewSimplerErrors) { // errors from new light templates
+
+        SiPixelGenError gtempl(thePixelGenError_);
+	int gtemplID_ = theDetParam.detTemplateId;
+
+	//int gtemplID0 = genErrorDBObject_->getGenErrorID(theDetParam.theDet->geographicalId().rawId());
+	//if(gtemplID0!=gtemplID_) cout<<" different id "<< gtemplID_<<" "<<gtemplID0<<endl;
+
 	theClusterParam.qBin_ = gtempl.qbin( gtemplID_, theClusterParam.cotalpha, theClusterParam.cotbeta, locBz, qclus,  // inputs
 			      theClusterParam.pixmx,                                       // returned by reference
 			      theClusterParam.sigmay, theClusterParam.deltay, theClusterParam.sigmax, theClusterParam.deltax,              // returned by reference
@@ -235,18 +288,32 @@ PixelCPEGeneric::localPosition(DetParam const & theDetParam, ClusterParam & theC
 
 	// OK, now use the charge widths stored in the new generic template headers (change to the
 	// incorrect sign convention of the base class)       
-	chargeWidthX = -micronsToCm*gtempl.lorxwidth();
-	chargeWidthY = -micronsToCm*gtempl.lorywidth();
+	bool useLAWidthFromGenError = false;
+	if(useLAWidthFromGenError) {
+	  chargeWidthX = (-micronsToCm*gtempl.lorxwidth());
+	  chargeWidthY = (-micronsToCm*gtempl.lorywidth());
+	  //cout<< " redefine la width (gen-error) "<< chargeWidthX<<" "<< chargeWidthY <<endl;
+	}
+	if(MYDEBUG) cout<<" new errors "<<gtemplID_<<" "<<theClusterParam.sy1<<endl;
+
 
       } else { // errors from full templates 
+
         SiPixelTemplate templ(thePixelTemp_);
-	int templID_ = templateDBobject_->getTemplateID(theDetParam.theDet->geographicalId().rawId());
+	//int templID0 = templateDBobject_->getTemplateID(theDetParam.theDet->geographicalId().rawId());
+	int templID_ = theDetParam.detTemplateId;
+	//if(templID0!=templID_) cout<<" different id"<< templID_<<" "<<templID0<<endl;
+
 	theClusterParam.qBin_ = templ.qbin( templID_, theClusterParam.cotalpha, theClusterParam.cotbeta, locBz, qclus,  // inputs
 			     theClusterParam.pixmx,                                       // returned by reference
 			     theClusterParam.sigmay, theClusterParam.deltay, theClusterParam.sigmax, theClusterParam.deltax,              // returned by reference
 			     theClusterParam.sy1, theClusterParam.dy1, theClusterParam.sy2, theClusterParam.dy2, theClusterParam.sx1, theClusterParam.dx1, theClusterParam.sx2, theClusterParam.dx2 );    // returned by reference
 
+	if(MYDEBUG) cout<<" errors "<<templID_<<" "<<theClusterParam.sy1<<endl;
+
       }  // if iseNewSimplerErrors
+
+#endif // NEW_CPEERROR
 
       // These numbers come in microns from the qbin(...) call. Transform them to cm.
       theClusterParam.deltax = theClusterParam.deltax * micronsToCm;
@@ -596,7 +663,6 @@ PixelCPEGeneric::localError(DetParam const & theDetParam,  ClusterParam & theClu
   const bool localPrint = false;
   // Default errors are the maximum error used for edge clusters.
   // These are determined by looking at residuals for edge clusters
-  const float micronsToCm = 1.0e-4f;
   float xerr = EdgeClusterErrorX_ * micronsToCm;
   float yerr = EdgeClusterErrorY_ * micronsToCm;
   
@@ -620,14 +686,14 @@ PixelCPEGeneric::localError(DetParam const & theDetParam,  ClusterParam & theClu
   bool bigInY = theDetParam.theRecTopol->containsBigPixelInY( minPixelCol, maxPixelCol );
 
   if(localPrint) {
-  cout<<" endge clus "<<xerr<<" "<<yerr<<endl;  //dk
-  if(bigInX || bigInY) cout<<" big "<<bigInX<<" "<<bigInY<<endl;
-  if(edgex || edgey) cout<<" edge "<<edgex<<" "<<edgey<<endl;
-  cout<<" before if "<<UseErrorsFromTemplates_<<" "<<theClusterParam.qBin_<<endl;
-  if(theClusterParam.qBin_ == 0) 
-    cout<<" qbin 0! "<<edgex<<" "<<edgey<<" "<<bigInX<<" "<<bigInY<<" "
+   cout<<" endge clus "<<xerr<<" "<<yerr<<endl;  //dk
+   if(bigInX || bigInY) cout<<" big "<<bigInX<<" "<<bigInY<<endl;
+   if(edgex || edgey) cout<<" edge "<<edgex<<" "<<edgey<<endl;
+   cout<<" before if "<<UseErrorsFromTemplates_<<" "<<theClusterParam.qBin_<<endl;
+   if(theClusterParam.qBin_ == 0) 
+     cout<<" qbin 0! "<<edgex<<" "<<edgey<<" "<<bigInX<<" "<<bigInY<<" "
 	<<sizex<<" "<<sizey<<endl;
-  if(sizex==2 && sizey==2) cout<<" size 2*2 "<<theClusterParam.qBin_<<endl;
+   if(sizex==2 && sizey==2) cout<<" size 2*2 "<<theClusterParam.qBin_<<endl;
   }
 
   //if likely(UseErrorsFromTemplates_ && (qBin_!= 0) ) {
@@ -652,8 +718,8 @@ PixelCPEGeneric::localError(DetParam const & theDetParam,  ClusterParam & theClu
       }
 
       if(localPrint) {
-      cout<<" in if "<<edgex<<" "<<edgey<<" "<<sizex<<" "<<sizey<<endl;
-      cout<<" errors  "<<xerr<<" "<<yerr<<" "<<theClusterParam.sx1<<" "<<theClusterParam.sx2<<" "<<theClusterParam.sigmax<<endl;  //dk
+	cout<<" in if "<<edgex<<" "<<edgey<<" "<<sizex<<" "<<sizey<<endl;
+	cout<<" errors  "<<xerr<<" "<<yerr<<" "<<theClusterParam.sx1<<" "<<theClusterParam.sx2<<" "<<theClusterParam.sigmax<<endl;  //dk
       }
 
   } else  { // simple errors

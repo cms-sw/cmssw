@@ -31,7 +31,7 @@ class GlobalTrackQualityProducer : public edm::EDProducer {
   virtual ~GlobalTrackQualityProducer(); // {}
   
  private:
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
   virtual std::pair<double,double> kink(Trajectory& muon) const ;
   virtual std::pair<double,double> newChi2(Trajectory& muon) const;
   virtual double trackProbability(Trajectory& track) const;

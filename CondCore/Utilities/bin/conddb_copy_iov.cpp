@@ -44,12 +44,17 @@ int cond::CopyIovUtilities::execute(){
   if( hasOptionValue("destSince") ) destSince = getOptionValue<cond::Time_t>( "destSince");
 
   persistency::ConnectionPool connPool;
+  if( hasOptionValue("authPath") ){
+    connPool.setAuthenticationPath( getOptionValue<std::string>( "authPath") ); 
+  }
+  connPool.configure();
+
   std::cout <<"# Connecting to source database on "<<connect<<std::endl;
   persistency::Session session = connPool.createSession( connect, true, COND_DB );
 
   bool imported = copyIov( session, inputTag, tag, sourceSince, destSince, true );
     
-  if( imported ) std::cout <<"# 1 iov imported. "<<std::endl;
+  if( imported ) std::cout <<"# 1 iov copied. "<<std::endl;
 
   return 0;
 }

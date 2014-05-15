@@ -20,13 +20,16 @@ process.load("CalibTracker.Configuration.Tracker_DependentRecords_forGlobalTag_n
 )
 
 process.source = cms.Source("EmptyIOVSource",
-                            lastValue = cms.uint64(1000000),
+                            lastValue = cms.uint64(216000),
                             timetype = cms.string('runnumber'),
-                            firstValue = cms.uint64(1000000),
+                            firstValue = cms.uint64(216000),
                             interval = cms.uint64(1)
                             )
 
 
+# the DB Geometry is NOT used because in this cfg only one tag is taken from the DB and no GT is used. To be fixed if this is a problem
+process.load('Configuration.Geometry.GeometryExtended_cff')
+process.TrackerTopologyEP = cms.ESProducer("TrackerTopologyEP")
 
 process.a = cms.ESSource("PoolDBESSource",
    BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
@@ -67,6 +70,8 @@ process.siStripQualityESProducer = cms.ESProducer("SiStripQualityESProducer",
     ThresholdForReducedGranularity = cms.double(0.2),
     appendToDataLabel = cms.string(''),
     ReduceGranularity = cms.bool(False),
+    PrintDebugOutput = cms.bool(False),
+    UseEmptyRunInfo = cms.bool(False),
     ListOfRecordToMerge = cms.VPSet(cms.PSet(
 ##    record = cms.string('SiStripDetVOffRcd'),
 ##    record = cms.string('SiStripDetCablingRcd'),
@@ -81,9 +86,6 @@ process.maxEvents = cms.untracked.PSet(
     )
 process.MessageLogger = cms.Service("MessageLogger",
                                     debugModules = cms.untracked.vstring(''),
-    Reader = cms.untracked.PSet(
-        threshold = cms.untracked.string('INFO')
-    ),                                    
                                     cout = cms.untracked.PSet(
     threshold = cms.untracked.string('INFO')
     ),

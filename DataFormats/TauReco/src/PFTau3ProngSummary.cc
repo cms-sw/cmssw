@@ -1,7 +1,6 @@
 #include "DataFormats/TauReco/interface/PFTau3ProngSummary.h"
 #include "TMatrixT.h"
 #include "TMatrixTSym.h"
-#include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
 #include "TVectorT.h"
 using namespace reco;
 
@@ -142,7 +141,7 @@ double PFTau3ProngSummary::M_23()const{
 int PFTau3ProngSummary::Tau_Charge()const{
   for(unsigned int i=0;i<has3ProngSolution_.size();i++){
     if(has3ProngSolution_[i]==true){
-      int charge;
+      int charge = 0;
       for(unsigned int j=0;j<daughter_p4_[i].size();j++)charge+=daughter_charge_[i][j];
       return charge;
     }

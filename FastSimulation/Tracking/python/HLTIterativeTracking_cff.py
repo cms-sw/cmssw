@@ -12,9 +12,19 @@ from FastSimulation.Tracking.HLTGeneralTracks_cfi import *
 #from RecoJets.JetAssociationProducers.trackExtrapolator_cfi import *
 
 hltIter4Merged = HLTgeneralTracks.clone()
-HLTIterativeTracking = cms.Sequence(hltIter4Merged
-                                    )
-#hltIter4Tau3MuMerged = HLTgeneralTracks.clone()
-#HLTIterativeTrackingTau3Mu = cms.Sequence(hltIter4Tau3MuMerged
-HLTIterativeTrackingTau3Mu = cms.Sequence(hltIter4Merged
-                                    )
+hltIter4Tau3MuMerged = HLTgeneralTracks.clone()
+hltIter4MergedReg = HLTgeneralTracks.clone()
+hltIter2MergedForElectrons = HLTgeneralTracks.clone()
+hltIter2MergedForPhotons = HLTgeneralTracks.clone()
+hltIter2L3MuonMergedReg = HLTgeneralTracks.clone()
+hltIter2GlbTrkMuonMergedReg = HLTgeneralTracks.clone()
+hltForBTagIter2Merged = HLTgeneralTracks.clone()
+
+HLTIterativeTracking = cms.Sequence(hltIter4Merged)
+HLTIterativeTrackingTau3Mu = cms.Sequence(hltIter4Tau3MuMerged)
+HLTIterativeTrackingReg = cms.Sequence(hltIter4MergedReg)
+HLTIterativeTrackingForEgamma = cms.Sequence(hltIter2MergedForElectrons)
+HLTIterativeTrackingForPhotons = cms.Sequence(hltIter2MergedForPhotons)
+HLTIterativeTrackingL3MuonRegIter02 = cms.Sequence(hltIter2L3MuonMergedReg)
+HLTIterativeTrackingGlbTrkMuonReg = cms.Sequence(hltIter2GlbTrkMuonMergedReg)
+HLTForBTagIterativeTracking = cms.Sequence(hltForBTagIter2Merged)

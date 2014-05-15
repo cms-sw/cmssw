@@ -8,18 +8,14 @@ import FWCore.ParameterSet.Config as cms
 
 detachedTripletStepClusters = cms.EDProducer("TrackClusterRemover",
     clusterLessSolution = cms.bool(True),
-    oldClusterRemovalInfo = cms.InputTag("initialStepClusters"),
     trajectories = cms.InputTag("initialStepTracks"),
     overrideTrkQuals = cms.InputTag('initialStep'),
     TrackQuality = cms.string('highPurity'),
     minNumberOfLayersWithMeasBeforeFiltering = cms.int32(0),
     pixelClusters = cms.InputTag("siPixelClusters"),
     stripClusters = cms.InputTag("siStripClusters"),
-    doStripChargeCheck = cms.bool(True),
-    stripRecHits = cms.string('siStripMatchedRecHits'),
     Common = cms.PSet(
         maxChi2 = cms.double(9.0),
-        minGoodStripCharge = cms.double(60.0)
     )
 )
 
@@ -60,11 +56,12 @@ detachedTripletStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.Trajecto
     minPt = 0.075
     )
 
-import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi
-detachedTripletStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi.Chi2MeasurementEstimator.clone(
+import TrackingTools.KalmanUpdators.Chi2ChargeMeasurementEstimatorESProducer_cfi
+detachedTripletStepChi2Est = TrackingTools.KalmanUpdators.Chi2ChargeMeasurementEstimatorESProducer_cfi.Chi2ChargeMeasurementEstimator.clone(
     ComponentName = cms.string('detachedTripletStepChi2Est'),
     nSigma = cms.double(3.0),
-    MaxChi2 = cms.double(9.0)
+    MaxChi2 = cms.double(9.0),
+    minGoodStripCharge = cms.double(2069),
 )
 
 # TRACK BUILDING
@@ -116,13 +113,15 @@ import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 detachedTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
     src='detachedTripletStepTracks',
     useAnyMVA = cms.bool(True),
-    GBRForestLabel = cms.string('MVASelectorIter3'),
+    GBRForestLabel = cms.string('MVASelectorIter3_13TeV_v0'),
     trackSelectors= cms.VPSet(
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             name = 'detachedTripletStepVtxLoose',
-            chi2n_par = 1.2,
-            res_par = ( 0.003, 0.001 ),
-            minNumberLayers = 3,
+            chi2n_par = 9999,
+            useMVA = cms.bool(True),
+            minMVA = cms.double(-0.5),
+            #res_par = ( 0.003, 0.001 ),
+            #minNumberLayers = 3,
             d0_par1 = ( 1.2, 3.0 ),#sync with mixedTripletStep
             dz_par1 = ( 1.2, 3.0 ),
             d0_par2 = ( 1.3, 3.0 ),
@@ -130,9 +129,11 @@ detachedTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector
             ),
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             name = 'detachedTripletStepTrkLoose',
-            chi2n_par = 0.7,
-            res_par = ( 0.003, 0.001 ),
-            minNumberLayers = 3,
+            chi2n_par = 9999,
+            useMVA = cms.bool(True),
+            minMVA = cms.double(-0.5),
+            #res_par = ( 0.003, 0.001 ),
+            #minNumberLayers = 3,
             d0_par1 = ( 1.4, 4.0 ),
             dz_par1 = ( 1.4, 4.0 ),
             d0_par2 = ( 1.4, 4.0 ),
@@ -164,27 +165,37 @@ detachedTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector
             d0_par2 = ( 1.1, 4.0 ),
             dz_par2 = ( 1.1, 4.0 )
             ),
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             name = 'detachedTripletStepVtx',
-            preFilterName = 'detachedTripletStepVtxTight',
-            chi2n_par = 0.7,
-            res_par = ( 0.003, 0.001 ),
-            minNumberLayers = 3,
-            maxNumberLostLayers = 1,
-            minNumber3DLayers = 3,
+            preFilterName = 'detachedTripletStepVtxLoose',
+            chi2n_par = cms.double(9999),
+            useMVA = cms.bool(True),
+            minMVA = cms.double(0.5),
+            qualityBit = cms.string('highPurity'),
+            keepAllTracks = cms.bool(True),
+            #chi2n_par = 0.7,
+            #res_par = ( 0.003, 0.001 ),
+            #minNumberLayers = 3,
+            #maxNumberLostLayers = 1,
+            #minNumber3DLayers = 3,
             d0_par1 = ( 1.0, 3.0 ),#sync with mixedTripletStep
             dz_par1 = ( 1.0, 3.0 ),
             d0_par2 = ( 1.1, 3.0 ),
             dz_par2 = ( 1.1, 3.0 )
             ),
-        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
             name = 'detachedTripletStepTrk',
-            preFilterName = 'detachedTripletStepTrkTight',
-            chi2n_par = 0.3,
-            res_par = ( 0.003, 0.001 ),
-            minNumberLayers = 5,
-            maxNumberLostLayers = 0,
-            minNumber3DLayers = 4,
+            preFilterName = 'detachedTripletStepTrkLoose',
+            chi2n_par = cms.double(9999),
+            useMVA = cms.bool(True),
+            minMVA = cms.double(0.5),
+            qualityBit = cms.string('highPurity'),
+            keepAllTracks = cms.bool(True),
+            #chi2n_par = 0.3,
+            #res_par = ( 0.003, 0.001 ),
+            #minNumberLayers = 5,
+            #maxNumberLostLayers = 0,
+            #minNumber3DLayers = 4,
             d0_par1 = ( 1.0, 4.0 ),
             dz_par1 = ( 1.0, 4.0 ),
             d0_par2 = ( 1.0, 4.0 ),

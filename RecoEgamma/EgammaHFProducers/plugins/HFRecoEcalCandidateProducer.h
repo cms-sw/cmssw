@@ -13,7 +13,7 @@
 //
 //
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -21,13 +21,13 @@
 #include "HFRecoEcalCandidateAlgo.h"
 #include "HFValueStruct.h"
 
-class HFRecoEcalCandidateProducer : public edm::EDProducer {
+class HFRecoEcalCandidateProducer : public edm::stream::EDProducer<> {
  public:
   explicit HFRecoEcalCandidateProducer(edm::ParameterSet const& conf);
   virtual void produce(edm::Event& e, edm::EventSetup const& iSetup);
  private:
   std::vector<double> defaultDB_; 
-  edm::InputTag hfclusters_,vertices_;
+  edm::EDGetToken hfclustersSC_,hfclustersHFEM_,vertices_;
   int HFDBversion_;
   std::vector<double> HFDBvector_;
   bool doPU_; 

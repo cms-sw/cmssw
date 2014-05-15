@@ -54,6 +54,8 @@ ClusterShapeHitFilter::ClusterShapeHitFilter
 
   // Load strip limits
   loadStripLimits();
+  cutOnPixelCharge_ = cutOnStripCharge_ = false;
+  cutOnPixelShape_ = cutOnStripShape_ = true;
 }
 
 /*****************************************************************************/
@@ -304,6 +306,9 @@ bool ClusterShapeHitFilter::isCompatible
 		    PixelData const * ipd) const
 {
  // Get detector
+  if (cutOnPixelCharge_ && (!checkClusterCharge(recHit.geographicalId(), *(recHit.cluster()), ldir))) return false;
+  if (!cutOnPixelShape_) return true;
+
   const PixelData & pd = getpd(recHit,ipd);
 
   int part;
@@ -383,6 +388,9 @@ bool ClusterShapeHitFilter::isCompatible
   int meas;
   float pred;
 
+  if (cutOnStripCharge_ && (!checkClusterCharge(detId, cluster, ldir))) return false;
+  if (!cutOnStripShape_) return true;
+
   if(getSizes(detId, cluster, ldir, meas, pred))
   {
     StripKeys key(meas);
@@ -403,6 +411,24 @@ bool ClusterShapeHitFilter::isCompatible
   return isCompatible(detId, cluster, ldir);
 }
 
+
+bool ClusterShapeHitFilter::checkClusterCharge(DetId detId, const SiStripCluster& cluster, const LocalVector & ldir) const
+{
+  int clusCharge=accumulate( cluster.amplitudes().begin(), cluster.amplitudes().end(), uint16_t(0));
+
+  float chargeCut = minGoodStripCharge_*
+    theTracker->idToDet(detId)->surface().bounds().thickness()/abs(ldir.z()/ldir.mag());
+
+  return (clusCharge>chargeCut);
+}
+
+bool ClusterShapeHitFilter::checkClusterCharge(DetId detId, const SiPixelCluster& cluster, const LocalVector & ldir) const
+{
+  float chargeCut = minGoodPixelCharge_*
+    theTracker->idToDet(detId)->surface().bounds().thickness()/abs(ldir.z()/ldir.mag());
+
+  return (cluster.charge()>chargeCut);
+}
 
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"

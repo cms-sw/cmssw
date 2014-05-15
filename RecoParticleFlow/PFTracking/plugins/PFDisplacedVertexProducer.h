@@ -3,7 +3,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -22,7 +22,7 @@ together by the criterion which is by default the minimal approach distance.
 \date   November 2009
 */
 
-class PFDisplacedVertexProducer : public edm::EDProducer {
+class PFDisplacedVertexProducer : public edm::stream::EDProducer<> {
  public:
 
   explicit PFDisplacedVertexProducer(const edm::ParameterSet&);

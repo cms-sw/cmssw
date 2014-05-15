@@ -9,7 +9,6 @@
 
 #include <FWCore/Framework/interface/EDProducer.h>
 #include "FWCore/Utilities/interface/InputTag.h"
-
 #include <DataFormats/FEDRawData/interface/FEDRawDataCollection.h>
 
 #include <iostream>
@@ -40,6 +39,8 @@ class DTUnpackingModule: public edm::EDProducer {
   int minFEDid_;
   int maxFEDid_;
   bool dqmOnly;
+  bool performDataIntegrityMonitor;
+  std::string dataType;
 };
 
 #endif

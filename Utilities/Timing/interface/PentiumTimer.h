@@ -18,7 +18,12 @@ extern "C" inline PentiumTimeType rdtscPentium() {
   return x;
 }
 #elif defined(__arm__)
-#warning PentiumTimeType rdtscPentium() is not yet implemented for ARM architecture. Default return 0.
+#warning PentiumTimeType rdtscPentium() is not yet implemented for ARMv7 architecture. Default return 0.
+extern "C" inline PentiumTimeType rdtscPentium() {
+  return 0;
+}
+#elif defined(__aarch64__)
+#warning PentiumTimeType rdtscPentium() is not yet implemented for ARMv8 (AArch64) architecture. Default return 0.
 extern "C" inline PentiumTimeType rdtscPentium() {
   return 0;
 }
@@ -38,7 +43,7 @@ struct PentiumTime {
   };
   
   static double oneTick() {
-    static OneTick local;
+    static const OneTick local;
     return local.one;
   };
 

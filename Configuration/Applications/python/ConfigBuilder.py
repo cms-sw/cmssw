@@ -296,6 +296,10 @@ class ConfigBuilder(object):
                     self.process.options = cms.untracked.PSet( Rethrow = cms.untracked.vstring('ProductNotFound'),fileMode = cms.untracked.string('FULLMERGE'))
             else:
                     self.process.options = cms.untracked.PSet( )
+
+	    if self._options.runUnscheduled:
+		    self.process.options.allowUnscheduled=cms.untracked.bool(True)
+		    
             self.addedObjects.append(("","options"))
 
             if self._options.lazy_download:
@@ -844,6 +848,7 @@ class ConfigBuilder(object):
         self.L1RecoDefaultCFF="Configuration/StandardSequences/L1Reco_cff"
         self.L1TrackTriggerDefaultCFF="Configuration/StandardSequences/L1TrackTrigger_cff"
         self.RECODefaultCFF="Configuration/StandardSequences/Reconstruction_Data_cff"
+        self.PATDefaultCFF="Configuration/StandardSequences/PAT_cff"
 	self.EIDefaultCFF=None
         self.SKIMDefaultCFF="Configuration/StandardSequences/Skims_cff"
         self.POSTRECODefaultCFF="Configuration/StandardSequences/PostRecoGenerator_cff"
@@ -859,7 +864,10 @@ class ConfigBuilder(object):
 
         if "DATAMIX" in self.stepMap.keys():
             self.DATAMIXDefaultCFF="Configuration/StandardSequences/DataMixer"+self._options.datamix+"_cff"
-            self.DIGIDefaultCFF="Configuration/StandardSequences/DigiDM_cff"
+	    if self._options.datamix == 'PreMix':
+		    self.DIGIDefaultCFF="Configuration/StandardSequences/DigiDMPreMix_cff"
+	    else:
+	            self.DIGIDefaultCFF="Configuration/StandardSequences/DigiDM_cff"
             self.DIGI2RAWDefaultCFF="Configuration/StandardSequences/DigiToRawDM_cff"
             self.L1EMDefaultCFF='Configuration/StandardSequences/SimL1EmulatorDM_cff'
 
@@ -872,6 +880,7 @@ class ConfigBuilder(object):
         self.SIMDefaultSeq='psim'
         self.DIGIDefaultSeq='pdigi'
 	self.DIGIPREMIXDefaultSeq='pdigi'
+	self.DIGIPREMIX_S2DefaultSeq='pdigi'
         self.DATAMIXDefaultSeq=None
         self.DIGI2RAWDefaultSeq='DigiToRaw'
         self.HLTDefaultSeq='GRun'
@@ -897,6 +906,7 @@ class ConfigBuilder(object):
         self.PATLayer0DefaultSeq='all'
         self.ENDJOBDefaultSeq='endOfProcess'
         self.REPACKDefaultSeq='DigiToRawRepack'
+	self.PATDefaultSeq='miniAOD'
 
         self.EVTCONTDefaultCFF="Configuration/EventContent/EventContent_cff"
 
@@ -907,6 +917,7 @@ class ConfigBuilder(object):
         if self._options.isMC==True:
                 self.RAW2DIGIDefaultCFF="Configuration/StandardSequences/RawToDigi_cff"
 		self.RECODefaultCFF="Configuration/StandardSequences/Reconstruction_cff"
+		self.PATDefaultCFF="Configuration/StandardSequences/PATMC_cff"
                 self.DQMOFFLINEDefaultCFF="DQMOffline/Configuration/DQMOfflineMC_cff"
                 self.ALCADefaultCFF="Configuration/StandardSequences/AlCaRecoStreamsMC_cff"
 	else:
@@ -1373,6 +1384,20 @@ class ConfigBuilder(object):
 	self.loadAndRemember("SimGeneral/MixingModule/digi_noNoise_cfi")
 	self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersNoNoise)")
 
+	self.scheduleSequence(sequence.split('.')[-1],'digitisation_step')
+        return
+
+    def prepare_DIGIPREMIX_S2(self, sequence = None):
+        """ Enrich the schedule with the digitisation step"""
+        self.loadDefaultOrSpecifiedCFF(sequence,self.DIGIDefaultCFF)
+
+	self.loadAndRemember("SimGeneral/MixingModule/digi_MixPreMix_cfi")
+
+
+        if sequence == 'pdigi_valid':
+            self.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersMixPreMixValid)")
+	else:
+	    elf.executeAndRemember("process.mix.digitizers = cms.PSet(process.theDigitizersMixPreMix)")
 
 	self.scheduleSequence(sequence.split('.')[-1],'digitisation_step')
         return
@@ -1387,6 +1412,7 @@ class ConfigBuilder(object):
 	    """ Enrich the schedule with the digitisation step"""
 	    self.loadAndRemember(self.DATAMIXDefaultCFF)
 	    self.scheduleSequence('pdatamix','datamixing_step')
+
 	    if self._options.pileup_input:
 		    theFiles=''
 		    if self._options.pileup_input.startswith('dbs:') or self._options.pileup_input.startswith('das:'):
@@ -1403,6 +1429,9 @@ class ConfigBuilder(object):
     def prepare_DIGI2RAW(self, sequence = None):
             self.loadDefaultOrSpecifiedCFF(sequence,self.DIGI2RAWDefaultCFF)
 	    self.scheduleSequence(sequence.split('.')[-1],'digi2raw_step')
+	    if "DIGIPREMIX" in self.stepMap.keys():
+		    self.executeAndRemember("process.esDigiToRaw.Label = cms.string('mix')")  ##terrible hack - bypass zero suppression
+
             return
 
     def prepare_REPACK(self, sequence = None):
@@ -1570,6 +1599,12 @@ class ConfigBuilder(object):
         ''' Enrich the schedule with reconstruction '''
         self.loadDefaultOrSpecifiedCFF(sequence,self.RECODefaultCFF)
 	self.scheduleSequence(sequence.split('.')[-1],'reconstruction_step')
+        return
+
+    def prepare_PAT(self, sequence = "miniAOD"):
+        ''' Enrich the schedule with PAT '''
+        self.loadDefaultOrSpecifiedCFF(sequence,self.PATDefaultCFF)
+	self.scheduleSequence(sequence.split('.')[-1],'pat_step')
         return
 
     def prepare_EI(self, sequence = None):
@@ -2077,30 +2112,31 @@ class ConfigBuilder(object):
                 self.pythonCfgCode += dumpPython(self.process,endpath)
 
         # dump the schedule
-        self.pythonCfgCode += "\n# Schedule definition\n"
-        result = "process.schedule = cms.Schedule("
+	if not self._options.runUnscheduled:	
+		self.pythonCfgCode += "\n# Schedule definition\n"
+		result = "process.schedule = cms.Schedule("
 
-        # handling of the schedule
-        self.process.schedule = cms.Schedule()
-        for item in self.schedule:
-                if not isinstance(item, cms.Schedule):
-                        self.process.schedule.append(item)
-                else:
-                        self.process.schedule.extend(item)
+                # handling of the schedule
+		self.process.schedule = cms.Schedule()
+		for item in self.schedule:
+			if not isinstance(item, cms.Schedule):
+				self.process.schedule.append(item)
+			else:
+				self.process.schedule.extend(item)
 
-        if hasattr(self.process,"HLTSchedule"):
-            beforeHLT = self.schedule[:self.schedule.index(self.process.HLTSchedule)]
-            afterHLT = self.schedule[self.schedule.index(self.process.HLTSchedule)+1:]
-            pathNames = ['process.'+p.label_() for p in beforeHLT]
-            result += ','.join(pathNames)+')\n'
-            result += 'process.schedule.extend(process.HLTSchedule)\n'
-            pathNames = ['process.'+p.label_() for p in afterHLT]
-            result += 'process.schedule.extend(['+','.join(pathNames)+'])\n'
-        else:
-            pathNames = ['process.'+p.label_() for p in self.schedule]
-            result ='process.schedule = cms.Schedule('+','.join(pathNames)+')\n'
+		if hasattr(self.process,"HLTSchedule"):
+			beforeHLT = self.schedule[:self.schedule.index(self.process.HLTSchedule)]
+			afterHLT = self.schedule[self.schedule.index(self.process.HLTSchedule)+1:]
+			pathNames = ['process.'+p.label_() for p in beforeHLT]
+			result += ','.join(pathNames)+')\n'
+			result += 'process.schedule.extend(process.HLTSchedule)\n'
+			pathNames = ['process.'+p.label_() for p in afterHLT]
+			result += 'process.schedule.extend(['+','.join(pathNames)+'])\n'
+		else:
+			pathNames = ['process.'+p.label_() for p in self.schedule]
+			result ='process.schedule = cms.Schedule('+','.join(pathNames)+')\n'
 
-        self.pythonCfgCode += result
+	        self.pythonCfgCode += result
 
 	#repacked version
 	if self._options.isRepacked:
