@@ -988,7 +988,7 @@ premixUp2015Defaults = {
     '--conditions'  : 'auto:upgradePLS1', # 25ns GT; dedicated dict for 50ns
     '--datatier'    : 'GEN-SIM-DIGI-RAW',
     '--eventcontent': 'PREMIX',
-    '--magField'    : '38T_PostLS1',      # no geometry, from the db!
+    '--magField'    : '38T_PostLS1',
     '--customise'   : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'
 }
 premixUp2015Defaults50ns = merge([{'--conditions':'auto:upgradePLS150ns'},premixUp2015Defaults])
@@ -998,34 +998,24 @@ steps['PREMIXUP15_PU50']=merge([PU50,Kby(100,100),premixUp2015Defaults50ns])
 
 digiPremixUp2015Defaults25ns = { 
     '--conditions'   : 'auto:upgradePLS1',
-    '-s'             : 'DIGI:pdigi_valid,DATAMIX,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco',  # pdigi_valid?
-
- # input premixed events: needs be set to the outout of the previous step; local file as a temporary escamotage for tests
-#   '--pileup_input'  :  'file:/afs/cern.ch/user/f/franzoni/public/4mikeH/premixed-CMSSW_7_0_X_2014-05-06-0200.root',
+    '-s'             : 'DIGIPREMIX_S2:pdigi_valid,DATAMIX,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco',
    '--pileup_input'  :  'das:/RelValPREMIXUP15_PU25/%s/GEN-SIM-DIGI-RAW'%baseDataSetRelease[9],
-# option below to be specified once the actual sample will be available
-#    '--pileup_input' : 'das:/RelValPREMIXUP15_PU25/CMSSW_7_0_1-PU25ns_POSTLS170_V7-v1/GEN-SIM-DIGI-RAW',
-
-    '--eventcontent' : 'FEVTDEBUGHLT', # => error in validation : std::vector<TrackingParticle> missing
+    '--eventcontent' : 'FEVTDEBUGHLT',
     '--datatier'     : 'GEN-SIM-DIGI-RAW-HLTDEBUG',
-#    '--eventcontent' : 'PREMIXRAW,', # =>  error : MuonDigiCollection<CSCDetId,CSCWireDigi> missing
-#    '--datatier'     : 'PREMIXRAW',
-#    '--eventcontent' : 'PREMIXRAW,FEVTDEBUGHLT', => same as PREMIXRAW, since FEVTDEBUGHLT ends up in another file
-#    '--datatier'     : 'PREMIXRAW,GEN-SIM-DIGI-RAW-HLTDEBUG',
-
     '--datamix'      : 'PreMix',
     '--customise'    : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
     '--magField'     : '38T_PostLS1',
     }
+digiPremixUp2015Defaults50ns=merge([{'--conditions':'auto:upgradePLS150ns'},
+                                    {'--pileup_input' : 'das:/RelValPREMIXUP15_PU50/%s/GEN-SIM-DIGI-RAW'%baseDataSetRelease[10]},
+                                    digiPremixUp2015Defaults25ns])
 steps['DIGIPRMXUP15_PU25']=merge([digiPremixUp2015Defaults25ns])
-steps['DIGIPRMXUP15_PROD_PU25']=merge([
-        {'--eventcontent' : 'PREMIXRAW'},
-        {'--datatier'     : 'PREMIXRAW'},        
-        digiPremixUp2015Defaults25ns
-        ])
-steps['DIGIPRMXUP15_PU50']=merge([{'--conditions':'auto:upgradePLS150ns'},
-                                  {'--pileup_input' : 'das:/RelValPREMIXUP15_PU50/%s/GEN-SIM-DIGI-RAW'%baseDataSetRelease[10]},
-                                  digiPremixUp2015Defaults25ns])
+steps['DIGIPRMXUP15_PU50']=merge([digiPremixUp2015Defaults50ns])
+premixProd = {'-s'             : 'DIGIPREMIX_S2,DATAMIX,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco',
+              '--eventcontent' : 'PREMIXRAW',
+              '--datatier'     : 'PREMIXRAW'} #GF: check this datatier name
+steps['DIGIPRMXUP15_PROD_PU25']=merge([premixProd,digiPremixUp2015Defaults25ns])
+steps['DIGIPRMXUP15_PROD_PU50']=merge([premixProd,digiPremixUp2015Defaults50ns])
 
 
 dataReco={'--conditions':'auto:com10',
@@ -1150,20 +1140,6 @@ steps['RECODDQM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,DQM:@common+@muon+@hcal+
 steps['RECOPU1']=merge([PU,steps['RECO']])
 steps['RECOUP15_PU25']=merge([PU25,step3Up2015Defaults])
 steps['RECOUP15_PU50']=merge([PU50,step3Up2015Defaults50ns])
-
-#
-#
-# temporary attempt of simplifying step 3, to see if things would work w/o validation
-steps['RECOPRMXUP15_PU25']=merge([
-        {'-s':'RAW2DIGI,L1Reco,RECO,EI,DQM'},
-        step3Up2015Defaults])
-steps['RECOPRMXUP15_PU50']=merge([
-        {'-s':'RAW2DIGI,L1Reco,RECO,EI,DQM'},
-        step3Up2015Defaults50ns])
-#
-#
-#
-
 
 #wmsplit['RECOPU1']=1
 steps['RECOPUDBG']=merge([{'--eventcontent':'RECODEBUG,DQM'},steps['RECOPU1']])
