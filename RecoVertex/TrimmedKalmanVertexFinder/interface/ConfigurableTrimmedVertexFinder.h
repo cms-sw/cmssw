@@ -61,7 +61,7 @@ public:
   std::vector<TransientVertex> 
     vertices( const std::vector<reco::TransientTrack> & tracks,
 	      std::vector<reco::TransientTrack>& unused,
-        const reco::BeamSpot & spot, bool use_spot ) const;
+        const reco::BeamSpot & spot, bool use_spot) const;
 
   /** Access to parameters
    */
@@ -114,6 +114,8 @@ protected:
 
 
 private:
+
+  using VertexReconstructor::vertices;
 
   // separate tracks passing the filter
   //  void separateTracks(std::vector<TransientTrack>& filtered, 
