@@ -113,7 +113,7 @@ namespace evf{
     workingDirectory_ /= "mon";
 
     if ( !boost::filesystem::is_directory(workingDirectory_)) {
-        edm::LogInfo("FastMonitoringService") << "<MON> DIR NOT FOUND! Trying to create -: " << workingDirectory_.string() ;
+        LogDebug("FastMonitoringService") << "<MON> DIR NOT FOUND! Trying to create -: " << workingDirectory_.string() ;
         boost::filesystem::create_directories(workingDirectory_);
         if ( !boost::filesystem::is_directory(workingDirectory_))
           edm::LogWarning("FastMonitoringService") << "Unable to create <MON> DIR -: " << workingDirectory_.string()
@@ -135,7 +135,7 @@ namespace evf{
     pathLegFile << "pathlegend_pid" << std::setfill('0') << std::setw(5) << getpid() << ".leg";
     pathLegendFile_  = (workingDirectory_/pathLegFile.str()).string();
 
-    edm::LogInfo("FastMonitoringService") << "Initializing FastMonitor with microstate def path -: "
+    LogDebug("FastMonitoringService") << "Initializing FastMonitor with microstate def path -: "
 			                  << microstateDefPath_;
 			                  //<< encPath_.current_ + 1 << " " << encModule_.current_ + 1
 
@@ -276,7 +276,7 @@ namespace evf{
   void FastMonitoringService::preGlobalEndLumi(edm::GlobalContext const& gc)
   {
 	  unsigned int lumi = gc.luminosityBlockID().luminosityBlock();
-          edm::LogInfo("FastMonitoringService") << "Lumi ended. Writing JSON information. LUMI -: "
+          LogDebug("FastMonitoringService") << "Lumi ended. Writing JSON information. LUMI -: "
                                                 << lumi;
 	  timeval lumiStopTime;
 	  gettimeofday(&lumiStopTime, 0);
@@ -332,7 +332,7 @@ namespace evf{
 	      sourceEventsReport_.erase(itr);
 	    }
 	  }
-	  edm::LogInfo("FastMonitoringService")	<< "Statistics for this lumisection -: events = "
+	  edm::LogInfo("FastMonitoringService")	<< "Statistics for lumisection -: lumi = " << lumi << " events = "
 			                        << lumiProcessedJptr->value() << " time = " << usecondsForLumi/1000000
 			                        << " size = " << accuSize << " thr = " << throughput;
 	  delete lumiProcessedJptr;

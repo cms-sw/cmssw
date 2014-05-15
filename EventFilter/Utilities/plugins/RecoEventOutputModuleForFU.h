@@ -48,7 +48,7 @@ namespace evf {
       boost::filesystem::path runDirectory(
 					   edm::Service<evf::EvFDaqDirector>()->findCurrentRunDir());
       datapath_ = runDirectory.string();
-      edm::LogInfo("RecoEventOutputModuleForFU") << "writing .dat files to -: "
+      LogDebug("RecoEventOutputModuleForFU") << "writing .dat files to -: "
 						 << datapath_;
       // create open dir if not already there
       boost::filesystem::path openPath = runDirectory;
@@ -58,7 +58,7 @@ namespace evf {
       if (boost::filesystem::is_directory(openPath))
 	foundOpenDir = true;
       if (!foundOpenDir) {
-	edm::LogInfo("RecoEventOutputModuleForFU") << "<open> FU dir not found. Creating... -:" << openPath.string();
+	LogDebug("RecoEventOutputModuleForFU") << "<open> FU dir not found. Creating... -:" << openPath.string();
 	boost::filesystem::create_directories(openPath);
       }
     }
@@ -122,7 +122,7 @@ namespace evf {
     edm::Service<evf::EvFDaqDirector>()->lockInitLock();
     struct stat   fstat;
     if (stat (outJsonDefName.c_str(), &fstat) != 0) { //file does not exist
-      edm::LogInfo("RecoEventOutputModuleForFU") << "writing output definition file -: " << outJsonDefName;
+      LogDebug("RecoEventOutputModuleForFU") << "writing output definition file -: " << outJsonDefName;
       std::string content;
       JSONSerializer::serialize(&outJsonDef_,content);
       FileIO::writeStringToFile(outJsonDefName, content);

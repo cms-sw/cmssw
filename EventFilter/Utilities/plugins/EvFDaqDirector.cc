@@ -361,7 +361,7 @@ namespace evf {
 			                     << readIndex + 1 << " --> " << readLs + 2
 			                     << ":" << readIndex + 1;
 	    else
-	      edm::LogInfo("EvFDaqDirector") << "Written to file -: " << readLs << ":"
+	      LogDebug("EvFDaqDirector") << "Written to file -: " << readLs << ":"
 			                     << readIndex + 1;
 
 	  } else
@@ -390,7 +390,7 @@ namespace evf {
     if (retvalu==-1) edm::LogError("EvFDaqDirector") << "Error unlocking the fu.lock " << strerror(errno);
 
 #ifdef DEBUG
-    edm::LogInfo("EvFDaqDirector") << "Waited during lock -: " << locked_period << " seconds";
+    edm::LogDebug("EvFDaqDirector") << "Waited during lock -: " << locked_period << " seconds";
 #endif
 
     if ( fileStatus == noFile ) {
@@ -500,7 +500,7 @@ namespace evf {
       edm::LogError("EvFDaqDirector") << "problem with creating filedesc for fuwritelock -: " << fulockfile.c_str()
                                       << " create:" << create << " error:" << strerror(errno);
     else
-      edm::LogInfo("EvFDaqDirector") << "creating filedesc for fureadwritelock -: "
+      LogDebug("EvFDaqDirector") << "creating filedesc for fureadwritelock -: "
 		<< fu_readwritelock_fd_;
 
     fu_rw_lock_stream = fdopen(fu_readwritelock_fd_, "r+");
@@ -514,7 +514,7 @@ namespace evf {
       edm::LogError("EvFDaqDirector") << "problem with creating filedesc for datamerge "
 		<< strerror(errno);
     else
-      edm::LogInfo("EvFDaqDirector") << "creating filedesc for datamerge -: "
+      LogDebug("EvFDaqDirector") << "creating filedesc for datamerge -: "
 		<< data_readwrite_fd_;
     fcntl(data_readwrite_fd_, F_SETLKW, &data_rw_flk);
 

@@ -517,7 +517,7 @@ void FedRawDataInputSource::deleteFile(std::string const& fileName)
 {
   const boost::filesystem::path filePath(fileName);
   if (!testModeNoBuilderUnit_) {
-    edm::LogInfo("FedRawDataInputSource") << "Deleting input file -:" << fileName;
+    LogDebug("FedRawDataInputSource") << "Deleting input file -:" << fileName;
     try {
       //sometimes this fails but file gets deleted
       boost::filesystem::remove(filePath);
@@ -635,7 +635,7 @@ int FedRawDataInputSource::grabNextJsonFile(boost::filesystem::path const& jsonS
                     << std::setfill('0') << std::setw(5) << getpid() << ".jsn";
     jsonDestPath /= fileNameWithPID.str();
 
-    edm::LogInfo("FedRawDataInputSource") << "JSON rename -: " << jsonSourcePath << " to "
+    LogDebug("FedRawDataInputSource") << "JSON rename -: " << jsonSourcePath << " to "
                                           << jsonDestPath;
 
     if ( testModeNoBuilderUnit_ )
@@ -778,7 +778,8 @@ void FedRawDataInputSource::readSupervisor()
       //sleep until woken up by condition or a timeout
       if (cvWakeup_.wait_for(lkw, std::chrono::milliseconds(100)) == std::cv_status::timeout) {
         counter++;
-        if (!(counter%50)) edm::LogInfo("FedRawDataInputSource") << "No free chunks or threads...";
+        //if (!(counter%50)) edm::LogInfo("FedRawDataInputSource") << "No free chunks or threads...";
+        LogDebug("FedRawDataInputSource") << "No free chunks or threads...";
       }
       else {
         assert(!(workerPool_.empty() && !singleBufferMode_) || freeChunks_.empty());
@@ -820,13 +821,13 @@ void FedRawDataInputSource::readSupervisor()
       int dbgcount=0;
       if (status == evf::EvFDaqDirector::noFile) {
 	dbgcount++;
-	if (!(dbgcount%20))
-	  edm::LogInfo("FedRawDataInputSource") << "No file for me... sleep and try again...";
+	//if (!(dbgcount%20)) edm::LogInfo("FedRawDataInputSource") << "No file for me... sleep and try again...";
+	if (!(dbgcount%20)) LogDebug("FedRawDataInputSource") << "No file for me... sleep and try again...";
 	usleep(100000);
       }
     }
     if ( status == evf::EvFDaqDirector::newFile ) {
-      edm::LogInfo("FedRawDataInputSource") << "The director says to grab -: " << nextFile;
+      LogDebug("FedRawDataInputSource") << "The director says to grab -: " << nextFile;
 
 
       boost::filesystem::path jsonFile(nextFile);
@@ -958,7 +959,7 @@ void FedRawDataInputSource::readWorker(unsigned int tid)
     off_t pos = lseek(fileDescriptor,chunk->offset_,SEEK_SET);
 
     if (fileDescriptor>=1)
-      edm::LogInfo("FedRawDataInputSource") << "Reader thread opened file -: TID: " << tid << " file: " << file->fileName_ << " at offset " << pos; 
+      LogDebug("FedRawDataInputSource") << "Reader thread opened file -: TID: " << tid << " file: " << file->fileName_ << " at offset " << pos; 
     else
     {
       edm::LogError("FedRawDataInputSource") <<
@@ -984,7 +985,7 @@ void FedRawDataInputSource::readWorker(unsigned int tid)
     auto end = std::chrono::high_resolution_clock::now();
     auto diff = end-start;
     std::chrono::milliseconds msec = std::chrono::duration_cast<std::chrono::milliseconds>(diff);
-    edm::LogInfo("FedRawDataInputSource") << " finished reading block -: " << (bufferLeft >> 20) << " MB" << " in " << msec.count() << " ms ("<< (bufferLeft >> 20)/double(msec.count())<<" GB/s)";
+    LogDebug("FedRawDataInputSource") << " finished reading block -: " << (bufferLeft >> 20) << " MB" << " in " << msec.count() << " ms ("<< (bufferLeft >> 20)/double(msec.count())<<" GB/s)";
     close(fileDescriptor);
 
     chunk->readComplete_=true;//this is atomic to secure the sequential buffer fill before becoming available for processing)
@@ -1061,7 +1062,7 @@ void FedRawDataInputSource::readNextChunkIntoBuffer(InputFile *file)
     bufferInputRead_ = 0;
     //off_t pos = lseek(fileDescriptor,0,SEEK_SET);
     if (fileDescriptor_>=0) 
-      edm::LogInfo("FedRawDataInputSource") << "opened file -: " << std::endl << file->fileName_;
+      LogDebug("FedRawDataInputSource") << "opened file -: " << std::endl << file->fileName_;
     else
     {
       throw cms::Exception("FedRawDataInputSource:readNextChunkIntoBuffer") << "failed to open file " << std::endl
@@ -1100,7 +1101,7 @@ void FedRawDataInputSource::readNextChunkIntoBuffer(InputFile *file)
   if (bufferInputRead_ == file->fileSize_) { // no more data in this file 
     if (fileDescriptor_!=-1)
     {
-      edm::LogInfo("FedRawDataInputSource") << "Closing input file -: " << std::endl << file->fileName_;
+      LogDebug("FedRawDataInputSource") << "Closing input file -: " << std::endl << file->fileName_;
       close(fileDescriptor_);
       fileDescriptor_=-1;
     }
