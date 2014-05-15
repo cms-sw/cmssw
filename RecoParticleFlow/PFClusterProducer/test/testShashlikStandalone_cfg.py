@@ -34,7 +34,7 @@ process.load('RecoParticleFlow.PFClusterProducer.particleFlowRecHitShashlik_cfi'
 process.load('RecoParticleFlow.PFClusterProducer.particleFlowClusterShashlik_cfi')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
+    input = cms.untracked.int32(20)
 )
 
 # Input source
@@ -57,7 +57,7 @@ process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
     outputCommands = process.FEVTDEBUGEventContent.outputCommands+['keep *_*_EKSimRecoHits_*',
-								   'keep *_particleFlowRecHitShashlik_*_*',
+								   'keep *_particleFlowRecHitEK_*_*',
 								   'keep *_particleFlowClusterEKUncorrected_*_*'],
     fileName = cms.untracked.string('file:step1.root'),
     dataset = cms.untracked.PSet(
@@ -80,7 +80,7 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
     PGunParameters = cms.PSet(
         MaxE = cms.double(276.0),
         MinE = cms.double(276.0),
-        PartID = cms.vint32(11),
+        PartID = cms.vint32(22),
         MinEta = cms.double(2.4999),
         MaxEta = cms.double(2.5001),
         MaxPhi = cms.double(3.14159265359),
@@ -92,7 +92,7 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
     firstRun = cms.untracked.uint32(1)
 )
 
-process.prec = cms.EDProducer("CaloSimhitToRechitProducer",
+process.prec = cms.EDProducer("CaloSimhitToRechitProducerShashlik",
                               src = cms.InputTag("g4SimHits", "EcalHitsEK"),
 			      energyScale = cms.double (1.64)
 )

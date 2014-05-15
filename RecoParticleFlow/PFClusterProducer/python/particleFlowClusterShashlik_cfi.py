@@ -65,7 +65,7 @@ _pfClusterizer_EK = cms.PSet(
 
 particleFlowClusterEKUncorrected = cms.EDProducer(
     "PFClusterProducer",
-    recHitsSource = cms.InputTag("particleFlowRecHitShashlik"),
+    recHitsSource = cms.InputTag("particleFlowRecHitEK"),
     recHitCleaners = cms.VPSet( ),
     seedFinder = _localMaxSeeds_EK,
     initialClusteringStep = _topoClusterizer_EK,
