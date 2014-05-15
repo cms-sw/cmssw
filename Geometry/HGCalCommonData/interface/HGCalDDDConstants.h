@@ -59,7 +59,10 @@ public:
 				  float cellSize) const;
   int                 sectors() const {return nSectors;}
   std::pair<int,int>  simToReco(int cell, int layer, bool half) const;
-       
+
+  std::vector<hgtrap>::const_iterator getFirstModule() const { return modules_.begin(); }
+  std::vector<hgtrap>::const_iterator getLastModule()  const { return modules_.end(); }
+  
 private:
   void                checkInitialized() const;
   void                loadGeometry(const DDFilteredView& fv, std::string& tag);
