@@ -6,6 +6,7 @@
 */
 
 #include <string.h> // memcpy
+#include <atomic>
 #include "DataFormats/CSCDigi/interface/CSCALCTStatusDigi.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -124,8 +125,8 @@ public:
   CSCALCTTrailer2007 alctTrailer2007() {return trailer2007;}
 
 private:
-  static bool debug;
-  static unsigned short int firmwareVersion;
+  static std::atomic<bool> debug;
+  static std::atomic<unsigned short int> firmwareVersion;
   CSCALCTTrailer2006 trailer2006;
   CSCALCTTrailer2007 trailer2007;
   unsigned short int theOriginalBuffer[4];
