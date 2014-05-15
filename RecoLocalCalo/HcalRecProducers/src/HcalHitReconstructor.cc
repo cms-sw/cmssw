@@ -12,8 +12,11 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalDbASCIIIO.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "CondFormats/DataRecord/interface/HcalOOTPileupCorrectionRcd.h"
+#include "CondFormats/HcalObjects/interface/OOTPileupCorrectionColl.h"
 #include <iostream>
 #include <fstream>
+
 
 /*  Hcal Hit reconstructor allows for CaloRecHits with status words */
 
@@ -34,11 +37,15 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
   firstSample_(conf.getParameter<int>("firstSample")),
   samplesToAdd_(conf.getParameter<int>("samplesToAdd")),
   tsFromDB_(conf.getParameter<bool>("tsFromDB")),
-  useLeakCorrection_( conf.getParameter<bool>("useLeakCorrection")),
+  useLeakCorrection_(conf.getParameter<bool>("useLeakCorrection")),
+  dataOOTCorrectionName_(""),
+  dataOOTCorrectionCategory_("Data"),
+  mcOOTCorrectionName_(""),
+  mcOOTCorrectionCategory_("MC"),
+  setPileupCorrection_(0),
   paramTS(0),
   theTopology(0)
 {
-
   // register for data access
   tok_hbhe_ = consumes<HBHEDigiCollection>(inputLabel_);
   tok_ho_ = consumes<HODigiCollection>(inputLabel_);
@@ -77,6 +84,7 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
 
   if (!strcasecmp(subd.c_str(),"HBHE")) {
     subdet_=HcalBarrel;
+    setPileupCorrection_ = &HcalSimpleRecAlgo::setHBHEPileupCorrection;
     bool timingShapedCutsFlags = conf.getParameter<bool>("setTimingShapedCutsFlags");
     if (timingShapedCutsFlags)
       {
@@ -140,9 +148,11 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
     produces<HBHERecHitCollection>();
   } else if (!strcasecmp(subd.c_str(),"HO")) {
     subdet_=HcalOuter;
+    setPileupCorrection_ = &HcalSimpleRecAlgo::setHOPileupCorrection;
     produces<HORecHitCollection>();
   } else if (!strcasecmp(subd.c_str(),"HF")) {
     subdet_=HcalForward;
+    setPileupCorrection_ = &HcalSimpleRecAlgo::setHFPileupCorrection;
     digiTimeFromDB_=conf.getParameter<bool>("digiTimeFromDB");
 
     if (setTimingTrustFlags_) {
@@ -203,19 +213,31 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
     produces<HcalCalibRecHitCollection>();
   } else {
      std::cout << "HcalHitReconstructor is not associated with a specific subdetector!" << std::endl;
-  }       
-  
+  }
+
+  // If no valid OOT pileup correction name specified,
+  // disable the correction
+  if (conf.existsAs<std::string>("dataOOTCorrectionName"))
+      dataOOTCorrectionName_ = conf.getParameter<std::string>("dataOOTCorrectionName");
+  if (conf.existsAs<std::string>("dataOOTCorrectionCategory"))
+      dataOOTCorrectionCategory_ = conf.getParameter<std::string>("dataOOTCorrectionCategory");
+  if (conf.existsAs<std::string>("mcOOTCorrectionName"))
+      mcOOTCorrectionName_ = conf.getParameter<std::string>("mcOOTCorrectionName");
+  if (conf.existsAs<std::string>("mcOOTCorrectionCategory"))
+      mcOOTCorrectionCategory_ = conf.getParameter<std::string>("mcOOTCorrectionCategory");
+  if (dataOOTCorrectionName_.empty() && mcOOTCorrectionName_.empty())
+      setPileupCorrection_ = 0;
 }
 
 HcalHitReconstructor::~HcalHitReconstructor() {
-  if (hbheFlagSetter_)        delete hbheFlagSetter_;
-  if (hfdigibit_)             delete hfdigibit_;
-  if (hbheHSCPFlagSetter_)    delete hbheHSCPFlagSetter_;
-  if (hbhePulseShapeFlagSetter_) delete hbhePulseShapeFlagSetter_;
-  if (hfS9S1_)                delete hfS9S1_;
-  if (hfPET_)                 delete hfPET_;
-  if (theTopology)            delete theTopology;
-  if (paramTS)            delete paramTS;
+  delete hbheFlagSetter_;
+  delete hfdigibit_;
+  delete hbheHSCPFlagSetter_;
+  delete hbhePulseShapeFlagSetter_;
+  delete hfS9S1_;
+  delete hfPET_;
+  delete theTopology;
+  delete paramTS;
 }
 
 void HcalHitReconstructor::beginRun(edm::Run const&r, edm::EventSetup const & es){
@@ -274,12 +296,13 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
   edm::ESHandle<HcalTopology> topo;
   eventSetup.get<IdealGeometryRecord>().get(topo);
 
-
   edm::ESHandle<HcalDbService> conditions;
   eventSetup.get<HcalDbRecord>().get(conditions);
+
   // HACK related to HB- corrections
-  if(e.isRealData()) reco_.setForData(e.run());    
-  if(useLeakCorrection_) reco_.setLeakCorrection();
+  const bool isData = e.isRealData();
+  if (isData) reco_.setForData(e.run());    
+  if (useLeakCorrection_) reco_.setLeakCorrection();
 
   edm::ESHandle<HcalChannelQuality> p;
   eventSetup.get<HcalChannelQualityRcd>().get(p);
@@ -291,7 +314,23 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
   edm::ESHandle<HcalSeverityLevelComputer> mycomputer;
   eventSetup.get<HcalSeverityLevelComputerRcd>().get(mycomputer);
   const HcalSeverityLevelComputer* mySeverity = mycomputer.product();
-  
+
+  // Configure OOT pileup corrections
+  if (setPileupCorrection_)
+  {
+      const std::string& corrName = isData ? dataOOTCorrectionName_ : mcOOTCorrectionName_;
+      if (!corrName.empty())
+      {
+          edm::ESHandle<OOTPileupCorrectionColl> pileupCorrections;
+          eventSetup.get<HcalOOTPileupCorrectionRcd>().get(pileupCorrections);
+          const std::string& cat = isData ? dataOOTCorrectionCategory_ : mcOOTCorrectionCategory_;
+          (reco_.*setPileupCorrection_)(pileupCorrections->get(corrName, cat));
+      }
+  }
+
+  // GET THE BEAM CROSSING INFO HERE, WHEN WE UNDERSTAND HOW THINGS WORK.
+  // Then, call "setBXInfo" method of the reco_ object.
+
   if (det_==DetId::Hcal) {
 
     // HBHE -------------------------------------------------------------------
@@ -406,7 +445,6 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	}
 	auxflag+=((i->sample(fTS2).capid())<<28);
 	(rec->back()).setAuxHBHE(auxflag);
-
 
 	(rec->back()).setFlags(0);  // this sets all flag bits to 0
 	// Set presample flag
