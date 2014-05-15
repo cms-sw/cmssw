@@ -3,9 +3,9 @@
 using namespace std;
 using namespace libconfig;
 
-OHltRateCounter::OHltRateCounter(unsigned int size, unsigned int l1size)
+OHltRateCounter::OHltRateCounter(double size, double l1size)
 {
-   vector<int> itmp;
+   vector<double> itmp;
    for (unsigned int i=0; i<size; i++)
    {
       iCount.push_back(0);

@@ -3,6 +3,12 @@ import FWCore.ParameterSet.Config as cms
 # Tracking particle module
 #from FastSimulation.Validation.trackingParticlesFastSim_cfi import * # now deprecated
 
+# TrackingParticle-SimHit associator
+from SimGeneral.TrackingAnalysis.simHitTPAssociation_cfi import * 
+simHitTPAssocProducer.simHitSrc = cms.VInputTag(cms.InputTag('famosSimHits','TrackerHits'),
+                                                cms.InputTag("MuonSimHits","MuonCSCHits"),
+                                                cms.InputTag("MuonSimHits","MuonDTHits"),
+                                                cms.InputTag("MuonSimHits","MuonRPCHits"))
 
 from Validation.RecoMET.METRelValForDQM_cff import *
 
@@ -21,7 +27,10 @@ from DQMOffline.RecoB.dqmAnalyzer_cff import *
 
 
 #globalAssociation = cms.Sequence(trackingParticles + recoMuonAssociationFastSim + tracksValidationSelectors + prebTagSequence)
-globalAssociation = cms.Sequence(recoMuonAssociationFastSim + tracksValidationSelectors + prebTagSequence)
+globalAssociation = cms.Sequence(recoMuonAssociationFastSim
+                                 + simHitTPAssocProducer
+                                 + tracksValidationSelectors
+                                 + prebTagSequence)
 
 globalValidation = cms.Sequence(trackingTruthValid
                                 +tracksValidationFS

@@ -35,6 +35,7 @@ public:
   double timeSmearRMS(double ampl) const;
 
   int pixels() const {return thePixels;}
+  bool doSiPMSmearing() const { return theSiPMSmearing; }
 
   friend class HcalSimParameterMap;
 
@@ -45,6 +46,7 @@ private:
   std::vector<double> theSamplingFactors;
   std::vector<double> thePE2fCByRing;
   int thePixels;
+  bool theSiPMSmearing;
   bool doTimeSmear_;
   HcalTimeSmearSettings theSmearSettings;
 };

@@ -13,7 +13,7 @@ process.load("SimG4CMS.Calo.HFPMTHitAnalyzer_cfi")
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout'),
     categories = cms.untracked.vstring('CaloSim', 
-        'EcalSim', 'G4cerr', 'G4cout',
+        'EcalSim', 'G4cerr', 'G4cout', 'HCalGeom',
         'HcalSim', 'HFShower'),
     debugModules = cms.untracked.vstring('*'),
     cout = cms.untracked.PSet(
@@ -34,6 +34,9 @@ process.MessageLogger = cms.Service("MessageLogger",
             limit = cms.untracked.int32(-1)
         ),
         G4cout = cms.untracked.PSet(
+            limit = cms.untracked.int32(-1)
+        ),
+        HCalGeom = cms.untracked.PSet(
             limit = cms.untracked.int32(-1)
         ),
         HcalSim = cms.untracked.PSet(

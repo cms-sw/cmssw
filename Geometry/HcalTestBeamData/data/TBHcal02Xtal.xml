@@ -1,0 +1,160 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<SolidSection label="TBHcal02Xtal.xml">
+		<Box name="HcalTB02xtalsSolLU" dx="35*cm" dy="25*cm" dz="72.5*cm"/>
+		<Box name="HcalTB02xtalsExtWallSol" dx="25.2*cm" dy="15.2*cm" dz="60.95*cm"/>
+		<Box name="HcalTB02xtalsIntWallSol" dx="25*cm" dy="15*cm" dz="60.75*cm"/>
+		<Trd1 name="HcalTB02xtalsLaySol" dz="11.85*cm" dy1="7.875*cm" dy2="9.135*cm" dx1="1.125*cm" dx2="1.305*cm"/>
+		<Trd1 name="HcalTB02xtalsCrysSol" dz="11.8*cm" dy1="1.1*cm" dy2="1.28*cm" dx1="1.1*cm" dx2="1.28*cm"/>
+		<Box name="HcalTB02xtalsPlexBlockSol" dx="8*cm" dy="8*cm" dz="1.15*cm"/>
+		<Box name="HcalTB02xtalsAlinBlockSol" dx="9.25*cm" dy="9.25*cm" dz="3.5*mm"/>
+		<Box name="HcalTB02xtalsAloutBlockSol" dx="9.25*cm" dy="9.25*cm" dz="4*cm"/>
+	</SolidSection>
+	<LogicalPartSection label="TBHcal02Xtal.xml">
+		<LogicalPart name="HcalTB02xtalsLogLU" category="unspecified">
+			<rSolid name="HcalTB02xtalsSolLU"/>
+			<rMaterial name="TBHcal02Materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HcalTB02xtalsExtWallLog" category="unspecified">
+			<rSolid name="HcalTB02xtalsExtWallSol"/>
+			<rMaterial name="TBHcal02Materials:Aluminium"/>
+		</LogicalPart>
+		<LogicalPart name="HcalTB02xtalsIntWallLog" category="unspecified">
+			<rSolid name="HcalTB02xtalsIntWallSol"/>
+			<rMaterial name="TBHcal02Materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HcalTB02xtalsLayLog" category="unspecified">
+			<rSolid name="HcalTB02xtalsLaySol"/>
+			<rMaterial name="TBHcal02Materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HcalTB02xtalsCrysLog" category="sensitive">
+			<rSolid name="HcalTB02xtalsCrysSol"/>
+			<rMaterial name="TBHcal02Materials:E_PbWO4"/>
+		</LogicalPart>
+		<LogicalPart name="HcalTB02xtalsPlexBlockLog" category="unspecified">
+			<rSolid name="HcalTB02xtalsPlexBlockSol"/>
+			<rMaterial name="TBHcal02Materials:Plexiglas"/>
+		</LogicalPart>
+		<LogicalPart name="HcalTB02xtalsAlinBlockLog" category="unspecified">
+			<rSolid name="HcalTB02xtalsAlinBlockSol"/>
+			<rMaterial name="TBHcal02Materials:Aluminium"/>
+		</LogicalPart>
+		<LogicalPart name="HcalTB02xtalsAloutBlockLog" category="unspecified">
+			<rSolid name="HcalTB02xtalsAloutBlockSol"/>
+			<rMaterial name="TBHcal02Materials:Aluminium"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<PosPartSection label="TBHcal02Xtal.xml">
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02:TestBeamHCal02"/>
+			<rChild name="TBHcal02Xtal:HcalTB02xtalsLogLU"/>
+			<rRotation name="TBHcal02Rotations:R16"/>
+			<Translation x="92.25*cm" y="-4.028*cm" z="74.703*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02Xtal:HcalTB02xtalsLogLU"/>
+			<rChild name="TBHcal02Xtal:HcalTB02xtalsExtWallLog"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02Xtal:HcalTB02xtalsExtWallLog"/>
+			<rChild name="TBHcal02Xtal:HcalTB02xtalsIntWallLog"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02Xtal:HcalTB02xtalsIntWallLog"/>
+			<rChild name="TBHcal02Xtal:HcalTB02xtalsLayLog"/>
+			<rRotation name="TBHcal02Rotations:R4"/>
+			<Translation x="-7.30753*cm" y="0*fm" z="37.2508*cm"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="TBHcal02Xtal:HcalTB02xtalsIntWallLog"/>
+			<rChild name="TBHcal02Xtal:HcalTB02xtalsLayLog"/>
+			<rRotation name="TBHcal02Rotations:R5"/>
+			<Translation x="-4.87168*cm" y="0*fm" z="37.2339*cm"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="TBHcal02Xtal:HcalTB02xtalsIntWallLog"/>
+			<rChild name="TBHcal02Xtal:HcalTB02xtalsLayLog"/>
+			<rRotation name="TBHcal02Rotations:R6"/>
+			<Translation x="-2.43584*cm" y="0*fm" z="37.2169*cm"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="TBHcal02Xtal:HcalTB02xtalsIntWallLog"/>
+			<rChild name="TBHcal02Xtal:HcalTB02xtalsLayLog"/>
+			<Translation x="0*fm" y="0*fm" z="37.2*cm"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="TBHcal02Xtal:HcalTB02xtalsIntWallLog"/>
+			<rChild name="TBHcal02Xtal:HcalTB02xtalsLayLog"/>
+			<rRotation name="TBHcal02Rotations:R7"/>
+			<Translation x="2.43584*cm" y="0*fm" z="37.2169*cm"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="TBHcal02Xtal:HcalTB02xtalsIntWallLog"/>
+			<rChild name="TBHcal02Xtal:HcalTB02xtalsLayLog"/>
+			<rRotation name="TBHcal02Rotations:R8"/>
+			<Translation x="4.87168*cm" y="0*fm" z="37.2339*cm"/>
+		</PosPart>
+		<PosPart copyNumber="7">
+			<rParent name="TBHcal02Xtal:HcalTB02xtalsIntWallLog"/>
+			<rChild name="TBHcal02Xtal:HcalTB02xtalsLayLog"/>
+			<rRotation name="TBHcal02Rotations:R9"/>
+			<Translation x="7.30753*cm" y="0*fm" z="37.2508*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02Xtal:HcalTB02xtalsLayLog"/>
+			<rChild name="TBHcal02Xtal:HcalTB02xtalsCrysLog"/>
+			<rRotation name="TBHcal02Rotations:R10"/>
+			<Translation x="0*fm" y="-7.30527*cm" z="-3.51872*mum"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="TBHcal02Xtal:HcalTB02xtalsLayLog"/>
+			<rChild name="TBHcal02Xtal:HcalTB02xtalsCrysLog"/>
+			<rRotation name="TBHcal02Rotations:R11"/>
+			<Translation x="0*fm" y="-4.87018*cm" z="-168.95*mum"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="TBHcal02Xtal:HcalTB02xtalsLayLog"/>
+			<rChild name="TBHcal02Xtal:HcalTB02xtalsCrysLog"/>
+			<rRotation name="TBHcal02Rotations:R12"/>
+			<Translation x="0*fm" y="-2.43509*cm" z="-334.456*mum"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="TBHcal02Xtal:HcalTB02xtalsLayLog"/>
+			<rChild name="TBHcal02Xtal:HcalTB02xtalsCrysLog"/>
+			<Translation x="0*fm" y="0*fm" z="-500*mum"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="TBHcal02Xtal:HcalTB02xtalsLayLog"/>
+			<rChild name="TBHcal02Xtal:HcalTB02xtalsCrysLog"/>
+			<rRotation name="TBHcal02Rotations:R13"/>
+			<Translation x="0*fm" y="2.43509*cm" z="-334.456*mum"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="TBHcal02Xtal:HcalTB02xtalsLayLog"/>
+			<rChild name="TBHcal02Xtal:HcalTB02xtalsCrysLog"/>
+			<rRotation name="TBHcal02Rotations:R14"/>
+			<Translation x="0*fm" y="4.87018*cm" z="-168.95*mum"/>
+		</PosPart>
+		<PosPart copyNumber="7">
+			<rParent name="TBHcal02Xtal:HcalTB02xtalsLayLog"/>
+			<rChild name="TBHcal02Xtal:HcalTB02xtalsCrysLog"/>
+			<rRotation name="TBHcal02Rotations:R15"/>
+			<Translation x="0*fm" y="7.30527*cm" z="-3.51872*mum"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02Xtal:HcalTB02xtalsIntWallLog"/>
+			<rChild name="TBHcal02Xtal:HcalTB02xtalsPlexBlockLog"/>
+			<Translation x="0*fm" y="0*fm" z="24.1*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02Xtal:HcalTB02xtalsIntWallLog"/>
+			<rChild name="TBHcal02Xtal:HcalTB02xtalsAlinBlockLog"/>
+			<Translation x="0*fm" y="0*fm" z="49.6*cm"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02Xtal:HcalTB02xtalsLogLU"/>
+			<rChild name="TBHcal02Xtal:HcalTB02xtalsAloutBlockLog"/>
+			<Translation x="0*fm" y="0*fm" z="65.1*cm"/>
+		</PosPart>
+	</PosPartSection>
+</DDDefinition>

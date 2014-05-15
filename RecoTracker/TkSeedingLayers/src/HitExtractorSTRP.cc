@@ -12,13 +12,12 @@
 
 #include "DataFormats/Common/interface/ContainerMask.h"
 
-#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TIDDetId.h"
-#include "DataFormats/SiStripDetId/interface/TOBDetId.h"
-#include "DataFormats/SiStripDetId/interface/TECDetId.h"
-
 #include "TrackingTools/TransientTrackingRecHit/interface/TrackingRecHitProjector.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/ProjectedRecHit2D.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+
 
 using namespace ctfseeding;
 using namespace std;
@@ -130,6 +129,12 @@ HitExtractor::Hits HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
   TrackerLayerIdAccessor accessor;
   theSLayer=&sl;
   unsigned int cleanFrom=0;
+
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* const tTopo = tTopoHandle.product();
+  
   //
   // TIB
   //
@@ -176,7 +181,7 @@ HitExtractor::Hits HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
           std::pair<DetId,DetIdTIDSameDiskComparator> getter = accessor.stripTIDDisk(theSide,theIdLayer);
           SiStripMatchedRecHit2DCollection::Range range = matchedHits->equal_range(getter.first, getter.second);
           for (SiStripMatchedRecHit2DCollection::const_iterator it = range.first; it != range.second; ++it) {
-              int ring = TIDDetId( it->detId() ).ring();  if (!ringRange(ring)) continue;
+              int ring = tTopo->tidRing( it->detId() );  if (!ringRange(ring)) continue;
               for (SiStripMatchedRecHit2DCollection::DetSet::const_iterator hit = it->begin(), end = it->end(); hit != end; ++hit) {
 		result.push_back( sl.hitBuilder()->build(hit) ); 
               }
@@ -190,7 +195,7 @@ HitExtractor::Hits HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
           std::pair<DetId,DetIdTIDSameDiskComparator> getter = accessor.stripTIDDisk(theSide,theIdLayer);
           SiStripRecHit2DCollection::Range range = rphiHits->equal_range(getter.first, getter.second);
           for (SiStripRecHit2DCollection::const_iterator it = range.first; it != range.second; ++it) {
-              int ring = TIDDetId( it->detId() ).ring();  if (!ringRange(ring)) continue;
+              int ring = tTopo->tidRing( it->detId() );  if (!ringRange(ring)) continue;
               if ((SiStripDetId(it->detId()).partnerDetId() != 0) && hasSimpleRphiHitsCleaner) continue;  // this is a brutal "cleaning". Add something smarter in the future
               for (SiStripRecHit2DCollection::DetSet::const_iterator hit = it->begin(), end = it->end(); hit != end; ++hit) {
                   result.push_back( sl.hitBuilder()->build(hit) );
@@ -205,7 +210,7 @@ HitExtractor::Hits HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
           std::pair<DetId,DetIdTIDSameDiskComparator> getter = accessor.stripTIDDisk(theSide,theIdLayer);
           SiStripRecHit2DCollection::Range range = stereoHits->equal_range(getter.first, getter.second);
           for (SiStripRecHit2DCollection::const_iterator it = range.first; it != range.second; ++it) {
-              int ring = TIDDetId( it->detId() ).ring();  if (!ringRange(ring)) continue;
+              int ring = tTopo->tidRing( it->detId() );  if (!ringRange(ring)) continue;
               for (SiStripRecHit2DCollection::DetSet::const_iterator hit = it->begin(), end = it->end(); hit != end; ++hit) {
                   result.push_back( sl.hitBuilder()->build(hit) );
               }
@@ -259,7 +264,7 @@ HitExtractor::Hits HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
           std::pair<DetId,DetIdTECSameDiskComparator> getter = accessor.stripTECDisk(theSide,theIdLayer);
           SiStripMatchedRecHit2DCollection::Range range = matchedHits->equal_range(getter.first, getter.second);
           for (SiStripMatchedRecHit2DCollection::const_iterator it = range.first; it != range.second; ++it) {
-              int ring = TECDetId( it->detId() ).ring();  if (!ringRange(ring)) continue;
+              int ring = tTopo->tecRing( it->detId() );  if (!ringRange(ring)) continue;
               for (SiStripMatchedRecHit2DCollection::DetSet::const_iterator hit = it->begin(), end = it->end(); hit != end; ++hit) {
                   result.push_back(  sl.hitBuilder()->build(hit) );
               }
@@ -273,7 +278,7 @@ HitExtractor::Hits HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
           std::pair<DetId,DetIdTECSameDiskComparator> getter = accessor.stripTECDisk(theSide,theIdLayer);
           SiStripRecHit2DCollection::Range range = rphiHits->equal_range(getter.first, getter.second);
           for (SiStripRecHit2DCollection::const_iterator it = range.first; it != range.second; ++it) {
-              int ring = TECDetId( it->detId() ).ring();  if (!ringRange(ring)) continue;
+              int ring = tTopo->tecRing( it->detId() );  if (!ringRange(ring)) continue;
               if ((SiStripDetId(it->detId()).partnerDetId() != 0) && hasSimpleRphiHitsCleaner) continue;  // this is a brutal "cleaning". Add something smarter in the future
               for (SiStripRecHit2DCollection::DetSet::const_iterator hit = it->begin(), end = it->end(); hit != end; ++hit) {
                   result.push_back( sl.hitBuilder()->build(hit) );
@@ -289,7 +294,7 @@ HitExtractor::Hits HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
           std::pair<DetId,DetIdTECSameDiskComparator> getter = accessor.stripTECDisk(theSide,theIdLayer);
           SiStripRecHit2DCollection::Range range = stereoHits->equal_range(getter.first, getter.second);
           for (SiStripRecHit2DCollection::const_iterator it = range.first; it != range.second; ++it) {
-              int ring = TECDetId( it->detId() ).ring();  if (!ringRange(ring)) continue;
+              int ring = tTopo->tecRing( it->detId() );  if (!ringRange(ring)) continue;
               for (SiStripRecHit2DCollection::DetSet::const_iterator hit = it->begin(), end = it->end(); hit != end; ++hit) {
                   result.push_back( sl.hitBuilder()->build(hit) );
               }

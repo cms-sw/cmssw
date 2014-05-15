@@ -250,6 +250,9 @@ op.add_option("-c", dest = "dqmCompliant",
 op.add_option("-d", "--debug", dest = "debug",
               action = "store_true", default = False,
               help = "Show debug information")
+op.add_option("-k", "--debug-streamers", dest = "debug_streamers",
+              action = "store_true", default = False,
+              help = "Show debug information on StreamerInfo objects")
 op.add_option("-l", dest = "long_listing",
               action = "store_true", default = False,
               help = "Enable long listing")
@@ -320,7 +323,7 @@ for sample in find_matching_samples(options):
   tstreamerinfo = None
   if options.write:
     tstreamerinfo = fetch_tstreamerinfo(options, "%(run)d%(dataset)s" % sample)
-    tstreamerinfo = literal2root(tstreamerinfo, "TStreamerInfo")
+    literal2root(tstreamerinfo, "TStreamerInfo", options.debug_streamers)
 
   nreq = 0
   found = []
@@ -378,7 +381,7 @@ for sample in find_matching_samples(options):
           if cwd != indir:
             tfile_cd(indir, ofile)
             cwd = indir
-          obj = literal2root(item['rootobj'], item['properties']['type'], tstreamerinfo)
+          obj = literal2root(item['rootobj'], item['properties']['type'])
           obj.Write()
 
     if options.write and ofile:

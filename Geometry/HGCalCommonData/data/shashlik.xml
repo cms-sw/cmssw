@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="shashlik.xml" eval="true">
+  <Constant name="zSHCal1"    value="317.0*cm"/>
+  <Constant name="zSHCal2"    value="368.4*cm"/>
+  <Constant name="rMinSHCal1" value="[etaMax:slope]*[zSHCal1]"/>
+  <Constant name="rMinSHCal2" value="[etaMax:slope]*[zSHCal2]"/>
+  <Constant name="rMaxSHCal1" value="159.0*cm"/>
+  <Constant name="rMaxSHCal2" value="181.2*cm"/>
+</ConstantsSection>
+
+<SolidSection label="shashlik.xml">
+  <Polycone name="SHCalEE" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[zSHCal1]" rMin="[rMinSHCal1]" rMax="[rMaxSHCal1]"/>
+    <ZSection z="[zSHCal2]" rMin="[rMinSHCal2]" rMax="[rMaxSHCal2]"/>
+  </Polycone>
+</SolidSection>
+
+<LogicalPartSection label="shashlik.xml">
+  <LogicalPart name="SHCalEE" category="unspecified">
+    <rSolid name="SHCalEE"/>
+    <rMaterial name="materials:E_Air"/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="shashlik.xml">
+  <PosPart copyNumber="1">
+    <rParent name="caloBase:CALO"/>
+    <rChild name="SHCalEE"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="caloBase:CALO"/>
+    <rChild name="SHCalEE"/>
+    <rRotation name="rotations:180D"/>
+  </PosPart>
+</PosPartSection>
+</DDDefinition>

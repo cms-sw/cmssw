@@ -139,16 +139,16 @@
   <Box  name="GDA08" dz="[dzS]"  dy ="0.500*mm" dx =" 0.500*mm" />
   <Box  name="GDA09" dz="[dzS]"  dy ="0.500*mm" dx =" 0.500*mm" />
   <Box  name="GDA10" dz="[dzS]"  dy ="0.500*mm" dx =" 0.500*mm" />
-  <Trd1 name="GHA1" dz="[dzS]" dy1="1.600*mm" dy2="1.600*mm" dx1="[dx011]" dx2="[dx012]" />
-  <Trd1 name="GHA2" dz="[dzS]" dy1="1.600*mm" dy2="1.600*mm" dx1="[dx021]" dx2="[dx022]" />
-  <Trd1 name="GHA3" dz="[dzS]" dy1="1.600*mm" dy2="1.600*mm" dx1="[dx031]" dx2="[dx032]" />
-  <Trd1 name="GHA4" dz="[dzS]" dy1="1.600*mm" dy2="1.600*mm" dx1="[dx041]" dx2="[dx042]" />
-  <Trd1 name="GHA5" dz="[dzS]" dy1="1.600*mm" dy2="1.600*mm" dx1="[dx051]" dx2="[dx052]" />
-  <Trd1 name="GHA6" dz="[dzS]" dy1="1.600*mm" dy2="1.600*mm" dx1="[dx061]" dx2="[dx062]" />
-  <Trd1 name="GHA7" dz="[dzS]" dy1="1.600*mm" dy2="1.600*mm" dx1="[dx071]" dx2="[dx072]" />
-  <Trd1 name="GHA8" dz="[dzS]" dy1="1.600*mm" dy2="1.600*mm" dx1="[dx081]" dx2="[dx082]" />
-  <Trd1 name="GHA9" dz="[dzS]" dy1="1.600*mm" dy2="1.600*mm" dx1="[dx091]" dx2="[dx092]" />
-  <Trd1 name="GHA10" dz="[dzS]" dy1="1.600*mm" dy2="1.600*mm" dx1="[dx101]" dx2="[dx102]" />
+  <Trd1 name="GHA101" dz="[dzS]" dy1="1.600*mm" dy2="1.600*mm" dx1="[dx011]" dx2="[dx012]" />
+  <Trd1 name="GHA102" dz="[dzS]" dy1="1.600*mm" dy2="1.600*mm" dx1="[dx021]" dx2="[dx022]" />
+  <Trd1 name="GHA103" dz="[dzS]" dy1="1.600*mm" dy2="1.600*mm" dx1="[dx031]" dx2="[dx032]" />
+  <Trd1 name="GHA104" dz="[dzS]" dy1="1.600*mm" dy2="1.600*mm" dx1="[dx041]" dx2="[dx042]" />
+  <Trd1 name="GHA105" dz="[dzS]" dy1="1.600*mm" dy2="1.600*mm" dx1="[dx051]" dx2="[dx052]" />
+  <Trd1 name="GHA106" dz="[dzS]" dy1="1.600*mm" dy2="1.600*mm" dx1="[dx061]" dx2="[dx062]" />
+  <Trd1 name="GHA107" dz="[dzS]" dy1="1.600*mm" dy2="1.600*mm" dx1="[dx071]" dx2="[dx072]" />
+  <Trd1 name="GHA108" dz="[dzS]" dy1="1.600*mm" dy2="1.600*mm" dx1="[dx081]" dx2="[dx082]" />
+  <Trd1 name="GHA109" dz="[dzS]" dy1="1.600*mm" dy2="1.600*mm" dx1="[dx091]" dx2="[dx092]" />
+  <Trd1 name="GHA110" dz="[dzS]" dy1="1.600*mm" dy2="1.600*mm" dx1="[dx101]" dx2="[dx102]" />
   <Box  name="GEA01" dz="[dzS]"  dy ="1.600*mm" dx =" 0.500*mm" />
   <Box  name="GEA02" dz="[dzS]"  dy ="1.600*mm" dx =" 0.500*mm" />
   <Box  name="GEA03" dz="[dzS]"  dy ="1.600*mm" dx =" 0.500*mm" />
@@ -381,44 +381,44 @@
     <rSolid name="GSAX"/>
     <rMaterial name="materials:G10"/>
   </LogicalPart>
-  <LogicalPart name="GHA1" category="unspecified">
-    <rSolid name="GHA1"/>
+  <LogicalPart name="GHA101" category="unspecified">
+    <rSolid name="GHA101"/>
     <rMaterial name="gemf:M_GEM_Gas"/>
   </LogicalPart>
-  <LogicalPart name="GHA2" category="unspecified">
-    <rSolid name="GHA2"/>
+  <LogicalPart name="GHA102" category="unspecified">
+    <rSolid name="GHA102"/>
     <rMaterial name="gemf:M_GEM_Gas"/>
   </LogicalPart>
-  <LogicalPart name="GHA3" category="unspecified">
-    <rSolid name="GHA3"/>
+  <LogicalPart name="GHA103" category="unspecified">
+    <rSolid name="GHA103"/>
     <rMaterial name="gemf:M_GEM_Gas"/>
   </LogicalPart>
-  <LogicalPart name="GHA4" category="unspecified">
-    <rSolid name="GHA4"/>
+  <LogicalPart name="GHA104" category="unspecified">
+    <rSolid name="GHA104"/>
     <rMaterial name="gemf:M_GEM_Gas"/>
   </LogicalPart>
-  <LogicalPart name="GHA5" category="unspecified">
-    <rSolid name="GHA5"/>
+  <LogicalPart name="GHA105" category="unspecified">
+    <rSolid name="GHA105"/>
     <rMaterial name="gemf:M_GEM_Gas"/>
   </LogicalPart>
-  <LogicalPart name="GHA6" category="unspecified">
-    <rSolid name="GHA6"/>
+  <LogicalPart name="GHA106" category="unspecified">
+    <rSolid name="GHA106"/>
     <rMaterial name="gemf:M_GEM_Gas"/>
   </LogicalPart>
-  <LogicalPart name="GHA7" category="unspecified">
-    <rSolid name="GHA7"/>
+  <LogicalPart name="GHA107" category="unspecified">
+    <rSolid name="GHA107"/>
     <rMaterial name="gemf:M_GEM_Gas"/>
   </LogicalPart>
-  <LogicalPart name="GHA8" category="unspecified">
-    <rSolid name="GHA8"/>
+  <LogicalPart name="GHA108" category="unspecified">
+    <rSolid name="GHA108"/>
     <rMaterial name="gemf:M_GEM_Gas"/>
   </LogicalPart>
-  <LogicalPart name="GHA9" category="unspecified">
-    <rSolid name="GHA9"/>
+  <LogicalPart name="GHA109" category="unspecified">
+    <rSolid name="GHA109"/>
     <rMaterial name="gemf:M_GEM_Gas"/>
   </LogicalPart>
-  <LogicalPart name="GHA10" category="unspecified">
-    <rSolid name="GHA10"/>
+  <LogicalPart name="GHA110" category="unspecified">
+    <rSolid name="GHA110"/>
     <rMaterial name="gemf:M_GEM_Gas"/>
   </LogicalPart>
 
@@ -756,93 +756,93 @@
 
   <PosPart copyNumber="1">
     <rParent name="gemf:GSAX"/>
-    <rChild name="gemf:GHA1"/>
+    <rChild name="gemf:GHA101"/>
     <Translation x="0*fm" y="0*fm" z="[z010]" />
   </PosPart>
   <PosPart copyNumber="2">
     <rParent name="gemf:GSAX"/>
-    <rChild name="gemf:GHA2"/>
+    <rChild name="gemf:GHA102"/>
     <Translation x="0*fm" y="0*fm" z="[z020]" />
   </PosPart>
   <PosPart copyNumber="3">
     <rParent name="gemf:GSAX"/>
-    <rChild name="gemf:GHA3"/>
+    <rChild name="gemf:GHA103"/>
     <Translation x="0*fm" y="0*fm" z="[z030]" />
   </PosPart>
   <PosPart copyNumber="4">
     <rParent name="gemf:GSAX"/>
-    <rChild name="gemf:GHA4"/>
+    <rChild name="gemf:GHA104"/>
     <Translation x="0*fm" y="0*fm" z="[z040]" />
   </PosPart>
   <PosPart copyNumber="5">
     <rParent name="gemf:GSAX"/>
-    <rChild name="gemf:GHA5"/>
+    <rChild name="gemf:GHA105"/>
     <Translation x="0*fm" y="0*fm" z="[z050]" />
   </PosPart>
   <PosPart copyNumber="6">
     <rParent name="gemf:GSAX"/>
-    <rChild name="gemf:GHA6"/>
+    <rChild name="gemf:GHA106"/>
     <Translation x="0*fm" y="0*fm" z="[z060]" />
   </PosPart>
   <PosPart copyNumber="7">
     <rParent name="gemf:GSAX"/>
-    <rChild name="gemf:GHA7"/>
+    <rChild name="gemf:GHA107"/>
     <Translation x="0*fm" y="0*fm" z="[z070]" />
   </PosPart>
   <PosPart copyNumber="8">
     <rParent name="gemf:GSAX"/>
-    <rChild name="gemf:GHA8"/>
+    <rChild name="gemf:GHA108"/>
     <Translation x="0*fm" y="0*fm" z="[z080]" />
   </PosPart>
   <PosPart copyNumber="9">
     <rParent name="gemf:GSAX"/>
-    <rChild name="gemf:GHA9"/>
+    <rChild name="gemf:GHA109"/>
     <Translation x="0*fm" y="0*fm" z="[z090]" />
   </PosPart>
   <PosPart copyNumber="10">
     <rParent name="gemf:GSAX"/>
-    <rChild name="gemf:GHA10"/>
+    <rChild name="gemf:GHA110"/>
     <Translation x="0*fm" y="0*fm" z="[z100]" />
   </PosPart>
 
   <PosPart copyNumber="1">
-    <rParent name="gemf:GHA1"/>
+    <rParent name="gemf:GHA101"/>
     <rChild name="gemf:GEA01"/>
   </PosPart>
   <PosPart copyNumber="1">
-    <rParent name="gemf:GHA2"/>
+    <rParent name="gemf:GHA102"/>
     <rChild name="gemf:GEA02"/>
   </PosPart>
   <PosPart copyNumber="1">
-    <rParent name="gemf:GHA3"/>
+    <rParent name="gemf:GHA103"/>
     <rChild name="gemf:GEA03"/>
   </PosPart>
   <PosPart copyNumber="1">
-    <rParent name="gemf:GHA4"/>
+    <rParent name="gemf:GHA104"/>
     <rChild name="gemf:GEA04"/>
   </PosPart>
   <PosPart copyNumber="1">
-    <rParent name="gemf:GHA5"/>
+    <rParent name="gemf:GHA105"/>
     <rChild name="gemf:GEA05"/>
   </PosPart>
   <PosPart copyNumber="1">
-    <rParent name="gemf:GHA6"/>
+    <rParent name="gemf:GHA106"/>
     <rChild name="gemf:GEA06"/>
   </PosPart>
   <PosPart copyNumber="1">
-    <rParent name="gemf:GHA7"/>
+    <rParent name="gemf:GHA107"/>
     <rChild name="gemf:GEA07"/>
   </PosPart>
   <PosPart copyNumber="1">
-    <rParent name="gemf:GHA8"/>
+    <rParent name="gemf:GHA108"/>
     <rChild name="gemf:GEA08"/>
   </PosPart>
   <PosPart copyNumber="1">
-    <rParent name="gemf:GHA9"/>
+    <rParent name="gemf:GHA109"/>
     <rChild name="gemf:GEA09"/>
   </PosPart>
   <PosPart copyNumber="1">
-    <rParent name="gemf:GHA10"/>
+    <rParent name="gemf:GHA110"/>
     <rChild name="gemf:GEA10"/>
   </PosPart>
 

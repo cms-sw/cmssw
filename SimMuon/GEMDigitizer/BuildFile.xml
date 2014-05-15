@@ -5,7 +5,6 @@
 <use   name="CondCore/MetaDataService"/>
 <use   name="CondCore/PopCon"/>
 <use   name="CondFormats/DataRecord"/>
-<use   name="CondFormats/RPCObjects"/>
 <use   name="CoralBase"/>
 <use   name="DataFormats/MuonDetId"/>
 <use   name="DataFormats/Provenance"/>
@@ -27,4 +26,5 @@
 <use   name="SimDataFormats/CrossingFrame"/>
 <use   name="SimGeneral/HepPDTRecord"/>
 <use   name="Utilities/General"/>
+<use   name="CommonTools/UtilAlgos"/>
 <flags   EDM_PLUGIN="1"/>

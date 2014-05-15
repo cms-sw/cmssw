@@ -325,5 +325,6 @@ ALCARECOEventContent.outputCommands.extend(OutALCARECORpcCalHLT_noDrop.outputCom
 ALCARECOEventContent.outputCommands.extend(OutALCARECOTkAlBeamHalo_noDrop.outputCommands)
 ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlBeamHaloOverlaps_noDrop.outputCommands)
 ALCARECOEventContent.outputCommands.extend(OutALCARECOMuAlBeamHalo_noDrop.outputCommands)
+ALCARECOEventContent.outputCommands.extend(OutALCARECOSiStripPCLHistos_noDrop.outputCommands)
 
 ALCARECOEventContent.outputCommands.append('drop *_MEtoEDMConverter_*_*')

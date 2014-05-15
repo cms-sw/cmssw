@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<SolidSection label="TBHcal02.xml">
+		<Box name="TestBeamHCal02" dx="4.5*m" dy="3*m" dz="7*m"/>
+		<Polyhedra name="HadronCalorimeter" numSide="18" startPhi="350*deg" deltaPhi="40*deg">
+			<ZSection z="0*fm" rMin="1.775*m" rMax="2.8765*m"/>
+			<ZSection z="3.75*m" rMin="1.775*m" rMax="2.8765*m"/>
+			<ZSection z="3.75*m" rMin="8.62*cm" rMax="2.8765*m"/>
+			<ZSection z="5.541*m" rMin="10.55*cm" rMax="2.8765*m"/>
+		</Polyhedra>
+	</SolidSection>
+	<LogicalPartSection label="TBHcal02.xml">
+		<LogicalPart name="TestBeamHCal02" category="unspecified">
+			<rSolid name="TestBeamHCal02"/>
+			<rMaterial name="TBHcal02Materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="HadronCalorimeter" category="unspecified">
+			<rSolid name="HadronCalorimeter"/>
+			<rMaterial name="TBHcal02Materials:Air"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<PosPartSection label="TBHcal02.xml">
+		<PosPart copyNumber="1">
+			<rParent name="TBHcal02:TestBeamHCal02"/>
+			<rChild name="TBHcal02:HadronCalorimeter"/>
+			<rRotation name="TBHcal02Rotations:R1"/>
+		</PosPart>
+	</PosPartSection>
+</DDDefinition>

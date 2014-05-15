@@ -24,7 +24,7 @@ HcalCovarianceMatrices::initContainer(DetId fId)
     case(HcalForward) : for (unsigned int i=0; i<sizeFor(fId); i++) HFcontainer.push_back(emptyItem); break;
     default: break;
     }
-}
+  }
 
 }
 
@@ -50,9 +50,12 @@ HcalCovarianceMatrices::getValues(DetId fId, bool throwOnFail) const
   
   //  HcalCovarianceMatrix emptyHcalCovarianceMatrix;
   //  if (cell->rawId() == emptyHcalCovarianceMatrix.rawId() ) 
-  if ((!cell) || (cell->rawId() != fId ) ) {
+  if ((!cell) || 
+      (fId.det()==DetId::Hcal && HcalDetId(cell->rawId()) != HcalDetId(fId)) ||
+      (fId.det()==DetId::Calo && fId.subdetId()==HcalZDCDetId::SubdetectorId && HcalZDCDetId(cell->rawId()) != HcalZDCDetId(fId)) ||
+      (fId.det()!=DetId::Hcal && (fId.det()==DetId::Calo && fId.subdetId()!=HcalZDCDetId::SubdetectorId) && (cell->rawId() != fId))) {
     if (throwOnFail) {
-    throw cms::Exception ("Conditions not found") 
+      throw cms::Exception ("Conditions not found") 
 	<< "Unavailable Conditions of type " << myname() << " for cell " << fId.rawId();
     } else {
       cell=0;
@@ -68,8 +71,9 @@ HcalCovarianceMatrices::exists(DetId fId) const
   
   //  HcalCovarianceMatrix emptyHcalCovarianceMatrix;
   if (cell)
-    //    if (cell->rawId() != emptyHcalCovarianceMatrix.rawId() ) 
-    if (cell->rawId() == fId ) 
+    if ((fId.det()==DetId::Hcal && HcalDetId(cell->rawId()) == HcalDetId(fId)) ||
+	(fId.det()==DetId::Calo && fId.subdetId()==HcalZDCDetId::SubdetectorId && HcalZDCDetId(cell->rawId()) == HcalZDCDetId(fId)) ||
+	(fId.det()!=DetId::Hcal && (fId.det()==DetId::Calo && fId.subdetId()!=HcalZDCDetId::SubdetectorId) && (cell->rawId() == fId)))
       return true;
 
   return false;

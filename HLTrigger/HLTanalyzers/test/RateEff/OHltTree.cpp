@@ -21,7 +21,7 @@ void OHltTree::Loop(
       OHltConfig *cfg,
       OHltMenu *menu,
       int procID,
-      float &Den,
+      double &Den,
       TH1F* &h1,
       TH1F* &h2,
       TH1F* &h3,
@@ -108,7 +108,25 @@ void OHltTree::Loop(
    //   TFile*   theHistFile = new TFile("Histograms_Quarkonia.root", "RECREATE");
    //   cout<< "Histogram root file created: Histograms_Quarkonia.root"  << endl;
 
+   //TFile *theNPVFile = new TFile("NPVFile.root", "RECREATE");
+
    nEventsProcessed = 0;
+
+   double wtPU = 1.;
+   double wtMC = 1.;  
+   double MyWeight = 1.;
+   if (cfg->isMCPUreweight == true) 
+     {
+
+       TString mcfile = cfg->MCPUfile;
+       TString datafile = cfg->DataPUfile;
+       TString mchisto = cfg->MCPUhisto;
+       TString datahisto = cfg->DataPUhisto;
+
+       LumiWeights_ = reweight::LumiReWeighting(std::string(mcfile), std::string(datafile), std::string(mchisto), std::string(datahisto));
+     }
+
+   //TH1F *MCPVwithPU = new TH1F("MCPVwithPU", "MCPVwithPU", 25, 0., 50.);
 
    for (Long64_t jentry=0; jentry<nentries; jentry++)
    {
@@ -265,27 +283,12 @@ void OHltTree::Loop(
          }
       }
 
-      //////////////////////////////////////////////////////////////////
-      // Make efficiency curves
-      //////////////////////////////////////////////////////////////////
-      TString hlteffmode;
-      TString ohltobject;
-      hlteffmode="GEN";
-      //    hlteffmode="L1";
-      //    hlteffmode="RECO";
-      ohltobject="None";
-      if (cfg->pisPhysicsSample[procID]==1)
-         ohltobject="electron";
-      if (cfg->pisPhysicsSample[procID]==2)
-         ohltobject="muon";
-      if (cfg->pisPhysicsSample[procID]==3)
-         ohltobject="ele_mu";
-      if (cfg->pisPhysicsSample[procID]==4)
-         ohltobject="photon";
-      if (cfg->pisPhysicsSample[procID]==5)
-         ohltobject="pion";
-      PlotOHltEffCurves(cfg, hlteffmode, ohltobject, h1, h2, h3, h4);
-
+      // Get PU weight
+      if (cfg->isMCPUreweight == true) 
+	{
+	  MyWeight = LumiWeights_.weight( recoNVrt );
+	  //MCPVwithPU->Fill(recoNVrt, MyWeight);
+	}
       //////////////////////////////////////////////////////////////////
       // Loop over trigger paths and do rate counting
       //////////////////////////////////////////////////////////////////
@@ -326,14 +329,17 @@ void OHltTree::Loop(
       for (int it = 0; it < nTrig; it++)
       {
          if (triggerBit[it])
-         {
-            rc->iCount[it]++;
+         {  
+	    if (cfg->isMCPUreweight == true) wtPU = MyWeight;
+	    if (not MCWeight == 0) wtMC = MCWeight;
+
+            rc->iCount[it] = rc->iCount[it] + (1 * wtPU * wtMC);
             rc->incrRunLSCount(Run, LumiBlock, it); // for per LS rates!
             for (int it2 = 0; it2 < nTrig; it2++)
             {
                if (triggerBit[it2])
                {
-                  rc->overlapCount[it][it2] += 1;
+                  rc->overlapCount[it][it2] = rc->overlapCount[it][it2] + (1 * wtPU * wtMC);
                   if (it2<it)
                      previousBitsFired[it] = true;
                   if (it2!=it)
@@ -341,12 +347,14 @@ void OHltTree::Loop(
                }
             }
             if (not previousBitsFired[it])
-            {
-               rc->sPureCount[it]++;
+            { 
+               rc->sPureCount[it] = rc->sPureCount[it] + (1 * wtPU * wtMC);
                rc->incrRunLSTotCount(Run,LumiBlock); // for per LS rates!	  
             }
             if (not allOtherBitsFired[it])
-            rc->pureCount[it]++;
+	    {   
+	       rc->pureCount[it] = rc->pureCount[it] + (1 * wtPU * wtMC);
+	    }   
          }
       }
       /* ******************************** */
@@ -392,6 +400,9 @@ void OHltTree::Loop(
    //       }
    //   }
    //   theHistFile->Close();
+   //theNPVFile->cd();
+   //MCPVwithPU->Write();
+   //theNPVFile->Close();
 
 }
 

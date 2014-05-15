@@ -364,6 +364,8 @@
 <PartSelector path="//EModule3Disc8OUTERactive"/>
 <PartSelector path="//EModule2Disc8INNERactive"/>
 <PartSelector path="//EModule2Disc8OUTERactive"/>
+<PartSelector path="//EModule1Disc8INNERactive"/>
+<PartSelector path="//EModule1Disc8OUTERactive"/>
 <PartSelector path="//EModule15Disc9INNERactive"/>
 <PartSelector path="//EModule15Disc9OUTERactive"/>
 <PartSelector path="//EModule14Disc9INNERactive"/>
@@ -388,6 +390,12 @@
 <PartSelector path="//EModule5Disc9OUTERactive"/>
 <PartSelector path="//EModule4Disc9INNERactive"/>
 <PartSelector path="//EModule4Disc9OUTERactive"/>
+<PartSelector path="//EModule3Disc9INNERactive"/>
+<PartSelector path="//EModule3Disc9OUTERactive"/>
+<PartSelector path="//EModule2Disc9INNERactive"/>
+<PartSelector path="//EModule2Disc9OUTERactive"/>
+<PartSelector path="//EModule1Disc9INNERactive"/>
+<PartSelector path="//EModule1Disc9OUTERactive"/>
 <PartSelector path="//EModule15Disc10INNERactive"/>
 <PartSelector path="//EModule15Disc10OUTERactive"/>
 <PartSelector path="//EModule14Disc10INNERactive"/>
@@ -410,6 +418,14 @@
 <PartSelector path="//EModule6Disc10OUTERactive"/>
 <PartSelector path="//EModule5Disc10INNERactive"/>
 <PartSelector path="//EModule5Disc10OUTERactive"/>
+<PartSelector path="//EModule4Disc10INNERactive"/>
+<PartSelector path="//EModule4Disc10OUTERactive"/>
+<PartSelector path="//EModule3Disc10INNERactive"/>
+<PartSelector path="//EModule3Disc10OUTERactive"/>
+<PartSelector path="//EModule2Disc10INNERactive"/>
+<PartSelector path="//EModule2Disc10OUTERactive"/>
+<PartSelector path="//EModule1Disc10INNERactive"/>
+<PartSelector path="//EModule1Disc10OUTERactive"/>
     <Parameter name="CMSCutsRegion" value="TrackerPixelSensRegion" eval="false"/>
     <Parameter name="ProdCutsForElectrons" value="0.01*mm"/>
     <Parameter name="ProdCutsForPositrons" value="0.01*mm"/>

@@ -1,0 +1,10 @@
+cd ..
+scram b
+cd -
+rm -f testi.dat
+rm -f test.dat
+rm -f p8test.html
+cmsRun p8test1step1_cfg.py
+cmsRun ZJetsTest_cfg.py
+cp testi.dat test.dat
+cmpr.sh test.dat html > p8test.html

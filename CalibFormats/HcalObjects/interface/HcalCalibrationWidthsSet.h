@@ -3,6 +3,7 @@
 
 #include "CalibFormats/HcalObjects/interface/HcalCalibrationWidths.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 #include <vector>
 
 /** \class HcalCalibrationWidthsSet
@@ -20,7 +21,17 @@ public:
   void clear();
 private:
   struct CalibWidthSetObject {
-    CalibWidthSetObject(const DetId& aid) : id(aid) { }
+    CalibWidthSetObject(const DetId& aid) {
+      if (aid.det()==DetId::Hcal) {
+	HcalDetId hcid(aid);
+	id   = HcalDetId(hcid.subdet(),hcid.ieta(),hcid.iphi(),hcid.depth());
+      } else if (aid.det()==DetId::Calo && aid.subdetId()==HcalZDCDetId::SubdetectorId) {
+	HcalZDCDetId hcid(aid);
+	id   = HcalZDCDetId(hcid.section(),(hcid.zside()>0),hcid.channel());
+      } else {
+	id   = aid;
+      }
+    }
     DetId id;
     HcalCalibrationWidths calib;
     bool operator<(const CalibWidthSetObject& cso) const { return id < cso.id; }

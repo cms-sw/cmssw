@@ -20,33 +20,26 @@ process.maxEvents = cms.untracked.PSet(
 )
 ## configure process options
 process.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool(False)
+    allowUnscheduled = cms.untracked.bool(True),
+    wantSummary      = cms.untracked.bool(True)
 )
 
 ## configure geometry & conditions
-#process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.Geometry.GeometryIdeal_cff")
-process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-
-#from Configuration.AlCa.autoCond import autoCond
-from Configuration.AlCa.autoCond import autoCond 
-process.GlobalTag.globaltag = autoCond['mc']
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup')
+process.load("Configuration.StandardSequences.MagneticField_cff")
 
 ## std sequence for pat
-process.load("PhysicsTools.PatAlgos.patSequences_cff")
+process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
+process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
 
 ## std sequence to produce the kinematic fit for semi-leptonic events
 process.load("TopQuarkAnalysis.TopHitFit.TtSemiLepHitFitProducer_Muons_cfi")
 
-## process path
-process.p = cms.Path(process.patDefaultSequence *
-                     process.hitFitTtSemiLepEvent
-                     )
-
 ## configure output module
 process.out = cms.OutputModule("PoolOutputModule",
-    SelectEvents   = cms.untracked.PSet(SelectEvents = cms.vstring('p') ),                               
     fileName = cms.untracked.string('ttSemiLepHitFitProducer.root'),
     outputCommands = cms.untracked.vstring('drop *')
 )

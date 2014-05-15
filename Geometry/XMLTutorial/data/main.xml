@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<SolidSection label="main.xml">
+		<Tubs name="MainCylinder" rMin="0*m" rMax="1*m" dz="2*m" startPhi="0*deg" deltaPhi="360*deg"/>
+		<Box name="Box" dx="0.5*m" dy="0.1*m" dz="0.25*m"/>
+	</SolidSection>
+	<LogicalPartSection label="main.xml">
+		<LogicalPart name="MainCylinder" category="unspecified">
+			<rSolid name="MainCylinder"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="Box" category="unspecified">
+			<rSolid name="Box"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<PosPartSection label="main.xml">
+	        <PosPart copyNumber="1">
+	                <rParent name="cms:CMSE"/>
+	                <rChild name="MainCylinder"/>
+	                <rRotation name="rotations:000D"/>
+	        </PosPart>
+		<Algorithm name="global:DDAngular">
+			<rParent name="MainCylinder"/>
+			<String name="ChildName" value="Box"/>
+			<Numeric name="StartCopyNo" value="1"/>
+			<Numeric name="IncrCopyNo" value="4"/>
+			<Numeric name="N" value="3"/>
+			<Numeric name="Radius" value="0.5*m"/>
+			<Numeric name="StartAngle" value="0.*m"/>
+			<Numeric name="RangeAngle" value="360*deg"/>
+			<Vector name="Center" type="numeric" nEntries="3"> 0, 0, 0 </Vector>
+			<Vector name="RotateSolid" type="numeric" nEntries="9"> 0.*deg, 0.*deg, 180*deg, 90.*deg, 0.*deg, 90.*deg, 0.*deg, 0.*deg, 45.*deg </Vector>
+		</Algorithm>
+	</PosPartSection>
+</DDDefinition>

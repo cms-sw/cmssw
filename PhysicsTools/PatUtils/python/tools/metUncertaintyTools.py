@@ -8,7 +8,7 @@ from PhysicsTools.PatAlgos.tools.trigTools import _addEventContent
 from PhysicsTools.PatUtils.patPFMETCorrections_cff import *
 import RecoMET.METProducers.METSigParams_cfi as jetResolutions
 from PhysicsTools.PatAlgos.producersLayer1.metProducer_cfi import patMETs
- 
+
 class RunMEtUncertainties(ConfigToolBase):
 
     """ Shift energy of electrons, photons, muons, tau-jets and other jets
@@ -19,21 +19,21 @@ class RunMEtUncertainties(ConfigToolBase):
     _defaultParameters=dicttypes.SortedKeysDict()
     def __init__(self):
         ConfigToolBase.__init__(self)
-        self.addParameter(self._defaultParameters, 'electronCollection', cms.InputTag('cleanPatElectrons'), 
+        self.addParameter(self._defaultParameters, 'electronCollection', cms.InputTag('selectedPatElectrons'),
 	                  "Input electron collection", Type=cms.InputTag, acceptNoneValue=True)
-	self.addParameter(self._defaultParameters, 'photonCollection', None, # CV: set to empty InputTag to avoid double-counting wrt. cleanPatElectrons collection 
+	self.addParameter(self._defaultParameters, 'photonCollection', None, # CV: set to empty InputTag to avoid double-counting wrt. selectedPatElectrons collection
 	                  "Input photon collection", Type=cms.InputTag, acceptNoneValue=True)
-	self.addParameter(self._defaultParameters, 'muonCollection', cms.InputTag('cleanPatMuons'), 
+	self.addParameter(self._defaultParameters, 'muonCollection', cms.InputTag('selectedPatMuons'),
                           "Input muon collection", Type=cms.InputTag, acceptNoneValue=True)
-	self.addParameter(self._defaultParameters, 'tauCollection', cms.InputTag('cleanPatTaus'), 
+	self.addParameter(self._defaultParameters, 'tauCollection', cms.InputTag('selectedPatTaus'),
                           "Input tau collection", Type=cms.InputTag, acceptNoneValue=True)
-	self.addParameter(self._defaultParameters, 'jetCollection', cms.InputTag('cleanPatJets'), 
+	self.addParameter(self._defaultParameters, 'jetCollection', cms.InputTag('selectedPatJets'),
                           "Input jet collection", Type=cms.InputTag)
-	self.addParameter(self._defaultParameters, 'dRjetCleaning', 0.5, 
+	self.addParameter(self._defaultParameters, 'dRjetCleaning', 0.5,
                           "Eta-phi distance for extra jet cleaning", Type=float)
-        self.addParameter(self._defaultParameters, 'jetCorrLabel', "L3Absolute", 
+        self.addParameter(self._defaultParameters, 'jetCorrLabel', "L3Absolute",
                           "NOTE: use 'L3Absolute' for MC/'L2L3Residual' for Data", Type=str)
-	self.addParameter(self._defaultParameters, 'doSmearJets', True, 
+	self.addParameter(self._defaultParameters, 'doSmearJets', True,
                           "Flag to enable/disable jet smearing to better match MC to Data", Type=bool)
         self.addParameter(self._defaultParameters, 'makeType1corrPFMEt', True,
                           "Flag to enable/disable sequence for Type 1 corrected PFMEt", Type=bool)
@@ -49,15 +49,15 @@ class RunMEtUncertainties(ConfigToolBase):
                           "MET sys. shift correction parameters", Type=cms.PSet)
         self.addParameter(self._defaultParameters, 'doApplySysShiftCorr', False,
                           "Flag to enable/disable usage of MET sys. shift corrections", Type=bool)
-	self.addParameter(self._defaultParameters, 'jetSmearFileName', 'PhysicsTools/PatUtils/data/pfJetResolutionMCtoDataCorrLUT.root', 
-                          "Name of ROOT file containing histogram with jet smearing factors", Type=str) 
-        self.addParameter(self._defaultParameters, 'jetSmearHistogram', 'pfJetResolutionMCtoDataCorrLUT', 
-                          "Name of histogram with jet smearing factors", Type=str) 
-	self.addParameter(self._defaultParameters, 'pfCandCollection', cms.InputTag('particleFlow'), 
-                          "Input PFCandidate collection", Type=cms.InputTag)	
-	self.addParameter(self._defaultParameters, 'jetCorrPayloadName', 'AK5PF', 
+	self.addParameter(self._defaultParameters, 'jetSmearFileName', 'PhysicsTools/PatUtils/data/pfJetResolutionMCtoDataCorrLUT.root',
+                          "Name of ROOT file containing histogram with jet smearing factors", Type=str)
+        self.addParameter(self._defaultParameters, 'jetSmearHistogram', 'pfJetResolutionMCtoDataCorrLUT',
+                          "Name of histogram with jet smearing factors", Type=str)
+	self.addParameter(self._defaultParameters, 'pfCandCollection', cms.InputTag('particleFlow'),
+                          "Input PFCandidate collection", Type=cms.InputTag)
+	self.addParameter(self._defaultParameters, 'jetCorrPayloadName', 'AK5PF',
                           "Use AK5PF for PFJets, AK5Calo for CaloJets", Type=str)
-	self.addParameter(self._defaultParameters, 'varyByNsigmas', 1.0, 
+	self.addParameter(self._defaultParameters, 'varyByNsigmas', 1.0,
                           "Number of standard deviations by which energies are varied", Type=float)
         self.addParameter(self._defaultParameters, 'addToPatDefaultSequence', True,
                           "Flag to enable/disable that metUncertaintySequence is inserted into patDefaultSequence", Type=bool)
@@ -67,7 +67,7 @@ class RunMEtUncertainties(ConfigToolBase):
                           "Technical parameter to identify the resulting sequence and its modules (allows multiple calls in a job)", Type=str)
         self._parameters=copy.deepcopy(self._defaultParameters)
         self._comment = ""
-        
+
     def getDefaultParameters(self):
         return self._defaultParameters
 
@@ -94,13 +94,13 @@ class RunMEtUncertainties(ConfigToolBase):
                     moduleName += part[0].capitalize() + part[1:]
                 else:
                     moduleName += part[0].lower() + part[1:]
-                lastPart = part    
+                lastPart = part
 
         moduleName += postfix
         setattr(process, moduleName, module)
 
         sequence += module
- 
+
         return moduleName
 
     def _addSmearedJets(self, process, jetCollection, smearedJetCollectionName_parts,
@@ -110,14 +110,14 @@ class RunMEtUncertainties(ConfigToolBase):
         smearedJets = cms.EDProducer("SmearedPATJetProducer",
             src = cms.InputTag(jetCollection),
             dRmaxGenJetMatch = cms.string('TMath::Min(0.5, 0.1 + 0.3*TMath::Exp(-0.05*(genJetPt - 10.)))'),
-            sigmaMaxGenJetMatch = cms.double(5.),                               
+            sigmaMaxGenJetMatch = cms.double(5.),
             inputFileName = cms.FileInPath(jetSmearFileName),
             lutName = cms.string(jetSmearHistogram),
             jetResolutions = jetResolutions.METSignificance_params,
             # CV: skip jet smearing for pat::Jets for which the jet-energy correction (JEC) factors are either very large or negative
             #     since both cases produce unphysically large tails in the Type 1 corrected MET distribution after the smearing,
             #
-            #     e.g. raw jet:   energy = 50 GeV, eta = 2.86, pt =  1   GeV 
+            #     e.g. raw jet:   energy = 50 GeV, eta = 2.86, pt =  1   GeV
             #          corr. jet: energy = -3 GeV            , pt = -0.1 GeV (JEC factor L1fastjet*L2*L3 = -17)
             #                     energy = 10 GeV for corrected jet after smearing
             #         --> smeared raw jet energy = -170 GeV !!
@@ -129,7 +129,7 @@ class RunMEtUncertainties(ConfigToolBase):
                 'jecSetsAvailable & abs(energy - correctedP4("Uncorrected").energy) > (5.*min(energy, correctedP4("Uncorrected").energy))'
             ),
             skipRawJetPtThreshold = cms.double(10.), # GeV
-            skipCorrJetPtThreshold = cms.double(1.e-2)                         
+            skipCorrJetPtThreshold = cms.double(1.e-2)
         )
         if shiftBy is not None:
             setattr(smearedJets, "shiftBy", cms.double(shiftBy*varyByNsigmas))
@@ -139,7 +139,7 @@ class RunMEtUncertainties(ConfigToolBase):
                                     getattr(process, "metUncertaintySequence"+postfix), postfix)
 
         return smearedJetCollection
-        
+
     def _propagateMEtUncertainties(self, process,
                                    particleCollection, particleType, shiftType, particleCollectionShiftUp, particleCollectionShiftDown,
                                    metProducer, sequence, postfix):
@@ -148,14 +148,14 @@ class RunMEtUncertainties(ConfigToolBase):
         # (sum of differences in four-momentum between original and up/down shifted particle collection)
         moduleMETcorrShiftUp = cms.EDProducer("ShiftedParticleMETcorrInputProducer",
             srcOriginal = cms.InputTag(particleCollection),
-            srcShifted = cms.InputTag(particleCollectionShiftUp)                                           
+            srcShifted = cms.InputTag(particleCollectionShiftUp)
         )
         moduleMETcorrShiftUpName = "patPFMETcorr%s%sUp" % (particleType, shiftType)
         moduleMETcorrShiftUpName += postfix
         setattr(process, moduleMETcorrShiftUpName, moduleMETcorrShiftUp)
         sequence += moduleMETcorrShiftUp
         moduleMETcorrShiftDown = moduleMETcorrShiftUp.clone(
-            srcShifted = cms.InputTag(particleCollectionShiftDown)                                           
+            srcShifted = cms.InputTag(particleCollectionShiftDown)
         )
         moduleMETcorrShiftDownName = "patPFMETcorr%s%sDown" % (particleType, shiftType)
         moduleMETcorrShiftDownName += postfix
@@ -216,7 +216,7 @@ class RunMEtUncertainties(ConfigToolBase):
         else:
             return True
 
-    def _addShiftedParticleCollections(self, process, 
+    def _addShiftedParticleCollections(self, process,
                                        electronCollection,
                                        photonCollection,
                                        muonCollection,
@@ -228,8 +228,8 @@ class RunMEtUncertainties(ConfigToolBase):
 
         shiftedParticlesForMEtUncertainties = cms.Sequence()
         setattr(process, "shiftedParticlesForMEtUncertainties"+postfix, shiftedParticlesForMEtUncertainties)
-        
-        shiftedParticleCollections = {}        
+
+        shiftedParticleCollections = {}
         shiftedParticleCollections['electronCollection'] = electronCollection
         shiftedParticleCollections['photonCollection'] = photonCollection
         shiftedParticleCollections['muonCollection'] = muonCollection
@@ -240,14 +240,14 @@ class RunMEtUncertainties(ConfigToolBase):
         shiftedParticleCollections['jetCollectionResUp'] = jetCollectionResUp
         shiftedParticleCollections['jetCollectionResDown'] = jetCollectionResDown
         collectionsToKeep = []
-        
+
         #--------------------------------------------------------------------------------------------
-        # produce collection of jets shifted up/down in energy    
-        #--------------------------------------------------------------------------------------------     
+        # produce collection of jets shifted up/down in energy
+        #--------------------------------------------------------------------------------------------
 
         # in case of "raw" (uncorrected) MET,
         # add residual jet energy corrections in quadrature to jet energy uncertainties:
-        # cf. https://twiki.cern.ch/twiki/bin/view/CMS/MissingETUncertaintyPrescription        
+        # cf. https://twiki.cern.ch/twiki/bin/view/CMS/MissingETUncertaintyPrescription
         jetsEnUpForRawMEt = cms.EDProducer("ShiftedPATJetProducer",
             src = cms.InputTag(lastJetCollection),
             #jetCorrPayloadName = cms.string(jetCorrPayloadName),
@@ -256,7 +256,7 @@ class RunMEtUncertainties(ConfigToolBase):
             jetCorrUncertaintyTag = cms.string("SubTotalDataMC"),
             addResidualJES = cms.bool(True),
             jetCorrLabelUpToL3 = cms.string("ak5PFL1FastL2L3"),
-            jetCorrLabelUpToL3Res = cms.string("ak5PFL1FastL2L3Residual"),                               
+            jetCorrLabelUpToL3Res = cms.string("ak5PFL1FastL2L3Residual"),
             shiftBy = cms.double(+1.*varyByNsigmas)
         )
         jetCollectionEnUpForRawMEt = \
@@ -312,7 +312,7 @@ class RunMEtUncertainties(ConfigToolBase):
                         binSelection = cms.string('!isEB'),
                         binUncertainty = cms.double(0.015)
                     ),
-                ),      
+                ),
                 shiftBy = cms.double(+1.*varyByNsigmas)
             )
             electronCollectionEnUp = \
@@ -333,10 +333,10 @@ class RunMEtUncertainties(ConfigToolBase):
 
         #--------------------------------------------------------------------------------------------
         # produce collection of (high Pt) photon candidates shifted up/down in energy
-        #--------------------------------------------------------------------------------------------    
+        #--------------------------------------------------------------------------------------------
 
         photonCollectionEnUp = None
-        photonCollectionEnDown = None    
+        photonCollectionEnDown = None
         if self._isValidInputTag(photonCollection):
             photonsEnUp = cms.EDProducer("ShiftedPATPhotonProducer",
                 src = photonCollection,
@@ -349,7 +349,7 @@ class RunMEtUncertainties(ConfigToolBase):
                         binSelection = cms.string('isEB = false'),
                         binUncertainty = cms.double(0.025)
                     ),
-                ),                         
+                ),
                 shiftBy = cms.double(+1.*varyByNsigmas)
             )
             photonCollectionEnUp = \
@@ -369,11 +369,11 @@ class RunMEtUncertainties(ConfigToolBase):
             collectionsToKeep.append(photonCollectionEnDown)
 
         #--------------------------------------------------------------------------------------------
-        # produce collection of muons shifted up/down in energy/momentum  
+        # produce collection of muons shifted up/down in energy/momentum
         #--------------------------------------------------------------------------------------------
 
         muonCollectionEnUp = None
-        muonCollectionEnDown = None   
+        muonCollectionEnDown = None
         if self._isValidInputTag(muonCollection):
             muonsEnUp = cms.EDProducer("ShiftedPATMuonProducer",
                 src = muonCollection,
@@ -398,14 +398,14 @@ class RunMEtUncertainties(ConfigToolBase):
 
         #--------------------------------------------------------------------------------------------
         # produce collection of tau-jets shifted up/down in energy
-        #--------------------------------------------------------------------------------------------     
+        #--------------------------------------------------------------------------------------------
 
         tauCollectionEnUp = None
-        tauCollectionEnDown = None 
+        tauCollectionEnDown = None
         if self._isValidInputTag(tauCollection):
             tausEnUp = cms.EDProducer("ShiftedPATTauProducer",
                 src = tauCollection,
-                uncertainty = cms.double(0.03),                      
+                uncertainty = cms.double(0.03),
                 shiftBy = cms.double(+1.*varyByNsigmas)
             )
             tauCollectionEnUp = \
@@ -458,12 +458,12 @@ class RunMEtUncertainties(ConfigToolBase):
                 configtools.cloneProcessingSnippet(process, process.producePatPFMETCorrectionsOriginalReserved, postfix, removePostfix="OriginalReserved")
             else:
                 configtools.cloneProcessingSnippet(process, process.producePatPFMETCorrections, postfix)
-        
-        # add "nominal" (unshifted) pat::MET collections        
-        getattr(process, "pfCandsNotInJet"+postfix).bottomCollection = pfCandCollection        
+
+        # add "nominal" (unshifted) pat::MET collections
+        getattr(process, "pfCandsNotInJet"+postfix).bottomCollection = pfCandCollection
         getattr(process, "selectedPatJetsForMETtype1p2Corr"+postfix).src = shiftedParticleCollections['lastJetCollection']
         getattr(process, "selectedPatJetsForMETtype2Corr"+postfix).src = shiftedParticleCollections['lastJetCollection']
-        
+
 
         if doApplySysShiftCorr:
             if not hasattr(process, 'pfMEtSysShiftCorrSequence'):
@@ -475,7 +475,7 @@ class RunMEtUncertainties(ConfigToolBase):
             metUncertaintySequence += getattr(process, "pfMEtSysShiftCorrSequence"+postfix)
 
         metUncertaintySequence += getattr(process, "producePatPFMETCorrections"+postfix)
-        
+
         patType1correctionsCentralValue = [ cms.InputTag('patPFJetMETtype1p2Corr'+postfix, 'type1') ]
         if doApplyType0corr:
             patType1correctionsCentralValue.extend([ cms.InputTag('patPFMETtype0Corr'+postfix) ])
@@ -483,13 +483,13 @@ class RunMEtUncertainties(ConfigToolBase):
             patType1correctionsCentralValue.extend([ cms.InputTag('pfMEtSysShiftCorr'+postfix) ])
         getattr(process, "patType1CorrectedPFMet"+postfix).srcType1Corrections = cms.VInputTag(patType1correctionsCentralValue)
         getattr(process, "patType1p2CorrectedPFMet"+postfix).srcType1Corrections = cms.VInputTag(patType1correctionsCentralValue)
-        
+
         collectionsToKeep.extend([
             'patPFMet'+postfix,
             'patType1CorrectedPFMet'+postfix,
             'patType1p2CorrectedPFMet'+postfix])
 
-        setattr(process, "selectedPatJetsForMETtype1p2CorrEnUp"+postfix, 
+        setattr(process, "selectedPatJetsForMETtype1p2CorrEnUp"+postfix,
           getattr(process, shiftedParticleCollections['jetCollectionEnUpForCorrMEt']).clone(
             src = cms.InputTag('selectedPatJetsForMETtype1p2Corr'+postfix)
         ))
@@ -522,7 +522,7 @@ class RunMEtUncertainties(ConfigToolBase):
                 src = cms.InputTag('selectedPatJetsForMETtype1p2Corr'+postfix)
             ))
             metUncertaintySequence += getattr(process, "selectedPatJetsForMETtype1p2CorrResDown"+postfix)
-            if makeType1p2corrPFMEt:            
+            if makeType1p2corrPFMEt:
                 setattr(process, "selectedPatJetsForMETtype2CorrResUp"+postfix,
                   getattr(process, shiftedParticleCollections['jetCollectionResUp']).clone(
                     src = cms.InputTag('selectedPatJetsForMETtype2Corr'+postfix)
@@ -542,7 +542,7 @@ class RunMEtUncertainties(ConfigToolBase):
             smearedPatPFMetSequence += getattr(process, "patPFMetForMEtUncertainty"+postfix)
             setattr(process, "patPFMETcorrJetSmearing"+postfix, cms.EDProducer("ShiftedParticleMETcorrInputProducer",
                 srcOriginal = cms.InputTag(shiftedParticleCollections['cleanedJetCollection']),
-                srcShifted = cms.InputTag(shiftedParticleCollections['lastJetCollection'])                                           
+                srcShifted = cms.InputTag(shiftedParticleCollections['lastJetCollection'])
             ))
             smearedPatPFMetSequence += getattr(process, "patPFMETcorrJetSmearing"+postfix)
             getattr(process, "producePatPFMETCorrections"+postfix).replace(getattr(process, "patPFMet"+postfix), smearedPatPFMetSequence)
@@ -553,7 +553,7 @@ class RunMEtUncertainties(ConfigToolBase):
                 )
             ))
             smearedPatPFMetSequence += getattr(process, "patPFMet"+postfix)
-            metUncertaintySequence += smearedPatPFMetSequence 
+            metUncertaintySequence += smearedPatPFMetSequence
 
         # propagate shifts in jet energy to "raw" (uncorrected) and Type 1 corrected MET
         metCollectionsUp_DownForRawMEt = \
@@ -571,7 +571,7 @@ class RunMEtUncertainties(ConfigToolBase):
         collectionsToKeep.extend(metCollectionsUp_DownForCorrMEt)
 
         # propagate shifts in jet energy to Type 1 + 2 corrected MET
-        if makeType1p2corrPFMEt:   
+        if makeType1p2corrPFMEt:
             setattr(process, "patPFJetMETtype1p2CorrEnUp"+postfix, getattr(process, "patPFJetMETtype1p2Corr"+postfix).clone(
                 src = cms.InputTag(getattr(process, "selectedPatJetsForMETtype1p2CorrEnUp"+postfix).label()),
                 jetCorrLabel = cms.string(jetCorrLabel)
@@ -590,11 +590,11 @@ class RunMEtUncertainties(ConfigToolBase):
             ))
             metUncertaintySequence += getattr(process, "patPFJetMETtype2CorrEnDown"+postfix)
 
-            patType1correctionsJetEnUp = [ cms.InputTag('patPFJetMETtype1p2CorrEnUp'+postfix, 'type1') ]        
+            patType1correctionsJetEnUp = [ cms.InputTag('patPFJetMETtype1p2CorrEnUp'+postfix, 'type1') ]
             if doApplyType0corr:
                 patType1correctionsJetEnUp.extend([ cms.InputTag('patPFMETtype0Corr'+postfix) ])
             if doApplySysShiftCorr:
-                patType1correctionsJetEnUp.extend([ cms.InputTag('pfMEtSysShiftCorr'+postfix) ])            
+                patType1correctionsJetEnUp.extend([ cms.InputTag('pfMEtSysShiftCorr'+postfix) ])
             setattr(process, "patType1p2CorrectedPFMetJetEnUp"+postfix, getattr(process, "patType1p2CorrectedPFMet"+postfix).clone(
                 srcType1Corrections = cms.VInputTag(patType1correctionsJetEnUp),
                 srcUnclEnergySums = cms.VInputTag(
@@ -610,7 +610,7 @@ class RunMEtUncertainties(ConfigToolBase):
             if doApplyType0corr:
                 patType1correctionsJetEnDown.extend([ cms.InputTag('patPFMETtype0Corr'+postfix) ])
             if doApplySysShiftCorr:
-                patType1correctionsJetEnDown.extend([ cms.InputTag('pfMEtSysShiftCorr'+postfix) ])    
+                patType1correctionsJetEnDown.extend([ cms.InputTag('pfMEtSysShiftCorr'+postfix) ])
             setattr(process, "patType1p2CorrectedPFMetJetEnDown"+postfix, getattr(process, "patType1p2CorrectedPFMetJetEnUp"+postfix).clone(
                 srcType1Corrections = cms.VInputTag(patType1correctionsJetEnDown),
                 srcUnclEnergySums = cms.VInputTag(
@@ -634,9 +634,9 @@ class RunMEtUncertainties(ConfigToolBase):
                       shiftedParticleCollections['jetCollectionResUp'], shiftedParticleCollections['jetCollectionResDown'],
                       metProducer, metUncertaintySequence, postfix)
                 collectionsToKeep.extend(metCollectionsUp_Down)
-            
+
             # propagate shifts in jet resolution to Type 1 + 2 corrected MET
-            if makeType1p2corrPFMEt:  
+            if makeType1p2corrPFMEt:
                 setattr(process, "patPFJetMETtype1p2CorrResUp"+postfix, getattr(process, "patPFJetMETtype1p2Corr"+postfix).clone(
                     src = cms.InputTag(getattr(process, "selectedPatJetsForMETtype1p2CorrResUp"+postfix).label()),
                     jetCorrLabel = cms.string(jetCorrLabel)
@@ -730,7 +730,7 @@ class RunMEtUncertainties(ConfigToolBase):
             unclEnMETcorrectionsDown.extend([ cms.InputTag(moduleUnclEnMETcorrDownName, instanceLabel)
                                               for instanceLabel in srcUnclEnMETcorr[1] ] )
 
-        # propagate shifts in jet energy/resolution to "raw" (uncorrected) MET    
+        # propagate shifts in jet energy/resolution to "raw" (uncorrected) MET
         setattr(process, "patPFMetUnclusteredEnUp"+postfix, getattr(process, "patType1CorrectedPFMet"+postfix).clone(
             src = cms.InputTag('patPFMet'+postfix),
             srcType1Corrections = cms.VInputTag(unclEnMETcorrectionsUp)
@@ -755,14 +755,14 @@ class RunMEtUncertainties(ConfigToolBase):
         ))
         metUncertaintySequence += getattr(process, "patType1CorrectedPFMetUnclusteredEnDown"+postfix)
         collectionsToKeep.append('patType1CorrectedPFMetUnclusteredEnDown'+postfix)
-        
+
         # propagate shifts in jet energy/resolution to Type 1 + 2 corrected MET
-        if makeType1p2corrPFMEt: 
+        if makeType1p2corrPFMEt:
             setattr(process, "patType1p2CorrectedPFMetUnclusteredEnUp"+postfix, getattr(process, "patType1p2CorrectedPFMet"+postfix).clone(
                 srcUnclEnergySums = cms.VInputTag(
                     cms.InputTag('patPFJetMETtype1p2Corr'+postfix,                'type2' ),
                     cms.InputTag('patPFJetMETtype1p2CorrUnclusteredEnUp'+postfix, 'type2' ),
-                    cms.InputTag('patPFJetMETtype2Corr'+postfix,                  'type2' ),   
+                    cms.InputTag('patPFJetMETtype2Corr'+postfix,                  'type2' ),
                     cms.InputTag('patPFJetMETtype2CorrUnclusteredEnUp'+postfix,   'type2' ),
                     cms.InputTag('patPFJetMETtype1p2Corr'+postfix,                'offset'),
                     cms.InputTag('patPFJetMETtype1p2CorrUnclusteredEnUp'+postfix, 'offset'),
@@ -776,7 +776,7 @@ class RunMEtUncertainties(ConfigToolBase):
                 srcUnclEnergySums = cms.VInputTag(
                     cms.InputTag('patPFJetMETtype1p2Corr'+postfix,                  'type2' ),
                     cms.InputTag('patPFJetMETtype1p2CorrUnclusteredEnDown'+postfix, 'type2' ),
-                    cms.InputTag('patPFJetMETtype2Corr'+postfix,                    'type2' ),  
+                    cms.InputTag('patPFJetMETtype2Corr'+postfix,                    'type2' ),
                     cms.InputTag('patPFJetMETtype2CorrUnclusteredEnDown'+postfix,   'type2' ),
                     cms.InputTag('patPFJetMETtype1p2Corr'+postfix,                  'offset'),
                     cms.InputTag('patPFJetMETtype1p2CorrUnclusteredEnDown'+postfix, 'offset'),
@@ -787,7 +787,7 @@ class RunMEtUncertainties(ConfigToolBase):
             metUncertaintySequence += getattr(process, "patType1p2CorrectedPFMetUnclusteredEnDown"+postfix)
             collectionsToKeep.append('patType1p2CorrectedPFMetUnclusteredEnDown'+postfix)
 
-        #--------------------------------------------------------------------------------------------    
+        #--------------------------------------------------------------------------------------------
         # propagate shifted electron/photon, muon and tau-jet energies to MET
         #--------------------------------------------------------------------------------------------
 
@@ -796,7 +796,7 @@ class RunMEtUncertainties(ConfigToolBase):
         if makeType1p2corrPFMEt:
             metProducers.append( getattr(process, "patType1p2CorrectedPFMet"+postfix) )
         for metProducer in metProducers:
-            
+
             if self._isValidInputTag(shiftedParticleCollections['electronCollection']):
                 metCollectionsUp_Down = \
                     self._propagateMEtUncertainties(
@@ -812,7 +812,7 @@ class RunMEtUncertainties(ConfigToolBase):
                       shiftedParticleCollections['photonCollectionEnUp'], shiftedParticleCollections['photonCollectionEnDown'],
                       metProducer, metUncertaintySequence, postfix)
                 collectionsToKeep.extend(metCollectionsUp_Down)
-                
+
             if self._isValidInputTag(shiftedParticleCollections['muonCollection']):
                 metCollectionsUp_Down = \
                     self._propagateMEtUncertainties(
@@ -872,11 +872,11 @@ class RunMEtUncertainties(ConfigToolBase):
                 else:
                     retVal.append(shiftedParticleCollections[collectionName])
         return retVal
-            
+
     def _addPATMEtProducer(self, process, metUncertaintySequence,
                            pfMEtCollection, patMEtCollection,
                            collectionsToKeep, postfix):
-        
+
         module = patMETs.clone(
             metSource = cms.InputTag(pfMEtCollection),
             addMuonCorrections = cms.bool(False),
@@ -886,12 +886,12 @@ class RunMEtUncertainties(ConfigToolBase):
         setattr(process, patMEtCollectionName, module)
         metUncertaintySequence += module
         collectionsToKeep.append(patMEtCollectionName)
-            
+
     def _addPFMEtByMVA(self, process, metUncertaintySequence,
                        shiftedParticleCollections, pfCandCollection,
                        collectionsToKeep,
                        doSmearJets,
-                       makePFMEtByMVA,                       
+                       makePFMEtByMVA,
                        varyByNsigmas,
                        postfix):
 
@@ -914,9 +914,9 @@ class RunMEtUncertainties(ConfigToolBase):
             metUncertaintySequence += process.ak5GenJetsNoNu
             setattr(process, "smearedUncorrectedJetsForPFMEtByMVA"+postfix, cms.EDProducer("SmearedPFJetProducer",
                 src = cms.InputTag('ak5PFJets'),
-                jetCorrLabel = cms.string("ak5PFL1FastL2L3"),                                       
+                jetCorrLabel = cms.string("ak5PFL1FastL2L3"),
                 dRmaxGenJetMatch = cms.string('TMath::Min(0.5, 0.1 + 0.3*TMath::Exp(-0.05*(genJetPt - 10.)))'),
-                sigmaMaxGenJetMatch = cms.double(5.),                                                               
+                sigmaMaxGenJetMatch = cms.double(5.),
                 inputFileName = cms.FileInPath('PhysicsTools/PatUtils/data/pfJetResolutionMCtoDataCorrLUT.root'),
                 lutName = cms.string('pfJetResolutionMCtoDataCorrLUT'),
                 jetResolutions = jetResolutions.METSignificance_params,
@@ -976,14 +976,14 @@ class RunMEtUncertainties(ConfigToolBase):
                 self._addPATMEtProducer(process, metUncertaintySequence,
                                         modulePFMEtLeptonShiftDownName, 'patPFMetMVA%s%sDown' % (leptonCollection[0], leptonCollection[1]), collectionsToKeep, postfix)
 
-        if self._isValidInputTag(shiftedParticleCollections['jetCollection']):            
+        if self._isValidInputTag(shiftedParticleCollections['jetCollection']):
             setattr(process, "uncorrectedJetsEnUpForPFMEtByMVA"+postfix, cms.EDProducer("ShiftedPFJetProducer",
                 src = cms.InputTag(lastUncorrectedJetCollectionForPFMEtByMVA),
                 jetCorrInputFileName = cms.FileInPath('PhysicsTools/PatUtils/data/Summer12_V2_DATA_AK5PF_UncertaintySources.txt'),
                 jetCorrUncertaintyTag = cms.string("SubTotalDataMC"),
                 addResidualJES = cms.bool(True),
                 jetCorrLabelUpToL3 = cms.string("ak5PFL1FastL2L3"),
-                jetCorrLabelUpToL3Res = cms.string("ak5PFL1FastL2L3Residual"),                               
+                jetCorrLabelUpToL3Res = cms.string("ak5PFL1FastL2L3Residual"),
                 shiftBy = cms.double(+1.*varyByNsigmas)
             ))
             metUncertaintySequence += getattr(process, "uncorrectedJetsEnUpForPFMEtByMVA"+postfix)
@@ -1003,7 +1003,7 @@ class RunMEtUncertainties(ConfigToolBase):
             metUncertaintySequence += getattr(process, "correctedJetsEnDownForPFMEtByMVA"+postfix)
             pfCandCollectionJetEnUp, pfCandCollectionJetEnDown = \
               self._addPFCandidatesForPFMEtInput(
-                process, metUncertaintySequence, 
+                process, metUncertaintySequence,
                 shiftedParticleCollections['lastJetCollection'], "Jet", "En",
                 shiftedParticleCollections['jetCollectionEnUpForCorrMEt'], shiftedParticleCollections['jetCollectionEnDownForCorrMEt'],
                 0.5,
@@ -1069,7 +1069,7 @@ class RunMEtUncertainties(ConfigToolBase):
                 metUncertaintySequence += getattr(process, "pfMEtMVAJetResDown"+postfix)
                 self._addPATMEtProducer(process, metUncertaintySequence,
                                         'pfMEtMVAJetResDown'+postfix, 'patPFMetMVAJetResDown', collectionsToKeep, postfix)
-                        
+
             setattr(process, "pfCandsNotInJetUnclusteredEnUpForPFMEtByMVA"+postfix, cms.EDProducer("ShiftedPFCandidateProducer",
                 src = cms.InputTag('pfCandsNotInJet'),
                 shiftBy = cms.double(+1.*varyByNsigmas),
@@ -1107,10 +1107,10 @@ class RunMEtUncertainties(ConfigToolBase):
                         shiftedParticleCollections, pfCandCollection,
                         collectionsToKeep,
                         doSmearJets,
-                        makeNoPileUpPFMEt,                       
+                        makeNoPileUpPFMEt,
                         varyByNsigmas,
                         postfix):
-        
+
         if not makeNoPileUpPFMEt:
             return
 
@@ -1122,8 +1122,8 @@ class RunMEtUncertainties(ConfigToolBase):
         if postfix != "":
             configtools.cloneProcessingSnippet(process, process.noPileUpPFMEtSequence, postfix)
             lastCorrectedJetCollectionForNoPileUpPFMEt+= postfix
-            
-                
+
+
         if doSmearJets:
             process.load("RecoJets.Configuration.GenJetParticles_cff")
             metUncertaintySequence += process.genParticlesForJetsNoNu
@@ -1131,9 +1131,9 @@ class RunMEtUncertainties(ConfigToolBase):
             metUncertaintySequence += process.ak5GenJetsNoNu
             setattr(process, "smearedUncorrectedJetsForNoPileUpPFMEt"+postfix, cms.EDProducer("SmearedPFJetProducer",
                 src = cms.InputTag('ak5PFJets'),
-                jetCorrLabel = cms.string("ak5PFL1FastL2L3"),                                       
+                jetCorrLabel = cms.string("ak5PFL1FastL2L3"),
                 dRmaxGenJetMatch = cms.string('TMath::Min(0.5, 0.1 + 0.3*TMath::Exp(-0.05*(genJetPt - 10.)))'),
-                sigmaMaxGenJetMatch = cms.double(5.),                                                                
+                sigmaMaxGenJetMatch = cms.double(5.),
                 inputFileName = cms.FileInPath('PhysicsTools/PatUtils/data/pfJetResolutionMCtoDataCorrLUT.root'),
                 lutName = cms.string('pfJetResolutionMCtoDataCorrLUT'),
                 jetResolutions = jetResolutions.METSignificance_params,
@@ -1192,7 +1192,7 @@ class RunMEtUncertainties(ConfigToolBase):
                 modulePFCandidateToVertexAssociationShiftDownName = "pfCandidateToVertexAssociation%s%sDown" % (leptonCollection[0], leptonCollection[1])
                 modulePFCandidateToVertexAssociationShiftDownName += postfix
                 setattr(process, modulePFCandidateToVertexAssociationShiftDownName, modulePFCandidateToVertexAssociationShiftDown)
-                metUncertaintySequence += modulePFCandidateToVertexAssociationShiftDown                
+                metUncertaintySequence += modulePFCandidateToVertexAssociationShiftDown
                 modulePFMEtDataLeptonShiftDown = getattr(process, "noPileUpPFMEtData"+postfix).clone(
                     srcPFCandidates = cms.InputTag(pfCandCollectionLeptonShiftDown),
                     srcPFCandToVertexAssociations = cms.InputTag(modulePFCandidateToVertexAssociationShiftDownName)
@@ -1213,14 +1213,14 @@ class RunMEtUncertainties(ConfigToolBase):
                 self._addPATMEtProducer(process, metUncertaintySequence,
                                         modulePFMEtLeptonShiftDownName, 'patPFMetNoPileUp%s%sDown' % (leptonCollection[0], leptonCollection[1]), collectionsToKeep, postfix)
 
-        if self._isValidInputTag(shiftedParticleCollections['jetCollection']):            
+        if self._isValidInputTag(shiftedParticleCollections['jetCollection']):
             setattr(process, "uncorrectedJetsEnUpForNoPileUpPFMEt"+postfix, cms.EDProducer("ShiftedPFJetProducer",
                 src = cms.InputTag(lastUncorrectedJetCollectionForNoPileUpPFMEt),
                 jetCorrInputFileName = cms.FileInPath('PhysicsTools/PatUtils/data/Summer12_V2_DATA_AK5PF_UncertaintySources.txt'),
                 jetCorrUncertaintyTag = cms.string("SubTotalDataMC"),
                 addResidualJES = cms.bool(False),
                 jetCorrLabelUpToL3 = cms.string("ak5PFL1FastL2L3"),
-                jetCorrLabelUpToL3Res = cms.string("ak5PFL1FastL2L3Residual"),                               
+                jetCorrLabelUpToL3Res = cms.string("ak5PFL1FastL2L3Residual"),
                 shiftBy = cms.double(+1.*varyByNsigmas),
                 ##verbosity = cms.int32(1)
             ))
@@ -1317,13 +1317,13 @@ class RunMEtUncertainties(ConfigToolBase):
                 metUncertaintySequence += getattr(process, "noPileUpPFMEtJetResDown"+postfix)
                 self._addPATMEtProducer(process, metUncertaintySequence,
                                         'noPileUpPFMEtJetResDown'+postfix, 'patPFMetNoPileUpJetResDown', collectionsToKeep, postfix)
-                        
+
             setattr(process, "pfCandsUnclusteredEnUpForNoPileUpPFMEt"+postfix, cms.EDProducer("ShiftedPFCandidateProducerForNoPileUpPFMEt",
                 srcPFCandidates = cms.InputTag('particleFlow'),
                 srcJets = cms.InputTag('calibratedAK5PFJetsForNoPileUpPFMEt'+postfix),
                 jetCorrInputFileName = cms.FileInPath('PhysicsTools/PatUtils/data/Summer12_V2_DATA_AK5PF_UncertaintySources.txt'),
                 jetCorrUncertaintyTag = cms.string("SubTotalDataMC"),
-                minJetPt = cms.double(10.0), 
+                minJetPt = cms.double(10.0),
                 shiftBy = cms.double(+1.*varyByNsigmas),
                 unclEnUncertainty = cms.double(0.10)
             ))
@@ -1364,7 +1364,7 @@ class RunMEtUncertainties(ConfigToolBase):
             metUncertaintySequence += getattr(process, "noPileUpPFMEtUnclusteredEnDown"+postfix)
             self._addPATMEtProducer(process, metUncertaintySequence,
                                     'noPileUpPFMEtUnclusteredEnDown'+postfix, 'patPFMetNoPileUpUnclusteredEnDown', collectionsToKeep, postfix)
-    
+
     def __call__(self, process,
                  electronCollection      = None,
                  photonCollection        = None,
@@ -1411,7 +1411,7 @@ class RunMEtUncertainties(ConfigToolBase):
         if doApplyType0corr is None:
             doApplyType0corr = self._defaultParameters['doApplyType0corr'].value
         if sysShiftCorrParameter is None:
-            sysShiftCorrParameter = self._defaultParameters['sysShiftCorrParameter'].value    
+            sysShiftCorrParameter = self._defaultParameters['sysShiftCorrParameter'].value
         if doApplySysShiftCorr is None:
             doApplySysShiftCorr = self._defaultParameters['doApplySysShiftCorr'].value
         if sysShiftCorrParameter is None:
@@ -1457,10 +1457,10 @@ class RunMEtUncertainties(ConfigToolBase):
         self.setParameter('addToPatDefaultSequence', addToPatDefaultSequence)
         self.setParameter('outputModule', outputModule)
         self.setParameter('postfix', postfix)
-  
-        self.apply(process) 
-        
-    def toolCode(self, process):        
+
+        self.apply(process)
+
+    def toolCode(self, process):
         electronCollection = self._parameters['electronCollection'].value
         photonCollection = self._parameters['photonCollection'].value
         muonCollection = self._parameters['muonCollection'].value
@@ -1475,7 +1475,7 @@ class RunMEtUncertainties(ConfigToolBase):
         makeNoPileUpPFMEt = self._parameters['makeNoPileUpPFMEt'].value
         doApplyType0corr = self._parameters['doApplyType0corr'].value
         sysShiftCorrParameter = self._parameters['sysShiftCorrParameter'].value
-        doApplySysShiftCorr = self._parameters['doApplySysShiftCorr'].value        
+        doApplySysShiftCorr = self._parameters['doApplySysShiftCorr'].value
         jetSmearFileName = self._parameters['jetSmearFileName'].value
         jetSmearHistogram = self._parameters['jetSmearHistogram'].value
         pfCandCollection = self._parameters['pfCandCollection'].value
@@ -1510,42 +1510,42 @@ class RunMEtUncertainties(ConfigToolBase):
                     algorithm           = cms.string("byDeltaR"),
                     preselection        = cms.string(""),
                     deltaR              = cms.double(0.5),
-                    checkRecoComponents = cms.bool(False), 
+                    checkRecoComponents = cms.bool(False),
                     pairCut             = cms.string(""),
                     requireNoOverlaps   = cms.bool(True),
                 ))
                 numOverlapCollections = numOverlapCollections + 1
-        lastJetCollection = jetCollection.value()        
+        lastJetCollection = jetCollection.value()
         if numOverlapCollections >= 1:
             lastJetCollection = \
               self._addModuleToSequence(process, jetsNotOverlappingWithLeptonsForMEtUncertainty,
                                         [ jetCollection.value(), "NotOverlappingWithLeptonsForMEtUncertainty" ],
                                         metUncertaintySequence, postfix)
-        cleanedJetCollection = lastJetCollection 
-        
+        cleanedJetCollection = lastJetCollection
+
         # smear jet energies to account for difference in jet resolutions between MC and Data
-        # (cf. JME-10-014 PAS)        
+        # (cf. JME-10-014 PAS)
         jetCollectionResUp = None
         jetCollectionResDown = None
         if doSmearJets:
             lastJetCollection = \
               self._addSmearedJets(process, cleanedJetCollection, [ "smeared", jetCollection.value() ],
                                    jetSmearFileName, jetSmearHistogram, varyByNsigmas, postfix=postfix)
-                
+
             jetCollectionResUp = \
               self._addSmearedJets(process, cleanedJetCollection, [ "smeared", jetCollection.value(), "ResUp" ],
                                    jetSmearFileName, jetSmearHistogram, varyByNsigmas,
-                                   -1., postfix=postfix)            
+                                   -1., postfix=postfix)
             collectionsToKeep.append(jetCollectionResUp)
             jetCollectionResDown = \
               self._addSmearedJets(process, cleanedJetCollection, [ "smeared", jetCollection.value(), "ResDown" ],
                                    jetSmearFileName, jetSmearHistogram, varyByNsigmas,
-                                   +1., postfix=postfix)                
+                                   +1., postfix=postfix)
             collectionsToKeep.append(jetCollectionResDown)
 
         collectionsToKeep.append(lastJetCollection)
 
-        #--------------------------------------------------------------------------------------------    
+        #--------------------------------------------------------------------------------------------
         # produce collection of electrons/photons, muons, tau-jet candidates and jets
         # shifted up/down in energy by their respective energy uncertainties
         #--------------------------------------------------------------------------------------------
@@ -1557,13 +1557,13 @@ class RunMEtUncertainties(ConfigToolBase):
                                               muonCollection,
                                               tauCollection,
                                               jetCollection, cleanedJetCollection, lastJetCollection,
-                                              jetCollectionResUp, jetCollectionResDown,                        
+                                              jetCollectionResUp, jetCollectionResDown,
                                               varyByNsigmas,
                                               postfix)
         metUncertaintySequence += getattr(process, "shiftedParticlesForMEtUncertainties"+postfix)
         collectionsToKeep.extend(addCollectionsToKeep)
-        
-        #--------------------------------------------------------------------------------------------    
+
+        #--------------------------------------------------------------------------------------------
         # propagate shifted particle energies to Type 1 and Type 1 + 2 corrected PFMET
         #--------------------------------------------------------------------------------------------
 
@@ -1574,13 +1574,13 @@ class RunMEtUncertainties(ConfigToolBase):
                            makeType1corrPFMEt,
                            makeType1p2corrPFMEt,
                            doApplyType0corr,
-                           sysShiftCorrParameter,                           
+                           sysShiftCorrParameter,
                            doApplySysShiftCorr,
                            jetCorrLabel,
                            varyByNsigmas,
                            postfix)
 
-        #--------------------------------------------------------------------------------------------    
+        #--------------------------------------------------------------------------------------------
         # propagate shifted particle energies to MVA-based PFMET
         #--------------------------------------------------------------------------------------------
 
@@ -1592,7 +1592,7 @@ class RunMEtUncertainties(ConfigToolBase):
                             varyByNsigmas,
                             postfix)
 
-        #--------------------------------------------------------------------------------------------    
+        #--------------------------------------------------------------------------------------------
         # propagate shifted particle energies to no-PU PFMET
         #--------------------------------------------------------------------------------------------
 
@@ -1603,18 +1603,18 @@ class RunMEtUncertainties(ConfigToolBase):
                                makeNoPileUpPFMEt,
                                varyByNsigmas,
                                postfix)
-        
+
         # insert metUncertaintySequence into patDefaultSequence
-        if addToPatDefaultSequence:
+        if addToPatDefaultSequence and process.options.allowUnscheduled == False:
             if not hasattr(process, "patDefaultSequence"):
                 raise ValueError("PAT default sequence is not defined !!")
-            process.patDefaultSequence += metUncertaintySequence        
-       
+            process.patDefaultSequence += metUncertaintySequence
+
         # add shifted + unshifted collections pf pat::Electrons/Photons,
         # Muons, Taus, Jets and MET to PAT-tuple event content
         if outputModule is not None and hasattr(process, outputModule):
             getattr(process, outputModule).outputCommands = _addEventContent(
                 getattr(process, outputModule).outputCommands,
                 [ 'keep *_%s_*_%s' % (collectionToKeep, process.name_()) for collectionToKeep in collectionsToKeep ])
-       
+
 runMEtUncertainties=RunMEtUncertainties()

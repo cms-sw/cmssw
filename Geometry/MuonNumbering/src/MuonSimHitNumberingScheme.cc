@@ -3,6 +3,7 @@
 #include "Geometry/MuonNumbering/interface/CSCNumberingScheme.h"
 #include "Geometry/MuonNumbering/interface/RPCNumberingScheme.h"
 #include "Geometry/MuonNumbering/interface/GEMNumberingScheme.h"
+#include "Geometry/MuonNumbering/interface/ME0NumberingScheme.h"
 #include "Geometry/MuonNumbering/interface/MuonBaseNumber.h"
 #include "Geometry/MuonNumbering/interface/MuonSubDetector.h"
 
@@ -18,6 +19,8 @@ MuonSimHitNumberingScheme::MuonSimHitNumberingScheme(MuonSubDetector* d, const D
     theNumbering=new RPCNumberingScheme(cpv);
   } else if (theDetector->isGem()) {
     theNumbering=new GEMNumberingScheme(cpv);
+  } else if (theDetector->isME0()) {
+    theNumbering=new ME0NumberingScheme(cpv);
   } 
 }
 

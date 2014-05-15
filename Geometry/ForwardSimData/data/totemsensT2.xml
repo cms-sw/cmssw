@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<SpecParSection label="totemsensT2.xml">
+		<SpecPar name="ROUHitsTotemT2Gem">
+			<PartSelector path="//TotemT2gem_driftspace7r"/>
+			<Parameter name="SensitiveDetector" value="TotemSensitiveDetector" eval="false"/>
+			<Parameter name="ReadOutName" value="TotemHitsT2Gem" eval="false"/>
+		</SpecPar>
+	</SpecParSection>
+	<SpecParSection label="TotemT2ProdCuts.xml" eval="true">
+		<SpecPar name="TotemT2AllPart">
+			<PartSelector path="//TotemT2"/>
+			<Parameter name="CMSCutsRegion" value="TotemT2Region" eval="false"/>
+			<Parameter name="ProdCutsForElectrons" value="1*mm"/>
+			<Parameter name="ProdCutsForPositrons" value="1*mm"/>
+			<Parameter name="ProdCutsForGamma" value="1*mm"/>
+		</SpecPar>
+		<SpecPar name="TotemT2SensitivePart">
+			<PartSelector path="//TotemT2gem_driftspace7r"/>
+			<Parameter name="CMSCutsRegion" value="TotemT2SensitiveRegion" eval="false"/>
+			<Parameter name="ProdCutsForElectrons" value="1*mm"/>
+			<Parameter name="ProdCutsForPositrons" value="1*mm"/>
+			<Parameter name="ProdCutsForGamma" value="1*mm"/>
+		</SpecPar>
+	</SpecParSection>
+</DDDefinition>

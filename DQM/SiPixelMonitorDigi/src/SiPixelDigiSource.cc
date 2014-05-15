@@ -991,7 +991,7 @@ void SiPixelDigiSource::buildStructure(const edm::EventSetup& iSetup){
 	SiPixelDigiModule* theModule = new SiPixelDigiModule(id, ncols, nrows);
 	thePixelStructure.insert(pair<uint32_t,SiPixelDigiModule*> (id,theModule));
 
-      }	else if(detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) {
+      }	else if((detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) && (!isUpgrade)) {
 	LogDebug ("PixelDQM") << " ---> Adding Endcap Module " <<  detId.rawId() << endl;
 	uint32_t id = detId();
 	SiPixelDigiModule* theModule = new SiPixelDigiModule(id, ncols, nrows);

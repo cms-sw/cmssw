@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<SolidSection label="TBHcal04HF.xml">
+		<Box name="TBHCal" dx="2.5*m" dy="2.5*m" dz="25*m"/>
+	</SolidSection>
+	<LogicalPartSection label="TBHcal04HF.xml">
+		<LogicalPart name="TBHCal" category="unspecified">
+			<rSolid name="TBHCal"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+	</LogicalPartSection>
+</DDDefinition>

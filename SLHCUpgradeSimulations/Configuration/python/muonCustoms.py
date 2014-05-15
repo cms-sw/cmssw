@@ -98,7 +98,7 @@ def csc_PathVsModule_SanityCheck(process):
         ('digi2raw_step', 'cscpacker'),
         ('digi2raw_step', 'csctfpacker'),
         ('reconstruction', 'csc2DRecHits'),
-        ('dqmoffline_step', 'muonAnalyzer'),
+#        ('dqmoffline_step', 'muonAnalyzer'),
         #('dqmHarvesting', ''),
         ('validation_step', 'relvalMuonBits')
     ]
@@ -223,7 +223,7 @@ def customise_csc_LocalReco(process):
 def customise_csc_DQM(process):
     """At this point: get rid of process.muonAnalyzer, adjust cscMonitor's input
     """
-    process = remove_from_all_paths(process, 'muonAnalyzer')
+#    process = remove_from_all_paths(process, 'muonAnalyzer')
 
     process.cscMonitor.clctDigiTag = cms.InputTag("simCscTriggerPrimitiveDigis")
     process.cscMonitor.stripDigiTag = cms.InputTag("simMuonCSCDigis", "MuonCSCStripDigi")
@@ -241,7 +241,7 @@ def customise_csc_DQM(process):
 def customise_csc_Validation(process):
     """At this point, just get rid of process.relvalMuonBits
     """
-    process = remove_from_all_paths(process, 'relvalMuonBits')
+#    process = remove_from_all_paths(process, 'relvalMuonBits')
     return process
 
 

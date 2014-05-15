@@ -265,15 +265,14 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
       DDsvalues_type sv(fv6.mergedSpecifics());
       //Special Geometry parameters
       gpar      = getDDDArray("gparHF",sv);
-      edm::LogInfo("HFShower") << "HFShowerParam: " << gpar.size() 
-			       << " gpar (cm)";
+      edm::LogInfo("HcalSim") << "HCalSD: " << gpar.size() << " gpar (cm)";
       for (unsigned int ig=0; ig<gpar.size(); ig++)
-	edm::LogInfo("HFShower") << "HFShowerParam: gpar[" << ig << "] = "
-				 << gpar[ig]/cm << " cm";
+	edm::LogInfo("HcalSim") << "HCalSD: gpar[" << ig << "] = "
+				<< gpar[ig]/cm << " cm";
     } else {
-      edm::LogWarning("HFShower") << "HFShowerParam: cannot get filtered "
-				  << " view for " << attribute << " matching " 
-				  << name;
+      edm::LogWarning("HcalSim") << "HCalSD: cannot get filtered "
+				 << " view for " << attribute << " matching " 
+				 << name;
     }
   }
 
@@ -424,7 +423,7 @@ bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
       }
       if (useParam) {
 #ifdef DebugLog
-        LogDebug("HcalSim") << "HCalSD: " << getNumberOfHits()
+        edm::LogInfo("HcalSim") << "HCalSD: " << getNumberOfHits()
 			    << " hits from parametrization in " << nameVolume 
 			    << " for Track " << aStep->GetTrack()->GetTrackID()
 			    <<" (" << aStep->GetTrack()->GetDefinition()->GetParticleName() 
@@ -432,7 +431,7 @@ bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
 #endif
         getFromParam(aStep, weight);
 #ifdef DebugLog
-        LogDebug("HcalSim") << "HCalSD: " << getNumberOfHits() 
+        edm::LogInfo("HcalSim") << "HCalSD: " << getNumberOfHits() 
 			    << " hits afterParamS*";
 #endif 
       } else {
@@ -440,7 +439,7 @@ bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
         if (parCode == mupPDG || parCode == mumPDG ) notaMuon = false;
         if (useShowerLibrary && notaMuon) {
 #ifdef DebugLog
-          LogDebug("HcalSim") << "HCalSD: Starts shower library from " 
+          edm::LogInfo("HcalSim") << "HCalSD: Starts shower library from " 
                               << nameVolume << " for Track " 
                               << aStep->GetTrack()->GetTrackID() << " ("
                               << aStep->GetTrack()->GetDefinition()->GetParticleName() << ")";
@@ -448,7 +447,7 @@ bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
           getFromLibrary(aStep, weight);
         } else if (isItFibre(lv)) {
 #ifdef DebugLog
-          LogDebug("HcalSim") << "HCalSD: Hit at Fibre in " << nameVolume 
+          edm::LogInfo("HcalSim") << "HCalSD: Hit at Fibre in " << nameVolume 
                               << " for Track " 
                               << aStep->GetTrack()->GetTrackID() <<" ("
                               << aStep->GetTrack()->GetDefinition()->GetParticleName() << ")";
@@ -458,7 +457,7 @@ bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
       }
     } else if (isItPMT(lv)) {
 #ifdef DebugLog
-      LogDebug("HcalSim") << "HCalSD: Hit from PMT parametrization from " 
+      edm::LogInfo("HcalSim") << "HCalSD: Hit from PMT parametrization from " 
                           <<  nameVolume << " for Track " 
                           << aStep->GetTrack()->GetTrackID() << " ("
                           << aStep->GetTrack()->GetDefinition()->GetParticleName() << ")";
@@ -466,7 +465,7 @@ bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
       if (usePMTHit && showerPMT) getHitPMT(aStep);
     } else if (isItStraightBundle(lv) || isItConicalBundle(lv)) {
 #ifdef DebugLog
-      LogDebug("HcalSim") << "HCalSD: Hit from FibreBundle from "
+      edm::LogInfo("HcalSim") << "HCalSD: Hit from FibreBundle from "
                           << nameVolume << " for Track " 
                           << aStep->GetTrack()->GetTrackID() << " ("
                           << aStep->GetTrack()->GetDefinition()->GetParticleName() << ")";
@@ -475,7 +474,7 @@ bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
 	getHitFibreBundle(aStep, isItConicalBundle(lv));
     } else {
 #ifdef DebugLog
-      LogDebug("HcalSim") << "HCalSD: Hit from standard path from " 
+      edm::LogInfo("HcalSim") << "HCalSD: Hit from standard path from " 
                           <<  nameVolume << " for Track " 
                           << aStep->GetTrack()->GetTrackID() << " ("
                           << aStep->GetTrack()->GetDefinition()->GetParticleName() << ")";
@@ -1016,7 +1015,7 @@ void HCalSD::getHitFibreBundle (G4Step* aStep, bool type) {
     }
     if (hitPoint.z() < 0) etaR =-etaR;
 #ifdef DebugLog
-    LogDebug("HcalSim") << "HCalSD::Hit for Detector " << det << " etaR "
+    edm::LogInfo("HcalSim") << "HCalSD::Hit for Detector " << det << " etaR "
 			<< etaR << " phi " << phi/deg << " depth " <<depth;
 #endif
     double time = (aStep->GetPostStepPoint()->GetGlobalTime());
@@ -1035,7 +1034,7 @@ void HCalSD::getHitFibreBundle (G4Step* aStep, bool type) {
 #endif
 #ifdef DebugLog
     double beta = preStepPoint->GetBeta();
-    LogDebug("HcalSim") << "HCalSD::getHitFibreBundle 1 hit for " << GetName() 
+    edm::LogInfo("HcalSim") << "HCalSD::getHitFibreBundle 1 hit for " << GetName() 
                         << " of " << primaryID << " with " 
                         << theTrack->GetDefinition()->GetParticleName()
                         << " of " << preStepPoint->GetKineticEnergy()/GeV 

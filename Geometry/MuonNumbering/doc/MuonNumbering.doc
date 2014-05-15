@@ -21,6 +21,8 @@ Main classes:
 - CSCNumberingScheme
 - DTNumberingScheme
 - RPCNumberingScheme
+- GEMNumberingScheme
+- ME0NumberingScheme
 
 Auxiliary classes:
 

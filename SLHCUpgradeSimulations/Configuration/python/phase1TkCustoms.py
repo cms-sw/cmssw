@@ -69,16 +69,8 @@ def customise_Digi(process):
 # DQM steps change
 def customise_DQM(process,pileup):
     # We cut down the number of iterative tracking steps
-#    process.dqmoffline_step.remove(process.TrackMonStep3)
-#    process.dqmoffline_step.remove(process.TrackMonStep4)
-#    process.dqmoffline_step.remove(process.TrackMonStep5)
-#    process.dqmoffline_step.remove(process.TrackMonStep6)
-    #
     process.dqmoffline_step.remove(process.muonAnalyzer)
     process.dqmoffline_step.remove(process.jetMETAnalyzer)
-#    process.dqmoffline_step.remove(process.TrackMonStep9)
-#    process.dqmoffline_step.remove(process.TrackMonStep10)
-#    process.dqmoffline_step.remove(process.PixelTrackingRecHitsValid)
 
     #put isUpgrade flag==true
     process.SiPixelRawDataErrorSource.isUpgrade = cms.untracked.bool(True)
@@ -128,12 +120,12 @@ def customise_Validation(process,pileup):
 def customise_harvesting(process):
     process.dqmHarvesting.remove(process.jetMETDQMOfflineClient)
     process.dqmHarvesting.remove(process.dataCertificationJetMET)
-    process.dqmHarvesting.remove(process.sipixelEDAClient)
+    #######process.dqmHarvesting.remove(process.sipixelEDAClient)
+    process.sipixelEDAClient.isUpgrade = cms.untracked.bool(True)
     process.dqmHarvesting.remove(process.sipixelCertification)
     return (process)        
 
 def customise_condOverRides(process):
-#    process.load('SLHCUpgradeSimulations.Geometry.fakeConditions_Phase1_R30F12_cff')
     process.trackerTopologyConstants.pxb_layerStartBit = cms.uint32(20)
     process.trackerTopologyConstants.pxb_ladderStartBit = cms.uint32(12)
     process.trackerTopologyConstants.pxb_moduleStartBit = cms.uint32(2)

@@ -1,0 +1,180 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<SolidSection label="ereg.xml">
+		<Polycone name="ECAL" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="-3.75*m" rMin="26.3457*cm" rMax="1.775*m"/>
+			<ZSection z="-2.935*m" rMin="20.6199*cm" rMax="1.775*m"/>
+			<ZSection z="-2.935*m" rMin="1.238*m" rMax="1.775*m"/>
+			<ZSection z="2.935*m" rMin="1.238*m" rMax="1.775*m"/>
+			<ZSection z="2.935*m" rMin="20.6199*cm" rMax="1.775*m"/>
+			<ZSection z="3.75*m" rMin="26.3457*cm" rMax="1.775*m"/>
+		</Polycone>
+		<Polycone name="EREG" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="0*fm" rMin="1.238*m" rMax="1.775*m"/>
+			<ZSection z="2.935*m" rMin="1.238*m" rMax="1.775*m"/>
+			<ZSection z="2.935*m" rMin="20.6199*cm" rMax="1.775*m"/>
+			<ZSection z="3.75*m" rMin="26.3457*cm" rMax="1.775*m"/>
+		</Polycone>
+		<Polycone name="ETC2" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="2.70888*m" rMin="1.238*m" rMax="1.238*m"/>
+			<ZSection z="2.85225*m" rMin="1.238*m" rMax="1.31741*m"/>
+			<ZSection z="3.04552*m" rMin="1.35227*m" rMax="1.42445*m"/>
+			<ZSection z="3.05756*m" rMin="1.35939*m" rMax="1.775*m"/>
+			<ZSection z="3.10606*m" rMin="1.38807*m" rMax="1.775*m"/>
+			<ZSection z="3.10606*m" rMin="1.7215*m" rMax="1.775*m"/>
+			<ZSection z="3.2885*m" rMin="1.7215*m" rMax="1.775*m"/>
+		</Polycone>
+		<Polycone name="ETC3" startPhi="-10*deg" deltaPhi="10*deg">
+			<ZSection z="2.70888*m" rMin="1.238*m" rMax="1.238*m"/>
+			<ZSection z="2.85225*m" rMin="1.238*m" rMax="1.31741*m"/>
+			<ZSection z="3.04552*m" rMin="1.35227*m" rMax="1.42445*m"/>
+			<ZSection z="3.05756*m" rMin="1.35939*m" rMax="1.775*m"/>
+			<ZSection z="3.10606*m" rMin="1.38807*m" rMax="1.775*m"/>
+			<ZSection z="3.10606*m" rMin="1.7215*m" rMax="1.775*m"/>
+			<ZSection z="3.2885*m" rMin="1.7215*m" rMax="1.775*m"/>
+		</Polycone>
+		<Polycone name="ETC4" startPhi="-8*deg" deltaPhi="16*deg">
+			<ZSection z="2.70888*m" rMin="1.238*m" rMax="1.238*m"/>
+			<ZSection z="2.85225*m" rMin="1.238*m" rMax="1.31741*m"/>
+			<ZSection z="3.04552*m" rMin="1.35227*m" rMax="1.42445*m"/>
+			<ZSection z="3.05756*m" rMin="1.35939*m" rMax="1.775*m"/>
+			<ZSection z="3.10606*m" rMin="1.38807*m" rMax="1.775*m"/>
+			<ZSection z="3.10606*m" rMin="1.7215*m" rMax="1.775*m"/>
+			<ZSection z="3.2885*m" rMin="1.7215*m" rMax="1.775*m"/>
+		</Polycone>
+	</SolidSection>
+	<LogicalPartSection label="ereg.xml">
+		<LogicalPart name="ECAL" category="unspecified">
+			<rSolid name="ECAL"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="EREG" category="unspecified">
+			<rSolid name="EREG"/>
+			<rMaterial name="materials:E_Air"/>
+		</LogicalPart>
+		<LogicalPart name="ETC2" category="unspecified">
+			<rSolid name="ETC2"/>
+			<rMaterial name="materials:T_Air"/>
+		</LogicalPart>
+		<LogicalPart name="ETC3" category="unspecified">
+			<rSolid name="ETC3"/>
+			<rMaterial name="materials:Tk_support"/>
+		</LogicalPart>
+		<LogicalPart name="ETC4" category="unspecified">
+			<rSolid name="ETC4"/>
+			<rMaterial name="materials:Tk_Cable_1"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<PosPartSection label="ereg.xml">
+		<PosPart copyNumber="1">
+			<rParent name="caloBase:CALO"/>
+			<rChild name="ereg:ECAL"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="ereg:ECAL"/>
+			<rChild name="ereg:EREG"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="ereg:ECAL"/>
+			<rChild name="ereg:EREG"/>
+			<rRotation name="rotations:180D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="ereg:EREG"/>
+			<rChild name="ereg:ETC2"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="ereg:ETC2"/>
+			<rChild name="ereg:ETC3"/>
+			<rRotation name="rotations:R180"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="ereg:ETC2"/>
+			<rChild name="ereg:ETC3"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="ereg:ETC2"/>
+			<rChild name="ereg:ETC4"/>
+			<rRotation name="rotations:R020"/>
+		</PosPart>
+		<PosPart copyNumber="2">
+			<rParent name="ereg:ETC2"/>
+			<rChild name="ereg:ETC4"/>
+			<rRotation name="rotations:R040"/>
+		</PosPart>
+		<PosPart copyNumber="3">
+			<rParent name="ereg:ETC2"/>
+			<rChild name="ereg:ETC4"/>
+			<rRotation name="rotations:R060"/>
+		</PosPart>
+		<PosPart copyNumber="4">
+			<rParent name="ereg:ETC2"/>
+			<rChild name="ereg:ETC4"/>
+			<rRotation name="rotations:R080"/>
+		</PosPart>
+		<PosPart copyNumber="5">
+			<rParent name="ereg:ETC2"/>
+			<rChild name="ereg:ETC4"/>
+			<rRotation name="rotations:R100"/>
+		</PosPart>
+		<PosPart copyNumber="6">
+			<rParent name="ereg:ETC2"/>
+			<rChild name="ereg:ETC4"/>
+			<rRotation name="rotations:R120"/>
+		</PosPart>
+		<PosPart copyNumber="7">
+			<rParent name="ereg:ETC2"/>
+			<rChild name="ereg:ETC4"/>
+			<rRotation name="rotations:R140"/>
+		</PosPart>
+		<PosPart copyNumber="8">
+			<rParent name="ereg:ETC2"/>
+			<rChild name="ereg:ETC4"/>
+			<rRotation name="rotations:R160"/>
+		</PosPart>
+		<PosPart copyNumber="9">
+			<rParent name="ereg:ETC2"/>
+			<rChild name="ereg:ETC4"/>
+			<rRotation name="rotations:R200"/>
+		</PosPart>
+		<PosPart copyNumber="10">
+			<rParent name="ereg:ETC2"/>
+			<rChild name="ereg:ETC4"/>
+			<rRotation name="rotations:R220"/>
+		</PosPart>
+		<PosPart copyNumber="11">
+			<rParent name="ereg:ETC2"/>
+			<rChild name="ereg:ETC4"/>
+			<rRotation name="rotations:R240"/>
+		</PosPart>
+		<PosPart copyNumber="12">
+			<rParent name="ereg:ETC2"/>
+			<rChild name="ereg:ETC4"/>
+			<rRotation name="rotations:R260"/>
+		</PosPart>
+		<PosPart copyNumber="13">
+			<rParent name="ereg:ETC2"/>
+			<rChild name="ereg:ETC4"/>
+			<rRotation name="rotations:R280"/>
+		</PosPart>
+		<PosPart copyNumber="14">
+			<rParent name="ereg:ETC2"/>
+			<rChild name="ereg:ETC4"/>
+			<rRotation name="rotations:R300"/>
+		</PosPart>
+		<PosPart copyNumber="15">
+			<rParent name="ereg:ETC2"/>
+			<rChild name="ereg:ETC4"/>
+			<rRotation name="rotations:R320"/>
+		</PosPart>
+		<PosPart copyNumber="16">
+			<rParent name="ereg:ETC2"/>
+			<rChild name="ereg:ETC4"/>
+			<rRotation name="rotations:R340"/>
+		</PosPart>
+	</PosPartSection>
+</DDDefinition>

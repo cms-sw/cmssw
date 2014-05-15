@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+<SpecParSection label="TBHcal03Sens.xml" eval="true">
+  <SpecPar name="hcal">
+    <PartSelector path="//HBS.*"/>
+    <PartSelector path="//HTS.*"/>
+    <PartSelector path="//.*HES.*"/>
+    <Parameter name="SensitiveDetector" value="HcalSensitiveDetector" eval="false"/>
+    <Parameter name="ReadOutName" value="HcalHits" eval="false"/>
+  </SpecPar>
+  <SpecPar name="ecal">
+    <PartSelector path="//HcalTBXtalCrystal"/>
+    <Parameter name="SensitiveDetector" value="EcalSensitiveDetector" eval="false"/>
+    <Parameter name="ReadOutName" value="EcalHitsEB" eval="false"/>
+  </SpecPar>
+</SpecParSection>
+</DDDefinition>

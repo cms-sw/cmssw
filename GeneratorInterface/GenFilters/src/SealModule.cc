@@ -41,6 +41,7 @@
 #include "GeneratorInterface/GenFilters/interface/LHEDYdecayFilter.h"
 #include "GeneratorInterface/GenFilters/interface/Zto2lFilter.h"
 #include "GeneratorInterface/GenFilters/interface/ZgMassFilter.h"
+#include "GeneratorInterface/GenFilters/interface/ZgammaMassFilter.h"
 
 
   using cms::BHFilter;
@@ -85,3 +86,4 @@
   DEFINE_FWK_MODULE(LHEDYdecayFilter);
   DEFINE_FWK_MODULE(Zto2lFilter);
   DEFINE_FWK_MODULE(ZgMassFilter);
+  DEFINE_FWK_MODULE(ZgammaMassFilter);

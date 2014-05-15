@@ -49,7 +49,7 @@ SiPixelWebInterface::~SiPixelWebInterface() {
 // 
 // -- Handles requests from WebElements submitting non-default requests 
 //
-void SiPixelWebInterface::handleEDARequest(xgi::Input* in,xgi::Output* out, int niter) {
+void SiPixelWebInterface::handleEDARequest(xgi::Input* in,xgi::Output* out, int niter, bool isUpgrade) {
   DQMScope enter;
   //DQMStore* bei = (*mui_p)->getBEInterface();
   CgiReader reader(in);
@@ -133,7 +133,7 @@ void SiPixelWebInterface::handleEDARequest(xgi::Input* in,xgi::Output* out, int 
   } else if (requestID == "PlotAsModule") {
     //theActionFlag = PlotSingleModuleHistos;    
     theActionFlag = NoAction;  
-//IASONAS//    infoExtractor_->getSingleModuleHistos(bei_, requestMap_, out);    
+    infoExtractor_->getSingleModuleHistos(bei_, requestMap_, out, isUpgrade);    
   } else if (requestID == "PlotHistogramFromPath") {
    //theActionFlag = PlotHistogramFromPath;
    theActionFlag = NoAction;
@@ -151,7 +151,7 @@ void SiPixelWebInterface::handleEDARequest(xgi::Input* in,xgi::Output* out, int 
     //out->getHTTPResponseHeader().addHeader("Expires","Mon, 26 Jul 1997 05:00:00 GMT");
     //*out << infoExtractor_->getNamedImage(theMEName).str();
     theActionFlag = NoAction;    
-//IASONAS//    infoExtractor_->getTrackerMapHistos(bei_, requestMap_, out);
+    infoExtractor_->getTrackerMapHistos(bei_, requestMap_, out, isUpgrade);
   //} else if (requestID == "UpdatePlot") {
   //  string theMEName = get_from_multimap(requestMap_, "MEName");
   //  out->getHTTPResponseHeader().addHeader("Content-Type", "image/png");
@@ -202,14 +202,14 @@ void SiPixelWebInterface::handleEDARequest(xgi::Input* in,xgi::Output* out, int 
     theActionFlag = dumpModIds;
   }
     
-  performAction();
+  performAction(isUpgrade);
 }
 
 //____________________________________________________________________________________________________
 // -- Perform action
 //
-void SiPixelWebInterface::performAction() {
-//cout<<"entering performAction..."<<endl;
+void SiPixelWebInterface::performAction(bool isUpgrade) {
+  //cout<<"entering performAction..."<<endl;
   //DQMStore * bei_ = (*mui_p)->getBEInterface();
   switch (theActionFlag) {
   case SiPixelWebInterface::CreateTkMap :
@@ -228,7 +228,7 @@ void SiPixelWebInterface::performAction() {
     }
   case SiPixelWebInterface::Summary :
     {
-      //ias actionExecutor_->createSummary(bei_, isUpgrade);
+      actionExecutor_->createSummary(bei_, isUpgrade);
       break;
     }
   case SiPixelWebInterface::Occupancy :

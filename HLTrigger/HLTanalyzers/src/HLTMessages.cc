@@ -132,3 +132,5 @@ const char * kECALActivityTrackIso          = "ECAL Activity TIso";
 const char * kECALActivityR9              = "ECAL Activity R9 spike cleaning";
 const char * kECALActivityR9ID          = "ECAL Activity R9ID";
 const char * kECALActivityHoverEH          = "ECAL Activity H for HoverE";
+
+const char * kPileupInfo                  = "MC Pileup information";

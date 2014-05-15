@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
+from SimGeneral.TrackingAnalysis.simHitTPAssociation_cfi import *
 from Validation.TrackerHits.trackerHitsValidation_cff import *
 from Validation.TrackerDigis.trackerDigisValidation_cff import *
 from Validation.TrackerRecHits.trackerRecHitsValidation_cff import *
@@ -29,6 +30,7 @@ from Validation.RecoVertex.VertexValidation_cff import *
 from Validation.RecoEgamma.egammaValidation_cff import *
 from Validation.RecoParticleFlow.PFJetValidation_cff  import *
 from Validation.RecoParticleFlow.PFMETValidation_cff import *
+from Validation.RecoParticleFlow.PFMuonValidation_cff import *
 from Validation.RPCRecHits.rpcRecHitValidation_cfi import *
 from Validation.DTRecHits.DTRecHitQuality_cfi import *
 from Validation.RecoTau.DQMMCValidation_cfi import *
@@ -36,7 +38,8 @@ from DQMOffline.RecoB.dqmAnalyzer_cff import *
 
 # filter/producer "pre-" sequence for globalValidation
 globalPrevalidation = cms.Sequence( 
-    tracksValidationSelectors
+    simHitTPAssocProducer
+  * tracksValidationSelectors
   * photonPrevalidationSequence
   * produceDenoms
   * prebTagSequence
@@ -75,6 +78,7 @@ globalValidation = cms.Sequence(   trackerHitsValidation
                                  + egammaValidation
                                  + pfJetValidationSequence
                                  + pfMETValidationSequence
+                                 + pfMuonValidationSequence
                                  + rpcRecHitValidation_step
 				 + dtLocalRecoValidation_no2D
                                  + pfTauRunDQMValidation

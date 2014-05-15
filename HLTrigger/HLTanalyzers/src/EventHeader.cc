@@ -41,8 +41,8 @@ void EventHeader::setup(TTree* HltTree) {
 }
 
 /* **Analyze the event** */
-void EventHeader::analyze(edm::Event const& iEvent, TTree* HltTree) {
-					
+void EventHeader::analyze(edm::Event const& iEvent, const edm::ESHandle<LumiCorrectionParam> & lumicorrdatahandle, TTree* HltTree) {
+  //void EventHeader::analyze(edm::Event const& iEvent, TTree* HltTree) {
   fRun 		= iEvent.id().run();
   fEvent 	= iEvent.id().event();
   fLumiBlock    = iEvent.luminosityBlock();
@@ -61,10 +61,21 @@ void EventHeader::analyze(edm::Event const& iEvent, TTree* HltTree) {
     lumiException = true;
   }
   if(!lumiException)
-    fAvgInstDelLumi = lumiSummary->avgInsDelLumi(); 
+    {
+      // Raw delivered lumi
+      fAvgInstDelLumi = lumiSummary->avgInsDelLumi(); 
+
+      // Now apply lumi corrections per LumiCalc#Luminosity_Objects_in_EDM_and_lu twiki
+      float instlumi = fAvgInstDelLumi;
+      float corrfac=1.;
+      if(lumicorrdatahandle.isValid()){
+      const LumiCorrectionParam* mydata=lumicorrdatahandle.product();
+      corrfac=mydata->getCorrection(instlumi);
+      fAvgInstDelLumi= corrfac * instlumi;
+      }
+    }
   else 
     fAvgInstDelLumi = -999.; 
-  
   
   if (_Debug) {	
     std::cout << "EventHeader -- run   = "          << fRun       << std::endl;

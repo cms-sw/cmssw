@@ -27,6 +27,9 @@
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
+#include "SimGeneral/TrackingAnalysis/interface/SimHitTPAssociationProducer.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 class TrajectoryStateClosestToBeamLineBuilder;
 
 class CosmicTrackingParticleSelector {
@@ -62,22 +65,26 @@ public:
 	event.getByLabel(edm::InputTag("offlineBeamSpot"), beamSpot); 
 	for( TrackingParticleCollection::const_iterator itp = c->begin(); 
 	     itp != c->end(); ++ itp )
-	  if ( operator()(*itp,beamSpot.product(),event,setup) ) {
+	  if ( operator()(TrackingParticleRef(c,itp-c->begin()),beamSpot.product(),event,setup) ) {
 	    selected_.push_back( & * itp );
 	  }
       }
       
     const_iterator begin() const { return selected_.begin(); }
     const_iterator end() const { return selected_.end(); }
-    
+
+    void initEvent(edm::Handle<SimHitTPAssociationProducer::SimHitTPAssociationList> simHitsTPAssocToSet) const {
+      simHitsTPAssoc = simHitsTPAssocToSet;
+    }
+
     // Operator() performs the selection: e.g. if (tPSelector(tp, bs, event, evtsetup)) {...
-    bool operator()( const TrackingParticle & tp, const reco::BeamSpot* bs, const edm::Event &iEvent, const edm::EventSetup& iSetup ) const { 
-      if (chargedOnly_ && tp.charge()==0) return false;//select only if charge!=0
+    bool operator()( const TrackingParticleRef tpr, const reco::BeamSpot* bs, const edm::Event &iEvent, const edm::EventSetup& iSetup ) const { 
+      if (chargedOnly_ && tpr->charge()==0) return false;//select only if charge!=0
       //bool testId = false;
       //unsigned int idSize = pdgId_.size();
       //if (idSize==0) testId = true;
       //else for (unsigned int it=0;it!=idSize;++it){
-	//if (tp.pdgId()==pdgId_[it]) testId = true;
+	//if (tpr->pdgId()==pdgId_[it]) testId = true;
       //}
       
       edm::ESHandle<TrackerGeometry> tracker;
@@ -90,16 +97,20 @@ public:
       GlobalPoint finalGP(0,0,0);      
       GlobalVector momentum(0,0,0);//At the PCA
       GlobalPoint vertex(0,0,0);//At the PCA
-#warning "This file has been modified just to get it to compile without any regard as to whether it still functions as intended"
-#ifdef REMOVED_JUST_TO_GET_IT_TO_COMPILE__THIS_CODE_NEEDS_TO_BE_CHECKED
       double radius(9999);
-#endif
       bool found(0);
-      
-#warning "This file has been modified just to get it to compile without any regard as to whether it still functions as intended"
-#ifdef REMOVED_JUST_TO_GET_IT_TO_COMPILE__THIS_CODE_NEEDS_TO_BE_CHECKED
-      const std::vector<PSimHit> & simHits = tp.trackPSimHit(DetId::Tracker);
-      for(std::vector<PSimHit>::const_iterator it=simHits.begin(); it!=simHits.end(); ++it){
+
+
+      if (simHitsTPAssoc.isValid()==0) {
+	edm::LogError("TrackAssociation") << "Invalid handle!";
+	return false;
+      }
+      std::pair<TrackingParticleRef, TrackPSimHitRef> clusterTPpairWithDummyTP(tpr,TrackPSimHitRef());//SimHit is dummy: for simHitTPAssociationListGreater 
+                                                                                                      // sorting only the cluster is needed
+      auto range = std::equal_range(simHitsTPAssoc->begin(), simHitsTPAssoc->end(), 
+				    clusterTPpairWithDummyTP, SimHitTPAssociationProducer::simHitTPAssociationListGreater);
+      for(auto ip = range.first; ip != range.second; ++ip) {
+	TrackPSimHitRef it = ip->second;
 	const GeomDet* tmpDet  = tracker->idToDet( DetId(it->detUnitId()) ) ;
 	LocalVector  lv = it->momentumAtEntry();
 	Local3DPoint lp = it->localPosition ();
@@ -112,11 +123,10 @@ public:
 	  finalGP = gp;
 	}
       }
-#endif
       if(!found) return 0;
       else
 	{
-	  FreeTrajectoryState ftsAtProduction(finalGP,finalGV,TrackCharge(tp.charge()),theMF.product());
+	  FreeTrajectoryState ftsAtProduction(finalGP,finalGV,TrackCharge(tpr->charge()),theMF.product());
 	  TSCBLBuilderNoMaterial tscblBuilder;
 	  TrajectoryStateClosestToBeamLine tsAtClosestApproach = tscblBuilder(ftsAtProduction,*bs);//as in TrackProducerAlgorithm
 	  if(!tsAtClosestApproach.isValid()){
@@ -128,7 +138,7 @@ public:
 	      momentum = tsAtClosestApproach.trackStateAtPCA().momentum();
 	      vertex = tsAtClosestApproach.trackStateAtPCA().position();
 	      return (
-		      tp.numberOfTrackerLayers() >= minHit_ &&
+		      tpr->numberOfTrackerLayers() >= minHit_ &&
 		      sqrt(momentum.perp2()) >= ptMin_ && 
 		      momentum.eta() >= minRapidity_ && momentum.eta() <= maxRapidity_ && 
 		      sqrt(vertex.perp2()) <= tip_ &&
@@ -151,7 +161,8 @@ public:
     bool chargedOnly_;
       std::vector<int> pdgId_;
       container selected_;
-      
+
+    mutable edm::Handle<SimHitTPAssociationProducer::SimHitTPAssociationList> simHitsTPAssoc;      
       
 };
 

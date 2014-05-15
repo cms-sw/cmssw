@@ -582,7 +582,7 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	    compatible = !(theSeedHits2.isOnTheSameLayer(theSeedHits1));
 
 	    // Check if the triplet is on the requested det combination
-	    if (!selectMuons) compatible = compatible && theSeedHits[0].makesATripletWith(theSeedHits[1],theSeedHits[2]);
+	    if (!selectMuons) compatible = compatible && theSeedHits[0].makesATripletWith(theSeedHits[1],theSeedHits[2],seedingAlgo[ialgo]);
 
 #ifdef FAMOS_DEBUG
 	    if ( compatible ) 

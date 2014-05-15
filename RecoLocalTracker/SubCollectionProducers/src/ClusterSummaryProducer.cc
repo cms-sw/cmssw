@@ -1,4 +1,6 @@
 #include "RecoLocalTracker/SubCollectionProducers/interface/ClusterSummaryProducer.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 ClusterSummaryProducer::ClusterSummaryProducer(const edm::ParameterSet& iConfig)
   : stripClustersLabel(iConfig.getParameter<edm::InputTag>("stripClusters")),
@@ -26,6 +28,12 @@ ClusterSummaryProducer::ClusterSummaryProducer(const edm::ParameterSet& iConfig)
 void
 ClusterSummaryProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  //Retrieve tracker topology from geometry
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  const TrackerTopology* tTopo = tTopoHandle.product();
+
+
    using namespace edm;
 
    cCluster.ClearUserModules();
@@ -60,7 +68,7 @@ ClusterSummaryProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       
 	   // For each ModuleSelector, check if the detID belongs to a desired module. If so, update the summary information for that module
 
-	   std::pair<int, int> ModSelect = ModuleSelectionVect.at(i) -> IsStripSelected( id );
+	   std::pair<int, int> ModSelect = ModuleSelectionVect.at(i) -> IsStripSelected( id,tTopo );
 	   int mod_pair = ModSelect.first;
 	   int mod_pair2 = ModSelect.second;
 
@@ -117,7 +125,7 @@ ClusterSummaryProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
 	   // For each ModuleSelector, check if the detID belongs to a desired module. If so, update the summary information for that module
 	 
-	   std::pair<int, int> ModSelectPixel = ModuleSelectionVectPixels.at(i) -> IsPixelSelected( detid );
+	   std::pair<int, int> ModSelectPixel = ModuleSelectionVectPixels.at(i) -> IsPixelSelected( detid,tTopo );
 	   int mod_pair = ModSelectPixel.first;
 	   int mod_pair2 = ModSelectPixel.second;
 	   if ( mod_pair ){

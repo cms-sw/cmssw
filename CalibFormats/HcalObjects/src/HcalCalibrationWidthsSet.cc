@@ -1,5 +1,7 @@
 #include "CalibFormats/HcalObjects/interface/HcalCalibrationWidthsSet.h"
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include <algorithm>
 #include <iostream>
@@ -17,18 +19,22 @@ const HcalCalibrationWidths& HcalCalibrationWidthsSet::getCalibrationWidths(cons
   else {
     cell = std::find(mItems.begin(),mItems.end(), target);
   }
-  if (cell == mItems.end() || cell->id != fId) 
+  if (cell == mItems.end() || 
+      ((fId.det()==DetId::Hcal && HcalDetId(cell->id) != HcalDetId(fId)) ||
+       (fId.det()==DetId::Calo && fId.subdetId()==HcalZDCDetId::SubdetectorId && HcalZDCDetId(cell->id) != HcalZDCDetId(fId)) ||
+       (fId.det()!=DetId::Hcal && (fId.det()==DetId::Calo && fId.subdetId()!=HcalZDCDetId::SubdetectorId) && (cell->id != fId))))
     throw cms::Exception ("Conditions not found") << "Unavailable HcalCalibrationWidths for cell " << HcalGenericDetId(fId);
   return cell->calib;
 }
 
 void HcalCalibrationWidthsSet::setCalibrationWidths(DetId fId, const HcalCalibrationWidths& ca) {
+  Item target(fId);
   sorted_=false;
-  std::vector<Item>::iterator cell=std::find(mItems.begin(),mItems.end(),Item(fId)); //slow, but guaranteed
+  std::vector<Item>::iterator cell=std::find(mItems.begin(),mItems.end(),target); //slow, but guaranteed
   if (cell==mItems.end()) 
     {
-      mItems.push_back(Item(fId));
-      mItems.at(mItems.size()-1).calib=ca;
+      target.calib=ca;
+      mItems.push_back(target);
       return;
     }
   cell->calib=ca;

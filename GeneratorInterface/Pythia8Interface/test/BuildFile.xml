@@ -1,0 +1,14 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="root"/>
+<use name="SimDataFormats/GeneratorProducts"/> 
+<use name="GeneratorInterface/Core"/>
+<use name="CommonTools/UtilAlgos"/>
+
+#<library file="analyserhepmc/LeptonAnalyserHepMC.cc" name="AnalyserHepMC">
+#  <flags EDM_PLUGIN="1"/>
+#</library>
+
+<library file="ZJetsAnalyzer.cc,analyserhepmc/LeptonAnalyserHepMC.cc,analyserhepmc/JetInputHepMC.cc" name="ZJetsTestAnalyzer">
+  <flags EDM_PLUGIN="1"/>
+</library>

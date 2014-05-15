@@ -17,65 +17,36 @@ process.maxEvents = cms.untracked.PSet(
 )
 ## configure process options
 process.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool(False)
+    allowUnscheduled = cms.untracked.bool(True),
+    wantSummary      = cms.untracked.bool(True)
 )
 
 ## configure geometry & conditions
-#process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.Geometry.GeometryIdeal_cff")
-process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-
-from Configuration.AlCa.autoCond import autoCond
-process.GlobalTag.globaltag = autoCond['mc']
-
-#-------------------------------------------------
-# TQAF configuration
-# (comment the patDefaultSequence from the path if
-# you want to produce TQAF on top of already
-# existing PAT objects)
-#-------------------------------------------------
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup')
+process.load("Configuration.StandardSequences.MagneticField_cff")
 
 ## std sequence for PAT
-process.load("PhysicsTools.PatAlgos.patSequences_cff")
+process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
+process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
 
 ## std sequence for TQAF
 process.load("TopQuarkAnalysis.TopEventProducers.tqafSequences_cff")
 
-## switch jet collection
-#from PhysicsTools.PatAlgos.tools.jetTools import *
-#switchJetCollection(process, 
-#                    cms.InputTag('sisCone5CaloJets'),
-#                    doJTA            = True,           
-#                    doBTagging       = True,           
-#                    jetCorrLabel     = ('SC5','Calo'),
-#                    doType1MET       = True,          
-#                    genJetCollection = cms.InputTag("sisCone5GenJets"),
-#                    doJetID          = True,
-#                    jetIdLabel       = "sc5"
-#                    )
-
-## process path
-process.p = cms.Path(process.patDefaultSequence *
-                     process.tqafTtSemiLeptonic
-                     )
-
 ## configure output module
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName       = cms.untracked.string('tqafOutput.root'),
-    SelectEvents   = cms.untracked.PSet(SelectEvents = cms.vstring('p') ),
-    outputCommands = cms.untracked.vstring('drop *'),                      
+    fileName       = cms.untracked.string('tqaf.root'),
+    outputCommands = cms.untracked.vstring('drop *'),
     dropMetaData   = cms.untracked.string("DROPPED")  ## NONE    for none
                                                       ## DROPPED for drop for dropped data
 )
 process.outpath = cms.EndPath(process.out)
 
 ## PAT content
-from PhysicsTools.PatAlgos.patEventContent_cff import *
-process.out.outputCommands += patTriggerEventContent
-process.out.outputCommands += patExtraAodEventContent
+from PhysicsTools.PatAlgos.patEventContent_cff import patEventContentNoCleaning
 process.out.outputCommands += patEventContentNoCleaning
-
 ## TQAF content
-from TopQuarkAnalysis.TopEventProducers.tqafEventContent_cff import *
+from TopQuarkAnalysis.TopEventProducers.tqafEventContent_cff import tqafEventContent
 process.out.outputCommands += tqafEventContent

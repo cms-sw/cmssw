@@ -11,10 +11,10 @@ from TopQuarkAnalysis.TopEventProducers.sequences.ttFullLepEvtHypotheses_cff imp
 ## configure ttFullLepEventBuilder
 from TopQuarkAnalysis.TopEventProducers.producers.TtFullLepEvtBuilder_cfi import *
 
-## make ttFullLepEvent
-makeTtFullLepEvent = cms.Sequence(makeTtFullLepHypotheses *
-                                  ttFullLepEvent
-                                  )
+### make ttFullLepEvent
+#makeTtFullLepEvent = cms.Sequence(makeTtFullLepHypotheses *
+                                  #ttFullLepEvent
+                                  #)
 
 
 ################################################################################
@@ -24,15 +24,16 @@ makeTtFullLepEvent = cms.Sequence(makeTtFullLepHypotheses *
 
 ## remove genMatch hypothesis from the process
 def removeTtFullLepHypGenMatch(process):
-    process.makeTtFullLepHypotheses.remove(process.makeHypothesis_genMatch)
+    #process.makeTtFullLepHypotheses.remove(process.makeHypothesis_genMatch)
     process.ttFullLepEvent.hypotheses.remove("ttFullLepHypGenMatch")
+    process.ttFullLepEvent.genEvent = ''
 
 
 ## set a specific attribute for all hypotheses to a given value
 ## -> this works for "jets", "leps", "mets", "maxNJets"
 def setForAllTtFullLepHypotheses(process, attribute, value):
     modules = ["ttFullLepJetPartonMatch",
-               "ttFullLepHypGenMatch",     
+               "ttFullLepHypGenMatch",
                "ttFullLepHypKinSolution",
 	       "kinSolutionTtFullLepEventHypothesis"]
     for obj in range(len(modules)):

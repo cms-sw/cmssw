@@ -41,7 +41,7 @@ class TrackerInteractionGeometry;
 class TrackerLayer;
 class ParticlePropagator;
 class FSimEvent;
-//class Histos;
+class Histos;
 class RandomEngine;
 class TrajectoryStateOnSurface;
 class DetLayer;
@@ -163,6 +163,5 @@ class TrajectoryManager
 
   const RandomEngine* random;
 
-  bool use_hardcoded;
 };
 #endif

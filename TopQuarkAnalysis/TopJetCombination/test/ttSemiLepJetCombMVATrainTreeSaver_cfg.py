@@ -23,20 +23,20 @@ process.maxEvents = cms.untracked.PSet(
 
 ## configure process options
 process.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool(False)
+    allowUnscheduled = cms.untracked.bool(True),
+    wantSummary      = cms.untracked.bool(True)
 )
 
 ## configure geometry & conditions
-#process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.Geometry.GeometryIdeal_cff")
-process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-
-from Configuration.AlCa.autoCond import autoCond
-process.GlobalTag.globaltag = autoCond['mc']
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup')
+process.load("Configuration.StandardSequences.MagneticField_cff")
 
 ## std sequence for pat
-process.load("PhysicsTools.PatAlgos.patSequences_cff")
+process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
+process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
 
 ## std sequence for ttGenEvent
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
@@ -61,8 +61,4 @@ process.load("TopQuarkAnalysis.TopJetCombination.TtSemiLepJetCombMVATrainTreeSav
 from TopQuarkAnalysis.TopJetCombination.TtSemiLepJetCombMVATrainTreeSaver_cff import looper
 process.looper = looper
 
-process.p = cms.Path(process.makeGenEvt *
-                     process.patDefaultSequence *
-                     process.ttSemiLeptonicFilter *
-                     process.ttSemiLepJetPartonMatch *
-                     process.saveTtSemiLepJetCombMVATrainTree)
+process.p = cms.Path(process.trainTtSemiLepJetCombMVA)

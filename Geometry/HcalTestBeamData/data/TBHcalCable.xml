@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+ <Algorithm name="hcal:DDHCalTBCableAlgo">
+  <rParent name="TBHcal:HCal"/>
+  <String name="MotherName" value="HcalCable"/>
+  <String name="RotNameSpace" value="hcalrotations"/>
+  <String name="MaterialName" value="materials:Air"/>
+  <Numeric name="NSector" value="18"/>
+  <Numeric name="NSectorTot" value="2"/>
+  <Numeric name="NHalf" value="1"/>
+  <Numeric name="RIn" value="1777*mm"/>
+  <Vector name="Theta" type="numeric" nEntries="5">
+   60.1*deg, 62.1*deg, 37.0*deg, 0.0*deg, 0.0*deg
+  </Vector>
+  <Vector name="RMax" type="numeric" nEntries="5">
+   1927.5*mm, 2027.2*mm, 2699.2*mm, 2754.5*mm, 2876.5*mm
+  </Vector>
+  <Vector name="ZOff" type="numeric" nEntries="5">
+   -4.43*mm, -3.11*mm, 2298.0*mm, 4332.0*mm, 4017.0*mm
+  </Vector>
+  <String name="AbsMatName" value="materials:Aluminium"/>
+  <Numeric name="Thickness" value="70.5*mm"/>
+  <Numeric name="Width1" value="90.5*mm"/>
+  <Numeric name="Length1" value="820.0*mm"/>
+  <Numeric name="Width2" value="146.0*mm"/>
+  <Numeric name="Length2" value="800.0*mm"/>
+  <Numeric name="Gap2" value="50.0*mm"/>
+ </Algorithm>
+</DDDefinition>

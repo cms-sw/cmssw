@@ -7,7 +7,7 @@ gtDigisExist=0  # =1 use existing gtDigis on the input file, =0 extract gtDigis 
 isData=0 # =1 running on real data, =1 running on MC
 
 OUTPUT_HIST='hltbits.root'
-NEVTS=1000
+NEVTS=-1
 
 ##################################################################
 
@@ -22,8 +22,8 @@ process.options = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-                                'rfio:/castor/cern.ch/user/h/hartl/0301-232138__hlt_hpu_skim_presc7e33/outputA.root'
-#         '/store/relval/CMSSW_4_2_0_pre8/RelValWE/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V7-v1/0045/167F1B19-E956-E011-BD41-002618943969.root'
+'/store/data/Run2012C/MinimumBias/RAW-RECO/HLTPhysics-Tier1PromptSkim-v3/000/198/969/00000/C8575CDA-A8D1-E111-A17B-E0CB4E1A1193.root'
+#'/store/data/Run2012C/LP_Jets1/RAW/v1/000/198/449/F0CDFC81-35C8-E111-8D6C-003048678110.root'
     )
 )
 

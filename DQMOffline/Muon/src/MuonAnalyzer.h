@@ -18,10 +18,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/Common/interface/TriggerResults.h"
-#include "DataFormats/HLTReco/interface/TriggerEvent.h"
-#include "DataFormats/HLTReco/interface/TriggerObject.h"
-#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+//#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+//#include "DataFormats/HLTReco/interface/TriggerObject.h"
+//#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
+//#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 //
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 
@@ -34,7 +34,7 @@ class MuonKinVsEtaAnalyzer;
 class DiMuonHistograms;
 class DQMStore;
 class MuonServiceProxy;
-class MuonRecoOneHLT;
+//class MuonRecoOneHLT;
 class EfficiencyAnalyzer;
 
 class MuonAnalyzer : public edm::EDAnalyzer {
@@ -80,7 +80,7 @@ class MuonAnalyzer : public edm::EDAnalyzer {
   bool theMuonKinVsEtaAnalyzerFlag;
   bool theMuonSegmentsAnalyzerFlag;
   bool theDiMuonHistogramsFlag;
-  bool theMuonRecoOneHLTAnalyzerFlag;
+  //  bool theMuonRecoOneHLTAnalyzerFlag;
   bool theEfficiencyAnalyzerFlag;
  
   // Define Analysis Modules
@@ -91,7 +91,7 @@ class MuonAnalyzer : public edm::EDAnalyzer {
   SegmentTrackAnalyzer*      theGlbMuonSegmentsAnalyzer;
   SegmentTrackAnalyzer*      theStaMuonSegmentsAnalyzer;
   DiMuonHistograms*          theDiMuonHistograms;
-  MuonRecoOneHLT*            theMuonRecoOneHLTAnalyzer;
+  //  MuonRecoOneHLT*            theMuonRecoOneHLTAnalyzer;
   EfficiencyAnalyzer*        theEfficiencyAnalyzer; 
 };
 #endif  

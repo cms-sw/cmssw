@@ -1,3 +1,4 @@
+// -*- mode: c++ -*- 
 #ifndef HcalSimAlgos_HcalTDC_h
 #define HcalSimAlgos_HcalTDC_h
 
@@ -26,10 +27,14 @@ public:
 
 private:
   double getThreshold(const HcalGenericDetId & detId) const;
+  double getHysteresisThreshold(double nominal) const;
+
   HcalTDCParameters theTDCParameters;
   const HcalDbService * theDbService;
 
   unsigned int theDAC;
+
+  double const lsb;
 
   mutable CLHEP::RandGaussQ * theRandGaussQ;
 };

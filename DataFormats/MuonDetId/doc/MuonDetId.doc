@@ -19,6 +19,8 @@ Concrete DetId classes for muon detectors (all subsystems).
 - CSCDetId
 - CSCTriggerNumbering
 - RPCDetId
+- GEMDetId
+- ME0DetId
 
 The DT DetIds have been specialized for the various levels of the DT geometry:
 - DTChamberId
@@ -35,6 +37,7 @@ None.
 - testCSCDetId : unit test
 - testDTDetId : unit test
 - testRPCDetId : unit test
+- testME0DetId : unit test
 
 \section status Status and planned development
 <!-- e.g. completed, stable, missing features -->

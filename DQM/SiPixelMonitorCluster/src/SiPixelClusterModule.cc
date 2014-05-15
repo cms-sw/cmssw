@@ -535,9 +535,9 @@ int SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& input
       LocalPoint clustlp = topol->localPosition( MeasurementPoint(x, y) );
       GlobalPoint clustgp = theGeomDet->surface().toGlobal( clustlp );
       //**end
-      if(modon){
-	(meCharge_)->Fill((float)charge);
-	(meSize_)->Fill((int)size);
+      //if(modon){
+	if(modon) (meCharge_)->Fill((float)charge);
+	if(modon) (meSize_)->Fill((int)size);
         DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
 	std::string currDir = theDMBE->pwd();
 	theDMBE->cd("Pixel/Clusters/OffTrack/");
@@ -625,7 +625,7 @@ int SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& input
 	}
 	//      (meEdgeHitX_)->Fill((int)edgeHitX);
 	//      (meEdgeHitY_)->Fill((int)edgeHitY);
-      }
+      //}//endifmodOn
       //**
       if(barrel && smileyon){
         (meSizeYvsEtaBarrel_)->Fill(clustgp.eta(),sizeY);

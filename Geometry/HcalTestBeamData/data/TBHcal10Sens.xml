@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+<SpecParSection label="TBHcal10Sens.xml" eval="true">
+  <SpecPar name="hcal">
+    <PartSelector path="//HBS.*"/>
+    <PartSelector path="//HTS.*"/>
+    <PartSelector path="//.*HES.*"/>
+    <Parameter name="SensitiveDetector" value="HcalSensitiveDetector" eval="false"/>
+    <Parameter name="ReadOutName" value="HcalHits" eval="false"/>
+  </SpecPar>
+  <SpecPar name="hcalbeam">
+    <PartSelector path="//HcalTestBeamLineS.*"/>
+    <PartSelector path="//HcalTestBeamLineHaloCounter"/>
+    <PartSelector path="//HcalTestBeamLineMuonCounter"/>
+    <PartSelector path="//HcalTestBeamLineCK3"/>
+    <PartSelector path="//HcalTestBeamLineWChambGas"/>
+    <Parameter name="SensitiveDetector" value="HcalTB06BeamDetector" eval="false"/>
+    <Parameter name="ReadOutName" value="HcalTB06BeamHits" eval="false"/>
+  </SpecPar>
+  <SpecPar name="hcalbeamWC">
+    <PartSelector path="//HcalTestBeamLineWChambGas"/>
+    <Parameter name="Volume" value="WireChamber" eval="false"/>
+  </SpecPar>
+</SpecParSection>
+</DDDefinition>

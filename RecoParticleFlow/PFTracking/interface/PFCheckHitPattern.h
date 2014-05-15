@@ -15,6 +15,7 @@
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #define DEBUG_CHECKHITPATTERN
 
@@ -48,7 +49,8 @@ class PFCheckHitPattern {
   /// on track.
 
   PFTrackHitFullInfo 
-    analyze(edm::ESHandle<TrackerGeometry>, const reco::TrackBaseRef track, 
+    analyze(edm::ESHandle<TrackerGeometry>, edm::ESHandle<TrackerTopology>, 
+	    const reco::TrackBaseRef track, 
 	    const TransientVertex& vert);
 
   /// Print hit pattern on track
@@ -58,12 +60,12 @@ class PFCheckHitPattern {
 
 private:
   /// Create map indicating r/z values of all layers/disks.
-  void init (edm::ESHandle<TrackerGeometry>);
+  void init (edm::ESHandle<TrackerGeometry>,
+	     edm::ESHandle<TrackerTopology>);
 
   /// Return a pair<uint32, uint32> consisting of the numbers used by HitPattern to 
   /// identify subdetector and layer number respectively.
   typedef std::pair<uint32_t, uint32_t> DetInfo;
-  static DetInfo interpretDetId(DetId detId);
 
   /// Return a bool indicating if a given subdetector is in the barrel.
   static bool barrel(uint32_t subDet);

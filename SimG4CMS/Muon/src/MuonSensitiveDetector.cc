@@ -1,8 +1,9 @@
 #include "SimG4CMS/Muon/interface/MuonSensitiveDetector.h"
 #include "SimG4CMS/Muon/interface/MuonSlaveSD.h"
 #include "SimG4CMS/Muon//interface/MuonEndcapFrameRotation.h"
-#include "SimG4CMS/Muon/interface/MuonGemFrameRotation.h"
 #include "SimG4CMS/Muon/interface/MuonRpcFrameRotation.h"
+#include "SimG4CMS/Muon/interface/MuonGemFrameRotation.h"
+#include "SimG4CMS/Muon/interface/MuonMe0FrameRotation.h"
 #include "Geometry/MuonNumbering/interface/MuonSubDetector.h"
 
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
@@ -58,6 +59,9 @@ MuonSensitiveDetector::MuonSensitiveDetector(std::string name,
   } else if (detector->isGem()) {
     //    cout << "MuonFrameRotation create MuonGemFrameRotation"<<endl;
     theRotation=new MuonGemFrameRotation( cpv );
+  } else if (detector->isME0()) {
+    //    cout << "MuonFrameRotation create MuonMe0FrameRotation"<<endl;
+    theRotation=new MuonMe0FrameRotation( cpv );
   }  else {
     theRotation = 0;
   }

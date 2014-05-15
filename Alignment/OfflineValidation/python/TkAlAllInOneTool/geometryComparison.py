@@ -151,7 +151,7 @@ class GeometryComparison(GenericValidation):
                         "fi\n")
                    repMap["runComparisonScripts"] += \
                        ("rfcp .oO[CMSSW_BASE]Oo./src/Alignment"
-                        "/OfflineValidation/scripts/makeArrowPlots "
+                        "/OfflineValidation/scripts/makeArrowPlots.C "
                         "$CWD/TkAllInOneTool\n"
                         "root -b -q 'makeArrowPlots.C(\""
                         ".oO[name]Oo..Comparison_common"+name

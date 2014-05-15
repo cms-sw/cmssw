@@ -1288,7 +1288,7 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
 	  int actual_size = gsum_mes.size();
 	  int wanted_size = me_names.size();
 	  if (actual_size !=  wanted_size) { */
-	  if (first_subdir){
+	  if (first_subdir && !isUpgrade){
 //	    bool create_me = true;
 	    nbin = me->getTH1F()->GetNbinsX();        
 	    string me_name = prefix + "_" + (*iv) + "_" + dir_name;
@@ -1302,9 +1302,21 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
 	    else if(dir_name.find("Blade")!=string::npos) nbin=7;
 	    //else if(dir_name.find("Panel_1")!=string::npos) nbin=4;
 	    //else if(dir_name.find("Panel_2")!=string::npos) nbin=3;
-		//cout << dir_name.c_str() << "\t" << nbin << endl;
-		getGrandSummaryME(bei, nbin, me_name, gsum_mes);
-	  }
+	    //cout << dir_name.c_str() << "\t" << nbin << endl;
+	    getGrandSummaryME(bei, nbin, me_name, gsum_mes);
+	  } else if(first_subdir && isUpgrade){
+            nbin = me->getTH1F()->GetNbinsX();        
+	    string me_name = prefix + "_" + (*iv) + "_" + dir_name;
+	    if((*iv)=="adcCOMB"||(*iv)=="chargeCOMB") me_name = "ALLMODS_" + (*iv) + "_" + dir_name;
+	    else if(prefix=="SUMOFF" && dir_name=="Endcap") nbin=336;
+	    else if(dir_name=="Endcap") nbin=672;
+	    else if(prefix=="SUMOFF" && dir_name.find("HalfCylinder")!=string::npos) nbin=84;
+	    else if(dir_name.find("HalfCylinder")!=string::npos) nbin=168;
+	    else if(prefix=="SUMOFF" && dir_name.find("Disk")!=string::npos) nbin=28;
+	    else if(dir_name.find("Disk")!=string::npos) nbin=56;
+	    else if(dir_name.find("Blade")!=string::npos) nbin=2;
+            getGrandSummaryME(bei, nbin, me_name, gsum_mes);
+          }
 	  /*
 
 	    for (vector<MonitorElement*>::const_iterator igm = gsum_mes.begin();
@@ -1379,23 +1391,25 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
 	        }else if((*igm)->getName().find("ALLMODS_chargeCOMB_")!=string::npos){
 		  nbin_subdir=100;
 	        }else if((*igm)->getName().find("Panel_") != string::npos){
-		  nbin_subdir=7;
-//	        }else if((*igm)->getName().find("Panel_1") != string::npos){
-//		  nbin_subdir=4;
-//	        }else if((*igm)->getName().find("Panel_2") != string::npos){
-//		  nbin_subdir=3;
+		  nbin_subdir=2;
+		  //	        }else if((*igm)->getName().find("Panel_1") != string::npos){
+		  //		  nbin_subdir=4;
+		  //	        }else if((*igm)->getName().find("Panel_2") != string::npos){
+		  //		  nbin_subdir=3;
 	        }else if((*igm)->getName().find("Blade") != string::npos){
 		  if((*im).find("_1") != string::npos) nbin_subdir=1;
 		  if((*im).find("_2") != string::npos) {nbin_i=1; nbin_subdir=1;}
 	        }else if((*igm)->getName().find("Disk") != string::npos){
-		  nbin_i=((cnt-1)%17); nbin_subdir=1;
+		  nbin_i=((cnt-1)%28)*2; nbin_subdir=2;
 	        }else if((*igm)->getName().find("HalfCylinder") != string::npos){
 		  if(prefix!="SUMOFF"){
 		    nbin_subdir=56;
 		    if((*im).find("_2") != string::npos) nbin_i=56;
+                    if((*im).find("_3") != string::npos) nbin_i=112;
 		  }else{
-		    nbin_subdir=17;
-		    if((*im).find("_2") != string::npos) nbin_i=17;
+		    nbin_subdir=28;
+		    if((*im).find("_2") != string::npos) nbin_i=28;
+                    if((*im).find("_3") != string::npos) nbin_i=56;
 		  }
 	        }else if((*igm)->getName().find("Endcap") != string::npos){
 		  if(prefix!="SUMOFF"){
@@ -1404,10 +1418,10 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore* bei,
 		    if((*im).find("_pI") != string::npos) nbin_i=336;
 		    if((*im).find("_pO") != string::npos) nbin_i=504;
 		  }else{
-		    nbin_subdir=28;
-		    if((*im).find("_mO") != string::npos) nbin_i=28;
-		    if((*im).find("_pI") != string::npos) nbin_i=56;
-		    if((*im).find("_pO") != string::npos) nbin_i=84;
+		    nbin_subdir=84;
+		    if((*im).find("_mO") != string::npos) nbin_i=84;
+		    if((*im).find("_pI") != string::npos) nbin_i=168;
+		    if((*im).find("_pO") != string::npos) nbin_i=252;
 		  }
 	        }
               }
@@ -1537,15 +1551,15 @@ MonitorElement* SiPixelActionExecutor::getSummaryME(DQMStore* bei,
   }//endifNOTUpgrade
   else if (isUpgrade) {
     if(me_name.find("SUMOFF")==string::npos){
-          if(me_name.find("Blade_")!=string::npos)me = bei->book1D(me_name.c_str(), me_name.c_str(),7,1.,8.);
-          else me = bei->book1D(me_name.c_str(), me_name.c_str(),4,1.,5.);
-//      if(me_name.find("Panel_2")!=string::npos)  me = bei->book1D(me_name.c_str(), me_name.c_str(),3,1.,4.);
-//      else me = bei->book1D(me_name.c_str(), me_name.c_str(),4,1.,5.);
+      if(me_name.find("Blade_")!=string::npos)me = bei->book1D(me_name.c_str(), me_name.c_str(),2,1.,3.);
+      else me = bei->book1D(me_name.c_str(), me_name.c_str(),1,1.,2.);
+      //      if(me_name.find("Panel_2")!=string::npos)  me = bei->book1D(me_name.c_str(), me_name.c_str(),3,1.,4.);
+      //      else me = bei->book1D(me_name.c_str(), me_name.c_str(),4,1.,5.);
     }else if(me_name.find("Layer_1")!=string::npos){ me = bei->book1D(me_name.c_str(), me_name.c_str(),6,1.,7.);
     }else if(me_name.find("Layer_2")!=string::npos){ me = bei->book1D(me_name.c_str(), me_name.c_str(),14,1.,15.);
     }else if(me_name.find("Layer_3")!=string::npos){ me = bei->book1D(me_name.c_str(), me_name.c_str(),22,1.,23.);
     }else if(me_name.find("Layer_4")!=string::npos){ me = bei->book1D(me_name.c_str(), me_name.c_str(),32,1.,33.);
-    }else if(me_name.find("Disk_")!=string::npos){ me = bei->book1D(me_name.c_str(), me_name.c_str(),17,1.,18.);
+    }else if(me_name.find("Disk_")!=string::npos){ me = bei->book1D(me_name.c_str(), me_name.c_str(),28,1.,29.);
     }
   }//endifUpgrade
   

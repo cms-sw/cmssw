@@ -235,7 +235,7 @@ void SiPixelEDAClient::analyze(const edm::Event& e, const edm::EventSetup& eSetu
     
     // This is needed for plotting with the Pixel Expert GUI (interactive client):
     sipixelWebInterface_->setActionFlag(SiPixelWebInterface::CreatePlots);
-    sipixelWebInterface_->performAction();
+    sipixelWebInterface_->performAction(isUpgrade_);
   }
   
 }
@@ -255,12 +255,12 @@ void SiPixelEDAClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
   //if(actionOnLumiSec_ && !Tier0Flag_ && nLumiSecs_ % 1 == 0 ){
   if(actionOnLumiSec_ && nLumiSecs_ % 1 == 0 ){
     sipixelWebInterface_->setActionFlag(SiPixelWebInterface::Summary);
-    sipixelWebInterface_->performAction();
+    sipixelWebInterface_->performAction(isUpgrade_);
      //cout << " Updating efficiency plots" << endl;
     if(doHitEfficiency_) sipixelActionExecutor_->createEfficiency(bei_, isUpgrade_);
     //cout << " Checking QTest results " << endl;
     sipixelWebInterface_->setActionFlag(SiPixelWebInterface::QTestResult);
-    sipixelWebInterface_->performAction();
+    sipixelWebInterface_->performAction(isUpgrade_);
      //cout << " Updating occupancy plots" << endl;
     sipixelActionExecutor_->createOccupancy(bei_);
     //cout  << " Checking Pixel quality flags " << endl;;
@@ -296,12 +296,12 @@ void SiPixelEDAClient::endRun(edm::Run const& run, edm::EventSetup const& eSetup
   if(actionOnRunEnd_){
     //cout << " Updating Summary " << endl;
     sipixelWebInterface_->setActionFlag(SiPixelWebInterface::Summary);
-//IASONAS//    sipixelWebInterface_->performAction();
+    sipixelWebInterface_->performAction(isUpgrade_);
      //cout << " Updating efficiency plots" << endl;
     if(doHitEfficiency_) sipixelActionExecutor_->createEfficiency(bei_, isUpgrade_);
     //cout << " Checking QTest results " << endl;
     sipixelWebInterface_->setActionFlag(SiPixelWebInterface::QTestResult);
-    sipixelWebInterface_->performAction();
+    sipixelWebInterface_->performAction(isUpgrade_);
     //cout << " Updating occupancy plots" << endl;
     sipixelActionExecutor_->createOccupancy(bei_);
     //cout  << " Checking Pixel quality flags " << endl;;
@@ -359,7 +359,7 @@ void SiPixelEDAClient::defaultWebPage(xgi::Input *in, xgi::Output *out)
   }  else {
     // Handles all HTTP requests of the form
     int iter = nEvents_/100;
-    sipixelWebInterface_->handleEDARequest(in, out, iter);
+    sipixelWebInterface_->handleEDARequest(in, out, iter, isUpgrade_);
   }
 
 //  cout<<"...leaving SiPixelEDAClient::defaultWebPage. "<<endl;

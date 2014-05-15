@@ -13,6 +13,7 @@
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
@@ -77,10 +78,12 @@ class PFDisplacedVertexFinder {
   /// Sets parameters for track extrapolation and hits study
   void setEdmParameters( const MagneticField* magField,
 			 edm::ESHandle<GlobalTrackingGeometry> globTkGeomHandle,
-			 edm::ESHandle<TrackerGeometry> tkerGeomHandle){ 
+			 edm::ESHandle<TrackerGeometry> tkerGeomHandle,
+			 edm::ESHandle<TrackerTopology> tTopoHand){ 
     magField_ = magField; 
     globTkGeomHandle_ = globTkGeomHandle;
     tkerGeomHandle_ = tkerGeomHandle; 
+    tTopoHand_ = tTopoHand;
   }
 
   void setTracksSelector(const edm::ParameterSet& ps){
@@ -184,6 +187,7 @@ class PFDisplacedVertexFinder {
 
   /// doc? 
   edm::ESHandle<TrackerGeometry> tkerGeomHandle_;
+  edm::ESHandle<TrackerTopology> tTopoHand_;
 
   /// to be able to extrapolate tracks f
   const MagneticField* magField_;

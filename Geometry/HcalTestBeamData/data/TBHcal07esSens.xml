@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+ <SpecParSection label="TBHcal07esSens" eval="true">
+  <SpecPar name="ecal_sf">
+   <PartSelector path="//SFSX"/>
+   <PartSelector path="//SFSY"/>
+   <Parameter name="SensitiveDetector" value="EcalSensitiveDetector" eval="false"/>
+   <Parameter name="ReadOutName" value="EcalHitsES" eval="false"/>
+  </SpecPar>
+  <SpecPar name="preshower">
+   <PartSelector path="//SFSX"/>
+   <PartSelector path="//SFSY"/>
+   <Parameter name="CMSCutsRegion" value="PreshowerSensRegion" eval="false"/>
+   <Parameter name="ProdCutsForElectrons" value="0.1*mm"/>
+   <Parameter name="ProdCutsForPositrons" value="0.1*mm"/>
+   <Parameter name="ProdCutsForGamma" value="0.1*mm"/>
+  </SpecPar>
+ </SpecParSection>
+</DDDefinition>

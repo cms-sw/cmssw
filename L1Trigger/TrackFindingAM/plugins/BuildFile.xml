@@ -1,0 +1,20 @@
+<library   file="*.cc" name="L1TriggerTrackFindingAMPlugins">
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/PluginManager"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/Utilities"/>
+  <use   name="Geometry/Records"/>
+  <use   name="MagneticField/Engine"/>
+  <use   name="MagneticField/Records"/>
+  <use   name="Geometry/TrackerGeometryBuilder"/>
+  <use   name="DataFormats/L1TrackTrigger"/>
+  <use   name="SimDataFormats/TrackingAnalysis"/>
+  <use   name="L1Trigger/TrackFindingAM"/>
+  <use   name="hepmc"/>
+  <use   name="root"/>
+  <use   name="boost"/>
+  <lib name="boost_serialization"/>
+  <lib name="boost_program_options"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+

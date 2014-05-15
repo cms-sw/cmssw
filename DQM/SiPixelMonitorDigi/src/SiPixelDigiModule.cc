@@ -50,6 +50,9 @@ SiPixelDigiModule::~SiPixelDigiModule() {}
 // Book histograms
 //
 void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, int type, bool twoD, bool hiRes, bool reducedSet, bool additInfo, bool isUpgrade) {
+
+  isUpgrade = iConfig.getUntrackedParameter<bool>("isUpgrade");
+    
   bool barrel = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
   bool endcap = DetId(id_).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
   bool isHalfModule = false;

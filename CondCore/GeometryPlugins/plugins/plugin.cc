@@ -22,6 +22,7 @@
 #include "Geometry/Records/interface/CSCRecoGeometryRcd.h"
 #include "Geometry/Records/interface/DTRecoGeometryRcd.h"
 #include "Geometry/Records/interface/RPCRecoGeometryRcd.h"
+#include "Geometry/Records/interface/GEMRecoGeometryRcd.h"
 
 #include "CondFormats/GeometryObjects/interface/PGeometricDetExtra.h"
 #include "Geometry/Records/interface/PGeometricDetExtraRcd.h"
@@ -40,3 +41,4 @@ REGISTER_PLUGIN(CSCRecoDigiParametersRcd,CSCRecoDigiParameters);
 REGISTER_PLUGIN(CSCRecoGeometryRcd,RecoIdealGeometry);
 REGISTER_PLUGIN(DTRecoGeometryRcd,RecoIdealGeometry);
 REGISTER_PLUGIN(RPCRecoGeometryRcd,RecoIdealGeometry);
+REGISTER_PLUGIN(GEMRecoGeometryRcd,RecoIdealGeometry);

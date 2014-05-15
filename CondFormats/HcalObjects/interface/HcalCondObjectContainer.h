@@ -2,6 +2,7 @@
 #define HcalCondObjectContainer_h
 
 #include <vector>
+#include <iostream>
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalOtherDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalCastorDetId.h"
@@ -123,7 +124,6 @@ template<class Item> const Item*
 HcalCondObjectContainer<Item>::getValues(DetId fId, bool throwOnFail) const
 {
   unsigned int index=indexFor(fId);
-  
   const Item* cell = NULL;
 
   if (index<0xFFFFFFFu) {
@@ -147,7 +147,6 @@ HcalCondObjectContainer<Item>::getValues(DetId fId, bool throwOnFail) const
       }
     }
   }
-  
   //  Item emptyItem;
   //  if (cell->rawId() == emptyItem.rawId() ) 
   if ((!cell)) {
@@ -155,7 +154,9 @@ HcalCondObjectContainer<Item>::getValues(DetId fId, bool throwOnFail) const
       throw cms::Exception ("Conditions not found") 
 	<< "Unavailable Conditions of type " << myname() << " for cell " << textForId(fId);
     } 
-  } else if (cell->rawId() != fId) {
+  } else if ((fId.det()==DetId::Hcal && HcalDetId(cell->rawId()) != HcalDetId(fId)) ||
+	     (fId.det()==DetId::Calo && fId.subdetId()==HcalZDCDetId::SubdetectorId && HcalZDCDetId(cell->rawId()) != HcalZDCDetId(fId)) ||
+	     (fId.det()!=DetId::Hcal && (fId.det()==DetId::Calo && fId.subdetId()!=HcalZDCDetId::SubdetectorId) && (cell->rawId() != fId))) {
     if (throwOnFail) {
       throw cms::Exception ("Conditions mismatch") 
 	<< "Requested conditions of type " << myname() << " for cell " << textForId(fId) << " got conditions for cell " << textForId(DetId(cell->rawId()));
@@ -172,7 +173,9 @@ HcalCondObjectContainer<Item>::exists(DetId fId) const
   const Item* cell = getValues(fId,false);
 
   if (cell)
-    if (cell->rawId() == fId ) 
+    if ((fId.det()==DetId::Hcal && HcalDetId(cell->rawId()) == HcalDetId(fId)) ||
+	(fId.det()==DetId::Calo && fId.subdetId()==HcalZDCDetId::SubdetectorId && HcalZDCDetId(cell->rawId()) == HcalZDCDetId(fId)) ||
+	(fId.det()!=DetId::Hcal && (fId.det()==DetId::Calo && fId.subdetId()!=HcalZDCDetId::SubdetectorId) && (cell->rawId() == fId)))
       return true;
   
   return false;

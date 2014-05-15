@@ -1,3 +1,4 @@
+
 /** Derived from DTGeometryAnalyzer by Nicola Amapane
  *
  *  \author M. Maggi - INFN Bari
@@ -15,7 +16,10 @@
 
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
-#include <Geometry/CommonTopologies/interface/TrapezoidalStripTopology.h>
+#include "Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h"
+#include "Geometry/CommonTopologies/interface/StripTopology.h"
+
+#include "DataFormats/Math/interface/deltaPhi.h"
 
 #include <string>
 #include <cmath>
@@ -41,296 +45,200 @@ private:
   const std::string myName_;
   std::ofstream ofos;
 };
-
+using namespace std;
 GEMGeometryAnalyzer::GEMGeometryAnalyzer( const edm::ParameterSet& /*iConfig*/ )
-  : dashedLineWidth_(104), dashedLine_( std::string(dashedLineWidth_, '-') ), 
+  : dashedLineWidth_(104), dashedLine_( string(dashedLineWidth_, '-') ), 
     myName_( "GEMGeometryAnalyzer" ) 
 { 
   ofos.open("MytestOutput.out"); 
-  std::cout <<"======================== Opening output file"<< std::endl;
+  ofos <<"======================== Opening output file"<< endl;
 }
 
 
 GEMGeometryAnalyzer::~GEMGeometryAnalyzer() 
 {
   ofos.close();
-  std::cout <<"======================== Closing output file"<< std::endl;
+  ofos <<"======================== Closing output file"<< endl;
 }
 
 void
 GEMGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup )
 {
   edm::ESHandle<GEMGeometry> pDD;
-  iSetup.get<MuonGeometryRecord>().get( pDD );     
+  iSetup.get<MuonGeometryRecord>().get(pDD);     
   
-  std::cout << myName() << ": Analyzer..." << std::endl;
-  std::cout << "start " << dashedLine_ << std::endl;
+  ofos << myName() << ": Analyzer..." << endl;
+  ofos << "start " << dashedLine_ << endl;
 
+  ofos << " Geometry node for GEMGeom is  " << &(*pDD) << endl;   
+  ofos << " detTypes       \t"              <<pDD->detTypes().size() << endl;
+  ofos << " GeomDetUnit       \t"           <<pDD->detUnits().size() << endl;
+  ofos << " GeomDet           \t"           <<pDD->dets().size() << endl;
+  ofos << " GeomDetUnit DetIds\t"           <<pDD->detUnitIds().size() << endl;
+  ofos << " eta partitions \t"              <<pDD->etaPartitions().size() << endl;
+  ofos << " chambers       \t"              <<pDD->chambers().size() << endl;
+  ofos << " super chambers  \t"             <<pDD->superChambers().size() << endl;
+  ofos << " rings  \t\t"                    <<pDD->rings().size() << endl;
+  ofos << " stations  \t\t"                 <<pDD->stations().size() << endl;
+  ofos << " regions  \t\t"                  <<pDD->regions().size() << endl;
 
-  std::cout << " Geometry node for GEMGeom is  " << &(*pDD) << std::endl;   
-  std::cout << " I have "<<pDD->detTypes().size()    << " detTypes" << std::endl;
-  std::cout << " I have "<<pDD->detUnits().size()    << " detUnits" << std::endl;
-  std::cout << " I have "<<pDD->dets().size()        << " dets" << std::endl;
-  std::cout << " I have "<<pDD->etaPartitions().size()       << " eta partitions" << std::endl;
-  //  std::cout << " I have "<<pDD->chambers().size()    << " chambers" << std::endl;
+  // checking uniqueness of roll detIds 
+  bool flagNonUniqueRollID = false;
+  bool flagNonUniqueRollRawID = false;
+  int nstrips = 0;
+  int npads = 0;
+  for (auto roll1 : pDD->etaPartitions()){
+    nstrips += roll1->nstrips();
+    npads += roll1->npads();
+    for (auto roll2 : pDD->etaPartitions()){
+      if (roll1 != roll2){
+	if (roll1->id() == roll2->id()) flagNonUniqueRollID = true;
+	if (roll1->id().rawId() == roll2->id().rawId()) flagNonUniqueRollRawID = true;
+      }
+    }
+  }
+  // checking the number of strips and pads
+  ofos << " total number of strips\t"<<nstrips << endl;
+  ofos << " total number of pads  \t"<<npads << endl;
+  if (flagNonUniqueRollID or flagNonUniqueRollRawID)
+    ofos << " -- WARNING: non unique roll Ids!!!" << endl;
 
-  std::cout << myName() << ": Begin iteration over geometry..." << std::endl;
-  std::cout << "iter " << dashedLine_ << std::endl;
+  // checking uniqueness of chamber detIds
+  bool flagNonUniqueChID = false;
+  bool flagNonUniqueChRawID = false;
+  for (auto ch1 : pDD->chambers()){
+    for (auto ch2 : pDD->chambers()){
+      if (ch1 != ch2){
+	if (ch1->id() == ch2->id()) flagNonUniqueChID = true;
+	if (ch1->id().rawId() == ch2->id().rawId()) flagNonUniqueChRawID = true;
+      }
+    }
+  }
+  if (flagNonUniqueChID or flagNonUniqueChRawID)
+    ofos << " -- WARNING: non unique chamber Ids!!!" << endl;
 
-  std::cout << "\n  #     id(hex)      id(dec)                   "
-    "  g(x=0)   g(y=0)   g(z=0)  g(z=-1)  g(z=+1)  Ns "
-    "  phi(0)  phi(s1)  phi(sN)    dphi    dphi'      ds     off"
-    "       uR       uL       lR       lL" << std::endl;
-
-  //  const double dPi = 3.14159265358;
-  //   const double radToDeg = 180. / dPi; //@@ Where to get pi from?
-
-  std::set<GEMDetId> sids;
-  std::vector<LocalPoint> vlp;
-  vlp.push_back(LocalPoint(-1, 0, 0));
-  vlp.push_back(LocalPoint( 0, 0, 0));
-  vlp.push_back(LocalPoint( 1, 0, 0));
-  vlp.push_back(LocalPoint( 0,-1, 0));
-  vlp.push_back(LocalPoint( 0, 0, 0));
-  vlp.push_back(LocalPoint( 0, 1, 0));
-  vlp.push_back(LocalPoint( 0, 0,-1));
-  vlp.push_back(LocalPoint( 0, 0, 0));
-  vlp.push_back(LocalPoint( 0, 0, 1));
-  /*
-  int iGEMCHcount = 0;
-
-  for(TrackingGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
-
-    //----------------------- GEMCHAMBER TEST -------------------------------------------------------
-    
-    if( dynamic_cast< GEMChamber* >( *it ) != 0 ){
-      ++iGEMCHcount;
-      GEMChamber* ch = dynamic_cast< GEMChamber* >( *it ); 
-
-       
-      GEMDetId detId=ch->id();
-      int idRaf = detId.rawId();
-      //       const GEMEtaPartition* rollRaf = ch->roll(1);
-      std::cout<<"Num = "<<iGEMCHcount<<"  "<<"GEMDet = "<<idRaf<<"  Num EtaPartitions =" <<ch->nrolls()<<std::endl;
-      //       "  "<<"EtaPartition 1 = "<<(rollRaf->id()).rawId()<<std::endl;
-
-      std::vector< const GEMEtaPartition*> rollsRaf = (ch->rolls());
-      for(std::vector<const GEMEtaPartition*>::iterator r = rollsRaf.begin();
-	   r != rollsRaf.end(); ++r){
-
-	if((*r)->id().region() == 0){
-	  std::cout<<"GEMDetId = "<<(*r)->id().rawId()<<std::endl;
-	  std::cout<<"Region = "<<(*r)->id().region()<<"  Ring = "<<(*r)->id().ring()<<"  Station = "<<(*r)->id().station()<<"  Sector = "<<(*r)->id().sector()<<"  Layer = "<<(*r)->id().layer()<<"  Subsector = "<<(*r)->id().subsector()<<"  EtaPartition = "<<(*r)->id().roll()<<std::endl;
+  ofos << myName() << ": Begin iteration over geometry..." << endl;
+  ofos << "iter " << dashedLine_ << endl;
+  
+  //----------------------- Global GEMGeometry TEST -------------------------------------------------------
+  ofos << myName() << "Begin GEMGeometry structure TEST" << endl;
+  
+  for (auto region : pDD->regions()) {
+    ofos << "  GEMRegion " << region->region() << " has " << region->nStations() << " stations." << endl;
+    for (auto station : region->stations()) {
+      ofos << "    GEMStation " << station->getName() << " has " << station->nRings() << " rings." << endl;
+      for (auto ring : station->rings()) {
+	ofos << "      GEMRing " << ring->region() << " " << ring->station() << " " << ring->ring() << " has " << ring->nSuperChambers() << " super chambers." << endl;
+	int i = 1;
+	for (auto sch : ring->superChambers()) {
+	  GEMDetId schId(sch->id());
+	  ofos << "        GEMSuperChamber " << i << ", GEMDetId = " << schId.rawId() << ", " << schId << " has " << sch->nChambers() << " chambers." << endl;
+	  // checking the dimensions of each partition & chamber
+	  int j = 1;
+	  for (auto ch : sch->chambers()){
+	    GEMDetId chId(ch->id());
+	    int nRolls(ch->nEtaPartitions());
+	    ofos << "          GEMChamber " << j << ", GEMDetId = " << chId.rawId() << ", " << chId << " has " << nRolls << " eta partitions." << endl;
+	    
+	    int k = 1;
+	    auto& rolls(ch->etaPartitions());
+	    
+	    /*
+	     * possible checklist for an eta partition:
+	     *   base_bottom, base_top, height, strips, pads
+	     *   cx, cy, cz, ceta, cphi
+	     *   tx, ty, tz, teta, tphi
+	     *   bx, by, bz, beta, bphi
+	     *   pitch center, pitch bottom, pitch top
+	     *   deta, dphi
+	     *   gap thickness
+	     *   sum of all dx + gap = chamber height
+	     */      
+	    
+	    for (auto roll : rolls){
+	      GEMDetId rId(roll->id());
+	      ofos<<"            GEMEtaPartition " << k << ", GEMDetId = " << rId.rawId() << ", " << rId << endl;
+	      
+	      const BoundPlane& bSurface(roll->surface());
+	      const StripTopology* topology(&(roll->specificTopology()));
+	      
+	      // base_bottom, base_top, height, strips, pads (all half length)
+	      auto& parameters(roll->specs()->parameters());
+	      float bottomEdge(parameters[0]);
+	      float topEdge(parameters[1]);
+	      float height(parameters[2]);
+	      float nStrips(parameters[3]);
+	      float nPads(parameters[4]);
+	      
+	      LocalPoint  lCentre( 0., 0., 0. );
+	      GlobalPoint gCentre(bSurface.toGlobal(lCentre));
+	      
+	      LocalPoint  lTop( 0., height, 0.);
+	      GlobalPoint gTop(bSurface.toGlobal(lTop));
+	      
+	      LocalPoint  lBottom( 0., -height, 0.);
+	      GlobalPoint gBottom(bSurface.toGlobal(lBottom));
+	      
+	      //   gx, gy, gz, geta, gphi (center)
+	      double cx(gCentre.x());
+	      double cy(gCentre.y());
+	      double cz(gCentre.z());
+	      double ceta(gCentre.eta());
+	      int cphi(static_cast<int>(gCentre.phi().degrees()));
+	      if (cphi < 0) cphi += 360;
+	      
+	      double tx(gTop.x());
+	      double ty(gTop.y());
+	      double tz(gTop.z());
+	      double teta(gTop.eta());
+	      int tphi(static_cast<int>(gTop.phi().degrees()));
+	      if (tphi < 0) tphi += 360;
+	      
+	      double bx(gBottom.x());
+	      double by(gBottom.y());
+	      double bz(gBottom.z());
+	      double beta(gBottom.eta());
+	      int bphi(static_cast<int>(gBottom.phi().degrees()));
+	      if (bphi < 0) bphi += 360;
+	      
+	      // pitch bottom, pitch top, pitch centre
+	      float pitch(roll->pitch());
+	      float topPitch(roll->localPitch(lTop));
+	      float bottomPitch(roll->localPitch(lBottom));
+	      
+	      // Type - should be GHA[1-nRolls]
+	      string type(roll->type().name());
+	      
+	      // print info about edges
+	      LocalPoint lEdge1(topology->localPosition(0.));
+	      LocalPoint lEdgeN(topology->localPosition((float)nStrips));
+	      
+	      double cstrip1(roll->toGlobal(lEdge1).phi().degrees());
+	      double cstripN(roll->toGlobal(lEdgeN).phi().degrees());
+	      double dphi(cstripN - cstrip1);
+	      if (dphi < 0.) dphi += 360.;
+	      double deta(abs(beta - teta));
+	      const bool printDetails(true);
+	      if (printDetails)
+		ofos << "    \tType: " << type << endl
+		     << "    \tDimensions[cm]: b = " << bottomEdge << ", B = " << topEdge << ", h  = " << height << endl
+		     << "    \tnStrips = " << nStrips << ", nPads =  " << nPads << endl
+		     << "    \tcenter(x,y,z) = " << cx << " " << cy << " " << cz << ", center(eta,phi) = " << ceta << " " << cphi << endl
+		     << "    \ttop(x,y,z) = " << tx << " " << ty << " " << tz << ", top(eta,phi) = " << teta << " " << tphi << endl
+		     << "    \tbottom(x,y,z) = " << bx << " " << by << " " << bz << ", bottom(eta,phi) = " << beta << " " << bphi << endl
+		     << "    \tpith (top,center,bottom) = " << topPitch << " " << pitch << " " << bottomPitch << ", dEta = " << deta << ", dPhi = " << dphi << endl;
+	      
+	      ++k;
+	    }
+	    ++j;
+	  }
+	  ++i;
 	}
       }
     }
-  */
-  //_______________________________________________________________________________________________
+  }
 
-
-  //      if( dynamic_cast< GEMEtaPartition* >( *it ) != 0 ){
-  //        ++icount;
-
-  //        GEMEtaPartition* roll = dynamic_cast< GEMEtaPartition*>( *it );
-
-  //        GEMDetId detId=roll->id();
-  //        int id = detId(); // or detId.rawId()
-
-  //        const StripTopology* top_ = dynamic_cast<const StripTopology*>
-  // 	 (&roll->topology());
-      
-  //        if (sids.find(detId) != sids.end())
-  // 	 std::cout<<"VERYBAD ";
-  //        std::cout << "GeomDetUnit is of type " << detId.det() << " and raw id = " << id;
-
-
-  //        int iw = std::cout.width(); // save current width
-  //       int ip = std::cout.precision(); // save current precision
-
-  //        std::cout << "Parameters of roll# " << 
-  // 	 std::setw( 4 ) << icount << std::endl;
-  //        std::cout<<std::setw(12) << id << std::dec << std::setw(12) << id << std::dec 
-  // 		 << std::setw( iw ) << detId;
-       
-  //        const BoundSurface& bSurface = roll->surface();
-       
-       
-       
-  //        LocalPoint  lCentre( 0., 0., 0. );
-  //        GlobalPoint gCentre = bSurface.toGlobal( lCentre );
-       
-  //        LocalPoint  lCentre1( 0., 0., -1.);
-  //        GlobalPoint gCentre1 = bSurface.toGlobal( lCentre1 );
-       
-  //        LocalPoint  lCentre2( 0., 0., 1.);
-  //        GlobalPoint gCentre2 = bSurface.toGlobal( lCentre2 );
-
-  //        double gx  =  gCentre.x();
-  //        double gy  =  gCentre.y();
-  //        double gz  =  gCentre.z();
-  //        double gz1 =  gCentre1.z();
-  //        double gz2 =  gCentre2.z();
-  //        if ( fabs( gx )  < 1.e-06 ) gx = 0.;
-  //        if ( fabs( gy )  < 1.e-06 ) gy = 0.;
-  //        if ( fabs( gz )  < 1.e-06 ) gz = 0.;
-  //        if ( fabs( gz1 ) < 1.e-06 ) gz1 = 0.;
-  //        if ( fabs( gz2 ) < 1.e-06 ) gz2 = 0.;
-
-  //        int now = 9;
-  //        int nop = 5;
-  //        std::cout << 
-  // 	 std::setw( now ) << std::setprecision( nop ) << gx <<  
-  // 	 std::setw( now ) << std::setprecision( nop ) << gy << 
-  // 	 std::setw( now ) << std::setprecision( nop ) << gz << 
-  // 	 std::setw( now ) << std::setprecision( nop ) << gz1 << 
-  // 	 std::setw( now ) << std::setprecision( nop ) << gz2<<std::endl;
-	 
-  // Global Phi of centre of GEMEtaPartition
-
-  //        double cphi = gCentre.phi();
-  //        double cphiDeg = cphi * radToDeg;
-  //        if( cphiDeg < 0. ) cphiDeg = cphiDeg + 360.;
-
-  //        if ( fabs(cphiDeg) < 1.e-06 ) cphiDeg = 0.;
-  //        int iphiDeg = static_cast<int>( cphiDeg );
-  //	std::cout << "phi(0,0,0) = " << iphiDeg << " degrees" << std::endl;
-
-  //        int nStrips = roll->nstrips();
-
-  //        if ( (detId.region()!=0 && detId.sector() == 1 
-  // 	     && detId.subsector() == 1
-  // 	     && detId.roll() == 1
-  // 	     && detId.station() == 1
-  // 	     //&& detId.ring()==3
-  // 	     && roll->type().name() == "REA1")
-  // 	    ||
-  // 	    (detId.region() == 0 && detId.sector() == 1
-  // 	     && detId.station() == 1 && detId.layer() == 1
-  // 	     && detId.roll() == 1 
-  // 	     && detId.ring() == 0)
-  // 	    ) {
-  // 	 std::cout <<"======================== Writing output file"<< std::endl;
-  // 	 ofos<<"Forward Detector "<<roll->type().name()  <<" "<<detId.region()<<" z :"<<detId<<std::endl;
-  // 	 for (unsigned int i=0;i<vlp.size();i++){
-  // 	   ofos<< "lp="<<vlp[i]<<" gp="<<roll->toGlobal(vlp[i]) << " pitch="<<roll->localPitch(vlp[i]);
-  // 	   if ( (i+1)%3 == 0 ) {
-  // 	     ofos<<" "<<std::endl; 
-  // 	   }
-  // 	 }
-  // 	 ofos<<"            Navigating "<<std::endl;
-  // 	 LocalPoint edge1 = top_->localPosition(0.);
-  // 	 LocalPoint edge2 = top_->localPosition((float)nStrips);
-  // 	 float lsl1 = top_->localStripLength(edge1);
-  // 	 float lsl2 = top_->localStripLength(edge2);
-  // 	 ofos <<" Local Point edge1 = "<<edge1<<" StripLength="<<lsl1<<std::endl; 
-  // 	 ofos <<" Local Point edge1 = "<<edge2<<" StripLength="<<lsl2<<std::endl; 
-  // 	 float cslength = top_->localStripLength(lCentre);
-  // 	 LocalPoint s1(0.,-cslength/2.,0.);
-  // 	 LocalPoint s2(0.,cslength/2.,0.);
-  // 	 float base1=top_->localPitch(s1)*nStrips;
-  // 	 float base2=top_->localPitch(s2)*nStrips;
-  //	 LocalPoint  s11(-base1/2., -cslength/2,0.);
-  //	 LocalPoint  s12(base1/2., -cslength/2,0.);
-  //	 LocalPoint  s21(-base2/2., cslength/2,0.);
-  //	 LocalPoint  s22(base2/2.,  cslength/2,0.);
-  // 	 ofos<<  "  First Base = "<<base1<<" Second Base ="<<base2<<std::endl;
-  //        }
-  //        std::cout << "\nStrips =  "<<std::setw( 4 ) << nStrips<<"\n";
-  //        for(int is=0;is<nStrips;is++){
-  // 	 std::cout <<"s="<<std::setw(3)<<is+1<<" pos="
-  // 		   <<roll->centreOfStrip(is+1);
-  // 	 if ((is+1)%5==0){ 
-  // 	   float str=is;
-  // 	   std::cout <<"s="<<std::setw(6)<<str<<" pos="
-  // 		     <<roll->centreOfStrip(str)<<" gpos="<<
-  // 	     roll->toGlobal(roll->centreOfStrip(str));
-  // 	   std::cout <<std::endl;
-  // 	 }
-  //}
-  //std::cout <<std::endl;
-       
-  //       double cstrip1  = layer->centerOfStrip(1).phi();
-  //       double cstripN  = layer->centerOfStrip(nStrips).phi();
-
-  //       double phiwid   = layer->geometry()->stripPhiPitch();
-  //       double stripwid = layer->geometry()->stripPitch();
-  //       double stripoff = layer->geometry()->stripOffset();
-  //       double phidif   = fabs(cstrip1 - cstripN);
-  
-  //       // May have one strip at 180-epsilon and other at -180+epsilon
-  //       // If so the raw difference is 360-(phi extent of chamber)
-  //       // Want to reset that to (phi extent of chamber):
-  //       if ( phidif > dPi ) phidif = fabs(phidif - 2.*dPi);
-  //       double phiwid_check = phidif/double(nStrips-1);
-
-  //       // Clean up some stupid floating decimal aesthetics
-  //       cstrip1 = cstrip1 * radToDeg;
-  //       if ( cstrip1 < 0. ) cstrip1 = cstrip1 + 360.;
-  //       if ( fabs( cstrip1 ) < 1.e-06 ) cstrip1 = 0.;
-  //       cstripN = cstripN * radToDeg;
-  //       if ( cstripN < 0. ) cstripN = cstrip1 + 360.;
-  //       if ( fabs( cstripN ) < 1.e-06 ) cstripN = 0.;
-
-  //       if ( fabs( stripoff ) < 1.e-06 ) stripoff = 0.;
-
-  //       now = 9;
-  //       nop = 4;
-   //       std::cout 
-  // 	<< std::setw( now ) << std::setprecision( nop ) << cphiDeg
-  // 	<< std::setw( now ) << std::setprecision( nop ) << cstrip1
-  // 	<< std::setw( now ) << std::setprecision( nop ) << cstripN
-  // 	<< std::setw( now ) << std::setprecision( nop ) << phiwid 
-  // 	<< std::setw( now ) << std::setprecision( nop ) << phiwid_check 
-  // 	<< std::setw( now ) << std::setprecision( nop ) << stripwid
-  // 	<< std::setw( now ) << std::setprecision( nop ) << stripoff ;
-  //          << std::setw(8) << (layer->getOwner())->sector() ; //@@ No sector yet!
-
-  //       // Layer geometry:  layer corner phi's...
-
-  //       std::vector<float> parameters = layer->geometry()->parameters();
-  //       // these parameters are half-lengths, due to GEANT
-  //       float bottomEdge = parameters[0];
-  //       float topEdge    = parameters[1];
-  //       float thickness  = parameters[2];
-  //       float apothem    = parameters[3];
-
-  //       // first the face nearest the interaction
-  //       // get the other face by using positive thickness
-  //       LocalPoint upperRightLocal(topEdge, apothem, -thickness);
-  //       LocalPoint upperLeftLocal(-topEdge, apothem, -thickness);
-  //       LocalPoint lowerRightLocal(bottomEdge, -apothem, -thickness);
-  //       LocalPoint lowerLeftLocal(-bottomEdge, -apothem, -thickness);
-
-  //       GlobalPoint upperRightGlobal = bSurface.toGlobal(upperRightLocal);
-  //       GlobalPoint upperLeftGlobal  = bSurface.toGlobal(upperLeftLocal);
-  //       GlobalPoint lowerRightGlobal = bSurface.toGlobal(lowerRightLocal);
-  //       GlobalPoint lowerLeftGlobal  = bSurface.toGlobal(lowerLeftLocal);
-  
-  //       float uRGp = radToDeg * upperRightGlobal.phi();
-  //       float uLGp = radToDeg * upperLeftGlobal.phi();
-  //       float lRGp = radToDeg * lowerRightGlobal.phi();
-  //       float lLGp = radToDeg * lowerLeftGlobal.phi();
-  
-      
-  //       now = 9;
-  //       std::cout 
-  // 	<< std::setw( now ) << uRGp
-  // 	<< std::setw( now ) << uLGp
-  // 	<< std::setw( now ) << lRGp
-  // 	<< std::setw( now ) << lLGp 
-  // 	<< std::endl;
-      
-  //       // Reset the values we changed
-  //       std::cout << std::setprecision( ip ) << std::setw( iw );
-  
-  //        sids.insert(detId);
-  //      }  
-  //    }
-  
-  //   //   for (TrackingGeometry::DetTypeContainer::const_iterator it = pDD->detTypes().begin(); it != pDD->detTypes().end(); it ++){
-  //   //   }
-
-   std::cout << dashedLine_ << " end" << std::endl;
+  ofos << dashedLine_ << " end" << endl;
 }
 
 //define this as a plug-in

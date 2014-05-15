@@ -11,10 +11,10 @@ from TopQuarkAnalysis.TopEventProducers.sequences.ttFullHadEvtHypotheses_cff imp
 ## configure ttFullHadEventBuilder
 from TopQuarkAnalysis.TopEventProducers.producers.TtFullHadEvtBuilder_cfi import *
 
-## make ttFullHadEvent
-makeTtFullHadEvent = cms.Sequence(makeTtFullHadHypotheses *
-                                  ttFullHadEvent
-                                  )
+### make ttFullHadEvent
+#makeTtFullHadEvent = cms.Sequence(makeTtFullHadHypotheses *
+                                  #ttFullHadEvent
+                                  #)
 
 
 ################################################################################
@@ -37,22 +37,22 @@ def addTtFullHadHypotheses(process,
         labels.append(label)
     process.ttFullHadEvent.hypotheses = labels
 
-    ## include hypotheses in the standard sequence
-    sequence = getattr(process, "makeTtFullHadHypotheses")
-    for obj in range(len(names)):
-        ## create correct label from HypoClassKey string (stripping the leading "k")
-        ## e.g. kKinFit -> makeHypothesis_kinFit
-        if names[obj][1:4] == "MVA":
-            label = "makeHypothesis_" + names[obj][1:4].lower() + names[obj][4:]
-        else:
-            label = "makeHypothesis_" + names[obj][1:2].lower() + names[obj][2:]
-        ## add it to the sequence
-        sequence += getattr(process, label)
+    ### include hypotheses in the standard sequence
+    #sequence = getattr(process, "makeTtFullHadHypotheses")
+    #for obj in range(len(names)):
+        ### create correct label from HypoClassKey string (stripping the leading "k")
+        ### e.g. kKinFit -> makeHypothesis_kinFit
+        #if names[obj][1:4] == "MVA":
+            #label = "makeHypothesis_" + names[obj][1:4].lower() + names[obj][4:]
+        #else:
+            #label = "makeHypothesis_" + names[obj][1:2].lower() + names[obj][2:]
+        ### add it to the sequence
+        #sequence += getattr(process, label)
 
 
 ## remove genMatch hypothesis from the process
 def removeTtFullHadHypGenMatch(process):
-    process.makeTtFullHadHypotheses.remove(process.makeHypothesis_genMatch)
+    #process.makeTtFullHadHypotheses.remove(process.makeHypothesis_genMatch)
     process.ttFullHadEvent.hypotheses.remove("ttFullHadHypGenMatch")
 
 

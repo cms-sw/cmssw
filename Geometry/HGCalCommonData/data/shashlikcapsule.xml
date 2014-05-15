@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="shashlikcapsule.xml" eval="true">
+  <Constant name="widthFront"       value="14.00*mm"/>
+  <Constant name="widthBack"        value="14.56*mm"/>
+  <Constant name="moduleThickness"  value="113.5*mm"/>
+</ConstantsSection>
+
+<SolidSection label="shashlikcapsule.xml">
+   <Trapezoid name="ShashlikCapsule" dz="0.5*[moduleThickness]" alp1="0*deg" 
+    bl1="0.5*[widthFront]" tl1="0.5*[widthFront]" h1="0.5*[widthFront]"
+    alp2="0*deg" bl2="0.5*[widthBack]" tl2="0.5*[widthBack]" 
+    h2="0.5*[widthBack]" phi="0*deg" theta="0*deg"/>
+</SolidSection>
+ 
+<MaterialSection label="shashlikcapsule.xml">
+   <ElementaryMaterial name="Lutecium" density="9.841*g/cm3" symbol=" " atomicWeight="174.96*g/mole" atomicNumber="71"/>
+  <CompositeMaterial name="LYSO" density="7.11*g/cm3" symbol=" " method="mixture by weight">
+   <MaterialFraction fraction="0.7145">
+    <rMaterial name="shashlikcapsule:Lutecium"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.0403">
+    <rMaterial name="materials:Yttrium"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.0637">
+    <rMaterial name="materials:Silicon"/>
+   </MaterialFraction>
+   <MaterialFraction fraction="0.1815">
+    <rMaterial name="materials:Oxygen"/>
+   </MaterialFraction>
+  </CompositeMaterial>
+</MaterialSection>
+   
+<LogicalPartSection label="shashlikcapsule.xml">
+  <LogicalPart name="ShashlikCapsule" category="unspecified">
+    <rSolid name="ShashlikCapsule"/>
+    <rMaterial name="materials:Tungsten"/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<Algorithm name="shashlik:DDShashlikCapsule">
+  <rParent name="shashlikcapsule:ShashlikCapsule"/>
+  <String name="ActiveMaterial"     value="shashlikcapsule:LYSO"/>
+  <String name="ActiveName"         value="shashlikcapsule:ShashlikActive"/>
+  <Numeric name="ActiveLayers"      value="29"/>
+  <Numeric name="ActiveThickness"   value="1.5*mm"/>
+  <Numeric name="AbsorberThickness" value="2.5*mm"/>
+  <Numeric name="WidthFront"        value="[widthFront]"/>
+  <Numeric name="WidthBack"         value="[widthBack]"/>
+  <Numeric name="ModuleThickness"   value="[moduleThickness]"/>
+  <Numeric name="HoleRadius"        value="0.8*mm"/>
+  <String name="FibreMaterial"      value="materials:Quartz"/>
+  <String name="FibreName"          value="shashlikcapsule:ShashlikFibre"/>
+  <Vector name="HoleX" type="numeric" nEntries="4">
+   3.5*mm,  3.5*mm, -3.5*mm, -3.5*mm </Vector>
+  <Vector name="HoleY" type="numeric" nEntries="4">
+   3.5*mm, -3.5*mm,  3.5*mm, -3.5*mm </Vector>
+  <String name="CalibFibreName"     value="shashlikcapsule:ShashlikCalibFibre"/>
+  <Vector name="CalibFibreParameters" type="numeric" nEntries="3">
+   0.6*mm,  0.0*mm, 0.0*mm </Vector>
+</Algorithm>
+
+</DDDefinition>

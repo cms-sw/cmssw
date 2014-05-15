@@ -17,7 +17,8 @@ TrackAssociatorByPosition = cms.ESProducer("TrackAssociatorByPositionESProducer"
     method = cms.string('dist'),
     QCut = cms.double(10.0),
     # False is the old behavior, True will use also the muon simhits to do the matching.                                       
-    ConsiderAllSimHits = cms.bool(False)
+    ConsiderAllSimHits = cms.bool(False),
+    simHitTpMapTag = cms.InputTag("simHitTPAssocProducer")
 )
 
 

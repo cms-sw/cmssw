@@ -78,7 +78,7 @@ CaloGeometryDBEP<HcalGeometry, CaloGeometryDBWriter>::produceAligned( const type
     ptr->allocatePar(    dvec.size() ,
 			 HcalGeometry::k_NumberOfParametersPerShape ) ;
 
-    for( unsigned int i ( 0 ) ; i < hcalTopology->ncells() ; ++i )
+    for( unsigned int i ( 0 ) ; i < dins.size(); ++i )
     {
 	const unsigned int nPerShape ( HcalGeometry::k_NumberOfParametersPerShape ) ;
 	DimVec dims ;
@@ -98,9 +98,9 @@ CaloGeometryDBEP<HcalGeometry, CaloGeometryDBWriter>::produceAligned( const type
 							       ptr->parMgr(), 
 							       ptr->parVecVec() ) ) ;
 
-
+	
 	const DetId id ( hcalTopology->denseId2detId(dins[i]) ) ;
-    
+	
 	const unsigned int iGlob ( 0 == globalPtr ? 0 :
 				   HcalGeometry::alignmentTransformIndexGlobal( id ) ) ;
 
@@ -158,10 +158,9 @@ CaloGeometryDBEP<HcalGeometry, CaloGeometryDBWriter>::produceAligned( const type
 	const GlobalPoint fCor ( gCor.x(), gCor.y(), gCor.z() ) ;
 
 	assert( hcalTopology->detId2denseId(id) == dins[i] );
-	
 	ptr->newCell(  fCtr, fBck, fCor, myParm, id ) ;
     }
-
+    
     ptr->initializeParms() ; // initializations; must happen after cells filled
 
     return ptr ; 

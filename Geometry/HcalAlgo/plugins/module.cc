@@ -3,6 +3,7 @@
 #include "Geometry/HcalAlgo/plugins/DDHCalAngular.h"
 #include "Geometry/HcalAlgo/plugins/DDHCalBarrelAlgo.h"
 #include "Geometry/HcalAlgo/plugins/DDHCalEndcapAlgo.h"
+#include "Geometry/HcalAlgo/plugins/DDHCalEndcapModuleAlgo.h"
 #include "Geometry/HcalAlgo/plugins/DDHCalFibreBundle.h"
 #include "Geometry/HcalAlgo/plugins/DDHCalForwardAlgo.h"
 #include "Geometry/HcalAlgo/plugins/DDHCalLinearXY.h"
@@ -16,6 +17,7 @@
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDHCalAngular,      "hcal:DDHCalAngular");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDHCalBarrelAlgo,   "hcal:DDHCalBarrelAlgo");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDHCalEndcapAlgo,   "hcal:DDHCalEndcapAlgo");
+DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDHCalEndcapModuleAlgo,"hcal:DDHCalEndcapModuleAlgo");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDHCalForwardAlgo,  "hcal:DDHCalForwardAlgo");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDHCalFibreBundle,  "hcal:DDHCalFibreBundle");
 DEFINE_EDM_PLUGIN (DDAlgorithmFactory, DDHCalLinearXY,     "hcal:DDHCalLinearXY");

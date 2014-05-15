@@ -5,6 +5,9 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "DataFormats/Luminosity/interface/LumiSummary.h" 
 #include "DataFormats/Luminosity/interface/LumiDetails.h" 
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "RecoLuminosity/LumiProducer/interface/LumiCorrectionParam.h"
+
 #include "TChain.h"
 
 
@@ -22,7 +25,8 @@ public:
   void setup(TTree* tree);
 
   /** Analyze the Data */
-  void analyze(edm::Event const& iEvent, TTree* tree);
+  void analyze(edm::Event const& iEvent, const edm::ESHandle<LumiCorrectionParam> & lumiCorr, TTree* tree);
+  //void analyze(edm::Event const& iEvent, TTree* tree);
 
 private:
 

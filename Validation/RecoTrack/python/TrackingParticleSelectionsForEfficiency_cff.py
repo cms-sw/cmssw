@@ -6,10 +6,10 @@ generalTpSelectorBlock = cms.PSet(
     pdgId = cms.vint32(),
     signalOnly = cms.bool(True),
     stableOnly = cms.bool(False),
-    minRapidity = cms.double(-2.5),
-    minHit = cms.int32(3),
+    minRapidity = cms.double(-5.0),
+    minHit = cms.int32(0),
     ptMin = cms.double(0.9),
-    maxRapidity = cms.double(2.5),
+    maxRapidity = cms.double(5.0),
     tip = cms.double(3.5)
 )
 
@@ -20,10 +20,10 @@ TpSelectorForEfficiencyVsEtaBlock = cms.PSet(
     pdgId = cms.vint32(),
     signalOnly = cms.bool(True),
     stableOnly = cms.bool(False),
-    minRapidity = cms.double(-2.5),
-    minHit = cms.int32(3),
+    minRapidity = cms.double(-5.0),
+    minHit = cms.int32(0),
     ptMin = cms.double(0.9),
-    maxRapidity = cms.double(2.5),
+    maxRapidity = cms.double(5.0),
     tip = cms.double(3.5)
 )
 

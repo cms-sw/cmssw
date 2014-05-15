@@ -201,8 +201,8 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
 	TrackingParticle::Vector momentumTP = tp->momentum();
 	TrackingParticle::Point vertexTP = tp->vertex();
 	//Calcualte the impact parameters w.r.t. PCA
-	TrackingParticle::Vector momentum = parametersDefinerTP->momentum(event,setup,*tp);
-	TrackingParticle::Point vertex = parametersDefinerTP->vertex(event,setup,*tp);
+	TrackingParticle::Vector momentum = parametersDefinerTP->momentum(event,setup,tp);
+	TrackingParticle::Point vertex = parametersDefinerTP->vertex(event,setup,tp);
 	double dxySim = (-vertex.x()*sin(momentum.phi())+vertex.y()*cos(momentum.phi()));
 	double dzSim = vertex.z() - (vertex.x()*momentum.x()+vertex.y()*momentum.y())/sqrt(momentum.perp2()) 
 	  * momentum.z()/sqrt(momentum.perp2());
@@ -359,8 +359,8 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
 	  TrackingParticleRef tpr = tp.begin()->first;
 	
 	  //compute tracking particle parameters at point of closest approach to the beamline
-	  TrackingParticle::Vector momentumTP = parametersDefinerTP->momentum(event,setup,*(tpr.get()));
-	  TrackingParticle::Point vertexTP = parametersDefinerTP->vertex(event,setup,*(tpr.get()));		 	 
+	  TrackingParticle::Vector momentumTP = parametersDefinerTP->momentum(event,setup,tpr);
+	  TrackingParticle::Point vertexTP = parametersDefinerTP->vertex(event,setup,tpr);		 	 
 
 	  // 	  LogTrace("SeedValidatorTEST") << "assocChi2=" << tp.begin()->second << "\n"
 	  // 					 << "" <<  "\n"

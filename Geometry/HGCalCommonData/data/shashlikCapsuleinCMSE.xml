@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+	<PosPartSection label="shashlikCapsuleinCMSE.xml">
+		<PosPart copyNumber="1">
+			<rParent name="cms:CMSE"/>
+			<rChild name="shashlikcapsule:ShashlikCapsule"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+	</PosPartSection>
+</DDDefinition>

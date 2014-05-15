@@ -1,0 +1,11 @@
+<lcgdict>
+  <class name="CFCDetId" ClassVersion="11">
+   <version ClassVersion="11" checksum="54305032"/>
+  </class>
+  <class name="HGCEEDetId" ClassVersion="12">
+   <version ClassVersion="12" checksum="511816684"/>
+  </class>
+  <class name="HGCHEDetId" ClassVersion="12">
+   <version ClassVersion="12" checksum="512348125"/>
+  </class>
+</lcgdict>

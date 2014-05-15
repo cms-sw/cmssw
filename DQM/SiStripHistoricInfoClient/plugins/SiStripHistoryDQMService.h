@@ -2,6 +2,7 @@
 #define DQM_SiStripHistoricInfoClient_SiStripHistoryDQMService_H
 
 #include "DQMServices/Diagnostic/interface/DQMHistoryServiceBase.h" 
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 /**
   @author D. Giordano, A.-C. Le Bihan
@@ -16,7 +17,7 @@ class SiStripHistoryDQMService : public DQMHistoryServiceBase {
   
  private:
   //Methods to be specified by each subdet
-  uint32_t returnDetComponent(const MonitorElement* ME);
+  uint32_t returnDetComponent(const MonitorElement* ME, const TrackerTopology *tTopo);
   //bool setDBLabelsForUser  (std::string& keyName, std::vector<std::string>& userDBContent);
   //bool setDBValuesForUser(std::vector<MonitorElement*>::const_iterator iterMes, HDQMSummary::InputVector& values  );
   bool setDBLabelsForUser  (std::string& keyName, std::vector<std::string>& userDBContent, std::string& quantity);

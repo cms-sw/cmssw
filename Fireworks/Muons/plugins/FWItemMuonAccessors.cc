@@ -8,7 +8,9 @@
 //
 // Original Author:  Giulio Eulisse
 //         Created:  Thu Feb 18 15:19:44 EDT 2008
+// $Id: FWItemMuonAccessors.cc,v 1.6 2010/06/11 08:21:07 mccauley Exp $
 // $Id: FWItemMuonAccessors.cc,v 1.7 2010/06/18 12:44:05 yana Exp $
+// $Id: FWItemMuonAccessors.cc,v 1.8 2013/10/10 22:17:00 YusangKim$
 //
 
 // system include files
@@ -25,12 +27,15 @@
 #include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
+#include "DataFormats/GEMRecHit/interface/GEMRecHitCollection.h"
 
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
 #include "DataFormats/RPCDigi/interface/RPCDigiCollection.h"
+#include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCRPCDigiCollection.h"
+#include "DataFormats/GEMDigi/interface/GEMCSCPadDigiCollection.h"
 
 #include "Fireworks/Core/interface/FWItemRandomAccessor.h"
 
@@ -40,6 +45,7 @@ REGISTER_TEMPLATE_FWITEMACCESSOR(FWItemRandomAccessor<DTRecSegment2DCollection>,
 REGISTER_TEMPLATE_FWITEMACCESSOR(FWItemRandomAccessor<DTRecSegment4DCollection>,DTRecSegment4DCollection,"DTSegment4DCollectionAccessor");
 REGISTER_TEMPLATE_FWITEMACCESSOR(FWItemRandomAccessor<DTRecHitCollection>,DTRecHitCollection,"DTRecHitCollectionAccessor");
 REGISTER_TEMPLATE_FWITEMACCESSOR(FWItemRandomAccessor<RPCRecHitCollection>,RPCRecHitCollection,"RPCRecHitCollectionAccessor");
+REGISTER_TEMPLATE_FWITEMACCESSOR(FWItemRandomAccessor<GEMRecHitCollection>,GEMRecHitCollection,"GEMRecHitCollectionAccessor");
 
 typedef FWItemMuonDigiAccessor<DTDigiCollection,DTDigi> DTDigiAccessor;
 REGISTER_TEMPLATE_FWITEMACCESSOR(DTDigiAccessor, DTDigiCollection, "DTDigiCollectionAccessor");
@@ -53,5 +59,12 @@ REGISTER_TEMPLATE_FWITEMACCESSOR(CSCStripDigiAccessor, CSCStripDigiCollection, "
 typedef FWItemMuonDigiAccessor<RPCDigiCollection, RPCDigi> RPCDigiAccessor;
 REGISTER_TEMPLATE_FWITEMACCESSOR(RPCDigiAccessor, RPCDigiCollection, "RPCDigiCollectionAccessor");
 
+
 typedef FWItemMuonDigiAccessor<CSCRPCDigiCollection, CSCRPCDigi> CSCRPCDigiAccessor;
 REGISTER_TEMPLATE_FWITEMACCESSOR(CSCRPCDigiAccessor, CSCRPCDigiCollection, "CSCRPCDigiCollectionAccessor");
+
+typedef FWItemMuonDigiAccessor<GEMDigiCollection, GEMDigi> GEMDigiAccessor;
+REGISTER_TEMPLATE_FWITEMACCESSOR(GEMDigiAccessor, GEMDigiCollection, "GEMDigiCollectionAccessor");
+
+typedef FWItemMuonDigiAccessor<GEMCSCPadDigiCollection, GEMCSCPadDigi> GEMCSCPadDigiAccessor;
+REGISTER_TEMPLATE_FWITEMACCESSOR(GEMCSCPadDigiAccessor, GEMCSCPadDigiCollection, "GEMCSCPadDigiCollectionAccessor");

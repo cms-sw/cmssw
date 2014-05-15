@@ -1,0 +1,5 @@
+<lcgdict>
+  <class name="std::pair<TrackingParticleRef, TrackPSimHitRef>" persistent="true" /> 
+  <class name="std::vector<std::pair<TrackingParticleRef, TrackPSimHitRef> >" persistent="true" /> 
+  <class name="edm::Wrapper<std::vector<std::pair<TrackingParticleRef, TrackPSimHitRef> > >" />
+</lcgdict>

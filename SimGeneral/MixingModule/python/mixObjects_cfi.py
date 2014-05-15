@@ -28,26 +28,9 @@ mixSimHits = cms.PSet(
         'TrackerHitsTOBHighTof', 
         'TrackerHitsTOBLowTof'),
     crossingFrames = cms.untracked.vstring(
-        'BSCHits', 
-        'FP420SI', 
         'MuonCSCHits', 
         'MuonDTHits', 
-        'MuonRPCHits', 
-        'TotemHitsRP', 
-        'TotemHitsT1', 
-        'TotemHitsT2Gem', 
-        'TrackerHitsPixelBarrelHighTof', 
-        'TrackerHitsPixelBarrelLowTof', 
-        'TrackerHitsPixelEndcapHighTof', 
-        'TrackerHitsPixelEndcapLowTof', 
-        'TrackerHitsTECHighTof', 
-        'TrackerHitsTECLowTof', 
-        'TrackerHitsTIBHighTof', 
-        'TrackerHitsTIBLowTof', 
-        'TrackerHitsTIDHighTof', 
-        'TrackerHitsTIDLowTof', 
-        'TrackerHitsTOBHighTof', 
-        'TrackerHitsTOBLowTof'),
+        'MuonRPCHits'), 
     #crossingFrames = cms.untracked.vstring(
     #    'BSCHits',
     #    'FP420SI',
@@ -76,38 +59,42 @@ mixCaloHits = cms.PSet(
         'HcalHits', 
         'HcalTB06BeamHits', 
         'ZDCHITS'),
-    crossingFrames = cms.untracked.vstring(
-        'CaloHitsTk', 
-        'CastorBU', 
-        'CastorFI', 
-        'CastorPL', 
-        'CastorTU', 
-        'EcalHitsEB', 
-        'EcalHitsEE', 
-        'EcalHitsES', 
-        'EcalTBH4BeamHits', 
-        'HcalHits', 
-        'HcalTB06BeamHits', 
-        'ZDCHITS')
+    crossingFrames = cms.untracked.vstring()
 )
 mixSimTracks = cms.PSet(
-    #makeCrossingFrame = cms.untracked.bool(False),
-    makeCrossingFrame = cms.untracked.bool(True),
+    makeCrossingFrame = cms.untracked.bool(False),
     input = cms.VInputTag(cms.InputTag("g4SimHits")),
     type = cms.string('SimTrack')
 )
 mixSimVertices = cms.PSet(
-    #makeCrossingFrame = cms.untracked.bool(False),
-    makeCrossingFrame = cms.untracked.bool(True),
+    makeCrossingFrame = cms.untracked.bool(False),
     input = cms.VInputTag(cms.InputTag("g4SimHits")),
     type = cms.string('SimVertex')
 )
 mixHepMCProducts = cms.PSet(
-    #makeCrossingFrame = cms.untracked.bool(False),
-    makeCrossingFrame = cms.untracked.bool(True),
+    makeCrossingFrame = cms.untracked.bool(False),
     input = cms.VInputTag(cms.InputTag("generator")),
     type = cms.string('HepMCProduct')
 )
+
+theMixObjects = cms.PSet(
+    mixCH = cms.PSet(
+        mixCaloHits
+    ),
+    mixTracks = cms.PSet(
+        mixSimTracks
+    ),
+    mixVertices = cms.PSet(
+        mixSimVertices
+    ),
+    mixSH = cms.PSet(
+        mixSimHits
+    ),
+    mixHepMC = cms.PSet(
+        mixHepMCProducts
+    )
+)
+
 
 mixPCFSimHits = cms.PSet(
     input = cms.VInputTag(cms.InputTag("CFWriter","g4SimHitsBSCHits"), cms.InputTag("CFWriter","g4SimHitsFP420SI"), cms.InputTag("CFWriter","g4SimHitsMuonCSCHits"), cms.InputTag("CFWriter","g4SimHitsMuonDTHits"), cms.InputTag("CFWriter","g4SimHitsMuonRPCHits"), 

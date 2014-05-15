@@ -12,14 +12,14 @@
 using namespace std;
 
 void OHltEffPrinter::SetupAll(
-      vector<float> tEff,
-      vector<float> tEffErr,
-      vector<float> tspureEff,
-      vector<float> tspureEffErr,
-      vector<float> tpureEff,
-      vector<float> tpureEffErr,
-      vector< vector<float> >tcoMa,
-      float tDenEff)
+      vector<double> tEff,
+      vector<double> tEffErr,
+      vector<double> tspureEff,
+      vector<double> tspureEffErr,
+      vector<double> tpureEff,
+      vector<double> tpureEffErr,
+      vector< vector<double> >tcoMa,
+      double tDenEff)
 {
    Eff = tEff;
    EffErr = tEffErr;
@@ -47,8 +47,8 @@ void OHltEffPrinter::printEffASCII(OHltConfig *cfg, OHltMenu *menu)
    cout
          << "----------------------------------------------------------------------------------------------------------\n";
 
-   float cumulEff = 0.;
-   float cumulEffErr = 0.;
+   double cumulEff = 0.;
+   double cumulEffErr = 0.;
    for (unsigned int i=0; i<menu->GetTriggerSize(); i++)
    {
 

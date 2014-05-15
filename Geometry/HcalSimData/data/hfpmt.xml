@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+ <SpecParSection label="hfpmt.xml" eval="true">
+  <SpecPar name="hfpmt">
+   <PartSelector path="//VcalElecCathode.*"/>
+   <Parameter name="Volume" value="HFPMT" eval="false"/>
+   <Parameter name="indexPMTR" value="-1"/>
+   <Parameter name="indexPMTR" value="022"/>
+   <Parameter name="indexPMTR" value="042"/>
+   <Parameter name="indexPMTR" value="062"/>
+   <Parameter name="indexPMTR" value="082"/>
+   <Parameter name="indexPMTR" value="102"/>
+   <Parameter name="indexPMTR" value="122"/>
+   <Parameter name="indexPMTR" value="-1"/>
+   <Parameter name="indexPMTR" value="021"/>
+   <Parameter name="indexPMTR" value="041"/>
+   <Parameter name="indexPMTR" value="061"/>
+   <Parameter name="indexPMTR" value="081"/>
+   <Parameter name="indexPMTR" value="101"/>
+   <Parameter name="indexPMTR" value="121"/>
+   <Parameter name="indexPMTR" value="-1"/>
+   <Parameter name="indexPMTR" value="012"/>
+   <Parameter name="indexPMTR" value="032"/>
+   <Parameter name="indexPMTR" value="052"/>
+   <Parameter name="indexPMTR" value="072"/>
+   <Parameter name="indexPMTR" value="092"/>
+   <Parameter name="indexPMTR" value="112"/>
+   <Parameter name="indexPMTR" value="-1"/>
+   <Parameter name="indexPMTR" value="011"/>
+   <Parameter name="indexPMTR" value="031"/>
+   <Parameter name="indexPMTR" value="051"/>
+   <Parameter name="indexPMTR" value="071"/>
+   <Parameter name="indexPMTR" value="091"/>
+   <Parameter name="indexPMTR" value="111"/>
+   <Parameter name="indexPMTL" value="-1"/>
+   <Parameter name="indexPMTL" value="021"/>
+   <Parameter name="indexPMTL" value="031"/>
+   <Parameter name="indexPMTL" value="051"/>
+   <Parameter name="indexPMTL" value="071"/>
+   <Parameter name="indexPMTL" value="091"/>
+   <Parameter name="indexPMTL" value="111"/>
+   <Parameter name="indexPMTL" value="-1"/>
+   <Parameter name="indexPMTL" value="022"/>
+   <Parameter name="indexPMTL" value="032"/>
+   <Parameter name="indexPMTL" value="052"/>
+   <Parameter name="indexPMTL" value="072"/>
+   <Parameter name="indexPMTL" value="092"/>
+   <Parameter name="indexPMTL" value="112"/>
+   <Parameter name="indexPMTL" value="-1"/>
+   <Parameter name="indexPMTL" value="001"/>
+   <Parameter name="indexPMTL" value="041"/>
+   <Parameter name="indexPMTL" value="061"/>
+   <Parameter name="indexPMTL" value="081"/>
+   <Parameter name="indexPMTL" value="101"/>
+   <Parameter name="indexPMTL" value="121"/>
+   <Parameter name="indexPMTL" value="-1"/>
+   <Parameter name="indexPMTL" value="002"/>
+   <Parameter name="indexPMTL" value="042"/>
+   <Parameter name="indexPMTL" value="062"/>
+   <Parameter name="indexPMTL" value="082"/>
+   <Parameter name="indexPMTL" value="102"/>
+   <Parameter name="indexPMTL" value="122"/>
+  </SpecPar>
+ </SpecParSection>
+</DDDefinition>

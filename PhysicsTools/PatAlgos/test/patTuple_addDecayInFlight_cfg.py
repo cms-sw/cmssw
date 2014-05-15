@@ -2,8 +2,8 @@
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
 # load the PAT config
-process.load("PhysicsTools.PatAlgos.patSequences_cff")
-
+process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
+process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
 
 ## add inFlightMuons
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
@@ -16,20 +16,12 @@ process.inFlightMuons = cms.EDProducer("PATGenCandsFromSimTracksProducer",
         writeAncestors = cms.bool(True),             ## save also the intermediate GEANT ancestors of the muons
         genParticles   = cms.InputTag("genParticles"),
 )
+process.out.outputCommands.append('keep *_inFlightMuons_*_*')
+
 ## prepare several clones of match associations for status 1, 3 and in flight muons (status -1)
 process.muMatch3 = process.muonMatch.clone(mcStatus = cms.vint32( 3))
 process.muMatch1 = process.muonMatch.clone(mcStatus = cms.vint32( 1))
 process.muMatchF = process.muonMatch.clone(mcStatus = cms.vint32(-1),matched = cms.InputTag("inFlightMuons"))
-
-## add the new matches to the default sequence
-process.patDefaultSequence.replace(process.muonMatch,
-                                   process.muMatch1 +
-                                   process.muMatch3 +
-                                   process.muMatchF
-                                   )
-
-## embed the new matches to the patMuon (they are then accessible via
-## genMuon(int idx))
 process.patMuons.genParticleMatch = cms.VInputTag(
     cms.InputTag("muMatch3"),
     cms.InputTag("muMatch1"),
@@ -39,15 +31,11 @@ process.patMuons.genParticleMatch = cms.VInputTag(
 ## dump event content
 process.content = cms.EDAnalyzer("EventContentAnalyzer")
 
-## add the in flight muons to the output
-process.out.outputCommands.append('keep *_inFlightMuons_*_*')
-
-## let it run
+process.options.allowUnscheduled = cms.untracked.bool(True)
+#process.Tracer = cms.Service("Tracer")
 process.p = cms.Path(
-    #process.content +
-    process.inFlightMuons +
-    process.patDefaultSequence
-)
+    process.selectedPatCandidates
+    )
 
 ## ------------------------------------------------------
 #  In addition you usually want to change the following

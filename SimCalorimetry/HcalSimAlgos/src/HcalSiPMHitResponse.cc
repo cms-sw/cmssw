@@ -10,8 +10,10 @@
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVHitCorrection.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVShape.h"
 #include "FWCore/Utilities/interface/isFinite.h"
+#include "SimCalorimetry/HcalSimAlgos/interface/HcalSiPMShape.h"
 
 #include <math.h>
+#include <list>
 
 HcalSiPMHitResponse::HcalSiPMHitResponse(const CaloVSimParameterMap * parameterMap,
 					 const CaloShapes * shapes) :
@@ -50,6 +52,7 @@ void HcalSiPMHitResponse::finalizeHits() {
     }
 
     LogDebug("HcalSiPMHitResponse") << HcalDetId(signal.id()) << ' ' << signal;
+    // std::cout << HcalDetId(signal.id()) << ' ' << signal;
     if (keep) add(signal);
   }
 }
@@ -102,7 +105,9 @@ void HcalSiPMHitResponse::add(const PCaloHit& hit) {
 		   (hit.time() - timeOfFlight(id)) - 
 		   BUNCHSPACE*( pars.binOfMaximum() - thePhaseShift_));
       LogDebug("HcalSiPMHitResponse") << " tzero: " << tzero;
-      tzero += BUNCHSPACE*pars.binOfMaximum() + 72.31;
+      // tzero += BUNCHSPACE*pars.binOfMaximum() + 75.;
+      //move it back 25ns to bin 4
+      tzero += BUNCHSPACE*pars.binOfMaximum() + 50.;
       LogDebug("HcalSiPMHitResponse") << " corrected tzero: " << tzero << '\n';
       double t_pe(0.);
       int t_bin(0);
@@ -221,6 +226,12 @@ CaloSamples HcalSiPMHitResponse::makeSiPMSignal(DetId const& id,
   double hitPixels(0.), elapsedTime(0.);
   unsigned int sumPE(0);
   double sumHits(0.);
+
+  HcalSiPMShape sipmPulseShape;
+
+  std::list< std::pair<double, double> > pulses;
+  std::list< std::pair<double, double> >::iterator pulse;
+  double timeDiff, pulseBit;
   // std::cout << HcalDetId(id) << '\n';
   for (unsigned int pt(0); pt < photons.size(); ++pt) {
     pe = photons[pt];
@@ -229,7 +240,6 @@ CaloSamples HcalSiPMHitResponse::makeSiPMSignal(DetId const& id,
     sampleBin = preciseBin/theTDCParams.nbins();
     if (pe > 0) {
       hitPixels = theSiPM->hitCells(pe, 0., elapsedTime);
-      signal[sampleBin] += hitPixels;
       sumHits += hitPixels;
       // std::cout << " elapsedTime: " << elapsedTime
       // 		<< " sampleBin: " << sampleBin
@@ -237,14 +247,37 @@ CaloSamples HcalSiPMHitResponse::makeSiPMSignal(DetId const& id,
       // 		<< " pe: " << pe 
       // 		<< " hitPixels: " << hitPixels 
       // 		<< '\n';
-      hitPixels *= invdt;
-      signal.preciseAtMod(preciseBin) += 0.6*hitPixels;
-      if (preciseBin > 0)
-	signal.preciseAtMod(preciseBin-1) += 0.2*hitPixels;
-      if (preciseBin < signal.preciseSize() -1)
-	signal.preciseAtMod(preciseBin+1) += 0.2*hitPixels;
+      if (pars.doSiPMSmearing()) {
+	pulses.push_back( std::pair<double, double>(elapsedTime, hitPixels) );
+      } else {
+	signal[sampleBin] += hitPixels;
+	hitPixels *= invdt;
+	signal.preciseAtMod(preciseBin) += 0.6*hitPixels;
+	if (preciseBin > 0)
+	  signal.preciseAtMod(preciseBin-1) += 0.2*hitPixels;
+	if (preciseBin < signal.preciseSize() -1)
+	  signal.preciseAtMod(preciseBin+1) += 0.2*hitPixels;
+      }
     }
-    // signal.preciseAtMod(preciseBin) += sumHits;
+    
+    if (pars.doSiPMSmearing()) {
+      pulse = pulses.begin();
+      while (pulse != pulses.end()) {
+	timeDiff = elapsedTime - pulse->first;
+	pulseBit = sipmPulseShape(timeDiff)*pulse->second;
+	// std::cout << "pulse t: " << pulse->first 
+	// 		<< " pulse A: " << pulse->second
+	// 		<< " timeDiff: " << timeDiff
+	// 		<< " pulseBit: " << pulseBit 
+	// 		<< '\n';
+	signal[sampleBin] += pulseBit;
+	signal.preciseAtMod(preciseBin) += pulseBit*invdt;
+	if (sipmPulseShape(timeDiff) < 1e-6)
+	  pulse = pulses.erase(pulse);
+	else
+	  ++pulse;
+      }
+    }
     elapsedTime += dt;
   }
 

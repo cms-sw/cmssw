@@ -15,6 +15,7 @@
 #include "Geometry/DTGeometry/interface/DTLayer.h"
 #include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "Geometry/GEMGeometry/interface/ME0Geometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
@@ -62,7 +63,7 @@
     }									\
   }                                                                     \
 									  
-FWRecoGeometryESProducer::FWRecoGeometryESProducer( const edm::ParameterSet& )
+FWRecoGeometryESProducer::FWRecoGeometryESProducer( const edm::ParameterSet& ps )
   : m_current( -1 )
 {
   setWhatProduced( this );
@@ -95,6 +96,7 @@ FWRecoGeometryESProducer::produce( const FWRecoGeometryRecord& record )
   addCSCGeometry();
   addRPCGeometry();
   addGEMGeometry();
+  addME0Geometry();
   addCaloGeometry();
 
   m_fwGeometry->idToName.resize( m_current + 1 );
@@ -109,12 +111,8 @@ FWRecoGeometryESProducer::addCSCGeometry( void )
 {
   DetId detId( DetId::Muon, 2 ); 
   const CSCGeometry* cscGeometry = (const CSCGeometry*) m_geomRecord->slaveGeometry( detId );
-  for( std::vector<CSCChamber*>::const_iterator it = cscGeometry->chambers().begin(),
-					       end = cscGeometry->chambers().end(); 
-       it != end; ++it )
+  for(auto chamber : cscGeometry->chambers())
   {
-    const CSCChamber *chamber = *it;
-    
     if( chamber )
     {
       unsigned int rawid = chamber->geographicalId();
@@ -123,12 +121,8 @@ FWRecoGeometryESProducer::addCSCGeometry( void )
       //
       // CSC layers geometry
       //
-      for( std::vector< const CSCLayer* >::const_iterator lit = chamber->layers().begin(),
-							 lend = chamber->layers().end(); 
-	   lit != lend; ++lit )
+      for(auto layer : chamber->layers())
       {
-	const CSCLayer* layer = *lit;
-    
 	if( layer )
 	{
 	  unsigned int rawid = layer->geographicalId();
@@ -161,12 +155,8 @@ FWRecoGeometryESProducer::addDTGeometry( void )
   //
   // DT chambers geometry
   //
-  for( std::vector<DTChamber *>::const_iterator it = dtGeometry->chambers().begin(),
-					       end = dtGeometry->chambers().end(); 
-       it != end; ++it )
+  for(auto chamber : dtGeometry->chambers())
   {
-    const DTChamber *chamber = *it;
-    
     if( chamber )
     {
       unsigned int rawid = chamber->geographicalId().rawId();
@@ -176,12 +166,8 @@ FWRecoGeometryESProducer::addDTGeometry( void )
   }
 
   // Fill in DT layer parameters
-  for( std::vector<DTLayer*>::const_iterator it = dtGeometry->layers().begin(),
-					    end = dtGeometry->layers().end(); 
-       it != end; ++it )
+  for(auto layer : dtGeometry->layers())
   {
-    const DTLayer* layer = *it;
-     
     if( layer )
     {
       unsigned int rawid = layer->id().rawId();
@@ -213,23 +199,28 @@ FWRecoGeometryESProducer::addRPCGeometry( void )
   // RPC rolls geometry
   //
   DetId detId( DetId::Muon, 3 );
-  const RPCGeometry* rpcGeom = (const RPCGeometry*) m_geomRecord->slaveGeometry( detId );
-  for( std::vector<RPCRoll *>::const_iterator it = rpcGeom->rolls().begin(),
-					     end = rpcGeom->rolls().end(); 
-       it != end; ++it )
-  {
-    RPCRoll* roll = (*it);
-    if( roll )
-    {
-      unsigned int rawid = roll->geographicalId().rawId();
-      unsigned int current = insert_id( rawid );
-      fillShapeAndPlacement( current, roll );
 
-      const StripTopology& topo = roll->specificTopology();
-      m_fwGeometry->idToName[current].topology[0] = topo.nstrips();
-      m_fwGeometry->idToName[current].topology[1] = topo.stripLength();
-      m_fwGeometry->idToName[current].topology[2] = topo.pitch();
+  try 
+  {
+    const RPCGeometry* rpcGeom = (const RPCGeometry*) m_geomRecord->slaveGeometry( detId );
+    for(auto roll : rpcGeom->rolls())
+    {
+      if( roll )
+      {
+	unsigned int rawid = roll->geographicalId().rawId();
+	unsigned int current = insert_id( rawid );
+	fillShapeAndPlacement( current, roll );
+	
+	const StripTopology& topo = roll->specificTopology();
+	m_fwGeometry->idToName[current].topology[0] = topo.nstrips();
+	m_fwGeometry->idToName[current].topology[1] = topo.stripLength();
+	m_fwGeometry->idToName[current].topology[2] = topo.pitch();
+      }
     }
+  }
+  catch( cms::Exception &exception )
+  {
+    edm::LogInfo("FWRecoGeometry") << "failed to produce RPC geometry " << exception.what() << std::endl;
   }
 }
 
@@ -240,27 +231,79 @@ FWRecoGeometryESProducer::addGEMGeometry( void )
   // GEM geometry
   //
   DetId detId( DetId::Muon, 4 );
-  const GEMGeometry* gemGeom = (const GEMGeometry*) m_geomRecord->slaveGeometry( detId );
-  for( std::vector<GEMEtaPartition *>::const_iterator it = gemGeom->etaPartitions().begin(),
-						     end = gemGeom->etaPartitions().end(); 
-       it != end; ++it )
-  {
-    GEMEtaPartition* roll = (*it);
-    if( roll )
-    {
-      unsigned int rawid = (*it)->geographicalId().rawId();
-      unsigned int current = insert_id( rawid );
-      fillShapeAndPlacement( current, roll );
 
-      const StripTopology& topo = roll->specificTopology();
-      m_fwGeometry->idToName[current].topology[0] = topo.nstrips();
-      m_fwGeometry->idToName[current].topology[1] = topo.stripLength();
-      m_fwGeometry->idToName[current].topology[2] = topo.pitch();
+  try 
+  {
+    const GEMGeometry* gemGeom = (const GEMGeometry*) m_geomRecord->slaveGeometry( detId );
+  
+    for(auto roll : gemGeom->etaPartitions())
+    { 
+      if( roll )
+      {
+	unsigned int rawid = roll->geographicalId().rawId();
+	unsigned int current = insert_id( rawid );
+	fillShapeAndPlacement( current, roll );
+
+	const StripTopology& topo = roll->specificTopology();
+	m_fwGeometry->idToName[current].topology[0] = topo.nstrips();
+	m_fwGeometry->idToName[current].topology[1] = topo.stripLength();
+	m_fwGeometry->idToName[current].topology[2] = topo.pitch();
+
+	float height = topo.stripLength()/2;
+	LocalPoint  lTop( 0., height, 0.);
+	LocalPoint  lBottom( 0., -height, 0.);
+	m_fwGeometry->idToName[current].topology[3] = roll->localPitch(lTop);
+	m_fwGeometry->idToName[current].topology[4] = roll->localPitch(lBottom);
+	m_fwGeometry->idToName[current].topology[5] = roll->npads();
+      }
     }
+  }
+  catch( cms::Exception &exception )
+  {
+    edm::LogInfo("FWRecoGeometry") << "failed to produce GEM geometry " << exception.what() << std::endl;
   }
 }
 
+void
+FWRecoGeometryESProducer::addME0Geometry( void )
+{
+  //                                                                                                                               
+  // ME0 geometry                                                                                                                  
+  //   
 
+  DetId detId( DetId::Muon, 5 );
+  try 
+  {
+    const ME0Geometry* me0Geom = (const ME0Geometry*) m_geomRecord->slaveGeometry( detId );
+  
+    for(auto roll : me0Geom->etaPartitions())
+    { 
+      if( roll )
+      {
+	unsigned int rawid = roll->geographicalId().rawId();
+	unsigned int current = insert_id( rawid );
+	fillShapeAndPlacement( current, roll );
+	  
+	//const StripTopology& topo = roll->specificTopology();
+	//  m_fwGeometry->idToName[current].topology[0] = topo.nstrips();
+	// m_fwGeometry->idToName[current].topology[1] = topo.stripLength();
+	//m_fwGeometry->idToName[current].topology[2] = topo.pitch();
+	
+	//float height = topo.stripLength()/2;
+	// LocalPoint  lTop( 0., height, 0.);
+	//LocalPoint  lBottom( 0., -height, 0.);
+	//m_fwGeometry->idToName[current].topology[3] = roll->localPitch(lTop);
+	//m_fwGeometry->idToName[current].topology[4] = roll->localPitch(lBottom);
+	//m_fwGeometry->idToName[current].topology[5] = roll->npads();
+      }
+    }
+  }
+  catch( cms::Exception &exception )
+  {
+    edm::LogInfo("FWRecoGeometry") << "failed to produce ME0 geometry " << exception.what() << std::endl;
+  }
+}  
+  
 void
 FWRecoGeometryESProducer::addPixelBarrelGeometry( void )
 {

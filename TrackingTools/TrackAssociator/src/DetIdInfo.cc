@@ -4,6 +4,7 @@
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
   
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
@@ -25,7 +26,7 @@
 
 #include <sstream>
 
-std::string DetIdInfo::info(const DetId& id) {
+std::string DetIdInfo::info(const DetId& id, const TrackerTopology *tTopo) {
    std::ostringstream oss;
    
    oss << "DetId: " << id.rawId() << "\n";
@@ -36,36 +37,38 @@ std::string DetIdInfo::info(const DetId& id) {
        switch ( id.subdetId() ) {
         case StripSubdetector::TIB:
              {
-               oss <<"TIB "<<TIBDetId(id).layer();
+               oss <<"TIB ";
              }
            break;
         case StripSubdetector::TOB:
              {
-               oss <<"TOB "<<TOBDetId(id).layer();
+               oss <<"TOB ";
              }
            break;
         case StripSubdetector::TEC:
              {
-               oss <<"TEC "<<TECDetId(id).wheel();
+               oss <<"TEC ";
              }
            break;
         case StripSubdetector::TID:
              {
-               oss <<"TID "<<TIDDetId(id).wheel();
+               oss <<"TID ";
              }
            break;
         case (int) PixelSubdetector::PixelBarrel:
              {
-               oss <<"PixBarrel "<< PXBDetId(id).layer();
+               oss <<"PixBarrel ";
              }
            break;
         case (int) PixelSubdetector::PixelEndcap:
              {
-               oss <<"PixEndcap "<< PXBDetId(id).layer();
+               oss <<"PixEndcap ";
              }
            break;
-         }
-        break;
+       }
+       if ( tTopo!=0)
+	 oss<< tTopo->layer(id);
+       break;
 
     case DetId::Muon:
       switch ( id.subdetId() ) {
@@ -209,21 +212,21 @@ std::string DetIdInfo::info(const DetId& id) {
 }
 
    
-std::string DetIdInfo::info(const std::set<DetId>& idSet) {
+std::string DetIdInfo::info(const std::set<DetId>& idSet, const TrackerTopology *tTopo) {
    std::string text;
    for(std::set<DetId>::const_iterator id = idSet.begin(); id != idSet.end(); id++)
      {
-	text += info(*id);
+       text += info(*id, tTopo);
 	text += "\n";
      }
    return text;
 }
 
-std::string DetIdInfo::info(const std::vector<DetId>& idSet) {
+std::string DetIdInfo::info(const std::vector<DetId>& idSet, const TrackerTopology *tTopo) {
    std::string text;
    for(std::vector<DetId>::const_iterator id = idSet.begin(); id != idSet.end(); id++)
      {
-	text += info(*id);
+       text += info(*id, tTopo);
 	text += "\n";
      }
    return text;

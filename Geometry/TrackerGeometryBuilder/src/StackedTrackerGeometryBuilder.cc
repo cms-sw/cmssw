@@ -1,26 +1,14 @@
-/// ////////////////////////////////////////
-/// Stacked Tracker Simulations          ///
-/// Written by:                          ///
-/// Unknown                              ///
-///                                      ///
-/// Changed by:                          ///
-/// Eric Brownson                        ///
-/// for compatibility with Hybrid Geom.  ///
-///                                      ///
-/// Nicola Pozzobon                      ///
-/// UNIPD                                ///
-/// 2012, May, July, November            ///
-///                                      ///
-/// Added features:                      ///
-/// PXB-PXB pairing re-written in order  ///
-/// to take into account features of     ///
-/// XML files produced by tkLayout       ///
-/// Expanded to handle PXF-PXF pairs     ///
-/// Re-defined range of different fields ///
-/// to be 1 to N instead of 0 to N-1, in ///
-/// a way consistent with all the other  ///
-/// conventions used for DetId's
-/// ////////////////////////////////////////
+/*! \class   StackedTrackerGeometryBuilder
+ *  \brief   TrackerGeometry-derived class for Pt modules
+ *  \details
+ *
+ *  \author Andrew W. Rose
+ *  \author Eric Brownson
+ *  \author Nicola Pozzobon
+ *  \author Ivan Reid
+ *  \date   2008
+ *
+ */
 
 #include "Geometry/TrackerGeometryBuilder/interface/StackedTrackerGeometryBuilder.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StackedTrackerGeometry.h"
@@ -35,18 +23,40 @@
 #include <fstream>
 #include <time.h>
 
-
+/// Default arguments
 StackedTrackerGeometry* StackedTrackerGeometryBuilder::build( const TrackerGeometry* theTracker,
-							      double radial_window,
-							      double phi_window,
-							      double z_window,
-							      int truncation_precision,
-							      bool makeDebugFile )
+                                                              double radial_window,
+                                                              double phi_window,
+                                                              double z_window,
+                                                              int truncation_precision,
+                                                              bool makeDebugFile )
+{
+  /// Dummy variables to use only one build method for all
+  std::vector< double >                foo;
+  std::vector< std::vector< double > > bar;
+  return build( theTracker, radial_window, phi_window, z_window, truncation_precision,
+                0, 0, foo, bar, makeDebugFile );
+}
+
+/// CBC3 dedicated stuff
+StackedTrackerGeometry* StackedTrackerGeometryBuilder::build( const TrackerGeometry* theTracker,
+                                                              double radial_window,
+                                                              double phi_window,
+                                                              double z_window,
+                                                              int truncation_precision,
+                                                              int theNumPartitions,
+                                                              unsigned theMaxStubs,
+                                                              std::vector< double > BarrelCut,
+                                                              std::vector< std::vector< double > > RingCut,
+                                                              bool makeDebugFile )
 {
   // For legacy compatibility it takes more inputs than it needs...
   time_t start_time = time (NULL);
-  StackedTrackerGeometry* StackedTrackergeom = new StackedTrackerGeometry( theTracker );
-  TrackingGeometry::DetUnitContainer::const_iterator trkIterator,trkIterator1,trkIterator2,trkIter_start,trkIter_end;
+  //StackedTrackerGeometry* StackedTrackergeom = new StackedTrackerGeometry( theTracker );
+  StackedTrackerGeometry* StackedTrackergeom = new StackedTrackerGeometry( theTracker, theNumPartitions, theMaxStubs );
+
+  /// Declare lots of iterators
+  TrackingGeometry::DetUnitContainer::const_iterator trkIterator, trkIterator1, trkIterator2, trkIter_start, trkIter_end;
 
   /// Make maps to make sure things are ordered properly
 
@@ -519,7 +529,9 @@ StackedTrackerGeometry* StackedTrackerGeometryBuilder::build( const TrackerGeome
           if (mod2 != tempMod1) continue;
 
           /// Here we have same layer, same rod, paired modules
-          StackedTrackerDetUnit::StackContents listStackMembers ;
+          double dRonR = (r2-r1)/r1;
+          PixelGeomDetUnit* pix0 = dynamic_cast< PixelGeomDetUnit* >( *trkIterator1 );
+          StackedTrackerDetUnit::StackContents listStackMembers;
           if (r1 < r2)
           {
             listStackMembers.insert( std::make_pair( 0 , id1 ) );
@@ -529,6 +541,8 @@ StackedTrackerGeometry* StackedTrackerGeometryBuilder::build( const TrackerGeome
           {
             listStackMembers.insert( std::make_pair( 0 , id2 ) );
             listStackMembers.insert( std::make_pair( 1 , id1 ) );
+            dRonR = (r1-r2)/r2;
+            pix0 = dynamic_cast< PixelGeomDetUnit* >( *trkIterator2 );
           } // first one should be the inner sensor
           else
             throw cms::Exception("StackedTrackerGeometryBuilder") << "E R R O R! modules coincide! "
@@ -561,14 +575,29 @@ StackedTrackerGeometry* StackedTrackerGeometryBuilder::build( const TrackerGeome
 
           /// If you KNOW it is being built correctly you can increase your windows to allow such values.
           if ( fabs(r1-r2) > radial_window )
-            throw cms::Exception("StackedTrackerGeometryBuilder") << "Attempted to build Barrel stacks that are far apart in R:" << fabs(r1-r2) << " " << aStackId << std::endl;
+            throw cms::Exception("StackedTrackerGeometryBuilder") << "Attempted to build Barrel stacks that are far apart in R:"
+                                                                  << fabs(r1-r2) << " " << aStackId << std::endl;
           if ( Dphi>=phi_window )
-            throw cms::Exception("StackedTrackerGeometryBuilder") << "Attempted to build Barrel stacks that are far apart in phi:" << Dphi << " " << aStackId << std::endl;
+            throw cms::Exception("StackedTrackerGeometryBuilder") << "Attempted to build Barrel stacks that are far apart in phi:"
+                                                                  << Dphi << " " << aStackId << std::endl;
           if ( Dz>=z_window )
-            throw cms::Exception("StackedTrackerGeometryBuilder") << "Attempted to build Barrel stacks that are far apart in Z:" << Dz << " " <<  aStackId << std::endl;
+            throw cms::Exception("StackedTrackerGeometryBuilder") << "Attempted to build Barrel stacks that are far apart in Z:"
+                                                                  << Dz << " " <<  aStackId << std::endl;
 
           /// If the Stack is correctly built, it can be added
-          StackedTrackergeom->addStack( new StackedTrackerDetUnit(aStackId, listStackMembers) );
+          if ( theNumPartitions != 0 )
+          {
+            StackedTrackergeom->addStack( new StackedTrackerDetUnit( aStackId,
+                                                                     listStackMembers,
+                                                                     2*BarrelCut.at( aStackId.iLayer() ),
+                                                                     makeOffsetArray(dRonR, pix0, theNumPartitions) ) );
+          }
+          else
+          {
+            StackedTrackergeom->addStack( new StackedTrackerDetUnit(aStackId, listStackMembers) );
+          }
+          //StackedTrackergeom->addStack( new StackedTrackerDetUnit(aStackId, listStackMembers) );
+
           detIdToDetIdMap.insert( std::make_pair(id2, id1) ); // Reverse order since the first one is being checked now
 
           if ( counterB.find(layToStackMap.find(lay1)->second) == counterB.end() )
@@ -624,7 +653,9 @@ StackedTrackerGeometry* StackedTrackerGeometryBuilder::build( const TrackerGeome
           if (mod2 != tempMod1) continue;
 
           /// Here we have same side, same disk, same ring and paired modules
-          StackedTrackerDetUnit::StackContents listStackMembers ;
+          double dZonZ = (fabs(z2)-fabs(z1))/fabs(z1);
+          PixelGeomDetUnit* pix0 = dynamic_cast<  PixelGeomDetUnit* >( *trkIterator1 );
+          StackedTrackerDetUnit::StackContents listStackMembers;
           if (fabs(z1) < fabs(z2))
           {
             listStackMembers.insert( std::make_pair( 0 , id1 ) );
@@ -634,6 +665,8 @@ StackedTrackerGeometry* StackedTrackerGeometryBuilder::build( const TrackerGeome
           {
             listStackMembers.insert( std::make_pair( 0 , id2 ) );
             listStackMembers.insert( std::make_pair( 1 , id1 ) );
+            dZonZ = (fabs(z1)-fabs(z2))/fabs(z2);
+            pix0 = dynamic_cast< PixelGeomDetUnit* >( *trkIterator2 );
           } // first one should be the inner sensor
           else
             throw cms::Exception("StackedTrackerGeometryBuilder") << "E R R O R! modules coincide! "
@@ -666,14 +699,29 @@ StackedTrackerGeometry* StackedTrackerGeometryBuilder::build( const TrackerGeome
 
           /// If you KNOW it is being built correctly you can increase your windows to allow such values.
           if ( DR > radial_window )
-            throw cms::Exception("StackedTrackerGeometryBuilder") << "Attempted to build Endcap stacks that are far apart in R:" << DR << " " << aStackId << std::endl;
+            throw cms::Exception("StackedTrackerGeometryBuilder") << "Attempted to build Endcap stacks that are far apart in R:"
+                                                                  << DR << " " << aStackId << std::endl;
           if ( Dphi>=phi_window )
-            throw cms::Exception("StackedTrackerGeometryBuilder") << "Attempted to build Endcap stacks that are far apart in phi:" << Dphi << " " << aStackId << std::endl;
+            throw cms::Exception("StackedTrackerGeometryBuilder") << "Attempted to build Endcap stacks that are far apart in phi:"
+                                                                  << Dphi << " " << aStackId << std::endl;
           if ( fabs(z1-z2)>=z_window )
-            throw cms::Exception("StackedTrackerGeometryBuilder") << "Attempted to build Endcap stacks that are far apart in Z:" << fabs(z1-z2) << " " <<  aStackId << std::endl;
+            throw cms::Exception("StackedTrackerGeometryBuilder") << "Attempted to build Endcap stacks that are far apart in Z:"
+                                                                  << fabs(z1-z2) << " " <<  aStackId << std::endl;
 
           /// If the Stack is correctly built, it can be added
-          StackedTrackergeom->addStack( new StackedTrackerDetUnit(aStackId, listStackMembers) );
+          if ( theNumPartitions != 0 )
+          {
+            StackedTrackergeom->addStack( new StackedTrackerDetUnit( aStackId,
+                                                                     listStackMembers,
+                                                                     2*(RingCut.at( aStackId.iDisk() )).at( aStackId.iRing() ),
+                                                                     makeOffsetArray(dZonZ, pix0, theNumPartitions) ) );
+          }
+          else
+          {
+            StackedTrackergeom->addStack( new StackedTrackerDetUnit(aStackId, listStackMembers) );
+          }
+          //StackedTrackergeom->addStack( new StackedTrackerDetUnit(aStackId, listStackMembers) );
+
           detIdToDetIdMap.insert( std::make_pair(id2, id1) ); // Reverse order since the first one is being checked now
 
           if ( counterE.find(diskToStackMap.find(disk1)->second) == counterE.end() )
@@ -754,5 +802,33 @@ StackedTrackerGeometry* StackedTrackerGeometryBuilder::build( const TrackerGeome
   return StackedTrackergeom;
 }
 
+/// Additional method for CBC3 emulation
+std::vector< std::vector< int > > StackedTrackerGeometryBuilder::makeOffsetArray( double ratio,
+                                                                                  PixelGeomDetUnit* pix0,
+                                                                                  int numPartitions)
+{
+  std::vector< std::vector< int > > anArray;
+  const PixelTopology* top0 = dynamic_cast< const PixelTopology* >( &(pix0->specificTopology()) );
 
+  int rows = top0->nrows();
+  int nChips = top0->rocsX();
+  int chipSize = top0->rowsperroc();
+  int partitionSize = ceil( float(chipSize) / float(numPartitions) );
+
+  for ( int chip = 0; chip < nChips; ++chip )
+  {
+    int chipStart = chip * chipSize;
+    int strip = chipStart + (partitionSize/2);
+    std::vector< int > offsets;
+
+    for ( int partition = 0; partition < numPartitions; ++partition, strip += partitionSize )
+    {
+      double offsetD = 2 * ratio * ( strip - ( rows/2 - 0.5) ); /// In HALF-STRIP units!
+      int offsetI = ((offsetD>0)-(offsetD<0))*floor(fabs(offsetD)); /// In HALF-STRIP units!
+      offsets.push_back(offsetI);
+    }
+    anArray.push_back(offsets);
+  }
+  return anArray;
+}
 

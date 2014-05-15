@@ -32,7 +32,8 @@ public:
 private:
   std::string subDir_;
   edm::InputTag simHitLabel_, recHitLabel_;
-  edm::InputTag simTrackLabel_;
+  edm::InputTag simParticleLabel_;
+  edm::InputTag simHitAssocLabel_;
   edm::InputTag muonLabel_;
 
   DQMStore* dbe_;
@@ -50,7 +51,7 @@ private:
   MEP h_recoMuonBarrel_pt, h_recoMuonOverlap_pt, h_recoMuonEndcap_pt, h_recoMuonNoRPC_pt;
   MEP h_recoMuonBarrel_eta, h_recoMuonOverlap_eta, h_recoMuonEndcap_eta, h_recoMuonNoRPC_eta;
   MEP h_recoMuonBarrel_phi, h_recoMuonOverlap_phi, h_recoMuonEndcap_phi, h_recoMuonNoRPC_phi;
-  MEP h_simTrackPType, h_simTrackPTypeBarrel, h_simTrackPTypeEndcap;
+  MEP h_simParticleType, h_simParticleTypeBarrel, h_simParticleTypeEndcap;
 
   MEP h_refPunchOccupancyBarrel_wheel, h_refPunchOccupancyEndcap_disk, h_refPunchOccupancyBarrel_station;
   MEP h_refPunchOccupancyBarrel_wheel_station, h_refPunchOccupancyEndcap_disk_ring;

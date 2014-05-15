@@ -15,7 +15,7 @@
 #include "DQMOffline/Muon/src/SegmentTrackAnalyzer.h"
 #include "DQMOffline/Muon/src/MuonKinVsEtaAnalyzer.h"
 #include "DQMOffline/Muon/src/DiMuonHistograms.h"
-#include "DQMOffline/Muon/src/MuonRecoOneHLT.h"
+//#include "DQMOffline/Muon/src/MuonRecoOneHLT.h"
 #include "DQMOffline/Muon/src/EfficiencyAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -60,7 +60,7 @@ MuonAnalyzer::MuonAnalyzer(const edm::ParameterSet& pSet) {
   theMuonSegmentsAnalyzerFlag   = parameters.getUntrackedParameter<bool>("DoTrackSegmentsAnalysis",true);
   theMuonKinVsEtaAnalyzerFlag   = parameters.getUntrackedParameter<bool>("DoMuonKinVsEtaAnalysis" ,true);
   theDiMuonHistogramsFlag       = parameters.getUntrackedParameter<bool>("DoDiMuonHistograms"     ,true);
-  theMuonRecoOneHLTAnalyzerFlag = parameters.getUntrackedParameter<bool>("DoMuonRecoOneHLT"       ,true);
+  //  theMuonRecoOneHLTAnalyzerFlag = parameters.getUntrackedParameter<bool>("DoMuonRecoOneHLT"       ,true);
   theEfficiencyAnalyzerFlag     = parameters.getUntrackedParameter<bool>("DoEfficiencyAnalysis"   ,true);
   
   // If the previous are defined... create the analyzer class 
@@ -84,8 +84,8 @@ MuonAnalyzer::MuonAnalyzer(const edm::ParameterSet& pSet) {
     trackStaMuAnalysisParameters.addParameter<edm::InputTag>("MuTrackCollection",theStaMuTrackCollectionLabel);
     theStaMuonSegmentsAnalyzer = new SegmentTrackAnalyzer(trackStaMuAnalysisParameters, theService);
   }
-  if (theMuonRecoOneHLTAnalyzerFlag)
-    theMuonRecoOneHLTAnalyzer = new MuonRecoOneHLT(parameters.getParameter<ParameterSet>("muonRecoOneHLTAnalysis"),theService);
+  //  if (theMuonRecoOneHLTAnalyzerFlag)
+  //    theMuonRecoOneHLTAnalyzer = new MuonRecoOneHLT(parameters.getParameter<ParameterSet>("muonRecoOneHLTAnalysis"),theService);
   if(theEfficiencyAnalyzerFlag)
     theEfficiencyAnalyzer = new EfficiencyAnalyzer(parameters.getParameter<ParameterSet>("efficiencyAnalysis"), theService);
 }
@@ -102,11 +102,11 @@ MuonAnalyzer::~MuonAnalyzer() {
   }
   if(theMuonKinVsEtaAnalyzerFlag)   delete theMuonKinVsEtaAnalyzer;
   if(theDiMuonHistogramsFlag)       delete theDiMuonHistograms;
-  if(theMuonRecoOneHLTAnalyzerFlag) delete theMuonRecoOneHLTAnalyzer;
+  //  if(theMuonRecoOneHLTAnalyzerFlag) delete theMuonRecoOneHLTAnalyzer;
   if(theEfficiencyAnalyzerFlag)     delete theEfficiencyAnalyzer;
 }
 void MuonAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup){
-  if (theMuonRecoOneHLTAnalyzerFlag) theMuonRecoOneHLTAnalyzer->beginRun(iRun,iSetup);
+  //  if (theMuonRecoOneHLTAnalyzerFlag) theMuonRecoOneHLTAnalyzer->beginRun(iRun,iSetup);
 }
 void MuonAnalyzer::beginJob(void) {
   metname = "muonAnalyzer";
@@ -121,7 +121,7 @@ void MuonAnalyzer::beginJob(void) {
   if(theMuonSegmentsAnalyzerFlag)   theStaMuonSegmentsAnalyzer->beginJob(theDbe);
   if(theMuonKinVsEtaAnalyzerFlag)   theMuonKinVsEtaAnalyzer->beginJob(theDbe);
   if(theDiMuonHistogramsFlag)       theDiMuonHistograms->beginJob(theDbe);
-  if(theMuonRecoOneHLTAnalyzerFlag) theMuonRecoOneHLTAnalyzer->beginJob(theDbe);
+  //  if(theMuonRecoOneHLTAnalyzerFlag) theMuonRecoOneHLTAnalyzer->beginJob(theDbe);
   if(theEfficiencyAnalyzerFlag)     theEfficiencyAnalyzer->beginJob(theDbe); 
 }
 void MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -155,10 +155,10 @@ void MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       //	theMuonRecoOneHLTAnalyzer->analyze(iEvent, iSetup, *triggerResults);
       //      }
     }
-    if(theMuonRecoOneHLTAnalyzerFlag) {
-      LogTrace(metname)<<"[MuonAnalyzer] Call to the muon reco One HLT analyzer";
-      theMuonRecoOneHLTAnalyzer->analyze(iEvent, iSetup, *triggerResults);
-    }
+    //    if(theMuonRecoOneHLTAnalyzerFlag) {
+    //      LogTrace(metname)<<"[MuonAnalyzer] Call to the muon reco One HLT analyzer";
+    //      theMuonRecoOneHLTAnalyzer->analyze(iEvent, iSetup, *triggerResults);
+    //    }
     if (theEfficiencyAnalyzerFlag){
       LogTrace(metname)<<"[MuonAnalyzer] Call to the efficiency analyzer";
       theEfficiencyAnalyzer->analyze(iEvent,iSetup);

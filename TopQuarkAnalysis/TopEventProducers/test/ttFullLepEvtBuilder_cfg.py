@@ -23,20 +23,20 @@ process.maxEvents = cms.untracked.PSet(
 
 ## configure process options
 process.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool(False)
+    allowUnscheduled = cms.untracked.bool(True),
+    wantSummary      = cms.untracked.bool(True)
 )
 
 ## configure geometry & conditions
-#process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.Geometry.GeometryIdeal_cff")
-process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-
-from Configuration.AlCa.autoCond import autoCond
-process.GlobalTag.globaltag = autoCond['mc']
+from Configuration.AlCa.GlobalTag import GlobalTag
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup')
+process.load("Configuration.StandardSequences.MagneticField_cff")
 
 ## std sequence for pat
-process.load("PhysicsTools.PatAlgos.patSequences_cff")
+process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
+process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
 
 ## std sequence to produce the ttGenEvt
 process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttGenEvent_cff")
@@ -46,7 +46,7 @@ process.load("TopQuarkAnalysis.TopEventProducers.sequences.ttFullLepEvtBuilder_c
 process.ttFullLepEvent.verbosity = 1
 
 ## optional change of settings
-#from TopQuarkAnalysis.TopEventProducers.sequences.ttFullLepEvtBuilder_cff import *		      
+#from TopQuarkAnalysis.TopEventProducers.sequences.ttFullLepEvtBuilder_cff import *
 #removeTtFullLepHypGenMatch(process)
 
 #setForAllTtFullLepHypotheses(process,"muons","myMuons")
@@ -54,26 +54,17 @@ process.ttFullLepEvent.verbosity = 1
 #setForAllTtFullLepHypotheses(process,"maxNJets",4)
 #setForAllTtFullLepHypotheses(process,"jetCorrectionLevel","part")
 
-## process path
-process.p = cms.Path(process.patDefaultSequence *
-                     process.makeGenEvt *
-                     process.makeTtFullLepEvent
-                    )
-
 ## configure output module
 process.out = cms.OutputModule("PoolOutputModule",
     fileName     = cms.untracked.string('ttFullLepEvtBuilder.root'),
-    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('p') ),
-    outputCommands = cms.untracked.vstring('drop *'),                      
+    outputCommands = cms.untracked.vstring('drop *'),
     dropMetaData = cms.untracked.string('DROPPED')
 )
 process.outpath = cms.EndPath(process.out)
 
-## pat content
-from PhysicsTools.PatAlgos.patEventContent_cff import *
-process.out.outputCommands += patTriggerEventContent
-process.out.outputCommands += patExtraAodEventContent
+## PAT content
+from PhysicsTools.PatAlgos.patEventContent_cff import patEventContentNoCleaning
 process.out.outputCommands += patEventContentNoCleaning
-## tqaf content
-from TopQuarkAnalysis.TopEventProducers.tqafEventContent_cff import *
+## TQAF content
+from TopQuarkAnalysis.TopEventProducers.tqafEventContent_cff import tqafEventContent
 process.out.outputCommands += tqafEventContent
