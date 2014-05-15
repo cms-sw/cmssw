@@ -10,6 +10,8 @@ def customisePostLS1(process):
     process = customise_csc_PostLS1(process)
 
     # all the rest:
+    if hasattr(process,'g4SimHits'):
+        process=customise_Sim(process)
     if hasattr(process,'DigiToRaw'):
         process=customise_DigiToRaw(process)
     if hasattr(process,'RawToDigi'):
@@ -59,13 +61,31 @@ def customise_Validation(process):
     return process
 
 
+def customise_Sim(process):
+    # enable 2015 HF shower library
+    process.g4SimHits.HCalSD.UseShowerLibrary   = True
+    process.g4SimHits.HCalSD.UseParametrize     = False
+    process.g4SimHits.HCalSD.UsePMTHits         = False
+    process.g4SimHits.HCalSD.UseFibreBundleHits = False
+    process.g4SimHits.HFShowerLibrary.FileName  = 'SimG4CMS/Calo/data/HFShowerLibrary_npmt_eta4_16en.root'
+    process.g4SimHits.HFShowerLibrary.BranchPost= ''
+    process.g4SimHits.HFShowerLibrary.BranchPre = ''
+    process.g4SimHits.HFShowerLibrary.BranchEvt = ''
+    return process
+
+
 def customise_Digi(process):
     process=digiEventContent(process)
-    if hasattr(process,"mix.digitizers.hcal.ho"):
-        process.mix.digitizers.hcal.ho.photoelectronsToAnalog = cms.vdouble([4.0]*16)
-        process.mix.digitizers.hcal.ho.siPMCode = cms.int32(1)
-        process.mix.digitizers.hcal.ho.pixels = cms.int32(2500)
-        process.mix.digitizers.hcal.ho.doSiPMSmearing = cms.bool(False)
+    if hasattr(process,'mix') and hasattr(process.mix,'digitizers'):
+        if hasattr(process.mix.digitizers,'hcal') and hasattr(process.mix.digitizers.hcal,'ho'):
+            process.mix.digitizers.hcal.ho.photoelectronsToAnalog = cms.vdouble([4.0]*16)
+            process.mix.digitizers.hcal.ho.siPMCode = cms.int32(1)
+            process.mix.digitizers.hcal.ho.pixels = cms.int32(2500)
+            process.mix.digitizers.hcal.ho.doSiPMSmearing = cms.bool(False)
+        if hasattr(process.mix.digitizers,'hcal') and hasattr(process.mix.digitizers.hcal,'hf1'):
+            process.mix.digitizers.hcal.hf1.samplingFactor = cms.double(0.50)
+        if hasattr(process.mix.digitizers,'hcal') and hasattr(process.mix.digitizers.hcal,'hf2'):
+            process.mix.digitizers.hcal.hf2.samplingFactor = cms.double(0.75)
     return process
 
 

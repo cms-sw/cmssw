@@ -13,6 +13,7 @@
 #include "EventFilter/Utilities/plugins/EvFDaqDirector.h"
 #include "EventFilter/Utilities/interface/FileIO.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
@@ -68,7 +69,6 @@ namespace evf{
     reg.watchPreModuleEvent(this,&FastMonitoringService::preModuleEvent);//should be stream
     reg.watchPostModuleEvent(this,&FastMonitoringService::postModuleEvent);//
 
-    edm::LogInfo("FastMonitoringService") << "Constructed";
   }
 
 
@@ -105,7 +105,7 @@ namespace evf{
     
     if (edm::Service<evf::EvFDaqDirector>().operator->()==nullptr)
     {
-      throw cms::Exception("FastMonitoringService") << "ERROR: EvFDaqDirector is not present";
+      throw cms::Exception("FastMonitoringService") << "EvFDaqDirector is not present";
     
     }
     boost::filesystem::path runDirectory(edm::Service<evf::EvFDaqDirector>()->findCurrentRunDir());
@@ -113,10 +113,10 @@ namespace evf{
     workingDirectory_ /= "mon";
 
     if ( !boost::filesystem::is_directory(workingDirectory_)) {
-        edm::LogInfo("FastMonitoringService") << "<MON> DIR NOT FOUND! Trying to create " << workingDirectory_.string() ;
+        LogDebug("FastMonitoringService") << "<MON> DIR NOT FOUND! Trying to create -: " << workingDirectory_.string() ;
         boost::filesystem::create_directories(workingDirectory_);
         if ( !boost::filesystem::is_directory(workingDirectory_))
-          edm::LogWarning("FastMonitoringService") << "Unable to create <MON> DIR " << workingDirectory_.string()
+          edm::LogWarning("FastMonitoringService") << "Unable to create <MON> DIR -: " << workingDirectory_.string()
                                                    << ". No monitoring data will be written.";
     }
 
@@ -135,8 +135,8 @@ namespace evf{
     pathLegFile << "pathlegend_pid" << std::setfill('0') << std::setw(5) << getpid() << ".leg";
     pathLegendFile_  = (workingDirectory_/pathLegFile.str()).string();
 
-    edm::LogInfo("FastMonitoringService") << "preallocate: initializing FastMonitor with microstate def path: "
-			                  << microstateDefPath_ << " " << FastMonitoringThread::MCOUNT << " ";
+    LogDebug("FastMonitoringService") << "Initializing FastMonitor with microstate def path -: "
+			                  << microstateDefPath_;
 			                  //<< encPath_.current_ + 1 << " " << encModule_.current_ + 1
 
     nStreams_=bounds.maxNumberOfStreams();
@@ -251,7 +251,6 @@ namespace evf{
 
   void FastMonitoringService::preGlobalBeginLumi(edm::GlobalContext const& gc)
   {
-          edm::LogInfo("FastMonitoringService") << gc.luminosityBlockID().luminosityBlock();
 
 	  timeval lumiStartTime;
 	  gettimeofday(&lumiStartTime, 0);
@@ -277,8 +276,8 @@ namespace evf{
   void FastMonitoringService::preGlobalEndLumi(edm::GlobalContext const& gc)
   {
 	  unsigned int lumi = gc.luminosityBlockID().luminosityBlock();
-          edm::LogInfo("FastMonitoringService") << "FastMonitoringService: LUMI: "
-                                                << lumi << " ended! Writing JSON information...";
+          LogDebug("FastMonitoringService") << "Lumi ended. Writing JSON information. LUMI -: "
+                                                << lumi;
 	  timeval lumiStopTime;
 	  gettimeofday(&lumiStopTime, 0);
 
@@ -313,18 +312,27 @@ namespace evf{
 	  {
 	    auto itr = sourceEventsReport_.find(lumi);
 	    if (itr==sourceEventsReport_.end()) {
-              throw cms::Exception("FastMonitoringService") << "ERROR: SOURCE did not send update for lumi block " << lumi;
+              //do not throw exception in case of signal termination
+              if (edm::shutdown_flag) {
+                edm::LogInfo("FastMonitoringService") << "Run interrupted. Skip writing EoL information -: "
+                                                      << processedEventsPerLumi_[lumi] << " events were processed in LUMI " << lumi;
+                //this will prevent output modules from producing json file for possibly incomplete lumi
+                processedEventsPerLumi_[lumi];
+                return;
+              }
+              throw cms::Exception("FastMonitoringService") << "SOURCE did not send update for lumi block. LUMI -:" << lumi;
 	    }
 	    else {
 	      if (itr->second!=processedEventsPerLumi_[lumi]) {
-		throw cms::Exception("FastMonitoringService") << " ERROR: MISMATCH with SOURCE update for lumi block" << lumi
+		throw cms::Exception("FastMonitoringService") << "MISMATCH with SOURCE update. LUMI -: "
+                                                              << lumi
                                                               << ", events(processed):" << processedEventsPerLumi_[lumi]
                                                               << " events(source):" << itr->second;
 	      }
 	      sourceEventsReport_.erase(itr);
 	    }
 	  }
-	  edm::LogInfo("FastMonitoringService")	<< ">>> >>> FastMonitoringService: processed event count for this lumi = "
+	  edm::LogInfo("FastMonitoringService")	<< "Statistics for lumisection -: lumi = " << lumi << " events = "
 			                        << lumiProcessedJptr->value() << " time = " << usecondsForLumi/1000000
 			                        << " size = " << accuSize << " thr = " << throughput;
 	  delete lumiProcessedJptr;
@@ -338,8 +346,6 @@ namespace evf{
 
   void FastMonitoringService::postGlobalEndLumi(edm::GlobalContext const& gc)
   {
-    edm::LogInfo("FastMonitoringService") << "FastMonitoringService: Post-global-end LUMI: "
-                                          << gc.luminosityBlockID().luminosityBlock();
     //mark closed lumis (still keep map entries until next one)
     lastGlobalLumisClosed_.push(gc.luminosityBlockID().luminosityBlock());
   }
@@ -542,7 +548,7 @@ namespace evf{
       return proc;
     }
     else {
-      throw cms::Exception("FastMonitoringService") << "ERROR: output module wants deleted info ";
+      throw cms::Exception("FastMonitoringService") << "output module wants already deleted LS event count for LUMI -: "<<lumi;
       return 0;
     }
   }
