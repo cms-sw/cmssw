@@ -99,7 +99,7 @@ namespace evf {
     // check if base dir exists or create it accordingly
     int retval = mkdir(base_dir_.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     if (retval != 0 && errno != EEXIST) {
-      throw cms::Exception("DaqDirector") << " Error checking for base dir "
+      throw cms::Exception("DaqDirector") << " Error checking for base dir -: "
     					  << base_dir_ << " mkdir error:" << strerror(errno);
     }
 
@@ -108,26 +108,26 @@ namespace evf {
     retval = mkdir(run_dir_.c_str(),
 		       S_IRWXU | S_IRWXG | S_IROTH | S_IRWXO | S_IXOTH);
     if (retval != 0 && errno != EEXIST) {
-      throw cms::Exception("DaqDirector") << " Error creating run dir "
+      throw cms::Exception("DaqDirector") << " Error creating run dir -: "
 					  << run_dir_ << " mkdir error:" << strerror(errno);
     }
-    //create fu-local.lock in run dir
-    std::string fulocal_lock_ = run_dir_+"/"+"fu-local.lock";
-    fulocal_rwlock_fd_ = open(fulocal_lock_.c_str(), O_RDWR | O_CREAT, S_IRWXU | S_IWGRP | S_IRGRP | S_IWOTH | S_IROTH);//O_RDWR?
-    if (fulocal_rwlock_fd_==-1)
-      throw cms::Exception("DaqDirector") << " Error creating/opening a local lock file " << fulocal_lock_.c_str() << " : " << strerror(errno);
-    chmod(fulocal_lock_.c_str(),0777);
-    fsync(fulocal_rwlock_fd_);
-    //open second fd for another input source thread
-    fulocal_rwlock_fd2_ = open(fulocal_lock_.c_str(), O_RDWR, S_IRWXU | S_IWGRP | S_IRGRP | S_IWOTH | S_IROTH);//O_RDWR?
-    if (fulocal_rwlock_fd2_==-1)
-      throw cms::Exception("DaqDirector") << " Error opening a local lock file " << fulocal_lock_.c_str() << " : " << strerror(errno);
 
+    //create fu-local.lock in run dir
+    if (!directorBu_) {
+      std::string fulocal_lock_ = run_dir_+"/"+"fu-local.lock";
+      fulocal_rwlock_fd_ = open(fulocal_lock_.c_str(), O_RDWR | O_CREAT, S_IRWXU | S_IWGRP | S_IRGRP | S_IWOTH | S_IROTH);//O_RDWR?
+      if (fulocal_rwlock_fd_==-1)
+        throw cms::Exception("DaqDirector") << " Error creating/opening a local lock file -: " << fulocal_lock_.c_str() << " : " << strerror(errno);
+      chmod(fulocal_lock_.c_str(),0777);
+      fsync(fulocal_rwlock_fd_);
+      //open second fd for another input source thread
+      fulocal_rwlock_fd2_ = open(fulocal_lock_.c_str(), O_RDWR, S_IRWXU | S_IWGRP | S_IRGRP | S_IWOTH | S_IROTH);//O_RDWR?
+      if (fulocal_rwlock_fd2_==-1)
+        throw cms::Exception("DaqDirector") << " Error opening a local lock file -: " << fulocal_lock_.c_str() << " : " << strerror(errno);
+    }
 
     //bu_run_dir: for FU, for which the base dir is local and the BU is remote, it is expected to be there
     //for BU, it is created at this point
-
-
     if (directorBu_)
       {
 	bu_run_dir_ = base_dir_ + "/" + run_string_;
@@ -139,14 +139,14 @@ namespace evf {
 		       S_IRWXU | S_IRWXG | S_IRWXO);
 	if (retval != 0 && errno != EEXIST) {
 	  throw cms::Exception("DaqDirector")
-	    << " Error creating bu run dir " << bu_run_dir_
+	    << " Error creating bu run dir -: " << bu_run_dir_
 	    << " mkdir error:" << strerror(errno) << "\n";
 	}
 	bu_run_open_dir_ = bu_run_dir_ + "/open";
 	retval = mkdir(bu_run_open_dir_.c_str(),
 		       S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 	if (retval != 0 && errno != EEXIST) {
-	  throw cms::Exception("DaqDirector") << " Error creating bu run open dir "
+	  throw cms::Exception("DaqDirector") << " Error creating bu run open dir -: "
 					      << bu_run_open_dir_ << " mkdir error:" << strerror(errno)
 					      << "\n";
 	}
@@ -155,14 +155,14 @@ namespace evf {
 	bu_writelock_fd_ = open(bulockfile.c_str(),
 				O_WRONLY | O_CREAT | O_TRUNC, S_IRWXU);
 	if (bu_writelock_fd_ == -1)
-	  edm::LogWarning("EvFDaqDirector") << "problem with creating filedesc for buwritelock "
+	  edm::LogWarning("EvFDaqDirector") << "problem with creating filedesc for buwritelock -: "
 					    << strerror(errno);
 	else
-	  edm::LogInfo("EvFDaqDirector") << "creating filedesc for buwritelock "
+	  edm::LogInfo("EvFDaqDirector") << "creating filedesc for buwritelock -: "
 					 << bu_writelock_fd_;
 	bu_w_lock_stream = fdopen(bu_writelock_fd_, "w");
 	if (bu_w_lock_stream == 0)
-	  edm::LogWarning("EvFDaqDirector")<< "Error creating write lock stream " << strerror(errno);
+	  edm::LogWarning("EvFDaqDirector")<< "Error creating write lock stream -: " << strerror(errno);
 
 	// BU INITIALIZES LOCK FILE
 	// FU LOCK FILE OPEN
@@ -177,7 +177,7 @@ namespace evf {
 
 	retval = mkdir(bu_base_dir_.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 	if (retval != 0 && errno != EEXIST) {
-	  throw cms::Exception("DaqDirector") << " Error checking for bu base dir "
+	  throw cms::Exception("DaqDirector") << " Error checking for bu base dir -: "
 					      << bu_base_dir_ << " mkdir error:" << strerror(errno) << "\n";
 	}
 
@@ -228,8 +228,8 @@ namespace evf {
 
     // check if the requested run is the latest one - issue a warning if it isn't
     if (dirManager_.findHighestRunDir() != run_dir_) {
-      edm::LogWarning("EvFDaqDirector") << "DaqDirector Warning checking run dir "
-					<< run_dir_ << " this is not the highest run "
+      edm::LogWarning("EvFDaqDirector") << "WARNING - checking run dir -: "
+					<< run_dir_ << ". This is not the highest run "
 					<< dirManager_.findHighestRunDir();
     }
   }
@@ -287,7 +287,7 @@ namespace evf {
   void EvFDaqDirector::removeFile(std::string filename) {
     int retval = remove(filename.c_str());
     if (retval != 0)
-      edm::LogError("EvFDaqDirector") << "Could not remove used file " << filename << " error "
+      edm::LogError("EvFDaqDirector") << "Could not remove used file -: " << filename << ". error = "
 		                      << strerror(errno);
   }
 
@@ -357,11 +357,11 @@ namespace evf {
 	    fileStatus = newFile;
 
 	    if (testModeNoBuilderUnit_)
-	      edm::LogInfo("EvFDaqDirector") << "Written to file: " << readLs << ":"
+	      edm::LogInfo("EvFDaqDirector") << "Written to file -: " << readLs << ":"
 			                     << readIndex + 1 << " --> " << readLs + 2
 			                     << ":" << readIndex + 1;
 	    else
-	      edm::LogInfo("EvFDaqDirector") << "Written to file: " << readLs << ":"
+	      LogDebug("EvFDaqDirector") << "Written to file -: " << readLs << ":"
 			                     << readIndex + 1;
 
 	  } else
@@ -390,12 +390,12 @@ namespace evf {
     if (retvalu==-1) edm::LogError("EvFDaqDirector") << "Error unlocking the fu.lock " << strerror(errno);
 
 #ifdef DEBUG
-    edm::LogInfo("EvFDaqDirector") << "Waited during lock:" << locked_period;
+    edm::LogDebug("EvFDaqDirector") << "Waited during lock -: " << locked_period << " seconds";
 #endif
 
     if ( fileStatus == noFile ) {
       struct stat buf;
-      edm::LogInfo("EvFDaqDirector") << " looking for EoR file: " << getEoRFilePath().c_str();
+      //edm::LogInfo("EvFDaqDirector") << " looking for EoR file: " << getEoRFilePath().c_str();
       if ( stat(getEoRFilePath().c_str(), &buf) == 0 )
         fileStatus = runEnded;
     }
@@ -410,7 +410,7 @@ namespace evf {
         try {
           fms_ = (FastMonitoringService *) (edm::Service<evf::MicroStateService>().operator->());
         } catch (...) {
-	        edm::LogError("EvFDaqDirector") <<" FastMonitoringService not found ";
+	        edm::LogError("EvFDaqDirector") <<" FastMonitoringService not found";
         }
       }
       if (fms_) fms_->accumulateFileSize(ls, previousFileSize_);
@@ -457,10 +457,10 @@ namespace evf {
 	    std::string destEol = getEoLSFilePathOnBU(startingLumi+2);
 
 	    std::string cpCmd = "cp " + sourceEol + " " + destEol;
-	    edm::LogInfo("EvFDaqDirector") << " testmode: Running copy cmd = " << cpCmd;
+	    edm::LogInfo("EvFDaqDirector") << " testmode: Running copy cmd -: " << cpCmd;
 	    int rc = system(cpCmd.c_str());
 	    if (rc != 0) {
-	      edm::LogError("EvFDaqDirector") << " testmode: COPY EOL FAILED!!!!!: " << cpCmd;
+	      edm::LogError("EvFDaqDirector") << " testmode: COPY EOL FAILED!!!!! -: " << cpCmd;
 	    }
 	  }
 
@@ -497,10 +497,10 @@ namespace evf {
       fu_readwritelock_fd_ = open(fulockfile.c_str(), O_RDWR, S_IRWXU);
     }
     if (fu_readwritelock_fd_ == -1)
-      edm::LogError("EvFDaqDirector") << "problem with creating filedesc for fuwritelock "
-		<< strerror(errno);
+      edm::LogError("EvFDaqDirector") << "problem with creating filedesc for fuwritelock -: " << fulockfile.c_str()
+                                      << " create:" << create << " error:" << strerror(errno);
     else
-      edm::LogInfo("EvFDaqDirector") << "creating filedesc for fureadwritelock "
+      LogDebug("EvFDaqDirector") << "creating filedesc for fureadwritelock -: "
 		<< fu_readwritelock_fd_;
 
     fu_rw_lock_stream = fdopen(fu_readwritelock_fd_, "r+");
@@ -514,7 +514,7 @@ namespace evf {
       edm::LogError("EvFDaqDirector") << "problem with creating filedesc for datamerge "
 		<< strerror(errno);
     else
-      edm::LogInfo("EvFDaqDirector") << "creating filedesc for datamerge "
+      LogDebug("EvFDaqDirector") << "creating filedesc for datamerge -: "
 		<< data_readwrite_fd_;
     fcntl(data_readwrite_fd_, F_SETLKW, &data_rw_flk);
 
