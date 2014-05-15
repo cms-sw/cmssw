@@ -136,7 +136,7 @@ void producePileUpEvents::beginRun(edm::Run const&, edm::EventSetup const& es)
   // init Particle data table (from Pythia)
   edm::ESHandle < HepPDT::ParticleDataTable > pdt;
   es.getData(pdt);
-  if ( !ParticleTable::instance() ) ParticleTable::instance(&(*pdt));
+  
   mySimEvent->initializePdt(&(*pdt));
 
 }
@@ -144,7 +144,7 @@ void producePileUpEvents::beginRun(edm::Run const&, edm::EventSetup const& es)
 void
 producePileUpEvents::produce(edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-
+  ParticleTable::Sentry(mySimEvent->theTable());
   ++totalPU;
   if ( totalPU/1000*1000 == totalPU ) 
     std::cout << "Number of events produced "
