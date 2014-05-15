@@ -7,7 +7,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -15,7 +15,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
 
-class PFSeedSelector : public edm::stream::EDProducer<> {
+class PFSeedSelector : public edm::EDProducer {
  public:
   explicit PFSeedSelector(const edm::ParameterSet&);
   ~PFSeedSelector();
