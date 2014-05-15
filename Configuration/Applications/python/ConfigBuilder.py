@@ -72,6 +72,7 @@ defaultOptions.lumiToProcess=None
 defaultOptions.fast=False
 defaultOptions.runsAndWeightsForMC = None
 defaultOptions.runsScenarioForMC = None
+defaultOptions.runUnscheduled = False
 
 # some helper routines
 def dumpPython(process,name):
