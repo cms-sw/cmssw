@@ -17,6 +17,7 @@ class ParticleTable;
 #include <string>
 #include <iosfwd>
 
+#include<memory>
 
 
 /**
@@ -255,7 +256,7 @@ public:
   const ParticleData* myInfo;         //!< The pointer to the PDG info
   
  private:
-  ParticleTable* tab;
+  const ParticleTable* tab;
 };
 
 

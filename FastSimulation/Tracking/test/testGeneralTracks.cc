@@ -148,7 +148,7 @@ void testGeneralTracks::beginRun(edm::Run const&, edm::EventSetup const& es)
   // init Particle data table (from Pythia)
   edm::ESHandle < HepPDT::ParticleDataTable > pdt;
   es.getData(pdt);
-  if ( !ParticleTable::instance() ) ParticleTable::instance(&(*pdt));
+  
   mySimEvent[0]->initializePdt(&(*pdt));
   mySimEvent[1]->initializePdt(&(*pdt));
 
@@ -165,7 +165,8 @@ void testGeneralTracks::beginRun(edm::Run const&, edm::EventSetup const& es)
 void
 testGeneralTracks::produce(edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-  
+  ParticleTable::Sentry ptable(mySimEvent[0]->theTable());
+
   ++totalNEvt;
   
   //  std::cout << " >>>>>>>>> Analizying Event " << totalNEvt << "<<<<<<< " << std::endl; 

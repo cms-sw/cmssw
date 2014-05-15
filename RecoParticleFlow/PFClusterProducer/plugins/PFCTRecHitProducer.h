@@ -7,7 +7,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -32,7 +32,7 @@ class CaloSubdetectorTopology;
 class CaloSubdetectorGeometry;
 class DetId;
 
-class PFCTRecHitProducer : public edm::stream::EDProducer<> {
+class PFCTRecHitProducer : public edm::EDProducer {
  public:
   explicit PFCTRecHitProducer(const edm::ParameterSet&);
   ~PFCTRecHitProducer();
