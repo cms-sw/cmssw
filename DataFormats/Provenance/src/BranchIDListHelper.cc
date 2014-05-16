@@ -11,7 +11,8 @@ namespace edm {
     branchIDLists_(),
     branchIDToIndexMap_(),
     inputIndexToJobIndex_(),
-    producedBranchListIndex_(std::numeric_limits<BranchListIndex>::max())
+    producedBranchListIndex_(std::numeric_limits<BranchListIndex>::max()),
+    nAlreadyCopied_(0)
   {}
 
   bool
@@ -40,6 +41,23 @@ namespace edm {
       }
     }
     return unchanged;
+  }
+
+  void
+  BranchIDListHelper::updateFromParent(BranchIDLists const& bidlists) {
+
+    inputIndexToJobIndex_.resize(bidlists.size());
+    for(auto it = bidlists.begin() + nAlreadyCopied_, itEnd = bidlists.end(); it != itEnd; ++it) {
+      BranchListIndex oldBlix = it - bidlists.begin();
+      BranchListIndex blix = branchIDLists_.size();
+      branchIDLists_.push_back(*it);
+      for(BranchIDList::const_iterator i = it->begin(), iEnd = it->end(); i != iEnd; ++i) {
+        ProductIndex pix = i - it->begin();
+        branchIDToIndexMap_.insert(std::make_pair(BranchID(*i), std::make_pair(blix, pix)));
+      }
+      inputIndexToJobIndex_[oldBlix]=blix;
+    }
+    nAlreadyCopied_ = bidlists.size();
   }
 
   void
