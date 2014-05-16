@@ -3,14 +3,16 @@
 #include "SimCalorimetry/HGCSimProducers/plugins/HGCDigiProducer.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 
+//
 HGCDigiProducer::HGCDigiProducer(edm::ParameterSet const& pset, edm::EDProducer& mixMod) :
   DigiAccumulatorMixMod(),
-  theDigitizer_(pset) {
+  theDigitizer_(pset), 
+  numberingScheme_(0) 
+{
   if( theDigitizer_.producesEEDigis()     )
     mixMod.produces<HGCEEDigiCollection>(theDigitizer_.digiCollection());
   if( theDigitizer_.producesHEfrontDigis() || theDigitizer_.producesHEbackDigis() )
     mixMod.produces<HGCHEDigiCollection>(theDigitizer_.digiCollection());
-  
 }
 
 //
