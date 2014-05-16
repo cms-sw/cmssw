@@ -16,7 +16,7 @@ void DQMEDHarvester::endJob() {
 void DQMEDHarvester::endLuminosityBlock(edm::LuminosityBlock const& iLumi,
 					edm::EventSetup const& iSetup) {
   DQMStore * store = edm::Service<DQMStore>().operator->();
-  store->meGetter([this, &iLumi, &iSetup](DQMStore::IGetter &g){
-      this->dqmEndLuminosityBlock(g, iLumi, iSetup);
+  store->meBookerGetter([this, &iLumi, &iSetup](DQMStore::IBooker &b, DQMStore::IGetter &g){
+      this->dqmEndLuminosityBlock(b, g, iLumi, iSetup);
     });
 }
