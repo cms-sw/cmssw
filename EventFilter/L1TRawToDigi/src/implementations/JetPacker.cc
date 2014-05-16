@@ -45,7 +45,7 @@ namespace l1t {
          int n = 0;
          for (auto j = jets->begin(i); j != jets->end(i) && n < 12; ++j, ++n) {
             uint32_t word = \
-                            min(j->hwPt(), 0x7FF) |
+                            std::min(j->hwPt(), 0x7FF) |
                             (abs(j->hwEta()) & 0x7F) << 11 |
                             ((j->hwEta() < 0) & 0x1) << 18 |
                             (j->hwPhi() & 0xFF) << 19 |

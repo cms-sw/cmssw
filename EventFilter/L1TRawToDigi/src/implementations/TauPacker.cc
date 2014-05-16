@@ -46,7 +46,7 @@ namespace l1t {
          for (auto j = taus->begin(i); j != taus->end(i) && n < 8; ++j, ++n) {
             std::cout << "packing " << n << std::endl;
             uint32_t word = \
-                            min(j->hwPt(), 0x1FF) |
+                            std::min(j->hwPt(), 0x1FF) |
                             (abs(j->hwEta()) & 0x7F) << 9 |
                             ((j->hwEta() < 0) & 0x1) << 16 |
                             (j->hwPhi() & 0xFF) << 17 |

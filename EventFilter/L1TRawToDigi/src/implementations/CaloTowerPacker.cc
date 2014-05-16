@@ -58,12 +58,12 @@ namespace l1t {
 
             // Merge phi and phi+1 into one block (phi is LSW, phi+1 is MSW)
             uint32_t word1 = \
-	      min(t1.hwPt(), 0x1FF) |
+	      std::min(t1.hwPt(), 0x1FF) |
 	      (t1.hwEtRatio() & 0x7) << 9 |
 	      (t1.hwQual() & 0xF) << 12;
 
 	    word1 = word1 |
-	      min(t2.hwPt(), 0x1FF) << 16 |
+	      std::min(t2.hwPt(), 0x1FF) << 16 |
 	      (t2.hwEtRatio() & 0x7) << 25 |
 	      (t2.hwQual() & 0xF) << 28;
 
@@ -72,12 +72,12 @@ namespace l1t {
             // Do it all again for -eta
 
             uint32_t word2 = \
-              min(t3.hwPt(), 0x1FF) |
+              std::min(t3.hwPt(), 0x1FF) |
               (t3.hwEtRatio() & 0x7) << 9 |
               (t3.hwQual() & 0xF) << 12;
 
             word2 = word2 |
-              min(t4.hwPt(), 0x1FF) << 16 |
+              std::min(t4.hwPt(), 0x1FF) << 16 |
               (t4.hwEtRatio() & 0x7) << 25 |
               (t4.hwQual() & 0xF) << 28;
 
