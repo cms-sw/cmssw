@@ -21,7 +21,7 @@ namespace l1t {
    };
 
    PackerList
-   EtSumPackerFactory::create(const edm::ParameterSet& cfg, const FirmwareVersion& fw, const int fedid)
+   EtSumPackerFactory::create(const edm::ParameterSet& cfg, const unsigned& fw, const int fedid)
    {
       return {std::shared_ptr<BasePacker>(new EtSumPacker(cfg))};
    }

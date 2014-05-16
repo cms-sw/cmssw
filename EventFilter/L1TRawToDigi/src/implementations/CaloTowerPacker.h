@@ -3,6 +3,6 @@
 namespace l1t {
    class CaloTowerPackerFactory : public PackerFactory {
       public:
-         virtual PackerList create(const edm::ParameterSet& cfg, unsigned fw, const int fedid);
+         virtual PackerList create(const edm::ParameterSet& cfg, const unsigned& fw, const int fedid) override;
    };
 }

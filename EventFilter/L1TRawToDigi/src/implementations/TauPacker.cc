@@ -21,7 +21,7 @@ namespace l1t {
    };
 
    PackerList
-   TauPackerFactory::create(const edm::ParameterSet& cfg, const FirmwareVersion& fw, const int fedid)
+   TauPackerFactory::create(const edm::ParameterSet& cfg, const unsigned& fw, const int fedid)
    {
       return {std::shared_ptr<BasePacker>(new TauPacker(cfg))};
    }

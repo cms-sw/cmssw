@@ -22,7 +22,7 @@ namespace l1t {
    };
 
    PackerList
-   CaloTowerPackerFactory::create(const edm::ParameterSet& cfg, unsigned fw, const int fedid)
+   CaloTowerPackerFactory::create(const edm::ParameterSet& cfg, const unsigned& fw, const int fedid)
    {
       return {std::shared_ptr<BasePacker>(new CaloTowerPacker(cfg))};
    }

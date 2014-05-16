@@ -3,6 +3,6 @@
 namespace l1t {
    class TauPackerFactory : public PackerFactory {
       public:
-         virtual PackerList create(const edm::ParameterSet& cfg, const FirmwareVersion& fw, const int fedid);
+         virtual PackerList create(const edm::ParameterSet& cfg, const unsigned& fw, const int fedid) override;
    };
 }
