@@ -15,7 +15,7 @@ public:
   ShashlikGeometryESProducer( const edm::ParameterSet & );
   virtual ~ShashlikGeometryESProducer( void );
 
-  typedef boost::shared_ptr<ShashlikGeometry> ReturnType;
+  typedef boost::shared_ptr<CaloSubdetectorGeometry> ReturnType;
   
   ReturnType produce( const ShashlikGeometryRecord & );
 
