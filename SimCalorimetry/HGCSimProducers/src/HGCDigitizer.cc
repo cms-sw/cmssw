@@ -1,3 +1,4 @@
+#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "SimCalorimetry/HGCSimProducers/interface/HGCDigitizer.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
@@ -102,7 +103,9 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, i
     {
       //for now use a single time sample
       int    itime = 0; //(int) ( hit_it->time() - bxTime_*bxCrossing ); // - jitter etc.;
-      uint32_t id  = hit_it->id();
+      HGCalDetId id( hit_it->id() );
+
+
       double ien   = hit_it->energy();
 
       HGCSimHitDataAccumulator::iterator simHitIt=simHitAccumulator_.find(id);
