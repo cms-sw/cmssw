@@ -97,6 +97,7 @@ bool support::isSafeClassName(const std::string &name) {
   std::string cmutex = "class std::mutex";
   std::string crmutex = "class std::recursive_mutex";
   std::string cbtsp = "class boost::thread_specific_ptr";
+  std::string tbb = "tbb::";
   std::string ctbb = "class tbb::";
   std::string eap = "edm::AtomicPtrCache";
   std::string ceap = "class edm::AtomicPtrCache";
@@ -108,7 +109,7 @@ bool support::isSafeClassName(const std::string &name) {
 	|| name.substr(0,mutex.length()) == mutex || name.substr(0,cmutex.length()) == cmutex 
 	|| name.substr(0,rmutex.length()) == rmutex || name.substr(0,crmutex.length()) == rmutex 
 	|| name.substr(0,btsp.length()) == btsp || name.substr(0,cbtsp.length()) == cbtsp 
-	|| name.substr(0,ctbb.length()) == ctbb 
+	|| name.substr(0,ctbb.length()) == ctbb ||  name.substr(0,tbb.length()) == tbb
 	|| name.substr(0,eap.length()) == eap || name.substr(0,ceap.length()) == ceap
 	|| name.substr(0,once.length()) == once || name.substr(0,conce.length()) == conce
 	) 
