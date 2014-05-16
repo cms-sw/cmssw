@@ -238,6 +238,12 @@ namespace evf {
     streamFileTracker_[streamID]=currentFileIndex_;
   }
 
+
+  std::string EvFDaqDirector::getInputJsonFilePath(const unsigned int ls, const unsigned int index) const {
+    return bu_run_dir_ + "/" + fffnaming::inputJsonFileName(run_,ls,index);
+  }
+
+
   std::string EvFDaqDirector::getRawFilePath(const unsigned int ls, const unsigned int index) const {
     return bu_run_dir_ + "/" + fffnaming::inputRawFileName(run_,ls,index);
   }
@@ -245,7 +251,6 @@ namespace evf {
   std::string EvFDaqDirector::getOpenRawFilePath(const unsigned int ls, const unsigned int index) const {
     return bu_run_dir_ + "/open/" + fffnaming::inputRawFileName(run_,ls,index);
   }
-
 
   std::string EvFDaqDirector::getOpenInputJsonFilePath(const unsigned int ls, const unsigned int index) const {
     return bu_run_dir_ + "/open/" + fffnaming::inputJsonFileName(run_,ls,index);
@@ -423,7 +428,7 @@ namespace evf {
     nextIndex++;
 
     // 1. Check suggested file
-    nextFile = getRawFilePath(ls,index);
+    nextFile = getInputJsonFilePath(ls,index);
     if (stat(nextFile.c_str(), &buf) == 0) {
      
       previousFileSize_ = buf.st_size;
@@ -435,15 +440,19 @@ namespace evf {
       bool eolFound = (stat(getEoLSFilePathOnBU(ls).c_str(), &buf) == 0);
       unsigned int startingLumi = ls;
       while (eolFound) {
+        //DEBUG!
+        //remove this for testing (might not be necessary after all..)
+        /*
         // recheck that no raw file appeared in the meantime
         if (stat(nextFile.c_str(), &buf) == 0) {
           previousFileSize_ = buf.st_size;
           fsize = buf.st_size;
           return true;
         }
+        */
 	// this lumi ended, check for files
 	++ls;
-	nextFile = getRawFilePath(ls,0);
+	nextFile = getInputJsonFilePath(ls,0);
 	if (stat(nextFile.c_str(), &buf) == 0) {
 	  // a new file was found at new lumisection, index 0
 	  index = 0;

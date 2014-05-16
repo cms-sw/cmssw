@@ -647,9 +647,9 @@ int FedRawDataInputSource::grabNextJsonFile(boost::filesystem::path const& jsonS
       catch (const boost::filesystem::filesystem_error& ex)
       {
         // Input dir gone?
-        edm::LogError("FedRawDataInputSource") << "grabNextFile BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what()
-                                               << " Maybe the file is not yet visible by FU. Trying again in one second";
-        sleep(1);
+        edm::LogError("FedRawDataInputSource") << "grabNextFile BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what();
+        //                                     << " Maybe the file is not yet visible by FU. Trying again in one second";
+        assert(0);
         boost::filesystem::copy(jsonSourcePath,jsonDestPath);
       }
       daqDirector_->unlockFULocal();
@@ -830,9 +830,14 @@ void FedRawDataInputSource::readSupervisor()
       LogDebug("FedRawDataInputSource") << "The director says to grab -: " << nextFile;
 
 
-      boost::filesystem::path jsonFile(nextFile);
-      jsonFile.replace_extension(".jsn");
-      int eventsInNewFile = grabNextJsonFile(jsonFile);
+      boost::filesystem::path rawFilePath(nextFile);
+      std::string rawFile = rawFilePath.replace_extension(".raw").string();
+
+      struct stat st;
+      stat(rawFile.c_str(),&st);
+      fileSize=st.st_size;
+
+      int eventsInNewFile = grabNextJsonFile(nextFile);
       if (fms_) fms_->stoppedLookingForFile(ls);
       assert( eventsInNewFile>=0 );
       assert((eventsInNewFile>0) == (fileSize>0));//file without events must be empty
@@ -842,7 +847,7 @@ void FedRawDataInputSource::readSupervisor()
 	unsigned int neededChunks = fileSize/eventChunkSize_;
 	if (fileSize%eventChunkSize_) neededChunks++;
 
-        InputFile * newInputFile = new InputFile(evf::EvFDaqDirector::FileStatus::newFile,ls,nextFile,fileSize,neededChunks,eventsInNewFile,this);
+        InputFile * newInputFile = new InputFile(evf::EvFDaqDirector::FileStatus::newFile,ls,rawFile,fileSize,neededChunks,eventsInNewFile,this);
         fileQueue_.push(newInputFile);
 
 	for (unsigned int i=0;i<neededChunks;i++) {
@@ -883,7 +888,7 @@ void FedRawDataInputSource::readSupervisor()
 	if (!eventsInNewFile) {
 	  //still queue file for lumi update
 	  std::unique_lock<std::mutex> lkw(mWakeup_);
-	  InputFile * newInputFile = new InputFile(evf::EvFDaqDirector::FileStatus::newFile,ls,nextFile,0,0,0,this);
+	  InputFile * newInputFile = new InputFile(evf::EvFDaqDirector::FileStatus::newFile,ls,rawFile,0,0,0,this);
 	  fileQueue_.push(newInputFile);
 	  cvWakeup_.notify_one();
 	  return;
@@ -901,7 +906,7 @@ void FedRawDataInputSource::readSupervisor()
         newChunk->readComplete_=true;
 
         //push file and wakeup main thread
-        InputFile * newInputFile = new InputFile(evf::EvFDaqDirector::FileStatus::newFile,ls,nextFile,fileSize,1,eventsInNewFile,this);
+        InputFile * newInputFile = new InputFile(evf::EvFDaqDirector::FileStatus::newFile,ls,rawFile,fileSize,1,eventsInNewFile,this);
         newInputFile->chunks_[0]=newChunk;
         fileQueue_.push(newInputFile);
         cvWakeup_.notify_one();
@@ -959,7 +964,7 @@ void FedRawDataInputSource::readWorker(unsigned int tid)
     off_t pos = lseek(fileDescriptor,chunk->offset_,SEEK_SET);
 
     if (fileDescriptor>=1)
-      LogDebug("FedRawDataInputSource") << "Reader thread opened file -: TID: " << tid << " file: " << file->fileName_ << " at offset " << pos; 
+      LogDebug("FedRawDataInputSource") << "Reader thread opened file -: TID: " << tid << " file: " << file->fileName_ << " at offset " << pos;
     else
     {
       edm::LogError("FedRawDataInputSource") <<

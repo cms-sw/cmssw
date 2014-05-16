@@ -48,6 +48,7 @@ namespace evf{
       std::string &buBaseRunOpenDir(){return bu_run_open_dir_;}
 
       std::string findCurrentRunDir(){ return dirManager_.findRunDir(run_);}
+      std::string getInputJsonFilePath(const unsigned int ls, const unsigned int index) const;
       std::string getRawFilePath(const unsigned int ls, const unsigned int index) const;
       std::string getOpenRawFilePath(const unsigned int ls, const unsigned int index) const;
       std::string getOpenInputJsonFilePath(const unsigned int ls, const unsigned int index) const;
