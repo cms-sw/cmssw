@@ -10,8 +10,6 @@
 
 #include "Rivet/AnalysisHandler.hh"
 #include "Rivet/Analysis.hh"
-//#include "Rivet/RivetAIDA.hh"
-//#include "LWH/AIManagedObject.h"
 
 #include <string>
 #include <vector>
@@ -153,7 +151,6 @@ void RivetAnalyzer::endJob(){
 }
 
 
-//void RivetAnalyzer::normalizeTree(AIDA::ITree& tree)    {
 void RivetAnalyzer::normalizeTree()    {
   using namespace YODA;
   std::vector<string> analyses = _analysisHandler.analysisNames();

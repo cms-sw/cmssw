@@ -10,9 +10,7 @@
 
 #include "Rivet/AnalysisHandler.hh"
 #include "Rivet/Analysis.hh"
-//#include "Rivet/RivetAIDA.hh"
 #include "Rivet/Tools/RivetYODA.hh"
-//#include "LWH/AIManagedObject.h"
 #include "FWCore/Utilities/interface/tinyxml.h"
 
 #include <string>
@@ -181,7 +179,6 @@ void RivetHarvesting::endJob(){
   _analysisHandler.writeData(_outFileName);
 }
 
-//vector<DPSXYPoint> RivetHarvesting::getDPSXYValsErrs(std::string filename, std::string path, std::string name) {
 vector<YODA::Point2D> RivetHarvesting::getPoint2DValsErrs(std::string filename, std::string path, std::string name) {
   
     // Open YODA XML file
