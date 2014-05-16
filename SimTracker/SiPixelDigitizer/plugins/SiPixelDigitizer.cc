@@ -179,9 +179,11 @@ namespace cms
         if((isub == PixelSubdetector::PixelBarrel) || (isub == PixelSubdetector::PixelEndcap)) {  
           auto pixdet = dynamic_cast<const PixelGeomDetUnit*>((*iu));
           assert(pixdet != 0);
-	  unsigned int disk = tTopo->pxfDisk(detId);
-	  //if using pilot blades, then allowing it for current detector only
-	  if ((disk == 3)&&((!pilotBlades)&&(NumberOfEndcapDisks == 2))) continue;
+	  if (isub==PixelSubdetector::PixelEndcap) {
+	    unsigned int disk = tTopo->pxfDisk(detId);
+	    //if using pilot blades, then allowing it for current detector only
+	    if ((disk == 3)&&((!pilotBlades)&&(NumberOfEndcapDisks == 2))) continue;
+	  }
           detectorUnits.insert(std::make_pair(detId, pixdet));
         }
       }
