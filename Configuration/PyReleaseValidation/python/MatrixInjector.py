@@ -266,8 +266,8 @@ class MatrixInjector(object):
                             chainDict['GlobalTag']=chainDict['nowmTasklist'][-1]['nowmIO']['GT'] #set in general to the last one of the chain
                             if 'pileup' in chainDict['nowmTasklist'][-1]['nowmIO']:
                                 chainDict['nowmTasklist'][-1]['MCPileup']=chainDict['nowmTasklist'][-1]['nowmIO']['pileup']
-                            if '--pileup' in s[2][index]:
-                                processStrPrefix='PU_'
+                            if '--pileup ' in s[2][index]: # catch --pileup and not --pileup_ => works also w/ PRE-MIXed dataset in input
+                                processStrPrefix='PU_'     # FIXME GF: need to take care that dataset names properly includes PU string
                                 if   (  s[2][index].split()[  s[2][index].split().index('--pileup')+1 ]  ).find('50ns')  > 0 :
                                     processStrPrefix='PU50ns_'
                                 elif (  s[2][index].split()[  s[2][index].split().index('--pileup')+1 ]  ).find('25ns')  > 0 :
