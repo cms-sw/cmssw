@@ -10,8 +10,6 @@
 
 #include "Rivet/AnalysisHandler.hh"
 #include "Rivet/Analysis.hh"
-#include "Rivet/RivetAIDA.hh"
-#include "LWH/AIManagedObject.h"
 
 #include <string>
 #include <vector>
@@ -130,22 +128,36 @@ void RivetAnalyzer::endRun(const edm::Run& iRun,const edm::EventSetup& iSetup){
     _analysisHandler.finalize();
   else {
     //if we don't finalize we just want to do the transformation from histograms to DPS
-    normalizeTree(_analysisHandler.tree());
+    ////normalizeTree(_analysisHandler.tree());
+    //normalizeTree();
+
   }
   _analysisHandler.writeData(_outFileName);
 
   return;
 }
 
+
+
+  //from Rivet 2.X: Analysis.hh (cls 18Feb2014)
+  /// List of registered analysis data objects
+  //const vector<AnalysisObjectPtr>& analysisObjects() const {
+  //return _analysisobjects;
+  //}
+
+
+
 void RivetAnalyzer::endJob(){
 }
 
-void RivetAnalyzer::normalizeTree(AIDA::ITree& tree)    {
-  using namespace AIDA;
+
+void RivetAnalyzer::normalizeTree()    {
+  using namespace YODA;
   std::vector<string> analyses = _analysisHandler.analysisNames();
-  tree.ls(".", true);
+  
+  //tree.ls(".", true);
   const string tmpdir = "/RivetNormalizeTmp";
-  tree.mkdir(tmpdir);
+  //tree.mkdir(tmpdir);
   foreach (const string& analysis, analyses) {
     if (_produceDQM){
       dbe->setCurrentFolder(("Rivet/"+analysis).c_str());
@@ -160,8 +172,10 @@ void RivetAnalyzer::normalizeTree(AIDA::ITree& tree)    {
     //xsection.SetBinContent(1,_analysisHandler.crossSection());
     //_mes.push_back(dbe->book1D("xSection",&xsection)); 
     //now loop over the histograms
+
+    /*
     const vector<string> paths = tree.listObjectNames("/"+analysis, true); // args set recursive listing
-    std::cout << "Number of objects in AIDA tree for analysis " << analysis << " = " << paths.size() << std::endl;
+    std::cout << "Number of objects in YODA tree for analysis " << analysis << " = " << paths.size() << std::endl;
     foreach (const string& path, paths) {
       IManagedObject* hobj = tree.find(path);
       if (hobj) {
@@ -184,6 +198,7 @@ void RivetAnalyzer::normalizeTree(AIDA::ITree& tree)    {
             _analysisHandler.datapointsetFactory().create(path, *tmphisto);
           }
           //now convert to root and then ME
+	  //need aida2flat (from Rivet 1.X) & flat2root here
           TH1F* h = aida2root<IHistogram1D, TH1F>(histo, basename);
           if (_produceDQM)
             _mes.push_back(dbe->book1D(h->GetName(), h));
@@ -197,6 +212,7 @@ void RivetAnalyzer::normalizeTree(AIDA::ITree& tree)    {
             _analysisHandler.datapointsetFactory().create(path, *tmpprof);
           }
           //now convert to root and then ME
+	  //need aida2flat (from Rivet 1.X) & flat2root here
           TProfile* p = aida2root<IProfile1D, TProfile>(prof, basename);
           if (_produceDQM)
             _mes.push_back(dbe->bookProfile(p->GetName(), p));
@@ -205,9 +221,12 @@ void RivetAnalyzer::normalizeTree(AIDA::ITree& tree)    {
         }
       }
     }
+    */
   }
-  tree.rmdir(tmpdir);  
+  //tree.rmdir(tmpdir);  
+  
 }
+
 
 
 DEFINE_FWK_MODULE(RivetAnalyzer);
