@@ -23,7 +23,7 @@ particleFlowRecHitHBHEHO = cms.EDProducer("PFRecHitProducer",
            ),
            cms.PSet(
              name = cms.string("PFHBHERecHitCreator"),
-             src  = cms.InputTag("hbhereco",""),
+             src  = cms.InputTag("hbheUpgradeReco",""),
              qualityTests = cms.VPSet(
                   cms.PSet(
                   name = cms.string("PFRecHitQTestThreshold"),

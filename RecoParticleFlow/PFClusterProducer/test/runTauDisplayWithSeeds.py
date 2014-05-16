@@ -10,7 +10,7 @@ hcalH  = Handle ('std::vector<reco::PFRecHit>')
 genParticlesH  = Handle ('std::vector<reco::GenParticle>')
 tracksH  = Handle ('std::vector<reco::PFRecTrack>')
 ecalClustersH  = Handle ('std::vector<reco::PFCluster>')
-arborH  = Handle ('std::vector<reco::PFCluster>')
+#arborH  = Handle ('std::vector<reco::PFCluster>')
 hcalSeedsH  = Handle ('std::vector<reco::PFRecHit>')
 simH = Handle('std::vector<reco::PFSimParticle>')
 
@@ -19,14 +19,14 @@ events = Events('reco.root')
 
 for event in events:
     event.getByLabel('particleFlowRecHitHF',hfH)
-    event.getByLabel('particleFlowRecHitECAL',ecalH)
+    event.getByLabel('particleFlowRecHitECALWithTime',ecalH)
     event.getByLabel('particleFlowRecHitHBHEHO',hcalH)
     event.getByLabel('genParticles',genParticlesH)
     event.getByLabel('pfTrack',tracksH)
     event.getByLabel('particleFlowClusterECAL',ecalClustersH)
     event.getByLabel('hcalSeeds',hcalSeedsH)
     event.getByLabel('particleFlowSimParticle',simH)
-    event.getByLabel('arbor','allLinks',arborH)
+#    event.getByLabel('arbor','allLinks',arborH)
     
 
     hf = hfH.product()
@@ -37,7 +37,7 @@ for event in events:
     ecalClusters = ecalClustersH.product()
     hcalSeeds = hcalSeedsH.product()
     sim = simH.product()
-    allArborLinks = arborH.product()
+#    allArborLinks = arborH.product()
 
     
     #find taus:
@@ -95,8 +95,8 @@ for event in events:
                 displayECAL.addCluster(cluster,True) 
 
             #add all arb.or links     
-            for cluster in allArborLinks:
-                displayHCALSeeds.addCluster(cluster,True) 
+#            for cluster in allArborLinks:
+#                displayHCALSeeds.addCluster(cluster,True) 
                 
             displayECAL.viewEtaPhi()    
             displayHCAL.viewEtaPhi()    
