@@ -19,7 +19,6 @@
 //         Created:  
 //
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -41,13 +40,13 @@ class SiPixelRawDataErrorModule {
   typedef edm::DetSet<SiPixelRawDataError>::const_iterator    ErrorIterator;
 
   /// Book histograms
-  void book(const edm::ParameterSet& iConfig, DQMStore::IBooker &, int type=0, bool isUpgrade=false);
+  void book(const edm::ParameterSet& iConfig, int type=0, bool isUpgrade=false);
   /// Book FED histograms
-  void bookFED(const edm::ParameterSet& iConfig, DQMStore::IBooker &);
+  void bookFED(const edm::ParameterSet& iConfig);
   /// Fill histograms
-  int fill(const edm::DetSetVector<SiPixelRawDataError> & input, std::map<std::string,MonitorElement**> * meMapFEDs, bool modon=true, bool ladon=false, bool bladeon=false);
+  int fill(const edm::DetSetVector<SiPixelRawDataError> & input, bool modon=true, bool ladon=false, bool bladeon=false);
   /// Fill FED histograms
-  int fillFED(const edm::DetSetVector<SiPixelRawDataError> & input, std::map<std::string,MonitorElement**> *meMapFEDs);
+  int fillFED(const edm::DetSetVector<SiPixelRawDataError> & input);
   
  private:
 
@@ -57,6 +56,13 @@ class SiPixelRawDataErrorModule {
   bool _debug_;
 
 
+  MonitorElement* meErrorType_;
+  MonitorElement* meNErrors_;
+  MonitorElement* meFullType_;
+  MonitorElement* meTBMMessage_;
+  MonitorElement* meTBMType_;
+  MonitorElement* meEvtNbr_;
+  MonitorElement* meEvtSize_;
   MonitorElement* meFedChNErrArray_[37];
   MonitorElement* meFedChLErrArray_[37];
   MonitorElement* meFedETypeNErrArray_[21];
