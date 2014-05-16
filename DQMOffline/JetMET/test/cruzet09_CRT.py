@@ -89,18 +89,9 @@ process.dataCertificationJetMET = cms.EDAnalyzer('DataCertificationJetMET',
 #-----------------------------
 #
 #-----------------------------
-process.load("DQMOffline.JetMET.jetMETDQMOfflineClient_cfi")
-from DQMOffline.JetMET.jetMETDQMOfflineClient_cfi import *
-
-#-----------------------------
-# 
-#-----------------------------
-#process.p = cms.Path(process.dqmInfoJetMET*process.dataCertificationJetMET)
 
 process.p = cms.Path(process.EDMtoME
                      * process.dqmInfoJetMET
-#                    * process.jetMETHLTOfflineClient
-                     * process.jetMETDQMOfflineClient
                      * process.dataCertificationJetMETSequence
                      * process.dqmSaver)
 
