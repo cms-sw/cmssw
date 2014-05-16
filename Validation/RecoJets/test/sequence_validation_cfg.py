@@ -137,5 +137,4 @@ process.p1 = cms.Path(#process.fileSaver*
                       #--- DQM stats module
 #                      *process.dqmStoreStats
 )
-process.DQM.collectorHost = ''
-
+#process.DQM.collectorHost = ''

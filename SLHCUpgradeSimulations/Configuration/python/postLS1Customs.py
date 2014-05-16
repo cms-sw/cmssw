@@ -111,7 +111,6 @@ def customise_Reco(process):
 
 
 def customise_harvesting(process):
-    #process.dqmHarvesting.remove(process.jetMETDQMOfflineClient)
     #process.dqmHarvesting.remove(process.dataCertificationJetMET)
     #process.dqmHarvesting.remove(process.sipixelEDAClient)
     #process.dqmHarvesting.remove(process.sipixelCertification)
