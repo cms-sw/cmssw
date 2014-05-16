@@ -6,8 +6,7 @@
 //
 HGCDigiProducer::HGCDigiProducer(edm::ParameterSet const& pset, edm::EDProducer& mixMod) :
   DigiAccumulatorMixMod(),
-  theDigitizer_(pset), 
-  numberingScheme_(0) 
+  theDigitizer_(pset) 
 {
   if( theDigitizer_.producesEEDigis()     )
     mixMod.produces<HGCEEDigiCollection>(theDigitizer_.digiCollection());
