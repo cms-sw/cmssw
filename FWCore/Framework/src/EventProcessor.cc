@@ -1466,6 +1466,9 @@ namespace edm {
   }
 
   void EventProcessor::respondToOpenInputFile() {
+    if(hasSubProcess()) {
+      subProcess_->updateBranchIDListHelper(branchIDListHelper_->branchIDLists());
+    }
     if (fb_.get() != nullptr) {
       schedule_->respondToOpenInputFile(*fb_);
       if(hasSubProcess()) subProcess_->respondToOpenInputFile(*fb_);

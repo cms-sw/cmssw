@@ -24,15 +24,15 @@ namespace edm {
   ScheduleItems::ScheduleItems() :
       actReg_(new ActivityRegistry),
       preg_(new SignallingProductRegistry),
-      branchIDListHelper_(new BranchIDListHelper()),
+      branchIDListHelper_(new BranchIDListHelper),
       act_table_(),
       processConfiguration_() {
   }
 
-  ScheduleItems::ScheduleItems(ProductRegistry const& preg, BranchIDListHelper const& branchIDListHelper, SubProcess const& om) :
+  ScheduleItems::ScheduleItems(ProductRegistry const& preg, SubProcess const& om) :
       actReg_(new ActivityRegistry),
       preg_(new SignallingProductRegistry(preg)),
-      branchIDListHelper_(new BranchIDListHelper(branchIDListHelper)),
+      branchIDListHelper_(new BranchIDListHelper),
       act_table_(),
       processConfiguration_() {
 
