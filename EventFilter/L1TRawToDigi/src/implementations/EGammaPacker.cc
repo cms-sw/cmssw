@@ -42,7 +42,8 @@ namespace l1t {
       res.id = 1;
 
       for (int i = egs->getFirstBX(); i <= egs->getLastBX(); ++i) {
-         for (auto j = egs->begin(i); j != egs->end(i); ++j) {
+         int n = 0;
+         for (auto j = egs->begin(i); j != egs->end(i) && n < 12; ++j, ++n) {
             uint32_t word = \
                             std::min(j->hwPt(), 0x1FF) |
                             (abs(j->hwEta()) & 0x7F) << 9 |
@@ -52,6 +53,10 @@ namespace l1t {
                             (j->hwQual() & 0x7) << 26;
             res.load.push_back(word);
          }
+
+         // pad for up to 12 egammas
+         for (; n < 12; ++n)
+            res.load.push_back(0);
       }
 
       return {res};

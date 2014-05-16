@@ -43,6 +43,10 @@ namespace l1t {
 
          uint32_t raw_data = pop(data,i); // pop advances the index i internally
 
+         // skip padding to bring EG candidates up to 12 pre BX
+         if (raw_data == 0)
+            continue;
+
          l1t::EGamma eg = l1t::EGamma();
     
          eg.setHwPt(raw_data & 0x1FF);
