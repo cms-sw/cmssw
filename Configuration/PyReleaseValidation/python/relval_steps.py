@@ -319,15 +319,17 @@ steps['SingleMuPt10_ID']=identitySim(steps['SingleMuPt10'])
 steps['TTbar_ID']=identitySim(steps['TTbar'])
 
 baseDataSetRelease=[
-    'CMSSW_6_2_0_pre8-PRE_ST62_V8-v1', 
+    'CMSSW_6_2_0_pre8-PRE_ST62_V8-v1',
     'CMSSW_6_2_0_pre8-PRE_SH62_V15-v1',
     'CMSSW_6_2_0_pre8-PRE_ST62_V8_FastSim-v1',
     'CMSSW_6_2_0_pre8-PRE_SH62_V15-v2',
     'CMSSW_6_1_0_pre6-STARTHI61_V6-v1',
     'CMSSW_6_2_0_pre8-PRE_ST62_V8-v3',
-    'CMSSW_6_2_0_patch1-POSTLS162_V1_30Aug2013-v2', # for _13  TeV samples with postLs1 geometry and updated mag field
+    'CMSSW_6_2_0_patch1-POSTLS162_V1_30Aug2013-v2',  # for _13  TeV samples with postLs1 geometry and updated mag field
     'CMSSW_6_2_0_patch1-POSTLS162_V1_30Aug2013HS-v3',# only for MB, to go away once GEN-SIM will be remade
-    'CMSSW_6_2_0_patch1-POSTLS162_V1_30Aug2013-v3' # for _13  RelValZmumuJets_Pt_20_300_GEN_13 and two others
+    'CMSSW_6_2_0_patch1-POSTLS162_V1_30Aug2013-v3',  # for _13  RelValZmumuJets_Pt_20_300_GEN_13 and two others
+    'CMSSW_7_0_4-PU25ns_POSTLS170_V7-v1',            # 25ns premixed dataset
+    'CMSSW_7_0_4-PU50ns_POSTLS170_V6-v1'             # 50ns premixed dataset
     ]
 
 # note: INPUT commands to be added once GEN-SIM w/ 13TeV+PostLS1Geo will be available 
@@ -977,6 +979,45 @@ steps['DIGIUP17']=merge([step2Upg2017Defaults])
 #add this line when testing from an input file that is not strictly GEN-SIM
 #addForAll(step2,{'--process':'DIGI'})
 
+
+# PRE-MIXING : https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideSimulation#Pre_Mixing_Instructions
+premixUp2015Defaults = {
+    '--evt_type'    : 'SingleNuE10_cfi',
+    '-s'            : 'GEN,SIM,DIGIPREMIX,L1,DIGI2RAW',
+    '-n'            : '10',
+    '--conditions'  : 'auto:upgradePLS1', # 25ns GT; dedicated dict for 50ns
+    '--datatier'    : 'GEN-SIM-DIGI-RAW',
+    '--eventcontent': 'PREMIX',
+    '--magField'    : '38T_PostLS1',
+    '--customise'   : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1'
+}
+premixUp2015Defaults50ns = merge([{'--conditions':'auto:upgradePLS150ns'},premixUp2015Defaults])
+
+steps['PREMIXUP15_PU25']=merge([PU25,Kby(100,100),premixUp2015Defaults])
+steps['PREMIXUP15_PU50']=merge([PU50,Kby(100,100),premixUp2015Defaults50ns])
+
+digiPremixUp2015Defaults25ns = { 
+    '--conditions'   : 'auto:upgradePLS1',
+    '-s'             : 'DIGIPREMIX_S2:pdigi_valid,DATAMIX,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco',
+   '--pileup_input'  :  'das:/RelValPREMIXUP15_PU25/%s/GEN-SIM-DIGI-RAW'%baseDataSetRelease[9],
+    '--eventcontent' : 'FEVTDEBUGHLT',
+    '--datatier'     : 'GEN-SIM-DIGI-RAW-HLTDEBUG',
+    '--datamix'      : 'PreMix',
+    '--customise'    : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
+    '--magField'     : '38T_PostLS1',
+    }
+digiPremixUp2015Defaults50ns=merge([{'--conditions':'auto:upgradePLS150ns'},
+                                    {'--pileup_input' : 'das:/RelValPREMIXUP15_PU50/%s/GEN-SIM-DIGI-RAW'%baseDataSetRelease[10]},
+                                    digiPremixUp2015Defaults25ns])
+steps['DIGIPRMXUP15_PU25']=merge([digiPremixUp2015Defaults25ns])
+steps['DIGIPRMXUP15_PU50']=merge([digiPremixUp2015Defaults50ns])
+premixProd = {'-s'             : 'DIGIPREMIX_S2,DATAMIX,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco',
+              '--eventcontent' : 'PREMIXRAW',
+              '--datatier'     : 'PREMIXRAW'} #GF: check this datatier name
+steps['DIGIPRMXUP15_PROD_PU25']=merge([premixProd,digiPremixUp2015Defaults25ns])
+steps['DIGIPRMXUP15_PROD_PU50']=merge([premixProd,digiPremixUp2015Defaults50ns])
+
+
 dataReco={'--conditions':'auto:com10',
           '-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias,DQM',
           '--datatier':'RECO,DQMIO',
@@ -1099,6 +1140,16 @@ steps['RECODDQM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,EI,DQM:@common+@muon+@hcal+
 steps['RECOPU1']=merge([PU,steps['RECO']])
 steps['RECOUP15_PU25']=merge([PU25,step3Up2015Defaults])
 steps['RECOUP15_PU50']=merge([PU50,step3Up2015Defaults50ns])
+
+# for premixing: no --pileup_input for replay; GEN-SIM only available for in-time event, from FEVTDEBUGHLT previous step
+steps['RECOPRMXUP15_PU25']=merge([
+        {'-s':'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM'},
+        step3Up2015Defaults])
+steps['RECOPRMXUP15_PU50']=merge([
+        {'-s':'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM'},
+        step3Up2015Defaults50ns])
+
+
 #wmsplit['RECOPU1']=1
 steps['RECOPUDBG']=merge([{'--eventcontent':'RECODEBUG,DQM'},steps['RECOPU1']])
 steps['RERECOPU1']=merge([{'--hltProcess':'REDIGI'},steps['RECOPU1']])
@@ -1235,7 +1286,7 @@ steps['HARVEST']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                    '--mc':'',
                    '--filetype':'DQM',
                    '--scenario':'pp'}
-steps['HARVESTCOS']={'-s':'HARVESTING:dqmHarvesting',
+steps['HARVESTCOS']={'-s':'HARVESTING:dqmHarvesting', # validation harv ?
                      '--conditions':'auto:startup',
                      '--mc':'',
                      '--filein':'file:step3_inDQM.root',
@@ -1247,7 +1298,7 @@ steps['HARVESTHAL']={'-s'          :'HARVESTING:dqmHarvesting',
                      '--mc'        :'',
                      '--filein'    :'file:step3_inDQM.root',
                      '--scenario'    :'cosmics',
-                     '--filein':'file:step3_inDQM.root',
+                     '--filein':'file:step3_inDQM.root', # unnnecessary
                      '--filetype':'DQM',
                      '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
                      }
