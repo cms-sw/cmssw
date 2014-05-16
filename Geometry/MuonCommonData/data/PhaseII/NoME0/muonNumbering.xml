@@ -243,7 +243,8 @@
   </SpecPar>
   <SpecPar name="MuonRpcEndcap3">
    <PartSelector path="//RR3X"/>
-   <PartSelector path="//RR3XX"/>
+   <PartSelector path="//RR3XXP"/>
+   <PartSelector path="//RR3XXN"/>
    <Parameter name="CopyNoTag" value="[mr_eplane]"/>
    <Parameter name="CopyNoOffset" value="3*[super]"/>
   </SpecPar>
