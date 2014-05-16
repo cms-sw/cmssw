@@ -24,7 +24,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQM/SiPixelMonitorTrack/interface/SiPixelHitEfficiencyModule.h"
 
@@ -40,13 +39,14 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 
-class SiPixelHitEfficiencySource : public thread_unsafe::DQMEDAnalyzer {
+class SiPixelHitEfficiencySource : public edm::EDAnalyzer {
   public:
     explicit SiPixelHitEfficiencySource(const edm::ParameterSet&);
             ~SiPixelHitEfficiencySource();
 
-    virtual void dqmBeginRun(const edm::Run& r, edm::EventSetup const& iSetup);
-    virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+    virtual void beginJob();
+    virtual void endJob(void);
+    virtual void beginRun(const edm::Run& r, edm::EventSetup const& iSetup);
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
   private: 
@@ -62,6 +62,8 @@ class SiPixelHitEfficiencySource : public thread_unsafe::DQMEDAnalyzer {
     bool applyEdgeCut_;
     double nSigma_EdgeCut_;
     
+    DQMStore* dbe_; 
+
     bool debug_; 
     bool modOn; 
     //barrel:
