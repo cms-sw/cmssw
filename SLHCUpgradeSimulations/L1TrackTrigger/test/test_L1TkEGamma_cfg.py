@@ -22,6 +22,8 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 process.source = cms.Source("PoolSource",
      fileNames = cms.untracked.vstring(
+     # electron file:
+     #'/store/group/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Electrons/PU140/m1_SingleElectron_E2023TTI_PU140.root'
      # rate test sample:
     '/store/group/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Neutrinos/PU140_newGT/m1_SingleNeutrino_E2023TTI_PU140.root',
     '/store/group/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Neutrinos/PU140_newGT/m2_SingleNeutrino_E2023TTI_PU140.root'
@@ -99,9 +101,10 @@ process.pElectronsTkIso = cms.Path( process.L1TkIsoElectrons )
 # ---- "electrons" from L1Tracks, Inclusive electrons : dedicated low PT sequence
 process.pElectronsLoose = cms.Path( process.L1TkElectronsLoose)
 
-process.L1TkElectronsLooseV2 = process.L1TkElectronsLoose.clone()
-process.L1TkElectronsLooseV2.TrackMinPt = cms.double( 2. )
-process.pElectronsLoose2 = cms.Path( process.L1TkElectronsLooseV2 )
+# to test a lower PT cut :
+#process.L1TkElectronsLooseV2 = process.L1TkElectronsLoose.clone()
+#process.L1TkElectronsLooseV2.TrackMinPt = cms.double( 2. )
+#process.pElectronsLoose2 = cms.Path( process.L1TkElectronsLooseV2 )
 
 # ---- L1TkElectrons that are isolated w.r.t. L1Tracks : dedicated low PT sequence
 process.L1TkIsoElectronsLoose = process.L1TkElectronsLoose.clone()
@@ -129,13 +132,13 @@ process.pElectronsIsoEG = cms.Path( process.L1TkElectronsIsoEG )
 
 # Run a trivial analyzer that prints the objects
 
-process.ana = cms.EDAnalyzer( 'L1TrackTriggerObjectsAnalyzer' ,
-    L1VtxInputTag = cms.InputTag("L1TkPrimaryVertex"),
-    L1TkEtMissInputTag = cms.InputTag("L1TkEtMiss","MET"),
-    L1TkElectronsInputTag = cms.InputTag("L1TkElectronsTrack","EG"),
+process.ana = cms.EDAnalyzer( 'PrintL1TkObjects' ,
+    L1VtxInputTag = cms.InputTag("L1TkPrimaryVertex"),		# dummy here
+    L1TkEtMissInputTag = cms.InputTag("L1TkEtMiss","MET"),	# dummy here
+    L1TkElectronsInputTag = cms.InputTag("L1TkElectrons","EG"),
     L1TkPhotonsInputTag = cms.InputTag("L1TkPhotons","EG"),
-    L1TkJetsInputTag = cms.InputTag("L1TkJets","Central"),
-    L1TkHTMInputTag = cms.InputTag("L1TkHTMiss")
+    L1TkJetsInputTag = cms.InputTag("L1TkJets","Central"),	# dummy here
+    L1TkHTMInputTag = cms.InputTag("L1TkHTMissCaloHI","")	# dummy here
 )
 
 #process.pAna = cms.Path( process.ana )
@@ -188,7 +191,7 @@ process.Out.outputCommands.append('keep *_L1TkIsoElectrons_*_*')
 
 process.Out.outputCommands.append('keep *_L1TkElectronsLoose_*_*')
 process.Out.outputCommands.append('keep *_L1TkIsoElectronsLoose_*_*')
-process.Out.outputCommands.append('keep *_L1TkElectronsLooseV2_*_*')
+#process.Out.outputCommands.append('keep *_L1TkElectronsLooseV2_*_*')
 
 
 # --- to use the genParticles, one needs to keep the collections of associators below:

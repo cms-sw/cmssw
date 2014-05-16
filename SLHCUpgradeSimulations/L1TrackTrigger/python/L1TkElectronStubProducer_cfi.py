@@ -1,8 +1,12 @@
+
 import FWCore.ParameterSet.Config as cms
 
-L1TkElectrons = cms.EDProducer("L1TkElectronTrackProducer",
+L1TkStubElectrons = cms.EDProducer("L1TkElectronStubsProducer",
 	label = cms.string("EG"),	# labels the collection of L1TkEmParticleProducer that is produced.
-					# (not really needed actually)
+                                        # e.g. EG or IsoEG if all objects are kept, or
+                                        # EGIsoTrk or IsoEGIsoTrk if only the EG or IsoEG
+                                        # objects that pass a cut RelIso < RelIsoCut are written
+                                        # into the new collection.
         L1EGammaInputTag = cms.InputTag("SLHCL1ExtraParticlesNewClustering","EGamma"),      # input EGamma collection
 					# When the standard sequences are used :
                                                 #   - for the Run-1 algo, use ("l1extraParticles","NonIsolated")
@@ -14,14 +18,16 @@ L1TkElectrons = cms.EDProducer("L1TkElectronTrackProducer",
                                                 #     ("SLHCL1ExtraParticlesNewClustering","EGamma").
         ETmin = cms.double( -1.0 ),             # Only the L1EG objects that have ET > ETmin in GeV
                                                 # are considered. ETmin < 0 means that no cut is applied.
-     	L1TrackInputTag = cms.InputTag("TTTracksFromPixelDigis","Level1TTTracks"),
-        # Quality cuts on Track and Track L1EG matching criteria                                
-        TrackChi2           = cms.double(100.0), # minimum Chi2 to select tracks
-        TrackMinPt          = cms.double(12.0), # minimum Pt to select tracks                                     
-        TrackEGammaDeltaPhi = cms.vdouble(0.05, 0.0, 0.0), # functional Delta Phi cut parameters to match Track with L1EG objects
-        TrackEGammaDeltaR   = cms.vdouble(0.08, 0.0, 0.0), # functional Delta R cut parameters to match Track with L1EG objects
-        TrackEGammaDeltaEta = cms.double(0.08), # Delta Eta cutoff to match Track with L1EG objects
-                                                # are considered. 
+        L1StubInputTag  = cms.InputTag("TTStubsFromPixelDigis", "StubAccepted"),
+        MCTruthInputTag = cms.InputTag("TTStubAssociatorFromPixelDigis", "StubAccepted"),                                   
+        StubMinPt          = cms.double(5.0), # minimum Pt to select Stubs
+        StubEGammaDeltaPhi = cms.double(0.05),     # delta Phi of stub and EG
+        StubEGammaDeltaZ   = cms.double(15.0),     # Z-intercept o
+        StubEGammaPhiMiss  = cms.double(0.0015),     # delta Phi between a stub-pair and EG  
+        StubEGammaZMiss    = cms.double(0.7),     # Z difference between a stub-pair and EG                    
+        BeamSpotInputTag   = cms.InputTag("BeamSpotFromSim", "BeamSpot"), # beam spot InputTag                                            
+        
+        L1TrackInputTag = cms.InputTag("TTTracksFromPixelDigis", "Level1TTTracks"),
 	RelativeIsolation = cms.bool( True ),	# default = True. The isolation variable is relative if True,
 						# else absolute.
         IsoCut = cms.double( -0.15 ), 		# Cut on the (Trk-based) isolation: only the L1TkEmParticle for which
@@ -30,12 +36,7 @@ L1TkElectrons = cms.EDProducer("L1TkElectronTrackProducer",
 						# When RelativeIsolation = False, IsoCut is in GeV.
         # Determination of the isolation w.r.t. L1Tracks :
         PTMINTRA = cms.double( 2. ),	# in GeV
-	DRmin = cms.double( 0.03),
-	DRmax = cms.double( 0.2 ),
-	DeltaZ = cms.double( 0.6 )    # in cm. Used for tracks to be used isolation calculation
+	DRmin = cms.double( 0.05),
+	DRmax = cms.double( 0.4 ),
+	DeltaZ = cms.double( 0.4 )    # in cm. Used for tracks to be used isolation calculation
 )
-# for  LowPt Electron
-L1TkElectronsLoose = L1TkElectrons.clone()
-L1TkElectronsLoose.TrackEGammaDeltaPhi = cms.vdouble(0.07, 0.0, 0.0)
-L1TkElectronsLooseTrackEGammaDeltaR = cms.vdouble(0.12, 0.0, 0.0)
-L1TkElectronsLoose.TrackMinPt = cms.double( 3.0 )

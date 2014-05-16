@@ -83,7 +83,7 @@ class L1TkElectronTrackProducer : public edm::EDProducer {
       //virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
 
       float isolation(const edm::Handle<L1TkTrackCollectionType> & trkHandle, int match_index);
-  double getPtScaledCut(double pt, std::vector<double>& parameters); 
+      double getPtScaledCut(double pt, std::vector<double>& parameters);
 
       // ----------member data ---------------------------
 	edm::InputTag L1EGammaInputTag;
@@ -103,8 +103,8 @@ class L1TkElectronTrackProducer : public edm::EDProducer {
 
         float trkQualityChi2;
         float trkQualityPtMin; 
-  	std::vector<double> dPhiCutoff;
- 	std::vector<double> dRCutoff;
+        std::vector<double> dPhiCutoff;
+        std::vector<double> dRCutoff;
         float dEtaCutoff;
 } ;
 
@@ -139,8 +139,8 @@ L1TkElectronTrackProducer::L1TkElectronTrackProducer(const edm::ParameterSet& iC
    // parameters to select tracks to match with L1EG
    trkQualityChi2  = (float)iConfig.getParameter<double>("TrackChi2");
    trkQualityPtMin = (float)iConfig.getParameter<double>("TrackMinPt");
-   dPhiCutoff = iConfig.getParameter< std::vector<double> >("TrackEGammaDeltaPhi");
-   dRCutoff = iConfig.getParameter< std::vector<double> >("TrackEGammaDeltaR"); 
+   dPhiCutoff      = iConfig.getParameter< std::vector<double> >("TrackEGammaDeltaPhi"); 
+   dRCutoff        = iConfig.getParameter< std::vector<double> >("TrackEGammaDeltaR"); 
    dEtaCutoff      = (float)iConfig.getParameter<double>("TrackEGammaDeltaEta"); 
 
    produces<L1TkElectronParticleCollection>(label);
@@ -191,7 +191,6 @@ L1TkElectronTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     float et_ele = 0;
     if (cosh(eta_ele) > 0.0) et_ele = e_ele/cosh(eta_ele);
     else et_ele = -1.0;
-    //if (fabs(eta_ele) > 2.5) continue;
     if (ETmin > 0.0 && et_ele <= ETmin) continue;
     // match the L1EG object with a L1Track
     float drmin = 999;
@@ -306,27 +305,25 @@ L1TkElectronTrackProducer::isolation(const edm::Handle<L1TkTrackCollectionType> 
   float sumPt = 0.0;
   int itr = 0;
   for (trackIter = trkHandle->begin(); trackIter != trkHandle->end(); ++trackIter) {
-    if (itr != match_index) {
-    float dZ = fabs(trackIter->getPOCA().z() - matchedTrkPtr->getPOCA().z() );
+    if (itr != match_index) {   
+      float dZ = fabs(trackIter->getPOCA().z() - matchedTrkPtr->getPOCA().z() );
     
-    float dPhi = reco::deltaPhi(trackIter->getMomentum().phi(), matchedTrkPtr->getMomentum().phi());
-    float dEta = (trackIter->getMomentum().eta() - matchedTrkPtr->getMomentum().eta());
-    float dR =  sqrt(dPhi*dPhi + dEta*dEta);
-
-     if (dR > DRmin && dR < DRmax && dZ < DeltaZ && trackIter->getMomentum().perp() > PTMINTRA) {
+      float dPhi = reco::deltaPhi(trackIter->getMomentum().phi(), matchedTrkPtr->getMomentum().phi());
+      float dEta = (trackIter->getMomentum().eta() - matchedTrkPtr->getMomentum().eta());
+      float dR =  sqrt(dPhi*dPhi + dEta*dEta);
+      
+      if (dR > DRmin && dR < DRmax && dZ < DeltaZ && trackIter->getMomentum().perp() > PTMINTRA) {
 	sumPt += trackIter->getMomentum().perp();
-     }
+      }
     }
-    itr ++;
+    itr++;
   }
   return sumPt;
 }
-
 double
 L1TkElectronTrackProducer::getPtScaledCut(double pt, std::vector<double>& parameters){
   return (parameters[0] + parameters[1] * exp(parameters[2] * pt));
 }
-
 //define this as a plug-in
 DEFINE_FWK_MODULE(L1TkElectronTrackProducer);
 
