@@ -39,6 +39,9 @@ class CSCMotherboardME3141RPC : public CSCMotherboard
            const CSCComparatorDigiCollection* compdc, 
            const RPCDigiCollection* rpcDigis);
 
+  /** labels for ME1a and ME1B */
+  enum MEX1Station {ME31 = 1, ME41};
+
   /** Clears correlated LCT and passes clear signal on to cathode and anode
       LCT processors. */
   void clear();
@@ -63,6 +66,8 @@ class CSCMotherboardME3141RPC : public CSCMotherboard
 
   unsigned int findQualityRPC(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, bool hasRPC);
 
+  void matchRPCDigis(enum MEX1Station st);
+
   void correlateLCTsRPC(CSCALCTDigi bestALCT, CSCALCTDigi secondALCT,
 			CSCCLCTDigi bestCLCT, CSCCLCTDigi secondCLCT,
 			CSCCorrelatedLCTDigi& lct1, CSCCorrelatedLCTDigi& lct2,
@@ -81,7 +86,6 @@ class CSCMotherboardME3141RPC : public CSCMotherboard
                                         bool oldDataFormat);
   CSCCorrelatedLCTDigi constructLCTsRPC(const CSCALCTDigi& alct, const RPCDigi& rpc, bool oldDataFormat);
 
-
   /** Methods to sort the LCTs */
   std::vector<CSCCorrelatedLCTDigi> sortLCTsByQuality(int bx);
   std::vector<CSCCorrelatedLCTDigi> sortLCTsByQuality(std::vector<CSCCorrelatedLCTDigi>);
@@ -97,6 +101,8 @@ class CSCMotherboardME3141RPC : public CSCMotherboard
       maximum match window = 15 */
   CSCCorrelatedLCTDigi allLCTs[MAX_LCT_BINS][15][2];
 
+  static const double lut_pt_vs_dphi_rpccsc_me31[8][3];
+  static const double lut_pt_vs_dphi_rpccsc_me41[8][3];
   static const double lut_wg_me31_eta_odd[96][2];
   static const double lut_wg_me31_eta_even[96][2];
   static const double lut_wg_me41_eta_odd[96][2];
@@ -123,9 +129,27 @@ class CSCMotherboardME3141RPC : public CSCMotherboard
   // masterswitch
   bool runME3141ILT_;
 
+  /// Do RPC matching?
+  bool do_rpc_matching;
+
+  /// RPC matching dphi and deta
+  double rpc_match_delta_phi_odd;
+  double rpc_match_delta_phi_even;
+  double rpc_match_delta_eta;
+
+  /// delta BX for RPC pads matching
+  int rpc_match_delta_bx;
+
+  /// min eta of LCT for which we require RPC match (we don't throw out LCTs below this min eta) 
+  double rpc_match_min_eta;
+
+  /// whether to throw out RPC-fiducial LCTs that have no rpc match
+  bool rpc_clear_nomatch_lcts;
+
   // debug 
   bool debug_rpc_matching_;
   bool debug_luts_;
+  bool debug_rpc_dphi;
 
   //  deltas used to match to RPC digis
   int maxDeltaBXRPC_;
@@ -151,7 +175,8 @@ class CSCMotherboardME3141RPC : public CSCMotherboard
   std::map<int,int> rpcStripToCscHs_;
   std::map<int,std::pair<int,int>> cscHsToRpcStrip_;
 
-  // map< bx , vector<gemid, pad> >
+  // map< bx , vector<rpcid, pad> >
   RPCDigis rpcDigis_;
 };
 #endif
+ 

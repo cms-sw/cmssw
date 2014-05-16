@@ -484,7 +484,7 @@ cscTriggerPrimitiveDigisPostLS3 = cms.EDProducer("CSCTriggerPrimitivesProducer",
         maxME3141LCTs = cms.uint32(2),
 
         ## run in debug mode
-        debugLUTs = cms.bool(False),
+        debugLUTs = cms.bool(True),
         debugMatching = cms.bool(True),
 
         ## use old dataformat
@@ -502,6 +502,15 @@ cscTriggerPrimitiveDigisPostLS3 = cms.EDProducer("CSCTriggerPrimitivesProducer",
         promoteCLCTRPCquality = cms.bool(True),
         promoteALCTRPCpattern = cms.bool(True),
         promoteALCTRPCquality = cms.bool(True)
+
+        ## rate reduction 
+        doRpcMatching = cms.bool(True),
+        rpcMatchDeltaEta = cms.double(0.08),
+        rpcMatchDeltaBX = cms.int32(1),
+        rpcMatchDeltaPhiOdd = cms.double(1),
+        rpcMatchDeltaPhiEven = cms.double(1),
+        rpcMatchMinEta = cms.double(1.5),
+        rpcClearNomatchLCTs = cms.bool(False),
     ),
 
     # MPC sorter config for SLHC studies

@@ -4,6 +4,7 @@
 #include <L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h>
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
 #include <Geometry/RPCGeometry/interface/RPCRollSpecs.h>
+#include <DataFormats/Math/interface/deltaPhi.h>
 #include "boost/container/flat_set.hpp"
 
 const double CSCMotherboardME3141RPC::lut_wg_me31_eta_odd[96][2] = {
@@ -66,6 +67,30 @@ const double CSCMotherboardME3141RPC::lut_wg_me41_eta_even[96][2] = {
 {88,1.889},{89,1.884},{90,1.879},{91,1.875},{92,1.870},{93,1.866},{94,1.861},{95,1.857},
 };
 
+// LUT with bending angles of the GEM-CSC high efficiency patterns (98%)
+// 1st index: pt value = {5,10,15,20,30,40}
+// 2nd index: bending angle for odd numbered chambers
+// 3rd index: bending angle for even numbered chambers
+const double CSCMotherboardME3141RPC::lut_pt_vs_dphi_rpccsc_me31[8][3] = {
+  {3.,  0.02203511, 0.00930056},
+  {5.,  0.02203511, 0.00930056},
+  {7 ,  0.0182579 , 0.00790009},
+  {10., 0.01066000, 0.00483286},
+  {15., 0.00722795, 0.00363230},
+  {20., 0.00562598, 0.00304878},
+  {30., 0.00416544, 0.00253782},
+  {40., 0.00342827, 0.00230833} };
+
+const double CSCMotherboardME3141RPC::lut_pt_vs_dphi_rpccsc_me41[8][3] = {
+  {3.,  0.02203511, 0.00930056},
+  {5.,  0.02203511, 0.00930056},
+  {7 ,  0.0182579 , 0.00790009},
+  {10., 0.01066000, 0.00483286},
+  {15., 0.00722795, 0.00363230},
+  {20., 0.00562598, 0.00304878},
+  {30., 0.00416544, 0.00253782},
+  {40., 0.00342827, 0.00230833} };
+
 CSCMotherboardME3141RPC::CSCMotherboardME3141RPC(unsigned endcap, unsigned station,
                                unsigned sector, unsigned subsector,
                                unsigned chamber,
@@ -103,6 +128,23 @@ CSCMotherboardME3141RPC::CSCMotherboardME3141RPC(unsigned endcap, unsigned stati
   //       R P C  -  C S C   I N T E G R A T E D   L O C A L   A L G O R I T H M
 
   //----------------------------------------------------------------------------------------//
+
+  /// Do RPC matching?
+  do_rpc_matching = me3141tmbParams.getParameter<bool>("doRpcMatching");
+  
+  /// RPC matching dphi and deta
+  rpc_match_delta_phi_odd = me3141tmbParams.getParameter<double>("rpcMatchDeltaPhiOdd");
+  rpc_match_delta_phi_even = me3141tmbParams.getParameter<double>("rpcMatchDeltaPhiEven");
+  rpc_match_delta_eta = me3141tmbParams.getParameter<double>("rpcMatchDeltaEta");
+
+  /// delta BX for RPC pads matching
+  rpc_match_delta_bx = me3141tmbParams.getParameter<int>("rpcMatchDeltaBX");
+
+  /// min eta of LCT for which we require RPC match (we don't throw out LCTs below this min eta)
+  rpc_match_min_eta = me3141tmbParams.getParameter<double>("rpcMatchMinEta");
+
+  /// whether to throw out RPC-fiducial LCTs that have no rpc match
+  rpc_clear_nomatch_lcts = me3141tmbParams.getParameter<bool>("rpcClearNomatchLCTs");
 
   // debug
   debug_luts_ = me3141tmbParams.getParameter<bool>("debugLUTs");
@@ -185,6 +227,7 @@ CSCMotherboardME3141RPC::run(const CSCWireDigiCollection* wiredc,
       << "+++ run() called for RPC-CSC integrated trigger! +++ \n";
     rpcGeometryAvailable = true;
   }
+  const bool hasCorrectRPCGeometry((not rpcGeometryAvailable) or (rpcGeometryAvailable and not hasRE31andRE41()));
 
   // retrieve CSCChamber geometry                                                                                                                                       
   CSCTriggerGeomManager* geo_manager(CSCTriggerGeometry::get());
@@ -207,7 +250,7 @@ CSCMotherboardME3141RPC::run(const CSCWireDigiCollection* wiredc,
   if (runME3141ILT_){
     
     // check for RE3/1-RE4/1 geometry
-    if ((not rpcGeometryAvailable) or (rpcGeometryAvailable and not hasRE31andRE41())) {
+    if (hasCorrectRPCGeometry) {
       if (infoV >= 0) edm::LogInfo("L1CSCTPEmulatorSetupError")
         << "+++ run() called for RPC-CSC integrated trigger without valid RPC geometry! +++ \n";
       return;
@@ -443,6 +486,13 @@ CSCMotherboardME3141RPC::run(const CSCWireDigiCollection* wiredc,
       }
     }
   }
+
+  // possibly use some discrimination from GEMs
+  if (rpcGeometryAvailable and runME3141ILT_ and do_rpc_matching) {
+    auto mex1(theStation == 3 ? ME31 : ME41);
+    matchRPCDigis(mex1);
+  }
+
   // reduction of nLCTs per each BX
   for (int bx = 0; bx < MAX_LCT_BINS; bx++)
   {
@@ -1041,4 +1091,156 @@ int CSCMotherboardME3141RPC::getRandomWGForRPCRoll(int roll)
       wgs.insert(p.first);
   // return a random one
   return *(wgs.begin() + rand() % wgs.size());
+}
+
+
+void CSCMotherboardME3141RPC::matchRPCDigis(enum MEX1Station st)
+{
+  using namespace std;
+
+  // check if we have any LCTs at all
+  int nlct = 0;
+  for (int bx = 0; bx < MAX_LCT_BINS; bx++)
+    for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++)
+      for (int i=0;i<2;i++)
+      {
+        CSCCorrelatedLCTDigi& lct = allLCTs[bx][mbx][i];
+        if (lct.isValid()) nlct++;
+      }
+  if (nlct == 0) return;
+
+  // retrieve CSCChamber geometry
+  CSCTriggerGeomManager* geo_manager = CSCTriggerGeometry::get();
+  CSCChamber* cscChamber = geo_manager->chamber(theEndcap, theStation, theSector, theSubsector, theTrigChamber);
+  const CSCDetId csc_id(cscChamber->id());
+  const int chamber(csc_id.chamber());
+  const bool is_odd(chamber%2==1);
+  
+
+  if (debug_rpc_dphi) std::cout<<"++++++++  matchRPCPads "<< csc_id <<" +++++++++ "<<std::endl;
+
+  // check if there are any pads 
+  if (rpcDigis_.empty()) {
+    if (debug_rpc_dphi) std::cout<<"igotnopads"<<std::endl;
+    return;
+  }
+
+  // walk over BXs
+  for (int bx = 0; bx < MAX_LCT_BINS; ++bx)
+  {
+    auto in_digis = rpcDigis_.find(bx);
+
+    // walk over potential LCTs in this BX
+    for (unsigned int mbx = 0; mbx < match_trig_window_size; ++mbx)
+      for (int i=0; i<2; ++i)
+      {
+        CSCCorrelatedLCTDigi& lct = allLCTs[bx][mbx][i];
+        if (!lct.isValid() or fabs(lct.getGEMDPhi()) < 0.000001) continue;
+        if (debug_rpc_dphi) std::cout<<"LCTbefore "<<bx<<" "<<mbx<<" "<<i<<" "<<lct;
+
+        // use -99 as default value whe we don't know if there could have been a gem match
+        lct.setGEMDPhi(-99.);
+
+        // "strip" here is actually a half-strip in geometry's terms
+        // note that LCT::getStrip() starts from 0
+        float fractional_strip = 0.5 * (lct.getStrip() + 1) - 0.25;
+        auto layer_geo = cscChamber->layer(CSCConstants::KEY_CLCT_LAYER)->geometry();
+        // LCT::getKeyWG() also starts from 0
+        float wire = layer_geo->middleWireOfGroup(lct.getKeyWG() + 1);
+
+        LocalPoint csc_intersect = layer_geo->intersectionOfStripAndWire(fractional_strip, wire);
+        GlobalPoint csc_gp = csc_g->idToDet(csc_id)->surface().toGlobal(csc_intersect);
+
+        // is LCT located in the high efficiency RPC eta range?
+        bool rpc_fid = ( std::abs(csc_gp.eta()) >= rpc_match_min_eta );
+
+        if (debug_rpc_dphi) std::cout<<" lct eta "<<csc_gp.eta()<<" phi "<<csc_gp.phi()<<std::endl;
+
+        if (!rpc_fid)
+        {
+          if (debug_rpc_dphi) std::cout<<"    -- lct pass no rpc req"<<std::endl;
+          continue;
+        }
+
+        if (in_digis == rpcDigis_.end()) // has no potential RPC hits with similar BX -> zap it
+        {
+          if (rpc_clear_nomatch_lcts) lct.clear();
+          if (debug_rpc_dphi) std::cout<<"    -- no rpc"<<std::endl;
+          continue;
+        }
+        if (debug_rpc_dphi) std::cout<<"    -- rpc possible"<<std::endl;
+
+        // use 99 ad default value whe we expect there to be a rpc match
+        lct.setGEMDPhi(99.);
+         
+        // to consider a GEM digi as "matched" it has to be 
+        // within specified delta_eta and delta_phi ranges
+        // and if there are multiple ones, only the min|delta_phi| is considered as matched
+        bool rpc_matched = false;
+        //int rpc_bx = 99;
+        float min_dphi = 99.;
+        for (auto& id_digi: in_digis->second)
+        {
+          RPCDetId rpc_id(id_digi.first);
+          LocalPoint rpc_lp = rpc_g->roll(rpc_id)->centreOfStrip(id_digi.second->strip());
+          GlobalPoint rpc_gp = rpc_g->idToDet(rpc_id)->surface().toGlobal(rpc_lp);
+          float dphi = deltaPhi(csc_gp.phi(), rpc_gp.phi());
+          float deta = csc_gp.eta() - rpc_gp.eta();
+          if (debug_rpc_dphi) std::cout<<"    rpc with dphi "<< std::abs(dphi) <<" deta "<< std::abs(deta) <<std::endl;
+
+          if( (              std::abs(deta) <= rpc_match_delta_eta        ) and // within delta_eta
+              ( (  is_odd and std::abs(dphi) <= rpc_match_delta_phi_odd ) or
+                ( !is_odd and std::abs(dphi) <= rpc_match_delta_phi_even ) ) and // within delta_phi
+              ( std::abs(dphi) < std::abs(min_dphi) )                          // minimal delta phi
+            )
+          {
+            rpc_matched = true;
+            min_dphi = dphi;
+            //rpc_bx = id_digi.second->bx();
+          }
+        }
+        if (rpc_matched)
+        {
+          if (debug_rpc_dphi) std::cout<<" GOT MATCHED RPC!"<<std::endl;
+          lct.setGEMDPhi(min_dphi);
+	  // assing the bit value
+	  int oddEven = int(not is_odd) + 1;
+    auto lut_pt_vs_dphi_rpccsc(st == ME31 ? lut_pt_vs_dphi_rpccsc_me31 : lut_pt_vs_dphi_rpccsc_me41);
+	  int numberOfBendAngles(sizeof lut_pt_vs_dphi_rpccsc / sizeof *lut_pt_vs_dphi_rpccsc);
+
+	  int iFound = 0;
+	  if (abs(min_dphi) < lut_pt_vs_dphi_rpccsc[numberOfBendAngles-1][oddEven]) iFound = numberOfBendAngles;
+	  else {
+	    for (int i=0; i< numberOfBendAngles-1; ++i) {
+	      if (debug_rpc_dphi) std::cout<<"is_odd "<<is_odd <<" min_dphi "<<abs(min_dphi)<<" bend angle lib "<<i<<" "<<lut_pt_vs_dphi_rpccsc[i][oddEven]<< std::endl;
+	      if (abs(min_dphi) < lut_pt_vs_dphi_rpccsc[i][oddEven] and abs(min_dphi) > lut_pt_vs_dphi_rpccsc[i+1][oddEven]) 
+		iFound = i+1;
+	    }
+	  }
+	  lct.setGEMDPhiBits(iFound);
+	  if (debug_rpc_dphi) std::cout<<"found bend angle "<<abs(min_dphi)<<" "<<lct.getGEMDPhiBits()<<" "<<lut_pt_vs_dphi_rpccsc[iFound][oddEven]<<" "<<iFound << std::endl;
+        }
+        else
+        {
+          if (debug_rpc_dphi) std::cout<<" no rpc match";
+          if (rpc_clear_nomatch_lcts)
+          {
+            lct.clear();
+            if (debug_rpc_dphi) std::cout<<" - cleared lct";
+          }
+          if (debug_rpc_dphi) std::cout<<std::endl;
+        }
+        if (debug_rpc_dphi) std::cout<<"LCTafter "<<bx<<" "<<mbx<<" "<<i<<" "<<lct;
+      }
+  }
+
+  // final count
+  int nlct_after = 0;
+  for (int bx = 0; bx < MAX_LCT_BINS; bx++)
+    for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++)
+      for (int i=0;i<2;i++)
+      {
+        if (allLCTs[bx][mbx][i].isValid()) nlct_after++;
+      }
+  if (debug_rpc_dphi) std::cout<<"before "<<nlct<<"  after "<<nlct_after<<std::endl;
 }
