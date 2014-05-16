@@ -2,10 +2,17 @@
 <use   name="FWCore/PluginManager"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="RecoLocalCalo/HcalRecAlgos"/>
+<use   name="CondFormats/DataRecord"/>
+<use   name="CondFormats/HcalObjects"/>
+
 <library   file="HcalSevLvlAnalyzer.cc" name="HcalSevLvlAnalyzer">
   <flags   EDM_PLUGIN="1"/>
 </library>
 
 <library   file="HcalRecHitReflagger.cc" name="HcalRecHitReflagger">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+
+<library   file="OOTPileupCorrectionDBModules.cc" name="OOTPileupCorrectionDBModules">
   <flags   EDM_PLUGIN="1"/>
 </library>
