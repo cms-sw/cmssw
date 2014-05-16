@@ -1120,6 +1120,16 @@ steps['RECOPU1']=merge([PU,steps['RECO']])
 steps['RECOPU2']=merge([PU2,steps['RECO']])
 steps['RECOUP15_PU25']=merge([PU25,step3Up2015Defaults])
 steps['RECOUP15_PU50']=merge([PU50,step3Up2015Defaults50ns])
+
+# for premixing: no --pileup_input for replay; GEN-SIM only available for in-time event, from FEVTDEBUGHLT previous step
+steps['RECOPRMXUP15_PU25']=merge([
+        {'-s':'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM'},
+        step3Up2015Defaults])
+steps['RECOPRMXUP15_PU50']=merge([
+        {'-s':'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM'},
+        step3Up2015Defaults50ns])
+
+
 #wmsplit['RECOPU1']=1
 steps['RECOPUDBG']=merge([{'--eventcontent':'RECODEBUG,DQM'},steps['RECOPU1']])
 steps['RERECOPU1']=merge([{'--hltProcess':'REDIGI'},steps['RECOPU1']])
@@ -1268,7 +1278,7 @@ steps['HARVESTHAL']={'-s'          :'HARVESTING:dqmHarvesting',
                      '--mc'        :'',
                      '--filein'    :'file:step3_inDQM.root',
                      '--scenario'    :'cosmics',
-                     '--filein':'file:step3_inDQM.root',
+                     '--filein':'file:step3_inDQM.root', # unnnecessary
                      '--filetype':'DQM',
                      '--customise' : 'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
                      }
