@@ -440,6 +440,7 @@ EcalPhaseIIDigiProducer::checkGeometry( const edm::EventSetup & eventSetup )
 void
 EcalPhaseIIDigiProducer::updateGeometry() 
 {
+  assert(m_Geometry->getSubdetectorGeometry( DetId::Ecal, EcalShashlik    ) !=NULL) ;
    if( 0 != m_APDResponse ) m_APDResponse->setGeometry(
       m_Geometry->getSubdetectorGeometry( DetId::Ecal, EcalBarrel    ) ) ;
    m_EBResponse->setGeometry(
