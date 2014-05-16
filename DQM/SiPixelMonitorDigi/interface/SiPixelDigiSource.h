@@ -26,7 +26,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiModule.h"
 
@@ -45,7 +44,7 @@
 
 #include <boost/cstdint.hpp>
 
- class SiPixelDigiSource : public DQMEDAnalyzer {
+ class SiPixelDigiSource : public edm::EDAnalyzer {
     public:
        explicit SiPixelDigiSource(const edm::ParameterSet& conf);
        ~SiPixelDigiSource();
@@ -53,11 +52,12 @@
        typedef edm::DetSet<PixelDigi>::const_iterator    DigiIterator;
        
        virtual void analyze(const edm::Event&, const edm::EventSetup&);
-       virtual void dqmBeginRun(const edm::Run&, edm::EventSetup const&) ;
-       virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+       virtual void beginJob() ;
+       virtual void endJob() ;
+       virtual void beginRun(const edm::Run&, edm::EventSetup const&) ;
 
        virtual void buildStructure(edm::EventSetup const&);
-       virtual void bookMEs(DQMStore::IBooker &);
+       virtual void bookMEs();
 
     private:
        edm::ParameterSet conf_;
@@ -78,6 +78,7 @@
        int eventNo;
        int lumSec;
        int nLumiSecs;
+       DQMStore* theDMBE;
        std::map<uint32_t,SiPixelDigiModule*> thePixelStructure;
 
        int nDP1P1M1;
