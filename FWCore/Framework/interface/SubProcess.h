@@ -110,6 +110,8 @@ namespace edm {
       if(subProcess_.get()) subProcess_->openOutputFiles(fb);
     }
 
+    void updateBranchIDListHelper(BranchIDLists const&);
+
     // Call respondToOpenInputFile() on all Modules
     void respondToOpenInputFile(FileBlock const& fb);
 
