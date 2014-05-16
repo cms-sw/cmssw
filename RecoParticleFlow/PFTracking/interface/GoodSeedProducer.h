@@ -1,12 +1,12 @@
-#ifndef GoodSeedProducer_H
-#define GoodSeedProducer_H
+#ifndef RecoParticleFlow_PFTracking_GoodSeedProducer_H
+#define RecoParticleFlow_PFTracking_GoodSeedProducer_H
 // system include files
 #include <memory>
 
 // user include files
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/EDProducer.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -49,7 +49,7 @@ class TrackerGeometry;
 class TrajectoryStateOnSurface;
 
 
-class GoodSeedProducer : public edm::stream::EDProducer<> {
+class GoodSeedProducer : public edm::EDProducer {
   typedef TrajectoryStateOnSurface TSOS;
    public:
       explicit GoodSeedProducer(const edm::ParameterSet&);
