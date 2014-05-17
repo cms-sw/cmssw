@@ -456,8 +456,8 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd & iRecord,
 				}	 
 					
 				// compute SL number and bti number
-				int isl;
-				int ibti;
+				int isl = 0;
+				int ibti = 0;
 				if (PhiSL) {
     					if ((chip%8)<4) 
 						isl=1; 	// Phi1 

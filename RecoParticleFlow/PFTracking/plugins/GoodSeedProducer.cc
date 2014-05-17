@@ -287,7 +287,7 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
 					theOutParticle.vertex().z()
                                        );
 
-            constexpr float psLim = std::sinh(1.65f);
+            constexpr float psLim = 2.50746495928f; // std::sinh(1.65f);
             bool isBelowPS= (ElecTrkEcalPos.z()*ElecTrkEcalPos.z()) > (psLim*psLim)*ElecTrkEcalPos.perp2();
 	    // bool isBelowPS=(std::abs(ElecTrkEcalPos.eta())>1.65f);	
 	
