@@ -41,10 +41,12 @@
   </LogicalPart>
 </LogicalPartSection>
 
-<Algorithm name="shashlik:DDShashlikModule">
+<Algorithm name="shashlik:DDShashlikTaperModule">
   <rParent name="shashlikmodule:ShashlikModule"/>
   <String name="ActiveMaterial"     value="shashlikmodule:LYSO"/>
   <String name="ActiveName"         value="shashlikmodule:ShashlikActive"/>
+  <String name="AbsorberMaterial"   value="materials:Tungsten"/>
+  <String name="AbsorberName"       value="shashlikmodule:ShashlikAbsorber"/>
   <Numeric name="ActiveLayers"      value="29"/>
   <Numeric name="ActiveThickness"   value="1.5*mm"/>
   <Numeric name="AbsorberThickness" value="2.5*mm"/>
