@@ -484,8 +484,8 @@ cscTriggerPrimitiveDigisPostLS3 = cms.EDProducer("CSCTriggerPrimitivesProducer",
         maxME3141LCTs = cms.uint32(2),
 
         ## run in debug mode
-        debugLUTs = cms.bool(True),
-        debugMatching = cms.bool(True),
+        debugLUTs = cms.bool(False),
+        debugMatching = cms.bool(False),
 
         ## use old dataformat
         useOldLCTDataFormatCLCTRPC = cms.bool(True),
