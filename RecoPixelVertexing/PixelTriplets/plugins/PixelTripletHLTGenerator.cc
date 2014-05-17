@@ -86,7 +86,11 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
   float regOffset = region.origin().perp(); //try to take account of non-centrality (?)
   int size = theLayers.size();
   
+  #ifdef __clang__
+  std::vector<ThirdHitRZPrediction<PixelRecoLineRZ>> preds(size);
+  #else
   ThirdHitRZPrediction<PixelRecoLineRZ> preds[size];
+  #endif
   
   const RecHitsSortedInPhi * thirdHitMap[size];
   typedef RecHitsSortedInPhi::Hit Hit;
@@ -96,7 +100,11 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
   std::vector<unsigned int> foundNodes; // re-used thoughout
   foundNodes.reserve(100);
 
+  #ifdef __clang__
+  std::vector<KDTreeLinkerAlgo<unsigned int>> hitTree(size);
+  #else
   KDTreeLinkerAlgo<unsigned int> hitTree[size];
+  #endif
   float rzError[size]; //save maximum errors
   float maxphi = Geom::ftwoPi(), minphi = -maxphi; // increase to cater for any range
   

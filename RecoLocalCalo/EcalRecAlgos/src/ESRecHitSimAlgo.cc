@@ -51,7 +51,11 @@ EcalRecHit::ESFlags ESRecHitSimAlgo::evalAmplitude(float * results, const ESData
 
   // A from analytical formula:
   constexpr float t1 = 20.;
+  #ifdef __clang__
+  const float A_1 = 1./( std::pow(w/n*(t1),n) * std::exp(n-w*(t1)) );
+  #else
   constexpr float A_1 = 1./( std::pow(w/n*(t1),n) * std::exp(n-w*(t1)) );
+  #endif
   auto AA1 = A1 * A_1 ;
 
  if (adc[1] > 2800.f && adc[2] > 2800.f) status = EcalRecHit::kESSaturated;
