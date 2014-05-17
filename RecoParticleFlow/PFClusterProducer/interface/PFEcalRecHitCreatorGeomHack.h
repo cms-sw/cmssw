@@ -1,5 +1,5 @@
-#ifndef RecoParticleFlow_PFClusterProducer_PFEcalRecHitCreator_h
-#define RecoParticleFlow_PFClusterProducer_PFEcalRecHitCreator_h
+#ifndef RecoParticleFlow_PFClusterProducer_PFEcalRecHitCreatorGeomHack_h
+#define RecoParticleFlow_PFClusterProducer_PFEcalRecHitCreatorGeomHack_h
 
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitCreatorBase.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
@@ -23,11 +23,11 @@
 #include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 
-template <typename Geometry,PFLayer::Layer Layer,int Detector>
-  class PFEcalRecHitCreator :  public  PFRecHitCreatorBase {
+template <typename Geometry,PFLayer::Layer Layer,int Detector, typename GeometryRcd>
+  class PFEcalRecHitCreatorGeomHack :  public  PFRecHitCreatorBase {
 
  public:  
-  PFEcalRecHitCreator(const edm::ParameterSet& iConfig,edm::ConsumesCollector& iC):
+  PFEcalRecHitCreatorGeomHack(const edm::ParameterSet& iConfig,edm::ConsumesCollector& iC):
     PFRecHitCreatorBase(iConfig,iC)
     {
       recHitToken_ = iC.consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("src"));
@@ -42,14 +42,10 @@ template <typename Geometry,PFLayer::Layer Layer,int Detector>
 
       edm::Handle<EcalRecHitCollection> recHitHandle;
 
-      edm::ESHandle<CaloGeometry> geoHandle;
-      iSetup.get<CaloGeometryRecord>().get(geoHandle);
-  
-      // get the ecal geometry
-      const CaloSubdetectorGeometry *gTmp = 
-	geoHandle->getSubdetectorGeometry(DetId::Ecal, Detector);
-
-      const Geometry *ecalGeo =dynamic_cast< const Geometry* > (gTmp);
+      edm::ESHandle<Geometry> geoHandle;
+      iSetup.get<GeometryRcd>().get(geoHandle);
+      
+      const Geometry *ecalGeo = geoHandle.product();
 
       iEvent.getByToken(recHitToken_,recHitHandle);
       for (unsigned int i=0;i<recHitHandle->size();++i) {
@@ -66,7 +62,7 @@ template <typename Geometry,PFLayer::Layer Layer,int Detector>
   
 	// find rechit geometry
 	if(!thisCell) {
-	  edm::LogError("PFEcalRecHitCreator")
+	  edm::LogError("PFEcalRecHitCreatorGeomHack")
 	    <<"warning detid "<<detid.rawId()
 	    <<" not found in geometry"<<std::endl;
 	  continue;
@@ -138,13 +134,9 @@ template <typename Geometry,PFLayer::Layer Layer,int Detector>
 
 };
 
-
-typedef PFEcalRecHitCreator<EcalBarrelGeometry,PFLayer::ECAL_BARREL,EcalBarrel> PFEBRecHitCreator;
-typedef PFEcalRecHitCreator<EcalEndcapGeometry,PFLayer::ECAL_ENDCAP,EcalEndcap> PFEERecHitCreator;
-
 #include "Geometry/CaloTopology/interface/ShashlikGeometry.h"
 #include "Geometry/CaloTopology/interface/ShashlikTopology.h"
 #include "DataFormats/EcalDetId/interface/EKDetId.h"
-//typedef PFEcalRecHitCreator<ShashlikGeometry,PFLayer::ECAL_ENDCAP,EcalShashlik> PFEKRecHitCreator;
+typedef PFEcalRecHitCreatorGeomHack<ShashlikGeometry,PFLayer::ECAL_ENDCAP,EcalShashlik,ShashlikGeometryRecord> PFEKRecHitCreator;
 
 #endif
