@@ -501,7 +501,7 @@ cscTriggerPrimitiveDigisPostLS3 = cms.EDProducer("CSCTriggerPrimitivesProducer",
         buildLCTfromCLCTandRPC = cms.bool(True),
         promoteCLCTRPCquality = cms.bool(True),
         promoteALCTRPCpattern = cms.bool(True),
-        promoteALCTRPCquality = cms.bool(True)
+        promoteALCTRPCquality = cms.bool(True),
 
         ## rate reduction 
         doRpcMatching = cms.bool(True),
