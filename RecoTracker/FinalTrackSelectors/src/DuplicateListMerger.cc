@@ -109,7 +109,11 @@ void DuplicateListMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   edm::RefProd< TrajectorySeedCollection > refTrajSeeds;
 
   const int rSize = (int)originalHandle->size();
+  #ifdef __clang__
+  std::vector<edm::RefToBase<TrajectorySeed>> seedsRefs(rSize);
+  #else
   edm::RefToBase<TrajectorySeed> seedsRefs[rSize];
+  #endif
 
   edm::Handle<edm::ValueMap<float> > originalMVAStore;
   edm::Handle<edm::ValueMap<float> > mergedMVAStore;

@@ -26,6 +26,7 @@ namespace CaloJetMETcorrInputProducer_namespace
   class RawJetExtractorT<pat::Jet>
   {
     public:
+     RawJetExtractorT(){}
 
      reco::Candidate::LorentzVector operator()(const pat::Jet& jet) const 
      { 

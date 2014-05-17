@@ -13,7 +13,7 @@ helper::Parser::makeExpression(const std::string &expr, const edm::TypeWithDict 
     reco::parser::Grammar grammar(ret, type, true);
     const char* startingFrom = expr.c_str();
     try {
-        parse(startingFrom, grammar.use_parser<1>() >> end_p, space_p).full; /// NOTA BENE: <0> for cuts, <1> for expresions (why? boh!)
+        parse(startingFrom, grammar.use_parser<1>() >> end_p, space_p); /// NOTA BENE: <0> for cuts, <1> for expresions (why? boh!)
     } catch(reco::parser::BaseException&e){
         std::cerr << "Expression parser error:"<<reco::parser::baseExceptionWhat(e)<<" (char "<<e.where-startingFrom<<")" << std::endl;
     }
@@ -28,7 +28,7 @@ helper::Parser::makeSelector(const std::string &expr, const edm::TypeWithDict &t
     reco::parser::Grammar grammar(ret, type, true);
     const char* startingFrom = expr.c_str();
     try {
-        parse(startingFrom, grammar.use_parser<0>() >> end_p, space_p).full; /// NOTA BENE: <0> for cuts, <1> for expresions (why? boh!)
+        parse(startingFrom, grammar.use_parser<0>() >> end_p, space_p); /// NOTA BENE: <0> for cuts, <1> for expresions (why? boh!)
     } catch(reco::parser::BaseException&e){
         std::cerr << "Selector parser error:"<<reco::parser::baseExceptionWhat(e)<<" (char "<<e.where-startingFrom<<")" << std::endl;
     }

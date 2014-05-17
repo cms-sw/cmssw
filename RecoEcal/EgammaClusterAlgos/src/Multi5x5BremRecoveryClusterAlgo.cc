@@ -47,7 +47,11 @@ void Multi5x5BremRecoveryClusterAlgo::makeIslandSuperClusters(reco::CaloClusterP
   bool usedSeed[clusters_v.size()];
   for (auto ic=0U; ic<clusters_v.size(); ++ic) usedSeed[ic]=false;
  
+  #ifdef __clang__ 
+  std::vector<float> eta(clusters_v.size()), phi(clusters_v.size()), et(clusters_v.size());
+  #else
   float eta[clusters_v.size()], phi[clusters_v.size()], et[clusters_v.size()];
+  #endif
   for (auto ic=0U; ic<clusters_v.size(); ++ic) {
     eta[ic]=clusters_v[ic]->eta();
     phi[ic]=clusters_v[ic]->phi();

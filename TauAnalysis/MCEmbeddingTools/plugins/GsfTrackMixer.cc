@@ -130,7 +130,6 @@ GsfTrackMixer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    edm::Ref<reco::TrackExtraCollection>::key_type idx = 0;
    edm::Ref<reco::GsfTrackExtraCollection>::key_type idxGsf = 0;	
-   edm::Ref<reco::GsfTrackCollection>::key_type iTkRef = 0;
 
    edm::Handle< reco::GsfTrackCollection  > hcol1, hcol2;
    iEvent.getByLabel( _col1, hcol1);

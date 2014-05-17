@@ -25,6 +25,7 @@ namespace PFJetMETcorrInputProducer_namespace
   {
     public:
 
+     RawJetExtractorT(){}
      reco::Candidate::LorentzVector operator()(const pat::Jet& jet) const 
      { 
        if ( jet.jecSetsAvailable() ) return jet.correctedP4("Uncorrected");

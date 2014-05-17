@@ -10,6 +10,7 @@
 #ifdef VI_DEBUG
 #include <atomic>
 struct MaxIter {
+   MaxIter(){}
    ~MaxIter() { std::cout << "maxiter " << v << std::endl; }
    void operator()(int i) const { 
      int old = v;
@@ -21,7 +22,10 @@ struct MaxIter {
   mutable std::atomic<int> v {100};
 };
 #else
-struct MaxIter { void operator()(int)const{}};
+struct MaxIter { 
+  MaxIter(){}
+  void operator()(int)const{}
+};
 #endif
 static const MaxIter maxiter;
 
