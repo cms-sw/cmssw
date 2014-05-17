@@ -402,8 +402,8 @@ CSCMotherboardME3141RPC::run(const CSCWireDigiCollection* wiredc,
             std::cout
               << "Successful ALCT-CLCT match: bx_clct = " << bx_clct
               << "; match window: [" << bx_clct_start << "; " << bx_clct_stop
-              << "]; bx_alct = " << bx_alct;
-            std::cout << "+++ Best CLCT Details: ";
+	              << "]; bx_alct = " << bx_alct << std::endl;
+	            std::cout << "+++ Best CLCT Details: ";
             clct->bestCLCT[bx_clct].print();
             std::cout << "+++ Second CLCT Details: ";
             clct->secondCLCT[bx_clct].print();
