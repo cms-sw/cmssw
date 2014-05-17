@@ -87,7 +87,7 @@ void PFClient_JetRes::createResolutionPlots(std::string& folder, std::string& na
 
   //std::vector<std::string> pTRange (PtBins_.size() -1) ;
   //char* pTRange[PtBins_.size() -1] ;
-  TString pTRange[PtBins_.size() -1] ;
+  std::vector<TString> pTRange(PtBins_.size() -1) ;
   //float pTCenter[PtBins_.size() -1] ;
 
   MonitorElement* me_average; 
