@@ -1,5 +1,11 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDetId/interface/EKDetId.h"
+#include "DataFormats/EcalDetId/interface/ESDetId.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitNavigatorBase.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitDualNavigator.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitCaloNavigator.h"
@@ -126,7 +132,7 @@ public:
   void beginEvent(const edm::EventSetup& iSetup) {
     edm::ESHandle<ShashlikTopology> topoHandle;
     iSetup.get<ShashlikNumberingRecord>().get(topoHandle);
-    topology_ = topoHandle.product();
+    //topology_ = topoHandle.product();
   }
 };
 

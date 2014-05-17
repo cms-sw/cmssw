@@ -7,10 +7,10 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
-#include "DataFormats/EcalDetId/interface/EBDetId.h"
-#include "DataFormats/EcalDetId/interface/EEDetId.h"
-#include "DataFormats/EcalDetId/interface/ESDetId.h"
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
+/* #include "DataFormats/EcalDetId/interface/EBDetId.h" */
+/* #include "DataFormats/EcalDetId/interface/EEDetId.h" */
+/* #include "DataFormats/EcalDetId/interface/ESDetId.h" */
+/* #include "DataFormats/HcalDetId/interface/HcalDetId.h" */
 
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
@@ -30,7 +30,7 @@ class PFRecHitCaloNavigator : public PFRecHitNavigatorBase {
   void associateNeighbours(reco::PFRecHit& hit,std::auto_ptr<reco::PFRecHitCollection>& hits,edm::RefProd<reco::PFRecHitCollection>& refProd) {
       DetId detid( hit.detId() );
       
-      CaloNavigator<DET,TOPO> navigator(detid, topology_);
+      CaloNavigator<DET,TOPO> navigator(detid, topology_.get());
       
       DetId N(0);
       DetId E(0);
