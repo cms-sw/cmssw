@@ -16,8 +16,6 @@
 
 using namespace CLHEP;
 
-const double radLength = 8.9; // mm
-const double rMoliere = 21.9; // mm
 // constructors and destructor
 //
 GflashG4Watcher::GflashG4Watcher(const edm::ParameterSet& p) {

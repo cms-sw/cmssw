@@ -120,6 +120,7 @@ namespace SmearedJetProducer_namespace
   {
     public:
 
+     RawJetExtractorT(){}
      reco::Candidate::LorentzVector operator()(const T& jet) const
      {
        return jet.p4();
@@ -131,6 +132,7 @@ namespace SmearedJetProducer_namespace
   {
     public:
 
+     RawJetExtractorT(){}
      reco::Candidate::LorentzVector operator()(const pat::Jet& jet) const
      {
        if ( jet.jecSetsAvailable() ) return jet.correctedP4("Uncorrected");

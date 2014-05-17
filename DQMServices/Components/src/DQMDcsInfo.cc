@@ -13,8 +13,6 @@
 
 // Framework
 
-const static int XBINS=2000;
-
 DQMDcsInfo::DQMDcsInfo(const edm::ParameterSet& ps)
 {
 
