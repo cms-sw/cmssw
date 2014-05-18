@@ -12,7 +12,7 @@
 /** A concrete implementation for TOB layer or PixelBarrel layer 
  *  
  */
-#pragma GCC visibility push(hidden)
+
 class TBPLayer GCC11_FINAL : public TBLayer {
  public:
   typedef PeriodicBinFinderInPhi<float>   BinFinderType;
@@ -69,5 +69,5 @@ class TBPLayer GCC11_FINAL : public TBLayer {
 };
 
 
-#pragma GCC visibility pop
+
 #endif 

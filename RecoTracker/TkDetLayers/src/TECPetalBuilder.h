@@ -11,7 +11,7 @@
 /** A concrete builder for TECPetal 
  */
 
-#pragma GCC visibility push(hidden)
+
 class TECPetalBuilder {  
  public:
   TECPetalBuilder(){};
@@ -22,5 +22,5 @@ class TECPetalBuilder {
 };
 
 
-#pragma GCC visibility pop
+
 #endif 

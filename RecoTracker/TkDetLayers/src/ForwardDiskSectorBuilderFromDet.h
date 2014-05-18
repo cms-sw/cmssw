@@ -14,7 +14,7 @@
  *  Dets. The disk sector has the minimal size fully containing all Dets.
  */
 
-#pragma GCC visibility push(hidden)
+
 class ForwardDiskSectorBuilderFromDet {
 public:
 
@@ -35,5 +35,5 @@ private:
 
 };
 
-#pragma GCC visibility pop
+
 #endif

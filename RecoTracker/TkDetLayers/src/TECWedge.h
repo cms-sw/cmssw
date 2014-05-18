@@ -9,7 +9,7 @@
  *  built out of TECPetals
  */
 
-#pragma GCC visibility push(hidden)
+
 class TECWedge : public GeometricSearchDet {
  public:
 
@@ -31,5 +31,5 @@ class TECWedge : public GeometricSearchDet {
 };
 
 
-#pragma GCC visibility pop
+
 #endif 

@@ -9,7 +9,7 @@
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 
-#pragma GCC visibility push(hidden)
+
 namespace barrelUtil {
 
   inline
@@ -59,5 +59,5 @@ namespace barrelUtil {
 }
 
 
-#pragma GCC visibility pop
+
 #endif 

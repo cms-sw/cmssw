@@ -5,7 +5,7 @@
 #include "TrackingTools/DetLayers/interface/GeometricSearchDet.h"
 
 
-#pragma GCC visibility push(hidden)
+
 
 class TrajectoryStateOnSurface;
 class Propagator;
@@ -37,5 +37,5 @@ public:
 
 };
 
-#pragma GCC visibility pop
+
 #endif

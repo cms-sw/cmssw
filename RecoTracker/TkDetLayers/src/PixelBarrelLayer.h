@@ -9,8 +9,8 @@
  *  built out of BarrelPixelRod
  */
 
-#pragma GCC visibility push(hidden)
+
 using PixelBarrelLayer = TBPLayer;
 
-#pragma GCC visibility pop
+
 #endif 

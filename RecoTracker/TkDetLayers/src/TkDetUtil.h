@@ -7,7 +7,7 @@
 #include "TrackingTools/DetLayers/interface/PhiLess.h"
 #include "TrackingTools/DetLayers/interface/rangesIntersect.h"
 
-#pragma GCC visibility push(hidden)
+
 
 class GeomDet;
 class Plane;
@@ -42,5 +42,5 @@ namespace tkDetUtil {
 
 }
 
-#pragma GCC visibility pop
+
 #endif // TkDetLayers_TkDetUtil_h

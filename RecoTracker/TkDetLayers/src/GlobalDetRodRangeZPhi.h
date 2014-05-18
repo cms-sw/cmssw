@@ -8,7 +8,7 @@ class Plane;
 /** Implementation class for PhiZMeasurementEstimator etc.
  */
 
-#pragma GCC visibility push(hidden)
+
 class GlobalDetRodRangeZPhi {
 public:
 
@@ -24,5 +24,5 @@ private:
   Range thePhiRange;
 };
 
-#pragma GCC visibility pop
+
 #endif
