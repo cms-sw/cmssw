@@ -13,7 +13,7 @@ DEFINE_FWK_MODULE(BasicGenParticleValidation);
 #include "Validation/EventGenerator/interface/DuplicationChecker.h"
 DEFINE_FWK_MODULE (DuplicationChecker);
 
-#include "Validation/EventGenerator/interface/MBUEandQCDValidation.h"
+#include "MBUEandQCDValidation.h"
 DEFINE_FWK_MODULE (MBUEandQCDValidation);
 
 #include "Validation/EventGenerator/interface/DrellYanValidation.h"
