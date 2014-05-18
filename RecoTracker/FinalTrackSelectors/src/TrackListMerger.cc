@@ -455,12 +455,21 @@ namespace cms
 
 	  if ( dupfound ) {
 	    float score2 = score[k2];
-	    constexpr float almostSame = 0.01f; // difference rather than ratio due to possible negative values for score
-	    if (priority_[collNum] > priority_[collNum2] ||  score1 - score2 > almostSame ) {
+	    constexpr float almostSame = 0.01f; // difference rather than ratio due to possible negative values for score]}
+
+	    if (priority_[collNum] > priority_[collNum2] ) {
 	      selected[j]=0;
 	      selected[i]=10+newQualityMask; // add 10 to avoid the case where mask = 1
 	      trkUpdated[i]=true;
-	    } else if (priority_[collNum] < priority_[collNum2] || score2 - score1 > almostSame ) {
+	    } else if (priority_[collNum] < priority_[collNum2] ) {
+	      selected[i]=0;
+	      selected[j]=10+newQualityMask;  // add 10 to avoid the case where mask = 1
+	      trkUpdated[j]=true;
+	    }else  if (score1 - score2 > almostSame ) {
+	      selected[j]=0;
+	      selected[i]=10+newQualityMask; // add 10 to avoid the case where mask = 1
+	      trkUpdated[i]=true;
+	    } else if (score2 - score1 > almostSame ) {
 	      selected[i]=0;
 	      selected[j]=10+newQualityMask;  // add 10 to avoid the case where mask = 1
 	      trkUpdated[j]=true;
