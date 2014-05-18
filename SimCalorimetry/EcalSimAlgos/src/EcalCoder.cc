@@ -136,7 +136,11 @@ EcalCoder::encode( const EcalSamples& ecalSamples ,
 
       if( 0 < igain ) 
 	 trueRMS[igain] = std::sqrt( widths[igain]*widths[igain] - 1./12. ) ;
-
+      if(detId.subdetId()==EcalShashlik){
+	// noise hardcoded fixed to 2MeV with adcToGeV=0.06285
+	// adc = .03182179
+	trueRMS[igain] = 0.03;
+      }
       // set nominal value first
       findGains( detId , 
 		 gains  );               
