@@ -58,6 +58,7 @@ const int CSCMotherboardME11GEM::lut_wg_vs_hs_me1b[48][2] = {
 // 1st index: pt value = {5,10,15,20,30,40}
 // 2nd index: bending angle for odd numbered chambers
 // 3rd index: bending angle for even numbered chambers
+/*
 const double CSCMotherboardME11GEM::lut_pt_vs_dphi_gemcsc[7][3] = {
   {5.,  0.02203511, 0.00930056},
   {6 ,  0.0182579 , 0.00790009},
@@ -66,6 +67,18 @@ const double CSCMotherboardME11GEM::lut_pt_vs_dphi_gemcsc[7][3] = {
   {20., 0.00562598, 0.00304878},
   {30., 0.00416544, 0.00253782},
   {40., 0.00342827, 0.00230833} };
+*/
+
+const double CSCMotherboardME11GEM::lut_pt_vs_dphi_gemcsc[8][3] = {
+  {3, 0.03971647, 0.01710244 },                                    
+  {5, 0.02123785, 0.00928431 }, 
+  {7, 0.01475524, 0.00650928 },                                                                                                  
+  {10, 0.01023299, 0.00458796 },                                                                                                 
+  {15, 0.00689220, 0.00331313 },                                                                  
+  {20, 0.00535176, 0.00276152 },                                                                                                                                  
+  {30, 0.00389050, 0.00224959 },                                                                                                                                       
+  {40, 0.00329539, 0.00204670 }                                                                     
+};
 
 const double CSCMotherboardME11GEM::lut_wg_etaMin_etaMax_odd[48][3] = {
 {0, 2.44005, 2.44688},
