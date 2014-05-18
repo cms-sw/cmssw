@@ -61,7 +61,7 @@ CSCALCTTrailer::CSCALCTTrailer(const unsigned short * buf){
   }
 
   ///Now fill data 
-  switch (firmwareVersion) {
+  switch (firmwareVersion.load()) {
   case 2006:
     memcpy(&trailer2006, buf, trailer2006.sizeInWords()*2);
     break;
