@@ -11,7 +11,7 @@
 /** A concrete implementation for PixelBlade
  */
 
-#pragma GCC visibility push(hidden)
+
 class PixelBlade GCC11_FINAL : public GeometricSearchDet {
  public:
 
@@ -91,5 +91,5 @@ class PixelBlade GCC11_FINAL : public GeometricSearchDet {
 };
 
 
-#pragma GCC visibility pop
+
 #endif 

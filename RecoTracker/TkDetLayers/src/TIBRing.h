@@ -9,7 +9,7 @@
 /** A concrete implementation for TIB rings 
  */
 
-#pragma GCC visibility push(hidden)
+
 class TIBRing GCC11_FINAL : public GeometricSearchDet{
  public:
   TIBRing(std::vector<const GeomDet*>& theGeomDets) __attribute__ ((cold));
@@ -92,5 +92,5 @@ class TIBRing GCC11_FINAL : public GeometricSearchDet{
 };
 
 
-#pragma GCC visibility pop
+
 #endif 

@@ -11,7 +11,7 @@
  *  Wedges (of one petal). The disk sector has the minimal size fully containing all wedges.
  */
 
-#pragma GCC visibility push(hidden)
+
 class ForwardDiskSectorBuilderFromWedges {
 public:
 
@@ -28,5 +28,5 @@ private:
 
 };
  
-#pragma GCC visibility pop
+
 #endif

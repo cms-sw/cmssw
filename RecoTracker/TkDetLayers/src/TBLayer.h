@@ -9,7 +9,7 @@
 
 
 // A base class for Barrel Layers
-#pragma GCC visibility push(hidden)
+
 class TBLayer: public BarrelDetLayer {
  public:
   
@@ -92,6 +92,6 @@ protected:
 };
 
 
-#pragma GCC visibility pop
+
 
 #endif

@@ -11,7 +11,7 @@
 /** A concrete builder for PixelBarrelLayer 
  */
 
-#pragma GCC visibility push(hidden)
+
 class PixelBarrelLayerBuilder {  
  public:
   PixelBarrelLayerBuilder(){};
@@ -22,5 +22,5 @@ class PixelBarrelLayerBuilder {
 };
 
 
-#pragma GCC visibility pop
+
 #endif 

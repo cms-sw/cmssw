@@ -9,7 +9,7 @@
  *  built out of TIBRings
  */
 
-#pragma GCC visibility push(hidden)
+
 class TIBLayer GCC11_FINAL : public TBLayer {
  public:
 
@@ -48,5 +48,5 @@ class TIBLayer GCC11_FINAL : public TBLayer {
 };
 
 
-#pragma GCC visibility pop
+
 #endif 

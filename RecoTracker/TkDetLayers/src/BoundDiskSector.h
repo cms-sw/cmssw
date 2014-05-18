@@ -4,7 +4,7 @@
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DiskSectorBounds.h"
 
-#pragma GCC visibility push(hidden)
+
 class BoundDiskSector GCC11_FINAL : public Plane {
  public:
  
@@ -29,6 +29,6 @@ class BoundDiskSector GCC11_FINAL : public Plane {
 };
  
  
-#pragma GCC visibility pop
+
 #endif 
 

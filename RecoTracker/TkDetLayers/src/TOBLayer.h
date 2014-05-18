@@ -8,8 +8,8 @@
  *  built out of BarrelPixelRod
  */
 
-#pragma GCC visibility push(hidden)
+
 using TOBLayer=TBPLayer;
 
-#pragma GCC visibility pop
+
 #endif 

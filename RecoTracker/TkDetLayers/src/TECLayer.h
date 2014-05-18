@@ -12,7 +12,7 @@
  *  built out of TECPetals
  */
 
-#pragma GCC visibility push(hidden)
+
 class TECLayer : public ForwardDetLayer  {
  public:
   TECLayer(std::vector<const TECPetal*>& innerPetals,
@@ -84,5 +84,5 @@ class TECLayer : public ForwardDetLayer  {
 };
 
 
-#pragma GCC visibility pop
+
 #endif 

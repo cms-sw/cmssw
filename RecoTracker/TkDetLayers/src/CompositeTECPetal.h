@@ -16,7 +16,7 @@
 /** A concrete implementation for TEC petals
  */
 
-#pragma GCC visibility push(hidden)
+
 class CompositeTECPetal GCC11_FINAL : public GeometricSearchDet {
  public:
   struct WedgePar { float theR, thetaMin, thetaMax;};
@@ -109,5 +109,5 @@ class CompositeTECPetal GCC11_FINAL : public GeometricSearchDet {
 };
 
 
-#pragma GCC visibility pop
+
 #endif 
