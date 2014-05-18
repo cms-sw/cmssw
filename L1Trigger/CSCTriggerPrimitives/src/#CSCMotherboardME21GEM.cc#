@@ -46,16 +46,16 @@ const double CSCMotherboardME21GEM::lut_wg_eta_even[112][2] = {
 // 1st index: pt value = {5,10,15,20,30,40}
 // 2nd index: bending angle for odd numbered chambers
 // 3rd index: bending angle for even numbered chambers
-const double CSCMotherboardME21GEM::lut_pt_vs_dphi_gemcsc[8][3] = {
-  {3, 0.01832829, 0.01003643 },
-  {5, 0.01095490, 0.00631625 },
-  {7, 0.00786026, 0.00501017 },
-  {10, 0.00596349, 0.00414560 },
-  {15, 0.00462411, 0.00365550 },
-  {20, 0.00435298, 0.00361550 },
-  {30, 0.00465160, 0.00335700 },
-  {40, 0.00372145, 0.00366262 }
-};
+const double CSCMotherboardME21GEM::lut_pt_vs_dphi_gemcsc[7][3] = {
+
+  3, 0.01832829,  : 0.01003643 },
+  5, 0.01095490,  : 0.00631625 },
+  7, 0.00786026,  : 0.00501017 },
+  10, 0.00596349,  : 0.00414560 },
+  15, 0.00462411,  : 0.00365550 },
+  20, 0.00435298,  : 0.00361550 },
+  30, 0.00465160,  : 0.00335700 },
+  40, 0.00372145,  : 0.00366262 } }
 
 CSCMotherboardME21GEM::CSCMotherboardME21GEM(unsigned endcap, unsigned station,
                                unsigned sector, unsigned subsector,
