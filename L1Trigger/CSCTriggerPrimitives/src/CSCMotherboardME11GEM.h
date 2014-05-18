@@ -96,7 +96,7 @@ class CSCMotherboardME11GEM : public CSCMotherboard
   static const int lut_wg_vs_hs_me1b[48][2];
   static const int lut_wg_vs_hs_me1a[48][2];
   static const int lut_wg_vs_hs_me1ag[48][2];
-  static const double lut_pt_vs_dphi_gemcsc[7][3];
+  static const double lut_pt_vs_dphi_gemcsc[8][3];
   static const double lut_wg_etaMin_etaMax_odd[48][3];
   static const double lut_wg_etaMin_etaMax_even[48][3];
 

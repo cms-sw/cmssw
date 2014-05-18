@@ -114,7 +114,7 @@ class CSCMotherboardME21GEM : public CSCMotherboard
       maximum match window = 15 */
   CSCCorrelatedLCTDigi allLCTs[MAX_LCT_BINS][15][2];
 
-  static const double lut_pt_vs_dphi_gemcsc[7][3];
+  static const double lut_pt_vs_dphi_gemcsc[8][3];
   static const double lut_wg_eta_odd[112][2];
   static const double lut_wg_eta_even[112][2];
 
