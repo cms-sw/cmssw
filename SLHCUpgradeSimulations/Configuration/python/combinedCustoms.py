@@ -140,7 +140,6 @@ def cust_2023SHCal(process):
         process.particleFlowClusterECAL.inputECAL = cms.InputTag('particleFlowClusterEBEKMerger')
         process.particleFlowCluster += process.pfClusteringEK
        
->>>>>>> ddc4403... fixup EcalDigi for Shashlik in EcalPhaseIIDigiProducer.cc
     return process
 
 def cust_2023HGCal(process):
