@@ -1,5 +1,5 @@
-#ifndef HGCalCommonData_DDShashlikModule_h
-#define HGCalCommonData_DDShashlikModule_h
+#ifndef HGCalCommonData_DDShashlikTaperModule_h
+#define HGCalCommonData_DDShashlikTaperModule_h
 
 #include <map>
 #include <string>
@@ -7,11 +7,11 @@
 #include "DetectorDescription/Base/interface/DDTypes.h"
 #include "DetectorDescription/Algorithm/interface/DDAlgorithm.h"
 
-class DDShashlikModule : public DDAlgorithm {
+class DDShashlikTaperModule : public DDAlgorithm {
  public:
   //Constructor and Destructor
-  DDShashlikModule(); 
-  virtual ~DDShashlikModule();
+  DDShashlikTaperModule(); 
+  virtual ~DDShashlikTaperModule();
   
   void initialize(const DDNumericArguments & nArgs,
 		  const DDVectorArguments & vArgs,
@@ -27,9 +27,9 @@ private:
   std::string         activeName;     //Base name for active layers
   int                 activeLayers;   //Number of active layers
   double              activeThick;    //Thickness of active layer
-  double              absorbThick;    //Thickness of absorber layer
   std::string         absorbMat;      //Name of the absorber material
   std::string         absorbName;     //Base name for absorber layers
+  double              absorbThick;    //Thickness of absorber layer
   double              widthFront;     //Width of the module in the front
   double              widthBack;      //Width of the module in the back
   double              moduleThick;    //Offset in z
