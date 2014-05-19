@@ -1605,7 +1605,9 @@ class RunMEtUncertainties(ConfigToolBase):
                                postfix)
 
         # insert metUncertaintySequence into patDefaultSequence
-        if addToPatDefaultSequence and process.options.allowUnscheduled == False:
+        if hasattr(process,'options') and hasattr(process.options,'allowUnscheduled') and process.options.allowUnscheduled == True:
+            addToPatDefaultSequence = False
+        if addToPatDefaultSequence:
             if not hasattr(process, "patDefaultSequence"):
                 raise ValueError("PAT default sequence is not defined !!")
             process.patDefaultSequence += metUncertaintySequence
