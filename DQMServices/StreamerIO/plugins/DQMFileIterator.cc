@@ -6,6 +6,7 @@
 #include <boost/format.hpp>
 #include <boost/range.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/algorithm/string/predicate.hpp>
 
 namespace edm {
 
@@ -89,7 +90,11 @@ std::string DQMFileIterator::make_path_eor() {
 }
 
 std::string DQMFileIterator::make_path_data(const LumiEntry& lumi) {
-  return str(boost::format("%s/%s") % run_path_ % lumi.datafilename);
+  if (boost::starts_with(lumi.datafilename, "/")) return lumi.datafilename;
+
+  boost::filesystem::path p(run_path_);
+  p /= lumi.datafilename;
+  return p.string();
 }
 
 void DQMFileIterator::collect() {

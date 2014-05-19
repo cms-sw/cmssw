@@ -23,6 +23,8 @@
 #include <boost/range.hpp>
 #include <boost/filesystem.hpp>
 
+#include <IOPool/Streamer/interface/DumpTools.h>
+
 namespace edm {
 
 DQMStreamerReader::DQMStreamerReader(ParameterSet const& pset,
@@ -47,7 +49,7 @@ DQMStreamerReader::DQMStreamerReader(ParameterSet const& pset,
 DQMStreamerReader::~DQMStreamerReader() { closeFile_(); }
 
 void DQMStreamerReader::update_watchdog_() {
-  const char *x = getenv("WATCHDOG_FD");
+  const char* x = getenv("WATCHDOG_FD");
   if (x) {
     int fd = atoi(x);
     write(fd, ".\n", 2);
@@ -165,7 +167,8 @@ EventMsgView const* DQMStreamerReader::getEventMsg() {
 
   EventMsgView const* msg = streamReader_->currentRecord();
 
-  //dumpEventView(msg);
+  if (msg != nullptr) dumpEventView(msg);
+
   return msg;
 }
 
@@ -230,8 +233,8 @@ EventMsgView const* DQMStreamerReader::prepareNextEvent() {
 
   // wait for the next event
   for (;;) {
-    //edm::LogAbsolute("DQMStreamerReader")
-    //    << "State loop.";
+    // edm::LogAbsolute("DQMStreamerReader")
+    //     << "State loop.";
     bool next = prepareNextFile();
     if (!next) return nullptr;
 

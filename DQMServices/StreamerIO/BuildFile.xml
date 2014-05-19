@@ -12,6 +12,7 @@
 <use   name="FWCore/Version"/>
 <use   name="IOPool/Stramer"/>
 <use   name="Utilities/StorageFactory"/>
+<use   name="HLTrigger/HLTanalyzers"/>
 <use   name="boost"/>
 <use   name="rootcintex"/>
 <use   name="rootcore"/>
