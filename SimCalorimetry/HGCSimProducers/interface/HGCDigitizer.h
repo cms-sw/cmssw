@@ -2,6 +2,7 @@
 #define HGcalSimProducers_HGCDigitizer_h
 
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
@@ -70,6 +71,9 @@ private :
   HGCEEDigitizer theHGCEEDigitizer_;
   HGCHEbackDigitizer theHGCHEbackDigitizer_;
   HGCHEfrontDigitizer theHGCHEfrontDigitizer_;
+
+  //subdetector id
+  ForwardSubdetector mySubDet_;
 };
 
 #endif

@@ -1,3 +1,6 @@
+#include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCHEDetId.h"
 #include "SimCalorimetry/HGCSimProducers/interface/HGCDigitizer.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
@@ -13,7 +16,8 @@
 HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps) :
   theHGCEEDigitizer_(ps),
   theHGCHEbackDigitizer_(ps),
-  theHGCHEfrontDigitizer_(ps)
+  theHGCHEfrontDigitizer_(ps),
+  mySubDet_(ForwardSubdetector::ForwardEmpty)
 {
   //configure from cfg
   hitCollection_     = ps.getUntrackedParameter< std::string >("hitCollection");
@@ -31,6 +35,11 @@ HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps) :
   theHGCEEDigitizer_.setRandomNumberEngine(engine);
   theHGCHEbackDigitizer_.setRandomNumberEngine(engine);
   theHGCHEfrontDigitizer_.setRandomNumberEngine(engine);
+
+  //subdetector
+  if( producesEEDigis() )      mySubDet_=ForwardSubdetector::HGCEE;
+  if( producesHEfrontDigis() ) mySubDet_=ForwardSubdetector::HGCHEF;
+  if( producesHEbackDigis() )  mySubDet_=ForwardSubdetector::HGCHEB;
 }
 
 //
@@ -102,7 +111,13 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, i
     {
       //for now use a single time sample
       int    itime = 0; //(int) ( hit_it->time() - bxTime_*bxCrossing ); // - jitter etc.;
-      uint32_t id  = hit_it->id();
+      HGCalDetId simId( hit_it->id() );
+      
+      //this could be changed in the future to use the geometry record
+      uint32_t id = producesEEDigis() ?
+	(uint32_t)HGCEEDetId(mySubDet_,simId.zside(),simId.layer(),simId.sector(),simId.subsector(),simId.cell()):
+	(uint32_t)HGCHEDetId(mySubDet_,simId.zside(),simId.layer(),simId.sector(),simId.subsector(),simId.cell());
+
       double ien   = hit_it->energy();
 
       HGCSimHitDataAccumulator::iterator simHitIt=simHitAccumulator_.find(id);

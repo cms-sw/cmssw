@@ -66,10 +66,17 @@ class HGCDigitizerBase {
 	double noiseEn=simpleNoiseGen_->fire();
 	if(noiseEn<0) noiseEn=0;
  
-	//round to integer
+	//round to integer (sample will saturate the value according to available bits)
 	uint16_t totalEnInt = floor((totalEn+noiseEn)/lsbInMeV_);
 
-	HGCSample singleSample( totalEnInt );
+	//0 gain for the moment
+	HGCSample singleSample;
+	singleSample.set(0, totalEnInt );
+	
+	// 	std::cout << totalEn << " -> " << totalEnInt << " " 
+	// 		  << singleSample.gain() << " " << singleSample.adc() << " " 
+	// 		  << std::hex << singleSample.raw() << std::dec << std::endl;
+	
 	if(singleSample.adc()==0) continue;
  
 	//no time information
