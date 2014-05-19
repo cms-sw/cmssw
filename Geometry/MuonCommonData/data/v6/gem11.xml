@@ -208,12 +208,7 @@
 </ConstantsSection>
 
 <SolidSection label="gem11.xml">
-  <Polycone name="GE11" startPhi="0*deg" deltaPhi="360*deg">
-   <ZSection z="-4.5*cm" rMin="1.300*m" rMax="2.64*m"/>
-   <ZSection z="-1.2*cm" rMin="1.300*m" rMax="2.64*m"/>
-   <ZSection z="-1.2*cm" rMin="1.269*m" rMax="2.64*m"/>
-   <ZSection z="+4.5*cm" rMin="1.269*m" rMax="2.64*m"/>
-  </Polycone>
+  <Tubs name="GE11" rMin="1.265*m" rMax="2.64*m" dz="4.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
 
   <Trd1 name="GB11L" dz="[dzGB11L]" dy1="[dyGB11]" dy2="[dyGB11]" dx1="[dxBotGB11]" dx2="[dxTopGB11L]" />
   <Trd1 name="GB11S" dz="[dzGB11S]" dy1="[dyGB11]" dy2="[dyGB11]" dx1="[dxBotGB11]" dx2="[dxTopGB11S]" />
