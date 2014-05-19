@@ -82,12 +82,15 @@ stalledModules = {}
 for n,trans,s,time in processingSteps:
     if n == "FINISH INIT":
         seenInit = True
+    oldState = streamState[s]
     streamState[s]=trans
     waitTime = None
     if not trans:
         waitTime = time - streamTime[s]
         streamState[s]=2
     else:
+        if oldState != trans:
+            streamState[s]=3
         streamTime[s] = time
     states = "%-*s: " % (maxNameSize,n)
     for state in streamState:
@@ -96,7 +99,9 @@ for n,trans,s,time in processingSteps:
         elif state == 1:
             states +="|"
         elif state == 2:
-            states +="*"
+            states +="-"
+        elif state == 3:
+            states +="+"
     if waitTime is not None:
         states += " %.2f"% waitTime
         if waitTime > 0.1 and seenInit:
