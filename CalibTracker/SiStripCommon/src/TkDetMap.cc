@@ -600,15 +600,11 @@ TkLayerMap::XYbin TkLayerMap::getXY_TEC(uint32_t& detid, int layerEnumNb){
 
 //--------------------------------------
 
-TkDetMap::TkDetMap(const edm::ParameterSet& p,const edm::ActivityRegistry& a)
-  :cached_detid(0),
-   cached_layer(TkLayerMap::INVALID){
+TkDetMap::TkDetMap(const edm::ParameterSet& p,const edm::ActivityRegistry& a){
   doMe();
 }
 
-TkDetMap::TkDetMap()
-:cached_detid(0),
- cached_layer(TkLayerMap::INVALID){
+TkDetMap::TkDetMap(){
   doMe();
 }
 
@@ -630,7 +626,7 @@ TkDetMap::~TkDetMap(){
     delete (*iter);  
 }
 
-const TkLayerMap::XYbin& TkDetMap::getXY(uint32_t& detid){
+const TkLayerMap::XYbin& TkDetMap::getXY(uint32_t& detid , uint32_t& cached_detid , int16_t& cached_layer){
 
   LogTrace("TkDetMap") <<"[getXY] detid "<< detid << " cache " << cached_detid << " layer " << cached_layer << " XY " << cached_XYbin.ix << " " << cached_XYbin.iy  << " " << cached_XYbin.x << " " << cached_XYbin.y ;    
   if(detid==cached_detid)
@@ -638,12 +634,12 @@ const TkLayerMap::XYbin& TkDetMap::getXY(uint32_t& detid){
 
   /*FIXME*/
   //if (layer!=INVALID)
-  FindLayer(detid);
+  FindLayer(detid , cached_detid , cached_layer);
   LogTrace("TkDetMap") <<"[getXY] detid "<< detid << " cache " << cached_detid << " layer " << cached_layer << " XY " << cached_XYbin.ix << " " << cached_XYbin.iy  << " " << cached_XYbin.x << " " << cached_XYbin.y ;    
   return cached_XYbin;
 }
 
-int16_t TkDetMap::FindLayer(uint32_t& detid){ 
+int16_t TkDetMap::FindLayer(uint32_t& detid , uint32_t& cached_detid , int16_t& cached_layer){ 
 
   if(detid==cached_detid)
     return cached_layer;

@@ -63,5 +63,5 @@ TrackEffClient.FolderName = 'Tracking/TrackParameters/TrackEfficiency'
 TrackEffClient.AlgoName   = 'CKFTk'
 
 # Services needed for TkHistoMap
-#TkDetMap = cms.Service("TkDetMap")
+TkDetMap = cms.Service("TkDetMap")
 
