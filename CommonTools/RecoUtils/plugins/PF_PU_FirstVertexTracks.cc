@@ -223,7 +223,7 @@ PF_PU_FirstVertexTracks::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 }
 
 bool 
-PF_PU_FirstVertexTracks::TrackMatch(Track track1, Track track2)
+PF_PU_FirstVertexTracks::TrackMatch(const Track& track1, const Track& track2)
 {
 
   return (
