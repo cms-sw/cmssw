@@ -160,6 +160,9 @@ ecalDrivenGsfElectrons = cms.EDProducer("GsfElectronEcalDrivenProducer",
   SoftElecMVAFilesString = cms.vstring(
     "RecoEgamma/ElectronIdentification/data/TMVA_BDTSoftElectrons_9Dec2013.weights.xml"
                                 ),
+  ElecMVAFilesString = cms.vstring(
+     "RecoEgamma/ElectronIdentification/data/TMVA_BDTSimpleCat_17Feb2011.weights.xml"
+                                 ),
 
 )
 
@@ -331,6 +334,9 @@ gsfElectrons = cms.EDProducer("GsfElectronProducer",
    SoftElecMVAFilesString = cms.vstring(
     "RecoEgamma/ElectronIdentification/data/TMVA_BDTSoftElectrons_7Feb2014.weights.xml"
                                 ),
+   ElecMVAFilesString = cms.vstring(
+     "RecoEgamma/ElectronIdentification/data/TMVA_BDTSimpleCat_17Feb2011.weights.xml"
+                                 ),
 )
 
 

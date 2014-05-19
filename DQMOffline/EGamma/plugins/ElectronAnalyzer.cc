@@ -469,7 +469,7 @@ void ElectronAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup 
 
 
     // pflow
-    h1_mva->Fill(gsfIter->mva()) ;
+    h1_mva->Fill(gsfIter->mva_e_pi()) ;
     if (gsfIter->ecalDrivenSeed()) h1_provenance->Fill(1.) ;
     if (gsfIter->trackerDrivenSeed()) h1_provenance->Fill(-1.) ;
     if (gsfIter->trackerDrivenSeed()||gsfIter->ecalDrivenSeed()) h1_provenance->Fill(0.);

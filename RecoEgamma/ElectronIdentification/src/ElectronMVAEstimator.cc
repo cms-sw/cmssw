@@ -8,11 +8,6 @@
 ElectronMVAEstimator::ElectronMVAEstimator(){}
 
 ElectronMVAEstimator::ElectronMVAEstimator(std::string fileName){
-  init(fileName);
-}
-
-
-void ElectronMVAEstimator::init(std::string fileName) {
   tmvaReader_ = new TMVA::Reader("!Color:Silent");
   tmvaReader_->AddVariable("fbrem",&fbrem);
   tmvaReader_->AddVariable("detain", &detain);
@@ -40,7 +35,40 @@ void ElectronMVAEstimator::init(std::string fileName) {
   tmvaReader_->BookMVA("BDTSimpleCat",fileName.c_str());
 }
 
+ElectronMVAEstimator::ElectronMVAEstimator(const Configuration & cfg):cfg_(cfg){
+  std::vector<std::string> weightsfiles;
+  std::string path_mvaWeightFileEleID;
+  for(unsigned ifile=0 ; ifile < cfg_.vweightsfiles.size() ; ++ifile) {
+    path_mvaWeightFileEleID = edm::FileInPath ( cfg_.vweightsfiles[ifile].c_str() ).fullPath();
+    weightsfiles.push_back(path_mvaWeightFileEleID);
+  }
+  tmvaReader_ = new TMVA::Reader("!Color:Silent");
+  tmvaReader_->AddVariable("fbrem",&fbrem);
+  tmvaReader_->AddVariable("detain", &detain);
+  tmvaReader_->AddVariable("dphiin", &dphiin);
+  tmvaReader_->AddVariable("sieie", &sieie);
+  tmvaReader_->AddVariable("hoe", &hoe);
+  tmvaReader_->AddVariable("eop", &eop);
+  tmvaReader_->AddVariable("e1x5e5x5", &e1x5e5x5);
+  tmvaReader_->AddVariable("eleopout", &eleopout);
+  tmvaReader_->AddVariable("detaeleout", &detaeleout);
+  tmvaReader_->AddVariable("kfchi2", &kfchi2);
+  tmvaReader_->AddVariable("kfhits", &mykfhits);
+  tmvaReader_->AddVariable("mishits",&mymishits);
+  tmvaReader_->AddVariable("dist", &absdist);
+  tmvaReader_->AddVariable("dcot", &absdcot);
+  tmvaReader_->AddVariable("nvtx", &myNvtx);
 
+  tmvaReader_->AddSpectator("eta",&eta);
+  tmvaReader_->AddSpectator("pt",&pt);
+  tmvaReader_->AddSpectator("ecalseed",&ecalseed);
+  
+  // Taken from Daniele (his mail from the 30/11)
+  //  tmvaReader_->BookMVA("BDTSimpleCat","../Training/weights_Root527b_3Depth_DanVarConvRej_2PtBins_10Pt_800TPrune5_Min100Events_NoBjets_half/TMVA_BDTSimpleCat.weights.xm");
+  // training of the 7/12 with Nvtx added
+
+  tmvaReader_->BookMVA("BDTSimpleCat",weightsfiles[0]);
+}
 
 double ElectronMVAEstimator::mva(const reco::GsfElectron& myElectron, int nvertices )  {
   fbrem = myElectron.fbrem();

@@ -115,7 +115,7 @@ LeptonRecoSkim::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	if(elpt>ptElecMin)  {
 	  NtotalElectrons++;
 	  nElecPassingCut++;
-	  if(electron.mva()>-0.1) NmvaElectrons++;
+	  if(electron.mva_e_pi()>-0.1) NmvaElectrons++;
 	}
 	LogDebug("LeptonRecoSkim") << "elpt = " << elpt << endl;
 	// } // closes if (electron.ecalDrivenSeed()) {

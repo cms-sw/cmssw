@@ -165,7 +165,7 @@ SoftLepton::produce(edm::Event & event, const edm::EventSetup & setup) {
       leptonId = SoftLeptonProperties::Quality::egammaElectronId;
       for (GsfElectronView::const_iterator electron = h_electrons->begin(); electron != h_electrons->end(); ++electron) {
         LeptonIds &id = leptons[reco::TrackBaseRef(electron->gsfTrack())];
-        id[SoftLeptonProperties::Quality::pfElectronId] = electron->mva();
+        id[SoftLeptonProperties::Quality::pfElectronId] = electron->mva_e_pi();
         if (haveLeptonCands)
           id[SoftLeptonProperties::Quality::btagElectronCands] = (*h_leptonCands)[h_electrons->refAt(electron - h_electrons->begin())];
       }
