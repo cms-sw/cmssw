@@ -40,6 +40,7 @@ PixelForwardLayer::PixelForwardLayer(vector<const PixelBlade*>& blades):
     theRmax = std::max( theRmax, (*it)->surface().position().perp());
   }
   float split_inner_outer_radius = 0.5 * (theRmin + theRmax);
+  if(theRmax < 15.)  split_inner_outer_radius = 10.;
   _num_innerpanels = 0;
   for(vector<const GeometricSearchDet*>::const_iterator it=theComps.begin();
       it!=theComps.end();it++){
@@ -127,39 +128,41 @@ PixelForwardLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
   SubTurbineCrossings  crossings_inner;
   SubTurbineCrossings  crossings_outer;
 
-  crossings_inner = computeCrossings( tsos, prop.propagationDirection(), true);
+  if(_num_innerpanels > 0) crossings_inner = computeCrossings( tsos, prop.propagationDirection(), true);
   crossings_outer = computeCrossings( tsos, prop.propagationDirection(), false);
-  if (!crossings_inner.isValid){
-    edm::LogInfo("TkDetLayers") << "inner computeCrossings returns invalid in PixelForwardLayer::groupedCompatibleDets:";
-    return;
-  }
+  //  if (!crossings_inner.isValid){
+  //    edm::LogInfo("TkDetLayers") << "inner computeCrossings returns invalid in PixelForwardLayer::groupedCompatibleDets:";
+  //    return;
+  //  }
   if (!crossings_outer.isValid){
     edm::LogInfo("TkDetLayers") << "outer computeCrossings returns invalid in PixelForwardLayer::groupedCompatibleDets:";
     return;
   }
 
   typedef CompatibleDetToGroupAdder Adder;
-  Adder::add( *theComps[theBinFinder_inner.binIndex(crossings_inner.closestIndex)],
-              tsos, prop, est, closestResult_inner);
-
-  if(closestResult_inner.empty()){
-    Adder::add( *theComps[theBinFinder_inner.binIndex(crossings_inner.nextIndex)],
-                tsos, prop, est, result_inner);
-    frontindex_inner = crossings_inner.nextIndex;
-  } else {
-    if (Adder::add( *theComps[theBinFinder_inner.binIndex(crossings_inner.nextIndex)],
-                    tsos, prop, est, nextResult_inner)) {
-      int crossingSide = LayerCrossingSide().endcapSide( tsos, prop);
-      int theHelicity = computeHelicity(theComps[theBinFinder_inner.binIndex(crossings_inner.closestIndex)],
-  					theComps[theBinFinder_inner.binIndex(crossings_inner.nextIndex)] );
-      vector<DetGroup> tmp99 = closestResult_inner;
-      DetGroupMerger::orderAndMergeTwoLevels( std::move(tmp99), std::move(nextResult_inner), result_inner,
-                                              theHelicity, crossingSide);
-      if (theHelicity == crossingSide) frontindex_inner = crossings_inner.closestIndex;
-      else                             frontindex_inner = crossings_inner.nextIndex;
+  if(crossings_inner.isValid) {
+    Adder::add( *theComps[theBinFinder_inner.binIndex(crossings_inner.closestIndex)],
+		tsos, prop, est, closestResult_inner);
+    
+    if(closestResult_inner.empty()){
+      Adder::add( *theComps[theBinFinder_inner.binIndex(crossings_inner.nextIndex)],
+		  tsos, prop, est, result_inner);
+      frontindex_inner = crossings_inner.nextIndex;
     } else {
-      result_inner.swap(closestResult_inner);
-      frontindex_inner = crossings_inner.closestIndex;
+      if (Adder::add( *theComps[theBinFinder_inner.binIndex(crossings_inner.nextIndex)],
+		      tsos, prop, est, nextResult_inner)) {
+	int crossingSide = LayerCrossingSide().endcapSide( tsos, prop);
+	int theHelicity = computeHelicity(theComps[theBinFinder_inner.binIndex(crossings_inner.closestIndex)],
+					  theComps[theBinFinder_inner.binIndex(crossings_inner.nextIndex)] );
+	vector<DetGroup> tmp99 = closestResult_inner;
+	DetGroupMerger::orderAndMergeTwoLevels( std::move(tmp99), std::move(nextResult_inner), result_inner,
+						theHelicity, crossingSide);
+	if (theHelicity == crossingSide) frontindex_inner = crossings_inner.closestIndex;
+	else                             frontindex_inner = crossings_inner.nextIndex;
+      } else {
+	result_inner.swap(closestResult_inner);
+	frontindex_inner = crossings_inner.closestIndex;
+      }
     }
   }
   if(!closestResult_inner.empty()){
