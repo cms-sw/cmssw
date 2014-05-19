@@ -78,8 +78,8 @@ PFCand_NoPU_WithAM::PFCand_NoPU_WithAM(const edm::ParameterSet& iConfig)
          produces<PFCandidateCollection>("P2V");
   	 produces<PFCandidateCollection>("V2P");
        } else {
-         cout << "PFCand_NoPU_WithAM:: No correct InputTag for AssociationType!" << endl;
-       	 cout << "PFCand_NoPU_WithAM:: Won't produce any PFCandiateCollection!" << endl;
+         edm::LogWarning("FirstVertexParticles") << "No correct InputTag for AssociationType!" << std::endl
+         << "Won't produce any PFCandidateCollection!" << std::endl;
        }
      }
    }
@@ -129,7 +129,7 @@ PFCand_NoPU_WithAM::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
 
   if ( !p2vassmap && !v2passmap ) {
-    cout << "PFCand_NoPU_WithAM:: No input collection could be found" << endl;
+    edm::LogWarning("FirstVertexParticles") << "PFCand_NoPU_WithAM:: No input collection could be found" << endl;
     return;
   }
 

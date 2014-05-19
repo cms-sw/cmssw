@@ -92,9 +92,9 @@ PFCand_AssoMapAlgos::CreatePFCandToVertexMap(edm::Handle<reco::PFCandidateCollec
 
         int quality = -1 - assoc_ite;
 
-// 	std::cout << "associating track with PdgId " << candref->pdgId() << ": Pt = " << candref->pt() << ","
-//     	          << " eta = " << candref->eta() << ", phi = " << candref->phi()
-//     	  	  << " to vertex: z = " << vtxColl_help->at(0)->position().z() << " with quality q = " << quality << std::endl;
+        // edm::LogInfo("Prtcl2VtxAssociation") << "associating track with PdgId " << candref->pdgId() << ": Pt = " << candref->pt() << ","
+        // << " eta = " << candref->eta() << ", phi = " << candref->phi()
+        // << " to vertex: z = " << vtxColl_help->at(0)->position().z() << " with quality q = " << quality << std::endl;
 
         // Insert the best vertex and the pair of track and the quality of this association in the map
     	pfcand2vertex->insert( vtxColl_help->at(0), make_pair(candref, quality) );
@@ -119,12 +119,11 @@ PFCand_AssoMapAlgos::CreatePFCandToVertexMap(edm::Handle<reco::PFCandidateCollec
 	int quality = DefineQuality(distances, step, distance);
 	distances.push_back( make_pair(step, distance) );
 
-//     	std::cout << "associating track with PdgId " << candref->pdgId() << ": Pt = " << candref->pt() << ","
-//     	          << " eta = " << candref->eta() << ", phi = " << candref->phi()
-//     	          << " to vertex: z = " << assocVtx.first->position().z() << " with quality q = " << quality
-//     	          << " in step = " << step << std::endl;
-    
-    	// Insert the best vertex and the pair of track and the quality of this association in the map
+        // edm::LogInfo("Prtcl2VtxAssociation") << "associating track with PdgId " << candref->pdgId() << ": Pt = " << candref->pt() << ","
+        // << " eta = " << candref->eta() << ", phi = " << candref->phi()
+        // << " to vertex: z = " << vtxColl_help->at(0)->position().z() << " with quality q = " << quality << std::endl;
+
+        // Insert the best vertex and the pair of track and the quality of this association in the map
     	pfcand2vertex->insert( associatedVertex, make_pair(candref, quality) );
 
 	PF_PU_AssoMapAlgos::EraseVertex(vtxColl_help, associatedVertex);
@@ -172,11 +171,11 @@ PFCand_AssoMapAlgos::CreateVertexToPFCandMap(edm::Handle<reco::PFCandidateCollec
 
 	int quality = -1 - assoc_ite;
 
-	//      std::cout << "associating track with PdgId " << candref->pdgId() << ": Pt = " << candref->pt() << ","
-	//                << " eta = " << candref->eta() << ", phi = " << candref->phi()
-	//                << " to vertex: z = " << vtxColl_help->at(0)->position().z() << " with quality q = " << quality << std::endl;
+        // edm::LogInfo("Vtx2PrtclAssociation") << "associating track with PdgId " << candref->pdgId() << ": Pt = " << candref->pt() << ","
+        // << " eta = " << candref->eta() << ", phi = " << candref->phi()
+        // << " to vertex: z = " << vtxColl_help->at(0)->position().z() << " with quality q = " << quality << std::endl;
 
-    	// Insert the best vertex and the pair of track and the quality of this association in the map
+        // Insert the best vertex and the pair of track and the quality of this association in the map
     	vertex2pfcand->insert( candref, make_pair(vtxColl_help->at(0), quality) );
  
 	PF_PU_AssoMapAlgos::EraseVertex(vtxColl_help, vtxColl_help->at(0));
@@ -199,12 +198,11 @@ PFCand_AssoMapAlgos::CreateVertexToPFCandMap(edm::Handle<reco::PFCandidateCollec
 	 int quality = DefineQuality(distances, step, distance);
 	 distances.push_back( make_pair(step, distance) );
 
-	 //      std::cout << "associating track with PdgId " << candref->pdgId() << ": Pt = " << candref->pt() << ","
-	 //                << " eta = " << candref->eta() << ", phi = " << candref->phi()
-	 //                << " to vertex: z = " << assocVtx.first->position().z() << " with quality q = " << quality
-	 //                << " in step = " << step << std::endl;
+	 // edm::LogInfo("Vtx2PrtclAssociation") << "associating track with PdgId " << candref->pdgId() << ": Pt = " << candref->pt() << ","
+	 // << " eta = " << candref->eta() << ", phi = " << candref->phi()
+	 // << " to vertex: z = " << vtxColl_help->at(0)->position().z() << " with quality q = " << quality << std::endl;
 
-    	 // Insert the best vertex and the pair of track and the quality of this association in the map
+	 // Insert the best vertex and the pair of track and the quality of this association in the map
     	 vertex2pfcand->insert( candref, make_pair(associatedVertex, quality) );
 
 	 PF_PU_AssoMapAlgos::EraseVertex(vtxColl_help, associatedVertex);

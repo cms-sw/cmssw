@@ -85,8 +85,8 @@ PF_PU_FirstVertexTracks::PF_PU_FirstVertexTracks(const edm::ParameterSet& iConfi
         produces<TrackCollection>("T2V");
   	produces<TrackCollection>("V2T");
       } else {
-	std::cout << "No correct InputTag for AssociationType!" << std::endl;
-	std::cout << "Won't produce any TrackCollection!" << std::endl;
+        edm::LogWarning("FirstVertexTracks") << "No correct InputTag for AssociationType!" << std::endl
+        << "Won't produce any TrackCollection!" << std::endl;
       }
     }
   }
@@ -137,7 +137,7 @@ PF_PU_FirstVertexTracks::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   }
 
   if ( !t2vassmap && !v2tassmap ) {
-    cout << "No input collection could be found" << endl;
+    edm::LogWarning("FirstVertexTracks") << "No input collection could be found" << endl;
     return;
   }
  

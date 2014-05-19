@@ -51,8 +51,8 @@ PFCand_AssoMap::PFCand_AssoMap(const edm::ParameterSet& iConfig):PFCand_AssoMapA
          produces<PFCandToVertexAssMap>();
  	 produces<VertexToPFCandAssMap>();
        } else {
-	 std::cout << "PFCand_AssoMap:: No correct InputTag for AssociationType!" << std::endl;
-	 std::cout << "PFCand_AssoMap:: Won't produce any AssociationMap!" << std::endl;
+         edm::LogWarning("Prtcl2VtxAssociation") << "No correct InputTag for AssociationType!" << std::endl
+         << "Won't produce any AssociationMap!" << std::endl;
        }
      }
    }

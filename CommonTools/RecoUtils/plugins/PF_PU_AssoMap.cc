@@ -44,8 +44,8 @@ PF_PU_AssoMap::PF_PU_AssoMap(const edm::ParameterSet& iConfig):PF_PU_AssoMapAlgo
   	produces<TrackToVertexAssMap>();
   	produces<VertexToTrackAssMap>();
       } else {
-	std::cout << "No correct InputTag for AssociationType!" << std::endl;
-	std::cout << "Won't produce any AssociationMap!" << std::endl;
+        edm::LogWarning("Trck2VtxAssociation") << "No correct InputTag for AssociationType!" << std::endl
+	<< "Won't produce any AssociationMap!" << std::endl;
       }
     }
   }
