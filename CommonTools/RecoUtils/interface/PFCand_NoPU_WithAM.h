@@ -14,7 +14,7 @@
 //
 // Original Author:  Matthias Geisler,32 4-B20,+41227676487,
 //         Created:  Thu Dec  1 16:07:41 CET 2011
-// $Id: PFCand_NoPU_WithAM.h,v 1.2 2012/04/18 15:09:23 mgeisler Exp $
+// $Id: PFCand_NoPU_WithAM.h,v 1.3 2012/11/21 09:40:40 mgeisler Exp $
 //
 //
 #include <string>
@@ -31,6 +31,8 @@
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
+
+#include "DataFormats/Candidate/interface/Candidate.h"
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
@@ -61,6 +63,8 @@ class PFCand_NoPU_WithAM : public edm::EDProducer {
 
       // ----------member data ---------------------------
 
+      edm::InputTag input_SourceColl_;
+
       edm::InputTag input_AssociationType_;
 
       edm::InputTag input_VertexPFCandAssociationMap_;
@@ -68,6 +72,8 @@ class PFCand_NoPU_WithAM : public edm::EDProducer {
       edm::InputTag input_VertexCollection_;
 
       int input_MinQuality_;
+      int negativeQuality_;
+
 };
 
 
