@@ -1,30 +1,29 @@
 #ifndef DQMSERVICES_COMPONENTS_DQMFILESAVER_H
 #define DQMSERVICES_COMPONENTS_DQMFILESAVER_H
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/global/EDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+
 #include <boost/property_tree/ptree.hpp>
 #include <sys/time.h>
 #include <string>
 
-namespace evf
-{
-  class FastMonitoringService;
-}
+namespace evf { class FastMonitoringService; }
+namespace saverDetails { struct NoCache {}; }
 
 class DQMStore;
-class DQMFileSaver : public edm::EDAnalyzer
+class DQMFileSaver : public edm::global::EDAnalyzer<edm::RunCache<saverDetails::NoCache>, edm::LuminosityBlockCache<saverDetails::NoCache> >
 {
 public:
   DQMFileSaver(const edm::ParameterSet &ps);
-
+  
 protected:
   virtual void beginJob(void);
-  virtual void beginRun(const edm::Run &, const edm::EventSetup &);
-  virtual void beginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &);
-  virtual void analyze(const edm::Event &e, const edm::EventSetup &);
-  virtual void endLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &);
-  virtual void endRun(const edm::Run &, const edm::EventSetup &);
+  virtual std::shared_ptr<saverDetails::NoCache> globalBeginRun(const edm::Run &, const edm::EventSetup &) const;
+  virtual std::shared_ptr<saverDetails::NoCache> globalBeginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) const;
+  virtual void analyze(edm::StreamID, const edm::Event &e, const edm::EventSetup &) const;
+  virtual void globalEndLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) const;
+  virtual void globalEndRun(const edm::Run &, const edm::EventSetup &) const;
   virtual void endJob(void);
   virtual void postForkReacquireResources(unsigned int childIndex, unsigned int numberOfChildren);
 
@@ -43,13 +42,15 @@ public:
   };
 
 private:
-  void saveForOfflinePB(const std::string &workflow, int run);
-  void saveForOffline(const std::string &workflow, int run, int lumi);
-  void saveForOnlinePB(const std::string &suffix);
-  void saveForOnline(const std::string &suffix, const std::string &rewrite);
-  void saveForFilterUnit(const std::string& rewrite, int run, int lumi, const FileFormat fileFormat);
-  void saveJobReport(const std::string &filename);
-  void fillJson(int run, int lumi, const std::string& dataFilePathName, boost::property_tree::ptree& pt);
+  void saveForOfflinePB(const std::string &workflow, int run) const;
+  void saveForOffline(const std::string &workflow, int run, int lumi) const;
+
+  void saveForOnlinePB(int run, const std::string &suffix) const;
+  void saveForOnline(int run, const std::string &suffix, const std::string &rewrite) const;
+
+  void saveForFilterUnit(const std::string& rewrite, int run, int lumi, const FileFormat fileFormat) const;
+  void saveJobReport(const std::string &filename) const;
+  void fillJson(int run, int lumi, const std::string& dataFilePathName, boost::property_tree::ptree& pt) const;
 
   Convention	convention_;
   FileFormat    fileFormat_;
@@ -64,9 +65,6 @@ private:
   bool          enableMultiThread_;
 
   int		saveByLumiSection_;
-  int		saveByEvent_;
-  int		saveByMinute_;
-  int		saveByTime_;
   int		saveByRun_;
   bool		saveAtJobEnd_;
   int		saveReference_;
@@ -74,29 +72,20 @@ private:
   int		forceRunNumber_;
 
   std::string	fileBaseName_;
-  std::string	fileUpdate_;
+  mutable std::atomic<int> fileUpdate_;
 
   DQMStore	*dbe_;
+  mutable std::atomic<int> nrun_;
+  mutable std::atomic<int> nlumi_;
 
-  int		irun_;
-  int		ilumi_;
-  int		ilumiprev_;
-  int		ievent_;
-  int		nrun_;
-  int		nlumi_;
-  int		nevent_;
-  timeval	start_;
-  timeval	saved_;
-
-  int			 numKeepSavedFiles_;
-  std::list<std::string> pastSavedFiles_;
+  // needed only for the harvesting step when saving in the endJob
+  mutable std::atomic<int> irun_;
 
   // Services used in DAQ2 (so for FilterUnit case only)
   evf::FastMonitoringService * fms_;
 
   static const std::string streamPrefix_;
   static const std::string streamSuffix_;
-
 };
 
 #endif // DQMSERVICES_COMPONEntS_DQMFILESAVER_H
