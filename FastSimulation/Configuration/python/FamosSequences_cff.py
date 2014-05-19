@@ -415,6 +415,8 @@ famosEcalDrivenElectronSequence = cms.Sequence(
     egammaEcalDrivenReco
 )
 
+simulationSequence.insert(0,genParticles)
+
 # The reconstruction sequence
 if(CaloMode==3):
     if(MixingMode=='GenMixing'):
