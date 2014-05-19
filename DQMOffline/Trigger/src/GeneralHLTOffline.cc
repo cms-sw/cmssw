@@ -257,7 +257,6 @@ void GeneralHLTOffline::bookHistograms(DQMStore::IBooker & iBooker,
     if (hlt_menu_[n] == '/' || hlt_menu_[n] == '.')
       hlt_menu_[n] = '_';
 
-
   //////////// Book a simple ME
 
   iBooker.setCurrentFolder("HLT/GeneralHLTOffline/");
@@ -446,7 +445,8 @@ void GeneralHLTOffline::setupHltMatrix(DQMStore::IBooker & iBooker, const std::s
     }
 
     int NumGoodModules = int( good_module_names.size() );
-    NumGoodModules = std::max( 1, NumGoodModules );
+
+    if( NumGoodModules==0 ) continue;
 
     std::string pathName_dataset = "cpfilt_" + label + "_" + pathName;
 
@@ -473,7 +473,7 @@ void GeneralHLTOffline::setupHltMatrix(DQMStore::IBooker & iBooker, const std::s
 
   if (debugPrint)
     std::cout << "Success setupHltMatrix( " << label << " , "
-              << iPD << " )" << std::cout;
+              << iPD << " )" << std::endl;
 }  // End setupHltMatrix
 
 
@@ -545,7 +545,7 @@ void GeneralHLTOffline::fillHltMatrix(const std::string & label,
       unsigned int idx_module_trg = 0;
       if( hasRawTriggerEvent && triggerEventRAW.isValid() ) idx_module_trg = triggerEventRAW->filterIndex(moduleWhoseResultsWeWant);
       else if( triggerEventAOD.isValid() ) idx_module_trg = triggerEventAOD->filterIndex(moduleWhoseResultsWeWant);
-
+  
       if( !(idx_module_trg < triggerEventSize) ) continue;
       if( hist_cpfilt_mini ){
 	TAxis * axis = hist_cpfilt_mini->GetXaxis();
@@ -577,9 +577,8 @@ void GeneralHLTOffline::fillHltMatrix(const std::string & label,
     }
   }
   else{
-   if (debugPrint) std::cout << "No AOD trigger summary found! Returning...";
+    if (debugPrint) std::cout << "No AOD trigger summary found! Returning..." << std::endl;
   }
-
 
   if( accept && hist_mini_cppath ){
     TAxis * axis = hist_mini_cppath->GetXaxis();
