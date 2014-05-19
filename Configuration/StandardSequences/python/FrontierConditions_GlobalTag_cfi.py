@@ -8,7 +8,7 @@ print "CondDB set up to read the Global Tag from : ", gtDbName
 
 GlobalTag = cms.ESSource( "PoolDBESSource",
     CondDBSetup,
-    connect = cms.string(gtDbName)
-    globaltag = cms.string('UNSPECIFIED::All'),
+    connect = cms.string(gtDbName),
+    globaltag = cms.string('UNSPECIFIED'),
     toGet = cms.VPSet( ),   # hook to override or add single payloads
  )
