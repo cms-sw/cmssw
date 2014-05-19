@@ -41,14 +41,16 @@ void SETSeedFinder::seeds(const MuonRecHitContainer & cluster,
 
 
 // there is an existing sorter somewhere in the CMSSW code (I think) - delete that
+namespace {
 struct sorter{
   bool operator() (MuonTransientTrackingRecHit::MuonRecHitPointer const & hit_1,
-                   MuonTransientTrackingRecHit::MuonRecHitPointer const & hit_2){
+                   MuonTransientTrackingRecHit::MuonRecHitPointer const & hit_2) const {
     return (hit_1->globalPosition().mag2()<hit_2->globalPosition().mag2());
 
   }
-} sortSegRadius;// smaller first
-
+};// smaller first
+  const sorter sortSegRadius;
+}
 
 
 std::vector<SETSeedFinder::MuonRecHitContainer>
