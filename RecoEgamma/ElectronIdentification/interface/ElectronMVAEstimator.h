@@ -7,12 +7,17 @@
 
 class ElectronMVAEstimator {
  public:
+  struct Configuration{
+         std::vector<std::string> vweightsfiles;
+   };
   ElectronMVAEstimator();
   ElectronMVAEstimator(std::string fileName);
+  ElectronMVAEstimator(const Configuration & );
   ~ElectronMVAEstimator() {;}
   double mva(const reco::GsfElectron& myElectron, int nvertices=0);
 
  private:
+  const Configuration cfg_;
   void bindVariables();
   void init(std::string fileName);
 
