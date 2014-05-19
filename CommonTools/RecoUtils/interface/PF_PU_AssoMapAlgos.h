@@ -172,9 +172,9 @@ class PF_PU_AssoMapAlgos{
    virtual std::auto_ptr<reco::ConversionCollection> GetCleanedConversions(edm::Handle<reco::ConversionCollection>, bool);
 
    //function to find out if the track comes from a gamma conversion
-   static bool ComesFromConversion(const reco::TrackRef, reco::ConversionCollection, reco::Conversion*);
+   static bool ComesFromConversion(const reco::TrackRef, const reco::ConversionCollection&, reco::Conversion*);
         
-   static reco::VertexRef FindConversionVertex(const reco::TrackRef, reco::Conversion, edm::ESHandle<MagneticField>, const edm::EventSetup&, 
+   static reco::VertexRef FindConversionVertex(const reco::TrackRef, const reco::Conversion&, edm::ESHandle<MagneticField>, const edm::EventSetup&,
 				                               edm::Handle<reco::BeamSpot>, std::vector<reco::VertexRef>*, double); 
 
    //function to filter the Kshort collection
@@ -184,27 +184,27 @@ class PF_PU_AssoMapAlgos{
    virtual std::auto_ptr<reco::VertexCompositeCandidateCollection> GetCleanedLambda(edm::Handle<reco::VertexCompositeCandidateCollection>, bool); 
     
    //function to find out if the track comes from a V0 decay
-   static bool ComesFromV0Decay(const reco::TrackRef, reco::VertexCompositeCandidateCollection, reco::VertexCompositeCandidate*);
+   static bool ComesFromV0Decay(const reco::TrackRef, const reco::VertexCompositeCandidateCollection&, reco::VertexCompositeCandidate*);
    
-   static reco::VertexRef FindV0Vertex(const reco::TrackRef, reco::VertexCompositeCandidate, edm::ESHandle<MagneticField>, const edm::EventSetup&, 
+   static reco::VertexRef FindV0Vertex(const reco::TrackRef, const reco::VertexCompositeCandidate&, edm::ESHandle<MagneticField>, const edm::EventSetup&,
 				                       edm::Handle<reco::BeamSpot>, std::vector<reco::VertexRef>*, double);
 
    //function to filter the nuclear interaction collection
    virtual std::auto_ptr<reco::PFDisplacedVertexCollection> GetCleanedNI(edm::Handle<reco::PFDisplacedVertexCollection>, bool); 
 
    //function to find out if the track comes from a nuclear interaction
-   static bool ComesFromNI(const reco::TrackRef, reco::PFDisplacedVertexCollection, reco::PFDisplacedVertex*);
+   static bool ComesFromNI(const reco::TrackRef, const reco::PFDisplacedVertexCollection&, reco::PFDisplacedVertex*);
    
-   static reco::VertexRef FindNIVertex(const reco::TrackRef, reco::PFDisplacedVertex, edm::ESHandle<MagneticField>, const edm::EventSetup&, 
+   static reco::VertexRef FindNIVertex(const reco::TrackRef, const reco::PFDisplacedVertex&, edm::ESHandle<MagneticField>, const edm::EventSetup&,
  	 	                               edm::Handle<reco::BeamSpot>, std::vector<reco::VertexRef>*, double, reco::TransientTrack);
 
    //function to filter the inclusive vertex finder collection
    virtual std::auto_ptr<reco::VertexCollection> GetCleanedIVF(edm::Handle<reco::VertexCollection>, bool); 
 
    //function to find out if the track comes from a inclusive vertex
-   static bool ComesFromIVF(const reco::TrackRef, reco::VertexCollection, reco::Vertex*); 
+   static bool ComesFromIVF(const reco::TrackRef, const reco::VertexCollection&, reco::Vertex*);
 
-   static reco::VertexRef FindIVFVertex(const reco::TrackRef, reco::Vertex, edm::ESHandle<MagneticField>, const edm::EventSetup&, 
+   static reco::VertexRef FindIVFVertex(const reco::TrackRef, const reco::Vertex&, edm::ESHandle<MagneticField>, const edm::EventSetup&,
  	 	                                edm::Handle<reco::BeamSpot>, std::vector<reco::VertexRef>*, double); 
    
    //function to find the vertex with the highest TrackWeight for a certain track
