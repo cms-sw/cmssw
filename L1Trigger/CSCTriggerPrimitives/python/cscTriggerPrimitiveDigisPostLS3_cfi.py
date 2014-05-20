@@ -396,7 +396,8 @@ cscTriggerPrimitiveDigisPostLS3 = cms.EDProducer("CSCTriggerPrimitivesProducer",
         gemMatchDeltaPhiOdd = cms.double(1),
         gemMatchDeltaPhiEven = cms.double(1),
         gemMatchMinEta = cms.double(1.55),
-        gemClearNomatchLCTs = cms.bool(False),
+        gemMatchMaxEta = cms.double(2.15),
+        gemClearNomatchLCTs = cms.bool(True),
 
         ## cross BX algorithm
         firstTwoLCTsInChamber = cms.bool(True),
