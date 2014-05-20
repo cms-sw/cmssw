@@ -16,6 +16,9 @@ EcalSimParameterMap::EcalSimParameterMap() :
   theEndcapParameters( 1800., 1./1800., 
                    1., 0, 
         	       10, 6, true, true),
+  theShashlikParameters( 1800., 1./1800., 
+			 1., 0, 
+			 10, 6, true, true),
   theESParameters(1., 1., 1., 20., 3, 2, false, true)
 {}
 
@@ -30,6 +33,9 @@ EcalSimParameterMap::EcalSimParameterMap(double simHitToPhotoelectronsBarrel,
                       samplingFactor, timePhase, 
                       readoutFrameSize, binOfMaximum, doPhotostatistics, syncPhase),
   theEndcapParameters(simHitToPhotoelectronsEndcap, photoelectronsToAnalogEndcap, 
+                      samplingFactor, timePhase, 
+                      readoutFrameSize, binOfMaximum, doPhotostatistics, syncPhase),
+  theShashlikParameters(simHitToPhotoelectronsEndcap, photoelectronsToAnalogEndcap, 
                       samplingFactor, timePhase, 
                       readoutFrameSize, binOfMaximum, doPhotostatistics, syncPhase),
   theESParameters(1., 1., 1., 20., 3, 2, false, syncPhase)
@@ -48,6 +54,8 @@ const CaloSimParameters & EcalSimParameterMap::simParameters(const DetId & detId
     return theBarrelParameters;
   else if (EcalSubdetector(detId.subdetId()) == EcalEndcap)
     return theEndcapParameters;
+  else if (EcalSubdetector(detId.subdetId()) == EcalShashlik)
+    return theShashlikParameters;
   else 
     return theESParameters;
 }

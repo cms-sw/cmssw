@@ -21,6 +21,7 @@ EcalCoder::EcalCoder( bool                  addNoise     ,
    m_intercals   (           0 ) ,
    m_maxEneEB    (      1668.3 ) , // 4095(MAXADC)*12(gain 2)*0.035(GeVtoADC)*0.97
    m_maxEneEE    (      2859.9 ) , // 4095(MAXADC)*12(gain 2)*0.060(GeVtoADC)*0.97
+   m_maxEneEK    (      2859.9 ) , // like EE
    m_addNoise    ( addNoise    )
 {
    m_ebCorrNoise[0] = ebCorrNoise0 ;
@@ -30,6 +31,13 @@ EcalCoder::EcalCoder( bool                  addNoise     ,
    m_eeCorrNoise[1] = eeCorrNoise1 ;
    m_ebCorrNoise[2] = ebCorrNoise2 ;
    m_eeCorrNoise[2] = eeCorrNoise2 ;
+
+   edm::LogWarning("EcalCoder") << "EK correlated noise taken from EE values!";
+   m_ekCorrNoise[0] = eeCorrNoise0 ; // init to ee values
+   m_ekCorrNoise[1] = eeCorrNoise1 ; // init to ee values
+   m_ekCorrNoise[2] = eeCorrNoise2 ; // init to ee values
+
+
 }  
 
 EcalCoder::~EcalCoder()
@@ -42,6 +50,7 @@ EcalCoder::setFullScaleEnergy( double EBscale ,
 {
    m_maxEneEB = EBscale ;
    m_maxEneEE = EEscale ;
+   m_maxEneEK = EEscale ; // fixed to EE value
 }
 
 
@@ -141,7 +150,7 @@ EcalCoder::encode( const EcalSamples& ecalSamples ,
    CaloSamples noiseframe[] = { CaloSamples( detId , csize ) ,
 				CaloSamples( detId , csize ) ,
 				CaloSamples( detId , csize )   } ;
-
+   // compatible with shashlik confiugration since requires "if barrel"
    const Noisifier* noisy[3] = { ( 0 == m_eeCorrNoise[0]          ||
 				   EcalBarrel == detId.subdetId()    ?
 				   m_ebCorrNoise[0] :
@@ -287,10 +296,12 @@ EcalCoder::findPedestal( const DetId & detId  ,
    ped   = (*itped).mean(gainId);
    width = (*itped).rms(gainId);
   
-   if ( (detId.subdetId() != EcalBarrel) && (detId.subdetId() != EcalEndcap) ) 
-   { 
-      edm::LogError("EcalCoder") << "Could not find pedestal for " << detId.rawId() << " among the " << m_peds->getMap().size();
-   } 
+   // don't understand the meaning of that, it can be that the pedestal is not found the the subdet is barrel or endcap
+   // commenting the following if Shervin
+   //    if ( (detId.subdetId() != EcalBarrel) && (detId.subdetId() != EcalEndcap) ) 
+   //    { 
+   //       edm::LogError("EcalCoder") << "Could not find pedestal for " << detId.rawId() << " among the " << m_peds->getMap().size();
+   //    } 
 
   /*
     switch(gainId) {
@@ -344,11 +355,11 @@ EcalCoder::findGains( const DetId & detId ,
    Gains[2] = (*grit).gain6Over1();
    Gains[1] = Gains[2]*( (*grit).gain12Over6() );   
    
-  
-   if ( (detId.subdetId() != EcalBarrel) && (detId.subdetId() != EcalEndcap) ) 
-   { 
-      edm::LogError("EcalCoder") << "Could not find gain ratios for " << detId.rawId() << " among the " << m_gainRatios->getMap().size();
-   }   
+   // Shervin commenting 
+//    if ( (detId.subdetId() != EcalBarrel) && (detId.subdetId() != EcalEndcap) ) 
+//    { 
+//       edm::LogError("EcalCoder") << "Could not find gain ratios for " << detId.rawId() << " among the " << m_gainRatios->getMap().size();
+//    }   
   
 }
 

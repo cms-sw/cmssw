@@ -32,6 +32,8 @@ private:
   CaloSimParameters theBarrelParameters;
   /// EE
   CaloSimParameters theEndcapParameters;
+  /// EK
+  CaloSimParameters theShashlikParameters;
   /// ES
   CaloSimParameters theESParameters;
 };
