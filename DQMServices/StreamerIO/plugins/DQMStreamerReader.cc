@@ -34,6 +34,11 @@ DQMStreamerReader::DQMStreamerReader(ParameterSet const& pset,
       streamReader_(),
       eventSkipperByID_(EventSkipperByID::create(pset).release()) {
 
+  runNumber_ = pset.getUntrackedParameter<unsigned int>("runNumber");
+  runInputDir_ = pset.getUntrackedParameter<std::string>("runInputDir");
+  hltSel_ =
+      pset.getUntrackedParameter<std::vector<std::string> >("SelectEvents");
+
   minEventsPerLs_ = pset.getUntrackedParameter<int>("minEventsPerLumi");
   flagSkipFirstLumis_ = pset.getUntrackedParameter<bool>("skipFirstLumis");
   flagEndOfRunKills_ = pset.getUntrackedParameter<bool>("endOfRunKills");
@@ -84,12 +89,21 @@ void DQMStreamerReader::reset_() {
 
 void DQMStreamerReader::openFile_(std::string newStreamerFile_) {
   processedEventPerLs_ = 0;
+  edm::ParameterSet pset;
 
   streamReader_ = std::unique_ptr<StreamerInputFile>(
       new StreamerInputFile(newStreamerFile_, eventSkipperByID_));
 
   InitMsgView const* header = getHeaderMsg();
   deserializeAndMergeWithRegistry(*header, false);
+
+  dumpInitHeader(header);
+
+  Strings tnames;
+  header->hltTriggerNames(tnames);
+
+  pset.addParameter<Strings>("SelectEvents", hltSel_);
+  eventSelector_.reset(new TriggerSelector(pset, tnames));
 
   // our initialization
   processedEventPerLs_ = 0;
@@ -129,7 +143,7 @@ bool DQMStreamerReader::openNextFile_() {
 InitMsgView const* DQMStreamerReader::getHeaderMsg() {
   InitMsgView const* header = streamReader_->startMessage();
 
-  if (header->code() != Header::INIT) {  //INIT Msg
+  if (header->code() != Header::INIT) {  // INIT Msg
     throw Exception(errors::FileReadError, "DQMStreamerReader::readHeader")
         << "received wrong message type: expected INIT, got " << header->code()
         << "\n";
@@ -145,6 +159,7 @@ EventMsgView const* DQMStreamerReader::getEventMsg() {
 
   EventMsgView const* msg = streamReader_->currentRecord();
 
+  //  if (msg != nullptr) dumpEventView(msg);
   return msg;
 }
 
@@ -171,6 +186,15 @@ bool DQMStreamerReader::prepareNextFile() {
     // check for end of run and quit if everything has been processed.
     // this clean exit
     if ((streamReader_.get() == nullptr) && (!fiterator_.hasNext()) &&
+        (fiterator_.state() == State::EOR)) {
+
+      closeFile_();
+      return false;
+    }
+
+    // if this is end of run and no more files to process
+    // close it
+    if ((processedEventPerLs_ >= minEventsPerLs_) && (!fiterator_.hasNext()) &&
         (fiterator_.state() == State::EOR)) {
 
       closeFile_();
@@ -227,14 +251,14 @@ EventMsgView const* DQMStreamerReader::prepareNextEvent() {
         // this means end of file, so close the file
         closeFile_();
       } else {
-        //edm::LogAbsolute("DQMStreamerReader") << "kkkkkk";
-        //continue;
-
-        return eview;
+        if (!acceptEvent(eview)) {
+          continue;
+        } else {
+          return eview;
+        }
       }
     }
   }
-
   return eview;
 }
 
@@ -262,6 +286,25 @@ bool DQMStreamerReader::checkNextEvent() {
   return true;
 }
 
+bool DQMStreamerReader::acceptEvent(const EventMsgView* evtmsg) {
+
+  std::vector<unsigned char> hltTriggerBits_;
+  int hltTriggerCount_ = evtmsg->hltCount();
+  if (hltTriggerCount_ > 0) {
+    hltTriggerBits_.resize(1 + (hltTriggerCount_ - 1) / 4);
+  }
+  evtmsg->hltTriggerBits(&hltTriggerBits_[0]);
+
+  if (eventSelector_->wantAll() ||
+      eventSelector_->acceptEvent(&hltTriggerBits_[0], evtmsg->hltCount())) {
+    std::cout << "----****----- Events is accepted " << std::endl;
+    return true;
+  } else {
+    std::cout << "----****----- Events is not selected " << std::endl;
+    return false;
+  }
+}
+
 void DQMStreamerReader::skip(int toSkip) {
   for (int i = 0; i != toSkip; ++i) {
     EventMsgView const* evMsg = prepareNextEvent();
@@ -284,11 +327,14 @@ void DQMStreamerReader::fillDescriptions(
   ParameterSetDescription desc;
   desc.setComment("Reads events from streamer files.");
 
-  desc.addUntracked<int>("minEventsPerLumi", 1)
-      ->setComment("Minimum number of events to process per lumisection, "
-                   "before switching to a new input file. If the next file "
-                   "does not yet exist, "
-                   "the number of processed events will be bigger.");
+  desc.addUntracked<std::vector<std::string> >("SelectEvents")
+      ->setComment("HLT path to select events ");
+
+  desc.addUntracked<int>("minEventsPerLumi", 1)->setComment(
+      "Minimum number of events to process per lumisection, "
+      "before switching to a new input file. If the next file "
+      "does not yet exist, "
+      "the number of processed events will be bigger.");
 
   desc.addUntracked<bool>("skipFirstLumis", false)->setComment(
       "Skip (and ignore the minEventsPerLumi parameter) for the files "
@@ -296,15 +342,15 @@ void DQMStreamerReader::fillDescriptions(
       "If set to true, the reader will open last available file for "
       "processing.");
 
-  desc.addUntracked<bool>("deleteDatFiles", false)
-      ->setComment("Delete data files after they have been closed, in order to "
-                   "save disk space.");
+  desc.addUntracked<bool>("deleteDatFiles", false)->setComment(
+      "Delete data files after they have been closed, in order to "
+      "save disk space.");
 
   desc.addUntracked<bool>("endOfRunKills", false)->setComment(
       "Kill the processing as soon as the end-of-run file appears, even if "
       "there are/will be unprocessed lumisections.");
 
-  //desc.addUntracked<unsigned int>("skipEvents", 0U)
+  // desc.addUntracked<unsigned int>("skipEvents", 0U)
   //    ->setComment("Skip the first 'skipEvents' events that otherwise would "
   //                 "have been processed.");
 

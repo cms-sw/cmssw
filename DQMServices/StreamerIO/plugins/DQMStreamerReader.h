@@ -5,6 +5,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMFileIterator.h"
+#include "TriggerSelector.h"
 
 #include "boost/shared_ptr.hpp"
 #include "boost/filesystem.hpp"
@@ -36,6 +37,8 @@ class DQMStreamerReader : public StreamerInputSource {
   bool newHeader();
   static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
+  typedef std::vector<std::string> Strings;
+
  protected:
   virtual bool checkNextEvent(); /* from raw input source */
   virtual void skip(int toSkip); /* from raw input source */
@@ -54,10 +57,12 @@ class DQMStreamerReader : public StreamerInputSource {
 
   EventMsgView const* prepareNextEvent();
   bool prepareNextFile();
+  bool acceptEvent( const EventMsgView*);
 
   unsigned int runNumber_;
   std::string runInputDir_;
   std::string streamLabel_;
+  Strings hltSel_;
 
   unsigned int processedEventPerLs_;
   unsigned int minEventsPerLs_;
@@ -70,6 +75,7 @@ class DQMStreamerReader : public StreamerInputSource {
 
   std::unique_ptr<StreamerInputFile> streamReader_;
   boost::shared_ptr<EventSkipperByID> eventSkipperByID_;
+  TriggerSelectorPtr eventSelector_;
 };
 
 }  //end-of-namespace-def
