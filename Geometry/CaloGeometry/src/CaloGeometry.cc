@@ -33,8 +33,8 @@ CaloGeometry::setSubdetGeometry( DetId::Detector                det    ,
    const unsigned int index = makeIndex( det, subdet, ok ) ;
    if( ok ) m_geos[index] = geom ;
 
-//   std::cout<<"Detector="<<(int)det<<", subset="<<subdet<<", index="<<index
-//	    <<", size="<<m_geos.size()<<std::endl;
+//    std::cout<<"Detector="<<(int)det<<", subset="<<subdet<<", index="<<index
+// 	    <<", size="<<m_geos.size()<<std::endl;
 
    assert( ok ) ;
 }
