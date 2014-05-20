@@ -433,7 +433,7 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
     const CSCLayer* keyLayerME1a(cscChamberME1a->layer(3));
     const CSCLayerGeometry* keyLayerGeometryME1a(keyLayerME1a->geometry());
 
-    const bool isEven(me1bId%2==0);
+    const bool isEven(me1bId.chamber()%2==0);
     const int region((theEndcap == 1) ? 1: -1);
     const GEMDetId gem_id(region, 1, theStation, 1, me1bId.chamber(), 0);
     const GEMChamber* gemChamber(gem_g->chamber(gem_id));
@@ -447,6 +447,7 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
     // LUT<roll,<etaMin,etaMax> >    
     createGEMRollEtaLUT(isEven);
     if (debug_luts){
+      std::cout<<"me1b Det "<< me1bId<<" "<< me1bId.rawId() <<" " << (isEven ? "Even":"odd") <<" chamebr "<< me1bId.chamber()<<std::endl;
       if (gemRollToEtaLimits_.size())
         for(auto p : gemRollToEtaLimits_) {
           std::cout << "pad "<< p.first << " min eta " << (p.second).first << " max eta " << (p.second).second << std::endl;
