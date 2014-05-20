@@ -15,6 +15,12 @@ options.register('runInputDir',
                  VarParsing.VarParsing.varType.string,
                  "Directory where the DQM files will appear.")
 
+options.register('streamLabel',
+                 '_streamA', # default value
+                 VarParsing.VarParsing.multiplicity.singleton,
+                 VarParsing.VarParsing.varType.string,
+                 "Stream label used in json discovery.")
+
 options.register('minEventsPerLumi',
                  1, # default value
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -51,6 +57,7 @@ options.parseArguments()
 DQMStreamerReader = cms.Source("DQMStreamerReader",
     runNumber = cms.untracked.uint32(options.runNumber),
     runInputDir = cms.untracked.string(options.runInputDir),
+    streamLabel = cms.untracked.string(options.streamLabel),
 
     minEventsPerLumi = cms.untracked.int32(options.minEventsPerLumi),
     delayMillis = cms.untracked.uint32(options.delayMillis),

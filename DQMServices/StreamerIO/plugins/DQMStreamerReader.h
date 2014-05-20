@@ -60,6 +60,7 @@ class DQMStreamerReader : public StreamerInputSource {
 
   unsigned int runNumber_;
   std::string runInputDir_;
+  std::string streamLabel_;
 
   unsigned int processedEventPerLs_;
   unsigned int minEventsPerLs_;

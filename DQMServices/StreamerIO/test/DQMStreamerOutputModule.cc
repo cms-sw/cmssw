@@ -62,7 +62,7 @@ class DQMStreamerOutputModule : public edm::StreamerOutputModuleBase {
 
 DQMStreamerOutputModule::DQMStreamerOutputModule(edm::ParameterSet const& ps)
     : edm::StreamerOutputModuleBase(ps),
-      streamLabel_(ps.getParameter<std::string>("@module_label")),
+      streamLabel_(ps.getUntrackedParameter<std::string>("streamLabel")),
       runInputDir_(ps.getUntrackedParameter<std::string>("runInputDir", "")),
       processed_(0),
       flagLumiRemap_(true),
@@ -108,7 +108,7 @@ void DQMStreamerOutputModule::beginLuminosityBlock(
   currentRun_ = ls.run();
 
   std::string path =
-      str(boost::format("%s/run%06d/run%06d_ls%04d_%s.dat") % runInputDir_ %
+      str(boost::format("%s/run%06d/run%06d_ls%04d%s.dat") % runInputDir_ %
           currentRun_ % currentRun_ % currentLumi_ % streamLabel_);
 
   boost::filesystem::path p(path);
@@ -137,8 +137,8 @@ void DQMStreamerOutputModule::endLuminosityBlock(
 
   // output jsn file
   std::string path =
-      str(boost::format("%s/run%06d/run%06d_ls%04d.jsn") % runInputDir_ %
-          currentRun_ % currentRun_ % currentLumi_);
+      str(boost::format("%s/run%06d/run%06d_ls%04d%s.jsn") % runInputDir_ %
+          currentRun_ % currentRun_ % currentLumi_ % streamLabel_);
   std::cout << "DQMStreamerOutputModule : writing json: " << path << std::endl;
 
   using namespace boost::property_tree;
@@ -205,6 +205,9 @@ void DQMStreamerOutputModule::fillDescriptions(
 
   desc.addUntracked<std::string>("runInputDir")
       ->setComment("Top level output directory");
+
+  desc.addUntracked<std::string>("streamLabel")
+      ->setComment("Stream label.");
 
   descriptions.add("streamerOutput", desc);
 }

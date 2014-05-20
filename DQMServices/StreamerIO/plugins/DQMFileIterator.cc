@@ -53,8 +53,9 @@ DQMFileIterator::EorEntry DQMFileIterator::EorEntry::load_json(
 DQMFileIterator::DQMFileIterator() : state_(EOR) {}
 DQMFileIterator::~DQMFileIterator() {}
 
-void DQMFileIterator::initialise(int run, const std::string& path) {
+void DQMFileIterator::initialise(int run, const std::string& path, const std::string& streamLabel) {
   run_ = run;
+  streamLabel_ = streamLabel;
   run_path_ = str(boost::format("%s/run%06d") % path % run_);
 
   eor_.loaded = false;
@@ -82,7 +83,7 @@ bool DQMFileIterator::hasNext() {
 }
 
 std::string DQMFileIterator::make_path_jsn(int lumi) {
-  return str(boost::format("%s/run%06d_ls%04d.jsn") % run_path_ % run_ % lumi);
+  return str(boost::format("%s/run%06d_ls%04d%s.jsn") % run_path_ % run_ % lumi % streamLabel_);
 }
 
 std::string DQMFileIterator::make_path_eor() {

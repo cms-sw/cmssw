@@ -48,7 +48,7 @@ class DQMFileIterator {
 
   DQMFileIterator();
   ~DQMFileIterator();
-  void initialise(int run, const std::string& path);
+  void initialise(int run, const std::string&, const std::string&);
 
   State state();
 
@@ -67,6 +67,7 @@ class DQMFileIterator {
  private:
   int run_;
   std::string run_path_;
+  std::string streamLabel_;
 
   int lastLumiSeen_;
   EorEntry eor_;

@@ -35,6 +35,7 @@ DQMStreamerReader::DQMStreamerReader(ParameterSet const& pset,
 
   runNumber_ = pset.getUntrackedParameter<unsigned int>("runNumber");
   runInputDir_ = pset.getUntrackedParameter<std::string>("runInputDir");
+  streamLabel_ = pset.getUntrackedParameter<std::string>("streamLabel");
 
   minEventsPerLs_ = pset.getUntrackedParameter<int>("minEventsPerLumi");
   flagSkipFirstLumis_ = pset.getUntrackedParameter<bool>("skipFirstLumis");
@@ -66,7 +67,7 @@ void DQMStreamerReader::delay_() {
 }
 
 void DQMStreamerReader::reset_() {
-  fiterator_.initialise(runNumber_, runInputDir_);
+  fiterator_.initialise(runNumber_, runInputDir_, streamLabel_);
 
   // We have to load at least a single header,
   // so the ProductRegistry gets initialized.
@@ -167,8 +168,6 @@ EventMsgView const* DQMStreamerReader::getEventMsg() {
 
   EventMsgView const* msg = streamReader_->currentRecord();
 
-  if (msg != nullptr) dumpEventView(msg);
-
   return msg;
 }
 
@@ -251,6 +250,9 @@ EventMsgView const* DQMStreamerReader::prepareNextEvent() {
         // this means end of file, so close the file
         closeFile_();
       } else {
+        //edm::LogAbsolute("DQMStreamerReader") << "kkkkkk";
+        //continue;
+
         return eview;
       }
     }
@@ -307,6 +309,9 @@ void DQMStreamerReader::fillDescriptions(
 
   desc.addUntracked<unsigned int>("runNumber")
       ->setComment("Run number passed via configuration file.");
+
+  desc.addUntracked<std::string>("streamLabel")
+      ->setComment("Stream label used in json discovery.");
 
   desc.addUntracked<unsigned int>("delayMillis")
       ->setComment("Number of milliseconds to wait between file checks.");
