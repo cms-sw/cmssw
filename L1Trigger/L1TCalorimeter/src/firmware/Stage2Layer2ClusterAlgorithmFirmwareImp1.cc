@@ -19,10 +19,18 @@ l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::Stage2Layer2ClusterAlgorithmFirmw
   params_(params)
 {
 
-
-  m_seedThreshold    = params_->egSeedThresholdHw(); 
-  m_clusterThreshold = params_->egNeighbourThresholdHw(); 
-    
+  if (m_clusterInput==E) {
+    m_seedThreshold    = floor(params_->egSeedThreshold()/params_->towerLsbE()); 
+    m_clusterThreshold = floor(params_->egNeighbourThreshold()/params_->towerLsbE());
+  }
+  if (m_clusterInput==H) {
+    m_seedThreshold    = floor(params_->egSeedThreshold()/params_->towerLsbH()); 
+    m_clusterThreshold = floor(params_->egNeighbourThreshold()/params_->towerLsbH());
+  }
+  else {
+    m_seedThreshold    = floor(params_->egSeedThreshold()/params_->towerLsbSum()); 
+    m_clusterThreshold = floor(params_->egNeighbourThreshold()/params_->towerLsbSum());
+  }
 }
 
 
