@@ -238,7 +238,7 @@ CSCMotherboardME3141RPC::run(const CSCWireDigiCollection* wiredc,
   const CSCLayer* keyLayer(cscChamber->layer(3));
   const CSCLayerGeometry* keyLayerGeometry(keyLayer->geometry());
   const int region((theEndcap == 1) ? 1: -1);
-  const bool isEven(csc_id%2==0);
+  const bool isEven(csc_id.chamber()%2==0);
   const int csc_trig_sect(CSCTriggerNumbering::triggerSectorFromLabels(csc_id));
   const int csc_trig_id( CSCTriggerNumbering::triggerCscIdFromLabels(csc_id));
   const int csc_trig_chid((3*(csc_trig_sect-1)+csc_trig_id)%18 +1);
@@ -260,6 +260,7 @@ CSCMotherboardME3141RPC::run(const CSCWireDigiCollection* wiredc,
     rpcRollToEtaLimits_ = createRPCRollLUT(rpc_id);
     
     if (debug_luts_){
+      std::cout << "RPC det " <<rpc_id<<"  CSC det "<< csc_id << std::endl;
       if (rpcRollToEtaLimits_.size()) {
         for(auto p : rpcRollToEtaLimits_) {
           std::cout << "roll "<< p.first << " min eta " << (p.second).first << " max eta " << (p.second).second << std::endl;
