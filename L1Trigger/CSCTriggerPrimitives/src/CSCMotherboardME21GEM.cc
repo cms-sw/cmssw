@@ -224,7 +224,7 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
 
     //    const bool isEven(csc_id%2==0);
     const int region((theEndcap == 1) ? 1: -1);
-    const bool isEven(csc_id%2==0);
+    const bool isEven(csc_id.chamber()%2==0);
     const GEMDetId gem_id_short(region, 1, 2, 1, csc_id.chamber(), 0);
     const GEMDetId gem_id_long(region, 1, 3, 1, csc_id.chamber(), 0);
     //    const GEMChamber* gemChamberShort(gem_g->chamber(gem_id_short));
@@ -235,6 +235,7 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
     gemRollToEtaLimitsLong_ = createGEMRollEtaLUT(true);
 
     if (debug_luts){
+      std::cout<<"csc id "<< csc_id <<" "<< csc_id.rawId() << (isEven ? " even" : " odd") << " chamber" << csc_id.chamber()<<std::endl;      
       if (gemRollToEtaLimitsShort_.size())
 	for(auto p : gemRollToEtaLimitsShort_) {
           std::cout << "pad "<< p.first << " min eta " << (p.second).first << " max eta " << (p.second).second << std::endl;
