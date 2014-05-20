@@ -56,7 +56,11 @@ class EKDigitizerTraits
 
       typedef CaloTSamples<float,10> EcalSamples ;
 
-      static void fix( Digi& digi, edm::DataFrame df ) {}
+      static void fix( Digi& digi, edm::DataFrame df ) {
+	for(int i=0; i < digi.size(); i++){
+	  df[i]=digi[i];
+	}
+      }
 };
 
 class ESDigitizerTraits 

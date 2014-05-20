@@ -150,7 +150,8 @@ EcalPhaseIIDigiProducer::EcalPhaseIIDigiProducer( const edm::ParameterSet& param
    m_Geometry          ( 0 ) ,
    m_EBCorrNoise       (   ) ,
    m_EECorrNoise       (   ) ,
-   m_EKCorrNoise       (   ) 
+   m_EKCorrNoise       (   ) ,
+   theEKDets(NULL)
 {
   if(m_apdSeparateDigi) mixMod.produces<EBDigiCollection>(m_apdDigiTag);
    mixMod.produces<EBDigiCollection>(m_EBdigiCollection);
@@ -357,6 +358,7 @@ EcalPhaseIIDigiProducer::accumulateCaloHits(HitsHandle const& ebHandle, HitsHand
 //       m_ESOldDigitizer->add(*esHandle.product(), bunchCrossing);
 //     }
 //   }
+
 }
 
 void
@@ -440,24 +442,41 @@ EcalPhaseIIDigiProducer::finalizeEvent(edm::Event& event, edm::EventSetup const&
    }
    edm::LogInfo("EcalDigi") << "ES Digis: " << preshowerResult->size();
 
+
 #ifdef DEBUG
    //debug duplicated digis
    std::set<unsigned int> filledDigis;
+#endif
+   //#ifdef clean_EKDigiCollection
+   EKDigiCollection shashlikResultValid;
+   //   unsigned int  ncount=0;
+   //   unsigned int  count=0;
    for(EKDigiCollection::const_iterator ekDigi_itr = shashlikResult->begin();
        ekDigi_itr!=shashlikResult->end();
        ekDigi_itr++){
-     //if( (filledDigis.insert(ekDigi_itr->id())).second==false){
-       EKDetId ekdetid(ekDigi_itr->id());
-       std::cout << ekDigi_itr->id() << "\t" << ekdetid.ix() << "\t" << ekdetid.iy() << "\t" << ekdetid.zside() << "\t" << ekDigi_itr-shashlikResult->begin() << std::endl;
+     size_t index = ekDigi_itr-shashlikResult->begin();
+     DetId dd(ekDigi_itr->id());
+     if(theEKDets->count(dd)!=0){
+       //       ncount++;
+       shashlikResultValid.push_back(ekDigi_itr->id()); // do with a std::move at least! Shervin
+       EKDataFrame digi((*shashlikResult)[index]);
+       EKDigitizerTraits::fix(digi , shashlikResultValid.back());
+//        if(ekDigi_itr-shashlikResult->begin()<7000){
+// 	 //std::cout << "original digi: " << (*shashlikResult)[index]   << std::endl;
+// 	 std::cerr << "temp     digi: " << digi                       << std::endl;
+// 	 std::cerr   << "copied   digi: " << EKDataFrame(shashlikResultValid.back()) << std::endl;
        //}
+     }
    }
-#endif
+   shashlikResult->swap(shashlikResultValid);
+   //#endif
 
    // Step D: Put outputs into event
    if( m_apdSeparateDigi ) {
       event.put( apdResult,    m_apdDigiTag         ) ;
    }
-
+   
+   //filter the invalid EK digis
    event.put( barrelResult,    m_EBdigiCollection ) ;
    event.put( endcapResult,    m_EEdigiCollection ) ;
    event.put( shashlikResult,  m_EKdigiCollection ) ;
@@ -623,18 +642,31 @@ EcalPhaseIIDigiProducer::checkGeometry( const edm::EventSetup & eventSetup )
 void
 EcalPhaseIIDigiProducer::updateGeometry() 
 {
+
+  const CaloSubdetectorGeometry *subGeo = m_Geometry->getSubdetectorGeometry( DetId::Ecal, EcalShashlik  );
    if( 0 != m_APDResponse ) m_APDResponse->setGeometry(
       m_Geometry->getSubdetectorGeometry( DetId::Ecal, EcalBarrel    ) ) ;
    m_EBResponse->setGeometry(
       m_Geometry->getSubdetectorGeometry( DetId::Ecal, EcalBarrel    ) ) ;
    m_EEResponse->setGeometry(
       m_Geometry->getSubdetectorGeometry( DetId::Ecal, EcalEndcap    ) ) ;
-   m_EKResponse->setGeometry(
-      m_Geometry->getSubdetectorGeometry( DetId::Ecal, EcalShashlik  ) ) ;
+   m_EKResponse->setGeometry( subGeo ) ;
    m_ESResponse->setGeometry(
       m_Geometry->getSubdetectorGeometry( DetId::Ecal, EcalPreshower    ) ) ;
    m_ESOldResponse->setGeometry( m_Geometry ) ;
 
+   if(subGeo!=NULL) {
+     if(theEKDets!=NULL) delete theEKDets;
+     theEKDets = new std::set<DetId>;
+     std::vector<DetId> validDetId = subGeo->getValidDetIds();
+     for(std::vector<DetId>::const_iterator validDetId_itr = validDetId.begin();
+	   validDetId_itr != validDetId.end();
+	   validDetId_itr++){
+	 theEKDets->insert(*validDetId_itr);
+       }
+       //m_EKResponse->resetValidDetIds();
+   }
+				    
    const std::vector<DetId>* theESDets ( 
       0 != m_Geometry->getSubdetectorGeometry(DetId::Ecal, EcalPreshower) ?
       &m_Geometry->getSubdetectorGeometry(DetId::Ecal, EcalPreshower)->getValidDetIds() : 0 ) ;

@@ -149,6 +149,9 @@ class EcalPhaseIIDigiProducer : public DigiAccumulatorMixMod {
       CorrelatedNoisifier<EcalCorrMatrix>* m_EBCorrNoise[3] ;
       CorrelatedNoisifier<EcalCorrMatrix>* m_EECorrNoise[3] ;
       CorrelatedNoisifier<EcalCorrMatrix>* m_EKCorrNoise[3] ;
+
+      //Shervin temporary to remove detIds not conform to the geometry
+      std::set<DetId>* theEKDets;
 };
 
 #endif 
