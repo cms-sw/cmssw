@@ -135,6 +135,11 @@ public:
     //topology_ = topoHandle.product();
   }
 };
+typedef PFRecHitDualNavigator<PFLayer::ECAL_BARREL,
+			      PFRecHitEcalBarrelNavigator,
+			      PFLayer::ECAL_ENDCAP,
+			      PFRecHitShashlikNavigator> PFRecHitEBEKNavigator;
+
 
 EDM_REGISTER_PLUGINFACTORY(PFRecHitNavigationFactory, "PFRecHitNavigationFactory");
 
@@ -145,6 +150,7 @@ DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitEcalBarrelNavigatorWithTime
 DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitEcalEndcapNavigatorWithTime, "PFRecHitEcalEndcapNavigatorWithTime");
 DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFECALHashNavigator, "PFECALHashNavigator");
 DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitECALNavigator, "PFRecHitECALNavigator");
+DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitEBEKNavigator, "PFRecHitEBEKNavigator");
 DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitECALNavigatorWithTime, "PFRecHitECALNavigatorWithTime");
 DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitCaloTowerNavigator, "PFRecHitCaloTowerNavigator");
 DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitPreshowerNavigator, "PFRecHitPreshowerNavigator");
