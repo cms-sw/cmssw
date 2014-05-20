@@ -59,7 +59,7 @@ CaloGenericDetId::sizeForDenseIndexing() const
 
    return ( isEB() ? EBDetId::kSizeForDenseIndexing :
 	   ( isEE() ? EEDetId::kSizeForDenseIndexing :
-	     ( isEK() ? EEDetId::kSizeForDenseIndexing :
+	     ( isEK() ? EKDetId::kSizeForDenseIndexing :
 	       ( isES() ? ESDetId::kSizeForDenseIndexing :
 		 ( isZDC() ? HcalZDCDetId::kSizeForDenseIndexing :
 		   ( isCastor() ? HcalCastorDetId::kSizeForDenseIndexing : 0 ) ) ) ) ) ); 

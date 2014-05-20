@@ -1,7 +1,7 @@
 #ifndef ES_COND_OBJECT_CONTAINER_HH
 #define ES_COND_OBJECT_CONTAINER_HH
 
-#include "DataFormats/EcalDetId/interface/EcalContainer.h"
+#include "CondFormats/EcalObjects/interface/EcalContainer.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 
 template < typename T >
