@@ -72,9 +72,10 @@ ShashlikGeometry* ShashlikGeometryBuilderFromDDD::build (const DDCompactView*  c
 	
 	//	fillGeom( geom, parameters, ht3d, detId ) ;
 	const DDSolid& solid ( fv.logicalPart().solid() ) ;
+
 	ParmVec params (solid.parameters().begin(), solid.parameters().end());
 	for (size_t i=0 ; i < params.size() ; ++i) {
-	  if (i==1 || i==2 || i==6 || i==10) params[i] *= k_ScaleFromDDDtoGeant;
+	  if (i!=1 && i!=2 && i!=6 && i!=10) params[i] *= k_ScaleFromDDDtoGeant;
 	}
 	
 	std::vector<GlobalPoint> corners (8);
