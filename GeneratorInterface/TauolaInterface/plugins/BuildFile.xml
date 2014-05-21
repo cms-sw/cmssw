@@ -17,7 +17,7 @@
   <use name="FWCore/Concurrency"/>
   <use name="FWCore/Framework"/>
   <use name="FWCore/ParameterSet"/>
-  <use   name="FWCore/ServiceRegistry"/>
+  <use name="FWCore/ServiceRegistry"/>
   <use name="SimDataFormats/GeneratorProducts"/>
   <use name="tauolapp"/>
   <use name="lhapdf"/>
@@ -26,3 +26,4 @@
   <use name="clhep"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
+
