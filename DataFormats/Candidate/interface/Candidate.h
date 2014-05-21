@@ -81,10 +81,12 @@ namespace reco {
     virtual double energy() const = 0;
     /// transverse energy 
     virtual double et() const = 0;
+    /// transverse energy squared (use this for cut!)                                                                 
+    virtual double et2() const = 0;
     /// mass
-    virtual float mass() const = 0;
+    virtual double mass() const = 0;
     /// mass squared
-    virtual float massSqr() const = 0;
+    virtual double massSqr() const = 0;
     /// transverse mass
     virtual double mt() const = 0;
     /// transverse mass squared
@@ -96,13 +98,13 @@ namespace reco {
     /// z coordinate of momentum vector
     virtual double pz() const = 0;
     /// transverse momentum
-    virtual float pt() const = 0;
+    virtual double pt() const = 0;
     /// momentum azimuthal angle
-    virtual float phi() const = 0;
+    virtual double phi() const = 0;
     /// momentum polar angle
     virtual double theta() const = 0;
     /// momentum pseudorapidity
-    virtual float eta() const = 0;
+    virtual double eta() const = 0;
     /// rapidity
     virtual double rapidity() const = 0;
     /// rapidity
