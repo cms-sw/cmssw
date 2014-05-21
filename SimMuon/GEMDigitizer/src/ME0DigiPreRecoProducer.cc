@@ -84,7 +84,7 @@ void ME0DigiPreRecoProducer::produce(edm::Event& e, const edm::EventSetup& event
       << "ME0DigiPreRecoProducer: found " << simHits.size() << " hit(s) in eta partition" << rawId;
     
     me0DigiPreRecoModel_->simulateSignal(roll, simHits);
-    //    me0DigiPreRecoModel_->simulateNoise(roll);
+    me0DigiPreRecoModel_->simulateNoise(roll);
     me0DigiPreRecoModel_->fillDigis(rawId, *digis);
   }
   
