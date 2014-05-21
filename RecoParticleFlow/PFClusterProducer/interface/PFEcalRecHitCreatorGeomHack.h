@@ -137,6 +137,6 @@ template <typename Geometry,PFLayer::Layer Layer,int Detector, typename Geometry
 #include "Geometry/CaloTopology/interface/ShashlikGeometry.h"
 #include "Geometry/CaloTopology/interface/ShashlikTopology.h"
 #include "DataFormats/EcalDetId/interface/EKDetId.h"
-typedef PFEcalRecHitCreatorGeomHack<ShashlikGeometry,PFLayer::ECAL_ENDCAP,EcalShashlik,ShashlikGeometryRecord> PFEKRecHitCreator;
+//typedef PFEcalRecHitCreatorGeomHack<ShashlikGeometry,PFLayer::ECAL_ENDCAP,EcalShashlik,ShashlikGeometryRecord> PFEKRecHitCreator;
 
 #endif

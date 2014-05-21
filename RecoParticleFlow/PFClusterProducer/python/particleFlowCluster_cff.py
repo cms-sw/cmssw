@@ -19,6 +19,7 @@ from RecoParticleFlow.PFClusterProducer.particleFlowClusterHFHAD_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowRecHitECALWithTime_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterECALWithTime_cff import *
 
+#provides particleFlowRecHitEK
 from RecoParticleFlow.PFClusterProducer.particleFlowRecHitShashlik_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterShashlik_cfi import *
 

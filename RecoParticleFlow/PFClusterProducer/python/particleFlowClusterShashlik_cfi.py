@@ -44,6 +44,16 @@ _positionCalcECAL_3x3_nodepth = _positionCalcECAL_all_nodepth.clone(
     posCalcNCrystals = cms.int32(9)
 )
 
+_positionCalcEK_all_withdepth = cms.PSet(
+    algoName = cms.string("Shashlik2DPositionCalcWithDepth"),
+    ##
+    minFractionInCalc = cms.double(0.0),
+    minAllowedNormalization = cms.double(0.0),
+    T0 = cms.double(7.4),
+    W0 = cms.double(8.1),
+    X0 = cms.double(0.51)
+)
+
 # pf clustering
 _pfClusterizer_EK = cms.PSet(
     algoName = cms.string("Basic2DGenericPFlowClusterizer"),
@@ -51,7 +61,8 @@ _pfClusterizer_EK = cms.PSet(
     minFractionToKeep = cms.double(1e-7),
     positionCalc = _positionCalcECAL_3x3_nodepth,
     allCellsPositionCalc = _positionCalcECAL_all_nodepth,
-    showerSigma = cms.double(1.42),
+    positionCalcForConvergence = _positionCalcEK_all_withdepth,
+    showerSigma = cms.double(1.1),
     stoppingTolerance = cms.double(1e-8),
     maxIterations = cms.uint32(50),
     excludeOtherSeeds = cms.bool(True),
@@ -65,7 +76,7 @@ _pfClusterizer_EK = cms.PSet(
 
 particleFlowClusterEKUncorrected = cms.EDProducer(
     "PFClusterProducer",
-    recHitsSource = cms.InputTag("particleFlowRecHitShashlik"),
+    recHitsSource = cms.InputTag("particleFlowRecHitEK"),
     recHitCleaners = cms.VPSet( ),
     seedFinder = _localMaxSeeds_EK,
     initialClusteringStep = _topoClusterizer_EK,
