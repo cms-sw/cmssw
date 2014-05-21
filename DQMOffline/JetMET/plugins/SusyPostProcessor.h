@@ -9,8 +9,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 #include <vector>
 #include <string>
@@ -19,30 +19,24 @@
 #include "TH1.h"
 #include "TMath.h"
 
-class SusyPostProcessor : public edm::EDAnalyzer
+class SusyPostProcessor : public DQMEDHarvester
 {
  public:
   explicit SusyPostProcessor( const edm::ParameterSet& pSet ) ;
   ~SusyPostProcessor();
                                    
-      
-  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup ) ;
-  virtual void beginJob(void) ;
-  virtual void beginRun(const edm::Run&, const edm::EventSetup& iSetup);
-  virtual void endJob();
-  void endRun(const edm::Run& , const edm::EventSetup& ) ;
 
  private:
 
   edm::ParameterSet iConfig;
-  void QuantilePlots(MonitorElement* ME, double q_value);
+  virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) ;
+  void QuantilePlots(MonitorElement* &, double, DQMStore::IBooker &);
 
   static const char* messageLoggerCatregory;
 
   std::string SUSYFolder;
   double _quantile;
 
-  DQMStore* dqm;
   std::vector<MonitorElement*> histoVector;
   std::vector<std::string> Dirs;
 

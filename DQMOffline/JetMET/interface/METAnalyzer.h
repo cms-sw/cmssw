@@ -87,9 +87,6 @@ class METAnalyzer : public thread_unsafe::DQMEDAnalyzer{
   /// Destructor
   virtual ~METAnalyzer();
 
-  /// Finish up a job
-  void endJob();
-
 /// Inizialize parameters for histo binning
 //  void beginJob(void);
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
@@ -129,9 +126,6 @@ class METAnalyzer : public thread_unsafe::DQMEDAnalyzer{
   // Switch for verbosity
   int verbose_;
 
-  //edm::ConsumesCollector iC;
-
-  DQMStore * dbe_;
 
   std::string MetType_;
   bool outputMEsInRootFile;
