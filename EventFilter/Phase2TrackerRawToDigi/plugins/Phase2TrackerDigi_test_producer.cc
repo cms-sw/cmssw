@@ -33,11 +33,11 @@ namespace sistrip {
   {
   }
   
-  void Phase2TrackerDigi_test_producer::beginJob( const edm::EventSetup & )
+  void Phase2TrackerDigi_test_producer::beginJob( )
   {
   }
   
-  void Phase2TrackerDigi_test_producer::beginRun( edm::Run & run, const edm::EventSetup & es)
+  void Phase2TrackerDigi_test_producer::beginRun( edm::Run const& run, edm::EventSetup const& es)
   {
     // fetch cabling from event setup
     edm::ESHandle<Phase2TrackerCabling> c;
@@ -123,15 +123,16 @@ namespace sistrip {
             // build fake fed id
             uint32_t key = fedIndex*1000 + ife*10;
 
-            // get fedid from cabling
-            const Phase2TrackerModule mod = cabling_->findFedCh(std::make_pair(fedIndex, ife));
-            uint32_t detid_test = mod.getDetid();
-            ss << dec << " id from cabling : " << detid_test << endl;
 
 	    const FEDChannel& channel = buffer->channel(ichan);
 	    if(channel.length() > 0)
 	    {
-	      ss << dec << " reading channel : " << icbc << " on FE " << ife;
+              // get fedid from cabling
+              const Phase2TrackerModule mod = cabling_->findFedCh(std::make_pair(fedIndex, ife));
+              uint32_t detid_test = mod.getDetid();
+              ss << dec << " id from cabling : " << detid_test << endl;
+	      
+              ss << dec << " reading channel : " << icbc << " on FE " << ife;
 	      ss << dec << " with length  : " << (int) channel.length() << endl;
 
               // container for this channel's digis
