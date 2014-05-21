@@ -21,10 +21,14 @@ namespace l1t {
          edm::EDGetToken towerToken_;
    };
 
-   PackerList
-   CaloTowerPackerFactory::create(const edm::ParameterSet& cfg, const unsigned& fw, const int fedid)
+   CaloTowerPackerFactory::CaloTowerPackerFactory(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc) : cfg_(cfg)
    {
-      return {std::shared_ptr<BasePacker>(new CaloTowerPacker(cfg))};
+   }
+
+   PackerList
+   CaloTowerPackerFactory::create(const unsigned& fw, const int fedid)
+   {
+      return {std::shared_ptr<BasePacker>(new CaloTowerPacker(cfg_))};
    }
 
    CaloTowerPacker::CaloTowerPacker(const edm::ParameterSet& cfg) :
@@ -99,3 +103,5 @@ namespace l1t {
       towerToken_ = digi2raw->consumes<CaloTowerBxCollection>(towerTag_);
    }
 }
+
+DEFINE_L1TPACKER(l1t::CaloTowerPackerFactory);

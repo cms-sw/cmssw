@@ -5,6 +5,7 @@
 
 #include "EventFilter/L1TRawToDigi/interface/L1TDigiToRaw.h"
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/CRC16.h"
 
 #include <iomanip>
@@ -18,7 +19,18 @@ namespace l1t {
       produces<FEDRawDataCollection>();
 
       fwId_ = config.getParameter<unsigned int>("FWId");
-      packers_ = PackerFactory::createPackers(config, fwId_, fedId_);
+
+      auto cc = edm::ConsumesCollector(consumesCollector());
+
+      auto packer_cfg = config.getParameterSet("packers");
+      auto packer_names = packer_cfg.getParameterNames();
+
+      for (const auto& name: packer_names) {
+         const auto& pset = packer_cfg.getParameterSet(name);
+         auto factory = std::auto_ptr<BasePackerFactory>(PackerFactory::get()->makePackerFactory(pset, cc));
+         auto packer_list = factory->create(fwId_, fedId_);
+         packers_.insert(packers_.end(), packer_list.begin(), packer_list.end());
+      }
 
       for (auto& packer: packers_)
          packer->fetchToken(this);

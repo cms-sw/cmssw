@@ -1,6 +1,8 @@
 #include "DataFormats/L1Trigger/interface/EGamma.h"
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -20,10 +22,14 @@ namespace l1t {
          edm::EDGetToken egToken_;
    };
 
-   PackerList
-   EGammaPackerFactory::create(const edm::ParameterSet& cfg, const unsigned& fw, const int fedid)
+   EGammaPackerFactory::EGammaPackerFactory(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc) : cfg_(cfg)
    {
-      return {std::shared_ptr<BasePacker>(new EGammaPacker(cfg))};
+   }
+
+   PackerList
+   EGammaPackerFactory::create(const unsigned& fw, const int fedid)
+   {
+      return {std::shared_ptr<BasePacker>(new EGammaPacker(cfg_))};
    }
 
    EGammaPacker::EGammaPacker(const edm::ParameterSet& cfg) :
@@ -68,3 +74,5 @@ namespace l1t {
       egToken_ = digi2raw->consumes<EGammaBxCollection>(egTag_);
    }
 }
+
+DEFINE_L1TPACKER(l1t::EGammaPackerFactory);

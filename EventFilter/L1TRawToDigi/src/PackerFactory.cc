@@ -1,3 +1,6 @@
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDMException.h"
+
 #include "EventFilter/L1TRawToDigi/interface/PackerFactory.h"
 
 #include "implementations/CaloTowerPacker.h"
@@ -6,28 +9,31 @@
 #include "implementations/JetPacker.h"
 #include "implementations/TauPacker.h"
 
-namespace l1t {
-   std::vector<PackerFactory*> PackerFactory::factories_ = PackerFactory::createFactories();
+EDM_REGISTER_PLUGINFACTORY(l1t::PackerFactoryFacility,"PackerFactory");
 
-   std::vector<PackerFactory*> PackerFactory::createFactories()
+namespace l1t {
+   const PackerFactory PackerFactory::instance_;
+
+   const PackerFactory*
+   PackerFactory::get()
    {
-      std::vector<PackerFactory*> res;
-      // res.push_back(new CaloTowerPackerFactory());
-      res.push_back(new EGammaPackerFactory());
-      res.push_back(new EtSumPackerFactory());
-      res.push_back(new JetPackerFactory());
-      res.push_back(new TauPackerFactory());
-      return res;
+      return &instance_;
    }
 
-   PackerList
-   PackerFactory::createPackers(const edm::ParameterSet& cfg, const unsigned fw, const int fedid)
+   PackerFactory::PackerFactory() {};
+   PackerFactory::~PackerFactory() {};
+
+   std::auto_ptr<BasePackerFactory>
+   PackerFactory::makePackerFactory(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc) const
    {
-      PackerList res;
-      for (const auto& f: factories_) {
-         auto ps = f->create(cfg, fw, fedid);
-         res.insert(res.end(), ps.begin(), ps.end());
+      auto type = cfg.getParameter<std::string>("type");
+      auto factory = std::auto_ptr<BasePackerFactory>(PackerFactoryFacility::get()->create(type, cfg, cc));
+
+      if (factory.get() == 0) {
+         throw edm::Exception(edm::errors::Configuration, "NoSourceModule")
+            << "PACKER CANT FIND " << type;
       }
-      return res;
+
+      return factory;
    }
 }

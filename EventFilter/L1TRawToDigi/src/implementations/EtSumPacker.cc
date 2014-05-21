@@ -20,10 +20,14 @@ namespace l1t {
          edm::EDGetToken etSumToken_;
    };
 
-   PackerList
-   EtSumPackerFactory::create(const edm::ParameterSet& cfg, const unsigned& fw, const int fedid)
+   EtSumPackerFactory::EtSumPackerFactory(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc) : cfg_(cfg)
    {
-      return {std::shared_ptr<BasePacker>(new EtSumPacker(cfg))};
+   }
+
+   PackerList
+   EtSumPackerFactory::create(const unsigned& fw, const int fedid)
+   {
+      return {std::shared_ptr<BasePacker>(new EtSumPacker(cfg_))};
    }
 
    EtSumPacker::EtSumPacker(const edm::ParameterSet& cfg) :
@@ -59,3 +63,5 @@ namespace l1t {
       etSumToken_ = digi2raw->consumes<EtSumBxCollection>(etSumTag_);
    }
 }
+
+DEFINE_L1TPACKER(l1t::EtSumPackerFactory);

@@ -1,8 +1,12 @@
 #include "EventFilter/L1TRawToDigi/interface/PackerFactory.h"
 
 namespace l1t {
-   class CaloTowerPackerFactory : public PackerFactory {
+   class CaloTowerPackerFactory : public BasePackerFactory {
       public:
-         virtual PackerList create(const edm::ParameterSet& cfg, const unsigned& fw, const int fedid) override;
+         CaloTowerPackerFactory(const edm::ParameterSet&, edm::ConsumesCollector&);
+         virtual PackerList create(const unsigned& fw, const int fedid) override;
+
+      private:
+         const edm::ParameterSet& cfg_;
    };
 }

@@ -20,10 +20,14 @@ namespace l1t {
          edm::EDGetToken jetToken_;
    };
 
-   PackerList
-   JetPackerFactory::create(const edm::ParameterSet& cfg, const unsigned& fw, const int fedid)
+   JetPackerFactory::JetPackerFactory(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc) : cfg_(cfg)
    {
-      return {std::shared_ptr<BasePacker>(new JetPacker(cfg))};
+   }
+
+   PackerList
+   JetPackerFactory::create(const unsigned& fw, const int fedid)
+   {
+      return {std::shared_ptr<BasePacker>(new JetPacker(cfg_))};
    }
 
    JetPacker::JetPacker(const edm::ParameterSet& cfg) :
@@ -66,3 +70,5 @@ namespace l1t {
       jetToken_ = digi2raw->consumes<JetBxCollection>(jetTag_);
    }
 }
+
+DEFINE_L1TPACKER(l1t::JetPackerFactory);

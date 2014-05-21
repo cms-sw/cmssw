@@ -20,10 +20,14 @@ namespace l1t {
          edm::EDGetToken tauToken_;
    };
 
-   PackerList
-   TauPackerFactory::create(const edm::ParameterSet& cfg, const unsigned& fw, const int fedid)
+   TauPackerFactory::TauPackerFactory(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc) : cfg_(cfg)
    {
-      return {std::shared_ptr<BasePacker>(new TauPacker(cfg))};
+   }
+
+   PackerList
+   TauPackerFactory::create(const unsigned& fw, const int fedid)
+   {
+      return {std::shared_ptr<BasePacker>(new TauPacker(cfg_))};
    }
 
    TauPacker::TauPacker(const edm::ParameterSet& cfg) :
@@ -68,3 +72,5 @@ namespace l1t {
       tauToken_ = digi2raw->consumes<TauBxCollection>(tauTag_);
    }
 }
+
+DEFINE_L1TPACKER(l1t::TauPackerFactory);
