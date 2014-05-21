@@ -106,12 +106,11 @@ void TauolappInterface::init( const edm::EventSetup& es ){
 
    Tauolapp::Tauola::spin_correlation.setAll(fPolarization);// Tauola switches this on during Tauola::initialise(); so we add this here to keep it on/off
 
-   Tauolapp::Tauola::setNewCurrents(fPSet->getUntrackedParameter<int>("setNewCurrents",0));
-      
    std::vector<std::string> par = fPSet->getParameter< std::vector<std::string> >("parameterSets");
    for (unsigned int ip=0; ip<par.size(); ++ip ){
      std::string curSet = par[ip];
      
+     if(curSet=="setNewCurrents") Tauolapp::Tauola::setNewCurrents(fPSet->getParameter<int>(curSet));
      if(curSet=="spinCorrelationSetAll") Tauolapp::Tauola::spin_correlation.setAll(fPSet->getParameter<bool>(curSet));
      if(curSet=="spinCorrelationGAMMA") Tauolapp::Tauola::spin_correlation.GAMMA=fPSet->getParameter<bool>(curSet);
      if(curSet=="spinCorrelationZ0") Tauolapp::Tauola::spin_correlation.Z0=fPSet->getParameter<bool>(curSet);
