@@ -1,38 +1,39 @@
 #include "DataFormats/L1Trigger/interface/Jet.h"
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "EventFilter/L1TRawToDigi/interface/L1TDigiToRaw.h"
-
-#include "JetPacker.h"
+#include "EventFilter/L1TRawToDigi/interface/PackerFactory.h"
 
 namespace l1t {
    class JetPacker : public BasePacker {
       public:
-         JetPacker(const edm::ParameterSet&);
-         virtual Blocks pack(const edm::Event&);
-         virtual void fetchToken(L1TDigiToRaw*);
+         JetPacker(const edm::ParameterSet&, edm::ConsumesCollector&);
+         virtual Blocks pack(const edm::Event&) override;
       private:
-         edm::InputTag jetTag_;
-         edm::EDGetToken jetToken_;
+         edm::EDGetTokenT<JetBxCollection> jetToken_;
    };
 
-   JetPackerFactory::JetPackerFactory(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc) : cfg_(cfg)
-   {
-   }
+   class JetPackerFactory : public BasePackerFactory {
+      public:
+         JetPackerFactory(const edm::ParameterSet&, edm::ConsumesCollector&);
+         virtual PackerList create(const unsigned& fw, const int fedid) override;
 
-   PackerList
-   JetPackerFactory::create(const unsigned& fw, const int fedid)
-   {
-      return {std::shared_ptr<BasePacker>(new JetPacker(cfg_))};
-   }
+      private:
+         const edm::ParameterSet& cfg_;
+         edm::ConsumesCollector& cc_;
+   };
+}
 
-   JetPacker::JetPacker(const edm::ParameterSet& cfg) :
-      jetTag_(cfg.getParameter<edm::InputTag>("Jets"))
+// Implementation
+
+namespace l1t {
+   JetPacker::JetPacker(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc)
    {
+      jetToken_ = cc.consumes<JetBxCollection>(cfg.getParameter<edm::InputTag>("Jets"));
    }
 
    Blocks
@@ -64,10 +65,14 @@ namespace l1t {
       return {res};
    }
 
-   void
-   JetPacker::fetchToken(L1TDigiToRaw* digi2raw)
+   JetPackerFactory::JetPackerFactory(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc) : cfg_(cfg), cc_(cc)
    {
-      jetToken_ = digi2raw->consumes<JetBxCollection>(jetTag_);
+   }
+
+   PackerList
+   JetPackerFactory::create(const unsigned& fw, const int fedid)
+   {
+      return {std::shared_ptr<BasePacker>(new JetPacker(cfg_, cc_))};
    }
 }
 

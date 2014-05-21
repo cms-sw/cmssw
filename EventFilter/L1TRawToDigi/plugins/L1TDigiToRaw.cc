@@ -31,9 +31,6 @@ namespace l1t {
          auto packer_list = factory->create(fwId_, fedId_);
          packers_.insert(packers_.end(), packer_list.begin(), packer_list.end());
       }
-
-      for (auto& packer: packers_)
-         packer->fetchToken(this);
    }
 
 

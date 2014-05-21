@@ -4,37 +4,36 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "EventFilter/L1TRawToDigi/interface/L1TDigiToRaw.h"
-
-#include "EGammaPacker.h"
+#include "EventFilter/L1TRawToDigi/interface/PackerFactory.h"
 
 namespace l1t {
    class EGammaPacker : public BasePacker {
       public:
-         EGammaPacker(const edm::ParameterSet&);
-         virtual Blocks pack(const edm::Event&);
-         virtual void fetchToken(L1TDigiToRaw*);
+         EGammaPacker(const edm::ParameterSet&, edm::ConsumesCollector&);
+         virtual Blocks pack(const edm::Event&) override;
       private:
-         edm::InputTag egTag_;
-         edm::EDGetToken egToken_;
+         edm::EDGetTokenT<EGammaBxCollection> egToken_;
    };
 
-   EGammaPackerFactory::EGammaPackerFactory(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc) : cfg_(cfg)
-   {
-   }
+   class EGammaPackerFactory : public BasePackerFactory {
+      public:
+         EGammaPackerFactory(const edm::ParameterSet&, edm::ConsumesCollector&);
+         virtual PackerList create(const unsigned& fw, const int fedid) override;
 
-   PackerList
-   EGammaPackerFactory::create(const unsigned& fw, const int fedid)
-   {
-      return {std::shared_ptr<BasePacker>(new EGammaPacker(cfg_))};
-   }
+      private:
+         const edm::ParameterSet& cfg_;
+         edm::ConsumesCollector& cc_;
+   };
+}
 
-   EGammaPacker::EGammaPacker(const edm::ParameterSet& cfg) :
-      egTag_(cfg.getParameter<edm::InputTag>("EGammas"))
+// Implementation
+
+namespace l1t {
+   EGammaPacker::EGammaPacker(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc)
    {
+      egToken_ = cc.consumes<EGammaBxCollection>(cfg.getParameter<edm::InputTag>("EGammas"));
    }
 
    Blocks
@@ -68,10 +67,14 @@ namespace l1t {
       return {res};
    }
 
-   void
-   EGammaPacker::fetchToken(L1TDigiToRaw* digi2raw)
+   EGammaPackerFactory::EGammaPackerFactory(const edm::ParameterSet& cfg, edm::ConsumesCollector& cc) : cfg_(cfg), cc_(cc)
    {
-      egToken_ = digi2raw->consumes<EGammaBxCollection>(egTag_);
+   }
+
+   PackerList
+   EGammaPackerFactory::create(const unsigned& fw, const int fedid)
+   {
+      return {std::shared_ptr<BasePacker>(new EGammaPacker(cfg_, cc_))};
    }
 }
 

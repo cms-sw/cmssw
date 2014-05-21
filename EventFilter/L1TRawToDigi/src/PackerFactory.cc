@@ -3,12 +3,6 @@
 
 #include "EventFilter/L1TRawToDigi/interface/PackerFactory.h"
 
-#include "implementations/CaloTowerPacker.h"
-#include "implementations/EGammaPacker.h"
-#include "implementations/EtSumPacker.h"
-#include "implementations/JetPacker.h"
-#include "implementations/TauPacker.h"
-
 EDM_REGISTER_PLUGINFACTORY(l1t::PackerFactoryFacility,"PackerFactory");
 
 namespace l1t {
