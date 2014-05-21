@@ -13,6 +13,7 @@ class ME0Geometry;
 namespace CLHEP
 {
   class HepRandomEngine;
+  class RandFlat;
   class RandGaussQ;
 }
 
@@ -37,6 +38,9 @@ private:
   bool corr;
   bool etaproj;
   bool digitizeOnlyMuons_; 
+  double averageEfficiency_;
+
   CLHEP::RandGaussQ* gauss_;
+  CLHEP::RandFlat* flat1_;
 };
 #endif
