@@ -1,8 +1,8 @@
 #include "CondFormats/HcalObjects/interface/OOTPileupCorrectionColl.h"
 #include "CondFormats/DataRecord/interface/HcalOOTPileupCorrectionRcd.h"
 
-#include "RecoLocalCalo/HcalRecAlgos/interface/BoostIODBWriter.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/BoostIODBReader.h"
+#include "CondTools/Hcal/interface/BoostIODBWriter.h"
+#include "CondTools/Hcal/interface/BoostIODBReader.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 
