@@ -56,11 +56,6 @@ class SiPixelRawDataErrorModule {
   int nrows_;
   bool _debug_;
 
-
-  MonitorElement* meFedChNErrArray_[37];
-  MonitorElement* meFedChLErrArray_[37];
-  MonitorElement* meFedETypeNErrArray_[21];
-  
   //barrel:
   MonitorElement* meErrorTypeLad_;
   MonitorElement* meNErrorsLad_;

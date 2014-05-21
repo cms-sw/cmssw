@@ -359,6 +359,16 @@ void SiPixelRawDataErrorSource::bookMEs(DQMStore::IBooker & iBooker){
     // For errorType = 34, datastream size according to error word
     hid = theHistogramId->setHistoId("evtSize",id);
     meEvtSize_[id] = iBooker.bookInt(hid);
+    for(int j=0; j!=37; j++){
+      std::stringstream temp; temp << j;
+      hid = "FedChNErrArray_" + temp.str();
+      meFedChNErrArray_[id*37 + j] = iBooker.bookInt(hid);
+      hid = "FedChLErrArray_" + temp.str();
+      meFedChLErrArray_[id*37 + j] = iBooker.bookInt(hid);
+      hid = "FedETypeNErrArray_" + temp.str();
+      if(j<21) meFedETypeNErrArray_[id*21 + j] = iBooker.bookInt(hid);
+    }
+
 
   }
   meMapFEDs_["meErrorType_"] = meErrorType_;
@@ -368,7 +378,9 @@ void SiPixelRawDataErrorSource::bookMEs(DQMStore::IBooker & iBooker){
   meMapFEDs_["meTBMType_"] = meTBMType_;
   meMapFEDs_["meEvtNbr_"] = meEvtNbr_;
   meMapFEDs_["meEvtSize_"] = meEvtSize_;
-  
+  meMapFEDs_["meFedChNErrArray_"] = meFedChNErrArray_;
+  meMapFEDs_["meFedChLErrArray_"] = meFedChLErrArray_;
+  meMapFEDs_["meFedETypeNErrArray_"] = meFedETypeNErrArray_;
 
 }
 

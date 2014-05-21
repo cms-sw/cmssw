@@ -90,6 +90,11 @@
        MonitorElement* meTBMType_[40];
        MonitorElement* meEvtNbr_[40];
        MonitorElement* meEvtSize_[40];
+
+       MonitorElement* meFedChNErrArray_[1480];
+       MonitorElement* meFedChLErrArray_[1480];
+       MonitorElement* meFedETypeNErrArray_[840];
+
        std::map<std::string,MonitorElement**> meMapFEDs_;
        
  };
