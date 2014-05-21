@@ -7,7 +7,7 @@
  *  \author R. Bellan - INFN Torino
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include <vector>
@@ -17,7 +17,7 @@ class MuonSeedVFinder;
 class MuonSeedVPatternRecognition;
 class MuonSeedVCleaner;
 
-class MuonSeedGenerator: public edm::EDProducer {
+class MuonSeedGenerator: public edm::stream::EDProducer<> {
  public:
 
   /// Constructor
