@@ -29,6 +29,7 @@ PythiaDecays::PythiaDecays(std::string program)
     pyservice = new gen::Pythia6Service();
     // The PYTHIA decay tables will be initialized later 
   } else if (program_ == "pythia8") {
+
     //// Pythia8:
 
     // inspired by method Pythia8Hadronizer::residualDecay() in GeneratorInterface/Pythia8Interface/src/Py8GunBase.cc
@@ -37,6 +38,17 @@ PythiaDecays::PythiaDecays(std::string program)
     decayer->setRndmEnginePtr(p8RndmEngine.get());
     decayer->readString("ProcessLevel:all = off");
     decayer->init();
+    // forbid all decays
+    Pythia8::ParticleData & pdt = decayer->particleData;
+    
+    
+    std::cout << "switch off decays " << std::endl;
+    int pid = 1;
+    while(pdt.nextId(pid) > pid){
+      pid = pdt.nextId(pid);
+      std::cout << "switch off decay:" << pid << std::endl; 
+      pdt.mayDecay(pid,false);
+    }
 
   } else {
     std::cout << "WARNING: you are requesting an option which is not available in PythiaDecays::PythiaDecays " << std::endl;
@@ -59,8 +71,9 @@ PythiaDecays::particleDaughtersPy8(ParticlePropagator& particle, CLHEP::HepRando
   theList.clear();
 
   // inspired by method Pythia8Hadronizer::residualDecay() in GeneratorInterface/Pythia8Interface/src/Py8GunBase.cc
+  int pid = particle.pid();
   decayer->event.reset();
-  Pythia8::Particle py8part(  particle.pid(), 93, 0, 0, 0, 0, 0, 0,
+  Pythia8::Particle py8part( pid , 93, 0, 0, 0, 0, 0, 0,
 		     particle.momentum().x(), // note: momentum().x() and Px() are the same
 		     particle.momentum().y(),
 		     particle.momentum().z(),
@@ -71,15 +84,25 @@ PythiaDecays::particleDaughtersPy8(ParticlePropagator& particle, CLHEP::HepRando
   decayer->event.append( py8part );
 
   int nentries_before = decayer->event.size();
-  decayer->next();
+  decayer->particleData.mayDecay(pid,true);   // switch on the decay of this and only this particle (avoid double decays)
+  std::cout << "?? 111 " << decayer->particleData.mayDecay(111) << std::endl;
+  std::cout << "??  15 " << decayer->particleData.mayDecay(15) << std::endl;
+  decayer->next();                           // do the decay
+  decayer->particleData.mayDecay(pid,false);  // switch it off again
   int nentries_after = decayer->event.size();
   if ( nentries_after <= nentries_before ) return theList;
 
   theList.resize(nentries_after - nentries_before,RawParticle());
 
+  cout << " " << particle.pid();
+  for( int ipart=nentries_before; ipart<nentries_after; ipart++ )
+    std::cout << " " << decayer->event[ipart].id();
+  std::cout << std::endl;
+
   for ( int ipart=nentries_before; ipart<nentries_after; ipart++ )
     {
       Pythia8::Particle& py8daughter = decayer->event[ipart];
+      std::cout << py8daughter.id() << " " << py8daughter.status() << std::endl;
       theList[ipart-nentries_before].SetXYZT( py8daughter.px(), py8daughter.py(), py8daughter.pz(), py8daughter.e() );
       theList[ipart-nentries_before].setVertex( py8daughter.xProd(),
 					   py8daughter.yProd(),
