@@ -29,10 +29,11 @@ namespace sistrip {
     Phase2TrackerDigi_test_producer( const edm::ParameterSet& pset );
     /// default constructor
     ~Phase2TrackerDigi_test_producer();
-    void beginJob( const edm::EventSetup & es);
-    void beginRun( edm::Run & run, const edm::EventSetup & es);
-    void produce( edm::Event& event, const edm::EventSetup& es );
-    void endJob();
+    virtual void beginJob() override;
+    virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
+    virtual void produce(edm::Event&, const edm::EventSetup&) override;
+    virtual void endJob() override;
+
     
   private:
     unsigned int runNumber_;

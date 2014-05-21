@@ -12,7 +12,8 @@ process.source = cms.Source("NewEventStreamFileReader",
     fileNames = cms.untracked.vstring( 'file:'+sys.argv[-1])
 )
 
-process.load('CalibTracker.SiStripESProducers.fake.Phase2TrackerConfigurableCablingESSource_cfi')
+#process.load('CalibTracker.SiStripESProducers.fake.Phase2TrackerConfigurableCablingESSource_cfi')
+process.load('TestbeamCabling_cfi')
 process.load('EventFilter.Phase2TrackerRawToDigi.Phase2TrackerDigi_test_producer_cfi')
 # process.load('EventFilter.Phase2TrackerRawToDigi.Phase2TrackerDigi_CondData_producer_cfi')
 
