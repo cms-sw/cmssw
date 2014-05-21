@@ -110,7 +110,7 @@ def cust_2023(process):
     return process
 
 def cust_2023SHCal(process):
-    process=cust_2023(process)
+    process=cust_2023Muon(process)
     if hasattr(process,'L1simulation_step'):
         process.simEcalTriggerPrimitiveDigis.BarrelOnly = cms.bool(True)
     if hasattr(process,'digitisation_step'):
@@ -118,7 +118,7 @@ def cust_2023SHCal(process):
     return process
 
 def cust_2023HGCal(process):
-    process=cust_2023(process)
+    process=cust_2023Muon(process)
     if hasattr(process,'L1simulation_step'):
     	process.simEcalTriggerPrimitiveDigis.BarrelOnly = cms.bool(True)
     if hasattr(process,'digitisation_step'):
