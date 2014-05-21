@@ -10,5 +10,6 @@ simMuonME0Digis = cms.EDProducer("ME0DigiPreRecoProducer",
     useCorrelation  = cms.bool(False),
     useEtaProjectiveGEO  = cms.bool(False),
 #    digiPreRecoModelString = cms.string('PreRecoNoSmear'),
-                                 
+    averageEfficiency = cms.double(0.98),
+    digitizeOnlyMuons = cms.bool(False),
 )
