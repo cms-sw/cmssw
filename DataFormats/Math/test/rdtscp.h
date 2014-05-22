@@ -1,7 +1,7 @@
 #ifndef RDPSCP_H
 #define RDPSCP_H
 // performance test
-#ifndef __arm__
+#if !defined(__arm__) && !defined(__aarch64__)
 #include <x86intrin.h>
 #include <cpuid.h>
 #ifdef __clang__
@@ -33,11 +33,11 @@ namespace {
   }
 }
 #endif
-#else  // arm
+#else  // !defined(__arm__) && !defined(__aarch64__)
 namespace {
 inline bool has_rdtscp() { return false;}
 inline volatile unsigned long long rdtsc() {return 0;}
 }
-#endif // arm
+#endif // !defined(__arm__) && !defined(__aarch64__)
 
 #endif
