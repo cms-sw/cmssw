@@ -138,6 +138,10 @@ def customise_csc_L1Stubs(process):
     process.simCscTriggerPrimitiveDigis = cscTriggerPrimitiveDigisPostLS1
     process.simCscTriggerPrimitiveDigis.CSCComparatorDigiProducer = cms.InputTag( 'simMuonCSCDigis', 'MuonCSCComparatorDigi')
     process.simCscTriggerPrimitiveDigis.CSCWireDigiProducer = cms.InputTag( 'simMuonCSCDigis', 'MuonCSCWireDigi')
+    process.RandomNumberGeneratorService.simCscTriggerPrimitiveDigis = cms.PSet(
+        initialSeed = cms.untracked.uint32(1234567),
+        engineName = cms.untracked.string('HepJamesRandom')
+    )
 
     return process
 

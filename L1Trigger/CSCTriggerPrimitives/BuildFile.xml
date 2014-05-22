@@ -10,6 +10,7 @@
 <use   name="L1Trigger/CSCCommonTrigger"/>
 <use   name="Geometry/GEMGeometry"/>
 <use   name="Geometry/RPCGeometry"/>
+<use   name="boost"/>
 <export>
   <lib   name="1"/>
 </export>
