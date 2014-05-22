@@ -26,7 +26,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
- typedef SingleObjectSelector<
+ typedef SingleObjectSelectorLegacy<
            reco::VertexCollection, 
            StringCutObjectSelector<reco::Vertex> 
          > VertexSelector;
