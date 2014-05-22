@@ -38,6 +38,8 @@ private:
 
   bool runFrontEndFormatError_;
 
+  bool HFEMB_;
+  edm::ParameterSet LongShortCut_;
 };
 
 #endif

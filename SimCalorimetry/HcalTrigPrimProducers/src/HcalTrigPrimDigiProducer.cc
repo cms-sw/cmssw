@@ -24,6 +24,7 @@
 
 
 
+
 HcalTrigPrimDigiProducer::HcalTrigPrimDigiProducer(const edm::ParameterSet& ps)
 : 
   theAlgo_(ps.getParameter<bool>("peakFilter"),
@@ -41,11 +42,16 @@ HcalTrigPrimDigiProducer::HcalTrigPrimDigiProducer(const edm::ParameterSet& ps)
   runZS_(ps.getParameter<bool>("RunZS")),
   runFrontEndFormatError_(ps.getParameter<bool>("FrontEndFormatError"))
 {
-    
-  MinLongEnergy_ = ps.getParameter<double>("Min_Long_EnergyInput");//minimum long energy
-  MinShortEnergy_ = ps.getParameter<double>("Min_Short_EnergyInput");//minimum short energy
-  LongShortSlope_ = ps.getParameter<double>("Long_vrs_Short_SlopeInput");//slope of the line that cuts are based on 
-  LongShortOffset_ = ps.getParameter<double>("Long_Short_OffsetInput");//offset of line
+    HFEMB_ = false;
+    if(ps.exists("LSConfig"))
+    {
+        LongShortCut_ = ps.getUntrackedParameter<edm::ParameterSet>("LSConfig");
+        HFEMB_ = LongShortCut_.getParameter<bool>("HcalFeatureHFEMBit");
+        MinLongEnergy_ = LongShortCut_.getParameter<double>("Min_Long_Energy"); //minimum long energy
+        MinShortEnergy_ = LongShortCut_.getParameter<double>("Min_Short_Energy"); //minimum short energy
+        LongShortSlope_ = LongShortCut_.getParameter<double>("Long_vrs_Short_Slope"); //slope of the line that cuts are based on
+        LongShortOffset_ = LongShortCut_.getParameter<double>("Long_Short_Offset"); //offset of line
+    }
   // register for data access
   tok_raw_ = consumes<FEDRawDataCollection>(inputTagFEDRaw_);
   tok_hbhe_ = consumes<HBHEDigiCollection>(inputLabel_[0]);
@@ -121,9 +127,8 @@ void HcalTrigPrimDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup
 
     HcalFeatureBit* hfembit = 0;
 
-    if(true)
+    if(HFEMB_)
     {
-        
         hfembit = new HcalFeatureHFEMBit(MinShortEnergy_, MinLongEnergy_, LongShortSlope_, LongShortOffset_, *pSetup); //inputs values that cut will be based on
         theAlgo_.run(inputCoder.product(), outTranscoder->getHcalCompressor().get(),
                 *hbheDigis, *hfDigis, *result, &(*pG), rctlsb, hfembit);

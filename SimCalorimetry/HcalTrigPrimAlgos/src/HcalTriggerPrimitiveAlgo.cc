@@ -405,6 +405,7 @@ void HcalTriggerPrimitiveAlgo::analyzeHFV1(
         }
     }
     outcoder_->compress(output, finegrain, result);
+    
 }
 
 void HcalTriggerPrimitiveAlgo::runZS(HcalTrigPrimDigiCollection & result){
