@@ -76,10 +76,10 @@ def is_definition_by_loc(node):
 
 def is_serializable_class(node):
     for child in node.get_children():
-        if child.spelling != 'serialize' or child.kind != clang.cindex.CursorKind.FUNCTION_TEMPLATE or child.is_definition():
+        if child.spelling != 'serialize' or child.kind != clang.cindex.CursorKind.FUNCTION_TEMPLATE or is_definition_by_loc(child):
             continue
 
-        if [(x.spelling, x.kind, x.is_definition(), x.type.kind) for x in child.get_children()] != [
+        if [(x.spelling, x.kind, is_definition_by_loc(x), x.type.kind) for x in child.get_children()] != [
             ('Archive', clang.cindex.CursorKind.TEMPLATE_TYPE_PARAMETER, True, clang.cindex.TypeKind.UNEXPOSED),
             ('ar', clang.cindex.CursorKind.PARM_DECL, True, clang.cindex.TypeKind.LVALUEREFERENCE),
             ('version', clang.cindex.CursorKind.PARM_DECL, True, clang.cindex.TypeKind.UINT),
