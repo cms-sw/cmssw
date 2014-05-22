@@ -23,7 +23,7 @@ jetMETHLTOfflineSource = cms.EDAnalyzer(
     nameForEff   = cms.untracked.bool(True),
     nameForMon   = cms.untracked.bool(True),
     #
-    CaloMETCollectionLabel = cms.InputTag("met"),
+    CaloMETCollectionLabel = cms.InputTag("caloMet"),
     PFMETCollectionLabel   = cms.InputTag("pfMet"),
     #Use on-the-fly correction
     #CaloJetCollectionLabel = cms.InputTag("ak4CaloJetsL1FastL2L3"),
