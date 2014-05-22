@@ -13,7 +13,7 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2019Reco_cff')
+process.load('Configuration.Geometry.GeometryExtended2023SHCalNoTaperReco_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.RawToDigi_cff')
 process.load('Configuration.StandardSequences.L1Reco_cff')
@@ -31,7 +31,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
     fileNames = cms.untracked.vstring(
-    '/store/relval/CMSSW_6_2_0_SLHC12/RelValZTT_14TeV/GEN-SIM-RECO/DES19_62_V8_UPG2019-v1/00000/70C52109-A4D4-E311-9E86-002354EF3BD2.root'
+    'file:/afs/cern.ch/user/l/lgray/work/public/CMSSW_6_2_X_SLHC_2014-05-18-0200/src/matrix_test/13802_SingleElectronPt35+SingleElectronPt35_Extended2023SHCalNoTaper_GenSimFull+DigiFull_Extended2023SHCalNoTaper+RecoFull_Extended2023SHCalNoTaper+HARVESTFull_Extended2023SHCalNoTaper/step3.root'
 
     )
 )
@@ -52,6 +52,7 @@ process.configurationMetadata = cms.untracked.PSet(
 process.FEVTDEBUGHLToutput = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
+    outputCommands = cms.untracked.vstring('keep *'),
     fileName = cms.untracked.string('file:reco.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
@@ -65,7 +66,7 @@ process.mix.digitizers = cms.PSet()
 for a in process.aliases: delattr(process, a)
 process.RandomNumberGeneratorService.restoreStateLabel=cms.untracked.string("randomEngineStateProducer")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2019', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
 
 
 process.load("RecoParticleFlow.PFClusterProducer.particleFlowRecHitHF_cfi")
@@ -92,10 +93,10 @@ process.schedule = cms.Schedule(process.reconstruction_step,process.FEVTDEBUGHLT
 # customisation of the process.
 
 # Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.combinedCustoms
-from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2019 
+from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023SHCal
 
 #call to customisation function cust_2019 imported from SLHCUpgradeSimulations.Configuration.combinedCustoms
-process = cust_2019(process)
+process = cust_2023SHCal(process)
 
 # Automatic addition of the customisation function from SimGeneral.MixingModule.fullMixCustomize_cff
 #from SimGeneral.MixingModule.fullMixCustomize_cff import setCrossingFrameOn 
