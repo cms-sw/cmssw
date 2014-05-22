@@ -1,33 +1,34 @@
 import FWCore.ParameterSet.Config as cms
 
 ##____________________________________________________________________________||
-caloMet = cms.EDProducer(
+metOpt = cms.EDProducer(
     "CaloMETProducer",
-    src = cms.InputTag("towerMaker"),
-    alias = cms.string('RawCaloMET'),
+    src = cms.InputTag("calotoweroptmaker"),
+    alias = cms.string('RawCaloMETOpt'),
     noHF = cms.bool(False),
-    globalThreshold = cms.double(0.3),
+    globalThreshold = cms.double(0.0),
     calculateSignificance = cms.bool(False)
     )
 
 ##____________________________________________________________________________||
-caloMetBEFO = caloMet.clone()
-caloMetBEFO.src = "towerMakerWithHO"
-caloMetBEFO.alias = 'RawCaloMETHO'
+metOptHO = metOpt.clone()
+metOptHO.src = "calotoweroptmakerWithHO"
+metOptHO.alias = 'RawCaloMETOptHO'
 
 ##____________________________________________________________________________||
-caloMetBE = cms.EDProducer(
+metOptNoHF = cms.EDProducer(
     "CaloMETProducer",
-    src = cms.InputTag("towerMaker"),
-    alias = cms.string('RawCaloMETNoHF'),
+    src = cms.InputTag("calotoweroptmaker"),
+    alias = cms.string('RawCaloMETOptNoHF'),
     noHF = cms.bool(True),
-    globalThreshold = cms.double(0.3),
+    globalThreshold = cms.double(0.0),
     calculateSignificance = cms.bool(False)
-)
+    )
 
 ##____________________________________________________________________________||
-caloMetBEO = caloMetBE.clone()
-caloMetBEO.src = "towerMakerWithHO"
-caloMetBEO.alias = 'RawCaloMETNoHFHO'
+metOptNoHFHO = metOptNoHF.clone()
+metOptNoHFHO.src = "calotoweroptmakerWithHO"
+metOptNoHFHO.alias = 'RawCaloMETOptNoHFHO'
 
 ##____________________________________________________________________________||
+
