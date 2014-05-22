@@ -11,7 +11,7 @@ autoCond = {
     'com10'             :   'PRE_R_71_V3',
     # GlobalTag for running HLT on recent data: this should be the GR_P (prompt reco) global tag until a compatible GR_H tag is available, 
     # then it should point to the GR_H tag and override the connection string and pfnPrefix for use offline
-    'hltonline'         :   'GR_H_V36,frontier://FrontierProd/CMS_COND_31X_GLOBALTAG,frontier://FrontierProd/',
+    'hltonline'         :   'GR_H_V36',
     # GlobalTag for POSTLS1 upgrade studies:
     'upgradePLS1'       :   'PRE_LS171_V9',
     'upgradePLS150ns'   :   'PRE_LS171_V10',
@@ -39,7 +39,7 @@ autoCond = {
     # GlobalTag for Run2 data reprocessing
     'run2_data'         :   'PRE_R_71_V3',
     # GlobalTag for Run2 HLT: it points to the online GT and overrides the connection string and pfnPrefix for use offline
-    'run2_hlt'          :   'GR_H_V36,frontier://FrontierProd/CMS_COND_31X_GLOBALTAG,frontier://FrontierProd/',
+    'run2_hlt'          :   'GR_H_V36',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017
     'phase1_2017_design' :  'DES17_70_V2', # placeholder (GT not meant for standard RelVal)
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2019
