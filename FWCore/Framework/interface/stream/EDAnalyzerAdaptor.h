@@ -28,35 +28,13 @@
 #include "FWCore/Framework/interface/stream/EDAnalyzerAdaptorBase.h"
 #include "FWCore/Framework/interface/stream/callAbilities.h"
 #include "FWCore/Framework/interface/stream/dummy_helpers.h"
+#include "FWCore/Framework/interface/stream/makeGlobal.h"
 #include "FWCore/Framework/src/MakeModuleHelper.h"
 
 // forward declarations
 
 namespace edm {
   namespace stream {
-
-    namespace impl {
-      template<typename T, typename G>
-      std::unique_ptr<G> makeGlobal(edm::ParameterSet const& iPSet, G const*) {
-        return T::initializeGlobalCache(iPSet);
-      }
-      template<typename T>
-      dummy_ptr makeGlobal(edm::ParameterSet const& iPSet, void const*) {
-        return dummy_ptr();
-      }
-      
-      template< typename T, typename G>
-      T* makeStreamModule(edm::ParameterSet const& iPSet,
-                                          G const* iGlobal) {
-        return new T(iPSet,iGlobal);
-      }
-
-      template< typename T>
-      T* makeStreamModule(edm::ParameterSet const& iPSet,
-                                          void const* ) {
-        return new T(iPSet);
-      }
-    }
 
     template<typename ABase, typename ModType> struct BaseToAdaptor;
 
