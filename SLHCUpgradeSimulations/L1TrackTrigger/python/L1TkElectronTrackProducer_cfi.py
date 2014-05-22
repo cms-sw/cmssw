@@ -37,5 +37,5 @@ L1TkElectrons = cms.EDProducer("L1TkElectronTrackProducer",
 # for  LowPt Electron
 L1TkElectronsLoose = L1TkElectrons.clone()
 L1TkElectronsLoose.TrackEGammaDeltaPhi = cms.vdouble(0.07, 0.0, 0.0)
-L1TkElectronsLooseTrackEGammaDeltaR = cms.vdouble(0.12, 0.0, 0.0)
+L1TkElectronsLoose.TrackEGammaDeltaR = cms.vdouble(0.12, 0.0, 0.0)
 L1TkElectronsLoose.TrackMinPt = cms.double( 3.0 )
