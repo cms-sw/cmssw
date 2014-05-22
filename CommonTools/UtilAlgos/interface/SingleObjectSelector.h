@@ -35,18 +35,17 @@ public:
   virtual ~SingleObjectSelectorBase() { }
 };
 
+
+
 template<typename InputCollection, typename Selector,
 	 typename OutputCollection = typename ::helper::SelectedOutputCollectionTrait<InputCollection>::type,
 	 typename StoreContainer = typename ::helper::StoreContainerTrait<OutputCollection>::type,
 	 typename PostProcessor = ::helper::NullPostProcessor<OutputCollection> >
-class SingleObjectSelectorLegacy : public SingleObjectSelectorBase<InputCollection,Selector, 
-								   OutputCollection,StoreContainer,PostProcessor,
-								   edm::EDFilter> {
-public:
-  explicit SingleObjectSelectorLegacy( const edm::ParameterSet & cfg ) : 
-    SingleObjectSelectorBase<InputCollection,Selector, 
-			     OutputCollection,StoreContainer,PostProcessor,edm::EDFilter> (cfg){}
-};
+using SingleObjectSelectorLegacy = SingleObjectSelectorBase<InputCollection,Selector, 
+							    OutputCollection,StoreContainer,PostProcessor,
+							    edm::EDFilter>;
+
+
 
 /*
 #include "FWCore/Framework/interface/stream/EDFilter.h"
@@ -70,16 +69,8 @@ template<typename InputCollection, typename Selector,
 	 typename OutputCollection = typename ::helper::SelectedOutputCollectionTrait<InputCollection>::type,
 	 typename StoreContainer = typename ::helper::StoreContainerTrait<OutputCollection>::type,
 	 typename PostProcessor = ::helper::NullPostProcessor<OutputCollection> >
-class  SingleObjectSelector: public SingleObjectSelectorLegacy<InputCollection,Selector,
-							       OutputCollection,StoreContainer,PostProcessor> {
-public:
-
-  explicit SingleObjectSelector( const edm::ParameterSet & cfg ) : 
-    SingleObjectSelectorLegacy<InputCollection,Selector,
-			     OutputCollection,StoreContainer,PostProcessor> (cfg){}
-
-
-};
+using SingleObjectSelector = SingleObjectSelectorLegacy<InputCollection,Selector,
+							OutputCollection,StoreContainer,PostProcessor>;
 
 
 
