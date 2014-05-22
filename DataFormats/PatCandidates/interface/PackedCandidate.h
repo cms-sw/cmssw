@@ -105,12 +105,14 @@ namespace pat {
     virtual double p() const { if (!unpacked_) unpack(); return p4c_.P(); }
     /// energy                                                                            
     virtual double energy() const { if (!unpacked_) unpack(); return p4c_.E(); }
-    /// transverse energy                                                                 
-    virtual double et() const { if (!unpacked_) unpack(); return p4_.Et(); }
+   /// transverse energy 
+    double et() const { return (pt()<=0) ? 0 : p4c_.Et(); }  
+    /// transverse energy squared (use this for cuts)!
+    double et2() const { return (pt()<=0) ? 0 : p4c_.Et2(); }   
     /// mass                                                                              
-    virtual float mass() const { if (!unpacked_) unpack(); return p4_.M(); }
+    virtual double mass() const { if (!unpacked_) unpack(); return p4_.M(); }
     /// mass squared                                                                      
-    virtual float massSqr() const { if (!unpacked_) unpack(); return p4_.M()*p4_.M(); }
+    virtual double massSqr() const { if (!unpacked_) unpack(); return p4_.M()*p4_.M(); }
 
     /// transverse mass                                                                   
     virtual double mt() const { if (!unpacked_) unpack(); return p4_.Mt(); }
@@ -123,9 +125,9 @@ namespace pat {
     /// z coordinate of momentum vector                                                   
     virtual double pz() const { if (!unpacked_) unpack(); return p4c_.Pz(); }
     /// transverse momentum                                                               
-    virtual float pt() const { if (!unpacked_) unpack(); return p4_.Pt();}
+    virtual double pt() const { if (!unpacked_) unpack(); return p4_.Pt();}
     /// momentum azimuthal angle                                                          
-    virtual float phi() const { if (!unpacked_) unpack(); return p4_.Phi(); }
+    virtual double phi() const { if (!unpacked_) unpack(); return p4_.Phi(); }
     /// momentum azimuthal angle from the track (normally identical to phi())
     virtual float phiAtVtx() const { 
         maybeUnpackBoth(); 
@@ -137,7 +139,7 @@ namespace pat {
     /// momentum polar angle                                                              
     virtual double theta() const { if (!unpacked_) unpack(); return p4_.Theta(); }
     /// momentum pseudorapidity                                                           
-    virtual float eta() const { if (!unpacked_) unpack(); return p4_.Eta(); }
+    virtual double eta() const { if (!unpacked_) unpack(); return p4_.Eta(); }
     /// rapidity                                                                          
     virtual double rapidity() const { if (!unpacked_) unpack(); return p4_.Rapidity(); }
     /// rapidity                                                                          
@@ -167,16 +169,15 @@ namespace pat {
       packBoth();
     }
     /// set impact parameters covariance
-
-    virtual void setTrackProperties( const reco::Track & tk, const reco::Track::CovarianceMatrix & covariance) {
-      dxydxy_ = covariance(3,3);
-      dxydz_ = covariance(3,4);
-      dzdz_ = covariance(4,4);
-      dphidxy_ = covariance(2,3);
-      dlambdadz_ = covariance(1,4);
-      dptdpt_ = covariance(0,0)*pt()*pt();
-      detadeta_ = covariance(1,1);
-      dphidphi_ = covariance(2,2)*pt()*pt();
+    virtual void setTrackProperties( const reco::Track & tk ) {
+      dxydxy_ = tk.covariance(3,3);
+      dxydz_ = tk.covariance(3,4);
+      dzdz_ = tk.covariance(4,4);
+      dphidxy_ = tk.covariance(2,3);
+      dlambdadz_ = tk.covariance(1,4);
+      dptdpt_ = tk.covariance(0,0)*pt()*pt();
+      detadeta_ = tk.covariance(1,1);
+      dphidphi_ = tk.covariance(2,2)*pt()*pt();
 
       normalizedChi2_ = tk.normalizedChi2();
       int numberOfPixelHits_ = tk.hitPattern().numberOfValidPixelHits();
@@ -185,12 +186,7 @@ namespace pat {
       if (numberOfStripHits_ > 31) numberOfStripHits_ = 31;
       packedHits_ = (numberOfPixelHits_&0x7) | (numberOfStripHits_ << 3);
       packBoth();
-    }
-
-    virtual void setTrackProperties( const reco::Track & tk ) {
-	setTrackProperties(tk,tk.covariance());
-    }	
- 
+    }	 
     int numberOfPixelHits() const { return packedHits_ & 0x7; }
     int numberOfHits() const { return (packedHits_ >> 3) + numberOfPixelHits(); }
 	
