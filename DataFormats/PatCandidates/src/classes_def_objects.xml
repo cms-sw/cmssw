@@ -16,8 +16,9 @@
   <class name="pat::Lepton<reco::BaseTau>" />
 
   <!-- PAT Objects, and embedded data  -->
-  <class name="pat::Electron"  ClassVersion="23">
+  <class name="pat::Electron"  ClassVersion="24">
    <field name="superClusterRelinked_" transient="true"/>
+   <version ClassVersion="24" checksum="1488101799"/>
    <version ClassVersion="23" checksum="434577157"/>
    <version ClassVersion="22" checksum="4113394532"/>
    <version ClassVersion="21" checksum="366535823"/>
@@ -40,7 +41,7 @@
    <version ClassVersion="11" checksum="489577659"/>
    <version ClassVersion="10" checksum="2367573922"/>
   </class>
-  <class name="pat::Tau"  ClassVersion="12">
+  <class name="pat::Tau"  ClassVersion="13">
    <field name="isolationTracksTransientRefVector_" transient="true"/>
    <field name="signalTracksTransientRefVector_" transient="true"/>
    <field name="signalPFCandsTransientPtrs_" transient="true"/>
@@ -51,6 +52,7 @@
    <field name="isolationPFChargedHadrCandsTransientPtrs_" transient="true"/>
    <field name="isolationPFNeutralHadrCandsTransientPtrs_" transient="true"/>
    <field name="isolationPFGammaCandsTransientPtrs_" transient="true"/>
+   <version ClassVersion="13" checksum="2969928320"/>
    <version ClassVersion="12" checksum="2900944238"/>
    <version ClassVersion="11" checksum="3100353428"/>
    <version ClassVersion="10" checksum="2244564938"/>
@@ -153,7 +155,8 @@
    <version ClassVersion="11" checksum="1239840459"/>
   </class>
 
-  <class name="pat::PackedCandidate" ClassVersion="12">
+  <class name="pat::PackedCandidate" ClassVersion="13">
+    <version ClassVersion="13" checksum="981046949"/>
     <version ClassVersion="12" checksum="981046949"/>
     <version ClassVersion="11" checksum="3135186025"/>
     <version ClassVersion="10" checksum="572957881"/>
