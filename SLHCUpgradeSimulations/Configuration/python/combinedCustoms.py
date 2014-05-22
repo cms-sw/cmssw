@@ -118,6 +118,18 @@ def cust_2023SHCal(process):
     return process
 
 def cust_2023HGCal(process):
+    process=cust_2023Pixel(process)
+    if hasattr(process,'L1simulation_step'):
+    	process.simEcalTriggerPrimitiveDigis.BarrelOnly = cms.bool(True)
+    if hasattr(process,'digitisation_step'):
+    	process.mix.digitizers.ecal.accumulatorType = cms.string('EcalPhaseIIDigiProducer')
+        process.load('SimGeneral.MixingModule.hgcalDigitizer_cfi')
+        process.mix.digitizers.hgceeDigitizer=process.hgceeDigitizer
+        process.mix.digitizers.hgchebackDigitizer=process.hgchebackDigitizer
+        process.mix.digitizers.hgchefrontDigitizer=process.hgchefrontDigitizer
+    return process
+
+def cust_2023HGCalMuon(process):
     process=cust_2023Muon(process)
     if hasattr(process,'L1simulation_step'):
     	process.simEcalTriggerPrimitiveDigis.BarrelOnly = cms.bool(True)
