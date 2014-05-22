@@ -25,6 +25,7 @@ update(const edm::EventSetup& es) {
     _caloGeom->get(geohandle);
     _ebGeom = geohandle->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
     _eeGeom = geohandle->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
+    /* 
     _esGeom = geohandle->getSubdetectorGeometry(DetId::Ecal,EcalPreshower);
     // ripped from RecoEcal/EgammaCoreTools 
     for( uint32_t ic = 0; 
@@ -34,6 +35,9 @@ update(const edm::EventSetup& es) {
 	_esPlus = _esPlus || ( 0 < z ) ;
 	_esMinus = _esMinus || ( 0 > z ) ;
     }  
+    */
+    _esPlus=true;
+    _esMinus=true;
   }
 }
 

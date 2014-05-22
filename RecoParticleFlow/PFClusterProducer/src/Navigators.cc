@@ -118,10 +118,61 @@ typedef  PFRecHitDualNavigator<PFLayer::ECAL_BARREL,
 	   PFRecHitEcalEndcapNavigatorWithTime> PFRecHitECALNavigatorWithTime;
 
 
+#include "Geometry/CaloTopology/interface/ShashlikTopology.h"
+#include "Geometry/Records/interface/ShashlikNumberingRecord.h"
+class PFRecHitShashlikNavigator : public PFRecHitCaloNavigator<EKDetId,ShashlikTopology,false>{
+public:
+  PFRecHitShashlikNavigator(const edm::ParameterSet& iConfig) { topology_ = NULL; }
+  void beginEvent(const edm::EventSetup& iSetup) {
+    edm::ESHandle<ShashlikTopology> topoHandle;
+    iSetup.get<ShashlikNumberingRecord>().get(topoHandle);
+    topology_.release();
+    topology_.reset(topoHandle.product());
+  }
+};
+
+#include "Geometry/CaloTopology/interface/HGCalTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCHEDetId.h"
+class PFRecHitHGCEENavigator : public PFRecHitCaloNavigator<HGCEEDetId,HGCalTopology,false,3> {
+  const std::string topoSource_;
+public:
+  PFRecHitHGCEENavigator(const edm::ParameterSet& iConfig) :
+    topoSource_(iConfig.getParameter<std::string>("topologySource")) { 
+    topology_.reset( NULL ); 
+  }
+  void beginEvent(const edm::EventSetup& iSetup) {    
+    edm::ESHandle<HGCalTopology> topoHandle;
+    iSetup.get<IdealGeometryRecord>().get(topoSource_,topoHandle);
+    topology_.release();
+    topology_.reset(topoHandle.product());    
+  }
+};
+class PFRecHitHGCHENavigator : public PFRecHitCaloNavigator<HGCHEDetId,HGCalTopology,false,3> {
+  const std::string topoSource_;
+public:
+  PFRecHitHGCHENavigator(const edm::ParameterSet& iConfig) :
+    topoSource_(iConfig.getParameter<std::string>("topologySource")) { 
+    topology_.reset( NULL ); 
+  }
+  void beginEvent(const edm::EventSetup& iSetup) {    
+    edm::ESHandle<HGCalTopology> topoHandle;
+    iSetup.get<IdealGeometryRecord>().get(topoSource_,topoHandle);
+    topology_.release();
+    topology_.reset(topoHandle.product());
+  }
+};
+
+
+
 EDM_REGISTER_PLUGINFACTORY(PFRecHitNavigationFactory, "PFRecHitNavigationFactory");
 
 DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitEcalBarrelNavigator, "PFRecHitEcalBarrelNavigator");
 DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitEcalEndcapNavigator, "PFRecHitEcalEndcapNavigator");
+DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitShashlikNavigator, "PFRecHitShashlikNavigator");
+DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitHGCEENavigator, "PFRecHitHGCEENavigator");
+DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitHGCHENavigator, "PFRecHitHGCHENavigator");
 DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitEcalBarrelNavigatorWithTime, "PFRecHitEcalBarrelNavigatorWithTime");
 DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitEcalEndcapNavigatorWithTime, "PFRecHitEcalEndcapNavigatorWithTime");
 DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFECALHashNavigator, "PFECALHashNavigator");

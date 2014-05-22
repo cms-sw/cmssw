@@ -1,8 +1,22 @@
+<library name="CaloSimhitToRechitProducerShashlik" file="CaloSimhitToRechitProducerShashlik.cc">
+<use   name="Geometry/CaloGeometry"/>
+<use   name="Geometry/CaloTopology"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="CalibCalorimetry/EcalLaserCorrection"/>
+<use   name="DataFormats/EcalDigi"/>
+<use   name="DataFormats/EcalRecHit"/>
+<use   name="CondFormats/EcalObjects"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/MessageService"/>
+<flags   EDM_PLUGIN="1"/>
+</library>
 <library   name="PFClusterAnalyzer" file="PFClusterAnalyzer.cc">
   <use   name="DataFormats/ParticleFlowReco"/>
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/MessageLogger"/>
   <use   name="FWCore/ParameterSet"/>
   <use   name="FWCore/Utilities"/>
+  <use   name="root"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
