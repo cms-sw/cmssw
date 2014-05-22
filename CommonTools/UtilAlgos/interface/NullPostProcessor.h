@@ -7,12 +7,12 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 namespace helper {
 
-  template<typename OutputCollection>
+  template<typename OutputCollection, typename EdmFilter=edm::EDFilter>
   struct NullPostProcessor {
     NullPostProcessor( const edm::ParameterSet & iConfig, edm::ConsumesCollector && iC ) :
       NullPostProcessor( iConfig ) { }
     NullPostProcessor( const edm::ParameterSet & iConfig ) { }
-    void init( edm::EDFilter & ) { }
+    void init( EdmFilter & ) { }
     void process( edm::OrphanHandle<OutputCollection>, edm::Event & ) { }
   };
 

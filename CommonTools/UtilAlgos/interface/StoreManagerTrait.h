@@ -89,7 +89,7 @@ namespace helper {
     std::auto_ptr<collection> selected_;
   };
 
-  template<typename OutputCollection, typename EdmFilter=edm::EDFilter>
+  template<typename OutputCollection, typename EdmFilter>
   struct ObjectSelectorBase : public EdmFilter {
     ObjectSelectorBase( const edm::ParameterSet &) {
       this-> template produces<OutputCollection>();
