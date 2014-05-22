@@ -8,7 +8,7 @@ process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
 process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
 
 from PhysicsTools.PatAlgos.tools.metTools import addMETCollection
-addMETCollection(process, labelName='patMETCalo', metSource='met')
+#addMETCollection(process, labelName='patMETCalo', metSource='met')
 addMETCollection(process, labelName='patMETPF', metSource='pfType1CorrectedMet')
 #addMETCollection(process, labelName='patMETTC', metSource='tcMet') # FIXME: removed from RECO/AOD; needs functionality to add to processing
 
