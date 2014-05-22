@@ -107,6 +107,9 @@ def recoOutputCustoms(process):
         if hasattr(process,b):
             getattr(process,b).outputCommands.append('keep *_simMuonCSCDigis_*_*')
             getattr(process,b).outputCommands.append('keep *_simMuonRPCDigis_*_*')
+            getattr(process,b).outputCommands.append('keep *_mixData_MuonCSCComparatorDigisDM_*')
+            getattr(process,b).outputCommands.append('keep *_mixData_MuonCSCStripDigisDM_*')
+            getattr(process,b).outputCommands.append('keep *_mixData_MuonCSCWireDigisDM_*')
             getattr(process,b).outputCommands.append('keep *_simHcalUnsuppressedDigis_*_*')
             getattr(process,b).outputCommands.append('keep *_rawDataCollector_*_*')
     return process
