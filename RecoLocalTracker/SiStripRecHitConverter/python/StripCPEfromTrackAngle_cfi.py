@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 StripCPEfromTrackAngleESProducer = cms.ESProducer("StripCPEESProducer",
                                                   ComponentName = cms.string('StripCPEfromTrackAngle'),
                                                   ComponentType = cms.string('StripCPEfromTrackAngle'),
-                                                  LC_P0         = cms.double( .326),
+                                                  LC_P0         = cms.double(-.326),
                                                   LC_P1         = cms.double( .618),
                                                   LC_P2         = cms.double( .300),
                                                   TIB_P0        = cms.double(-.742),
