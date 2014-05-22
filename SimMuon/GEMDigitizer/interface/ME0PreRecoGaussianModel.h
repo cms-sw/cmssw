@@ -36,6 +36,7 @@ private:
   double sigma_v;
   bool corr;
   bool etaproj;
+  bool digitizeOnlyMuons_; 
   CLHEP::RandGaussQ* gauss_;
 };
 #endif

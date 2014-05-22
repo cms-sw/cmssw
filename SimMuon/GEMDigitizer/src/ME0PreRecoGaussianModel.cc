@@ -40,7 +40,7 @@ ME0PreRecoGaussianModel::simulateSignal(const ME0EtaPartition* roll,
 
   for (const auto & hit: simHits)
   {
-    if (std::abs(hit.particleType()) != 13) continue;
+    if (std::abs(hit.particleType()) != 13 and digitizeOnlyMuons_) continue;
     auto entry = hit.entryPoint();
     float x=gauss_->fire(entry.x(),sigma_u);
     float y=gauss_->fire(entry.y(),sigma_v); 
