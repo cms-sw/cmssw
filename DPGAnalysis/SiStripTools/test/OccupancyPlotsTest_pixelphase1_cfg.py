@@ -159,7 +159,7 @@ process.load("Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi")
 
 process.seqProducers = cms.Sequence(process.AlignmentTrackSelector + process.seqMultProd)
 
-process.load("trackCount.TrackCount.trackcount_cfi")
+process.load("DPGAnalysis.SiStripTools.trackcount_cfi")
 process.trackcount.trackCollection = cms.InputTag("generalTracks")
 
 process.p0 = cms.Path(

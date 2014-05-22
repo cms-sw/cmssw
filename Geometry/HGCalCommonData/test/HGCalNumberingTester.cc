@@ -87,7 +87,22 @@ void HGCalNumberingTester::analyze( const edm::Event& iEvent, const edm::EventSe
   const HGCalDDDConstants hgeedc(*pHGNDC);
   std::cout << "EE Layers = " << hgeedc.layers(false) << " Sectors = " 
 	    << hgeedc.sectors() << std::endl;
+  std::pair<int,int> kxy;
+  std::pair<float,float> xy;
+  float localx(5.0), localy(5.0);
   for (unsigned int i=0; i<hgeedc.layers(false); ++i) {
+    kxy = hgeedc.assignCell(localx,localy,i+1,0,false);
+    xy  = hgeedc.locateCell(kxy.second,i+1,kxy.first,false);
+    std::cout << "Input: (" << localx << "," << localy << "," << i+1 
+	      << ", 0), assignCell o/p (" << kxy.first << ", " << kxy.second 
+	      << ") loatCell o/p (" << xy.first << ", " << xy.second << ")" 
+	      << std::endl;
+    kxy = hgeedc.assignCell(-localx,-localy,i+1,0,false);
+    xy  = hgeedc.locateCell(kxy.second,i+1,kxy.first,false);
+    std::cout << "Input: (" <<-localx << "," <<-localy << "," << i+1 
+	      << ", 0), assignCell o/p (" << kxy.first << ", " << kxy.second 
+	      << ") loatCell o/p (" << xy.first << ", " << xy.second << ")" 
+	      << std::endl;
     std::vector<int> ncells = hgeedc.numberCells(i+1,false);
     std::cout << "Layer " << i+1 << " with " << ncells.size() << " rows\n";
     int ntot(0);
@@ -102,9 +117,21 @@ void HGCalNumberingTester::analyze( const edm::Event& iEvent, const edm::EventSe
 
   iSetup.get<IdealGeometryRecord>().get("HGCalHESiliconSensitive",pHGNDC);
   const HGCalDDDConstants hghesidc(*pHGNDC);
-  std::cout << "HE Silicon Layers = " << hghesidc.layers(false) << " Sectors = " 
-	    << hghesidc.sectors() << std::endl;
+  std::cout << "HE Silicon Layers = " << hghesidc.layers(false) 
+	    << " Sectors = " << hghesidc.sectors() << std::endl;
   for (unsigned int i=0; i<hghesidc.layers(false); ++i) {
+    kxy = hghesidc.assignCell(localx,localy,i+1,0,false);
+    xy  = hghesidc.locateCell(kxy.second,i+1,kxy.first,false);
+    std::cout << "Input: (" << localx << "," << localy << "," << i+1 
+	      << ", 0), assignCell o/p (" << kxy.first << ", " << kxy.second 
+	      << ") loatCell o/p (" << xy.first << ", " << xy.second << ")" 
+	      << std::endl;
+    kxy = hghesidc.assignCell(-localx,-localy,i+1,0,false);
+    xy  = hghesidc.locateCell(kxy.second,i+1,kxy.first,false);
+    std::cout << "Input: (" <<-localx << "," <<-localy << "," << i+1 
+	      << ", 0), assignCell o/p (" << kxy.first << ", " << kxy.second 
+	      << ") loatCell o/p (" << xy.first << ", " << xy.second << ")" 
+	      << std::endl;
     std::vector<int> ncells = hghesidc.numberCells(i+1,false);
     std::cout << "Layer " << i+1 << " with " << ncells.size() << " rows\n";
     int ntot(0);
@@ -119,9 +146,23 @@ void HGCalNumberingTester::analyze( const edm::Event& iEvent, const edm::EventSe
 
   iSetup.get<IdealGeometryRecord>().get("HGCalHEScintillatorSensitive",pHGNDC);
   const HGCalDDDConstants hghescdc(*pHGNDC);
-  std::cout << "HE Scintillator Layers = " << hghescdc.layers(false) <<" Sectors = "
-	    << hghescdc.sectors() << std::endl;
+  std::cout << "HE Scintillator Layers = " << hghescdc.layers(false) 
+	    << " Sectors = " << hghescdc.sectors() << std::endl;
+  std::vector<HGCalDDDConstants::hgtrap>::const_iterator itr = hghescdc.getFirstModule(false);
+  int subsec = ((itr->alpha) > 0) ? 1 : 0;
   for (unsigned int i=0; i<hghescdc.layers(false); ++i) {
+    kxy = hghescdc.assignCell(localx,localy,i+1,subsec,false);
+    xy  = hghescdc.locateCell(kxy.second,i+1,kxy.first,false);
+    std::cout << "Input: (" << localx << "," << localy << "," << i+1 
+	      << "," << subsec << "), assignCell o/p (" << kxy.first << ", " 
+	      << kxy.second  << ") loatCell o/p (" << xy.first << ", " 
+	      << xy.second << ")"  << std::endl;
+    kxy = hghescdc.assignCell(-localx,-localy,i+1,subsec,false);
+    xy  = hghescdc.locateCell(kxy.second,i+1,kxy.first,false);
+    std::cout << "Input: (" <<-localx << "," <<-localy << "," << i+1 
+	      << "," << subsec << "), assignCell o/p (" << kxy.first << ", " 
+	      << kxy.second  << ") loatCell o/p (" << xy.first << ", " 
+	      << xy.second << ")"  << std::endl;
     std::vector<int> ncells = hghescdc.numberCells(i+1,false);
     std::cout << "Layer " << i+1 << " with " << ncells.size() << " rows\n";
     int ntot(0);
@@ -131,7 +172,8 @@ void HGCalNumberingTester::analyze( const edm::Event& iEvent, const edm::EventSe
     }
     std::cout << "Total Cells " << ntot << ":" << hghescdc.maxCells(i+1,false) 
 	      << std::endl;
-    i += 9;
+    i += 10;
+    subsec = 1-subsec;
   }
 }
 

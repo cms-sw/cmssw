@@ -116,8 +116,10 @@ class CaloSubdetectorGeometry {
 			      const GlobalPoint& p2  ) 
       { return reco::deltaR( p1, p2 ) ; }
 
-      mutable std::vector<DetId> m_validIds ;
+      void addValidID(const DetId& id);
 
+      mutable std::vector<DetId> m_validIds ;
+  
    private:
 
       ParMgr*   m_parMgr ;

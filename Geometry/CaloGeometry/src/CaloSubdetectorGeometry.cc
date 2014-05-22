@@ -27,6 +27,13 @@ CaloSubdetectorGeometry::~CaloSubdetectorGeometry()
    delete m_deltaEta ;
 }
 
+void
+CaloSubdetectorGeometry::addValidID( const DetId& id )
+{
+    auto pos = std::lower_bound(m_validIds.begin(), m_validIds.end(), id);
+    m_validIds.insert(pos, id);
+}
+
 const std::vector<DetId>& 
 CaloSubdetectorGeometry::getValidDetIds( DetId::Detector /*det*/    , 
 					 int             /*subdet*/   ) const 

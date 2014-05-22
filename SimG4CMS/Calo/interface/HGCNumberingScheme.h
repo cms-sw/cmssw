@@ -40,6 +40,11 @@ public:
    */
   std::pair<float,float> getLocalCoords(int cell, int layer);
 
+  /**
+     @short getter
+   */
+  const HGCalDDDConstants *getDDDConstants() { return hgcons; }
+
 private:
   
   HGCNumberingScheme();

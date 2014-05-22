@@ -83,7 +83,7 @@ BladeShapeBuilderFromDet::computeBounds( const vector<const GeomDet*>& dets,
   float rmed = (rmin+rmax)/2.;
   if ( phiWin < 0. ) {
     if ( (phimin < Geom::pi() / 2.) || (phimax > -Geom::pi()/2.) ){
-      edm::LogError("TkDetLayers") << " something strange going on, please check " ;
+      edm::LogError("TkDetLayers") << " something strange going on, please check " << phimin << " " << phimax << " " << phiWin ;
     }
     //edm::LogInfo(TkDetLayers) << " Wedge at pi: phi " << phimin << " " << phimax << " " << phiWin
     //	 << " " << 2.*Geom::pi()+phiWin << " " ;

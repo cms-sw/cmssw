@@ -327,8 +327,7 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
 
   // init decayer
   fDecayer->readString("ProcessLevel:all = off"); // trick
-  fDecayer->readString("Standalone:allowResDec=on");
-  // pythia->readString("ProcessLevel::resonanceDecays=on");
+  fDecayer->readString("ProcessLevel::resonanceDecays=on");
   fDecayer->init();
 
   return true;
@@ -401,8 +400,7 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
 
   // init decayer
   fDecayer->readString("ProcessLevel:all = off"); // trick
-  fDecayer->readString("Standalone:allowResDec=on");
-  // pythia->readString("ProcessLevel::resonanceDecays=on");
+  fDecayer->readString("ProcessLevel::resonanceDecays=on");
   fDecayer->init();
 
   return true;

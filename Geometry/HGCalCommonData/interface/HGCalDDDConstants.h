@@ -14,6 +14,7 @@
 #include<string>
 #include<vector>
 #include<iostream>
+#include <CLHEP/Geometry/Transform3D.h>
 
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 
@@ -25,9 +26,19 @@ class HGCalDDDConstants {
 public:
 
   struct hgtrap {
-  hgtrap(float bl0, float tl0, float h0, float dz0, float alpha0): bl(bl0), tl(tl0), h(h0), dz(dz0), alpha(alpha0), cellSim(0), cellRec(0) {}
-    float         bl, tl, h, dz, alpha, cellSim, cellRec;
+    hgtrap(int lay0, float bl0, float tl0, float h0, float dz0, float alpha0): 
+      lay(lay0),bl(bl0),tl(tl0),h(h0),dz(dz0),alpha(alpha0),cellSize(0) {}
+    int           lay;
+    float         bl, tl, h, dz, alpha, cellSize;
   };
+  struct hgtrform {
+    hgtrform(int zp0, int lay0, int sec0, int subsec0): zp(zp0), lay(lay0), sec(sec0), subsec(subsec0),used(false) {}
+    int                zp, lay, sec, subsec;
+    bool               used;
+    CLHEP::Hep3Vector  h3v;
+    CLHEP::HepRotation hr;
+  };
+
 
   HGCalDDDConstants();
   HGCalDDDConstants(const DDCompactView& cpv, std::string & name);
@@ -59,7 +70,12 @@ public:
 				  float cellSize) const;
   int                 sectors() const {return nSectors;}
   std::pair<int,int>  simToReco(int cell, int layer, bool half) const;
-       
+
+  std::vector<hgtrap>::const_iterator getFirstModule(bool reco=false) const { return (reco ? moduler_.begin() : modules_.begin()); }
+  std::vector<hgtrap>::const_iterator getLastModule(bool reco=false)  const { return (reco ? moduler_.end() : modules_.end()); }
+   std::vector<hgtrform>::const_iterator getFirstTrForm() const { return trform_.begin(); }
+  std::vector<hgtrform>::const_iterator getLastTrForm()  const { return trform_.end(); }
+ 
 private:
   void                checkInitialized() const;
   void                loadGeometry(const DDFilteredView& fv, std::string& tag);
@@ -71,7 +87,8 @@ private:
   bool                tobeInitialized;
   int                 nCells, nSectors, nLayers;
   std::vector<double> cellSize_;
-  std::vector<hgtrap> modules_;
+  std::vector<hgtrap> modules_, moduler_;
+  std::vector<hgtrform> trform_;
   std::vector<int>    layer_, layerIndex;
   std::vector<int>    layerGroup_, cellFactor_, depth_, depthIndex;
 };
