@@ -23,8 +23,8 @@ class EcalContainer {
                 typedef T Item;
                 typedef Item value_type;
                 typedef typename std::vector<Item> Items; 
-                typedef typename std::vector<Item>::const_iterator const_iterator;
-                typedef typename std::vector<Item>::iterator iterator;
+                typedef typename Items::const_iterator const_iterator;
+                typedef typename Items::iterator iterator;
 
                    
                 EcalContainer() {checkAndResize();}
@@ -45,6 +45,7 @@ class EcalContainer {
 		  checkAndResize();
 		  static Item dummy;
 		  DetId id(rawId);
+
 		  if ( !isValidId(id) ) return dummy;
 		  return m_items[id.hashedIndex()];
                 }
@@ -67,10 +68,6 @@ class EcalContainer {
 		}
 
                 inline Item const & operator[](uint32_t rawId) const {
-		  //                        if (m_items.size()==0) {
-		  //	  std::cout << "resizing to " << DetId::kSizeForDenseIndexing << std::endl;
-                  //              m_items.resize((size_t) DetId::kSizeForDenseIndexing);
-                  //      }
                         static Item dummy;
                         DetId id(rawId);
                         if ( !isValidId(id) ) return dummy;
@@ -103,7 +100,6 @@ class EcalContainer {
                 };
 
                 std::vector<Item> m_items;
-
 };
 
 

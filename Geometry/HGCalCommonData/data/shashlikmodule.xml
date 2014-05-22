@@ -66,11 +66,4 @@
    0.6*mm,  0.0*mm, 0.0*mm </Vector>
 </Algorithm>
 
-<SpecParSection label="shashlikmodule.xml" eval="true">
-  <SpecPar name="ShashlikTree">
-    <PartSelector path="//ShashlikModule.*"/>
-    <Parameter name="ShashlikStructure" value="ShashlikModule" eval="false"/>
-  </SpecPar>  
-</SpecParSection>
-
 </DDDefinition>

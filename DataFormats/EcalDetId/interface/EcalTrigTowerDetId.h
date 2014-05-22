@@ -34,6 +34,7 @@ class EcalTrigTowerDetId : public DetId {
   int zside() const { return (id_&0x8000)?(1):(-1); }
 
   /// get the subDetector associated to the Trigger Tower
+  inline EcalSubdetector subdet() const{ return subDet();};
   EcalSubdetector subDet() const { return (id_&0x4000) ? EcalBarrel:EcalEndcap; }
 
   /// get the absolute value of the tower ieta 

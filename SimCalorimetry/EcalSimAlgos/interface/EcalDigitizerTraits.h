@@ -10,6 +10,7 @@
 #include "DataFormats/EcalDigi/interface/EcalDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EEDataFrame.h"
+#include "DataFormats/EcalDigi/interface/EKDataFrame.h"
 
 class EcalHitResponse ;
 
@@ -41,6 +42,25 @@ class EEDigitizerTraits
       typedef CaloTSamples<float,10> EcalSamples ;
 
       static void fix( Digi& digi, edm::DataFrame df ) {}
+};
+
+class EKDigitizerTraits 
+{
+   public:
+      /// the digis collection
+      typedef EKDigiCollection DigiCollection;
+      /// the dataframes
+      typedef EKDataFrame Digi;
+      /// the electronics simulation
+      typedef EcalElectronicsSim ElectronicsSim;
+
+      typedef CaloTSamples<float,10> EcalSamples ;
+
+      static void fix( Digi& digi, edm::DataFrame df ) {
+	for(int i=0; i < digi.size(); i++){
+	  df[i]=digi[i];
+	}
+      }
 };
 
 class ESDigitizerTraits 

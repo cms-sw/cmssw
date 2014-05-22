@@ -50,7 +50,9 @@ class EcalCoder
       void setGainRatios( const EcalGainRatios* gainRatios ) ;
 
       void setFullScaleEnergy( double EBscale ,
-			       double EEscale   ) ;
+			       double EEscale //,
+			       //    double EKscale 
+			       ) ;
 
       void setIntercalibConstants( const EcalIntercalibConstantsMC* ical ) ; 
  
@@ -94,11 +96,13 @@ class EcalCoder
 
       double m_maxEneEB ; // max attainable energy in the ecal barrel
       double m_maxEneEE ; // max attainable energy in the ecal endcap
+      double m_maxEneEK ; // max attainable energy in the ecal shashlik
       
       bool m_addNoise ;   // whether add noise to the pedestals and the gains
 
       const Noisifier* m_ebCorrNoise[3] ;
       const Noisifier* m_eeCorrNoise[3] ;
+      const Noisifier* m_ekCorrNoise[3] ;
 };
 
 #endif

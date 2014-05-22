@@ -266,9 +266,8 @@ EcalHitResponse::analogSignalAmplitude( const DetId& detId, float energy ) const
    if(m_useLCcorrection == true && detId.subdetId() != 3) {
      lasercalib = findLaserConstant(detId);
    }
-
+   
    double npe ( energy/lasercalib*parameters.simHitToPhotoelectrons( detId ) ) ;
-
    // do we need to doPoisson statistics for the photoelectrons?
    if( parameters.doPhotostatistics() ) npe = ranPois()->fire( npe ) ;
 

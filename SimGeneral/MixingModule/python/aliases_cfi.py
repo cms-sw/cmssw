@@ -9,6 +9,7 @@ simEcalUnsuppressedDigis = cms.EDAlias(
     mix = cms.VPSet(
       cms.PSet(type = cms.string('EBDigiCollection')),
       cms.PSet(type = cms.string('EEDigiCollection')),
+#      cms.PSet(type = cms.string('EKDigiCollection')),
       cms.PSet(type = cms.string('ESDigiCollection'))
     )
 )

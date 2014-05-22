@@ -33,8 +33,10 @@ class EcalRecHitProducer : public edm::EDProducer {
 
                 edm::InputTag ebUncalibRecHitCollection_; // secondary name given to collection of EB uncalib rechits
                 edm::InputTag eeUncalibRecHitCollection_; // secondary name given to collection of EE uncalib rechits
+                edm::InputTag ekUncalibRecHitCollection_; // secondary name given to collection of EK uncalib rechits
                 std::string ebRechitCollection_; // secondary name to be given to EB collection of hits
                 std::string eeRechitCollection_; // secondary name to be given to EE collection of hits
+                std::string ekRechitCollection_; // secondary name to be given to EE collection of hits
 
                 bool recoverEBIsolatedChannels_;
                 bool recoverEEIsolatedChannels_;
