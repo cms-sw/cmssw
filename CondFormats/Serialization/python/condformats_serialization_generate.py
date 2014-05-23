@@ -67,13 +67,19 @@ skip_namespaces = frozenset([
     'ROOT', 'edm', 'ora', 'coral', 'CLHEP', 'Geom', 'HepGeom',
 ])
 
+def is_definition_by_loc(node):
+    if node.get_definition() is None:
+        return False
+    if node.location is None or node.get_definition().location is None:
+        return False
+    return node.location == node.get_definition().location
 
 def is_serializable_class(node):
     for child in node.get_children():
-        if child.spelling != 'serialize' or child.kind != clang.cindex.CursorKind.FUNCTION_TEMPLATE or child.is_definition():
+        if child.spelling != 'serialize' or child.kind != clang.cindex.CursorKind.FUNCTION_TEMPLATE or is_definition_by_loc(child):
             continue
 
-        if [(x.spelling, x.kind, x.is_definition(), x.type.kind) for x in child.get_children()] != [
+        if [(x.spelling, x.kind, is_definition_by_loc(x), x.type.kind) for x in child.get_children()] != [
             ('Archive', clang.cindex.CursorKind.TEMPLATE_TYPE_PARAMETER, True, clang.cindex.TypeKind.UNEXPOSED),
             ('ar', clang.cindex.CursorKind.PARM_DECL, True, clang.cindex.TypeKind.LVALUEREFERENCE),
             ('version', clang.cindex.CursorKind.PARM_DECL, True, clang.cindex.TypeKind.UINT),
@@ -87,7 +93,7 @@ def is_serializable_class(node):
 
 def is_serializable_class_manual(node):
     for child in node.get_children():
-        if child.spelling == 'cond_serialization_manual' and child.kind == clang.cindex.CursorKind.CXX_METHOD and not child.is_definition():
+        if child.spelling == 'cond_serialization_manual' and child.kind == clang.cindex.CursorKind.CXX_METHOD and not is_definition_by_loc(child):
             return True
 
     return False
@@ -158,7 +164,7 @@ def get_serializable_classes_members(node, all_template_types=None, namespace=''
             results.update(get_serializable_classes_members(child, all_template_types, namespace + child.spelling + '::', only_from_path))
             continue
 
-        if child.kind in [clang.cindex.CursorKind.CLASS_DECL, clang.cindex.CursorKind.STRUCT_DECL, clang.cindex.CursorKind.CLASS_TEMPLATE] and child.is_definition():
+        if child.kind in [clang.cindex.CursorKind.CLASS_DECL, clang.cindex.CursorKind.STRUCT_DECL, clang.cindex.CursorKind.CLASS_TEMPLATE] and is_definition_by_loc(child):
             logging.debug('Found struct/class/template definition: %s', child.spelling if child.spelling else '<anonymous>')
 
             if only_from_path is not None \
@@ -222,7 +228,7 @@ def get_serializable_classes_members(node, all_template_types=None, namespace=''
                     base_objects.append(base_object)
 
                 # Member variables
-                elif member.kind == clang.cindex.CursorKind.FIELD_DECL and member.is_definition():
+                elif member.kind == clang.cindex.CursorKind.FIELD_DECL and is_definition_by_loc(member):
                     # While clang 3.3 does not ignore unrecognized attributes
                     # (see http://llvm.org/viewvc/llvm-project?revision=165082&view=revision )
                     # for some reason they do not appear in the bindings yet
