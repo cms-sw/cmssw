@@ -35,6 +35,9 @@
   <class name="reco::CompositeCandidate" ClassVersion="10">
    <version ClassVersion="10" checksum="2953566340"/>
   </class>
+  <class name="reco::VertexCompositePtrCandidate" ClassVersion="10">
+   <version ClassVersion="10" checksum="955269040"/>
+  </class>
   <class name="reco::VertexCompositeCandidate" ClassVersion="10">
    <version ClassVersion="10" checksum="4177206274"/>
   </class>
@@ -75,6 +78,7 @@
   <class name="reco::CompositeCandidateRef" />
   <class name="reco::CompositeCandidateRefVector" />
   <class name="reco::VertexCompositeCandidateRefVector" />
+  <class name="reco::VertexCompositePtrCandidateRefVector" />
   <class name="reco::CandidateRefProd" />
 
   <class name="edm::reftobase::BaseHolder<reco::Candidate>" />
@@ -159,6 +163,14 @@
   <class name="edm::reftobase::RefHolder<reco::VertexCompositeCandidateRef>" />
   <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::VertexCompositeCandidateRefVector>" />
   <class name="edm::reftobase::RefVectorHolder<reco::VertexCompositeCandidateRefVector>" />
+
+  <class name="reco::VertexCompositePtrCandidateCollection" />
+  <class name="edm::Wrapper<reco::VertexCompositePtrCandidateCollection>" />
+  <class name="edm::reftobase::Holder<reco::Candidate, reco::VertexCompositePtrCandidateRef>" />
+  <class name="edm::reftobase::RefHolder<reco::VertexCompositePtrCandidateRef>" />
+  <class name="edm::reftobase::VectorHolder<reco::Candidate, reco::VertexCompositePtrCandidateRefVector>" />
+  <class name="edm::reftobase::RefVectorHolder<reco::VertexCompositePtrCandidateRefVector>" />
+
 
   <class name="reco::NamedCompositeCandidateCollection" />
   <class name="edm::Wrapper<reco::NamedCompositeCandidateCollection>" />
