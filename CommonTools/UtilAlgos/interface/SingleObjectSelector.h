@@ -62,8 +62,8 @@ using SingleObjectSelectorStream = SingleObjectSelectorBase<InputCollection,Sele
 template<typename InputCollection, typename Selector,
 	 typename OutputCollection = typename ::helper::SelectedOutputCollectionTrait<InputCollection>::type,
 	 typename StoreContainer = typename ::helper::StoreContainerTrait<OutputCollection>::type,
-	 typename PostProcessor = ::helper::NullPostProcessor<OutputCollection, edm::EDFilter> >
-using SingleObjectSelector = SingleObjectSelectorLegacy<InputCollection,Selector,
+	 typename PostProcessor = ::helper::NullPostProcessor<OutputCollection, edm::stream::EDFilter<> > >
+using SingleObjectSelector = SingleObjectSelectorStream<InputCollection,Selector,
 							OutputCollection,StoreContainer,PostProcessor>;
 
 
