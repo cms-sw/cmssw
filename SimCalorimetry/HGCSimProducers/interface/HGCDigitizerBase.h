@@ -25,8 +25,8 @@ class HGCDigitizerBase {
   HGCDigitizerBase(const edm::ParameterSet &ps) : simpleNoiseGen_(0)
     {
       myCfg_      = ps.getUntrackedParameter<edm::ParameterSet>("digiCfg"); 
-      lsbInMeV_   = myCfg_.getUntrackedParameter<double>("lsbInMeV");
-      noiseInMeV_ = myCfg_.getUntrackedParameter<double>("noiseInMeV");
+      lsbInKeV_   = myCfg_.getUntrackedParameter<double>("lsbInKeV");
+      noiseInKeV_ = myCfg_.getUntrackedParameter<double>("noiseInKeV");
     }
 
   /**
@@ -34,7 +34,7 @@ class HGCDigitizerBase {
    */
   void setRandomNumberEngine(CLHEP::HepRandomEngine& engine) 
   { 
-    simpleNoiseGen_ = new CLHEP::RandGauss(engine,0,noiseInMeV_);
+    simpleNoiseGen_ = new CLHEP::RandGauss(engine,0,noiseInKeV_);
   }
 
   /**
@@ -57,17 +57,17 @@ class HGCDigitizerBase {
 	it++)
       {
 
-	//convert total energy GeV->ADC counts
+	//convert total energy GeV->keV->ADC counts
 	double totalEn(0);
 	for(size_t i=0; i<it->second.size(); i++) totalEn+= (it->second)[i];
 	totalEn*=1e6;
 
-	//add noise (in MeV)
+	//add noise (in keV)
 	double noiseEn=simpleNoiseGen_->fire();
 	if(noiseEn<0) noiseEn=0;
  
 	//round to integer (sample will saturate the value according to available bits)
-	uint16_t totalEnInt = floor((totalEn+noiseEn)/lsbInMeV_);
+	uint16_t totalEnInt = floor((totalEn+noiseEn)/lsbInKeV_);
 
 	//0 gain for the moment
 	HGCSample singleSample;
@@ -110,7 +110,7 @@ class HGCDigitizerBase {
  private:
 
   //
-  double lsbInMeV_,noiseInMeV_;
+  double lsbInKeV_,noiseInKeV_;
 
   //
   mutable CLHEP::RandGauss *simpleNoiseGen_;
