@@ -1,6 +1,7 @@
 <lcgdict>
   
-  <class name="reco::PFTau" ClassVersion="14">
+  <class name="reco::PFTau" ClassVersion="15">
+    <version ClassVersion="15" checksum="4105994460"/>
     <version ClassVersion="14" checksum="3087106015"/>
     <version ClassVersion="13" checksum="1088944403"/>
     <version ClassVersion="12" checksum="3369965409"/>
