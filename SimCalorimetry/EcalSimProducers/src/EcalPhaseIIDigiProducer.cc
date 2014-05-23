@@ -434,7 +434,6 @@ EcalPhaseIIDigiProducer::finalizeEvent(edm::Event& event, edm::EventSetup const&
    m_ShashlikDigitizer->run( *shashlikResult ) ;
    edm::LogInfo("EcalDigi") << "EK Digis: " << shashlikResult->size() ;
    cacheEKDigis( &*shashlikResult ) ;
-
    if(m_doFastES) {
      //m_ESDigitizer->run( *preshowerResult ) ; 
    } else {
@@ -447,6 +446,10 @@ EcalPhaseIIDigiProducer::finalizeEvent(edm::Event& event, edm::EventSetup const&
    //debug duplicated digis
    std::set<unsigned int> filledDigis;
 #endif
+
+   if(theEKDets!=NULL){ // protection if Shashlik geometry not defined, 
+     // need to generalize the case of a subdetector not defined in geometry
+
    //#ifdef clean_EKDigiCollection
    EKDigiCollection shashlikResultValid;
    //   unsigned int  ncount=0;
@@ -469,6 +472,7 @@ EcalPhaseIIDigiProducer::finalizeEvent(edm::Event& event, edm::EventSetup const&
      }
    }
    shashlikResult->swap(shashlikResultValid);
+   }
    //#endif
 
    // Step D: Put outputs into event
