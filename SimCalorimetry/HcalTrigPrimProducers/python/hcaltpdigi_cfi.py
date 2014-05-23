@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 LSParameter =cms.untracked.PSet(
-HcalFeatureHFEMBit= cms.bool(True),
+HcalFeatureHFEMBit= cms.bool(False),
 Min_Long_Energy= cms.double(10),#makes a cut based on energy deposited in short vrs long
     Min_Short_Energy= cms.double(10),
     Long_vrs_Short_Slope= cms.double(100.2),
