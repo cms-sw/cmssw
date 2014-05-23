@@ -128,9 +128,13 @@ bool HitPattern::appendHit(const TrackingRecHitRef &ref)
 
 uint16_t HitPattern::encode(const TrackingRecHit &hit)
 {
+    return encode(hit.geographicalId(), hit.getType());
+}
+
+uint16_t HitPattern::encode(const DetId &id, TrackingRecHit::Type hitType)
+{
     uint16_t pattern = HitPattern::EMPTY_PATTERN;
 
-    DetId id = hit.geographicalId();
     uint16_t detid = id.det();
 
     // adding tracker/muon detector bit
@@ -196,20 +200,24 @@ uint16_t HitPattern::encode(const TrackingRecHit &hit)
 
     pattern |= (side & SideMask) << SideOffset;
 
-    uint16_t hitType = (uint16_t) hit.getType();
     pattern |= (hitType & HitTypeMask) << HitTypeOffset;
     return pattern;
 }
 
 bool HitPattern::appendHit(const TrackingRecHit &hit)
 {
+    return appendHit(hit.geographicalId(), hit.getType());
+}
+
+bool HitPattern::appendHit(const DetId &id, TrackingRecHit::Type hitType)
+{
     //if HitPattern is full, journey ends no matter what.
     if unlikely((hitCount == HitPattern::MaxHits)) {
         return false;
     }
 
-    uint16_t pattern = HitPattern::encode(hit);
-    switch (hit.getType()) {
+    uint16_t pattern = HitPattern::encode(id, hitType);
+    switch (hitType) {
     case TrackingRecHit::valid:
     case TrackingRecHit::missing:
     case TrackingRecHit::inactive:

@@ -11,6 +11,11 @@ const HitPattern & TrackBase::getHitPattern() const
     return hitPattern_;
 }
 
+bool TrackBase::appendHitPattern(const DetId &id, TrackingRecHit::Type hitType)
+{
+    return hitPattern_.appendHit(id, hitType);
+}
+
 bool TrackBase::appendHitPattern(const TrackingRecHit &hit)
 {
     return hitPattern_.appendHit(hit);

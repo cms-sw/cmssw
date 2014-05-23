@@ -123,8 +123,8 @@ void TrackMaker::SetVars(HWW& hww, const edm::Event& iEvent, const edm::EventSet
       tsos = myAP.propagate( fts, *rendcap);
     }
     
-    const reco::HitPattern& pattern = i->hitPattern();    
-    hww.trks_valid_pixelhits() .push_back(pattern.numberOfValidPixelHits());
+    const reco::HitPattern& pattern = i->getHitPattern();    
+    hww.trks_valid_pixelhits() .push_back(pattern.numberOfValidPixelHits(reco::HitPattern::TRACK_HITS));
       
     if(i->extra().isAvailable()) {
       bool valid_hit      = false;
@@ -137,11 +137,11 @@ void TrackMaker::SetVars(HWW& hww, const edm::Event& iEvent, const edm::EventSet
       typedef Ref<edmNew::DetSetVector<SiStripCluster>,SiStripCluster > ClusterRef;
       typedef Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster > pixel_ClusterRef;
 
-
+//TODO jaldeaar where is that k comming from?
       for(trackingRecHit_iterator ihit = i->recHitsBegin(); ihit != i->recHitsEnd(); ++ihit){
         if(i_layer > 1) break;
         int k = ihit-i->recHitsBegin();
-        hit_pattern = pattern.getHitPattern(k);
+        hit_pattern = pattern.getHitPattern(reco::HitPattern::TRACK_HITS, k);
         valid_hit = pattern.validHitFilter(hit_pattern);
         pixel_hit = pattern.pixelHitFilter(hit_pattern);
         strip_hit = pattern.stripHitFilter(hit_pattern);
@@ -187,7 +187,7 @@ void TrackMaker::SetVars(HWW& hww, const edm::Event& iEvent, const edm::EventSet
       }
     }
     
-    hww.trks_nlayers()    .push_back( i->hitPattern().trackerLayersWithMeasurement() );
+    hww.trks_nlayers()    .push_back( i->getHitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS) );
 
   } // End loop on tracks
 

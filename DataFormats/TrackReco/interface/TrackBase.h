@@ -310,6 +310,7 @@ public:
     bool setHitPattern(const I &begin, const I &end);
 
     bool appendHitPattern(const TrackingRecHit &hit);
+    bool appendHitPattern(const DetId &id, TrackingRecHit::Type hitType);
 
     //Track algorithm
     void setAlgorithm(const TrackAlgorithm a, bool set = true);

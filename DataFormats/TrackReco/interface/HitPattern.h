@@ -193,6 +193,7 @@ public:
     bool appendHits(const I &begin, const I &end);
     bool appendHit(const TrackingRecHit &hit);
     bool appendHit(const TrackingRecHitRef &ref);
+    bool appendHit(const DetId &id, TrackingRecHit::Type hitType);
 
     // get the pattern of the position-th hit
     uint16_t getHitPattern(HitCategory category, int position) const;
@@ -362,7 +363,7 @@ private:
     static uint16_t isStereo(DetId i);
     static bool stripSubdetectorHitFilter(uint16_t pattern, StripSubdetector::SubDetector substructure);
     static uint16_t encode(const TrackingRecHit &hit);
-
+    static uint16_t encode(const DetId &id, TrackingRecHit::Type hitType);
     // generic count methods
     typedef bool filterType(uint16_t);
     int countHits(HitCategory category, filterType filter) const;
