@@ -5,6 +5,7 @@
 #include "DataFormats/GEMDigi/interface/ME0DigiPreReco.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CLHEP/Random/RandomEngine.h"
+#include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGaussQ.h"
 
 #include <cmath>
@@ -12,24 +13,30 @@
 #include <map>
 
 
-ME0PreRecoGaussianModel::ME0PreRecoGaussianModel(const edm::ParameterSet& config) 
-  : ME0DigiPreRecoModel(config), 
-    sigma_t(config.getParameter<double>("timeResolution")),
-    sigma_u(config.getParameter<double>("phiResolution")),
-    sigma_v(config.getParameter<double>("etaResolution")),
-    corr(config.getParameter<bool>("useCorrelation")),
-    etaproj(config.getParameter<bool>("useEtaProjectiveGEO"))
+ME0PreRecoGaussianModel::ME0PreRecoGaussianModel(const edm::ParameterSet& config) : 
+  ME0DigiPreRecoModel(config), 
+  sigma_t(config.getParameter<double>("timeResolution")),
+  sigma_u(config.getParameter<double>("phiResolution")),
+  sigma_v(config.getParameter<double>("etaResolution")),
+  corr(config.getParameter<bool>("useCorrelation")),
+  etaproj(config.getParameter<bool>("useEtaProjectiveGEO")),
+  digitizeOnlyMuons_(config.getParameter<bool> ("digitizeOnlyMuons")),
+  averageEfficiency_(config.getParameter<double> ("averageEfficiency")),
+  doBkgNoise_(config.getParameter<bool> ("doBkgNoise"))
 {
 }
 
 ME0PreRecoGaussianModel::~ME0PreRecoGaussianModel()
 {
+  if (flat1_)
+    delete flat1_;
   if ( gauss_)
     delete gauss_;
 }
 
 void ME0PreRecoGaussianModel::setRandomEngine(CLHEP::HepRandomEngine& eng)
 {
+  flat1_ = new CLHEP::RandFlat(eng);
   gauss_ = new CLHEP::RandGaussQ(eng);
 }
 
@@ -37,10 +44,13 @@ void
 ME0PreRecoGaussianModel::simulateSignal(const ME0EtaPartition* roll,
 				const edm::PSimHitContainer& simHits)
 {
-
   for (const auto & hit: simHits)
   {
-    if (std::abs(hit.particleType()) != 13) continue;
+    if (std::abs(hit.particleType()) != 13 and digitizeOnlyMuons_) continue;
+
+    // GEM efficiency
+    if (flat1_->fire(1) > averageEfficiency_) continue;
+
     auto entry = hit.entryPoint();
     float x=gauss_->fire(entry.x(),sigma_u);
     float y=gauss_->fire(entry.y(),sigma_v); 
@@ -55,4 +65,33 @@ ME0PreRecoGaussianModel::simulateSignal(const ME0EtaPartition* roll,
 }
 
 
+void 
+ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll)
+{
+  if (!doBkgNoise_)
+  return;
+
+  std::cout << roll->id() << std::endl;
+  /*
+  //calculate noise from model
+  double averageNeutralNoiseRatePerRoll = 0.;
+  double averageNoiseElectronRatePerRoll = 0.;
+  double averageNoiseRatePerRoll = averageNeutralNoiseRatePerRoll + averageNoiseElectronRatePerRoll;
+
+
+
+  //simulate bkg contribution
+  const double averageNoise(averageNoiseRatePerRoll * 200 * trArea * 1.0e-9 * scaleLumi_);
+  const int n_hits(poisson_->fire(averageNoise));
+
+  for (int i = 0; i < n_hits; ++i)
+  {
+    const int centralStrip(static_cast<int> (flat1_->fire(1, nstrips)));
+    const int time_hit(static_cast<int> (flat2_->fire(nBxing)) + minBunch_);
+    std::pair<int, int> digi(centralStrip, time_hit);
+    strips_.insert(digi);
+
+  }
+  */
+}
 

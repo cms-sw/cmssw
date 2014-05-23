@@ -21,6 +21,8 @@ public:
 
   void simulateSignal(const ME0EtaPartition*, const edm::PSimHitContainer&);
 
+  void simulateNoise(const ME0EtaPartition*) {}
+
   void setRandomEngine(CLHEP::HepRandomEngine&) {}
 
   void setup() {}

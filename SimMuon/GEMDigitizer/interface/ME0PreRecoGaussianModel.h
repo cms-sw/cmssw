@@ -13,6 +13,7 @@ class ME0Geometry;
 namespace CLHEP
 {
   class HepRandomEngine;
+  class RandFlat;
   class RandGaussQ;
 }
 
@@ -26,6 +27,8 @@ public:
 
   void simulateSignal(const ME0EtaPartition*, const edm::PSimHitContainer&);
 
+  void simulateNoise(const ME0EtaPartition*);
+
   void setRandomEngine(CLHEP::HepRandomEngine&);
 
   void setup() {}
@@ -36,6 +39,11 @@ private:
   double sigma_v;
   bool corr;
   bool etaproj;
+  bool digitizeOnlyMuons_; 
+  double averageEfficiency_;
+  bool doBkgNoise_;
+  
   CLHEP::RandGaussQ* gauss_;
+  CLHEP::RandFlat* flat1_;
 };
 #endif
