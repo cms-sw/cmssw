@@ -1,0 +1,2 @@
+This directory contains the MCTESTER benchmarks from Tauola 1.1.4. The pythia_*.conf contains the configuration used for pythia8 when 
+producing these benchmarks.
