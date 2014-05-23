@@ -15,12 +15,70 @@ using std::make_pair;
 using std::vector;
 
 // INITIALISE STATIC VARIABLES
-GctFormatTranslateMCLegacy::BlockLengthMap GctFormatTranslateMCLegacy::m_blockLength = GctFormatTranslateMCLegacy::BlockLengthMap();
-GctFormatTranslateMCLegacy::BlockNameMap GctFormatTranslateMCLegacy::m_blockName = GctFormatTranslateMCLegacy::BlockNameMap();
-GctFormatTranslateMCLegacy::BlockIdToUnpackFnMap GctFormatTranslateMCLegacy::m_blockUnpackFn = GctFormatTranslateMCLegacy::BlockIdToUnpackFnMap();
-GctFormatTranslateMCLegacy::BlkToRctCrateMap GctFormatTranslateMCLegacy::m_rctEmCrate = GctFormatTranslateMCLegacy::BlkToRctCrateMap();
-GctFormatTranslateMCLegacy::BlkToRctCrateMap GctFormatTranslateMCLegacy::m_rctJetCrate = GctFormatTranslateMCLegacy::BlkToRctCrateMap();
-GctFormatTranslateMCLegacy::BlockIdToEmCandIsoBoundMap GctFormatTranslateMCLegacy::m_internEmIsoBounds = GctFormatTranslateMCLegacy::BlockIdToEmCandIsoBoundMap();
+/*** Setup BlockID to BlockLength Map ***/
+const GctFormatTranslateMCLegacy::BlockLengthMap GctFormatTranslateMCLegacy::m_blockLength ={
+  // Miscellaneous Blocks
+  {0x000,0},   // NULL
+  {0x0ff,198}, // Temporary hack: All RCT Calo Regions for CMSSW pack/unpack 
+  // ConcJet FPGA 
+  {0x583,8},   // ConcJet: Jet Cands and Counts Output to GT
+  // ConcElec FPGA
+  {0x683,6},   // ConcElec: EM Cands and Energy Sums Output to GT
+  // Electron Leaf FPGAs
+  {0x804,15},  // Leaf0ElecPosEtaU1: Raw Input
+  {0x884,12},  // Leaf0ElecPosEtaU2: Raw Input
+  {0xc04,15},  // Leaf0ElecNegEtaU1: Raw Input 
+  {0xc84,12}
+}; // Leaf0ElecNegEtaU2: Raw Input
+
+/*** Setup BlockID to BlockName Map ***/
+const GctFormatTranslateMCLegacy::BlockNameMap GctFormatTranslateMCLegacy::m_blockName = {
+  // Miscellaneous Blocks
+    {0x000,"NULL"},
+    {0x0ff,"All RCT Calo Regions"},  // Temporary hack: All RCT Calo Regions for CMSSW pack/unpack
+    // ConcJet FPGA
+    {0x583,"ConcJet: Jet Cands and Counts Output to GT"},
+    // ConcElec FPGA
+    {0x683,"ConcElec: EM Cands and Energy Sums Output to GT"},
+    // Electron Leaf FPGAs
+    {0x804,"Leaf0ElecPosEtaU1: Raw Input"},
+    {0x884,"Leaf0ElecPosEtaU2: Raw Input"},
+    {0xc04,"Leaf0ElecNegEtaU1: Raw Input"},
+    {0xc84,"Leaf0ElecNegEtaU2: Raw Input"}
+};
+
+/*** Setup BlockID to Unpack-Function Map ***/
+const GctFormatTranslateMCLegacy::BlockIdToUnpackFnMap GctFormatTranslateMCLegacy::m_blockUnpackFn= {
+  // Miscellaneous Blocks
+  {0x000,&GctFormatTranslateMCLegacy::blockDoNothing},                    // NULL
+  {0x0ff,&GctFormatTranslateMCLegacy::blockToAllRctCaloRegions},          // Temporary hack: All RCT Calo Regions for CMSSW pack/unpack
+    // ConcJet FPGA                                                             
+  {0x583,&GctFormatTranslateMCLegacy::blockToGctJetCandsAndCounts},       // ConcJet: Jet Cands and Counts Output to GT
+    // ConcElec FPGA                                                            
+  {0x683,&GctFormatTranslateMCLegacy::blockToGctEmCandsAndEnergySums},    // ConcElec: EM Cands and Energy Sums Output to GT
+    // Electron Leaf FPGAs                                                      
+  {0x804,&GctFormatTranslateMCLegacy::blockToFibresAndToRctEmCand},       // Leaf0ElecPosEtaU1: Raw Input
+  {0x884,&GctFormatTranslateMCLegacy::blockToFibresAndToRctEmCand},       // Leaf0ElecPosEtaU2: Raw Input
+  {0xc04,&GctFormatTranslateMCLegacy::blockToFibresAndToRctEmCand},       // Leaf0ElecNegEtaU1: Raw Input
+  {0xc84,&GctFormatTranslateMCLegacy::blockToFibresAndToRctEmCand}       // Leaf0ElecNegEtaU2: Raw Input
+};
+
+/*** Setup RCT Em Crate Map ***/
+const GctFormatTranslateMCLegacy::BlkToRctCrateMap GctFormatTranslateMCLegacy::m_rctEmCrate = {
+  {0x804,13},
+  {0x884,9},
+  {0xc04,4},
+  {0xc84,0}
+};
+
+
+/*** Setup RCT jet crate map. ***/
+// No entries required!
+const GctFormatTranslateMCLegacy::BlkToRctCrateMap GctFormatTranslateMCLegacy::m_rctJetCrate;
+
+/*** Setup Block ID map for pipeline payload positions of isolated Internal EM Cands. ***/
+// No entries required!
+const GctFormatTranslateMCLegacy::BlockIdToEmCandIsoBoundMap GctFormatTranslateMCLegacy::m_internEmIsoBounds;
 
 
 // PUBLIC METHODS
@@ -28,71 +86,6 @@ GctFormatTranslateMCLegacy::BlockIdToEmCandIsoBoundMap GctFormatTranslateMCLegac
 GctFormatTranslateMCLegacy::GctFormatTranslateMCLegacy(bool hltMode, bool unpackSharedRegions):
   GctFormatTranslateBase(hltMode, unpackSharedRegions)
 {
-  static bool initClass = true;
-
-  if(initClass)
-  {
-    initClass = false;
-
-    /*** Setup BlockID to BlockLength Map ***/
-    // Miscellaneous Blocks
-    m_blockLength.insert(make_pair(0x000,0));      // NULL
-    m_blockLength.insert(make_pair(0x0ff,198));    // Temporary hack: All RCT Calo Regions for CMSSW pack/unpack
-    // ConcJet FPGA
-    m_blockLength.insert(make_pair(0x583,8));      // ConcJet: Jet Cands and Counts Output to GT
-    // ConcElec FPGA
-    m_blockLength.insert(make_pair(0x683,6));      // ConcElec: EM Cands and Energy Sums Output to GT
-    // Electron Leaf FPGAs
-    m_blockLength.insert(make_pair(0x804,15));     // Leaf0ElecPosEtaU1: Raw Input
-    m_blockLength.insert(make_pair(0x884,12));     // Leaf0ElecPosEtaU2: Raw Input
-    m_blockLength.insert(make_pair(0xc04,15));     // Leaf0ElecNegEtaU1: Raw Input
-    m_blockLength.insert(make_pair(0xc84,12));     // Leaf0ElecNegEtaU2: Raw Input
-
-
-    /*** Setup BlockID to BlockName Map ***/
-    // Miscellaneous Blocks
-    m_blockName.insert(make_pair(0x000,"NULL"));
-    m_blockName.insert(make_pair(0x0ff,"All RCT Calo Regions"));  // Temporary hack: All RCT Calo Regions for CMSSW pack/unpack
-    // ConcJet FPGA
-    m_blockName.insert(make_pair(0x583,"ConcJet: Jet Cands and Counts Output to GT"));
-    // ConcElec FPGA
-    m_blockName.insert(make_pair(0x683,"ConcElec: EM Cands and Energy Sums Output to GT"));
-    // Electron Leaf FPGAs
-    m_blockName.insert(make_pair(0x804,"Leaf0ElecPosEtaU1: Raw Input"));
-    m_blockName.insert(make_pair(0x884,"Leaf0ElecPosEtaU2: Raw Input"));
-    m_blockName.insert(make_pair(0xc04,"Leaf0ElecNegEtaU1: Raw Input"));
-    m_blockName.insert(make_pair(0xc84,"Leaf0ElecNegEtaU2: Raw Input"));
-
-
-    /*** Setup BlockID to Unpack-Function Map ***/
-    // Miscellaneous Blocks
-    m_blockUnpackFn[0x000] = &GctFormatTranslateMCLegacy::blockDoNothing;                    // NULL
-    m_blockUnpackFn[0x0ff] = &GctFormatTranslateMCLegacy::blockToAllRctCaloRegions;          // Temporary hack: All RCT Calo Regions for CMSSW pack/unpack
-    // ConcJet FPGA                                                             
-    m_blockUnpackFn[0x583] = &GctFormatTranslateMCLegacy::blockToGctJetCandsAndCounts;       // ConcJet: Jet Cands and Counts Output to GT
-    // ConcElec FPGA                                                            
-    m_blockUnpackFn[0x683] = &GctFormatTranslateMCLegacy::blockToGctEmCandsAndEnergySums;    // ConcElec: EM Cands and Energy Sums Output to GT
-    // Electron Leaf FPGAs                                                      
-    m_blockUnpackFn[0x804] = &GctFormatTranslateMCLegacy::blockToFibresAndToRctEmCand;       // Leaf0ElecPosEtaU1: Raw Input
-    m_blockUnpackFn[0x884] = &GctFormatTranslateMCLegacy::blockToFibresAndToRctEmCand;       // Leaf0ElecPosEtaU2: Raw Input
-    m_blockUnpackFn[0xc04] = &GctFormatTranslateMCLegacy::blockToFibresAndToRctEmCand;       // Leaf0ElecNegEtaU1: Raw Input
-    m_blockUnpackFn[0xc84] = &GctFormatTranslateMCLegacy::blockToFibresAndToRctEmCand;       // Leaf0ElecNegEtaU2: Raw Input
-
-
-    /*** Setup RCT Em Crate Map ***/
-    m_rctEmCrate[0x804] = 13;
-    m_rctEmCrate[0x884] = 9;
-    m_rctEmCrate[0xc04] = 4;
-    m_rctEmCrate[0xc84] = 0;
-
-
-    /*** Setup RCT jet crate map. ***/
-    // No entries required!
-
-
-    /*** Setup Block ID map for pipeline payload positions of isolated Internal EM Cands. ***/
-    // No entries required!
-  }
 }
 
 GctFormatTranslateMCLegacy::~GctFormatTranslateMCLegacy()
@@ -349,12 +342,14 @@ void GctFormatTranslateMCLegacy::writeRctEmCandBlocks(unsigned char * d, const L
   }
   
   // Now pack up the data into the RAW format.
-  BlkToRctCrateMap::iterator blockStartCrateIter;
-  for(blockStartCrateIter = rctEmCrateMap().begin() ; blockStartCrateIter != rctEmCrateMap().end() ; ++blockStartCrateIter)
+  for(auto blockStartCrateIter = rctEmCrateMap().begin() ; blockStartCrateIter != rctEmCrateMap().end() ; ++blockStartCrateIter)
   {
     unsigned blockId = blockStartCrateIter->first;
     unsigned startCrate = blockStartCrateIter->second;
-    unsigned blockLength_32bit = blockLengthMap()[blockId];
+    auto found = blockLengthMap().find(blockId);
+    //assert(found != blockLengthMap().end());
+    unsigned blockLength_32bit = found->second;
+
     
     writeRawHeader(d, blockId, 1);
     d+=4; // move past header.
@@ -595,7 +590,9 @@ void GctFormatTranslateMCLegacy::blockToRctEmCand(const unsigned char * d, const
   unsigned int bx = 0;
 
   // loop over crates
-  for (unsigned int crate=rctEmCrateMap()[id]; crate<rctEmCrateMap()[id]+length/3; ++crate) {
+  auto found = rctEmCrateMap().find(id);
+  assert(found != rctEmCrateMap().end());
+  for (unsigned int crate=found->second; crate<found->second+length/3; ++crate) {
 
     // read SC SFP words
     for (unsigned short iSfp=0 ; iSfp<4 ; ++iSfp) {

@@ -87,19 +87,14 @@ protected:
   /* PROTECTED METHODS */
 
   /* Static data member access methods */
-  virtual BlockLengthMap& blockLengthMap() = 0; ///< get the static block ID to block-length map.
   virtual const BlockLengthMap& blockLengthMap() const = 0; ///< get the static block ID to block-length map.
   
-  virtual BlockNameMap& blockNameMap() = 0;  ///< get the static block ID to block-name map.
   virtual const BlockNameMap& blockNameMap() const = 0;  ///< get the static block ID to blockname map.
   
-  virtual BlkToRctCrateMap& rctEmCrateMap() = 0;  ///< get the static block ID to RCT crate map for electrons.
   virtual const BlkToRctCrateMap& rctEmCrateMap() const = 0;  ///< get static the block ID to RCT crate map for electrons.
  
-  virtual BlkToRctCrateMap& rctJetCrateMap() = 0;  ///< get the static block ID to RCT crate map for jets
   virtual const BlkToRctCrateMap& rctJetCrateMap() const = 0;  ///< get the static block ID to RCT crate map for jets
 
-  virtual BlockIdToEmCandIsoBoundMap& internEmIsoBounds() = 0;  ///< get the static intern EM cand isolated boundary map.
   virtual const BlockIdToEmCandIsoBoundMap& internEmIsoBounds() const = 0;  ///< get the static intern EM cand isolated boundary map.
 
 
