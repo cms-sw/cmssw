@@ -66,8 +66,14 @@ private:
   // ----------member data ---------------------------
   std::vector<int> pids;
   std::map<int,TH1D*> h_mass;
+  std::map<int,TH1D*> h_p;
+  std::map<int,TH1D*> h_v;
   std::map<int,TH1D*> h_mass_ref;
   std::map<int,TH1D*> h_plt;      // plt: proper life time
+  std::map<int,TH1D*> h_originVertexRho;
+  std::map<int,TH1D*> h_originVertexZ;
+  std::map<int,TH1D*> h_decayVertexRho;
+  std::map<int,TH1D*> h_decayVertexZ;
   std::map<int,TH1D*> h_plt_ref;  // plt: proper life time
   std::map<int,TH1D*> h_br;
   std::map<int,TH1D*> h_br_ref;
@@ -109,7 +115,7 @@ TestPythiaDecays::TestPythiaDecays(const edm::ParameterSet& iConfig)
   pids.push_back(323);  // K*(392)
   pids.push_back(411);  // D+
   pids.push_back(521);  // B+
-
+  
   // define histograms
   for(size_t i = 0;i<pids.size();++i){
 
@@ -148,12 +154,21 @@ TestPythiaDecays::TestPythiaDecays(const edm::ParameterSet& iConfig)
       }
     }
     
+    // p histogram
+    strstr.str("");
+    strstr << "p_" << pid;
+    h_p[pid] = new TH1D(strstr.str().c_str(),strstr.str().c_str(),100,0,20);    
+
+    // v histogram
+    strstr.str("");
+    strstr << "v_" << pid;
+    h_v[pid] = new TH1D(strstr.str().c_str(),strstr.str().c_str(),100,0,1.);    
 
     // ctau histograms
     double ctau0 = pd->tau0()/10.;
     strstr.str("");
     strstr << "plt_" << pid;
-    h_plt[pid] = new TH1D(strstr.str().c_str(),strstr.str().c_str(),100,0,5*ctau0);
+    h_plt[pid] = new TH1D(strstr.str().c_str(),strstr.str().c_str(),100,0,std::min(5.*ctau0,500.));
     h_plt_ref[pid] = (TH1D*)(h_plt[pid]->Clone(strstr.str().c_str()));
     h_plt_ref[pid]->SetTitle(h_plt_ref[pid]->GetName());
     for(int b =1;b<=h_plt_ref[pid]->GetNbinsX();++b){
@@ -197,6 +212,20 @@ TestPythiaDecays::TestPythiaDecays(const edm::ParameterSet& iConfig)
       h_br[pid]->SetEntries(0);
       knownDecayModes[pid].push_back(label);
     }
+
+    // vertex plots
+    strstr.str("");
+    strstr << "originVertexRho_" << pid;
+    h_originVertexRho[pid] = new TH1D(strstr.str().c_str(),strstr.str().c_str(),100,0,200);
+    strstr.str("");
+    strstr << "originVertexZ_" << pid;
+    h_originVertexZ[pid] = new TH1D(strstr.str().c_str(),strstr.str().c_str(),100,0,400);
+    strstr.str("");
+    strstr << "decayVertexRho_" << pid;
+    h_decayVertexRho[pid] = new TH1D(strstr.str().c_str(),strstr.str().c_str(),100,0,200);
+    strstr.str("");
+    strstr << "decayVertexZ_" << pid;
+    h_decayVertexZ[pid] = new TH1D(strstr.str().c_str(),strstr.str().c_str(),100,0,400);
   }
   
 }
@@ -217,6 +246,12 @@ TestPythiaDecays::~TestPythiaDecays()
     h_mass[pid]->Write();
     h_plt[pid]->Write();
     h_br[pid]->Write();
+    h_originVertexZ[pid]->Write();
+    h_originVertexRho[pid]->Write();
+    h_decayVertexZ[pid]->Write();
+    h_decayVertexRho[pid]->Write();
+    h_p[pid]->Write();
+    h_v[pid]->Write();
     f->cd("prediction");
     h_mass_ref[pid]->Write();
     h_plt_ref[pid]->Write();
@@ -266,28 +301,49 @@ TestPythiaDecays::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
      parentMap[childIndex] = int(parentIndex);
    }
 
-   // fill mass hist
-   for(std::map<size_t,int>::iterator it = parentMap.begin();it!=parentMap.end();++it){
-     size_t childIndex = it->first;
-     int pid = abs(simtracks->at(childIndex).type());
+
+   for(size_t j = 0;j<simtracks->size();j++){
+     const SimTrack & parent = simtracks->at(j); 
+     int pid = abs(parent.type());
      if(std::find(pids.begin(),pids.end(),pid)==pids.end())
        continue;
-     double mass = simtracks->at(childIndex).momentum().M();
+
+     // fill mass hist
+     double mass = parent.momentum().M();
      h_mass[pid]->Fill(mass);
+
+     // fill p hist
+     h_p[pid]->Fill(parent.momentum().P());
+     
+     // fill vertex position hist
+     if(!parent.noVertex()){
+       const SimVertex & originVertex = simvertices->at(parent.vertIndex());
+       h_originVertexRho[pid]->Fill(originVertex.position().Rho());
+       h_originVertexZ[pid]->Fill(std::fabs(originVertex.position().Z()));
+     }
+     if(childMap[j].size() > 0){
+       const SimTrack & child = simtracks->at(childMap[j][0]);
+       const SimVertex & decayVertex = simvertices->at(child.vertIndex());
+       h_decayVertexRho[pid]->Fill(decayVertex.position().Rho());
+       h_decayVertexZ[pid]->Fill(std::fabs(decayVertex.position().Z()));
+     }
    }
+   
 
    for(std::map<size_t,std::vector<size_t> >::iterator it = childMap.begin();it != childMap.end();++it){
      
      // fill ctau hist
      size_t parentIndex = it->first;
+     const SimTrack & parent = simtracks->at(parentIndex);
+     int pid = abs(parent.type());
      vector<size_t> & childIndices = it->second;
      if(childIndices.size() == 0)
        continue;
 
-     const SimTrack & parent = simtracks->at(parentIndex);
-     int pid = abs(parent.type());
      if(std::find(pids.begin(),pids.end(),pid)==pids.end())
        continue;
+
+
      const SimVertex & origin_vertex = simvertices->at(parent.vertIndex());
      const SimTrack & child0 = simtracks->at(childIndices[0]);
      const SimVertex & decay_vertex = simvertices->at(child0.vertIndex());
@@ -298,8 +354,8 @@ TestPythiaDecays::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
      TLorentzVector lv_parent(parent.momentum().Px(),parent.momentum().Py(),parent.momentum().Pz(),parent.momentum().E());
      TVector3 boost = lv_parent.BoostVector();
      lv_dist.Boost(-boost);
+     h_v[pid]->Fill(boost.Mag());
      double plt = lv_dist.T();
-
      h_plt[pid]->Fill(plt);
 
      // fill br hist

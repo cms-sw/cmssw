@@ -16,10 +16,8 @@ for key in observed.GetListOfKeys():
     name = key.GetName()
     h_observed = observed.Get(name)
     h_predicted = predicted.Get(name)
-    _max = max(h_observed.GetMaximum(),h_predicted.GetMaximum())*1.3
+    _max = max(1,h_observed.GetMaximum())
     nbins = h_observed.GetNbinsX()
-    h_predicted.Scale(h_observed.Integral(0,nbins+1)/h_predicted.Integral(0,nbins+1))
-    h_predicted.SetLineColor(rt.kRed)
     h_observed.SetMarkerStyle(rt.kCircle)
     h_observed.SetMarkerColor(rt.kBlue)
     h_observed.SetLineColor(rt.kBlue)
@@ -27,10 +25,16 @@ for key in observed.GetListOfKeys():
     l.SetFillStyle(0)
     l.SetLineWidth(1)
     l.AddEntry(h_observed,"observed","l,p")
-    l.AddEntry(h_predicted,"predicted","l")
+    if not h_predicted == None:
+        _max = max(_max,h_predicted.GetMaximum())*1.3
+        h_predicted.Scale(h_observed.Integral(0,nbins+1)/h_predicted.Integral(0,nbins+1))
+        h_predicted.SetLineColor(rt.kRed)
+        l.AddEntry(h_predicted,"predicted","l")
     h_observed.SetMaximum(_max);
+    _max = _max*1.3
     h_observed.Draw("E")
-    h_predicted.Draw("same")
+    if not h_predicted == None:
+        h_predicted.Draw("same")
     l.Draw()
     rt.gPad.Print(odir + "/" + name + ".png")
     

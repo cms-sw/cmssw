@@ -23,6 +23,7 @@ process.famosSimHits.MaterialEffects.EnergyLoss = False
 process.famosSimHits.SimulateCalorimetry = False
 process.famosSimHits.UseMagneticField = False
 process.maxEvents.input = $2
-process.FEVTDEBUGoutput.fileName = \"pgun_$1.root\""
+process.FEVTDEBUGoutput.fileName = \"pgun_$1.root\"
+process.FEVTDEBUGoutput.outputCommands.extend(['drop *','keep *_famosSimHits_*_*'])"
 
 echo "$extra" >> $ofile

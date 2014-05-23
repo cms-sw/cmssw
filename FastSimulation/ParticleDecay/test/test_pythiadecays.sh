@@ -1,8 +1,7 @@
 #!/bin/bash
 
-#pids=('15' '211' '111' '130' '411' '521')
-pids=('15' '211')
-nevents=100
+pids=('15' '211' '111' '130' '411' '521')
+nevents=1000
 for pid in ${pids[@]}
 do
     echo "# create event generation cfg for pid $pid"
