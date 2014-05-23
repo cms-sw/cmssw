@@ -87,6 +87,9 @@ class AddJetCollection(ConfigToolBase):
         if jetSource is None:
             jetSource=self._defaultParameters['jetSource'].value
         self.setParameter('jetSource', jetSource)
+        if svSource is None:
+            svSource=self._defaultParameters['svSource'].value
+        self.setParameter('svSource', svSource)
         if trackSource is None:
             trackSource=self._defaultParameters['trackSource'].value
         self.setParameter('trackSource', trackSource)
