@@ -143,7 +143,13 @@ def cust_2023SHCal(process):
     return process
 
 def cust_2023HGCal(process):
-    process=cust_2023Pixel(process)
+    process=customisePostLS1(process)
+    process=customiseBE5DPixel10D(process)
+    process=customise_HcalPhase2(process)
+    process=customise_ev_BE5DPixel10D(process)
+    process=customise_gem2023(process)
+    process=customise_rpc(process)
+    process=jetCustoms.customise_jets(process)
     if hasattr(process,'L1simulation_step'):
     	process.simEcalTriggerPrimitiveDigis.BarrelOnly = cms.bool(True)
     if hasattr(process,'digitisation_step'):
@@ -155,7 +161,14 @@ def cust_2023HGCal(process):
     return process
 
 def cust_2023HGCalMuon(process):
-    process=cust_2023Muon(process)
+    process=customisePostLS1(process)
+    process=customiseBE5DPixel10D(process)
+    process=customise_HcalPhase2(process)
+    process=customise_ev_BE5DPixel10D(process)
+    process=customise_gem2023(process)
+    process=customise_rpc(process)
+    process=customise_me0(process)
+    process=jetCustoms.customise_jets(process)
     if hasattr(process,'L1simulation_step'):
     	process.simEcalTriggerPrimitiveDigis.BarrelOnly = cms.bool(True)
     if hasattr(process,'digitisation_step'):
