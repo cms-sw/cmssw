@@ -63,6 +63,8 @@ pat::PATPhotonSlimmer::PATPhotonSlimmer(const edm::ParameterSet & iConfig) :
         pf2pc_   = consumes<edm::Association<pat::PackedCandidateCollection>>(iConfig.getParameter<edm::InputTag>("packedPFCandidates"));
         pc_   = consumes<pat::PackedCandidateCollection>(iConfig.getParameter<edm::InputTag>("packedPFCandidates"));
     }
+    mayConsume<EcalRecHitCollection>(edm::InputTag("reducedEcalRecHitsEB"));
+    mayConsume<EcalRecHitCollection>(edm::InputTag("reducedEcalRecHitsEE"));
 }
 
 void 
