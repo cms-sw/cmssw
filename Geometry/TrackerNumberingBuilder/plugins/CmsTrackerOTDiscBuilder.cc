@@ -2,7 +2,7 @@
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/ExtractStringFromDDD.h"
-#include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerPanelBuilder.h"
+#include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerOTRingBuilder.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/TrackerStablePhiSort.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -14,13 +14,13 @@ using namespace std;
 void
 CmsTrackerOTDiscBuilder::buildComponent( DDFilteredView& fv, GeometricDet* g, std::string s )
 {
-  CmsTrackerPanelBuilder theCmsTrackerPanelBuilder;
+  CmsTrackerOTRingBuilder theCmsTrackerOTRingBuilder;
   GeometricDet * subdet = new GeometricDet( &fv, theCmsTrackerStringToEnum.type( ExtractStringFromDDD::getString( s, &fv )));
 
   switch( theCmsTrackerStringToEnum.type( ExtractStringFromDDD::getString( s, &fv )))
   {
   case GeometricDet::panel:
-    theCmsTrackerPanelBuilder.build( fv, subdet, s );
+    theCmsTrackerOTRingBuilder.build( fv, subdet, s );
     break;
   default:
     edm::LogError( "CmsTrackerOTDiscBuilder" ) << " ERROR - I was expecting a Panel, I got a " << ExtractStringFromDDD::getString( s, &fv );   

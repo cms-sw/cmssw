@@ -1,4 +1,4 @@
-#include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerPanelBuilder.h"
+#include "Geometry/TrackerNumberingBuilder/plugins/CmsTrackerOTRingBuilder.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerNumberingBuilder/plugins/ExtractStringFromDDD.h"
@@ -9,7 +9,7 @@
 
 #include "Geometry/TrackerNumberingBuilder/plugins/TrackerStablePhiSort.h"
 
-void CmsTrackerPanelBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s){
+void CmsTrackerOTRingBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g, std::string s){
 
   CmsDetConstruction theCmsDetConstruction;
   switch (theCmsTrackerStringToEnum.type(ExtractStringFromDDD::getString(s,&fv))){
@@ -17,21 +17,22 @@ void CmsTrackerPanelBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g,
            theCmsDetConstruction.buildComponent(fv,g,s);
     break;
   default:
-    edm::LogError("CmsTrackerPanelBuilder")<<" ERROR - I was expecting a Plaq, I got a "<<ExtractStringFromDDD::getString(s,&fv);
+    edm::LogError("CmsTrackerOTRingBuilder")<<" ERROR - I was expecting a Plaq, I got a "<<ExtractStringFromDDD::getString(s,&fv);
     ;
   }  
 }
 
-void CmsTrackerPanelBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
+void CmsTrackerOTRingBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
  GeometricDet::GeometricDetContainer & comp = det->components();
 
  if (comp.front()->type()==GeometricDet::DetUnit){ 
 
-   std::sort(comp.begin(),comp.end(),LessR());
-
+   TrackerStablePhiSort(comp.begin(), comp.end(), ExtractPhi());
+   stable_sort(comp.begin(), comp.end() ,PhiSortNP());
+   
  }
  else
-   edm::LogError("CmsTrackerPanelBuilder")<<"ERROR - wrong SubDet to sort..... "<<det->components().front()->type(); 
+   edm::LogError("CmsTrackerOTRingBuilder")<<"ERROR - wrong SubDet to sort..... "<<det->components().front()->type(); 
 
   for(uint32_t i=0; i<comp.size();i++){
     comp[i]->setGeographicalID(i+1);
