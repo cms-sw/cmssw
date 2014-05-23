@@ -330,7 +330,7 @@ namespace edm
   }
 
   void DataMixingModule::beginRun(edm::Run const& run, const edm::EventSetup& ES) { 
-    std::cout << " DM calling begin run " << std::endl;
+    //std::cout << " DM calling begin run " << std::endl;
     BMixingModule::beginRun( run, ES);
     if( addMCDigiNoise_ ) {
       EcalDigiWorkerProd_->beginRun( ES );
