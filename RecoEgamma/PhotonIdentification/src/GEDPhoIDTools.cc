@@ -63,7 +63,8 @@ double GEDPhoIDTools::SolidConeIso(float conesize, reco::PFCandidate::ParticleTy
     for ( it = candidates_.begin(), iin=0; it != candidates_.end(); ++it,  ++iin ){
         
         if ( (*it).particleId()!=pfType)continue;//require chg particles from the photon vertex
-        if((*it).superClusterRef().isNonnull())continue; //skip over GED Photons
+        if((*it).superClusterRef()==pho_->superCluster())continue; //skip over the GED Photon
+//        if((*it).superClusterRef().isNonnull())continue; //skip over all GED Photons
         if((*it).particleId()==reco::PFCandidate::h){
         float dz = fabs((*it).vz() - vtx_->z());
         if (dz > 0.2) continue;
@@ -98,7 +99,8 @@ void GEDPhoIDTools::FrixioneIso(float conesize, int nrings, reco::PFCandidate::P
 
         
         if ( (*it).particleId()!=pfType)continue;//require chg particles from the photon vertex
-        if((*it).superClusterRef().isNonnull())continue; //skip over GED Photons
+	if((*it).superClusterRef()==pho_->superCluster())continue; //skip over the GED Photon
+//        if((*it).superClusterRef().isNonnull())continue; //skip over GED Photons
         if((*it).particleId()==reco::PFCandidate::h){
             float dz = fabs((*it).vz() - vtx_->z());
             if (dz > 0.2) continue;
