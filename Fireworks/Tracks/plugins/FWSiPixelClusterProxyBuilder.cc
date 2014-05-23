@@ -10,6 +10,7 @@
 //
 
 #include "TEvePointSet.h"
+#include "TEveStraightLineSet.h"
 #include "TEveCompound.h"
 #include "TEveBox.h"
 #include "Fireworks/Core/interface/FWProxyBuilderBase.h"
@@ -91,14 +92,17 @@ FWSiPixelClusterProxyBuilder::build( const FWEventItem* iItem, TEveElementList* 
 
          setupAddElement( pointSet, itemHolder );
 
+         TEveStraightLineSet* ls = new TEveStraightLineSet();
          for(int j=0;j< (*itc).size(); j++ )
          {
-            TEveBox* box = new TEveBox;
+
             //            float adc= (*itc).pixel(j).adc*0.03/5000.;
             float adc= 0.025;
             float offsetx[4] = {-0.4,-0.4,+0.4,+0.4};
             float offsety[4] = {-0.4,+0.4,+0.4,-0.4};
             //            float vert[24];
+
+            std::vector<TEveVector> boxCorners;
             for(int of=0;of<8;of++) {
                float lp[3]= {
                   fireworks::pixelLocalX(
@@ -108,22 +112,33 @@ FWSiPixelClusterProxyBuilder::build( const FWEventItem* iItem, TEveElementList* 
                   (of<4)?(0.0f):(adc)
                };
 
-               float p[3];
-               geom->localToGlobal( id, lp, p );
+               TEveVector p;
+               geom->localToGlobal( id,lp,  p.Arr() );
 
-               std::cout << of << " " << p[0]<< " " << p[1]<<
-                  " "<< p[2] << std::endl;
-               //               pointSet->SetNextPoint(p[0],p[1],p[2]);
-               box->SetVertex(of,p[0],p[1],p[2]);
-               //                    vert[of*3]=p[0];
-               //                    vert[of*3+1]=p[1];
-               //                    vert[of*3+2]=p[2];
+               boxCorners.push_back(p);
 
             }
-            setupAddElement( box, itemHolder );
-            //           box->AddBox(vert);
+
+            // bottom
+            ls->AddLine(boxCorners[0], boxCorners[1]);
+            ls->AddLine(boxCorners[1], boxCorners[2]);
+            ls->AddLine(boxCorners[2], boxCorners[3]);
+            ls->AddLine(boxCorners[3], boxCorners[0]);
+            // top
+            ls->AddLine(boxCorners[4], boxCorners[5]);
+            ls->AddLine(boxCorners[5], boxCorners[6]);
+            ls->AddLine(boxCorners[6], boxCorners[7]);
+            ls->AddLine(boxCorners[7], boxCorners[4]);
+            // sides
+            ls->AddLine(boxCorners[0], boxCorners[4]);
+            ls->AddLine(boxCorners[1], boxCorners[5]);
+            ls->AddLine(boxCorners[2], boxCorners[6]);
+            ls->AddLine(boxCorners[3], boxCorners[7]);
+
+
          }
 
+         setupAddElement( ls, itemHolder );
 
       }
    }    
