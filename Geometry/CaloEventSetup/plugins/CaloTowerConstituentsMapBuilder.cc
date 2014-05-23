@@ -123,7 +123,8 @@ void CaloTowerConstituentsMapBuilder::assignEEtoHE(const CaloGeometry* geometry,
   const CaloSubdetectorGeometry* geomEE ( geometry->getSubdetectorGeometry( DetId::Ecal, EcalEndcap ) );
   //const CaloSubdetectorGeometry* geomEK ( 
   if( geomEE==NULL) geomEE=geometry->getSubdetectorGeometry( DetId::Ecal, EcalShashlik ) ;
-  
+  if(geomEE==NULL) return; // if no EE and no shashlik are defined don't know where it is used  
+
   const CaloSubdetectorGeometry* geomHE ( geometry->getSubdetectorGeometry( DetId::Hcal, HcalEndcap ) );
   
   //get list of EE detids
