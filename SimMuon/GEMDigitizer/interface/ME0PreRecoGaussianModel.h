@@ -27,6 +27,8 @@ public:
 
   void simulateSignal(const ME0EtaPartition*, const edm::PSimHitContainer&);
 
+  void simulateNoise(const ME0EtaPartition*);
+
   void setRandomEngine(CLHEP::HepRandomEngine&);
 
   void setup() {}
@@ -39,7 +41,8 @@ private:
   bool etaproj;
   bool digitizeOnlyMuons_; 
   double averageEfficiency_;
-
+  bool doBkgNoise_;
+  
   CLHEP::RandGaussQ* gauss_;
   CLHEP::RandFlat* flat1_;
 };

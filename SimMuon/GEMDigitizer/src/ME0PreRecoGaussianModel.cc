@@ -22,8 +22,7 @@ ME0PreRecoGaussianModel::ME0PreRecoGaussianModel(const edm::ParameterSet& config
   etaproj(config.getParameter<bool>("useEtaProjectiveGEO")),
   digitizeOnlyMuons_(config.getParameter<bool> ("digitizeOnlyMuons")),
   averageEfficiency_(config.getParameter<double> ("averageEfficiency")),
-  doBkgNoise_(config.getParameter<bool> ("doBkgNoise")),
-  simulateIntrinsicNoise_
+  doBkgNoise_(config.getParameter<bool> ("doBkgNoise"))
 {
 }
 
@@ -67,36 +66,22 @@ ME0PreRecoGaussianModel::simulateSignal(const ME0EtaPartition* roll,
 
 
 void 
-ME0PreRecoGaussianModel::simulateNoise(const GEMEtaPartition* roll)
+ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll)
 {
   if (!doBkgNoise_)
   return;
 
+  std::cout << roll->id() << std::endl;
+  /*
   //calculate noise from model
   double averageNeutralNoiseRatePerRoll = 0.;
   double averageNoiseElectronRatePerRoll = 0.;
   double averageNoiseRatePerRoll = averageNeutralNoiseRatePerRoll + averageNoiseElectronRatePerRoll;
 
-  //simulate intrinsic noise
-  // fire anywhere in ME0 chamber
-  if(simulateIntrinsicNoise_)
-  {
-    double aveIntrinsicNoisPerStrip = averageNoiseRate_ * nBxing * bxwidth_ * trStripArea * 1.0e-9;
-    for(int j = 0; j < nstrips; ++j)
-    {
-      const int n_intrHits = poisson_->fire(aveIntrinsicNoisPerStrip);
-    
-      for (int k = 0; k < n_intrHits; k++ )
-      {
-        const int time_hit(static_cast<int> (flat2_->fire(nBxing)) + minBunch_);
-        std::pair<int, int> digi(k+1,time_hit);
-        strips_.insert(digi);
-      }
-    }
-  }//end simulate intrinsic noise
+
 
   //simulate bkg contribution
-  const double averageNoise(averageNoiseRatePerRoll * nBxing * bxwidth_ * trArea * 1.0e-9 * scaleLumi_);
+  const double averageNoise(averageNoiseRatePerRoll * 200 * trArea * 1.0e-9 * scaleLumi_);
   const int n_hits(poisson_->fire(averageNoise));
 
   for (int i = 0; i < n_hits; ++i)
@@ -107,5 +92,6 @@ ME0PreRecoGaussianModel::simulateNoise(const GEMEtaPartition* roll)
     strips_.insert(digi);
 
   }
+  */
 }
 

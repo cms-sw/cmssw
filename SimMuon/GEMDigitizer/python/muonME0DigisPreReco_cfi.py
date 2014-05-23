@@ -12,4 +12,5 @@ simMuonME0Digis = cms.EDProducer("ME0DigiPreRecoProducer",
 #    digiPreRecoModelString = cms.string('PreRecoNoSmear'),
     averageEfficiency = cms.double(0.98),
     digitizeOnlyMuons = cms.bool(False),
+    doBkgNoise_ = cms.bool(True),
 )

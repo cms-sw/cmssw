@@ -44,6 +44,7 @@ GEMDigiModel(config)
 , doBkgNoise_(config.getParameter<bool> ("doBkgNoise"))
 , doNoiseCLS_(config.getParameter<bool> ("doNoiseCLS"))
 , fixedRollRadius_(config.getParameter<bool> ("fixedRollRadius"))
+, simulateIntrinsicNoise_(config.getParameter<bool> ("simulateIntrinsicNoise"))
 , scaleLumi_(config.getParameter<double> ("scaleLumi"))
 , simulateElectronBkg_(config.getParameter<bool> ("simulateElectronBkg"))
 , constNeuGE11_(config.getParameter<double> ("constNeuGE11"))
@@ -51,7 +52,6 @@ GEMDigiModel(config)
 , GE21NeuBkgParams_(config.getParameter<std::vector<double>>("GE21NeuBkgParams"))
 , GE11ElecBkgParams_(config.getParameter<std::vector<double>>("GE11ElecBkgParams"))
 , GE21ElecBkgParams_(config.getParameter<std::vector<double>>("GE21ElecBkgParams"))
-, simulateIntrinsicNoise_(config.getParameter<bool> ("simulateIntrinsicNoise"))
 {
 
 }
