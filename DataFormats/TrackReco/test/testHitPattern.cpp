@@ -38,8 +38,8 @@ int main() {
   }
 
   for (int i=0; i!=15;++i) {
-    printf("%d,%d ",hp1.getHitPattern(i)>>3,
-	   hp2.getHitPattern(i)>>3
+    printf("%d,%d ",hp1.getHitPatternByAbsoluteIndex(i)>>3,
+	   hp2.getHitPatternByAbsoluteIndex(i)>>3
 	   );
   }
   printf("\n");

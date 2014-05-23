@@ -702,9 +702,9 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 	  trackP[nTracks]   = sqrt(track1->px()*track1->px() + track1->py()*track1->py() + track1->pz()*track1->pz());
 	  
 	  delRmc[nTracks]            = delR_track_particle;
-	  numValidTrkHits[nTracks]   = track1->hitPattern().numberOfValidHits();
-	  numValidTrkStrips[nTracks] = track1->hitPattern().numberOfValidStripTECHits();
-	  numLayers[nTracks]         = track1->hitPattern().trackerLayersWithMeasurement(); //layers crossed
+	  numValidTrkHits[nTracks]   = track1->getHitPattern().numberOfValidHits(reco::HitPattern::TRACK_HITS);
+	  numValidTrkStrips[nTracks] = track1->getHitPattern().numberOfValidStripTECHits(reco::HitPattern::TRACK_HITS);
+	  numLayers[nTracks]         = track1->getHitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS); //layers crossed
 	  trkQual[nTracks]           = track1->quality(reco::TrackBase::highPurity);
 	  
 	  nTracks++;
