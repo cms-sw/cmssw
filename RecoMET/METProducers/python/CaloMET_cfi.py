@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 ##____________________________________________________________________________||
-met = cms.EDProducer(
+caloMet = cms.EDProducer(
     "CaloMETProducer",
     src = cms.InputTag("towerMaker"),
     alias = cms.string('RawCaloMET'),
@@ -11,27 +11,12 @@ met = cms.EDProducer(
     )
 
 ##____________________________________________________________________________||
-metHO = met.clone()
-metHO.src = "towerMakerWithHO"
-metHO.alias = 'RawCaloMETHO'
+caloMetBEFO = caloMet.clone()
+caloMetBEFO.src = "towerMakerWithHO"
+caloMetBEFO.alias = 'RawCaloMETHO'
 
 ##____________________________________________________________________________||
-metOpt = cms.EDProducer(
-    "CaloMETProducer",
-    src = cms.InputTag("calotoweroptmaker"),
-    alias = cms.string('RawCaloMETOpt'),
-    noHF = cms.bool(False),
-    globalThreshold = cms.double(0.0),
-    calculateSignificance = cms.bool(False)
-    )
-
-##____________________________________________________________________________||
-metOptHO = metOpt.clone()
-metOptHO.src = "calotoweroptmakerWithHO"
-metOptHO.alias = 'RawCaloMETOptHO'
-
-##____________________________________________________________________________||
-metNoHF = cms.EDProducer(
+caloMetBE = cms.EDProducer(
     "CaloMETProducer",
     src = cms.InputTag("towerMaker"),
     alias = cms.string('RawCaloMETNoHF'),
@@ -41,24 +26,8 @@ metNoHF = cms.EDProducer(
 )
 
 ##____________________________________________________________________________||
-metNoHFHO = metNoHF.clone()
-metNoHFHO.src = "towerMakerWithHO"
-metNoHFHO.alias = 'RawCaloMETNoHFHO'
+caloMetBEO = caloMetBE.clone()
+caloMetBEO.src = "towerMakerWithHO"
+caloMetBEO.alias = 'RawCaloMETNoHFHO'
 
 ##____________________________________________________________________________||
-metOptNoHF = cms.EDProducer(
-    "CaloMETProducer",
-    src = cms.InputTag("calotoweroptmaker"),
-    alias = cms.string('RawCaloMETOptNoHF'),
-    noHF = cms.bool(True),
-    globalThreshold = cms.double(0.0),
-    calculateSignificance = cms.bool(False)
-    )
-
-##____________________________________________________________________________||
-metOptNoHFHO = metOptNoHF.clone()
-metOptNoHFHO.src = "calotoweroptmakerWithHO"
-metOptNoHFHO.alias = 'RawCaloMETOptNoHFHO'
-
-##____________________________________________________________________________||
-

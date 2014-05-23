@@ -167,15 +167,16 @@ namespace pat {
       packBoth();
     }
     /// set impact parameters covariance
-    virtual void setTrackProperties( const reco::Track & tk ) {
-      dxydxy_ = tk.covariance(3,3);
-      dxydz_ = tk.covariance(3,4);
-      dzdz_ = tk.covariance(4,4);
-      dphidxy_ = tk.covariance(2,3);
-      dlambdadz_ = tk.covariance(1,4);
-      dptdpt_ = tk.covariance(0,0)*pt()*pt();
-      detadeta_ = tk.covariance(1,1);
-      dphidphi_ = tk.covariance(2,2)*pt()*pt();
+
+    virtual void setTrackProperties( const reco::Track & tk, const reco::Track::CovarianceMatrix & covariance) {
+      dxydxy_ = covariance(3,3);
+      dxydz_ = covariance(3,4);
+      dzdz_ = covariance(4,4);
+      dphidxy_ = covariance(2,3);
+      dlambdadz_ = covariance(1,4);
+      dptdpt_ = covariance(0,0)*pt()*pt();
+      detadeta_ = covariance(1,1);
+      dphidphi_ = covariance(2,2)*pt()*pt();
 
       normalizedChi2_ = tk.normalizedChi2();
       int numberOfPixelHits_ = tk.hitPattern().numberOfValidPixelHits();
@@ -184,7 +185,12 @@ namespace pat {
       if (numberOfStripHits_ > 31) numberOfStripHits_ = 31;
       packedHits_ = (numberOfPixelHits_&0x7) | (numberOfStripHits_ << 3);
       packBoth();
-    }	 
+    }
+
+    virtual void setTrackProperties( const reco::Track & tk ) {
+	setTrackProperties(tk,tk.covariance());
+    }	
+ 
     int numberOfPixelHits() const { return packedHits_ & 0x7; }
     int numberOfHits() const { return (packedHits_ >> 3) + numberOfPixelHits(); }
 	

@@ -9,6 +9,8 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 ##____________________________________________________________________________||
 process.load("RecoMET.METProducers.MuonTCMETValueMapProducer_cff")
 process.load("RecoMET.METProducers.TCMET_cfi")
+process.load("RecoMET.METProducers.CaloMET_cfi")
+process.load("RecoMET.Configuration.RecoTCMET_cff")
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
@@ -56,6 +58,7 @@ process.tcMetVedu.vetoDuplicates = cms.bool(True)
 ##____________________________________________________________________________||
 process.p = cms.Path(
     process.particleFlowCluster *
+    process.caloMet *
     process.tcMet *
     process.tcMetCST *
     process.tcMetRft2 *
