@@ -73,7 +73,7 @@ namespace l1t {
     double egMaxHcalEt() const { return egMaxHcalEt_; }
     //int egEtToRemoveHECutHw() const {return floor(egEtToRemoveHECut_/egLsb_);}
     double egEtToRemoveHECut() const {return egEtToRemoveHECut_;}
-    double egMaxHOverE() const { return egMaxHOverE_; }
+    l1t::LUT* egMaxHOverELUT() { return egMaxHOverELUT_.get(); }
     double egRelativeJetIsolationCut() const { return egRelativeJetIsolationCut_; }
     unsigned egIsoAreaNrTowersEta()const{return egIsoAreaNrTowersEta_;}
     unsigned egIsoAreaNrTowersPhi()const{return egIsoAreaNrTowersPhi_;}
@@ -91,7 +91,7 @@ namespace l1t {
     void setEgNeighbourThreshold(double thresh) { egNeighbourThreshold_ = thresh; }
     void setEgMaxHcalEt(double cut) { egMaxHcalEt_ = cut; }
     void setEgEtToRemoveHECut(double thresh) { egEtToRemoveHECut_ = thresh;}
-    void setEgMaxHOverE(double cut) { egMaxHOverE_ = cut; }
+    void setEgMaxHOverELUT(std::shared_ptr<LUT> lut) { egMaxHOverELUT_ = lut; }
     void setEgRelativeJetIsolationCut(double cutValue) { egRelativeJetIsolationCut_ = cutValue; }
 
     void setEgIsoAreaNrTowersEta(unsigned iEgIsoAreaNrTowersEta){egIsoAreaNrTowersEta_=iEgIsoAreaNrTowersEta;}
@@ -249,8 +249,8 @@ namespace l1t {
     // Et threshold to remove the H/E cut from the EGammas
     double egEtToRemoveHECut_;
 
-    // EG maximum value of H/E
-    double egMaxHOverE_;
+    // EG maximum values of H/E (indexed by |ieta|, ??)
+    std::shared_ptr<l1t::LUT> egMaxHOverELUT_;
 
     // Relative jet isolation cut for EG (Stage1Layer2)
     double egRelativeJetIsolationCut_;

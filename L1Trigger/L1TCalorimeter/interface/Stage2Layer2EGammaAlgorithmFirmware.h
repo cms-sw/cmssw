@@ -28,8 +28,10 @@ namespace l1t {
 			      std::vector<EGamma> & egammas);
     
   private:
-    int calEgHwFootPrint(const l1t::CaloCluster&,const std::vector<l1t::CaloTower>&);
-    unsigned lutIndex(int iEta,unsigned int nrTowers);
+    bool idHOverE(const l1t::CaloCluster& clus);
+    unsigned int idHOverELutIndex(int iEta);
+    int isoCalEgHwFootPrint(const l1t::CaloCluster&,const std::vector<l1t::CaloTower>&);
+    unsigned isoLutIndex(int iEta,unsigned int nrTowers);
     
   private:
     CaloParams* params_;

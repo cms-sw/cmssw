@@ -95,7 +95,12 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
   m_params.setEgNeighbourThreshold(conf.getParameter<double>("egNeighbourThreshold"));
   m_params.setEgMaxHcalEt(conf.getParameter<double>("egMaxHcalEt"));
   m_params.setEgEtToRemoveHECut(conf.getParameter<double>("egEtToRemoveHECut"));
-  m_params.setEgMaxHOverE(conf.getParameter<double>("egMaxHOverE"));  
+
+  edm::FileInPath egMaxHOverELUTFile = conf.getParameter<edm::FileInPath>("egMaxHOverELUTFile");
+  std::ifstream egMaxHOverELUTStream(egMaxHOverELUTFile.fullPath());
+  std::shared_ptr<l1t::LUT> egMaxHOverELUT( new l1t::LUT(egMaxHOverELUTStream) );
+  m_params.setEgMaxHOverELUT(egMaxHOverELUT);
+
   m_params.setEgIsoPUSType(conf.getParameter<std::string>("egIsoPUSType"));
   
   edm::FileInPath egIsoLUTFile = conf.getParameter<edm::FileInPath>("egIsoLUTFile");
