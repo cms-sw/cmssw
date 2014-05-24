@@ -1,11 +1,5 @@
 // -*- C++ -*-
 //
-//
-// dummy producer for a L1TkMuonParticle
-// This is just an interface, taking the muon objects created
-// by PierLuigi's code, and putting them into a collection of
-// L1TkMuonParticle.
-// 
 
 // system include files
 #include <memory>
@@ -13,7 +7,6 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -24,318 +17,270 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
+#include "DataFormats/L1DTPlusTrackTrigger/interface/DTBtiTrigger.h"
+#include "DataFormats/L1DTPlusTrackTrigger/interface/DTTSPhiTrigger.h"
+#include "DataFormats/L1DTPlusTrackTrigger/interface/DTTSThetaTrigger.h"
+#include "DataFormats/L1DTPlusTrackTrigger/interface/DTMatch.h"
+
 #include "DataFormats/L1TrackTrigger/interface/L1TkMuonParticle.h"
 #include "DataFormats/L1TrackTrigger/interface/L1TkMuonParticleFwd.h"
-
 #include "DataFormats/L1TrackTrigger/interface/L1TkPrimaryVertex.h"
 
 #include "DataFormats/Math/interface/LorentzVector.h"
-
-
-// for L1Tracks:
-//#include "SimDataFormats/SLHC/interface/StackedTrackerTypes.h"
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 #include <string>
 #include "TMath.h"
 
+using namespace l1extra;
 
-using namespace l1extra ;
-
-//
 // class declaration
-//
+class L1TkMuonParticleProducer : public edm::EDProducer
+{
+  public:
+    typedef TTTrack< Ref_PixelDigi_ > L1TkTrackType;
+    typedef std::vector< L1TkTrackType > L1TkTrackCollectionType;
 
-class L1TkMuonParticleProducer : public edm::EDProducer {
-   public:
+    explicit L1TkMuonParticleProducer( const edm::ParameterSet& );
+    ~L1TkMuonParticleProducer();
 
-   typedef TTTrack< Ref_PixelDigi_ >  L1TkTrackType;
-   typedef std::vector< L1TkTrackType >  L1TkTrackCollectionType;
+    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-      explicit L1TkMuonParticleProducer(const edm::ParameterSet&);
-      ~L1TkMuonParticleProducer();
+  private:
+    virtual void beginJob();
+    virtual void produce( edm::Event&, const edm::EventSetup& );
+    virtual void endJob();
+};
 
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-
-   private:
-      virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
-
-      //virtual void beginRun(edm::Run&, edm::EventSetup const&);
-      //virtual void endRun(edm::Run&, edm::EventSetup const&);
-      //virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-      //virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
-
-      // ----------member data ---------------------------
-	
-	 //edm::InputTag L1PLInputTag;  // inputTag for PierLuigi's objects
-
-	 edm::InputTag L1MuonsInputTag;
-	 edm::InputTag L1TrackInputTag;	 
-
-	 float ETAMIN;
-	 float ETAMAX;
-        float ZMAX;             // |z_track| < ZMAX in cm
-        float CHI2MAX;
-        float PTMINTRA;
-        float DRmax;
-
-        int nStubsmin ;         // minimum number of stubs 
-
-	bool closest ;
-
-
-} ;
-
-
-//
 // constructors and destructor
-//
-L1TkMuonParticleProducer::L1TkMuonParticleProducer(const edm::ParameterSet& iConfig)
+L1TkMuonParticleProducer::L1TkMuonParticleProducer( const edm::ParameterSet& iConfig )
 {
-
-   //L1PLInputTag = iConfig.getParameter<edm::InputTag>("L1PLInputTag");
-
-   L1MuonsInputTag = iConfig.getParameter<edm::InputTag>("L1MuonsInputTag");
-   L1TrackInputTag = iConfig.getParameter<edm::InputTag>("L1TrackInputTag");
-
-   ETAMIN = (float)iConfig.getParameter<double>("ETAMIN");
-   ETAMAX = (float)iConfig.getParameter<double>("ETAMAX");
-   ZMAX = (float)iConfig.getParameter<double>("ZMAX");
-   CHI2MAX = (float)iConfig.getParameter<double>("CHI2MAX");
-   PTMINTRA = (float)iConfig.getParameter<double>("PTMINTRA");
-   DRmax = (float)iConfig.getParameter<double>("DRmax");
-  nStubsmin = iConfig.getParameter<int>("nStubsmin");
-  closest = iConfig.getParameter<bool>("closest");
-
-   produces<L1TkMuonParticleCollection>();
+  produces< L1TkMuonParticleCollection >("DTMatchInwardsPriority");
+  produces< L1TkMuonParticleCollection >("DTMatchInwardsAverage");
+  produces< L1TkMuonParticleCollection >("DTMatchInwardsMajorityFullTk");
+  produces< L1TkMuonParticleCollection >("DTMatchInwardsMajority");
+  produces< L1TkMuonParticleCollection >("DTMatchInwardsMixedMode");
+  produces< L1TkMuonParticleCollection >("DTMatchInwardsTTTrack");
+  produces< L1TkMuonParticleCollection >("DTMatchInwardsTTTrackFullReso");
 }
 
-L1TkMuonParticleProducer::~L1TkMuonParticleProducer() {
-}
+L1TkMuonParticleProducer::~L1TkMuonParticleProducer() {}
 
-// ------------ method called to produce the data  ------------
-void
-L1TkMuonParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+// method called to produce the data
+void L1TkMuonParticleProducer::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
-   using namespace edm;
-   using namespace std;
+  using namespace edm;
+  using namespace std;
+
+std::cout << " --- MANU enter in L1TkMuonParticleProducer " << std::endl;
+
+  std::auto_ptr< L1TkMuonParticleCollection > outputDTMatchInwardsPriority( new L1TkMuonParticleCollection );
+  std::auto_ptr< L1TkMuonParticleCollection > outputDTMatchInwardsAverage( new L1TkMuonParticleCollection );
+  std::auto_ptr< L1TkMuonParticleCollection > outputDTMatchInwardsMajorityFullTk( new L1TkMuonParticleCollection );
+  std::auto_ptr< L1TkMuonParticleCollection > outputDTMatchInwardsMajority( new L1TkMuonParticleCollection );
+  std::auto_ptr< L1TkMuonParticleCollection > outputDTMatchInwardsMixedMode( new L1TkMuonParticleCollection );
+  std::auto_ptr< L1TkMuonParticleCollection > outputDTMatchInwardsTTTrack( new L1TkMuonParticleCollection );
+  std::auto_ptr< L1TkMuonParticleCollection > outputDTMatchInwardsTTTrackFullReso( new L1TkMuonParticleCollection );
+
+  // input from DT+Tk trigger (Padova-Trento)
+  edm::Handle< std::vector< DTMatch > >     DTMatchHandle;
+  iEvent.getByLabel( "DTPlusTrackProducer", DTMatchHandle );
+  std::vector< DTMatch >::const_iterator    iterDTMatch;
+
+  int iMu = 0;
+  for ( iterDTMatch = DTMatchHandle->begin();
+        iterDTMatch != DTMatchHandle->end();
+        ++iterDTMatch )
+  {
+
+std::cout << " here a DT match " << std::endl;
+
+    // create the reference to DTMatch FIXME
+    edm::Ptr< DTMatch > dtMatchRef( DTMatchHandle, iMu++ );
+
+    // get the bx
+    int bx = iterDTMatch->getDTBX();
+std::cout << " bx =  " << bx << std::endl;
+
+// MANU CHECK !
+    //if ( bx != 0 ) continue;
+
+std::cout << " passes bx " << std::endl;
+
+    // check the different options
+
+std::cout << " iterDTMatch->getPtPriorityBin() > 0. " << iterDTMatch->getPtPriorityBin() << std::endl;
+
+    if ( iterDTMatch->getPtPriorityBin() > 0. )
+    {
+      float tkIso = -999; // dummy
+
+      // build momentum from PtBin
+      // no TTTrack used for this method: direction comes from
+      // the DT object (TSPhi and TSTheta)
+      float pt = iterDTMatch->getPtPriorityBin();
+      float px = pt * cos( iterDTMatch->getDTDirection().phi() );
+      float py = pt * sin( iterDTMatch->getDTDirection().phi() );
+      float pz = pt * tan( iterDTMatch->getDTDirection().theta() );
+      float e = sqrt( px*px + py*py + pz*pz ); // massless particle 
+      math::XYZTLorentzVector candP4(px, py, pz, e);
+
+      // create the candidate
+      L1TkMuonParticle candMu( candP4, dtMatchRef, tkIso );
+
+      // put it in the collection
+      outputDTMatchInwardsPriority->push_back( candMu );
+    }
+
+    if ( iterDTMatch->getPtAverageBin() > 0. )
+    {
+      float tkIso = -999; // dummy
+
+      // build momentum from PtBin
+      // no TTTrack used for this method: direction comes from
+      // the DT object (TSPhi and TSTheta)
+      float pt = iterDTMatch->getPtAverageBin();
+      float px = pt * cos( iterDTMatch->getDTDirection().phi() );
+      float py = pt * sin( iterDTMatch->getDTDirection().phi() );
+      float pz = pt * tan( iterDTMatch->getDTDirection().theta() );
+      float e = sqrt( px*px + py*py + pz*pz ); // massless particle 
+      math::XYZTLorentzVector candP4(px, py, pz, e);
+
+      // create the candidate
+      L1TkMuonParticle candMu( candP4, dtMatchRef, tkIso );
+
+      // put it in the collection
+      outputDTMatchInwardsAverage->push_back( candMu );
+    }
+
+    if ( iterDTMatch->getPtMajorityFullTkBin() > 0. )
+    {
+      float tkIso = -999; // dummy
+
+      // build momentum from PtBin
+      // no TTTrack used for this method: direction comes from
+      // the DT object (TSPhi and TSTheta)
+      float pt = iterDTMatch->getPtMajorityFullTkBin();
+      float px = pt * cos( iterDTMatch->getDTDirection().phi() );
+      float py = pt * sin( iterDTMatch->getDTDirection().phi() );
+      float pz = pt * tan( iterDTMatch->getDTDirection().theta() );
+      float e = sqrt( px*px + py*py + pz*pz ); // massless particle 
+      math::XYZTLorentzVector candP4(px, py, pz, e);
+
+      // create the candidate
+      L1TkMuonParticle candMu( candP4, dtMatchRef, tkIso );
+
+      // put it in the collection
+      outputDTMatchInwardsMajorityFullTk->push_back( candMu );
+    }
+
+    if ( iterDTMatch->getPtMajorityBin() > 0. )
+    {
+      float tkIso = -999; // dummy
+
+      // build momentum from PtBin
+      // no TTTrack used for this method: direction comes from
+      // the DT object (TSPhi and TSTheta)
+      float pt = iterDTMatch->getPtMajorityBin();
+      float px = pt * cos( iterDTMatch->getDTDirection().phi() );
+      float py = pt * sin( iterDTMatch->getDTDirection().phi() );
+      float pz = pt * tan( iterDTMatch->getDTDirection().theta() );
+      float e = sqrt( px*px + py*py + pz*pz ); // massless particle 
+      math::XYZTLorentzVector candP4(px, py, pz, e);
+
+      // create the candidate
+      L1TkMuonParticle candMu( candP4, dtMatchRef, tkIso );
+
+      // put it in the collection
+      outputDTMatchInwardsMajority->push_back( candMu );
+    }
+
+    if ( iterDTMatch->getPtMixedModeBin() > 0. )
+    {
+      float tkIso = -999; // dummy
+
+      // build momentum from PtBin
+      // no TTTrack used for this method: direction comes from
+      // the DT object (TSPhi and TSTheta)
+      float pt = iterDTMatch->getPtMixedModeBin();
+      float px = pt * cos( iterDTMatch->getDTDirection().phi() );
+      float py = pt * sin( iterDTMatch->getDTDirection().phi() );
+      float pz = pt * tan( iterDTMatch->getDTDirection().theta() );
+      float e = sqrt( px*px + py*py + pz*pz ); // massless particle 
+      math::XYZTLorentzVector candP4(px, py, pz, e);
+
+      // create the candidate
+      L1TkMuonParticle candMu( candP4, dtMatchRef, tkIso );
+
+      // put it in the collection
+      outputDTMatchInwardsMixedMode->push_back( candMu );
+    }
+
+std::cout << " iterDTMatch->getPtTTTrackBin() > 0. " << iterDTMatch->getPtTTTrackBin() << std::endl;
+
+    if ( iterDTMatch->getPtTTTrackBin() > 0. )
+    {
+      float tkIso = -999; // dummy
+
+      // build momentum from PtBin
+      // TTTrack used for this method: direction comes from the TTTrack
+      float pt = iterDTMatch->getPtTTTrackBin();
+      GlobalVector tkMomentum = iterDTMatch->getPtMatchedTrackPtr()->getMomentum();
+      float px = pt * cos( tkMomentum.phi() );
+      float py = pt * sin( tkMomentum.phi() );
+      float pz = pt * tan( tkMomentum.theta() );
+      float e = sqrt( px*px + py*py + pz*pz ); // massless particle 
+      math::XYZTLorentzVector candP4(px, py, pz, e);
+
+      // create the candidate
+      L1TkMuonParticle candMu( candP4, dtMatchRef, tkIso );
+
+      // put it in the collection
+      outputDTMatchInwardsTTTrack->push_back( candMu );
+    }
+
+    if ( iterDTMatch->getPtMatchedTrackPtr().isNull() == false )
+    {
+      float tkIso = -999; // dummy
+
+      // build momentum from PtBin
+      // TTTrack used for this method: direction comes from the TTTrack
+      GlobalVector tkMomentum = iterDTMatch->getPtMatchedTrackPtr()->getMomentum();
+      float px = tkMomentum.x();
+      float py = tkMomentum.y();
+      float pz = tkMomentum.z();
+      float e = sqrt( px*px + py*py + pz*pz ); // massless particle 
+      math::XYZTLorentzVector candP4(px, py, pz, e);
+
+      // create the candidate
+      L1TkMuonParticle candMu( candP4, dtMatchRef, tkIso );
+
+      // put it in the collection
+      outputDTMatchInwardsTTTrackFullReso->push_back( candMu );
+    }
 
 
- std::auto_ptr<L1TkMuonParticleCollection> result(new L1TkMuonParticleCollection);
+  }  // end loop over Padova-Trento objects
 
- // dummy code. I loop over the L1Muons and pick up the L1Track that is closest
- // in DeltaR.
+  // store the collections
+  iEvent.put( outputDTMatchInwardsPriority , "DTMatchInwardsPriority");
+  iEvent.put( outputDTMatchInwardsAverage , "DTMatchInwardsAverage");
+  iEvent.put( outputDTMatchInwardsMajorityFullTk , "DTMatchInwardsMajorityFullTk");
+  iEvent.put( outputDTMatchInwardsMajority , "DTMatchInwardsMajority");
+  iEvent.put( outputDTMatchInwardsMixedMode , "DTMatchInwardsMixedMode");
+  iEvent.put( outputDTMatchInwardsTTTrack , "DTMatchInwardsTTTrack" );
+  iEvent.put( outputDTMatchInwardsTTTrackFullReso, "DTMatchInwardsTTTrackFullReso" );
 
-  edm::Handle< vector<l1extra::L1MuonParticle>  > MuonHandle;
-  iEvent.getByLabel(L1MuonsInputTag,MuonHandle);
-  vector<l1extra::L1MuonParticle>::const_iterator l1MuIter;
-
- edm::Handle<L1TkTrackCollectionType> L1TkTrackHandle;
- iEvent.getByLabel(L1TrackInputTag, L1TkTrackHandle);
- L1TkTrackCollectionType::const_iterator trackIter;
-
-
-  int imu = 0;
-  for (l1MuIter = MuonHandle->begin(); l1MuIter != MuonHandle->end(); ++l1MuIter) {
-
-    edm::Ref< L1MuonParticleCollection > MuRef( MuonHandle, imu );
-    imu ++;
-
-        float drmin = 999;
-        float ptmax = -1;
-	if (ptmax < 0) ptmax = -1;	// dummy
-
-      float eta = l1MuIter -> eta();
-      float phi = l1MuIter -> phi();
-
-      float feta = fabs( eta );
-      if (feta < ETAMIN) continue;
-      if (feta > ETAMAX) continue;
-
-      L1MuGMTExtendedCand cand = l1MuIter -> gmtMuonCand();
-      unsigned int quality = cand.quality();
-      int bx = l1MuIter -> bx() ;
-      if (bx != 0 ) continue;
-      if (quality < 3) continue;
-
-	// match the L1Muons with L1Tracks
-
-        int itr = -1;
-        int itrack = -1;
-        for (trackIter = L1TkTrackHandle->begin(); trackIter != L1TkTrackHandle->end(); ++trackIter) {
-	   itr ++ ;
-           float Pt = trackIter->getMomentum().perp();
-           float z  = trackIter->getPOCA().z();
-           if (fabs(z) > ZMAX) continue;
-           if (Pt < PTMINTRA) continue;
-           float chi2 = trackIter->getChi2();
-           if (chi2 > CHI2MAX) continue;
-
-	   std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > >  theStubs = trackIter -> getStubRefs() ;
-      	   int tmp_trk_nstub = (int) theStubs.size();
-      	   if ( tmp_trk_nstub < nStubsmin) continue;
-
-                float Eta = trackIter->getMomentum().eta();
-                float Phi = trackIter->getMomentum().phi();
-                float deta = eta - Eta;
-                float dphi = phi - Phi;
-                if (dphi < 0) dphi = dphi + 2.*TMath::Pi();
-                if (dphi > TMath::Pi()) dphi = 2.*TMath::Pi() - dphi;
-                float dR = sqrt( deta*deta + dphi*dphi );
-
-		if (closest) {
-			// take the closest track:
-                if (dR < drmin) {
-                  drmin = dR;
-                  itrack = itr;
-                }
-		}
-		else {
-			// or take the leading track within a cone 
-		if (dR < DRmax) {
-		  if (Pt > ptmax) {
-			ptmax = Pt;
-			itrack = itr;
-			drmin = dR;
-		  }
-		}
-		}
-
-        }  // end loop over the tracks
-
-        if (drmin < DRmax ) {     // found a L1Track matched to the L1Muon object
-
-            edm::Ptr< L1TkTrackType > L1TrackPtr( L1TkTrackHandle, itrack) ;
-
-            float px = L1TrackPtr -> getMomentum().x();
-            float py = L1TrackPtr -> getMomentum().y();
-            float pz = L1TrackPtr -> getMomentum().z(); 
-            float e = sqrt( px*px + py*py + pz*pz );    // massless particle
-            math::XYZTLorentzVector TrackP4(px,py,pz,e);
-            
-            float trkisol = -999;       // dummy
-            
-            L1TkMuonParticle trkMu( TrackP4,
-                                 MuRef,
-                                 L1TrackPtr,
-                                 trkisol );
-
-	    //trkMu.setDeltaR ( drmin ) ;
-            
-            result -> push_back( trkMu );
-
-        
-         }  // endif drmin < DRmax
-
-
-   }  // end loop over the L1Muons
-
-	// PL: the muon objects from PierLuigi
-/*
- edm::Handle<XXXCollection> XXXHandle;
- iEvent.getByLabel(L1PLInputTag,XXXHandle);
- std::vector<XXX>::const_iterator muIter ;
-
- if (!XXXHandle.isValid() ) {
-          LogError("L1TkMuonParticleProducer")
-            << "\nWarning: L1XXXCollectionType with " << L1PLInputTag
-            << "\nrequested in configuration, but not found in the event. Exit."
-            << std::endl;
-           return;
- }
-
-	// Now loop over the muons of Pierluigi 
-
- int imu = 0;
- for (muIter = XXXHandle->begin();  muIter != XXXHandle->end(); ++muIter) {
-
-    edm::Ref< XXXCollection > muRef( XXXHandle, imu );
-    imu ++;
-
-    // int bx = egIter -> bx() ;	// if PL's objects have a bx method
-    int bx = 0;    // else...
-
-    if (bx == 0) {
-
-	edm::Ptr< L1TkTrackType > L1TrackPtr ;
-
-	// PL : get the matched L1Track from PL's object
-	// L1TrackPtr  = muRef -> getRefToTheL1Track() ;
-	
-            float px = L1TrackPtr -> getMomentum().x();
-            float py = L1TrackPtr -> getMomentum().y();
-            float pz = L1TrackPtr -> getMomentum().z();
-            float e = sqrt( px*px + py*py + pz*pz );    // massless particle
-            math::XYZTLorentzVector TrackP4(px,py,pz,e);
-
-	// the code may calculate a tracker-based isolation variable,
-	// or pick it up from PL's object if it is there.
-	// for the while, dummy.
-	float trkisol = -999;
-
-
-	L1TkMuonParticle trkMu(  P4,
-				// muRef,  
-				L1TrackPtr,	
-				trkisol );
-    
-     }  // endif bx==0
-
- }  // end loop over Pierluigi's objects
-*/
-
- iEvent.put( result );
 
 }
 
-// --------------------------------------------------------------------------------------
+// method called once each job just before starting event loop
+void L1TkMuonParticleProducer::beginJob() {}
 
-
-// ------------ method called once each job just before starting event loop  ------------
-void
-L1TkMuonParticleProducer::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void
-L1TkMuonParticleProducer::endJob() {
-}
-
-// ------------ method called when starting to processes a run  ------------
-/*
-void
-L1TkMuonParticleProducer::beginRun(edm::Run& iRun, edm::EventSetup const& iSetup)
-{
-}
-*/
-
-// ------------ method called when ending the processing of a run  ------------
-/*
-void
-L1TkMuonParticleProducer::endRun(edm::Run&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when starting to processes a luminosity block  ------------
-/*
-void
-L1TkMuonParticleProducer::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
-{
-}
-*/
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-/*
-void
-L1TkMuonParticleProducer::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
-{
-}
-*/
+// method called once each job just after ending the event loop
+void L1TkMuonParticleProducer::endJob() {}
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
@@ -347,8 +292,7 @@ L1TkMuonParticleProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
   descriptions.addDefault(desc);
 }
 
+
 //define this as a plug-in
 DEFINE_FWK_MODULE(L1TkMuonParticleProducer);
-
-
 

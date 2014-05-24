@@ -4,83 +4,53 @@
 // -*- C++ -*-
 //
 // Package:     L1Trigger
-// Class  :     L1TkEmParticle
-// 
+// Class  :     L1TkMuonParticle
 
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/Ptr.h"
 
 #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
-
 #include "DataFormats/L1TrackTrigger/interface/L1TkEmParticle.h"
-
 #include "SimDataFormats/SLHC/interface/StackedTrackerTypes.h"
+
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
+#include "DataFormats/L1DTPlusTrackTrigger/interface/DTBtiTrigger.h"
+#include "DataFormats/L1DTPlusTrackTrigger/interface/DTTSPhiTrigger.h"
+#include "DataFormats/L1DTPlusTrackTrigger/interface/DTTSThetaTrigger.h"
+#include "DataFormats/L1DTPlusTrackTrigger/interface/DTMatch.h"
 
 #include "DataFormats/L1Trigger/interface/L1MuonParticle.h"
 #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
 
-// PL :include PierLuigi's class
-// #include "....."
+namespace l1extra
+{
+  class L1TkMuonParticle : public reco::LeafCandidate
+  {
+    public:
 
-namespace l1extra {
-         
-   class L1TkMuonParticle : public reco::LeafCandidate
-   {     
-         
-      public:
+      typedef TTTrack< Ref_PixelDigi_ >  L1TkTrackType;
+      typedef std::vector< L1TkTrackType >   L1TkTrackCollectionType;
 
-   typedef TTTrack< Ref_PixelDigi_ >  L1TkTrackType;
-   typedef std::vector< L1TkTrackType >   L1TkTrackCollectionType;
-           
-         L1TkMuonParticle();
+      L1TkMuonParticle();
+      L1TkMuonParticle( const LorentzVector& p4,
+                        const edm::Ptr< DTMatch >& muRef,
+                        float tkisol = -999. );
+      virtual ~L1TkMuonParticle() {}
 
-	 L1TkMuonParticle( const LorentzVector& p4,
-			    // const edm::Ref< XXXCollection >& muRef,     // reference to PL's object
-			     const edm::Ref< L1MuonParticleCollection >& muRef,
-			    const edm::Ptr< L1TkTrackType >& trkPtr,
-			    float tkisol = -999. );
+      // const member functions
+      const edm::Ptr< DTMatch >& getDTMatchPtr() const { return theDTMatch; }
+      float getTrkIsol() const { return theIsolation; }
 
-	virtual ~L1TkMuonParticle() {}
+      int bx() const { return theDTMatch->getDTBX(); }
 
-         // ---------- const member functions ---------------------
+    private:
 
-         const edm::Ptr< L1TkTrackType >& getTrkPtr() const
-         { return trkPtr_ ; }
+      edm::Ptr< DTMatch > theDTMatch;
+      float theIsolation;
 
-	// PL :
-         // const edm::Ref< XXXCollection >& getMuRef() const
-         // { return muRef_ ; }
-
- 	 float getTrkzVtx() const { return TrkzVtx_ ; }
-         float getTrkIsol() const { return TrkIsol_ ; }
-
-
-         // ---------- member functions ---------------------------
-
-	 void setTrkzVtx(float TrkzVtx)  { TrkzVtx_ = TrkzVtx ; }
-         void setTrkIsol(float TrkIsol)  { TrkIsol_ = TrkIsol ; }
-         int bx() const;
-
-	  //void setDeltaR(float dr) { DeltaR_ = dr ; }
-
-      private:
-
-	// PL
-         // edm::Ref< XXXCollection > muRef_ ;
-	 edm::Ref< L1MuonParticleCollection > muRef_ ;
-
-         edm::Ptr< L1TkTrackType > trkPtr_ ;
-
-         float TrkIsol_;
-	 float TrkzVtx_ ;
-	
-	 //float DeltaR_ ;	// temporary
-
-    };
+  };
 }
 
 #endif
-
 
