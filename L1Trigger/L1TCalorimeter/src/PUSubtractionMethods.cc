@@ -44,9 +44,8 @@ namespace l1t {
       int subEta = region->hwEta();
       int subPhi = region->hwPhi();
 
-      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *lorentz =
-	new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
-
+      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > ldummy(0,0,0,0);
+      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *lorentz = &ldummy;
       CaloRegion newSubRegion(*lorentz, 0, 0, subPt, subEta, subPhi, 0, 0, 0);
       subRegions->push_back(newSubRegion);
     }
