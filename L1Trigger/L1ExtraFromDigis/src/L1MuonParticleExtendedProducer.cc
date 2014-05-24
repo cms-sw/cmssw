@@ -159,7 +159,7 @@ L1MuonParticleExtendedProducer::produce( edm::Event& iEvent,
       sigmaPhi = sigmaPhi/sqrt(12.);
 
       aGmtCand->setSigmaEta(sigmaEta);
-      aGmtCand->setSigmaEta(sigmaPhi);
+      aGmtCand->setSigmaPhi(sigmaPhi);
       aGmtCand->setQuality(gmtCand.quality());
       
     }
