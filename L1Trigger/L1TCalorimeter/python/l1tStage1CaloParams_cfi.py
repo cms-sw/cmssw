@@ -35,6 +35,7 @@ l1tCaloParams = cms.ESProducer(
     egNeighbourThreshold = cms.double(1.),      #not used by Stage1
     egMaxHcalEt          = cms.double(0.),    #not used by Stage1
     egEtToRemoveHECut    = cms.double(128.),    #not used by Stage1
+    egMaxHOverELUTFile   = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egMaxHOverELUT.txt"),
     egMaxHOverE          = cms.double(0.15),    #not used by Stage1
     egIsoPUSType         = cms.string("None"),    #not used by Stage1
     egIsoLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egIsoLUT.txt"),    #not used by Stage1
@@ -62,18 +63,23 @@ l1tCaloParams = cms.ESProducer(
     jetCalibrationParams  = jetSF_8TeV_data,
 
     # sums
-    etSumLsb                = cms.double(0.5),    #not used by Stage1
-    ettEtaMin             = cms.int32(4),    #not used by Stage1
-    ettEtaMax             = cms.int32(17),    #not used by Stage1
-    ettEtThreshold        = cms.double(0.),    #not used by Stage1
-    httEtaMin             = cms.int32(4),    #not used by Stage1
-    httEtaMax             = cms.int32(17),    #not used by Stage1
-    httEtThreshold        = cms.double(7.),    #not used by Stage1
-    metEtaMin             = cms.int32(4),    #not used by Stage1
-    metEtaMax             = cms.int32(17),    #not used by Stage1
-    metEtThreshold        = cms.double(0.),    #not used by Stage1
-    mhtEtaMin             = cms.int32(4),    #not used by Stage1
-    mhtEtaMax             = cms.int32(17),    #not used by Stage1
-    mhtEtThreshold        = cms.double(0.)    #not used by Stage1
+    etSumLsb                = cms.double(0.5),
+    etSumEtaMin             = cms.vint32(-999, -999, -999, -999),
+    etSumEtaMax             = cms.vint32(999,  999,  999,  999),
+    etSumEtThreshold        = cms.vdouble(0.,  0.,   0.,   0.)
+
+    ## etSumLsb                = cms.double(0.5),    #not used by Stage1
+    ## ettEtaMin             = cms.int32(4),    #not used by Stage1
+    ## ettEtaMax             = cms.int32(17),    #not used by Stage1
+    ## ettEtThreshold        = cms.double(0.),    #not used by Stage1
+    ## httEtaMin             = cms.int32(4),    #not used by Stage1
+    ## httEtaMax             = cms.int32(17),    #not used by Stage1
+    ## httEtThreshold        = cms.double(7.),    #not used by Stage1
+    ## metEtaMin             = cms.int32(4),    #not used by Stage1
+    ## metEtaMax             = cms.int32(17),    #not used by Stage1
+    ## metEtThreshold        = cms.double(0.),    #not used by Stage1
+    ## mhtEtaMin             = cms.int32(4),    #not used by Stage1
+    ## mhtEtaMax             = cms.int32(17),    #not used by Stage1
+    ## mhtEtThreshold        = cms.double(0.)    #not used by Stage1
 
 )
