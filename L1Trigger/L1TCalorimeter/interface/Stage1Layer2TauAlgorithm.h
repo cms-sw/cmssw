@@ -33,8 +33,8 @@ namespace l1t {
 			      std::vector<l1t::Tau> * taus) = 0;
 
     virtual ~Stage1Layer2TauAlgorithm(){};
-    bool PUSubtract;
-    std::vector<double> regionSubtraction;
+    std::string regionPUSType;
+    std::vector<double> regionPUSParams;
   };
 
 }
