@@ -57,7 +57,7 @@ process.load('Configuration/StandardSequences/EndOfProcess_cff')
 process.load('Configuration.StandardSequences.RawToDigi_cff')
 process.load("SLHCUpgradeSimulations.L1CaloTrigger.SLHCCaloTrigger_cff")
 
-process.L1CalibFilterTowerJetProducer.pTCalibrationThreshold = cms.double(40) # applies calibration only to > 40GeV L1 jets
+#process.L1CalibFilterTowerJetProducer.pTCalibrationThreshold = cms.double(40) # applies calibration only to > 40GeV L1 jets
 
 process.p = cms.Path(
     process.RawToDigi+
@@ -81,7 +81,7 @@ process.L1CaloTowerProducer.HCALDigis =  cms.InputTag("valHcalTriggerPrimitiveDi
 
 process.load("SLHCUpgradeSimulations.L1TrackTrigger.L1TkJetProducer_cfi")
 process.L1TkJetsL1 = process.L1TkJets.clone()
-#process.pL1TkJetsL1 = cms.Path( process.L1TkJetsL1 )
+process.pL1TkJetsL1 = cms.Path( process.L1TkJetsL1 )
 
 # ---------------------------------------------------------------------------
 
@@ -117,7 +117,6 @@ process.pL1Jets = cms.Path( process.L1JetsFromHIHLTJets )
 # --- Produce L1TkJets from the HeavyIon jets
 process.L1TkJetsHI = process.L1TkJets.clone()
 process.L1TkJetsHI.L1CentralJetInputTag = cms.InputTag("L1JetsFromHIHLTJets")
-#process.L1TkJetsHI.JET_HLTETA = cms.bool(True)
 process.pL1TkJetsHI = cms.Path( process.L1TkJetsHI )
 
 #

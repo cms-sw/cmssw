@@ -21,11 +21,13 @@ SLHCCaloTrigger  = cms.Sequence(#L1TestPatternCaloTowerProducer+
                                 L1CaloJetProducer+
                                 L1CaloJetFilter+
                                 L1TowerJetProducer+
-                                L1TowerJetFilter1D+
-                                L1TowerJetFilter2D+
+                                L1TowerJetCentralityFilter+
+                                #L1TowerJetFilter1D+
+                                #L1TowerJetFilter2D+
                                 L1TowerJetPUEstimator+
                                 L1TowerJetPUSubtractedProducer+
                                 L1CalibFilterTowerJetProducer+
+                                L1EnergySumProducer+ 
 
                                 # L1TowerFwdJetProducer+
                                 # L1TowerFwdJetFilter1D+

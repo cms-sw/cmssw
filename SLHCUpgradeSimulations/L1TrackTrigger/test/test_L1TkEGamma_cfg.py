@@ -23,10 +23,15 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 process.source = cms.Source("PoolSource",
      fileNames = cms.untracked.vstring(
      # electron file:
-     #'/store/group/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Electrons/PU140/m1_SingleElectron_E2023TTI_PU140.root'
+     #'/store/group/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Electrons/PU140/m1_SingleElectron_E2023TTI_PU140.root',
+     #'/store/group/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Electrons/PU140/m2_SingleElectron_E2023TTI_PU140.root',
+     #'/store/group/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Electrons/PU140/m1_SinglePositron_E2023TTI_PU140.root',
+     #'/store/group/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Electrons/PU140/m2_SinglePositron_E2023TTI_PU140.root'
+     #
      # rate test sample:
-    '/store/group/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Neutrinos/PU140_newGT/m1_SingleNeutrino_E2023TTI_PU140.root',
-    '/store/group/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Neutrinos/PU140_newGT/m2_SingleNeutrino_E2023TTI_PU140.root'
+     '/store/group/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Neutrinos/PU140_newGT/m1_SingleNeutrino_E2023TTI_PU140.root',
+     '/store/group/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Neutrinos/PU140_newGT/m2_SingleNeutrino_E2023TTI_PU140.root'
+     #
      )
 )
 
@@ -102,9 +107,11 @@ process.pElectronsTkIso = cms.Path( process.L1TkIsoElectrons )
 process.pElectronsLoose = cms.Path( process.L1TkElectronsLoose)
 
 # to test a lower PT cut :
-#process.L1TkElectronsLooseV2 = process.L1TkElectronsLoose.clone()
-#process.L1TkElectronsLooseV2.TrackMinPt = cms.double( 2. )
-#process.pElectronsLoose2 = cms.Path( process.L1TkElectronsLooseV2 )
+process.L1TkElectronsLooseV2 = process.L1TkElectronsLoose.clone()
+process.L1TkElectronsLooseV2.TrackMinPt = cms.double( 2. )
+process.L1TkElectronsLooseV2.TrackEGammaDeltaPhi = cms.vdouble( 0.2, 0.,0.)
+process.L1TkElectronsLooseV2.TrackEGammaDeltaR = cms.vdouble( 0.2, 0.,0.)
+process.pElectronsLoose2 = cms.Path( process.L1TkElectronsLooseV2 )
 
 # ---- L1TkElectrons that are isolated w.r.t. L1Tracks : dedicated low PT sequence
 process.L1TkIsoElectronsLoose = process.L1TkElectronsLoose.clone()
@@ -165,7 +172,7 @@ process.Out = cms.OutputModule( "PoolOutputModule",
 #process.Out.outputCommands.append('keep *_generator_*_*')
 #process.Out.outputCommands.append('keep *_*gen*_*_*')
 #process.Out.outputCommands.append('keep *_*Gen*_*_*')
-#process.Out.outputCommands.append('keep *_genParticles_*_*')
+process.Out.outputCommands.append('keep *_genParticles_*_*')
 
 
 	# the L1Tracks, clusters and stubs
@@ -191,13 +198,13 @@ process.Out.outputCommands.append('keep *_L1TkIsoElectrons_*_*')
 
 process.Out.outputCommands.append('keep *_L1TkElectronsLoose_*_*')
 process.Out.outputCommands.append('keep *_L1TkIsoElectronsLoose_*_*')
-#process.Out.outputCommands.append('keep *_L1TkElectronsLooseV2_*_*')
+process.Out.outputCommands.append('keep *_L1TkElectronsLooseV2_*_*')
 
 
 # --- to use the genParticles, one needs to keep the collections of associators below:
-#process.Out.outputCommands.append('keep *_TTTrackAssociatorFromPixelDigis_*_*')
-#process.Out.outputCommands.append('keep *_TTStubAssociatorFromPixelDigis_*_*')
-#process.Out.outputCommands.append('keep *_TTClusterAssociatorFromPixelDigis_*_*')
+process.Out.outputCommands.append('keep *_TTTrackAssociatorFromPixelDigis_*_*')
+process.Out.outputCommands.append('keep *_TTStubAssociatorFromPixelDigis_*_*')
+process.Out.outputCommands.append('keep *_TTClusterAssociatorFromPixelDigis_*_*')
 
 
 process.FEVToutput_step = cms.EndPath(process.Out)
