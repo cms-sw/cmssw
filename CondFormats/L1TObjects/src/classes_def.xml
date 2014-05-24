@@ -190,10 +190,6 @@
   <class name="L1GtCorrelationTemplate::CorrelationParameter"/>
   <class name="std::vector<L1GtCorrelationTemplate>"/>
   <class name="std::vector<std::vector<L1GtCorrelationTemplate> >"/>
-  <class name="GlobalCorrelationTemplate"/>
-  <class name="GlobalCorrelationTemplate::CorrelationParameter"/>
-  <class name="std::vector<GlobalCorrelationTemplate>"/>
-  <class name="std::vector<std::vector<GlobalCorrelationTemplate> >"/>
   <class name="L1GtAlgorithm"/>
   <class name="std::map<std::string, L1GtAlgorithm>"/>
   <class name="std::map<std::string, L1GtAlgorithm>::value_type"/>
@@ -217,38 +213,7 @@
     <field name="m_vecJetCountsTemplate" mapping="blob" />
     <field name="m_vecMuonTemplate" mapping="blob" />
   </class>
-  <class name="GlobalTriggerMenu" class_version="GlobalTriggerMenu_V01">
-    <field name="m_conditionMap" transient="true" />
-    <field name="m_algorithmAliasMap" mapping="blob" />
-    <field name="m_algorithmMap" mapping="blob" />
-    <field name="m_corCaloTemplate" mapping="blob" />
-    <field name="m_corEnergySumTemplate" mapping="blob" />
-    <field name="m_corMuonTemplate" mapping="blob" />
-    <field name="m_technicalTriggerMap" mapping="blob" />
-    <field name="m_vecBptxTemplate" mapping="blob" />
-    <field name="m_vecCaloTemplate" mapping="blob" />
-    <field name="m_vecCastorTemplate" mapping="blob" />
-    <field name="m_vecCorrelationTemplate" mapping="blob" />
-    <field name="m_vecEnergySumTemplate" mapping="blob" />
-    <field name="m_vecExternalTemplate" mapping="blob" />
-    <field name="m_vecHfBitCountsTemplate" mapping="blob" />
-    <field name="m_vecHfRingEtSumsTemplate" mapping="blob" />
-    <field name="m_vecJetCountsTemplate" mapping="blob" />
-    <field name="m_vecMuonTemplate" mapping="blob" />
-  </class>
   <class name="L1CaloGeometry" class_version="L1CaloGeometry_V01">
     <field name="m_gctEtaBinBoundaries" mapping="blob" />
   </class>
-  <class name="GlobalMuonTemplate"/>
-  <class name="GlobalMuonTemplate::ObjectParameter"/>
-  <class name="std::vector<GlobalMuonTemplate::ObjectParameter>"/>
-  <class name="GlobalMuonTemplate::CorrelationParameter"/>
-  <class name="std::vector<GlobalMuonTemplate>"/>
-  <class name="std::vector<std::vector<GlobalMuonTemplate> >"/>
-  <class name="GlobalCaloTemplate"/>
-  <class name="GlobalCaloTemplate::ObjectParameter"/>
-  <class name="std::vector<GlobalCaloTemplate::ObjectParameter>"/>
-  <class name="GlobalCaloTemplate::CorrelationParameter"/>
-  <class name="std::vector<GlobalCaloTemplate>"/>
-  <class name="std::vector<std::vector<GlobalCaloTemplate> >"/>
 </lcgdict>

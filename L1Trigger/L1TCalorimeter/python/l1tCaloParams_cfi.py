@@ -53,22 +53,14 @@ l1tCaloParams = cms.ESProducer(
     jetSeedThreshold      = cms.double(0.),
     jetNeighbourThreshold = cms.double(0.),
     jetPUSType            = cms.string("None"),
+    jetPUSParams          = cms.vdouble(),
     jetCalibrationType    = cms.string("None"),
     jetCalibrationParams  = cms.vdouble(),
 
     # sums
     etSumLsb                = cms.double(0.5),
-    ettEtaMin             = cms.int32(-999),
-    ettEtaMax             = cms.int32(999),
-    ettEtThreshold        = cms.double(0.),
-    httEtaMin             = cms.int32(-999),
-    httEtaMax             = cms.int32(999),
-    httEtThreshold        = cms.double(0.),
-    metEtaMin             = cms.int32(-999),
-    metEtaMax             = cms.int32(999),
-    metEtThreshold        = cms.double(0.),
-    mhtEtaMin             = cms.int32(-999),
-    mhtEtaMax             = cms.int32(999),
-    mhtEtThreshold        = cms.double(0.)
+    etSumEtaMin             = cms.vint32(-999, -999, -999, -999),
+    etSumEtaMax             = cms.vint32(999,  999,  999,  999),
+    etSumEtThreshold        = cms.vdouble(0.,  0.,   0.,   0.)
 
 )

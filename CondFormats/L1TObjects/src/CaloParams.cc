@@ -56,7 +56,6 @@ void CaloParams::print(std::ostream& out) const {
   out << " Seed thresh      : " << this->egSeedThreshold() << std::endl;
   out << " Neighbour thresh : " << this->egNeighbourThreshold() << std::endl;
   out << " HCAL max Et      : " << this->egMaxHcalEt() << std::endl;
-  out << " H/E max          : " << this->egMaxHOverE() << std::endl;
   out << " Iso PUS type     : " << this->egIsoPUSType() << std::endl;
 
   out << "Tau" << std::endl;
