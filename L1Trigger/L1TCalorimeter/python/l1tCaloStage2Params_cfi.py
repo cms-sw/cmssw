@@ -31,7 +31,7 @@ l1tCaloStage2Params = cms.ESProducer(
     egNeighbourThreshold = cms.double(1.),
     egMaxHcalEt          = cms.double(0.),
     egEtToRemoveHECut    = cms.double(128.),
-    egMaxHOverE          = cms.double(0.15),  
+    egMaxHOverELUTFile   = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egMaxHOverELUT.txt"),
     egIsoPUSType         = cms.string("None"),
     egIsoLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egIsoLUT_PU40bx25.txt"),
     egIsoAreaNrTowersEta = cms.uint32(2),
@@ -58,17 +58,8 @@ l1tCaloStage2Params = cms.ESProducer(
 
     # sums
     etSumLsb                = cms.double(0.5),
-    ettEtaMin             = cms.int32(-999),
-    ettEtaMax             = cms.int32(999),
-    ettEtThreshold        = cms.double(0.),
-    httEtaMin             = cms.int32(-999),
-    httEtaMax             = cms.int32(999),
-    httEtThreshold        = cms.double(0.),
-    metEtaMin             = cms.int32(-999),
-    metEtaMax             = cms.int32(999),
-    metEtThreshold        = cms.double(0.),
-    mhtEtaMin             = cms.int32(-999),
-    mhtEtaMax             = cms.int32(999),
-    mhtEtThreshold        = cms.double(0.)
+    etSumEtaMin             = cms.vint32(-999, -999, -999, -999),
+    etSumEtaMax             = cms.vint32(999,  999,  999,  999),
+    etSumEtThreshold        = cms.vdouble(0.,  0.,   0.,   0.)
 
 )

@@ -59,7 +59,7 @@ namespace l1t {
       int m_fgPhi; // 2 bits (to be defined in agreement with GT inputs)
 
       // H/E
-      int m_hOverE; // 7 bits (between 0 and 1 -> resolution=1/128=0.8%). Number of bits is not definitive
+      int m_hOverE; // 8 bits (between 0 and 1 -> resolution=1/256=0.39%). Number of bits is not definitive
   };
 
   typedef BXVector<CaloCluster> CaloClusterBxCollection;

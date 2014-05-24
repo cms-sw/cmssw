@@ -19,10 +19,18 @@ l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::Stage2Layer2ClusterAlgorithmFirmw
   params_(params)
 {
 
-
-  m_seedThreshold    = params_->egSeedThresholdHw(); 
-  m_clusterThreshold = params_->egNeighbourThresholdHw(); 
-    
+  if (m_clusterInput==E) {
+    m_seedThreshold    = floor(params_->egSeedThreshold()/params_->towerLsbE()); 
+    m_clusterThreshold = floor(params_->egNeighbourThreshold()/params_->towerLsbE());
+  }
+  if (m_clusterInput==H) {
+    m_seedThreshold    = floor(params_->egSeedThreshold()/params_->towerLsbH()); 
+    m_clusterThreshold = floor(params_->egNeighbourThreshold()/params_->towerLsbH());
+  }
+  else {
+    m_seedThreshold    = floor(params_->egSeedThreshold()/params_->towerLsbSum()); 
+    m_clusterThreshold = floor(params_->egNeighbourThreshold()/params_->towerLsbSum());
+  }
 }
 
 
@@ -60,8 +68,8 @@ void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::clustering(const std::vector
       clusters.back().setClusterFlag(CaloCluster::PASS_THRES_SEED);
       clusters.back().setHwSeedPt(hwEt);
       // H/E of the cluster is H/E of the seed
-      int hOverE = (towers[towerNr].hwEtEm()>0 ? (towers[towerNr].hwEtHad()<<7)/towers[towerNr].hwEtEm() : 127);
-      if(hOverE>127) hOverE = 127; // bound H/E at 1-? In the future it will be useful to replace with H/(E+H) (or add an other variable), for taus.
+      int hOverE = (towers[towerNr].hwEtEm()>0 ? (towers[towerNr].hwEtHad()<<8)/towers[towerNr].hwEtEm() : 255);
+      if(hOverE>255) hOverE = 255; // bound H/E at 1-? In the future it will be useful to replace with H/(E+H) (or add an other variable), for taus.
       clusters.back().setHOverE(hOverE);
     }
   }
