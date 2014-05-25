@@ -39,8 +39,9 @@ namespace cms
   {
     noHF_ = iConfig.getParameter<bool>("noHF");
 
-    std::string alias(iConfig.getParameter<std::string>("alias"));
-    produces<reco::CaloMETCollection>().setBranchAlias(alias.c_str());
+    std::string alias = iConfig.exists("alias") ? iConfig.getParameter<std::string>("alias") : "";
+
+    produces<reco::CaloMETCollection>().setBranchAlias(alias);
 
     if (calculateSignificance_) resolutions_ = new metsig::SignAlgoResolutions(iConfig);
   }

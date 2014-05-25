@@ -35,8 +35,9 @@ namespace cms
     : inputToken_(consumes<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("src")))
     , globalThreshold_(iConfig.getParameter<double>("globalThreshold"))
   {
-    std::string alias(iConfig.getParameter<std::string>("alias"));
-    produces<reco::METCollection>().setBranchAlias(alias.c_str());
+    std::string alias = iConfig.exists("alias") ? iConfig.getParameter<std::string>("alias") : "";
+
+    produces<reco::METCollection>().setBranchAlias(alias);
   }
 
 
