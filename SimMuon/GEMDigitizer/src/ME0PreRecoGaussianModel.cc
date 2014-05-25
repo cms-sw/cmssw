@@ -7,6 +7,7 @@
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGaussQ.h"
+#include "CLHEP/Random/RandPoissonQ.h"
 
 #include <cmath>
 #include <utility>
@@ -23,22 +24,42 @@ ME0PreRecoGaussianModel::ME0PreRecoGaussianModel(const edm::ParameterSet& config
   digitizeOnlyMuons_(config.getParameter<bool> ("digitizeOnlyMuons")),
   averageEfficiency_(config.getParameter<double> ("averageEfficiency")),
   doBkgNoise_(config.getParameter<bool> ("doBkgNoise")),
-  simulateIntrinsicNoise_
+  simulateIntrinsicNoise_(config.getParameter<bool> ("simulateIntrinsicNoise"))
+
+, averageNoiseRate_(config.getParameter<double> ("averageNoiseRate"))
+, bxwidth_(config.getParameter<int> ("bxwidth"))
+, minBunch_(config.getParameter<int> ("minBunch"))
+, maxBunch_(config.getParameter<int> ("maxBunch"))
+
 {
+//params for the simple pol6 model of neutral bkg for ME0:
+  ME0ModNeuBkgParam0 = 18883;
+  ME0ModNeuBkgParam1 = -553.325;
+  ME0ModNeuBkgParam2 = 7.2999;
+  ME0ModNeuBkgParam3 = -0.0528206;
+  ME0ModNeuBkgParam4 = 0.000216248;
+  ME0ModNeuBkgParam5 = -4.70012e-07;
+  ME0ModNeuBkgParam6 = 4.21832e-10;
 }
 
 ME0PreRecoGaussianModel::~ME0PreRecoGaussianModel()
 {
   if (flat1_)
     delete flat1_;
+  if (flat2_)
+    delete flat2_;
   if ( gauss_)
     delete gauss_;
+  if (poisson_)
+    delete poisson_;
 }
 
 void ME0PreRecoGaussianModel::setRandomEngine(CLHEP::HepRandomEngine& eng)
 {
   flat1_ = new CLHEP::RandFlat(eng);
+  flat2_ = new CLHEP::RandFlat(eng);
   gauss_ = new CLHEP::RandGaussQ(eng);
+  poisson_ = new CLHEP::RandFlat(eng);
 }
 
 void 
@@ -67,17 +88,34 @@ ME0PreRecoGaussianModel::simulateSignal(const ME0EtaPartition* roll,
 
 
 void 
-ME0PreRecoGaussianModel::simulateNoise(const GEMEtaPartition* roll)
+ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll)
 {
-  if (!doBkgNoise_)
-  return;
+  double pi_ = 4*atan(1.);
+  const double cspeed = 299792458; 
+  double trArea(0.0);
+  double trStripArea(0.0);
+  const ME0DetId me0Id(roll->id());
 
-  //calculate noise from model
-  double averageNeutralNoiseRatePerRoll = 0.;
-  double averageNoiseElectronRatePerRoll = 0.;
-  double averageNoiseRatePerRoll = averageNeutralNoiseRatePerRoll + averageNoiseElectronRatePerRoll;
+  if (me0Id.region() == 0)
+  {
+    throw cms::Exception("Geometry")
+        << "GEMSynchronizer::simulateNoise() - this GEM id is from barrel, which cannot happen.";
+  }
 
-  //simulate intrinsic noise
+  const TrapezoidalStripTopology* top_(dynamic_cast<const TrapezoidalStripTopology*> (&(roll->topology())));
+  const int nstrips(roll->nstrips());
+  const float striplength(top_->stripLength());
+  double rollRadius = top_->radius();
+  double xmax_half = rollRadius * tan(pi_/18.); // tan(10 o)
+  const int nBxing(maxBunch_ - minBunch_ + 1);
+  trArea = 2*xmax_half*striplength;
+
+  std::cout << "-------------------" << std::endl;
+  std::cout << "me0Id = " << me0Id << std::endl;
+  std::cout << "radius() = " << top_->radius() << std::endl;
+  std::cout << "striplength = " << striplength << std::endl;
+
+  //simulate intrinsic noise - switched off - there are NO strips
   // fire anywhere in ME0 chamber
   if(simulateIntrinsicNoise_)
   {
@@ -85,26 +123,87 @@ ME0PreRecoGaussianModel::simulateNoise(const GEMEtaPartition* roll)
     for(int j = 0; j < nstrips; ++j)
     {
       const int n_intrHits = poisson_->fire(aveIntrinsicNoisPerStrip);
-    
+      GlobalPoint pointDigiHit = roll->toGlobal(roll->centreOfStrip(j));
+      float x=gauss_->fire(pointDigiHit.x(),sigma_u);
+      float y=gauss_->fire(pointDigiHit.y(),sigma_v); 
+      float ex=sigma_u;
+      float ey=sigma_v;
+
+      double stripRadius = sqrt(pointDigiHit.x()*pointDigiHit.x() + pointDigiHit.y()*pointDigiHit.y() +pointDigiHit.z()*pointDigiHit.z());
+      double timeCalibrationOffset_ = (stripRadius *1e+9)/(cspeed*1e+2); //[ns]
+
       for (int k = 0; k < n_intrHits; k++ )
       {
-        const int time_hit(static_cast<int> (flat2_->fire(nBxing)) + minBunch_);
-        std::pair<int, int> digi(k+1,time_hit);
-        strips_.insert(digi);
+        float tof=gauss_->fire(timeCalibrationOffset_,sigma_t);
+        ME0DigiPreReco digi(x,y,ex,ey,corr,tof);
+        digi_.insert(digi);
       }
     }
   }//end simulate intrinsic noise
 
-  //simulate bkg contribution
-  const double averageNoise(averageNoiseRatePerRoll * nBxing * bxwidth_ * trArea * 1.0e-9 * scaleLumi_);
+//simulate bkg contribution
+  if (!doBkgNoise_)
+  return;
+
+//calculate noise from model
+  double averageNeutralNoiseRatePerRoll = 0.;
+  double averageNoiseElectronRatePerRoll = 0.;
+
+//find random yy in the ME0 partition
+//find random y in roll:
+  float halfstripLenndht = striplength/2.;
+  std::cout << "halfstripLenndht" << halfstripLenndht << std::endl;
+//  float yy = rollRadius + flat2_->fire((rollRadius - striplength/2.), (rollRadius + striplength/2.));
+  float yy = flat2_->fire((rollRadius - halfstripLenndht), (rollRadius + halfstripLenndht));
+  std::cout << "yy = " << yy << std::endl;
+ 
+//calculate neutral bkg at yy from pol6
+  averageNeutralNoiseRatePerRoll = ME0ModNeuBkgParam0
+                                 + ME0ModNeuBkgParam1*yy
+                                 + ME0ModNeuBkgParam2*yy*yy
+                                 + ME0ModNeuBkgParam3*yy*yy*yy
+                                 + ME0ModNeuBkgParam4*yy*yy*yy*yy
+                                 + ME0ModNeuBkgParam5*yy*yy*yy*yy*yy
+                                 + ME0ModNeuBkgParam6*yy*yy*yy*yy*yy*yy;
+
+  double averageNoiseRatePerRoll = averageNeutralNoiseRatePerRoll + averageNoiseElectronRatePerRoll;
+
+  std::cout << "averageNoiseRatePerRoll = " << averageNoiseRatePerRoll <<std::endl;
+  std::cout << "nBxing = " << nBxing <<std::endl;
+  std::cout << "bxwidth = " << bxwidth_ <<std::endl;
+  std::cout << "trArea = " << trArea <<std::endl;
+
+  const double averageNoise(averageNoiseRatePerRoll * nBxing * bxwidth_ * trArea * 1.0e-9);
   const int n_hits(poisson_->fire(averageNoise));
+
+  std::cout << "averageNoise = " << averageNoise << std::endl;
+  std::cout << "n_hits = " << n_hits << std::endl;
 
   for (int i = 0; i < n_hits; ++i)
   {
-    const int centralStrip(static_cast<int> (flat1_->fire(1, nstrips)));
-    const int time_hit(static_cast<int> (flat2_->fire(nBxing)) + minBunch_);
-    std::pair<int, int> digi(centralStrip, time_hit);
-    strips_.insert(digi);
+//find random xx = yy*tg(phi_random)
+//find random phi using random sin phi distribution for phi in[80, 100]
+    float ktemp = flat1_->fire(0., 1.);
+    float phiTemp = acos(sin(pi_/18.) - 2*ktemp*sin(pi_/18.)); // sin(10 o)
+    float phiRand = phiTemp - (4*pi_/9.); // substract 80 o in order to get phiRand in [0, 20] - suppose all the rolls are 20 o
+
+    std::cout << "phiRand = " << (phiRand * 360)/(2*pi_) << std::endl;
+    float xx = yy*tan(phiRand);
+
+    float zz = 539.5; // temporary fixed value, just to run the code
+
+    GlobalPoint pointDigiHit = roll->toGlobal(LocalPoint(xx,yy,zz));
+
+    float ex=sigma_u;
+    float ey=sigma_v;
+
+    double stripRadius = sqrt(pointDigiHit.x()*pointDigiHit.x() + pointDigiHit.y()*pointDigiHit.y() +pointDigiHit.z()*pointDigiHit.z());
+    double timeCalibrationOffset_ = (stripRadius *1e+9)/(cspeed*1e+2); //[ns]
+    float tof=gauss_->fire(timeCalibrationOffset_,sigma_t);
+
+    ME0DigiPreReco digi(xx,yy,ex,ey,corr,tof);
+    digi_.insert(digi);
+    std::cout << "DigiPreReco inserted" << std::endl;
 
   }
 }
