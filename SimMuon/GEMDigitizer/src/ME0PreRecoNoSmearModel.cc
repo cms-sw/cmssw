@@ -36,5 +36,10 @@ ME0PreRecoNoSmearModel::simulateSignal(const ME0EtaPartition* roll,
   }
 }
 
+void 
+ME0PreRecoNoSmearModel::simulateNoise(const ME0EtaPartition* roll)
+{
+}
+
 
 

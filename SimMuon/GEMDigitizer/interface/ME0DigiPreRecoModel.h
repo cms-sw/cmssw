@@ -33,7 +33,7 @@ public:
 
   virtual void simulateSignal(const ME0EtaPartition*, const edm::PSimHitContainer&) = 0;
 
-  //  virtual void simulateNoise(const ME0EtaPartition*) = 0;
+  virtual void simulateNoise(const ME0EtaPartition*) = 0;
   
   //  virtual std::vector<std::pair<int,int> > 
   //   simulateClustering(const ME0EtaPartition*, const PSimHit*, const int) = 0;

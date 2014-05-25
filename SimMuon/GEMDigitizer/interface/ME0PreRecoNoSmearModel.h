@@ -23,6 +23,8 @@ public:
 
   void setRandomEngine(CLHEP::HepRandomEngine&) {}
 
+  void simulateNoise(const ME0EtaPartition*);
+
   void setup() {}
 
 private:
