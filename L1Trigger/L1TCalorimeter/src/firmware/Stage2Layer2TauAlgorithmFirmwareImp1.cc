@@ -29,9 +29,12 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::processEvent(const std::vector<l
 
 
   for ( auto itr = clusters.cbegin(); itr != clusters.end(); ++itr ) {
-    math::XYZTLorentzVector p4;
-    l1t::Tau tau( p4, itr->hwPt(), itr->hwEta(), itr->hwPhi(), 0);
-    taus.push_back(tau);
+    if(itr->checkClusterFlag(l1t::CaloCluster::PASS_THRES_SEED) && 
+       itr->checkClusterFlag(l1t::CaloCluster::PASS_FILTER_CLUSTER) ){
+        math::XYZTLorentzVector p4;
+        l1t::Tau tau( p4, itr->hwPt(), itr->hwEta(), itr->hwPhi(), 0);
+        taus.push_back(tau);
+    }
   }
 
 }

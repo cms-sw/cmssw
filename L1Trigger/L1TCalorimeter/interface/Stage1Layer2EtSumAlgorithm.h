@@ -28,8 +28,8 @@ namespace l1t {
 			      std::vector<l1t::EtSum> * sums) = 0;
 
     virtual ~Stage1Layer2EtSumAlgorithm(){};
-    bool PUSubtract;
-    std::vector<double> regionSubtraction;
+    std::string regionPUSType;
+    std::vector<double> regionPUSParams;
   };
 
 }

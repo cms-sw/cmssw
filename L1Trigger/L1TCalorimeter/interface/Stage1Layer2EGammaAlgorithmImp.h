@@ -19,20 +19,21 @@
 #define L1TCALOSTAGE1EGAMMAALGORITHMIMP_H
 
 #include "L1Trigger/L1TCalorimeter/interface/Stage1Layer2EGammaAlgorithm.h"
-#include "CondFormats/L1TObjects/interface/CaloParams.h"
+//#include "CondFormats/L1TObjects/interface/CaloParams.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloParamsStage1.h"
 
 namespace l1t {
 
   class Stage1Layer2EGammaAlgorithmImpPP : public Stage1Layer2EGammaAlgorithm {
   public:
-    Stage1Layer2EGammaAlgorithmImpPP(CaloParams* params);
+    Stage1Layer2EGammaAlgorithmImpPP(CaloParamsStage1* params);
     virtual ~Stage1Layer2EGammaAlgorithmImpPP();
     virtual void processEvent(const std::vector<l1t::CaloEmCand> & EMCands,
 			      const std::vector<l1t::CaloRegion> & regions,
 			      const std::vector<l1t::Jet> * jets,
 			      std::vector<l1t::EGamma>* egammas);
   private:
-    CaloParams* const params_;
+    CaloParamsStage1* const params_;
     double Isolation(int ieta, int iphi,
     		     const std::vector<l1t::CaloRegion> & regions)  const;
     double HoverE(int et, int ieta, int iphi,
@@ -41,7 +42,7 @@ namespace l1t {
 		           const std::vector<l1t::Jet> * jets) const;
     int egSeedThreshold;
     int jetSeedThreshold;
-    double emScale, jetScale;
+    double egLsb, jetLsb;
     double egRelativeJetIsolationCut;
     // double HoverECut;
   };
