@@ -49,7 +49,6 @@ class PythiaDecays
   gen::Pythia6Service *pyservice;
   Pythia6jets* pyjets;
   // for Pythia8:
-  std::auto_ptr<Pythia8::Pythia>   pythia;
   std::auto_ptr<Pythia8::Pythia>   decayer; 
   std::unique_ptr<gen::P8RndmEngine> p8RndmEngine;
 };
