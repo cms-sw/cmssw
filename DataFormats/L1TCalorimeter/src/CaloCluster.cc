@@ -38,6 +38,11 @@ void l1t::CaloCluster::setHOverE(int hOverE)
   m_hOverE = hOverE;
 }
 
+void l1t::CaloCluster::setFgECAL(int fgECAL)
+{
+  m_fgECAL = fgECAL;
+}
+
 bool l1t::CaloCluster::checkClusterFlag(ClusterFlag flag) const 
 {
   return (m_clusterFlags & (0x1<<flag));
@@ -66,4 +71,9 @@ int l1t::CaloCluster::fgPhi() const
 int l1t::CaloCluster::hOverE() const
 {
   return m_hOverE;
+}
+
+int l1t::CaloCluster::fgECAL() const
+{
+  return m_fgECAL;
 }
