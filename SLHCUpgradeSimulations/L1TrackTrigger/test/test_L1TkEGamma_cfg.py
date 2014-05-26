@@ -20,20 +20,21 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 # that have been created. 
 
 
+# to run over the test rate sample (part 1) :
+from SLHCUpgradeSimulations.L1TrackTrigger.minBiasFiles_p1_cfi import *
 process.source = cms.Source("PoolSource",
-     fileNames = cms.untracked.vstring(
+     fileNames = minBiasFiles_p1
+)
+
+# to run over another sample:
+#process.source = cms.Source("PoolSource",
      # electron file:
      #'/store/group/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Electrons/PU140/m1_SingleElectron_E2023TTI_PU140.root',
      #'/store/group/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Electrons/PU140/m2_SingleElectron_E2023TTI_PU140.root',
      #'/store/group/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Electrons/PU140/m1_SinglePositron_E2023TTI_PU140.root',
      #'/store/group/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Electrons/PU140/m2_SinglePositron_E2023TTI_PU140.root'
-     #
-     # rate test sample:
-     '/store/group/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Neutrinos/PU140_newGT/m1_SingleNeutrino_E2023TTI_PU140.root',
-     '/store/group/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Neutrinos/PU140_newGT/m2_SingleNeutrino_E2023TTI_PU140.root'
-     #
-     )
-)
+     #)
+#)
 
 
 # ---- Global Tag :
