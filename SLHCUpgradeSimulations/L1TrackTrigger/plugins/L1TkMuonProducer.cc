@@ -74,8 +74,6 @@ void L1TkMuonParticleProducer::produce( edm::Event& iEvent, const edm::EventSetu
   using namespace edm;
   using namespace std;
 
-std::cout << " --- MANU enter in L1TkMuonParticleProducer " << std::endl;
-
   std::auto_ptr< L1TkMuonParticleCollection > outputDTMatchInwardsPriority( new L1TkMuonParticleCollection );
   std::auto_ptr< L1TkMuonParticleCollection > outputDTMatchInwardsAverage( new L1TkMuonParticleCollection );
   std::auto_ptr< L1TkMuonParticleCollection > outputDTMatchInwardsMajorityFullTk( new L1TkMuonParticleCollection );
@@ -95,23 +93,17 @@ std::cout << " --- MANU enter in L1TkMuonParticleProducer " << std::endl;
         ++iterDTMatch )
   {
 
-std::cout << " here a DT match " << std::endl;
 
     // create the reference to DTMatch FIXME
     edm::Ptr< DTMatch > dtMatchRef( DTMatchHandle, iMu++ );
 
     // get the bx
     int bx = iterDTMatch->getDTBX();
-std::cout << " bx =  " << bx << std::endl;
 
-// MANU CHECK !
-    //if ( bx != 0 ) continue;
+    if ( bx != 16 ) continue;	// in-time muons have BX = 0
 
-std::cout << " passes bx " << std::endl;
 
     // check the different options
-
-std::cout << " iterDTMatch->getPtPriorityBin() > 0. " << iterDTMatch->getPtPriorityBin() << std::endl;
 
     if ( iterDTMatch->getPtPriorityBin() > 0. )
     {
@@ -218,7 +210,6 @@ std::cout << " iterDTMatch->getPtPriorityBin() > 0. " << iterDTMatch->getPtPrior
       outputDTMatchInwardsMixedMode->push_back( candMu );
     }
 
-std::cout << " iterDTMatch->getPtTTTrackBin() > 0. " << iterDTMatch->getPtTTTrackBin() << std::endl;
 
     if ( iterDTMatch->getPtTTTrackBin() > 0. )
     {
