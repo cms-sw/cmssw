@@ -19,6 +19,11 @@ public:
   HGCEEDetId(const DetId& id);
   /** Assignment from a generic cell id */
   HGCEEDetId& operator=(const DetId& id);
+  
+  /** Converter for a geometry cell id
+   * @param id full EKDetId 
+   */
+  HGCEEDetId geometryCell () const {return HGCEEDetId (subdet(), zside(), layer(), sector(), 0, 0);}
 
   /// get the subdetector
   ForwardSubdetector subdet() const { return HGCEE; }

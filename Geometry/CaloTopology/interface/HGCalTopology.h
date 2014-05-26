@@ -85,10 +85,13 @@ public:
   ///Dense indexing
   virtual uint32_t detId2denseId(const DetId& id) const;
   virtual DetId denseId2detId(uint32_t denseId) const;
+  virtual uint32_t detId2denseGeomId(const DetId& id) const;
 
   ///Is this a valid cell id
   virtual bool valid(const DetId& id) const;
   bool validHashIndex(uint32_t ix) const {return (ix < kSizeForDenseIndexing);}
+  unsigned int totalModules() const {return kSizeForDenseIndexing;}
+  unsigned int totalGeomModules() const {return (unsigned int)(2*kHGeomHalf_);}
   
   /** returns a new DetId offset by nrStepsX and nrStepsY (can be negative),
    * returns DetId(0) if invalid */
@@ -117,7 +120,7 @@ private:
   const HGCalDDDConstants*    hdcons_;
   ForwardSubdetector          subdet_;
   bool                        half_;
-  int                         sectors_, layers_, cells_, kEKhalf_;
+  int                         sectors_, layers_, cells_, kHGhalf_, kHGeomHalf_;
   std::vector<int>            maxcells_;
   unsigned int                kSizeForDenseIndexing;
 };
