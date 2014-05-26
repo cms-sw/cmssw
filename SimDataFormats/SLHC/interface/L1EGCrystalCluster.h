@@ -19,6 +19,9 @@ namespace l1slhc
 
     float ECALiso ;
     float ECALetPUcorr;
+
+	int ieta;
+	int iphi;
     
   };
   
