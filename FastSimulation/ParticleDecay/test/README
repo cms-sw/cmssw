@@ -1,0 +1,29 @@
+Run test_pythiadecays.sh to validate decays in FastSim with particle gun samples. 
+This script first defines a list of particle ids.
+Then it performs the following for each particle id in the list:
+
+1. A CMSSW cfg file is created that configures CMSSW to generate events with a particle gun,
+configured for the respective particle id. The particle gun does not perform any decays.
+In other words all decays are generated inside FastSim.
+
+2. Run CMSSW with this configuration
+
+3. Analyse the output of the above
+   - create histograms with the generated life times, masses and branching ratios
+   - create histograms with the predicted life times, masses and branching ratios,
+     with predictions taken from the pythia8 particle data table
+These histograms are provided for particle ids specified inside the analyzer
+(FastSimulation/ParticleDecay/plugins/TestPythiaDecays.cc)
+This analyzers tracks not only the decays of the initial particles, comming from the particle gun.
+It also tracks all subsequent decays.
+
+4. Draw comparisons between the generated and the predicted observables.
+   Find results in figures/pgun_<PID>/*.png
+
+NOTE:
+
+i)
+the mass of the original particle, comming from the particle gun, is defined outside the FastSim decay machinery (in the particle gun itself)
+
+ii)
+the life times of all particles are defined outside the decay machinery, in the ParticlePropagator class
