@@ -58,15 +58,15 @@ public:
 
 typedef G4THitsCollection<FiberG4Hit> FiberG4HitsCollection;
 
-extern G4Allocator<FiberG4Hit> FiberG4HitAllocator;
+extern G4ThreadLocal G4Allocator<FiberG4Hit> *fFiberG4HitAllocator;
 
 inline void* FiberG4Hit::operator new(size_t) {
-  void* aHit;
-  aHit = (void*) FiberG4HitAllocator.MallocSingle();
-  return aHit;
+  if (!fFiberG4HitAllocator) fFiberG4HitAllocator = 
+    new G4Allocator<FiberG4Hit>;
+  return (void*)fFiberG4HitAllocator->MallocSingle();
 }
 
 inline void FiberG4Hit::operator delete(void *aHit) {
-  FiberG4HitAllocator.FreeSingle((FiberG4Hit*) aHit);
+  fFiberG4HitAllocator->FreeSingle((FiberG4Hit*) aHit);
 }
 #endif

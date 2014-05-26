@@ -2,7 +2,7 @@
 #include <iostream>
 
 
-G4Allocator<FiberG4Hit> FiberG4HitAllocator;
+G4ThreadLocal G4Allocator<FiberG4Hit> *fFiberG4HitAllocator = 0;
 
 FiberG4Hit::FiberG4Hit() : theTowerId(0), theDepth(0), theTrackId(0),
 			   theNpe(0), theTime(0), theLogV(0) {
