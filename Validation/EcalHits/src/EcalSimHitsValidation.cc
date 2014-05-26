@@ -21,6 +21,7 @@ EcalSimHitsValidation::EcalSimHitsValidation(const edm::ParameterSet& ps):
   g4InfoLabel(ps.getParameter<std::string>("moduleLabelG4")),
   EBHitsCollection(ps.getParameter<std::string>("EBHitsCollection")),
   EEHitsCollection(ps.getParameter<std::string>("EEHitsCollection")),
+  EKHitsCollection(ps.getParameter<std::string>("EKHitsCollection")),
   ESHitsCollection(ps.getParameter<std::string>("ESHitsCollection")){
 
   // DQM ROOT output
@@ -54,6 +55,7 @@ EcalSimHitsValidation::EcalSimHitsValidation(const edm::ParameterSet& ps):
   meGunPhi_    = 0;   
   meEBEnergyFraction_  = 0;
   meEEEnergyFraction_  = 0;
+  meEKEnergyFraction_  = 0;
   meESEnergyFraction_  = 0;
 
   Char_t histo[200];
@@ -76,6 +78,9 @@ EcalSimHitsValidation::EcalSimHitsValidation(const edm::ParameterSet& ps):
   
     sprintf (histo, "EcalSimHitsValidation Endcap fraction of energy" ) ;
     meEEEnergyFraction_ = dbe_->book1D(histo, histo, 100 , 0. , 1.1);
+
+    sprintf (histo, "EcalSimHitsValidation Shashlik fraction of energy" ) ;
+    meEKEnergyFraction_ = dbe_->book1D(histo, histo, 100 , 0. , 1.1);
   
     sprintf (histo, "EcalSimHitsValidation Preshower fraction of energy" ) ;
     meESEnergyFraction_ = dbe_->book1D(histo, histo, 60 , 0. , 0.001);
@@ -103,16 +108,19 @@ void EcalSimHitsValidation::analyze(const edm::Event& e, const edm::EventSetup& 
   
   std::vector<PCaloHit>  theEBCaloHits;
   std::vector<PCaloHit>  theEECaloHits;
+  std::vector<PCaloHit>  theEKCaloHits;
   std::vector<PCaloHit>  theESCaloHits;
 
   edm::Handle<edm::HepMCProduct> MCEvt;
   edm::Handle<edm::PCaloHitContainer> EcalHitsEB;
   edm::Handle<edm::PCaloHitContainer> EcalHitsEE;
+  edm::Handle<edm::PCaloHitContainer> EcalHitsEK;
   edm::Handle<edm::PCaloHitContainer> EcalHitsES;
 
   e.getByLabel(HepMCLabel, MCEvt);
   e.getByLabel(g4InfoLabel,EBHitsCollection,EcalHitsEB);
   e.getByLabel(g4InfoLabel,EEHitsCollection,EcalHitsEE);
+  e.getByLabel(g4InfoLabel,EKHitsCollection,EcalHitsEK);
   e.getByLabel(g4InfoLabel,ESHitsCollection,EcalHitsES);
 
   for ( HepMC::GenEvent::particle_const_iterator p = MCEvt->GetEvent()->particles_begin();
@@ -152,6 +160,15 @@ void EcalSimHitsValidation::analyze(const edm::Event& e, const edm::EventSetup& 
       EEEnergy_ += isim->energy();
     }
   }
+
+  double EKEnergy_ = 0.;
+  if ( EcalHitsEK.isValid() ) {
+    theEKCaloHits.insert(theEKCaloHits.end(), EcalHitsEK->begin(), EcalHitsEK->end());
+    for (std::vector<PCaloHit>::iterator isim = theEKCaloHits.begin();
+         isim != theEKCaloHits.end(); ++isim){
+      EKEnergy_ += isim->energy();
+    }
+  } //else edm::LogDebug("EcalSimHitsValidation") << "EcalHitsEK collection not found";
   
   double ESEnergy_ = 0.;
   if ( EcalHitsES.isValid() ) {
@@ -162,21 +179,22 @@ void EcalSimHitsValidation::analyze(const edm::Event& e, const edm::EventSetup& 
     }
   }
   
-  double etot = EBEnergy_ + EEEnergy_ + ESEnergy_ ;
+  double etot = EBEnergy_ + EEEnergy_ + EKEnergy_ + ESEnergy_ ;
   double fracEB = 0.0;
   double fracEE = 0.0;
+  double fracEK = 0.0;
   double fracES = 0.0;
   
   if (etot>0.0) { 
     fracEB  = EBEnergy_/etot; 
     fracEE  = EEEnergy_/etot; 
+    fracEK  = EKEnergy_/etot; 
     fracES  = ESEnergy_/etot; 
   }
   
   if (meEBEnergyFraction_) meEBEnergyFraction_->Fill(fracEB);
-  
   if (meEEEnergyFraction_) meEEEnergyFraction_->Fill(fracEE);
-  
+  if (meEKEnergyFraction_) meEKEnergyFraction_->Fill(fracEK);
   if (meESEnergyFraction_) meESEnergyFraction_->Fill(fracES);
 }
 

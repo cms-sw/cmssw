@@ -30,6 +30,12 @@ reconstruction (excpet for expert studies and validation).
 <!-- Describe modules implemented in this package and their parameter set -->
 
 - EcalDigiProducer
+- EcalPhaseIIDigiProducer (predisposed for shashlik)
+
+\subsection digiProductionWorkflow workflow for unsuppressed digi production
+- Each sim hit is converted in an analog signal in photoelectrons and then summed (by EcalHitResponse).
+- Parameters for the simToPhotoelectron conversion are given by the EcalSimParameterMap class according to the hit subdetector id. The values of the parameter map are taken from ecalSimParameterMap_cff config file.
+- The analog signal is converted into a digital one by the EcalElectronicSim class, where the signal is "amplified" (converted from photoelectrons into GeV) and then converted into digital by the EcalCoder class using the photoelectronstoAnalalog parameter taken from the ecalSimParameterMap_cff
 
 \subsection tests Unit tests and examples
 <!-- Describe cppunit tests and example configuration files -->

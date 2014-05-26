@@ -38,12 +38,12 @@ void
 ShashlikGeometryAnalyzer::analyze( const edm::Event& , 
 				   const edm::EventSetup& iSetup )
 {
-  edm::ESHandle<ShashlikGeometry> shgeo;
+  edm::ESHandle<CaloSubdetectorGeometry> shgeo;
   iSetup.get<ShashlikGeometryRecord>().get( shgeo );
   if(! shgeo.isValid())
     std::cout << "Cannot get a valid ShashlikGeometry Object\n";
 
-  const ShashlikGeometry* geometry = shgeo.product();
+  const CaloSubdetectorGeometry* geometry = shgeo.product();
   const std::vector<DetId>& ids = geometry->getValidDetIds();
 
   edm::ESHandle<ShashlikTopology> topo;

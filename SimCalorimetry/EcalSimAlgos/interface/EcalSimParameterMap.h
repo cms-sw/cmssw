@@ -16,11 +16,22 @@ public:
   EcalSimParameterMap();
   EcalSimParameterMap(double simHitToPhotoelectronsBarrel, 
                       double simHitToPhotoelectronsEndcap, 
+                      double simHitToPhotoelectronsShashlik, 
                       double photoelectronsToAnalogBarrel, 
                       double photoelectronsToAnalogEndcap, 
+                      double photoelectronsToAnalogShashlik, 
                       double samplingFactor, double timePhase,
                       int readoutFrameSize, int binOfMaximum,
                       bool doPhotostatistics, bool syncPhase);
+
+  EcalSimParameterMap(double simHitToPhotoelectronsBarrel, 
+		      double simHitToPhotoelectronsEndcap, 
+		      double photoelectronsToAnalogBarrel, 
+		      double photoelectronsToAnalogEndcap, 
+		      double samplingFactor, double timePhase,
+		      int readoutFrameSize, int binOfMaximum,
+		      bool doPhotostatistics, bool syncPhase);
+
   /// dtor
   virtual ~EcalSimParameterMap() {}
 
@@ -32,6 +43,8 @@ private:
   CaloSimParameters theBarrelParameters;
   /// EE
   CaloSimParameters theEndcapParameters;
+  /// EK
+  CaloSimParameters theShashlikParameters;
   /// ES
   CaloSimParameters theESParameters;
 };

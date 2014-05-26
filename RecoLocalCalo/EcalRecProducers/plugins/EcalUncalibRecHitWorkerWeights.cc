@@ -36,16 +36,22 @@ EcalUncalibRecHitWorkerWeights::run( const edm::Event & evt,
         const EcalXtalGroupId * gid = 0;
         EcalTBWeights::EcalTDCId tdcid(1);
 
-        if (detid.subdetId()==EcalEndcap) {
-                unsigned int hashedIndex = EEDetId(detid).hashedIndex();
-                aped  = &peds->endcap(hashedIndex);
-                aGain = &gains->endcap(hashedIndex);
-                gid   = &grps->endcap(hashedIndex);
+
+	if (detid.subdetId()==EcalEndcap){
+	  unsigned int hashedIndex = EEDetId(detid).hashedIndex();
+	  aped  = &peds->endcap(hashedIndex);
+	  aGain = &gains->endcap(hashedIndex);
+	  gid   = &grps->endcap(hashedIndex);
+	} else if(detid.subdetId()==EcalShashlik){
+	  unsigned int hashedIndex = EKDetId(detid).hashedIndex();
+	  aped  = &peds->shashlik(hashedIndex);
+	  aGain = &gains->shashlik(hashedIndex);
+	  gid   = &grps->shashlik(hashedIndex);
         } else {
-                unsigned int hashedIndex = EBDetId(detid).hashedIndex();
-                aped  = &peds->barrel(hashedIndex);
-                aGain = &gains->barrel(hashedIndex);
-                gid   = &grps->barrel(hashedIndex);
+	  unsigned int hashedIndex = EBDetId(detid).hashedIndex();
+	  aped  = &peds->barrel(hashedIndex);
+	  aGain = &gains->barrel(hashedIndex);
+	  gid   = &grps->barrel(hashedIndex);
         }
 
         pedVec[0] = aped->mean_x12;
@@ -79,17 +85,10 @@ EcalUncalibRecHitWorkerWeights::run( const edm::Event & evt,
         weights[0] = &mat1;
         weights[1] = &mat2;
 
-//        chi2mat[0] = &mat3;
-//        chi2mat[1] = &mat4;
-/*
-        if (detid.subdetId()==EcalEndcap) {
-                result.push_back(uncalibMaker_endcap_.makeRecHit(*itdg, pedVec, gainRatios, weights, chi2mat));
-        } else {
-                result.push_back(uncalibMaker_barrel_.makeRecHit(*itdg, pedVec, gainRatios, weights, chi2mat));
-        }
-*/
         if (detid.subdetId()==EcalEndcap) {
                 result.push_back(uncalibMaker_endcap_.makeRecHit(*itdg, pedVec, pedRMSVec, gainRatios, weights, testbeamEEShape));
+	} else if(detid.subdetId()==EcalShashlik) {
+                result.push_back(uncalibMaker_shashlik_.makeRecHit(*itdg, pedVec, pedRMSVec, gainRatios, weights, testbeamEKShape));
         } else {
                 result.push_back(uncalibMaker_barrel_.makeRecHit(*itdg, pedVec, pedRMSVec, gainRatios, weights, testbeamEBShape));
         }

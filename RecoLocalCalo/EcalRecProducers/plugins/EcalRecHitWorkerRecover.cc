@@ -55,12 +55,12 @@ void EcalRecHitWorkerRecover::set(const edm::EventSetup& es)
         ecalMapping_ = pEcalMapping_.product();
         // geometry...
         es.get<EcalBarrelGeometryRecord>().get("EcalBarrel",pEBGeom_);
-        es.get<EcalEndcapGeometryRecord>().get("EcalEndcap",pEEGeom_);
+        //es.get<EcalEndcapGeometryRecord>().get("EcalEndcap",pEEGeom_);
 	es.get<CaloGeometryRecord>().get(caloGeometry_);
 	es.get<EcalChannelStatusRcd>().get(chStatus_);
         geo_ = caloGeometry_.product();
         ebGeom_ = pEBGeom_.product();
-        eeGeom_ = pEEGeom_.product();
+        //eeGeom_ = pEEGeom_.product();
         es.get<IdealGeometryRecord>().get(ttMap_);
         recoveredDetIds_EB_.clear();
         recoveredDetIds_EE_.clear();

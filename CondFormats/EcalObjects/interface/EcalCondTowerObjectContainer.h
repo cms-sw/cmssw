@@ -1,7 +1,7 @@
 #ifndef ECAL_CONDTOWER_OBJECT_CONTAINER_HH
 #define ECAL_CONDTOWER_OBJECT_CONTAINER_HH
 
-#include "DataFormats/EcalDetId/interface/EcalContainer.h"
+#include "CondFormats/EcalObjects/interface/EcalContainer.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalScDetId.h"
 

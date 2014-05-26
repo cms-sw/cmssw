@@ -20,7 +20,8 @@ RecoLocalCaloFEVT = cms.PSet(
                                            'keep ZDCRecHitsSorted_*_*_*',
                                            'keep *_reducedHcalRecHits_*_*',
                                            'keep *_castorreco_*_*',
-                                           'keep HcalUnpackerReport_*_*_*'
+                                           'keep HcalUnpackerReport_*_*_*',
+                                           'keep EKDigiCollection_simEcalGlobalZeroSuppression_ekDigis_*'
         )
 )
 #RECO content
@@ -45,7 +46,8 @@ RecoLocalCaloAOD = cms.PSet(
     outputCommands = cms.untracked.vstring(
     'keep *_castorreco_*_*',
     'keep *_reducedHcalRecHits_*_*',
-    'keep HcalUnpackerReport_*_*_*'
+    'keep HcalUnpackerReport_*_*_*',
+    'keep EKDigiCollection_simEcalGlobalZeroSuppression_ekDigis_*'
     )
 )
 RecoLocalCaloFEVT.outputCommands.extend(ecalLocalRecoFEVT.outputCommands)

@@ -79,7 +79,7 @@ CaloGeometryBuilder::produceAligned( const CaloGeometryRecord& iRecord )
       else if ( (*ite) == ShashlikGeometry::producerTag() ) 
       {
 	 edm::LogInfo("CaloGeometryBuilder") << "Building Shashlik reconstruction geometry";
-	 iRecord.getRecord< ShashlikGeometryRecord >().get( ShashlikGeometry::producerTag(), pG );  
+	 iRecord.getRecord< ShashlikGeometryRecord >().get( pG );
 	 pCalo->setSubdetGeometry( DetId::Ecal, EcalShashlik , pG.product() );
       }
       else if ( (*ite) == ZdcGeometry::producerTag() ) 

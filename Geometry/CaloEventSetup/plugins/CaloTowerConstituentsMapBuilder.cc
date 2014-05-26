@@ -117,18 +117,23 @@ CaloTowerConstituentsMapBuilder::parseTextMap( const std::string& filename, Calo
 }
 
 //algorithm to assign EE cells to HE towers if no text map is provided
+//generalized by Shervin for Shashlik
 void CaloTowerConstituentsMapBuilder::assignEEtoHE(const CaloGeometry* geometry, CaloTowerConstituentsMap& theMap, const CaloTowerTopology * cttopo){
   //get EE and HE geometries
   const CaloSubdetectorGeometry* geomEE ( geometry->getSubdetectorGeometry( DetId::Ecal, EcalEndcap ) );
+  //const CaloSubdetectorGeometry* geomEK ( 
+  if( geomEE==NULL) geomEE=geometry->getSubdetectorGeometry( DetId::Ecal, EcalShashlik ) ;
+  if(geomEE==NULL) return; // if no EE and no shashlik are defined don't know where it is used  
+
   const CaloSubdetectorGeometry* geomHE ( geometry->getSubdetectorGeometry( DetId::Hcal, HcalEndcap ) );
   
   //get list of EE detids
-  const std::vector<DetId>& vec(geomEE->getValidDetIds(DetId::Ecal,EcalEndcap));
+  const std::vector<DetId>& vec(geomEE->getValidDetIds());
   //loop over EE detids
-  for(unsigned ic = 0; ic < vec.size(); ic++){
-    //get EE detid position
-    EEDetId cell(vec[ic]);
-    const CaloCellGeometry* cellGeometry = geomEE->getGeometry(cell);
+  for(std::vector<DetId>::const_iterator detId_itr =vec.begin();
+      detId_itr != vec.end(); detId_itr++){
+    //get detid position
+    const CaloCellGeometry* cellGeometry = geomEE->getGeometry(*detId_itr);
     const GlobalPoint gp ( cellGeometry->getPosition() ) ;
     
     //find closest HE cell
@@ -136,6 +141,6 @@ void CaloTowerConstituentsMapBuilder::assignEEtoHE(const CaloGeometry* geometry,
     
     //assign to appropriate CaloTower
     CaloTowerDetId tid(cttopo->convertHcaltoCT(closestCell.ietaAbs(),closestCell.subdet())*closestCell.zside(), closestCell.iphi());
-    theMap.assign(vec[ic],tid);
+    theMap.assign(*detId_itr,tid);
   }
 }
