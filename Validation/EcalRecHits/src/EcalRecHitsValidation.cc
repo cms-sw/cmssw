@@ -9,6 +9,7 @@
 #include <Validation/EcalRecHits/interface/EcalRecHitsValidation.h>
 #include <DataFormats/EcalDetId/interface/EBDetId.h>
 #include <DataFormats/EcalDetId/interface/EEDetId.h>
+#include <DataFormats/EcalDetId/interface/EKDetId.h>
 #include <DataFormats/EcalDetId/interface/ESDetId.h>
 #include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -28,9 +29,11 @@ EcalRecHitsValidation::EcalRecHitsValidation(const ParameterSet& ps){
   hitsProducer_              = ps.getParameter<std::string>("hitsProducer");
   EBrechitCollection_        = ps.getParameter<edm::InputTag>("EBrechitCollection");
   EErechitCollection_        = ps.getParameter<edm::InputTag>("EErechitCollection");
+  EKrechitCollection_        = ps.getParameter<edm::InputTag>("EKrechitCollection");
   ESrechitCollection_        = ps.getParameter<edm::InputTag>("ESrechitCollection");
   EBuncalibrechitCollection_ = ps.getParameter<edm::InputTag>("EBuncalibrechitCollection");
   EEuncalibrechitCollection_ = ps.getParameter<edm::InputTag>("EEuncalibrechitCollection");
+  EKuncalibrechitCollection_ = ps.getParameter<edm::InputTag>("EKuncalibrechitCollection");
   
   // ---------------------- 
   // DQM ROOT output 
@@ -68,34 +71,47 @@ EcalRecHitsValidation::EcalRecHitsValidation(const ParameterSet& ps){
   meGunPhi_                    = 0;   
   meEBRecHitSimHitRatio_       = 0;
   meEERecHitSimHitRatio_       = 0;
+  meEKRecHitSimHitRatio_       = 0;
   meESRecHitSimHitRatio_       = 0;
   meEBRecHitSimHitRatio1011_   = 0;
   meEERecHitSimHitRatio1011_   = 0;
+  meEKRecHitSimHitRatio1011_   = 0;
   meEBRecHitSimHitRatio12_     = 0;
   meEERecHitSimHitRatio12_     = 0;
+  meEKRecHitSimHitRatio12_     = 0;
   meEBRecHitSimHitRatio13_     = 0;
   meEERecHitSimHitRatio13_     = 0;
+  meEKRecHitSimHitRatio13_     = 0;
   meEBRecHitSimHitRatioGt35_   = 0;
   meEERecHitSimHitRatioGt35_   = 0;
+  meEKRecHitSimHitRatioGt35_   = 0;
   meEBUnRecHitSimHitRatio_     = 0;
   meEEUnRecHitSimHitRatio_     = 0;
+  meEKUnRecHitSimHitRatio_     = 0;
   meEBUnRecHitSimHitRatioGt35_ = 0;
   meEEUnRecHitSimHitRatioGt35_ = 0;
+  meEKUnRecHitSimHitRatioGt35_ = 0;
   meEBe5x5_                    = 0;
   meEBe5x5OverSimHits_         = 0;
   meEBe5x5OverGun_             = 0;
   meEEe5x5_                    = 0;
   meEEe5x5OverSimHits_         = 0;
   meEEe5x5OverGun_             = 0;
+  meEKe5x5_                    = 0;
+  meEKe5x5OverSimHits_         = 0;
+  meEKe5x5OverGun_             = 0;
   
   meEBRecHitLog10Energy_         = 0;
   meEERecHitLog10Energy_         = 0;
+  meEKRecHitLog10Energy_         = 0;
   meESRecHitLog10Energy_         = 0;
   meEBRecHitLog10EnergyContr_    = 0;
   meEERecHitLog10EnergyContr_    = 0;
+  meEKRecHitLog10EnergyContr_    = 0;
   meESRecHitLog10EnergyContr_    = 0;
   meEBRecHitLog10Energy5x5Contr_ = 0;
   meEERecHitLog10Energy5x5Contr_ = 0;
+  meEKRecHitLog10Energy5x5Contr_ = 0;
 
   meEBRecHitsOccupancyFlag5_6_      = 0;
   meEBRecHitsOccupancyFlag8_9_      = 0;
@@ -103,6 +119,10 @@ EcalRecHitsValidation::EcalRecHitsValidation(const ParameterSet& ps){
   meEERecHitsOccupancyMinusFlag5_6_ = 0;
   meEERecHitsOccupancyPlusFlag8_9_  = 0;
   meEERecHitsOccupancyMinusFlag8_9_ = 0;
+  meEKRecHitsOccupancyPlusFlag5_6_  = 0;
+  meEKRecHitsOccupancyMinusFlag5_6_ = 0;
+  meEKRecHitsOccupancyPlusFlag8_9_  = 0;
+  meEKRecHitsOccupancyMinusFlag8_9_ = 0;
   
   meEBRecHitFlags_                   = 0;
   meEBRecHitSimHitvsSimHitFlag5_6_   = 0;
@@ -115,6 +135,10 @@ EcalRecHitsValidation::EcalRecHitsValidation(const ParameterSet& ps){
   meEERecHitSimHitFlag6_             = 0;
   meEERecHitSimHitFlag7_             = 0;
 
+  meEKRecHitFlags_                   = 0;
+  meEKRecHitSimHitvsSimHitFlag5_6_   = 0;
+  meEKRecHitSimHitFlag6_             = 0;
+  meEKRecHitSimHitFlag7_             = 0;
 
   // ---------------------- 
   std::string histo;
@@ -137,6 +161,9 @@ EcalRecHitsValidation::EcalRecHitsValidation(const ParameterSet& ps){
     histo = "EcalRecHitsTask Endcap RecSimHit Ratio"; 
     meEERecHitSimHitRatio_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
 
+    histo = "EcalRecHitsTask Shashlik RecSimHit Ratio"; 
+    meEKRecHitSimHitRatio_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
+
     histo = "EcalRecHitsTask Preshower RecSimHit Ratio"; 
     meESRecHitSimHitRatio_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
 
@@ -146,11 +173,17 @@ EcalRecHitsValidation::EcalRecHitsValidation(const ParameterSet& ps){
     histo = "EcalRecHitsTask Endcap RecSimHit Ratio gt 3p5 GeV"; 
     meEERecHitSimHitRatioGt35_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
 
+    histo = "EcalRecHitsTask Shashlik RecSimHit Ratio gt 3p5 GeV"; 
+    meEKRecHitSimHitRatioGt35_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
+
     histo = "EcalRecHitsTask Barrel Unc RecSimHit Ratio";  
     meEBUnRecHitSimHitRatio_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);   
 
     histo = "EcalRecHitsTask Endcap Unc RecSimHit Ratio"; 
     meEEUnRecHitSimHitRatio_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
+
+    histo = "EcalRecHitsTask Shashlik Unc RecSimHit Ratio"; 
+    meEKUnRecHitSimHitRatio_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
 
     histo = "EcalRecHitsTask Barrel RecSimHit Ratio Channel Status=10 11";  
     meEBRecHitSimHitRatio1011_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);   
@@ -158,11 +191,17 @@ EcalRecHitsValidation::EcalRecHitsValidation(const ParameterSet& ps){
     histo = "EcalRecHitsTask Endcap RecSimHit Ratio Channel Status=10 11"; 
     meEERecHitSimHitRatio1011_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
 
+    histo = "EcalRecHitsTask Shashlik RecSimHit Ratio Channel Status=10 11"; 
+    meEKRecHitSimHitRatio1011_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
+
     histo = "EcalRecHitsTask Barrel RecSimHit Ratio Channel Status=12";  
     meEBRecHitSimHitRatio12_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);   
 
     histo = "EcalRecHitsTask Endcap RecSimHit Ratio Channel Status=12"; 
     meEERecHitSimHitRatio12_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
+
+    histo = "EcalRecHitsTask Shashlik RecSimHit Ratio Channel Status=12"; 
+    meEKRecHitSimHitRatio12_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
 
     histo = "EcalRecHitsTask Barrel RecSimHit Ratio Channel Status=13";  
     meEBRecHitSimHitRatio13_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);   
@@ -170,11 +209,17 @@ EcalRecHitsValidation::EcalRecHitsValidation(const ParameterSet& ps){
     histo = "EcalRecHitsTask Endcap RecSimHit Ratio Channel Status=13"; 
     meEERecHitSimHitRatio13_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
 
+    histo = "EcalRecHitsTask Shashlik RecSimHit Ratio Channel Status=13"; 
+    meEKRecHitSimHitRatio13_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
+
     histo = "EcalRecHitsTask Barrel Unc RecSimHit Ratio gt 3p5 GeV";  
     meEBUnRecHitSimHitRatioGt35_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);   
 
     histo = "EcalRecHitsTask Endcap Unc RecSimHit Ratio gt 3p5 GeV"; 
     meEEUnRecHitSimHitRatioGt35_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
+
+    histo = "EcalRecHitsTask Shashlik Unc RecSimHit Ratio gt 3p5 GeV"; 
+    meEKUnRecHitSimHitRatioGt35_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
 
     histo = "EcalRecHitsTask Barrel Rec E5x5";
     meEBe5x5_ = dbe_->book1D(histo.c_str(), histo.c_str(), 4000, 0., 400.);
@@ -194,14 +239,27 @@ EcalRecHitsValidation::EcalRecHitsValidation(const ParameterSet& ps){
     histo = "EcalRecHitsTask Endcap Rec E5x5 over gun energy";
     meEEe5x5OverGun_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
 
+    histo = "EcalRecHitsTask Shashlik Rec E5x5";
+    meEKe5x5_ = dbe_->book1D(histo.c_str(), histo.c_str(), 4000, 0., 400.);
+
+    histo = "EcalRecHitsTask Shashlik Rec E5x5 over Sim E5x5";
+    meEKe5x5OverSimHits_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
+
+    histo = "EcalRecHitsTask Shashlik Rec E5x5 over gun energy";
+    meEKe5x5OverGun_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0.9, 1.1);
+
     meEBRecHitLog10Energy_ = dbe_->book1D( "EcalRecHitsTask Barrel Log10 Energy", "EcalRecHitsTask Barrel Log10 Energy", 90, -5., 4. ); 
     meEERecHitLog10Energy_ = dbe_->book1D( "EcalRecHitsTask Endcap Log10 Energy", "EcalRecHitsTask Endcap Log10 Energy", 90, -5., 4. ); 
+    meEKRecHitLog10Energy_ = dbe_->book1D( "EcalRecHitsTask Shashlik Log10 Energy", "EcalRecHitsTask Shashlik Log10 Energy", 90, -5., 4. ); 
     meESRecHitLog10Energy_ = dbe_->book1D( "EcalRecHitsTask Preshower Log10 Energy", "EcalRecHitsTask Preshower Log10 Energy", 90, -5., 4. ); 
     meEBRecHitLog10EnergyContr_ = dbe_->bookProfile( "EcalRecHits Barrel Log10En vs Hit Contribution", "EcalRecHits Barrel Log10En vs Hit Contribution", 90, -5., 4., 100, 0., 1. ); 
     meEERecHitLog10EnergyContr_ = dbe_->bookProfile( "EcalRecHits Endcap Log10En vs Hit Contribution", "EcalRecHits Endcap Log10En vs Hit Contribution", 90, -5., 4., 100, 0., 1. ); 
+    meEKRecHitLog10EnergyContr_ = dbe_->bookProfile( "EcalRecHits Shashlik Log10En vs Hit Contribution", "EcalRecHits Shashlik Log10En vs Hit Contribution", 90, -5., 4., 100, 0., 1. ); 
     meESRecHitLog10EnergyContr_ = dbe_->bookProfile( "EcalRecHits Preshower Log10En vs Hit Contribution", "EcalRecHits Preshower Log10En vs Hit Contribution", 90, -5., 4., 100, 0., 1. ); 
+
     meEBRecHitLog10Energy5x5Contr_ = dbe_->bookProfile( "EcalRecHits Barrel Log10En5x5 vs Hit Contribution", "EcalRecHits Barrel Log10En5x5 vs Hit Contribution", 90, -5., 4., 100, 0., 1. ); 
     meEERecHitLog10Energy5x5Contr_ = dbe_->bookProfile( "EcalRecHits Endcap Log10En5x5 vs Hit Contribution", "EcalRecHits Endcap Log10En5x5 vs Hit Contribution", 90, -5., 4., 100, 0., 1. ); 
+    meEKRecHitLog10Energy5x5Contr_ = dbe_->bookProfile( "EcalRecHits Shashlik Log10En5x5 vs Hit Contribution", "EcalRecHits Shashlik Log10En5x5 vs Hit Contribution", 90, -5., 4., 100, 0., 1. ); 
     
 
     histo = "EB Occupancy Flag=5 6";  
@@ -218,23 +276,43 @@ EcalRecHitsValidation::EcalRecHitsValidation(const ParameterSet& ps){
     histo = "EE- Occupancy Flag=8 9";  
     meEERecHitsOccupancyMinusFlag8_9_ = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
 
+    histo = "EK+ Occupancy Flag=5 6";  
+    meEKRecHitsOccupancyPlusFlag5_6_ = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    histo = "EK- Occupancy Flag=5 6";  
+    meEKRecHitsOccupancyMinusFlag5_6_ = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    histo = "EK+ Occupancy Flag=8 9";  
+    meEKRecHitsOccupancyPlusFlag8_9_ = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    histo = "EK- Occupancy Flag=8 9";  
+    meEKRecHitsOccupancyMinusFlag8_9_ = dbe_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
 
     histo = "EcalRecHitsTask Barrel Reco Flags";  
     meEBRecHitFlags_ = dbe_->book1D(histo.c_str(), histo.c_str(), 10, 0., 10.);   
     histo = "EcalRecHitsTask Endcap Reco Flags";  
     meEERecHitFlags_ = dbe_->book1D(histo.c_str(), histo.c_str(), 10, 0., 10.);   
+    histo = "EcalRecHitsTask Shashlik Reco Flags";  
+    meEKRecHitFlags_ = dbe_->book1D(histo.c_str(), histo.c_str(), 10, 0., 10.);   
+
     histo = "EcalRecHitsTask Barrel RecSimHit Ratio vs SimHit Flag=5 6";  
     meEBRecHitSimHitvsSimHitFlag5_6_ = dbe_->book2D(histo.c_str(), histo.c_str(), 80, 0., 2., 4000, 0., 400. );   
     histo = "EcalRecHitsTask Endcap RecSimHit Ratio vs SimHit Flag=5 6"; 
     meEERecHitSimHitvsSimHitFlag5_6_ = dbe_->book2D(histo.c_str(), histo.c_str(), 80, 0., 2., 4000, 0., 400. );
+    histo = "EcalRecHitsTask Shashlik RecSimHit Ratio vs SimHit Flag=5 6"; 
+    meEKRecHitSimHitvsSimHitFlag5_6_ = dbe_->book2D(histo.c_str(), histo.c_str(), 80, 0., 2., 4000, 0., 400. );
+
     histo = "EcalRecHitsTask Barrel RecSimHit Ratio Flag=6";  
     meEBRecHitSimHitFlag6_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);   
     histo = "EcalRecHitsTask Endcap RecSimHit Ratio Flag=6"; 
     meEERecHitSimHitFlag6_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
+    histo = "EcalRecHitsTask Shashlik RecSimHit Ratio Flag=6"; 
+    meEKRecHitSimHitFlag6_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
+
     histo = "EcalRecHitsTask Barrel RecSimHit Ratio Flag=7";  
     meEBRecHitSimHitFlag7_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);   
     histo = "EcalRecHitsTask Endcap RecSimHit Ratio Flag=7"; 
     meEERecHitSimHitFlag7_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
+    histo = "EcalRecHitsTask Shashlik RecSimHit Ratio Flag=7"; 
+    meEKRecHitSimHitFlag7_ = dbe_->book1D(histo.c_str(), histo.c_str(), 80, 0., 2.);
+
     histo = "EcalRecHitsTask Barrel 5x5 RecSimHit Ratio vs SimHit Flag=8";  
     meEB5x5RecHitSimHitvsSimHitFlag8_ = dbe_->book2D(histo.c_str(), histo.c_str(), 80, 0., 2., 4000, 0., 400. );   
 
@@ -268,6 +346,7 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
   const EcalADCToGeVConstant* agc = pAgc.product();
   const double barrelADCtoGeV_  = agc->getEBValue();
   const double endcapADCtoGeV_ = agc->getEEValue();
+  const double shashlikADCtoGeV_ = agc->getEKValue();
   
   Handle<HepMCProduct> MCEvt;                   
   bool skipMC = false;
@@ -288,12 +367,23 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
 
   bool skipEndcap = false;
   const EEUncalibratedRecHitCollection *EEUncalibRecHit = 0;
-  Handle< EEUncalibratedRecHitCollection > EcalUncalibRecHitEE;
-  e.getByLabel( EEuncalibrechitCollection_, EcalUncalibRecHitEE);
-  if (EcalUncalibRecHitEE.isValid()){ 
-    EEUncalibRecHit = EcalUncalibRecHitEE.product () ;
+//   Handle< EEUncalibratedRecHitCollection > EcalUncalibRecHitEE;
+//   e.getByLabel( EEuncalibrechitCollection_, EcalUncalibRecHitEE);
+//   if (EcalUncalibRecHitEE.isValid()){ 
+//     EEUncalibRecHit = EcalUncalibRecHitEE.product () ;
+//   } else {
+//     skipEndcap = true;
+//   }
+  skipEndcap=true;
+
+  bool skipShashlik = false;
+  const EKUncalibratedRecHitCollection *EKUncalibRecHit = 0;
+  Handle< EKUncalibratedRecHitCollection > EcalUncalibRecHitEK;
+  e.getByLabel( EKuncalibrechitCollection_, EcalUncalibRecHitEK);
+  if (EcalUncalibRecHitEK.isValid()){ 
+    EKUncalibRecHit = EcalUncalibRecHitEK.product () ;
   } else {
-    skipEndcap = true;
+    skipShashlik = true;
   }
 
   const EBRecHitCollection *EBRecHit = 0;
@@ -314,7 +404,17 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
     skipEndcap = true;
   }
 
-  bool skipPreshower = false;
+
+  const EKRecHitCollection *EKRecHit = 0;
+  Handle<EKRecHitCollection> EcalRecHitEK;
+  e.getByLabel( EKrechitCollection_, EcalRecHitEK);
+  if (EcalRecHitEK.isValid()){
+    EKRecHit = EcalRecHitEK.product ();
+  } else {
+    skipShashlik = true;
+  }
+
+  bool skipPreshower = true; //false Shervin
   const ESRecHitCollection *ESRecHit = 0;
   Handle<ESRecHitCollection> EcalRecHitES;
   e.getByLabel( ESrechitCollection_, EcalRecHitES);
@@ -644,6 +744,146 @@ void EcalRecHitsValidation::analyze(const Event& e, const EventSetup& c){
   }
 
   // -------------------------------------------------------------------
+  // SHASHLIK
+
+  if ( ! skipShashlik && false) {
+
+    // 1) loop over simHits
+    const std::string shashlikHitsName(hitsProducer_+"EcalHitsEK");
+    e.getByLabel("mix",shashlikHitsName,crossingFrame);
+    std::auto_ptr<MixCollection<PCaloHit> > 
+      shashlikHits (new MixCollection<PCaloHit>(crossingFrame.product ()));
+  
+    MapType eeSimMap;
+    MapType eeRecMap;
+    const int eecSize = 90;
+    double eecontr[eecSize];
+    double eecontr25[eecSize];
+    for( int i=0; i<eecSize; i++ ) { eecontr[i] = 0.0; eecontr25[i] = 0.0; } 
+    double eetotal = 0.;
+ 
+    for (MixCollection<PCaloHit>::MixItr hitItr = shashlikHits->begin(); hitItr != shashlikHits->end(); ++hitItr) {   
+      EKDetId eeid = EKDetId(hitItr->id()) ;
+      
+      LogDebug("Shashlik, HitInfo")
+	<<" CaloHit "      << hitItr->getName() << " DetID = "        << hitItr->id()   << "\n"
+	<< "Energy = "     << hitItr->energy()  << " Time = "         << hitItr->time() << "\n"
+	<< "EKDetId side " << eeid.zside()      << " = " << eeid.ix() << " " << eeid.iy();
+      
+      uint32_t crystid = eeid.rawId();
+      eeSimMap[crystid] += hitItr->energy();
+    }
+
+
+
+    // 2) loop over RecHits
+    for (EcalUncalibratedRecHitCollection::const_iterator uncalibRecHit = EKUncalibRecHit->begin(); uncalibRecHit != EKUncalibRecHit->end(); ++uncalibRecHit) {
+      EKDetId EKid = EKDetId(uncalibRecHit->id());
+      
+      // Find corresponding recHit
+      EcalRecHitCollection::const_iterator myRecHit = EKRecHit->find(EKid);
+      if( myRecHit == EKRecHit->end() ) continue; 
+      eeRecMap[EKid.rawId()] += myRecHit->energy();
+
+      // Fill log10(Energy) stuff...
+      eetotal += myRecHit->energy();   
+      if( myRecHit->energy() > 0 ) {
+	if( meEKRecHitLog10Energy_ ) meEKRecHitLog10Energy_->Fill( log10( myRecHit->energy() ) );
+	int log10i = int( ( log10( myRecHit->energy() ) + 5. ) * 10. );
+	if( log10i >=0 and log10i < eecSize ) eecontr[ log10i ] += myRecHit->energy();
+      }
+
+      // comparison Rec/Sim hit
+      if ( eeSimMap[EKid.rawId()] != 0. ) {
+	double uncEnergy = uncalibRecHit->amplitude()*shashlikADCtoGeV_;
+	if (meEKUnRecHitSimHitRatio_)                                {meEKUnRecHitSimHitRatio_    ->Fill(uncEnergy/eeSimMap[EKid.rawId()]);}
+	if (meEKUnRecHitSimHitRatioGt35_ && (myRecHit->energy()>3.5)){meEKUnRecHitSimHitRatioGt35_->Fill(uncEnergy/eeSimMap[EKid.rawId()]);}
+      }
+
+      if (myRecHit != EKRecHit->end()) {
+	if ( eeSimMap[EKid.rawId()] != 0. ) {
+	  if (meEKRecHitSimHitRatio_)                                {meEKRecHitSimHitRatio_    ->Fill(myRecHit->energy()/eeSimMap[EKid.rawId()]); }
+	  if (meEKRecHitSimHitRatioGt35_ && (myRecHit->energy()>3.5)){meEKRecHitSimHitRatioGt35_->Fill(myRecHit->energy()/eeSimMap[EKid.rawId()]); }
+
+	  edm::ESHandle<EcalChannelStatus> pEcs;
+	  c.get<EcalChannelStatusRcd>().get(pEcs);
+	  const EcalChannelStatus* ecs = 0;
+	  if( pEcs.isValid() ) ecs = pEcs.product();
+	  if( ecs != 0 ) {
+	    EcalChannelStatusMap::const_iterator csmi = ecs->find(EKid.rawId());
+	    EcalChannelStatusCode csc = 0;
+	    if( csmi != ecs->end() ) csc = *csmi;
+	    uint16_t sc = csc.getStatusCode();
+	    if( meEKRecHitSimHitRatio1011_ != 0 && 
+		( sc == 10 || sc == 11 ) ) { meEKRecHitSimHitRatio1011_->Fill(myRecHit->energy()/eeSimMap[EKid.rawId()]); }
+	    if( meEKRecHitSimHitRatio12_ != 0 && sc == 12 ) { meEKRecHitSimHitRatio12_->Fill(myRecHit->energy()/eeSimMap[EKid.rawId()]); }
+	    if( meEKRecHitSimHitRatio13_ != 0 && sc == 13 ) { meEKRecHitSimHitRatio13_->Fill(myRecHit->energy()/eeSimMap[EKid.rawId()]); }
+	  }
+
+	  int flag = myRecHit->recoFlag();
+	  if( meEKRecHitFlags_ != 0 ) meEKRecHitFlags_->Fill( flag );
+	  if( meEKRecHitSimHitvsSimHitFlag5_6_  && ( flag == EcalRecHit::kSaturated || flag == EcalRecHit::kLeadingEdgeRecovered ))
+	    meEKRecHitSimHitvsSimHitFlag5_6_->Fill( myRecHit->energy()/eeSimMap[EKid.rawId()], eeSimMap[EKid.rawId()] );
+	  if( meEKRecHitSimHitFlag6_  && ( flag == EcalRecHit::kLeadingEdgeRecovered ))
+	    meEKRecHitSimHitFlag6_->Fill( myRecHit->energy()/eeSimMap[EKid.rawId()] );
+	  if( meEKRecHitSimHitFlag7_  && ( flag == EcalRecHit::kNeighboursRecovered ))
+	    meEKRecHitSimHitFlag6_->Fill( myRecHit->energy()/eeSimMap[EKid.rawId()] );
+
+	  if (EKid.zside() > 0) { 
+	    if (meEKRecHitsOccupancyPlusFlag5_6_ && (( flag == EcalRecHit::kSaturated ) || ( flag == EcalRecHit::kLeadingEdgeRecovered ) ))  
+	      meEKRecHitsOccupancyPlusFlag5_6_  ->Fill(EKid.ix(), EKid.iy()); 
+	    if (meEKRecHitsOccupancyPlusFlag8_9_ && (( flag == EcalRecHit::kTowerRecovered ) || ( flag == EcalRecHit::kDead ) ))  
+	      meEKRecHitsOccupancyPlusFlag8_9_  ->Fill(EKid.ix(), EKid.iy()); 
+	  }
+	  if (EKid.zside() < 0) { 
+	    if (meEKRecHitsOccupancyMinusFlag5_6_ && (( flag == EcalRecHit::kSaturated ) || ( flag == EcalRecHit::kLeadingEdgeRecovered ) ))  
+	      meEKRecHitsOccupancyMinusFlag5_6_  ->Fill(EKid.ix(), EKid.iy()); 
+	    if (meEKRecHitsOccupancyMinusFlag8_9_ && (( flag == EcalRecHit::kTowerRecovered ) || ( flag == EcalRecHit::kDead ) ))  
+	      meEKRecHitsOccupancyMinusFlag8_9_  ->Fill(EKid.ix(), EKid.iy()); 
+	  }
+	}
+      }
+      else
+	continue;
+    }  // loop over the UncalibratedechitCollection
+  
+    // RecHits matrix
+    uint32_t  eecenterid = getUnitWithMaxEnergy(eeRecMap);
+    EKDetId myEKid(eecenterid);
+    int bx = myEKid.ix();
+    int by = myEKid.iy();
+    int bz = myEKid.zside();
+    findShashlikMatrix(5,5,bx,by,bz,eeRecMap);
+    double e5x5rec = 0.;
+    double e5x5sim = 0.;
+    for ( unsigned int i = 0; i < crystalMatrix.size(); i++ ) {
+      e5x5rec += eeRecMap[crystalMatrix[i]];
+      e5x5sim += eeSimMap[crystalMatrix[i]];
+      if( eeRecMap[crystalMatrix[i]] > 0 ) {
+	int log10i25 = int( ( log10( eeRecMap[crystalMatrix[i]] ) + 5. ) * 10. );
+	if( log10i25 >=0 && log10i25 < eecSize ) eecontr25[ log10i25 ] += eeRecMap[crystalMatrix[i]];
+      }
+    }
+
+    if( meEKe5x5_ ) meEKe5x5_->Fill(e5x5rec);
+    if ( e5x5sim > 0. && meEKe5x5OverSimHits_ ) meEKe5x5OverSimHits_->Fill(e5x5rec/e5x5sim);
+    if ( eGun > 0. && meEKe5x5OverGun_ ) meEKe5x5OverGun_->Fill(e5x5rec/eGun);
+    
+
+    if( meEKRecHitLog10EnergyContr_  && eetotal != 0 ) {
+      for( int i=0; i<eecSize; i++ ) {
+	meEKRecHitLog10EnergyContr_->Fill( -5.+(float(i)+0.5)/10., eecontr[i]/eetotal );
+      }
+    }
+    
+    if( meEKRecHitLog10Energy5x5Contr_  && e5x5rec != 0 ) {
+      for( int i=0; i<eecSize; i++ ) {
+	meEKRecHitLog10Energy5x5Contr_->Fill( -5.+(float(i)+0.5)/10., eecontr25[i]/e5x5rec );
+      }
+    }
+  }
+
+  // -------------------------------------------------------------------
   // PRESHOWER
 
   if ( ! skipPreshower ) {
@@ -773,6 +1013,33 @@ void EcalRecHitsValidation::findEndcapMatrix(int nCellInX, int nCellInY,
 	}
 	else { continue; }
         crystalMatrix.push_back(index);
+      }
+   }
+}
+
+//to be implemented // Shervin
+void EcalRecHitsValidation::findShashlikMatrix(int nCellInX, int nCellInY,
+                                             int CentralX, int CentralY,int CentralZ,
+                                             MapType&  themap) {
+  int goBackInX = nCellInX/2;
+  int goBackInY = nCellInY/2;
+  crystalMatrix.clear();
+
+   int startX  =  CentralX - goBackInX;
+   int startY  =  CentralY - goBackInY;
+
+   for ( int ix = startX; ix < startX+nCellInX; ix ++ ) {
+
+      for( int iy = startY; iy < startY + nCellInY; iy++ ) {
+
+	//        uint32_t index ;
+
+	throw cms::Exception("EcalRecHitValidation") << "findShashlikMatrix not yet implemented";
+// 	if(EKDetId::validDetId(ix,iy,CentralZ)) {
+//           index = EKDetId(ix,iy,CentralZ).rawId();
+// 	}
+// 	else { continue; }
+//         crystalMatrix.push_back(index);
       }
    }
 }

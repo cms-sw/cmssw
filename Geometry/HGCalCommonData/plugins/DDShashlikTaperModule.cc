@@ -75,8 +75,8 @@ void DDShashlikTaperModule::execute(DDCompactView& cpv) {
   std::string  baseName2  = DDSplit(absorbName).first;
   DDMaterial   matter     = DDMaterial(DDName(DDSplit(fibreMat).first, 
 					      DDSplit(fibreMat).second));
-  DDName       name       = DDName(baseName1+DDSplit(fibreName).first, 
-				   DDSplit(activeName).second);
+  DDName       name       = DDName(DDSplit(fibreName).first+"inActive", 
+				   DDSplit(fibreName).second);
   DDSolid      solid      = DDSolidFactory::tubs(name, 0.5*activeThick, 0, 
 						 holeR, 0, CLHEP::twopi);
   DDLogicalPart fibre1(solid.ddname(), matter, solid);
@@ -84,8 +84,8 @@ void DDShashlikTaperModule::execute(DDCompactView& cpv) {
 			    << " tube made of " << matter.name() << " dim: "
 			    << 0.5*activeThick << ":0:" << holeR << ":0:"
 			    << CLHEP::twopi;
-  name                    = DDName(baseName2+DDSplit(fibreName).first, 
-				   DDSplit(absorbName).second);
+  name                    = DDName(DDSplit(fibreName).first+"inAbsorber", 
+				   DDSplit(fibreName).second);
   solid                   = DDSolidFactory::tubs(name, 0.5*absorbThick, 0,
 						 holeR, 0, CLHEP::twopi);
   DDLogicalPart fibre2(solid.ddname(), matter, solid);
@@ -93,8 +93,8 @@ void DDShashlikTaperModule::execute(DDCompactView& cpv) {
 			    << " tube made of " << matter.name() << " dim: "
 			    << 0.5*absorbThick << ":0:" << holeR << ":0:"
 			    << CLHEP::twopi;
-  name                    = DDName(baseName1+DDSplit(calibFibreName).first, 
-				   DDSplit(activeName).second);
+  name                    = DDName(DDSplit(calibFibreName).first+"inActive", 
+				   DDSplit(calibFibreName).second);
   solid                   = DDSolidFactory::tubs(name, 0.5*activeThick, 0,
 						 calibFibrePars[0], 0, 
 						 CLHEP::twopi);
@@ -103,8 +103,8 @@ void DDShashlikTaperModule::execute(DDCompactView& cpv) {
 			    << " tube made of " << matter.name() << " dim: "
 			    << 0.5*activeThick << ":0:" << calibFibrePars[0]
 			    << ":0:" << CLHEP::twopi;
-  name                    = DDName(baseName2+DDSplit(calibFibreName).first, 
-				   DDSplit(absorbName).second);
+  name                    = DDName(DDSplit(calibFibreName).first+"inAbsorber", 
+				   DDSplit(calibFibreName).second);
   solid                   = DDSolidFactory::tubs(name, 0.5*absorbThick, 0,
 						 calibFibrePars[0], 0, 
 						 CLHEP::twopi);

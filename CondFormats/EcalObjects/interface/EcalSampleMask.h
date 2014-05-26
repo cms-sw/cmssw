@@ -10,6 +10,7 @@
 #include <vector>
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDetId/interface/EKDetId.h"
 
 class EcalSampleMask {
   public:

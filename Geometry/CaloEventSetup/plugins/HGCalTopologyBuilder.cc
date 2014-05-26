@@ -90,7 +90,7 @@ HGCalTopologyBuilder::produce(const IdealGeometryRecord& iRecord ) {
 
   edm::ESHandle<HGCalDDDConstants>  pHGDC;
   iRecord.get(name_, pHGDC) ;
-  const HGCalDDDConstants* hgdc = &(*pHGDC);
+  const HGCalDDDConstants & hgdc = (*pHGDC);
 
   ReturnType ct ( new HGCalTopology(hgdc, subdet_, halfType_) ) ;
   std::cout << "Create HGCalTopology(hgdc,subdet,type)" << std::endl;

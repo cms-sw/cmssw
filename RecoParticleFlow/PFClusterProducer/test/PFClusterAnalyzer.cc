@@ -7,6 +7,11 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+
+#include "SimDataFormats/Track/interface/SimTrack.h"
+#include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 
 using namespace std;
 using namespace edm;
@@ -29,12 +34,21 @@ PFClusterAnalyzer::PFClusterAnalyzer(const edm::ParameterSet& iConfig) {
 
   LogDebug("PFClusterAnalyzer")
     <<" input collection : "<<inputTagPFClusters_ ;
-   
+ 
+  hack = TFile::Open("dump.root","RECREATE");
+  
+  deltaEnergy = new TH1F("e_reso","Shashlik Energy Resolution (Et = 45 GeV, #eta = 2.0)",100,0.0,1.2);
+
 }
 
 
 
-PFClusterAnalyzer::~PFClusterAnalyzer() { }
+PFClusterAnalyzer::~PFClusterAnalyzer() { 
+  hack->cd();
+  deltaEnergy->Write();
+  hack->Close();
+  delete hack;
+}
 
 
 
@@ -49,7 +63,32 @@ void PFClusterAnalyzer::analyze(const Event& iEvent,
   LogDebug("PFClusterAnalyzer")<<"START event: "<<iEvent.id().event()
 			 <<" in run "<<iEvent.id().run()<<endl;
   
+  edm::Handle<reco::GenParticleCollection> genps;
+  iEvent.getByLabel("genParticles",genps);
+
+  edm::Handle<std::vector<SimTrack> > simTracks;
+  iEvent.getByLabel("g4SimHits",simTracks);
+
+  edm::Handle<std::vector<PCaloHit> > simHits;
+  iEvent.getByLabel("g4SimHits","EcalHitsEK",simHits);
+
+  for( const auto& simtrack : *simTracks ) {
+    //if( simtrack.genpartIndex() != -1 ) {
+      std::cout << simtrack.trackerSurfacePosition().eta() << ' ' 
+		<< simtrack.trackerSurfacePosition().phi() << std::endl;      
+      //}
+  }
   
+  math::XYZPoint vtx;
+
+  for( const auto& genp : *genps ) {
+    if( std::abs(genp.pdgId()) == 11 ||
+	std::abs(genp.pdgId()) == 22 ) {
+      vtx = genp.vertex();
+      std::cout << genp.eta() << ' ' << genp.phi() << ' ' << genp.vertex() << std::endl;
+    }
+  }
+
   
   // get PFClusters
 
@@ -61,16 +100,23 @@ void PFClusterAnalyzer::analyze(const Event& iEvent,
   // get PFClusters for isolation
   
   
-  
+  hack->cd();
+
   for( unsigned i=0; i<pfClusters->size(); i++ ) {
     
     const reco::PFCluster& cluster = (*pfClusters)[i];
     
+    deltaEnergy->Fill(cluster.energy()/276.0);
+
     if( verbose_ ) {
       cout<<"PFCluster "<<endl;
       cout<<cluster<<endl;
       cout<<"CaloCluster "<<endl;
       
+      auto direction = cluster.position() - vtx;
+      std::cout << "PFCluster position with vertex" << direction.eta() 
+		<< ' ' << direction.phi() << std::endl;
+
       const CaloCluster* caloc = dynamic_cast<const CaloCluster*> (&cluster);
       assert(caloc);
       cout<<*caloc<<endl;

@@ -21,6 +21,7 @@
 
 #include "SimCalorimetry/EcalSimAlgos/interface/EBShape.h"   
 #include "SimCalorimetry/EcalSimAlgos/interface/EEShape.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/EKShape.h"
 
 
 
@@ -55,9 +56,11 @@ class EcalUncalibRecHitWorkerWeights : public EcalUncalibRecHitWorkerBaseClass {
 
                 EcalUncalibRecHitRecWeightsAlgo<EBDataFrame> uncalibMaker_barrel_;
                 EcalUncalibRecHitRecWeightsAlgo<EEDataFrame> uncalibMaker_endcap_;
+                EcalUncalibRecHitRecWeightsAlgo<EKDataFrame> uncalibMaker_shashlik_;
 
  		const EEShape testbeamEEShape; // used in the chi2
                 const EBShape testbeamEBShape; // can be replaced by simple shape arrays of floats in the future (kostas)
+                const EKShape testbeamEKShape; // can be replaced by simple shape arrays of floats in the future (kostas)
 
 };
 

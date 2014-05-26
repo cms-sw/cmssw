@@ -113,10 +113,12 @@ public:
     2 * 4 *   // +-Z * 4 sectors
     21 * 21 * // maximum supermodules in quadrant  
     5 * 5     // modules in SM
+    //kSizeForDenseIndexing = 88622 // if ix and iy from 1 to 210
   };
 
   /**  static loose hash index for Geometry cell (fiber/ro information is tripped)
    */
+  inline uint32_t hashedIndex() const{return denseIndex();};
   uint32_t denseIndex() const;
 
   /** static loose hash index for Geometry cell (fiber/ro information is tripped) 

@@ -115,10 +115,60 @@ def cust_2023SHCal(process):
         process.simEcalTriggerPrimitiveDigis.BarrelOnly = cms.bool(True)
     if hasattr(process,'digitisation_step'):
     	process.mix.digitizers.ecal.accumulatorType = cms.string('EcalPhaseIIDigiProducer')
+        process.simEcalUnsuppressedDigis = cms.EDAlias(
+            mix = cms.VPSet(
+            cms.PSet(type = cms.string('EBDigiCollection')),
+            cms.PSet(type = cms.string('EEDigiCollection')),
+            cms.PSet(type = cms.string('EKDigiCollection')),
+            cms.PSet(type = cms.string('ESDigiCollection'))
+            )
+            )
+        
+    if hasattr(process,'reconstruction_step'):
+    	process.ecalRecHit.EEuncalibRecHitCollection = cms.InputTag("","")
+        #remove the old EE pfrechit producer
+        del process.particleFlowRecHitECALWithTime.producers[1]
+        del process.particleFlowRecHitECAL.producers[1]
+        process.particleFlowClusterEBEKMerger = cms.EDProducer('PFClusterCollectionMerger',
+                                                               inputs = cms.VInputTag(cms.InputTag('particleFlowClusterECALWithTimeSelected'),
+                                                                                      cms.InputTag('particleFlowClusterEKUncorrected')
+                                                                                      )
+                                                               )   
+        process.pfClusteringECAL.remove(process.particleFlowClusterECAL)
+        process.pfClusteringEK += process.particleFlowClusterEBEKMerger
+        process.pfClusteringEK += process.particleFlowClusterECAL
+        process.particleFlowClusterECAL.inputECAL = cms.InputTag('particleFlowClusterEBEKMerger')
+        process.particleFlowCluster += process.pfClusteringEK
+       
     return process
 
 def cust_2023HGCal(process):
-    process=cust_2023Muon(process)
+    process=customisePostLS1(process)
+    process=customiseBE5DPixel10D(process)
+    process=customise_HcalPhase2(process)
+    process=customise_ev_BE5DPixel10D(process)
+    process=customise_gem2023(process)
+    process=customise_rpc(process)
+    process=jetCustoms.customise_jets(process)
+    if hasattr(process,'L1simulation_step'):
+    	process.simEcalTriggerPrimitiveDigis.BarrelOnly = cms.bool(True)
+    if hasattr(process,'digitisation_step'):
+    	process.mix.digitizers.ecal.accumulatorType = cms.string('EcalPhaseIIDigiProducer')
+        process.load('SimGeneral.MixingModule.hgcalDigitizer_cfi')
+        process.mix.digitizers.hgceeDigitizer=process.hgceeDigitizer
+        process.mix.digitizers.hgchebackDigitizer=process.hgchebackDigitizer
+        process.mix.digitizers.hgchefrontDigitizer=process.hgchefrontDigitizer
+    return process
+
+def cust_2023HGCalMuon(process):
+    process=customisePostLS1(process)
+    process=customiseBE5DPixel10D(process)
+    process=customise_HcalPhase2(process)
+    process=customise_ev_BE5DPixel10D(process)
+    process=customise_gem2023(process)
+    process=customise_rpc(process)
+    process=customise_me0(process)
+    process=jetCustoms.customise_jets(process)
     if hasattr(process,'L1simulation_step'):
     	process.simEcalTriggerPrimitiveDigis.BarrelOnly = cms.bool(True)
     if hasattr(process,'digitisation_step'):

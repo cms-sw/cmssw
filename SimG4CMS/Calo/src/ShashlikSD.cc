@@ -136,31 +136,33 @@ bool ShashlikSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
 #endif
       uint16_t       depth      = getDepth(aStep);
       uint32_t       id0        = setDetUnitId(aStep);
-      for (int fib = 0; fib < fibMax; ++fib) {
-	double wt1 = (useWeight) ? fiberWt(fib, localPoint) : 1;
-	for (int rx = 0; rx < roMax; ++rx) {
-	  double   wt2    = fiberLoss(layer, rx);
-	  int      ro     = (roType == 0) ? rx : rx+1;
-	  EKDetId  id     = EKDetId(id0);
-	  id.setFiber(fib,ro);
-	  uint32_t unitID = (id.rawId());
-	  currentID.setID(unitID, time, primaryID, depth);
-	  edepositEM      = edepEM*wt1*wt2;
-	  edepositHAD     = edepHad*wt1*wt2;
+      if (id0) { // hit is in Shashlik LYSO tile
+	for (int fib = 0; fib < fibMax; ++fib) {
+	  double wt1 = (useWeight) ? fiberWt(fib, localPoint) : 1;
+	  for (int rx = 0; rx < roMax; ++rx) {
+	    double   wt2    = fiberLoss(layer, rx);
+	    int      ro     = (roType == 0) ? rx : rx+1;
+	    EKDetId  id     = EKDetId(id0);
+	    id.setFiber(fib,ro);
+	    uint32_t unitID = (id.rawId());
+	    currentID.setID(unitID, time, primaryID, depth);
+	    edepositEM      = edepEM*wt1*wt2;
+	    edepositHAD     = edepHad*wt1*wt2;
 #ifdef DebugLog
-	  std::cout << "ShashlikSD: " << EKDetId(unitID) << " depth " << depth
-		    << " Track " << primaryID << " time " << time << " wts "
-		    << wt1 << ":" << wt2 << " edep " << (edepEM+edepHad)
-		    << std::endl;
+	    std::cout << "ShashlikSD: " << EKDetId(unitID) << " depth " << depth
+		      << " Track " << primaryID << " time " << time << " wts "
+		      << wt1 << ":" << wt2 << " edep " << (edepEM+edepHad)
+		      << std::endl;
 #endif
-	  // check if it is in the same unit and timeslice as the previous one
-	  if (currentID == previousID) {
-	    updateHit(currentHit);
-	  } else {
-	    if (!checkHit()) currentHit = createNewHit();
-	  }
-	} // end of loop over RO type
-      } // end of loop over fibers
+	    // check if it is in the same unit and timeslice as the previous one
+	    if (currentID == previousID) {
+	      updateHit(currentHit);
+	    } else {
+	      if (!checkHit()) currentHit = createNewHit();
+	    }
+	  } // end of loop over RO type
+	} // end of loop over fibers
+      } // valid id
     } // Make hits
     return true;
   } // Good step
@@ -207,6 +209,7 @@ uint16_t ShashlikSD::getDepth(G4Step *aStep) {
 uint32_t ShashlikSD::setDetUnitId(G4Step *aStep) { 
 
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
+  if (touch->GetVolume(1)->GetName() != "ShashlikModule") return 0;
   int module = touch->GetReplicaNumber(1);
   int ism    = touch->GetReplicaNumber(2);
   int iz     = ((aStep->GetPreStepPoint()->GetPosition()).z() > 0) ? 1 : -1;
@@ -214,7 +217,7 @@ uint32_t ShashlikSD::setDetUnitId(G4Step *aStep) {
 #ifdef DebugLog
   int theSize = touch->GetHistoryDepth()+1;
   std::cout << "ShaslikSD:: ISM|Module|IZ " << ism << ":" << module << ":"
-	    << iz << " touchable size " << theSize;
+	      << iz << " touchable size " << theSize;
   for (int ii = 0; ii < theSize ; ii++)
     std::cout << " [" << ii << "]: " << touch->GetVolume(ii)->GetName() 
 	      << "(" << touch->GetReplicaNumber(ii) << ")";

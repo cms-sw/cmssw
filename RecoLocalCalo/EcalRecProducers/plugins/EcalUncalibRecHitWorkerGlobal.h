@@ -27,6 +27,7 @@
 #include "CondFormats/EcalObjects/interface/EcalSampleMask.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EBShape.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EEShape.h"
+#include "SimCalorimetry/EcalSimAlgos/interface/EKShape.h"
 
 
 namespace edm {
@@ -57,6 +58,7 @@ class EcalUncalibRecHitWorkerGlobal : public EcalUncalibRecHitWorkerBaseClass {
 
 		double timeCorrectionEB(float ampliEB);
 		double timeCorrectionEE(float ampliEE);
+		double timeCorrectionEK(float ampliEE);
 
                 // weights method
                 edm::ESHandle<EcalWeightXtalGroups>  grps;
@@ -65,8 +67,10 @@ class EcalUncalibRecHitWorkerGlobal : public EcalUncalibRecHitWorkerBaseClass {
                 const EcalWeightSet::EcalChi2WeightMatrix* chi2mat[2];
                 EcalUncalibRecHitRecWeightsAlgo<EBDataFrame> weightsMethod_barrel_;
                 EcalUncalibRecHitRecWeightsAlgo<EEDataFrame> weightsMethod_endcap_;
+                EcalUncalibRecHitRecWeightsAlgo<EKDataFrame> weightsMethod_shashlik_;
                 const EEShape testbeamEEShape; // used in the chi2
                 const EBShape testbeamEBShape; // can be replaced by simple shape arrays of float in the future
+                const EKShape testbeamEKShape; // used in the chi2
 
                 // determie which of the samples must actually be used by ECAL local reco
 		edm::ESHandle<EcalSampleMask> sampleMaskHand_;
@@ -74,23 +78,32 @@ class EcalUncalibRecHitWorkerGlobal : public EcalUncalibRecHitWorkerBaseClass {
                 // ratio method
                 std::vector<double> EBtimeFitParameters_; 
                 std::vector<double> EEtimeFitParameters_; 
+                std::vector<double> EKtimeFitParameters_; 
                 std::vector<double> EBamplitudeFitParameters_; 
                 std::vector<double> EEamplitudeFitParameters_; 
+                std::vector<double> EKamplitudeFitParameters_; 
                 std::pair<double,double> EBtimeFitLimits_;  
                 std::pair<double,double> EEtimeFitLimits_;  
+                std::pair<double,double> EKtimeFitLimits_;  
 		bool                doEBtimeCorrection_;
 		bool                doEEtimeCorrection_;
+		bool                doEKtimeCorrection_;
                 std::vector<double> EBtimeCorrAmplitudeBins_; 
                 std::vector<double> EBtimeCorrShiftBins_; 
                 std::vector<double> EEtimeCorrAmplitudeBins_; 
                 std::vector<double> EEtimeCorrShiftBins_; 
+                std::vector<double> EKtimeCorrAmplitudeBins_; 
+                std::vector<double> EKtimeCorrShiftBins_; 
                 EcalUncalibRecHitRatioMethodAlgo<EBDataFrame> ratioMethod_barrel_;
                 EcalUncalibRecHitRatioMethodAlgo<EEDataFrame> ratioMethod_endcap_;
+                EcalUncalibRecHitRatioMethodAlgo<EKDataFrame> ratioMethod_shashlik_;
 
                 double EBtimeConstantTerm_;
                 double EBtimeNconst_;
                 double EEtimeConstantTerm_;
                 double EEtimeNconst_;
+                double EKtimeConstantTerm_;
+                double EKtimeNconst_;
                 double outOfTimeThreshG12pEB_;
                 double outOfTimeThreshG12mEB_;
                 double outOfTimeThreshG61pEB_;
@@ -99,8 +112,13 @@ class EcalUncalibRecHitWorkerGlobal : public EcalUncalibRecHitWorkerBaseClass {
                 double outOfTimeThreshG12mEE_;
                 double outOfTimeThreshG61pEE_;
                 double outOfTimeThreshG61mEE_;
+                double outOfTimeThreshG12pEK_;
+                double outOfTimeThreshG12mEK_;
+                double outOfTimeThreshG61pEK_;
+                double outOfTimeThreshG61mEK_;
                 double amplitudeThreshEB_;
                 double amplitudeThreshEE_;
+                double amplitudeThreshEK_;
                 double ebSpikeThresh_;
 
                 // leading edge method
@@ -108,16 +126,21 @@ class EcalUncalibRecHitWorkerGlobal : public EcalUncalibRecHitWorkerBaseClass {
 		edm::ESHandle<EcalTimeOffsetConstant> offtime;
                 std::vector<double> ebPulseShape_;
                 std::vector<double> eePulseShape_;
+                std::vector<double> ekPulseShape_;
                 EcalUncalibRecHitLeadingEdgeAlgo<EBDataFrame> leadingEdgeMethod_barrel_;
                 EcalUncalibRecHitLeadingEdgeAlgo<EEDataFrame> leadingEdgeMethod_endcap_;
+                EcalUncalibRecHitLeadingEdgeAlgo<EKDataFrame> leadingEdgeMethod_shashlik_;
 
                 // chi2 method
 		bool kPoorRecoFlagEB_;
 		bool kPoorRecoFlagEE_;
+		bool kPoorRecoFlagEK_;
 		double chi2ThreshEB_;
 		double chi2ThreshEE_;
+		double chi2ThreshEK_;
                 std::vector<double> EBchi2Parameters_;
                 std::vector<double> EEchi2Parameters_;
+                std::vector<double> EKchi2Parameters_;
 };
 
 #endif
