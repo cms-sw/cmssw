@@ -80,7 +80,7 @@ struct MyME0SimHit
 
 struct MyME0Digi
 {
-    Int_t detId;
+    Int_t detId, particleType;
     Short_t region, ring, station, layer, chamber, roll;
     Short_t strip, bx;
     Float_t x, y;
@@ -313,6 +313,8 @@ MuonME0Digis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             //loop over digis of given roll
             for (digiItr = (*cItr ).second.first; digiItr != (*cItr ).second.second; ++digiItr)
             {
+		if(abs(digiItr->pdgid()) != 13) continue;
+		me0_digi_.particleType = digiItr->pdgid();
                 me0_digi_.strip = 0;
                 me0_digi_.bx = 0;
                 

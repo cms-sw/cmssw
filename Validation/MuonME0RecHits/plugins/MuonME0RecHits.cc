@@ -351,7 +351,7 @@ MuonME0RecHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             me0_rh.globalX_sim = me0_sh.globalX;
             me0_rh.globalY_sim = me0_sh.globalY;
             me0_rh.globalZ_sim = me0_sh.globalZ;
-            me0_rh.pull = (me0_sh.x - me0_rh.x) / me0_rh.xErr;
+            me0_rh.pull = (me0_sh.x - me0_rh.x) / sqrt(me0_rh.xErr);
             
             // abbreviations
             int re(me0_rh.region);
@@ -518,10 +518,8 @@ MuonME0RecHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             me0_rhFromSeg.xExt = extSegm.x();
             me0_rhFromSeg.yExt = extSegm.y();
             
-            Double_t pull_x = (me0_rhFromSeg.x - me0_rhFromSeg.xExt) / me0_rhFromSeg.xErr;
-            Double_t pull_y = (me0_rhFromSeg.y - me0_rhFromSeg.yExt) / me0_rhFromSeg.yErr;
-            
-            
+	    Double_t pull_x = (me0_rhFromSeg.x - me0_rhFromSeg.xExt) / sqrt(me0_rhFromSeg.xErr);
+	    Double_t pull_y = (me0_rhFromSeg.y - me0_rhFromSeg.yExt) / sqrt(me0_rhFromSeg.yErr);            
             // abbreviations
             int reS(me0_rhFromSeg.region);
             int laS(me0_rhFromSeg.layer);

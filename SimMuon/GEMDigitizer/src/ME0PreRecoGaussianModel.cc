@@ -80,8 +80,9 @@ ME0PreRecoGaussianModel::simulateSignal(const ME0EtaPartition* roll,
     float ey=sigma_v;
     float corr=0.;
     float tof=gauss_->fire(hit.timeOfFlight(),sigma_t);
+    int pdgid = hit.particleType();
      // please keep hit time always 0 for this model
-    ME0DigiPreReco digi(x,y,ex,ey,corr,tof);
+    ME0DigiPreReco digi(x,y,ex,ey,corr,tof,pdgid);
     digi_.insert(digi);
   }
 }
@@ -112,10 +113,8 @@ ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll)
 
   std::cout << "-------------------" << std::endl;
   std::cout << "me0Id = " << me0Id << std::endl;
-  std::cout << "radius() = " << top_->radius() << std::endl;
-  std::cout << "striplength = " << striplength << std::endl;
 
-  //simulate intrinsic noise - switched off - there are NO strips
+  //simulate intrinsic noise - switched Off - there are NO strips
   // fire anywhere in ME0 chamber
   if(simulateIntrinsicNoise_)
   {
@@ -128,6 +127,7 @@ ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll)
       float y=gauss_->fire(pointDigiHit.y(),sigma_v); 
       float ex=sigma_u;
       float ey=sigma_v;
+      float corr=0.;
 
       double stripRadius = sqrt(pointDigiHit.x()*pointDigiHit.x() + pointDigiHit.y()*pointDigiHit.y() +pointDigiHit.z()*pointDigiHit.z());
       double timeCalibrationOffset_ = (stripRadius *1e+9)/(cspeed*1e+2); //[ns]
@@ -135,7 +135,8 @@ ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll)
       for (int k = 0; k < n_intrHits; k++ )
       {
         float tof=gauss_->fire(timeCalibrationOffset_,sigma_t);
-        ME0DigiPreReco digi(x,y,ex,ey,corr,tof);
+        float pdgid = 22;
+        ME0DigiPreReco digi(x,y,ex,ey,corr,tof,pdgid);
         digi_.insert(digi);
       }
     }
@@ -150,10 +151,7 @@ ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll)
   double averageNoiseElectronRatePerRoll = 0.;
 
 //find random yy in the ME0 partition
-//find random y in roll:
   float halfstripLenndht = striplength/2.;
-  std::cout << "halfstripLenndht" << halfstripLenndht << std::endl;
-//  float yy = rollRadius + flat2_->fire((rollRadius - striplength/2.), (rollRadius + striplength/2.));
   float yy = flat2_->fire((rollRadius - halfstripLenndht), (rollRadius + halfstripLenndht));
   std::cout << "yy = " << yy << std::endl;
  
@@ -169,15 +167,13 @@ ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll)
   double averageNoiseRatePerRoll = averageNeutralNoiseRatePerRoll + averageNoiseElectronRatePerRoll;
 
   std::cout << "averageNoiseRatePerRoll = " << averageNoiseRatePerRoll <<std::endl;
-  std::cout << "nBxing = " << nBxing <<std::endl;
-  std::cout << "bxwidth = " << bxwidth_ <<std::endl;
-  std::cout << "trArea = " << trArea <<std::endl;
 
   const double averageNoise(averageNoiseRatePerRoll * nBxing * bxwidth_ * trArea * 1.0e-9);
   const int n_hits(poisson_->fire(averageNoise));
 
   std::cout << "averageNoise = " << averageNoise << std::endl;
   std::cout << "n_hits = " << n_hits << std::endl;
+  float pdgid = 0;
 
   for (int i = 0; i < n_hits; ++i)
   {
@@ -190,18 +186,29 @@ ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll)
     std::cout << "phiRand = " << (phiRand * 360)/(2*pi_) << std::endl;
     float xx = yy*tan(phiRand);
 
-    float zz = 539.5; // temporary fixed value, just to run the code
+    float zz = 527 + (me0Id.layer())*25./6.;
+    std::cout << "layer = " << me0Id.layer() << std::endl;
+    std::cout << "zz = " << zz << std::endl;
+//    float zz = 539.5; // temporary fixed value, just to run the code
 
     GlobalPoint pointDigiHit = roll->toGlobal(LocalPoint(xx,yy,zz));
 
     float ex=sigma_u;
     float ey=sigma_v;
+    float corr=0.;
 
     double stripRadius = sqrt(pointDigiHit.x()*pointDigiHit.x() + pointDigiHit.y()*pointDigiHit.y() +pointDigiHit.z()*pointDigiHit.z());
     double timeCalibrationOffset_ = (stripRadius *1e+9)/(cspeed*1e+2); //[ns]
     float tof=gauss_->fire(timeCalibrationOffset_,sigma_t);
+    float myrand = flat1_->fire(0., 1.);
+    if (myrand <= 0.1)
+      pdgid = 2112; // neutrons
+    else
+      pdgid = 22;
 
-    ME0DigiPreReco digi(xx,yy,ex,ey,corr,tof);
+std::cout << "bkg pdgId = " << pdgid << std::endl;
+
+    ME0DigiPreReco digi(xx,yy,ex,ey,corr,tof,pdgid);
     digi_.insert(digi);
     std::cout << "DigiPreReco inserted" << std::endl;
 
