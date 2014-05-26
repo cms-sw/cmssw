@@ -490,15 +490,19 @@ JetFlavourClustering::matchReclusteredJets(const edm::Handle<edm::View<reco::Jet
 
      if( matchedIdx>=0 )
      {
-       matchedLocks.at(matchedIdx) = true;
        if ( matchedDR2 > rParam_*rParam_ )
-         edm::LogError("JetMatchingFailed") << "Matched reclustered jet " << matchedIdx << " and original jet " << j <<" are separated by dR=" << sqrt(matchedDR2) << " which is greater than the jet size R=" << rParam_ << ". This is not expected so please check that the jet algorithm and jet size match those used for the original jet collection.";
+       {
+         edm::LogError("JetMatchingFailed") << "Matched reclustered jet " << matchedIdx << " and original jet " << j <<" are separated by dR=" << sqrt(matchedDR2) << " which is greater than the jet size R=" << rParam_ << ".\n"
+                                            << "This is not expected so please check that the jet algorithm and jet size match those used for the original jet collection.";
+       }
+       else
+         matchedLocks.at(matchedIdx) = true;
      }
+     else
+       edm::LogError("JetMatchingFailed") << "Matching reclustered to original jets failed. Please check that the jet algorithm and jet size match those used for the original jet collection.";
+
      matchedIndices.push_back(matchedIdx);
    }
-
-   if( std::find( matchedIndices.begin(), matchedIndices.end(), -1 ) != matchedIndices.end() )
-     edm::LogError("JetMatchingFailed") << "Matching reclustered to original jets failed. Please check that the jet algorithm and jet size match those used for the original jet collection.";
 }
 
 // ------------ method that matches groomed and original jets based on minimum dR ------------
@@ -532,9 +536,14 @@ JetFlavourClustering::matchGroomedJets(const edm::Handle<edm::View<reco::Jet> >&
 
      if( matchedIdx>=0 )
      {
-       jetLocks.at(matchedIdx) = true;
        if ( matchedDR2 > rParam_*rParam_ )
-         edm::LogWarning("MatchedJetsFarApart") << "Matched groomed jet " << gj << " and original jet " << matchedIdx <<" are separated by dR=" << sqrt(matchedDR2) << " which is greater than the jet size R=" << rParam_ << ". This is not expected so please check that the two jet collections belong to each other.";
+       {
+         edm::LogWarning("MatchedJetsFarApart") << "Matched groomed jet " << gj << " and original jet " << matchedIdx <<" are separated by dR=" << sqrt(matchedDR2) << " which is greater than the jet size R=" << rParam_ << ".\n"
+                                                << "This is not expected so the matching of these two jets has been discarded. Please check that the two jet collections belong to each other.";
+         matchedIdx = -1;
+       }
+       else
+         jetLocks.at(matchedIdx) = true;
      }
      jetIndices.push_back(matchedIdx);
    }
