@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from CondCore.DBCommon.CondDBSetup_cfi import *
 
 gtDbName = 'frontier://FrontierProd/CMS_CONDITIONS'
-print "CondDB set up to read the Global Tag from : ", gtDbName
+print "# CondDB set up to read the Global Tag from : ", gtDbName
 
 GlobalTag = cms.ESSource( "PoolDBESSource",
     CondDBSetup,
