@@ -328,8 +328,8 @@ baseDataSetRelease=[
     'CMSSW_6_2_0_patch1-POSTLS162_V1_30Aug2013-v2',  # for _13  TeV samples with postLs1 geometry and updated mag field
     'CMSSW_6_2_0_patch1-POSTLS162_V1_30Aug2013HS-v3',# only for MB, to go away once GEN-SIM will be remade
     'CMSSW_6_2_0_patch1-POSTLS162_V1_30Aug2013-v3',  # for _13  RelValZmumuJets_Pt_20_300_GEN_13 and two others
-    'CMSSW_7_0_4-PU25ns_POSTLS170_V7-v1',            # 25ns premixed dataset
-    'CMSSW_7_0_4-PU50ns_POSTLS170_V6-v1'             # 50ns premixed dataset
+    'CMSSW_7_0_5_patch1-PU25ns_POSTLS170_V7-v1',     # 25ns premixed dataset
+    'CMSSW_7_0_5_patch1-PU50ns_POSTLS170_V6-v1'      # 50ns premixed dataset
     ]
 
 # note: INPUT commands to be added once GEN-SIM w/ 13TeV+PostLS1Geo will be available 
