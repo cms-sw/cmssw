@@ -649,7 +649,7 @@ int FedRawDataInputSource::grabNextJsonFile(boost::filesystem::path const& jsonS
         // Input dir gone?
         edm::LogError("FedRawDataInputSource") << "grabNextFile BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what();
         //                                     << " Maybe the file is not yet visible by FU. Trying again in one second";
-        assert(0);
+        sleep(1);
         boost::filesystem::copy(jsonSourcePath,jsonDestPath);
       }
       daqDirector_->unlockFULocal();

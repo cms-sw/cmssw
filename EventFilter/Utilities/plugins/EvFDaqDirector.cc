@@ -112,9 +112,11 @@ namespace evf {
 					  << run_dir_ << " mkdir error:" << strerror(errno);
     }
 
-    //create fu-local.lock in run dir
+    //create fu-local.lock in run open dir
     if (!directorBu_) {
-      std::string fulocal_lock_ = run_dir_+"/"+"fu-local.lock";
+
+      createRunOpendirMaybe();
+      std::string fulocal_lock_ = getRunOpenDirPath() +"/fu-local.lock";
       fulocal_rwlock_fd_ = open(fulocal_lock_.c_str(), O_RDWR | O_CREAT, S_IRWXU | S_IWGRP | S_IRGRP | S_IWOTH | S_IROTH);//O_RDWR?
       if (fulocal_rwlock_fd_==-1)
         throw cms::Exception("DaqDirector") << " Error creating/opening a local lock file -: " << fulocal_lock_.c_str() << " : " << strerror(errno);
@@ -565,5 +567,15 @@ namespace evf {
     flock(fulocal_rwlock_fd2_,LOCK_UN);
   }
 
+
+  void EvFDaqDirector::createRunOpendirMaybe() {
+    // create open dir if not already there
+
+    boost::filesystem::path openPath = getRunOpenDirPath();
+    if (!boost::filesystem::is_directory(openPath)) {
+      LogDebug("EvFDaqDirector") << "<open> FU dir not found. Creating... -:" << openPath.string();
+      boost::filesystem::create_directories(openPath);
+    }
+  }
 
 }

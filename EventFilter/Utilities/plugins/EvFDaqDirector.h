@@ -60,6 +60,7 @@ namespace evf{
       std::string getEoLSFilePathOnFU(const unsigned int ls) const;
       std::string getEoRFilePath() const;
       std::string getEoRFilePathOnFU() const;
+      std::string getRunOpenDirPath() const {return run_dir_ +"/open";}
       void removeFile(unsigned int ls, unsigned int index);
       void removeFile(std::string );
 
@@ -82,6 +83,7 @@ namespace evf{
       void unlockFULocal();
       void lockFULocal2();
       void unlockFULocal2();
+      void createRunOpendirMaybe();
 
 
     private:
