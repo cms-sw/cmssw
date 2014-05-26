@@ -1,10 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-# load jet energy correction parameters
+##____________________________________________________________________________||
 from JetMETCorrections.Configuration.JetCorrectionServices_cff import *
 
-#--------------------------------------------------------------------------------
-# produce Type 1 + 2 MET corrections for CaloJets
+##____________________________________________________________________________||
 caloJetMETcorr = cms.EDProducer("CaloJetMETcorrInputProducer",
     src = cms.InputTag('ak4CaloJets'),
     jetCorrLabel = cms.string("ak4CaloL2L3"), # NOTE: use "ak4CaloL2L3" for MC / "ak4CaloL2L3Residual" for Data
@@ -14,18 +13,14 @@ caloJetMETcorr = cms.EDProducer("CaloJetMETcorrInputProducer",
     skipEMfractionThreshold = cms.double(0.90),
     srcMET = cms.InputTag('corMetGlobalMuons')
 )
-#--------------------------------------------------------------------------------
 
-#--------------------------------------------------------------------------------
-# compute sum of muon corrections
+##____________________________________________________________________________||
 muonCaloMETcorr = cms.EDProducer("MuonMETcorrInputProducer",
     src = cms.InputTag('muons'),
     srcMuonCorrections = cms.InputTag('muonMETValueMapProducer', 'muCorrData')
 )
-#--------------------------------------------------------------------------------
 
-#--------------------------------------------------------------------------------
-# use MET corrections to produce Type 1 / Type 1 + 2 corrected CaloMET objects
+##____________________________________________________________________________||
 caloType1CorrectedMet = cms.EDProducer("CorrectedCaloMETProducer",
     src = cms.InputTag('corMetGlobalMuons'),
     applyType1Corrections = cms.bool(True),
@@ -35,6 +30,7 @@ caloType1CorrectedMet = cms.EDProducer("CorrectedCaloMETProducer",
     applyType2Corrections = cms.bool(False)
 )
 
+##____________________________________________________________________________||
 caloType1p2CorrectedMet = cms.EDProducer("CorrectedCaloMETProducer",
     src = cms.InputTag('corMetGlobalMuons'),
     applyType1Corrections = cms.bool(True),
@@ -53,14 +49,13 @@ caloType1p2CorrectedMet = cms.EDProducer("CorrectedCaloMETProducer",
         C = cms.double(0.1)
     )
 )
-#--------------------------------------------------------------------------------
 
-#--------------------------------------------------------------------------------
-# define sequence to run all modules
+##____________________________________________________________________________||
 produceCaloMETCorrections = cms.Sequence(
     caloJetMETcorr
    * muonCaloMETcorr
    * caloType1CorrectedMet
    * caloType1p2CorrectedMet
 )
-#--------------------------------------------------------------------------------
+
+##____________________________________________________________________________||
