@@ -52,6 +52,17 @@ process.simRctDigis.ecalDigis = cms.VInputTag(cms.InputTag('ecalDigis:EcalTrigge
 process.simRctDigis.hcalDigis = cms.VInputTag(cms.InputTag('hcalDigis'))
 process.simGtDigis.GctInputTag = 'l1tCaloUpgradeToGCTConverter'
 
+## changes to L1 algorithms begin here, the list is exhaustive.
+## commented values should be the default
+## see L1Trigger/L1TCalorimeter/python/l1tCaloStage1Digis_cfi.py for more info
+#process.l1tCaloStage1Digis.FirmwareVersion = cms.uint32(2) # 1=HI algos, 2=PP algos
+#process.l1tCaloStage1Digis.egRelativeJetIsolationCut = cms.double(0.5)
+#process.l1tCaloStage1Digis.tauRelativeJetIsolationCut = cms.double(1.)
+#process.l1tCaloStage1Digis.regionETCutForHT = cms.uint32(7)
+#process.l1tCaloStage1Digis.regionETCutForMET = cms.uint32(0)
+#process.l1tCaloStage1Digis.minGctEtaForSums = cms.int32(4)
+#process.l1tCaloStage1Digis.maxGctEtaForSums = cms.int32(17)
+
 process.digiStep = cms.Sequence(
     process.ecalDigis
     *process.hcalDigis
