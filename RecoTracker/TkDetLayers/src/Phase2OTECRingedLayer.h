@@ -37,7 +37,7 @@ class Phase2OTECRingedLayer GCC11_FINAL : public RingedForwardLayer, public Geom
   // private methods for the implementation of groupedCompatibleDets()
   BoundDisk* computeDisk( const std::vector<const Phase2OTECRing*>& rings) const;
 
-  std::array<int,NOTECRINGS> ringIndicesByCrossingProximity(const TrajectoryStateOnSurface& startingState,
+  std::array<int,3> ringIndicesByCrossingProximity(const TrajectoryStateOnSurface& startingState,
 						   const Propagator& prop ) const;
 
   //  bool isCompatible( const TrajectoryStateOnSurface& ms,

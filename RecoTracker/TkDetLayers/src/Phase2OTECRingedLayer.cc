@@ -38,7 +38,7 @@ public:
 
   // groups in correct order: one may be empty
   inline
-  void mergeOutward(std::array<vector<DetGroup>,NOTECRINGS> & groups, 
+  void mergeOutward(std::array<vector<DetGroup>,3> & groups, 
 		    std::vector<DetGroup> & result ) {
     typedef DetGroupMerger Merger;
     Merger::orderAndMergeTwoLevels(std::move(groups[0]),
@@ -52,7 +52,7 @@ public:
   }
   
   inline
-  void mergeInward(std::array<vector<DetGroup>,NOTECRINGS> & groups,
+  void mergeInward(std::array<vector<DetGroup>,3> & groups,
 		   std::vector<DetGroup> & result ) {
     typedef DetGroupMerger Merger;
     Merger::orderAndMergeTwoLevels(std::move(groups[2]),
@@ -69,7 +69,7 @@ public:
   void
   orderAndMergeLevels(const TrajectoryStateOnSurface& tsos,
 		      const Propagator& prop,
-		      std::array<vector<DetGroup>,NOTECRINGS> & groups,
+		      std::array<vector<DetGroup>,3> & groups,
 		      std::vector<DetGroup> & result ) {
     
     float zpos = tsos.globalPosition().z();
@@ -180,16 +180,17 @@ Phase2OTECRingedLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& s
 				 const MeasurementEstimator& est,
 				 std::vector<DetGroup> & result) const
 {
-  std::array<int,NOTECRINGS> const & ringIndices = ringIndicesByCrossingProximity(startingState,prop);
+  std::array<int,3> const & ringIndices = ringIndicesByCrossingProximity(startingState,prop);
   if ( ringIndices[0]==-1 ) {
     edm::LogError("TkDetLayers") << "TkRingedForwardLayer::groupedCompatibleDets : error in CrossingProximity";
     return;
   }
 
-  std::array<vector<DetGroup>,NOTECRINGS> groupsAtRingLevel;
+  std::array<vector<DetGroup>,3> groupsAtRingLevel;
   //order is ring3,ring1,ring2 i.e. 2 0 1
   //                                0 1 2  
-  constexpr int ringOrder[NOTECRINGS]{1,2,0,3,4,5,6,7,8,9,10,11,12,13,14};
+  //  constexpr int ringOrder[NOTECRINGS]{1,2,0,3,4,5,6,7,8,9,10,11,12,13,14};
+  constexpr int ringOrder[NOTECRINGS]{0,1,0,1,0,1,0,1,0,1,0,1,0,1,0};
   auto index = [&ringIndices,& ringOrder](int i) { return ringOrder[ringIndices[i]];};
 
   auto & closestResult =  groupsAtRingLevel[index(0)];
@@ -202,7 +203,7 @@ Phase2OTECRingedLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& s
   DetGroupElement closestGel( closestResult.front().front());  
   float rWindow = computeWindowSize( closestGel.det(), closestGel.trajectoryState(), est); 
 
-  if(!overlapInR(closestGel.trajectoryState(),ringIndices[1],rWindow)) {
+  if(ringIndices[1] == -1 || !overlapInR(closestGel.trajectoryState(),ringIndices[1],rWindow)) {
     result.swap(closestResult);
     return;
   }
@@ -215,7 +216,7 @@ Phase2OTECRingedLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& s
     return;
   }
  
-  if(!overlapInR(closestGel.trajectoryState(),ringIndices[2],rWindow) ) {
+  if(ringIndices[2] == -1 || !overlapInR(closestGel.trajectoryState(),ringIndices[2],rWindow) ) {
     //then merge 2 levels & return 
     orderAndMergeLevels(closestGel.trajectoryState(),prop,groupsAtRingLevel,result);      
     return;
@@ -234,7 +235,7 @@ Phase2OTECRingedLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& s
 }
 
 
-std::array<int,NOTECRINGS> 
+std::array<int,3> 
 Phase2OTECRingedLayer::ringIndicesByCrossingProximity(const TrajectoryStateOnSurface& startingState,
 					 const Propagator& prop ) const
 {
@@ -270,16 +271,18 @@ Phase2OTECRingedLayer::ringIndicesByCrossingProximity(const TrajectoryStateOnSur
 
   int closestIndex = findClosest(ringCrossings);
   int nextIndex    = findNextIndex(ringCrossings,closestIndex);
-  if ( closestIndex<0 || nextIndex<0 )  return std::array<int,NOTECRINGS>{{-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1}};
+  if ( closestIndex<0 || nextIndex<0 )  return std::array<int,3>{{-1,-1,-1}};
   int nextNextIndex = -1;
+  /*
   for(int i=0; i<NOTECRINGS ; i++){
     if(i!= closestIndex && i!=nextIndex) {
       nextNextIndex = i;
       break;
     }
   }
+  */
   
-  std::array<int,NOTECRINGS> indices{{closestIndex,nextIndex,nextNextIndex}};
+  std::array<int,3> indices{{closestIndex,nextIndex,nextNextIndex}};
   return indices;
 }
 
@@ -321,7 +324,7 @@ Phase2OTECRingedLayer::findNextIndex(const GlobalPoint ringCrossing[NOTECRINGS],
 
   int firstIndexToCheck = (closest != 0)? 0 : 1; 
   float initialR =  ringPars[firstIndexToCheck].theRingR;	     
-  float rDiff = fabs( ringCrossing[0].perp() - initialR);
+  float rDiff = fabs( ringCrossing[firstIndexToCheck].perp() - initialR);
   int theBin = firstIndexToCheck;
   for (int i = firstIndexToCheck+1; i < NOTECRINGS ; i++){
     if ( i != closest) {
