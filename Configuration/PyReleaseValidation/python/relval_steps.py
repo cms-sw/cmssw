@@ -1154,7 +1154,13 @@ steps['RECOPRMXUP15_PU50']=merge([
         {'--customise':'SLHCUpgradeSimulations/Configuration/postLS1CustomsPreMixing.customisePostLS1'}, # temporary replacement for premix; to be brought back to customisePostLS1
         {'--geometry'  : 'Extended2015'},
         step3Up2015Defaults50ns])
-
+steps['RECOPRMXUP15PROD']=merge([
+        {'-s':'RAW2DIGI,L1Reco,RECO,EI'},
+        {'--datatier' : 'GEN-SIM-RECO,AODSIM'}, 
+        {'--eventcontent' : 'RECOSIM,AODSIM'},
+        {'--customise':'SLHCUpgradeSimulations/Configuration/postLS1CustomsPreMixing.customisePostLS1'}, # temporary replacement for premix; to be brought back to customisePostLS1
+        {'--geometry'  : 'Extended2015'},
+        step3Up2015Defaults])
 
 #wmsplit['RECOPU1']=1
 steps['RECOPUDBG']=merge([{'--eventcontent':'RECODEBUG,DQM'},steps['RECOPU1']])
