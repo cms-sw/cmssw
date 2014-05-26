@@ -1,9 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 ##____________________________________________________________________________||
-from JetMETCorrections.Type1MET.caloMETCorrections_cff import *
+from JetMETCorrections.Configuration.JetCorrectionServices_cff import *
 
-##____________________________________________________________________________||
 corrCaloMetType1 = cms.EDProducer(
     "CaloJetMETcorrInputProducer",
     src = cms.InputTag('ak4CaloJets'),
@@ -16,11 +15,17 @@ corrCaloMetType1 = cms.EDProducer(
 )
 
 ##____________________________________________________________________________||
+muCaloMetCorr = cms.EDProducer("MuonMETcorrInputProducer",
+    src = cms.InputTag('muons'),
+    srcMuonCorrections = cms.InputTag('muonMETValueMapProducer', 'muCorrData')
+)
+
+##____________________________________________________________________________||
 corrCaloMetType2 = cms.EDProducer(
     "Type2CorrectionProducer",
     srcUnclEnergySums = cms.VInputTag(
         cms.InputTag('corrCaloMetType1', 'type2'),
-        cms.InputTag('muonCaloMETcorr') # NOTE: use 'muonCaloMETcorr' for 'corMetGlobalMuons', do **not** use it for 'met' !!
+        cms.InputTag('muCaloMetCorr') # NOTE: use this for 'corMetGlobalMuons', do **not** use it for 'met' !!
         ),
     type2CorrFormula = cms.string("A + B*TMath::Exp(-C*x)"),
     type2CorrParameter = cms.PSet(
@@ -33,7 +38,7 @@ corrCaloMetType2 = cms.EDProducer(
 ##____________________________________________________________________________||
 correctionTermsCaloMet = cms.Sequence(
     corrCaloMetType1 +
-    muonCaloMETcorr +
+    muCaloMetCorr +
     corrCaloMetType2
     )
 
