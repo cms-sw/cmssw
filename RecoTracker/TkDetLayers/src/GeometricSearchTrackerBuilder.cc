@@ -2,6 +2,8 @@
 
 #include "PixelBarrelLayerBuilder.h"
 #include "PixelForwardLayerBuilder.h"
+#include "Phase2OTECLayerBuilder.h"
+#include "Phase2OTECRingedLayerBuilder.h"
 #include "TIBLayerBuilder.h"
 #include "TOBLayerBuilder.h"
 #include "TIDLayerBuilder.h"
@@ -11,6 +13,7 @@
 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/Common/interface/Trie.h"
 #include <boost/function.hpp>
@@ -25,6 +28,8 @@ GeometricSearchTrackerBuilder::build(const GeometricDet* theGeometricTracker,
 {
   PixelBarrelLayerBuilder aPixelBarrelLayerBuilder;
   PixelForwardLayerBuilder aPixelForwardLayerBuilder;
+  Phase2OTECLayerBuilder aPhase2OTECLayerBuilder;
+  Phase2OTECRingedLayerBuilder aPhase2OTECRingedLayerBuilder;
   TIBLayerBuilder aTIBLayerBuilder;
   TOBLayerBuilder aTOBLayerBuilder;
   TIDLayerBuilder aTIDLayerBuilder;
@@ -130,10 +135,23 @@ GeometricSearchTrackerBuilder::build(const GeometricDet* theGeometricTracker,
       vector<const GeometricDet*> thePxlFwdGeometricDetLayers = (*it)->components();
       for(vector<const GeometricDet*>::const_iterator it2=thePxlFwdGeometricDetLayers.begin();
 	  it2!=thePxlFwdGeometricDetLayers.end(); it2++){
-	if((*it2)->positionBounds().z() < 0)
-	  theNegPxlFwdLayers.push_back( aPixelForwardLayerBuilder.build(*it2,theGeomDetGeometry) );
-	if((*it2)->positionBounds().z() > 0)
-	  thePosPxlFwdLayers.push_back( aPixelForwardLayerBuilder.build(*it2,theGeomDetGeometry) );
+	std::string layer_name = (*it2)->name();
+	
+	if(layer_name.find("PixelForwardDisk") < layer_name.size()){
+	  edm::LogInfo("BuildingPixelForwardLayer")<<"I got  "<< layer_name;
+	  if((*it2)->positionBounds().z() < 0)
+	    theNegPxlFwdLayers.push_back( aPixelForwardLayerBuilder.build(*it2,theGeomDetGeometry) );
+	  if((*it2)->positionBounds().z() > 0)
+	    thePosPxlFwdLayers.push_back( aPixelForwardLayerBuilder.build(*it2,theGeomDetGeometry) );
+	}
+	else if(layer_name.find("Disc") < layer_name.size()){
+	  edm::LogInfo("BuildingPhase2OTECRingedLayer")<<"I got  "<< layer_name;
+	  if((*it2)->positionBounds().z() < 0)
+	    theNegPxlFwdLayers.push_back( aPhase2OTECRingedLayerBuilder.build(*it2,theGeomDetGeometry) );
+	  if((*it2)->positionBounds().z() > 0)
+	    thePosPxlFwdLayers.push_back( aPhase2OTECRingedLayerBuilder.build(*it2,theGeomDetGeometry) );
+	}
+	else edm::LogError("WrongDiskType")<<" ERROR - I was expecting a PixelForwardDisk or a Disc... I got a "<< layer_name;
       }
     }
 
