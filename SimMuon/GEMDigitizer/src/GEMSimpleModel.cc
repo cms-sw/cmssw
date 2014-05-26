@@ -41,6 +41,7 @@ GEMDigiModel(config)
 , doBkgNoise_(config.getParameter<bool> ("doBkgNoise"))
 , doNoiseCLS_(config.getParameter<bool> ("doNoiseCLS"))
 , fixedRollRadius_(config.getParameter<bool> ("fixedRollRadius"))
+, simulateIntrinsicNoise_(config.getParameter<bool> ("simulateIntrinsicNoise"))
 , scaleLumi_(config.getParameter<double> ("scaleLumi"))
 , simulateElectronBkg_(config.getParameter<bool> ("simulateElectronBkg"))
 , constNeuGE11_(config.getParameter<double> ("constNeuGE11"))
@@ -48,9 +49,8 @@ GEMDigiModel(config)
 , GE21NeuBkgParams_(config.getParameter<std::vector<double>>("GE21NeuBkgParams"))
 , GE11ElecBkgParams_(config.getParameter<std::vector<double>>("GE11ElecBkgParams"))
 , GE21ElecBkgParams_(config.getParameter<std::vector<double>>("GE21ElecBkgParams"))
-, simulateIntrinsicNoise_(config.getParameter<bool> ("simulateIntrinsicNoise"))
-{
 
+{
 }
 
 GEMSimpleModel::~GEMSimpleModel()
@@ -384,8 +384,8 @@ std::vector<std::pair<int, int> > GEMSimpleModel::simulateClustering(const GEMEt
       else if(randForCls <= clsParametrization_[8] && randForCls > clsParametrization_[7])
         clusterSize = 9;
 
-  if (abs(simHit->particleType()) != 13 && fabs(simHit->pabs()) < minPabsNoiseCLS_)
-    return cluster_;
+//  if (abs(simHit->particleType()) != 13 && fabs(simHit->pabs()) < minPabsNoiseCLS_)
+//    return cluster_;
 
   //odd cls
   if (clusterSize % 2 != 0)
