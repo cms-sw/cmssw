@@ -2,13 +2,13 @@
 #define DataFormats_ME0RecHit_H
 
 /** \class ME0RecHit
- *
- *  RecHit for ME0 
- *
- *  $Date: 2014/02/03 16:54:23 $
- *  $Revision: 1.1 $
- *  \author M. Maggi -- INFN Bari 
- */
+*
+* RecHit for ME0
+*
+* $Date: 2014/02/03 16:54:23 $
+* $Revision: 1.1 $
+* \author M. Maggi -- INFN Bari
+*/
 
 #include "DataFormats/TrackingRecHit/interface/RecHit2DLocalPos.h"
 #include "DataFormats/MuonDetId/interface/ME0DetId.h"
@@ -18,7 +18,8 @@ class ME0RecHit : public RecHit2DLocalPos {
  public:
 
   ME0RecHit(const ME0DetId& me0Id,
-	    float tof);
+float tof,
+float pdgid);
 
   /// Default constructor
   ME0RecHit();
@@ -28,15 +29,17 @@ class ME0RecHit : public RecHit2DLocalPos {
   /// resolution (the cell resolution) for the coordinate being measured
   /// and 0 for the two other coordinates
   ME0RecHit(const ME0DetId& me0Id,
-	    float tof,
-	    const LocalPoint& pos);
+float tof,
+float pdgid,
+const LocalPoint& pos);
   
 
   /// Constructor from a local position and error, gemId and bx.
   ME0RecHit(const ME0DetId& me0Id,
-	    float tof, 
-	    const LocalPoint& pos,
-	    const LocalError& err);
+float tof,
+float pdgid,
+const LocalPoint& pos,
+const LocalError& err);
   
 
   /// Destructor
@@ -68,7 +71,7 @@ class ME0RecHit : public RecHit2DLocalPos {
   virtual std::vector<TrackingRecHit*> recHits();
 
 
-  /// Set local position 
+  /// Set local position
   void setPosition(LocalPoint pos) {
     theLocalPosition = pos;
   }
@@ -96,12 +99,17 @@ class ME0RecHit : public RecHit2DLocalPos {
     return theTOF;
   }
 
+  float pdgid() const {
+    return pdgID;
+  }
+
   /// Comparison operator, based on the gemId and the digi time
   bool operator==(const ME0RecHit& hit) const;
 
  private:
   ME0DetId theME0Id;
   float theTOF;
+  float pdgID;
   // Position and error in the Local Ref. Frame of the ME0Layer
   LocalPoint theLocalPosition;
   LocalError theLocalError;
