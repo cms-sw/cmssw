@@ -12,6 +12,8 @@ simGctDigis_Stage1 = cms.Sequence(
     l1tCaloUpgradeToGCTConverter
 )
 
+simGtDigis.GctInputTag = 'l1tCaloUpgradeToGCTConverter'
+
 SimL1Emulator_Stage1 = cms.Sequence(
     simRctDigis +
     simGctDigis_Stage1 +

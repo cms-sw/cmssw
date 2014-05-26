@@ -12,8 +12,6 @@ process.load('Configuration.Geometry.GeometryIdeal_cff')
 # Select the Message Logger output you would like to see:
 process.load('FWCore.MessageService.MessageLogger_cfi')
 
-process.load('L1Trigger/L1TCalorimeter/l1tStage1CaloParams_cfi')
-
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10)
     )
@@ -22,8 +20,9 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
     #fileNames = cms.untracked.vstring("file:22610530-FC24-E311-AF35-003048FFD7C2.root")
-    fileNames = cms.untracked.vstring("file:/mnt/hadoop/cms/store/user/icali/HIHighPt/HIHIHighPt_RAW_Skim_HLT_HIFullTrack14/4d786c9deacb28bba8fe5ed87e99b9e4/SD_HIFullTrack14_975_1_SZU.root")
+    #fileNames = cms.untracked.vstring("file:/mnt/hadoop/cms/store/user/icali/HIHighPt/HIHIHighPt_RAW_Skim_HLT_HIFullTrack14/4d786c9deacb28bba8fe5ed87e99b9e4/SD_HIFullTrack14_975_1_SZU.root")
     #fileNames = cms.untracked.vstring("file:/mnt/hadoop/cms/store/user/icali/HIMinBiasUPC/HIMinBiasUPC_Skim_HLT_HIMinBiasHfOrBSC_v2/35880fcf9fb9fd84b27cd1405e09ffd1/SD_MinBiasHI_977_1_tba.root")
+    fileNames = cms.untracked.vstring("/store/relval/CMSSW_7_1_0_pre8/RelValHydjetQ_MinBias_2760GeV/GEN-SIM-DIGI-RAW-HLTDEBUG/PRE_SHI71_V7-v1/00000/00AAA72D-C1E3-E311-AE93-02163E00F43C.root")
     )
 
 
@@ -34,7 +33,9 @@ process.output = cms.OutputModule(
     outputCommands = cms.untracked.vstring('keep *',
                                            'drop FEDRawDataCollection_rawDataRepacker_*_*',
                                            'drop FEDRawDataCollection_virginRawDataRepacker_*_*'),
-    fileName = cms.untracked.string('L1Emulator_HI_newLayer2.root'),
+#    outputCommands = cms.untracked.vstring('drop *',
+#                                           'keep *_*_*_L1TEMULATION'),    
+    fileName = cms.untracked.string('SimL1Emulator_Stage1.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
         dataTier = cms.untracked.string('')
@@ -44,13 +45,14 @@ process.options = cms.untracked.PSet()
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS1', '')
-process.GlobalTag = GlobalTag(process.GlobalTag, 'GR_P_V27A::All', '')
+process.GlobalTag.connect = cms.string('frontier://FrontierProd/CMS_COND_31X_GLOBALTAG')
+process.GlobalTag.globaltag = cms.string('POSTLS162_V2::All')
+#for HI Data
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'GR_P_V27A::All', '')
 
 process.load('L1Trigger.L1TCalorimeter.L1TCaloStage1_cff')
 process.simRctDigis.ecalDigis = cms.VInputTag(cms.InputTag('ecalDigis:EcalTriggerPrimitives'))
 process.simRctDigis.hcalDigis = cms.VInputTag(cms.InputTag('hcalDigis'))
-process.simGtDigis.GctInputTag = 'l1tCaloUpgradeToGCTConverter'
 
 ## changes to L1 algorithms begin here, the list is exhaustive.
 ## commented values should be the default
