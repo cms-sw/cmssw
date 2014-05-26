@@ -24,6 +24,8 @@
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <FWCore/Utilities/interface/InputTag.h>
+#include "CLHEP/Random/RandomEngine.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 class CSCTriggerPrimitivesBuilder;
 

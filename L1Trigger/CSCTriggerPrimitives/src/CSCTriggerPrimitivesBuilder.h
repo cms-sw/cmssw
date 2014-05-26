@@ -21,8 +21,10 @@
 #include <DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h>
 #include <DataFormats/CSCDigi/interface/CSCCLCTPreTriggerCollection.h>
 #include <DataFormats/GEMDigi/interface/GEMCSCPadDigiCollection.h>
+#include "DataFormats/GEMDigi/interface/GEMCSCCoPadDigiCollection.h"
 #include <DataFormats/RPCDigi/interface/RPCDigiCollection.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include "CLHEP/Random/RandomEngine.h"
 
 class CSCDBL1TPParameters;
 class CSCMotherboard;
@@ -30,6 +32,13 @@ class CSCMuonPortCard;
 class CSCGeometry;
 class GEMGeometry;
 class RPCGeometry;
+
+namespace CLHEP
+{
+  class HepRandomEngine;
+  class RandFlat;
+}
+
 
 class CSCTriggerPrimitivesBuilder
 {
@@ -51,6 +60,9 @@ class CSCTriggerPrimitivesBuilder
   void setGEMGeometry(const GEMGeometry *g) { gem_g = g; }
   void setRPCGeometry(const RPCGeometry *g) { rpc_g = g; }
 
+  /// random engine to disable X% of chambers
+  void setRandomEngine(CLHEP::HepRandomEngine&);
+
   /** Build anode, cathode, and correlated LCTs in each chamber and fill
    *  them into output collections.  Select up to three best correlated LCTs
    *  in each (sub)sector and put them into an output collection as well. */
@@ -62,7 +74,8 @@ class CSCTriggerPrimitivesBuilder
 	     CSCALCTDigiCollection& oc_alct, CSCCLCTDigiCollection& oc_clct,
              CSCCLCTPreTriggerCollection & oc_pretrig,
 	     CSCCorrelatedLCTDigiCollection& oc_lct,
-	     CSCCorrelatedLCTDigiCollection& oc_sorted_lct);
+	     CSCCorrelatedLCTDigiCollection& oc_sorted_lct,
+	     GEMCSCCoPadDigiCollection& oc_gemcopad);
 
   /** Max values of trigger labels for all CSCs; used to construct TMB
    *  processors. */
@@ -87,14 +100,18 @@ class CSCTriggerPrimitivesBuilder
   /// a flag whether to skip chambers from the bad chambers map
   bool checkBadChambers_;
 
+  /** SLHC: randomly disable X% of CSC chambers */
+  double fractionBrokenCSCs_;
+
+
   /** SLHC: special configuration parameters for ME11 treatment. */
   bool smartME1aME1b, disableME1a;
 
   /** SLHC: special switch for disabling ME42 */
   bool disableME42;
 
-  /** SLHC: special switch for the factorized ME1/1 TMB */
-  bool runFactorizedModel_;
+  /** SLHC: special switch for the upgrade ME1/1 TMB */
+  bool runME11ILT_;
 
   /** SLHC: special switch for the upgrade ME2/1 TMB */
   bool runME21ILT_;
@@ -114,6 +131,8 @@ class CSCTriggerPrimitivesBuilder
   const CSCGeometry* csc_g;
   const GEMGeometry* gem_g;
   const RPCGeometry* rpc_g;
+
+  CLHEP::RandFlat* flat_;
 };
 
 #endif

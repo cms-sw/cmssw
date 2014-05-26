@@ -25,8 +25,8 @@ bool CSCSectorReceiverLUT::me_lcl_phi_loaded = false;
 
 CSCSectorReceiverLUT::CSCSectorReceiverLUT(int endcap, int sector, int subsector, int station,
 					   const edm::ParameterSet & pset, bool TMB07):_endcap(endcap),_sector(sector),
-									   _subsector(subsector),
-									   _station(station),isTMB07(TMB07)
+                                                                                       _subsector(subsector),
+                                                                                       _station(station),isTMB07(TMB07)
 {
   LUTsFromFile = pset.getUntrackedParameter<bool>("ReadLUTs",false);
   useMiniLUTs = pset.getUntrackedParameter<bool>("UseMiniLUTs", true);
@@ -294,7 +294,7 @@ gblphidat CSCSectorReceiverLUT::calcGlobalPhiME(const gblphiadd& address) const
     {
       edm::LogWarning("CSCSectorReceiverLUT|getGlobalPhiValue")
 	<< " warning: cscId " << cscid << " is out of bounds ["
-	<< CSCTriggerNumbering::maxTriggerCscId() << "-"
+	<< CSCTriggerNumbering::minTriggerCscId() << "-"
 	<< CSCTriggerNumbering::maxTriggerCscId() << "]\n";
       throw cms::Exception("CSCSectorReceiverLUT")
 	<< "+++ Value of CSC ID, " << cscid
@@ -306,7 +306,7 @@ gblphidat CSCSectorReceiverLUT::calcGlobalPhiME(const gblphiadd& address) const
     {
       edm::LogWarning("CSCSectorReceiverLUT|getGlobalPhiValue")
 	<< " warning: cscId " << cscid << " is out of bounds ["
-	<< CSCTriggerNumbering::maxTriggerCscId() << "-"
+	<< CSCTriggerNumbering::minTriggerCscId() << "-"
 	<< CSCTriggerNumbering::maxTriggerCscId() << "]\n";
       throw cms::Exception("CSCSectorReceiverLUT")
 	<< "+++ Value of CSC ID, " << cscid
@@ -716,12 +716,18 @@ double CSCSectorReceiverLUT::getGlobalEtaValue(const unsigned& thecscid, const u
 
 gbletadat CSCSectorReceiverLUT::calcGlobalEtaME(const gbletaadd& address) const
 {
+
+
   gbletadat result;
   double float_eta = getGlobalEtaValue(address.cscid, address.wire_group, address.phi_local);
   unsigned int_eta = 0;
   unsigned bend_global = 0; // not filled yet... will change when it is.
   const double etaPerBin = (CSCTFConstants::maxEta - CSCTFConstants::minEta)/CSCTFConstants::etaBins;
   const unsigned me12EtaCut = 56;
+
+
+
+
 
   if ((float_eta < CSCTFConstants::minEta) || (float_eta >= CSCTFConstants::maxEta))
     {
@@ -778,10 +784,10 @@ gbletadat CSCSectorReceiverLUT::globalEtaME(int tphi_bend, int tphi_local, int t
   theadd.phi_local = (tphi_local>>(CSCBitWidths::kLocalPhiDataBitWidth - 2)) & 0x3; // want 2 msb of local phi
   theadd.wire_group = twire_group;
   theadd.cscid = tcscid;
-
   if(useMiniLUTs && isTMB07) result = CSCSectorReceiverMiniLUT::calcGlobalEtaMEMini(_endcap, _sector, _station, _subsector, theadd.toint());
   else if(LUTsFromFile) result = me_global_eta[theadd.toint()];
   else result = calcGlobalEtaME(theadd);
+
 
   return result;
 }
