@@ -71,6 +71,9 @@ void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::clustering(const std::vector
       int hOverE = (towers[towerNr].hwEtEm()>0 ? (towers[towerNr].hwEtHad()<<8)/towers[towerNr].hwEtEm() : 255);
       if(hOverE>255) hOverE = 255; // bound H/E at 1-? In the future it will be useful to replace with H/(E+H) (or add an other variable), for taus.
       clusters.back().setHOverE(hOverE);
+      // FG of the cluster is FG of the seed
+      bool fg = (towers[towerNr].hwQual() & (0x1<<2));
+      clusters.back().setFgECAL((int)fg);
     }
   }
   // Filter seed: keep only local maxima

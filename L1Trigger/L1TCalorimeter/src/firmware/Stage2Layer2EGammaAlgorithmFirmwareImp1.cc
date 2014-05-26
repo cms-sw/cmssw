@@ -37,9 +37,13 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
 
       egammas.push_back(clusters[clusNr]);
 
-      // Identification part (for the moment, only H/E)
+      // Identification part 
       bool hOverEBit = idHOverE(clusters[clusNr]);
-      egammas.back().setHwQual( (int)hOverEBit ); // single bit for the moment
+      bool fgBit = !(clusters[clusNr].hwSeedPt()>6 && clusters[clusNr].fgECAL()); 
+      int qual = 0;
+      if(fgBit) qual |= (0x1); // first bit = FG
+      if(hOverEBit) qual |= (0x1<<1); // second bit = H/E
+      egammas.back().setHwQual( qual ); 
 
 
       // Isolation part
