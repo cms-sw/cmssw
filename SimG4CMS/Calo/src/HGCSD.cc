@@ -110,6 +110,8 @@ uint32_t HGCSD::setDetUnitId(G4Step * aStep) {
 
   //determine the exact position in global coordinates in the mass geometry 
   G4ThreeVector hitPoint    = preStepPoint->GetPosition();
+  float globalZ=touch->GetTranslation(0).z();
+  int iz( globalZ>0 ? 1 : -1);
 
   //convert to local coordinates (=local to the current volume): 
   G4ThreeVector localpos = touch->GetHistory()->GetTopTransform().TransformPoint(hitPoint);
@@ -119,14 +121,21 @@ uint32_t HGCSD::setDetUnitId(G4Step * aStep) {
 
   int layer  = touch->GetReplicaNumber(0);
   int module = touch->GetReplicaNumber(1);
-  int iz     = touch->GetReplicaNumber(3)==1 ? 1 : -1;
-  
-  //  std::cout << "layer=" << layer << "=" << touch->GetReplicaNumber(0) << "\t"
-  //  	    << "mod="   << module << "=" << touch->GetReplicaNumber(1) << "\t"
-  //	    << "izplmin=" << iz  << "=" << touch->GetReplicaNumber(3) << std::endl; 
-  //    int layer    = (touch->GetReplicaNumber(0));
-  //  int module = (touch->GetReplicaNumber(1));
-  //  int izplmin = (touch->GetReplicaNumber(3)); 
+
+  //gang in layers (otherwise DetId is not enough to accomodate all layers)
+  //new layer is negative if not to be looked at : set DetId to 0
+  if(numberingScheme)
+    {
+      layer=numberingScheme->getDDDConstants()->simToReco(1,layer,true).second;
+      if(layer<0) return 0;  
+    }
+
+  // if(iz<0) {
+  //     std::cout << "layer=" << layer << "=" << touch->GetReplicaNumber(0) << "\t"
+  // 	      << "mod="   << module << "=" << touch->GetReplicaNumber(1) << "\t"
+  // 	      << "izplmin=" << iz  << "=" << touch->GetReplicaNumber(3) << "\t"
+  // 	      << "globalZ=" << globalZ << std::endl; 
+  //}
 
   return setDetUnitId (subdet, layer, module, iz, localpos);
 }

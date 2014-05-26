@@ -6,7 +6,6 @@
  author: Victor Bazterra, UIC
          Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
- version $Id: HistoCompare.cc,v 1.3 2007/02/14 20:20:08 yumiceva Exp $
 
 ________________________________________________________________**/
 
@@ -19,7 +18,7 @@ HistoCompare::HistoCompare() {
   do_nothing_ = false;
 }
 
-HistoCompare::HistoCompare(TString refFilename) {
+HistoCompare::HistoCompare(const TString& refFilename) {
 
 	result_ = 0;
 	do_nothing_ = false;
@@ -41,7 +40,7 @@ HistoCompare::~HistoCompare() {
 }
 
 
-TH1* HistoCompare::Compare(TH1 *h, TString hname) {
+TH1* HistoCompare::Compare(TH1 *h, const TString& hname) {
 
 	if (do_nothing_) return 0;
 	

@@ -30,10 +30,7 @@ CaloTowerDetId CaloTowerConstituentsMap::towerOf(const DetId& id) const {
 	   (hid.subdet()==HcalEndcap && standardHE_ )  ||
 	   (hid.subdet()==HcalOuter  && standardHO_ )  ||
 	   (hid.subdet()==HcalForward && standardHF_) ) {
-	if ((hid.subdet()==HcalForward) && hid.ietaAbs()==m_hcaltopo->firstHFRing())  // special handling for first HF tower
-	  tid=CaloTowerDetId((m_hcaltopo->firstHFRing()+1)*hid.zside(),hid.iphi());
-	else 
-	  tid=CaloTowerDetId(hid.ieta(),hid.iphi());
+        tid = CaloTowerDetId(m_cttopo->convertHcaltoCT(hid.ietaAbs(),hid.subdet())*hid.zside(),hid.iphi());
       }      
     } else if (id.det()==DetId::Ecal) {
       EcalSubdetector esd=(EcalSubdetector)id.subdetId();

@@ -41,10 +41,12 @@
   </LogicalPart>
 </LogicalPartSection>
 
-<Algorithm name="shashlik:DDShashlikModule">
+<Algorithm name="shashlik:DDShashlikTaperModule">
   <rParent name="shashlikmodule:ShashlikModule"/>
   <String name="ActiveMaterial"     value="shashlikmodule:LYSO"/>
   <String name="ActiveName"         value="shashlikmodule:ShashlikActive"/>
+  <String name="AbsorberMaterial"   value="materials:Tungsten"/>
+  <String name="AbsorberName"       value="shashlikmodule:ShashlikAbsorber"/>
   <Numeric name="ActiveLayers"      value="29"/>
   <Numeric name="ActiveThickness"   value="1.5*mm"/>
   <Numeric name="AbsorberThickness" value="2.5*mm"/>
@@ -63,5 +65,12 @@
   <Vector name="CalibFibreParameters" type="numeric" nEntries="3">
    0.6*mm,  0.0*mm, 0.0*mm </Vector>
 </Algorithm>
+
+<SpecParSection label="shashlikmodule.xml" eval="true">
+  <SpecPar name="ShashlikTree">
+    <PartSelector path="//ShashlikModule.*"/>
+    <Parameter name="ShashlikStructure" value="ShashlikModule" eval="false"/>
+  </SpecPar>  
+</SpecParSection>
 
 </DDDefinition>

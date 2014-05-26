@@ -44,11 +44,13 @@ class TracksClusteringFromDisplacedSeed {
         std::pair<std::vector<reco::TransientTrack>,GlobalPoint> nearTracks(const reco::TransientTrack &seed, const std::vector<reco::TransientTrack> & tracks, const reco::Vertex & primaryVertex) const;
 
 //	unsigned int				maxNTracks;
+        double 					max3DIPSignificance;
+        double 					max3DIPValue;
         double 					min3DIPSignificance;
         double 					min3DIPValue;
         double 					clusterMaxDistance;
         double 					clusterMaxSignificance;
-        double 					clusterScale;
+        double 					distanceRatio;
         double 					clusterMinAngleCosine;
 
 

@@ -153,6 +153,11 @@ class JetFlavourClustering : public edm::EDProducer {
       virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
       virtual void endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
 
+      void insertGhosts(const edm::Handle<reco::GenParticleRefVector>& particles,
+                        const double ghostRescaling,
+                        const bool isHadron, const bool isbHadron, const bool isParton, const bool isLepton,
+                        std::vector<fastjet::PseudoJet>& constituents);
+
       void matchReclusteredJets(const edm::Handle<edm::View<reco::Jet> >& jets,
                                 const std::vector<fastjet::PseudoJet>& matchedJets,
                                 std::vector<int>& matchedIndices);
@@ -169,6 +174,11 @@ class JetFlavourClustering : public edm::EDProducer {
                        const reco::GenParticleRefVector& clusteredPartons,
                        int&  hadronFlavour,
                        int&  partonFlavour);
+
+      void assignToSubjets(const reco::GenParticleRefVector& clusteredParticles,
+                           const edm::Handle<edm::View<reco::Jet> >& subjets,
+                           const std::vector<int>& subjetIndices,
+                           std::vector<reco::GenParticleRefVector>& assignedParticles);
 
       // ----------member data ---------------------------
       const edm::InputTag jets_;        // Input jet collection
@@ -210,7 +220,7 @@ JetFlavourClustering::JetFlavourClustering(const edm::ParameterSet& iConfig) :
    jetAlgorithm_(iConfig.getParameter<std::string>("jetAlgorithm")),
    rParam_(iConfig.getParameter<double>("rParam")),
    jetPtMin_(0.), // hardcoded to 0. since we simply want to recluster all input jets which already had some PtMin applied
-   ghostRescaling_(iConfig.getParameter<double>("ghostRescaling")),
+   ghostRescaling_(iConfig.exists("ghostRescaling") ? iConfig.getParameter<double>("ghostRescaling") : 1e-18),
    hadronFlavourHasPriority_(iConfig.getParameter<bool>("hadronFlavourHasPriority")),
    useSubjets_(iConfig.exists("groomedJets") && iConfig.exists("subjets")),
    useLeptons_(iConfig.exists("leptons"))
@@ -298,40 +308,14 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
    }
    // insert "ghost" b hadrons in the vector of constituents
-   for(reco::GenParticleRefVector::const_iterator it = bHadrons->begin(); it != bHadrons->end(); ++it)
-   {
-     fastjet::PseudoJet p((*it)->px(),(*it)->py(),(*it)->pz(),(*it)->energy());
-     p*=ghostRescaling_; // rescale hadron momentum
-     p.set_user_info(new GhostInfo(true, true, false, false, *it));
-     fjInputs.push_back(p);
-   }
+   insertGhosts(bHadrons, ghostRescaling_, true, true, false, false, fjInputs);
    // insert "ghost" c hadrons in the vector of constituents
-   for(reco::GenParticleRefVector::const_iterator it = cHadrons->begin(); it != cHadrons->end(); ++it)
-   {
-     fastjet::PseudoJet p((*it)->px(),(*it)->py(),(*it)->pz(),(*it)->energy());
-     p*=ghostRescaling_; // rescale hadron momentum
-     p.set_user_info(new GhostInfo(true, false, false, false, *it));
-     fjInputs.push_back(p);
-   }
+   insertGhosts(cHadrons, ghostRescaling_, true, false, false, false, fjInputs);
    // insert "ghost" partons in the vector of constituents
-   for(reco::GenParticleRefVector::const_iterator it = partons->begin(); it != partons->end(); ++it)
-   {
-     fastjet::PseudoJet p((*it)->px(),(*it)->py(),(*it)->pz(),(*it)->energy());
-     p*=ghostRescaling_; // rescale parton momentum
-     p.set_user_info(new GhostInfo(false, false, true, false, *it));
-     fjInputs.push_back(p);
-   }
+   insertGhosts(partons, ghostRescaling_, false, false, true, false, fjInputs);
    // if used, insert "ghost" leptons in the vector of constituents
    if( useLeptons_ )
-   {
-     for(reco::GenParticleRefVector::const_iterator it = leptons->begin(); it != leptons->end(); ++it)
-     {
-       fastjet::PseudoJet p((*it)->px(),(*it)->py(),(*it)->pz(),(*it)->energy());
-       p*=ghostRescaling_; // rescale lepton momentum
-       p.set_user_info(new GhostInfo(false, false, false, true, *it));
-       fjInputs.push_back(p);
-     }
-   }
+     insertGhosts(leptons, ghostRescaling_, false, false, false, true, fjInputs);
 
    // define jet clustering sequence
    fjClusterSeq_ = ClusterSequencePtr( new fastjet::ClusterSequence( fjInputs, *fjJetDefinition_ ) );
@@ -339,7 +323,7 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    std::vector<fastjet::PseudoJet> inclusiveJets = fastjet::sorted_by_pt( fjClusterSeq_->inclusive_jets(jetPtMin_) );
 
    if( inclusiveJets.size() < jets->size() )
-     throw cms::Exception("TooFewReclusteredJets") << "There are fewer reclustered (" << inclusiveJets.size() << ") than original jets (" << jets->size() << "). Please check that the jet algorithm and jet size match those used for the original jet collection.";
+     edm::LogError("TooFewReclusteredJets") << "There are fewer reclustered (" << inclusiveJets.size() << ") than original jets (" << jets->size() << "). Please check that the jet algorithm and jet size match those used for the original jet collection.";
 
    // match reclustered and original jets
    std::vector<int> reclusteredIndices;
@@ -350,7 +334,7 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    if( useSubjets_ )
    {
      if( groomedJets->size() > jets->size() )
-       throw cms::Exception("TooManyGroomedJets") << "There are more groomed (" << groomedJets->size() << ") than original jets (" << jets->size() << "). Please check that the jet algorithm, jet size, and Pt threshold match for the two jet collections.";
+       edm::LogError("TooManyGroomedJets") << "There are more groomed (" << groomedJets->size() << ") than original jets (" << jets->size() << "). Please check that the two jet collections belong to each other.";
 
      matchGroomedJets(jets,groomedJets,groomedIndices);
    }
@@ -370,13 +354,13 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
      {
        if( jets->at(i).pt() < 10. )  // special handling for low-Pt jets (Pt<10 GeV)
          edm::LogWarning("JetPtMismatchAtLowPt") << "The reclustered and original jet " << i << " have different Pt's (" << inclusiveJets.at(reclusteredIndices.at(i)).pt() << " vs " << jets->at(i).pt() << " GeV, respectively).\n"
-                                                 << "Please check that the jet algorithm and jet size match those used for the original jet collection and also make sure the original jets are uncorrected.\n"
-                                                 << "Since the mismatch is at low Pt, it is ignored and only a warning is printed out.\n"
+                                                 << "Please check that the jet algorithm and jet size match those used for the original jet collection and also make sure the original jets are uncorrected. In addition, make sure you are not using CaloJets which are presently not supported.\n"
+                                                 << "Since the mismatch is at low Pt, it is ignored and only a warning is issued.\n"
                                                  << "\nIn extremely rare instances the mismatch could be caused by a difference in the machine precision in which case make sure the original jet collection is produced and reclustering is performed in the same job.";
        else
-         throw cms::Exception("JetPtMismatch") << "The reclustered and original jet " << i << " have different Pt's (" << inclusiveJets.at(reclusteredIndices.at(i)).pt() << " vs " << jets->at(i).pt() << " GeV, respectively).\n"
-                                               << "Please check that the jet algorithm and jet size match those used for the original jet collection and also make sure the original jets are uncorrected.\n"
-                                               << "\nIn extremely rare instances the mismatch could be caused by a difference in the machine precision in which case make sure the original jet collection is produced and reclustering is performed in the same job.";
+         edm::LogError("JetPtMismatch") << "The reclustered and original jet " << i << " have different Pt's (" << inclusiveJets.at(reclusteredIndices.at(i)).pt() << " vs " << jets->at(i).pt() << " GeV, respectively).\n"
+                                        << "Please check that the jet algorithm and jet size match those used for the original jet collection and also make sure the original jets are uncorrected. In addition, make sure you are not using CaloJets which are presently not supported.\n"
+                                        << "\nIn extremely rare instances the mismatch could be caused by a difference in the machine precision in which case make sure the original jet collection is produced and reclustering is performed in the same job.";
      }
 
      reco::GenParticleRefVector clusteredbHadrons;
@@ -431,60 +415,14 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        std::vector<reco::GenParticleRefVector> assignedLeptons(subjetIndices.at(i).size(),reco::GenParticleRefVector());
 
        // loop over clustered b hadrons and assign them to different subjets based on smallest dR
-       for(reco::GenParticleRefVector::const_iterator it = clusteredbHadrons.begin(); it != clusteredbHadrons.end(); ++it)
-       {
-         std::vector<double> dRtoSubjets;
-
-         for(size_t sj=0; sj<subjetIndices.at(i).size(); ++sj)
-           dRtoSubjets.push_back( reco::deltaR( (*it)->rapidity(), (*it)->phi(), subjets->at(subjetIndices.at(i).at(sj)).rapidity(), subjets->at(subjetIndices.at(i).at(sj)).phi() ) );
-
-         // find the closest subjet
-         int closestSubjetIdx = std::distance( dRtoSubjets.begin(), std::min_element(dRtoSubjets.begin(), dRtoSubjets.end()) );
-
-         assignedbHadrons.at(closestSubjetIdx).push_back( *it );
-       }
+       assignToSubjets(clusteredbHadrons, subjets, subjetIndices.at(i), assignedbHadrons);
        // loop over clustered c hadrons and assign them to different subjets based on smallest dR
-       for(reco::GenParticleRefVector::const_iterator it = clusteredcHadrons.begin(); it != clusteredcHadrons.end(); ++it)
-       {
-         std::vector<double> dRtoSubjets;
-
-         for(size_t sj=0; sj<subjetIndices.at(i).size(); ++sj)
-           dRtoSubjets.push_back( reco::deltaR( (*it)->rapidity(), (*it)->phi(), subjets->at(subjetIndices.at(i).at(sj)).rapidity(), subjets->at(subjetIndices.at(i).at(sj)).phi() ) );
-
-         // find the closest subjet
-         int closestSubjetIdx = std::distance( dRtoSubjets.begin(), std::min_element(dRtoSubjets.begin(), dRtoSubjets.end()) );
-
-         assignedcHadrons.at(closestSubjetIdx).push_back( *it );
-       }
+       assignToSubjets(clusteredcHadrons, subjets, subjetIndices.at(i), assignedcHadrons);
        // loop over clustered partons and assign them to different subjets based on smallest dR
-       for(reco::GenParticleRefVector::const_iterator it = clusteredPartons.begin(); it != clusteredPartons.end(); ++it)
-       {
-         std::vector<double> dRtoSubjets;
-
-         for(size_t sj=0; sj<subjetIndices.at(i).size(); ++sj)
-           dRtoSubjets.push_back( reco::deltaR( (*it)->rapidity(), (*it)->phi(), subjets->at(subjetIndices.at(i).at(sj)).rapidity(), subjets->at(subjetIndices.at(i).at(sj)).phi() ) );
-
-         // find the closest subjet
-         int closestSubjetIdx = std::distance( dRtoSubjets.begin(), std::min_element(dRtoSubjets.begin(), dRtoSubjets.end()) );
-
-         assignedPartons.at(closestSubjetIdx).push_back( *it );
-       }
+       assignToSubjets(clusteredPartons, subjets, subjetIndices.at(i), assignedPartons);
        // if used, loop over clustered leptons and assign them to different subjets based on smallest dR
        if( useLeptons_ )
-       {
-         for(reco::GenParticleRefVector::const_iterator it = clusteredLeptons.begin(); it != clusteredLeptons.end(); ++it)
-         {
-           std::vector<double> dRtoSubjets;
-
-           for(size_t sj=0; sj<subjetIndices.at(i).size(); ++sj)
-             dRtoSubjets.push_back( reco::deltaR( (*it)->rapidity(), (*it)->phi(), subjets->at(subjetIndices.at(i).at(sj)).rapidity(), subjets->at(subjetIndices.at(i).at(sj)).phi() ) );
-
-           // find the closest subjet
-           int closestSubjetIdx = std::distance( dRtoSubjets.begin(), std::min_element(dRtoSubjets.begin(), dRtoSubjets.end()) );
-
-           assignedLeptons.at(closestSubjetIdx).push_back( *it );
-         }
-       }
+         assignToSubjets(clusteredLeptons, subjets, subjetIndices.at(i), assignedLeptons);
 
        // loop over subjets and determine their flavour
        for(size_t sj=0; sj<subjetIndices.at(i).size(); ++sj)
@@ -506,6 +444,23 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // put subjet flavour infos in the event
    if( useSubjets_ )
      iEvent.put( subjetFlavourInfos, "SubJets" );
+}
+
+// ------------ method that inserts "ghost" particles in the vector of jet constituents ------------
+void
+JetFlavourClustering::insertGhosts(const edm::Handle<reco::GenParticleRefVector>& particles,
+                                   const double ghostRescaling,
+                                   const bool isHadron, const bool isbHadron, const bool isParton, const bool isLepton,
+                                   std::vector<fastjet::PseudoJet>& constituents)
+{
+   // insert "ghost" particles in the vector of jet constituents
+   for(reco::GenParticleRefVector::const_iterator it = particles->begin(); it != particles->end(); ++it)
+   {
+     fastjet::PseudoJet p((*it)->px(),(*it)->py(),(*it)->pz(),(*it)->energy());
+     p*=ghostRescaling; // rescale particle momentum
+     p.set_user_info(new GhostInfo(isHadron, isbHadron, isParton, isLepton, *it));
+     constituents.push_back(p);
+   }
 }
 
 // ------------ method that matches reclustered and original jets based on minimum dR ------------
@@ -538,7 +493,7 @@ JetFlavourClustering::matchReclusteredJets(const edm::Handle<edm::View<reco::Jet
    }
 
    if( std::find( matchedIndices.begin(), matchedIndices.end(), -1 ) != matchedIndices.end() )
-     throw cms::Exception("JetMatchingFailed") << "Matching reclustered to original jets failed. Please check that the jet algorithm and jet size match those used for the original jet collection.";
+     edm::LogError("JetMatchingFailed") << "Matching reclustered to original jets failed. Please check that the jet algorithm and jet size match those used for the original jet collection.";
 }
 
 // ------------ method that matches groomed and original jets based on minimum dR ------------
@@ -572,7 +527,7 @@ JetFlavourClustering::matchGroomedJets(const edm::Handle<edm::View<reco::Jet> >&
    }
 
    if( std::find( jetIndices.begin(), jetIndices.end(), -1 ) != jetIndices.end() )
-     throw cms::Exception("JetMatchingFailed") << "Matching groomed to original jets failed. Please check that the jet algorithm, jet size, and Pt threshold match for the two jet collections.";
+     edm::LogError("JetMatchingFailed") << "Matching groomed to original jets failed. Please check that the two jet collections belong to each other.";
 
    for(size_t j=0; j<jets->size(); ++j)
    {
@@ -582,7 +537,7 @@ JetFlavourClustering::matchGroomedJets(const edm::Handle<edm::View<reco::Jet> >&
    }
 }
 
-// ------------ method that matches groomed and original jets ------------
+// ------------ method that matches subjets and original jets ------------
 void
 JetFlavourClustering::matchSubjets(const std::vector<int>& groomedIndices,
                                    const edm::Handle<edm::View<reco::Jet> >& groomedJets,
@@ -610,7 +565,7 @@ JetFlavourClustering::matchSubjets(const std::vector<int>& groomedIndices,
        }
 
        if( subjetIndices.size() == 0 )
-         throw cms::Exception("SubjetMatchingFailed") << "Matching subjets to original jets failed. Please check that the groomed jet and subjet collections belong to each other.";
+         edm::LogError("SubjetMatchingFailed") << "Matching subjets to original jets failed. Please check that the groomed jet and subjet collections belong to each other.";
 
        matchedIndices.push_back(subjetIndices);
      }
@@ -676,6 +631,28 @@ JetFlavourClustering::setFlavours(const reco::GenParticleRefVector& clusteredbHa
        partonFlavour = ( hardestLightParton.isNonnull() ? hardestLightParton->pdgId() : 0 );
      else if( hadronFlavour!=0 && abs(partonFlavour)!=hadronFlavour )
        partonFlavour = hadronFlavour;
+   }
+}
+
+// ------------ method that assigns clustered particles to subjets ------------
+void
+JetFlavourClustering::assignToSubjets(const reco::GenParticleRefVector& clusteredParticles,
+                                      const edm::Handle<edm::View<reco::Jet> >& subjets,
+                                      const std::vector<int>& subjetIndices,
+                                      std::vector<reco::GenParticleRefVector>& assignedParticles)
+{
+   // loop over clustered particles and assign them to different subjets based on smallest dR
+   for(reco::GenParticleRefVector::const_iterator it = clusteredParticles.begin(); it != clusteredParticles.end(); ++it)
+   {
+     std::vector<double> dR2toSubjets;
+
+     for(size_t sj=0; sj<subjetIndices.size(); ++sj)
+       dR2toSubjets.push_back( reco::deltaR2( (*it)->rapidity(), (*it)->phi(), subjets->at(subjetIndices.at(sj)).rapidity(), subjets->at(subjetIndices.at(sj)).phi() ) );
+
+     // find the closest subjet
+     int closestSubjetIdx = std::distance( dR2toSubjets.begin(), std::min_element(dR2toSubjets.begin(), dR2toSubjets.end()) );
+
+     assignedParticles.at(closestSubjetIdx).push_back( *it );
    }
 }
 

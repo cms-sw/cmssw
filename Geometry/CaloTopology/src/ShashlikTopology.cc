@@ -1,15 +1,19 @@
 #include "Geometry/CaloTopology/interface/ShashlikTopology.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 
-#define DebugLog
+//#define DebugLog
 
-ShashlikTopology::ShashlikTopology(const ShashlikDDDConstants* sdcons) :
-  sdcons_(sdcons) {
-  smodules_ = sdcons->getSuperModules();
-  modules_  = sdcons->getModules();
-  nRows_    = (sdcons->getCols())/2;
-  kEKhalf_  = smodules_*modules_*FIB_MAX*RO_MAX;
+void ShashlikTopology::init () {
+  smodules_ = sdcons_.getSuperModules();
+  modules_ = sdcons_.getModules();
+  nRows_ = sdcons_.getCols()/2;
+  kEKhalf_ = smodules_*modules_*FIB_MAX*RO_MAX;
   kSizeForDenseIndexing = (unsigned int)(2*kEKhalf_);
+}
+
+ShashlikTopology::ShashlikTopology(const ShashlikDDDConstants& sdcons)
+  : sdcons_(sdcons)
+{
+  init ();
 #ifdef DebugLog
   std::cout << "ShashlikTopology initialized with " << smodules_
 	    << " SuperModules " << modules_ << " modules and total channels "
@@ -17,28 +21,45 @@ ShashlikTopology::ShashlikTopology(const ShashlikDDDConstants* sdcons) :
 #endif
 }
 
-uint32_t ShashlikTopology::detId2denseId(const DetId& id) const {
+size_t ShashlikTopology::cell2denseId(const DetId& id) const {
   EKDetId id_(id);
-  std::pair<int,int> ismm = sdcons_->getSMM(id_.ix(),id_.iy());
-  int iFib = id_.fiber();
-  int iRO  = id_.readout();
-  uint32_t idx = (uint32_t)((((id_.zside() > 0) ? kEKhalf_ : 0) +
-			     ((((ismm.first-1)*modules_+ismm.second-1)*FIB_MAX+
-			       iFib)*RO_MAX+iRO)));
+  std::pair<int,int> ismm = sdcons_.getSMM(id_.ix(),id_.iy());
+  size_t idx = (size_t) (((id_.zside()>0?1:0)*smodules_+
+			  (ismm.first-1))*modules_+
+			 (ismm.second-1));
   return idx;
 }
 
-DetId ShashlikTopology::denseId2detId(uint32_t hi) const {
+DetId ShashlikTopology::denseId2cell(size_t hi) const {
 
-  if (validHashIndex(hi)) {
-    int iz ((int)(hi)<kEKhalf_ ? -1 : 1);
-    int di ((int)(hi)%kEKhalf_);
-    int ro (di%RO_MAX);
-    int fib (((di-ro)/RO_MAX)%FIB_MAX);
-    int iMD (((((di-ro)/RO_MAX)-fib)/FIB_MAX)%modules_+1);
-    int iSM (((((di-ro)/RO_MAX)-fib)/FIB_MAX-iMD+1)/modules_+1);
-    std::pair<int,int> ixy = sdcons_->getXY(iSM,iMD);
-    return EKDetId(ixy.first, ixy.second, fib, ro, iz).rawId();
+  if (hi<cellHashSize()) {
+    int iMD = hi%modules_+1;
+    int iSM = (hi/=modules_)%smodules_+1;
+    int iz = (hi/=smodules_)%2;
+    if (iz==0) iz = -1;
+    std::pair<int,int> ixy = sdcons_.getXY(iSM,iMD);
+    return EKDetId(ixy.first, ixy.second, 0, 0, iz).rawId();
+  } else {
+    return DetId(0);
+  }
+}
+
+unsigned int ShashlikTopology::detId2denseId(const DetId& id) const {
+  EKDetId id_(id);
+  int iFib = id_.fiber();
+  int iRO  = id_.readout();
+  uint32_t idx = cell2denseId (id);
+  idx += (uint32_t) ((iRO*FIB_MAX+iFib)*modules_);
+  return idx;
+}
+
+DetId ShashlikTopology::denseId2detId(unsigned int hi) const {
+  
+  if (hi<detIdHashSize()) {
+    EKDetId cell = denseId2cell(hi%detIdHashSize());
+    int fib = (hi/=cellHashSize())%FIB_MAX;
+    int ro = (hi/=FIB_MAX)%RO_MAX;
+    return EKDetId (cell.ix(), cell.iy(), fib, ro, cell.zside()).rawId();
   } else {
     return DetId(0);
   }
@@ -47,14 +68,21 @@ DetId ShashlikTopology::denseId2detId(uint32_t hi) const {
 bool ShashlikTopology::valid(const DetId& id) const {
 
   EKDetId id_(id);
-  std::pair<int,int> ismm = sdcons_->getSMM(id_.ix(),id_.iy());
   int fib = id_.fiber();
   int ro  = id_.readout();
-  bool flag = (ismm.first >= 1 && ismm.first <= smodules_ && ismm.second >= 1&&
-	       ismm.second <= modules_ && fib >= 0 && fib < FIB_MAX &&
-	       ro >= 0 && ro < RO_MAX);
+  bool flag = validXY (id_.ix(),id_.iy()) && 
+    fib >= 0 && fib < FIB_MAX &&
+    ro >= 0 && ro < RO_MAX;
   return flag;
 }
+
+bool ShashlikTopology::validXY(int ix, int iy) const {
+  std::pair<int,int> ismm = sdcons_.getSMM(ix,iy);
+  bool flag = (ismm.first >= 1 && ismm.first <= smodules_ && ismm.second >= 1&&
+	       ismm.second <= modules_);
+  return flag;
+}
+
 
 bool ShashlikTopology::isNextToBoundary(EKDetId id) const {
   return isNextToDBoundary(id)  || isNextToRingBoundary(id) ;
