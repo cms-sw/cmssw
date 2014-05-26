@@ -1,8 +1,6 @@
 /*
- *  Offline DQM module for CSC local reconstruction.
+ *  Offline DQM module for CSC local reconstruction - based on CSCValidation
  *
- *  Andy Kubik
- *  Northwestern University
  */
 
 #include "DQMOffline/Muon/interface/CSCOfflineMonitor.h"
@@ -12,11 +10,8 @@ using namespace std;
 ///////////////////
 //  CONSTRUCTOR  //
 ///////////////////
-CSCOfflineMonitor::CSCOfflineMonitor(const edm::ParameterSet& pset):
-  dbe(nullptr)
+CSCOfflineMonitor::CSCOfflineMonitor(const edm::ParameterSet& pset)
 {
-
-  param = pset;
 
   rd_token = consumes<FEDRawDataCollection>( pset.getParameter<edm::InputTag>("FEDRawDataCollectionTag") );
   sd_token = consumes<CSCStripDigiCollection>( pset.getParameter<edm::InputTag>("stripDigiTag") );
@@ -26,574 +21,448 @@ CSCOfflineMonitor::CSCOfflineMonitor(const edm::ParameterSet& pset):
   rh_token = consumes<CSCRecHit2DCollection>( pset.getParameter<edm::InputTag>("cscRecHitTag") );
   se_token = consumes<CSCSegmentCollection>( pset.getParameter<edm::InputTag>("cscSegTag") );
 
-  finalizedHistograms_=false;
-
 }
 
-void CSCOfflineMonitor::beginRun( edm::Run const &, edm::EventSetup const & ) {
-  dbe = edm::Service<DQMStore>().operator->();
-  bookTheHists();
-}
+void CSCOfflineMonitor::bookHistograms(DQMStore::IBooker & ibooker,
+                                  edm::Run const & iRun,
+                                  edm::EventSetup const & /* iSetup */)
+{
+      // occupancies
+      ibooker.cd();
+      ibooker.setCurrentFolder("CSC/CSCOfflineMonitor/Occupancy");
 
-void CSCOfflineMonitor::bookTheHists( void ) {
-
-   finalizedHistograms_ = false;
-
-      // Occupancies
-      dbe->setCurrentFolder("CSC/CSCOfflineMonitor/Occupancy");
-      hCSCOccupancy = dbe->book1D("hCSCOccupancy","overall CSC occupancy",13,-0.5,12.5);
+      hCSCOccupancy = ibooker.book1D("hCSCOccupancy","overall CSC occupancy",13,-0.5,12.5);
       hCSCOccupancy->setBinLabel(2,"Total Events");
       hCSCOccupancy->setBinLabel(4,"# Events with Wires");
       hCSCOccupancy->setBinLabel(6,"# Events with Strips");
       hCSCOccupancy->setBinLabel(8,"# Events with Wires&Strips");
       hCSCOccupancy->setBinLabel(10,"# Events with Rechits");
       hCSCOccupancy->setBinLabel(12,"# Events with Segments");
-      hOWiresAndCLCT = dbe->book2D("hOWiresAndCLCT","Wire and CLCT Digi Occupancy ",36,0.5,36.5,20,0.5,20.5);
-      hOWires = dbe->book2D("hOWires","Wire Digi Occupancy",36,0.5,36.5,20,0.5,20.5);
-      hOWireSerial = dbe->book1D("hOWireSerial","Wire Occupancy by Chamber Serial",601,-0.5,600.5);
+      hOWiresAndCLCT = ibooker.book2D("hOWiresAndCLCT","Wire and CLCT Digi Occupancy ",36,0.5,36.5,20,0.5,20.5);
+      hOWires = ibooker.book2D("hOWires","Wire Digi Occupancy",36,0.5,36.5,20,0.5,20.5);
+      hOWireSerial = ibooker.book1D("hOWireSerial","Wire Occupancy by Chamber Serial",601,-0.5,600.5);
       hOWireSerial->setAxisTitle("Chamber Serial Number");
-      hOStrips = dbe->book2D("hOStrips","Strip Digi Occupancy",36,0.5,36.5,20,0.5,20.5);
-      hOStripSerial = dbe->book1D("hOStripSerial","Strip Occupancy by Chamber Serial",601,-0.5,600.5);
+      hOStrips = ibooker.book2D("hOStrips","Strip Digi Occupancy",36,0.5,36.5,20,0.5,20.5);
+      hOStripSerial = ibooker.book1D("hOStripSerial","Strip Occupancy by Chamber Serial",601,-0.5,600.5);
       hOStripSerial->setAxisTitle("Chamber Serial Number");
-      hOStripsAndWiresAndCLCT = dbe->book2D("hOStripsAndWiresAndCLCT","Strip And Wire And CLCT Digi Occupancy",36,0.5,36.5,20,0.5,20.5);
+      hOStripsAndWiresAndCLCT = ibooker.book2D("hOStripsAndWiresAndCLCT","Strip And Wire And CLCT Digi Occupancy",36,0.5,36.5,20,0.5,20.5);
       hOStripsAndWiresAndCLCT->setAxisTitle("Chamber #");
-      hORecHits = dbe->book2D("hORecHits","RecHit Occupancy",36,0.5,36.5,20,0.5,20.5);
-      hORecHitsSerial = dbe->book1D("hORecHitSerial","RecHit Occupancy by Chamber Serial",601,-0.5,600.5);
+      hORecHits = ibooker.book2D("hORecHits","RecHit Occupancy",36,0.5,36.5,20,0.5,20.5);
+      hORecHitsSerial = ibooker.book1D("hORecHitSerial","RecHit Occupancy by Chamber Serial",601,-0.5,600.5);
       hORecHitsSerial->setAxisTitle("Chamber Serial Number");
-      hOSegments = dbe->book2D("hOSegments","Segment Occupancy",36,0.5,36.5,20,0.5,20.5);
-      hOSegmentsSerial = dbe->book1D("hOSegmentSerial","Segment Occupancy by Chamber Serial",601,-0.5,600.5);
+      hOSegments = ibooker.book2D("hOSegments","Segment Occupancy",36,0.5,36.5,20,0.5,20.5);
+      hOSegmentsSerial = ibooker.book1D("hOSegmentSerial","Segment Occupancy by Chamber Serial",601,-0.5,600.5);
       hOSegmentsSerial->setAxisTitle("Chamber Serial Number");
 
       // wire digis
-      dbe->setCurrentFolder("CSC/CSCOfflineMonitor/Digis");
-      hWirenGroupsTotal = dbe->book1D("hWirenGroupsTotal","Fired Wires per Event; # Wiregroups Fired",61,-0.5,60.5);
-      hWireTBin.push_back(dbe->book1D("hWireTBin_m42","Wire TBin Fired (ME -4/2); Time Bin (25ns)",17,-0.5,16.5));
-      hWireTBin.push_back(dbe->book1D("hWireTBin_m41","Wire TBin Fired (ME -4/1); Time Bin (25ns)",17,-0.5,16.5));
-      hWireTBin.push_back(dbe->book1D("hWireTBin_m32","Wire TBin Fired (ME -3/2); Time Bin (25ns)",17,-0.5,16.5));
-      hWireTBin.push_back(dbe->book1D("hWireTBin_m31","Wire TBin Fired (ME -3/1); Time Bin (25ns)",17,-0.5,16.5));
-      hWireTBin.push_back(dbe->book1D("hWireTBin_m22","Wire TBin Fired (ME -2/2); Time Bin (25ns)",17,-0.5,16.5));
-      hWireTBin.push_back(dbe->book1D("hWireTBin_m21","Wire TBin Fired (ME -2/1); Time Bin (25ns)",17,-0.5,16.5));
-      hWireTBin.push_back(dbe->book1D("hWireTBin_m11a","Wire TBin Fired (ME -1/1a); Time Bin (25ns)",17,-0.5,16.5));
-      hWireTBin.push_back(dbe->book1D("hWireTBin_m13","Wire TBin Fired (ME -1/3); Time Bin (25ns)",17,-0.5,16.5));
-      hWireTBin.push_back(dbe->book1D("hWireTBin_m12","Wire TBin Fired (ME -1/2); Time Bin (25ns)",17,-0.5,16.5));
-      hWireTBin.push_back(dbe->book1D("hWireTBin_m11b","Wire TBin Fired (ME -1/1b); Time Bin (25ns)",17,-0.5,16.5));
-      hWireTBin.push_back(dbe->book1D("hWireTBin_p11b","Wire TBin Fired (ME +1/1b); Time Bin (25ns)",17,-0.5,16.5));
-      hWireTBin.push_back(dbe->book1D("hWireTBin_p12","Wire TBin Fired (ME +1/2); Time Bin (25ns)",17,-0.5,16.5));
-      hWireTBin.push_back(dbe->book1D("hWireTBin_p13","Wire TBin Fired (ME +1/3); Time Bin (25ns)",17,-0.5,16.5));
-      hWireTBin.push_back(dbe->book1D("hWireTBin_p11a","Wire TBin Fired (ME +1/1a); Time Bin (25ns)",17,-0.5,16.5));
-      hWireTBin.push_back(dbe->book1D("hWireTBin_p21","Wire TBin Fired (ME +2/1); Time Bin (25ns)",17,-0.5,16.5));
-      hWireTBin.push_back(dbe->book1D("hWireTBin_p22","Wire TBin Fired (ME +2/2); Time Bin (25ns)",17,-0.5,16.5));
-      hWireTBin.push_back(dbe->book1D("hWireTBin_p31","Wire TBin Fired (ME +3/1); Time Bin (25ns)",17,-0.5,16.5));
-      hWireTBin.push_back(dbe->book1D("hWireTBin_p32","Wire TBin Fired (ME +3/2); Time Bin (25ns)",17,-0.5,16.5));
-      hWireTBin.push_back(dbe->book1D("hWireTBin_p41","Wire TBin Fired (ME +4/1); Time Bin (25ns)",17,-0.5,16.5));
-      hWireTBin.push_back(dbe->book1D("hWireTBin_p42","Wire TBin Fired (ME +4/2); Time Bin (25ns)",17,-0.5,16.5));
-      hWireNumber.push_back(dbe->book1D("hWireNumber_m42","Wiregroup Number Fired (ME -4/2); Wiregroup #",113,-0.5,112.5));
-      hWireNumber.push_back(dbe->book1D("hWireNumber_m41","Wiregroup Number Fired (ME -4/1); Wiregroup #",113,-0.5,112.5));
-      hWireNumber.push_back(dbe->book1D("hWireNumber_m32","Wiregroup Number Fired (ME -3/2); Wiregroup #",113,-0.5,112.5));
-      hWireNumber.push_back(dbe->book1D("hWireNumber_m31","Wiregroup Number Fired (ME -3/1); Wiregroup #",113,-0.5,112.5));
-      hWireNumber.push_back(dbe->book1D("hWireNumber_m22","Wiregroup Number Fired (ME -2/2); Wiregroup #",113,-0.5,112.5));
-      hWireNumber.push_back(dbe->book1D("hWireNumber_m21","Wiregroup Number Fired (ME -2/1); Wiregroup #",113,-0.5,112.5));
-      hWireNumber.push_back(dbe->book1D("hWireNumber_m11a","Wiregroup Number Fired (ME -1/1a); Wiregroup #",113,-0.5,112.5));
-      hWireNumber.push_back(dbe->book1D("hWireNumber_m13","Wiregroup Number Fired (ME -1/3); Wiregroup #",113,-0.5,112.5));
-      hWireNumber.push_back(dbe->book1D("hWireNumber_m12","Wiregroup Number Fired (ME -1/2); Wiregroup #",113,-0.5,112.5));
-      hWireNumber.push_back(dbe->book1D("hWireNumber_m11b","Wiregroup Number Fired (ME -1/1b); Wiregroup #",113,-0.5,112.5));
-      hWireNumber.push_back(dbe->book1D("hWireNumber_p11b","Wiregroup Number Fired (ME +1/1b); Wiregroup #",113,-0.5,112.5));
-      hWireNumber.push_back(dbe->book1D("hWireNumber_p12","Wiregroup Number Fired (ME +1/2); Wiregroup #",113,-0.5,112.5));
-      hWireNumber.push_back(dbe->book1D("hWireNumber_p13","Wiregroup Number Fired (ME +1/3); Wiregroup #",113,-0.5,112.5));
-      hWireNumber.push_back(dbe->book1D("hWireNumber_p11a","Wiregroup Number Fired (ME +1/1a); Wiregroup #",113,-0.5,112.5));
-      hWireNumber.push_back(dbe->book1D("hWireNumber_p21","Wiregroup Number Fired (ME +2/1); Wiregroup #",113,-0.5,112.5));
-      hWireNumber.push_back(dbe->book1D("hWireNumber_p22","Wiregroup Number Fired (ME +2/2); Wiregroup #",113,-0.5,112.5));
-      hWireNumber.push_back(dbe->book1D("hWireNumber_p31","Wiregroup Number Fired (ME +3/1); Wiregroup #",113,-0.5,112.5));
-      hWireNumber.push_back(dbe->book1D("hWireNumber_p32","Wiregroup Number Fired (ME +3/2); Wiregroup #",113,-0.5,112.5));
-      hWireNumber.push_back(dbe->book1D("hWireNumber_p41","Wiregroup Number Fired (ME +4/1); Wiregroup #",113,-0.5,112.5));
-      hWireNumber.push_back(dbe->book1D("hWireNumber_p42","Wiregroup Number Fired (ME +4/2); Wiregroup #",113,-0.5,112.5));
+      ibooker.setCurrentFolder("CSC/CSCOfflineMonitor/Digis");
+
+      hWirenGroupsTotal = ibooker.book1D("hWirenGroupsTotal","Fired Wires per Event; # Wiregroups Fired",100,-0.5,99.5);
+      hWireTBin.push_back(ibooker.book1D("hWireTBin_m42","Wire TBin Fired (ME -4/2); Time Bin (25ns)",17,-0.5,16.5));
+      hWireTBin.push_back(ibooker.book1D("hWireTBin_m41","Wire TBin Fired (ME -4/1); Time Bin (25ns)",17,-0.5,16.5));
+      hWireTBin.push_back(ibooker.book1D("hWireTBin_m32","Wire TBin Fired (ME -3/2); Time Bin (25ns)",17,-0.5,16.5));
+      hWireTBin.push_back(ibooker.book1D("hWireTBin_m31","Wire TBin Fired (ME -3/1); Time Bin (25ns)",17,-0.5,16.5));
+      hWireTBin.push_back(ibooker.book1D("hWireTBin_m22","Wire TBin Fired (ME -2/2); Time Bin (25ns)",17,-0.5,16.5));
+      hWireTBin.push_back(ibooker.book1D("hWireTBin_m21","Wire TBin Fired (ME -2/1); Time Bin (25ns)",17,-0.5,16.5));
+      hWireTBin.push_back(ibooker.book1D("hWireTBin_m11a","Wire TBin Fired (ME -1/1a); Time Bin (25ns)",17,-0.5,16.5));
+      hWireTBin.push_back(ibooker.book1D("hWireTBin_m13","Wire TBin Fired (ME -1/3); Time Bin (25ns)",17,-0.5,16.5));
+      hWireTBin.push_back(ibooker.book1D("hWireTBin_m12","Wire TBin Fired (ME -1/2); Time Bin (25ns)",17,-0.5,16.5));
+      hWireTBin.push_back(ibooker.book1D("hWireTBin_m11b","Wire TBin Fired (ME -1/1b); Time Bin (25ns)",17,-0.5,16.5));
+      hWireTBin.push_back(ibooker.book1D("hWireTBin_p11b","Wire TBin Fired (ME +1/1b); Time Bin (25ns)",17,-0.5,16.5));
+      hWireTBin.push_back(ibooker.book1D("hWireTBin_p12","Wire TBin Fired (ME +1/2); Time Bin (25ns)",17,-0.5,16.5));
+      hWireTBin.push_back(ibooker.book1D("hWireTBin_p13","Wire TBin Fired (ME +1/3); Time Bin (25ns)",17,-0.5,16.5));
+      hWireTBin.push_back(ibooker.book1D("hWireTBin_p11a","Wire TBin Fired (ME +1/1a); Time Bin (25ns)",17,-0.5,16.5));
+      hWireTBin.push_back(ibooker.book1D("hWireTBin_p21","Wire TBin Fired (ME +2/1); Time Bin (25ns)",17,-0.5,16.5));
+      hWireTBin.push_back(ibooker.book1D("hWireTBin_p22","Wire TBin Fired (ME +2/2); Time Bin (25ns)",17,-0.5,16.5));
+      hWireTBin.push_back(ibooker.book1D("hWireTBin_p31","Wire TBin Fired (ME +3/1); Time Bin (25ns)",17,-0.5,16.5));
+      hWireTBin.push_back(ibooker.book1D("hWireTBin_p32","Wire TBin Fired (ME +3/2); Time Bin (25ns)",17,-0.5,16.5));
+      hWireTBin.push_back(ibooker.book1D("hWireTBin_p41","Wire TBin Fired (ME +4/1); Time Bin (25ns)",17,-0.5,16.5));
+      hWireTBin.push_back(ibooker.book1D("hWireTBin_p42","Wire TBin Fired (ME +4/2); Time Bin (25ns)",17,-0.5,16.5));
+      hWireNumber.push_back(ibooker.book1D("hWireNumber_m42","Wiregroup Number Fired (ME -4/2); Wiregroup #",113,-0.5,112.5));
+      hWireNumber.push_back(ibooker.book1D("hWireNumber_m41","Wiregroup Number Fired (ME -4/1); Wiregroup #",113,-0.5,112.5));
+      hWireNumber.push_back(ibooker.book1D("hWireNumber_m32","Wiregroup Number Fired (ME -3/2); Wiregroup #",113,-0.5,112.5));
+      hWireNumber.push_back(ibooker.book1D("hWireNumber_m31","Wiregroup Number Fired (ME -3/1); Wiregroup #",113,-0.5,112.5));
+      hWireNumber.push_back(ibooker.book1D("hWireNumber_m22","Wiregroup Number Fired (ME -2/2); Wiregroup #",113,-0.5,112.5));
+      hWireNumber.push_back(ibooker.book1D("hWireNumber_m21","Wiregroup Number Fired (ME -2/1); Wiregroup #",113,-0.5,112.5));
+      hWireNumber.push_back(ibooker.book1D("hWireNumber_m11a","Wiregroup Number Fired (ME -1/1a); Wiregroup #",113,-0.5,112.5));
+      hWireNumber.push_back(ibooker.book1D("hWireNumber_m13","Wiregroup Number Fired (ME -1/3); Wiregroup #",113,-0.5,112.5));
+      hWireNumber.push_back(ibooker.book1D("hWireNumber_m12","Wiregroup Number Fired (ME -1/2); Wiregroup #",113,-0.5,112.5));
+      hWireNumber.push_back(ibooker.book1D("hWireNumber_m11b","Wiregroup Number Fired (ME -1/1b); Wiregroup #",113,-0.5,112.5));
+      hWireNumber.push_back(ibooker.book1D("hWireNumber_p11b","Wiregroup Number Fired (ME +1/1b); Wiregroup #",113,-0.5,112.5));
+      hWireNumber.push_back(ibooker.book1D("hWireNumber_p12","Wiregroup Number Fired (ME +1/2); Wiregroup #",113,-0.5,112.5));
+      hWireNumber.push_back(ibooker.book1D("hWireNumber_p13","Wiregroup Number Fired (ME +1/3); Wiregroup #",113,-0.5,112.5));
+      hWireNumber.push_back(ibooker.book1D("hWireNumber_p11a","Wiregroup Number Fired (ME +1/1a); Wiregroup #",113,-0.5,112.5));
+      hWireNumber.push_back(ibooker.book1D("hWireNumber_p21","Wiregroup Number Fired (ME +2/1); Wiregroup #",113,-0.5,112.5));
+      hWireNumber.push_back(ibooker.book1D("hWireNumber_p22","Wiregroup Number Fired (ME +2/2); Wiregroup #",113,-0.5,112.5));
+      hWireNumber.push_back(ibooker.book1D("hWireNumber_p31","Wiregroup Number Fired (ME +3/1); Wiregroup #",113,-0.5,112.5));
+      hWireNumber.push_back(ibooker.book1D("hWireNumber_p32","Wiregroup Number Fired (ME +3/2); Wiregroup #",113,-0.5,112.5));
+      hWireNumber.push_back(ibooker.book1D("hWireNumber_p41","Wiregroup Number Fired (ME +4/1); Wiregroup #",113,-0.5,112.5));
+      hWireNumber.push_back(ibooker.book1D("hWireNumber_p42","Wiregroup Number Fired (ME +4/2); Wiregroup #",113,-0.5,112.5));
 
       // strip digis
-      hStripNFired = dbe->book1D("hStripNFired","Fired Strips per Event; # Strips Fired (above 13 ADC)",101,-0.5,100.5);
-      hStripNumber.push_back(dbe->book1D("hStripNumber_m42","Strip Number Fired (ME -4/2); Strip # Fired (above 13 ADC)",81,-0.5,80.5));
-      hStripNumber.push_back(dbe->book1D("hStripNumber_m41","Strip Number Fired (ME -4/1); Strip # Fired (above 13 ADC)",81,-0.5,80.5));
-      hStripNumber.push_back(dbe->book1D("hStripNumber_m32","Strip Number Fired (ME -3/2); Strip # Fired (above 13 ADC)",81,-0.5,80.5));
-      hStripNumber.push_back(dbe->book1D("hStripNumber_m31","Strip Number Fired (ME -3/1); Strip # Fired (above 13 ADC)",81,-0.5,80.5));
-      hStripNumber.push_back(dbe->book1D("hStripNumber_m22","Strip Number Fired (ME -2/2); Strip # Fired (above 13 ADC)",81,-0.5,80.5));
-      hStripNumber.push_back(dbe->book1D("hStripNumber_m21","Strip Number Fired (ME -2/1); Strip # Fired (above 13 ADC)",81,-0.5,80.5));
-      hStripNumber.push_back(dbe->book1D("hStripNumber_m11a","Strip Number Fired (ME -1/1a); Strip # Fired (above 13 ADC)",81,-0.5,80.5));
-      hStripNumber.push_back(dbe->book1D("hStripNumber_m13","Strip Number Fired (ME -1/3); Strip # Fired (above 13 ADC)",81,-0.5,80.5));
-      hStripNumber.push_back(dbe->book1D("hStripNumber_m12","Strip Number Fired (ME -1/2); Strip # Fired (above 13 ADC)",81,-0.5,80.5));
-      hStripNumber.push_back(dbe->book1D("hStripNumber_m11b","Strip Number Fired (ME -1/1b); Strip # Fired (above 13 ADC)",81,-0.5,80.5));
-      hStripNumber.push_back(dbe->book1D("hStripNumber_p11b","Strip Number Fired (ME +1/1b); Strip # Fired (above 13 ADC)",81,-0.5,80.5));
-      hStripNumber.push_back(dbe->book1D("hStripNumber_p12","Strip Number Fired (ME +1/2); Strip # Fired (above 13 ADC)",81,-0.5,80.5));
-      hStripNumber.push_back(dbe->book1D("hStripNumber_p13","Strip Number Fired (ME +1/3); Strip # Fired (above 13 ADC)",81,-0.5,80.5));
-      hStripNumber.push_back(dbe->book1D("hStripNumber_p11a","Strip Number Fired (ME +1/1a); Strip # Fired (above 13 ADC)",81,-0.5,80.5));
-      hStripNumber.push_back(dbe->book1D("hStripNumber_p21","Strip Number Fired (ME +2/1); Strip # Fired (above 13 ADC)",81,-0.5,80.5));
-      hStripNumber.push_back(dbe->book1D("hStripNumber_p22","Strip Number Fired (ME +2/2); Strip # Fired (above 13 ADC)",81,-0.5,80.5));
-      hStripNumber.push_back(dbe->book1D("hStripNumber_p31","Strip Number Fired (ME +3/1); Strip # Fired (above 13 ADC)",81,-0.5,80.5));
-      hStripNumber.push_back(dbe->book1D("hStripNumber_p32","Strip Number Fired (ME +3/2); Strip # Fired (above 13 ADC)",81,-0.5,80.5));
-      hStripNumber.push_back(dbe->book1D("hStripNumber_p41","Strip Number Fired (ME +4/1); Strip # Fired (above 13 ADC)",81,-0.5,80.5));
-      hStripNumber.push_back(dbe->book1D("hStripNumber_p42","Stripgroup Number Fired (ME +4/2); Strip # Fired (above 13 ADC)",81,-0.5,80.5));
+      hStripNFired = ibooker.book1D("hStripNFired","Fired Strips per Event; # Strips Fired (above 13 ADC)",200,-0.5,199.5);
+      hStripNumber.push_back(ibooker.book1D("hStripNumber_m42","Strip Number Fired (ME -4/2); Strip # Fired (above 13 ADC)",81,-0.5,80.5));
+      hStripNumber.push_back(ibooker.book1D("hStripNumber_m41","Strip Number Fired (ME -4/1); Strip # Fired (above 13 ADC)",81,-0.5,80.5));
+      hStripNumber.push_back(ibooker.book1D("hStripNumber_m32","Strip Number Fired (ME -3/2); Strip # Fired (above 13 ADC)",81,-0.5,80.5));
+      hStripNumber.push_back(ibooker.book1D("hStripNumber_m31","Strip Number Fired (ME -3/1); Strip # Fired (above 13 ADC)",81,-0.5,80.5));
+      hStripNumber.push_back(ibooker.book1D("hStripNumber_m22","Strip Number Fired (ME -2/2); Strip # Fired (above 13 ADC)",81,-0.5,80.5));
+      hStripNumber.push_back(ibooker.book1D("hStripNumber_m21","Strip Number Fired (ME -2/1); Strip # Fired (above 13 ADC)",81,-0.5,80.5));
+      hStripNumber.push_back(ibooker.book1D("hStripNumber_m11a","Strip Number Fired (ME -1/1a); Strip # Fired (above 13 ADC)",81,-0.5,80.5));
+      hStripNumber.push_back(ibooker.book1D("hStripNumber_m13","Strip Number Fired (ME -1/3); Strip # Fired (above 13 ADC)",81,-0.5,80.5));
+      hStripNumber.push_back(ibooker.book1D("hStripNumber_m12","Strip Number Fired (ME -1/2); Strip # Fired (above 13 ADC)",81,-0.5,80.5));
+      hStripNumber.push_back(ibooker.book1D("hStripNumber_m11b","Strip Number Fired (ME -1/1b); Strip # Fired (above 13 ADC)",81,-0.5,80.5));
+      hStripNumber.push_back(ibooker.book1D("hStripNumber_p11b","Strip Number Fired (ME +1/1b); Strip # Fired (above 13 ADC)",81,-0.5,80.5));
+      hStripNumber.push_back(ibooker.book1D("hStripNumber_p12","Strip Number Fired (ME +1/2); Strip # Fired (above 13 ADC)",81,-0.5,80.5));
+      hStripNumber.push_back(ibooker.book1D("hStripNumber_p13","Strip Number Fired (ME +1/3); Strip # Fired (above 13 ADC)",81,-0.5,80.5));
+      hStripNumber.push_back(ibooker.book1D("hStripNumber_p11a","Strip Number Fired (ME +1/1a); Strip # Fired (above 13 ADC)",81,-0.5,80.5));
+      hStripNumber.push_back(ibooker.book1D("hStripNumber_p21","Strip Number Fired (ME +2/1); Strip # Fired (above 13 ADC)",81,-0.5,80.5));
+      hStripNumber.push_back(ibooker.book1D("hStripNumber_p22","Strip Number Fired (ME +2/2); Strip # Fired (above 13 ADC)",81,-0.5,80.5));
+      hStripNumber.push_back(ibooker.book1D("hStripNumber_p31","Strip Number Fired (ME +3/1); Strip # Fired (above 13 ADC)",81,-0.5,80.5));
+      hStripNumber.push_back(ibooker.book1D("hStripNumber_p32","Strip Number Fired (ME +3/2); Strip # Fired (above 13 ADC)",81,-0.5,80.5));
+      hStripNumber.push_back(ibooker.book1D("hStripNumber_p41","Strip Number Fired (ME +4/1); Strip # Fired (above 13 ADC)",81,-0.5,80.5));
+      hStripNumber.push_back(ibooker.book1D("hStripNumber_p42","Stripgroup Number Fired (ME +4/2); Strip # Fired (above 13 ADC)",81,-0.5,80.5));
 
-      //Pedestal Noise Plots
-      dbe->setCurrentFolder("CSC/CSCOfflineMonitor/PedestalNoise");
-      hStripPed.push_back(dbe->book1D("hStripPedMEm42","Pedestal Noise Distribution Chamber ME -4/2; ADC Counts",50,-25.,25.));
-      hStripPed.push_back(dbe->book1D("hStripPedMEm41","Pedestal Noise Distribution Chamber ME -4/1; ADC Counts",50,-25.,25.));
-      hStripPed.push_back(dbe->book1D("hStripPedMEm32","Pedestal Noise Distribution Chamber ME -3/2; ADC Counts",50,-25.,25.));
-      hStripPed.push_back(dbe->book1D("hStripPedMEm31","Pedestal Noise Distribution Chamber ME -3/1; ADC Counts",50,-25.,25.));
-      hStripPed.push_back(dbe->book1D("hStripPedMEm22","Pedestal Noise Distribution Chamber ME -2/2; ADC Counts",50,-25.,25.));
-      hStripPed.push_back(dbe->book1D("hStripPedMEm21","Pedestal Noise Distribution Chamber ME -2/1; ADC Counts",50,-25.,25.));
-      hStripPed.push_back(dbe->book1D("hStripPedMEm11a","Pedestal Noise Distribution Chamber ME -1/1; ADC Counts",50,-25.,25.));
-      hStripPed.push_back(dbe->book1D("hStripPedMEm13","Pedestal Noise Distribution Chamber ME -1/3; ADC Counts",50,-25.,25.));
-      hStripPed.push_back(dbe->book1D("hStripPedMEm12","Pedestal Noise Distribution Chamber ME -1/2; ADC Counts",50,-25.,25.));
-      hStripPed.push_back(dbe->book1D("hStripPedMEm11b","Pedestal Noise Distribution Chamber ME -1/1; ADC Counts",50,-25.,25.));
-      hStripPed.push_back(dbe->book1D("hStripPedMEp11b","Pedestal Noise Distribution Chamber ME +1/1; ADC Counts",50,-25.,25.));
-      hStripPed.push_back(dbe->book1D("hStripPedMEp12","Pedestal Noise Distribution Chamber ME +1/2; ADC Counts",50,-25.,25.));
-      hStripPed.push_back(dbe->book1D("hStripPedMEp13","Pedestal Noise Distribution Chamber ME +1/3; ADC Counts",50,-25.,25.));
-      hStripPed.push_back(dbe->book1D("hStripPedMEp11a","Pedestal Noise Distribution Chamber ME +1/1; ADC Counts",50,-25.,25.));
-      hStripPed.push_back(dbe->book1D("hStripPedMEp21","Pedestal Noise Distribution Chamber ME +2/1; ADC Counts",50,-25.,25.));
-      hStripPed.push_back(dbe->book1D("hStripPedMEp22","Pedestal Noise Distribution Chamber ME +2/2; ADC Counts",50,-25.,25.));
-      hStripPed.push_back(dbe->book1D("hStripPedMEp31","Pedestal Noise Distribution Chamber ME +3/1; ADC Counts",50,-25.,25.));
-      hStripPed.push_back(dbe->book1D("hStripPedMEp32","Pedestal Noise Distribution Chamber ME +3/2; ADC Counts",50,-25.,25.));
-      hStripPed.push_back(dbe->book1D("hStripPedMEp41","Pedestal Noise Distribution Chamber ME +4/1; ADC Counts",50,-25.,25.));
-      hStripPed.push_back(dbe->book1D("hStripPedMEp42","Pedestal Noise Distribution Chamber ME +4/2; ADC Counts",50,-25.,25.));
+      // pedestal noise
+      ibooker.setCurrentFolder("CSC/CSCOfflineMonitor/PedestalNoise");
 
-      // recHits
-      dbe->setCurrentFolder("CSC/CSCOfflineMonitor/recHits");
-      hRHnrechits = dbe->book1D("hRHnrechits","recHits per Event (all chambers); # of RecHits",50,0,50);
-      hRHGlobal.push_back(dbe->book2D("hRHGlobalp1","recHit global X,Y station +1; Global X (cm); Global Y (cm)",100,-800.,800.,100,-800.,800.));
-      hRHGlobal.push_back(dbe->book2D("hRHGlobalp2","recHit global X,Y station +2; Global X (cm); Global Y (cm)",100,-800.,800.,100,-800.,800.));
-      hRHGlobal.push_back(dbe->book2D("hRHGlobalp3","recHit global X,Y station +3; Global X (cm); Global Y (cm)",100,-800.,800.,100,-800.,800.));
-      hRHGlobal.push_back(dbe->book2D("hRHGlobalp4","recHit global X,Y station +4; Global X (cm); Global Y (cm)",100,-800.,800.,100,-800.,800.));
-      hRHGlobal.push_back(dbe->book2D("hRHGlobalm1","recHit global X,Y station -1; Global X (cm); Global Y (cm)",100,-800.,800.,100,-800.,800.));
-      hRHGlobal.push_back(dbe->book2D("hRHGlobalm2","recHit global X,Y station -2; Global X (cm); Global Y (cm)",100,-800.,800.,100,-800.,800.));
-      hRHGlobal.push_back(dbe->book2D("hRHGlobalm3","recHit global X,Y station -3; Global X (cm); Global Y (cm)",100,-800.,800.,100,-800.,800.));
-      hRHGlobal.push_back(dbe->book2D("hRHGlobalm4","recHit global X,Y station -4; Global X (cm); Global Y (cm)",100,-800.,800.,100,-800.,800.));
-      hRHSumQ.push_back(dbe->book1D("hRHSumQm42","Sum 3x3 recHit Charge (ME -4/2); ADC counts",100,0,2000));
-      hRHSumQ.push_back(dbe->book1D("hRHSumQm41","Sum 3x3 recHit Charge (ME -4/1); ADC counts",100,0,2000));
-      hRHSumQ.push_back(dbe->book1D("hRHSumQm32","Sum 3x3 recHit Charge (ME -3/2); ADC counts",100,0,2000));
-      hRHSumQ.push_back(dbe->book1D("hRHSumQm31","Sum 3x3 recHit Charge (ME -3/1); ADC counts",100,0,2000));
-      hRHSumQ.push_back(dbe->book1D("hRHSumQm22","Sum 3x3 recHit Charge (ME -2/2); ADC counts",100,0,2000));
-      hRHSumQ.push_back(dbe->book1D("hRHSumQm21","Sum 3x3 recHit Charge (ME -2/1); ADC counts",100,0,2000));
-      hRHSumQ.push_back(dbe->book1D("hRHSumQm11a","Sum 3x3 recHit Charge (ME -1/1a); ADC counts",100,0,4000));
-      hRHSumQ.push_back(dbe->book1D("hRHSumQm13","Sum 3x3 recHit Charge (ME -1/3); ADC counts",100,0,2000));
-      hRHSumQ.push_back(dbe->book1D("hRHSumQm12","Sum 3x3 recHit Charge (ME -1/2); ADC counts",100,0,2000));
-      hRHSumQ.push_back(dbe->book1D("hRHSumQm11b","Sum 3x3 recHit Charge (ME -1/1b); ADC counts",100,0,4000));
-      hRHSumQ.push_back(dbe->book1D("hRHSumQp11b","Sum 3x3 recHit Charge (ME +1/1b); ADC counts",100,0,4000));
-      hRHSumQ.push_back(dbe->book1D("hRHSumQp12","Sum 3x3 recHit Charge (ME +1/2); ADC counts",100,0,2000));
-      hRHSumQ.push_back(dbe->book1D("hRHSumQp13","Sum 3x3 recHit Charge (ME +1/3); ADC counts",100,0,2000));
-      hRHSumQ.push_back(dbe->book1D("hRHSumQp11a","Sum 3x3 recHit Charge (ME +1/1a); ADC counts",100,0,4000));
-      hRHSumQ.push_back(dbe->book1D("hRHSumQp21","Sum 3x3 recHit Charge (ME +2/1); ADC counts",100,0,2000));
-      hRHSumQ.push_back(dbe->book1D("hRHSumQp22","Sum 3x3 recHit Charge (ME +2/2); ADC counts",100,0,2000));
-      hRHSumQ.push_back(dbe->book1D("hRHSumQp31","Sum 3x3 recHit Charge (ME +3/1); ADC counts",100,0,2000));
-      hRHSumQ.push_back(dbe->book1D("hRHSumQp32","Sum 3x3 recHit Charge (ME +3/2); ADC counts",100,0,2000));
-      hRHSumQ.push_back(dbe->book1D("hRHSumQp41","Sum 3x3 recHit Charge (ME +4/1); ADC counts",100,0,2000));
-      hRHSumQ.push_back(dbe->book1D("hRHSumQp42","Sum 3x3 recHit Charge (ME +4/2); ADC counts",100,0,2000));
-      hRHRatioQ.push_back(dbe->book1D("hRHRatioQm42","Charge Ratio (Ql+Qr)/Qt (ME -4/2); (Ql+Qr)/Qt",100,-0.1,1.1));
-      hRHRatioQ.push_back(dbe->book1D("hRHRatioQm41","Charge Ratio (Ql+Qr)/Qt (ME -4/1); (Ql+Qr)/Qt",100,-0.1,1.1));
-      hRHRatioQ.push_back(dbe->book1D("hRHRatioQm32","Charge Ratio (Ql+Qr)/Qt (ME -3/2); (Ql+Qr)/Qt",100,-0.1,1.1));
-      hRHRatioQ.push_back(dbe->book1D("hRHRatioQm31","Charge Ratio (Ql+Qr)/Qt (ME -3/1); (Ql+Qr)/Qt",100,-0.1,1.1));
-      hRHRatioQ.push_back(dbe->book1D("hRHRatioQm22","Charge Ratio (Ql+Qr)/Qt (ME -2/2); (Ql+Qr)/Qt",100,-0.1,1.1));
-      hRHRatioQ.push_back(dbe->book1D("hRHRatioQm21","Charge Ratio (Ql+Qr)/Qt (ME -2/1); (Ql+Qr)/Qt",100,-0.1,1.1));
-      hRHRatioQ.push_back(dbe->book1D("hRHRatioQm11a","Charge Ratio (Ql+Qr)/Qt (ME -1/1a); (Ql+Qr)/Qt",100,-0.1,1.1));
-      hRHRatioQ.push_back(dbe->book1D("hRHRatioQm13","Charge Ratio (Ql+Qr)/Qt (ME -1/3); (Ql+Qr)/Qt",100,-0.1,1.1));
-      hRHRatioQ.push_back(dbe->book1D("hRHRatioQm12","Charge Ratio (Ql+Qr)/Qt (ME -1/2); (Ql+Qr)/Qt",100,-0.1,1.1));
-      hRHRatioQ.push_back(dbe->book1D("hRHRatioQm11b","Charge Ratio (Ql+Qr)/Qt (ME -1/1b); (Ql+Qr)/Qt",100,-0.1,1.1));
-      hRHRatioQ.push_back(dbe->book1D("hRHRatioQp11b","Charge Ratio (Ql+Qr)/Qt (ME +1/1b); (Ql+Qr)/Qt",100,-0.1,1.1));
-      hRHRatioQ.push_back(dbe->book1D("hRHRatioQp12","Charge Ratio (Ql+Qr)/Qt (ME +1/2); (Ql+Qr)/Qt",100,-0.1,1.1));
-      hRHRatioQ.push_back(dbe->book1D("hRHRatioQp13","Charge Ratio (Ql+Qr)/Qt (ME +1/3); (Ql+Qr)/Qt",100,-0.1,1.1));
-      hRHRatioQ.push_back(dbe->book1D("hRHRatioQp11a","Charge Ratio (Ql+Qr)/Qt (ME +1/1a); (Ql+Qr)/Qt",100,-0.1,1.1));
-      hRHRatioQ.push_back(dbe->book1D("hRHRatioQp21","Charge Ratio (Ql+Qr)/Qt (ME +2/1); (Ql+Qr)/Qt",100,-0.1,1.1));
-      hRHRatioQ.push_back(dbe->book1D("hRHRatioQp22","Charge Ratio (Ql+Qr)/Qt (ME +2/2); (Ql+Qr)/Qt",100,-0.1,1.1));
-      hRHRatioQ.push_back(dbe->book1D("hRHRatioQp31","Charge Ratio (Ql+Qr)/Qt (ME +3/1); (Ql+Qr)/Qt",100,-0.1,1.1));
-      hRHRatioQ.push_back(dbe->book1D("hRHRatioQp32","Charge Ratio (Ql+Qr)/Qt (ME +3/2); (Ql+Qr)/Qt",100,-0.1,1.1));
-      hRHRatioQ.push_back(dbe->book1D("hRHRatioQp41","Charge Ratio (Ql+Qr)/Qt (ME +4/1); (Ql+Qr)/Qt",100,-0.1,1.1));
-      hRHRatioQ.push_back(dbe->book1D("hRHRatioQp42","Charge Ratio (Ql+Qr)/Qt (ME +4/2); (Ql+Qr)/Qt",100,-0.1,1.1));
-      hRHTiming.push_back(dbe->book1D("hRHTimingm42","recHit Time (ME -4/2); ns",200,-500.,500.));
-      hRHTiming.push_back(dbe->book1D("hRHTimingm41","recHit Time (ME -4/1); ns",200,-500.,500.));
-      hRHTiming.push_back(dbe->book1D("hRHTimingm32","recHit Time (ME -3/2); ns",200,-500.,500.));
-      hRHTiming.push_back(dbe->book1D("hRHTimingm31","recHit Time (ME -3/1); ns",200,-500.,500.));
-      hRHTiming.push_back(dbe->book1D("hRHTimingm22","recHit Time (ME -2/2); ns",200,-500.,500.));
-      hRHTiming.push_back(dbe->book1D("hRHTimingm21","recHit Time (ME -2/1); ns",200,-500.,500.));
-      hRHTiming.push_back(dbe->book1D("hRHTimingm11a","recHit Time (ME -1/1a); ns",200,-500.,500.));
-      hRHTiming.push_back(dbe->book1D("hRHTimingm13","recHit Time (ME -1/3); ns",200,-500.,500.));
-      hRHTiming.push_back(dbe->book1D("hRHTimingm12","recHit Time (ME -1/2); ns",200,-500.,500.));
-      hRHTiming.push_back(dbe->book1D("hRHTimingm11b","recHit Time (ME -1/1b); ns",200,-500.,500.));
-      hRHTiming.push_back(dbe->book1D("hRHTimingp11b","recHit Time (ME +1/1b); ns",200,-500.,500.));
-      hRHTiming.push_back(dbe->book1D("hRHTimingp12","recHit Time (ME +1/2); ns",200,-500.,500.));
-      hRHTiming.push_back(dbe->book1D("hRHTimingp13","recHit Time (ME +1/3); ns",200,-500.,500.));
-      hRHTiming.push_back(dbe->book1D("hRHTimingp11a","recHit Time (ME +1/1a); ns",200,-500.,500.));
-      hRHTiming.push_back(dbe->book1D("hRHTimingp21","recHit Time (ME +2/1); ns",200,-500.,500.));
-      hRHTiming.push_back(dbe->book1D("hRHTimingp22","recHit Time (ME +2/2); ns",200,-500.,500.));
-      hRHTiming.push_back(dbe->book1D("hRHTimingp31","recHit Time (ME +3/1); ns",200,-500.,500.));
-      hRHTiming.push_back(dbe->book1D("hRHTimingp32","recHit Time (ME +3/2); ns",200,-500.,500.));
-      hRHTiming.push_back(dbe->book1D("hRHTimingp41","recHit Time (ME +4/1); ns",200,-500.,500.));
-      hRHTiming.push_back(dbe->book1D("hRHTimingp42","recHit Time (ME +4/2); ns",200,-500.,500.));
-      hRHTimingAnode.push_back(dbe->book1D("hRHTimingAnodem42","Anode recHit Time (ME -4/2); ns",80,-500.,500.));
-      hRHTimingAnode.push_back(dbe->book1D("hRHTimingAnodem41","Anode recHit Time (ME -4/1); ns",80,-500.,500.));
-      hRHTimingAnode.push_back(dbe->book1D("hRHTimingAnodem32","Anode recHit Time (ME -3/2); ns",80,-500.,500.));
-      hRHTimingAnode.push_back(dbe->book1D("hRHTimingAnodem31","Anode recHit Time (ME -3/1); ns",80,-500.,500.));
-      hRHTimingAnode.push_back(dbe->book1D("hRHTimingAnodem22","Anode recHit Time (ME -2/2); ns",80,-500.,500.));
-      hRHTimingAnode.push_back(dbe->book1D("hRHTimingAnodem21","Anode recHit Time (ME -2/1); ns",80,-500.,500.));
-      hRHTimingAnode.push_back(dbe->book1D("hRHTimingAnodem11a","Anode recHit Time (ME -1/1a); ns",80,-500.,500.));
-      hRHTimingAnode.push_back(dbe->book1D("hRHTimingAnodem13","Anode recHit Time (ME -1/3); ns",80,-500.,500.));
-      hRHTimingAnode.push_back(dbe->book1D("hRHTimingAnodem12","Anode recHit Time (ME -1/2); ns",80,-500.,500.));
-      hRHTimingAnode.push_back(dbe->book1D("hRHTimingAnodem11b","Anode recHit Time (ME -1/1b); ns",80,-500.,500.));
-      hRHTimingAnode.push_back(dbe->book1D("hRHTimingAnodep11b","Anode recHit Time (ME +1/1b); ns",80,-500.,500.));
-      hRHTimingAnode.push_back(dbe->book1D("hRHTimingAnodep12","Anode recHit Time (ME +1/2); ns",80,-500.,500.));
-      hRHTimingAnode.push_back(dbe->book1D("hRHTimingAnodep13","Anode recHit Time (ME +1/3); ns",80,-500.,500.));
-      hRHTimingAnode.push_back(dbe->book1D("hRHTimingAnodep11a","Anode recHit Time (ME +1/1a); ns",80,-500.,500.));
-      hRHTimingAnode.push_back(dbe->book1D("hRHTimingAnodep21","Anode recHit Time (ME +2/1); ns",80,-500.,500.));
-      hRHTimingAnode.push_back(dbe->book1D("hRHTimingAnodep22","Anode recHit Time (ME +2/2); ns",80,-500.,500.));
-      hRHTimingAnode.push_back(dbe->book1D("hRHTimingAnodep31","Anode recHit Time (ME +3/1); ns",80,-500.,500.));
-      hRHTimingAnode.push_back(dbe->book1D("hRHTimingAnodep32","Anode recHit Time (ME +3/2); ns",80,-500.,500.));
-      hRHTimingAnode.push_back(dbe->book1D("hRHTimingAnodep41","Anode recHit Time (ME +4/1); ns",80,-500.,500.));
-      hRHTimingAnode.push_back(dbe->book1D("hRHTimingAnodep42","Anode recHit Time (ME +4/2); ns",80,-500.,500.));
-      hRHstpos.push_back(dbe->book1D("hRHstposm42","Reconstructed Position on Strip (ME -4/2); Strip Widths",120,-0.6,0.6));
-      hRHstpos.push_back(dbe->book1D("hRHstposm41","Reconstructed Position on Strip (ME -4/1); Strip Widths",120,-0.6,0.6));
-      hRHstpos.push_back(dbe->book1D("hRHstposm32","Reconstructed Position on Strip (ME -3/2); Strip Widths",120,-0.6,0.6));
-      hRHstpos.push_back(dbe->book1D("hRHstposm31","Reconstructed Position on Strip (ME -3/1); Strip Widths",120,-0.6,0.6));
-      hRHstpos.push_back(dbe->book1D("hRHstposm22","Reconstructed Position on Strip (ME -2/2); Strip Widths",120,-0.6,0.6));
-      hRHstpos.push_back(dbe->book1D("hRHstposm21","Reconstructed Position on Strip (ME -2/1); Strip Widths",120,-0.6,0.6));
-      hRHstpos.push_back(dbe->book1D("hRHstposm11a","Reconstructed Position on Strip (ME -1/1a); Strip Widths",120,-0.6,0.6));
-      hRHstpos.push_back(dbe->book1D("hRHstposm13","Reconstructed Position on Strip (ME -1/3); Strip Widths",120,-0.6,0.6));
-      hRHstpos.push_back(dbe->book1D("hRHstposm12","Reconstructed Position on Strip (ME -1/2); Strip Widths",120,-0.6,0.6));
-      hRHstpos.push_back(dbe->book1D("hRHstposm11b","Reconstructed Position on Strip (ME -1/1b); Strip Widths",120,-0.6,0.6));
-      hRHstpos.push_back(dbe->book1D("hRHstposp11b","Reconstructed Position on Strip (ME +1/1b); Strip Widths",120,-0.6,0.6));
-      hRHstpos.push_back(dbe->book1D("hRHstposp12","Reconstructed Position on Strip (ME +1/2); Strip Widths",120,-0.6,0.6));
-      hRHstpos.push_back(dbe->book1D("hRHstposp13","Reconstructed Position on Strip (ME +1/3); Strip Widths",120,-0.6,0.6));
-      hRHstpos.push_back(dbe->book1D("hRHstposp11a","Reconstructed Position on Strip (ME +1/1a); Strip Widths",120,-0.6,0.6));
-      hRHstpos.push_back(dbe->book1D("hRHstposp21","Reconstructed Position on Strip (ME +2/1); Strip Widths",120,-0.6,0.6));
-      hRHstpos.push_back(dbe->book1D("hRHstposp22","Reconstructed Position on Strip (ME +2/2); Strip Widths",120,-0.6,0.6));
-      hRHstpos.push_back(dbe->book1D("hRHstposp31","Reconstructed Position on Strip (ME +3/1); Strip Widths",120,-0.6,0.6));
-      hRHstpos.push_back(dbe->book1D("hRHstposp32","Reconstructed Position on Strip (ME +3/2); Strip Widths",120,-0.6,0.6));
-      hRHstpos.push_back(dbe->book1D("hRHstposp41","Reconstructed Position on Strip (ME +4/1); Strip Widths",120,-0.6,0.6));
-      hRHstpos.push_back(dbe->book1D("hRHstposp42","Reconstructed Position on Strip (ME +4/2); Strip Widths",120,-0.6,0.6));
-      hRHsterr.push_back(dbe->book1D("hRHsterrm42","Estimated Error on Strip Measurement (ME -4/2); Strip Widths",75,-0.01,0.24));
-      hRHsterr.push_back(dbe->book1D("hRHsterrm41","Estimated Error on Strip Measurement (ME -4/1); Strip Widths",75,-0.01,0.24));
-      hRHsterr.push_back(dbe->book1D("hRHsterrm32","Estimated Error on Strip Measurement (ME -3/2); Strip Widths",75,-0.01,0.24));
-      hRHsterr.push_back(dbe->book1D("hRHsterrm31","Estimated Error on Strip Measurement (ME -3/1); Strip Widths",75,-0.01,0.24));
-      hRHsterr.push_back(dbe->book1D("hRHsterrm22","Estimated Error on Strip Measurement (ME -2/2); Strip Widths",75,-0.01,0.24));
-      hRHsterr.push_back(dbe->book1D("hRHsterrm21","Estimated Error on Strip Measurement (ME -2/1); Strip Widths",75,-0.01,0.24));
-      hRHsterr.push_back(dbe->book1D("hRHsterrm11a","Estimated Error on Strip Measurement (ME -1/1a); Strip Widths",75,-0.01,0.24));
-      hRHsterr.push_back(dbe->book1D("hRHsterrm13","Estimated Error on Strip Measurement (ME -1/3); Strip Widths",75,-0.01,0.24));
-      hRHsterr.push_back(dbe->book1D("hRHsterrm12","Estimated Error on Strip Measurement (ME -1/2); Strip Widths",75,-0.01,0.24));
-      hRHsterr.push_back(dbe->book1D("hRHsterrm11b","Estimated Error on Strip Measurement (ME -1/1b); Strip Widths",75,-0.01,0.24));
-      hRHsterr.push_back(dbe->book1D("hRHsterrp11b","Estimated Error on Strip Measurement (ME +1/1b); Strip Widths",75,-0.01,0.24));
-      hRHsterr.push_back(dbe->book1D("hRHsterrp12","Estimated Error on Strip Measurement (ME +1/2); Strip Widths",75,-0.01,0.24));
-      hRHsterr.push_back(dbe->book1D("hRHsterrp13","Estimated Error on Strip Measurement (ME +1/3); Strip Widths",75,-0.01,0.24));
-      hRHsterr.push_back(dbe->book1D("hRHsterrp11a","Estimated Error on Strip Measurement (ME +1/1a); Strip Widths",75,-0.01,0.24));
-      hRHsterr.push_back(dbe->book1D("hRHsterrp21","Estimated Error on Strip Measurement (ME +2/1); Strip Widths",75,-0.01,0.24));
-      hRHsterr.push_back(dbe->book1D("hRHsterrp22","Estimated Error on Strip Measurement (ME +2/2); Strip Widths",75,-0.01,0.24));
-      hRHsterr.push_back(dbe->book1D("hRHsterrp31","Estimated Error on Strip Measurement (ME +3/1); Strip Widths",75,-0.01,0.24));
-      hRHsterr.push_back(dbe->book1D("hRHsterrp32","Estimated Error on Strip Measurement (ME +3/2); Strip Widths",75,-0.01,0.24));
-      hRHsterr.push_back(dbe->book1D("hRHsterrp41","Estimated Error on Strip Measurement (ME +4/1); Strip Widths",75,-0.01,0.24));
-      hRHsterr.push_back(dbe->book1D("hRHsterrp42","Estimated Error on Strip Measurement (ME +4/2); Strip Widths",75,-0.01,0.24));
+      hStripPed.push_back(ibooker.book1D("hStripPedMEm42","Pedestal Noise Distribution Chamber ME -4/2; ADC Counts",50,-25.,25.));
+      hStripPed.push_back(ibooker.book1D("hStripPedMEm41","Pedestal Noise Distribution Chamber ME -4/1; ADC Counts",50,-25.,25.));
+      hStripPed.push_back(ibooker.book1D("hStripPedMEm32","Pedestal Noise Distribution Chamber ME -3/2; ADC Counts",50,-25.,25.));
+      hStripPed.push_back(ibooker.book1D("hStripPedMEm31","Pedestal Noise Distribution Chamber ME -3/1; ADC Counts",50,-25.,25.));
+      hStripPed.push_back(ibooker.book1D("hStripPedMEm22","Pedestal Noise Distribution Chamber ME -2/2; ADC Counts",50,-25.,25.));
+      hStripPed.push_back(ibooker.book1D("hStripPedMEm21","Pedestal Noise Distribution Chamber ME -2/1; ADC Counts",50,-25.,25.));
+      hStripPed.push_back(ibooker.book1D("hStripPedMEm11a","Pedestal Noise Distribution Chamber ME -1/1; ADC Counts",50,-25.,25.));
+      hStripPed.push_back(ibooker.book1D("hStripPedMEm13","Pedestal Noise Distribution Chamber ME -1/3; ADC Counts",50,-25.,25.));
+      hStripPed.push_back(ibooker.book1D("hStripPedMEm12","Pedestal Noise Distribution Chamber ME -1/2; ADC Counts",50,-25.,25.));
+      hStripPed.push_back(ibooker.book1D("hStripPedMEm11b","Pedestal Noise Distribution Chamber ME -1/1; ADC Counts",50,-25.,25.));
+      hStripPed.push_back(ibooker.book1D("hStripPedMEp11b","Pedestal Noise Distribution Chamber ME +1/1; ADC Counts",50,-25.,25.));
+      hStripPed.push_back(ibooker.book1D("hStripPedMEp12","Pedestal Noise Distribution Chamber ME +1/2; ADC Counts",50,-25.,25.));
+      hStripPed.push_back(ibooker.book1D("hStripPedMEp13","Pedestal Noise Distribution Chamber ME +1/3; ADC Counts",50,-25.,25.));
+      hStripPed.push_back(ibooker.book1D("hStripPedMEp11a","Pedestal Noise Distribution Chamber ME +1/1; ADC Counts",50,-25.,25.));
+      hStripPed.push_back(ibooker.book1D("hStripPedMEp21","Pedestal Noise Distribution Chamber ME +2/1; ADC Counts",50,-25.,25.));
+      hStripPed.push_back(ibooker.book1D("hStripPedMEp22","Pedestal Noise Distribution Chamber ME +2/2; ADC Counts",50,-25.,25.));
+      hStripPed.push_back(ibooker.book1D("hStripPedMEp31","Pedestal Noise Distribution Chamber ME +3/1; ADC Counts",50,-25.,25.));
+      hStripPed.push_back(ibooker.book1D("hStripPedMEp32","Pedestal Noise Distribution Chamber ME +3/2; ADC Counts",50,-25.,25.));
+      hStripPed.push_back(ibooker.book1D("hStripPedMEp41","Pedestal Noise Distribution Chamber ME +4/1; ADC Counts",50,-25.,25.));
+      hStripPed.push_back(ibooker.book1D("hStripPedMEp42","Pedestal Noise Distribution Chamber ME +4/2; ADC Counts",50,-25.,25.));
 
+      // rechits
+      ibooker.setCurrentFolder("CSC/CSCOfflineMonitor/recHits");
+
+      hRHnrechits = ibooker.book1D("hRHnrechits","recHits per Event (all chambers); # of RecHits",100,-0.50,99.5);
+      hRHGlobal.push_back(ibooker.book2D("hRHGlobalp1","recHit global X,Y station +1; Global X (cm); Global Y (cm)",100,-800.,800.,100,-800.,800.));
+      hRHGlobal.push_back(ibooker.book2D("hRHGlobalp2","recHit global X,Y station +2; Global X (cm); Global Y (cm)",100,-800.,800.,100,-800.,800.));
+      hRHGlobal.push_back(ibooker.book2D("hRHGlobalp3","recHit global X,Y station +3; Global X (cm); Global Y (cm)",100,-800.,800.,100,-800.,800.));
+      hRHGlobal.push_back(ibooker.book2D("hRHGlobalp4","recHit global X,Y station +4; Global X (cm); Global Y (cm)",100,-800.,800.,100,-800.,800.));
+      hRHGlobal.push_back(ibooker.book2D("hRHGlobalm1","recHit global X,Y station -1; Global X (cm); Global Y (cm)",100,-800.,800.,100,-800.,800.));
+      hRHGlobal.push_back(ibooker.book2D("hRHGlobalm2","recHit global X,Y station -2; Global X (cm); Global Y (cm)",100,-800.,800.,100,-800.,800.));
+      hRHGlobal.push_back(ibooker.book2D("hRHGlobalm3","recHit global X,Y station -3; Global X (cm); Global Y (cm)",100,-800.,800.,100,-800.,800.));
+      hRHGlobal.push_back(ibooker.book2D("hRHGlobalm4","recHit global X,Y station -4; Global X (cm); Global Y (cm)",100,-800.,800.,100,-800.,800.));
+      hRHSumQ.push_back(ibooker.book1D("hRHSumQm42","Sum 3x3 recHit Charge (ME -4/2); ADC counts",100,0,2000));
+      hRHSumQ.push_back(ibooker.book1D("hRHSumQm41","Sum 3x3 recHit Charge (ME -4/1); ADC counts",100,0,2000));
+      hRHSumQ.push_back(ibooker.book1D("hRHSumQm32","Sum 3x3 recHit Charge (ME -3/2); ADC counts",100,0,2000));
+      hRHSumQ.push_back(ibooker.book1D("hRHSumQm31","Sum 3x3 recHit Charge (ME -3/1); ADC counts",100,0,2000));
+      hRHSumQ.push_back(ibooker.book1D("hRHSumQm22","Sum 3x3 recHit Charge (ME -2/2); ADC counts",100,0,2000));
+      hRHSumQ.push_back(ibooker.book1D("hRHSumQm21","Sum 3x3 recHit Charge (ME -2/1); ADC counts",100,0,2000));
+      hRHSumQ.push_back(ibooker.book1D("hRHSumQm11a","Sum 3x3 recHit Charge (ME -1/1a); ADC counts",100,0,4000));
+      hRHSumQ.push_back(ibooker.book1D("hRHSumQm13","Sum 3x3 recHit Charge (ME -1/3); ADC counts",100,0,2000));
+      hRHSumQ.push_back(ibooker.book1D("hRHSumQm12","Sum 3x3 recHit Charge (ME -1/2); ADC counts",100,0,2000));
+      hRHSumQ.push_back(ibooker.book1D("hRHSumQm11b","Sum 3x3 recHit Charge (ME -1/1b); ADC counts",100,0,4000));
+      hRHSumQ.push_back(ibooker.book1D("hRHSumQp11b","Sum 3x3 recHit Charge (ME +1/1b); ADC counts",100,0,4000));
+      hRHSumQ.push_back(ibooker.book1D("hRHSumQp12","Sum 3x3 recHit Charge (ME +1/2); ADC counts",100,0,2000));
+      hRHSumQ.push_back(ibooker.book1D("hRHSumQp13","Sum 3x3 recHit Charge (ME +1/3); ADC counts",100,0,2000));
+      hRHSumQ.push_back(ibooker.book1D("hRHSumQp11a","Sum 3x3 recHit Charge (ME +1/1a); ADC counts",100,0,4000));
+      hRHSumQ.push_back(ibooker.book1D("hRHSumQp21","Sum 3x3 recHit Charge (ME +2/1); ADC counts",100,0,2000));
+      hRHSumQ.push_back(ibooker.book1D("hRHSumQp22","Sum 3x3 recHit Charge (ME +2/2); ADC counts",100,0,2000));
+      hRHSumQ.push_back(ibooker.book1D("hRHSumQp31","Sum 3x3 recHit Charge (ME +3/1); ADC counts",100,0,2000));
+      hRHSumQ.push_back(ibooker.book1D("hRHSumQp32","Sum 3x3 recHit Charge (ME +3/2); ADC counts",100,0,2000));
+      hRHSumQ.push_back(ibooker.book1D("hRHSumQp41","Sum 3x3 recHit Charge (ME +4/1); ADC counts",100,0,2000));
+      hRHSumQ.push_back(ibooker.book1D("hRHSumQp42","Sum 3x3 recHit Charge (ME +4/2); ADC counts",100,0,2000));
+      hRHRatioQ.push_back(ibooker.book1D("hRHRatioQm42","Charge Ratio (Ql+Qr)/Qt (ME -4/2); (Ql+Qr)/Qt",100,-0.1,1.1));
+      hRHRatioQ.push_back(ibooker.book1D("hRHRatioQm41","Charge Ratio (Ql+Qr)/Qt (ME -4/1); (Ql+Qr)/Qt",100,-0.1,1.1));
+      hRHRatioQ.push_back(ibooker.book1D("hRHRatioQm32","Charge Ratio (Ql+Qr)/Qt (ME -3/2); (Ql+Qr)/Qt",100,-0.1,1.1));
+      hRHRatioQ.push_back(ibooker.book1D("hRHRatioQm31","Charge Ratio (Ql+Qr)/Qt (ME -3/1); (Ql+Qr)/Qt",100,-0.1,1.1));
+      hRHRatioQ.push_back(ibooker.book1D("hRHRatioQm22","Charge Ratio (Ql+Qr)/Qt (ME -2/2); (Ql+Qr)/Qt",100,-0.1,1.1));
+      hRHRatioQ.push_back(ibooker.book1D("hRHRatioQm21","Charge Ratio (Ql+Qr)/Qt (ME -2/1); (Ql+Qr)/Qt",100,-0.1,1.1));
+      hRHRatioQ.push_back(ibooker.book1D("hRHRatioQm11a","Charge Ratio (Ql+Qr)/Qt (ME -1/1a); (Ql+Qr)/Qt",100,-0.1,1.1));
+      hRHRatioQ.push_back(ibooker.book1D("hRHRatioQm13","Charge Ratio (Ql+Qr)/Qt (ME -1/3); (Ql+Qr)/Qt",100,-0.1,1.1));
+      hRHRatioQ.push_back(ibooker.book1D("hRHRatioQm12","Charge Ratio (Ql+Qr)/Qt (ME -1/2); (Ql+Qr)/Qt",100,-0.1,1.1));
+      hRHRatioQ.push_back(ibooker.book1D("hRHRatioQm11b","Charge Ratio (Ql+Qr)/Qt (ME -1/1b); (Ql+Qr)/Qt",100,-0.1,1.1));
+      hRHRatioQ.push_back(ibooker.book1D("hRHRatioQp11b","Charge Ratio (Ql+Qr)/Qt (ME +1/1b); (Ql+Qr)/Qt",100,-0.1,1.1));
+      hRHRatioQ.push_back(ibooker.book1D("hRHRatioQp12","Charge Ratio (Ql+Qr)/Qt (ME +1/2); (Ql+Qr)/Qt",100,-0.1,1.1));
+      hRHRatioQ.push_back(ibooker.book1D("hRHRatioQp13","Charge Ratio (Ql+Qr)/Qt (ME +1/3); (Ql+Qr)/Qt",100,-0.1,1.1));
+      hRHRatioQ.push_back(ibooker.book1D("hRHRatioQp11a","Charge Ratio (Ql+Qr)/Qt (ME +1/1a); (Ql+Qr)/Qt",100,-0.1,1.1));
+      hRHRatioQ.push_back(ibooker.book1D("hRHRatioQp21","Charge Ratio (Ql+Qr)/Qt (ME +2/1); (Ql+Qr)/Qt",100,-0.1,1.1));
+      hRHRatioQ.push_back(ibooker.book1D("hRHRatioQp22","Charge Ratio (Ql+Qr)/Qt (ME +2/2); (Ql+Qr)/Qt",100,-0.1,1.1));
+      hRHRatioQ.push_back(ibooker.book1D("hRHRatioQp31","Charge Ratio (Ql+Qr)/Qt (ME +3/1); (Ql+Qr)/Qt",100,-0.1,1.1));
+      hRHRatioQ.push_back(ibooker.book1D("hRHRatioQp32","Charge Ratio (Ql+Qr)/Qt (ME +3/2); (Ql+Qr)/Qt",100,-0.1,1.1));
+      hRHRatioQ.push_back(ibooker.book1D("hRHRatioQp41","Charge Ratio (Ql+Qr)/Qt (ME +4/1); (Ql+Qr)/Qt",100,-0.1,1.1));
+      hRHRatioQ.push_back(ibooker.book1D("hRHRatioQp42","Charge Ratio (Ql+Qr)/Qt (ME +4/2); (Ql+Qr)/Qt",100,-0.1,1.1));
+      hRHTiming.push_back(ibooker.book1D("hRHTimingm42","recHit Time (ME -4/2); ns",200,-500.,500.));
+      hRHTiming.push_back(ibooker.book1D("hRHTimingm41","recHit Time (ME -4/1); ns",200,-500.,500.));
+      hRHTiming.push_back(ibooker.book1D("hRHTimingm32","recHit Time (ME -3/2); ns",200,-500.,500.));
+      hRHTiming.push_back(ibooker.book1D("hRHTimingm31","recHit Time (ME -3/1); ns",200,-500.,500.));
+      hRHTiming.push_back(ibooker.book1D("hRHTimingm22","recHit Time (ME -2/2); ns",200,-500.,500.));
+      hRHTiming.push_back(ibooker.book1D("hRHTimingm21","recHit Time (ME -2/1); ns",200,-500.,500.));
+      hRHTiming.push_back(ibooker.book1D("hRHTimingm11a","recHit Time (ME -1/1a); ns",200,-500.,500.));
+      hRHTiming.push_back(ibooker.book1D("hRHTimingm13","recHit Time (ME -1/3); ns",200,-500.,500.));
+      hRHTiming.push_back(ibooker.book1D("hRHTimingm12","recHit Time (ME -1/2); ns",200,-500.,500.));
+      hRHTiming.push_back(ibooker.book1D("hRHTimingm11b","recHit Time (ME -1/1b); ns",200,-500.,500.));
+      hRHTiming.push_back(ibooker.book1D("hRHTimingp11b","recHit Time (ME +1/1b); ns",200,-500.,500.));
+      hRHTiming.push_back(ibooker.book1D("hRHTimingp12","recHit Time (ME +1/2); ns",200,-500.,500.));
+      hRHTiming.push_back(ibooker.book1D("hRHTimingp13","recHit Time (ME +1/3); ns",200,-500.,500.));
+      hRHTiming.push_back(ibooker.book1D("hRHTimingp11a","recHit Time (ME +1/1a); ns",200,-500.,500.));
+      hRHTiming.push_back(ibooker.book1D("hRHTimingp21","recHit Time (ME +2/1); ns",200,-500.,500.));
+      hRHTiming.push_back(ibooker.book1D("hRHTimingp22","recHit Time (ME +2/2); ns",200,-500.,500.));
+      hRHTiming.push_back(ibooker.book1D("hRHTimingp31","recHit Time (ME +3/1); ns",200,-500.,500.));
+      hRHTiming.push_back(ibooker.book1D("hRHTimingp32","recHit Time (ME +3/2); ns",200,-500.,500.));
+      hRHTiming.push_back(ibooker.book1D("hRHTimingp41","recHit Time (ME +4/1); ns",200,-500.,500.));
+      hRHTiming.push_back(ibooker.book1D("hRHTimingp42","recHit Time (ME +4/2); ns",200,-500.,500.));
+      hRHTimingAnode.push_back(ibooker.book1D("hRHTimingAnodem42","Anode recHit Time (ME -4/2); ns",80,-500.,500.));
+      hRHTimingAnode.push_back(ibooker.book1D("hRHTimingAnodem41","Anode recHit Time (ME -4/1); ns",80,-500.,500.));
+      hRHTimingAnode.push_back(ibooker.book1D("hRHTimingAnodem32","Anode recHit Time (ME -3/2); ns",80,-500.,500.));
+      hRHTimingAnode.push_back(ibooker.book1D("hRHTimingAnodem31","Anode recHit Time (ME -3/1); ns",80,-500.,500.));
+      hRHTimingAnode.push_back(ibooker.book1D("hRHTimingAnodem22","Anode recHit Time (ME -2/2); ns",80,-500.,500.));
+      hRHTimingAnode.push_back(ibooker.book1D("hRHTimingAnodem21","Anode recHit Time (ME -2/1); ns",80,-500.,500.));
+      hRHTimingAnode.push_back(ibooker.book1D("hRHTimingAnodem11a","Anode recHit Time (ME -1/1a); ns",80,-500.,500.));
+      hRHTimingAnode.push_back(ibooker.book1D("hRHTimingAnodem13","Anode recHit Time (ME -1/3); ns",80,-500.,500.));
+      hRHTimingAnode.push_back(ibooker.book1D("hRHTimingAnodem12","Anode recHit Time (ME -1/2); ns",80,-500.,500.));
+      hRHTimingAnode.push_back(ibooker.book1D("hRHTimingAnodem11b","Anode recHit Time (ME -1/1b); ns",80,-500.,500.));
+      hRHTimingAnode.push_back(ibooker.book1D("hRHTimingAnodep11b","Anode recHit Time (ME +1/1b); ns",80,-500.,500.));
+      hRHTimingAnode.push_back(ibooker.book1D("hRHTimingAnodep12","Anode recHit Time (ME +1/2); ns",80,-500.,500.));
+      hRHTimingAnode.push_back(ibooker.book1D("hRHTimingAnodep13","Anode recHit Time (ME +1/3); ns",80,-500.,500.));
+      hRHTimingAnode.push_back(ibooker.book1D("hRHTimingAnodep11a","Anode recHit Time (ME +1/1a); ns",80,-500.,500.));
+      hRHTimingAnode.push_back(ibooker.book1D("hRHTimingAnodep21","Anode recHit Time (ME +2/1); ns",80,-500.,500.));
+      hRHTimingAnode.push_back(ibooker.book1D("hRHTimingAnodep22","Anode recHit Time (ME +2/2); ns",80,-500.,500.));
+      hRHTimingAnode.push_back(ibooker.book1D("hRHTimingAnodep31","Anode recHit Time (ME +3/1); ns",80,-500.,500.));
+      hRHTimingAnode.push_back(ibooker.book1D("hRHTimingAnodep32","Anode recHit Time (ME +3/2); ns",80,-500.,500.));
+      hRHTimingAnode.push_back(ibooker.book1D("hRHTimingAnodep41","Anode recHit Time (ME +4/1); ns",80,-500.,500.));
+      hRHTimingAnode.push_back(ibooker.book1D("hRHTimingAnodep42","Anode recHit Time (ME +4/2); ns",80,-500.,500.));
+      hRHstpos.push_back(ibooker.book1D("hRHstposm42","Reconstructed Position on Strip (ME -4/2); Strip Widths",120,-0.6,0.6));
+      hRHstpos.push_back(ibooker.book1D("hRHstposm41","Reconstructed Position on Strip (ME -4/1); Strip Widths",120,-0.6,0.6));
+      hRHstpos.push_back(ibooker.book1D("hRHstposm32","Reconstructed Position on Strip (ME -3/2); Strip Widths",120,-0.6,0.6));
+      hRHstpos.push_back(ibooker.book1D("hRHstposm31","Reconstructed Position on Strip (ME -3/1); Strip Widths",120,-0.6,0.6));
+      hRHstpos.push_back(ibooker.book1D("hRHstposm22","Reconstructed Position on Strip (ME -2/2); Strip Widths",120,-0.6,0.6));
+      hRHstpos.push_back(ibooker.book1D("hRHstposm21","Reconstructed Position on Strip (ME -2/1); Strip Widths",120,-0.6,0.6));
+      hRHstpos.push_back(ibooker.book1D("hRHstposm11a","Reconstructed Position on Strip (ME -1/1a); Strip Widths",120,-0.6,0.6));
+      hRHstpos.push_back(ibooker.book1D("hRHstposm13","Reconstructed Position on Strip (ME -1/3); Strip Widths",120,-0.6,0.6));
+      hRHstpos.push_back(ibooker.book1D("hRHstposm12","Reconstructed Position on Strip (ME -1/2); Strip Widths",120,-0.6,0.6));
+      hRHstpos.push_back(ibooker.book1D("hRHstposm11b","Reconstructed Position on Strip (ME -1/1b); Strip Widths",120,-0.6,0.6));
+      hRHstpos.push_back(ibooker.book1D("hRHstposp11b","Reconstructed Position on Strip (ME +1/1b); Strip Widths",120,-0.6,0.6));
+      hRHstpos.push_back(ibooker.book1D("hRHstposp12","Reconstructed Position on Strip (ME +1/2); Strip Widths",120,-0.6,0.6));
+      hRHstpos.push_back(ibooker.book1D("hRHstposp13","Reconstructed Position on Strip (ME +1/3); Strip Widths",120,-0.6,0.6));
+      hRHstpos.push_back(ibooker.book1D("hRHstposp11a","Reconstructed Position on Strip (ME +1/1a); Strip Widths",120,-0.6,0.6));
+      hRHstpos.push_back(ibooker.book1D("hRHstposp21","Reconstructed Position on Strip (ME +2/1); Strip Widths",120,-0.6,0.6));
+      hRHstpos.push_back(ibooker.book1D("hRHstposp22","Reconstructed Position on Strip (ME +2/2); Strip Widths",120,-0.6,0.6));
+      hRHstpos.push_back(ibooker.book1D("hRHstposp31","Reconstructed Position on Strip (ME +3/1); Strip Widths",120,-0.6,0.6));
+      hRHstpos.push_back(ibooker.book1D("hRHstposp32","Reconstructed Position on Strip (ME +3/2); Strip Widths",120,-0.6,0.6));
+      hRHstpos.push_back(ibooker.book1D("hRHstposp41","Reconstructed Position on Strip (ME +4/1); Strip Widths",120,-0.6,0.6));
+      hRHstpos.push_back(ibooker.book1D("hRHstposp42","Reconstructed Position on Strip (ME +4/2); Strip Widths",120,-0.6,0.6));
+      hRHsterr.push_back(ibooker.book1D("hRHsterrm42","Estimated Error on Strip Measurement (ME -4/2); Strip Widths",75,-0.01,0.24));
+      hRHsterr.push_back(ibooker.book1D("hRHsterrm41","Estimated Error on Strip Measurement (ME -4/1); Strip Widths",75,-0.01,0.24));
+      hRHsterr.push_back(ibooker.book1D("hRHsterrm32","Estimated Error on Strip Measurement (ME -3/2); Strip Widths",75,-0.01,0.24));
+      hRHsterr.push_back(ibooker.book1D("hRHsterrm31","Estimated Error on Strip Measurement (ME -3/1); Strip Widths",75,-0.01,0.24));
+      hRHsterr.push_back(ibooker.book1D("hRHsterrm22","Estimated Error on Strip Measurement (ME -2/2); Strip Widths",75,-0.01,0.24));
+      hRHsterr.push_back(ibooker.book1D("hRHsterrm21","Estimated Error on Strip Measurement (ME -2/1); Strip Widths",75,-0.01,0.24));
+      hRHsterr.push_back(ibooker.book1D("hRHsterrm11a","Estimated Error on Strip Measurement (ME -1/1a); Strip Widths",75,-0.01,0.24));
+      hRHsterr.push_back(ibooker.book1D("hRHsterrm13","Estimated Error on Strip Measurement (ME -1/3); Strip Widths",75,-0.01,0.24));
+      hRHsterr.push_back(ibooker.book1D("hRHsterrm12","Estimated Error on Strip Measurement (ME -1/2); Strip Widths",75,-0.01,0.24));
+      hRHsterr.push_back(ibooker.book1D("hRHsterrm11b","Estimated Error on Strip Measurement (ME -1/1b); Strip Widths",75,-0.01,0.24));
+      hRHsterr.push_back(ibooker.book1D("hRHsterrp11b","Estimated Error on Strip Measurement (ME +1/1b); Strip Widths",75,-0.01,0.24));
+      hRHsterr.push_back(ibooker.book1D("hRHsterrp12","Estimated Error on Strip Measurement (ME +1/2); Strip Widths",75,-0.01,0.24));
+      hRHsterr.push_back(ibooker.book1D("hRHsterrp13","Estimated Error on Strip Measurement (ME +1/3); Strip Widths",75,-0.01,0.24));
+      hRHsterr.push_back(ibooker.book1D("hRHsterrp11a","Estimated Error on Strip Measurement (ME +1/1a); Strip Widths",75,-0.01,0.24));
+      hRHsterr.push_back(ibooker.book1D("hRHsterrp21","Estimated Error on Strip Measurement (ME +2/1); Strip Widths",75,-0.01,0.24));
+      hRHsterr.push_back(ibooker.book1D("hRHsterrp22","Estimated Error on Strip Measurement (ME +2/2); Strip Widths",75,-0.01,0.24));
+      hRHsterr.push_back(ibooker.book1D("hRHsterrp31","Estimated Error on Strip Measurement (ME +3/1); Strip Widths",75,-0.01,0.24));
+      hRHsterr.push_back(ibooker.book1D("hRHsterrp32","Estimated Error on Strip Measurement (ME +3/2); Strip Widths",75,-0.01,0.24));
+      hRHsterr.push_back(ibooker.book1D("hRHsterrp41","Estimated Error on Strip Measurement (ME +4/1); Strip Widths",75,-0.01,0.24));
+      hRHsterr.push_back(ibooker.book1D("hRHsterrp42","Estimated Error on Strip Measurement (ME +4/2); Strip Widths",75,-0.01,0.24));
 
       // segments
-      dbe->setCurrentFolder("CSC/CSCOfflineMonitor/Segments");
-      hSnSegments   = dbe->book1D("hSnSegments","Number of Segments per Event; # of Segments",11,-0.5,10.5);
-      hSnhitsAll = dbe->book1D("hSnhits","N hits on Segments; # of hits",8,-0.5,7.5);
-      hSnhits.push_back(dbe->book1D("hSnhitsm42","# of hits on Segments (ME -4/2); # of hits",8,-0.5,7.5));
-      hSnhits.push_back(dbe->book1D("hSnhitsm41","# of hits on Segments (ME -4/1); # of hits",8,-0.5,7.5));
-      hSnhits.push_back(dbe->book1D("hSnhitsm32","# of hits on Segments (ME -3/2); # of hits",8,-0.5,7.5));
-      hSnhits.push_back(dbe->book1D("hSnhitsm31","# of hits on Segments (ME -3/1); # of hits",8,-0.5,7.5));
-      hSnhits.push_back(dbe->book1D("hSnhitsm22","# of hits on Segments (ME -2/2); # of hits",8,-0.5,7.5));
-      hSnhits.push_back(dbe->book1D("hSnhitsm21","# of hits on Segments (ME -2/1); # of hits",8,-0.5,7.5));
-      hSnhits.push_back(dbe->book1D("hSnhitsm11a","# of hits on Segments (ME -1/1a); # of hits",8,-0.5,7.5));
-      hSnhits.push_back(dbe->book1D("hSnhitsm13","# of hits on Segments (ME -1/3); # of hits",8,-0.5,7.5));
-      hSnhits.push_back(dbe->book1D("hSnhitsm12","# of hits on Segments (ME -1/2); # of hits",8,-0.5,7.5));
-      hSnhits.push_back(dbe->book1D("hSnhitsm11b","# of hits on Segments (ME -1/1b); # of hits",8,-0.5,7.5));
-      hSnhits.push_back(dbe->book1D("hSnhitsp11b","# of hits on Segments (ME +1/1b); # of hits",8,-0.5,7.5));
-      hSnhits.push_back(dbe->book1D("hSnhitsp12","# of hits on Segments (ME +1/2); # of hits",8,-0.5,7.5));
-      hSnhits.push_back(dbe->book1D("hSnhitsp13","# of hits on Segments (ME +1/3); # of hits",8,-0.5,7.5));
-      hSnhits.push_back(dbe->book1D("hSnhitsp11a","# of hits on Segments (ME +1/1a); # of hits",8,-0.5,7.5));
-      hSnhits.push_back(dbe->book1D("hSnhitsp21","# of hits on Segments (ME +2/1); # of hits",8,-0.5,7.5));
-      hSnhits.push_back(dbe->book1D("hSnhitsp22","# of hits on Segments (ME +2/2); # of hits",8,-0.5,7.5));
-      hSnhits.push_back(dbe->book1D("hSnhitsp31","# of hits on Segments (ME +3/1); # of hits",8,-0.5,7.5));
-      hSnhits.push_back(dbe->book1D("hSnhitsp32","# of hits on Segments (ME +3/2); # of hits",8,-0.5,7.5));
-      hSnhits.push_back(dbe->book1D("hSnhitsp41","# of hits on Segments (ME +4/1); # of hits",8,-0.5,7.5));
-      hSnhits.push_back(dbe->book1D("hSnhitsp42","# of hits on Segments (ME +4/2); # of hits",8,-0.5,7.5));
-      hSChiSqAll = dbe->book1D("hSChiSq","Segment Normalized Chi2; Chi2/ndof",110,-0.05,10.5);
-      hSChiSq.push_back(dbe->book1D("hSChiSqm42","Segment Normalized Chi2 (ME -4/2); Chi2/ndof",110,-0.05,10.5));
-      hSChiSq.push_back(dbe->book1D("hSChiSqm41","Segment Normalized Chi2 (ME -4/1); Chi2/ndof",110,-0.05,10.5));
-      hSChiSq.push_back(dbe->book1D("hSChiSqm32","Segment Normalized Chi2 (ME -3/2); Chi2/ndof",110,-0.05,10.5));
-      hSChiSq.push_back(dbe->book1D("hSChiSqm31","Segment Normalized Chi2 (ME -3/1); Chi2/ndof",110,-0.05,10.5));
-      hSChiSq.push_back(dbe->book1D("hSChiSqm22","Segment Normalized Chi2 (ME -2/2); Chi2/ndof",110,-0.05,10.5));
-      hSChiSq.push_back(dbe->book1D("hSChiSqm21","Segment Normalized Chi2 (ME -2/1); Chi2/ndof",110,-0.05,10.5));
-      hSChiSq.push_back(dbe->book1D("hSChiSqm11a","Segment Normalized Chi2 (ME -1/1a); Chi2/ndof",110,-0.05,10.5));
-      hSChiSq.push_back(dbe->book1D("hSChiSqm13","Segment Normalized Chi2 (ME -1/3); Chi2/ndof",110,-0.05,10.5));
-      hSChiSq.push_back(dbe->book1D("hSChiSqm12","Segment Normalized Chi2 (ME -1/2); Chi2/ndof",110,-0.05,10.5));
-      hSChiSq.push_back(dbe->book1D("hSChiSqm11b","Segment Normalized Chi2 (ME -1/1b); Chi2/ndof",110,-0.05,10.5));
-      hSChiSq.push_back(dbe->book1D("hSChiSqp11b","Segment Normalized Chi2 (ME +1/1b); Chi2/ndof",110,-0.05,10.5));
-      hSChiSq.push_back(dbe->book1D("hSChiSqp12","Segment Normalized Chi2 (ME +1/2); Chi2/ndof",110,-0.05,10.5));
-      hSChiSq.push_back(dbe->book1D("hSChiSqp13","Segment Normalized Chi2 (ME +1/3); Chi2/ndof",110,-0.05,10.5));
-      hSChiSq.push_back(dbe->book1D("hSChiSqp11a","Segment Normalized Chi2 (ME +1/1a); Chi2/ndof",110,-0.05,10.5));
-      hSChiSq.push_back(dbe->book1D("hSChiSqp21","Segment Normalized Chi2 (ME +2/1); Chi2/ndof",110,-0.05,10.5));
-      hSChiSq.push_back(dbe->book1D("hSChiSqp22","Segment Normalized Chi2 (ME +2/2); Chi2/ndof",110,-0.05,10.5));
-      hSChiSq.push_back(dbe->book1D("hSChiSqp31","Segment Normalized Chi2 (ME +3/1); Chi2/ndof",110,-0.05,10.5));
-      hSChiSq.push_back(dbe->book1D("hSChiSqp32","Segment Normalized Chi2 (ME +3/2); Chi2/ndof",110,-0.05,10.5));
-      hSChiSq.push_back(dbe->book1D("hSChiSqp41","Segment Normalized Chi2 (ME +4/1); Chi2/ndof",110,-0.05,10.5));
-      hSChiSq.push_back(dbe->book1D("hSChiSqp42","Segment Normalized Chi2 (ME +4/2); Chi2/ndof",110,-0.05,10.5));
-      hSChiSqProbAll = dbe->book1D("hSChiSqProb","Segment chi2 Probability; Probability",110,-0.05,1.05);
-      hSChiSqProb.push_back(dbe->book1D("hSChiSqProbm42","Segment chi2 Probability (ME -4/2); Probability",110,-0.05,1.05));
-      hSChiSqProb.push_back(dbe->book1D("hSChiSqProbm41","Segment chi2 Probability (ME -4/1); Probability",110,-0.05,1.05));
-      hSChiSqProb.push_back(dbe->book1D("hSChiSqProbm32","Segment chi2 Probability (ME -3/2); Probability",110,-0.05,1.05));
-      hSChiSqProb.push_back(dbe->book1D("hSChiSqProbm31","Segment chi2 Probability (ME -3/1); Probability",110,-0.05,1.05));
-      hSChiSqProb.push_back(dbe->book1D("hSChiSqProbm22","Segment chi2 Probability (ME -2/2); Probability",110,-0.05,1.05));
-      hSChiSqProb.push_back(dbe->book1D("hSChiSqProbm21","Segment chi2 Probability (ME -2/1); Probability",110,-0.05,1.05));
-      hSChiSqProb.push_back(dbe->book1D("hSChiSqProbm11a","Segment chi2 Probability (ME -1/1a); Probability",110,-0.05,1.05));
-      hSChiSqProb.push_back(dbe->book1D("hSChiSqProbm13","Segment chi2 Probability (ME -1/3); Probability",110,-0.05,1.05));
-      hSChiSqProb.push_back(dbe->book1D("hSChiSqProbm12","Segment chi2 Probability (ME -1/2); Probability",110,-0.05,1.05));
-      hSChiSqProb.push_back(dbe->book1D("hSChiSqProbm11b","Segment chi2 Probability (ME -1/1b); Probability",110,-0.05,1.05));
-      hSChiSqProb.push_back(dbe->book1D("hSChiSqProbp11b","Segment chi2 Probability (ME +1/1b); Probability",110,-0.05,1.05));
-      hSChiSqProb.push_back(dbe->book1D("hSChiSqProbp12","Segment chi2 Probability (ME +1/2); Probability",110,-0.05,1.05));
-      hSChiSqProb.push_back(dbe->book1D("hSChiSqProbp13","Segment chi2 Probability (ME +1/3); Probability",110,-0.05,1.05));
-      hSChiSqProb.push_back(dbe->book1D("hSChiSqProbp11a","Segment chi2 Probability (ME +1/1a); Probability",110,-0.05,1.05));
-      hSChiSqProb.push_back(dbe->book1D("hSChiSqProbp21","Segment chi2 Probability (ME +2/1); Probability",110,-0.05,1.05));
-      hSChiSqProb.push_back(dbe->book1D("hSChiSqProbp22","Segment chi2 Probability (ME +2/2); Probability",110,-0.05,1.05));
-      hSChiSqProb.push_back(dbe->book1D("hSChiSqProbp31","Segment chi2 Probability (ME +3/1); Probability",110,-0.05,1.05));
-      hSChiSqProb.push_back(dbe->book1D("hSChiSqProbp32","Segment chi2 Probability (ME +3/2); Probability",110,-0.05,1.05));
-      hSChiSqProb.push_back(dbe->book1D("hSChiSqProbp41","Segment chi2 Probability (ME +4/1); Probability",110,-0.05,1.05));
-      hSChiSqProb.push_back(dbe->book1D("hSChiSqProbp42","Segment chi2 Probability (ME +4/2); Probability",110,-0.05,1.05));
-      hSGlobalTheta = dbe->book1D("hSGlobalTheta","Segment Direction (Global Theta); Global Theta (radians)",136,-0.1,3.3);
-      hSGlobalPhi   = dbe->book1D("hSGlobalPhi","Segment Direction (Global Phi); Global Phi (radians)",  128,-3.2,3.2);
-      hSTimeCathode  = dbe->book1D("hSTimeCathode", "Cathode Only Segment Time  [ns]",200,-200,200);
-      hSTimeCombined = dbe->book1D("hSTimeCombined", "Segment Time (anode+cathode times) [ns]",200,-200,200);
-      hSTimeVsZ	  = dbe->book2D("hSTimeVsZ","Segment Time vs. Z; [ns] vs. [cm]",200,-1200,1200,200,-200,200);
-      hSTimeVsTOF = dbe->book2D("hSTimeVsTOF","Segment Time vs. Distance from IP; [ns] vs. [cm]",180,500,1400, 200,-200,200);
-      // Resolution
-      dbe->setCurrentFolder("CSC/CSCOfflineMonitor/Resolution");
-      hSResid.push_back(dbe->book1D("hSResidm42","Fitted Position on Strip - Reconstructed for Layer 3 (ME -4/2); Strip Widths",100,-0.5,0.5));
-      hSResid.push_back(dbe->book1D("hSResidm41","Fitted Position on Strip - Reconstructed for Layer 3 (ME -4/1); Strip Widths",100,-0.5,0.5));
-      hSResid.push_back(dbe->book1D("hSResidm32","Fitted Position on Strip - Reconstructed for Layer 3 (ME -3/2); Strip Widths",100,-0.5,0.5));
-      hSResid.push_back(dbe->book1D("hSResidm31","Fitted Position on Strip - Reconstructed for Layer 3 (ME -3/1); Strip Widths",100,-0.5,0.5));
-      hSResid.push_back(dbe->book1D("hSResidm22","Fitted Position on Strip - Reconstructed for Layer 3 (ME -2/2); Strip Widths",100,-0.5,0.5));
-      hSResid.push_back(dbe->book1D("hSResidm21","Fitted Position on Strip - Reconstructed for Layer 3 (ME -2/1); Strip Widths",100,-0.5,0.5));
-      hSResid.push_back(dbe->book1D("hSResidm11a","Fitted Position on Strip - Reconstructed for Layer 3 (ME -1/1a); Strip Widths",100,-0.5,0.5));
-      hSResid.push_back(dbe->book1D("hSResidm13","Fitted Position on Strip - Reconstructed for Layer 3 (ME -1/3); Strip Widths",100,-0.5,0.5));
-      hSResid.push_back(dbe->book1D("hSResidm12","Fitted Position on Strip - Reconstructed for Layer 3 (ME -1/2); Strip Widths",100,-0.5,0.5));
-      hSResid.push_back(dbe->book1D("hSResidm11b","Fitted Position on Strip - Reconstructed for Layer 3 (ME -1/1b); Strip Widths",100,-0.5,0.5));
-      hSResid.push_back(dbe->book1D("hSResidp11b","Fitted Position on Strip - Reconstructed for Layer 3 (ME +1/1b); Strip Widths",100,-0.5,0.5));
-      hSResid.push_back(dbe->book1D("hSResidp12","Fitted Position on Strip - Reconstructed for Layer 3 (ME +1/2); Strip Widths",100,-0.5,0.5));
-      hSResid.push_back(dbe->book1D("hSResidp13","Fitted Position on Strip - Reconstructed for Layer 3 (ME +1/3); Strip Widths",100,-0.5,0.5));
-      hSResid.push_back(dbe->book1D("hSResidp11a","Fitted Position on Strip - Reconstructed for Layer 3 (ME +1/1a); Strip Widths",100,-0.5,0.5));
-      hSResid.push_back(dbe->book1D("hSResidp21","Fitted Position on Strip - Reconstructed for Layer 3 (ME +2/1); Strip Widths",100,-0.5,0.5));
-      hSResid.push_back(dbe->book1D("hSResidp22","Fitted Position on Strip - Reconstructed for Layer 3 (ME +2/2); Strip Widths",100,-0.5,0.5));
-      hSResid.push_back(dbe->book1D("hSResidp31","Fitted Position on Strip - Reconstructed for Layer 3 (ME +3/1); Strip Widths",100,-0.5,0.5));
-      hSResid.push_back(dbe->book1D("hSResidp32","Fitted Position on Strip - Reconstructed for Layer 3 (ME +3/2); Strip Widths",100,-0.5,0.5));
-      hSResid.push_back(dbe->book1D("hSResidp41","Fitted Position on Strip - Reconstructed for Layer 3 (ME +4/1); Strip Widths",100,-0.5,0.5));
-      hSResid.push_back(dbe->book1D("hSResidp42","Fitted Position on Strip - Reconstructed for Layer 3 (ME +4/2); Strip Widths",100,-0.5,0.5));
+      ibooker.setCurrentFolder("CSC/CSCOfflineMonitor/Segments");
 
-      // Efficiency
-      
-      dbe->setCurrentFolder("CSC/CSCOfflineMonitor/Efficiency");
-      hSSTE = dbe->book1D("hSSTE","hSSTE",40,0.5,40.5);
-      hRHSTE = dbe->book1D("hRHSTE","hRHSTE",40,0.5,40.5);
-      hSEff = dbe->book1D("hSEff","Segment Efficiency",20,0.5,20.5);
-      hRHEff = dbe->book1D("hRHEff","recHit Efficiency",20,0.5,20.5);
-      hSSTE2 = dbe->book2D("hSSTE2","hSSTE2",36,0.5,36.5, 18, 0.5, 18.5);
-      hRHSTE2 = dbe->book2D("hRHSTE2","hRHSTE2",36,0.5,36.5, 18, 0.5, 18.5);
-      hStripSTE2 = dbe->book2D("hStripSTE2","hStripSTE2",36,0.5,36.5, 18, 0.5, 18.5);
-      hWireSTE2 = dbe->book2D("hWireSTE2","hWireSTE2",36,0.5,36.5, 18, 0.5, 18.5);
-      hEffDenominator = dbe->book2D("hEffDenominator","hEffDenominator",36,0.5,36.5, 18, 0.5, 18.5);
-      hSEff2 = dbe->book2D("hSEff2","Segment Efficiency 2D",36,0.5,36.5, 18, 0.5, 18.5);
-      hRHEff2 = dbe->book2D("hRHEff2","recHit Efficiency 2D",36,0.5,36.5, 18, 0.5, 18.5);
-      hStripReadoutEff2 = dbe->book2D("hStripReadoutEff2","strip readout ratio [(strip+clct+wires)/(clct+wires)] 2D",36,0.5,36.5, 20, 0.5, 20.5);
-      hStripReadoutEff2->setAxisTitle("Chamber #");
-      hStripEff2 = dbe->book2D("hStripEff2","strip Efficiency 2D",36,0.5,36.5, 18, 0.5, 18.5);
-      hWireEff2 = dbe->book2D("hWireEff2","wire Efficiency 2D",36,0.5,36.5, 18, 0.5, 18.5);
-      hSensitiveAreaEvt = dbe->book2D("hSensitiveAreaEvt","Events Passing Selection for Efficiency",36,0.5,36.5, 18, 0.5, 18.5);
+      hSnSegments   = ibooker.book1D("hSnSegments","Number of Segments per Event; # of Segments",21,-0.5,20.5);
+      hSnhitsAll = ibooker.book1D("hSnhits","N hits on Segments; # of hits",8,-0.5,7.5);
+      hSnhits.push_back(ibooker.book1D("hSnhitsm42","# of hits on Segments (ME -4/2); # of hits",8,-0.5,7.5));
+      hSnhits.push_back(ibooker.book1D("hSnhitsm41","# of hits on Segments (ME -4/1); # of hits",8,-0.5,7.5));
+      hSnhits.push_back(ibooker.book1D("hSnhitsm32","# of hits on Segments (ME -3/2); # of hits",8,-0.5,7.5));
+      hSnhits.push_back(ibooker.book1D("hSnhitsm31","# of hits on Segments (ME -3/1); # of hits",8,-0.5,7.5));
+      hSnhits.push_back(ibooker.book1D("hSnhitsm22","# of hits on Segments (ME -2/2); # of hits",8,-0.5,7.5));
+      hSnhits.push_back(ibooker.book1D("hSnhitsm21","# of hits on Segments (ME -2/1); # of hits",8,-0.5,7.5));
+      hSnhits.push_back(ibooker.book1D("hSnhitsm11a","# of hits on Segments (ME -1/1a); # of hits",8,-0.5,7.5));
+      hSnhits.push_back(ibooker.book1D("hSnhitsm13","# of hits on Segments (ME -1/3); # of hits",8,-0.5,7.5));
+      hSnhits.push_back(ibooker.book1D("hSnhitsm12","# of hits on Segments (ME -1/2); # of hits",8,-0.5,7.5));
+      hSnhits.push_back(ibooker.book1D("hSnhitsm11b","# of hits on Segments (ME -1/1b); # of hits",8,-0.5,7.5));
+      hSnhits.push_back(ibooker.book1D("hSnhitsp11b","# of hits on Segments (ME +1/1b); # of hits",8,-0.5,7.5));
+      hSnhits.push_back(ibooker.book1D("hSnhitsp12","# of hits on Segments (ME +1/2); # of hits",8,-0.5,7.5));
+      hSnhits.push_back(ibooker.book1D("hSnhitsp13","# of hits on Segments (ME +1/3); # of hits",8,-0.5,7.5));
+      hSnhits.push_back(ibooker.book1D("hSnhitsp11a","# of hits on Segments (ME +1/1a); # of hits",8,-0.5,7.5));
+      hSnhits.push_back(ibooker.book1D("hSnhitsp21","# of hits on Segments (ME +2/1); # of hits",8,-0.5,7.5));
+      hSnhits.push_back(ibooker.book1D("hSnhitsp22","# of hits on Segments (ME +2/2); # of hits",8,-0.5,7.5));
+      hSnhits.push_back(ibooker.book1D("hSnhitsp31","# of hits on Segments (ME +3/1); # of hits",8,-0.5,7.5));
+      hSnhits.push_back(ibooker.book1D("hSnhitsp32","# of hits on Segments (ME +3/2); # of hits",8,-0.5,7.5));
+      hSnhits.push_back(ibooker.book1D("hSnhitsp41","# of hits on Segments (ME +4/1); # of hits",8,-0.5,7.5));
+      hSnhits.push_back(ibooker.book1D("hSnhitsp42","# of hits on Segments (ME +4/2); # of hits",8,-0.5,7.5));
+      hSChiSqAll = ibooker.book1D("hSChiSq","Segment Normalized Chi2; Chi2/ndof",110,-0.05,10.5);
+      hSChiSq.push_back(ibooker.book1D("hSChiSqm42","Segment Normalized Chi2 (ME -4/2); Chi2/ndof",110,-0.05,10.5));
+      hSChiSq.push_back(ibooker.book1D("hSChiSqm41","Segment Normalized Chi2 (ME -4/1); Chi2/ndof",110,-0.05,10.5));
+      hSChiSq.push_back(ibooker.book1D("hSChiSqm32","Segment Normalized Chi2 (ME -3/2); Chi2/ndof",110,-0.05,10.5));
+      hSChiSq.push_back(ibooker.book1D("hSChiSqm31","Segment Normalized Chi2 (ME -3/1); Chi2/ndof",110,-0.05,10.5));
+      hSChiSq.push_back(ibooker.book1D("hSChiSqm22","Segment Normalized Chi2 (ME -2/2); Chi2/ndof",110,-0.05,10.5));
+      hSChiSq.push_back(ibooker.book1D("hSChiSqm21","Segment Normalized Chi2 (ME -2/1); Chi2/ndof",110,-0.05,10.5));
+      hSChiSq.push_back(ibooker.book1D("hSChiSqm11a","Segment Normalized Chi2 (ME -1/1a); Chi2/ndof",110,-0.05,10.5));
+      hSChiSq.push_back(ibooker.book1D("hSChiSqm13","Segment Normalized Chi2 (ME -1/3); Chi2/ndof",110,-0.05,10.5));
+      hSChiSq.push_back(ibooker.book1D("hSChiSqm12","Segment Normalized Chi2 (ME -1/2); Chi2/ndof",110,-0.05,10.5));
+      hSChiSq.push_back(ibooker.book1D("hSChiSqm11b","Segment Normalized Chi2 (ME -1/1b); Chi2/ndof",110,-0.05,10.5));
+      hSChiSq.push_back(ibooker.book1D("hSChiSqp11b","Segment Normalized Chi2 (ME +1/1b); Chi2/ndof",110,-0.05,10.5));
+      hSChiSq.push_back(ibooker.book1D("hSChiSqp12","Segment Normalized Chi2 (ME +1/2); Chi2/ndof",110,-0.05,10.5));
+      hSChiSq.push_back(ibooker.book1D("hSChiSqp13","Segment Normalized Chi2 (ME +1/3); Chi2/ndof",110,-0.05,10.5));
+      hSChiSq.push_back(ibooker.book1D("hSChiSqp11a","Segment Normalized Chi2 (ME +1/1a); Chi2/ndof",110,-0.05,10.5));
+      hSChiSq.push_back(ibooker.book1D("hSChiSqp21","Segment Normalized Chi2 (ME +2/1); Chi2/ndof",110,-0.05,10.5));
+      hSChiSq.push_back(ibooker.book1D("hSChiSqp22","Segment Normalized Chi2 (ME +2/2); Chi2/ndof",110,-0.05,10.5));
+      hSChiSq.push_back(ibooker.book1D("hSChiSqp31","Segment Normalized Chi2 (ME +3/1); Chi2/ndof",110,-0.05,10.5));
+      hSChiSq.push_back(ibooker.book1D("hSChiSqp32","Segment Normalized Chi2 (ME +3/2); Chi2/ndof",110,-0.05,10.5));
+      hSChiSq.push_back(ibooker.book1D("hSChiSqp41","Segment Normalized Chi2 (ME +4/1); Chi2/ndof",110,-0.05,10.5));
+      hSChiSq.push_back(ibooker.book1D("hSChiSqp42","Segment Normalized Chi2 (ME +4/2); Chi2/ndof",110,-0.05,10.5));
+      hSChiSqProbAll = ibooker.book1D("hSChiSqProb","Segment chi2 Probability; Probability",110,-0.05,1.05);
+      hSChiSqProb.push_back(ibooker.book1D("hSChiSqProbm42","Segment chi2 Probability (ME -4/2); Probability",110,-0.05,1.05));
+      hSChiSqProb.push_back(ibooker.book1D("hSChiSqProbm41","Segment chi2 Probability (ME -4/1); Probability",110,-0.05,1.05));
+      hSChiSqProb.push_back(ibooker.book1D("hSChiSqProbm32","Segment chi2 Probability (ME -3/2); Probability",110,-0.05,1.05));
+      hSChiSqProb.push_back(ibooker.book1D("hSChiSqProbm31","Segment chi2 Probability (ME -3/1); Probability",110,-0.05,1.05));
+      hSChiSqProb.push_back(ibooker.book1D("hSChiSqProbm22","Segment chi2 Probability (ME -2/2); Probability",110,-0.05,1.05));
+      hSChiSqProb.push_back(ibooker.book1D("hSChiSqProbm21","Segment chi2 Probability (ME -2/1); Probability",110,-0.05,1.05));
+      hSChiSqProb.push_back(ibooker.book1D("hSChiSqProbm11a","Segment chi2 Probability (ME -1/1a); Probability",110,-0.05,1.05));
+      hSChiSqProb.push_back(ibooker.book1D("hSChiSqProbm13","Segment chi2 Probability (ME -1/3); Probability",110,-0.05,1.05));
+      hSChiSqProb.push_back(ibooker.book1D("hSChiSqProbm12","Segment chi2 Probability (ME -1/2); Probability",110,-0.05,1.05));
+      hSChiSqProb.push_back(ibooker.book1D("hSChiSqProbm11b","Segment chi2 Probability (ME -1/1b); Probability",110,-0.05,1.05));
+      hSChiSqProb.push_back(ibooker.book1D("hSChiSqProbp11b","Segment chi2 Probability (ME +1/1b); Probability",110,-0.05,1.05));
+      hSChiSqProb.push_back(ibooker.book1D("hSChiSqProbp12","Segment chi2 Probability (ME +1/2); Probability",110,-0.05,1.05));
+      hSChiSqProb.push_back(ibooker.book1D("hSChiSqProbp13","Segment chi2 Probability (ME +1/3); Probability",110,-0.05,1.05));
+      hSChiSqProb.push_back(ibooker.book1D("hSChiSqProbp11a","Segment chi2 Probability (ME +1/1a); Probability",110,-0.05,1.05));
+      hSChiSqProb.push_back(ibooker.book1D("hSChiSqProbp21","Segment chi2 Probability (ME +2/1); Probability",110,-0.05,1.05));
+      hSChiSqProb.push_back(ibooker.book1D("hSChiSqProbp22","Segment chi2 Probability (ME +2/2); Probability",110,-0.05,1.05));
+      hSChiSqProb.push_back(ibooker.book1D("hSChiSqProbp31","Segment chi2 Probability (ME +3/1); Probability",110,-0.05,1.05));
+      hSChiSqProb.push_back(ibooker.book1D("hSChiSqProbp32","Segment chi2 Probability (ME +3/2); Probability",110,-0.05,1.05));
+      hSChiSqProb.push_back(ibooker.book1D("hSChiSqProbp41","Segment chi2 Probability (ME +4/1); Probability",110,-0.05,1.05));
+      hSChiSqProb.push_back(ibooker.book1D("hSChiSqProbp42","Segment chi2 Probability (ME +4/2); Probability",110,-0.05,1.05));
+      hSGlobalTheta = ibooker.book1D("hSGlobalTheta","Segment Direction (Global Theta); Global Theta (radians)",136,-0.1,3.3);
+      hSGlobalPhi   = ibooker.book1D("hSGlobalPhi","Segment Direction (Global Phi); Global Phi (radians)",  128,-3.2,3.2);
+      hSTimeCathode  = ibooker.book1D("hSTimeCathode", "Cathode Only Segment Time  [ns]",200,-200,200);
+      hSTimeCombined = ibooker.book1D("hSTimeCombined", "Segment Time (anode+cathode times) [ns]",200,-200,200);
+      hSTimeVsZ	  = ibooker.book2D("hSTimeVsZ","Segment Time vs. Z; [ns] vs. [cm]",200,-1200,1200,200,-200,200);
+      hSTimeVsTOF = ibooker.book2D("hSTimeVsTOF","Segment Time vs. Distance from IP; [ns] vs. [cm]",180,500,1400, 200,-200,200);
 
-      // BX Monitor for trigger synchronization
-      dbe->setCurrentFolder("CSC/CSCOfflineMonitor/BXMonitor");
-      hALCTgetBX = dbe->book1D("hALCTgetBX","ALCT position in ALCT-L1A match window [BX]",7,-0.5,6.5);
-      hALCTgetBXChamberMeans = dbe->book1D("hALCTgetBXChamberMeans","Chamber Mean ALCT position in ALCT-L1A match window [BX]",60,0,6);
-      hALCTgetBXSerial = dbe->book2D("hALCTgetBXSerial","ALCT position in ALCT-L1A match window [BX]",601,-0.5,600.5,7,-0.5,6.5);
+      // resolution
+      ibooker.setCurrentFolder("CSC/CSCOfflineMonitor/Resolution");
+
+      hSResid.push_back(ibooker.book1D("hSResidm42","Fitted Position on Strip - Reconstructed for Layer 3 (ME -4/2); Strip Widths",100,-0.5,0.5));
+      hSResid.push_back(ibooker.book1D("hSResidm41","Fitted Position on Strip - Reconstructed for Layer 3 (ME -4/1); Strip Widths",100,-0.5,0.5));
+      hSResid.push_back(ibooker.book1D("hSResidm32","Fitted Position on Strip - Reconstructed for Layer 3 (ME -3/2); Strip Widths",100,-0.5,0.5));
+      hSResid.push_back(ibooker.book1D("hSResidm31","Fitted Position on Strip - Reconstructed for Layer 3 (ME -3/1); Strip Widths",100,-0.5,0.5));
+      hSResid.push_back(ibooker.book1D("hSResidm22","Fitted Position on Strip - Reconstructed for Layer 3 (ME -2/2); Strip Widths",100,-0.5,0.5));
+      hSResid.push_back(ibooker.book1D("hSResidm21","Fitted Position on Strip - Reconstructed for Layer 3 (ME -2/1); Strip Widths",100,-0.5,0.5));
+      hSResid.push_back(ibooker.book1D("hSResidm11a","Fitted Position on Strip - Reconstructed for Layer 3 (ME -1/1a); Strip Widths",100,-0.5,0.5));
+      hSResid.push_back(ibooker.book1D("hSResidm13","Fitted Position on Strip - Reconstructed for Layer 3 (ME -1/3); Strip Widths",100,-0.5,0.5));
+      hSResid.push_back(ibooker.book1D("hSResidm12","Fitted Position on Strip - Reconstructed for Layer 3 (ME -1/2); Strip Widths",100,-0.5,0.5));
+      hSResid.push_back(ibooker.book1D("hSResidm11b","Fitted Position on Strip - Reconstructed for Layer 3 (ME -1/1b); Strip Widths",100,-0.5,0.5));
+      hSResid.push_back(ibooker.book1D("hSResidp11b","Fitted Position on Strip - Reconstructed for Layer 3 (ME +1/1b); Strip Widths",100,-0.5,0.5));
+      hSResid.push_back(ibooker.book1D("hSResidp12","Fitted Position on Strip - Reconstructed for Layer 3 (ME +1/2); Strip Widths",100,-0.5,0.5));
+      hSResid.push_back(ibooker.book1D("hSResidp13","Fitted Position on Strip - Reconstructed for Layer 3 (ME +1/3); Strip Widths",100,-0.5,0.5));
+      hSResid.push_back(ibooker.book1D("hSResidp11a","Fitted Position on Strip - Reconstructed for Layer 3 (ME +1/1a); Strip Widths",100,-0.5,0.5));
+      hSResid.push_back(ibooker.book1D("hSResidp21","Fitted Position on Strip - Reconstructed for Layer 3 (ME +2/1); Strip Widths",100,-0.5,0.5));
+      hSResid.push_back(ibooker.book1D("hSResidp22","Fitted Position on Strip - Reconstructed for Layer 3 (ME +2/2); Strip Widths",100,-0.5,0.5));
+      hSResid.push_back(ibooker.book1D("hSResidp31","Fitted Position on Strip - Reconstructed for Layer 3 (ME +3/1); Strip Widths",100,-0.5,0.5));
+      hSResid.push_back(ibooker.book1D("hSResidp32","Fitted Position on Strip - Reconstructed for Layer 3 (ME +3/2); Strip Widths",100,-0.5,0.5));
+      hSResid.push_back(ibooker.book1D("hSResidp41","Fitted Position on Strip - Reconstructed for Layer 3 (ME +4/1); Strip Widths",100,-0.5,0.5));
+      hSResid.push_back(ibooker.book1D("hSResidp42","Fitted Position on Strip - Reconstructed for Layer 3 (ME +4/2); Strip Widths",100,-0.5,0.5));
+
+      // efficiency
+      ibooker.setCurrentFolder("CSC/CSCOfflineMonitor/Efficiency");
+
+      //      hSSTE = ibooker.book1D("hSSTE","hSSTE",40,0.5,40.5);
+      //      hRHSTE = ibooker.book1D("hRHSTE","hRHSTE",40,0.5,40.5);
+      hSnum = ibooker.book1D("hSnum", "CSC w rechits in 2+ layers && segment(s)", 20, 0.5, 20.5);
+      hSden = ibooker.book1D("hSden", "CSC w rechits in 2+ layers", 20, 0.5, 20.5);
+      hRHnum = ibooker.book1D("hRHnum", "CSC w segment(s) && rechits in 6 layers", 20, 0.5, 20.5);
+      hRHden = ibooker.book1D("hRHden", "CSC w segment(s)", 20, 0.5, 20.5);
+      applyCSClabels(hSnum, EXTENDED, X);
+      applyCSClabels(hSden, EXTENDED, X);
+      applyCSClabels(hRHnum, EXTENDED, X);
+      applyCSClabels(hRHden, EXTENDED, X);
+
+      //      hSEff = ibooker.book1D("hSEff","Segment Efficiency",20,0.5,20.5);
+      //      hRHEff = ibooker.book1D("hRHEff","recHit Efficiency",20,0.5,20.5);
+      hSSTE2 = ibooker.book2D("hSSTE2","hSSTE2",36,0.5,36.5, 20, 0.5, 20.5);
+      hRHSTE2 = ibooker.book2D("hRHSTE2","hRHSTE2",36,0.5,36.5, 20, 0.5, 20.5);
+      hStripSTE2 = ibooker.book2D("hStripSTE2","hStripSTE2",36,0.5,36.5, 20, 0.5, 20.5);
+      hWireSTE2 = ibooker.book2D("hWireSTE2","hWireSTE2",36,0.5,36.5, 20, 0.5, 20.5);
+      hEffDenominator = ibooker.book2D("hEffDenominator","hEffDenominator",36,0.5,36.5, 20, 0.5, 20.5);
+      //      hSEff2 = ibooker.book2D("hSEff2","Segment Efficiency 2D",36,0.5,36.5, 18, 0.5, 18.5);
+      //      hRHEff2 = ibooker.book2D("hRHEff2","recHit Efficiency 2D",36,0.5,36.5, 18, 0.5, 18.5);
+      //      hStripReadoutEff2 = ibooker.book2D("hStripReadoutEff2","strip readout ratio [(strip+clct+wires)/(clct+wires)] 2D",36,0.5,36.5, 20, 0.5, 20.5);
+      //      hStripReadoutEff2->setAxisTitle("Chamber #");
+      //      hStripEff2 = ibooker.book2D("hStripEff2","strip Efficiency 2D",36,0.5,36.5, 18, 0.5, 18.5);
+      //      hWireEff2 = ibooker.book2D("hWireEff2","wire Efficiency 2D",36,0.5,36.5, 18, 0.5, 18.5);
+      hSensitiveAreaEvt = ibooker.book2D("hSensitiveAreaEvt","Events Passing Selection for Efficiency",36,0.5,36.5, 20, 0.5, 20.5);
+
+      // bx monitor for trigger synchronization
+      ibooker.setCurrentFolder("CSC/CSCOfflineMonitor/BXMonitor");
+
+      hALCTgetBX = ibooker.book1D("hALCTgetBX","ALCT position in ALCT-L1A match window [BX]",7,-0.5,6.5);
+      //      hALCTgetBXChamberMeans = ibooker.book1D("hALCTgetBXChamberMeans","Chamber Mean ALCT position in ALCT-L1A match window [BX]",60,0,6);
+      hALCTgetBXSerial = ibooker.book2D("hALCTgetBXSerial","ALCT position in ALCT-L1A match window [BX]",601,-0.5,600.5,7,-0.5,6.5);
       hALCTgetBXSerial->setAxisTitle("Chamber Serial Number");
-      hALCTgetBX2DNumerator = dbe->book2D("hALCTgetBX2DNumerator","ALCT position in ALCT-L1A match window [BX] (sum)",36,0.5,36.5,20,0.5,20.5);
-      hALCTgetBX2DMeans = dbe->book2D("hALCTgetBX2DMeans","ALCT position in ALCT-L1A match window [BX]",36,0.5,36.5,20,0.5,20.5);
-      hALCTgetBX2Denominator = dbe->book2D("hALCTgetBX2Denominator","Number of ALCT Digis checked",36,0.5,36.5,20,0.5,20.5);
-      hALCTgetBX2DMeans->setAxisTitle("Chamber #");
+      hALCTgetBX2DNumerator = ibooker.book2D("hALCTgetBX2DNumerator","ALCT position in ALCT-L1A match window [BX] (sum)",36,0.5,36.5,20,0.5,20.5);
+      //      hALCTgetBX2DMeans = ibooker.book2D("hALCTgetBX2DMeans","ALCT position in ALCT-L1A match window [BX]",36,0.5,36.5,20,0.5,20.5);
+      hALCTgetBX2Denominator = ibooker.book2D("hALCTgetBX2Denominator","Number of ALCT Digis checked",36,0.5,36.5,20,0.5,20.5);
+      //      hALCTgetBX2DMeans->setAxisTitle("Chamber #");
       hALCTgetBX2Denominator->setAxisTitle("Chamber #");
-      hALCTMatch = dbe->book1D("hALCTMatch","ALCT position in ALCT-CLCT match window [BX]",7,-0.5,6.5);
-      hALCTMatchChamberMeans = dbe->book1D("hALCTMatchChamberMeans","Chamber Mean ALCT position in ALCT-CLCT match window [BX]",60,0,6);
-      hALCTMatchSerial = dbe->book2D("hALCTMatchSerial","ALCT position in ALCT-CLCT match window [BX]",601,-0.5,600.5,7,-0.5,6.5);
+      hALCTMatch = ibooker.book1D("hALCTMatch","ALCT position in ALCT-CLCT match window [BX]",7,-0.5,6.5);
+      //      hALCTMatchChamberMeans = ibooker.book1D("hALCTMatchChamberMeans","Chamber Mean ALCT position in ALCT-CLCT match window [BX]",60,0,6);
+      hALCTMatchSerial = ibooker.book2D("hALCTMatchSerial","ALCT position in ALCT-CLCT match window [BX]",601,-0.5,600.5,7,-0.5,6.5);
       hALCTMatchSerial->setAxisTitle("Chamber Serial Number");
-      hALCTMatch2DNumerator = dbe->book2D("hALCTMatch2DNumerator","ALCT position in ALCT-CLCT match window [BX] (sum)",36,0.5,36.5,20,0.5,20.5);
-      hALCTMatch2DMeans = dbe->book2D("hALCTMatch2DMeans","ALCT position in ALCT-CLCT match window [BX]",36,0.5,36.5,20,0.5,20.5);
-      hALCTMatch2Denominator = dbe->book2D("hALCTMatch2Denominator","Number of ALCT-CLCT matches checked",36,0.5,36.5,20,0.5,20.5);
-      hALCTMatch2DMeans->setAxisTitle("Chamber #");
+      hALCTMatch2DNumerator = ibooker.book2D("hALCTMatch2DNumerator","ALCT position in ALCT-CLCT match window [BX] (sum)",36,0.5,36.5,20,0.5,20.5);
+      //      hALCTMatch2DMeans = ibooker.book2D("hALCTMatch2DMeans","ALCT position in ALCT-CLCT match window [BX]",36,0.5,36.5,20,0.5,20.5);
+      hALCTMatch2Denominator = ibooker.book2D("hALCTMatch2Denominator","Number of ALCT-CLCT matches checked",36,0.5,36.5,20,0.5,20.5);
+      //      hALCTMatch2DMeans->setAxisTitle("Chamber #");
       hALCTMatch2Denominator->setAxisTitle("Chamber #");
-      hCLCTL1A = dbe->book1D("hCLCTL1A","L1A - CLCTpreTrigger at TMB [BX]",10,149.5,159.5);
-      hCLCTL1AChamberMeans = dbe->book1D("hCLCTL1AChamberMeans","Chamber Mean L1A - CLCTpreTrigger at TMB [BX]",90,150,159);
-      hCLCTL1ASerial = dbe->book2D("hCLCTL1ASerial","L1A - CLCTpreTrigger at TMB [BX]",601,-0.5,600.5,10,149.5,159.5);
+      hCLCTL1A = ibooker.book1D("hCLCTL1A","L1A - CLCTpreTrigger at TMB [BX]",10,149.5,159.5);
+      //      hCLCTL1AChamberMeans = ibooker.book1D("hCLCTL1AChamberMeans","Chamber Mean L1A - CLCTpreTrigger at TMB [BX]",90,150,159);
+      hCLCTL1ASerial = ibooker.book2D("hCLCTL1ASerial","L1A - CLCTpreTrigger at TMB [BX]",601,-0.5,600.5,10,149.5,159.5);
       hCLCTL1ASerial->setAxisTitle("Chamber Serial Number");
-      hCLCTL1A2DNumerator = dbe->book2D("hCLCTL1A2DNumerator","L1A - CLCTpreTrigger at TMB [BX] (sum)",36,0.5,36.5,20,0.5,20.5);
-      hCLCTL1A2DMeans = dbe->book2D("hCLCTL1A2DMeans","L1A - CLCTpreTrigger at TMB [BX]",36,0.5,36.5,20,0.5,20.5);
-      hCLCTL1A2Denominator = dbe->book2D("hCLCTL1A2Denominator","Number of TMB CLCTs checked",36,0.5,36.5,20,0.5,20.5);
+      hCLCTL1A2DNumerator = ibooker.book2D("hCLCTL1A2DNumerator","L1A - CLCTpreTrigger at TMB [BX] (sum)",36,0.5,36.5,20,0.5,20.5);
+      //      hCLCTL1A2DMeans = ibooker.book2D("hCLCTL1A2DMeans","L1A - CLCTpreTrigger at TMB [BX]",36,0.5,36.5,20,0.5,20.5);
+      hCLCTL1A2Denominator = ibooker.book2D("hCLCTL1A2Denominator","Number of TMB CLCTs checked",36,0.5,36.5,20,0.5,20.5);
 
 
-      // Set all Labels
+      // labels
       applyCSClabels(hOWiresAndCLCT, EXTENDED, Y);
       applyCSClabels(hOWires, EXTENDED, Y);
       applyCSClabels(hOStrips, EXTENDED, Y);
       applyCSClabels(hOStripsAndWiresAndCLCT, EXTENDED, Y);
       applyCSClabels(hORecHits, EXTENDED, Y);
       applyCSClabels(hOSegments, EXTENDED, Y);
-      applyCSClabels(hSEff, EXTENDED, X);
-      applyCSClabels(hRHEff, EXTENDED, X);
-      applyCSClabels(hSEff2, SMALL, Y);
-      applyCSClabels(hSSTE2, SMALL, Y);
-      applyCSClabels(hEffDenominator, SMALL, Y);
-      applyCSClabels(hRHEff2, SMALL, Y);
-      applyCSClabels(hRHSTE2, SMALL, Y);
-      applyCSClabels(hStripReadoutEff2, EXTENDED, Y);
-      applyCSClabels(hStripEff2, SMALL, Y);
-      applyCSClabels(hStripSTE2, SMALL, Y);
-      applyCSClabels(hWireEff2, SMALL, Y);
-      applyCSClabels(hWireSTE2, SMALL, Y);
-      applyCSClabels(hSensitiveAreaEvt, SMALL, Y);
-      applyCSClabels(hALCTgetBX2DMeans, EXTENDED, Y);
+      //      applyCSClabels(hSEff, EXTENDED, X);
+      //      applyCSClabels(hRHEff, EXTENDED, X);
+      //      applyCSClabels(hSEff2, SMALL, Y);
+      applyCSClabels(hSSTE2, EXTENDED, Y);
+      applyCSClabels(hEffDenominator, EXTENDED, Y);
+      //      applyCSClabels(hRHEff2, SMALL, Y);
+      applyCSClabels(hRHSTE2, EXTENDED, Y);
+      //      applyCSClabels(hStripReadoutEff2, EXTENDED, Y);
+      //      applyCSClabels(hStripEff2, SMALL, Y);
+      applyCSClabels(hStripSTE2, EXTENDED, Y);
+      //      applyCSClabels(hWireEff2, SMALL, Y);
+      applyCSClabels(hWireSTE2, EXTENDED, Y);
+      applyCSClabels(hSensitiveAreaEvt, EXTENDED, Y);
+      //      applyCSClabels(hALCTgetBX2DMeans, EXTENDED, Y);
       applyCSClabels(hALCTgetBX2Denominator, EXTENDED, Y);
-      applyCSClabels(hALCTMatch2DMeans, EXTENDED, Y);
+      //      applyCSClabels(hALCTMatch2DMeans, EXTENDED, Y);
       applyCSClabels(hALCTMatch2Denominator, EXTENDED, Y);
-      applyCSClabels(hCLCTL1A2DMeans, EXTENDED, Y);
+      //      applyCSClabels(hCLCTL1A2DMeans, EXTENDED, Y);
       applyCSClabels(hCLCTL1A2Denominator,EXTENDED, Y);
 }
-
-
-void CSCOfflineMonitor::endRun( edm::Run const &, edm::EventSetup const & ){
-  
-  if (!finalizedHistograms_){
-    finalize() ;
-    finalizedHistograms_ = true ;
-  }
-
-}
-
-void CSCOfflineMonitor::endJob(){
-  if(nullptr == dbe) {
-    return;
-  }
-  finalize() ;
-  finalizedHistograms_ = true ;
-  
-  bool saveHistos = param.getParameter<bool>("saveHistos");
-  string outputFileName = param.getParameter<string>("outputFileName");
-  if(saveHistos){
-    dbe->save(outputFileName);
-  }
-
-}
-
-
-void CSCOfflineMonitor::finalize() {
-
-  hRHEff = dbe->get("CSC/CSCOfflineMonitor/Efficiency/hRHEff");
-  hSEff = dbe->get("CSC/CSCOfflineMonitor/Efficiency/hSEff");
-  hSEff2 = dbe->get("CSC/CSCOfflineMonitor/Efficiency/hSEff2");
-  hRHEff2 = dbe->get("CSC/CSCOfflineMonitor/Efficiency/hRHEff2");
-  hStripEff2 = dbe->get("CSC/CSCOfflineMonitor/Efficiency/hStripEff2");
-  hWireEff2 = dbe->get("CSC/CSCOfflineMonitor/Efficiency/hWireEff2");
-
-  hOStripsAndWiresAndCLCT= dbe->get("CSC/CSCOfflineMonitor/Occupancy/hOStripsAndWiresAndCLCT");
-  hOWiresAndCLCT= dbe->get("CSC/CSCOfflineMonitor/Occupancy/hOWiresAndCLCT");
-  hStripReadoutEff2 = dbe->get("CSC/CSCOfflineMonitor/Efficiency/hStripReadoutEff2");
-
-  hALCTgetBX2DMeans = dbe->get("CSC/CSCOfflineMonitor/BXMonitor/hALCTgetBX2DMeans");
-  hALCTMatch2DMeans = dbe->get("CSC/CSCOfflineMonitor/BXMonitor/hALCTMatch2DMeans");
-  hCLCTL1A2DMeans   = dbe->get("CSC/CSCOfflineMonitor/BXMonitor/hCLCTL1A2DMeans");
-
-  hALCTgetBXSerial = dbe->get("CSC/CSCOfflineMonitor/BXMonitor/hALCTgetBXSerial");
-  hALCTMatchSerial = dbe->get("CSC/CSCOfflineMonitor/BXMonitor/hALCTMatchSerial");
-  hCLCTL1ASerial   = dbe->get("CSC/CSCOfflineMonitor/BXMonitor/hCLCTL1ASerial");
-
-  hALCTgetBXChamberMeans = dbe->get("CSC/CSCOfflineMonitor/BXMonitor/hALCTgetBXChamberMeans");
-  hALCTMatchChamberMeans = dbe->get("CSC/CSCOfflineMonitor/BXMonitor/hALCTMatchChamberMeans");
-  hCLCTL1AChamberMeans   = dbe->get("CSC/CSCOfflineMonitor/BXMonitor/hCLCTL1AChamberMeans");
-
-  if (hRHEff) histoEfficiency(hRHSTE->getTH1F(),hRHEff);
-  if (hSEff) histoEfficiency(hSSTE->getTH1F(),hSEff);
-  if (hSEff2) hSEff2->getTH2F()->Divide(hSSTE2->getTH2F(),\
-					hEffDenominator->getTH2F(), 1., 1.,"B");
-  if (hRHEff2) hRHEff2->getTH2F()->Divide(hRHSTE2->getTH2F(),\
-					  hEffDenominator->getTH2F(), 1., 1., "B");
-  if (hStripEff2) hStripEff2->getTH2F()->Divide(hStripSTE2->getTH2F(),\
-						hEffDenominator->getTH2F(), 1., 1., "B");
-  if (hWireEff2) hWireEff2->getTH2F()->Divide(hWireSTE2->getTH2F(),\
-					      hEffDenominator->getTH2F(), 1., 1., "B");
-  if (hStripReadoutEff2) hStripReadoutEff2->getTH2F()->Divide(hOStripsAndWiresAndCLCT->getTH2F(),\
-							      hOWiresAndCLCT->getTH2F(), 1., 1., "B");
-  if (hALCTMatch2DMeans){ 
-    harvestChamberMeans(hALCTMatchChamberMeans,\
-			hALCTMatch2DMeans,\
-			hALCTMatch2DNumerator,\
-			hALCTMatch2Denominator );
-  }
-  if (hALCTgetBX2DMeans) {
-    harvestChamberMeans(hALCTgetBXChamberMeans,\
-			hALCTgetBX2DMeans,\
-			hALCTgetBX2DNumerator,\
-			hALCTgetBX2Denominator );
-  }
-  if (hCLCTL1A2DMeans) {
-    harvestChamberMeans(hCLCTL1AChamberMeans,\
-			hCLCTL1A2DMeans,\
-			hCLCTL1A2DNumerator,\
-			hCLCTL1A2Denominator );
-  }
-
-  if(hALCTgetBXSerial)  normalize(hALCTgetBXSerial);
-  if(hALCTMatchSerial)  normalize(hALCTMatchSerial);
-  if(hCLCTL1ASerial)    normalize(hCLCTL1ASerial);
-
-
-}
-
-void CSCOfflineMonitor::harvestChamberMeans(MonitorElement* meMean1D,\
-					    MonitorElement *meMean2D,\
-					    MonitorElement *hNum,\
-					    MonitorElement *meDenom){
-
-
-  if (hNum->getNbinsY()!= meDenom->getNbinsY() || hNum->getNbinsX()!= meDenom->getNbinsX())
-    return;
-  if (meMean2D->getNbinsY()!= meDenom->getNbinsY() || meMean2D->getNbinsX()!= meDenom->getNbinsX())
-    return;
-
-  float mean;
-  for (int biny = 0; biny < hNum->getNbinsY()+1 ; biny++){
-    for (int binx = 0; binx < hNum->getNbinsX()+1 ; binx++){
-      if ( meDenom->getBinContent(binx,biny) > 0){
-	mean = hNum->getBinContent(binx,biny)/meDenom->getBinContent(binx,biny);
-	meMean1D->Fill(mean);
-	meMean2D->setBinContent(binx,biny,mean);
-      }
-    }
-  }
-
-  return;
-}
-
-void CSCOfflineMonitor::normalize(MonitorElement* me){
-    
-  TH2F* h = me->getTH2F();
-  if (! h)
-    return;
-  TH1D* hproj = h->ProjectionX("hproj");
-
-  for (int binx = 0; binx < h->GetNbinsX()+1 ; binx++){
-    Double_t entries = hproj->GetBinContent(binx);
-    for (Int_t biny=1;biny <= h->GetNbinsY();biny++) {
-      Double_t cxy = h->GetBinContent(binx,biny);
-      if (cxy > 0 && entries>0) h->SetBinContent(binx,biny,cxy/entries);
-    }
-  }
-
-
-    return;
-
-}
-
-
 
 ////////////////
 //  Analysis  //
@@ -627,7 +496,7 @@ void CSCOfflineMonitor::analyze(const edm::Event & event, const edm::EventSetup&
   doRecHits(recHits,strips,cscGeom);
   doSegments(cscSegments,cscGeom);
   doResolution(cscSegments,cscGeom);
-  doPedestalNoise(strips);
+  doPedestalNoise(strips, cscGeom);
   doEfficiencies(wires,strips, recHits, cscSegments,cscGeom);
   doBXMonitor(alcts, clcts, event, eventSetup);
 }
@@ -815,7 +684,8 @@ void CSCOfflineMonitor::doWireDigis(edm::Handle<CSCWireDigiCollection> wires){
   } // end wire loop
 
   // this way you can zero suppress but still store info on # events with no digis
-  if (nWireGroupsTotal == 0) nWireGroupsTotal = -1;
+  // Tim: I'm unhappy with that since it breaks hist statistics
+  //  if (nWireGroupsTotal == 0) nWireGroupsTotal = -1;
   hWirenGroupsTotal->Fill(nWireGroupsTotal);
   
 }
@@ -853,7 +723,9 @@ void CSCOfflineMonitor::doStripDigis(edm::Handle<CSCStripDigiCollection> strips)
   } // end strip loop
 
   // this way you can zero suppress but still store info on # events with no digis
-  if (nStripsFired == 0) nStripsFired = -1;
+  // Tim: I guess the above comment means 'zero suppress' because the hist range is from -0.5.
+  // But doing this means the hist statistics are broken. If the zero bin is high, just apply log scale?
+  //  if (nStripsFired == 0) nStripsFired = -1;
   hStripNFired->Fill(nStripsFired);
   // fill n per event
 
@@ -866,7 +738,8 @@ void CSCOfflineMonitor::doStripDigis(edm::Handle<CSCStripDigiCollection> strips)
 //
 //=======================================================
 
-void CSCOfflineMonitor::doPedestalNoise(edm::Handle<CSCStripDigiCollection> strips){
+void CSCOfflineMonitor::doPedestalNoise(edm::Handle<CSCStripDigiCollection> strips,
+					edm::ESHandle<CSCGeometry> cscGeom ) {
 
   for (CSCStripDigiCollection::DigiRangeIterator dPNiter=strips->begin(); dPNiter!=strips->end(); dPNiter++) {
     CSCDetId id = (CSCDetId)(*dPNiter).first;
@@ -882,11 +755,15 @@ void CSCOfflineMonitor::doPedestalNoise(edm::Handle<CSCStripDigiCollection> stri
       float thisPedestal = 0.5*(float)(myADCVals[0]+myADCVals[1]);
       float thisSignal = (1./6)*(myADCVals[2]+myADCVals[3]+myADCVals[4]+myADCVals[5]+myADCVals[6]+myADCVals[7]);
       float threshold = 13.3;
-      if(kStation == 1 && kRing == 4)
+
+      // Why is this code block even here? Doesn't use myStrip after setting it (converts channel to strip
+      // for ganged ME11A
+      if( (kStation == 1 && kRing == 4) && cscGeom->gangedStrips() ) 
 	{
 	  kRing = 1;
 	  if(myStrip <= 16) myStrip += 64; // no trapping for any bizarreness
 	}
+
       if (TotalADC > threshold) { thisStripFired = true;}
       if (!thisStripFired){
 	float ADC = thisSignal - thisPedestal;
@@ -970,7 +847,7 @@ void CSCOfflineMonitor::doRecHits(edm::Handle<CSCRecHit2DCollection> recHits,
 
   } //end rechit loop
 
-  if (nRecHits == 0) nRecHits = -1;
+  //  if (nRecHits == 0) nRecHits = -1; // I see no point in doing this
   hRHnrechits->Fill(nRecHits);
 
 }
@@ -1084,7 +961,7 @@ void CSCOfflineMonitor::doSegments(edm::Handle<CSCSegmentCollection> cscSegments
 
   } // end segment loop
 
-  if (nSegments == 0) nSegments = -1;
+  //  if (nSegments == 0) nSegments = -1; // I see no point in doing this
   hSnSegments->Fill(nSegments);
 
 }
@@ -1133,14 +1010,18 @@ void CSCOfflineMonitor::doResolution(edm::Handle<CSCSegmentCollection> cscSegmen
 
     }
 
-    float residual = -99;
+
+
     // Fit all points except layer 3, then compare expected value for layer 3 to reconstructed value
+    //    float residual = -99.; // used to fill always
     if (nRH == 6){
       float expected = fitX(sp,se);
-      residual = expected - sp(3,1);
+      float residual = expected - sp(3,1);
+
+      hSResid[typeIndex(id)-1]->Fill(residual); // fill here so stats make sense
     }
 
-    hSResid[typeIndex(id)-1]->Fill(residual);
+    //  hSResid[typeIndex(id)-1]->Fill(residual); // used to fill here but then stats distorted by underflows
 
   } // end segment loop
 
@@ -1394,19 +1275,19 @@ void CSCOfflineMonitor::doEfficiencies(edm::Handle<CSCWireDigiCollection> wires,
             //if(!(MultiSegments[iE][iS][iR][iC])){
             if(AllSegments[iE][iS][iR][iC]){
               //---- Efficient segment evenents
-              hSSTE->Fill(bin);
+              hSnum->Fill(bin);
             }
             //---- All segment events (normalization)
-            hSSTE->Fill(20+bin);
+            hSden->Fill(bin);
             //}
           }
           if(AllSegments[iE][iS][iR][iC]){
             if(NumberOfLayers==6){
               //---- Efficient rechit events
-              hRHSTE->Fill(bin);;
+              hRHnum->Fill(bin);;
             }
             //---- All rechit events (normalization)
-            hRHSTE->Fill(20+bin);;
+            hRHden->Fill(bin);;
           }
         }
       }
@@ -1421,8 +1302,8 @@ void CSCOfflineMonitor::doEfficiencies(edm::Handle<CSCWireDigiCollection> wires,
   if(1==seg_ME3[1]) theSeg.push_back(&theSegments[3]);
 
   // Needed for plots
-  // at the end the chamber types will be numbered as 1 to 18 
-  // (ME-4/1, -ME3/2, -ME3/1, ..., +ME3/1, +ME3/2, ME+4/1 ) 
+  // at the end the chamber types will be numbered as 1 to 20
+  // (ME-4./2, ME-4/1, -ME3/2, -ME3/1, ..., +ME3/1, +ME3/2, ME+4/1, ME+4/2) 
   std::map <std::string, float> chamberTypes;
   chamberTypes["ME1/a"] = 0.5;
   chamberTypes["ME1/b"] = 1.5;
@@ -1433,6 +1314,7 @@ void CSCOfflineMonitor::doEfficiencies(edm::Handle<CSCWireDigiCollection> wires,
   chamberTypes["ME3/1"] = 6.5;
   chamberTypes["ME3/2"] = 7.5;
   chamberTypes["ME4/1"] = 8.5;
+  chamberTypes["ME4/2"] = 9.5;
 
   if(theSeg.size()){
     std::map <int , GlobalPoint> extrapolatedPoint;
@@ -1503,7 +1385,7 @@ void CSCOfflineMonitor::doEfficiencies(edm::Handle<CSCWireDigiCollection> wires,
 	  if(cscchamberCenter.z()<0){
 	    verticalScale = - verticalScale;
 	  } 
-	  verticalScale +=9.5;
+	  verticalScale += 10.5;
 	  hSensitiveAreaEvt->Fill(float(cscchamber->id().chamber()),verticalScale);
 	  if(nRHLayers>1){// this chamber contains a reliable signal
 	    //chamberTypes[cscchamber->specs()->chamberTypeName()];
@@ -1731,41 +1613,6 @@ void CSCOfflineMonitor::doBXMonitor(edm::Handle<CSCALCTDigiCollection> alcts, ed
 
 }
 
-
-
-void CSCOfflineMonitor::getEfficiency(float bin, float Norm, std::vector<float> &eff){
-  //---- Efficiency with binomial error
-  float Efficiency = 0.;
-  float EffError = 0.;
-  if(fabs(Norm)>0.000000001){
-    Efficiency = bin/Norm;
-    if(bin<Norm){
-      EffError = sqrt( (1.-Efficiency)*Efficiency/Norm );
-    }
-  }
-  eff[0] = Efficiency;
-  eff[1] = EffError;
-}
-
-void CSCOfflineMonitor::histoEfficiency(TH1F *readHisto, MonitorElement *writeHisto){
-  std::vector<float> eff(2);
-  int Nbins =  readHisto->GetSize()-2;//without underflows and overflows
-  std::vector<float> bins(Nbins);
-  std::vector<float> Efficiency(Nbins);
-  std::vector<float> EffError(Nbins);
-  float Num = 1;
-  float Den = 1;
-  for (int i=0;i<20;i++){
-    Num = readHisto->GetBinContent(i+1);
-    Den = readHisto->GetBinContent(i+21);
-    getEfficiency(Num, Den, eff);
-    Efficiency[i] = eff[0];
-    EffError[i] = eff[1];
-    writeHisto->setBinContent(i+1, Efficiency[i]);
-    writeHisto->setBinError(i+1, EffError[i]);
-  }
-}
-
 bool CSCOfflineMonitor::withinSensitiveRegion(LocalPoint localPos, const std::array<const float, 4> & layerBounds,
                                               int station, int ring, float shiftFromEdge, float shiftFromDeadZone){
 //---- check if it is in a good local region (sensitive area - geometrical and HV boundaries excluded) 
@@ -1908,7 +1755,7 @@ int CSCOfflineMonitor::chamberSerial( CSCDetId id ) {
   if (st == 3 && ri == 1) kSerial = ch + 162;
   if (st == 3 && ri == 2) kSerial = ch + 180;
   if (st == 4 && ri == 1) kSerial = ch + 216;
-  if (st == 4 && ri == 2) kSerial = ch + 234;  // one day...
+  if (st == 4 && ri == 2) kSerial = ch + 234;  // from 2014
   if (ec == 2) kSerial = kSerial + 300;
   return kSerial;
 }
