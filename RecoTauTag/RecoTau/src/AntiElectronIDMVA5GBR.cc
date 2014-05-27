@@ -930,7 +930,7 @@ namespace {
   return cPhi;
  }
      
-  static std::array<double,18> cPhi = fill_cPhi();
+  static const std::array<double,18> cPhi = fill_cPhi();
 
 }
 
