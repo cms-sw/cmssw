@@ -89,6 +89,7 @@ def miniAOD_customizeCommon(process):
     # FIXME: this and the typeI MET should become AK4 once we have the proper JEC?
     from PhysicsTools.PatUtils.tools.metUncertaintyTools import runMEtUncertainties
     addJetCollection(process, postfix   = "ForMetUnc", labelName = 'AK5PF', jetSource = cms.InputTag('ak5PFJets'), jetCorrections = ('AK5PF', ['L1FastJet', 'L2Relative', 'L3Absolute'], ''))
+    process.patJetsAK5PFForMetUnc.getJetMCFlavour = False
     runMEtUncertainties(process,jetCollection="selectedPatJetsAK5PFForMetUnc", outputModule=None)
 
     #keep this after all addJetCollections otherwise it will attempt computing them also for stuf with no taginfos
