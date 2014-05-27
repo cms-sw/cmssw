@@ -25,19 +25,19 @@ process.load("L1TriggerDPG.L1Ntuples.l1ExtraTreeProducer_cfi")
 
 process.l1extraParticles = cms.EDProducer("L1ExtraParticlesProd",
     muonSource = cms.InputTag("simGtDigis"),
-    etTotalSource = cms.InputTag("Layer2gctFormat"),
-    nonIsolatedEmSource = cms.InputTag("Layer2gctFormat","nonIsoEm"),
-    etMissSource = cms.InputTag("Layer2gctFormat"),
-    htMissSource = cms.InputTag("Layer2gctFormat"),
+    etTotalSource = cms.InputTag("l1tCaloUpgradeToGCTConverter"),
+    nonIsolatedEmSource = cms.InputTag("l1tCaloUpgradeToGCTConverter","nonIsoEm"),
+    etMissSource = cms.InputTag("l1tCaloUpgradeToGCTConverter"),
+    htMissSource = cms.InputTag("l1tCaloUpgradeToGCTConverter"),
     produceMuonParticles = cms.bool(True),
-    forwardJetSource = cms.InputTag("Layer2gctFormat","forJets"),
-    centralJetSource = cms.InputTag("Layer2gctFormat","cenJets"),
+    forwardJetSource = cms.InputTag("l1tCaloUpgradeToGCTConverter","forJets"),
+    centralJetSource = cms.InputTag("l1tCaloUpgradeToGCTConverter","cenJets"),
     produceCaloParticles = cms.bool(True),
-    tauJetSource = cms.InputTag("Layer2gctFormat","tauJets"),
-    isolatedEmSource = cms.InputTag("Layer2gctFormat","isoEm"),
-    etHadSource = cms.InputTag("Layer2gctFormat"),
-    hfRingEtSumsSource = cms.InputTag("Layer2gctFormat"),
-    hfRingBitCountsSource = cms.InputTag("Layer2gctFormat"),
+    tauJetSource = cms.InputTag("l1tCaloUpgradeToGCTConverter","tauJets"),
+    isolatedEmSource = cms.InputTag("l1tCaloUpgradeToGCTConverter","isoEm"),
+    etHadSource = cms.InputTag("l1tCaloUpgradeToGCTConverter"),
+    hfRingEtSumsSource = cms.InputTag("l1tCaloUpgradeToGCTConverter"),
+    hfRingBitCountsSource = cms.InputTag("l1tCaloUpgradeToGCTConverter"),
     centralBxOnly = cms.bool(True),
     ignoreHtMiss = cms.bool(False)
 )
@@ -50,14 +50,14 @@ process.p = cms.Path(
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS1', '')
-process.GlobalTag = GlobalTag(process.GlobalTag, 'GR_P_V27A::All', '')
-
-#SkipEvent = cms.untracked.vstring('ProductNotFound')
+process.GlobalTag.connect = cms.string('frontier://FrontierProd/CMS_COND_31X_GLOBALTAG')
+process.GlobalTag.globaltag = cms.string('POSTLS162_V2::All')
+# For HI data
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'GR_P_V27A::All', '')
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
-readFiles = cms.untracked.vstring("file:L1Emulator_HI_newLayer2.root")
+readFiles = cms.untracked.vstring("file:SimL1Emulator_Stage1.root")
 secFiles = cms.untracked.vstring()
 process.source = cms.Source ("PoolSource",
                              fileNames = readFiles,
