@@ -4,7 +4,7 @@ process = cms.Process("ALL")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(20) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 #
 # This runs over a file that already contains the L1Tracks.
@@ -14,12 +14,72 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(20) )
 # that have been created. 
 
 
+from SLHCUpgradeSimulations.L1TrackTrigger.minBiasFiles_p1_cfi import *
+
 process.source = cms.Source("PoolSource",
-     fileNames = cms.untracked.vstring(
+     fileNames = minBiasFiles_p1
+     #fileNames = cms.untracked.vstring(
      # single muons
-     '/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_53.root'
-     #'/store/group/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Muons/PU140/m1_SingleMuon_E2023TTI_PU140.root'
-     )
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_1.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_10.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_11.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_12.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_13.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_14.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_15.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_16.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_17.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_18.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_19.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_2.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_20.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_21.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_22.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_23.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_24.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_25.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_26.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_27.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_28.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_29.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_3.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_30.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_31.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_32.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_33.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_34.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_35.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_36.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_37.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_38.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_39.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_4.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_40.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_42.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_43.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_44.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_45.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_46.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_47.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_48.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_49.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_5.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_50.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_51.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_52.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_53.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_54.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_55.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_56.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_57.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_58.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_59.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_6.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_60.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_7.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_8.root",
+#"/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_9.root"
+     #)
 )
 
 
@@ -35,13 +95,8 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'PH2_1K_FB_V3::All', '')
 
 # ---------------------------------------------------------------------------
 #
-# --- Produces the L1EG objects 
+# --- Produces the Run-1 L1muon objects 
 #
-	# To produce L1EG objects corresponding to the "stage-2" algorithms:
-	# one runs the SLHCCaloTrigger sequence. This produces both the
-	# "old stage-2" objects (2x2 clustering) and the "new stage-2"
-	# objects (new clustering from JB Sauvan et al). Note that the
-	# efficiency of the latter is currently poor at very high PU.
 
 process.load('Configuration.Geometry.GeometryExtended2023TTIReco_cff')
 process.load('Geometry.TrackerGeometryBuilder.StackedTrackerGeometry_cfi')
@@ -50,12 +105,17 @@ process.load('Configuration.Geometry.GeometryExtended2023TTI_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 
 
-#process.load('Configuration/StandardSequences/L1HwVal_cff')
-#process.load('Configuration.StandardSequences.RawToDigi_cff')
-#process.load("SLHCUpgradeSimulations.L1CaloTrigger.SLHCCaloTrigger_cff")
+# --- creates l1extra objects for L1Muons 
+        
+        # raw2digi to get the GT digis
+process.load('Configuration.StandardSequences.RawToDigi_cff')
+process.p0 = cms.Path( process.RawToDigi )
+        # run L1Reco
+process.load('Configuration.StandardSequences.L1Reco_cff')
+process.L1Reco = cms.Path( process.l1extraParticles )
 
-#process.load('Configuration.StandardSequences.L1Reco_cff')
-#process.L1Reco = cms.Path( process.l1extraParticles )
+
+
 
 #
 # ---------------------------------------------------------------------------
@@ -117,13 +177,16 @@ process.ana = cms.EDAnalyzer( 'PrintL1TkObjects' ,
 
 
 process.Out = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "example.root" ),
+    fileName = cms.untracked.string( "example_CentralMuons.root" ),
     fastCloning = cms.untracked.bool( False ),
     outputCommands = cms.untracked.vstring( 'drop *')
 )
 
 
 process.Out.outputCommands.append('keep *_L1TkMuons_*_*')
+
+process.Out.outputCommands.append('keep *L1Muon*_l1extraParticles_*_*')
+
 #process.Out.outputCommands.append('keep *_DTPlusTrackProducer_*_*')
 
 	# raw data
