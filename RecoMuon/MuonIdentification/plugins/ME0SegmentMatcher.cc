@@ -205,8 +205,11 @@ void ME0SegmentMatcher::produce(edm::Event& ev, const edm::EventSetup& setup) {
 
 	  //std::cout<<"delR = "<<delR<<std::endl;
 
-	  if (delR < RefDelR) WhichTrackToKeep = ComparisonIndex;  //Storing a list of the vector indices of tracks to keep
-	                                                           //Note: These are not the same as the "Track Numbers"
+	  if (delR < RefDelR) {
+	    WhichTrackToKeep = ComparisonIndex;  //Storing a list of the vector indices of tracks to keep
+	                                         //Note: These are not the same as the "Track Numbers"
+	    RefDelR=delR;
+	  }
 	}
       }
       if (WhichTrackToKeep != -1) TkToKeep.push_back(WhichTrackToKeep);
