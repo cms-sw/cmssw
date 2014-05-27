@@ -132,7 +132,7 @@ ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll)
       for (int k = 0; k < n_intrHits; k++ )
       {
         float tof=gauss_->fire(timeCalibrationOffset_,sigma_t);
-        float pdgid = 22;
+        int pdgid = 22;
         ME0DigiPreReco digi(x,y,ex,ey,corr,tof,pdgid);
         digi_.insert(digi);
       }
@@ -164,7 +164,7 @@ ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll)
   const double averageNoise(averageNoiseRatePerRoll * nBxing * bxwidth_ * trArea * 1.0e-9);
   const int n_hits(poisson_->fire(averageNoise));
 
-  float pdgid = 0;
+  int pdgid = 0;
 
   for (int i = 0; i < n_hits; ++i)
   {
