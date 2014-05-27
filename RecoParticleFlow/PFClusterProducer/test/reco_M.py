@@ -31,7 +31,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
     fileNames = cms.untracked.vstring(
-    'file:/afs/cern.ch/user/l/lgray/work/public/CMSSW_6_2_X_SLHC_2014-05-18-0200/src/matrix_test/13802_SingleElectronPt35+SingleElectronPt35_Extended2023SHCalNoTaper_GenSimFull+DigiFull_Extended2023SHCalNoTaper+RecoFull_Extended2023SHCalNoTaper+HARVESTFull_Extended2023SHCalNoTaper/step3.root'
+    'file:/afs/cern.ch/user/l/lgray/work/public/CMSSW_6_2_X_SLHC_2014-05-23-0200/src/matrix_test/13816_QCD_Pt_80_120_8TeV+QCD_Pt_80_120_8TeV_Extended2023SHCalNoTaper_GenSimFull+DigiFull_Extended2023SHCalNoTaper+RecoFull_Extended2023SHCalNoTaper+HARVESTFull_Extended2023SHCalNoTaper/step3.root'
 
     )
 )
@@ -72,18 +72,21 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
 process.load("RecoParticleFlow.PFClusterProducer.particleFlowRecHitHF_cfi")
 process.load("RecoParticleFlow.PFClusterProducer.particleFlowClusterHF_cfi")
 process.load("RecoParticleFlow.PFClusterProducer.particleFlowRecHitHBHEHO_cfi")
+process.load("RecoParticleFlow.PFClusterProducer.particleFlowClusterHCALSemi3D_cfi")
 process.load("RecoParticleFlow.PFTracking.particleFlowTrack_cff")
 process.load("RecoParticleFlow.PFProducer.particleFlowSimParticle_cff")
 
 process.hcalSeeds = cms.EDProducer('PFSeedSelector',
-                                      src = cms.InputTag('particleFlowRecHitHBHEHO')
-)                                      
+                                   src = cms.InputTag('particleFlowRecHitHBHEHO')
+)
+
+                                      
 
 
 # Path and EndPath definitions
 process.raw2digi_step = cms.Path(process.RawToDigi)
 process.L1Reco_step = cms.Path(process.L1Reco)
-process.reconstruction_step = cms.Path(process.pfTrack+process.particleFlowCluster+process.particleFlowRecHitHF+process.particleFlowClusterHF+process.particleFlowRecHitHBHEHO+process.hcalSeeds+process.particleFlowSimParticle)
+process.reconstruction_step = cms.Path(process.pfTrack+process.particleFlowCluster+process.particleFlowRecHitHF+process.particleFlowClusterHF+process.particleFlowRecHitHBHEHO+process.hcalSeeds+process.particleFlowClusterHCALSemi3D+process.particleFlowSimParticle)
 process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
 
 

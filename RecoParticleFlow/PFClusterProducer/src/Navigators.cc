@@ -99,6 +99,21 @@ class PFRecHitHCALNavigator : public PFRecHitCaloNavigator<HcalDetId,HcalTopolog
   }
 };
 
+class PFRecHitHCAL3DNavigator : public PFRecHitCaloNavigator<HcalDetId,HcalTopology,false,3> {
+public:
+  PFRecHitHCAL3DNavigator(const edm::ParameterSet& iConfig) {
+
+  }
+
+  void beginEvent(const edm::EventSetup& iSetup) {
+    edm::ESHandle<HcalTopology> hcalTopology;
+    iSetup.get<HcalRecNumberingRecord>().get( hcalTopology );
+    topology_.release();
+    topology_.reset(hcalTopology.product());
+  }
+};
+
+
 
 class PFRecHitCaloTowerNavigator : public PFRecHitCaloNavigator<CaloTowerDetId,CaloTowerTopology> {
  public:
@@ -191,4 +206,5 @@ DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitECALNavigatorWithTime, "PFR
 DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitCaloTowerNavigator, "PFRecHitCaloTowerNavigator");
 DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitPreshowerNavigator, "PFRecHitPreshowerNavigator");
 DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitHCALNavigator, "PFRecHitHCALNavigator");
+DEFINE_EDM_PLUGIN(PFRecHitNavigationFactory, PFRecHitHCAL3DNavigator, "PFRecHitHCAL3DNavigator");
 

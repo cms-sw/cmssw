@@ -45,7 +45,7 @@ for event in events:
     
     #find taus:
     for particle in genParticles:
-        if abs(particle.pdgId())==211 and abs(particle.eta())<2.5 and particle.status()==1 and particle.pt()>30:
+        if abs(particle.pdgId())<6 and abs(particle.eta())<2.5 and particle.status()==3 and particle.pt()>5:
             #tau found define displays
             displayHCAL = DisplayManager('HCAL',particle.eta(),particle.phi(),0.5)
             displayECAL = DisplayManager('ECAL',particle.eta(),particle.phi(),0.5)
@@ -54,8 +54,8 @@ for event in events:
     
             #reloop on gen particles and add them in view
             for particle1 in genParticles:
-                #if particle.status()!=1:
-                #    continue
+                if particle.status()!=1:
+                    continue
                 displayHCAL.addGenParticle(particle1) 
                 displayHCALSeeds.addGenParticle(particle1) 
                 displayECAL.addGenParticle(particle1) 

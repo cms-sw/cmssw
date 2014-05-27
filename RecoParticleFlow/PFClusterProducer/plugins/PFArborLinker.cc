@@ -55,7 +55,7 @@ void PFArborLinker::produce(edm::Event& iEvent,
   std::vector<TVector3> inputArborHits;
   std::vector<TVector3> ArborIntegralHits; 
   TVector3 currhitPos, hitID; 
-  branchcoll ArborBranch; 
+  arbor::branchcoll ArborBranch; 
   // float cellsize = 25;
   // float layerthickness = 80; 
 
@@ -69,7 +69,7 @@ void PFArborLinker::produce(edm::Event& iEvent,
 	  }
   }
 
-  ArborBranch = Arbor(ArborIntegralHits, 2, 1);
+  ArborBranch = arbor::Arbor(ArborIntegralHits, 2, 1);
   int NBranch = ArborBranch.size();
   int BranchSize = 0; 
   // int currhitindex = 0;
@@ -84,7 +84,7 @@ void PFArborLinker::produce(edm::Event& iEvent,
 
   for(int i = 0; i < NBranch; i++)
   {
-	  branch a_bran = ArborBranch[i];
+          arbor::branch a_bran = ArborBranch[i];
 	  BranchSize = a_bran.size();
 	  BranchEn = 0; 
 	  HitMinDis = 1.0E10;

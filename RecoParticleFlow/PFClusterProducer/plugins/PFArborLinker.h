@@ -16,7 +16,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
-#include <RecoParticleFlow/PFClusterProducer/plugins/Arbor.hh>
+#include "RecoParticleFlow/PFClusterProducer/interface/Arbor.hh"
 
 class PFArborLinker : public edm::EDProducer {
  public:
