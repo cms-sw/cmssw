@@ -48,7 +48,7 @@ private:
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
   edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
-  int maxVtx_ ;
+  unsigned int maxVtx_ ;
   double fractionSumPt2_ ;
   double minSumPt2_ ;
 
@@ -60,7 +60,7 @@ PixelVertexCollectionTrimmer::PixelVertexCollectionTrimmer(const edm::ParameterS
 
   edm::InputTag vtxInputTag = iConfig.getParameter<edm::InputTag>("src" );
   vtxToken_ = consumes<reco::VertexCollection>(vtxInputTag);
-  maxVtx_         = iConfig.getParameter<int> ("maxVtx" );
+  maxVtx_         = iConfig.getParameter<unsigned int> ("maxVtx" );
   fractionSumPt2_ = iConfig.getParameter<double> ("fractionSumPt2" );
   minSumPt2_      = iConfig.getParameter<double> ("minSumPt2" );
 
@@ -107,7 +107,7 @@ PixelVertexCollectionTrimmer::produce(edm::Event& iEvent, const edm::EventSetup&
 
   for (reco::VertexCollection::const_iterator vtx = vtxs->begin(), evtx=vtxs->end(); 
        vtx != evtx; ++vtx) {
-    if ((int)vtxs_trim->size() > maxVtx_) break ;
+    if (vtxs_trim->size() > maxVtx_) break ;
     sumpt2 = pvComparer_->pTSquaredSum(*vtx) ;
     //    std::cout << "sumpt2: " << sumpt2 << "[" << sumpt2first << "]" << std::endl;
     //    if (sumpt2 >= sumpt2first*fractionSumPt2_ && sumpt2 > minSumPt2_ ) vtxs_trim->push_back(*vtx) ;
@@ -126,7 +126,7 @@ PixelVertexCollectionTrimmer::fillDescriptions(edm::ConfigurationDescriptions& d
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>    ("src",           edm::InputTag(""))
     ->setComment("input (pixel) vertex collection");
-  desc.add<int>              ("maxVtx",        100)
+  desc.add<unsigned int>     ("maxVtx",        100)
     ->setComment("max output collection size (number of accepted vertices)");
   desc.add<double>           ("fractionSumPt2",  0.3)
     ->setComment("threshold on sumPt2 fraction of the leading vertex");
