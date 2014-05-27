@@ -1,5 +1,4 @@
 #include "L1Trigger/CSCTrackFinder/test/src/RefTrack.h"
-#include <cmath>
 #include <iostream>
 namespace csctf_analysis
 {
@@ -27,9 +26,6 @@ namespace csctf_analysis
 	double newR;
 	double dEta =getEta()-tftrack->getEta();
 	double dPhi =getPhi()-tftrack->getPhi();
-
-	while (dPhi >= M_PI) dPhi -= 2*M_PI;
-	while (dPhi < -M_PI) dPhi += 2*M_PI;
 
 	newR = sqrt( dEta*dEta + dPhi*dPhi ); //Changed to do distance style metric by Daniel 07/02
 
