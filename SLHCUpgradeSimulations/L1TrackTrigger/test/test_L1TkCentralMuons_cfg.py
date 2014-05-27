@@ -17,8 +17,8 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(20) )
 process.source = cms.Source("PoolSource",
      fileNames = cms.untracked.vstring(
      # single muons
-     #'/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_53.root'
-     '/store/group/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Muons/PU140/m1_SingleMuon_E2023TTI_PU140.root'
+     '/store/group/comm_trigger/L1TrackTrigger/620_SLHC12/Extended2023TTI/Muons/PU140/SingleMuon_E2023TTI_PU140_53.root'
+     #'/store/group/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Muons/PU140/m1_SingleMuon_E2023TTI_PU140.root'
      )
 )
 
@@ -26,9 +26,9 @@ process.source = cms.Source("PoolSource",
 # ---- Global Tag :
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
-#process.GlobalTag = GlobalTag(process.GlobalTag, 'PH2_1K_FB_V3::All', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'PH2_1K_FB_V3::All', '')
 #process.GlobalTag = GlobalTag(process.GlobalTag, 'POSTLS261_V3::All', '')
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
+#process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
 
 
 
