@@ -2,8 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 from L1Trigger.CSCCommonTrigger.CSCCommonTrigger_cfi import *
 # Default parameters for CSCTriggerPrimitives generator
+# for GEM-CSC-RPC integrated local trigger in Post-LS3 era
 # =====================================================
-cscTriggerPrimitiveDigisPostLS1 = cms.EDProducer("CSCTriggerPrimitivesProducer",
+cscTriggerPrimitiveDigisPostLS3 = cms.EDProducer("CSCTriggerPrimitivesProducer",
     CSCCommonTrigger,
 
     # if False, parameters will be read in from DB using EventSetup mechanism
@@ -13,6 +14,8 @@ cscTriggerPrimitiveDigisPostLS1 = cms.EDProducer("CSCTriggerPrimitivesProducer",
     # Name of digi producer module(s)
     CSCComparatorDigiProducer = cms.InputTag("simMuonCSCDigis","MuonCSCComparatorDigi"),
     CSCWireDigiProducer = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi"),
+    GEMCSCPadDigiProducer = cms.InputTag("simMuonGEMCSCPadDigis"),
+    RPCDigiProducer = cms.InputTag("simMuonRPCDigis"),
 
     # for SLHC studies we don't want bad chambers checks so far
     checkBadChambers = cms.bool(False),
@@ -42,7 +45,12 @@ cscTriggerPrimitiveDigisPostLS1 = cms.EDProducer("CSCTriggerPrimitivesProducer",
         
         # flagis to optionally disable finding stubs in ME42 or ME1a
         disableME1a = cms.bool(False),
-        disableME42 = cms.bool(False)
+        disableME42 = cms.bool(False),
+        
+        # run integrated local triggers
+        runME11ILT = cms.bool(True),
+        runME21ILT = cms.bool(True),
+        runME3141ILT = cms.bool(True),
     ),
 
     # Parameters for ALCT processors: old MC studies
@@ -319,6 +327,191 @@ cscTriggerPrimitiveDigisPostLS1 = cms.EDProducer("CSCTriggerPrimitivesProducer",
         # How many maximum LCTs per whole chamber per BX to keep
         # (supposedly, 1b and 1a can have max 2 each)
         maxME11LCTs = cms.uint32(2)
+    ),
+
+    # to be used by ME11 chambers with GEM-CSC ILT
+    me11tmbSLHCGEM = cms.PSet(
+        mpcBlockMe1a    = cms.uint32(0),
+        alctTrigEnable  = cms.uint32(0),
+        clctTrigEnable  = cms.uint32(0),
+        matchTrigEnable = cms.uint32(1),
+        matchTrigWindowSize = cms.uint32(3),
+        tmbL1aWindowSize = cms.uint32(7),
+        verbosity = cms.int32(0),
+        tmbEarlyTbins = cms.int32(4),
+        tmbReadoutEarliest2 = cms.bool(False),
+        tmbDropUsedAlcts = cms.bool(False),
+        clctToAlct = cms.bool(False),
+        tmbDropUsedClcts = cms.bool(False),
+        matchEarliestAlctME11Only = cms.bool(False),
+        matchEarliestClctME11Only = cms.bool(False),
+        tmbCrossBxAlgorithm = cms.uint32(2),
+        maxME11LCTs = cms.uint32(2),
+
+        ## run in debug mode
+        debugLUTs = cms.bool(False),
+        debugMatching = cms.bool(False),
+        debugGEMDphi = cms.bool(False),
+
+        ## use old dataformat
+        useOldLCTDataFormatALCTGEM = cms.bool(True),
+        useOldLCTDataFormatCLCTGEM = cms.bool(True),
+        
+        ## copad construction
+        maxDeltaBXInCoPad = cms.int32(1),
+        maxDeltaPadInCoPad = cms.int32(1),
+
+        ## matching to pads in case LowQ CLCT
+        maxDeltaBXPadEven = cms.int32(1),
+        maxDeltaBXPadOdd = cms.int32(1),
+        maxDeltaPadPadEven = cms.int32(2),
+        maxDeltaPadPadOdd = cms.int32(3),
+
+        ## matching to pads in case absent CLCT
+        maxDeltaBXCoPadEven = cms.int32(0),
+        maxDeltaBXCoPadOdd = cms.int32(0),
+        maxDeltaPadCoPadEven = cms.int32(2),
+        maxDeltaPadCoPadOdd = cms.int32(3),
+
+        ## efficiency recovery switches
+        dropLowQualityCLCTsNoGEMs_ME1a = cms.bool(False),
+        dropLowQualityCLCTsNoGEMs_ME1b = cms.bool(True),
+        dropLowQualityALCTsNoGEMs_ME1a = cms.bool(False),
+        dropLowQualityALCTsNoGEMs_ME1b = cms.bool(False),
+        buildLCTfromALCTandGEM_ME1a = cms.bool(True),
+        buildLCTfromALCTandGEM_ME1b = cms.bool(True),
+        buildLCTfromCLCTandGEM_ME1a = cms.bool(True),
+        buildLCTfromCLCTandGEM_ME1b = cms.bool(True),
+        doLCTGhostBustingWithGEMs = cms.bool(False),
+        correctLCTtimingWithGEM = cms.bool(False),
+        promoteALCTGEMpattern = cms.bool(True),
+        promoteALCTGEMquality = cms.bool(True),
+        promoteCLCTGEMquality_ME1a = cms.bool(True),
+        promoteCLCTGEMquality_ME1b = cms.bool(True),
+        
+        ## rate reduction 
+        doGemMatching = cms.bool(True),
+        gemMatchDeltaEta = cms.double(0.08),
+        gemMatchDeltaBX = cms.int32(1),
+        gemMatchDeltaPhiOdd = cms.double(1),
+        gemMatchDeltaPhiEven = cms.double(1),
+        gemMatchMinEta = cms.double(1.55),
+        gemMatchMaxEta = cms.double(2.15),
+        gemClearNomatchLCTs = cms.bool(True),
+
+        ## cross BX algorithm
+        firstTwoLCTsInChamber = cms.bool(True),
+    ),
+                                                 
+    # to be used by ME21 chambers with GEM-CSC ILT
+    me21tmbSLHCGEM = cms.PSet(
+        mpcBlockMe1a    = cms.uint32(0),
+        alctTrigEnable  = cms.uint32(0),
+        clctTrigEnable  = cms.uint32(0),
+        matchTrigEnable = cms.uint32(1),
+        matchTrigWindowSize = cms.uint32(3),
+        tmbL1aWindowSize = cms.uint32(7),
+        verbosity = cms.int32(0),
+        tmbEarlyTbins = cms.int32(4),
+        tmbReadoutEarliest2 = cms.bool(False),
+        tmbDropUsedAlcts = cms.bool(False),
+        clctToAlct = cms.bool(False),
+        tmbDropUsedClcts = cms.bool(False),
+        matchEarliestAlctME21Only = cms.bool(False),
+        matchEarliestClctME21Only = cms.bool(False),
+        tmbCrossBxAlgorithm = cms.uint32(2),
+        maxME21LCTs = cms.uint32(2),
+
+        ## run in debug mode
+        debugLUTs = cms.bool(False),
+        debugMatching = cms.bool(False),
+        debugGEMDphi = cms.bool(False),
+
+        ## use old dataformat
+        useOldLCTDataFormatALCTGEM = cms.bool(True),
+        useOldLCTDataFormatCLCTGEM = cms.bool(True),
+        
+        ## copad construction
+        maxDeltaBXInCoPad = cms.int32(1),
+        maxDeltaPadInCoPad = cms.int32(1),
+
+        ## matching to pads in case LowQ CLCT
+        maxDeltaBXPad = cms.int32(1),
+        maxDeltaPadPad = cms.int32(2),
+
+        ## matching to pads in case absent CLCT
+        maxDeltaBXCoPad = cms.int32(0),
+        maxDeltaPadCoPad = cms.int32(2),
+
+        ## efficiency recovery switches
+        dropLowQualityALCTsNoGEMs = cms.bool(False),
+        dropLowQualityCLCTsNoGEMs = cms.bool(True),
+        buildLCTfromALCTandGEM = cms.bool(True),
+        buildLCTfromCLCTandGEM = cms.bool(True),
+        doLCTGhostBustingWithGEMs = cms.bool(False),
+        correctLCTtimingWithGEM = cms.bool(False),
+        promoteALCTGEMpattern = cms.bool(True),
+        promoteALCTGEMquality = cms.bool(True),
+        promoteCLCTGEMquality = cms.bool(True),
+
+        ## rate reduction 
+        doGemMatching = cms.bool(True),
+        gemMatchDeltaEta = cms.double(0.08),
+        gemMatchDeltaBX = cms.int32(1),
+        gemMatchDeltaPhiOdd = cms.double(1),
+        gemMatchDeltaPhiEven = cms.double(1),
+        gemMatchMinEta = cms.double(1.5),
+        gemClearNomatchLCTs = cms.bool(False),
+
+        firstTwoLCTsInChamber = cms.bool(True),
+    ),
+
+    # to be used by ME31-ME41 chambers with RPC-CSC ILT
+    me3141tmbSLHCRPC = cms.PSet(
+        mpcBlockMe1a    = cms.uint32(0),
+        alctTrigEnable  = cms.uint32(0),
+        clctTrigEnable  = cms.uint32(0),
+        matchTrigEnable = cms.uint32(1),
+        matchTrigWindowSize = cms.uint32(3),
+        tmbL1aWindowSize = cms.uint32(7),
+        verbosity = cms.int32(0),
+        tmbEarlyTbins = cms.int32(4),
+        tmbReadoutEarliest2 = cms.bool(False),
+        tmbDropUsedAlcts = cms.bool(False),
+        clctToAlct = cms.bool(False),
+        tmbDropUsedClcts = cms.bool(False),
+        matchEarliestClctME3141Only = cms.bool(False),
+        tmbCrossBxAlgorithm = cms.uint32(2),
+        maxME3141LCTs = cms.uint32(2),
+
+        ## run in debug mode
+        debugLUTs = cms.bool(False),
+        debugMatching = cms.bool(False),
+
+        ## use old dataformat
+        useOldLCTDataFormatCLCTRPC = cms.bool(True),
+        useOldLCTDataFormatALCTRPC = cms.bool(True),
+
+        ## matching to digis in case LowQ CLCT
+        maxDeltaBXRPC = cms.int32(0),
+        maxDeltaStripRPC = cms.int32(3),
+
+        ## efficiency recovery switches
+        dropLowQualityCLCTsNoRPCs = cms.bool(True),
+        buildLCTfromALCTandRPC = cms.bool(True),
+        buildLCTfromCLCTandRPC = cms.bool(True),
+        promoteCLCTRPCquality = cms.bool(True),
+        promoteALCTRPCpattern = cms.bool(True),
+        promoteALCTRPCquality = cms.bool(True),
+
+        ## rate reduction 
+        doRpcMatching = cms.bool(True),
+        rpcMatchDeltaEta = cms.double(0.08),
+        rpcMatchDeltaBX = cms.int32(1),
+        rpcMatchDeltaPhiOdd = cms.double(1),
+        rpcMatchDeltaPhiEven = cms.double(1),
+        rpcMatchMinEta = cms.double(1.5),
+        rpcClearNomatchLCTs = cms.bool(False),
     ),
 
     # MPC sorter config for SLHC studies

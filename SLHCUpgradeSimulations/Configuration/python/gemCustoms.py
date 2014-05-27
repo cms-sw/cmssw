@@ -40,145 +40,33 @@ def customise_Digi(process):
     process=outputCustoms(process)
     return process
 
-## TODO at migration to CMSSW 7X: make all params tracked!    
 def customise_L1Emulator2019(process, ptdphi):
-    process.simCscTriggerPrimitiveDigis.gemPadProducer =  cms.untracked.InputTag("simMuonGEMCSCPadDigis","")
+    from L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigisPostLS2_cfi import cscTriggerPrimitiveDigisPostLS2
+    process.simCscTriggerPrimitiveDigis = cscTriggerPrimitiveDigisPostLS2
     process.simCscTriggerPrimitiveDigis.clctSLHC.clctNplanesHitPattern = 3
     process.simCscTriggerPrimitiveDigis.clctSLHC.clctPidThreshPretrig = 2
     process.simCscTriggerPrimitiveDigis.clctParam07.clctPidThreshPretrig = 2
-    ## GE1/1-ME1/1
-    dphi_lct_pad98 = {
-        'pt0'  : { 'odd' :  2.00000000 , 'even' :  2.00000000 },
-        'pt05' : { 'odd' :  0.02203510 , 'even' :  0.00930056 },
-        'pt06' : { 'odd' :  0.01825790 , 'even' :  0.00790009 },
-        'pt10' : { 'odd' :  0.01066000 , 'even' :  0.00483286 },
-        'pt15' : { 'odd' :  0.00722795 , 'even' :  0.00363230 },
-        'pt20' : { 'odd' :  0.00562598 , 'even' :  0.00304879 },
-        'pt30' : { 'odd' :  0.00416544 , 'even' :  0.00253782 },
-        'pt40' : { 'odd' :  0.00342827 , 'even' :  0.00230833 }
-    }
-    tmb = process.simCscTriggerPrimitiveDigis.tmbSLHC
-    tmb.me11ILT = cms.untracked.PSet(
-        ## run the upgrade algorithm
-        runME11ILT = cms.untracked.bool(True),
-
-        ## run in debug mode
-        debugLUTs = cms.untracked.bool(False),
-        debugMatching = cms.untracked.bool(False),
-
-        ## use old dataformat
-        useOldLCTDataFormatALCTGEM = cms.untracked.bool(True),
-        
-        ## copad construction
-        maxDeltaBXInCoPad = cms.untracked.int32(1),
-        maxDeltaPadInCoPad = cms.untracked.int32(1),
-
-        ## matching to pads in case LowQ CLCT
-        maxDeltaBXPadEven = cms.untracked.int32(1),
-        maxDeltaBXPadOdd = cms.untracked.int32(1),
-        maxDeltaPadPadEven = cms.untracked.int32(2),
-        maxDeltaPadPadOdd = cms.untracked.int32(3),
-
-        ## matching to pads in case absent CLCT
-        maxDeltaBXCoPadEven = cms.untracked.int32(0),
-        maxDeltaBXCoPadOdd = cms.untracked.int32(0),
-        maxDeltaPadCoPadEven = cms.untracked.int32(2),
-        maxDeltaPadCoPadOdd = cms.untracked.int32(3),
-
-        ## efficiency recovery switches
-        dropLowQualityCLCTsNoGEMs_ME1a = cms.untracked.bool(False),
-        dropLowQualityCLCTsNoGEMs_ME1b = cms.untracked.bool(True),
-        buildLCTfromALCTandGEM_ME1a = cms.untracked.bool(True),
-        buildLCTfromALCTandGEM_ME1b = cms.untracked.bool(True),
-        doLCTGhostBustingWithGEMs = cms.untracked.bool(False),
-        correctLCTtimingWithGEM = cms.untracked.bool(False),
-        promoteALCTGEMpattern = cms.untracked.bool(True),
-        promoteALCTGEMquality = cms.untracked.bool(True),
-        
-        ## rate reduction 
-        doGemMatching = cms.untracked.bool(True),
-        gemMatchDeltaEta = cms.untracked.double(0.08),
-        gemMatchDeltaBX = cms.untracked.int32(1),
-        gemMatchDeltaPhiOdd = cms.untracked.double(dphi_lct_pad98[ptdphi]['odd']),
-        gemMatchDeltaPhiEven = cms.untracked.double(dphi_lct_pad98[ptdphi]['even']),
-        gemClearNomatchLCTs = cms.untracked.bool(False),
-
-        ## cross BX algorithm
-        tmbCrossBxAlgorithm = cms.untracked.uint32(2),
-        firstTwoLCTsInChamber = cms.untracked.bool(True),
+    ## give a random number generator
+    process.RandomNumberGeneratorService.simCscTriggerPrimitiveDigis = cms.PSet(
+        initialSeed = cms.untracked.uint32(1234567),
+        engineName = cms.untracked.string('HepJamesRandom')
     )
     return process
 
-## TODO at migration to CMSSW 7X: make all params tracked!    
 def customise_L1Emulator2023(process, ptdphi):
-    process.simCscTriggerPrimitiveDigis.gemPadProducer =  cms.untracked.InputTag("simMuonGEMCSCPadDigis","")
+    from L1Trigger.CSCTriggerPrimitives.cscTriggerPrimitiveDigisPostLS3_cfi import cscTriggerPrimitiveDigisPostLS3
+    process.simCscTriggerPrimitiveDigis = cscTriggerPrimitiveDigisPostLS3
+    process.simCscTriggerPrimitiveDigis.clctSLHC.clctNplanesHitPattern = 3
+    process.simCscTriggerPrimitiveDigis.clctSLHC.clctPidThreshPretrig = 2
+    process.simCscTriggerPrimitiveDigis.clctParam07.clctPidThreshPretrig = 2
+
     ## ME21 has its own SLHC processors
     process.simCscTriggerPrimitiveDigis.alctSLHCME21 = process.simCscTriggerPrimitiveDigis.alctSLHC.clone()
     process.simCscTriggerPrimitiveDigis.clctSLHCME21 = process.simCscTriggerPrimitiveDigis.clctSLHC.clone()
     process.simCscTriggerPrimitiveDigis.alctSLHCME21.alctNplanesHitPattern = 3
-    process.simCscTriggerPrimitiveDigis.alctSLHCME21.runME21ILT = cms.untracked.bool(True)
+    process.simCscTriggerPrimitiveDigis.alctSLHCME21.runME21ILT = cms.bool(True)
     process.simCscTriggerPrimitiveDigis.clctSLHCME21.clctNplanesHitPattern = 3
     process.simCscTriggerPrimitiveDigis.clctSLHCME21.clctPidThreshPretrig = 2
-    process.simCscTriggerPrimitiveDigis.clctParam07.clctPidThreshPretrig = 2
-    tmb = process.simCscTriggerPrimitiveDigis.tmbSLHC
-    ## GE2/1-ME2/1
-    dphi_lct_pad98 = {
-        'pt0'  : { 'odd' :  2.00000000 , 'even' :  2.00000000 },
-        'pt05' : { 'odd' :  0.02203510 , 'even' :  0.00930056 },
-        'pt06' : { 'odd' :  0.01825790 , 'even' :  0.00790009 },
-        'pt10' : { 'odd' :  0.01066000 , 'even' :  0.00483286 },
-        'pt15' : { 'odd' :  0.00722795 , 'even' :  0.00363230 },
-        'pt20' : { 'odd' :  0.00562598 , 'even' :  0.00304879 },
-        'pt30' : { 'odd' :  0.00416544 , 'even' :  0.00253782 },
-        'pt40' : { 'odd' :  0.00342827 , 'even' :  0.00230833 }
-    }
-    tmb.me21ILT = cms.untracked.PSet(
-        ## run the upgrade algorithm
-        runME21ILT = cms.untracked.bool(True),
-
-        ## run in debug mode
-        debugLUTs = cms.untracked.bool(False),
-        debugMatching = cms.untracked.bool(False),
-
-        ## use old dataformat
-        useOldLCTDataFormatALCTGEM = cms.untracked.bool(True),
-        
-        ## copad construction
-        maxDeltaBXInCoPad = cms.untracked.int32(1),
-        maxDeltaPadInCoPad = cms.untracked.int32(1),
-
-        ## matching to pads in case LowQ CLCT
-        maxDeltaBXPadEven = cms.untracked.int32(1),
-        maxDeltaBXPadOdd = cms.untracked.int32(1),
-        maxDeltaPadPadEven = cms.untracked.int32(2),
-        maxDeltaPadPadOdd = cms.untracked.int32(3),
-
-        ## matching to pads in case absent CLCT
-        maxDeltaBXCoPadEven = cms.untracked.int32(0),
-        maxDeltaBXCoPadOdd = cms.untracked.int32(0),
-        maxDeltaPadCoPadEven = cms.untracked.int32(2),
-        maxDeltaPadCoPadOdd = cms.untracked.int32(3),
-
-        ## efficiency recovery switches
-        dropLowQualityCLCTsNoGEMs = cms.untracked.bool(True),
-        buildLCTfromALCTandGEM = cms.untracked.bool(True),
-        doLCTGhostBustingWithGEMs = cms.untracked.bool(False),
-        correctLCTtimingWithGEM = cms.untracked.bool(False),
-        promoteALCTGEMpattern = cms.untracked.bool(True),
-        promoteALCTGEMquality = cms.untracked.bool(True),
-
-        ## rate reduction 
-        doGemMatching = cms.untracked.bool(True),
-        gemMatchDeltaEta = cms.untracked.double(0.08),
-        gemMatchDeltaBX = cms.untracked.int32(1),
-        gemMatchDeltaPhiOdd = cms.untracked.double(dphi_lct_pad98[ptdphi]['odd']),
-        gemMatchDeltaPhiEven = cms.untracked.double(dphi_lct_pad98[ptdphi]['even']),
-        gemClearNomatchLCTs = cms.untracked.bool(False),
-
-        ## cross BX algorithm
-        tmbCrossBxAlgorithm = cms.untracked.uint32(2),
-        firstTwoLCTsInChamber = cms.untracked.bool(True),
-    )
     return process
 
 def customise_DigiToRaw(process):
