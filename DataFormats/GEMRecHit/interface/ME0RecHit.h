@@ -18,8 +18,7 @@ class ME0RecHit : public RecHit2DLocalPos {
  public:
 
   ME0RecHit(const ME0DetId& me0Id,
-float tof,
-float pdgid);
+float tof);
 
   /// Default constructor
   ME0RecHit();
@@ -30,14 +29,12 @@ float pdgid);
   /// and 0 for the two other coordinates
   ME0RecHit(const ME0DetId& me0Id,
 float tof,
-float pdgid,
 const LocalPoint& pos);
   
 
   /// Constructor from a local position and error, gemId and bx.
   ME0RecHit(const ME0DetId& me0Id,
 float tof,
-float pdgid,
 const LocalPoint& pos,
 const LocalError& err);
   
@@ -99,17 +96,12 @@ const LocalError& err);
     return theTOF;
   }
 
-  float pdgid() const {
-    return pdgID;
-  }
-
   /// Comparison operator, based on the gemId and the digi time
   bool operator==(const ME0RecHit& hit) const;
 
  private:
   ME0DetId theME0Id;
   float theTOF;
-  float pdgID;
   // Position and error in the Local Ref. Frame of the ME0Layer
   LocalPoint theLocalPosition;
   LocalError theLocalError;
