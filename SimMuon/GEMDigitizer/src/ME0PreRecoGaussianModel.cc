@@ -111,9 +111,6 @@ ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll)
   const int nBxing(maxBunch_ - minBunch_ + 1);
   trArea = 2*xmax_half*striplength;
 
-  std::cout << "-------------------" << std::endl;
-  std::cout << "me0Id = " << me0Id << std::endl;
-
   //simulate intrinsic noise - switched Off - there are NO strips
   // fire anywhere in ME0 chamber
   if(simulateIntrinsicNoise_)
@@ -153,7 +150,6 @@ ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll)
 //find random yy in the ME0 partition
   float halfstripLenndht = striplength/2.;
   float yy = flat2_->fire((rollRadius - halfstripLenndht), (rollRadius + halfstripLenndht));
-  std::cout << "yy = " << yy << std::endl;
  
 //calculate neutral bkg at yy from pol6
   averageNeutralNoiseRatePerRoll = ME0ModNeuBkgParam0
@@ -165,14 +161,9 @@ ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll)
                                  + ME0ModNeuBkgParam6*yy*yy*yy*yy*yy*yy;
 
   double averageNoiseRatePerRoll = averageNeutralNoiseRatePerRoll + averageNoiseElectronRatePerRoll;
-
-  std::cout << "averageNoiseRatePerRoll = " << averageNoiseRatePerRoll <<std::endl;
-
   const double averageNoise(averageNoiseRatePerRoll * nBxing * bxwidth_ * trArea * 1.0e-9);
   const int n_hits(poisson_->fire(averageNoise));
 
-  std::cout << "averageNoise = " << averageNoise << std::endl;
-  std::cout << "n_hits = " << n_hits << std::endl;
   float pdgid = 0;
 
   for (int i = 0; i < n_hits; ++i)
@@ -183,13 +174,9 @@ ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll)
     float phiTemp = acos(sin(pi_/18.) - 2*ktemp*sin(pi_/18.)); // sin(10 o)
     float phiRand = phiTemp - (4*pi_/9.); // substract 80 o in order to get phiRand in [0, 20] - suppose all the rolls are 20 o
 
-    std::cout << "phiRand = " << (phiRand * 360)/(2*pi_) << std::endl;
     float xx = yy*tan(phiRand);
 
     float zz = 527 + (me0Id.layer())*25./6.;
-    std::cout << "layer = " << me0Id.layer() << std::endl;
-    std::cout << "zz = " << zz << std::endl;
-//    float zz = 539.5; // temporary fixed value, just to run the code
 
     GlobalPoint pointDigiHit = roll->toGlobal(LocalPoint(xx,yy,zz));
 
@@ -206,12 +193,8 @@ ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll)
     else
       pdgid = 22;
 
-std::cout << "bkg pdgId = " << pdgid << std::endl;
-
     ME0DigiPreReco digi(xx,yy,ex,ey,corr,tof,pdgid);
     digi_.insert(digi);
-    std::cout << "DigiPreReco inserted" << std::endl;
-
   }
 }
 
