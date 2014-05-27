@@ -37,6 +37,8 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
 
       egammas.push_back(clusters[clusNr]);
 
+
+
       // Identification part 
       bool hOverEBit = idHOverE(clusters[clusNr]);
       bool fgBit = !(clusters[clusNr].hwSeedPt()>6 && clusters[clusNr].fgECAL()); 
@@ -63,6 +65,11 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
 
       egammas.back().setHwIso(isolBit);
       //  egammas.back().setHwIso(hwEtSum-hwFootPrint); //naughtly little debug hack, shouldnt be in release, comment out if it is
+
+      // calibration part
+      int calibPt = calibratedPt(clusters[clusNr]);
+      egammas.back().setHwPt(calibPt);
+
     }//end of cuts on cluster to make EGamma
   }//end of cluster loop
 }
@@ -78,7 +85,7 @@ bool l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::idHOverE(const l1t::CaloClust
 unsigned int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::idHOverELutIndex(int iEta)
 {
   unsigned int iEtaNormed = abs(iEta);
-  return iEtaNormed;
+  return iEtaNormed-1;
 }
 
 //calculates the footprint of the electron in hardware values
@@ -122,5 +129,19 @@ unsigned l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::isoLutIndex(int iEta,unsi
   
 }
 
+int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::calibratedPt(const l1t::CaloCluster& clus)
+{
+  unsigned int lutAddress = calibrationLutIndex(clus.hwEta()); 
+  int corr = params_->egCalibrationLUT()->data(lutAddress); // 9 bits. [0,1]. corrPt = (1+corr)*rawPt
+  // the correction can only increase the energy, and it cannot increase it more than a factor two
+  int rawPt = clus.hwPt();
+  int corrPt = rawPt + ( (corr*rawPt)>>9 );
+  if(corrPt>255) corrPt = 255;// 8 bits threshold
+  return corrPt;
+}
 
- 
+unsigned int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::calibrationLutIndex(int iEta)
+{
+  unsigned int iEtaNormed = abs(iEta);
+  return iEtaNormed-1;
+}

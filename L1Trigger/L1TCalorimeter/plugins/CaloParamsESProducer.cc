@@ -114,6 +114,11 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
   m_params.setEgIsoPUEstTowerGranularity(conf.getParameter<unsigned int>("egIsoPUEstTowerGranularity"));
   m_params.setEgIsoMaxEtaAbsForTowerSum(conf.getParameter<unsigned int>("egIsoMaxEtaAbsForTowerSum"));
   m_params.setEgIsoMaxEtaAbsForIsoSum(conf.getParameter<unsigned int>("egIsoMaxEtaAbsForIsoSum"));
+
+  edm::FileInPath egCalibrationLUTFile = conf.getParameter<edm::FileInPath>("egCalibrationLUTFile");
+  std::ifstream egCalibrationLUTStream(egCalibrationLUTFile.fullPath());
+  std::shared_ptr<l1t::LUT> egCalibrationLUT( new l1t::LUT(egCalibrationLUTStream) );
+  m_params.setEgCalibrationLUT(egCalibrationLUT);
   
   // tau
   m_params.setTauLsb(conf.getParameter<double>("tauLsb"));

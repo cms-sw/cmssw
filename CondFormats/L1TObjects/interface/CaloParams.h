@@ -84,7 +84,8 @@ namespace l1t {
     std::string egIsoPUSType() const { return egIsoPUSType_; }
     l1t::LUT* egIsolationLUT() { return egIsolationLUT_.get(); }
     std::string egCalibrationType() const { return egCalibrationType_; }
-    std::vector<double> egCalibrationParams() { return egCalibrationParams_; }
+    //std::vector<double> egCalibrationParams() { return egCalibrationParams_; }
+    l1t::LUT* egCalibrationLUT() { return egCalibrationLUT_.get(); }
 
     void setEgLsb(double lsb) { egLsb_ = lsb; }
     void setEgSeedThreshold(double thresh) { egSeedThreshold_ = thresh; }
@@ -103,7 +104,8 @@ namespace l1t {
     void setEgIsoPUSType(std::string type) { egIsoPUSType_ = type; }
     void setEgIsolationLUT(std::shared_ptr<LUT> lut) { egIsolationLUT_ = lut; }
     void setEgCalibrationType(std::string type) { egCalibrationType_ = type; }
-    void setEgCalibrationParams(std::vector<double> params) { egCalibrationParams_ = params; }
+    //void setEgCalibrationParams(std::vector<double> params) { egCalibrationParams_ = params; }
+    void setEgCalibrationLUT(std::shared_ptr<LUT> lut) { egCalibrationLUT_ = lut; }
 
 
     // tau
@@ -277,7 +279,8 @@ namespace l1t {
     std::string egCalibrationType_;
 
     // EG calibration coefficients
-    std::vector<double> egCalibrationParams_;
+    //std::vector<double> egCalibrationParams_;
+    std::shared_ptr<l1t::LUT> egCalibrationLUT_;
 
     // EG isolation PUS
     std::string egIsoPUSType_;
