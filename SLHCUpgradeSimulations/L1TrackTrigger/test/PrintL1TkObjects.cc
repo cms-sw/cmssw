@@ -52,6 +52,8 @@
 #include "DataFormats/L1TrackTrigger/interface/L1TkJetParticleFwd.h"
 #include "DataFormats/L1TrackTrigger/interface/L1TkHTMissParticle.h"
 #include "DataFormats/L1TrackTrigger/interface/L1TkHTMissParticleFwd.h"
+#include "DataFormats/L1TrackTrigger/interface/L1TkMuonParticle.h"
+#include "DataFormats/L1TrackTrigger/interface/L1TkMuonParticleFwd.h"
 
 #include "TFile.h"
 #include "TH1F.h"
@@ -106,6 +108,10 @@ class PrintL1TkObjects : public edm::EDAnalyzer {
 
 	// for L1TkHTMParticle
 	edm::InputTag L1TkHTMInputTag;
+
+        // for L1TkMuonParticle
+        edm::InputTag L1TkMuonsInputTag;
+
 };
 
 //
@@ -130,6 +136,8 @@ PrintL1TkObjects::PrintL1TkObjects(const edm::ParameterSet& iConfig)
   L1TkPhotonsInputTag = iConfig.getParameter<edm::InputTag>("L1TkPhotonsInputTag");
   L1TkJetsInputTag = iConfig.getParameter<edm::InputTag>("L1TkJetsInputTag");
   L1TkHTMInputTag = iConfig.getParameter<edm::InputTag>("L1TkHTMInputTag");
+  L1TkMuonsInputTag = iConfig.getParameter<edm::InputTag>("L1TkMuonsInputTag");
+
 }
 
 
@@ -158,9 +166,7 @@ PrintL1TkObjects::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 
   edm::Handle<edm::HepMCProduct> HepMCEvt;
-std::cout << " ici " << std::endl;
   iEvent.getByLabel("generator",HepMCEvt);
-std::cout << " ici2 " << HepMCEvt.isValid() << std::endl;
 
      float zvtx_gen = -999;
 
@@ -371,6 +377,33 @@ std::cout << " ici2 " << HepMCEvt.isValid() << std::endl;
 	}
     }
  }
+
+        //  
+        // ----------------------------------------------------------------------
+        // retrieve the L1TkMuons
+        //
+
+ edm::Handle<L1TkMuonParticleCollection> L1TkMuonsHandle;
+ iEvent.getByLabel(L1TkMuonsInputTag, L1TkMuonsHandle);
+ std::vector<L1TkMuonParticle>::const_iterator muIter;
+
+ if ( L1TkMuonsHandle.isValid() ) {
+    std::cout << " -----   L1TkMuonPaticle objects ---- " << std::endl;
+    for (muIter = L1TkMuonsHandle -> begin(); muIter != L1TkMuonsHandle->end(); ++muIter) {
+        float pt = muIter -> pt();
+        float eta = muIter -> eta();
+        float phi = muIter -> phi();
+        float zvtx = muIter -> getTrkzVtx();
+        unsigned int quality = muIter -> quality();
+        // access the quality via the reference :
+        const edm::Ref< L1MuonParticleCollection >      MuRef = muIter -> getMuRef();
+        unsigned int qualityBis = MuRef -> gmtMuonCand().quality();
+        std::cout << " a muon candidate pt eta phi " << pt << " " << eta << " " << phi << " zvertex = " << zvtx << std::endl;
+        std::cout << "   quality (the two qual flags are the same by definition) = " << quality << " " << qualityBis << std::endl;
+
+    }
+ }
+
 
 
 

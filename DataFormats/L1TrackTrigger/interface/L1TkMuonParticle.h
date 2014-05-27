@@ -53,6 +53,9 @@ namespace l1extra {
          // const edm::Ref< XXXCollection >& getMuRef() const
          // { return muRef_ ; }
 
+         const edm::Ref< L1MuonParticleCollection >&  getMuRef() const
+           { return muRef_ ; }
+
  	 float getTrkzVtx() const { return TrkzVtx_ ; }
          float getTrkIsol() const { return TrkIsol_ ; }
 
@@ -62,6 +65,8 @@ namespace l1extra {
 	 void setTrkzVtx(float TrkzVtx)  { TrkzVtx_ = TrkzVtx ; }
          void setTrkIsol(float TrkIsol)  { TrkIsol_ = TrkIsol ; }
          int bx() const;
+
+         unsigned int quality()  const;
 
 	  //void setDeltaR(float dr) { DeltaR_ = dr ; }
 

@@ -146,7 +146,9 @@ process.ana = cms.EDAnalyzer( 'PrintL1TkObjects' ,
     L1TkElectronsInputTag = cms.InputTag("L1TkElectrons","EG"),
     L1TkPhotonsInputTag = cms.InputTag("L1TkPhotons","EG"),
     L1TkJetsInputTag = cms.InputTag("L1TkJets","Central"),	# dummy here
-    L1TkHTMInputTag = cms.InputTag("L1TkHTMissCaloHI","")	# dummy here
+    L1TkHTMInputTag = cms.InputTag("L1TkHTMissCaloHI",""),	# dummy here
+    L1TkMuonsInputTag = cms.InputTag("L1TkMuons","")		# dummy here
+
 )
 
 #process.pAna = cms.Path( process.ana )
