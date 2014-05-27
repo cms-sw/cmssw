@@ -28,7 +28,7 @@ QGPoolDBESSource = cms.ESSource("PoolDBESSource",
             label  = cms.untracked.string('QGL_Syst_Herwig++')
         ),
       ),
-      connect = cms.string('sqlite:QGL_'+qgDatabaseVersion+'.db')
+      connect = cms.string('frontier://FrontierProd/CMS_COND_PAT_000'),
 )
 
 QGTagger = cms.EDProducer('QGTagger',
