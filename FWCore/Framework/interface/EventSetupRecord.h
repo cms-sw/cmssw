@@ -49,13 +49,17 @@ using the 'setEventSetup' and 'clearEventSetup' functions.
 
 
 // user include files
+#include "FWCore/Framework/interface/FunctorESHandleExceptionFactory.h"
 #include "FWCore/Framework/interface/DataKey.h"
 #include "FWCore/Framework/interface/NoProxyException.h"
 #include "FWCore/Framework/interface/ValidityInterval.h"
 #include "FWCore/Utilities/interface/ESInputTag.h"
 
 // system include files
+#include <exception>
 #include <map>
+#include <memory>
+#include <utility>
 #include <vector>
 #include <atomic>
 
@@ -65,6 +69,7 @@ namespace cms {
 }
 
 namespace edm {
+   class ESHandleExceptionFactory;
    class ESInputTag;
    class EventSetup;
 
@@ -88,36 +93,57 @@ namespace edm {
          void get(HolderT& iHolder) const {
             typename HolderT::value_type const* value = 0;
             ComponentDescription const* desc = 0;
-            this->getImplementation(value, "", desc, iHolder.transientAccessOnly);
+            std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
+            this->getImplementation(value, "", desc, iHolder.transientAccessOnly, whyFailedFactory);
 
-            iHolder = HolderT(value, desc);
+            if(value) {
+              iHolder = HolderT(value, desc);
+            } else {
+              iHolder = HolderT(std::move(whyFailedFactory));
+            }
          }
 
          template<typename HolderT>
          void get(char const* iName, HolderT& iHolder) const {
             typename HolderT::value_type const* value = 0;
             ComponentDescription const* desc = 0;
-            this->getImplementation(value, iName, desc, iHolder.transientAccessOnly);
-            iHolder = HolderT(value, desc);
+            std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
+            this->getImplementation(value, iName, desc, iHolder.transientAccessOnly, whyFailedFactory);
+
+            if(value) {
+              iHolder = HolderT(value, desc);
+            } else {
+              iHolder = HolderT(std::move(whyFailedFactory));
+            }
          }
          template<typename HolderT>
          void get(std::string const& iName, HolderT& iHolder) const {
             typename HolderT::value_type const* value = 0;
             ComponentDescription const* desc = 0;
-            this->getImplementation(value, iName.c_str(), desc, iHolder.transientAccessOnly);
-            iHolder = HolderT(value, desc);
+            std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
+            this->getImplementation(value, iName.c_str(), desc, iHolder.transientAccessOnly, whyFailedFactory);
+
+            if(value) {
+              iHolder = HolderT(value, desc);
+            } else {
+              iHolder = HolderT(std::move(whyFailedFactory));
+            }
          }
 
          template<typename HolderT>
          void get(ESInputTag const& iTag, HolderT& iHolder) const {
             typename HolderT::value_type const* value = 0;
             ComponentDescription const* desc = 0;
-            this->getImplementation(value, iTag.data().c_str(), desc, iHolder.transientAccessOnly);
-            validate(desc, iTag);
-            iHolder = HolderT(value, desc);
+            std::shared_ptr<ESHandleExceptionFactory> whyFailedFactory;
+            this->getImplementation(value, iTag.data().c_str(), desc, iHolder.transientAccessOnly, whyFailedFactory);
+
+            if(value) {
+              validate(desc, iTag);
+              iHolder = HolderT(value, desc);
+            } else {
+              iHolder = HolderT(std::move(whyFailedFactory));
+            }
          }
-
-
 
          ///returns false if no data available for key
          bool doGet(DataKey const& aKey, bool aGetTransiently = false) const;
@@ -196,14 +222,19 @@ namespace edm {
          void getImplementation(DataT const*& iData ,
                                 char const* iName,
                                 ComponentDescription const*& iDesc,
-                                bool iTransientAccessOnly) const {
+                                bool iTransientAccessOnly,
+                                std::shared_ptr<ESHandleExceptionFactory>& whyFailedFactory) const {
             DataKey dataKey(DataKey::makeTypeTag<DataT>(),
                             iName,
                             DataKey::kDoNotCopyMemory);
 
             void const* pValue = this->getFromProxy(dataKey, iDesc, iTransientAccessOnly);
             if(0 == pValue) {
-               throw NoProxyException<DataT>(this->key(), dataKey);
+              whyFailedFactory =
+                makeESHandleExceptionFactory([=]()->std::exception_ptr {
+                    NoProxyException<DataT> ex(this->key(), dataKey);
+                    return std::make_exception_ptr(ex);
+                });
             }
             iData = reinterpret_cast<DataT const*> (pValue);
          }

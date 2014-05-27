@@ -35,6 +35,8 @@ the end of the actual IOV for the data.  In this way the system can claim back s
 // forward declarations
 namespace edm {
 
+class ESHandleExceptionFactory;
+
 template<typename T>
 class ESTransientHandle : public ESHandleBase {
    public:
@@ -43,6 +45,7 @@ class ESTransientHandle : public ESHandleBase {
       ESTransientHandle() : ESHandleBase() {}
       ESTransientHandle(T const* iData) : ESHandleBase(iData, 0) {}
       ESTransientHandle(T const* iData, edm::eventsetup::ComponentDescription const* desc) : ESHandleBase(iData, desc) {}
+      ESTransientHandle(std::shared_ptr<ESHandleExceptionFactory> &&);
 
       // ---------- const member functions ---------------------
       T const* product() const { return static_cast<T const *>(productStorage()); }
@@ -55,6 +58,11 @@ class ESTransientHandle : public ESHandleBase {
       
    private:
 };
+
+template <class T>
+ESTransientHandle<T>::ESTransientHandle(std::shared_ptr<edm::ESHandleExceptionFactory> && iWhyFailed) :
+  ESHandleBase(std::move(iWhyFailed))
+{ }
 
 }
 #endif

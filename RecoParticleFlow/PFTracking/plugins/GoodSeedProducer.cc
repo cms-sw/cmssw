@@ -174,9 +174,11 @@ GoodSeedProducer::produce(Event& iEvent, const EventSetup& iSetup)
       try {
         std::string theTrackerRecHitBuilderName("WithAngleAndTemplate");  // FIXME FIXME
         iSetup.get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName,theTrackerRecHitBuilder);
+        theTrackerRecHitBuilder.product();
       } catch(...) {
         std::string theTrackerRecHitBuilderName("hltESPTTRHBWithTrackAngle");  // FIXME FIXME
         iSetup.get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName,theTrackerRecHitBuilder);
+        theTrackerRecHitBuilder.product();
       }
       hitCloner = static_cast<TkTransientTrackingRecHitBuilder const *>(theTrackerRecHitBuilder.product())->cloner();
       fitter_->setHitCloner(&hitCloner);

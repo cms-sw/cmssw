@@ -163,6 +163,7 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
     try { 
       std::string theTrackerRecHitBuilderName("WithAngleAndTemplate");  // to be moved to cfg in another PR
       theService->eventSetup().get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName,theTrackerRecHitBuilder);
+      theTrackerRecHitBuilder.product();
     } catch(...) {
       std::string theTrackerRecHitBuilderName("hltESPTTRHBWithTrackAngle");  // FIXME FIXME
       theService->eventSetup().get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName,theTrackerRecHitBuilder);
@@ -491,6 +492,7 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
     try {
       std::string theTrackerRecHitBuilderName("WithAngleAndTemplate");  // to be moved to cfg in another PR
       theService->eventSetup().get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName,theTrackerRecHitBuilder);
+      theTrackerRecHitBuilder.product();
     } catch(...) {
       std::string theTrackerRecHitBuilderName("hltESPTTRHBWithTrackAngle");  // FIXME FIXME
       theService->eventSetup().get<TransientRecHitRecord>().get(theTrackerRecHitBuilderName,theTrackerRecHitBuilder);
