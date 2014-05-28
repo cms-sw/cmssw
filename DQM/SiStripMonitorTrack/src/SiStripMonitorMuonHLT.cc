@@ -25,7 +25,6 @@ SiStripMonitorMuonHLT::SiStripMonitorMuonHLT (const edm::ParameterSet & iConfig)
 {
   cached_detid=0;
   cached_layer=0;
-
   //now do what ever initialization is needed
   parameters_ = iConfig;
   verbose_ = parameters_.getUntrackedParameter<bool>("verbose",false);
@@ -152,7 +151,7 @@ SiStripMonitorMuonHLT::analyze (const edm::Event & iEvent, const edm::EventSetup
 	  
 	  uint detID = 0; // zero since long time clust->geographicalId ();
 	  std::stringstream ss;
-	  int layer = tkdetmap_->FindLayer (detID , cached_detid , cached_layer);
+	  int layer = tkdetmap_->FindLayer (detID , cached_detid , cached_layer , cached_XYbin);
 	  std::string label = tkdetmap_->getLayerName (layer);
 	  const StripGeomDetUnit *theGeomDet = dynamic_cast < const StripGeomDetUnit * >(theTracker.idToDet (detID));
 	  const StripTopology *topol = dynamic_cast < const StripTopology * >(&(theGeomDet->specificTopology ()));
@@ -212,7 +211,7 @@ void SiStripMonitorMuonHLT::analyzeOnTrackClusters( const reco::Track* l3tk, con
 		  // if SiStripRecHit1D
 		  if (hit1D != 0)
 		    {
-		      int layer = tkdetmap_->FindLayer (detID , cached_detid , cached_layer);
+		      int layer = tkdetmap_->FindLayer (detID , cached_detid , cached_layer , cached_XYbin);
 		      std::string label = tkdetmap_->getLayerName (layer);
 		      const StripGeomDetUnit *theGeomDet = dynamic_cast < const StripGeomDetUnit * >(theTracker.idToDet (detID));
 		      if (theGeomDet != 0)
@@ -248,7 +247,7 @@ void SiStripMonitorMuonHLT::analyzeOnTrackClusters( const reco::Track* l3tk, con
 		  // if SiStripRecHit2D
 		  if (hit2D != 0)
 		    {
-		      int layer = tkdetmap_->FindLayer (detID , cached_detid , cached_layer);
+		      int layer = tkdetmap_->FindLayer (detID , cached_detid , cached_layer , cached_XYbin);
 		      std::string label = tkdetmap_->getLayerName (layer);
 		      const StripGeomDetUnit *theGeomDet = dynamic_cast < const StripGeomDetUnit * >(theTracker.idToDet (detID));
 		      if (theGeomDet != 0)
@@ -287,7 +286,7 @@ void SiStripMonitorMuonHLT::analyzeOnTrackClusters( const reco::Track* l3tk, con
 		    {
 		      //hit mono
 	              detID = hitMatched2D->monoId();
-		      int layer = tkdetmap_->FindLayer (detID , cached_detid , cached_layer);
+		      int layer = tkdetmap_->FindLayer (detID , cached_detid , cached_layer , cached_XYbin);
 		      std::string label = tkdetmap_->getLayerName (layer);
 		      const StripGeomDetUnit *theGeomDet = dynamic_cast < const StripGeomDetUnit * >(theTracker.idToDet (detID));
 		      if (theGeomDet != 0)
@@ -322,7 +321,7 @@ void SiStripMonitorMuonHLT::analyzeOnTrackClusters( const reco::Track* l3tk, con
 
 		      //hit stereo
 	              detID = hitMatched2D->stereoId ();
-		      layer = tkdetmap_->FindLayer (detID , cached_detid , cached_layer);
+		      layer = tkdetmap_->FindLayer (detID , cached_detid , cached_layer , cached_XYbin);
 		      label = tkdetmap_->getLayerName (layer);
 		      const StripGeomDetUnit *theGeomDet2 = dynamic_cast < const StripGeomDetUnit * >(theTracker.idToDet (detID));
 		      if (theGeomDet2 != 0)
@@ -361,7 +360,7 @@ void SiStripMonitorMuonHLT::analyzeOnTrackClusters( const reco::Track* l3tk, con
 		  if (hitProj2D != 0)
 		    {
 	              detID = hitProj2D->geographicalId ();
-		      int layer = tkdetmap_->FindLayer (detID , cached_detid , cached_layer);
+		      int layer = tkdetmap_->FindLayer (detID , cached_detid , cached_layer , cached_XYbin);
 		      std::string label = tkdetmap_->getLayerName (layer);
 		      const StripGeomDetUnit *theGeomDet = dynamic_cast < const StripGeomDetUnit * >(theTracker.idToDet (detID));
 		      if (theGeomDet != 0)
@@ -640,7 +639,7 @@ SiStripMonitorMuonHLT::GeometryFromTrackGeom (const std::vector<DetId>& Dets,con
       GlobalPoint clustgp = theGeomDet->surface ().toGlobal (clustlp);
 
       // Get the eta, phi of modules
-      mylayer = tkdetmap_->FindLayer (detid , cached_detid , cached_layer);
+      mylayer = tkdetmap_->FindLayer (detid , cached_detid , cached_layer , cached_XYbin);
       mylabelHisto = tkdetmap_->getLayerName (mylayer);
 
       //      SiStripDetId stripdet = SiStripDetId(detid);
@@ -821,7 +820,7 @@ SiStripMonitorMuonHLT::Normalizer (const std::vector<DetId>& Dets,const TrackerG
       //      const StripTopology *topol = dynamic_cast < const StripTopology * >(&(theGeomDet->specificTopology ()));
 
       // Get the eta, phi of modules
-      mylayer = tkdetmap_->FindLayer (detid , cached_detid , cached_layer);
+      mylayer = tkdetmap_->FindLayer (detid , cached_detid , cached_layer , cached_XYbin);
       mylabelHisto = tkdetmap_->getLayerName (mylayer);
 
       //      SiStripDetId stripdet = SiStripDetId(detid);

@@ -399,7 +399,7 @@ void SiStripTrackerMapCreator::paintTkMapFromHistogram(DQMStore* dqm_store, Moni
     uint32_t det_id= (*idet);
     if (det_id <= 0) continue;
     nDet++;
-    const TkLayerMap::XYbin& xyval = tkDetMap_->getXY(det_id , cached_detid , cached_layer);
+    const TkLayerMap::XYbin& xyval = tkDetMap_->getXY(det_id , cached_detid , cached_layer , cached_XYbin);
     float fval = 0.0;
     if ( (name.find("NumberOfOfffTrackCluster") != std::string::npos) || 
          (name.find("NumberOfOnTrackCluster") != std::string::npos) ) {
