@@ -51,4 +51,9 @@ void Stage1Layer2MainProcessorFirmwareImp1::processEvent(const std::vector<CaloE
   m_egAlgo->processEvent(emcands, regions, jets, egammas);
   m_tauAlgo->processEvent(emcands, regions, jets, taus);
   m_sumAlgo->processEvent(regions, emcands, etsums);
+
+  delete m_jetAlgo;
+  delete m_egAlgo;
+  delete m_tauAlgo;
+  delete m_sumAlgo;
 }
