@@ -135,7 +135,12 @@ int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::calibratedPt(const l1t::CaloCl
   int corr = params_->egCalibrationLUT()->data(lutAddress); // 9 bits. [0,1]. corrPt = (1+corr)*rawPt
   // the correction can only increase the energy, and it cannot increase it more than a factor two
   int rawPt = clus.hwPt();
-  int corrPt = rawPt + ( (corr*rawPt)>>9 );
+  int corrXrawPt = corr*rawPt;// 17 bits
+  // round corr*rawPt
+  int addPt = corrXrawPt>>9;// 8 MS bits (truncation)
+  int remainder = corrXrawPt & 0x1FF; // 9 LS bits
+  if(remainder>=0x100) addPt += 1;
+  int corrPt = rawPt + addPt;
   if(corrPt>255) corrPt = 255;// 8 bits threshold
   return corrPt;
 }

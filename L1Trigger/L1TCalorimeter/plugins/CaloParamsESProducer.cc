@@ -93,6 +93,7 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
   m_params.setEgLsb(conf.getParameter<double>("egLsb"));
   m_params.setEgSeedThreshold(conf.getParameter<double>("egSeedThreshold"));
   m_params.setEgNeighbourThreshold(conf.getParameter<double>("egNeighbourThreshold"));
+  m_params.setEgHcalThreshold(conf.getParameter<double>("egHcalThreshold"));
   m_params.setEgMaxHcalEt(conf.getParameter<double>("egMaxHcalEt"));
   m_params.setEgEtToRemoveHECut(conf.getParameter<double>("egEtToRemoveHECut"));
 

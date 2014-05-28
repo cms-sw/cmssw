@@ -29,6 +29,7 @@ l1tCaloStage2Params = cms.ESProducer(
     egLsb                      = cms.double(0.5),
     egSeedThreshold            = cms.double(2.),
     egNeighbourThreshold       = cms.double(1.),
+    egHcalThreshold            = cms.double(1.),
     egMaxHcalEt                = cms.double(0.),
     egEtToRemoveHECut          = cms.double(128.),
     egMaxHOverELUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egMaxHOverELUT.txt"),

@@ -29,6 +29,7 @@ l1tStage2CaloParams = cms.ESProducer(
     egLsb        = cms.double(0.5),
     egSeedThreshold      = cms.double(0.),
     egNeighbourThreshold = cms.double(0.),
+    egHcalThreshold      = cms.double(0.),
     egMaxHcalEt          = cms.double(0.),
     egMaxHOverELUT       = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egMaxHOverELUT.txt"),
     egIsoPUSType         = cms.string("None"),
@@ -38,6 +39,7 @@ l1tStage2CaloParams = cms.ESProducer(
     egIsoVetoNrTowersPhi = cms.uint32(3),
     egIsoPUEstTowerGranularity = cms.uint32(1),
     egIsoMaxEtaAbsForTowerSum = cms.uint32(4),
+    egCalibrationLUTFile       = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egCalibrationLUT.txt"),
 
     # Tau
     tauLsb                = cms.double(0.5),

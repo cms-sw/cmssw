@@ -44,6 +44,7 @@ namespace l1t {
     ClusterInput m_clusterInput;
     int m_seedThreshold;
     int m_clusterThreshold;
+    int m_hcalThreshold;
     bool m_trimCorners;
     CaloParams* params_;
   };
