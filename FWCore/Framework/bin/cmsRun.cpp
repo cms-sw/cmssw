@@ -294,13 +294,23 @@ int main(int argc, char* argv[]) {
             auto const& ops = pset->getUntrackedParameterSet("options");
             if(ops.existsAs<unsigned int>("numberOfThreads",false)) {
               unsigned int nThreads = ops.getUntrackedParameter<unsigned int>("numberOfThreads");
-	      unsigned int stackSize=0;
-	      if(ops.existsAs<unsigned int>("sizeOfStackForThreadsInKB",0)) {
-		stackSize = ops.getUntrackedParameter<unsigned int>("sizeOfStackForThreadsInKB");
-	      }
+              unsigned int stackSize=0;
+              if(ops.existsAs<unsigned int>("sizeOfStackForThreadsInKB",0)) {
+                stackSize = ops.getUntrackedParameter<unsigned int>("sizeOfStackForThreadsInKB");
+              }
               setNThreads(nThreads,stackSize,tsiPtr);
             }
           }
+        } else {
+          //inject it into the top level ParameterSet
+          edm::ParameterSet newOp;
+          boost::shared_ptr<edm::ParameterSet> pset = processDesc->getProcessPSet();
+          if(pset->existsAs<edm::ParameterSet>("options",false)) {
+            newOp = pset->getUntrackedParameterSet("options");
+          }
+          unsigned int nThreads = vm[kNumberOfThreadsOpt].as<unsigned int>();
+          newOp.addUntrackedParameter<unsigned int>("numberOfThreads",nThreads);
+          pset->insertParameterSet(true,"options",edm::ParameterSetEntry(newOp,false));
         }
       }
 
