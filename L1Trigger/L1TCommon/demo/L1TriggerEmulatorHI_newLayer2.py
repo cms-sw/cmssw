@@ -21,8 +21,8 @@ process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
     #fileNames = cms.untracked.vstring("file:22610530-FC24-E311-AF35-003048FFD7C2.root")
     #fileNames = cms.untracked.vstring("file:/mnt/hadoop/cms/store/user/icali/HIHighPt/HIHIHighPt_RAW_Skim_HLT_HIFullTrack14/4d786c9deacb28bba8fe5ed87e99b9e4/SD_HIFullTrack14_975_1_SZU.root")
-    #fileNames = cms.untracked.vstring("file:/mnt/hadoop/cms/store/user/icali/HIMinBiasUPC/HIMinBiasUPC_Skim_HLT_HIMinBiasHfOrBSC_v2/35880fcf9fb9fd84b27cd1405e09ffd1/SD_MinBiasHI_977_1_tba.root")
-    fileNames = cms.untracked.vstring("/store/relval/CMSSW_7_1_0_pre8/RelValHydjetQ_MinBias_2760GeV/GEN-SIM-DIGI-RAW-HLTDEBUG/PRE_SHI71_V7-v1/00000/00AAA72D-C1E3-E311-AE93-02163E00F43C.root")
+    fileNames = cms.untracked.vstring("root://xrootd.cmsaf.mit.edu//store/user/icali/HIMinBiasUPC/HIMinBiasUPC_Skim_HLT_HIMinBiasHfOrBSC_v2/35880fcf9fb9fd84b27cd1405e09ffd1/SD_MinBiasHI_977_1_tba.root")
+    #fileNames = cms.untracked.vstring("/store/relval/CMSSW_7_1_0_pre8/RelValHydjetQ_MinBias_2760GeV/GEN-SIM-DIGI-RAW-HLTDEBUG/PRE_SHI71_V7-v1/00000/00AAA72D-C1E3-E311-AE93-02163E00F43C.root")
     )
 
 
@@ -34,7 +34,7 @@ process.output = cms.OutputModule(
 #                                           'drop FEDRawDataCollection_rawDataRepacker_*_*',
 #                                           'drop FEDRawDataCollection_virginRawDataRepacker_*_*'),
     outputCommands = cms.untracked.vstring('drop *',
-                                           'keep *_*_*_L1TEMULATION'),    
+                                           'keep *_*_*_L1TEMULATION'),
     fileName = cms.untracked.string('SimL1Emulator_Stage1.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
@@ -64,6 +64,15 @@ process.l1tCaloStage1Digis.FirmwareVersion = cms.uint32(1) # 1=HI algos, 2=PP al
 #process.l1tCaloStage1Digis.regionETCutForMET = cms.uint32(0)
 #process.l1tCaloStage1Digis.minGctEtaForSums = cms.int32(4)
 #process.l1tCaloStage1Digis.maxGctEtaForSums = cms.int32(17)
+
+#process.l1tCaloParams.egLsb = cms.double(1.0),
+#process.l1tCaloParams.egSeedThreshold = cms.double(1.),
+#process.l1tCaloParams.jetLsb = cms.double(0.5),
+#process.l1tCaloParams.jetSeedThreshold = cms.double(10.),
+#process.l1tCaloParams.etSumLsb = cms.double(0.5),
+#process.l1tCaloParams.etSumEtaMin = cms.vint32(-999, -999, -999, -999),
+#process.l1tCaloParams.etSumEtaMax = cms.vint32(999,  999,  999,  999),
+#process.l1tCaloParams.etSumEtThreshold = cms.vdouble(0.,  0.,   0.,   0.)
 
 process.digiStep = cms.Sequence(
     process.ecalDigis

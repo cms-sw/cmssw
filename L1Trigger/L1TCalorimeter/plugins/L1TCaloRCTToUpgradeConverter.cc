@@ -71,11 +71,10 @@ l1t::L1TCaloRCTToUpgradeConverter::produce(edm::Event& iEvent, const edm::EventS
     // double eta = 0.;
     // double phi = 0.;
     //math::PtEtaPhiMLorentzVector p4( pt+1.e-6, eta, phi, 0. );
-    ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *p4 =
-      new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
+    ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > p4(0,0,0,0);
 
     //l1t::CaloStage1Cluster cluster;
-    l1t::CaloEmCand EmCand(*p4,
+    l1t::CaloEmCand EmCand(*&p4,
 			   (int) em->rank(),
 			   (int) em->regionId().ieta(),
 			   (int) em->regionId().iphi(),
@@ -95,13 +94,12 @@ l1t::L1TCaloRCTToUpgradeConverter::produce(edm::Event& iEvent, const edm::EventS
     // double phi = 0.;
     //math::PtEtaPhiMLorentzVector p4( pt+1.e-6, eta, phi, 0 );
 
-    ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *p4 =
-      new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
+    ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > p4(0,0,0,0);
 
 
     // create new format
     //l1t::CaloRegion region;
-    l1t::CaloRegion region(*p4,
+    l1t::CaloRegion region(*&p4,
 			   0.,
 			   0.,
 			   (int) rgn->et(),

@@ -45,8 +45,8 @@ namespace l1t {
       int subPhi = region->hwPhi();
 
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > ldummy(0,0,0,0);
-      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *lorentz = &ldummy;
-      CaloRegion newSubRegion(*lorentz, 0, 0, subPt, subEta, subPhi, 0, 0, 0);
+
+      CaloRegion newSubRegion(*&ldummy, 0, 0, subPt, subEta, subPhi, 0, 0, 0);
       subRegions->push_back(newSubRegion);
     }
   }
@@ -134,9 +134,8 @@ namespace l1t {
 	 regionEtCorr = corrpum0pt;	
        }
        
-       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *lorentz =
-         new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
-       CaloRegion newSubRegion(*lorentz, 0, 0, regionEtCorr, regionEta, regionPhi, 0, 0, 0);
+       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > lorentz(0,0,0,0);
+       CaloRegion newSubRegion(*&lorentz, 0, 0, regionEtCorr, regionEta, regionPhi, 0, 0, 0);
        subRegions->push_back(newSubRegion);
      }
    }

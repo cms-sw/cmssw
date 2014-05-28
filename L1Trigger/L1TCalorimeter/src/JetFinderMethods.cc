@@ -125,9 +125,8 @@ namespace l1t {
 	if(forward)
 	  jetQual |= 0x2;
 
-	ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *jetLorentz =
-	  new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
-	l1t::Jet theJet(*jetLorentz, jetET, jetEta, jetPhi, jetQual);
+	ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > jetLorentz(0,0,0,0);
+	l1t::Jet theJet(*&jetLorentz, jetET, jetEta, jetPhi, jetQual);
 	//l1t::Jet theJet(0, jetET, jetEta, jetPhi);
 
 	uncalibjets->push_back(theJet);

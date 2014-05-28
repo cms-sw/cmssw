@@ -45,7 +45,8 @@ l1tCaloParams = cms.ESProducer(
     egIsoPUEstTowerGranularity = cms.uint32(1),    #not used by Stage1
     egIsoMaxEtaAbsForTowerSum = cms.uint32(4),    #not used by Stage1
     egIsoMaxEtaAbsForIsoSum = cms.uint32(27),    #not used by Stage1
-    
+    egCalibrationLUTFile = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egCalibrationLUT.txt"),
+
     # Tau
     tauLsb                = cms.double(0.5),    #not used by Stage1
     tauSeedThreshold      = cms.double(7.),    #not used by Stage1

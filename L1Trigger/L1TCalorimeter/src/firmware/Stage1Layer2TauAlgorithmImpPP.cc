@@ -78,10 +78,9 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
     if(do2x1Algo && associatedSecondRegionEt>tauSeedThreshold) tauEt +=associatedSecondRegionEt;
 
 
-    ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *tauLorentz =
-      new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
+    ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > tauLorentz(0,0,0,0);
 
-    l1t::Tau theTau(*tauLorentz, tauEt, region->hwEta(), region->hwPhi());
+    l1t::Tau theTau(*&tauLorentz, tauEt, region->hwEta(), region->hwPhi());
 
 
     double jetIsolation = JetIsolation(tauEt, region->hwEta(), region->hwPhi(), *unCorrJets);

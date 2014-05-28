@@ -37,9 +37,8 @@ namespace l1t {
 	jpt = jetPt*alpha+gamma;
 	unsigned int corjetET =(int) (jpt/jetLSB);
 
-	ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *jetLorentz =
-	  new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
-	l1t::Jet corrjets(*jetLorentz, corjetET, jetEta, jetPhi, jetQual);
+	ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > jetLorentz(0,0,0,0);
+	l1t::Jet corrjets(*&jetLorentz, corjetET, jetEta, jetPhi, jetQual);
 
 	jets->push_back(corrjets);
       }
