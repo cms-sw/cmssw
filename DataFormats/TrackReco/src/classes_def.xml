@@ -42,7 +42,6 @@
         DataFormats/MuonDetId/interface/RPCDetId.h"
       >
       <![CDATA[
-        //DataFormats/TrackReco/interface/HitPatternConversorHitProxy.h; 
         using namespace reco;
         using namespace std;
         const unsigned short HitSize = 11;
@@ -160,7 +159,6 @@
                   break;
                 }
             }
-            //return reco::HitPatternConversorHitProxy(detId, hitType);
             return std::pair<DetId, TrackingRecHit::Type>(detId, hitType);
         };
 
@@ -172,7 +170,6 @@
                     break;
                 }
                 std::pair<DetId, TrackingRecHit::Type> hitInfo = oldHitPatternToTrackingRecHitProxy(pattern);
-                //if(!newObj->appendHit(oldHitPatternToTrackingRecHitProxy(pattern))){
                 if(!newObj->appendHit(hitInfo.first, hitInfo.second)){
                     return false;
                 }
@@ -180,25 +177,7 @@
             return true;
         };
 
-        std::cout << '=' << '=' << '=' << '=' << '=' << '=' << '=' << '=' << '=' << '=' << '=' << '=' << '=' << '=' << '=' << '=' << '=' << '=' << '=' << '=' << '=' << '=' << endl;
-
         fillNewHitPatternWithOldHitPattern(onfile.hitPattern_);
-        
-        std::cout << 'o' << 'l' << 'd' << 'x' << ' ';
-        for (int i = 0; i < MaxHits; i++) {
-          uint32_t pattern = getHitFromOldHitPattern(onfile.hitPattern_, i);
-          if (pattern == 0){
-              break;
-          }
-          cout << '0' << 'x' << hex << pattern << ' ';
-        }
-       
-        std::cout << std::endl << 'n' << 'e' << 'w' << 'x' << ' ';
-        for(int i=0; i < newObj->numberOfHits(HitPattern::ALL_HITS); i++){
-            cout << '0' << 'x' << hex << newObj->getHitPattern(HitPattern::ALL_HITS, i) << ' ';
-        }
-        std::cout << std::endl;
-        std::cout << '=' << '=' << '=' << '=' << '=' << '=' << '=' << '=' << '=' << '=' << '=' << '=' << '=' << '=' << '=' << '=' << '=' << '=' << '=' << '=' << '=' << '=' << endl;
       ]]>
  </ioread>
 
@@ -213,7 +192,6 @@
               DataFormats/TrackReco/interface/HitPattern.h"
       >
       <![CDATA[
-      //DataFormats/TrackReco/interface/HitPatternConversorHitProxy.h;
         using namespace reco;
         using namespace std;
 
@@ -341,42 +319,14 @@
             return true;
         };
         
-        auto mergeNewHitPatternsIntoOneNewHitPattern = [&] (void){
-          
-          std::cout << 'N' << 'E' << 'W' << 'T' << ' ';
-          for(int i=0; i < onfile.hitPattern_.numberOfHits(HitPattern::ALL_HITS); i++){
-              cout << '0' << 'x' << hex << onfile.hitPattern_.getHitPattern(HitPattern::ALL_HITS, i) << ' ';
-          }
-          std::cout << std::endl;
-
-          std::cout << 'N' << 'E' << 'W' << 'I' << ' ';
-          for(int i=0; i < onfile.trackerExpectedHitsInner_.numberOfHits(HitPattern::ALL_HITS); i++){
-              cout << '0' << 'x' << hex << onfile.trackerExpectedHitsInner_.getHitPattern(HitPattern::ALL_HITS, i) << ' ';
-          }
-          std::cout << std::endl;
-
-          std::cout << 'N' << 'E' << 'W' << 'O' << ' ';
-          for(int i=0; i < onfile.trackerExpectedHitsOuter_.numberOfHits(HitPattern::ALL_HITS); i++){
-              cout << '0' << 'x' << hex << onfile.trackerExpectedHitsOuter_.getHitPattern(HitPattern::ALL_HITS, i) << ' ';
-          }
-          std::cout << std::endl;
-
-          cout << 'M' << 'E' << 'R' << 'G' << 'I' << 'N' << 'G' << endl;
+        auto mergeNewHitPatternsIntoOneNewHitPattern = [&] (void)
+        {
           fillNewHitPatternFromNewHitPattern(onfile.hitPattern_, HitPattern::TRACK_HITS);
           fillNewHitPatternFromNewHitPattern(onfile.trackerExpectedHitsInner_, HitPattern::MISSING_INNER_HITS);
           fillNewHitPatternFromNewHitPattern(onfile.trackerExpectedHitsOuter_, HitPattern::MISSING_OUTER_HITS);
         };
-      
-        std::cout << '/' << '/' << '/' << '/' << '/' << '/' << '/' << '/' << '/' << '/' << '/' << '/' << '/' << '/' << '/' << '/' << '/' << '/' << '/' << '/' << '/' << '/' << endl;
-      
+        
         mergeNewHitPatternsIntoOneNewHitPattern();
-
-        cout << 'T' << 'I' << 'O' << '-' << ' ';
-        for(int i=0; i < newObj->getHitPattern().numberOfHits(HitPattern::ALL_HITS); i++){
-            cout << '0' << 'x' << hex << newObj->getHitPattern().getHitPattern(HitPattern::ALL_HITS, i) << ' ';
-        }
-        std::cout << std::endl;
-        std::cout << '\\' << '\\' << '\\' << '\\' << '\\' << '\\' << '\\' << '\\' << '\\' << '\\' << '\\' << '\\' << '\\' << '\\' << '\\' << '\\' << '\\' << '\\' << '\\' << '\\' << '\\' << '\\' << endl;
       ]]>
  </ioread>
 
