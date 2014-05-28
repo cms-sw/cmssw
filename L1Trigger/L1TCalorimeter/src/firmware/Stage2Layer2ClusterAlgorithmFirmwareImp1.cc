@@ -107,7 +107,7 @@ void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::clustering(const std::vector
   // add neighbor towers to the seed
   for(size_t clusterNr=0;clusterNr<clusters.size();clusterNr++){
     l1t::CaloCluster& cluster = clusters[clusterNr];
-    if( cluster.isValid() ){
+    if( cluster.checkClusterFlag(CaloCluster::PASS_THRES_SEED) ){
       int iEta = cluster.hwEta();
       int iPhi = cluster.hwPhi();
       int iEtaP = caloNav.offsetIEta(iEta, 1);
