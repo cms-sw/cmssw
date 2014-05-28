@@ -6,7 +6,6 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
-process.load('Configuration.StandardSequences.RawToDigi_Repacked_cff')
 process.load('Configuration.Geometry.GeometryIdeal_cff')
 
 # Select the Message Logger output you would like to see:
