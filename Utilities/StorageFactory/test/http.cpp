@@ -10,7 +10,7 @@ int main (int, char **/*argv*/) try
   IOSize	n;
   char		buf [1024];
   Storage	*s = StorageFactory::get ()->open
-    ("https://cmssdt.cern.ch/SDT/index.html", IOFlags::OpenRead);
+    ("http://home.web.cern.ch", IOFlags::OpenRead);
 
   assert (s);
   while ((n = s->read (buf, sizeof (buf))))
