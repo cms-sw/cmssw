@@ -294,7 +294,7 @@ gblphidat CSCSectorReceiverLUT::calcGlobalPhiME(const gblphiadd& address) const
     {
       edm::LogWarning("CSCSectorReceiverLUT|getGlobalPhiValue")
 	<< " warning: cscId " << cscid << " is out of bounds ["
-	<< CSCTriggerNumbering::maxTriggerCscId() << "-"
+	<< CSCTriggerNumbering::minTriggerCscId() << "-"
 	<< CSCTriggerNumbering::maxTriggerCscId() << "]\n";
       throw cms::Exception("CSCSectorReceiverLUT")
 	<< "+++ Value of CSC ID, " << cscid
@@ -306,7 +306,7 @@ gblphidat CSCSectorReceiverLUT::calcGlobalPhiME(const gblphiadd& address) const
     {
       edm::LogWarning("CSCSectorReceiverLUT|getGlobalPhiValue")
 	<< " warning: cscId " << cscid << " is out of bounds ["
-	<< CSCTriggerNumbering::maxTriggerCscId() << "-"
+	<< CSCTriggerNumbering::minTriggerCscId() << "-"
 	<< CSCTriggerNumbering::maxTriggerCscId() << "]\n";
       throw cms::Exception("CSCSectorReceiverLUT")
 	<< "+++ Value of CSC ID, " << cscid
