@@ -89,12 +89,12 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       const double et = emScale->et( itEGamma->hwPt() );
       const double eta = getPhysicalEta(itEGamma->hwEta());
       const double phi = getPhysicalPhi(itEGamma->hwPhi());
-      math::PtEtaPhiMLorentzVector *p4 = new math::PtEtaPhiMLorentzVector(et, eta, phi, 0);
+      math::PtEtaPhiMLorentzVector p4(et, eta, phi, 0);
 
-      l1t::EGamma *eg = new l1t::EGamma(*p4, itEGamma->hwPt(),
-				       itEGamma->hwEta(), itEGamma->hwPhi(),
-				       itEGamma->hwQual(), itEGamma->hwIso());
-      new_egammas->push_back(bx, *eg);
+      l1t::EGamma eg(*&p4, itEGamma->hwPt(),
+		     itEGamma->hwEta(), itEGamma->hwPhi(),
+		     itEGamma->hwQual(), itEGamma->hwIso());
+      new_egammas->push_back(bx, *&eg);
 
 
     }
@@ -114,12 +114,12 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       const double eta = getPhysicalEta(itTau->hwEta());
       const double phi = getPhysicalPhi(itTau->hwPhi());
-      math::PtEtaPhiMLorentzVector *p4 = new math::PtEtaPhiMLorentzVector(et, eta, phi, 0);
+      math::PtEtaPhiMLorentzVector p4(et, eta, phi, 0);
 
-      l1t::Tau *tau = new l1t::Tau(*p4, itTau->hwPt(),
-				   itTau->hwEta(), itTau->hwPhi(),
-				   itTau->hwQual(), itTau->hwIso());
-      new_taus->push_back(bx, *tau);
+      l1t::Tau tau(*&p4, itTau->hwPt(),
+		   itTau->hwEta(), itTau->hwPhi(),
+		   itTau->hwQual(), itTau->hwIso());
+      new_taus->push_back(bx, *&tau);
 
     }
 
@@ -139,12 +139,12 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       const bool forward = ((itJet->hwQual() & 0x2) != 0);
       const double eta = getPhysicalEta(itJet->hwEta(), forward);
       const double phi = getPhysicalPhi(itJet->hwPhi());
-      math::PtEtaPhiMLorentzVector *p4 = new math::PtEtaPhiMLorentzVector(et, eta, phi, 0);
+      math::PtEtaPhiMLorentzVector p4(et, eta, phi, 0);
 
-      l1t::Jet *jet = new l1t::Jet(*p4, itJet->hwPt(),
-				   itJet->hwEta(), itJet->hwPhi(),
-				   itJet->hwQual());
-      new_jets->push_back(bx, *jet);
+      l1t::Jet jet(*&p4, itJet->hwPt(),
+		   itJet->hwEta(), itJet->hwPhi(),
+		   itJet->hwQual());
+      new_jets->push_back(bx, *&jet);
 
     }
 
@@ -160,12 +160,12 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       const double eta = getPhysicalEta(itEtSum->hwEta());
       const double phi = getPhysicalPhi(itEtSum->hwPhi());
 
-      math::PtEtaPhiMLorentzVector *p4 = new math::PtEtaPhiMLorentzVector(et, eta, phi, 0);
+      math::PtEtaPhiMLorentzVector p4(et, eta, phi, 0);
 
-      l1t::EtSum *eg = new l1t::EtSum(*p4, sumType, itEtSum->hwPt(),
-				      itEtSum->hwEta(), itEtSum->hwPhi(),
-				      itEtSum->hwQual());
-      new_etsums->push_back(bx, *eg);
+      l1t::EtSum eg(*&p4, sumType, itEtSum->hwPt(),
+		    itEtSum->hwEta(), itEtSum->hwPhi(),
+		    itEtSum->hwQual());
+      new_etsums->push_back(bx, *&eg);
 
     }
   }

@@ -54,9 +54,8 @@ void findRegions(const std::vector<l1t::CaloRegion> * sr, std::vector<l1t::Tau> 
     }
   }
 
-  ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *TauLorentz
-    = new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
-  l1t::Tau taucand(*TauLorentz,regionETMax,regionETMaxEta,regionETMaxPhi);
+  ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > TauLorentz(0,0,0,0);
+  l1t::Tau taucand(*&TauLorentz,regionETMax,regionETMaxEta,regionETMaxPhi);
 
   //don't push a taucand we didn't actually find
   if(taucand.hwPt() > 0)

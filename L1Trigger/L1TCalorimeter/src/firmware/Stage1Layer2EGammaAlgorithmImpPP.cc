@@ -63,8 +63,7 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
     if(eg_et <= egSeedThreshold) continue;
 
 
-    ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *egLorentz =
-      new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >();
+    ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > egLorentz(0,0,0,0);
 
     int quality = 1;
     int isoFlag = 0;
@@ -89,7 +88,7 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
 
 
     // ------- fill the EG candidate vector ---------
-    l1t::EGamma theEG(*egLorentz, eg_et, eg_eta, eg_phi, quality, isoFlag);
+    l1t::EGamma theEG(*&egLorentz, eg_et, eg_eta, eg_phi, quality, isoFlag);
     //?? if( hoe < HoverECut) egammas->push_back(theEG);
     preGtEGammas->push_back(theEG);
   }
