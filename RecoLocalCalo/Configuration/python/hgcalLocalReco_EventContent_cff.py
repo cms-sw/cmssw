@@ -4,13 +4,17 @@ import FWCore.ParameterSet.Config as cms
 #Full Event content 
 hgcalLocalRecoFEVT = cms.PSet(
     outputCommands = cms.untracked.vstring(
-        'keep *_HGCalUncalibRecHit_*_*', 
-        'keep *_HGCRecHit_*_*')
+        'keep *_*_HGCalUncalibRecHit_*',
+        'keep *_*_HGCHEBRecHits_*',
+        'keep *_*_HGCHEFRecHits_*',        
+        'keep *_*_HGCEERecHits_*')
 )
 #RECO content
 hgcalLocalRecoRECO = cms.PSet(
     outputCommands = cms.untracked.vstring(
-        'keep *_HGCRecHit_*_*',
+        'keep *_*_HGCHEBRecHits_*',
+        'keep *_*_HGCHEFRecHits_*',
+        'keep *_*_HGCEERecHits_*'        
         )
 )
 #AOD content
