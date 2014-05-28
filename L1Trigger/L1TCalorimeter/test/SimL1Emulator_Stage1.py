@@ -19,10 +19,7 @@ process.maxEvents = cms.untracked.PSet(
 # Input source
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
-    #fileNames = cms.untracked.vstring("file:22610530-FC24-E311-AF35-003048FFD7C2.root")
-    #fileNames = cms.untracked.vstring("file:/mnt/hadoop/cms/store/user/icali/HIHighPt/HIHIHighPt_RAW_Skim_HLT_HIFullTrack14/4d786c9deacb28bba8fe5ed87e99b9e4/SD_HIFullTrack14_975_1_SZU.root")
-    #fileNames = cms.untracked.vstring("file:/mnt/hadoop/cms/store/user/icali/HIMinBiasUPC/HIMinBiasUPC_Skim_HLT_HIMinBiasHfOrBSC_v2/35880fcf9fb9fd84b27cd1405e09ffd1/SD_MinBiasHI_977_1_tba.root")
-    fileNames = cms.untracked.vstring("/store/relval/CMSSW_7_1_0_pre8/RelValHydjetQ_MinBias_2760GeV/GEN-SIM-DIGI-RAW-HLTDEBUG/PRE_SHI71_V7-v1/00000/00AAA72D-C1E3-E311-AE93-02163E00F43C.root")
+    fileNames = cms.untracked.vstring("/store/relval/CMSSW_7_0_0_pre8/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START70_V1-v1/00000/262AA156-744A-E311-9829-002618943945.root")
     )
 
 
@@ -30,11 +27,11 @@ process.output = cms.OutputModule(
     "PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
-    outputCommands = cms.untracked.vstring('keep *',
-                                           'drop FEDRawDataCollection_rawDataRepacker_*_*',
-                                           'drop FEDRawDataCollection_virginRawDataRepacker_*_*'),
-#    outputCommands = cms.untracked.vstring('drop *',
-#                                           'keep *_*_*_L1TEMULATION'),    
+#    outputCommands = cms.untracked.vstring('keep *',
+#                                           'drop FEDRawDataCollection_rawDataRepacker_*_*',
+#                                           'drop FEDRawDataCollection_virginRawDataRepacker_*_*'),
+    outputCommands = cms.untracked.vstring('drop *',
+                                           'keep *_*_*_L1TEMULATION'),    
     fileName = cms.untracked.string('SimL1Emulator_Stage1.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
@@ -51,8 +48,6 @@ process.GlobalTag.globaltag = cms.string('POSTLS162_V2::All')
 #process.GlobalTag = GlobalTag(process.GlobalTag, 'GR_P_V27A::All', '')
 
 process.load('L1Trigger.L1TCalorimeter.L1TCaloStage1_cff')
-process.simRctDigis.ecalDigis = cms.VInputTag(cms.InputTag('ecalDigis:EcalTriggerPrimitives'))
-process.simRctDigis.hcalDigis = cms.VInputTag(cms.InputTag('hcalDigis'))
 
 ## changes to L1 algorithms begin here, the list is exhaustive.
 ## commented values should be the default
@@ -65,14 +60,8 @@ process.simRctDigis.hcalDigis = cms.VInputTag(cms.InputTag('hcalDigis'))
 #process.l1tCaloStage1Digis.minGctEtaForSums = cms.int32(4)
 #process.l1tCaloStage1Digis.maxGctEtaForSums = cms.int32(17)
 
-process.digiStep = cms.Sequence(
-    process.ecalDigis
-    *process.hcalDigis
-)
-
 process.p1 = cms.Path(
-    process.digiStep
-    *process.SimL1Emulator_Stage1
+    process.SimL1Emulator_Stage1
     )
 
 process.output_step = cms.EndPath(process.output)
