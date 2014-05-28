@@ -16,6 +16,7 @@
 
 l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::Stage2Layer2ClusterAlgorithmFirmwareImp1(CaloParams* params, ClusterInput clusterInput) :
   m_clusterInput(clusterInput),
+  m_trimCorners(true),
   params_(params)
 {
 
@@ -455,10 +456,12 @@ void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::refining(const std::vector<l
       towerEtSS = (towerEtSS>=m_clusterThreshold ? towerEtSS : 0);
 
       // trim corners
-      if(towerEtN==0 && towerEtW==0) cluster.setClusterFlag(CaloCluster::TRIM_NW, true);
-      if(towerEtN==0 && towerEtE==0) cluster.setClusterFlag(CaloCluster::TRIM_NE, true);
-      if(towerEtS==0 && towerEtW==0) cluster.setClusterFlag(CaloCluster::TRIM_SW, true);
-      if(towerEtS==0 && towerEtE==0) cluster.setClusterFlag(CaloCluster::TRIM_SE, true);
+      if(m_trimCorners) {
+        if(towerEtN==0 && towerEtW==0) cluster.setClusterFlag(CaloCluster::TRIM_NW, true);
+        if(towerEtN==0 && towerEtE==0) cluster.setClusterFlag(CaloCluster::TRIM_NE, true);
+        if(towerEtS==0 && towerEtW==0) cluster.setClusterFlag(CaloCluster::TRIM_SW, true);
+        if(towerEtS==0 && towerEtE==0) cluster.setClusterFlag(CaloCluster::TRIM_SE, true);
+      }
 
       // trim one eta-side
       int EtEtaRight = towerEtNE + towerEtE + towerEtSE;
@@ -519,3 +522,6 @@ void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::refining(const std::vector<l
   }
 }
 
+void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::trimCorners(bool trimCorners) {
+  m_trimCorners = trimCorners;
+}
