@@ -43,9 +43,7 @@ class Phase2OTECRingedLayer GCC11_FINAL : public RingedForwardLayer, public Geom
   //  bool isCompatible( const TrajectoryStateOnSurface& ms,
   //	     const MeasurementEstimator& est) const;
 
-  int findClosest( const GlobalPoint[NOTECRINGS] ) const;
-  
-  int findNextIndex( const GlobalPoint[NOTECRINGS] , int ) const;
+  std::array<int,3> findThreeClosest( const GlobalPoint[NOTECRINGS] ) const;
   
   bool overlapInR( const TrajectoryStateOnSurface& tsos, int i, double ymax) const;
   
