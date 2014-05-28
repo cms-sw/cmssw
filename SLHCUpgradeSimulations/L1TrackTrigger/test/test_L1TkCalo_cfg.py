@@ -9,9 +9,6 @@ process = cms.Process("L1TkCalo")
 # and the tracker digis.
 # It creates HT and MHT, from the L1Jets and from the HLT HI jets.
 #
-# so far, the creation of TkObjects from L1Jets is commented, as
-# we don't have yet the "KIT version" of the L1Jets in 620_SLHC.
-#
  
 
 process.source = cms.Source("PoolSource",
@@ -20,7 +17,7 @@ process.source = cms.Source("PoolSource",
     '/store/group/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Neutrinos/PU140_newGT/m2_SingleNeutrino_E2023TTI_PU140.root'
    )
 )
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
 
 # initialize MessageLogger and output report
@@ -59,7 +56,7 @@ process.load('Configuration/StandardSequences/EndOfProcess_cff')
 process.load('Configuration.StandardSequences.RawToDigi_cff')
 process.load("SLHCUpgradeSimulations.L1CaloTrigger.SLHCCaloTrigger_cff")
 
-process.L1CalibFilterTowerJetProducer.pTCalibrationThreshold = cms.double(40) # applies calibration only to > 40GeV L1 jets
+#process.L1CalibFilterTowerJetProducer.pTCalibrationThreshold = cms.double(40) # applies calibration only to > 40GeV L1 jets
 
 process.p = cms.Path(
     process.RawToDigi+
@@ -83,8 +80,8 @@ process.L1CaloTowerProducer.HCALDigis =  cms.InputTag("valHcalTriggerPrimitiveDi
 
 process.load("SLHCUpgradeSimulations.L1TrackTrigger.L1TkCaloSequence_cff")
 
-# -- Produce L1TkJets, HT and MHT from the L1Jets :	  ///  temporarily commented
-#process.L1TkCaloL1Jets = cms.Path( process.L1TkCaloSequence )
+# -- Produce L1TkJets, HT and MHT from the L1Jets :	  
+process.L1TkCaloL1Jets = cms.Path( process.L1TkCaloSequence )
 
 # -- Produce the HLT JI Jets and L1TkJets, HT and MHT from  these jets :
 process.L1TkCaloHIJets = cms.Path( process.L1TkCaloSequenceHI )

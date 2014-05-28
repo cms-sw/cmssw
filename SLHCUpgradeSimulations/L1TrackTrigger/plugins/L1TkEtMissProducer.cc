@@ -235,7 +235,7 @@ L1TkEtMissProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    if ( PTMAX > 0 && pt > PTMAX)  {
 	        if (HighPtTracks == 0)  continue;	// ignore these very high PT tracks.
 		if (HighPtTracks == 1)  {
-			pt_rescale = pt / PTMAX ;	// will be used to rescale px and py
+			pt_rescale = PTMAX / pt;	// will be used to rescale px and py
 			pt = PTMAX;     // saturate
 		}
 	    }
