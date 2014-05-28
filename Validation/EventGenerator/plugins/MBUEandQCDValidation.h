@@ -179,9 +179,8 @@ class MBUEandQCDValidation : public DQMEDAnalyzer {
     MonitorElement *_sumEt5;
 
 
-    static const unsigned int nphiBin = 36;
-
-    static const unsigned int initSize = 1000; 
+    const static unsigned int nphiBin;
+    const static unsigned int initSize;
 
     edm::EDGetTokenT<edm::HepMCProduct> hepmcCollectionToken_;
     edm::EDGetTokenT<reco::GenJetCollection> genchjetCollectionToken_;

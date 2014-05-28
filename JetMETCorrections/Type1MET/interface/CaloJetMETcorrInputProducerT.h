@@ -46,6 +46,7 @@ namespace CaloJetMETcorrInputProducer_namespace
                          // (because pat::Jet->p4() returns the JES corrected, not the raw, jet momentum)
   {
     public:
+     RawJetExtractorT() {}
 
      reco::Candidate::LorentzVector  operator()(const T& jet) const 
      { 
