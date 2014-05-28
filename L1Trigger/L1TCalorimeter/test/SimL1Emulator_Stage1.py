@@ -60,6 +60,15 @@ process.load('L1Trigger.L1TCalorimeter.L1TCaloStage1_cff')
 #process.l1tCaloStage1Digis.minGctEtaForSums = cms.int32(4)
 #process.l1tCaloStage1Digis.maxGctEtaForSums = cms.int32(17)
 
+#process.l1tCaloParams.egLsb = cms.double(1.0),
+#process.l1tCaloParams.egSeedThreshold = cms.double(1.),
+#process.l1tCaloParams.jetLsb = cms.double(0.5),
+#process.l1tCaloParams.jetSeedThreshold = cms.double(10.),
+#process.l1tCaloParams.etSumLsb = cms.double(0.5),
+#process.l1tCaloParams.etSumEtaMin = cms.vint32(-999, -999, -999, -999),
+#process.l1tCaloParams.etSumEtaMax = cms.vint32(999,  999,  999,  999),
+#process.l1tCaloParams.etSumEtThreshold = cms.vdouble(0.,  0.,   0.,   0.)
+
 process.p1 = cms.Path(
     #process.SimL1Emulator_Stage1
     process.simRctDigis +

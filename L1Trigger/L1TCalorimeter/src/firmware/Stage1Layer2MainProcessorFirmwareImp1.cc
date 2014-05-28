@@ -30,7 +30,7 @@ void Stage1Layer2MainProcessorFirmwareImp1::processEvent(const std::vector<CaloE
   if (m_fwv == 1)
   { //HI algo
     m_egAlgo = new Stage1Layer2EGammaAlgorithmImpPP(m_db);
-    m_sumAlgo = new Stage1Layer2EtSumAlgorithmImpPP(m_db);
+    m_sumAlgo = new Stage1Layer2CentralityAlgorithm(m_db);
     m_jetAlgo = new Stage1Layer2JetAlgorithmImpHI(m_db); //fwv =1 => HI algo
     m_tauAlgo = new Stage1Layer2SingleTrackHI(m_db); //fwv=1 => single track seed
   }

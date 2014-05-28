@@ -34,7 +34,7 @@ process.output = cms.OutputModule(
 #                                           'drop FEDRawDataCollection_rawDataRepacker_*_*',
 #                                           'drop FEDRawDataCollection_virginRawDataRepacker_*_*'),
     outputCommands = cms.untracked.vstring('drop *',
-                                           'keep *_*_*_L1TEMULATION'),    
+                                           'keep *_*_*_L1TEMULATION'),
     fileName = cms.untracked.string('SimL1Emulator_Stage1.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
@@ -64,6 +64,15 @@ process.l1tCaloStage1Digis.FirmwareVersion = cms.uint32(1) # 1=HI algos, 2=PP al
 #process.l1tCaloStage1Digis.regionETCutForMET = cms.uint32(0)
 #process.l1tCaloStage1Digis.minGctEtaForSums = cms.int32(4)
 #process.l1tCaloStage1Digis.maxGctEtaForSums = cms.int32(17)
+
+#process.l1tCaloParams.egLsb = cms.double(1.0),
+#process.l1tCaloParams.egSeedThreshold = cms.double(1.),
+#process.l1tCaloParams.jetLsb = cms.double(0.5),
+#process.l1tCaloParams.jetSeedThreshold = cms.double(10.),
+#process.l1tCaloParams.etSumLsb = cms.double(0.5),
+#process.l1tCaloParams.etSumEtaMin = cms.vint32(-999, -999, -999, -999),
+#process.l1tCaloParams.etSumEtaMax = cms.vint32(999,  999,  999,  999),
+#process.l1tCaloParams.etSumEtThreshold = cms.vdouble(0.,  0.,   0.,   0.)
 
 process.digiStep = cms.Sequence(
     process.ecalDigis
