@@ -17,6 +17,9 @@ CSCDigiToRawModule::CSCDigiToRawModule(const edm::ParameterSet & pset):
   packer(new CSCDigiToRaw(pset))
 {
   //theStrip = pset.getUntrackedParameter<string>("DigiCreator", "cscunpacker");
+  
+  theFormatVersion =  pset.getUntrackedParameter<unsigned int>("useFormatVersion", 2005); 	// pre-LS1 - '2005'. post-LS1 - '2013'
+  usePreTriggers = pset.getUntrackedParameter<bool>("usePreTriggers", true); 			// disable checking CLCT PreTriggers digis
 
   wd_token = consumes<CSCWireDigiCollection>( pset.getParameter<edm::InputTag>("wireDigiTag") );
   sd_token = consumes<CSCStripDigiCollection>( pset.getParameter<edm::InputTag>("stripDigiTag") );
@@ -58,13 +61,14 @@ void CSCDigiToRawModule::produce( edm::Event & e, const edm::EventSetup& c ){
   e.getByToken( cd_token, comparatorDigis );
   e.getByToken( al_token, alctDigis );
   e.getByToken( cl_token, clctDigis );
-  e.getByToken( pr_token, preTriggers );
+  if (usePreTriggers)
+     e.getByToken( pr_token, preTriggers );
   e.getByToken( co_token, correlatedLCTDigis );
 
   // Create the packed data
   packer->createFedBuffers(*stripDigis, *wireDigis, *comparatorDigis, 
                            *alctDigis, *clctDigis, *preTriggers, *correlatedLCTDigis,
-                           *(fed_buffers.get()), theMapping, e);
+                           *(fed_buffers.get()), theMapping, e, theFormatVersion, usePreTriggers);
   
   // put the raw data to the event
   e.put(fed_buffers, "CSCRawData");

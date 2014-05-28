@@ -139,6 +139,7 @@ namespace cscdqm {
       }
 
       void init();
+      void book();
       void updateFractionAndEfficiencyHistos();
       const bool getHisto(const HistoDef& histoD, MonitorObject*& me);
       unsigned int maskHWElements(std::vector<std::string>& tokens);

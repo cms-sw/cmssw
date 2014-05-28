@@ -32,6 +32,10 @@ class CSCDigiToRawModule : public edm::EDProducer {
   virtual void produce( edm::Event&, const edm::EventSetup& );
 
  private:
+
+  unsigned int 	theFormatVersion; // Select which version of data format to use Pre-LS1: 2005, Post-LS1: 2013
+  bool		usePreTriggers;   // Select if to use Pre-Triigers CLCT digis
+
   CSCDigiToRaw * packer;
 
   edm::EDGetTokenT<CSCWireDigiCollection>             wd_token;

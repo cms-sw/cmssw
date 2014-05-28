@@ -36,15 +36,20 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // DQM
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include <DQMServices/Core/interface/DQMStore.h>
+#include <DQMServices/Core/interface/MonitorElement.h>
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
-class CSCCertificationInfo : public edm::EDAnalyzer {
+
+class CSCCertificationInfo : public DQMEDAnalyzer {
 
   public:
 
     explicit CSCCertificationInfo(const edm::ParameterSet&);
     ~CSCCertificationInfo() { }
+
+  protected:
+    void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
   private:
 

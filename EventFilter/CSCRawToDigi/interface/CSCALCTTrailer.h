@@ -6,13 +6,13 @@
 */
 
 #include <string.h> // memcpy
-#include <atomic>
 #include "DataFormats/CSCDigi/interface/CSCALCTStatusDigi.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 struct CSCALCTTrailer2006 {
   CSCALCTTrailer2006();
   void setSize(int size) {frameCount = size;}
+  void setCRC(unsigned int crc) {crc0 = crc&0x7FF; crc1 = (crc >> 11) & 0x7FF;}
   short unsigned int sizeInWords() const { ///size of ALCT Header
     return 4;
   }
@@ -25,6 +25,7 @@ struct CSCALCTTrailer2006 {
 struct CSCALCTTrailer2007 {
   CSCALCTTrailer2007();
   void setSize(int size) {frameCount = size;}
+  void setCRC(unsigned int crc) {crc0 = crc&0x7FF; crc1 = (crc >> 11) & 0x7FF;}
   short unsigned int sizeInWords() const { ///size of ALCT Header
     return 4;
   }
@@ -67,6 +68,22 @@ public:
   /// in 16-bit frames
   static int sizeInWords() {return 4;}
 
+  void setCRC(unsigned int crc){
+    switch (firmwareVersion) {
+    case 2006:
+      trailer2006.setCRC(crc);
+      break;
+    case 2007:
+      trailer2007.setCRC(crc);
+      break;
+    default:
+      edm::LogError("CSCALCTTrailer|CSCRawToDigi")
+        <<"couldn't setCRC: ALCT firmware version is bad/not defined!";
+      break;
+    }
+  }
+   
+    
   int getCRC() { 
     switch (firmwareVersion.load()) {
     case 2006:
@@ -125,8 +142,8 @@ public:
   CSCALCTTrailer2007 alctTrailer2007() {return trailer2007;}
 
 private:
-  static std::atomic<bool> debug;
-  static std::atomic<unsigned short int> firmwareVersion;
+  static bool debug;
+  static unsigned short int firmwareVersion;
   CSCALCTTrailer2006 trailer2006;
   CSCALCTTrailer2007 trailer2007;
   unsigned short int theOriginalBuffer[4];
