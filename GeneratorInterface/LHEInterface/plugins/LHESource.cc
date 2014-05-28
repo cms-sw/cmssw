@@ -193,6 +193,7 @@ LHESource::readEvent_(edm::EventPrincipal& eventPrincipal) {
 		      partonLevel->weights().end(),
 		      boost::bind(&LHEEventProduct::addWeight,
 				  product.get(), _1));
+        product->setPtclus(partonLevel->ptclus());
 	std::for_each(partonLevel->getComments().begin(),
 	              partonLevel->getComments().end(),
 	              boost::bind(&LHEEventProduct::addComment,

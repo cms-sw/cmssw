@@ -35,6 +35,9 @@ class LHEEventProduct {
 	double originalXWGTUP() const { return originalXWGTUP_; }
 	const std::vector<WGT>& weights() const { return weights_; }
 
+	const std::vector<float> &ptclus() const { return ptclus_; }
+	void setPtclus(const std::vector<float> &ptclus) { ptclus_ = ptclus; }
+	
 	const lhef::HEPEUP &hepeup() const { return hepeup_; }
 	const PDF *pdf() const { return pdf_.get(); }
 
@@ -92,6 +95,7 @@ class LHEEventProduct {
 	std::auto_ptr<PDF>		pdf_;
 	std::vector<WGT>                weights_;
 	double                          originalXWGTUP_;
+        std::vector<float>              ptclus_; //scale value used to exclude EWK-produced partons from matching
 };
 
 #endif // GeneratorEvent_LHEInterface_LHEEventProduct_h

@@ -52,6 +52,8 @@ class LHEEvent {
 	double originalXWGTUP() const { return originalXWGTUP_; }
 	const std::vector<WGT>& weights() const { return weights_; }
 
+	const std::vector<float> &ptclus() const { return ptclus_; }
+	
 	void addComment(const std::string &line) { comments.push_back(line); }
 
 	static void removeParticle(lhef::HEPEUP &hepeup, int index);
@@ -85,6 +87,7 @@ class LHEEvent {
 	bool					counted;
 	int                                     readAttemptCounter;
 	double                                  originalXWGTUP_;
+        std::vector<float>                      ptclus_; //scale value used to exclude EWK-produced partons from matching
 };
 
 } // namespace lhef
