@@ -896,8 +896,8 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 		 getGCTRegionEta(towid.ieta()),getGCTRegionPhi(towid.iphi())} ;
     for (int i=0 ; i<26 ; i++) ntupleInts_[i] = val[i] ;
     
-    sprintf(ntupleDet_,"%s",getDet(tccNb).c_str()) ;
-    sprintf(ntupleCrate_,"%s",getCrate(tccNb).first.c_str()) ;
+    strcpy(ntupleDet_,getDet(tccNb).c_str()) ;
+    strcpy(ntupleCrate_,getCrate(tccNb).first.c_str()) ;
     ntuple->Fill() ;
     
     
@@ -1168,8 +1168,8 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 		 towid.ieta(),towid.iphi(),TCCch, getCrate(tccNb).second, SLBch, SLBslot, 
 		 getGCTRegionEta(towid.ieta()),getGCTRegionPhi(towid.iphi())} ;
     for (int i=0 ; i<26 ; i++) ntupleInts_[i] = val[i] ;
-    sprintf(ntupleDet_,"%s",getDet(tccNb).c_str()) ;
-    sprintf(ntupleCrate_,"%s",getCrate(tccNb).first.c_str()) ;
+    strcpy(ntupleDet_,getDet(tccNb).c_str()) ;
+    strcpy(ntupleCrate_,getCrate(tccNb).first.c_str()) ;
     ntuple->Fill() ;
      
     if ((tccNb == 76 || tccNb == 94) && stripInTower == 1 && xtalInStrip == 3 && (towerInTCC-1)%4==0) {
