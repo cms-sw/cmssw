@@ -521,7 +521,7 @@ showusage(void)
 
 int main(int argc, char * argv[]) {
   int arg;
-  int ret;
+  int ret = 0;
   std::string output_file;
   std::vector<std::string> filenames;
   TaskType task;
