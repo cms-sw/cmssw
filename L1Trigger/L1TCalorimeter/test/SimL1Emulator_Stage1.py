@@ -19,7 +19,7 @@ process.maxEvents = cms.untracked.PSet(
 # Input source
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
-    fileNames = cms.untracked.vstring("/store/relval/CMSSW_7_0_0_pre8/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START70_V1-v1/00000/262AA156-744A-E311-9829-002618943945.root")
+    fileNames = cms.untracked.vstring("root://xrootd.unl.edu//store/mc/Fall13dr/Neutrino_Pt-2to20_gun/GEN-SIM-RAW/tsg_PU40bx25_POSTLS162_V2-v1/00005/02B79593-F47F-E311-8FF6-003048FFD796.root")
     )
 
 
@@ -31,7 +31,7 @@ process.output = cms.OutputModule(
 #                                           'drop FEDRawDataCollection_rawDataRepacker_*_*',
 #                                           'drop FEDRawDataCollection_virginRawDataRepacker_*_*'),
     outputCommands = cms.untracked.vstring('drop *',
-                                           'keep *_*_*_L1TEMULATION'),    
+                                           'keep *_*_*_L1TEMULATION'),
     fileName = cms.untracked.string('SimL1Emulator_Stage1.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
@@ -61,7 +61,9 @@ process.load('L1Trigger.L1TCalorimeter.L1TCaloStage1_cff')
 #process.l1tCaloStage1Digis.maxGctEtaForSums = cms.int32(17)
 
 process.p1 = cms.Path(
-    process.SimL1Emulator_Stage1
+    #process.SimL1Emulator_Stage1
+    process.simRctDigis +
+    process.simGctDigis_Stage1
     )
 
 process.output_step = cms.EndPath(process.output)
