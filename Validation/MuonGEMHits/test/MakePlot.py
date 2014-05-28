@@ -39,17 +39,69 @@ def draw_bx(target_dir, h , ext = ".png", opt = ""):
   c.SaveAs(target_dir + c_title + ext)
 
 def draw_col(target_dir, h, ext =".png", opt = "col"):
-  gStyle.SetStatStyle(0)
-  gStyle.SetOptStat(1110)
-  c = TCanvas(h.GetTitle(),h.GetName(),600,600)
-  c_title = c.GetTitle()
-  c.Clear()
-  if not h:
-    sys.exit('h does not exist')
-  h.SetLineWidth(2)
-  h.SetLineColor(kBlue)
-  h.Draw(opt)
-  c.SaveAs(target_dir + c_title + ext)
+	gStyle.SetStatStyle(0)
+	gStyle.SetOptStat(1110)
+	c = TCanvas(h.GetTitle(),h.GetName(),600,600)
+	c_title = c.GetTitle()
+	c.Clear()
+	if not h:
+		sys.exit('h does not exist')
+	h.SetLineWidth(2)
+	h.SetLineColor(kBlue)
+	h.Draw(opt)
+	c.SaveAs(target_dir + c_title + ext)
+
+def draw_eff(target_dir, h, ext = ".png", opt = ""):
+	c = TCanvas(h.GetTitle(), h.GetName(),600,600)
+	c_title = c.GetTitle()
+	c.Clear()
+	if not h: 
+		sys.exit('h does not exist')
+	gPad.SetGrid(1)
+	gStyle.SetStatStyle(0)
+	gStyle.SetOptStat(0)
+	gStyle.SetOptFit(0)
+	h.GetYaxis().SetRangeUser(0,1.05)
+	h.SetLineWidth(2)
+	h.SetLineColor(kBlue)
+	h.SetMarkerStyle(1)
+	h.SetMarkerColor(kBlue)
+	h.SetMarkerSize(1)
+	h.Draw(opt);
+
+	f1 = TF1("fit1","pol0", h.GetXaxis().GetXmin(), h.GetXaxis().GetXmax())
+	r = h.Fit("fit1","RQS")
+	ptstats = TPaveStats(0.25,0.35,0.75,0.55,"brNDC")
+	ptstats.SetName("stats")
+	ptstats.SetBorderSize(0)
+	ptstats.SetLineWidth(0)
+	ptstats.SetFillColor(0)
+	ptstats.SetTextAlign(11)
+	ptstats.SetTextFont(42)
+	ptstats.SetTextSize(.05)
+	ptstats.SetTextColor(kRed)
+	ptstats.SetOptStat(0)
+	ptstats.SetOptFit(1111)
+	chi2 = int(r.Chi2())
+	ndf = int(r.Ndf())
+	 ## prob = r.Prob()
+	round(2.675, 2)
+	p0 = f1.GetParameter(0)
+	p0e = f1.GetParError(0)
+	ptstats.AddText("#chi^{2} / ndf: %d/%d" %(chi2,ndf))
+	## ptstats.AddText("Fit probability: %f %" %(prob))
+	ptstats.AddText("Efficiency: %f #pm %f %%"%(p0,p0e))
+	ptstats.Draw("same")
+	pt = TPaveText(0.09899329,0.9178322,0.8993289,0.9737762,"blNDC")
+	pt.SetName("title")
+	pt.SetBorderSize(1)
+	pt.SetFillColor(0)
+	pt.SetFillStyle(0)
+	pt.SetTextFont(42)
+	pt.AddText(h.GetTitle())
+	pt.Draw("same")
+	c.SaveAs(target_dir + c_title + ext)
+
 
 def draw_plot( file, tDir,oDir ) :
 	c = TCanvas("c","c",600,600)
@@ -75,7 +127,7 @@ def draw_plot( file, tDir,oDir ) :
 	for x in tlist :
 		key_list.append(x.GetName())
 	for hist in key_list :
-		if hist.find("eff") != -1 or hist.find("track_") != -1 :
+		if hist.find("track_") != -1 :
 			continue
 		if (hist.find("lx") !=-1 or hist.find("ly") != -1 ) :
 			continue
@@ -83,6 +135,9 @@ def draw_plot( file, tDir,oDir ) :
 			draw_bx( oDir, d1.Get(hist)  )
 		elif ( hist.find("xy") !=-1 or hist.find("zr") !=-1 or hist.find("roll_vs_strip")!= -1 or hist.find("phipad")!=-1 or hist.find("phistrip") != -1 ) :
 			draw_col( oDir, d1.Get(hist) )
+		elif ( hist.find("eff") != -1 ) :
+			draw_eff( oDir, d1.Get(hist) )
+			print "found "
 		else :
 			draw_occ( oDir, d1.Get(hist) )
 

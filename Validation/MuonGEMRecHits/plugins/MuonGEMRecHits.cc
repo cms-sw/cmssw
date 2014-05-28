@@ -289,8 +289,8 @@ MuonGEMRecHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       /*-----------BunchCrossing----------------*/
       meCollection_["bxDistribution"]->Fill(gem_recHit_.bx);
       if(st==1) meCollection_["bxDistribution_st1"]->Fill(gem_recHit_.bx);
-      if(st==2) meCollection_["bxDistribution_st2"]->Fill(gem_recHit_.bx);
-      if(st==3) meCollection_["bxDistribution_st3"]->Fill(gem_recHit_.bx);
+      if(st==2) meCollection_["bxDistribution_st2_short"]->Fill(gem_recHit_.bx);
+      if(st==3) meCollection_["bxDistribution_st2_long"]->Fill(gem_recHit_.bx);
 
       if(gem_recHit_.bx != 0) continue;
       if(isGEMRecHitMatched(gem_recHit_, gem_simHit_)) {
@@ -315,46 +315,46 @@ MuonGEMRecHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	if(st==1 and re==-1 and la==2) meCollection_["recHitPullX_rm1_st1_l2"]->Fill(gem_recHit_.pull);
 	if(st==1 and re== 1 and la==1) meCollection_["recHitPullX_rp1_st1_l1"]->Fill(gem_recHit_.pull);
 	if(st==1 and re== 1 and la==2) meCollection_["recHitPullX_rp1_st1_l2"]->Fill(gem_recHit_.pull);
-	if(st==2 and re==-1 and la==1) meCollection_["recHitPullX_rm1_st2_l1"]->Fill(gem_recHit_.pull);
-	if(st==2 and re==-1 and la==2) meCollection_["recHitPullX_rm1_st2_l2"]->Fill(gem_recHit_.pull);
-	if(st==2 and re== 1 and la==1) meCollection_["recHitPullX_rp1_st2_l1"]->Fill(gem_recHit_.pull);
-	if(st==2 and re== 1 and la==2) meCollection_["recHitPullX_rp1_st2_l2"]->Fill(gem_recHit_.pull);
-	if(st==3 and re==-1 and la==1) meCollection_["recHitPullX_rm1_st3_l1"]->Fill(gem_recHit_.pull);
-	if(st==3 and re==-1 and la==2) meCollection_["recHitPullX_rm1_st3_l2"]->Fill(gem_recHit_.pull);
-	if(st==3 and re== 1 and la==1) meCollection_["recHitPullX_rp1_st3_l1"]->Fill(gem_recHit_.pull);
-	if(st==3 and re== 1 and la==2) meCollection_["recHitPullX_rp1_st3_l2"]->Fill(gem_recHit_.pull);
+	if(st==2 and re==-1 and la==1) meCollection_["recHitPullX_rm1_st2_short_l1"]->Fill(gem_recHit_.pull);
+	if(st==2 and re==-1 and la==2) meCollection_["recHitPullX_rm1_st2_short_l2"]->Fill(gem_recHit_.pull);
+	if(st==2 and re== 1 and la==1) meCollection_["recHitPullX_rp1_st2_short_l1"]->Fill(gem_recHit_.pull);
+	if(st==2 and re== 1 and la==2) meCollection_["recHitPullX_rp1_st2_short_l2"]->Fill(gem_recHit_.pull);
+	if(st==3 and re==-1 and la==1) meCollection_["recHitPullX_rm1_st2_long_l1"]->Fill(gem_recHit_.pull);
+	if(st==3 and re==-1 and la==2) meCollection_["recHitPullX_rm1_st2_long_l2"]->Fill(gem_recHit_.pull);
+	if(st==3 and re== 1 and la==1) meCollection_["recHitPullX_rp1_st2_long_l1"]->Fill(gem_recHit_.pull);
+	if(st==3 and re== 1 and la==2) meCollection_["recHitPullX_rp1_st2_long_l2"]->Fill(gem_recHit_.pull);
 
         /*---------------------DeltaPhi-------------------------------*/
 	const double deltaPhi(gem_recHit_.globalPhi - gem_simHit_.globalPhi);
         
 	meCollection_["recHitDPhi"]->Fill(deltaPhi);
 	if(st==1) meCollection_["recHitDPhi_st1"]->Fill(deltaPhi);
-	if(st==2) meCollection_["recHitDPhi_st2"]->Fill(deltaPhi);
-	if(st==3) meCollection_["recHitDPhi_st3"]->Fill(deltaPhi);
+	if(st==2) meCollection_["recHitDPhi_st2_short"]->Fill(deltaPhi);
+	if(st==3) meCollection_["recHitDPhi_st2_long"]->Fill(deltaPhi);
         
 	if(st==1 and gem_recHit_.clusterSize==1)meCollection_["recHitDPhi_st1_cls1"]->Fill(deltaPhi);
-	if(st==2 and gem_recHit_.clusterSize==1)meCollection_["recHitDPhi_st2_cls1"]->Fill(deltaPhi);
-	if(st==3 and gem_recHit_.clusterSize==1)meCollection_["recHitDPhi_st3_cls1"]->Fill(deltaPhi);
+	if(st==2 and gem_recHit_.clusterSize==1)meCollection_["recHitDPhi_st2_short_cls1"]->Fill(deltaPhi);
+	if(st==3 and gem_recHit_.clusterSize==1)meCollection_["recHitDPhi_st2_long_cls1"]->Fill(deltaPhi);
 	if(st==1 and gem_recHit_.clusterSize==2)meCollection_["recHitDPhi_st1_cls2"]->Fill(deltaPhi);
-	if(st==2 and gem_recHit_.clusterSize==2)meCollection_["recHitDPhi_st2_cls2"]->Fill(deltaPhi);
-	if(st==3 and gem_recHit_.clusterSize==2)meCollection_["recHitDPhi_st3_cls2"]->Fill(deltaPhi);
+	if(st==2 and gem_recHit_.clusterSize==2)meCollection_["recHitDPhi_st2_short_cls2"]->Fill(deltaPhi);
+	if(st==3 and gem_recHit_.clusterSize==2)meCollection_["recHitDPhi_st2_long_cls2"]->Fill(deltaPhi);
 	if(st==1 and gem_recHit_.clusterSize==3)meCollection_["recHitDPhi_st1_cls3"]->Fill(deltaPhi);
-	if(st==2 and gem_recHit_.clusterSize==3)meCollection_["recHitDPhi_st2_cls3"]->Fill(deltaPhi);
-	if(st==3 and gem_recHit_.clusterSize==3)meCollection_["recHitDPhi_st3_cls3"]->Fill(deltaPhi);
+	if(st==2 and gem_recHit_.clusterSize==3)meCollection_["recHitDPhi_st2_short_cls3"]->Fill(deltaPhi);
+	if(st==3 and gem_recHit_.clusterSize==3)meCollection_["recHitDPhi_st2_long_cls3"]->Fill(deltaPhi);
         
         /*---------------------Occupancy XY---------------------------*/
 	if(st==1 and re==-1 and la==1) meCollection_["localrh_xy_rm1_st1_l1"]->Fill(gem_recHit_.globalX,gem_recHit_.globalY);
 	if(st==1 and re==-1 and la==2) meCollection_["localrh_xy_rm1_st1_l2"]->Fill(gem_recHit_.globalX,gem_recHit_.globalY);
 	if(st==1 and re== 1 and la==1) meCollection_["localrh_xy_rp1_st1_l1"]->Fill(gem_recHit_.globalX,gem_recHit_.globalY);
 	if(st==1 and re== 1 and la==2) meCollection_["localrh_xy_rp1_st1_l2"]->Fill(gem_recHit_.globalX,gem_recHit_.globalY);
-	if(st==2 and re==-1 and la==1) meCollection_["localrh_xy_rm1_st2_l1"]->Fill(gem_recHit_.globalX,gem_recHit_.globalY);
-	if(st==2 and re==-1 and la==2) meCollection_["localrh_xy_rm1_st2_l2"]->Fill(gem_recHit_.globalX,gem_recHit_.globalY);
-	if(st==2 and re== 1 and la==1) meCollection_["localrh_xy_rp1_st2_l1"]->Fill(gem_recHit_.globalX,gem_recHit_.globalY);
-	if(st==2 and re== 1 and la==2) meCollection_["localrh_xy_rp1_st2_l2"]->Fill(gem_recHit_.globalX,gem_recHit_.globalY);
-	if(st==3 and re==-1 and la==1) meCollection_["localrh_xy_rm1_st3_l1"]->Fill(gem_recHit_.globalX,gem_recHit_.globalY);
-	if(st==3 and re==-1 and la==2) meCollection_["localrh_xy_rm1_st3_l2"]->Fill(gem_recHit_.globalX,gem_recHit_.globalY);
-	if(st==3 and re== 1 and la==1) meCollection_["localrh_xy_rp1_st3_l1"]->Fill(gem_recHit_.globalX,gem_recHit_.globalY);
-	if(st==3 and re== 1 and la==2) meCollection_["localrh_xy_rp1_st3_l2"]->Fill(gem_recHit_.globalX,gem_recHit_.globalY);
+	if(st==2 and re==-1 and la==1) meCollection_["localrh_xy_rm1_st2_short_l1"]->Fill(gem_recHit_.globalX,gem_recHit_.globalY);
+	if(st==2 and re==-1 and la==2) meCollection_["localrh_xy_rm1_st2_short_l2"]->Fill(gem_recHit_.globalX,gem_recHit_.globalY);
+	if(st==2 and re== 1 and la==1) meCollection_["localrh_xy_rp1_st2_short_l1"]->Fill(gem_recHit_.globalX,gem_recHit_.globalY);
+	if(st==2 and re== 1 and la==2) meCollection_["localrh_xy_rp1_st2_short_l2"]->Fill(gem_recHit_.globalX,gem_recHit_.globalY);
+	if(st==3 and re==-1 and la==1) meCollection_["localrh_xy_rm1_st2_long_l1"]->Fill(gem_recHit_.globalX,gem_recHit_.globalY);
+	if(st==3 and re==-1 and la==2) meCollection_["localrh_xy_rm1_st2_long_l2"]->Fill(gem_recHit_.globalX,gem_recHit_.globalY);
+	if(st==3 and re== 1 and la==1) meCollection_["localrh_xy_rp1_st2_long_l1"]->Fill(gem_recHit_.globalX,gem_recHit_.globalY);
+	if(st==3 and re== 1 and la==2) meCollection_["localrh_xy_rp1_st2_long_l2"]->Fill(gem_recHit_.globalX,gem_recHit_.globalY);
 	
 	const double glb_R(sqrt(gem_recHit_.globalX*gem_recHit_.globalX+gem_recHit_.globalY*gem_recHit_.globalY));
 	if(st==1 and re==-1) meCollection_["localrh_zr_rm1_st1"]->Fill(gem_recHit_.globalZ,glb_R);
@@ -368,14 +368,14 @@ MuonGEMRecHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	if(st==1 and re==-1 and la==2) meCollection_["strip_rh_rm1_st1_l2_tot"]->Fill(gem_recHit_.firstClusterStrip);
 	if(st==1 and re== 1 and la==1) meCollection_["strip_rh_rp1_st1_l1_tot"]->Fill(gem_recHit_.firstClusterStrip);
 	if(st==1 and re== 1 and la==2) meCollection_["strip_rh_rp1_st1_l2_tot"]->Fill(gem_recHit_.firstClusterStrip);
-	if(st==2 and re==-1 and la==1) meCollection_["strip_rh_rm1_st2_l1_tot"]->Fill(gem_recHit_.firstClusterStrip);
-	if(st==2 and re==-1 and la==2) meCollection_["strip_rh_rm1_st2_l2_tot"]->Fill(gem_recHit_.firstClusterStrip);
-	if(st==2 and re== 1 and la==1) meCollection_["strip_rh_rp1_st2_l1_tot"]->Fill(gem_recHit_.firstClusterStrip);
-	if(st==2 and re== 1 and la==2) meCollection_["strip_rh_rp1_st2_l2_tot"]->Fill(gem_recHit_.firstClusterStrip);
-	if(st==3 and re==-1 and la==1) meCollection_["strip_rh_rm1_st3_l1_tot"]->Fill(gem_recHit_.firstClusterStrip);
-	if(st==3 and re==-1 and la==2) meCollection_["strip_rh_rm1_st3_l2_tot"]->Fill(gem_recHit_.firstClusterStrip);
-	if(st==3 and re== 1 and la==1) meCollection_["strip_rh_rp1_st3_l1_tot"]->Fill(gem_recHit_.firstClusterStrip);
-	if(st==3 and re== 1 and la==2) meCollection_["strip_rh_rp1_st3_l2_tot"]->Fill(gem_recHit_.firstClusterStrip);
+	if(st==2 and re==-1 and la==1) meCollection_["strip_rh_rm1_st2_short_l1_tot"]->Fill(gem_recHit_.firstClusterStrip);
+	if(st==2 and re==-1 and la==2) meCollection_["strip_rh_rm1_st2_short_l2_tot"]->Fill(gem_recHit_.firstClusterStrip);
+	if(st==2 and re== 1 and la==1) meCollection_["strip_rh_rp1_st2_short_l1_tot"]->Fill(gem_recHit_.firstClusterStrip);
+	if(st==2 and re== 1 and la==2) meCollection_["strip_rh_rp1_st2_short_l2_tot"]->Fill(gem_recHit_.firstClusterStrip);
+	if(st==3 and re==-1 and la==1) meCollection_["strip_rh_rm1_st2_long_l1_tot"]->Fill(gem_recHit_.firstClusterStrip);
+	if(st==3 and re==-1 and la==2) meCollection_["strip_rh_rm1_st2_long_l2_tot"]->Fill(gem_recHit_.firstClusterStrip);
+	if(st==3 and re== 1 and la==1) meCollection_["strip_rh_rp1_st2_long_l1_tot"]->Fill(gem_recHit_.firstClusterStrip);
+	if(st==3 and re== 1 and la==2) meCollection_["strip_rh_rp1_st2_long_l2_tot"]->Fill(gem_recHit_.firstClusterStrip);
         
         /*--------------------------StripsVsRolls------------------------*/
 	meCollection_["roll_vs_strip_rh"]->Fill(gem_recHit_.firstClusterStrip,gem_recHit_.roll);
@@ -384,14 +384,14 @@ MuonGEMRecHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	if(st==1 and re==-1 and la==2) meCollection_["roll_vs_strip_rh_rm1_st1_l2"]->Fill(gem_recHit_.firstClusterStrip,gem_recHit_.roll);
 	if(st==1 and re== 1 and la==1) meCollection_["roll_vs_strip_rh_rp1_st1_l1"]->Fill(gem_recHit_.firstClusterStrip,gem_recHit_.roll);
 	if(st==1 and re== 1 and la==2) meCollection_["roll_vs_strip_rh_rp1_st1_l2"]->Fill(gem_recHit_.firstClusterStrip,gem_recHit_.roll);
-	if(st==2 and re==-1 and la==1) meCollection_["roll_vs_strip_rh_rm1_st2_l1"]->Fill(gem_recHit_.firstClusterStrip,gem_recHit_.roll);
-	if(st==2 and re==-1 and la==2) meCollection_["roll_vs_strip_rh_rm1_st2_l2"]->Fill(gem_recHit_.firstClusterStrip,gem_recHit_.roll);
-	if(st==2 and re== 1 and la==1) meCollection_["roll_vs_strip_rh_rp1_st2_l1"]->Fill(gem_recHit_.firstClusterStrip,gem_recHit_.roll);
-	if(st==2 and re== 1 and la==2) meCollection_["roll_vs_strip_rh_rp1_st2_l2"]->Fill(gem_recHit_.firstClusterStrip,gem_recHit_.roll);
-	if(st==3 and re==-1 and la==1) meCollection_["roll_vs_strip_rh_rm1_st3_l1"]->Fill(gem_recHit_.firstClusterStrip,gem_recHit_.roll);
-	if(st==3 and re==-1 and la==2) meCollection_["roll_vs_strip_rh_rm1_st3_l2"]->Fill(gem_recHit_.firstClusterStrip,gem_recHit_.roll);
-	if(st==3 and re== 1 and la==1) meCollection_["roll_vs_strip_rh_rp1_st3_l1"]->Fill(gem_recHit_.firstClusterStrip,gem_recHit_.roll);
-	if(st==3 and re== 1 and la==2) meCollection_["roll_vs_strip_rh_rp1_st3_l2"]->Fill(gem_recHit_.firstClusterStrip,gem_recHit_.roll);
+	if(st==2 and re==-1 and la==1) meCollection_["roll_vs_strip_rh_rm1_st2_short_l1"]->Fill(gem_recHit_.firstClusterStrip,gem_recHit_.roll);
+	if(st==2 and re==-1 and la==2) meCollection_["roll_vs_strip_rh_rm1_st2_short_l2"]->Fill(gem_recHit_.firstClusterStrip,gem_recHit_.roll);
+	if(st==2 and re== 1 and la==1) meCollection_["roll_vs_strip_rh_rp1_st2_short_l1"]->Fill(gem_recHit_.firstClusterStrip,gem_recHit_.roll);
+	if(st==2 and re== 1 and la==2) meCollection_["roll_vs_strip_rh_rp1_st2_short_l2"]->Fill(gem_recHit_.firstClusterStrip,gem_recHit_.roll);
+	if(st==3 and re==-1 and la==1) meCollection_["roll_vs_strip_rh_rm1_st2_long_l1"]->Fill(gem_recHit_.firstClusterStrip,gem_recHit_.roll);
+	if(st==3 and re==-1 and la==2) meCollection_["roll_vs_strip_rh_rm1_st2_long_l2"]->Fill(gem_recHit_.firstClusterStrip,gem_recHit_.roll);
+	if(st==3 and re== 1 and la==1) meCollection_["roll_vs_strip_rh_rp1_st2_long_l1"]->Fill(gem_recHit_.firstClusterStrip,gem_recHit_.roll);
+	if(st==3 and re== 1 and la==2) meCollection_["roll_vs_strip_rh_rp1_st2_long_l2"]->Fill(gem_recHit_.firstClusterStrip,gem_recHit_.roll);
         
 	count++;
       }
@@ -423,8 +423,8 @@ void MuonGEMRecHits::bookHistograms()
   float nStrips=0;
   
   std::string region[2] ={"m1", "p1"};
-  std::string station[3]={ "_st1", "_st2", "_st3" };
-  
+  std::string station[3]={ "_st1", "_st2_short", "_st2_long" };
+  std::string station_label[3] = {"1", "2_short","2_long"}; 
   meCollection_["clsDistribution"] = dbe_->book1D("clsDistribution","ClusterSizeDistribution",11,-0.5,10.5);
   
   meCollection_["bxDistribution"] = dbe_->book1D("bxDistribution","BunchCrossingDistribution",11,-5.5,5.5);
@@ -437,12 +437,12 @@ void MuonGEMRecHits::bookHistograms()
   
   for (int k=0; k<num_station; k++){
     //-----------------------BunchX--------------------------------------//
-    meCollection_["bxDistribution"+station[k]] = dbe_->book1D("bxDistribution"+station[k],"BunchCrossingDistribution, Station="+std::to_string(k+1),11,-5.5,5.5);
+    meCollection_["bxDistribution"+station[k]] = dbe_->book1D("bxDistribution"+station[k],"BunchCrossingDistribution, Station="+station_label[k],11,-5.5,5.5);
     //-----------------------Delta Phi--------------------------------------//
-    meCollection_["recHitDPhi"+station[k]] = dbe_->book1D("recHitDPhi"+station[k],"DeltaPhi RecHit, Station="+std::to_string(k+1),100,-0.001,+0.001);
-    meCollection_["recHitDPhi"+station[k]+"_cls1"] = dbe_->book1D("recHitDPhi"+station[k]+"_cls1","DeltaPhi RecHit, Station="+std::to_string(k+1)+", CLS=1",100,-0.001,+0.001);
-    meCollection_["recHitDPhi"+station[k]+"_cls2"] = dbe_->book1D("recHitDPhi"+station[k]+"_cls2","DeltaPhi RecHit, Station="+std::to_string(k+1)+", CLS=2",100,-0.001,+0.001);
-    meCollection_["recHitDPhi"+station[k]+"_cls3"] = dbe_->book1D("recHitDPhi"+station[k]+"_cls3","DeltaPhi RecHit, Station="+std::to_string(k+1)+", CLS=3",100,-0.001,+0.001);
+    meCollection_["recHitDPhi"+station[k]] = dbe_->book1D("recHitDPhi"+station[k],"DeltaPhi RecHit, Station="+station_label[k],100,-0.001,+0.001);
+    meCollection_["recHitDPhi"+station[k]+"_cls1"] = dbe_->book1D("recHitDPhi"+station[k]+"_cls1","DeltaPhi RecHit, Station="+station_label[k]+", CLS=1",100,-0.001,+0.001);
+    meCollection_["recHitDPhi"+station[k]+"_cls2"] = dbe_->book1D("recHitDPhi"+station[k]+"_cls2","DeltaPhi RecHit, Station="+station_label[k]+", CLS=2",100,-0.001,+0.001);
+    meCollection_["recHitDPhi"+station[k]+"_cls3"] = dbe_->book1D("recHitDPhi"+station[k]+"_cls3","DeltaPhi RecHit, Station="+station_label[k]+", CLS=3",100,-0.001,+0.001);
   }
   
   for (int j=0; j<num_region; j++){
@@ -453,22 +453,22 @@ void MuonGEMRecHits::bookHistograms()
     for (int i=0; i<num_station; i++) {
       
       //-------------------------(x_rec-x_sim)/x_sim-----------------------------------//
-      meCollection_["recHitPullX_r"+region[j]+station[i]+"_l1"] = dbe_->book1D("recHitPullX_r"+region[j]+station[i]+"_l1","recHitPullX, region "+region[j]+", station"+std::to_string(i+1)+", layer1",100,-50,+50);
-      meCollection_["recHitPullX_r"+region[j]+station[i]+"_l2"] = dbe_->book1D("recHitPullX_r"+region[j]+station[i]+"_l2","recHitPullX, region "+region[j]+", station"+std::to_string(i+1)+", layer2",100,-50,+50);
+      meCollection_["recHitPullX_r"+region[j]+station[i]+"_l1"] = dbe_->book1D("recHitPullX_r"+region[j]+station[i]+"_l1","recHitPullX, region "+region[j]+", station"+station_label[i]+", layer1",100,-50,+50);
+      meCollection_["recHitPullX_r"+region[j]+station[i]+"_l2"] = dbe_->book1D("recHitPullX_r"+region[j]+station[i]+"_l2","recHitPullX, region "+region[j]+", station"+station_label[i]+", layer2",100,-50,+50);
       
       //----------------Occupancy XY-------------------------------//
-      meCollection_["localrh_xy_r"+region[j]+station[i]+"_l1"] = dbe_->book2D("localrh_xy_r"+region[j]+station[i]+"_l1","GEM RecHit occupancy: region "+region[j]+", station"+std::to_string(i+1)+", layer1",200,-360,360,200,-360,360);
-      meCollection_["localrh_xy_r"+region[j]+station[i]+"_l2"] = dbe_->book2D("localrh_xy_r"+region[j]+station[i]+"_l2","GEM RecHit occupancy: region"+region[j]+", station"+std::to_string(i+1)+", layer2",200,-360,360,200,-360,360);
+      meCollection_["localrh_xy_r"+region[j]+station[i]+"_l1"] = dbe_->book2D("localrh_xy_r"+region[j]+station[i]+"_l1","GEM RecHit occupancy: region "+region[j]+", station"+station_label[i]+", layer1",200,-360,360,200,-360,360);
+      meCollection_["localrh_xy_r"+region[j]+station[i]+"_l2"] = dbe_->book2D("localrh_xy_r"+region[j]+station[i]+"_l2","GEM RecHit occupancy: region"+region[j]+", station"+station_label[i]+", layer2",200,-360,360,200,-360,360);
       
       //---------------------Strips Occupancy------------------//
       
       if(i==0) nStrips=384.;  /*Station1*/
       if(i>0)  nStrips=768.;  /*Station2 & 3*/
-      meCollection_["strip_rh_r"+region[j]+station[i]+"_l1_tot"] = dbe_->book1D("strip_rh_r"+region[j]+station[i]+"_l1_tot","GEM RecHit occupancy per strip number, region "+region[j]+" layer1 station"+std::to_string(i+1),nStrips,0.5,nStrips+0.5);
-      meCollection_["strip_rh_r"+region[j]+station[i]+"_l2_tot"] = dbe_->book1D("strip_rh_r"+region[j]+station[i]+"_l2_tot","GEM RecHit occupancy per strip number, region "+region[j]+" layer2 station"+std::to_string(i+1),nStrips,0.5,nStrips+0.5);
+      meCollection_["strip_rh_r"+region[j]+station[i]+"_l1_tot"] = dbe_->book1D("strip_rh_r"+region[j]+station[i]+"_l1_tot","GEM RecHit occupancy per strip number, region "+region[j]+" layer1 station"+station_label[i],nStrips,0.5,nStrips+0.5);
+      meCollection_["strip_rh_r"+region[j]+station[i]+"_l2_tot"] = dbe_->book1D("strip_rh_r"+region[j]+station[i]+"_l2_tot","GEM RecHit occupancy per strip number, region "+region[j]+" layer2 station"+station_label[i],nStrips,0.5,nStrips+0.5);
       
-      meCollection_["roll_vs_strip_rh_r"+region[j]+station[i]+"_l1"] = dbe_->book2D("roll_vs_strip_rh_r"+region[j]+station[i]+"_l1","GEM RecHit occupancy per roll and strip number, region "+region[j]+" layer1 station"+std::to_string(i+1),nStrips,0.5,nStrips+0.5,12,0.5,12.5);
-      meCollection_["roll_vs_strip_rh_r"+region[j]+station[i]+"_l2"] = dbe_->book2D("roll_vs_strip_rh_r"+region[j]+station[i]+"_l2","GEM RecHit occupancy per roll and strip number, region "+region[j]+" layer2 station"+std::to_string(i+1),nStrips,0.5,nStrips+0.5,12,0.5,12.5);
+      meCollection_["roll_vs_strip_rh_r"+region[j]+station[i]+"_l1"] = dbe_->book2D("roll_vs_strip_rh_r"+region[j]+station[i]+"_l1","GEM RecHit occupancy per roll and strip number, region "+region[j]+" layer1 station"+station_label[i],nStrips,0.5,nStrips+0.5,12,0.5,12.5);
+      meCollection_["roll_vs_strip_rh_r"+region[j]+station[i]+"_l2"] = dbe_->book2D("roll_vs_strip_rh_r"+region[j]+station[i]+"_l2","GEM RecHit occupancy per roll and strip number, region "+region[j]+" layer2 station"+station_label[i],nStrips,0.5,nStrips+0.5,12,0.5,12.5);
       
     }
   }
