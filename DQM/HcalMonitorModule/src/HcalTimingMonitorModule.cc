@@ -19,7 +19,6 @@
 static const int MAXRPC =20;
 static const int MAXDTBX=20;
 static const int MAXCSC =20;    
-static const int MAXGMT =20;
 static const int TRIG_DT =1;
 static const int TRIG_RPC=2;
 static const int TRIG_GCT=4;
