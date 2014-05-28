@@ -30,8 +30,7 @@
       targetClass="reco::HitPattern"
       target="hitPattern"
       version="[-11]"
-      include="iomanip; iostream;
-        DataFormats/TrackReco/interface/HitPatternConversorHitProxy.h; 
+      include="iomanip; iostream; utility;
         DataFormats/SiPixelDetId/interface/PXBDetId.h;
         DataFormats/SiPixelDetId/interface/PXFDetId.h;
         DataFormats/SiStripDetId/interface/TIBDetId.h;
@@ -43,11 +42,12 @@
         DataFormats/MuonDetId/interface/RPCDetId.h"
       >
       <![CDATA[
+        //DataFormats/TrackReco/interface/HitPatternConversorHitProxy.h; 
         using namespace reco;
         using namespace std;
         const unsigned short HitSize = 11;
         const unsigned short PatternSize = 25;
-        const int MaxHits = (PatternSize * sizeof(uint32_t)) / HitSize;
+        const int MaxHits = (PatternSize * sizeof(uint32_t) * 8) / HitSize;
 
         auto getHitFromOldHitPattern = [HitSize] (const uint32_t hitPattern[], const int position)
         {
@@ -140,27 +140,28 @@
             } else if (detector == DetId::Muon) {
                 switch (subdet) {
                   case MuonSubdetId::DT: {
-                    uint32_t superLayer = (layer & 0x3);
                     uint32_t station = 1 + ((layer >> 2) & 0x3);
+                    uint32_t superLayer = (layer & 0x3);
                     detId = DTLayerId(1, station, 1, superLayer, 1);
                   }
                   break;
                   case MuonSubdetId::CSC: {
-                    uint32_t ring = 1 + (layer & 0x3);
                     uint32_t station = 1 + ((layer >> 2) & 0x3);
+                    uint32_t ring = 1 + (layer & 0x3);
                     detId = CSCDetId(1, station, ring, 1, 1);
                   }
                   break;
                   case MuonSubdetId::RPC: {
-                    uint32_t region  = layer & 0x1;
                     uint32_t station =  1 + ((layer >> 2) & 0x3);
+                    uint32_t region  = layer & 0x1;
                     uint32_t layer_muon = 1 + ((station <= 2) ? ((layer >> 1) & 0x1) : 0);
                     detId = RPCDetId(region, 1, station, 1, layer_muon, 1, 1);
                   }
                   break;
                 }
             }
-            return reco::HitPatternConversorHitProxy(detId, hitType);
+            //return reco::HitPatternConversorHitProxy(detId, hitType);
+            return std::pair<DetId, TrackingRecHit::Type>(detId, hitType);
         };
 
         auto fillNewHitPatternWithOldHitPattern = [&] (const uint32_t oldHitPattern[])
@@ -170,8 +171,9 @@
                 if (pattern == 0){
                     break;
                 }
-
-                if(!newObj->appendHit(oldHitPatternToTrackingRecHitProxy(pattern))){
+                std::pair<DetId, TrackingRecHit::Type> hitInfo = oldHitPatternToTrackingRecHitProxy(pattern);
+                //if(!newObj->appendHit(oldHitPatternToTrackingRecHitProxy(pattern))){
+                if(!newObj->appendHit(hitInfo.first, hitInfo.second)){
                     return false;
                 }
             }
@@ -208,10 +210,10 @@
       target="hitPattern_" 
       version="[-12]"
       include="iostream;
-              DataFormats/TrackReco/interface/HitPatternConversorHitProxy.h;
               DataFormats/TrackReco/interface/HitPattern.h"
       >
       <![CDATA[
+      //DataFormats/TrackReco/interface/HitPatternConversorHitProxy.h;
         using namespace reco;
         using namespace std;
 
@@ -306,7 +308,7 @@
                 }
                 break;
                 case MuonSubdetId::RPC: {
-                  uint16_t station = (1 + (layer >> 2)) & 0x3;
+                  uint16_t station = 1 + ((layer >> 2) & 0x3);
                   uint16_t region  = layer & 0x1;
                   uint16_t layer_muon = 1 + ((station <= 2) ? ((layer >> 1) & 0x1) : 0);
                   detId = RPCDetId(region, 1, station, 1, layer_muon, 1, 1);
@@ -321,7 +323,8 @@
                 hitType = TrackingRecHit::missing_outer;
             }
 
-            return reco::HitPatternConversorHitProxy(detId, hitType);
+            return std::pair<DetId, TrackingRecHit::Type>(detId, hitType);
+            //return reco::HitPatternConversorHitProxy(detId, hitType);
         };
 
         auto fillNewHitPatternFromNewHitPattern = [&] (const HitPattern hitPattern, const HitPattern::HitCategory category)
@@ -329,8 +332,9 @@
             uint8_t hitCount = hitPattern.numberOfHits(HitPattern::ALL_HITS);
             for (int i = 0; i < hitCount; i++) {
                 uint16_t pattern = hitPattern.getHitPattern(HitPattern::ALL_HITS, i);
-                //cout << '0' << 'x' << pattern << ' ';
-                if(!newObj->appendHitPattern(newHitPatternToTrackingRecHitProxy(pattern, category))){
+                std::pair<DetId, TrackingRecHit::Type> hitInfo = newHitPatternToTrackingRecHitProxy(pattern, category);
+                //if(!newObj->appendHitPattern(newHitPatternToTrackingRecHitProxy(pattern, category))){
+                if(!newObj->appendHitPattern(hitInfo.first, hitInfo.second)){
                     return false;
                 }
             }
