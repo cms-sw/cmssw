@@ -17,10 +17,13 @@ from RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi import *
 #HCAL reconstruction
 from RecoLocalCalo.Configuration.hcalLocalReco_cff import *
 from RecoLocalCalo.Configuration.hcalGlobalReco_cff import *
+# 
+# HGCAL reconstruction
+from RecoLocalCalo.Configuration.hgcalLocalRecoSequence_cff import *
 #
 # sequence CaloLocalReco and CaloGlobalReco
 #
-calolocalreco = cms.Sequence(ecalLocalRecoSequence+hcalLocalRecoSequence)
+calolocalreco = cms.Sequence(ecalLocalRecoSequence+hcalLocalRecoSequence+hgcalLocalRecoSequence)
 caloglobalreco = cms.Sequence(hcalGlobalRecoSequence)
 
 from RecoLocalCalo.HcalRecProducers.HcalHitSelection_cfi import *
