@@ -59,7 +59,7 @@ std::vector<CSCWireDigi> CSCAnodeData2007::wireDigis(int layer) const {
       }//end of tbin loop
       if (tbinbits !=0 ) {
 	wireGroup = (layerPart*12+j)+1;
-	/// BX from ACT incoded in wireGroup
+	/// BX from ALCT encoded in wireGroup
 	uint32_t wireGroupBX=alctBX_;
 	wireGroup = wireGroup | (wireGroupBX << 16);
 	CSCWireDigi digi(wireGroup, tbinbits);
@@ -96,6 +96,7 @@ void CSCAnodeData2007::add(const CSCWireDigi & digi, int layer)
   //           wireGroup = (layerPart*12+j)+1;
   unsigned layerPart = (wireGroup-1) / 12;
   unsigned wireInPart = (wireGroup-1) % 12; 
+
   std::vector<int> timeBinsOn = digi.getTimeBinsOn();
   for(std::vector<int>::const_iterator timeBinOn = timeBinsOn.begin();
       timeBinOn != timeBinsOn.end(); ++timeBinOn)

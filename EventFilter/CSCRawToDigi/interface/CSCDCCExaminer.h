@@ -4,7 +4,11 @@
 #include <map>
 #include <vector>
 #include <string>
+#ifdef LOCAL_UNPACK
+#include <iostream>
+#else
 #include <ostream>
+#endif
 
 #include "DataFormats/CSCDigi/interface/CSCDCCFormatStatusDigi.h"
 
@@ -30,6 +34,36 @@ private:
 	std::map<DDUIdType,ExaminerStatusType> bDDU_ERR;       // ddu     <-> errors in bits
 	std::map<DDUIdType,ExaminerStatusType> bDDU_WRN;       // ddu     <-> errors in bits
 
+#ifdef LOCAL_UNPACK
+	class OStream : public std::ostream {
+	private:
+		class buffer : public std::streambuf{};
+		buffer     buff;
+		std::streambuf *stream;
+		std::streambuf *null;
+		std::string     name;
+
+	public:
+		void show(void){ rdbuf(stream); }
+		void hide(void){ rdbuf(null);   }
+		void sign(std::string nm)     { name=nm; }
+		void sign(const char *nm){ name=nm; }
+
+		void redirect(std::ostream &str){
+			stream = str.rdbuf(); tie(&str);
+			if( rdbuf() != null ) rdbuf(stream);
+		}
+
+		template<class T> std::ostream& operator<<(const T& val){
+			return (*(std::ostream*)this)<<name<<val;
+		}
+
+		OStream(void):std::ostream(std::cout.rdbuf()),buff(),stream(std::cout.rdbuf()),null(&buff),name(""){}
+		OStream(std::ostream &str):std::ostream(str.rdbuf()),buff(),stream(str.rdbuf()),null(&buff),name(""){}
+	};
+
+	OStream COUT, CERR;
+#endif
 
 	CSCIdType currentChamber;       // ( (CrateNumber<<4) + DMBslot ) specifies chamber
 
@@ -46,6 +80,7 @@ private:
 	bool fTMB_Header;
 	bool fTMB_Format2007;
 	bool fALCT_Format2007;
+        bool fFormat2013;
 
 	bool uniqueALCT, uniqueTMB; // Do not merge two DMBs if Trailer of the first and Header of the second are lost
 
@@ -89,6 +124,7 @@ private:
 	uint32_t TMB_Tbins;
 	uint32_t TMB_WordsRPC;
 	uint32_t TMB_Firmware_Revision;
+  	uint32_t DDU_Firmware_Revision;
 
 	uint32_t CFEB_SampleWordCount;
 	uint32_t CFEB_SampleCount;
@@ -117,6 +153,11 @@ private:
 	const uint16_t *buffer_start;
 
 public:
+
+#ifdef LOCAL_UNPACK
+	OStream& output1(void){ return COUT; }
+	OStream& output2(void){ return CERR; }
+#endif
 
 	int32_t check(const uint16_t* &buffer, int32_t length);
 
@@ -196,6 +237,8 @@ public:
 	void crcCFEB(bool enable);
 
 	void modeDDU(bool enable);
+
+        bool isDDUmode() {return modeDDUonly;};
 
 	DDUIdType dduSourceID(void){ return sourceID; }
 

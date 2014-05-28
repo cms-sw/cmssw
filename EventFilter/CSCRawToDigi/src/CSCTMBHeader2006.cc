@@ -22,7 +22,7 @@ void CSCTMBHeader2006::setEventInformation(const CSCDMBHeader & dmbHeader)
 {
     bits.cscID = dmbHeader.dmbID();
     bits.l1aNumber = dmbHeader.l1a();
-    bits.bxnCount = dmbHeader.bxn();
+    // bits.bxnCount = dmbHeader.bxn();
 }
 
  ///returns CLCT digis

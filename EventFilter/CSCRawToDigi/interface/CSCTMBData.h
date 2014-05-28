@@ -24,6 +24,7 @@ class CSCTMBData {
  public:
 
   CSCTMBData();
+  CSCTMBData(int firmwareVersion, int firmwareRevision, int ncfebs=5);
   ~CSCTMBData();
   CSCTMBData(unsigned short *buf);
   CSCTMBData(const CSCTMBData& data);

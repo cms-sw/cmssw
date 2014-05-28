@@ -9,13 +9,17 @@ CSCDDUHeader::CSCDDUHeader()
 }
 
 
-CSCDDUHeader::CSCDDUHeader(unsigned bx, unsigned l1num, unsigned sourceId) 
-  : source_id_(sourceId), bxnum_(bx), lvl1num_(l1num)
+CSCDDUHeader::CSCDDUHeader(unsigned bx, unsigned l1num, unsigned sourceId, unsigned fmt_version) 
+  : format_version_(fmt_version&0xF)
+  , source_id_(sourceId)
+  , bxnum_(bx)
+  , lvl1num_(l1num)
 {
   bzero(this, sizeInWords()*2);
   source_id_ = sourceId;
   bxnum_ = bx;
   lvl1num_ = l1num;
+  format_version_ = fmt_version & 0xF;
   init();
 }
 
@@ -32,7 +36,9 @@ void CSCDDUHeader::setDMBDAV(int dduInput)
 {
   // Set appropriate bit in dmb_dav_
 
-  dmb_dav_ |= (1 << dduInput);  // dduInput is 0-14
+  dmb_dav_ |= ((1 << dduInput) & 0x7FFF);  // dduInput is 0-14
+
+  live_cscs_ |= ((1 << dduInput) & 0x7FFF); // Set DDU Inputs Connected to "Live" CSCs 
 
   // Count bits set in dmb_dav_... for the trick used see
   // http://en.wikipedia.org/wiki/Hamming_weight or http://graphics.stanford.edu/~seander/bithacks.html

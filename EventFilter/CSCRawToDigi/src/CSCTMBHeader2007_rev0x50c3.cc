@@ -23,8 +23,8 @@ CSCTMBHeader2007_rev0x50c3::CSCTMBHeader2007_rev0x50c3(const unsigned short * bu
 void CSCTMBHeader2007_rev0x50c3::setEventInformation(const CSCDMBHeader & dmbHeader) 
 {
     bits.cscID = dmbHeader.dmbID();
-    bits.l1aNumber = dmbHeader.l1a();
-    bits.bxnCount = dmbHeader.bxn();
+    bits.l1aNumber = dmbHeader.l1a24() & 0xFFF;
+//    bits.bxnCount = dmbHeader.bxn12();
 }
 
 ///returns CLCT digis
@@ -132,6 +132,7 @@ CSCTMBHeader2007_rev0x50c3::addCLCT1(const CSCCLCTDigi & digi)
   // are latched at the same BX); set it in addCLCT0().
   //bits.clct_bxn = digi.getBX();
   bits.bxnPreTrigger = digi.getFullBX();
+  bits.bxnCount = (digi.getFullBX() + 167) & 0xFFF;
 }
 
 void

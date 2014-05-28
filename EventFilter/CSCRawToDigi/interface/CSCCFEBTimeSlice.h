@@ -61,13 +61,19 @@ class CSCCFEBTimeSlice {
   CSCCFEBDataWord * timeSample(int index) const {
     return (CSCCFEBDataWord *)(theSamples+index);
   }
+
   /// layer and element count from one
-  CSCCFEBDataWord * timeSample(int layer, int channel) const;
+  // CSCCFEBDataWord * timeSample(int layer, int channel) const;
+
+  /// !!! Important change. Use isDCFEB flag in user code to distinguish between CFEB and DCFEB
+  /// !!! Use CSCCFEBData::isDCFEB() function to get this flag from CSCCFEBData object
+  CSCCFEBDataWord * timeSample(int layer, int channel, bool isDCFEB=false) const;
 
   /// whether we keep 8 or 16 time samples
   bool sixteenSamples() {/*return scaControllerWord(1).ts_flag;i*/
     return timeSample(95)->controllerData;}
   unsigned sizeInWords() const {return 100;}
+
 
   /// unpacked from the controller words for each channel in the layer
   CSCCFEBSCAControllerWord scaControllerWord(int layer) const ;
@@ -79,7 +85,7 @@ class CSCCFEBTimeSlice {
   bool check() const {return ((dummy == 0x7FFF)||((dummy+crc)== 0x7FFF));}
 
   bool checkCRC() const {return crc==calcCRC();}
-
+  
   unsigned calcCRC() const;
 
   /// =VB= Set calculated CRC value for simulated CFEB Time Slice data
@@ -99,6 +105,8 @@ class CSCCFEBTimeSlice {
   unsigned  get_buffer_warning()    const {return buffer_warning;}
   unsigned  get_buffer_count()      const {return buffer_count;}
   unsigned  get_L1A_number()        const {return L1A_number;}
+
+  void 	    set_L1Anumber(unsigned l1a) {L1A_number = l1a & 0x3F;}
 
  private:
   unsigned short theSamples[96];

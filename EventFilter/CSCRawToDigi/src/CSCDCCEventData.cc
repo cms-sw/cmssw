@@ -1,5 +1,7 @@
 /** \file CSCDCCEventData.cc
  *
+ *  $Date: 2010/06/11 15:50:28 $
+ *  $Revision: 1.31 $
  *  \author A. Tumanov - Rice - But long, long ago...
  *
  */
@@ -8,10 +10,14 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <cstdio>
-#include <atomic>
 #include "EventFilter/CSCRawToDigi/src/bitset_append.h"
 
+#ifdef LOCAL_UNPACK
+bool CSCDCCEventData::debug = false;
+#else
+#include <atomic>
 std::atomic<bool> CSCDCCEventData::debug{false};
+#endif
 
 CSCDCCEventData::CSCDCCEventData(int sourceId, int nDDUs, int bx, int l1a) 
 : theDCCHeader(bx, l1a, sourceId) 
@@ -102,7 +108,7 @@ bool CSCDCCEventData::check() const
 }
 
 
-void CSCDCCEventData::addChamber(CSCEventData & chamber, int dduID, int dduSlot, int dduInput, int dmbID)
+void CSCDCCEventData::addChamber(CSCEventData & chamber, int dduID, int dduSlot, int dduInput, int dmbID, uint16_t format_version)
 {
   // first, find this DDU
   std::vector<CSCDDUEventData>::iterator dduItr;
@@ -112,16 +118,21 @@ void CSCDCCEventData::addChamber(CSCEventData & chamber, int dduID, int dduSlot,
   {
     if(theDDUData[i].header().source_id() == dduID) dduIndex = i;
   }
+  
+  /// Set DDU format_version field in header depending on desired format version
+  unsigned ddu_fmt_version = 0x6; // 2005 Format
+  if (format_version == 2013) ddu_fmt_version = 0x7; /// 2013 Format
+  
   if(dduIndex == -1)
   {
     // make a new one
     CSCDDUHeader newDDUHeader(dccHeader().getCDFBunchCounter(), 
-                              dccHeader().getCDFEventNumber(), dduID);
+                              dccHeader().getCDFEventNumber(), dduID, ddu_fmt_version);
     theDDUData.push_back(CSCDDUEventData(newDDUHeader));
     dduIndex = nDDUs;
     dccHeader().setDAV(dduSlot);
   }
-  theDDUData[dduIndex].add( chamber, dmbID, dduInput );
+  theDDUData[dduIndex].add( chamber, dmbID, dduInput, format_version);
 }
  
 

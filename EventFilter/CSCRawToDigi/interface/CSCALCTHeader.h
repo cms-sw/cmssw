@@ -7,7 +7,9 @@
 #include <bitset>
 #include <vector>
 #include <iosfwd>
+#ifndef LOCAL_UNPACK
 #include <atomic>
+#endif
 #include "DataFormats/CSCDigi/interface/CSCALCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCALCTStatusDigi.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCALCTHeader2006.h"
@@ -38,7 +40,7 @@ class CSCALCTHeader {
   enum FIFO_MODE {NO_DUMP, FULL_DUMP, LOCAL_DUMP};
   unsigned short int FIFOMode()       const {return header2006.fifoMode;} 
   unsigned short int NTBins()         const {
-    switch (firmwareVersion.load())
+    switch (firmwareVersion)
       {
       case 2006:
         return header2006.nTBins;
@@ -54,7 +56,7 @@ class CSCALCTHeader {
   unsigned short int ExtTrig()        const {return header2006.extTrig;}
   unsigned short int CSCID()          const {return header2006.cscID;}
   unsigned short int BXNCount()       const {
-    switch (firmwareVersion.load())
+    switch (firmwareVersion)
       {
       case 2006:
         return header2006.bxnCount;
@@ -66,8 +68,26 @@ class CSCALCTHeader {
         return 0;
       }
   }
+
+  void setBXNCount(unsigned int bxn)       {
+    switch (firmwareVersion)
+      {
+      case 2006:
+        header2006.bxnCount = bxn % 0xFFF;
+	break;
+      case 2007:
+        header2007.bxnCount = bxn % 0xFFF;
+	break;
+      default:
+        edm::LogError("CSCALCTHeader|CSCRawToDigi")
+          <<"trying to set BXNcount: ALCT firmware version is bad/not defined!";
+	break;
+      }
+  }
+
+
   unsigned short int L1Acc()          const {
-    switch (firmwareVersion.load())
+    switch (firmwareVersion)
       {
       case 2006:
         return header2006.l1Acc;
@@ -79,6 +99,23 @@ class CSCALCTHeader {
         return 0;
       }
   }
+
+  void setL1Acc(unsigned int l1a)       {
+    switch (firmwareVersion)
+      {
+      case 2006:
+        header2006.l1Acc = l1a % 0xF;
+        break;
+      case 2007:
+        header2007.l1aCounter = l1a % 0xFFF;
+        break;
+      default:
+        edm::LogError("CSCALCTHeader|CSCRawToDigi")
+          <<"trying to set L1Acc: ALCT firmware version is bad/not defined!";
+        break;
+      }
+  }
+
   unsigned short int L1AMatch()        const {return header2006.l1aMatch;}
   unsigned short int ActiveFEBs()      const {return header2006.activeFEBs;}
   unsigned short int Promote1()        const {return header2006.promote1;}
@@ -97,7 +134,7 @@ class CSCALCTHeader {
  
   /// in 16-bit words
   int sizeInWords() {
-    switch (firmwareVersion.load())
+    switch (firmwareVersion)
       {
       case 2006:
         return 8;
@@ -111,7 +148,7 @@ class CSCALCTHeader {
   }
   
   bool check() const {
-    switch (firmwareVersion.load())
+    switch (firmwareVersion)
       {
       case 2006:
 	return header2006.flag_0 == 0xC;
@@ -144,9 +181,14 @@ class CSCALCTHeader {
   //raw data also stored in this buffer
   //maximum header size is 116 words
   unsigned short int theOriginalBuffer[116];
-  
+ 
+#ifdef LOCAL_UNPACK
+ static bool debug;
+ static unsigned short int firmwareVersion;  
+#else 
   static std::atomic<bool> debug;
   static std::atomic<unsigned short int> firmwareVersion;
+#endif
 
   ///size of the 2007 header in words
   unsigned short int sizeInWords2007_, bxn0, bxn1;
