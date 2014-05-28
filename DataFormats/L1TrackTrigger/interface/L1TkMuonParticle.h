@@ -36,18 +36,43 @@ namespace l1extra
       L1TkMuonParticle( const LorentzVector& p4,
                         const edm::Ptr< DTMatch >& muRef,
                         float tkisol = -999. );
+
+      L1TkMuonParticle( const LorentzVector& p4,
+   		        const edm::Ref< L1MuonParticleCollection >& muRef,
+		        const edm::Ptr< L1TkTrackType >& trkPtr,
+		        float tkisol = -999. );
+
       virtual ~L1TkMuonParticle() {}
 
       // const member functions
       const edm::Ptr< DTMatch >& getDTMatchPtr() const { return theDTMatch; }
-      float getTrkIsol() const { return theIsolation; }
 
-      int bx() const { return theDTMatch->getDTBX(); }
+      const edm::Ptr< L1TkTrackType >& getTrkPtr() const
+         { return trkPtr_ ; }
+
+      float getTrkIsol() const { return theIsolation; }
+      float getTrkzVtx() const { return TrkzVtx_ ; }
+
+      int bx() const ;
+
+	void setTrkzVtx(float TrkzVtx) { TrkzVtx_ = TrkzVtx ; }
+        void setTrkIsol(float TrkIsol) { theIsolation = TrkIsol ; }
+
+        unsigned int quality()  const;
+
 
     private:
 
+
+	// used for Padova's muons:
       edm::Ptr< DTMatch > theDTMatch;
+
+	// used for the Naive producer
+      edm::Ref< L1MuonParticleCollection > muRef_ ;
+      edm::Ptr< L1TkTrackType > trkPtr_ ;
+
       float theIsolation;
+      float TrkzVtx_ ;
 
   };
 }

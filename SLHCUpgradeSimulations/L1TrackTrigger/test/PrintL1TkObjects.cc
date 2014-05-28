@@ -158,9 +158,7 @@ PrintL1TkObjects::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 
   edm::Handle<edm::HepMCProduct> HepMCEvt;
-std::cout << " ici " << std::endl;
   iEvent.getByLabel("generator",HepMCEvt);
-std::cout << " ici2 " << HepMCEvt.isValid() << std::endl;
 
      float zvtx_gen = -999;
 
