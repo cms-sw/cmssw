@@ -480,12 +480,14 @@ class AddJetCollection(ConfigToolBase):
                 if _labelName != '':
                     _labelCorrName = 'For' + _labelName
                 if _type == 'Calo':
-                    from JetMETCorrections.Type1MET.caloMETCorrections_cff import caloJetMETcorr
-                    from JetMETCorrections.Type1MET.caloMETCorrections_cff import caloType1CorrectedMet
-                    from JetMETCorrections.Type1MET.caloMETCorrections_cff import caloType1p2CorrectedMet
-                    setattr(process,jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix, caloJetMETcorr.clone(src=jetSource,srcMET = "corMetGlobalMuons",jetCorrections = cms.string(jetCorrections[0]+'CombinedCorrector')))
-                    setattr(process,jetCorrections[0]+_labelCorrName+'Type1CorMet'+postfix, caloType1CorrectedMet.clone(src = "corMetGlobalMuons",srcType1Corrections = cms.VInputTag(cms.InputTag(jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix, 'type1'))))
-                    setattr(process,jetCorrections[0]+_labelCorrName+'Type1p2CorMet'+postfix,caloType1p2CorrectedMet.clone(src = "corMetGlobalMuons",srcType1Corrections = cms.VInputTag(cms.InputTag(jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix, 'type1')),srcUnclEnergySums = cms.VInputTag(cms.InputTag(jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix, 'type2'),cms.InputTag(jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix, 'offset'),cms.InputTag('muonCaloMETcorr'))))
+                    from JetMETCorrections.Type1MET.correctionTermsCaloMet_cff import corrCaloMetType1
+                    from JetMETCorrections.Type1MET.correctionTermsCaloMet_cff import corrCaloMetType2
+                    from JetMETCorrections.Type1MET.correctedMet_cff import caloMetT1
+                    from JetMETCorrections.Type1MET.correctedMet_cff import caloMetT1T2
+                    setattr(process,jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix, corrCaloMetType1.clone(src=jetSource,srcMET = "corMetGlobalMuons",jetCorrections = cms.string(jetCorrections[0]+'CombinedCorrector')))
+                    setattr(process,jetCorrections[0]+_labelCorrName+'JetMETcorr2'+postfix, corrCaloMetType2.clone(srcUnclEnergySums = cms.VInputTag(cms.InputTag(jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix, 'type2'),cms.InputTag(jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix, 'offset'),cms.InputTag('muCaloMetCorr'))))
+                    setattr(process,jetCorrections[0]+_labelCorrName+'Type1CorMet'+postfix, caloMetT1.clone(src = "corMetGlobalMuons", srcCorrections = cms.VInputTag(cms.InputTag(jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix, 'type1'))))
+                    setattr(process,jetCorrections[0]+_labelCorrName+'Type1p2CorMet'+postfix, caloMetT1T2.clone(src = "corMetGlobalMuons", srcCorrections = cms.VInputTag(cms.InputTag(jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix, 'type1'), cms.InputTag(jetCorrections[0]+_labelCorrName+'JetMETcorr2'+postfix))))
 
                 elif _type == 'PF':
                     from JetMETCorrections.Type1MET.pfMETCorrections_cff import pfCandsNotInJet
