@@ -11,18 +11,22 @@
 class EcalADCToGeVConstant {
   public:
     EcalADCToGeVConstant();
+    //EcalADCToGeVConstant(const float & EBvalue, const float & EEvalue, const float & EKvalue);
     EcalADCToGeVConstant(const float & EBvalue, const float & EEvalue);
     ~EcalADCToGeVConstant();
     void  setEBValue(const float& value) { EBvalue_ = value; }
     void  setEEValue(const float& value) { EEvalue_ = value; }
+    //void  setEKValue(const float& value) { EKvalue_ = value; }
     float getEBValue() const { return EBvalue_; }
     float getEEValue() const { return EEvalue_; }
+    float getEKValue() const { return EEvalue_; } // Shervin fix to EKvalue_
     void print(std::ostream& s) const {
-      s << "EcalADCToGeVConstant: EB " << EBvalue_ << "; EE " << EEvalue_ << " [GeV/ADC count]";
+      s << "EcalADCToGeVConstant: EB " << EBvalue_ << "; EE " << EEvalue_; // << "; EK " << EKvalue_ << " [GeV/ADC count]";
     }
   private:
     float EBvalue_;
     float EEvalue_;
+    //float EKvalue_;
 };
 
 /**

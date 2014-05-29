@@ -14,15 +14,17 @@ from RecoBTag.SecondaryVertex.combinedSecondaryVertexMVABJetTags_cfi import *
 from RecoBTag.SecondaryVertex.ghostTrackVertexTagInfos_cfi import *
 from RecoBTag.SecondaryVertex.ghostTrackES_cfi import *
 from RecoBTag.SecondaryVertex.ghostTrackBJetTags_cfi import *
+from RecoBTag.SecondaryVertex.combinedSecondaryVertexSoftLeptonES_cfi import *
+from RecoBTag.SecondaryVertex.combinedSecondaryVertexSoftLeptonBJetTags_cfi import *
 
 # IVF
 from RecoBTag.SecondaryVertex.inclusiveSecondaryVertexFinderTagInfos_cfi import *
 from RecoBTag.SecondaryVertex.combinedInclusiveSecondaryVertexBJetTags_cfi import *
 #from RecoBTag.SecondaryVertex.combinedIVFES_cfi import * #not yet using dedicated training, share CSV ones
 from RecoBTag.SecondaryVertex.bVertexFilter_cfi import *
-inclusiveMergedVerticesFiltered = bVertexFilter.clone()
-inclusiveMergedVerticesFiltered.vertexFilter.multiplicityMin = 2
-inclusiveMergedVerticesFiltered.secondaryVertices = cms.InputTag("inclusiveMergedVertices")
+inclusiveSecondaryVerticesFiltered = bVertexFilter.clone()
+inclusiveSecondaryVerticesFiltered.vertexFilter.multiplicityMin = 2
+inclusiveSecondaryVerticesFiltered.secondaryVertices = cms.InputTag("inclusiveSecondaryVertices")
 
 from RecoBTag.SecondaryVertex.bToCharmDecayVertexMerger_cfi import *
 from RecoBTag.SecondaryVertex.simpleInclusiveSecondaryVertexBJetTags_cfi import *

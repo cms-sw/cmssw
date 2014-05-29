@@ -53,6 +53,11 @@ class JetFlavourInfo
     /// Return the parton-based flavour
     const int getPartonFlavour() const { return m_partonFlavour; }
 
+    /// Set the hadron-based flavour
+    void setHadronFlavour(const int hadronFlavour) { m_hadronFlavour = hadronFlavour; }
+    /// Set the parton-based flavour
+    void setPartonFlavour(const int partonFlavour) { m_partonFlavour = partonFlavour; }
+
   private:
     GenParticleRefVector m_bHadrons;
     GenParticleRefVector m_cHadrons;

@@ -4,6 +4,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDetId/interface/EKDetId.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalZDCDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalCastorDetId.h"
@@ -30,6 +31,7 @@ class CaloGenericDetId : public DetId
       bool isEcal()      const { return det() == DetId::Ecal ; }
       bool isEB()        const { return isEcal() && subdetId() == EBDetId::Subdet ; }
       bool isEE()        const { return isEcal() && subdetId() == EEDetId::Subdet ; }
+      bool isEK()        const { return isEcal() && subdetId() == EKDetId::Subdet ; }
       bool isES()        const { return isEcal() && subdetId() == ESDetId::Subdet ; }
       bool isCalo()      const { return det() == DetId::Calo ; }
       bool isHcal()      const { return det() == DetId::Hcal ; }

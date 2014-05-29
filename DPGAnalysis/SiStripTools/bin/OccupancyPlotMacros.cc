@@ -18,6 +18,7 @@
 #include <math.h>
 #include "TROOT.h"
 #include "OccupancyPlotMacros.h"
+#include <vector>
 
 void printFrame(TCanvas* c, TH1D* h, TText* t, const int frame, const int min, const int max) {
   c->cd(frame);
@@ -285,11 +286,14 @@ void PlotOccupancyMap(TFile* ff, const char* module, const float min, const floa
 
       }
       // eta boundaries lines
+      double etavalext[] = {3.,2.8,2.6,2.4,2.2,2.0,1.8,1.6};
+      double etavalint[] = {-1.4,-1.2,-1.0,-0.8,-0.6,-0.4,-0.2,0.,0.2,0.4,0.6,0.8,1.0,1.2,1.4};
       TList etalines;
       TList etalabels;
       TList paperlabels;
       for(int i=0;i<8;++i) {
-	double eta = 3.0-i*0.2;
+	//	double eta = 3.0-i*0.2;
+	double eta = etavalext[i];
 	TLine* lin = new TLine(295,2*295/(exp(eta)-exp(-eta)),305,2*305/(exp(eta)-exp(-eta)));
 	etalines.Add(lin);
 	char lab[100];
@@ -300,7 +304,8 @@ void PlotOccupancyMap(TFile* ff, const char* module, const float min, const floa
 	etalabels.Add(label);
       }
       for(int i=0;i<8;++i) {
-	double eta = -3.0+i*0.2;
+	//	double eta = -3.0+i*0.2;
+	double eta = -1*etavalext[i];
 	TLine* lin = new TLine(-295,-2*295/(exp(eta)-exp(-eta)),-305,-2*305/(exp(eta)-exp(-eta)));
 	etalines.Add(lin);
 	char lab[100];
@@ -311,7 +316,8 @@ void PlotOccupancyMap(TFile* ff, const char* module, const float min, const floa
 	etalabels.Add(label);
       }
       for(int i=0;i<15;++i) {
-	double eta = -1.4+i*0.2;
+	//	double eta = -1.4+i*0.2;
+	double eta = etavalint[i];
 	TLine* lin = new TLine(130.*(exp(eta)-exp(-eta))/2.,130,138.*(exp(eta)-exp(-eta))/2.,138);
 	etalines.Add(lin);
 	char lab[100];
@@ -620,10 +626,13 @@ void PlotOccupancyMapPhase2(TFile* ff, const char* module, const float min, cons
 
       }
       // eta boundaries lines
+      double etavalext[] = {4.,3.5,3.,2.8,2.6,2.4,2.2,2.0,1.8,1.6};
+      double etavalint[] = {-1.4,-1.2,-1.0,-0.8,-0.6,-0.4,-0.2,0.,0.2,0.4,0.6,0.8,1.0,1.2,1.4};
       TList etalines;
       TList etalabels;
-      for(int i=0;i<8;++i) {
-	double eta = 3.0-i*0.2;
+      for(int i=0;i<10;++i) {
+	//	double eta = 3.0-i*0.2;
+	double eta = etavalext[i];
 	TLine* lin = new TLine(295,2*295/(exp(eta)-exp(-eta)),305,2*305/(exp(eta)-exp(-eta)));
 	etalines.Add(lin);
 	char lab[100];
@@ -633,8 +642,9 @@ void PlotOccupancyMapPhase2(TFile* ff, const char* module, const float min, cons
 	label->SetTextAlign(22);
 	etalabels.Add(label);
       }
-      for(int i=0;i<8;++i) {
-	double eta = -3.0+i*0.2;
+      for(int i=0;i<10;++i) {
+	//	double eta = -3.0+i*0.2;
+	double eta = -1*etavalext[i];
 	TLine* lin = new TLine(-295,-2*295/(exp(eta)-exp(-eta)),-305,-2*305/(exp(eta)-exp(-eta)));
 	etalines.Add(lin);
 	char lab[100];
@@ -645,7 +655,8 @@ void PlotOccupancyMapPhase2(TFile* ff, const char* module, const float min, cons
 	etalabels.Add(label);
       }
       for(int i=0;i<15;++i) {
-	double eta = -1.4+i*0.2;
+	//	double eta = -1.4+i*0.2;
+	double eta = etavalint[i];
 	TLine* lin = new TLine(130.*(exp(eta)-exp(-eta))/2.,130,138.*(exp(eta)-exp(-eta))/2.,138);
 	etalines.Add(lin);
 	char lab[100];
@@ -883,10 +894,13 @@ void PlotOnTrackOccupancyPhase2(TFile* ff, const char* module, const char* ontrk
 	
       }
       // eta boundaries lines
+      double etavalext[] = {4.,3.5,3.,2.8,2.6,2.4,2.2,2.0,1.8,1.6};
+      double etavalint[] = {-1.4,-1.2,-1.0,-0.8,-0.6,-0.4,-0.2,0.,0.2,0.4,0.6,0.8,1.0,1.2,1.4};
       TList etalines;
       TList etalabels;
-      for(int i=0;i<8;++i) {
-	double eta = 3.0-i*0.2;
+      for(int i=0;i<10;++i) {
+	//	double eta = 3.0-i*0.2;
+	double eta = etavalext[i];
 	TLine* lin = new TLine(295,2*295/(exp(eta)-exp(-eta)),305,2*305/(exp(eta)-exp(-eta)));
 	etalines.Add(lin);
 	char lab[100];
@@ -896,8 +910,9 @@ void PlotOnTrackOccupancyPhase2(TFile* ff, const char* module, const char* ontrk
 	label->SetTextAlign(22);
 	etalabels.Add(label);
       }
-      for(int i=0;i<8;++i) {
-	double eta = -3.0+i*0.2;
+      for(int i=0;i<10;++i) {
+	//	double eta = -3.0+i*0.2;
+	double eta = -1*etavalext[i];
 	TLine* lin = new TLine(-295,-2*295/(exp(eta)-exp(-eta)),-305,-2*305/(exp(eta)-exp(-eta)));
 	etalines.Add(lin);
 	char lab[100];
@@ -908,7 +923,8 @@ void PlotOnTrackOccupancyPhase2(TFile* ff, const char* module, const char* ontrk
 	etalabels.Add(label);
       }
       for(int i=0;i<15;++i) {
-	double eta = -1.4+i*0.2;
+	//	double eta = -1.4+i*0.2;
+	double eta = etavalint[i];
 	TLine* lin = new TLine(130.*(exp(eta)-exp(-eta))/2.,130,138.*(exp(eta)-exp(-eta))/2.,138);
 	etalines.Add(lin);
 	char lab[100];
@@ -956,4 +972,51 @@ void PlotOnTrackOccupancyPhase2(TFile* ff, const char* module, const char* ontrk
   
 }
 
+void PlotDebugFPIX_XYMap(TFile* ff, const char* module, const unsigned int ioffset, const char* name) {
 
+  gROOT->SetStyle("Plain");
+
+  TCanvas* cc = new TCanvas(name,name,750,750);
+  cc->Range(-25,-25,25,25);
+  TFrame* fr1 = new TFrame(-20,-20,20,20);
+  fr1->UseCurrentStyle();
+  fr1->Draw();
+  ff->cd(module);
+  gDirectory->ls();
+  TProfile* avex = (TProfile*)gDirectory->Get("avex");
+  TProfile* avey = (TProfile*)gDirectory->Get("avey");
+  TProfile* avez = (TProfile*)gDirectory->Get("avez");
+
+  if(avex && avey && avez) {
+    TText* tittext = new TText(0,0,name);
+    tittext->SetTextSize(.04); tittext->SetTextAlign(22); 
+    tittext->Draw();
+    for(unsigned int mod=ioffset+1;mod<ioffset+57;++mod) {
+      double x = avex->GetBinContent(mod);
+      double y = avey->GetBinContent(mod);
+      //      TBox* modbox = new TBox(x-1,y-1,x+1,y+1);
+      char modstring[30];
+      sprintf(modstring,"%d",mod%100);
+      TText* modtext = new TText(x,y,modstring);
+      modtext->SetTextAngle(atan(y/x)*180/3.14159);
+      modtext->SetTextSize(.02); modtext->SetTextAlign(22); modtext->SetTextColor(kRed);
+      std::cout << mod << " " << x << " " << y << std::endl;
+      //      modbox->Draw();
+      modtext->Draw();
+    }
+    for(unsigned int mod=ioffset+101;mod<ioffset+157;++mod) {
+      double x = avex->GetBinContent(mod);
+      double y = avey->GetBinContent(mod);
+      //      TBox* modbox = new TBox(x-1,y-1,x+1,y+1);
+      char modstring[30];
+      sprintf(modstring,"%d",mod%100);
+      TText* modtext = new TText(x,y,modstring);
+      modtext->SetTextAngle(atan(y/x)*180/3.14159);
+      modtext->SetTextSize(.02); modtext->SetTextAlign(22); modtext->SetTextColor(kBlue);
+      std::cout << mod << " " << x << " " << y << " " << atan(y/x) << std::endl;
+      //      modbox->Draw();
+      modtext->Draw();
+    }
+
+  }
+}

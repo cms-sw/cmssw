@@ -302,9 +302,12 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
         ajet.setPartonFlavour( (*jetFlavMatch)[edm::RefToBase<reco::Jet>(jetRef)].getFlavour() );
     }
     else if (getJetMCFlavour_ && !useLegacyJetMCFlavour_) {
-        ajet.setPartonFlavour( (*jetFlavInfoMatch)[edm::RefToBase<reco::Jet>(jetRef)].getPartonFlavour() );
-        ajet.setHadronFlavour( (*jetFlavInfoMatch)[edm::RefToBase<reco::Jet>(jetRef)].getHadronFlavour() );
         if ( addJetFlavourInfo_ ) ajet.setJetFlavourInfo( (*jetFlavInfoMatch)[edm::RefToBase<reco::Jet>(jetRef)] );
+        else
+        {
+          ajet.setPartonFlavour( (*jetFlavInfoMatch)[edm::RefToBase<reco::Jet>(jetRef)].getPartonFlavour() );
+          ajet.setHadronFlavour( (*jetFlavInfoMatch)[edm::RefToBase<reco::Jet>(jetRef)].getHadronFlavour() );
+        }
     }
     // store the match to the generated partons
     if (addGenPartonMatch_) {

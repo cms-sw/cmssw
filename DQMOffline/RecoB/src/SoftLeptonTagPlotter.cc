@@ -78,13 +78,14 @@ SoftLeptonTagPlotter::~SoftLeptonTagPlotter ()
   }
 }
 
-void SoftLeptonTagPlotter::analyzeTag( const reco::BaseTagInfo * baseTagInfo,
+void SoftLeptonTagPlotter::analyzeTag( const reco::BaseTagInfo * baseTagInfo, const double & jec, 
     const int & jetFlavour )
 {
   analyzeTag(baseTagInfo,jetFlavour,1.);
 }
 
 void SoftLeptonTagPlotter::analyzeTag( const reco::BaseTagInfo * baseTagInfo,
+				       const double & jec, 
 				       const int & jetFlavour,
 				       const float & w)
 {

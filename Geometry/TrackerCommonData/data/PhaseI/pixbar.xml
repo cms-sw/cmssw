@@ -990,18 +990,6 @@
  <PosPart copyNumber="2">
    <rParent name="pixbar:PixelBarrel"/>
    <rChild name="pixbar:PixelBarrelConn3"/>
-  <rRotation name="pixbar:180D"/>
-  <Translation x="[zero]" y="[zero]" z="[Conn3Z]" />
- </PosPart>
- <PosPart copyNumber="3">
-   <rParent name="pixbar:PixelBarrel"/>
-   <rChild name="pixbar:PixelBarrelConn3"/>
-  <Translation x="[zero]" y="[zero]" z="-[Conn3Z]" />
- </PosPart>
- <PosPart copyNumber="4">
-   <rParent name="pixbar:PixelBarrel"/>
-   <rChild name="pixbar:PixelBarrelConn3"/>
-  <rRotation name="pixbar:180D"/>
   <Translation x="[zero]" y="[zero]" z="-[Conn3Z]" />
  </PosPart>
 
@@ -1013,18 +1001,6 @@
  <PosPart copyNumber="2">
    <rParent name="pixbar:PixelBarrel"/>
    <rChild name="pixbar:PixelBarrelConn4"/>
-  <rRotation name="pixbar:180D"/>
-  <Translation x="[zero]" y="[zero]" z="[Conn4Z]" />
- </PosPart>
- <PosPart copyNumber="3">
-   <rParent name="pixbar:PixelBarrel"/>
-   <rChild name="pixbar:PixelBarrelConn4"/>
-  <Translation x="[zero]" y="[zero]" z="-[Conn4Z]" />
- </PosPart>
- <PosPart copyNumber="4">
-   <rParent name="pixbar:PixelBarrel"/>
-   <rChild name="pixbar:PixelBarrelConn4"/>
-  <rRotation name="pixbar:180D"/>
   <Translation x="[zero]" y="[zero]" z="-[Conn4Z]" />
  </PosPart>
 
@@ -1036,18 +1012,6 @@
  <PosPart copyNumber="2">
    <rParent name="pixbar:PixelBarrel"/>
    <rChild name="pixbar:PixelBarrelService"/>
-  <rRotation name="pixbar:180D"/>
-  <Translation x="[zero]" y="[zero]" z="[ServZ]" />
- </PosPart>
- <PosPart copyNumber="3">
-   <rParent name="pixbar:PixelBarrel"/>
-   <rChild name="pixbar:PixelBarrelService"/>
-  <Translation x="[zero]" y="[zero]" z="-[ServZ]" />
- </PosPart>
- <PosPart copyNumber="4">
-   <rParent name="pixbar:PixelBarrel"/>
-   <rChild name="pixbar:PixelBarrelService"/>
-  <rRotation name="pixbar:180D"/>
   <Translation x="[zero]" y="[zero]" z="-[ServZ]" />
  </PosPart>
 
@@ -1059,7 +1023,9 @@
  <PosPart copyNumber="2">
    <rParent name="pixbar:PixelBarrel"/>
    <rChild name="pixbar:PixelBarrelSupTubCables"/>
-  <rRotation name="pixbar:180D"/>
+<!--  
+<rRotation name="pixbar:180D"/>
+-->
   <Translation x="[zero]" y="[zero]" z="-[ServCablZ]" />
  </PosPart>
 

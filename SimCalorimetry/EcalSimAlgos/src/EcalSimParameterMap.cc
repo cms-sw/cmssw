@@ -9,6 +9,7 @@
   Account for excess noise factor
  */
  
+// Default values 
 EcalSimParameterMap::EcalSimParameterMap() :
   theBarrelParameters(2250., 1./2250., 
                    1., 0, 
@@ -16,13 +17,18 @@ EcalSimParameterMap::EcalSimParameterMap() :
   theEndcapParameters( 1800., 1./1800., 
                    1., 0, 
         	       10, 6, true, true),
+  theShashlikParameters( 1800., 1./1800., 
+			 1., 0, 
+			 10, 6, true, true),
   theESParameters(1., 1., 1., 20., 3, 2, false, true)
 {}
 
 EcalSimParameterMap::EcalSimParameterMap(double simHitToPhotoelectronsBarrel, 
                                          double simHitToPhotoelectronsEndcap, 
+                                         double simHitToPhotoelectronsShashlik, 
                                          double photoelectronsToAnalogBarrel, 
                                          double photoelectronsToAnalogEndcap, 
+                                         double photoelectronsToAnalogShashlik, 
                                          double samplingFactor, double timePhase,
                                          int readoutFrameSize, int binOfMaximum,
                                          bool doPhotostatistics, bool syncPhase) : 
@@ -32,8 +38,32 @@ EcalSimParameterMap::EcalSimParameterMap(double simHitToPhotoelectronsBarrel,
   theEndcapParameters(simHitToPhotoelectronsEndcap, photoelectronsToAnalogEndcap, 
                       samplingFactor, timePhase, 
                       readoutFrameSize, binOfMaximum, doPhotostatistics, syncPhase),
+  theShashlikParameters(simHitToPhotoelectronsShashlik, photoelectronsToAnalogShashlik, 
+                      samplingFactor, timePhase, 
+                      readoutFrameSize, binOfMaximum, doPhotostatistics, syncPhase),
   theESParameters(1., 1., 1., 20., 3, 2, false, syncPhase)
 {}
+
+EcalSimParameterMap::EcalSimParameterMap(double simHitToPhotoelectronsBarrel, 
+					 double simHitToPhotoelectronsEndcap, 
+					 double photoelectronsToAnalogBarrel, 
+					 double photoelectronsToAnalogEndcap, 
+					 double samplingFactor, double timePhase,
+					 int readoutFrameSize, int binOfMaximum,
+					 bool doPhotostatistics, bool syncPhase):
+  theBarrelParameters(simHitToPhotoelectronsBarrel, photoelectronsToAnalogBarrel,
+                      samplingFactor, timePhase, 
+                      readoutFrameSize, binOfMaximum, doPhotostatistics, syncPhase),
+  theEndcapParameters(simHitToPhotoelectronsEndcap, photoelectronsToAnalogEndcap, 
+                      samplingFactor, timePhase, 
+                      readoutFrameSize, binOfMaximum, doPhotostatistics, syncPhase),
+  theShashlikParameters(0., 0., 
+			samplingFactor, timePhase, 
+			readoutFrameSize, binOfMaximum, doPhotostatistics, syncPhase),
+  theESParameters(1., 1., 1., 20., 3, 2, false, syncPhase)
+{}
+
+
 
   /*
   CaloSimParameters(double simHitToPhotoelectrons, double photoelectronsToAnalog, 
@@ -41,6 +71,7 @@ EcalSimParameterMap::EcalSimParameterMap(double simHitToPhotoelectronsBarrel,
                  int readoutFrameSize, int binOfMaximum,
                  bool doPhotostatistics, bool syncPhase)
   */
+
   
 const CaloSimParameters & EcalSimParameterMap::simParameters(const DetId & detId) const 
 {
@@ -48,6 +79,8 @@ const CaloSimParameters & EcalSimParameterMap::simParameters(const DetId & detId
     return theBarrelParameters;
   else if (EcalSubdetector(detId.subdetId()) == EcalEndcap)
     return theEndcapParameters;
+  else if (EcalSubdetector(detId.subdetId()) == EcalShashlik)
+    return theShashlikParameters;
   else 
     return theESParameters;
 }

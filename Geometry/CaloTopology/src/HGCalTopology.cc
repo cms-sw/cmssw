@@ -3,13 +3,13 @@
 
 #define DebugLog
 
-HGCalTopology::HGCalTopology(const HGCalDDDConstants* hdcons, 
+HGCalTopology::HGCalTopology(const HGCalDDDConstants& hdcons, 
 			     ForwardSubdetector subdet,
 			     bool half) : hdcons_(hdcons), subdet_(subdet),
 					  half_(half) {
-  sectors_  = hdcons->sectors();
-  layers_   = hdcons->layers(true);
-  cells_    = hdcons->maxCells(true);
+  sectors_  = hdcons_.sectors();
+  layers_   = hdcons_.layers(true);
+  cells_    = hdcons_.maxCells(true);
   kEKhalf_  = sectors_*layers_*subSectors_*cells_;
   kSizeForDenseIndexing = (unsigned int)(2*kEKhalf_);
 #ifdef DebugLog
@@ -82,9 +82,9 @@ DetId HGCalTopology::changeXY(const DetId& id, int nrStepsX,
 			      int nrStepsY ) const {
 
   HGCalTopology::idCont id_ = decode(id);
-  std::pair<int,int> kcell= hdcons_->newCell(id_.iCell,id_.iLay,id_.iSec,
-					     id_.iSubSec,nrStepsX,nrStepsY,
-					     half_);
+  std::pair<int,int> kcell= hdcons_.newCell(id_.iCell,id_.iLay,id_.iSec,
+					    id_.iSubSec,nrStepsX,nrStepsY,
+					    half_);
   id_.iSubSec= kcell.second;
   id_.iSec   = (kcell.second > 0) ? kcell.second : -kcell.second;
   id_.iCell  = kcell.first;
@@ -97,8 +97,8 @@ DetId HGCalTopology::changeXY(const DetId& id, int nrStepsX,
 DetId HGCalTopology::changeZ(const DetId& id, int nrStepsZ) const {
 
   HGCalTopology::idCont id_  = decode(id);
-  std::pair<int,int> kcell = hdcons_->newCell(id_.iCell,id_.iLay,
-					      id_.iSubSec,nrStepsZ,half_);
+  std::pair<int,int> kcell = hdcons_.newCell(id_.iCell,id_.iLay,
+					     id_.iSubSec,nrStepsZ,half_);
   id_.iLay    = kcell.second;
   id_.iCell   = kcell.first;
   DetId nextPoint = encode(id_);

@@ -260,49 +260,68 @@ FWRPZViewGeometry::makeMuonGeometryRhoZ( void )
       container->AddElement( cscContainer );
    }
    {
-     TEveCompound* gemContainer = new TEveCompound( "GEM" );
+      TEveCompound* gemContainer = new TEveCompound( "GEM" );
    
-     Int_t maxChambers = 36;
-     Int_t step = 9;
-     Int_t iRing = 1;
-     Int_t maxRolls = 8;
-     for( Int_t iEndcap = -1; iEndcap <= 1; iEndcap+=2 ){ // 1=forward (+Z), -1=backward(-Z)
-       // Actual GEM geometry:
-       // Station 1 has 1 rings with 36 chambers in each
-       // for( Int_t iStation = 1; iStation <= 1; ++iStation ){
-       Int_t iStation = 1;
-       // iLayer chamber - Actually it should be GEM super chambers
-       for( Int_t iLayer = 1; iLayer <= 2; ++iLayer ){
-	 float min_rho(1000), max_rho(0), min_z(2000), max_z(-2000);
-	 ( iRing == 1 && iStation > 1 ) ? ( step = 5 ) : (  step = 18 );
+      Int_t maxChambers = 36;
+      Int_t step = 9;
+      Int_t iRing = 1;
+      Int_t maxRolls = 8;
+      for( Int_t iEndcap = -1; iEndcap <= 1; iEndcap+=2 ){ // 1=forward (+Z), -1=backward(-Z)
+         // Actual GEM geometry:
+         // Station 1 has 1 rings with 36 chambers in each
+         // for( Int_t iStation = 1; iStation <= 1; ++iStation ){
+         Int_t iStation = 1;
+         // iLayer chamber - Actually it should be GEM super chambers
+         for( Int_t iLayer = 1; iLayer <= 2; ++iLayer ){
+            ( iRing == 1 && iStation > 1 ) ? ( step = 5 ) : (  step = 18 );
 	    
-	 // Skip most of the chambers since they will project
-	 // the same way as the two top ones and the two bottom ones
-	 for( Int_t iChamber = step; iChamber <= maxChambers; iChamber += step ){
-	   for( Int_t iRoll = 1; iRoll <= maxRolls; ++iRoll ){
-	     GEMDetId id( iEndcap, iRing, iStation, iLayer, iChamber, iRoll );
-	     FWGeometry::IdToInfoItr det = m_geom->find( id.rawId() );
-	     estimateProjectionSizeGEM( *det, min_rho, max_rho, min_z, max_z );
-		 
-	     // and a chamber next to it
-	     ++iChamber;
-	     GEMDetId nextid( iEndcap, iRing, iStation, iLayer, iChamber, iRoll );
-	     det = m_geom->find( nextid.rawId() );
-	     estimateProjectionSizeGEM( *det, min_rho, max_rho, min_z, max_z );
-	   }
-	 }
-	 if ( min_rho > max_rho || min_z > max_z ) continue;
+            // Skip most of the chambers since they will project
+            // the same way as the two top ones and the two bottom ones
+            for( Int_t iChamber = step; iChamber <= maxChambers; iChamber += step ){
+               for( Int_t iRoll = 1; iRoll <= maxRolls; ++iRoll ){
+                  {
+                     float min_rho(1000), max_rho(0), min_z(2000), max_z(-2000);
+                     GEMDetId id( iEndcap, iRing, iStation, iLayer, iChamber, iRoll );
+                     FWGeometry::IdToInfoItr det = m_geom->find( id.rawId() );
+                     estimateProjectionSizeGEM( *det, min_rho, max_rho, min_z, max_z );
 
-	 TEveElement* se = makeShape( min_rho, max_rho, min_z, max_z);
-	 addToCompound(se, kFWMuonEndcapLineColorIndex);
-	 gemContainer->AddElement(se);
+                     if ( min_rho <= max_rho && min_z <= max_z ) {
+                        TEveElement* se = makeShape( min_rho, max_rho, min_z, max_z);
+                        addToCompound(se, kFWMuonEndcapLineColorIndex);
+                        gemContainer->AddElement(se);
 
-	 se = makeShape( -max_rho, -min_rho, min_z, max_z );
-	 addToCompound(se, kFWMuonEndcapLineColorIndex);
-	 gemContainer->AddElement(se);
-       }
-     }
-     container->AddElement( gemContainer );
+                        se = makeShape( -max_rho, -min_rho, min_z, max_z );
+                        addToCompound(se, kFWMuonEndcapLineColorIndex);
+                        gemContainer->AddElement(se);
+                     }
+                  }
+                  // and a chamber next to it
+                  {
+                     ++iChamber;
+                     float min_rho(1000), max_rho(0), min_z(2000), max_z(-2000);
+                     GEMDetId nextid( iEndcap, iRing, iStation, iLayer, iChamber, iRoll );
+                      FWGeometry::IdToInfoItr det = m_geom->find( nextid.rawId() );
+                     estimateProjectionSizeGEM( *det, min_rho, max_rho, min_z, max_z );
+
+
+                     if ( min_rho <= max_rho && min_z <= max_z ) {
+                        TEveElement* se = makeShape( min_rho, max_rho, min_z, max_z);
+                        addToCompound(se, kFWMuonEndcapLineColorIndex);
+                        gemContainer->AddElement(se);
+
+                        se = makeShape( -max_rho, -min_rho, min_z, max_z );
+                        addToCompound(se, kFWMuonEndcapLineColorIndex);
+                        gemContainer->AddElement(se);
+                     }
+
+                  }
+                 
+
+               }
+            }
+         }
+      }
+      container->AddElement( gemContainer );
    }
    return container;
 }

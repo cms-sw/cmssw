@@ -7,6 +7,9 @@
 <use   name="Geometry/CaloGeometry"/>
 <use   name="Geometry/HcalCommonData"/>
 <use   name="Geometry/HGCalCommonData"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/PluginManager"/>
 <export>
   <lib   name="1"/>
 </export>

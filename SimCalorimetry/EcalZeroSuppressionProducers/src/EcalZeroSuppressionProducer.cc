@@ -3,19 +3,24 @@
 
 EcalZeroSuppressionProducer::EcalZeroSuppressionProducer(const edm::ParameterSet& params) 
 {
-  digiProducer_   = params.getParameter<std::string>("digiProducer");
-  EBdigiCollection_ = params.getParameter<std::string>("EBdigiCollection");
-  EEdigiCollection_ = params.getParameter<std::string>("EEdigiCollection");
+  
+  EBdigiCollection_ = params.getParameter<edm::InputTag>("unsuppressedEBDigiCollection");
+  EEdigiCollection_ = params.getParameter<edm::InputTag>("unsuppressedEEDigiCollection");
+  EKdigiCollection_ = params.getParameter<edm::InputTag>("unsuppressedEKDigiCollection");
+
   EBZSdigiCollection_ = params.getParameter<std::string>("EBZSdigiCollection");
   EEZSdigiCollection_ = params.getParameter<std::string>("EEZSdigiCollection");
+  EKZSdigiCollection_ = params.getParameter<std::string>("EKZSdigiCollection");
 
   // initialize the default values for the thresholds in number of noise sigmas
 
   glbBarrelThreshold_ = params.getUntrackedParameter<double>("glbBarrelThreshold",0.2);
   glbEndcapThreshold_ = params.getUntrackedParameter<double>("glbEndcapThreshold",0.4);
+  glbShashlikThreshold_ = params.getUntrackedParameter<double>("glbShashlikThreshold",0.4);
 
   produces<EBDigiCollection>(EBZSdigiCollection_);
   produces<EEDigiCollection>(EEZSdigiCollection_);
+  produces<EKDigiCollection>(EKZSdigiCollection_);
 
 }
 
@@ -33,30 +38,41 @@ void EcalZeroSuppressionProducer::produce(edm::Event& event, const edm::EventSet
   
   edm::Handle< EBDigiCollection > pEBDigis;
   edm::Handle< EEDigiCollection > pEEDigis;
+  edm::Handle< EKDigiCollection > pEKDigis;
   
   const EBDigiCollection* fullBarrelDigis =0;
   const EEDigiCollection* fullEndcapDigis =0;
+  const EKDigiCollection* fullShashlikDigis =0;
   
-  event.getByLabel( digiProducer_, pEBDigis);
+  event.getByLabel( EBdigiCollection_, pEBDigis);
   if (pEBDigis.isValid()){ 
     fullBarrelDigis = pEBDigis.product(); // get a ptr to the produc
     edm::LogInfo("ZeroSuppressionInfo") << "total # fullBarrelDigis: " << fullBarrelDigis->size() ;
   } else {
-    edm::LogError("ZeroSuppressionError") << "Error! can't get the product " << EBdigiCollection_.c_str() ;
+    edm::LogError("ZeroSuppressionError") << "Error! can't get EB digi collection " << EBdigiCollection_.label() ;
   }
   
-  event.getByLabel( digiProducer_, pEEDigis);
+  event.getByLabel( EEdigiCollection_, pEEDigis);
   if (pEEDigis.isValid()){ 
     fullEndcapDigis = pEEDigis.product(); // get a ptr to the product
     edm::LogInfo("ZeroSuppressionInfo") << "total # fullEndcapDigis: " << fullEndcapDigis->size() ;
   } else {
-    edm::LogError("ZeroSuppressionError") << "Error! can't get the product " << EEdigiCollection_.c_str() ;
+    edm::LogInfo("ZeroSuppressionError") << "Error! can't get EE digi collection " << EEdigiCollection_.label() ;
   }
 
+  event.getByLabel( EKdigiCollection_, pEKDigis);
+  if (pEKDigis.isValid()){ 
+    fullShashlikDigis = pEKDigis.product(); // get a ptr to the product
+    edm::LogInfo("ZeroSuppressionInfo") << "total # fullShashlikDigis: " << fullShashlikDigis->size() ;
+  } else {
+    edm::LogInfo("ZeroSuppressionError") << "Error! can't get EK digi collection " << EKdigiCollection_.label() ;
+  }
+  
   // collection of zero suppressed digis to put in the event
   
   std::auto_ptr< EBDigiCollection > gzsBarrelDigis(new EBDigiCollection());
   std::auto_ptr< EEDigiCollection > gzsEndcapDigis(new EEDigiCollection());
+  std::auto_ptr< EKDigiCollection > gzsShashlikDigis(new EKDigiCollection());
 
   CaloDigiCollectionSorter sorter(5);
 
@@ -99,19 +115,25 @@ void EcalZeroSuppressionProducer::produce(edm::Event& event, const edm::EventSet
         }
         
       }
-    edm::LogInfo("ZeroSuppressionInfo") << "EB Digis: " << gzsBarrelDigis->size();
-    
-    //    std::vector<EEDataFrame> sortedDigisEE = sorter.sortedVector(*gzsEndcapDigis);
-    //LogDebug("ZeroSuppressionDump")  << "Top 10 EE digis";
-    //for(int i = 0; i < std::min(10,(int) sortedDigisEE.size()); ++i) 
-    //  {
-    //    LogDebug("ZeroSuppressionDump") << sortedDigisEE[i];
-    //  }
-  
+    edm::LogInfo("ZeroSuppressionInfo") << "EE Digis: " << gzsBarrelDigis->size();
   }
+
+  if (fullShashlikDigis) {
+    for(EKDigiCollection::const_iterator digiItr = (*fullShashlikDigis).begin();
+        digiItr != (*fullShashlikDigis).end(); ++digiItr)
+      {
+        bool isAccepted = theShashlikZeroSuppressor_.accept(*digiItr, glbShashlikThreshold_, true);
+        if (isAccepted || glbShashlikThreshold_==0) {
+          (*gzsShashlikDigis).push_back(digiItr->id(), digiItr->begin());
+        }
+      }
+    edm::LogInfo("ZeroSuppressionInfo") << "EK Digis: " << gzsShashlikDigis->size();
+  }
+
   // Step D: Put outputs into event
   event.put(gzsBarrelDigis, EBZSdigiCollection_);
   event.put(gzsEndcapDigis, EEZSdigiCollection_);
+  event.put(gzsShashlikDigis, EKZSdigiCollection_);
 
 }
 
@@ -126,5 +148,6 @@ void EcalZeroSuppressionProducer::initCalibrations(const edm::EventSetup & event
 
   theBarrelZeroSuppressor_.setPedestals( thePedestals );
   theEndcapZeroSuppressor_.setPedestals( thePedestals );
+  theShashlikZeroSuppressor_.setPedestals( thePedestals );
                                                                                                                                                              
 }

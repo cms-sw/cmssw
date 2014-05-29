@@ -1228,6 +1228,10 @@ void GsfElectronAlgo::createElectron()
     if (EEDetId::isNextToDBoundary(eedetid))
      { fiducialFlags.isEEDeeGap = true ; }
    }
+  else if ( detector == EcalShashlik ) 
+    {
+      fiducialFlags.isEE = true;
+    }
   else
    { throw cms::Exception("GsfElectronAlgo|UnknownXtalRegion")<<"createElectron(): do not know if it is a barrel or endcap seed cluster !!!!" ; }
 

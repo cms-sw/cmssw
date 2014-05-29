@@ -43,8 +43,8 @@ public:
 
 private:
 
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
-    virtual void endJob() ;
+    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+    virtual void endJob() override ;
     // Member data
 
     VertexClassifierByProxy<reco::SecondaryVertexTagInfoCollection> classifier_;
@@ -85,6 +85,10 @@ private:
     // Histogram handlers
     std::map<std::string, MonitorElement *> HistIndex_;
 
+  //consumes
+  edm::EDGetTokenT<reco::SecondaryVertexTagInfoCollection> svInfoToken;
+  edm::EDGetTokenT<TrackingVertexCollection> tvToken;
+
 };
 
 
@@ -115,11 +119,9 @@ recoBSVTagInfoValidationAnalyzer::recoBSVTagInfoValidationAnalyzer(const edm::Pa
 
 
     // Get the track collection
-    svTagInfoProducer_ = config.getUntrackedParameter<edm::InputTag> ( "svTagInfoProducer" );
-
+    svInfoToken = consumes<reco::SecondaryVertexTagInfoCollection>(config.getParameter<InputTag>("svTagInfoProducer"));
     // Name of the traking pariticle collection
-    trackingTruth_ = config.getUntrackedParameter<edm::InputTag> ( "trackingTruth" );
-
+    tvToken = consumes<TrackingVertexCollection>(config.getParameter<InputTag>("trackingTruth")); 
     // Number of track categories
     numberVertexClassifier_ = VertexCategories::Unknown+1;
 
@@ -192,8 +194,7 @@ void recoBSVTagInfoValidationAnalyzer::analyze(const edm::Event& event, const ed
 
   // Vertex collection
   edm::Handle<reco::SecondaryVertexTagInfoCollection> svTagInfoCollection;
-  event.getByLabel(svTagInfoProducer_, svTagInfoCollection);
-
+  event.getByToken(svInfoToken, svTagInfoCollection);
   // Get a constant reference to the track history associated to the classifier
   VertexHistory const & tracer = classifier_.history();
 
@@ -305,8 +306,7 @@ void recoBSVTagInfoValidationAnalyzer::analyze(const edm::Event& event, const ed
 
   // Vertex collection
   edm::Handle<TrackingVertexCollection>  TVCollection;
-  event.getByLabel(trackingTruth_, TVCollection);
-    
+  event.getByToken(tvToken, TVCollection);
   // Loop over the TV collection.
   for (std::size_t index = 0; index < TVCollection->size(); ++index){
         

@@ -11,6 +11,7 @@
 #include "SimMuon/MCTruth/interface/PSimHitMap.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 
+#include <TEfficiency.h>
 class MuonGEMDigis_Harvesting : public edm::EDAnalyzer
 {
 public:
@@ -29,6 +30,7 @@ public:
 
   virtual void endRun(const edm::Run&, const edm::EventSetup&) ;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+	TProfile* ComputeEff( TH1F* num, TH1F* denum);
 
 private:
 

@@ -333,7 +333,7 @@ MuonME0Hits::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
         std::string region[2] ={"m1", "p1"};
         
         meCollection["sh_me0_zr_rm1"]=dbe->book2D("sh_me0_zr_rm1","SimHit occupancy: region m1;globalZ [cm];globalR [cm]",80,-555,-515,120,20,160);
-        meCollection["sh_me0_zr_rp1"]=dbe->book2D("sh_me0_zr_rp1","SimHit occupancy: region p1;globalZ [cm];globalR [cm]",80,555,515,120,20,160);
+        meCollection["sh_me0_zr_rp1"]=dbe->book2D("sh_me0_zr_rp1","SimHit occupancy: region p1;globalZ [cm];globalR [cm]",80,515,555,120,20,160);
         
         for(int k=0;k<num_region;k++){
             meCollection["sh_me0_xy_r"+region[k]+"_l1"]=dbe->book2D("sh_me0_xy_r"+region[k]+"_l1","SimHit occupancy: region "+region[k]+", layer1;globalX [cm];globalY [cm]",120,-280,280,120,-280,280);

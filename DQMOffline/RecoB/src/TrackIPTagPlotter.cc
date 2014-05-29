@@ -590,11 +590,13 @@ TrackIPTagPlotter::~TrackIPTagPlotter ()
 }
 
 void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
+				    const double & jec,
 				    const int & jetFlavour)
 {
-  analyzeTag(baseTagInfo,jetFlavour,1.);
+  analyzeTag(baseTagInfo,jec,jetFlavour,1.);
 }
 void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
+				    const double & jec,
 				    const int & jetFlavour, const float & w)
 {
   const reco::TrackIPTagInfo * tagInfo = 
@@ -768,8 +770,8 @@ void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
   }
 
   //still need to implement weights in FlavourHistograms2D
-  trackMultVsJetPtHisto->fill(jetFlavour, tagInfo->jet()->pt(), tagInfo->tracks().size());
-  selectedTrackMultVsJetPtHisto->fill(jetFlavour, tagInfo->jet()->pt(), nSelectedTracks); //tagInfo->selectedTracks().size());
+  trackMultVsJetPtHisto->fill(jetFlavour, tagInfo->jet()->pt()*jec, tagInfo->tracks().size());
+  selectedTrackMultVsJetPtHisto->fill(jetFlavour, tagInfo->jet()->pt()*jec, nSelectedTracks); //tagInfo->selectedTracks().size());
 }
 
 void TrackIPTagPlotter::createPlotsForFinalize (){

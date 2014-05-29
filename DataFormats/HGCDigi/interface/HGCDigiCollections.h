@@ -7,8 +7,11 @@
 #include "DataFormats/ForwardDetId/interface/HGCHEDetId.h"
 #include "DataFormats/HGCDigi/interface/HGCSample.h"
 
-typedef edm::SortedCollection< HGCDataFrame<HGCEEDetId,HGCSample> > HGCEEDigiCollection;
-typedef edm::SortedCollection< HGCDataFrame<HGCHEDetId,HGCSample> > HGCHEfrontDigiCollection;
-typedef edm::SortedCollection< HGCDataFrame<HGCHEDetId,HGCSample> > HGCHEbackDigiCollection;
+typedef HGCDataFrame<HGCEEDetId,HGCSample>      HGCEEDataFrame;
+typedef edm::SortedCollection< HGCEEDataFrame > HGCEEDigiCollection;
+
+typedef HGCDataFrame<HGCHEDetId,HGCSample>           HGCHEDataFrame;
+typedef edm::SortedCollection< HGCHEDataFrame > HGCHEDigiCollection;
+
 
 #endif

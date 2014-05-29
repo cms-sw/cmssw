@@ -13,7 +13,7 @@ template <class C> void EcalZeroSuppressor<C>::findGain12Pedestal(const DetId & 
 }
  
 
-template <class C> bool EcalZeroSuppressor<C>::accept(const C& frame, const double & threshold) 
+template <class C> bool EcalZeroSuppressor<C>::accept(const C& frame, const double & threshold, bool adcThreashold) 
 {
 
   bool pass = true;
@@ -21,12 +21,14 @@ template <class C> bool EcalZeroSuppressor<C>::accept(const C& frame, const doub
   DetId  detId = frame.id();
 
   double ped;
-  double width;
-  findGain12Pedestal(detId, ped, width);
+  double width=1.; // rms of the pedestal == 1 sigma of the noise
+  if(!adcThreashold) findGain12Pedestal(detId, ped, width);
 
   double Erec = 0.;
-  Erec = theEnergy_.energy(frame);
-
+  Erec = theEnergy_.energy(frame); // Erec in adc, the pedestal is subtracted
+//  std::cout << "EcalZeroSuppression threashold: Erec = " << Erec 
+  //<< " < " << threshold << "*" << width << "\t" << detId.rawId 
+  //<< std::endl;
   if (Erec<=threshold*width) pass = false;
   
   return pass;

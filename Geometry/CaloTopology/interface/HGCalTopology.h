@@ -13,7 +13,7 @@ class HGCalTopology : public CaloSubdetectorTopology {
 
 public:
   /// create a new Topology
-  HGCalTopology(const HGCalDDDConstants* hdcons, ForwardSubdetector subdet, bool halfChamber);
+  HGCalTopology(const HGCalDDDConstants& hdcons, ForwardSubdetector subdet, bool halfChamber);
 
   /// virtual destructor
   virtual ~HGCalTopology() { }  
@@ -89,6 +89,9 @@ public:
   ///Is this a valid cell id
   virtual bool valid(const DetId& id) const;
   bool validHashIndex(uint32_t ix) const {return (ix < kSizeForDenseIndexing);}
+
+  const HGCalDDDConstants& dddConstants () const {return hdcons_;}
+
   
   /** returns a new DetId offset by nrStepsX and nrStepsY (can be negative),
    * returns DetId(0) if invalid */
@@ -114,7 +117,7 @@ private:
   idCont decode(const DetId& id) const ;
   DetId  encode(const idCont& id_) const ;
 
-  const HGCalDDDConstants*    hdcons_;
+  const HGCalDDDConstants&    hdcons_;
   ForwardSubdetector          subdet_;
   bool                        half_;
   int                         sectors_, layers_, cells_, kEKhalf_;

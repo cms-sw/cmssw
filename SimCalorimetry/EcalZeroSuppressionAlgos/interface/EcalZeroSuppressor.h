@@ -36,7 +36,7 @@ public:
   // the threshold has to be expressed in number of noise sigmas for ADC counts in the highest gain
 
   // bool accept(const C& frame, const double & threshold);
-  bool accept(const C& frame, const double & threshold);
+  bool accept(const C& frame, const double & threshold, bool adcThreashold=true);
   
   /// can be fetched every event from the EventSetup
   void setPedestals(const EcalPedestals * pedestals) {thePedestals = pedestals;} 

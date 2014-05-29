@@ -18,6 +18,7 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDetId/interface/EKDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalElectronicsId.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalScDetId.h"
@@ -32,11 +33,14 @@ EcalRecHitProducer::EcalRecHitProducer(const edm::ParameterSet& ps)
 {
         ebUncalibRecHitCollection_ = ps.getParameter<edm::InputTag>("EBuncalibRecHitCollection");
         eeUncalibRecHitCollection_ = ps.getParameter<edm::InputTag>("EEuncalibRecHitCollection");
+        ekUncalibRecHitCollection_ = ps.getParameter<edm::InputTag>("EKuncalibRecHitCollection");
         ebRechitCollection_        = ps.getParameter<std::string>("EBrechitCollection");
         eeRechitCollection_        = ps.getParameter<std::string>("EErechitCollection");
+        ekRechitCollection_        = ps.getParameter<std::string>("EKrechitCollection");
 
         recoverEBIsolatedChannels_   = ps.getParameter<bool>("recoverEBIsolatedChannels");
         recoverEEIsolatedChannels_   = ps.getParameter<bool>("recoverEEIsolatedChannels");
+        //recoverEKIsolatedChannels_   = ps.getParameter<bool>("recoverEKIsolatedChannels");
         recoverEBVFE_                = ps.getParameter<bool>("recoverEBVFE");
         recoverEEVFE_                = ps.getParameter<bool>("recoverEEVFE");
         recoverEBFE_                 = ps.getParameter<bool>("recoverEBFE");
@@ -50,6 +54,7 @@ EcalRecHitProducer::EcalRecHitProducer(const edm::ParameterSet& ps)
 
         produces< EBRecHitCollection >(ebRechitCollection_);
         produces< EERecHitCollection >(eeRechitCollection_);
+        produces< EKRecHitCollection >(ekRechitCollection_);
 
         std::string componentType = ps.getParameter<std::string>("algo");
         worker_ = EcalRecHitWorkerFactory::get()->create(componentType, ps);
@@ -74,12 +79,13 @@ void
 EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
 {
         using namespace edm;
-
         Handle< EBUncalibratedRecHitCollection > pEBUncalibRecHits;
         Handle< EEUncalibratedRecHitCollection > pEEUncalibRecHits;
+        Handle< EKUncalibratedRecHitCollection > pEKUncalibRecHits;
 
         const EBUncalibratedRecHitCollection*  ebUncalibRecHits = 0;
         const EEUncalibratedRecHitCollection*  eeUncalibRecHits = 0; 
+        const EKUncalibratedRecHitCollection*  ekUncalibRecHits = 0; 
 
         // get the barrel uncalib rechit collection
         if ( ebUncalibRecHitCollection_.label() != "" && ebUncalibRecHitCollection_.instance() != "" ) {
@@ -102,9 +108,20 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
                 }
         }
 
+        if ( ekUncalibRecHitCollection_.label() != "" && ekUncalibRecHitCollection_.instance() != "" ) {
+                evt.getByLabel( ekUncalibRecHitCollection_, pEKUncalibRecHits);
+                if ( pEKUncalibRecHits.isValid() ) {
+                        ekUncalibRecHits = pEKUncalibRecHits.product(); // get a ptr to the product
+                        LogDebug("EcalRecHitDebug") << "total # EK uncalibrated rechits: " << ekUncalibRecHits->size();
+                } else {
+                        edm::LogError("EcalRecHitError") << "Error! can't get the product " << ekUncalibRecHitCollection_;
+                }
+        }else assert(false); //Shervin
+
         // collection of rechits to put in the event
         std::auto_ptr< EBRecHitCollection > ebRecHits( new EBRecHitCollection );
         std::auto_ptr< EERecHitCollection > eeRecHits( new EERecHitCollection );
+        std::auto_ptr< EKRecHitCollection > ekRecHits( new EKRecHitCollection );
 
         worker_->set(es);
 
@@ -131,9 +148,17 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
                 }
         }
 
+        if (ekUncalibRecHits){
+	  // loop over uncalibrated rechits to make calibrated ones
+	  for(EKUncalibratedRecHitCollection::const_iterator it  = ekUncalibRecHits->begin(); it != ekUncalibRecHits->end(); ++it) {
+	    worker_->run(evt, *it, *ekRecHits);
+	  }
+        } else assert(false); //Shervin
+
         // sort collections before attempting recovery, to avoid insertion of double recHits
         ebRecHits->sort();
         eeRecHits->sort();
+        ekRecHits->sort();
         
         if ( recoverEBIsolatedChannels_ || recoverEBFE_ || killDeadChannels_ )
         {
@@ -267,20 +292,24 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
         // to undefined results
 	ebRecHits->sort();
         eeRecHits->sort();
+        ekRecHits->sort();
 	
 	// apply spike cleaning
 	if (cleaningAlgo_){
 	  cleaningAlgo_->setFlags(*ebRecHits);
 	  cleaningAlgo_->setFlags(*eeRecHits);
+	  cleaningAlgo_->setFlags(*ekRecHits);
 	}
 
 
         // put the collection of recunstructed hits in the event   
         LogInfo("EcalRecHitInfo") << "total # EB calibrated rechits: " << ebRecHits->size();
         LogInfo("EcalRecHitInfo") << "total # EE calibrated rechits: " << eeRecHits->size();
+        LogInfo("EcalRecHitInfo") << "total # EK calibrated rechits: " << ekRecHits->size();
 
         evt.put( ebRecHits, ebRechitCollection_ );
         evt.put( eeRecHits, eeRechitCollection_ );
+	evt.put( ekRecHits, ekRechitCollection_ );
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

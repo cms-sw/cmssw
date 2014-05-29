@@ -15,8 +15,10 @@ class EcalTimeOffsetConstant {
     ~EcalTimeOffsetConstant();
     void  setEBValue(const float& value) { EBvalue_ = value; }
     void  setEEValue(const float& value) { EEvalue_ = value; }
+    void  setEKValue(const float& value) { EEvalue_ = value; } // Shervin // using EE
     float getEBValue() const { return EBvalue_; }
     float getEEValue() const { return EEvalue_; }
+    float getEKValue() const { return EEvalue_; } // Shervin //using EE
     void print(std::ostream& s) const {
       s << "EcalTimeOffsetConstant: EB " << EBvalue_ << "; EE " << EEvalue_ << " [ns]";
     }

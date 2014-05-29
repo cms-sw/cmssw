@@ -51,7 +51,7 @@ public:
 
 private:
   void parseTextMap(const std::string& filename,CaloTowerConstituentsMap& theMap);
-  void assignEEtoHE(const CaloGeometry* geometry, CaloTowerConstituentsMap& theMap);
+  void assignEEtoHE(const CaloGeometry* geometry, CaloTowerConstituentsMap& theMap, const CaloTowerTopology * cttopo);
   std::string mapFile_;
 };
 

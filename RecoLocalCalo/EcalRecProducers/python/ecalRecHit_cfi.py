@@ -8,6 +8,9 @@ ecalRecHit = cms.EDProducer("EcalRecHitProducer",
     EEuncalibRecHitCollection = cms.InputTag("ecalGlobalUncalibRecHit","EcalUncalibRecHitsEE"),
     EBuncalibRecHitCollection = cms.InputTag("ecalGlobalUncalibRecHit","EcalUncalibRecHitsEB"),
     EBrechitCollection = cms.string('EcalRecHitsEB'),
+    EKrechitCollection = cms.string('EcalRecHitsEK'),
+    EKuncalibRecHitCollection = cms.InputTag("ecalGlobalUncalibRecHit","EcalUncalibRecHitsEK"),
+
     # channel flags to be exluded from reconstruction, e.g { 1, 2 }
     ChannelStatusToBeExcluded = cms.vint32(),
     # avoid propagation of dead channels other than after recovery
