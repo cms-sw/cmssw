@@ -56,12 +56,23 @@ class EventSetup
             //NOTE: this will catch the case where T does not inherit from EventSetupRecord
             //  HOWEVER the error message under gcc 3.x is awful
             BOOST_STATIC_ASSERT((boost::is_base_and_derived<edm::eventsetup::EventSetupRecord, T>::value));
-            const T* value = 0;
+            const T* value = nullptr;
             eventSetupGetImplementation(*this, value);
             //NOTE: by construction, eventSetupGetImplementation should thrown an exception rather than return a null value
             assert(0 != value);
             return *value;
          }
+      /** returns the Record of type T.  If no such record available
+       a null pointer is returned */
+      template< typename T>
+      const T* tryToGet() const {
+        //NOTE: this will catch the case where T does not inherit from EventSetupRecord
+        BOOST_STATIC_ASSERT((boost::is_base_and_derived<edm::eventsetup::EventSetupRecord, T>::value));
+        const T* value = nullptr;
+        eventSetupTryToGetImplementation(*this, value);
+        return *value;
+      }
+
       /** can directly access data if data_default_record_trait<> is defined for this data type **/
       template< typename T>
          void getData(T& iHolder) const {
