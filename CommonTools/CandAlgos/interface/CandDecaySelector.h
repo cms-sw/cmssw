@@ -43,10 +43,10 @@ namespace helper {
     std::auto_ptr<reco::CandidateCollection> selCands_;
   };
   
-  template<>
-  struct StoreManagerTrait<reco::CandidateCollection> {
+  template<typename EdmFilter>
+  struct StoreManagerTrait<reco::CandidateCollection, EdmFilter> {
     typedef CandDecayStoreManager type;
-    typedef ObjectSelectorBase<reco::CandidateCollection> base;
+    typedef ObjectSelectorBase<reco::CandidateCollection, EdmFilter> base;
   };
 
 }
