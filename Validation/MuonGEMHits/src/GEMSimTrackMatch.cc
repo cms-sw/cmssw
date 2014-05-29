@@ -28,7 +28,7 @@ void GEMSimTrackMatch::bookHisto()
 
 			string track_eta_name = string("track_eta")+ suffix;
 			string track_eta_title = track_eta_name+";SimTrack |#eta|;# of tracks";
-			track_eta[i][j]     = dbe_->book1D(track_eta_name.c_str(), track_eta_title.c_str(), 140,1.5,2.5);
+			track_eta[i][j]     = dbe_->book1D(track_eta_name.c_str(), track_eta_title.c_str(), 140,minEta_,maxEta_);
 	
 			string track_phi_name = string("track_phi")+ suffix;
 			string track_phi_title = track_phi_name+";SimTrack |#phi|;# of tracks";
