@@ -19,7 +19,7 @@
 
 #include<algorithm>
 
-#define DebugLog
+//#define DebugLog
 
 template <class T>
 bool any(const std::vector<T> & v, const T &what) {
