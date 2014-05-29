@@ -12,6 +12,8 @@ Phase2OTECRing* Phase2OTECRingBuilder::build(const GeometricDet* aPhase2OTECRing
 
   vector<const GeomDet*> innerGeomDets;
   vector<const GeomDet*> outerGeomDets;
+  vector<const GeomDet*> innerGeomDetBrothers;
+  vector<const GeomDet*> outerGeomDetBrothers;
 
   //---- to evaluate meanZ
   double meanZ = 0;
@@ -28,18 +30,28 @@ Phase2OTECRing* Phase2OTECRingBuilder::build(const GeometricDet* aPhase2OTECRing
 
     if(counter%2 == 0) {
 
-    const GeomDet* theGeomDet = theGeomDetGeometry->idToDet( (*it)->geographicalID() );
+      const GeomDet* theGeomDet = theGeomDetGeometry->idToDet( (*it)->geographicalID() );
+      
+      if( fabs( (*it)->positionBounds().z() ) < fabs(meanZ))
+	innerGeomDets.push_back(theGeomDet);
+      
+      if( fabs( (*it)->positionBounds().z() ) > fabs(meanZ))
+	outerGeomDets.push_back(theGeomDet);      
+    }
+    else {
 
-    if( fabs( (*it)->positionBounds().z() ) < fabs(meanZ))
-      innerGeomDets.push_back(theGeomDet);
-
-    if( fabs( (*it)->positionBounds().z() ) > fabs(meanZ))
-      outerGeomDets.push_back(theGeomDet);      
+      const GeomDet* theGeomDet = theGeomDetGeometry->idToDet( (*it)->geographicalID() );
+      
+      if( fabs( (*it)->positionBounds().z() ) < fabs(meanZ))
+	innerGeomDetBrothers.push_back(theGeomDet);
+      
+      if( fabs( (*it)->positionBounds().z() ) > fabs(meanZ))
+	outerGeomDetBrothers.push_back(theGeomDet);      
     }
   }
 
   //edm::LogInfo(TkDetLayers) << "innerGeomDets.size(): " << innerGeomDets.size() ;
   //edm::LogInfo(TkDetLayers) << "outerGeomDets.size(): " << outerGeomDets.size() ;
 
-  return new Phase2OTECRing(innerGeomDets,outerGeomDets);
+  return new Phase2OTECRing(innerGeomDets,outerGeomDets,innerGeomDetBrothers,outerGeomDetBrothers);
 }

@@ -149,10 +149,10 @@ Phase2OTECRingedLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& s
   }
 
   if((index(0) == index(1)) && (index(0) == index(2))) {
-    edm::LogWarning("AllRingInOnePlane") << " All rings: " 
-					 << ringIndices[0] << " " 
-					 << ringIndices[1] << " " 
-					 << ringIndices[2] << " in one plane. Only the first two will be considered";
+    edm::LogInfo("AllRingsInOnePlane") << " All rings: " 
+				       << ringIndices[0] << " " 
+				       << ringIndices[1] << " " 
+				       << ringIndices[2] << " in one plane. Only the first two will be considered";
     ring2ok=false;
   }
 
