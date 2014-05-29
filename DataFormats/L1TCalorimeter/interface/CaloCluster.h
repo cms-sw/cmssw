@@ -38,6 +38,7 @@ namespace l1t {
       void setClusterFlag(ClusterFlag flag, bool val=true);
       void setHwSeedPt(int pt);
       void setHOverE(int hOverE);
+      void setFgECAL(int fgECAL);
 
       bool checkClusterFlag(ClusterFlag flag) const;
       bool isValid() const;
@@ -45,6 +46,7 @@ namespace l1t {
       int fgEta() const;
       int fgPhi() const;
       int hOverE() const;
+      int fgECAL() const;
       int clusterFlags() const{return m_clusterFlags;}
 
     private:
@@ -58,8 +60,9 @@ namespace l1t {
       int m_fgEta; // 2 bits (to be defined in agreement with GT inputs)
       int m_fgPhi; // 2 bits (to be defined in agreement with GT inputs)
 
-      // H/E
-      int m_hOverE; // 7 bits (between 0 and 1 -> resolution=1/128=0.8%). Number of bits is not definitive
+      // identification variables
+      int m_hOverE; // 8 bits (between 0 and 1 -> resolution=1/256=0.39%). Number of bits is not definitive
+      int m_fgECAL; // FG bit of the seed tower
   };
 
   typedef BXVector<CaloCluster> CaloClusterBxCollection;
