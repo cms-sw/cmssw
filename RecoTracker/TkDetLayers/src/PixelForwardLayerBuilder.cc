@@ -36,20 +36,6 @@ ForwardDetLayer* PixelForwardLayerBuilder::build(const GeometricDet* aPixelForwa
 					       theGeometricPanels[i+(panelsSize/2)],
 					       theGeomDetGeometry ) );
   }
-  // Hack to recover the outermost ring (15) of the PhaseII outer
-  // tracker. Since panelsSize is odd, the last one is cut of by the
-  // previous integer division by 2. It is somewhat *arbitrarily*
-  // coupled with the innermost panel, mainly to be sure that it will
-  // fall into the opposite side of the division that is internally
-  // done in the PixelForwardLayer class: if they are opposite, there
-  // will be no hits duplication while doing TSB propagation, provided
-  // we protect the code that look for compatible layers in such a way
-  // to only look for the last ring and ignore the innermost one.
-  if (panelsSize & 0x1) {
-    theBlades.push_back( myBladeBuilder.build( theGeometricPanels[panelsSize/2],
-					       theGeometricPanels[panelsSize-1],
-					       theGeomDetGeometry ) );
-  }
 
   if ( aPixelForwardLayer->type()==GeometricDet::PixelEndCapPhase1 )
     return new PixelForwardLayerPhase1(theBlades);

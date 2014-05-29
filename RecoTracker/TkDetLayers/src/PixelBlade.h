@@ -41,13 +41,6 @@ class PixelBlade GCC11_FINAL : public GeometricSearchDetWithGroups {
   //Extension of the interface
   virtual const BoundDiskSector& specificSurface() const {return *theDiskSector;}
 
-  bool inRange(float radius, bool inner) const {
-    if (inner)
-      return (radius >= front_radius_range_.first && radius <= front_radius_range_.second);
-    else
-      return (radius >= back_radius_range_.first && radius <= back_radius_range_.second);
-  }
-
  private:
   // private methods for the implementation of groupedCompatibleDets()
 
