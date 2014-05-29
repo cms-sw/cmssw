@@ -107,7 +107,6 @@ LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
           else if(tag=="#ptclus"){//
                 ptclus_.clear();
                 float val;
-                std::cout<<"in #ptclus"<<std::endl;
                 while(ss>>val){
                         ptclus_.push_back(val);
                 }

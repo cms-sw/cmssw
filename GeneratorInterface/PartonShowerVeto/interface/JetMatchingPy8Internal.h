@@ -1326,7 +1326,7 @@ bool JetMatchingMadgraph::matchPartonsToJets(int iType) {
 int JetMatchingMadgraph::matchPartonsToJetsLight() {
 
   // Count the number of hard partons
-  int nParton = origTypeIdx[0].size();
+  int nParton = typeIdx[0].size();
 
   // Initialize SlowJet with current working event
   if (!slowJet->setup(workEventJet) ) {
