@@ -81,6 +81,8 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
 
       if(eg_et >0 && eg_et<63 && relativeJetIsolationEG < egRelativeJetIsolationCut)  isoFlag=1;
       if( eg_et >= 63) isoFlag=1;
+    }else{ // no associated jet; assume it's an isolated eg
+      isoFlag=1;
     }
 
 

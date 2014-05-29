@@ -34,7 +34,10 @@ namespace l1t {
     for(std::vector<l1t::EGamma>::const_iterator itEGamma = input->begin();
 	itEGamma != input->end(); ++itEGamma){
       const unsigned newEta = gtEta(itEGamma->hwEta());
-      const uint16_t rankPt = params->emScale().rank((uint16_t)itEGamma->hwPt());
+      // const uint16_t rankPt = params->emScale().rank((uint16_t)itEGamma->hwPt());
+
+      // LA  Hack till we get the right em scale from conditions DB
+      const uint16_t rankPt = (uint16_t)itEGamma->hwPt();
 
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > ldummy(0,0,0,0);
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *lorentz = &ldummy;

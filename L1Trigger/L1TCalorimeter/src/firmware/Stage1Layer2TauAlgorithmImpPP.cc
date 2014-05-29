@@ -30,7 +30,7 @@ Stage1Layer2TauAlgorithmImpPP::Stage1Layer2TauAlgorithmImpPP(CaloParamsStage1* p
   jetSeedThreshold= floor( params_->jetSeedThreshold()/jetLsb + 0.5); // convert GeV to HW units
   tauRelativeJetIsolationCut = params_->tauRelativeJetIsolationCut();
 
-  double dswitchOffTauIso(60.); // value at which to switch of Tau iso requirement (GeV)
+  double dswitchOffTauIso(100.); // value at which to switch of Tau iso requirement (GeV)
   do2x1Algo=false;
 
   switchOffTauIso= floor( dswitchOffTauIso/jetLsb + 0.5);  // convert GeV to HW units
@@ -89,7 +89,7 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
     // 	   << " jetIso: " << jetIsolation << " Cut: " << tauRelativeJetIsolationCut
     // 	   << " Seed Threshold: " << tauSeedThreshold << endl;
 
-    if( tauEt >0 && (jetIsolation < tauRelativeJetIsolationCut || tauEt > switchOffTauIso))
+    if( tauEt >0 && (jetIsolation < tauRelativeJetIsolationCut || tauEt > switchOffTauIso || abs(jetIsolation-999.)<0.1 ))
       preGtTaus->push_back(theTau);
   }
 

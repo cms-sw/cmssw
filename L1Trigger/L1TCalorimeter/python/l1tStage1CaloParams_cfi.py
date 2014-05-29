@@ -30,7 +30,7 @@ l1tCaloParams = cms.ESProducer(
     regionPUSParams  = regionSubtraction_PU40_MC13TeV,
 
     # EG
-    egLsb                = cms.double(1.0),
+    egLsb                = cms.double(1.),
     egSeedThreshold      = cms.double(1.),
     egNeighbourThreshold = cms.double(1.),      #not used by Stage1
     egHcalThreshold            = cms.double(1.),#not used by Stage1
@@ -50,7 +50,7 @@ l1tCaloParams = cms.ESProducer(
 
     # Tau
     tauLsb                = cms.double(0.5),    #not used by Stage1
-    tauSeedThreshold      = cms.double(7.),    #not used by Stage1
+    tauSeedThreshold      = cms.double(7.),    
     tauNeighbourThreshold = cms.double(0.),    #not used by Stage1
     tauIsoPUSType         = cms.string("None"),    #not used by Stage1
     tauIsoLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauIsoLUT.txt"),    #not used by Stage1
