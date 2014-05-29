@@ -136,14 +136,14 @@ GeometricSearchTrackerBuilder::build(const GeometricDet* theGeometricTracker,
 	std::string layer_name = (*it2)->name();
 	
 	if(layer_name.find("PixelForwardDisk") < layer_name.size()){
-	  edm::LogInfo("BuildingPixelForwardLayer")<<"I got  "<< layer_name;
+	  LogDebug("BuildingPixelForwardLayer")<<"I got  "<< layer_name;
 	  if((*it2)->positionBounds().z() < 0)
 	    theNegPxlFwdLayers.push_back( aPixelForwardLayerBuilder.build(*it2,theGeomDetGeometry) );
 	  if((*it2)->positionBounds().z() > 0)
 	    thePosPxlFwdLayers.push_back( aPixelForwardLayerBuilder.build(*it2,theGeomDetGeometry) );
 	}
 	else if(layer_name.find("Disc") < layer_name.size()){
-	  edm::LogInfo("BuildingPhase2OTECRingedLayer")<<"I got  "<< layer_name;
+	  LogDebug("BuildingPhase2OTECRingedLayer")<<"I got  "<< layer_name;
 	  if((*it2)->positionBounds().z() < 0)
 	    theNegPxlFwdLayers.push_back( aPhase2OTECRingedLayerBuilder.build(*it2,theGeomDetGeometry) );
 	  if((*it2)->positionBounds().z() > 0)
