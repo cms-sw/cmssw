@@ -162,10 +162,10 @@ void GEMDigiTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup&
 		FillWithTrigger( pad_eta,   track_.gem_pad , fabs( track_.eta) );
 		
  	  if ( track_.eta> minEta_ && track_.eta< maxEta_) {
-			track_phi->Fill( fabs( track_.phi)) ;
-			FillWithTrigger( dg_sh_phi, track_.gem_sh  , fabs( track_.phi) );
-			FillWithTrigger( dg_phi,    track_.gem_dg  , fabs( track_.phi) );
-			FillWithTrigger( pad_phi,   track_.gem_pad , fabs( track_.phi) );
+			track_phi->Fill( track_.phi ) ;
+			FillWithTrigger( dg_sh_phi, track_.gem_sh  ,  track_.phi );
+			FillWithTrigger( dg_phi,    track_.gem_dg  ,  track_.phi );
+			FillWithTrigger( pad_phi,   track_.gem_pad ,  track_.phi );
  	  }
 			
 
