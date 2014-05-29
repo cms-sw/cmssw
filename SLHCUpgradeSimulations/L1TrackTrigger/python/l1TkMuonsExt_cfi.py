@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 l1TkMuonsExt = cms.EDProducer(
     "L1TkMuonFromExtendedProducer",
     L1MuonsInputTag = cms.InputTag("l1extraMuExtended"),
-    L1TrackInputTag = cms.InputTag("L1Tracks","Level1TkTracks"),
+    L1TrackInputTag = cms.InputTag("TTTracksFromPixelDigis", "Level1TTTracks"),
     ETAMIN = cms.double(0),
     ETAMAX = cms.double(5.),        # no cut
     ZMAX = cms.double( 25. ),       # in cm
