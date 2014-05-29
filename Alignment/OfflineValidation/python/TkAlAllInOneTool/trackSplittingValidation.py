@@ -58,3 +58,17 @@ class TrackSplittingValidation(GenericValidationData):
         # if self.jobmode.split( ',' )[0] == "crab":
         #     repMap["outputFile"] = os.path.basename( repMap["outputFile"] )
         return repMap
+
+
+    def appendToExtendedValidation( self, validationsSoFar = "" ):
+        """
+        if no argument or "" is passed a string with an instantiation is
+        returned, else the validation is appended to the list
+        """
+        repMap = self.getRepMap()
+        comparestring = self.getCompareStrings("TrackSplittingValidation")
+        if validationsSoFar != "":
+            validationsSoFar += ','
+        validationsSoFar += comparestring
+        return validationsSoFar
+
