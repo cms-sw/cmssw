@@ -254,6 +254,7 @@ def gen2015(fragment,howMuch):
 ### Production test: 13 TeV equivalents
 steps['ProdMinBias_13']=gen2015('MinBias_13TeV_cfi',Kby(9,100))
 steps['ProdTTbar_13']=gen2015('TTbar_Tauola_13TeV_cfi',Kby(9,100))
+steps['ProdZEE_13']=gen2015('ZEE_13TeV_cfi',Kby(9,100))
 steps['ProdQCD_Pt_3000_3500_13']=gen2015('QCD_Pt_3000_3500_13TeV_cfi',Kby(9,100))
 # GF include branched wf comparing relVal and prod
 
@@ -1154,13 +1155,20 @@ steps['RECOPRMXUP15_PU50']=merge([
         {'--customise':'SLHCUpgradeSimulations/Configuration/postLS1CustomsPreMixing.customisePostLS1'}, # temporary replacement for premix; to be brought back to customisePostLS1
         {'--geometry'  : 'Extended2015'},
         step3Up2015Defaults50ns])
-steps['RECOPRMXUP15PROD']=merge([
+
+recoPremixUp15prod = merge([
         {'-s':'RAW2DIGI,L1Reco,RECO,EI'},
         {'--datatier' : 'GEN-SIM-RECO,AODSIM'}, 
         {'--eventcontent' : 'RECOSIM,AODSIM'},
         {'--customise':'SLHCUpgradeSimulations/Configuration/postLS1CustomsPreMixing.customisePostLS1'}, # temporary replacement for premix; to be brought back to customisePostLS1
         {'--geometry'  : 'Extended2015'},
         step3Up2015Defaults])
+
+steps['RECOPRMXUP15PROD_PU25']=merge([
+        recoPremixUp15prod])
+steps['RECOPRMXUP15PROD_PU50']=merge([
+        {'--conditions':'auto:upgradePLS150ns'},
+        recoPremixUp15prod])
 
 #wmsplit['RECOPU1']=1
 steps['RECOPUDBG']=merge([{'--eventcontent':'RECODEBUG,DQM'},steps['RECOPU1']])
