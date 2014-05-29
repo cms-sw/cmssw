@@ -490,13 +490,17 @@ class AddJetCollection(ConfigToolBase):
                     setattr(process,jetCorrections[0]+_labelCorrName+'Type1p2CorMet'+postfix, caloMetT1T2.clone(src = "corMetGlobalMuons", srcCorrections = cms.VInputTag(cms.InputTag(jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix, 'type1'), cms.InputTag(jetCorrections[0]+_labelCorrName+'JetMETcorr2'+postfix))))
 
                 elif _type == 'PF':
+                    from JetMETCorrections.Type1MET.pfMETCorrections_cff import pfJetsPtrForMetCorr
+                    from JetMETCorrections.Type1MET.pfMETCorrections_cff import pfCandsNotInJetsPtrForMetCorr
                     from JetMETCorrections.Type1MET.pfMETCorrections_cff import pfCandsNotInJetsForMetCorr
                     from JetMETCorrections.Type1MET.pfMETCorrections_cff import pfJetMETcorr
                     from JetMETCorrections.Type1MET.pfMETCorrections_cff import pfCandMETcorr
                     from JetMETCorrections.Type1MET.pfMETCorrections_cff import pfType1CorrectedMet
                     from JetMETCorrections.Type1MET.pfMETCorrections_cff import pfType1p2CorrectedMet
-                    setattr(process,jetCorrections[0]+_labelCorrName+'CandsNotInJet'+postfix,pfCandsNotInJetsForMetCorr.clone(topCollection = jetSource))
-                    setattr(process,jetCorrections[0]+_labelCorrName+'CandMETcorr'+postfix, pfCandMETcorr.clone(src = cms.InputTag(jetCorrections[0]+_labelCorrName+'CandsNotInJet'+postfix)))
+                    setattr(process,jetCorrections[0]+_labelCorrName+'pfJetsPtrForMetCorr'+postfix,pfJetsPtrForMetCorr.clone(src = jetSource))
+                    setattr(process,jetCorrections[0]+_labelCorrName+'pfCandsNotInJetsPtrForMetCorr'+postfix,pfCandsNotInJetsPtrForMetCorr.clone(topCollection = jetCorrections[0]+_labelCorrName+'pfJetsPtrForMetCorr'+postfix))
+                    setattr(process,jetCorrections[0]+_labelCorrName+'pfCandsNotInJetsForMetCorr'+postfix,pfCandsNotInJetsForMetCorr.clone(src = jetCorrections[0]+_labelCorrName+'pfCandsNotInJetsPtrForMetCorr'+postfix))
+                    setattr(process,jetCorrections[0]+_labelCorrName+'CandMETcorr'+postfix, pfCandMETcorr.clone(src = cms.InputTag(jetCorrections[0]+_labelCorrName+'pfCandsNotInJetsForMetCorr'+postfix)))
                     setattr(process,jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix, pfJetMETcorr.clone(src = jetSource))
                     setattr(process,jetCorrections[0]+_labelCorrName+'Type1CorMet'+postfix, pfType1CorrectedMet.clone(srcType1Corrections = cms.VInputTag(cms.InputTag(jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix, 'type1'))))
                     setattr(process,jetCorrections[0]+_labelCorrName+'Type1p2CorMet'+postfix, pfType1p2CorrectedMet.clone(srcType1Corrections = cms.VInputTag(cms.InputTag(jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix, 'type1')),srcUnclEnergySums = cms.VInputTag(cms.InputTag(jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix, 'type2'),cms.InputTag(jetCorrections[0]+_labelCorrName+'JetMETcorr'+postfix, 'offset'),cms.InputTag(jetCorrections[0]+_labelCorrName+'CandMETcorr'+postfix))))
