@@ -6,9 +6,11 @@
 # 	Nadia Davidson, Piotr Golonka, Tomasz Pierzchala
 #	Tomasz Prezedzinski, Zbigniew Was
 #
-# CMSSW implementation by: 
-#	Ian M. Nugent and Tomasz Prezedzinski 
-#	(+possible former collaborations with Tomasz Prezedzinski)	
+# Original CMSSW implementation by: 
+#	Tomasz Prezedzinski + possible former collaborations	
+#       version rejected because the reading of root files conflicted between CMSSW and MCTester
+#
+# Current version includes modification from the cvs version which is based on the original version with Modifications/Input from Ian M. Nugent
 #
 ##########################################################################
 MCTester is contained in 3 components:
