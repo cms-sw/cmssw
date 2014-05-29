@@ -460,7 +460,7 @@ class RunMEtUncertainties(ConfigToolBase):
                 configtools.cloneProcessingSnippet(process, process.producePatPFMETCorrections, postfix)
 
         # add "nominal" (unshifted) pat::MET collections
-        getattr(process, "pfCandsNotInJet"+postfix).bottomCollection = pfCandCollection
+        getattr(process, "pfCandsNotInJetsForMetCorr"+postfix).bottomCollection = pfCandCollection
         getattr(process, "selectedPatJetsForMETtype1p2Corr"+postfix).src = shiftedParticleCollections['lastJetCollection']
         getattr(process, "selectedPatJetsForMETtype2Corr"+postfix).src = shiftedParticleCollections['lastJetCollection']
 
@@ -1071,7 +1071,7 @@ class RunMEtUncertainties(ConfigToolBase):
                                         'pfMEtMVAJetResDown'+postfix, 'patPFMetMVAJetResDown', collectionsToKeep, postfix)
 
             setattr(process, "pfCandsNotInJetUnclusteredEnUpForPFMEtByMVA"+postfix, cms.EDProducer("ShiftedPFCandidateProducer",
-                src = cms.InputTag('pfCandsNotInJet'),
+                src = cms.InputTag('pfCandsNotInJetsForMetCorr'),
                 shiftBy = cms.double(+1.*varyByNsigmas),
                 uncertainty = cms.double(0.10)
             ))
