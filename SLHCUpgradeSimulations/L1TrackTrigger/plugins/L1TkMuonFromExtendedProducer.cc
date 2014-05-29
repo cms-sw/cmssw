@@ -48,7 +48,7 @@ using namespace l1extra ;
 class L1TkMuonFromExtendedProducer : public edm::EDProducer {
 public:
   
-  typedef L1TkTrack_PixelDigi_                          L1TkTrackType;
+  typedef TTTrack< Ref_PixelDigi_ >                     L1TkTrackType;
   typedef std::vector< L1TkTrackType >        L1TkTrackCollectionType;
   
   struct PropState { //something simple, imagine it's hardware emulation
@@ -189,13 +189,13 @@ L1TkMuonFromExtendedProducer::produce(edm::Event& iEvent, const edm::EventSetup&
       float l1tk_pt = l1tk.getMomentum().perp();
       if (l1tk_pt < PTMINTRA_) continue;
 
-      float l1tk_z  = l1tk.getVertex().z();
+      float l1tk_z  = l1tk.getPOCA().z();
       if (fabs(l1tk_z) > ZMAX_) continue;
 
       float l1tk_chi2 = l1tk.getChi2();
       if (l1tk_chi2 > CHI2MAX_) continue;
       
-      int l1tk_nstubs = l1tk.getStubPtrs().size();
+      int l1tk_nstubs = l1tk.getStubRefs().size();
       if ( l1tk_nstubs < nStubsmin_) continue;
 
       float l1tk_eta = l1tk.getMomentum().eta();
@@ -236,7 +236,7 @@ L1TkMuonFromExtendedProducer::produce(edm::Event& iEvent, const edm::EventSetup&
 	float p4e = sqrt(0.105658369*0.105658369 + p3.mag());
 	math::XYZTLorentzVector l1tkp4(p3.x(), p3.y(), p3.z(), p4e);
 
-	auto tkv3=matchTk.getVertex();
+	auto tkv3=matchTk.getPOCA();
 	math::XYZPoint v3(tkv3.x(), tkv3.y(), tkv3.z());
 	float trkisol = -999;
 	int l1tk_q = matchTk.getRInv()>0? 1: -1;
@@ -277,7 +277,7 @@ L1TkMuonFromExtendedProducer::PropState L1TkMuonFromExtendedProducer::propagateT
   float tk_aeta = std::abs(tk_eta);
   float tk_phi = p3.phi();
   float tk_q = tk.getRInv()>0? 1.: -1.;
-  float tk_z  = tk.getVertex().z();
+  float tk_z  = tk.getPOCA().z();
   if (!correctGMTPropForTkZ_) tk_z = 0;
 
   L1TkMuonFromExtendedProducer::PropState dest;
