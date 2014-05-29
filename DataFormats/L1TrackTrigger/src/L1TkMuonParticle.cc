@@ -7,15 +7,15 @@
 
 using namespace l1extra;
 
-L1TkMuonParticle::L1TkMuonParticle() {}
-
 	// Padova's TkMuons
 L1TkMuonParticle::L1TkMuonParticle( const LorentzVector& p4,
                                     const edm::Ptr< DTMatch > &muRef,
                                     float tkisol )
  : LeafCandidate( ( char ) 0, p4 ),
    theDTMatch ( muRef ) ,
-   theIsolation ( tkisol )
+   theIsolation ( tkisol ),
+   TrkzVtx_(999.),
+   quality_(999)
 {
 	// need to set the z of the track
 
@@ -30,13 +30,17 @@ L1TkMuonParticle::L1TkMuonParticle( const LorentzVector& p4,
    : LeafCandidate( ( char ) 0, p4 ),
      muRef_ ( muRef ) ,	
      trkPtr_ ( trkPtr ) ,
-     theIsolation ( tkisol )
-
+     theIsolation ( tkisol ),
+     TrkzVtx_(999),
+     quality_(999)
 {
 
  if ( trkPtr_.isNonnull() ) {
 	float z = getTrkPtr() -> getPOCA().z();
 	setTrkzVtx( z );
+ }
+ if (muRef_.isNonnull()) {
+   quality_ = muRef_->gmtMuonCand().quality();
  }
 }
 
@@ -48,25 +52,18 @@ int L1TkMuonParticle::bx() const {
    return theDTMatch->getDTBX();
  }
 
- if (muRef_.isNonnull() ) {
-   return dummy;
+ // PL.  In case Pierluigi's objects have a bx
+ if ( muRef_.isNonnull() ) {
+   return (getMuRef() -> bx()) ;
+ }
+ else if (muExtendedRef_.isNonnull()) {
+   return getMuExtendedRef()->bx();
+ 
  }
 
  return dummy;
 }
 
-
-unsigned int L1TkMuonParticle::quality() const {
- 
- int dummy = 999;
- 
- if ( muRef_.isNonnull() ) {
-        return (muRef_ -> gmtMuonCand().quality() );
- }
- else {
-        return dummy;
- }
-}
 
 
 
