@@ -19,8 +19,6 @@ private:
 
   void PhiPosNegSplit_innerOuter( std::vector< GeometricDet const *>::iterator begin,
 				  std::vector< GeometricDet const *>::iterator end );
-  void PhiPosNegSplit_innerOuter_corrected( std::vector< GeometricDet const *>::iterator begin,
-					    std::vector< GeometricDet const *>::iterator end );
 };
 
 #endif

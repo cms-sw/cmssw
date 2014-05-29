@@ -14,6 +14,7 @@ class CmsTrackerDiskBuilder : public CmsTrackerLevelBuilder
 private:
   virtual void sortNS( DDFilteredView& , GeometricDet* );
   virtual void buildComponent( DDFilteredView& , GeometricDet*, std::string );
+
 };
 
 #endif
