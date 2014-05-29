@@ -81,59 +81,43 @@ HcalRecNumberingTester::~HcalRecNumberingTester() {}
 
 // ------------ method called to produce the data  ------------
 void HcalRecNumberingTester::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup ) {
-   using namespace edm;
 
-   std::cout << "Here I am " << std::endl;
+  edm::ESHandle<HcalDDDRecConstants> pHSNDC;
+  iSetup.get<HcalRecNumberingRecord>().get( pHSNDC );
 
-   edm::ESHandle<HcalDDDRecConstants> pHSNDC;
-   edm::ESTransientHandle<DDCompactView> pDD;
-   iSetup.get<IdealGeometryRecord>().get( pDD );
-   iSetup.get<HcalRecNumberingRecord>().get( pHSNDC );
-
-   try {
-      DDExpandedView epv(*pDD);
-      std::cout << " without firstchild or next... epv.logicalPart() =" << epv.logicalPart() << std::endl;
-   }catch(const DDLogicalPart& iException){
-      throw cms::Exception("Geometry")
-	<<"DDORAReader::readDB caught a DDLogicalPart exception: \""<<iException<<"\"";
-   } catch (const coral::Exception& e) {
-      throw cms::Exception("Geometry")
-	<<"DDORAReader::readDB caught coral::Exception: \""<<e.what()<<"\"";
-   } catch ( std::exception& e ) {
-     throw cms::Exception("Geometry")
-       <<  "DDORAReader::readDB caught std::exception: \"" << e.what() << "\"";
-   } catch ( ... ) {
-     throw cms::Exception("Geometry")
-       <<  "DDORAReader::readDB caught UNKNOWN!!! exception." << std::endl;
-   }
-   std::cout << "about to de-reference the edm::ESHandle<HcalDDDRecConstants> pHSNDC" << std::endl;
-   const HcalDDDRecConstants hdc (*pHSNDC);
-   std::cout << "about to getPhiOff and getPhiBin for 0..2" << std::endl;
-   int neta = hdc.getNEta();
-   std::cout << neta << " eta bins with phi off set for barrel = " 
-	     << hdc.getPhiOff(0) << ", endcap = " << hdc.getPhiOff(1) 
-	     << std::endl;
-   for (int i=0; i<neta; ++i) {
-     std::pair<double,double> etas   = hdc.getEtaLimit(i);
-     double                   fbin   = hdc.getPhiBin(i);
-     std::vector<int>         depths = hdc.getDepth(i);
-     std::cout << "EtaBin[" << i << "]: EtaLimit = (" << etas.first << ":"
-	       << etas.second << ")  phiBin = " << fbin << " depths = (";
-     for (unsigned int k=0; k<depths.size(); ++k) {
-       if (k == 0) std::cout << depths[k];
-       else        std::cout << ", " << depths[k];
-     }
-     std::cout << ")" << std::endl;
-   }
-   std::vector<HcalDDDRecConstants::HcalEtaBin> hbar = hdc.getEtaBins(0);
-   std::vector<HcalDDDRecConstants::HcalEtaBin> hcap = hdc.getEtaBins(1);
-   std::cout << "Topology Mode " << hdc.getTopoMode() 
-	     << " HB with " << hbar.size() << " eta sectors and HE with "
-	     << hcap.size() << " eta sectors" << std::endl;
-   std::vector<HcalCellType> hbcell = hdc.HcalCellTypes(HcalBarrel);
-   std::vector<HcalCellType> hecell = hdc.HcalCellTypes(HcalEndcap);
-   std::cout << "HB with " << hbcell.size() << " cells and HE with "
-	     << hecell.size() << " cells" << std::endl;
+  std::cout << "about to de-reference the edm::ESHandle<HcalDDDRecConstants> pHSNDC" << std::endl;
+  const HcalDDDRecConstants hdc (*pHSNDC);
+  std::cout << "about to getPhiOff and getPhiBin for 0..2" << std::endl;
+  int neta = hdc.getNEta();
+  std::cout << neta << " eta bins with phi off set for barrel = " 
+	    << hdc.getPhiOff(0) << ", endcap = " << hdc.getPhiOff(1) 
+	    << std::endl;
+  for (int i=0; i<neta; ++i) {
+    std::pair<double,double> etas   = hdc.getEtaLimit(i);
+    double                   fbin   = hdc.getPhiBin(i);
+    std::vector<int>         depths = hdc.getDepth(i);
+    std::cout << "EtaBin[" << i << "]: EtaLimit = (" << etas.first << ":"
+	      << etas.second << ")  phiBin = " << fbin << " depths = (";
+    for (unsigned int k=0; k<depths.size(); ++k) {
+      if (k == 0) std::cout << depths[k];
+      else        std::cout << ", " << depths[k];
+    }
+    std::cout << ")" << std::endl;
+  }
+  std::vector<HcalDDDRecConstants::HcalEtaBin> hbar = hdc.getEtaBins(0);
+  std::vector<HcalDDDRecConstants::HcalEtaBin> hcap = hdc.getEtaBins(1);
+  std::cout << "Topology Mode " << hdc.getTopoMode() 
+	    << " HB with " << hbar.size() << " eta sectors and HE with "
+	    << hcap.size() << " eta sectors" << std::endl;
+  std::vector<HcalCellType> hbcell = hdc.HcalCellTypes(HcalBarrel);
+  std::vector<HcalCellType> hecell = hdc.HcalCellTypes(HcalEndcap);
+  std::cout << "HB with " << hbcell.size() << " cells and HE with "
+	    << hecell.size() << " cells" << std::endl;
+  for (int type=0; type <= 1; ++type ) {
+    std::vector<HcalDDDRecConstants::HcalActiveLength> act = hdc.getThickActive(type);
+    std::cout << "Hcal type " << type << " has " << act.size() 
+	      << " eta/depth segment " << std::endl;
+  }
 }
 
 
