@@ -18,8 +18,8 @@ L1TkElectrons = cms.EDProducer("L1TkElectronTrackProducer",
         # Quality cuts on Track and Track L1EG matching criteria                                
         TrackChi2           = cms.double(100.0), # minimum Chi2 to select tracks
         TrackMinPt          = cms.double(12.0), # minimum Pt to select tracks                                     
-        TrackEGammaDeltaPhi = cms.double(0.05), # Delta Phi cutoff to match Track with L1EG objects
-        TrackEGammaDeltaR = cms.double(0.08),   # Delta R cutoff to match Track with L1EG objects
+        TrackEGammaDeltaPhi = cms.vdouble(0.05, 0.0, 0.0), # functional Delta Phi cut parameters to match Track with L1EG objects
+        TrackEGammaDeltaR   = cms.vdouble(0.08, 0.0, 0.0), # functional Delta R cut parameters to match Track with L1EG objects
         TrackEGammaDeltaEta = cms.double(0.08), # Delta Eta cutoff to match Track with L1EG objects
                                                 # are considered. 
 	RelativeIsolation = cms.bool( True ),	# default = True. The isolation variable is relative if True,
@@ -34,3 +34,8 @@ L1TkElectrons = cms.EDProducer("L1TkElectronTrackProducer",
 	DRmax = cms.double( 0.2 ),
 	DeltaZ = cms.double( 0.6 )    # in cm. Used for tracks to be used isolation calculation
 )
+# for  LowPt Electron
+L1TkElectronsLoose = L1TkElectrons.clone()
+L1TkElectronsLoose.TrackEGammaDeltaPhi = cms.vdouble(0.07, 0.0, 0.0)
+L1TkElectronsLoose.TrackEGammaDeltaR = cms.vdouble(0.12, 0.0, 0.0)
+L1TkElectronsLoose.TrackMinPt = cms.double( 3.0 )

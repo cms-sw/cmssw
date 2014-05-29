@@ -90,6 +90,7 @@ class L1TkEtMissProducer : public edm::EDProducer {
         int nStubsmin;
         int nStubsPSmin ;       // minimum number of stubs in PS modules 
 
+	float PTMAX;	// in GeV
 
         //const StackedTrackerGeometry*                   theStackedGeometry;
 
@@ -131,6 +132,8 @@ L1TkEtMissProducer::L1TkEtMissProducer(const edm::ParameterSet& iConfig)
   PTMINTRA = (float)iConfig.getParameter<double>("PTMINTRA");
   nStubsmin = iConfig.getParameter<int>("nStubsmin");
   nStubsPSmin = iConfig.getParameter<int>("nStubsPSmin");
+
+  PTMAX = (float)iConfig.getParameter<double>("PTMAX");
 
   produces<L1TkEtMissParticleCollection>("MET");
 
@@ -224,6 +227,9 @@ L1TkEtMissProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     	    if (fabs(ztr) > ZMAX ) continue;
     	    if (chi2 > CHI2MAX) continue;
                 
+
+	    if ( PTMAX > 0 && pt > PTMAX)  continue;	// ignore these very high PT tracks.
+
             int nstubs = 0;
 	    float nPS = 0.;     // number of stubs in PS modules
 
