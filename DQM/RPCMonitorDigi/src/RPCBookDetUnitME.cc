@@ -405,7 +405,7 @@ void RPCMonitorDigi::bookRegionME(DQMStore::IBooker &ibooker,const std::string &
     if(bin< (RPCMonitorDigi::numberOfDisks_+1)) {//negative endcap
       binlabel<<(bin-( RPCMonitorDigi::numberOfDisks_+1)); 
     }else{//positive endcaps
-      binlabel<<(bin- RPCMonitorDigi::numberOfDisks_*2); 
+      binlabel<<(bin- RPCMonitorDigi::numberOfDisks_); 
     }
     meMap["Occupancy_for_Endcap"]->setBinLabel( bin , binlabel.str(), 1);
   }
