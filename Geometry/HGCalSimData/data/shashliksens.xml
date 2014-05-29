@@ -6,7 +6,7 @@
     <PartSelector path="//ShashlikActive.*"/>
     <Parameter name="SensitiveDetector" value="ShashlikSensitiveDetector" eval="false"/>
     <Parameter name="ReadOutName" value="EcalHitsEK" eval="false"/>
-    <Parameter name="ModuleLength" value="56.75*mm"/>
+    <Parameter name="ModuleLength" value="113.5*mm"/>
     <Parameter name="FiberLength"  value="0.75*mm"/>
     <Parameter name="FiberLength"  value="4.75*mm"/>
     <Parameter name="FiberLength"  value="8.75*mm"/>

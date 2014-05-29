@@ -35,6 +35,8 @@ public:
   virtual double                    getEnergyDeposit(G4Step*);
   virtual uint16_t                  getDepth(G4Step*);
   virtual uint32_t                  setDetUnitId(G4Step*);
+  G4double                          getAttenuation(G4Step* aStep, double birk1,
+						   double birk2, double birk3);
 
 private:    
 
