@@ -2,7 +2,6 @@
 
 #include "PixelBarrelLayerBuilder.h"
 #include "PixelForwardLayerBuilder.h"
-#include "Phase2OTECLayerBuilder.h"
 #include "Phase2OTECRingedLayerBuilder.h"
 #include "TIBLayerBuilder.h"
 #include "TOBLayerBuilder.h"
@@ -28,7 +27,6 @@ GeometricSearchTrackerBuilder::build(const GeometricDet* theGeometricTracker,
 {
   PixelBarrelLayerBuilder aPixelBarrelLayerBuilder;
   PixelForwardLayerBuilder aPixelForwardLayerBuilder;
-  Phase2OTECLayerBuilder aPhase2OTECLayerBuilder;
   Phase2OTECRingedLayerBuilder aPhase2OTECRingedLayerBuilder;
   TIBLayerBuilder aTIBLayerBuilder;
   TOBLayerBuilder aTOBLayerBuilder;
