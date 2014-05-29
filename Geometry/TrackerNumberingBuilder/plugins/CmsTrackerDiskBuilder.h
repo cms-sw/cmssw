@@ -10,16 +10,10 @@
  */
 class CmsTrackerDiskBuilder : public CmsTrackerLevelBuilder
 {
-public:
-  CmsTrackerDiskBuilder( unsigned int totalBlade );
   
 private:
   virtual void sortNS( DDFilteredView& , GeometricDet* );
   virtual void buildComponent( DDFilteredView& , GeometricDet*, std::string );
-  
-  void PhiPosNegSplit_innerOuter( std::vector< GeometricDet const *>::iterator begin,
-				  std::vector< GeometricDet const *>::iterator end );
-  unsigned int m_totalBlade;
 };
 
 #endif
