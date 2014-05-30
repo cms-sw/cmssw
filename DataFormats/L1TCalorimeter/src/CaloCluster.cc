@@ -77,3 +77,19 @@ int l1t::CaloCluster::fgECAL() const
 {
   return m_fgECAL;
 }
+
+bool l1t::CaloCluster::operator<(const CaloCluster& cl) const
+{
+  bool res = false;
+  // Favour high pT
+  if(hwPt()<cl.hwPt()) res = true;
+  else if(hwPt()==cl.hwPt()) {
+    // Favour central clusters
+    if( abs(hwEta())>abs(cl.hwEta()) ) res = true;
+    else if( abs(hwEta())==abs(cl.hwEta()) ){
+      // Favour small phi (arbitrary)
+      if(hwPhi()>cl.hwPhi()) res = true;
+    }
+  }
+  return res;
+}
