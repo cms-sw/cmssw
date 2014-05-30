@@ -7,6 +7,7 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('Configuration.Geometry.GeometryIdeal_cff')
+process.load('Configuration.StandardSequences.RawToDigi_cff')
 
 # Select the Message Logger output you would like to see:
 process.load('FWCore.MessageService.MessageLogger_cfi')
@@ -51,13 +52,13 @@ process.load('L1Trigger.L1TCalorimeter.L1TCaloStage1_cff')
 ## changes to L1 algorithms begin here, the list is exhaustive.
 ## commented values should be the default
 ## see L1Trigger/L1TCalorimeter/python/l1tCaloStage1Digis_cfi.py for more info
-#process.l1tCaloStage1Digis.FirmwareVersion = cms.uint32(2) # 1=HI algos, 2=PP algos
-#process.l1tCaloStage1Digis.egRelativeJetIsolationCut = cms.double(0.5)
-#process.l1tCaloStage1Digis.tauRelativeJetIsolationCut = cms.double(1.)
-#process.l1tCaloStage1Digis.regionETCutForHT = cms.uint32(7)
-#process.l1tCaloStage1Digis.regionETCutForMET = cms.uint32(0)
-#process.l1tCaloStage1Digis.minGctEtaForSums = cms.int32(4)
-#process.l1tCaloStage1Digis.maxGctEtaForSums = cms.int32(17)
+#process.simCaloStage1Digis.FirmwareVersion = cms.uint32(2) # 1=HI algos, 2=PP algos
+#process.simCaloStage1Digis.egRelativeJetIsolationCut = cms.double(0.5)
+#process.simCaloStage1Digis.tauRelativeJetIsolationCut = cms.double(1.)
+#process.simCaloStage1Digis.regionETCutForHT = cms.uint32(7)
+#process.simCaloStage1Digis.regionETCutForMET = cms.uint32(0)
+#process.simCaloStage1Digis.minGctEtaForSums = cms.int32(4)
+#process.simCaloStage1Digis.maxGctEtaForSums = cms.int32(17)
 
 #process.l1tCaloParams.egLsb = cms.double(1.0),
 #process.l1tCaloParams.egSeedThreshold = cms.double(1.),
@@ -67,11 +68,14 @@ process.load('L1Trigger.L1TCalorimeter.L1TCaloStage1_cff')
 #process.l1tCaloParams.etSumEtaMin = cms.vint32(-999, -999, -999, -999),
 #process.l1tCaloParams.etSumEtaMax = cms.vint32(999,  999,  999,  999),
 #process.l1tCaloParams.etSumEtThreshold = cms.vdouble(0.,  0.,   0.,   0.)
+
 process.simRctStage1FormatDigis.regionTag = cms.InputTag("gctDigis")
 process.simRctStage1FormatDigis.emTag = cms.InputTag("gctDigis")
+
 process.p1 = cms.Path(
     #process.SimL1Emulator_Stage1
     #process.simRctDigis +
+    process.gctDigis +
     process.simGctDigis_Stage1
     )
 

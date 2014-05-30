@@ -7,8 +7,8 @@ simRctStage1FormatDigis = cms.EDProducer(
 
 simCaloStage1Digis = cms.EDProducer(
     "l1t::Stage1Layer2Producer",
-    CaloRegions = cms.InputTag("rctStage1FormatDigis"),
-    CaloEmCands = cms.InputTag("rctStage1FormatDigis"),
+    CaloRegions = cms.InputTag("simRctStage1FormatDigis"),
+    CaloEmCands = cms.InputTag("simRctStage1FormatDigis"),
     FirmwareVersion = cms.uint32(2),  ## 1=HI algo, 2= pp algo
     egRelativeJetIsolationCut = cms.double(0.5), ## eg isolation cut
     tauRelativeJetIsolationCut = cms.double(1.), ## tau isolation cut
@@ -19,11 +19,11 @@ simCaloStage1Digis = cms.EDProducer(
 )
 
 simCaloStage1FinalDigis = cms.EDProducer("l1t::PhysicalEtAdder",
-                                      InputCollection = cms.InputTag("caloStage1Digis")
+                                      InputCollection = cms.InputTag("simCaloStage1Digis")
 )
 
 simCaloLegacyFormatDigis = cms.EDProducer("l1t::L1TCaloUpgradeToGCTConverter",
-                                       InputCollection = cms.InputTag("caloStage1FinalDigis")
+                                       InputCollection = cms.InputTag("simCaloStage1FinalDigis")
 )
 
 
