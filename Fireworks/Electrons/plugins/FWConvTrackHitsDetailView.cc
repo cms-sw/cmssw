@@ -377,7 +377,7 @@ FWConvTrackHitsDetailView::setTextInfo(const FWModelId &id, const reco::Conversi
    latex->DrawLatex( x, y, Form( "p_{T}=%.1f GeV, #eta=%0.2f, #varphi=%0.2f",
 				 track0->pt(), track0->eta(), track0->phi()));
    y -= lineH;
-   const reco::HitPattern &hp0 = track0->getHitPattern();
+   const reco::HitPattern &hp0 = track0->hitPattern();
    int nvalid_tk0 = 0, ninvalid_tk0 = 0, npix_tk0 = 0, nstrip_tk0 = 0;
    for(int i_tk0 = 0; i_tk0 < hp0.numberOfHits(reco::HitPattern::TRACK_HITS); i_tk0++) {
        uint32_t hit = hp0.getHitPattern(reco::HitPattern::TRACK_HITS, i_tk0);
@@ -409,7 +409,7 @@ FWConvTrackHitsDetailView::setTextInfo(const FWModelId &id, const reco::Conversi
 				 track1->pt(), track1->eta(), track1->phi()));
    y -= lineH;
 
-   const reco::HitPattern &hp1 = track1->getHitPattern();
+   const reco::HitPattern &hp1 = track1->hitPattern();
    int nvalid_tk1 = 0, ninvalid_tk1 = 0, npix_tk1 = 0, nstrip_tk1 = 0;
    for(int i_tk1 = 0; i_tk1 < hp1.numberOfHits(reco::HitPattern::TRACK_HITS); i_tk1++) {
        uint32_t hit = hp1.getHitPattern(reco::HitPattern::TRACK_HITS, i_tk1);

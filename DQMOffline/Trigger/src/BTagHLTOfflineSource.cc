@@ -1336,11 +1336,11 @@ bool BTagHLTOfflineSource::isVBTFMuon(const reco::Muon& muon)
 
   double mupt             = muon.pt();
   double mueta            = muon.eta();
-  int muonHits            = gm->getHitPattern().numberOfValidMuonHits(reco::HitPattern::TRACK_HITS);
+  int muonHits            = gm->hitPattern().numberOfValidMuonHits(reco::HitPattern::TRACK_HITS);
   int nMatches            = muon.numberOfMatches();
-  int trackerHits         = tk->getHitPattern().numberOfValidHits(reco::HitPattern::TRACK_HITS);
-  int pixelHits           = tk->getHitPattern().numberOfValidPixelHits(reco::HitPattern::TRACK_HITS);
-  int outerHits           = tk->getHitPattern().numberOfHits(reco::HitPattern::MISSING_OUTER_HITS);
+  int trackerHits         = tk->hitPattern().numberOfValidHits(reco::HitPattern::TRACK_HITS);
+  int pixelHits           = tk->hitPattern().numberOfValidPixelHits(reco::HitPattern::TRACK_HITS);
+  int outerHits           = tk->hitPattern().numberOfHits(reco::HitPattern::MISSING_OUTER_HITS);
   double tknormalizedChi2 = tk->normalizedChi2(); 
   double gmnormalizedChi2 = gm->normalizedChi2(); 
 

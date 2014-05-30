@@ -330,11 +330,11 @@ bool BPhysicsOniaDQM::selGlobalMuon(const reco::Muon &recoMu)
   return (isMuonInAccept(recoMu) &&
           iTrack->found() > 11 &&
           gTrack->chi2()/gTrack->ndof() < 20.0 &&
-          gTrack->getHitPattern().numberOfValidMuonHits(reco::HitPattern::TRACK_HITS) > 0 &&
+          gTrack->hitPattern().numberOfValidMuonHits(reco::HitPattern::TRACK_HITS) > 0 &&
           iTrack->chi2()/iTrack->ndof() < 4.0 &&
           //recoMu.muonID("TrackerMuonArbitrated") &&
           //recoMu.muonID("TMLastStationAngTight") &&
-          iTrack->getHitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS) > 1 &&
+          iTrack->hitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS) > 1 &&
           fabs(iTrack->dxy(RefVtx)) < 3.0 &&
           fabs(iTrack->dz(RefVtx)) < 15.0 );
 }
@@ -348,7 +348,7 @@ bool BPhysicsOniaDQM::selTrackerMuon(const reco::Muon &recoMu)
           iTrack->chi2()/iTrack->ndof() < 4.0 &&
           //recoMu.muonID("TrackerMuonArbitrated") &&
           //recoMu.muonID("TMLastStationAngTight") &&
-          iTrack->getHitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS) > 1 &&
+          iTrack->hitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS) > 1 &&
           fabs(iTrack->dxy(RefVtx)) < 3.0 &&
           fabs(iTrack->dz(RefVtx)) < 15.0 );
 }

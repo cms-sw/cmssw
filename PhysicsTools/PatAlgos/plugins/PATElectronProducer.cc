@@ -470,7 +470,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
             passconversionveto = !ConversionTools::hasMatchedConversion( *itElectron, hConversions, beamSpotHandle->position());
           }else{
             // use missing hits without vertex fit method
-            passconversionveto = itElectron->gsfTrack()->getHitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS) < 1;
+            passconversionveto = itElectron->gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS) < 1;
           }
 
           anElectron.setPassConversionVeto( passconversionveto );
@@ -688,7 +688,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
         passconversionveto = !ConversionTools::hasMatchedConversion( *itElectron, hConversions, beamSpotHandle->position());
       }else{
         // use missing hits without vertex fit method
-        passconversionveto = itElectron->gsfTrack()->getHitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS) < 1;
+        passconversionveto = itElectron->gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS) < 1;
       }
       anElectron.setPassConversionVeto( passconversionveto );
 

@@ -482,8 +482,8 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       //      reco::TrackCollection::const_iterator itk = tkColl[0]->begin();
       zeroHitsvsEta[ievt]->Fill(etaGen,itk0->found(),1.);
       zeroHitsvsP[ievt]->Fill(pGen,itk0->found(),1.);
-      zeroLayersvsEta[ievt]->Fill(etaGen,itk0->getHitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS),1.);
-      zeroLayersvsP[ievt]->Fill(pGen,itk0->getHitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS),1.);
+      zeroLayersvsEta[ievt]->Fill(etaGen,itk0->hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS),1.);
+      zeroLayersvsP[ievt]->Fill(pGen,itk0->hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS),1.);
     }
     //    if ( tkColl[1]->size() == 1 ) { 
     reco::TrackCollection::const_iterator itk1 = tkColl[1]->begin();
@@ -498,8 +498,8 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       //      reco::TrackCollection::const_iterator itk = tkColl[0]->begin();
       firstHitsvsEta[ievt]->Fill(etaGen,itk1->found(),1.);
       firstHitsvsP[ievt]->Fill(pGen,itk1->found(),1.);
-      firstLayersvsEta[ievt]->Fill(etaGen,itk1->getHitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS),1.);
-      firstLayersvsP[ievt]->Fill(pGen,itk1->getHitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS),1.);
+      firstLayersvsEta[ievt]->Fill(etaGen,itk1->hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS),1.);
+      firstLayersvsP[ievt]->Fill(pGen,itk1->hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS),1.);
     }
     //    if ( tkColl[2]->size() == 1 ) { 
     reco::TrackCollection::const_iterator itk2 = tkColl[2]->begin();
@@ -510,8 +510,8 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       //      reco::TrackCollection::const_iterator itk = tkColl[1]->begin();
       secondHitsvsEta[ievt]->Fill(etaGen,itk2->found(),1.);    
       secondHitsvsP[ievt]->Fill(pGen,itk2->found(),1.);
-      secondLayersvsEta[ievt]->Fill(etaGen,itk2->getHitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS),1.);    
-      secondLayersvsP[ievt]->Fill(pGen,itk2->getHitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS),1.);
+      secondLayersvsEta[ievt]->Fill(etaGen,itk2->hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS),1.);    
+      secondLayersvsP[ievt]->Fill(pGen,itk2->hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS),1.);
     }
     //    if ( tkColl[3]->size() == 1 ) { 
     reco::TrackCollection::const_iterator itk3 = tkColl[3]->begin();
@@ -522,8 +522,8 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       //      reco::TrackCollection::const_iterator itk = tkColl[2]->begin();
       thirdHitsvsEta[ievt]->Fill(etaGen,itk3->found(),1.);
       thirdHitsvsP[ievt]->Fill(pGen,itk3->found(),1.);
-      thirdLayersvsEta[ievt]->Fill(etaGen,itk3->getHitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS),1.);
-      thirdLayersvsP[ievt]->Fill(pGen,itk3->getHitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS),1.);
+      thirdLayersvsEta[ievt]->Fill(etaGen,itk3->hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS),1.);
+      thirdLayersvsP[ievt]->Fill(pGen,itk3->hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS),1.);
 
       unsigned int firstSubDetId =-99;
       unsigned int secondSubDetId = -99;
@@ -611,8 +611,8 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       //      reco::TrackCollection::const_iterator itk = tkColl[3]->begin();
       fourthHitsvsEta[ievt]->Fill(etaGen,itk4->found(),1.);
       fourthHitsvsP[ievt]->Fill(pGen,itk4->found(),1.);
-      fourthLayersvsEta[ievt]->Fill(etaGen,itk4->getHitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS),1.);
-      fourthLayersvsP[ievt]->Fill(pGen,itk4->getHitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS),1.);
+      fourthLayersvsEta[ievt]->Fill(etaGen,itk4->hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS),1.);
+      fourthLayersvsP[ievt]->Fill(pGen,itk4->hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS),1.);
     }
     //    if ( tkColl[5]->size() == 1 ) { 
     reco::TrackCollection::const_iterator itk5 = tkColl[5]->begin();
@@ -623,8 +623,8 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       //      reco::TrackCollection::const_iterator itk = tkColl[3]->begin();
       fifthHitsvsEta[ievt]->Fill(etaGen,itk5->found(),1.);
       fifthHitsvsP[ievt]->Fill(pGen,itk5->found(),1.);
-      fifthLayersvsEta[ievt]->Fill(etaGen,itk5->getHitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS),1.);
-      fifthLayersvsP[ievt]->Fill(pGen,itk5->getHitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS),1.);
+      fifthLayersvsEta[ievt]->Fill(etaGen,itk5->hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS),1.);
+      fifthLayersvsP[ievt]->Fill(pGen,itk5->hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS),1.);
 
       if (DEBUG) {
 	std::cout << "Evt " << totalNEvt << " PArticle list: Pt = "  <<  pGen << " , eta = " << etaGen << std::endl;

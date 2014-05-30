@@ -63,7 +63,7 @@ std::vector< GetTrackTrajInfo::Result > GetTrackTrajInfo::analyze(const edm::Eve
   bool posSide = track.eta() > 0;
 
   // Get hit patterns of this track
-  const reco::HitPattern &hp = track.getHitPattern(); 
+  const reco::HitPattern &hp = track.hitPattern(); 
 
   // Loop over info for each hit
   // N.B. Hits are sorted according to increasing distance from origin by

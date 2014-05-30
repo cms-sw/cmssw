@@ -536,9 +536,9 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
             // d0, chi2, nhits quality cuts
             double dxy = gm->dxy(beamSpotHandle->position());
             double normalizedChi2 = gm->normalizedChi2();
-            double trackerHits = tk->getHitPattern().numberOfValidTrackerHits(HitPattern::TRACK_HITS);
-            int pixelHits = tk->getHitPattern().numberOfValidPixelHits(HitPattern::TRACK_HITS);
-            int muonHits = gm->getHitPattern().numberOfValidMuonHits(HitPattern::TRACK_HITS);
+            double trackerHits = tk->hitPattern().numberOfValidTrackerHits(HitPattern::TRACK_HITS);
+            int pixelHits = tk->hitPattern().numberOfValidPixelHits(HitPattern::TRACK_HITS);
+            int muonHits = gm->hitPattern().numberOfValidMuonHits(HitPattern::TRACK_HITS);
             int nMatches = mu.numberOfMatches();
 
             LogTrace("") << "\t... dxy, normalizedChi2, trackerHits, isTrackerMuon?: " << dxy << " [cm], " << normalizedChi2 << ", " << trackerHits << ", " << mu.isTrackerMuon();
@@ -686,9 +686,9 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
                                     double eta2=mu2.eta(); if (fabs(eta2)<etaCut_) zmuon_sel[6] = true;
 				    double dxy2 = gm2->dxy(beamSpotHandle->position()); if (fabs(dxy2)<dxyCut_) zmuon_sel[7] = true;
                                     double normalizedChi22 = gm2->normalizedChi2();
-                                    double trackerHits2    = tk2->getHitPattern().numberOfValidTrackerHits(HitPattern::TRACK_HITS);
-                                    int    pixelHits2      = tk2->getHitPattern().numberOfValidPixelHits(HitPattern::TRACK_HITS);
-                                    int    muonHits2       = gm2->getHitPattern().numberOfValidMuonHits(HitPattern::TRACK_HITS);
+                                    double trackerHits2    = tk2->hitPattern().numberOfValidTrackerHits(HitPattern::TRACK_HITS);
+                                    int    pixelHits2      = tk2->hitPattern().numberOfValidPixelHits(HitPattern::TRACK_HITS);
+                                    int    muonHits2       = gm2->hitPattern().numberOfValidMuonHits(HitPattern::TRACK_HITS);
                                     int    nMatches2       = mu2.numberOfMatches();
 				    bool quality2=true;
                                     if (normalizedChi22>normalizedChi2Cut_) quality2 = false;

@@ -104,7 +104,7 @@ namespace
   void countHits(const reco::Muon& muon, std::vector<int>& numHitsDT, std::vector<int>& numHitsCSC, std::vector<int>& numHitsRPC)
   {
     if ( muon.outerTrack().isNonnull() ) {
-      const reco::HitPattern &muonHitPattern = muon.outerTrack()->getHitPattern();
+      const reco::HitPattern &muonHitPattern = muon.outerTrack()->hitPattern();
       for (int iHit = 0; iHit < muonHitPattern.numberOfHits(reco::HitPattern::TRACK_HITS); ++iHit) {
           uint32_t hit = muonHitPattern.getHitPattern(reco::HitPattern::TRACK_HITS, iHit);
 	if ( hit == 0 ) break;	    

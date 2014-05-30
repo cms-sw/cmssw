@@ -130,7 +130,7 @@ reco::SoftLeptonProperties SoftPFElectronTagInfoProducer::fillElecProperties(con
 bool SoftPFElectronTagInfoProducer::isElecClean(edm::Event& iEvent,const reco::PFCandidate* PFcandidate)
 {
     using namespace reco;
-	const HitPattern &hitPattern = PFcandidate->gsfTrackRef().get()->getHitPattern();
+	const HitPattern &hitPattern = PFcandidate->gsfTrackRef().get()->hitPattern();
         //check that the first hit is a pixel hit
         uint32_t hit = hitPattern.getHitPattern(HitPattern::TRACK_HITS, 0);
         bool hitCondition = !(HitPattern::validHitFilter(hit) 

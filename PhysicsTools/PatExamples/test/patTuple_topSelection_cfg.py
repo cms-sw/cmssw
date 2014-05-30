@@ -48,7 +48,7 @@ process.isolatedMuons010 = cleanPatMuons.clone(preselection =
                                                '(trackIso+caloIso)/pt < 0.1 &'
                                                'innerTrack.numberOfValidHits > 10 &'
                                                'globalTrack.normalizedChi2 < 10.0 &'
-                                               'globalTrack.getHitPattern.numberOfValidMuonHits(\'TRACK_HITS\') > 0 &'
+                                               'globalTrack.hitPattern().numberOfValidMuonHits(\'TRACK_HITS\') > 0 &'
                                                'abs(dB) < 0.02'
                                                )
 

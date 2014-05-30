@@ -150,12 +150,12 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  yPCA_[nTracks_]     = track->vertex().y();
 	  zPCA_[nTracks_]     = track->vertex().z(); 
 	  validhits_[nTracks_][0]=track->numberOfValidHits();
-	  validhits_[nTracks_][1]=track->getHitPattern().numberOfValidPixelBarrelHits(reco::HitPattern::TRACK_HITS);
-	  validhits_[nTracks_][2]=track->getHitPattern().numberOfValidPixelEndcapHits(reco::HitPattern::TRACK_HITS);
-	  validhits_[nTracks_][3]=track->getHitPattern().numberOfValidStripTIBHits(reco::HitPattern::TRACK_HITS);
-	  validhits_[nTracks_][4]=track->getHitPattern().numberOfValidStripTIDHits(reco::HitPattern::TRACK_HITS);
-	  validhits_[nTracks_][5]=track->getHitPattern().numberOfValidStripTOBHits(reco::HitPattern::TRACK_HITS);
-	  validhits_[nTracks_][6]=track->getHitPattern().numberOfValidStripTECHits(reco::HitPattern::TRACK_HITS);
+	  validhits_[nTracks_][1]=track->hitPattern().numberOfValidPixelBarrelHits(reco::HitPattern::TRACK_HITS);
+	  validhits_[nTracks_][2]=track->hitPattern().numberOfValidPixelEndcapHits(reco::HitPattern::TRACK_HITS);
+	  validhits_[nTracks_][3]=track->hitPattern().numberOfValidStripTIBHits(reco::HitPattern::TRACK_HITS);
+	  validhits_[nTracks_][4]=track->hitPattern().numberOfValidStripTIDHits(reco::HitPattern::TRACK_HITS);
+	  validhits_[nTracks_][5]=track->hitPattern().numberOfValidStripTOBHits(reco::HitPattern::TRACK_HITS);
+	  validhits_[nTracks_][6]=track->hitPattern().numberOfValidStripTECHits(reco::HitPattern::TRACK_HITS);
 
 
 

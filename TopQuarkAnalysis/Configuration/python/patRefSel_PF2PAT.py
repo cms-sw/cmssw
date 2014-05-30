@@ -22,7 +22,7 @@ pfMuonCombIsoCut = 0.2
 # Selector
 pfElectronSelectionCut  =     'pt > 5.'
 pfElectronSelectionCut += ' && gsfTrackRef.isNonnull'
-pfElectronSelectionCut += ' && gsfTrackRef.getHitPattern.numberOfLostHits(\'MISSING_INNER_HITS\') < 2'
+pfElectronSelectionCut += ' && gsfTrackRef.hitPattern().numberOfLostHits(\'MISSING_INNER_HITS\') < 2'
 
 # Isolation
 pfElectronIsoConeR03 = True

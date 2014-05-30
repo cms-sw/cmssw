@@ -670,7 +670,7 @@ bool PrimaryVertexValidation::isHit2D(const TrackingRecHit &hit) const
 bool PrimaryVertexValidation::hasFirstLayerPixelHits(const reco::TransientTrack track)
 {
     using namespace reco;
-    const HitPattern &p = track.getHitPattern();
+    const HitPattern &p = track.hitPattern();
     for (int i = 0; i < p.numberOfHits(HitPattern::TRACK_HITS); i++) {
         uint32_t pattern = p.getHitPattern(HitPattern::TRACK_HITS, i);
         if (p.pixelBarrelHitFilter(pattern) || p.pixelEndcapHitFilter(pattern) ) {

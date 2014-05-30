@@ -756,11 +756,11 @@ TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
        quality_ = itTrack->qualityMask();
        foundhits_ = itTrack->found();
        lostHits_  = itTrack->lost();
-       foundhitsStrips_ =  itTrack->getHitPattern().numberOfValidStripHits(reco::HitPattern::TRACK_HITS);
-       foundhitsPixels_ =  itTrack->getHitPattern().numberOfValidPixelHits(reco::HitPattern::TRACK_HITS);
-       losthitsStrips_  =  itTrack->getHitPattern().numberOfLostStripHits(reco::HitPattern::TRACK_HITS);
-       losthitsPixels_  =  itTrack->getHitPattern().numberOfLostPixelHits(reco::HitPattern::TRACK_HITS);
-       nLayers_ = uint32_t(itTrack->getHitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS));
+       foundhitsStrips_ =  itTrack->hitPattern().numberOfValidStripHits(reco::HitPattern::TRACK_HITS);
+       foundhitsPixels_ =  itTrack->hitPattern().numberOfValidPixelHits(reco::HitPattern::TRACK_HITS);
+       losthitsStrips_  =  itTrack->hitPattern().numberOfLostStripHits(reco::HitPattern::TRACK_HITS);
+       losthitsPixels_  =  itTrack->hitPattern().numberOfLostPixelHits(reco::HitPattern::TRACK_HITS);
+       nLayers_ = uint32_t(itTrack->hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS));
        p_ = itTrack->p();
        pt_ = itTrack->pt();
        chi2_  = itTrack->chi2();

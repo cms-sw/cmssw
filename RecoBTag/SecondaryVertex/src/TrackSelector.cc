@@ -73,9 +73,9 @@ TrackSelector::operator () (const Track &track,
 
   return (!selectQuality || track.quality(quality)) &&
     (minPixelHits <= 0 ||
-     track.getHitPattern().numberOfValidPixelHits(HitPattern::TRACK_HITS) >= (int)minPixelHits) &&
+     track.hitPattern().numberOfValidPixelHits(HitPattern::TRACK_HITS) >= (int)minPixelHits) &&
     (minTotalHits <= 0 ||
-     track.getHitPattern().numberOfValidHits(HitPattern::TRACK_HITS) >= (int)minTotalHits) &&
+     track.hitPattern().numberOfValidHits(HitPattern::TRACK_HITS) >= (int)minTotalHits) &&
     track.pt() >= minPt &&
     track.normalizedChi2() < maxNormChi2 &&
     VectorUtil::DeltaR(jet.momentum(),

@@ -222,7 +222,7 @@ inline bool  TrackMultiSelector::testVtx ( const reco::Track &tk, const reco::Be
 }
 
 short TrackMultiSelector::select(const reco::Track &tk, const reco::BeamSpot &beamSpot, const std::vector<Point> &points) {
-   uint32_t vlayers = tk.getHitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS);
+   uint32_t vlayers = tk.hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS);
    uint32_t lhits = tk.numberOfLostHits();
    double pt = tk.pt(), chi2n =  tk.normalizedChi2();
    int which = 0;

@@ -283,8 +283,8 @@ HcalIsoTrkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	}
       if (!matched) continue;
       
-      if (trit->getHitPattern().numberOfValidHits(reco::HitPattern::TRACK_HITS) < MinNTrackHitsBarrel) continue;
-      if (fabs(trit->eta()) > 1.47 && trit->getHitPattern().numberOfValidStripTECHits(reco::HitPattern::TRACK_HITS) < MinNTECHitsEndcap) continue;
+      if (trit->hitPattern().numberOfValidHits(reco::HitPattern::TRACK_HITS) < MinNTrackHitsBarrel) continue;
+      if (fabs(trit->eta()) > 1.47 && trit->hitPattern().numberOfValidStripTECHits(reco::HitPattern::TRACK_HITS) < MinNTECHitsEndcap) continue;
       
 
       calEnergy = sqrt(trit->px()*trit->px()+trit->py()*trit->py()+trit->pz()*trit->pz()+0.14*0.14);

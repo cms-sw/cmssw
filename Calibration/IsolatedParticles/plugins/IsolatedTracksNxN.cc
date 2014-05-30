@@ -527,7 +527,7 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
       }
     }
     
-    const reco::HitPattern &hitp = pTrack->getHitPattern();
+    const reco::HitPattern &hitp = pTrack->hitPattern();
 
     int nLayersCrossed = hitp.trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS);
     int nOuterHits     = hitp.stripTOBLayersWithMeasurement(reco::HitPattern::TRACK_HITS)
@@ -1754,7 +1754,7 @@ void IsolatedTracksNxN::printTrack(const reco::Track* pTrack)
         << std::endl;
 
     if( printTrkHitPattern_ ) {
-        const reco::HitPattern &p = pTrack->getHitPattern();
+        const reco::HitPattern &p = pTrack->hitPattern();
 
         std::cout<<"default " << std::endl;
         for(int i = 0; i < p.numberOfHits(HitPattern::TRACK_HITS); i++){

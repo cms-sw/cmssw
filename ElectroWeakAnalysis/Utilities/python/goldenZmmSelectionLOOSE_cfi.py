@@ -18,9 +18,9 @@ goodMuons1 = cms.EDFilter("MuonViewRefSelector",
       '&& abs(globalTrack().dxy)<0.2'
       '&& pt>20.'
       '&& globalTrack().normalizedChi2<10'
-      '&& globalTrack().getHitPattern().numberOfValidTrackerHits(\'TRACK_HITS\') > 10'
-      '&& globalTrack().getHitPattern().numberOfValidMuonHits(\'TRACK_HITS\') > 0'
-      '&& globalTrack().getHitPattern().numberOfValidPixelHits(\'TRACK_HITS\') > 0'
+      '&& globalTrack().hitPattern().numberOfValidTrackerHits(\'TRACK_HITS\') > 10'
+      '&& globalTrack().hitPattern().numberOfValidMuonHits(\'TRACK_HITS\') > 0'
+      '&& globalTrack().hitPattern().numberOfValidPixelHits(\'TRACK_HITS\') > 0'
       '&& numberOfMatches>1'
       '&& (isolationR03().sumPt+isolationR03().emEt+isolationR03().hadEt)<0.15*pt'),
   filter = cms.bool(True)
@@ -33,7 +33,7 @@ goodMuons2 = cms.EDFilter("MuonViewRefSelector",
       '&& pt>20.'
       '&& abs(eta)<2.4'
       '&& abs(globalTrack().dxy)<1.0'
-      '&& globalTrack().getHitPattern().numberOfValidTrackerHits(\'TRACK_HITS\') > 6'),
+      '&& globalTrack().hitPattern().numberOfValidTrackerHits(\'TRACK_HITS\') > 6'),
   filter = cms.bool(True)
 )
 

@@ -45,8 +45,8 @@ bool isInnerMost::operator()(const reco::GsfElectron *e1, const reco::GsfElectro
         }
     }
 
-    uint32_t gsfHit1 = e1->gsfTrack()->getHitPattern().getHitPattern(HitPattern::TRACK_HITS, gsfHitCounter1);
-    uint32_t gsfHit2 = e2->gsfTrack()->getHitPattern().getHitPattern(HitPattern::TRACK_HITS, gsfHitCounter2);
+    uint32_t gsfHit1 = e1->gsfTrack()->hitPattern().getHitPattern(HitPattern::TRACK_HITS, gsfHitCounter1);
+    uint32_t gsfHit2 = e2->gsfTrack()->hitPattern().getHitPattern(HitPattern::TRACK_HITS, gsfHitCounter2);
 
     if (HitPattern::getSubStructure(gsfHit1) != HitPattern::getSubStructure(gsfHit2)){
         return (HitPattern::getSubStructure(gsfHit1) < HitPattern::getSubStructure(gsfHit2));
@@ -60,8 +60,8 @@ bool isInnerMost::operator()(const reco::GsfElectron *e1, const reco::GsfElectro
 int sharedHits(const GsfTrackRef & gsfTrackRef1, const GsfTrackRef & gsfTrackRef2 )
 {
   //get the Hit Pattern for the gsfTracks
-  const HitPattern &gsfHitPattern1 = gsfTrackRef1->getHitPattern();
-  const HitPattern &gsfHitPattern2 = gsfTrackRef2->getHitPattern();
+  const HitPattern &gsfHitPattern1 = gsfTrackRef1->hitPattern();
+  const HitPattern &gsfHitPattern2 = gsfTrackRef2->hitPattern();
 
   unsigned int shared = 0;
 
@@ -112,8 +112,8 @@ int sharedHits(const GsfTrackRef & gsfTrackRef1, const GsfTrackRef & gsfTrackRef
 int sharedDets(const GsfTrackRef& gsfTrackRef1, const GsfTrackRef& gsfTrackRef2 ) 
 {
     //get the Hit Pattern for the gsfTracks
-    const HitPattern &gsfHitPattern1 = gsfTrackRef1->getHitPattern();
-    const HitPattern &gsfHitPattern2 = gsfTrackRef2->getHitPattern();
+    const HitPattern &gsfHitPattern1 = gsfTrackRef1->hitPattern();
+    const HitPattern &gsfHitPattern2 = gsfTrackRef2->hitPattern();
 
     unsigned int shared = 0;
 

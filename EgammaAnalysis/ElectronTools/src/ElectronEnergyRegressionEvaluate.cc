@@ -314,7 +314,7 @@ double ElectronEnergyRegressionEvaluate::calculateRegressionEnergy(const reco::G
               ele->deltaEtaSeedClusterTrackAtCalo(),
               ele->deltaPhiSeedClusterTrackAtCalo(),
               ele->gsfTrack()->chi2() / ele->gsfTrack()->ndof(),
-              (ele->closestCtfTrackRef().isNonnull() ? ele->closestCtfTrackRef()->getHitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS) : -1), 
+              (ele->closestCtfTrackRef().isNonnull() ? ele->closestCtfTrackRef()->hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS) : -1), 
               fmin(ele->eEleClusterOverPout(),20.0),
               printDebug
                   );
@@ -589,7 +589,7 @@ double ElectronEnergyRegressionEvaluate::calculateRegressionEnergyUncertainty(co
               ele->deltaEtaSeedClusterTrackAtCalo(),
               ele->deltaPhiSeedClusterTrackAtCalo(),
               ele->gsfTrack()->chi2() / ele->gsfTrack()->ndof(),
-              (ele->closestCtfTrackRef().isNonnull() ? ele->closestCtfTrackRef()->getHitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS) : -1), 
+              (ele->closestCtfTrackRef().isNonnull() ? ele->closestCtfTrackRef()->hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS) : -1), 
               fmin(ele->eEleClusterOverPout(),20.0),
               printDebug
                   );

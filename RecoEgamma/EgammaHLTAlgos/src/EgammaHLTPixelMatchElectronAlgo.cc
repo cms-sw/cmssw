@@ -233,8 +233,8 @@ void EgammaHLTPixelMatchElectronAlgo::process(edm::Handle<TrackCollection> track
 bool EgammaHLTPixelMatchElectronAlgo::isInnerMostWithLostHits(const reco::GsfTrackRef& nGsfTrack, const reco::GsfTrackRef& iGsfTrack, bool& sameLayer) {
   
   // define closest using the lost hits on the expectedhitsineer
-  unsigned int nLostHits = nGsfTrack->getHitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS);
-  unsigned int iLostHits = iGsfTrack->getHitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS);
+  unsigned int nLostHits = nGsfTrack->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS);
+  unsigned int iLostHits = iGsfTrack->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS);
   
   if (nLostHits!=iLostHits) {
     return (nLostHits > iLostHits);

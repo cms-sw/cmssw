@@ -14,7 +14,7 @@ goodGlobalMuons = cms.EDFilter("MuonViewRefSelector",
       '& abs(eta)<2.1'
       '& isolationR03().sumPt<3.0'
       '& abs(globalTrack().dxy)<0.2'
-      '& globalTrack().getHitPattern().numberOfValidTrackerHits(\'TRACK_HITS\') > 10'),
+      '& globalTrack().hitPattern().numberOfValidTrackerHits(\'TRACK_HITS\') > 10'),
   filter = cms.bool(True)                                
 )
 

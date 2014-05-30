@@ -260,7 +260,7 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
           track != tracks->end(); ++track){
 
     if (!isMuon_) {
-      const reco::HitPattern &trkHP = track->getHitPattern();
+      const reco::HitPattern &trkHP = track->hitPattern();
 
       fnPixelLayerMeas = trkHP.pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS);
       fnStripLayerMeas = trkHP.stripLayersWithMeasurement(reco::HitPattern::TRACK_HITS);

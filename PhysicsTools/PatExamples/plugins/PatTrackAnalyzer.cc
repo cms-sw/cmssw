@@ -222,7 +222,7 @@ void PatTrackAnalyzer::analyze(const edm::Event &event, const edm::EventSetup &e
 
 			// the hit pattern contains information about
 			// which modules of the detector have been hit
-			const reco::HitPattern &hits = track.getHitPattern();
+			const reco::HitPattern &hits = track.hitPattern();
 
 			double absEta = std::abs(track.eta());
 			// now fill the number of hits in a layer depending on eta

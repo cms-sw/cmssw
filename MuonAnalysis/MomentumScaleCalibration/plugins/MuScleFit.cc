@@ -332,8 +332,8 @@ std::vector<MuScleFitMuon> MuScleFit::fillMuonCollection( const std::vector<T>& 
     applyBias(mu, track->charge());
     if (debug_>0) std::cout<<"track charge: "<<track->charge()<<std::endl;
 
-    Double_t hitsTk = track->innerTrack()->getHitPattern().numberOfValidTrackerHits(reco::HitPattern::TRACK_HITS);
-    Double_t hitsMuon = track->innerTrack()->getHitPattern().numberOfValidMuonHits(reco::HitPattern::TRACK_HITS);
+    Double_t hitsTk = track->innerTrack()->hitPattern().numberOfValidTrackerHits(reco::HitPattern::TRACK_HITS);
+    Double_t hitsMuon = track->innerTrack()->hitPattern().numberOfValidMuonHits(reco::HitPattern::TRACK_HITS);
     Double_t ptError = track->innerTrack()->ptError();
     MuScleFitMuon muon(mu,track->charge(),ptError,hitsTk,hitsMuon,false);
     if (debug_>0) {
@@ -1455,11 +1455,11 @@ bool MuScleFit::selGlobalMuon(const pat::Muon* aMuon) {
   return (//isMuonInAccept(aMuon) &&// no acceptance cuts!
 	  iTrack->found() > 11 &&
 	  gTrack->chi2()/gTrack->ndof() < 20.0 &&
-      gTrack->getHitPattern().numberOfValidMuonHits(reco::HitPattern::TRACK_HITS) > 0 &&
+      gTrack->hitPattern().numberOfValidMuonHits(reco::HitPattern::TRACK_HITS) > 0 &&
           iTrack->chi2()/iTrack->ndof() < 4.0 &&
 	  aMuon->muonID("TrackerMuonArbitrated") &&
 	  aMuon->muonID("TMLastStationAngTight") &&
-      iTrack->getHitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS) > 1 &&
+      iTrack->hitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS) > 1 &&
 	  fabs(iTrack->dxy()) < 3.0 &&  //should be done w.r.t. PV!
           fabs(iTrack->dz()) < 15.0 );//should be done w.r.t. PV!
 }
@@ -1474,7 +1474,7 @@ bool MuScleFit::selTrackerMuon(const pat::Muon* aMuon) {
 	  iTrack->chi2()/iTrack->ndof() < 4.0 &&
 	  aMuon->muonID("TrackerMuonArbitrated") &&
 	  aMuon->muonID("TMLastStationAngTight") &&
-      iTrack->getHitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS) > 1 &&
+      iTrack->hitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS) > 1 &&
 	  fabs(iTrack->dxy()) < 3.0 && //should be done w.r.t. PV!
           fabs(iTrack->dz()) < 15.0 );//should be done w.r.t. PV!
  

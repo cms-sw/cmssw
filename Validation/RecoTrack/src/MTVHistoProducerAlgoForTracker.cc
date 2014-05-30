@@ -1178,22 +1178,22 @@ void MTVHistoProducerAlgoForTracker::fill_simAssociated_recoTrack_histos(int cou
     h_losthits[count]->Fill(track.numberOfLostHits());
     chi2_vs_nhits[count]->Fill(track.numberOfValidHits(),track.normalizedChi2());
     h_charge[count]->Fill( track.charge() );
-    h_nmisslayers_inner[count]->Fill(track.getHitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS));
-    h_nmisslayers_outer[count]->Fill(track.getHitPattern().numberOfHits(reco::HitPattern::MISSING_OUTER_HITS));
+    h_nmisslayers_inner[count]->Fill(track.hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS));
+    h_nmisslayers_outer[count]->Fill(track.hitPattern().numberOfHits(reco::HitPattern::MISSING_OUTER_HITS));
 
     //chi2 and #hit vs eta: fill 2D histos
     chi2_vs_eta[count]->Fill(getEta(track.eta()),track.normalizedChi2());
     nhits_vs_eta[count]->Fill(getEta(track.eta()),track.numberOfValidHits());
-    nPXBhits_vs_eta[count]->Fill(getEta(track.eta()),track.getHitPattern().numberOfValidPixelBarrelHits(reco::HitPattern::TRACK_HITS));
-    nPXFhits_vs_eta[count]->Fill(getEta(track.eta()),track.getHitPattern().numberOfValidPixelEndcapHits(reco::HitPattern::TRACK_HITS));
-    nTIBhits_vs_eta[count]->Fill(getEta(track.eta()),track.getHitPattern().numberOfValidStripTIBHits(reco::HitPattern::TRACK_HITS));
-    nTIDhits_vs_eta[count]->Fill(getEta(track.eta()),track.getHitPattern().numberOfValidStripTIDHits(reco::HitPattern::TRACK_HITS));
-    nTOBhits_vs_eta[count]->Fill(getEta(track.eta()),track.getHitPattern().numberOfValidStripTOBHits(reco::HitPattern::TRACK_HITS));
-    nTEChits_vs_eta[count]->Fill(getEta(track.eta()),track.getHitPattern().numberOfValidStripTECHits(reco::HitPattern::TRACK_HITS));
-    nLayersWithMeas_vs_eta[count]->Fill(getEta(track.eta()),track.getHitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS));
-    nPXLlayersWithMeas_vs_eta[count]->Fill(getEta(track.eta()),track.getHitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS));
-    int LayersAll = track.getHitPattern().stripLayersWithMeasurement(reco::HitPattern::TRACK_HITS);
-    int Layers2D = track.getHitPattern().numberOfValidStripLayersWithMonoAndStereo(reco::HitPattern::TRACK_HITS);
+    nPXBhits_vs_eta[count]->Fill(getEta(track.eta()),track.hitPattern().numberOfValidPixelBarrelHits(reco::HitPattern::TRACK_HITS));
+    nPXFhits_vs_eta[count]->Fill(getEta(track.eta()),track.hitPattern().numberOfValidPixelEndcapHits(reco::HitPattern::TRACK_HITS));
+    nTIBhits_vs_eta[count]->Fill(getEta(track.eta()),track.hitPattern().numberOfValidStripTIBHits(reco::HitPattern::TRACK_HITS));
+    nTIDhits_vs_eta[count]->Fill(getEta(track.eta()),track.hitPattern().numberOfValidStripTIDHits(reco::HitPattern::TRACK_HITS));
+    nTOBhits_vs_eta[count]->Fill(getEta(track.eta()),track.hitPattern().numberOfValidStripTOBHits(reco::HitPattern::TRACK_HITS));
+    nTEChits_vs_eta[count]->Fill(getEta(track.eta()),track.hitPattern().numberOfValidStripTECHits(reco::HitPattern::TRACK_HITS));
+    nLayersWithMeas_vs_eta[count]->Fill(getEta(track.eta()),track.hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS));
+    nPXLlayersWithMeas_vs_eta[count]->Fill(getEta(track.eta()),track.hitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS));
+    int LayersAll = track.hitPattern().stripLayersWithMeasurement(reco::HitPattern::TRACK_HITS);
+    int Layers2D = track.hitPattern().numberOfValidStripLayersWithMonoAndStereo(reco::HitPattern::TRACK_HITS);
     int Layers1D = LayersAll - Layers2D;
     nSTRIPlayersWithMeas_vs_eta[count]->Fill(getEta(track.eta()),LayersAll);
     nSTRIPlayersWith1dMeas_vs_eta[count]->Fill(getEta(track.eta()),Layers1D);

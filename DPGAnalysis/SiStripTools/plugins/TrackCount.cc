@@ -306,26 +306,26 @@ TrackCount::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 				     << it->normalizedChi2() << " "
 				     << it->chi2() << " "
 				     << it->ndof() << " "
-				     << it->getHitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS) << " "
-				     << it->getHitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS) << " "
-				     << it->getHitPattern().numberOfValidStripLayersWithMonoAndStereo(reco::HitPattern::TRACK_HITS) << " "
-				     << it->getHitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS) << " ";
+				     << it->hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS) << " "
+				     << it->hitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS) << " "
+				     << it->hitPattern().numberOfValidStripLayersWithMonoAndStereo(reco::HitPattern::TRACK_HITS) << " "
+				     << it->hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS) << " ";
 
      }
 
-     m_hnlosthits->Fill(it->getHitPattern().numberOfLostTrackerHits(reco::HitPattern::TRACK_HITS));
+     m_hnlosthits->Fill(it->hitPattern().numberOfLostTrackerHits(reco::HitPattern::TRACK_HITS));
 
-     m_hnrhits->Fill(it->getHitPattern().numberOfValidTrackerHits(reco::HitPattern::TRACK_HITS));
-     m_hnpixelrhits->Fill(it->getHitPattern().numberOfValidPixelHits(reco::HitPattern::TRACK_HITS));
-     m_hnstriprhits->Fill(it->getHitPattern().numberOfValidStripHits(reco::HitPattern::TRACK_HITS));
-     m_hnhitphieta->Fill(it->eta(),it->phi(),it->getHitPattern().numberOfValidTrackerHits(reco::HitPattern::TRACK_HITS));
+     m_hnrhits->Fill(it->hitPattern().numberOfValidTrackerHits(reco::HitPattern::TRACK_HITS));
+     m_hnpixelrhits->Fill(it->hitPattern().numberOfValidPixelHits(reco::HitPattern::TRACK_HITS));
+     m_hnstriprhits->Fill(it->hitPattern().numberOfValidStripHits(reco::HitPattern::TRACK_HITS));
+     m_hnhitphieta->Fill(it->eta(),it->phi(),it->hitPattern().numberOfValidTrackerHits(reco::HitPattern::TRACK_HITS));
 
-     m_hnlostlayers->Fill(it->getHitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS));
+     m_hnlostlayers->Fill(it->hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS));
 
-     m_hnlayers->Fill(it->getHitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS));
-     m_hnpixellayers->Fill(it->getHitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS));
-     m_hnstriplayers->Fill(it->getHitPattern().stripLayersWithMeasurement(reco::HitPattern::TRACK_HITS));
-     m_hnlayerphieta->Fill(it->eta(),it->phi(),it->getHitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS));
+     m_hnlayers->Fill(it->hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS));
+     m_hnpixellayers->Fill(it->hitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS));
+     m_hnstriplayers->Fill(it->hitPattern().stripLayersWithMeasurement(reco::HitPattern::TRACK_HITS));
+     m_hnlayerphieta->Fill(it->eta(),it->phi(),it->hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS));
 
      m_halgo->Fill(it->algo());
 

@@ -207,8 +207,8 @@ RecoTauPiZeroStripPlugin2::return_type RecoTauPiZeroStripPlugin2::operator()(con
 	LogTrace("RecoTauPiZeroStripPlugin2") << " dIP = " << std::abs(candTrack->dxy(vertexAssociator_.associatedVertex(jet)->position())) ;
 	LogTrace("RecoTauPiZeroStripPlugin2") << " dZ = " << std::abs(candTrack->dz(vertexAssociator_.associatedVertex(jet)->position())) ;
 	LogTrace("RecoTauPiZeroStripPlugin2") << " vtxAssocWeight = " << vertexAssociator_.associatedVertex(jet)->trackWeight(candTrack) ;
-	LogTrace("RecoTauPiZeroStripPlugin2") << " numPxlHits = " << candTrack->getHitPattern().numberOfValidPixelHits(HitPattern::TRACK_HITS) ;
-        LogTrace("RecoTauPiZeroStripPlugin2") << " numTrkHits = " << candTrack->getHitPattern().numberOfValidHits(HitPattern::TRACK_HITS) ;
+	LogTrace("RecoTauPiZeroStripPlugin2") << " numPxlHits = " << candTrack->hitPattern().numberOfValidPixelHits(HitPattern::TRACK_HITS) ;
+        LogTrace("RecoTauPiZeroStripPlugin2") << " numTrkHits = " << candTrack->hitPattern().numberOfValidHits(HitPattern::TRACK_HITS) ;
 	}
 #endif
       LogTrace("RecoTauPiZeroStripPlugin2") << "ECAL Et: calibrated = " << (*cand)->ecalEnergy()*sin((*cand)->theta()) << "," 

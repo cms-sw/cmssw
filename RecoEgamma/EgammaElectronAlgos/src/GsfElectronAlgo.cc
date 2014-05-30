@@ -333,7 +333,7 @@ void GsfElectronAlgo::ElectronData::checkCtfTrack( edm::Handle<reco::TrackCollec
     const TrackCollection * ctfTrackCollection = currentCtfTracks.product() ;
 
     // get the Hit Pattern for the gsfTrack
-    const HitPattern &gsfHitPattern = gsfTrackRef->getHitPattern() ;
+    const HitPattern &gsfHitPattern = gsfTrackRef->hitPattern() ;
 
     unsigned int counter ;
     TrackCollection::const_iterator ctfTkIter ;
@@ -354,7 +354,7 @@ void GsfElectronAlgo::ElectronData::checkCtfTrack( edm::Handle<reco::TrackCollec
         int numCtfInnerHits = 0 ;
 
         // get the CTF Track Hit Pattern
-        const HitPattern &ctfHitPattern = ctfTkIter->getHitPattern() ;
+        const HitPattern &ctfHitPattern = ctfTkIter->hitPattern() ;
 
         trackingRecHit_iterator elHitsIt;
         for (elHitsIt = gsfTrackRef->recHitsBegin();

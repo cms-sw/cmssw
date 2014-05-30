@@ -782,9 +782,9 @@ etares_vs_eta[w]->Fill(getEta(track->eta()),etares);
 //chi2 and #hit vs eta: fill 2D histos
 chi2_vs_eta[w]->Fill(getEta(track->eta()),track->normalizedChi2());
 nhits_vs_eta[w]->Fill(getEta(track->eta()),track->numberOfValidHits());
-nDThits_vs_eta[w]->Fill(getEta(track->eta()),track->getHitPattern().numberOfValidMuonDTHits(reco::HitPattern::TRACK_HITS));
-nCSChits_vs_eta[w]->Fill(getEta(track->eta()),track->getHitPattern().numberOfValidMuonCSCHits(reco::HitPattern::TRACK_HITS));
-nRPChits_vs_eta[w]->Fill(getEta(track->eta()),track->getHitPattern().numberOfValidMuonRPCHits(reco::HitPattern::TRACK_HITS));
+nDThits_vs_eta[w]->Fill(getEta(track->eta()),track->hitPattern().numberOfValidMuonDTHits(reco::HitPattern::TRACK_HITS));
+nCSChits_vs_eta[w]->Fill(getEta(track->eta()),track->hitPattern().numberOfValidMuonCSCHits(reco::HitPattern::TRACK_HITS));
+nRPChits_vs_eta[w]->Fill(getEta(track->eta()),track->hitPattern().numberOfValidMuonRPCHits(reco::HitPattern::TRACK_HITS));
 
 nlosthits_vs_eta[w]->Fill(getEta(track->eta()),track->numberOfLostHits());
 

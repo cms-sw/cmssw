@@ -168,8 +168,8 @@ void DuplicateTrackMerger::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
       tmva_d3dr_ = avgPoint.perp();
       tmva_d3dz_ = avgPoint.z();
-      tmva_outer_nMissingInner_ = t2->getHitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
-      tmva_inner_nMissingOuter_ = t1->getHitPattern().numberOfLostHits(reco::HitPattern::MISSING_OUTER_HITS);
+      tmva_outer_nMissingInner_ = t2->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
+      tmva_inner_nMissingOuter_ = t1->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_OUTER_HITS);
       
 
       gbrVals_[0] = tmva_ddsz_;

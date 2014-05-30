@@ -180,9 +180,9 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
             pat::PackedCandidate::LostInnerHits lostHits = pat::PackedCandidate::noLostInnerHits;
             vtx = ctrack->referencePoint();
             phiAtVtx = ctrack->phi();
-            int nlost = ctrack->getHitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
+            int nlost = ctrack->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
             if (nlost == 0) { 
-                if ( ctrack->getHitPattern().hasValidHitInFirstPixelBarrel(reco::HitPattern::TRACK_HITS)) {
+                if ( ctrack->hitPattern().hasValidHitInFirstPixelBarrel(reco::HitPattern::TRACK_HITS)) {
                     lostHits = pat::PackedCandidate::validHitInFirstPixelBarrelLayer;
                 }
             } else {

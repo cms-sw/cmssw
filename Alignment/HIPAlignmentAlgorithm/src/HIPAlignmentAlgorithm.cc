@@ -721,8 +721,8 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
     float d0    = track->d0();
     float dz    = track->dz();
 
-    int nhpxb   = track->getHitPattern().numberOfValidPixelBarrelHits(reco::HitPattern::TRACK_HITS);
-    int nhpxf   = track->getHitPattern().numberOfValidPixelEndcapHits(reco::HitPattern::TRACK_HITS);
+    int nhpxb   = track->hitPattern().numberOfValidPixelBarrelHits(reco::HitPattern::TRACK_HITS);
+    int nhpxf   = track->hitPattern().numberOfValidPixelEndcapHits(reco::HitPattern::TRACK_HITS);
 
     if (verbose) edm::LogInfo("Alignment") << "New track pt,eta,phi,chi2n,hits: "
 					   << pt << ","

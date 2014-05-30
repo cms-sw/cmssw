@@ -648,7 +648,7 @@ void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
     tkcntHistosTkNChiSqr2D[4]->fill(jetFlavour, trackQual, track->normalizedChi2(), true,w);
     tkcntHistosTkPt2D[4]->fill(jetFlavour, trackQual, track->pt(), true,w);
     tkcntHistosTkNHits2D[4]->fill(jetFlavour, trackQual, track->found(), true,w);
-    tkcntHistosTkNPixelHits2D[4]->fill(jetFlavour, trackQual, track->getHitPattern().numberOfValidPixelHits(reco::HitPattern::TRACK_HITS), true,w);
+    tkcntHistosTkNPixelHits2D[4]->fill(jetFlavour, trackQual, track->hitPattern().numberOfValidPixelHits(reco::HitPattern::TRACK_HITS), true,w);
     if(n >= 4) continue;
     tkcntHistosSig2D[n]->fill(jetFlavour, trackQual, ip[selectedIndices[n]].ip2d.significance(), true,w);
     tkcntHistosVal2D[n]->fill(jetFlavour, trackQual, ip[selectedIndices[n]].ip2d.value(), true,w);
@@ -659,7 +659,7 @@ void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
     tkcntHistosTkNChiSqr2D[n]->fill(jetFlavour, trackQual, track->normalizedChi2(), true,w);
     tkcntHistosTkPt2D[n]->fill(jetFlavour, trackQual, track->pt(), true,w);
     tkcntHistosTkNHits2D[n]->fill(jetFlavour, trackQual, track->found(), true,w);
-    tkcntHistosTkNPixelHits2D[n]->fill(jetFlavour, trackQual, track->getHitPattern().numberOfValidPixelHits(reco::HitPattern::TRACK_HITS), true,w);
+    tkcntHistosTkNPixelHits2D[n]->fill(jetFlavour, trackQual, track->hitPattern().numberOfValidPixelHits(reco::HitPattern::TRACK_HITS), true,w);
   }
   sortedIndices = tagInfo->sortedIndexes(reco::TrackIPTagInfo::Prob2D);
   selectedIndices.clear();
@@ -719,7 +719,7 @@ void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
     tkcntHistosTkNChiSqr3D[4]->fill(jetFlavour, trackQual, track->normalizedChi2(), true,w);
     tkcntHistosTkPt3D[4]->fill(jetFlavour, trackQual, track->pt(), true,w);
     tkcntHistosTkNHits3D[4]->fill(jetFlavour, trackQual, track->found(), true,w);
-    tkcntHistosTkNPixelHits3D[4]->fill(jetFlavour, trackQual, track->getHitPattern().numberOfValidPixelHits(reco::HitPattern::TRACK_HITS), true,w);
+    tkcntHistosTkNPixelHits3D[4]->fill(jetFlavour, trackQual, track->hitPattern().numberOfValidPixelHits(reco::HitPattern::TRACK_HITS), true,w);
     //ghostTrack infos  
     ghostTrackDistanceValuHisto->fill(jetFlavour, trackQual, ip[selectedIndices[n]].distanceToGhostTrack.value(), true,w);
     ghostTrackDistanceSignHisto->fill(jetFlavour, trackQual, ip[selectedIndices[n]].distanceToGhostTrack.significance(), true,w);
@@ -735,7 +735,7 @@ void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
     tkcntHistosTkNChiSqr3D[n]->fill(jetFlavour, trackQual, track->normalizedChi2(), true,w);
     tkcntHistosTkPt3D[n]->fill(jetFlavour, trackQual, track->pt(), true,w);
     tkcntHistosTkNHits3D[n]->fill(jetFlavour, trackQual, track->found(), true,w);
-    tkcntHistosTkNPixelHits3D[n]->fill(jetFlavour, trackQual, track->getHitPattern().numberOfValidPixelHits(reco::HitPattern::TRACK_HITS), true,w);
+    tkcntHistosTkNPixelHits3D[n]->fill(jetFlavour, trackQual, track->hitPattern().numberOfValidPixelHits(reco::HitPattern::TRACK_HITS), true,w);
   }
   sortedIndices = tagInfo->sortedIndexes(reco::TrackIPTagInfo::Prob3D);
   selectedIndices.clear();

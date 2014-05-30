@@ -123,7 +123,7 @@ void TrackMaker::SetVars(HWW& hww, const edm::Event& iEvent, const edm::EventSet
       tsos = myAP.propagate( fts, *rendcap);
     }
     
-    const reco::HitPattern& pattern = i->getHitPattern();    
+    const reco::HitPattern& pattern = i->hitPattern();    
     hww.trks_valid_pixelhits() .push_back(pattern.numberOfValidPixelHits(reco::HitPattern::TRACK_HITS));
       
     if(i->extra().isAvailable()) {
@@ -185,7 +185,7 @@ void TrackMaker::SetVars(HWW& hww, const edm::Event& iEvent, const edm::EventSet
       }
     }
     
-    hww.trks_nlayers()    .push_back( i->getHitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS) );
+    hww.trks_nlayers()    .push_back( i->hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS) );
 
   } // End loop on tracks
 

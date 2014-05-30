@@ -104,7 +104,7 @@ process.tracks = cms.EDFilter("TrackSelector",
   src=cms.InputTag("generalTracks"),
   cut = cms.string('abs(dxy)<0.5'
       '&& pt > 0.5'
-      '&& getHitPattern().numberOfValidPixelHits(\'TRACK_HITS\') > 0'),
+      '&& hitPattern().numberOfValidPixelHits(\'TRACK_HITS\') > 0'),
   filter = cms.bool(True)                                
 )
 

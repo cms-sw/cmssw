@@ -10,7 +10,7 @@ hitCollectorForOutInMuonSeeds = TrackingTools.KalmanUpdators.Chi2MeasurementEsti
 outInSeedsFromStandaloneMuons = cms.EDProducer("OutsideInMuonSeeder",
     ## Input collection of muons, and selection. outerTrack.isNonnull is implicit.
     src = cms.InputTag("muons"),
-    cut = cms.string("pt > 10 && outerTrack.getHitPattern.muonStationsWithValidHits(\'TRACK_HITS\') >= 2"),
+    cut = cms.string("pt > 10 && outerTrack.hitPattern().muonStationsWithValidHits(\'TRACK_HITS\') >= 2"),
     layersToTry = cms.int32(3), # try up to 3 layers where at least one seed is found
     hitsToTry = cms.int32(3),   # use at most 3 hits from the same layer
     ## Use as state the muon updated ad vertex (True) or the innermost state of the standalone track (False)

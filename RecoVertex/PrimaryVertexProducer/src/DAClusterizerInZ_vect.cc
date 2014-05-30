@@ -587,21 +587,21 @@ void DAClusterizerInZ_vect::dump(const double beta, const vertex_t & y,
 			} else {
 				LogDebug("DAClusterizerinZ_vectorized")  << "  ";
 			}
-			if (tks.tt[i]->track().getHitPattern().hasValidHitInFirstPixelBarrel(reco::HitPattern::TRACK_HITS)) {
+			if (tks.tt[i]->track().hitPattern().hasValidHitInFirstPixelBarrel(reco::HitPattern::TRACK_HITS)) {
 				LogDebug("DAClusterizerinZ_vectorized")  << "+";
 			} else {
 				LogDebug("DAClusterizerinZ_vectorized")  << "-";
 			}
 			LogDebug("DAClusterizerinZ_vectorized")  << setw(1)
-			 << tks.tt[i]->track().getHitPattern().pixelBarrelLayersWithMeasurement(reco::HitPattern::TRACK_HITS); // see DataFormats/TrackReco/interface/HitPattern.h
+			 << tks.tt[i]->track().hitPattern().pixelBarrelLayersWithMeasurement(reco::HitPattern::TRACK_HITS); // see DataFormats/TrackReco/interface/HitPattern.h
 			LogDebug("DAClusterizerinZ_vectorized")  << setw(1)
-			 << tks.tt[i]->track().getHitPattern().pixelEndcapLayersWithMeasurement(reco::HitPattern::TRACK_HITS);
+			 << tks.tt[i]->track().hitPattern().pixelEndcapLayersWithMeasurement(reco::HitPattern::TRACK_HITS);
 			LogDebug("DAClusterizerinZ_vectorized")  << setw(1) << hex
-					<< tks.tt[i]->track().getHitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS)
-					- tks.tt[i]->track().getHitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS)
+					<< tks.tt[i]->track().hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS)
+					- tks.tt[i]->track().hitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS)
 					<< dec;
 			LogDebug("DAClusterizerinZ_vectorized")  << "=" << setw(1) << hex
-					<< tks.tt[i]->track().getHitPattern().numberOfHits(reco::HitPattern::MISSING_OUTER_HITS)
+					<< tks.tt[i]->track().hitPattern().numberOfHits(reco::HitPattern::MISSING_OUTER_HITS)
 					<< dec;
 
 			Measurement1D IP =

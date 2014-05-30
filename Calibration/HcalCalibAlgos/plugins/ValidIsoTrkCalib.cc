@@ -337,14 +337,14 @@ for (reco::TrackCollection::const_iterator trit=isoProdTracks->begin(); trit!=is
    ptNear = isoMatched->maxPtPxl();      
    //cout<<"Point 0.1  isoMatch. ptnear: "<<ptNear<<endl;
    // CUT
-   if (trit->getHitPattern().numberOfValidHits(reco::HitPattern::TRACK_HITS) < MinNTrackHitsBarrel) continue;
-   if (fabs(trit->eta()) > 1.47 && trit->getHitPattern().numberOfValidStripTECHits(reco::HitPattern::TRACK_HITS) < MinNTECHitsEndcap) continue;
+   if (trit->hitPattern().numberOfValidHits(reco::HitPattern::TRACK_HITS) < MinNTrackHitsBarrel) continue;
+   if (fabs(trit->eta()) > 1.47 && trit->hitPattern().numberOfValidStripTECHits(reco::HitPattern::TRACK_HITS) < MinNTECHitsEndcap) continue;
 
       //cout<<"Point 0.2.1 after numofvalidhits HB: "<<trit->hitPattern().numberOfValidHits()<<endl;
       //cout<<"Point 0.2.2 after numofvalidstrips HE: "<<trit->hitPattern().numberOfValidStripTECHits()<<endl;
 
-   numVH = trit->getHitPattern().numberOfValidHits(reco::HitPattern::TRACK_HITS);
-   numVS = trit->getHitPattern().numberOfValidStripTECHits(reco::HitPattern::TRACK_HITS);
+   numVH = trit->hitPattern().numberOfValidHits(reco::HitPattern::TRACK_HITS);
+   numVS = trit->hitPattern().numberOfValidStripTECHits(reco::HitPattern::TRACK_HITS);
       
     
       

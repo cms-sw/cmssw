@@ -61,8 +61,8 @@ TaggingVariableList TrackIPTagInfo::taggingVariables(void) const {
      vars.insert(btau::trackGhostTrackDistSig, data->distanceToGhostTrack.significance(), true);
      vars.insert(btau::trackGhostTrackWeight, data->ghostTrackWeight, true);
      vars.insert(btau::trackChi2, track->normalizedChi2(), true);
-     vars.insert(btau::trackNTotalHits, track->getHitPattern().numberOfValidHits(HitPattern::TRACK_HITS), true);
-     vars.insert(btau::trackNPixelHits, track->getHitPattern().numberOfValidPixelHits(HitPattern::TRACK_HITS), true);
+     vars.insert(btau::trackNTotalHits, track->hitPattern().numberOfValidHits(HitPattern::TRACK_HITS), true);
+     vars.insert(btau::trackNPixelHits, track->hitPattern().numberOfValidPixelHits(HitPattern::TRACK_HITS), true);
    } 
   vars.finalize();
   return vars;

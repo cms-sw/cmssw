@@ -113,7 +113,7 @@ PFCheckHitPattern::analyze(edm::ESHandle<TrackerGeometry> tkerGeomHandle_,
   if (!geomInitDone_) this->init(tkerGeomHandle_);
 
   // Get hit patterns of this track
-  const reco::HitPattern& hp = track.get()->getHitPattern();
+  const reco::HitPattern& hp = track.get()->hitPattern();
 
   // Count number of valid hits on track definately in front of the vertex,
   // taking into account finite depth of each layer.
@@ -173,7 +173,7 @@ PFCheckHitPattern::analyze(edm::ESHandle<TrackerGeometry> tkerGeomHandle_,
 
 void PFCheckHitPattern::print(const TrackBaseRef track) const {
   // Get hit patterns of this track
-  const reco::HitPattern &hp = track.get()->getHitPattern(); 
+  const reco::HitPattern &hp = track.get()->hitPattern(); 
 
   cout<<"=== Hits on Track ==="<<endl;
   this->print(reco::HitPattern::TRACK_HITS, hp);

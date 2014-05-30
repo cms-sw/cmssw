@@ -372,8 +372,8 @@ QualityCutsAnalyzer::LoopOverJetTracksAssociation(
 
             double pt = tracks[index]->pt();
             double chi2 = tracks[index]->normalizedChi2();
-            int hits = tracks[index]->getHitPattern().numberOfValidHits(reco::HitPattern::TRACK_HITS);
-            int pixelHits = tracks[index]->getHitPattern().numberOfValidPixelHits(reco::HitPattern::TRACK_HITS);
+            int hits = tracks[index]->hitPattern().numberOfValidHits(reco::HitPattern::TRACK_HITS);
+            int pixelHits = tracks[index]->hitPattern().numberOfValidPixelHits(reco::HitPattern::TRACK_HITS);
 
             if (
                 hits < minimumNumberOfHits_ ||

@@ -21,7 +21,7 @@ namespace spr{
     if (pTrack->normalizedChi2() > parameters.maxChi2)        select = false;
     if (dpbyp > parameters.maxDpOverP)                        select = false;
 
-    const reco::HitPattern &hitp = pTrack->getHitPattern();
+    const reco::HitPattern &hitp = pTrack->hitPattern();
     if (parameters.minLayerCrossed>0 || parameters.minOuterHit>0) {
         if (parameters.minLayerCrossed > 0 && hitp.trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS) < parameters.minLayerCrossed) select = false;
         if (parameters.minOuterHit > 0 && (hitp.stripTOBLayersWithMeasurement(reco::HitPattern::TRACK_HITS) + hitp.stripTECLayersWithMeasurement(reco::HitPattern::TRACK_HITS)) < parameters.minOuterHit) select = false;

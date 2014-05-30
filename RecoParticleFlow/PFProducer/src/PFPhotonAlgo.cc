@@ -1326,8 +1326,8 @@ bool PFPhotonAlgo::EvaluateSingleLegMVA(const reco::PFBlockRef& blockref, const 
   PFBlock::LinkData linkData =  block.linkData();  
   //calculate MVA Variables  
   chi2=elements[track_index].trackRef()->chi2()/elements[track_index].trackRef()->ndof();
-  nlost=elements[track_index].trackRef()->getHitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS);
-  nlayers=elements[track_index].trackRef()->getHitPattern().trackerLayersWithMeasurement(HitPattern::TRACK_HITS);
+  nlost=elements[track_index].trackRef()->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS);
+  nlayers=elements[track_index].trackRef()->hitPattern().trackerLayersWithMeasurement(HitPattern::TRACK_HITS);
   track_pt=elements[track_index].trackRef()->pt();  
   STIP=elements[track_index].trackRefPF()->STIP();  
    
@@ -1382,7 +1382,7 @@ void PFPhotonAlgo::EarlyConversion(
   for ( std::vector<reco::PFCandidate>::const_iterator ec=tempElectronCandidates.begin();   ec != tempElectronCandidates.end(); ++ec ) 
     {
       //      bool matched=false;
-      int mh=ec->gsfTrackRef()->getHitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS);
+      int mh=ec->gsfTrackRef()->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS);
       //if(mh==0)continue;//Case where missing hits greater than zero
       
       reco::GsfTrackRef gsf=ec->gsfTrackRef();

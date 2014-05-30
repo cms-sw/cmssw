@@ -29,8 +29,8 @@ TrackFilterForPVFinding::operator() (const reco::TransientTrack & tk) const
 	bool IPSigCut = tk.stateAtBeamLine().transverseImpactParameter().significance()<maxD0Sig_;
 	bool pTCut    = tk.impactPointState().globalMomentum().transverse() > minPt_;
 	bool normChi2Cut  = tk.normalizedChi2() < maxNormChi2_;
-	bool nPxLayCut = tk.getHitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS) >= minPxLayers_;
-	bool nSiLayCut =  tk.getHitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS) >= minSiLayers_;
+	bool nPxLayCut = tk.hitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS) >= minPxLayers_;
+	bool nSiLayCut =  tk.hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS) >= minSiLayers_;
 	bool trackQualityCut = (quality_==reco::TrackBase::undefQuality)|| tk.track().quality(quality_);
 
 	return IPSigCut && pTCut && normChi2Cut && nPxLayCut && nSiLayCut && trackQualityCut;

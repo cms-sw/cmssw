@@ -392,7 +392,7 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent,
     // Get basic quantities
     ////////////////////////////
 
-    const reco::HitPattern& hitp = pTrack->getHitPattern();
+    const reco::HitPattern& hitp = pTrack->hitPattern();
     int nLayersCrossed = hitp.trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS);
     int nOuterHits     = hitp.stripTOBLayersWithMeasurement(reco::HitPattern::TRACK_HITS) + 
         hitp.stripTECLayersWithMeasurement(reco::HitPattern::TRACK_HITS);
@@ -1431,7 +1431,7 @@ void IsolatedTracksCone::printTrack(const reco::Track* pTrack) {
 	    << std::endl;
   
   if(printTrkHitPattern_) {
-    const reco::HitPattern &p = pTrack->getHitPattern();
+    const reco::HitPattern &p = pTrack->hitPattern();
     for (int i = 0; i < p.numberOfHits(reco::HitPattern::TRACK_HITS); i++) {
         p.printHitPattern(reco::HitPattern::TRACK_HITS, i, std::cout);
     }

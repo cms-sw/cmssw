@@ -269,9 +269,9 @@ singleTopMuonMediumDQM = cms.EDAnalyzer("SingleTopTChannelLeptonDQM",
           '& muonRef.isGlobalMuon'
           '& muonRef.isTrackerMuon'
           '& muonRef.innerTrack.numberOfValidHits>10'
-          '& muonRef.globalTrack.getHitPattern.numberOfValidMuonHits(\'TRACK_HITS\')>0'
+          '& muonRef.globalTrack.hitPattern().numberOfValidMuonHits(\'TRACK_HITS\')>0'
           '& muonRef.globalTrack.normalizedChi2<10'
-          '& muonRef.innerTrack.getHitPattern.pixelLayersWithMeasurement(\'TRACK_HITS\')>=1'
+          '& muonRef.innerTrack.hitPattern().pixelLayersWithMeasurement(\'TRACK_HITS\')>=1'
           '& muonRef.numberOfMatches>1'
           '& abs(muonRef.innerTrack.dxy)<0.02'
           '& (muonRef.pfIsolationR04.sumChargedHadronPt + muonRef.pfIsolationR04.sumNeutralHadronEt + muonRef.pfIsolationR04.sumPhotonEt)/muonRef.pt < 0.15'),

@@ -291,7 +291,7 @@ public:
     static index covIndex(index i, index j);
 
     // Access the hit pattern, indicating in which Tracker layers the track has hits.
-    const HitPattern &getHitPattern() const;
+    const HitPattern &hitPattern() const;
 
     // number of valid hits found
     unsigned short numberOfValidHits() const;

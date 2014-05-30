@@ -6,7 +6,7 @@
 using namespace reco;
 
 //  Access the hit pattern, indicating in which Tracker layers the track has hits.
-const HitPattern & TrackBase::getHitPattern() const
+const HitPattern & TrackBase::hitPattern() const
 {
     return hitPattern_;
 }

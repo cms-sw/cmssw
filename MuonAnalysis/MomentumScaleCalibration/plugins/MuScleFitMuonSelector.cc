@@ -34,11 +34,11 @@ bool MuScleFitMuonSelector::selGlobalMuon(const pat::Muon* aMuon)
   return (//isMuonInAccept(aMuon) &&// no acceptance cuts!
     iTrack->found() > 11 &&
     gTrack->chi2()/gTrack->ndof() < 20.0 &&
-    gTrack->getHitPattern().numberOfValidMuonHits(reco::HitPattern::TRACK_HITS) > 0 &&
+    gTrack->hitPattern().numberOfValidMuonHits(reco::HitPattern::TRACK_HITS) > 0 &&
     iTrack->chi2()/iTrack->ndof() < 4.0 &&
     aMuon->muonID("TrackerMuonArbitrated") &&
     aMuon->muonID("TMLastStationAngTight") &&
-    iTrack->getHitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS) > 1 &&
+    iTrack->hitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS) > 1 &&
     fabs(iTrack->dxy()) < 3.0 &&  //should be done w.r.t. PV!
     fabs(iTrack->dz()) < 15.0 //should be done w.r.t. PV!
   );
@@ -53,7 +53,7 @@ bool MuScleFitMuonSelector::selTrackerMuon(const pat::Muon* aMuon)
     iTrack->chi2()/iTrack->ndof() < 4.0 &&
     aMuon->muonID("TrackerMuonArbitrated") &&
     aMuon->muonID("TMLastStationAngTight") &&
-    iTrack->getHitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS) > 1 &&
+    iTrack->hitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS) > 1 &&
     fabs(iTrack->dxy()) < 3.0 && //should be done w.r.t. PV!
     fabs(iTrack->dz()) < 15.0 //should be done w.r.t. PV!
   );

@@ -86,7 +86,7 @@ InclusiveVertexFinder::InclusiveVertexFinder(const edm::ParameterSet &params) :
 
 bool InclusiveVertexFinder::trackFilter(const reco::TrackRef &track) const
 {
-	if (track->getHitPattern().numberOfValidHits(reco::HitPattern::TRACK_HITS) < (int)minHits)
+	if (track->hitPattern().numberOfValidHits(reco::HitPattern::TRACK_HITS) < (int)minHits)
 //	if (track->hitPattern().trackerLayersWithMeasurement() < (int)minHits)
 		return false;
 	if (track->pt() < minPt )

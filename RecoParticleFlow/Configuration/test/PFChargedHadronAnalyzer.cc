@@ -228,7 +228,7 @@ PFChargedHadronAnalyzer::analyze(const Event& iEvent,
     unsigned int tidN = 0;
     unsigned int pxbN = 0;
     unsigned int pxdN = 0;
-    const reco::HitPattern& hp = et.trackRef()->getHitPattern();
+    const reco::HitPattern& hp = et.trackRef()->hitPattern();
     switch ( et.trackRef()->algo() ) {
     case TrackBase::iter0:
     case TrackBase::iter1:

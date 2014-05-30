@@ -23,11 +23,11 @@ TrackVertexArbitration::TrackVertexArbitration(const edm::ParameterSet &params) 
 
 bool TrackVertexArbitration::trackFilterArbitrator(const reco::TrackRef &track) const
 {
-        if (track->getHitPattern().trackerLayersWithMeasurement(HitPattern::TRACK_HITS) < trackMinLayers)
+        if (track->hitPattern().trackerLayersWithMeasurement(HitPattern::TRACK_HITS) < trackMinLayers)
                 return false;
         if (track->pt() < trackMinPt)
                 return false;
-        if (track->getHitPattern().numberOfValidPixelHits(HitPattern::TRACK_HITS) < trackMinPixels)
+        if (track->hitPattern().numberOfValidPixelHits(HitPattern::TRACK_HITS) < trackMinPixels)
                 return false;
 
         return true;
