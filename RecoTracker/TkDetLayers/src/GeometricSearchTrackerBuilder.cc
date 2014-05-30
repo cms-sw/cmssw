@@ -1,6 +1,8 @@
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTrackerBuilder.h"
 
 #include "PixelBarrelLayerBuilder.h"
+#include "Phase2OTBarrelLayerBuilder.h"
 #include "PixelForwardLayerBuilder.h"
 #include "Phase2OTECRingedLayerBuilder.h"
 #include "TIBLayerBuilder.h"
@@ -12,7 +14,6 @@
 
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/Common/interface/Trie.h"
 #include <boost/function.hpp>
@@ -26,6 +27,7 @@ GeometricSearchTrackerBuilder::build(const GeometricDet* theGeometricTracker,
 				     const TrackerTopology* tTopo)
 {
   PixelBarrelLayerBuilder aPixelBarrelLayerBuilder;
+  Phase2OTBarrelLayerBuilder aPhase2OTBarrelLayerBuilder;
   PixelForwardLayerBuilder aPixelForwardLayerBuilder;
   Phase2OTECRingedLayerBuilder aPhase2OTECRingedLayerBuilder;
   TIBLayerBuilder aTIBLayerBuilder;
@@ -105,10 +107,20 @@ GeometricSearchTrackerBuilder::build(const GeometricDet* theGeometricTracker,
       it!=theGeometricDetLayers.end(); it++){
 
     if( (*it)->type() == GeometricDet::PixelBarrel) {
+      std::string barrel_name = (*it)->name();
+      LogDebug("BuildingPixelBarrel") << "I got  " << barrel_name << " type " << (*it)->type();
       vector<const GeometricDet*> thePxlBarGeometricDetLayers = (*it)->components();
       for(vector<const GeometricDet*>::const_iterator it2=thePxlBarGeometricDetLayers.begin();
 	  it2!=thePxlBarGeometricDetLayers.end(); it2++){
-	thePxlBarLayers.push_back( aPixelBarrelLayerBuilder.build(*it2,theGeomDetGeometry) );
+	std::string layer_name = (*it2)->name();
+	if(layer_name.find("PixelBarrelLayer") < layer_name.size()) {
+	  LogDebug("BuildingPixelBarrelLayer") << "I got  " << layer_name << " type " << (*it2)->type();
+	  thePxlBarLayers.push_back( aPixelBarrelLayerBuilder.build(*it2,theGeomDetGeometry) );
+	}
+	else {
+	  LogDebug("BuildingPhase2OTBarrelLayer") << "I got  " << layer_name << " type " << (*it2)->type();
+	  thePxlBarLayers.push_back( aPhase2OTBarrelLayerBuilder.build(*it2,theGeomDetGeometry) );
+	}
       }
     }
 
@@ -136,14 +148,14 @@ GeometricSearchTrackerBuilder::build(const GeometricDet* theGeometricTracker,
 	std::string layer_name = (*it2)->name();
 	
 	if(layer_name.find("PixelForwardDisk") < layer_name.size()){
-	  LogDebug("BuildingPixelForwardLayer")<<"I got  "<< layer_name;
+	  LogDebug("BuildingPixelForwardLayer") << "I got  " << layer_name << " type " << (*it2)->type();
 	  if((*it2)->positionBounds().z() < 0)
 	    theNegPxlFwdLayers.push_back( aPixelForwardLayerBuilder.build(*it2,theGeomDetGeometry) );
 	  if((*it2)->positionBounds().z() > 0)
 	    thePosPxlFwdLayers.push_back( aPixelForwardLayerBuilder.build(*it2,theGeomDetGeometry) );
 	}
 	else if(layer_name.find("Disc") < layer_name.size()){
-	  LogDebug("BuildingPhase2OTECRingedLayer")<<"I got  "<< layer_name;
+	  LogDebug("BuildingPhase2OTECRingedLayer") << "I got  " << layer_name << " type " << (*it2)->type();
 	  if((*it2)->positionBounds().z() < 0)
 	    theNegPxlFwdLayers.push_back( aPhase2OTECRingedLayerBuilder.build(*it2,theGeomDetGeometry) );
 	  if((*it2)->positionBounds().z() > 0)
