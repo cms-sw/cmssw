@@ -85,7 +85,10 @@ namespace l1extra
 
 	// used for the Naive producer
       edm::Ref< L1MuonParticleCollection > muRef_ ;
+
+	// used for Slava's muons:
       L1MuonParticleExtendedRef muExtendedRef_ ;
+
       edm::Ptr< L1TkTrackType > trkPtr_ ;
 
       float theIsolation;
