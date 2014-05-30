@@ -137,7 +137,6 @@ void TrackMaker::SetVars(HWW& hww, const edm::Event& iEvent, const edm::EventSet
       typedef Ref<edmNew::DetSetVector<SiStripCluster>,SiStripCluster > ClusterRef;
       typedef Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster > pixel_ClusterRef;
 
-//TODO jaldeaar where is that k comming from?
       for(trackingRecHit_iterator ihit = i->recHitsBegin(); ihit != i->recHitsEnd(); ++ihit){
         if(i_layer > 1) break;
         int k = ihit-i->recHitsBegin();
@@ -154,7 +153,6 @@ void TrackMaker::SetVars(HWW& hww, const edm::Event& iEvent, const edm::EventSet
           } 
           if(i_layer == 1){
             i_layer++;
-
           }
         }
         else if (strip_hit){

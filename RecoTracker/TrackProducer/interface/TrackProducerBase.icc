@@ -220,7 +220,6 @@ TrackProducerBase<T>::setSecondHitPattern(Trajectory* traj, T& track,
         MeasurementDetWithData measDet = measTk->idToDet(id);
         //if(measDet->isActive() && !measDet->hasBadComponents(detWithState.front().second)){
         if(measDet.isActive()){ 
-            //TODO jaldeaar
 	        InvalidTrackingRecHit tmpHit(*detWithState.front().first, TrackingRecHit::missing_inner);
 	        track.appendHitPattern(tmpHit);
 	        //cout << "WARNING: this hit is marked as lost because the detector was marked as active" << endl;
@@ -243,7 +242,6 @@ TrackProducerBase<T>::setSecondHitPattern(Trajectory* traj, T& track,
       MeasurementDetWithData measDet = measTk->idToDet(id);	
       //if(measDet->isActive() && !measDet->hasBadComponents(detWithState.front().second)){	
       if(measDet.isActive()){
-            //TODO jaldeaar
           InvalidTrackingRecHit tmpHit(*detWithState.front().first,TrackingRecHit::missing_outer);
           track.appendHitPattern(tmpHit);
 	      //cout << "WARNING: this hit is marked as lost because the detector was marked as active" << endl;

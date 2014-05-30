@@ -142,7 +142,6 @@ CheckHitPattern::Result CheckHitPattern::analyze(const edm::EventSetup& iSetup,
   // Optionally fix inner hit pattern (needed if uncertainty on track trajectory is large).
   if (fixHitPattern) {
     static FixTrackHitPattern fixTrackHitPattern;
-    //TODO jaldeaar Check return of fixTrackHitPattern, it will be returning hits as MISSING instead of what it should.
     ip = fixTrackHitPattern.analyze(iSetup, track).innerHitPattern;
   }
   

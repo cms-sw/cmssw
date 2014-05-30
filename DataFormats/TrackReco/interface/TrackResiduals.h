@@ -1,11 +1,6 @@
 #ifndef TrackReco_TrackResiduals_h
 #define TrackReco_TrackResiduals_h
-/** \class reco::TrackResiduals TrackResiduals.h DataFormats/TrackReco/interface/TrackResiduals.h
- *
- * \author
- *
- *
- */
+
 #include <iostream>
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "DataFormats/TrackReco/interface/TrackResiduals.h"
@@ -36,23 +31,6 @@ public:
     void setResidualType(enum ResidualType);
     void print(std::ostream &stream = std::cout) const;
     void print(const HitPattern &, std::ostream &stream = std::cout) const;
-    /* Example usage:
-    *
-    * HitPattern p;
-    * TrackResiduals r;
-    * int numHits = p.numberOfValidHits() +
-    *   p.numberOfLostHits() +
-    *   p.numberOfValidMuonHits() +
-    *   p.numberOfLostMuonHits() +
-    *   p.numberOfValidTrackerHits() +
-    *   p.numberOfLostTrackerHits() +
-    *   p.numberOfValidPixelHits() +
-    *   p.numberOfLostPixelHits();
-    * for (int i = 0; i < numHits; ++i) {
-    *   printf("hit %d: pattern 0x%x, residual (local x) %f\n", i
-    *        p.getHitPattern(i), r.residualX(p, i));
-    * }
-    */
     /// get the residual of the ith hit (needs the hit pattern to
     /// figure out which hits are valid)
     double residualX(int i, const HitPattern &) const;

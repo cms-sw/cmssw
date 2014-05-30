@@ -126,7 +126,6 @@ double TrackResiduals::unpack_pull (unsigned char pull)
 {
     int sgn = 1 - 2 * ((pull & 0x08) >> 3);
     unsigned char mag = pull & 0x07;
-    // TODO integer division, intended?
     return sgn * (pull_char_to_double[mag][0] + pull_char_to_double[mag][1]) / 2;
 }
 
@@ -143,7 +142,6 @@ double TrackResiduals::unpack_residual (unsigned char pull)
 {
     int sgn = 1 - 2 * ((pull & 0x08) >> 3);
     unsigned char mag = pull & 0x07;
-    //TODO Integer division again
     return sgn * (pull_char_to_double[mag][0] + pull_char_to_double[mag][1]) / 2;
 }
 
