@@ -22,6 +22,7 @@ PFTau::PFTau()
     caloComp_ = NAN;
     segComp_ = NAN;
     muonDecision_ = NAN;
+    decayMode_=kNull;
 }
 
 PFTau::PFTau(Charge q, const LorentzVector& p4, const Point& vtx) 
@@ -44,6 +45,7 @@ PFTau::PFTau(Charge q, const LorentzVector& p4, const Point& vtx)
    caloComp_ = NAN;
    segComp_ = NAN;
    muonDecision_ = NAN;
+   decayMode_=kNull;
 }
 
 PFTau* PFTau::clone() const { return new PFTau(*this); }
@@ -173,7 +175,9 @@ void PFTau::setIsolationTauChargedHadronCandidatesRefs(const PFRecoTauChargedHad
   isolationTauChargedHadronCandidatesRefs_ = cands;
 }
 
-PFTau::hadronicDecayMode PFTau::decayMode() const {
+PFTau::hadronicDecayMode PFTau::decayMode() const { return decayMode_; }
+
+PFTau::hadronicDecayMode PFTau::calculateDecayMode() const {
   unsigned int nCharged = signalTauChargedHadronCandidates().size();
   unsigned int nPiZeros = signalPiZeroCandidates().size();
   // If no tracks exist, this is definitely not a tau!
@@ -184,10 +188,12 @@ PFTau::hadronicDecayMode PFTau::decayMode() const {
   unsigned int trackIndex = (nCharged - 1)*(maxPiZeros + 1);
   // Check if we handle the given number of tracks
   if ( trackIndex >= kRareDecayMode ) return kRareDecayMode;
-  
-  nPiZeros = ( nPiZeros <= maxPiZeros ) ? nPiZeros : maxPiZeros;
+
+  if(nPiZeros>maxPiZeros) nPiZeros=maxPiZeros;
   return static_cast<PFTau::hadronicDecayMode>(trackIndex + nPiZeros);
 }
+
+void PFTau::setDecayMode(const PFTau::hadronicDecayMode& dm){ decayMode_=dm;}
 
 // Setting information about the isolation region
 float PFTau::isolationPFChargedHadrCandsPtSum() const {return isolationPFChargedHadrCandsPtSum_;}
