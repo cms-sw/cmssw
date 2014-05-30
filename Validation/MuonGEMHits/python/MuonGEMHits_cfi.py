@@ -10,7 +10,8 @@ gemHitsValidation = cms.EDAnalyzer('MuonGEMHits',
     simTrackMatching = cms.PSet( 
        gemMinPt = cms.untracked.double(4.5),
        gemMinEta = cms.untracked.double(1.45),
-       gemMaxEta = cms.untracked.double(2.5)
+       gemMaxEta = cms.untracked.double(2.5),
+			 EtaRangeForPhi = cms.untracked.vdouble( 1.5,2.2, 1.6,2.1, 1.6,2.5),
     ),
     PlotBinInfo = cms.PSet(
 			# st1, st2_short, st2_long of xbin, st1,st2_short,st2_long of ybin

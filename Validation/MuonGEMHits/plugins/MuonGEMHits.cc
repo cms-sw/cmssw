@@ -116,7 +116,7 @@ MuonGEMHits::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
   dbe_->setCurrentFolder("MuonGEMHitsV/GEMHitsTask");
   if ( hasGEMGeometry_) { 
     theGEMHitsValidation->bookHisto(gem_geometry_);
-    theGEMSimTrackMatch->bookHisto();   // GEMSimTrackMatch needs not Geometry information for booking histogram.
+    theGEMSimTrackMatch->bookHisto(gem_geometry_);   // GEMSimTrackMatch needs not Geometry information for booking histogram.
   }
 }
 

@@ -14,7 +14,7 @@ GEMSimTrackMatch::GEMSimTrackMatch(DQMStore* dbe, std::string simInputLabel , ed
    maxEta_ = cfg_.getUntrackedParameter<double>("gemMaxEta",2.45);
 }
 
-void GEMSimTrackMatch::bookHisto() 
+void GEMSimTrackMatch::bookHisto(const GEMGeometry* geom) 
 {
    const float PI=TMath::Pi();
    dbe_->setCurrentFolder("MuonGEMHitsV/GEMHitsTask");

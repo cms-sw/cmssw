@@ -139,34 +139,38 @@ MuonGEMDigis_Harvesting::endRun(edm::Run const&, edm::EventSetup const&)
 	const char* l_suffix[4] = {"_l1","_l2","_l1or2","_l1and2"};
 	const char* s_suffix[3] = {"_st1","_st2_short","_st2_long"};	 
 
-  TH1F* gem_trk_phi = nullptr;  
-  TH1F* gem_trk_eta = nullptr;
+  TH1F* gem_trk_phi[3];  
+  TH1F* gem_trk_eta[3];
   TH1F* sh_eta[3][4];
   TH1F* sh_phi[3][4];
 	
-	if ( dbe_->get("MuonGEMDigisV/GEMDigisTask/track_phi") != nullptr && dbe_->get("MuonGEMDigisV/GEMDigisTask/track_eta") !=nullptr ) {
-    gem_trk_phi = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigisTask/track_phi")->getTH1F()->Clone();
-    gem_trk_eta = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigisTask/track_eta")->getTH1F()->Clone();
-    gem_trk_phi->Sumw2();
-    gem_trk_eta->Sumw2();
-  }
 	for( int i = 0 ; i < 3 ; i++) {
-		for( int j = 0; j < 4 ; j++) { 
- 			TString suffix = TString( l_suffix[j])+TString( s_suffix[i] );
-			TString eta_label = TString(dbe_path)+"dg_sh_eta"+suffix;
-			TString phi_label = TString(dbe_path)+"dg_sh_phi"+suffix;
-  		if( dbe_->get(eta_label.Data() ) !=nullptr && dbe_->get(phi_label.Data()) !=nullptr ) {
-				TString label = "MuonGEMDigisV/GEMDigisTask/dg_sh_eta"+suffix;
-			  sh_eta[i][j] = (TH1F*)dbe_->get(label.Data())->getTH1F()->Clone();
-		    sh_eta[i][j]->Sumw2();
-				label = "MuonGEMDigisV/GEMDigisTask/dg_sh_phi"+suffix;
-		    sh_phi[i][j] = (TH1F*)dbe_->get(label.Data())->getTH1F()->Clone();
-		    sh_phi[i][j]->Sumw2();
+		TString eta_label = TString(dbe_path)+"track_eta"+s_suffix[i];
+		TString phi_label = TString(dbe_path)+"track_phi"+s_suffix[i];
+		if ( dbe_->get(eta_label.Data()) == nullptr ) std::cout<<"missing eta"<<std::endl;	
+		if ( dbe_->get(phi_label.Data()) == nullptr ) std::cout<<"missing phi"<<std::endl;
+	
+		if ( dbe_->get(eta_label.Data()) != nullptr && dbe_->get(phi_label.Data()) !=nullptr ) {
+	    gem_trk_eta[i] = (TH1F*)dbe_->get(eta_label.Data())->getTH1F()->Clone();
+	    gem_trk_eta[i]->Sumw2();
+
+	    gem_trk_phi[i] = (TH1F*)dbe_->get(phi_label.Data())->getTH1F()->Clone();
+	    gem_trk_phi[i]->Sumw2();
+			for( int j = 0; j < 4 ; j++) { 
+ 				TString suffix = TString( l_suffix[j])+TString( s_suffix[i] );
+				TString eta_label = TString(dbe_path)+"dg_sh_eta"+suffix;
+				TString phi_label = TString(dbe_path)+"dg_sh_phi"+suffix;
+  			if( dbe_->get(eta_label.Data() ) !=nullptr && dbe_->get(phi_label.Data()) !=nullptr ) {
+				 sh_eta[i][j] = (TH1F*)dbe_->get(eta_label.Data())->getTH1F()->Clone();
+		 	   sh_eta[i][j]->Sumw2();
+		 	   sh_phi[i][j] = (TH1F*)dbe_->get(phi_label.Data())->getTH1F()->Clone();
+		 	   sh_phi[i][j]->Sumw2();
+  			}
+				ProcessBooking( dbe_, "dg_eta", suffix, gem_trk_eta[i], sh_eta[i][j]); 
+				ProcessBooking( dbe_, "pad_eta", suffix, gem_trk_eta[i], sh_eta[i][j]); 
+				ProcessBooking( dbe_, "dg_phi",suffix, gem_trk_phi[i], sh_phi[i][j]);
+				ProcessBooking( dbe_, "pad_phi",suffix,gem_trk_phi[i], sh_phi[i][j]);
   		}
-			ProcessBooking( dbe_, "dg_eta", suffix, gem_trk_eta, sh_eta[i][j]); 
-			ProcessBooking( dbe_, "pad_eta", suffix, gem_trk_eta, sh_eta[i][j]); 
-			ProcessBooking( dbe_, "dg_phi",suffix, gem_trk_phi, sh_phi[i][j]);
-			ProcessBooking( dbe_, "pad_phi",suffix,gem_trk_phi, sh_phi[i][j]);
   	}
 	}
   /*

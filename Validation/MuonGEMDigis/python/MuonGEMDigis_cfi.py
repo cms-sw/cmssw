@@ -27,5 +27,6 @@ gemDigiValidation = cms.EDAnalyzer('MuonGEMDigis',
             gemDigiMinEta  = cms.untracked.double(1.5),
             gemDigiMaxEta  = cms.untracked.double(2.6),
             gemDigiMinPt = cms.untracked.double(5.0),
+						EtaRangeForPhi = cms.untracked.vdouble( 1.5, 2.2, 1.6, 2.1, 1.6, 2.5),
   ),
 )

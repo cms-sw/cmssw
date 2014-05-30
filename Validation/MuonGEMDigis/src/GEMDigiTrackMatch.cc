@@ -26,20 +26,27 @@ void GEMDigiTrackMatch::FillWithTrigger( MonitorElement* hist[4][3], bool array[
 }
 
 
-void GEMDigiTrackMatch::bookHisto(){
-   const float PI=TMath::Pi();
-	 const char* l_suffix[4] = {"_l1","_l2","_l1or2","_l1and2"};
-	 const char* s_suffix[3] = {"_st1","_st2_short","_st2_long"};
-	 const char* c_suffix[2] = {"_even","_odd"};
+void GEMDigiTrackMatch::bookHisto(const GEMGeometry* geom){
+	theGEMGeometry = geom;
+  const float PI=TMath::Pi();
+	const char* l_suffix[4] = {"_l1","_l2","_l1or2","_l1and2"};
+	const char* s_suffix[3] = {"_st1","_st2_short","_st2_long"};
+	const char* c_suffix[2] = {"_even","_odd"};
 
-   //track_eta =  dbe_->book1D("track_eta", "track_eta;SimTrack |#eta|;# of tracks", 140,minEta_,maxEta_);
-   //track_phi =  dbe_->book1D("track_phi", "track_phi;SimTrack |#eta|;# of tracks", 100,-PI,PI);
+  //track_eta =  dbe_->book1D("track_eta", "track_eta;SimTrack |#eta|;# of tracks", 140,minEta_,maxEta_);
+  //track_phi =  dbe_->book1D("track_phi", "track_phi;SimTrack |#eta|;# of tracks", 100,-PI,PI);
 		
-	 track_eta = dbe_->book1D("track_eta","track_eta",140,minEta_,maxEta_);
-	 track_phi = dbe_->book1D("track_phi","track_phi",100,-PI,PI);
-
-	 for( unsigned int i=0 ; i<4; i++) {
-	   for( unsigned int j=0 ; j<3 ; j++) {
+	
+  unsigned int nstation = theGEMGeometry->regions()[0]->stations().size(); 
+	for( unsigned int j=0 ; j<nstation ; j++) {
+			string track_eta_name = (string("track_eta")+s_suffix[j]);
+			string track_phi_name = (string("track_phi")+s_suffix[j]);
+			std::cout<<track_eta_name<<std::endl;
+			std::cout<<track_phi_name<<std::endl;
+	 		track_eta[j] = dbe_->book1D(track_eta_name.c_str(), track_eta_name.c_str(),140,minEta_,maxEta_);
+			track_phi[j] = dbe_->book1D(track_phi_name.c_str(), track_phi_name.c_str(),100,-PI,PI);
+			
+	 		for( unsigned int i=0 ; i< 4; i++) {
 				 string suffix = string(l_suffix[i])+string(s_suffix[j]);
 				 string dg_eta_name = string("dg_eta")+suffix;
 				 string dg_eta_title = dg_eta_name+"; tracks |#eta|; # of tracks";
@@ -155,19 +162,32 @@ void GEMDigiTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup&
 			track_.gem_pad[ id.station()-1][ (id.layer()-1)] = true;
     }
 
+		bool station1 = false;
+		bool station2_s = false;
+		bool station2_l = false;
+		if ( track_.gem_dg[0][0] || track_.gem_dg[0][1] ) station1=true;
+		if ( track_.gem_dg[1][0] || track_.gem_dg[1][1] ) station2_s=true;
+		if ( track_.gem_dg[2][0] || track_.gem_dg[2][1] ) station2_l=true;
 
-		track_eta->Fill( fabs( track_.eta)) ; 
+    // if this track enter thought station, 
+		if ( station1   ) track_eta[0]->Fill ( fabs( track_.eta)) ;   // station1 
+		if ( station2_s ) track_eta[1]->Fill ( fabs( track_.eta)) ;   // station2_short
+		if ( station2_l ) track_eta[2]->Fill ( fabs( track_.eta)) ;   // station2_long
+		
+
 		FillWithTrigger( dg_sh_eta, track_.gem_sh  , fabs( track_.eta) );
 		FillWithTrigger( dg_eta,    track_.gem_dg  , fabs( track_.eta) );
 		FillWithTrigger( pad_eta,   track_.gem_pad , fabs( track_.eta) );
+	
+    // Separate station.
+    if ( station1   && fabs(track_.eta) > getEtaRangeForPhi(0).first && fabs(track_.eta)< getEtaRangeForPhi(0).second ) track_phi[0]->Fill( track_.phi ) ;
+    if ( station2_s && fabs(track_.eta) > getEtaRangeForPhi(1).first && fabs(track_.eta)< getEtaRangeForPhi(1).second ) track_phi[1]->Fill( track_.phi ) ;
+    if ( station2_l && fabs(track_.eta) > getEtaRangeForPhi(2).first && fabs(track_.eta)< getEtaRangeForPhi(2).second ) track_phi[2]->Fill( track_.phi ) ;
+
+		FillWithTrigger( dg_sh_phi, track_.gem_sh  ,  track_.phi );
+		FillWithTrigger( dg_phi,    track_.gem_dg  ,  track_.phi );
+		FillWithTrigger( pad_phi,   track_.gem_pad ,  track_.phi );
 		
- 	  if ( track_.eta> minEta_ && track_.eta< maxEta_) {
-			track_phi->Fill( track_.phi ) ;
-			FillWithTrigger( dg_sh_phi, track_.gem_sh  ,  track_.phi );
-			FillWithTrigger( dg_phi,    track_.gem_dg  ,  track_.phi );
-			FillWithTrigger( pad_phi,   track_.gem_pad ,  track_.phi );
- 	  }
-			
 
     // Calculation of the localXY efficiency
     GlobalPoint gp_track(match_sh.propagatedPositionGEM());

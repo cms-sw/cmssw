@@ -15,12 +15,12 @@ public:
   GEMDigiTrackMatch(DQMStore* , std::string , edm::ParameterSet);
   ~GEMDigiTrackMatch();
   void analyze(const edm::Event& e, const edm::EventSetup&);
-  void bookHisto();
+  void bookHisto(const GEMGeometry* geom);
 	void FillWithTrigger( MonitorElement* me[4][3], bool array[3][2], Float_t value);
  private:
 
-  MonitorElement* track_eta;
-  MonitorElement* track_phi;
+  MonitorElement* track_eta[3];
+  MonitorElement* track_phi[3];
 
   //MonitorElement* track_dg_eta;
   //MonitorElement* track_sh_eta;
