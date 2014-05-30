@@ -374,13 +374,13 @@
     <string>phi</string>
     <string>3</string>
     <string>ECAL</string>
-    <string>p4().E() * emEnergyFraction()</string>
+    <string>p4().E() * emEnergyFraction(reco::HitPattern::TRACK_HITS)</string>
     <string>1</string>
     <string>HCAL</string>
-    <string>p4().E() * energyFractionHadronic()</string>
+    <string>p4().E() * energyFractionHadronic(reco::HitPattern::TRACK_HITS)</string>
     <string>1</string>
     <string>emf</string>
-    <string>emEnergyFraction()</string>
+    <string>emEnergyFraction(reco::HitPattern::TRACK_HITS)</string>
     <string>3</string>
   </config>
   <config name="reco::GenParticle" version="1">
@@ -420,13 +420,13 @@
     <string>hadronicOverEm</string>
     <string>3</string>
     <string>fbrem</string>
-    <string>(trackMomentumAtVtx().R() - trackMomentumOut().R()) / trackMomentumAtVtx().R()</string>
+    <string>(trackMomentumAtVtx().R() - trackMomentumOut().R()) / trackMomentumAtVtx().R(reco::HitPattern::TRACK_HITS)</string>
     <string>3</string>
     <string>dei</string>
-    <string>deltaEtaSuperClusterTrackAtVtx()</string>
+    <string>deltaEtaSuperClusterTrackAtVtx(reco::HitPattern::TRACK_HITS)</string>
     <string>3</string>
     <string>dpi</string>
-    <string>deltaPhiSuperClusterTrackAtVtx()</string>
+    <string>deltaPhiSuperClusterTrackAtVtx(reco::HitPattern::TRACK_HITS)</string>
     <string>3</string>
   </config>
   <config name="reco::Jet" version="1">
@@ -474,7 +474,7 @@
     <string>isCaloMuon</string>
     <string>-2</string>
     <string>tr pt</string>
-    <string>track().pt()</string>
+    <string>track().pt(reco::HitPattern::TRACK_HITS)</string>
     <string>1</string>
     <string>eta</string>
     <string>eta</string>
@@ -486,10 +486,10 @@
     <string>numberOfMatches('SegmentArbitration')</string>
     <string>0</string>
     <string>d0</string>
-    <string>track().d0()</string>
+    <string>track().d0(reco::HitPattern::TRACK_HITS)</string>
     <string>3</string>
     <string>d0 / d0Err</string>
-    <string>track().d0() / track().d0Error()</string>
+    <string>track().d0() / track().d0Error(reco::HitPattern::TRACK_HITS)</string>
     <string>3</string>
   </config>
   <config name="reco::Photon" version="1">
@@ -541,10 +541,10 @@
     <string>vz</string>
     <string>5</string>
     <string>pixel hits</string>
-    <string>hitPattern().numberOfValidPixelHits()</string>
+    <string>hitPattern().numberOfValidPixelHits(reco::HitPattern::TRACK_HITS)</string>
     <string>0</string>
     <string>strip hits</string>
-    <string>hitPattern().numberOfValidStripHits()</string>
+    <string>hitPattern().numberOfValidStripHits(reco::HitPattern::TRACK_HITS)</string>
     <string>0</string>
     <string>chi2</string>
     <string>chi2</string>
