@@ -14,6 +14,7 @@ __version__ = "$Revision: 1.15 $"
 
 import json
 import re
+import urllib2
 
 class LumiList(object):
     """
@@ -42,7 +43,7 @@ class LumiList(object):
     """
 
 
-    def __init__(self, filename = None, lumis = None, runsAndLumis = None, runs = None, compactList = None):
+    def __init__(self, filename = None, lumis = None, runsAndLumis = None, runs = None, compactList = None, url = None):
         """
         Constructor takes filename (JSON), a list of run/lumi pairs,
         or a dict with run #'s as the keys and a list of lumis as the values, or just a list of runs
@@ -51,6 +52,10 @@ class LumiList(object):
         if filename:
             self.filename = filename
             jsonFile = open(self.filename,'r')
+            self.compactList = json.load(jsonFile)
+        elif url:
+            self.url = url
+            jsonFile = urllib2.urlopen(url)
             self.compactList = json.load(jsonFile)
         elif lumis:
             runsAndLumis = {}
@@ -286,6 +291,22 @@ class LumiList(object):
             if self.compactList.has_key (run):
                 del self.compactList[run]
 
+        return
+
+
+    def selectRuns (self, runList):
+        '''
+        Selects only runs from runList in collection
+        '''
+        runsToDelete = []
+        for run in self.compactList.keys():
+            if int(run) not in runList and run not in runList:
+                runsToDelete.append(run)
+
+        for run in runsToDelete:
+            del self.compactList[run]
+
+        return
 
     def contains (self, run, lumiSection = None):
         '''
@@ -561,6 +582,38 @@ class LumiListTest(unittest.TestCase):
         self.assertTrue((a&b).getCMSSWString() == r.getCMSSWString())
         self.assertTrue((a&b).getCMSSWString() == (b&a).getCMSSWString())
         self.assertTrue((a|b).getCMSSWString() != r.getCMSSWString())
+
+    def testRemoveSelect(self):
+        """
+        a-b for lots of cases
+        """
+
+        alumis = {'1' : range(2,20) + range(31,39) + range(45,49),
+                  '2' : range(6,20) + range (30,40),
+                  '3' : range(10,20) + range (30,40) + range(50,60),
+                  '4' : range(10,20) + range (30,80),
+                 }
+
+        result = {'2' : range(6,20) + range (30,40),
+                  '4' : range(10,20) + range (30,80),
+                 }
+
+        rem = LumiList(runsAndLumis = alumis)
+        sel = LumiList(runsAndLumis = alumis)
+        res = LumiList(runsAndLumis = result)
+
+        rem.removeRuns([1,3])
+        sel.selectRuns([2,4])
+
+        self.assertTrue(rem.getCMSSWString() == res.getCMSSWString())
+        self.assertTrue(sel.getCMSSWString() == res.getCMSSWString())
+        self.assertTrue(sel.getCMSSWString() == rem.getCMSSWString())
+
+    def testURL(self):
+        URL = 'https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions12/8TeV/Reprocessing/Cert_190456-195530_8TeV_08Jun2012ReReco_Collisions12_JSON.txt'
+        ll = LumiList(url=URL)
+        self.assertTrue(len(ll) > 0)
+
 
     def testWrite(self):
         alumis = {'1' : range(2,20) + range(31,39) + range(45,49),
