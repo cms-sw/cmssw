@@ -6,13 +6,13 @@ from L1Trigger.L1TCalorimeter.l1tCaloStage1Digis_cfi import *
 from L1Trigger.Configuration.SimL1Emulator_cff import *
 
 simGctDigis_Stage1 = cms.Sequence(
-    l1tCaloRCTToUpgradeConverter +
-    l1tCaloStage1Digis +
-    l1tPhysicalAdder +
-    l1tCaloUpgradeToGCTConverter
+    rctStage1FormatDigis +
+    caloStage1Digis +
+    caloStage1FinalDigis +
+    caloLegacyFormatDigis
 )
 
-simGtDigis.GctInputTag = 'l1tCaloUpgradeToGCTConverter'
+simGtDigis.GctInputTag = 'caloLegacyFormatDigis'
 
 SimL1Emulator_Stage1 = cms.Sequence(
     simRctDigis +
