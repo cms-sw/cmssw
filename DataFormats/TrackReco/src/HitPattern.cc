@@ -170,19 +170,18 @@ uint16_t HitPattern::encode(const DetId &id, TrackingRecHit::Type hitType)
     } else if (detid == DetId::Muon) {
         switch (subdet) {
         case MuonSubdetId::DT:
-            layer = ((DTLayerId(id.rawId()).station() - 1) << 2)
-                    + DTLayerId(id.rawId()).superLayer();
+            layer = ((DTLayerId(id.rawId()).station() - 1) << 2);
+            layer |= DTLayerId(id.rawId()).superLayer();
             break;
         case MuonSubdetId::CSC:
-            layer = ((CSCDetId(id.rawId()).station() - 1) << 2)
-                    + (CSCDetId(id.rawId()).ring() - 1);
+            layer = ((CSCDetId(id.rawId()).station() - 1) << 2);
+            layer |= (CSCDetId(id.rawId()).ring() - 1);
             break;
         case MuonSubdetId::RPC: {
             RPCDetId rpcid(id.rawId());
-            layer = ((rpcid.station() - 1) << 2) + abs(rpcid.region());
-            if (rpcid.station() <= 2) {
-                layer += 2 * (rpcid.layer() - 1);
-            }
+            layer = ((rpcid.station() - 1) << 2);
+            layer |= (rpcid.station() <= 2) ? ((rpcid.layer() - 1) << 1) : 0x0;
+            layer |= abs(rpcid.region());
         }
         break;
         }
@@ -227,19 +226,40 @@ bool HitPattern::appendHit(const DetId &id, TrackingRecHit::Type hitType)
         // so we already have hits of T in the vector and we don't want to
         // mess them with T' hits.
         if unlikely(((hitCount != endTrackHits) && (0 != beginTrackHits || 0 != endTrackHits))) {
+            cms::Exception("HitPattern") 
+                << "TRACK_HITS" 
+                << " were stored on this object before hits of some other category were inserted "
+                << "but hits of the same category should be inserted in a row. "
+                << "Please rework the code so it inserts all "
+                << "TRACK_HITS"
+                << " in a row.";
             return false;
         }
         return insertTrackHit(pattern);
         break;
     case TrackingRecHit::missing_inner:
         if unlikely(((hitCount != endInner) && (0 != beginInner || 0 != endInner))) {
-            return false;
+             cms::Exception("HitPattern") 
+                << "MISSING_INNER_HITS" 
+                << " were stored on this object before hits of some other category were inserted "
+                << "but hits of the same category should be inserted in a row. "
+                << "Please rework the code so it inserts all "
+                << "MISSING_INNER_HITS"
+                << " in a row.";
+             return false;
         }
         return insertExpectedInnerHit(pattern);
         break;
     case TrackingRecHit::missing_outer:
         if unlikely(((hitCount != endOuter) && (0 != beginOuter || 0 != endOuter))) {
-            return false;
+              cms::Exception("HitPattern") 
+                << "MISSING_OUTER_HITS"
+                << " were stored on this object before hits of some other category were inserted "
+                << "but hits of the same category should be inserted in a row. "
+                << "Please rework the code so it inserts all "
+                << "MISSING_OUTER_HITS"
+                << " in a row.";
+              return false;
         }
         return insertExpectedOuterHit(pattern);
         break;
