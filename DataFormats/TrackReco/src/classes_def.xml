@@ -117,22 +117,22 @@
                 if (detector == DetId::Tracker) {
                     switch (subdet) {
                     case PixelSubdetector::PixelBarrel:
-                        detId = PXBDetId(layer, 0, 0);
+                        detId = PXBDetId(layer, DONT_CARE, DONT_CARE);
                         break;
                     case PixelSubdetector::PixelEndcap:
-                        detId = PXFDetId(0, layer, 0, 0, 0);
+                        detId = PXFDetId(DONT_CARE, layer, DONT_CARE, DONT_CARE, DONT_CARE);
                         break;
                     case StripSubdetector::TIB:
-                        detId = TIBDetId(layer, 0, 0, 0, 0, 0);
+                        detId = TIBDetId(layer, DONT_CARE, DONT_CARE, DONT_CARE, DONT_CARE, DONT_CARE);
                         break;
                     case StripSubdetector::TID:
-                        detId = TIDDetId(0, layer, 0, 0, 0, 0);
+                        detId = TIDDetId(DONT_CARE, layer, DONT_CARE, DONT_CARE, DONT_CARE, DONT_CARE);
                         break;
                     case StripSubdetector::TOB:
-                        detId = TOBDetId(layer, 0, 0, 0, 0);
+                        detId = TOBDetId(layer, DONT_CARE, DONT_CARE, DONT_CARE, DONT_CARE);
                         break;
                     case StripSubdetector::TEC:
-                        detId = TECDetId(0, layer, 0, 0, 0, 0, 0);
+                        detId = TECDetId(DONT_CARE, layer, DONT_CARE, DONT_CARE, DONT_CARE, DONT_CARE, DONT_CARE);
                         break;
                     }
                 } else if (detector == DetId::Muon) {
@@ -140,20 +140,20 @@
                     case MuonSubdetId::DT: {
                         uint32_t station = 1 + ((layer >> 2) & 0x3);
                         uint32_t superLayer = (layer & 0x3);
-                        detId = DTLayerId(1, station, 1, superLayer, 1);
+                        detId = DTLayerId(DONT_CARE, station, DONT_CARE, superLayer, DONT_CARE);
                     }
                     break;
                     case MuonSubdetId::CSC: {
                         uint32_t station = 1 + ((layer >> 2) & 0x3);
                         uint32_t ring = 1 + (layer & 0x3);
-                        detId = CSCDetId(1, station, ring, 1, 1);
+                        detId = CSCDetId(DONT_CARE, station, ring, DONT_CARE, DONT_CARE);
                     }
                     break;
                     case MuonSubdetId::RPC: {
                         uint32_t station =  1 + ((layer >> 2) & 0x3);
                         uint32_t region  = layer & 0x1;
                         uint32_t layer_muon = 1 + ((station <= 2) ? ((layer >> 1) & 0x1) : 0);
-                        detId = RPCDetId(region, 1, station, 1, layer_muon, 1, 1);
+                        detId = RPCDetId(region, DONT_CARE, station, DONT_CARE, layer_muon, DONT_CARE, DONT_CARE);
                     }
                     break;
                     }
@@ -247,22 +247,22 @@
                 if (detector == DetId::Tracker) {
                     switch (subdet) {
                     case PixelSubdetector::PixelBarrel:
-                        detId = PXBDetId(layer, 0, 0);
+                        detId = PXBDetId(layer, DONT_CARE, DONT_CARE);
                         break;
                     case PixelSubdetector::PixelEndcap:
-                        detId = PXFDetId(0, layer, 0, 0, 0);
+                        detId = PXFDetId(DONT_CARE, layer, DONT_CARE, DONT_CARE, DONT_CARE);
                         break;
                     case StripSubdetector::TIB:
-                        detId = TIBDetId(layer, 0, 0, 0, 0, 0);
+                        detId = TIBDetId(layer, DONT_CARE, DONT_CARE, DONT_CARE, DONT_CARE, DONT_CARE);
                         break;
                     case StripSubdetector::TID:
-                        detId = TIDDetId(0, layer, 0, 0, 0, 0);
+                        detId = TIDDetId(DONT_CARE, layer, DONT_CARE, DONT_CARE, DONT_CARE, DONT_CARE);
                         break;
                     case StripSubdetector::TOB:
-                        detId = TOBDetId(layer, 0, 0, 0, 0);
+                        detId = TOBDetId(layer, DONT_CARE, DONT_CARE, DONT_CARE, DONT_CARE);
                         break;
                     case StripSubdetector::TEC:
-                        detId = TECDetId(0, layer, 0, 0, 0, 0, 0);
+                        detId = TECDetId(DONT_CARE, layer, DONT_CARE, DONT_CARE, DONT_CARE, DONT_CARE, DONT_CARE);
                         break;
                     }
                 } else if (detector == DetId::Muon) {
@@ -270,20 +270,20 @@
                     case MuonSubdetId::DT: {
                         uint16_t station = 1 + (layer >> 2);
                         uint16_t superLayer = (layer & 0x3);
-                        detId = DTLayerId(1, station, 1, superLayer, 1);
+                        detId = DTLayerId(DONT_CARE, station, DONT_CARE, superLayer, DONT_CARE);
                     }
                     break;
                     case MuonSubdetId::CSC: {
                         uint16_t station = 1 + (layer >> 2);
                         uint16_t ring = 1 + (layer & 0x3);
-                        detId = CSCDetId(1, station, ring, 1, 1);
+                        detId = CSCDetId(DONT_CARE, station, ring, DONT_CARE, DONT_CARE);
                     }
                     break;
                     case MuonSubdetId::RPC: {
                         uint16_t station = 1 + ((layer >> 2) & 0x3);
                         uint16_t region  = layer & 0x1;
                         uint16_t layer_muon = 1 + ((station <= 2) ? ((layer >> 1) & 0x1) : 0);
-                        detId = RPCDetId(region, 1, station, 1, layer_muon, 1, 1);
+                        detId = RPCDetId(region, DONT_CARE, station, DONT_CARE, layer_muon, DONT_CARE, DONT_CARE);
                     }
                     break;
                     }
