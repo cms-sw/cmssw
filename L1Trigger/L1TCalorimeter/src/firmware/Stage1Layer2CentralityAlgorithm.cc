@@ -28,13 +28,13 @@ void l1t::Stage1Layer2CentralityAlgorithm::processEvent(const std::vector<l1t::C
 							const std::vector<l1t::CaloEmCand> & EMCands,
 							      std::vector<l1t::EtSum> * etsums) {
 
-  // ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > etLorentz();
+  // ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > etLorentz(0,0,0,0);
 
   // // convert back to hardware ET
-  // l1t::EtSum etMiss(*etLorentz,EtSum::EtSumType::kMissingEt,MET/jetLsb ,0,iPhiET,0);
-  // l1t::EtSum htMiss(*etLorentz,EtSum::EtSumType::kMissingHt,MHT/jetLsb ,0,iPhiHT,0);
-  // l1t::EtSum etTot (*etLorentz,EtSum::EtSumType::kTotalEt,sumET/jetLsb,0,0,0);
-  // l1t::EtSum htTot (*etLorentz,EtSum::EtSumType::kTotalHt,sumHT/jetLsb ,0,0,0);
+  // l1t::EtSum etMiss(*&etLorentz,EtSum::EtSumType::kMissingEt,MET/jetLsb ,0,iPhiET,0);
+  // l1t::EtSum htMiss(*&etLorentz,EtSum::EtSumType::kMissingHt,MHT/jetLsb ,0,iPhiHT,0);
+  // l1t::EtSum etTot (*&etLorentz,EtSum::EtSumType::kTotalEt,sumET/jetLsb,0,0,0);
+  // l1t::EtSum htTot (*&etLorentz,EtSum::EtSumType::kTotalHt,sumHT/jetLsb ,0,0,0);
 
   // std::vector<l1t::EtSum> *preGtEtSums = new std::vector<l1t::EtSum>();
 
