@@ -15,13 +15,13 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 
 #from SLHCUpgradeSimulations.L1TrackTrigger.minBiasFiles_p1_cfi import *
-from SLHCUpgradeSimulations.L1TrackTrigger.minBiasFiles_p2_cfi import *
-#from SLHCUpgradeSimulations.L1TrackTrigger.singleMuonFiles_cfi import *
+#from SLHCUpgradeSimulations.L1TrackTrigger.minBiasFiles_p2_cfi import *
+from SLHCUpgradeSimulations.L1TrackTrigger.singleMuonFiles_cfi import *
 
 process.source = cms.Source("PoolSource",
-     fileNames = minBiasFiles_p2
+     #fileNames = minBiasFiles_p2
      #fileNames = minBiasFiles_p1
-     #fileNames = singleMuonFiles
+     fileNames = singleMuonFiles
 )
 
 
