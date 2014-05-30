@@ -40,8 +40,11 @@ class CSCALCTHeader {
   enum FIFO_MODE {NO_DUMP, FULL_DUMP, LOCAL_DUMP};
   unsigned short int FIFOMode()       const {return header2006.fifoMode;} 
   unsigned short int NTBins()         const {
-    switch (firmwareVersion)
-      {
+#ifdef LOCAL_UNPACK
+    switch (firmwareVersion) {
+#else
+    switch (firmwareVersion.load()) {
+#endif
       case 2006:
         return header2006.nTBins;
       case 2007:
@@ -56,8 +59,11 @@ class CSCALCTHeader {
   unsigned short int ExtTrig()        const {return header2006.extTrig;}
   unsigned short int CSCID()          const {return header2006.cscID;}
   unsigned short int BXNCount()       const {
-    switch (firmwareVersion)
-      {
+#ifdef LOCAL_UNPACK
+    switch (firmwareVersion) {
+#else
+    switch (firmwareVersion.load()) {
+#endif
       case 2006:
         return header2006.bxnCount;
       case 2007:
@@ -70,8 +76,11 @@ class CSCALCTHeader {
   }
 
   void setBXNCount(unsigned int bxn)       {
-    switch (firmwareVersion)
-      {
+#ifdef LOCAL_UNPACK
+    switch (firmwareVersion) {
+#else
+    switch (firmwareVersion.load()) {
+#endif
       case 2006:
         header2006.bxnCount = bxn % 0xFFF;
 	break;
@@ -87,8 +96,11 @@ class CSCALCTHeader {
 
 
   unsigned short int L1Acc()          const {
-    switch (firmwareVersion)
-      {
+#ifdef LOCAL_UNPACK
+    switch (firmwareVersion) {
+#else
+    switch (firmwareVersion.load()) {
+#endif
       case 2006:
         return header2006.l1Acc;
       case 2007:
@@ -101,8 +113,11 @@ class CSCALCTHeader {
   }
 
   void setL1Acc(unsigned int l1a)       {
-    switch (firmwareVersion)
-      {
+#ifdef LOCAL_UNPACK
+    switch (firmwareVersion) {
+#else
+    switch (firmwareVersion.load()) {
+#endif
       case 2006:
         header2006.l1Acc = l1a % 0xF;
         break;
@@ -134,8 +149,11 @@ class CSCALCTHeader {
  
   /// in 16-bit words
   int sizeInWords() {
-    switch (firmwareVersion)
-      {
+#ifdef LOCAL_UNPACK
+    switch (firmwareVersion) {
+#else
+    switch (firmwareVersion.load()) {
+#endif
       case 2006:
         return 8;
       case 2007:
@@ -148,8 +166,11 @@ class CSCALCTHeader {
   }
   
   bool check() const {
-    switch (firmwareVersion)
-      {
+#ifdef LOCAL_UNPACK
+    switch (firmwareVersion) {
+#else
+    switch (firmwareVersion.load()) {
+#endif
       case 2006:
 	return header2006.flag_0 == 0xC;
       case 2007:
