@@ -193,6 +193,11 @@ class DQMStore
     std::vector<MonitorElement *> getContents(Args && ... args) {
       return owner_->getContents(std::forward<Args>(args)...);
     }
+    // for the supported syntaxes, see the declarations of DQMStore::removeElements
+    template <typename... Args>
+      void removeElement(Args && ... args) {
+      return owner_->removeElement(std::forward<Args>(args)...);
+    }
 
     MonitorElement * get(const std::string &path);
     std::vector<std::string> getSubdirs(void);
