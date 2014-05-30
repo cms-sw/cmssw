@@ -69,14 +69,18 @@ process.load('L1Trigger.L1TCalorimeter.L1TCaloStage1_cff')
 #process.l1tCaloParams.etSumEtaMax = cms.vint32(999,  999,  999,  999),
 #process.l1tCaloParams.etSumEtThreshold = cms.vdouble(0.,  0.,   0.,   0.)
 
+# temporarily run on gctDigis until we can sort out hcalDigis
 process.simRctStage1FormatDigis.regionTag = cms.InputTag("gctDigis")
 process.simRctStage1FormatDigis.emTag = cms.InputTag("gctDigis")
 
+# stops crashes on older MC
+process.SimL1Emulator_Stage1.remove(process.SimL1TechnicalTriggers)
+
 process.p1 = cms.Path(
-    #process.SimL1Emulator_Stage1
     #process.simRctDigis +
     process.gctDigis +
-    process.simGctDigis_Stage1
+    #process.simGctDigis_Stage1
+    process.SimL1Emulator_Stage1
     )
 
 process.output_step = cms.EndPath(process.output)

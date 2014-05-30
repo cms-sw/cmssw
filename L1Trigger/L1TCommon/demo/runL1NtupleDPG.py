@@ -25,19 +25,19 @@ process.load("L1TriggerDPG.L1Ntuples.l1ExtraTreeProducer_cfi")
 
 process.l1extraParticles = cms.EDProducer("L1ExtraParticlesProd",
     muonSource = cms.InputTag("simGtDigis"),
-    etTotalSource = cms.InputTag("l1tCaloUpgradeToGCTConverter"),
-    nonIsolatedEmSource = cms.InputTag("l1tCaloUpgradeToGCTConverter","nonIsoEm"),
-    etMissSource = cms.InputTag("l1tCaloUpgradeToGCTConverter"),
-    htMissSource = cms.InputTag("l1tCaloUpgradeToGCTConverter"),
+    etTotalSource = cms.InputTag("simCaloLegacyFormatDigis"),
+    nonIsolatedEmSource = cms.InputTag("simCaloLegacyFormatDigis","nonIsoEm"),
+    etMissSource = cms.InputTag("simCaloLegacyFormatDigis"),
+    htMissSource = cms.InputTag("simCaloLegacyFormatDigis"),
     produceMuonParticles = cms.bool(True),
-    forwardJetSource = cms.InputTag("l1tCaloUpgradeToGCTConverter","forJets"),
-    centralJetSource = cms.InputTag("l1tCaloUpgradeToGCTConverter","cenJets"),
+    forwardJetSource = cms.InputTag("simCaloLegacyFormatDigis","forJets"),
+    centralJetSource = cms.InputTag("simCaloLegacyFormatDigis","cenJets"),
     produceCaloParticles = cms.bool(True),
-    tauJetSource = cms.InputTag("l1tCaloUpgradeToGCTConverter","tauJets"),
-    isolatedEmSource = cms.InputTag("l1tCaloUpgradeToGCTConverter","isoEm"),
-    etHadSource = cms.InputTag("l1tCaloUpgradeToGCTConverter"),
-    hfRingEtSumsSource = cms.InputTag("l1tCaloUpgradeToGCTConverter"),
-    hfRingBitCountsSource = cms.InputTag("l1tCaloUpgradeToGCTConverter"),
+    tauJetSource = cms.InputTag("simCaloLegacyFormatDigis","tauJets"),
+    isolatedEmSource = cms.InputTag("simCaloLegacyFormatDigis","isoEm"),
+    etHadSource = cms.InputTag("simCaloLegacyFormatDigis"),
+    hfRingEtSumsSource = cms.InputTag("simCaloLegacyFormatDigis"),
+    hfRingBitCountsSource = cms.InputTag("simCaloLegacyFormatDigis"),
     centralBxOnly = cms.bool(True),
     ignoreHtMiss = cms.bool(False)
 )
@@ -55,7 +55,7 @@ process.GlobalTag.globaltag = cms.string('POSTLS162_V2::All')
 # For HI data
 #process.GlobalTag = GlobalTag(process.GlobalTag, 'GR_P_V27A::All', '')
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 readFiles = cms.untracked.vstring("file:SimL1Emulator_Stage1.root")
 secFiles = cms.untracked.vstring()
