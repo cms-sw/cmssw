@@ -57,7 +57,7 @@ void GEMDigiTrackMatch::bookHisto(const GEMGeometry* geom){
 			   dg_sh_eta[i][j] = dbe_->book1D( dg_sh_eta_name.c_str(), dg_sh_eta_title.c_str(), 140, minEta_, maxEta_) ;
 
 				 string dg_phi_name = string("dg_phi")+suffix;
-				 string dg_phi_title = dg_eta_name+"; tracks |#phi|; # of tracks";
+				 string dg_phi_title = dg_phi_name+"; tracks |#phi|; # of tracks";
 			   dg_phi[i][j] = dbe_->book1D( dg_phi_name.c_str(), dg_phi_title.c_str(), 100, -PI,PI) ;
 
 				 string dg_sh_phi_name = string("dg_sh_phi")+suffix;
