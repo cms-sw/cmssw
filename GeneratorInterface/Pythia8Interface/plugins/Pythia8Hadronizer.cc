@@ -98,7 +98,7 @@ class Pythia8Hadronizer : public BaseHadronizer, public Py8InterfaceBase {
     // PS matching prototype
     //
     JetMatchingHook* fJetMatchingHook;
-    UserHooks *fJetMatchingPy8InternalHook;
+    JetMatchingMadgraph *fJetMatchingPy8InternalHook;
     
     // Emission Veto Hooks
     //
@@ -456,7 +456,11 @@ bool Pythia8Hadronizer::hadronize()
     event().reset();
     return false;
   }
-
+//****************** GETTING THE DJR ******************
+/*   cout<<fJetMatchingPy8InternalHook->DifferentialJetRate.size()<<" "
+	<<fJetMatchingPy8InternalHook->nMEPartons_orig<<" "
+	<<fJetMatchingPy8InternalHook->nMEPartons_forM<<endl; */
+//*****************************************************
   // update LHE matching statistics
   //
   lheEvent()->count( lhef::LHERunInfo::kAccepted );

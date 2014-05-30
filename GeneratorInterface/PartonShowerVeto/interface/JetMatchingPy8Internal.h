@@ -25,6 +25,57 @@ using namespace Pythia8;
 
 //==========================================================================
 
+std::vector<float> GetDJR( const Event& event) {
+	std::vector<float> result;
+ 	fastjet::JetDefinition         *jetDef = NULL;
+	jetDef = new fastjet::JetDefinition(fastjet::kt_algorithm,1.0);
+  	std::vector <fastjet::PseudoJet> fjInputs;
+  	fjInputs.resize(0);
+  	for (int i = 0; i < event.size(); ++i) {
+    		if ( !event[i].isFinal()
+         	|| (abs(event[i].id())>5 && abs(event[i].id())!=21)
+         	|| fabs(event[i].eta())>5 || abs(event[i].status())==44
+     		) continue;
+     /*		cout<<"[In GetDJR] Storing pdgId="<<event[i].id()
+        	<<" mother1="<<event[event[i].mother1()].id()
+         	<<" mother2="<<event[event[i].mother2()].id()
+         	<<" status ="<<event[i].status()
+         	<<" pt="<<event[i].pT()
+         	<<" eta="<<event[i].eta()
+         	<<" phi="<<event[i].phi()
+         	<<" px="<<event[i].px()
+         	<<" py="<<event[i].py()
+         	<<" pz="<<event[i].pz()
+         	<<std::endl;*/
+    		fjInputs.push_back( fastjet::PseudoJet (event[i].px(),
+            event[i].py(), event[i].pz(),event[i].e() ) );
+  	}
+//  	std::cout<<"[In GetDJR ] size of sequence to cluster:"<<fjInputs.size()<<std::endl;
+  	if (int(fjInputs.size()) == 0) {
+    		delete jetDef;
+    		return result;
+  	}
+
+  	fastjet::ClusterSequence clustSeq(fjInputs, *jetDef);
+  	for(int u=0;u<4;u++)result.push_back(0);
+  	for(int u=0;u<4;u++){
+    		if((int)fjInputs.size()>u){
+        		result[u]=clustSeq.exclusive_dmerge(u);
+  //      		std::cout<<"for "<<u+1<<"->"<<u<<" objects, we have a cluster scale of "<<result[u]<<std::endl;
+    		}
+    		else{
+        		result[u]=-1;
+    		}
+  	}
+
+  	delete jetDef;
+  	return result;
+
+}
+
+
+
+
 // Declaration of main JetMatching class to perform MLM matching.
 // Note that it is defined with virtual inheritance, so that it can
 // be combined with other UserHooks classes, see e.g. main33.cc.
@@ -178,6 +229,10 @@ public:
   int  numberVetoStep() {return 1;}
   bool canVetoStep() { return doShowerKt; }
   bool doVetoStep(int,  int, int, const Event& );
+
+  vector<float> DifferentialJetRate;
+  int nMEPartons_orig;
+  int nMEPartons_forM;
 
 protected:
 
@@ -1542,6 +1597,9 @@ int JetMatchingMadgraph::matchPartonsToJetsLight() {
   if (nParton > 0 && pTminEstimate > 0) eTpTlightMin = pTminEstimate;
   else eTpTlightMin = -1.;
 
+   DifferentialJetRate= GetDJR(workEventJet);
+   nMEPartons_orig=origTypeIdx[0].size();;
+   nMEPartons_forM=typeIdx[0].size();;
   // No veto
   return NONE;
 }
