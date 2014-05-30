@@ -36,10 +36,8 @@
 #include "CondFormats/L1TObjects/interface/L1GtPsbConfig.h"
 #include "CondFormats/L1TObjects/interface/L1GtPsbSetup.h"
 #include "CondFormats/L1TObjects/interface/L1GtCondition.h"
-#include "CondFormats/L1TObjects/interface/GlobalCondition.h"
 #include "CondFormats/L1TObjects/interface/L1GtAlgorithm.h"
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenu.h"
-#include "CondFormats/L1TObjects/interface/GlobalTriggerMenu.h"
 #include "CondFormats/L1TObjects/interface/GlobalStableParameters.h"
 
 #include "CondFormats/L1TObjects/interface/L1CaloGeometry.h"
@@ -64,9 +62,6 @@ namespace CondFormats_L1TObjects {
     std::pair< std::string, L1GtAlgorithm > dummy9a ;
     std::pair<short,L1MuDTEtaPattern> dummy11 ;
     std::pair<int, std::vector<L1GtObject> > dummy13 ;
-    std::vector<GlobalMuonTemplate> dummy14 ;
-    std::vector<GlobalCaloTemplate> dummy15 ;
-    std::vector<GlobalCorrelationTemplate> dummy16 ;
 //    std::vector<L1RPCConeDefinition::TLPSize> dummy15;
 //    std::vector<L1RPCConeDefinition::TRingToTower> dummy15a;
 //    std::vector<L1RPCConeDefinition::TRingToLP> dummy15b;
