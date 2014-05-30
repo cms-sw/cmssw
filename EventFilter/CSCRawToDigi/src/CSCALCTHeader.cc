@@ -128,7 +128,11 @@ CSCALCTHeader::CSCALCTHeader(const CSCALCTStatusDigi & digi){
 }
 
 void CSCALCTHeader::setEventInformation(const CSCDMBHeader & dmb) {
+#ifdef LOCAL_UNPACK
  switch (firmwareVersion) {
+#else
+ switch (firmwareVersion.load()) {
+#endif
  case 2006:
     {
 	header2006.setEventInformation(dmb);
@@ -165,7 +169,11 @@ std::vector<CSCALCTDigi> CSCALCTHeader::ALCTDigis() const
 { 
   std::vector<CSCALCTDigi> result;
 
+#ifdef LOCAL_UNPACK
   switch (firmwareVersion) {
+#else
+  switch (firmwareVersion.load()) {
+#endif
   case 2006:
     {
       result = alcts2006.ALCTDigis();

@@ -6,6 +6,9 @@
 */
 
 #include <string.h> // memcpy
+#ifndef LOCAL_UNPACK
+#include <atomic>
+#endif
 #include "DataFormats/CSCDigi/interface/CSCALCTStatusDigi.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -50,7 +53,11 @@ public:
   static void setDebug(bool debugValue) {debug = debugValue;}
 
   unsigned short * data() {
+#ifdef LOCAL_UNPACK
+    switch (firmwareVersion) {
+#else
     switch (firmwareVersion.load()) {
+#endif
     case 2006:
       memcpy(theOriginalBuffer, &trailer2006, trailer2006.sizeInWords()*2);
       break;
@@ -69,7 +76,11 @@ public:
   static int sizeInWords() {return 4;}
 
   void setCRC(unsigned int crc){
+#ifdef LOCAL_UNPACK
     switch (firmwareVersion) {
+#else
+    switch (firmwareVersion.load()) {
+#endif
     case 2006:
       trailer2006.setCRC(crc);
       break;
@@ -85,7 +96,11 @@ public:
    
     
   int getCRC() { 
+#ifdef LOCAL_UNPACK
+    switch (firmwareVersion) {
+#else
     switch (firmwareVersion.load()) {
+#endif
     case 2006:
       return ((trailer2006.crc1&0x7ff)<<11) | (trailer2006.crc0&0x7ff);
     case 2007:
@@ -98,7 +113,11 @@ public:
   }
 
   bool check() const {
+#ifdef LOCAL_UNPACK
+    switch (firmwareVersion) {
+#else
     switch (firmwareVersion.load()) {
+#endif
     case 2006:
       return (trailer2006.e0dLine & 0xfff) == 0xe0d;
     case 2007:
@@ -111,7 +130,11 @@ public:
   }
   
   int wordCount() const {
+#ifdef LOCAL_UNPACK
+    switch (firmwareVersion) {
+#else
     switch (firmwareVersion.load()) {
+#endif
     case 2006:
       return trailer2006.frameCount;
     case 2007:
@@ -124,7 +147,11 @@ public:
   }
   
   unsigned alctCRCCheck() const { 
+#ifdef LOCAL_UNPACK
+    switch (firmwareVersion) {
+#else
     switch (firmwareVersion.load()) {
+#endif
     case 2006:
       return trailer2006.reserved_3;
     case 2007:
@@ -142,8 +169,15 @@ public:
   CSCALCTTrailer2007 alctTrailer2007() {return trailer2007;}
 
 private:
+
+#ifdef LOCAL_UNPACK
   static bool debug;
   static unsigned short int firmwareVersion;
+#else
+  static std::atomic<bool> debug;
+  static std::atomic<unsigned short int> firmwareVersion;
+#endif
+
   CSCALCTTrailer2006 trailer2006;
   CSCALCTTrailer2007 trailer2007;
   unsigned short int theOriginalBuffer[4];

@@ -1111,8 +1111,9 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
         }
 
       //DDU Trailer 3
-      else if ((ddu_tr1_check[-1])&&(tempbuf_short[0]==ddu_trailer3_bit[0]))
-        {
+
+//      else if ((ddu_tr1_check[-1])&&(tempbuf_short[0]==ddu_trailer3_bit[0])) { // !!! TO FIX: negative index 
+      else if((ddu_h2_h1)&&(tempbuf_short[0]==ddu_trailer3_bit[0])){
           //&&(tempbuf_short[0]==ddu_trailer3_bit[0])){
           ddu_inst_i = ddu_h1_n_coll.size();
           if (ddu_inst_i>0)
