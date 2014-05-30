@@ -1,11 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
-rctStage1FormatDigis = cms.EDProducer(
+simRctStage1FormatDigis = cms.EDProducer(
     "l1t::L1TCaloRCTToUpgradeConverter",
     regionTag = cms.InputTag("simRctDigis"),
     emTag = cms.InputTag("simRctDigis"))
 
-caloStage1Digis = cms.EDProducer(
+simCaloStage1Digis = cms.EDProducer(
     "l1t::Stage1Layer2Producer",
     CaloRegions = cms.InputTag("rctStage1FormatDigis"),
     CaloEmCands = cms.InputTag("rctStage1FormatDigis"),
@@ -18,11 +18,11 @@ caloStage1Digis = cms.EDProducer(
     maxGctEtaForSums = cms.int32(17)
 )
 
-caloStage1FinalDigis = cms.EDProducer("l1t::PhysicalEtAdder",
+simCaloStage1FinalDigis = cms.EDProducer("l1t::PhysicalEtAdder",
                                       InputCollection = cms.InputTag("caloStage1Digis")
 )
 
-caloLegacyFormatDigis = cms.EDProducer("l1t::L1TCaloUpgradeToGCTConverter",
+simCaloLegacyFormatDigis = cms.EDProducer("l1t::L1TCaloUpgradeToGCTConverter",
                                        InputCollection = cms.InputTag("caloStage1FinalDigis")
 )
 

@@ -67,10 +67,11 @@ process.load('L1Trigger.L1TCalorimeter.L1TCaloStage1_cff')
 #process.l1tCaloParams.etSumEtaMin = cms.vint32(-999, -999, -999, -999),
 #process.l1tCaloParams.etSumEtaMax = cms.vint32(999,  999,  999,  999),
 #process.l1tCaloParams.etSumEtThreshold = cms.vdouble(0.,  0.,   0.,   0.)
-
+process.simRctStage1FormatDigis.regionTag = cms.InputTag("gctDigis")
+process.simRctStage1FormatDigis.emTag = cms.InputTag("gctDigis")
 process.p1 = cms.Path(
     #process.SimL1Emulator_Stage1
-    process.simRctDigis +
+    #process.simRctDigis +
     process.simGctDigis_Stage1
     )
 
