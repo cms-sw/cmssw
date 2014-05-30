@@ -1,6 +1,7 @@
 #include "SimG4Core/CustomPhysics/interface/CustomPhysics.h"
 #include "SimG4Core/CustomPhysics/interface/CustomPhysicsList.h"
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics95msc93.h"
+#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4DecayPhysics.hh"
@@ -29,7 +30,8 @@ CustomPhysics::CustomPhysics(G4LogicalVolumeToDDLogicalPartMap& map,
 			      << hadPhys << "\n";
 
   // EM Physics
-  RegisterPhysics(new CMSEmStandardPhysics95msc93("EM standard msc93",ver,""));
+  RegisterPhysics(new CMSEmStandardPhysics(ver));
+  //RegisterPhysics(new CMSEmStandardPhysics95msc93("EM standard msc93",ver,""));
 
   // Synchroton Radiation & GN Physics
   RegisterPhysics(new G4EmExtraPhysics(ver));
@@ -50,7 +52,7 @@ CustomPhysics::CustomPhysics(G4LogicalVolumeToDDLogicalPartMap& map,
   RegisterPhysics(new G4IonPhysics(ver));
 
   // Neutron tracking cut
-  RegisterPhysics( new G4NeutronTrackingCut(ver));
+  RegisterPhysics(new G4NeutronTrackingCut(ver));
 
   // Custom Physics
   RegisterPhysics(new CustomPhysicsList("custom",p));    
