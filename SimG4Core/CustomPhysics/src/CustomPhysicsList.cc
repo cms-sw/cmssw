@@ -1,6 +1,7 @@
 #include "SimG4Core/CustomPhysics/interface/CustomPhysicsList.h"
 #include "SimG4Core/CustomPhysics/interface/CustomParticleFactory.h"
 #include "SimG4Core/CustomPhysics/interface/DummyChargeFlipProcess.h"
+#include "SimG4Core/CustomPhysics/interface/G4ProcessHelper.hh"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"

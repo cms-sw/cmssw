@@ -2,13 +2,14 @@
 #define SimG4Core_CustomPhysicsList_H
 
 #include "SimG4Core/CustomPhysics/interface/HadronicProcessHelper.hh"
-#include "SimG4Core/CustomPhysics/interface/G4ProcessHelper.hh"
 
 #include <string>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
  
 #include "G4VPhysicsConstructor.hh"
+
+class G4ProcessHelper;
 
 class CustomPhysicsList : public G4VPhysicsConstructor 
 {

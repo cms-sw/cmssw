@@ -1,6 +1,7 @@
 #include "SimG4Core/CustomPhysics/interface/CustomPhysicsListSS.h"
 #include "SimG4Core/CustomPhysics/interface/CustomParticleFactory.h"
 #include "SimG4Core/CustomPhysics/interface/DummyChargeFlipProcess.h"
+#include "SimG4Core/CustomPhysics/interface/G4ProcessHelper.hh"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
@@ -22,7 +23,6 @@
 
 using namespace CLHEP;
  
-
 CustomPhysicsListSS::CustomPhysicsListSS(std::string name, const edm::ParameterSet& p)
   :  G4VPhysicsConstructor(name) 
 {  
@@ -85,7 +85,6 @@ void CustomPhysicsListSS::addCustomPhysics(){
     }
   }
 }
-
 
 void CustomPhysicsListSS::setupRHadronPhycis(G4ParticleDefinition* particle)
 {
