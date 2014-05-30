@@ -34,6 +34,8 @@
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 
+//#define DebugLog
+
 //
 // class decleration
 //
@@ -93,7 +95,9 @@ HGCalTopologyBuilder::produce(const IdealGeometryRecord& iRecord ) {
   const HGCalDDDConstants & hgdc = (*pHGDC);
 
   ReturnType ct ( new HGCalTopology(hgdc, subdet_, halfType_) ) ;
+#ifdef DebugLog
   std::cout << "Create HGCalTopology(hgdc,subdet,type)" << std::endl;
+#endif
   return ct ;
 }
 
