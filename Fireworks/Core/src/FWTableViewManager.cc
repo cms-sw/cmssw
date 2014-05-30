@@ -121,8 +121,8 @@ FWTableViewManager::FWTableViewManager(FWGUIManager* iGUIMgr)
    column("vx", 5).
    column("vy", 5).
    column("vz", 5).
-   column("pixel hits", TableEntry::INT, "hitPattern().numberOfValidPixelHits(reco::HitPattern::TRACK_HITS)").
-   column("strip hits", TableEntry::INT, "hitPattern().numberOfValidStripHits(reco::HitPattern::TRACK_HITS)").
+   column("pixel hits", TableEntry::INT, "hitPattern().numberOfValidPixelHits()").
+   column("strip hits", TableEntry::INT, "hitPattern().numberOfValidStripHits()").
    column("chi2", 3).
    column("ndof", TableEntry::INT);
 
