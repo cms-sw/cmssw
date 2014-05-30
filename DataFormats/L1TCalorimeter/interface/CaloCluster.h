@@ -49,6 +49,11 @@ namespace l1t {
       int fgECAL() const;
       int clusterFlags() const{return m_clusterFlags;}
 
+      bool operator<(const CaloCluster& cl) const;
+      bool operator>(const CaloCluster& cl) const {return  cl<*this;};
+      bool operator<=(const CaloCluster& cl) const {return !(cl>*this);};
+      bool operator>=(const CaloCluster& cl) const {return !(cl<*this);};
+
     private:
       // Summary of clustering outcomes
       int m_clusterFlags; // see ClusterFlag bits (15 bits, will evolve)
@@ -66,7 +71,14 @@ namespace l1t {
   };
 
   typedef BXVector<CaloCluster> CaloClusterBxCollection;
+
+ 
+  //bool operator>(const CaloCluster& cll, const CaloCluster& clr) {return  operator< (clr,cll);};
+  //bool operator<=(const CaloCluster& cll, const CaloCluster& clr) {return !operator> (cll,clr);};
+  //bool operator>=(const CaloCluster& cll, const CaloCluster& clr) {return !operator< (cll,clr);};
   
 }
+
+
 
 #endif
