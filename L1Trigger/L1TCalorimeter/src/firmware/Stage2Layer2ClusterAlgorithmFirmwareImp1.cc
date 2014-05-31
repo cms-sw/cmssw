@@ -457,6 +457,16 @@ void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::refining(const std::vector<l
       towerEtNN = (towerEtNN>=m_clusterThreshold ? towerEtNN : 0);
       towerEtSS = (towerEtSS>=m_clusterThreshold ? towerEtSS : 0);
 
+      // seems useless to trim towers with 0 energy, but these flags are used for e/g identification
+      if(towerEtNW==0) cluster.setClusterFlag(CaloCluster::TRIM_NW, true);
+      if(towerEtN ==0) cluster.setClusterFlag(CaloCluster::TRIM_N , true);
+      if(towerEtNE==0) cluster.setClusterFlag(CaloCluster::TRIM_NE, true);
+      if(towerEtE ==0) cluster.setClusterFlag(CaloCluster::TRIM_E , true);
+      if(towerEtSE==0) cluster.setClusterFlag(CaloCluster::TRIM_SE, true);
+      if(towerEtS ==0) cluster.setClusterFlag(CaloCluster::TRIM_S , true);
+      if(towerEtSW==0) cluster.setClusterFlag(CaloCluster::TRIM_SW, true);
+      if(towerEtW ==0) cluster.setClusterFlag(CaloCluster::TRIM_W , true);
+
       // trim corners
       if(m_trimCorners) {
         if(towerEtN==0 && towerEtW==0) cluster.setClusterFlag(CaloCluster::TRIM_NW, true);
@@ -472,6 +482,8 @@ void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::refining(const std::vector<l
       else if(towerEtE   < towerEtW) cluster.setClusterFlag(CaloCluster::TRIM_RIGHT, true);
       else if(EtEtaRight > EtEtaLeft) cluster.setClusterFlag(CaloCluster::TRIM_LEFT, true);
       else if(EtEtaRight < EtEtaLeft) cluster.setClusterFlag(CaloCluster::TRIM_RIGHT, true);
+      else if(cluster.hwEta()>0) cluster.setClusterFlag(CaloCluster::TRIM_RIGHT, true);
+      else cluster.setClusterFlag(CaloCluster::TRIM_LEFT, true);
 
       if(cluster.checkClusterFlag(CaloCluster::TRIM_LEFT)){
         cluster.setClusterFlag(CaloCluster::TRIM_NW, true);

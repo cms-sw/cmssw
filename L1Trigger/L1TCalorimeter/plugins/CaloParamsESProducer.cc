@@ -102,6 +102,11 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
   std::shared_ptr<l1t::LUT> egMaxHOverELUT( new l1t::LUT(egMaxHOverELUTStream) );
   m_params.setEgMaxHOverELUT(egMaxHOverELUT);
 
+  edm::FileInPath egShapeIdLUTFile = conf.getParameter<edm::FileInPath>("egShapeIdLUTFile");
+  std::ifstream egShapeIdLUTStream(egShapeIdLUTFile.fullPath());
+  std::shared_ptr<l1t::LUT> egShapeIdLUT( new l1t::LUT(egShapeIdLUTStream) );
+  m_params.setEgShapeIdLUT(egShapeIdLUT);
+
   m_params.setEgIsoPUSType(conf.getParameter<std::string>("egIsoPUSType"));
   
   edm::FileInPath egIsoLUTFile = conf.getParameter<edm::FileInPath>("egIsoLUTFile");

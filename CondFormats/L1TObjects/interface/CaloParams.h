@@ -75,6 +75,7 @@ namespace l1t {
     //int egEtToRemoveHECutHw() const {return floor(egEtToRemoveHECut_/egLsb_);}
     double egEtToRemoveHECut() const {return egEtToRemoveHECut_;}
     l1t::LUT* egMaxHOverELUT() { return egMaxHOverELUT_.get(); }
+    l1t::LUT* egShapeIdLUT() { return egShapeIdLUT_.get(); }
     double egRelativeJetIsolationCut() const { return egRelativeJetIsolationCut_; }
     unsigned egIsoAreaNrTowersEta()const{return egIsoAreaNrTowersEta_;}
     unsigned egIsoAreaNrTowersPhi()const{return egIsoAreaNrTowersPhi_;}
@@ -95,6 +96,7 @@ namespace l1t {
     void setEgMaxHcalEt(double cut) { egMaxHcalEt_ = cut; }
     void setEgEtToRemoveHECut(double thresh) { egEtToRemoveHECut_ = thresh;}
     void setEgMaxHOverELUT(std::shared_ptr<LUT> lut) { egMaxHOverELUT_ = lut; }
+    void setEgShapeIdLUT(std::shared_ptr<LUT> lut) { egShapeIdLUT_ = lut; }
     void setEgRelativeJetIsolationCut(double cutValue) { egRelativeJetIsolationCut_ = cutValue; }
 
     void setEgIsoAreaNrTowersEta(unsigned iEgIsoAreaNrTowersEta){egIsoAreaNrTowersEta_=iEgIsoAreaNrTowersEta;}
@@ -258,6 +260,9 @@ namespace l1t {
 
     // EG maximum values of H/E (indexed by |ieta|, ??)
     std::shared_ptr<l1t::LUT> egMaxHOverELUT_;
+
+    // Shape identification bits (indexed by |ieta|, shape)
+    std::shared_ptr<l1t::LUT> egShapeIdLUT_;
 
     // Relative jet isolation cut for EG (Stage1Layer2)
     double egRelativeJetIsolationCut_;
