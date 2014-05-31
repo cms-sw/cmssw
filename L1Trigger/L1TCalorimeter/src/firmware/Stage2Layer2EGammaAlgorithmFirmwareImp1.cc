@@ -45,7 +45,6 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
       if(fgBit) qual |= (0x1); // first bit = FG
       if(hOverEBit) qual |= (0x1<<1); // second bit = H/E
       if(shapeBit) qual |= (0x1<<2); // third bit = shape
-      std::cout<<qual<<"\n";
       egammas.back().setHwQual( qual ); 
 
 
