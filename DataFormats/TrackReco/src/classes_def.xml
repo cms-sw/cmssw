@@ -4,13 +4,7 @@
       <version ClassVersion="11" checksum="1621684703"/>
   </class>
 
-  <class name="reco::HitPatternConversorHitProxy" ClassVersion="0">
-      <version ClassVersion="0" checksum="1389560278"/>
-  </class>
- 
-
   <class name="reco::TrackBase" ClassVersion="13">
-  <!-- I think there should only one copy of those <field /> since they are not nested. -->
    <version ClassVersion="13" checksum="1244921154"/>
     <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
     <field name="momentum_" iotype="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
@@ -64,7 +58,7 @@
                 }
             };
 
-            auto oldHitPatternToTrackingRecHitProxy = [&](const uint32_t pattern) {
+            auto oldHitPatternToTrackingRecHitPair = [&](const uint32_t pattern) {
                 // value used for those parameters needed by XXXDetId constructors
                 // but that we do not care about becuase they are not stored in the
                 // HitPattern.
@@ -167,7 +161,7 @@
                     if (pattern == 0) {
                         break;
                     }
-                    std::pair<DetId, TrackingRecHit::Type> hitInfo = oldHitPatternToTrackingRecHitProxy(pattern);
+                    std::pair<DetId, TrackingRecHit::Type> hitInfo = oldHitPatternToTrackingRecHitPair(pattern);
                     if (!newObj->appendHit(hitInfo.first, hitInfo.second)) {
                         return false;
                     }
@@ -190,7 +184,7 @@
       <![CDATA[
             using namespace reco;
 
-            auto newHitPatternToTrackingRecHitProxy = [&](const uint16_t pattern, const HitPattern::HitCategory category) {
+            auto newHitPatternToPair = [&](const uint16_t pattern, const HitPattern::HitCategory category) {
                 // value used for those parameters needed by XXXDetId constructors
                 // but that we do not care about.
                 const uint8_t DONT_CARE = 1;
@@ -302,7 +296,7 @@
                 uint8_t hitCount = hitPattern.numberOfHits(HitPattern::ALL_HITS);
                 for (int i = 0; i < hitCount; i++) {
                     uint16_t pattern = hitPattern.getHitPattern(HitPattern::ALL_HITS, i);
-                    std::pair<DetId, TrackingRecHit::Type> hitInfo = newHitPatternToTrackingRecHitProxy(pattern, category);
+                    std::pair<DetId, TrackingRecHit::Type> hitInfo = newHitPatternToPair(pattern, category);
                     if (!newObj->appendHitPattern(hitInfo.first, hitInfo.second)) {
                         return false;
                     }

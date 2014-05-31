@@ -29,7 +29,6 @@
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include <vector>
 
-#include "DataFormats/TrackReco/interface/HitPatternConversorHitProxy.h"
 
 namespace DataFormats_TrackReco {
   struct dictionary {

@@ -11,7 +11,6 @@
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
 using namespace reco;
-using namespace std;
 
 HitPattern::HitPattern() :
     hitCount(0),
