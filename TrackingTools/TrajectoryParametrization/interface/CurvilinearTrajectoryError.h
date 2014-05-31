@@ -35,7 +35,7 @@ public:
 // construct
   CurvilinearTrajectoryError() {}
 
-  CurvilinearTrajectoryError(InvalidError) : theCovarianceMatrix(ROOT::Math::SMatrixNoInit()) {theCovarianceMatrix(0,0)=-99999.e10;}
+  CurvilinearTrajectoryError(InvalidError) : theCovarianceMatrix(ROOT::Math::SMatrixIdentity()) {theCovarianceMatrix(0,0)=-99999.e10;}
 
   /** Constructing class from a full covariance matrix. The sequence of the parameters is
    *  the same as the one described above.

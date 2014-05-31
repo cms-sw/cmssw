@@ -23,7 +23,7 @@ public:
   // construct
   LocalTrajectoryError(){}
 
-  LocalTrajectoryError(InvalidError) : theCovarianceMatrix(ROOT::Math::SMatrixNoInit()) {theCovarianceMatrix(0,0)=-99999.e10;}
+  LocalTrajectoryError(InvalidError) : theCovarianceMatrix(ROOT::Math::SMatrixIdentity()) {theCovarianceMatrix(0,0)=-99999.e10;}
   // destruct
   ~LocalTrajectoryError(){}
 

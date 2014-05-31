@@ -8,7 +8,7 @@
 JacobianLocalToCurvilinear::
 JacobianLocalToCurvilinear(const Surface& surface, 
 			   const LocalTrajectoryParameters& localParameters,
-			   const MagneticField& magField) : theJacobian(ROOT::Math::SMatrixNoInit()) {
+			   const MagneticField& magField) : theJacobian(ROOT::Math::SMatrixIdentity()) {
   
 
   GlobalPoint  x = surface.toGlobal(localParameters.position());
@@ -30,7 +30,7 @@ JacobianLocalToCurvilinear::
 JacobianLocalToCurvilinear(const Surface& surface, 
 			   const LocalTrajectoryParameters& localParameters,
 			   const GlobalTrajectoryParameters& globalParameters,
-			   const MagneticField& magField) : theJacobian(ROOT::Math::SMatrixNoInit()) {
+			   const MagneticField& magField) : theJacobian(ROOT::Math::SMatrixIdentity()) {
 
   // GlobalPoint  x =  globalParameters.position();
   // GlobalVector h  = magField.inInverseGeV(x);
