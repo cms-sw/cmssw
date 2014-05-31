@@ -147,8 +147,8 @@ MuonGEMDigis_Harvesting::endRun(edm::Run const&, edm::EventSetup const&)
 	for( int i = 0 ; i < 3 ; i++) {
 		TString eta_label = TString(dbe_path)+"track_eta"+s_suffix[i];
 		TString phi_label = TString(dbe_path)+"track_phi"+s_suffix[i];
-		if ( dbe_->get(eta_label.Data()) == nullptr ) std::cout<<"missing eta"<<std::endl;	
-		if ( dbe_->get(phi_label.Data()) == nullptr ) std::cout<<"missing phi"<<std::endl;
+		//if ( dbe_->get(eta_label.Data()) == nullptr ) std::cout<<"missing eta"<<std::endl;	
+		//if ( dbe_->get(phi_label.Data()) == nullptr ) std::cout<<"missing phi"<<std::endl;
 	
 		if ( dbe_->get(eta_label.Data()) != nullptr && dbe_->get(phi_label.Data()) !=nullptr ) {
 	    gem_trk_eta[i] = (TH1F*)dbe_->get(eta_label.Data())->getTH1F()->Clone();

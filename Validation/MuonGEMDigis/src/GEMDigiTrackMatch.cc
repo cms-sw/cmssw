@@ -16,7 +16,7 @@ GEMDigiTrackMatch::GEMDigiTrackMatch(DQMStore* dbe, std::string simInputLabel , 
 
 void GEMDigiTrackMatch::FillWithTrigger( MonitorElement* hist[4][3], bool array[3][2], Float_t value)
 {
-	for( int i=0 ; i<3 ; i++) {
+	for( unsigned int i=0 ; i<nstation ; i++) {
 		if ( array[i][0] ) hist[0][i]->Fill(value);
 		if ( array[i][1] ) hist[1][i]->Fill(value);
 		if ( array[i][0] || array[i][1] ) hist[2][i]->Fill(value);
@@ -33,7 +33,7 @@ void GEMDigiTrackMatch::bookHisto(const GEMGeometry* geom){
 	const char* s_suffix[3] = {"_st1","_st2_short","_st2_long"};
 	const char* c_suffix[2] = {"_even","_odd"};
 
-  unsigned int nstation = theGEMGeometry->regions()[0]->stations().size(); 
+  nstation = theGEMGeometry->regions()[0]->stations().size(); 
 	for( unsigned int j=0 ; j<nstation ; j++) {
 			string track_eta_name = (string("track_eta")+s_suffix[j]);
 			string track_phi_name = (string("track_phi")+s_suffix[j]);
@@ -155,11 +155,18 @@ void GEMDigiTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup&
 			track_.gem_dg[ id.station()-1][ (id.layer()-1)] = true;
 			track_.gem_pad[ id.station()-1][ (id.layer()-1)] = true;
     }
-
+	  
+ 
     // if this track enter thought station, 
-		track_eta[0]->Fill ( fabs( track_.eta)) ;   // station1 
-		track_eta[1]->Fill ( fabs( track_.eta)) ;   // station2_short
-		track_eta[2]->Fill ( fabs( track_.eta)) ;   // station2_long
+		track_eta[0]->Fill ( fabs( track_.eta)) ;   // station1
+		if ( fabs(track_.eta) > getEtaRangeForPhi(0).first && fabs(track_.eta)< getEtaRangeForPhi(0).second   ) track_phi[0]->Fill( track_.phi ) ;
+
+		if ( nstation >1 ) { 
+			track_eta[1]->Fill ( fabs( track_.eta)) ;   // station2_short
+			track_eta[2]->Fill ( fabs( track_.eta)) ;   // station2_long
+			if ( fabs(track_.eta) > getEtaRangeForPhi(1).first && fabs(track_.eta)< getEtaRangeForPhi(1).second   ) track_phi[1]->Fill( track_.phi ) ;
+			if ( fabs(track_.eta) > getEtaRangeForPhi(2).first && fabs(track_.eta)< getEtaRangeForPhi(2).second   ) track_phi[2]->Fill( track_.phi ) ;
+		}
 		
 
 		FillWithTrigger( dg_sh_eta, track_.gem_sh  , fabs( track_.eta) );
@@ -167,9 +174,6 @@ void GEMDigiTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup&
 		FillWithTrigger( pad_eta,   track_.gem_pad , fabs( track_.eta) );
 	
     // Separate station.
-		if ( fabs(track_.eta) > getEtaRangeForPhi(0).first && fabs(track_.eta)< getEtaRangeForPhi(0).second   ) track_phi[0]->Fill( track_.phi ) ;
-		if ( fabs(track_.eta) > getEtaRangeForPhi(1).first && fabs(track_.eta)< getEtaRangeForPhi(1).second   ) track_phi[1]->Fill( track_.phi ) ;
-		if ( fabs(track_.eta) > getEtaRangeForPhi(2).first && fabs(track_.eta)< getEtaRangeForPhi(2).second   ) track_phi[2]->Fill( track_.phi ) ;
 
 		FillWithTrigger( dg_sh_phi, track_.gem_sh  ,  track_.phi );
 		FillWithTrigger( dg_phi,    track_.gem_dg  ,  track_.phi );

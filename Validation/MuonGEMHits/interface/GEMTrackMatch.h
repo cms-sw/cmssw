@@ -59,6 +59,7 @@ public:
   float maxEta_;
   float radiusCenter_, chamberHeight_;
 	int useRoll_;
+  unsigned int nstation;
 };
 
 #endif
