@@ -309,7 +309,7 @@ def get_serializable_classes_members(node, all_template_types=None, namespace=''
 
     for (klass, (node, serializable, all_template_types, base_objects, members, transients)) in results.items():
         if serializable and len(members) == 0:
-            logging.warning('No non-transient members found for serializable class %s', klass)
+            logging.info('No non-transient members found for serializable class %s', klass)
 
     return results
 
@@ -466,7 +466,8 @@ class SerializationCodeGenerator(object):
     def _join_package_path(self, *path):
         return os.path.join(self.cmssw_base, self.split_path[0], self.split_path[1], self.split_path[2], *path)
 
-    def cleanFlags(self, flags):
+    def cleanFlags(self, flagsIn):
+	flags = [ flag for flag in flagsIn if not flag.startswith(('-march', '-mtune')) ]
         blackList = ['--', '-fipa-pta']
         return [x for x in flags if x not in blackList]
 
