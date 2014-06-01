@@ -1595,7 +1595,7 @@ int JetMatchingMadgraph::matchPartonsToJetsLight() {
   // This information is not used currently.
   if (nParton > 0 && pTminEstimate > 0) eTpTlightMin = pTminEstimate;
   else eTpTlightMin = -1.;
-
+   nMEPartons.clear();
    DifferentialJetRate= GetDJR(workEventJet);
    nMEPartons.push_back(origTypeIdx[0].size());
    nMEPartons.push_back(typeIdx[0].size());

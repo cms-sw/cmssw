@@ -565,9 +565,6 @@ void Pythia8Hadronizer::finalizeEvent()
     eventInfo()->setBinningValues(std::vector<double>(1, fMasterGen->info.pTHat()));
   }
   eventInfo()->setDJR(DJR);
-  for(int i=0;i<(int)DJR.size();i++){
-	cout<<"DJR "<<i+1<<"->"<<i<<" ="<<DJR.at(i)<<" "<<eventInfo()->DJRValues().at(i)<<endl;
-  }	
   eventInfo()->setNMEPartons(nME);
 
   //******** Verbosity ********
