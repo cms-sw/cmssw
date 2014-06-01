@@ -44,6 +44,7 @@ GEMDigiModel(config)
 , doBkgNoise_(config.getParameter<bool> ("doBkgNoise"))
 , doNoiseCLS_(config.getParameter<bool> ("doNoiseCLS"))
 , fixedRollRadius_(config.getParameter<bool> ("fixedRollRadius"))
+, simulateIntrinsicNoise_(config.getParameter<bool> ("simulateIntrinsicNoise"))
 , scaleLumi_(config.getParameter<double> ("scaleLumi"))
 , simulateElectronBkg_(config.getParameter<bool> ("simulateElectronBkg"))
 , constNeuGE11_(config.getParameter<double> ("constNeuGE11"))
@@ -53,7 +54,6 @@ GEMDigiModel(config)
 , GE21ElecBkgParams_(config.getParameter<std::vector<double>>("GE21ElecBkgParams"))
 
 {
-
 }
 
 GEMSimpleModel::~GEMSimpleModel()
@@ -222,8 +222,8 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll)
 //simulate neutral background for GE1/1
     averageNeutralNoiseRatePerRoll = constNeuGE11_ * TMath::Exp(slopeNeuGE11_*rollRadius);
 
-//simulate eletron background for GE1/1
-//the product is faster than Power or pow:
+    //simulate electron background for GE1/1
+    //the product is faster than Power or pow:
     if(simulateElectronBkg_)
     averageNoiseElectronRatePerRoll = GE11ElecBkgParams_[0]
                                     + GE11ElecBkgParams_[1]*rollRadius
@@ -235,7 +235,7 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll)
 
   if(gemId.station() == 2 || gemId.station() == 3)
   {
-//simulate neutral background for GE2/1
+    //simulate neutral background for GE2/1
     averageNeutralNoiseRatePerRoll = GE21NeuBkgParams_[0]
                                    + GE21NeuBkgParams_[1]*rollRadius
                                    + GE21NeuBkgParams_[2]*rollRadius*rollRadius
@@ -243,10 +243,10 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll)
                                    + GE21NeuBkgParams_[4]*rollRadius*rollRadius*rollRadius*rollRadius
                                    + GE21NeuBkgParams_[5]*rollRadius*rollRadius*rollRadius*rollRadius*rollRadius;
 
-
-//simulate eletron background for GE2/1
+    
+    //simulate eletron background for GE2/1
     if(simulateElectronBkg_)
-    averageNoiseElectronRatePerRoll = GE21ElecBkgParams_[0]
+      averageNoiseElectronRatePerRoll = GE21ElecBkgParams_[0]
                                     + GE21ElecBkgParams_[1]*rollRadius
                                     + GE21ElecBkgParams_[2]*rollRadius*rollRadius
                                     + GE21ElecBkgParams_[3]*rollRadius*rollRadius*rollRadius
@@ -414,8 +414,8 @@ std::vector<std::pair<int, int> > GEMSimpleModel::simulateClustering(const GEMEt
       else if(randForCls <= clsParametrization_[8] && randForCls > clsParametrization_[7])
         clusterSize = 9;
 
-  if (abs(simHit->particleType()) != 13 && fabs(simHit->pabs()) < minPabsNoiseCLS_)
-    return cluster_;
+//  if (abs(simHit->particleType()) != 13 && fabs(simHit->pabs()) < minPabsNoiseCLS_)
+//    return cluster_;
 
   //odd cls
   if (clusterSize % 2 != 0)
