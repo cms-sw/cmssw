@@ -44,7 +44,9 @@ GenEventInfoProduct::GenEventInfoProduct(GenEventInfoProduct const &other) :
 	qScale_(other.qScale_),
 	alphaQCD_(other.alphaQCD_),
 	alphaQED_(other.alphaQED_),
-	binningValues_(other.binningValues_)
+	binningValues_(other.binningValues_),
+	DJRValues_(other.DJRValues_),
+	nMEPartons_(other.nMEPartons_)
 {
 	setPDF(other.pdf());
 }
@@ -61,6 +63,8 @@ GenEventInfoProduct &GenEventInfoProduct::operator = (GenEventInfoProduct const 
 	alphaQCD_ = other.alphaQCD_;
 	alphaQED_ = other.alphaQED_;
 	binningValues_ = other.binningValues_;
+	DJRValues_ = other.DJRValues_;
+	nMEPartons_=other.nMEPartons_;
 
 	setPDF(other.pdf());
 
