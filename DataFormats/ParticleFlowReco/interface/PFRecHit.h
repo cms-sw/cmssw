@@ -89,7 +89,7 @@ namespace reco {
       return neighbours_;
     }
 
-    const std::vector<unsigned short>& neighbourInfos() {
+    const std::vector<unsigned short>& neighbourInfos() const {
       return neighbourInfos_;
     }
 

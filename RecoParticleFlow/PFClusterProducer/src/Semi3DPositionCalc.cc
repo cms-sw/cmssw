@@ -1,44 +1,46 @@
-#include "Basic2DGenericPFlowPositionCalc.h"
+#include "Semi3DPositionCalc.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 
 #include <cmath>
-#include <unordered_map>
+#include <map>
+#include <tuple>
 
 #include "vdt/vdtMath.h"
 
-void Basic2DGenericPFlowPositionCalc::
+void Semi3DPositionCalc::
 calculateAndSetPosition(reco::PFCluster& cluster) {
   calculateAndSetPositionActual(cluster);
 }
 
-void Basic2DGenericPFlowPositionCalc::
+void Semi3DPositionCalc::
 calculateAndSetPositions(reco::PFClusterCollection& clusters) {
   for( reco::PFCluster& cluster : clusters ) {
     calculateAndSetPositionActual(cluster);
   }
 }
 
-void Basic2DGenericPFlowPositionCalc::
+void Semi3DPositionCalc::
 calculateAndSetPositionActual(reco::PFCluster& cluster) const {  
+  typedef std::tuple<double,double,double,double,double> CoordinateAndWeight;
   if( !cluster.seed() ) {
     throw cms::Exception("ClusterWithNoSeed")
       << " Found a cluster with no seed: " << cluster;
-  }  				
+  } 
+  // want map for free depth sorting
+  std::map<int,CoordinateAndWeight> positionAtDepth; 
   double cl_energy = 0;  
   double cl_time = 0;  
   double cl_timeweight=0.0;
   double max_e = 0.0;  
   PFLayer::Layer max_e_layer = PFLayer::NONE;
-  reco::PFRecHitRef refseed;  
   // find the seed and max layer and also calculate time
   //Michalis : Even if we dont use timing in clustering here we should fill
   //the time information for the cluster. This should use the timing resolution(1/E)
   //so the weight should be fraction*E^2
   for( const reco::PFRecHitFraction& rhf : cluster.recHitFractions() ) {
     const reco::PFRecHitRef& refhit = rhf.recHitRef();
-    if( refhit->detId() == cluster.seed() ) refseed = refhit;
     const double rh_fraction = rhf.fraction();
     const double rh_rawenergy = refhit->energy();
     const double rh_energy = rh_rawenergy * rh_fraction;   
@@ -77,55 +79,66 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
   cluster.setTime(cl_time/cl_timeweight);
   cluster.setLayer(max_e_layer);
   // calculate the position
-  double position_norm = 0.0;
-  double x(0.0),y(0.0),z(0.0);
-  const reco::PFRecHitRefVector* seedNeighbours = NULL;
-  switch( _posCalcNCrystals ) {
-  case 5:
-    seedNeighbours = &refseed->neighbours4();
-    break;
-  case 9:
-    seedNeighbours = &refseed->neighbours8();
-    break;
-  default:
-    break;
-  }
-
+  double total_norm = 0.0;
   for( const reco::PFRecHitFraction& rhf : cluster.recHitFractions() ) {
     const reco::PFRecHitRef& refhit = rhf.recHitRef();
-
-    // since this is 2D position calc only use neighbours in the same layer
-    if( refhit->depth() != refseed->depth() ) continue;
-    
-    if( refhit != refseed && _posCalcNCrystals != -1 ) {
-      auto pos = std::find(seedNeighbours->begin(),seedNeighbours->end(),
-			   refhit);
-      if( pos == seedNeighbours->end() ) continue;
+    if( positionAtDepth.find(refhit->depth()) == positionAtDepth.end() ) {
+      positionAtDepth[refhit->depth()] = std::make_tuple(0.0,0.0,0.0,0.0,0.0);
     }
-    
-
-
     const double rh_energy = refhit->energy() * ((float)rhf.fraction());
     const double norm = ( rhf.fraction() < _minFractionInCalc ? 
 			  0.0 : 
 			  std::max(0.0,vdt::fast_log(rh_energy/_logWeightDenom)) );
     const math::XYZPoint& rhpos_xyz = refhit->position();
-    x += rhpos_xyz.X() * norm;
-    y += rhpos_xyz.Y() * norm;
-    z += rhpos_xyz.Z() * norm;
-    position_norm += norm;
+    std::get<0>(positionAtDepth[refhit->depth()]) += rhpos_xyz.X() * norm;
+    std::get<1>(positionAtDepth[refhit->depth()]) += rhpos_xyz.Y() * norm;
+    std::get<2>(positionAtDepth[refhit->depth()]) += rhpos_xyz.Z() * norm;
+    std::get<3>(positionAtDepth[refhit->depth()]) += norm;
+    std::get<4>(positionAtDepth[refhit->depth()]) += rh_energy;
+    total_norm += norm;
   }
-  if( position_norm < _minAllowedNorm ) {
+  if( total_norm < _minAllowedNorm ) {
     edm::LogError("WeirdClusterNormalization") 
       << "PFCluster too far from seeding cell: set position to (0,0,0).";
     cluster.setPosition(math::XYZPoint(0,0,0));
     cluster.calculatePositionREP();
   } else {
-    const double norm_inverse = 1.0/position_norm;
-    x *= norm_inverse;
-    y *= norm_inverse;
-    z *= norm_inverse;
-    cluster.setPosition(math::XYZPoint(x,y,z));
+    // here it is Eta/Phi/Rho/weight
+    CoordinateAndWeight total_position = std::make_tuple(0.0,0.0,1e6,0.0,cluster.energy());
+    for( auto depth : positionAtDepth ) {
+      std::cout << "  depth = " << depth.first;
+      if( std::get<3>(depth.second) >= _minAllowedNorm ) {
+	const double norm_inverse = 1.0/std::get<3>(depth.second);
+	const double log_depth_E = 
+	  vdt::fast_log(std::get<4>(depth.second)/_logWeightDenom);
+	std::get<0>(depth.second) *= norm_inverse;
+	std::get<1>(depth.second) *= norm_inverse;
+	std::get<2>(depth.second) *= norm_inverse;
+	math::XYZPoint temppos(std::get<0>(depth.second),
+			       std::get<1>(depth.second),
+			       std::get<2>(depth.second));
+	std::cout << " position = (" << temppos.Eta() 
+		  << "," << temppos.Phi() << ","
+		  << temppos.R() << ")" <<std::endl;
+	std::get<0>(total_position) += temppos.Eta()*log_depth_E;
+	std::get<1>(total_position) += temppos.Phi()*log_depth_E;
+	std::get<2>(total_position) = std::min(std::get<2>(total_position),
+					       temppos.R());
+	std::get<3>(total_position) += log_depth_E;
+      }
+    }    
+    const double norm_inverse = 1.0/std::get<3>(total_position);
+    // get log weighted average of eta/phi across all depths
+    std::get<0>(total_position) *= norm_inverse;
+    std::get<1>(total_position) *= norm_inverse;
+    // get the perpindicular component of R for the average
+    std::cout << "calc'd eta: " << std::get<0>(total_position) << std::endl;
+    std::get<2>(total_position) /= std::cosh(std::get<0>(total_position));
+    reco::PFCluster::REPPoint pos(std::get<2>(total_position),
+				  std::get<0>(total_position),
+				  std::get<1>(total_position));
+    std::cout << "Cluster position is: " << pos << std::endl;
+    cluster.setPosition(math::XYZPoint(pos.X(),pos.Y(),pos.Z()));
     cluster.calculatePositionREP();
   }
 }

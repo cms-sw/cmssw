@@ -5,13 +5,15 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFraction.h"
 #include "RecoParticleFlow/PFClusterProducer/interface/Arbor.hh"
 
+#include "RecoParticleFlow/PFClusterProducer/interface/PFCPositionCalculatorBase.h"
+
 class ArborOnSeedsTopoClusterizer : public InitialClusteringStepBase {
   typedef ArborOnSeedsTopoClusterizer B2DGT;
+  typedef PFCPositionCalculatorBase PosCalc;
+  enum seed_type{ NotSeed = 0, PrimarySeed=1, SecondarySeed=2 };
+  enum navi_dir{ Bidirectional = 0, OnlyForward = 1, OnlyBackward = 2};
  public:
-  ArborOnSeedsTopoClusterizer(const edm::ParameterSet& conf) :
-    InitialClusteringStepBase(conf),
-      _useCornerCells(conf.getParameter<bool>("useCornerCells")),
-      _showerSigma(conf.getParameter<double>("showerSigma")) { }
+  ArborOnSeedsTopoClusterizer(const edm::ParameterSet& conf);
   virtual ~ArborOnSeedsTopoClusterizer() {}
   ArborOnSeedsTopoClusterizer(const B2DGT&) = delete;
   B2DGT& operator=(const B2DGT&) = delete;
@@ -24,19 +26,39 @@ class ArborOnSeedsTopoClusterizer : public InitialClusteringStepBase {
  private:  
   const bool _useCornerCells;
   const double _showerSigma;
-  
-  
 
-  void arborizeSeeds(const reco::PFRecHitCollection&,
-		     const std::vector<std::pair<unsigned,double> >&,
-		     arbor::branchcoll&) const;
+  std::unique_ptr<PFCPositionCalculatorBase> _positionCalc;
+  std::unique_ptr<PFCPositionCalculatorBase> _allCellsPosCalc;
   
+  void linkSeeds(const reco::PFRecHitCollection&,
+		 const std::vector<bool>&,
+		 const std::vector<std::pair<unsigned,double> >&,
+		 std::unordered_multimap<unsigned,unsigned>&,
+		 std::vector<seed_type>&,
+		 std::vector<std::vector<unsigned> >&) const;
+  
+  void findSeedNeighbours(const reco::PFRecHitCollection&,
+			  const std::vector<bool>&,
+			  const unsigned,
+			  const unsigned,
+			  std::vector<bool>&,
+			  std::unordered_multimap<unsigned,unsigned>&,
+			  std::vector<unsigned>&,
+			  navi_dir direction = Bidirectional) const;
+
   void buildTopoCluster(const edm::Handle<reco::PFRecHitCollection>&,
 			const std::vector<bool>&, // masked rechits
 			const reco::PFRecHitRef&, //present rechit
 			std::vector<bool>&, // hit usage state
 			reco::PFCluster&); // the topocluster
 
+  void calculateInitialWeights(const reco::PFRecHitCollection&,
+			       const std::vector<bool>&,
+			       const std::vector<seed_type>&,
+			       const std::unordered_multimap<unsigned,unsigned>&,
+			       const std::vector<std::vector<unsigned> >&,
+			       std::vector<std::vector<std::pair<unsigned,double> > >&) const;
+  
   void getLinkedTopoClusters(const std::unordered_multimap<unsigned,unsigned>&,
 			     const std::unordered_multimap<unsigned,unsigned>&,
 			     const reco::PFClusterCollection&,
@@ -44,11 +66,12 @@ class ArborOnSeedsTopoClusterizer : public InitialClusteringStepBase {
 			     std::vector<bool>&,
 			     std::vector<unsigned>&) const;
 
-  /*
-  void seedPFClustersFromTopo(const reco::PFCluster&,
-			      const std::vector<bool>&,
-			      reco::PFClusterCollection&) const;
+  void positionCalc( const reco::PFClusterCollection& topo_clusters,
+		     const std::vector<unsigned>& topo_indices,
+		     const std::vector<unsigned>& branch_indices,
+		     reco::PFClusterCollection& clusters ) const;
 
+  /*
   void growPFClusters(const std::unordered_multimap<unsigned,unsigned>&,
 		      const reco::PFClusterCollection& topoclusters,
 		      const unsigned,

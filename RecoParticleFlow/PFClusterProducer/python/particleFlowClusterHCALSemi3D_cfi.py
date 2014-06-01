@@ -31,9 +31,18 @@ _localMaxSeeds_HCAL = cms.PSet(
     nNeighbours = cms.int32(4)
 )
 
+_positionCalcHCAL_semi3D = cms.PSet(
+    algoName = cms.string("Semi3DPositionCalc"),
+    ##
+    minFractionInCalc = cms.double(1e-9),    
+    posCalcNCrystals = cms.int32(-1),
+    logWeightDenominator = cms.double(0.5),#same as gathering threshold
+    minAllowedNormalization = cms.double(1e-9)
+)
+
 #topo clusters
 _topoClusterizer_HCAL = cms.PSet(
-    algoName = cms.string("Basic2DGenericTopoClusterizer"),    
+    algoName = cms.string("ArborOnSeedsTopoClusterizer"),    
     thresholdsByDetector = cms.VPSet(
     cms.PSet( detector = cms.string("HCAL_BARREL1"),
               gatheringThreshold = cms.double(0.8),
@@ -52,15 +61,18 @@ _topoClusterizer_HCAL = cms.PSet(
               gatheringThresholdPt = cms.double(0.0)
               )
     ),
-    useCornerCells = cms.bool(True)
+    useCornerCells = cms.bool(True),
+    showerSigma = cms.double(10.0),
+    positionCalc = _positionCalcHCAL_semi3D,
+    allCellsPositionCalc = _positionCalcHCAL_semi3D
 )
 
 #position calc
 _positionCalcHCAL_cross_nodepth = cms.PSet(
-    algoName = cms.string("Basic2DGenericPFlowPositionCalc"),
+    algoName = cms.string("Semi3DPositionCalc"),
     ##
     minFractionInCalc = cms.double(1e-9),    
-    posCalcNCrystals = cms.int32(5),
+    posCalcNCrystals = cms.int32(-1),
     logWeightDenominator = cms.double(0.5),#same as gathering threshold
     minAllowedNormalization = cms.double(1e-9)
 )
@@ -103,7 +115,7 @@ particleFlowClusterHCALSemi3D = cms.EDProducer(
     recHitCleaners = cms.VPSet(_rbxAndHPDCleaner),
     seedFinder = _localMaxSeeds_HCAL,
     initialClusteringStep = _topoClusterizer_HCAL,
-    pfClusterBuilder = _pfClusterizer_HCAL,
+    pfClusterBuilder = cms.PSet(), #_pfClusterizer_HCAL,
     positionReCalc = cms.PSet(),
     energyCorrector = cms.PSet()
 )
