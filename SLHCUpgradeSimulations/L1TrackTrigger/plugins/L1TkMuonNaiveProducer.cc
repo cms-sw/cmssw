@@ -47,14 +47,14 @@ using namespace l1extra ;
 // class declaration
 //
 
-class L1TkMuonParticleProducer : public edm::EDProducer {
+class L1TkMuonNaiveProducer : public edm::EDProducer {
    public:
 
    typedef TTTrack< Ref_PixelDigi_ >  L1TkTrackType;
    typedef std::vector< L1TkTrackType >  L1TkTrackCollectionType;
 
-      explicit L1TkMuonParticleProducer(const edm::ParameterSet&);
-      ~L1TkMuonParticleProducer();
+      explicit L1TkMuonNaiveProducer(const edm::ParameterSet&);
+      ~L1TkMuonNaiveProducer();
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -93,7 +93,7 @@ class L1TkMuonParticleProducer : public edm::EDProducer {
 //
 // constructors and destructor
 //
-L1TkMuonParticleProducer::L1TkMuonParticleProducer(const edm::ParameterSet& iConfig)
+L1TkMuonNaiveProducer::L1TkMuonNaiveProducer(const edm::ParameterSet& iConfig)
 {
 
    //L1PLInputTag = iConfig.getParameter<edm::InputTag>("L1PLInputTag");
@@ -113,12 +113,12 @@ L1TkMuonParticleProducer::L1TkMuonParticleProducer(const edm::ParameterSet& iCon
    produces<L1TkMuonParticleCollection>();
 }
 
-L1TkMuonParticleProducer::~L1TkMuonParticleProducer() {
+L1TkMuonNaiveProducer::~L1TkMuonNaiveProducer() {
 }
 
 // ------------ method called to produce the data  ------------
 void
-L1TkMuonParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+L1TkMuonNaiveProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
    using namespace std;
@@ -240,7 +240,7 @@ L1TkMuonParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
  std::vector<XXX>::const_iterator muIter ;
 
  if (!XXXHandle.isValid() ) {
-          LogError("L1TkMuonParticleProducer")
+          LogError("L1TkMuonNaiveProducer")
             << "\nWarning: L1XXXCollectionType with " << L1PLInputTag
             << "\nrequested in configuration, but not found in the event. Exit."
             << std::endl;
@@ -296,19 +296,19 @@ L1TkMuonParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
 // ------------ method called once each job just before starting event loop  ------------
 void
-L1TkMuonParticleProducer::beginJob()
+L1TkMuonNaiveProducer::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void
-L1TkMuonParticleProducer::endJob() {
+L1TkMuonNaiveProducer::endJob() {
 }
 
 // ------------ method called when starting to processes a run  ------------
 /*
 void
-L1TkMuonParticleProducer::beginRun(edm::Run& iRun, edm::EventSetup const& iSetup)
+L1TkMuonNaiveProducer::beginRun(edm::Run& iRun, edm::EventSetup const& iSetup)
 {
 }
 */
@@ -316,7 +316,7 @@ L1TkMuonParticleProducer::beginRun(edm::Run& iRun, edm::EventSetup const& iSetup
 // ------------ method called when ending the processing of a run  ------------
 /*
 void
-L1TkMuonParticleProducer::endRun(edm::Run&, edm::EventSetup const&)
+L1TkMuonNaiveProducer::endRun(edm::Run&, edm::EventSetup const&)
 {
 }
 */
@@ -324,7 +324,7 @@ L1TkMuonParticleProducer::endRun(edm::Run&, edm::EventSetup const&)
 // ------------ method called when starting to processes a luminosity block  ------------
 /*
 void
-L1TkMuonParticleProducer::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
+L1TkMuonNaiveProducer::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
 {
 }
 */
@@ -332,14 +332,14 @@ L1TkMuonParticleProducer::beginLuminosityBlock(edm::LuminosityBlock&, edm::Event
 // ------------ method called when ending the processing of a luminosity block  ------------
 /*
 void
-L1TkMuonParticleProducer::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
+L1TkMuonNaiveProducer::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
 {
 }
 */
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
-L1TkMuonParticleProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+L1TkMuonNaiveProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
@@ -348,7 +348,7 @@ L1TkMuonParticleProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(L1TkMuonParticleProducer);
+DEFINE_FWK_MODULE(L1TkMuonNaiveProducer);
 
 
 

@@ -1,0 +1,43 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/Utilities"/>
+<use   name="CondFormats/DataRecord"/>
+<use   name="CondFormats/L1TObjects"/>
+<use   name="Geometry/Records"/>
+<use   name="Geometry/CommonDetUnit"/>
+<use   name="Geometry/CommonTopologies"/>
+<use   name="Geometry/DTGeometry"/>
+<use   name="Geometry/TrackerGeometryBuilder"/>
+<use   name="DataFormats/Common"/>
+<use   name="DataFormats/DTDigi"/>
+<use   name="DataFormats/DetId"/>
+<use   name="DataFormats/GeometryVector"/>
+<use   name="DataFormats/GeometrySurface"/>
+<use   name="DataFormats/SiPixelDetId"/>
+<use   name="DataFormats/SiPixelDigi"/>
+<use   name="DataFormats/MuonDetId"/>
+<use   name="DataFormats/TrackReco"/>
+<use   name="DataFormats/VertexReco"/>
+<use   name="DataFormats/L1DTPlusTrackTrigger"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="DataFormats/HepMCCandidate"/>
+<use   name="SimDataFormats/Track"/>
+<use   name="SimDataFormats/Vertex"/>
+
+<use   name="L1Trigger/DTSectorCollector" />
+<use   name="L1Trigger/DTBti"/>
+<use   name="L1Trigger/DTTrackFinder"/>
+<use   name="L1Trigger/DTTrigger"/>
+<use   name="L1Trigger/TrackTrigger"/>
+
+<use   name="clhep"/>
+<use   name="xerces-c"/>
+<use   name="boost"/>
+<use   name="root"/>
+<use   name="rootgraphics"/>
+<use   name="rootrflx"/>
+<export>
+  <flags   SEALPLUGIN="1"/>
+  <lib name="1"/>
+</export>

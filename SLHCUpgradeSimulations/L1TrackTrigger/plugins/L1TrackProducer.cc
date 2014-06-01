@@ -459,23 +459,47 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     TTTrack<Ref_PixelDigi_> aTrack;
 
-    GlobalPoint bsPosition(0.0,
-			   0.0,
-			   track.z0()
-			   ); //store the L1 track vertex position 
-
-    aTrack.setMomentum( GlobalVector ( GlobalVector::Cylindrical(fabs(track.pt(mMagneticFieldStrength)), 
-								  track.phi0(), 
-								 fabs(track.pt(mMagneticFieldStrength))*sinh(track.eta())) ) ,4);
-    
-    aTrack.setRInv(track.rinv(),4);
-
     aTrack.setSector(999); //this is currently not retrained by the algorithm
     aTrack.setWedge(999); //not used by the tracklet implementations
 
-    aTrack.setChi2(track.chisq(),4);
+    //First do the 4 parameter fit
 
-    aTrack.setPOCA(bsPosition,4);
+    GlobalPoint bsPosition4par(0.0,0.0,track.z04par());
+
+    aTrack.setPOCA(bsPosition4par,4);
+ 
+    double pt4par=fabs(track.pt4par(mMagneticFieldStrength));
+
+    GlobalVector p34par(GlobalVector::Cylindrical(pt4par, 
+						  track.phi04par(), 
+						  pt4par*sinh(track.eta4par())));
+
+    aTrack.setMomentum(p34par,4);
+    
+    aTrack.setRInv(track.rinv4par(),4);
+
+    aTrack.setChi2(track.chisq4par(),4);
+
+
+    //Now do the 5 parameter fit
+
+    GlobalPoint bsPosition5par(track.d0()*cos(track.phi0()),-track.d0()*sin(track.phi0()),track.z0());
+
+    aTrack.setPOCA(bsPosition5par,5);
+ 
+    double pt5par=fabs(track.pt(mMagneticFieldStrength));
+
+    GlobalVector p35par(GlobalVector::Cylindrical(pt5par, 
+						  track.phi0(), 
+						  pt5par*sinh(track.eta())));
+
+    aTrack.setMomentum(p35par,5);
+    
+    aTrack.setRInv(track.rinv(),5);
+
+    aTrack.setChi2(track.chisq(),5);
+
+
 
     
     

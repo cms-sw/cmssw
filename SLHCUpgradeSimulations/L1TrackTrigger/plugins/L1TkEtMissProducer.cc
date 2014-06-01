@@ -90,6 +90,8 @@ class L1TkEtMissProducer : public edm::EDProducer {
         int nStubsmin;
         int nStubsPSmin ;       // minimum number of stubs in PS modules 
 
+	float PTMAX;	// in GeV
+        int HighPtTracks;       // saturate or truncate
 
         //const StackedTrackerGeometry*                   theStackedGeometry;
 
@@ -131,6 +133,9 @@ L1TkEtMissProducer::L1TkEtMissProducer(const edm::ParameterSet& iConfig)
   PTMINTRA = (float)iConfig.getParameter<double>("PTMINTRA");
   nStubsmin = iConfig.getParameter<int>("nStubsmin");
   nStubsPSmin = iConfig.getParameter<int>("nStubsPSmin");
+
+  PTMAX = (float)iConfig.getParameter<double>("PTMAX");
+  HighPtTracks = iConfig.getParameter<int>("HighPtTracks");
 
   produces<L1TkEtMissParticleCollection>("MET");
 
@@ -224,6 +229,17 @@ L1TkEtMissProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     	    if (fabs(ztr) > ZMAX ) continue;
     	    if (chi2 > CHI2MAX) continue;
                 
+
+	    float pt_rescale = 1;
+
+	    if ( PTMAX > 0 && pt > PTMAX)  {
+	        if (HighPtTracks == 0)  continue;	// ignore these very high PT tracks.
+		if (HighPtTracks == 1)  {
+			pt_rescale = PTMAX / pt;	// will be used to rescale px and py
+			pt = PTMAX;     // saturate
+		}
+	    }
+
             int nstubs = 0;
 	    float nPS = 0.;     // number of stubs in PS modules
 
@@ -243,13 +259,13 @@ L1TkEtMissProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
             if ( fabs(ztr - zVTX) <= DeltaZ) {   // eg DeltaZ = 1 mm
 
-	    	sumPx += trackIter->getMomentum().x();
-	    	sumPy += trackIter->getMomentum().y();
+	    	sumPx += trackIter->getMomentum().x() * pt_rescale ;
+	    	sumPy += trackIter->getMomentum().y() * pt_rescale ;
 	    	etTot += pt ;
 	    }
 	    else   {	// PU sums
-                sumPx_PU += trackIter->getMomentum().x();
-                sumPy_PU += trackIter->getMomentum().y();
+                sumPx_PU += trackIter->getMomentum().x() * pt_rescale ;
+                sumPy_PU += trackIter->getMomentum().y() * pt_rescale ;
                 etTot_PU += pt ;
 	    }
 

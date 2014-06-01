@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    L1TrackTriggerObjectsAnalyzer
-// Class:      L1TrackTriggerObjectsAnalyzer
+// Package:    PrintL1TkObjects
+// Class:      PrintL1TkObjects
 // 
-/**\class L1TrackTriggerObjectsAnalyzer L1TrackTriggerObjectsAnalyzer.cc SLHCUpgradeSimulations/L1TrackTriggerObjectsAnalyzer/src/L1TrackTriggerObjectsAnalyzer.cc
+/**\class PrintL1TkObjects PrintL1TkObjects.cc SLHCUpgradeSimulations/PrintL1TkObjects/src/PrintL1TkObjects.cc
 
  Description: [one line class summary]
 
@@ -52,6 +52,8 @@
 #include "DataFormats/L1TrackTrigger/interface/L1TkJetParticleFwd.h"
 #include "DataFormats/L1TrackTrigger/interface/L1TkHTMissParticle.h"
 #include "DataFormats/L1TrackTrigger/interface/L1TkHTMissParticleFwd.h"
+#include "DataFormats/L1TrackTrigger/interface/L1TkMuonParticle.h"
+#include "DataFormats/L1TrackTrigger/interface/L1TkMuonParticleFwd.h"
 
 #include "TFile.h"
 #include "TH1F.h"
@@ -65,14 +67,14 @@ using namespace l1extra;
 // class declaration
 //
 
-class L1TrackTriggerObjectsAnalyzer : public edm::EDAnalyzer {
+class PrintL1TkObjects : public edm::EDAnalyzer {
    public:
 
    typedef TTTrack< Ref_PixelDigi_ >  L1TkTrackType;
    typedef std::vector< L1TkTrackType >  L1TkTrackCollectionType;
 
-      explicit L1TrackTriggerObjectsAnalyzer(const edm::ParameterSet&);
-      ~L1TrackTriggerObjectsAnalyzer();
+      explicit PrintL1TkObjects(const edm::ParameterSet&);
+      ~PrintL1TkObjects();
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -97,6 +99,8 @@ class L1TrackTriggerObjectsAnalyzer : public edm::EDAnalyzer {
 
 	// for L1TkEmParticles
         edm::InputTag L1TkPhotonsInputTag;
+
+	// for L1TkElectrons
 	edm::InputTag L1TkElectronsInputTag;
 
 	// for L1TkJetParticles
@@ -104,6 +108,10 @@ class L1TrackTriggerObjectsAnalyzer : public edm::EDAnalyzer {
 
 	// for L1TkHTMParticle
 	edm::InputTag L1TkHTMInputTag;
+
+        // for L1TkMuonParticle
+        edm::InputTag L1TkMuonsInputTag;
+
 };
 
 //
@@ -117,7 +125,7 @@ class L1TrackTriggerObjectsAnalyzer : public edm::EDAnalyzer {
 //
 // constructors and destructor
 //
-L1TrackTriggerObjectsAnalyzer::L1TrackTriggerObjectsAnalyzer(const edm::ParameterSet& iConfig)
+PrintL1TkObjects::PrintL1TkObjects(const edm::ParameterSet& iConfig)
 
 {
    //now do what ever initialization is needed
@@ -128,10 +136,12 @@ L1TrackTriggerObjectsAnalyzer::L1TrackTriggerObjectsAnalyzer(const edm::Paramete
   L1TkPhotonsInputTag = iConfig.getParameter<edm::InputTag>("L1TkPhotonsInputTag");
   L1TkJetsInputTag = iConfig.getParameter<edm::InputTag>("L1TkJetsInputTag");
   L1TkHTMInputTag = iConfig.getParameter<edm::InputTag>("L1TkHTMInputTag");
+  L1TkMuonsInputTag = iConfig.getParameter<edm::InputTag>("L1TkMuonsInputTag");
+
 }
 
 
-L1TrackTriggerObjectsAnalyzer::~L1TrackTriggerObjectsAnalyzer()
+PrintL1TkObjects::~PrintL1TkObjects()
 {
  
    // do anything here that needs to be done at desctruction time
@@ -146,7 +156,7 @@ L1TrackTriggerObjectsAnalyzer::~L1TrackTriggerObjectsAnalyzer()
 
 // ------------ method called for each event  ------------
 void
-L1TrackTriggerObjectsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+PrintL1TkObjects::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
 
@@ -158,10 +168,13 @@ L1TrackTriggerObjectsAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
   edm::Handle<edm::HepMCProduct> HepMCEvt;
   iEvent.getByLabel("generator",HepMCEvt);
 
+     float zvtx_gen = -999;
+
+ if (HepMCEvt.isValid() ) {
+
      const HepMC::GenEvent* MCEvt = HepMCEvt->GetEvent();
      const double mm=0.1;
 
-     float zvtx_gen = -999;
      for ( HepMC::GenEvent::vertex_const_iterator ivertex = MCEvt->vertices_begin(); ivertex != MCEvt->vertices_end(); ++ivertex )
          {
              bool hasParentVertex = false;
@@ -190,7 +203,7 @@ L1TrackTriggerObjectsAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
           }  // end loop over gen vertices
 
      std::cout << " Generated zvertex : " << zvtx_gen << std::endl;
-
+  }
 
 
 	// ----------------------------------------------------------------------
@@ -203,17 +216,11 @@ L1TrackTriggerObjectsAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
  
  if ( L1VertexHandle.isValid() ) {
      std::cout << " -----  L1TkPrimaryVertex objects   ----- " << std::endl;
-     int ivtx = 0;
-	// several algorithms have been run in the L1TkPrimaryVertexProducer
-	// hence there is a collection of L1 primary vertices.
-	// the first one is probably the most reliable.
-
-     for (vtxIter = L1VertexHandle->begin(); vtxIter != L1VertexHandle->end(); ++vtxIter) {
+     vtxIter = L1VertexHandle->begin();     // only one algorithm is run in the L1TkPrimaryVertexProducer
+					    // (in contrast to earlier, under-dev, versions of the code)
         float z = vtxIter -> getZvertex();
         float sum = vtxIter -> getSum();
-        std::cout << " a vertex with  z = sum " << z << " " << sum << std::endl;
-        ivtx ++;
-     }  
+        std::cout << " a vertex with  zvtx " << z << " (cm) and SumPT " << sum << " (GeV) " << std::endl;
  }
 
 	//
@@ -227,13 +234,12 @@ L1TrackTriggerObjectsAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
 
  if (L1TkEtMissHandle.isValid() ) {
     std::cout << " -----  L1TkEtMiss objects  -----  " << std::endl; 
-    for (etmIter = L1TkEtMissHandle -> begin(); etmIter != L1TkEtMissHandle->end(); ++etmIter) {
+    etmIter = L1TkEtMissHandle -> begin();	// idem: only one TrkMET now.
 	float etmis = etmIter -> et();
 	const edm::Ref< L1TkPrimaryVertexCollection > vtxRef = etmIter -> getVtxRef();
 	float zvtx = vtxRef -> getZvertex();
         float etMissPU = etmIter -> etMissPU();
 	std::cout << " ETmiss = " << etmis << " for zvtx = " << zvtx << " and ETmiss from PU = " << etMissPU << std::endl;
-    }
  }
 
 
@@ -256,11 +262,19 @@ L1TrackTriggerObjectsAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
 	float jetvtx = jetIter -> getJetVtx();
         const edm::Ref< L1JetParticleCollection > Jetref = jetIter -> getJetRef();
         float et_L1Jet = Jetref -> et();
+	const std::vector< edm::Ptr< L1TkTrackType > > trkPtrs = jetIter -> getTrkPtrs() ;
 	L1JetParticle::JetType type = Jetref -> type();
 
         std::cout << " a Jet candidate ET eta phi zvertex " << et << " " << eta << " " << phi << " " << jetvtx  << std::endl;
         std::cout << "                Calo  ET, typ " << et_L1Jet << " " << type << std::endl;
         std::cout << "                bx = " << bx << std::endl;
+	std::cout << "      Tracks associated with the jet : " << std::endl;
+        for (int it=0; it < (int)trkPtrs.size(); it++) {
+            edm::Ptr< L1TkTrackType > aTrack = trkPtrs.at( it );
+            std::cout << "             a track PT " << aTrack -> getMomentum().perp() << " eta " << 
+		   aTrack -> getMomentum().eta() << " phi " << aTrack -> getMomentum().phi() << std::endl;
+        }
+
     }
  }
 
@@ -287,9 +301,6 @@ L1TrackTriggerObjectsAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
 	const edm::RefProd< L1TkJetParticleCollection > jetCollRef = HTMIter -> getjetCollectionRef();
  	std::vector<L1TkJetParticle>::const_iterator jet = jetCollRef -> begin();
 	std::cout << " ET of the first L1TkJet = " << jet -> et() << std::endl;
- }
- else {
-    std::cout << L1TkHTMInputTag << " is non valid." << std::endl;
  }
 
 
@@ -367,26 +378,54 @@ L1TrackTriggerObjectsAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
     }
  }
 
+        //  
+        // ----------------------------------------------------------------------
+        // retrieve the L1TkMuons
+        //
+
+ edm::Handle<L1TkMuonParticleCollection> L1TkMuonsHandle;
+ iEvent.getByLabel(L1TkMuonsInputTag, L1TkMuonsHandle);
+ std::vector<L1TkMuonParticle>::const_iterator muIter;
+
+ if ( L1TkMuonsHandle.isValid() ) {
+    std::cout << " -----   L1TkMuonPaticle objects ---- " << std::endl;
+    for (muIter = L1TkMuonsHandle -> begin(); muIter != L1TkMuonsHandle->end(); ++muIter) {
+        float pt = muIter -> pt();
+        float eta = muIter -> eta();
+        float phi = muIter -> phi();
+        float zvtx = muIter -> getTrkzVtx();
+        unsigned int quality = muIter -> quality();
+        // access the quality via the reference :
+        const edm::Ref< L1MuonParticleCollection >      MuRef = muIter -> getMuRef();
+        unsigned int qualityBis = MuRef -> gmtMuonCand().quality();
+        std::cout << " a muon candidate pt eta phi " << pt << " " << eta << " " << phi << " zvertex = " << zvtx << std::endl;
+        std::cout << "   quality (the two qual flags are the same by definition) = " << quality << " " << qualityBis << std::endl;
+
+    }
+ }
+
+
+
 
 }
 
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-L1TrackTriggerObjectsAnalyzer::beginJob()
+PrintL1TkObjects::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-L1TrackTriggerObjectsAnalyzer::endJob() 
+PrintL1TkObjects::endJob() 
 {
 }
 
 // ------------ method called when starting to processes a run  ------------
 /*
 void 
-L1TrackTriggerObjectsAnalyzer::beginRun(edm::Run const&, edm::EventSetup const&)
+PrintL1TkObjects::beginRun(edm::Run const&, edm::EventSetup const&)
 {
 }
 */
@@ -394,7 +433,7 @@ L1TrackTriggerObjectsAnalyzer::beginRun(edm::Run const&, edm::EventSetup const&)
 // ------------ method called when ending the processing of a run  ------------
 /*
 void 
-L1TrackTriggerObjectsAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
+PrintL1TkObjects::endRun(edm::Run const&, edm::EventSetup const&)
 {
 }
 */
@@ -402,7 +441,7 @@ L1TrackTriggerObjectsAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
 // ------------ method called when starting to processes a luminosity block  ------------
 /*
 void 
-L1TrackTriggerObjectsAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+PrintL1TkObjects::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
 }
 */
@@ -410,14 +449,14 @@ L1TrackTriggerObjectsAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const&,
 // ------------ method called when ending the processing of a luminosity block  ------------
 /*
 void 
-L1TrackTriggerObjectsAnalyzer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
+PrintL1TkObjects::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
 }
 */
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
-L1TrackTriggerObjectsAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+PrintL1TkObjects::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
@@ -426,4 +465,4 @@ L1TrackTriggerObjectsAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& 
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(L1TrackTriggerObjectsAnalyzer);
+DEFINE_FWK_MODULE(PrintL1TkObjects);

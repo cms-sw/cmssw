@@ -1,0 +1,7 @@
+<library   file="*.cc" name="L1DTPlusTrackTriggerPlugins">
+  <use   name="L1Trigger/DTPlusTrackTrigger"/>
+  <use   name="DataFormats/L1DTPlusTrackTrigger"/> 
+  <use   name="root"/>
+  <use   name="rootrflx"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
