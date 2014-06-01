@@ -9,6 +9,7 @@
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "boost/filesystem.hpp"
 
