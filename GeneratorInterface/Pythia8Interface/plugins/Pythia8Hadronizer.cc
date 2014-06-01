@@ -117,6 +117,9 @@ class Pythia8Hadronizer : public BaseHadronizer, public Py8InterfaceBase {
     static const std::vector<std::string> p8SharedResources;
     
     std::string slhafile_;
+
+    vector<float> DJR;
+    vector<int> nME;
 };
 
 const std::vector<std::string> Pythia8Hadronizer::p8SharedResources = { edm::SharedResourceNames::kPythia8 };
@@ -456,6 +459,8 @@ bool Pythia8Hadronizer::hadronize()
     event().reset();
     return false;
   }
+  DJR=fJetMatchingPy8InternalHook->DifferentialJetRate;
+  nME=fJetMatchingPy8InternalHook->nMEPartons;
 //****************** GETTING THE DJR ******************
 /*   cout<<fJetMatchingPy8InternalHook->DifferentialJetRate.size()<<" "
 	<<fJetMatchingPy8InternalHook->nMEPartons_orig<<" "
@@ -559,6 +564,11 @@ void Pythia8Hadronizer::finalizeEvent()
   if (!lhe) {
     eventInfo()->setBinningValues(std::vector<double>(1, fMasterGen->info.pTHat()));
   }
+  eventInfo()->setDJR(DJR);
+  for(int i=0;i<(int)DJR.size();i++){
+	cout<<"DJR "<<i+1<<"->"<<i<<" ="<<DJR.at(i)<<" "<<eventInfo()->DJRValues().at(i)<<endl;
+  }	
+  eventInfo()->setNMEPartons(nME);
 
   //******** Verbosity ********
 

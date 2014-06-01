@@ -107,7 +107,9 @@
 
 	<!-- GenEventInfoProduct -->
 
-	<class name="GenEventInfoProduct" ClassVersion="10">
+	<class name="GenEventInfoProduct" ClassVersion="12">
+	<version ClassVersion="12" checksum="3650737794"/>
+  <version ClassVersion="11" checksum="1180070241"/>
   <version ClassVersion="10" checksum="2479857328"/>
  </class>
 	<class name="edm::Wrapper&lt;GenEventInfoProduct&gt;"/>

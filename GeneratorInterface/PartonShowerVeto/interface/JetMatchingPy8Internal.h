@@ -60,7 +60,7 @@ std::vector<float> GetDJR( const Event& event) {
   	for(int u=0;u<4;u++)result.push_back(0);
   	for(int u=0;u<4;u++){
     		if((int)fjInputs.size()>u){
-        		result[u]=clustSeq.exclusive_dmerge(u);
+        		result[u]=log10(clustSeq.exclusive_dmerge(u));
   //      		std::cout<<"for "<<u+1<<"->"<<u<<" objects, we have a cluster scale of "<<result[u]<<std::endl;
     		}
     		else{
@@ -231,8 +231,7 @@ public:
   bool doVetoStep(int,  int, int, const Event& );
 
   vector<float> DifferentialJetRate;
-  int nMEPartons_orig;
-  int nMEPartons_forM;
+  vector<int> nMEPartons;
 
 protected:
 
@@ -1598,8 +1597,8 @@ int JetMatchingMadgraph::matchPartonsToJetsLight() {
   else eTpTlightMin = -1.;
 
    DifferentialJetRate= GetDJR(workEventJet);
-   nMEPartons_orig=origTypeIdx[0].size();;
-   nMEPartons_forM=typeIdx[0].size();;
+   nMEPartons.push_back(origTypeIdx[0].size());
+   nMEPartons.push_back(typeIdx[0].size());
   // No veto
   return NONE;
 }
