@@ -88,8 +88,12 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
     const double rh_energy = refhit->energy() * ((float)rhf.fraction());
     const double norm = ( rhf.fraction() < _minFractionInCalc ? 
 			  0.0 : 
-			  std::max(0.0,vdt::fast_log(rh_energy/_logWeightDenom)) );
+			  std::max(0.0,vdt::fast_log(rh_energy/_logWeightDenom)) );    
     const math::XYZPoint& rhpos_xyz = refhit->position();
+    const reco::PFCluster::REPPoint rhpos_rep(rhpos_xyz);
+    std::cout << refhit->depth() << ' ' << refhit->energy() 
+	      << ' ' << rhf.fraction() << ' ' << rhpos_rep  
+	      << ' ' << norm << std::endl; 
     std::get<0>(positionAtDepth[refhit->depth()]) += rhpos_xyz.X() * norm;
     std::get<1>(positionAtDepth[refhit->depth()]) += rhpos_xyz.Y() * norm;
     std::get<2>(positionAtDepth[refhit->depth()]) += rhpos_xyz.Z() * norm;
@@ -110,7 +114,8 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
       if( std::get<3>(depth.second) >= _minAllowedNorm ) {
 	const double norm_inverse = 1.0/std::get<3>(depth.second);
 	const double log_depth_E = 
-	  vdt::fast_log(std::get<4>(depth.second)/_logWeightDenom);
+	  std::max(0.0,
+		   vdt::fast_log(std::get<4>(depth.second)/_logWeightDenom));
 	std::get<0>(depth.second) *= norm_inverse;
 	std::get<1>(depth.second) *= norm_inverse;
 	std::get<2>(depth.second) *= norm_inverse;

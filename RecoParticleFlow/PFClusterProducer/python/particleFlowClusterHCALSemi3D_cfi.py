@@ -36,7 +36,7 @@ _positionCalcHCAL_semi3D = cms.PSet(
     ##
     minFractionInCalc = cms.double(1e-9),    
     posCalcNCrystals = cms.int32(-1),
-    logWeightDenominator = cms.double(0.5),#same as gathering threshold
+    logWeightDenominator = cms.double(0.05),#same as gathering threshold
     minAllowedNormalization = cms.double(1e-9)
 )
 
@@ -73,7 +73,7 @@ _positionCalcHCAL_cross_nodepth = cms.PSet(
     ##
     minFractionInCalc = cms.double(1e-9),    
     posCalcNCrystals = cms.int32(-1),
-    logWeightDenominator = cms.double(0.5),#same as gathering threshold
+    logWeightDenominator = cms.double(0.05),#same as gathering threshold
     minAllowedNormalization = cms.double(1e-9)
 )
 

@@ -7,12 +7,17 @@
 
 #include "RecoParticleFlow/PFClusterProducer/interface/PFCPositionCalculatorBase.h"
 
-class ArborOnSeedsTopoClusterizer : public InitialClusteringStepBase {
+class ArborOnSeedsTopoClusterizer : public InitialClusteringStepBase {  
+ public:
   typedef ArborOnSeedsTopoClusterizer B2DGT;
   typedef PFCPositionCalculatorBase PosCalc;
+  typedef std::unordered_map<unsigned,bool> seed_usage_map;
+  typedef std::unordered_map<unsigned,std::unordered_map<unsigned,double> > seed_fractions_map;
+  
   enum seed_type{ NotSeed = 0, PrimarySeed=1, SecondarySeed=2 };
   enum navi_dir{ Bidirectional = 0, OnlyForward = 1, OnlyBackward = 2};
- public:
+  
+  
   ArborOnSeedsTopoClusterizer(const edm::ParameterSet& conf);
   virtual ~ArborOnSeedsTopoClusterizer() {}
   ArborOnSeedsTopoClusterizer(const B2DGT&) = delete;
@@ -46,18 +51,21 @@ class ArborOnSeedsTopoClusterizer : public InitialClusteringStepBase {
 			  std::vector<unsigned>&,
 			  navi_dir direction = Bidirectional) const;
 
+  
+
   void buildTopoCluster(const edm::Handle<reco::PFRecHitCollection>&,
 			const std::vector<bool>&, // masked rechits
 			const reco::PFRecHitRef&, //present rechit
 			std::vector<bool>&, // hit usage state
 			reco::PFCluster&); // the topocluster
 
-  void calculateInitialWeights(const reco::PFRecHitCollection&,
-			       const std::vector<bool>&,
-			       const std::vector<seed_type>&,
-			       const std::unordered_multimap<unsigned,unsigned>&,
-			       const std::vector<std::vector<unsigned> >&,
-			       std::vector<std::vector<std::pair<unsigned,double> > >&) const;
+  void buildInitialWeightsList(const reco::PFRecHitCollection& rechits,
+			       const std::vector<bool>& seedable,
+			       const std::vector<seed_type>& seedtypes,
+			       const std::vector<std::vector<unsigned> >& linked_seeds,
+			       const unsigned  seed_idx,
+			       seed_usage_map& has_weight_data,
+			       seed_fractions_map& resolved_seeds) const;
   
   void getLinkedTopoClusters(const std::unordered_multimap<unsigned,unsigned>&,
 			     const std::unordered_multimap<unsigned,unsigned>&,
