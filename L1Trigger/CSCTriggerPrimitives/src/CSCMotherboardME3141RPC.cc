@@ -1162,7 +1162,9 @@ void CSCMotherboardME3141RPC::matchRPCDigis(enum MEX1Station st)
           if (debug_rpc_dphi) std::cout<<"    -- lct pass no rpc req"<<std::endl;
           continue;
         }
-
+        // use 99 ad default value whe we expect there to be a rpc match
+        lct.setGEMDPhi(99.);
+	
         if (in_digis == rpcDigis_.end()) // has no potential RPC hits with similar BX -> zap it
         {
           if (rpc_clear_nomatch_lcts) lct.clear();
@@ -1171,9 +1173,6 @@ void CSCMotherboardME3141RPC::matchRPCDigis(enum MEX1Station st)
         }
         if (debug_rpc_dphi) std::cout<<"    -- rpc possible"<<std::endl;
 
-        // use 99 ad default value whe we expect there to be a rpc match
-        lct.setGEMDPhi(99.);
-         
         // to consider a GEM digi as "matched" it has to be 
         // within specified delta_eta and delta_phi ranges
         // and if there are multiple ones, only the min|delta_phi| is considered as matched
