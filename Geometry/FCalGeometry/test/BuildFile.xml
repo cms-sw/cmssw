@@ -1,0 +1,7 @@
+<use   name="DataFormats/ForwardlDetId"/>
+<use   name="Geometry/FCalGeometry"/>
+<use   name="Geometry/Records"/>
+<use   name="CoralBase"/>
+
+<flags   EDM_PLUGIN="1"/>
+<library   file="HGCalGeometryTester.cc" name="testGeometryHCCalGeometry"> </library>
