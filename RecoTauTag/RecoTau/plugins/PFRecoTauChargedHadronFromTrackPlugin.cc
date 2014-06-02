@@ -195,7 +195,8 @@ PFRecoTauChargedHadronFromTrackPlugin::return_type PFRecoTauChargedHadronFromTra
     XYZTLorentzVector chargedPionPos(track->referencePoint().x(), track->referencePoint().y(), track->referencePoint().z(), 0.);
     BaseParticlePropagator trackPropagator(RawParticle(chargedPionP4, chargedPionPos), 0., 0., magneticFieldStrength_.z());
     trackPropagator.setCharge(track->charge());
-    trackPropagator.propagateToEcalEntrance(false);
+    if(fabs(track->eta()) < 3.0) trackPropagator.propagateToEcalEntrance(false);
+    else trackPropagator.propagateToVFcalEntrance(false);
     if ( trackPropagator.getSuccess() != 0 ) { 
       chargedHadron->positionAtECALEntrance_ = trackPropagator.vertex();
     } else {
