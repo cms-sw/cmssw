@@ -57,20 +57,23 @@ class RecoTauPiZeroProducer : public edm::stream::EDProducer<> {
     typedef reco::tau::RecoTauLexicographicalRanking<rankerList,
             reco::RecoTauPiZero> PiZeroPredicate;
 
-  //  edm::InputTag src_;
     builderList builders_;
     rankerList rankers_;
     std::auto_ptr<PiZeroPredicate> predicate_;
     double piZeroMass_;
 
-  //consumes interface
-  edm::EDGetTokenT<reco::CandidateView> cand_token;
     // Output selector
     std::auto_ptr<StringCutObjectSelector<reco::RecoTauPiZero> >
       outputSelector_;
+
+    //consumes interface
+    edm::EDGetTokenT<reco::CandidateView> cand_token;
+
+    int verbosity_;
 };
 
-RecoTauPiZeroProducer::RecoTauPiZeroProducer(const edm::ParameterSet& pset) {
+RecoTauPiZeroProducer::RecoTauPiZeroProducer(const edm::ParameterSet& pset) 
+{
   cand_token = consumes<reco::CandidateView>( pset.getParameter<edm::InputTag>("jetSrc"));
 
   typedef std::vector<edm::ParameterSet> VPSet;
@@ -79,6 +82,7 @@ RecoTauPiZeroProducer::RecoTauPiZeroProducer(const edm::ParameterSet& pset) {
 
   // Get each of our PiZero builders
   const VPSet& builders = pset.getParameter<VPSet>("builders");
+
   for (VPSet::const_iterator builderPSet = builders.begin();
       builderPSet != builders.end(); ++builderPSet) {
     // Get plugin name
@@ -86,7 +90,7 @@ RecoTauPiZeroProducer::RecoTauPiZeroProducer(const edm::ParameterSet& pset) {
       builderPSet->getParameter<std::string>("plugin");
     // Build the plugin
     builders_.push_back(RecoTauPiZeroBuilderPluginFactory::get()->create(
-									 pluginType, *builderPSet, consumesCollector()));
+          pluginType, *builderPSet, consumesCollector()));
   }
 
   // Get each of our quality rankers
@@ -111,11 +115,14 @@ RecoTauPiZeroProducer::RecoTauPiZeroProducer(const edm::ParameterSet& pset) {
     }
   }
 
+  verbosity_ = ( pset.exists("verbosity") ) ?
+    pset.getParameter<int>("verbosity") : 0;
+
   produces<reco::JetPiZeroAssociation>();
 }
 
-void RecoTauPiZeroProducer::produce(edm::Event& evt,
-                                    const edm::EventSetup& es) {
+void RecoTauPiZeroProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
+{
   // Get a view of our jets via the base candidates
   edm::Handle<reco::CandidateView> jetView;
   evt.getByToken(cand_token, jetView);
@@ -211,7 +218,9 @@ void RecoTauPiZeroProducer::produce(edm::Event& evt,
               std::mem_fun_ref(&reco::RecoTauPiZero::setMass), piZeroMass_));
     }
     // Add to association
-    //print(cleanPiZeros, std::cout);
+    if ( verbosity_ >= 2 ) {
+      print(cleanPiZeros, std::cout);
+    }
     association->setValue(jet.key(), cleanPiZeros);
   }
   evt.put(association);
