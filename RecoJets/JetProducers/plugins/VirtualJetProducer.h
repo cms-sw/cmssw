@@ -3,7 +3,7 @@
 
 #include "RecoJets/JetProducers/interface/JetSpecific.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
@@ -27,7 +27,7 @@
 #include <boost/shared_ptr.hpp>
 
 
-class VirtualJetProducer : public edm::EDProducer
+class VirtualJetProducer : public edm::stream::EDProducer<>
 {
 protected:
   //
@@ -88,7 +88,7 @@ public:
   // member functions
   //
 public:
-  virtual void  produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
+  virtual void  produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override;
   std::string   jetType() const { return jetType_; }
   
 protected:
