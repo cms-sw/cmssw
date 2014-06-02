@@ -10,6 +10,7 @@
  *                     Christian Veelken (LLR)
  *
  */
+
 #include <algorithm>
 #include <memory>
 
@@ -50,7 +51,7 @@ namespace {
 class RecoTauPiZeroStripPlugin2 : public RecoTauPiZeroBuilderPlugin 
 {
  public:
-  explicit RecoTauPiZeroStripPlugin2(const edm::ParameterSet&,edm::ConsumesCollector &&iC);
+  explicit RecoTauPiZeroStripPlugin2(const edm::ParameterSet&, edm::ConsumesCollector &&iC);
   virtual ~RecoTauPiZeroStripPlugin2();
   // Return type is auto_ptr<PiZeroVector>
   return_type operator()(const reco::PFJet&) const override;
@@ -83,22 +84,19 @@ class RecoTauPiZeroStripPlugin2 : public RecoTauPiZeroBuilderPlugin
   double combinatoricStripMassHypo_;
 
   AddFourMomenta p4Builder_;
+
+  int verbosity_;
 };
 
-  RecoTauPiZeroStripPlugin2::RecoTauPiZeroStripPlugin2(const edm::ParameterSet& pset, edm::ConsumesCollector &&iC)
-    : RecoTauPiZeroBuilderPlugin(pset,std::move(iC)),
-      vertexAssociator_(pset.getParameter<edm::ParameterSet>("qualityCuts"),std::move(iC)),
+RecoTauPiZeroStripPlugin2::RecoTauPiZeroStripPlugin2(const edm::ParameterSet& pset, edm::ConsumesCollector &&iC)
+  : RecoTauPiZeroBuilderPlugin(pset, std::move(iC)),
+    vertexAssociator_(pset.getParameter<edm::ParameterSet>("qualityCuts"), std::move(iC)),
     qcuts_(0)
 {
-  LogTrace("RecoTauPiZeroStripPlugin2") << "<RecoTauPiZeroStripPlugin2::RecoTauPiZeroStripPlugin2>:" ;
-
   minGammaEtStripSeed_ = pset.getParameter<double>("minGammaEtStripSeed");
-  LogTrace("RecoTauPiZeroStripPlugin2") << " minGammaEtStripSeed = " << minGammaEtStripSeed_ ;
   minGammaEtStripAdd_ = pset.getParameter<double>("minGammaEtStripAdd");
-  LogTrace("RecoTauPiZeroStripPlugin2") << " minGammaEtStripAdd = " << minGammaEtStripAdd_ ;
 
   minStripEt_ = pset.getParameter<double>("minStripEt");
-  LogTrace("RecoTauPiZeroStripPlugin2") << " minStripEt = " << minStripEt_ ;
   
   edm::ParameterSet qcuts_pset = pset.getParameterSet("qualityCuts").getParameterSet("signalQualityCuts");
 //-------------------------------------------------------------------------------
@@ -109,7 +107,7 @@ class RecoTauPiZeroStripPlugin2 : public RecoTauPiZeroBuilderPlugin
     qcuts_pset.addParameter<double>("minTrackPt", std::min(minGammaEtStripSeed_, minGammaEtStripAdd_));
     qcuts_pset.addParameter<double>("maxTrackChi2", 1.e+9);
     qcuts_pset.addParameter<double>("maxTransverseImpactParameter", 1.e+9);
-    qcuts_pset.addParameter<double>("maxDeltaZ", 1.);
+    qcuts_pset.addParameter<double>("maxDeltaZ", 1.e+9);
     qcuts_pset.addParameter<double>("minTrackVertexWeight", -1.);
     qcuts_pset.addParameter<unsigned>("minTrackPixelHits", 0);
     qcuts_pset.addParameter<unsigned>("minTrackHits", 0);
@@ -130,6 +128,9 @@ class RecoTauPiZeroStripPlugin2 : public RecoTauPiZeroBuilderPlugin
     maxStrips_ = pset.getParameter<int>("maxInputStrips");
     combinatoricStripMassHypo_ = pset.getParameter<double>("stripMassWhenCombining");
   }
+
+  verbosity_ = ( pset.exists("verbosity") ) ?
+    pset.getParameter<int>("verbosity") : 0;
 }
   
 RecoTauPiZeroStripPlugin2::~RecoTauPiZeroStripPlugin2()
@@ -146,13 +147,18 @@ void RecoTauPiZeroStripPlugin2::beginEvent()
 void RecoTauPiZeroStripPlugin2::addCandsToStrip(RecoTauPiZero& strip, PFCandPtrs& cands, const std::vector<bool>& candFlags, 
 						std::set<size_t>& candIdsCurrentStrip, bool& isCandAdded) const
 {
+  if ( verbosity_ >= 1 ) {
+    edm::LogPrint("RecoTauPiZeroStripPlugin2") << "<RecoTauPiZeroStripPlugin2::addCandsToStrip>:" ;
+  }
   size_t numCands = cands.size();
   for ( size_t candId = 0; candId < numCands; ++candId ) {
     if ( (!candFlags[candId]) && candIdsCurrentStrip.find(candId) == candIdsCurrentStrip.end() ) { // do not include same cand twice
       reco::PFCandidatePtr cand = cands[candId];
       if ( fabs(strip.eta() - cand->eta()) < etaAssociationDistance_ && // check if cand is within eta-phi window centered on strip 
 	   fabs(strip.phi() - cand->phi()) < phiAssociationDistance_ ) {
-	LogTrace("RecoTauPiZeroStripPlugin2") << "--> candId = " << candId << " has been added." ;
+	if ( verbosity_ >= 2 ) {
+	  edm::LogPrint("RecoTauPiZeroStripPlugin2") << "--> adding PFCand #" << candId << " (" << cand.id() << ":" << cand.key() << "): Et = " << cand->et() << ", eta = " << cand->eta() << ", phi = " << cand->phi() ;
+	}
 	strip.addDaughter(cand);
 	if ( updateStripAfterEachDaughter_ ) p4Builder_.set(strip);
 	isCandAdded = true;
@@ -181,6 +187,13 @@ namespace {
 
 RecoTauPiZeroStripPlugin2::return_type RecoTauPiZeroStripPlugin2::operator()(const reco::PFJet& jet) const 
 {
+  if ( verbosity_ >= 1 ) {
+    edm::LogPrint("RecoTauPiZeroStripPlugin2") << "<RecoTauPiZeroStripPlugin2::operator()>:" ;
+    edm::LogPrint("RecoTauPiZeroStripPlugin2") << " minGammaEtStripSeed = " << minGammaEtStripSeed_ ;
+    edm::LogPrint("RecoTauPiZeroStripPlugin2") << " minGammaEtStripAdd = " << minGammaEtStripAdd_ ;
+    edm::LogPrint("RecoTauPiZeroStripPlugin2") << " minStripEt = " << minStripEt_ ;
+  }
+
   PiZeroVector output;
 
   // Get the candidates passing our quality cuts
@@ -193,34 +206,31 @@ RecoTauPiZeroStripPlugin2::return_type RecoTauPiZeroStripPlugin2::operator()(con
   int idx = 0;
   for ( PFCandPtrs::iterator cand = candsVector.begin();
 	cand != candsVector.end(); ++cand ) {
-    LogTrace("RecoTauPiZeroStripPlugin2") << "PFGamma (" << idx << "): Et = " << (*cand)->et() << "," 
-    	        << " eta = " << (*cand)->eta() << ", phi = " << (*cand)->phi(); 
+    if ( verbosity_ >= 1 ) {
+      edm::LogPrint("RecoTauPiZeroStripPlugin2") << "PFGamma #" << idx << " (" << cand->id() << ":" << cand->key() << "): Et = " << (*cand)->et() << ", eta = " << (*cand)->eta() << ", phi = " << (*cand)->phi() ;
+    } 
     if ( (*cand)->et() > minGammaEtStripSeed_ ) {
-      LogTrace("RecoTauPiZeroStripPlugin2") << " --> assigning seedCandId = " << seedCands.size() ;
-#ifdef EDM_ML_DEBUG
+      if ( verbosity_ >= 2 ) {
+	edm::LogPrint("RecoTauPiZeroStripPlugin2") << "--> assigning seedCandId = " << seedCands.size() ;
         const reco::TrackBaseRef candTrack = getTrack(*cand);
         if ( candTrack.isNonnull() ) {
-	LogTrace("RecoTauPiZeroStripPlugin2") << "has Track: pt = " << candTrack->pt() << " +/- " << candTrack->ptError() << "," 
-		    << " eta = " << candTrack->eta() << ", phi = " << candTrack->phi() << ","
-		    << " charge = " << candTrack->charge() ;
-	LogTrace("RecoTauPiZeroStripPlugin2") << " chi2 = " << candTrack->normalizedChi2() ;
-	LogTrace("RecoTauPiZeroStripPlugin2") << " dIP = " << std::abs(candTrack->dxy(vertexAssociator_.associatedVertex(jet)->position())) ;
-	LogTrace("RecoTauPiZeroStripPlugin2") << " dZ = " << std::abs(candTrack->dz(vertexAssociator_.associatedVertex(jet)->position())) ;
-	LogTrace("RecoTauPiZeroStripPlugin2") << " vtxAssocWeight = " << vertexAssociator_.associatedVertex(jet)->trackWeight(candTrack) ;
-	LogTrace("RecoTauPiZeroStripPlugin2") << " numPxlHits = " << candTrack->hitPattern().numberOfValidPixelHits() ;
-        LogTrace("RecoTauPiZeroStripPlugin2") << " numTrkHits = " << candTrack->hitPattern().numberOfValidHits() ;
+	  edm::LogPrint("RecoTauPiZeroStripPlugin2") << "track: Pt = " << candTrack->pt() << " eta = " << candTrack->eta() << ", phi = " << candTrack->phi() << ", charge = " << candTrack->charge() ;
+	  edm::LogPrint("RecoTauPiZeroStripPlugin2") << " (dZ = " << candTrack->dz(vertexAssociator_.associatedVertex(jet)->position()) << ", dXY = " << candTrack->dxy(vertexAssociator_.associatedVertex(jet)->position()) << "," 
+		    << " numHits = " << candTrack->hitPattern().numberOfValidTrackerHits() << ", numPxlHits = " << candTrack->hitPattern().numberOfValidPixelHits() << "," 
+		    << " chi2 = " << candTrack->normalizedChi2() << ", dPt/Pt = " << (candTrack->ptError()/candTrack->pt()) << ")" ;
 	}
-#endif
-      LogTrace("RecoTauPiZeroStripPlugin2") << "ECAL Et: calibrated = " << (*cand)->ecalEnergy()*sin((*cand)->theta()) << "," 
-      	  << " raw = " << (*cand)->rawEcalEnergy()*sin((*cand)->theta()) ;
-      LogTrace("RecoTauPiZeroStripPlugin2") << "HCAL Et: calibrated = " << (*cand)->hcalEnergy()*sin((*cand)->theta()) << "," 
-      	  << " raw = " << (*cand)->rawHcalEnergy()*sin((*cand)->theta()) ;
+	edm::LogPrint("RecoTauPiZeroStripPlugin2") << "ECAL Et: calibrated = " << (*cand)->ecalEnergy()*sin((*cand)->theta()) << "," 
+		  << " raw = " << (*cand)->rawEcalEnergy()*sin((*cand)->theta()) ;
+	edm::LogPrint("RecoTauPiZeroStripPlugin2") << "HCAL Et: calibrated = " << (*cand)->hcalEnergy()*sin((*cand)->theta()) << "," 
+		  << " raw = " << (*cand)->rawHcalEnergy()*sin((*cand)->theta()) ;
+      }
       seedCands.push_back(*cand);
     } else if ( (*cand)->et() > minGammaEtStripAdd_  ) {
-      LogTrace("RecoTauPiZeroStripPlugin2") << " --> assigning addCandId = " << addCands.size();
+      if ( verbosity_ >= 2 ) {
+	edm::LogPrint("RecoTauPiZeroStripPlugin2") << "--> assigning addCandId = " << addCands.size() ;
+      }
       addCands.push_back(*cand);
     }
-    LogTrace("RecoTauPiZeroStripPlugin2") ;
     ++idx;
   }
 
@@ -232,7 +242,7 @@ RecoTauPiZeroStripPlugin2::return_type RecoTauPiZeroStripPlugin2::operator()(con
 
   size_t idxSeed = 0;
   while ( idxSeed < seedCands.size() ) {
-    LogTrace("RecoTauPiZeroStripPlugin2") << "idxSeed = " << idxSeed ;
+    if ( verbosity_ >= 2 ) edm::LogPrint("RecoTauPiZeroStripPlugin2") << "processing seed #" << idxSeed ;
 
     seedCandIdsCurrentStrip.clear();
     addCandIdsCurrentStrip.clear();
@@ -246,9 +256,9 @@ RecoTauPiZeroStripPlugin2::return_type RecoTauPiZeroStripPlugin2::operator()(con
     do {
       isCandAdded = false;
 
-      LogTrace("RecoTauPiZeroStripPlugin2") << " adding seedCands to strip..." ;
+      //if ( verbosity_ >= 2 ) edm::LogPrint("RecoTauPiZeroStripPlugin2") << " adding seedCands to strip..." ;
       addCandsToStrip(*strip, seedCands, seedCandFlags, seedCandIdsCurrentStrip, isCandAdded);
-      LogTrace("RecoTauPiZeroStripPlugin2") << " adding addCands to strip..." ;
+      //if ( verbosity_ >= 2 ) edm::LogPrint("RecoTauPiZeroStripPlugin2") << " adding addCands to strip..." ;
       addCandsToStrip(*strip, addCands,  addCandFlags,  addCandIdsCurrentStrip, isCandAdded);
 
       if ( !updateStripAfterEachDaughter_ ) p4Builder_.set(*strip);
@@ -257,9 +267,7 @@ RecoTauPiZeroStripPlugin2::return_type RecoTauPiZeroStripPlugin2::operator()(con
     } while ( isCandAdded && (stripBuildIteration < maxStripBuildIterations_ || maxStripBuildIterations_ == -1) );
 
     if ( strip->et() > minStripEt_ ) { // strip passed Et cuts, add it to the event
-      LogTrace("RecoTauPiZeroStripPlugin2") << "Strip: Et = " << strip->et() << "," 
-      	  << " eta = " << strip->eta() << ", phi = " << strip->phi() 
-      	  << " --> building it !!" ;
+      if ( verbosity_ >= 2 ) edm::LogPrint("RecoTauPiZeroStripPlugin2") << "Building strip: Et = " << strip->et() << ", eta = " << strip->eta() << ", phi = " << strip->phi() ;
 
       // Update the vertex
       if ( strip->daughterPtr(0).isNonnull() ) strip->setVertex(strip->daughterPtr(0)->vertex());
@@ -269,9 +277,7 @@ RecoTauPiZeroStripPlugin2::return_type RecoTauPiZeroStripPlugin2::operator()(con
       markCandsInStrip(seedCandFlags, seedCandIdsCurrentStrip);
       markCandsInStrip(addCandFlags,  addCandIdsCurrentStrip);
     } else { // strip failed Et cuts, just skip it
-      LogTrace("RecoTauPiZeroStripPlugin2") << "Strip: Et = " << strip->et() << "," 
-    	  << " eta = " << strip->eta() << ", phi = " << strip->phi() 
-      	  << " --> discarding it !!" ;
+      if ( verbosity_ >= 2 ) edm::LogPrint("RecoTauPiZeroStripPlugin2") << "Discarding strip: Et = " << strip->et() << ", eta = " << strip->eta() << ", phi = " << strip->phi() ;
     }
 
     ++idxSeed;
