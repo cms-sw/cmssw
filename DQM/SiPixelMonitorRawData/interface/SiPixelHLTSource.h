@@ -45,31 +45,28 @@
 
 #include <boost/cstdint.hpp>
 
- class SiPixelHLTSource : public edm::EDAnalyzer {
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+
+
+ class SiPixelHLTSource : public DQMEDAnalyzer {
     public:
        explicit SiPixelHLTSource(const edm::ParameterSet& conf);
        ~SiPixelHLTSource();
 
        virtual void analyze(const edm::Event&, const edm::EventSetup&);
-       virtual void beginJob() ;
-       virtual void endJob() ;
-       virtual void beginRun(const edm::Run&, edm::EventSetup const&) ;
-       virtual void bookMEs();
+       void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+       void dqmBeginRun(const edm::Run& , const edm::EventSetup& ) ;
 
     private:
        edm::ParameterSet conf_;
        edm::EDGetTokenT<FEDRawDataCollection> rawin_;
        edm::EDGetTokenT<edm::DetSetVector<SiPixelRawDataError> > errin_;
        edm::ESHandle<TrackerGeometry> pDD;
-       bool saveFile;
        bool slowDown;
        std::string dirName_;
-       int eventNo;
-       DQMStore* theDMBE;
        MonitorElement* meRawWords_;
        MonitorElement* meNCRCs_;
        MonitorElement* meNErrors_;
-       bool firstRun;
  };
 
 #endif

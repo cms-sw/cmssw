@@ -50,11 +50,9 @@ SiPixelHLTSource::SiPixelHLTSource(const edm::ParameterSet& iConfig) :
   conf_(iConfig),
   rawin_( consumes<FEDRawDataCollection>( conf_.getParameter<edm::InputTag>( "RawInput" ) ) ),
   errin_( consumes<edm::DetSetVector<SiPixelRawDataError> >( conf_.getParameter<edm::InputTag>( "ErrorInput" ) ) ),
-  saveFile( conf_.getUntrackedParameter<bool>("saveFile",false) ),
   slowDown( conf_.getUntrackedParameter<bool>("slowDown",false) ),
   dirName_( conf_.getUntrackedParameter<std::string>("DirName","Pixel/FEDIntegrity/") )
 {
-   theDMBE = edm::Service<DQMStore>().operator->();
    LogInfo ("PixelDQM") << "SiPixelHLTSource::SiPixelHLTSource: Got DQM BackEnd interface"<<endl;
 }
 
@@ -66,40 +64,47 @@ SiPixelHLTSource::~SiPixelHLTSource()
   LogInfo ("PixelDQM") << "SiPixelHLTSource::~SiPixelHLTSource: Destructor"<<endl;
 }
 
-
-void SiPixelHLTSource::beginJob(){
-  firstRun = true;
-}
-
-void SiPixelHLTSource::beginRun(const edm::Run& r, const edm::EventSetup& iSetup){
-  LogInfo ("PixelDQM") << " SiPixelHLTSource::beginJob - Initialisation ... " << std::endl;
+void SiPixelHLTSource::dqmBeginRun(const edm::Run& r, const edm::EventSetup& iSetup)
+{
   iSetup.get<TrackerDigiGeometryRecord>().get( pDD );
-  if(firstRun){
-    eventNo = 0;
-    // Build map
-    // Book Monitoring Elements
-    bookMEs();
-    firstRun = false;
-  }
 }
 
+void SiPixelHLTSource::bookHistograms(DQMStore::IBooker & ibooker , const edm::Run & run, const edm::EventSetup & iSetup)
+{
+  LogInfo ("PixelDQM") << " SiPixelHLTSource::bookHistograms - Initialisation ... " << std::endl;
+  // Build map
+  // Book Monitoring Elements
+  ibooker.cd();
+  ibooker.setCurrentFolder(dirName_);
+  
+  // Get collection name and instantiate Histo Id builder
+  edm::InputTag rawin = conf_.getParameter<edm::InputTag>( "RawInput" );
+  SiPixelHistogramId* RawHistogramId = new SiPixelHistogramId( rawin.label() );
+  edm::InputTag errin = conf_.getParameter<edm::InputTag>( "ErrorInput" );
+  SiPixelHistogramId* ErrorHistogramId = new SiPixelHistogramId( errin.label() );
 
-void SiPixelHLTSource::endJob(void){
+  // Is a FED sending raw data
+  meRawWords_ = ibooker.book1D("FEDEntries","Number of raw words",40,-0.5,39.5);
+  meRawWords_->setAxisTitle("Number of raw words",1);
 
-  if(saveFile) {
-    LogInfo ("PixelDQM") << " SiPixelHLTSource::endJob - Saving Root File " << std::endl;
-    std::string outputFile = conf_.getParameter<std::string>("outputFile");
-    theDMBE->save( outputFile.c_str() );
-  }
+  // Number of CRC errors
+  meNCRCs_ = ibooker.book1D("FEDFatal","Number of fatal errors",40,-0.5,39.5);
+  meNCRCs_->setAxisTitle("Number of fatal errors",1);
 
+  // Number of translation error words
+  meNErrors_ = ibooker.book1D("FEDNonFatal","Number of non-fatal errors",40,-0.5,39.5);
+  meNErrors_->setAxisTitle("Number of non-fatal errors",1);
+
+  delete RawHistogramId;
+  delete ErrorHistogramId;
 }
+
 
 //------------------------------------------------------------------
 // Method called for every event
 //------------------------------------------------------------------
 void SiPixelHLTSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  eventNo++;
   // get raw input data
   edm::Handle< FEDRawDataCollection >  rawinput;
   iEvent.getByToken( rawin_, rawinput );
@@ -156,41 +161,6 @@ void SiPixelHLTSource::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   } // end if( isearch
   // slow down...
   if(slowDown) usleep(100000);
-
-}
-
-//------------------------------------------------------------------
-// Book MEs
-//------------------------------------------------------------------
-void SiPixelHLTSource::bookMEs(){
-
-  theDMBE->cd();
-  theDMBE->setCurrentFolder(dirName_);
-
-  std::string rawhid;
-  std::string errhid;
-  // Get collection name and instantiate Histo Id builder
-  edm::InputTag rawin = conf_.getParameter<edm::InputTag>( "RawInput" );
-  SiPixelHistogramId* RawHistogramId = new SiPixelHistogramId( rawin.label() );
-  edm::InputTag errin = conf_.getParameter<edm::InputTag>( "ErrorInput" );
-  SiPixelHistogramId* ErrorHistogramId = new SiPixelHistogramId( errin.label() );
-  // Get DQM interface
-  DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
-
-  // Is a FED sending raw data
-  meRawWords_ = theDMBE->book1D("FEDEntries","Number of raw words",40,-0.5,39.5);
-  meRawWords_->setAxisTitle("Number of raw words",1);
-
-  // Number of CRC errors
-  meNCRCs_ = theDMBE->book1D("FEDFatal","Number of fatal errors",40,-0.5,39.5);
-  meNCRCs_->setAxisTitle("Number of fatal errors",1);
-
-  // Number of translation error words
-  meNErrors_ = theDMBE->book1D("FEDNonFatal","Number of non-fatal errors",40,-0.5,39.5);
-  meNErrors_->setAxisTitle("Number of non-fatal errors",1);
-
-  delete RawHistogramId;
-  delete ErrorHistogramId;
 
 }
 
