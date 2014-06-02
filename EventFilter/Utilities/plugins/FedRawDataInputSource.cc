@@ -106,6 +106,9 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
 
   try {
     daqDirector_ = (evf::EvFDaqDirector *) (edm::Service<evf::EvFDaqDirector>().operator->());
+    //set DaqDirector to delete files in preGlobalEndLumi callback
+    if (!testModeNoBuilderUnit_)
+      daqDirector_->setDeleteTracking(&fileDeleteLock_,&filesToDelete_);
     if (fms_) daqDirector_->setFMS(fms_);
   } catch (...){
     edm::LogWarning("FedRawDataInputSource") << "EvFDaqDirector not found";
@@ -371,9 +374,11 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
       cvWakeup_.notify_one();
     }
     bufferInputRead_=0;
-    if (!daqDirector_->isSingleStreamThread())
+    if (!daqDirector_->isSingleStreamThread()) {
       //put the file in pending delete list;
+      std::unique_lock<std::mutex> lkw(fileDeleteLock_);
       filesToDelete_.push_back(std::pair<int,InputFile*>(currentFileIndex_,currentFile_));
+    }
     else {
       //in single-thread and stream jobs, events are already processed
       deleteFile(currentFile_->fileName_);
@@ -571,6 +576,7 @@ void FedRawDataInputSource::read(edm::EventPrincipal& eventPrincipal)
   //this old file check runs no more often than every 10 events
   if (!((currentFile_->nProcessed_-1)%(checkEvery_))) {
     //delete files that are not in processing
+    std::unique_lock<std::mutex> lkw(fileDeleteLock_);
     auto it = filesToDelete_.begin();
     while (it!=filesToDelete_.end()) {
       bool fileIsBeingProcessed = false;
@@ -1007,7 +1013,7 @@ void FedRawDataInputSource::threadError()
 }
 
 
-inline bool FedRawDataInputSource::InputFile::advance(unsigned char* & dataPosition, const size_t size)
+inline bool InputFile::advance(unsigned char* & dataPosition, const size_t size)
 {
   //wait for chunk
   while (!waitForChunk(currentChunk_)) {
@@ -1043,7 +1049,7 @@ inline bool FedRawDataInputSource::InputFile::advance(unsigned char* & dataPosit
   }
 }
 
-inline void FedRawDataInputSource::InputFile::moveToPreviousChunk(const size_t size, const size_t offset)
+inline void InputFile::moveToPreviousChunk(const size_t size, const size_t offset)
 {
   //this will fail in case of events that are too large
   assert(size < chunks_[currentChunk_]->size_ - chunkPosition_);
@@ -1053,7 +1059,7 @@ inline void FedRawDataInputSource::InputFile::moveToPreviousChunk(const size_t s
   bufferPosition_+=size;
 }
 
-inline void FedRawDataInputSource::InputFile::rewindChunk(const size_t size) {
+inline void InputFile::rewindChunk(const size_t size) {
   chunkPosition_-=size;
   bufferPosition_-=size;
 }

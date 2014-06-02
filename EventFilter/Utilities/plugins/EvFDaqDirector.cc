@@ -7,6 +7,7 @@
 
 #include "EventFilter/Utilities/plugins/EvFDaqDirector.h"
 #include "EventFilter/Utilities/plugins/FastMonitoringService.h"
+#include "EventFilter/Utilities/plugins/FedRawDataInputSource.h"
 
 
 #include <iostream>
@@ -86,6 +87,7 @@ namespace evf {
     reg.watchPreGlobalBeginRun(this, &EvFDaqDirector::preBeginRun);
     reg.watchPostGlobalEndRun(this, &EvFDaqDirector::postEndRun);
     reg.watchPreSourceEvent(this, &EvFDaqDirector::preSourceEvent);
+    reg.watchPreGlobalEndLumi(this,&EvFDaqDirector::preGlobalEndLumi);
 
     std::stringstream ss;
     ss << "run" << std::setfill('0') << std::setw(6) << run_;
@@ -233,6 +235,50 @@ namespace evf {
       edm::LogWarning("EvFDaqDirector") << "WARNING - checking run dir -: "
 					<< run_dir_ << ". This is not the highest run "
 					<< dirManager_.findHighestRunDir();
+    }
+  }
+
+  void EvFDaqDirector::preGlobalEndLumi(edm::GlobalContext const& globalContext)
+  {
+    //delete all files belonging to just closed lumi
+    unsigned int ls = globalContext.luminosityBlockID().luminosityBlock();
+    if (!fileDeleteLockPtr_ || !filesToDeletePtr_) {
+      edm::LogWarning("EvFDaqDirector") << " Handles to check for files to delete were not set by the input source...";
+      return;
+    }
+
+    std::unique_lock<std::mutex> lkw(*fileDeleteLockPtr_);
+    auto it = filesToDeletePtr_->begin();
+    while (it!=filesToDeletePtr_->end()) {
+      if (it->second->lumi_ ==  ls) {
+        const boost::filesystem::path filePath(it->second->fileName_);
+        LogDebug("EvFDaqDirector") << "Deleting input file -:" << it->second->fileName_;
+        try {
+          //rarely this fails but file gets deleted
+          boost::filesystem::remove(filePath);
+        }
+        catch (const boost::filesystem::filesystem_error& ex)
+        {
+          edm::LogError("EvFDaqDirector") << " - deleteFile BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what() << ". Trying again.";
+          usleep(10000);
+          try {
+            boost::filesystem::remove(filePath);
+          }
+            catch (...) {/*file gets deleted first time but exception is still thrown*/}
+        }
+        catch (std::exception& ex)
+        {
+          edm::LogError("EvFDaqDirector") << " - deleteFile std::exception CAUGHT -: " << ex.what() << ". Trying again.";
+          usleep(10000);
+          try {
+	    boost::filesystem::remove(filePath);
+          } catch (...) {/*file gets deleted first time but exception is still thrown*/}
+        }
+        
+        delete it->second;
+	it = filesToDeletePtr_->erase(it);
+      }
+      else it++;
     }
   }
 

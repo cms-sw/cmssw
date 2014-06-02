@@ -13,6 +13,8 @@
 #include <sstream>
 #include <iomanip>
 #include <vector>
+#include <list>
+#include <mutex>
 
 //system headers
 //#include <sys/types.h>
@@ -25,6 +27,9 @@
 class SystemBounds;
 class GlobalContext;
 class StreamID;
+
+class InputFile;
+class InputChunk;
 
 namespace evf{
 
@@ -41,6 +46,7 @@ namespace evf{
       void preallocate(edm::service::SystemBounds const& bounds);
       void preBeginRun(edm::GlobalContext const& globalContext);
       void postEndRun(edm::GlobalContext const& globalContext);
+      void preGlobalEndLumi(edm::GlobalContext const& globalContext);
       void preSourceEvent(edm::StreamID const& streamID);
       //std::string &baseDir(){return base_dir_;}
       std::string &baseRunDir(){return run_dir_;}
@@ -84,6 +90,10 @@ namespace evf{
       void lockFULocal2();
       void unlockFULocal2();
       void createRunOpendirMaybe();
+      void setDeleteTracking( std::mutex* fileDeleteLock,std::list<std::pair<int,InputFile*>> *filesToDelete) {
+        fileDeleteLockPtr_=fileDeleteLock;
+        filesToDeletePtr_ = filesToDelete;
+      }
 
 
     private:
@@ -145,6 +155,9 @@ namespace evf{
       evf::FastMonitoringService * fms_ = nullptr;
       std::vector<int> streamFileTracker_;
       int currentFileIndex_ = -1;
+
+      std::mutex *fileDeleteLockPtr_ = nullptr;
+      std::list<std::pair<int,InputFile*>> *filesToDeletePtr_ = nullptr;
 
       pthread_mutex_t init_lock_ = PTHREAD_MUTEX_INITIALIZER;
 
