@@ -1,4 +1,3 @@
-<use name="FWCore/Common"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/RecoCandidate"/>
 <use   name="DataFormats/Candidate"/>
