@@ -1,5 +1,6 @@
-#ifndef HGCAL_COMMON_DATA_SHASHLIK_GEOMETRY_H
-#define HGCAL_COMMON_DATA_SHASHLIK_GEOMETRY_H
+#ifndef GeometryFCalGeometryShashlikGeometry_h
+#define GeometryFCalGeometryShashlikGeometry_h
+
 
 /*
  * Geometry for Shashlik ECAL

@@ -1,5 +1,5 @@
-#ifndef SHASHLIK_GEOMETRY_BUILDER_FROM_DDD_H
-#define SHASHLIK_GEOMETRY_BUILDER_FROM_DDD_H
+#ifndef GeometryFCalGeometryShashlikGeometryBuilderFromDDD_h
+#define GeometryFCalGeometryShashlikGeometryBuilderFromDDD_h
 
 class DDCompactView;
 class ShashlikTopology;
@@ -14,4 +14,4 @@ public:
   ShashlikGeometry* build( const DDCompactView*, const ShashlikTopology& );
 };
 
-#endif // SHASHLIK_GEOMETRY_BUILDER_FROM_DDD_H
+#endif // GeometryFCalGeometryShashlikGeometryBuilderFromDDD_h

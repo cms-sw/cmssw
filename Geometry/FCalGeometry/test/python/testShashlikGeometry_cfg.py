@@ -6,7 +6,7 @@ process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 process.load("Geometry.HGCalCommonData.testShashlikXML_cfi")
 process.load("Geometry.HGCalCommonData.shashlikNumberingInitialization_cfi")
 process.load("Geometry.CaloEventSetup.ShashlikTopology_cfi")
-process.load("Geometry.CaloTopology.ShashlikGeometryESProducer_cfi")
+process.load("Geometry.FCalGeometry.ShashlikGeometryESProducer_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout'),
