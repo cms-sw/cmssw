@@ -115,7 +115,6 @@ hpsPFTauDiscriminationByLooseIsolationDBSumPtCorr = hpsPFTauDiscriminationByLoos
     deltaBetaFactor = "%0.4f"%(0.0123/0.1687),
     applyOccupancyCut = False,
     applySumPtCut = True,
-    customOuterCone = PFRecoTauPFJetInputs.isolationConeSize
 )
 hpsPFTauDiscriminationByLooseIsolationDBSumPtCorr.maximumSumPtCut=hpsPFTauDiscriminationByLooseIsolationDBSumPtCorr.qualityCuts.isolationQualityCuts.minGammaEt
 
@@ -126,7 +125,6 @@ hpsPFTauDiscriminationByMediumIsolationDBSumPtCorr = hpsPFTauDiscriminationByMed
     deltaBetaFactor = "%0.4f"%(0.0462/0.1687),
     applyOccupancyCut = False,
     applySumPtCut = True,
-    customOuterCone = PFRecoTauPFJetInputs.isolationConeSize
 )
 hpsPFTauDiscriminationByMediumIsolationDBSumPtCorr.maximumSumPtCut=hpsPFTauDiscriminationByMediumIsolationDBSumPtCorr.qualityCuts.isolationQualityCuts.minGammaEt
 
@@ -137,7 +135,6 @@ hpsPFTauDiscriminationByTightIsolationDBSumPtCorr = hpsPFTauDiscriminationByTigh
     deltaBetaFactor = "%0.4f"%(0.0772/0.1687),
     applyOccupancyCut = False,
     applySumPtCut = True,
-    customOuterCone = PFRecoTauPFJetInputs.isolationConeSize
 )
 hpsPFTauDiscriminationByTightIsolationDBSumPtCorr.maximumSumPtCut=hpsPFTauDiscriminationByTightIsolationDBSumPtCorr.qualityCuts.isolationQualityCuts.minGammaEt
 
