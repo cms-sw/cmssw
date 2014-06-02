@@ -594,7 +594,7 @@ hpsPFTauPrimaryVertexProducer = PFTauPrimaryVertexProducer.clone(
             selectionCut = cms.double(0.5)
         )
     ),
-    cut = cms.string("pt > 18.0 & abs(eta) < 2.4")
+    cut = cms.string("pt > 18.0 & abs(eta) < 99.")
 )
 
 hpsPFTauSecondaryVertexProducer = PFTauSecondaryVertexProducer.clone(
