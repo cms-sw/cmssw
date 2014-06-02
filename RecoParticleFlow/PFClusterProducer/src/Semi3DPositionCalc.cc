@@ -91,9 +91,6 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
 			  std::max(0.0,vdt::fast_log(rh_energy/_logWeightDenom)) );    
     const math::XYZPoint& rhpos_xyz = refhit->position();
     const reco::PFCluster::REPPoint rhpos_rep(rhpos_xyz);
-    std::cout << refhit->depth() << ' ' << refhit->energy() 
-	      << ' ' << rhf.fraction() << ' ' << rhpos_rep  
-	      << ' ' << norm << std::endl; 
     std::get<0>(positionAtDepth[refhit->depth()]) += rhpos_xyz.X() * norm;
     std::get<1>(positionAtDepth[refhit->depth()]) += rhpos_xyz.Y() * norm;
     std::get<2>(positionAtDepth[refhit->depth()]) += rhpos_xyz.Z() * norm;
@@ -110,7 +107,6 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
     // here it is Eta/Phi/Rho/weight
     CoordinateAndWeight total_position = std::make_tuple(0.0,0.0,1e6,0.0,cluster.energy());
     for( auto depth : positionAtDepth ) {
-      std::cout << "  depth = " << depth.first;
       if( std::get<3>(depth.second) >= _minAllowedNorm ) {
 	const double norm_inverse = 1.0/std::get<3>(depth.second);
 	const double log_depth_E = 
@@ -122,9 +118,6 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
 	math::XYZPoint temppos(std::get<0>(depth.second),
 			       std::get<1>(depth.second),
 			       std::get<2>(depth.second));
-	std::cout << " position = (" << temppos.Eta() 
-		  << "," << temppos.Phi() << ","
-		  << temppos.R() << ")" <<std::endl;
 	std::get<0>(total_position) += temppos.Eta()*log_depth_E;
 	std::get<1>(total_position) += temppos.Phi()*log_depth_E;
 	std::get<2>(total_position) = std::min(std::get<2>(total_position),
@@ -137,12 +130,10 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
     std::get<0>(total_position) *= norm_inverse;
     std::get<1>(total_position) *= norm_inverse;
     // get the perpindicular component of R for the average
-    std::cout << "calc'd eta: " << std::get<0>(total_position) << std::endl;
     std::get<2>(total_position) /= std::cosh(std::get<0>(total_position));
     reco::PFCluster::REPPoint pos(std::get<2>(total_position),
 				  std::get<0>(total_position),
 				  std::get<1>(total_position));
-    std::cout << "Cluster position is: " << pos << std::endl;
     cluster.setPosition(math::XYZPoint(pos.X(),pos.Y(),pos.Z()));
     cluster.calculatePositionREP();
   }

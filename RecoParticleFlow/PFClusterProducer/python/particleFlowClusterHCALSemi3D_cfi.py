@@ -63,6 +63,9 @@ _topoClusterizer_HCAL = cms.PSet(
     ),
     useCornerCells = cms.bool(True),
     showerSigma = cms.double(10.0),
+    stoppingTolerance = cms.double(1e-8),
+    minFracTot = cms.double(1e-20), ## numerical stabilization
+    maxIterations = cms.uint32(50),
     positionCalc = _positionCalcHCAL_semi3D,
     allCellsPositionCalc = _positionCalcHCAL_semi3D
 )

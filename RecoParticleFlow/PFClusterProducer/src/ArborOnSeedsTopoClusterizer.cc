@@ -1,9 +1,12 @@
 #include "ArborOnSeedsTopoClusterizer.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 #include <unordered_map>
 #include <algorithm>
 #include <iterator>
+
+#include "vdt/vdtMath.h"
 
 #ifdef PFLOW_DEBUG
 #define LOGVERB(x) edm::LogVerbatim(x)
@@ -22,18 +25,16 @@ namespace {
 		       const std::pair<unsigned,double>& b) {
     return a.second > b.second;
   }
-
-  /*
-  typedef ArborOnSeedsTopoClusterizer::seed_usage_map seed_usage_map;
-  typedef ArborOnSeedsTopoClusterizer::seed_fractions_map seed_fractions_map;
-  */
 }
 
 ArborOnSeedsTopoClusterizer::
 ArborOnSeedsTopoClusterizer(const edm::ParameterSet& conf) :
   InitialClusteringStepBase(conf),
   _useCornerCells(conf.getParameter<bool>("useCornerCells")),
-  _showerSigma(conf.getParameter<double>("showerSigma")) { 
+  _showerSigma2(std::pow(conf.getParameter<double>("showerSigma"),2.0)),
+  _stoppingTolerance(conf.getParameter<double>("stoppingTolerance")),
+  _minFracTot(conf.getParameter<double>("minFracTot")),
+  _maxIterations(conf.getParameter<unsigned>("maxIterations")) { 
   _positionCalc.reset(NULL);
   if( conf.exists("positionCalc") ) {
     const edm::ParameterSet& pcConf = conf.getParameterSet("positionCalc");
@@ -87,68 +88,7 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
     temp.reset();
     buildTopoCluster(input,rechitMask,makeRefhit(input,seed),used,temp);
     if( temp.recHitFractions().size() ) topoclusters.push_back(temp);
-  }
-  
-  // connect together the per-layer topo clusters with the arbor
-  // branches [indiuces of arbor-branches] -> [indices of topo clusters]
-  std::unordered_multimap<unsigned,unsigned> branches_to_topos;
-  std::unordered_multimap<unsigned,unsigned> topos_to_branches;
-  for( unsigned i = 0 ; i < topoclusters.size(); ++i  ) {
-    for( const auto& rhf : topoclusters[i].recHitFractions() ) {
-      if( !seedable[rhf.recHitRef().key()] ) continue;
-      for( unsigned j = 0; j < branches.size(); ++j ) {
-	auto ihit = std::find_if(branches[j].begin(),branches[j].end(),
-				 [&](const unsigned& hit){
-				   if( hit == 
-				       rhf.recHitRef().key() ) return true;
-				   return false;
-				 });
-	if( ihit != branches[j].end() ) {
-	  topos_to_branches.emplace(i,j);	  
-	  branches_to_topos.emplace(j,i);
-	}
-      }
-    }
-  }
-  // have relational maps of topo clusters grouped together and 
-  // constituent branches (shitty code and probably very slow right now)
-  std::vector<std::vector<unsigned> > grouped_topos; // same indices
-  std::vector<std::vector<unsigned> > grouped_branches; // same indices
-  std::vector<bool> used_topo(topoclusters.size(),false);
-  std::cout << topoclusters.size() << ' ' 
-	    << branches.size() << std::endl;
-  for(unsigned i = 0; i < topoclusters.size(); ++i ) {
-    if( used_topo[i] ) continue; //skip topo clusters already used
-    grouped_topos.push_back(std::vector<unsigned>());
-    getLinkedTopoClusters( topos_to_branches,
-			   branches_to_topos,
-			   topoclusters,
-			   i,
-			   used_topo,
-			   grouped_topos.back() );
-  }
-  for( unsigned i = 0 ; i < grouped_topos.size(); ++i ) {
-    grouped_branches.push_back(std::vector<unsigned>());
-    std::vector<unsigned>& current = grouped_branches.back();
-    for( unsigned itopo : grouped_topos[i] ) {
-      auto branch_range = topos_to_branches.equal_range(itopo);
-      for( auto ib = branch_range.first; ib != branch_range.second; ++ib ) {
-	auto branchid = std::find(current.begin(),current.end(),ib->second);	
-	if( branchid == current.end() ) {
-	  current.push_back(ib->second);
-	}
-      }
-    }
-  }
-
-  for( unsigned i = 0; i < grouped_topos.size(); ++i ) {
-    std::cout << i << " grouped topos: ";
-    for( unsigned topo : grouped_topos[i] ) std::cout << topo << ",";
-    std::cout << std::endl;
-    std::cout << i << " grouped branches: ";
-    for( unsigned branch : grouped_branches[i] ) std::cout << branch << ",";
-    std::cout << std::endl;
-  }
+  }  
   
   // cells with no neighbours in the previous layer are non-shared 
   // "primary" seeds, all others are secondary that get shared 
@@ -170,87 +110,121 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
     }
   }
   // flatten the maps into vector of branches with fractions
+  // create map of seeds -> pfclusters
+  unsigned ibranch = 0;
+  std::unordered_multimap<unsigned,unsigned> seeds_to_clusters;
   std::vector<std::vector<std::pair<unsigned,double> > > seeds_with_weights;
   for( const auto& seed : seeds ) {
     if( seedtypes[seed.first] == PrimarySeed ) {
       std::vector<std::pair<unsigned,double> > abranch;
-      std::vector<bool> used_temp(inp.size(),false);
-      std::unordered_multimap<unsigned,unsigned> connect_temp;
-      std::vector<unsigned> forwardlinks;
-      findSeedNeighbours(inp,seedable,0,seed.first,used_temp,
-			 connect_temp,forwardlinks,OnlyForward);
-      for( const unsigned idx : forwardlinks ) {
-	if( seedtypes[idx] == PrimarySeed && idx != seed.first ) continue;
-	abranch.emplace_back(idx,seeds_and_fractions[idx][seed.first]);
+      abranch.emplace_back(seed.first,
+			   seeds_and_fractions[seed.first][seed.first]);
+      auto range = seeds_to_branches.equal_range(seed.first);
+      if( std::distance(range.first,range.second) != 1 ) {
+	throw cms::Exception("ImpossibleOutcome") 
+	  << "seed in more than one connected set!" << std::endl;
       }
-      seeds_with_weights.push_back(std::move(abranch));
+      const auto& connected = branches[range.first->second];
+      for( const unsigned maybe : connected ) {
+	if( maybe == seed.first ) continue; // already added primary seed!
+	auto& fracs = seeds_and_fractions[maybe];
+	if( fracs.find(seed.first) != fracs.end() ) {
+	  seeds_to_clusters.emplace(maybe,ibranch);
+	  abranch.emplace_back(maybe,fracs[seed.first]);
+	}
+      }
+      std::sort(abranch.begin()+1,abranch.end(),
+		[&](const std::pair<unsigned,double>& a,
+		    const std::pair<unsigned,double>& b) {
+		  return inp[a.first].depth() < inp[b.first].depth();
+		});
+      seeds_with_weights.push_back(std::move(abranch));      
+      ++ibranch;
     }
-  }
+  } 
       
   // now we turn the branches with weights into PFClusters
   for( const auto& branch : seeds_with_weights ) {
     // the first hit in the branch is the primary seed which always
     // has weight one
-    std::cout << "-- new branch --" << std::endl;
     output.push_back(reco::PFCluster());
     reco::PFCluster& current = output.back();
     reco::PFRecHitFraction rhf(makeRefhit(input,branch[0].first),1.0);
     current.addRecHitFraction(rhf);
     current.setSeed(rhf.recHitRef()->detId());
-    std::cout << rhf.recHitRef()->depth() << ' ' 
-	      << rhf.recHitRef()->position().R() << ' '
-	      << rhf.recHitRef()->layer() << ' ' 
-	      << rhf.recHitRef()->positionREP() << std::endl;
     // all other hits in the branch are secondary and have their fraction
     // determined by log-weights (but these fractions do not evolve in the 
     // position fit)
     for( auto rhit = branch.begin()+1; rhit != branch.end(); ++rhit ) {
       reco::PFRecHitFraction rhf2(makeRefhit(input,rhit->first),rhit->second);
-      current.addRecHitFraction(rhf2);
-      std::cout << rhf2.recHitRef()->depth() << ' ' 
-		<< rhf2.recHitRef()->position().R() << ' ' 
-		<< rhf2.recHitRef()->layer() << ' '
-		<< rhf2.recHitRef()->positionREP() << std::endl;
+      current.addRecHitFraction(rhf2);      
     }    
     _positionCalc->calculateAndSetPosition(current);
-    std::cout << current << std::endl;
+    std::cout << "Seeded cluster : " << current << std::endl;
+  }  
+  
+  // connect together per-layer topo clusters with the new pf clusters
+  std::unordered_multimap<unsigned,unsigned> clusters_to_topos;
+  std::unordered_multimap<unsigned,unsigned> topos_to_clusters;
+  for( unsigned i = 0 ; i < topoclusters.size(); ++i  ) {
+    for( const auto& rhf : topoclusters[i].recHitFractions() ) {
+      if( !seedable[rhf.recHitRef().key()] ) continue;
+      for( unsigned j = 0; j < output.size(); ++j ) {
+	auto ihit = std::find_if(output[j].recHitFractions().begin(),
+				 output[j].recHitFractions().end(),
+				 [&](const reco::PFRecHitFraction& hit){
+				   if( hit.recHitRef().key() == 
+				       rhf.recHitRef().key() ) return true;
+				   return false;
+				 });
+	if( ihit != output[j].recHitFractions().end() ) {
+	  topos_to_clusters.emplace(i,j);	  
+	  clusters_to_topos.emplace(j,i);
+	}
+      }
+    }
   }
-
-  /*
+  // have relational maps of topo clusters grouped together and 
+  // constituent branches (shitty code and probably very slow right now)
+  std::vector<std::vector<unsigned> > grouped_topos; // same indices
+  std::vector<std::vector<unsigned> > grouped_clusters; // same indices
+  std::vector<bool> used_topo(topoclusters.size(),false);
+  for(unsigned i = 0; i < topoclusters.size(); ++i ) {
+    if( used_topo[i] ) continue; //skip topo clusters already used
+    grouped_topos.push_back(std::vector<unsigned>());
+    getLinkedTopoClusters( topos_to_clusters,
+			   clusters_to_topos,
+			   topoclusters,
+			   i,
+			   used_topo,
+			   grouped_topos.back() );
+  }
+  for( unsigned i = 0 ; i < grouped_topos.size(); ++i ) {
+    grouped_clusters.push_back(std::vector<unsigned>());
+    std::vector<unsigned>& current = grouped_clusters.back();
+    for( unsigned itopo : grouped_topos[i] ) {
+      auto cluster_range = topos_to_clusters.equal_range(itopo);
+      for( auto ic = cluster_range.first; ic != cluster_range.second; ++ic ) {
+	auto branchid = std::find(current.begin(),current.end(),ic->second);	
+	if( branchid == current.end() ) {
+	  current.push_back(ic->second);
+	}
+      }
+    }
+  }  
+  
   // run semi-3D (2D position fit with center-per-layer given by 3D line fit) 
   // pf cluster position fit, loop on seeds
   const unsigned tolScal = //take log to make scaling not ridiculous
-    std::pow(std::max(1.0,std::log(seeds.size())),2.0); 
-    growPFClusters(seeds_to_topos,topoclusters,tolScal,0,tolScal,output);
-  */
-}
-
-void ArborOnSeedsTopoClusterizer::
-positionCalc( const reco::PFClusterCollection& topo_clusters,
-	      const std::vector<unsigned>& topo_indices,
-	      const std::vector<unsigned>& branch_indices,
-	      reco::PFClusterCollection& clusters ) const {
-}
-/*
-void Basic2DGenericPFlowClusterizer::
-seedPFClustersFromTopo(const reco::PFCluster& topo,
-		       const std::vector<bool>& seedable,
-		       reco::PFClusterCollection& initialPFClusters) const {
-  const auto& recHitFractions = topo.recHitFractions();
-  for( const auto& rhf : recHitFractions ) {
-    if( !seedable[rhf.recHitRef().key()] ) continue;
-    initialPFClusters.push_back(reco::PFCluster());
-    reco::PFCluster& current = initialPFClusters.back();
-    current.addRecHitFraction(rhf);
-    current.setSeed(rhf.recHitRef()->detId());   
-    if( _convergencePosCalc ) {
-      _convergencePosCalc->calculateAndSetPosition(current);
-    } else {
-      _positionCalc->calculateAndSetPosition(current);
-    }
+    std::pow(std::max(1.0,std::log(seeds.size()+1)),2.0); 
+  growPFClusters(grouped_clusters,grouped_topos,topos_to_clusters,
+		 seedable,topoclusters,tolScal,tolScal,output);
+  
+  for( const auto& cluster : output ) {
+    std::cout << "Final cluster: " << cluster << std::endl;
   }
+
 }
-*/
 
 void ArborOnSeedsTopoClusterizer::
 linkSeeds(const reco::PFRecHitCollection& rechits,
@@ -265,9 +239,9 @@ linkSeeds(const reco::PFRecHitCollection& rechits,
   for( const auto& seed : seeds ) {
     if( !used_seed[seed.first] ) {
       branches.push_back(std::vector<unsigned>());
-      std::unordered_multimap<unsigned,unsigned> t2;
       std::vector<unsigned>& current = branches.back();
-      findSeedNeighbours(rechits,seedable,0,seed.first,used_seed,t2,current);
+      findSeedNeighbours(rechits,seedable,0,seed.first,used_seed,
+			 seeds_to_branches,current);
       std::sort( current.begin(), current.end(), 
 		 [&](unsigned a, unsigned b){
 		   return rechits[a].depth() < rechits[b].depth();
@@ -287,8 +261,13 @@ linkSeeds(const reco::PFRecHitCollection& rechits,
 	    ( (nb_info[i] >> 8) & 0x1 ) == 0 ) is_primary = false;
       }
       seed_types[hit] = is_primary ? PrimarySeed : SecondarySeed;      
+      /*
+      if( is_primary ) {
+	std::cout << hit << " is a primary seed!" << std::endl;
+      }
+      */
     }
-
+    /*
     std::cout << "--- initial seeds list ---" << std::endl;
     for( unsigned seed : branch ) {
       const reco::PFRecHit& hit = rechits[seed];
@@ -319,8 +298,8 @@ linkSeeds(const reco::PFRecHitCollection& rechits,
 	}
       }
     }
+    */    
   }
-
 }
 // find all depth-wise neighbours for this seed
 void ArborOnSeedsTopoClusterizer::
@@ -429,7 +408,7 @@ buildInitialWeightsList(const reco::PFRecHitCollection& rechits,
   }
   for( const auto& branch_and_logE : branch_log_energies ) {
     resolved_seeds[seed_idx][branch_and_logE.first] = 
-      branch_and_logE.second/log_energy_sum;    
+      branch_and_logE.second/log_energy_sum; 
   }
   has_weight_data[seed_idx] = true;
 }
@@ -498,109 +477,115 @@ buildTopoCluster(const edm::Handle<reco::PFRecHitCollection>& input,
     buildTopoCluster(input,rechitMask,nb,used,topocluster);
   }
 }
-/*
+
+// given seeded pfclusters that are topologically associated to each other 
+// (last argument) loop through each layer and determine seed weights
+// -- secondary seeds are not shared by distance
+// modification for later -- use seeds per-cluster per-layer to create
+// gaussian centroid pulled away from the shower axis
+// ----- grouped_topos and grouped_clusters *must* have the same indices
 void ArborOnSeedsTopoClusterizer::
-growPFClusters(const std::unordered_multimap<unsigned,unsigned>&,
+growPFClusters(const std::vector<std::vector<unsigned> >& grouped_clusters,
+	       const std::vector<std::vector<unsigned> >& grouped_topos,
+	       const std::unordered_multimap<unsigned,unsigned>& topos_to_clusters,
+	       const std::vector<bool>& seedable,
 	       const reco::PFClusterCollection& topoclusters,
 	       const unsigned toleranceScaling,
 	       double diff,
 	       reco::PFClusterCollection& clusters) const {     
-  unsigned iter = 0;
-  while( diff > _stoppingTolerance*toleranceScaling &&
-	 iter <= _maxIterations ) {
-    // reset the rechits in this cluster, keeping the previous position    
-    std::vector<reco::PFCluster::REPPoint> clus_prev_pos;  
-    for( auto& cluster : clusters) {
-      const reco::PFCluster::REPPoint& repp = cluster.positionREP();
-      clus_prev_pos.emplace_back(repp.rho(),repp.eta(),repp.phi());
-      if( _convergencePosCalc ) {
-	if( clusters.size() == 1 && _allCellsPosCalc ) {
+  const double start_diff = diff;
+  unsigned igroup = 0;
+  for( const auto& cluster_group : grouped_clusters ) {
+    unsigned iter = 0;
+    diff = start_diff;
+    while( diff > _stoppingTolerance*toleranceScaling &&
+	   iter <= _maxIterations ) {
+      // reset the rechits in this cluster, keeping the previous position    
+      std::vector<reco::PFCluster::REPPoint> clus_prev_pos;  
+      for( const unsigned cluster_idx : cluster_group) {
+	reco::PFCluster& cluster = clusters[cluster_idx];
+	const reco::PFCluster::REPPoint& repp = cluster.positionREP();
+	clus_prev_pos.emplace_back(repp.rho(),repp.eta(),repp.phi());
+	if( cluster_group.size() == 1 && _allCellsPosCalc ) {
 	  _allCellsPosCalc->calculateAndSetPosition(cluster);
 	} else {
 	  _positionCalc->calculateAndSetPosition(cluster);
 	}
+	// reset the cluster except for seeds, skip seeds in pos calc loop
+	cluster.pruneUsing([&](const reco::PFRecHitFraction& rhf){
+	    return seedable[rhf.recHitRef().key()];
+	  });
       }
-      cluster.resetHitsAndFractions();
-    }
-    // loop over topo cluster and grow current PFCluster hypothesis 
-    std::vector<double> dist2, frac;
-    double fractot = 0, fraction = 0;
-    for( const reco::PFRecHitFraction& rhf : topo.recHitFractions() ) {
-      const reco::PFRecHitRef& refhit = rhf.recHitRef();
-      int cell_layer = (int)refhit->layer();
-      if( cell_layer == PFLayer::HCAL_BARREL2 && 
-	  std::abs(refhit->positionREP().eta()) > 0.34 ) {
-	cell_layer *= 100;
-      }  
-      const double recHitEnergyNorm = 
-	_recHitEnergyNorms.find(cell_layer)->second; 
-      const math::XYZPoint& topocellpos_xyz = refhit->position();
-      dist2.clear(); frac.clear(); fractot = 0;
-      // add rechits to clusters, calculating fraction based on distance
-      for( auto& cluster : clusters ) {      
-	const math::XYZPoint& clusterpos_xyz = cluster.position();
-	fraction = 0.0;
-	const math::XYZVector deltav = clusterpos_xyz - topocellpos_xyz;
-	const double d2 = deltav.Mag2()/_showerSigma2;
-	dist2.emplace_back( d2 );
-	if( d2 > 100 ) {
-	  LOGDRESSED("Basic2DGenericPFlowClusterizer:growAndStabilizePFClusters")
-	    << "Warning! :: pfcluster-topocell distance is too large! d= "
-	    << d2;
-	}
-	// fraction assignment logic
-	if( refhit->detId() == cluster.seed() && _excludeOtherSeeds ) {
-	  fraction = 1.0;	
-	} else if ( seedable[refhit.key()] && _excludeOtherSeeds ) {
-	  fraction = 0.0;
+      // loop over all grouped topo clusters and update each individually
+      for( const unsigned topo_idx : grouped_topos[igroup] ) {
+	const reco::PFCluster& topo = topoclusters[topo_idx];
+	// loop over this topo cluster and grow current PFCluster hypothesis
+	std::vector<double> dist2, frac;
+	double fractot = 0, fraction = 0;
+	for( const reco::PFRecHitFraction& rhf : topo.recHitFractions() ) {
+	  const reco::PFRecHitRef& refhit = rhf.recHitRef();
+	  // skip all seeds, their fractions are fixed
+	  if( seedable[refhit.key()] ) continue; 
+	  // used standard distance based weighting in each layer
+	  int cell_layer = (int)refhit->layer();
+	  if( cell_layer == PFLayer::HCAL_BARREL2 && 
+	      std::abs(refhit->positionREP().eta()) > 0.34 ) {
+	    cell_layer *= 100;
+	  }  
+	  const double recHitEnergyNorm = 
+	    _thresholds.find(cell_layer)->second.first; 
+	  const math::XYZPoint& topocellpos_xyz = refhit->position();
+	  dist2.clear(); frac.clear(); fractot = 0;
+	  // add rechits to clusters, calculating fraction based on distance
+	  auto topo_r = topos_to_clusters.equal_range(topo_idx);
+	  for( auto clstr = topo_r.first; clstr != topo_r.second; ++clstr ) {
+	    reco::PFCluster& cluster = clusters[clstr->second];
+	    //need to take the cluster rho/eta/phi and 
+	    //adjust to this layer's rho
+	    reco::PFCluster::REPPoint clusterpos_rep = cluster.positionREP();
+	    clusterpos_rep.SetRho(topocellpos_xyz.Rho());
+	    const math::XYZPoint clusterpos_xyz(clusterpos_rep);
+	    fraction = 0.0;
+	    const math::XYZVector deltav = clusterpos_xyz - topocellpos_xyz;
+	    const double d2 = deltav.Mag2()/_showerSigma2;
+	    dist2.emplace_back( d2 );
+	    if( d2 > 100 ) {
+	      LOGDRESSED("Basic2DGenericPFlowClusterizer:growAndStabilizePFClusters")
+		<< "Warning! :: pfcluster-topocell distance is too large! d= "
+		<< d2;
+	    }
+	    // fraction assignment logic (remember we are skipping all seeds)
+	    fraction = cluster.energy()/recHitEnergyNorm * vdt::fast_expf( -0.5*d2 );
+	    fractot += fraction;
+	    frac.emplace_back(fraction);
+	  }
+	  for( unsigned i = 0; i < cluster_group.size(); ++i ) {      
+	    if( fractot > _minFracTot ) frac[i]/=fractot;
+	    else continue;
+	    if( dist2[i] < 100.0 || frac[i] > 0.9999 ) {	
+	      clusters[cluster_group[i]].addRecHitFraction(reco::PFRecHitFraction(refhit,frac[i]));
+	    }
+	  }
+	} // loop on topo cluster rechit fractions
+	dist2.clear(); frac.clear(); clus_prev_pos.clear();// avoid badness 
+      } // end of loop on associated topological clusters
+      // recalculate positions and calculate convergence parameter
+      double diff2 = 0.0;  
+      for( unsigned i = 0; i < cluster_group.size(); ++i ) {
+	reco::PFCluster& cluster = clusters[cluster_group[i]];
+	if( cluster_group.size() == 1 && _allCellsPosCalc ) {
+	  _allCellsPosCalc->calculateAndSetPosition(cluster);
 	} else {
-	  fraction = cluster.energy()/recHitEnergyNorm * vdt::fast_expf( -0.5*d2 );
-	}      
-	fractot += fraction;
-	frac.emplace_back(fraction);
-      }
-      for( unsigned i = 0; i < clusters.size(); ++i ) {      
-	if( fractot > _minFracTot || 
-	    ( refhit->detId() == clusters[i].seed() && fractot > 0.0 ) ) {
-	  frac[i]/=fractot;
-	} else {
-	  continue;
+	  _positionCalc->calculateAndSetPosition(cluster);
 	}
-	// if the fraction has been set to 0, the cell 
-	// is now added to the cluster - careful ! (PJ, 19/07/08)
-	// BUT KEEP ONLY CLOSE CELLS OTHERWISE MEMORY JUST EXPLOSES
-	// (PJ, 15/09/08 <- similar to what existed before the 
-	// previous bug fix, but keeps the close seeds inside, 
-	// even if their fraction was set to zero.)
-	// Also add a protection to keep the seed in the cluster 
-	// when the latter gets far from the former. These cases
-	// (about 1% of the clusters) need to be studied, as 
-	// they create fake photons, in general.
-	// (PJ, 16/09/08) 
-	if( dist2[i] < 100.0 || frac[i] > 0.9999 ) {	
-	  clusters[i].addRecHitFraction(reco::PFRecHitFraction(refhit,frac[i]));
-	}
+	const double delta2 = 
+	  reco::deltaR2(cluster.positionREP(),clus_prev_pos[i]);    
+	if( delta2 > diff2 ) diff2 = delta2;
       }
+      diff = std::sqrt(diff2);         
+      ++iter;
     }
-    // recalculate positions and calculate convergence parameter
-    double diff2 = 0.0;  
-    for( unsigned i = 0; i < clusters.size(); ++i ) {
-      if( _convergencePosCalc ) {
-	_convergencePosCalc->calculateAndSetPosition(clusters[i]);
-      } else {
-	if( clusters.size() == 1 && _allCellsPosCalc ) {
-	  _allCellsPosCalc->calculateAndSetPosition(clusters[i]);
-	} else {
-	  _positionCalc->calculateAndSetPosition(clusters[i]);
-	}
-      }
-      const double delta2 = 
-	reco::deltaR2(clusters[i].positionREP(),clus_prev_pos[i]);    
-      if( delta2 > diff2 ) diff2 = delta2;
-    }
-    diff = std::sqrt(diff2);
-    dist2.clear(); frac.clear(); clus_prev_pos.clear();// avoid badness
-    ++iter;
+    ++igroup;
   }
 }
-*/
+

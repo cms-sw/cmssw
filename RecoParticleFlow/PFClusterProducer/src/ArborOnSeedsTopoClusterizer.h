@@ -30,7 +30,8 @@ class ArborOnSeedsTopoClusterizer : public InitialClusteringStepBase {
   
  private:  
   const bool _useCornerCells;
-  const double _showerSigma;
+  const double _showerSigma2,_stoppingTolerance,_minFracTot;
+  const unsigned _maxIterations;
 
   std::unique_ptr<PFCPositionCalculatorBase> _positionCalc;
   std::unique_ptr<PFCPositionCalculatorBase> _allCellsPosCalc;
@@ -74,18 +75,15 @@ class ArborOnSeedsTopoClusterizer : public InitialClusteringStepBase {
 			     std::vector<bool>&,
 			     std::vector<unsigned>&) const;
 
-  void positionCalc( const reco::PFClusterCollection& topo_clusters,
-		     const std::vector<unsigned>& topo_indices,
-		     const std::vector<unsigned>& branch_indices,
-		     reco::PFClusterCollection& clusters ) const;
-
-  /*
-  void growPFClusters(const std::unordered_multimap<unsigned,unsigned>&,
+  void growPFClusters(const std::vector<std::vector<unsigned> >&,
+		      const std::vector<std::vector<unsigned> >&,
+		      const std::unordered_multimap<unsigned,unsigned>&,
+		      const std::vector<bool>&,		      
 		      const reco::PFClusterCollection& topoclusters,
 		      const unsigned,
 		      double,
-		      reco::PFClusterCollection&);
-  */
+		      reco::PFClusterCollection&) const;
+  
 
   
   
