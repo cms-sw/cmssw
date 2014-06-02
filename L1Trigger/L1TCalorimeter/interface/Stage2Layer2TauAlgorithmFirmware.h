@@ -27,6 +27,9 @@ namespace l1t {
 			      std::vector<Tau> & taus);
     
   private:
+    void merging(const std::vector<l1t::CaloCluster>& clusters, std::vector<l1t::Tau>& taus);
+    
+    // parameters
     CaloParams* params_;
   };
   

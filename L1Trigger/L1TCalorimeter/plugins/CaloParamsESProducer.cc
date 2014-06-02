@@ -26,6 +26,7 @@
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESProducts.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
@@ -92,9 +93,20 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
   m_params.setEgLsb(conf.getParameter<double>("egLsb"));
   m_params.setEgSeedThreshold(conf.getParameter<double>("egSeedThreshold"));
   m_params.setEgNeighbourThreshold(conf.getParameter<double>("egNeighbourThreshold"));
+  m_params.setEgHcalThreshold(conf.getParameter<double>("egHcalThreshold"));
   m_params.setEgMaxHcalEt(conf.getParameter<double>("egMaxHcalEt"));
   m_params.setEgEtToRemoveHECut(conf.getParameter<double>("egEtToRemoveHECut"));
-  m_params.setEgMaxHOverE(conf.getParameter<double>("egMaxHOverE"));  
+
+  edm::FileInPath egMaxHOverELUTFile = conf.getParameter<edm::FileInPath>("egMaxHOverELUTFile");
+  std::ifstream egMaxHOverELUTStream(egMaxHOverELUTFile.fullPath());
+  std::shared_ptr<l1t::LUT> egMaxHOverELUT( new l1t::LUT(egMaxHOverELUTStream) );
+  m_params.setEgMaxHOverELUT(egMaxHOverELUT);
+
+  edm::FileInPath egShapeIdLUTFile = conf.getParameter<edm::FileInPath>("egShapeIdLUTFile");
+  std::ifstream egShapeIdLUTStream(egShapeIdLUTFile.fullPath());
+  std::shared_ptr<l1t::LUT> egShapeIdLUT( new l1t::LUT(egShapeIdLUTStream) );
+  m_params.setEgShapeIdLUT(egShapeIdLUT);
+
   m_params.setEgIsoPUSType(conf.getParameter<std::string>("egIsoPUSType"));
   
   edm::FileInPath egIsoLUTFile = conf.getParameter<edm::FileInPath>("egIsoLUTFile");
@@ -108,6 +120,11 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
   m_params.setEgIsoPUEstTowerGranularity(conf.getParameter<unsigned int>("egIsoPUEstTowerGranularity"));
   m_params.setEgIsoMaxEtaAbsForTowerSum(conf.getParameter<unsigned int>("egIsoMaxEtaAbsForTowerSum"));
   m_params.setEgIsoMaxEtaAbsForIsoSum(conf.getParameter<unsigned int>("egIsoMaxEtaAbsForIsoSum"));
+
+  edm::FileInPath egCalibrationLUTFile = conf.getParameter<edm::FileInPath>("egCalibrationLUTFile");
+  std::ifstream egCalibrationLUTStream(egCalibrationLUTFile.fullPath());
+  std::shared_ptr<l1t::LUT> egCalibrationLUT( new l1t::LUT(egCalibrationLUTStream) );
+  m_params.setEgCalibrationLUT(egCalibrationLUT);
   
   // tau
   m_params.setTauLsb(conf.getParameter<double>("tauLsb"));
@@ -130,19 +147,22 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
   
   // sums
   m_params.setEtSumLsb(conf.getParameter<double>("etSumLsb"));
-  m_params.setEtSumEtaMin(0, conf.getParameter<int>("ettEtaMin"));
-  m_params.setEtSumEtaMax(0, conf.getParameter<int>("ettEtaMax"));
-  m_params.setEtSumEtThreshold(0, conf.getParameter<double>("ettEtThreshold"));
-  m_params.setEtSumEtaMin(1, conf.getParameter<int>("httEtaMin"));
-  m_params.setEtSumEtaMax(1, conf.getParameter<int>("httEtaMax"));
-  m_params.setEtSumEtThreshold(1, conf.getParameter<double>("httEtThreshold"));
-  m_params.setEtSumEtaMin(2, conf.getParameter<int>("metEtaMin"));
-  m_params.setEtSumEtaMax(2, conf.getParameter<int>("metEtaMax"));
-  m_params.setEtSumEtThreshold(2, conf.getParameter<double>("metEtThreshold"));
-  m_params.setEtSumEtaMin(3, conf.getParameter<int>("mhtEtaMin"));
-  m_params.setEtSumEtaMax(3, conf.getParameter<int>("mhtEtaMax"));
-  m_params.setEtSumEtThreshold(3, conf.getParameter<double>("mhtEtThreshold"));
+
+  std::vector<int> etSumEtaMin = conf.getParameter<std::vector<int> >("etSumEtaMin");
+  std::vector<int> etSumEtaMax = conf.getParameter<std::vector<int> >("etSumEtaMax");
+  std::vector<double> etSumEtThreshold = conf.getParameter<std::vector<double> >("etSumEtThreshold");
   
+  if ((etSumEtaMin.size() == etSumEtaMax.size()) &&  (etSumEtaMin.size() == etSumEtThreshold.size())) {
+    for (unsigned i=0; i<etSumEtaMin.size(); ++i) {
+      m_params.setEtSumEtaMin(i, etSumEtaMin.at(i));
+      m_params.setEtSumEtaMax(i, etSumEtaMax.at(i));
+      m_params.setEtSumEtThreshold(i, etSumEtThreshold.at(i));
+    }
+  }
+  else {
+    edm::LogError("l1t|calo") << "Inconsistent number of EtSum parameters" << std::endl;
+  }
+
 }
 
 

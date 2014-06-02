@@ -70,7 +70,7 @@ namespace l1t {
 
   private:
     static const l1t::CaloTower nullTower_; //to return when we need to return a tower which was not found/invalid rather than throwing an exception
-    static const l1t::CaloCluster nullCluster_; //to return when we need to return a tower which was not found/invalid rather than throwing an exception
+    static const l1t::CaloCluster nullCluster_; //to return when we need to return a cluster which was not found/invalid rather than throwing an exception
   };
 
 }

@@ -15,8 +15,8 @@
 using namespace std;
 using namespace l1t;
 
-// Stage1Layer2MainProcessorFirmwareImp1::Stage1Layer2MainProcessorFirmwareImp1(/*const CaloParams & dbPars*/
-Stage1Layer2MainProcessorFirmwareImp1::Stage1Layer2MainProcessorFirmwareImp1(const int fwv, CaloParams* dbPars) : m_fwv(fwv), m_db(dbPars) {}
+// Stage1Layer2MainProcessorFirmwareImp1::Stage1Layer2MainProcessorFirmwareImp1(/*const CaloParamsStage1 & dbPars*/
+Stage1Layer2MainProcessorFirmwareImp1::Stage1Layer2MainProcessorFirmwareImp1(const int fwv, CaloParamsStage1* dbPars) : m_fwv(fwv), m_db(dbPars) {}
 
 Stage1Layer2MainProcessorFirmwareImp1::~Stage1Layer2MainProcessorFirmwareImp1(){};
 
@@ -30,21 +30,17 @@ void Stage1Layer2MainProcessorFirmwareImp1::processEvent(const std::vector<CaloE
   if (m_fwv == 1)
   { //HI algo
     m_egAlgo = new Stage1Layer2EGammaAlgorithmImpPP(m_db);
-    m_sumAlgo = new Stage1Layer2EtSumAlgorithmImpPP(m_db);
+    m_sumAlgo = new Stage1Layer2CentralityAlgorithm(m_db);
     m_jetAlgo = new Stage1Layer2JetAlgorithmImpHI(m_db); //fwv =1 => HI algo
-    m_tauAlgo = new Stage1Layer2SingleTrackHI(/*m_db*/);
+    m_tauAlgo = new Stage1Layer2SingleTrackHI(m_db); //fwv=1 => single track seed
   }
   else if( m_fwv == 2 )
   { //PP algorithm
     m_egAlgo = new Stage1Layer2EGammaAlgorithmImpPP(m_db);
     m_sumAlgo = new Stage1Layer2EtSumAlgorithmImpPP(m_db);
     m_jetAlgo = new Stage1Layer2JetAlgorithmImpPP(m_db); //fwv =2 => PP algo
-    m_tauAlgo = new Stage1Layer2TauAlgorithmImpPP(m_db); 
+    m_tauAlgo = new Stage1Layer2TauAlgorithmImpPP(m_db);
   }
-  // else if( m_fwv.firmwareVersion() == 3 )
-  // {
-  //   //m_tauAlgo = new Stage1Layer2SingleTrackHI(/*m_db*/);
-  // }
   else{ // undefined fwv version
     edm::LogError("FWVersionError")
       << "Undefined firmware version passed to Stage1Layer2MainProcessorFirmwareImp1" << std::endl;
@@ -55,4 +51,9 @@ void Stage1Layer2MainProcessorFirmwareImp1::processEvent(const std::vector<CaloE
   m_egAlgo->processEvent(emcands, regions, jets, egammas);
   m_tauAlgo->processEvent(emcands, regions, jets, taus);
   m_sumAlgo->processEvent(regions, emcands, etsums);
+
+  delete m_jetAlgo;
+  delete m_egAlgo;
+  delete m_tauAlgo;
+  delete m_sumAlgo;
 }

@@ -26,20 +26,23 @@ l1tCaloStage2Params = cms.ESProducer(
     regionPUSParams  = cms.vdouble(),
 
     # EG
-    egLsb        = cms.double(0.5),
-    egSeedThreshold      = cms.double(2.),
-    egNeighbourThreshold = cms.double(1.),
-    egMaxHcalEt          = cms.double(0.),
-    egEtToRemoveHECut    = cms.double(128.),
-    egMaxHOverE          = cms.double(0.15),  
-    egIsoPUSType         = cms.string("None"),
-    egIsoLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egIsoLUT_PU40bx25.txt"),
-    egIsoAreaNrTowersEta = cms.uint32(2),
-    egIsoAreaNrTowersPhi = cms.uint32(4),
-    egIsoVetoNrTowersPhi = cms.uint32(3),
+    egLsb                      = cms.double(0.5),
+    egSeedThreshold            = cms.double(2.),
+    egNeighbourThreshold       = cms.double(1.),
+    egHcalThreshold            = cms.double(1.),
+    egMaxHcalEt                = cms.double(0.),
+    egEtToRemoveHECut          = cms.double(128.),
+    egMaxHOverELUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egMaxHOverELUT.txt"),
+    egShapeIdLUTFile           = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egShapeIdLUT.txt"),
+    egIsoPUSType               = cms.string("None"),
+    egIsoLUTFile               = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egIsoLUT_PU40bx25.txt"),
+    egIsoAreaNrTowersEta       = cms.uint32(2),
+    egIsoAreaNrTowersPhi       = cms.uint32(4),
+    egIsoVetoNrTowersPhi       = cms.uint32(3),
     egIsoPUEstTowerGranularity = cms.uint32(1),
-    egIsoMaxEtaAbsForTowerSum = cms.uint32(4),
-    egIsoMaxEtaAbsForIsoSum = cms.uint32(27),
+    egIsoMaxEtaAbsForTowerSum  = cms.uint32(4),
+    egIsoMaxEtaAbsForIsoSum    = cms.uint32(27),
+    egCalibrationLUTFile       = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egCalibrationLUT.txt"),
 
     # Tau
     tauLsb                = cms.double(0.5),
@@ -58,17 +61,8 @@ l1tCaloStage2Params = cms.ESProducer(
 
     # sums
     etSumLsb                = cms.double(0.5),
-    ettEtaMin             = cms.int32(-999),
-    ettEtaMax             = cms.int32(999),
-    ettEtThreshold        = cms.double(0.),
-    httEtaMin             = cms.int32(-999),
-    httEtaMax             = cms.int32(999),
-    httEtThreshold        = cms.double(0.),
-    metEtaMin             = cms.int32(-999),
-    metEtaMax             = cms.int32(999),
-    metEtThreshold        = cms.double(0.),
-    mhtEtaMin             = cms.int32(-999),
-    mhtEtaMax             = cms.int32(999),
-    mhtEtThreshold        = cms.double(0.)
+    etSumEtaMin             = cms.vint32(-999, -999, -999, -999),
+    etSumEtaMax             = cms.vint32(999,  999,  999,  999),
+    etSumEtThreshold        = cms.vdouble(0.,  0.,   0.,   0.)
 
 )
