@@ -1,4 +1,4 @@
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -12,7 +12,7 @@
 #include "RecoTracker/ConversionSeedGenerators/interface/PhotonConversionTrajectorySeedProducerFromSingleLegAlgo.h"
 //#include "UserUtilities/TimingPerformance/interface/TimeReport.h"
 
-class PhotonConversionTrajectorySeedProducerFromSingleLeg : public edm::EDProducer {
+class PhotonConversionTrajectorySeedProducerFromSingleLeg : public edm::stream::EDProducer<> {
 public:
   PhotonConversionTrajectorySeedProducerFromSingleLeg(const edm::ParameterSet& );
   ~PhotonConversionTrajectorySeedProducerFromSingleLeg(){}
