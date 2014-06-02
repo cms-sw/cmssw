@@ -75,7 +75,7 @@ class RecoTauVertexAssociator {
     //PJ adding quality cuts
     RecoTauQualityCuts* qcuts_;
     bool recoverLeadingTrk_;
-    enum { kLeadTrack, kLeadPFCand, kFirstTrack };
+    enum { kLeadTrack, kLeadPFCand, kMinLeadTrackOrPFCand, kFirstTrack };
     int leadingTrkOrPFCandOption_;
     edm::EDGetTokenT<reco::VertexCollection> vxToken_;
     // containers for holding vertices associated to jets
