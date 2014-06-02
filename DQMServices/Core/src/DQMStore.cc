@@ -783,7 +783,7 @@ DQMStore::book(const std::string &dir,
     print_trace(dir, name);
 
   // Check if the request monitor element already exists.
-  if (MonitorElement *me = findObject(dir, name))
+  if (MonitorElement *me = findObject(dir, name, run_, 0, streamId_, moduleId_))
   {
     if (verbose_ > 1)
     {
