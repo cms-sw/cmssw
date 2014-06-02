@@ -42,7 +42,7 @@ void HGCalGeometry::newCell( const GlobalPoint& f1 ,
   m_cellVec     [cellIndex] = FlatTrd( cornersMgr(), f1, f2, f3, parm ) ;
   m_validGeomIds[cellIndex] = geomId ;
 
-  HGCalTopology::DecId id = topology().decode(detId);
+  HGCalTopology::DecodedDetId id = topology().decode(detId);
   int cells = topology().dddConstants().maxCells(id.iLay,true);
   unsigned int nOld = m_validIds.size();
   unsigned int nNew = nOld + (unsigned int)(m_halfType ? cells : 2*cells);
@@ -76,7 +76,7 @@ const CaloCellGeometry* HGCalGeometry::getGeometry(const DetId& id) const {
   const uint32_t cellIndex (topology().detId2denseGeomId(geoId));
   /*
   if (cellIndex <  m_cellVec.size()) {
-    HGCalTopology::DecId id_ = topology().decode(id);
+    HGCalTopology::DecodedDetId id_ = topology().decode(id);
     std::pair<float,float> xy = topology().dddConstants().locateCell(id_iCell,id_iLay,id_.iSubSec,true);
     const HepGeom::Point3D<float> lcoord(xy.first,xy.second,0);
     std::auto_ptr<FlatTrd> cellGeom(new FlatTrd(m_cellVec[cellIndex],lcoord));
@@ -92,7 +92,7 @@ GlobalPoint HGCalGeometry::getPosition( const DetId& id ) const {
 
   unsigned int cellIndex =  indexFor(id);
   if (cellIndex <  m_cellVec.size()) {
-    HGCalTopology::DecId id_ = topology().decode(id);
+    HGCalTopology::DecodedDetId id_ = topology().decode(id);
     std::pair<float,float> xy = topology().dddConstants().locateCell(id_.iCell,id_.iLay,id_.iSubSec,true);
     const HepGeom::Point3D<float> lcoord(xy.first,xy.second,0);
     return m_cellVec[cellIndex].getPosition(lcoord);
@@ -105,7 +105,7 @@ HGCalGeometry::CornersVec HGCalGeometry::getCorners( const DetId& id ) const {
   HGCalGeometry::CornersVec co (8, GlobalPoint(0,0,0));
   unsigned int cellIndex =  indexFor(id);
   if (cellIndex <  m_cellVec.size()) {
-    HGCalTopology::DecId id_ = topology().decode(id);
+    HGCalTopology::DecodedDetId id_ = topology().decode(id);
     std::pair<float,float> xy = topology().dddConstants().locateCell(id_.iCell,id_.iLay,id_.iSubSec,true);
     float dz = m_cellVec[cellIndex].param()[0];
     float dx = m_cellVec[cellIndex].param()[11];
@@ -124,7 +124,7 @@ DetId HGCalGeometry::getClosestCell( const GlobalPoint& r ) const {
   unsigned int cellIndex = getClosestCellIndex(r);
   if (cellIndex < m_cellVec.size()) {
     const HepGeom::Point3D<float> local = m_cellVec[cellIndex].getLocal(r);
-    HGCalTopology::DecId id_ = topology().decode(m_validGeomIds[cellIndex]);
+    HGCalTopology::DecodedDetId id_ = topology().decode(m_validGeomIds[cellIndex]);
     std::pair<int,int> kxy = 
       topology().dddConstants().assignCell(local.x(),local.y(),id_.iLay,
 					   id_.iSubSec,true);

@@ -103,14 +103,15 @@ public:
 
   static const int subSectors_ = 2;
 
-  struct DecId {
-    DecId() : iCell(0), iLay(0), iSec(0), iSubSec(0), zside(0), subdet(0) {}
+  struct DecodedDetId {
+    DecodedDetId() : iCell(0), iLay(0), iSec(0), iSubSec(0), zside(0), 
+		     subdet(0) {}
     int                       iCell, iLay, iSec, iSubSec, zside, subdet;
   };
 
-  DecId geomDenseId2decId(const uint32_t& hi) const;
-  DecId decode(const DetId& id)  const ;
-  DetId encode(const DecId& id_) const ;
+  DecodedDetId geomDenseId2decId(const uint32_t& hi) const;
+  DecodedDetId decode(const DetId& id)  const ;
+  DetId encode(const DecodedDetId& id_) const ;
 
   ForwardSubdetector subDetector()  const { return subdet_;}
   bool               detectorType() const { return half_;}

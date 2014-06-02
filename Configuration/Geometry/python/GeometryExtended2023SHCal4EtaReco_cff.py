@@ -27,7 +27,7 @@ trackerSLHCGeometry.applyAlignment = cms.bool(False)
 #  Calorimeters
 from Geometry.HGCalCommonData.shashlikNumberingInitialization_cfi import *
 from Geometry.CaloEventSetup.ShashlikTopology_cfi import *
-from Geometry.CaloTopology.ShashlikGeometryESProducer_cfi import *
+from Geometry.FCalGeometry.ShashlikGeometryESProducer_cfi import *
 
 from Geometry.CaloEventSetup.CaloTopology_cfi import *
 from Geometry.CaloEventSetup.CaloGeometryBuilder_cfi import *

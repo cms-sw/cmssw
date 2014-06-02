@@ -25,6 +25,9 @@ from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *
 trackerSLHCGeometry.applyAlignment = cms.bool(False)
 
 #  Calorimeters
+from Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi import *
+from Geometry.CaloEventSetup.HGCalTopology_cfi import *
+from Geometry.FCalGeometry.HGCalGeometryESProducer_cfi import *
 from Geometry.CaloEventSetup.CaloTopology_cfi import *
 from Geometry.CaloEventSetup.CaloGeometryBuilder_cfi import *
 
