@@ -41,9 +41,6 @@ class DQMStreamerReader : public StreamerInputSource {
   virtual void skip(int toSkip); /* from raw input source */
 
  private:
-  void delay_();
-  void update_watchdog_();
-
   // our own, but we do inherit reset(),
   // which will break things if called
   void reset_();
@@ -64,16 +61,15 @@ class DQMStreamerReader : public StreamerInputSource {
 
   unsigned int processedEventPerLs_;
   unsigned int minEventsPerLs_;
-  unsigned int delayMillis_;
 
   bool flagSkipFirstLumis_;
   bool flagEndOfRunKills_;
   bool flagDeleteDatFiles_;
 
+  DQMFileIterator fiterator_;
+
   std::unique_ptr<StreamerInputFile> streamReader_;
   boost::shared_ptr<EventSkipperByID> eventSkipperByID_;
-
-  DQMFileIterator fiterator_;
 };
 
 }  //end-of-namespace-def

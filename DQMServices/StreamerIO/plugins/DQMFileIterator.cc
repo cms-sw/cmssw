@@ -1,5 +1,6 @@
 #include "DQMFileIterator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/TimeOfDay.h"
 
 #include <queue>
 #include <boost/regex.hpp>
@@ -9,6 +10,7 @@
 #include <boost/algorithm/string/predicate.hpp>
 
 namespace edm {
+
 
 DQMFileIterator::LumiEntry DQMFileIterator::LumiEntry::load_json(
     const std::string& filename, int lumiNumber) {
@@ -50,13 +52,20 @@ DQMFileIterator::EorEntry DQMFileIterator::EorEntry::load_json(
   return eor;
 }
 
-DQMFileIterator::DQMFileIterator() : state_(EOR) {}
+
+DQMFileIterator::DQMFileIterator(ParameterSet const& pset): state_(EOR) {
+  runNumber_ = pset.getUntrackedParameter<unsigned int>("runNumber");
+  runInputDir_ = pset.getUntrackedParameter<std::string>("runInputDir");
+  streamLabel_ = pset.getUntrackedParameter<std::string>("streamLabel");
+  delayMillis_ = pset.getUntrackedParameter<unsigned int>("delayMillis");
+
+  reset();
+}
+
 DQMFileIterator::~DQMFileIterator() {}
 
-void DQMFileIterator::initialise(int run, const std::string& path, const std::string& streamLabel) {
-  run_ = run;
-  streamLabel_ = streamLabel;
-  run_path_ = str(boost::format("%s/run%06d") % path % run_);
+void DQMFileIterator::reset() {
+  runPath_ = str(boost::format("%s/run%06d") % runInputDir_ % runNumber_);
 
   eor_.loaded = false;
   state_ = State::OPEN;
@@ -83,17 +92,17 @@ bool DQMFileIterator::hasNext() {
 }
 
 std::string DQMFileIterator::make_path_jsn(int lumi) {
-  return str(boost::format("%s/run%06d_ls%04d%s.jsn") % run_path_ % run_ % lumi % streamLabel_);
+  return str(boost::format("%s/run%06d_ls%04d%s.jsn") % runPath_ % runNumber_ % lumi % streamLabel_);
 }
 
 std::string DQMFileIterator::make_path_eor() {
-  return str(boost::format("%s/run%06d_ls0000_EoR.jsn") % run_path_ % run_);
+  return str(boost::format("%s/run%06d_ls0000_EoR.jsn") % runPath_ % runNumber_);
 }
 
 std::string DQMFileIterator::make_path_data(const LumiEntry& lumi) {
   if (boost::starts_with(lumi.datafilename, "/")) return lumi.datafilename;
 
-  boost::filesystem::path p(run_path_);
+  boost::filesystem::path p(runPath_);
   p /= lumi.datafilename;
   return p.string();
 }
@@ -113,12 +122,12 @@ void DQMFileIterator::collect() {
   if (!eor_.loaded) {
     // end of run is not yet read
     std::string fn_eor = make_path_eor();
-    edm::LogAbsolute("DQMStreamerReader") << "Checking eor file: " << fn_eor;
+    logFileAction("Checking eor file: ", fn_eor);
 
     if (boost::filesystem::exists(fn_eor)) {
       eor_ = EorEntry::load_json(fn_eor);
 
-      edm::LogAbsolute("DQMStreamerReader") << "Loaded eor file: " << fn_eor;
+      logFileAction("Loaded eor file: ", fn_eor);
     }
   }
 
@@ -127,7 +136,8 @@ void DQMFileIterator::collect() {
     nextLumi += 1;
 
     std::string fn = make_path_jsn(nextLumi);
-    edm::LogAbsolute("DQMStreamerReader") << "Checking json file: " << fn;
+    logFileAction("Checking json file: ", fn);
+
     if (!boost::filesystem::exists(fn)) {
       // file not yet available
       break;
@@ -137,7 +147,7 @@ void DQMFileIterator::collect() {
     lastLumiSeen_ = nextLumi;
     queue_.push(lumi);
 
-    edm::LogAbsolute("DQMStreamerReader") << "Loaded json file: " << fn;
+    logFileAction("Loaded json file: ", fn);
   }
 }
 
@@ -160,9 +170,47 @@ void DQMFileIterator::update_state() {
   }
 
   if (state_ != old_state) {
-    edm::LogAbsolute("DQMStreamerReader")
-        << "Streamer state changed: " << old_state << " -> " << state_;
+    logFileAction("Streamer state changed: ", std::to_string(old_state) + "->" + std::to_string(state_));
   }
 }
+
+void DQMFileIterator::logFileAction(const std::string& msg, const std::string& fileName) const {
+  edm::LogAbsolute("fileAction") << std::setprecision(0) << edm::TimeOfDay() << "  " << msg << fileName;
+  edm::FlushMessageLog();
+}
+
+void DQMFileIterator::updateWatchdog() {
+  const char* x = getenv("WATCHDOG_FD");
+  if (x) {
+    int fd = atoi(x);
+    write(fd, ".\n", 2);
+  }
+}
+
+void DQMFileIterator::delay() {
+  logFileAction("Streamer waiting for the next LS.");
+
+  updateWatchdog();
+  usleep(delayMillis_ * 1000);
+  updateWatchdog();
+}
+
+
+void DQMFileIterator::fillDescription(
+    ParameterSetDescription& desc) {
+
+  desc.addUntracked<unsigned int>("runNumber")
+      ->setComment("Run number passed via configuration file.");
+
+  desc.addUntracked<std::string>("streamLabel")
+      ->setComment("Stream label used in json discovery.");
+
+  desc.addUntracked<unsigned int>("delayMillis")
+      ->setComment("Number of milliseconds to wait between file checks.");
+
+  desc.addUntracked<std::string>("runInputDir")
+      ->setComment("Directory where the DQM files will appear.");
+}
+
 
 } /* end of namespace */

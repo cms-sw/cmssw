@@ -30,45 +30,22 @@ namespace edm {
 DQMStreamerReader::DQMStreamerReader(ParameterSet const& pset,
                                      InputSourceDescription const& desc)
     : StreamerInputSource(pset, desc),
+      fiterator_(pset),
       streamReader_(),
       eventSkipperByID_(EventSkipperByID::create(pset).release()) {
-
-  runNumber_ = pset.getUntrackedParameter<unsigned int>("runNumber");
-  runInputDir_ = pset.getUntrackedParameter<std::string>("runInputDir");
-  streamLabel_ = pset.getUntrackedParameter<std::string>("streamLabel");
 
   minEventsPerLs_ = pset.getUntrackedParameter<int>("minEventsPerLumi");
   flagSkipFirstLumis_ = pset.getUntrackedParameter<bool>("skipFirstLumis");
   flagEndOfRunKills_ = pset.getUntrackedParameter<bool>("endOfRunKills");
   flagDeleteDatFiles_ = pset.getUntrackedParameter<bool>("deleteDatFiles");
 
-  delayMillis_ = pset.getUntrackedParameter<unsigned int>("delayMillis");
-
   reset_();
 }
 
 DQMStreamerReader::~DQMStreamerReader() { closeFile_(); }
 
-void DQMStreamerReader::update_watchdog_() {
-  const char* x = getenv("WATCHDOG_FD");
-  if (x) {
-    int fd = atoi(x);
-    write(fd, ".\n", 2);
-  }
-}
-
-void DQMStreamerReader::delay_() {
-  edm::LogAbsolute("DQMStreamerReader")
-      << "No events available ... waiting for the next LS.";
-
-  update_watchdog_();
-  usleep(delayMillis_ * 1000);
-  update_watchdog_();
-}
 
 void DQMStreamerReader::reset_() {
-  fiterator_.initialise(runNumber_, runInputDir_, streamLabel_);
-
   // We have to load at least a single header,
   // so the ProductRegistry gets initialized.
   //
@@ -92,7 +69,7 @@ void DQMStreamerReader::reset_() {
     }
 
     // wait
-    delay_();
+    fiterator_.delay();
   }
 
   // Fast-forward to the last open file.
@@ -225,7 +202,7 @@ bool DQMStreamerReader::prepareNextFile() {
  * If end-of-run nullptr is returned.
  */
 EventMsgView const* DQMStreamerReader::prepareNextEvent() {
-  update_watchdog_();
+  fiterator_.updateWatchdog();
 
   EventMsgView const* eview = nullptr;
   typedef DQMFileIterator::State State;
@@ -240,7 +217,7 @@ EventMsgView const* DQMStreamerReader::prepareNextEvent() {
     // sleep
     if (streamReader_.get() == nullptr) {
       // the reader does not exist
-      delay_();
+      fiterator_.delay();
     } else {
       // our reader exists, try to read out an event
       eview = getEventMsg();
@@ -307,18 +284,6 @@ void DQMStreamerReader::fillDescriptions(
   ParameterSetDescription desc;
   desc.setComment("Reads events from streamer files.");
 
-  desc.addUntracked<unsigned int>("runNumber")
-      ->setComment("Run number passed via configuration file.");
-
-  desc.addUntracked<std::string>("streamLabel")
-      ->setComment("Stream label used in json discovery.");
-
-  desc.addUntracked<unsigned int>("delayMillis")
-      ->setComment("Number of milliseconds to wait between file checks.");
-
-  desc.addUntracked<std::string>("runInputDir")
-      ->setComment("Directory where the DQM files will appear.");
-
   desc.addUntracked<int>("minEventsPerLumi", 1)
       ->setComment("Minimum number of events to process per lumisection, "
                    "before switching to a new input file. If the next file "
@@ -347,8 +312,10 @@ void DQMStreamerReader::fillDescriptions(
   // depends on the derived class, so it is set here.
   desc.addUntracked<bool>("inputFileTransitionsEachEvent", false);
 
+  DQMFileIterator::fillDescription(desc);
   StreamerInputSource::fillDescription(desc);
   EventSkipperByID::fillDescription(desc);
+
   descriptions.add("source", desc);
 }
 }

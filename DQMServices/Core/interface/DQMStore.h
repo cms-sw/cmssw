@@ -40,6 +40,7 @@ class TH2D;
 class TH3F;
 class TProfile;
 class TProfile2D;
+class TNamed;
 
 /** Implements RegEx patterns which occur often in a high-performant
     mattern. For all other expressions, the full RegEx engine is used.
@@ -592,10 +593,11 @@ class DQMStore
                                            const uint32_t lumi = 0,
                                            const uint32_t streamId = 0,
                                            const uint32_t moduleId = 0) const;
+
   void                          get_info(const  dqmstorepb::ROOTFilePB_Histo &,
                                          std::string & dirname,
                                          std::string & objname,
-                                         TH1 ** obj);
+                                         TObject ** obj);
 
  public:
   void                          getAllTags(std::vector<std::string> &into) const;
