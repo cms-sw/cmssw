@@ -13,6 +13,14 @@ import ROOT
 ROOT.gROOT.SetBatch(1)
 
 import optparse
+def getEtaRange( station ) :
+	etaRange = [1.55,2.15,1.65,2.05,1.65,2.45]
+	if ( station ==1 or station==2 or station ==3 ) :
+		return etaRange[ (station-1)*2], etaRange[ (station-1)*2+1 ]
+	else :
+		print "Something is wrong"
+		return 1.5,2.6
+		
 def draw_occ(target_dir, h, ext =".png", opt = ""):
   gStyle.SetStatStyle(0)
   gStyle.SetOptStat(1110)
@@ -68,8 +76,19 @@ def draw_eff(target_dir, h, ext = ".png", opt = ""):
 	h.SetMarkerColor(kBlue)
 	h.SetMarkerSize(1)
 	h.Draw(opt);
+	xmin=h.GetXaxis().GetXmin()
+	xmax=h.GetXaxis().GetXmax()
+	if ( h.GetName().find("eta") != -1) :
+		if ( h.GetName().find("st1") != -1) :
+			xmin,xmax = getEtaRange(1)
+		elif ( h.GetName().find("st2_short") != -1 ) :
+			xmin,xmax = getEtaRange(2)
+		elif ( h.GetName().find("st2_long") != -1 ) :
+			xmin,xmax = getEtaRange(3)
+		else :
+			print "Use default setting."
 
-	f1 = TF1("fit1","pol0", h.GetXaxis().GetXmin(), h.GetXaxis().GetXmax())
+	f1 = TF1("fit1","pol0", xmin, xmax )
 	r = h.Fit("fit1","RQS")
 	ptstats = TPaveStats(0.25,0.35,0.75,0.55,"brNDC")
 	ptstats.SetName("stats")
@@ -128,7 +147,7 @@ def draw_plot( file, tDir,oDir ) :
 		key_list.append(x.GetName())
 	for hist in key_list :
 		if hist.find("track_") != -1 :
-			continue
+			draw_occ( oDir,d1.Get(hist)) 
 		if (hist.find("lx") !=-1 or hist.find("ly") != -1 ) :
 			continue
 		if ( hist.find("bx") != -1 ) :
@@ -137,7 +156,7 @@ def draw_plot( file, tDir,oDir ) :
 			draw_col( oDir, d1.Get(hist) )
 		elif ( hist.find("eff") != -1 ) :
 			draw_eff( oDir, d1.Get(hist) )
-			print "found "
+			#print "found "
 		else :
 			draw_occ( oDir, d1.Get(hist) )
 
