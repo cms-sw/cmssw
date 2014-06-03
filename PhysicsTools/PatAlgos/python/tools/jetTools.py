@@ -1056,6 +1056,9 @@ class SwitchJetCollection(ConfigToolBase):
             applyPostfix(process, "patJets", postfix).trackAssociationSource = btagLabels['jta']
             applyPostfix(process, "patJets", postfix).tagInfoSources = cms.VInputTag( *[ cms.InputTag(x) for x in btagLabels['tagInfos'] ] )
             applyPostfix(process, "patJets", postfix).discriminatorSources = cms.VInputTag( *[ cms.InputTag(x) for x in btagLabels['jetTags']  ] )
+            ## switch embedding of b tagging for pat
+            ## jet production to 'True'
+            applyPostfix(process, "patJets", postfix).addBTagInfo = True
         else:
             ## remove b tagging from the std sequence
             removeIfInSequence(process,  "secondaryVertexNegativeTagInfos",  "patDefaultSequence", postfix)

@@ -512,38 +512,24 @@ def removeMCMatchingPF2PAT( process, postfix="", outputModules=['out'] ):
     removeMCMatching(process, names=['All'], postfix=postfix, outputModules=outputModules)
 
 
-def adaptPVs(process, pvCollection=cms.InputTag('offlinePrimaryVertices'), postfix=''):
+def adaptPVs(process, pvCollection=cms.InputTag('offlinePrimaryVertices'), postfix='', sequence='patPF2PATSequence'):
 
     print "Switching PV collection for PF2PAT:", pvCollection
     print "***********************************"
 
     # PV sources to be exchanged:
-    pvExchange = ['Vertices','vertices','pvSrc','primaryVertices','srcPVs']
+    pvExchange = ['Vertices','vertices','pvSrc','primaryVertices','srcPVs','primaryVertex']
     # PV sources NOT to be exchanged:
-    #noPvExchange = ['src','PVProducer','primaryVertexSrc','vertexSrc','primaryVertex']
-
-    # find out all added jet collections (they don't belong to PF2PAT)
-    interPostfixes = []
-    for m in getattr(process,'patPF2PATSequence'+postfix).moduleNames():
-        if m.startswith('patJets') and m.endswith(postfix) and not len(m)==len('patJets')+len(postfix):
-            interPostfix = m.replace('patJets','')
-            interPostfix = interPostfix.replace(postfix,'')
-            interPostfixes.append(interPostfix)
+    #noPvExchange = ['src','PVProducer','primaryVertexSrc','vertexSrc']
 
     # exchange the primary vertex source of all relevant modules
-    for m in getattr(process,'patPF2PATSequence'+postfix).moduleNames():
+    for m in getattr(process,sequence+postfix).moduleNames():
         modName = m.replace(postfix,'')
         # only if the module has a source with a relevant name
         for namePvSrc in pvExchange:
             if hasattr(getattr(process,m),namePvSrc):
-                # only if the module is not coming from an added jet collection
-                interPostFixFlag = False
-                for pfix in interPostfixes:
-                    if modName.endswith(pfix):
-                        interPostFixFlag = True
-                        break
-                if not interPostFixFlag:
-                    setattr(getattr(process,m),namePvSrc,deepcopy(pvCollection))
+                #print m
+                setattr(getattr(process,m),namePvSrc,deepcopy(pvCollection))
 
 
 def usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=True, postfix="", jetCorrections=('AK5PFchs', ['L1FastJet','L2Relative','L3Absolute']), pvCollection=cms.InputTag('offlinePrimaryVertices'), typeIMetCorrections=False, outputModules=['out']):
