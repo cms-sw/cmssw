@@ -77,6 +77,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
         delta = cms.double(1.0)
     ),
     Physics = cms.PSet(
+        common_maximum_time,
         # NOTE : if you want EM Physics only,
         #        please select "SimG4Core/Physics/DummyPhysics" for type
         #        and turn ON DummyEMPhysics
@@ -84,6 +85,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
         type = cms.string('SimG4Core/Physics/QGSP_FTFP_BERT_EML'),
         DummyEMPhysics = cms.bool(False),
         CutsPerRegion = cms.bool(True),
+        CutsOnProton  = cms.untracked.bool(True),
         DefaultCutValue = cms.double(1.0), ## cuts in cm
         G4BremsstrahlungThreshold = cms.double(0.5), ## cut in GeV
         Verbosity = cms.untracked.int32(0),
@@ -97,6 +99,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
         Region      = cms.string(' '),
 	TrackingCut = cms.bool(True),
         SRType      = cms.bool(True),
+        FlagFluo    = cms.bool(False),
         EMPhysics   = cms.untracked.bool(True),
         HadPhysics  = cms.untracked.bool(True),
         FlagBERT    = cms.untracked.bool(False),

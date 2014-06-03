@@ -20,6 +20,8 @@
 #include "G4RegionStore.hh"
 
 #include "G4EmProcessOptions.hh"
+#include "G4UAtomicDeexcitation.hh"
+#include "G4LossTableManager.hh"
 
 ParametrisedEMPhysics::ParametrisedEMPhysics(std::string name, const edm::ParameterSet & p) 
   : G4VPhysicsConstructor(name), theParSet(p) 
@@ -161,5 +163,12 @@ void ParametrisedEMPhysics::ConstructProcess() {
 	  << " inside " << rname[i];
       }
     }
+  }
+  // enable fluorescence
+  bool fluo = theParSet.getParameter<bool>("FlagFluo");
+  if(fluo) {
+    G4VAtomDeexcitation* de = new G4UAtomicDeexcitation();
+    G4LossTableManager::Instance()->SetAtomDeexcitation(de);
+    de->SetFluo(true);
   }
 }
