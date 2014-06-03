@@ -53,6 +53,7 @@ namespace PFJetMETcorrInputProducer_namespace
   {
     public:
 
+     RawJetExtractorT(){}
      reco::Candidate::LorentzVector operator()(const T& jet) const 
      {        
        return jet.p4();

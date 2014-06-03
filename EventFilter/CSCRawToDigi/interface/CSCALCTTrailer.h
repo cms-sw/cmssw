@@ -49,7 +49,7 @@ public:
   static void setDebug(bool debugValue) {debug = debugValue;}
 
   unsigned short * data() {
-    switch (firmwareVersion) {
+    switch (firmwareVersion.load()) {
     case 2006:
       memcpy(theOriginalBuffer, &trailer2006, trailer2006.sizeInWords()*2);
       break;
@@ -68,7 +68,7 @@ public:
   static int sizeInWords() {return 4;}
 
   int getCRC() { 
-    switch (firmwareVersion) {
+    switch (firmwareVersion.load()) {
     case 2006:
       return ((trailer2006.crc1&0x7ff)<<11) | (trailer2006.crc0&0x7ff);
     case 2007:
@@ -81,7 +81,7 @@ public:
   }
 
   bool check() const {
-    switch (firmwareVersion) {
+    switch (firmwareVersion.load()) {
     case 2006:
       return (trailer2006.e0dLine & 0xfff) == 0xe0d;
     case 2007:
@@ -94,7 +94,7 @@ public:
   }
   
   int wordCount() const {
-    switch (firmwareVersion) {
+    switch (firmwareVersion.load()) {
     case 2006:
       return trailer2006.frameCount;
     case 2007:
@@ -107,7 +107,7 @@ public:
   }
   
   unsigned alctCRCCheck() const { 
-    switch (firmwareVersion) {
+    switch (firmwareVersion.load()) {
     case 2006:
       return trailer2006.reserved_3;
     case 2007:

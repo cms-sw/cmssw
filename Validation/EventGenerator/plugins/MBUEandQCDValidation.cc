@@ -4,7 +4,7 @@
  *
  */
  
-#include "Validation/EventGenerator/interface/MBUEandQCDValidation.h"
+#include "MBUEandQCDValidation.h"
 #include "Validation/EventGenerator/interface/HepMCValidationHelper.h"
 
 #include "CLHEP/Units/defs.h"
@@ -841,3 +841,6 @@ unsigned int MBUEandQCDValidation::getHFbin(double eta) {
   return iBin;
 
 }
+
+const unsigned int MBUEandQCDValidation::nphiBin = 36;
+const unsigned int MBUEandQCDValidation::initSize = 1000; 
