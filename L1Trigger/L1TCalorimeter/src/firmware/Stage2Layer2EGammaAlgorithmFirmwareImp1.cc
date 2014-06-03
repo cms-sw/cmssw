@@ -68,7 +68,24 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
 
       // calibration part
       int calibPt = calibratedPt(clusters[clusNr]);
-      egammas.back().setHwPt(calibPt);
+
+      // physical eta/phi
+      double eta = 0.;
+      double phi = 0.;
+      double seedEta     = CaloTools::towerEta(clusters[clusNr].hwEta());
+      double seedEtaSize = CaloTools::towerEtaSize(clusters[clusNr].hwEta());
+      double seedPhi     = CaloTools::towerPhi(clusters[clusNr].hwEta(), clusters[clusNr].hwPhi());
+      double seedPhiSize = CaloTools::towerPhiSize(clusters[clusNr].hwEta());
+      if(clusters[clusNr].fgEta()==0)      eta = seedEta; // center
+      else if(clusters[clusNr].fgEta()==2) eta = seedEta + seedEtaSize*0.25; // center + 1/4
+      else if(clusters[clusNr].fgEta()==1) eta = seedEta - seedEtaSize*0.25; // center - 1/4
+      if(clusters[clusNr].fgPhi()==0)      phi = seedPhi; // center
+      else if(clusters[clusNr].fgPhi()==2) phi = seedPhi + seedPhiSize*0.25; // center + 1/4
+      else if(clusters[clusNr].fgPhi()==1) phi = seedPhi - seedPhiSize*0.25; // center - 1/4
+
+      // Set 4-vector
+      math::PtEtaPhiMLorentzVector calibP4((double)calibPt*params_->egLsb(), eta, phi, 0.);
+      egammas.back().setP4(calibP4);
 
     }//end of cuts on cluster to make EGamma
   }//end of cluster loop

@@ -6,7 +6,6 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
-process.load('Configuration.StandardSequences.RawToDigi_Repacked_cff')
 process.load('Configuration.Geometry.GeometryIdeal_cff')
 
 # Select the Message Logger output you would like to see:
@@ -35,7 +34,7 @@ process.output = cms.OutputModule(
 #                                           'drop FEDRawDataCollection_virginRawDataRepacker_*_*'),
     outputCommands = cms.untracked.vstring('drop *',
                                            'keep *_*_*_L1TEMULATION'),
-    fileName = cms.untracked.string('SimL1Emulator_Stage1.root'),
+    fileName = cms.untracked.string('SimL1Emulator_Stage1_HI.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
         dataTier = cms.untracked.string('')
@@ -50,20 +49,18 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 #for HI Data
 process.GlobalTag = GlobalTag(process.GlobalTag, 'GR_P_V27A::All', '')
 
-process.load('L1Trigger.L1TCalorimeter.L1TCaloStage1_cff')
-process.simRctDigis.ecalDigis = cms.VInputTag(cms.InputTag('ecalDigis:EcalTriggerPrimitives'))
-process.simRctDigis.hcalDigis = cms.VInputTag(cms.InputTag('hcalDigis'))
+process.load('L1Trigger.L1TCalorimeter.L1TCaloStage1_HIFromRaw_cff')
 
 ## changes to L1 algorithms begin here, the list is exhaustive.
 ## commented values should be the default
 ## see L1Trigger/L1TCalorimeter/python/l1tCaloStage1Digis_cfi.py for more info
-process.simCaloStage1Digis.FirmwareVersion = cms.uint32(1) # 1=HI algos, 2=PP algos
-#process.simCaloStage1Digis.egRelativeJetIsolationCut = cms.double(0.5)
-#process.simCaloStage1Digis.tauRelativeJetIsolationCut = cms.double(1.)
-#process.simCaloStage1Digis.regionETCutForHT = cms.uint32(7)
-#process.simCaloStage1Digis.regionETCutForMET = cms.uint32(0)
-#process.simCaloStage1Digis.minGctEtaForSums = cms.int32(4)
-#process.simCaloStage1Digis.maxGctEtaForSums = cms.int32(17)
+#process.caloStage1Digis.FirmwareVersion = cms.uint32(1) # 1=HI algos, 2=PP algos
+#process.caloStage1Digis.egRelativeJetIsolationCut = cms.double(0.5)
+#process.caloStage1Digis.tauRelativeJetIsolationCut = cms.double(1.)
+#process.caloStage1Digis.regionETCutForHT = cms.uint32(7)
+#process.caloStage1Digis.regionETCutForMET = cms.uint32(0)
+#process.caloStage1Digis.minGctEtaForSums = cms.int32(4)
+#process.caloStage1Digis.maxGctEtaForSums = cms.int32(17)
 
 #process.l1tCaloParams.egLsb = cms.double(1.0),
 #process.l1tCaloParams.egSeedThreshold = cms.double(1.),
@@ -74,14 +71,8 @@ process.simCaloStage1Digis.FirmwareVersion = cms.uint32(1) # 1=HI algos, 2=PP al
 #process.l1tCaloParams.etSumEtaMax = cms.vint32(999,  999,  999,  999),
 #process.l1tCaloParams.etSumEtThreshold = cms.vdouble(0.,  0.,   0.,   0.)
 
-process.digiStep = cms.Sequence(
-    process.ecalDigis
-    *process.hcalDigis
-)
-
 process.p1 = cms.Path(
-    process.digiStep
-    *process.SimL1Emulator_Stage1
+    process.L1TCaloStage1_HIFromRaw
     )
 
 process.output_step = cms.EndPath(process.output)

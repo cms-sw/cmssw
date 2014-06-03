@@ -33,6 +33,16 @@ void l1t::CaloCluster::setHwSeedPt(int pt)
   m_hwSeedPt = pt;
 }
 
+void l1t::CaloCluster::setFgEta(int fgEta)
+{
+  m_fgEta = fgEta;
+}
+
+void l1t::CaloCluster::setFgPhi(int fgPhi)
+{
+  m_fgPhi = fgPhi;
+}
+
 void l1t::CaloCluster::setHOverE(int hOverE)
 {
   m_hOverE = hOverE;
