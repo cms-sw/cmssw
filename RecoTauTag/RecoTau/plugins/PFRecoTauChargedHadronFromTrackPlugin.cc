@@ -194,17 +194,25 @@ PFRecoTauChargedHadronFromTrackPlugin::return_type PFRecoTauChargedHadronFromTra
     //
     XYZTLorentzVector chargedPionPos(track->referencePoint().x(), track->referencePoint().y(), track->referencePoint().z(), 0.);
     BaseParticlePropagator trackPropagator(RawParticle(chargedPionP4, chargedPionPos), 0., 0., magneticFieldStrength_.z());
+ 
     trackPropagator.setCharge(track->charge());
-    if(fabs(track->eta()) < 3.0) trackPropagator.propagateToEcalEntrance(false);
-    else trackPropagator.propagateToVFcalEntrance(false);
+    trackPropagator.propagateToEcalEntrance(false);
     if ( trackPropagator.getSuccess() != 0 ) { 
       chargedHadron->positionAtECALEntrance_ = trackPropagator.vertex();
+      chargedHadron->isInEcal_ = true;
     } else {
-      if ( chargedPionP4.pt() > 2. ) {
-	edm::LogWarning("PFRecoTauChargedHadronFromTrackPlugin::operator()") 
-	  << "Failed to propagate track: Pt = " << track->pt() << ", eta = " << track->eta() << ", phi = " << track->phi() << " to ECAL entrance !!" << std::endl;
+      trackPropagator.propagateToVFcalEntrance(false);
+      if ( trackPropagator.getSuccess() != 0 ) {
+	chargedHadron->positionAtVFEntrance_ = trackPropagator.vertex(); 
+	chargedHadron->isInVF_ = true;
+      }else{
+	if ( chargedPionP4.pt() > 2. ) {
+	  edm::LogWarning("PFRecoTauChargedHadronFromTrackPlugin::operator()") 
+	    << "Failed to propagate track: Pt = " << track->pt() << ", eta = " << track->eta() << ", phi = " << track->phi() << " to ECAL entrance !!" << std::endl;
+	}
+	chargedHadron->positionAtECALEntrance_ = math::XYZPointF(0.,0.,0.);
+	chargedHadron->positionAtVFEntrance_ = math::XYZPointF(0.,0.,0.);
       }
-      chargedHadron->positionAtECALEntrance_ = math::XYZPointF(0.,0.,0.);
     }
 
     std::vector<PFCandidate_withDistance> neutralJetConstituents_withDistance;
@@ -213,7 +221,15 @@ PFRecoTauChargedHadronFromTrackPlugin::return_type PFRecoTauChargedHadronFromTra
 	  jetConstituent != jetConstituents.end(); ++jetConstituent ) {
       reco::PFCandidate::ParticleType jetConstituentType = (*jetConstituent)->particleId();
       if ( !(jetConstituentType == reco::PFCandidate::h0 || jetConstituentType == reco::PFCandidate::gamma) ) continue;
-      double dR = deltaR((*jetConstituent)->positionAtECALEntrance(), chargedHadron->positionAtECALEntrance_);
+      double dR = 999.;
+      if(!chargedHadron->isInVF_) dR = deltaR((*jetConstituent)->positionAtECALEntrance(), chargedHadron->positionAtECALEntrance_);
+      else{
+	XYZTLorentzVector jetConstPos((*jetConstituent)->vx(),(*jetConstituent)->vy(),(*jetConstituent)->vz(),0.);
+	BaseParticlePropagator jetConstPropagator(RawParticle((*jetConstituent)->p4(),jetConstPos), 0., 0., magneticFieldStrength_.z());
+	jetConstPropagator.setCharge((*jetConstituent)->charge());
+	jetConstPropagator.propagateToVFcalEntrance(false);
+	if(jetConstPropagator.getSuccess()!=0) dR = deltaR(jetConstPropagator.vertex(),chargedHadron->positionAtVFEntrance_);
+      }
       double dRmerge = -1.;      
       if      ( jetConstituentType == reco::PFCandidate::h0    ) dRmerge = dRmergeNeutralHadron_;
       else if ( jetConstituentType == reco::PFCandidate::gamma ) dRmerge = dRmergePhoton_;
