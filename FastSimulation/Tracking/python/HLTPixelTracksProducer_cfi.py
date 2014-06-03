@@ -36,10 +36,12 @@ hltPixelTracksRecoverbbPhi = hltPixelTracks.clone()
 
 hltPixelTracksReg = hltPixelTracks.clone()
 hltPixelTracksHybrid = hltPixelTracks.clone()
+hltPixelTracksL3Muon = hltPixelTracks.clone()
 hltPixelTracksL3MuonReg = hltPixelTracks.clone()
+hltPixelTracksGlbTrkMuon = hltPixelTracks.clone()
 hltPixelTracksForPhotons = hltPixelTracks.clone()
 hltPixelTracksForEgamma = hltPixelTracks.clone()
-hltPixelTracksGlbTrkMuonReg = hltPixelTracks.clone()
+hltPixelTracksElectrons = hltPixelTracks.clone()
 
 
 hltFastPixelHitsVertexVHbb = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()
