@@ -65,11 +65,42 @@ process.load('Configuration.StandardSequences.L1TrackTrigger_cff')
 
 # process.TTTracksFromPixelDigis.geometry = cms.untracked.string('BE5D')   # not needed (that's the default)
 
-# if one wants to change the extrapolation window :
-process.TTTracksFromPixelDigis.phiWindowSF = cms.untracked.double(2.0)   #  default is 1.0
+	# ----
+	#
+	# 1. the following will re-create a collection of L1Tracks, with
+	#    the same label as the "default" collection :
+	#
 
-process.TT_step = cms.Path(process.TrackTriggerTTTracks)
-process.TTAssociator_step = cms.Path(process.TrackTriggerAssociatorTracks)
+# here, we change the extrapolation window :
+#process.TTTracksFromPixelDigis.phiWindowSF = cms.untracked.double(2.0)   #  default is 1.0
+
+#process.TT_step = cms.Path(process.TrackTriggerTTTracks)
+#process.TTAssociator_step = cms.Path(process.TrackTriggerAssociatorTracks)
+	#
+	#   ----
+
+
+	# ----
+	#
+	# 2. if you want to create a collection of L1Tracks with a different label:
+	#
+	#    To use these L1Tracks later, one should use :
+	#    L1TrackInputTag = cms.InputTag("TrackTriggerTTTracksLargerPhi","Level1TTTracks")
+
+process.TTTracksFromPixelDigisLargerPhi = process.TTTracksFromPixelDigis.clone()
+process.TTTracksFromPixelDigisLargerPhi.phiWindowSF = cms.untracked.double(2.0)   #  default is 1.0
+process.TrackTriggerTTTracksLargerPhi = cms.Sequence(process.BeamSpotFromSim*process.TTTracksFromPixelDigisLargerPhi)
+
+process.TTTrackAssociatorFromPixelDigisLargerPhi = process.TTTrackAssociatorFromPixelDigis.clone()
+process.TTTrackAssociatorFromPixelDigisLargerPhi.TTTracks = cms.VInputTag( cms.InputTag("TTTracksFromPixelDigisLargerPhi", "Level1TTTracks") )
+process.TrackTriggerAssociatorTracksLargerPhi = cms.Sequence( process.TTTrackAssociatorFromPixelDigisLargerPhi )
+
+process.TT_step = cms.Path( process.TrackTriggerTTTracksLargerPhi )
+process.TTAssociator_step = cms.Path( process.TrackTriggerAssociatorTracksLargerPhi)
+	#
+	# ----
+
+
 
 
 
