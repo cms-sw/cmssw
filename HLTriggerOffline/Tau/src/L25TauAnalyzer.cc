@@ -307,7 +307,7 @@ void L25TauAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	  l25TrkChi2->push_back((*trkIt)->chi2());
 	  l25TrkChi2NdF->push_back((*trkIt)->normalizedChi2());
 	  l25TrkNRecHits->push_back((*trkIt)->recHitsSize());
-	  l25TrkNValidPixelHits->push_back((*trkIt)->hitPattern().numberOfValidPixelHits());
+	  l25TrkNValidPixelHits->push_back((*trkIt)->hitPattern().numberOfValidPixelHits(HitPattern::TRACK_HITS));
 	}
 	const TrackRef leadTk = theMatchedL25TauTagInfo.leadingSignalTrack(_l25JetLeadTkMacthingCone, _minTrackPt);									 
       	if(!leadTk){															 	    
@@ -350,7 +350,7 @@ void L25TauAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	      l25SignalTrkChi2NdF->push_back((*isoIt)->normalizedChi2());
 	      l25SignalTrkNRecHits->push_back((*isoIt)->recHitsSize());
 	      l25SignalTrkNValidHits->push_back((*isoIt)->numberOfValidHits());
-	      l25SignalTrkNValidPixelHits->push_back((*isoIt)->hitPattern().numberOfValidPixelHits());
+	      l25SignalTrkNValidPixelHits->push_back((*isoIt)->hitPattern().numberOfValidPixelHits(HitPattern::TRACK_HITS));
 	      l25SignalTrkNLostHits->push_back((*isoIt)->lost());
 
 	    }
@@ -362,7 +362,7 @@ void L25TauAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	      l25IsoTrkChi2->push_back((*isoIt)->chi2());
 	      l25IsoTrkNValidHits->push_back((*isoIt)->numberOfValidHits());
 	      l25IsoTrkNRecHits->push_back((*isoIt)->recHitsSize());
-	      l25IsoTrkNValidPixelHits->push_back((*isoIt)->hitPattern().numberOfValidPixelHits());
+	      l25IsoTrkNValidPixelHits->push_back((*isoIt)->hitPattern().numberOfValidPixelHits(HitPattern::TRACK_HITS));
 	      l25IsoTrkNLostHits->push_back((*isoIt)->lost());
 	      l25IsoTrkDxy->push_back((*isoIt)->dxy(theVertexPosition));
 	      l25IsoTrkDz->push_back((*isoIt)->dz(theVertexPosition));
@@ -454,7 +454,7 @@ void L25TauAnalyzer::printInfo(const reco::PFTau& thePFTau, const reco::Isolated
 	   << "\t" << isoTrackLeadTrkDeltaR 
 	   << "\t" << (*isoIt)->chi2()
 	   << "\t" << (*isoIt)->normalizedChi2()
-	   << "\t" << (*isoIt)->hitPattern().numberOfValidPixelHits()
+	   << "\t" << (*isoIt)->hitPattern().numberOfValidPixelHits(HitPattern::TRACK_HITS)
 	   << "\t" << (*isoIt)->dxy(theVertexPosition)
 	   << "\t" << (*isoIt)->dz(theVertexPosition)
 	   << "\t" << theVertexPosition

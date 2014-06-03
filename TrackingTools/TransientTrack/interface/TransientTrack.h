@@ -129,11 +129,11 @@ namespace reco {
     /// number of RecHits
     size_t recHitsSize() const { return track().recHitsSize(); }
     //  hit pattern
-    const HitPattern & hitPattern() const { return track().hitPattern(); }
+    const HitPattern &hitPattern() const { return track().hitPattern(); }
     /// number of hits found 
-    unsigned short numberOfValidHits() const { return track().hitPattern().numberOfValidHits(); }
+    unsigned short numberOfValidHits() const { return track().hitPattern().numberOfValidHits(HitPattern::TRACK_HITS); }
     /// number of hits lost
-    unsigned short numberOfLostHits() const { return track().hitPattern().numberOfLostHits(); }
+    unsigned short numberOfLostHits() const { return track().hitPattern().numberOfLostHits(HitPattern::TRACK_HITS); }
     /// chi-squared of the fit
     double chi2() const { return track().chi2(); }
     /// number of degrees of freedom of the fit

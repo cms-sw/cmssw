@@ -140,12 +140,12 @@ bool CSCEfficiency::filter(edm::Event & event, const edm::EventSetup& eventSetup
         continue;
       }
       DataFlow->Fill(33.);
-      if(muon->track()->hitPattern().numberOfValidPixelHits()<1 ||
-	 muon->track()->hitPattern().numberOfValidTrackerHits()<11 ||
-	 muon->combinedMuon()->hitPattern().numberOfValidMuonHits()<1 ||
-	 muon->combinedMuon()->normalizedChi2()>10. ||
-	 muon->numberOfMatches()<2){
-	continue;
+      if(muon->track()->hitPattern().numberOfValidPixelHits(reco::HitPattern::TRACK_HITS) < 1 ||
+              muon->track()->hitPattern().numberOfValidTrackerHits(reco::HitPattern::TRACK_HITS) < 11 ||
+              muon->combinedMuon()->hitPattern().numberOfValidMuonHits(reco::HitPattern::TRACK_HITS) < 1 ||
+              muon->combinedMuon()->normalizedChi2() > 10. ||
+              muon->numberOfMatches() < 2){
+          continue;
       }
       DataFlow->Fill(34.);
       float zOuter = muon->combinedMuon()->outerPosition().z();

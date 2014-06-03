@@ -146,8 +146,8 @@ void ZMuMuTrackUserData::produce( Event & evt, const EventSetup & ) {
       zDaudzFromPV = muTrkRef->dz(primaryVertices->begin()->position() );
       zDauChi2 = muTrkRef->normalizedChi2();
       zDauTrkChi2 = muTrkRef->normalizedChi2();
-      zDauNofStripHits = muTrkRef->hitPattern().numberOfValidStripHits();
-      zDauNofPixelHits = muTrkRef->hitPattern().numberOfValidPixelHits();
+      zDauNofStripHits = muTrkRef->hitPattern().numberOfValidStripHits(HitPattern::TRACK_HITS);
+      zDauNofPixelHits = muTrkRef->hitPattern().numberOfValidPixelHits(HitPattern::TRACK_HITS);
     }
     tk.addUserFloat("zDau_dxyFromBS", zDaudxyFromBS);
     tk.addUserFloat("zDau_dzFromBS", zDaudzFromBS);

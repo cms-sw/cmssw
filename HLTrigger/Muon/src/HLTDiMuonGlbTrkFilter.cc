@@ -81,7 +81,7 @@ HLTDiMuonGlbTrkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSet
     }
     if ( !muon.globalTrack().isNull() ){
       if (muon.globalTrack()->normalizedChi2()>m_maxNormalizedChi2) continue;
-      if (muon.globalTrack()->hitPattern().numberOfValidMuonHits()<m_minMuonHits) continue;
+      if (muon.globalTrack()->hitPattern().numberOfValidMuonHits(reco::HitPattern::TRACK_HITS) < m_minMuonHits) continue;
     }
     if ( muon.isTrackerMuon() && !muon::isGoodMuon(muon,m_trkMuonId) ) continue;
     if ( muon.pt() < std::min(m_minPtMuon1,m_minPtMuon2) ) continue;

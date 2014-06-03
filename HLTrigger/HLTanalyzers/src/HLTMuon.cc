@@ -338,7 +338,7 @@ void HLTMuon::analyze(const edm::Handle<reco::MuonCollection>                 & 
 	if (i->innerTrack().isNonnull()) muonNValidTrkHits[imu] = i->innerTrack()->numberOfValidHits();
 	else muonNValidTrkHits[imu] = -99;
 
-	if (i->isGlobalMuon()!=0) muonNValidMuonHits[imu] = i->globalTrack()->hitPattern().numberOfValidMuonHits();
+	if (i->isGlobalMuon()!=0) muonNValidMuonHits[imu] = i->globalTrack()->hitPattern().numberOfValidMuonHits(reco::HitPattern::TRACK_HITS);
 	else muonNValidMuonHits[imu] = -99;
 
 	imu++;
@@ -382,8 +382,9 @@ void HLTMuon::analyze(const edm::Handle<reco::MuonCollection>                 & 
       muonl2vtxz[imu2c] = tk->dz();
       muonl2nhits[imu2c] = tk->numberOfValidHits();
       muonl2nchambers[imu2c] = validChambers(tk);
-      muonl2nstat[imu2c] = tk->hitPattern().muonStationsWithAnyHits();
-      muonl2ndtcscstat[imu2c] = tk->hitPattern().dtStationsWithAnyHits() + tk->hitPattern().cscStationsWithAnyHits();
+      muonl2nstat[imu2c] = tk->hitPattern().muonStationsWithAnyHits(reco::HitPattern::TRACK_HITS);
+      muonl2ndtcscstat[imu2c] = tk->hitPattern().dtStationsWithAnyHits(reco::HitPattern::TRACK_HITS)
+          + tk->hitPattern().cscStationsWithAnyHits(reco::HitPattern::TRACK_HITS);
 
       // At present we do not cut on this, but on a 90% CL value "ptLx" defined here below
       // We should change this in the future and cut directly on "pt", to avoid unnecessary complications and risks
@@ -528,9 +529,9 @@ void HLTMuon::analyze(const edm::Handle<reco::MuonCollection>                 & 
       muonl3chg[imu3c] = candref->charge();
 
       muonl3normchi2[imu3c] = tk->normalizedChi2();
-      muonl3npixelhits[imu3c] = tk->hitPattern().numberOfValidPixelHits();
-      muonl3ntrackerhits[imu3c] = tk->hitPattern().numberOfValidTrackerHits();
-      muonl3nmuonhits[imu3c] = tk->hitPattern().numberOfValidMuonHits();
+      muonl3npixelhits[imu3c] = tk->hitPattern().numberOfValidPixelHits(reco::HitPattern::TRACK_HITS);
+      muonl3ntrackerhits[imu3c] = tk->hitPattern().numberOfValidTrackerHits(reco::HitPattern::TRACK_HITS);
+      muonl3nmuonhits[imu3c] = tk->hitPattern().numberOfValidMuonHits(reco::HitPattern::TRACK_HITS);
 
       if (isoMap3.isValid()){
 	// Isolation flag (this is a bool value: true => isolated)
@@ -653,8 +654,8 @@ void HLTMuon::analyze(const edm::Handle<reco::MuonCollection>                 & 
       muonl2novtxdz[imu2c] = tk->dz(BSPosition);
       muonl2novtxnhits[imu2c] = tk->numberOfValidHits();
       muonl2novtxnchambers[imu2c] = validChambers(tk);
-      muonl2novtxnstat[imu2c] = tk->hitPattern().muonStationsWithAnyHits();
-      muonl2novtxndtcscstat[imu2c] = tk->hitPattern().dtStationsWithAnyHits() + tk->hitPattern().cscStationsWithAnyHits();
+      muonl2novtxnstat[imu2c] = tk->hitPattern().muonStationsWithAnyHits(reco::HitPattern::TRACK_HITS);
+      muonl2novtxndtcscstat[imu2c] = tk->hitPattern().dtStationsWithAnyHits(reco::HitPattern::TRACK_HITS) + tk->hitPattern().cscStationsWithAnyHits(reco::HitPattern::TRACK_HITS);
 
       double l2_err0 = tk->error(0); // error on q/p
       double l2_abspar0 = fabs(tk->parameter(0)); // |q/p|

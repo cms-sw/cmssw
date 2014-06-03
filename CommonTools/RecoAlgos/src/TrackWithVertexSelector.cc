@@ -28,7 +28,7 @@ TrackWithVertexSelector::~TrackWithVertexSelector() {  }
 bool TrackWithVertexSelector::testTrack(const reco::Track &t) const {
   using std::abs;
   if ((t.numberOfValidHits() >= numberOfValidHits_) &&
-      (static_cast<unsigned int>(t.hitPattern().numberOfValidPixelHits()) >= numberOfValidPixelHits_) &&
+      (static_cast<unsigned int>(t.hitPattern().numberOfValidPixelHits(reco::HitPattern::TRACK_HITS)) >= numberOfValidPixelHits_) &&
       (t.numberOfLostHits() <= numberOfLostHits_) &&
       (t.normalizedChi2()    <= normalizedChi2_) &&
       (t.ptError()/t.pt()*std::max(1.,t.normalizedChi2()) <= ptErrorCut_) &&

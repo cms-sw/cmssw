@@ -69,7 +69,8 @@ class MuonTrackLoader {
 								 edm::Event&); 
   
   private:
- 
+    static std::vector<const TrackingRecHit*> unpackHit(const TrackingRecHit &hit);
+
     /// Build a track at the PCA WITHOUT any vertex constriant
     std::pair<bool,reco::Track> buildTrackAtPCA(const Trajectory& trajectory, const reco::BeamSpot &) const;
 

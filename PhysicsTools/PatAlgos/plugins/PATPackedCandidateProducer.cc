@@ -194,9 +194,9 @@ void pat::PATPackedCandidateProducer::produce(edm::Event& iEvent, const edm::Eve
 //          phiAtVtx = tsos.globalDirection().phi();
             vtx = ctrack->referencePoint();
             phiAtVtx = ctrack->phi();
-            int nlost = ctrack->trackerExpectedHitsInner().numberOfLostHits();
+            int nlost = ctrack->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
             if (nlost == 0) { 
-                if ( ctrack->hitPattern().hasValidHitInFirstPixelBarrel()) {
+                if ( ctrack->hitPattern().hasValidHitInFirstPixelBarrel(reco::HitPattern::TRACK_HITS)) {
                     lostHits = pat::PackedCandidate::validHitInFirstPixelBarrelLayer;
                 }
             } else {
