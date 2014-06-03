@@ -4,7 +4,6 @@ from L1Trigger.L1TCalorimeter.caloStage1RegionSF_cfi import *
 from L1Trigger.L1TCalorimeter.caloStage1JetSF_cfi import *
 
 from L1Trigger.L1TCalorimeter.caloParams_cfi import caloParamsSource
-
 import L1Trigger.L1TCalorimeter.caloParams_cfi
 #caloStage1ParamsSource = L1Trigger.L1TCalorimeter.caloParams_cfi.caloParamsSource.clone()
 caloStage1Params = L1Trigger.L1TCalorimeter.caloParams_cfi.caloParams.clone()

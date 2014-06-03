@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
+from L1Trigger.L1TCalorimeter.caloParams_cfi import caloParamsSource
 import L1Trigger.L1TCalorimeter.caloParams_cfi
 caloStage2Params = L1Trigger.L1TCalorimeter.caloParams_cfi.caloParams.clone()
 
