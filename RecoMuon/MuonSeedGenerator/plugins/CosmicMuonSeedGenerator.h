@@ -19,7 +19,7 @@
 
 class MuonDetLayerGeometry;
 
-class TrajectoryStateTransform;
+struct TrajectoryStateTransform;
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
@@ -114,8 +114,6 @@ class CosmicMuonSeedGenerator: public edm::stream::EDProducer<> {
   double theMaxCSCChi2;
   edm::ESHandle<MuonDetLayerGeometry> theMuonLayers;
   edm::ESHandle<MagneticField> theField;
-
-  TrajectoryStateTransform* theTSTransform;
 
   std::map<std::string, float> theParameters;
 
