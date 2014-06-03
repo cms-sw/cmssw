@@ -26,7 +26,6 @@ class HcalDDDSimConstants {
 
 public:
 
-  HcalDDDSimConstants();
   HcalDDDSimConstants( const DDCompactView& cpv );
   ~HcalDDDSimConstants();
 
@@ -54,7 +53,6 @@ public:
   std::vector<HcalCellType> HcalCellTypes() const;
   std::vector<HcalCellType> HcalCellTypes(HcalSubdetector, int ieta=-1,
 					  int depth=-1) const;
-  void                      initialize(const DDCompactView& cpv);
   int                       getMaxDepth(const int type) const {return maxDepth[type];}
   unsigned int              numberOfCells(HcalSubdetector) const;
   int                       phiNumber(int phi, int unit) const;
@@ -63,7 +61,7 @@ public:
   int                       unitPhi(double dphi) const; 
        
 private:
-  void                checkInitialized() const;
+  void                initialize(const DDCompactView& cpv);
   void                loadSpecPars(const DDFilteredView& fv);
   void                loadGeometry(const DDFilteredView& fv);
   std::vector<double> getDDDArray(const std::string &, 
@@ -77,7 +75,6 @@ private:
   void                printTileHB(int eta, int depth) const;
   void                printTileHE(int eta, int depth) const;
   
-  bool                tobeInitialized;
   static const int    nEtaMax=100;
   static const int    nDepthMax=9;
   int                 maxDepth[4]; // Maximum depths in HB/HE/HF/HO

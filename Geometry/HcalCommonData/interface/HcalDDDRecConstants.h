@@ -27,7 +27,6 @@ class HcalDDDRecConstants {
 
 public:
 
-  HcalDDDRecConstants();
   HcalDDDRecConstants(const DDCompactView& cpv, 
 		      const HcalDDDSimConstants& hcons);
   ~HcalDDDRecConstants();
@@ -44,6 +43,12 @@ public:
     HcalEtaBin(int eta=0, double et1=0, double et2=0, int nf=0, double fi0=0,
 	       double df=0) : ieta(eta), nPhi(nf),depthStart(0), etaMin(et1), 
 			      etaMax(et2), phi0(fi0), dphi(df) {}
+  };
+  struct HcalActiveLength {
+    int    ieta, depth;
+    double eta, thick;
+    HcalActiveLength(int ie=0, int d=0, double et=0, 
+		     double t=0) : ieta(ie), depth(d), eta(et), thick(t) {}
   };
 
   std::vector<std::pair<double,double> > getConstHBHE(const int type) const {
@@ -68,16 +73,15 @@ public:
   std::vector<double>       getPhiOffs()    const {return phioff;}
   std::vector<double>       getPhiTable()   const {return phibin;}
   std::vector<double>       getPhiTableHF() const {return phibinHF;}
+  std::vector<HcalActiveLength> getThickActive(const int type) const;
   std::string               getTopoMode() const {return modeTopo;}
   std::vector<HcalCellType> HcalCellTypes(HcalSubdetector) const;
-  void                      initialize(const DDCompactView& cpv,
-				       const HcalDDDSimConstants& hcons);
   unsigned int              numberOfCells(HcalSubdetector) const;
   unsigned int              nCells(HcalSubdetector) const;
   unsigned int              nCells() const;
        
 private:
-  void                      checkInitialized() const;
+  void                      initialize(const DDCompactView& cpv);
   void                      loadSpecPars(const DDFilteredView& fv);
   void                      loadSimConst();
   std::vector<double>       getDDDArray(const char *, const DDsvalues_type &, 
@@ -87,7 +91,7 @@ private:
 
   bool                tobeInitialized;
   static const int    nEtaMax=100;
-  const HcalDDDSimConstants *hcons;
+  const HcalDDDSimConstants & hcons;
   std::string         modeTopo;   // Mode for topology
   std::vector<double> phioff;     // Phi offset for barrel, endcap, forward
   std::vector<int>    etaGroup;   // Eta Grouping
