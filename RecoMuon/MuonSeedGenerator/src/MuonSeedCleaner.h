@@ -99,16 +99,9 @@ class MuonSeedCleaner
   bool debug;
 
   // Number of Segments from a shower
-  int NShowerSeg;
   SegmentContainer ShoweringSegments;   
   std::vector<int> ShoweringLayers; 
 
-  // Cache geometry for current event
-  //const MuonDetLayerGeometry* muonLayers;
-
-  // Cache Magnetic Field for current event
-  const MagneticField* BField;
- 
   // muon service
   MuonServiceProxy* theService;
 

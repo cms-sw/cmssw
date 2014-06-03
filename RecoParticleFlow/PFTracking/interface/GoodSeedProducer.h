@@ -151,7 +151,7 @@ class GoodSeedProducer : public edm::EDProducer {
       reco::TrackBase::TrackQuality trackQuality_;
 	
       ///READER FOR TMVA
-      TMVA::Reader *reader[9];
+      TMVA::Reader *reader[9]{};
 
       ///VARIABLES NEEDED FOR TMVA
       float eP,eta,pt,nhit,dpt,chired,chiRatio;
