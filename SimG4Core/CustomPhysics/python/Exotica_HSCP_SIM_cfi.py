@@ -32,15 +32,14 @@ def customise(process):
         G4BremsstrahlungThreshold = cms.double(0.5), ## cut in GeV    
         DefaultCutValue = cms.double(1.), ## cuts in cm,default 1cm    
         CutsPerRegion = cms.bool(True),
+        CutsOnProton  = cms.bool(True),
         Verbosity = cms.untracked.int32(0),
         type = cms.string('SimG4Core/Physics/CustomPhysics'),
         EMPhysics   = cms.untracked.bool(True),  ##G4 default true
         HadPhysics  = cms.untracked.bool(True),  ##G4 default true
         FlagBERT    = cms.untracked.bool(False),
-        FlagCHIPS   = cms.untracked.bool(False),
-        FlagFTF     = cms.untracked.bool(False),
-        FlagGlauber = cms.untracked.bool(False),
-        FlagHP      = cms.untracked.bool(False),
+        FlagMuNucl  = cms.bool(False),
+        FlagFluo    = cms.bool(False),
         GFlash = cms.PSet(
         GflashHistogram = cms.bool(False),
         GflashEMShowerModel = cms.bool(False),
@@ -57,6 +56,7 @@ def customise(process):
         G4BremsstrahlungThreshold = cms.double(0.5), ## cut in GeV    
         DefaultCutValue = cms.double(1.), ## cuts in cm,default 1cm    
         CutsPerRegion = cms.bool(True),
+        CutsOnProton  = cms.bool(True),
         Verbosity = cms.untracked.int32(0),
         type = cms.string('SimG4Core/Physics/CustomPhysics'),
         )

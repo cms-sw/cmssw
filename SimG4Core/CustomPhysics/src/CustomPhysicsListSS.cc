@@ -1,4 +1,4 @@
-#include "SimG4Core/CustomPhysics/interface/CustomPhysicsList.h"
+#include "SimG4Core/CustomPhysics/interface/CustomPhysicsListSS.h"
 #include "SimG4Core/CustomPhysics/interface/CustomParticleFactory.h"
 #include "SimG4Core/CustomPhysics/interface/DummyChargeFlipProcess.h"
 #include "SimG4Core/CustomPhysics/interface/G4ProcessHelper.hh"
@@ -23,8 +23,7 @@
 
 using namespace CLHEP;
  
-
-CustomPhysicsList::CustomPhysicsList(std::string name, const edm::ParameterSet & p)  
+CustomPhysicsListSS::CustomPhysicsListSS(std::string name, const edm::ParameterSet& p)
   :  G4VPhysicsConstructor(name) 
 {  
   myConfig = p;
@@ -35,20 +34,20 @@ CustomPhysicsList::CustomPhysicsList(std::string name, const edm::ParameterSet &
   myHelper = 0;  
 }
 
-CustomPhysicsList::~CustomPhysicsList() {
+CustomPhysicsListSS::~CustomPhysicsListSS() {
   delete myHelper;
 }
  
-void CustomPhysicsList::ConstructParticle(){
+void CustomPhysicsListSS::ConstructParticle(){
   CustomParticleFactory::loadCustomParticles(particleDefFilePath);     
 }
  
-void CustomPhysicsList::ConstructProcess() {
+void CustomPhysicsListSS::ConstructProcess() {
   addCustomPhysics();
 }
  
-void CustomPhysicsList::addCustomPhysics(){
-  LogDebug("CustomPhysics") << " CustomPhysicsList: adding CustomPhysics processes";
+void CustomPhysicsListSS::addCustomPhysics(){
+  LogDebug("CustomPhysics") << " CustomPhysicsListSS: adding CustomPhysics processes";
   aParticleIterator->reset();
 
   while((*aParticleIterator)()) {
@@ -87,8 +86,7 @@ void CustomPhysicsList::addCustomPhysics(){
   }
 }
 
-
-void CustomPhysicsList::setupRHadronPhycis(G4ParticleDefinition* particle)
+void CustomPhysicsListSS::setupRHadronPhycis(G4ParticleDefinition* particle)
 {
   //    LogDebug("CustomPhysics")<<"Configuring rHadron: "
   //	<<cp->
@@ -114,7 +112,7 @@ void CustomPhysicsList::setupRHadronPhycis(G4ParticleDefinition* particle)
   else      LogDebug("CustomPhysics") << "   No pmanager";
 }
 					       
-void CustomPhysicsList::setupSUSYPhycis(G4ParticleDefinition* particle)
+void CustomPhysicsListSS::setupSUSYPhycis(G4ParticleDefinition* particle)
 {
   G4ProcessManager* pmanager = particle->GetProcessManager();
   if(pmanager){
