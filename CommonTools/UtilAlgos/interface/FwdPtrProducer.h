@@ -11,7 +11,7 @@
 */
 
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -24,7 +24,7 @@ namespace edm {
 
 
   template < class T, class H = FwdPtrFromProductFactory<T> >
-  class FwdPtrProducer : public edm::EDProducer {
+    class FwdPtrProducer : public edm::stream::EDProducer<> {
   public :
     explicit FwdPtrProducer( edm::ParameterSet const & params ) :
        srcToken_( consumes<edm::View<T> >( params.getParameter<edm::InputTag>("src") ) )
