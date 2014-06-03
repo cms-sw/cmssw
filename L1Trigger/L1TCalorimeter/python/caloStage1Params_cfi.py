@@ -1,88 +1,33 @@
 import FWCore.ParameterSet.Config as cms
 
-from L1Trigger.L1TCalorimeter.regionSF_cfi import *
-from L1Trigger.L1TCalorimeter.jetSF_cfi import *
+from L1Trigger.L1TCalorimeter.caloStage1RegionSF_cfi import *
+from L1Trigger.L1TCalorimeter.caloStage1JetSF_cfi import *
 
+from L1Trigger.L1TCalorimeter.caloParams_cfi import caloParamsSource
 
-l1tCaloParamsSource = cms.ESSource(
-    "EmptyESSource",
-    recordName = cms.string('L1TCaloParamsRcd'),
-    iovIsRunNotTime = cms.bool(True),
-    firstValid = cms.vuint32(1)
-)
+import L1Trigger.L1TCalorimeter.caloParams_cfi
+#caloStage1ParamsSource = L1Trigger.L1TCalorimeter.caloParams_cfi.caloParamsSource.clone()
+caloStage1Params = L1Trigger.L1TCalorimeter.caloParams_cfi.caloParams.clone()
 
-l1tCaloParams = cms.ESProducer(
-    "l1t::CaloParamsESProducer",
+caloStage1Params.regionPUSType    = cms.string("PUM0")       #"None" for no PU subtraction, "PUM0"
+caloStage1Params.regionPUSParams  = regionSubtraction_PU40_MC13TeV
 
-    # towers
-    towerLsbH        = cms.double(0.5),    #not used by Stage1
-    towerLsbE        = cms.double(0.5),    #not used by Stage1
-    towerLsbSum      = cms.double(0.5),    #not used by Stage1
-    towerNBitsH      = cms.int32(8),    #not used by Stage1
-    towerNBitsE      = cms.int32(8),    #not used by Stage1
-    towerNBitsSum    = cms.int32(9),    #not used by Stage1
-    towerNBitsRatio  = cms.int32(3),    #not used by Stage1
-    towerEncoding    = cms.bool(False),    #not used by Stage1
+# EG
+caloStage1Params.egLsb                = cms.double(1.)
+caloStage1Params.egSeedThreshold      = cms.double(1.)
 
-    # regions
-    regionLsb        = cms.double(0.5),       #not used by Stage1
-    regionPUSType    = cms.string("PUM0"),       #"None" for no PU subtraction, "PUM0"
-    regionPUSParams  = regionSubtraction_PU40_MC13TeV,
+# Tau
+caloStage1Params.tauSeedThreshold      = cms.double(7.)
 
-    # EG
-    egLsb                = cms.double(1.),
-    egSeedThreshold      = cms.double(1.),
-    egNeighbourThreshold = cms.double(1.),      #not used by Stage1
-    egHcalThreshold            = cms.double(1.),#not used by Stage1
-    egMaxHcalEt          = cms.double(0.),    #not used by Stage1
-    egEtToRemoveHECut    = cms.double(128.),    #not used by Stage1
-    egMaxHOverELUTFile   = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egMaxHOverELUT.txt"),
-    egShapeIdLUTFile           = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egShapeIdLUT.txt"),
-    egMaxHOverE          = cms.double(0.15),    #not used by Stage1
-    egIsoPUSType         = cms.string("None"),    #not used by Stage1
-    egIsoLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egIsoLUT.txt"),    #not used by Stage1
-    egIsoAreaNrTowersEta = cms.uint32(2),    #not used by Stage1
-    egIsoAreaNrTowersPhi = cms.uint32(4),    #not used by Stage1
-    egIsoVetoNrTowersPhi = cms.uint32(3),    #not used by Stage1
-    egIsoPUEstTowerGranularity = cms.uint32(1),    #not used by Stage1
-    egIsoMaxEtaAbsForTowerSum = cms.uint32(4),    #not used by Stage1
-    egIsoMaxEtaAbsForIsoSum = cms.uint32(27),    #not used by Stage1
-    egCalibrationLUTFile = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egCalibrationLUT.txt"),
+# jets
+caloStage1Params.jetLsb                = cms.double(0.5)
+caloStage1Params.jetSeedThreshold      = cms.double(10.)
+caloStage1Params.jetNeighbourThreshold = cms.double(0.)
+caloStage1Params.jetCalibrationParams  = jetSF_8TeV_data
 
-    # Tau
-    tauLsb                = cms.double(0.5),    #not used by Stage1
-    tauSeedThreshold      = cms.double(7.),    
-    tauNeighbourThreshold = cms.double(0.),    #not used by Stage1
-    tauIsoPUSType         = cms.string("None"),    #not used by Stage1
-    tauIsoLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauIsoLUT.txt"),    #not used by Stage1
+# sums
+caloStage1Params.etSumLsb                = cms.double(0.5)
+caloStage1Params.etSumEtaMin             = cms.vint32(-999, -999, -999, -999)
+caloStage1Params.etSumEtaMax             = cms.vint32(999,  999,  999,  999)
+caloStage1Params.etSumEtThreshold        = cms.vdouble(0.,  0.,   0.,   0.)
 
-    # jets
-    jetLsb                = cms.double(0.5),
-    jetSeedThreshold      = cms.double(10.),
-    jetNeighbourThreshold = cms.double(0.),
-    jetPUSType            = cms.string("None"),    #not used by Stage1
-    jetPUSParams          = cms.vdouble(),    #not used by Stage1
-    jetCalibrationType    = cms.string("Stage1JEC"),  #"None" for no calibration, "Stage1JEC"
-    jetCalibrationParams  = jetSF_8TeV_data,
-
-    # sums
-    etSumLsb                = cms.double(0.5),
-    etSumEtaMin             = cms.vint32(-999, -999, -999, -999),
-    etSumEtaMax             = cms.vint32(999,  999,  999,  999),
-    etSumEtThreshold        = cms.vdouble(0.,  0.,   0.,   0.)
-
-    ## etSumLsb                = cms.double(0.5),    #not used by Stage1
-    ## ettEtaMin             = cms.int32(4),    #not used by Stage1
-    ## ettEtaMax             = cms.int32(17),    #not used by Stage1
-    ## ettEtThreshold        = cms.double(0.),    #not used by Stage1
-    ## httEtaMin             = cms.int32(4),    #not used by Stage1
-    ## httEtaMax             = cms.int32(17),    #not used by Stage1
-    ## httEtThreshold        = cms.double(7.),    #not used by Stage1
-    ## metEtaMin             = cms.int32(4),    #not used by Stage1
-    ## metEtaMax             = cms.int32(17),    #not used by Stage1
-    ## metEtThreshold        = cms.double(0.),    #not used by Stage1
-    ## mhtEtaMin             = cms.int32(4),    #not used by Stage1
-    ## mhtEtaMax             = cms.int32(17),    #not used by Stage1
-    ## mhtEtThreshold        = cms.double(0.)    #not used by Stage1
-
-)
