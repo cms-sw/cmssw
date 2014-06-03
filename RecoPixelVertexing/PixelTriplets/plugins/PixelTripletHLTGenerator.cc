@@ -226,7 +226,7 @@ void PixelTripletHLTGenerator::hitTriplets(const TrackingRegion& region,
 	phiRange = mergePhiRanges(rPhi1,rPhi2);
       }
       
-      constexpr float nSigmaRZ = std::sqrt(12.f); // ...and continue as before
+      constexpr float nSigmaRZ = 3.46410161514f; // std::sqrt(12.f); // ...and continue as before
       constexpr float nSigmaPhi = 3.f;
       
       foundNodes.clear(); // Now recover hits in bounding box...

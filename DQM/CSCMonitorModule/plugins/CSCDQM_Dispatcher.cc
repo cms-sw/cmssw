@@ -84,6 +84,11 @@ namespace cscdqm {
    */
   void Dispatcher::init() {
     collection.load();
+    // collection.bookEMUHistos();
+    // processor.init();
+  }
+
+  void Dispatcher::book() {
     collection.bookEMUHistos();
     processor.init();
   }

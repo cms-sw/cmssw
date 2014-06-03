@@ -36,15 +36,19 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // DQM
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
+#include <DQMServices/Core/interface/DQMStore.h>
+#include <DQMServices/Core/interface/MonitorElement.h>
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
-class CSCDcsInfo : public edm::EDAnalyzer {
+class CSCDcsInfo : public DQMEDAnalyzer {
 
   public:
 
     explicit CSCDcsInfo(const edm::ParameterSet&);
     ~CSCDcsInfo() { }
+
+  protected:
+    void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
   private:
 
@@ -55,7 +59,7 @@ class CSCDcsInfo : public edm::EDAnalyzer {
     virtual void endLuminosityBlock(const edm::LuminosityBlock& , const  edm::EventSetup&) { }
     virtual void endJob() { }
                     
-    DQMStore *dbe;  
+    // DQMStore *dbe;  
     std::map<std::string, MonitorElement*> mos;
 
 };

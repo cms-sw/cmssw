@@ -33,8 +33,8 @@ CSCOfflineClient::CSCOfflineClient(const edm::ParameterSet& ps) {
   dispatcher->init();
 
   if (ps.exists("MASKEDHW")) {
-    std::vector<std::string> maskedHW = ps.getUntrackedParameter<std::vector<std::string> >("MASKEDHW");
-    dispatcher->maskHWElements(maskedHW);
+    maskedHW = ps.getUntrackedParameter<std::vector<std::string> >("MASKEDHW");
+    // dispatcher->maskHWElements(maskedHW);
   }
 
 }
@@ -51,7 +51,6 @@ void CSCOfflineClient::endRun(const edm::Run& r, const edm::EventSetup& c) {
   /*
    *  Putting histograms to internal cache: EMU stuff
    */
-
   dbe->setCurrentFolder(config.getFOLDER_EMU());
   std::vector<std::string> me_names = dbe->getMEs();
   for (std::vector<std::string>::iterator iter = me_names.begin(); iter != me_names.end(); iter++) {
@@ -85,6 +84,16 @@ void CSCOfflineClient::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
 }
 
+
+void CSCOfflineClient::bookHistograms(DQMStore::IBooker & ib, edm::Run const &, edm::EventSetup const &)
+{
+  ibooker = &ib;
+  dispatcher->book();
+  if (maskedHW.size() != 0)
+     dispatcher->maskHWElements(maskedHW);
+
+}
+
 /**
  * @brief  Book Monitor Object on Request.
  * @param  req Request.
@@ -100,27 +109,32 @@ cscdqm::MonitorObject* CSCOfflineClient::bookMonitorObject(const cscdqm::HistoBo
     path = path + req.hdef->getPath() + "/";
   }
   
-  dbe->setCurrentFolder(path);
+  ibooker->cd();
+  ibooker->setCurrentFolder(path);
 
   if (req.htype == cscdqm::INT) {
-    me = new CSCMonitorObject(dbe->bookInt(name));
+    me = new CSCMonitorObject(ibooker->bookInt(name));
     me->Fill(req.default_int);
   } else 
   if (req.htype == cscdqm::FLOAT) {
     if (req.hdef->getId() == cscdqm::h::PAR_REPORT_SUMMARY) {
-      dbe->setCurrentFolder(DIR_EVENTINFO);
+      ibooker->cd();
+      ibooker->setCurrentFolder(DIR_EVENTINFO);
     } else if (cscdqm::Utility::regexMatch("^PAR_DCS_", cscdqm::h::keys[req.hdef->getId()])) {
-      dbe->setCurrentFolder(DIR_DCSINFO);
+      ibooker->cd();
+      ibooker->setCurrentFolder(DIR_DCSINFO);
     } else if (cscdqm::Utility::regexMatch("^PAR_DAQ_", cscdqm::h::keys[req.hdef->getId()])) {
-      dbe->setCurrentFolder(DIR_DAQINFO);
+      ibooker->cd();
+      ibooker->setCurrentFolder(DIR_DAQINFO);
     } else if (cscdqm::Utility::regexMatch("^PAR_CRT_", cscdqm::h::keys[req.hdef->getId()])) {
-      dbe->setCurrentFolder(DIR_CRTINFO);
+      ibooker->cd();
+      ibooker->setCurrentFolder(DIR_CRTINFO);
     }
-    me = new CSCMonitorObject(dbe->bookFloat(name));
+    me = new CSCMonitorObject(ibooker->bookFloat(name));
     me->Fill(req.default_float);
   } else 
   if (req.htype == cscdqm::STRING) {
-    me = new CSCMonitorObject(dbe->bookString(name, req.default_string));
+    me = new CSCMonitorObject(ibooker->bookString(name, req.default_string));
   }
 
   return me;
