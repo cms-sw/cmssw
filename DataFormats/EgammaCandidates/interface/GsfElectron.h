@@ -176,6 +176,7 @@ class GsfElectron : public RecoCandidate
 
     // accessors
     virtual GsfElectronCoreRef core() const ;
+    void setCore(const reco::GsfElectronCoreRef &core) { core_ = core; }
 
     // forward core methods
     virtual SuperClusterRef superCluster() const { return core()->superCluster() ; }

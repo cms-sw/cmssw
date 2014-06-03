@@ -191,16 +191,15 @@ namespace pat {
       friend std::ostream& reco::operator<<(std::ostream& out, const pat::Electron& obj);
 
       /// additional mva input variables
-      /// R9 variable
-      double r9() const { return r9_; };
-      /// sigmaIPhiPhi
-      double sigmaIphiIphi() const { return sigmaIphiIphi_; };
       /// sigmaIEtaIPhi
-      double sigmaIetaIphi() const { return sigmaIetaIphi_; };
+      float sigmaIetaIphi() const { return sigmaIetaIphi_; }
+      /// sigmaIEtaIPhi (from full 5x5 non-ZS clusters without fractions, a la 5.3.X)
+      float full5x5_sigmaIetaIphi() const { return full5x5_sigmaIetaIphi_; }
       /// ip3d
       double ip3d() const { return ip3d_; }
       /// set missing mva input variables
-      void setMvaVariables( double r9, double sigmaIphiIphi, double sigmaIetaIphi, double ip3d );
+      void setMvaVariables( double sigmaIetaIphi, double ip3d );
+      void full5x5_setSigmaIetaIphi(float sigmaIetaIphi) { full5x5_sigmaIetaIphi_ = sigmaIetaIphi; }
 
       const EcalRecHitCollection * recHits() const { return &recHits_;}
 
@@ -314,9 +313,7 @@ namespace pat {
       double  edB_;
 
       /// additional missing mva variables : 14/04/2012
-      double r9_;
-      double sigmaIphiIphi_;
-      double sigmaIetaIphi_;
+      float sigmaIetaIphi_, full5x5_sigmaIetaIphi_;
       double ip3d_;
 
       /// output of regression

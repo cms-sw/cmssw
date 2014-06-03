@@ -24,3 +24,11 @@ Flag_trkPOG_logErrorTooManyClusters = cms.Path(~logErrorTooManyClusters)
 
 # and the summary
 Flag_METFilters = cms.Path(metFilters)
+
+def miniAOD_customizeMETFiltersFastSim(process):
+    """Replace some MET filters that don't work in FastSim with trivial bools"""
+    for X in 'CSCTightHaloFilter', 'HBHENoiseFilter':
+        process.globalReplace(X, cms.EDFilter("HLTBool", result=cms.bool(True)))
+    for X in 'manystripclus53X', 'toomanystripclus53X', 'logErrorTooManyClusters':
+        process.globalReplace(X, cms.EDFilter("HLTBool", result=cms.bool(False)))
+    return process
