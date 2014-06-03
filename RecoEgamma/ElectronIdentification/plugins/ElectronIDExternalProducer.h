@@ -5,7 +5,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -15,7 +15,7 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 
 template<class algo>
-class ElectronIDExternalProducer : public edm::EDProducer {
+class ElectronIDExternalProducer : public edm::stream::EDProducer<> {
  public:
    explicit ElectronIDExternalProducer(const edm::ParameterSet& iConfig) :
             srcToken_(consumes<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("src"))),
@@ -26,7 +26,7 @@ class ElectronIDExternalProducer : public edm::EDProducer {
 
    virtual ~ElectronIDExternalProducer() {}
 
-   void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) ;
+   void produce(edm::Event & iEvent, const edm::EventSetup & iSetup) override ;
 
  private:
    edm::EDGetTokenT<reco::GsfElectronCollection> srcToken_ ;
