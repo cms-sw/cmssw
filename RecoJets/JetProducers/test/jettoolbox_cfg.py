@@ -9,16 +9,17 @@ process.load('PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff')
 process.load("RecoJets.Configuration.RecoGenJets_cff")
 process.load("RecoJets.Configuration.GenJetParticles_cff")
 
-process.ca8GenJetsNoNu = process.ca6GenJetsNoNu.clone( rParam = 0.8 )
+#process.ca8GenJetsNoNu = process.ca6GenJetsNoNu.clone( rParam = 0.8 )
 
 from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
 from PhysicsTools.PatAlgos.tools.jetTools import switchJetCollection
 
 addJetCollection(
     process,
-    labelName = 'AK5PFCHS',
-    jetSource = cms.InputTag('ak5PFJetsCHS'),
-    algo = 'ak5',
+    labelName = 'AK4PFCHS',
+    jetSource = cms.InputTag('ak4PFJetsCHS'),
+    algo = 'ak4',
+    rParam = 0.4,
     jetCorrections = ('AK5PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None')
     )
 
@@ -27,6 +28,7 @@ addJetCollection(
     labelName = 'CA8PFCHS',
     jetSource = cms.InputTag('ca8PFJetsCHS'),
     algo = 'ca8',
+    rParam = 0.8,
     jetCorrections = ('AK7PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None')
     )
 
@@ -35,12 +37,14 @@ addJetCollection(
     labelName = 'AK8PFCHS',
     jetSource = cms.InputTag('ak8PFJetsCHS'),
     algo = 'ak8',
+    rParam = 0.8,
     jetCorrections = ('AK7PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None')
     )
 
 switchJetCollection(
     process,
-    jetSource = cms.InputTag('ak5PFJets'),
+    jetSource = cms.InputTag('ak4PFJets'),
+    rParam = 0.4,
     jetCorrections = ('AK5PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-1'),
     btagDiscriminators = ['jetBProbabilityBJetTags',
                           'jetProbabilityBJetTags',
@@ -52,14 +56,14 @@ switchJetCollection(
                           ],
     )
 
-process.patJetGenJetMatchPatJetsCA8PFCHS.matched = cms.InputTag("ca8GenJetsNoNu")
+#process.patJetGenJetMatchCA8PFCHS.matched = cms.InputTag("ca8GenJetsNoNu")
 
-patJetsAK5 = process.patJetsAK5PFCHS
+patJetsAK4 = process.patJetsAK4PFCHS
 patJetsCA8 = process.patJetsCA8PFCHS
 patJetsAK8 = process.patJetsAK8PFCHS
 
-process.out.outputCommands += ['keep *_ak5PFJetsCHS_*_*',
-                               'keep *_patJetsAK5PFCHS_*_*',
+process.out.outputCommands += ['keep *_ak4PFJetsCHS_*_*',
+                               'keep *_patJetsAK4PFCHS_*_*',
                                'keep *_ca8PFJetsCHS_*_*',
                                'keep *_patJetsCA8PFCHS_*_*',
                                'keep *_ak8PFJetsCHS_*_*',
@@ -75,25 +79,26 @@ process.out.outputCommands += ['keep *_ak5PFJetsCHS_*_*',
 
 process.load('RecoJets.JetProducers.pileupjetidproducer_cfi')
 
-process.pileupJetIdCalculator.jets = cms.InputTag("ak5PFJetsCHS")
-process.pileupJetIdEvaluator.jets = cms.InputTag("ak5PFJetsCHS")
+process.pileupJetIdCalculator.jets = cms.InputTag("ak4PFJetsCHS")
+process.pileupJetIdEvaluator.jets = cms.InputTag("ak4PFJetsCHS")
 process.pileupJetIdCalculator.rho = cms.InputTag("fixedGridRhoFastjetAll")
 process.pileupJetIdEvaluator.rho = cms.InputTag("fixedGridRhoFastjetAll")
 
-patJetsAK5.userData.userFloats.src += ['pileupJetIdEvaluator:fullDiscriminant']
-patJetsAK5.userData.userInts.src += ['pileupJetIdEvaluator:cutbasedId','pileupJetIdEvaluator:fullId']
+patJetsAK4.userData.userFloats.src += ['pileupJetIdEvaluator:fullDiscriminant']
+patJetsAK4.userData.userInts.src += ['pileupJetIdEvaluator:cutbasedId','pileupJetIdEvaluator:fullId']
 process.out.outputCommands += ['keep *_pileupJetIdEvaluator_*_*']
 
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #QGTagger
-"""
+
 process.load('RecoJets.JetProducers.QGTagger_cfi')
 
-process.QGTagger.srcJets = cms.InputTag("ak5PFJetsCHS")
+process.QGTagger.srcJets = cms.InputTag("ak4PFJetsCHS")
+process.QGTagger.jetsLabel = cms.string('QGL_AK5PFchs')
 
-patJetsAK5.userData.userFloats.src += ['QGTagger:qgLikelihood']
+patJetsAK4.userData.userFloats.src += ['QGTagger:qgLikelihood']
 process.out.outputCommands += ['keep *_QGTagger_*_*']
-"""
+
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #Njettiness
 

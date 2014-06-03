@@ -39,8 +39,12 @@ PixelVertexProducer::PixelVertexProducer(const edm::ParameterSet& conf)
   if ( conf.exists("PVcomparer") ) {
     edm::ParameterSet PVcomparerPSet = conf.getParameter<edm::ParameterSet>("PVcomparer");
     track_pt_min   = PVcomparerPSet.getParameter<double>("track_pt_min");    
-    if (track_pt_min != ptMin_)
-      edm::LogWarning("PixelVertexProducer") << "minimum track pT setting differs between PixelVertexProducer (" << ptMin_ << ") and PVcomparer (" << track_pt_min << ") !!!";
+    if (track_pt_min != ptMin_) {
+      if (track_pt_min < ptMin_)
+	edm::LogWarning("PixelVertexProducer") << "minimum track pT setting differs between PixelVertexProducer (" << ptMin_ << ") and PVcomparer (" << track_pt_min << ") [PVcomparer considers tracks w/ lower threshold than PixelVertexProducer does] !!!";
+      else
+	edm::LogInfo("PixelVertexProducer") << "minimum track pT setting differs between PixelVertexProducer (" << ptMin_ << ") and PVcomparer (" << track_pt_min << ") !!!";
+    }
     track_pt_max   = PVcomparerPSet.getParameter<double>("track_pt_max");
     track_chi2_max = PVcomparerPSet.getParameter<double>("track_chi2_max");
     track_prob_min = PVcomparerPSet.getParameter<double>("track_prob_min");
