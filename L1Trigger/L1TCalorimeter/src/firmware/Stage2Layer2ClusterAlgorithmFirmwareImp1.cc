@@ -532,6 +532,19 @@ void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::refining(const std::vector<l
       if(cluster.checkClusterFlag(CaloCluster::EXT_UP))  cluster.setHwPt(cluster.hwPt() + towerEtNN);
       if(cluster.checkClusterFlag(CaloCluster::EXT_DOWN))cluster.setHwPt(cluster.hwPt() + towerEtSS);
 
+      // Compute fine-grain position
+      int fgEta = 0;
+      int fgPhi = 0;
+      if(EtEtaRight!=0 || EtEtaLeft!=0){
+        if(cluster.checkClusterFlag(CaloCluster::TRIM_LEFT)) fgEta = 2;
+        else if(cluster.checkClusterFlag(CaloCluster::TRIM_RIGHT)) fgEta = 1;
+      }
+      int EtUp   = towerEtNE + towerEtN + towerEtNW + towerEtNN;
+      int EtDown = towerEtSE + towerEtS + towerEtSW + towerEtSS;
+      if(EtUp>EtDown) fgPhi = 2;
+      else if(EtDown>EtUp) fgPhi = 1;
+      cluster.setFgEta(fgEta);
+      cluster.setFgPhi(fgPhi);
     }
   }
 }

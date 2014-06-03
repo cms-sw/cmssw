@@ -37,6 +37,8 @@ namespace l1t {
 
       void setClusterFlag(ClusterFlag flag, bool val=true);
       void setHwSeedPt(int pt);
+      void setFgEta(int fgEta);
+      void setFgPhi(int fgPhi);
       void setHOverE(int hOverE);
       void setFgECAL(int fgECAL);
 
