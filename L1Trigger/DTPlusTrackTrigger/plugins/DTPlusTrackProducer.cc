@@ -24,7 +24,9 @@ DTPlusTrackProducer::DTPlusTrackProducer( const edm::ParameterSet& pSet ) :
   useRoughTheta = pSet.getUntrackedParameter< bool >( "useRoughTheta", false );
 
   /// Get the size of matching windows in terms of sigmas
-  numSigmas = pSet.getUntrackedParameter< double >( "numSigmasForMatch", 3. );
+  numSigmasStub = pSet.getUntrackedParameter< double >( "numSigmasForStubMatch", 4. );
+  numSigmasTk = pSet.getUntrackedParameter< double >( "numSigmasForTkMatch", 3. );
+  numSigmasPt = pSet.getUntrackedParameter< double >( "numSigmasForPtMatch", 3. );
 
   /// Get some constraints for finding the Pt with several methods
   minRInvB = pSet.getUntrackedParameter< double >( "minRInvB", 0.00000045 );
@@ -320,12 +322,12 @@ std::cerr<<theMagneticField<<std::endl;
             std::cerr << "   predicted phi " << thisDTMatch->getPredStubPhi(lay)
                       << " +/- " << thisDTMatch->getPredStubSigmaPhi(lay) << std::endl;
             std::cerr << "   deltaPhi " << thisDeltaPhi << std::endl;
-            std::cerr << "   STUB is it in phi window? " << thisDTMatch->checkStubPhiMatch( stubPhi, lay, numSigmas ) << std::endl;
+            std::cerr << "   STUB is it in phi window? " << thisDTMatch->checkStubPhiMatch( stubPhi, lay, numSigmasStub ) << std::endl;
 #endif
 
             /// If within the window, and update the closest stub if any
-            if ( thisDTMatch->checkStubPhiMatch( stubPhi, lay, numSigmas ) &&
-                 thisDTMatch->checkStubThetaMatch( stubTheta, lay, numSigmas ) )
+            if ( thisDTMatch->checkStubPhiMatch( stubPhi, lay, numSigmasStub ) &&
+                 thisDTMatch->checkStubThetaMatch( stubTheta, lay, numSigmasStub ) )
             {
 #ifdef npDEBUG
               std::cerr << "*** found good match in layer " << lay << std::endl;
@@ -399,16 +401,16 @@ std::cerr<<theMagneticField<<std::endl;
         std::cerr << "   predicted phi " << thisDTMatch->getPredVtxPhi()
                   << " +/- " << thisDTMatch->getPredVtxSigmaPhi() << std::endl;
         std::cerr << "   deltaPhi " << thisDeltaPhi << std::endl;
-        std::cerr << "   TRACK is it in phi window? " << thisDTMatch->checkVtxPhiMatch( tkPhi, numSigmas ) << std::endl;
+        std::cerr << "   TRACK is it in phi window? " << thisDTMatch->checkVtxPhiMatch( tkPhi, numSigmasTk ) << std::endl;
         std::cerr << "   track theta converted to integer " << tkTheta << std::endl;
         std::cerr << "   predicted theta " << thisDTMatch->getPredVtxTheta()
                   << " +/- " << thisDTMatch->getPredVtxSigmaTheta() << std::endl;
-        std::cerr << "   TRACK is it in theta window? " << thisDTMatch->checkVtxThetaMatch( tkTheta, numSigmas ) << std::endl;
+        std::cerr << "   TRACK is it in theta window? " << thisDTMatch->checkVtxThetaMatch( tkTheta, numSigmasTk ) << std::endl;
 #endif
 
         /// If within the window, and update the closest stub if any
-        if ( thisDTMatch->checkVtxPhiMatch( tkPhi, numSigmas ) &&
-             thisDTMatch->checkVtxThetaMatch( tkTheta, numSigmas ) )
+        if ( thisDTMatch->checkVtxPhiMatch( tkPhi, numSigmasTk ) &&
+             thisDTMatch->checkVtxThetaMatch( tkTheta, numSigmasTk ) )
         {
 #ifdef npDEBUG
           std::cerr << "*** found good match at vertex" << std::endl;
@@ -469,12 +471,12 @@ std::cerr<<theMagneticField<<std::endl;
       /// Check the DT-to-track best Pt match
       /// first, get the muon Pt information
       int dtPt = thisDTMatch->getDTPt();
-      int dtPtMin = thisDTMatch->getDTPtMin( numSigmas );
-      int dtPtMax = thisDTMatch->getDTPtMax( numSigmas );
+      int dtPtMin = thisDTMatch->getDTPtMin( numSigmasPt );
+      int dtPtMax = thisDTMatch->getDTPtMax( numSigmasPt );
 
 #ifdef npDEBUG
       std::cerr << "* DT Match in MB" << i << ", no. " << j << std::endl;
-      std::cerr << "  has this Pt range " << dtPtMin << " .. " << dtPt << " .. " << dtPtMax << " with no. sigmas = " << numSigmas << std::endl;
+      std::cerr << "  has this Pt range " << dtPtMin << " .. " << dtPt << " .. " << dtPtMax << " with no. sigmas = " << numSigmasPt << std::endl;
 #endif
 
       /// Now check the best track

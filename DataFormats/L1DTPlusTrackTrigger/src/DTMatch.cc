@@ -188,11 +188,11 @@ int DTMatch::getDTPt()
   float thisPhiB = fabs( static_cast< float >(this->getDTTSPhiB()) );
 
   /// By Station + 2*Wheel
-  float B_Pt[10] = {667.8, 433.9, 757.4, 525.1, 751.6, 539.8, 757.2, 525.5, 667.0, 435.0};
+  float B_Pt[10] = {-668.1, -433.6, -757.8, -524.7, -751.8, -539.5, -757.5, -525.6, -667.0, -435.0};
 
   if ( thisPhiB > 0.0 )
   {
-    return static_cast< int >( B_Pt[iSt+2*iWh] / thisPhiB );
+    return static_cast< int >( fabs(B_Pt[iSt+2*iWh]) / thisPhiB );
   }
 
   return 1000;
@@ -213,12 +213,12 @@ int DTMatch::getDTPtMin( float nSigmas )
   float thisSigmaPhiB = this->getPredSigmaPhiB();
 
   /// By Station + 2*Wheel
-  float B_Pt[10] = {667.8, 433.9, 757.4, 525.1, 751.6, 539.8, 757.2, 525.5, 667.0, 435.0};
+  float B_Pt[10] = {-668.1, -433.6, -757.8, -524.7, -751.8, -539.5, -757.5, -525.6, -667.0, -435.0};
 
   if ( thisPhiB > 0.0 )
   {
     float thisPhiBMax = thisPhiB + nSigmas * thisSigmaPhiB;
-    return static_cast< int >( B_Pt[iSt+2*iWh] / thisPhiBMax - 1);
+    return static_cast< int >( fabs(B_Pt[iSt+2*iWh]) / thisPhiBMax - 1);
   }
 
   return 0;
@@ -239,12 +239,12 @@ int DTMatch::getDTPtMax( float nSigmas )
   float thisSigmaPhiB = this->getPredSigmaPhiB();
 
   /// By Station + 2*Wheel
-  float B_Pt[10] = {667.8, 433.9, 757.4, 525.1, 751.6, 539.8, 757.2, 525.5, 667.0, 435.0};
+  float B_Pt[10] = {-668.1, -433.6, -757.8, -524.7, -751.8, -539.5, -757.5, -525.6, -667.0, -435.0};
 
   if ( thisPhiB > 0.0 )
   {
     float thisPhiBMin = thisPhiB - nSigmas * thisSigmaPhiB;
-    return static_cast< int >( B_Pt[iSt+2*iWh] / thisPhiBMin + 1);
+    return static_cast< int >( fabs(B_Pt[iSt+2*iWh]) / thisPhiBMin + 1);
   }
 
   return 1000;
@@ -813,7 +813,8 @@ unsigned int DTMatch::findPtBin( float aPtInv, unsigned int aMethod )
         thisPtBin = iBin;
         escapeFlag = true;
       }
-      else if ( stat == 2 && aPtInv > cutPtInvMB2[aMethod][iBin] ) /// Use the same thresholds as as Mu_2_1
+      else if ( stat == 2 && aPtInv > cutPtInvMB2[aMethod][iBin] ) /// aMethod gives the line in the table
+                                                                   /// One line for each Mu_X_Y
       {
         thisPtBin = iBin;
         escapeFlag = true;
