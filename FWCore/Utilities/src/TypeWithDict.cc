@@ -1,5 +1,6 @@
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/FriendlyName.h"
 #include "FWCore/Utilities/interface/FunctionWithDict.h"
@@ -29,6 +30,23 @@
 #include <cxxabi.h>
 
 namespace edm {
+   static
+   void throwTypeException(std::string const& function, std::string const& typeName) {
+      throw Exception(errors::DictionaryNotFound)
+         << "Function " << function << ",\n"
+         << "no data dictionary found for type:\n\n"
+         <<  typeName
+         << "\nMost likely the dictionary was never generated,\n"
+         << "but it may be that it was generated in the wrong package.\n"
+         << "Please add (or move) the specification\n"
+         << "<class name=\"whatever\"/>\n"
+         << "to the appropriate classes_def.xml file.\n"
+         << "If the class is a template instance, you may need\n"
+         << "to define a dummy variable of this type in classes.h.\n"
+         << "Also, if this class has any transient members,\n"
+         << "you need to specify them in classes_def.xml.";
+
+   }
 
   TypeWithDict
   TypeWithDict::byName(std::string const& name, long property /*= 0L*/) {
@@ -136,16 +154,13 @@ namespace edm {
     property_(property) {
 
     type_ = gInterpreter->Type_Factory(ti);
-    if (!gInterpreter->Type_TypeInfo(type_)) {
+    if (!gInterpreter->Type_IsValid(type_)) {
       // This can happen if no dictionary has been loaded for the class or enum.
       // If this is a class, trigger the loading of the dictionary.
       class_ = TClass::GetClass(ti);
     }
-    if (!gInterpreter->Type_TypeInfo(type_)) {
-      // FIXME: Replace this with an exception!
-      fprintf(stderr, "TypeWithDict(std::type_info const&, long): "
-              "Type_TypeInfo returns nullptr!\n");
-      abort();
+    if (!gInterpreter->Type_IsValid(type_)) {
+      throwTypeException("TypeWithDict(TType*, property): ", name());
     }
     dataType_ = TDataType::GetDataType(TDataType::GetType(ti));
     if (class_ == nullptr &&
@@ -187,14 +202,11 @@ namespace edm {
       return;
     }
     {
-      std::type_info const* info = gInterpreter->Type_TypeInfo(ttype);
-      if (!info) {
-        // FIXME: Replace this with an exception!
-        fprintf(stderr, "TypeWithDict(TType*, property): "
-                "Type_TypeInfo returns nullptr!\n");
-        abort();
+      bool valid = gInterpreter->Type_IsValid(ttype);
+      if (!valid) {
+        throwTypeException("TypeWithDict(TType*, property): ", name());
       }
-      ti_ = info;
+      ti_ = gInterpreter->Type_TypeInfo(ttype);
     }
     if (gInterpreter->Type_IsConst(ttype)) {
       // Note: This is not possible if created by typeid.
@@ -220,10 +232,7 @@ namespace edm {
       return false;
     }
     if (type_ == nullptr) {
-      // FIXME: Replace this with an exception!
-      fprintf(stderr, "TypeWithDict::operator bool(): "
-              "type_ is nullptr!\n");
-      abort();
+      throwTypeException("TypeWithDict::operator bool(): ", name());
     }
     return gInterpreter->Type_Bool(type_);
   }
@@ -234,10 +243,7 @@ namespace edm {
       return true;
     }
     if (type_ == nullptr) {
-      // FIXME: Replace this with an exception!
-      fprintf(stderr, "TypeWithDict::hasDictionary(): "
-              "type_ is nullptr!\n");
-      abort();
+      throwTypeException("TypeWithDict::hasDictionary(): ", name());
     }
     return gInterpreter->Type_Bool(type_);
   }
@@ -646,10 +652,10 @@ namespace edm {
   bool
   TypeWithDict::hasBase(std::string const& basename) const {
     if (class_ == nullptr) {
-      // FIXME: Turn this into a throw!
-      fprintf(stderr, "TypeWithDict::hasBase(basename): "
-              "type is not a class!\n");
-      abort();
+      throw Exception(errors::LogicError)
+        << "Function TypeWithDict::hasBase(std::string const&), type\n"
+        << name()
+        << "\nis not a class\n";
     }
     TClass* cl = class_->GetBaseClass(basename.c_str());
     if (cl != nullptr) {
@@ -661,16 +667,16 @@ namespace edm {
   bool
   TypeWithDict::hasBase(TypeWithDict const& basety) const {
     if (class_ == nullptr) {
-      // FIXME: Turn this into a throw!
-      fprintf(stderr, "TypeWithDict::hasBase(TypeWithDict const&): "
-              "type is not a class!\n");
-      abort();
+      throw Exception(errors::LogicError)
+        << "Function TypeWithDict::hasBase(TypeWithDict const&), type\n"
+        << name()
+        << "\nis not a class\n";
     }
     if (basety.class_ == nullptr) {
-      // FIXME: Turn this into a throw!
-      fprintf(stderr, "TypeWithDict::hasBase(TypeWithDict const&): "
-              "basety is not a class!\n");
-      abort();
+      throw Exception(errors::LogicError)
+        << "Function TypeWithDict::hasBase(TypeWithDict const&), base type\n"
+        << name()
+        << "\nis not a class\n";
     }
     TClass* cl = class_->GetBaseClass(basety.name().c_str());
     if (cl != nullptr) {
@@ -682,16 +688,16 @@ namespace edm {
   int
   TypeWithDict::getBaseClassOffset(TypeWithDict const& baseClass) const {
     if (class_ == nullptr) {
-      // FIXME: Turn this into a throw!
-      fprintf(stderr, "TypeWithDict::getBaseClassOffset(TypeWithDict const&): "
-              "type is not a class!\n");
-      abort();
+      throw Exception(errors::LogicError)
+        << "Function TypeWithDict::getBaseClassOffset(), type\n"
+        << name()
+        << "\nis not a class\n";
     }
     if (baseClass.class_ == nullptr) {
-      // FIXME: Turn this into a throw!
-      fprintf(stderr, "TypeWithDict::getBaseClassOffset(TypeWithDict const&): "
-              "baseClass is not a class!\n");
-      abort();
+      throw Exception(errors::LogicError)
+        << "Function TypeWithDict::getBaseClassOffset(), base type\n"
+        << name()
+        << "\nis not a class\n";
     }
     int offset = class_->GetBaseClassOffset(baseClass.class_);
     return offset;
@@ -700,16 +706,17 @@ namespace edm {
   int
   TypeWithDict::stringToEnumValue(std::string const& name) const {
     if (enum_ == nullptr) {
-      fprintf(stderr, "TypeWithDict::stringToEnumValue(name): "
-              "type is not an enum!\n");
-      abort();
+      throw Exception(errors::LogicError)
+        << "Function TypeWithDict::stringToEnumValue(), type\n"
+        << name
+        << "\nis not an enum\n";
     }
     TEnumConstant const* ec = enum_->GetConstant(name.c_str());
     if (!ec) {
-      // FIXME: Turn this into a throw!
-      fprintf(stderr, "TypeWithDict::stringToEnumValue(name): "
-              "no enum constant named '%s'!\n", name.c_str());
-      abort();
+      throw Exception(errors::LogicError)
+        << "Function TypeWithDict::stringToEnumValue(), type\n"
+        << name
+        << "\nis not an enum constant\n";
     }
     return static_cast<int>(ec->GetValue());
   }
@@ -750,18 +757,19 @@ namespace edm {
       // The enum is a class member.
       TypeWithDict Tycl(*gInterpreter->Type_TypeInfo(TTy));
       if (Tycl.class_ == nullptr) {
-        // FIXME: Replace this with an exception!
-        fprintf(stderr, "TypeWithDict(std::type_info const&, long): "
-                "Enum parent is not a class!\n");
-        abort();
+        throw Exception(errors::LogicError)
+          << "Function TypeWithDict::processEnumeration(), enum parent\n"
+          << name() 
+          << "\nis not a class\n";
       }
       TObject* tobj =
         Tycl.class_->GetListOfEnums()->FindObject(unscopedName().c_str());
       if (tobj == nullptr) {
-        // FIXME: Replace this with an exception!
-        fprintf(stderr, "TypeWithDict(std::type_info const&, long): "
-                "Enum not found in containing class!\n");
-        abort();
+        throw Exception(errors::LogicError)
+          << "Function TypeWithDict::processEnumeration(), enum\n"
+          << name()
+          << "\nnot found in containing class\n"
+          << unscopedName() << "\n";
       }
       enum_ = reinterpret_cast<TEnum*>(tobj);
     } else if (name().size() != unscopedName().size()) {
@@ -772,10 +780,11 @@ namespace edm {
       assert(cl != nullptr);
       TObject* tobj = cl->GetListOfEnums()->FindObject(unscopedName().c_str());
       if (tobj == nullptr) {
-        // FIXME: Replace this with an exception!
-        fprintf(stderr, "TypeWithDict(std::type_info const&, long): "
-                "Enum not found in named namespace!\n");
-        abort();
+        throw Exception(errors::LogicError)
+          << "Function TypeWithDict::processEnumeration(), enum\n"
+          << name()
+          << "\nnot found in named namespace\n"
+          << unscopedName() << "\n";
       }
       enum_ = reinterpret_cast<TEnum*>(tobj);
     } else {
@@ -783,18 +792,17 @@ namespace edm {
       //gROOT->GetListOfEnums()->Dump();
       TObject* tobj = gROOT->GetListOfEnums()->FindObject(name().c_str());
       if (tobj == nullptr) {
-        // FIXME: Replace this with an exception!
-        fprintf(stderr, "TypeWithDict(std::type_info const&, long): "
-                "Enum not found in global namespace!\n");
-        abort();
+        throw Exception(errors::LogicError)
+          << "Function TypeWithDict::processEnumeration(), enum\n"
+          << name()
+          << "\nnot found in global namespace\n";
       }
       enum_ = reinterpret_cast<TEnum*>(tobj);
     }
     if (enum_ == nullptr) {
-      // FIXME: Replace this with an exception!
-      fprintf(stderr, "TypeWithDict(std::type_info const&, long): "
-              "enum_ not set for enum type!\n");
-      abort();
+      throw Exception(errors::LogicError)
+        << "Function TypeWithDict::processEnumeration(), enum not set for enum type\n"
+        << name() << "\n";
     }
   }
   //-------------------------------------------------------------
@@ -804,7 +812,7 @@ namespace edm {
   // A related free function
   bool
   hasDictionary(std::type_info const& ti) {
-    return gInterpreter->Type_TypeInfo(gInterpreter->Type_Factory(ti));
+    return gInterpreter->Type_IsValid(gInterpreter->Type_Factory(ti));
   }
 
   bool
