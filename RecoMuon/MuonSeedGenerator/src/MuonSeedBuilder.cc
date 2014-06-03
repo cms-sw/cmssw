@@ -1183,8 +1183,10 @@ bool MuonSeedBuilder::foundMatchingSegment( int type, SegmentContainer& protoTra
     best_match = index;
     // propagate the eta and phi to next layer
     if ((*it)->dimension() != 4 ) {
-       phi_last = phi_last;
-       eta_last = eta_last;    
+      // Self assignment, is this a bug??
+      // should this have been (phi/eta)_last = (phi/eta)_temp to make it reset?
+      //phi_last = phi_last;
+      //eta_last = eta_last;    
     } else {
        phi_last = gp2.phi(); 
        eta_last = gp2.eta();
