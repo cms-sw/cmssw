@@ -11,8 +11,6 @@
 #include "TDictAttributeMap.h"
 
 #include <cassert>
-#include <cstdio>
-#include <cstdlib>
 #include <ostream>
 #include <sstream>
 
@@ -185,13 +183,8 @@ namespace edm {
     //edm::FunctionWithDict giFunc = wrType.FunctionMemberByName("getInterface");
     //giFunc.Invoke(wrapperInterfaceBase());
     edm::invokeByName(wrapperInterfaceBase(), wrType, "getInterface");
-    assert((wrapperInterfaceBase() != 0) && "BranchDescription::initFromDictionary(): "
+    assert((wrapperInterfaceBase() != nullptr) && "BranchDescription::initFromDictionary(): "
       "wrapperInterfaceBase() is nullptr!!");
-    if (wrapperInterfaceBase() == nullptr) {
-      fprintf(stderr, "BranchDescription::initFromDictionary(): "
-        "wrapperInterfaceBase() is nullptr!\n");
-      abort();
-    }
     setTransient(false);
     setSplitLevel(invalidSplitLevel);
     setBasketSize(invalidBasketSize);
