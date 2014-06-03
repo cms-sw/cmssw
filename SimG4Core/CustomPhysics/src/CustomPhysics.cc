@@ -1,6 +1,8 @@
 #include "SimG4Core/CustomPhysics/interface/CustomPhysics.h"
 #include "SimG4Core/CustomPhysics/interface/CustomPhysicsList.h"
+#include "SimG4Core/CustomPhysics/interface/CustomPhysicsListSS.h"
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics95msc93.h"
+#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4DecayPhysics.hh"
@@ -23,13 +25,15 @@ CustomPhysics::CustomPhysics(G4LogicalVolumeToDDLogicalPartMap& map,
   int  ver     = p.getUntrackedParameter<int>("Verbosity",0);
   bool emPhys  = p.getUntrackedParameter<bool>("EMPhysics",true);
   bool hadPhys = p.getUntrackedParameter<bool>("HadPhysics",true);
+  bool ssPhys  = p.getUntrackedParameter<bool>("ExoticaPhysicsSS",false);
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
 			      << "QQGSP_FTFP_BERT_EML with Flags for EM Physics "
 			      << emPhys << " and for Hadronic Physics "
 			      << hadPhys << "\n";
 
   // EM Physics
-  RegisterPhysics(new CMSEmStandardPhysics95msc93("EM standard msc93",ver,""));
+  RegisterPhysics(new CMSEmStandardPhysics(ver));
+  //RegisterPhysics(new CMSEmStandardPhysics95msc93("EM standard msc93",ver,""));
 
   // Synchroton Radiation & GN Physics
   RegisterPhysics(new G4EmExtraPhysics(ver));
@@ -50,8 +54,12 @@ CustomPhysics::CustomPhysics(G4LogicalVolumeToDDLogicalPartMap& map,
   RegisterPhysics(new G4IonPhysics(ver));
 
   // Neutron tracking cut
-  RegisterPhysics( new G4NeutronTrackingCut(ver));
+  RegisterPhysics(new G4NeutronTrackingCut(ver));
 
   // Custom Physics
-  RegisterPhysics(new CustomPhysicsList("custom",p));    
+  if(ssPhys) {
+    RegisterPhysics(new CustomPhysicsListSS("custom",p));
+  } else {
+    RegisterPhysics(new CustomPhysicsList("custom",p));    
+  }
 }

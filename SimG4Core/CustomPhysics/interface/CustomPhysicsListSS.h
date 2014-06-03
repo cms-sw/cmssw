@@ -1,5 +1,5 @@
-#ifndef SimG4Core_CustomPhysicsList_H
-#define SimG4Core_CustomPhysicsList_H
+#ifndef SimG4Core_CustomPhysicsListSS_H
+#define SimG4Core_CustomPhysicsListSS_H
 
 #include "SimG4Core/CustomPhysics/interface/HadronicProcessHelper.hh"
 
@@ -11,11 +11,11 @@
 
 class G4ProcessHelper;
 
-class CustomPhysicsList : public G4VPhysicsConstructor 
+class CustomPhysicsListSS : public G4VPhysicsConstructor 
 {
 public:
-  CustomPhysicsList(std::string name, const edm::ParameterSet & p);
-  virtual ~CustomPhysicsList();
+  CustomPhysicsListSS(std::string name, const edm::ParameterSet & p);
+  virtual ~CustomPhysicsListSS();
 
   virtual void ConstructParticle();
   virtual void ConstructProcess();
@@ -35,6 +35,7 @@ private:
 
   std::string particleDefFilePath;
   std::string processDefFilePath;
+
 };
  
 #endif
