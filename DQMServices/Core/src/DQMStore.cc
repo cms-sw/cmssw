@@ -813,7 +813,7 @@ DQMStore::bookInt(const std::string &dir, const std::string &name)
 {
   if (collateHistograms_)
   {
-    if (MonitorElement *me = findObject(dir, name))
+    if (MonitorElement *me = findObject(dir, name, run_, 0, streamId_, moduleId_))
     {
       me->Fill(0);
       return me;
@@ -843,7 +843,7 @@ DQMStore::bookFloat(const std::string &dir, const std::string &name)
 {
   if (collateHistograms_)
   {
-    if (MonitorElement *me = findObject(dir, name))
+    if (MonitorElement *me = findObject(dir, name, run_, 0, streamId_, moduleId_))
     {
       me->Fill(0.);
       return me;
@@ -875,7 +875,7 @@ DQMStore::bookString(const std::string &dir,
 {
   if (collateHistograms_)
   {
-    if (MonitorElement *me = findObject(dir, name))
+    if (MonitorElement *me = findObject(dir, name, run_, 0, streamId_, moduleId_))
       return me;
   }
 
