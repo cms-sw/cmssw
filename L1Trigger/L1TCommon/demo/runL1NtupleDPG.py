@@ -25,19 +25,19 @@ process.load("L1TriggerDPG.L1Ntuples.l1ExtraTreeProducer_cfi")
 
 process.l1extraParticles = cms.EDProducer("L1ExtraParticlesProd",
     muonSource = cms.InputTag("simGtDigis"),
-    etTotalSource = cms.InputTag("simCaloLegacyFormatDigis"),
-    nonIsolatedEmSource = cms.InputTag("simCaloLegacyFormatDigis","nonIsoEm"),
-    etMissSource = cms.InputTag("simCaloLegacyFormatDigis"),
-    htMissSource = cms.InputTag("simCaloLegacyFormatDigis"),
+    etTotalSource = cms.InputTag("caloStage1LegacyFormatDigis"),
+    nonIsolatedEmSource = cms.InputTag("caloStage1LegacyFormatDigis","nonIsoEm"),
+    etMissSource = cms.InputTag("caloStage1LegacyFormatDigis"),
+    htMissSource = cms.InputTag("caloStage1LegacyFormatDigis"),
     produceMuonParticles = cms.bool(True),
-    forwardJetSource = cms.InputTag("simCaloLegacyFormatDigis","forJets"),
-    centralJetSource = cms.InputTag("simCaloLegacyFormatDigis","cenJets"),
+    forwardJetSource = cms.InputTag("caloStage1LegacyFormatDigis","forJets"),
+    centralJetSource = cms.InputTag("caloStage1LegacyFormatDigis","cenJets"),
     produceCaloParticles = cms.bool(True),
-    tauJetSource = cms.InputTag("simCaloLegacyFormatDigis","tauJets"),
-    isolatedEmSource = cms.InputTag("simCaloLegacyFormatDigis","isoEm"),
-    etHadSource = cms.InputTag("simCaloLegacyFormatDigis"),
-    hfRingEtSumsSource = cms.InputTag("simCaloLegacyFormatDigis"),
-    hfRingBitCountsSource = cms.InputTag("simCaloLegacyFormatDigis"),
+    tauJetSource = cms.InputTag("caloStage1LegacyFormatDigis","tauJets"),
+    isolatedEmSource = cms.InputTag("caloStage1LegacyFormatDigis","isoEm"),
+    etHadSource = cms.InputTag("caloStage1LegacyFormatDigis"),
+    hfRingEtSumsSource = cms.InputTag("caloStage1LegacyFormatDigis"),
+    hfRingBitCountsSource = cms.InputTag("caloStage1LegacyFormatDigis"),
     centralBxOnly = cms.bool(True),
     ignoreHtMiss = cms.bool(False)
 )
@@ -57,7 +57,7 @@ process.GlobalTag.globaltag = cms.string('POSTLS162_V2::All')
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
-readFiles = cms.untracked.vstring("file:SimL1Emulator_Stage1.root")
+readFiles = cms.untracked.vstring("file:SimL1Emulator_Stage1_PP.root")
 secFiles = cms.untracked.vstring()
 process.source = cms.Source ("PoolSource",
                              fileNames = readFiles,
