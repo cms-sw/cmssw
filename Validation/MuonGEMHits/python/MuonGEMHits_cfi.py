@@ -3,14 +3,14 @@ import FWCore.ParameterSet.Config as cms
 
 gemHitsValidation = cms.EDAnalyzer('MuonGEMHits',
     outputFile = cms.string(''),
-    verbose = cms.untracked.int32(0),
+    verboseSimHit = cms.untracked.int32(1),
     simInputLabel = cms.untracked.string('g4SimHits'),
 		simMuOnlyGEM = cms.untracked.bool(True),
 		discardEleHitsGEM = cms.untracked.bool(True),
     simTrackMatching = cms.PSet( 
        gemMinPt = cms.untracked.double(4.5),
        gemMinEta = cms.untracked.double(1.45),
-       gemMaxEta = cms.untracked.double(2.5),
+       gemMaxEta = cms.untracked.double(2.6),
 			 EtaRangeForPhi = cms.untracked.vdouble( 1.5,2.2, 1.6,2.1, 1.6,2.5),
     ),
     PlotBinInfo = cms.PSet(

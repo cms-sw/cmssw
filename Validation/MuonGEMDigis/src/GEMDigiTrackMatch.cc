@@ -31,7 +31,7 @@ void GEMDigiTrackMatch::bookHisto(const GEMGeometry* geom){
   const float PI=TMath::Pi();
 	const char* l_suffix[4] = {"_l1","_l2","_l1or2","_l1and2"};
 	const char* s_suffix[3] = {"_st1","_st2_short","_st2_long"};
-	//const char* c_suffix[2] = {"_even","_odd"};
+	const char* c_suffix[2] = {"_even","_odd"};
 
   nstation = theGEMGeometry->regions()[0]->stations().size(); 
 	for( unsigned int j=0 ; j<nstation ; j++) {
@@ -41,7 +41,6 @@ void GEMDigiTrackMatch::bookHisto(const GEMGeometry* geom){
 			string track_phi_title = string("track_phi")+";SimTrack #phi;# of tracks";
 	 		track_eta[j] = dbe_->book1D(track_eta_name.c_str(), track_eta_title.c_str(),140,minEta_,maxEta_);
 			track_phi[j] = dbe_->book1D(track_phi_name.c_str(), track_phi_title.c_str(),100,-PI,PI);
-			
 	 		for( unsigned int i=0 ; i< 4; i++) {
 				 string suffix = string(l_suffix[i])+string(s_suffix[j]);
 				 string dg_eta_name = string("dg_eta")+suffix;
@@ -180,7 +179,9 @@ void GEMDigiTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup&
 		FillWithTrigger( dg_sh_phi, track_.gem_sh  ,  track_.phi );
 		FillWithTrigger( dg_phi,    track_.gem_dg  ,  track_.phi );
 		FillWithTrigger( pad_phi,   track_.gem_pad ,  track_.phi );
-		
+	
+   
+    /*	
 
     // Calculation of the localXY efficiency
     GlobalPoint gp_track(match_sh.propagatedPositionGEM());
@@ -247,7 +248,6 @@ void GEMDigiTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup&
       track_.has_gem_dg_l2 |= 1;
       track_.has_gem_pad_l2 |= 1;
     }
-/*
     dg_lx_even->Fill( track_.gem_lx_even);
     dg_lx_odd->Fill( track_.gem_lx_odd);
     dg_ly_even->Fill( track_.gem_ly_even);
