@@ -22,8 +22,10 @@ namespace cms
 //____________________________________________________________________________||
   TCMETProducer::TCMETProducer(const edm::ParameterSet& iConfig)
   {
-    std::string alias(iConfig.getParameter<std::string>("alias"));
-    produces<reco::METCollection>().setBranchAlias(alias.c_str());
+    std::string alias = iConfig.exists("alias") ? iConfig.getParameter<std::string>("alias") : "";
+
+    produces<reco::METCollection>().setBranchAlias(alias);
+
     tcMetAlgo_.configure(iConfig, consumesCollector());
   }
 
