@@ -34,7 +34,7 @@ process.output = cms.OutputModule(
 #                                           'drop FEDRawDataCollection_virginRawDataRepacker_*_*'),
     outputCommands = cms.untracked.vstring('drop *',
                                            'keep *_*_*_L1TEMULATION'),
-    fileName = cms.untracked.string('SimL1Emulator_Stage1.root'),
+    fileName = cms.untracked.string('SimL1Emulator_Stage1_HI.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
         dataTier = cms.untracked.string('')
