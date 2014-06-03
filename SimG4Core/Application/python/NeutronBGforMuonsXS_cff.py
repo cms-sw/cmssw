@@ -10,6 +10,9 @@ def customise(process):
     process.common_maximum_time.DeadRegions = cms.vstring()
     # Physics List XS
     process.g4SimHits.Physics.type = cms.string('SimG4Core/Physics/FTFP_BERT_XS_EML')
+    process.g4SimHits.Physics.CutsOnProton  = cms.untracked.bool(False)
+    process.g4SimHits.Physics.FlagMuNucl  = cms.bool(True)
+    process.g4SimHits.Physics.FlagFluo    = cms.bool(True)
     # Eta cut
     process.g4SimHits.Generator.MinEtaCut = cms.double(-7.0)
     process.g4SimHits.Generator.MaxEtaCut = cms.double(7.0)

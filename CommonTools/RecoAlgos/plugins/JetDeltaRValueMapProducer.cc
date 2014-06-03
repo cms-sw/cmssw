@@ -39,7 +39,7 @@ public:
   JetDeltaRValueMapProducer ( edm::ParameterSet const & params ) :
       srcToken_( consumes< typename edm::View<T> >( params.getParameter<edm::InputTag>("src") ) ),
       matchedToken_( consumes< typename edm::View<T> >( params.getParameter<edm::InputTag>( "matched" ) ) ),
-      distMin_( params.getParameter<double>( "distMin" ) ),
+      distMax_( params.getParameter<double>( "distMax" ) ),
       value_( params.getParameter<std::string>("value") ),
       evaluation_( value_ )
   {
@@ -48,73 +48,72 @@ public:
 
   virtual ~JetDeltaRValueMapProducer() {}
 
-    virtual void beginJob() override {}
-    virtual void endJob() override {}
+private:
 
-    virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override {
+  virtual void beginJob() override {}
+  virtual void endJob() override {}
+
+  virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup) override {
+
+    std::auto_ptr< JetValueMap > jetValueMap ( new JetValueMap() );
+    edm::ValueMap<float>::Filler filler(*jetValueMap);
 
 
+    edm::Handle< typename edm::View<T> > h_jets1;
+    iEvent.getByToken( srcToken_, h_jets1 );
+    edm::Handle< typename edm::View<T> > h_jets2;
+    iEvent.getByToken( matchedToken_, h_jets2 );
 
-      std::auto_ptr< JetValueMap > jetValueMap ( new JetValueMap() );
-      edm::ValueMap<float>::Filler filler(*jetValueMap);
+    std::vector<float> values( h_jets1->size(), -99999 );
+    std::vector<bool> jets1_locks( h_jets1->size(), false );
 
-      edm::Handle< typename edm::View<T> > h_jets1;
-      iEvent.getByToken( srcToken_, h_jets1 );
-      edm::Handle< typename edm::View<T> > h_jets2;
-      iEvent.getByToken( matchedToken_, h_jets2 );
+    for ( typename edm::View<T>::const_iterator ibegin = h_jets2->begin(),
+          iend = h_jets2->end(), ijet = ibegin;
+          ijet != iend; ++ijet )
+    {
+      float matched_dR2 = 1e9;
+      int matched_index = -1;
+     
+      for ( typename edm::View<T>::const_iterator jbegin = h_jets1->begin(),
+            jend = h_jets1->end(), jjet = jbegin;
+            jjet != jend; ++jjet )
+      {
+        int index=jjet - jbegin;
 
-      std::vector<float> values; values.reserve( h_jets1->size() );
+        if( jets1_locks.at(index) ) continue; // skip jets that have already been matched
 
-      // Now set the Ptrs with the orphan handles.
-      std::vector<float> v_jets2_eta, v_jets2_phi;
-      float jet1_eta, jet1_phi;
-      for ( typename edm::View<T>::const_iterator ibegin = h_jets1->begin(),
-	      iend = h_jets1->end(), ijet = ibegin;
-	    ijet != iend; ++ijet ) {
-	float minDR2=9999;
-	float value=-9999;
-
-	jet1_eta=ijet->eta();
-	jet1_phi=ijet->phi();
-	
-	for ( typename edm::View<T>::const_iterator jbegin = h_jets2->begin(),
-		jend = h_jets2->end(), jjet = jbegin;
-	      jjet != jend; ++jjet ) {
-
-	  if(ijet==ibegin){
-	    v_jets2_eta.push_back(jjet->eta());
-	    v_jets2_phi.push_back(jjet->phi());
-	  }
-
-	  int index=jjet - jbegin;
-	  float dR2=reco::deltaR2(jet1_eta,jet1_phi,v_jets2_eta.at(index),v_jets2_phi.at(index));
-	  if ( dR2 < distMin_*distMin_ && dR2 < minDR2) {
-	    // Check the selection
-	    value = evaluation_(*jjet);
-	    minDR2 = dR2;
-	  }
-	}// end loop over matched jets
-
-	// Fill to the vector
-	values.push_back( value );
-
+        float temp_dR2 = reco::deltaR2(ijet->eta(),ijet->phi(),jjet->eta(),jjet->phi());
+        if ( temp_dR2 < matched_dR2 )
+        {
+          matched_dR2 = temp_dR2;
+          matched_index = index;
+        }
       }// end loop over src jets
-      
-      filler.insert(h_jets1, values.begin(), values.end());
-      filler.fill();
 
-      // put  in Event
-      iEvent.put(jetValueMap);
+      if( matched_index>=0 )
+      {
+        if ( matched_dR2 > distMax_*distMax_ )
+          edm::LogWarning("MatchedJetsFarApart") << "Matched jets separated by dR greater than distMax=" << distMax_;
+        else
+        {
+          jets1_locks.at(matched_index) = true;
+          values.at(matched_index) = evaluation_(*ijet);
+        }
+      }
+    }// end loop over matched jets
+    
+    filler.insert(h_jets1, values.begin(), values.end());
+    filler.fill();
 
-    }
+    // put  in Event
+    iEvent.put(jetValueMap);
+  }
 
-  protected:
-    edm::EDGetTokenT< typename edm::View<T> >                  srcToken_;
-    edm::EDGetTokenT< typename edm::View<T> >                  matchedToken_;
-    double                         distMin_;
-    std::string                    value_;
-    StringObjectFunction<T>        evaluation_;
-
+  edm::EDGetTokenT< typename edm::View<T> >  srcToken_;
+  edm::EDGetTokenT< typename edm::View<T> >  matchedToken_;
+  double                                     distMax_;
+  std::string                                value_;
+  StringObjectFunction<T>                    evaluation_;
 };
 
 typedef JetDeltaRValueMapProducer<reco::Jet> RecoJetDeltaRValueMapProducer;

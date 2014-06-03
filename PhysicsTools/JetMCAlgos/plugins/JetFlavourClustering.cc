@@ -473,27 +473,36 @@ JetFlavourClustering::matchReclusteredJets(const edm::Handle<edm::View<reco::Jet
 
    for(size_t j=0; j<jets->size(); ++j)
    {
-     double matchedDR = 1e9;
+     double matchedDR2 = 1e9;
      int matchedIdx = -1;
 
      for(size_t rj=0; rj<reclusteredJets.size(); ++rj)
      {
        if( matchedLocks.at(rj) ) continue; // skip jets that have already been matched
 
-       double tempDR = reco::deltaR( jets->at(j).rapidity(), jets->at(j).phi(), reclusteredJets.at(rj).rapidity(), reclusteredJets.at(rj).phi_std() );
-       if( tempDR < matchedDR )
+       double tempDR2 = reco::deltaR2( jets->at(j).rapidity(), jets->at(j).phi(), reclusteredJets.at(rj).rapidity(), reclusteredJets.at(rj).phi_std() );
+       if( tempDR2 < matchedDR2 )
        {
-         matchedDR = tempDR;
+         matchedDR2 = tempDR2;
          matchedIdx = rj;
        }
      }
 
-     if( matchedIdx>=0 ) matchedLocks.at(matchedIdx) = true;
+     if( matchedIdx>=0 )
+     {
+       if ( matchedDR2 > rParam_*rParam_ )
+       {
+         edm::LogError("JetMatchingFailed") << "Matched reclustered jet " << matchedIdx << " and original jet " << j <<" are separated by dR=" << sqrt(matchedDR2) << " which is greater than the jet size R=" << rParam_ << ".\n"
+                                            << "This is not expected so please check that the jet algorithm and jet size match those used for the original jet collection.";
+       }
+       else
+         matchedLocks.at(matchedIdx) = true;
+     }
+     else
+       edm::LogError("JetMatchingFailed") << "Matching reclustered to original jets failed. Please check that the jet algorithm and jet size match those used for the original jet collection.";
+
      matchedIndices.push_back(matchedIdx);
    }
-
-   if( std::find( matchedIndices.begin(), matchedIndices.end(), -1 ) != matchedIndices.end() )
-     edm::LogError("JetMatchingFailed") << "Matching reclustered to original jets failed. Please check that the jet algorithm and jet size match those used for the original jet collection.";
 }
 
 // ------------ method that matches groomed and original jets based on minimum dR ------------
@@ -507,27 +516,37 @@ JetFlavourClustering::matchGroomedJets(const edm::Handle<edm::View<reco::Jet> >&
 
    for(size_t gj=0; gj<groomedJets->size(); ++gj)
    {
-     double matchedDR = 1e9;
+     double matchedDR2 = 1e9;
      int matchedIdx = -1;
 
-     for(size_t j=0; j<jets->size(); ++j)
+     if( groomedJets->at(gj).pt()>0. ) // skips pathological cases of groomed jets with Pt=0
      {
-       if( jetLocks.at(j) ) continue; // skip jets that have already been matched
-
-       double tempDR = reco::deltaR( jets->at(j).rapidity(), jets->at(j).phi(), groomedJets->at(gj).rapidity(), groomedJets->at(gj).phi() );
-       if( tempDR < matchedDR )
+       for(size_t j=0; j<jets->size(); ++j)
        {
-         matchedDR = tempDR;
-         matchedIdx = j;
+         if( jetLocks.at(j) ) continue; // skip jets that have already been matched
+
+         double tempDR2 = reco::deltaR2( jets->at(j).rapidity(), jets->at(j).phi(), groomedJets->at(gj).rapidity(), groomedJets->at(gj).phi() );
+         if( tempDR2 < matchedDR2 )
+         {
+           matchedDR2 = tempDR2;
+           matchedIdx = j;
+         }
        }
      }
 
-     if( matchedIdx>=0 ) jetLocks.at(matchedIdx) = true;
+     if( matchedIdx>=0 )
+     {
+       if ( matchedDR2 > rParam_*rParam_ )
+       {
+         edm::LogWarning("MatchedJetsFarApart") << "Matched groomed jet " << gj << " and original jet " << matchedIdx <<" are separated by dR=" << sqrt(matchedDR2) << " which is greater than the jet size R=" << rParam_ << ".\n"
+                                                << "This is not expected so the matching of these two jets has been discarded. Please check that the two jet collections belong to each other.";
+         matchedIdx = -1;
+       }
+       else
+         jetLocks.at(matchedIdx) = true;
+     }
      jetIndices.push_back(matchedIdx);
    }
-
-   if( std::find( jetIndices.begin(), jetIndices.end(), -1 ) != jetIndices.end() )
-     edm::LogError("JetMatchingFailed") << "Matching groomed to original jets failed. Please check that the two jet collections belong to each other.";
 
    for(size_t j=0; j<jets->size(); ++j)
    {
