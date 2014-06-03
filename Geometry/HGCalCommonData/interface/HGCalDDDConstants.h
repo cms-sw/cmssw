@@ -3,8 +3,8 @@
 
 /** \class HGCalDDDConstants
  *
- * this class reads the constant section of
- * the shashlik-numbering xml-file
+ * this class reads the constant section of the numbering
+ * xml-files of the  high granulairy calorimeter
  *  
  *  $Date: 2014/03/20 00:06:50 $
  * \author Sunanda Banerjee, SINP <sunanda.banerjee@cern.ch>

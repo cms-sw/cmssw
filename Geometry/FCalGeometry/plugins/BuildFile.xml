@@ -1,6 +1,7 @@
-<library   file="*.cc" name="GeometryCaloTopologyPlugins">
+<library   file="*.cc" name="GeometryFCalGeometryPlugins">
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/ParameterSet"/>
+  <use   name="Geometry/FCalGeometry"/>
   <use   name="Geometry/CaloTopology"/>
   <use   name="Geometry/Records"/>
   <use   name="boost"/>

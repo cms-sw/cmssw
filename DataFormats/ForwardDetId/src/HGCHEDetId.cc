@@ -42,6 +42,11 @@ HGCHEDetId& HGCHEDetId::operator=(const DetId& gen) {
   return (*this);
 }
 
+HGCHEDetId HGCHEDetId::geometryCell () const {
+  int sub = ((subdet() == HGCHEF) ? 0 : ((id_>>18)&0x1));
+  return HGCHEDetId(subdet(), zside(), layer(), sector(), sub, 0);
+}
+
 std::ostream& operator<<(std::ostream& s,const HGCHEDetId& id) {
   if  (id.subdet() == HGCHEF || id.subdet() == HGCHEB ||
        id.subdet() == HGCHET) {

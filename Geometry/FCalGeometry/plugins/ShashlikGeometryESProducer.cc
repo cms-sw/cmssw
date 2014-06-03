@@ -4,9 +4,9 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloTopology/interface/ShashlikGeometry.h"
+#include "Geometry/FCalGeometry/interface/ShashlikGeometry.h"
 #include "Geometry/CaloTopology/interface/ShashlikTopology.h"
-#include "Geometry/CaloTopology/src/ShashlikGeometryBuilderFromDDD.h"
+#include "Geometry/FCalGeometry/src/ShashlikGeometryBuilderFromDDD.h"
 
 class ShashlikGeometryESProducer : public edm::ESProducer
 {

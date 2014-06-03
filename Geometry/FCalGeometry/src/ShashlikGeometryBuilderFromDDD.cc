@@ -1,5 +1,5 @@
 #include "ShashlikGeometryBuilderFromDDD.h"
-#include "Geometry/CaloTopology/interface/ShashlikGeometry.h"
+#include "Geometry/FCalGeometry/interface/ShashlikGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"

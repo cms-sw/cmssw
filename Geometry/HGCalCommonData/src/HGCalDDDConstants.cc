@@ -341,7 +341,8 @@ void HGCalDDDConstants::loadGeometry(const DDFilteredView& _fv,
 				     std::string & sdTag) {
  
   DDFilteredView fv = _fv;
-  bool dodet = true;
+  bool dodet(true), first(true);
+  int  zpFirst(0);
   std::vector<hgtrform> trforms;
  
   while (dodet) {
@@ -356,6 +357,7 @@ void HGCalDDDConstants::loadGeometry(const DDFilteredView& _fv,
       int sec  = (nsiz > 1) ? copy[nsiz-2] : -1;
       int zp   = (nsiz > 3) ? copy[nsiz-4] : -1;
       if (zp !=1 ) zp = -1;
+      if (first) {first = false; zpFirst = zp;}
       const DDTrap & trp = static_cast<DDTrap>(sol);
       HGCalDDDConstants::hgtrap mytr(lay,trp.x1(),trp.x2(),
 				     0.5*(trp.y1()+trp.y2()),
@@ -372,7 +374,7 @@ void HGCalDDDConstants::loadGeometry(const DDFilteredView& _fv,
 	if (layer_.size() == 0) nSectors = 1;
 	layer_.push_back(lay);
       } else if (std::find(layer_.begin(),layer_.end(),lay) == layer_.begin()){
-	++nSectors;
+	if (zp == zpFirst) ++nSectors;
       }
       DD3Vector x, y, z;
       fv.rotation().GetComponents( x, y, z ) ;

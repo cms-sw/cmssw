@@ -6,11 +6,13 @@
  * by regular CaloGeometryLoader<T>
  * Fedor Ratnikov, Apr. 8 2014
  */
-#include "Geometry/CaloTopology/interface/ShashlikGeometry.h"
+#include "Geometry/FCalGeometry/interface/ShashlikGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGenericDetId.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
 #include "FWCore/Utilities/interface/Exception.h"
+
+//#define DebugLog
 
 ShashlikGeometry::ShashlikGeometry(const ShashlikTopology& topology)
   : mTopology (topology)
@@ -27,7 +29,9 @@ void
 ShashlikGeometry::initializeParms() // assume only m_cellVec are available
 {
   size_t nZ[2] = {0, 0};
+#ifdef DefineLog
   std::cout << "ShashlikGeometry::initializeParms()-> " << m_cellVec.size() << " cells available" << std::endl;
+#endif
   for (size_t i=0; i < m_cellVec.size(); ++i)
   {
     //if (i > 10 && i < 65790) continue;
@@ -60,7 +64,9 @@ ShashlikGeometry::initializeParms() // assume only m_cellVec are available
 	}
     }
     else {
+#ifdef DebugLog
       std::cout << " missing cell " << i << std::endl;
+#endif
     }
   }
   for (size_t iz = 0; iz < 2; ++iz) {
@@ -71,7 +77,9 @@ ShashlikGeometry::initializeParms() // assume only m_cellVec are available
       mSide[iz].xMax *= absZ;
       mSide[iz].yMin *= absZ;
       mSide[iz].yMax *= absZ;
+#ifdef DebugLog
       std::cout << "side constants: " << iz << "->" <<  mSide[iz].zMean<<'/'<<mSide[iz].xMin<<'/'<<mSide[iz].xMax<<'/'<<mSide[iz].yMin<<'/'<<mSide[iz].yMax<<std::endl;
+#endif
     } 
   }
   // internal cross check
@@ -92,11 +100,13 @@ int ShashlikGeometry::xindex( CCGFloat x,
   int result = int (0.5 + mSide[iz].ixMin +
 		    (xRef - mSide[iz].xMin) / (mSide[iz].xMax - mSide[iz].xMin) * 
 		    (mSide[iz].ixMax - mSide[iz].ixMin));
-//   std::cout << "ShashlikGeometry::xindex-> "
-// 	    << "min/max/ref:" << mSide[iz].xMin << '/' << mSide[iz].xMax << '/' << xRef
-// 	    << " imin/max:" << mSide[iz].ixMin << '/' << mSide[iz].ixMax
-// 	    << " result: " << result
-// 	    << std::endl;
+#ifdef DebugLog
+  std::cout << "ShashlikGeometry::xindex-> "
+ 	    << "min/max/ref:" << mSide[iz].xMin << '/' << mSide[iz].xMax << '/' << xRef
+ 	    << " imin/max:" << mSide[iz].ixMin << '/' << mSide[iz].ixMax
+ 	    << " result: " << result
+ 	    << std::endl;
+#endif
   return result;
 }
 
@@ -108,12 +118,14 @@ int ShashlikGeometry::yindex( CCGFloat y,
   int result = int (0.5 + mSide[iz].iyMin +
 		    (yRef - mSide[iz].yMin) / (mSide[iz].yMax - mSide[iz].yMin) * 
 		    (mSide[iz].iyMax - mSide[iz].iyMin));
-//   std::cout << "ShashlikGeometry::yindex-> "
-// 	    << "min/max/ref:" << mSide[iz].yMin << '/' << mSide[iz].yMax << '/' << yRef
-// 	    << " imin/max:" << mSide[iz].iyMin << '/' << mSide[iz].iyMax
-// 	    << " z/zref:" << z << '/' << mSide[iz].zMean
-// 	    << " result: " << result
-// 	    << std::endl;
+#ifdef DebugLog
+  std::cout << "ShashlikGeometry::yindex-> "
+ 	    << "min/max/ref:" << mSide[iz].yMin << '/' << mSide[iz].yMax << '/' << yRef
+ 	    << " imin/max:" << mSide[iz].iyMin << '/' << mSide[iz].iyMax
+ 	    << " z/zref:" << z << '/' << mSide[iz].zMean
+ 	    << " result: " << result
+ 	    << std::endl;
+#endif
   return result;
 }
 
@@ -133,10 +145,12 @@ ShashlikGeometry::newCell( const GlobalPoint& f1 ,
   if (cellIndex >= m_validIds.size ()) m_validIds.resize (cellIndex+1);
   m_cellVec[ cellIndex ] = TruncatedPyramid( cornersMgr(), f1, f2, f3, parm ) ;
   m_validIds[ cellIndex ] = detId ;
-//   std::cout << "ShashlikGeometry::newCell-> front:" << f1.x() << '/' << f1.y() << '/' << f1.z() 
-// 	    << " back:" <<  f2.x() << '/' << f2.y() << '/' << f2.z()
-// 	    << " id:" << EKDetId (detId)
-// 	    << std::endl; 
+#ifdef DebugLog
+  std::cout << "ShashlikGeometry::newCell-> front:" << f1.x() << '/' << f1.y() << '/' << f1.z() 
+ 	    << " back:" <<  f2.x() << '/' << f2.y() << '/' << f2.z()
+ 	    << " id:" << EKDetId (detId)
+ 	    << std::endl; 
+#endif
 }
 
 const CaloCellGeometry* ShashlikGeometry::getGeometry( const DetId& id ) const {

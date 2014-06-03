@@ -10,7 +10,7 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/HGCalCommonData/interface/ShashlikDDDConstants.h"
 #include "Geometry/CaloTopology/interface/ShashlikTopology.h"
-#include "Geometry/CaloTopology/interface/ShashlikGeometry.h"
+#include "Geometry/FCalGeometry/interface/ShashlikGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "DataFormats/EcalDetId/interface/EKDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
