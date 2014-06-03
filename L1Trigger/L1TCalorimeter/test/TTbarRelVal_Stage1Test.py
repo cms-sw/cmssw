@@ -26,7 +26,7 @@ process.maxEvents = cms.untracked.PSet(
 # Input source
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
-    fileNames = cms.untracked.vstring('/store/relval/CMSSW_7_1_0_pre2/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/POSTLS170_V3-v1/00000/20379CB0-E28E-E311-97BE-0026189438A7.root')
+    fileNames = cms.untracked.vstring('/store/relval/CMSSW_7_1_0_pre8/RelValTTbar_13/GEN-SIM-DIGI-RAW-HLTDEBUG/PU25ns_PRE_LS171_V9-v1/00000/104FC845-61E7-E311-BBEA-0025905A60B2.root')
 )
 
 process.options = cms.untracked.PSet(
@@ -59,10 +59,6 @@ process.RECOSIMoutput = cms.OutputModule("PoolOutputModule",
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
 
-# upgrade calo stage 2
-process.load('L1Trigger.L1TCalorimeter.L1TCaloStage1_cff')
-#process.load('L1Trigger.L1TCalorimeter.l1tCaloAnalyzer_cfi')
-
 # enable debug message logging for our modules
 process.MessageLogger = cms.Service(
     "MessageLogger",
@@ -78,23 +74,19 @@ process.MessageLogger = cms.Service(
     )
 )
 
-# TTree output file
-process.load("CommonTools.UtilAlgos.TFileService_cfi")
-process.TFileService.fileName = cms.string('l1t_stage1.root')
-
+# to get input digis
 process.load('Configuration.StandardSequences.RawToDigi_cff')
-process.load('Configuration/StandardSequences/L1HwVal_cff')
 
-# bug fix for missing HCAL TPs in MC RAW
-#from SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff import HcalTPGCoderULUT
-#HcalTPGCoderULUT.LUTGenerationMode = cms.bool(True)
-#process.l1tCaloStage2Layer1Digis.hcalToken = cms.InputTag("valHcalTriggerPrimitiveDigis")
+# upgrade calo stage 1
+process.load('L1Trigger.L1TCalorimeter.L1TCaloStage1_PPFromRaw_cff')
 
 # Path and EndPath definitions
-process.L1simulation_step = cms.Path(process.ecalDigis
-                                     +process.hcalDigis
-                                     +process.valHcalTriggerPrimitiveDigis
-                                     +process.L1TCaloStage1)
+process.L1simulation_step = cms.Path(
+    process.ecalDigis
+    +process.hcalDigis
+    +process.L1TCaloStage1_PPFromRaw
+)
+
 process.RECOSIMoutput_step = cms.EndPath(process.RECOSIMoutput)
 
 # Schedule definition

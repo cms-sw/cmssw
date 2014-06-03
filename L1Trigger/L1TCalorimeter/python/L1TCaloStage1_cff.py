@@ -1,25 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
-from L1Trigger.L1TCalorimeter.l1tStage1CaloParams_cfi import *
-from L1Trigger.L1TCalorimeter.l1tCaloStage1Digis_cfi import *
+from L1Trigger.L1TCalorimeter.rctUpgradeFormatDigis_cfi import *
+from L1Trigger.L1TCalorimeter.caloStage1Digis_cfi import *
+from L1Trigger.L1TCalorimeter.caloStage1FinalDigis_cfi import *
+from L1Trigger.L1TCalorimeter.caloStage1LegacyFormatDigis_cfi import *
 
-from L1Trigger.Configuration.SimL1Emulator_cff import *
-
-simGctDigis_Stage1 = cms.Sequence(
-    simRctStage1FormatDigis +
-    simCaloStage1Digis +
-    simCaloStage1FinalDigis +
-    simCaloLegacyFormatDigis
+L1TCaloStage1 = cms.Sequence(
+    rctUpgradeFormatDigis +
+    caloStage1Digis +
+    caloStage1FinalDigis +
+    caloStage1LegacyFormatDigis
 )
-
-simGtDigis.GctInputTag = 'caloLegacyFormatDigis'
-
-SimL1Emulator_Stage1 = cms.Sequence(
-    simRctDigis +
-    simGctDigis_Stage1 +
-    SimL1MuTriggerPrimitives +
-    SimL1MuTrackFinders +
-    simRpcTriggerDigis +
-    simGmtDigis +
-    SimL1TechnicalTriggers +
-    simGtDigis )

@@ -21,8 +21,8 @@ namespace l1t {
       const uint16_t rankPt = params->jetScale().rank((uint16_t)itJet->hwPt());
 
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > ldummy(0,0,0,0);
-      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *lorentz = &ldummy;
-      l1t::Jet gtJet(*lorentz, rankPt, newEta, itJet->hwPhi(), itJet->hwQual());
+
+      l1t::Jet gtJet(*&ldummy, rankPt, newEta, itJet->hwPhi(), itJet->hwQual());
       output->push_back(gtJet);
     }
   }
@@ -40,8 +40,8 @@ namespace l1t {
       const uint16_t rankPt = (uint16_t)itEGamma->hwPt();
 
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > ldummy(0,0,0,0);
-      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *lorentz = &ldummy;
-      l1t::EGamma gtEGamma(*lorentz, rankPt, newEta, itEGamma->hwPhi(),
+
+      l1t::EGamma gtEGamma(*&ldummy, rankPt, newEta, itEGamma->hwPhi(),
 			   itEGamma->hwQual(), itEGamma->hwIso());
       output->push_back(gtEGamma);
     }
@@ -56,8 +56,8 @@ namespace l1t {
       const uint16_t rankPt = params->jetScale().rank((uint16_t)itTau->hwPt());
 
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > ldummy(0,0,0,0);
-      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *lorentz = &ldummy;
-      l1t::Tau gtTau(*lorentz, rankPt, newEta, itTau->hwPhi(), itTau->hwQual());
+
+      l1t::Tau gtTau(*&ldummy, rankPt, newEta, itTau->hwPhi(), itTau->hwQual());
       output->push_back(gtTau);
     }
   }
@@ -69,13 +69,15 @@ namespace l1t {
 	itEtSum != input->end(); ++itEtSum){
 
       uint16_t rankPt;
-      rankPt = params->jetScale().rank((uint16_t)itEtSum->hwPt());
-      if (EtSum::EtSumType::kMissingHt == itEtSum->getType())
-	rankPt = params->HtMissScale().rank((uint16_t)itEtSum->hwPt());
+      // Hack for now to make sure they come out with the right scale
+      //rankPt = params->jetScale().rank((uint16_t)itEtSum->hwPt());
+      rankPt = (uint16_t)itEtSum->hwPt();
+	//if (EtSum::EtSumType::kMissingHt == itEtSum->getType())
+	//rankPt = params->HtMissScale().rank((uint16_t)itEtSum->hwPt());
 
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > ldummy(0,0,0,0);
-      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > *lorentz = &ldummy;
-      l1t::EtSum gtEtSum(*lorentz, itEtSum->getType(), rankPt, 0,
+
+      l1t::EtSum gtEtSum(*&ldummy, itEtSum->getType(), rankPt, 0,
 			 itEtSum->hwPhi(), itEtSum->hwQual());
 
       output->push_back(gtEtSum);

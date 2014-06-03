@@ -37,6 +37,7 @@ l1tCaloParams = cms.ESProducer(
     egMaxHcalEt          = cms.double(0.),    #not used by Stage1
     egEtToRemoveHECut    = cms.double(128.),    #not used by Stage1
     egMaxHOverELUTFile   = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egMaxHOverELUT.txt"),
+    egShapeIdLUTFile           = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egShapeIdLUT.txt"),
     egMaxHOverE          = cms.double(0.15),    #not used by Stage1
     egIsoPUSType         = cms.string("None"),    #not used by Stage1
     egIsoLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egIsoLUT.txt"),    #not used by Stage1
