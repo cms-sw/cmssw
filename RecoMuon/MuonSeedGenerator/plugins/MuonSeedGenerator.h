@@ -1,5 +1,5 @@
 #ifndef RecoMuon_MuonSeedGenerator_MuonSeedGenerator_H
-#define RecoMuon_MuonSeedGenerator_H
+#define RecoMuon_MuonSeedGenerator_MuonSeedGenerator_H
 
 /** \class MuonSeedGenerator
  *  No description available.
