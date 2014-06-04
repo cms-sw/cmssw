@@ -23,7 +23,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
@@ -70,7 +69,6 @@ class Vx3DHLTAnalyzer : public DQMEDAnalyzer {
 
 
    private:
-      virtual void beginJob();
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
       virtual unsigned int HitCounter(const edm::Event& iEvent);
@@ -87,7 +85,6 @@ class Vx3DHLTAnalyzer : public DQMEDAnalyzer {
 					const edm::EventSetup& iSetup);
       virtual void endLuminosityBlock(const edm::LuminosityBlock& lumiBlock,
 				      const edm::EventSetup& iSetup);
-      virtual void endJob();
 
 
       // #######################
