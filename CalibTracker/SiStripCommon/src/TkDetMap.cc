@@ -681,7 +681,7 @@ int16_t TkDetMap::FindLayer(uint32_t& detid , uint32_t& cached_detid , int16_t& 
 
 
 
-void TkDetMap::getComponents(int& layer,
+void TkDetMap::getComponents(int layer,
 			     int& nchX,double& lowX,double& highX,
 			     int& nchY,double& lowY,double& highY) const {
   nchX=TkMap[layer]->get_nchX();
@@ -774,7 +774,7 @@ std::string TkDetMap::getLayerName(int& in) const {
   return "Invalid";
 }
 
-int TkDetMap::getLayerNum(std::string& in) const {
+int TkDetMap::getLayerNum(const std::string& in) const {
   if(in.compare( "TIB_L1")==0)
     return TkLayerMap::TIB_L1;
   if(in.compare( "TIB_L2")==0)

@@ -75,7 +75,7 @@ class TkLayerMap{
   static const int16_t layerSearch(uint32_t detid);
 
   uint32_t getDetFromBin(int ix, int iy) const;
-  uint32_t* getBinToDet() const {return binToDet;}
+  const uint32_t* getBinToDet() const {return binToDet;}
 
  private:
 
@@ -116,17 +116,17 @@ class TkDetMap{
 
   const TkLayerMap::XYbin& getXY(uint32_t& , uint32_t& cached_detid , int16_t& cached_layer , TkLayerMap::XYbin& cached_XYbin) const;
   std::string getLayerName(int& in) const;
-  int getLayerNum(std::string& in) const;
+  int getLayerNum(const std::string& in) const;
   void getSubDetLayerSide(int& in,SiStripDetId::SubDetector&,uint32_t& layer,uint32_t& side) const;
 
   int16_t FindLayer(uint32_t& detid , uint32_t& cached_detid , int16_t& cached_layer , TkLayerMap::XYbin& cached_XYbin) const;
 
-  void getComponents(int& layer,
+  void getComponents(int layer,
 		     int& nchX,double& lowX,double& highX,
 		     int& nchY,double& lowY,double& highY) const;
  
   uint32_t getDetFromBin(int layer, int ix, int iy) const { return TkMap[layer]->getDetFromBin(ix,iy); }
-  uint32_t getDetFromBin(std::string layerName, int ix, int iy) const {return getDetFromBin(getLayerNum(layerName),ix,iy);}
+  uint32_t getDetFromBin(const std::string& layerName, int ix, int iy) const {return getDetFromBin(getLayerNum(layerName),ix,iy);}
 
   void getDetsForLayer(int layer,std::vector<uint32_t>& output) const;
 
