@@ -108,6 +108,7 @@ CSCMotherboardME21GEM::CSCMotherboardME21GEM(unsigned endcap, unsigned station,
 
   /// min eta of LCT for which we require GEM match (we don't throw out LCTs below this min eta)
   gem_match_min_eta = me21tmbParams.getParameter<double>("gemMatchMinEta");
+  gem_match_max_eta = me21tmbParams.getParameter<double>("gemMatchMaxEta");
 
   /// whether to throw out GEM-fiducial LCTs that have no gem match
   gem_clear_nomatch_lcts = me21tmbParams.getParameter<bool>("gemClearNomatchLCTs");
