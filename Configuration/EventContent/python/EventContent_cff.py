@@ -754,3 +754,24 @@ REDIGIEventContent.inputCommands.extend(IOMCRAW.outputCommands)
 REDIGIEventContent.inputCommands.extend(GeneratorInterfaceRAW.outputCommands)
 REDIGIEventContent.inputCommands.append('drop *_randomEngineStateProducer_*_*')
 
+
+########### and mini AOD
+
+MINIAODEventContent= cms.PSet(    
+    outputCommands = cms.untracked.vstring('drop *'),
+    eventAutoFlushCompressedSize=cms.untracked.int32(15*1024*1024),
+    compressionAlgorithm=cms.untracked.string("LZMA"),
+    compressionLevel=cms.untracked.int32(4)
+)
+
+MINIAODSIMEventContent= cms.PSet(    
+    outputCommands = cms.untracked.vstring('drop *'),
+    eventAutoFlushCompressedSize=cms.untracked.int32(15*1024*1024),
+    compressionAlgorithm=cms.untracked.string("LZMA"),
+    compressionLevel=cms.untracked.int32(4)
+)
+
+from PhysicsTools.PatAlgos.slimming.slimming_cff import MicroEventContent,MicroEventContentMC
+
+MINIAODEventContent.outputCommands.extend(MicroEventContent.outputCommands)
+MINIAODSIMEventContent.outputCommands.extend(MicroEventContentMC.outputCommands)

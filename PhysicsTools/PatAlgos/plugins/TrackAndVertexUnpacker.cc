@@ -98,6 +98,13 @@ void PATTrackAndVertexUnpacker::produce(edm::Event & iEvent, const edm::EventSet
 	int offsetAdd=j;
 	for(unsigned int i = 0; i < addTracks->size(); i++) {
 	      outTks->push_back((*addTracks)[i].pseudoTrack());
+              if((*addTracks)[i].fromPV()==pat::PackedCandidate::PVUsedInFit)
+                        {
+//				std::cout << "USEDINFIT " << i <<std::endl;
+                                asso.push_back(j);
+                        }
+		 j++;
+
 	}
 	edm::OrphanHandle< std::vector<reco::Track>  > oh = iEvent.put( outTks );
 	for(unsigned int i=0;i<asso.size();i++)
@@ -118,6 +125,7 @@ void PATTrackAndVertexUnpacker::produce(edm::Event & iEvent, const edm::EventSet
 			if(sv.daughterPtr(j).id() == cands.id()) {
 	                	 r= TrackRef(oh,trackKeys[sv.daughterPtr(j).key()]); // use trackKeys because cand->track has gaps from neutral
 			} else {
+//				std::cout << "vertex " << i << " using lost Track " << sv.daughterPtr(j).key()  << "  " << offsetAdd+sv.daughterPtr(j).key() << std::endl;  
                                 r=TrackRef(oh,offsetAdd+sv.daughterPtr(j).key());  // use directly the key because addTracks is only charged
 			}
         	        TrackBaseRef rr(r);
