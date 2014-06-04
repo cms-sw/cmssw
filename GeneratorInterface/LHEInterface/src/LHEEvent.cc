@@ -111,7 +111,7 @@ LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
                         ptclus_.push_back(val);
                 }
                continue;
-          }//	  
+          }	  
 	  comments.push_back(line + "\n");
 	}
 	

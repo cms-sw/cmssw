@@ -25,57 +25,6 @@ using namespace Pythia8;
 
 //==========================================================================
 
-std::vector<float> GetDJR( const Event& event) {
-	std::vector<float> result;
- 	fastjet::JetDefinition         *jetDef = NULL;
-	jetDef = new fastjet::JetDefinition(fastjet::kt_algorithm,1.0);
-  	std::vector <fastjet::PseudoJet> fjInputs;
-  	fjInputs.resize(0);
-  	for (int i = 0; i < event.size(); ++i) {
-    		if ( !event[i].isFinal()
-         	|| (abs(event[i].id())>5 && abs(event[i].id())!=21)
-         	|| fabs(event[i].eta())>5 || abs(event[i].status())==44
-     		) continue;
-     /*		cout<<"[In GetDJR] Storing pdgId="<<event[i].id()
-        	<<" mother1="<<event[event[i].mother1()].id()
-         	<<" mother2="<<event[event[i].mother2()].id()
-         	<<" status ="<<event[i].status()
-         	<<" pt="<<event[i].pT()
-         	<<" eta="<<event[i].eta()
-         	<<" phi="<<event[i].phi()
-         	<<" px="<<event[i].px()
-         	<<" py="<<event[i].py()
-         	<<" pz="<<event[i].pz()
-         	<<std::endl;*/
-    		fjInputs.push_back( fastjet::PseudoJet (event[i].px(),
-            event[i].py(), event[i].pz(),event[i].e() ) );
-  	}
-//  	std::cout<<"[In GetDJR ] size of sequence to cluster:"<<fjInputs.size()<<std::endl;
-  	if (int(fjInputs.size()) == 0) {
-    		delete jetDef;
-    		return result;
-  	}
-
-  	fastjet::ClusterSequence clustSeq(fjInputs, *jetDef);
-  	for(int u=0;u<4;u++)result.push_back(0);
-  	for(int u=0;u<4;u++){
-    		if((int)fjInputs.size()>u){
-        		result[u]=log10(clustSeq.exclusive_dmerge(u));
-  //      		std::cout<<"for "<<u+1<<"->"<<u<<" objects, we have a cluster scale of "<<result[u]<<std::endl;
-    		}
-    		else{
-        		result[u]=-1;
-    		}
-  	}
-
-  	delete jetDef;
-  	return result;
-
-}
-
-
-
-
 // Declaration of main JetMatching class to perform MLM matching.
 // Note that it is defined with virtual inheritance, so that it can
 // be combined with other UserHooks classes, see e.g. main33.cc.
@@ -230,9 +179,12 @@ public:
   bool canVetoStep() { return doShowerKt; }
   bool doVetoStep(int,  int, int, const Event& );
 
-  vector<float> DifferentialJetRate;
-  vector<int> nMEPartons;
-
+  // Jet algorithm to access the jet separations in the cleaned event
+  // after showering.
+  SlowJet* slowJetDJR;
+  // Function to return the jet clustering scales.
+  vector<double> GetDJR() { return DJR;}
+  vector<int> nMEPartons(){return nME;} 
 protected:
 
   // Different steps of the matching algorithm.
@@ -244,6 +196,46 @@ protected:
   int  matchPartonsToJetsHeavy();
   bool doShowerKtVeto(double pTfirst);
 
+  // Functions to clear and set the jet clustering scales.
+  void ClearDJR() { DJR.resize(0);}
+  void ClearnME() { nME.resize(0);}
+
+  void SetDJR( const Event& event) {
+
+   // Clear members.
+   ClearDJR();
+
+   vector<double> result;
+
+    // Initialize SlowJetDJR jet algorithm with event
+    if (!slowJetDJR->setup(event) ) {
+      infoPtr->errorMsg("Warning in JetMatchingMadgraph:iGetDJR"
+        ": the SlowJet algorithm failed on setup");
+      return;
+    }
+
+    // Cluster in steps to find all hadronic jets
+    while ( slowJetDJR->sizeAll() - slowJetDJR->sizeJet() > 0 ) {
+      // Save the next clustering scale.
+      result.push_back(slowJetDJR->dNext());
+      // Perform step.
+      slowJetDJR->doStep();
+    }
+
+    // Save clustering scales in reserve order.
+    for (int i=int(result.size())-1; i > 0; --i){
+//	std::cout<<"Saving DJR "<<i<<" "<<log10(sqrt(result[i]))<<std::endl;
+      DJR.push_back(log10(sqrt(result[i])));
+	}
+  }
+  void SetnME() {
+	ClearnME();
+	vector<int> result;
+      	nME.push_back(origTypeIdx[0].size());
+	nME.push_back(typeIdx[0].size());
+	std::cout<<"Number of partons "<<origTypeIdx[0].size()<<" "<<typeIdx[0].size()<<std::endl;
+  } 
+
   // Variables.
   vector<int> origTypeIdx[3];
   int    nQmatch;
@@ -251,6 +243,10 @@ protected:
   bool   doFxFx;
   int    nPartonsNow;
   double qCutME, qCutMESq;
+
+  // Vectors to store the jet clustering scales and the number of partons (old and new convention).
+  vector<double> DJR;
+  vector<int> nME;
 
 };
 
@@ -1008,6 +1004,10 @@ bool JetMatchingMadgraph::initAfterBeams() {
   slowJetHard = new SlowJet(slowJetPower, coneRadius, qCutME,
     etaJetMaxAlgo, 2, 2, NULL, false);
 
+  // To access the DJR's
+  slowJetDJR = new SlowJet(slowJetPower, coneRadius, 0.0/*qCutME*/,
+    etaJetMaxAlgo, 2, 2, NULL, false);
+
   // Setup local event records
   eventProcessOrig.init("(eventProcessOrig)", particleDataPtr);
   eventProcess.init("(eventProcess)", particleDataPtr);
@@ -1142,6 +1142,9 @@ void JetMatchingMadgraph::sortIncomingProcess(const Event &event) {
   // Remove resonance decays from original process and keep only final
   // state. Resonances will have positive status code after this step.
   omitResonanceDecays(eventProcessOrig, true);
+
+  ClearDJR();
+  ClearnME();
 
   // For FxFx, pre-cluster partons in the event into jets.
   if (doFxFx) {
@@ -1360,7 +1363,11 @@ bool JetMatchingMadgraph::matchPartonsToJets(int iType) {
 
   // Use two different routines for light/heavy jets as
   // different veto conditions and for clarity
-  if (iType == 0) return (matchPartonsToJetsLight() > 0);
+  if (iType == 0) {
+	SetDJR(workEventJet);
+        SetnME();
+	return (matchPartonsToJetsLight() > 0);
+  }	
   else            return (matchPartonsToJetsHeavy() > 0);
 }
 
@@ -1595,11 +1602,11 @@ int JetMatchingMadgraph::matchPartonsToJetsLight() {
   // This information is not used currently.
   if (nParton > 0 && pTminEstimate > 0) eTpTlightMin = pTminEstimate;
   else eTpTlightMin = -1.;
-   nMEPartons.clear();
-   DifferentialJetRate= GetDJR(workEventJet);
-   nMEPartons.push_back(origTypeIdx[0].size());
-   nMEPartons.push_back(typeIdx[0].size());
+
+  //SetDJR(workEventJet);
+  //SetnME();
   // No veto
+  std::cout<<"No VETO"<<std::endl;
   return NONE;
 }
 
