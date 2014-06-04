@@ -153,6 +153,7 @@ CSCMotherboardME3141RPC::CSCMotherboardME3141RPC(unsigned endcap, unsigned stati
   // deltas used to match to RPC digis
   maxDeltaBXRPC_ = me3141tmbParams.getParameter<int>("maxDeltaBXRPC");
   maxDeltaStripRPC_ = me3141tmbParams.getParameter<int>("maxDeltaStripRPC");
+  maxDeltaWg_ = me3141tmbParams.getParameter<int>("maxDeltaWg");
 
   // use "old" or "new" dataformat for integrated LCTs?
   useOldLCTDataFormatALCTRPC_ = me3141tmbParams.getParameter<bool>("useOldLCTDataFormatALCTRPC");
@@ -672,9 +673,19 @@ CSCMotherboardME3141RPC::matchingRPCDigis(const CSCALCTDigi& alct, const RPCDigi
 {
   CSCMotherboardME3141RPC::RPCDigisBX result;
   
-  auto alctRoll(cscWgToRpcRoll_[alct.getKeyWG()]);
+  int Wg = alct.getKeyWG();
+  std::vector<int> Rolls;
+  Rolls.push_back(cscWgToRpcRoll_[Wg]);
+  if (Wg>=maxDeltaWg_ && cscWgToRpcRoll_[Wg] != cscWgToRpcRoll_[Wg-maxDeltaWg_]) 
+      Rolls.push_back(cscWgToRpcRoll_[Wg-maxDeltaWg_]); 
+  if ((unsigned int)(Wg+maxDeltaWg_)<cscWgToRpcRoll_.size() && cscWgToRpcRoll_[Wg] != cscWgToRpcRoll_[Wg+maxDeltaWg_])
+      Rolls.push_back(cscWgToRpcRoll_[Wg+maxDeltaWg_]);
+
   const bool debug(false);
-  if (debug) std::cout << "ALCT keyWG " << alct.getKeyWG() << ", roll " << alctRoll << std::endl;
+  if (debug) std::cout << "ALCT keyWG " << alct.getKeyWG() << std::endl;
+  for (auto alctRoll : Rolls)
+  {
+  if (debug) std::cout << " roll " << alctRoll << std::endl;
   for (auto p: digis){
     auto digiRoll(RPCDetId(p.first).roll());
     if (debug) std::cout << "Candidate ALCT: " << digiRoll << std::endl;
@@ -682,6 +693,7 @@ CSCMotherboardME3141RPC::matchingRPCDigis(const CSCALCTDigi& alct, const RPCDigi
     if (debug) std::cout << "++Matches! " << std::endl;
     result.push_back(p);
     if (first) return result;
+  }
   }
   return result;
 }
