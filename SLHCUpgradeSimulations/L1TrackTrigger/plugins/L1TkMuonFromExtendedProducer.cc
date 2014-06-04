@@ -246,6 +246,10 @@ L1TkMuonFromExtendedProducer::produce(edm::Event& iEvent, const edm::EventSetup&
 	l1tkmu.setMuExtendedRef(l1muRef);
 	l1tkmu.setQuality(l1mu_quality);
 	l1tkmu.setTrkIsol(trkisol);
+
+	// EP: add the zvtx information
+	l1tkmu.setTrkzVtx( (float)tkv3.z() );
+
 	tkMuons->push_back(l1tkmu);
       }
     }
