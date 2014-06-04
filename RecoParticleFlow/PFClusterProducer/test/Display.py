@@ -76,6 +76,9 @@ class DisplayManager(object):
     def addCluster(self,cluster,links=False):
         if deltaR(cluster.position().Eta(),cluster.position().Phi(),self.etaCenter,self.phiCenter)>self.radius:
             return
+        
+        print cluster.energy(),cluster.position().Rho(),cluster.position().Eta(),cluster.position().Phi()
+        
         self.clusters.append(ROOT.TGraph())
         self.clusters[-1].SetPoint(0,cluster.position().Eta(),cluster.position().Phi())
         self.clusters[-1].SetMarkerStyle(20)

@@ -47,7 +47,8 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
     if( edm::isNotFinite(rh_energy) ) {
       throw cms::Exception("PFClusterAlgo")
 	<<"rechit " << refhit->detId() << " has a NaN energy... " 
-	<< "The input of the particle flow clustering seems to be corrupted.";
+	<< " fraction = " << rh_fraction << "; total energy = " << rh_rawenergy
+	<< "; The input of the particle flow clustering seems to be corrupted.";
     }
     cl_energy += rh_energy;
 

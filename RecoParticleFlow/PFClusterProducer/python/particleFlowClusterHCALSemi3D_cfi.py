@@ -12,19 +12,19 @@ _localMaxSeeds_HCAL = cms.PSet(
     algoName = cms.string("LocalMaximumSeedFinder"),
     thresholdsByDetector = cms.VPSet(
     cms.PSet( detector = cms.string("HCAL_BARREL1"),
-              seedingThreshold = cms.double(0.8),
+              seedingThreshold = cms.double(0.5),
               seedingThresholdPt = cms.double(0.0)
               ),
     cms.PSet( detector = cms.string("HCAL_ENDCAP"),
-              seedingThreshold = cms.double(1.1),
+              seedingThreshold = cms.double(0.55),
               seedingThresholdPt = cms.double(0.0)
               ),
     cms.PSet( detector = cms.string("HCAL_BARREL2_RING0"),
-              seedingThreshold = cms.double(1.0),
+              seedingThreshold = cms.double(0.5),
               seedingThresholdPt = cms.double(0.0)
               ),
     cms.PSet( detector = cms.string("HCAL_BARREL2_RING1"),
-              seedingThreshold = cms.double(3.1),
+              seedingThreshold = cms.double(0.5),
               seedingThresholdPt = cms.double(0.0)
               )    
     ),
@@ -45,19 +45,19 @@ _topoClusterizer_HCAL = cms.PSet(
     algoName = cms.string("ArborOnSeedsTopoClusterizer"),    
     thresholdsByDetector = cms.VPSet(
     cms.PSet( detector = cms.string("HCAL_BARREL1"),
-              gatheringThreshold = cms.double(0.8),
+              gatheringThreshold = cms.double(0.4),
               gatheringThresholdPt = cms.double(0.0)
               ),
     cms.PSet( detector = cms.string("HCAL_ENDCAP"),
-              gatheringThreshold = cms.double(0.8),
+              gatheringThreshold = cms.double(0.4),
               gatheringThresholdPt = cms.double(0.0)
               ),
     cms.PSet( detector = cms.string("HCAL_BARREL2_RING0"),
-              gatheringThreshold = cms.double(0.5),
+              gatheringThreshold = cms.double(0.1),
               gatheringThresholdPt = cms.double(0.0)
               ),
     cms.PSet( detector = cms.string("HCAL_BARREL2_RING1"),
-              gatheringThreshold = cms.double(1.0),
+              gatheringThreshold = cms.double(0.1),
               gatheringThresholdPt = cms.double(0.0)
               )
     ),

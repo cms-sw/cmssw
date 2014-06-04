@@ -16,6 +16,13 @@ from RecoParticleFlow.PFClusterProducer.particleFlowClusterPS_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterHFEM_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterHFHAD_cfi import *
 
+#multi-depth 
+from RecoParticleFlow.PFClusterProducer.particleFlowRecHitHBHEHO_cfi import *
+from RecoParticleFlow.PFClusterProducer.particleFlowClusterHCALSemi3D_cfi import *
+#hf from rechits
+from RecoParticleFlow.PFClusterProducer.particleFlowRecHitHF_cfi import *
+from RecoParticleFlow.PFClusterProducer.particleFlowClusterHF_cfi import *
+
 from RecoParticleFlow.PFClusterProducer.particleFlowRecHitECALWithTime_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterECALWithTime_cff import *
 
@@ -27,6 +34,7 @@ from RecoParticleFlow.PFClusterProducer.particleFlowClusterHGC_cff import *
 from RecoParticleFlow.PFClusterProducer.particleFlowRecHitShashlik_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterShashlik_cfi import *
 
+pfClusteringECAL = cms.Sequence()
 
 withTime = True
 if withTime:
@@ -37,16 +45,31 @@ else:
     pfClusteringECAL = cms.Sequence(particleFlowRecHitECAL*
                                     particleFlowClusterECALSequence)
 
-
-
 pfClusteringEK = cms.Sequence( particleFlowRecHitEK +
                                particleFlowClusterEKUncorrected )
 
-pfClusteringHCAL = cms.Sequence(particleFlowRecHitHCAL*particleFlowClusterHCAL)
-pfClusteringHCALall = cms.Sequence(particleFlowClusterHCAL+particleFlowClusterHFHAD+particleFlowClusterHFEM)
-pfClusteringHCAL = cms.Sequence(particleFlowRecHitHCAL*pfClusteringHCALall)
+pfClusteringHCAL = cms.Sequence()
 
-pfClusteringHO = cms.Sequence(particleFlowRecHitHO*particleFlowClusterHO)
+#semi3DHCAL=True
+#if semi3DHCAL:
+pfClusteringHCAL = cms.Sequence( particleFlowRecHitHBHEHO      +
+                                 particleFlowRecHitHF          +
+                                 particleFlowClusterHCALSemi3D +
+                                 particleFlowClusterHF           )
+#else:
+#    pfClusteringHCAL = cms.Sequence( towerMakerPF             +
+#                                     particleFlowRecHitHCAL   +
+#                                     particleFlowRecHitHO     +
+#                                     particleFlowClusterHCAL  +
+#                                     particleFlowClusterHFHAD +
+#                                     particleFlowClusterHFEM  +
+#                                     particleFlowClusterHO      )
+
+#pfClusteringHCAL = cms.Sequence(particleFlowRecHitHCAL*particleFlowClusterHCAL)
+#pfClusteringHCALall = cms.Sequence(particleFlowClusterHCAL+particleFlowClusterHFHAD+particleFlowClusterHFEM)
+#pfClusteringHCAL = cms.Sequence(particleFlowRecHitHCAL*pfClusteringHCALall)
+
+#pfClusteringHO = cms.Sequence(particleFlowRecHitHO*particleFlowClusterHO)
 
 #pfClusteringHCAL = cms.Sequence(particleFlowRecHitHCAL*particleFlowClusterHCAL*particleFlowClusterHFHAD*particleFlowClusterHFEM)
 pfClusteringPS = cms.Sequence(particleFlowRecHitPS*particleFlowClusterPS)
@@ -105,7 +128,7 @@ towerMakerPF.AllowMissingInputs = False
 
 particleFlowClusterWithoutHO = cms.Sequence(
     #caloTowersRec*
-    towerMakerPF*
+    #towerMakerPF*
     pfClusteringPS*
     pfClusteringECAL*
     pfClusteringHCAL
@@ -113,11 +136,11 @@ particleFlowClusterWithoutHO = cms.Sequence(
 
 particleFlowCluster = cms.Sequence(
     #caloTowersRec*
-    towerMakerPF*
+    #towerMakerPF*
     pfClusteringPS*
     pfClusteringECAL*
-    pfClusteringHCAL*
-    pfClusteringHO 
+    pfClusteringHCAL
+    #pfClusteringHO 
 )
 
 

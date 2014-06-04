@@ -31,8 +31,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
     fileNames = cms.untracked.vstring(
-    'file:/afs/cern.ch/user/l/lgray/work/public/CMSSW_6_2_X_SLHC_2014-05-23-0200/src/matrix_test/13816_QCD_Pt_80_120_8TeV+QCD_Pt_80_120_8TeV_Extended2023SHCalNoTaper_GenSimFull+DigiFull_Extended2023SHCalNoTaper+RecoFull_Extended2023SHCalNoTaper+HARVESTFull_Extended2023SHCalNoTaper/step3.root'
-
+    'file:/afs/cern.ch/user/l/lgray/work/public/CMSSW_6_2_X_SLHC_2014-05-31-1400/src/matrix_tests/11222_ZTT_8TeV+ZTT_Tauola_All_hadronic_8TeV_2019WithGEM_GenSimFull+DigiFull_2019WithGEM+RecoFull_2019WithGEM+HARVESTFull_2019WithGEM/step3.root'
     )
 )
 
@@ -66,7 +65,7 @@ process.mix.digitizers = cms.PSet()
 for a in process.aliases: delattr(process, a)
 process.RandomNumberGeneratorService.restoreStateLabel=cms.untracked.string("randomEngineStateProducer")
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS3', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgrade2019', '')
 
 
 process.load("RecoParticleFlow.PFClusterProducer.particleFlowRecHitHF_cfi")
@@ -80,13 +79,15 @@ process.hcalSeeds = cms.EDProducer('PFSeedSelector',
                                    src = cms.InputTag('particleFlowRecHitHBHEHO')
 )
 
-                                      
-
 
 # Path and EndPath definitions
 process.raw2digi_step = cms.Path(process.RawToDigi)
 process.L1Reco_step = cms.Path(process.L1Reco)
-process.reconstruction_step = cms.Path(process.pfTrack+process.particleFlowCluster+process.particleFlowRecHitHF+process.particleFlowClusterHF+process.particleFlowRecHitHBHEHO+process.hcalSeeds+process.particleFlowClusterHCALSemi3D+process.particleFlowSimParticle)
+process.reconstruction_step = cms.Path(process.pfTrack+process.particleFlowRecHitHBHEHO+process.hcalSeeds+process.particleFlowRecHitHF+process.particleFlowClusterHF+process.particleFlowClusterHCALSemi3D+process.particleFlowSimParticle)
+
+#process.particleFlowCluster+
+#
+
 process.FEVTDEBUGHLToutput_step = cms.EndPath(process.FEVTDEBUGHLToutput)
 
 
@@ -96,16 +97,18 @@ process.schedule = cms.Schedule(process.reconstruction_step,process.FEVTDEBUGHLT
 # customisation of the process.
 
 # Automatic addition of the customisation function from SLHCUpgradeSimulations.Configuration.combinedCustoms
-from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2023SHCal
+from SLHCUpgradeSimulations.Configuration.combinedCustoms import cust_2019WithGem 
 
-#call to customisation function cust_2019 imported from SLHCUpgradeSimulations.Configuration.combinedCustoms
-process = cust_2023SHCal(process)
+#call to customisation function cust_2019WithGem imported from SLHCUpgradeSimulations.Configuration.combinedCustoms
+process = cust_2019WithGem(process)
 
 # Automatic addition of the customisation function from SimGeneral.MixingModule.fullMixCustomize_cff
-#from SimGeneral.MixingModule.fullMixCustomize_cff import setCrossingFrameOn 
+from SimGeneral.MixingModule.fullMixCustomize_cff import setCrossingFrameOn 
 
 #call to customisation function setCrossingFrameOn imported from SimGeneral.MixingModule.fullMixCustomize_cff
-#process = setCrossingFrameOn(process)
+process = setCrossingFrameOn(process)
+
+
 process.pfTrack.MuColl = cms.InputTag('muons')
 # End of customisation functions
 

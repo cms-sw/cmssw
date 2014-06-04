@@ -87,7 +87,10 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
     if( !rechitMask[seed] || !seedable[seed] || used[seed] ) continue;    
     temp.reset();
     buildTopoCluster(input,rechitMask,makeRefhit(input,seed),used,temp);
-    if( temp.recHitFractions().size() ) topoclusters.push_back(temp);
+    if( temp.recHitFractions().size() ) {
+      //std::cout << "topo cluster: " << temp  << std::endl;
+      topoclusters.push_back(temp);
+    }
   }  
   
   // cells with no neighbours in the previous layer are non-shared 
@@ -126,9 +129,15 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
       }
       const auto& connected = branches[range.first->second];
       for( const unsigned maybe : connected ) {
+	
 	if( maybe == seed.first ) continue; // already added primary seed!
 	auto& fracs = seeds_and_fractions[maybe];
 	if( fracs.find(seed.first) != fracs.end() ) {
+	  /*
+	  std::cout << maybe  
+		    << " connected to " << abranch[0].first
+		    << " with fraction " << fracs[seed.first] << std::endl;
+	  */
 	  seeds_to_clusters.emplace(maybe,ibranch);
 	  abranch.emplace_back(maybe,fracs[seed.first]);
 	}
@@ -160,7 +169,7 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
       current.addRecHitFraction(rhf2);      
     }    
     _positionCalc->calculateAndSetPosition(current);
-    std::cout << "Seeded cluster : " << current << std::endl;
+    //std::cout << "Seeded cluster : " << current << std::endl;
   }  
   
   // connect together per-layer topo clusters with the new pf clusters
@@ -220,9 +229,12 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
   growPFClusters(grouped_clusters,grouped_topos,topos_to_clusters,
 		 seedable,topoclusters,tolScal,tolScal,output);
   
+  /*
   for( const auto& cluster : output ) {
     std::cout << "Final cluster: " << cluster << std::endl;
   }
+  */
+  
 
 }
 
@@ -238,20 +250,21 @@ linkSeeds(const reco::PFRecHitCollection& rechits,
   unsigned ibranch = 0;
   for( const auto& seed : seeds ) {
     if( !used_seed[seed.first] ) {
-      branches.push_back(std::vector<unsigned>());
-      std::vector<unsigned>& current = branches.back();
-      findSeedNeighbours(rechits,seedable,0,seed.first,used_seed,
+      std::vector<unsigned> current ;
+      findSeedNeighbours(rechits,seedable,ibranch,seed.first,used_seed,
 			 seeds_to_branches,current);
       std::sort( current.begin(), current.end(), 
 		 [&](unsigned a, unsigned b){
 		   return rechits[a].depth() < rechits[b].depth();
 		 });
+      branches.push_back(std::move(current));
       ++ibranch;
     }
   }
   
   for( const auto& branch : branches ) {
     for( const unsigned hit : branch ) {
+      
       bool is_primary = true;
       const reco::PFRecHitRefVector& neighbs = rechits[hit].neighbours();
       const std::vector<unsigned short>& nb_info = rechits[hit].neighbourInfos();
@@ -260,13 +273,16 @@ linkSeeds(const reco::PFRecHitCollection& rechits,
 	if( ( (nb_info[i] >> 9) & 0x3 ) == 1 &&
 	    ( (nb_info[i] >> 8) & 0x1 ) == 0 ) is_primary = false;
       }
-      seed_types[hit] = is_primary ? PrimarySeed : SecondarySeed;      
+      seed_types[hit] = is_primary ? PrimarySeed : SecondarySeed; 
+      
       /*
-      if( is_primary ) {
-	std::cout << hit << " is a primary seed!" << std::endl;
-      }
+      std::cout << hit << " is a " << ( is_primary ? "primary" : "secondary" )
+		<< " seed! " << rechits[hit].energy() 
+		<< ' ' << rechits[hit].positionREP() << std::endl;
       */
+      
     }
+
     /*
     std::cout << "--- initial seeds list ---" << std::endl;
     for( unsigned seed : branch ) {
@@ -298,7 +314,7 @@ linkSeeds(const reco::PFRecHitCollection& rechits,
 	}
       }
     }
-    */    
+    */
   }
 }
 // find all depth-wise neighbours for this seed
@@ -376,10 +392,13 @@ buildInitialWeightsList(const reco::PFRecHitCollection& rechits,
 							  resolved_seeds);
     if( seedtypes[*ihit] == PrimarySeed ) myprimaries.push_back(*ihit);
   }
-  std::unordered_map<unsigned,double> branch_log_energies;
-  double log_energy_sum = 0;
+  std::unordered_map<unsigned,double> branch_energies;
   for( const unsigned primary : myprimaries ) {
-    branch_log_energies[primary] = 0.0;
+    /*
+    std::cout << "building energies for primary seed: " 
+	      << primary << std::endl;
+    */
+    branch_energies[primary] = 0.0;
     std::vector<bool> temp3(rechits.size(),false);
     std::unordered_multimap<unsigned,unsigned> temp4;
     std::vector<unsigned> forwardlinks;
@@ -399,16 +418,24 @@ buildInitialWeightsList(const reco::PFRecHitCollection& rechits,
 	continue;
       }
       const double fraction = resolved_seeds[previous][primary];
-      const reco::PFRecHit& rh = rechits[previous];
+      const reco::PFRecHit& rh = rechits[previous];      
       // minimum energy in fraction of 0.05 GeV
-      const double logE = std::max(0.0,20.0*std::log(rh.energy()*fraction));
-      branch_log_energies[primary] += logE;
-      log_energy_sum += logE;
+      const double rhenergy = rh.energy()*fraction;
+      /*
+      std::cout << primary << ' ' << previous << ' ' << seed_idx << ' '
+		<< rh.energy() << ' ' << rhenergy << ' ' << fraction 
+		<< std::endl;
+      */
+      branch_energies[primary] += rhenergy;
     }
   }
-  for( const auto& branch_and_logE : branch_log_energies ) {
-    resolved_seeds[seed_idx][branch_and_logE.first] = 
-      branch_and_logE.second/log_energy_sum; 
+  double log_energy_sum = 0.0;
+  for( const auto& branch_and_E : branch_energies ) {
+    log_energy_sum += std::log(20.0*branch_and_E.second);
+  }
+  for( const auto& branch_and_E : branch_energies ) {
+    resolved_seeds[seed_idx][branch_and_E.first] = 
+      std::log(20.0*branch_and_E.second)/log_energy_sum; 
   }
   has_weight_data[seed_idx] = true;
 }
@@ -532,8 +559,8 @@ growPFClusters(const std::vector<std::vector<unsigned> >& grouped_clusters,
 	      std::abs(refhit->positionREP().eta()) > 0.34 ) {
 	    cell_layer *= 100;
 	  }  
-	  const double recHitEnergyNorm = 
-	    _thresholds.find(cell_layer)->second.first; 
+	  const double recHitEnergyNorm = 0.05;
+	    //_thresholds.find(cell_layer)->second.first; 
 	  const math::XYZPoint& topocellpos_xyz = refhit->position();
 	  dist2.clear(); frac.clear(); fractot = 0;
 	  // add rechits to clusters, calculating fraction based on distance
@@ -559,15 +586,26 @@ growPFClusters(const std::vector<std::vector<unsigned> >& grouped_clusters,
 	    fractot += fraction;
 	    frac.emplace_back(fraction);
 	  }
-	  for( unsigned i = 0; i < cluster_group.size(); ++i ) {      
-	    if( fractot > _minFracTot ) frac[i]/=fractot;
+	  for( auto clstr = topo_r.first; clstr != topo_r.second; ++clstr ) {
+	    unsigned i = std::distance(topo_r.first,clstr);	  
+	    if( fractot > _minFracTot ) {
+	      double temp = frac[i];
+	      frac[i]/=fractot;
+	      if( frac[i] > 1.0 )  {
+		throw cms::Exception("InvalidFraction") 
+		  << "Fraction is larger than 1!!! "
+		  << " Ingredients : " << temp << ' ' 
+		  <<  fractot << ' ' << std::sqrt(dist2[i]) << ' ' 
+		  << clusters[clstr->second].energy() << std::endl;
+	      }
+	    }
 	    else continue;
 	    if( dist2[i] < 100.0 || frac[i] > 0.9999 ) {	
-	      clusters[cluster_group[i]].addRecHitFraction(reco::PFRecHitFraction(refhit,frac[i]));
+	      clusters[clstr->second].addRecHitFraction(reco::PFRecHitFraction(refhit,frac[i]));
 	    }
 	  }
 	} // loop on topo cluster rechit fractions
-	dist2.clear(); frac.clear(); clus_prev_pos.clear();// avoid badness 
+	dist2.clear(); frac.clear(); //clus_prev_pos.clear();
       } // end of loop on associated topological clusters
       // recalculate positions and calculate convergence parameter
       double diff2 = 0.0;  
