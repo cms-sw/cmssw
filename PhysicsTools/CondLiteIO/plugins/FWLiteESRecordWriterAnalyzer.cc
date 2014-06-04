@@ -72,7 +72,8 @@ namespace edm {
       void EventSetupRecord::getImplementation<fwliteeswriter::DummyType>(fwliteeswriter::DummyType const *& iData ,
                                                                           const char* iName,
                                                                           const ComponentDescription*& iDesc,
-                                                                          bool iTransientAccessOnly) const {
+                                                                          bool iTransientAccessOnly,
+                                                                          std::shared_ptr<ESHandleExceptionFactory>& whyFailedFactory) const {
          DataKey dataKey(*(iData->m_tag),
                          iName,
                          DataKey::kDoNotCopyMemory);
@@ -91,7 +92,8 @@ namespace edm {
          t.m_tag = &(iHolder.m_info->m_tag);
          const fwliteeswriter::DummyType* value = &t;
          const ComponentDescription* desc = 0;
-         this->getImplementation(value, iName.c_str(),desc,true);
+         std::shared_ptr<ESHandleExceptionFactory> dummy;
+         this->getImplementation(value, iName.c_str(),desc,true, dummy);
          iHolder.m_data = t.m_data;
          iHolder.m_desc = desc;
       }
