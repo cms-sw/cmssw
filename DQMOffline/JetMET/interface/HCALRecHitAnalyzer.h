@@ -31,13 +31,10 @@ class HCALRecHitAnalyzer: public DQMEDAnalyzer {
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   //  virtual void beginJob(void);
   //  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
-  virtual void endJob();
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) ;
  private:
 
-  // DAQ Tools
-  DQMStore* dbe_;
 
   // Inputs from Configuration
   edm::EDGetTokenT<HBHERecHitCollection> hBHERecHitsLabel_;
