@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-from L1Trigger.L1TCalorimeter.l1tStage1CaloParams_cfi import *
-from Configuration.StandardSequences.RawToDigi_Repacked_cff import *
+from L1Trigger.L1TCalorimeter.caloStage1Params_cfi import *
+from Configuration.StandardSequences.RawToDigi_Repacked_cff import ecalDigis, hcalDigis
 
 # RCT
 from L1Trigger.Configuration.SimL1Emulator_cff import simRctDigis
