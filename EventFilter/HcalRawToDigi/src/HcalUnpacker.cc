@@ -1,7 +1,9 @@
 #include "EventFilter/HcalRawToDigi/interface/HcalUnpacker.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalDCCHeader.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalDTCHeader.h"
+#include "EventFilter/HcalRawToDigi/interface/AMC13Header.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalHTRData.h"
+#include "EventFilter/HcalRawToDigi/interface/HcalUHTRData.h"
 #include "DataFormats/HcalDetId/interface/HcalOtherDetId.h"
 #include "DataFormats/HcalDigi/interface/HcalQIESample.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -103,7 +105,40 @@ namespace HcalUnpacker_impl {
     return qie_work;
   }
 
+  template <class DigiClass>
+  void unpack_compact(HcalUHTRData::const_iterator& i, const HcalUHTRData::const_iterator& iend, DigiClass& digi, 
+		      int presamples, const HcalElectronicsId& eid, int startSample, int endSample) {
+    // set parameters
+    digi.setPresamples(presamples-startSample);
+    digi.setReadoutIds(eid);
+    int error_flags=i.errFlags();
+    int capid0=i.capid0();
+
+    bool isCapRotating=!(error_flags&0x1);
+    bool fiberErr=(error_flags&0x2);
+    bool dataValid=!(error_flags&0x2);
+    int fiberchan=i.channelid()&0x3;
+    int fiber=((i.channelid()>>2)&0x7)+1;
+
+    //    digi.setZSInfo(hhd.isUnsuppressed(),hhd.wasMarkAndPassZS(fiber,fiberchan),zsmask);
+
+    // what is my sample number?
+    int ncurr=0,ntaken=0;
+    for (++i; i!=iend && !i.isHeader(); ++i) {
+      int capidn=(isCapRotating)?((capid0+ncurr)%4):(capid0);
+      
+      HcalQIESample s(i.adc(),capidn,fiber,fiberchan,dataValid,fiberErr);
+      
+      if (ncurr>=startSample && ncurr<=endSample) {
+	digi.setSample(ntaken,s);
+	++ntaken;
+      }
+      ncurr++;
+    }
+    digi.setSize(ntaken);
+  }
 }
+
 
 static inline bool isTPGSOI(const HcalTriggerPrimitiveSample& s) {
   return (s.raw()&0x200)!=0;
@@ -130,9 +165,20 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
 			  Collections& colls, HcalUnpackerReport& report, bool silent) {
 
   if (raw.size()<16) {
-    if (!silent) edm::LogWarning("Invalid Data") << "Empty/invalid DCC data, size = " << raw.size();
+    if (!silent) edm::LogWarning("Invalid Data") << "Empty/invalid data, size = " << raw.size();
     return;
   }
+
+  // get the DCC header
+  const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(raw.data());
+
+  if (dccHeader->BOEshouldBeZeroAlways()==0) // also includes uTCA before the common AMC13XG firmware
+    unpackVME(raw,emap,colls,report,silent);
+  else unpackUTCA(raw,emap,colls,report,silent);
+}
+
+void HcalUnpacker::unpackVME(const FEDRawData& raw, const HcalElectronicsMap& emap,
+			  Collections& colls, HcalUnpackerReport& report, bool silent) {
 
   // get the DCC header
   const HcalDCCHeader* dccHeader=(const HcalDCCHeader*)(raw.data());
@@ -490,6 +536,108 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
   }
 }
 
+void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& emap,
+			      Collections& colls, HcalUnpackerReport& report, bool silent) {
+
+  const hcal::AMC13Header* amc13=(const hcal::AMC13Header*)(raw.data());
+
+  // how many AMC in this packet
+  int namc=amc13->NAMC();
+  for (int iamc=0; iamc<namc; iamc++) {
+    // if not enabled, ignore
+    if (!amc13->AMCEnabled(iamc)) continue; 
+
+    if (!amc13->AMCDataPresent(iamc)) {
+      if (!silent) 
+	edm::LogWarning("Invalid Data") << "Missing data observed on iamc " << iamc << " of AMC13 with source id " << amc13->sourceId();
+      report.countSpigotFormatError();
+      continue;     
+    }
+    if (!amc13->AMCCRCOk(iamc)) {
+      if (!silent) 
+	edm::LogWarning("Invalid Data") << "CRC Error on uHTR data observed on iamc " << iamc << " of AMC13 with source id " << amc13->sourceId();
+      report.countSpigotFormatError();
+      continue;
+    }
+    // this unpacker cannot handle segmented data!
+    if (amc13->AMCSegmented(iamc)) {
+      if (!silent) 
+	edm::LogWarning("Invalid Data") << "Unpacker cannot handle segmented data observed on iamc " << iamc << " of AMC13 with source id " << amc13->sourceId();
+      report.countSpigotFormatError();
+      continue;
+    }
+    
+    // ok, now we're work-able
+    int slot=amc13->AMCSlot(iamc);
+    int crate=amc13->AMCId(iamc)&0xFF;
+    // this is used only for the 1.6 Gbps link data
+    int nps=(amc13->AMCId(iamc)>>12)&0xF;
+    
+    HcalUHTRData uhtr(amc13->AMCPayload(iamc),amc13->AMCSize(iamc));
+    HcalUHTRData::const_iterator i=uhtr.begin(), iend=uhtr.end();
+    while (i!=iend) {
+      if (!i.isHeader()) {
+	++i;
+	continue;
+      }
+      if (i.flavor()==0x5) { // Old-style digis
+	int ifiber=((i.channelid()>>2)&0x7)+1;
+	int ichan=(i.channelid()&0x3);
+	HcalElectronicsId eid(0x01,crate,slot,ifiber,ichan);
+	DetId did=emap.lookup(eid);
+	
+	if (!did.null()) { // unpack and store...
+	  if (did.det()==DetId::Calo && did.subdetId()==HcalZDCDetId::SubdetectorId) {
+	    colls.zdcCont->push_back(ZDCDataFrame(HcalZDCDetId(did)));
+	    HcalUnpacker_impl::unpack_compact<ZDCDataFrame>(i,iend, colls.zdcCont->back(), nps, eid, startSample_, endSample_); 
+	  } else if (did.det()==DetId::Hcal) {
+	    switch (((HcalSubdetector)did.subdetId())) {
+	    case (HcalBarrel):
+	    case (HcalEndcap): {
+	      colls.hbheCont->push_back(HBHEDataFrame(HcalDetId(did)));
+	      HcalUnpacker_impl::unpack_compact<HBHEDataFrame>(i, iend, colls.hbheCont->back(), nps, eid, startSample_, endSample_);
+	    } break;
+	    case (HcalOuter): {
+	      colls.hoCont->push_back(HODataFrame(HcalDetId(did)));
+	      HcalUnpacker_impl::unpack_compact<HODataFrame>(i, iend, colls.hoCont->back(), nps, eid, startSample_, endSample_);
+	    } break;
+	    case (HcalForward): {
+	      colls.hfCont->push_back(HFDataFrame(HcalDetId(did)));
+	      HcalUnpacker_impl::unpack_compact<HFDataFrame>(i, iend, colls.hfCont->back(), nps, eid, startSample_, endSample_);
+	    } break;
+	    case (HcalOther) : {
+	      HcalOtherDetId odid(did);
+	      if (odid.subdet()==HcalCalibration) {
+		colls.calibCont->push_back(HcalCalibDataFrame(HcalCalibDetId(did)));
+		HcalUnpacker_impl::unpack_compact<HcalCalibDataFrame>(i, iend, colls.calibCont->back(), nps, eid, startSample_, endSample_); 
+	      }
+	    } break;
+	    case (HcalEmpty): 
+	    default: {
+	      for (++i;
+		   i!=iend && !i.isHeader();
+		   ++i);
+	    }
+	    break;
+	    }
+	  }
+	} else {
+	  report.countUnmappedDigi(eid);
+	  if (unknownIds_.find(eid)==unknownIds_.end()) {
+	    if (!silent) edm::LogWarning("HCAL") << "HcalUnpacker: No match found for electronics id :" << eid;
+	    unknownIds_.insert(eid);
+	  }
+	  for (++i;
+	       i!=iend && !i.isHeader();
+	       ++i);
+	}
+      } else if (i.flavor()==0x4) { // TP digis
+	
+      }
+    }
+  }
+}
+
 HcalUnpacker::Collections::Collections() {
   hbheCont=0;
   hoCont=0;
@@ -498,30 +646,6 @@ HcalUnpacker::Collections::Collections() {
   zdcCont=0;
   calibCont=0;
   ttp=0;
-}
-
-void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap, std::vector<HBHEDataFrame>& container, std::vector<HcalTriggerPrimitiveDigi>& tp) {
-  Collections c;
-  c.hbheCont=&container;
-  c.tpCont=&tp;
-  HcalUnpackerReport r;
-  unpack(raw,emap,c,r);
-}
-
-void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap, std::vector<HODataFrame>& container, std::vector<HcalTriggerPrimitiveDigi>& tp) {
-  Collections c;
-  c.hoCont=&container;
-  c.tpCont=&tp;
-  HcalUnpackerReport r;
-  unpack(raw,emap,c,r);
-}
-
-void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap, std::vector<HFDataFrame>& container, std::vector<HcalTriggerPrimitiveDigi>& tp) {
-  Collections c;
-  c.hfCont=&container;
-  c.tpCont=&tp;
-  HcalUnpackerReport r;
-  unpack(raw,emap,c,r);
 }
 
 void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap, std::vector<HcalHistogramDigi>& histoDigis) {
