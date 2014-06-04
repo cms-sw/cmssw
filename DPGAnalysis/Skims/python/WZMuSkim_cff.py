@@ -54,7 +54,17 @@ diMuonSelSeq = cms.Sequence(WZMuHLTFilter *
 #Get muons of needed quality for Ws
 goodMuonsForW = cms.EDFilter("MuonViewRefSelector",
                              src = cms.InputTag("muons"),
-                             cut = cms.string('isGlobalMuon=1 && isTrackerMuon=1 && abs(eta)<2.1 && abs(globalTrack().dxy)<0.2 && pt>20. && globalTrack().normalizedChi2<10 && globalTrack().hitPattern().numberOfValidTrackerHits>10 && globalTrack().hitPattern().numberOfValidMuonHits>0 && globalTrack().hitPattern().numberOfValidPixelHits>0 && numberOfMatches>1 && (isolationR03().sumPt+isolationR03().emEt+isolationR03().hadEt)<0.15*pt'),
+                             cut = cms.string('isGlobalMuon=1'
+                                 '&& isTrackerMuon=1'
+                                 '&& abs(eta)<2.1'
+                                 '&& abs(globalTrack().dxy)<0.2'
+                                 '&& pt>20.'
+                                 '&& globalTrack().normalizedChi2<10'
+                                 '&& globalTrack().hitPattern().numberOfValidTrackerHits(\'TRACK_HITS\') > 10'
+                                 '&& globalTrack().hitPattern().numberOfValidMuonHits(\'TRACK_HITS\') > 0'
+                                 '&& globalTrack().hitPattern().numberOfValidPixelHits(\'TRACK_HITS\') > 0'
+                                 '&& numberOfMatches>1'
+                                 '&& (isolationR03().sumPt+isolationR03().emEt+isolationR03().hadEt)<0.15*pt'),
                              filter = cms.bool(True)
                              )
 

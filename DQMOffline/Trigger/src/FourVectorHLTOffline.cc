@@ -2599,9 +2599,9 @@ bool FourVectorHLTOffline::isVBTFMuon(const reco::Muon& muon)
 
   double dxy = gm->dxy(fBeamSpotHandle->position());
   double normalizedChi2 = gm->normalizedChi2(); 
-  int trackerHits = tk->hitPattern().numberOfValidTrackerHits();
-  int pixelHits = tk->hitPattern().numberOfValidPixelHits();
-  int muonHits = gm->hitPattern().numberOfValidMuonHits();
+  int trackerHits = tk->hitPattern().numberOfValidTrackerHits(reco::HitPattern::TRACK_HITS);
+  int pixelHits = tk->hitPattern().numberOfValidPixelHits(reco::HitPattern::TRACK_HITS);
+  int muonHits = gm->hitPattern().numberOfValidMuonHits(reco::HitPattern::TRACK_HITS);
   int nMatches = muon.numberOfMatches();
 
   if (fabs(dxy)>dxyCut_) {return 0;}

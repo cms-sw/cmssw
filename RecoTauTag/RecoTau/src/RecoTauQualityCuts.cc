@@ -48,8 +48,8 @@ bool etMin_cand(const PFCandidate& cand, double cut)
 bool trkPixelHits(const TrackBaseRef& track, int cut) 
 {
   // For some reason, the number of hits is signed
-  LogDebug("TauQCuts") << "<trkPixelHits>: #Pxl hits = " << track->hitPattern().numberOfValidPixelHits() << ", cut = " << cut ;
-  return (track->hitPattern().numberOfValidPixelHits() >= cut);
+  LogDebug("TauQCuts") << "<trkPixelHits>: #Pxl hits = " << track->hitPattern().numberOfValidPixelHits(HitPattern::TRACK_HITS) << ", cut = " << cut ;
+  return (track->hitPattern().numberOfValidPixelHits(HitPattern::TRACK_HITS) >= cut);
 }
 
 bool trkPixelHits_cand(const PFCandidate& cand, int cut) 
@@ -67,15 +67,15 @@ bool trkPixelHits_cand(const PFCandidate& cand, int cut)
 
 bool trkTrackerHits(const TrackBaseRef& track, int cut) 
 {
-  LogDebug("TauQCuts") << "<trkTrackerHits>: #Trk hits = " << track->hitPattern().numberOfValidHits() << ", cut = " << cut ;
-  return (track->hitPattern().numberOfValidHits() >= cut);
+  LogDebug("TauQCuts") << "<trkTrackerHits>: #Trk hits = " << track->hitPattern().numberOfValidHits(HitPattern::TRACK_HITS) << ", cut = " << cut ;
+  return (track->hitPattern().numberOfValidHits(HitPattern::TRACK_HITS) >= cut);
 }
 
 bool trkTrackerHits_cand(const PFCandidate& cand, int cut) 
 {
   auto track = getTrackRef(cand);
   if ( track.isNonnull() ) {
-    LogDebug("TauQCuts") << "<trkTrackerHits>: #Trk hits = " << track->hitPattern().numberOfValidHits() << ", cut = " << cut ;
+    LogDebug("TauQCuts") << "<trkTrackerHits>: #Trk hits = " << track->hitPattern().numberOfValidHits(HitPattern::TRACK_HITS) << ", cut = " << cut ;
     return trkTrackerHits(track, cut);
   } else {
     LogDebug("TauQCuts") << "<trkTrackerHits>: #Trk hits = N/A, cut = " << cut ;
@@ -349,9 +349,9 @@ bool RecoTauQualityCuts::filterTrack_(const T& trackRef) const
   if(minTrackPt_ >= 0 && !(track->pt() > minTrackPt_)) return false;
   if(maxTrackChi2_ >= 0 && !(track->normalizedChi2() <= maxTrackChi2_)) return false;
   if(checkHitPattern_) {
-    const reco::HitPattern hitPattern = track->hitPattern();
-    if(minTrackPixelHits_ > 0 && !(hitPattern.numberOfValidPixelHits() >= minTrackPixelHits_)) return false;
-    if(minTrackHits_ > 0 && !(hitPattern.numberOfValidHits() >= minTrackHits_)) return false;
+    const reco::HitPattern &hitPattern = track->hitPattern();
+    if(minTrackPixelHits_ > 0 && !(hitPattern.numberOfValidPixelHits(HitPattern::TRACK_HITS) >= minTrackPixelHits_)) return false;
+    if(minTrackHits_ > 0 && !(hitPattern.numberOfValidHits(HitPattern::TRACK_HITS) >= minTrackHits_)) return false;
   }
   if(checkPV_ && pv_.isNull()) {
     edm::LogError("QCutsNoPrimaryVertex") << "Primary vertex Ref in " <<

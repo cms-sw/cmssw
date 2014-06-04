@@ -181,15 +181,15 @@ bool HLTMuonL2PreFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
     bool failNstations(false), failNhits(false), failNchambers(false);
     for(unsigned int i=0; i<nAbsetaBins; ++i) {
       if( std::abs(mu->eta())<absetaBins_[i] ) {
-	if(mu->hitPattern().muonStationsWithAnyHits() < minNstations_[i]) {
+	if(mu->hitPattern().muonStationsWithAnyHits(HitPattern::TRACK_HITS) < minNstations_[i]) {
 	  failNstations=true;
 	}
 	if(mu->numberOfValidHits() < minNhits_[i]) {
 	  failNhits=true;
 	}
 	if( cutOnChambers_ &&
-	    ( mu->hitPattern().dtStationsWithAnyHits() +
-	      mu->hitPattern().cscStationsWithAnyHits() < minNchambers_[i]) ) {
+	    (mu->hitPattern().dtStationsWithAnyHits(HitPattern::TRACK_HITS) 
+         + mu->hitPattern().cscStationsWithAnyHits(HitPattern::TRACK_HITS) < minNchambers_[i]) ) {
 	  failNchambers=true;
 	}
 	break;
@@ -251,7 +251,7 @@ bool HLTMuonL2PreFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
         <<'\t'<<scientific<<mu->charge()*mu->pt()*(1. + ((mu->parameter(0) != 0) ? nSigmaPt_*mu->error(0)/std::abs(mu->parameter(0)) : 0.))
         <<'\t'<<fixed<<mu->eta()
         <<'\t'<<fixed<<mu->phi()
-        <<'\t'<<mu->hitPattern().muonStationsWithAnyHits()
+        <<'\t'<<mu->hitPattern().muonStationsWithAnyHits(HitPattern::TRACK_HITS)
         <<'\t'<<mu->numberOfValidHits()
         <<'\t'<<scientific<<mu->d0()
         <<'\t'<<scientific<<mu->dz()

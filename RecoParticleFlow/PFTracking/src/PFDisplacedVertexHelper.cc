@@ -73,7 +73,7 @@ PFDisplacedVertexHelper::isTrackSelected(const reco::Track& trk,
       && pt >  tracksSelector_.pt_min();
   } else {
     // Secondary tracks selection
-    int nOuterHits = trk.trackerExpectedHitsOuter().numberOfHits();
+    int nOuterHits = trk.hitPattern().numberOfHits(HitPattern::MISSING_OUTER_HITS);
 
     double dxy = trk.dxy(pvtx_);
       

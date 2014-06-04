@@ -289,8 +289,8 @@ GhostTrackComputer::operator () (const TrackIPTagInfo &ipInfo,
 		vars.insert(btau::trackEta, trackMom.Eta(), true);
 
 		vars.insert(btau::trackChi2, track.normalizedChi2(), true);
-		vars.insert(btau::trackNPixelHits, track.hitPattern().pixelLayersWithMeasurement(), true);
-		vars.insert(btau::trackNTotalHits, track.hitPattern().trackerLayersWithMeasurement(), true);
+		vars.insert(btau::trackNPixelHits, track.hitPattern().pixelLayersWithMeasurement(HitPattern::TRACK_HITS), true);
+		vars.insert(btau::trackNTotalHits, track.hitPattern().trackerLayersWithMeasurement(HitPattern::TRACK_HITS), true);
 		vars.insert(btau::trackPtRel, VectorUtil::Perp(trackMom, jetDir), true);
 		vars.insert(btau::trackDeltaR, VectorUtil::DeltaR(trackMom, jetDir), true);
 	} 

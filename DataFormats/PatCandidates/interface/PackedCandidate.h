@@ -179,9 +179,9 @@ namespace pat {
       dphidphi_ = covariance(2,2)*pt()*pt();
 
       normalizedChi2_ = tk.normalizedChi2();
-      int numberOfPixelHits_ = tk.hitPattern().numberOfValidPixelHits();
+      int numberOfPixelHits_ = tk.hitPattern().numberOfValidPixelHits(reco::HitPattern::TRACK_HITS);
       if (numberOfPixelHits_ > 7) numberOfPixelHits_ = 7;
-      int numberOfStripHits_ = tk.hitPattern().numberOfValidHits() - numberOfPixelHits_;
+      int numberOfStripHits_ = tk.hitPattern().numberOfValidHits(reco::HitPattern::TRACK_HITS) - numberOfPixelHits_;
       if (numberOfStripHits_ > 31) numberOfStripHits_ = 31;
       packedHits_ = (numberOfPixelHits_&0x7) | (numberOfStripHits_ << 3);
       packBoth();

@@ -267,7 +267,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 		dynamic_cast<const reco::PFBlockElementTrack*>((&elements[(trackIs[iEle])])); 	
 	      reco::TrackRef refKf = kfEle->trackRef();
 	      
-	      int nexhits = refKf->trackerExpectedHitsInner().numberOfLostHits();  
+	      int nexhits = refKf->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS);
 	      
 	      unsigned int Algo = 0;
 	      if (refKf.isNonnull()) 
@@ -1007,8 +1007,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 	      double  DR = sqrt(deta_trk*deta_trk+
 				dphi_trk*dphi_trk);
 	      
-	      reco::HitPattern kfHitPattern = trkref->hitPattern();
-	      int NValPixelHit = kfHitPattern.numberOfValidPixelHits();
+	      int NValPixelHit = trkref->hitPattern().numberOfValidPixelHits(HitPattern::TRACK_HITS);
 	      
 	      if(DR < coneTrackIsoForEgammaSC_ && NValPixelHit >=3) {
 		sumNTracksInTheCone++;
@@ -1461,7 +1460,7 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
       float m_el=0.00051;
       Ein_gsf =sqrt(RefGSF->pMode()*
 		    RefGSF->pMode()+m_el*m_el);
-      // nhits_gsf = RefGSF->hitPattern().trackerLayersWithMeasurement();
+      // nhits_gsf = RefGSF->hitPattern().trackerLayersWithMeasurement(HitPattern::TRACK_HITS);
     }
     float Eout_gsf = GsfEl->Pout().t();
     float Etaout_gsf = GsfEl->positionAtECALEntrance().eta();
@@ -1622,7 +1621,7 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 	if(RefGSF->ptModeError() > 0.)
 	  dPtOverPt_gsf = RefGSF->ptModeError()/Pt_gsf;
 	
-	nhit_gsf= RefGSF->hitPattern().trackerLayersWithMeasurement();
+	nhit_gsf= RefGSF->hitPattern().trackerLayersWithMeasurement(HitPattern::TRACK_HITS);
 	chi2_gsf = RefGSF->normalizedChi2();
 	// change GsfEl->Pout().pt() as soon the PoutMode is on the GsfTrack DataFormat
 	DPtOverPt_gsf =  (RefGSF->ptMode() - GsfEl->Pout().pt())/RefGSF->ptMode();
@@ -1632,7 +1631,7 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 	chi2_kf = -0.01;
 	DPtOverPt_kf = -0.01;
 	if (RefKF.isNonnull()) {
-	  nhit_kf= RefKF->hitPattern().trackerLayersWithMeasurement();
+	  nhit_kf= RefKF->hitPattern().trackerLayersWithMeasurement(HitPattern::TRACK_HITS);
 	  chi2_kf = RefKF->normalizedChi2();
 	  // Not used, strange behaviour to be checked. And Kf->OuterPt is 
 	  // in track extra. 
@@ -1756,7 +1755,7 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 		unsigned int Algo = whichTrackAlgo(trackref);
 		// iter0, iter1, iter2, iter3 = Algo < 3
 		// algo 4,5,6,7
-		int nexhits = trackref->trackerExpectedHitsInner().numberOfLostHits();  
+		int nexhits = trackref->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS);
 		
 		bool trackIsFromPrimaryVertex = false;
 		for (Vertex::trackRef_iterator trackIt = primaryVertex.tracks_begin(); trackIt != primaryVertex.tracks_end(); ++trackIt) {
@@ -1966,7 +1965,7 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
       has_gsf=true;
      
       charge= RefGSF->chargeMode();
-      nhit_gsf= RefGSF->hitPattern().trackerLayersWithMeasurement();
+      nhit_gsf= RefGSF->hitPattern().trackerLayersWithMeasurement(HitPattern::TRACK_HITS);
       
       momentum_gsf.SetPx(RefGSF->pxMode());
       momentum_gsf.SetPy(RefGSF->pyMode());
@@ -2014,7 +2013,7 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
 	if (RefKF.isNonnull()) {
 	  has_kf = true;
 	  // dpt_kf=(RefKF->ptError()*RefKF->ptError());
-	  nhit_kf=RefKF->hitPattern().trackerLayersWithMeasurement();
+	  nhit_kf=RefKF->hitPattern().trackerLayersWithMeasurement(HitPattern::TRACK_HITS);
 	  momentum_kf.SetPx(RefKF->px());
 	  momentum_kf.SetPy(RefKF->py());
 	  momentum_kf.SetPz(RefKF->pz());

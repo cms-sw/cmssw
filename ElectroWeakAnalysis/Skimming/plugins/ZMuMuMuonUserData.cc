@@ -163,12 +163,12 @@ void ZMuMuMuonUserData::produce( Event & evt, const EventSetup & ) {
       zDauChi2 = muGlbRef->normalizedChi2();
       zDauTrkChi2 = muTrkRef->normalizedChi2();
       zDauSaChi2 = muSaRef->normalizedChi2();
-      zDauNofMuonHits = muGlbRef->hitPattern().numberOfValidMuonHits();
-      zDauSaNofMuonHits = muSaRef->hitPattern().numberOfValidMuonHits();
-      zDauNofStripHits = muGlbRef->hitPattern().numberOfValidStripHits();
-      zDauTrkNofStripHits = muTrkRef->hitPattern().numberOfValidStripHits();
-      zDauNofPixelHits = muGlbRef->hitPattern().numberOfValidPixelHits();
-      zDauTrkNofPixelHits = muTrkRef->hitPattern().numberOfValidPixelHits();
+      zDauNofMuonHits = muGlbRef->hitPattern().numberOfValidMuonHits(HitPattern::TRACK_HITS);
+      zDauSaNofMuonHits = muSaRef->hitPattern().numberOfValidMuonHits(HitPattern::TRACK_HITS);
+      zDauNofStripHits = muGlbRef->hitPattern().numberOfValidStripHits(HitPattern::TRACK_HITS);
+      zDauTrkNofStripHits = muTrkRef->hitPattern().numberOfValidStripHits(HitPattern::TRACK_HITS);
+      zDauNofPixelHits = muGlbRef->hitPattern().numberOfValidPixelHits(HitPattern::TRACK_HITS);
+      zDauTrkNofPixelHits = muTrkRef->hitPattern().numberOfValidPixelHits(HitPattern::TRACK_HITS);
     }
  else if (muSaRef.isNonnull() && m.isStandAloneMuon() == true){
       zDaudxyFromBS = muSaRef->dxy(beamSpotHandle->position());
@@ -176,7 +176,7 @@ void ZMuMuMuonUserData::produce( Event & evt, const EventSetup & ) {
       zDaudxyFromPV = muSaRef->dxy(primaryVertices->begin()->position() );
       zDaudzFromPV = muSaRef->dz(primaryVertices->begin()->position() );
       zDauSaChi2 = muSaRef->normalizedChi2();
-      zDauSaNofMuonHits = muSaRef->hitPattern().numberOfValidMuonHits();
+      zDauSaNofMuonHits = muSaRef->hitPattern().numberOfValidMuonHits(HitPattern::TRACK_HITS);
 
     }
      else if (muTrkRef.isNonnull() && m.isTrackerMuon() == true){
@@ -185,8 +185,8 @@ void ZMuMuMuonUserData::produce( Event & evt, const EventSetup & ) {
       zDaudxyFromPV = muTrkRef->dxy(primaryVertices->begin()->position() );
       zDaudzFromPV = muTrkRef->dz(primaryVertices->begin()->position() );
       zDauTrkChi2 = muTrkRef->normalizedChi2();
-      zDauTrkNofStripHits = muTrkRef->hitPattern().numberOfValidStripHits();
-      zDauTrkNofPixelHits = muTrkRef->hitPattern().numberOfValidPixelHits();
+      zDauTrkNofStripHits = muTrkRef->hitPattern().numberOfValidStripHits(HitPattern::TRACK_HITS);
+      zDauTrkNofPixelHits = muTrkRef->hitPattern().numberOfValidPixelHits(HitPattern::TRACK_HITS);
 
     }
 

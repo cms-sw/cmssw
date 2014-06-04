@@ -701,12 +701,12 @@ void Triplet::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
       cout << endl;
     }
     
-    const reco::HitPattern& hp = iTrack->hitPattern();
+    const reco::HitPattern &hp = iTrack->hitPattern();
     
-    h045->Fill( hp.numberOfValidTrackerHits() );
-    h046->Fill( hp.numberOfValidPixelBarrelHits() );
-    h047->Fill( hp.trackerLayersWithMeasurement() );
-    h048->Fill( hp.pixelBarrelLayersWithMeasurement() );
+    h045->Fill(hp.numberOfValidTrackerHits(reco::HitPattern::TRACK_HITS));
+    h046->Fill(hp.numberOfValidPixelBarrelHits(reco::HitPattern::TRACK_HITS));
+    h047->Fill(hp.trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS));
+    h048->Fill(hp.pixelBarrelLayersWithMeasurement(reco::HitPattern::TRACK_HITS));
     
     double phi = iTrack->phi();
     double dca = iTrack->d0(); // w.r.t. origin                               
@@ -1141,7 +1141,7 @@ void Triplet::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 	if( pt > 12 ) {
 	  h420->Fill( dca2*1E4 );
 	  h421->Fill( dz2*1E4 );
-	  if( hp.trackerLayersWithMeasurement() > 8 ) {
+	  if(hp.trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS) > 8) {
 	    h430->Fill( dca2*1E4 );
 	    h431->Fill( dz2*1E4 );
 	  }

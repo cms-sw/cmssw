@@ -345,7 +345,7 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
             // d0, chi2, nhits quality cuts
             double dxy = gm->dxy(beamSpotHandle->position());
             double normalizedChi2 = gm->normalizedChi2(); LogTrace("")<<"Im here"<<endl;
-            double trackerHits = gm->hitPattern().numberOfValidTrackerHits();
+            double trackerHits = gm->hitPattern().numberOfValidTrackerHits(HitPattern::TRACK_HITS);
             LogTrace("") << "\t... Muon dxy, normalizedChi2, trackerHits, isTrackerMuon?: " << dxy << " [cm], "<<normalizedChi2 << ", "<<trackerHits << ", " << mu.isTrackerMuon();
 
                   if(plotHistograms_){ h1_["hd0_sel"]->Fill(dxy);}

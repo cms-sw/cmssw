@@ -121,7 +121,7 @@ void pat::PATLostTracks::produce(edm::Event& iEvent, const edm::EventSetup& iSet
     {
 	const reco::Track & tr = (*tracks)[i];
 	if(used[i] == 2 || 
-	  (used[i]==0 && tr.pt() > minPt_ && tr.numberOfValidHits() >= minHits_ && tr.hitPattern().numberOfValidPixelHits() >= minPixelHits_ ) 
+	  (used[i]==0 && tr.pt() > minPt_ && tr.numberOfValidHits() >= minHits_ && tr.hitPattern().numberOfValidPixelHits(reco::HitPattern::TRACK_HITS) >= minPixelHits_ ) 
           )
 		{
 			outPtrP->push_back(tr);
