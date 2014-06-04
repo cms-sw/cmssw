@@ -1162,8 +1162,8 @@ void CSCMotherboardME3141RPC::matchRPCDigis(enum MEX1Station st)
           if (debug_rpc_dphi) std::cout<<"    -- lct pass no rpc req"<<std::endl;
           continue;
         }
-        // use 99 ad default value whe we expect there to be a rpc match
-        lct.setGEMDPhi(99.);
+        // use 100 ad default value when within gem fiducial region
+        lct.setGEMDPhi(100.);
 	
         if (in_digis == rpcDigis_.end()) // has no potential RPC hits with similar BX -> zap it
         {
@@ -1172,6 +1172,8 @@ void CSCMotherboardME3141RPC::matchRPCDigis(enum MEX1Station st)
           continue;
         }
         if (debug_rpc_dphi) std::cout<<"    -- rpc possible"<<std::endl;
+        // use 99 ad default value when we expect there to be a gem match
+        lct.setGEMDPhi(99.);
 
         // to consider a GEM digi as "matched" it has to be 
         // within specified delta_eta and delta_phi ranges
