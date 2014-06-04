@@ -79,8 +79,6 @@ class JetAnalyzer : public thread_unsafe::DQMEDAnalyzer {
   /// Get the analysis
  void analyze(const edm::Event&, const edm::EventSetup&);
 
-  /// Save the histos
-  void endJob(void);
 
   /// Initialize run-based parameters
   void dqmBeginRun(const edm::Run&,  const edm::EventSetup&);
@@ -103,8 +101,6 @@ class JetAnalyzer : public thread_unsafe::DQMEDAnalyzer {
   //jetAnalysis::TrackPropagatorToCalo trackPropagator_;
   /// Helper object to calculate strip SoN for tracks
   //jetAnalysis::StripSignalOverNoiseCalculator sOverNCalculator_;
-
-  DQMStore* dbe_;
 
   //try to put one collection as start
   edm::InputTag mInputCollection_;

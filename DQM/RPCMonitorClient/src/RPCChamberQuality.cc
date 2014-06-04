@@ -170,7 +170,7 @@ void RPCChamberQuality::fillMonitorElements() {
     
     
     // Endcap
-    for(int i=-3; i<4; i++) {//loop on Disks
+    for(int i=-numberOfDisks_; i<=numberOfDisks_; i++) {//loop on Disks
       if(i==0) continue;
       
       meName.str("");
