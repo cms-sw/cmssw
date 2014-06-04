@@ -243,7 +243,16 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
 					       const edm::ParameterSet& comm,
 					       const edm::ParameterSet& ctmb) :
 		     theEndcap(endcap), theStation(station), theSector(sector),
-                     theSubsector(subsector), theTrigChamber(chamber) {
+                     theSubsector(subsector), theTrigChamber(chamber) 
+{
+  theRing = CSCTriggerNumbering::ringFromTriggerLabels(theStation, theTrigChamber);
+
+  theChamber = CSCTriggerNumbering::chamberFromTriggerLabels(theSector, theSubsector,
+                                                             theStation, theTrigChamber);
+
+  // trigger numbering doesn't distinguish between ME1a and ME1b chambers:
+  isME11 = (theStation == 1 && theRing == 1);
+
   static bool config_dumped = false;
 
   // CLCT configuration parameters.
@@ -266,12 +275,12 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
   isTMB07      = comm.getParameter<bool>("isTMB07");
 
   // Flag for SLHC studies
-  isSLHC       = comm.getUntrackedParameter<bool>("isSLHC",false);
+  isSLHC       = comm.getParameter<bool>("isSLHC");
 
   // special configuration parameters for ME11 treatment
-  smartME1aME1b = comm.getUntrackedParameter<bool>("smartME1aME1b",false);
-  disableME1a = comm.getUntrackedParameter<bool>("disableME1a",false);
-  gangedME1a = comm.getUntrackedParameter<bool>("gangedME1a",true);
+  smartME1aME1b = comm.getParameter<bool>("smartME1aME1b");
+  disableME1a = comm.getParameter<bool>("disableME1a");
+  gangedME1a = comm.getParameter<bool>("gangedME1a");
 
   if (isSLHC && !smartME1aME1b) edm::LogError("L1CSCTPEmulatorConfigError")
     << "+++ SLHC upgrade configuration is used (isSLHC=True) but smartME1aME1b=False!\n"
@@ -283,40 +292,35 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
     min_separation    =
       conf.getParameter<unsigned int>("clctMinSeparation");
 
-    start_bx_shift = conf.getUntrackedParameter<int>("clctStartBxShift",0);
+    start_bx_shift = conf.getParameter<int>("clctStartBxShift");
   }
 
   if (smartME1aME1b) {
     // use of localized dead-time zones
-    use_dead_time_zoning = 
-      conf.getUntrackedParameter<bool>("useDeadTimeZoning",true);
-    clct_state_machine_zone = 
-      conf.getUntrackedParameter<unsigned int>("clctStateMachineZone",8);
-    dynamic_state_machine_zone = 
-      conf.getUntrackedParameter<bool>("useDynamicStateMachineZone",true);
+    use_dead_time_zoning = conf.existsAs<bool>("useDeadTimeZoning")?conf.getParameter<bool>("useDeadTimeZoning"):true;
+    clct_state_machine_zone = conf.existsAs<unsigned int>("clctStateMachineZone")?conf.getParameter<unsigned int>("clctStateMachineZone"):8;
+    dynamic_state_machine_zone = conf.existsAs<bool>("useDynamicStateMachineZone")?conf.getParameter<bool>("useDynamicStateMachineZone"):true;
 
     // how far away may trigger happen from pretrigger
-    pretrig_trig_zone = 
-      conf.getUntrackedParameter<unsigned int>("clctPretriggerTriggerZone",5);
+    pretrig_trig_zone = conf.existsAs<unsigned int>("clctPretriggerTriggerZone")?conf.getParameter<unsigned int>("clctPretriggerTriggerZone"):5;
 
     // whether to calculate bx as corrected_bx instead of pretrigger one
-    use_corrected_bx = conf.getUntrackedParameter<bool>("clctUseCorrectedBx",false);
+    use_corrected_bx = conf.existsAs<bool>("clctUseCorrectedBx")?conf.getParameter<bool>("clctUseCorrectedBx"):true;
   }
   
-  // Motherboard parameters: common for all configurations.
-  tmb_l1a_window_size = // Common to CLCT and TMB
-    ctmb.getParameter<unsigned int>("tmbL1aWindowSize");
+  // Motherboard parameters: common for all configurations. // Common to CLCT and TMB
+  tmb_l1a_window_size = ctmb.getParameter<unsigned int>("tmbL1aWindowSize");
 
   // separate handle for early time bins
-  early_tbins = ctmb.getUntrackedParameter<int>("tmbEarlyTbins",-1);
+  early_tbins = ctmb.getParameter<int>("tmbEarlyTbins");
   static int fpga_latency = 3;
   if (early_tbins<0) early_tbins  = fifo_pretrig - fpga_latency;
 
   // wether to readout only the earliest two LCTs in readout window
-  readout_earliest_2 = ctmb.getUntrackedParameter<bool>("tmbReadoutEarliest2",0);
+  readout_earliest_2 = ctmb.getParameter<bool>("tmbReadoutEarliest2");
 
   // Verbosity level, set to 0 (no print) by default.
-  infoV        = conf.getUntrackedParameter<int>("verbosity", 0);
+  infoV = conf.getParameter<int>("verbosity");
 
   // Check and print configuration parameters.
   checkConfigParameters();
@@ -332,14 +336,6 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor(unsigned endcap,
     if ((i_layer+1)%2 == 0) stagger[i_layer] = 0;
     else                    stagger[i_layer] = 1;
   }
-
-  theRing = CSCTriggerNumbering::ringFromTriggerLabels(theStation, theTrigChamber);
-
-  theChamber = CSCTriggerNumbering::chamberFromTriggerLabels(theSector, theSubsector,
-                                                             theStation, theTrigChamber);
-
-  // trigger numbering doesn't distinguish between ME1a and ME1b chambers:
-  isME11 = (theStation == 1 && theRing == 1);
 
   //if (theStation==1 && theRing==2) infoV = 3;
 

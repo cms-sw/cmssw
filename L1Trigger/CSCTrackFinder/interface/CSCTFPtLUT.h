@@ -10,8 +10,6 @@
 ///KK
 #include <FWCore/Framework/interface/EventSetup.h>
 ///
-#include "CondFormats/L1TObjects/interface/L1MuCSCPtLut.h"
-#include "CondFormats/DataRecord/interface/L1MuCSCPtLutRcd.h"
 
 class CSCTFPtLUT
 {
@@ -25,7 +23,7 @@ public:
 	     const L1MuTriggerPtScale* ptScale);
 
   CSCTFPtLUT(const CSCTFPtLUT&);
-  ~CSCTFPtLUT() {}
+  ~CSCTFPtLUT() { if(pt_lut) delete [] pt_lut; pt_lut = NULL; }
 
   CSCTFPtLUT& operator=(const CSCTFPtLUT&);
 
@@ -56,21 +54,13 @@ public:
   static const int getPtbyMLH;
     
  private:
-
-  // handle to csctf pt lut when read from DBS (EventSetup)
-  const L1MuCSCPtLut* theL1MuCSCPtLut_; 
+  static ptdat* pt_lut;
+  static bool lut_read_in;
   const L1MuTriggerScales* trigger_scale;
   const L1MuTriggerPtScale* trigger_ptscale;
-  
-  // to be used when the csctf pt lut is initialized from ParameterSet
   CSCTFPtMethods ptMethods;
 
-  // store the entire object, when and *only when we read from local file
-  // this option is set to false by default and should be used only for
-  // testing
-  ptdat* pt_lut;
-  
-  bool read_pt_lut_es, read_pt_lut_file, isBinary, isBeamStartConf;
+  bool read_pt_lut, isBinary, isBeamStartConf;
   edm::FileInPath pt_lut_file;
   unsigned pt_method, lowQualityFlag;
 
