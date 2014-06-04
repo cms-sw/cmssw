@@ -145,7 +145,6 @@ METAnalyzer::METAnalyzer(const edm::ParameterSet& pSet) {
 
  FolderName_              = parameters.getUntrackedParameter<std::string>("FolderName");
 
- dbe_ = edm::Service<DQMStore>().operator->();
 }
 
 // ***********************************************************
@@ -154,34 +153,14 @@ METAnalyzer::~METAnalyzer() {
     delete *it;
   }
   delete DCSFilter_;
-
-  if(outputMEsInRootFile){
-      //dbe->save(mOutputFile_);
-    dbe_->save(mOutputFile_);
-  }
-
-
-  //delete DCSFilter_;
-
-//  delete highPtJetEventFlag_;
-//  delete lowPtJetEventFlag_;
-//  delete minBiasEventFlag_;
-//  delete highMETEventFlag_;
-//  delete eleEventFlag_;
-//  delete muonEventFlag_;
 }
 
 
 void METAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
 				     edm::Run const & iRun,
 				 edm::EventSetup const &) {
-  // DQStore stuff
-  //dbe_ = edm::Service<DQMStore>().operator->();
-  //LogTrace(metname)<<"[METAnalyzer] Parameters initialization";
   std::string DirName = FolderName_+metCollectionLabel_.label();
   ibooker.setCurrentFolder(DirName);
-
-  //dbe_ = dbe;
 
   folderNames_.push_back("Uncleaned");
   folderNames_.push_back("Cleaned");
@@ -193,17 +172,6 @@ void METAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
     }
 }
 
-// ***********************************************************
-void METAnalyzer::endJob() {
-
-  //delete DCSFilter_;
-
-  //if(outputMEsInRootFile){
-      //dbe->save(mOutputFile_);
-  //dbe_->save(mOutputFile_);
-  //}
-
-}
 
 // ***********************************************************
 void METAnalyzer::bookMESet(std::string DirName, DQMStore::IBooker & ibooker, std::map<std::string,MonitorElement*>& map_of_MEs)
