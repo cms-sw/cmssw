@@ -9,6 +9,8 @@
 #include <FWCore/Framework/interface/ConsumesCollector.h>
 #include <FWCore/Framework/interface/EDProducer.h>
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DataFormats/CSCDigi/interface/CSCStripDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
@@ -17,6 +19,10 @@
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCLCTPreTriggerCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
+
+namespace edm {
+   class ConfigurationDescriptions;
+}
 
 class CSCDigiToRaw;
 
@@ -30,6 +36,9 @@ class CSCDigiToRawModule : public edm::EDProducer {
 
   // Operations
   virtual void produce( edm::Event&, const edm::EventSetup& );
+
+  // Fill parameters descriptions
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
  private:
 

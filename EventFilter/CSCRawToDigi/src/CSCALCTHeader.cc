@@ -63,8 +63,12 @@ CSCALCTHeader::CSCALCTHeader(const unsigned short * buf) {
 
   LogTrace("CSCALCTHeader|CSCRawToDigi") << "firmware version - " << firmwareVersion;
 
-  ///Now fill data 
+  ///Now fill data
+#ifdef LOCAL_UNPACK
   switch (firmwareVersion) {
+#else
+  switch (firmwareVersion.load()) {
+#endif 
   case 2006:
     memcpy(&header2006, buf, header2006.sizeInWords()*2);///the header part
     buf +=header2006.sizeInWords();
