@@ -7,7 +7,7 @@ import shutil
 from subprocess import Popen 
 
 class WorkFlowRunner(Thread):
-    def __init__(self, wf, noRun=False,dryRun=False,cafVeto=True):
+    def __init__(self, wf, noRun=False,dryRun=False,cafVeto=True,dasOptions="",jobReport=False):
         Thread.__init__(self)
         self.wf = wf
 
@@ -18,6 +18,8 @@ class WorkFlowRunner(Thread):
         self.noRun=noRun
         self.dryRun=dryRun
         self.cafVeto=cafVeto
+        self.dasOptions=dasOptions
+        self.jobReport=jobReport
         
         self.wfDir=str(self.wf.numId)+'_'+self.wf.nameId
         return
@@ -100,7 +102,7 @@ class WorkFlowRunner(Thread):
                     cmd2 =cmd+cmd2+closeCmd(istep,'lumiRanges')
                     lumiRangeFile='step%d_lumiRanges.log'%(istep,)
                     retStep = self.doCmd(cmd2)
-                cmd+=com.das()
+                cmd+=com.das(self.dasOptions)
                 cmd+=closeCmd(istep,'dasquery')
                 retStep = self.doCmd(cmd)
                 #don't use the file list executed, but use the das command of cmsDriver for next step
@@ -125,11 +127,12 @@ class WorkFlowRunner(Thread):
                         cmd+=' --filein file:step%s.root '%(istep-1,)
                     if not '--fileout' in com:
                         cmd+=' --fileout file:step%s.root '%(istep,)
-                    
-                                
-
+                if self.jobReport:
+                  cmd += ' --suffix "-j JobReport%s.xml " ' % istep
                 cmd+=closeCmd(istep,self.wf.nameId)            
                 retStep = self.doCmd(cmd)
+
+
             
             self.retStep.append(retStep)
             if (retStep!=0):
