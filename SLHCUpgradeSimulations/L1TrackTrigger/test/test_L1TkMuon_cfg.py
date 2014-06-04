@@ -4,7 +4,7 @@ process = cms.Process("ALL")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(20) )
 
 #
 # This runs over a file that already contains the L1Tracks.
@@ -36,6 +36,18 @@ process.load('Geometry.TrackerGeometryBuilder.StackedTrackerGeometry_cfi')
 process.load('Configuration.Geometry.GeometryExtended2023TTI_cff')
 
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
+
+
+
+# ---------------------------------------------------------------------------
+#
+# --- Recreate the L1Tracks to benefit from the latest updates
+#
+
+process.load("SLHCUpgradeSimulations.L1TrackTrigger.L1TrackingSequence_cfi")
+process.pTracking = cms.Path( process.DefaultTrackingSequence )
+
+# ---------------------------------------------------------------------------
 
 
 
@@ -83,12 +95,13 @@ process.Out.outputCommands.append('keep *_genParticles_*_*')
 
 
 	# the L1Tracks, clusters and stubs
+process.Out.outputCommands.append('keep *_TTTracksFromPixelDigis_Level1TTTracks_*')
+#process.Out.outputCommands.append('keep *_TTTrackAssociatorFromPixelDigis_Level1TTTracks_*')
+	# the clusters and stubs
 #process.Out.outputCommands.append('keep *_TTStubsFromPixelDigis_ClusterAccepted_*')
 #process.Out.outputCommands.append('keep *_TTClusterAssociatorFromPixelDigis_ClusterAccepted_*')
 #process.Out.outputCommands.append('keep *_TTStubAssociatorFromPixelDigis_StubAccepted_*')
 #process.Out.outputCommands.append('keep *_TTStubsFromPixelDigis_StubAccepted_*')
-#process.Out.outputCommands.append('keep *_TTTracksFromPixelDigis_Level1TTTracks_*')
-#process.Out.outputCommands.append('keep *_TTTrackAssociatorFromPixelDigis_Level1TTTracks_*')
 
 # --- to browse the genParticles, one needs to keep the collections of associators below:
 process.Out.outputCommands.append('keep *_TTTrackAssociatorFromPixelDigis_*_*')
