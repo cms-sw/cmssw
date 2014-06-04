@@ -461,6 +461,7 @@ cscTriggerPrimitiveDigisPostLS3 = cms.EDProducer("CSCTriggerPrimitivesProducer",
         gemMatchDeltaPhiOdd = cms.double(1),
         gemMatchDeltaPhiEven = cms.double(1),
         gemMatchMinEta = cms.double(1.5),
+        gemMatchMaxEta = cms.double(2.45),
         gemClearNomatchLCTs = cms.bool(False),
 
         firstTwoLCTsInChamber = cms.bool(True),

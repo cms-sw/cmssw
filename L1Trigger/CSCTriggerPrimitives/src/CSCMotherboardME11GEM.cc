@@ -385,21 +385,6 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
   clctV1b = clct->run(compdc); // run cathodeLCT in ME1/b
   clctV1a = clct1a->run(compdc); // run cathodeLCT in ME1/a
 
-  const bool debugStubs(false);
-  if (debugStubs){
-    for (auto& p : alctV){
-      std::cout << "ALCT: " << p << std::endl;
-    }
-    
-    for (auto& p : clctV1b){
-      std::cout << "CLCT in ME1b: " << p << std::endl;
-    }
-    
-    for (auto& p : clctV1a){
-      std::cout << "CLCT in ME1a: " << p << std::endl;
-    }
-  }
-  
   bool gemGeometryAvailable(false);
   if (gem_g != nullptr) {
     if (infoV >= 0) edm::LogInfo("L1CSCTPEmulatorSetupInfo")
@@ -450,7 +435,7 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
       std::cout<<"me1b Det "<< me1bId<<" "<< me1bId.rawId() <<" " << (isEven ? "Even":"odd") <<" chamber "<< me1bId.chamber()<<std::endl;
       if (gemRollToEtaLimits_.size())
         for(auto p : gemRollToEtaLimits_) {
-          std::cout << "roll "<< p.first << " min eta " << (p.second).first << " max eta " << (p.second).second << std::endl;
+          std::cout << "pad "<< p.first << " min eta " << (p.second).first << " max eta " << (p.second).second << std::endl;
         }
     }
     
@@ -531,7 +516,6 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
       }
     }
 
-
     // build coincidence pads
     std::auto_ptr<GEMCSCPadDigiCollection> pCoPads(new GEMCSCPadDigiCollection());
     buildCoincidencePads(gemPads, *pCoPads);
@@ -541,11 +525,76 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
     coPads_.clear();
     retrieveGEMPads(gemPads, gem_id);
     retrieveGEMPads(pCoPads.get(), gem_id, true);
+    
+    const bool debugStubs(false);
+    if (debugStubs){
+      for (auto& p : alctV){
+        std::cout << "ALCT: " << p << std::endl;
+      }
+      
+      for (auto& p : clctV1b){
+        std::cout << "CLCT in ME1b: " << p << std::endl;
+      }
+      
+      for (auto& p : clctV1a){
+        std::cout << "CLCT in ME1a: " << p << std::endl;
+      }
+      
+      auto superChamber(gem_g->superChamber(gem_id));
+      for (auto ch : superChamber->chambers()) {
+        for (auto roll : ch->etaPartitions()) {
+          GEMDetId roll_id(roll->id());
+          auto pads_in_det = gemPads->get(roll_id);
+          for (auto pad = pads_in_det.first; pad != pads_in_det.second; ++pad) {
+            //          auto id_pad = std::make_pair(roll_id(), &(*pad));
+            if (abs((*pad).bx())<=1)
+            std::cout << "GEM: " << roll_id << " " << *pad << std::endl;
+          }
+        }
+      }
+    }    
   }
 
   const bool hasPads(pads_.size()!=0);
   const bool hasCoPads(hasPads and coPads_.size()!=0);
   bool hasLCTs(false);
+
+  //  bool first = true;
+  if (false) for (int bx = 5; bx <= 7; bx++){
+    const bool hasALCT1(alct->bestALCT[bx].isValid());
+    const bool hasALCT2(alct->secondALCT[bx].isValid());
+    const bool hasCLCT1(clct->bestCLCT[bx].isValid());
+    const bool hasCLCT2(clct->secondCLCT[bx].isValid());
+    const bool hasCLCT1a(clct1a->bestCLCT[bx].isValid());
+    const bool hasCLCT2a(clct1a->secondCLCT[bx].isValid());
+    const bool hasGEM1(pads_[bx].size()!=0);
+    const bool hasGEM2(coPads_[bx].size()!=0);
+
+    // const bool ALCTandGEM1(hasALCT1 and hasGEM1);
+    // const bool ALCTandGEM2(hasALCT1 and hasGEM2);
+    // const bool CLCTandGEM1(hasCLCT1 and hasGEM1);
+    // const bool CLCTandGEM2(hasCLCT1 and hasGEM2);
+    // const bool ALCTandCLCT(hasALCT1 and hasCLCT1);
+    // const bool twoStubs(ALCTandGEM2 or CLCTandGEM2 or ALCTandCLCT or (ALCTandGEM1 and CLCTandGEM1));
+
+    const std::string ALCT1(hasALCT1? "X" : " ");
+    const std::string ALCT2(hasALCT2? "X" : " ");
+    const std::string CLCT1(hasCLCT1? "X" : " ");
+    const std::string CLCT2(hasCLCT2? "X" : " ");
+    const std::string CLCT1a(hasCLCT1a? "X" : " ");
+    const std::string CLCT2a(hasCLCT2a? "X" : " ");
+    const std::string GEM1(hasGEM1? "X" : " ");
+    const std::string GEM2(hasGEM2? "X" : " ");
+    
+    if (hasALCT1 or hasCLCT1 or hasCLCT1a or hasGEM1 or hasGEM2){
+      // reference BX
+      if (bx==5) std::cout << "BX  ALCT1  ALCT2  CLCTa1  CLCTa2  CLCTb1  CLCTb2  GEM1  GEM2"<<std::endl;
+      std::cout <<bx;
+      if (bx < 10) std::cout <<" ";
+      std::cout<<"    "<<ALCT1<<"      "<<ALCT2<<"       "<<CLCT1a<<"      "<<CLCT2a
+               <<"       "<<CLCT1<<"      "<<CLCT2<<"      "<<GEM1<<"     "<<GEM2<<std::endl;
+    }
+  }
 
   // ALCT-centric matching
   for (int bx_alct = 0; bx_alct < CSCAnodeLCTProcessor::MAX_ALCT_BINS; bx_alct++)
@@ -1821,16 +1870,16 @@ void CSCMotherboardME11GEM::createGEMRollEtaLUT(bool isEven)
   auto chamber(gem_g->chamber(GEMDetId(1,1,1,1,ch,0)));
   if (chamber==nullptr) return;
 
-  for(int i = 1; i<= chamber->nEtaPartitions(); ++i){
-    auto roll(chamber->etaPartition(i));
-    if (roll==nullptr) continue;
-
+  int n = 1;
+  if (isEven) n = 2; // this only works for the 9-10 partition geometry!!! FIXME
+  for(auto roll : chamber->etaPartitions()) {
     const float half_striplength(roll->specs()->specificTopology().stripLength()/2.);
     const LocalPoint lp_top(0., half_striplength, 0.);
     const LocalPoint lp_bottom(0., -half_striplength, 0.);
     const GlobalPoint gp_top(roll->toGlobal(lp_top));
     const GlobalPoint gp_bottom(roll->toGlobal(lp_bottom));
-    gemRollToEtaLimits_[i] = std::make_pair(gp_top.eta(), gp_bottom.eta());
+    gemRollToEtaLimits_[n] = std::make_pair(gp_top.eta(), gp_bottom.eta());
+    ++n;
   }
 }
 
