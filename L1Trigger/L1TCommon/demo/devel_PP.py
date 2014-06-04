@@ -114,6 +114,13 @@ process.L1Packer = cms.EDProducer("l1t::L1TDigiToRaw",
         FWId = cms.uint32(1))
 
 process.L1Unpacker = cms.EDProducer("l1t::L1TRawToDigi",
+        Unpackers = cms.vstring([
+            "l1t::CaloTowerUnpackerFactory",
+            "l1t::EGammaUnpackerFactory",
+            "l1t::EtSumUnpackerFactory",
+            "l1t::JetUnpackerFactory",
+            "l1t::TauUnpackerFactory"
+        ]),
         InputLabel = cms.InputTag("L1Packer"),
         FedId = cms.int32(100))
 

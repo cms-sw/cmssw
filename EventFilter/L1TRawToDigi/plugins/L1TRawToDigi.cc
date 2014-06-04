@@ -2,7 +2,6 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 #include "EventFilter/L1TRawToDigi/interface/L1TRawToDigi.h"
-#include "EventFilter/L1TRawToDigi/interface/UnpackerCollections.h"
 #include "EventFilter/L1TRawToDigi/interface/UnpackerFactory.h"
 
 namespace l1t {
@@ -10,8 +9,9 @@ namespace l1t {
       inputLabel_(config.getParameter<edm::InputTag>("InputLabel")),
       fedId_(config.getParameter<int>("FedId"))
    {
-      // Register products
-      UnpackerCollections::registerCollections(this);
+      auto factory_names = config.getParameter<std::vector<std::string>>("Unpackers");
+      for (const auto& name: factory_names)
+         factories_.push_back(UnpackerFactory::get()->makeUnpackerFactory(name, config, *this));
    }
 
 
@@ -75,10 +75,12 @@ namespace l1t {
 
       unsigned fw = fw_id;
 
-      UnpackerCollections coll(event);
-      auto unpackers = UnpackerFactory::createUnpackers(fw, fedId_);
-      for (auto& up: unpackers)
-         up.second->setCollections(coll);
+      UnpackerMap unpackers;
+      for (auto& f: factories_) {
+         for (const auto& up: f->create(event, fedId_, fw)) {
+            unpackers.insert(up);
+         }
+      }
 
       auto payload_end = idx + payload_size * 4;
       for (unsigned int b = 0; idx < payload_end; ++b) {
@@ -104,17 +106,6 @@ namespace l1t {
          // Advance index by block size (header does this in pop())
          idx += block_size * 4;
       }
-   }
-
-   // ------------ method called once each job just before starting event loop  ------------
-   void 
-   L1TRawToDigi::beginJob()
-   {
-   }
-
-   // ------------ method called once each job just after ending the event loop  ------------
-   void 
-   L1TRawToDigi::endJob() {
    }
 
    // ------------ method called when starting to processes a run  ------------

@@ -1,42 +1,33 @@
-#include "EventFilter/L1TRawToDigi/interface/BaseUnpacker.h"
+#include "FWCore/Framework/interface/one/EDProducerBase.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDMException.h"
+
 #include "EventFilter/L1TRawToDigi/interface/UnpackerFactory.h"
 
-#include "FWCore/Utilities/interface/Exception.h"
-
-#include "implementations/JetUnpacker.h"
-#include "implementations/TauUnpacker.h"
-#include "implementations/EGammaUnpacker.h"
-#include "implementations/EtSumUnpacker.h"
-#include "implementations/CaloTowerUnpacker.h"
+EDM_REGISTER_PLUGINFACTORY(l1t::UnpackerFactoryFacility,"UnpackerFactory");
 
 namespace l1t {
-   std::vector<UnpackerFactory*> UnpackerFactory::factories_ = UnpackerFactory::createFactories();
+   const UnpackerFactory UnpackerFactory::instance_;
 
-   std::vector<UnpackerFactory*> UnpackerFactory::createFactories()
+   const UnpackerFactory*
+   UnpackerFactory::get()
    {
-      std::vector<UnpackerFactory*> res;
-      res.push_back(new JetUnpackerFactory());
-      res.push_back(new TauUnpackerFactory());
-      res.push_back(new EGammaUnpackerFactory());
-      res.push_back(new EtSumUnpackerFactory());
-      res.push_back(new CaloTowerUnpackerFactory());
-
-      return res;
+      return &instance_;
    }
 
-   UnpackerMap
-   UnpackerFactory::createUnpackers(unsigned fw, const int fedid)
+   UnpackerFactory::UnpackerFactory() {};
+   UnpackerFactory::~UnpackerFactory() {};
+
+   std::auto_ptr<BaseUnpackerFactory>
+   UnpackerFactory::makeUnpackerFactory(const std::string& type, const edm::ParameterSet& cfg, edm::one::EDProducerBase& prod) const
    {
-      UnpackerMap res;
-      for (const auto& f: factories_) {
-         for (auto& i: f->create(fw, fedid)) {
-            if (res.find(i.first) == res.end()) {
-               res.insert(i);
-            } else {
-               throw cms::Exception("L1TRawToDigi") << "Multiple instances of BlockID " << i.first << "!";
-            }
-         }
+      auto factory = std::auto_ptr<BaseUnpackerFactory>(UnpackerFactoryFacility::get()->create(type, cfg, prod));
+
+      if (factory.get() == 0) {
+         throw edm::Exception(edm::errors::Configuration, "NoSourceModule")
+            << "cannot find unpacker factory " << type;
       }
-      return res;
+
+      return factory;
    }
 }
