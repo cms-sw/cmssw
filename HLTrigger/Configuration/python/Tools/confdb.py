@@ -81,6 +81,9 @@ class HLTProcess(object):
     else:
       self.labels['connect'] = 'frontier://FrontierProd'
 
+    if self.config.prescale and (self.config.prescale.lower() != 'none'):
+      self.labels['prescale'] = self.config.prescale
+
     # get the configuration from ConfdB
     self.buildPathList()
     self.buildOptions()
@@ -394,13 +397,13 @@ process = customizeHLTforMC(process)
           if path not in self.options['paths']:
             self.data = re.sub(r'      cms.PSet\(  pathName = cms.string\( "%s" \),\n        prescales = cms.vuint32\( .* \)\n      \),?\n' % path, '', self.data)
 
-    if self.config.unprescale:
+    if self.config.prescale and (self.config.prescale.lower() != 'none'):
+      # TO DO: check that the requested prescale column is valid
       self.data += """
-# remove the HLT prescales
+# force the use of a specific HLT prescale column
 if 'PrescaleService' in %(dict)s:
-    %(process)sPrescaleService.lvl1DefaultLabel = cms.string( '0' )
-    %(process)sPrescaleService.lvl1Labels       = cms.vstring( '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' )
-    %(process)sPrescaleService.prescaleTable    = cms.VPSet( )
+    %(process)sPrescaleService.forceDefault     = True
+    %(process)sPrescaleService.lvl1DefaultLabel = '%(prescale)s'
 """
 
 
@@ -409,7 +412,7 @@ if 'PrescaleService' in %(dict)s:
       # find all EDfilters
       filters = [ match[1] for match in re.findall(r'(process\.)?\b(\w+) = cms.EDFilter', self.data) ]
       re_sequence = re.compile( r'cms\.(Path|Sequence)\((.*)\)' )
-      # remove existing 'cms.ingore' and '~' modifiers
+      # remove existing 'cms.ignore' and '~' modifiers
       self.data = re_sequence.sub( lambda line: re.sub( r'cms\.ignore *\( *((process\.)?\b(\w+)) *\)', r'\1', line.group(0) ), self.data )
       self.data = re_sequence.sub( lambda line: re.sub( r'~', '', line.group(0) ), self.data )
       # wrap all EDfilters with "cms.ignore( ... )", 1000 at a time (python 2.6 complains for too-big regular expressions)
@@ -942,7 +945,7 @@ if 'GlobalTag' in %%(dict)s:
       self.options['psets'].append( "-maxEvents" )
       self.options['psets'].append( "-options" )
 
-    if self.config.unprescale:
+    if self.config.fragment or (self.config.prescale and (self.config.prescale.lower() == 'none')):
       self.options['services'].append( "-PrescaleService" )
 
     if self.config.fragment or self.config.timing:
