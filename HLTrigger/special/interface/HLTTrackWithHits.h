@@ -32,7 +32,8 @@ public:
     maxN_(iConfig.getParameter<int>("MaxN")),
     MinBPX_(iConfig.getParameter<int>("MinBPX")),
     MinFPX_(iConfig.getParameter<int>("MinFPX")),
-    MinPXL_(iConfig.getParameter<int>("MinPXL"))
+    MinPXL_(iConfig.getParameter<int>("MinPXL")),
+    MinPT_(iConfig.getParameter<double>("MinPT"))
   {
     srcToken_ = consumes<reco::TrackCollection>(src_);
   }
@@ -49,6 +50,7 @@ public:
       desc.add<int>("MinBPX",0);
       desc.add<int>("MinFPX",0);
       desc.add<int>("MinPXL",0);
+      desc.add<double>("MinPT",0.);
       descriptions.add("hltTrackWithHits",desc);
     }
 
@@ -61,6 +63,7 @@ private:
     int count=0;
     for (int i=0;i!=s;++i){
       const reco::Track & track = (*oHandle)[i];
+      if (track.pt() < MinPT_) continue;
       const reco::HitPattern & hits = track.hitPattern();
       if ( MinBPX_>0 && hits.numberOfValidPixelBarrelHits() >= MinBPX_ ) { ++count; continue; }
       if ( MinFPX_>0 && hits.numberOfValidPixelEndcapHits() >= MinFPX_ ) { ++count; continue; }
@@ -75,7 +78,7 @@ private:
   edm::InputTag src_;
   edm::EDGetTokenT<reco::TrackCollection> srcToken_;
   int minN_,maxN_,MinBPX_,MinFPX_,MinPXL_;
-
+  double MinPT_;
 };
 
 

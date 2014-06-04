@@ -74,7 +74,6 @@ SUSYDQMAnalyzer::SUSYDQMAnalyzer( const edm::ParameterSet& pSet)
   iConfig = pSet;
   
   SUSYFolder = iConfig.getParameter<std::string>("folderName");
-  dqm = edm::Service<DQMStore>().operator->();
   // Load parameters 
   thePFMETCollectionToken     = consumes<reco::PFMETCollection>   (iConfig.getParameter<edm::InputTag>("PFMETCollectionLabel"));
   theCaloMETCollectionToken   = consumes<reco::CaloMETCollection> (iConfig.getParameter<edm::InputTag>("CaloMETCollectionLabel"));
@@ -94,9 +93,6 @@ SUSYDQMAnalyzer::SUSYDQMAnalyzer( const edm::ParameterSet& pSet)
 
 const char* SUSYDQMAnalyzer::messageLoggerCatregory = "SUSYDQM";
 
-void SUSYDQMAnalyzer::beginJob(void){
-
-}
 
 void SUSYDQMAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
 				     edm::Run const & iRun,
@@ -273,8 +269,6 @@ void SUSYDQMAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
 }
 
-void SUSYDQMAnalyzer::endRun(const edm::Run&, const edm::EventSetup&){  
-}
 
 SUSYDQMAnalyzer::~SUSYDQMAnalyzer(){
 }
