@@ -516,7 +516,6 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
       }
     }
 
-    
     // build coincidence pads
     std::auto_ptr<GEMCSCPadDigiCollection> pCoPads(new GEMCSCPadDigiCollection());
     buildCoincidencePads(gemPads, *pCoPads);
@@ -555,7 +554,7 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
       }
     }    
   }
-  
+
   const bool hasPads(pads_.size()!=0);
   const bool hasCoPads(hasPads and coPads_.size()!=0);
   bool hasLCTs(false);
