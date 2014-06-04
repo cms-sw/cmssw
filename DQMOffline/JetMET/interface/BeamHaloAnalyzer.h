@@ -158,11 +158,8 @@ class BeamHaloAnalyzer: public DQMEDAnalyzer {
  
  private:
 
-  virtual void beginJob();
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   virtual void analyze(const edm::Event& , const edm::EventSetup&);
-  virtual void endJob();
-  virtual void endRun(const edm::Run&, const edm::EventSetup&){ if (OutputFileName!="") dqm->save(OutputFileName);}
 
   edm::InputTag IT_L1MuGMTReadout;
 
@@ -211,8 +208,6 @@ class BeamHaloAnalyzer: public DQMEDAnalyzer {
 
   bool StandardDQM;
 
-  // DAQ Tools
-  DQMStore* dqm;
 
   MonitorElement* hEcalHaloData_PhiWedgeMultiplicity;
   MonitorElement* hEcalHaloData_PhiWedgeConstituents;

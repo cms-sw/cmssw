@@ -36,9 +36,7 @@ HTMHTAnalyzer::HTMHTAnalyzer(const edm::ParameterSet& pSet) {
 // ***********************************************************
 HTMHTAnalyzer::~HTMHTAnalyzer() { }
 
-void HTMHTAnalyzer::beginJob(DQMStore * dbe) {
 
-}
 
 void HTMHTAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
 				     edm::Run const & iRun,
