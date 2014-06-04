@@ -21,9 +21,17 @@ HcalElectronicsId::HcalElectronicsId(int slbChan, int slbSite, int spigot, int d
   hcalElectronicsId_|=0x02000000;
 }
 
+HcalElectronicsId::HcalElectronicsId(int subtype, int crate, int slot, int fiber, int fc) {
+  hcalElectronicsId_=(fc&0xF) | (((fiber)&0x1F)<<4) |
+    ((slot&0xF)<<9) | ((crate&0x1F)<<13) | ((subtype&0x1F)<<21);
+  hcalElectronicsId_|=0x04000000;
+}
+
+
+
 std::string HcalElectronicsId::slbChannelCode() const {
   std::string retval;
-  if (isTriggerChainId()) {
+  if (isTriggerChainId() && isVMEid()) {
     if (htrTopBottom()) { // top
       switch (slbChannelIndex()) {
       case (0): retval="A0"; break;
@@ -44,18 +52,34 @@ std::string HcalElectronicsId::slbChannelCode() const {
 }
 
 void HcalElectronicsId::setHTR(int crate, int slot, int tb) {
+  if (isUTCAid()) return; // cannot do this for uTCA
   hcalElectronicsId_&=0x3FFF; // keep the readout chain info
   hcalElectronicsId_|=((tb&0x1)<<19) | ((slot&0x1f)<<14) | ((crate&0x3f)<<20);
 }
 
 std::ostream& operator<<(std::ostream& os,const HcalElectronicsId& id) {
-  if (id.isTriggerChainId()) {
-    return os << id.dccid() << ',' << id.spigot() << ",SLB" << id.slbSiteNumber() << ',' << id.slbChannelIndex() << " (HTR "
-	      << id.readoutVMECrateId() << ":" << id.htrSlot() << ((id.htrTopBottom()==1)?('t'):('b')) << ')'; 
-    
+  if (id.isUTCAid()) {
+    switch (id.subtype()) {
+    case HcalElectronicsId::st_PRECISION_1_6 : os << "PREC_1.6:"; break;
+    case HcalElectronicsId::st_PRECISION_4_8_6CHAN : os << "PREC_4.8(6 CHAN):"; break;
+    case HcalElectronicsId::st_PRECISION_4_8_12CHAN_TDC : os << "PREC_4.8(12 TDC):"; break;
+    case HcalElectronicsId::st_PRECISION_4_8_4CHAN : os << "PREC_4.8(4 CHAN):"; break;
+    case HcalElectronicsId::st_TRIGGER_RCT : os << "TRIG_RCT:"; break;
+    case HcalElectronicsId::st_TRIGGER_HF_6_4 : os << "TRIG_HF_6_4:"; break;
+    case HcalElectronicsId::st_TRIGGER_HBHE_4_8 : os << "TRIG_HBHE_4_8:"; break;
+    case HcalElectronicsId::st_TRIGGER_HBHE_6_4 : os << "TRIG_HBHE_6_4:"; break;
+    default: break;
+    }
+    return os << id.crateId() << ',' << id.slot() << ',' << id.fiberIndex() << ',' << id.fiberChanId();
   } else {
-    return os << id.dccid() << ',' << id.spigot() << ',' << id.fiberIndex() << ',' << id.fiberChanId() << " (HTR "
-	      << id.readoutVMECrateId() << ":" << id.htrSlot() << ((id.htrTopBottom()==1)?('t'):('b')) << ')'; 
+    if (id.isTriggerChainId()) {
+      return os << id.dccid() << ',' << id.spigot() << ",SLB" << id.slbSiteNumber() << ',' << id.slbChannelIndex() << " (HTR "
+		<< id.readoutVMECrateId() << ":" << id.htrSlot() << ((id.htrTopBottom()==1)?('t'):('b')) << ')'; 
+      
+    } else {
+      return os << id.dccid() << ',' << id.spigot() << ',' << id.fiberIndex() << ',' << id.fiberChanId() << " (HTR "
+		<< id.readoutVMECrateId() << ":" << id.htrSlot() << ((id.htrTopBottom()==1)?('t'):('b')) << ')'; 
+    }
   }
 }
 
