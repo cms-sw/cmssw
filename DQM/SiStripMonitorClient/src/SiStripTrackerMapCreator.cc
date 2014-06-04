@@ -38,6 +38,8 @@ SiStripTrackerMapCreator::SiStripTrackerMapCreator() {
 SiStripTrackerMapCreator::SiStripTrackerMapCreator(const edm::EventSetup& eSetup): meanToMaxFactor_(2.5),eSetup_(eSetup)
 						  //, psumap_() 
 {
+  cached_detid=0;
+  cached_layer=0;
   trackerMap_ = 0;
   stripTopLevelDir_="";
   eSetup_.get<SiStripDetCablingRcd>().get(detcabling_);
@@ -397,7 +399,7 @@ void SiStripTrackerMapCreator::paintTkMapFromHistogram(DQMStore* dqm_store, Moni
     uint32_t det_id= (*idet);
     if (det_id <= 0) continue;
     nDet++;
-    const TkLayerMap::XYbin& xyval = tkDetMap_->getXY(det_id);
+    const TkLayerMap::XYbin& xyval = tkDetMap_->getXY(det_id , cached_detid , cached_layer , cached_XYbin);
     float fval = 0.0;
     if ( (name.find("NumberOfOfffTrackCluster") != std::string::npos) || 
          (name.find("NumberOfOnTrackCluster") != std::string::npos) ) {
