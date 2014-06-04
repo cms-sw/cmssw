@@ -1223,7 +1223,9 @@ void CSCMotherboardME21GEM::matchGEMPads()
           if (debug_gem_dphi) std::cout<<"    -- lct pass no gem req"<<std::endl;
           continue;
         }
-
+        // use 100 ad default value when within gem fiducial region
+        lct.setGEMDPhi(100.);
+	
         if (in_pads == padsLong_.end()) // has no potential GEM hits with similar BX -> zap it
         {
           if (gem_clear_nomatch_lcts) lct.clear();
@@ -1231,10 +1233,9 @@ void CSCMotherboardME21GEM::matchGEMPads()
           continue;
         }
         if (debug_gem_dphi) std::cout<<"    -- gem possible"<<std::endl;
-
-        // use 99 ad default value whe we expect there to be a gem match
+        // use 99 ad default value when we expect there to be a gem match
         lct.setGEMDPhi(99.);
-         
+
         // to consider a GEM pad as "matched" it has to be 
         // within specified delta_eta and delta_phi ranges
         // and if there are multiple ones, only the min|delta_phi| is considered as matched
