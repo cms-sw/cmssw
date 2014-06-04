@@ -385,21 +385,6 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
   clctV1b = clct->run(compdc); // run cathodeLCT in ME1/b
   clctV1a = clct1a->run(compdc); // run cathodeLCT in ME1/a
 
-//   const bool debugStubs(false);
-//   if (debugStubs){
-//     for (auto& p : alctV){
-//       std::cout << "ALCT: " << p << std::endl;
-//     }
-    
-//     for (auto& p : clctV1b){
-//       std::cout << "CLCT in ME1b: " << p << std::endl;
-//     }
-    
-//     for (auto& p : clctV1a){
-//       std::cout << "CLCT in ME1a: " << p << std::endl;
-//     }
-//   }
-  
   bool gemGeometryAvailable(false);
   if (gem_g != nullptr) {
     if (infoV >= 0) edm::LogInfo("L1CSCTPEmulatorSetupInfo")
@@ -575,7 +560,6 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
   const bool hasCoPads(hasPads and coPads_.size()!=0);
   bool hasLCTs(false);
 
-   
   //  bool first = true;
   if (false) for (int bx = 5; bx <= 7; bx++){
     const bool hasALCT1(alct->bestALCT[bx].isValid());
@@ -587,12 +571,12 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
     const bool hasGEM1(pads_[bx].size()!=0);
     const bool hasGEM2(coPads_[bx].size()!=0);
 
-//     const bool ALCTandGEM1(hasALCT1 and hasGEM1);
-//     const bool ALCTandGEM2(hasALCT1 and hasGEM2);
-//     const bool CLCTandGEM1(hasCLCT1 and hasGEM1);
-//     const bool CLCTandGEM2(hasCLCT1 and hasGEM2);
-//     const bool ALCTandCLCT(hasALCT1 and hasCLCT1);
-    //    const bool twoStubs(ALCTandGEM2 or CLCTandGEM2 or ALCTandCLCT or (ALCTandGEM1 and CLCTandGEM1));
+    // const bool ALCTandGEM1(hasALCT1 and hasGEM1);
+    // const bool ALCTandGEM2(hasALCT1 and hasGEM2);
+    // const bool CLCTandGEM1(hasCLCT1 and hasGEM1);
+    // const bool CLCTandGEM2(hasCLCT1 and hasGEM2);
+    // const bool ALCTandCLCT(hasALCT1 and hasCLCT1);
+    // const bool twoStubs(ALCTandGEM2 or CLCTandGEM2 or ALCTandCLCT or (ALCTandGEM1 and CLCTandGEM1));
 
     const std::string ALCT1(hasALCT1? "X" : " ");
     const std::string ALCT2(hasALCT2? "X" : " ");
@@ -612,19 +596,6 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
                <<"       "<<CLCT1<<"      "<<CLCT2<<"      "<<GEM1<<"     "<<GEM2<<std::endl;
     }
   }
-  
-  
-  
-  
-
-  //     for (auto pad_range_it = gemPads->begin(); pad_range_it != gemPads->end(); ++pad_range_it){
-  //       auto id = (*pad_range_it).first;      
-  //       auto pads_range = (*pad_range_it).second;
-//       for (auto p = pads_range.first; p != pads_range.second; ++p)
-//         std::cout << "GEM: " << GEMDetId(id) << " " << *p << std::endl;
-//     
-
-  return;
 
   // ALCT-centric matching
   for (int bx_alct = 0; bx_alct < CSCAnodeLCTProcessor::MAX_ALCT_BINS; bx_alct++)
