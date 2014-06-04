@@ -21,6 +21,7 @@
 #include "DataFormats/HcalRecHit/interface/HFRecHit.h"
 #include "DataFormats/HcalRecHit/interface/HORecHit.h"
 #include "DataFormats/HcalRecHit/interface/HBHERecHit.h"
+#include "DataFormats/HGCRecHit/interface/HGCRecHit.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 #include "CondFormats/DataRecord/interface/HcalChannelQualityRcd.h"
@@ -41,6 +42,7 @@ class PFRecHitQTestBase {
   virtual bool test( reco::PFRecHit& ,const HFRecHit&,bool&)=0;
   virtual bool test( reco::PFRecHit& ,const HORecHit&,bool&)=0;
   virtual bool test( reco::PFRecHit& ,const CaloTower&,bool&)=0;
+  virtual bool test( reco::PFRecHit& ,const HGCRecHit&,bool&)=0;
 };
  
 
