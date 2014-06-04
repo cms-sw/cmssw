@@ -37,8 +37,6 @@ class HTMHTAnalyzer : public DQMEDAnalyzer {
   /// Destructor
   virtual ~HTMHTAnalyzer();
 
-  /// Inizialize parameters for histo binning
-  void beginJob(DQMStore * dbe);
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&, 

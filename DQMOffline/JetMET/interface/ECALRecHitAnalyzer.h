@@ -88,15 +88,13 @@ public:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   //  virtual void beginJob(void) ;
   virtual void dqmbeginRun(const edm::Run&, const edm::EventSetup&) ;
-  virtual void endJob() ;
 
   void WriteECALRecHits(const edm::Event&, const edm::EventSetup&);
   void FillGeometry(const edm::EventSetup&);
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
  private:
-  // DAQ Tools
-  DQMStore* dbe_;
+
 
   // Inputs from Configuration
   edm::EDGetTokenT<EBRecHitCollection> EBRecHitsLabel_;
