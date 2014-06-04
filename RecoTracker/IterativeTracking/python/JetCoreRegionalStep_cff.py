@@ -82,6 +82,7 @@ jetCoreRegionalStepSeeds.SeedComparitorPSet = cms.PSet(
 #        FilterStripHits = cms.bool(False),
 #       ClusterShapeHitFilterName = cms.string('ClusterShapeHitFilter')
     )
+jetCoreRegionalStepSeeds.SeedCreatorPSet.forceKinematicWithRegionDirection = cms.bool( True )
 
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
