@@ -17,7 +17,7 @@ def adaptPFIsoElectrons(process,module, postfix = "PFIso", dR = "04"):
         pfChargedHadrons = cms.InputTag("elPFIsoDepositCharged" + postfix),
         pfChargedAll = cms.InputTag("elPFIsoDepositChargedAll" + postfix),
         pfPUChargedHadrons = cms.InputTag("elPFIsoDepositPU" + postfix),
-        pfNeutralHadrons = cms.InputTag("elPFIsoDepositNeutral" + postfix),
+#        pfNeutralHadrons = cms.InputTag("elPFIsoDepositNeutral" + postfix),
         pfPhotons = cms.InputTag("elPFIsoDepositGamma" + postfix)
         )
     module.isolationValues = cms.PSet(
