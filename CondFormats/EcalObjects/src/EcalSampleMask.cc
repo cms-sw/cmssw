@@ -12,7 +12,7 @@ EcalSampleMask::EcalSampleMask()
 {
   // by default, all samples are set as active
   sampleMaskEB_=pow(2, EcalDataFrame::MAXSAMPLES)-1;
-  sampleMaskEB_=pow(2, EcalDataFrame::MAXSAMPLES)-1;
+  sampleMaskEE_=pow(2, EcalDataFrame::MAXSAMPLES)-1;
 }
 
 
@@ -24,7 +24,7 @@ EcalSampleMask::EcalSampleMask(const unsigned int ebmask, const unsigned int eem
 
 EcalSampleMask::EcalSampleMask( const std::vector<unsigned int> &ebmask, const std::vector<unsigned int> &eemask) {
   setEcalSampleMaskRecordEB( ebmask );
-  setEcalSampleMaskRecordEB( eemask );
+  setEcalSampleMaskRecordEE( eemask );
 }
 
 
@@ -136,6 +136,8 @@ bool EcalSampleMask::useSample  (const int sampleId, DetId &theCrystalId) const 
   }
   else if  (theCrystalId.subdetId()==EcalEndcap) {
     return useSampleEE ( sampleId );
+  } else if (theCrystalId.subdetId()==EcalShashlik) {
+    return useSampleEE ( sampleId ); //Shervin fixed to EE
   }
   else {
     std::cout << "EcalSampleMaskuseSample::useSample can only be called for EcalBarrel or EcalEndcap DetID" << std::endl; 
@@ -145,3 +147,4 @@ bool EcalSampleMask::useSample  (const int sampleId, DetId &theCrystalId) const 
 }
 
 //  LocalWords:  eemask
+

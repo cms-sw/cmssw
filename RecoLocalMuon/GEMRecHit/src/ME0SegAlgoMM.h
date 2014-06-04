@@ -87,7 +87,7 @@ private:
   double protoChi2;
   double protoNDF;
   LocalVector protoDirection;
-  double protoChiUCorrection;
+  double protoChiUCorrection=1.0; //Hardcoded to 1.0, to fix noninvertibility of errors matrix
 
   std::vector<double> e_Cxx;
 };

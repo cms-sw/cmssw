@@ -68,6 +68,7 @@ private:
  std::string g4InfoLabel;
  std::string EBHitsCollection;
  std::string EEHitsCollection;
+ std::string EKHitsCollection;
  std::string ESHitsCollection;
 
  bool verbose_;
@@ -82,6 +83,7 @@ private:
 
  MonitorElement* meEBEnergyFraction_;
  MonitorElement* meEEEnergyFraction_;
+ MonitorElement* meEKEnergyFraction_;
  MonitorElement* meESEnergyFraction_;
 };
 

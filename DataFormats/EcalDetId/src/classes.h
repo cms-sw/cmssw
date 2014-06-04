@@ -1,6 +1,7 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include <boost/cstdint.hpp> 
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDetId/interface/EKDetId.h"
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalElectronicsId.h"
 #include "DataFormats/EcalDetId/interface/EcalTriggerElectronicsId.h"
@@ -14,12 +15,14 @@ namespace {
   struct dictionary {
     edm::EDCollection<EBDetId> vEBDI_;
     edm::EDCollection<EEDetId> vEEDI_;
+    edm::EDCollection<EKDetId> vEKDI_;
     edm::EDCollection<EcalTrigTowerDetId> vETTDI_;
     edm::EDCollection<EcalElectronicsId> vEELI_;
     edm::EDCollection<EcalTriggerElectronicsId> vETELI_;
 
     EBDetIdCollection theEBDI_;
     EEDetIdCollection theEEDI_;
+    EKDetIdCollection theEKDI_;
     EcalTrigTowerDetIdCollection theETTDI_;
     EcalScDetIdCollection theESCDI_;
     EcalElectronicsIdCollection theEELI_;
@@ -27,6 +30,7 @@ namespace {
 
     edm::Wrapper<EBDetIdCollection> anotherEBDIw_;
     edm::Wrapper<EEDetIdCollection> anotherEEDIw_;
+    edm::Wrapper<EKDetIdCollection> anotherEKDIw_;
     edm::Wrapper<EcalTrigTowerDetIdCollection> anothertheETTDIw_;
     edm::Wrapper<EcalScDetIdCollection> anothertheESCDIw_;
     edm::Wrapper<EcalElectronicsIdCollection> anothertheEELIw_;
@@ -34,6 +38,7 @@ namespace {
 
     edm::Wrapper< edm::EDCollection<EBDetId> > theEBDIw_;
     edm::Wrapper< edm::EDCollection<EEDetId> > theEEDIw_;
+    edm::Wrapper< edm::EDCollection<EKDetId> > theEKDIw_;
     edm::Wrapper< edm::EDCollection<EcalTrigTowerDetId> > theETTDIw_;
     edm::Wrapper< edm::EDCollection<EcalScDetIdCollection> > theESCDIw_;
     edm::Wrapper< edm::EDCollection<EcalElectronicsId> > theEELIw_;
@@ -42,10 +47,12 @@ namespace {
     // needed for channel recovery
     std::set<EBDetId> _ebDetId;
     std::set<EEDetId> _eeDetId;
+    std::set<EKDetId> _ekDetId;
     std::set<EcalTrigTowerDetId> _TTId;
     std::set<EcalScDetId> _SCId;
     edm::Wrapper< std::set<EBDetId> > _ebDetIdw;
     edm::Wrapper< std::set<EEDetId> > _eeDetIdw;
+    edm::Wrapper< std::set<EKDetId> > _ekDetIdw;
     edm::Wrapper< std::set<EcalTrigTowerDetId> > _TTIdw;
     edm::Wrapper< std::set<EcalScDetId> > _SCIdw;
  };

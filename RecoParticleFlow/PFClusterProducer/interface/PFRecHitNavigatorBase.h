@@ -27,6 +27,8 @@ class PFRecHitNavigatorBase {
   PFRecHitNavigatorBase() {}
   PFRecHitNavigatorBase(const edm::ParameterSet& iConfig) {}
 
+  virtual ~PFRecHitNavigatorBase() {}
+
   virtual void beginEvent(const edm::EventSetup&)=0;
   virtual void associateNeighbours(reco::PFRecHit&,std::auto_ptr<reco::PFRecHitCollection>&,edm::RefProd<reco::PFRecHitCollection>&)=0;
 

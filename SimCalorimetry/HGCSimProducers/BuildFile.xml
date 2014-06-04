@@ -2,7 +2,9 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/Utilities"/>
 <use   name="SimGeneral/MixingModule"/>
+<use   name ="DataFormats/ForwardDetId"/>
 <use   name="hepmc"/>
+<use   name="CLHEP"/>
 <export>
   <lib   name="1"/>
 </export>

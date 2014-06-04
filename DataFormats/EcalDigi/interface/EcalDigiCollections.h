@@ -4,12 +4,14 @@
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EEDataFrame.h"
 #include "DataFormats/EcalDigi/interface/ESDataFrame.h"
+#include "DataFormats/EcalDigi/interface/EKDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EcalTimeDigi.h"
 #include "DataFormats/EcalDigi/interface/EcalTriggerPrimitiveDigi.h"
 #include "DataFormats/EcalDigi/interface/EcalTrigPrimCompactColl.h"
 #include "DataFormats/EcalDigi/interface/EcalPseudoStripInputDigi.h"
 #include "DataFormats/EcalDigi/interface/EBSrFlag.h"
 #include "DataFormats/EcalDigi/interface/EESrFlag.h"
+#include "DataFormats/EcalDigi/interface/EKSrFlag.h"
 #include "DataFormats/EcalDigi/interface/EcalPnDiodeDigi.h"
 #include "DataFormats/EcalDigi/interface/EcalMatacqDigi.h"
 #include "DataFormats/Common/interface/SortedCollection.h"
@@ -48,6 +50,17 @@ public:
   EEDigiCollection(size_type istride=MAXSAMPLES) : 
     EcalDigiCollection(istride, EcalEndcap){}
   void swap(EEDigiCollection& other) {this->EcalDigiCollection::swap(other);}
+};
+
+class EKDigiCollection : public  EcalDigiCollection {
+public:  
+  typedef edm::DataFrameContainer::size_type size_type;
+  typedef EKDataFrame Digi;
+  typedef Digi::key_type DetId;
+
+  EKDigiCollection(size_type istride=MAXSAMPLES) : 
+    EcalDigiCollection(istride, EcalShashlik){}
+  void swap(EKDigiCollection& other) {this->EcalDigiCollection::swap(other);}
 };
 
 class ESDigiCollection : public EcalDigiCollection 
@@ -101,6 +114,11 @@ void swap(EEDigiCollection& lhs, EEDigiCollection& rhs) {
 }
 
 inline
+void swap(EKDigiCollection& lhs, EKDigiCollection& rhs) {
+  lhs.swap(rhs);
+}
+
+inline
 void swap(ESDigiCollection& lhs, ESDigiCollection& rhs) {
   lhs.swap(rhs);
 }
@@ -111,6 +129,7 @@ typedef edm::SortedCollection<EcalTriggerPrimitiveDigi> EcalTrigPrimDigiCollecti
 typedef edm::SortedCollection<EcalPseudoStripInputDigi> EcalPSInputDigiCollection;
 typedef edm::SortedCollection<EBSrFlag> EBSrFlagCollection;
 typedef edm::SortedCollection<EESrFlag> EESrFlagCollection;
+typedef edm::SortedCollection<EKSrFlag> EKSrFlagCollection;
 typedef edm::SortedCollection<EcalPnDiodeDigi> EcalPnDiodeDigiCollection;
 typedef edm::SortedCollection<EcalMatacqDigi> EcalMatacqDigiCollection;
 

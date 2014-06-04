@@ -25,20 +25,21 @@ DDShashlikModule::DDShashlikModule() {
 DDShashlikModule::~DDShashlikModule() {}
 
 void DDShashlikModule::initialize(const DDNumericArguments & nArgs,
-				   const DDVectorArguments & vArgs,
-				   const DDMapArguments & ,
-				   const DDStringArguments & sArgs,
-				   const DDStringVectorArguments & ) {
+				  const DDVectorArguments & vArgs,
+				  const DDMapArguments & ,
+				  const DDStringArguments & sArgs,
+				  const DDStringVectorArguments & ) {
 
   activeMat      = sArgs["ActiveMaterial"];
   activeName     = sArgs["ActiveName"];
   activeLayers   = int (nArgs["ActiveLayers"]);
   activeThick    = nArgs["ActiveThickness"];
+  absorbMat      = sArgs["AbsorberMaterial"];
+  absorbName     = sArgs["AbsorberName"];
   absorbThick    = nArgs["AbsorberThickness"];
   widthFront     = nArgs["WidthFront"];
   widthBack      = nArgs["WidthBack"];
   moduleThick    = nArgs["ModuleThickness"];
-  moduleTaperAngle = nArgs["ModuleTaperAngle"];
   holeR          = nArgs["HoleRadius"];
   fibreMat       = sArgs["FibreMaterial"];
   fibreName      = sArgs["FibreName"];
@@ -48,15 +49,16 @@ void DDShashlikModule::initialize(const DDNumericArguments & nArgs,
   calibFibrePars = vArgs["CalibFibreParameters"];
   edm::LogInfo("HGCalGeom") << "DDShashlikModule:: Active: " << activeLayers 
 			    << " of " << activeName << " with " << activeMat 
-			    << " thickness " << activeThick <<"|"<< absorbThick
-			    << " width " << widthFront << "|" << widthBack 
-			    << " module size " << moduleThick 
-			    << " module taper angle " << moduleTaperAngle/CLHEP::deg << "deg  "
-			    << holeX.size() << " holes of radius " << holeR 
-			    << " for fibres "<<fibreName <<" with "<< fibreMat
-			    << " Calibration fibre " << calibFibreName 
-			    << " with parameters " << calibFibrePars[0] << ":"
-			    << calibFibrePars[1] << ":" << calibFibrePars[2];
+			    << " thickness " << activeThick << " Absorber: "
+			    << absorbName << " with " << absorbMat 
+			    << " thickness " << absorbThick << " width " 
+			    << widthFront << "|" << widthBack <<" module size "
+			    << moduleThick << holeX.size()<<" holes of radius "
+			    << holeR << " for fibres "<<fibreName << " with "
+			    << fibreMat << " Calibration fibre " 
+			    << calibFibreName << " with parameters " 
+			    << calibFibrePars[0] << ":" << calibFibrePars[1] 
+			    << ":" << calibFibrePars[2];
   for (unsigned int i=0; i<holeX.size(); ++i) {
     edm::LogInfo("HGCalGeom") << "DDShashlikModule: Hole[" << i << "] at ("
 			      << holeX[i] << ", " << holeY[i] << ")";

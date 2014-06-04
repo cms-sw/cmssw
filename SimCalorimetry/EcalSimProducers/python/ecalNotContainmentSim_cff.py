@@ -15,6 +15,7 @@ ecal_notCont_sim = cms.PSet(
     # For Endcap using E_{25} + E_{ps} = E_{true} 
     EBs25notContainment = cms.double(0.970),
     # with preshower
-    EEs25notContainment = cms.double(0.975)
+    EEs25notContainment = cms.double(0.975),
+    EKs25notContainment = cms.double(0.975)
 )
 

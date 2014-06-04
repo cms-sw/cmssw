@@ -8,6 +8,7 @@
 
 #include "DataFormats/EcalDigi/interface/EEDataFrame.h"
 #include "DataFormats/EcalDigi/interface/EBDataFrame.h"
+#include "DataFormats/EcalDigi/interface/EKDataFrame.h"
 
 #include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitWorkerBaseClass.h"
 
@@ -26,6 +27,9 @@ class EcalUncalibRecHitProducer : public edm::EDProducer {
 
                 std::string ebHitCollection_; // secondary name to be given to collection of hits
                 std::string eeHitCollection_; // secondary name to be given to collection of hits
+
+                edm::InputTag ekDigiCollection_; // collection of EK digis
+                std::string ekHitCollection_; // secondary name to be given to collection of hits
 
                 EcalUncalibRecHitWorkerBaseClass * worker_;
 };

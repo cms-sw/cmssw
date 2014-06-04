@@ -11,6 +11,7 @@ Sequences for HPS taus
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationByIsolation_cfi                      import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationByLeadingTrackFinding_cfi            import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstElectron_cfi                  import *
+from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstElectron2_cfi                 import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstElectronMVA5GBR_cfi           import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstElectronDeadECAL_cfi          import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstMuon_cfi                      import *
@@ -258,6 +259,11 @@ hpsPFTauDiscriminationByTightElectronRejection = pfRecoTauDiscriminationAgainstE
     Prediscriminants = noPrediscriminants,
     ApplyCut_EcalCrackCut = cms.bool(True),
     ApplyCut_BremCombined = cms.bool(True)
+)
+
+hpsPFTauDiscriminationByMediumElectronRejection2 = pfRecoTauDiscriminationAgainstElectron2.clone(
+    PFTauProducer = cms.InputTag('hpsPFTauProducer'),
+    Prediscriminants = noPrediscriminants
 )
 
 hpsPFTauDiscriminationByLooseMuonRejection = pfRecoTauDiscriminationAgainstMuon.clone(
@@ -829,6 +835,7 @@ produceAndDiscriminateHPSPFTaus = cms.Sequence(
     hpsPFTauDiscriminationByLooseElectronRejection*
     hpsPFTauDiscriminationByMediumElectronRejection*
     hpsPFTauDiscriminationByTightElectronRejection*
+    hpsPFTauDiscriminationByMediumElectronRejection2*
     hpsPFTauDiscriminationByMVA5rawElectronRejection*
     hpsPFTauDiscriminationByMVA5VLooseElectronRejection*
     hpsPFTauDiscriminationByMVA5LooseElectronRejection*

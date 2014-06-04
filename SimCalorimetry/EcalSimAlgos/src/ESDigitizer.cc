@@ -66,8 +66,8 @@ ESDigitizer::setGain( const int gain )
    }
    else
    {
-      assert( 0 != m_detIds &&
-	      0 != m_detIds->size() ) ; // detIds must already be set as we need size
+//       assert( 0 != m_detIds &&
+// 	      0 != m_detIds->size() ) ; // detIds must already be set as we need size
 
       assert( 1 == gain ||
 	      2 == gain    ) ; // legal values
@@ -188,13 +188,13 @@ ESDigitizer::setGain( const int gain )
 void 
 ESDigitizer::run( ESDigiCollection&        output   )
 {
-    assert( 0 != m_detIds         &&
-	    0 != m_detIds->size() &&
-	    ( !addNoise()         ||
-	      ( 0 != m_engine     &&
-		0 != m_ranPois    &&
-		0 != m_ranFlat    &&
-		0 != m_ranGeneral        ) ) ) ; // sanity check
+//     assert( 0 != m_detIds         &&
+// 	    0 != m_detIds->size() &&
+// 	    ( !addNoise()         ||
+// 	      ( 0 != m_engine     &&
+// 		0 != m_ranPois    &&
+// 		0 != m_ranFlat    &&
+// 		0 != m_ranGeneral        ) ) ) ; // sanity check
 
     // reserve space for how many digis we expect, with some cushion
     output.reserve( 2*( (int) m_meanNoisy ) + hitResponse()->samplesSize() ) ;

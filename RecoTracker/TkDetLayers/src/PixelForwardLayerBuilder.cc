@@ -42,9 +42,11 @@ ForwardDetLayer* PixelForwardLayerBuilder::build(const GeometricDet* aPixelForwa
   // coupled with the innermost panel, mainly to be sure that it will
   // fall into the opposite side of the division that is internally
   // done in the PixelForwardLayer class: if they are opposite, there
-  // will be no hits duplication while doing TSB propagation.
+  // will be no hits duplication while doing TSB propagation, provided
+  // we protect the code that look for compatible layers in such a way
+  // to only look for the last ring and ignore the innermost one.
   if (panelsSize & 0x1) {
-    theBlades.push_back( myBladeBuilder.build( theGeometricPanels[0],
+    theBlades.push_back( myBladeBuilder.build( theGeometricPanels[panelsSize/2],
 					       theGeometricPanels[panelsSize-1],
 					       theGeomDetGeometry ) );
   }

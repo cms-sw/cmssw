@@ -36,12 +36,12 @@ HGCalUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
         using namespace edm;
 
         Handle< HGCEEDigiCollection > pHGCEEDigis;
-        Handle< HGCHEfrontDigiCollection > pHGCHEFDigis;
-        Handle< HGCHEbackDigiCollection > pHGCHEBDigis;
+        Handle< HGCHEDigiCollection > pHGCHEFDigis;
+        Handle< HGCHEDigiCollection > pHGCHEBDigis;
 
         const HGCEEDigiCollection* eeDigis =0;
-        const HGCHEfrontDigiCollection* hefDigis =0;
-        const HGCHEbackDigiCollection* hebDigis =0;
+        const HGCHEDigiCollection* hefDigis =0;
+        const HGCHEDigiCollection* hebDigis =0;
 
 
         if ( eeDigiCollection_.label() != "" && eeDigiCollection_.instance() != "" ) {
@@ -95,7 +95,7 @@ HGCalUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
         if (hefDigis)
         {
                 hefUncalibRechits->reserve(hefDigis->size());
-                for(HGCHEfrontDigiCollection::const_iterator itdg = hefDigis->begin(); itdg != hefDigis->end(); ++itdg) {
+                for(HGCHEDigiCollection::const_iterator itdg = hefDigis->begin(); itdg != hefDigis->end(); ++itdg) {
                         worker_->run2(evt, itdg, *hefUncalibRechits);
                 }
         }
@@ -104,7 +104,7 @@ HGCalUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
         if (hebDigis)
         {
                 hebUncalibRechits->reserve(hebDigis->size());
-                for(HGCHEbackDigiCollection::const_iterator itdg = hebDigis->begin(); itdg != hebDigis->end(); ++itdg) {
+                for(HGCHEDigiCollection::const_iterator itdg = hebDigis->begin(); itdg != hebDigis->end(); ++itdg) {
                         worker_->run3(evt, itdg, *hebUncalibRechits);
                 }
         }

@@ -65,13 +65,14 @@ TaggingVariablePlotter::~TaggingVariablePlotter ()
 }
 
 
-void TaggingVariablePlotter::analyzeTag (const BaseTagInfo *baseTagInfo,
+void TaggingVariablePlotter::analyzeTag (const BaseTagInfo *baseTagInfo, const double & jec, 
 	const int &jetFlavour)
 {
   analyzeTag(baseTagInfo->taggingVariables(), jetFlavour,1.);
 }
 
 void TaggingVariablePlotter::analyzeTag (const BaseTagInfo *baseTagInfo,
+					 const double & jec, 
 					 const int &jetFlavour,
 					 const float & w)
 {

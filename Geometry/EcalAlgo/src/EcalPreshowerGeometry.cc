@@ -130,19 +130,24 @@ EcalPreshowerGeometry::initializeParms()
 	 }
       }
    }
-   assert( 0 != n1minus &&
-	   0 != n2minus &&
-	   0 != n1plus  &&
-	   0 != n2plus     ) ;
-   z1minus /= (1.*n1minus) ;
-   z2minus /= (1.*n2minus) ;
-   z1plus /= (1.*n1plus) ;
-   z2plus /= (1.*n2plus) ;
-   assert( 0 != z1minus &&
-	   0 != z2minus &&
-	   0 != z1plus  &&
-	   0 != z2plus     ) ;
-   setzPlanes( z1minus, z2minus, z1plus, z2plus ) ;
+   if (n1minus == 0 || n2minus == 0 || n1plus == 0 || n2plus) {
+     edm::LogError("EcalPreshowerGeometry") << "wrong number of cells: " << n1minus << '/' << n2minus << '/' << n1plus << '/' << n2plus;
+   }
+   else     {
+       assert( 0 != n1minus &&
+	       0 != n2minus &&
+	       0 != n1plus  &&
+	       0 != n2plus     ) ;
+       z1minus /= (1.*n1minus) ;
+       z2minus /= (1.*n2minus) ;
+       z1plus /= (1.*n1plus) ;
+       z2plus /= (1.*n2plus) ;
+       assert( 0 != z1minus &&
+	       0 != z2minus &&
+	       0 != z1plus  &&
+	       0 != z2plus     ) ;
+       setzPlanes( z1minus, z2minus, z1plus, z2plus ) ;
+   }
 }
 
 
@@ -152,10 +157,10 @@ EcalPreshowerGeometry::setzPlanes( CCGFloat z1minus,
 				   CCGFloat z1plus, 
 				   CCGFloat z2plus ) 
 {
-   assert( 0 > z1minus &&
-	   0 > z2minus &&
-	   0 < z1plus  &&
-	   0 < z2plus     ) ;
+//    assert( 0 > z1minus &&
+// 	   0 > z2minus &&
+// 	   0 < z1plus  &&
+// 	   0 < z2plus     ) ;
 
    m_zplane[0] = z1minus ;
    m_zplane[1] = z2minus ;

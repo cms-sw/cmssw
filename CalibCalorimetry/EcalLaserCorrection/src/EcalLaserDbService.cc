@@ -8,6 +8,7 @@
 #include "CalibCalorimetry/EcalLaserAnalyzer/interface/MEEEGeom.h"
 // #include "CalibCalorimetry/EcalLaserAnalyzer/interface/ME.h"
 
+#include "Geometry/CaloGeometry/interface/CaloGenericDetId.h" // Shervin
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -65,7 +66,7 @@ float EcalLaserDbService::getLaserCorrection (DetId const & xid, edm::Timestamp 
     edm::LogError("EcalLaserDbService") << " DetId is NOT in ECAL" << endl;
     return correctionFactor;
   } 
-
+  EEDetId eedetidForShashlik = CaloGenericDetId(DetId::Ecal, EcalEndcap, 1);
 //  int hi = -1;
 //  if (xid.subdetId()==EcalBarrel) {
 //    //    std::cout << "EcalBarrel" << std::endl;
@@ -91,6 +92,10 @@ float EcalLaserDbService::getLaserCorrection (DetId const & xid, edm::Timestamp 
     MEEEGeom::SuperCrysCoord iX = (eeid.ix()-1)/5 + 1;
     MEEEGeom::SuperCrysCoord iY = (eeid.iy()-1)/5 + 1;    
     iLM = MEEEGeom::lmr(iX, iY, eeid.zside());    
+  } else if(xid.subdetId()==EcalShashlik){
+    MEEEGeom::SuperCrysCoord iX = (eedetidForShashlik.ix()-1)/5 + 1;
+    MEEEGeom::SuperCrysCoord iY = (eedetidForShashlik.iy()-1)/5 + 1;    
+    iLM = MEEEGeom::lmr(iX, iY, eedetidForShashlik.zside());    
   } else {
     edm::LogError("EcalLaserDbService") << " DetId is NOT in ECAL Barrel or Endcap" << endl;
     return correctionFactor;
@@ -99,7 +104,8 @@ float EcalLaserDbService::getLaserCorrection (DetId const & xid, edm::Timestamp 
 
   // get alpha, apd/pn ref, apd/pn pairs and timestamps for interpolation
 
-  EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap::const_iterator itratio = laserRatiosMap.find(xid);
+  EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap::const_iterator itratio 
+    = laserRatiosMap.find( (xid.subdetId()==EcalShashlik) ? eedetidForShashlik : xid); //Shervin
   if (itratio != laserRatiosMap.end()) {
     apdpnpair = (*itratio);
   } else {
@@ -114,7 +120,8 @@ float EcalLaserDbService::getLaserCorrection (DetId const & xid, edm::Timestamp 
     return correctionFactor;
   }
 
-  EcalLinearCorrections::EcalValueMap::const_iterator itlin = linearValueMap.find(xid);
+  EcalLinearCorrections::EcalValueMap::const_iterator itlin 
+    = linearValueMap.find( (xid.subdetId()==EcalShashlik) ? eedetidForShashlik : xid); //Shervin
   if (itlin != linearValueMap.end()) {
     linValues = (*itlin);
   } else {
@@ -129,7 +136,7 @@ float EcalLaserDbService::getLaserCorrection (DetId const & xid, edm::Timestamp 
     return correctionFactor;
   }
 
-  EcalLaserAPDPNRatiosRefMap::const_iterator itref = laserRefMap.find(xid);
+  EcalLaserAPDPNRatiosRefMap::const_iterator itref = laserRefMap.find((xid.subdetId()==EcalShashlik) ? eedetidForShashlik : xid); //Shervin
   if ( itref != laserRefMap.end() ) {
     apdpnref = (*itref);
   } else { 
@@ -137,7 +144,7 @@ float EcalLaserDbService::getLaserCorrection (DetId const & xid, edm::Timestamp 
     return correctionFactor;
   }
 
-  EcalLaserAlphaMap::const_iterator italpha = laserAlphaMap.find(xid);
+  EcalLaserAlphaMap::const_iterator italpha = laserAlphaMap.find( (xid.subdetId()==EcalShashlik) ? eedetidForShashlik : xid); // Shervin
   if ( italpha != laserAlphaMap.end() ) {
     alpha = (*italpha);
   } else {

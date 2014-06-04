@@ -7,6 +7,7 @@ ecalDigisValidation = cms.EDAnalyzer("EcalDigisValidation",
     ESdigiCollection = cms.InputTag("simEcalPreshowerDigis"),
     moduleLabelMC = cms.string('generator'),
     EEdigiCollection = cms.InputTag("simEcalDigis","eeDigis"),
+    EKdigiCollection = cms.InputTag("simEcalGlobalZeroSuppression","ekDigis"),
     moduleLabelG4 = cms.string('g4SimHits')
 )
 

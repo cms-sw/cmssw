@@ -13,6 +13,15 @@
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 #include <fstream>
 
+ptdat* CSCTFPtLUT::pt_lut = NULL;
+bool CSCTFPtLUT::lut_read_in = false;
+// L1MuTriggerScales CSCTFPtLUT::trigger_scale;
+// L1MuTriggerPtScale CSCTFPtLUT::trigger_ptscale;
+// CSCTFPtMethods CSCTFPtLUT::ptMethods;
+
+///KK
+#include "CondFormats/L1TObjects/interface/L1MuCSCPtLut.h"
+#include "CondFormats/DataRecord/interface/L1MuCSCPtLutRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include <L1Trigger/CSCTrackFinder/interface/CSCTFPtLUT.h>
 
@@ -70,22 +79,22 @@ const int CSCTFPtLUT::getPtbyMLH = 0xFFFF; // all modes on
 
 
 CSCTFPtLUT::CSCTFPtLUT(const edm::EventSetup& es) 
-    : read_pt_lut_es(true),
-      read_pt_lut_file(false),
+    : read_pt_lut(true),
       isBinary(false)
 {
 	pt_method = 32;
-
+        //std::cout << "pt_method from 4 " << std::endl; 
 	lowQualityFlag = 4;
 	isBeamStartConf = true;
+	pt_lut = new ptdat[1<<21];
 
 	edm::ESHandle<L1MuCSCPtLut> ptLUT;
 	es.get<L1MuCSCPtLutRcd>().get(ptLUT);
-        theL1MuCSCPtLut_ = ptLUT.product();
+	const L1MuCSCPtLut *myConfigPt_ = ptLUT.product();
 
-        //std::cout << "theL1MuCSCPtLut_ pointer is "
-        //          << theL1MuCSCPtLut_
-        //          << std::endl;
+	memcpy((void*)pt_lut,(void*)myConfigPt_->lut(),(1<<21)*sizeof(ptdat));
+
+	lut_read_in = true;
 
 	edm::ESHandle< L1MuTriggerScales > scales ;
 	es.get< L1MuTriggerScalesRcd >().get( scales ) ;
@@ -98,7 +107,7 @@ CSCTFPtLUT::CSCTFPtLUT(const edm::EventSetup& es)
 	ptMethods = CSCTFPtMethods( ptScale.product() ) ;
  
 }
-
+///
 
 CSCTFPtLUT::CSCTFPtLUT(const edm::ParameterSet& pset,
 		       const L1MuTriggerScales* scales,
@@ -106,16 +115,15 @@ CSCTFPtLUT::CSCTFPtLUT(const edm::ParameterSet& pset,
   : trigger_scale( scales ),
     trigger_ptscale( ptScale ),
     ptMethods( ptScale ),
-    read_pt_lut_es(false),
-    read_pt_lut_file(false),
+    read_pt_lut(false),
     isBinary(false)
 {
-
-  read_pt_lut_file = pset.getParameter<bool>("ReadPtLUT");
-  if(read_pt_lut_file)
+  //read_pt_lut = pset.getUntrackedParameter<bool>("ReadPtLUT",false);
+  read_pt_lut = pset.getParameter<bool>("ReadPtLUT");
+  if(read_pt_lut)
     {
-      // if read from file, then need to set extra variables
       pt_lut_file = pset.getParameter<edm::FileInPath>("PtLUTFile");
+      //isBinary = pset.getUntrackedParameter<bool>("isBinary", false);
       isBinary = pset.getParameter<bool>("isBinary");
 
       edm::LogInfo("CSCTFPtLUT::CSCTFPtLUT") << "Reading file: "
@@ -153,15 +161,18 @@ CSCTFPtLUT::CSCTFPtLUT(const edm::ParameterSet& pset,
   // 30 - Bobby's loose Quality: using fw 2012_01_31. Switch to Global Log(L). Non-Linear dphi binning. 
   // 31 - Bobby's tight Quality: using fw 2012_01_31. Switch to Global Log(L). Non-Linear dphi binning. 
   // 32 - Bobby's medium Quality+ {tight only mode5 at eta > 2.1}: using fw 2012_01_31. Switch to Global Log(L). Non-Linear dphi binning. 
+  // 34 - Michele. As 33 plus  Non-Linear dphi binning also for eta > 2.1
+
   pt_method = pset.getUntrackedParameter<unsigned>("PtMethod",32);
   //std::cout << "pt_method from pset " << std::endl; 
   // what does this mean???
   lowQualityFlag = pset.getUntrackedParameter<unsigned>("LowQualityFlag",4);
 
-  if(read_pt_lut_file)
+  if(read_pt_lut && !lut_read_in)
     {
       pt_lut = new ptdat[1<<21];
       readLUT();
+      lut_read_in = true;
     }
 
   isBeamStartConf = pset.getUntrackedParameter<bool>("isBeamStartConf", true);
@@ -171,25 +182,14 @@ CSCTFPtLUT::CSCTFPtLUT(const edm::ParameterSet& pset,
 ptdat CSCTFPtLUT::Pt(const ptadd& address) const
 {
   ptdat result;
-  
-  if(read_pt_lut_es) 
+  /*
+  if(read_pt_lut) 
   {
-    unsigned int shortAdd = (address.toint()& 0x1fffff);
-
-    ptdat tmp( theL1MuCSCPtLut_->pt(shortAdd) );
-  
-    result = tmp;
-  } 
-  
-  else if (read_pt_lut_file)
-    {
-      int shortAdd = (address.toint()& 0x1fffff);
-      result = pt_lut[shortAdd];
-    } 
-  
-  else
-    result = calcPt(address);
-
+    int shortAdd = (address.toint()& 0x1fffff);
+    result = pt_lut[shortAdd];
+  } else
+  */
+  result = calcPt(address);
   return result;
 }
 
@@ -315,14 +315,15 @@ ptdat CSCTFPtLUT::calcPt(const ptadd& address) const
 
  int PtbyMLH = false;
   
+
   //***************************************************//
-  if(pt_method >= 29 && pt_method <= 33)
+  if(pt_method >= 29 && pt_method <= 34)
     {
         // using fw 2012_01_31. Switch to Global Log(L). Non-Linear dphi binning.
       PtbyMLH = 0x1 & (getPtbyMLH >> (int)mode);
       ///////////////////////////////////////////////////////////
       // switch off any improvment for eta > 2.1
-      if(etaR > 2.1){
+      if(etaR > 2.1 && pt_method <= 33){
          usedetaCUT = false;
          PtbyMLH = 0x0;
       }
@@ -1353,7 +1354,7 @@ unsigned CSCTFPtLUT::trackQuality(const unsigned& eta, const unsigned& mode, con
       quality = 1;
       if (isBeamStartConf && eta >= 12 && pt_method < 20) // eta > 2.1
 	quality = 3;
-      if(pt_method == 27 || pt_method == 28 || pt_method == 29 || pt_method == 32 || pt_method == 30 || pt_method == 33) quality = 3;// all mode = 5 set to quality 3 due to a lot dead ME1/1a stations
+      if(pt_method == 27 || pt_method == 28 || pt_method == 29 || pt_method == 32 || pt_method == 30 || pt_method == 33 || pt_method == 34) quality = 3;// all mode = 5 set to quality 3 due to a lot dead ME1/1a stations
       break;
     case 6:
       if (eta>=3) // eta > 1.2

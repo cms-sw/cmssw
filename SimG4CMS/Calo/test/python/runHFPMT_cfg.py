@@ -5,11 +5,12 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 
-#process.load("SimG4CMS.Calo.testGeometryPMTXML_cfi")
-process.load("Geometry.CMSCommonData.cmsHFPMTAverageXML_cfi")
+process.load("SimG4CMS.Calo.testGeometryPMTXML_cfi")
+#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2023FastTimingXML_cfi")
 #process.load("SimG4CMS.Calo.cmsHFPMTXML_cfi")
 
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
+#process.load("Geometry.HGCalCommonData.fastTimeNumberingInitialization_cfi")
+#process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
@@ -93,12 +94,6 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string('HFPMT2.root')
 )
 
-process.common_maximum_timex = cms.PSet(
-    MaxTrackTime  = cms.double(500.0),
-    MaxTimeNames  = cms.vstring(),
-    MaxTrackTimes = cms.vdouble()
-)
-
 process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits*process.hfPMTHitAnalyzer)
 process.outpath = cms.EndPath(process.o1)
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_BERT_EML'
@@ -112,35 +107,6 @@ process.g4SimHits.HFShower.TrackEM          = False
 process.g4SimHits.HFShower.OnlyLong         = True
 process.g4SimHits.HFShower.EminLibrary      = 0.0
 process.g4SimHits.HCalSD.HEDarkening        = True
-process.g4SimHits.StackingAction = cms.PSet(
-    process.common_heavy_suppression,
-    process.common_maximum_timex,
-    KillDeltaRay  = cms.bool(False),
-    TrackNeutrino = cms.bool(False),
-    KillHeavy     = cms.bool(False),
-    SaveFirstLevelSecondary = cms.untracked.bool(True),
-    SavePrimaryDecayProductsAndConversionsInTracker = cms.untracked.bool(True),
-    SavePrimaryDecayProductsAndConversionsInCalo    = cms.untracked.bool(True),
-    SavePrimaryDecayProductsAndConversionsInMuon    = cms.untracked.bool(True),
-    RusRoEcalNeutron         = cms.double(1.0),
-    RusRoEcalNeutronLimit    = cms.double(0.0),
-    RusRoHcalNeutron         = cms.double(1.0),
-    RusRoHcalNeutronLimit    = cms.double(0.0),
-    RusRoEcalProton          = cms.double(1.0),
-    RusRoEcalProtonLimit     = cms.double(0.0),
-    RusRoHcalProton          = cms.double(1.0),
-    RusRoHcalProtonLimit     = cms.double(0.0)
-)
-process.g4SimHits.SteppingAction = cms.PSet(
-    process.common_maximum_timex,
-    KillBeamPipe            = cms.bool(False),
-    CriticalEnergyForVacuum = cms.double(0.0),
-    CriticalDensity         = cms.double(1e-15),
-    EkinNames               = cms.vstring(),
-    EkinThresholds          = cms.vdouble(),
-    EkinParticles           = cms.vstring(),
-    Verbosity               = cms.untracked.int32(2)
-)
 process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     CheckForHighEtPhotons = cms.untracked.bool(False),
     TrackMin     = cms.untracked.int32(0),

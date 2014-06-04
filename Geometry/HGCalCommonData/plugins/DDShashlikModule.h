@@ -28,10 +28,11 @@ private:
   int                 activeLayers;   //Number of active layers
   double              activeThick;    //Thickness of active layer
   double              absorbThick;    //Thickness of absorber layer
+  std::string         absorbMat;      //Name of the absorber material
+  std::string         absorbName;     //Base name for absorber layers
   double              widthFront;     //Width of the module in the front
   double              widthBack;      //Width of the module in the back
   double              moduleThick;    //Offset in z
-  double              moduleTaperAngle; //Taper angle of individual module
   double              holeR;          //Radius of the hole
   std::string         fibreMat;       //Fibre Material
   std::string         fibreName;      //Fibre Name

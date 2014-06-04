@@ -519,8 +519,6 @@ namespace pat {
       std::vector<reco::GenJet> genJet_;
       reco::GenJetRefVector genJetRef_;
       edm::FwdRef<reco::GenJetCollection>  genJetFwdRef_;
-      int partonFlavour_;
-      int hadronFlavour_;
       reco::JetFlavourInfo jetFlavourInfo_;
 
       // ---- energy scale correction factors ----

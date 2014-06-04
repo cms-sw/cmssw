@@ -3,6 +3,7 @@
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialObjectAnalyzer.h"
 
 #include <stdexcept>
@@ -14,6 +15,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "DataFormats/EcalDetId/interface/EKDetId.h"
 
 #include "CondFormats/EcalObjects/interface/EcalPedestals.h"
 #include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
@@ -91,9 +93,10 @@ void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSet
     edm::ESHandle<EcalADCToGeVConstant> pAgc;
     context.get<EcalADCToGeVConstantRcd>().get(pAgc);
     const EcalADCToGeVConstant* agc = pAgc.product();
-    std::cout << "Global ADC->GeV scale: EB " << std::setprecision(6) << agc->getEBValue() << " GeV/ADC count" 
-	      " EE " << std::setprecision(6) << agc->getEEValue() << " GeV/ADC count" << std::endl;
-
+    std::cout << "Global ADC->GeV scale:" 
+	      << " EB " << std::setprecision(6) << agc->getEBValue() << " GeV/ADC count" 
+	      << " EE " << std::setprecision(6) << agc->getEEValue() << " GeV/ADC count" 
+	      << " EK " << std::setprecision(6) << agc->getEKValue() << " GeV/ADC count" << std::endl;
     // use a channel to fetch values from DB
     double r1 = (double)std::rand()/( double(RAND_MAX)+double(1) );
     int ieta =  int( 1 + r1*85 );
@@ -101,12 +104,17 @@ void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSet
     int iphi =  int( 1 + r1*20 );
 
     EBDetId ebid(ieta,iphi); //eta,phi
-    std::cout << "EcalTrivialObjectAnalyzer: using EBDetId: " << ebid << std::endl;
-
+    //EEDetId eeid(10,10);
+    EKDetId ekid(EKDetId::detIdFromDenseIndex(0));
+    std::cout << "EcalTrivialObjectAnalyzer: using " << std::endl
+	      << "EBDetId: " << ebid 
+	      << "EKDetId: " << ekid 
+	      << std::endl;
+    
     const EcalPedestals* myped=pPeds.product();
     EcalPedestals::const_iterator it = myped->find(ebid.rawId());
     if( it!=myped->end() ){
-      std::cout << "EcalPedestal: "
+      std::cout << "EcalPedestal EB: "
                 << "  mean_x1:  " << std::setprecision(8) << (*it).mean_x1 << " rms_x1: " << (*it).rms_x1
                 << "  mean_x6:  " <<(*it).mean_x6 << " rms_x6: " << (*it).rms_x6
                 << "  mean_x12: " <<(*it).mean_x12 << " rms_x12: " << (*it).rms_x12
@@ -115,6 +123,19 @@ void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSet
      std::cout << "No pedestal found for this xtal! something wrong with EcalPedestals in your DB? "
                << std::endl;
     }
+
+    it = myped->find(ekid.rawId());
+    if( it!=myped->end() ){
+      std::cout << "EcalPedestal EK: "
+                << "  mean_x1:  " << std::setprecision(8) << (*it).mean_x1 << " rms_x1: " << (*it).rms_x1
+                << "  mean_x6:  " <<(*it).mean_x6 << " rms_x6: " << (*it).rms_x6
+                << "  mean_x12: " <<(*it).mean_x12 << " rms_x12: " << (*it).rms_x12
+                << std::endl;
+    } else {
+     std::cout << "No pedestal found for this xtal! something wrong with EcalPedestals in your DB? "
+               << std::endl;
+    }
+
 
     // fetch map of groups of xtals
     edm::ESHandle<EcalWeightXtalGroups> pGrp;
@@ -137,11 +158,21 @@ void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSet
     const EcalGainRatios* gr = pRatio.product();
 
     EcalGainRatioMap::const_iterator grit=gr->getMap().find(ebid.rawId());
-    EcalMGPAGainRatio mgpa;
     if( grit!=gr->getMap().end() ){
-      mgpa = (*grit);
+      EcalMGPAGainRatio mgpa = (*grit);
+      std::cout << "EcalMGPAGainRatio: EB"
+                << "gain 12/6 :  " << std::setprecision(4) << mgpa.gain12Over6() << " gain 6/1: " << mgpa.gain6Over1()
+                << std::endl;
+    } else {
+     std::cout << "No MGPA Gain Ratio found for this xtal! something wrong with EcalGainRatios in your DB? "
+               << std::endl;
+    }
 
-      std::cout << "EcalMGPAGainRatio: "
+    grit=gr->getMap().find(ekid.rawId());
+    if( grit!=gr->getMap().end() ){
+    EcalMGPAGainRatio mgpa = (*grit);
+
+      std::cout << "EcalMGPAGainRatio: EK"
                 << "gain 12/6 :  " << std::setprecision(4) << mgpa.gain12Over6() << " gain 6/1: " << mgpa.gain6Over1()
                 << std::endl;
     } else {
@@ -159,7 +190,7 @@ void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSet
     if( icalit!=ical->getMap().end() ){
       icalconst = (*icalit);
 
-      std::cout << "EcalIntercalibConstant: "
+      std::cout << "EcalIntercalibConstant EB: "
                 <<std::setprecision(6)
                 << icalconst
                 << std::endl;
@@ -168,6 +199,27 @@ void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSet
                << std::endl;
     }
 
+    icalit=ical->getMap().find(ekid.rawId());
+    if( icalit!=ical->getMap().end() ){
+    EcalIntercalibConstant icalconst = (*icalit);
+
+      std::cout << "EcalIntercalibConstant EK: "
+                <<std::setprecision(6)
+                << icalconst
+                << std::endl;
+    } else {
+     std::cout << "No intercalib const found for this xtal! something wrong with EcalIntercalibConstants in your DB? "
+               << std::endl;
+    }
+
+    EcalIntercalibConstants::Items items = ical->getMap().endcapItems();
+    
+    for(EcalIntercalibConstants::Items::const_iterator itr = items.begin();
+	itr!=items.end();
+	itr++){
+      if(fabs(*itr-1.)<0.0001)
+      std::cout << "[EcalTrivialObjectAnalyzer DUMP] " <<  "EE hashedIndex: " << itr-items.begin() << "\tIC: " << *itr << std::endl;
+    }
     // Intercalib errors
     edm::ESHandle<EcalIntercalibErrors> pIcalErr;
     context.get<EcalIntercalibErrorsRcd>().get(pIcalErr);
@@ -188,11 +240,14 @@ void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSet
     }
 
 
-
-    { // quick and dirty for cut and paste ;) it is a test program...
+    {
+    edm::ESHandle<EcalTimeCalibConstants> pIcal;
+    context.get<EcalTimeCalibConstantsRcd>().get(pIcal);
+    if(!pIcal.isValid()){
+      edm::LogWarning("EcalTrivialObjectAnalyzer") << "EcalTimeCalibConstantsRcd not found";
+    } else    
+      { // quick and dirty for cut and paste ;) it is a test program...
             // TimeCalib constants
-            edm::ESHandle<EcalTimeCalibConstants> pIcal;
-            context.get<EcalTimeCalibConstantsRcd>().get(pIcal);
             const EcalTimeCalibConstants* ical = pIcal.product();
 
             EcalTimeCalibConstantMap::const_iterator icalit=ical->getMap().find(ebid.rawId());
@@ -228,7 +283,7 @@ void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSet
                             << std::endl;
             }
     }
-
+    }
    // fetch Time Offset
    //std::cout <<"Fetching TimeOffsetConstant from DB " << std::endl;
 

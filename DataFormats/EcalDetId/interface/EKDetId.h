@@ -47,6 +47,11 @@ public:
    */ 
   EKDetId& operator=(const DetId& id) {id_ = id.rawId(); return *this;}
   
+  /** Converter for a geometry cell id
+   * @param id full EKDetId 
+   */
+  EKDetId geometryCell () const {return EKDetId (ix(), iy(), 0, 0, zside());}
+  
   /** Set fiber number and RO type
    * @param fib number
    * @param ro  readout type
@@ -99,7 +104,27 @@ public:
    * @param b det id of second module
    * @return distance
    */
-  static int distanceY(const EKDetId& a,const EKDetId& b); 
+  static int distanceY(const EKDetId& a,const EKDetId& b);
+
+  /** static loose hash index for Geometry EK cells
+   */
+  enum {
+    kSizeForDenseIndexing = 
+    2 * 4 *   // +-Z * 4 sectors
+    21 * 21 * // maximum supermodules in quadrant  
+    5 * 5     // modules in SM
+    //kSizeForDenseIndexing = 88622 // if ix and iy from 1 to 210
+  };
+
+  /**  static loose hash index for Geometry cell (fiber/ro information is tripped)
+   */
+  inline uint32_t hashedIndex() const{return denseIndex();};
+  uint32_t denseIndex() const;
+
+  /** static loose hash index for Geometry cell (fiber/ro information is tripped) 
+   */
+  static EKDetId detIdFromDenseIndex( uint32_t din );
+ 
 };
 
 std::ostream& operator<<(std::ostream& s,const EKDetId& id);

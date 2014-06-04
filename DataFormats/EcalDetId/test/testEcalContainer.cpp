@@ -12,7 +12,7 @@ static const char CVSId[] = "$Id: testEcalContainer.cpp,v 1.4 2008/10/15 15:14:1
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
 #include <cppunit/extensions/HelperMacros.h>
 #include <DataFormats/EcalDetId/interface/EBDetId.h>
-#include <DataFormats/EcalDetId/interface/EcalContainer.h>
+#include <CondFormats/EcalObjects/interface/EcalContainer.h>
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include<vector>

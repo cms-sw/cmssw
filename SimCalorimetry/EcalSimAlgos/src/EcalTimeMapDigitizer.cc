@@ -53,6 +53,10 @@ EcalTimeMapDigitizer::EcalTimeMapDigitizer(EcalSubdetector myDet):
       size=EEDetId::kSizeForDenseIndexing;
       detId=EEDetId::detIdFromDenseIndex( 0 ) ;
     }
+  else if (myDet==EcalShashlik){
+      size=EKDetId::kSizeForDenseIndexing;
+      detId=EKDetId::detIdFromDenseIndex( 0 ) ;
+  }    
   else 
     edm::LogError("TimeDigiError") << "[EcalTimeMapDigitizer]::ERROR::This subdetector " << myDet << " is not implemented";
 

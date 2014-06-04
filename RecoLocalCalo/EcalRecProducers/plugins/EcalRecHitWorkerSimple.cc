@@ -79,13 +79,16 @@ EcalRecHitWorkerSimple::run( const edm::Event & evt,
 
 	float offsetTime = 0; // the global time phase
 	const EcalIntercalibConstantMap& icalMap = ical->getMap();  
-        if ( detid.subdetId() == EcalEndcap ) {
-                rechitMaker_->setADCToGeVConstant( float(agc->getEEValue()) );
-		offsetTime = offtime->getEEValue();
+        if ( detid.subdetId() == EcalBarrel ) {
+	  rechitMaker_->setADCToGeVConstant( float(agc->getEBValue()) );
+	  offsetTime = offtime->getEBValue();
+        } else if(detid.subdetId() == EcalEndcap){
+	  rechitMaker_->setADCToGeVConstant( float(agc->getEEValue()) );
+	  offsetTime = offtime->getEEValue();
         } else {
-                rechitMaker_->setADCToGeVConstant( float(agc->getEBValue()) );
-		offsetTime = offtime->getEBValue();
-        }
+	  rechitMaker_->setADCToGeVConstant( float(agc->getEKValue()) );
+	  offsetTime = offtime->getEEValue();
+	}
 
         // first intercalibration constants
         EcalIntercalibConstantMap::const_iterator icalit = icalMap.find(detid);
@@ -120,7 +123,7 @@ EcalRecHitWorkerSimple::run( const edm::Event & evt,
 	if (recoFlag<=EcalRecHit::kLeadingEdgeRecovered || !killDeadChannels_) {
           EcalRecHit myrechit( rechitMaker_->makeRecHit(uncalibRH, icalconst * lasercalib, (itimeconst + offsetTime), /*recoflags_*/ 0) );	
 	  if (detid.subdetId() == EcalBarrel && (lasercalib < EBLaserMIN_ || lasercalib > EBLaserMAX_)) myrechit.setFlag(EcalRecHit::kPoorCalib);
-	  if (detid.subdetId() == EcalEndcap && (lasercalib < EELaserMIN_ || lasercalib > EELaserMAX_)) myrechit.setFlag(EcalRecHit::kPoorCalib);
+	  if ((detid.subdetId() == EcalEndcap || detid.subdetId() == EcalShashlik )&& (lasercalib < EELaserMIN_ || lasercalib > EELaserMAX_)) myrechit.setFlag(EcalRecHit::kPoorCalib);
 	  result.push_back(myrechit);
 	}
 

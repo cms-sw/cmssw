@@ -19,6 +19,10 @@ from RecoParticleFlow.PFClusterProducer.particleFlowClusterHFHAD_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowRecHitECALWithTime_cfi import *
 from RecoParticleFlow.PFClusterProducer.particleFlowClusterECALWithTime_cff import *
 
+#provides particleFlowRecHitEK
+from RecoParticleFlow.PFClusterProducer.particleFlowRecHitShashlik_cfi import *
+from RecoParticleFlow.PFClusterProducer.particleFlowClusterShashlik_cfi import *
+
 
 withTime = True
 if withTime:
@@ -28,6 +32,11 @@ if withTime:
 else:
     pfClusteringECAL = cms.Sequence(particleFlowRecHitECAL*
                                     particleFlowClusterECALSequence)
+
+
+
+pfClusteringEK = cms.Sequence( particleFlowRecHitEK +
+                               particleFlowClusterEKUncorrected )
 
 pfClusteringHCAL = cms.Sequence(particleFlowRecHitHCAL*particleFlowClusterHCAL)
 pfClusteringHCALall = cms.Sequence(particleFlowClusterHCAL+particleFlowClusterHFHAD+particleFlowClusterHFEM)

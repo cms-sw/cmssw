@@ -447,10 +447,10 @@ void CSCMotherboardME11GEM::run(const CSCWireDigiCollection* wiredc,
     // LUT<roll,<etaMin,etaMax> >    
     createGEMRollEtaLUT(isEven);
     if (debug_luts){
-      std::cout<<"me1b Det "<< me1bId<<" "<< me1bId.rawId() <<" " << (isEven ? "Even":"odd") <<" chamebr "<< me1bId.chamber()<<std::endl;
+      std::cout<<"me1b Det "<< me1bId<<" "<< me1bId.rawId() <<" " << (isEven ? "Even":"odd") <<" chamber "<< me1bId.chamber()<<std::endl;
       if (gemRollToEtaLimits_.size())
         for(auto p : gemRollToEtaLimits_) {
-          std::cout << "rollpad "<< p.first << " min eta " << (p.second).first << " max eta " << (p.second).second << std::endl;
+          std::cout << "pad "<< p.first << " min eta " << (p.second).first << " max eta " << (p.second).second << std::endl;
         }
     }
     
@@ -1757,6 +1757,8 @@ void CSCMotherboardME11GEM::matchGEMPads(enum ME11Part ME)
           if (debug_gem_dphi) std::cout<<"    -- lct pass no gem req"<<std::endl;
           continue;
         }
+        // use 100 ad default value when within gem fiducial region
+        lct.setGEMDPhi(100.);
 
         if (in_pads == pads_.end()) // has no potential GEM hits with similar BX -> zap it
         {
@@ -1765,10 +1767,9 @@ void CSCMotherboardME11GEM::matchGEMPads(enum ME11Part ME)
           continue;
         }
         if (debug_gem_dphi) std::cout<<"    -- gem possible"<<std::endl;
-
-        // use 99 ad default value whe we expect there to be a gem match
+	// use 99 ad default value when we expect there to be a gem match
         lct.setGEMDPhi(99.);
-         
+
         // to consider a GEM pad as "matched" it has to be 
         // within specified delta_eta and delta_phi ranges
         // and if there are multiple ones, only the min|delta_phi| is considered as matched

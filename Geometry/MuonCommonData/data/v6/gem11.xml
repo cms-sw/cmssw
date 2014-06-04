@@ -2,73 +2,88 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
 
 <ConstantsSection label="gem11.xml" eval="true">
-  <Constant name="dzS1"  value="7.3828*cm"/>
-  <Constant name="dzS2"  value="7.6440*cm"/>
-  <Constant name="dzS3"  value="7.6565*cm"/>
-  <Constant name="dzS4"  value="6.2135*cm"/>
-  <Constant name="dzS5"  value="6.2130*cm"/>
-  <Constant name="dzS6"  value="5.2150*cm"/>
-  <Constant name="dzS7"  value="5.2150*cm"/>
-  <Constant name="dzS8"  value="5.0815*cm"/>
-  <Constant name="dzS9"  value="5.0683*cm"/>
-  <Constant name="dzS0"  value="4.5354*cm"/>
+  <Constant name="dzS1L" value="9.7025*cm"/>
+  <Constant name="dzS2L" value="9.7025*cm"/>
+  <Constant name="dzS3L" value="8.0535*cm"/>
+  <Constant name="dzS4L" value="8.0535*cm"/>
+  <Constant name="dzS5L" value="6.7280*cm"/>
+  <Constant name="dzS6L" value="6.7280*cm"/>
+  <Constant name="dzS7L" value="5.6535*cm"/>
+  <Constant name="dzS8L" value="5.6535*cm"/>
+  <Constant name="dzS1S" value="8.3275*cm"/>
+  <Constant name="dzS2S" value="8.3275*cm"/>
+  <Constant name="dzS3S" value="7.0285*cm"/>
+  <Constant name="dzS4S" value="7.0285*cm"/>
+  <Constant name="dzS5S" value="5.9785*cm"/>
+  <Constant name="dzS6S" value="5.9785*cm"/>
+  <Constant name="dzS7S" value="5.1030*cm"/>
+  <Constant name="dzS8S" value="5.1030*cm"/>
   <Constant name="dzGap" value="0.2500*mm"/>
-  <Constant name="dzInL" value="([dzS1]+[dzS2]+[dzS3]+[dzS4]+[dzS5]+[dzS6]+[dzS7]+[dzS8]+[dzS9]+[dzS0]+9*[dzGap])"/>
-  <Constant name="dzInS" value="([dzS2]+[dzS3]+[dzS4]+[dzS5]+[dzS6]+[dzS7]+[dzS8]+[dzS9]+[dzS0]+8*[dzGap])"/>
+  <Constant name="dzInL" value="([dzS1L]+[dzS2L]+[dzS3L]+[dzS4L]+[dzS5L]+[dzS6L]+[dzS7L]+[dzS8L]+7*[dzGap])"/>
+  <Constant name="dzInS" value="([dzS1S]+[dzS2S]+[dzS3S]+[dzS4S]+[dzS5S]+[dzS6S]+[dzS7S]+[dzS8S]+7*[dzGap])"/>
   <Constant name="dzLS"  value="([dzInL]-[dzInS])"/>
-  <Constant name="z10L"  value="([dzInL]-[dzS1])"/> 
-  <Constant name="z20L"  value="([z10L]-[dzS1]-2*[dzGap]-[dzS2])"/> 
-  <Constant name="z30L"  value="([z20L]-[dzS2]-2*[dzGap]-[dzS3])"/> 
-  <Constant name="z40L"  value="([z30L]-[dzS3]-2*[dzGap]-[dzS4])"/> 
-  <Constant name="z50L"  value="([z40L]-[dzS4]-2*[dzGap]-[dzS5])"/> 
-  <Constant name="z60L"  value="([z50L]-[dzS5]-2*[dzGap]-[dzS6])"/> 
-  <Constant name="z70L"  value="([z60L]-[dzS6]-2*[dzGap]-[dzS7])"/> 
-  <Constant name="z80L"  value="([z70L]-[dzS7]-2*[dzGap]-[dzS8])"/> 
-  <Constant name="z90L"  value="([z80L]-[dzS8]-2*[dzGap]-[dzS9])"/> 
-  <Constant name="z00L"  value="([z90L]-[dzS9]-2*[dzGap]-[dzS0])"/> 
-  <Constant name="z20S"  value="([dzInS]-[dzS2])"/> 
-  <Constant name="z30S"  value="([z20S]-[dzS2]-2*[dzGap]-[dzS3])"/> 
-  <Constant name="z40S"  value="([z30S]-[dzS3]-2*[dzGap]-[dzS4])"/> 
-  <Constant name="z50S"  value="([z40S]-[dzS4]-2*[dzGap]-[dzS5])"/> 
-  <Constant name="z60S"  value="([z50S]-[dzS5]-2*[dzGap]-[dzS6])"/> 
-  <Constant name="z70S"  value="([z60S]-[dzS6]-2*[dzGap]-[dzS7])"/> 
-  <Constant name="z80S"  value="([z70S]-[dzS7]-2*[dzGap]-[dzS8])"/> 
-  <Constant name="z90S"  value="([z80S]-[dzS8]-2*[dzGap]-[dzS9])"/> 
-  <Constant name="z00S"  value="([z90S]-[dzS9]-2*[dzGap]-[dzS0])"/> 
-  <Constant name="dxTop" value="25.5695*cm"/>
-  <Constant name="Angle" value="5.8144*deg"/>
+  <Constant name="z10L"  value="([dzInL]-[dzS1L])"/> 
+  <Constant name="z20L"  value="([z10L]-[dzS1L]-2*[dzGap]-[dzS2L])"/> 
+  <Constant name="z30L"  value="([z20L]-[dzS2L]-2*[dzGap]-[dzS3L])"/> 
+  <Constant name="z40L"  value="([z30L]-[dzS3L]-2*[dzGap]-[dzS4L])"/> 
+  <Constant name="z50L"  value="([z40L]-[dzS4L]-2*[dzGap]-[dzS5L])"/> 
+  <Constant name="z60L"  value="([z50L]-[dzS5L]-2*[dzGap]-[dzS6L])"/> 
+  <Constant name="z70L"  value="([z60L]-[dzS6L]-2*[dzGap]-[dzS7L])"/> 
+  <Constant name="z80L"  value="([z70L]-[dzS7L]-2*[dzGap]-[dzS8L])"/> 
+  <Constant name="z10S"  value="([dzInS]-[dzS1S])"/> 
+  <Constant name="z20S"  value="([z10S]-[dzS1S]-2*[dzGap]-[dzS2S])"/> 
+  <Constant name="z30S"  value="([z20S]-[dzS2S]-2*[dzGap]-[dzS3S])"/> 
+  <Constant name="z40S"  value="([z30S]-[dzS3S]-2*[dzGap]-[dzS4S])"/> 
+  <Constant name="z50S"  value="([z40S]-[dzS4S]-2*[dzGap]-[dzS5S])"/> 
+  <Constant name="z60S"  value="([z50S]-[dzS5S]-2*[dzGap]-[dzS6S])"/> 
+  <Constant name="z70S"  value="([z60S]-[dzS6S]-2*[dzGap]-[dzS7S])"/> 
+  <Constant name="z80S"  value="([z70S]-[dzS7S]-2*[dzGap]-[dzS8S])"/> 
+  <Constant name="dxTop" value="22.2929*cm"/>
+  <Constant name="Angle" value="5.0*deg"/>
   <Constant name="slope" value="tan([Angle])"/>
-  <Constant name="dx11"  value="([dxTop]-[slope]*([dzInL]-[z10L]+[dzS1]))"/>
-  <Constant name="dx12"  value="([dxTop]-[slope]*([dzInL]-[z10L]-[dzS1]))"/>
-  <Constant name="dx21"  value="([dxTop]-[slope]*([dzInL]-[z20L]+[dzS2]))"/>
-  <Constant name="dx22"  value="([dxTop]-[slope]*([dzInL]-[z20L]-[dzS2]))"/>
-  <Constant name="dx31"  value="([dxTop]-[slope]*([dzInL]-[z30L]+[dzS3]))"/>
-  <Constant name="dx32"  value="([dxTop]-[slope]*([dzInL]-[z30L]-[dzS3]))"/>
-  <Constant name="dx41"  value="([dxTop]-[slope]*([dzInL]-[z40L]+[dzS4]))"/>
-  <Constant name="dx42"  value="([dxTop]-[slope]*([dzInL]-[z40L]-[dzS4]))"/>
-  <Constant name="dx51"  value="([dxTop]-[slope]*([dzInL]-[z50L]+[dzS5]))"/>
-  <Constant name="dx52"  value="([dxTop]-[slope]*([dzInL]-[z50L]-[dzS5]))"/>
-  <Constant name="dx61"  value="([dxTop]-[slope]*([dzInL]-[z60L]+[dzS6]))"/>
-  <Constant name="dx62"  value="([dxTop]-[slope]*([dzInL]-[z60L]-[dzS6]))"/>
-  <Constant name="dx71"  value="([dxTop]-[slope]*([dzInL]-[z70L]+[dzS7]))"/>
-  <Constant name="dx72"  value="([dxTop]-[slope]*([dzInL]-[z70L]-[dzS7]))"/>
-  <Constant name="dx81"  value="([dxTop]-[slope]*([dzInL]-[z80L]+[dzS8]))"/>
-  <Constant name="dx82"  value="([dxTop]-[slope]*([dzInL]-[z80L]-[dzS8]))"/>
-  <Constant name="dx91"  value="([dxTop]-[slope]*([dzInL]-[z90L]+[dzS9]))"/>
-  <Constant name="dx92"  value="([dxTop]-[slope]*([dzInL]-[z90L]-[dzS9]))"/>
-  <Constant name="dx01"  value="([dxTop]-[slope]*([dzInL]-[z00L]+[dzS0]))"/>
-  <Constant name="dx02"  value="([dxTop]-[slope]*([dzInL]-[z00L]-[dzS0]))"/>
+  <Constant name="dx11L" value="([dxTop]-[slope]*([dzInL]-[z10L]+[dzS1L]))"/>
+  <Constant name="dx12L" value="([dxTop]-[slope]*([dzInL]-[z10L]-[dzS1L]))"/>
+  <Constant name="dx21L" value="([dxTop]-[slope]*([dzInL]-[z20L]+[dzS2L]))"/>
+  <Constant name="dx22L" value="([dxTop]-[slope]*([dzInL]-[z20L]-[dzS2L]))"/>
+  <Constant name="dx31L" value="([dxTop]-[slope]*([dzInL]-[z30L]+[dzS3L]))"/>
+  <Constant name="dx32L" value="([dxTop]-[slope]*([dzInL]-[z30L]-[dzS3L]))"/>
+  <Constant name="dx41L" value="([dxTop]-[slope]*([dzInL]-[z40L]+[dzS4L]))"/>
+  <Constant name="dx42L" value="([dxTop]-[slope]*([dzInL]-[z40L]-[dzS4L]))"/>
+  <Constant name="dx51L" value="([dxTop]-[slope]*([dzInL]-[z50L]+[dzS5L]))"/>
+  <Constant name="dx52L" value="([dxTop]-[slope]*([dzInL]-[z50L]-[dzS5L]))"/>
+  <Constant name="dx61L" value="([dxTop]-[slope]*([dzInL]-[z60L]+[dzS6L]))"/>
+  <Constant name="dx62L" value="([dxTop]-[slope]*([dzInL]-[z60L]-[dzS6L]))"/>
+  <Constant name="dx71L" value="([dxTop]-[slope]*([dzInL]-[z70L]+[dzS7L]))"/>
+  <Constant name="dx72L" value="([dxTop]-[slope]*([dzInL]-[z70L]-[dzS7L]))"/>
+  <Constant name="dx81L" value="([dxTop]-[slope]*([dzInL]-[z80L]+[dzS8L]))"/>
+  <Constant name="dx82L" value="([dxTop]-[slope]*([dzInL]-[z80L]-[dzS8L]))"/>
+  <Constant name="dx11S" value="([dxTop]-[slope]*([dzInL]-[z10S]+[dzS1S]))"/>
+  <Constant name="dx12S" value="([dxTop]-[slope]*([dzInL]-[z10S]-[dzS1S]))"/>
+  <Constant name="dx21S" value="([dxTop]-[slope]*([dzInL]-[z20S]+[dzS2S]))"/>
+  <Constant name="dx22S" value="([dxTop]-[slope]*([dzInL]-[z20S]-[dzS2S]))"/>
+  <Constant name="dx31S" value="([dxTop]-[slope]*([dzInL]-[z30S]+[dzS3S]))"/>
+  <Constant name="dx32S" value="([dxTop]-[slope]*([dzInL]-[z30S]-[dzS3S]))"/>
+  <Constant name="dx41S" value="([dxTop]-[slope]*([dzInL]-[z40S]+[dzS4S]))"/>
+  <Constant name="dx42S" value="([dxTop]-[slope]*([dzInL]-[z40S]-[dzS4S]))"/>
+  <Constant name="dx51S" value="([dxTop]-[slope]*([dzInL]-[z50S]+[dzS5S]))"/>
+  <Constant name="dx52S" value="([dxTop]-[slope]*([dzInL]-[z50S]-[dzS5S]))"/>
+  <Constant name="dx61S" value="([dxTop]-[slope]*([dzInL]-[z60S]+[dzS6S]))"/>
+  <Constant name="dx62S" value="([dxTop]-[slope]*([dzInL]-[z60S]-[dzS6S]))"/>
+  <Constant name="dx71S" value="([dxTop]-[slope]*([dzInL]-[z70S]+[dzS7S]))"/>
+  <Constant name="dx72S" value="([dxTop]-[slope]*([dzInL]-[z70S]-[dzS7S]))"/>
+  <Constant name="dx81S" value="([dxTop]-[slope]*([dzInL]-[z80S]+[dzS8S]))"/>
+  <Constant name="dx82S" value="([dxTop]-[slope]*([dzInL]-[z80S]-[dzS8S]))"/>
   <Constant name="dyGB11"      value="8.100*mm"/>
-  <Constant name="dzGB11L"     value="60.6*cm"/>
+  <Constant name="dzGB11L"     value="64.150*cm"/>
   <Constant name="dzGB11S"     value="([dzGB11L]-[dzLS])"/>
-  <Constant name="dxTopGB11L"  value="25.654*cm"/>
+  <Constant name="dxTopGB11L"  value="25.49925*cm"/>
   <Constant name="dxTopGB11S"  value="([dxTopGB11L]-2*[slope]*[dzLS])"/>
   <Constant name="dxBotGB11"   value="([dxTopGB11L]-2*[slope]*[dzGB11L])"/>
   <Constant name="dzTot"       value="([dxTop]/[slope]-[dzInL]-[dzGB11L])"/>
   <Constant name="rPosL"       value="([dzTot]+[dzGB11L])"/>
   <Constant name="rPosS"       value="([dzTot]+[dzGB11S])"/>
   <Constant name="dyGA11"      value="4.000*mm"/>
-  <Constant name="dzGA11L"     value="60.45*cm"/>
+  <Constant name="dzGA11L"     value="63.750*cm"/>
   <Constant name="dzGA11S"     value="([dzGA11L]-[dzLS])"/>
   <Constant name="dxBotGA11"   value="7.127*cm"/>
   <Constant name="dxTopGA11L"  value="18.352*cm"/>
@@ -107,19 +122,19 @@
   <Constant name="yGap4"       value="([yFoil3]+[dyGap4]+[dyFoil])"/>
   <Constant name="dyReadOut"   value="1.5*mm"/>
   <Constant name="yReadOut"    value="(-[dyGBI11]+7.0*mm+[dyReadOut])"/>
-  <Constant name="dzCardL"     value="60.25*cm"/>
+  <Constant name="dzCardL"     value="63.150*cm"/>
   <Constant name="dzCardS"     value="([dzCardL]-[dzLS])"/>
   <Constant name="dxTopCardL"  value="25.4115*cm"/>
   <Constant name="dxBotCard"   value="([dxTopCardL]-2*[slope]*[dzCardL])"/>
   <Constant name="dxTopCardS"  value="([dxBotCard]+2*[slope]*[dzCardS])"/>
-  <Constant name="dzFoilL"     value="60.25*cm"/>
+  <Constant name="dzFoilL"     value="60.450*cm"/>
   <Constant name="dzFoilS"     value="([dzFoilL]-[dzLS])"/>
   <Constant name="dxTopFoilL"  value="22.29385*cm"/>
   <Constant name="dxBotFoil"   value="([dxTopFoilL]-2*[slope]*[dzFoilL])"/>
   <Constant name="dxTopFoilS"  value="([dxBotFoil]+2*[slope]*[dzFoilS])"/>
   <Constant name="Tilt"        value="[gemf:Tilt]"/>
   <Constant name="TubeBotL"    value="60.0*mm"/>
-  <Constant name="TubeHeightL" value="1100.0*mm"/>
+  <Constant name="TubeHeightL" value="1140.0*mm"/>
   <Constant name="TubeHeightS" value="([TubeHeightL]-2*[dzLS])"/>
   <Constant name="TubeMidL"    value="25.0*mm"/>
   <Constant name="TubeTopL"    value="100.0*mm"/>
@@ -193,7 +208,7 @@
 </ConstantsSection>
 
 <SolidSection label="gem11.xml">
-  <Tubs name="GE11" rMin="1.30*m  " rMax="2.64*m  " dz="4.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="GE11" rMin="1.265*m" rMax="2.64*m" dz="4.5*cm " startPhi="0*deg" deltaPhi="360*deg"/>
 
   <Trd1 name="GB11L" dz="[dzGB11L]" dy1="[dyGB11]" dy2="[dyGB11]" dx1="[dxBotGB11]" dx2="[dxTopGB11L]" />
   <Trd1 name="GB11S" dz="[dzGB11S]" dy1="[dyGB11]" dy2="[dyGB11]" dx1="[dxBotGB11]" dx2="[dxTopGB11S]" />
@@ -249,36 +264,54 @@
   <Trd1 name="GSAX11S" dz="[dzCardS]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dxBotCard]" dx2="[dxTopCardS]" />
   <Trd1 name="GKAX11S" dz="[dzFoilS]" dy1="[dyFoil]" dy2="[dyFoil]" dx1="[dxBotFoil]" dx2="[dxTopFoilS]" />
   <Trd1 name="GDAX11S" dz="[dzCardS]" dy1="[dyGap4]" dy2="[dyGap4]" dx1="[dxBotCard]" dx2="[dxTopCardS]" />
-  <Trd1 name="GFA101" dz="[dzS1]" dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx11]" dx2="[dx12]" />
-  <Trd1 name="GFA102" dz="[dzS2]" dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx21]" dx2="[dx22]" />
-  <Trd1 name="GFA103" dz="[dzS3]" dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx31]" dx2="[dx32]" />
-  <Trd1 name="GFA104" dz="[dzS4]" dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx41]" dx2="[dx42]" />
-  <Trd1 name="GFA105" dz="[dzS5]" dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx51]" dx2="[dx52]" />
-  <Trd1 name="GFA106" dz="[dzS6]"  dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx61]" dx2="[dx62]" />
-  <Trd1 name="GFA107" dz="[dzS7]"  dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx71]" dx2="[dx72]" />
-  <Trd1 name="GFA108" dz="[dzS8]"  dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx81]" dx2="[dx82]" />
-  <Trd1 name="GFA109" dz="[dzS9]"  dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx91]" dx2="[dx92]" />
-  <Trd1 name="GFA110" dz="[dzS0]"  dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx01]" dx2="[dx92]" />
-  <Trd1 name="GGA101" dz="[dzS1]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dx11]" dx2="[dx12]" />
-  <Trd1 name="GGA102" dz="[dzS2]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dx21]" dx2="[dx22]" />
-  <Trd1 name="GGA103" dz="[dzS3]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dx31]" dx2="[dx32]" />
-  <Trd1 name="GGA104" dz="[dzS4]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dx41]" dx2="[dx42]" />
-  <Trd1 name="GGA105" dz="[dzS5]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dx51]" dx2="[dx52]" />
-  <Trd1 name="GGA106" dz="[dzS6]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dx61]" dx2="[dx62]" />
-  <Trd1 name="GGA107" dz="[dzS7]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dx71]" dx2="[dx72]" />
-  <Trd1 name="GGA108" dz="[dzS8]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dx81]" dx2="[dx82]" />
-  <Trd1 name="GGA109" dz="[dzS9]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dx91]" dx2="[dx92]" />
-  <Trd1 name="GGA110" dz="[dzS0]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dx01]" dx2="[dx92]" />
-  <Trd1 name="GHA101" dz="[dzS1]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx11]" dx2="[dx12]" />
-  <Trd1 name="GHA102" dz="[dzS2]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx21]" dx2="[dx22]" />
-  <Trd1 name="GHA103" dz="[dzS3]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx31]" dx2="[dx32]" />
-  <Trd1 name="GHA104" dz="[dzS4]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx41]" dx2="[dx42]" />
-  <Trd1 name="GHA105" dz="[dzS5]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx51]" dx2="[dx52]" />
-  <Trd1 name="GHA106" dz="[dzS6]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx61]" dx2="[dx62]" />
-  <Trd1 name="GHA107" dz="[dzS7]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx71]" dx2="[dx72]" />
-  <Trd1 name="GHA108" dz="[dzS8]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx81]" dx2="[dx82]" />
-  <Trd1 name="GHA109" dz="[dzS9]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx91]" dx2="[dx92]" />
-  <Trd1 name="GHA110" dz="[dzS0]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx01]" dx2="[dx02]" />
+  <Trd1 name="GFA101" dz="[dzS1L]" dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx11L]" dx2="[dx12L]" />
+  <Trd1 name="GFA102" dz="[dzS2L]" dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx21L]" dx2="[dx22L]" />
+  <Trd1 name="GFA103" dz="[dzS3L]" dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx31L]" dx2="[dx32L]" />
+  <Trd1 name="GFA104" dz="[dzS4L]" dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx41L]" dx2="[dx42L]" />
+  <Trd1 name="GFA105" dz="[dzS5L]" dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx51L]" dx2="[dx52L]" />
+  <Trd1 name="GFA106" dz="[dzS6L]" dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx61L]" dx2="[dx62L]" />
+  <Trd1 name="GFA107" dz="[dzS7L]" dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx71L]" dx2="[dx72L]" />
+  <Trd1 name="GFA108" dz="[dzS8L]" dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx81L]" dx2="[dx82L]" />
+  <Trd1 name="GFA111" dz="[dzS1S]" dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx11S]" dx2="[dx12S]" />
+  <Trd1 name="GFA112" dz="[dzS2S]" dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx21S]" dx2="[dx22S]" />
+  <Trd1 name="GFA113" dz="[dzS3S]" dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx31S]" dx2="[dx32S]" />
+  <Trd1 name="GFA114" dz="[dzS4S]" dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx41S]" dx2="[dx42S]" />
+  <Trd1 name="GFA115" dz="[dzS5S]" dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx51S]" dx2="[dx52S]" />
+  <Trd1 name="GFA116" dz="[dzS6S]" dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx61S]" dx2="[dx62S]" />
+  <Trd1 name="GFA117" dz="[dzS7S]" dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx71S]" dx2="[dx72S]" />
+  <Trd1 name="GFA118" dz="[dzS8S]" dy1="[dyGap3]" dy2="[dyGap3]" dx1="[dx81S]" dx2="[dx82S]" />
+  <Trd1 name="GGA101" dz="[dzS1L]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dx11L]" dx2="[dx12L]" />
+  <Trd1 name="GGA102" dz="[dzS2L]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dx21L]" dx2="[dx22L]" />
+  <Trd1 name="GGA103" dz="[dzS3L]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dx31L]" dx2="[dx32L]" />
+  <Trd1 name="GGA104" dz="[dzS4L]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dx41L]" dx2="[dx42L]" />
+  <Trd1 name="GGA105" dz="[dzS5L]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dx51L]" dx2="[dx52L]" />
+  <Trd1 name="GGA106" dz="[dzS6L]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dx61L]" dx2="[dx62L]" />
+  <Trd1 name="GGA107" dz="[dzS7L]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dx71L]" dx2="[dx72L]" />
+  <Trd1 name="GGA108" dz="[dzS8L]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dx81L]" dx2="[dx82L]" />
+  <Trd1 name="GGA111" dz="[dzS1S]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dx11S]" dx2="[dx12S]" />
+  <Trd1 name="GGA112" dz="[dzS2S]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dx21S]" dx2="[dx22S]" />
+  <Trd1 name="GGA113" dz="[dzS3S]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dx31S]" dx2="[dx32S]" />
+  <Trd1 name="GGA114" dz="[dzS4S]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dx41S]" dx2="[dx42S]" />
+  <Trd1 name="GGA115" dz="[dzS5S]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dx51S]" dx2="[dx52S]" />
+  <Trd1 name="GGA116" dz="[dzS6S]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dx61S]" dx2="[dx62S]" />
+  <Trd1 name="GGA117" dz="[dzS7S]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dx71S]" dx2="[dx72S]" />
+  <Trd1 name="GGA118" dz="[dzS8S]" dy1="[dyGap2]" dy2="[dyGap2]" dx1="[dx81S]" dx2="[dx82S]" />
+  <Trd1 name="GHA101" dz="[dzS1L]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx11L]" dx2="[dx12L]" />
+  <Trd1 name="GHA102" dz="[dzS2L]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx21L]" dx2="[dx22L]" />
+  <Trd1 name="GHA103" dz="[dzS3L]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx31L]" dx2="[dx32L]" />
+  <Trd1 name="GHA104" dz="[dzS4L]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx41L]" dx2="[dx42L]" />
+  <Trd1 name="GHA105" dz="[dzS5L]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx51L]" dx2="[dx52L]" />
+  <Trd1 name="GHA106" dz="[dzS6L]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx61L]" dx2="[dx62L]" />
+  <Trd1 name="GHA107" dz="[dzS7L]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx71L]" dx2="[dx72L]" />
+  <Trd1 name="GHA108" dz="[dzS8L]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx81L]" dx2="[dx82L]" />
+  <Trd1 name="GHA111" dz="[dzS1S]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx11S]" dx2="[dx12S]" />
+  <Trd1 name="GHA112" dz="[dzS2S]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx21S]" dx2="[dx22S]" />
+  <Trd1 name="GHA113" dz="[dzS3S]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx31S]" dx2="[dx32S]" />
+  <Trd1 name="GHA114" dz="[dzS4S]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx41S]" dx2="[dx42S]" />
+  <Trd1 name="GHA115" dz="[dzS5S]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx51S]" dx2="[dx52S]" />
+  <Trd1 name="GHA116" dz="[dzS6S]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx61S]" dx2="[dx62S]" />
+  <Trd1 name="GHA117" dz="[dzS7S]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx71S]" dx2="[dx72S]" />
+  <Trd1 name="GHA118" dz="[dzS8S]" dy1="[dyGap1]" dy2="[dyGap1]" dx1="[dx81S]" dx2="[dx82S]" />
 
   <Tubs name="GTT11"  rMin="0.0*fm" rMax="[TubeRMax]" dz="[TubeTopL]/2"    startPhi="0*deg" deltaPhi="360*deg"/>
   <Tubs name="GUT11"  rMin="0.0*fm" rMax="[TubeRMin]" dz="[TubeTopL]/2"    startPhi="0*deg" deltaPhi="360*deg"/>
@@ -411,12 +444,36 @@
     <rSolid name="GFA108"/>
     <rMaterial name="gemf:M_GEM_Gas"/>
   </LogicalPart>
-  <LogicalPart name="GFA109" category="unspecified">
-    <rSolid name="GFA109"/>
+  <LogicalPart name="GFA111" category="unspecified">
+    <rSolid name="GFA111"/>
     <rMaterial name="gemf:M_GEM_Gas"/>
   </LogicalPart>
-  <LogicalPart name="GFA110" category="unspecified">
-    <rSolid name="GFA110"/>
+  <LogicalPart name="GFA112" category="unspecified">
+    <rSolid name="GFA112"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GFA113" category="unspecified">
+    <rSolid name="GFA113"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GFA114" category="unspecified">
+    <rSolid name="GFA114"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GFA115" category="unspecified">
+    <rSolid name="GFA115"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GFA116" category="unspecified">
+    <rSolid name="GFA116"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GFA117" category="unspecified">
+    <rSolid name="GFA117"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GFA118" category="unspecified">
+    <rSolid name="GFA118"/>
     <rMaterial name="gemf:M_GEM_Gas"/>
   </LogicalPart>
 
@@ -452,12 +509,36 @@
     <rSolid name="GGA108"/>
     <rMaterial name="gemf:M_GEM_Gas"/>
   </LogicalPart>
-  <LogicalPart name="GGA109" category="unspecified">
-    <rSolid name="GGA109"/>
+  <LogicalPart name="GGA111" category="unspecified">
+    <rSolid name="GGA111"/>
     <rMaterial name="gemf:M_GEM_Gas"/>
   </LogicalPart>
-  <LogicalPart name="GGA110" category="unspecified">
-    <rSolid name="GGA110"/>
+  <LogicalPart name="GGA112" category="unspecified">
+    <rSolid name="GGA112"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GGA113" category="unspecified">
+    <rSolid name="GGA113"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GGA114" category="unspecified">
+    <rSolid name="GGA114"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GGA115" category="unspecified">
+    <rSolid name="GGA115"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GGA116" category="unspecified">
+    <rSolid name="GGA116"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GGA117" category="unspecified">
+    <rSolid name="GGA117"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GGA118" category="unspecified">
+    <rSolid name="GGA118"/>
     <rMaterial name="gemf:M_GEM_Gas"/>
   </LogicalPart>
 
@@ -493,12 +574,36 @@
     <rSolid name="GHA108"/>
     <rMaterial name="gemf:M_GEM_Gas"/>
   </LogicalPart>
-  <LogicalPart name="GHA109" category="unspecified">
-    <rSolid name="GHA109"/>
+  <LogicalPart name="GHA111" category="unspecified">
+    <rSolid name="GHA111"/>
     <rMaterial name="gemf:M_GEM_Gas"/>
   </LogicalPart>
-  <LogicalPart name="GHA110" category="unspecified">
-    <rSolid name="GHA110"/>
+  <LogicalPart name="GHA112" category="unspecified">
+    <rSolid name="GHA112"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GHA113" category="unspecified">
+    <rSolid name="GHA113"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GHA114" category="unspecified">
+    <rSolid name="GHA114"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GHA115" category="unspecified">
+    <rSolid name="GHA115"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GHA116" category="unspecified">
+    <rSolid name="GHA116"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GHA117" category="unspecified">
+    <rSolid name="GHA117"/>
+    <rMaterial name="gemf:M_GEM_Gas"/>
+  </LogicalPart>
+  <LogicalPart name="GHA118" category="unspecified">
+    <rSolid name="GHA118"/>
     <rMaterial name="gemf:M_GEM_Gas"/>
   </LogicalPart>
 
@@ -735,60 +840,45 @@
     <rChild name="gem11:GFA108"/>
     <Translation x="0*fm" y="0*fm" z="[z80L]" />
   </PosPart>
-  <PosPart copyNumber="9">
-    <rParent name="gem11:GIAX11L"/>
-    <rChild name="gem11:GFA109"/>
-    <Translation x="0*fm" y="0*fm" z="[z90L]" />
-  </PosPart>
-  <PosPart copyNumber="10">
-    <rParent name="gem11:GIAX11L"/>
-    <rChild name="gem11:GFA110"/>
-    <Translation x="0*fm" y="0*fm" z="[z00L]" />
+  <PosPart copyNumber="1">
+    <rParent name="gem11:GIAX11S"/>
+    <rChild name="gem11:GFA111"/>
+    <Translation x="0*fm" y="0*fm" z="[z10S]" />
   </PosPart>
   <PosPart copyNumber="2">
     <rParent name="gem11:GIAX11S"/>
-    <rChild name="gem11:GFA102"/>
+    <rChild name="gem11:GFA112"/>
     <Translation x="0*fm" y="0*fm" z="[z20S]" />
   </PosPart>
   <PosPart copyNumber="3">
     <rParent name="gem11:GIAX11S"/>
-    <rChild name="gem11:GFA103"/>
+    <rChild name="gem11:GFA113"/>
     <Translation x="0*fm" y="0*fm" z="[z30S]" />
   </PosPart>
   <PosPart copyNumber="4">
     <rParent name="gem11:GIAX11S"/>
-    <rChild name="gem11:GFA104"/>
+    <rChild name="gem11:GFA114"/>
     <Translation x="0*fm" y="0*fm" z="[z40S]" />
   </PosPart>
   <PosPart copyNumber="5">
     <rParent name="gem11:GIAX11S"/>
-    <rChild name="gem11:GFA105"/>
+    <rChild name="gem11:GFA115"/>
     <Translation x="0*fm" y="0*fm" z="[z50S]" />
   </PosPart>
   <PosPart copyNumber="6">
     <rParent name="gem11:GIAX11S"/>
-    <rChild name="gem11:GFA106"/>
+    <rChild name="gem11:GFA116"/>
     <Translation x="0*fm" y="0*fm" z="[z60S]" />
   </PosPart>
   <PosPart copyNumber="7">
     <rParent name="gem11:GIAX11S"/>
-    <rChild name="gem11:GFA107"/>
+    <rChild name="gem11:GFA117"/>
     <Translation x="0*fm" y="0*fm" z="[z70S]" />
   </PosPart>
   <PosPart copyNumber="8">
     <rParent name="gem11:GIAX11S"/>
-    <rChild name="gem11:GFA108"/>
+    <rChild name="gem11:GFA118"/>
     <Translation x="0*fm" y="0*fm" z="[z80S]" />
-  </PosPart>
-  <PosPart copyNumber="9">
-    <rParent name="gem11:GIAX11S"/>
-    <rChild name="gem11:GFA109"/>
-    <Translation x="0*fm" y="0*fm" z="[z90S]" />
-  </PosPart>
-  <PosPart copyNumber="10">
-    <rParent name="gem11:GIAX11S"/>
-    <rChild name="gem11:GFA110"/>
-    <Translation x="0*fm" y="0*fm" z="[z00S]" />
   </PosPart>
 
   <PosPart copyNumber="1">
@@ -831,60 +921,45 @@
     <rChild name="gem11:GGA108"/>
     <Translation x="0*fm" y="0*fm" z="[z80L]" />
   </PosPart>
-  <PosPart copyNumber="9">
-    <rParent name="gem11:GJAX11L"/>
-    <rChild name="gem11:GGA109"/>
-    <Translation x="0*fm" y="0*fm" z="[z90L]" />
-  </PosPart>
-  <PosPart copyNumber="10">
-    <rParent name="gem11:GJAX11L"/>
-    <rChild name="gem11:GGA110"/>
-    <Translation x="0*fm" y="0*fm" z="[z00L]" />
+  <PosPart copyNumber="1">
+    <rParent name="gem11:GJAX11S"/>
+    <rChild name="gem11:GGA111"/>
+    <Translation x="0*fm" y="0*fm" z="[z10S]" />
   </PosPart>
   <PosPart copyNumber="2">
     <rParent name="gem11:GJAX11S"/>
-    <rChild name="gem11:GGA102"/>
+    <rChild name="gem11:GGA112"/>
     <Translation x="0*fm" y="0*fm" z="[z20S]" />
   </PosPart>
   <PosPart copyNumber="3">
     <rParent name="gem11:GJAX11S"/>
-    <rChild name="gem11:GGA103"/>
+    <rChild name="gem11:GGA113"/>
     <Translation x="0*fm" y="0*fm" z="[z30S]" />
   </PosPart>
   <PosPart copyNumber="4">
     <rParent name="gem11:GJAX11S"/>
-    <rChild name="gem11:GGA104"/>
+    <rChild name="gem11:GGA114"/>
     <Translation x="0*fm" y="0*fm" z="[z40S]" />
   </PosPart>
   <PosPart copyNumber="5">
     <rParent name="gem11:GJAX11S"/>
-    <rChild name="gem11:GGA105"/>
+    <rChild name="gem11:GGA115"/>
     <Translation x="0*fm" y="0*fm" z="[z50S]" />
   </PosPart>
   <PosPart copyNumber="6">
     <rParent name="gem11:GJAX11S"/>
-    <rChild name="gem11:GGA106"/>
+    <rChild name="gem11:GGA116"/>
     <Translation x="0*fm" y="0*fm" z="[z60S]" />
   </PosPart>
   <PosPart copyNumber="7">
     <rParent name="gem11:GJAX11S"/>
-    <rChild name="gem11:GGA107"/>
+    <rChild name="gem11:GGA117"/>
     <Translation x="0*fm" y="0*fm" z="[z70S]" />
   </PosPart>
   <PosPart copyNumber="8">
     <rParent name="gem11:GJAX11S"/>
-    <rChild name="gem11:GGA108"/>
+    <rChild name="gem11:GGA118"/>
     <Translation x="0*fm" y="0*fm" z="[z80S]" />
-  </PosPart>
-  <PosPart copyNumber="9">
-    <rParent name="gem11:GJAX11S"/>
-    <rChild name="gem11:GGA109"/>
-    <Translation x="0*fm" y="0*fm" z="[z90S]" />
-  </PosPart>
-  <PosPart copyNumber="10">
-    <rParent name="gem11:GJAX11S"/>
-    <rChild name="gem11:GGA110"/>
-    <Translation x="0*fm" y="0*fm" z="[z00S]" />
   </PosPart>
 
   <PosPart copyNumber="1">
@@ -927,60 +1002,45 @@
     <rChild name="gem11:GHA108"/>
     <Translation x="0*fm" y="0*fm" z="[z80L]" />
   </PosPart>
-  <PosPart copyNumber="9">
-    <rParent name="gem11:GSAX11L"/>
-    <rChild name="gem11:GHA109"/>
-    <Translation x="0*fm" y="0*fm" z="[z90L]" />
-  </PosPart>
-  <PosPart copyNumber="10">
-    <rParent name="gem11:GSAX11L"/>
-    <rChild name="gem11:GHA110"/>
-    <Translation x="0*fm" y="0*fm" z="[z00L]" />
+  <PosPart copyNumber="1">
+    <rParent name="gem11:GSAX11S"/>
+    <rChild name="gem11:GHA111"/>
+    <Translation x="0*fm" y="0*fm" z="[z10S]" />
   </PosPart>
   <PosPart copyNumber="2">
     <rParent name="gem11:GSAX11S"/>
-    <rChild name="gem11:GHA102"/>
+    <rChild name="gem11:GHA112"/>
     <Translation x="0*fm" y="0*fm" z="[z20S]" />
   </PosPart>
   <PosPart copyNumber="3">
     <rParent name="gem11:GSAX11S"/>
-    <rChild name="gem11:GHA103"/>
+    <rChild name="gem11:GHA113"/>
     <Translation x="0*fm" y="0*fm" z="[z30S]" />
   </PosPart>
   <PosPart copyNumber="4">
     <rParent name="gem11:GSAX11S"/>
-    <rChild name="gem11:GHA104"/>
+    <rChild name="gem11:GHA114"/>
     <Translation x="0*fm" y="0*fm" z="[z40S]" />
   </PosPart>
   <PosPart copyNumber="5">
     <rParent name="gem11:GSAX11S"/>
-    <rChild name="gem11:GHA105"/>
+    <rChild name="gem11:GHA115"/>
     <Translation x="0*fm" y="0*fm" z="[z50S]" />
   </PosPart>
   <PosPart copyNumber="6">
     <rParent name="gem11:GSAX11S"/>
-    <rChild name="gem11:GHA106"/>
+    <rChild name="gem11:GHA116"/>
     <Translation x="0*fm" y="0*fm" z="[z60S]" />
   </PosPart>
   <PosPart copyNumber="7">
     <rParent name="gem11:GSAX11S"/>
-    <rChild name="gem11:GHA107"/>
+    <rChild name="gem11:GHA117"/>
     <Translation x="0*fm" y="0*fm" z="[z70S]" />
   </PosPart>
   <PosPart copyNumber="8">
     <rParent name="gem11:GSAX11S"/>
-    <rChild name="gem11:GHA108"/>
+    <rChild name="gem11:GHA118"/>
     <Translation x="0*fm" y="0*fm" z="[z80S]" />
-  </PosPart>
-  <PosPart copyNumber="9">
-    <rParent name="gem11:GSAX11S"/>
-    <rChild name="gem11:GHA109"/>
-    <Translation x="0*fm" y="0*fm" z="[z90S]" />
-  </PosPart>
-  <PosPart copyNumber="10">
-    <rParent name="gem11:GSAX11S"/>
-    <rChild name="gem11:GHA110"/>
-    <Translation x="0*fm" y="0*fm" z="[z00S]" />
   </PosPart>
 
   <PosPart copyNumber="1">

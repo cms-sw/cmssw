@@ -9,5 +9,9 @@
     <Parameter name="ProdCutsForPositrons" value="1*mm"/>
     <Parameter name="ProdCutsForGamma" value="1*mm"/>
   </SpecPar>
+  <SpecPar name="ShashlikTree">
+    <PartSelector path="//ShashlikModule.*"/>
+    <Parameter name="ShashlikStructure" value="ShashlikModule" eval="false"/>
+  </SpecPar>  
  </SpecParSection>
 </DDDefinition>

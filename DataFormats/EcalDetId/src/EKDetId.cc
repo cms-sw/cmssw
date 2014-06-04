@@ -23,6 +23,20 @@ int EKDetId::distanceY(const EKDetId& a,const EKDetId& b) {
   return abs(a.iy() - b.iy()); 
 }
 
+const int MAX_ROW = 42; 
+const int MAX_MODULE = MAX_ROW * 5; 
+// ix, iy runs from 1 to 210
+uint32_t EKDetId::denseIndex() const {
+  return ((ix()-1) * MAX_MODULE + (iy()-1)) * 2 + (zside()>0 ? 1 : 0);
+}
+
+EKDetId EKDetId::detIdFromDenseIndex( uint32_t din ) {
+  unsigned iz = din % 2;
+  unsigned iy = (din /= 2) % MAX_MODULE + 1; 
+  unsigned ix = (din /= MAX_MODULE) % MAX_MODULE + 1; 
+  return EKDetId (ix, iy, 0, 0, (iz == 0 ? -1 : 1));
+}
+
 #include <ostream>
 std::ostream& operator<<(std::ostream& s,const EKDetId& id) {
   return s << "(EK iz " << ((id.zside()>0)?("+ "):("- ")) << " fiber "

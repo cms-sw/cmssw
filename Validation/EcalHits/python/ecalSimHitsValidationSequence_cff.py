@@ -4,6 +4,7 @@ import FWCore.ParameterSet.Config as cms
 from Validation.EcalHits.ecalSimHitsValidation_cfi import *
 from Validation.EcalHits.ecalBarrelSimHitsValidation_cfi import *
 from Validation.EcalHits.ecalEndcapSimHitsValidation_cfi import *
+from Validation.EcalHits.ecalShashlikSimHitsValidation_cfi import *
 from Validation.EcalHits.ecalPreshowerSimHitsValidation_cfi import *
-ecalSimHitsValidationSequence = cms.Sequence(ecalSimHitsValidation*ecalBarrelSimHitsValidation*ecalEndcapSimHitsValidation*ecalPreshowerSimHitsValidation)
+ecalSimHitsValidationSequence = cms.Sequence(ecalSimHitsValidation*ecalBarrelSimHitsValidation*ecalEndcapSimHitsValidation*ecalPreshowerSimHitsValidation*ecalShashlikSimHitsValidation)
 
