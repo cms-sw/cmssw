@@ -1,11 +1,11 @@
-#ifndef RecoMuon_L1MuonSelector_L1MuonSelector_H
-#define RecoMuon_L1MuonSelector_L1MuonSelector_H
+#ifndef HLTTrigger_HLTL1MuonSelector_HLTL1MuonSelector_H
+#define HLTTrigger_HLTL1MuonSelector_HLTL1MuonSelector_H
 
 //-------------------------------------------------
 //
-/**  \class L1MuonSelector
+/**  \class HLTL1MuonSelector
  * 
- *   L1MuonSelector:
+ *   HLTL1MuonSelector:
  *   Simple selector to output a subset of L1 muon collection 
  *   
  *   based on RecoMuon/L2MuonSeedGenerator
@@ -34,15 +34,15 @@
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
-class L1MuonSelector : public edm::EDProducer {
+class HLTL1MuonSelector : public edm::EDProducer {
  
  public:
   
   /// Constructor
-  explicit L1MuonSelector(const edm::ParameterSet&);
+  explicit HLTL1MuonSelector(const edm::ParameterSet&);
 
   /// Destructor
-  ~L1MuonSelector();
+  ~HLTL1MuonSelector();
 
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   virtual void produce(edm::Event&, const edm::EventSetup&);

@@ -1,8 +1,8 @@
 //-------------------------------------------------
 //
-/**  \class L1MuonSelector
+/**  \class HLTL1MuonSelector
  * 
- *   L1MuonSelector:
+ *   HLTL1MuonSelector:
  *   Simple selector to output a subset of L1 muon collection 
  *   
  *   based on RecoMuon/L2MuonSeedGenerator
@@ -14,7 +14,7 @@
 //--------------------------------------------------
 
 // Class Header
-#include "RecoMuon/TrackerSeedGenerator/plugins/L1MuonSelector.h"
+#include "HLTrigger/Muon/interface/HLTL1MuonSelector.h"
 
 
 // Framework
@@ -29,7 +29,7 @@ using namespace edm;
 using namespace l1extra;
 
 // constructors
-L1MuonSelector::L1MuonSelector(const edm::ParameterSet& iConfig) : 
+HLTL1MuonSelector::HLTL1MuonSelector(const edm::ParameterSet& iConfig) : 
   theSource(iConfig.getParameter<InputTag>("InputObjects")),
   theL1MinPt(iConfig.getParameter<double>("L1MinPt")),
   theL1MaxEta(iConfig.getParameter<double>("L1MaxEta")),
@@ -41,22 +41,22 @@ L1MuonSelector::L1MuonSelector(const edm::ParameterSet& iConfig) :
 }
 
 // destructor
-L1MuonSelector::~L1MuonSelector(){
+HLTL1MuonSelector::~HLTL1MuonSelector(){
 }
 
 void
-L1MuonSelector::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+HLTL1MuonSelector::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("InputObjects",edm::InputTag(""));
   desc.add<double>("L1MinPt",-1.);
   desc.add<double>("L1MaxEta",5.0);
   desc.add<unsigned int>("L1MinQuality",0);
-  descriptions.add("l1MuonSelector",desc);
+  descriptions.add("hltL1MuonSelector",desc);
 }
 
-void L1MuonSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+void HLTL1MuonSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  const std::string metname = "Muon|RecoMuon|L1MuonSelector";
+  const std::string metname = "Muon|RecoMuon|HLTL1MuonSelector";
 
   auto_ptr<L1MuonParticleCollection> output(new L1MuonParticleCollection());
   
@@ -75,8 +75,8 @@ void L1MuonSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     bool valid_charge = false;;
 
     if ( muonCand.empty() ) {
-      LogWarning(metname) << "L1MuonSelector: WARNING, no L1MuGMTCand! " << endl;
-      LogWarning(metname) << "L1MuonSelector:   this should make sense only within MC tests" << endl;
+      LogWarning(metname) << "HLTL1MuonSelector: WARNING, no L1MuGMTCand! " << endl;
+      LogWarning(metname) << "HLTL1MuonSelector:   this should make sense only within MC tests" << endl;
       // FIXME! Temporary to handle the MC input
       quality = 7;
       valid_charge = true;

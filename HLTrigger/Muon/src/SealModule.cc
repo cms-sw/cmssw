@@ -13,6 +13,7 @@
 #include "HLTrigger/Muon/interface/HLTDiMuonGlbTrkFilter.h"
 #include "HLTrigger/Muon/interface/HLTMuonPFIsoFilter.h"
 #include "HLTrigger/Muon/interface/HLTMuonTrkFilter.h"
+#include "HLTrigger/Muon/interface/HLTL1MuonSelector.h"
 DEFINE_FWK_MODULE(HLTMuonL1Filter);
 DEFINE_FWK_MODULE(HLTMuonL1RegionalFilter);
 DEFINE_FWK_MODULE(HLTMuonL2PreFilter);
@@ -25,4 +26,5 @@ DEFINE_FWK_MODULE(HLTMuonTrimuonL3Filter);
 DEFINE_FWK_MODULE(HLTDiMuonGlbTrkFilter);
 DEFINE_FWK_MODULE(HLTMuonPFIsoFilter);
 DEFINE_FWK_MODULE(HLTMuonTrkFilter);
+DEFINE_FWK_MODULE(HLTL1MuonSelector);
 
