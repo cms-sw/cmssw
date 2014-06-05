@@ -1,6 +1,5 @@
 <lcgdict>
-  <class name="DetId" ClassVersion="11">
-   <version ClassVersion="11" checksum="9999999999"/>
+  <class name="DetId" ClassVersion="10">
    <version ClassVersion="10" checksum="1024501242"/>
   </class>
   <class name="std::vector<DetId>"/>
