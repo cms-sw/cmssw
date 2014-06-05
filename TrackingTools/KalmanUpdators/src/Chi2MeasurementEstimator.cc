@@ -20,6 +20,7 @@ Chi2MeasurementEstimator::estimate(const TrajectoryStateOnSurface& tsos,
 template <unsigned int D> std::pair<bool,double> 
 Chi2MeasurementEstimator::estimate(const TrajectoryStateOnSurface& tsos,
 				   const TrackingRecHit& aRecHit) const {
+
   typedef typename AlgebraicROOTObject<D,5>::Matrix MatD5;
   typedef typename AlgebraicROOTObject<5,D>::Matrix Mat5D;
   typedef typename AlgebraicROOTObject<D,D>::SymMatrix SMatDD;
@@ -35,5 +36,6 @@ Chi2MeasurementEstimator::estimate(const TrajectoryStateOnSurface& tsos,
   R += RMeas;
   invertPosDefMatrix(R);
   double est = ROOT::Math::Similarity(r - rMeas, R);
+
   return returnIt(est);
 }

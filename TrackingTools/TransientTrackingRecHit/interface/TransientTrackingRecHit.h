@@ -90,11 +90,22 @@ public:
 /// cluster probability, overloaded by pixel rechits.
   virtual float clusterProbability() const { return 1.f; }
 
+  /// ERICA::DAFalgo : 
+  /// interface needed to set and read back the weight and the annealing value that has been applied to the current hit error matrix when
+  /// using it as a component for a composite rec hit (useful for the DAF)
+  void setWeight(float weight){weight_ = weight;}
+  float weight() const {return weight_;}
+  void setAnnealingFactor(float annealing) {annealing_ = annealing;}
+  float getAnnealingFactor() const {return annealing_;}
+
 private:
 
   // hide the clone method for ReferenceCounted. Warning: this method is still 
   // accessible via the bas class TrackingRecHit interface!
   virtual TransientTrackingRecHit * clone() const = 0;
+
+  float weight_;
+  float annealing_;
 
 };
 

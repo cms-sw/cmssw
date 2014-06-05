@@ -172,7 +172,6 @@ KFTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
 	}
       
       TransientTrackingRecHit::RecHitPointer preciseHit = hit->clone(combTsos);
-      
       if unlikely(!preciseHit->isValid()){
 	  LogTrace("TrackFitters") << "THE Precise HIT IS NOT VALID: using currTsos = predTsos" << "\n";
 	  currTsos = predTsos;

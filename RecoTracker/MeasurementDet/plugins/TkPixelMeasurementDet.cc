@@ -27,7 +27,6 @@ TkPixelMeasurementDet::TkPixelMeasurementDet( const GeomDet* gdet,
 bool TkPixelMeasurementDet::measurements( const TrajectoryStateOnSurface& stateOnThisDet,
 					  const MeasurementEstimator& est, const MeasurementTrackerEvent & data,
 					  TempMeasurements & result) const {
-
   if (!isActive(data)) {
     result.add(InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::inactive), 0.F);
     return true;

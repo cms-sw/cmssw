@@ -48,7 +48,7 @@ Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed,
   LogDebug("TrackFitters") << "In KFFittingSmoother::fit";
 
   if ( hits.empty() ) return Trajectory();
-  
+
   bool hasoutliers=false;
   bool has_low_pixel_prob=false; // ggiurgiu@fnal.gov: Add flag for pixel hits with low template probability
 
@@ -296,7 +296,7 @@ Trajectory KFFittingSmoother::fitOne(const TrajectorySeed& aSeed,
     
     LogTrace("TrackFitters") << "end: returning smoothed trajectory with chi2=" 
 			     << smoothed.chiSquared() ;
-    
+
     //LogTrace("TrackFitters") << "dump hits before return";
     //Trajectory::DataContainer meas = smoothed[0].measurements();
     //for (Trajectory::DataContainer::iterator it=meas.begin();it!=meas.end();++it) {

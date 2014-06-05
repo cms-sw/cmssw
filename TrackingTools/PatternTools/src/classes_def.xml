@@ -59,4 +59,8 @@
        <field name="transientMap_" transient="true" />
   </class>
 
+  <class name="TrajAnnealing"/>
+  <class name="std::vector<TrajAnnealing>" persistent="false"/>
+  <class name="edm::Wrapper<std::vector<TrajAnnealing> >" persistent="false"/>
+
 </lcgdict>
