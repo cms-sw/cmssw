@@ -66,7 +66,7 @@ class PFRecHitQTestThresholdInMIPs : public PFRecHitQTestBase {
     PFRecHitQTestBase(iConfig)
     {
       threshold_ = iConfig.getParameter<double>("thresholdInMIPs");
-      mip_ = iConfig.getParameter<double>("mipValue");
+      mip_ = (1e-6)*iConfig.getParameter<double>("mipValueInkeV"); // convert to GeV
     }
 
     void beginEvent(const edm::Event& event,const edm::EventSetup& iSetup) {
@@ -108,7 +108,9 @@ class PFRecHitQTestThresholdInMIPs : public PFRecHitQTestBase {
     double threshold_,mip_;
 
   bool pass(const reco::PFRecHit& hit) {
-    return (hit.energy()/mip_) > threshold_;
+    const double eta_correction = std::tanh(hit.positionREP().Eta());
+    // coth = 1/tanh
+    return (hit.energy()*eta_correction/mip_) > threshold_;
   }
 };
 
