@@ -8,7 +8,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "SimG4Core/Application/interface/RunManager.h"
+//#include "SimG4Core/Application/interface/RunManager.h"
 
 #include "SimG4Core/SensitiveDetector/interface/AttachSD.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveDetector.h"
@@ -59,7 +59,7 @@ class RunAction;
 class SimRunInterface;
 class ExceptionHandler;
 
-class RunManagerMT : public RunManager
+class RunManagerMT 
 {
 public:
 

@@ -108,8 +108,7 @@ void createWatchers(const edm::ParameterSet& iP,
 
 //RunManagerMT::RunManagerMT(edm::ParameterSet const & p, edm::ConsumesCollector && iC) 
 RunManagerMT::RunManagerMT(edm::ParameterSet const & p) 
-  : RunManager(p),
-      m_generator(0), m_nonBeam(p.getParameter<bool>("NonBeamEvent")), 
+  :   m_generator(0), m_nonBeam(p.getParameter<bool>("NonBeamEvent")), 
       m_primaryTransformer(0), 
       m_managerInitialized(false), 
       m_runInitialized(false), m_runTerminated(false), m_runAborted(false),
@@ -322,7 +321,7 @@ void RunManagerMT::stopG4()
 void RunManagerMT::produce(edm::Event& inpevt, const edm::EventSetup & es)
 {
   m_currentEvent = generateEvent(inpevt);
-  m_simEvent = new G4SimEvent;
+  m_simEvent = new G4SimEvent();
   m_simEvent->hepEvent(m_generator->genEvent());
   m_simEvent->weight(m_generator->eventWeight());
   if (m_generator->genVertex() !=0 ) {
