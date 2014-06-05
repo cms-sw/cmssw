@@ -4,6 +4,7 @@ from CommonTools.ParticleFlow.pfNoPileUpIso_cff  import *
 from CommonTools.ParticleFlow.pfNoPileUpJME_cff  import *
 from CommonTools.ParticleFlow.pfNoPileUp_cff  import *
 from CommonTools.ParticleFlow.ParticleSelectors.pfSortByType_cff import *
+from CommonTools.ParticleFlow.deltaBetaWeights_cff  import *
 
 pfParticleSelectionSequence = cms.Sequence(
     pfNoPileUpIsoSequence +
@@ -12,5 +13,6 @@ pfParticleSelectionSequence = cms.Sequence(
     # so needs to go later. 
     #pfNoPileUpJMESequence +
     pfNoPileUpSequence +
-    pfSortByTypeSequence 
+    pfSortByTypeSequence +
+    pfDeltaBetaWeightingSequence
     )
