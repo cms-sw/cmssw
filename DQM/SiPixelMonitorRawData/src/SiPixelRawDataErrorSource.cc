@@ -306,7 +306,7 @@ void SiPixelRawDataErrorSource::bookMEs(DQMStore::IBooker & iBooker){
   for(struct_iter2 = theFEDStructure.begin(); struct_iter2 != theFEDStructure.end(); struct_iter2++){
     /// Create folder tree for errors without detId and book histograms 
     if(theSiPixelFolder.setFedFolder((*struct_iter2).first)) {
-      (*struct_iter2).second->bookFED( conf_, iBooker );
+      //      (*struct_iter2).second->bookFED( conf_, iBooker ); This line no longer does anything, but maybe useful in the future.
     }
     else {
       throw cms::Exception("LogicError")
