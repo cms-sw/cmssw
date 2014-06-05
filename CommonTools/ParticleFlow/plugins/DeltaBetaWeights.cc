@@ -2,12 +2,19 @@
 
 DeltaBetaWeights::DeltaBetaWeights(const edm::ParameterSet& iConfig):
   src_(iConfig.getParameter<edm::InputTag>("src")),
-  chargedSrc_(iConfig.getParameter<edm::InputTag>("chargedFromPV")),
-  puSrc_(iConfig.getParameter<edm::InputTag>("chargedFromPU"))
+  pfCharged_(iConfig.getParameter<edm::InputTag>("chargedFromPV")),
+  pfPU_(iConfig.getParameter<edm::InputTag>("chargedFromPU"))
 {
-  
   produces<reco::PFCandidateCollection>();
-  
+
+  pfCharged_token = consumes<reco::PFCandidateCollection>(pfCharged_);
+  pfPU_token = consumes<reco::PFCandidateCollection>(pfPU_);
+  src_token = consumes<reco::PFCandidateCollection>(src_);
+
+  // pfCharged_token = consumes<reco::PFCandidateCollection>(pfCharged_);
+  // pfPU_token = consumes<reco::PFCandidateCollection>(pfPU_);
+  // src_token = consumes<reco::PFCandidateCollection>(src_);
+
 }
 
 
@@ -30,46 +37,52 @@ DeltaBetaWeights::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
 
-  edm::Handle<reco::PFCandidateCollection> pfCharged;
-  edm::Handle<reco::PFCandidateCollection> pfPU;
-  edm::Handle<reco::PFCandidateCollection> src;
+  edm::Handle<edm::View<reco::Candidate> > pfCharged;
+  edm::Handle<edm::View<reco::Candidate> > pfPU;
+  edm::Handle<edm::View<reco::Candidate> > src;
+  
 
-  iEvent.getByLabel(src_,src);
-  iEvent.getByLabel(chargedSrc_,pfCharged);
-  iEvent.getByLabel(puSrc_,pfPU);
+  // edm::Handle<reco::PFCandidateCollection> pfCharged;
+  // edm::Handle<reco::PFCandidateCollection> pfPU;
+  // edm::Handle<reco::PFCandidateCollection> src;
 
-  double sumNPU;
-  double sumPU;
+  iEvent.getByToken(src_token,src);
+  iEvent.getByToken(pfCharged_token,pfCharged);
+  iEvent.getByToken(pfPU_token,pfPU);
+
+  double sumNPU = .0;
+  double sumPU = .0;
 
   std::auto_ptr<reco::PFCandidateCollection> out(new reco::PFCandidateCollection); 
 
 
-  for (unsigned int i=0;i<src->size();++i) {
-    if ((*src)[i].charge() !=0) {
-      out->push_back((*src)[i]);
+  for (const reco::PFCandidate & cand : *src) {
+    if (cand.charge() !=0) {
+      out->push_back(cand);
       continue;
     }
 
-    sumNPU=0.0;
-    sumPU=0.0;
-    for (unsigned int j=0;j<pfCharged->size();++j) {
-      sumNPU += 1./(deltaR2((*src)[i].eta(),
-			    (*src)[i].phi(),
-			    (*pfCharged)[j].eta(),
-			    (*pfCharged)[j].phi()));
+    sumNPU=1.0;
+    sumPU=1.0;
+    double eta=cand.eta();
+    double phi=cand.phi();
+    for (const reco::PFCandidate &chCand : *pfCharged ) {
+      double sum = (chCand.pt()*chCand.pt())/(deltaR2(eta,phi,chCand.eta(),chCand.phi()));
+      if(sum > 1.0) sumNPU *= sum;
     }
-    for (unsigned int j=0;j<pfPU->size();++j) {
-      sumPU += 1./(deltaR2((*src)[i].eta(),
-			   (*src)[i].phi(),
-			   (*pfPU)[j].eta(),
-			   (*pfPU)[j].phi()));
-    }
+    sumNPU=0.5*log(sumNPU);
 
-    reco::PFCandidate neutral = (*src)[i];
+    for (const reco::PFCandidate &puCand : *pfPU ) {
+      double sum = (puCand.pt()*puCand.pt())/(deltaR2(eta,phi,puCand.eta(),puCand.phi()));
+      if(sum > 1.0) sumPU *= sum;
+    }
+    sumPU=0.5*log(sumPU);
+
+    reco::PFCandidate neutral = cand;
     if (sumNPU+sumPU>0)
       neutral.setP4(((sumNPU)/(sumNPU+sumPU))*neutral.p4());
     out->push_back(neutral);
-     
+
   }
 
   iEvent.put(out);

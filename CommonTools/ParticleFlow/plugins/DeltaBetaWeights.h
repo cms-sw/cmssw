@@ -34,8 +34,13 @@ class DeltaBetaWeights : public edm::EDProducer {
   virtual void produce(edm::Event&, const edm::EventSetup&);
   // ----------member data ---------------------------
   edm::InputTag src_;
-  edm::InputTag chargedSrc_;
-  edm::InputTag puSrc_;
+  edm::InputTag pfCharged_;
+  edm::InputTag pfPU_;
+  
+  edm::EDGetTokenT<reco::PFCandidateCollection> pfCharged_token;
+  edm::EDGetTokenT<reco::PFCandidateCollection> pfPU_token;
+  edm::EDGetTokenT<reco::PFCandidateCollection> src_token;
+
 
 
 };
