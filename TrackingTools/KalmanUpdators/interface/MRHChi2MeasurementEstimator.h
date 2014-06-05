@@ -17,8 +17,12 @@ public:
   explicit MRHChi2MeasurementEstimator(double maxChi2, double nSigma = 3.) : 
     Chi2MeasurementEstimatorBase( maxChi2, nSigma) {}
 
-  virtual std::pair<bool,double> estimate(const TrajectoryStateOnSurface&,
-				     const TrackingRecHit&) const;
+  std::pair<bool, double> estimate(const TrajectoryStateOnSurface& tsos,
+                                   const TrackingRecHit& aRecHit) const ;
+  template <unsigned int N>
+  std::pair<bool, double> estimate(const TrajectoryStateOnSurface& tsos,
+                                                const TrackingRecHit& aRecHit) const ;
+
 
   virtual MRHChi2MeasurementEstimator* clone() const {
     return new MRHChi2MeasurementEstimator(*this);

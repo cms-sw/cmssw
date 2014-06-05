@@ -1,0 +1,16 @@
+<use name="FWCore/Framework"/>
+<use name="FWCore/PluginManager"/>
+<use name="FWCore/ParameterSet"/>
+<flags EDM_PLUGIN="1"/>
+<use name="DataFormats/TrackReco"/>
+<use name="CommonTools/UtilAlgos"/>
+<use name="TrackingTools/PatternTools"/>
+<use name="DataFormats/TrackerRecHit2D"/>
+<use name="RecoTracker/TransientTrackingRecHit"/>
+<use name="SimTracker/TrackAssociation"/>
+<use name="SimTracker/Records"/>
+<use name="SimTracker/TrackerHitAssociation"/>
+
+
+
+
