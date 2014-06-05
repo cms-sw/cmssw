@@ -17,8 +17,8 @@ class HGCalRecHitSimpleAlgo : public HGCalRecHitAbsAlgo {
  public:
   // default ctor
   HGCalRecHitSimpleAlgo() {
-    adcToGeVConstant_ = -1;
-    adcToGeVConstantIsSet_ = false;
+    adcToGeVConstant_ = 1;
+    adcToGeVConstantIsSet_ = true;
   }
 
   virtual void setADCToGeVConstant(const float& value) {
