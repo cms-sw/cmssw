@@ -65,8 +65,10 @@ class PFRecHitQTestThresholdInMIPs : public PFRecHitQTestBase {
   PFRecHitQTestThresholdInMIPs(const edm::ParameterSet& iConfig):
     PFRecHitQTestBase(iConfig)
     {
+      recHitEnergy_keV_ = iConfig.getParameter<bool>("recHitEnergyIs_keV");
       threshold_ = iConfig.getParameter<double>("thresholdInMIPs");
-      mip_ = (1e-6)*iConfig.getParameter<double>("mipValueInkeV"); // convert to GeV
+      mip_ = iConfig.getParameter<double>("mipValueInkeV");
+      recHitEnergyMultiplier_ = iConfig.getParameter<double>("recHitEnergyMultiplier");         
     }
 
     void beginEvent(const edm::Event& event,const edm::EventSetup& iSetup) {
@@ -101,16 +103,28 @@ class PFRecHitQTestThresholdInMIPs : public PFRecHitQTestBase {
     }
 
     bool test(reco::PFRecHit& hit,const HGCRecHit& rh,bool& clean) {
+      const double newE = ( recHitEnergy_keV_ ? 
+			    1.0e-6*rh.energy()*recHitEnergyMultiplier_ :
+			    rh.energy()*recHitEnergyMultiplier_ );
+      /*
+      std::cout << hit.position() << ' ' 
+		<< rh.energy() << ' ' << hit.energy() << std::endl;
+      */
+      hit.setEnergy(newE);
+      
       return pass(hit);
     }
 
  protected:
-    double threshold_,mip_;
+    bool recHitEnergy_keV_;
+    double threshold_,mip_,recHitEnergyMultiplier_;    
 
   bool pass(const reco::PFRecHit& hit) {
-    const double eta_correction = std::tanh(hit.positionREP().Eta());
-    // coth = 1/tanh
-    return (hit.energy()*eta_correction/mip_) > threshold_;
+    const double eta_correction = std::tanh(hit.position().Eta());
+    // coth = 1/tanh && convert PF hit energy back in keV to compare to MIP
+    const double hitValueInMIPs = 1e6*hit.energy()*eta_correction/mip_;
+    //std::cout << "hit value in MIPs : " << hitValueInMIPs <<std::endl;
+    return hitValueInMIPs > threshold_;
   }
 };
 

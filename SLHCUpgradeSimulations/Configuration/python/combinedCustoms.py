@@ -158,6 +158,12 @@ def cust_2023HGCal(process):
         process.mix.digitizers.hgceeDigitizer=process.hgceeDigitizer
         process.mix.digitizers.hgchebackDigitizer=process.hgchebackDigitizer
         process.mix.digitizers.hgchefrontDigitizer=process.hgchefrontDigitizer
+    if hasattr(process,'reconstruction_step'):
+        process.particleFlowCluster += process.particleFlowRecHitHGC
+    #mod event content
+    process.load('RecoLocalCalo.Configuration.hgcalLocalReco_EventContent_cff')
+    if hasattr(process,'FEVTDEBUGHLTEventContent'):
+        process.FEVTDEBUGHLTEventContent.outputCommands.extend(process.hgcalLocalRecoFEVT.outputCommands)
     return process
 
 def cust_2023HGCalMuon(process):
@@ -177,6 +183,12 @@ def cust_2023HGCalMuon(process):
         process.mix.digitizers.hgceeDigitizer=process.hgceeDigitizer
         process.mix.digitizers.hgchebackDigitizer=process.hgchebackDigitizer
         process.mix.digitizers.hgchefrontDigitizer=process.hgchefrontDigitizer
+    if hasattr(process,'reconstruction_step'):
+        process.particleFlowCluster += process.particleFlowRecHitHGC
+    #mod event content
+    process.load('RecoLocalCalo.Configuration.hgcalLocalReco_EventContent_cff')
+    if hasattr(process,'FEVTDEBUGHLTEventContent'):
+        process.FEVTDEBUGHLTEventContent.outputCommands.extend(process.hgcalLocalRecoFEVT.outputCommands)
     return process
 
 def cust_2023Pixel(process):

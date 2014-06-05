@@ -37,32 +37,41 @@ template <typename DET,PFLayer::Layer Layer,ForwardSubdetector subdet>
       }
 
       edm::Handle<HGCRecHitCollection> recHitHandle;
+      iEvent.getByToken(recHitToken_,recHitHandle);
       const HGCRecHitCollection& rechits = *recHitHandle;
 
       edm::ESHandle<HGCalGeometry> geoHandle;
       iSetup.get<IdealGeometryRecord>().get(geometryInstance_,geoHandle);
       const HGCalGeometry& hgcGeo = *geoHandle;
-
-      iEvent.getByToken(recHitToken_,recHitHandle);
-      for (unsigned int i=0;i<recHitHandle->size();++i) {
+      
+      unsigned skipped_rechits = 0;
+      for (unsigned int i=0;i<rechits.size();++i) {
 	const HGCRecHit& hgrh = rechits[i];
 	const DET detid(hgrh.detid());
+	
+	if( subdet != detid.subdet() ) {
+	  std::cout << "subdet expected: " << subdet 
+		    << " subdet gotten: " << detid.subdet() << std::endl;
+	}
 	assert(subdet == detid.subdet() && "Incorrect subdetector for this importer!");
 	double energy = hgrh.energy();
 	double time = hgrh.time();	
 	
-	const CaloCellGeometry *thisCell = hgcGeo.getGeometry(detid);
-  
+	const FlatTrd *thisCell = 
+	  static_cast<const FlatTrd*>(hgcGeo.getGeometry(detid));	
+
 	// find rechit geometry
 	if(!thisCell) {
-	  edm::LogError("PFHGCalRecHitCreator")
+	  LogDebug("PFHGCalRecHitCreator")
 	    <<"warning detid "<<detid.rawId()
 	    <<" not found in geometry"<<std::endl;
+	  ++skipped_rechits;
 	  continue;
 	}
   
 	const auto& position = thisCell->getPosition();
-	
+	//std::cout << "geometry cell position: " << position << std::endl;
+
 	reco::PFRecHit rh( detid.rawId(),Layer,
 			   energy, 
 			   position.x(), position.y(), position.z(), 
@@ -82,8 +91,7 @@ template <typename DET,PFLayer::Layer Layer,ForwardSubdetector subdet>
 	//Apply Q tests
 	for (unsigned int i=0;i<qualityTests_.size();++i) {
 	  if (!qualityTests_.at(i)->test(rh,hgrh,rcleaned)) {
-	    keep = false;
-	    
+	    keep = false;	    
 	  }
 	}
 	  
@@ -94,6 +102,11 @@ template <typename DET,PFLayer::Layer Layer,ForwardSubdetector subdet>
 	else if (rcleaned) 
 	  cleaned->push_back(rh);
       }
+      LogDebug("HGCalRecHitCreator") 
+	<<  "Skipped " << skipped_rechits 
+	<< " out of " << rechits.size() << " rechits!" << std::endl;
+      edm::LogInfo("HGCalRecHitCreator")
+	<< "Created " << out->size() << " PFRecHits!" << std::endl;
     }
 
 

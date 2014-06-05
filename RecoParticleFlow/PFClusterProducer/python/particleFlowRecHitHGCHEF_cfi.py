@@ -7,14 +7,16 @@ particleFlowRecHitHGCHEF = cms.EDProducer("PFRecHitProducer",
     ),
     producers = cms.VPSet(
            cms.PSet(
-             name = cms.string("PFHGCHEBRecHitCreator"),
+             name = cms.string("PFHGCHEFRecHitCreator"),
              src  = cms.InputTag("HGCalRecHit:HGCHEFRecHits"),
              geometryInstance = cms.string("HGCalHESiliconSensitive"),
              qualityTests = cms.VPSet( 
                 cms.PSet(
                   name = cms.string("PFRecHitQTestThresholdInMIPs"),
                   thresholdInMIPs = cms.double(1.0),
-                  mipValueInkeV = cms.double(85.0)
+                  mipValueInkeV = cms.double(85.0),
+                  recHitEnergyIs_keV = cms.bool(True),
+                  recHitEnergyMultiplier = cms.double(12.0)
                   ),
                 )
            )          
