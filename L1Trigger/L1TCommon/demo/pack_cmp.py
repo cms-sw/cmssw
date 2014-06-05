@@ -53,7 +53,7 @@ taus_in = Handle('BXVector<l1t::Tau>')
 taus_out = Handle('BXVector<l1t::Tau>')
 
 in_label = "Layer2HW"
-out_label = "L1Unpacker"
+out_label = "l1tRawToDigi"
 
 for event in events:
     event.getByLabel(in_label, egammas_in)
