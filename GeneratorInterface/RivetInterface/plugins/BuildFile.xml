@@ -4,6 +4,7 @@
 <use   name="GeneratorInterface/Core"/>
 <use   name="DataFormats/Common"/>
 <use   name="rivet"/>
+<use   name="yoda"/>
 <use   name="gsl"/>
 <use   name="DQMServices/Core"/>
 <use   name="SimGeneral/HepPDTRecord"/>
