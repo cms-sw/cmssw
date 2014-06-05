@@ -61,7 +61,7 @@ EgammaRecHitIsolation::EgammaRecHitIsolation (double extRadius,
     subdet_[0] = caloGeom->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
     subdet_[1] = caloGeom->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
     if(subdet_[1]==NULL) subdet_[1] = caloGeom->getSubdetectorGeometry(DetId::Ecal,EcalShashlik);
-    assert(subdet_[1]!=NULL);
+    //assert(subdet_[1]!=NULL);
 }
 
 EgammaRecHitIsolation::~EgammaRecHitIsolation ()
@@ -84,6 +84,7 @@ double EgammaRecHitIsolation::getSum_(const reco::Candidate* emObject,bool retur
     std::vector< std::pair<DetId, float> >::const_iterator rhIt;
     
     for(int subdetnr=0; subdetnr<=1 ; subdetnr++){  // look in barrel and endcap
+      if( !subdet_[subdetnr] ) continue;
       CaloSubdetectorGeometry::DetIdSet chosen = subdet_[subdetnr]->getCells(pclu,extRadius_);// select cells around cluster
       CaloRecHitMetaCollectionV::const_iterator j = caloHits_->end();
       for (CaloSubdetectorGeometry::DetIdSet::const_iterator  i = chosen.begin ();i != chosen.end (); ++i){ //loop selected cells
@@ -199,6 +200,7 @@ double EgammaRecHitIsolation::getSum_(const reco::SuperCluster* sc, bool returnE
     
     
     for(int subdetnr=0; subdetnr<=1 ; subdetnr++){  // look in barrel and endcap
+      if( !subdet_[subdetnr] ) continue;
       CaloSubdetectorGeometry::DetIdSet chosen = subdet_[subdetnr]->getCells(pclu,extRadius_);// select cells around cluster
       CaloRecHitMetaCollectionV::const_iterator j=caloHits_->end();
       for (CaloSubdetectorGeometry::DetIdSet::const_iterator  i = chosen.begin ();i!= chosen.end ();++i){//loop selected cells

@@ -1304,13 +1304,15 @@ GlobalPoint CaloTowersCreationAlgo::hadShwPosFromCells(DetId frontCellId, DetId 
 
     GlobalPoint point = frontCellGeometry->getPosition();
 
-    CaloCellGeometry::CornersVec cv = backCellGeometry->getCorners();
+    if( backCellGeometry ) {
+      CaloCellGeometry::CornersVec cv = backCellGeometry->getCorners();
+      
+      GlobalPoint backPoint = GlobalPoint(0.25 * (cv[4].x() + cv[5].x() + cv[6].x() + cv[7].x()),
+					  0.25 * (cv[4].y() + cv[5].y() + cv[6].y() + cv[7].y()),
+					  0.25 * (cv[4].z() + cv[5].z() + cv[6].z() + cv[7].z()));
 
-    GlobalPoint backPoint = GlobalPoint(0.25 * (cv[4].x() + cv[5].x() + cv[6].x() + cv[7].x()),
-      0.25 * (cv[4].y() + cv[5].y() + cv[6].y() + cv[7].y()),
-      0.25 * (cv[4].z() + cv[5].z() + cv[6].z() + cv[7].z()));
-
-    point += fracDepth * (backPoint - point);
+      point += fracDepth * (backPoint - point);
+    }
 
     return point;
 }
