@@ -1,6 +1,5 @@
 autoCond = { 
     # GlobalTag for MC production with perfectly aligned and calibrated detector                                                                                                                              
-
     'mc'                :   'MC_71_V6',
     # GlobalTag for MC production with realistic alignment and calibrations
     'startup'           :   'START71_V5',
