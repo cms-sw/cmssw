@@ -7,9 +7,9 @@ DeltaBetaWeights::DeltaBetaWeights(const edm::ParameterSet& iConfig):
 {
   produces<reco::PFCandidateCollection>();
 
-  pfCharged_token = consumes<reco::PFCandidateCollection>(pfCharged_);
-  pfPU_token = consumes<reco::PFCandidateCollection>(pfPU_);
-  src_token = consumes<reco::PFCandidateCollection>(src_);
+  pfCharged_token = consumes<edm::View<reco::Candidate> >(pfCharged_);
+  pfPU_token = consumes<edm::View<reco::Candidate> >(pfPU_);
+  src_token = consumes<edm::View<reco::Candidate> >(src_);
 
   // pfCharged_token = consumes<reco::PFCandidateCollection>(pfCharged_);
   // pfPU_token = consumes<reco::PFCandidateCollection>(pfPU_);
@@ -56,9 +56,11 @@ DeltaBetaWeights::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::auto_ptr<reco::PFCandidateCollection> out(new reco::PFCandidateCollection); 
 
 
-  for (const reco::PFCandidate & cand : *src) {
+  for (const reco::Candidate & cand : *src) {
     if (cand.charge() !=0) {
-      out->push_back(cand);
+      std::cout << cand.pdgId() << std::endl;
+      reco::PFCandidate charged = reco::PFCandidate(cand.charge(),cand.p4(),charged.translatePdgIdToType(cand.pdgId()));
+      out->push_back(charged);
       continue;
     }
 
@@ -66,19 +68,19 @@ DeltaBetaWeights::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     sumPU=1.0;
     double eta=cand.eta();
     double phi=cand.phi();
-    for (const reco::PFCandidate &chCand : *pfCharged ) {
+    for (const reco::Candidate &chCand : *pfCharged ) {
       double sum = (chCand.pt()*chCand.pt())/(deltaR2(eta,phi,chCand.eta(),chCand.phi()));
       if(sum > 1.0) sumNPU *= sum;
     }
     sumNPU=0.5*log(sumNPU);
 
-    for (const reco::PFCandidate &puCand : *pfPU ) {
+    for (const reco::Candidate &puCand : *pfPU ) {
       double sum = (puCand.pt()*puCand.pt())/(deltaR2(eta,phi,puCand.eta(),puCand.phi()));
       if(sum > 1.0) sumPU *= sum;
     }
     sumPU=0.5*log(sumPU);
 
-    reco::PFCandidate neutral = cand;
+    reco::PFCandidate neutral = reco::PFCandidate(cand.charge(),cand.p4(),neutral.translatePdgIdToType(cand.pdgId()));
     if (sumNPU+sumPU>0)
       neutral.setP4(((sumNPU)/(sumNPU+sumPU))*neutral.p4());
     out->push_back(neutral);

@@ -37,9 +37,9 @@ class DeltaBetaWeights : public edm::EDProducer {
   edm::InputTag pfCharged_;
   edm::InputTag pfPU_;
   
-  edm::EDGetTokenT<reco::PFCandidateCollection> pfCharged_token;
-  edm::EDGetTokenT<reco::PFCandidateCollection> pfPU_token;
-  edm::EDGetTokenT<reco::PFCandidateCollection> src_token;
+  edm::EDGetTokenT<edm::View<reco::Candidate> > pfCharged_token;
+  edm::EDGetTokenT<edm::View<reco::Candidate> > pfPU_token;
+  edm::EDGetTokenT<edm::View<reco::Candidate> > src_token;
 
 
 
