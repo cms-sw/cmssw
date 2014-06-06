@@ -57,7 +57,7 @@ class G4Field;
 class RunAction;
 
 class SimRunInterface;
-class ExceptionHandler;
+//class ExceptionHandler;
 
 class RunManagerMT 
 {
@@ -142,7 +142,7 @@ private:
   edm::ParameterSet m_pSteppingAction;
   std::vector<std::string> m_G4Commands;
   edm::ParameterSet m_p;
-  ExceptionHandler* m_CustomExceptionHandler ;
+  //ExceptionHandler* m_CustomExceptionHandler ;
 
   AttachSD * m_attach;
   std::vector<SensitiveTkDetector*> m_sensTkDets;
