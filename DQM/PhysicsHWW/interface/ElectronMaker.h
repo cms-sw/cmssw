@@ -6,7 +6,6 @@
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DQM/PhysicsHWW/interface/HWW.h"
 
-
 class ElectronMaker {
 
   public:
