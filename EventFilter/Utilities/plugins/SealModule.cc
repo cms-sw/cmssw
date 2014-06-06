@@ -1,7 +1,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/ServiceMaker.h"
 //#include "EventFilter/Utilities/interface/MicroStateService.h"
-//#include "EventFilter/Utilities/interface/TimeProfilerService.h"
 #include "EventFilter/Utilities/plugins/ExceptionGenerator.h"
 #include "EventFilter/Utilities/plugins/EvFRecordInserter.h"
 #include "EventFilter/Utilities/plugins/EvFRecordUnpacker.h"
@@ -21,7 +20,7 @@ using namespace evf;
 typedef edm::serviceregistry::AllArgsMaker<MicroStateService, FastMonitoringService> FastMonitoringServiceMaker;
 
 typedef RawEventOutputModuleForBU<RawEventFileWriterForBU> RawStreamFileWriterForBU;
-typedef RecoEventOutputModuleForFU<RecoEventWriterForFU> Stream;
+typedef RecoEventOutputModuleForFU<RecoEventWriterForFU> EvFOutputModule;
 
 //DEFINE_FWK_SERVICE_MAKER(MicroStateService, MicroStateServiceMaker);
 
@@ -32,5 +31,5 @@ DEFINE_FWK_MODULE(ExceptionGenerator);
 DEFINE_FWK_MODULE(EvFRecordInserter);
 DEFINE_FWK_MODULE(EvFRecordUnpacker);
 DEFINE_FWK_MODULE(RawStreamFileWriterForBU);
-DEFINE_FWK_MODULE(Stream);
+DEFINE_FWK_MODULE(EvFOutputModule);
 DEFINE_FWK_MODULE(DaqFakeReader);
