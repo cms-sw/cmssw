@@ -78,7 +78,7 @@ TkLayerMap::TkLayerMap(int in):layerEnumNb_(in){
     }
 }
 
-uint32_t TkLayerMap::getDetFromBin(int ix, int iy){
+uint32_t TkLayerMap::getDetFromBin(int ix, int iy) const {
   
   int val=(ix-1)+nchX*(iy-1);
   if(val>-1 && val < nchX*nchY)
@@ -86,7 +86,7 @@ uint32_t TkLayerMap::getDetFromBin(int ix, int iy){
   return 0;
 }
 
-const int16_t TkLayerMap::layerSearch(uint32_t detid){
+const int16_t TkLayerMap::layerSearch(uint32_t detid) {
   
     //  switch((detid>>25)&0x7){
   if(SiStripDetId(detid).subDetector()==SiStripDetId::TIB){
@@ -104,6 +104,7 @@ const int16_t TkLayerMap::layerSearch(uint32_t detid){
   }
   return 0;
 }
+
 
 void TkLayerMap::initialize(int layer){
 
@@ -123,7 +124,7 @@ void TkLayerMap::initialize(int layer){
     highY=(Nstring_ext+1);
     
     break;
-    case TkLayerMap::TIB_L2:
+  case TkLayerMap::TIB_L2:
     
     Nstring_ext=38;
     SingleExtString.insert(SingleExtString.begin(),10,0);
@@ -443,10 +444,12 @@ void TkLayerMap::createTIB(std::vector<uint32_t>& TkDetIdList,int layerEnumNb){
 
   LogTrace("TkLayerMap") << "[TkLayerMap::createTIB12] layer " << layerEnumNb  << " number of dets " << LayerDetIdList.size() << " lowY " << lowY << " high " << highY << " Nstring " << Nstring_ext;
 
+  XYbin xyb;
+
   for(size_t j=0;j<LayerDetIdList.size();++j){
-    xybin=getXY_TIB(LayerDetIdList[j],layerEnumNb);
-    binToDet[(xybin.ix-1)+nchX*(xybin.iy-1)]=LayerDetIdList[j];
-    LogTrace("TkLayerMap") << "[TkLayerMap::createTIB] " << LayerDetIdList[j]<< " " << xybin.ix << " " << xybin.iy  << " " << xybin.x << " " << xybin.y ;
+    xyb=getXY_TIB(LayerDetIdList[j],layerEnumNb);
+    binToDet[(xyb.ix-1)+nchX*(xyb.iy-1)]=LayerDetIdList[j];
+    LogTrace("TkLayerMap") << "[TkLayerMap::createTIB] " << LayerDetIdList[j]<< " " << xyb.ix << " " << xyb.iy  << " " << xyb.x << " " << xyb.y ;
   }
 }
 
@@ -460,10 +463,12 @@ void TkLayerMap::createTOB(std::vector<uint32_t>& TkDetIdList,int layerEnumNb){
 
   LogTrace("TkLayerMap") << "[TkLayerMap::createTOB] layer " << layerEnumNb-10  << " number of dets " << LayerDetIdList.size() << " lowY " << lowY << " high " << highY << " Nstring " << Nstring_ext;
 
+  XYbin xyb;
+
   for(size_t j=0;j<LayerDetIdList.size();++j){
-    xybin=getXY_TOB(LayerDetIdList[j],layerEnumNb);
-    binToDet[(xybin.ix-1)+nchX*(xybin.iy-1)]=LayerDetIdList[j];
-    LogTrace("TkLayerMap") << "[TkLayerMap::createTOB] " << LayerDetIdList[j]<< " " << xybin.ix << " " << xybin.iy  << " " << xybin.x << " " << xybin.y ;
+    xyb=getXY_TOB(LayerDetIdList[j],layerEnumNb);
+    binToDet[(xyb.ix-1)+nchX*(xyb.iy-1)]=LayerDetIdList[j];
+    LogTrace("TkLayerMap") << "[TkLayerMap::createTOB] " << LayerDetIdList[j]<< " " << xyb.ix << " " << xyb.iy  << " " << xyb.x << " " << xyb.y ;
   }
 }
 
@@ -477,10 +482,12 @@ void TkLayerMap::createTID(std::vector<uint32_t>& TkDetIdList,int layerEnumNb){
 
   LogTrace("TkLayerMap") << "[TkLayerMap::createTID] layer side " << (layerEnumNb-TkLayerMap::TIDM_D1)/3+1 << " nb " << (layerEnumNb-TkLayerMap::TIDM_D1)%3+1  << " number of dets " << LayerDetIdList.size() << " lowY " << lowY << " high " << highY << " Nstring " << Nstring_ext;
   
+  XYbin xyb;
+
   for(size_t j=0;j<LayerDetIdList.size();++j){
-    xybin=getXY_TID(LayerDetIdList[j],layerEnumNb);
-    binToDet[(xybin.ix-1)+nchX*(xybin.iy-1)]=LayerDetIdList[j];
-    LogTrace("TkLayerMap") << "[TkLayerMap::createTID] " << LayerDetIdList[j]<< " " << xybin.ix << " " << xybin.iy  << " " << xybin.x << " " << xybin.y ;
+    xyb=getXY_TID(LayerDetIdList[j],layerEnumNb);
+    binToDet[(xyb.ix-1)+nchX*(xyb.iy-1)]=LayerDetIdList[j];
+    LogTrace("TkLayerMap") << "[TkLayerMap::createTID] " << LayerDetIdList[j]<< " " << xyb.ix << " " << xyb.iy  << " " << xyb.x << " " << xyb.y ;
   }
 }
 
@@ -494,16 +501,18 @@ void TkLayerMap::createTEC(std::vector<uint32_t>& TkDetIdList,int layerEnumNb){
   
   LogTrace("TkLayerMap") << "[TkLayerMap::createTEC] layer side " << (layerEnumNb-TkLayerMap::TECM_W1)/9+1 << " " << (layerEnumNb-TkLayerMap::TECM_W1)%9+1  << " number of dets " << LayerDetIdList.size() << " lowY " << lowY << " high " << highY << " Nstring " << Nstring_ext;
 
+  XYbin xyb;
+
   for(size_t j=0;j<LayerDetIdList.size();++j){
-    xybin=getXY_TEC(LayerDetIdList[j],layerEnumNb);
-    binToDet[(xybin.ix-1)+nchX*(xybin.iy-1)]=LayerDetIdList[j];
-    LogTrace("TkLayerMap") << "[TkLayerMap::createTEC] " << LayerDetIdList[j]<< " " << xybin.ix << " " << xybin.iy  << " " << xybin.x << " " << xybin.y ;
+    xyb=getXY_TEC(LayerDetIdList[j],layerEnumNb);
+    binToDet[(xyb.ix-1)+nchX*(xyb.iy-1)]=LayerDetIdList[j];
+    LogTrace("TkLayerMap") << "[TkLayerMap::createTEC] " << LayerDetIdList[j]<< " " << xyb.ix << " " << xyb.iy  << " " << xyb.x << " " << xyb.y ;
     
   }
 }
 
 
-const TkLayerMap::XYbin TkLayerMap::getXY(uint32_t& detid, int layerEnumNb){
+const TkLayerMap::XYbin TkLayerMap::getXY(uint32_t detid, int layerEnumNb) const {
   LogTrace("TkLayerMap") << "[TkLayerMap::getXY] " << detid << " layer " << layerEnumNb; 
 
   if(!layerEnumNb)
@@ -524,95 +533,105 @@ const TkLayerMap::XYbin TkLayerMap::getXY(uint32_t& detid, int layerEnumNb){
     return getXY_TEC(detid,layerEnumNb); 
 }
 
-TkLayerMap::XYbin TkLayerMap::getXY_TIB(uint32_t& detid, int layerEnumNb){  
+uint32_t TkLayerMap::get_Offset( TIBDetId D ) const {
+  if(D.layerNumber()%2)
+    return D.isInternalString()?2:1;
+  else
+    return D.isInternalString()?1:2;
+}
+
+
+TkLayerMap::XYbin TkLayerMap::getXY_TIB(uint32_t detid, int layerEnumNb) const {  
   if(!layerEnumNb)
     layerEnumNb=layerSearch(detid);
 
   TIBDetId D(detid);
-  if(D.layerNumber()%2){
-    Offset=D.isInternalString()?2:1;
-  }else{
-    Offset=D.isInternalString()?1:2;
-  }
-  xybin.ix=2*(D.isZMinusSide()?-1*D.moduleNumber()+3:D.moduleNumber()+2)+Offset;
-  xybin.iy=D.isInternalString()?D.stringNumber()+SingleExtString[D.stringNumber()]:D.stringNumber();
+
+  XYbin xyb;
+  xyb.ix=2*(D.isZMinusSide()?-1*D.moduleNumber()+3:D.moduleNumber()+2)+get_Offset(D);
+  xyb.iy=D.isInternalString()?D.stringNumber()+SingleExtString[D.stringNumber()]:D.stringNumber();
   if(D.layerNumber()<3 && !D.isStereo())
-    xybin.iy+=Nstring_ext+2;
+    xyb.iy+=Nstring_ext+2;
   
-  xybin.x=lowX+xybin.ix-0.5;
-  xybin.y=lowY+xybin.iy-0.5;
-  return xybin;
+  xyb.x=lowX+xyb.ix-0.5;
+  xyb.y=lowY+xyb.iy-0.5;
+  return xyb;
+
 }
 
-TkLayerMap::XYbin TkLayerMap::getXY_TOB(uint32_t& detid, int layerEnumNb){  
+TkLayerMap::XYbin TkLayerMap::getXY_TOB(uint32_t detid, int layerEnumNb) const {  
   if(!layerEnumNb)
     layerEnumNb=layerSearch(detid);
 
   TOBDetId D(detid);
-  xybin.ix=D.isZMinusSide()?-1*D.moduleNumber()+7:D.moduleNumber()+6;
-  xybin.iy=D.rodNumber();  
-  if(D.layerNumber()<3 && !D.isStereo())
-    xybin.iy+=Nrod+2;
 
-  xybin.x=lowX+xybin.ix-0.5;
-  xybin.y=lowY+xybin.iy-0.5;
-  return xybin;
+  XYbin xyb;
+  xyb.ix=D.isZMinusSide()?-1*D.moduleNumber()+7:D.moduleNumber()+6;
+  xyb.iy=D.rodNumber();  
+  if(D.layerNumber()<3 && !D.isStereo())
+    xyb.iy+=Nrod+2;
+
+  xyb.x=lowX+xyb.ix-0.5;
+  xyb.y=lowY+xyb.iy-0.5;
+  return xyb;
 }
 
-TkLayerMap::XYbin TkLayerMap::getXY_TID(uint32_t& detid, int layerEnumNb){  
+TkLayerMap::XYbin TkLayerMap::getXY_TID(uint32_t detid, int layerEnumNb) const {  
   if(!layerEnumNb)
     layerEnumNb=layerSearch(detid);
 
   TIDDetId D(detid);
-  xybin.ix=D.isZMinusSide()?-3*D.ring()+10:3*D.ring()-2;
-  if(D.isStereo())
-    xybin.ix+=(D.isZMinusSide()?-1:1);
-  xybin.iy= int(2. * D.moduleNumber() - (D.isBackRing()?0.:1.));
 
-  xybin.x=lowX+xybin.ix-0.5;
-  xybin.y=lowY+xybin.iy-0.5;
-  return xybin;
+  XYbin xyb;
+
+  xyb.ix=D.isZMinusSide()?-3*D.ring()+10:3*D.ring()-2;
+  if(D.isStereo())
+    xyb.ix+=(D.isZMinusSide()?-1:1);
+  xyb.iy= int(2. * D.moduleNumber() - (D.isBackRing()?0.:1.));
+
+  xyb.x=lowX+xyb.ix-0.5;
+  xyb.y=lowY+xyb.iy-0.5;
+  return xyb;
 }
 
-TkLayerMap::XYbin TkLayerMap::getXY_TEC(uint32_t& detid, int layerEnumNb){  
+TkLayerMap::XYbin TkLayerMap::getXY_TEC(uint32_t detid, int layerEnumNb) const {  
   if(!layerEnumNb)
     layerEnumNb=layerSearch(detid);
 
   TECDetId D(detid);
-  xybin.ix=D.isZMinusSide()?BinForRing[7]-BinForRing[D.ring()]+1:BinForRing[D.ring()]; //after the introduction of plus and minus histos, the BinForRing should have been changed. on the contrary we hack this part of the code 
+
+  XYbin xyb;
+
+  xyb.ix=D.isZMinusSide()?BinForRing[7]-BinForRing[D.ring()]+1:BinForRing[D.ring()]; //after the introduction of plus and minus histos, the BinForRing should have been changed. on the contrary we hack this part of the code 
   if(D.isStereo())
-    xybin.ix+=(D.isZMinusSide()?-1:1);
+    xyb.ix+=(D.isZMinusSide()?-1:1);
 
   if(D.isZMinusSide()){
-    xybin.iy= (D.petalNumber()-1)*(ModulesInRingFront[D.ring()]+ModulesInRingBack[D.ring()]) + ModulesInRingFront[D.ring()] - D.moduleNumber() +1;
+    xyb.iy= (D.petalNumber()-1)*(ModulesInRingFront[D.ring()]+ModulesInRingBack[D.ring()]) + ModulesInRingFront[D.ring()] - D.moduleNumber() +1;
     if(D.isBackPetal())
-      xybin.iy+=ModulesInRingBack[D.ring()];
+      xyb.iy+=ModulesInRingBack[D.ring()];
   }else{ 
-    xybin.iy= (D.petalNumber()-1)*(ModulesInRingFront[D.ring()]+ModulesInRingBack[D.ring()])+D.moduleNumber();
+    xyb.iy= (D.petalNumber()-1)*(ModulesInRingFront[D.ring()]+ModulesInRingBack[D.ring()])+D.moduleNumber();
     if(D.isBackPetal())
-      xybin.iy+=ModulesInRingFront[D.ring()];
+      xyb.iy+=ModulesInRingFront[D.ring()];
   }
 
-  xybin.x=lowX+xybin.ix-0.5;
-  xybin.y=lowY+xybin.iy-0.5;
-  return xybin;
+  xyb.x=lowX+xyb.ix-0.5;
+  xyb.y=lowY+xyb.iy-0.5;
+  return xyb;
 }
 
 //--------------------------------------
 
-TkDetMap::TkDetMap(const edm::ParameterSet& p,const edm::ActivityRegistry& a)
-  :cached_detid(0),
-   cached_layer(TkLayerMap::INVALID){
+TkDetMap::TkDetMap(const edm::ParameterSet& p,const edm::ActivityRegistry& a){
   doMe();
 }
 
-TkDetMap::TkDetMap()
-:cached_detid(0),
- cached_layer(TkLayerMap::INVALID){
+TkDetMap::TkDetMap(){
   doMe();
 }
 
-void TkDetMap::doMe(){
+void TkDetMap::doMe() {
   LogTrace("TkDetMap") <<"TkDetMap::constructor ";
 
   TkMap.resize(35);
@@ -630,20 +649,19 @@ TkDetMap::~TkDetMap(){
     delete (*iter);  
 }
 
-const TkLayerMap::XYbin& TkDetMap::getXY(uint32_t& detid){
-
+const TkLayerMap::XYbin& TkDetMap::getXY(uint32_t& detid , uint32_t& cached_detid , int16_t& cached_layer , TkLayerMap::XYbin& cached_XYbin) const {
   LogTrace("TkDetMap") <<"[getXY] detid "<< detid << " cache " << cached_detid << " layer " << cached_layer << " XY " << cached_XYbin.ix << " " << cached_XYbin.iy  << " " << cached_XYbin.x << " " << cached_XYbin.y ;    
   if(detid==cached_detid)
     return cached_XYbin;
 
   /*FIXME*/
   //if (layer!=INVALID)
-  FindLayer(detid);
+  FindLayer(detid , cached_detid , cached_layer , cached_XYbin );
   LogTrace("TkDetMap") <<"[getXY] detid "<< detid << " cache " << cached_detid << " layer " << cached_layer << " XY " << cached_XYbin.ix << " " << cached_XYbin.iy  << " " << cached_XYbin.x << " " << cached_XYbin.y ;    
   return cached_XYbin;
 }
 
-int16_t TkDetMap::FindLayer(uint32_t& detid){ 
+int16_t TkDetMap::FindLayer(uint32_t& detid , uint32_t& cached_detid , int16_t& cached_layer , TkLayerMap::XYbin& cached_XYbin) const { 
 
   if(detid==cached_detid)
     return cached_layer;
@@ -663,9 +681,9 @@ int16_t TkDetMap::FindLayer(uint32_t& detid){
 
 
 
-void TkDetMap::getComponents(int& layer,
+void TkDetMap::getComponents(int layer,
 			     int& nchX,double& lowX,double& highX,
-			     int& nchY,double& lowY,double& highY){
+			     int& nchY,double& lowY,double& highY) const {
   nchX=TkMap[layer]->get_nchX();
   lowX=TkMap[layer]->get_lowX();
   highX=TkMap[layer]->get_highX();
@@ -674,14 +692,14 @@ void TkDetMap::getComponents(int& layer,
   highY=TkMap[layer]->get_highY();
 }
 
-void TkDetMap::getDetsForLayer(int layer,std::vector<uint32_t>& output){
+void TkDetMap::getDetsForLayer(int layer,std::vector<uint32_t>& output) const {
   output.clear();
   size_t size_=TkMap[layer]->get_nchX()*TkMap[layer]->get_nchY();
   output.resize(size_);
   memcpy((void*)&output[0],(void*)TkMap[layer]->getBinToDet(),size_*sizeof(uint32_t));
 }
 
-std::string TkDetMap::getLayerName(int& in){
+std::string TkDetMap::getLayerName(int& in) const {
   switch (in)
     {
     case TkLayerMap::TIB_L1:
@@ -756,7 +774,7 @@ std::string TkDetMap::getLayerName(int& in){
   return "Invalid";
 }
 
-int TkDetMap::getLayerNum(std::string& in){
+int TkDetMap::getLayerNum(const std::string& in) const {
   if(in.compare( "TIB_L1")==0)
     return TkLayerMap::TIB_L1;
   if(in.compare( "TIB_L2")==0)
@@ -828,7 +846,7 @@ int TkDetMap::getLayerNum(std::string& in){
   return 0;
 }
 
-void TkDetMap::getSubDetLayerSide(int& in,SiStripDetId::SubDetector& subDet,uint32_t& layer,uint32_t& side){
+void TkDetMap::getSubDetLayerSide(int& in,SiStripDetId::SubDetector& subDet,uint32_t& layer,uint32_t& side) const {
   switch (in)
     {
     case TkLayerMap::TIB_L1:
