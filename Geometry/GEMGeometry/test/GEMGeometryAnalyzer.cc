@@ -219,15 +219,16 @@ GEMGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetu
 	      if (dphi < 0.) dphi += 360.;
 	      double deta(abs(beta - teta));
 	      const bool printDetails(true);
-	      if (printDetails)
+	      if (printDetails) {
 		ofos << "    \t\tType: " << type << endl
 		     << "    \t\tDimensions[cm]: b = " << bottomEdge*2 << ", B = " << topEdge*2 << ", h  = " << height*2 << endl
 		     << "    \t\tnStrips = " << nStrips << ", nPads =  " << nPads << endl
-		     << "    \t\tcenter(x,y,z)[cm] = (" << cx << ", " << cy << ", " << cz << "), center(eta,phi) = (" << ceta << ", " << cphi << ")" << endl
 		     << "    \t\ttop(x,y,z)[cm] = (" << tx << ", " << ty << ", " << tz << "), top(eta,phi) = (" << teta << ", " << tphi << ")" << endl
+		     << "    \t\tcenter(x,y,z)[cm] = (" << cx << ", " << cy << ", " << cz << "), center(eta,phi) = (" << ceta << ", " << cphi << ")" << endl
 		     << "    \t\tbottom(x,y,z)[cm] = (" << bx << ", " << by << ", " << bz << "), bottom(eta,phi) = (" << beta << ", " << bphi << ")" << endl
-		     << "    \t\tpitch (top,center,bottom) = (" << topPitch << ", " << pitch << ", " << bottomPitch << "), dEta = " << deta << ", dPhi = " << dphi << endl;
-	      
+		     << "    \t\tpitch (top,center,bottom) = (" << topPitch << ", " << pitch << ", " << bottomPitch << "), dEta = " << deta 
+		     << ", dPhi = " << dphi << endl;
+	      }
 	      ++k;
 	    }
 	    ++j;
