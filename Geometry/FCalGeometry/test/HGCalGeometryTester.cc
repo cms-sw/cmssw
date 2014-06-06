@@ -48,7 +48,7 @@ void HGCalGeometryTester::analyze(const edm::Event& ,
   if (geom.isValid()) doTest(*geom, HGCEE);
   else                std::cout << "Cannot get valid HGCalGeometry Object for "
 				<< name << std::endl;
-  /*
+
   name = "HGCalHESiliconSensitive";
   iSetup.get<IdealGeometryRecord>().get(name,geom);
   if (geom.isValid()) doTest(*geom, HGCHEF);
@@ -60,7 +60,7 @@ void HGCalGeometryTester::analyze(const edm::Event& ,
   if (geom.isValid()) doTest(*geom,HGCHEB);
   else                std::cout << "Cannot get valid HGCalGeometry Object for "
 				<< name << std::endl;
-  */
+
 }
 
 void HGCalGeometryTester::doTest(const HGCalGeometry& geom, 
@@ -93,7 +93,9 @@ void HGCalGeometryTester::doTest(const HGCalGeometry& geom,
 		    << " position (" << global1.x() << ", " << global1.y()
 		    << ", " << global1.z() << ") ids " << std::hex 
 		    << id1.rawId() << ":" << idc1.rawId() << std::dec 
-		    << std::endl;
+		    << " parameter[11] = " << icell1->param()[10] << ":"
+		    << icell1->param()[11] << std::endl;
+	  if (id1.rawId() != idc1.rawId()) std::cout << "***** ERROR *****\n";
 	  DetId id2= ((subdet == HGCEE) ? 
 		      (DetId)(HGCEEDetId(subdet,zside,layer,sector,1,cell)) :
 		      (DetId)(HGCHEDetId(subdet,zside,layer,sector,1,cell)));
@@ -105,9 +107,24 @@ void HGCalGeometryTester::doTest(const HGCalGeometry& geom,
 		    << " position (" << global2.x() << ", " << global2.y()
 		    << ", " << global2.z() << ") ids " << std::hex 
 		    << id2.rawId() << ":" << idc2.rawId() << std::dec 
-		    << std::endl;
+		    << " parameter[11] = " << icell2->param()[10] << ":"
+		    << icell2->param()[11] << std::endl;
+	  if (id2.rawId() != idc2.rawId()) std::cout << "***** ERROR *****\n";
 	}
       }
+    }
+  }
+  uint32_t probids[] = {1711603886, 1711603890, 1761408735, 1761411303,
+			1801744385, 1805447194};
+  for (int k=0; k<6; ++k) {
+    DetId id(probids[k]);
+    if (id.det() == DetId::Forward && id.subdetId() == (int)(subdet)) {
+      if (subdet == HGCEE) std::cout << "Test " << HGCEEDetId(id) << std::endl;
+      else                 std::cout << "Test " << HGCHEDetId(id) << std::endl;
+      const CaloCellGeometry* icell  = geom.getGeometry(id);
+      GlobalPoint             global = geom.getPosition(id);
+      std::cout << "Geom Cell: " << icell << " position (" << global.x() 
+		<< ", " << global.y() << ", " << global.z() << ")"<< std::endl;
     }
   }
 }

@@ -46,7 +46,7 @@ std::ostream& operator<<(std::ostream& s,const HGCEEDetId& id) {
   case(HGCEE) : return s << "isEE=" << id.isEE() 
 			 << " zpos=" << id.zside() 
 			 << " layer=" << id.layer() 
-			 << " phi sub-sector" << id.subsector()
+			 << " phi subSector=" << id.subsector()
 			 << " sector=" << id.sector() 
 			 << " cell=" << id.cell();
   default : return s << id.rawId();

@@ -54,12 +54,14 @@ HGCalGeometry* HGCalGeometryLoader::build (const HGCalTopology& topology) {
     for (volItr = topology.dddConstants().getFirstModule(true);
 	 volItr != topology.dddConstants().getLastModule(true); ++volItr) {
       if (volItr->lay == layer) {
+	double alpha = ((detType & subSec == 0) ? -fabs(volItr->alpha) :
+			fabs(volItr->alpha));
 	params[0] = volItr->dz;
 	params[1] = params[2] = 0;
 	params[3] = params[7] = volItr->h;
 	params[4] = params[8] = volItr->bl;
 	params[5] = params[9] = volItr->tl;
-	params[6] = params[10]= volItr->alpha;
+	params[6] = params[10]= alpha;
 	params[11]= volItr->cellSize;
 #ifdef DebugLog
 	std::cout << "Volume Parameters";

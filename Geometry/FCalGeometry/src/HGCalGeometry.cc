@@ -19,8 +19,10 @@ HGCalGeometry::HGCalGeometry(const HGCalTopology& topology_)
   : mTopology (topology_) {
   m_halfType = topology().detectorType();
   m_subdet   = topology().subDetector();
+#ifdef DebugLog
   std::cout << "Expected total # of Geometry Modules " 
 	    << topology().totalGeomModules() << std::endl;
+#endif
 }
 
 HGCalGeometry::~HGCalGeometry() { }

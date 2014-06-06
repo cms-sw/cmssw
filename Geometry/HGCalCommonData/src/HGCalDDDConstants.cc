@@ -40,6 +40,7 @@ std::pair<int,int> HGCalDDDConstants::assignCell(float x, float y, int lay,
     bl   =  moduler_[i].bl;
     tl   =  moduler_[i].tl;
     alpha=  moduler_[i].alpha;
+    if ((subSec>0 && alpha<0) || (subSec<=0 && alpha>0)) alpha = -alpha;
   } else {
     h    =  modules_[i].h;
     bl   =  modules_[i].bl;
@@ -56,9 +57,9 @@ std::pair<int,int> HGCalDDDConstants::assignCell(float x, float y, float h,
   float a     = (alpha==0) ? (2*h/(tl-bl)) : (h/(tl-bl));
   float b     = 2*h*bl/(tl-bl);
   float x0(x);
-  if      (alpha < 0) x0 -= 0.5*(tl+bl);
-  else if (alpha > 0) x0 += 0.5*(tl+bl);
   int phiSector = (x0 > 0) ? 1 : 0;
+  if      (alpha < 0) {x0 -= 0.5*(tl+bl); phiSector = 0;}
+  else if (alpha > 0) {x0 += 0.5*(tl+bl); phiSector = 1;}
 
   int kx    = floor(fabs(x0)/cellSize);
   int ky    = floor((y+h)/cellSize);
@@ -81,6 +82,7 @@ std::pair<int,int> HGCalDDDConstants::findCell(int cell, int lay, int subSec,
     bl   =  moduler_[i].bl;
     tl   =  moduler_[i].tl;
     alpha=  moduler_[i].alpha;
+    if ((subSec>0 && alpha<0) || (subSec<=0 && alpha>0)) alpha = -alpha;
   } else {
     h    =  modules_[i].h;
     bl   =  modules_[i].bl;
@@ -121,6 +123,7 @@ std::pair<float,float> HGCalDDDConstants::locateCell(int cell, int lay,
     bl   =  moduler_[i].bl;
     tl   =  moduler_[i].tl;
     alpha=  moduler_[i].alpha;
+    if ((subSec>0 && alpha<0) || (subSec<=0 && alpha>0)) alpha = -alpha;
   } else {
     h    =  modules_[i].h;
     bl   =  modules_[i].bl;
