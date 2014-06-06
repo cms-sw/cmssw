@@ -116,6 +116,10 @@ protected:
   CornersVec& setCorners() const ;
 
   CaloCellGeometry( void );
+  
+  CaloCellGeometry( const CaloCellGeometry& tr ) ;
+  
+  CaloCellGeometry& operator=( const CaloCellGeometry& tr ) ;
 
 private:
   GlobalPoint         m_refPoint ;

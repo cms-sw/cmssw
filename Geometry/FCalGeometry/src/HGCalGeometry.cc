@@ -19,6 +19,8 @@ HGCalGeometry::HGCalGeometry(const HGCalTopology& topology_)
   : mTopology (topology_) {
   m_halfType = topology().detectorType();
   m_subdet   = topology().subDetector();
+  std::cout << "Expected total # of Geometry Modules " 
+	    << topology().totalGeomModules() << std::endl;
 }
 
 HGCalGeometry::~HGCalGeometry() { }
@@ -57,14 +59,18 @@ void HGCalGeometry::newCell( const GlobalPoint& f1 ,
     }
   }
 #ifdef DebugLog
-  std::cout << "HGCalGeometry::newCell->"
+  std::cout << "HGCalGeometry::newCell-> [" << cellIndex << "]"
 	    << " front:" << f1.x() << '/' << f1.y() << '/' << f1.z() 
      	    << " back:" <<  f2.x() << '/' << f2.y() << '/' << f2.z()
- 	    << " id:";
+	    << " eta|phi " << m_cellVec[cellIndex].etaPos() << ":"
+	    << m_cellVec[cellIndex].phiPos() << " id:";
   if (m_subdet == HGCEE) std::cout << HGCEEDetId(detId);
   else                   std::cout << HGCHEDetId(detId);
   std::cout << " with valid DetId from " << nOld << " to " << nNew
  	    << std::endl; 
+  std::cout << "Cell[" << cellIndex << "] " << std::hex << geomId.rawId() 
+	    << ":"  << m_validGeomIds[cellIndex].rawId() << std::dec << " "
+	    << m_cellVec[cellIndex];
 #endif
 }
 
@@ -83,7 +89,6 @@ const CaloCellGeometry* HGCalGeometry::getGeometry(const DetId& id) const {
     return cellGeom.release();
   }
   */
-
   return cellGeomPtr (cellIndex);
 
 }
@@ -95,6 +100,12 @@ GlobalPoint HGCalGeometry::getPosition( const DetId& id ) const {
     HGCalTopology::DecodedDetId id_ = topology().decode(id);
     std::pair<float,float> xy = topology().dddConstants().locateCell(id_.iCell,id_.iLay,id_.iSubSec,true);
     const HepGeom::Point3D<float> lcoord(xy.first,xy.second,0);
+#ifdef DebugLog
+    std::cout << "getPosition:: index " << cellIndex << " Local " << xy.first
+	      << ":" << xy.second << " ID " << id_.iCell << ":" << id_.iLay 
+	      << " Global " << m_cellVec[cellIndex].getPosition(lcoord)
+	      << " Cell" << m_cellVec[cellIndex];
+#endif
     return m_cellVec[cellIndex].getPosition(lcoord);
   } 
   return GlobalPoint();
@@ -130,6 +141,11 @@ DetId HGCalGeometry::getClosestCell( const GlobalPoint& r ) const {
 					   id_.iSubSec,true);
     id_.iCell   = kxy.second;
     id_.iSubSec = kxy.first;
+#ifdef DebugLog
+    std::cout << "getClosestCell: local " << local << " Id " << id_.zside 
+	      << ":" << id_.iLay << ":" << id_.iSec << ":" << id_.iSubSec
+	      << ":" << id_.iCell << " Cell " << m_cellVec[cellIndex];
+#endif
     return topology().encode(id_);
   } else {
     return DetId();
@@ -154,6 +170,10 @@ unsigned int HGCalGeometry::indexFor(const DetId& id) const {
 		   (DetId)(HGCEEDetId(id).geometryCell()) : 
 		   (DetId)(HGCHEDetId(id).geometryCell()));
     cellIndex = topology().detId2denseGeomId(geoId);
+#ifdef DebugLog
+    std::cout << "indexFor " << std::hex << id.rawId() << ":" << geoId.rawId()
+	      << std::dec << " index " << cellIndex << std::endl;
+#endif
   }
   return cellIndex;
 }
@@ -166,6 +186,9 @@ const CaloCellGeometry* HGCalGeometry::cellGeomPtr(uint32_t index) const {
   if ((index >= m_cellVec.size()) || (m_validGeomIds[index].rawId() == 0)) 
     return 0;
   const CaloCellGeometry* cell ( &m_cellVec[ index ] ) ;
+#ifdef DebugLog
+  std::cout << "cellGeomPtr " << m_cellVec[index];
+#endif
   if (0 == cell->param()) return 0;
   return cell;
 }
@@ -187,9 +210,9 @@ unsigned int HGCalGeometry::getClosestCellIndex (const GlobalPoint& r) const {
     while (dphi <= -M_PI) dphi += 2*M_PI;
     if (fabs(dphi) < dphi10) {
       float dz = fabs(zp - m_cellVec[k].getPosition().z());
-      if (dz <= dzmin) {
+      if (dz < (dzmin+0.001)) {
 	dzmin     = dz;
-	if (fabs(dphi) < dphimin) {
+	if (fabs(dphi) < (dphimin+0.01)) {
 	  cellIndex = k;
 	  dphimin   = fabs(dphi);
 	} else {
@@ -198,6 +221,16 @@ unsigned int HGCalGeometry::getClosestCellIndex (const GlobalPoint& r) const {
       }
     }
   }
+#ifdef DebugLog
+  std::cout << "getClosestCellIndex::Input " << zp << ":" << phip << " Index "
+	    << cellIndex;
+  if (cellIndex < m_cellVec.size()) 
+    std::cout << " Cell z " << m_cellVec[cellIndex].getPosition().z() << ":"
+	      << dzmin << " phi " << m_cellVec[cellIndex].phiPos() << ":"
+	      << dphimin;
+  std::cout << std::endl;
+
+#endif
   return cellIndex;
 }
 
