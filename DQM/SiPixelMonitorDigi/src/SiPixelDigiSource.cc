@@ -266,18 +266,7 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	    else if(panel==2){ if(module==1) nDM1P2M1+=numberOfDigisMod; 
 	                       else if(module==2) nDM1P2M2+=numberOfDigisMod; 
 			       else if(module==3) nDM1P2M3+=numberOfDigisMod; }
-	    if(blade==1){ if(panel==1) iter=i; else if(panel==2) iter=i+1; }
-	    if(blade==2){ if(panel==1) iter=i+2; else if(panel==2) iter=i+3; }
-	    if(blade==3){ if(panel==1) iter=i+4; else if(panel==2) iter=i+5; }
-	    if(blade==4){ if(panel==1) iter=i+6; else if(panel==2) iter=i+7; }
-	    if(blade==5){ if(panel==1) iter=i+8; else if(panel==2) iter=i+9; }
-	    if(blade==6){ if(panel==1) iter=i+10; else if(panel==2) iter=i+11; }
-	    if(blade==7){ if(panel==1) iter=i+12; else if(panel==2) iter=i+13; }
-	    if(blade==8){ if(panel==1) iter=i+14; else if(panel==2) iter=i+15; }
-	    if(blade==9){ if(panel==1) iter=i+16; else if(panel==2) iter=i+17; }
-	    if(blade==10){ if(panel==1) iter=i+18; else if(panel==2) iter=i+19; }
-	    if(blade==11){ if(panel==1) iter=i+20; else if(panel==2) iter=i+21; }
-	    if(blade==12){ if(panel==1) iter=i+22; else if(panel==2) iter=i+23; }
+	    if(blade<13 && blade>0 && (panel==1 || panel==2)) iter = i+2*(blade-1)+(panel-1);
 	  }else if(disk==2){
 	    i=24;
 	    if(panel==1){ if(module==1) nDM2P1M1+=numberOfDigisMod; 
@@ -287,18 +276,7 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	    else if(panel==2){ if(module==1) nDM2P2M1+=numberOfDigisMod; 
 	                       else if(module==2) nDM2P2M2+=numberOfDigisMod; 
 			       else if(module==3) nDM2P2M3+=numberOfDigisMod; }
-	    if(blade==1){ if(panel==1) iter=i; else if(panel==2) iter=i+1; }
-	    if(blade==2){ if(panel==1) iter=i+2; else if(panel==2) iter=i+3; }
-	    if(blade==3){ if(panel==1) iter=i+4; else if(panel==2) iter=i+5; }
-	    if(blade==4){ if(panel==1) iter=i+6; else if(panel==2) iter=i+7; }
-	    if(blade==5){ if(panel==1) iter=i+8; else if(panel==2) iter=i+9; }
-	    if(blade==6){ if(panel==1) iter=i+10; else if(panel==2) iter=i+11; }
-	    if(blade==7){ if(panel==1) iter=i+12; else if(panel==2) iter=i+13; }
-	    if(blade==8){ if(panel==1) iter=i+14; else if(panel==2) iter=i+15; }
-	    if(blade==9){ if(panel==1) iter=i+16; else if(panel==2) iter=i+17; }
-	    if(blade==10){ if(panel==1) iter=i+18; else if(panel==2) iter=i+19; }
-	    if(blade==11){ if(panel==1) iter=i+20; else if(panel==2) iter=i+21; }
-	    if(blade==12){ if(panel==1) iter=i+22; else if(panel==2) iter=i+23; }
+	    if(blade<13 && blade>0 && (panel==1 || panel==2)) iter = i+2*(blade-1)+(panel-1);
 	  }
 	}else if(side==PixelEndcapName::mO){
 	  if(disk==1){
@@ -310,18 +288,7 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	    else if(panel==2){ if(module==1) nDM1P2M1+=numberOfDigisMod; 
 	                       else if(module==2) nDM1P2M2+=numberOfDigisMod; 
 			       else if(module==3) nDM1P2M3+=numberOfDigisMod; }
-	    if(blade==1){ if(panel==1) iter=i; else if(panel==2) iter=i+1; }
-	    if(blade==2){ if(panel==1) iter=i+2; else if(panel==2) iter=i+3; }
-	    if(blade==3){ if(panel==1) iter=i+4; else if(panel==2) iter=i+5; }
-	    if(blade==4){ if(panel==1) iter=i+6; else if(panel==2) iter=i+7; }
-	    if(blade==5){ if(panel==1) iter=i+8; else if(panel==2) iter=i+9; }
-	    if(blade==6){ if(panel==1) iter=i+10; else if(panel==2) iter=i+11; }
-	    if(blade==7){ if(panel==1) iter=i+12; else if(panel==2) iter=i+13; }
-	    if(blade==8){ if(panel==1) iter=i+14; else if(panel==2) iter=i+15; }
-	    if(blade==9){ if(panel==1) iter=i+16; else if(panel==2) iter=i+17; }
-	    if(blade==10){ if(panel==1) iter=i+18; else if(panel==2) iter=i+19; }
-	    if(blade==11){ if(panel==1) iter=i+20; else if(panel==2) iter=i+21; }
-	    if(blade==12){ if(panel==1) iter=i+22; else if(panel==2) iter=i+23; }
+	    if(blade<13 && blade>0 && (panel==1 || panel==2)) iter = i+2*(blade-1)+(panel-1);
 	  }else if(disk==2){
 	    i=72;
 	    if(panel==1){ if(module==1) nDM2P1M1+=numberOfDigisMod; 
@@ -331,18 +298,7 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	    else if(panel==2){ if(module==1) nDM2P2M1+=numberOfDigisMod; 
 	                       else if(module==2) nDM2P2M2+=numberOfDigisMod; 
 			       else if(module==3) nDM2P2M3+=numberOfDigisMod; }
-	    if(blade==1){ if(panel==1) iter=i; else if(panel==2) iter=i+1; }
-	    if(blade==2){ if(panel==1) iter=i+2; else if(panel==2) iter=i+3; }
-	    if(blade==3){ if(panel==1) iter=i+4; else if(panel==2) iter=i+5; }
-	    if(blade==4){ if(panel==1) iter=i+6; else if(panel==2) iter=i+7; }
-	    if(blade==5){ if(panel==1) iter=i+8; else if(panel==2) iter=i+9; }
-	    if(blade==6){ if(panel==1) iter=i+10; else if(panel==2) iter=i+11; }
-	    if(blade==7){ if(panel==1) iter=i+12; else if(panel==2) iter=i+13; }
-	    if(blade==8){ if(panel==1) iter=i+14; else if(panel==2) iter=i+15; }
-	    if(blade==9){ if(panel==1) iter=i+16; else if(panel==2) iter=i+17; }
-	    if(blade==10){ if(panel==1) iter=i+18; else if(panel==2) iter=i+19; }
-	    if(blade==11){ if(panel==1) iter=i+20; else if(panel==2) iter=i+21; }
-	    if(blade==12){ if(panel==1) iter=i+22; else if(panel==2) iter=i+23; }
+	    if(blade<13 && blade>0 && (panel==1 || panel==2)) iter = i+2*(blade-1)+(panel-1);
 	  }
 	}else if(side==PixelEndcapName::pI){
 	  if(disk==1){
@@ -354,18 +310,7 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	    else if(panel==2){ if(module==1) nDP1P2M1+=numberOfDigisMod; 
 	                       else if(module==2) nDP1P2M2+=numberOfDigisMod; 
 			       else if(module==3) nDP1P2M3+=numberOfDigisMod; }
-	    if(blade==1){ if(panel==1) iter=i; else if(panel==2) iter=i+1; }
-	    if(blade==2){ if(panel==1) iter=i+2; else if(panel==2) iter=i+3; }
-	    if(blade==3){ if(panel==1) iter=i+4; else if(panel==2) iter=i+5; }
-	    if(blade==4){ if(panel==1) iter=i+6; else if(panel==2) iter=i+7; }
-	    if(blade==5){ if(panel==1) iter=i+8; else if(panel==2) iter=i+9; }
-	    if(blade==6){ if(panel==1) iter=i+10; else if(panel==2) iter=i+11; }
-	    if(blade==7){ if(panel==1) iter=i+12; else if(panel==2) iter=i+13; }
-	    if(blade==8){ if(panel==1) iter=i+14; else if(panel==2) iter=i+15; }
-	    if(blade==9){ if(panel==1) iter=i+16; else if(panel==2) iter=i+17; }
-	    if(blade==10){ if(panel==1) iter=i+18; else if(panel==2) iter=i+19; }
-	    if(blade==11){ if(panel==1) iter=i+20; else if(panel==2) iter=i+21; }
-	    if(blade==12){ if(panel==1) iter=i+22; else if(panel==2) iter=i+23; }
+	    if(blade<13 && blade>0 && (panel==1 || panel==2)) iter = i+2*(blade-1)+(panel-1);
 	  }else if(disk==2){
 	    i=120;
 	    if(panel==1){ if(module==1) nDP2P1M1+=numberOfDigisMod; 
@@ -375,18 +320,7 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	    else if(panel==2){ if(module==1) nDP2P2M1+=numberOfDigisMod; 
 	                       else if(module==2) nDP2P2M2+=numberOfDigisMod; 
 			       else if(module==3) nDP2P2M3+=numberOfDigisMod; }
-	    if(blade==1){ if(panel==1) iter=i; else if(panel==2) iter=i+1; }
-	    if(blade==2){ if(panel==1) iter=i+2; else if(panel==2) iter=i+3; }
-	    if(blade==3){ if(panel==1) iter=i+4; else if(panel==2) iter=i+5; }
-	    if(blade==4){ if(panel==1) iter=i+6; else if(panel==2) iter=i+7; }
-	    if(blade==5){ if(panel==1) iter=i+8; else if(panel==2) iter=i+9; }
-	    if(blade==6){ if(panel==1) iter=i+10; else if(panel==2) iter=i+11; }
-	    if(blade==7){ if(panel==1) iter=i+12; else if(panel==2) iter=i+13; }
-	    if(blade==8){ if(panel==1) iter=i+14; else if(panel==2) iter=i+15; }
-	    if(blade==9){ if(panel==1) iter=i+16; else if(panel==2) iter=i+17; }
-	    if(blade==10){ if(panel==1) iter=i+18; else if(panel==2) iter=i+19; }
-	    if(blade==11){ if(panel==1) iter=i+20; else if(panel==2) iter=i+21; }
-	    if(blade==12){ if(panel==1) iter=i+22; else if(panel==2) iter=i+23; }
+	    if(blade<13 && blade>0 && (panel==1 || panel==2)) iter = i+2*(blade-1)+(panel-1);
 	  }
 	}else if(side==PixelEndcapName::pO){
 	  if(disk==1){
@@ -398,18 +332,7 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	    else if(panel==2){ if(module==1) nDP1P2M1+=numberOfDigisMod; 
 	                       else if(module==2) nDP1P2M2+=numberOfDigisMod; 
 			       else if(module==3) nDP1P2M3+=numberOfDigisMod; }
-	    if(blade==1){ if(panel==1) iter=i; else if(panel==2) iter=i+1; }
-	    if(blade==2){ if(panel==1) iter=i+2; else if(panel==2) iter=i+3; }
-	    if(blade==3){ if(panel==1) iter=i+4; else if(panel==2) iter=i+5; }
-	    if(blade==4){ if(panel==1) iter=i+6; else if(panel==2) iter=i+7; }
-	    if(blade==5){ if(panel==1) iter=i+8; else if(panel==2) iter=i+9; }
-	    if(blade==6){ if(panel==1) iter=i+10; else if(panel==2) iter=i+11; }
-	    if(blade==7){ if(panel==1) iter=i+12; else if(panel==2) iter=i+13; }
-	    if(blade==8){ if(panel==1) iter=i+14; else if(panel==2) iter=i+15; }
-	    if(blade==9){ if(panel==1) iter=i+16; else if(panel==2) iter=i+17; }
-	    if(blade==10){ if(panel==1) iter=i+18; else if(panel==2) iter=i+19; }
-	    if(blade==11){ if(panel==1) iter=i+20; else if(panel==2) iter=i+21; }
-	    if(blade==12){ if(panel==1) iter=i+22; else if(panel==2) iter=i+23; }
+	    if(blade<13 && blade>0 && (panel==1 || panel==2)) iter = i+2*(blade-1)+(panel-1);
 	  }else if(disk==2){
 	    i=168;
 	    if(panel==1){ if(module==1) nDP2P1M1+=numberOfDigisMod; 
@@ -419,40 +342,20 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	    else if(panel==2){ if(module==1) nDP2P2M1+=numberOfDigisMod; 
 	                       else if(module==2) nDP2P2M2+=numberOfDigisMod; 
 			       else if(module==3) nDP2P2M3+=numberOfDigisMod; }
-	    if(blade==1){ if(panel==1) iter=i; else if(panel==2) iter=i+1; }
-	    if(blade==2){ if(panel==1) iter=i+2; else if(panel==2) iter=i+3; }
-	    if(blade==3){ if(panel==1) iter=i+4; else if(panel==2) iter=i+5; }
-	    if(blade==4){ if(panel==1) iter=i+6; else if(panel==2) iter=i+7; }
-	    if(blade==5){ if(panel==1) iter=i+8; else if(panel==2) iter=i+9; }
-	    if(blade==6){ if(panel==1) iter=i+10; else if(panel==2) iter=i+11; }
-	    if(blade==7){ if(panel==1) iter=i+12; else if(panel==2) iter=i+13; }
-	    if(blade==8){ if(panel==1) iter=i+14; else if(panel==2) iter=i+15; }
-	    if(blade==9){ if(panel==1) iter=i+16; else if(panel==2) iter=i+17; }
-	    if(blade==10){ if(panel==1) iter=i+18; else if(panel==2) iter=i+19; }
-	    if(blade==11){ if(panel==1) iter=i+20; else if(panel==2) iter=i+21; }
-	    if(blade==12){ if(panel==1) iter=i+22; else if(panel==2) iter=i+23; }
+	    if(blade<13 && blade>0 && (panel==1 || panel==2)) iter = i+2*(blade-1)+(panel-1);
 	  }
 	}
 	numberOfDigis[iter]=numberOfDigis[iter]+numberOfDigisMod;
-	//if(side==PixelEndcapName::pO||side==PixelEndcapName::pI){
-	//  if(disk==2){ 
-	//  std::cout<<"status: "<<iter<<","<<side<<","<<disk<<","<<blade<<","<<panel<<","<<numberOfDigisMod<<","<<numberOfDigis[iter]<<std::endl;       
-        //}}
+
         for(int i=nBPiXmodules; i!=nTOTmodules; i++){ 
-          //cout<<"\t\t\t fpix: "<<i<<" , "<<(*struct_iter).first<<" , "<<I_detId[i]<<endl;
           if((*struct_iter).first == I_detId[i]){
-	    //if(I_fedId[i]<32||I_fedId[i]>39) std::cout<<"Attention: an FPIX module matched to a BPIX FED!"<<std::endl;
 	    nDigisPerFed[I_fedId[i]]=nDigisPerFed[I_fedId[i]]+numberOfDigisMod;
-	    //cout<<"FPIX: "<<i<<" , "<<I_fedId[i]<<" , "<<nDigisPerFed[I_fedId[i]]<< ", "<<numberOfDigisMod << endl;
             i=nTOTmodules-1;
 	  }
         }
-	//cout<<"NDigis Endcap: "<<nDM1P1M1/2.<<" "<<nDM1P2M1/6.<<" "<<nDM1P1M2/6.<<" "<<nDM1P2M2/8.<<" "<<nDM1P1M3/8.<<" "<<nDM1P2M3/10.<<" "<<nDM1P1M4/5.<<endl;
       } //endif Barrel/(Endcap && !isUpgrade)
       else if (endcap && isUpgrade) {
-        //cout<<"AAfpix: "<<nFPIXDigis<<" = ";
         nFPIXDigis = nFPIXDigis + numberOfDigisMod;
-        //cout<<nFPIXDigis<<endl;
         PixelEndcapNameUpgrade::HalfCylinder side = PixelEndcapNameUpgrade(DetId((*struct_iter).first)).halfCylinder();
         int disk = PixelEndcapNameUpgrade(DetId((*struct_iter).first)).diskName();
         int blade = PixelEndcapNameUpgrade(DetId((*struct_iter).first)).bladeName();
@@ -465,224 +368,68 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
             i=0;
             if(panel==1){ if(module==1) nDM1P1M1+=numberOfDigisMod; }
             else if(panel==2){ if(module==1) nDM1P2M1+=numberOfDigisMod; }
-            if(blade==1){ if(panel==1) iter=i; else if(panel==2) iter=i+1; }
-            if(blade==2){ if(panel==1) iter=i+2; else if(panel==2) iter=i+3; }
-            if(blade==3){ if(panel==1) iter=i+4; else if(panel==2) iter=i+5; }
-            if(blade==4){ if(panel==1) iter=i+6; else if(panel==2) iter=i+7; }
-            if(blade==5){ if(panel==1) iter=i+8; else if(panel==2) iter=i+9; }
-            if(blade==6){ if(panel==1) iter=i+10; else if(panel==2) iter=i+11; }
-            if(blade==7){ if(panel==1) iter=i+12; else if(panel==2) iter=i+13; }
-            if(blade==8){ if(panel==1) iter=i+14; else if(panel==2) iter=i+15; }
-            if(blade==9){ if(panel==1) iter=i+16; else if(panel==2) iter=i+17; }
-            if(blade==10){ if(panel==1) iter=i+18; else if(panel==2) iter=i+19; }
-            if(blade==11){ if(panel==1) iter=i+20; else if(panel==2) iter=i+21; }            
+	    if(blade<12 && blade>0 && (panel==1 || panel==2)) iter = i+2*(blade-1)+(panel-1);
           }else if(disk==2){
             i=22;
             if(panel==1){ if(module==1) nDM2P1M1+=numberOfDigisMod; }
             else if(panel==2){ if(module==1) nDM2P2M1+=numberOfDigisMod; }
-            if(blade==1){ if(panel==1) iter=i; else if(panel==2) iter=i+1; }
-            if(blade==2){ if(panel==1) iter=i+2; else if(panel==2) iter=i+3; }
-            if(blade==3){ if(panel==1) iter=i+4; else if(panel==2) iter=i+5; }
-            if(blade==4){ if(panel==1) iter=i+6; else if(panel==2) iter=i+7; }
-            if(blade==5){ if(panel==1) iter=i+8; else if(panel==2) iter=i+9; }
-            if(blade==6){ if(panel==1) iter=i+10; else if(panel==2) iter=i+11; }
-            if(blade==7){ if(panel==1) iter=i+12; else if(panel==2) iter=i+13; }
-            if(blade==8){ if(panel==1) iter=i+14; else if(panel==2) iter=i+15; }
-            if(blade==9){ if(panel==1) iter=i+16; else if(panel==2) iter=i+17; }
-            if(blade==10){ if(panel==1) iter=i+18; else if(panel==2) iter=i+19; }
-            if(blade==11){ if(panel==1) iter=i+20; else if(panel==2) iter=i+21; }
+	    if(blade<12 && blade>0 && (panel==1 || panel==2)) iter = i+2*(blade-1)+(panel-1);
           }else if(disk==3){
             i=44;
             if(panel==1){ if(module==1) nDM3P1M1+=numberOfDigisMod; }
             else if(panel==2){ if(module==1) nDM3P2M1+=numberOfDigisMod; }
-            if(blade==1){ if(panel==1) iter=i; else if(panel==2) iter=i+1; }
-            if(blade==2){ if(panel==1) iter=i+2; else if(panel==2) iter=i+3; }
-            if(blade==3){ if(panel==1) iter=i+4; else if(panel==2) iter=i+5; }
-            if(blade==4){ if(panel==1) iter=i+6; else if(panel==2) iter=i+7; }
-            if(blade==5){ if(panel==1) iter=i+8; else if(panel==2) iter=i+9; }
-            if(blade==6){ if(panel==1) iter=i+10; else if(panel==2) iter=i+11; }
-            if(blade==7){ if(panel==1) iter=i+12; else if(panel==2) iter=i+13; }
-            if(blade==8){ if(panel==1) iter=i+14; else if(panel==2) iter=i+15; }
-            if(blade==9){ if(panel==1) iter=i+16; else if(panel==2) iter=i+17; }
-            if(blade==10){ if(panel==1) iter=i+18; else if(panel==2) iter=i+19; }
-            if(blade==11){ if(panel==1) iter=i+20; else if(panel==2) iter=i+21; }
+	    if(blade<12 && blade>0 && (panel==1 || panel==2)) iter = i+2*(blade-1)+(panel-1);
           }
         }else if(side==PixelEndcapNameUpgrade::mO){
           if(disk==1){
             i=66;
             if(panel==1){ if(module==1) nDM1P1M1+=numberOfDigisMod; }
             else if(panel==2){ if(module==1) nDM1P2M1+=numberOfDigisMod; }
-            if(blade==1){ if(panel==1) iter=i; else if(panel==2) iter=i+1; }
-            if(blade==2){ if(panel==1) iter=i+2; else if(panel==2) iter=i+3; }
-            if(blade==3){ if(panel==1) iter=i+4; else if(panel==2) iter=i+5; }
-            if(blade==4){ if(panel==1) iter=i+6; else if(panel==2) iter=i+7; }
-            if(blade==5){ if(panel==1) iter=i+8; else if(panel==2) iter=i+9; }
-            if(blade==6){ if(panel==1) iter=i+10; else if(panel==2) iter=i+11; }
-            if(blade==7){ if(panel==1) iter=i+12; else if(panel==2) iter=i+13; }
-            if(blade==8){ if(panel==1) iter=i+14; else if(panel==2) iter=i+15; }
-            if(blade==9){ if(panel==1) iter=i+16; else if(panel==2) iter=i+17; }
-            if(blade==10){ if(panel==1) iter=i+18; else if(panel==2) iter=i+19; }
-            if(blade==11){ if(panel==1) iter=i+20; else if(panel==2) iter=i+21; }
-            if(blade==12){ if(panel==1) iter=i+22; else if(panel==2) iter=i+23; }
-            if(blade==13){ if(panel==1) iter=i+24; else if(panel==2) iter=i+25; }
-            if(blade==14){ if(panel==1) iter=i+26; else if(panel==2) iter=i+27; }
-            if(blade==15){ if(panel==1) iter=i+28; else if(panel==2) iter=i+29; }
-            if(blade==16){ if(panel==1) iter=i+30; else if(panel==2) iter=i+31; }
-            if(blade==17){ if(panel==1) iter=i+32; else if(panel==2) iter=i+33; }
+	    if(blade<18 && blade>0 && (panel==1 || panel==2)) iter = i+2*(blade-1)+(panel-1);
           }else if(disk==2){
            i=100;
            if(panel==1){ if(module==1) nDM2P1M1+=numberOfDigisMod; }
            else if(panel==2){ if(module==1) nDM2P2M1+=numberOfDigisMod; }
-           if(blade==1){ if(panel==1) iter=i; else if(panel==2) iter=i+1; }
-           if(blade==2){ if(panel==1) iter=i+2; else if(panel==2) iter=i+3; }
-           if(blade==3){ if(panel==1) iter=i+4; else if(panel==2) iter=i+5; }
-           if(blade==4){ if(panel==1) iter=i+6; else if(panel==2) iter=i+7; }
-           if(blade==5){ if(panel==1) iter=i+8; else if(panel==2) iter=i+9; }
-           if(blade==6){ if(panel==1) iter=i+10; else if(panel==2) iter=i+11; }
-           if(blade==7){ if(panel==1) iter=i+12; else if(panel==2) iter=i+13; }
-           if(blade==8){ if(panel==1) iter=i+14; else if(panel==2) iter=i+15; }
-           if(blade==9){ if(panel==1) iter=i+16; else if(panel==2) iter=i+17; }
-           if(blade==10){ if(panel==1) iter=i+18; else if(panel==2) iter=i+19; }
-           if(blade==11){ if(panel==1) iter=i+20; else if(panel==2) iter=i+21; }
-           if(blade==12){ if(panel==1) iter=i+22; else if(panel==2) iter=i+23; }
-           if(blade==13){ if(panel==1) iter=i+24; else if(panel==2) iter=i+25; }
-           if(blade==14){ if(panel==1) iter=i+26; else if(panel==2) iter=i+27; }
-           if(blade==15){ if(panel==1) iter=i+28; else if(panel==2) iter=i+29; }
-           if(blade==16){ if(panel==1) iter=i+30; else if(panel==2) iter=i+31; }
-           if(blade==17){ if(panel==1) iter=i+32; else if(panel==2) iter=i+33; }
+	    if(blade<18 && blade>0 && (panel==1 || panel==2)) iter = i+2*(blade-1)+(panel-1);
           }else if (disk==3){
             i=134;
             if(panel==1){ if(module==1) nDM3P1M1+=numberOfDigisMod; }
             else if(panel==2){ if(module==1) nDM3P2M1+=numberOfDigisMod; }
-            if(blade==1){ if(panel==1) iter=i; else if(panel==2) iter=i+1; }
-            if(blade==2){ if(panel==1) iter=i+2; else if(panel==2) iter=i+3; }
-            if(blade==3){ if(panel==1) iter=i+4; else if(panel==2) iter=i+5; }
-            if(blade==4){ if(panel==1) iter=i+6; else if(panel==2) iter=i+7; }
-            if(blade==5){ if(panel==1) iter=i+8; else if(panel==2) iter=i+9; }
-            if(blade==6){ if(panel==1) iter=i+10; else if(panel==2) iter=i+11; }
-            if(blade==7){ if(panel==1) iter=i+12; else if(panel==2) iter=i+13; }
-            if(blade==8){ if(panel==1) iter=i+14; else if(panel==2) iter=i+15; }
-            if(blade==9){ if(panel==1) iter=i+16; else if(panel==2) iter=i+17; }
-            if(blade==10){ if(panel==1) iter=i+18; else if(panel==2) iter=i+19; }
-            if(blade==11){ if(panel==1) iter=i+20; else if(panel==2) iter=i+21; }
-            if(blade==12){ if(panel==1) iter=i+22; else if(panel==2) iter=i+23; }
-            if(blade==13){ if(panel==1) iter=i+24; else if(panel==2) iter=i+25; }
-            if(blade==14){ if(panel==1) iter=i+26; else if(panel==2) iter=i+27; }
-            if(blade==15){ if(panel==1) iter=i+28; else if(panel==2) iter=i+29; }
-            if(blade==16){ if(panel==1) iter=i+30; else if(panel==2) iter=i+31; }
-            if(blade==17){ if(panel==1) iter=i+32; else if(panel==2) iter=i+33; }
+	    if(blade<18 && blade>0 && (panel==1 || panel==2)) iter = i+2*(blade-1)+(panel-1);
           }
         }else if(side==PixelEndcapNameUpgrade::pI){
           if(disk==1){
             i=168;
             if(panel==1){ if(module==1) nDP1P1M1+=numberOfDigisMod; }
             else if(panel==2){ if(module==1) nDP1P2M1+=numberOfDigisMod; }
-            if(blade==1){ if(panel==1) iter=i; else if(panel==2) iter=i+1; }
-            if(blade==2){ if(panel==1) iter=i+2; else if(panel==2) iter=i+3; }
-            if(blade==3){ if(panel==1) iter=i+4; else if(panel==2) iter=i+5; }
-            if(blade==4){ if(panel==1) iter=i+6; else if(panel==2) iter=i+7; }
-            if(blade==5){ if(panel==1) iter=i+8; else if(panel==2) iter=i+9; }
-            if(blade==6){ if(panel==1) iter=i+10; else if(panel==2) iter=i+11; }
-            if(blade==7){ if(panel==1) iter=i+12; else if(panel==2) iter=i+13; }
-            if(blade==8){ if(panel==1) iter=i+14; else if(panel==2) iter=i+15; }
-            if(blade==9){ if(panel==1) iter=i+16; else if(panel==2) iter=i+17; }
-            if(blade==10){ if(panel==1) iter=i+18; else if(panel==2) iter=i+19; }
-            if(blade==11){ if(panel==1) iter=i+20; else if(panel==2) iter=i+21; }
+	    if(blade<12 && blade>0 && (panel==1 || panel==2)) iter = i+2*(blade-1)+(panel-1);
           }else if(disk==2){
             i=190;
             if(panel==1){ if(module==1) nDP2P1M1+=numberOfDigisMod; }
             else if(panel==2){ if(module==1) nDP2P2M1+=numberOfDigisMod; }
-            if(blade==1){ if(panel==1) iter=i; else if(panel==2) iter=i+1; }
-            if(blade==2){ if(panel==1) iter=i+2; else if(panel==2) iter=i+3; }
-            if(blade==3){ if(panel==1) iter=i+4; else if(panel==2) iter=i+5; }
-            if(blade==4){ if(panel==1) iter=i+6; else if(panel==2) iter=i+7; }
-            if(blade==5){ if(panel==1) iter=i+8; else if(panel==2) iter=i+9; }
-            if(blade==6){ if(panel==1) iter=i+10; else if(panel==2) iter=i+11; }
-            if(blade==7){ if(panel==1) iter=i+12; else if(panel==2) iter=i+13; }
-            if(blade==8){ if(panel==1) iter=i+14; else if(panel==2) iter=i+15; }
-            if(blade==9){ if(panel==1) iter=i+16; else if(panel==2) iter=i+17; }
-            if(blade==10){ if(panel==1) iter=i+18; else if(panel==2) iter=i+19; }
-            if(blade==11){ if(panel==1) iter=i+20; else if(panel==2) iter=i+21; }
+	    if(blade<12 && blade>0 && (panel==1 || panel==2)) iter = i+2*(blade-1)+(panel-1);
           }else if(disk==3){
             i=212;
             if(panel==1){ if(module==1) nDP3P1M1+=numberOfDigisMod; }
             else if(panel==2){ if(module==1) nDP3P2M1+=numberOfDigisMod; }
-            if(blade==1){ if(panel==1) iter=i; else if(panel==2) iter=i+1; }
-            if(blade==2){ if(panel==1) iter=i+2; else if(panel==2) iter=i+3; }
-            if(blade==3){ if(panel==1) iter=i+4; else if(panel==2) iter=i+5; }
-            if(blade==4){ if(panel==1) iter=i+6; else if(panel==2) iter=i+7; }
-            if(blade==5){ if(panel==1) iter=i+8; else if(panel==2) iter=i+9; }
-            if(blade==6){ if(panel==1) iter=i+10; else if(panel==2) iter=i+11; }
-            if(blade==7){ if(panel==1) iter=i+12; else if(panel==2) iter=i+13; }
-            if(blade==8){ if(panel==1) iter=i+14; else if(panel==2) iter=i+15; }
-            if(blade==9){ if(panel==1) iter=i+16; else if(panel==2) iter=i+17; }
-            if(blade==10){ if(panel==1) iter=i+18; else if(panel==2) iter=i+19; }
-            if(blade==11){ if(panel==1) iter=i+20; else if(panel==2) iter=i+21; }
+	    if(blade<12 && blade>0 && (panel==1 || panel==2)) iter = i+2*(blade-1)+(panel-1);
           }
         }else if(side==PixelEndcapNameUpgrade::pO){
           if(disk==1){
             i=234;
             if(panel==1){ if(module==1) nDP1P1M1+=numberOfDigisMod; }
             else if(panel==2){ if(module==1) nDP1P2M1+=numberOfDigisMod; }
-            if(blade==1){ if(panel==1) iter=i; else if(panel==2) iter=i+1; }
-            if(blade==2){ if(panel==1) iter=i+2; else if(panel==2) iter=i+3; }
-            if(blade==3){ if(panel==1) iter=i+4; else if(panel==2) iter=i+5; }
-            if(blade==4){ if(panel==1) iter=i+6; else if(panel==2) iter=i+7; }
-            if(blade==5){ if(panel==1) iter=i+8; else if(panel==2) iter=i+9; }
-            if(blade==6){ if(panel==1) iter=i+10; else if(panel==2) iter=i+11; }
-            if(blade==7){ if(panel==1) iter=i+12; else if(panel==2) iter=i+13; }
-            if(blade==8){ if(panel==1) iter=i+14; else if(panel==2) iter=i+15; }
-            if(blade==9){ if(panel==1) iter=i+16; else if(panel==2) iter=i+17; }
-            if(blade==10){ if(panel==1) iter=i+18; else if(panel==2) iter=i+19; }
-            if(blade==11){ if(panel==1) iter=i+20; else if(panel==2) iter=i+21; }
-            if(blade==12){ if(panel==1) iter=i+22; else if(panel==2) iter=i+23; }
-            if(blade==13){ if(panel==1) iter=i+24; else if(panel==2) iter=i+25; }
-            if(blade==14){ if(panel==1) iter=i+26; else if(panel==2) iter=i+27; }
-            if(blade==15){ if(panel==1) iter=i+28; else if(panel==2) iter=i+29; }
-            if(blade==16){ if(panel==1) iter=i+30; else if(panel==2) iter=i+31; }
-            if(blade==17){ if(panel==1) iter=i+32; else if(panel==2) iter=i+33; }
+	    if(blade<18 && blade>0 && (panel==1 || panel==2)) iter = i+2*(blade-1)+(panel-1);
           }else if(disk==2){
             i=268;
             if(panel==1){ if(module==1) nDP2P1M1+=numberOfDigisMod; }
             else if(panel==2){ if(module==1) nDP2P2M1+=numberOfDigisMod; }
-            if(blade==1){ if(panel==1) iter=i; else if(panel==2) iter=i+1; }
-            if(blade==2){ if(panel==1) iter=i+2; else if(panel==2) iter=i+3; }
-            if(blade==3){ if(panel==1) iter=i+4; else if(panel==2) iter=i+5; }
-            if(blade==4){ if(panel==1) iter=i+6; else if(panel==2) iter=i+7; }
-            if(blade==5){ if(panel==1) iter=i+8; else if(panel==2) iter=i+9; }
-            if(blade==6){ if(panel==1) iter=i+10; else if(panel==2) iter=i+11; }
-            if(blade==7){ if(panel==1) iter=i+12; else if(panel==2) iter=i+13; }
-            if(blade==8){ if(panel==1) iter=i+14; else if(panel==2) iter=i+15; }
-            if(blade==9){ if(panel==1) iter=i+16; else if(panel==2) iter=i+17; }
-            if(blade==10){ if(panel==1) iter=i+18; else if(panel==2) iter=i+19; }
-            if(blade==11){ if(panel==1) iter=i+20; else if(panel==2) iter=i+21; }
-            if(blade==12){ if(panel==1) iter=i+22; else if(panel==2) iter=i+23; }
-            if(blade==13){ if(panel==1) iter=i+24; else if(panel==2) iter=i+25; }
-            if(blade==14){ if(panel==1) iter=i+26; else if(panel==2) iter=i+27; }
-            if(blade==15){ if(panel==1) iter=i+28; else if(panel==2) iter=i+29; }
-            if(blade==16){ if(panel==1) iter=i+30; else if(panel==2) iter=i+31; }
-            if(blade==17){ if(panel==1) iter=i+32; else if(panel==2) iter=i+33; }
+	    if(blade<18 && blade>0 && (panel==1 || panel==2)) iter = i+2*(blade-1)+(panel-1);
           }else if(disk==3){
             i=302;
             if(panel==1){ if(module==1) nDP3P1M1+=numberOfDigisMod; }
             else if(panel==2){ if(module==1) nDP3P2M1+=numberOfDigisMod; }
-            if(blade==1){ if(panel==1) iter=i; else if(panel==2) iter=i+1; }
-            if(blade==2){ if(panel==1) iter=i+2; else if(panel==2) iter=i+3; }
-            if(blade==3){ if(panel==1) iter=i+4; else if(panel==2) iter=i+5; }
-            if(blade==4){ if(panel==1) iter=i+6; else if(panel==2) iter=i+7; }
-            if(blade==5){ if(panel==1) iter=i+8; else if(panel==2) iter=i+9; }
-            if(blade==6){ if(panel==1) iter=i+10; else if(panel==2) iter=i+11; }
-            if(blade==7){ if(panel==1) iter=i+12; else if(panel==2) iter=i+13; }
-            if(blade==8){ if(panel==1) iter=i+14; else if(panel==2) iter=i+15; }
-            if(blade==9){ if(panel==1) iter=i+16; else if(panel==2) iter=i+17; }
-            if(blade==10){ if(panel==1) iter=i+18; else if(panel==2) iter=i+19; }
-            if(blade==11){ if(panel==1) iter=i+20; else if(panel==2) iter=i+21; }
-            if(blade==12){ if(panel==1) iter=i+22; else if(panel==2) iter=i+23; }
-            if(blade==13){ if(panel==1) iter=i+24; else if(panel==2) iter=i+25; }
-            if(blade==14){ if(panel==1) iter=i+26; else if(panel==2) iter=i+27; }
-            if(blade==15){ if(panel==1) iter=i+28; else if(panel==2) iter=i+29; }
-            if(blade==16){ if(panel==1) iter=i+30; else if(panel==2) iter=i+31; }
-            if(blade==17){ if(panel==1) iter=i+32; else if(panel==2) iter=i+33; }
+	    if(blade<18 && blade>0 && (panel==1 || panel==2)) iter = i+2*(blade-1)+(panel-1);
           }
         }
         numberOfDigis[iter]=numberOfDigis[iter]+numberOfDigisMod;

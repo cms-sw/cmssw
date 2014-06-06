@@ -72,14 +72,14 @@ void SiPixelHLTSource::dqmBeginRun(const edm::Run& r, const edm::EventSetup& iSe
   iSetup.get<TrackerDigiGeometryRecord>().get( pDD );
   if(firstRun){
     eventNo = 0;
-    // Build map
-    // Book Monitoring Elements
+
     firstRun = false;
   }
 }
 
 void SiPixelHLTSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run const &, edm::EventSetup const &){
-      bookMEs(iBooker);
+  // Book Monitoring Elements
+  bookMEs(iBooker);
 }
 
 //------------------------------------------------------------------
