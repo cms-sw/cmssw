@@ -138,7 +138,7 @@ OscarMTProducer::beginRun(const edm::Run & r, const edm::EventSetup & es)
 }
 
 void 
-OscarProducer::endRun(const edm::Run&, const edm::EventSetup&)
+OscarMTProducer::endRun(const edm::Run&, const edm::EventSetup&)
 {
   m_runManager->stopG4();
 }

@@ -8,7 +8,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "SimG4Core/Application/interface/RunManager.h"
+//#include "SimG4Core/Application/interface/RunManager.h"
 
 #include "SimG4Core/SensitiveDetector/interface/AttachSD.h"
 #include "SimG4Core/SensitiveDetector/interface/SensitiveDetector.h"
@@ -57,9 +57,9 @@ class G4Field;
 class RunAction;
 
 class SimRunInterface;
-class ExceptionHandler;
+//class ExceptionHandler;
 
-class RunManagerMT : public RunManager
+class RunManagerMT 
 {
 public:
 
@@ -142,7 +142,7 @@ private:
   edm::ParameterSet m_pSteppingAction;
   std::vector<std::string> m_G4Commands;
   edm::ParameterSet m_p;
-  ExceptionHandler* m_CustomExceptionHandler ;
+  //ExceptionHandler* m_CustomExceptionHandler ;
 
   AttachSD * m_attach;
   std::vector<SensitiveTkDetector*> m_sensTkDets;

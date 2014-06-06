@@ -69,7 +69,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "SimG4Core/Application/interface/ExceptionHandler.h"
+//#include "SimG4Core/Application/interface/ExceptionHandler.h"
 
 static
 void createWatchers(const edm::ParameterSet& iP,
@@ -108,8 +108,7 @@ void createWatchers(const edm::ParameterSet& iP,
 
 //RunManagerMT::RunManagerMT(edm::ParameterSet const & p, edm::ConsumesCollector && iC) 
 RunManagerMT::RunManagerMT(edm::ParameterSet const & p) 
-  : RunManager(p),
-      m_generator(0), m_nonBeam(p.getParameter<bool>("NonBeamEvent")), 
+  :   m_generator(0), m_nonBeam(p.getParameter<bool>("NonBeamEvent")), 
       m_primaryTransformer(0), 
       m_managerInitialized(false), 
       m_runInitialized(false), m_runTerminated(false), m_runAborted(false),
@@ -137,7 +136,7 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const & p)
   m_kernel = G4RunManagerKernel::GetRunManagerKernel();
   if (m_kernel==0) m_kernel = new G4RunManagerKernel();
 
-  m_CustomExceptionHandler = new ExceptionHandler(this) ;
+  //m_CustomExceptionHandler = new ExceptionHandler(this) ;
     
   m_check = p.getUntrackedParameter<bool>("CheckOverlap",false);
   m_WriteFile = p.getUntrackedParameter<std::string>("FileNameGDML","");
@@ -322,7 +321,7 @@ void RunManagerMT::stopG4()
 void RunManagerMT::produce(edm::Event& inpevt, const edm::EventSetup & es)
 {
   m_currentEvent = generateEvent(inpevt);
-  m_simEvent = new G4SimEvent;
+  m_simEvent = new G4SimEvent();
   m_simEvent->hepEvent(m_generator->genEvent());
   m_simEvent->weight(m_generator->eventWeight());
   if (m_generator->genVertex() !=0 ) {
