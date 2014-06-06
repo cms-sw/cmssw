@@ -53,9 +53,13 @@ namespace SingleTopTChannelLepton {
       }
       // electronId is optional; in case it's not found the 
       // InputTag will remain empty
-      edm::ParameterSet elecId=vcfg[1].getParameter<edm::ParameterSet>("electronId");
-      electronId_= iC.consumes<edm::ValueMap<float> >(elecId.getParameter<edm::InputTag>("src"));
-      eidPattern_= elecId.getParameter<int>("pattern");
+      if( elecExtras.existsAs<edm::ParameterSet>("electronId") ){
+	edm::ParameterSet elecId=elecExtras.getParameter<edm::ParameterSet>("electronId");
+	electronId_= iC.consumes<edm::ValueMap<float> >(elecId.getParameter<edm::InputTag>("src"));
+	eidCutValue_= elecId.getParameter<double>("cutValue");
+      }
+
+
     }
     // pvExtras are opetional; they may be omitted or empty
     if(cfg.existsAs<edm::ParameterSet>("pvExtras")){
@@ -415,19 +419,18 @@ namespace SingleTopTChannelLepton {
       if(elec->gsfTrack().isNull()) continue ;
       
       // restrict to electrons with good electronId
-      int eID = 0;
-      if (!electronId_.isUninitialized()) 
-	eID = (int)(*electronId)[elecs_gsf->refAt(idx_gsf)];
-
-      if( electronId_.isUninitialized()  ? true : ( (eID  & eidPattern_) && (eID >=5)) ){ 
-
+      if( electronId_.isUninitialized() ? true : ((double)(*electronId)[elec] >= eidCutValue_) ){
 	if(!elecSelect || (*elecSelect)(*elec_it)){
 	  double isolationRel = (elec->dr03TkSumPt()+elec->dr03EcalRecHitSumEt()+elec->dr03HcalTowerSumEt())/elec->pt();
-
+	  
 	  double isolationChHad = elec->pt()/(elec->pt()+elec->pfIsolationVariables().sumChargedHadronPt);
 	  double isolationNeuHad = elec->pt()/(elec->pt()+elec->pfIsolationVariables().sumNeutralHadronEt);
 	  double isolationPhoton = elec->pt()/(elec->pt()+elec->pfIsolationVariables().sumPhotonEt);
-	  double PFisolationRel = (elec->pfIsolationVariables().sumChargedHadronPt+elec->pfIsolationVariables().sumNeutralHadronEt+elec->pfIsolationVariables().sumPhotonEt)/elec->pt(); 
+	  //	  double PFisolationRel = (elec->pfIsolationVariables().sumChargedHadronPt+elec->pfIsolationVariables().sumNeutralHadronEt+elec->pfIsolationVariables().sumPhotonEt)/elec->pt(); 
+	  double el_ChHadIso = elec->pfIsolationVariables().sumChargedHadronPt;
+          double el_NeHadIso = elec->pfIsolationVariables().sumNeutralHadronEt;
+          double el_PhIso = elec->pfIsolationVariables().sumPhotonEt;
+	  double PFisolationRel = (el_ChHadIso + max(0.,el_NeHadIso + el_PhIso - 0.5*elec->pfIsolationVariables().sumPUPt) ) / elec->pt();
  	  
 	  if( eMult==0 ){
 	    // restrict to the leading electron
