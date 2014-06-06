@@ -13,7 +13,7 @@
 #include "boost/filesystem.hpp"
 
 #include "EventFilter/Utilities/interface/MicroStateService.h"
-#include "EventFilter/Utilities/plugins/FastMonitoringThread.h"
+#include "EventFilter/Utilities/interface/FastMonitoringThread.h"
 
 #include <string>
 #include <vector>

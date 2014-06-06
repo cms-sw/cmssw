@@ -1,7 +1,7 @@
 // $Id: RawEventFileWriterForBU.cc,v 1.1.2.6 2013/03/28 14:56:53 aspataru Exp $
 
 #include "EventFilter/Utilities/plugins/RawEventFileWriterForBU.h"
-#include "EventFilter/Utilities/plugins/EvFDaqDirector.h"
+#include "EventFilter/Utilities/interface/EvFDaqDirector.h"
 #include "EventFilter/Utilities/interface/FileIO.h"
 #include "EventFilter/Utilities/interface/JSONSerializer.h"
 

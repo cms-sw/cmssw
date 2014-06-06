@@ -14,7 +14,7 @@
 #include "EventFilter/Utilities/interface/FastMonitor.h"
 #include "EventFilter/Utilities/interface/JSONSerializer.h"
 #include "EventFilter/Utilities/interface/FileIO.h"
-#include "EventFilter/Utilities/plugins/FastMonitoringService.h"
+#include "EventFilter/Utilities/interface/FastMonitoringService.h"
 
 
 namespace evf {

@@ -1,4 +1,4 @@
-#include "EventFilter/Utilities/plugins/FastMonitoringService.h"
+#include "EventFilter/Utilities/interface/FastMonitoringService.h"
 #include <iostream>
 
 #include "FWCore/Framework/interface/Event.h"

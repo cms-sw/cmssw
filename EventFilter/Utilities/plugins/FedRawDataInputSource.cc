@@ -34,8 +34,8 @@
 #include "EventFilter/FEDInterface/interface/fed_trailer.h"
 
 #include "EventFilter/Utilities/plugins/FedRawDataInputSource.h"
-#include "EventFilter/Utilities/plugins/FastMonitoringService.h"
 
+#include "EventFilter/Utilities/interface/FastMonitoringService.h"
 #include "EventFilter/Utilities/interface/DataPointDefinition.h"
 #include "EventFilter/Utilities/interface/FFFNamingSchema.h"
 

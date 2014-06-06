@@ -5,8 +5,8 @@
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "EventFilter/Utilities/plugins/EvFDaqDirector.h"
-#include "EventFilter/Utilities/plugins/FastMonitoringService.h"
+#include "EventFilter/Utilities/interface/EvFDaqDirector.h"
+#include "EventFilter/Utilities/interface/FastMonitoringService.h"
 
 
 #include <iostream>

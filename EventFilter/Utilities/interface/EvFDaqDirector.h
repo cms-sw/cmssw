@@ -6,7 +6,7 @@
 #include "DataFormats/Provenance/interface/RunID.h"
 
 #include "EventFilter/Utilities/interface/FFFNamingSchema.h"
-#include "DirManager.h"
+#include "EventFilter/Utilities/interface/DirManager.h"
 
 //std headers
 #include <string>

@@ -13,7 +13,7 @@
 
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
-#include "EventFilter/Utilities/plugins/EvFDaqDirector.h"
+#include "EventFilter/Utilities/interface/EvFDaqDirector.h"
 #include "FWCore/Sources/interface/RawInputSource.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Sources/interface/DaqProvenanceHelper.h"
