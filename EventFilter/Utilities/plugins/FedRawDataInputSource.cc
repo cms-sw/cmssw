@@ -155,7 +155,7 @@ FedRawDataInputSource::~FedRawDataInputSource()
       std::unique_lock<std::mutex> lk(mReader_);
       thread_quit_signal[i]=true;
       cvReader_[i]->notify_one();
-      lk.unlock()
+      lk.unlock();
       workerThreads_[i]->join();
       delete workerThreads_[i];
     }
