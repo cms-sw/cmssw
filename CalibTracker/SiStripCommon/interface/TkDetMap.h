@@ -7,6 +7,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
+#include "DataFormats/SiStripDetId/interface/TIBDetId.h"
 
 class TkLayerMap{
 
@@ -62,26 +63,26 @@ class TkLayerMap{
     delete [] binToDet;
   };
   
-  const XYbin getXY(uint32_t& detid, int layerEnumNb=0);
+  const XYbin getXY(uint32_t detid, int layerEnumNb=0) const;
 
-  int& get_nchX(){return nchX;}
-  int& get_nchY(){return nchY;}
-  double& get_lowX(){return lowX;}
-  double& get_highX(){return highX;}
-  double& get_lowY(){return lowY;}
-  double& get_highY(){return highY;}
+  int get_nchX( ) const {return nchX;}
+  int get_nchY( ) const {return nchY;}
+  double get_lowX( ) const {return lowX;}
+  double get_highX( ) const {return highX;}
+  double get_lowY( ) const {return lowY;}
+  double get_highY( ) const {return highY;}
 
   static const int16_t layerSearch(uint32_t detid);
 
-  uint32_t getDetFromBin(int ix, int iy);
-  uint32_t* getBinToDet(){return binToDet;}
+  uint32_t getDetFromBin(int ix, int iy) const;
+  const uint32_t* getBinToDet() const {return binToDet;}
 
  private:
 
-  XYbin getXY_TIB(uint32_t& detid, int layerEnumNb=0);
-  XYbin getXY_TOB(uint32_t& detid, int layerEnumNb=0);
-  XYbin getXY_TID(uint32_t& detid, int layerEnumNb=0);
-  XYbin getXY_TEC(uint32_t& detid, int layerEnumNb=0);
+  XYbin getXY_TIB(uint32_t detid, int layerEnumNb=0) const;
+  XYbin getXY_TOB(uint32_t detid, int layerEnumNb=0) const;
+  XYbin getXY_TID(uint32_t detid, int layerEnumNb=0) const;
+  XYbin getXY_TEC(uint32_t detid, int layerEnumNb=0) const;
 
   void initialize(int layer);
 
@@ -91,8 +92,9 @@ class TkLayerMap{
   void createTEC(std::vector<uint32_t>& TkDetIdList, int layer);
 
  private:
+  uint32_t get_Offset( TIBDetId ) const;
+
   uint32_t* binToDet;
-  XYbin xybin;
 
   int layerEnumNb_; //In the enumerator sequence
   int nchX;
@@ -112,32 +114,32 @@ class TkDetMap{
   TkDetMap(const edm::ParameterSet&,const edm::ActivityRegistry&);
   ~TkDetMap();
 
-  const TkLayerMap::XYbin& getXY(uint32_t&);
-  std::string getLayerName(int& in);
-  int getLayerNum(std::string& in);
-  void getSubDetLayerSide(int& in,SiStripDetId::SubDetector&,uint32_t& layer,uint32_t& side);
+  const TkLayerMap::XYbin& getXY(uint32_t& , uint32_t& cached_detid , int16_t& cached_layer , TkLayerMap::XYbin& cached_XYbin) const;
+  std::string getLayerName(int& in) const;
+  int getLayerNum(const std::string& in) const;
+  void getSubDetLayerSide(int& in,SiStripDetId::SubDetector&,uint32_t& layer,uint32_t& side) const;
 
-  int16_t FindLayer(uint32_t& detid);
+  int16_t FindLayer(uint32_t& detid , uint32_t& cached_detid , int16_t& cached_layer , TkLayerMap::XYbin& cached_XYbin) const;
 
-  void getComponents(int& layer,
+  void getComponents(int layer,
 		     int& nchX,double& lowX,double& highX,
-		     int& nchY,double& lowY,double& highY);
+		     int& nchY,double& lowY,double& highY) const;
  
-  uint32_t getDetFromBin(int layer, int ix, int iy){ return TkMap[layer]->getDetFromBin(ix,iy); }
-  uint32_t getDetFromBin(std::string layerName, int ix, int iy){return getDetFromBin(getLayerNum(layerName),ix,iy);}
+  uint32_t getDetFromBin(int layer, int ix, int iy) const { return TkMap[layer]->getDetFromBin(ix,iy); }
+  uint32_t getDetFromBin(const std::string& layerName, int ix, int iy) const {return getDetFromBin(getLayerNum(layerName),ix,iy);}
 
-  void getDetsForLayer(int layer,std::vector<uint32_t>& output);
+  void getDetsForLayer(int layer,std::vector<uint32_t>& output) const;
 
  private:
 
   void doMe();
 
  private:
-  typedef std::vector<TkLayerMap*> detmapType;
+  typedef std::vector<const TkLayerMap*> detmapType;
   detmapType TkMap;
-  uint32_t cached_detid;
-  int16_t cached_layer;
-  TkLayerMap::XYbin cached_XYbin;
+  //uint32_t cached_detid;
+  //int16_t cached_layer;
+  //TkLayerMap::XYbin cached_XYbin;
 };
 
 
