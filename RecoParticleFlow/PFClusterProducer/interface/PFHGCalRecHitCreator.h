@@ -50,10 +50,11 @@ template <typename DET,PFLayer::Layer Layer,ForwardSubdetector subdet>
 	const DET detid(hgrh.detid());
 	
 	if( subdet != detid.subdet() ) {
-	  std::cout << "subdet expected: " << subdet 
-		    << " subdet gotten: " << detid.subdet() << std::endl;
+	  throw cms::Exception("IncorrectHGCSubdetector")
+	    << "subdet expected: " << subdet 
+	    << " subdet gotten: " << detid.subdet() << std::endl;
 	}
-	assert(subdet == detid.subdet() && "Incorrect subdetector for this importer!");
+	
 	double energy = hgrh.energy();
 	double time = hgrh.time();	
 	
@@ -105,7 +106,7 @@ template <typename DET,PFLayer::Layer Layer,ForwardSubdetector subdet>
       LogDebug("HGCalRecHitCreator") 
 	<<  "Skipped " << skipped_rechits 
 	<< " out of " << rechits.size() << " rechits!" << std::endl;
-      edm::LogInfo("HGCalRecHitCreator")
+      LogDebug("HGCalRecHitCreator")
 	<< "Created " << out->size() << " PFRecHits!" << std::endl;
     }
 
