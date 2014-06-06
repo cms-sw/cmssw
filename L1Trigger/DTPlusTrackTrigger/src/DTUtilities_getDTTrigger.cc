@@ -179,7 +179,7 @@ void DTUtilities::getDTTrigger()
     bool foundTSPhiTSThetaMatch = false;
 
     if ( useTSTheta && doneTSTheta &&
-         ( iterTSPhi->station() == 1 || iterTSPhi->station()==2 ) )
+         ( iterTSPhi->station() == 1 || iterTSPhi->station() == 2 ) )
     {
       for ( TSThetaTrigsCollection::iterator thisTSTheta = theTSThetaTrigsToStore->begin();
             thisTSTheta != theTSThetaTrigsToStore->end();
@@ -257,22 +257,19 @@ void DTUtilities::getDTTrigger()
               GlobalPoint posMatch( pos.x(), pos.y(), posBti.z() );
 
               /// Correct for asymmetries in muon LUT's
-              if ( wh == 1 || wh == 2 ||
-                   ( wh == 0 &&
-                     ( se == 2 || se == 3 || se == 6 || se == 7 || se == 10 || se == 11) ) )
+              if ( code < 16 )
               {
-                /// Positive wheels
-                if ( code < 16 )
+                if ( wh == 1 || wh == 2 ||
+                     ( wh == 0 &&
+                       ( se == 2 || se == 3 || se == 6 || se == 7 || se == 10 || se == 11) ) )
                 {
-                  phib = phib - ( -23 + 2*st + wh ) - 1;
+                  /// Positive wheels
+                  phib = phib - ( -17 + 4*(st-1) ) - (3-wh);
                 }
-              }
-              else
-              {
-                /// Negative wheels
-                if ( code < 16 )
+                else
                 {
-                  phib = phib - ( 11 + 6*st + wh ) + 3;
+                  /// Negative wheels
+                  phib = phib - ( 11 + 4*(st-1) ) - (-3-wh);
                 }
               }
 
@@ -362,22 +359,19 @@ void DTUtilities::getDTTrigger()
         GlobalPoint posMatch( pos.x(), pos.y(), posCentralWire.z() );
 
         /// Correct for asymmetries in muon LUT's
-        if ( wh == 1 || wh == 2 ||
-             ( wh == 0 && 
-               ( se == 2 || se == 3 || se == 6 || se == 7 || se == 10 || se == 11) ) )
+        if ( code < 16 )
         {
-          /// Positive wheels
-          if ( code < 16 )
+          if ( wh == 1 || wh == 2 ||
+               ( wh == 0 &&
+                 ( se == 2 || se == 3 || se == 6 || se == 7 || se == 10 || se == 11) ) )
           {
-            phib = phib - ( -23 + 2*st + wh ) - 1;
+            /// Positive wheels
+            phib = phib - ( -17 + 4*(st-1) ) - (3-wh);
           }
-        }
-        else
-        {
-          /// Negative wheels
-          if ( code < 16 )
+          else
           {
-            phib = phib - ( 11 + 6*st + wh ) + 3;
+            /// Negative wheels
+            phib = phib - ( 11 + 4*(st-1) ) - (-3-wh);
           }
         }
 

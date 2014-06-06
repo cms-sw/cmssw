@@ -49,12 +49,13 @@ process.source = cms.Source(
     "PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
     fileNames = cms.untracked.vstring(
-          "file:TwoMuPt_25_Extended2023TTI_50000_DIGI_L1_DIGI2RAW_L1TT_RECO_V001_3_1_H5r.root",
+#'/store/user/pozzo/MUPGUN_14_Extended2023TTI_6_2_0_SLHC12_GEN_SIM_V002/MUPGUN_14_Extended2023TTI_6_2_0_SLHC12_DIGI_L1_DIGI2RAW_L1TT_RECO_V001G/95a3b5071be09d95bfad13b012bdbdd3/TwoMuPt_14_Extended2023TTI_500000_DIGI_L1_DIGI2RAW_L1TT_RECO_V001G_88_1_VtZ.root',
+'/store/user/pozzo/MUPGUN_14_Extended2023TTI_6_2_0_SLHC12_GEN_SIM_V002/MUPGUN_14_Extended2023TTI_6_2_0_SLHC12_DIGI_L1_DIGI2RAW_L1TT_RECO_V001G/95a3b5071be09d95bfad13b012bdbdd3/TwoMuPt_14_Extended2023TTI_500000_DIGI_L1_DIGI2RAW_L1TT_RECO_V001G_89_1_FG5.root',
        )
 )
 
 process.maxEvents = cms.untracked.PSet(
-  input = cms.untracked.int32(-1)
+  input = cms.untracked.int32(-2)#2)
 )
 
 #################################################################################################
@@ -88,6 +89,7 @@ process.load("SimMuon/DTDigitizer/muonDTDigis_cfi")
 # define the producer of DT + TK objects
 #################################################################################################
 process.load("L1Trigger.DTPlusTrackTrigger.DTPlusTrackProducer_cfi")
+#process.DTPlusTrackProducer.useRoughTheta = cms.untracked.bool(True)
 process.DTPlusTk_step = cms.Path(process.DTPlusTrackProducer)
 
 #################################################################################################

@@ -52,7 +52,9 @@ class DTPlusTrackProducer : public edm::EDProducer
     bool useRoughTheta;
 
     /// How many sigmas for the stub matching?
-    double numSigmas;
+    double numSigmasStub;
+    double numSigmasTk;
+    double numSigmasPt;
 
     /// Some constraints for finding the Pt with several methods
     double minRInvB;

@@ -73,6 +73,14 @@ class AnalyzerDTMatches : public edm::EDAnalyzer
     bool useBothMuonCharges;
     bool selectPositiveMuons;
 
+    std::string theMethods[16] = {
+      std::string("Mu_2_1"),
+      std::string("Mu_3_1"), std::string("Mu_3_2"),
+      std::string("Mu_4_1"), std::string("Mu_4_2"), std::string("Mu_4_3"),
+      std::string("Mu_5_1"), std::string("Mu_5_2"), std::string("Mu_5_3"), std::string("Mu_5_4"),
+      std::string("Mu_6_1"), std::string("Mu_6_2"), std::string("Mu_6_3"), std::string("Mu_6_4"), std::string("Mu_6_5"),
+      std::string("TTTrack") };
+
     /// Histograms
     /// identified by pair< wheel, MB >
     /// each propagation goes into a vector< layer > where L0 gives the
@@ -133,6 +141,8 @@ class AnalyzerDTMatches : public edm::EDAnalyzer
     std::map< std::pair< int, int >, std::vector< TH1F* > > mapWS_v_hDeltaThetaPull_TK_H;
     std::map< std::pair< int, int >, std::vector< TH1F* > > mapWS_v_hDeltaThetaPull_TK_L;
 
+    std::map< std::pair< std::string, int >, TH1F* > mapMS_hDTMatch_InvPt; 
+
     TH1F* hMuonTP_Pt_DT;
     TH1F* hMuonTP_Pt_DTTF;
     TH1F* hMuonTP_Pt_DTMatch;
@@ -142,6 +152,7 @@ class AnalyzerDTMatches : public edm::EDAnalyzer
     TH1F* hMuonTP_Pt_DTMatch_MajorityFull;
     TH1F* hMuonTP_Pt_DTMatch_Priority;
     TH1F* hMuonTP_Pt_DTMatch_Average;
+    TH1F* hMuonTP_Pt_DTMatch_TTTrackFullReso;
 
     TH1F* hMuonTP_PtBin_DT;
     TH1F* hMuonTP_PtBin_DTTF;
@@ -152,6 +163,27 @@ class AnalyzerDTMatches : public edm::EDAnalyzer
     TH1F* hMuonTP_PtBin_DTMatch_MajorityFull;
     TH1F* hMuonTP_PtBin_DTMatch_Priority;
     TH1F* hMuonTP_PtBin_DTMatch_Average;
+    TH1F* hMuonTP_PtBin_DTMatch_TTTrackFullReso;
+
+    TH1F* hMuonTP_Eta_DT;
+    TH1F* hMuonTP_Eta_DTTF;
+    TH1F* hMuonTP_Eta_DTMatch;
+    TH1F* hMuonTP_Eta_DTMatch_TTTrack;
+    TH1F* hMuonTP_Eta_DTMatch_Majority;
+    TH1F* hMuonTP_Eta_DTMatch_MixedMode;
+    TH1F* hMuonTP_Eta_DTMatch_MajorityFull;
+    TH1F* hMuonTP_Eta_DTMatch_Priority;
+    TH1F* hMuonTP_Eta_DTMatch_Average;
+    TH1F* hMuonTP_Eta_DTMatch_TTTrackFullReso;
+
+    TH2F* hDTTF_PtBin_MuonTP_Pt;
+    TH2F* hDTMatch_TTrack_PtBin_MuonTP_Pt;
+    TH2F* hDTMatch_Majority_PtBin_MuonTP_Pt;
+    TH2F* hDTMatch_MixedMode_PtBin_MuonTP_Pt;
+    TH2F* hDTMatch_MajorityFull_PtBin_MuonTP_Pt;
+    TH2F* hDTMatch_Priority_PtBin_MuonTP_Pt;
+    TH2F* hDTMatch_Average_PtBin_MuonTP_Pt;
+    TH2F* hDTMatch_TTTrackFullReso_Pt_MuonTP_Pt;
 
     /// Containers of parameters passed by python
     /// configuration file
@@ -199,7 +231,7 @@ void AnalyzerDTMatches::beginJob()
   edm::Service< TFileService > fs;
 
   /// Prepare for DT Pt-bin way
-  int NumBins = 24;
+  int NumBins = 25;
   double* BinVec = new double[NumBins+1];
   BinVec[0] = 0;
   BinVec[1] = 4;
@@ -226,21 +258,7 @@ void AnalyzerDTMatches::beginJob()
   BinVec[22] = 100;
   BinVec[23] = 120;
   BinVec[24] = 140;
-  //BinVec[25] = 200;
-
-/*
-  /// Prepare for LogXY Plots
-  int NumBins = 200;
-  double MinPt = 0.0;
-  double MaxPt = 100.0;
-
-  double* BinVec = new double[NumBins+1];
-  for ( int iBin = 0; iBin < NumBins + 1; iBin++ )
-  {
-    double temp = pow( 10, (- NumBins + iBin)/(MaxPt - MinPt)  );
-    BinVec[ iBin ] = temp;
-  }
-*/
+  BinVec[25] = 200;
 
   for ( int iWh = -2; iWh < 3; iWh++ )
   {
@@ -463,34 +481,47 @@ void AnalyzerDTMatches::beginJob()
       {
         histoName.str("");  histoName << "hDeltaPhiPull_TK_C_" << iWh+2 << "_" << iSt-1 << "_" << iLay;
         histoTitle.str(""); histoTitle << "Pull #Delta#phi in wheel (Tk wrt Pred Tk) " << iWh << " station " << iSt << " layer " << iLay << ", correlated";
-        mapWS_v_hDeltaPhiPull_TK_C[thisKey].push_back( fs->make<TH1F>( histoName.str().c_str(), histoTitle.str().c_str(), 100, -10, 10 ) );
+        mapWS_v_hDeltaPhiPull_TK_C[thisKey].push_back( fs->make<TH1F>( histoName.str().c_str(), histoTitle.str().c_str(), 400, -10, 10 ) );
         mapWS_v_hDeltaPhiPull_TK_C[thisKey].at(iLay)->Sumw2();
 
         histoName.str("");  histoName << "hDeltaPhiPull_TK_H_" << iWh+2 << "_" << iSt-1 << "_" << iLay;
         histoTitle.str(""); histoTitle << "Pull #Delta#phi in wheel (Tk wrt Pred Tk) " << iWh << " station " << iSt << " layer " << iLay << ", H single";
-        mapWS_v_hDeltaPhiPull_TK_H[thisKey].push_back( fs->make<TH1F>( histoName.str().c_str(), histoTitle.str().c_str(), 100, -10, 10 ) );
+        mapWS_v_hDeltaPhiPull_TK_H[thisKey].push_back( fs->make<TH1F>( histoName.str().c_str(), histoTitle.str().c_str(), 400, -10, 10 ) );
         mapWS_v_hDeltaPhiPull_TK_H[thisKey].at(iLay)->Sumw2();
 
         histoName.str("");  histoName << "hDeltaPhiPull_TK_L_" << iWh+2 << "_" << iSt-1 << "_" << iLay;
         histoTitle.str(""); histoTitle << "Pull #Delta#phi in wheel (Tk wrt Pred Tk) " << iWh << " station " << iSt << " layer " << iLay << ", L single";
-        mapWS_v_hDeltaPhiPull_TK_L[thisKey].push_back( fs->make<TH1F>( histoName.str().c_str(), histoTitle.str().c_str(), 100, -10, 10 ) );
+        mapWS_v_hDeltaPhiPull_TK_L[thisKey].push_back( fs->make<TH1F>( histoName.str().c_str(), histoTitle.str().c_str(), 400, -10, 10 ) );
         mapWS_v_hDeltaPhiPull_TK_L[thisKey].at(iLay)->Sumw2();
 
         histoName.str("");  histoName << "hDeltaThetaPull_TK_C_" << iWh+2 << "_" << iSt-1 << "_" << iLay;
         histoTitle.str(""); histoTitle << "Pull #Delta#theta in wheel (Tk wrt Pred Tk) " << iWh << " station " << iSt << " layer " << iLay << ", correlated";
-        mapWS_v_hDeltaThetaPull_TK_C[thisKey].push_back( fs->make<TH1F>( histoName.str().c_str(), histoTitle.str().c_str(), 100, -10, 10 ) );
+        mapWS_v_hDeltaThetaPull_TK_C[thisKey].push_back( fs->make<TH1F>( histoName.str().c_str(), histoTitle.str().c_str(), 400, -10, 10 ) );
         mapWS_v_hDeltaThetaPull_TK_C[thisKey].at(iLay)->Sumw2();
 
         histoName.str("");  histoName << "hDeltaThetaPull_TK_H_" << iWh+2 << "_" << iSt-1 << "_" << iLay;
         histoTitle.str(""); histoTitle << "Pull #Delta#theta in wheel (Tk wrt Pred Tk) " << iWh << " station " << iSt << " layer " << iLay << ", H single";
-        mapWS_v_hDeltaThetaPull_TK_H[thisKey].push_back( fs->make<TH1F>( histoName.str().c_str(), histoTitle.str().c_str(), 100, -10, 10 ) );
+        mapWS_v_hDeltaThetaPull_TK_H[thisKey].push_back( fs->make<TH1F>( histoName.str().c_str(), histoTitle.str().c_str(), 400, -10, 10 ) );
         mapWS_v_hDeltaThetaPull_TK_H[thisKey].at(iLay)->Sumw2();
 
         histoName.str("");  histoName << "hDeltaThetaPull_TK_L_" << iWh+2 << "_" << iSt-1 << "_" << iLay;
         histoTitle.str(""); histoTitle << "Pull #Delta#theta in wheel (Tk wrt Pred Tk) " << iWh << " station " << iSt << " layer " << iLay << ", L single";
-        mapWS_v_hDeltaThetaPull_TK_L[thisKey].push_back( fs->make<TH1F>( histoName.str().c_str(), histoTitle.str().c_str(), 100, -10, 10 ) );
+        mapWS_v_hDeltaThetaPull_TK_L[thisKey].push_back( fs->make<TH1F>( histoName.str().c_str(), histoTitle.str().c_str(), 400, -10, 10 ) );
         mapWS_v_hDeltaThetaPull_TK_L[thisKey].at(iLay)->Sumw2();
       } /// End pulls
+    }
+  }
+
+  for ( int iMeth = 0; iMeth < 16; iMeth++ )
+  {
+    for ( int iSt = 1; iSt < 3; iSt++ )
+    {
+      std::pair< std::string, int > thisKey = std::make_pair(theMethods[iMeth], iSt);
+
+      histoName.str("");  histoName << "hDTMatch_InvPt_" << theMethods[iMeth].c_str() << "_" << iSt-1;
+      histoTitle.str(""); histoTitle << "Pt Method " << theMethods[iMeth].c_str() << " station " << iSt;
+      mapMS_hDTMatch_InvPt[thisKey] = fs->make<TH1F>( histoName.str().c_str(), histoTitle.str().c_str(), 1000, 0, 0.5 );
+      mapMS_hDTMatch_InvPt[thisKey]->Sumw2();
     }
   }
 
@@ -504,6 +535,7 @@ void AnalyzerDTMatches::beginJob()
   hMuonTP_Pt_DTMatch_MajorityFull = fs->make<TH1F>( "hMuonTP_Pt_DTMatch_MajorityFull", "sim muon p_{T}, DTMatch + Stubs, Majority Full Tk", 200, 0, 200 );
   hMuonTP_Pt_DTMatch_Priority = fs->make<TH1F>( "hMuonTP_Pt_DTMatch_Priority", "sim muon p_{T}, DTMatch + Stubs, Priority", 200, 0, 200 );
   hMuonTP_Pt_DTMatch_Average = fs->make<TH1F>( "hMuonTP_Pt_DTMatch_Average", "sim muon p_{T}, DTMatch + Stubs, Average", 200, 0, 200 );
+  hMuonTP_Pt_DTMatch_TTTrackFullReso = fs->make<TH1F>( "hMuonTP_Pt_DTMatch_TTTrackFullReso", "sim muon p_{T}, DTMatch + L1 Track", 200, 0, 200 );
 
   hMuonTP_PtBin_DT = fs->make<TH1F>( "hMuonTP_PtBin_DT", "sim muon p_{T}, signal in DT", 200, 0, 200 );
   hMuonTP_PtBin_DTTF = fs->make<TH1F>( "hMuonTP_PtBin_DTTF", "sim muon p_{T}, w/ DTTF", 200, 0, 200 );
@@ -514,6 +546,7 @@ void AnalyzerDTMatches::beginJob()
   hMuonTP_PtBin_DTMatch_MajorityFull = fs->make<TH1F>( "hMuonTP_PtBin_DTMatch_MajorityFull", "sim muon p_{T}, DTMatch + Stubs, Majority Full Tk", 200, 0, 200 );
   hMuonTP_PtBin_DTMatch_Priority = fs->make<TH1F>( "hMuonTP_PtBin_DTMatch_Priority", "sim muon p_{T}, DTMatch + Stubs, Priority", 200, 0, 200 );
   hMuonTP_PtBin_DTMatch_Average = fs->make<TH1F>( "hMuonTP_PtBin_DTMatch_Average", "sim muon p_{T}, DTMatch + Stubs, Average", 200, 0, 200 );
+  hMuonTP_PtBin_DTMatch_TTTrackFullReso = fs->make<TH1F>( "hMuonTP_PtBin_DTMatch_TTTrackFullReso", "sim muon p_{T}, DTMatch + L1 Track", 200, 0, 200 );
 
   hMuonTP_PtBin_DT->GetXaxis()->Set( NumBins, BinVec );
   hMuonTP_PtBin_DTTF->GetXaxis()->Set( NumBins, BinVec );
@@ -524,6 +557,7 @@ void AnalyzerDTMatches::beginJob()
   hMuonTP_PtBin_DTMatch_MajorityFull->GetXaxis()->Set( NumBins, BinVec );
   hMuonTP_PtBin_DTMatch_Priority->GetXaxis()->Set( NumBins, BinVec );
   hMuonTP_PtBin_DTMatch_Average->GetXaxis()->Set( NumBins, BinVec );
+  hMuonTP_PtBin_DTMatch_TTTrackFullReso->GetXaxis()->Set( NumBins, BinVec );
 
   hMuonTP_Pt_DT->Sumw2();
   hMuonTP_Pt_DTTF->Sumw2();
@@ -534,6 +568,7 @@ void AnalyzerDTMatches::beginJob()
   hMuonTP_Pt_DTMatch_MajorityFull->Sumw2();
   hMuonTP_Pt_DTMatch_Priority->Sumw2();
   hMuonTP_Pt_DTMatch_Average->Sumw2();
+  hMuonTP_Pt_DTMatch_TTTrackFullReso->Sumw2();
 
   hMuonTP_PtBin_DT->Sumw2();
   hMuonTP_PtBin_DTTF->Sumw2();
@@ -544,6 +579,56 @@ void AnalyzerDTMatches::beginJob()
   hMuonTP_PtBin_DTMatch_MajorityFull->Sumw2();
   hMuonTP_PtBin_DTMatch_Priority->Sumw2();
   hMuonTP_PtBin_DTMatch_Average->Sumw2();
+  hMuonTP_PtBin_DTMatch_TTTrackFullReso->Sumw2();
+
+  hMuonTP_Eta_DT = fs->make<TH1F>( "hMuonTP_Eta_DT", "sim muon #eta, signal in DT", 100, -1, 1 );
+  hMuonTP_Eta_DTTF = fs->make<TH1F>( "hMuonTP_Eta_DTTF", "sim muon #eta, w/ DTTF", 100, -1, 1 );
+  hMuonTP_Eta_DTMatch = fs->make<TH1F>( "hMuonTP_Eta_DTMatch", "sim muon #eta, DTMatch", 100, -1, 1 );
+  hMuonTP_Eta_DTMatch_TTTrack = fs->make<TH1F>( "hMuonTP_Eta_DTMatch_TTTrack", "sim muon #eta, DTMatch + L1 Track", 100, -1, 1 );
+  hMuonTP_Eta_DTMatch_Majority = fs->make<TH1F>( "hMuonTP_Eta_DTMatch_Majority", "sim muon #eta, DTMatch + Stubs, Majority", 100, -1, 1 );
+  hMuonTP_Eta_DTMatch_MixedMode = fs->make<TH1F>( "hMuonTP_Eta_DTMatch_MixedMode", "sim muon #eta, DTMatch + Stubs, Mixed Mode", 100, -1, 1 );
+  hMuonTP_Eta_DTMatch_MajorityFull = fs->make<TH1F>( "hMuonTP_Eta_DTMatch_MajorityFull", "sim muon #eta, DTMatch + Stubs, Majority Full Tk", 100, -1, 1 );
+  hMuonTP_Eta_DTMatch_Priority = fs->make<TH1F>( "hMuonTP_Eta_DTMatch_Priority", "sim muon #eta, DTMatch + Stubs, Priority", 100, -1, 1 );
+  hMuonTP_Eta_DTMatch_Average = fs->make<TH1F>( "hMuonTP_Eta_DTMatch_Average", "sim muon #eta, DTMatch + Stubs, Average", 100, -1, 1 );
+  hMuonTP_Eta_DTMatch_TTTrackFullReso = fs->make<TH1F>( "hMuonTP_Eta_DTMatch_TTTrackFullReso", "sim muon #eta, DTMatch + L1 Track", 100, -1, 1 );
+
+  hMuonTP_Eta_DT->Sumw2();
+  hMuonTP_Eta_DTTF->Sumw2();
+  hMuonTP_Eta_DTMatch->Sumw2();
+  hMuonTP_Eta_DTMatch_TTTrack->Sumw2();
+  hMuonTP_Eta_DTMatch_Majority->Sumw2();
+  hMuonTP_Eta_DTMatch_MixedMode->Sumw2();
+  hMuonTP_Eta_DTMatch_MajorityFull->Sumw2();
+  hMuonTP_Eta_DTMatch_Priority->Sumw2();
+  hMuonTP_Eta_DTMatch_Average->Sumw2();
+  hMuonTP_Eta_DTMatch_TTTrackFullReso->Sumw2();
+
+  hDTTF_PtBin_MuonTP_Pt = fs->make<TH2F>( "hDTTF_PtBin_MuonTP_Pt", "DTTF p_{T} vs sim muon p_{T}", 200, 0, 200, 200, 0, 200 );
+  hDTMatch_TTrack_PtBin_MuonTP_Pt = fs->make<TH2F>( "hDTMatch_TTrack_PtBin_MuonTP_Pt", "DTMatch TTTrack p_{T} vs sim muon p_{T}", 200, 0, 200, 200, 0, 200 );
+  hDTMatch_Majority_PtBin_MuonTP_Pt = fs->make<TH2F>( "hDTMatch_Majority_PtBin_MuonTP_Pt", "DTMatch Majority p_{T} vs sim muon p_{T}", 200, 0, 200, 200, 0, 200 );
+  hDTMatch_MixedMode_PtBin_MuonTP_Pt = fs->make<TH2F>( "hDTMatch_MixedMode_PtBin_MuonTP_Pt", "DTMatch MixedMode p_{T} vs sim muon p_{T}", 200, 0, 200, 200, 0, 200 );
+  hDTMatch_MajorityFull_PtBin_MuonTP_Pt = fs->make<TH2F>( "hDTMatch_MajorityFull_PtBin_MuonTP_Pt", "DTMatch Majority Full Tk p_{T} vs sim muon p_{T}", 200, 0, 200, 200, 0, 200 );
+  hDTMatch_Priority_PtBin_MuonTP_Pt = fs->make<TH2F>( "hDTMatch_Priority_PtBin_MuonTP_Pt", "DTMatch Priority p_{T} vs sim muon p_{T}", 200, 0, 200, 200, 0, 200 );
+  hDTMatch_Average_PtBin_MuonTP_Pt = fs->make<TH2F>( "hDTMatch_Average_PtBin_MuonTP_Pt", "DTMatch Average p_{T} vs sim muon p_{T}", 200, 0, 200, 200, 0, 200 );
+  hDTMatch_TTTrackFullReso_Pt_MuonTP_Pt = fs->make<TH2F>( "hDTMatch_TTTrackFullReso_Pt_MuonTP_Pt", "DTMatch TTTrack Full Reso p_{T} vs sim muon p_{T}", 200, 0, 200, 200, 0, 200 );
+
+  hDTTF_PtBin_MuonTP_Pt->GetYaxis()->Set( NumBins, BinVec );
+  hDTMatch_TTrack_PtBin_MuonTP_Pt->GetYaxis()->Set( NumBins, BinVec );
+  hDTMatch_Majority_PtBin_MuonTP_Pt->GetYaxis()->Set( NumBins, BinVec );
+  hDTMatch_MixedMode_PtBin_MuonTP_Pt->GetYaxis()->Set( NumBins, BinVec );
+  hDTMatch_MajorityFull_PtBin_MuonTP_Pt->GetYaxis()->Set( NumBins, BinVec );
+  hDTMatch_Priority_PtBin_MuonTP_Pt->GetYaxis()->Set( NumBins, BinVec );
+  hDTMatch_Average_PtBin_MuonTP_Pt->GetYaxis()->Set( NumBins, BinVec );
+  hDTMatch_TTTrackFullReso_Pt_MuonTP_Pt->GetYaxis()->Set( NumBins, BinVec );
+
+  hDTTF_PtBin_MuonTP_Pt->Sumw2();
+  hDTMatch_TTrack_PtBin_MuonTP_Pt->Sumw2();
+  hDTMatch_Majority_PtBin_MuonTP_Pt->Sumw2();
+  hDTMatch_MixedMode_PtBin_MuonTP_Pt->Sumw2();
+  hDTMatch_MajorityFull_PtBin_MuonTP_Pt->Sumw2();
+  hDTMatch_Priority_PtBin_MuonTP_Pt->Sumw2();
+  hDTMatch_Average_PtBin_MuonTP_Pt->Sumw2();
+  hDTMatch_TTTrackFullReso_Pt_MuonTP_Pt->Sumw2();
 
   /// End of things to be done before entering the event Loop
 }
@@ -621,7 +706,7 @@ void AnalyzerDTMatches::analyze( const edm::Event& iEvent, const edm::EventSetup
         iterBti != DTBtiTriggerHandle->end();
         ++iterBti )
   {
-    iterBti->print();
+    //iterBti->print();
   }
 #endif
 
@@ -675,17 +760,8 @@ void AnalyzerDTMatches::analyze( const edm::Event& iEvent, const edm::EventSetup
   /// 6) DTMatch + Stubs, Mixed Mode
   /// 7) DTMatch + TTTrack
 
-
   /// Prepare the maps for the DT Digi to DT Digi SimLink association
-/*
-  std::map< DTWireId, std::vector< DTDigiSimLink > > mapDTSimLinkByWire;
-  std::map< DTWireId, std::vector< edm::Ptr< TrackingParticle > > > mapTrackingParticleByWire;
-  mapDTSimLinkByWire.clear();
-  mapTrackingParticleByWire.clear();
-*/
-  std::map< DTBtiId, std::vector< DTDigiSimLink > > mapDTSimLinkByBti;
   std::map< DTBtiId, std::vector< edm::Ptr< TrackingParticle > > > mapTrackingParticleByBti;
-  mapDTSimLinkByBti.clear();
   mapTrackingParticleByBti.clear();
 
   /// Here's the idea:
@@ -717,13 +793,6 @@ void AnalyzerDTMatches::analyze( const edm::Event& iEvent, const edm::EventSetup
           iterDTSL != theseDigiSimLinksRange.second;
           ++iterDTSL )
     {
-      /// Get the wire Id
-      DTWireId thisWireId( thisLayId, iterDTSL->wire() );
-
-      /// Build the BTI Id
-      int btiNum = thisChamberGeometry->mapTubeInFEch( thisLayId.superlayerId().superlayer(), thisLayId.layer(), thisWireId.wire() );
-      DTBtiId thisBtiId( thisChambId, thisLayId.superlayerId().superlayer(), btiNum );
-
       /// Build the unique Id to find the TrackingParticle
       std::pair< unsigned int, EncodedEventId > thisUniqueId = std::make_pair( iterDTSL->SimTrackId(), iterDTSL->eventId() );
 
@@ -739,50 +808,60 @@ void AnalyzerDTMatches::analyze( const edm::Event& iEvent, const edm::EventSetup
       {
         thisTPPtr = edm::Ptr< TrackingParticle >();
       }
-/*
-      /// Check if the wire is already in the map or not
-      if ( mapDTSimLinkByWire.find( thisWireId ) != mapDTSimLinkByWire.end() )
-      {
-        mapDTSimLinkByWire[ thisWireId ].push_back( *iterDTSL );
-        mapTrackingParticleByWire[ thisWireId ].push_back( thisTPPtr );
-      }
-      else
-      {
-        std::vector< DTDigiSimLink > tempVector1;
-        std::vector< edm::Ptr< TrackingParticle > > tempVector2;
-        tempVector1.push_back( *iterDTSL );
-        tempVector2.push_back( thisTPPtr );
-        mapDTSimLinkByWire.insert( std::make_pair( thisWireId, tempVector1 ) );
-        mapTrackingParticleByWire.insert( std::make_pair( thisWireId, tempVector2 ) );
-      }
-*/
 
-      /// Check if the BTI is already in the map or not
-      if ( mapDTSimLinkByBti.find( thisBtiId ) != mapDTSimLinkByBti.end() )
+      /// Get the wire Id
+      DTWireId thisWireId( thisLayId, iterDTSL->wire() );
+
+      /// Build the channel number
+      int channelNum = thisChamberGeometry->mapTubeInFEch( thisLayId.superlayerId().superlayer(), thisLayId.layer(), thisWireId.wire() );
+
+      /// Build the BTI Id
+      /// Note that each channel can be mapped into 2 or 3 BTI's
+      /// Channel N goes into BTI N and N+1
+      /// Only for Layer 4: also in N+2
+      int maxShift = 1;
+      if ( thisLayId.layer() == 4 )
       {
-        mapDTSimLinkByBti[ thisBtiId ].push_back( *iterDTSL );
-        mapTrackingParticleByBti[ thisBtiId ].push_back( thisTPPtr );
+        maxShift = 2;
       }
-      else
+
+      for ( int jShift = -maxShift; jShift <= maxShift; jShift++ )
       {
-        std::vector< DTDigiSimLink > tempVector1;
-        std::vector< edm::Ptr< TrackingParticle > > tempVector2;
-        tempVector1.push_back( *iterDTSL );
-        tempVector2.push_back( thisTPPtr );
-        mapDTSimLinkByBti.insert( std::make_pair( thisBtiId, tempVector1 ) );
-        mapTrackingParticleByBti.insert( std::make_pair( thisBtiId, tempVector2 ) );
-      }
+        /// Build the BTI number
+        int btiNum = channelNum + jShift;
+
+        if ( btiNum < 0 )
+        {
+          continue;
+        }
+
+        /// Build the BTI Id
+        DTBtiId thisBtiId( thisChambId, thisLayId.superlayerId().superlayer(), btiNum );
+
+        /// Check if the BTI is already in the map or not
+        //if ( mapDTSimLinkByBti.find( thisBtiId ) != mapDTSimLinkByBti.end() )
+        if ( mapTrackingParticleByBti.find( thisBtiId ) != mapTrackingParticleByBti.end() )
+        {
+          mapTrackingParticleByBti[ thisBtiId ].push_back( thisTPPtr );
+        }
+        else
+        {
+          std::vector< edm::Ptr< TrackingParticle > > tempVector2;
+          tempVector2.push_back( thisTPPtr );
+          mapTrackingParticleByBti.insert( std::make_pair( thisBtiId, tempVector2 ) );
+        }
+      } /// End of loop over possible shifts of the BTI
 
       /// Check if it is a muon
-      if( thisTPPtr.isNull() == false &&
-          fabs(thisTPPtr->pdgId()) == 13 )
+      if ( thisTPPtr.isNull() == false &&
+           fabs(thisTPPtr->pdgId()) == 13 )
       {
         /// Check if the muon is already in the container for the efficiencies
         if ( mapMuonTrackingParticleInDTDigi.find( thisTPPtr ) == mapMuonTrackingParticleInDTDigi.end() )
         {
           /// Add it to the map if not present
           std::vector< bool > tempVec;
-          for ( unsigned int jK = 0; jK < 8; jK++ )
+          for ( unsigned int jK = 0; jK < 9; jK++ )
           {
             /// 0) DTTF
             /// 1) DTMatch
@@ -792,46 +871,21 @@ void AnalyzerDTMatches::analyze( const edm::Event& iEvent, const edm::EventSetup
             /// 5) DTMatch + Stubs, Majority
             /// 6) DTMatch + Stubs, Mixed Mode
             /// 7) DTMatch + TTTrack
+            /// 8) DTMatch + TTTrack, Full Resolution
 
             tempVec.push_back(false);
           }
 
           mapMuonTrackingParticleInDTDigi.insert( std::make_pair( thisTPPtr, tempVec ) );
         }
-      }
+      } /// End of it is a muon
 
     } /// End of loop over the DTDigiSimLinks
   } /// End of loop over the DT unit
 
-/*
-  std::map< DTWireId, std::vector< DTDigiSimLink > >::const_iterator iterMapDTSimLinkByWire;
-
-  for ( iterMapDTSimLinkByWire = mapDTSimLinkByWire.begin();
-        iterMapDTSimLinkByWire != mapDTSimLinkByWire.end();
-        ++iterMapDTSimLinkByWire )
-  {
-    DTWireId thisWireId = iterMapDTSimLinkByWire->first;
-    std::vector< DTDigiSimLink > theseDTSimLinks = iterMapDTSimLinkByWire->second;
-    std::vector< edm::Ptr< TrackingParticle > > theseTrackingParticles = mapTrackingParticleByWire[ thisWireId ]; /// Safe by construction!
-
-    std::cerr << thisWireId << std::endl;
-    if ( theseDTSimLinks.size() != theseTrackingParticles.size() ) std::cerr << "DISASTER HAPPENED" << std::endl;
-    else
-    {
-      for ( unsigned int j = 0; j < theseDTSimLinks.size(); j++ )
-      {
-        std::cerr << theseDTSimLinks.at(j).number() << " " << theseDTSimLinks.at(j).time() << std::endl;
-        std::cerr << theseTrackingParticles.at(j).isNull();
-        if ( theseTrackingParticles.at(j).isNull() ) std::cerr << std::endl;
-        else
-        {
-          edm::Ptr< TrackingParticle > thisTPPtr = theseTrackingParticles.at(j);
-          std::cerr << " " << thisTPPtr->pdgId() << " " << thisTPPtr->momentum() << std::endl;
-        }
-      }
-    }
-  }
-*/
+#ifdef DEBUG
+  std::cerr << "MAP OF SIM MUONS THAT FIRED DTWires has " << mapMuonTrackingParticleInDTDigi.size() << std::endl;
+#endif
 
   /// Now, convert the map< BTI, vector< TP > > to a map< BTI, vector< muon TP > >
   /// and to a map< BTI, one single muon TP >
@@ -840,24 +894,12 @@ void AnalyzerDTMatches::analyze( const edm::Event& iEvent, const edm::EventSetup
   mapSimMuonsByBti.clear();
   mapTheSimMuonByBti.clear();
 
-/*
-  std::map< DTBtiId, std::vector< DTDigiSimLink > >::const_iterator iterMapDTSimLinkByBti;
-
-  for ( iterMapDTSimLinkByBti = mapDTSimLinkByBti.begin();
-        iterMapDTSimLinkByBti != mapDTSimLinkByBti.end();
-        ++iterMapDTSimLinkByBti )
-  {
-*/
   std::map< DTBtiId, std::vector< edm::Ptr< TrackingParticle > > >::const_iterator iterMapTrackingParticleByBti;
 
   for ( iterMapTrackingParticleByBti = mapTrackingParticleByBti.begin();
         iterMapTrackingParticleByBti != mapTrackingParticleByBti.end();
         ++iterMapTrackingParticleByBti )
   {
-
-//    DTBtiId thisBtiId = iterMapDTSimLinkByBti->first;
-//    std::vector< DTDigiSimLink > theseDTSimLinks = iterMapDTSimLinkByBti->second;
-
     DTBtiId thisBtiId = iterMapTrackingParticleByBti->first;
     std::vector< edm::Ptr< TrackingParticle > > theseTrackingParticles = mapTrackingParticleByBti[ thisBtiId ]; /// Safe by construction!
 
@@ -865,7 +907,7 @@ void AnalyzerDTMatches::analyze( const edm::Event& iEvent, const edm::EventSetup
     std::vector< edm::Ptr< TrackingParticle > > theseSimMuons;
     theseSimMuons.clear();
 
-    /// Loop over the TrackingParticles
+    /// Loop over the TrackingParticles associated to the current BTI
     for ( unsigned int j = 0; j < theseTrackingParticles.size(); j++ )
     {
       if ( theseTrackingParticles.at(j).isNull() )
@@ -874,6 +916,7 @@ void AnalyzerDTMatches::analyze( const edm::Event& iEvent, const edm::EventSetup
       }
       else
       {
+        /// Here the TrackingParticle is found in thisBtiId AND is not null
         edm::Ptr< TrackingParticle > thisTPPtr = theseTrackingParticles.at(j);
         if ( fabs(thisTPPtr->pdgId()) == 13 )
         {
@@ -891,8 +934,8 @@ void AnalyzerDTMatches::analyze( const edm::Event& iEvent, const edm::EventSetup
           {
             theseSimMuons.push_back( thisTPPtr );
           }
-        }
-      }
+        } /// End of non-null muons
+      } /// End of non-null TrackingParticles
     } /// End of loop over TrackingParticles
 
     if ( theseSimMuons.size() > 0 )
@@ -908,12 +951,12 @@ void AnalyzerDTMatches::analyze( const edm::Event& iEvent, const edm::EventSetup
     std::cerr << thisBtiId.SLId() << " " << thisBtiId.bti() << std::endl;
     if ( mapSimMuonsByBti.find( thisBtiId ) != mapSimMuonsByBti.end() )
     {
-      std::cerr << "TPs   = " << mapTrackingParticleByBti[ thisBtiId ].size() << std::endl;
-      std::cerr << "MUONS = " << mapSimMuonsByBti[ thisBtiId ].size() << std::endl;
+      //std::cerr << "TPs   = " << mapTrackingParticleByBti[ thisBtiId ].size() << std::endl;
+      //std::cerr << "MUONS = " << mapSimMuonsByBti[ thisBtiId ].size() << std::endl;
     }
     if ( mapTheSimMuonByBti.find( thisBtiId ) != mapTheSimMuonByBti.end() )
     {
-      std::cerr << "THE MUON IS " << mapTheSimMuonByBti[ thisBtiId ]->momentum() << std::endl;
+      std::cerr << "  >>> THE MUON IS " << mapTheSimMuonByBti[ thisBtiId ]->momentum() << std::endl;
     }
 #endif
 
@@ -937,7 +980,7 @@ void AnalyzerDTMatches::analyze( const edm::Event& iEvent, const edm::EventSetup
     }
 */
 #endif
-  }
+  } /// End of loop over BTI Id
 
 #ifdef DEBUG
   /// Loop over the DT Digis
@@ -948,7 +991,7 @@ void AnalyzerDTMatches::analyze( const edm::Event& iEvent, const edm::EventSetup
         ++iterDTUnit )
   {
     const DTLayerId& thisLayId = (*iterDTUnit).first;
-    const DTChamberId thisChambId = thisLayId.superlayerId().chamberId();
+//    const DTChamberId thisChambId = thisLayId.superlayerId().chamberId();
     const DTDigiCollection::Range& theseDigisRange = (*iterDTUnit).second;
 
     for ( iterDTDigi = theseDigisRange.first;
@@ -956,10 +999,14 @@ void AnalyzerDTMatches::analyze( const edm::Event& iEvent, const edm::EventSetup
           ++iterDTDigi )
     {
       DTWireId thisWireId( thisLayId, iterDTDigi->wire() );
-      std::cerr<< thisLayId << " " << thisChambId << " " << thisWireId << " " << iterDTDigi->time();
-      iterDTDigi->print();
+//      std::cerr<< thisLayId << " " << thisChambId << " " << thisWireId << " " << iterDTDigi->time() << " ";
+//      iterDTDigi->print();
     }
   }
+#endif
+
+#ifdef DEBUG
+  std::cerr << "number of DTMatches " << DTMatchHandle->size() << std::endl;
 #endif
 
   /// Loop over the DTMatches
@@ -1126,13 +1173,19 @@ void AnalyzerDTMatches::analyze( const edm::Event& iEvent, const edm::EventSetup
       }
     }
 
+#ifdef DEBUG
+    std::cerr << "MAP OF SIM MUONS THAT FIRED BTI in DTMatch has " << mapBtiByFiringMuon.size() << std::endl;
+#endif
+
     /// Now we have a map where each muon firing a BTI --> points to the list of fired Bti
     /// Basic criterion: only 1 muon that fires min. 1/3 BTI
     edm::Ptr< TrackingParticle > theFiringMuon = edm::Ptr< TrackingParticle >();
     std::map< edm::Ptr< TrackingParticle >, std::vector< DTBtiId > >::const_iterator iterMapBtiByFiringMuon;
 
+    bool escapeFlag = false; /// Originally the code was using only iterMapBtiByFiringMuon
+                             /// but this happened to prevent infinite loops
     for ( iterMapBtiByFiringMuon = mapBtiByFiringMuon.begin();
-          iterMapBtiByFiringMuon != mapBtiByFiringMuon.end();
+          iterMapBtiByFiringMuon != mapBtiByFiringMuon.end() && !escapeFlag;
           ++iterMapBtiByFiringMuon )
     {
       if ( theFiringMuon.isNull() )
@@ -1153,7 +1206,7 @@ void AnalyzerDTMatches::analyze( const edm::Event& iEvent, const edm::EventSetup
         {
           /// Force to exit and reset muon to null
           theFiringMuon = edm::Ptr< TrackingParticle >();
-          iterMapBtiByFiringMuon = mapBtiByFiringMuon.end();
+          escapeFlag = true;
         }
       }
 
@@ -1161,9 +1214,20 @@ void AnalyzerDTMatches::analyze( const edm::Event& iEvent, const edm::EventSetup
       /// that fire at least 1 BTI out of the 3 that make the DTMatch
       edm::Ptr< TrackingParticle > thisMuon = iterMapBtiByFiringMuon->first;
 
+      if ( thisMuon.isNull() )
+      {
+        continue;
+      }
+      if ( iterMapBtiByFiringMuon->second.size() == 0 )
+      {
+        continue;
+      }
+
       /// Fill the container for the efficiency plots
       if ( mapMuonTrackingParticleInDTDigi.find( thisMuon ) != mapMuonTrackingParticleInDTDigi.end() )
       {
+        double simPt = thisMuon->p4().pt();
+
         /// 0) DTTF
         /// 1) DTMatch
         /// 2) DTMatch + Stubs, Priority
@@ -1172,6 +1236,7 @@ void AnalyzerDTMatches::analyze( const edm::Event& iEvent, const edm::EventSetup
         /// 5) DTMatch + Stubs, Majority
         /// 6) DTMatch + Stubs, Mixed Mode
         /// 7) DTMatch + TTTrack
+        /// 8) DTMatch + TTTrack, Full Resolution
 
         /// 1) DTMatch
         mapMuonTrackingParticleInDTDigi[ thisMuon ][1] = true;
@@ -1180,56 +1245,75 @@ void AnalyzerDTMatches::analyze( const edm::Event& iEvent, const edm::EventSetup
         if ( iterDTM->getPtPriorityBin() > 0. )
         {
           mapMuonTrackingParticleInDTDigi[ thisMuon ][2] = true;
+          hDTMatch_Priority_PtBin_MuonTP_Pt->Fill( simPt, iterDTM->getPtPriorityBin() );
         }
 
         /// 3) DTMatch + Stubs, Average
         if ( iterDTM->getPtAverageBin() > 0. )
         {
           mapMuonTrackingParticleInDTDigi[ thisMuon ][3] = true;
+          hDTMatch_Average_PtBin_MuonTP_Pt->Fill( simPt, iterDTM->getPtAverageBin() );
         }
 
         /// 4) DTMatch + Stubs, Majority Full Tracker
         if ( iterDTM->getPtMajorityFullTkBin() > 0. )
         {
           mapMuonTrackingParticleInDTDigi[ thisMuon ][4] = true;
+          hDTMatch_MajorityFull_PtBin_MuonTP_Pt->Fill( simPt, iterDTM->getPtMajorityFullTkBin() );
         }
 
         /// 5) DTMatch + Stubs, Majority
         if ( iterDTM->getPtMajorityBin() > 0. )
         {
           mapMuonTrackingParticleInDTDigi[ thisMuon ][5] = true;
+          hDTMatch_Majority_PtBin_MuonTP_Pt->Fill( simPt, iterDTM->getPtMajorityBin() );
         }
 
         /// 6) DTMatch + Stubs, Mixed Mode
         if ( iterDTM->getPtMixedModeBin() > 0. )
         {
           mapMuonTrackingParticleInDTDigi[ thisMuon ][6] = true;
+          hDTMatch_MixedMode_PtBin_MuonTP_Pt->Fill( simPt, iterDTM->getPtMixedModeBin() );
         }
 
         /// 7) DTMatch + TTTrack
         if ( iterDTM->getPtTTTrackBin() > 0. )
         {
           mapMuonTrackingParticleInDTDigi[ thisMuon ][7] = true;
+          hDTMatch_TTrack_PtBin_MuonTP_Pt->Fill( simPt, iterDTM->getPtTTTrackBin() );
+        }
+
+        /// 8) DTMatch + TTTrack, Full Resolution
+        if ( iterDTM->getPtMatchedTrackPtr().isNull() == false )
+        {
+          mapMuonTrackingParticleInDTDigi[ thisMuon ][8] = true;
+          hDTMatch_TTTrackFullReso_Pt_MuonTP_Pt->Fill( simPt, iterDTM->getPtMatchedTrackPtr()->getMomentum().perp() );
         }
 
 
-
-
-
-
-
       }
-    }
+
+    } /// End of loop over all possible firing muons
 
     /// Here, if there is one good muon that builds up this TP seed, it is stored in theFiringMuon
     /// if theFiringMuon.isNull(), it means that either no muon 2/3 BTI is found, either more than 1 were found
+#ifdef DEBUG
+    if ( theFiringMuon.isNull() )
+    {
+      std::cerr << " I " << innerBti.SLId() << " " << innerBti.bti() << std::endl;
+      std::cerr << " O " << outerBti.SLId() << " " << outerBti.bti() << std::endl;
+      std::cerr << " M " << matchedBti.SLId() << " " << matchedBti.bti() << std::endl;
+      std::cerr << "NULL firing muon" << std::endl;
+    }
+#endif
+
     if ( theFiringMuon.isNull() == false )
     {
 #ifdef DEBUG
       std::cerr << " I " << innerBti.SLId() << " " << innerBti.bti() << std::endl;
       std::cerr << " O " << outerBti.SLId() << " " << outerBti.bti() << std::endl;
       std::cerr << " M " << matchedBti.SLId() << " " << matchedBti.bti() << std::endl;
-      std::cerr << theFiringMuon->momentum() << std::endl;
+      std::cerr << "FIRED by muon " << theFiringMuon->momentum() << std::endl;
 #endif
 
       /// Select only the charges you want
@@ -1252,7 +1336,7 @@ void AnalyzerDTMatches::analyze( const edm::Event& iEvent, const edm::EventSetup
       int thisDTCode = iterDTM->getDTCode();
 
 #ifdef DEBUG
-      std::cerr << " ******** " << thisDTWheel << " * " << thisDTStation << std::endl;
+      std::cerr << " * wheel and station ******* " << thisDTWheel << " * " << thisDTStation << std::endl;
 #endif
 
       bool isCorr = false;
@@ -1436,8 +1520,8 @@ void AnalyzerDTMatches::analyze( const edm::Event& iEvent, const edm::EventSetup
           if ( tempDeltaPhi < -IMPI ) tempDeltaPhi = - 2 * IMPI + tempDeltaPhi;
 
           int predVtxTheta = iterDTM->getPredVtxTheta();
-          int predVtxPhiError = iterDTM->getPredVtxSigmaPhi();
-          int predVtxThetaError = iterDTM->getPredVtxSigmaTheta();
+          float predVtxPhiError = static_cast< float >(iterDTM->getPredVtxSigmaPhi());
+          float predVtxThetaError = static_cast< float >(iterDTM->getPredVtxSigmaTheta());
 
           if ( isCorr )
           {
@@ -1523,8 +1607,8 @@ void AnalyzerDTMatches::analyze( const edm::Event& iEvent, const edm::EventSetup
           if ( tempDeltaPhi < -IMPI ) tempDeltaPhi = - 2 * IMPI + tempDeltaPhi;
 
           int predStubTheta = iterDTM->getPredStubTheta(jLayer);
-          int predStubPhiError = iterDTM->getPredStubSigmaPhi(jLayer);
-          int predStubThetaError = iterDTM->getPredStubSigmaTheta(jLayer);
+          float predStubPhiError = static_cast< float >(iterDTM->getPredStubSigmaPhi(jLayer));
+          float predStubThetaError = static_cast< float >(iterDTM->getPredStubSigmaTheta(jLayer));
 
           if ( isCorr )
           {
@@ -1551,6 +1635,34 @@ void AnalyzerDTMatches::analyze( const edm::Event& iEvent, const edm::EventSetup
         } /// End of loop over stubs
       }
 
+      /// Prepare curvature plots
+      /// Availability of stubs is checked using Pt method strings from DTMatchBasePtMethods
+      std::map< std::string, DTMatchPt* > thisPtMethodMap = iterDTM->getPtMethodsMap();
+
+      /// Loop over the methods (theMethods[0] = "Mu_2_1" ... theMethods[14] = "Mu_6_5")
+      for ( unsigned int iMethod = 0; iMethod < 15; iMethod++ )
+      {
+        /// Check if the method is available
+        if ( thisPtMethodMap.find( theMethods[iMethod] ) != thisPtMethodMap.end() )
+        {
+          /// Build the key
+          std::pair< std::string, int > anotherKey = std::make_pair(theMethods[iMethod], thisDTStation);
+
+          float thisPt = iterDTM->getPt( theMethods[iMethod] );
+          float thisPtInv = 1./thisPt; 
+          mapMS_hDTMatch_InvPt[anotherKey]->Fill( thisPtInv );
+        }
+      }
+
+      /// Check also for L1 Track (theMethods[15] == "TTTrack")
+      if ( iterDTM->getPtMatchedTrackPtr().isNull() == false )
+      {
+        std::pair< std::string, int > anotherKey = std::make_pair(theMethods[15], thisDTStation);
+        float thisPt = iterDTM->getPtMatchedTrackPtr()->getMomentum().perp();
+        float thisPtInv = 1./thisPt;
+        mapMS_hDTMatch_InvPt[anotherKey]->Fill( thisPtInv );
+      }
+
     } /// End of check over null muon TrackingParticle
 
   } /// End of loop over DTMatches
@@ -1568,12 +1680,14 @@ void AnalyzerDTMatches::analyze( const edm::Event& iEvent, const edm::EventSetup
 
     hMuonTP_Pt_DT->Fill( thisMuon->p4().pt() );
     hMuonTP_PtBin_DT->Fill( thisMuon->p4().pt() );
+    hMuonTP_Eta_DT->Fill( thisMuon->p4().eta() );
 
     /// 0) DTTF
     if ( theseFlags.at(0) == true )
     {
       hMuonTP_Pt_DTTF->Fill( thisMuon->p4().pt() );
       hMuonTP_PtBin_DTTF->Fill( thisMuon->p4().pt() );
+      hMuonTP_Eta_DTTF->Fill( thisMuon->p4().eta() );
     }
 
     /// 1) DTMatch
@@ -1581,6 +1695,7 @@ void AnalyzerDTMatches::analyze( const edm::Event& iEvent, const edm::EventSetup
     {
       hMuonTP_Pt_DTMatch->Fill( thisMuon->p4().pt() );
       hMuonTP_PtBin_DTMatch->Fill( thisMuon->p4().pt() );
+      hMuonTP_Eta_DTMatch->Fill( thisMuon->p4().eta() );
     }
 
     /// 2) DTMatch + Stubs, Priority
@@ -1588,6 +1703,7 @@ void AnalyzerDTMatches::analyze( const edm::Event& iEvent, const edm::EventSetup
     {
       hMuonTP_Pt_DTMatch_Priority->Fill( thisMuon->p4().pt() );
       hMuonTP_PtBin_DTMatch_Priority->Fill( thisMuon->p4().pt() );
+      hMuonTP_Eta_DTMatch_Priority->Fill( thisMuon->p4().eta() );
     }
 
     /// 3) DTMatch + Stubs, Average
@@ -1595,6 +1711,7 @@ void AnalyzerDTMatches::analyze( const edm::Event& iEvent, const edm::EventSetup
     {
       hMuonTP_Pt_DTMatch_Average->Fill( thisMuon->p4().pt() );
       hMuonTP_PtBin_DTMatch_Average->Fill( thisMuon->p4().pt() );
+      hMuonTP_Eta_DTMatch_Average->Fill( thisMuon->p4().eta() );
     }
 
     /// 4) DTMatch + Stubs, Majority Full Tracker
@@ -1602,6 +1719,7 @@ void AnalyzerDTMatches::analyze( const edm::Event& iEvent, const edm::EventSetup
     {
       hMuonTP_Pt_DTMatch_MajorityFull->Fill( thisMuon->p4().pt() );
       hMuonTP_PtBin_DTMatch_MajorityFull->Fill( thisMuon->p4().pt() );
+      hMuonTP_Eta_DTMatch_MajorityFull->Fill( thisMuon->p4().eta() );
     }
 
     /// 5) DTMatch + Stubs, Majority
@@ -1609,6 +1727,7 @@ void AnalyzerDTMatches::analyze( const edm::Event& iEvent, const edm::EventSetup
     {
       hMuonTP_Pt_DTMatch_Majority->Fill( thisMuon->p4().pt() );
       hMuonTP_PtBin_DTMatch_Majority->Fill( thisMuon->p4().pt() );
+      hMuonTP_Eta_DTMatch_Majority->Fill( thisMuon->p4().eta() );
     }
 
     /// 6) DTMatch + Stubs, Mixed Mode
@@ -1616,18 +1735,31 @@ void AnalyzerDTMatches::analyze( const edm::Event& iEvent, const edm::EventSetup
     {
       hMuonTP_Pt_DTMatch_MixedMode->Fill( thisMuon->p4().pt() );
       hMuonTP_PtBin_DTMatch_MixedMode->Fill( thisMuon->p4().pt() );
+      hMuonTP_Eta_DTMatch_MixedMode->Fill( thisMuon->p4().eta() );
     }
 
     /// 7) DTMatch + TTTrack
-    if ( theseFlags.at(1) == true )
+    if ( theseFlags.at(7) == true )
     {
       hMuonTP_Pt_DTMatch_TTTrack->Fill( thisMuon->p4().pt() );
       hMuonTP_PtBin_DTMatch_TTTrack->Fill( thisMuon->p4().pt() );
+      hMuonTP_Eta_DTMatch_TTTrack->Fill( thisMuon->p4().eta() );
     }
 
+    /// 8) DTMatch + TTTrack, Full Resolution
+    if ( theseFlags.at(8) == true )
+    {
+      hMuonTP_Pt_DTMatch_TTTrackFullReso->Fill( thisMuon->p4().pt() );
+      hMuonTP_PtBin_DTMatch_TTTrackFullReso->Fill( thisMuon->p4().pt() );
+      hMuonTP_Eta_DTMatch_TTTrackFullReso->Fill( thisMuon->p4().eta() );
+    }
+
+
+
+
+
+
   } /// End of loop over sim muons
-
-
 
 } /// End of analyze()
 
