@@ -9,6 +9,7 @@
 <use   name="SimG4Core/Application"/>
 <use   name="geant4core"/>
 <use   name="hepmc"/>
-<library   file="OscarProducer.cc" name="SimG4CoreApplicationPlugins">
+<library   file="*.cc" name="SimG4CoreApplicationPlugins">
+  <use name="SimG4Core/Application"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
