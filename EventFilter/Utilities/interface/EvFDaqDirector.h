@@ -52,6 +52,7 @@ namespace evf{
       std::string getOpenRawFilePath(const unsigned int ls, const unsigned int index) const;
       std::string getOpenInputJsonFilePath(const unsigned int ls, const unsigned int index) const;
       std::string getOpenDatFilePath(const unsigned int ls, std::string const& stream) const;
+      std::string getOpenOutputJsonFilePath(const unsigned int ls, std::string const& stream) const;
       std::string getOutputJsonFilePath(const unsigned int ls, std::string const& stream) const;
       std::string getMergedDatFilePath(const unsigned int ls, std::string const& stream) const;
       std::string getInitFilePath(std::string const& stream) const;
