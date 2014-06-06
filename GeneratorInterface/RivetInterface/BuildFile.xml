@@ -1,4 +1,5 @@
 <use name="rivet"/>
+<use name="yoda"/>
 <use name="fastjet"/>
 <use name="clhep"/>
 <use name="boost"/>
