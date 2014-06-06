@@ -77,7 +77,6 @@ SiPixelDigiSource::SiPixelDigiSource(const edm::ParameterSet& iConfig) :
    if (isUpgrade) { nTOTmodules=1856; } else { nTOTmodules=1440; }
    while(!infile.eof()&&nModsInFile<nTOTmodules) {
      infile >> I_name[nModsInFile] >> I_detId[nModsInFile] >> I_fedId[nModsInFile] >> I_linkId1[nModsInFile] >> I_linkId2[nModsInFile];
-     //cout<<nModsInFile<<" , "<<I_name[nModsInFile]<<" , "<<I_detId[nModsInFile]<<" , "<<I_fedId[nModsInFile]<<" , "<<I_linkId[nModsInFile]<<endl; ;
      nModsInFile++;
    }
    infile.close();
@@ -178,46 +177,25 @@ void SiPixelDigiSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run con
 void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   eventNo++;
-  //cout<<"BIGFATEVENTNUMBER: "<<eventNo<<endl;
 
   // get input data
   edm::Handle< edm::DetSetVector<PixelDigi> >  input;
   iEvent.getByToken(srcToken_, input);
   if (!input.isValid()) return; 
   
-  //float iOrbitSec = iEvent.orbitNumber()/11223.;
+
   int bx = iEvent.bunchCrossing();
-  //long long tbx = (long long)iEvent.orbitNumber() * 3564 + bx;
+
   int lumiSection = (int)iEvent.luminosityBlock();
   int nEventDigis = 0; int nActiveModules = 0;
-  //int nEventBPIXDigis = 0; int nEventFPIXDigis = 0;
   
   if(modOn){
-    //if(meReset && eventNo%1000==0){
     if(averageDigiOccupancy && lumiSection%8==0){
       averageDigiOccupancy->Reset();
       nBPIXDigis = 0; 
       nFPIXDigis = 0;
       for(int i=0; i!=40; i++) nDigisPerFed[i]=0;  
     }
-    //Re-implemented into the Module code. DQMStore access is forbiddenin multithreaded DQM.
-    // if (lumiSection%10==0){
-//       //Now do resets for ROCuppancy maps every 10 ls
-//       std::string baseDirs[2] = {"Pixel/Barrel", "Pixel/Endcap"};
-//       for (int i = 0; i < 2; ++i){
-// 	theDMBE->cd(baseDirs[i]);
-// 	vector<string> shellDirs = theDMBE->getSubdirs();
-// 	for (vector<string>::const_iterator it = shellDirs.begin(); it != shellDirs.end(); it++) {
-// 	  theDMBE->cd(*it);
-// 	  vector<string> layDirs = theDMBE->getSubdirs();
-// 	  for (vector<string>::const_iterator itt = layDirs.begin(); itt != layDirs.end(); itt++) {
-// 	    theDMBE->cd(*itt);
-// 	    vector<string> contents = theDMBE->getMEs();
-// 	    for (vector<string>::const_iterator im = contents.begin(); im != contents.end(); im++) {
-// 	      if ((*im).find("rocmap") == string::npos) continue;
-// 	      MonitorElement* me = theDMBE->get((*itt)+"/"+(*im));
-// 	      if(me) me->Reset();}}}}//end for contents//end for layDirs//end for shellDirs//end for bar/EC
-//    }
   }
   if(!modOn){
     if(averageDigiOccupancy && lumiSection%1==0){
@@ -243,57 +221,40 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 						       nDigisA, nDigisB, isUpgrade);
     if (modOn && twoDimOnlyLayDisk && lumiSection%10 == 0) (*struct_iter).second->resetRocMap();
 
-    //Moving these outside the if statement so they can be used for the efficiency plots
     bool barrel = DetId((*struct_iter).first).subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel);
     bool endcap = DetId((*struct_iter).first).subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap);
     if(numberOfDigisMod>0){
-      //if((*struct_iter).first == I_detId[39]) 
-      //std::cout << "FED " << (*struct_iter).first << " NDigis all modules..." << numberOfDigisMod << std::endl;
       nEventDigis = nEventDigis + numberOfDigisMod;  
       nActiveModules++;  
-      //if((*struct_iter).first >= 302055684 && (*struct_iter).first <= 302197792 ){ // Barrel
       int nBPiXmodules;
-      //int nFPixmodules;
       int nTOTmodules;
       if (isUpgrade) {
         nBPiXmodules=1184;
-        //nFPixmodules=672;
         nTOTmodules=1856;
       } else {
         nBPiXmodules=768;
-        //nFPixmodules=672;
         nTOTmodules=1440;
       }
       if(barrel){ // Barrel
-        //cout<<"AAbpix: "<<numberOfDigisMod<<" + "<<nBPIXDigis<<" = ";
         nBPIXDigis = nBPIXDigis + numberOfDigisMod;
-	//cout<<nBPIXDigis<<endl;
         for(int i=0; i!=nBPiXmodules; ++i){
-          //cout<<"\t\t\t bpix: "<<i<<" , "<<(*struct_iter).first<<" , "<<I_detId[i]<<endl;
           if((*struct_iter).first == I_detId[i]){
-	    //if(I_fedId[i]>=32&&I_fedId[i]<=39) std::cout<<"Attention: a BPIX module matched to an FPIX FED!"<<std::endl;
 	    nDigisPerFed[I_fedId[i]]=nDigisPerFed[I_fedId[i]]+numberOfDigisMod;
-	    //cout<<"BPIX: "<<i<<" , "<<I_fedId[i]<<" , "<<numberOfDigisMod<<" , "<<nDigisPerFed[I_fedId[i]]<<endl;
 	    int index1 = 0; int index2 = 0;
 	    if(I_linkId1[i]>0) index1 = I_fedId[i]*36+(I_linkId1[i]-1); 
 	    if(I_linkId2[i]>0) index2 = I_fedId[i]*36+(I_linkId2[i]-1);
 	    if(nDigisA>0 && I_linkId1[i]>0) nDigisPerChan[index1]=nDigisPerChan[index1]+nDigisA;
 	    if(nDigisB>0 && I_linkId2[i]>0) nDigisPerChan[index2]=nDigisPerChan[index2]+nDigisB;
-	    //if (index1==35 || index2==35) cout<<"BPIX 35: "<<I_detId[i]<<" : "<<I_fedId[i]<<"  "<<I_linkId1[i]<<" , "<<I_fedId[i]<<"  "<<I_linkId2[i]<<" , "<<nDigisA<<" , "<<nDigisB<<endl;
             i=(nBPiXmodules-1);
 	  }
         }
-      //}else if((*struct_iter).first >= 343999748 && (*struct_iter).first <= 352477708 ){ // Endcap
       }else if(endcap && !isUpgrade){ // Endcap
-        //cout<<"AAfpix: "<<nFPIXDigis<<" = ";
         nFPIXDigis = nFPIXDigis + numberOfDigisMod;
-	//cout<<nFPIXDigis<<endl;
         PixelEndcapName::HalfCylinder side = PixelEndcapName(DetId((*struct_iter).first)).halfCylinder();
 	int disk = PixelEndcapName(DetId((*struct_iter).first)).diskName();
 	int blade = PixelEndcapName(DetId((*struct_iter).first)).bladeName();
         int panel = PixelEndcapName(DetId((*struct_iter).first)).pannelName();
         int module = PixelEndcapName(DetId((*struct_iter).first)).plaquetteName();
-	//std::cout<<"Endcap: "<<side<<" , "<<disk<<" , "<<blade<<" , "<<panel<<" , "<<std::endl;
 	int iter=0; int i=0;
 	if(side==PixelEndcapName::mI){
 	  if(disk==1){
@@ -725,23 +686,13 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
           }
         }
         numberOfDigis[iter]=numberOfDigis[iter]+numberOfDigisMod;
-        //if(side==PixelEndcapNameUpgrade::pO||side==PixelEndcapNameUpgrade::pI){
-        //  if(disk==2){ 
-        //  std::cout<<"status: "<<iter<<","<<side<<","<<disk<<","<<blade<<","<<panel<<","<<numberOfDigisMod<<","<<numberOfDigis[iter]<<std::endl;       
-        //}}
         for(int i=nBPiXmodules; i!=nTOTmodules; i++){
-          //cout<<"\t\t\t fpix: "<<i<<" , "<<(*struct_iter).first<<" , "<<I_detId[i]<<endl;
           if((*struct_iter).first == I_detId[i]){
-	    //if(I_fedId[i]<32||I_fedId[i]>39) std::cout<<"Attention: an FPIX module matched to a BPIX FED!"<<std::endl;
 	    nDigisPerFed[I_fedId[i]]=nDigisPerFed[I_fedId[i]]+numberOfDigisMod;
-	    //cout<<"FPIX: "<<i<<" , "<<I_fedId[i]<<" , "<<nDigisPerFed[I_fedId[i]]<< ", "<<numberOfDigisMod << endl;
             i=nTOTmodules-1;
 	  }
         }
-	//cout<<"NDigis Endcap: "<<nDM1P1M1/2.<<" "<<nDM1P2M1/6.<<" "<<nDM1P1M2/6.<<" "<<nDM1P2M2/8.<<" "<<nDM1P1M3/8.<<" "<<nDM1P2M3/10.<<" "<<nDM1P1M4/5.<<endl;
       }//endif(Endcap && isUpgrade)
-      //cout<<"numberOfDigis: "<<numberOfDigisMod<<" , nBPIXDigis: "<<nBPIXDigis<<" , nFPIXDigis: "<<nFPIXDigis<<endl;
-      // digi occupancy per individual FED channel:
     } // endif any digis in this module
     if (twoDimOnlyLayDisk && lumiSection%10 > 2){
       std::pair<int,int> tempPair = (*struct_iter).second->getZeroLoEffROCs();
@@ -756,45 +707,13 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
     }
   } // endfor loop over all modules
 
-//  std::string baseDirs[2] = {"Pixel/Barrel", "Pixel/Endcap"};
   if (lumiSection%10> 2){
-    //This has been moved to the Module code, as it uses MEs booked there.
-//     for (int i = 0; i < 2; ++i){
-//       theDMBE->cd(baseDirs[i]);
-//       vector<string> shellDirs = theDMBE->getSubdirs();
-//       for (vector<string>::const_iterator it = shellDirs.begin(); it != shellDirs.end(); it++) {
-// 	theDMBE->cd(*it);
-// 	vector<string> layDirs = theDMBE->getSubdirs();
-// 	for (vector<string>::const_iterator itt = layDirs.begin(); itt != layDirs.end(); itt++) {
-// 	  theDMBE->cd(*itt);
-// 	  vector<string> contents = theDMBE->getMEs(); 
-// 	  for (vector<string>::const_iterator im = contents.begin(); im != contents.end(); im++) {
-// 	    if ((*im).find("rocmap") == string::npos) continue;
-// 	    MonitorElement* me  = theDMBE->get((*itt)+"/"+(*im));
-// 	    if(!me) continue;
-// 	    MonitorElement* me2;
-// 	    me2 = theDMBE->get((*itt)+"/zeroOccROC_map");
-// 	    float SF = 1.0; if (me->getEntries() > 0) SF = float(me->getNbinsX()*me->getNbinsY()/me->getEntries());
-// 	    for (int ii = 1; ii < me->getNbinsX()+1; ++ii){for (int jj = 1; jj < me->getNbinsY()+1; ++jj){
-// 		//Putting in conversion to layer maps.. again, ugly way to do it...
-// 		float localX = float(ii)-0.5;
-// 		float localY = float(jj)/2.0 + 1.25;
-// 		if (i ==1) localY = float(jj)/2.0 + 0.75;
-// 		if (me->getBinContent(ii,jj)    <   1) {++NzeroROCs[i]; if (me2) me2->Fill(localX, localY);}
-// 		if (me->getBinContent(ii,jj)*SF < 0.25) ++NloEffROCs[i];}}
-// 	  }
-// 	}
-//       }
-//  }
     for (int i =0; i < 2; ++i) NloEffROCs[i] = NloEffROCs[i] - NzeroROCs[i];
     if(noOccROCsBarrel) noOccROCsBarrel->setBinContent(1+lumiSection/10, NzeroROCs[0]);
     if(loOccROCsBarrel) loOccROCsBarrel->setBinContent(1+lumiSection/10, NloEffROCs[0]);
     if(noOccROCsEndcap) noOccROCsEndcap->setBinContent(1+lumiSection/10, NzeroROCs[1]);
     if(loOccROCsEndcap) loOccROCsEndcap->setBinContent(1+lumiSection/10, NloEffROCs[1]);
   }
-//  if(lumiSection>lumSec){ lumSec = lumiSection; nLumiSecs++; }
-//  if(nEventDigis>bigEventSize) nBigEvents++;
-//  if(nLumiSecs%5==0){
   
   if (!isUpgrade) {
     if(meNDigisCHANEndcap_){ for(int j=0; j!=192; j++) if(numberOfDigis[j]>0) meNDigisCHANEndcap_->Fill((float)numberOfDigis[j]);}
@@ -853,7 +772,6 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
   if(nEventDigis>bigEventSize){
     if(bigEventRate) bigEventRate->Fill(lumiSection,1./23.);    
   }
-  //std::cout<<"nEventDigis: "<<nEventDigis<<" , nLumiSecs: "<<nLumiSecs<<" , nBigEvents: "<<nBigEvents<<std::endl;
   
   // Rate of pixel events and total number of pixel events per BX:
   if(nActiveModules>=4){
@@ -872,11 +790,9 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
       if(i<32){
         float averageBPIXFed = float(nBPIXDigis-maxfed)/31.;
 	if(averageBPIXFed>0.) averageOcc = nDigisPerFed[i]/averageBPIXFed;
-	//cout<<"\t BPIX i: "<<i<<" , "<<nBPIXDigis<<" , "<<averageBPIXFed<<" , "<<nDigisPerFed[i]<<" , "<<averageOcc<<endl;
       }else{
         float averageFPIXFed = float(nFPIXDigis)/8.;
 	if(averageFPIXFed>0.) averageOcc = nDigisPerFed[i]/averageFPIXFed;
-	//cout<<"\t FPIX i: "<<i<<" , "<<nFPIXDigis<<" , "<<averageFPIXFed<<" , "<<nDigisPerFed[i]<<" , "<<averageOcc<<endl;
       }
       averageDigiOccupancy->setBinContent(i+1,averageOcc);
       int lumiSections8 = int(lumiSection/8);

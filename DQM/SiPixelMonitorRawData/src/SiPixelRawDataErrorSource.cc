@@ -100,15 +100,12 @@ void SiPixelRawDataErrorSource::bookHistograms(DQMStore::IBooker & iBooker, edm:
 void SiPixelRawDataErrorSource::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   eventNo++;
-  //std::cout<<"Event number: "<<eventNo<<std::endl;
+
   // get input data
   edm::Handle< DetSetVector<SiPixelRawDataError> >  input;
   iEvent.getByToken( src_, input );
   if (!input.isValid()) return; 
 
-  //float iOrbitSec = iEvent.orbitNumber()/11223.;
-  //int bx = iEvent.bunchCrossing();
-  //long long tbx = (long long)iEvent.orbitNumber() * 3564 + bx;
   int lumiSection = (int)iEvent.luminosityBlock();
   
   int nEventBPIXModuleErrors = 0; int nEventFPIXModuleErrors = 0; int nEventBPIXFEDErrors = 0; int nEventFPIXFEDErrors = 0;
@@ -137,8 +134,6 @@ void SiPixelRawDataErrorSource::analyze(const edm::Event& iEvent, const edm::Eve
   if(byLumiErrors){
     byLumiErrors->setBinContent(0,eventNo);
     //cout<<"NErrors: "<<nEventBPIXModuleErrors<<" "<<nEventFPIXModuleErrors<<" "<<nEventBPIXFEDErrors<<" "<<nEventFPIXFEDErrors<<endl;
-    //if(nEventBPIXModuleErrors+nEventBPIXFEDErrors>0) byLumiErrors->setBinContent(1,byLumiErrors->getBinContent(1)+nEventBPIXModuleErrors+nEventBPIXFEDErrors);
-    //if(nEventFPIXModuleErrors+nEventFPIXFEDErrors>0) byLumiErrors->setBinContent(2,byLumiErrors->getBinContent(2)+nEventFPIXModuleErrors+nEventFPIXFEDErrors);
     if(nEventBPIXModuleErrors+nEventBPIXFEDErrors>0) byLumiErrors->Fill(0,1.);
     if(nEventFPIXModuleErrors+nEventFPIXFEDErrors>0) byLumiErrors->Fill(1,1.);
     //cout<<"histo: "<<byLumiErrors->getBinContent(0)<<" "<<byLumiErrors->getBinContent(1)<<" "<<byLumiErrors->getBinContent(2)<<endl;
@@ -256,7 +251,6 @@ void SiPixelRawDataErrorSource::buildStructure(const edm::EventSetup& iSetup){
 //------------------------------------------------------------------
 void SiPixelRawDataErrorSource::bookMEs(DQMStore::IBooker & iBooker){
   //cout<<"Entering SiPixelRawDataErrorSource::bookMEs now: "<<endl;
-  // Get DQM interface
   iBooker.setCurrentFolder("Pixel/AdditionalPixelErrors");
   char title[80]; sprintf(title, "By-LumiSection Error counters");
   byLumiErrors = iBooker.book1D("byLumiErrors",title,2,0.,2.);
@@ -273,10 +267,7 @@ void SiPixelRawDataErrorSource::bookMEs(DQMStore::IBooker & iBooker){
     /// Create folder tree and book histograms 
 
     if(modOn){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,0,isUpgrade)) {
-        (*struct_iter).second->book( conf_, iBooker, 0 ,isUpgrade );
-      }
-      else {
+      if(!theSiPixelFolder.setModuleFolder((*struct_iter).first,0,isUpgrade)) {
         //std::cout<<"PIB! not booking histograms for non-PIB modules!"<<std::endl;
         if(!isPIB) throw cms::Exception("LogicError")
                        << "[SiPixelRawDataErrorSource::bookMEs] Creation of DQM folder failed";
@@ -284,19 +275,13 @@ void SiPixelRawDataErrorSource::bookMEs(DQMStore::IBooker & iBooker){
     }
     
     if(ladOn){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,1,isUpgrade)) {
-        (*struct_iter).second->book( conf_, iBooker, 1 , isUpgrade );
-      }
-      else {
+      if(!theSiPixelFolder.setModuleFolder((*struct_iter).first,1,isUpgrade)) {
         LogDebug ("PixelDQM") << "PROBLEM WITH LADDER-FOLDER\n";
       }
     }
     
     if(bladeOn){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,4,isUpgrade)) {
-        (*struct_iter).second->book( conf_, iBooker, 4 ,isUpgrade );
-      }
-      else {
+      if(!theSiPixelFolder.setModuleFolder((*struct_iter).first,4,isUpgrade)) {
         LogDebug ("PixelDQM") << "PROBLEM WITH BLADE-FOLDER\n";
       }
     }
@@ -305,20 +290,14 @@ void SiPixelRawDataErrorSource::bookMEs(DQMStore::IBooker & iBooker){
 
   for(struct_iter2 = theFEDStructure.begin(); struct_iter2 != theFEDStructure.end(); struct_iter2++){
     /// Create folder tree for errors without detId and book histograms 
-    if(theSiPixelFolder.setFedFolder((*struct_iter2).first)) {
-      //      (*struct_iter2).second->bookFED( conf_, iBooker ); This line no longer does anything, but maybe useful in the future.
-    }
-    else {
+    if(!theSiPixelFolder.setFedFolder((*struct_iter2).first)) {
       throw cms::Exception("LogicError")
 	<< "[SiPixelRawDataErrorSource::bookMEs] Creation of DQM folder failed";
     }
 
   }
-  //cout<<"...leaving SiPixelRawDataErrorSource::bookMEs now! "<<endl;
 
-  //Putting in the actual FED booking stuff here, so that it can be accessed properly within the Module code properly. This is ugly and hard-codes the FEDs though, which is probably bad.
-  //It is hard-coded in build structure, so I think this is fine. ...
-
+  //Booking FED histograms
   std::string hid;
   // Get collection name and instantiate Histo Id builder
   edm::InputTag src = conf_.getParameter<edm::InputTag>( "src" );
@@ -371,6 +350,7 @@ void SiPixelRawDataErrorSource::bookMEs(DQMStore::IBooker & iBooker){
 
 
   }
+  //Add the booked histograms to the histogram map for booking
   meMapFEDs_["meErrorType_"] = meErrorType_;
   meMapFEDs_["meNErrors_"] = meNErrors_;
   meMapFEDs_["meFullType_"] = meFullType_;
@@ -382,6 +362,7 @@ void SiPixelRawDataErrorSource::bookMEs(DQMStore::IBooker & iBooker){
   meMapFEDs_["meFedChLErrArray_"] = meFedChLErrArray_;
   meMapFEDs_["meFedETypeNErrArray_"] = meFedETypeNErrArray_;
 
+  //cout<<"...leaving SiPixelRawDataErrorSource::bookMEs now! "<<endl;
 }
 
 DEFINE_FWK_MODULE(SiPixelRawDataErrorSource);

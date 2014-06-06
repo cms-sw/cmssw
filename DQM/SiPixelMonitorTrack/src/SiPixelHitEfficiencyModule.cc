@@ -104,42 +104,10 @@ void SiPixelHitEfficiencyModule::book(const edm::ParameterSet& iConfig, DQMStore
     meValid_ = iBooker.book1D(hisID,"# Valid hits",1,0,1.);
     meValid_->setAxisTitle("# Valid hits",1);
     
-    /*hisID = theHistogramId->setHistoId("validX",id_);
-    meValidX_ = iBooker.book1D(hisID,"# Valid hits in X",nbinX,-1.5,1.5);
-    meValidX_->setAxisTitle("# Valid hits in X",1);
-    
-    hisID = theHistogramId->setHistoId("validY",id_);
-    meValidY_ = iBooker.book1D(hisID,"# Valid hits in Y",nbinY,-4.,4.);
-    meValidY_->setAxisTitle("# Valid hits in Y",1);
-    
-    hisID = theHistogramId->setHistoId("validAlpha",id_);
-    meValidAlpha_ = iBooker.book1D(hisID,"# Valid hits in Alpha",nbinangle,-3.5,3.5);
-    meValidAlpha_->setAxisTitle("# Valid hits in Alpha",1);
-    
-    hisID = theHistogramId->setHistoId("validBeta",id_);
-    meValidBeta_ = iBooker.book1D(hisID,"# Valid hits in Beta",nbinangle,-3.5,3.5);
-    meValidBeta_->setAxisTitle("# Valid hits in Beta",1);*/
-
     //MISSING
     hisID = theHistogramId->setHistoId("missing",id_);
     meMissing_ = iBooker.book1D(hisID,"# Missing hits",1,0,1.);
     meMissing_->setAxisTitle("# Missing hits",1);
-    
-    /*hisID = theHistogramId->setHistoId("missingX",id_);
-    meMissingX_ = iBooker.book1D(hisID,"# Missing hits in X",nbinX,-1.5,1.5);
-    meMissingX_->setAxisTitle("# Missing hits in X",1);
-    
-    hisID = theHistogramId->setHistoId("missingY",id_);
-    meMissingY_ = iBooker.book1D(hisID,"# Missing hits in Y",nbinY,-4.,4.);
-    meMissingY_->setAxisTitle("# Missing hits in Y",1);
-    
-    hisID = theHistogramId->setHistoId("missingAlpha",id_);
-    meMissingAlpha_ = iBooker.book1D(hisID,"# Missing hits in Alpha",nbinangle,-3.5,3.5);
-    meMissingAlpha_->setAxisTitle("# Missing hits in Alpha",1);
-    
-    hisID = theHistogramId->setHistoId("missingBeta",id_);
-    meMissingBeta_ = iBooker.book1D(hisID,"# Missing hits in Beta",nbinangle,-3.5,3.5);
-    meMissingBeta_->setAxisTitle("# Missing hits in Beta",1);*/
     
     delete theHistogramId;
   }
@@ -529,10 +497,6 @@ void SiPixelHitEfficiencyModule::fill(const LocalTrajectoryParameters& ltp, bool
   if(isHitValid){
     if(modon){
       meValid_->Fill(0.5);
-      /*meValidX_->Fill(prediction_x);
-      meValidY_->Fill(prediction_y);
-      meValidAlpha_->Fill(prediction_alpha);
-      meValidBeta_->Fill(prediction_beta);*/
     }
     if(barrel && ladon){
       meValidLad_->Fill(0.5);
@@ -581,10 +545,6 @@ void SiPixelHitEfficiencyModule::fill(const LocalTrajectoryParameters& ltp, bool
   else {
     if(modon){
       meMissing_->Fill(0.5);
-      /*meMissingX_->Fill(prediction_x);
-      meMissingY_->Fill(prediction_y);
-      meMissingAlpha_->Fill(prediction_alpha);
-      meMissingBeta_->Fill(prediction_beta);*/
     }
     if(barrel && ladon){
       meMissingLad_->Fill(0.5);
@@ -646,22 +606,6 @@ void SiPixelHitEfficiencyModule::computeEfficiencies(bool modon, bool ladon, boo
   if(modon){
     meEfficiency_->setBinContent(1,(eff(meValid_->getBinContent(1),meMissing_->getBinContent(1))).first);
     meEfficiency_->setBinError(1,(eff(meValid_->getBinContent(1),meMissing_->getBinContent(1))).second);
-    /*for(int i=1;i<=meValidX_->getNbinsX();++i){
-      meEfficiencyX_->setBinContent(i,(eff(meValidX_->getBinContent(i),meMissingX_->getBinContent(i))).first);
-      meEfficiencyX_->setBinError(i,(eff(meValidX_->getBinContent(i),meMissingX_->getBinContent(i))).second);
-    }
-    for(int i=1;i<=meValidY_->getNbinsX();++i){
-      meEfficiencyY_->setBinContent(i,(eff(meValidY_->getBinContent(i),meMissingY_->getBinContent(i))).first);
-      meEfficiencyY_->setBinError(i,(eff(meValidY_->getBinContent(i),meMissingY_->getBinContent(i))).second);
-    }
-    for(int i=1;i<=meValidAlpha_->getNbinsX();++i){
-      meEfficiencyAlpha_->setBinContent(i,(eff(meValidAlpha_->getBinContent(i),meMissingAlpha_->getBinContent(i))).first);
-      meEfficiencyAlpha_->setBinError(i,(eff(meValidAlpha_->getBinContent(i),meMissingAlpha_->getBinContent(i))).second);
-    }
-    for(int i=1;i<=meValidBeta_->getNbinsX();++i){
-      meEfficiencyBeta_->setBinContent(i,(eff(meValidBeta_->getBinContent(i),meMissingBeta_->getBinContent(i))).first);
-      meEfficiencyBeta_->setBinError(i,(eff(meValidBeta_->getBinContent(i),meMissingBeta_->getBinContent(i))).second);
-    }*/
   }
   if(ladon && barrel){
     meEfficiencyLad_->setBinContent(1,(eff(meValidLad_->getBinContent(1),meMissingLad_->getBinContent(1))).first);

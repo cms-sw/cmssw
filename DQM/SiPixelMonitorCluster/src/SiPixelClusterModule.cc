@@ -81,21 +81,8 @@ void SiPixelClusterModule::book(const edm::ParameterSet& iConfig, DQMStore::IBoo
   std::string hid;
   // Get collection name and instantiate Histo Id builder
   edm::InputTag src = iConfig.getParameter<edm::InputTag>( "src" );
-  // Get DQM interface
   if(type==0){
     SiPixelHistogramId* theHistogramId = new SiPixelHistogramId( src.label() );
-    // Number of clusters
-    //hid = theHistogramId->setHistoId("nclusters",id_);
-    //meNClusters_ = iBooker.book1D(hid,"Number of Clusters",8,0.,8.);
-    //meNClusters_->setAxisTitle("Number of Clusters",1);
-    // Total cluster charge in MeV
-    //hid = theHistogramId->setHistoId("charge",id_);
-    //meCharge_ = iBooker.book1D(hid,"Cluster charge",100,0.,200.);
-    //meCharge_->setAxisTitle("Charge [kilo electrons]",1);
-    // Total cluster size (in pixels)
-    //hid = theHistogramId->setHistoId("size",id_);
-    //meSize_ = iBooker.book1D(hid,"Total cluster size",30,0.,30.);
-    //meSize_->setAxisTitle("Cluster size [number of pixels]",1);
     if(!reducedSet){
       // Lowest cluster row
       hid = theHistogramId->setHistoId("minrow",id_);
@@ -505,7 +492,6 @@ int SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& input
     
     // Look at clusters now
     edmNew::DetSet<SiPixelCluster>::const_iterator  di;
-    //for(di = isearch->data.begin(); di != isearch->data.end(); di++) {
     for(di = isearch->begin(); di != isearch->end(); di++) {
       numberOfClusters++;
       if(endcap) numberOfFpixClusters++;
@@ -519,78 +505,70 @@ int SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& input
       int maxPixelRow = di->maxPixelRow(); // max x index
       int minPixelCol = di->minPixelCol(); // min y index
       int maxPixelCol = di->maxPixelCol(); // max y index
-      //      bool edgeHitX = di->edgeHitX();      // records if a cluster is at the x-edge of the detector
-      //      bool edgeHitY = di->edgeHitY();      // records if a cluster is at the y-edge of the detector
-      
 
-      //**
-     // edm::ESHandle<TrackerGeometry> pDD;
-     // es.get<TrackerDigiGeometryRecord> ().get (pDD);
-     // const TrackerGeometry* tracker = &(* pDD);
       const PixelGeomDetUnit* theGeomDet = dynamic_cast<const PixelGeomDetUnit*> ( tracker->idToDet(DetId(id_)) );
-      //**
+
       const PixelTopology * topol = &(theGeomDet->specificTopology());
       LocalPoint clustlp = topol->localPosition( MeasurementPoint(x, y) );
       GlobalPoint clustgp = theGeomDet->surface().toGlobal( clustlp );
-      //**end
-      //if(modon){
-	//if(modon) (meCharge_)->Fill((float)charge);
-	//if(modon) (meSize_)->Fill((int)size);
-	if(barrel){
-          uint32_t DBlayer;
-	  if (!isUpgrade) { DBlayer = PixelBarrelName(DetId(id_)).layerName(); }
-	  else { DBlayer = PixelBarrelNameUpgrade(DetId(id_)).layerName(); }
-	  switch(DBlayer){
+
+      if(barrel){
+	uint32_t DBlayer;
+	if (!isUpgrade) { DBlayer = PixelBarrelName(DetId(id_)).layerName(); }
+	else { DBlayer = PixelBarrelNameUpgrade(DetId(id_)).layerName(); }
+	switch(DBlayer){
+	case 1: {
+	  if(layer1) layer1->Fill(clustgp.z(),clustgp.phi());
+	  break;
+	} case 2: {
+	  if(layer2) layer2->Fill(clustgp.z(),clustgp.phi());
+	  break;
+	} case 3: {
+	  if(layer3) layer3->Fill(clustgp.z(),clustgp.phi());
+	  break;
+	} case 4: {
+	  if (isUpgrade) {
+	    if(layer4) layer4->Fill(clustgp.z(),clustgp.phi());
+	    break;
+	  }
+	  }
+	}
+      }else if(endcap){
+	uint32_t DBdisk;
+	if (!isUpgrade) { DBdisk = PixelEndcapName(DetId(id_)).diskName(); }
+	else if (isUpgrade) { DBdisk = PixelEndcapNameUpgrade(DetId(id_)).diskName(); }
+	if(clustgp.z()>0){
+	  switch(DBdisk){
 	  case 1: {
-	    if(layer1) layer1->Fill(clustgp.z(),clustgp.phi());
+	    if(disk1pz) disk1pz->Fill(clustgp.x(),clustgp.y());
 	    break;
 	  } case 2: {
-	    if(layer2) layer2->Fill(clustgp.z(),clustgp.phi());
+	    if(disk2pz) disk2pz->Fill(clustgp.x(),clustgp.y());
 	    break;
 	  } case 3: {
-	    if(layer3) layer3->Fill(clustgp.z(),clustgp.phi());
-	    break;
-	  } case 4: {
 	    if (isUpgrade) {
-	      if(layer4) layer4->Fill(clustgp.z(),clustgp.phi());
+	      if(disk3pz) disk3pz->Fill(clustgp.x(),clustgp.y());
 	      break;
 	    }
-	  }} 
-	}else if(endcap){
-	  uint32_t DBdisk;
-	  if (!isUpgrade) { DBdisk = PixelEndcapName(DetId(id_)).diskName(); }
-	  else if (isUpgrade) { DBdisk = PixelEndcapNameUpgrade(DetId(id_)).diskName(); }
-	  if(clustgp.z()>0){
-	    switch(DBdisk){
-	    case 1: {
-	      if(disk1pz) disk1pz->Fill(clustgp.x(),clustgp.y());
-	      break;
-	    } case 2: {
-	      if(disk2pz) disk2pz->Fill(clustgp.x(),clustgp.y());
-	      break;
-	    } case 3: {
-	      if (isUpgrade) {
-	        if(disk3pz) disk3pz->Fill(clustgp.x(),clustgp.y());
-	        break;
-	      }
 	    }}
-	 }else{
-	    switch(DBdisk){
-	    case 1: {
-	      if(disk1mz) disk1mz->Fill(clustgp.x(),clustgp.y());
-	      break;
-	    } case 2: {
-	      if(disk2mz) disk2mz->Fill(clustgp.x(),clustgp.y());
-	      break;
-	    } case 3: {
-	      if (isUpgrade) {
-	        if(disk3mz) disk3mz->Fill(clustgp.x(),clustgp.y());
-	        break;
-	      }
-	    }}
-	  } 
-	}
-	if(!reducedSet)
+	}else{
+	  switch(DBdisk){
+	  case 1: {
+	    if(disk1mz) disk1mz->Fill(clustgp.x(),clustgp.y());
+	    break;
+	  } case 2: {
+	    if(disk2mz) disk2mz->Fill(clustgp.x(),clustgp.y());
+	    break;
+	  } case 3: {
+	    if (isUpgrade) {
+	    if(disk3mz) disk3mz->Fill(clustgp.x(),clustgp.y());
+	    break;
+	    }
+	    }
+	  }
+	} 
+      }
+      if(!reducedSet)
 	{
 	  (meMinRow_)->Fill((int)minPixelRow);
 	  (meMaxRow_)->Fill((int)maxPixelRow);
@@ -606,10 +584,7 @@ int SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster>& input
 	        (mePixClusters_py_)->Fill((float)x);
 	  }
 	}
-	//      (meEdgeHitX_)->Fill((int)edgeHitX);
-	//      (meEdgeHitY_)->Fill((int)edgeHitY);
-      //}//endifmodOn
-      //**
+
       if(barrel && smileyon){
         (meSizeYvsEtaBarrel_)->Fill(clustgp.eta(),sizeY);
 	//std::cout << "Cluster Global x y z theta eta " << clustgp.x() << " " << clustgp.y() << " " << clustgp.z() << " " << clustgp.theta() << " " << clustgp.eta() << std::endl;

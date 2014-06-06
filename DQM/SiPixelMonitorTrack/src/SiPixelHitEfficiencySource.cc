@@ -83,7 +83,6 @@ SiPixelHitEfficiencySource::SiPixelHitEfficiencySource(const edm::ParameterSet& 
  { 
    pSet_ = pSet; 
    debug_ = pSet_.getUntrackedParameter<bool>("debug", false); 
-   //tracksrc_ = pSet_.getParameter<edm::InputTag>("trajectoryInput");
    applyEdgeCut_ = pSet_.getUntrackedParameter<bool>("applyEdgeCut");
    nSigma_EdgeCut_ = pSet_.getUntrackedParameter<double>("nSigma_EdgeCut");
    vertexCollectionToken_ = consumes<reco::VertexCollection>(std::string("offlinePrimaryVertices"));
@@ -216,19 +215,12 @@ void SiPixelHitEfficiencySource::analyze(const edm::Event& iEvent, const edm::Ev
   }
   if(nvtx_<1) return;
     
-  //Get the geometry
-  ESHandle<TrackerGeometry> TG;
-  iSetup.get<TrackerDigiGeometryRecord>().get(TG);
-  const TrackerGeometry* theTrackerGeometry = TG.product();
-  
   //get the map
   edm::Handle<TrajTrackAssociationCollection> match;
   iEvent.getByToken( tracksrc_, match );
   const TrajTrackAssociationCollection ttac = *(match.product());
 
   if(debug_){
-    //std::cout << "Trajectories\t : " << trajColl.size() << std::endl;
-    //std::cout << "recoTracks  \t : " << trackColl.size() << std::endl;
     std::cout << "+++ NEW EVENT +++"<< std::endl;
     std::cout << "Map entries \t : " << ttac.size() << std::endl;
   }
@@ -539,198 +531,153 @@ float y=predTrajState.globalPosition().y();
 	    }
           }//endif(isUpgrade)
 	  
-	      //check wether hit is valid or missing using track algo flag
+	  //check whether hit is valid or missing using track algo flag
           bool isHitValid   =hit->hit()->getType()==TrackingRecHit::valid;
           bool isHitMissing =hit->hit()->getType()==TrackingRecHit::missing;
-          //std::cout<<"------ New Hit"<<std::endl;
-          //std::cout<<(hit->hit()->getType()==TrackingRecHit::missing)<<std::endl;
 	  
-	  // get the enclosed persistent hit
-	  //const TrackingRecHit *persistentHit = hit->hit();
-	  // check if it's not null, and if it's a valid pixel hit
-	  //if ((persistentHit != 0) && (typeid(*persistentHit) == typeid(SiPixelRecHit))) {
-	  
-	    if(debug_) std::cout << "the hit is persistent\n";
-	    
-	    // tell the C++ compiler that the hit is a pixel hit
-	    //const SiPixelRecHit* pixhit = dynamic_cast<const SiPixelRecHit*>( hit->hit() );
+	  if(debug_) std::cout << "the hit is persistent\n";
 	 
-	    //define tracker and pixel geometry and topology
-	    const TrackerGeometry& theTracker(*theTrackerGeometry);
-	    const PixelGeomDetUnit* theGeomDet = dynamic_cast<const PixelGeomDetUnit*> (theTracker.idToDet(hit_detId) );
-	    //test if PixelGeomDetUnit exists
-	    if(theGeomDet == 0) {
-	      if(debug_) std::cout << "NO THEGEOMDET\n";
-	      continue;
-	    }
-	      	      
-	      //const RectangularPixelTopology * topol = dynamic_cast<const RectangularPixelTopology*>(&(theGeomDet->specificTopology()));
+	  std::map<uint32_t, SiPixelHitEfficiencyModule*>::iterator pxd = theSiPixelStructure.find((*hit).geographicalId().rawId());
 
-	      std::map<uint32_t, SiPixelHitEfficiencyModule*>::iterator pxd = theSiPixelStructure.find((*hit).geographicalId().rawId());
+	  // calculate alpha and beta from cluster position
+	  LocalTrajectoryParameters ltp = tsos.localParameters();
+	  //LocalVector localDir = ltp.momentum()/ltp.momentum().mag();
+	      
+	  //*************** Edge cut ********************
+	  double lx=tsos.localPosition().x();
+	  double ly=tsos.localPosition().y();
 
-	      // calculate alpha and beta from cluster position
-	      LocalTrajectoryParameters ltp = tsos.localParameters();
-	      //LocalVector localDir = ltp.momentum()/ltp.momentum().mag();
-	      
-	      //float clust_alpha = atan2(localDir.z(), localDir.x());
-	      //float clust_beta = atan2(localDir.z(), localDir.y());
-	      
-	      
-	      
-	      // THE CUTS
-	      //int nrows = theGeomDet->specificTopology().nrows();
-	      //int ncols = theGeomDet->specificTopology().ncolumns();
-	      //
-	      //std::pair<float,float> pitchTest = theGeomDet->specificTopology().pitch();
-	      //RectangularPixelTopology rectTopolTest = RectangularPixelTopology(nrows, ncols, pitch.first, pitch.second);
-	      //std::pair<float,float> pixelTest = rectTopol.pixel(tsos.localPosition());
-	      //
-	      
-	      
-	      //*************** Edge cut ********************
-	       //double glx=tsos.globalPosition().x();
-	       //double gly=tsos.globalPosition().y();
-	       //double glz=tsos.globalPosition().z();
-	       double lx=tsos.localPosition().x();
-	       double ly=tsos.localPosition().y();
-	       //double lz=tsos.localPosition().z();
-	       //double lx_err=tsos.localError().positionError().xx();
-	       //double ly_err=tsos.localError().positionError().yy();
-	       //int telescope=0; int telescope_valid=0; 
-	       if(fabs(lx)>0.55 || fabs(ly)>3.0) continue;
-	       //LocalTrajectoryParameters predTrajParam=tsos.localParameters();
-	       //LocalVector dir=predTrajParam.momentum()/predTrajParam.momentum().mag();
-	       //double alpha=atan2(dir.z(), dir.x());
-	       //double beta=atan2(dir.z(), dir.y());
-	       bool passedFiducial=true;
-	       // Module fiducials:
-	       if(IntSubDetID==PixelSubdetector::PixelBarrel && fabs(ly)>=3.1) passedFiducial=false;
-	       if(IntSubDetID==PixelSubdetector::PixelEndcap &&
-		  !((panel==1 &&
-		    ((module==1 && fabs(ly)<0.7) ||
-		     ((module==2 && fabs(ly)<1.1) &&
-		      !(disk==-1 && ly>0.8 && lx>0.2) &&
-		      !(disk==1 && ly<-0.7 && lx>0.2) &&
-		      !(disk==2 && ly<-0.8)) ||
-		     ((module==3 && fabs(ly)<1.5) &&
-		      !(disk==-2 && lx>0.1 && ly>1.0) &&
-		      !(disk==2 && lx>0.1 && ly<-1.0)) ||
-		     ((module==4 && fabs(ly)<1.9) &&
-		      !(disk==-2 && ly>1.5) &&
-		      !(disk==2 && ly<-1.5)))) ||
-	            (panel==2 &&
-		    ((module==1 && fabs(ly)<0.7) ||
-		     (module==2 && fabs(ly)<1.2 &&
-		      !(disk>0 && ly>1.1) &&
-		      !(disk<0 && ly<-1.1)) ||
-		     (module==3 && fabs(ly)<1.6 &&
-		      !(disk>0 && ly>1.5) &&
-		      !(disk<0 && ly<-1.5)))))) passedFiducial=false;
-	       if(IntSubDetID==PixelSubdetector::PixelEndcap &&
-	          ((panel==1 && (module==1 || (module>=3 && abs(disk)==1))) ||
-		   (panel==2 && ((module==1 && abs(disk)==2) ||
-		                 (module==3 && abs(disk)==1))))) passedFiducial=false;
-               // ROC fiducials:
-	       double ly_mod = fabs(ly);
-	       if(IntSubDetID==PixelSubdetector::PixelEndcap && (panel+module)%2==1) ly_mod=ly_mod+0.405;
-	       float d_rocedge = fabs(fmod(ly_mod,0.81)-0.405);
-	       if(d_rocedge<=0.0625) passedFiducial=false;
-	       if(!( (IntSubDetID==PixelSubdetector::PixelBarrel &&
-	              ((!isHalfModule && fabs(lx)<0.6) ||
-		       (isHalfModule && lx>-0.3 && lx<0.2))) ||
-	             (IntSubDetID==PixelSubdetector::PixelEndcap &&
-	              ((panel==1 &&
-		       ((module==1 && fabs(lx)<0.2) ||
-		        (module==2 &&
-		         ((fabs(lx)<0.55 && abs(disk)==1) ||
-		          (lx>-0.5 && lx<0.2 && disk==-2) ||
-		          (lx>-0.5 && lx<0.0 && disk==2))) ||
-		        (module==3 && lx>-0.6 && lx<0.5) ||
-		        (module==4 && lx>-0.3 && lx<0.15))) ||
-		       (panel==2 &&
-		        ((module==1 && fabs(lx)<0.6) ||
-		         (module==2 &&
-		          ((fabs(lx)<0.55 && abs(disk)==1) ||
-		           (lx>-0.6 && lx<0.5 && abs(disk)==2))) ||
-		         (module==3 && fabs(lx)<0.5))))))) passedFiducial=false;
-	       if(((IntSubDetID==PixelSubdetector::PixelBarrel && !isHalfModule) || 
-	           (IntSubDetID==PixelSubdetector::PixelEndcap && !(panel==1 && (module==1 || module==4)))) &&
-		   fabs(lx)<0.06) passedFiducial=false;
+	  if(fabs(lx)>0.55 || fabs(ly)>3.0) continue;
+
+	  bool passedFiducial=true;
+	  // Module fiducials:
+	  if(IntSubDetID==PixelSubdetector::PixelBarrel && fabs(ly)>=3.1) passedFiducial=false;
+	  if(IntSubDetID==PixelSubdetector::PixelEndcap &&
+	     !((panel==1 &&
+		((module==1 && fabs(ly)<0.7) ||
+		 ((module==2 && fabs(ly)<1.1) &&
+		  !(disk==-1 && ly>0.8 && lx>0.2) &&
+		  !(disk==1 && ly<-0.7 && lx>0.2) &&
+		  !(disk==2 && ly<-0.8)) ||
+		 ((module==3 && fabs(ly)<1.5) &&
+		  !(disk==-2 && lx>0.1 && ly>1.0) &&
+		  !(disk==2 && lx>0.1 && ly<-1.0)) ||
+		 ((module==4 && fabs(ly)<1.9) &&
+		  !(disk==-2 && ly>1.5) &&
+		  !(disk==2 && ly<-1.5)))) ||
+	       (panel==2 &&
+		((module==1 && fabs(ly)<0.7) ||
+		 (module==2 && fabs(ly)<1.2 &&
+		  !(disk>0 && ly>1.1) &&
+		  !(disk<0 && ly<-1.1)) ||
+		 (module==3 && fabs(ly)<1.6 &&
+		  !(disk>0 && ly>1.5) &&
+		  !(disk<0 && ly<-1.5)))))) passedFiducial=false;
+	  if(IntSubDetID==PixelSubdetector::PixelEndcap &&
+	     ((panel==1 && (module==1 || (module>=3 && abs(disk)==1))) ||
+	      (panel==2 && ((module==1 && abs(disk)==2) ||
+			    (module==3 && abs(disk)==1))))) passedFiducial=false;
+	  // ROC fiducials:
+	  double ly_mod = fabs(ly);
+	  if(IntSubDetID==PixelSubdetector::PixelEndcap && (panel+module)%2==1) ly_mod=ly_mod+0.405;
+	  float d_rocedge = fabs(fmod(ly_mod,0.81)-0.405);
+	  if(d_rocedge<=0.0625) passedFiducial=false;
+	  if(!( (IntSubDetID==PixelSubdetector::PixelBarrel &&
+		 ((!isHalfModule && fabs(lx)<0.6) ||
+		  (isHalfModule && lx>-0.3 && lx<0.2))) ||
+		(IntSubDetID==PixelSubdetector::PixelEndcap &&
+		 ((panel==1 &&
+		   ((module==1 && fabs(lx)<0.2) ||
+		    (module==2 &&
+		     ((fabs(lx)<0.55 && abs(disk)==1) ||
+		      (lx>-0.5 && lx<0.2 && disk==-2) ||
+		      (lx>-0.5 && lx<0.0 && disk==2))) ||
+		    (module==3 && lx>-0.6 && lx<0.5) ||
+		    (module==4 && lx>-0.3 && lx<0.15))) ||
+		  (panel==2 &&
+		   ((module==1 && fabs(lx)<0.6) ||
+		    (module==2 &&
+		     ((fabs(lx)<0.55 && abs(disk)==1) ||
+		      (lx>-0.6 && lx<0.5 && abs(disk)==2))) ||
+		    (module==3 && fabs(lx)<0.5))))))) passedFiducial=false;
+	  if(((IntSubDetID==PixelSubdetector::PixelBarrel && !isHalfModule) || 
+	      (IntSubDetID==PixelSubdetector::PixelEndcap && !(panel==1 && (module==1 || module==4)))) &&
+	     fabs(lx)<0.06) passedFiducial=false;
 	       
 	       
-	      //*************** find closest clusters ********************
-	      float dx_cl[2]; float dy_cl[2]; dx_cl[0]=dx_cl[1]=dy_cl[0]=dy_cl[1]=-9999.;
-	      ESHandle<PixelClusterParameterEstimator> cpEstimator;
-	      iSetup.get<TkPixelCPERecord>().get("PixelCPEGeneric", cpEstimator);
-	      if(cpEstimator.isValid()){
-	        const PixelClusterParameterEstimator &cpe(*cpEstimator);
-		edm::ESHandle<TrackerGeometry> tracker;
-		iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
-		if(tracker.isValid()){
-		  const TrackerGeometry *tkgeom=&(*tracker);
-		  edm::Handle<edmNew::DetSetVector<SiPixelCluster> > clusterCollectionHandle;
-                  iEvent.getByToken( clusterCollectionToken_, clusterCollectionHandle );
-		  if(clusterCollectionHandle.isValid()){
-		    const edmNew::DetSetVector<SiPixelCluster>& clusterCollection=*clusterCollectionHandle;
-		    edmNew::DetSetVector<SiPixelCluster>::const_iterator itClusterSet=clusterCollection.begin();
-		    float minD[2]; minD[0]=minD[1]=10000.;
-		    for( ; itClusterSet!=clusterCollection.end(); itClusterSet++){
-		      DetId detId(itClusterSet->id());
-		      if(detId.rawId()!=hit->geographicalId().rawId()) continue;
-		      //unsigned int sdId=detId.subdetId();
-		      const PixelGeomDetUnit *pixdet=(const PixelGeomDetUnit*) tkgeom->idToDetUnit(detId);
-		      edmNew::DetSet<SiPixelCluster>::const_iterator itCluster=itClusterSet->begin();
-		      for( ; itCluster!=itClusterSet->end(); ++itCluster){
-		        LocalPoint lp(itCluster->x(), itCluster->y(), 0.);
-			PixelClusterParameterEstimator::ReturnType params=cpe.getParameters(*itCluster,*pixdet);
-			lp=std::get<0>(params);
-			float D = sqrt((lp.x()-lx)*(lp.x()-lx)+(lp.y()-ly)*(lp.y()-ly));
-			if(D<minD[0]){
-			  minD[1]=minD[0];
-			  dx_cl[1]=dx_cl[0];
-			  dy_cl[1]=dy_cl[0];
-			  minD[0]=D;
-			  dx_cl[0]=lp.x();
-			  dy_cl[0]=lp.y();
-			}else if(D<minD[1]){
-			  minD[1]=D;
-			  dx_cl[1]=lp.x();
-			  dy_cl[1]=lp.y();
-			}
-	              }  // loop on clusterSets 
-		    } // loop on clusterCollection
-	            for(size_t i=0; i<2; i++){
-		      if(minD[i]<9999.){
-		        dx_cl[i]=fabs(dx_cl[i]-lx);
-		        dy_cl[i]=fabs(dy_cl[i]-ly);
-		      }
-	            }
-		  } // valid clusterCollectionHandle
-                } // valid tracker
-              } // valid cpEstimator
-	      // distance of hit from closest cluster!
-	      float d_cl[2]; d_cl[0]=d_cl[1]=-9999.;
-	      if(dx_cl[0]!=-9999. && dy_cl[0]!=-9999.) d_cl[0]=sqrt(dx_cl[0]*dx_cl[0]+dy_cl[0]*dy_cl[0]);
-	      if(dx_cl[1]!=-9999. && dy_cl[1]!=-9999.) d_cl[1]=sqrt(dx_cl[1]*dx_cl[1]+dy_cl[1]*dy_cl[1]);
-	      if(isHitMissing && (d_cl[0]<0.05 || d_cl[1]<0.05)){ isHitMissing=0; isHitValid=1; }
+	  //*************** find closest clusters ********************
+	  float dx_cl[2]; float dy_cl[2]; dx_cl[0]=dx_cl[1]=dy_cl[0]=dy_cl[1]=-9999.;
+	  ESHandle<PixelClusterParameterEstimator> cpEstimator;
+	  iSetup.get<TkPixelCPERecord>().get("PixelCPEGeneric", cpEstimator);
+	  if(cpEstimator.isValid()){
+	    const PixelClusterParameterEstimator &cpe(*cpEstimator);
+	    edm::ESHandle<TrackerGeometry> tracker;
+	    iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
+	    if(tracker.isValid()){
+	      const TrackerGeometry *tkgeom=&(*tracker);
+	      edm::Handle<edmNew::DetSetVector<SiPixelCluster> > clusterCollectionHandle;
+	      iEvent.getByToken( clusterCollectionToken_, clusterCollectionHandle );
+	      if(clusterCollectionHandle.isValid()){
+		const edmNew::DetSetVector<SiPixelCluster>& clusterCollection=*clusterCollectionHandle;
+		edmNew::DetSetVector<SiPixelCluster>::const_iterator itClusterSet=clusterCollection.begin();
+		float minD[2]; minD[0]=minD[1]=10000.;
+		for( ; itClusterSet!=clusterCollection.end(); itClusterSet++){
+		  DetId detId(itClusterSet->id());
+		  if(detId.rawId()!=hit->geographicalId().rawId()) continue;
+		  //unsigned int sdId=detId.subdetId();
+		  const PixelGeomDetUnit *pixdet=(const PixelGeomDetUnit*) tkgeom->idToDetUnit(detId);
+		  edmNew::DetSet<SiPixelCluster>::const_iterator itCluster=itClusterSet->begin();
+		  for( ; itCluster!=itClusterSet->end(); ++itCluster){
+		    LocalPoint lp(itCluster->x(), itCluster->y(), 0.);
+		    PixelClusterParameterEstimator::ReturnType params=cpe.getParameters(*itCluster,*pixdet);
+		    lp=std::get<0>(params);
+		    float D = sqrt((lp.x()-lx)*(lp.x()-lx)+(lp.y()-ly)*(lp.y()-ly));
+		    if(D<minD[0]){
+		      minD[1]=minD[0];
+		      dx_cl[1]=dx_cl[0];
+		      dy_cl[1]=dy_cl[0];
+		      minD[0]=D;
+		      dx_cl[0]=lp.x();
+		      dy_cl[0]=lp.y();
+		    }else if(D<minD[1]){
+		      minD[1]=D;
+		      dx_cl[1]=lp.x();
+		      dy_cl[1]=lp.y();
+		    }
+		  }  // loop on clusterSets 
+		} // loop on clusterCollection
+		for(size_t i=0; i<2; i++){
+		  if(minD[i]<9999.){
+		    dx_cl[i]=fabs(dx_cl[i]-lx);
+		    dy_cl[i]=fabs(dy_cl[i]-ly);
+		  }
+		}
+	      } // valid clusterCollectionHandle
+	    } // valid tracker
+	  } // valid cpEstimator
+	  // distance of hit from closest cluster!
+	  float d_cl[2]; d_cl[0]=d_cl[1]=-9999.;
+	  if(dx_cl[0]!=-9999. && dy_cl[0]!=-9999.) d_cl[0]=sqrt(dx_cl[0]*dx_cl[0]+dy_cl[0]*dy_cl[0]);
+	  if(dx_cl[1]!=-9999. && dy_cl[1]!=-9999.) d_cl[1]=sqrt(dx_cl[1]*dx_cl[1]+dy_cl[1]*dy_cl[1]);
+	  if(isHitMissing && (d_cl[0]<0.05 || d_cl[1]<0.05)){ isHitMissing=0; isHitValid=1; }
 	      
 	      
-	      if(debug_){
-	        std::cout << "Ready to add hit in histogram:\n";
-	        //std::cout << "detid: "<<hit_detId<<std::endl;
-	        std::cout << "isHitValid: "<<isHitValid<<std::endl;
-	        std::cout << "isHitMissing: "<<isHitMissing<<std::endl;
-	        //std::cout << "passedEdgeCut: "<<passedFiducial<<std::endl;		
-	      }
+	  if(debug_){
+	    std::cout << "Ready to add hit in histogram:\n";
+	    //std::cout << "detid: "<<hit_detId<<std::endl;
+	    std::cout << "isHitValid: "<<isHitValid<<std::endl;
+	    std::cout << "isHitMissing: "<<isHitMissing<<std::endl;
+	    //std::cout << "passedEdgeCut: "<<passedFiducial<<std::endl;		
+	  }
 	      
 	      
-	      if(pxd!=theSiPixelStructure.end() && isHitValid && passedFiducial)
-	        ++nvalid;
-	      if(pxd!=theSiPixelStructure.end() && isHitMissing && passedFiducial)
-	        ++nmissing;
+	  if(pxd!=theSiPixelStructure.end() && isHitValid && passedFiducial)
+	    ++nvalid;
+	  if(pxd!=theSiPixelStructure.end() && isHitMissing && passedFiducial)
+	    ++nmissing;
 		
-	      if (pxd!=theSiPixelStructure.end() && passedFiducial && (isHitValid || isHitMissing))
-	        (*pxd).second->fill(ltp, isHitValid, modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn); 	
+	  if (pxd!=theSiPixelStructure.end() && passedFiducial && (isHitValid || isHitMissing))
+	    (*pxd).second->fill(ltp, isHitValid, modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn); 	
 
 	  //}//end if (persistent hit exists and is pixel hit)
 	  

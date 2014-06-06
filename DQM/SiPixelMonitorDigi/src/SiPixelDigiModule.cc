@@ -419,8 +419,6 @@ int SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input,
 	if(!reducedSet){
 	  if(twoD) {
 	    if(twoDimModOn) (mePixDigis_)->Fill((float)col,(float)row);
-	    //std::cout << "Col: " << col << ", Row: " << row << ", for DBlayer " << DBlayer << " and isladder " << DBladder << " and module " << PixelBarrelName(DetId(id_)).moduleName() << " and side is " << DBshell << std::endl;
-	    //std::cout<<"id_ = "<<id_<<" , dmbe="<<theDMBE->pwd()<<std::endl;                                                                                                                  
 	  }
 	  else {
 	    (mePixDigis_px_)->Fill((float)col);
@@ -449,9 +447,6 @@ int SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input,
 	    //Shift 1st ladder (half modules) up by 1 bin
 	    if(DBladder==1) rocy = rocy + 0.5;
 	    mePixRocsLay_->Fill(rocx,rocy);
-	    //Copying full 1/2 module to empty 1/2 module...
-	    //if(isHalfModule) mePixRocsLay_->Fill(rocx,rocy+0.5);
-	    //end of ROC filling...
 
 	    if(isHalfModule && DBladder==1){
 	      (mePixDigisLay_)->Fill((float)col,(float)row+80);
@@ -510,11 +505,6 @@ int SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input,
 	  float rocx = (float)col/52. + offx + 14.0*float(DBpanel-1);
 	  float rocy = (float)row/160.+float(DBblade);
 	  mePixRocsDisk_->Fill(rocx,rocy);
-	  //Now handle the 1/2 module cases by cloning those bins and filling...
-	  //if (DBpanel==1 && (DBmodule==1||DBmodule==4)){
-	  //rocy = rocy + 0.5;
-	  //mePixRocsDisk_->Fill(rocx,rocy);}
-	  //end ROC monitoring
 	}
       }
       if(ringon && endcap){

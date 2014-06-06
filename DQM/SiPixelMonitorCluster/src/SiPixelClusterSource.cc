@@ -171,11 +171,7 @@ void SiPixelClusterSource::analyze(const edm::Event& iEvent, const edm::EventSet
   edm::ESHandle<TrackerGeometry> pDD;
   iSetup.get<TrackerDigiGeometryRecord> ().get (pDD);
   const TrackerGeometry* tracker = &(* pDD);
-//  const PixelGeomDetUnit* theGeomDet = dynamic_cast<const PixelGeomDetUnit*> ( tracker->idToDet(detId) );
 
-  //float iOrbitSec = iEvent.orbitNumber()/11223.;
-  //int bx = iEvent.bunchCrossing();
-  //long long tbx = (long long)iEvent.orbitNumber() * 3564 + bx;
   int lumiSection = (int)iEvent.luminosityBlock();
   int nEventFpixClusters = 0;
 
@@ -193,10 +189,6 @@ void SiPixelClusterSource::analyze(const edm::Event& iEvent, const edm::EventSet
     nEventFpixClusters = nEventFpixClusters + numberOfFpixClusters;    
     
   }
-
-//  if(lumiSection>lumSec){ lumSec = lumiSection; nLumiSecs++; }
-//  if(nEventFpixClusters>bigEventSize) nBigEvents++;
-//  if(nLumiSecs%5==0){
 
   if(nEventFpixClusters>bigEventSize){
     if (bigFpixClusterEventRate){
