@@ -52,8 +52,10 @@ L1TkMuonParticle::L1TkMuonParticle( const LorentzVector& p4,
 
 
 int L1TkMuonParticle::bx() const {
- int dummy = -999;
+ // int dummy = -999;
+ int dummy = 0;
 
+/*
  if (theDTMatch.isNonnull() ) {
    return theDTMatch->getDTBX();
  }
@@ -66,6 +68,7 @@ int L1TkMuonParticle::bx() const {
    return getMuExtendedRef()->bx();
  
  }
+*/
 
  return dummy;
 }

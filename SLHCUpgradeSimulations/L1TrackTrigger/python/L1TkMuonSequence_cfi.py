@@ -59,7 +59,17 @@ L1TkMuonsDTSequence = cms.Sequence( DTPlusTrackProducer + L1TkMuonsDT )
 # --- FInal collection of L1TkMuons
 #
 
-L1TkMuonsMerge = cms.EDProducer("L1TkMuonMerger",
+	# --- using only Slava's muons :
+L1TkMuonsMerge =  cms.EDProducer("L1TkMuonMerger",
+   TkMuonCollections = cms.VInputTag( cms.InputTag("l1TkMuonsExt",""),
+                                      cms.InputTag("l1TkMuonsExtCSC","") ),
+   absEtaMin = cms.vdouble( 0. , 1.1),      
+   absEtaMax = cms.vdouble( 1.1 , 5.0)
+)
+
+
+	# --- or using the Padova muons in the central region:
+L1TkMuonsMergeWithDT = cms.EDProducer("L1TkMuonMerger",
    TkMuonCollections = cms.VInputTag( 
 				      cms.InputTag("L1TkMuonsDT","DTMatchInwardsTTTrackFullReso"),
                                       cms.InputTag("l1TkMuonsExt",""),
