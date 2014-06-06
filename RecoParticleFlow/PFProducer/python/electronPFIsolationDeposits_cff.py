@@ -5,7 +5,8 @@ from CommonTools.ParticleFlow.Isolation.tools_cfi import *
 #Now prepare the iso deposits
 elPFIsoDepositCharged=isoDepositReplace('pfSelectedElectrons','pfAllChargedHadrons')
 elPFIsoDepositChargedAll=isoDepositReplace('pfSelectedElectrons','pfAllChargedParticles')
-elPFIsoDepositNeutral=isoDepositReplace('pfSelectedElectrons','pfWeightedNeutralHadrons')
+elPFIsoDepositNeutral=isoDepositReplace('pfSelectedElectrons','pfAllNeutralHadrons')
+#elPFIsoDepositNeutral=isoDepositReplace('pfSelectedElectrons','pfWeightedNeutralHadrons')
 elPFIsoDepositPU=isoDepositReplace('pfSelectedElectrons','pfPileUpAllChargedParticles')
 #elPFIsoDepositGamma=isoDepositReplace('pfSelectedElectrons','pfAllPhotons')
 elPFIsoDepositGamma= cms.EDProducer("CandIsoDepositProducer",
@@ -17,7 +18,8 @@ elPFIsoDepositGamma= cms.EDProducer("CandIsoDepositProducer",
                                             ComponentName = cms.string('PFCandWithSuperClusterExtractor'),
                                             DR_Max = cms.double(1.0),
                                             Diff_r = cms.double(99999.99),
-                                            inputCandView = cms.InputTag("pfWeightedPhotons"),
+                                            inputCandView = cms.InputTag("pfAllPhotons"),
+#                                            inputCandView = cms.InputTag("pfWeightedPhotons"),
                                             DR_Veto = cms.double(0),
                                             SCMatch_Veto = cms.bool(False),
                                             MissHitSCMatch_Veto = cms.bool(True),
