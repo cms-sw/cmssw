@@ -15,10 +15,8 @@
 
 const double k_ScaleFromDDD = 0.1;
 
-HGCalDDDConstants::HGCalDDDConstants() : tobeInitialized(true) {}
-
 HGCalDDDConstants::HGCalDDDConstants(const DDCompactView& cpv,
-				     std::string& nam) : tobeInitialized(true){
+				     std::string& nam) {
   initialize(cpv, nam);
 #ifdef DebugLog
   std::cout << "HGCalDDDConstants for " << nam << " initialized with " 
@@ -108,31 +106,6 @@ std::pair<int,int> HGCalDDDConstants::findCell(int cell, float h, float bl,
   }
   int kx = (cell-testCell);
   return std::pair<int,int>(kx,ky);
-}
-
-void HGCalDDDConstants::initialize(const DDCompactView& cpv, std::string name){
-
-  if (tobeInitialized) {
-    tobeInitialized = false;
-    nSectors = nCells = 0;
-
-    std::string attribute = "Volume"; 
-    std::string value     = name;
-    DDValue val(attribute, value, 0);
-  
-    DDSpecificsFilter filter;
-    filter.setCriteria(val, DDSpecificsFilter::equals);
-    DDFilteredView fv(cpv);
-    fv.addFilter(filter);
-    bool ok = fv.firstChild();
-
-    if (ok) {
-      //Load the SpecPars
-      loadSpecPars(fv);
-      //Load the Geometry parameters
-      loadGeometry(fv, name);
-    }
-  }
 }
 
 std::pair<float,float> HGCalDDDConstants::locateCell(int cell, int lay, 
@@ -330,12 +303,27 @@ std::pair<int,int> HGCalDDDConstants::simToReco(int cell, int lay,
   return std::pair<int,int>(kx,depth);
 }
 
-void HGCalDDDConstants::checkInitialized() const {
-  if (tobeInitialized) {
-    edm::LogError("HGCalGeom") << "HGCalDDDConstants : to be initialized correctly";
-    throw cms::Exception("DDException") << "HGCalDDDConstants: to be initialized";
+void HGCalDDDConstants::initialize(const DDCompactView& cpv, std::string name){
+
+  nSectors = nCells = 0;
+
+  std::string attribute = "Volume"; 
+  std::string value     = name;
+  DDValue val(attribute, value, 0);
+  
+  DDSpecificsFilter filter;
+  filter.setCriteria(val, DDSpecificsFilter::equals);
+  DDFilteredView fv(cpv);
+  fv.addFilter(filter);
+  bool ok = fv.firstChild();
+
+  if (ok) {
+    //Load the SpecPars
+    loadSpecPars(fv);
+    //Load the Geometry parameters
+    loadGeometry(fv, name);
   }
-} 
+}
 
 void HGCalDDDConstants::loadGeometry(const DDFilteredView& _fv, 
 				     std::string & sdTag) {

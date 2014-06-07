@@ -24,7 +24,6 @@ class ShashlikDDDConstants {
   
  public:
   
-  ShashlikDDDConstants();
   ShashlikDDDConstants( const DDCompactView& cpv );
   ~ShashlikDDDConstants();
   void                loadSpecPars(const std::vector<int>& firstY,
@@ -41,7 +40,6 @@ class ShashlikDDDConstants {
   // number of modules in a row or column
   int                 getModuleCols()         const {return getCols()*nMods;}
   
-  void                initialize(const DDCompactView& cpv);
   bool                isValidXY(int ix, int iy) const;
   bool                isValidSMM(int sm, int mod) const;
   /// quadrant for module (ix:iy) 21
@@ -53,15 +51,12 @@ class ShashlikDDDConstants {
   /// module iy is on the top?
   bool positiveY (int iy) const {return iy >= getModuleCols();}
   
-  bool                valid () const {return !tobeInitialized;}
-  
  private:
-  void                checkInitialized() const;
+  void                initialize(const DDCompactView& cpv);
   void                loadSpecPars(const DDFilteredView& fv);
   std::vector<double> getDDDArray(const std::string &, 
 				  const DDsvalues_type &) const;
   
-  bool                tobeInitialized;
   static const int    nMods=5;
   int                 nSM, nColS, nRow;
   std::vector<int>    firstY, lastY, firstSM, lastSM;
