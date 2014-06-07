@@ -11,9 +11,8 @@
   <class name="edm::RangeMap<GEMDetId, edm::OwnVector<GEMRecHit, edm::ClonePolicy<GEMRecHit> >, edm::ClonePolicy<GEMRecHit> >" splitLevel="0"/>
   <class name="edm::Wrapper<edm::RangeMap<GEMDetId, edm::OwnVector<GEMRecHit, edm::ClonePolicy<GEMRecHit> >, edm::ClonePolicy<GEMRecHit> > >" splitLevel="0"/>
 
-  <class name="ME0RecHit" splitLevel="0" ClassVersion="10">
-   <version ClassVersion="10" checksum="2817146898"/>
-  </class>
+  <class name="ME0RecHit" splitLevel="0" ClassVersion="12">
+  <version ClassVersion="12" checksum="2817146898"/>  </class>
   <class name="std::vector<ME0RecHit>" splitLevel="0"/>
   <class name="std::vector<ME0RecHit*>" splitLevel="0"/>
   <class name="std::map<ME0DetId, std::pair<unsigned int, unsigned int> >" splitLevel="0"/>

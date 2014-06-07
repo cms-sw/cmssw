@@ -62,7 +62,6 @@ private:
   bool doBkgNoise_;
   bool doNoiseCLS_;
   bool fixedRollRadius_;
-  double minPabsNoiseCLS_;
   bool simulateIntrinsicNoise_;
   double scaleLumi_;
   bool simulateElectronBkg_;
