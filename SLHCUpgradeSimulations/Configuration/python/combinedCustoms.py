@@ -185,6 +185,7 @@ def cust_2023Pixel(process):
     process=customise_HcalPhase2(process)
     process=customise_ev_BE5DPixel10D(process)
     process=customise_gem2023(process)
+    process=customise_rpc(process)
     process=jetCustoms.customise_jets(process)
     return process
 
