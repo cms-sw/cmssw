@@ -26,7 +26,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#define DebugLog
+//#define DebugLog
 //-------------------------------------------------------------------
 FastTimerSD::FastTimerSD(std::string name, const DDCompactView & cpv,
 			 SensitiveDetectorCatalog & clg, 
@@ -47,13 +47,14 @@ FastTimerSD::FastTimerSD(std::string name, const DDCompactView & cpv,
   //int verbn = 1;
     
   SetVerboseLevel(verbn);
+#ifdef DebugLog
   LogDebug("FastTimerSim") 
     << "*******************************************************\n"
     << "*                                                     *\n"
     << "* Constructing a FastTimerSD  with name " << name << "\n"
     << "*                                                     *\n"
     << "*******************************************************";
-    
+#endif    
     
   slave  = new TrackingSlaveSD(name);
     
