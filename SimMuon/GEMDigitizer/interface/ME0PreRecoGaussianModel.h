@@ -44,6 +44,7 @@ private:
   double averageEfficiency_;
   bool doBkgNoise_;
   bool simulateIntrinsicNoise_;
+  bool simulateElectronBkg_;
 
   double averageNoiseRate_;
   int bxwidth_;
@@ -64,6 +65,15 @@ private:
   double ME0ModNeuBkgParam4;
   double ME0ModNeuBkgParam5;
   double ME0ModNeuBkgParam6;
+
+  double ME0ModElecBkgParam0;
+  double ME0ModElecBkgParam1;
+  double ME0ModElecBkgParam2;
+  double ME0ModElecBkgParam3;
+  double ME0ModElecBkgParam4;
+  double ME0ModElecBkgParam5;
+  double ME0ModElecBkgParam6;
+  double ME0ModElecBkgParam7;
 
 };
 #endif
