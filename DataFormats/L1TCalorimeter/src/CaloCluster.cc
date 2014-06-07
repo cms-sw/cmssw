@@ -33,9 +33,24 @@ void l1t::CaloCluster::setHwSeedPt(int pt)
   m_hwSeedPt = pt;
 }
 
+void l1t::CaloCluster::setFgEta(int fgEta)
+{
+  m_fgEta = fgEta;
+}
+
+void l1t::CaloCluster::setFgPhi(int fgPhi)
+{
+  m_fgPhi = fgPhi;
+}
+
 void l1t::CaloCluster::setHOverE(int hOverE)
 {
   m_hOverE = hOverE;
+}
+
+void l1t::CaloCluster::setFgECAL(int fgECAL)
+{
+  m_fgECAL = fgECAL;
 }
 
 bool l1t::CaloCluster::checkClusterFlag(ClusterFlag flag) const 
@@ -66,4 +81,25 @@ int l1t::CaloCluster::fgPhi() const
 int l1t::CaloCluster::hOverE() const
 {
   return m_hOverE;
+}
+
+int l1t::CaloCluster::fgECAL() const
+{
+  return m_fgECAL;
+}
+
+bool l1t::CaloCluster::operator<(const CaloCluster& cl) const
+{
+  bool res = false;
+  // Favour high pT
+  if(hwPt()<cl.hwPt()) res = true;
+  else if(hwPt()==cl.hwPt()) {
+    // Favour central clusters
+    if( abs(hwEta())>abs(cl.hwEta()) ) res = true;
+    else if( abs(hwEta())==abs(cl.hwEta()) ){
+      // Favour small phi (arbitrary)
+      if(hwPhi()>cl.hwPhi()) res = true;
+    }
+  }
+  return res;
 }
