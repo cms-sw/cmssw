@@ -141,7 +141,7 @@ void SimTrackManager::reallyStoreTracks(G4SimEvent * simEvent)
       
       math::XYZVectorD pm(0.,0.,0.);
       unsigned int iParentID = trkH->parentID();
-      for(unsigned int iit = 0; iit < m_trksForThisEvent->size(); iit++)
+      for(unsigned int iit = 0; iit < m_trksForThisEvent->size(); ++iit)
         {
           if((*m_trksForThisEvent)[iit]->trackID()==iParentID){
             pm = (*m_trksForThisEvent)[iit]->momentum();

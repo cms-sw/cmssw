@@ -106,6 +106,7 @@ StackingAction::StackingAction(const edm::ParameterSet & p)
       << " *** Kill secondaries in Calorimetetrs volume = " << killInCalo << "\n"
       << " *** Kill electromagnetic secondaries from hadrons in Calorimeters volume= "
       << killInCaloEfH;
+
   }
 
   initPointer();

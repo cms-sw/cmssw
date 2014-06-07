@@ -69,7 +69,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "SimG4Core/Application/interface/ExceptionHandler.h"
+//#include "SimG4Core/Application/interface/ExceptionHandler.h"
 
 static
 void createWatchers(const edm::ParameterSet& iP,
@@ -136,7 +136,7 @@ RunManager::RunManager(edm::ParameterSet const & p)
   m_kernel = G4RunManagerKernel::GetRunManagerKernel();
   if (m_kernel==0) m_kernel = new G4RunManagerKernel();
 
-  m_CustomExceptionHandler = new ExceptionHandler(this) ;
+  //m_CustomExceptionHandler = new ExceptionHandler(this) ;
     
   m_check = p.getUntrackedParameter<bool>("CheckOverlap",false);
   m_WriteFile = p.getUntrackedParameter<std::string>("FileNameGDML","");
