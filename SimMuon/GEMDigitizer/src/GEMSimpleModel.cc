@@ -17,7 +17,7 @@
 #include <utility>
 #include <map>
 
-#include "TMath.h"       /* exp */
+#include "TMath.h" /* exp */
 
 
 namespace
@@ -44,16 +44,47 @@ GEMDigiModel(config)
 , doBkgNoise_(config.getParameter<bool> ("doBkgNoise"))
 , doNoiseCLS_(config.getParameter<bool> ("doNoiseCLS"))
 , fixedRollRadius_(config.getParameter<bool> ("fixedRollRadius"))
-, simulateIntrinsicNoise_(config.getParameter<bool> ("simulateIntrinsicNoise"))
-, scaleLumi_(config.getParameter<double> ("scaleLumi"))
 , simulateElectronBkg_(config.getParameter<bool> ("simulateElectronBkg"))
-, constNeuGE11_(config.getParameter<double> ("constNeuGE11"))
-, slopeNeuGE11_(config.getParameter<double> ("slopeNeuGE11"))
-, GE21NeuBkgParams_(config.getParameter<std::vector<double>>("GE21NeuBkgParams"))
-, GE11ElecBkgParams_(config.getParameter<std::vector<double>>("GE11ElecBkgParams"))
-, GE21ElecBkgParams_(config.getParameter<std::vector<double>>("GE21ElecBkgParams"))
+, simulateLowNeutralRate_(config.getParameter<bool> ("simulateLowNeutralRate"))
 
 {
+//initialise parameters from the fit:
+//params for pol3 model of electron bkg for GE1/1:
+  GE11ElecBkgParam0 = 535.615;
+  GE11ElecBkgParam1 = -4.00692;
+  GE11ElecBkgParam2 = -0.0104023;
+  GE11ElecBkgParam3 = 0.000106605;
+
+//params for expo model of electron bkg for GE2/1:
+  constElecGE21 = 6.78126e+00;
+  slopeElecGE21 = -2.35867e-02;
+
+//Neutral Bkg
+//Low Rate model L=10^{34}cm^{-2}s^{-1}
+//const and slope for the expo model of neutral bkg for GE1/1:
+    constNeuGE11 = 807.;
+    slopeNeuGE11 = -0.01443;
+//params for the simple pol5 model of neutral bkg for GE2/1:
+  GE21NeuBkgParam0 = 2954.04;
+  GE21NeuBkgParam1 = -58.7558;
+  GE21NeuBkgParam2 = 0.473481;
+  GE21NeuBkgParam3 = -0.00188292;
+  GE21NeuBkgParam4 = 3.67041e-06;
+  GE21NeuBkgParam5 = -2.80261e-09;
+
+
+//High Rate model L=5x10^{34}cm^{-2}s^{-1}
+//params for expo model of neutral bkg for GE1/1:
+    constNeuGE11_highRate = 7.89447e+00;
+    slopeNeuGE11_highRate = -1.54383e-02;
+//params for pol5 model of neutral bkg for GE2/1:
+  GE21ModNeuBkgParam0 = 17840.1;
+  GE21ModNeuBkgParam1 = -814.138;
+  GE21ModNeuBkgParam2 = 15.0253;
+  GE21ModNeuBkgParam3 = -0.136248;
+  GE21ModNeuBkgParam4 = 0.000604293;
+  GE21ModNeuBkgParam5 = -1.04989e-06;
+
 }
 
 GEMSimpleModel::~GEMSimpleModel()
@@ -109,7 +140,7 @@ void GEMSimpleModel::simulateSignal(const GEMEtaPartition* roll, const edm::PSim
       continue;
     const int bx(getSimHitBx(&(*hit)));
     const std::vector<std::pair<int, int> > cluster(simulateClustering(roll, &(*hit), bx));
-    for  (auto & digi : cluster)
+    for (auto & digi : cluster)
     {
       detectorHitMap_.insert(DetectorHitMap::value_type(digi,&*(hit)));
       strips_.insert(digi);
@@ -140,7 +171,7 @@ int GEMSimpleModel::getSimHitBx(const PSimHit* simhit)
   }
 
   // signal propagation speed in vacuum in [m/s]
-  const double cspeed = 299792458; 
+  const double cspeed = 299792458; //
   const int nstrips = roll->nstrips();
   float middleStrip = nstrips/2.;
   LocalPoint middleOfRoll = roll->centreOfStrip(middleStrip);
@@ -173,8 +204,8 @@ int GEMSimpleModel::getSimHitBx(const PSimHit* simhit)
   const bool debug(false);
   if (debug)
   {
-    std::cout << "checktime " << "bx = " << bx << "\tdeltaT = " << timeDifference << "\tsimT =  " << simhitTime
-        << "\trefT =  " << referenceTime << "\ttof = " << tof << "\tavePropT =  " << averagePropagationTime
+    std::cout << "checktime " << "bx = " << bx << "\tdeltaT = " << timeDifference << "\tsimT = " << simhitTime
+        << "\trefT = " << referenceTime << "\ttof = " << tof << "\tavePropT = " << averagePropagationTime
         << "\taveRefPropT = " << halfStripLength / signalPropagationSpeedTrue << std::endl;
   }
   return bx;
@@ -220,42 +251,49 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll)
   if(gemId.station() == 1)
   {
 //simulate neutral background for GE1/1
-    averageNeutralNoiseRatePerRoll = constNeuGE11_ * TMath::Exp(slopeNeuGE11_*rollRadius);
+    if(simulateLowNeutralRate_)
+      averageNeutralNoiseRatePerRoll = constNeuGE11 * TMath::Exp(slopeNeuGE11*rollRadius);
+    else
+      averageNeutralNoiseRatePerRoll = constNeuGE11_highRate * TMath::Exp(slopeNeuGE11_highRate*rollRadius);
 
-    //simulate electron background for GE1/1
-    //the product is faster than Power or pow:
+//simulate electron background for GE1/1
     if(simulateElectronBkg_)
-    averageNoiseElectronRatePerRoll = GE11ElecBkgParams_[0]
-                                    + GE11ElecBkgParams_[1]*rollRadius
-                                    + GE11ElecBkgParams_[2]*rollRadius*rollRadius
-                                    + GE11ElecBkgParams_[3]*rollRadius*rollRadius*rollRadius;
+    averageNoiseElectronRatePerRoll = GE11ElecBkgParam0
+                                    + GE11ElecBkgParam1*rollRadius
+                                    + GE11ElecBkgParam2*rollRadius*rollRadius
+                                    + GE11ElecBkgParam3*rollRadius*rollRadius*rollRadius;
 
     averageNoiseRatePerRoll = averageNeutralNoiseRatePerRoll + averageNoiseElectronRatePerRoll;
+
   }
 
   if(gemId.station() == 2 || gemId.station() == 3)
   {
-    //simulate neutral background for GE2/1
-    averageNeutralNoiseRatePerRoll = GE21NeuBkgParams_[0]
-                                   + GE21NeuBkgParams_[1]*rollRadius
-                                   + GE21NeuBkgParams_[2]*rollRadius*rollRadius
-                                   + GE21NeuBkgParams_[3]*rollRadius*rollRadius*rollRadius
-                                   + GE21NeuBkgParams_[4]*rollRadius*rollRadius*rollRadius*rollRadius
-                                   + GE21NeuBkgParams_[5]*rollRadius*rollRadius*rollRadius*rollRadius*rollRadius;
+//simulate neutral background for GE2/1
+    if(simulateLowNeutralRate_)
+      averageNeutralNoiseRatePerRoll = GE21NeuBkgParam0
+                                     + GE21NeuBkgParam1*rollRadius
+                                     + GE21NeuBkgParam2*rollRadius*rollRadius
+                                     + GE21NeuBkgParam3*rollRadius*rollRadius*rollRadius
+                                     + GE21NeuBkgParam4*rollRadius*rollRadius*rollRadius*rollRadius
+                                     + GE21NeuBkgParam5*rollRadius*rollRadius*rollRadius*rollRadius*rollRadius;
 
-    
-    //simulate eletron background for GE2/1
+   else
+     averageNeutralNoiseRatePerRoll = GE21ModNeuBkgParam0
+                                    + GE21ModNeuBkgParam1*rollRadius
+                                    + GE21ModNeuBkgParam2*rollRadius*rollRadius
+                                    + GE21ModNeuBkgParam3*rollRadius*rollRadius*rollRadius
+                                    + GE21ModNeuBkgParam4*rollRadius*rollRadius*rollRadius*rollRadius
+                                    + GE21ModNeuBkgParam5*rollRadius*rollRadius*rollRadius*rollRadius*rollRadius;
+
+
+//simulate electron background for GE2/1
     if(simulateElectronBkg_)
-      averageNoiseElectronRatePerRoll = GE21ElecBkgParams_[0]
-                                    + GE21ElecBkgParams_[1]*rollRadius
-                                    + GE21ElecBkgParams_[2]*rollRadius*rollRadius
-                                    + GE21ElecBkgParams_[3]*rollRadius*rollRadius*rollRadius
-                                    + GE21ElecBkgParams_[4]*rollRadius*rollRadius*rollRadius*rollRadius
-                                    + GE21ElecBkgParams_[5]*rollRadius*rollRadius*rollRadius*rollRadius*rollRadius
-                                    + GE21ElecBkgParams_[6]*rollRadius*rollRadius*rollRadius*rollRadius*rollRadius*rollRadius;
+      averageNeutralNoiseRatePerRoll = constElecGE21* TMath::Exp(slopeElecGE21*rollRadius);
 
     averageNoiseRatePerRoll = averageNeutralNoiseRatePerRoll + averageNoiseElectronRatePerRoll;
   }
+
 
   //simulate intrinsic noise
   if(simulateIntrinsicNoise_)
@@ -264,7 +302,6 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll)
     for(int j = 0; j < nstrips; ++j)
     {
       const int n_intrHits = poisson_->fire(aveIntrinsicNoisPerStrip);
-    
       for (int k = 0; k < n_intrHits; k++ )
       {
         const int time_hit(static_cast<int> (flat2_->fire(nBxing)) + minBunch_);
@@ -275,7 +312,7 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll)
   }//end simulate intrinsic noise
 
   //simulate bkg contribution
-  const double averageNoise(averageNoiseRatePerRoll * nBxing * bxwidth_ * trArea * 1.0e-9 * scaleLumi_);
+  const double averageNoise(averageNoiseRatePerRoll * nBxing * bxwidth_ * trArea * 1.0e-9);
   const int n_hits(poisson_->fire(averageNoise));
 
   for (int i = 0; i < n_hits; ++i)
@@ -311,7 +348,7 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll)
       else if(randForCls <= clsParametrization_[8] && randForCls > clsParametrization_[7])
         clusterSize = 9;
 
-      //odd cls
+//odd cls
       if (clusterSize % 2 != 0)
       {
         int clsR = (clusterSize - 1) / 2;
@@ -323,7 +360,7 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll)
             cluster_.push_back(std::pair<int, int>(centralStrip + i, time_hit));
         }
       }
-      //even cls
+//even cls
       if (clusterSize % 2 == 0)
       {
         int clsR = (clusterSize - 2) / 2;
@@ -370,13 +407,13 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll)
 std::vector<std::pair<int, int> > GEMSimpleModel::simulateClustering(const GEMEtaPartition* roll,
     const PSimHit* simHit, const int bx)
 {
-  //  const Topology& topology(roll->specs()->topology());
+  // const Topology& topology(roll->specs()->topology());
   const StripTopology& topology = roll->specificTopology();
-  //  const LocalPoint& entry(simHit->entryPoint());
+  // const LocalPoint& entry(simHit->entryPoint());
   const LocalPoint& hit_position(simHit->localPosition());
   const int nstrips(roll->nstrips());
-
   int centralStrip = 0;
+
   if (!(topology.channel(hit_position) + 1 > nstrips))
     centralStrip = topology.channel(hit_position) + 1;
   else
@@ -414,8 +451,8 @@ std::vector<std::pair<int, int> > GEMSimpleModel::simulateClustering(const GEMEt
       else if(randForCls <= clsParametrization_[8] && randForCls > clsParametrization_[7])
         clusterSize = 9;
 
-//  if (abs(simHit->particleType()) != 13 && fabs(simHit->pabs()) < minPabsNoiseCLS_)
-//    return cluster_;
+  if (abs(simHit->particleType()) != 13 && fabs(simHit->pabs()) < minPabsNoiseCLS_)
+    return cluster_;
 
   //odd cls
   if (clusterSize % 2 != 0)
@@ -459,7 +496,4 @@ std::vector<std::pair<int, int> > GEMSimpleModel::simulateClustering(const GEMEt
     }
   }
   return cluster_;
-
 }
-
-

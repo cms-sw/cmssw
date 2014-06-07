@@ -24,20 +24,30 @@ ME0PreRecoGaussianModel::ME0PreRecoGaussianModel(const edm::ParameterSet& config
 , averageEfficiency_(config.getParameter<double> ("averageEfficiency"))
 , doBkgNoise_(config.getParameter<bool> ("doBkgNoise"))
 , simulateIntrinsicNoise_(config.getParameter<bool> ("simulateIntrinsicNoise"))
+, simulateElectronBkg_(config.getParameter<bool>("simulateElectronBkg"))
 , averageNoiseRate_(config.getParameter<double> ("averageNoiseRate"))
 , bxwidth_(config.getParameter<int> ("bxwidth"))
 , minBunch_(config.getParameter<int> ("minBunch"))
 , maxBunch_(config.getParameter<int> ("maxBunch"))
 
 {
-  //params for the simple pol6 model of neutral bkg for ME0:
-  ME0ModNeuBkgParam0 = 18883;
-  ME0ModNeuBkgParam1 = -553.325;
-  ME0ModNeuBkgParam2 = 7.2999;
-  ME0ModNeuBkgParam3 = -0.0528206;
-  ME0ModNeuBkgParam4 = 0.000216248;
-  ME0ModNeuBkgParam5 = -4.70012e-07;
-  ME0ModNeuBkgParam6 = 4.21832e-10;
+  //params for the simple pol6 model of neutral and electron bkg for ME0:
+  ME0ModNeuBkgParam0 = 5.69e+06;
+  ME0ModNeuBkgParam1 = -293334;
+  ME0ModNeuBkgParam2 = 6279.6;
+  ME0ModNeuBkgParam3 = -71.2928;
+  ME0ModNeuBkgParam4 = 0.452244;
+  ME0ModNeuBkgParam5 = -0.0015191;
+  ME0ModNeuBkgParam6 = 2.1106e-06;
+
+  ME0ModElecBkgParam0 = 3.77712e+06;
+  ME0ModElecBkgParam1 = -199280;
+  ME0ModElecBkgParam2 = 4340.69;
+  ME0ModElecBkgParam3 = -49.922;
+  ME0ModElecBkgParam4 = 0.319699;
+  ME0ModElecBkgParam5 = -0.00108113;
+  ME0ModElecBkgParam6 = 1.50889e-06;
+
 }
 
 ME0PreRecoGaussianModel::~ME0PreRecoGaussianModel()
@@ -117,27 +127,27 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll)
   double averageNoiseElectronRatePerRoll = 0.;
   int pdgid = 0;
 
-  double radius_bottom = rollRadius - semiHeight / 2.;
-  aveNeutrRateBotRoll = ME0ModNeuBkgParam0
-                      + ME0ModNeuBkgParam1 * radius_bottom
-                      + ME0ModNeuBkgParam2 * radius_bottom * radius_bottom
-                      + ME0ModNeuBkgParam3 * radius_bottom * radius_bottom * radius_bottom
-                      + ME0ModNeuBkgParam4 * radius_bottom * radius_bottom * radius_bottom * radius_bottom
-                      + ME0ModNeuBkgParam5 * radius_bottom * radius_bottom * radius_bottom * radius_bottom * radius_bottom
-                      + ME0ModNeuBkgParam6 * radius_bottom * radius_bottom * radius_bottom * radius_bottom * radius_bottom * radius_bottom;
+  float myRand = flat2_->fire(0., 1.);
+  float yy_rand = 2 * semiHeight * (myRand - 0.5);
 
-  double averageNoiseRateBottom = aveNeutrRateBotRoll + averageNoiseElectronRatePerRoll;
-  const double averageNoiseBottom(averageNoiseRateBottom * nBxing * bxwidth_ * trArea * 1.0e-9);
-  int n_hits(poisson_->fire(averageNoiseBottom));
+  double radius_rand = rollRadius + yy_rand;
 
-  //find random x and coordinates
-  for (int i = 0; i < n_hits; ++i)
+    if(simulateElectronBkg_)
+    averageNoiseElectronRatePerRoll = ME0ModElecBkgParam0
+                      + ME0ModElecBkgParam1 * radius_rand
+                      + ME0ModElecBkgParam2 * radius_rand * radius_rand
+                      + ME0ModElecBkgParam3 * radius_rand * radius_rand * radius_rand
+                      + ME0ModElecBkgParam4 * radius_rand * radius_rand * radius_rand * radius_rand
+                      + ME0ModElecBkgParam5 * radius_rand * radius_rand * radius_rand * radius_rand * radius_rand
+                      + ME0ModElecBkgParam6 * radius_rand * radius_rand * radius_rand * radius_rand * radius_rand * radius_rand;
+
+  const double averageNoiseElec(averageNoiseElectronRatePerRoll * nBxing * bxwidth_ * trArea * 1.0e-9);
+  int n_elechits(poisson_->fire(averageNoiseElec));
+
+  double xMax = semiTopEdge - (semiHeight - yy_rand) * myTanPhi;
+  for (int i = 0; i < n_elechits; ++i)
   {
-    float myRand = flat2_->fire(0., 1.);
-    float yy_rand = 2 * semiHeight * (myRand - 0.5);
-
     //calculate xx_rand at a given yy_rand
-    double xMax = semiTopEdge - (semiHeight - yy_rand) * myTanPhi;
     float myRandX = flat1_->fire(0., 1.);
     float xx_rand = 2 * xMax * (myRandX - 0.5);
 
@@ -146,7 +156,44 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll)
     float corr = 0.;
 
     GlobalPoint pointDigiHit = roll->toGlobal(LocalPoint(xx_rand, yy_rand));
+    //calc tof to the random estimated point
+    double stripRadius = sqrt(pointDigiHit.x() * pointDigiHit.x() + pointDigiHit.y() * pointDigiHit.y()
+        + pointDigiHit.z() * pointDigiHit.z());
+    double timeCalibrationOffset_ = (stripRadius * 1e+9) / (cspeed * 1e+2); //[ns]
+    float tof = gauss_->fire(timeCalibrationOffset_, sigma_t);
 
+    float myrand = flat1_->fire(0., 1.);
+    if (myrand <= 0.5)
+      pdgid = -11;
+    else
+      pdgid = 11;
+
+    ME0DigiPreReco digi(xx_rand, yy_rand, ex, ey, corr, tof, pdgid);
+    digi_.insert(digi);
+  }
+
+  aveNeutrRateBotRoll = ME0ModNeuBkgParam0
+                      + ME0ModNeuBkgParam1 * radius_rand
+                      + ME0ModNeuBkgParam2 * radius_rand * radius_rand
+                      + ME0ModNeuBkgParam3 * radius_rand * radius_rand * radius_rand
+                      + ME0ModNeuBkgParam4 * radius_rand * radius_rand * radius_rand * radius_rand
+                      + ME0ModNeuBkgParam5 * radius_rand * radius_rand * radius_rand * radius_rand * radius_rand
+                      + ME0ModNeuBkgParam6 * radius_rand * radius_rand * radius_rand * radius_rand * radius_rand * radius_rand;
+
+  const double averageNoiseNeutrall(aveNeutrRateBotRoll * nBxing * bxwidth_ * trArea * 1.0e-9);
+  int n_hits(poisson_->fire(averageNoiseNeutrall));
+
+  for (int i = 0; i < n_hits; ++i)
+  {
+    //calculate xx_rand at a given yy_rand
+    float myRandX = flat1_->fire(0., 1.);
+    float xx_rand = 2 * xMax * (myRandX - 0.5);
+
+    float ex = sigma_u;
+    float ey = sigma_v;
+    float corr = 0.;
+
+    GlobalPoint pointDigiHit = roll->toGlobal(LocalPoint(xx_rand, yy_rand));
     //calc tof to the random estimated point
     double stripRadius = sqrt(pointDigiHit.x() * pointDigiHit.x() + pointDigiHit.y() * pointDigiHit.y()
         + pointDigiHit.z() * pointDigiHit.z());
