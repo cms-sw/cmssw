@@ -29,6 +29,11 @@
 <use   name="CommonTools/TriggerUtils"/>
 <use   name="Validation/RecoTrack"/>
 <lib   name="MathMore"/>
+<use name="SimGeneral/HepPDTRecord"/>
+<use name="clhep"/>
+<use name="SimTracker/TrackHistory"/>
+
 <library   file="*.cc" name="ValidationRecoTrackPlugins">
   <flags   EDM_PLUGIN="1"/>
+<Flags CXXFLAGS="-Wno-error=reorder -Wno-error=unused-variable"/>
 </library>
