@@ -60,6 +60,7 @@ namespace {
 
 OscarMTProducer::OscarMTProducer(edm::ParameterSet const & p)
 {
+#ifdef MK_SERIAL
   // Random number generation not allowed here
   StaticRandomEngineSetUnset random(nullptr);
 
@@ -124,6 +125,7 @@ OscarMTProducer::OscarMTProducer(edm::ParameterSet const & p)
 
   //UIsession manager for message handling
   m_UIsession.reset(new CustomUIsession());
+#endif
 }
 
 OscarMTProducer::~OscarMTProducer() 
@@ -132,19 +134,24 @@ OscarMTProducer::~OscarMTProducer()
 void 
 OscarMTProducer::beginRun(const edm::Run & r, const edm::EventSetup & es)
 {
+#ifdef MK_SERIAL
   // Random number generation not allowed here
   StaticRandomEngineSetUnset random(nullptr);
   m_runManager->initG4(es);
+#endif
 }
 
 void 
 OscarMTProducer::endRun(const edm::Run&, const edm::EventSetup&)
 {
+#ifdef MK_SERIAL
   m_runManager->stopG4();
+#endif
 }
 
 void OscarMTProducer::produce(edm::Event & e, const edm::EventSetup & es)
 {
+#ifdef MK_SERIAL
   StaticRandomEngineSetUnset random(e.streamID());
 
   std::vector<SensitiveTkDetector*>& sTk = 
@@ -209,6 +216,7 @@ void OscarMTProducer::produce(edm::Event & e, const edm::EventSetup & es)
     m_runManager->abortEvent();
     throw edm::Exception( edm::errors::EventCorruption );
   }
+#endif
 }
 
 StaticRandomEngineSetUnset::StaticRandomEngineSetUnset(

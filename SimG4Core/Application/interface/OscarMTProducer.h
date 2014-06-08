@@ -1,7 +1,7 @@
 #ifndef SimG4Core_OscarMTProducer_H
 #define SimG4Core_OscarMTProducer_H
 
-#include "FWCore/Framework/interface/one/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -15,7 +15,7 @@
 
 #include <memory>
 
-class OscarMTProducer : public edm::one::EDProducer<edm::one::SharedResources, edm::one::WatchRuns>
+class OscarMTProducer : public edm::stream::EDProducer<>
 {
 public:
   typedef std::vector<boost::shared_ptr<SimProducer> > Producers;
