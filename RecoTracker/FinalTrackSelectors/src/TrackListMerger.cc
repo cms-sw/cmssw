@@ -122,9 +122,7 @@ namespace cms
     foundHitBonus_ = conf.getParameter<double>("FoundHitBonus");
     lostHitPenalty_ = conf.getParameter<double>("LostHitPenalty");
     indivShareFrac_=conf.getParameter<std::vector<double> >("indivShareFrac");
-    if(conf.exists("priorities")){
-      priority_=conf.getParameter<std::vector<double> >("priorities");
-    }
+    priority_=conf.getParameter<std::vector<double> >("priorities");
     std::string qualityStr = conf.getParameter<std::string>("newQuality");
 
     if (qualityStr != "") {
