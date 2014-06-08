@@ -31,7 +31,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
     fileNames = cms.untracked.vstring(
-    'file:/afs/cern.ch/user/l/lgray/work/public/CMSSW_6_2_X_SLHC_2014-05-31-1400/src/matrix_tests/11222_ZTT_8TeV+ZTT_Tauola_All_hadronic_8TeV_2019WithGEM_GenSimFull+DigiFull_2019WithGEM+RecoFull_2019WithGEM+HARVESTFull_2019WithGEM/step3.root'
+    'file:/afs/cern.ch/user/l/lgray/work/public/CMSSW_6_2_X_SLHC_2014-05-31-1400/src/matrix_tests/11202_SingleElectronPt35+SingleElectronPt35_2019WithGEM_GenSimFull+DigiFull_2019WithGEM+RecoFull_2019WithGEM+HARVESTFull_2019WithGEM/step3.root'
     )
 )
 

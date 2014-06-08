@@ -157,8 +157,9 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
     // the first hit in the branch is the primary seed which always
     // has weight one
     output.push_back(reco::PFCluster());
-    reco::PFCluster& current = output.back();
+    reco::PFCluster& current = output.back();    
     reco::PFRecHitFraction rhf(makeRefhit(input,branch[0].first),1.0);
+    double seed_energy = rhf.recHitRef()->energy();
     current.addRecHitFraction(rhf);
     current.setSeed(rhf.recHitRef()->detId());
     // all other hits in the branch are secondary and have their fraction
@@ -166,7 +167,12 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
     // position fit)
     for( auto rhit = branch.begin()+1; rhit != branch.end(); ++rhit ) {
       reco::PFRecHitFraction rhf2(makeRefhit(input,rhit->first),rhit->second);
-      current.addRecHitFraction(rhf2);      
+      current.addRecHitFraction(rhf2);   
+      const double rh_energy = rhf2.recHitRef()->energy()*rhf2.fraction();
+      if( rh_energy  > seed_energy ) {
+	seed_energy = rh_energy;
+	current.setSeed(rhf2.recHitRef()->detId());
+      }
     }    
     _positionCalc->calculateAndSetPosition(current);
     //std::cout << "Seeded cluster : " << current << std::endl;

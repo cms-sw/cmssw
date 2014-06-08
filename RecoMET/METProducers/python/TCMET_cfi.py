@@ -66,9 +66,9 @@ tcMet = cms.EDProducer("METProducer",
                        dupDPhi = cms.double(0.03),
                        dupDCotTh = cms.double(0.0006),
                        PFClustersECAL = cms.InputTag("particleFlowClusterECAL"),
-                       PFClustersHCAL = cms.InputTag("particleFlowClusterHCAL"),
-                       PFClustersHFEM = cms.InputTag("particleFlowClusterHFEM"),
-                       PFClustersHFHAD = cms.InputTag("particleFlowClusterHFHAD"),
+                       PFClustersHCAL = cms.InputTag("particleFlowClusterHCALSemi3D"),
+                       PFClustersHFEM = cms.InputTag("particleFlowClusterHF"),
+                       PFClustersHFHAD = cms.InputTag("particleFlowClusterHF"),
                        usePFClusters = cms.bool(False)
                        )
 

@@ -35,12 +35,14 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
   double cl_timeweight=0.0;
   double max_e = 0.0;  
   PFLayer::Layer max_e_layer = PFLayer::NONE;
+  reco::PFRecHitRef refseed; 
   // find the seed and max layer and also calculate time
   //Michalis : Even if we dont use timing in clustering here we should fill
   //the time information for the cluster. This should use the timing resolution(1/E)
   //so the weight should be fraction*E^2
   for( const reco::PFRecHitFraction& rhf : cluster.recHitFractions() ) {
     const reco::PFRecHitRef& refhit = rhf.recHitRef();
+    if( refhit->detId() == cluster.seed() ) refseed = refhit;
     const double rh_fraction = rhf.fraction();
     const double rh_rawenergy = refhit->energy();
     const double rh_energy = rh_rawenergy * rh_fraction;   
@@ -81,8 +83,19 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
   cluster.setLayer(max_e_layer);
   // calculate the position
   double total_norm = 0.0;
+  const reco::PFRecHitRefVector* seedNeighbours = NULL;
+  if( _posCalcNCrystals != -1 ) {
+    seedNeighbours = &refseed->neighbours();
+  }
   for( const reco::PFRecHitFraction& rhf : cluster.recHitFractions() ) {
     const reco::PFRecHitRef& refhit = rhf.recHitRef();
+
+    if( refhit != refseed && _posCalcNCrystals != -1 ) {
+      auto pos = std::find(seedNeighbours->begin(),seedNeighbours->end(),
+			   refhit);
+      if( pos == seedNeighbours->end() ) continue;
+    }
+
     if( positionAtDepth.find(refhit->depth()) == positionAtDepth.end() ) {
       positionAtDepth[refhit->depth()] = std::make_tuple(0.0,0.0,0.0,0.0,0.0);
     }

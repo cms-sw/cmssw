@@ -12,19 +12,19 @@ _localMaxSeeds_HCAL = cms.PSet(
     algoName = cms.string("LocalMaximumSeedFinder"),
     thresholdsByDetector = cms.VPSet(
     cms.PSet( detector = cms.string("HCAL_BARREL1"),
-              seedingThreshold = cms.double(0.5),
+              seedingThreshold = cms.double(0.2),
               seedingThresholdPt = cms.double(0.0)
               ),
     cms.PSet( detector = cms.string("HCAL_ENDCAP"),
-              seedingThreshold = cms.double(0.55),
+              seedingThreshold = cms.double(0.3),
               seedingThresholdPt = cms.double(0.0)
               ),
     cms.PSet( detector = cms.string("HCAL_BARREL2_RING0"),
-              seedingThreshold = cms.double(0.5),
+              seedingThreshold = cms.double(0.25),
               seedingThresholdPt = cms.double(0.0)
               ),
     cms.PSet( detector = cms.string("HCAL_BARREL2_RING1"),
-              seedingThreshold = cms.double(0.5),
+              seedingThreshold = cms.double(0.25),
               seedingThresholdPt = cms.double(0.0)
               )    
     ),
@@ -40,16 +40,25 @@ _positionCalcHCAL_semi3D = cms.PSet(
     minAllowedNormalization = cms.double(1e-9)
 )
 
+_positionCalcHCAL_semi3D_seedneighbours = cms.PSet(
+    algoName = cms.string("Semi3DPositionCalc"),
+    ##
+    minFractionInCalc = cms.double(1e-9),    
+    posCalcNCrystals = cms.int32(1), # != -1 means use the seed's neighbours
+    logWeightDenominator = cms.double(0.05),#same as gathering threshold
+    minAllowedNormalization = cms.double(1e-9)
+)
+
 #topo clusters
 _topoClusterizer_HCAL = cms.PSet(
     algoName = cms.string("ArborOnSeedsTopoClusterizer"),    
     thresholdsByDetector = cms.VPSet(
     cms.PSet( detector = cms.string("HCAL_BARREL1"),
-              gatheringThreshold = cms.double(0.4),
+              gatheringThreshold = cms.double(0.2),
               gatheringThresholdPt = cms.double(0.0)
               ),
     cms.PSet( detector = cms.string("HCAL_ENDCAP"),
-              gatheringThreshold = cms.double(0.4),
+              gatheringThreshold = cms.double(0.2),
               gatheringThresholdPt = cms.double(0.0)
               ),
     cms.PSet( detector = cms.string("HCAL_BARREL2_RING0"),
@@ -66,7 +75,7 @@ _topoClusterizer_HCAL = cms.PSet(
     stoppingTolerance = cms.double(1e-8),
     minFracTot = cms.double(1e-20), ## numerical stabilization
     maxIterations = cms.uint32(50),
-    positionCalc = _positionCalcHCAL_semi3D,
+    positionCalc = _positionCalcHCAL_semi3D_seedneighbours,
     allCellsPositionCalc = _positionCalcHCAL_semi3D
 )
 

@@ -56,7 +56,7 @@ for event in events:
     
     #find taus:
     for particle in genParticles:
-        if abs(particle.pdgId())==15 and abs(particle.eta())<3.0 and particle.status()==3 and particle.pt()>5:
+        if abs(particle.pdgId())==211 and abs(particle.eta())<3.0 and particle.status()==1 and particle.pt()>5:
             #tau found define displays
             print particle.pdgId(),particle.energy(),particle.eta(),particle.phi()
             displayHCAL = DisplayManager('HCAL',particle.eta(),particle.phi(),0.5)
