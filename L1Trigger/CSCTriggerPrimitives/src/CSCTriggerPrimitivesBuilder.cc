@@ -16,8 +16,9 @@
 #include <L1Trigger/CSCTriggerPrimitives/src/CSCGEMRPCTriggerGeometryHelper.h>
 #include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboard.h>
 #include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME11.h>
-#include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME21.h>
-#include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME3141.h>
+#include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME11GEM.h>
+#include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME21GEM.h>
+#include <L1Trigger/CSCTriggerPrimitives/src/CSCMotherboardME3141RPC.h>
 #include <L1Trigger/CSCTriggerPrimitives/src/CSCMuonPortCard.h>
 
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
@@ -27,6 +28,7 @@
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <Geometry/GEMGeometry/interface/GEMGeometry.h>
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
+#include "CLHEP/Random/RandFlat.h"
 
 //------------------
 // Static variables
@@ -51,19 +53,16 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
 
   // special configuration parameters for ME11 treatment
   const edm::ParameterSet commonParams(conf.getParameter<edm::ParameterSet>("commonParam"));
-  smartME1aME1b = commonParams.getUntrackedParameter<bool>("smartME1aME1b", false);
-  disableME1a = commonParams.getUntrackedParameter<bool>("disableME1a", false);
-  disableME42 = commonParams.getUntrackedParameter<bool>("disableME42", false);
+  smartME1aME1b = commonParams.getParameter<bool>("smartME1aME1b");
+  disableME1a = commonParams.getParameter<bool>("disableME1a");
+  disableME42 = commonParams.getParameter<bool>("disableME42");
 
-  checkBadChambers_ = conf.getUntrackedParameter<bool>("checkBadChambers", true);
+  checkBadChambers_ = conf.getParameter<bool>("checkBadChambers");
+  fractionBrokenCSCs_ = conf.getParameter<double>("fractionBrokenCSCs");
 
-  const edm::ParameterSet tmbParams(conf.getParameter<edm::ParameterSet>("tmbSLHC"));
-  const edm::ParameterSet me21mbParams(tmbParams.getUntrackedParameter<edm::ParameterSet>("me21ILT",edm::ParameterSet()));
-  const edm::ParameterSet me3141tmbParams(tmbParams.getUntrackedParameter<edm::ParameterSet>("me3141ILT",edm::ParameterSet()));
-
-  runFactorizedModel_ = tmbParams.getUntrackedParameter<bool>("runFactorizedModel",true);
-  runME21ILT_ = me21mbParams.getUntrackedParameter<bool>("runME21ILT",false);
-  runME3141ILT_ = me3141tmbParams.getUntrackedParameter<bool>("runME3141ILT",false);
+  runME11ILT_ = commonParams.existsAs<bool>("runME11ILT")?commonParams.getParameter<bool>("runME11ILT"):false;
+  runME21ILT_ = commonParams.existsAs<bool>("runME21ILT")?commonParams.getParameter<bool>("runME21ILT"):false;
+  runME3141ILT_ = commonParams.existsAs<bool>("runME3141ILT")?commonParams.getParameter<bool>("runME3141ILT"):false;
 
   // ORCA way of initializing boards.
   for (int endc = min_endcap; endc <= max_endcap; endc++)
@@ -93,12 +92,14 @@ CSCTriggerPrimitivesBuilder::CSCTriggerPrimitivesBuilder(const edm::ParameterSet
             int ring = CSCTriggerNumbering::ringFromTriggerLabels(stat, cham);
             // When the motherboard is instantiated, it instantiates ALCT
             // and CLCT processors.
-            if (stat==1 && ring==1 && smartME1aME1b)
+            if (stat==1 && ring==1 && smartME1aME1b && !runME11ILT_)
               tmb_[endc-1][stat-1][sect-1][subs-1][cham-1] = new CSCMotherboardME11(endc, stat, sect, subs, cham, conf);
-	    else if (stat==2 && ring==1 && runME21ILT_)
-              tmb_[endc-1][stat-1][sect-1][subs-1][cham-1] = new CSCMotherboardME21(endc, stat, sect, subs, cham, conf);
-	    else if ((stat==3 || stat==4) && ring==1 && runME3141ILT_)
-              tmb_[endc-1][stat-1][sect-1][subs-1][cham-1] = new CSCMotherboardME3141(endc, stat, sect, subs, cham, conf);
+            else if (stat==1 && ring==1 && smartME1aME1b && runME11ILT_)
+              tmb_[endc-1][stat-1][sect-1][subs-1][cham-1] = new CSCMotherboardME11GEM(endc, stat, sect, subs, cham, conf);
+            else if (stat==2 && ring==1 && runME21ILT_)
+              tmb_[endc-1][stat-1][sect-1][subs-1][cham-1] = new CSCMotherboardME21GEM(endc, stat, sect, subs, cham, conf);
+            else if ((stat==3 || stat==4) && ring==1 && runME3141ILT_ and endc==2)
+              tmb_[endc-1][stat-1][sect-1][subs-1][cham-1] = new CSCMotherboardME3141RPC(endc, stat, sect, subs, cham, conf);
             else
               tmb_[endc-1][stat-1][sect-1][subs-1][cham-1] = new CSCMotherboard(endc, stat, sect, subs, cham, conf);
           }
@@ -186,7 +187,8 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
 					CSCCLCTDigiCollection& oc_clct,
                                         CSCCLCTPreTriggerCollection & oc_pretrig,
 					CSCCorrelatedLCTDigiCollection& oc_lct,
-					CSCCorrelatedLCTDigiCollection& oc_sorted_lct)
+					CSCCorrelatedLCTDigiCollection& oc_sorted_lct,
+					GEMCSCCoPadDigiCollection& oc_gemcopad)
 {
   // CSC geometry.
   CSCTriggerGeomManager* theGeom = CSCTriggerGeometry::get();
@@ -218,7 +220,6 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
 
             // Run processors only if chamber exists in geometry.
             if (tmb == 0 || theGeom->chamber(endc, stat, sect, subs, cham) == 0) continue;
-
             int chid = CSCTriggerNumbering::chamberFromTriggerLabels(sect, subs, stat, cham);
 
             // 0th layer means whole chamber.
@@ -228,18 +229,19 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
             // also, there's no ME1/a-1/b separation, it's whole ME1/1)
             if (checkBadChambers_ && badChambers->isInBadChamber(detid)) continue;
 
+            // randomly disable X% of CSC chambers
+            if (flat_->fire(1) < fractionBrokenCSCs_) {
+              edm::LogInfo("L1CSCTrigger") << "Skipping bad chamber: " << detid << std::endl;              
+              continue;
+            }
+
             // running upgraded ME1/1 TMBs
-            if (stat==1 && ring==1 && smartME1aME1b)
+            if (stat==1 && ring==1 && smartME1aME1b && !runME11ILT_)
             {
               CSCMotherboardME11* tmb11 = static_cast<CSCMotherboardME11*>(tmb);
 
-              tmb11->setCSCGeometry(csc_g);
-              tmb11->setGEMGeometry(gem_g);
               //LogTrace("CSCTriggerPrimitivesBuilder")<<"CSCTriggerPrimitivesBuilder::build in E:"<<endc<<" S:"<<stat<<" R:"<<ring;
-              if (runFactorizedModel_)
-                tmb11->run(wiredc, compdc, gemPads);
-              else 
-                tmb11->runNewAlgorithm(wiredc, compdc, gemPads);
+              tmb11->run(wiredc, compdc);
               
               std::vector<CSCCorrelatedLCTDigi> lctV = tmb11->readoutLCTs1b();
               std::vector<CSCCorrelatedLCTDigi> lctV1a = tmb11->readoutLCTs1a();
@@ -345,17 +347,146 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               }
             } // upgraded TMB
 
+            // running upgraded ME1/1 TMBs
+            else if (stat==1 && ring==1 && smartME1aME1b && runME11ILT_)
+            {
+              CSCMotherboardME11GEM* tmb11GEM = static_cast<CSCMotherboardME11GEM*>(tmb);
+
+              tmb11GEM->setCSCGeometry(csc_g);
+              tmb11GEM->setGEMGeometry(gem_g);
+              //LogTrace("CSCTriggerPrimitivesBuilder")<<"CSCTriggerPrimitivesBuilder::build in E:"<<endc<<" S:"<<stat<<" R:"<<ring;
+              tmb11GEM->run(wiredc, compdc, gemPads);
+              
+              std::vector<CSCCorrelatedLCTDigi> lctV = tmb11GEM->readoutLCTs1b();
+              std::vector<CSCCorrelatedLCTDigi> lctV1a = tmb11GEM->readoutLCTs1a();
+ 
+              std::vector<CSCALCTDigi> alctV1a, alctV = tmb11GEM->alct->readoutALCTs();
+
+              std::vector<CSCCLCTDigi> clctV = tmb11GEM->clct->readoutCLCTs();
+              std::vector<int> preTriggerBXs = tmb11GEM->clct->preTriggerBXs();
+              std::vector<CSCCLCTDigi> clctV1a = tmb11GEM->clct1a->readoutCLCTs();
+              std::vector<int> preTriggerBXs1a = tmb11GEM->clct1a->preTriggerBXs();
+
+              std::vector<GEMCSCCoPadDigi> copads = tmb11GEM->readoutCoPads();
+
+              // perform simple separation of ALCTs into 1/a and 1/b
+              // for 'smart' case. Some duplication occurs for WG [10,15]
+              std::vector<CSCALCTDigi> tmpV(alctV);
+              alctV.clear();
+              for (unsigned int al=0; al < tmpV.size(); al++)
+              {
+                if (tmpV[al].getKeyWG()<=15) alctV1a.push_back(tmpV[al]);
+                if (tmpV[al].getKeyWG()>=10) alctV.push_back(tmpV[al]);
+              }
+              //LogTrace("CSCTriggerPrimitivesBuilder")<<"CSCTriggerPrimitivesBuilder:: a="<<alctV.size()<<" c="<<clctV.size()<<" l="<<lctV.size()
+              //  <<"   1a: a="<<alctV1a.size()<<" c="<<clctV1a.size()<<" l="<<lctV1a.size();
+ 
+              // ME1/b
+
+              if (!(lctV.empty()&&alctV.empty()&&clctV.empty())) {
+                LogTrace("L1CSCTrigger")
+                  << "CSCTriggerPrimitivesBuilder results in " <<detid; 
+              }
+
+              // Correlated LCTs.
+              if (!lctV.empty()) {
+                LogTrace("L1CSCTrigger")
+                  << "Put " << lctV.size() << " ME1b LCT digi"
+                  << ((lctV.size() > 1) ? "s " : " ") << "in collection\n";
+                oc_lct.put(std::make_pair(lctV.begin(),lctV.end()), detid);
+              }
+ 
+              // Anode LCTs.
+              if (!alctV.empty()) {
+                LogTrace("L1CSCTrigger")
+                  << "Put " << alctV.size() << " ME1b ALCT digi"
+                  << ((alctV.size() > 1) ? "s " : " ") << "in collection\n";
+                oc_alct.put(std::make_pair(alctV.begin(),alctV.end()), detid);
+              }
+ 
+              // Cathode LCTs.
+              if (!clctV.empty()) {
+                LogTrace("L1CSCTrigger")
+                  << "Put " << clctV.size() << " ME1b CLCT digi"
+                  << ((clctV.size() > 1) ? "s " : " ") << "in collection\n";
+                oc_clct.put(std::make_pair(clctV.begin(),clctV.end()), detid);
+              }
+
+              // Cathode LCTs pretriggers
+              if (!preTriggerBXs.empty()) {
+                LogTrace("L1CSCTrigger")
+                  << "Put " << preTriggerBXs.size() << " CLCT pretrigger"
+                  << ((preTriggerBXs.size() > 1) ? "s " : " ") << "in collection\n";
+                oc_pretrig.put(std::make_pair(preTriggerBXs.begin(),preTriggerBXs.end()), detid);
+              }            
+
+              // 0th layer means whole chamber.
+              GEMDetId gemId(detid.zendcap(), 1, 1, 1, chid, 0);
+              
+              // GEM coincidence pads
+              if (!copads.empty()) {
+                LogTrace("L1CSCTrigger")
+                  << "Put " << copads.size() << " GEM coincidence pad"
+                  << ((copads.size() > 1) ? "s " : " ") << "in collection\n";
+                oc_gemcopad.put(std::make_pair(copads.begin(),copads.end()), gemId);
+              }
+ 
+              // ME1/a
+
+              if (disableME1a) continue;
+
+              CSCDetId detid1a(endc, stat, 4, chid, 0);
+
+              if (!(lctV1a.empty()&&alctV1a.empty()&&clctV1a.empty())){
+                LogTrace("L1CSCTrigger") << "CSCTriggerPrimitivesBuilder results in " <<detid1a;
+              }
+ 
+              // Correlated LCTs.
+              if (!lctV1a.empty()) {
+                LogTrace("L1CSCTrigger")
+                  << "Put " << lctV1a.size() << " ME1a LCT digi"
+                  << ((lctV1a.size() > 1) ? "s " : " ") << "in collection\n";
+                oc_lct.put(std::make_pair(lctV1a.begin(),lctV1a.end()), detid1a);
+              }
+ 
+              // Anode LCTs.
+              if (!alctV1a.empty()) {
+                LogTrace("L1CSCTrigger")
+                  << "Put " << alctV1a.size() << " ME1a ALCT digi"
+                  << ((alctV1a.size() > 1) ? "s " : " ") << "in collection\n";
+                oc_alct.put(std::make_pair(alctV1a.begin(),alctV1a.end()), detid1a);
+              }
+ 
+              // Cathode LCTs.
+              if (!clctV1a.empty()) {
+                LogTrace("L1CSCTrigger")
+                  << "Put " << clctV1a.size() << " ME1a CLCT digi"
+                  << ((clctV1a.size() > 1) ? "s " : " ") << "in collection\n";
+                oc_clct.put(std::make_pair(clctV1a.begin(),clctV1a.end()), detid1a);
+              }
+              
+              // Cathode LCTs pretriggers
+              if (!preTriggerBXs1a.empty()) {
+                LogTrace("L1CSCTrigger")
+                  << "Put " << preTriggerBXs.size() << " CLCT pretrigger"
+                  << ((preTriggerBXs.size() > 1) ? "s " : " ") << "in collection\n";
+                oc_pretrig.put(std::make_pair(preTriggerBXs.begin(),preTriggerBXs.end()), detid);
+              }
+            } 
+            
             // running upgraded ME2/1 TMBs
             else if (stat==2 && ring==1 && runME21ILT_)
             {
-              CSCMotherboardME21* tmb21 = static_cast<CSCMotherboardME21*>(tmb);
-              tmb21->setCSCGeometry(csc_g);
-              tmb21->setGEMGeometry(gem_g);
-              tmb21->run(wiredc, compdc, gemPads);
-              std::vector<CSCCorrelatedLCTDigi> lctV = tmb21->readoutLCTs();
-              std::vector<CSCALCTDigi> alctV = tmb21->alct->readoutALCTs();
-              std::vector<CSCCLCTDigi> clctV = tmb21->clct->readoutCLCTs();
-              std::vector<int> preTriggerBXs = tmb21->clct->preTriggerBXs();
+              CSCMotherboardME21GEM* tmb21GEM = static_cast<CSCMotherboardME21GEM*>(tmb);
+              tmb21GEM->setCSCGeometry(csc_g);
+              tmb21GEM->setGEMGeometry(gem_g);
+              tmb21GEM->run(wiredc, compdc, gemPads);
+              std::vector<CSCCorrelatedLCTDigi> lctV = tmb21GEM->readoutLCTs();
+              std::vector<CSCALCTDigi> alctV = tmb21GEM->alct->readoutALCTs();
+              std::vector<CSCCLCTDigi> clctV = tmb21GEM->clct->readoutCLCTs();
+              std::vector<int> preTriggerBXs = tmb21GEM->clct->preTriggerBXs();
+
+              std::vector<GEMCSCCoPadDigi> copads = tmb21GEM->readoutCoPads();
 
               if (!(alctV.empty() && clctV.empty() && lctV.empty())) {
                 LogTrace("L1CSCTrigger")
@@ -393,19 +524,30 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
                   << ((preTriggerBXs.size() > 1) ? "s " : " ") << "in collection\n";
                 oc_pretrig.put(std::make_pair(preTriggerBXs.begin(),preTriggerBXs.end()), detid);
               }
+
+              // 0th layer means whole chamber.
+              GEMDetId gemId(detid.zendcap(), 1, 2, 1, chid, 0);
+	      
+              // GEM coincidence pads
+              if (!copads.empty()) {
+                LogTrace("L1CSCTrigger")
+                  << "Put " << copads.size() << " GEM coincidence pad"
+                  << ((copads.size() > 1) ? "s " : " ") << "in collection\n";
+                oc_gemcopad.put(std::make_pair(copads.begin(),copads.end()), gemId);
+              }
             }
 
             // running upgraded ME3/1-ME4/1 TMBs
-            else if ((stat==3 or stat==4) && ring==1 && runME3141ILT_)
+            else if ((stat==3 or stat==4) && ring==1 && runME3141ILT_  and endc==2)
             {
-              CSCMotherboardME3141* tmb3141 = static_cast<CSCMotherboardME3141*>(tmb);
-              tmb3141->setCSCGeometry(csc_g);
-              tmb3141->setRPCGeometry(rpc_g);
-              tmb3141->run(wiredc, compdc, rpcDigis);
-              std::vector<CSCCorrelatedLCTDigi> lctV = tmb3141->readoutLCTs();
-              std::vector<CSCALCTDigi> alctV = tmb3141->alct->readoutALCTs();
-              std::vector<CSCCLCTDigi> clctV = tmb3141->clct->readoutCLCTs();
-              std::vector<int> preTriggerBXs = tmb3141->clct->preTriggerBXs();
+              CSCMotherboardME3141RPC* tmb3141RPC = static_cast<CSCMotherboardME3141RPC*>(tmb);
+              tmb3141RPC->setCSCGeometry(csc_g);
+              tmb3141RPC->setRPCGeometry(rpc_g);
+              tmb3141RPC->run(wiredc, compdc, rpcDigis);
+              std::vector<CSCCorrelatedLCTDigi> lctV = tmb3141RPC->readoutLCTs();
+              std::vector<CSCALCTDigi> alctV = tmb3141RPC->alct->readoutALCTs();
+              std::vector<CSCCLCTDigi> clctV = tmb3141RPC->clct->readoutCLCTs();
+              std::vector<int> preTriggerBXs = tmb3141RPC->clct->preTriggerBXs();
 
               if (!(alctV.empty() && clctV.empty() && lctV.empty())) {
                 LogTrace("L1CSCTrigger")
@@ -547,4 +689,10 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
       << " (sector " << itr->sector()
       << " trig id. " << itr->cscid() << ")" << "\n";
   }
+}
+
+
+void CSCTriggerPrimitivesBuilder::setRandomEngine(CLHEP::HepRandomEngine& eng)
+{
+  flat_ = new CLHEP::RandFlat(eng);
 }

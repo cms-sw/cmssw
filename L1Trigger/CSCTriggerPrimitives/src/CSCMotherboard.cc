@@ -53,6 +53,9 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
                                const edm::ParameterSet& conf) :
                    theEndcap(endcap), theStation(station), theSector(sector),
                    theSubsector(subsector), theTrigChamber(chamber) {
+
+  theRing = CSCTriggerNumbering::ringFromTriggerLabels(theStation, theTrigChamber);
+
   // Normal constructor.  -JM
   // Pass ALCT, CLCT, and common parameters on to ALCT and CLCT processors.
   static bool config_dumped = false;
@@ -69,7 +72,7 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
   isTMB07 = commonParams.getParameter<bool>("isTMB07");
 
   // is it (non-upgrade algorithm) run along with upgrade one?
-  isSLHC = commonParams.getUntrackedParameter<bool>("isSLHC");
+  isSLHC = commonParams.getParameter<bool>("isSLHC");
 
   // Choose the appropriate set of configuration parameters depending on
   // isTMB07 and isMTCC flags.
@@ -90,21 +93,40 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
   }
 
   // Motherboard parameters:
-  edm::ParameterSet tmbParams  =  conf.getParameter<edm::ParameterSet>("tmbParam");
+  edm::ParameterSet tmbParams(conf.getParameter<edm::ParameterSet>("tmbParam"));
+  const edm::ParameterSet me11tmbGemParams(conf.existsAs<edm::ParameterSet>("me11tmbSLHCGEM")?
+                                           conf.getParameter<edm::ParameterSet>("me11tmbSLHCGEM"):edm::ParameterSet());
+  const edm::ParameterSet me21tmbGemParams(conf.existsAs<edm::ParameterSet>("me21tmbSLHCGEM")?
+                                           conf.getParameter<edm::ParameterSet>("me21tmbSLHCGEM"):edm::ParameterSet());
+  const edm::ParameterSet me3141tmbRpcParams(conf.existsAs<edm::ParameterSet>("me3141tmbSLHCRPC")?
+                                             conf.getParameter<edm::ParameterSet>("me3141tmbSLHCRPC"):edm::ParameterSet());
+
+  const bool runME11ILT(commonParams.existsAs<bool>("runME11ILT")?commonParams.getParameter<bool>("runME11ILT"):false);  
+  const bool runME21ILT(commonParams.existsAs<bool>("runME21ILT")?commonParams.getParameter<bool>("runME21ILT"):false);  
+  const bool runME3141ILT(commonParams.existsAs<bool>("runME3141ILT")?commonParams.getParameter<bool>("runME3141ILT"):false);
 
   // run upgrade TMBs for all MEX/1 stations
-  if (isSLHC && CSCTriggerNumbering::ringFromTriggerLabels(theStation, theTrigChamber) == 1 ) {
-    alctParams = conf.getParameter<edm::ParameterSet>("alctSLHC");
-    clctParams = conf.getParameter<edm::ParameterSet>("clctSLHC");
-    tmbParams  =  conf.getParameter<edm::ParameterSet>("tmbSLHC");
-    const edm::ParameterSet me21mbParams(tmbParams.getUntrackedParameter<edm::ParameterSet>("me21ILT",edm::ParameterSet()));
-    const bool runME21ILT(me21mbParams.getUntrackedParameter<bool>("runME21ILT",false));
-    if (theStation==2 and runME21ILT){
+  if (isSLHC and theRing == 1){    
+    if (theStation == 1) {
+      tmbParams = conf.getParameter<edm::ParameterSet>("tmbSLHC");
+      alctParams = conf.getParameter<edm::ParameterSet>("alctSLHC");
+      clctParams = conf.getParameter<edm::ParameterSet>("clctSLHC");
+      if (runME11ILT) {
+        tmbParams = me11tmbGemParams;
+      }
+    }
+    else if (theStation == 2 and runME21ILT) {
+      tmbParams = me21tmbGemParams;
       alctParams = conf.getParameter<edm::ParameterSet>("alctSLHCME21");
       clctParams = conf.getParameter<edm::ParameterSet>("clctSLHCME21");
     }
+    else if ((theStation == 3 or theStation == 4) and theEndcap==2 and runME3141ILT) {
+      tmbParams = me3141tmbRpcParams;
+      alctParams = conf.getParameter<edm::ParameterSet>("alctSLHCME3141");
+      clctParams = conf.getParameter<edm::ParameterSet>("clctSLHCME3141");
+    }
   }
-
+  
   mpc_block_me1a    = tmbParams.getParameter<unsigned int>("mpcBlockMe1a");
   alct_trig_enable  = tmbParams.getParameter<unsigned int>("alctTrigEnable");
   clct_trig_enable  = tmbParams.getParameter<unsigned int>("clctTrigEnable");
@@ -114,21 +136,23 @@ CSCMotherboard::CSCMotherboard(unsigned endcap, unsigned station,
   tmb_l1a_window_size = // Common to CLCT and TMB
     tmbParams.getParameter<unsigned int>("tmbL1aWindowSize");
 
+  lct_central_bx = 6;
+
   // configuration handle for number of early time bins
-  early_tbins = tmbParams.getUntrackedParameter<int>("tmbEarlyTbins",4);
+  early_tbins = tmbParams.getParameter<int>("tmbEarlyTbins");
 
   // whether to not reuse ALCTs that were used by previous matching CLCTs
-  drop_used_alcts = tmbParams.getUntrackedParameter<bool>("tmbDropUsedAlcts",true);
+  drop_used_alcts = tmbParams.getParameter<bool>("tmbDropUsedAlcts");
 
   // whether to readout only the earliest two LCTs in readout window
-  readout_earliest_2 = tmbParams.getUntrackedParameter<bool>("tmbReadoutEarliest2",false);
+  readout_earliest_2 = tmbParams.getParameter<bool>("tmbReadoutEarliest2");
 
-  infoV = tmbParams.getUntrackedParameter<int>("verbosity", 0);
+  infoV = tmbParams.getParameter<int>("verbosity");
   
   alct = new CSCAnodeLCTProcessor(endcap, station, sector, subsector, chamber, alctParams, commonParams);
   clct = new CSCCathodeLCTProcessor(endcap, station, sector, subsector, chamber, clctParams, commonParams, tmbParams);
 
-  //if (theStation==1 && CSCTriggerNumbering::ringFromTriggerLabels(theStation, theTrigChamber)==2) infoV = 3;
+  //if (theStation==1 && theRing==2) infoV = 3;
 
   // Check and print configuration parameters.
   checkConfigParameters();
