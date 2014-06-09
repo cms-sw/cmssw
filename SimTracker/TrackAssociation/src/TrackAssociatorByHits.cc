@@ -84,8 +84,8 @@ TrackAssociatorByHits::associateRecoToSim(const edm::RefToBaseVector<reco::Track
   
   TrackerHitAssociator * associate = new TrackerHitAssociator(*e, conf_);
   
-  TrackingParticleCollection tPC;
-  if (TPCollectionH.size()!=0)  tPC = *const_cast<TrackingParticleCollection*>(TPCollectionH.product());
+  const TrackingParticleCollection emptyCollection;
+  const TrackingParticleCollection& tPC = ( TPCollectionH.size() != 0 ? *(TPCollectionH.product()) : emptyCollection); 
 
   //get the ID of the recotrack  by hits 
   int tindex=0;
@@ -107,7 +107,7 @@ TrackAssociatorByHits::associateRecoToSim(const edm::RefToBaseVector<reco::Track
     if(!matchedIds.empty()){
 
       int tpindex =0;
-      for (TrackingParticleCollection::iterator t = tPC.begin(); t != tPC.end(); ++t, ++tpindex) {
+      for (TrackingParticleCollection::const_iterator t = tPC.begin(); t != tPC.end(); ++t, ++tpindex) {
         //int nsimhit = t->trackPSimHit(DetId::Tracker).size(); 
 	//LogTrace("TrackAssociator") << "TP number " << tpindex << " pdgId=" << t->pdgId() << " with number of PSimHits: "  << nsimhit;
 	idcachev.clear();
@@ -165,8 +165,8 @@ TrackAssociatorByHits::associateSimToReco(const edm::RefToBaseVector<reco::Track
 
   TrackerHitAssociator * associate = new TrackerHitAssociator(*e, conf_);
   
-  TrackingParticleCollection tPC;
-  if (TPCollectionH.size()!=0)  tPC = *const_cast<TrackingParticleCollection*>(TPCollectionH.product());
+  const TrackingParticleCollection emptyCollection;
+  const TrackingParticleCollection& tPC = ( TPCollectionH.size() != 0 ? *(TPCollectionH.product()) : emptyCollection); 
 
   //for (TrackingParticleCollection::const_iterator t = tPC.begin(); t != tPC.end(); ++t) {
   //  LogTrace("TrackAssociator") << "NEW TP DUMP";
@@ -191,7 +191,7 @@ TrackAssociatorByHits::associateSimToReco(const edm::RefToBaseVector<reco::Track
     if(!matchedIds.empty()){
 	
       int tpindex =0;
-      for (TrackingParticleCollection::iterator t = tPC.begin(); t != tPC.end(); ++t, ++tpindex) {
+      for (TrackingParticleCollection::const_iterator t = tPC.begin(); t != tPC.end(); ++t, ++tpindex) {
 	idcachev.clear();
 	float totsimhit = 0; 
 	const TrackerTopology *tTopo=tTopoHand.product();
@@ -319,7 +319,7 @@ TrackAssociatorByHits::associateRecoToSim(edm::Handle<edm::View<TrajectorySeed> 
   
   TrackerHitAssociator * associate = new TrackerHitAssociator(*e, conf_);
   
-  const TrackingParticleCollection tPC   = *(TPCollectionH.product());
+  const TrackingParticleCollection& tPC   = *(TPCollectionH.product());
 
   const edm::View<TrajectorySeed> sC = *(seedCollectionH.product()); 
   
@@ -388,7 +388,7 @@ TrackAssociatorByHits::associateSimToReco(edm::Handle<edm::View<TrajectorySeed> 
 
   TrackerHitAssociator * associate = new TrackerHitAssociator(*e, conf_);
   
-  TrackingParticleCollection tPC =*const_cast<TrackingParticleCollection*>(TPCollectionH.product());
+  const TrackingParticleCollection& tPC =*TPCollectionH.product();
 
   const edm::View<TrajectorySeed> sC = *(seedCollectionH.product()); 
 
@@ -403,7 +403,7 @@ TrackAssociatorByHits::associateSimToReco(edm::Handle<edm::View<TrajectorySeed> 
     std::vector<SimHitIdpr> idcachev;
     if(!matchedIds.empty()){
       int tpindex =0;
-      for (TrackingParticleCollection::iterator t = tPC.begin(); t != tPC.end(); ++t, ++tpindex) {
+      for (TrackingParticleCollection::const_iterator t = tPC.begin(); t != tPC.end(); ++t, ++tpindex) {
 	idcachev.clear();
         int nsimhit = t->numberOfTrackerHits();
 	LogTrace("TrackAssociator") << "TP number " << tpindex << " pdgId=" << t->pdgId() << " with number of PSimHits: "  << nsimhit;
