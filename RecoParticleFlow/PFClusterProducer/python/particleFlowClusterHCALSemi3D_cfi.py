@@ -12,11 +12,11 @@ _localMaxSeeds_HCAL = cms.PSet(
     algoName = cms.string("LocalMaximumSeedFinder"),
     thresholdsByDetector = cms.VPSet(
     cms.PSet( detector = cms.string("HCAL_BARREL1"),
-              seedingThreshold = cms.double(0.2),
+              seedingThreshold = cms.double(0.5),
               seedingThresholdPt = cms.double(0.0)
               ),
     cms.PSet( detector = cms.string("HCAL_ENDCAP"),
-              seedingThreshold = cms.double(0.3),
+              seedingThreshold = cms.double(0.6),
               seedingThresholdPt = cms.double(0.0)
               ),
     cms.PSet( detector = cms.string("HCAL_BARREL2_RING0"),

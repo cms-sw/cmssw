@@ -102,22 +102,67 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
   for( unsigned i = 0; i < seedable.size(); ++i ) {
     seed_has_weights.emplace(i,false);
   }
+  /*
   for( const std::vector<unsigned>& branch : branches ) {
     for( auto ihit = branch.rbegin(); ihit != branch.rend(); ++ihit) {
+  
       if( !seed_has_weights[*ihit] ) {
+  */
 	buildInitialWeightsList(inp,seedable,seedtypes,
-				branches,*ihit,
+				branches,0/**ihit*/,
 				seed_has_weights,
 				seeds_and_fractions);
+	/*
       }
     }
   }
+	*/
   // flatten the maps into vector of branches with fractions
   // create map of seeds -> pfclusters
   unsigned ibranch = 0;
   std::unordered_multimap<unsigned,unsigned> seeds_to_clusters;
   std::vector<std::vector<std::pair<unsigned,double> > > seeds_with_weights;
+  // for arbor type seeding
   for( const auto& seed : seeds ) {
+    if( seeds_and_fractions[seed.first].size() == 0 ) {
+      std::vector<std::pair<unsigned,double> > abranch;
+      abranch.emplace_back(seed.first,1.0);
+      auto range = seeds_to_branches.equal_range(seed.first);
+      if( std::distance(range.first,range.second) != 1 ) {
+	throw cms::Exception("ImpossibleOutcome")
+          << "seed in more than one connected set!" << std::endl;
+      }
+      const auto& connected = branches[range.first->second];
+      for( const unsigned maybe : connected ) { 
+	auto found = std::find_if(abranch.begin(),abranch.end(),
+				  [&](const std::pair<unsigned,double>& a){
+				    return a.first == maybe;
+				  });
+	if( found != abranch.end() ) continue;
+	auto& connections = seeds_and_fractions[maybe]; // remember always back-connected!	
+	if( connections.size() == 0 ) { continue; } //skip seeds
+	if( connections.size() != 1 ) {
+	  throw cms::Exception("ImpossibleOutcome")
+	    << "Seed is back-connected to more than one other seed!" << connections.size() << std::endl;
+	}
+	for( const auto& inbranch : abranch ) { // check for connections to all things in branch so far
+	  if( connections.find(inbranch.first) != connections.end() ) {
+	    abranch.emplace_back(maybe,1.0);
+	    seeds_to_clusters.emplace(maybe,ibranch);
+	    break;
+	  }
+	}
+      }
+      std::cout << "made a branch: " << std::endl;
+      for( const auto& leaf : abranch ) {
+	std::cout << "(" << leaf.first << ',' << inp[leaf.first].energy() << "),";
+      }
+      std::cout << std::endl;
+      seeds_with_weights.push_back(std::move(abranch));
+      ++ibranch;
+    }
+    
+    /* // for sharing-based seeding
     if( seedtypes[seed.first] == PrimarySeed ) {
       std::vector<std::pair<unsigned,double> > abranch;
       abranch.emplace_back(seed.first,
@@ -133,12 +178,10 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
 	if( maybe == seed.first ) continue; // already added primary seed!
 	auto& fracs = seeds_and_fractions[maybe];
 	if( fracs.find(seed.first) != fracs.end() ) {
-	  /*
-	  std::cout << maybe  
-		    << " connected to " << abranch[0].first
-		    << " with fraction " << fracs[seed.first] << std::endl;
-	  */
-	  seeds_to_clusters.emplace(maybe,ibranch);
+	//std::cout << maybe  
+	//	    << " connected to " << abranch[0].first
+	//	    << " with fraction " << fracs[seed.first] << std::endl;
+	seeds_to_clusters.emplace(maybe,ibranch);
 	  abranch.emplace_back(maybe,fracs[seed.first]);
 	}
       }
@@ -150,6 +193,7 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
       seeds_with_weights.push_back(std::move(abranch));      
       ++ibranch;
     }
+    */
   } 
       
   // now we turn the branches with weights into PFClusters
@@ -228,18 +272,19 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
     }
   }  
   
-  // run semi-3D (2D position fit with center-per-layer given by 3D line fit) 
+  // run semi-3D (2D position fit with center-per-layer given by average) 
   // pf cluster position fit, loop on seeds
   const unsigned tolScal = //take log to make scaling not ridiculous
     std::pow(std::max(1.0,std::log(seeds.size()+1)),2.0); 
   growPFClusters(grouped_clusters,grouped_topos,topos_to_clusters,
 		 seedable,topoclusters,tolScal,tolScal,output);
   
-  /*
+  
+  std::cout << "made " << output.size() << " clusters!" << std::endl;
   for( const auto& cluster : output ) {
     std::cout << "Final cluster: " << cluster << std::endl;
   }
-  */
+  
   
 
 }
@@ -357,6 +402,50 @@ findSeedNeighbours(const reco::PFRecHitCollection& hits,
   
 }
 
+// retool to make this an arbor-like linkage
+// try Bachtis-type metric dR*dDepth/E
+void ArborOnSeedsTopoClusterizer::
+buildInitialWeightsList(const reco::PFRecHitCollection& rechits,
+                        const std::vector<bool>& seedable,
+                        const std::vector<seed_type>& seedtypes,
+                        const std::vector<std::vector<unsigned> >& linked_seeds,
+                        const unsigned  seed_idx,
+                        seed_usage_map& has_weight_data,
+                        seed_fractions_map& resolved_seeds) const {
+  // ignore seed index given loop over linked seeds -> create mesh -> prune that shit
+  std::unordered_map<unsigned,std::pair<unsigned,double> > neighbours_mesh;
+  for( const auto& branch_group : linked_seeds ) {
+    for( unsigned i = 0; i < branch_group.size(); ++i ) {      
+      const reco::PFRecHit& ihit = rechits[branch_group[i]];
+      double best_metric = 1e6;
+      int best_link = -1;
+      for( unsigned j = 0; j < branch_group.size(); ++j ) {	
+	if( i == j ) continue;
+	const reco::PFRecHit& jhit = rechits[branch_group[j]];
+	const int deltaDepth = jhit.depth() - ihit.depth();
+	if( deltaDepth < 0 ) { // we make the determination of best link looking backwards at each layer
+	  const double metric = ( reco::deltaR2(ihit.positionREP(),jhit.positionREP())*
+				  std::pow(deltaDepth/jhit.energy(),2.0) );
+	  if( metric < best_metric ) {
+	    best_metric = metric;
+	    best_link = branch_group[j];
+	  }	  
+	}
+      }
+      if( best_link != -1 ) {
+	std::cout << "Linked seed with metric: " << best_metric << std::endl;
+	has_weight_data[branch_group[i]] = true;
+	resolved_seeds[branch_group[i]][(unsigned)best_link] = 1.0;
+      } else {
+	std::cout << "Made a new seed!, no neighbours" << std::endl;
+	has_weight_data[branch_group[i]] = true;
+	//resolved_seeds[branch_group[i]][branch_group[i]] = 1.0;
+      }
+    }// outer loop on rechits
+  }// loop on all connected branches
+}
+
+/*
 void ArborOnSeedsTopoClusterizer::
 buildInitialWeightsList(const reco::PFRecHitCollection& rechits,
 			const std::vector<bool>& seedable,
@@ -400,10 +489,9 @@ buildInitialWeightsList(const reco::PFRecHitCollection& rechits,
   }
   std::unordered_map<unsigned,double> branch_energies;
   for( const unsigned primary : myprimaries ) {
-    /*
-    std::cout << "building energies for primary seed: " 
-	      << primary << std::endl;
-    */
+     // std::cout << "building energies for primary seed: " 
+	//      << primary << std::endl;
+    
     branch_energies[primary] = 0.0;
     std::vector<bool> temp3(rechits.size(),false);
     std::unordered_multimap<unsigned,unsigned> temp4;
@@ -427,11 +515,9 @@ buildInitialWeightsList(const reco::PFRecHitCollection& rechits,
       const reco::PFRecHit& rh = rechits[previous];      
       // minimum energy in fraction of 0.05 GeV
       const double rhenergy = rh.energy()*fraction;
-      /*
-      std::cout << primary << ' ' << previous << ' ' << seed_idx << ' '
-		<< rh.energy() << ' ' << rhenergy << ' ' << fraction 
-		<< std::endl;
-      */
+      //std::cout << primary << ' ' << previous << ' ' << seed_idx << ' '
+      //	<< rh.energy() << ' ' << rhenergy << ' ' << fraction 
+      //	<< std::endl;
       branch_energies[primary] += rhenergy;
     }
   }
@@ -445,6 +531,7 @@ buildInitialWeightsList(const reco::PFRecHitCollection& rechits,
   }
   has_weight_data[seed_idx] = true;
 }
+*/
 
 void ArborOnSeedsTopoClusterizer::
 getLinkedTopoClusters(const std::unordered_multimap<unsigned,unsigned>& topo_branch,
