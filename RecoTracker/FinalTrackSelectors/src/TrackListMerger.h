@@ -91,7 +91,6 @@ namespace cms
     float foundHitBonus_;
     float lostHitPenalty_;
     std::vector<double> indivShareFrac_;
-    std::vector<double> priority_;
 
     std::vector< std::vector< int> > listsToMerge_;
     std::vector<bool> promoteQuality_;

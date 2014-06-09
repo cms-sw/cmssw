@@ -224,8 +224,8 @@ void JetCoreClusterSplitter::produce(edm::Event& iEvent, const edm::EventSetup& 
 			{
 				//blowup the error
 				SiPixelCluster c=aCluster;
-//				c.setSplitClusterErrorX(c.sizeX()*100./3.);
-//				c.setSplitClusterErrorY(c.sizeY()*150./3.);
+                         ///    c.setSplitClusterErrorX(c.sizeX()*100./3.);
+                        //     c.setSplitClusterErrorY(c.sizeY()*150./3.);
 				 filler.push_back(c);	
 			}
 
@@ -608,6 +608,8 @@ if(verbose) 			std::cout << "Center for cluster " << i << " x,y " << clx[i] << "
 		}
 		std::cout << std::endl;
 		if(cluster){ 
+			cluster->setSplitClusterErrorX(100);
+			cluster->setSplitClusterErrorY(150);
 			output.push_back(*cluster);
 			delete cluster;
 		}

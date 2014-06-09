@@ -122,9 +122,6 @@ namespace cms
     foundHitBonus_ = conf.getParameter<double>("FoundHitBonus");
     lostHitPenalty_ = conf.getParameter<double>("LostHitPenalty");
     indivShareFrac_=conf.getParameter<std::vector<double> >("indivShareFrac");
-    if(conf.exists("priorities")){
-      priority_=conf.getParameter<std::vector<double> >("priorities");
-    }
     std::string qualityStr = conf.getParameter<std::string>("newQuality");
 
     if (qualityStr != "") {
@@ -163,10 +160,6 @@ namespace cms
     for (unsigned int i = indivShareFrac_.size(); i < numTrkColl; i++) {
       //      edm::LogWarning("TrackListMerger") << "No indivShareFrac for " << trackProducersTags <<". Using default value of 1";
       indivShareFrac_.push_back(1.0);
-    }
-    for (unsigned int i = priority_.size(); i < numTrkColl; i++) {
-      //      edm::LogWarning("TrackListMerger") << "No priorty for " << trackProducersTags <<". Using default value of 1";
-      priority_.push_back(1.0);
     }
 
     trkQualMod_=conf.getParameter<bool>("writeOnlyTrkQuals");
@@ -343,8 +336,9 @@ namespace cms
 
       algo[i]=track->algo();
       int validHits=track->numberOfValidHits();
+      int validPixelHits=track->hitPattern().numberOfValidPixelHits();
       int lostHits=track->numberOfLostHits();
-      score[i] = foundHitBonus_*validHits - lostHitPenalty_*lostHits - track->chi2();
+      score[i] = foundHitBonus_*validPixelHits+foundHitBonus_*validHits - lostHitPenalty_*lostHits - track->chi2();
 
 
       rh1[i].reserve(validHits) ;
@@ -455,21 +449,12 @@ namespace cms
 
 	  if ( dupfound ) {
 	    float score2 = score[k2];
-	    constexpr float almostSame = 0.01f; // difference rather than ratio due to possible negative values for score]}
-
-	    if (priority_[collNum] > priority_[collNum2] ) {
+	    constexpr float almostSame = 0.01f; // difference rather than ratio due to possible negative values for score
+	    if ( score1 - score2 > almostSame ) {
 	      selected[j]=0;
 	      selected[i]=10+newQualityMask; // add 10 to avoid the case where mask = 1
 	      trkUpdated[i]=true;
-	    } else if (priority_[collNum] < priority_[collNum2] ) {
-	      selected[i]=0;
-	      selected[j]=10+newQualityMask;  // add 10 to avoid the case where mask = 1
-	      trkUpdated[j]=true;
-	    }else  if (score1 - score2 > almostSame ) {
-	      selected[j]=0;
-	      selected[i]=10+newQualityMask; // add 10 to avoid the case where mask = 1
-	      trkUpdated[i]=true;
-	    } else if (score2 - score1 > almostSame ) {
+	    } else if ( score2 - score1 > almostSame ) {
 	      selected[i]=0;
 	      selected[j]=10+newQualityMask;  // add 10 to avoid the case where mask = 1
 	      trkUpdated[j]=true;
