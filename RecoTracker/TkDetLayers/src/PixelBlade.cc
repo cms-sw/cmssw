@@ -31,11 +31,6 @@ PixelBlade::PixelBlade(vector<const GeomDet*>& frontDets,
   theDiskSector      = BladeShapeBuilderFromDet()(theDets);
   theFrontDiskSector = BladeShapeBuilderFromDet()(theFrontDets);
   theBackDiskSector  = BladeShapeBuilderFromDet()(theBackDets);
-  // Hack to properly treat "pixel-blade" like geometry of the outer
-  // tracker of Phase II. For further explanations, see comments in
-  // PixelForwardLayer.cc.
-  front_radius_range_ = computeRadiusRanges(theFrontDets);
-  back_radius_range_  = computeRadiusRanges(theBackDets);
 
   //--------- DEBUG INFO --------------
   LogDebug("TkDetLayers") << "DEBUG INFO for PixelBlade" ;
