@@ -86,8 +86,7 @@ namespace l1t {
       for (unsigned int b = 0; idx < payload_end; ++b) {
          // FIXME Number of blocks actually fixed by firmware
          if (b >= MAX_BLOCKS) {
-            LogDebug("L1T") << "Reached block limit - bailing out from this event!";
-            // TODO Handle error
+            LogError("L1T") << "Reached block limit - bailing out from this event!";
             break;
          }
 
@@ -98,8 +97,14 @@ namespace l1t {
 
          auto unpacker = unpackers.find(block_id);
          if (unpacker == unpackers.end()) {
+            LogWarning("L1T") << "Cannot find an unpacker for block ID "
+               << block_id << ", FED ID " << fedId_ << ", and FW ID "
+               << fw << "!";
             // TODO Handle error
          } else if (!unpacker->second->unpack(data + idx, block_id, block_size)) {
+            LogWarning("L1T") << "Error unpacking data for block ID "
+               << block_id << ", FED ID " << fedId_ << ", and FW ID "
+               << fw << "!";
             // TODO Handle error
          }
 
@@ -108,38 +113,6 @@ namespace l1t {
       }
    }
 
-   // ------------ method called when starting to processes a run  ------------
-   /*
-   void
-   L1TRawToDigi::beginRun(edm::Run const&, edm::EventSetup const&)
-   {
-   }
-   */
-    
-   // ------------ method called when ending the processing of a run  ------------
-   /*
-   void
-   L1TRawToDigi::endRun(edm::Run const&, edm::EventSetup const&)
-   {
-   }
-   */
-    
-   // ------------ method called when starting to processes a luminosity block  ------------
-   /*
-   void
-   L1TRawToDigi::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-   {
-   }
-   */
-    
-   // ------------ method called when ending the processing of a luminosity block  ------------
-   /*
-   void
-   L1TRawToDigi::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-   {
-   }
-   */
-    
    // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
    void
    L1TRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
