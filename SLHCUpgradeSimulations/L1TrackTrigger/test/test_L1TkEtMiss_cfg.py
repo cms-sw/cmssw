@@ -19,12 +19,17 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 # or at least the GCT raw data.
 # 
 
+#from SLHCUpgradeSimulations.L1TrackTrigger.minBiasFiles_p1_cfi import *
+from SLHCUpgradeSimulations.L1TrackTrigger.minBiasFiles_p2_cfi import *
+
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(
-    '/store/group/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Neutrinos/PU140_newGT/m1_SingleNeutrino_E2023TTI_PU140.root',
-    '/store/group/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Neutrinos/PU140_newGT/m2_SingleNeutrino_E2023TTI_PU140.root'
-    )
+    #fileNames = minBiasFiles_p1
+    fileNames = minBiasFiles_p2
+    #fileNames = cms.untracked.vstring(
+    #'/store/group/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Neutrinos/PU140_newGT/m1_SingleNeutrino_E2023TTI_PU140.root',
+    #'/store/group/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Neutrinos/PU140_newGT/m2_SingleNeutrino_E2023TTI_PU140.root'
+    #)
 )
 
 
@@ -48,17 +53,25 @@ process.pL1TkPrimaryVertex = cms.Path( process.L1TkPrimaryVertex )
 process.load("SLHCUpgradeSimulations.L1TrackTrigger.L1TkEtMissProducer_cfi")
 process.pL1TrkMET = cms.Path( process.L1TkEtMiss )
 
-process.L1TkEtMiss2 = process.L1TkEtMiss.clone();
-process.L1TkEtMiss2.DeltaZ = cms.double(0.2)
-process.pL1TrkMET2 = cms.Path( process.L1TkEtMiss2 )
+#process.L1TkEtMiss2 = process.L1TkEtMiss.clone()
+#process.L1TkEtMiss2.DeltaZ = cms.double(0.2)
+#process.pL1TrkMET2 = cms.Path( process.L1TkEtMiss2 )
 
-process.L1TkEtMiss3 = process.L1TkEtMiss.clone();
-process.L1TkEtMiss3.PTMAX = cms.double(-1)
-process.pL1TrkMET3 = cms.Path( process.L1TkEtMiss3 )
+#process.L1TkEtMiss3 = process.L1TkEtMiss.clone();
+#process.L1TkEtMiss3.PTMAX = cms.double(-1)
+#process.pL1TrkMET3 = cms.Path( process.L1TkEtMiss3 )
 
-process.L1TkEtMiss4 = process.L1TkEtMiss.clone()
-process.L1TkEtMiss4.nStubsPSmin = cms.int32( 3 )
-process.pL1TrkMET4 = cms.Path( process.L1TkEtMiss4 )
+#process.L1TkEtMiss4 = process.L1TkEtMiss.clone()
+#process.L1TkEtMiss4.nStubsPSmin = cms.int32( 3 )
+#process.pL1TrkMET4 = cms.Path( process.L1TkEtMiss4 )
+
+#process.L1TkEtMiss5 = process.L1TkEtMiss.clone()
+#process.L1TkEtMiss5.HighPtTracks = cms.int32( 1 )
+#process.pL1TrkMET5 = cms.Path( process.L1TkEtMiss5 )
+
+#process.L1TkEtMiss6 = process.L1TkEtMiss.clone()
+#process.L1TkEtMiss6.PTMAX = cms.double(999999999.)
+#process.pL1TrkMET6 = cms.Path( process.L1TkEtMiss6 )
 
 
 

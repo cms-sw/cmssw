@@ -67,6 +67,7 @@ class L1EGCrystalClusterProducer : public edm::EDProducer {
       virtual void produce(edm::Event&, const edm::EventSetup&);
 
       CaloGeometryHelper geometryHelper;
+      double EtminForStore;
       bool debug;
       bool useECalEndcap;
       class SimpleCaloHit
@@ -121,6 +122,7 @@ class L1EGCrystalClusterProducer : public edm::EDProducer {
 };
 
 L1EGCrystalClusterProducer::L1EGCrystalClusterProducer(const edm::ParameterSet& iConfig) :
+   EtminForStore(iConfig.getParameter<double>("EtminForStore")),
    debug(iConfig.getUntrackedParameter<bool>("debug", false)),
    useECalEndcap(iConfig.getUntrackedParameter<bool>("useECalEndcap", false))
 {
@@ -305,7 +307,9 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
       if ( cluster.hovere() < ((cluster.pt() > 35) ? 0.5 : 0.5+pow(cluster.pt()-35,2)/350. )
               && cluster.isolation() < ((cluster.pt() > 35) ? 1.3 : 1.3+pow(cluster.pt()-35,2)*4/(35*35) ) )
       {
+	 if  (totalPt >= EtminForStore) {
          l1EGammaCrystal->push_back(l1extra::L1EmParticle(p4, edm::Ref<L1GctEmCandCollection>(), 0));
+	 }
       }
    }
 

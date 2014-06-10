@@ -11,6 +11,6 @@ L1TkPrimaryVertex = cms.EDProducer('L1TkFastVertexProducer',
 					 # mismeasured and are treated according to HighPtTracks below.
 					 # When PTMAX < 0, no special treatment is done for high PT tracks.
 					 # If PTMAX < 0, no saturation or truncation is done.
-     HighPtTracks = cms.int32( 1 )	 # when = 0 : truncation. Tracks with PT above PTMAX are ignored 
+     HighPtTracks = cms.int32( 0 )	 # when = 0 : truncation. Tracks with PT above PTMAX are ignored 
 					 # when = 1 : saturation. Tracks with PT above PTMAX are set to PT=PTMAX.
 )

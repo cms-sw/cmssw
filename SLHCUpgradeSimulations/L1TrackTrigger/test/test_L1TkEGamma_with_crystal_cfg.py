@@ -106,6 +106,7 @@ process.pSasha = cms.Path( process.L1EGammaCrystalsProducer )
 #       information of the xtal level clusters.
 
 process.l1ExtraCrystalProducer = cms.EDProducer("L1ExtraCrystalPosition",
+   EtminForStore = cms.double( 4. ),
    eGammaSrc = cms.InputTag("SLHCL1ExtraParticlesNewClustering","EGamma"),
    eClusterSrc = cms.InputTag("L1EGammaCrystalsProducer","EGCrystalCluster")
 )
