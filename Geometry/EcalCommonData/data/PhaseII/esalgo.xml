@@ -4,7 +4,6 @@
 <SolidSection label="esalgo.xml">
   <Polycone name="SF" startPhi="0" deltaPhi="360*deg">
     <ZSection z="[escon:ESFrontZ]" rMin="[escon:R_MIN]" rMax="[escon:Front_window_Al]"/>
-    <ZSection z="[escon:ESMidZ]"   rMin="[escon:R_MIN]" rMax="[escon:R_MAX]"/>
     <ZSection z="[escon:ESRearZ]"  rMin="[escon:R_MIN]" rMax="[escon:R_MAX]"/>
   </Polycone>
   <Polycone name="SFFA" startPhi="0" deltaPhi="360*deg">
@@ -13,50 +12,36 @@
     <ZSection z="[escon:Front_window_mid_Z]"  rMin="[escon:R_MIN]" rMax="[escon:Window_backend_Al]"/>
     <ZSection z="[escon:Front_window_Back_Z]" rMin="[escon:R_MIN]" rMax="[escon:Window_backend_Al]"/>
   </Polycone>
-  <Polycone name="SFFN" startPhi="0" deltaPhi="360*deg">
-    <ZSection z="[escon:Front_window_Z]"      rMin="[escon:NM_RMIN_outer]" rMax="[escon:Front_NM_RMAX_outer]"/>
-    <ZSection z="[escon:NM_Front_first_Z]"    rMin="[escon:NM_RMIN_outer]" rMax="[escon:Front_NM_RMAX_outer]"/>
-    <ZSection z="[escon:NM_Front_first_Z]"    rMin="[escon:NM_RMIN_inner]" rMax="[escon:Front_NM_RMAX_inner]"/>
-    <ZSection z="[escon:NM_Front_second_Z]"   rMin="[escon:NM_RMIN_inner]" rMax="[escon:Front_NM_RMAX_inner]"/>
-    <ZSection z="[escon:NM_Front_second_Z]"   rMin="[escon:NM_RMIN_outer]" rMax="[escon:Front_NM_RMAX_outer]"/>
-    <ZSection z="[escon:Front_window_Back_Z]" rMin="[escon:NM_RMIN_outer]" rMax="[escon:Front_NM_RMAX_outer]"/>
-  </Polycone>
   <Polycone name="SFRA" startPhi="0" deltaPhi="360*deg">
     <ZSection z="[escon:Rear_window_Z]"      rMin="[escon:R_MIN]" rMax="[escon:Window_backend_Al]"/>
     <ZSection z="[escon:Rear_window_mid_Z]"  rMin="[escon:R_MIN]" rMax="[escon:Window_backend_Al]"/>
     <ZSection z="[escon:Rear_window_mid_Z]"  rMin="[escon:R_MIN]" rMax="[escon:Rear_window_Al]"/>
     <ZSection z="[escon:Rear_window_Back_Z]" rMin="[escon:R_MIN]" rMax="[escon:Rear_window_Al]"/>
   </Polycone>
-  <Polycone name="SFRN" startPhi="0" deltaPhi="360*deg">
-    <ZSection z="[escon:Rear_window_Z]"      rMin="[escon:NM_RMIN_outer]" rMax="[escon:Rear_NM_RMAX_outer]"/>
-    <ZSection z="[escon:NM_Rear_first_Z]"    rMin="[escon:NM_RMIN_outer]" rMax="[escon:Rear_NM_RMAX_outer]"/>
-    <ZSection z="[escon:NM_Rear_first_Z]"    rMin="[escon:NM_RMIN_inner]" rMax="[escon:Rear_NM_RMAX_inner]"/>
-    <ZSection z="[escon:NM_Rear_second_Z]"   rMin="[escon:NM_RMIN_inner]" rMax="[escon:Rear_NM_RMAX_inner]"/>
-    <ZSection z="[escon:NM_Rear_second_Z]"   rMin="[escon:NM_RMIN_outer]" rMax="[escon:Rear_NM_RMAX_outer]"/>
-    <ZSection z="[escon:Rear_window_Back_Z]" rMin="[escon:NM_RMIN_outer]" rMax="[escon:Rear_NM_RMAX_outer]"/>
-  </Polycone>
+  <Tubs name="SFNM1" rMin="[escon:InnerNM1_RMin]" rMax="[escon:InnerNM1_RMax]" dz="[escon:InnerNM1_Dz]" startPhi="0*deg" deltaPhi="360*deg"/>
+  <Tubs name="SFNM2" rMin="[escon:InnerNM2_RMin]" rMax="[escon:InnerNM2_RMax]" dz="[escon:InnerNM2_Dz]" startPhi="0*deg" deltaPhi="360*deg"/>
 </SolidSection>
 
 <LogicalPartSection label="esalgo.xml">
   <LogicalPart name="SF" category="unspecified">
     <rSolid name="SF"/>
-    <rMaterial name="materials:E_Air"/>
+    <rMaterial name="materials:E_Polythene"/>
   </LogicalPart>
   <!-- LogicalPartSection label="Support Structures" -->
   <LogicalPart name="SFFA" category="unspecified">
     <rSolid name="SFFA"/>
     <rMaterial name="materials:E_Aluminium"/>
   </LogicalPart>
-  <LogicalPart name="SFFN" category="unspecified">
-    <rSolid name="SFFN"/>
-    <rMaterial name="materials:E_Polythene"/>
-  </LogicalPart>
   <LogicalPart name="SFRA" category="unspecified">
     <rSolid name="SFRA"/>
     <rMaterial name="materials:E_Aluminium"/>
   </LogicalPart>
-  <LogicalPart name="SFRN" category="unspecified">
-    <rSolid name="SFRN"/>
+  <LogicalPart name="SFNM1" category="unspecified">
+    <rSolid name="SFNM1"/>
+    <rMaterial name="materials:E_Polythene"/>
+  </LogicalPart>
+  <LogicalPart name="SFNM2" category="unspecified">
+    <rSolid name="SFNM2"/>
     <rMaterial name="materials:E_Polythene"/>
   </LogicalPart>
 </LogicalPartSection>
@@ -76,16 +61,28 @@
     <rChild name="esalgo:SFFA"/>
   </PosPart>
   <PosPart copyNumber="1">
-    <rParent name="esalgo:SFFA"/>
-    <rChild name="esalgo:SFFN"/>
-  </PosPart>
-  <PosPart copyNumber="1">
     <rParent name="esalgo:SF"/>
     <rChild name="esalgo:SFRA"/>
   </PosPart>
   <PosPart copyNumber="1">
-    <rParent name="esalgo:SFRA"/>
-    <rChild name="esalgo:SFRN"/>
+    <rParent name="caloBase:CALO"/>
+    <rChild name="esalgo:SFNM1"/>
+    <Translation x="0*fm" y="0*fm" z="[escon:InnerNM1_Z]"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="caloBase:CALO"/>
+    <rChild name="esalgo:SFNM1"/>
+    <Translation x="0*fm" y="0*fm" z="-[escon:InnerNM1_Z]"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="caloBase:CALO"/>
+    <rChild name="esalgo:SFNM2"/>
+    <Translation x="0*fm" y="0*fm" z="[escon:InnerNM2_Z]"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="caloBase:CALO"/>
+    <rChild name="esalgo:SFNM2"/>
+    <Translation x="0*fm" y="0*fm" z="-[escon:InnerNM2_Z]"/>
   </PosPart>
 </PosPartSection>
 
