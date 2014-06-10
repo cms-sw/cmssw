@@ -71,3 +71,9 @@ produceCaloMETCorrections = cms.Sequence(
    * caloType1p2CorrectedMet
 )
 #--------------------------------------------------------------------------------
+# define corrector sequence
+produceCaloMETCorrectors = cms.Sequence(
+    caloJetMETcorr
+   * muonCaloMETcorr
+)
+#--------------------------------------------------------------------------------
