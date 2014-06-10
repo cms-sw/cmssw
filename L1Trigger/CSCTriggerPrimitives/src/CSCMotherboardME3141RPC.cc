@@ -166,6 +166,7 @@ CSCMotherboardME3141RPC::CSCMotherboardME3141RPC(unsigned endcap, unsigned stati
   // build LCT from CLCT and RPC
   buildLCTfromALCTandRPC_ = me3141tmbParams.getParameter<bool>("buildLCTfromALCTandRPC");
   buildLCTfromCLCTandRPC_ = me3141tmbParams.getParameter<bool>("buildLCTfromCLCTandRPC");
+  buildLCTfromLowQstubandRPC_ = me3141tmbParams.getParameter<bool>("buildLCTfromALCTandRPC");
 
   // promote ALCT-RPC pattern
   promoteALCTRPCpattern_ = me3141tmbParams.getParameter<bool>("promoteALCTRPCpattern");
@@ -425,7 +426,7 @@ CSCMotherboardME3141RPC::run(const CSCWireDigiCollection* wiredc,
       if (runME3141ILT_ and nSuccesFulMatches==0 and buildLCTfromALCTandRPC_){
         if (debug_rpc_matching_) std::cout << "++No valid ALCT-CLCT matches in ME"<<theStation<<"1" << std::endl;
         for (int bx_rpc = bx_clct_start; bx_rpc <= bx_clct_stop; bx_rpc++) {
-          if (lowQualityALCT) continue; // only use high-Q ALCTs for these type of stubs          
+          if (lowQualityALCT and !buildLCTfromLowQstubandRPC_) continue; // build lct from low-Q ALCTs and rpc if para is set true        
           if (not hasRPCDigis) continue;
           
           // find the best matching copad - first one 
@@ -465,8 +466,8 @@ CSCMotherboardME3141RPC::run(const CSCWireDigiCollection* wiredc,
               std::cout << "------------------------------------------------------------------------" << std::endl;
             }
             const int quality(clct->bestCLCT[bx_clct].getQuality());
-            // only use high-Q stubs for the time being
-            if (quality < 4) continue;
+            // we also use low-Q stubs for the time being
+            if (quality < 4 and !buildLCTfromLowQstubandRPC_) continue;
             
             ++nSuccesFulMatches;
             

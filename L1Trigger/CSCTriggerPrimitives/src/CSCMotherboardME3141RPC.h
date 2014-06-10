@@ -166,6 +166,7 @@ class CSCMotherboardME3141RPC : public CSCMotherboard
 
   bool buildLCTfromALCTandRPC_;
   bool buildLCTfromCLCTandRPC_;
+  bool buildLCTfromLowQstubandRPC_;
 
   bool promoteCLCTRPCquality_;
   bool promoteALCTRPCquality_;
