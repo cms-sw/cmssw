@@ -1,9 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # Ideal geometry, needed for transient ECAL alignement
-from Configuration.Geometry.GeometryExtended2019_cff import *
-
-
+from Configuration.Geometry.GeometryExtended2023HGCal_cff import *
 
 # Reconstruction geometry services
 #  Tracking Geometry
@@ -26,9 +24,28 @@ from Geometry.DTGeometryBuilder.idealForDigiDtGeometry_cff import *
 trackerSLHCGeometry.applyAlignment = cms.bool(False)
 
 #  Calorimeters
+from Geometry.HGCalCommonData.hgcalNumberingInitialization_cfi import *
+from Geometry.CaloEventSetup.HGCalTopology_cfi import *
+from Geometry.FCalGeometry.HGCalGeometryESProducer_cfi import *
 from Geometry.CaloEventSetup.CaloTopology_cfi import *
-from Geometry.CaloEventSetup.CaloGeometry_cff import *
+from Geometry.CaloEventSetup.CaloGeometryBuilder_cfi import *
+
+CaloGeometryBuilder = cms.ESProducer("CaloGeometryBuilder",
+    SelectedCalos = cms.vstring('HCAL'          , 
+                                'ZDC'           ,
+                                'CASTOR'        ,
+                                'EcalBarrel'    , 
+                                'TOWER'           )
+)
+
+from Geometry.EcalAlgo.EcalBarrelGeometry_cfi import *
+from Geometry.HcalEventSetup.HcalGeometry_cfi import *
+from Geometry.HcalEventSetup.CaloTowerGeometry_cfi import *
+from Geometry.HcalEventSetup.CaloTowerTopology_cfi import *
+from Geometry.HcalEventSetup.HcalTopology_cfi import *
+from Geometry.ForwardGeometry.ForwardGeometry_cfi import *
+
 from Geometry.CaloEventSetup.EcalTrigTowerConstituents_cfi import *
 from Geometry.EcalMapping.EcalMapping_cfi import *
 from Geometry.EcalMapping.EcalMappingRecord_cfi import *
-
+from Geometry.HcalCommonData.hcalRecNumberingInitialization_cfi import *
