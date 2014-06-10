@@ -2,6 +2,11 @@
 
 HLT_CaloJet260_v*                                       # JIRA: CMSHLT-67
 
+HLT_Mu40_v*                                             # JIRA: CMSHLT-64
+
+HLT_Photon20_CaloIdVL_IsoL_v*                           # JIRA: CMSHLT-63
+
+
 #DQM_FEDIntegrity_v*                                # sr 131577
 #HLT_LogMonitor_v*                                  # sr 131577
 HLTriggerFirstPath

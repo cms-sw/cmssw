@@ -1,10 +1,10 @@
-# /dev/CMSSW_7_1_1/HLT/V81 (CMSSW_7_1_0_pre8)
+# /dev/CMSSW_7_1_1/HLT/V85 (CMSSW_7_1_0_pre9)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_1_1/HLT/V81')
+  tableName = cms.string('/dev/CMSSW_7_1_1/HLT/V85')
 )
 
 HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -546,19 +546,6 @@ HLTPSetPvClusterComparer = cms.PSet(
   track_chi2_max = cms.double( 9999999.0 ),
   track_prob_min = cms.double( -1.0 )
 )
-hltSeedFromConsecutiveHitsTripletOnlyCreator = cms.PSet( 
-  ComponentName = cms.string( "SeedFromConsecutiveHitsTripletOnlyCreator" ),
-  propagator = cms.string( "PropagatorWithMaterialParabolicMf" )
-)
-hltSeedFromConsecutiveHitsCreator = cms.PSet( 
-  ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
-  propagator = cms.string( "PropagatorWithMaterialParabolicMf" ),
-  SeedMomentumForBOFF = cms.double( 5.0 ),
-  OriginTransverseErrorMultiplier = cms.double( 1.0 ),
-  MinOneOverPtError = cms.double( 1.0 ),
-  SimpleMagneticField = cms.string( "ParabolicMf" ),
-  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" )
-)
 HLTIter0PSetTrajectoryBuilderIT = cms.PSet( 
   propagatorAlong = cms.string( "PropagatorWithMaterialParabolicMf" ),
   trajectoryFilter = cms.PSet(  refToPSet_ = cms.string( "HLTIter0PSetTrajectoryFilterIT" ) ),
@@ -588,6 +575,19 @@ HLTPSetPvClusterComparerForBTag = cms.PSet(
   track_pt_max = cms.double( 20.0 ),
   track_chi2_max = cms.double( 20.0 ),
   track_prob_min = cms.double( -1.0 )
+)
+HLTSeedFromConsecutiveHitsTripletOnlyCreator = cms.PSet( 
+  ComponentName = cms.string( "SeedFromConsecutiveHitsTripletOnlyCreator" ),
+  propagator = cms.string( "PropagatorWithMaterialParabolicMf" )
+)
+HLTSeedFromConsecutiveHitsCreator = cms.PSet( 
+  ComponentName = cms.string( "SeedFromConsecutiveHitsCreator" ),
+  propagator = cms.string( "PropagatorWithMaterialParabolicMf" ),
+  SeedMomentumForBOFF = cms.double( 5.0 ),
+  OriginTransverseErrorMultiplier = cms.double( 1.0 ),
+  MinOneOverPtError = cms.double( 1.0 ),
+  SimpleMagneticField = cms.string( "ParabolicMf" ),
+  TTRHBuilder = cms.string( "hltESPTTRHBWithTrackAngle" )
 )
 streams = cms.PSet( 
   A = cms.vstring( 'InitialPD' ),
@@ -887,11 +887,11 @@ hcalRecAlgos = cms.ESProducer( "HcalRecAlgoESProducer",
     'HcalCellDead' )
 )
 hltCombinedSecondaryVertex = cms.ESProducer( "CombinedSecondaryVertexESProducer",
-  categoryVariableName = cms.string( "vertexCategory" ),
+  trackPairV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.03 ) ),
   useTrackWeights = cms.bool( True ),
   useCategories = cms.bool( True ),
   pseudoMultiplicityMin = cms.uint32( 2 ),
-  correctVertexMass = cms.bool( True ),
+  categoryVariableName = cms.string( "vertexCategory" ),
   trackSelection = cms.PSet( 
     totalHitsMin = cms.uint32( 0 ),
     jetDeltaRMax = cms.double( 0.3 ),
@@ -913,7 +913,7 @@ hltCombinedSecondaryVertex = cms.ESProducer( "CombinedSecondaryVertexESProducer"
   calibrationRecords = cms.vstring( 'CombinedSVRecoVertex',
     'CombinedSVPseudoVertex',
     'CombinedSVNoVertex' ),
-  trackPairV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.03 ) ),
+  correctVertexMass = cms.bool( True ),
   charmCut = cms.double( 1.5 ),
   vertexFlip = cms.bool( False ),
   minimumTrackWeight = cms.double( 0.5 ),
@@ -19160,7 +19160,7 @@ hltIter1MergedForBTag = cms.EDProducer( "SimpleTrackListMerger",
     allowFirstHitShare = cms.bool( True ),
     newQuality = cms.string( "confirmed" ),
     MaxNormalizedChisq = cms.double( 1000.0 ),
-    TrackProducer1 = cms.string( "hltIter1PFlowTrackSelectionHighPurityForBTag" ),
+    TrackProducer1 = cms.string( "hltIter0PFlowTrackSelectionHighPurityForBTag" ),
     MinFound = cms.int32( 3 ),
     TrackProducer2 = cms.string( "hltIter1PFlowTrackSelectionHighPurityForBTag" ),
     LostHitPenalty = cms.double( 20.0 ),
@@ -19292,7 +19292,7 @@ hltIter2PFlowCtfWithMaterialTracksForBTag = cms.EDProducer( "TrackProducer",
     Fitter = cms.string( "hltESPFittingSmootherIT" ),
     useHitsSplitting = cms.bool( False ),
     MeasurementTracker = cms.string( "" ),
-    AlgorithmName = cms.string( "iter2FotBTag" ),
+    AlgorithmName = cms.string( "iter2ForBTag" ),
     alias = cms.untracked.string( "ctfWithMaterialTracks" ),
     NavigationSchool = cms.string( "" ),
     TrajectoryInEvent = cms.bool( True ),
