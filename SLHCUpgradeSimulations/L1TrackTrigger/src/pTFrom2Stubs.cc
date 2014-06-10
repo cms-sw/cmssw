@@ -4,7 +4,7 @@
 #include <cmath>
 #include <assert.h>
 
-#include "pTFrom2Stubs.h"
+#include "SLHCUpgradeSimulations/L1TrackTrigger/interface/pTFrom2Stubs.h"
 
 namespace pTFrom2Stubs{
 
