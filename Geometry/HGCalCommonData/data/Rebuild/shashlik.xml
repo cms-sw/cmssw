@@ -1,0 +1,100 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="shashlik.xml" eval="true">
+  <Constant name="zSHCal1"    value="317.0*cm"/>
+  <Constant name="zSHCal2"    value="360.4*cm"/>
+  <Constant name="rMinSHCal1" value="[etaMax:slope]*[zSHCal1]"/>
+  <Constant name="rMinSHCal2" value="[etaMax:slope]*[zSHCal2]"/>
+  <Constant name="rMaxSHCal1" value="154.0*cm"/>
+  <Constant name="rMaxSHCal2" value="175.0*cm"/>
+  <Constant name="deltaZ"     value="2.0*cm"/>
+  <Constant name="thickBack"  value="22.0*cm"/>
+  <Constant name="zSHBack1"   value="[zSHCal2]-[thickBack]"/>
+  <Constant name="zSHBack2"   value="[zSHCal2]"/>
+  <Constant name="zSHBack3"   value="([zSHBack1]+6.*cm)"/>
+  <Constant name="backRmin1"  value="[etaMax:slope]*[zSHBack1]"/>
+  <Constant name="backRmin2"  value="[etaMax:slope]*[zSHBack2]"/>
+  <Constant name="backRmin3"  value="[etaMax:slope]*[zSHBack3]"/>
+  <Constant name="backRmax1"  value="164.3*cm"/>
+  <Constant name="backRmax2"  value="[rMaxSHCal2]"/>  
+</ConstantsSection>
+
+<SolidSection label="shashlik.xml">
+  <Polycone name="SHCalEE" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[zSHCal1]" rMin="[rMinSHCal1]" rMax="[rMaxSHCal1]"/>
+    <ZSection z="[zSHCal2]" rMin="[rMinSHCal2]" rMax="[rMaxSHCal2]"/>
+  </Polycone>
+  <Polycone name="SHCalBack" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[zSHBack1]" rMin="[backRmin1]" rMax="[backRmax1]"/>
+    <ZSection z="[zSHBack2]" rMin="[backRmin2]" rMax="[backRmax2]"/>
+  </Polycone>
+  <Polycone name="SHCalSS" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[zSHBack1]" rMin="[backRmin1]" rMax="[backRmax1]"/>
+    <ZSection z="[zSHBack3]" rMin="[backRmin3]" rMax="[backRmax1]"/>
+  </Polycone>
+  <Polycone name="SHCalCables" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[zSHBack3]" rMin="[backRmin3]" rMax="[backRmax1]"/>
+    <ZSection z="[zSHBack3]+4.8*cm" rMin="[backRmax1]" rMax="[backRmax1]"/>
+  </Polycone>
+</SolidSection>
+
+<LogicalPartSection label="shashlik.xml">
+  <LogicalPart name="SHCalEE" category="unspecified">
+    <rSolid name="SHCalEE"/>
+    <rMaterial name="materials:E_Air"/>
+  </LogicalPart>
+  <LogicalPart name="SHCalBack" category="unspecified">
+    <rSolid name="SHCalBack"/>
+    <rMaterial name="materials:E_Air"/>
+  </LogicalPart>
+  <LogicalPart name="SHCalSS" category="unspecified">
+    <rSolid name="SHCalSS"/>
+    <rMaterial name="materials:E_Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="SHCalCables" category="unspecified">
+    <rSolid name="SHCalCables"/>
+    <rMaterial name="materials:E_Copper"/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="shashlik.xml">
+  <PosPart copyNumber="1">
+    <rParent name="caloBase:CALO"/>
+    <rChild name="SHCalEE"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="caloBase:CALO"/>
+    <rChild name="SHCalEE"/>
+    <rRotation name="rotations:180D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="SHCalEE"/>
+    <rChild name="SHCalBack"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="SHCalBack"/>
+    <rChild name="SHCalSS"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="SHCalBack"/>
+    <rChild name="SHCalCables"/>
+  </PosPart>
+</PosPartSection>
+
+ <Algorithm name="shashlik:DDShashlikNoTaperEndcap">
+  <rParent name="SHCalEE"/>
+  <String name="ChildName" value="shashliksupermodule:ShashlikSupermodule"/>
+  <Numeric name="n"           value="19"/>
+  <Numeric name="startCopyNo" value="1"/>
+  <Numeric name="incrCopyNo"  value="1"/>
+  <Numeric name="invert"      value="1"/>
+  <Numeric name="rMin"	      value="[rMinSHCal1]"/>
+  <Numeric name="rMax"	      value="[rMaxSHCal1]"/> 
+  <Numeric name="tiltAngle"   value="0"/>
+  <Numeric name="zoffset"     value="[zSHCal1]+0.5*[shashlikmodule:moduleThickness]"/>
+  <Numeric name="xyoffset"     value="0.5*([shashliksupermodule:superModuleWidthFront]+[shashliksupermodule:superModuleWidthBack])"/>
+ </Algorithm>
+
+</DDDefinition>
