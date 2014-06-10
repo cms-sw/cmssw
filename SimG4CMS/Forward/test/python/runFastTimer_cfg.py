@@ -5,7 +5,9 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 
-process.load("Geometry.HGCalCommonData.testFastTimeXML_cfi")
+process.load("Geometry.CMSCommonData.cmsExtendedGeometry2023FastTimingXML_cfi")
+process.load("Geometry.TrackerNumberingBuilder.trackerNumberingSLHCGeometry_cfi")
+process.load("Geometry.HcalCommonData.hcalSimNumberingInitialization_cfi")
 process.load("Geometry.HGCalCommonData.fastTimeNumberingInitialization_cfi")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
