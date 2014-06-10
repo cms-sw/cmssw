@@ -43,7 +43,9 @@ namespace reco {
       HFHAD=9,
       SC=10,
       HO=11,
-      kNBETypes=12
+      ECAL_HGC=12,
+      HCAL_HGC=13,
+      kNBETypes=14
     };
 
     enum TrackType {

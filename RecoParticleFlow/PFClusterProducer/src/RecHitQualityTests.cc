@@ -5,6 +5,7 @@
 
 EDM_REGISTER_PLUGINFACTORY(PFRecHitQTestFactory, "PFRecHitQTestFactory");
 DEFINE_EDM_PLUGIN(PFRecHitQTestFactory, PFRecHitQTestThreshold, "PFRecHitQTestThreshold");
+DEFINE_EDM_PLUGIN(PFRecHitQTestFactory, PFRecHitQTestThresholdInMIPs, "PFRecHitQTestThresholdInMIPs");
 DEFINE_EDM_PLUGIN(PFRecHitQTestFactory, PFRecHitQTestHOThreshold, "PFRecHitQTestHOThreshold");
 
 DEFINE_EDM_PLUGIN(PFRecHitQTestFactory, PFRecHitQTestECAL, "PFRecHitQTestECAL");

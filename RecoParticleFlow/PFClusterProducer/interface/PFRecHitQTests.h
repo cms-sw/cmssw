@@ -42,6 +42,10 @@ class PFRecHitQTestThreshold : public PFRecHitQTestBase {
       return pass(hit);
     }
 
+    bool test(reco::PFRecHit& hit,const HGCRecHit& rh,bool& clean) {
+      return pass(hit);
+    }
+
  protected:
   double threshold_;
 
@@ -52,7 +56,77 @@ class PFRecHitQTestThreshold : public PFRecHitQTestBase {
   }
 };
 
+class PFRecHitQTestThresholdInMIPs : public PFRecHitQTestBase {
+ public:
+  PFRecHitQTestThresholdInMIPs() {
 
+  }
+
+  PFRecHitQTestThresholdInMIPs(const edm::ParameterSet& iConfig):
+    PFRecHitQTestBase(iConfig)
+    {
+      recHitEnergy_keV_ = iConfig.getParameter<bool>("recHitEnergyIs_keV");
+      threshold_ = iConfig.getParameter<double>("thresholdInMIPs");
+      mip_ = iConfig.getParameter<double>("mipValueInkeV");
+      recHitEnergyMultiplier_ = iConfig.getParameter<double>("recHitEnergyMultiplier");         
+    }
+
+    void beginEvent(const edm::Event& event,const edm::EventSetup& iSetup) {
+    }
+
+    bool test(reco::PFRecHit& hit,const EcalRecHit& rh,bool& clean) {
+      throw cms::Exception("WrongDetector")
+	<< "PFRecHitQTestThresholdInMIPs only works for HGCAL!";
+      return false;
+    }
+    bool test(reco::PFRecHit& hit,const HBHERecHit& rh,bool& clean) {
+      throw cms::Exception("WrongDetector")
+	<< "PFRecHitQTestThresholdInMIPs only works for HGCAL!";
+      return false;
+    }
+
+    bool test(reco::PFRecHit& hit,const HFRecHit& rh,bool& clean) {
+      throw cms::Exception("WrongDetector")
+	<< "PFRecHitQTestThresholdInMIPs only works for HGCAL!";
+      return false;
+    }
+    bool test(reco::PFRecHit& hit,const HORecHit& rh,bool& clean) {
+      throw cms::Exception("WrongDetector")
+	<< "PFRecHitQTestThresholdInMIPs only works for HGCAL!";
+      return false;
+    }
+
+    bool test(reco::PFRecHit& hit,const CaloTower& rh,bool& clean) {
+      throw cms::Exception("WrongDetector")
+	<< "PFRecHitQTestThresholdInMIPs only works for HGCAL!";
+      return false;
+    }
+
+    bool test(reco::PFRecHit& hit,const HGCRecHit& rh,bool& clean) {
+      const double newE = ( recHitEnergy_keV_ ? 
+			    1.0e-6*rh.energy()*recHitEnergyMultiplier_ :
+			    rh.energy()*recHitEnergyMultiplier_ );
+      /*
+      std::cout << hit.position() << ' ' 
+		<< rh.energy() << ' ' << hit.energy() << std::endl;
+      */
+      hit.setEnergy(newE);
+      
+      return pass(hit);
+    }
+
+ protected:
+    bool recHitEnergy_keV_;
+    double threshold_,mip_,recHitEnergyMultiplier_;    
+
+  bool pass(const reco::PFRecHit& hit) {
+    const double eta_correction = std::tanh(hit.position().Eta());
+    // coth = 1/tanh && convert PF hit energy back in keV to compare to MIP
+    const double hitValueInMIPs = 1e6*hit.energy()*eta_correction/mip_;
+    //std::cout << "hit value in MIPs : " << hitValueInMIPs <<std::endl;
+    return hitValueInMIPs > threshold_;
+  }
+};
 
 
 //
@@ -137,6 +211,11 @@ class PFRecHitQTestHCALChannel : public PFRecHitQTestBase {
 
     }
 
+    bool test(reco::PFRecHit& hit,const HGCRecHit& rh,bool& clean) {
+      return true;
+
+    }
+
  protected:
   int threshold_;
   const HcalChannelQuality* theHcalChStatus_;
@@ -184,6 +263,10 @@ class PFRecHitQTestHOThreshold : public PFRecHitQTestBase {
     }
 
     bool test(reco::PFRecHit& hit,const CaloTower& rh,bool& clean) {
+      return true;
+    }
+
+    bool test(reco::PFRecHit& hit,const HGCRecHit& rh,bool& clean) {
       return true;
     }
 
@@ -254,7 +337,11 @@ class PFRecHitQTestECAL : public PFRecHitQTestBase {
       return true;
 
     }
+    
+    bool test(reco::PFRecHit& hit,const HGCRecHit& rh,bool& clean) {
+      return true;
 
+    }
 
  protected:
   double thresholdCleaning_;
@@ -311,6 +398,10 @@ class PFRecHitQTestHCALCalib29 : public PFRecHitQTestBase {
 	hit.setEnergy(hit.energy()*calibFactor_);
       return true;
 	  
+    }
+
+    bool test(reco::PFRecHit& hit,const HGCRecHit& rh,bool& clean) {
+      return true;
     }
 
  protected:

@@ -1,5 +1,6 @@
 <use   name="Geometry/CaloGeometry"/>
 <use   name="RecoLocalCalo/HGCalRecProducers"/>
+<use   name="RecoLocalCalo/HGCalRecAlgos"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="DataFormats/HGCDigi"/>
