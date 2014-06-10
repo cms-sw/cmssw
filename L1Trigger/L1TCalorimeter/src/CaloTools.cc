@@ -19,7 +19,10 @@ const l1t::CaloTower& l1t::CaloTools::getTower(const std::vector<l1t::CaloTower>
       }     
     }else return towers[towerIndex];
   
+<<<<<<< HEAD
 
+=======
+>>>>>>> eb1b378... speeding up CaloTools::getCaloTower to use a hash rather than brute force search
   }
   return nullTower_;
 }
