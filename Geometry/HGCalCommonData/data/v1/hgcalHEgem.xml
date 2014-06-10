@@ -13,7 +13,7 @@
 <SolidSection label="hgcalHEgem.xml" >
  <Polyhedra name="HGCalHEGem" numSide="1" startPhi="350*deg" deltaPhi="20*deg">
   <ZSection z="[ZminHEgem]"     rMin="[rMinHEgem1]"       rMax="[rMapHEgem]"/>
-  <ZSection z="[ZmaxHEgem]"     rMin="[rminHEgem1]"       rMax="[rMapHEgem]"/>
+  <ZSection z="[ZmaxHEgem]"     rMin="[rMinHEgem2]"       rMax="[rMapHEgem]"/>
  </Polyhedra>
 </SolidSection>
 
