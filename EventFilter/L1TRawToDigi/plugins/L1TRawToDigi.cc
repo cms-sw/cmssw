@@ -2,7 +2,6 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 #include "EventFilter/L1TRawToDigi/interface/L1TRawToDigi.h"
-#include "EventFilter/L1TRawToDigi/interface/UnpackerCollections.h"
 #include "EventFilter/L1TRawToDigi/interface/UnpackerFactory.h"
 
 namespace l1t {
@@ -10,8 +9,9 @@ namespace l1t {
       inputLabel_(config.getParameter<edm::InputTag>("InputLabel")),
       fedId_(config.getParameter<int>("FedId"))
    {
-      // Register products
-      UnpackerCollections::registerCollections(this);
+      auto factory_names = config.getParameter<std::vector<std::string>>("Unpackers");
+      for (const auto& name: factory_names)
+         factories_.push_back(UnpackerFactory::get()->makeUnpackerFactory(name, config, *this));
    }
 
 
@@ -75,17 +75,18 @@ namespace l1t {
 
       unsigned fw = fw_id;
 
-      UnpackerCollections coll(event);
-      auto unpackers = UnpackerFactory::createUnpackers(fw, fedId_);
-      for (auto& up: unpackers)
-         up.second->setCollections(coll);
+      UnpackerMap unpackers;
+      for (auto& f: factories_) {
+         for (const auto& up: f->create(event, fedId_, fw)) {
+            unpackers.insert(up);
+         }
+      }
 
       auto payload_end = idx + payload_size * 4;
       for (unsigned int b = 0; idx < payload_end; ++b) {
          // FIXME Number of blocks actually fixed by firmware
          if (b >= MAX_BLOCKS) {
-            LogDebug("L1T") << "Reached block limit - bailing out from this event!";
-            // TODO Handle error
+            LogError("L1T") << "Reached block limit - bailing out from this event!";
             break;
          }
 
@@ -96,8 +97,14 @@ namespace l1t {
 
          auto unpacker = unpackers.find(block_id);
          if (unpacker == unpackers.end()) {
+            LogWarning("L1T") << "Cannot find an unpacker for block ID "
+               << block_id << ", FED ID " << fedId_ << ", and FW ID "
+               << fw << "!";
             // TODO Handle error
          } else if (!unpacker->second->unpack(data + idx, block_id, block_size)) {
+            LogWarning("L1T") << "Error unpacking data for block ID "
+               << block_id << ", FED ID " << fedId_ << ", and FW ID "
+               << fw << "!";
             // TODO Handle error
          }
 
@@ -106,49 +113,6 @@ namespace l1t {
       }
    }
 
-   // ------------ method called once each job just before starting event loop  ------------
-   void 
-   L1TRawToDigi::beginJob()
-   {
-   }
-
-   // ------------ method called once each job just after ending the event loop  ------------
-   void 
-   L1TRawToDigi::endJob() {
-   }
-
-   // ------------ method called when starting to processes a run  ------------
-   /*
-   void
-   L1TRawToDigi::beginRun(edm::Run const&, edm::EventSetup const&)
-   {
-   }
-   */
-    
-   // ------------ method called when ending the processing of a run  ------------
-   /*
-   void
-   L1TRawToDigi::endRun(edm::Run const&, edm::EventSetup const&)
-   {
-   }
-   */
-    
-   // ------------ method called when starting to processes a luminosity block  ------------
-   /*
-   void
-   L1TRawToDigi::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-   {
-   }
-   */
-    
-   // ------------ method called when ending the processing of a luminosity block  ------------
-   /*
-   void
-   L1TRawToDigi::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-   {
-   }
-   */
-    
    // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
    void
    L1TRawToDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

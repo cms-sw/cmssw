@@ -78,13 +78,18 @@ process.MessageLogger = cms.Service(
 process.load('Configuration.StandardSequences.RawToDigi_cff')
 
 # upgrade calo stage 1
-process.load('L1Trigger.L1TCalorimeter.L1TCaloStage2_PPFromRaw_cff')
+process.load('L1Trigger.L1TCalorimeter.L1TCaloStage1_PPFromRaw_cff')
+#process.load('L1Trigger.L1TCalorimeter.l1tStage1CaloAnalyzer_cfi')
+
+# TTree output file
+#process.load("CommonTools.UtilAlgos.TFileService_cfi")
+#process.TFileService.fileName = cms.string('l1t.root')
 
 # Path and EndPath definitions
 process.L1simulation_step = cms.Path(
     process.ecalDigis
     +process.hcalDigis
-    +process.L1TCaloStage2_PPFromRaw
+    +process.L1TCaloStage1_PPFromRaw
 )
 
 process.RECOSIMoutput_step = cms.EndPath(process.RECOSIMoutput)

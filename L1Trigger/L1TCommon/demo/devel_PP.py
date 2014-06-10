@@ -18,6 +18,9 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 100
 
 process.load('L1Trigger/L1TCalorimeter/l1tStage1CaloParams_cfi')
 
+process.load('EventFilter/L1TRawToDigi/l1tDigiToRaw_cfi')
+process.load('EventFilter/L1TRawToDigi/l1tRawToDigi_cfi')
+
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-10)
     )
@@ -86,20 +89,6 @@ process.Layer2gctFormat = cms.EDProducer("l1t::L1TCaloUpgradeToGCTConverter",
                                          InputCollection = cms.InputTag("Layer2Phys")
 )
 
-process.L1Packer = cms.EDProducer("l1t::L1TDigiToRaw",
-        InputLabel = cms.InputTag("caloStage1"),
-        FedId = cms.int32(100),
-        FWId = cms.uint32(1),
-        CaloTowers = cms.InputTag(""),
-        EGammas = cms.InputTag("Layer2HW"),
-        EtSums = cms.InputTag("Layer2HW"),
-        Jets = cms.InputTag("Layer2HW"),
-        Taus = cms.InputTag("Layer2HW"))
-
-process.L1Unpacker = cms.EDProducer("l1t::L1TRawToDigi",
-        InputLabel = cms.InputTag("L1Packer"),
-        FedId = cms.int32(100))
-
 process.gctDigis = cms.EDProducer("GctRawToDigi",
     unpackSharedRegions = cms.bool(False),
     numberOfGctSamplesToUnpack = cms.uint32(1),
@@ -116,8 +105,8 @@ process.Layer2 = cms.Sequence(
         *process.Layer2HW
         *process.Layer2Phys
         *process.Layer2gctFormat
-        ## *process.L1Packer
-        ## *process.L1Unpacker
+        *process.l1tDigiToRaw
+        *process.l1tRawToDigi
         )
 
 
