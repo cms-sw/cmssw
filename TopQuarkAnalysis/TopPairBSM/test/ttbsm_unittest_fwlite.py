@@ -4,7 +4,7 @@ import ROOT
 import sys
 from DataFormats.FWLite import Events, Handle
 
-files = ["patTuple_tlbsm_train.root"]
+files = ["patTuple_tlbsm_train_tlbsm_71x_v1.root"]
 printGen = True
 events = Events (files)
 handle0  = Handle ("std::vector<pat::Jet>")
@@ -13,6 +13,9 @@ handle2  = Handle ("std::vector<pat::Jet>")
 handle3  = Handle ("std::vector<pat::Jet>")
 handle4  = Handle ("std::vector<pat::Muon>")
 handle5  = Handle ("std::vector<pat::Electron>")
+handle6  = Handle ("std::vector<reco::Vertex>")
+handle7  = Handle ("std::vector<PileupSummaryInfo>")
+handle8  = Handle ("GenEventInfoProduct")
 
 # for now, label is just a tuple of strings that is initialized just
 # like and edm::InputTag
@@ -22,6 +25,9 @@ label2 = ("goodPatJetsCA8CMSTopTagPacked")
 label3 = ("goodPatJetsCA15HEPTopTagPacked")
 label4 = ("selectedPatMuons")
 label5 = ("selectedPatElectrons")
+label6 = ("goodOfflinePrimaryVertices")
+label7 = ("addPileupInfo")
+label8 = ("generator")
 
 f = ROOT.TFile("outplots.root", "RECREATE")
 f.cd()
@@ -137,6 +143,30 @@ for event in events:
             )
         ielectron += 1 
 
+    print '---- ' + label6
+    # use getByLabel, just like in cmsRun
+    event.getByLabel (label6, handle6)
+    # get the product
+    goodPVs = handle6.product()
+    igoodPV = 0 
+    for goodPV in goodPVs:
+      print 'PV {0:4.0f}, ndof = {1:10.2f}, nTracks = {2:d}, normalizedChi2 = {3:4.2f}, x= {4:4.2f}, y = {5:4.2f}, z = {6:4.2f}'.format(igoodPV, goodPV.ndof(), goodPV.nTracks(), goodPV.normalizedChi2(), goodPV.x(), goodPV.y(), goodPV.z()) 
+      igoodPV += 1 
+
+    print '---- ' + label7
+    # use getByLabel, just like in cmsRun
+    event.getByLabel (label7, handle7)
+    # get the product
+    pusummarys = handle7.product()
+    for pusummary in  pusummarys: 
+      print 'PU true interaction = {0:f}, PU interactions = {1:f}'.format(pusummary.getTrueNumInteractions(), pusummary.getPU_NumInteractions())
+
+    print '---- ' + label8
+    # use getByLabel, just like in cmsRun
+    event.getByLabel (label8, handle8)
+    # get the product
+    geninfo = handle8.product()
+    print 'GenInfoProduct has pdf = {0:b}, pdfid1 =  {1:d}, pdfid2 =  {2:d}'.format(geninfo.hasPDF(), geninfo.pdf().id.first, geninfo.pdf().id.second)
 
 f.cd()
 
