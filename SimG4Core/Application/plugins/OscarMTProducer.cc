@@ -21,7 +21,6 @@
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "CLHEP/Random/Random.h"
 
-#include "FWCore/Concurrency/interface/SharedResourceNames.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
@@ -61,13 +60,10 @@ namespace {
 
 OscarMTProducer::OscarMTProducer(edm::ParameterSet const & p, const edm::ParameterSet *)
 {
-#ifdef MK_SERIAL
   // Random number generation not allowed here
   StaticRandomEngineSetUnset random(nullptr);
 
-  usesResource(edm::SharedResourceNames::kGEANT);
-  usesResource(edm::SharedResourceNames::kCLHEPRandomEngine);
-
+#ifdef MK_SERIAL
   consumes<edm::HepMCProduct>(p.getParameter<edm::InputTag>("HepMCProductLabel"));
   m_runManager.reset(new RunManagerMT(p));
   //m_runManager.reset(new RunManagerMT(p, consumesCollector()));
