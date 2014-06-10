@@ -166,7 +166,7 @@ CSCMotherboardME3141RPC::CSCMotherboardME3141RPC(unsigned endcap, unsigned stati
   // build LCT from CLCT and RPC
   buildLCTfromALCTandRPC_ = me3141tmbParams.getParameter<bool>("buildLCTfromALCTandRPC");
   buildLCTfromCLCTandRPC_ = me3141tmbParams.getParameter<bool>("buildLCTfromCLCTandRPC");
-  buildLCTfromLowQstubandRPC_ = me3141tmbParams.getParameter<bool>("buildLCTfromALCTandRPC");
+  buildLCTfromLowQstubandRPC_ = me3141tmbParams.getParameter<bool>("buildLCTfromLowQstubandRPC");
 
   // promote ALCT-RPC pattern
   promoteALCTRPCpattern_ = me3141tmbParams.getParameter<bool>("promoteALCTRPCpattern");
