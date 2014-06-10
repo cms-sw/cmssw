@@ -50,7 +50,30 @@ print 'CAVEAT : Filters are not yet implemented'
 ######### TO DO : TURN ON TRIGGERS! #########
 
 
+###############################
+####### DAF PV's     ##########
+###############################
 
+pvSrc = 'offlinePrimaryVertices'
+
+## The good primary vertex filter ____________________________________________||
+process.primaryVertexFilter = cms.EDFilter(
+    "VertexSelector",
+    src = cms.InputTag("offlinePrimaryVertices"),
+    cut = cms.string("!isFake & ndof > 4 & abs(z) <= 24 & position.Rho <= 2"),
+    filter = cms.bool(True)
+    )
+
+
+from PhysicsTools.SelectorUtils.pvSelector_cfi import pvSelector
+
+process.goodOfflinePrimaryVertices = cms.EDFilter(
+    "PrimaryVertexObjectFilter",
+    filterParams = pvSelector.clone( maxZ = cms.double(24.0),
+                                     minNdof = cms.double(4.0) # this is >= 4
+                                     ),
+    src=cms.InputTag(pvSrc)
+    )
 
 ################################################################################################
 ############################ Pruned GenParticles ###############################################
@@ -382,6 +405,10 @@ process.source.fileNames = ['/store/relval/CMSSW_7_0_0/RelValRSKKGluon_m3000GeV_
 process.maxEvents.input = 10
 #                                         ##
 process.out.outputCommands += [
+    'keep GenRunInfoProduct_generator_*_*',
+    'keep GenEventInfoProduct_generator_*_*',
+    'keep PileupSummaryInfos_*_*_*',
+    'keep *_goodOfflinePrimaryVertices*_*_*',    
     'keep *_ak5GenJetsNoNu_*_*',
     'keep *_ca8GenJetsNoNu_*_*',    
     'keep *_fixedGrid_*_*',
