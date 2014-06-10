@@ -152,7 +152,8 @@ CSCMotherboardME3141RPC::CSCMotherboardME3141RPC(unsigned endcap, unsigned stati
 
   // deltas used to match to RPC digis
   maxDeltaBXRPC_ = me3141tmbParams.getParameter<int>("maxDeltaBXRPC");
-  maxDeltaStripRPC_ = me3141tmbParams.getParameter<int>("maxDeltaStripRPC");
+  maxDeltaStripRPCOdd_ = me3141tmbParams.getParameter<int>("maxDeltaStripRPCOdd");
+  maxDeltaStripRPCEven_ = me3141tmbParams.getParameter<int>("maxDeltaStripRPCEven");
   maxDeltaWg_ = me3141tmbParams.getParameter<int>("maxDeltaWg");
 
   // use "old" or "new" dataformat for integrated LCTs?
@@ -327,6 +328,9 @@ CSCMotherboardME3141RPC::run(const CSCWireDigiCollection* wiredc,
         std::cout << "RPC Strip "<< p.first << " CSC HS: " << p.second << std::endl;
       }
     }
+    //select correct scenarios, even or odd
+     maxDeltaStripRPC_ = (isEven ?  maxDeltaStripRPCEven_ :  maxDeltaStripRPCOdd_);
+
     rpcDigis_.clear();
     retrieveRPCDigis(rpcDigis, rpc_id.rawId());
   }

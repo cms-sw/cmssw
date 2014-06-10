@@ -154,6 +154,8 @@ class CSCMotherboardME3141RPC : public CSCMotherboard
   //  deltas used to match to RPC digis
   int maxDeltaBXRPC_;
   int maxDeltaStripRPC_;
+  int maxDeltaStripRPCOdd_;
+  int maxDeltaStripRPCEven_;
   int maxDeltaWg_;
 
   bool useOldLCTDataFormatCLCTRPC_;

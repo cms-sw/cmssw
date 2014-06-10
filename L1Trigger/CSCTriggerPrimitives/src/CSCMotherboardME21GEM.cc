@@ -124,7 +124,8 @@ CSCMotherboardME21GEM::CSCMotherboardME21GEM(unsigned endcap, unsigned station,
 
   //  deltas used to match to GEM pads
   maxDeltaBXPad_ = me21tmbParams.getParameter<int>("maxDeltaBXPad");
-  maxDeltaPadPad_ = me21tmbParams.getParameter<int>("maxDeltaPadPad");
+  maxDeltaPadPadOdd_ = me21tmbParams.getParameter<int>("maxDeltaPadPadOdd");
+  maxDeltaPadPadEven_ = me21tmbParams.getParameter<int>("maxDeltaPadPadEven");
   maxDeltaWg_ = me21tmbParams.getParameter<int>("maxDeltaWg");
 
   //  deltas used to match to GEM coincidence pads
@@ -296,6 +297,8 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
       }
     }
     
+    //select correct scenario, even or odd
+    maxDeltaPadPad_ = (isEven ? maxDeltaPadPadEven_ : maxDeltaPadPadOdd_);
     // build coincidence pads
     std::auto_ptr<GEMCSCPadDigiCollection> pCoPads(new GEMCSCPadDigiCollection());
     buildCoincidencePads(gemPads, *pCoPads);
