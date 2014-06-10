@@ -38,7 +38,6 @@ RPCMonitorLinkSynchro::RPCMonitorLinkSynchro( const edm::ParameterSet& cfg)
 }
 
 RPCMonitorLinkSynchro::~RPCMonitorLinkSynchro(){ }
-void RPCMonitorLinkSynchro::beginJob(){}
 
 void RPCMonitorLinkSynchro::endLuminosityBlock(const edm::LuminosityBlock& ls, const edm::EventSetup& es)
 {
@@ -50,8 +49,9 @@ void RPCMonitorLinkSynchro::endLuminosityBlock(const edm::LuminosityBlock& ls, c
 
 
 
-void RPCMonitorLinkSynchro::beginRun(const edm::Run&, const edm::EventSetup& es){
-
+void RPCMonitorLinkSynchro::bookHistograms(DQMStore::IBooker & ibooker,
+				     edm::Run const &  iRun ,
+				     edm::EventSetup const & es ) {
   if (theCablingWatcher.check(es)) {
     edm::ESTransientHandle<RPCEMap> readoutMapping;
     es.get<RPCEMapRcd>().get(readoutMapping);
@@ -61,18 +61,19 @@ void RPCMonitorLinkSynchro::beginRun(const edm::Run&, const edm::EventSetup& es)
     delete cabling;
   }
 
-  DQMStore* dmbe = edm::Service<DQMStore>().operator->();
-  dmbe->setCurrentFolder("RPC/LinkMonitor/");
 
-  me_delaySummary = dmbe->book1D("delaySummary","LinkDelaySummary",8,-3.5, 4.5);
+  ibooker.cd();
+  ibooker.setCurrentFolder("RPC/LinkMonitor/");
+
+  me_delaySummary = ibooker.book1D("delaySummary","LinkDelaySummary",8,-3.5, 4.5);
   me_delaySummary->getTH1F()->SetStats(111);
 
-  me_delaySpread = dmbe->book2D("delaySpread","LinkDelaySpread",71,-3.05, 4.05, 31,-0.05,3.05);
+  me_delaySpread = ibooker.book2D("delaySpread","LinkDelaySpread",71,-3.05, 4.05, 31,-0.05,3.05);
   me_delaySpread->getTH2F()->SetStats(0);
 
-  me_notComplete[0] = dmbe->book2D("notComplete790","FED790: not All Paths hit",36,-0.5,35.5,18,-0.5,17.5);
-  me_notComplete[1] = dmbe->book2D("notComplete791","FED791: not All Paths hit",36,-0.5,35.5,18,-0.5,17.5);
-  me_notComplete[2] = dmbe->book2D("notComplete792","FED792: not All Paths hit",36,-0.5,35.5,18,-0.5,17.5);
+  me_notComplete[0] = ibooker.book2D("notComplete790","FED790: not All Paths hit",36,-0.5,35.5,18,-0.5,17.5);
+  me_notComplete[1] = ibooker.book2D("notComplete791","FED791: not All Paths hit",36,-0.5,35.5,18,-0.5,17.5);
+  me_notComplete[2] = ibooker.book2D("notComplete792","FED792: not All Paths hit",36,-0.5,35.5,18,-0.5,17.5);
   for (unsigned int i=0;i<3;++i) {
     me_notComplete[i]->getTH2F()->GetXaxis()->SetNdivisions(512);
     me_notComplete[i]->getTH2F()->GetYaxis()->SetNdivisions(505);
@@ -80,8 +81,8 @@ void RPCMonitorLinkSynchro::beginRun(const edm::Run&, const edm::EventSetup& es)
     me_notComplete[i]->getTH2F()->SetYTitle("link");
     me_notComplete[i]->getTH2F()->SetStats(0);
   }
-  me_topOccup  = dmbe->book2D("topOccup","Top10 LinkBoard occupancy",8,-0.5,7.5, 10,0.,10.);
-  me_topSpread = dmbe->book2D("topSpread","Top10 LinkBoard delay spread",8,-0.5,7.5, 10,0.,10.);
+  me_topOccup  = ibooker.book2D("topOccup","Top10 LinkBoard occupancy",8,-0.5,7.5, 10,0.,10.);
+  me_topSpread = ibooker.book2D("topSpread","Top10 LinkBoard delay spread",8,-0.5,7.5, 10,0.,10.);
   me_topOccup->getTH2F()->GetXaxis()->SetNdivisions(110);
   me_topSpread->getTH2F()->GetXaxis()->SetNdivisions(110);
   me_topOccup->getTH2F()->SetStats(0);

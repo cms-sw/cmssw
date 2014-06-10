@@ -12,18 +12,21 @@
 #include "CondFormats/DataRecord/interface/RPCEMapRcd.h"
 
 #include "DQM/RPCMonitorClient/interface/RPCLinkSynchroStat.h"
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 class MonitorElement;
 #include "TObjArray.h"
 namespace edm { class Event; class EventSetup; class Run;}
 
 
-class RPCMonitorLinkSynchro : public edm::EDAnalyzer {
+class RPCMonitorLinkSynchro : public DQMEDAnalyzer{
+
 public:
   explicit RPCMonitorLinkSynchro( const edm::ParameterSet& cfg);
   virtual ~RPCMonitorLinkSynchro();
-  virtual void beginJob();
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
+ 
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+ 
   virtual void endLuminosityBlock(const edm::LuminosityBlock&,const edm::EventSetup&);
   virtual void analyze(const edm::Event&, const edm::EventSetup&);  
   virtual  const RPCRawSynchro::ProdItem & select(const RPCRawSynchro::ProdItem &v, const edm::Event&, const edm::EventSetup&) { return v; };
