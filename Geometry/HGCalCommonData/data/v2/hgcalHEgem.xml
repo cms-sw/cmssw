@@ -32,8 +32,8 @@
   <Numeric name="StartAngle"  value="0*deg"/>
   <Numeric name="RangeAngle"  value="360*deg"/>
   <Numeric name="Radius"      value="0*m"/>
-  <Vector name="RotateSolid" type="numeric" nEntries="3">
-   0*deg, 0*deg, 0*deg </Vector>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 0 </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="3"> 0.*deg, 0.*deg, 0.*deg </Vector>
  </Algorithm>
   <Algorithm name="hgcal:DDHGCalHEAlgo">
   <rParent name="hgcalHEgem:HGCalHEGem"/>

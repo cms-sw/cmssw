@@ -9,11 +9,11 @@
 </ConstantsSection> 
 
 <SolidSection label="hgcalHEsil.xml">
- <Polycone name="HGCalHESilicon" startPhi="350*deg" deltaPhi="20*deg">
-  <ZSection z="[hgcal:zMinHE]"  rMin="[hgcal:rMinHEMin]"  rMax="[hgcal:rMaxHEMin]"/>
-  <ZSection z="[hgcal:zHGCal2]" rMin="[hgcal:rMinHGCal2]" rMax="[hgcal:rMaxHGCal2]"/>
-  <ZSection z="[ZmaxHEsil]"     rMin="[rMinHEsil]"        rMax="[rMaxHEsil]"/>
- </Polycone>
+ <Polyhedra name="HGCalHESilicon" numSide="1" startPhi="350*deg" deltaPhi="20*deg">
+  <ZSection z="[hgcal:zMinHE]"  rMin="[hgcal:rMinHEMin]"  rMax="[hgcal:rMapHEMin]"/>
+  <ZSection z="[hgcal:zHGCal2]" rMin="[hgcal:rMinHGCal2]" rMax="[hgcal:rMapHGCal2]"/>
+  <ZSection z="[ZmaxHEsil]"     rMin="[rMinHEsil]"        rMax="[rMapHEsil]"/>
+ </Polyhedra>
 </SolidSection>
 
 <LogicalPartSection label="hgcalHEsil.xml">
@@ -33,8 +33,8 @@
   <Numeric name="StartAngle"  value="0*deg"/>
   <Numeric name="RangeAngle"  value="360*deg"/>
   <Numeric name="Radius"      value="0*m"/>
-  <Vector name="RotateSolid" type="numeric" nEntries="3">
-   0*deg, 0*deg, 0*deg </Vector>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 0 </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="3"> 0.*deg, 0.*deg, 0.*deg </Vector>
  </Algorithm>
  <Algorithm name="hgcal:DDHGCalEEAlgo">
   <rParent name="hgcalHEsil:HGCalHESilicon"/>
@@ -60,12 +60,6 @@
   <Numeric name="zMinBlock"   value="[hgcal:zMinHE]"/>
   <Numeric name="Sectors"     value="18"/>
   <Numeric name="SlopeBottom" value="[etaMax:slope]"/>
-  <Vector name="SlopeTop" type="numeric" nEntries="4">
-    [hgcal:slope2], [hgcal:slope3], 0, 0</Vector>
-  <Vector name="ZFront" type="numeric" nEntries="4">
-    [hgcal:zHGCal1], [hgcal:zHGCal2], [hgcal:zHGCal3], [hgcal:zHGCal4]</Vector>
-  <Vector name="RMaxFront" type="numeric" nEntries="4">
-    [hgcal:rMaxHGCal1], [hgcal:rMaxHGCal2], [hgcal:rMaxHGCal3], [hgcal:rMaxHGCal4]</Vector>
   <Vector name="SlopeTop" type="numeric" nEntries="4">
     [hgcal:slope2], [hgcal:slope3], 0, 0</Vector>
   <Vector name="ZFront" type="numeric" nEntries="4">
