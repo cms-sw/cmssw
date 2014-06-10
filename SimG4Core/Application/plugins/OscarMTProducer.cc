@@ -129,10 +129,16 @@ OscarMTProducer::~OscarMTProducer()
 { }
 
 std::unique_ptr<edm::ParameterSet> OscarMTProducer::initializeGlobalCache(const edm::ParameterSet& iConfig) {
+  // Random number generation not allowed here
+  StaticRandomEngineSetUnset random(nullptr);
+
   return std::unique_ptr<edm::ParameterSet>(new edm::ParameterSet(iConfig));
 }
 
 std::shared_ptr<OscarMTMasterThread> OscarMTProducer::globalBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup, const edm::ParameterSet *iConfig) {
+  // Random number generation not allowed here
+  StaticRandomEngineSetUnset random(nullptr);
+
   auto runManager = std::make_shared<RunManagerMTInit>(*iConfig);
   auto masterThread = std::make_shared<OscarMTMasterThread>(runManager, iSetup);
   return masterThread;
