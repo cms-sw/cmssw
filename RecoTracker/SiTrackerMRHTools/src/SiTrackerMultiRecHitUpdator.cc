@@ -3,8 +3,9 @@
 #include "RecoTracker/SiTrackerMRHTools/interface/GenericProjectedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerMultiRecHit.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
+//#include "RecoTracker/TransientTrackingRecHit/interface/TkClonerImpl.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TrackingRecHitProjector.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/InvalidTransientRecHit.h"
 #include "DataFormats/TrackingRecHit/interface/KfComponentsHolder.h"
 #include "DataFormats/Math/interface/invertPosDefMatrix.h"
 #include "DataFormats/Math/interface/ProjectMatrix.h"
@@ -17,12 +18,15 @@ SiTrackerMultiRecHitUpdator::SiTrackerMultiRecHitUpdator(const TransientTracking
   theBuilder(builder),
   theHitPropagator(hitpropagator),
   theChi2Cut(Chi2Cut),
-  theAnnealingProgram(anAnnealingProgram){}
+  theAnnealingProgram(anAnnealingProgram){
+    theHitCloner = static_cast<TkTransientTrackingRecHitBuilder const *>(builder)->cloner();
+  }
 
 
 TransientTrackingRecHit::RecHitPointer  SiTrackerMultiRecHitUpdator::buildMultiRecHit(const std::vector<const TrackingRecHit*>& rhv,
                                                                           	      TrajectoryStateOnSurface tsos,
  										      float annealing) const{
+  std::cout << " Calling SiTrackerMultiRecHitUpdator::buildMultiRecHit with AnnealingFactor: "  << annealing << std::endl;
   TransientTrackingRecHit::ConstRecHitContainer tcomponents;	
   for (std::vector<const TrackingRecHit*>::const_iterator iter = rhv.begin(); iter != rhv.end(); iter++){
     TransientTrackingRecHit::RecHitPointer transient = theBuilder->build(*iter);
@@ -35,7 +39,9 @@ TransientTrackingRecHit::RecHitPointer  SiTrackerMultiRecHitUpdator::buildMultiR
 TransientTrackingRecHit::RecHitPointer SiTrackerMultiRecHitUpdator::update( TransientTrackingRecHit::ConstRecHitPointer original,
                                                                 	    TrajectoryStateOnSurface tsos,
 									    double annealing) const{
+  std::cout << " Calling SiTrackerMultiRecHitUpdator::update with AnnealingFactor: "  << annealing << std::endl;
   LogTrace("SiTrackerMultiRecHitUpdator") << "Calling SiTrackerMultiRecHitUpdator::update with AnnealingFactor: "  << annealing;
+
   if (original->isValid())
     LogTrace("SiTrackerMultiRecHitUpdator") << "Original Hit position " << original->localPosition() << " original error " 
 					    << original->parametersError();
@@ -45,10 +51,16 @@ TransientTrackingRecHit::RecHitPointer SiTrackerMultiRecHitUpdator::update( Tran
     //return original->clone();
     throw cms::Exception("SiTrackerMultiRecHitUpdator") << "!!! MultiRecHitUpdator::update(..): tsos NOT valid!!! ";
   }	
-  
+
   //check if to clone is the right thing
-  if (original->transientHits().empty()) return original->clone(tsos);
-  
+  if(original->isValid()){
+    if (original->transientHits().empty()){
+      return theHitCloner.makeShared(original,tsos);
+    }
+  } else {
+    return theHitCloner.makeShared(original,tsos);
+  }
+
   TransientTrackingRecHit::ConstRecHitContainer tcomponents = original->transientHits();	
   return update(tcomponents, tsos, annealing);
 }
@@ -58,19 +70,21 @@ TransientTrackingRecHit::RecHitPointer SiTrackerMultiRecHitUpdator::update( Tran
                                                                 	    TrajectoryStateOnSurface tsos,
 									    double annealing) const{
 
-
   if (tcomponents.empty()){
+    std::cout << "Empty components vector passed to SiTrackerMultiRecHitUpdator::update, returning an InvalidTransientRecHit \n";
     LogTrace("SiTrackerMultiRecHitUpdator") << "Empty components vector passed to SiTrackerMultiRecHitUpdator::update, returning an InvalidTransientRecHit ";
-    return InvalidTransientRecHit::build(0); 
+    return std::make_shared<InvalidTrackingRecHitNoDet>(); 
   }		
   
   if(!tsos.isValid()) {
+    std::cout<<"SiTrackerMultiRecHitUpdator::update: tsos NOT valid!!!, returning an InvalidTransientRecHit\n";
     LogTrace("SiTrackerMultiRecHitUpdator")<<"SiTrackerMultiRecHitUpdator::update: tsos NOT valid!!!, returning an InvalidTransientRecHit";
-    return InvalidTransientRecHit::build(0);
+    return std::make_shared<InvalidTrackingRecHitNoDet>();
   }
   
   std::vector<TransientTrackingRecHit::RecHitPointer> updatedcomponents;
   const GeomDet* geomdet = 0;
+std::cout << "here2" ;
 
   //running on all over the MRH components 
   for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator iter = tcomponents.begin(); iter != tcomponents.end(); iter++){
@@ -92,14 +106,14 @@ TransientTrackingRecHit::RecHitPointer SiTrackerMultiRecHitUpdator::update( Tran
     //GenericProjectedRecHit2D is used to prepagate
     if (&((*iter)->det()->surface())!=&(tsos.surface())){
 
-      TransientTrackingRecHit::RecHitPointer cloned = theHitPropagator->project<GenericProjectedRecHit2D>(*iter, *geomdet, tsos);
+      TransientTrackingRecHit::RecHitPointer cloned = theHitPropagator->project<GenericProjectedRecHit2D>(*iter, *geomdet, tsos, theBuilder);
       //if it is used a sensor by sensor grouping this should not appear
       LogTrace("SiTrackerMultiRecHitUpdator") << "hit propagated";
       if (cloned->isValid()) updatedcomponents.push_back(cloned);
 
     } else {
 
-      TransientTrackingRecHit::RecHitPointer cloned = (*iter)->clone(tsos);
+      TransientTrackingRecHit::RecHitPointer cloned = theHitCloner.makeShared(*iter,tsos);
       if (cloned->isValid()){
         updatedcomponents.push_back(cloned);
       LogTrace("SiTrackerMultiRecHitUpdator") << "hit cloned";
@@ -134,31 +148,30 @@ TransientTrackingRecHit::RecHitPointer SiTrackerMultiRecHitUpdator::update( Tran
     //ORCA: float p = ((mymap[counter].second)/total_sum > 0.01 ? (mymap[counter].second)/total_sum : 1.e-6);
     normmap.push_back(std::pair<const TrackingRecHit*,float>(mymap[counter].first, p));
 
-    //storing the weight in the component TransientTrackingRecHit 
-    (*ihit)->setWeight(p);
-    (*ihit)->setAnnealingFactor(annealing);
-
     finalcomponents.push_back(*ihit);
 
-    LogTrace("SiTrackerMultiRecHitUpdator")<< "Component hit type " << typeid(*mymap[counter].first).name() 
+    LogTrace("SiTrackerMultiRecHitUpdator")<< " Component hit type " << typeid(*mymap[counter].first).name() 
 					   << " position " << mymap[counter].first->localPosition() 
 					   << " error " << mymap[counter].first->localPositionError()
 					   << " with weight " << p;
+    std::cout << " Component hit type " << typeid(*mymap[counter].first).name()
+                                           << " position " << mymap[counter].first->localPosition()
+                                           << " \n\terror " << mymap[counter].first->localPositionError()
+                                           << " with weight " << p << std::endl;
     counter++;
   }
  
-  //mymap = normmap;
   SiTrackerMultiRecHitUpdator::LocalParameters param = calcParameters(tsos, finalcomponents);
 
-  //CMSSW531 constructor:
-  //SiTrackerMultiRecHit updated(param.first, param.second, normmap.front().first->>geographicalId(), normmap);
-
-  SiTrackerMultiRecHit updated(param.first, param.second, *normmap.front().first->det(), normmap);
+  SiTrackerMultiRecHit updated(param.first, param.second, *normmap.front().first->det(), normmap, annealing);
+  std::cout << " Updated Hit position " << updated.localPosition() 
+   					  << " updated error " << updated.localPositionError() << std::endl;
   LogTrace("SiTrackerMultiRecHitUpdator") << " Updated Hit position " << updated.localPosition() 
    					  << " updated error " << updated.localPositionError() << std::endl;
 
-  return TSiTrackerMultiRecHit::build(geomdet, &updated, finalcomponents, annealing);
-
+  //return TSiTrackerMultiRecHit::build(geomdet, &updated, finalcomponents, annealing);
+  //return SiTrackerMultiRecHit::build(param.first, param.second, *normmap.front().first->det(), normmap);
+  return std::make_shared<SiTrackerMultiRecHit>(param.first, param.second, *normmap.front().first->det(), normmap, annealing);
 }
 
 

@@ -95,9 +95,9 @@ void DAFTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setu
   }
 
   //put everything in the event
-  putInEvt(theEvent, thePropagator.product(), theMeasTk.product(), outputRHColl, 
-	   outputTColl, outputTEColl, 
-           outputTrajectoryColl, algoResults);
+  putInEvt(theEvent, thePropagator.product(),theMeasTk.product(), 
+           outputRHColl, outputTColl, outputTEColl, 
+           outputTrajectoryColl, algoResults, theBuilder.product());
   putInEvtTrajAnn(theEvent, trajannResults, outputTrajAnnColl);
 
 //  std::cout << "DAFTrackProducer: end the DAF algorithm." << "\n";

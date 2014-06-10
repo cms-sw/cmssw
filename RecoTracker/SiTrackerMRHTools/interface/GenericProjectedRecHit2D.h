@@ -61,7 +61,7 @@ public:
     return RecHitPointer( new GenericProjectedRecHit2D( pos, err, det, originaldet, originalHit, propagator));
   }
 
-  RecHitPointer clone( const TrajectoryStateOnSurface& ts) const;
+  RecHitPointer clone( const TrajectoryStateOnSurface& ts, const TransientTrackingRecHitBuilder*) const;
 
 private:
 

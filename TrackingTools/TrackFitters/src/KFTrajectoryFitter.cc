@@ -237,24 +237,13 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
       if ((*ihit)->det()) myTraj.push(TM(predTsos, *ihit,0,theGeometry->idToLayer((*ihit)->geographicalId())  ));
       else   myTraj.push(TM(predTsos, *ihit,0));
     }
-<<<<<<< HEAD
-
-=======
-   
->>>>>>> ebrondol/MyNewBranchDAF
     LogTrace("TrackFitters")
       << "predTsos !" << "\n"
       << predTsos << "\n"
       <<"currTsos !" << "\n"
       << currTsos;
-<<<<<<< HEAD
   }
 
-=======
-
-  }  
-  
->>>>>>> ebrondol/MyNewBranchDAF
   LogDebug("TrackFitters") << "Found 1 trajectory with " << myTraj.foundHits() << " valid hits\n";
 
   return ret;

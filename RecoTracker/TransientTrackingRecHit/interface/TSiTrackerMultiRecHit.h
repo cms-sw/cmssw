@@ -46,17 +46,17 @@ public:
   
   /// interface needed to set and read back an annealing value that has been applied to the current hit error matrix when
   /// using it as a component for a composite rec hit (useful for the DAF)
-  void setAnnealingFactor(float annealing) {annealing_ = annealing;} 
-  float getAnnealingFactor() const {return annealing_;} 
+//  void setAnnealingFactor(float annealing) {annealing_ = annealing;} 
+//  float getAnnealingFactor() const {return annealing_;} 
   
 
   //vector of weights
-  std::vector<float> const & weights() const {return theHitData.weights();}
-  std::vector<float>  & weights() {return theHitData.weights();}
+//  std::vector<float> const & weights() const {return theHitData.weights();}
+//  std::vector<float>  & weights() {return theHitData.weights();}
 
   //returns the weight for the i component
-  float  weight(unsigned int i) const {return theHitData.weight(i);}
-  float  & weight(unsigned int i) {return theHitData.weight(i);}
+//  float  weight(unsigned int i) const {return theHitData.weight(i);}
+//  float  & weight(unsigned int i) {return theHitData.weight(i);}
 
   
   virtual const GeomDetUnit* detUnit() const;
@@ -65,7 +65,7 @@ public:
   
   virtual RecHitPointer clone(const TrajectoryStateOnSurface& ts) const;
   
-  virtual ConstRecHitContainer transientHits() const {return theComponents;};
+//  virtual ConstRecHitContainer transientHits() const {return theComponents;};
   
   static RecHitPointer build( const GeomDet * geom, const SiTrackerMultiRecHit* rh, 
 			      const ConstRecHitContainer& components, float annealing=1.){

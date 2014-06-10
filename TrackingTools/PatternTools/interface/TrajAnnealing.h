@@ -36,7 +36,7 @@ private:
     Trajectory traj_;
     float annealing_;
     std::vector<float> theWeights;
-    TransientTrackingRecHit::RecHitContainer theHits_;
+    TrackingRecHit::RecHitContainer theHits_;
 
     std::pair<float, std::vector<float> > getAnnealingWeight( const TrackingRecHit& aRecHit ) const ;
 };

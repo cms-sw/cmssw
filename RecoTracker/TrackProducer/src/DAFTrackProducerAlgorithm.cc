@@ -1,5 +1,7 @@
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
+#include "DataFormats/TrackingRecHit/interface/InvalidTrackingRecHit.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
@@ -11,12 +13,12 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/InvalidTransientRecHit.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TkClonerImpl.h"
 #include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateWithArbitraryError.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiTrackerMultiRecHit.h"
-
+#include "DataFormats/TrackerRecHit2D/interface/TkCloner.h"
 #include "TrackingTools/PatternTools/interface/TrajAnnealing.h"
 
 void DAFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
@@ -31,6 +33,8 @@ void DAFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
 					         AlgoProductCollection& algoResults,
 						 TrajAnnealingCollection& trajann) const
 {
+  std::cout << "////////////////////////////////////////////////////////\n"
+	    << "DAFTrackProducerAlgorithm::runWithCandidate: Number of Trajectories: " << theTrajectoryCollection.size() << "\n";
   edm::LogInfo("TrackProducer") << "Number of Trajectories: " << theTrajectoryCollection.size() << "\n";
   int cont = 0;
 
@@ -57,6 +61,7 @@ void DAFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
       for (std::vector<double>::const_iterator ian = updator->getAnnealingProgram().begin(); 
            ian != updator->getAnnealingProgram().end(); ian++){
 
+std::cout << "Starting with the annealing " << *ian << std::endl;
         if (currentTraj.isValid()){
 
 	  LogDebug("DAFTrackProducerAlgorithm") << "Seed direction is " << currentTraj.seed().direction() 
@@ -90,7 +95,7 @@ void DAFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
       //in order to remove tracks with too many outliers.
 
       //std::vector<Trajectory> filtered;
-      //filter(theFitter, vtraj, conf_.getParameter<int>("MinHits"), filtered);				
+      //filter(theFitter, vtraj, conf_.getParameter<int>("MinHits"), filtered, builder);				
 
       if(currentTraj.foundHits() >= conf_.getParameter<int>("MinHits")) {
       
@@ -179,7 +184,7 @@ Trajectory DAFTrackProducerAlgorithm::fit(const std::pair<TransientTrackingRecHi
                                     const TrajectoryFitter * theFitter,
                                     Trajectory vtraj) const {
 
-
+std::cout << "DAFTrackProducerAlgorithm::fit" << std::endl;
   //creating a new trajectory starting from the direction of the seed of the input one and the hits
   Trajectory newVec = theFitter->fitOne(TrajectorySeed(PTrajectoryStateOnDet(),
                                                                  BasicTrajectorySeed::recHitContainer(),
@@ -245,32 +250,37 @@ bool DAFTrackProducerAlgorithm::buildTrack (const Trajectory vtraj,
 }
 /*------------------------------------------------------------------------------------------------------*/
 void  DAFTrackProducerAlgorithm::filter(const TrajectoryFitter* fitter, std::vector<Trajectory>& input, 
-					int minhits, std::vector<Trajectory>& output) const 
+					int minhits, std::vector<Trajectory>& output,
+					const TransientTrackingRecHitBuilder* builder) const 
 {
-	if (input.empty()) return;
+  if (input.empty()) return;
 
-	int ngoodhits = 0;
+  int ngoodhits = 0;
+  std::vector<TrajectoryMeasurement> vtm = input[0].measurements();	
+  TransientTrackingRecHit::RecHitContainer hits;
 
-	std::vector<TrajectoryMeasurement> vtm = input[0].measurements();	
-
-	TransientTrackingRecHit::RecHitContainer hits;
-
-	//count the number of non-outlier and non-invalid hits	
-	for (std::vector<TrajectoryMeasurement>::reverse_iterator tm=vtm.rbegin(); tm!=vtm.rend();tm++){
-		//if the rechit is valid
-		if (tm->recHit()->isValid()) {
-			TransientTrackingRecHit::ConstRecHitContainer components = tm->recHit()->transientHits();
-			bool isGood = false;
-			for (TransientTrackingRecHit::ConstRecHitContainer::iterator rechit = components.begin(); rechit != components.end(); rechit++){
-				//if there is at least one component with weight higher than 1e-6 then the hit is not an outlier
-				if ((*rechit)->weight()>1e-6) {ngoodhits++; isGood = true; break;}
-			}
-			if (isGood) hits.push_back(tm->recHit()->clone(tm->updatedState()));
-                        else hits.push_back(InvalidTransientRecHit::build(tm->recHit()->det(), TrackingRecHit::missing));
-		} else {
-			hits.push_back(tm->recHit()->clone(tm->updatedState()));
-		}
-	}
+  //count the number of non-outlier and non-invalid hits	
+  for (std::vector<TrajectoryMeasurement>::reverse_iterator tm=vtm.rbegin(); tm!=vtm.rend();tm++){
+    //if the rechit is valid
+    if (tm->recHit()->isValid()) {
+      TransientTrackingRecHit::ConstRecHitContainer components = tm->recHit()->transientHits();
+      bool isGood = false;
+      for (TransientTrackingRecHit::ConstRecHitContainer::iterator rechit = components.begin(); rechit != components.end(); rechit++){
+        //if there is at least one component with weight higher than 1e-6 then the hit is not an outlier
+        if ((*rechit)->weight()>1e-6) {ngoodhits++; isGood = true; break;}
+      }
+      if (isGood) {
+        TkClonerImpl hc = static_cast<TkTransientTrackingRecHitBuilder const *>(builder)->cloner();
+        auto tempHit = hc.makeShared(tm->recHit(),tm->updatedState());
+        hits.push_back(tempHit);
+      }
+      else hits.push_back(std::make_shared<InvalidTrackingRecHit>(*tm->recHit()->det(), TrackingRecHit::missing));
+    } else {
+      TkClonerImpl hc = static_cast<TkTransientTrackingRecHitBuilder const *>(builder)->cloner();
+      auto tempHit = hc.makeShared(tm->recHit(),tm->updatedState());
+      hits.push_back(tempHit);
+    }
+  }
 
 
 	LogDebug("DAFTrackProducerAlgorithm") << "Original number of valid hits " << input[0].foundHits() << "; after filtering " << ngoodhits;

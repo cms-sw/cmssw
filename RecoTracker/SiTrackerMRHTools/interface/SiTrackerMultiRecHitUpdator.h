@@ -12,6 +12,7 @@
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TkClonerImpl.h"
 
 #include <vector>
 
@@ -65,6 +66,7 @@ public:
 
   const std::vector<double>&  annealingProgram() const {return theAnnealingProgram;}
   const std::vector<double>& getAnnealingProgram() const {return theAnnealingProgram;}
+
   
 private:
   //Obsolete methods
@@ -78,6 +80,7 @@ private:
   const TrackingRecHitPropagator* theHitPropagator;
   double theChi2Cut;
   const std::vector<double> theAnnealingProgram;
+  TkClonerImpl theHitCloner;
 
 };
 #endif

@@ -21,9 +21,12 @@ public:
   
   
   SiTrackerMultiRecHit(const LocalPoint&, const LocalError&, GeomDet const & idet,
-		       const std::vector< std::pair<const TrackingRecHit*, float> >&);
+		       const std::vector< std::pair<const TrackingRecHit*, float> >&, double);
   
   virtual SiTrackerMultiRecHit* clone() const {return new SiTrackerMultiRecHit(*this);}
+#ifdef NO_DICT
+  virtual RecHitPointer cloneSH() const { return std::make_shared<SiTrackerMultiRecHit>(*this);}
+#endif
   
   virtual int dimension() const {return 2;}
   virtual void getKfComponents( KfComponentsHolder & holder ) const { getKfComponents2D(holder); }
@@ -32,11 +35,13 @@ public:
   // used by trackMerger (to be improved)
   virtual OmniClusterRef const & firstClusterRef() const { return static_cast<BaseTrackerRecHit const *>(&theHits.front())->firstClusterRef();}
 
-  
-  //vector of component rechits
+  /// Access to component RecHits (if any)
   virtual std::vector<const TrackingRecHit*> recHits() const;
-  
+//  virtual void recHitsV(std::vector<const TrackingRecHit*> & ) const;
+   
+  /// Non-const access to component RecHits (if any)
   virtual std::vector<TrackingRecHit*> recHits() ;
+//  virtual void recHitsV(std::vector<TrackingRecHit*> & );
   
   //vector of weights
   std::vector<float> const & weights() const {return theWeights;}
@@ -45,14 +50,28 @@ public:
   //returns the weight for the i component
   float  weight(unsigned int i) const {return theWeights[i];}
   float  & weight(unsigned int i) {return theWeights[i];}
+
+  //get the annealing
+  virtual double getAnnealingFactor() const { return annealing_; }
 	
   bool sharesInput(const TrackingRecHit* other,
 		   SharedInputType what) const;
+
+/*  virtual ConstRecHitContainer transientHits() const {
+	ConstRecHitContainer result;
+        std::vector<const TrackingRecHit*> hits;
+        recHitsV(hits);
+        for (auto h : hits) result.push_back(h->cloneSH());
+        return result;
+      } 
+*/
 private:
   
   edm::OwnVector<TrackingRecHit> theHits;
+  //ConstRecHitContainer theComponents;
+  //std::vector<TrackingRecHit> theComponents; 
   std::vector<float> theWeights;
-	
+  double annealing_;	
 
 };
 

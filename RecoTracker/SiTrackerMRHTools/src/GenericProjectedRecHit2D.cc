@@ -9,7 +9,7 @@ GenericProjectedRecHit2D::GenericProjectedRecHit2D( const LocalPoint& pos, const
 				      		    const GeomDet* det, const GeomDet* originalDet,
 					    	    const TransientTrackingRecHit::ConstRecHitPointer originalHit,
                      				    const TrackingRecHitPropagator* propagator) :
-  TransientTrackingRecHit( det, originalHit->weight(), originalHit->getAnnealingFactor()) 
+  TrackingRecHit( *det ) //, originalHit->weight(), originalHit->getAnnealingFactor()) 
 {
 	theOriginalDet = originalDet;
 	thePropagator = propagator;
@@ -29,8 +29,8 @@ AlgebraicVector GenericProjectedRecHit2D::parameters() const{
 }
 
 TransientTrackingRecHit::RecHitPointer 
-GenericProjectedRecHit2D::clone( const TrajectoryStateOnSurface& ts) const
+GenericProjectedRecHit2D::clone( const TrajectoryStateOnSurface& ts, const TransientTrackingRecHitBuilder* builder) const
 {
-	return thePropagator->project<GenericProjectedRecHit2D>(theOriginalTransientHit, *det(), ts); 
+	return thePropagator->project<GenericProjectedRecHit2D>(theOriginalTransientHit, *det(), ts, builder); 
 }
   

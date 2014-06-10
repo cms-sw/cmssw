@@ -63,7 +63,8 @@ std::pair<float, std::vector<float> > TrajAnnealing::getAnnealingWeight( const T
     return make_pair(0.0,dumpyVec);
   }
 
-  TSiTrackerMultiRecHit const & mHit = dynamic_cast<TSiTrackerMultiRecHit const &>(aRecHit);
+  SiTrackerMultiRecHit const & mHit = dynamic_cast<SiTrackerMultiRecHit const &>(aRecHit); 
+ //TSiTrackerMultiRecHit const & mHit = dynamic_cast<TSiTrackerMultiRecHit const &>(aRecHit);
   return make_pair(mHit.getAnnealingFactor(), mHit.weights());
 
 }

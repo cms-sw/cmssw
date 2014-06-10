@@ -74,7 +74,7 @@ class DAFValidator : public edm::EDAnalyzer
 	int fillNotMergedHisto(const std::vector<SimHitIdpr>& simhitids, const std::vector<PSimHit>& simhits,
                                      const TrackingParticle* tpref, float weight, const TrackerGeometry* geom) const;
 	float getType(const TrackingRecHit* hit)  const;
-	std::pair<float, std::vector<float> > getAnnealingWeight( const TrackingRecHit& aRecHit ) const;
+//	std::pair<float, std::vector<float> > getAnnealingWeight( const TrackingRecHit& aRecHit ) const;
   
   private:
         edm::ParameterSet theConf_;

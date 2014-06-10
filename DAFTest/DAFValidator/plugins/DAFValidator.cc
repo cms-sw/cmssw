@@ -20,7 +20,6 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerMultiRecHit.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
-#include "RecoTracker/TransientTrackingRecHit/interface/TSiTrackerMultiRecHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
 using namespace std;
@@ -689,12 +688,12 @@ GlobalPoint DAFValidator::getGlobalPosition(const TrackingRecHit* hit, const Tra
 }
 
 //---------------------------------------------------------------------------------------------------------
-std::pair<float, std::vector<float> > DAFValidator::getAnnealingWeight( const TrackingRecHit& aRecHit ) const {
+/*std::pair<float, std::vector<float> > DAFValidator::getAnnealingWeight( const TrackingRecHit& aRecHit ) const {
 
-  TSiTrackerMultiRecHit const & mHit = dynamic_cast<TSiTrackerMultiRecHit const &>(aRecHit);  
+  SiTrackerMultiRecHit const & mHit = dynamic_cast<SiTrackerMultiRecHit const &>(aRecHit);  
   return make_pair(mHit.getAnnealingFactor(), mHit.weights());
 
-}
+}*/
 //
 DEFINE_FWK_MODULE(DAFValidator);
 

@@ -1,4 +1,6 @@
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiTrackerMultiRecHit.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiTrackerMultiRecHit.h"
+#include "RecoTracker/SiTrackerMRHTools/interface/SiTrackerMultiRecHitUpdator.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/KalmanUpdators/interface/MRHChi2MeasurementEstimator.h"
 #include "TrackingTools/PatternTools/interface/MeasurementExtractor.h"
@@ -27,14 +29,17 @@ std::pair<bool, double> MRHChi2MeasurementEstimator::estimate(const TrajectorySt
 template <unsigned int N>
 std::pair<bool, double> MRHChi2MeasurementEstimator::estimate(const TrajectoryStateOnSurface& tsos,
                                                 const TrackingRecHit& aRecHit) const {
-  
-  TSiTrackerMultiRecHit const & mHit = dynamic_cast<TSiTrackerMultiRecHit const &>(aRecHit);  
+ 
+std::cout << " MRHChi2MeasurementEstimator::estimate " << std::endl;
+  SiTrackerMultiRecHit const & mHit = dynamic_cast<SiTrackerMultiRecHit const &>(aRecHit);  
   double est=0;
 
   double annealing = mHit.getAnnealingFactor();
+  std::cout << "  Current annealing factor is " << annealing;               
   LogDebug("MRHChi2MeasurementEstimator") << "Current annealing factor is " << annealing;               
 
   TransientTrackingRecHit::ConstRecHitContainer components = mHit.transientHits();
+  std::cout << "; this hit has " << components.size() << " components\n";     
   LogDebug("MRHChi2MeasurementEstimator") << "this hit has " << components.size() << " components";     
 
   for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator iter = components.begin(); iter != components.end(); iter++){              
@@ -59,6 +64,7 @@ std::pair<bool, double> MRHChi2MeasurementEstimator::estimate(const TrajectorySt
       edm::LogError("SiTrackerMultiRecHitUpdator")<<"SiTrackerMultiRecHitUpdator::ComputeParameters2dim: W not valid!"<<std::endl;
     }
 
+    std::cout << "  Hit with weight " << (*iter)->weight() << std::endl; 
     LogDebug("MRHChi2MeasurementEstimator") << "Hit with weight " << (*iter)->weight(); 
     est += ROOT::Math::Similarity(r, V)*((*iter)->weight());
   }     

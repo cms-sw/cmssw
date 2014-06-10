@@ -84,12 +84,13 @@ class DAFTrackProducerAlgorithm {
   //removes from the trajectory isolated hits with very low weight
   void filter(const TrajectoryFitter* fitter, 
 	      std::vector<Trajectory>& input, 
-	      int minhits, std::vector<Trajectory>& output) const;
+	      int minhits, std::vector<Trajectory>& output,
+	      const TransientTrackingRecHitBuilder* builder) const;
 
   int checkHits( Trajectory iInitTraj, const Trajectory iFinalTraj) const; 
 
   edm::ParameterSet conf_;
-
+  
 };
 
 #endif
