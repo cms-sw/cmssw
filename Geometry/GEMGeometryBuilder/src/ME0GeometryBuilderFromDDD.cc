@@ -109,9 +109,11 @@ ME0Geometry* ME0GeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
     std::vector<float> pars;
     pars.push_back(be); 
     pars.push_back(te); 
-    pars.push_back(ap); 
-    //    pars.push_back(nStrips);
-    // pars.push_back(nPads);
+    pars.push_back(ap);
+    float nStrips = -999.;
+    float nPads = -999.;
+    pars.push_back(nStrips);
+    pars.push_back(nPads);
 
     LogDebug("ME0GeometryBuilderFromDDD") 
       << "ME0 " << name << " par " << be << " " << te << " " << ap << " " << dpar[0];
