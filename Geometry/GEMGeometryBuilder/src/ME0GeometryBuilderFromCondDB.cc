@@ -72,8 +72,10 @@ ME0Geometry* ME0GeometryBuilderFromCondDB::build(const RecoIdealGeometry& rgeo)
     pars.push_back(be); //b/2;
     pars.push_back(te); //B/2;
     pars.push_back(ap); //h/2;
-    //    pars.push_back(nstrip);
-    // pars.push_back(npad);
+    float nstrip = -999.;
+    float npad = -999.;
+    pars.push_back(nstrip);
+    pars.push_back(npad);
     
     ME0EtaPartitionSpecs* e_p_specs = new ME0EtaPartitionSpecs(GeomDetEnumerators::ME0, name, pars);
       
