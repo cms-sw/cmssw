@@ -584,6 +584,11 @@ class ConfigBuilder(object):
                 if streamType=='ALCARECO':
                         output.dataset.filterName = cms.untracked.string('StreamALCACombined')
 
+                if "MINIAOD" in streamType:
+                    output.dropMetaData = cms.untracked.string('ALL')
+                    output.fastCloning= cms.untracked.bool(False)
+                    output.overrideInputFileSplitLevels = cms.untracked.bool(True)                      
+
                 outputModuleName=streamType+'output'
                 setattr(self.process,outputModuleName,output)
                 outputModule=getattr(self.process,outputModuleName)
