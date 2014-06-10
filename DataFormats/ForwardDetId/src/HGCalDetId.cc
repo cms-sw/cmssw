@@ -42,7 +42,7 @@ HGCalDetId& HGCalDetId::operator=(const DetId& gen) {
 
 std::ostream& operator<<(std::ostream& s,const HGCalDetId& id) {
   return s << "isHGCal=" << id.isHGCal() << " zpos=" << id.zside() 
-	   << " layer=" << id.layer()  << " phi sub-sector=" << id.subsector()
+	   << " layer=" << id.layer()  << " phi subSector=" << id.subsector()
 	   << " sector=" << id.sector() << " cell=" << id.cell();
 }
 

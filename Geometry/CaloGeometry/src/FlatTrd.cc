@@ -33,8 +33,15 @@ FlatTrd& FlatTrd::operator=( const FlatTrd& tr ) {
   if ( this != &tr ) {
     m_axis   = tr.m_axis ;
     m_corOne = tr.m_corOne ; 
+    m_local  = tr.m_local;
+    m_global = tr.m_global;
     m_tr     = tr.m_tr;
   }
+#ifdef DebugLog
+  std::cout << "FlatTrd(Copy): Local " << m_local << " Global " << m_global
+	    << " eta " << etaPos() << " phi " << phiPos() << " Translation "
+	    << m_tr.getTranslation() << " and rotation " << m_tr.getRotation();
+#endif
   return *this ; 
 }
 
@@ -51,8 +58,9 @@ FlatTrd::FlatTrd( const CornersMgr*  cMgr ,
   Pt3D glb = m_tr*m_local;
   m_global = GlobalPoint(glb.x(),glb.y(),glb.z());
 #ifdef DebugLog
-  std::cout << "FlatTrd: Local " << m_local << " Global " << glb << " Trans "
-	    << m_tr.getTranslation() << " and " << m_tr.getRotation();
+  std::cout << "FlatTrd: Local " << m_local << " Global " << glb << " eta "
+	    << etaPos() << " phi " << phiPos() << " Translation "
+	    << m_tr.getTranslation() << " and rotation " << m_tr.getRotation();
 #endif
 } 
 
@@ -66,8 +74,9 @@ FlatTrd::FlatTrd( const CornersVec& corn ,
   Pt3D glb = m_tr*m_local;
   m_global = GlobalPoint(glb.x(),glb.y(),glb.z());
 #ifdef DebugLog
-  std::cout << "FlatTrd: Local " << m_local << " Global " << glb << " Trans "
-	    << m_tr.getTranslation() << " and " << m_tr.getRotation();
+  std::cout << "FlatTrd: Local " << m_local << " Global " << glb << " eta "
+	    << etaPos() << " phi " << phiPos() << " Translation "
+	    << m_tr.getTranslation() << " and rotation " << m_tr.getRotation();
 #endif
 } 
 
@@ -77,8 +86,9 @@ FlatTrd::FlatTrd( const FlatTrd& tr, const Pt3D & local ) :
   Pt3D glb = m_tr*m_local;
   m_global = GlobalPoint(glb.x(),glb.y(),glb.z());
 #ifdef DebugLog
-  std::cout << "FlatTrd: Local " << m_local << " Global " << glb << " Trans "
-	    << m_tr.getTranslation() << " and " << m_tr.getRotation();
+  std::cout << "FlatTrd: Local " << m_local << " Global " << glb << " eta "
+	    << etaPos() << " phi " << phiPos() << " Translation "
+	    << m_tr.getTranslation() << " and rotation " << m_tr.getRotation();
 #endif
 }
 
@@ -246,7 +256,8 @@ const GlobalPoint FlatTrd::backCtr() const {
 //----------------------------------------------------------------------
 
 std::ostream& operator<<( std::ostream& s, const FlatTrd& cell ) {
-  s << "Center: " << cell.getPosition() << std::endl;
+  s << "Center: " << cell.getPosition() << " eta " << cell.etaPos()
+    << " phi " << cell.phiPos() << std::endl;
   s << "Axis: " << cell.getThetaAxis() << " " << cell.getPhiAxis() <<std::endl;
   const CaloCellGeometry::CornersVec& corners ( cell.getCorners() ) ;
   for ( unsigned int i=0 ; i != corners.size() ; ++i ) {

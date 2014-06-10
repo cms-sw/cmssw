@@ -51,7 +51,7 @@ std::ostream& operator<<(std::ostream& s,const HGCHEDetId& id) {
   if  (id.subdet() == HGCHEF || id.subdet() == HGCHEB ||
        id.subdet() == HGCHET) {
     return s << "isHE=" << id.isHE() << " zpos=" << id.zside() 
-	     << " layer=" << id.layer() << " phi sub-sector" << id.subsector()
+	     << " layer=" << id.layer() << " phi subSector=" << id.subsector()
 	     << " sector=" << id.sector() << " cell=" << id.cell();
   } else {
     return s << std::hex << id.rawId() << std::dec;
