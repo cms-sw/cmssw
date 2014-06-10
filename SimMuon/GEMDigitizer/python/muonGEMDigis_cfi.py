@@ -21,7 +21,7 @@ simMuonGEMDigis = cms.EDProducer("GEMDigiProducer",
     fixedRollRadius = cms.bool(True), #Uses fixed radius in the center of the roll
     minPabsNoiseCLS = cms.double(0.),
     simulateIntrinsicNoise = cms.bool(False),
-#Parameters for background model
+
     simulateElectronBkg = cms.bool(False),	#False=simulate only neutral Bkg
     simulateLowNeutralRate = cms.bool(True)	#True=neutral_Bkg at L=1x10^{34}, False at L=5x10^{34}cm^{-2}s^{-1}
 
