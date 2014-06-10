@@ -1,6 +1,7 @@
 #ifndef GEMDigitizer_GEMSimpleModel_h
 #define GEMDigitizer_GEMSimpleModel_h
 
+
 /**
 * \class GEMSimpleModel
 *

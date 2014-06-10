@@ -47,14 +47,14 @@ GEMDigiModel(config)
 {
 //initialise parameters from the fit:
 //params for pol3 model of electron bkg for GE1/1:
-  GE11ElecBkgParam0 = 535.615;
-  GE11ElecBkgParam1 = -4.00692;
-  GE11ElecBkgParam2 = -0.0104023;
-  GE11ElecBkgParam3 = 0.000106605;
+  GE11ElecBkgParam0 = 735.304;
+  GE11ElecBkgParam1 = 0.228203;
+  GE11ElecBkgParam2 = -0.042479;
+  GE11ElecBkgParam3 = 0.000125032;
 
 //params for expo model of electron bkg for GE2/1:
-  constElecGE21 = 6.78126e+00;
-  slopeElecGE21 = -2.35867e-02;
+  constElecGE21 = 9.74156e+02;
+  slopeElecGE21 = -1.18398e-02;
 
 //Neutral Bkg
 //Low Rate model L=10^{34}cm^{-2}s^{-1}
@@ -72,15 +72,16 @@ GEMDigiModel(config)
 
 //High Rate model L=5x10^{34}cm^{-2}s^{-1}
 //params for expo model of neutral bkg for GE1/1:
-    constNeuGE11_highRate = 7.89447e+00;
-    slopeNeuGE11_highRate = -1.54383e-02;
+    constNeuGE11_highRate = 1.02603e+04;
+    slopeNeuGE11_highRate = -1.62806e-02;
+
 //params for pol5 model of neutral bkg for GE2/1:
-  GE21ModNeuBkgParam0 = 17840.1;
-  GE21ModNeuBkgParam1 = -814.138;
-  GE21ModNeuBkgParam2 = 15.0253;
-  GE21ModNeuBkgParam3 = -0.136248;
-  GE21ModNeuBkgParam4 = 0.000604293;
-  GE21ModNeuBkgParam5 = -1.04989e-06;
+  GE21ModNeuBkgParam0 = 21583.2;
+  GE21ModNeuBkgParam1 = -476.59;
+  GE21ModNeuBkgParam2 = 4.24037;
+  GE21ModNeuBkgParam3 = -0.0185558;
+  GE21ModNeuBkgParam4 = 3.97809e-05;
+  GE21ModNeuBkgParam5 = -3.34575e-08;
 
 }
 
@@ -232,7 +233,6 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll, CLHEP::HepRandom
                                     + GE11ElecBkgParam3*rollRadius*rollRadius*rollRadius;
 
     averageNoiseRatePerRoll = averageNeutralNoiseRatePerRoll + averageNoiseElectronRatePerRoll;
-
   }
 
   if(gemId.station() == 2 || gemId.station() == 3)
