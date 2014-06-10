@@ -22,7 +22,7 @@ simMuonGEMDigis = cms.EDProducer("GEMDigiProducer",
     minPabsNoiseCLS = cms.double(0.),
     simulateIntrinsicNoise = cms.bool(False),
 
-    simulateElectronBkg = cms.bool(False),	#False=simulate only neutral Bkg
+    simulateElectronBkg = cms.bool(True),	#False=simulate only neutral Bkg
     simulateLowNeutralRate = cms.bool(False)	#True=neutral_Bkg at L=1x10^{34}, False at L=5x10^{34}cm^{-2}s^{-1}
 
 )
