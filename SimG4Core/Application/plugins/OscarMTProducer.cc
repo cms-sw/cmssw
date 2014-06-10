@@ -4,6 +4,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimG4Core/Application/interface/OscarMTProducer.h"
+#include "SimG4Core/Application/interface/RunManagerMTInit.h"
 #include "SimG4Core/Application/interface/G4SimEvent.h"
 
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
@@ -58,7 +59,7 @@ namespace {
     };
 }
 
-OscarMTProducer::OscarMTProducer(edm::ParameterSet const & p)
+OscarMTProducer::OscarMTProducer(edm::ParameterSet const & p, const edm::ParameterSet *)
 {
 #ifdef MK_SERIAL
   // Random number generation not allowed here
@@ -130,6 +131,23 @@ OscarMTProducer::OscarMTProducer(edm::ParameterSet const & p)
 
 OscarMTProducer::~OscarMTProducer() 
 { }
+
+std::unique_ptr<edm::ParameterSet> OscarMTProducer::initializeGlobalCache(const edm::ParameterSet& iConfig) {
+  return std::unique_ptr<edm::ParameterSet>(new edm::ParameterSet(iConfig));
+}
+
+std::shared_ptr<OscarMTMasterThread> OscarMTProducer::globalBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup, const edm::ParameterSet *iConfig) {
+  auto runManager = std::make_shared<RunManagerMTInit>(*iConfig);
+  auto masterThread = std::make_shared<OscarMTMasterThread>(runManager, iSetup);
+  return masterThread;
+}
+
+void OscarMTProducer::globalEndRun(const edm::Run& iRun, const edm::EventSetup& iSetup, const RunContext *iContext) {
+}
+
+void OscarMTProducer::globalEndJob(edm::ParameterSet *iConfig) {
+}
+
 
 void 
 OscarMTProducer::beginRun(const edm::Run & r, const edm::EventSetup & es)
