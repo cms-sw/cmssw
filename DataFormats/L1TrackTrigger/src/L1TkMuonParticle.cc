@@ -17,8 +17,14 @@ L1TkMuonParticle::L1TkMuonParticle( const LorentzVector& p4,
    TrkzVtx_(999.),
    quality_(999)
 {
-	// need to set the z of the track
-
+	// for DTMatch'es matched to a L1Track: set the reference
+  	// to this L1Tracks and its zvertex
+  const edm::Ptr< TTTrack< Ref_PixelDigi_ > >&  trkref = theDTMatch -> DTMatchBase::getPtMatchedTrackPtr();
+  setTrkPtr( trkref );
+  if ( trkPtr_.isNonnull() ) {
+     float z = getTrkPtr() -> getPOCA().z();
+     setTrkzVtx( z );
+  }
 }
 
 
@@ -46,8 +52,10 @@ L1TkMuonParticle::L1TkMuonParticle( const LorentzVector& p4,
 
 
 int L1TkMuonParticle::bx() const {
- int dummy = -999;
+ // int dummy = -999;
+ int dummy = 0;
 
+/*
  if (theDTMatch.isNonnull() ) {
    return theDTMatch->getDTBX();
  }
@@ -60,6 +68,7 @@ int L1TkMuonParticle::bx() const {
    return getMuExtendedRef()->bx();
  
  }
+*/
 
  return dummy;
 }

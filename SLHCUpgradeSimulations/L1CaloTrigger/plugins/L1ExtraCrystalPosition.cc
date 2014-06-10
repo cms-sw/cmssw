@@ -47,7 +47,7 @@ namespace l1extra {
   class ClusterETComparator {
   public:
     bool operator()(const l1slhc::L1EGCrystalCluster a, const l1slhc::L1EGCrystalCluster b) const {
-      return a.et > b.et;
+      return a.pt() > b.pt();
     }
   };
 }
@@ -105,8 +105,8 @@ void L1ExtraCrystalPosition::produce( edm::Event & iEvent, const edm::EventSetup
       unsigned int indx = getMatchedClusterIndex(clusColl, eta, phi, deltaR);
       if (indx != 9999 && deltaR < 0.3) {
 	l1extra::L1EmParticle* em_new = em.clone();
-        float eta_new = clusColl[indx].eta;
-        float phi_new = clusColl[indx].phi;
+        float eta_new = clusColl[indx].eta();
+        float phi_new = clusColl[indx].phi();
 	//	float pt_new  = em.pt();
 	//	if (cosh(eta_new) > 0.0) pt_new = em.p()/cosh(eta_new);
 	//	reco::Candidate::PolarLorentzVector lv_em_corr(pt_new, eta_new, phi_new, em.mass());
@@ -122,7 +122,6 @@ void L1ExtraCrystalPosition::produce( edm::Event & iEvent, const edm::EventSetup
 	//	if (cosh(em_new->eta()) > 0.0) et_new = em_new->energy()/cosh(em_new->eta());
 	//	std::cout << " Et, Energy, Eta, Phi (after correction) " << et_new << " " << em_new->energy() << " " << em_new->eta() << " " << em_new->phi() << " deltaR " << deltaR << std::endl;         
 	//	std::cout << " px, py, pz " <<  em_new->px() << " " << em_new->py() << " " << em_new->pz() << std::endl;         
-	//	std::cout << " x, y, z " <<  clusColl[indx].x << " " << clusColl[indx].y << " " << clusColl[indx].z << std::endl;         
       }
     }
     iEvent.put(l1EGammaCrystal, "EGammaCrystal" );
@@ -137,7 +136,7 @@ unsigned int L1ExtraCrystalPosition::getMatchedClusterIndex(l1slhc::L1EGCrystalC
   dr_min = 999.9;
   size_t index_min = 9999;
   for (size_t i = 0; i < egxtals.size(); i++) {
-    float dr = deltaR(egxtals[i].eta, egxtals[i].phi, eta, phi);
+    float dr = deltaR(egxtals[i].eta(), egxtals[i].phi(), eta, phi);
     if (dr < dr_min) {
       index_min = i;
       dr_min = dr;

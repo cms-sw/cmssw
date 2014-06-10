@@ -28,7 +28,7 @@ namespace
     edm::Wrapper< DTMatch >                 wDTM;
     std::vector< DTMatch >                  vDTM;
     edm::Wrapper< std::vector< DTMatch > >  wVDTM;
-    edm::Ptr< DTMatch > 		    ptrDTM;
+    edm::Ptr< DTMatch >                     ptrDTM;   
 
     std::string                STR;
     edm::Wrapper<std::string>  wSTR;

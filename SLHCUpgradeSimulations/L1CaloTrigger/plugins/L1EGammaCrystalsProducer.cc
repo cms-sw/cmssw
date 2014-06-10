@@ -65,9 +65,9 @@ class L1EGCrystalClusterProducer : public edm::EDProducer {
 
    private:
       virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void beginRun(edm::Run const&, edm::EventSetup const&);
 
       CaloGeometryHelper geometryHelper;
+      double EtminForStore;
       bool debug;
       bool useECalEndcap;
       class SimpleCaloHit
@@ -122,6 +122,7 @@ class L1EGCrystalClusterProducer : public edm::EDProducer {
 };
 
 L1EGCrystalClusterProducer::L1EGCrystalClusterProducer(const edm::ParameterSet& iConfig) :
+   EtminForStore(iConfig.getParameter<double>("EtminForStore")),
    debug(iConfig.getUntrackedParameter<bool>("debug", false)),
    useECalEndcap(iConfig.getUntrackedParameter<bool>("useECalEndcap", false))
 {
@@ -296,39 +297,24 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
       if ( debug ) std::cout << "H/E: " << hovere << std::endl;
       
       // Form a l1slhc::L1EGCrystalCluster
-      l1slhc::L1EGCrystalCluster cluster;
-      cluster.et = totalPt;
-      cluster.eta = weightedPosition.eta();
-      cluster.phi = weightedPosition.phi();
-      cluster.ieta = centerhit.id.ieta();
-      cluster.iphi = centerhit.id.iphi();
-      cluster.e = totalEnergy;
-      cluster.x = weightedPosition.x();
-      cluster.y = weightedPosition.y();
-      cluster.z = weightedPosition.z();
-      cluster.hovere = hovere;
-      cluster.ECALiso = ECalIsolation;
-      cluster.ECALetPUcorr = totalPtPUcorr;
-
+      reco::Candidate::PolarLorentzVector p4(totalPt, weightedPosition.eta(), weightedPosition.phi(), 0.);
+      l1slhc::L1EGCrystalCluster cluster(p4, hovere, ECalIsolation, totalPtPUcorr);
       trigCrystalClusters->push_back(cluster);
 
       // Save clusters with some cuts
-      if ( cluster.hovere < 2. && cluster.ECALiso < 3. )
+      // This is a dynamic falling quadratic cut in pt, trying to squeeze as much efficiency as possible
+      // out of the cut variables, which should have been pt-independent, but are not.
+      if ( cluster.hovere() < ((cluster.pt() > 35) ? 0.5 : 0.5+pow(cluster.pt()-35,2)/350. )
+              && cluster.isolation() < ((cluster.pt() > 35) ? 1.3 : 1.3+pow(cluster.pt()-35,2)*4/(35*35) ) )
       {
-         reco::Candidate::PolarLorentzVector p4(cluster.et, cluster.eta, cluster.phi, 0.);
+	 if  (totalPt >= EtminForStore) {
          l1EGammaCrystal->push_back(l1extra::L1EmParticle(p4, edm::Ref<L1GctEmCandCollection>(), 0));
+	 }
       }
    }
 
    iEvent.put(trigCrystalClusters,"EGCrystalCluster");
    iEvent.put(l1EGammaCrystal, "EGammaCrystal" );
-}
-
-// ------------ method called when starting to processes a run ------------
-void
-L1EGCrystalClusterProducer::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
-{
-   std::cout << "Apparently beginRun() never gets called?!?!?!" << std::endl;
 }
 
 DEFINE_FWK_MODULE(L1EGCrystalClusterProducer);

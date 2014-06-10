@@ -19,10 +19,10 @@
   <class name="DTMatch" />
   <class name="std::vector<DTMatch>" />
   <class name="edm::Wrapper<DTMatch>" />
-  <class name="edm::Ptr<DTMatch>"  />
   <class name="edm::Wrapper<std::vector<DTMatch>>" />
   <class name="DTMatchBase" />
   <class name="DTMatchBasePtMethods" />
+ <class name="edm::Ptr<DTMatch>"  />
 
   <class name="std::string" />
   <class name="edm::Wrapper<std::string>" />

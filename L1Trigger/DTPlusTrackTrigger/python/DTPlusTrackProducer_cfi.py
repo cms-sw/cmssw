@@ -13,9 +13,11 @@ DTPlusTrackProducer = cms.EDProducer(
     digiTag = cms.InputTag('simMuonDTDigis'), # needed by DTTrig
 
     useTSTheta = cms.untracked.bool(True),
-    useRoughTheta = cms.untracked.bool(False),
+    useRoughTheta = cms.untracked.bool(True),
 
-    numSigmasForMatch = cms.untracked.double(3.),
+    numSigmasForStubMatch = cms.untracked.double(4.),
+    numSigmasForTkMatch = cms.untracked.double(3.),
+    numSigmasForPtMatch = cms.untracked.double(3.),
 
     minRInvB = cms.untracked.double( 0.00000045 ),
     maxRInvB = cms.untracked.double( 1.0 ),

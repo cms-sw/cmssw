@@ -66,7 +66,7 @@ process.load('Configuration.StandardSequences.L1TrackTrigger_cff')
 # process.TTTracksFromPixelDigis.geometry = cms.untracked.string('BE5D')   # not needed (that's the default)
 
 # if one wants to change the extrapolation window :
-process.TTTracksFromPixelDigis.phiWindowSF = cms.untracked.double(2.0)   #  default is 1.0
+#process.TTTracksFromPixelDigis.phiWindowSF = cms.untracked.double(2.0)   #  default is 1.0
 
 process.TT_step = cms.Path(process.TrackTriggerTTTracks)
 process.TTAssociator_step = cms.Path(process.TrackTriggerAssociatorTracks)
