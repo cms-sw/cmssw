@@ -114,8 +114,9 @@ jetCoreRegionalStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajecto
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 jetCoreRegionalStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = cms.InputTag('jetCoreRegionalStepSeeds'),
-    TrajectoryBuilder = 'jetCoreRegionalStepTrajectoryBuilder',
     maxSeedsBeforeCleaning = cms.uint32(10000),
+    TrajectoryBuilderPSet = cms.PSet( refToPSet_ = cms.string('jetCoreRegionalStepTrajectoryBuilder')),
+    NavigationSchool = cms.string('SimpleNavigationSchool'),
     ### these two parameters are relevant only for the CachingSeedCleanerBySharedInput
     #numHitsForSeedCleaner = cms.int32(50),
     #onlyPixelHitsForSeedCleaner = cms.bool(True),
