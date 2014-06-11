@@ -52,16 +52,26 @@ class RunAction;
 
 class SimRunInterface;
 //class ExceptionHandler;
+class RunManagerMTWorker;
 
 namespace HepPDT {
   class ParticleDataTable;
 }
+
+/**
+ * RunManagerMT should be constructed in a newly spanned thread
+ * (acting as the Geant4 master thread), and there should be exactly
+ * one instance of it. 
+ */
 
 class RunManagerMT 
 {
 public:
   RunManagerMT(edm::ParameterSet const & p, SimActivityRegistry *otherRegistry);
   ~RunManagerMT();
+
+  std::unique_ptr<RunManagerMTWorker> createRunManagerWorker() const;
+
   void initG4(const DDCompactView *pDD, const MagneticField *pMF, const HepPDT::ParticleDataTable *fPDGTable, const edm::EventSetup & es);
   void initializeUserActions();
   void initializeRun();

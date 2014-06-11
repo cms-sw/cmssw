@@ -15,7 +15,7 @@
 #include <memory>
 
 class SimProducer;
-
+class RunManagerMTWorker;
 
 class OscarMTProducer : public edm::stream::EDProducer<
   edm::GlobalCache<edm::ParameterSet>,
@@ -40,6 +40,7 @@ public:
 
 private:
   Producers     m_producers;
+  std::unique_ptr<RunManagerMTWorker> m_runManagerWorker;
   //edm::EDGetTokenT<edm::HepMCProduct> m_HepMC;
 };
 

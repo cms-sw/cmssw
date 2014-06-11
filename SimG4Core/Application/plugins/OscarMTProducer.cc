@@ -5,6 +5,8 @@
 
 #include "SimG4Core/Application/interface/OscarMTProducer.h"
 #include "SimG4Core/Application/interface/RunManagerMTInit.h"
+#include "SimG4Core/Application/interface/RunManagerMT.h"
+#include "SimG4Core/Application/interface/RunManagerMTWorker.h"
 #include "SimG4Core/Application/interface/G4SimEvent.h"
 
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
@@ -151,19 +153,14 @@ void OscarMTProducer::globalEndJob(edm::ParameterSet *iConfig) {
 void 
 OscarMTProducer::beginRun(const edm::Run & r, const edm::EventSetup & es)
 {
-#ifdef MK_SERIAL
   // Random number generation not allowed here
   StaticRandomEngineSetUnset random(nullptr);
-  m_runManager->initG4(es);
-#endif
+  m_runManagerWorker = runCache()->runManagerMaster().createRunManagerWorker();
 }
 
 void 
 OscarMTProducer::endRun(const edm::Run&, const edm::EventSetup&)
 {
-#ifdef MK_SERIAL
-  m_runManager->stopG4();
-#endif
 }
 
 void OscarMTProducer::produce(edm::Event & e, const edm::EventSetup & es)

@@ -1,4 +1,5 @@
 #include "SimG4Core/Application/interface/RunManagerMT.h"
+#include "SimG4Core/Application/interface/RunManagerMTWorker.h"
 #include "SimG4Core/Application/interface/PrimaryTransformer.h"
 #include "SimG4Core/Application/interface/SimRunInterface.h"
 #include "SimG4Core/Application/interface/RunAction.h"
@@ -162,6 +163,11 @@ RunManagerMT::~RunManagerMT()
   delete m_runInterface;
 }
 
+std::unique_ptr<RunManagerMTWorker> RunManagerMT::createRunManagerWorker() const {
+  std::unique_ptr<RunManagerMTWorker> ret(new RunManagerMTWorker(m_p));
+  return ret;
+}
+
 void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF, const HepPDT::ParticleDataTable *fPDGTable, const edm::EventSetup & es)
 {
   if (m_managerInitialized) return;
@@ -256,7 +262,11 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF, co
         G4UImanager::GetUIpointer()->ApplyCommand(cmd);
       m_physicsList->StorePhysicsTable(tableDir);
     }
-  
+
+  // FIXME: this will not work in the end because stuff must be
+  // retrieved from EventSetup in a CMSSW tread. It works in my tests
+  // because my simple test does not have any watchers
+  //
   //tell all interesting parties that we are beginning the job
   BeginOfJob aBeginOfJob(&es);
   m_registry.beginOfJobSignal_(&aBeginOfJob);
