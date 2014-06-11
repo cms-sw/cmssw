@@ -1,5 +1,4 @@
 #include "SimG4Core/Application/interface/RunManagerMT.h"
-#include "SimG4Core/Application/interface/RunManagerMTWorker.h"
 #include "SimG4Core/Application/interface/PrimaryTransformer.h"
 #include "SimG4Core/Application/interface/SimRunInterface.h"
 #include "SimG4Core/Application/interface/RunAction.h"
@@ -153,11 +152,6 @@ RunManagerMT::~RunManagerMT()
   G4GeometryManager::GetInstance()->OpenGeometry();
   //   if (m_kernel!=0) delete m_kernel; 
   delete m_runInterface;
-}
-
-std::unique_ptr<RunManagerMTWorker> RunManagerMT::createRunManagerWorker() const {
-  std::unique_ptr<RunManagerMTWorker> ret(new RunManagerMTWorker(m_p));
-  return ret;
 }
 
 void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF, const HepPDT::ParticleDataTable *fPDGTable, const edm::EventSetup & es)

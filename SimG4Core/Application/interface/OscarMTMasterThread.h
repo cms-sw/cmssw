@@ -20,6 +20,7 @@ public:
 
   const RunManagerMTInit& runManagerInit() const { return *m_runManagerInit; }
   const RunManagerMT& runManagerMaster() const { return *m_runManagerMaster; }
+  const RunManagerMT *runManagerMasterPtr() const { return m_runManagerMaster.get(); }
   
 private:
   std::shared_ptr<RunManagerMTInit> m_runManagerInit;

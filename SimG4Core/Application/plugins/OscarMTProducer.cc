@@ -65,9 +65,8 @@ OscarMTProducer::OscarMTProducer(edm::ParameterSet const & p, const edm::Paramet
   // Random number generation not allowed here
   StaticRandomEngineSetUnset random(nullptr);
 
-#ifdef MK_SERIAL
   consumes<edm::HepMCProduct>(p.getParameter<edm::InputTag>("HepMCProductLabel"));
-  m_runManager.reset(new RunManagerMT(p));
+  m_runManagerWorker.reset(new RunManagerMTWorker(p));
   //m_runManager.reset(new RunManagerMT(p, consumesCollector()));
 
   produces<edm::SimTrackContainer>().setBranchAlias("SimTracks");
@@ -112,7 +111,7 @@ OscarMTProducer::OscarMTProducer(edm::ParameterSet const & p, const edm::Paramet
   produces<edm::PCaloHitContainer>("ChamberHits"); 
   produces<edm::PCaloHitContainer>("FibreHits"); 
   produces<edm::PCaloHitContainer>("WedgeHits"); 
-    
+#ifdef MK_SERIAL
   //register any products 
   m_producers = m_runManager->producers();
 
@@ -155,12 +154,13 @@ OscarMTProducer::beginRun(const edm::Run & r, const edm::EventSetup & es)
 {
   // Random number generation not allowed here
   StaticRandomEngineSetUnset random(nullptr);
-  m_runManagerWorker = runCache()->runManagerMaster().createRunManagerWorker();
+  m_runManagerWorker->setRunManagerMaster(runCache()->runManagerMasterPtr());
 }
 
 void 
 OscarMTProducer::endRun(const edm::Run&, const edm::EventSetup&)
 {
+  m_runManagerWorker->setRunManagerMaster(nullptr);
 }
 
 void OscarMTProducer::produce(edm::Event & e, const edm::EventSetup & es)

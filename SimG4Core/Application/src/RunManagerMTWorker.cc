@@ -28,6 +28,13 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig):
 
 RunManagerMTWorker::~RunManagerMTWorker() {}
 
+void RunManagerMTWorker::setRunManagerMaster(const RunManagerMT* master) {
+  m_runManagerMaster = master;
+  if(!master)
+    return;
+}
+
+
 void RunManagerMTWorker::produce(const edm::Event& inpevt, const edm::EventSetup& es) {
   m_currentEvent.reset(generateEvent(inpevt));
 }

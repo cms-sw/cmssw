@@ -52,7 +52,6 @@ class RunAction;
 
 class SimRunInterface;
 //class ExceptionHandler;
-class RunManagerMTWorker;
 
 namespace HepPDT {
   class ParticleDataTable;
@@ -69,8 +68,6 @@ class RunManagerMT
 public:
   RunManagerMT(edm::ParameterSet const & p);
   ~RunManagerMT();
-
-  std::unique_ptr<RunManagerMTWorker> createRunManagerWorker() const;
 
   void initG4(const DDCompactView *pDD, const MagneticField *pMF, const HepPDT::ParticleDataTable *fPDGTable, const edm::EventSetup & es);
   void initializeUserActions();
