@@ -1,8 +1,6 @@
 # "GRun" menu
 
-HLT_Ele27_WP80_v*					# JIRA: CMSHLT-63
 HLT_Ele27_WP80_Gsf_v*					# JIRA: CMSHLT-63
-HLT_Ele17_Ele8_Mass50_v*				# JIRA: CMSHLT-63
 HLT_Ele17_Ele8_Gsf_v*					# JIRA: CMSHLT-63
 HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v*			# JIRA: CMSHLT-63
 HLT_Photon20_CaloIdVL_IsoL_v*				# JIRA: CMSHLT-63
