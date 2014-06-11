@@ -5,7 +5,7 @@ baseclass = re.compile("edm::(one::|stream::|global::)?ED(Producer|Filter|Analyz
 farg = re.compile("\(.*\)")
 statics = set()
 toplevelfuncs = set()
-skipfunc = re.compile("(edm::EDProductGetter::getIt|edm::Event::|edm::eventsetup::EventSetupRecord::get|edm::eventsetup::DataProxy::getImpl|edm::EventPrincipal::unscheduledFill|edm::ServiceRegistry::get|edm::eventsetup::EventSetupRecord::getImplementation|edm::eventsetup::EventSetupRecord::getFromProxy|edm::eventsetup::DataProxy::get)")
+skipfunc = re.compile("(edm::(LuminosityBlock::|Run::|Event::)getBy(Label|Token))|(fwlite::.*overrides function 'edm::)|(edm::EDProductGetter::getIt|edm::Event::|edm::eventsetup::EventSetupRecord::get|edm::eventsetup::DataProxy::getImpl|edm::EventPrincipal::unscheduledFill|edm::ServiceRegistry::get|edm::eventsetup::EventSetupRecord::getImplementation|edm::eventsetup::EventSetupRecord::getFromProxy|edm::eventsetup::DataProxy::get)")
 skipfuncs=set()
 
 import networkx as nx
@@ -24,7 +24,7 @@ for line in f :
 			G.add_edge(fields[1],fields[3],kind=' overrides function ')
 		else :
 			if skipfunc.search(line) : skipfuncs.add(line)
-			else : G.add_edge(fields[3],fields[1],kind=' calls function ')
+			else : G.add_edge(fields[3],fields[1],kind=' overriden by function ')
 	if fields[2] == ' static variable ' :
 		G.add_edge(fields[1],fields[3],kind=' static variable ')
 		statics.add(fields[3])
@@ -36,18 +36,18 @@ for static in statics:
 			path = nx.shortest_path(G,tfunc,static)
 			print "Non-const static variable \'"+re.sub(farg,"()",static)+"\' is accessed in call stack ",
 			print " \'",
-			for p in path :			
-				print re.sub(farg,"()",p)+"; ",
-			print " \'. ",
+			for i in range(0,len(path)-1) :			
+				print re.sub(farg,"()",path[i])+G[path[i]][path[i+1]]['kind'],
+			print path[i+1]+"\'. ",
 			for key in  G[tfunc].keys() :
 				if 'kind' in G[tfunc][key] and G[tfunc][key]['kind'] == ' overrides function '  :
 					print "'"+re.sub(farg,"()",tfunc)+"'"+G[tfunc][key]['kind']+"'"+re.sub(farg,"()",key)+"'",
 			print ""
 			path = nx.shortest_path(G,tfunc,static)
 			print "In call stack ' ",
-			for p in path:
-				print re.sub(farg,"()",p)+"; ",
-			print "\'",
+			for i in range(0,len(path)-1) :			
+				print re.sub(farg,"()",path[i])+G[path[i]][path[i+1]]['kind'],
+			print path[i+1]+"\'",
 			print " non-const static variable \'"+re.sub(farg,"()",static)+"\' is accessed. ",
 			for key in  G[tfunc].keys() :
 				if 'kind' in G[tfunc][key] and G[tfunc][key]['kind'] == ' overrides function '  :
