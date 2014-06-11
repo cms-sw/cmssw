@@ -3,10 +3,10 @@
 <use   name="DataFormats/GeometrySurface"/>
 <use   name="DataFormats/GeometryVector"/>
 <use   name="DataFormats/TrackReco"/>
+<use   name="DataFormats/TrackerRecHit2D"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/Utilities"/>
 <use   name="Geometry/CommonDetUnit"/>
-<use   name="RecoTracker/TransientTrackingRecHit"/>
 <use   name="TrackingTools/AnalyticalJacobians"/>
 <use   name="TrackingTools/GeomPropagators"/>
 <use   name="TrackingTools/TrajectoryParametrization"/>
