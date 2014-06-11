@@ -18,8 +18,7 @@ using namespace TauSpinner;
 
 CLHEP::HepRandomEngine* TauSpinnerCMS::fRandomEngine= nullptr;
 bool                    TauSpinnerCMS::isTauSpinnerConfigure=false;
-
-bool TauSpinnerCMS::fInitialized=false;
+bool                    TauSpinnerCMS::fInitialized=false;
 
 TauSpinnerCMS::TauSpinnerCMS( const ParameterSet& pset ) :
   EDProducer()
@@ -52,10 +51,13 @@ TauSpinnerCMS::TauSpinnerCMS( const ParameterSet& pset ) :
   }
 }
 
+void  TauSpinnerCMS::beginJob(){};
+void  TauSpinnerCMS::endJob(){};
+
 void TauSpinnerCMS::initialize(){
   // Now for Tauola and TauSpinner
+  Tauolapp::Tauola::setRandomGenerator(TauSpinnerCMS::flat);
   if(!isTauolaConfigured_){
-    Tauolapp::Tauola::setRandomGenerator(TauSpinnerCMS::flat);
     Tauolapp::Tauola::initialize();
   }
   if(!isLHPDFConfigured_){
@@ -73,18 +75,13 @@ void TauSpinnerCMS::initialize(){
   fInitialized=true;
 }
 
-void TauSpinnerCMS::endLuminosityBlockProduce(edm::LuminosityBlock& lumiSeg, const edm::EventSetup& iSetup){}
-
-void TauSpinnerCMS::beginJob(){
-
-}
 
 void TauSpinnerCMS::produce( edm::Event& e, const edm::EventSetup& iSetup){
   RandomEngineSentry<TauSpinnerCMS> randomEngineSentry(this, e.streamID());
   if(!fInitialized) initialize();
 
   Tauolapp::Tauola::setRandomGenerator(TauSpinnerCMS::flat);  // rest tauola++ random number incase other modules use tauola++
-
+  Tauolapp::jaki_.ktom = 1; // rest for when you run after tauola
   double WT=1.0;
   double WTFlip=1.0;
   double polSM=-999; //range [-1,1]
@@ -175,10 +172,6 @@ void TauSpinnerCMS::produce( edm::Event& e, const edm::EventSetup& iSetup){
   e.put(TauSpinnerWeighthminus,"TauSpinnerWThminus");
   return ;
 }  
-
-void TauSpinnerCMS::endRun( const edm::Run& r, const edm::EventSetup& ){}
-
-void TauSpinnerCMS::endJob(){}
 
 int TauSpinnerCMS::readParticlesfromReco(edm::Event& e,SimpleParticle &X,SimpleParticle &tau,SimpleParticle &tau2, 
 					 std::vector<SimpleParticle> &tau_daughters,std::vector<SimpleParticle> &tau2_daughters){
@@ -277,6 +270,5 @@ double TauSpinnerCMS::flat()
   }
   return fRandomEngine->flat();
 }
-
 
 DEFINE_FWK_MODULE(TauSpinnerCMS);
