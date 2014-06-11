@@ -26,7 +26,7 @@
 #include <algorithm>
 #include <boost/lexical_cast.hpp>
 
-ME0GeometryBuilderFromDDD::ME0GeometryBuilderFromDDD(bool comp11) : theComp11Flag(comp11)
+ME0GeometryBuilderFromDDD::ME0GeometryBuilderFromDDD()
 { }
 
 ME0GeometryBuilderFromDDD::~ME0GeometryBuilderFromDDD() 
