@@ -36,8 +36,8 @@ void DAFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
 						 TrajAnnealingCollection& trajann,
 						 bool TrajAnnSaving_) const
 {
-  std::cout << "////////////////////////////////////////////////////////\n"
-	    << "DAFTrackProducerAlgorithm::runWithCandidate: Number of Trajectories: " << theTrajectoryCollection.size() << "\n";
+//  std::cout << "////////////////////////////////////////////////////////\n"
+//	    << "DAFTrackProducerAlgorithm::runWithCandidate: Number of Trajectories: " << theTrajectoryCollection.size() << "\n";
   edm::LogInfo("TrackProducer") << "Number of Trajectories: " << theTrajectoryCollection.size() << "\n";
   int cont = 0;
 
@@ -65,7 +65,6 @@ void DAFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
       for (std::vector<double>::const_iterator ian = updator->getAnnealingProgram().begin(); 
            ian != updator->getAnnealingProgram().end(); ian++){
 
-std::cout << "Starting with the annealing " << *ian << std::endl;
         if (currentTraj.isValid()){
 
 	  LogDebug("DAFTrackProducerAlgorithm") << "Seed direction is " << currentTraj.seed().direction() 
@@ -190,7 +189,6 @@ Trajectory DAFTrackProducerAlgorithm::fit(const std::pair<TransientTrackingRecHi
                                     const TrajectoryFitter * theFitter,
                                     Trajectory vtraj) const {
 
-std::cout << "DAFTrackProducerAlgorithm::fit" << std::endl;
   //creating a new trajectory starting from the direction of the seed of the input one and the hits
   Trajectory newVec = theFitter->fitOne(TrajectorySeed(PTrajectoryStateOnDet(),
                                                                  BasicTrajectorySeed::recHitContainer(),
