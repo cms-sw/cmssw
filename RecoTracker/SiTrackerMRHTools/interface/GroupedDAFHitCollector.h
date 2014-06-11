@@ -1,6 +1,6 @@
 /** \class GroupedDAFHitCollector
-  *  Returns a collection of TSiTrackerMultiRecHits and InvalidTransientRecHits given a Trajectory.
-  *  Builds a TSiTrackerMultiRecHit for each detGroup 
+  *  Returns a collection of SiTrackerMultiRecHits and InvalidRecHits given a Trajectory.
+  *  Builds a SiTrackerMultiRecHit for each detGroup 
   *  (i.e. a group of detectors mutually exclusive for the track's crossing point)
   *
   *  \author tropiano, genta

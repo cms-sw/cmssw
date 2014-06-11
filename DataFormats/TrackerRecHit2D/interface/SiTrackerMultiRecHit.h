@@ -57,19 +57,9 @@ public:
   bool sharesInput(const TrackingRecHit* other,
 		   SharedInputType what) const;
 
-/*  virtual ConstRecHitContainer transientHits() const {
-	ConstRecHitContainer result;
-        std::vector<const TrackingRecHit*> hits;
-        recHitsV(hits);
-        for (auto h : hits) result.push_back(h->cloneSH());
-        return result;
-      } 
-*/
 private:
   
   edm::OwnVector<TrackingRecHit> theHits;
-  //ConstRecHitContainer theComponents;
-  //std::vector<TrackingRecHit> theComponents; 
   std::vector<float> theWeights;
   double annealing_;	
 

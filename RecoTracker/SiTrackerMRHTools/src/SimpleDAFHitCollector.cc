@@ -1,6 +1,5 @@
 #include "RecoTracker/SiTrackerMRHTools/interface/SimpleDAFHitCollector.h"
 #include "RecoTracker/SiTrackerMRHTools/interface/SiTrackerMultiRecHitUpdator.h"
-#include "RecoTracker/TransientTrackingRecHit/interface/TSiTrackerMultiRecHit.h"
 #include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "DataFormats/TrackingRecHit/interface/InvalidTrackingRecHit.h"
@@ -42,7 +41,6 @@ vector<TrajectoryMeasurement> SimpleDAFHitCollector::recHits(const Trajectory& t
 
   //groups the TrajectoryMeasurements on a sensor by sensor
   //we have to sort the TrajectoryMeasurements in the opposite way in the fitting direction
-//  std::cout << " Sensor by sensor measurements are:\n";
   vector<TrajectoryMeasurement> result;
   for(vector<TrajectoryMeasurement>::const_reverse_iterator itrajmeas = meas.rbegin(); itrajmeas < meas.rend();
       itrajmeas++) {

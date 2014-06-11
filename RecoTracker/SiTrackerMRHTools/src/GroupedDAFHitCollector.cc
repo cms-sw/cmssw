@@ -1,7 +1,6 @@
 #include "RecoTracker/SiTrackerMRHTools/interface/GroupedDAFHitCollector.h"
 #include "RecoTracker/SiTrackerMRHTools/interface/SiTrackerMultiRecHitUpdator.h"
 #include "RecoTracker/SiTrackerMRHTools/interface/MeasurementByLayerGrouper.h"
-#include "RecoTracker/TransientTrackingRecHit/interface/TSiTrackerMultiRecHit.h"
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 #include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"

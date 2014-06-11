@@ -10,7 +10,6 @@ SiTrackerMultiRecHit::SiTrackerMultiRecHit(const LocalPoint& pos, const LocalErr
 {
   for(std::vector<std::pair<const TrackingRecHit*, float> >::const_iterator ihit = aHitMap.begin(); ihit != aHitMap.end(); ihit++){
     theHits.push_back(ihit->first->clone());
-    //theComponents.push_back(*ihit->first->clone());
     theWeights.push_back(ihit->second);
   }
   annealing_ = annealing;

@@ -34,7 +34,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #from Configuration.AlCa.GlobalTag import GlobalTag
 #process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
-process.GlobalTag.globaltag = 'POSTLS171_V1::All'
+process.GlobalTag.globaltag = 'START71_V1::All'#POSTLS171_V1::All'
 
 ### standard includes
 process.load('Configuration/StandardSequences/Services_cff')
@@ -45,7 +45,7 @@ process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
 ## includes for DAF
-import RecoTracker.CkfPattern.CkfTrajectoryBuilderESProducer_cfi
+import RecoTracker.CkfPattern.CkfTrajectoryBuilder_cfi
 import TrackingTools.TrajectoryCleaning.TrajectoryCleanerBySharedSeeds_cfi
 
 process.load("RecoTracker.TrackProducer.TrackRefitters_cff")
@@ -60,6 +60,7 @@ process.load("RecoTracker.TransientTrackingRecHit.TransientTrackingRecHitBuilder
 from RecoTracker.FinalTrackSelectors.TracksWithQuality_cff import *
 process.ctfWithMaterialTracksDAF.TrajectoryInEvent = True
 process.ctfWithMaterialTracksDAF.src = 'TrackRefitter'
+process.ctfWithMaterialTracksDAF.TrajAnnealingSaving = True
 process.MRHFittingSmoother.EstimateCut = -1
 process.MRHFittingSmoother.MinNumberOfHits = 3
 
@@ -76,6 +77,7 @@ process.load("SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_
 process.load("Validation.RecoTrack.cuts_cff")
 process.load("Validation.RecoTrack.MultiTrackValidator_cff")
 process.load("DQMServices.Components.EDMtoMEConverter_cff")
+process.load("DQMServices.Components.DQMFileSaver_cfi")
 process.load("Validation.Configuration.postValidation_cff")
 
 process.quickTrackAssociatorByHits.SimToRecoDenominator = cms.string('reco')
@@ -87,7 +89,8 @@ process.TrackAssociatorByPullESProducer = process.TrackAssociatorByChi2ESProduce
                                 ComponentName = 'TrackAssociatorByPull')
 
 ########### configuration MultiTrackValidator ########
-process.multiTrackValidator.outputFile = 'multitrackvalidator_DAF_TTbar_10evts_v3_AssocByPull.root'
+process.dqmSaver.workflow = cms.untracked.string("/TTbar/DAF/10evs")
+#process.multiTrackValidator.outputFile = 'multitrackvalidator_DAF_TTbar_10evts_AllAssoc.root'
 process.multiTrackValidator.associators = ['quickTrackAssociatorByHits', 'TrackAssociatorByChi2','TrackAssociatorByPull']
 process.multiTrackValidator.skipHistoFit=cms.untracked.bool(False)
 process.multiTrackValidator.label = ['ctfWithMaterialTracksDAF']
@@ -111,8 +114,10 @@ process.demo = cms.EDAnalyzer('DAFValidator',
 )
 
 process.TFileService = cms.Service("TFileService",
-               fileName = cms.string('DAFValidator_TTbar_10evts_v3_TrackAssocByPull.root')
+               fileName = cms.string('DAFValidator_TTbar_10evts_AllAssoc.root')
 )
+
+process.outputFile = cms.EndPath(process.dqmSaver)
 
 process.validation = cms.Sequence(
 #    process.tpClusterProducer *	##it does not compile with DAF::why?
@@ -123,11 +128,11 @@ process.validation = cms.Sequence(
 process.p = cms.Path(
     process.MeasurementTrackerEvent * process.TrackRefitter
     * process.ctfWithMaterialTracksDAF
-    #* process.validation 
+    * process.validation 
     * process.demo
 )
 process.schedule = cms.Schedule(
-      process.p
+      process.p, process.outputFile
 )
 
 

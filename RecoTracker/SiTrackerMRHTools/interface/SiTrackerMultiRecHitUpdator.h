@@ -1,6 +1,6 @@
 /** \class SiTrackerMultiRecHitUpdator
-  *  Builds a TSiTrackerMultiRecHit out of a vector of TrackingRecHit
-  *  or updates an existing TSiTrackerMultiRecHit given a tsos.
+  *  Builds a SiTrackerMultiRecHit out of a vector of TrackingRecHit
+  *  or updates an existing SiTrackerMultiRecHit given a tsos.
   *
   *  \author tropiano, genta
   *  \review in May 2014 by brondolin 
@@ -35,18 +35,18 @@ public:
 			      const std::vector<double>& anAnnealingProgram);
   virtual ~SiTrackerMultiRecHitUpdator(){};
   
-  //calls the update method in order to build a TSiTrackerMultiRecHit 
+  //calls the update method in order to build a SiTrackerMultiRecHit 
   virtual TransientTrackingRecHit::RecHitPointer  buildMultiRecHit(const std::vector<const TrackingRecHit*>& rhv, 
 								   TrajectoryStateOnSurface tsos,
 								   float annealing=1.) const;
   
-  //updates an existing TSiTrackerMultiRecHit
+  //updates an existing SiTrackerMultiRecHit
   //in case a different kind of rechit is passed it returns clone(tsos)
   virtual TransientTrackingRecHit::RecHitPointer  update( TransientTrackingRecHit::ConstRecHitPointer original,  
 							  TrajectoryStateOnSurface tsos,
 							  double annealing=1.) const;
   
-  //returns a TSiTrackerMultiRecHit out of the transient components	
+  //returns a SiTrackerMultiRecHit out of the transient components	
   TransientTrackingRecHit::RecHitPointer update( TransientTrackingRecHit::ConstRecHitContainer& tcomponents,  
 					         TrajectoryStateOnSurface tsos,
 						 double annealing=1.) const;
@@ -74,7 +74,7 @@ private:
   //LocalPoint calcParameters(TransientTrackingRecHit::ConstRecHitContainer& map, const LocalError& er) const;
 
   LocalParameters calcParameters(const TrajectoryStateOnSurface& tsos, 
-						TransientTrackingRecHit::ConstRecHitContainer& map) const;
+				 std::vector<std::pair<const TrackingRecHit*, float> >& aHitMap) const;
   
   const TransientTrackingRecHitBuilder* theBuilder;
   const TrackingRecHitPropagator* theHitPropagator;

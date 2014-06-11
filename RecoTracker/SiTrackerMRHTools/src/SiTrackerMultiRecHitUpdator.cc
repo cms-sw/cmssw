@@ -1,10 +1,8 @@
 #include "RecoTracker/SiTrackerMRHTools/interface/SiTrackerMultiRecHitUpdator.h"
-#include "RecoTracker/TransientTrackingRecHit/interface/TSiTrackerMultiRecHit.h"
 #include "RecoTracker/SiTrackerMRHTools/interface/GenericProjectedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerMultiRecHit.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
-//#include "RecoTracker/TransientTrackingRecHit/interface/TkClonerImpl.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TrackingRecHitProjector.h"
 #include "DataFormats/TrackingRecHit/interface/KfComponentsHolder.h"
 #include "DataFormats/Math/interface/invertPosDefMatrix.h"
@@ -84,7 +82,6 @@ TransientTrackingRecHit::RecHitPointer SiTrackerMultiRecHitUpdator::update( Tran
   
   std::vector<TransientTrackingRecHit::RecHitPointer> updatedcomponents;
   const GeomDet* geomdet = 0;
-std::cout << "here2" ;
 
   //running on all over the MRH components 
   for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator iter = tcomponents.begin(); iter != tcomponents.end(); iter++){
@@ -138,9 +135,8 @@ std::cout << "here2" ;
     c_sum += c_i;   
   }
   double total_sum = a_sum + c_sum;    
-  
+
   unsigned int counter = 0;
-  TransientTrackingRecHit::ConstRecHitContainer finalcomponents;
   for(std::vector<TransientTrackingRecHit::RecHitPointer>::iterator ihit = updatedcomponents.begin(); 
 	ihit != updatedcomponents.end(); ihit++) {
 
@@ -148,20 +144,18 @@ std::cout << "here2" ;
     //ORCA: float p = ((mymap[counter].second)/total_sum > 0.01 ? (mymap[counter].second)/total_sum : 1.e-6);
     normmap.push_back(std::pair<const TrackingRecHit*,float>(mymap[counter].first, p));
 
-    finalcomponents.push_back(*ihit);
-
     LogTrace("SiTrackerMultiRecHitUpdator")<< " Component hit type " << typeid(*mymap[counter].first).name() 
 					   << " position " << mymap[counter].first->localPosition() 
 					   << " error " << mymap[counter].first->localPositionError()
 					   << " with weight " << p;
-    std::cout << " Component hit type " << typeid(*mymap[counter].first).name()
+    std::cout << "  Component hit type " << typeid(*mymap[counter].first).name()
                                            << " position " << mymap[counter].first->localPosition()
                                            << " \n\terror " << mymap[counter].first->localPositionError()
                                            << " with weight " << p << std::endl;
     counter++;
   }
  
-  SiTrackerMultiRecHitUpdator::LocalParameters param = calcParameters(tsos, finalcomponents);
+  SiTrackerMultiRecHitUpdator::LocalParameters param = calcParameters(tsos, normmap);
 
   SiTrackerMultiRecHit updated(param.first, param.second, *normmap.front().first->det(), normmap, annealing);
   std::cout << " Updated Hit position " << updated.localPosition() 
@@ -169,8 +163,6 @@ std::cout << "here2" ;
   LogTrace("SiTrackerMultiRecHitUpdator") << " Updated Hit position " << updated.localPosition() 
    					  << " updated error " << updated.localPositionError() << std::endl;
 
-  //return TSiTrackerMultiRecHit::build(geomdet, &updated, finalcomponents, annealing);
-  //return SiTrackerMultiRecHit::build(param.first, param.second, *normmap.front().first->det(), normmap);
   return std::make_shared<SiTrackerMultiRecHit>(param.first, param.second, *normmap.front().first->det(), normmap, annealing);
 }
 
@@ -260,18 +252,18 @@ double SiTrackerMultiRecHitUpdator::ComputeWeight(const TrajectoryStateOnSurface
 }
 
 //-----------------------------------------------------------------------------------------------------------
-SiTrackerMultiRecHitUpdator::LocalParameters SiTrackerMultiRecHitUpdator::calcParameters(const TrajectoryStateOnSurface& tsos, TransientTrackingRecHit::ConstRecHitContainer& map)const{
+SiTrackerMultiRecHitUpdator::LocalParameters SiTrackerMultiRecHitUpdator::calcParameters(const TrajectoryStateOnSurface& tsos, std::vector<std::pair<const TrackingRecHit*, float> >& aHitMap) const{
 
   AlgebraicSymMatrix22 W_sum;
   AlgebraicVector2 m_sum;
 
-  for(TransientTrackingRecHit::ConstRecHitContainer::const_iterator ihit = map.begin(); ihit != map.end(); ihit ++) {
+  for(std::vector<std::pair<const TrackingRecHit*, float> >::const_iterator ihit = aHitMap.begin(); ihit != aHitMap.end(); ihit++){
 
     std::pair<AlgebraicVector2,AlgebraicSymMatrix22> PositionAndError22;
-    PositionAndError22 = ComputeParameters2dim(tsos, *(*ihit));
+    PositionAndError22 = ComputeParameters2dim(tsos, *(ihit->first));
 
-    W_sum += ((*ihit)->weight()*PositionAndError22.second);
-    m_sum += ((*ihit)->weight()*(PositionAndError22.second*PositionAndError22.first));
+    W_sum += (ihit->second*PositionAndError22.second);
+    m_sum += (ihit->second*(PositionAndError22.second*PositionAndError22.first));
     
   }
 

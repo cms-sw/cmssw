@@ -19,10 +19,10 @@ class SimpleDAFHitCollector :public MultiRecHitCollector {
 	virtual ~SimpleDAFHitCollector(){}
 	
 	//given a trajectory it returns a collection
-        //of TSiTrackerMultiRecHits and InvalidTransientRecHits.
+        //of SiTrackerMultiRecHits and InvalidTransientRecHits.
         //For each measurement in the trajectory, measurements are looked for according to the 
         //MeasurementDet::fastMeasurements method only in the detector where the original measurement lays. 
-        //If measurements are found a TSiTrackerMultiRecHit is built.
+        //If measurements are found a SiTrackerMultiRecHit is built.
 	//All the components will lay on the same detector  
 	
 	virtual std::vector<TrajectoryMeasurement> recHits(const Trajectory&, const MeasurementTrackerEvent *theMTE) const;

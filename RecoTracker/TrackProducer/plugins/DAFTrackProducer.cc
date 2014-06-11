@@ -33,6 +33,8 @@ DAFTrackProducer::DAFTrackProducer(const edm::ParameterSet& iConfig):
   produces<std::vector<Trajectory> >();
   produces<TrajTrackAssociationCollection>();
   produces<TrajAnnealingCollection>().setBranchAlias( alias_ + "TrajectoryAnnealing" );
+
+  TrajAnnSaving_ = iConfig.getParameter<bool>("TrajAnnealingSaving");
 }
 
 
@@ -87,7 +89,7 @@ void DAFTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setu
     theAlgo.runWithCandidate(theG.product(), theMF.product(), *theTrajectoryCollection, &*mte,
                              theFitter.product(), theBuilder.product(), 
 			     measurementCollectorHandle.product(), updatorHandle.product(), bs, 
-			     algoResults, trajannResults);
+			     algoResults, trajannResults, TrajAnnSaving_);
     
   } catch (cms::Exception &e){ 
     edm::LogInfo("DAFTrackProducer") << "cms::Exception caught!!!" << "\n" << e << "\n"; 

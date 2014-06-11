@@ -51,7 +51,8 @@ class DAFTrackProducerAlgorithm {
 			const SiTrackerMultiRecHitUpdator*,
 			const reco::BeamSpot&,
 			AlgoProductCollection &,
-			TrajAnnealingCollection &) const;
+			TrajAnnealingCollection &,
+			bool ) const;
 
  private:
   /// Construct Tracks to be put in the event

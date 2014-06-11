@@ -28,7 +28,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #from Configuration.AlCa.GlobalTag import GlobalTag
 #process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:startup', '')
-process.GlobalTag.globaltag = 'POSTLS171_V1::All'
+process.GlobalTag.globaltag = 'START71_V1::All'#POSTLS171_V1::All'
 
 ### standard includes
 process.load('Configuration/StandardSequences/Services_cff')
@@ -44,6 +44,7 @@ process.load("SimTracker.TrackAssociation.trackingParticleRecoTrackAsssociation_
 process.load("Validation.RecoTrack.cuts_cff")
 process.load("Validation.RecoTrack.MultiTrackValidator_cff")
 process.load("DQMServices.Components.EDMtoMEConverter_cff")
+process.load("DQMServices.Components.DQMFileSaver_cfi")
 process.load("Validation.Configuration.postValidation_cff")
 
 process.quickTrackAssociatorByHits.SimToRecoDenominator = cms.string('reco')
@@ -55,9 +56,9 @@ process.TrackAssociatorByPullESProducer = process.TrackAssociatorByChi2ESProduce
 							ComponentName = 'TrackAssociatorByPull')
  
 ########### configuration MultiTrackValidator ########
-process.multiTrackValidator.outputFile = 'multitrackvalidator_SingleMuPt10_100evts_AssociatorByPull.root'
-#process.multiTrackValidator.associators = ['quickTrackAssociatorByHits']
-process.multiTrackValidator.associators = ['TrackAssociatorByPull']
+process.dqmSaver.workflow = cms.untracked.string("/SingleMu/Normal/100evts")
+#process.multiTrackValidator.outputFile = 'multitrackvalidator_SingleMuPt10_100evts_AllAssoc.root'
+process.multiTrackValidator.associators = ['quickTrackAssociatorByHits', 'TrackAssociatorByChi2', 'TrackAssociatorByPull']
 process.multiTrackValidator.skipHistoFit=cms.untracked.bool(False)
 process.multiTrackValidator.label = ['cutsRecoTracks']
 process.multiTrackValidator.UseAssociators = cms.bool(True)
@@ -65,6 +66,9 @@ process.multiTrackValidator.runStandalone = cms.bool(True)
 
 process.quickTrackAssociatorByHits.useClusterTPAssociation = cms.bool(True)
 process.load("SimTracker.TrackerHitAssociation.clusterTpAssociationProducer_cfi")
+
+#process.Tracer = cms.Service("Tracer")
+process.outputFile = cms.EndPath(process.dqmSaver)
 
 process.validation = cms.Sequence(
 #    process.tpClusterProducer *  #associate the hits trought an association map between cluster and tp
@@ -77,7 +81,7 @@ process.p = cms.Path(
      process.validation
 )
 process.schedule = cms.Schedule(
-      process.p
+      process.p, process.outputFile
 )
 
 

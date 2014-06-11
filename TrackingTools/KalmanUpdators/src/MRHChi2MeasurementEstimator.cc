@@ -1,4 +1,3 @@
-#include "RecoTracker/TransientTrackingRecHit/interface/TSiTrackerMultiRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiTrackerMultiRecHit.h"
 #include "RecoTracker/SiTrackerMRHTools/interface/SiTrackerMultiRecHitUpdator.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
@@ -7,6 +6,8 @@
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Math/interface/invertPosDefMatrix.h"
+#include "DataFormats/Math/interface/ProjectMatrix.h"
+#include "DataFormats/TrackingRecHit/interface/KfComponentsHolder.h"
 
 std::pair<bool, double> MRHChi2MeasurementEstimator::estimate(const TrajectoryStateOnSurface& tsos,
                                    const TrackingRecHit& aRecHit) const {
@@ -38,11 +39,13 @@ std::cout << " MRHChi2MeasurementEstimator::estimate " << std::endl;
   std::cout << "  Current annealing factor is " << annealing;               
   LogDebug("MRHChi2MeasurementEstimator") << "Current annealing factor is " << annealing;               
 
-  TransientTrackingRecHit::ConstRecHitContainer components = mHit.transientHits();
+  std::vector<const TrackingRecHit*> components = mHit.recHits();
   std::cout << "; this hit has " << components.size() << " components\n";     
   LogDebug("MRHChi2MeasurementEstimator") << "this hit has " << components.size() << " components";     
 
-  for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator iter = components.begin(); iter != components.end(); iter++){              
+  int iComp = 0;
+  for(std::vector<const TrackingRecHit*>::const_iterator iter = components.begin(); iter != components.end(); iter++, iComp++){
+//  for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator iter = components.begin(); iter != components.end(); iter++){              
 
     // define variables that will be used to setup the KfComponentsHolder
     ProjectMatrix<double,5,N>  pf;
@@ -64,9 +67,10 @@ std::cout << " MRHChi2MeasurementEstimator::estimate " << std::endl;
       edm::LogError("SiTrackerMultiRecHitUpdator")<<"SiTrackerMultiRecHitUpdator::ComputeParameters2dim: W not valid!"<<std::endl;
     }
 
-    std::cout << "  Hit with weight " << (*iter)->weight() << std::endl; 
-    LogDebug("MRHChi2MeasurementEstimator") << "Hit with weight " << (*iter)->weight(); 
-    est += ROOT::Math::Similarity(r, V)*((*iter)->weight());
+    std::cout << "  Hit with weight " << mHit.weight(iComp) << std::endl; 
+    LogDebug("MRHChi2MeasurementEstimator") << "Hit with weight " << mHit.weight(iComp); 
+    est += ROOT::Math::Similarity(r, V)*mHit.weight(iComp);
+
   }     
 
   return returnIt(est);

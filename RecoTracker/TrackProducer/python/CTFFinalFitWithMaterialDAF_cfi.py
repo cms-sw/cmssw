@@ -11,7 +11,8 @@ ctfWithMaterialTracksDAF = cms.EDProducer("DAFTrackProducer",
     TrajectoryInEvent = cms.bool(False),
     TTRHBuilder = cms.string('WithAngleAndTemplate'),
     Propagator = cms.string('RungeKuttaTrackerPropagator'),
-    MinHits = cms.int32(3)
+    MinHits = cms.int32(3),
+    TrajAnnealingSaving = cms.bool(False) 
 )
 
 

@@ -5,16 +5,12 @@
 
 #include <iomanip>
 
-std::string folderName = "/afs/cern.ch/user/e/ebrondol/CMSSWarea/CMSSW_7_1_0_pre5/src/DAFTest/DAFValidator/";
-std::string FileName1 = "multiprova.root";
-std::string FileName2 = "multiprova.root";
-//std::string FileName1 = "multitrackvalidator_SingleMuPt10_100evts_AllAssociators.root";
-//std::string FileName2 = "multitrackvalidator_DAF_SingleMuPt10_100evts_v3_AllAssociators.root";
-//std::string FileName1 = "multitrackvalidator_TTbar_10evts_AllAssociators.root";
-//std::string FileName2 = "multitrackvalidator_DAF_TTbar_10evts_v3_AllAssociators.root";
-std::string baseFolderRootName = "DQMData/Tracking/Track/";
-//std::string Associator = "quickAssociatorByHits";
-std::string Associator = "AssociatorByChi2";
+std::string folderName = "/afs/cern.ch/user/e/ebrondol/CMSSWarea/CMSSW_7_1_0_pre8/src/";
+std::string FileName1 = "DQM_V0001_R000000001__TTbar__Normal__10evts.root";
+std::string FileName2 = "DQM_V0001_R000000001__TTbar__DAF__10evs.root";
+std::string baseFolderRootName = "DQMData/Run 1/Tracking/Run summary/Track/";
+std::string Associator = "quickAssociatorByHits";
+//std::string Associator = "AssociatorByChi2";
 //std::string Associator = "AssociatorByPull";
 std::string MultivalLabelTracks1 = "cutsReco";
 std::string MultivalLabelTracks2 = "ctfWithMaterialDAF";
@@ -43,8 +39,10 @@ void PlotComparisonMaker(const char* HistoName)
   std::cout << "InputRootFile1: " << FolderRootName1 << std::endl;
   std::cout << "InputRootFile2: " << FolderRootName2 << std::endl;
 
-  TH1F* histo1 = (TH1F*)( f1->Get((FolderRootName1+HistoName).c_str()) ); 
-  TH1F* histo2 = (TH1F*)( f2->Get((FolderRootName2+HistoName).c_str()) ); 
+//  TH1F* histo1 = (TH1F*)( f1->Get((FolderRootName1+HistoName).c_str()) ); 
+//  TH1F* histo2 = (TH1F*)( f2->Get((FolderRootName2+HistoName).c_str()) ); 
+  TH1F* histo1 = (TH1F*)( f1->FindObjectAny("effic"));
+  TH1F* histo2 = (TH1F*)( f2->FindObjectAny("effic"));
 
   TCanvas* c1 = new TCanvas();
   c1 -> cd();

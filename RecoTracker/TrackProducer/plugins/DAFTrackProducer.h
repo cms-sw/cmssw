@@ -28,6 +28,7 @@ private:
   void getFromEvt(edm::Event&, edm::Handle<TrajectoryCollection>&, reco::BeamSpot&);
   void putInEvtTrajAnn(edm::Event& theEvent, TrajAnnealingCollection & trajannResults,
                 std::auto_ptr<TrajAnnealingCollection>& selTrajAnn);
+  bool TrajAnnSaving_;
 };
 
 #endif

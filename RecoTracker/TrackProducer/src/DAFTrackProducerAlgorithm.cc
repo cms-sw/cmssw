@@ -17,7 +17,9 @@
 #include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
 #include "TrackingTools/PatternTools/interface/TransverseImpactPointExtrapolator.h"
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateWithArbitraryError.h"
-#include "RecoTracker/TransientTrackingRecHit/interface/TSiTrackerMultiRecHit.h"
+#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiTrackerMultiRecHit.h"
+#include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
 #include "DataFormats/TrackerRecHit2D/interface/TkCloner.h"
 #include "TrackingTools/PatternTools/interface/TrajAnnealing.h"
 
@@ -31,7 +33,8 @@ void DAFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
 						 const SiTrackerMultiRecHitUpdator* updator,
 						 const reco::BeamSpot& bs,
 					         AlgoProductCollection& algoResults,
-						 TrajAnnealingCollection& trajann) const
+						 TrajAnnealingCollection& trajann,
+						 bool TrajAnnSaving_) const
 {
   std::cout << "////////////////////////////////////////////////////////\n"
 	    << "DAFTrackProducerAlgorithm::runWithCandidate: Number of Trajectories: " << theTrajectoryCollection.size() << "\n";
@@ -55,6 +58,7 @@ void DAFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
       //getting the MultiRecHit collection and the trajectory with a first fit-smooth round
       std::pair<TransientTrackingRecHit::RecHitContainer, TrajectoryStateOnSurface> hits = 
 							collectHits(*ivtraj, measurementCollector, &*measTk);
+      
       currentTraj = fit(hits, theFitter, *ivtraj);
 
       //starting the annealing program
@@ -73,8 +77,10 @@ std::cout << "Starting with the annealing " << *ian << std::endl;
 	  currentTraj = fit(curiterationhits, theFitter, currentTraj);
 
  	  //saving trajectory for each annealing cycle ...
-	  TrajAnnealing temp(currentTraj, *ian);
-	  trajann.push_back(temp);
+	  if(TrajAnnSaving_){
+            TrajAnnealing temp(currentTraj, *ian);
+	    trajann.push_back(temp);
+          }
 
           LogDebug("DAFTrackProducerAlgorithm") << "done annealing value "  <<  (*ian) ;
 
@@ -263,11 +269,13 @@ void  DAFTrackProducerAlgorithm::filter(const TrajectoryFitter* fitter, std::vec
   for (std::vector<TrajectoryMeasurement>::reverse_iterator tm=vtm.rbegin(); tm!=vtm.rend();tm++){
     //if the rechit is valid
     if (tm->recHit()->isValid()) {
-      TransientTrackingRecHit::ConstRecHitContainer components = tm->recHit()->transientHits();
+      SiTrackerMultiRecHit const & mHit = dynamic_cast<SiTrackerMultiRecHit const &>(*tm->recHit());
+      std::vector<const TrackingRecHit*> components = mHit.recHits();
+      int iComp = 0;
       bool isGood = false;
-      for (TransientTrackingRecHit::ConstRecHitContainer::iterator rechit = components.begin(); rechit != components.end(); rechit++){
-        //if there is at least one component with weight higher than 1e-6 then the hit is not an outlier
-        if ((*rechit)->weight()>1e-6) {ngoodhits++; isGood = true; break;}
+      for(std::vector<const TrackingRecHit*>::const_iterator iter = components.begin(); iter != components.end(); iter++, iComp++){        
+	//if there is at least one component with weight higher than 1e-6 then the hit is not an outlier
+        if (mHit.weight(iComp)>1e-6) {ngoodhits++; iComp++; isGood = true; break;}
       }
       if (isGood) {
         TkClonerImpl hc = static_cast<TkTransientTrackingRecHitBuilder const *>(builder)->cloner();
@@ -310,12 +318,12 @@ float DAFTrackProducerAlgorithm::calculateNdof(const Trajectory vtraj) const
   const std::vector<TrajectoryMeasurement>& meas = vtraj.measurements();
   for (std::vector<TrajectoryMeasurement>::const_iterator iter = meas.begin(); iter != meas.end(); iter++){
     if (iter->recHit()->isValid()){
-      TransientTrackingRecHit::ConstRecHitContainer components = iter->recHit()->transientHits();
-      TransientTrackingRecHit::ConstRecHitContainer::const_iterator iter2;
-
-      for (iter2 = components.begin(); iter2 != components.end(); iter2++){
+      SiTrackerMultiRecHit const & mHit = dynamic_cast<SiTrackerMultiRecHit const &>(*iter->recHit());
+      std::vector<const TrackingRecHit*> components = mHit.recHits();
+      int iComp = 0;
+      for(std::vector<const TrackingRecHit*>::const_iterator iter2 = components.begin(); iter2 != components.end(); iter2++, iComp++){
         if ((*iter2)->isValid())
-	  ndof += ((*iter2)->dimension())*(*iter2)->weight();
+	  ndof += ((*iter2)->dimension())*mHit.weight(iComp);
       }
 
     }
