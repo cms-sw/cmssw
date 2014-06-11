@@ -9,11 +9,12 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include <iostream>
 
-#define DebugLog
+//#define DebugLog
 
 HGCNumberingScheme::HGCNumberingScheme(const DDCompactView & cpv, 
-				       std::string & name) :
-  CaloNumberingScheme(0), hgcons(new HGCalDDDConstants(cpv,name)) {
+				       std::string & name, bool check) :
+  CaloNumberingScheme(0), check_(check), 
+  hgcons(new HGCalDDDConstants(cpv,name)) {
   edm::LogInfo("HGCSim") << "Creating HGCNumberingScheme for " << name;
 }
 
@@ -29,14 +30,25 @@ uint32_t HGCNumberingScheme::getUnitID(ForwardSubdetector &subdet, int &layer, i
   int icell     = phicell.second;
   
   //check if it fits
-  if (icell>0xffff) {
-    edm::LogError("HGCSim") << "[HGCNumberingScheme] cell id seems to be out of bounds cell id=" << icell << "\n"
-			    << "\tLocal position: (" << pos.x() << "," << pos.y() << "," << pos.z() << ")\n"
-			    << "\tlayer " << layer << "\tsector " << sector;
+  if (check_) {
+    if ((!HGCalDetId::isValid(subdet,iz,layer,sector,phiSector,icell)) ||
+	(!hgcons->isValid(layer,sector,icell,false))) {
+      edm::LogError("HGCSim") << "[HGCNumberingScheme] ID out of bounds :"
+			      << " Subdet= " << subdet << " Zside= " << iz
+			      << " Layer= " << layer << " Sector= " << sector
+			      << " SubSector= " << phiSector << " Cell= "
+			      << icell << " Local position: (" << pos.x() 
+			      << "," << pos.y() << "," << pos.z() << ")";
+    }
   }    
   
   //build the index
   uint32_t index = HGCalDetId(subdet,iz,layer,sector,phiSector,icell).rawId();
+#ifdef DebugLog
+  std::cout << "HGCNumberingScheme::i/p " << subdet << ":" << layer << ":" 
+	    << sector << ":" << iz << ":" << pos << " o/p " << phiSector << ":"
+	    << icell << ":" << HGCalDetId(index) << std::endl;
+#endif
   return index;
 }
 

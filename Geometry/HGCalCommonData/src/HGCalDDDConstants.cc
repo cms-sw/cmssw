@@ -108,6 +108,14 @@ std::pair<int,int> HGCalDDDConstants::findCell(int cell, float h, float bl,
   return std::pair<int,int>(kx,ky);
 }
 
+bool HGCalDDDConstants::isValid(int lay, int mod, int cell, bool reco) const {
+
+  bool ok = ((lay > 0 && lay <= (int)(layers(reco))) && 
+	     (mod > 0 && mod <= sectors()) &&
+	     (cell >=0 && cell < maxCells(lay,reco)));
+  return ok;
+}
+
 std::pair<float,float> HGCalDDDConstants::locateCell(int cell, int lay, 
 						     int subSec, bool reco) const {
 

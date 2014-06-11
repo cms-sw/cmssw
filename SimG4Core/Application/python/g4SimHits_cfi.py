@@ -399,6 +399,7 @@ g4SimHits = cms.EDProducer("OscarProducer",
         TimeSliceUnit    = cms.int32(1),
         IgnoreTrackID    = cms.bool(False),
         EminHit          = cms.double(0.0),
+        CheckID          = cms.untracked.bool(True),
     ),
     ShashlikSD = cms.PSet(
         UseBirkLaw      = cms.bool(False),
