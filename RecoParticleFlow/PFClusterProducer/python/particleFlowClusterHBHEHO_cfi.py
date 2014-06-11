@@ -4,11 +4,7 @@ import FWCore.ParameterSet.Config as cms
 particleFlowClusterHBHEHO = cms.EDProducer(
     "PFClusterProducer",
     recHitsSource = cms.InputTag("particleFlowRecHitHBHEHO"),
-    recHitCleaners = cms.VPSet(
-    cms.PSet(    
-        algoName = cms.string("RBXAndHPDCleaner")
-        )
-    ),
+    recHitCleaners = cms.VPSet(),
     seedFinder = cms.PSet(
         algoName = cms.string("LocalMaximumSeedFinder"),
         thresholdsByDetector = cms.VPSet(
@@ -16,7 +12,11 @@ particleFlowClusterHBHEHO = cms.EDProducer(
                         seedingThreshold = cms.double(0.8),
                         seedingThresholdPt = cms.double(0.0)
                         ),
-              cms.PSet( detector = cms.string("HCAL_BARREL2"),
+              cms.PSet( detector = cms.string("HCAL_BARREL2_RING0"),
+                        seedingThreshold = cms.double(0.08),
+                        seedingThresholdPt = cms.double(0.0)
+                        ),
+              cms.PSet( detector = cms.string("HCAL_BARREL2_RING1"),
                         seedingThreshold = cms.double(0.08),
                         seedingThresholdPt = cms.double(0.0)
                         ),
@@ -34,7 +34,11 @@ particleFlowClusterHBHEHO = cms.EDProducer(
                   gatheringThreshold = cms.double(0.8),
                   gatheringThresholdPt = cms.double(0.0)
                   ),
-        cms.PSet( detector = cms.string("HCAL_BARREL2"),
+        cms.PSet( detector = cms.string("HCAL_BARREL2_RING0"),
+                  gatheringThreshold = cms.double(0.08),
+                  gatheringThresholdPt = cms.double(0.0)
+                  ),
+        cms.PSet( detector = cms.string("HCAL_BARREL2_RING1"),
                   gatheringThreshold = cms.double(0.08),
                   gatheringThresholdPt = cms.double(0.0)
                   ),
@@ -74,7 +78,10 @@ particleFlowClusterHBHEHO = cms.EDProducer(
            cms.PSet( detector = cms.string("HCAL_BARREL1"),
                      recHitEnergyNorm = cms.double(0.8)
                      ),
-           cms.PSet( detector = cms.string("HCAL_BARREL2"),
+           cms.PSet( detector = cms.string("HCAL_BARREL2_RING0"),
+                     recHitEnergyNorm = cms.double(0.08)
+                     ),
+           cms.PSet( detector = cms.string("HCAL_BARREL2_RING1"),
                      recHitEnergyNorm = cms.double(0.08)
                      ),
            cms.PSet( detector = cms.string("HCAL_ENDCAP"),
