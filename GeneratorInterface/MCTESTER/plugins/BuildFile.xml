@@ -1,0 +1,11 @@
+<library file="*.cc" name="MCTesterCMS">
+  <use   name="FWCore/Framework"/> 
+  <use   name="FWCore/PluginManager"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="SimDataFormats/GeneratorProducts"/>
+  <use   name="hepmc"/>
+  <use   name="root"/>
+  <use   name="rootgraphics"/>
+  <use   name="mctester"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
