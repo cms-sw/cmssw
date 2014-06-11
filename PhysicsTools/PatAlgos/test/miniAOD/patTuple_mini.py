@@ -33,7 +33,6 @@ process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 process.load("PhysicsTools.PatAlgos.slimming.slimming_cff")
 process.load("RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff")
-process.load("RecoTauTag.Configuration.RecoPFTauTag_cff")
 
 from PhysicsTools.PatAlgos.slimming.miniAOD_tools import miniAOD_customizeCommon, miniAOD_customizeMC
 miniAOD_customizeCommon(process)
