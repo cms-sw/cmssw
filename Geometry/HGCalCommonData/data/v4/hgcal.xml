@@ -2,10 +2,10 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
 
 <ConstantsSection label="hgcal.xml" eval="true">
-  <Constant name="zHGCal1"    value="317.0*cm"/>
-  <Constant name="zHGCal2"    value="390.71*cm"/>
-  <Constant name="zHGCal3"    value="449.7*cm"/>
-  <Constant name="zHGCal4"    value="523.65*cm"/>
+  <Constant name="zHGCal1"    value="3170.0*mm"/>
+  <Constant name="zHGCal2"    value="3907.1*mm"/>
+  <Constant name="zHGCal3"    value="4497.0*mm"/>
+  <Constant name="zHGCal4"    value="5236.5*mm"/>
   <Constant name="zMinEE"     value="3170.0*mm"/>
   <Constant name="zMaxEE"     value="3501.3*mm"/>
   <Constant name="zMinHE"     value="3501.3*mm"/>
@@ -42,21 +42,21 @@
 
 <SolidSection label="hgcal.xml">
   <Polycone name="HGCal" startPhi="0*deg" deltaPhi="360*deg">
-    <ZSection z="[zHGCal1]" rMin="[rMinHGCal1]" rMax="[rMaxHGCal1]*1.006"/>
-    <ZSection z="[zHGCal2]" rMin="[rMinHGCal2]" rMax="[rMaxHGCal2]*1.006"/>
-    <ZSection z="[zHGCal3]" rMin="[rMinHGCal3]" rMax="[rMaxHGCal3]*1.006"/>
-    <ZSection z="[zHGCal4]" rMin="[rMinHGCal4]" rMax="[rMaxHGCal4]*1.006"/>
+    <ZSection z="[zHGCal1]" rMin="[rMinHGCal1]" rMax="[rMaxHGCal1]"/>
+    <ZSection z="[zHGCal2]" rMin="[rMinHGCal2]" rMax="[rMaxHGCal2]"/>
+    <ZSection z="[zHGCal3]" rMin="[rMinHGCal3]" rMax="[rMaxHGCal3]"/>
+    <ZSection z="[zHGCal4]" rMin="[rMinHGCal4]" rMax="[rMaxHGCal4]"/>
   </Polycone>
-  <Polycone name="HGCalEE" startPhi="0*deg" deltaPhi="360*deg">
-    <ZSection z="[zMinEE]" rMin="[rMinEEMin]" rMax="[rMaxEEMin]*1.006"/>
-    <ZSection z="[zMaxEE]" rMin="[rMinEEMax]" rMax="[rMaxEEMax]*1.006"/>
-  </Polycone>
-  <Polycone name="HGCalHE" startPhi="0*deg" deltaPhi="360*deg">
-    <ZSection z="[zMinHE]"  rMin="[rMinHEMin]"  rMax="[rMaxHEMin]*1.006"/>
-    <ZSection z="[zHGCal2]" rMin="[rMinHGCal2]" rMax="[rMaxHGCal2]*1.006"/>
-    <ZSection z="[zHGCal3]" rMin="[rMinHGCal3]" rMax="[rMaxHGCal3]*1.006"/>
-    <ZSection z="[zMaxHE]"  rMin="[rMinHEMax]"  rMax="[rMaxHEMax]*1.006"/>
-  </Polycone>
+  <Polyhedra name="HGCalEE" numSide="18" startPhi="350*deg" deltaPhi="360*deg">
+    <ZSection z="[zMinEE]" rMin="[rMinEEMin]" rMax="[rMapEEMin]"/>
+    <ZSection z="[zMaxEE]" rMin="[rMinEEMax]" rMax="[rMapEEMax]"/>
+  </Polyhedra>
+  <Polyhedra name="HGCalHE" numSide="18" startPhi="350*deg" deltaPhi="360*deg">
+    <ZSection z="[zMinHE]"  rMin="[rMinHEMin]"  rMax="[rMapHEMin]"/>
+    <ZSection z="[zHGCal2]" rMin="[rMinHGCal2]" rMax="[rMapHGCal2]"/>
+    <ZSection z="[zHGCal3]" rMin="[rMinHGCal3]" rMax="[rMapHGCal3]"/>
+    <ZSection z="[zMaxHE]"  rMin="[rMinHEMax]"  rMax="[rMapHEMax]"/>
+  </Polyhedra>
 </SolidSection>
 
 <LogicalPartSection label="hgcal.xml">

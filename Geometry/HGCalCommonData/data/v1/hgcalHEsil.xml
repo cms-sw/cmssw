@@ -29,12 +29,12 @@
   <String name="ChildName"    value="HGCalHESilicon"/>
   <Numeric name="StartCopyNo" value="1"/>
   <Numeric name="IncrCopyNo"  value="1"/>
-  <Numeric name="N"           value="18"/>
+  <Numeric name="N"           value="72"/>
   <Numeric name="StartAngle"  value="0*deg"/>
   <Numeric name="RangeAngle"  value="360*deg"/>
   <Numeric name="Radius"      value="0*m"/>
-  <Vector name="RotateSolid" type="numeric" nEntries="3">
-   0*deg, 0*deg, 0*deg </Vector>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 0 </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="3"> 0.*deg, 0.*deg, 0.*deg </Vector>
  </Algorithm>
  <Algorithm name="hgcal:DDHGCalEEAlgo">
   <rParent name="hgcalHEsil:HGCalHESilicon"/>
