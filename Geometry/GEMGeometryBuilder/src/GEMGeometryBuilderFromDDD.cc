@@ -26,7 +26,7 @@
 #include <algorithm>
 #include <boost/lexical_cast.hpp>
 
-GEMGeometryBuilderFromDDD::GEMGeometryBuilderFromDDD(bool comp11) : theComp11Flag(comp11)
+GEMGeometryBuilderFromDDD::GEMGeometryBuilderFromDDD()
 { }
 
 GEMGeometryBuilderFromDDD::~GEMGeometryBuilderFromDDD() 

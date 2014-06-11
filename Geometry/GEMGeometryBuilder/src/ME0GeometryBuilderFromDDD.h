@@ -23,19 +23,15 @@ class ME0GeometryBuilderFromDDD
 { 
  public:
 
-  ME0GeometryBuilderFromDDD(bool comp11);
+  ME0GeometryBuilderFromDDD();
 
   ~ME0GeometryBuilderFromDDD();
 
   ME0Geometry* build(const DDCompactView* cview, const MuonDDDConstants& muonConstants);
 
-
  private:
   ME0Geometry* buildGeometry(DDFilteredView& fview, const MuonDDDConstants& muonConstants);
   std::map<ME0DetId,std::vector<ME0DetId>> chids;
-
-  bool theComp11Flag;
-
 };
 
 #endif

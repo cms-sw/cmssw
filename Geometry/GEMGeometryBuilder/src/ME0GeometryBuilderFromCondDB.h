@@ -22,17 +22,14 @@ class ME0GeometryBuilderFromCondDB
 { 
  public:
 
-  ME0GeometryBuilderFromCondDB(bool comp11);
+  ME0GeometryBuilderFromCondDB();
 
   ~ME0GeometryBuilderFromCondDB();
 
   ME0Geometry* build(const RecoIdealGeometry& rgeo);
 
-
  private:
   //  std::map<ME0DetId,std::list<ME0EtaPartition *> > chids;
-  bool theComp11Flag;
-
 };
 
 #endif

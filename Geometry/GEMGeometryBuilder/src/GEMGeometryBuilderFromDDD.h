@@ -23,19 +23,15 @@ class GEMGeometryBuilderFromDDD
 { 
  public:
 
-  GEMGeometryBuilderFromDDD(bool comp11);
+  GEMGeometryBuilderFromDDD();
 
   ~GEMGeometryBuilderFromDDD();
 
   GEMGeometry* build(const DDCompactView* cview, const MuonDDDConstants& muonConstants);
 
-
  private:
   GEMGeometry* buildGeometry(DDFilteredView& fview, const MuonDDDConstants& muonConstants);
   std::map<GEMDetId,std::vector<GEMDetId>> chids;
-
-  bool theComp11Flag;
-
 };
 
 #endif

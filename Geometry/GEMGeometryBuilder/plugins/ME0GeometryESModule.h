@@ -14,20 +14,20 @@
 #include "Geometry/GEMGeometry/interface/ME0Geometry.h"
 #include <boost/shared_ptr.hpp>
 
-class ME0GeometryESModule : public edm::ESProducer {
-public:
+class ME0GeometryESModule : public edm::ESProducer 
+{
+ public:
   /// Constructor
   ME0GeometryESModule(const edm::ParameterSet & p);
 
   /// Destructor
   virtual ~ME0GeometryESModule();
-
+  
   /// Produce ME0Geometry.
   boost::shared_ptr<ME0Geometry>  produce(const MuonGeometryRecord & record);
-
-private:  
-
-  bool comp11,useDDD;
-
+  
+ private:  
+  // use the DDD as Geometry source
+  bool useDDD;
 };
 #endif
