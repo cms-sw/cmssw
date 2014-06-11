@@ -1103,7 +1103,6 @@ std::vector<double> TrackerDpgAnalysis::onTrackAngles(edm::Handle<edmNew::DetSet
 void TrackerDpgAnalysis::insertMeasurement(std::multimap<const uint32_t,std::pair<LocalPoint,double> >& collection,const TransientTrackingRecHit* hit , double tla)
 {
       if(!hit) return;
-  //SiTrackerMultiRecHit const & mHit = dynamic_cast<SiTrackerMultiRecHit const &>(aRecHit);  
       const SiTrackerMultiRecHit* multihit=dynamic_cast<const SiTrackerMultiRecHit*>(hit);
       const SiStripRecHit2D* singlehit=dynamic_cast<const SiStripRecHit2D*>(hit);
       const SiStripRecHit1D* hit1d=dynamic_cast<const SiStripRecHit1D*>(hit);
