@@ -10,8 +10,6 @@
 #include <string>
 #include <vector>
 
-class SimActivityRegistry;
-
 class DDCompactView;
 class MagneticField;
 
@@ -25,7 +23,6 @@ public:
   ~RunManagerMTInit();
 
   const edm::ParameterSet& parameterSet() const { return m_p; }
-  SimActivityRegistry *registry();
 
   struct ESProducts {
     ESProducts(): pDD(nullptr), pMF(nullptr), pTable(nullptr) {}

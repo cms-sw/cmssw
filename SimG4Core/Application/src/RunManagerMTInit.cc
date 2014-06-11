@@ -1,8 +1,5 @@
 #include "SimG4Core/Application/interface/RunManagerMTInit.h"
 
-#include "SimG4Core/Notification/interface/SimActivityRegistry.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
@@ -23,13 +20,6 @@ RunManagerMTInit::RunManagerMTInit(const edm::ParameterSet& iConfig):
 {}
 
 RunManagerMTInit::~RunManagerMTInit() {}
-
-SimActivityRegistry *RunManagerMTInit::registry() {
-   edm::Service<SimActivityRegistry> otherRegistry;
-  if(otherRegistry)
-    return otherRegistry.operator->();
-  return nullptr;
-}
 
 RunManagerMTInit::ESProducts RunManagerMTInit::readES(const edm::EventSetup& iSetup) {
   bool geomChanged = idealGeomRcdWatcher_.check(iSetup);

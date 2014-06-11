@@ -4,6 +4,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "SimG4Core/Generators/interface/Generator.h"
+#include "SimG4Core/Notification/interface/SimActivityRegistry.h"
 
 #include <memory>
 
@@ -32,6 +33,8 @@ private:
 
   std::unique_ptr<G4Event> m_currentEvent;
   std::unique_ptr<G4SimEvent> m_simEvent;
+
+  SimActivityRegistry m_registry;
 };
 
 #endif

@@ -5,7 +5,6 @@
 #include "SimG4Core/Application/interface/CustomUIsession.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "SimG4Core/Notification/interface/SimActivityRegistry.h"
 
 #include "G4PhysicalVolumeStore.hh"
 
@@ -16,7 +15,6 @@ OscarMTMasterThread::OscarMTMasterThread(std::shared_ptr<RunManagerMTInit> runMa
 {
 
   const edm::ParameterSet& pset = m_runManagerInit->parameterSet();
-  SimActivityRegistry *registry = m_runManagerInit->registry(); // must be done in the CMSSW thread
   RunManagerMTInit::ESProducts esprod = m_runManagerInit->readES(iSetup);
 
   // Lock the mutex
@@ -31,7 +29,7 @@ OscarMTMasterThread::OscarMTMasterThread(std::shared_ptr<RunManagerMTInit> runMa
         std::lock_guard<std::mutex> lk2(m_startMutex);
 
         // Create the master run manager, and share it to the CMSSW thread
-        runManagerMaster = std::make_shared<RunManagerMT>(pset, registry);
+        runManagerMaster = std::make_shared<RunManagerMT>(pset);
         m_runManagerMaster = runManagerMaster;
 
         //UIsession manager for message handling

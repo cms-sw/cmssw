@@ -67,7 +67,7 @@ namespace HepPDT {
 class RunManagerMT 
 {
 public:
-  RunManagerMT(edm::ParameterSet const & p, SimActivityRegistry *otherRegistry);
+  RunManagerMT(edm::ParameterSet const & p);
   ~RunManagerMT();
 
   std::unique_ptr<RunManagerMTWorker> createRunManagerWorker() const;

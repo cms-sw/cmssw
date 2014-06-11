@@ -6,6 +6,9 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "SimG4Core/Notification/interface/SimActivityRegistry.h"
+
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "G4Event.hh"
@@ -13,7 +16,15 @@
 RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig):
   m_generator(iConfig.getParameter<edm::ParameterSet>("Generator")),
   m_InTag(iConfig.getParameter<edm::ParameterSet>("Generator").getParameter<std::string>("HepMCProductLabel"))
-{}
+{
+
+  edm::Service<SimActivityRegistry> otherRegistry;
+  //Look for an outside SimActivityRegistry
+  // this is used by the visualization code
+  if(otherRegistry){
+    m_registry.connect(*otherRegistry);
+  }
+}
 
 RunManagerMTWorker::~RunManagerMTWorker() {}
 
