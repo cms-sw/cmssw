@@ -119,9 +119,6 @@ OscarMTProducer::OscarMTProducer(edm::ParameterSet const & p, const edm::Paramet
 
     (*itProd)->registerProducts(*this);
   }
-
-  //UIsession manager for message handling
-  m_UIsession.reset(new CustomUIsession());
 #endif
 }
 

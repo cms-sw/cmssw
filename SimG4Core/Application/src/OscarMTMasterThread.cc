@@ -2,11 +2,13 @@
 
 #include "SimG4Core/Application/interface/RunManagerMTInit.h"
 #include "SimG4Core/Application/interface/RunManagerMT.h"
+#include "SimG4Core/Application/interface/CustomUIsession.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "SimG4Core/Notification/interface/SimActivityRegistry.h"
 
 #include "G4PhysicalVolumeStore.hh"
+
 
 
 OscarMTMasterThread::OscarMTMasterThread(std::shared_ptr<RunManagerMTInit> runManagerInit, const edm::EventSetup& iSetup):
@@ -23,6 +25,7 @@ OscarMTMasterThread::OscarMTMasterThread(std::shared_ptr<RunManagerMTInit> runMa
   // Create Genat4 master thread
   m_masterThread = std::thread([&](){
       std::shared_ptr<RunManagerMT> runManagerMaster;
+      std::unique_ptr<CustomUIsession> uiSession;
       {
         // Lock the mutex (i.e. wait until the creating thread has called cv.wait()
         std::lock_guard<std::mutex> lk2(m_startMutex);
@@ -30,6 +33,9 @@ OscarMTMasterThread::OscarMTMasterThread(std::shared_ptr<RunManagerMTInit> runMa
         // Create the master run manager, and share it to the CMSSW thread
         runManagerMaster = std::make_shared<RunManagerMT>(pset, registry);
         m_runManagerMaster = runManagerMaster;
+
+        //UIsession manager for message handling
+        uiSession.reset(new CustomUIsession());
 
         // Initialize Geant4
         runManagerMaster->initG4(esprod.pDD, esprod.pMF, esprod.pTable, iSetup);
