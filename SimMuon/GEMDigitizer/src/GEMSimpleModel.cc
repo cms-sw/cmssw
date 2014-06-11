@@ -16,7 +16,6 @@
 
 #include "TMath.h" /* exp */
 
-
 namespace
 {
   // "magic" parameter for cosmics
@@ -257,9 +256,8 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll, CLHEP::HepRandom
 
 //simulate electron background for GE2/1
     if(simulateElectronBkg_)
-      averageNeutralNoiseRatePerRoll = constElecGE21* TMath::Exp(slopeElecGE21*rollRadius);
-
-    averageNoiseRatePerRoll = averageNeutralNoiseRatePerRoll + averageNoiseElectronRatePerRoll;
+      averageNoiseElectronRatePerRoll = constElecGE21* TMath::Exp(slopeElecGE21*rollRadius);
+      averageNoiseRatePerRoll = averageNeutralNoiseRatePerRoll + averageNoiseElectronRatePerRoll;
   }
 
 
