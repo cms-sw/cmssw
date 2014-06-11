@@ -59,9 +59,16 @@ namespace evf{
       std::string getOpenRawFilePath(const unsigned int ls, const unsigned int index) const;
       std::string getOpenInputJsonFilePath(const unsigned int ls, const unsigned int index) const;
       std::string getOpenDatFilePath(const unsigned int ls, std::string const& stream) const;
+      std::string getOpenOutputJsonFilePath(const unsigned int ls, std::string const& stream) const;
       std::string getOutputJsonFilePath(const unsigned int ls, std::string const& stream) const;
       std::string getMergedDatFilePath(const unsigned int ls, std::string const& stream) const;
       std::string getInitFilePath(std::string const& stream) const;
+      std::string getOpenProtocolBufferHistogramFilePath(const unsigned int ls, std::string const& stream) const;
+      std::string getProtocolBufferHistogramFilePath(const unsigned int ls, std::string const& stream) const;
+      std::string getMergedProtocolBufferHistogramFilePath(const unsigned int ls, std::string const& stream) const;
+      std::string getOpenRootHistogramFilePath(const unsigned int ls, std::string const& stream) const;
+      std::string getRootHistogramFilePath(const unsigned int ls, std::string const& stream) const;
+      std::string getMergedRootHistogramFilePath(const unsigned int ls, std::string const& stream) const;
       std::string getEoLSFilePathOnBU(const unsigned int ls) const;
       std::string getEoLSFilePathOnFU(const unsigned int ls) const;
       std::string getEoRFilePath() const;

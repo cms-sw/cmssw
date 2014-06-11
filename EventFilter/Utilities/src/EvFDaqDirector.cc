@@ -304,8 +304,13 @@ namespace evf {
     return bu_run_dir_ + "/open/" + fffnaming::inputJsonFileName(run_,ls,index);
   }
 
+
   std::string EvFDaqDirector::getOpenDatFilePath(const unsigned int ls, std::string const& stream) const {
     return run_dir_ + "/open/" + fffnaming::streamerDataFileNameWithPid(run_,ls,stream);
+  }
+
+  std::string EvFDaqDirector::getOpenOutputJsonFilePath(const unsigned int ls, std::string const& stream) const {
+    return run_dir_ + "/open/" + fffnaming::streamerJsonFileNameWithPid(run_,ls,stream);
   }
 
   std::string EvFDaqDirector::getOutputJsonFilePath(const unsigned int ls, std::string const& stream) const {
@@ -318,6 +323,30 @@ namespace evf {
 
   std::string EvFDaqDirector::getInitFilePath(std::string const& stream) const {
     return run_dir_ + "/" + fffnaming::initFileNameWithPid(run_,0,stream);
+  }
+
+  std::string EvFDaqDirector::getOpenProtocolBufferHistogramFilePath(const unsigned int ls, std::string const& stream) const {
+    return run_dir_ + "/open/" + fffnaming::protocolBufferHistogramFileNameWithPid(run_,ls,stream);
+  }
+
+  std::string EvFDaqDirector::getProtocolBufferHistogramFilePath(const unsigned int ls, std::string const& stream) const {
+    return run_dir_ + "/" + fffnaming::protocolBufferHistogramFileNameWithPid(run_,ls,stream);
+  }
+
+  std::string EvFDaqDirector::getMergedProtocolBufferHistogramFilePath(const unsigned int ls, std::string const& stream) const {
+    return run_dir_ + "/" + fffnaming:: protocolBufferHistogramFileNameWithInstance(run_,ls,stream,hostname_);
+  }
+
+  std::string EvFDaqDirector::getOpenRootHistogramFilePath(const unsigned int ls, std::string const& stream) const {
+    return run_dir_ + "/open/" + fffnaming::rootHistogramFileNameWithPid(run_,ls,stream);
+  }
+
+  std::string EvFDaqDirector::getRootHistogramFilePath(const unsigned int ls, std::string const& stream) const {
+    return run_dir_ + "/" + fffnaming::rootHistogramFileNameWithPid(run_,ls,stream);
+  }
+
+  std::string EvFDaqDirector::getMergedRootHistogramFilePath(const unsigned int ls, std::string const& stream) const {
+    return run_dir_ + "/" + fffnaming:: rootHistogramFileNameWithInstance(run_,ls,stream,hostname_);
   }
 
   std::string EvFDaqDirector::getEoLSFilePathOnBU(const unsigned int ls) const {
