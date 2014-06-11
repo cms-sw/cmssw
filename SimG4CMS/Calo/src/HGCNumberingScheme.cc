@@ -29,10 +29,14 @@ uint32_t HGCNumberingScheme::getUnitID(ForwardSubdetector &subdet, int &layer, i
   int phiSector = phicell.first;
   int icell     = phicell.second;
   
+  //build the index
+  uint32_t index = HGCalDetId(subdet,iz,layer,sector,phiSector,icell).rawId();
+  
   //check if it fits
-  if (check_) {
-    if ((!HGCalDetId::isValid(subdet,iz,layer,sector,phiSector,icell)) ||
-	(!hgcons->isValid(layer,sector,icell,false))) {
+  if ((!HGCalDetId::isValid(subdet,iz,layer,sector,phiSector,icell)) ||
+      (!hgcons->isValid(layer,sector,icell,false))) {
+    index = 0;
+    if (check_) {
       edm::LogError("HGCSim") << "[HGCNumberingScheme] ID out of bounds :"
 			      << " Subdet= " << subdet << " Zside= " << iz
 			      << " Layer= " << layer << " Sector= " << sector
@@ -41,13 +45,10 @@ uint32_t HGCNumberingScheme::getUnitID(ForwardSubdetector &subdet, int &layer, i
 			      << "," << pos.y() << "," << pos.z() << ")";
     }
   }    
-  
-  //build the index
-  uint32_t index = HGCalDetId(subdet,iz,layer,sector,phiSector,icell).rawId();
 #ifdef DebugLog
   std::cout << "HGCNumberingScheme::i/p " << subdet << ":" << layer << ":" 
 	    << sector << ":" << iz << ":" << pos << " o/p " << phiSector << ":"
-	    << icell << ":" << HGCalDetId(index) << std::endl;
+	    << icell << ":" << std::hex << index << std::dec << std::endl;
 #endif
   return index;
 }
