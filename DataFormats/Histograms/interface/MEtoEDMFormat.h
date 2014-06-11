@@ -21,6 +21,7 @@
 #include <TProfile2D.h>
 #include <TObjString.h>
 #include <TString.h>
+#include <THashList.h>
 #include <TList.h>
 
 #include <iostream>
@@ -31,6 +32,35 @@
 #include <stdint.h>
 
 #define METOEDMFORMAT_DEBUG 0
+
+namespace {
+  //utility function to check the consistency of the axis labels
+  //taken from TH1::CheckBinLabels
+  bool CheckBinLabels(const TAxis* a1, const TAxis * a2)
+  {
+    // check that axis have same labels
+    THashList *l1 = (const_cast<TAxis*>(a1))->GetLabels();
+    THashList *l2 = (const_cast<TAxis*>(a2))->GetLabels();
+    
+    if (!l1 && !l2 )
+      return true;
+    if (!l1 ||  !l2 ) {
+      return false;
+    }
+    // check now labels sizes  are the same
+    if (l1->GetSize() != l2->GetSize() ) {
+      return false;
+    }
+    for (int i = 1; i <= a1->GetNbins(); ++i) {
+      TString label1 = a1->GetBinLabel(i);
+      TString label2 = a2->GetBinLabel(i);
+      if (label1 != label2) {
+	return false;
+      }
+    }
+    return true;
+  }
+}
 
 template <class T>
 class MEtoEDM
@@ -112,10 +142,13 @@ class MEtoEDM
            MEtoEdmObject[j].object.GetYaxis()->GetXmax() == newMEtoEDMObject[i].object.GetYaxis()->GetXmax() &&
            MEtoEdmObject[j].object.GetNbinsZ()           == newMEtoEDMObject[i].object.GetNbinsZ()           &&
            MEtoEdmObject[j].object.GetZaxis()->GetXmin() == newMEtoEDMObject[i].object.GetZaxis()->GetXmin() &&
-           MEtoEdmObject[j].object.GetZaxis()->GetXmax() == newMEtoEDMObject[i].object.GetZaxis()->GetXmax()) {
+           MEtoEdmObject[j].object.GetZaxis()->GetXmax() == newMEtoEDMObject[i].object.GetZaxis()->GetXmax() &&
+	   CheckBinLabels((TAxis*)MEtoEdmObject[j].object.GetXaxis(),(TAxis*)newMEtoEDMObject[i].object.GetXaxis()) &&
+	   CheckBinLabels((TAxis*)MEtoEdmObject[j].object.GetYaxis(),(TAxis*)newMEtoEDMObject[i].object.GetYaxis()) &&
+	   CheckBinLabels((TAxis*)MEtoEdmObject[j].object.GetZaxis(),(TAxis*)newMEtoEDMObject[i].object.GetZaxis()) ) {
          MEtoEdmObject[j].object.Add(&newMEtoEDMObject[i].object);
        } else {
-          std::cout << "ERROR MEtoEDM::mergeProducts(): found histograms with different axis limits, '" << name << "' not merged" <<  std::endl;
+          std::cout << "ERROR MEtoEDM::mergeProducts(): found histograms with different axis limits or different labels, '" << name << "' not merged" <<  std::endl;
 #if METOEDMFORMAT_DEBUG
           std::cout << MEtoEdmObject[j].name                         << " " << newMEtoEDMObject[i].name                         << std::endl;
           std::cout << MEtoEdmObject[j].object.GetNbinsX()           << " " << newMEtoEDMObject[i].object.GetNbinsX()           << std::endl;

@@ -4,10 +4,10 @@
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "CommonTools/ParticleFlow/interface/PFPileUpAlgo.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionFinder.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "DQM/PhysicsHWW/interface/EgammaFiduciality.h"
 #include "DQM/PhysicsHWW/interface/ElectronMaker.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 
 
 using namespace reco;
@@ -29,7 +29,6 @@ ElectronMaker::ElectronMaker(const edm::ParameterSet& iConfig, edm::ConsumesColl
   ConversionCollection_     = iCollector.consumes<reco::ConversionCollection>(iConfig.getParameter<edm::InputTag>("recoConversionInputTag"));
   ClusterToken1_            = iCollector.consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("cluster1InputTag"));
   ClusterToken2_            = iCollector.consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("cluster2InputTag"));
-
 }
 
 
@@ -176,11 +175,7 @@ void ElectronMaker::SetVars(HWW& hww, const edm::Event& iEvent, const edm::Event
   ////////////////////////////////////////////////
   // Get tools to get cluster shape information //
   ////////////////////////////////////////////////
-
-  EcalClusterLazyTools* clusterTools_;
-  clusterTools_ = new EcalClusterLazyTools( iEvent, iSetup, ClusterToken1_, ClusterToken2_ );
-  //clusterTools_ = new EcalClusterLazyTools( iEvent, iSetup, InputTag("reducedEcalRecHitsEB"), InputTag("reducedEcalRecHitsEE") );
-
+  EcalClusterLazyTools clusterTools( iEvent, iSetup, ClusterToken1_, ClusterToken2_ );
 
   //////////////
   // Beamspot //
@@ -359,11 +354,11 @@ void ElectronMaker::SetVars(HWW& hww, const edm::Event& iEvent, const edm::Event
       if( el->superCluster()->seed().isAvailable() ) { 
 
           const BasicCluster&  clRef              = *(el->superCluster()->seed());
-          const vector<float>& lcovs              = clusterTools_->localCovariances(clRef);                    // get the local covariances computed in a 5x5 around the seed
-          const vector<float>  localCovariancesSC = clusterTools_->scLocalCovariances(*(el->superCluster()));  // get the local covariances computed using all crystals in the SC
+          const vector<float>& lcovs              = clusterTools.localCovariances(clRef);                    // get the local covariances computed in a 5x5 around the seed
+          const vector<float>  localCovariancesSC = clusterTools.scLocalCovariances(*(el->superCluster()));  // get the local covariances computed using all crystals in the SC
 
           hww.els_sigmaIPhiIPhi()   .push_back( isfinite(lcovs[2])  ? lcovs[2] > 0  ? sqrt(lcovs[2]) : -1 * sqrt(-1 * lcovs[2])  : -9999. );
-          hww.els_e3x3()            .push_back( clusterTools_->e3x3(clRef) );
+          hww.els_e3x3()            .push_back( clusterTools.e3x3(clRef) );
       } 
       else {
 
