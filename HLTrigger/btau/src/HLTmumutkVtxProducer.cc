@@ -6,37 +6,26 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
-
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
-
-#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
-#include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "TrackingTools/PatternTools/interface/TSCBLBuilderNoMaterial.h"
-#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
-
-//sara
-#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-#include "DataFormats/HLTReco/interface/TriggerRefsCollections.h"
-
-
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-
-#include "DataFormats/Math/interface/deltaPhi.h"
+#include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "RecoVertex/KalmanVertexFit/interface/KalmanVertexFitter.h"
+#include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
 
 #include "HLTrigger/btau/src/HLTmumutkVtxProducer.h"
+#include <DataFormats/Math/interface/deltaR.h>
 
 using namespace edm;
 using namespace reco;
 using namespace std;
 using namespace trigger;
-
 
 // ----------------------------------------------------------------------
 HLTmumutkVtxProducer::HLTmumutkVtxProducer(const edm::ParameterSet& iConfig):
@@ -57,14 +46,10 @@ HLTmumutkVtxProducer::HLTmumutkVtxProducer(const edm::ParameterSet& iConfig):
   beamSpotToken_(consumes<reco::BeamSpot>(beamSpotTag_))
 {
   produces<VertexCollection>();
-//   produces<CandidateCollection>();
 }
-
 
 // ----------------------------------------------------------------------
-HLTmumutkVtxProducer::~HLTmumutkVtxProducer() {
-
-}
+HLTmumutkVtxProducer::~HLTmumutkVtxProducer() {}
 
 void
 HLTmumutkVtxProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -101,13 +86,10 @@ void HLTmumutkVtxProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   //get the beamspot position
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
   iEvent.getByToken(beamSpotToken_,recoBeamSpotHandle);
-//   const reco::BeamSpot& vertexBeamSpot = *recoBeamSpotHandle;
 
   //get the b field
   ESHandle<MagneticField> bFieldHandle;
-//   iSetup.get<IdealMagneticFieldRecord>().get(bFieldHandle);//old
   iSetup.get<IdealMagneticFieldRecord>().get(mfName_, bFieldHandle);  
-
   const MagneticField* magField = bFieldHandle.product();
   TSCBLBuilderNoMaterial blsBuilder;
 
@@ -115,28 +97,19 @@ void HLTmumutkVtxProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   Handle<RecoChargedCandidateCollection> trkcands;
   iEvent.getByToken(trkCandToken_,trkcands);
 
-//   if (saveTags()) {
-//     filterproduct.addCollectionTag(muCandTag_);
-//     filterproduct.addCollectionTag(trkCandTag_);
-//   }
-
-//   auto_ptr<CandidateCollection> candidateCollection(new CandidateCollection());
   auto_ptr<VertexCollection> vertexCollection(new VertexCollection());
 
   // Ref to Candidate object to be recorded in filter object
   RecoChargedCandidateRef refMu1;
   RecoChargedCandidateRef refMu2;
-  RecoChargedCandidateRef refTrk;	
-	
+  RecoChargedCandidateRef refTrk;    
+    
   double e1,e2,e3;
   Particle::LorentzVector p,p1,p2,p3;
 
-  //Already used mu tracks to avoid double counting candidates
-  vector<bool> isUsedCand(trkcands->size(),false);
+  if ( mucands->size()<2)  return;
+  if ( trkcands->size()<1) return;
 
-  if ( mucands->size()<2)  return;//?????????
-  if ( trkcands->size()<1) return;//?????????
-  //run algorithm
   RecoChargedCandidateCollection::const_iterator mucand1;
   RecoChargedCandidateCollection::const_iterator mucand2;
   RecoChargedCandidateCollection::const_iterator trkcand;
@@ -149,101 +122,94 @@ void HLTmumutkVtxProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   previousCands->getObjects(TriggerMuon,vPrevCands);
 
   for (mucand1=mucands->begin(); mucand1!=mucands->end(); ++mucand1) {
-  	TrackRef trk1 = mucand1->get<TrackRef>();
-	LogDebug("HLTmumutkVtxProducer") << " 1st muon: q*pt= " << trk1->charge()*trk1->pt() 
-	                                 << ", eta= "           << trk1->eta() 
-	                                 << ", hits= "          << trk1->numberOfValidHits();
+    TrackRef trk1 = mucand1->get<TrackRef>();
+    LogDebug("HLTmumutkVtxProducer") << " 1st muon: q*pt= " << trk1->charge()*trk1->pt() 
+                                     << ", eta= "           << trk1->eta() 
+                                     << ", hits= "          << trk1->numberOfValidHits();
 
-	//first check if this muon passed the previous filter
-	if( ! checkPreviousCand( trk1, vPrevCands) ) continue;
+    //first check if this muon passed the previous filter
+    if( ! checkPreviousCand( trk1, vPrevCands) ) continue;
 
-  	// eta and pt cut
-	if (fabs(trk1->eta()) > maxEta_) continue;
-	if (trk1->pt() < minPt_)         continue;
+    // eta and pt cut
+    if (fabs(trk1->eta()) > maxEta_) continue;
+    if (trk1->pt() < minPt_)         continue;
 
-  	mucand2 = mucand1; ++mucand2;
+    mucand2 = mucand1; ++mucand2;
     for (; mucand2!=mucands->end(); mucand2++) {
-  		TrackRef trk2 = mucand2->get<TrackRef>();
+      TrackRef trk2 = mucand2->get<TrackRef>();
 
-		LogDebug("HLTDisplacedMumukFilter") << " 2nd muon: q*pt= " << trk2->charge()*trk2->pt() 
-	                                        << ", eta= "           << trk2->eta() 
-	                                        << ", hits= "          << trk2->numberOfValidHits();
+      LogDebug("HLTDisplacedMumukFilter") << " 2nd muon: q*pt= " << trk2->charge()*trk2->pt() 
+                                          << ", eta= "           << trk2->eta() 
+                                          << ", hits= "          << trk2->numberOfValidHits();
 
-		//first check if this muon passed the previous filter
-		if( ! checkPreviousCand( trk2, vPrevCands) ) continue;
-		// eta and pt cut
-		if (fabs(trk2->eta()) > maxEta_) continue;
-		if (trk2->pt() < minPt_)         continue;
+      //first check if this muon passed the previous filter
+      if( ! checkPreviousCand( trk2, vPrevCands) ) continue;
+      // eta and pt cut
+      if (fabs(trk2->eta()) > maxEta_)             continue;
+      if (trk2->pt() < minPt_)                     continue;
 
-		std::vector<bool>::iterator isUsedIter, endIsUsedCand;
+      //loop on track collection
+      for ( trkcand = trkcands->begin(); trkcand !=trkcands->end(); ++trkcand) {
+        TrackRef trk3 = trkcand->get<TrackRef>();
+            
+        if( overlap( trk1, trk3) ) continue;
+        if( overlap( trk2, trk3) ) continue;
+            
+        LogDebug("HLTDisplacedMumukFilter") << " 3rd track: q*pt= " << trk3->charge()*trk3->pt() 
+                                            << ", eta= "            << trk3->eta() 
+                                            << ", hits= "           << trk3->numberOfValidHits();
 
-		//get overlapping muon candidates
-		for ( trkcand = trkcands->begin(); trkcand !=trkcands->end(); ++trkcand) {
-			TrackRef trk3 = trkcand->get<TrackRef>();
-		
-			//check for overlapping muon tracks and save TrackRefs
- 			if (overlap(*mucand1,*trkcand)) 	continue;
- 			if (overlap(*mucand2,*trkcand))		continue;
-			
-			LogDebug("HLTDisplacedMumukFilter") << " 3rd track: q*pt= " << trk3->charge()*trk3->pt() 
-			                                    << ", eta= "            << trk3->eta() 
-			                                    << ", hits= "           << trk3->numberOfValidHits();
+        // eta and pt cut
+        if (fabs(trk3->eta()) > maxEta_) continue;
+        if (trk3->pt() < minPt_)         continue;
 
-			// eta and pt cut
-			if (fabs(trk3->eta()) > maxEta_) continue;
-			if (trk3->pt() < minPt_)         continue;
+        // Combined system
+        e1 = sqrt(trk1->momentum().Mag2() + MuMass2        );
+        e2 = sqrt(trk2->momentum().Mag2() + MuMass2        );
+        e3 = sqrt(trk3->momentum().Mag2() + thirdTrackMass2);
+        
+        p1 = Particle::LorentzVector(trk1->px(),trk1->py(),trk1->pz(),e1);
+        p2 = Particle::LorentzVector(trk2->px(),trk2->py(),trk2->pz(),e2);
+        p3 = Particle::LorentzVector(trk3->px(),trk3->py(),trk3->pz(),e3);
+        
+        p = p1+p2+p3;
+        
+        //invariant mass cut
+        double invmass = abs(p.mass());
+        LogDebug("HLTDisplacedMumukFilter") << " Invmass= " << invmass;
+        if (invmass<minInvMass_) continue;
+        if (invmass>maxInvMass_) continue;
+            
+        // do the vertex fit
+        vector<TransientTrack> t_tks;
+        t_tks.push_back((*theB).build(&trk1));
+        t_tks.push_back((*theB).build(&trk2));
+        t_tks.push_back((*theB).build(&trk3));
+                    
+        if (t_tks.size()!=3) continue;
 
-			// Combined system
-			e1 = sqrt(trk1->momentum().Mag2() + MuMass2        );
-			e2 = sqrt(trk2->momentum().Mag2() + MuMass2        );
-			e3 = sqrt(trk3->momentum().Mag2() + thirdTrackMass2);
-			
-			p1 = Particle::LorentzVector(trk1->px(),trk1->py(),trk1->pz(),e1);
-			p2 = Particle::LorentzVector(trk2->px(),trk2->py(),trk2->pz(),e2);
-			p3 = Particle::LorentzVector(trk3->px(),trk3->py(),trk3->pz(),e3);
-			
-			p = p1+p2+p3;
-			
- 			//invariant mass cut
- 			double invmass = abs(p.mass());
-			LogDebug("HLTDisplacedMumukFilter") << " Invmass= " << invmass;
-			if (invmass<minInvMass_) continue;
-   		    if (invmass>maxInvMass_) continue;
-			
-			// do the vertex fit
-			vector<TransientTrack> t_tks;
-			t_tks.push_back((*theB).build(&trk1));
-			t_tks.push_back((*theB).build(&trk2));
-			t_tks.push_back((*theB).build(&trk3));
-						
-			if (t_tks.size()!=3) continue;
+        FreeTrajectoryState InitialFTS = initialFreeState(*trk3, magField);
+        TrajectoryStateClosestToBeamLine tscb( blsBuilder(InitialFTS, *recoBeamSpotHandle) );
+        double d0sig = tscb.transverseImpactParameter().significance();
 
-			FreeTrajectoryState InitialFTS = initialFreeState(*trk3, magField);
-			TrajectoryStateClosestToBeamLine tscb( blsBuilder(InitialFTS, *recoBeamSpotHandle) );
-			double d0sig = tscb.transverseImpactParameter().significance();
-
-			if (d0sig < minD0Significance_) continue;
-			
-			KalmanVertexFitter kvf;
-			TransientVertex tv = kvf.vertex(t_tks);
-					
-			if (!tv.isValid()) continue;
-			
-			Vertex vertex = tv;
-			
-			// put vertex in the event
-			vertexCollection->push_back(vertex);
-// 			candidateCollection->push_back(vertex);
-  		}
-  	}
+        if (d0sig < minD0Significance_) continue;
+        
+        KalmanVertexFitter kvf;
+        TransientVertex tv = kvf.vertex(t_tks);
+                
+        if (!tv.isValid()) continue;
+        
+        Vertex vertex = tv;
+        
+        // put vertex in the event
+        vertexCollection->push_back(vertex);
+      }
+    }
   }
   iEvent.put(vertexCollection);
-//   iEvent.put(candidateCollection);
 }
 
-// ----------------------------------------------------------------------
-FreeTrajectoryState HLTmumutkVtxProducer::initialFreeState( const reco::Track& tk,
-						    const MagneticField* field)
+FreeTrajectoryState HLTmumutkVtxProducer::initialFreeState( const reco::Track& tk, const MagneticField* field)
 {
   Basic3DVector<float> pos( tk.vertex());
   GlobalPoint gpos( pos);
@@ -254,21 +220,11 @@ FreeTrajectoryState HLTmumutkVtxProducer::initialFreeState( const reco::Track& t
   return FreeTrajectoryState( par, err);
 }
 
-
-int HLTmumutkVtxProducer::overlap(const reco::Candidate &a, const reco::Candidate &b) {
+bool HLTmumutkVtxProducer::overlap(const TrackRef& trackref1, const TrackRef& trackref2){
   double eps(1.44e-4);
-  double dpt = a.pt() - b.pt();
-  dpt *= dpt;
-  double dphi = deltaPhi(a.phi(), b.phi());
-  dphi *= dphi;
-  double deta = a.eta() - b.eta();
-  deta *= deta;
-  if ((dphi + deta) < eps) {
-    return 1;
-  }
+  if (deltaR(trackref1->eta(), trackref1->phi(),trackref2->eta(), trackref2->phi()) < eps) return 1;
   return 0;
 }
-
 
 bool HLTmumutkVtxProducer::checkPreviousCand(const TrackRef& trackref, vector<RecoChargedCandidateRef> & refVect){
   bool ok=false;

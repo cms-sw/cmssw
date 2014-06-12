@@ -11,7 +11,6 @@
  Implementation:
      <Notes on implementation>
 */
-//
 
 // system include files
 #include <memory>
@@ -26,7 +25,6 @@
 #include "DataFormats/HLTReco/interface/TriggerRefsCollections.h"
 #include <vector>
 
-//#include "HLTrigger/HLTcore/interface/HLTFilter.h"
 namespace edm {
   class ConfigurationDescriptions;
 }
@@ -40,7 +38,7 @@ namespace reco {
 
 class FreeTrajectoryState;
 class MagneticField;
-	
+    
 class HLTmumutkVtxProducer : public edm::EDProducer {
  public:
   explicit HLTmumutkVtxProducer(const edm::ParameterSet&);
@@ -49,9 +47,8 @@ class HLTmumutkVtxProducer : public edm::EDProducer {
   virtual void produce(edm::Event&, const edm::EventSetup&);
 
  private:
-//   virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
-  static int overlap(const reco::Candidate&, const reco::Candidate&);
+  bool overlap(const reco::TrackRef& trackref1, const reco::TrackRef& trackref2);
   static FreeTrajectoryState initialFreeState( const reco::Track&,const MagneticField*);
   bool checkPreviousCand(const reco::TrackRef& trackref, std::vector<reco::RecoChargedCandidateRef>& ref2);
 
