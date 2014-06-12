@@ -194,6 +194,8 @@ LHESource::readEvent_(edm::EventPrincipal& eventPrincipal) {
 		      boost::bind(&LHEEventProduct::addWeight,
 				  product.get(), _1));
         product->setPtclus(partonLevel->ptclus());
+        product->setNpLO(partonLevel->npLO());
+        product->setNpNLO(partonLevel->npNLO());
 	std::for_each(partonLevel->getComments().begin(),
 	              partonLevel->getComments().end(),
 	              boost::bind(&LHEEventProduct::addComment,

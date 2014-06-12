@@ -54,6 +54,12 @@ class LHEEvent {
 
 	const std::vector<float> &ptclus() const { return ptclus_; }
 	
+	int npLO() const { return npLO_; }
+	int npNLO() const { return npNLO_; }
+	
+	void setNpLO(int n) { npLO_ = n; }
+	void setNpNLO(int n) { npNLO_ = n; }
+	
 	void addComment(const std::string &line) { comments.push_back(line); }
 
 	static void removeParticle(lhef::HEPEUP &hepeup, int index);
@@ -88,6 +94,8 @@ class LHEEvent {
 	int                                     readAttemptCounter;
 	double                                  originalXWGTUP_;
         std::vector<float>                      ptclus_; //scale value used to exclude EWK-produced partons from matching
+        int 					npLO_; //number of partons for LO process (used to steer matching/merging)
+        int 					npNLO_; //number of partons for NLO process (used to steer matching/merging)
 };
 
 } // namespace lhef
