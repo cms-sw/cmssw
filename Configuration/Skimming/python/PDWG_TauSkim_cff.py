@@ -7,7 +7,7 @@ TauSkimPFTausSelected = cms.EDFilter("PFTauSelector",
 	cms.PSet( discriminator=cms.InputTag("hpsPFTauDiscriminationByDecayModeFinding"),
 		   selectionCut=cms.double(0.5)           
 	),
-   cms.PSet( discriminator=cms.InputTag("hpsPFTauDiscriminationByLooseIsolation"),
+   cms.PSet( discriminator=cms.InputTag("hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits"),
 		   selectionCut=cms.double(0.5)           
 	),
 
