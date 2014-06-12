@@ -154,17 +154,29 @@ OscarMTProducer::beginRun(const edm::Run & r, const edm::EventSetup & es)
 {
   // Random number generation not allowed here
   StaticRandomEngineSetUnset random(nullptr);
-  m_runManagerWorker->setRunManagerMaster(runCache()->runManagerMasterPtr());
+  m_runManagerWorker->beginRun(runCache()->runManagerMaster(), es);
 }
 
 void 
 OscarMTProducer::endRun(const edm::Run&, const edm::EventSetup&)
 {
-  m_runManagerWorker->setRunManagerMaster(nullptr);
 }
 
 void OscarMTProducer::produce(edm::Event & e, const edm::EventSetup & es)
 {
+  StaticRandomEngineSetUnset random(e.streamID());
+
+  try {
+    m_runManagerWorker->produce(e, es);
+  } catch ( const SimG4Exception& simg4ex ) {
+       
+    edm::LogInfo("SimG4CoreApplication") << " SimG4Exception caght !" 
+					 << simg4ex.what();
+       
+    m_runManagerWorker->abortEvent();
+    throw edm::Exception( edm::errors::EventCorruption );
+  }
+
 #ifdef MK_SERIAL
   StaticRandomEngineSetUnset random(e.streamID());
 

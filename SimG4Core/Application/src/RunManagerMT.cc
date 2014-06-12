@@ -139,7 +139,9 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const & p)
   m_userRunAction = 0;
   m_runInterface = 0;
 
+#ifdef MK_IGNORE
   createWatchers(m_p, m_registry, m_watchers, m_producers);
+#endif
 
   m_InTag = m_pGenerator.getParameter<std::string>("HepMCProductLabel") ;
 
@@ -164,6 +166,7 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF, co
   const DDDWorld * world = new DDDWorld(pDD, map_, catalog_, m_check);
   m_registry.dddWorldSignal_(world);
 
+#ifdef MK_IGNORE
   if("" != m_WriteFile) {
     G4GDMLParser gdml;
     gdml.Write(m_WriteFile, world->GetWorldVolume());
@@ -207,7 +210,7 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF, co
     << " Calo type producers ";
 
   m_primaryTransformer = new PrimaryTransformer();
-
+#endif
   std::auto_ptr<PhysicsListMakerBase> 
     physicsMaker(PhysicsListFactory::get()->create(
       m_pPhysics.getParameter<std::string> ("type")));
@@ -229,16 +232,19 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF, co
   m_kernel->SetPhysics(phys);
   m_kernel->InitializePhysics();
 
+#ifdef MK_IGNORE
   m_physicsList->ResetStoredInAscii();
   std::string tableDir = m_PhysicsTablesDir;
   if (m_RestorePhysicsTables) {
     m_physicsList->SetPhysicsTableRetrieved(tableDir);
-  } 
+  }
+#endif
   if (m_kernel->RunInitialization()) { m_managerInitialized = true; }
   else { 
     throw SimG4Exception("G4RunManagerKernel initialization failed!"); 
   }
-  
+
+#ifdef MK_IGNORE
   if (m_StorePhysicsTables)
     {
       std::ostringstream dir;
@@ -256,9 +262,10 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF, co
   //tell all interesting parties that we are beginning the job
   BeginOfJob aBeginOfJob(&es);
   m_registry.beginOfJobSignal_(&aBeginOfJob);
-  
+
   initializeUserActions();
-  
+
+#endif
   for (unsigned it=0; it<m_G4Commands.size(); it++) {
     edm::LogInfo("SimG4CoreApplication") << "RunManagerMT:: Requests UI: "
                                          << m_G4Commands[it];

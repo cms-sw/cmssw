@@ -24,17 +24,19 @@ public:
   RunManagerMTWorker(const edm::ParameterSet& iConfig);
   ~RunManagerMTWorker();
 
-  void setRunManagerMaster(const RunManagerMT* master);
+  void beginRun(const RunManagerMT& runManagerMaster, const edm::EventSetup& es);
 
   void produce(const edm::Event& inpevt, const edm::EventSetup& es);
+
+  void abortEvent();
+  void abortRun(bool softAbort=false);
 
 private:
   G4Event *generateEvent(const edm::Event& inpevt);
 
-  const RunManagerMT *m_runManagerMaster;
-
   Generator m_generator;
   std::string m_InTag;
+  const bool m_nonBeam;
 
   std::unique_ptr<G4Event> m_currentEvent;
   std::unique_ptr<G4SimEvent> m_simEvent;
