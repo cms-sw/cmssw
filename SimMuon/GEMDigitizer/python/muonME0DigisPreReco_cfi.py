@@ -9,6 +9,15 @@ simMuonME0Digis = cms.EDProducer("ME0DigiPreRecoProducer",
     etaResolution = cms.double(1.),# in cm average resoltion along local y in case of no correlation
     useCorrelation  = cms.bool(False),
     useEtaProjectiveGEO  = cms.bool(False),
-#    digiPreRecoModelString = cms.string('PreRecoNoSmear'),
-                                 
+    averageEfficiency = cms.double(0.98),
+    doBkgNoise = cms.bool(True), #False == No background simulation
+    digitizeOnlyMuons = cms.bool(False),
+    simulateIntrinsicNoise = cms.bool(False),
+    simulateElectronBkg = cms.bool(True), #True - will simulate electron background
+
+    averageNoiseRate = cms.double(0.001), #intrinsic noise
+    bxwidth = cms.int32(25),
+    minBunch = cms.int32(-5), ## in terms of 25 ns
+    maxBunch = cms.int32(3)
+
 )
