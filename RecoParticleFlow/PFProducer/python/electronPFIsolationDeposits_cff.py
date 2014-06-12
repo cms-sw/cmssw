@@ -6,7 +6,6 @@ from CommonTools.ParticleFlow.Isolation.tools_cfi import *
 elPFIsoDepositCharged=isoDepositReplace('pfSelectedElectrons','pfAllChargedHadrons')
 elPFIsoDepositChargedAll=isoDepositReplace('pfSelectedElectrons','pfAllChargedParticles')
 elPFIsoDepositNeutral=isoDepositReplace('pfSelectedElectrons','pfAllNeutralHadrons')
-#elPFIsoDepositNeutral=isoDepositReplace('pfSelectedElectrons','pfWeightedNeutralHadrons')
 elPFIsoDepositPU=isoDepositReplace('pfSelectedElectrons','pfPileUpAllChargedParticles')
 #elPFIsoDepositGamma=isoDepositReplace('pfSelectedElectrons','pfAllPhotons')
 elPFIsoDepositGamma= cms.EDProducer("CandIsoDepositProducer",
@@ -19,7 +18,6 @@ elPFIsoDepositGamma= cms.EDProducer("CandIsoDepositProducer",
                                             DR_Max = cms.double(1.0),
                                             Diff_r = cms.double(99999.99),
                                             inputCandView = cms.InputTag("pfAllPhotons"),
-#                                            inputCandView = cms.InputTag("pfWeightedPhotons"),
                                             DR_Veto = cms.double(0),
                                             SCMatch_Veto = cms.bool(False),
                                             MissHitSCMatch_Veto = cms.bool(True),
