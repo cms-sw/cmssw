@@ -16,6 +16,19 @@
 
 #include "G4SystemOfUnits.hh"
 
+#include <atomic>
+
+namespace {
+  static std::atomic<int> thread_counter{ 0 };
+
+  int get_new_thread_index() { 
+    return thread_counter++;
+  }
+
+  static thread_local int s_thread_index = get_new_thread_index();
+
+  int getThreadIndex() { return s_thread_index; }
+}
 
 RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig):
   m_generator(iConfig.getParameter<edm::ParameterSet>("Generator")),
@@ -63,6 +76,8 @@ void RunManagerMTWorker::produce(const edm::Event& inpevt, const edm::EventSetup
     
   edm::LogWarning("SimG4CoreApplication") // FIXME: should be LogInfo
     << " RunManagerMT: saved : Event  " << inpevt.id().event() 
+    << " stream id " << inpevt.streamID()
+    << " thread index " << getThreadIndex()
     << " of weight " << m_simEvent->weight()
     << " with " << m_simEvent->nTracks() << " tracks and " 
     << m_simEvent->nVertices()
