@@ -50,6 +50,7 @@ public:
   std::pair<int,int>  findCell(int cell, int lay, int subSec, bool reco) const;
   std::pair<int,int>  findCell(int cell, float h, float bl, float tl, 
 			       float alpha, float cellSize) const;
+  bool                isValid(int lay, int mod, int cell, bool reco) const;
   unsigned int        layers(bool reco) const {return (reco ? depthIndex.size() : layerIndex.size());}
   std::pair<float,float> locateCell(int cell, int lay, int subSec,
 				    bool reco) const;

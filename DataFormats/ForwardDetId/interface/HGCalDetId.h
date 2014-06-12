@@ -39,6 +39,8 @@ public:
   /// consistency check : no bits left => no overhead
   bool isHGCal()   const { return true; }
   bool isForward() const { return true; }
+  static bool isValid(ForwardSubdetector subdet, int zp, int lay, 
+		      int mod, int subsec, int cell);
 
 };
 

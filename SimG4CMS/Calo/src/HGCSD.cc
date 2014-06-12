@@ -38,6 +38,7 @@ HGCSD::HGCSD(G4String name, const DDCompactView & cpv,
 
   edm::ParameterSet m_HGC = p.getParameter<edm::ParameterSet>("HGCSD");
   eminHit          = m_HGC.getParameter<double>("EminHit")*MeV;
+  bool checkID     = m_HGC.getUntrackedParameter<bool>("CheckID", false);
 
   //this is defined in the hgcsens.xml
   G4String myName(this->nameOfSD());
@@ -66,7 +67,7 @@ HGCSD::HGCSD(G4String name, const DDCompactView & cpv,
 #endif
   edm::LogInfo("HGCSim") << "HGCSD:: Threshold for storing hits: " << eminHit;
 
-  numberingScheme = new HGCNumberingScheme(cpv,nameX);
+  numberingScheme = new HGCNumberingScheme(cpv,nameX,checkID);
 }
 
 HGCSD::~HGCSD() { 
