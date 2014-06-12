@@ -105,15 +105,16 @@ bool HLTmumutkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetu
     reco::Vertex displacedVertex = *it;
 
     // check if the vertex actually consists of exactly two muon + 1 track, throw exception if not
-    if(displacedVertex.tracksSize() != 3)  throw cms::Exception("BadLogic") << "HLTmumutkFilter: ERROR: the Jpsi+trk vertex must have " 
-                                                                            << "exactly two muons + 1 trk by definition. It now has n trakcs = "
-                                                                            << displacedVertex.tracksSize() << std::endl;
+    if(displacedVertex.tracksSize() != 3) throw cms::Exception("BadLogic") << "HLTmumutkFilter: ERROR: the Jpsi+trk vertex must have " 
+                                                                           << "exactly two muons + 1 trk by definition. It now has n trakcs = "
+                                                                           << displacedVertex.tracksSize() << std::endl;
 
     float normChi2 = displacedVertex.normalizedChi2();
     if (normChi2 > maxNormalisedChi2_) continue;
 
     double vtxProb = 0.0;
-    if( (displacedVertex.chi2()>=0.0) && (displacedVertex.ndof()>0) ) vtxProb = TMath::Prob(displacedVertex.chi2(), displacedVertex.ndof() );
+    if ((displacedVertex.chi2()>=0.0) && (displacedVertex.ndof()>0) ) 
+      vtxProb = TMath::Prob(displacedVertex.chi2(), displacedVertex.ndof() );
     if (vtxProb < minVtxProbability_) continue;
 
     // get the three tracks from the vertex
@@ -171,7 +172,9 @@ bool HLTmumutkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetu
     GlobalPoint secondaryVertex (vpoint.x(), vpoint.y(), vpoint.z());
     GlobalError err(verr.At(0,0), verr.At(1,0), verr.At(1,1), verr.At(2,0), verr.At(2,1), verr.At(2,2) );
 
-    GlobalPoint displacementFromBeamspot( -1*((vertexBeamSpot.x0() -secondaryVertex.x()) +  (secondaryVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dxdz()), -1*((vertexBeamSpot.y0() - secondaryVertex.y())+ (secondaryVertex.z() -vertexBeamSpot.z0()) * vertexBeamSpot.dydz()), 0);
+    GlobalPoint displacementFromBeamspot( -1*((vertexBeamSpot.x0() -secondaryVertex.x()) + (secondaryVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dxdz()), 
+                                          -1*((vertexBeamSpot.y0() - secondaryVertex.y())+ (secondaryVertex.z() -vertexBeamSpot.z0()) * vertexBeamSpot.dydz()), 
+                                           0 );
     float lxy = displacementFromBeamspot.perp();
     float lxyerr = sqrt(err.rerr(displacementFromBeamspot));
 
