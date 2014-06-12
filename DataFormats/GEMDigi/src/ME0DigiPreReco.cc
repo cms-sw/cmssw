@@ -10,13 +10,15 @@
 #include "DataFormats/GEMDigi/interface/ME0DigiPreReco.h"
 #include <iostream>
 
-ME0DigiPreReco::ME0DigiPreReco (float x, float y, float ex, float ey, float corr, float tof) :
+//ME0DigiPreReco::ME0DigiPreReco (float x, float y, float ex, float ey, float corr, float tof) :
+ME0DigiPreReco::ME0DigiPreReco (float x, float y, float ex, float ey, float corr, float tof, int pdgid) :
   x_(x),
   y_(y),
   ex_(ex),
   ey_(ey),
   corr_(corr),
-  tof_(tof)
+  tof_(tof),
+  pdgid_(pdgid)
 {}
 
 ME0DigiPreReco::ME0DigiPreReco ():
@@ -25,7 +27,8 @@ ME0DigiPreReco::ME0DigiPreReco ():
   ex_(0.),
   ey_(0.),
   corr_(0.),
-  tof_(-1.)
+  tof_(-1.),
+  pdgid_(0)
 {}
 
 
@@ -59,11 +62,13 @@ bool ME0DigiPreReco::operator<(const ME0DigiPreReco& digi) const
 
 std::ostream & operator<<(std::ostream & o, const ME0DigiPreReco& digi)
 {
-  return o << "local x=" << digi.x() << " cm y=" << digi.y()<<" cm ex=" << digi.ex() << " cm ey=" << digi.ey()<< " cm tof="<<digi.tof()<<" ns";
+//  return o << "local x=" << digi.x() << " cm y=" << digi.y()<<" cm ex=" << digi.ex() << " cm ey=" << digi.ey()<< " cm tof="<<digi.tof()<<" ns";
+  return o << "local x=" << digi.x() << " cm y=" << digi.y()<<" cm ex=" << digi.ex() << " cm ey=" << digi.ey()<< " cm tof="<<digi.tof()<<" ns"<<" pdgID "<<digi.pdgid();
 }
 
 void ME0DigiPreReco::print() const
 {
-  std::cout << "local x=" << this->x() << " cm y=" << this->y() <<" cm tof="<<this->tof()<<" ns"<<std::endl;
+//  std::cout << "local x=" << this->x() << " cm y=" << this->y() <<" cm tof="<<this->tof()<<" ns"<<std::endl;
+  std::cout << "local x=" << this->x() << " cm y=" << this->y() <<" cm tof="<<this->tof()<<" ns"<<" pdgID "<<this->pdgid()<<std::endl;
 }
 

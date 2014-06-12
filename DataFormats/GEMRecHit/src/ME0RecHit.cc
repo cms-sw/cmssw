@@ -11,12 +11,12 @@
 
 
 ME0RecHit::ME0RecHit(const ME0DetId& me0Id, float tof) :  RecHit2DLocalPos(me0Id),
-  theME0Id(me0Id), theTOF(tof),theLocalPosition(), theLocalError() 
+  theME0Id(me0Id), theTOF(tof), theLocalPosition(), theLocalError()
 {
 }
 
 ME0RecHit::ME0RecHit() :  RecHit2DLocalPos(),
-  theME0Id(), theTOF(0.),theLocalPosition(), theLocalError() 
+  theME0Id(), theTOF(0.), theLocalPosition(), theLocalError()
 {
 }
 
@@ -33,7 +33,7 @@ ME0RecHit::ME0RecHit(const ME0DetId& me0Id,
 		     float tof, 
 		     const LocalPoint& pos,
 		     const LocalError& err) :  RecHit2DLocalPos(me0Id),
-  theME0Id(me0Id), theTOF(tof), theLocalPosition(pos), theLocalError(err) 
+  theME0Id(me0Id), theTOF(tof), theLocalPosition(pos), theLocalError(err)
 {
 }
 
