@@ -199,6 +199,7 @@ void LHEReader::XMLHandler::startElement(const XMLCh *const uri,
     DOMElement *elem = xmlEvent->createElement(qname);    
     attributesToDom(elem, attributes);
 
+    //TODO this is a hack (even more than the rest of this class)
     if( name == "rwgt" ) {
       xmlEventNodes[0]->appendChild(elem);
     } else if (name == "wgt") {
@@ -309,11 +310,7 @@ void LHEReader::XMLHandler::endElement(const XMLCh *const uri,
       xmlHeader->release();
       xmlHeader = 0;
     }
-
-    if( name == "rwgt" && mode == kEvent ) return;
-    if( name == "wgt" && mode == kEvent ) return; 
-
-    if (name == "event" && 
+    else if (name == "event" && 
 	mode == kEvent && 
 	xmlEventNodes.size() >= 1) { // handling of weights in LHE file
       for(DOMNode *node = xmlEventNodes[0]->getFirstChild();
@@ -345,6 +342,10 @@ void LHEReader::XMLHandler::endElement(const XMLCh *const uri,
 	  break;
 	}
       }      
+    }
+    else if (mode == kEvent) {
+      //skip unknown tags
+      return;
     }
 
     if (gotObject != kNone)
