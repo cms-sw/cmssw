@@ -1,6 +1,8 @@
 #include "DQMServices/Components/src/DQMFileSaver.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "EventFilter/Utilities/interface/EvFDaqDirector.h"
+#include "EventFilter/Utilities/interface/FastMonitoringService.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -13,13 +15,19 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <string>
+#include <utility>
 #include <TString.h>
 #include <TSystem.h>
 
 #include <boost/property_tree/json_parser.hpp>
-#include <boost/property_tree/ptree.hpp>
+#include <boost/filesystem.hpp>
+
+//--------------------------------------------------------
+const std::string DQMFileSaver::streamPrefix_("stream");
+const std::string DQMFileSaver::streamSuffix_("Histograms");
 
 //--------------------------------------------------------
 static void
@@ -250,77 +258,117 @@ DQMFileSaver::saveForOnline(const std::string &suffix, const std::string &rewrit
                       "", ROOT);
 }
 
-static std::string
-filterUnitFilePrefix(const std::string &fileBaseName, const std::string &producer, int run, int lumi)
-{
-  // Create the file name using the convention for DAQ2
-  char daqFileName[64]; // with current conventions, max size is 42
-  sprintf(daqFileName, "run%06d_ls%04d_stream%sFU_pid%05d", run, lumi, producer.c_str(), getpid());
-  std::string fileprefix = fileBaseName + daqFileName;
-  return fileprefix;
-}
-
-static std::string
-filterUnitFileName(const std::string &fileBaseName, const std::string &producer, int run, int lumi, DQMFileSaver::FileFormat fileFormat)
-{
-  std::string filename = filterUnitFilePrefix(fileBaseName, producer, run, lumi) + dataFileExtension(fileFormat);
-  return filename;
-}
-
 void
-DQMFileSaver::saveJson(int run, int lumi, const std::string& fn, const std::string& data_fn) {
-  using namespace boost::property_tree;
-  ptree pt;
-  ptree data;
+DQMFileSaver::fillJson(int run, int lumi, const std::string& dataFilePathName, boost::property_tree::ptree& pt)
+{
+  namespace bpt = boost::property_tree;
+  namespace bfs = boost::filesystem;
+  int hostnameReturn;
+  char host[32];
+  hostnameReturn = gethostname(host ,sizeof(host));
+  if (hostnameReturn == -1)
+    throw cms::Exception("DQMFileSaver")
+          << "Internal error, cannot get host name";
+  //TODO(diguida): use a fake pid for testing purposes
+  int pid = getpid();
+  std::ostringstream oss_pid;
+  oss_pid << pid;
 
-  ptree child1, child2, child3;
+  // Stat the data file: if not there, throw
+  struct stat dataFileStat;
+  if (stat(dataFilePathName.c_str(), &dataFileStat) != 0)
+    throw cms::Exception("DQMFileSaver")
+          << "Internal error, cannot get data file: "
+	  << dataFilePathName;
+  // Extract only the data file name from the full path
+  std::string dataFileName = bfs::path(dataFilePathName).filename().string();
+  // The availability test of the FastMonitoringService was done in the ctor.
+  bpt::ptree data;
+  bpt::ptree processedEvents, acceptedEvents, errorEvents, bitmask, fileList, fileSize, inputFiles;
+  processedEvents.put("", fms_->getEventsProcessedForLumi(lumi)); // Processed events
+  acceptedEvents.put("", fms_->getEventsProcessedForLumi(lumi)); // Accepted events, same as processed for our purposes
+  errorEvents.put("", 0); // Error events
+  bitmask.put("", 0); // Bitmask of abs of CMSSW return code
+  fileList.put("", dataFileName); // Data file the information refers to
+  fileSize.put("", dataFileStat.st_size); // Size in bytes of the data file
+  inputFiles.put("", ""); // We do not care about input files!
 
-  child1.put("", -1); // Processed
-  child2.put("", -1); // Accepted
-  child3.put("", data_fn); // filelist
-
-  data.push_back(std::make_pair("", child1));
-  data.push_back(std::make_pair("", child2));
-  data.push_back(std::make_pair("", child3));
+  data.push_back(std::make_pair("", processedEvents));
+  data.push_back(std::make_pair("", acceptedEvents));
+  data.push_back(std::make_pair("", errorEvents));
+  data.push_back(std::make_pair("", bitmask));
+  data.push_back(std::make_pair("", fileList));
+  data.push_back(std::make_pair("", fileSize));
+  data.push_back(std::make_pair("", inputFiles));
 
   pt.add_child("data", data);
-  pt.put("definition", "/non-existant/");
-  pt.put("source", "--hostname--");
-  
-  // TODO(diguida): write to a temporary file, then rename it.
+  // The availability test of the EvFDaqDirector Service was done in the ctor.
+  bfs::path outJsonDefName(edm::Service<evf::EvFDaqDirector>()->baseRunDir()); //we assume this file is written bu the EvF Output module
+  outJsonDefName /= (std::string("output_") + oss_pid.str() + std::string(".jsd"));
+  pt.put("definition", outJsonDefName.string());
+  char sourceInfo[64]; //host and pid information
+  sprintf(sourceInfo, "%s_%d", host, pid);
+  pt.put("source", sourceInfo);
 }
 
 void
-DQMFileSaver::saveForFilterUnitPB(int run, int lumi)
+DQMFileSaver::saveForFilterUnit(const std::string& rewrite, int run, int lumi, const DQMFileSaver::FileFormat fileFormat)
 {
-  std::string filePrefix = filterUnitFilePrefix(fileBaseName_, producer_, run, lumi);
-  std::string filename = filePrefix + dataFileExtension(PB);
-  std::string filename_json = filePrefix + ".jsn";
-
-  // Save the file
-  // TODO(diguida): check if this is mutithread friendly!
-  dbe_->savePB(filename, filterName_);
-  saveJson(run, lumi, filename_json, filename);
-}
-
-void
-DQMFileSaver::saveForFilterUnit(const std::string& rewrite, int run, int lumi)
-{
-  std::string filename = filterUnitFileName(fileBaseName_, producer_, run, lumi, ROOT);
-
-  // Save the file with the full directory tree,
-  // modifying it according to @a rewrite,
-  // but not looking for MEs inside the DQMStore, as in the online case,
-  // nor filling new MEs, as in the offline case.
-  // TODO(diguida): check if this is mutithread friendly!
-  dbe_->save(filename,
-             "",
-             "^(Reference/)?([^/]+)",
-             rewrite,
-             0,
-             (DQMStore::SaveReferenceTag) saveReference_,
-             saveReferenceQMin_,
-             fileUpdate_);
+  // get from DAQ2 services where to store the files according to their format
+  namespace bpt = boost::property_tree;
+  bpt::ptree pt;
+  std::string openHistoFilePathName;
+  std::string histoFilePathName;
+  std::string openJsonFilePathName = edm::Service<evf::EvFDaqDirector>()->getOpenOutputJsonFilePath(lumi, stream_label_);
+  std::string jsonFilePathName = edm::Service<evf::EvFDaqDirector>()->getOutputJsonFilePath(lumi, stream_label_);
+  if (fileFormat == ROOT)
+  {
+    openHistoFilePathName = edm::Service<evf::EvFDaqDirector>()->getOpenRootHistogramFilePath(lumi, stream_label_);
+    histoFilePathName = edm::Service<evf::EvFDaqDirector>()->getRootHistogramFilePath(lumi, stream_label_);
+    // Save the file with the full directory tree,
+    // modifying it according to @a rewrite,
+    // but not looking for MEs inside the DQMStore, as in the online case,
+    // nor filling new MEs, as in the offline case.
+    // TODO(diguida): check if this is multithread friendly!
+    dbe_->save(openHistoFilePathName,
+               "",
+               "^(Reference/)?([^/]+)",
+               rewrite,
+               0,
+               (DQMStore::SaveReferenceTag) saveReference_,
+               saveReferenceQMin_,
+               fileUpdate_);
+  }
+  else if (fileFormat == PB)
+  {
+    openHistoFilePathName = edm::Service<evf::EvFDaqDirector>()->getOpenProtocolBufferHistogramFilePath(lumi, stream_label_);
+    histoFilePathName = edm::Service<evf::EvFDaqDirector>()->getProtocolBufferHistogramFilePath(lumi, stream_label_);
+    // Save the file in the open directory.
+    // TODO(diguida): check if this is multithread friendly!
+    dbe_->savePB(openHistoFilePathName, filterName_);
+  }
+  else
+    throw cms::Exception("DQMFileSaver")
+          << "Internal error, can save files"
+          << " only in ROOT or ProtocolBuffer format.";
+  this->fillJson(run, lumi, openHistoFilePathName, pt);
+  // Write the json file in the open directory.
+  write_json(openJsonFilePathName, pt);
+  // Now move the the data and json files into the output directory.
+  int result = rename(openHistoFilePathName.c_str(), histoFilePathName.c_str());
+  // Check that the histogram file is there
+  struct stat histoFileStat;
+  if ((result != 0) || (stat(histoFilePathName.c_str(), &histoFileStat) != 0))
+    throw cms::Exception("DQMFileSaver")
+          << "Internal error, cannot get data file: "
+	  << histoFilePathName;
+  // TODO(diguida): check that the histogram file size after renaming is the same as the one in the json tree
+  result = rename(openJsonFilePathName.c_str(), jsonFilePathName.c_str());
+  if (result != 0)
+    throw cms::Exception("DQMFileSaver")
+          << "Internal error, cannot move json file: "
+	  << openJsonFilePathName
+	  << " into: " << jsonFilePathName;
 }
 
 void
@@ -345,6 +393,7 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
     fileFormat_(ROOT),
     workflow_ (""),
     producer_ ("DQM"),
+    stream_label_ (""),
     dirName_ ("."),
     child_ (""),
     filterName_(""),
@@ -370,7 +419,8 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
     nrun_ (0),
     nlumi_ (0),
     nevent_ (0),
-    numKeepSavedFiles_ (5)
+    numKeepSavedFiles_ (5),
+    fms_(nullptr)
 {
   // Determine the file saving convention, and adjust defaults accordingly.
   std::string convention = ps.getUntrackedParameter<std::string>("convention", "Offline");
@@ -424,7 +474,8 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
   // Allow file producer to be set to specific values in certain conditions.
   producer_ = ps.getUntrackedParameter<std::string>("producer", producer_);
   // Setting the same constraints on file producer both for online and FilterUnit conventions
-  // TODO(diguida): limit the producer for FilterUnit to be 'HLTDQM'?
+  // TODO(diguida): limit the producer for FilterUnit to be 'DQM' or 'HLTDQM'?
+  // TODO(diguida): how to handle histograms produced in the playback for the FU case?
   if ((convention_ == Online || convention_ == FilterUnit)
       && producer_ != "DQM"
       && producer_ != "HLTDQM"
@@ -442,6 +493,7 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
       << "Invalid 'producer' parameter '" << producer_
       << "'.  Expected 'DQM'.";
   }
+  stream_label_ = streamPrefix_ + producer_ + streamSuffix_;
 
   // version number to be used in filename
   version_ = ps.getUntrackedParameter<int>("version", version_);
@@ -511,14 +563,26 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
   // Set up base file name:
   // - for online and offline, follow the convention <dirName>/<producer>_V<4digits>_
   // - for FilterUnit, we need to follow the DAQ2 convention, so we need the run and lumisection:
-  //   for the moment, the base file name is set to <dirName>/ .
-  fileBaseName_ = dirName_ + "/";
+  //   the path is provided by the DAQ director service.
   if (convention_ != FilterUnit)
   {
     char version[8];
     sprintf(version, "_V%04d_", int(version_));
     version[7]='\0';
-    fileBaseName_ = fileBaseName_ + producer_ + version;
+    fileBaseName_ = dirName_ + "/" + producer_ + version;
+  }
+  else
+  {
+    // For FU, dirName_ will not be considered at all
+    edm::LogInfo("DQMFileSaver")
+      << "The base dir provided in the configuration '" << dirName_ << "'\n"
+      << " will not be considered: for FU, the DAQ2 services will handle directories\n";
+    //check that DAQ2 services are available: throw if not
+    fms_ = (evf::FastMonitoringService *) (edm::Service<evf::MicroStateService>().operator->());
+    evf::EvFDaqDirector * daqDirector = (evf::EvFDaqDirector *) (edm::Service<evf::EvFDaqDirector>().operator->());
+    if (!(fms_ && daqDirector))
+      throw cms::Exception("DQMFileSaver")
+              << "Internal error, cannot initialize DAQ services.";
   }
   //Determine the start time.
   gettimeofday(&start_, 0);
@@ -551,6 +615,17 @@ DQMFileSaver::beginRun(const edm::Run &r, const edm::EventSetup &)
 {
   irun_     = (forceRunNumber_ == -1 ? r.id().run() : forceRunNumber_);
   ++nrun_;
+  // For Filter Unit, create an empty ini file:
+  // it is needed by the HLT deamon in order to start merging
+  // The run number is established in the service
+  // TODO(diguida): check that they are the same?
+  if (convention_ == FilterUnit)
+  {
+    evf::EvFDaqDirector * daqDirector = (evf::EvFDaqDirector *) (edm::Service<evf::EvFDaqDirector>().operator->());
+    const std::string initFileName = daqDirector->getInitFilePath(stream_label_);
+    std::ofstream file(initFileName);
+    file.close();
+  }
 }
 
 void
@@ -656,18 +731,9 @@ DQMFileSaver::endLuminosityBlock(const edm::LuminosityBlock &, const edm::EventS
     }
     if (convention_ == FilterUnit) // store at every lumi section end
     {
-      if (fileFormat_ == ROOT)
-      {
-        char rewrite[128];
-        sprintf(rewrite, "\\1Run %d/\\2/By Lumi Section %d-%d", irun_, ilumi_, ilumi_);
-        saveForFilterUnit(rewrite, irun_, ilumi_);
-      }
-      else if (fileFormat_ == PB)
-        saveForFilterUnitPB(irun_, ilumi_);
-      else
-        throw cms::Exception("DQMFileSaver")
-          << "Internal error, can save files"
-          << " only in ROOT or ProtocolBuffer format.";
+      char rewrite[128];
+      sprintf(rewrite, "\\1Run %d/\\2/By Lumi Section %d-%d", irun_, ilumi_, ilumi_);
+      saveForFilterUnit(rewrite, irun_, ilumi_, fileFormat_);
     }
     if (convention_ == Offline)
     {

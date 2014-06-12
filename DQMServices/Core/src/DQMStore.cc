@@ -2393,8 +2393,9 @@ void DQMStore::savePB(const std::string &filename,
       me->set_size(buffer.Length());
       me->set_streamed_histo((const void*)buffer.Buffer(),
                              buffer.Length());
-      delete mi->object_;
-      const_cast<MonitorElement*>(&*mi)->object_ = 0;
+      // Reset the ME
+      // TODO(diguida): handle also the local MEs
+      const_cast<MonitorElement*>(&*mi)->Reset();
     }
   }
   int filedescriptor = ::open(filename.c_str(),

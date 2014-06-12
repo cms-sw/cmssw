@@ -3,8 +3,14 @@
 
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include <boost/property_tree/ptree.hpp>
 #include <sys/time.h>
 #include <string>
+
+namespace evf
+{
+  class FastMonitoringService;
+}
 
 class DQMStore;
 class DQMFileSaver : public edm::EDAnalyzer
@@ -41,15 +47,15 @@ private:
   void saveForOffline(const std::string &workflow, int run, int lumi);
   void saveForOnlinePB(const std::string &suffix);
   void saveForOnline(const std::string &suffix, const std::string &rewrite);
-  void saveForFilterUnitPB(int run, int lumi);
-  void saveForFilterUnit(const std::string& rewrite, int run, int lumi);
+  void saveForFilterUnit(const std::string& rewrite, int run, int lumi, const FileFormat fileFormat);
   void saveJobReport(const std::string &filename);
-  void saveJson(int run, int lumi, const std::string& fn, const std::string& data_fn);
+  void fillJson(int run, int lumi, const std::string& dataFilePathName, boost::property_tree::ptree& pt);
 
   Convention	convention_;
   FileFormat    fileFormat_;
   std::string	workflow_;
   std::string	producer_;
+  std::string   stream_label_;
   std::string	dirName_;
   std::string   child_;
   std::string	filterName_;
@@ -84,20 +90,13 @@ private:
 
   int			 numKeepSavedFiles_;
   std::list<std::string> pastSavedFiles_;
-  
-  MonitorElement * versCMSSW_ ;
-  MonitorElement * versDataset_ ;
-  MonitorElement * versTaglist_ ;
-  MonitorElement * versGlobaltag_ ;
-  MonitorElement * hostName_;          ///Hostname of the local machine
-  MonitorElement * processName_;       ///DQM "name" of the job (eg, Hcal or DT)
-  MonitorElement * workingDir_;        ///Current working directory of the job
-  MonitorElement * processId_;         ///The PID associated with this job
-  MonitorElement * isComplete_;
-  MonitorElement * fileVersion_;
-  
 
-  
+  // Services used in DAQ2 (so for FilterUnit case only)
+  evf::FastMonitoringService * fms_;
+
+  static const std::string streamPrefix_;
+  static const std::string streamSuffix_;
+
 };
 
 #endif // DQMSERVICES_COMPONEntS_DQMFILESAVER_H
