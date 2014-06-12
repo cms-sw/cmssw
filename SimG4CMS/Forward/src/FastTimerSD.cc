@@ -176,7 +176,8 @@ uint32_t FastTimerSD::setDetUnitId(G4Step * aStep) {
 
   //Find the depth segment
   const G4VTouchable* touch = aStep->GetPreStepPoint()->GetTouchable();
-  int      iz = (touch->GetReplicaNumber(2)== 1) ? 1 : -1;
+  float globalZ = aStep->GetPreStepPoint()->GetPosition().z();
+  int        iz = (globalZ > 0) ? 1 : -1;
   std::pair<int,int> ixy;
   if (type == 1) {
     ixy = ftcons->getXY(touch->GetReplicaNumber(0));
@@ -186,9 +187,9 @@ uint32_t FastTimerSD::setDetUnitId(G4Step * aStep) {
   uint32_t id = FastTimeDetId(ixy.first,ixy.second,iz).rawId();
 #ifdef DebugLog
   edm::LogInfo("FastTimerSim") << "Levels " << touch->GetReplicaNumber(0) <<":"
-			       << touch->GetReplicaNumber(2) << " Ixyz "
-			       << ixy.first << ":" << ixy.second << ":" << iz
-			       << " id " << std::hex << id << std::dec;
+			       << globalZ << " Ixyz " << ixy.first << ":" 
+			       << ixy.second << ":" << iz  << " id " 
+			       << std::hex << id << std::dec;
 #endif
   return id;
 }

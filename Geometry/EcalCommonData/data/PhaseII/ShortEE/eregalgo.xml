@@ -6,23 +6,23 @@
 	</ConstantsSection>
 	<SolidSection label="eregalgo.xml">
 		<Polycone name="ECAL" startPhi="0*deg" deltaPhi="360*deg">
-			<ZSection z="-[eecon:EEzBack]"  rMin="[eecon:EEIRECAL]" rMax="[eecon:EBRMax]"/>
-			<ZSection z="-[eecon:EEzFront]" rMin="[eecon:EEIRECAL]" rMax="[eecon:EBRMax]"/>
-			<ZSection z="-([escon:PRESH_Z_OFFSET] - [escon:PRESH_Z_TOTAL]/2. + [eecon:EEzMagF])" rMin="[eecon:EEIRECAL]" rMax="[eecon:EBRMax]"/>
+			<ZSection z="-[eecon:EEzBack]"  rMin="[eecon:EEIRECR]" rMax="[eecon:EBRMax]"/>
+			<ZSection z="-[eecon:EEzFront]" rMin="[eecon:EEIRECR]" rMax="[eecon:EBRMax]"/>
+			<ZSection z="-([escon:PRESH_Z_OFFSET] - [escon:PRESH_Z_TOTAL]/2. + [eecon:EEzMagF])" rMin="[eecon:EEIRECR]" rMax="[eecon:EBRMax]"/>
 			<ZSection z="-([escon:PRESH_Z_OFFSET] - [escon:PRESH_Z_TOTAL]/2. + [eecon:EEzMagF])" rMin="[eecon:EBRMin]" rMax="[eecon:EBRMax]"/>
 			<ZSection z="  [escon:PRESH_Z_OFFSET] - [escon:PRESH_Z_TOTAL]/2. + [eecon:EEzMagF]" rMin="[eecon:EBRMin]" rMax="[eecon:EBRMax]"/>
-			<ZSection z="  [escon:PRESH_Z_OFFSET] - [escon:PRESH_Z_TOTAL]/2. + [eecon:EEzMagF]" rMin="[eecon:EEIRECAL]" rMax="[eecon:EBRMax]"/>
-			<ZSection z="  [eecon:EEzFront]" rMin="[eecon:EEIRECAL]" rMax="[eecon:EBRMax]"/>
-			<ZSection z="  [eecon:EEzBack] + 8.9*cm"  rMin="[eecon:EEIRECAL]" rMax="[eecon:EBRMax]"/>
+			<ZSection z="  [escon:PRESH_Z_OFFSET] - [escon:PRESH_Z_TOTAL]/2. + [eecon:EEzMagF]" rMin="[eecon:EEIRECR]" rMax="[eecon:EBRMax]"/>
+			<ZSection z="  [eecon:EEzFront]" rMin="[eecon:EEIRECR]" rMax="[eecon:EBRMax]"/>
+			<ZSection z="  [eecon:EEzBack] + 8.9*cm"  rMin="[eecon:EEIRECR]" rMax="[eecon:EBRMax]"/>
 		</Polycone>
 		<Polycone name="EREG" startPhi="0*deg" deltaPhi="360*deg">
-			<ZSection z="[escon:PRESH_Z_OFFSET] - [escon:PRESH_Z_TOTAL]/2." rMin="[eecon:EEIREREG]" rMax="[escon:PRESH_RMAX_FRONT]"/>
-			<ZSection z="[escon:PRESH_Z_OFFSET] + [escon:PRESH_MID_Z]" rMin="[eecon:EEIREREG]" rMax="[escon:PRESH_RMAX_BACK]"/>
-			<ZSection z="[escon:PRESH_Z_OFFSET] + [escon:PRESH_Z_TOTAL]/2." rMin="[eecon:EEIREREG]" rMax="[escon:PRESH_RMAX_BACK]"/>
-			<ZSection z="[eecon:EEzFront]" rMin="[eecon:EEIREREG]" rMax="[escon:PRESH_RMAX_BACK]"/>
-			<ZSection z="[eecon:EEzFront]" rMin="[eecon:EEIREREG]" rMax="[eecon:EErMax1]"/>
-			<ZSection z="[eecon:EEzBack]" rMin="[eecon:EEIREREG]" rMax="[eecon:EErMax2]"/>
-			<ZSection z="[eecon:EEzBack] + 10.5*cm" rMin="[eecon:EEIREREG]" rMax="[eecon:EErMax2]"/>
+			<ZSection z="[escon:PRESH_Z_OFFSET] - [escon:PRESH_Z_TOTAL]/2." rMin="[eecon:EEIRECR]" rMax="[escon:PRESH_RMAX_FRONT]"/>
+			<ZSection z="[escon:PRESH_Z_OFFSET] + [escon:PRESH_MID_Z]"      rMin="[eecon:EEIRECR]" rMax="[escon:PRESH_RMAX_BACK]"/>
+			<ZSection z="[escon:PRESH_Z_OFFSET] + [escon:PRESH_Z_TOTAL]/2." rMin="[eecon:EEIRECR]" rMax="[escon:PRESH_RMAX_BACK]"/>
+			<ZSection z="[eecon:EEzFront]" rMin="[eecon:EEIRECR]" rMax="[escon:PRESH_RMAX_BACK]"/>
+			<ZSection z="[eecon:EEzFront]" rMin="[eecon:EEIRECR]" rMax="[eecon:EErMax1]"/>
+			<ZSection z="[eecon:EEzBack]"  rMin="[eecon:EEIRECR]" rMax="[eecon:EErMax2]"/>
+			<ZSection z="[eecon:EEzBack] + 10.5*cm" rMin="[eecon:EEIRECR]" rMax="[eecon:EErMax2]"/>
 		</Polycone>
 		<Polycone name="EEBackMaterial" startPhi="0*deg" deltaPhi="360*deg">
 			<ZSection z="359.5*cm"  rMin="[eecon:EEIREREG]" rMax="[eecon:EErMax2]"/>
