@@ -622,7 +622,7 @@ namespace edm {
           stream_ps["cerr"] = &std::cerr;
         }
         else  {
-          boost::shared_ptr<std::ofstream> os_sp(new std::ofstream(actual_filename.c_str()));
+          auto os_sp = std::make_shared<std::ofstream>(actual_filename.c_str());
           file_ps.push_back(os_sp);
           dest_ctrl = admin_p->attach( ELoutput(*os_sp) );
           stream_ps[actual_filename] = os_sp.get();
@@ -747,7 +747,7 @@ namespace edm {
           } else if ( actual_filename == "cerr" ) {
             os_p = &std::cerr;
           } else {
-            boost::shared_ptr<std::ofstream> os_sp(new std::ofstream(actual_filename.c_str()));
+            auto os_sp = std::make_shared<std::ofstream>(actual_filename.c_str());
             file_ps.push_back(os_sp);
             os_p = os_sp.get();
           }

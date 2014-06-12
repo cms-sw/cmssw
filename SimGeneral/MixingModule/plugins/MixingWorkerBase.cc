@@ -12,7 +12,6 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "MixingWorkerBase.h"
-#include "boost/shared_ptr.hpp"
 
 namespace edm
 {

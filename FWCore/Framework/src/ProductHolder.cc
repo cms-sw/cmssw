@@ -239,7 +239,7 @@ namespace edm {
     productData().wrapper_ = prod.product();
   }
 
-  void InputProductHolder::setProvenance_(boost::shared_ptr<ProductProvenanceRetriever> provRetriever, ProcessHistory const& ph, ProductID const& pid) {
+  void InputProductHolder::setProvenance_(std::shared_ptr<ProductProvenanceRetriever> provRetriever, ProcessHistory const& ph, ProductID const& pid) {
     productData().prov_.setProductID(pid);
     productData().prov_.setStore(provRetriever);
     productData().prov_.setProcessHistory(ph);
@@ -313,7 +313,7 @@ namespace edm {
     status() = ProductDeleted;
   }
 
-  void ProducedProductHolder::setProvenance_(boost::shared_ptr<ProductProvenanceRetriever> provRetriever, ProcessHistory const& ph, ProductID const& pid) {
+  void ProducedProductHolder::setProvenance_(std::shared_ptr<ProductProvenanceRetriever> provRetriever, ProcessHistory const& ph, ProductID const& pid) {
     productData().prov_.setProductID(pid);
     productData().prov_.setStore(provRetriever);
     productData().prov_.setProcessHistory(ph);
@@ -428,7 +428,7 @@ namespace edm {
     return nullptr;
   }
 
-  void AliasProductHolder::setProvenance_(boost::shared_ptr<ProductProvenanceRetriever> provRetriever, ProcessHistory const& ph, ProductID const& pid) {
+  void AliasProductHolder::setProvenance_(std::shared_ptr<ProductProvenanceRetriever> provRetriever, ProcessHistory const& ph, ProductID const& pid) {
     productData().prov_.setProductID(pid);
     productData().prov_.setStore(provRetriever);
     productData().prov_.setProcessHistory(ph);
@@ -464,7 +464,7 @@ namespace edm {
   void NoProcessProductHolder::resetStatus_() {
   }
 
-  void NoProcessProductHolder::setProvenance_(boost::shared_ptr<ProductProvenanceRetriever> provRetriever, ProcessHistory const& ph, ProductID const& pid) {
+  void NoProcessProductHolder::setProvenance_(std::shared_ptr<ProductProvenanceRetriever> provRetriever, ProcessHistory const& ph, ProductID const& pid) {
   }
 
   void NoProcessProductHolder::setProcessHistory_(ProcessHistory const& ph) {
@@ -553,7 +553,7 @@ namespace edm {
       << "Contact a Framework developer\n";
   }
 
-  void NoProcessProductHolder::resetBranchDescription_(boost::shared_ptr<BranchDescription const> bd) {
+  void NoProcessProductHolder::resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) {
     throw Exception(errors::LogicError)
       << "NoProcessProductHolder::resetBranchDescription_() not implemented and should never be called.\n"
       << "Contact a Framework developer\n";

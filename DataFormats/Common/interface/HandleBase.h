@@ -33,7 +33,7 @@ If failedToGet() returns false but isValid() is also false then no attempt
 
 
 #include <memory>
-#include "DataFormats/Common/interface/HideStdSharedPtrFromRoot.h"
+#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 
 namespace cms {
   class Exception;

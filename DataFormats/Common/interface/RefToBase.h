@@ -34,7 +34,7 @@ reference type.
 
 // user include files
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 #include "boost/static_assert.hpp"
 #include "boost/type_traits/is_base_of.hpp"
 
@@ -46,6 +46,7 @@ reference type.
 #include "DataFormats/Common/interface/Holder.h"
 #include "DataFormats/Common/interface/IndirectHolder.h"
 #include "DataFormats/Common/interface/RefHolder.h"
+#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 
 namespace edm {
   //--------------------------------------------------------------------
@@ -78,7 +79,7 @@ namespace edm {
     RefToBase(Handle<View<T> > const& handle, size_t i);
     template <typename T1>
     explicit RefToBase(RefToBase<T1> const & r );
-    RefToBase(boost::shared_ptr<reftobase::RefHolderBase> p);
+    RefToBase(std::shared_ptr<reftobase::RefHolderBase> p);
     ~RefToBase();
 
     RefToBase& operator= (RefToBase const& rhs);
@@ -156,7 +157,7 @@ namespace edm {
   inline
   RefToBase<T>::RefToBase(RefToBase<T1> const& iRef) :
         holder_(new reftobase::IndirectHolder<T> (
-             boost::shared_ptr< edm::reftobase::RefHolderBase>(iRef.holder().release())
+             std::shared_ptr< edm::reftobase::RefHolderBase>(iRef.holder().release())
         ) )
   {
     // OUT: holder_( new reftobase::Holder<T,RefToBase<T1> >(iRef ) )  {
@@ -169,7 +170,7 @@ namespace edm {
 
   template <class T>
   inline
-  RefToBase<T>::RefToBase(boost::shared_ptr<reftobase::RefHolderBase> p) :
+  RefToBase<T>::RefToBase(std::shared_ptr<reftobase::RefHolderBase> p) :
     holder_(new reftobase::IndirectHolder<T>(p))
   { }
 

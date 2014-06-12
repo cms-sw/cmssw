@@ -27,12 +27,12 @@
 template <class T>
 class PCrossingFrame;
 
-#include "boost/shared_ptr.hpp"
 #include <vector>
 #include <string>
 #include <iostream>
 #include <utility>
 #include <algorithm>
+#include <memory>
 
 
 template <class T> 
@@ -66,12 +66,12 @@ class CrossingFrame
 
   // we keep the shared pointer in the object that will be only destroyed at the end of the event (transient object!)
   // because of HepMCProduct, we need 2 versions...
-/*   void setPileupPtr(boost::shared_ptr<edm::Wrapper<std::vector<T> > const> shPtr) {shPtrPileups_=shPtr;} */
-/*   void setPileupPtr(boost::shared_ptr<edm::Wrapper<T> const> shPtr) {shPtrPileups2_=shPtr;} */
-  void setPileupPtr(boost::shared_ptr<edm::Wrapper<std::vector<T> > const> shPtr) {shPtrPileups_.push_back( shPtr );}
-  void setPileupPtr(boost::shared_ptr<edm::Wrapper<T> const> shPtr) {shPtrPileups2_.push_back( shPtr );}
+/*   void setPileupPtr(std::shared_ptr<edm::Wrapper<std::vector<T> > const> shPtr) {shPtrPileups_=shPtr;} */
+/*   void setPileupPtr(std::shared_ptr<edm::Wrapper<T> const> shPtr) {shPtrPileups2_=shPtr;} */
+  void setPileupPtr(std::shared_ptr<edm::Wrapper<std::vector<T> > const> shPtr) {shPtrPileups_.push_back( shPtr );}
+  void setPileupPtr(std::shared_ptr<edm::Wrapper<T> const> shPtr) {shPtrPileups2_.push_back( shPtr );}
   // used in the Step2 to set the PCrossingFrame
-  void setPileupPtr(boost::shared_ptr<edm::Wrapper<PCrossingFrame<T> > const> shPtr);
+  void setPileupPtr(std::shared_ptr<edm::Wrapper<PCrossingFrame<T> > const> shPtr);
   
   void print(int level=0) const ;
 
@@ -159,12 +159,12 @@ class CrossingFrame
 
   //pileup
   std::vector<const T *>  pileups_; 
-  std::vector< boost::shared_ptr<edm::Wrapper<std::vector<T> > const> > shPtrPileups_; 
-  std::vector< boost::shared_ptr<edm::Wrapper<T> const> > shPtrPileups2_;   // fore HepMCProduct
-/*   boost::shared_ptr<edm::Wrapper<std::vector<T> > const> shPtrPileups_;  */
-/*   boost::shared_ptr<edm::Wrapper<T> const> shPtrPileups2_;   // fore HepMCProduct */
-  boost::shared_ptr<edm::Wrapper<PCrossingFrame<T> > const> shPtrPileupsPCF_;
-//  boost::shared_ptr<edm::Wrapper<PCrossingFrame<edm::HepMCProduct> const> shPtrPileupsHepMCProductPCF_;
+  std::vector< std::shared_ptr<edm::Wrapper<std::vector<T> > const> > shPtrPileups_; 
+  std::vector< std::shared_ptr<edm::Wrapper<T> const> > shPtrPileups2_;   // fore HepMCProduct
+/*   std::shared_ptr<edm::Wrapper<std::vector<T> > const> shPtrPileups_;  */
+/*   std::shared_ptr<edm::Wrapper<T> const> shPtrPileups2_;   // fore HepMCProduct */
+  std::shared_ptr<edm::Wrapper<PCrossingFrame<T> > const> shPtrPileupsPCF_;
+//  std::shared_ptr<edm::Wrapper<PCrossingFrame<edm::HepMCProduct> const> shPtrPileupsHepMCProductPCF_;
   
   // these are informations stored in order to be able to have information
   // as a function of the position of an object in the pileups_ vector
@@ -278,7 +278,7 @@ std::ostream &operator<<(std::ostream& o, const CrossingFrame<T>& cf)
 
 #include "SimDataFormats/CrossingFrame/interface/PCrossingFrame.h"
 template <class T>
-void CrossingFrame<T>::setPileupPtr(boost::shared_ptr<edm::Wrapper<PCrossingFrame<T> > const> shPtr) {shPtrPileupsPCF_=shPtr;}
+void CrossingFrame<T>::setPileupPtr(std::shared_ptr<edm::Wrapper<PCrossingFrame<T> > const> shPtr) {shPtrPileupsPCF_=shPtr;}
 
 
 template <class T>

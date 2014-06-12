@@ -21,9 +21,9 @@
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "DQM/SiStripMonitorHardware/interface/SiStripSpyUtilities.h"
 #include "boost/bind.hpp"
-#include "boost/shared_ptr.hpp"
 #include <algorithm>
 #include <limits>
+#include <memory>
 
 using edm::LogInfo;
 using edm::LogWarning;
@@ -74,8 +74,8 @@ namespace sistrip {
     const edm::VectorInputSourceFactory* sourceFactory = edm::VectorInputSourceFactory::get();
     edm::InputSourceDescription description(edm::ModuleDescription(),
                                             *productRegistry_,
-                                            boost::shared_ptr<edm::BranchIDListHelper>(new edm::BranchIDListHelper),
-                                            boost::shared_ptr<edm::ActivityRegistry>(new edm::ActivityRegistry),
+                                            std::make_shared<edm::BranchIDListHelper>(),
+                                            std::make_shared<edm::ActivityRegistry>(),
                                             -1, -1,
                                             edm::PreallocationConfiguration());
     return sourceFactory->makeVectorInputSource(sourceConfig, description);
