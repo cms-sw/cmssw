@@ -11,6 +11,7 @@ process.load("RecoMET.Configuration.CaloTowersOptForMET_cff")
 process.load("RecoMET.METProducers.CaloMET_cfi")
 process.load("RecoMET.METProducers.METSigParams_cfi")
 process.load("RecoMET.METProducers.MetMuonCorrections_cff")
+process.load("RecoMET.METProducers.caloMetM_cfi")
 process.load("RecoJets.Configuration.CaloTowersRec_cff")
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
@@ -59,6 +60,7 @@ process.p = cms.Path(
     process.caloMetBEFO *
     process.caloMetBE *
     process.caloMetBEO *
+    process.caloMetM *
     process.corMetGlobalMuons *
     process.caloMetWithSignificance
     )
