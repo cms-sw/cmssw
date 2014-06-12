@@ -196,8 +196,8 @@ void SoftElectronMVAEstimator::bindVariables() {
     dphi = 0.6;
 
 
-  if(EoP > 20.)
-    EoP = 20.;
+  //if(EoP > 20.)
+  //  EoP = 20.;
 
   if(eleEoPout > 20.)
     eleEoPout = 20.;
