@@ -63,7 +63,7 @@ numberingScheme(const DDCompactView& cpv, const GeometricDet& det)
 
 TkAccumulatingSensitiveDetector::TkAccumulatingSensitiveDetector(string name, 
 								 const DDCompactView & cpv,
-								 SensitiveDetectorCatalog & clg, 
+								 const SensitiveDetectorCatalog & clg,
 								 edm::ParameterSet const & p,
 								 const SimTrackManager* manager) : 
   SensitiveTkDetector(name, cpv, clg, p), myName(name), myRotation(0),  mySimHit(0),theManager(manager),
@@ -105,9 +105,9 @@ TkAccumulatingSensitiveDetector::TkAccumulatingSensitiveDetector(string name,
     slaveHighTof = new TrackingSlaveSD(name+"HighTof");
   
     // Now attach the right detectors (LogicalVolumes) to me
-    vector<string>  lvNames = clg.logicalNames(name);
+    const vector<string>&  lvNames = clg.logicalNames(name);
     this->Register();
-    for (vector<string>::iterator it = lvNames.begin();  it != lvNames.end(); it++)
+    for (vector<string>::const_iterator it = lvNames.begin();  it != lvNames.end(); it++)
     {
       edm::LogInfo("TrackerSimInfo")<< name << " attaching LV " << *it;
 	this->AssignSD(*it);

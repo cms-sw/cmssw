@@ -29,7 +29,7 @@
 
 MuonSensitiveDetector::MuonSensitiveDetector(std::string name, 
 					     const DDCompactView & cpv,
-					     SensitiveDetectorCatalog & clg,
+					     const SensitiveDetectorCatalog & clg,
 					     edm::ParameterSet const & p,
 					     const SimTrackManager* manager) 
   : SensitiveTkDetector(name, cpv, clg, p),
@@ -72,9 +72,9 @@ MuonSensitiveDetector::MuonSensitiveDetector(std::string name,
   //
   // Now attach the right detectors (LogicalVolumes) to me
   //
-  std::vector<std::string>  lvNames = clg.logicalNames(name);
+  const std::vector<std::string>&  lvNames = clg.logicalNames(name);
   this->Register();
-  for (std::vector<std::string>::iterator it = lvNames.begin();  it != lvNames.end(); it++){
+  for (std::vector<std::string>::const_iterator it = lvNames.begin();  it != lvNames.end(); it++){
     LogDebug("MuonSimDebug") << name << " MuonSensitiveDetector:: attaching SD to LV " << *it << std::endl;
     this->AssignSD(*it);
   }
