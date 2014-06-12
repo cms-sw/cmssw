@@ -49,7 +49,7 @@ class SoftElectronMVAEstimator {
     Float_t                    OneMinusE1x5E5x5;
 
     Float_t                    HoE;
-    Float_t                    EoP;
+    //Float_t                    EoP; //Not being used
     Float_t                    eleEoPout;
 
     Float_t 			spp;
