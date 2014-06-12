@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplate.h (v8.30)
+//  SiPixelTemplate.h (v9.00)
 //
 //  Add goodness-of-fit info and spare entries to templates, version number in template header, more error checking
 //  Add correction for (Q_F-Q_L)/(Q_F+Q_L) bias
@@ -63,7 +63,13 @@
 //  V8.25 - Incorporate VI's speed changes into the current version
 //  V8.26 - Modify the Vavilov lookups to work better with the FPix (offset y-templates)
 //  V8.30 - Change the splitting template generation and access to improve speed and eliminate triple index boost::multiarray
-//
+//  V8.31 - Add correction factor: measured/true charge
+//  V8.31 - Fix version number bug in db object I/O (pushfile)
+//  V8.32 - Check for illegal qmin during loading
+//  V8.33 - Fix small type conversion warnings
+//  V8.40 - Incorporate V.I. optimizations
+//  V9.00 - Expand header to include multi and single dcol thresholds, LA biases, and (variable) Qbin definitions
+
 // Created by Morris Swartz on 10/27/06.
 //
 //
@@ -158,7 +164,7 @@ struct SiPixelTemplateEntry { //!< Basic template entry corresponding to a singl
   float fracytwo;          //!< fraction of double pixel sample with ysize = 1
   float fracxtwo;          //!< fraction of double pixel sample with xsize = 1
   float qavg_avg;          //!< average cluster charge of clusters that are less than qavg (normalize 2-D simple templates)
-  float qavg_spare;        //!< spare cluster charge
+  float r_qMeas_qTrue;     //!< ratio of measured to true cluster charge 
   float spare[1];
 } ;
 
@@ -172,16 +178,19 @@ struct SiPixelTemplateHeader {           //!< template header structure
   int NTxx;               //!< number of Template x-entries in each slice
   int Dtype;              //!< detector type (0=BPix, 1=FPix)
   float qscale;           //!< Charge scaling to match cmssw and pixelav
-  float lorywidth;        //!< estimate of y-lorentz width from single pixel offset
-  float lorxwidth;        //!< estimate of x-lorentz width from single pixel offset
+  float lorywidth;        //!< estimate of y-lorentz width for optimal resolution
+  float lorxwidth;        //!< estimate of x-lorentz width for optimal resolution
+  float lorybias;         //!< estimate of y-lorentz bias
+  float lorxbias;         //!< estimate of x-lorentz bias
   float Vbias;            //!< detector bias potential in Volts 
   float temperature;      //!< detector temperature in deg K 
   float fluence;          //!< radiation fluence in n_eq/cm^2 
-  float s50;              //!< 1/2 of the readout threshold in ADC units
+  float s50;              //!< 1/2 of the multihit dcol threshold in electrons
+  float ss50;             //!< 1/2 of the single hit dcol threshold in electrons
   char title[80];         //!< template title 
   int templ_version;      //!< Version number of the template to ensure code compatibility 
   float Bfield;           //!< Bfield in Tesla
-
+  float fbin[3];          //!< The QBin definitions in Q_clus/Q_avg
   float xsize;            //!< pixel size (for future use in upgraded geometry)
   float ysize;            //!< pixel size (for future use in upgraded geometry)
   float zsize;            //!< pixel size (for future use in upgraded geometry)
@@ -311,6 +320,7 @@ class SiPixelTemplate {
   float pixmax() {return pixmax_;}         //!< maximum pixel charge 
   float qscale() {return qscale_;}         //!< charge scaling factor 
   float s50() {return s50_;}               //!< 1/2 of the pixel threshold signal in electrons
+  float ss50() {return ss50_;}               //!< 1/2 of the pixel threshold signal in electrons
   float symax() {return symax_;}             //!< average pixel signal for y-projection of cluster 
   float dyone() {return dyone_;}             //!< mean offset/correction for one pixel y-clusters 
   float syone() {return syone_;}             //!< rms for one pixel y-clusters 
@@ -474,14 +484,24 @@ class SiPixelTemplate {
 	  assert(i>=0 && i<4); 
 #endif
      return chi2xminc2m_[i];} //!< 1st pass chi2 min search: minimum x-chisq for merged clusters 
+   float fbin(int i) {
+#ifndef SI_PIXEL_TEMPLATE_STANDALONE
+      if(i < 0 || i > 2) {throw cms::Exception("DataCorrupt") << "SiPixelTemplate::chi2xminc2m called with illegal index = " << i << std::endl;}
+#else
+      assert(i>=0 && i<3);
+#endif
+      return fbin_[i];} //!< Return lower bound of Qbin definition
+   
   float chi2yavgone() {return chi2yavgone_;}                        //!< //!< average y chi^2 for 1 pixel clusters 
   float chi2yminone() {return chi2yminone_;}                        //!< //!< minimum of y chi^2 for 1 pixel clusters 
   float chi2xavgone() {return chi2xavgone_;}                        //!< //!< average x chi^2 for 1 pixel clusters 
   float chi2xminone() {return chi2xminone_;}                        //!< //!< minimum of x chi^2 for 1 pixel clusters 
   float lorywidth() {return lorywidth_;}                            //!< signed lorentz y-width (microns)
   float lorxwidth() {return lorxwidth_;}                            //!< signed lorentz x-width (microns)
-  float lorybias() {return lorywidth_;}                            //!< signed lorentz y-width (microns)
-  float lorxbias() {return lorxwidth_;}                            //!< signed lorentz x-width (microns)
+  //float lorybias() {return lorywidth_;}                            //!< signed lorentz y-width (microns)
+  //float lorxbias() {return lorxwidth_;}                            //!< signed lorentz x-width (microns)
+  float lorybias() {return lorybias_;}                            //!< signed lorentz y-width (microns)
+  float lorxbias() {return lorxbias_;}                            //!< signed lorentz x-width (microns)
   float mpvvav() {return mpvvav_;}                                  //!< most probable charge in Vavilov distribution (not actually for larger kappa)
   float sigmavav() {return sigmavav_;}                              //!< "sigma" scale fctor for Vavilov distribution
   float kappavav() {return kappavav_;}                              //!< kappa parameter for Vavilov distribution
@@ -491,6 +511,7 @@ class SiPixelTemplate {
   float xsize() {return xsize_;}                                    //!< pixel x-size (microns)
   float ysize() {return ysize_;}                                    //!< pixel y-size (microns)
   float zsize() {return zsize_;}                                    //!< pixel z-size or thickness (microns)
+  float r_qMeas_qTrue() {return r_qMeas_qTrue_;}                    //!< ratio of measured to true cluster charge
 //  float yspare(int i) {assert(i>=0 && i<5); return pyspare[i];}    //!< vector of 5 spares interpolated in beta only
 //  float xspare(int i) {assert(i>=0 && i<10); return pxspare[i];}    //!< vector of 10 spares interpolated in alpha and beta
   
@@ -513,6 +534,7 @@ class SiPixelTemplate {
   float pixmax_;            //!< maximum pixel charge
   float qscale_;            //!< charge scaling factor 
   float s50_;               //!< 1/2 of the pixel threshold signal in adc units 
+  float ss50_;              //!< 1/2 of the pixel threshold signal in adc units
   float symax_;             //!< average pixel signal for y-projection of cluster 
   float syparmax_;          //!< maximum pixel signal for parameterization of y uncertainties 
   float dyone_;             //!< mean offset/correction for one pixel y-clusters 
@@ -579,12 +601,16 @@ class SiPixelTemplate {
   float kappavav2_;         //!< kappa parameter for 2-cluster Vavilov distribution
   float lorywidth_;         //!< Lorentz y-width (sign corrected for fpix frame)
   float lorxwidth_;         //!< Lorentz x-width
+  float lorybias_;          //!< Lorentz y-bias
+  float lorxbias_;          //!< Lorentz x-bias
   float xsize_;             //!< Pixel x-size
   float ysize_;             //!< Pixel y-size
   float zsize_;             //!< Pixel z-size (thickness)
   float qavg_avg_;          //!< average of cluster charge less than qavg
   float nybins_;            //!< number of bins in each dimension of the y-splitting template
   float nxbins_;            //!< number of bins in each dimension of the x-splitting template
+  float r_qMeas_qTrue_;     //!< ratio of measured to true cluster charges
+  float fbin_[3];           //!< The QBin definitions in Q_clus/Q_avg
   boost::multi_array<float,2> temp2dy_; //!< 2d-primitive for spltting 3-d template
   boost::multi_array<float,2> temp2dx_; //!< 2d-primitive for spltting 3-d template
 
