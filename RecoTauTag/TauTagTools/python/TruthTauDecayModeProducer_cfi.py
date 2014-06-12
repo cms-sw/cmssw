@@ -23,7 +23,7 @@ makeMCTauDecayModes = cms.EDProducer("TruthTauDecayModeProducer",
     iAmSignal = cms.bool(True)
 )
 
-makeMCQCDTauDecayModes = cms.EDProducer("TruthTauDecayModeProducer",
+makeMCQCDTauDecayModes = makeMCTauDecayModes.clone(
     totalEtaCut = cms.double(2.5),
     inputTag = cms.InputTag("iterativeCone5GenJets"),
     leadTrackEtaCut = cms.double(2.5),
