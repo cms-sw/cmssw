@@ -26,13 +26,17 @@ public:
 
   void beginRun(const RunManagerMT& runManagerMaster, const edm::EventSetup& es);
 
-  void produce(const edm::Event& inpevt, const edm::EventSetup& es);
+  void produce(const edm::Event& inpevt, const edm::EventSetup& es, const RunManagerMT& runManagerMaster);
 
   void abortEvent();
   void abortRun(bool softAbort=false);
 
 private:
+  void initializeThread(const RunManagerMT& runManagerMaster);
+
   G4Event *generateEvent(const edm::Event& inpevt);
+
+  static thread_local bool m_threadInitialized;
 
   Generator m_generator;
   std::string m_InTag;

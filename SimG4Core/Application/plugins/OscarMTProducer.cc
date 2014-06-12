@@ -167,7 +167,7 @@ void OscarMTProducer::produce(edm::Event & e, const edm::EventSetup & es)
   StaticRandomEngineSetUnset random(e.streamID());
 
   try {
-    m_runManagerWorker->produce(e, es);
+    m_runManagerWorker->produce(e, es, runCache()->runManagerMaster());
   } catch ( const SimG4Exception& simg4ex ) {
        
     edm::LogInfo("SimG4CoreApplication") << " SimG4Exception caght !" 

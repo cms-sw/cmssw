@@ -13,11 +13,14 @@
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "G4Event.hh"
-
 #include "G4SystemOfUnits.hh"
+#include "G4Threading.hh"
+#include "G4UImanager.hh"
+#include "G4WorkerThread.hh"
 
 #include <atomic>
 
+// from https://hypernews.cern.ch/HyperNews/CMS/get/edmFramework/3302/2.html
 namespace {
   static std::atomic<int> thread_counter{ 0 };
 
@@ -29,6 +32,8 @@ namespace {
 
   int getThreadIndex() { return s_thread_index; }
 }
+
+thread_local bool RunManagerMTWorker::m_threadInitialized = false;
 
 RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig):
   m_generator(iConfig.getParameter<edm::ParameterSet>("Generator")),
@@ -47,10 +52,55 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig):
 RunManagerMTWorker::~RunManagerMTWorker() {}
 
 void RunManagerMTWorker::beginRun(const RunManagerMT& runManagerMaster, const edm::EventSetup& es) {
+  // Stream-specific beginRun
+  // unfortunately does not work for per-thread initialization since framework does not guarantee to run them on differente threads...
+  //edm::LogWarning("SimG4CoreApplication") << "RunManagerMTWorker::beginRun(): thread " << getThreadIndex();
 }
 
+void RunManagerMTWorker::initializeThread(const RunManagerMT& runManagerMaster) {
+  int thisID = getThreadIndex();
 
-void RunManagerMTWorker::produce(const edm::Event& inpevt, const edm::EventSetup& es) {
+  // Initialize per-thread output
+  G4Threading::G4SetThreadId( thisID );
+  G4UImanager::GetUIpointer()->SetUpForAThread( thisID );
+
+  // Initialize worker part of shared resources (geometry, physics)
+  G4WorkerThread::BuildGeometryAndPhysicsVector();
+
+  // Set the geometry and physics list for the worker, share from master
+
+  // In Geant4MT TBB examples it is the G4VUserDetectorConstruction
+  // that is shared between the master and worker threads. I guess in
+  // our case this means that would correspond the DDDWorld if it
+  // wouldn't do its work in the constructor. Since it does, just
+  // repeat it here.
+
+
+  /*
+
+        G4VUserDetectorConstruction* detectorCtion = 
+           const_cast<G4VUserDetectorConstruction*>(
+               masterRM->GetUserDetectorConstruction());
+      
+      t_localRM->G4RunManager::SetUserInitialization(detectorCtion);
+
+      G4VUserPhysicsList* physicslist = 
+        const_cast<G4VUserPhysicsList*>( masterRM->GetUserPhysicsList() );
+      
+      t_localRM->SetUserInitialization(physicslist);
+
+  */
+}
+
+void RunManagerMTWorker::produce(const edm::Event& inpevt, const edm::EventSetup& es, const RunManagerMT& runManagerMaster) {
+
+  if(!m_threadInitialized) {
+    edm::LogWarning("SimG4CoreApplication") << "RunManagerMTWorker::produce(): stream " << inpevt.streamID() << " thread " << getThreadIndex() << " initializing";
+    initializeThread(runManagerMaster);
+    m_threadInitialized = true;
+  }
+
+
   m_currentEvent.reset(generateEvent(inpevt));
 
   m_simEvent.reset(new G4SimEvent());
