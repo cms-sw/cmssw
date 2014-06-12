@@ -32,7 +32,8 @@ class LumiList(object):
         '2': [1,4,5,20]
         }
         where the first key is the run number and the list is a list of
-        individual lumi sections
+        individual lumi sections. This form also takes a list of these objects
+        which can be much faster than LumiList += LumiList
     Run  lumi pairs:
         [[1,1], [1,2],[1,4], [2,1], [2,5], [1,10]]
         where each pair in the list is an individual run&lumi
@@ -49,6 +50,7 @@ class LumiList(object):
         or a dict with run #'s as the keys and a list of lumis as the values, or just a list of runs
         """
         self.compactList = {}
+        self.duplicates = {}
         if filename:
             self.filename = filename
             jsonFile = open(self.filename,'r')
@@ -65,6 +67,13 @@ class LumiList(object):
                     runsAndLumis[run] = []
                 runsAndLumis[run].append(lumi)
 
+        if isinstance(runsAndLumis, list):
+            queued = {}
+            for runLumiList in runsAndLumis:
+                for run, lumis in runLumiList.items():
+                    queued.setdefault(run, []).extend(lumis)
+            runsAndLumis = queued
+
         if runsAndLumis:
             for run in runsAndLumis.keys():
                 runString = str(run)
@@ -72,9 +81,10 @@ class LumiList(object):
                 lumiList = runsAndLumis[run]
                 if lumiList:
                     self.compactList[runString] = []
+                    self.duplicates[runString] = []
                     for lumi in sorted(lumiList):
                         if lumi == lastLumi:
-                            pass # Skip duplicates
+                            self.duplicates[runString].append(lumi)
                         elif lumi != lastLumi + 1: # Break in lumi sequence
                             self.compactList[runString].append([lumi, lumi])
                         else:
@@ -204,6 +214,13 @@ class LumiList(object):
         Return the compact list representation
         """
         return self.compactList
+
+
+    def getDuplicates(self):
+        """
+        Return the list of duplicates found during construction as a LumiList
+        """
+        return LumiList(runsAndLumis = self.duplicates)
 
 
     def getLumis(self):
@@ -556,6 +573,13 @@ class LumiListTest(unittest.TestCase):
         self.assertTrue((a|b).getCMSSWString() == (b|a).getCMSSWString())
         self.assertTrue((a|b).getCMSSWString() == (a+b).getCMSSWString())
 
+        # Test list constuction (faster)
+
+        multiple = [alumis, blumis, clumis]
+        easy = LumiList(runsAndLumis = multiple)
+        hard = a + b
+        hard += c
+        self.assertTrue(hard.getCMSSWString() == easy.getCMSSWString())
 
     def testAnd(self):
         """
