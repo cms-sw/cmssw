@@ -45,7 +45,7 @@ process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
 process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(2)
+    input = cms.untracked.int32(10)
 )
 
 process.source = cms.Source("EmptySource",
@@ -84,4 +84,18 @@ process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
 process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits)
 process.outpath = cms.EndPath(process.o1)
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_FTFP_BERT_EML'
-
+process.g4SimHits.G4Commands = ['/run/verbose 2']
+process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
+    CheckForHighEtPhotons = cms.untracked.bool(False),
+    TrackMin     = cms.untracked.int32(0),
+    TrackMax     = cms.untracked.int32(0),
+    TrackStep    = cms.untracked.int32(1),
+    EventMin     = cms.untracked.int32(0),
+    EventMax     = cms.untracked.int32(0),
+    EventStep    = cms.untracked.int32(1),
+    PDGids       = cms.untracked.vint32(),
+    VerboseLevel = cms.untracked.int32(0),
+    G4Verbose    = cms.untracked.bool(True),
+    DEBUG        = cms.untracked.bool(False),
+    type      = cms.string('TrackingVerboseAction')
+))

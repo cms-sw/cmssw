@@ -3,8 +3,11 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("PROD")
 process.load("SimGeneral.HepPDTESSource.pdt_cfi")
 
-process.load("Geometry.HGCalCommonData.testFastTimingXML_cfi")
-
+process.load("Geometry.HGCalCommonData.testFastTimeXML_cfi")
+#process.load("Geometry.CMSCommonData.cmsExtendedGeometry2023FastTimingXML_cfi")
+#process.load("Geometry.TrackerNumberingBuilder.trackerNumberingSLHCGeometry_cfi")
+#process.load("Geometry.HcalCommonData.hcalSimNumberingInitialization_cfi")
+process.load("Geometry.HGCalCommonData.fastTimeNumberingInitialization_cfi")
 process.load("SimG4Core.Application.g4SimHits_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",

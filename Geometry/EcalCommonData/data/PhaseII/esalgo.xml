@@ -48,13 +48,8 @@
 
 <PosPartSection label="esalgo.xml">
   <PosPart copyNumber="1">
-    <rParent name="eregalgo:ECAL"/>
+    <rParent name="eregalgo:EREG"/>
     <rChild name="esalgo:SF"/>
-  </PosPart>
-  <PosPart copyNumber="2">
-    <rParent name="eregalgo:ECAL"/>
-    <rChild name="esalgo:SF"/>
-    <rRotation name="rotations:180D"/>
   </PosPart>
   <PosPart copyNumber="1">
     <rParent name="esalgo:SF"/>
@@ -65,24 +60,14 @@
     <rChild name="esalgo:SFRA"/>
   </PosPart>
   <PosPart copyNumber="1">
-    <rParent name="caloBase:CALO"/>
+    <rParent name="eregalgo:EREG"/>
     <rChild name="esalgo:SFNM1"/>
     <Translation x="0*fm" y="0*fm" z="[escon:InnerNM1_Z]"/>
   </PosPart>
-  <PosPart copyNumber="2">
-    <rParent name="caloBase:CALO"/>
-    <rChild name="esalgo:SFNM1"/>
-    <Translation x="0*fm" y="0*fm" z="-[escon:InnerNM1_Z]"/>
-  </PosPart>
   <PosPart copyNumber="1">
-    <rParent name="caloBase:CALO"/>
+    <rParent name="eregalgo:EREG"/>
     <rChild name="esalgo:SFNM2"/>
     <Translation x="0*fm" y="0*fm" z="[escon:InnerNM2_Z]"/>
-  </PosPart>
-  <PosPart copyNumber="2">
-    <rParent name="caloBase:CALO"/>
-    <rChild name="esalgo:SFNM2"/>
-    <Translation x="0*fm" y="0*fm" z="-[escon:InnerNM2_Z]"/>
   </PosPart>
 </PosPartSection>
 
