@@ -20,6 +20,7 @@
 
 //#include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementVector.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/TrajectoryState/interface/LocalTrajectoryParameters.h"
 
@@ -29,7 +30,7 @@ class SiPixelHitEfficiencyModule {
     SiPixelHitEfficiencyModule(const uint32_t);
    ~SiPixelHitEfficiencyModule();
 
-   void book(const edm::ParameterSet&, int type=0, bool isUpgrade=false);
+   void book(const edm::ParameterSet&, DQMStore::IBooker &, int type=0, bool isUpgrade=false);
    void fill(const LocalTrajectoryParameters& ltp, bool isHitValid, bool modon=true, bool ladon=true, bool layon=true, bool phion = true, bool bladeon=true, bool diskon=true, bool ringon=true);
    void computeEfficiencies(bool modon=true, bool ladon=true, bool layon=true, bool phion = true, bool bladeon=true, bool diskon=true, bool ringon=true);
    std::pair<double,double> eff(double nValid, double nMissing);
