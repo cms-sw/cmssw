@@ -1567,7 +1567,7 @@
     <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="invert"      value="1"/>
     <Numeric name="stepAngle"   value="20*deg"/>
-    <Numeric name="startAngle"  value="0*deg"/>
+    <Numeric name="startAngle"  value="10*deg"/>
     <Numeric name="rPosition"   value="[rPosL]"/>
     <Numeric name="zoffset"     value="+28.70*mm"/>
 </Algorithm>
@@ -1580,7 +1580,7 @@
     <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="invert"      value="1"/>
     <Numeric name="stepAngle"   value="20*deg"/>
-    <Numeric name="startAngle"  value="0*deg"/>
+    <Numeric name="startAngle"  value="10*deg"/>
     <Numeric name="rPosition"   value="[rPosL]"/>
     <Numeric name="zoffset"     value=" -9.70*mm"/>
 </Algorithm>
@@ -1593,7 +1593,7 @@
     <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="invert"      value="0"/>
     <Numeric name="stepAngle"   value="20*deg"/>
-    <Numeric name="startAngle"  value="10*deg"/>
+    <Numeric name="startAngle"  value="0*deg"/>
     <Numeric name="rPosition"   value="[rPosS]"/>
     <Numeric name="zoffset"     value=" +9.50*mm"/>
 </Algorithm>
@@ -1606,7 +1606,7 @@
     <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="invert"      value="0"/>
     <Numeric name="stepAngle"   value="20*deg"/>
-    <Numeric name="startAngle"  value="10*deg"/>
+    <Numeric name="startAngle"  value="0*deg"/>
     <Numeric name="rPosition"   value="[rPosS]"/>
     <Numeric name="zoffset"     value="-28.90*mm"/>
 </Algorithm>
@@ -1619,7 +1619,7 @@
     <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="invert"      value="1"/>
     <Numeric name="stepAngle"   value="-20*deg"/>
-    <Numeric name="startAngle"  value="180*deg"/>
+    <Numeric name="startAngle"  value="170*deg"/>
     <Numeric name="rPosition"   value="[rPosL]"/>
     <Numeric name="zoffset"     value="+28.70*mm"/>
 </Algorithm>
@@ -1632,7 +1632,7 @@
     <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="invert"      value="1"/>
     <Numeric name="stepAngle"   value="-20*deg"/>
-    <Numeric name="startAngle"  value="180*deg"/>
+    <Numeric name="startAngle"  value="170*deg"/>
     <Numeric name="rPosition"   value="[rPosL]"/>
     <Numeric name="zoffset"     value=" -9.70*mm"/>
 </Algorithm>
@@ -1645,7 +1645,7 @@
     <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="invert"      value="0"/>
     <Numeric name="stepAngle"   value="-20*deg"/>
-    <Numeric name="startAngle"  value="170*deg"/>
+    <Numeric name="startAngle"  value="180*deg"/>
     <Numeric name="rPosition"   value="[rPosS]"/>
     <Numeric name="zoffset"     value=" +9.50*mm"/>
 </Algorithm>
@@ -1658,7 +1658,7 @@
     <Numeric name="incrCopyNo"  value="2"/>
     <Numeric name="invert"      value="0"/>
     <Numeric name="stepAngle"   value="-20*deg"/>
-    <Numeric name="startAngle"  value="170*deg"/>
+    <Numeric name="startAngle"  value="180*deg"/>
     <Numeric name="rPosition"   value="[rPosS]"/>
     <Numeric name="zoffset"     value="-28.90*mm"/>
 </Algorithm>
