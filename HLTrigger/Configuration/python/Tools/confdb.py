@@ -283,17 +283,17 @@ if 'hltHfreco' in %(dict)s:
 #          'record'  : 'JetCorrectionsRecord',
 #          'tag'     : 'JetCorrectorParametersCollection_AK5Calo_2012_V8_hlt_mc',
 #          'label'   : 'AK5CaloHLT',
-#          'connect' : '%(connect)s/CMS_COND_31X_PHYSICSTOOLS'
+#          'connect' : '%(connect)s/CMS_CONDITIONS_PHYSICSTOOLS'
 #        }, {
 #          'record'  : 'JetCorrectionsRecord',
 #          'tag'     : 'JetCorrectorParametersCollection_AK5PF_2012_V8_hlt_mc',
 #          'label'   : 'AK5PFHLT',
-#          'connect' : '%(connect)s/CMS_COND_31X_PHYSICSTOOLS'
+#          'connect' : '%(connect)s/CMS_CONDITIONS_PHYSICSTOOLS'
 #        }, {
 #          'record'  : 'JetCorrectionsRecord',
 #          'tag'     : 'JetCorrectorParametersCollection_AK5PFchs_2012_V8_hlt_mc',
 #          'label'   : 'AK5PFchsHLT',
-#          'connect' : '%(connect)s/CMS_COND_31X_PHYSICSTOOLS'
+#          'connect' : '%(connect)s/CMS_CONDITIONS_PHYSICSTOOLS'
 #        }
 #      )
 
@@ -459,7 +459,7 @@ if 'GlobalTag' in %(dict)s:
       self.config.l1.label  = ''
       self.config.l1.tag    = self.config.l1.override
       if not self.config.l1.connect:
-        self.config.l1.connect = '%(connect)s/CMS_COND_31X_L1T'
+        self.config.l1.connect = '%(connect)s/CMS_CONDITIONS'
       self.config.l1cond = '%(tag)s,%(record)s,%(connect)s' % self.config.l1.__dict__
     else:
       self.config.l1cond = None
@@ -473,7 +473,7 @@ if 'GlobalTag' in %(dict)s:
         text += ", conditions = %s" % repr(self.config.l1cond)
       text += ")\n"
 
-    text += """    %(process)sGlobalTag.connect   = '%(connect)s/CMS_COND_31X_GLOBALTAG'
+    text += """    %(process)sGlobalTag.connect   = '%(connect)s/CMS_CONDITIONS'
     %(process)sGlobalTag.pfnPrefix = cms.untracked.string('%(connect)s/')
     for pset in process.GlobalTag.toGet.value():
         pset.connect = pset.connect.value().replace('frontier://FrontierProd/', '%(connect)s/')
