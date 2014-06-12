@@ -3,6 +3,8 @@
 
 #include <vector>
 
+#include "boost/shared_ptr.hpp"
+
 #include "RecoJets/JetAlgorithms/interface/CompoundPseudoJet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "RecoJets/JetAlgorithms/interface/FastPrunePlugin.hh"
