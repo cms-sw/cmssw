@@ -13,6 +13,7 @@
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -48,7 +49,7 @@ namespace SingleTopTChannelLepton {
     /// default contructor
     MonitorEnsemble(const char* label, const edm::ParameterSet& cfg, const edm::VParameterSet& vcfg, edm::ConsumesCollector && iC );
     /// default destructor
-    ~MonitorEnsemble(){delete pvSelect_;}
+    ~MonitorEnsemble(){};
     
     /// book histograms in subdirectory _directory_
     void book(std::string directory);
@@ -116,7 +117,9 @@ namespace SingleTopTChannelLepton {
     ///  6: passes conversion rejection and Isolation
     ///  7: passes the whole selection
     /// As described on https://twiki.cern.ch/twiki/bin/view/CMS/SimpleCutBasedEleID
-    int eidPattern_;
+    //int eidPattern_;
+    //the cut for the MVA Id                                                                                                                               
+    double eidCutValue_;
     /// extra isolation criterion on electron
     //    StringCutObjectSelector<reco::GsfElectron>* elecIso_;
     std::string elecIso_;
