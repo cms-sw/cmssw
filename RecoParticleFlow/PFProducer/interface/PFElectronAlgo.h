@@ -12,6 +12,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementGsfTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
 #include "TMVA/Reader.h"
+#include "boost/shared_ptr.hpp"
 #include <iostream>
 
 
