@@ -12,6 +12,7 @@ This code began life in COMP/CRAB/python/LumiList.py
 __revision__ = "$Id: LumiList.py,v 1.15 2011/11/02 16:06:57 ewv Exp $"
 __version__ = "$Revision: 1.15 $"
 
+import copy
 import json
 import re
 import urllib2
@@ -154,9 +155,9 @@ class LumiList(object):
                 unique = [lumiList[0]]
             for pair in lumiList[1:]:
                 if pair[0] == unique[-1][1]+1:
-                    unique[-1][1] = pair[1]
+                    unique[-1][1] = copy.deepcopy(pair[1])
                 else:
-                    unique.append(pair)
+                    unique.append(copy.deepcopy(pair))
 
             result[run] = unique
         return LumiList(compactList = result)
@@ -172,16 +173,16 @@ class LumiList(object):
             unique = [overlap[0]]
             for pair in overlap[1:]:
                 if pair[0] >= unique[-1][0] and pair[0] <= unique[-1][1]+1 and pair[1] > unique[-1][1]:
-                    unique[-1][1] = pair[1]
+                    unique[-1][1] = copy.deepcopy(pair[1])
                 elif pair[0] > unique[-1][1]:
-                    unique.append(pair)
+                    unique.append(copy.deepcopy(pair))
             result[run] = unique
         return LumiList(compactList = result)
 
 
     def __add__(self, other):
         # + is the same as |
-        return self|other
+        return self.__or__(other)
 
     def __len__(self):
         '''Returns number of runs in list'''
