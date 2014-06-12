@@ -132,7 +132,7 @@ void HLTmumutkVtxProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
     // eta and pt cut
     if (fabs(trk1->eta()) > maxEta_)    continue;
-    if (trk1->pt()        < minPt_)     continue;
+    if (trk1->pt()        < minPt_ )    continue;
 
     mucand2 = mucand1; ++mucand2;
     for (; mucand2!=mucands->end(); mucand2++) {
@@ -146,7 +146,7 @@ void HLTmumutkVtxProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
       if( ! checkPreviousCand( trk2, vPrevCands) ) continue;
       // eta and pt cut
       if (fabs(trk2->eta()) > maxEta_)             continue;
-      if (trk2->pt() < minPt_)                     continue;
+      if (trk2->pt()        < minPt_ )             continue;
 
       //loop on track collection
       for ( trkcand = trkcands->begin(); trkcand !=trkcands->end(); ++trkcand) {
@@ -159,8 +159,8 @@ void HLTmumutkVtxProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
                                             << ", hits= "           << trk3->numberOfValidHits();
 
         // eta and pt cut
-        if (fabs(trk3->eta()) > maxEta_) continue;
-        if (trk3->pt() < minPt_)         continue;
+        if (fabs(trk3->eta()) > maxEta_)    continue;
+        if (trk3->pt()        < minPt_ )    continue;
 
         // Combined system
         e1 = sqrt(trk1->momentum().Mag2() + MuMass2        );
