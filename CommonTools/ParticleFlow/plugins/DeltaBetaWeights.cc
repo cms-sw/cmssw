@@ -58,8 +58,10 @@ DeltaBetaWeights::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   for (const reco::Candidate & cand : *src) {
     if (cand.charge() !=0) {
-      std::cout << cand.pdgId() << std::endl;
-      reco::PFCandidate charged = reco::PFCandidate(cand.charge(),cand.p4(),charged.translatePdgIdToType(cand.pdgId()));
+      // this part of code should be executed only if input collection is not entirely composed of neutral candidates, i.e. never by default
+      edm::LogWarning("DeltaBetaWeights") << "Trying to reweight charged particle... saving it to output collection without any change";
+      reco::PFCandidate charged = reco::PFCandidate(cand.charge(),cand.p4(),reco::PFCandidate::ParticleType::X);
+      charged.setParticleType(charged.translatePdgIdToType(cand.pdgId()));
       out->push_back(charged);
       continue;
     }
@@ -80,7 +82,8 @@ DeltaBetaWeights::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
     sumPU=0.5*log(sumPU);
 
-    reco::PFCandidate neutral = reco::PFCandidate(cand.charge(),cand.p4(),neutral.translatePdgIdToType(cand.pdgId()));
+    reco::PFCandidate neutral = reco::PFCandidate(cand.charge(),cand.p4(),reco::PFCandidate::ParticleType::X);
+    neutral.setParticleType(neutral.translatePdgIdToType(cand.pdgId()));
     if (sumNPU+sumPU>0)
       neutral.setP4(((sumNPU)/(sumNPU+sumPU))*neutral.p4());
     out->push_back(neutral);
