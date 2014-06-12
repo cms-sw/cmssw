@@ -107,8 +107,8 @@ void HLTmumutkVtxProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   double e1,e2,e3;
   Particle::LorentzVector p,p1,p2,p3;
 
-  if ( mucands->size()<2)  return;
-  if ( trkcands->size()<1) return;
+  if ( mucands->size()  < 2 )   return;
+  if ( trkcands->size() < 1 )   return;
 
   RecoChargedCandidateCollection::const_iterator mucand1;
   RecoChargedCandidateCollection::const_iterator mucand2;
@@ -131,8 +131,8 @@ void HLTmumutkVtxProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     if( ! checkPreviousCand( trk1, vPrevCands) ) continue;
 
     // eta and pt cut
-    if (fabs(trk1->eta()) > maxEta_) continue;
-    if (trk1->pt() < minPt_)         continue;
+    if (fabs(trk1->eta()) > maxEta_)    continue;
+    if (trk1->pt()        < minPt_)     continue;
 
     mucand2 = mucand1; ++mucand2;
     for (; mucand2!=mucands->end(); mucand2++) {
@@ -151,7 +151,6 @@ void HLTmumutkVtxProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
       //loop on track collection
       for ( trkcand = trkcands->begin(); trkcand !=trkcands->end(); ++trkcand) {
         TrackRef trk3 = trkcand->get<TrackRef>();
-            
         if( overlap( trk1, trk3) ) continue;
         if( overlap( trk2, trk3) ) continue;
             
@@ -185,20 +184,16 @@ void HLTmumutkVtxProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
         t_tks.push_back((*theB).build(&trk1));
         t_tks.push_back((*theB).build(&trk2));
         t_tks.push_back((*theB).build(&trk3));
-                    
         if (t_tks.size()!=3) continue;
 
         FreeTrajectoryState InitialFTS = initialFreeState(*trk3, magField);
         TrajectoryStateClosestToBeamLine tscb( blsBuilder(InitialFTS, *recoBeamSpotHandle) );
         double d0sig = tscb.transverseImpactParameter().significance();
-
         if (d0sig < minD0Significance_) continue;
         
         KalmanVertexFitter kvf;
         TransientVertex tv = kvf.vertex(t_tks);
-                
         if (!tv.isValid()) continue;
-        
         Vertex vertex = tv;
         
         // put vertex in the event
