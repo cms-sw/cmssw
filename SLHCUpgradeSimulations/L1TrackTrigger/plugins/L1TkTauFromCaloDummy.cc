@@ -46,14 +46,14 @@ using namespace l1extra ;
 // class declaration
 //
 
-class L1TkTauFromCaloProducer : public edm::EDProducer {
+class DummyL1TkTauFromCaloProducer : public edm::EDProducer {
    public:
 
    typedef TTTrack< Ref_PixelDigi_ >  L1TkTrackType;
    typedef std::vector< L1TkTrackType >  L1TkTrackCollectionType;
 
-      explicit L1TkTauFromCaloProducer(const edm::ParameterSet&);
-      ~L1TkTauFromCaloProducer();
+      explicit DummyL1TkTauFromCaloProducer(const edm::ParameterSet&);
+      ~DummyL1TkTauFromCaloProducer();
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -90,7 +90,7 @@ class L1TkTauFromCaloProducer : public edm::EDProducer {
 //
 // constructors and destructor
 //
-L1TkTauFromCaloProducer::L1TkTauFromCaloProducer(const edm::ParameterSet& iConfig)
+DummyL1TkTauFromCaloProducer::DummyL1TkTauFromCaloProducer(const edm::ParameterSet& iConfig)
 {
 
    L1TausInputTag = iConfig.getParameter<edm::InputTag>("L1TausInputTag");
@@ -105,12 +105,12 @@ L1TkTauFromCaloProducer::L1TkTauFromCaloProducer(const edm::ParameterSet& iConfi
    produces<L1TkTauParticleCollection>();
 }
 
-L1TkTauFromCaloProducer::~L1TkTauFromCaloProducer() {
+DummyL1TkTauFromCaloProducer::~DummyL1TkTauFromCaloProducer() {
 }
 
 // ------------ method called to produce the data  ------------
 void
-L1TkTauFromCaloProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+DummyL1TkTauFromCaloProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
    using namespace std;
@@ -223,19 +223,19 @@ L1TkTauFromCaloProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
 // ------------ method called once each job just before starting event loop  ------------
 void
-L1TkTauFromCaloProducer::beginJob()
+DummyL1TkTauFromCaloProducer::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
 void
-L1TkTauFromCaloProducer::endJob() {
+DummyL1TkTauFromCaloProducer::endJob() {
 }
 
 // ------------ method called when starting to processes a run  ------------
 /*
 void
-L1TkTauFromCaloProducer::beginRun(edm::Run& iRun, edm::EventSetup const& iSetup)
+DummyL1TkTauFromCaloProducer::beginRun(edm::Run& iRun, edm::EventSetup const& iSetup)
 {
 }
 */
@@ -243,7 +243,7 @@ L1TkTauFromCaloProducer::beginRun(edm::Run& iRun, edm::EventSetup const& iSetup)
 // ------------ method called when ending the processing of a run  ------------
 /*
 void
-L1TkTauFromCaloProducer::endRun(edm::Run&, edm::EventSetup const&)
+DummyL1TkTauFromCaloProducer::endRun(edm::Run&, edm::EventSetup const&)
 {
 }
 */
@@ -251,7 +251,7 @@ L1TkTauFromCaloProducer::endRun(edm::Run&, edm::EventSetup const&)
 // ------------ method called when starting to processes a luminosity block  ------------
 /*
 void
-L1TkTauFromCaloProducer::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
+DummyL1TkTauFromCaloProducer::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
 {
 }
 */
@@ -259,14 +259,14 @@ L1TkTauFromCaloProducer::beginLuminosityBlock(edm::LuminosityBlock&, edm::EventS
 // ------------ method called when ending the processing of a luminosity block  ------------
 /*
 void
-L1TkTauFromCaloProducer::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
+DummyL1TkTauFromCaloProducer::endLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&)
 {
 }
 */
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
-L1TkTauFromCaloProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+DummyL1TkTauFromCaloProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
@@ -275,7 +275,7 @@ L1TkTauFromCaloProducer::fillDescriptions(edm::ConfigurationDescriptions& descri
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(L1TkTauFromCaloProducer);
+DEFINE_FWK_MODULE(DummyL1TkTauFromCaloProducer);
 
 
 
