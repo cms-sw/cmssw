@@ -24,8 +24,7 @@
 #include <iostream>
 #include <algorithm>
 
-ME0GeometryBuilderFromCondDB::ME0GeometryBuilderFromCondDB(bool comp11) :
-  theComp11Flag(comp11)
+ME0GeometryBuilderFromCondDB::ME0GeometryBuilderFromCondDB() 
 { }
 
 ME0GeometryBuilderFromCondDB::~ME0GeometryBuilderFromCondDB() 

@@ -110,7 +110,7 @@ ME0GeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetu
 	    
   for (auto roll : pDD->etaPartitions()){
     ME0DetId rId(roll->id());
-    ofos<<"            ME0EtaPartition , ME0DetId = " << rId.rawId() << ", " << rId << endl;
+    ofos<<"\tME0EtaPartition , ME0DetId = " << rId.rawId() << ", " << rId << endl;
 	      
     const BoundPlane& bSurface(roll->surface());
     const StripTopology* topology(&(roll->specificTopology()));
@@ -176,17 +176,16 @@ ME0GeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetu
     double deta(abs(beta - teta));
     const bool printDetails(true);
     if (printDetails)
-      ofos << "    \tType: " << type << endl
-	   << "    \tDimensions[cm]: b = " << bottomEdge << ", B = " << topEdge << ", h  = " << height << endl
+      ofos << "\t\tType: " << type << endl
+	   << "\t\tDimensions[cm]: b = " << bottomEdge*2 << ", B = " << topEdge*2 << ", H  = " << height*2 << endl
 	//	   << "    \tnStrips = " << nStrips << ", nPads =  " << nPads << endl
-	   << "    \tcenter(x,y,z) = " << cx << " " << cy << " " << cz << ", center(eta,phi) = " << ceta << " " << cphi << endl
-	   << "    \ttop(x,y,z) = " << tx << " " << ty << " " << tz << ", top(eta,phi) = " << teta << " " << tphi << endl
-	   << "    \tbottom(x,y,z) = " << bx << " " << by << " " << bz << ", bottom(eta,phi) = " << beta << " " << bphi << endl
-	   << "    \tdeta = "<<deta  << " local poition at 0 " << lEdge1 
+	   << "\t\ttop(x,y,z)[cm] = (" << tx << ", " << ty << ", " << tz << "), top (eta,phi) = (" << teta << ", " << tphi << ")" << endl
+	   << "\t\tcenter(x,y,z) = (" << cx << ", " << cy << ", " << cz << "), center(eta,phi) = (" << ceta << ", " << cphi << ")" << endl
+	   << "\t\tbottom(x,y,z) = (" << bx << ", " << by << ", " << bz << "), bottom(eta,phi) = (" << beta << ", " << bphi << ")" << endl
+	   << "\t\tdeta = " << deta << " local position at 0 " << lEdge1 
 	//<< "    \tpith (top,center,bottom) = " << topPitch << " " << pitch << " " << bottomPitch << ", dEta = " << deta 
 	//<< ", dPhi = " << dphi 
 	   << endl;
-    
   }
   ofos << dashedLine_ << " end" << endl;
 }
