@@ -29,12 +29,12 @@
 #include <set>
 
 /// DQM Framework stuff
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+// #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 
 #include <DQMServices/Core/interface/DQMStore.h>
 #include <DQMServices/Core/interface/MonitorElement.h>
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 
 #include <FWCore/ServiceRegistry/interface/Service.h>
 #include <FWCore/Framework/interface/ESHandle.h>
@@ -64,7 +64,7 @@
  * @class CSCOfflineClient
  * @brief CSC Offline DQM Client that uses CSCDQM Framework 
  */
-class CSCOfflineClient: public DQMEDAnalyzer, public cscdqm::MonitorObjectProvider {
+class CSCOfflineClient: public DQMEDHarvester, public cscdqm::MonitorObjectProvider {
  
   /**
    * Global stuff
@@ -79,7 +79,7 @@ class CSCOfflineClient: public DQMEDAnalyzer, public cscdqm::MonitorObjectProvid
 
     cscdqm::Configuration     config;
     cscdqm::Dispatcher       *dispatcher;
-    DQMStore                 *dbe;
+    // DQMStore                 *dbe;
     DQMStore::IBooker        *ibooker;
     std::vector<std::string> maskedHW;
 
@@ -98,15 +98,15 @@ class CSCOfflineClient: public DQMEDAnalyzer, public cscdqm::MonitorObjectProvid
 
   protected:
 
-    void beginJob() { }
+    // void beginJob() { }
     // void beginRun(const edm::Run& r, const edm::EventSetup& c) { }
     void setup() { }
-    void analyze(const edm::Event& e, const edm::EventSetup& c) { }
-    void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) { } 
-    void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) { }
-    void endRun(const edm::Run& r, const edm::EventSetup& c);
-    void endJob() { }
-    void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+    //void analyze(const edm::Event& e, const edm::EventSetup& c) { }
+    // void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) { } 
+    // void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) { }
+    // void endRun(const edm::Run& r, const edm::EventSetup& c);
+    // void endJob() { }
+    void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;  //performed in the endJob
 
 };
 

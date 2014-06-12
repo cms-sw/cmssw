@@ -116,10 +116,27 @@ void CSCMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
 }
 
+/**
+ * @brief  Book Histograms in the beginRun.
+ * @param  ib - DQMStore::IBooker interface access object
+ * @param  edm::Run const & - not used
+ * @param  edm::EventSetup const & - not used
+ */
 void CSCMonitorModule::bookHistograms(DQMStore::IBooker & ib, edm::Run const &, edm::EventSetup const &)
 {
+  /** Store pointer to IBooker to use it in ::bookMonitorObject() callback function used by the Dispatcher::book() method **/
   ibooker = &ib;
+  
+  /** 
+    * Call Dispatcher histogram booking method to pre-boook all available histograms before processing data. 
+    * New PREBOOK_ALL_HISTOS config option should be set to true (default).
+    * That should disable original CSC on-the-fly histo booking during data processing. 
+    * Changed for multi-threaded framework compatibility.
+    * (pre-booking of all histos is not most efficient way for CSCi DQM). 
+    *   
+    **/
   dispatcher->book();
+
   if (maskedHW.size() != 0)
      dispatcher->maskHWElements(maskedHW);
   if (prebookEffParams) {

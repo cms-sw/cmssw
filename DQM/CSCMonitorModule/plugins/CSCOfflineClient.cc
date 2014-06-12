@@ -27,8 +27,6 @@ CSCOfflineClient::CSCOfflineClient(const edm::ParameterSet& ps) {
   edm::ParameterSet params = ps.getUntrackedParameter<edm::ParameterSet>("EventProcessor");
   config.load(params);
 
-  dbe = edm::Service<DQMStore>().operator->();
-
   dispatcher = new cscdqm::Dispatcher(&config, const_cast<CSCOfflineClient*>(this));
   dispatcher->init();
 
@@ -46,11 +44,13 @@ CSCOfflineClient::~CSCOfflineClient() {
   if (dispatcher) delete dispatcher;
 }
 
+/*** No longer triggered for DQMEDHarvester ***/
+/*
 void CSCOfflineClient::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
-  /*
-   *  Putting histograms to internal cache: EMU stuff
-   */
+  // *
+  // *  Putting histograms to internal cache: EMU stuff
+  // * /
   dbe->setCurrentFolder(config.getFOLDER_EMU());
   std::vector<std::string> me_names = dbe->getMEs();
   for (std::vector<std::string>::iterator iter = me_names.begin(); iter != me_names.end(); iter++) {
@@ -64,9 +64,9 @@ void CSCOfflineClient::endRun(const edm::Run& r, const edm::EventSetup& c) {
     }
   }
 
-  /*
-   *  Putting histograms to internal cache: EventInfo
-   */
+  // *
+  // *  Putting histograms to internal cache: EventInfo
+  // * /
 
   {
     std::string name = DIR_EVENTINFO;
@@ -83,14 +83,50 @@ void CSCOfflineClient::endRun(const edm::Run& r, const edm::EventSetup& c) {
   dispatcher->updateFractionAndEfficiencyHistos();
 
 }
+*/
 
-
-void CSCOfflineClient::bookHistograms(DQMStore::IBooker & ib, edm::Run const &, edm::EventSetup const &)
+// void CSCOfflineClient::bookHistograms(DQMStore::IBooker & ib, edm::Run const &, edm::EventSetup const &)
+void CSCOfflineClient::dqmEndJob(DQMStore::IBooker& ib, DQMStore::IGetter& igetter)
 {
   ibooker = &ib;
   dispatcher->book();
   if (maskedHW.size() != 0)
      dispatcher->maskHWElements(maskedHW);
+
+
+  /*
+   *  Putting histograms to internal cache: EMU stuff
+   */
+  ibooker->setCurrentFolder(config.getFOLDER_EMU());
+  std::vector<std::string> me_names = igetter.getMEs();
+  for (std::vector<std::string>::iterator iter = me_names.begin(); iter != me_names.end(); iter++) {
+    std::string me_name = *iter;
+    MonitorElement* me = igetter.get(config.getFOLDER_EMU() + me_name);
+    cscdqm::HistoId id;
+    if (me && cscdqm::HistoDef::getHistoIdByName(me_name, id)) {
+      const cscdqm::EMUHistoDef def(id);
+      cscdqm::MonitorObject* mo = new CSCMonitorObject(me);
+      config.fnPutHisto(def, mo);
+    }
+  }
+
+  /*
+   *  Putting histograms to internal cache: EventInfo
+   */
+
+  {
+    std::string name = DIR_EVENTINFO;
+    name += "reportSummaryMap";
+    MonitorElement* me = igetter.get(name);
+    if (me) {
+      const cscdqm::EMUHistoDef def(cscdqm::h::EMU_CSC_STATS_SUMMARY);
+      cscdqm::MonitorObject* mo = new CSCMonitorObject(me);
+      config.fnPutHisto(def, mo);
+    }
+  }
+
+  config.incNEvents();
+  dispatcher->updateFractionAndEfficiencyHistos();
 
 }
 

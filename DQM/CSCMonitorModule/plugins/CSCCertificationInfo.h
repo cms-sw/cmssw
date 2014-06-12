@@ -36,12 +36,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // DQM
+#include <DQMServices/Core/interface/DQMEDHarvester.h>
 #include <DQMServices/Core/interface/DQMStore.h>
 #include <DQMServices/Core/interface/MonitorElement.h>
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 
-class CSCCertificationInfo : public DQMEDAnalyzer {
+class CSCCertificationInfo : public DQMEDHarvester {
 
   public:
 
@@ -49,18 +49,17 @@ class CSCCertificationInfo : public DQMEDAnalyzer {
     ~CSCCertificationInfo() { }
 
   protected:
-    void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+    void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
+                    
 
   private:
 
-    virtual void beginJob() ;
+//    virtual void beginJob() { };
+//    virtual void beginLuminosityBlock(const edm::LuminosityBlock& , const  edm::EventSetup&) { }
+//    virtual void analyze(const edm::Event&, const edm::EventSetup&) { }
+//    virtual void endLuminosityBlock(const edm::LuminosityBlock& , const  edm::EventSetup&) { }
+//    virtual void endJob() { }
 
-    virtual void beginLuminosityBlock(const edm::LuminosityBlock& , const  edm::EventSetup&) { }
-    virtual void analyze(const edm::Event&, const edm::EventSetup&) { }
-    virtual void endLuminosityBlock(const edm::LuminosityBlock& , const  edm::EventSetup&) { }
-    virtual void endJob() { }
-                    
-    DQMStore *dbe;  
     std::map<std::string, MonitorElement*> mos;
 
 };
