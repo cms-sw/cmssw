@@ -145,33 +145,6 @@ void KfComponentsHolder::setup(
     tsosLocalErrors_     = & tsosLocalErrors;
 }
 
-// backward compatible
-template<unsigned int D>
-void KfComponentsHolder::setup(
-        typename AlgebraicROOTObject<D>::Vector       *params,
-        typename AlgebraicROOTObject<D,D>::SymMatrix  *errors,
-        typename AlgebraicROOTObject<D,5>::Matrix     *projection, 
-        typename AlgebraicROOTObject<D>::Vector       *measuredParams,
-        typename AlgebraicROOTObject<D,D>::SymMatrix  *measuredErrors,
-        const AlgebraicVector5     & tsosLocalParameters, 
-        const AlgebraicSymMatrix55 & tsosLocalErrors)
-{
-#ifdef Debug_KfComponentsHolder
-    assert(size_ == 0); // which means it was uninitialized
-    size_ = D;
-#endif
-    static thread_local ProjectMatrix<double,5,D> dummy;
-    params_     = params;
-    errors_     = errors;
-    projection_ = projection;
-    projFunc_ = &dummy;
-    measuredParams_ = measuredParams;
-    measuredErrors_ = measuredErrors;
-    tsosLocalParameters_ = & tsosLocalParameters;
-    tsosLocalErrors_     = & tsosLocalErrors;
-}
-
-
 template<unsigned int D>
 void KfComponentsHolder::dump() {
     using namespace std;
