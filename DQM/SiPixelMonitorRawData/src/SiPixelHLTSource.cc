@@ -54,8 +54,8 @@ SiPixelHLTSource::SiPixelHLTSource(const edm::ParameterSet& iConfig) :
   slowDown( conf_.getUntrackedParameter<bool>("slowDown",false) ),
   dirName_( conf_.getUntrackedParameter<std::string>("DirName","Pixel/FEDIntegrity/") )
 {
-   theDMBE = edm::Service<DQMStore>().operator->();
-   LogInfo ("PixelDQM") << "SiPixelHLTSource::SiPixelHLTSource: Got DQM BackEnd interface"<<endl;
+  firstRun = true;
+  LogInfo ("PixelDQM") << "SiPixelHLTSource::SiPixelHLTSource: Got DQM BackEnd interface"<<endl;
 }
 
 
@@ -67,31 +67,19 @@ SiPixelHLTSource::~SiPixelHLTSource()
 }
 
 
-void SiPixelHLTSource::beginJob(){
-  firstRun = true;
-}
-
-void SiPixelHLTSource::beginRun(const edm::Run& r, const edm::EventSetup& iSetup){
+void SiPixelHLTSource::dqmBeginRun(const edm::Run& r, const edm::EventSetup& iSetup){
   LogInfo ("PixelDQM") << " SiPixelHLTSource::beginJob - Initialisation ... " << std::endl;
   iSetup.get<TrackerDigiGeometryRecord>().get( pDD );
   if(firstRun){
     eventNo = 0;
-    // Build map
-    // Book Monitoring Elements
-    bookMEs();
+
     firstRun = false;
   }
 }
 
-
-void SiPixelHLTSource::endJob(void){
-
-  if(saveFile) {
-    LogInfo ("PixelDQM") << " SiPixelHLTSource::endJob - Saving Root File " << std::endl;
-    std::string outputFile = conf_.getParameter<std::string>("outputFile");
-    theDMBE->save( outputFile.c_str() );
-  }
-
+void SiPixelHLTSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run const &, edm::EventSetup const &){
+  // Book Monitoring Elements
+  bookMEs(iBooker);
 }
 
 //------------------------------------------------------------------
@@ -162,10 +150,10 @@ void SiPixelHLTSource::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 //------------------------------------------------------------------
 // Book MEs
 //------------------------------------------------------------------
-void SiPixelHLTSource::bookMEs(){
+void SiPixelHLTSource::bookMEs(DQMStore::IBooker & iBooker){
 
-  theDMBE->cd();
-  theDMBE->setCurrentFolder(dirName_);
+  iBooker.cd();
+  iBooker.setCurrentFolder(dirName_);
 
   std::string rawhid;
   std::string errhid;
@@ -174,19 +162,17 @@ void SiPixelHLTSource::bookMEs(){
   SiPixelHistogramId* RawHistogramId = new SiPixelHistogramId( rawin.label() );
   edm::InputTag errin = conf_.getParameter<edm::InputTag>( "ErrorInput" );
   SiPixelHistogramId* ErrorHistogramId = new SiPixelHistogramId( errin.label() );
-  // Get DQM interface
-  DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
 
   // Is a FED sending raw data
-  meRawWords_ = theDMBE->book1D("FEDEntries","Number of raw words",40,-0.5,39.5);
+  meRawWords_ = iBooker.book1D("FEDEntries","Number of raw words",40,-0.5,39.5);
   meRawWords_->setAxisTitle("Number of raw words",1);
 
   // Number of CRC errors
-  meNCRCs_ = theDMBE->book1D("FEDFatal","Number of fatal errors",40,-0.5,39.5);
+  meNCRCs_ = iBooker.book1D("FEDFatal","Number of fatal errors",40,-0.5,39.5);
   meNCRCs_->setAxisTitle("Number of fatal errors",1);
 
   // Number of translation error words
-  meNErrors_ = theDMBE->book1D("FEDNonFatal","Number of non-fatal errors",40,-0.5,39.5);
+  meNErrors_ = iBooker.book1D("FEDNonFatal","Number of non-fatal errors",40,-0.5,39.5);
   meNErrors_->setAxisTitle("Number of non-fatal errors",1);
 
   delete RawHistogramId;

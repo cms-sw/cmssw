@@ -29,6 +29,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
@@ -45,16 +46,15 @@
 
 #include <boost/cstdint.hpp>
 
- class SiPixelHLTSource : public edm::EDAnalyzer {
+ class SiPixelHLTSource : public DQMEDAnalyzer {
     public:
        explicit SiPixelHLTSource(const edm::ParameterSet& conf);
        ~SiPixelHLTSource();
 
        virtual void analyze(const edm::Event&, const edm::EventSetup&);
-       virtual void beginJob() ;
-       virtual void endJob() ;
-       virtual void beginRun(const edm::Run&, edm::EventSetup const&) ;
-       virtual void bookMEs();
+       virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+       virtual void dqmBeginRun(const edm::Run&, edm::EventSetup const&) ;
+       virtual void bookMEs(DQMStore::IBooker &);
 
     private:
        edm::ParameterSet conf_;
@@ -65,7 +65,6 @@
        bool slowDown;
        std::string dirName_;
        int eventNo;
-       DQMStore* theDMBE;
        MonitorElement* meRawWords_;
        MonitorElement* meNCRCs_;
        MonitorElement* meNErrors_;

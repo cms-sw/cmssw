@@ -62,7 +62,6 @@ SiPixelClusterSource::SiPixelClusterSource(const edm::ParameterSet& iConfig) :
   bigEventSize( conf_.getUntrackedParameter<int>("bigEventSize",100) ), 
   isUpgrade( conf_.getUntrackedParameter<bool>("isUpgrade",false) )
 {
-   theDMBE = edm::Service<DQMStore>().operator->();
    LogInfo ("PixelDQM") << "SiPixelClusterSource::SiPixelClusterSource: Got DQM BackEnd interface"<<endl;
 
    //set Token(-s)
@@ -88,8 +87,7 @@ void SiPixelClusterSource::beginJob(){
   firstRun = true;
 }
 
-void SiPixelClusterSource::beginRun(const edm::Run& r, const edm::EventSetup& iSetup){
-
+void SiPixelClusterSource::dqmBeginRun(const edm::Run& r, const edm::EventSetup& iSetup){
   LogInfo ("PixelDQM") << " SiPixelClusterSource::beginJob - Initialisation ... " << std::endl;
   LogInfo ("PixelDQM") << "Mod/Lad/Lay/Phi " << modOn << "/" << ladOn << "/" 
 	    << layOn << "/" << phiOn << std::endl;
@@ -97,7 +95,7 @@ void SiPixelClusterSource::beginRun(const edm::Run& r, const edm::EventSetup& iS
 	    << ringOn << std::endl;
   LogInfo ("PixelDQM") << "2DIM IS " << twoDimOn << "\n";
   LogInfo ("PixelDQM") << "Smiley (Cluster sizeY vs. Cluster eta) is " << smileyOn << "\n";
-
+  
   if(firstRun){
     eventNo = 0;
     lumSec = 0;
@@ -105,37 +103,30 @@ void SiPixelClusterSource::beginRun(const edm::Run& r, const edm::EventSetup& iS
     nBigEvents = 0;
     // Build map
     buildStructure(iSetup);
-    // Book Monitoring Elements
-    bookMEs();
-    // Book occupancy maps in global coordinates for all clusters:
-    theDMBE->setCurrentFolder("Pixel/Clusters/OffTrack");
-    //bpix
-    meClPosLayer1 = theDMBE->book2D("position_siPixelClusters_Layer_1","Clusters Layer1;Global Z (cm);Global #phi",200,-30.,30.,128,-3.2,3.2);
-    meClPosLayer2 = theDMBE->book2D("position_siPixelClusters_Layer_2","Clusters Layer2;Global Z (cm);Global #phi",200,-30.,30.,128,-3.2,3.2);
-    meClPosLayer3 = theDMBE->book2D("position_siPixelClusters_Layer_3","Clusters Layer3;Global Z (cm);Global #phi",200,-30.,30.,128,-3.2,3.2);
-    if (isUpgrade) {
-      meClPosLayer4 = theDMBE->book2D("position_siPixelClusters_Layer_4","Clusters Layer4;Global Z (cm);Global #phi",200,-30.,30.,128,-3.2,3.2);
-    }
-    //fpix
-    meClPosDisk1pz = theDMBE->book2D("position_siPixelClusters_pz_Disk_1","Clusters +Z Disk1;Global X (cm);Global Y (cm)",80,-20.,20.,80,-20.,20.);
-    meClPosDisk2pz = theDMBE->book2D("position_siPixelClusters_pz_Disk_2","Clusters +Z Disk2;Global X (cm);Global Y (cm)",80,-20.,20.,80,-20.,20.);
-    meClPosDisk1mz = theDMBE->book2D("position_siPixelClusters_mz_Disk_1","Clusters -Z Disk1;Global X (cm);Global Y (cm)",80,-20.,20.,80,-20.,20.);
-    meClPosDisk2mz = theDMBE->book2D("position_siPixelClusters_mz_Disk_2","Clusters -Z Disk2;Global X (cm);Global Y (cm)",80,-20.,20.,80,-20.,20.);
-    if (isUpgrade) {
-      meClPosDisk3pz = theDMBE->book2D("position_siPixelClusters_pz_Disk_3","Clusters +Z Disk3;Global X (cm);Global Y (cm)",80,-20.,20.,80,-20.,20.);
-      meClPosDisk3mz = theDMBE->book2D("position_siPixelClusters_mz_Disk_3","Clusters -Z Disk3;Global X (cm);Global Y (cm)",80,-20.,20.,80,-20.,20.);
-    }
-    
+ 
     firstRun = false;
   }
 }
 
-
-void SiPixelClusterSource::endJob(void){
-  if(saveFile){
-    LogInfo ("PixelDQM") << " SiPixelClusterSource::endJob - Saving Root File " << std::endl;
-    std::string outputFile = conf_.getParameter<std::string>("outputFile");
-    theDMBE->save( outputFile.c_str() );
+void SiPixelClusterSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run const &, edm::EventSetup const &){
+  bookMEs(iBooker);
+  // Book occupancy maps in global coordinates for all clusters:
+  iBooker.setCurrentFolder("Pixel/Clusters/OffTrack");
+  //bpix
+  meClPosLayer1 = iBooker.book2D("position_siPixelClusters_Layer_1","Clusters Layer1;Global Z (cm);Global #phi",200,-30.,30.,128,-3.2,3.2);
+  meClPosLayer2 = iBooker.book2D("position_siPixelClusters_Layer_2","Clusters Layer2;Global Z (cm);Global #phi",200,-30.,30.,128,-3.2,3.2);
+  meClPosLayer3 = iBooker.book2D("position_siPixelClusters_Layer_3","Clusters Layer3;Global Z (cm);Global #phi",200,-30.,30.,128,-3.2,3.2);
+  if (isUpgrade) {
+    meClPosLayer4 = iBooker.book2D("position_siPixelClusters_Layer_4","Clusters Layer4;Global Z (cm);Global #phi",200,-30.,30.,128,-3.2,3.2);
+  }
+  //fpix
+  meClPosDisk1pz = iBooker.book2D("position_siPixelClusters_pz_Disk_1","Clusters +Z Disk1;Global X (cm);Global Y (cm)",80,-20.,20.,80,-20.,20.);
+  meClPosDisk2pz = iBooker.book2D("position_siPixelClusters_pz_Disk_2","Clusters +Z Disk2;Global X (cm);Global Y (cm)",80,-20.,20.,80,-20.,20.);
+  meClPosDisk1mz = iBooker.book2D("position_siPixelClusters_mz_Disk_1","Clusters -Z Disk1;Global X (cm);Global Y (cm)",80,-20.,20.,80,-20.,20.);
+  meClPosDisk2mz = iBooker.book2D("position_siPixelClusters_mz_Disk_2","Clusters -Z Disk2;Global X (cm);Global Y (cm)",80,-20.,20.,80,-20.,20.);
+  if (isUpgrade) {
+    meClPosDisk3pz = iBooker.book2D("position_siPixelClusters_pz_Disk_3","Clusters +Z Disk3;Global X (cm);Global Y (cm)",80,-20.,20.,80,-20.,20.);
+    meClPosDisk3mz = iBooker.book2D("position_siPixelClusters_mz_Disk_3","Clusters -Z Disk3;Global X (cm);Global Y (cm)",80,-20.,20.,80,-20.,20.);
   }
 }
 
@@ -148,45 +139,28 @@ void SiPixelClusterSource::analyze(const edm::Event& iEvent, const edm::EventSet
   
   //if(modOn && !isUpgrade){
   if(!isUpgrade){
-    MonitorElement* meReset = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_Layer_1");
-    MonitorElement* meReset1 = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_Layer_2");
-    MonitorElement* meReset2 = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_Layer_3");
-    MonitorElement* meReset3 = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_mz_Disk_1");
-    MonitorElement* meReset4 = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_mz_Disk_2");
-    MonitorElement* meReset5 = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_pz_Disk_1");
-    MonitorElement* meReset6 = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_pz_Disk_2");
-    if(meReset && meReset->getEntries()>150000){
-      meReset->Reset();
-      meReset1->Reset();
-      meReset2->Reset();
-      meReset3->Reset();
-      meReset4->Reset();
-      meReset5->Reset();
-      meReset6->Reset();
+    if(meClPosLayer1 && meClPosLayer1->getEntries()>150000){
+      meClPosLayer1->Reset();
+      meClPosLayer2->Reset();
+      meClPosLayer3->Reset();
+      meClPosDisk1mz->Reset();
+      meClPosDisk2mz->Reset();
+      meClPosDisk1pz->Reset();
+      meClPosDisk2pz->Reset();
     }
   //}else if(modOn && isUpgrade){
   }else if(isUpgrade){
-    MonitorElement* meReset = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_Layer_1");
-    MonitorElement* meReset1 = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_Layer_2");
-    MonitorElement* meReset2 = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_Layer_3");
-    MonitorElement* meReset3 = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_Layer_4");
-    MonitorElement* meReset4 = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_mz_Disk_1");
-    MonitorElement* meReset5 = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_mz_Disk_2");
-    MonitorElement* meReset6 = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_mz_Disk_3");
-    MonitorElement* meReset7 = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_pz_Disk_1");
-    MonitorElement* meReset8 = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_pz_Disk_2");
-    MonitorElement* meReset9 = theDMBE->get("Pixel/Clusters/OffTrack/position_siPixelClusters_pz_Disk_3");
-    if(meReset && meReset->getEntries()>150000){
-      meReset->Reset();
-      meReset1->Reset();
-      meReset2->Reset();
-      meReset3->Reset();
-      meReset4->Reset();
-      meReset5->Reset();
-      meReset6->Reset();
-      meReset7->Reset();
-      meReset8->Reset();
-      meReset9->Reset();
+    if(meClPosLayer1 && meClPosLayer1->getEntries()>150000){
+      meClPosLayer1->Reset(); 
+      meClPosLayer2->Reset(); 
+      meClPosLayer3->Reset(); 
+      meClPosLayer4->Reset(); 
+      meClPosDisk1pz->Reset();
+      meClPosDisk2pz->Reset();
+      meClPosDisk3pz->Reset();
+      meClPosDisk1mz->Reset();
+      meClPosDisk2mz->Reset();
+      meClPosDisk3mz->Reset();
     }
   }
   
@@ -197,11 +171,7 @@ void SiPixelClusterSource::analyze(const edm::Event& iEvent, const edm::EventSet
   edm::ESHandle<TrackerGeometry> pDD;
   iSetup.get<TrackerDigiGeometryRecord> ().get (pDD);
   const TrackerGeometry* tracker = &(* pDD);
-//  const PixelGeomDetUnit* theGeomDet = dynamic_cast<const PixelGeomDetUnit*> ( tracker->idToDet(detId) );
 
-  //float iOrbitSec = iEvent.orbitNumber()/11223.;
-  //int bx = iEvent.bunchCrossing();
-  //long long tbx = (long long)iEvent.orbitNumber() * 3564 + bx;
   int lumiSection = (int)iEvent.luminosityBlock();
   int nEventFpixClusters = 0;
 
@@ -209,22 +179,20 @@ void SiPixelClusterSource::analyze(const edm::Event& iEvent, const edm::EventSet
   std::map<uint32_t,SiPixelClusterModule*>::iterator struct_iter;
   for (struct_iter = thePixelStructure.begin() ; struct_iter != thePixelStructure.end() ; struct_iter++) {
     
-    int numberOfFpixClusters = (*struct_iter).second->fill(*input, tracker,  modOn, 
-                                                           ladOn, layOn, phiOn, 
+    int numberOfFpixClusters = (*struct_iter).second->fill(*input, tracker,  
+							   meClPosLayer1,meClPosLayer2,meClPosLayer3,meClPosLayer4,
+							   meClPosDisk1pz, meClPosDisk2pz, meClPosDisk3pz,
+							   meClPosDisk1mz, meClPosDisk2mz, meClPosDisk3mz,
+							   modOn, ladOn, layOn, phiOn, 
                                                            bladeOn, diskOn, ringOn, 
 							   twoDimOn, reducedSet, smileyOn, isUpgrade);
     nEventFpixClusters = nEventFpixClusters + numberOfFpixClusters;    
     
   }
 
-//  if(lumiSection>lumSec){ lumSec = lumiSection; nLumiSecs++; }
-//  if(nEventFpixClusters>bigEventSize) nBigEvents++;
-//  if(nLumiSecs%5==0){
-
   if(nEventFpixClusters>bigEventSize){
-    MonitorElement* me = theDMBE->get("Pixel/bigFpixClusterEventRate");
-    if(me){ 
-      me->Fill(lumiSection,1./23.);    
+    if (bigFpixClusterEventRate){
+      bigFpixClusterEventRate->Fill(lumiSection,1./23.);
     }
   }
   //std::cout<<"nEventFpixClusters: "<<nEventFpixClusters<<" , nLumiSecs: "<<nLumiSecs<<" , nBigEvents: "<<nBigEvents<<std::endl;
@@ -319,13 +287,12 @@ void SiPixelClusterSource::buildStructure(const edm::EventSetup& iSetup){
 //------------------------------------------------------------------
 // Book MEs
 //------------------------------------------------------------------
-void SiPixelClusterSource::bookMEs(){
+void SiPixelClusterSource::bookMEs(DQMStore::IBooker & iBooker){
   
   // Get DQM interface
-  DQMStore* theDMBE = edm::Service<DQMStore>().operator->();
-  theDMBE->setCurrentFolder("Pixel");
+  iBooker.setCurrentFolder("Pixel");
   char title[256]; snprintf(title, 256, "Rate of events with >%i FPIX clusters;LumiSection;Rate of large FPIX events per LS [Hz]",bigEventSize);
-  bigFpixClusterEventRate = theDMBE->book1D("bigFpixClusterEventRate",title,5000,0.,5000.);
+  bigFpixClusterEventRate = iBooker.book1D("bigFpixClusterEventRate",title,5000,0.,5000.);
 
 
   std::map<uint32_t,SiPixelClusterModule*>::iterator struct_iter;
@@ -337,7 +304,7 @@ void SiPixelClusterSource::bookMEs(){
     /// Create folder tree and book histograms 
     if(modOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first,0,isUpgrade)){
-        (*struct_iter).second->book( conf_,0,twoDimOn,reducedSet,isUpgrade);
+        (*struct_iter).second->book( conf_,iBooker,0,twoDimOn,reducedSet,isUpgrade);
       } else {
         
         if(!isPIB) throw cms::Exception("LogicError")
@@ -346,49 +313,49 @@ void SiPixelClusterSource::bookMEs(){
     }
     if(ladOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first,1,isUpgrade)){
-	(*struct_iter).second->book( conf_,1,twoDimOn,reducedSet,isUpgrade);
+	(*struct_iter).second->book( conf_,iBooker,1,twoDimOn,reducedSet,isUpgrade);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH LADDER-FOLDER\n";
       }
     }
     if(layOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first,2,isUpgrade)){
-	(*struct_iter).second->book( conf_,2,twoDimOn,reducedSet,isUpgrade);
+	(*struct_iter).second->book( conf_,iBooker,2,twoDimOn,reducedSet,isUpgrade);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH LAYER-FOLDER\n";
       }
     }
     if(phiOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first,3,isUpgrade)){
-	(*struct_iter).second->book( conf_,3,twoDimOn,reducedSet,isUpgrade);
+	(*struct_iter).second->book( conf_,iBooker,3,twoDimOn,reducedSet,isUpgrade);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH PHI-FOLDER\n";
       }
     }
     if(bladeOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first,4,isUpgrade)){
-	(*struct_iter).second->book( conf_,4,twoDimOn,reducedSet,isUpgrade);
+	(*struct_iter).second->book( conf_,iBooker,4,twoDimOn,reducedSet,isUpgrade);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH BLADE-FOLDER\n";
       }
     }
     if(diskOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first,5,isUpgrade)){
-	(*struct_iter).second->book( conf_,5,twoDimOn,reducedSet,isUpgrade);
+	(*struct_iter).second->book( conf_,iBooker,5,twoDimOn,reducedSet,isUpgrade);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH DISK-FOLDER\n";
       }
     }
     if(ringOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first,6,isUpgrade)){
-	(*struct_iter).second->book( conf_,6,twoDimOn,reducedSet,isUpgrade);
+	(*struct_iter).second->book( conf_,iBooker,6,twoDimOn,reducedSet,isUpgrade);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH RING-FOLDER\n";
       }
     }
     if(smileyOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first,7,isUpgrade)){
-        (*struct_iter).second->book( conf_,7,twoDimOn,reducedSet,isUpgrade);
+        (*struct_iter).second->book( conf_,iBooker,7,twoDimOn,reducedSet,isUpgrade);
         } else {
         LogDebug ("PixelDQM") << "PROBLEM WITH BARREL-FOLDER\n";
       }
