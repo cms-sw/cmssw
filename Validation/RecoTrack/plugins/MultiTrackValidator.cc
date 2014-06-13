@@ -94,6 +94,8 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):MultiTra
 
   _simHitTpMapTag = mayConsume<SimHitTPAssociationProducer::SimHitTPAssociationList>(pset.getParameter<edm::InputTag>("simHitTpMapTag"));
 
+  labelTokenForDrCalculation = consumes<edm::View<reco::Track> >(pset.getParameter<edm::InputTag>("trackCollectionForDrCalculation"));
+
   if (!UseAssociators) {
     associators.clear();
     associators.push_back(assMapInput.label());
@@ -228,6 +230,9 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
     }
     dR_tPCeff.push_back(dR);
   }
+
+  edm::Handle<View<Track> >  trackCollectionForDrCalculation;
+  event.getByToken(labelTokenForDrCalculation, trackCollectionForDrCalculation);
 
   int w=0; //counter counting the number of sets of histograms
   for (unsigned int ww=0;ww<associators.size();ww++){
@@ -424,6 +429,20 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       }
       //end dE/dx
 
+
+      //calculate dR for tracks
+      std::vector<double> dR_trk;
+      for(View<Track>::size_type i=0; i<trackCollection->size(); ++i){
+	RefToBase<Track> track(trackCollection, i);
+	double dR = std::numeric_limits<double>::max();
+	for(View<Track>::size_type j=0; j<trackCollectionForDrCalculation->size(); ++j){
+	  RefToBase<Track> track2(trackCollectionForDrCalculation, j);
+	  double dR_tmp = reco::deltaR(*track,*track2);
+	  if (dR_tmp<dR && dR_tmp>std::numeric_limits<double>::min()) dR=dR_tmp;
+	}
+	dR_trk.push_back(dR);
+      }
+
       for(View<Track>::size_type i=0; i<trackCollection->size(); ++i){
 
 	RefToBase<Track> track(trackCollection, i);
@@ -464,8 +483,8 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 					     << " NOT associated to any TrackingParticle" << "\n";
 	}
 
-
-	histoProducerAlgo_->fill_generic_recoTrack_histos(w,*track,bs.position(),isSimMatched,isSigSimMatched, isChargeMatched, numAssocRecoTracks, puinfo.getPU_NumInteractions(), tpbx, nSimHits, sharedFraction);
+	double dR=dR_trk[i];
+	histoProducerAlgo_->fill_generic_recoTrack_histos(w,*track,bs.position(),isSimMatched,isSigSimMatched, isChargeMatched, numAssocRecoTracks, puinfo.getPU_NumInteractions(), tpbx, nSimHits, sharedFraction,dR);
 
 	// dE/dx
 	//	reco::TrackRef track2  = reco::TrackRef( trackCollection, i );

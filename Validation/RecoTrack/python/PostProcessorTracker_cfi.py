@@ -36,6 +36,7 @@ postProcessorTrack = cms.EDAnalyzer("DQMGenericClient",
     "fakerate_vs_phi 'Fake rate vs phi' num_assoc(recoToSim)_phi num_reco_phi fake",
     "fakerate_vs_dxy 'Fake rate vs dxy' num_assoc(recoToSim)_dxy num_reco_dxy fake",
     "fakerate_vs_dz 'Fake rate vs dz' num_assoc(recoToSim)_dz num_reco_dz fake",
+    "fakerate_vs_dr 'Fake rate vs dr' num_assoc(recoToSim)_dr num_reco_dr fake",
     "fakerate_vertcount_barrel 'fake rate in barrel vs N of pileup vertices' num_assoc(recoToSim)_vertcount_barrel num_reco_vertcount_barrel fake",
     "fakerate_vertcount_fwdpos 'fake rate in endcap(+) vs N of pileup vertices' num_assoc(recoToSim)_vertcount_fwdpos num_reco_vertcount_fwdpos fake",
     "fakerate_vertcount_fwdneg 'fake rate in endcap(-) vs N of pileup vertices' num_assoc(recoToSim)_vertcount_fwdneg num_reco_vertcount_fwdneg fake"

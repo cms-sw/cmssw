@@ -48,18 +48,20 @@ void MTVHistoProducerAlgo::fillPlotFromPlots(MonitorElement* h,
 					     TH1* numerator, 
 					     TH1* denominator,
 					     std::string type){
+  assert(h->getNbinsX()==numerator->GetNbinsX());
+  assert(h->getNbinsX()==denominator->GetNbinsX());
   double value,err;
   for (int bin=1;bin<=h->getNbinsX();++bin) {
-    if (denominator->GetBinContent(bin)>0) {
+    if (denominator->GetBinContent(bin)!=0) {
       if (type=="effic"){
 	value = ((double) numerator->GetBinContent(bin))/((double) denominator->GetBinContent(bin));
-	err = sqrt( value*(1-value)/((double) denominator->GetBinContent(bin)) );
+	err = sqrt( value*(1.-value)/((double) denominator->GetBinContent(bin)) );
       } else if (type=="fakerate"){
-	value = 1-((double) numerator->GetBinContent(bin))*1./((double) denominator->GetBinContent(bin));
-        err = sqrt( value*(1-value)/(double)denominator->GetBinContent(bin) );
+	value = 1.-((double) numerator->GetBinContent(bin))/((double) denominator->GetBinContent(bin));
+        err = sqrt( value*(1.-value)/(double)denominator->GetBinContent(bin) );
       } else if (type=="pileup"){
-	value = ((double) numerator->GetBinContent(bin))*1./((double) denominator->GetBinContent(bin));
-        err = sqrt( value*(1+value)/(double) denominator->GetBinContent(bin) );
+	value = ((double) numerator->GetBinContent(bin))/((double) denominator->GetBinContent(bin));
+        err = sqrt( value*(1.+value)/(double) denominator->GetBinContent(bin) );
       } else return;
       h->setBinContent(bin,value);
       h->setBinError(bin,err);

@@ -345,7 +345,8 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
 	}
 	
 
-	histoProducerAlgo_->fill_generic_recoTrack_histos(w,*track,bs.position(),isGenMatched,isSigGenMatched, isChargeMatched, numAssocRecoTracks, puinfo.getPU_NumInteractions(), tpbx, nSimHits, sharedFraction);
+	double dR=0;//fxime
+	histoProducerAlgo_->fill_generic_recoTrack_histos(w,*track,bs.position(),isGenMatched,isSigGenMatched, isChargeMatched, numAssocRecoTracks, puinfo.getPU_NumInteractions(), tpbx, nSimHits, sharedFraction,dR);
 
 	// dE/dx
 	//	reco::TrackRef track2  = reco::TrackRef( trackCollection, i );

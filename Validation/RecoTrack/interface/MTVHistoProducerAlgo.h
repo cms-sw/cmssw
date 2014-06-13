@@ -63,7 +63,7 @@ class MTVHistoProducerAlgo{
                          	             int numVertices,
                          		     int tpbunchcrossing,
 				             int nSimHits,
-   					     double sharedFraction)=0;
+   					     double sharedFraction, double dR)=0;
 
   virtual void fill_dedx_recoTrack_histos(int count, edm::RefToBase<reco::Track>& trackref,const std::vector< edm::ValueMap<reco::DeDxData> >& v_dEdx)=0;
   //  virtual void fill_dedx_recoTrack_histos(reco::TrackRef trackref, std::vector< edm::ValueMap<reco::DeDxData> > v_dEdx)=0;

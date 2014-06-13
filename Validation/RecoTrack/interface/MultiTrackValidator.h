@@ -49,6 +49,8 @@ class MultiTrackValidator : public thread_unsafe::DQMEDAnalyzer, protected Multi
   TrackingParticleSelector dRtpSelector;				      
 
   edm::EDGetTokenT<SimHitTPAssociationProducer::SimHitTPAssociationList> _simHitTpMapTag;
+  edm::EDGetTokenT<edm::View<reco::Track> > labelTokenForDrCalculation;
+
 };
 
 

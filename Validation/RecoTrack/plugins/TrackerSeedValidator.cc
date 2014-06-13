@@ -346,9 +346,10 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
 	  edm::LogVerbatim("SeedValidator") << "TrajectorySeed #" << rT << " NOT associated to any TrackingParticle" << "\n";
 	}
 
+	double dR = 0.;//fixme
 	histoProducerAlgo_->fill_generic_recoTrack_histos(w,*trackFromSeed,bs.position(),isSimMatched,isSigSimMatched,
 							  isChargeMatched, numAssocSeeds, puinfo.getPU_NumInteractions(),
-							  tpbx, nSimHits, sharedFraction);
+							  tpbx, nSimHits, sharedFraction, dR);
 
 	//Fill other histos
  	try{

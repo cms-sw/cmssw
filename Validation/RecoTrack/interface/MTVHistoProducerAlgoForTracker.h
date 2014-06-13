@@ -65,7 +65,8 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
 				     int numVertices,
 				     int tpbunchcrossing,
 				     int nSimHits,
-				     double sharedFraction);
+				     double sharedFraction,
+				     double dR);
 
   void fill_dedx_recoTrack_histos(int count, edm::RefToBase<reco::Track>& trackref, const std::vector< edm::ValueMap<reco::DeDxData> >& v_dEdx);
   //  void fill_dedx_recoTrack_histos(reco::TrackRef trackref, std::vector< edm::ValueMap<reco::DeDxData> > v_dEdx);
@@ -163,7 +164,8 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
   std::vector<MonitorElement*> h_effic_vs_dxy, h_fake_vs_dxy, h_recodxy, h_assocdxy, h_assoc2dxy, h_simuldxy, h_looperdxy, h_misiddxy, h_loopratedxy, h_misidratedxy;
   std::vector<MonitorElement*> h_effic_vs_dz, h_fake_vs_dz, h_recodz, h_assocdz, h_assoc2dz, h_simuldz, h_looperdz, h_misiddz, h_loopratedz, h_misidratedz;
 
-  std::vector<MonitorElement*> h_effic_vs_vertpos, h_effic_vs_zpos, h_effic_vs_dr, h_assocvertpos, h_simulvertpos, h_assoczpos, h_simulzpos, h_assocdr, h_simuldr;
+  std::vector<MonitorElement*> h_effic_vs_vertpos, h_effic_vs_zpos, h_assocvertpos, h_simulvertpos, h_assoczpos, h_simulzpos;
+  std::vector<MonitorElement*> h_effic_vs_dr, h_fakerate_vs_dr, h_assocdr, h_assoc2dr, h_simuldr, h_recodr;
   std::vector<MonitorElement*> h_pt, h_eta, h_pullTheta,h_pullPhi,h_pullDxy,h_pullDz,h_pullQoverp;
   std::vector<MonitorElement*> h_effic_vertcount_entire,  h_fakerate_vertcount_entire, h_reco_vertcount_entire, h_assoc_vertcount_entire, h_assoc2_vertcount_entire, h_simul_vertcount_entire;
   std::vector<MonitorElement*> h_effic_vertcount_barrel,  h_fakerate_vertcount_barrel, h_reco_vertcount_barrel, h_assoc_vertcount_barrel, h_assoc2_vertcount_barrel, h_simul_vertcount_barrel;
