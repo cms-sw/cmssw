@@ -26,6 +26,24 @@ namespace l1t {
     return diff;
   }
 
+  // turn each central region into a jet
+  void passThroughJets(const std::vector<l1t::CaloRegion> * regions,
+		       std::vector<l1t::Jet> * uncalibjets)
+  {
+    for(std::vector<CaloRegion>::const_iterator region = regions->begin(); region != regions->end(); region++) {
+      if( region->hwEta() < 4 || region->hwEta() > 17) continue;
+
+      int jetET = region->hwPt();
+      int jetEta = region->hwEta();
+      int jetPhi = region->hwPhi();
+      int jetQual = 0;
+      
+      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > jetLorentz(0,0,0,0);
+      l1t::Jet theJet(*&jetLorentz, jetET, jetEta, jetPhi, jetQual);
+      uncalibjets->push_back(theJet);
+    }
+  }
+
   void slidingWindowJetFinder(const int jetSeedThreshold, const std::vector<l1t::CaloRegion> * regions,
 			      std::vector<l1t::Jet> * uncalibjets)
   {
