@@ -1,4 +1,4 @@
-<bin   name="cmsRunGlibC" file="cmsRun.cpp">
+<bin   name="cmsRunGlibCImpl" file="cmsRun.cpp">
   <use   name="roothistmatrix"/>
   <use   name="tbb"/>
   <use   name="boost"/>
@@ -12,7 +12,7 @@
   <use   name="FWCore/ParameterSet"/>
   <use   name="FWCore/PythonParameterSet"/>
 </bin>
-<bin   name="cmsRunTC" file="cmsRun.cpp">
+<bin   name="cmsRunTCImpl" file="cmsRun.cpp">
   <use   name="tbb"/>
   <use   name="boost"/>
   <use   name="boost_program_options"/>
@@ -26,7 +26,7 @@
   <use   name="FWCore/ParameterSet"/>
   <use   name="FWCore/PythonParameterSet"/>
 </bin>
-<bin   name="cmsRun" file="cmsRun.cpp">
+<bin   name="cmsRunImpl" file="cmsRun.cpp">
   <use   name="tbb"/>
   <use   name="boost"/>
   <use   name="boost_program_options"/>
@@ -40,7 +40,7 @@
   <use   name="FWCore/ParameterSet"/>
   <use   name="FWCore/PythonParameterSet"/>
 </bin>
-<bin   name="cmsRunVDT" file="cmsRun.cpp">
+<bin   name="cmsRunVDTImpl" file="cmsRun.cpp">
   <use   name="vdt"/>
   <use   name="tbb"/>
   <use   name="boost"/>
