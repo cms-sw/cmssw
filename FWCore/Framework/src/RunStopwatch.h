@@ -11,7 +11,7 @@ calls the destructor which stops the clock.
 
 ----------------------------------------------------------------------*/
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 #include "FWCore/Utilities/interface/CPUTimer.h"
 
 namespace edm {
@@ -19,7 +19,7 @@ namespace edm {
   class RunStopwatch {
 
   public:
-    typedef boost::shared_ptr<CPUTimer> StopwatchPointer;
+    typedef std::shared_ptr<CPUTimer> StopwatchPointer;
 
     RunStopwatch(const StopwatchPointer& ptr): stopwatch_(ptr) {
       if(stopwatch_) {
@@ -41,7 +41,7 @@ namespace edm {
   class RunDualStopwatches {
     
   public:
-    typedef boost::shared_ptr<CPUTimer> StopwatchPointer;
+    typedef std::shared_ptr<CPUTimer> StopwatchPointer;
     
     RunDualStopwatches(const StopwatchPointer& ptr1, CPUTimer* const ptr2): stopwatch1_(ptr1),stopwatch2_(ptr2) {
       if(stopwatch1_ && 0 != stopwatch2_) {

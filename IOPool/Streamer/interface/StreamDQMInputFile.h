@@ -3,7 +3,7 @@
 
 #include "IOPool/Streamer/interface/DQMEventMessage.h"
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 #include<string>
 #include<vector>
@@ -27,7 +27,7 @@
 
     int readDQMEventMessage();
 
-    boost::shared_ptr<DQMEventMsgView> currentEvMsg_;
+    std::shared_ptr<DQMEventMsgView> currentEvMsg_;
     std::auto_ptr<std::ifstream> ist_;
     std::vector<char> eventBuf_;  /** Buffer to store Event Data */
   };

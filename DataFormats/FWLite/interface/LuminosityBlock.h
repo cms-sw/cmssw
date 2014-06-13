@@ -24,7 +24,6 @@
 #include <vector>
 #include <memory>
 #include <cstring>
-#include "boost/shared_ptr.hpp"
 
 #include "Rtypes.h"
 
@@ -35,6 +34,7 @@
 #include "DataFormats/FWLite/interface/EntryFinder.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
+#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 
 // forward declarations
 namespace edm {
@@ -62,7 +62,7 @@ namespace fwlite {
          // NOTE: Does NOT take ownership so iFile must remain around
          // at least as long as LuminosityBlock
          LuminosityBlock(TFile* iFile);
-         LuminosityBlock(boost::shared_ptr<BranchMapReader> branchMap,  boost::shared_ptr<RunFactory> runFactory);
+         LuminosityBlock(std::shared_ptr<BranchMapReader> branchMap,  std::shared_ptr<RunFactory> runFactory);
          virtual ~LuminosityBlock();
 
          const LuminosityBlock& operator++();
@@ -120,9 +120,9 @@ namespace fwlite {
 
 
          // ---------- member data --------------------------------
-         mutable boost::shared_ptr<BranchMapReader> branchMap_;
+         mutable std::shared_ptr<BranchMapReader> branchMap_;
 
-         mutable boost::shared_ptr<fwlite::Run>  run_;
+         mutable std::shared_ptr<fwlite::Run>  run_;
 
          //takes ownership of the strings used by the DataKey keys in data_
          mutable std::vector<char const*> labels_;
@@ -136,7 +136,7 @@ namespace fwlite {
          int fileVersion_;
 
          DataGetterHelper dataHelper_;
-         mutable boost::shared_ptr<RunFactory> runFactory_;
+         mutable std::shared_ptr<RunFactory> runFactory_;
    };
 
 }

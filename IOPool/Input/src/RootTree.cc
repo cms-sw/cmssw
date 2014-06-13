@@ -25,7 +25,7 @@ namespace edm {
       return branch;
     }
   }
-  RootTree::RootTree(boost::shared_ptr<InputFile> filePtr,
+  RootTree::RootTree(std::shared_ptr<InputFile> filePtr,
                      BranchType const& branchType,
                      unsigned int nIndexes,
                      unsigned int maxVirtualSize,

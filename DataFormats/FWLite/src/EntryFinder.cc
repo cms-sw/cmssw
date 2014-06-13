@@ -126,7 +126,7 @@ namespace fwlite {
         }
 
         indexIntoFile_.setNumberOfEvents(auxBranch->GetEntries());
-        indexIntoFile_.setEventFinder(boost::shared_ptr<edm::IndexIntoFile::EventFinder>(new FWLiteEventFinder(auxBranch)));
+        indexIntoFile_.setEventFinder(std::shared_ptr<edm::IndexIntoFile::EventFinder>(std::make_shared<FWLiteEventFinder>(auxBranch)));
 
       } else if (meta->FindBranch(edm::poolNames::fileIndexBranchName().c_str()) != 0) {
         edm::FileIndex* findexPtr = &fileIndex_;

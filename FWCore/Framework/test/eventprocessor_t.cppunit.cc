@@ -410,8 +410,8 @@ testeventprocessor::activityRegistryTest() {
       "   ivalue = cms.int32(-3))\n"
       "process.p1 = cms.Path(process.m1)\n");
 
-  boost::shared_ptr<edm::ParameterSet> parameterSet = PythonProcessDesc(configuration).parameterSet();
-  boost::shared_ptr<edm::ProcessDesc> processDesc(new edm::ProcessDesc(parameterSet));
+  std::shared_ptr<edm::ParameterSet> parameterSet = PythonProcessDesc(configuration).parameterSet();
+  auto processDesc = std::make_shared<edm::ProcessDesc>(parameterSet);
 
   //We don't want any services, we just want an ActivityRegistry to be created
   // We then use this ActivityRegistry to 'spy on' the signals being produced
