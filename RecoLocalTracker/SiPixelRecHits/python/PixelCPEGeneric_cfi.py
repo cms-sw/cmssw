@@ -56,7 +56,7 @@ PixelCPEGenericESProducer = cms.ESProducer("PixelCPEGenericESProducer",
     useLAAlignmentOffsets = cms.bool(False),                             
                                            
     #MagneticFieldRecord: e.g. "" or "ParabolicMF"
-    MagneticFieldRecord = cms.string(""),
+    MagneticFieldRecord = cms.ESInputTag(""),
 )
 
 

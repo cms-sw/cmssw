@@ -30,8 +30,8 @@ PixelCPEGenericESProducer::PixelCPEGenericESProducer(const edm::ParameterSet & p
   // Use Alignment LA-offset 
   useLAAlignmentOffsets_ = p.existsAs<bool>("useLAAlignmentOffsets")?
     p.getParameter<bool>("useLAAlignmentOffsets"):false;
-  magname_ = p.existsAs<std::string>("MagneticFieldRecord")?
-    p.getParameter<std::string>("MagneticFieldRecord"):"";
+  magname_ = p.existsAs<edm::ESInputTag>("MagneticFieldRecord")?
+    p.getParameter<edm::ESInputTag>("MagneticFieldRecord"):edm::ESInputTag("");
 
   pset_ = p;
   setWhatProduced(this,myname);
