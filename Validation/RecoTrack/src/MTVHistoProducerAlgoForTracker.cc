@@ -878,6 +878,10 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
 
     } // END for (unsigned int f=0; f<etaintervals[w].size()-1; f++){
 
+    //efficiency vs dR
+    h_simuldr[count]->Fill(min(max(dR,h_simuldr[count]->getTH1()->GetXaxis()->GetXmin()),h_simuldr[count]->getTH1()->GetXaxis()->GetXmax()));
+    if (isMatched) h_assocdr[count]->Fill(min(max(dR,h_simuldr[count]->getTH1()->GetXaxis()->GetXmin()),h_simuldr[count]->getTH1()->GetXaxis()->GetXmax()));
+
     //effic vs num pileup vertices
     for (unsigned int f=0; f<vertcountintervals[count].size()-1; f++){
       if (numVertices == vertcountintervals[count][f]) {
@@ -989,12 +993,6 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
 	        if (isMatched) totASS_vertz_fwdneg[count][f]++;
         }
     } // END for (unsigned int f=0; f<zposintervals[count].size()-1; f++){
-  }
-
-  //efficiency vs dR
-  if((*TpSelectorForEfficiencyVsEta)(tp)){
-    h_simuldr[count]->Fill(min(max(dR,h_simuldr[count]->getTH1()->GetXaxis()->GetXmin()),h_simuldr[count]->getTH1()->GetXaxis()->GetXmax()));
-    if (isMatched) h_assocdr[count]->Fill(min(max(dR,h_simuldr[count]->getTH1()->GetXaxis()->GetXmin()),h_simuldr[count]->getTH1()->GetXaxis()->GetXmax()));
   }
 
   //Special investigations for PU
@@ -1561,16 +1559,7 @@ void MTVHistoProducerAlgoForTracker::finalHistoFits(int counter){
   fillPlotFromVectors(h_misidratedz[counter],totmisid_dz[counter],totREC_dz[counter],"effic");
   fillPlotFromVectors(h_effic_vs_vertpos[counter],totASS_vertpos[counter],totSIM_vertpos[counter],"effic");
   fillPlotFromVectors(h_effic_vs_zpos[counter],totASS_zpos[counter],totSIM_zpos[counter],"effic");
-
-  for (int bin=1;bin<=h_effic_vs_dr[counter]->getNbinsX();++bin) {
-    if (h_simuldr[counter]->getBinContent(bin)>0) {
-      double value = ((double) h_assocdr[counter]->getBinContent(bin))/((double) h_simuldr[counter]->getBinContent(bin));
-      double err = sqrt( value*(1-value)/((double) h_simuldr[counter]->getBinContent(bin)) );
-      h_effic_vs_dr[counter]->setBinContent(bin,value);
-      h_effic_vs_dr[counter]->setBinError(bin,err);
-    }
-  }
-  
+  fillPlotFromPlots(h_effic_vs_vertpos[counter],h_assocdr[counter]->getTH1(),h_simuldr[counter]->getTH1(),"effic");
   fillPlotFromVectors(h_effic_vertcount_entire[counter],totASS_vertcount_entire[counter],totSIM_vertcount_entire[counter],"effic");
   fillPlotFromVectors(h_effic_vertcount_barrel[counter],totASS_vertcount_barrel[counter],totSIM_vertcount_barrel[counter],"effic");
   fillPlotFromVectors(h_effic_vertcount_fwdpos[counter],totASS_vertcount_fwdpos[counter],totSIM_vertcount_fwdpos[counter],"effic");

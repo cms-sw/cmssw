@@ -110,6 +110,11 @@ class MTVHistoProducerAlgo{
 			   std::vector<int>& denominator,
 			   std::string type);
 
+  void fillPlotFromPlots(MonitorElement* h,
+			 TH1* numerator,
+			 TH1* denominator,
+			 std::string type);
+
   void BinLogX(TH1*h);
 
  private:

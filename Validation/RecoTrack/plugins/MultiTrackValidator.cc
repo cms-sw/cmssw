@@ -210,18 +210,18 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
   event.getByToken(label_tv,tvH);
   TrackingVertexCollection tv = *tvH;
 
-  //cache dR for TPs
+  //calculate dR for TPs
   std::vector<double> dR_tPCeff;
   for (TrackingParticleCollection::size_type i=0; i<tPCeff.size(); i++){
     TrackingParticleRef tpr(TPCollectionHeff, i);
     TrackingParticle* tp=const_cast<TrackingParticle*>(tpr.get());
     double dR = std::numeric_limits<double>::max();
-    if(dRtpSelector(*tp)) {
+    if(dRtpSelector(*tp)) {//only for those needed for efficiency!
       for (TrackingParticleCollection::size_type j=0; j<tPCeff.size(); j++){
 	if (i==j) continue;
 	TrackingParticleRef tpr2(TPCollectionHeff, j);
 	TrackingParticle* tp2=const_cast<TrackingParticle*>(tpr2.get());
-	if(! tpSelector(*tp2)) continue;
+	if(! tpSelector(*tp2)) continue;//calculare dR wrt inclusive collection (also with PU, low pT, displaced)
 	double dR_tmp = reco::deltaR(*tp,*tp2);
 	if (dR_tmp<dR) dR=dR_tmp;
       }
