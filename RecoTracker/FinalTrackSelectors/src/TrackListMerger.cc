@@ -336,8 +336,9 @@ namespace cms
 
       algo[i]=track->algo();
       int validHits=track->numberOfValidHits();
+      int validPixelHits=track->hitPattern().numberOfValidPixelHits();
       int lostHits=track->numberOfLostHits();
-      score[i] = foundHitBonus_*validHits - lostHitPenalty_*lostHits - track->chi2();
+      score[i] = foundHitBonus_*validPixelHits+foundHitBonus_*validHits - lostHitPenalty_*lostHits - track->chi2();
 
 
       rh1[i].reserve(validHits) ;
