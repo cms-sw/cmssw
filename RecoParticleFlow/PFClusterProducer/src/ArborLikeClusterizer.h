@@ -1,5 +1,5 @@
-#ifndef __ArborOnSeedsTopoClusterizer_H__
-#define __ArborOnSeedsTopoClusterizer_H__
+#ifndef __ArborLikeClusterizer_H__
+#define __ArborLikeClusterizer_H__
 
 #include "RecoParticleFlow/PFClusterProducer/interface/InitialClusteringStepBase.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHitFraction.h"
@@ -7,9 +7,9 @@
 
 #include "RecoParticleFlow/PFClusterProducer/interface/PFCPositionCalculatorBase.h"
 
-class ArborOnSeedsTopoClusterizer : public InitialClusteringStepBase {  
+class ArborLikeClusterizer : public InitialClusteringStepBase {  
  public:
-  typedef ArborOnSeedsTopoClusterizer B2DGT;
+  typedef ArborLikeClusterizer B2DGT;
   typedef PFCPositionCalculatorBase PosCalc;
   typedef std::unordered_map<unsigned,bool> seed_usage_map;
   typedef std::unordered_map<unsigned,std::unordered_map<unsigned,double> > seed_fractions_map;
@@ -18,9 +18,9 @@ class ArborOnSeedsTopoClusterizer : public InitialClusteringStepBase {
   enum navi_dir{ Bidirectional = 0, OnlyForward = 1, OnlyBackward = 2};
   
   
-  ArborOnSeedsTopoClusterizer(const edm::ParameterSet& conf);
-  virtual ~ArborOnSeedsTopoClusterizer() {}
-  ArborOnSeedsTopoClusterizer(const B2DGT&) = delete;
+  ArborLikeClusterizer(const edm::ParameterSet& conf);
+  virtual ~ArborLikeClusterizer() {}
+  ArborLikeClusterizer(const B2DGT&) = delete;
   B2DGT& operator=(const B2DGT&) = delete;
 
   void buildClusters(const edm::Handle<reco::PFRecHitCollection>&,
@@ -90,7 +90,7 @@ class ArborOnSeedsTopoClusterizer : public InitialClusteringStepBase {
 };
 
 DEFINE_EDM_PLUGIN(InitialClusteringStepFactory,
-		  ArborOnSeedsTopoClusterizer,
-		  "ArborOnSeedsTopoClusterizer");
+		  ArborLikeClusterizer,
+		  "ArborLikeClusterizer");
 
 #endif

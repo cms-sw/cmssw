@@ -13,7 +13,7 @@ process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
 process.load('SimGeneral.MixingModule.mixNoPU_cfi')
-process.load('Configuration.Geometry.GeometryExtended2023SHCalNoTaperReco_cff')
+process.load('Configuration.Geometry.GeometryExtended2019Reco_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('Configuration.StandardSequences.RawToDigi_cff')
 process.load('Configuration.StandardSequences.L1Reco_cff')
@@ -31,7 +31,7 @@ process.maxEvents = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
     fileNames = cms.untracked.vstring(
-    'file:/afs/cern.ch/user/l/lgray/work/public/CMSSW_6_2_X_SLHC_2014-05-31-1400/src/matrix_tests/11202_SingleElectronPt35+SingleElectronPt35_2019WithGEM_GenSimFull+DigiFull_2019WithGEM+RecoFull_2019WithGEM+HARVESTFull_2019WithGEM/step3.root'
+    'file:/home/lgray/CMSSW_6_2_0_SLHC13_patch1/src/matrix_tests/11202_SingleElectronPt35+SingleElectronPt35_2019WithGEM_GenSimFull+DigiFull_2019WithGEM+RecoFull_2019WithGEM+HARVESTFull_2019WithGEM/step3.root'
     )
 )
 

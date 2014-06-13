@@ -26,7 +26,7 @@ void PFSeedSelector::produce(edm::Event& iEvent,
 
   for (const auto& hit : *hits) {
     bool maximum=true;
-    for (const auto& neighbour : hit.neighbours8()) {
+    for (const auto& neighbour : hit.neighbours4()) {
       if (hit.energy()<neighbour->energy()) {
 	maximum=false;
 	break;

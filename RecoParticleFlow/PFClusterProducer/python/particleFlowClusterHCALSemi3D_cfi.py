@@ -51,7 +51,7 @@ _positionCalcHCAL_semi3D_seedneighbours = cms.PSet(
 
 #topo clusters
 _topoClusterizer_HCAL = cms.PSet(
-    algoName = cms.string("ArborOnSeedsTopoClusterizer"),    
+    algoName = cms.string("SharedSeedsClusterizer"),    
     thresholdsByDetector = cms.VPSet(
     cms.PSet( detector = cms.string("HCAL_BARREL1"),
               gatheringThreshold = cms.double(0.2),
@@ -124,7 +124,7 @@ _pfClusterizer_HCAL = cms.PSet(
 particleFlowClusterHCALSemi3D = cms.EDProducer(
     "PFClusterProducer",
     recHitsSource = cms.InputTag("particleFlowRecHitHBHEHO"),
-    recHitCleaners = cms.VPSet(_rbxAndHPDCleaner),
+    recHitCleaners = cms.VPSet(), #_rbxAndHPDCleaner # not needed for SiPM HCAL
     seedFinder = _localMaxSeeds_HCAL,
     initialClusteringStep = _topoClusterizer_HCAL,
     pfClusterBuilder = cms.PSet(), #_pfClusterizer_HCAL,
