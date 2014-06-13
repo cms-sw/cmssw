@@ -2,7 +2,7 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
 
 <SolidSection label="hgcalEE.xml">
- <Polyhedra name="HGCalEEM" numSide="1" startPhi="357.5*deg" deltaPhi="5*deg">
+ <Polyhedra name="HGCalEEM" numSide="1" startPhi="350*deg" deltaPhi="20*deg">
   <ZSection z="[hgcal:zMinEE]" rMin="[hgcal:rMinEEMin]" rMax="[hgcal:rMapEEMin]"/>
   <ZSection z="[hgcal:zMaxEE]" rMin="[hgcal:rMinEEMax]" rMax="[hgcal:rMapEEMax]"/>
  </Polyhedra>
@@ -21,7 +21,7 @@
   <String name="ChildName"    value="HGCalEEM"/>
   <Numeric name="StartCopyNo" value="1"/>
   <Numeric name="IncrCopyNo"  value="1"/>
-  <Numeric name="N"           value="72"/>
+  <Numeric name="N"           value="18"/>
   <Numeric name="StartAngle"  value="0*deg"/>
   <Numeric name="RangeAngle"  value="360*deg"/>
   <Numeric name="Radius" value="0*m"/>
@@ -95,7 +95,7 @@
    10.7*mm, 10.7*mm, 10.7*mm, 10.7*mm, 10.7*mm, 10.7*mm,
    10.7*mm, 10.7*mm, 10.7*mm, 10.7*mm, 10.7*mm, 10.7*mm </Vector>
   <Numeric name="zMinBlock"   value="[hgcal:zMinEE]"/>
-  <Numeric name="Sectors"     value="72"/>
+  <Numeric name="Sectors"     value="18"/>
   <Numeric name="SlopeBottom" value="[etaMax:slope]"/>
   <Vector name="SlopeTop" type="numeric" nEntries="4">
     [hgcal:slope2], [hgcal:slope3], 0, 0</Vector>

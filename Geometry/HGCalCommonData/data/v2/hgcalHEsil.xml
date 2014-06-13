@@ -9,7 +9,7 @@
 </ConstantsSection> 
 
 <SolidSection label="hgcalHEsil.xml">
- <Polyhedra name="HGCalHESilicon" numSide="1" startPhi="357.5*deg" deltaPhi="5*deg">
+ <Polyhedra name="HGCalHESilicon" numSide="1" startPhi="350*deg" deltaPhi="20*deg">
   <ZSection z="[hgcal:zMinHE]"  rMin="[hgcal:rMinHEMin]"  rMax="[hgcal:rMapHEMin]"/>
   <ZSection z="[hgcal:zHGCal2]" rMin="[hgcal:rMinHGCal2]" rMax="[hgcal:rMapHGCal2]"/>
   <ZSection z="[ZmaxHEsil]"     rMin="[rMinHEsil]"        rMax="[rMapHEsil]"/>
@@ -29,7 +29,7 @@
   <String name="ChildName"    value="HGCalHESilicon"/>
   <Numeric name="StartCopyNo" value="1"/>
   <Numeric name="IncrCopyNo"  value="1"/>
-  <Numeric name="N"           value="72"/>
+  <Numeric name="N"           value="18"/>
   <Numeric name="StartAngle"  value="0*deg"/>
   <Numeric name="RangeAngle"  value="360*deg"/>
   <Numeric name="Radius"      value="0*m"/>
@@ -72,7 +72,7 @@
    59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm,
    59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm </Vector>
   <Numeric name="zMinBlock"   value="[hgcal:zMinHE]"/>
-  <Numeric name="Sectors"     value="72"/>
+  <Numeric name="Sectors"     value="18"/>
   <Numeric name="SlopeBottom" value="[etaMax:slope]"/>
   <Vector name="SlopeTop" type="numeric" nEntries="4">
     [hgcal:slope2], [hgcal:slope3], 0, 0</Vector>
