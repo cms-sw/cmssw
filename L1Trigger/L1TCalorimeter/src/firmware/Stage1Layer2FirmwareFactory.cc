@@ -36,9 +36,8 @@ namespace l1t {
 
     switch (m_fwv){
     case 1:
-      p = ReturnType(new Stage1Layer2MainProcessorFirmwareImp1(m_fwv, dbPars));
-      break;
     case 2:
+    case 3:
       p = ReturnType(new Stage1Layer2MainProcessorFirmwareImp1(m_fwv, dbPars));
       break;
     default:
