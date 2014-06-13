@@ -37,7 +37,7 @@
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"
-#include "DQM/OuterTrackerMonitorCluster/interface/OuterTrackerMonitorClusterClient.h"
+#include "DQM/OuterTrackerMonitorClient/interface/OuterTrackerMonitorClusterClient.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from DQM.OuterTrackerMonitorCluster.OuterTrackerMonitorClusterClient_cfi import *
+from DQM.OuterTrackerMonitorClient.OuterTrackerMonitorClusterClient_cfi import *
 
 #siStripOfflineAnalyser = cms.EDAnalyzer("OuterTrackerOfflineDQM",
     #GlobalStatusFilling      = cms.untracked.int32(2),
