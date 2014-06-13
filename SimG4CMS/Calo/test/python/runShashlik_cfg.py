@@ -4,11 +4,11 @@ process = cms.Process("PROD")
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("IOMC.EventVertexGenerators.VtxSmearedGauss_cfi")
 process.load("Geometry.HGCalCommonData.testShashlikXML_cfi")
+process.load("Geometry.HGCalCommonData.shashlikNumberingInitialization_cfi")
+#process.load("Configuration.Geometry.GeometryExtended2023SHCalNoTaperRebuild_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 process.load("SimG4Core.Application.g4SimHits_cfi")
-process.load("SimG4CMS.Calo.HFPMTHitAnalyzer_cfi")
-process.load("Geometry.HGCalCommonData.shashlikNumberingInitialization_cfi")
 
 process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout'),
