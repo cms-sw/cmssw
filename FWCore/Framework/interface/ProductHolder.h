@@ -17,7 +17,7 @@ a set of related EDProducts. This is the storage unit of such information.
 #include "FWCore/Utilities/interface/ProductHolderIndex.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 #include <string>
 
@@ -80,7 +80,7 @@ namespace edm {
     bool productWasDeleted() const {return productWasDeleted_();}
 
     // Retrieves a shared pointer to the wrapped product.
-    boost::shared_ptr<void const> product() const { return getProductData().wrapper_; }
+    std::shared_ptr<void const> product() const { return getProductData().wrapper_; }
 
     // Retrieves the wrapped product and type. (non-owning);
     WrapperHolder wrapper() const { return WrapperHolder(getProductData().wrapper_.get(), getProductData().getInterface()); }
@@ -100,7 +100,7 @@ namespace edm {
     void setPrincipal(Principal* principal) { setPrincipal_(principal); }
 
     // Sets the pointer to the event independent provenance.
-    void resetBranchDescription(boost::shared_ptr<BranchDescription const> bd) {resetBranchDescription_(bd);}
+    void resetBranchDescription(std::shared_ptr<BranchDescription const> bd) {resetBranchDescription_(bd);}
 
     // Retrieves a reference to the module label.
     std::string const& moduleLabel() const {return branchDescription().moduleLabel();}
@@ -120,7 +120,7 @@ namespace edm {
     Provenance* provenance() const;
 
     // Initializes the event independent portion of the provenance, plus the process history ID, the product ID, and the provRetriever.
-    void setProvenance(boost::shared_ptr<ProductProvenanceRetriever> provRetriever, ProcessHistory const& ph, ProductID const& pid) { setProvenance_(provRetriever, ph, pid); }
+    void setProvenance(std::shared_ptr<ProductProvenanceRetriever> provRetriever, ProcessHistory const& ph, ProductID const& pid) { setProvenance_(provRetriever, ph, pid); }
 
     // Initializes the process history.
     void setProcessHistory(ProcessHistory const& ph) { setProcessHistory_(ph); }
@@ -191,9 +191,9 @@ namespace edm {
     virtual void resetStatus_() = 0;
     virtual void setProductDeleted_() = 0;
     virtual BranchDescription const& branchDescription_() const = 0;
-    virtual void resetBranchDescription_(boost::shared_ptr<BranchDescription const> bd) = 0;
+    virtual void resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) = 0;
     virtual std::string const& resolvedModuleLabel_() const = 0;
-    virtual void setProvenance_(boost::shared_ptr<ProductProvenanceRetriever> provRetriever, ProcessHistory const& ph, ProductID const& pid) = 0;
+    virtual void setProvenance_(std::shared_ptr<ProductProvenanceRetriever> provRetriever, ProcessHistory const& ph, ProductID const& pid) = 0;
     virtual void setProcessHistory_(ProcessHistory const& ph) = 0;
     virtual ProductProvenance* productProvenancePtr_() const = 0;
     virtual void resetProductData_() = 0;
@@ -210,7 +210,7 @@ namespace edm {
 
   class InputProductHolder : public ProductHolderBase {
     public:
-    explicit InputProductHolder(boost::shared_ptr<BranchDescription const> bd, Principal* principal) :
+    explicit InputProductHolder(std::shared_ptr<BranchDescription const> bd, Principal* principal) :
         ProductHolderBase(), productData_(bd), productIsUnavailable_(false),
         productHasBeenDeleted_(false), principal_(principal) {}
       virtual ~InputProductHolder();
@@ -245,9 +245,9 @@ namespace edm {
       virtual ProductData& getProductData() {return productData_;}
       virtual void setProductDeleted_() {productHasBeenDeleted_ = true;}
       virtual BranchDescription const& branchDescription_() const {return *productData().branchDescription();}
-      virtual void resetBranchDescription_(boost::shared_ptr<BranchDescription const> bd) {productData().resetBranchDescription(bd);}
+      virtual void resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) {productData().resetBranchDescription(bd);}
       virtual std::string const& resolvedModuleLabel_() const {return moduleLabel();}
-      virtual void setProvenance_(boost::shared_ptr<ProductProvenanceRetriever> provRetriever, ProcessHistory const& ph, ProductID const& pid);
+      virtual void setProvenance_(std::shared_ptr<ProductProvenanceRetriever> provRetriever, ProcessHistory const& ph, ProductID const& pid);
       virtual void setProcessHistory_(ProcessHistory const& ph);
       virtual ProductProvenance* productProvenancePtr_() const;
       virtual void resetProductData_();
@@ -295,9 +295,9 @@ namespace edm {
       virtual bool productWasDeleted_() const;
       virtual void setProductDeleted_();
       virtual BranchDescription const& branchDescription_() const {return *productData().branchDescription();}
-      virtual void resetBranchDescription_(boost::shared_ptr<BranchDescription const> bd) {productData().resetBranchDescription(bd);}
+      virtual void resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) {productData().resetBranchDescription(bd);}
       virtual std::string const& resolvedModuleLabel_() const {return moduleLabel();}
-      virtual void setProvenance_(boost::shared_ptr<ProductProvenanceRetriever> provRetriever, ProcessHistory const& ph, ProductID const& pid);
+      virtual void setProvenance_(std::shared_ptr<ProductProvenanceRetriever> provRetriever, ProcessHistory const& ph, ProductID const& pid);
       virtual void setProcessHistory_(ProcessHistory const& ph);
       virtual ProductProvenance* productProvenancePtr_() const;
       virtual void resetProductData_();
@@ -307,7 +307,7 @@ namespace edm {
 
   class ScheduledProductHolder : public ProducedProductHolder {
     public:
-      explicit ScheduledProductHolder(boost::shared_ptr<BranchDescription const> bd) : ProducedProductHolder(), productData_(bd), theStatus_(NotRun) {}
+      explicit ScheduledProductHolder(std::shared_ptr<BranchDescription const> bd) : ProducedProductHolder(), productData_(bd), theStatus_(NotRun) {}
       virtual ~ScheduledProductHolder();
     private:
       virtual void swap_(ProductHolderBase& rhs) {
@@ -334,7 +334,7 @@ namespace edm {
 
   class UnscheduledProductHolder : public ProducedProductHolder {
     public:
-      explicit UnscheduledProductHolder(boost::shared_ptr<BranchDescription const> bd, Principal* principal) :
+      explicit UnscheduledProductHolder(std::shared_ptr<BranchDescription const> bd, Principal* principal) :
         ProducedProductHolder(), productData_(bd), theStatus_(UnscheduledNotRun), principal_(principal) {}
       virtual ~UnscheduledProductHolder();
     private:
@@ -363,7 +363,7 @@ namespace edm {
 
   class SourceProductHolder : public ProducedProductHolder {
     public:
-      explicit SourceProductHolder(boost::shared_ptr<BranchDescription const> bd) : ProducedProductHolder(), productData_(bd), theStatus_(NotPut) {}
+      explicit SourceProductHolder(std::shared_ptr<BranchDescription const> bd) : ProducedProductHolder(), productData_(bd), theStatus_(NotPut) {}
       virtual ~SourceProductHolder();
     private:
       virtual void swap_(ProductHolderBase& rhs) {
@@ -386,7 +386,7 @@ namespace edm {
   class AliasProductHolder : public ProductHolderBase {
     public:
       typedef ProducedProductHolder::ProductStatus ProductStatus;
-      explicit AliasProductHolder(boost::shared_ptr<BranchDescription const> bd, ProducedProductHolder& realProduct) : ProductHolderBase(), realProduct_(realProduct), bd_(bd) {}
+      explicit AliasProductHolder(std::shared_ptr<BranchDescription const> bd, ProducedProductHolder& realProduct) : ProductHolderBase(), realProduct_(realProduct), bd_(bd) {}
       virtual ~AliasProductHolder();
     private:
       virtual void swap_(ProductHolderBase& rhs) {
@@ -421,9 +421,9 @@ namespace edm {
         return realProduct_.putOrMergeProduct();
       }
       virtual BranchDescription const& branchDescription_() const {return *bd_;}
-      virtual void resetBranchDescription_(boost::shared_ptr<BranchDescription const> bd) {bd_ = bd;}
+      virtual void resetBranchDescription_(std::shared_ptr<BranchDescription const> bd) {bd_ = bd;}
       virtual std::string const& resolvedModuleLabel_() const {return realProduct_.moduleLabel();}
-      virtual void setProvenance_(boost::shared_ptr<ProductProvenanceRetriever> provRetriever, ProcessHistory const& ph, ProductID const& pid);
+      virtual void setProvenance_(std::shared_ptr<ProductProvenanceRetriever> provRetriever, ProcessHistory const& ph, ProductID const& pid);
       virtual void setProcessHistory_(ProcessHistory const& ph);
       virtual ProductProvenance* productProvenancePtr_() const;
       virtual void resetProductData_();
@@ -431,7 +431,7 @@ namespace edm {
       virtual void setPrincipal_(Principal* principal);
 
       ProducedProductHolder& realProduct_;
-      boost::shared_ptr<BranchDescription const> bd_;
+      std::shared_ptr<BranchDescription const> bd_;
   };
 
   class NoProcessProductHolder : public ProductHolderBase {
@@ -459,9 +459,9 @@ namespace edm {
       virtual void resetStatus_();
       virtual void setProductDeleted_();
       virtual BranchDescription const& branchDescription_() const;
-      virtual void resetBranchDescription_(boost::shared_ptr<BranchDescription const> bd);
+      virtual void resetBranchDescription_(std::shared_ptr<BranchDescription const> bd);
       virtual std::string const& resolvedModuleLabel_() const {return moduleLabel();}
-      virtual void setProvenance_(boost::shared_ptr<ProductProvenanceRetriever> provRetriever, ProcessHistory const& ph, ProductID const& pid);
+      virtual void setProvenance_(std::shared_ptr<ProductProvenanceRetriever> provRetriever, ProcessHistory const& ph, ProductID const& pid);
       virtual void setProcessHistory_(ProcessHistory const& ph);
       virtual ProductProvenance* productProvenancePtr_() const;
       virtual void resetProductData_();

@@ -55,8 +55,8 @@ namespace edm {
                  PreallocationConfiguration const& iPrealloc,
                  ProductRegistry& preg,
                  ExceptionToActionTable const& actions,
-                 boost::shared_ptr<ActivityRegistry> areg,
-                 boost::shared_ptr<ProcessConfiguration> processConfiguration) {
+                 std::shared_ptr<ActivityRegistry> areg,
+                 std::shared_ptr<ProcessConfiguration> processConfiguration) {
       
       ParameterSet* trig_pset = proc_pset.getPSetForUpdate("@trigger_paths");
       trig_pset->registerIt();
@@ -360,8 +360,8 @@ namespace edm {
                      ProductRegistry& preg,
                      BranchIDListHelper& branchIDListHelper,
                      ExceptionToActionTable const& actions,
-                     boost::shared_ptr<ActivityRegistry> areg,
-                     boost::shared_ptr<ProcessConfiguration> processConfiguration,
+                     std::shared_ptr<ActivityRegistry> areg,
+                     std::shared_ptr<ProcessConfiguration> processConfiguration,
                      const ParameterSet* subProcPSet,
                      PreallocationConfiguration const& prealloc,
                      ProcessContext const* processContext) :
@@ -376,7 +376,7 @@ namespace edm {
     assert(0<prealloc.numberOfStreams());
     streamSchedules_.reserve(prealloc.numberOfStreams());
     for(unsigned int i=0; i<prealloc.numberOfStreams();++i) {
-      streamSchedules_.emplace_back(std::shared_ptr<StreamSchedule>{new StreamSchedule{resultsInserter_.get(),moduleRegistry_,proc_pset,tns,prealloc, preg,branchIDListHelper,actions,areg,processConfiguration,nullptr==subProcPSet,StreamID{i},processContext}});
+      streamSchedules_.emplace_back(std::make_shared<StreamSchedule>(resultsInserter_.get(),moduleRegistry_,proc_pset,tns,prealloc,preg,branchIDListHelper,actions,areg,processConfiguration,nullptr==subProcPSet,StreamID{i},processContext));
     }
     
     //TriggerResults are injected automatically by StreamSchedules and are

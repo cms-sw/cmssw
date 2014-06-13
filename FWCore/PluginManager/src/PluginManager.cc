@@ -245,7 +245,7 @@ PluginManager::load(const std::string& iCategory,
       goingToLoad_(p);
       Sentry s(loadingLibraryNamed_(), p.string());
       //boost::filesystem::path native(p.string());
-      boost::shared_ptr<SharedLibrary> ptr;
+      std::shared_ptr<SharedLibrary> ptr;
       {
 	//TEMPORARY: to avoid possible deadlocks from ROOT, we must
 	// take the lock ourselves
@@ -285,7 +285,7 @@ PluginManager::tryToLoad(const std::string& iCategory,
       goingToLoad_(p);
       Sentry s(loadingLibraryNamed_(), p.string());
       //boost::filesystem::path native(p.string());
-      boost::shared_ptr<SharedLibrary> ptr;
+      std::shared_ptr<SharedLibrary> ptr;
       {
 	//TEMPORARY: to avoid possible deadlocks from ROOT, we must
 	// take the lock ourselves

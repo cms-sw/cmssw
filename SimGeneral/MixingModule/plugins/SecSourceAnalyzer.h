@@ -17,8 +17,6 @@
 // system include files
 #include <memory>
 
-#include "boost/shared_ptr.hpp"
-
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -64,7 +62,7 @@ namespace edm {
       
     std::vector<std::vector<edm::EventID> > vectorEventIDs_;
 
-    boost::shared_ptr<PileUp> input_;
+    std::shared_ptr<PileUp> input_;
     std::vector< float > TrueNumInteractions_[5];
 
     InputTag tag_;

@@ -33,7 +33,7 @@ namespace edm {
     typedef roottree::EntryNumber EntryNumber;
     RootDelayedReader(
       RootTree const& tree,
-      boost::shared_ptr<InputFile> filePtr,
+      std::shared_ptr<InputFile> filePtr,
       InputType inputType);
 
     virtual ~RootDelayedReader();
@@ -56,7 +56,7 @@ namespace edm {
     // NOTE: filePtr_ appears to be unused, but is needed to prevent
     // the file containing the branch from being reclaimed.
     RootTree const& tree_;
-    boost::shared_ptr<InputFile> filePtr_;
+    std::shared_ptr<InputFile> filePtr_;
     DelayedReader* nextReader_;
     std::unique_ptr<SharedResourcesAcquirer> resourceAcquirer_;
     InputType inputType_;

@@ -12,7 +12,7 @@
 #include <FWCore/PythonParameterSet/interface/PythonProcessDesc.h>
 #include "FWCore/Utilities/interface/EDMException.h"
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 #include <vector>
 #include <string>
@@ -66,7 +66,7 @@ void testProcessDesc::trivialPathTest() {
   "process.c = cms.EDProducer('C')\n"
   "process.p = cms.Path(process.a*process.b*process.c)\n";
 
-  boost::shared_ptr<edm::ParameterSet> test = PythonProcessDesc(str).parameterSet();
+  std::shared_ptr<edm::ParameterSet> test = PythonProcessDesc(str).parameterSet();
 
   typedef std::vector<std::string> Strs;
 
@@ -91,7 +91,7 @@ void testProcessDesc::simplePathTest() {
   ")\n"
   "process.p = cms.Path(process.a*process.b*process.c)\n";
 
-  boost::shared_ptr<edm::ParameterSet> test = PythonProcessDesc(str).parameterSet();
+  std::shared_ptr<edm::ParameterSet> test = PythonProcessDesc(str).parameterSet();
 
   typedef std::vector<std::string> Strs;
 
@@ -132,7 +132,7 @@ void testProcessDesc:: attriggertest () {
   "process.epath = cms.EndPath(process.output)\n";
 
   try {
-  boost::shared_ptr<edm::ParameterSet> test = PythonProcessDesc(str).parameterSet();
+  std::shared_ptr<edm::ParameterSet> test = PythonProcessDesc(str).parameterSet();
 
   typedef std::vector<std::string> Strs;
 
@@ -190,7 +190,7 @@ void testProcessDesc:: sequenceSubstitutionTest () {
   "process.jets = cms.Sequence(process.somejet1*process.somejet2)\n"
   "process.path1 = cms.Path(process.cones*process.jets*process.jtanalyzer)\n";
 
-  boost::shared_ptr<edm::ParameterSet> test = PythonProcessDesc(str).parameterSet();
+  std::shared_ptr<edm::ParameterSet> test = PythonProcessDesc(str).parameterSet();
 
   typedef std::vector<std::string> Strs;
 
@@ -219,7 +219,7 @@ void testProcessDesc::nestedSequenceSubstitutionTest() {
    "process.s1 = cms.Sequence( process.a+ process.b)\n"
    "process.s2 = cms.Sequence(process.s1+ process.c)\n"
    "process.path1 = cms.Path(process.s2+process.d)\n";
-  boost::shared_ptr<edm::ParameterSet> test = PythonProcessDesc(str).parameterSet();
+  std::shared_ptr<edm::ParameterSet> test = PythonProcessDesc(str).parameterSet();
 
   typedef std::vector<std::string> Strs;
 
@@ -249,7 +249,7 @@ void testProcessDesc::sequenceSubstitutionTest2() {
    "process.jets = cms.Sequence(process.somejet1+ process.somejet2)\n"
    "process.path1 = cms.Path(process.cones+process.jets+ process.jtanalyzer)\n";
 
-  boost::shared_ptr<edm::ParameterSet> test = PythonProcessDesc(str).parameterSet();
+  std::shared_ptr<edm::ParameterSet> test = PythonProcessDesc(str).parameterSet();
 
   typedef std::vector<std::string> Strs;
 
@@ -292,7 +292,7 @@ void testProcessDesc::sequenceSubstitutionTest3() {
    "process.s3 = cms.Sequence(process.aaa*process.bbb*~process.ccc*process.ddd*process.eee)\n"
    "process.path1 = cms.Path(process.s1+process.s3+process.s2+process.last)\n";
 
-  boost::shared_ptr<edm::ParameterSet> test = PythonProcessDesc(str).parameterSet();
+  std::shared_ptr<edm::ParameterSet> test = PythonProcessDesc(str).parameterSet();
 
   typedef std::vector<std::string> Strs;
 
@@ -344,7 +344,7 @@ void testProcessDesc::multiplePathsTest() {
     "process.path2 = cms.Path(process.jets+ process.anotherjtanalyzer)\n"
     "process.schedule = cms.Schedule(process.path2, process.path1)\n";
 
-  boost::shared_ptr<edm::ParameterSet> test = PythonProcessDesc(str).parameterSet();
+  std::shared_ptr<edm::ParameterSet> test = PythonProcessDesc(str).parameterSet();
 
   typedef std::vector<std::string> Strs;
 
@@ -383,7 +383,7 @@ void testProcessDesc::inconsistentPathTest() {
    "process.b = cms.EDProducer('PhonyConeJet', i = cms.int32(7))\n"
    "process.c = cms.EDProducer('PhonyJet', i = cms.int32(7))\n"
    "process.path1 = cms.Path((process.a*process.b)+ (process.c*process.b))\n";
-  boost::shared_ptr<edm::ParameterSet> test = PythonProcessDesc(str).parameterSet();
+  std::shared_ptr<edm::ParameterSet> test = PythonProcessDesc(str).parameterSet();
 }
 
 void testProcessDesc::inconsistentMultiplePathTest() {
@@ -400,7 +400,7 @@ void testProcessDesc::inconsistentMultiplePathTest() {
    "process.path1 = cms.Path(process.cones*process.jtanalyzer)\n"
    "process.path2 = cms.Path(process.jets*process.jtanalyzer)\n";
 
-  boost::shared_ptr<edm::ParameterSet> test = PythonProcessDesc(str).parameterSet();
+  std::shared_ptr<edm::ParameterSet> test = PythonProcessDesc(str).parameterSet();
 }
 
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>

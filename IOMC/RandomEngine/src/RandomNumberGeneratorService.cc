@@ -1200,7 +1200,7 @@ namespace edm {
           VUint32 const& seeds = i.second.seeds();
 
           if(name == "RanecuEngine") {
-            std::shared_ptr<CLHEP::HepRandomEngine> engine(new CLHEP::RanecuEngine());
+            std::shared_ptr<CLHEP::HepRandomEngine> engine = std::make_shared<CLHEP::RanecuEngine>();
             engines.emplace_back(label, seeds, engine);
             resetEngineSeeds(engines.back(), name, seeds, seedOffset, eventSeedOffset);
           }
@@ -1209,7 +1209,7 @@ namespace edm {
             long int seedL = static_cast<long int>(seeds[0]);
 
             if(name == "HepJamesRandom") {
-              std::shared_ptr<CLHEP::HepRandomEngine> engine(new CLHEP::HepJamesRandom(seedL));
+              std::shared_ptr<CLHEP::HepRandomEngine> engine = std::make_shared<CLHEP::HepJamesRandom>(seedL);
               engines.emplace_back(label, seeds, engine);
               if(seedOffset != 0 || eventSeedOffset != 0) {
                 resetEngineSeeds(engines.back(), name, seeds, seedOffset, eventSeedOffset);
@@ -1226,7 +1226,7 @@ namespace edm {
               std::uint32_t seedu32 = static_cast<std::uint32_t>(seedL);
               assert(seeds[0] == seedu32);
 
-              std::shared_ptr<CLHEP::HepRandomEngine> engine(new TRandomAdaptor(seedL));
+              std::shared_ptr<CLHEP::HepRandomEngine> engine = std::make_shared<TRandomAdaptor>(seedL);
               engines.emplace_back(label, seeds, engine);
               if(seedOffset != 0 || eventSeedOffset != 0) {
                 resetEngineSeeds(engines.back(), name, seeds, seedOffset, eventSeedOffset);

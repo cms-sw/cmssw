@@ -20,8 +20,8 @@ namespace edm {
     virtual void endRun(edm::Run&);
     virtual std::unique_ptr<edm::FileBlock> readFile_();
     virtual void closeFile_();
-    virtual boost::shared_ptr<edm::RunAuxiliary> readRunAuxiliary_();
-    virtual boost::shared_ptr<edm::LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_();
+    virtual std::shared_ptr<edm::RunAuxiliary> readRunAuxiliary_();
+    virtual std::shared_ptr<edm::LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_();
     virtual void readEvent_(edm::EventPrincipal&);
   private:
     enum {
@@ -109,21 +109,21 @@ namespace edm {
     if (whenToThrow_ == kCloseFile) throw cms::Exception("TestThrow") << "ThrowingSource::closeFile_";
   }
 
-  boost::shared_ptr<RunAuxiliary>
+  std::shared_ptr<RunAuxiliary>
   ThrowingSource::readRunAuxiliary_() {
     if (whenToThrow_ == kReadRunAuxiliary) throw cms::Exception("TestThrow") << "ThrowingSource::readRunAuxiliary_";
     Timestamp ts = Timestamp(presentTime());
     resetNewRun();
-    return boost::shared_ptr<RunAuxiliary>(new RunAuxiliary(eventID().run(), ts, Timestamp::invalidTimestamp()));
+    return std::make_shared<RunAuxiliary>(eventID().run(), ts, Timestamp::invalidTimestamp());
   }
 
-  boost::shared_ptr<LuminosityBlockAuxiliary>
+  std::shared_ptr<LuminosityBlockAuxiliary>
   ThrowingSource::readLuminosityBlockAuxiliary_() {
     if (whenToThrow_ == kReadLuminosityBlockAuxiliary) throw cms::Exception("TestThrow") << "ThrowingSource::readLuminosityBlockAuxiliary_";
-    if (processingMode() == Runs) return boost::shared_ptr<LuminosityBlockAuxiliary>();
+    if (processingMode() == Runs) return std::shared_ptr<LuminosityBlockAuxiliary>();
     Timestamp ts = Timestamp(presentTime());
     resetNewLumi();
-    return boost::shared_ptr<LuminosityBlockAuxiliary>(new LuminosityBlockAuxiliary(eventID().run(), eventID().luminosityBlock(), ts, Timestamp::invalidTimestamp()));
+    return std::make_shared<LuminosityBlockAuxiliary>(eventID().run(), eventID().luminosityBlock(), ts, Timestamp::invalidTimestamp());
   }
 
   void

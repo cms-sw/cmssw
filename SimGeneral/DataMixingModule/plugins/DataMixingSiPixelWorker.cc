@@ -5,6 +5,7 @@
 //--------------------------------------------
 
 #include <map>
+#include <memory>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
@@ -100,7 +101,7 @@ namespace edm
 
     // fill in maps of hits; same code as addSignals, except now applied to the pileup events
 
-    boost::shared_ptr<Wrapper<edm::DetSetVector<PixelDigi> >  const> inputPTR =
+    std::shared_ptr<Wrapper<edm::DetSetVector<PixelDigi> >  const> inputPTR =
       getProductByTag<edm::DetSetVector<PixelDigi> >(*ep, pixeldigi_collectionPile_, mcc);
 
     if(inputPTR ) {

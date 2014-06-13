@@ -20,7 +20,7 @@ namespace edm {
 
   RootDelayedReader::RootDelayedReader(
       RootTree const& tree,
-      boost::shared_ptr<InputFile> filePtr,
+      std::shared_ptr<InputFile> filePtr,
       InputType inputType) :
    tree_(tree),
    filePtr_(filePtr),

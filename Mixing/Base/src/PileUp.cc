@@ -25,9 +25,8 @@
 #include "CLHEP/Random/RandPoissonQ.h"
 #include "CLHEP/Random/RandPoisson.h"
 
-#include "boost/shared_ptr.hpp"
-
 #include <algorithm>
+#include <memory>
 
 namespace edm {
   PileUp::PileUp(ParameterSet const& pset, double averageNumber, TH1F * const histo, const bool playback) :
@@ -44,8 +43,8 @@ namespace edm {
     input_(VectorInputSourceFactory::get()->makeVectorInputSource(pset, InputSourceDescription(
                                                                    ModuleDescription(),
                                                                    *productRegistry_,
-                                                                   boost::shared_ptr<BranchIDListHelper>(new BranchIDListHelper),
-                                                                   boost::shared_ptr<ActivityRegistry>(new ActivityRegistry),
+                                                                   std::make_shared<BranchIDListHelper>(),
+                                                                   std::make_shared<ActivityRegistry>(),
                                                                    -1, -1,
                                                                    PreallocationConfiguration()
                                                                    )).release()),
@@ -178,14 +177,14 @@ namespace edm {
 
   void PileUp::beginRun(const edm::Run& run, const edm::EventSetup& setup) {
     if (provider_.get() != nullptr) {
-      boost::shared_ptr<RunAuxiliary> aux(new RunAuxiliary(run.runAuxiliary()));
+      auto aux = std::make_shared<RunAuxiliary>(run.runAuxiliary());
       runPrincipal_.reset(new RunPrincipal(aux, productRegistry_, *processConfiguration_, nullptr, 0));
       provider_->beginRun(*runPrincipal_, setup, run.moduleCallingContext());
     }
   }
   void PileUp::beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& setup) {
     if (provider_.get() != nullptr) {
-      boost::shared_ptr<LuminosityBlockAuxiliary> aux(new LuminosityBlockAuxiliary(lumi.luminosityBlockAuxiliary()));
+      auto aux = std::make_shared<LuminosityBlockAuxiliary>(lumi.luminosityBlockAuxiliary());
       lumiPrincipal_.reset(new LuminosityBlockPrincipal(aux, productRegistry_, *processConfiguration_, nullptr, 0));
       lumiPrincipal_->setRunPrincipal(runPrincipal_);
       provider_->beginLuminosityBlock(*lumiPrincipal_, setup, lumi.moduleCallingContext());

@@ -4,7 +4,7 @@
 #include "IOPool/Streamer/interface/EventBuffer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 namespace edmtest
 {
@@ -23,7 +23,7 @@ namespace edmtest
     void sendRegistry(void* buf, int len);
 
   private:
-    boost::shared_ptr<Worker> worker_;
+    std::shared_ptr<Worker> worker_;
     edm::EventBuffer* bufs_; //does not own the buffer
   };
 }

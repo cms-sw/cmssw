@@ -10,7 +10,7 @@ namespace edm {
 
   WrapperOwningHolder::WrapperOwningHolder() : WrapperHolder(), wrapperOwner_() {}
 
-  WrapperOwningHolder::WrapperOwningHolder(boost::shared_ptr<void const> wrapper, WrapperInterfaceBase const* interface) :
+  WrapperOwningHolder::WrapperOwningHolder(std::shared_ptr<void const> wrapper, WrapperInterfaceBase const* interface) :
       WrapperHolder(wrapper.get(), interface), wrapperOwner_(wrapper) {
   }
 
@@ -19,9 +19,9 @@ namespace edm {
       wrapperOwner_(makeWrapper(wrapper, interface)) {
   }
 
-  boost::shared_ptr<void const>
+  std::shared_ptr<void const>
   WrapperOwningHolder::makeWrapper(void const* wrapper, WrapperInterfaceBase const* interface) {
-     return(boost::shared_ptr<void const>(wrapper, EDProductDeleter(interface)));
+     return(std::shared_ptr<void const>(wrapper, EDProductDeleter(interface)));
   }
 
 }

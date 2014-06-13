@@ -10,8 +10,9 @@ and how it came into existence.
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/ParentageID.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
+#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 #include <iosfwd>
 #include <vector>
@@ -26,7 +27,7 @@ namespace edm {
     ProductProvenance();
     explicit ProductProvenance(BranchID const& bid);
     ProductProvenance(BranchID const& bid,
-                      boost::shared_ptr<Parentage> parentagePtr);
+                      std::shared_ptr<Parentage> parentagePtr);
     ProductProvenance(BranchID const& bid,
                       ParentageID const& id);
 
@@ -50,13 +51,13 @@ namespace edm {
     struct Transients {
       Transients();
       void reset();
-      boost::shared_ptr<Parentage> parentagePtr_;
+      std::shared_ptr<Parentage> parentagePtr_;
       bool noParentage_;
     };
 
   private:
 
-    boost::shared_ptr<Parentage>& parentagePtr() const {return transient_.parentagePtr_;}
+    std::shared_ptr<Parentage>& parentagePtr() const {return transient_.parentagePtr_;}
 
     BranchID branchID_;
     ParentageID parentageID_;
