@@ -558,7 +558,6 @@ void MultiTrackValidator::endRun(Run const&, EventSetup const&) {
     for (unsigned int www=0;www<label.size();www++){
       if(!skipHistoFit && runStandalone)	histoProducerAlgo_->finalHistoFits(w);
       if (runStandalone) histoProducerAlgo_->fillProfileHistosFromVectors(w);
-      histoProducerAlgo_->fillHistosFromVectors(w);
       w++;
     }
   }

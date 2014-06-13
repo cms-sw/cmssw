@@ -86,7 +86,6 @@ class MTVHistoProducerAlgo{
   virtual void finalHistoFits(int counter)=0;
 
 
-  virtual void fillHistosFromVectors(int counter)=0;
   virtual void fillProfileHistosFromVectors(int counter)=0;
 
 
@@ -101,6 +100,10 @@ class MTVHistoProducerAlgo{
 
   void doProfileX(MonitorElement * th2m, MonitorElement* me) {
     doProfileX(th2m->getTH2F(), me);
+  }
+
+  template<typename T> void fillPlotNoFlow(MonitorElement* h, T val){
+    h->Fill(std::min(std::max(val,((T) h->getTH1()->GetXaxis()->GetXmin())),((T) h->getTH1()->GetXaxis()->GetXmax())));
   }
 
   void fillPlotFromVector(MonitorElement* h, std::vector<int>& vec);

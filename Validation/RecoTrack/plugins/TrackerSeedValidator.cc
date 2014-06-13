@@ -424,7 +424,6 @@ void TrackerSeedValidator::endRun(edm::Run const&, edm::EventSetup const&) {
 
       if (runStandalone) histoProducerAlgo_->finalHistoFits(w);
       if (runStandalone) histoProducerAlgo_->fillProfileHistosFromVectors(w);
-      histoProducerAlgo_->fillHistosFromVectors(w);
 
       w++;
     }

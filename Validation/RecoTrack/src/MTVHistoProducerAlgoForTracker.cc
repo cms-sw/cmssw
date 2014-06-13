@@ -171,238 +171,6 @@ MTVHistoProducerAlgoForTracker::~MTVHistoProducerAlgoForTracker(){
   delete GpSelectorForEfficiencyVsVTXZ;
 }
 
-
-void MTVHistoProducerAlgoForTracker::setUpVectors(){
-  std::vector<double> etaintervalsv;
-  std::vector<double> phiintervalsv;
-  std::vector<double> pTintervalsv;
-  std::vector<double> dxyintervalsv;
-  std::vector<double> dzintervalsv;
-  std::vector<double> vertposintervalsv;
-  std::vector<double> zposintervalsv;
-  std::vector<double> vertcountintervalsv;
-
-  std::vector<int>    totSIMveta,totASSveta,totASS2veta,totloopveta,totmisidveta,totASS2vetaSig,totRECveta;
-  std::vector<int>    totSIMvpT,totASSvpT,totASS2vpT,totRECvpT,totloopvpT,totmisidvpT;
-  std::vector<int>    totSIMv_hit,totASSv_hit,totASS2v_hit,totRECv_hit,totloopv_hit,totmisidv_hit;
-  std::vector<int>    totSIMv_phi,totASSv_phi,totASS2v_phi,totRECv_phi,totloopv_phi,totmisidv_phi;
-  std::vector<int>    totSIMv_dxy,totASSv_dxy,totASS2v_dxy,totRECv_dxy,totloopv_dxy,totmisidv_dxy;
-  std::vector<int>    totSIMv_dz,totASSv_dz,totASS2v_dz,totRECv_dz,totloopv_dz,totmisidv_dz;
-
-  std::vector<int>    totSIMv_vertpos,totASSv_vertpos,totSIMv_zpos,totASSv_zpos;
-  std::vector<int>    totSIMv_vertcount,totASSv_vertcount,totRECv_vertcount,totASS2v_vertcount;
-  std::vector<int>    totRECv_algo;
-
-  double step=(maxEta-minEta)/nintEta;
-  //std::ostringstream title,name; ///BM, what is this?
-  etaintervalsv.push_back(minEta);
-  for (int k=1;k<nintEta+1;k++) {
-    double d=minEta+k*step;
-    etaintervalsv.push_back(d);
-    totSIMveta.push_back(0);
-    totASSveta.push_back(0);
-    totASS2veta.push_back(0);
-    totloopveta.push_back(0);
-    totmisidveta.push_back(0);
-    totASS2vetaSig.push_back(0);
-    totRECveta.push_back(0);
-  }
-  etaintervals.push_back(etaintervalsv);
-  totSIMeta.push_back(totSIMveta);
-  totCONeta.push_back(totASSveta);
-  totASSeta.push_back(totASSveta);
-  totASS2eta.push_back(totASS2veta);
-  totloopeta.push_back(totloopveta);
-  totmisideta.push_back(totmisidveta);
-  totASS2etaSig.push_back(totASS2vetaSig);
-  totRECeta.push_back(totRECveta);
-  totFOMT_eta.push_back(totASSveta);
-
-  totASS2_itpu_eta_entire.push_back(totASS2veta);
-  totASS2_itpu_eta_entire_signal.push_back(totASS2vetaSig);
-  totASS2_ootpu_eta_entire.push_back(totASS2veta);
-
-  for (size_t i = 0; i < 15; i++) {
-    totRECv_algo.push_back(0);
-  }
-  totREC_algo.push_back(totRECv_algo);
-
-  double stepPt = (maxPt-minPt)/nintPt;
-  pTintervalsv.push_back(minPt);
-  for (int k=1;k<nintPt+1;k++) {
-    double d=0;
-    if(useLogPt)d=pow(10,minPt+k*stepPt);
-    else d=minPt+k*stepPt;
-    pTintervalsv.push_back(d);
-    totSIMvpT.push_back(0);
-    totASSvpT.push_back(0);
-    totASS2vpT.push_back(0);
-    totRECvpT.push_back(0);
-    totloopvpT.push_back(0);
-    totmisidvpT.push_back(0);
-  }
-  pTintervals.push_back(pTintervalsv);
-  totSIMpT.push_back(totSIMvpT);
-  totASSpT.push_back(totASSvpT);
-  totASS2pT.push_back(totASS2vpT);
-  totRECpT.push_back(totRECvpT);
-  totlooppT.push_back(totloopvpT);
-  totmisidpT.push_back(totmisidvpT);
-
-  for (int k=1;k<nintHit+1;k++) {
-    totSIMv_hit.push_back(0);
-    totASSv_hit.push_back(0);
-    totASS2v_hit.push_back(0);
-    totRECv_hit.push_back(0);
-    totloopv_hit.push_back(0);
-    totmisidv_hit.push_back(0);
-  }
-  totSIM_hit.push_back(totSIMv_hit);
-  totASS_hit.push_back(totASSv_hit);
-  totASS2_hit.push_back(totASS2v_hit);
-  totREC_hit.push_back(totRECv_hit);
-  totloop_hit.push_back(totloopv_hit);
-  totmisid_hit.push_back(totmisidv_hit);
-
-  double stepPhi = (maxPhi-minPhi)/nintPhi;
-  phiintervalsv.push_back(minPhi);
-  for (int k=1;k<nintPhi+1;k++) {
-    double d=minPhi+k*stepPhi;
-    phiintervalsv.push_back(d);
-    totSIMv_phi.push_back(0);
-    totASSv_phi.push_back(0);
-    totASS2v_phi.push_back(0);
-    totRECv_phi.push_back(0);
-    totloopv_phi.push_back(0);
-    totmisidv_phi.push_back(0);
-  }
-  phiintervals.push_back(phiintervalsv);
-  totSIM_phi.push_back(totSIMv_phi);
-  totASS_phi.push_back(totASSv_phi);
-  totASS2_phi.push_back(totASS2v_phi);
-  totREC_phi.push_back(totRECv_phi);
-  totloop_phi.push_back(totloopv_phi);
-  totmisid_phi.push_back(totmisidv_phi);
-
-  double stepDxy = (maxDxy-minDxy)/nintDxy;
-  dxyintervalsv.push_back(minDxy);
-  for (int k=1;k<nintDxy+1;k++) {
-    double d=minDxy+k*stepDxy;
-    dxyintervalsv.push_back(d);
-    totSIMv_dxy.push_back(0);
-    totASSv_dxy.push_back(0);
-    totASS2v_dxy.push_back(0);
-    totRECv_dxy.push_back(0);
-    totloopv_dxy.push_back(0);
-    totmisidv_dxy.push_back(0);
-  }
-  dxyintervals.push_back(dxyintervalsv);
-  totSIM_dxy.push_back(totSIMv_dxy);
-  totASS_dxy.push_back(totASSv_dxy);
-  totASS2_dxy.push_back(totASS2v_dxy);
-  totREC_dxy.push_back(totRECv_dxy);
-  totloop_dxy.push_back(totloopv_dxy);
-  totmisid_dxy.push_back(totmisidv_dxy);
-
-
-  double stepDz = (maxDz-minDz)/nintDz;
-  dzintervalsv.push_back(minDz);
-  for (int k=1;k<nintDz+1;k++) {
-    double d=minDz+k*stepDz;
-    dzintervalsv.push_back(d);
-    totSIMv_dz.push_back(0);
-    totASSv_dz.push_back(0);
-    totASS2v_dz.push_back(0);
-    totRECv_dz.push_back(0);
-    totloopv_dz.push_back(0);
-    totmisidv_dz.push_back(0);
-  }
-  dzintervals.push_back(dzintervalsv);
-  totSIM_dz.push_back(totSIMv_dz);
-  totASS_dz.push_back(totASSv_dz);
-  totASS2_dz.push_back(totASS2v_dz);
-  totREC_dz.push_back(totRECv_dz);
-  totloop_dz.push_back(totloopv_dz);
-  totmisid_dz.push_back(totmisidv_dz);
-
-  double stepVertpos = (maxVertpos-minVertpos)/nintVertpos;
-  vertposintervalsv.push_back(minVertpos);
-  for (int k=1;k<nintVertpos+1;k++) {
-    double d=minVertpos+k*stepVertpos;
-    vertposintervalsv.push_back(d);
-    totSIMv_vertpos.push_back(0);
-    totASSv_vertpos.push_back(0);
-  }
-  vertposintervals.push_back(vertposintervalsv);
-  totSIM_vertpos.push_back(totSIMv_vertpos);
-  totASS_vertpos.push_back(totASSv_vertpos);
-
-  double stepZpos = (maxZpos-minZpos)/nintZpos;
-  zposintervalsv.push_back(minZpos);
-  for (int k=1;k<nintZpos+1;k++) {
-    double d=minZpos+k*stepZpos;
-    zposintervalsv.push_back(d);
-    totSIMv_zpos.push_back(0);
-    totASSv_zpos.push_back(0);
-  }
-  zposintervals.push_back(zposintervalsv);
-  totSIM_zpos.push_back(totSIMv_zpos);
-  totCONzpos.push_back(totSIMv_zpos);
-  totASS_zpos.push_back(totASSv_zpos);
-  totSIM_vertz_entire.push_back(totSIMv_zpos);
-  totASS_vertz_entire.push_back(totASSv_zpos);
-  totSIM_vertz_barrel.push_back(totSIMv_zpos);
-  totASS_vertz_barrel.push_back(totASSv_zpos);
-  totSIM_vertz_fwdpos.push_back(totSIMv_zpos);
-  totASS_vertz_fwdpos.push_back(totASSv_zpos);
-  totSIM_vertz_fwdneg.push_back(totSIMv_zpos);
-  totASS_vertz_fwdneg.push_back(totASSv_zpos);
-
-  double stepVertcount=(maxVertcount-minVertcount)/nintVertcount;
-  vertcountintervalsv.push_back(minVertcount);
-  for (int k=1;k<nintVertcount+1;k++) {
-    double d=minVertcount+k*stepVertcount;
-    vertcountintervalsv.push_back(d);
-    totSIMv_vertcount.push_back(0);
-    totASSv_vertcount.push_back(0);
-    totASS2v_vertcount.push_back(0);
-    totRECv_vertcount.push_back(0);
-  }
-  vertcountintervals.push_back(vertcountintervalsv);
-  totSIM_vertcount_entire.push_back(totSIMv_vertcount);
-  totCONvertcount.push_back(totSIMv_vertcount);
-  totASS_vertcount_entire.push_back(totASSv_vertcount);
-  totASS2_vertcount_entire.push_back(totASS2v_vertcount);
-  totASS2_vertcount_entire_signal.push_back(totASS2v_vertcount);
-  totREC_vertcount_entire.push_back(totRECv_vertcount);
-  totSIM_vertcount_barrel.push_back(totSIMv_vertcount);
-  totASS_vertcount_barrel.push_back(totASSv_vertcount);
-  totASS2_vertcount_barrel.push_back(totASS2v_vertcount);
-  totREC_vertcount_barrel.push_back(totRECv_vertcount);
-  totSIM_vertcount_fwdpos.push_back(totSIMv_vertcount);
-  totASS_vertcount_fwdpos.push_back(totASSv_vertcount);
-  totASS2_vertcount_fwdpos.push_back(totASS2v_vertcount);
-  totREC_vertcount_fwdpos.push_back(totRECv_vertcount);
-  totSIM_vertcount_fwdneg.push_back(totSIMv_vertcount);
-  totASS_vertcount_fwdneg.push_back(totASSv_vertcount);
-  totASS2_vertcount_fwdneg.push_back(totASS2v_vertcount);
-  totREC_vertcount_fwdneg.push_back(totRECv_vertcount);
-  totFOMT_vertcount.push_back(totASSv_vertcount);
-
-  totASS2_itpu_vertcount_entire.push_back(totASS2v_vertcount);
-  totASS2_itpu_vertcount_entire_signal.push_back(totASS2v_vertcount);
-
-  totASS2_ootpu_entire.push_back(totASS2v_vertcount);
-  totREC_ootpu_entire.push_back(totRECv_vertcount);
-  totASS2_ootpu_barrel.push_back(totASS2v_vertcount);
-  totREC_ootpu_barrel.push_back(totRECv_vertcount);
-  totASS2_ootpu_fwdpos.push_back(totASS2v_vertcount);
-  totREC_ootpu_fwdpos.push_back(totRECv_vertcount);
-  totASS2_ootpu_fwdneg.push_back(totASS2v_vertcount);
-  totREC_ootpu_fwdneg.push_back(totRECv_vertcount);
-
-}
-
 void MTVHistoProducerAlgoForTracker::bookSimHistos(DQMStore::IBooker& ibook){
   h_ptSIM.push_back( ibook.book1D("ptSIM", "generated p_{t}", 5500, 0, 110 ) );
   h_etaSIM.push_back( ibook.book1D("etaSIM", "generated pseudorapidity", 500, -2.5, 2.5 ) );
@@ -410,7 +178,6 @@ void MTVHistoProducerAlgoForTracker::bookSimHistos(DQMStore::IBooker& ibook){
   h_vertposSIM.push_back( ibook.book1D("vertposSIM","Transverse position of sim vertices",100,0.,120.) );
   h_bunchxSIM.push_back( ibook.book1D("bunchxSIM", "bunch crossing", 22, -5, 5 ) );
 }
-
 
 void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::IBooker& ibook){
   h_tracks.push_back( ibook.book1D("tracks","number of reconstructed tracks",401,-0.5,400.5) );
@@ -862,166 +629,81 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
 
   if((*TpSelectorForEfficiencyVsEta)(tp)){
     //effic vs hits
-    int nSimHitsInBounds = std::min((int)nSimHits,int(maxHit-1));
-    totSIM_hit[count][nSimHitsInBounds]++;
+    fillPlotNoFlow(h_simulhit[count],(int)nSimHits);
     if(isMatched) {
-      totASS_hit[count][nSimHitsInBounds]++;
+      fillPlotNoFlow(h_assochit[count],(int)nSimHits);
       nrecHit_vs_nsimHit_sim2rec[count]->Fill( track->numberOfValidHits(),nSimHits);
     }
-
     //effic vs eta
-    for (unsigned int f=0; f<etaintervals[count].size()-1; f++){
-      if (getEta(momentumTP.eta())>etaintervals[count][f]&&
-	  getEta(momentumTP.eta())<=etaintervals[count][f+1]) {
-	totSIMeta[count][f]++;
-	if (isMatched) {
-	  totASSeta[count][f]++;
-	}
-      }
-
-    } // END for (unsigned int f=0; f<etaintervals[w].size()-1; f++){
-
+    fillPlotNoFlow(h_simuleta[count],getEta(momentumTP.eta()));
+    if (isMatched) fillPlotNoFlow(h_assoceta[count],getEta(momentumTP.eta()));
     //efficiency vs dR
-    h_simuldr[count]->Fill(min(max(dR,h_simuldr[count]->getTH1()->GetXaxis()->GetXmin()),h_simuldr[count]->getTH1()->GetXaxis()->GetXmax()));
-    if (isMatched) h_assocdr[count]->Fill(min(max(dR,h_simuldr[count]->getTH1()->GetXaxis()->GetXmin()),h_simuldr[count]->getTH1()->GetXaxis()->GetXmax()));
-
+    fillPlotNoFlow(h_simuldr[count],dR);
+    if (isMatched) fillPlotNoFlow(h_assocdr[count],dR);
     //effic vs num pileup vertices
-    for (unsigned int f=0; f<vertcountintervals[count].size()-1; f++){
-      if (numVertices == vertcountintervals[count][f]) {
-        totSIM_vertcount_entire[count][f]++;
-        if (isMatched) {
-          totASS_vertcount_entire[count][f]++;
-        }
-      }
-      if (numVertices == vertcountintervals[count][f] && momentumTP.eta() <= 0.9 && momentumTP.eta() >= -0.9) {
-        totSIM_vertcount_barrel[count][f]++;
-        if (isMatched) {
-          totASS_vertcount_barrel[count][f]++;
-        }
-      }
-      if (numVertices == vertcountintervals[count][f] && momentumTP.eta() > 0.9) {
-        totSIM_vertcount_fwdpos[count][f]++;
-        if (isMatched) {
-          totASS_vertcount_fwdpos[count][f]++;
-        }
-      }
-      if (numVertices == vertcountintervals[count][f] && momentumTP.eta() < -0.9) {
-        totSIM_vertcount_fwdneg[count][f]++;
-        if (isMatched) {
-          totASS_vertcount_fwdneg[count][f]++;
-        }
-      }
+    fillPlotNoFlow(h_simul_vertcount_entire[count],numVertices);
+    if (isMatched) fillPlotNoFlow(h_assoc_vertcount_entire[count],numVertices);
+    if (momentumTP.eta() <= 0.9 && momentumTP.eta() >= -0.9) {
+      fillPlotNoFlow(h_simul_vertcount_barrel[count],numVertices);
+      if (isMatched) fillPlotNoFlow(h_assoc_vertcount_barrel[count],numVertices);
     }
-
+    if (momentumTP.eta() > 0.9) {
+      fillPlotNoFlow(h_simul_vertcount_fwdpos[count],numVertices);
+      if (isMatched) fillPlotNoFlow(h_assoc_vertcount_fwdpos[count],numVertices);
+    }
+    if (momentumTP.eta() < -0.9) {
+      fillPlotNoFlow(h_simul_vertcount_fwdneg[count],numVertices);
+      if (isMatched) fillPlotNoFlow(h_assoc_vertcount_fwdneg[count],numVertices);
+    }
   }
 
   if((*TpSelectorForEfficiencyVsPhi)(tp)){
-    for (unsigned int f=0; f<phiintervals[count].size()-1; f++){
-      if (momentumTP.phi() > phiintervals[count][f]&&
-	  momentumTP.phi() <=phiintervals[count][f+1]) {
-	totSIM_phi[count][f]++;
-	if (isMatched) {
-	  totASS_phi[count][f]++;
-	}
-      }
-    } // END for (unsigned int f=0; f<phiintervals[count].size()-1; f++){
+    fillPlotNoFlow(h_simulphi[count],momentumTP.phi());
+    if (isMatched) fillPlotNoFlow(h_assocphi[count],momentumTP.phi());
   }
 
   if((*TpSelectorForEfficiencyVsPt)(tp)){
-    for (unsigned int f=0; f<pTintervals[count].size()-1; f++){
-      if (getPt(sqrt(momentumTP.perp2()))>pTintervals[count][f]&&
-	  getPt(sqrt(momentumTP.perp2()))<=pTintervals[count][f+1]) {
-	totSIMpT[count][f]++;
-	if (isMatched) {
-	  totASSpT[count][f]++;
-	}
-      }
-    } // END for (unsigned int f=0; f<pTintervals[count].size()-1; f++){
+    fillPlotNoFlow(h_simulpT[count],getPt(sqrt(momentumTP.perp2())));
+    if (isMatched) fillPlotNoFlow(h_assocpT[count],getPt(sqrt(momentumTP.perp2())));
   }
 
   if((*TpSelectorForEfficiencyVsVTXR)(tp)){
-    for (unsigned int f=0; f<dxyintervals[count].size()-1; f++){
-      if (dxySim>dxyintervals[count][f]&&
-	  dxySim<=dxyintervals[count][f+1]) {
-	totSIM_dxy[count][f]++;
-	if (isMatched) {
-	  totASS_dxy[count][f]++;
-	}
-      }
-    } // END for (unsigned int f=0; f<dxyintervals[count].size()-1; f++){
+    fillPlotNoFlow(h_simuldxy[count],dxySim);
+    if (isMatched) fillPlotNoFlow(h_assocdxy[count],dxySim);
 
-    for (unsigned int f=0; f<vertposintervals[count].size()-1; f++){
-      if (sqrt(vertexTP.perp2())>vertposintervals[count][f]&&
-	  sqrt(vertexTP.perp2())<=vertposintervals[count][f+1]) {
-	totSIM_vertpos[count][f]++;
-	if (isMatched) {
-	  totASS_vertpos[count][f]++;
-	}
-      }
-    } // END for (unsigned int f=0; f<vertposintervals[count].size()-1; f++){
+    fillPlotNoFlow(h_simulvertpos[count],sqrt(vertexTP.perp2()));
+    if (isMatched) fillPlotNoFlow(h_assocvertpos[count],sqrt(vertexTP.perp2()));
   }
 
 
   if((*TpSelectorForEfficiencyVsVTXZ)(tp)){
-    for (unsigned int f=0; f<dzintervals[count].size()-1; f++){
-      if (dzSim>dzintervals[count][f]&&
-	  dzSim<=dzintervals[count][f+1]) {
-	totSIM_dz[count][f]++;
-	if (isMatched) {
-	  totASS_dz[count][f]++;
-	}
-      }
-    } // END for (unsigned int f=0; f<dzintervals[count].size()-1; f++){
+    fillPlotNoFlow(h_simuldz[count],dzSim);
+    if (isMatched) fillPlotNoFlow(h_assocdz[count],dzSim);
 
+    fillPlotNoFlow(h_simulzpos[count],vertexTP.z());
+    if (isMatched) fillPlotNoFlow(h_assoczpos[count],vertexTP.z());
 
-    for (unsigned int f=0; f<zposintervals[count].size()-1; f++){
-        if (vertexTP.z()>zposintervals[count][f]&&vertexTP.z()<=zposintervals[count][f+1]) {
-	        totSIM_zpos[count][f]++;
-	        if (isMatched) totASS_zpos[count][f]++;
-        }
-        if (vertz>zposintervals[count][f]&&vertz<=zposintervals[count][f+1]) {
-	        totSIM_vertz_entire[count][f]++;
-	        if (isMatched) totASS_vertz_entire[count][f]++;
-        }
-        if (vertz>zposintervals[count][f]&&vertz<=zposintervals[count][f+1] && fabs(momentumTP.eta())<0.9) {
-	        totSIM_vertz_barrel[count][f]++;
-	        if (isMatched) totASS_vertz_barrel[count][f]++;
-        }
-        if (vertz>zposintervals[count][f]&&vertz<=zposintervals[count][f+1] && momentumTP.eta()>0.9) {
-	        totSIM_vertz_fwdpos[count][f]++;
-	        if (isMatched) totASS_vertz_fwdpos[count][f]++;
-        }
-        if (vertz>zposintervals[count][f]&&vertz<=zposintervals[count][f+1] && momentumTP.eta()<-0.9) {
-	        totSIM_vertz_fwdneg[count][f]++;
-	        if (isMatched) totASS_vertz_fwdneg[count][f]++;
-        }
-    } // END for (unsigned int f=0; f<zposintervals[count].size()-1; f++){
+    fillPlotNoFlow(h_simul_vertz_entire[count],vertz);
+    if (isMatched) fillPlotNoFlow(h_assoc_vertz_entire[count],vertz);
+    if (momentumTP.eta() <= 0.9 && momentumTP.eta() >= -0.9) {
+      fillPlotNoFlow(h_simul_vertz_barrel[count],vertz);
+      if (isMatched) fillPlotNoFlow(h_assoc_vertz_barrel[count],vertz);
+    }
+    if (momentumTP.eta() > 0.9) {
+      fillPlotNoFlow(h_simul_vertz_fwdpos[count],vertz);
+      if (isMatched) fillPlotNoFlow(h_assoc_vertz_fwdpos[count],vertz);
+    }
+    if (momentumTP.eta() < -0.9) {
+      fillPlotNoFlow(h_simul_vertz_fwdneg[count],vertz);
+      if (isMatched) fillPlotNoFlow(h_assoc_vertz_fwdneg[count],vertz);
+    }
   }
 
   //Special investigations for PU
   if(((*TpSelectorForEfficiencyVsCon)(tp)) && (!((*TpSelectorForEfficiencyVsEta)(tp)))){
-
-   //efficPU vs eta
-    for (unsigned int f=0; f<etaintervals[count].size()-1; f++){
-      if (getEta(momentumTP.eta())>etaintervals[count][f]&&
-	  getEta(momentumTP.eta())<=etaintervals[count][f+1]) {
-	totCONeta[count][f]++;
-      }
-    } // END for (unsigned int f=0; f<etaintervals[w].size()-1; f++){
-
-    //efficPU vs num pileup vertices
-    for (unsigned int f=0; f<vertcountintervals[count].size()-1; f++){
-      if (numVertices == vertcountintervals[count][f]) {
-	totCONvertcount[count][f]++;
-      }
-    } // END for (unsigned int f=0; f<vertcountintervals[count].size()-1; f++){
-
-    for (unsigned int f=0; f<zposintervals[count].size()-1; f++){
-      if (vertexTP.z()>zposintervals[count][f]&&vertexTP.z()<=zposintervals[count][f+1]) {
-	totCONzpos[count][f]++;
-      }
-    } // END for (unsigned int f=0; f<zposintervals[count].size()-1; f++){
-
+    fillPlotNoFlow(h_con_eta[count],getEta(momentumTP.eta()));
+    fillPlotNoFlow(h_con_vertcount[count],numVertices);
+    fillPlotNoFlow(h_con_zpos[count],vertexTP.z());
   }
 
 }
@@ -1051,7 +733,6 @@ void MTVHistoProducerAlgoForTracker::fill_dedx_recoTrack_histos(int count, edm::
 }
 
 
-// TO BE FIXED USING PLAIN HISTOGRAMS INSTEAD OF RE-IMPLEMENTATION OF HISTOGRAMS (i.d. vectors<int/double>)
 void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
 								   const reco::Track& track,
 								   const math::XYZPoint& bsPosition,
@@ -1065,128 +746,96 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
 								   double dR){
 
   //Fill track algo histogram
-
-  if (track.algo()>=4 && track.algo()<=14) totREC_algo[count][track.algo()-4]++;
+  if (track.algo()>=4 && track.algo()<=14) fillPlotNoFlow(h_algo[count],track.algo()-4);
   int sharedHits = sharedFraction *  track.numberOfValidHits();
 
   //Compute fake rate vs eta
-  for (unsigned int f=0; f<etaintervals[count].size()-1; f++){
-    if (getEta(track.momentum().eta())>etaintervals[count][f]&&
-	getEta(track.momentum().eta())<=etaintervals[count][f+1]) {
-      totRECeta[count][f]++;
-      if (isMatched) {
-	totASS2eta[count][f]++;
-        if (!isChargeMatched) totmisideta[count][f]++;
-        if (numAssocRecoTracks>1) totloopeta[count][f]++;
-        if (tpbunchcrossing==0) totASS2_itpu_eta_entire[count][f]++;
-        if (tpbunchcrossing!=0) totASS2_ootpu_eta_entire[count][f]++;
-        nrecHit_vs_nsimHit_rec2sim[count]->Fill( track.numberOfValidHits(),nSimHits);
-	h_assocFraction[count]->Fill( sharedFraction);
-	h_assocSharedHit[count]->Fill( sharedHits);
-      }
-      if (isSigMatched) {
-	totASS2etaSig[count][f]++;
-        if (tpbunchcrossing==0) totASS2_itpu_eta_entire_signal[count][f]++;
-      }
-    }
-  } // End for (unsigned int f=0; f<etaintervals[count].size()-1; f++){
-
-  for (unsigned int f=0; f<phiintervals[count].size()-1; f++){
-    if (track.momentum().phi()>phiintervals[count][f]&&
-	track.momentum().phi()<=phiintervals[count][f+1]) {
-      totREC_phi[count][f]++;
-      if (isMatched) {
-	totASS2_phi[count][f]++;
-        if (!isChargeMatched) totmisid_phi[count][f]++;
-        if (numAssocRecoTracks>1) totloop_phi[count][f]++;
-      }
-    }
-  } // End for (unsigned int f=0; f<phiintervals[count].size()-1; f++){
-
-
-  for (unsigned int f=0; f<pTintervals[count].size()-1; f++){
-    if (getPt(sqrt(track.momentum().perp2()))>pTintervals[count][f]&&
-	getPt(sqrt(track.momentum().perp2()))<=pTintervals[count][f+1]) {
-      totRECpT[count][f]++;
-      if (isMatched) {
-	totASS2pT[count][f]++;
-        if (!isChargeMatched) totmisidpT[count][f]++;
-        if (numAssocRecoTracks>1) totlooppT[count][f]++;
-      }
-    }
-  } // End for (unsigned int f=0; f<pTintervals[count].size()-1; f++){
-
-  for (unsigned int f=0; f<dxyintervals[count].size()-1; f++){
-    if (track.dxy(bsPosition)>dxyintervals[count][f]&&
-	track.dxy(bsPosition)<=dxyintervals[count][f+1]) {
-      totREC_dxy[count][f]++;
-      if (isMatched) {
-	totASS2_dxy[count][f]++;
-        if (!isChargeMatched) totmisid_dxy[count][f]++;
-        if (numAssocRecoTracks>1) totloop_dxy[count][f]++;
-      }
-    }
-  } // End for (unsigned int f=0; f<dxyintervals[count].size()-1; f++){
-
-  for (unsigned int f=0; f<dzintervals[count].size()-1; f++){
-    if (track.dz(bsPosition)>dzintervals[count][f]&&
-	track.dz(bsPosition)<=dzintervals[count][f+1]) {
-      totREC_dz[count][f]++;
-      if (isMatched) {
-	totASS2_dz[count][f]++;
-        if (!isChargeMatched) totmisid_dz[count][f]++;
-        if (numAssocRecoTracks>1) totloop_dz[count][f]++;
-      }
-    }
-  } // End for (unsigned int f=0; f<dzintervals[count].size()-1; f++){
-
-  int tmp = std::min((int)track.found(),int(maxHit-1));
-  totREC_hit[count][tmp]++;
+  fillPlotNoFlow(h_recoeta[count],getEta(track.momentum().eta()));
   if (isMatched) {
-    totASS2_hit[count][tmp]++;
-    if (!isChargeMatched) totmisid_hit[count][tmp]++;
-    if (numAssocRecoTracks>1) totloop_hit[count][tmp]++;
+    fillPlotNoFlow(h_assoc2eta[count],getEta(track.momentum().eta()));
+    if (!isChargeMatched) fillPlotNoFlow(h_misideta[count],getEta(track.momentum().eta()));
+    if (numAssocRecoTracks>1) fillPlotNoFlow(h_loopereta[count],getEta(track.momentum().eta()));
+    //if (tpbunchcrossing==0) totASS2_itpu_eta_entire[count][f]++;//fixme
+    //if (tpbunchcrossing!=0) totASS2_ootpu_eta_entire[count][f]++;//fixme
+    nrecHit_vs_nsimHit_rec2sim[count]->Fill( track.numberOfValidHits(),nSimHits);
+    h_assocFraction[count]->Fill( sharedFraction);
+    h_assocSharedHit[count]->Fill( sharedHits);
+  }
+  if (isSigMatched) {
+    //totASS2etaSig[count][f]++;//fixme
+    //if (tpbunchcrossing==0) totASS2_itpu_eta_entire_signal[count][f]++;//fixme
   }
 
-  for (unsigned int f=0; f<vertcountintervals[count].size()-1; f++){
-    if (numVertices ==  vertcountintervals[count][f]) {
-      totREC_vertcount_entire[count][f]++;
-      totREC_ootpu_entire[count][f]++;
-      if (isMatched) {
-        totASS2_vertcount_entire[count][f]++;
-        if (tpbunchcrossing==0) totASS2_itpu_vertcount_entire[count][f]++;
-        if (tpbunchcrossing!=0) totASS2_ootpu_entire[count][f]++;
-      }
-      if (isSigMatched) {
-        totASS2_vertcount_entire_signal[count][f]++;
-        if (tpbunchcrossing==0) totASS2_itpu_vertcount_entire_signal[count][f]++;
-      }
-    }
-    if (numVertices ==  vertcountintervals[count][f] && track.eta() <= 0.9 && track.eta() >= -0.9) {
-      totREC_vertcount_barrel[count][f]++;
-      totREC_ootpu_barrel[count][f]++;
-      if (isMatched) {
-        totASS2_vertcount_barrel[count][f]++;
-        if (isMatched && tpbunchcrossing!=0) totASS2_ootpu_barrel[count][f]++;
-      }
-    }
-    if (numVertices ==  vertcountintervals[count][f] && track.eta() > 0.9) {
-      totREC_vertcount_fwdpos[count][f]++;
-      totREC_ootpu_fwdpos[count][f]++;
-      if (isMatched) {
-        totASS2_vertcount_fwdpos[count][f]++;
-        if (isMatched && tpbunchcrossing!=0) totASS2_ootpu_fwdpos[count][f]++;
-      }
-    }
-    if (numVertices ==  vertcountintervals[count][f] && track.eta() < -0.9) {
-      totREC_vertcount_fwdneg[count][f]++;
-      totREC_ootpu_fwdneg[count][f]++;
-      if (isMatched) {
-        totASS2_vertcount_fwdneg[count][f]++;
-        if (isMatched && tpbunchcrossing!=0) totASS2_ootpu_fwdneg[count][f]++;
-      }
-    }
+  fillPlotNoFlow(h_recophi[count],track.momentum().phi());
+  if (isMatched) {
+    fillPlotNoFlow(h_assoc2phi[count],track.momentum().phi());
+    if (!isChargeMatched) fillPlotNoFlow(h_misidphi[count],track.momentum().phi());
+    if (numAssocRecoTracks>1) fillPlotNoFlow(h_looperphi[count],track.momentum().phi());
+  }
 
+  fillPlotNoFlow(h_recopT[count],getPt(sqrt(track.momentum().perp2())));
+  if (isMatched) {
+    fillPlotNoFlow(h_assoc2pT[count],getPt(sqrt(track.momentum().perp2())));
+    if (!isChargeMatched) fillPlotNoFlow(h_misidpT[count],getPt(sqrt(track.momentum().perp2())));
+    if (numAssocRecoTracks>1) fillPlotNoFlow(h_looperpT[count],getPt(sqrt(track.momentum().perp2())));
+  }
+
+  fillPlotNoFlow(h_recodxy[count],track.dxy(bsPosition));
+  if (isMatched) {
+    fillPlotNoFlow(h_assoc2dxy[count],track.dxy(bsPosition));
+    if (!isChargeMatched) fillPlotNoFlow(h_misiddxy[count],track.dxy(bsPosition));
+    if (numAssocRecoTracks>1) fillPlotNoFlow(h_looperdxy[count],track.dxy(bsPosition));
+  }
+
+  fillPlotNoFlow(h_recodz[count],track.dz(bsPosition));
+  if (isMatched) {
+    fillPlotNoFlow(h_assoc2dz[count],track.dz(bsPosition));
+    if (!isChargeMatched) fillPlotNoFlow(h_misiddz[count],track.dz(bsPosition));
+    if (numAssocRecoTracks>1) fillPlotNoFlow(h_looperdz[count],track.dz(bsPosition));
+  }
+
+
+  fillPlotNoFlow(h_recohit[count],track.found());
+  if (isMatched) {
+    fillPlotNoFlow(h_assoc2hit[count],track.found());
+    if (!isChargeMatched) fillPlotNoFlow(h_misidhit[count],track.found());
+    if (numAssocRecoTracks>1) fillPlotNoFlow(h_looperhit[count],track.found());
+  }
+
+  fillPlotNoFlow(h_reco_vertcount_entire[count],numVertices);
+  fillPlotNoFlow(h_reco_ootpu_entire[count],numVertices);
+  if (isMatched) {
+    fillPlotNoFlow(h_assoc2_vertcount_entire[count],numVertices);
+    //if (tpbunchcrossing==0) totASS2_itpu_vertcount_entire[count][f]++;//fixme
+    fillPlotNoFlow(h_assoc2_ootpu_entire[count],numVertices);
+  }
+  //if (isSigMatched) {//fixme
+    //totASS2_vertcount_entire_signal[count][f]++;//fixme
+    //if (tpbunchcrossing==0) totASS2_itpu_vertcount_entire_signal[count][f]++;//fixme
+  //}
+  if (track.eta() <= 0.9 && track.eta() >= -0.9) {
+    fillPlotNoFlow(h_reco_vertcount_barrel[count],numVertices);
+    fillPlotNoFlow(h_reco_ootpu_barrel[count],numVertices);
+    if (isMatched) {
+      fillPlotNoFlow(h_assoc2_vertcount_barrel[count],numVertices);
+      fillPlotNoFlow(h_assoc2_ootpu_barrel[count],numVertices);
+    }
+  }
+  if (track.eta() > 0.9) {
+    fillPlotNoFlow(h_reco_vertcount_fwdpos[count],numVertices);
+    fillPlotNoFlow(h_reco_ootpu_fwdpos[count],numVertices);
+    if (isMatched) {
+      fillPlotNoFlow(h_assoc2_vertcount_fwdpos[count],numVertices);
+      fillPlotNoFlow(h_assoc2_ootpu_fwdpos[count],numVertices);
+    }
+  }
+  if (track.eta() < -0.9) {
+    fillPlotNoFlow(h_reco_vertcount_fwdneg[count],numVertices);
+    fillPlotNoFlow(h_reco_ootpu_fwdneg[count],numVertices);
+    if (isMatched) {
+      fillPlotNoFlow(h_assoc2_vertcount_fwdneg[count],numVertices);
+      fillPlotNoFlow(h_assoc2_ootpu_fwdneg[count],numVertices);
+    }
   }
 
   //fakerate vs dR
@@ -1347,41 +996,6 @@ void MTVHistoProducerAlgoForTracker::fill_ResoAndPull_recoTrack_histos(int count
   //etares_vs_eta[count]->Fill(getEta(track.eta()),etares);
   etares_vs_eta[count]->Fill(getEta(momentumTP.eta()),etares);
 
-
-  /*
-  //resolution of track params: fill 2D histos
-  dxyres_vs_eta[count]->Fill(getEta(track.eta()),dxyRec-dxySim);
-  ptres_vs_eta[count]->Fill(getEta(track.eta()),(ptRec-sqrt(momentumTP.perp2()))/ptRec);
-  dzres_vs_eta[count]->Fill(getEta(track.eta()),dzRec-dzSim);
-  phires_vs_eta[count]->Fill(getEta(track.eta()),phiRec-phiSim);
-  cotThetares_vs_eta[count]->Fill(getEta(track.eta()),1/tan(M_PI*0.5-lambdaRec)-1/tan(M_PI*0.5-lambdaSim));
-
-  //same as before but vs pT
-  dxyres_vs_pt[count]->Fill(getPt(ptRec),dxyRec-dxySim);
-  ptres_vs_pt[count]->Fill(getPt(ptRec),(ptRec-sqrt(momentumTP.perp2()))/ptRec);
-  dzres_vs_pt[count]->Fill(getPt(ptRec),dzRec-dzSim);
-  phires_vs_pt[count]->Fill(getPt(ptRec),phiRec-phiSim);
-  cotThetares_vs_pt[count]->Fill(getPt(ptRec),1/tan(M_PI*0.5-lambdaRec)-1/tan(M_PI*0.5-lambdaSim));
-
-  //pulls of track params vs eta: fill 2D histos
-  dxypull_vs_eta[count]->Fill(getEta(track.eta()),dxyPull);
-  ptpull_vs_eta[count]->Fill(getEta(track.eta()),ptres/ptError);
-  dzpull_vs_eta[count]->Fill(getEta(track.eta()),dzPull);
-  phipull_vs_eta[count]->Fill(getEta(track.eta()),phiPull);
-  thetapull_vs_eta[count]->Fill(getEta(track.eta()),thetaPull);
-
-  //plots vs phi
-  nhits_vs_phi[count]->Fill(phiRec,track.numberOfValidHits());
-  chi2_vs_phi[count]->Fill(phiRec,track.normalizedChi2());
-  ptmean_vs_eta_phi[count]->Fill(phiRec,getEta(track.eta()),ptRec);
-  phimean_vs_eta_phi[count]->Fill(phiRec,getEta(track.eta()),phiRec);
-  ptres_vs_phi[count]->Fill(phiRec,(ptRec-sqrt(momentumTP.perp2()))/ptRec);
-  phires_vs_phi[count]->Fill(phiRec,phiRec-phiSim);
-  ptpull_vs_phi[count]->Fill(phiRec,ptres/ptError);
-  phipull_vs_phi[count]->Fill(phiRec,phiPull);
-  thetapull_vs_phi[count]->Fill(phiRec,thetaPull);
-  */
-
   //resolution of track params: fill 2D histos
   dxyres_vs_eta[count]->Fill(getEta(momentumTP.eta()),dxyRec-dxySim);
   ptres_vs_eta[count]->Fill(getEta(momentumTP.eta()),(ptRec-sqrt(momentumTP.perp2()))/ptRec);
@@ -1535,69 +1149,69 @@ void MTVHistoProducerAlgoForTracker::finalHistoFits(int counter){
   fsyt_thetapPhi.getFittedMeanWithError(h_thetapullphimean[counter]);
 
   //effic&fake;
-  for (unsigned int ite = 0;ite<totASSeta[counter].size();ite++) totFOMT_eta[counter][ite]=totASS2eta[counter][ite]-totASS2etaSig[counter][ite];
-  for (unsigned int ite = 0;ite<totASS2_vertcount_entire[counter].size();ite++)
-    totFOMT_vertcount[counter][ite]=totASS2_vertcount_entire[counter][ite]-totASS2_vertcount_entire_signal[counter][ite];
-  for (unsigned int ite = 0;ite<totASS2_itpu_eta_entire[counter].size();ite++) totASS2_itpu_eta_entire[counter][ite]-=totASS2_itpu_eta_entire_signal[counter][ite];
-  for (unsigned int ite = 0;ite<totASS2_itpu_vertcount_entire[counter].size();ite++) totASS2_itpu_vertcount_entire[counter][ite]-=totASS2_itpu_vertcount_entire_signal[counter][ite];
+  //for (unsigned int ite = 0;ite<totASSeta[counter].size();ite++) totFOMT_eta[counter][ite]=totASS2eta[counter][ite]-totASS2etaSig[counter][ite];
+  //for (unsigned int ite = 0;ite<totASS2_vertcount_entire[counter].size();ite++)
+  //  totFOMT_vertcount[counter][ite]=totASS2_vertcount_entire[counter][ite]-totASS2_vertcount_entire_signal[counter][ite];
+  //for (unsigned int ite = 0;ite<totASS2_itpu_eta_entire[counter].size();ite++) totASS2_itpu_eta_entire[counter][ite]-=totASS2_itpu_eta_entire_signal[counter][ite];
+  //for (unsigned int ite = 0;ite<totASS2_itpu_vertcount_entire[counter].size();ite++) totASS2_itpu_vertcount_entire[counter][ite]-=totASS2_itpu_vertcount_entire_signal[counter][ite];
 
-  fillPlotFromVectors(h_effic[counter],totASSeta[counter],totSIMeta[counter],"effic");
-  fillPlotFromVectors(h_fakerate[counter],totASS2eta[counter],totRECeta[counter],"fakerate");
-  fillPlotFromVectors(h_looprate[counter],totloopeta[counter],totRECeta[counter],"effic");
-  fillPlotFromVectors(h_misidrate[counter],totmisideta[counter],totRECeta[counter],"effic");
-  fillPlotFromVectors(h_efficPt[counter],totASSpT[counter],totSIMpT[counter],"effic");
-  fillPlotFromVectors(h_fakeratePt[counter],totASS2pT[counter],totRECpT[counter],"fakerate");
-  fillPlotFromVectors(h_loopratepT[counter],totlooppT[counter],totRECpT[counter],"effic");
-  fillPlotFromVectors(h_misidratepT[counter],totmisidpT[counter],totRECpT[counter],"effic");
-  fillPlotFromVectors(h_effic_vs_hit[counter],totASS_hit[counter],totSIM_hit[counter],"effic");
-  fillPlotFromVectors(h_fake_vs_hit[counter],totASS2_hit[counter],totREC_hit[counter],"fakerate");
-  fillPlotFromVectors(h_loopratehit[counter],totloop_hit[counter],totREC_hit[counter],"effic");
-  fillPlotFromVectors(h_misidratehit[counter],totmisid_hit[counter],totREC_hit[counter],"effic");
-  fillPlotFromVectors(h_effic_vs_phi[counter],totASS_phi[counter],totSIM_phi[counter],"effic");
-  fillPlotFromVectors(h_fake_vs_phi[counter],totASS2_phi[counter],totREC_phi[counter],"fakerate");
-  fillPlotFromVectors(h_loopratephi[counter],totloop_phi[counter],totREC_phi[counter],"effic");
-  fillPlotFromVectors(h_misidratephi[counter],totmisid_phi[counter],totREC_phi[counter],"effic");
-  fillPlotFromVectors(h_effic_vs_dxy[counter],totASS_dxy[counter],totSIM_dxy[counter],"effic");
-  fillPlotFromVectors(h_fake_vs_dxy[counter],totASS2_dxy[counter],totREC_dxy[counter],"fakerate");
-  fillPlotFromVectors(h_loopratedxy[counter],totloop_dxy[counter],totREC_dxy[counter],"effic");
-  fillPlotFromVectors(h_misidratedxy[counter],totmisid_dxy[counter],totREC_dxy[counter],"effic");
-  fillPlotFromVectors(h_effic_vs_dz[counter],totASS_dz[counter],totSIM_dz[counter],"effic");
-  fillPlotFromVectors(h_fake_vs_dz[counter],totASS2_dz[counter],totREC_dz[counter],"fakerate");
-  fillPlotFromVectors(h_loopratedz[counter],totloop_dz[counter],totREC_dz[counter],"effic");
-  fillPlotFromVectors(h_misidratedz[counter],totmisid_dz[counter],totREC_dz[counter],"effic");
-  fillPlotFromVectors(h_effic_vs_vertpos[counter],totASS_vertpos[counter],totSIM_vertpos[counter],"effic");
-  fillPlotFromVectors(h_effic_vs_zpos[counter],totASS_zpos[counter],totSIM_zpos[counter],"effic");
+  fillPlotFromPlots(h_effic[counter],h_assoceta[counter]->getTH1(),h_simuleta[counter]->getTH1(),"effic");
+  fillPlotFromPlots(h_fakerate[counter],h_assoc2eta[counter]->getTH1(),h_recoeta[counter]->getTH1(),"fakerate");
+  fillPlotFromPlots(h_looprate[counter],h_loopereta[counter]->getTH1(),h_recoeta[counter]->getTH1(),"effic");
+  fillPlotFromPlots(h_misidrate[counter],h_misideta[counter]->getTH1(),h_recoeta[counter]->getTH1(),"effic");
+  fillPlotFromPlots(h_efficPt[counter],h_assocpT[counter]->getTH1(),h_simulpT[counter]->getTH1(),"effic");
+  fillPlotFromPlots(h_fakeratePt[counter],h_assoc2pT[counter]->getTH1(),h_recopT[counter]->getTH1(),"fakerate");
+  fillPlotFromPlots(h_loopratepT[counter],h_looperpT[counter]->getTH1(),h_recopT[counter]->getTH1(),"effic");
+  fillPlotFromPlots(h_misidratepT[counter],h_misidpT[counter]->getTH1(),h_recopT[counter]->getTH1(),"effic");
+  fillPlotFromPlots(h_effic_vs_hit[counter],h_assochit[counter]->getTH1(),h_simulhit[counter]->getTH1(),"effic");
+  fillPlotFromPlots(h_fake_vs_hit[counter],h_assoc2hit[counter]->getTH1(),h_recohit[counter]->getTH1(),"fakerate");
+  fillPlotFromPlots(h_loopratehit[counter],h_looperhit[counter]->getTH1(),h_recohit[counter]->getTH1(),"effic");
+  fillPlotFromPlots(h_misidratehit[counter],h_misidhit[counter]->getTH1(),h_recohit[counter]->getTH1(),"effic");
+  fillPlotFromPlots(h_effic_vs_phi[counter],h_assocphi[counter]->getTH1(),h_simulphi[counter]->getTH1(),"effic");
+  fillPlotFromPlots(h_fake_vs_phi[counter],h_assoc2phi[counter]->getTH1(),h_recophi[counter]->getTH1(),"fakerate");
+  fillPlotFromPlots(h_loopratephi[counter],h_looperphi[counter]->getTH1(),h_recophi[counter]->getTH1(),"effic");
+  fillPlotFromPlots(h_misidratephi[counter],h_misidphi[counter]->getTH1(),h_recophi[counter]->getTH1(),"effic");
+  fillPlotFromPlots(h_effic_vs_dxy[counter],h_assocdxy[counter]->getTH1(),h_simuldxy[counter]->getTH1(),"effic");
+  fillPlotFromPlots(h_fake_vs_dxy[counter],h_assoc2dxy[counter]->getTH1(),h_recodxy[counter]->getTH1(),"fakerate");
+  fillPlotFromPlots(h_loopratedxy[counter],h_looperdxy[counter]->getTH1(),h_recodxy[counter]->getTH1(),"effic");
+  fillPlotFromPlots(h_misidratedxy[counter],h_misiddxy[counter]->getTH1(),h_recodxy[counter]->getTH1(),"effic");
+  fillPlotFromPlots(h_effic_vs_dz[counter],h_assocdz[counter]->getTH1(),h_simuldz[counter]->getTH1(),"effic");
+  fillPlotFromPlots(h_fake_vs_dz[counter],h_assoc2dz[counter]->getTH1(),h_recodz[counter]->getTH1(),"fakerate");
+  fillPlotFromPlots(h_loopratedz[counter],h_looperdz[counter]->getTH1(),h_recodz[counter]->getTH1(),"effic");
+  fillPlotFromPlots(h_misidratedz[counter],h_misiddz[counter]->getTH1(),h_recodz[counter]->getTH1(),"effic");
+  fillPlotFromPlots(h_effic_vs_vertpos[counter],h_assocvertpos[counter]->getTH1(),h_simulvertpos[counter]->getTH1(),"effic");
+  fillPlotFromPlots(h_effic_vs_zpos[counter],h_assoczpos[counter]->getTH1(),h_simulzpos[counter]->getTH1(),"effic");
   fillPlotFromPlots(h_effic_vs_dr[counter],h_assocdr[counter]->getTH1(),h_simuldr[counter]->getTH1(),"effic");
   fillPlotFromPlots(h_fakerate_vs_dr[counter],h_assoc2dr[counter]->getTH1(),h_recodr[counter]->getTH1(),"fakerate");
-  fillPlotFromVectors(h_effic_vertcount_entire[counter],totASS_vertcount_entire[counter],totSIM_vertcount_entire[counter],"effic");
-  fillPlotFromVectors(h_effic_vertcount_barrel[counter],totASS_vertcount_barrel[counter],totSIM_vertcount_barrel[counter],"effic");
-  fillPlotFromVectors(h_effic_vertcount_fwdpos[counter],totASS_vertcount_fwdpos[counter],totSIM_vertcount_fwdpos[counter],"effic");
-  fillPlotFromVectors(h_effic_vertcount_fwdneg[counter],totASS_vertcount_fwdneg[counter],totSIM_vertcount_fwdneg[counter],"effic");
-  fillPlotFromVectors(h_fakerate_vertcount_entire[counter],totASS2_vertcount_entire[counter],totREC_vertcount_entire[counter],"fakerate");
-  fillPlotFromVectors(h_fakerate_vertcount_barrel[counter],totASS2_vertcount_barrel[counter],totREC_vertcount_barrel[counter],"fakerate");
-  fillPlotFromVectors(h_fakerate_vertcount_fwdpos[counter],totASS2_vertcount_fwdpos[counter],totREC_vertcount_fwdpos[counter],"fakerate");
-  fillPlotFromVectors(h_fakerate_vertcount_fwdneg[counter],totASS2_vertcount_fwdneg[counter],totREC_vertcount_fwdneg[counter],"fakerate");
-  fillPlotFromVectors(h_effic_vertz_entire[counter],totASS_vertz_entire[counter],totSIM_vertz_entire[counter],"effic");
-  fillPlotFromVectors(h_effic_vertz_barrel[counter],totASS_vertz_barrel[counter],totSIM_vertz_barrel[counter],"effic");
-  fillPlotFromVectors(h_effic_vertz_fwdpos[counter],totASS_vertz_fwdpos[counter],totSIM_vertz_fwdpos[counter],"effic");
-  fillPlotFromVectors(h_effic_vertz_fwdneg[counter],totASS_vertz_fwdneg[counter],totSIM_vertz_fwdneg[counter],"effic");
-  fillPlotFromVectors(h_fakerate_ootpu_entire[counter],totASS2_ootpu_entire[counter],totREC_ootpu_entire[counter],"effic");
-  fillPlotFromVectors(h_fakerate_ootpu_barrel[counter],totASS2_ootpu_barrel[counter],totREC_ootpu_barrel[counter],"effic");
-  fillPlotFromVectors(h_fakerate_ootpu_fwdpos[counter],totASS2_ootpu_fwdpos[counter],totREC_ootpu_fwdpos[counter],"effic");
-  fillPlotFromVectors(h_fakerate_ootpu_fwdneg[counter],totASS2_ootpu_fwdneg[counter],totREC_ootpu_fwdneg[counter],"effic");
+  fillPlotFromPlots(h_effic_vertcount_entire[counter],h_assoc_vertcount_entire[counter]->getTH1(),h_simul_vertcount_entire[counter]->getTH1(),"effic");
+  fillPlotFromPlots(h_effic_vertcount_barrel[counter],h_assoc_vertcount_barrel[counter]->getTH1(),h_simul_vertcount_barrel[counter]->getTH1(),"effic");
+  fillPlotFromPlots(h_effic_vertcount_fwdpos[counter],h_assoc_vertcount_fwdpos[counter]->getTH1(),h_simul_vertcount_fwdpos[counter]->getTH1(),"effic");
+  fillPlotFromPlots(h_effic_vertcount_fwdneg[counter],h_assoc_vertcount_fwdneg[counter]->getTH1(),h_simul_vertcount_fwdneg[counter]->getTH1(),"effic");
+  fillPlotFromPlots(h_fakerate_vertcount_entire[counter],h_assoc2_vertcount_entire[counter]->getTH1(),h_reco_vertcount_entire[counter]->getTH1(),"fakerate");
+  fillPlotFromPlots(h_fakerate_vertcount_barrel[counter],h_assoc2_vertcount_barrel[counter]->getTH1(),h_reco_vertcount_barrel[counter]->getTH1(),"fakerate");
+  fillPlotFromPlots(h_fakerate_vertcount_fwdpos[counter],h_assoc2_vertcount_fwdpos[counter]->getTH1(),h_reco_vertcount_fwdpos[counter]->getTH1(),"fakerate");
+  fillPlotFromPlots(h_fakerate_vertcount_fwdneg[counter],h_assoc2_vertcount_fwdneg[counter]->getTH1(),h_reco_vertcount_fwdneg[counter]->getTH1(),"fakerate");
+  fillPlotFromPlots(h_effic_vertz_entire[counter],h_assoc_vertz_entire[counter]->getTH1(),h_simul_vertz_entire[counter]->getTH1(),"effic");
+  fillPlotFromPlots(h_effic_vertz_barrel[counter],h_assoc_vertz_barrel[counter]->getTH1(),h_simul_vertz_barrel[counter]->getTH1(),"effic");
+  fillPlotFromPlots(h_effic_vertz_fwdpos[counter],h_assoc_vertz_fwdpos[counter]->getTH1(),h_simul_vertz_fwdpos[counter]->getTH1(),"effic");
+  fillPlotFromPlots(h_effic_vertz_fwdneg[counter],h_assoc_vertz_fwdneg[counter]->getTH1(),h_simul_vertz_fwdneg[counter]->getTH1(),"effic");
+  fillPlotFromPlots(h_fakerate_ootpu_entire[counter],h_assoc2_ootpu_entire[counter]->getTH1(),h_reco_ootpu_entire[counter]->getTH1(),"effic");
+  fillPlotFromPlots(h_fakerate_ootpu_barrel[counter],h_assoc2_ootpu_barrel[counter]->getTH1(),h_reco_ootpu_barrel[counter]->getTH1(),"effic");
+  fillPlotFromPlots(h_fakerate_ootpu_fwdpos[counter],h_assoc2_ootpu_fwdpos[counter]->getTH1(),h_reco_ootpu_fwdpos[counter]->getTH1(),"effic");
+  fillPlotFromPlots(h_fakerate_ootpu_fwdneg[counter],h_assoc2_ootpu_fwdneg[counter]->getTH1(),h_reco_ootpu_fwdneg[counter]->getTH1(),"effic");
 
-  fillPlotFromVectors(h_fomt_eta[counter],totFOMT_eta[counter],totASS2etaSig[counter],"pileup");
-  fillPlotFromVectors(h_fomt_vertcount[counter],totFOMT_vertcount[counter],totASS2_vertcount_entire_signal[counter],"pileup");
-  fillPlotFromVectors(h_fomt_sig_eta[counter],totASS2etaSig[counter],totRECeta[counter],"fakerate");
-  fillPlotFromVectors(h_fomt_sig_vertcount[counter],totASS2_vertcount_entire_signal[counter],totREC_vertcount_entire[counter],"fakerate");
-  fillPlotFromVectors(h_fomt_itpu_eta[counter],totASS2_itpu_eta_entire[counter],totRECeta[counter],"effic");
-  fillPlotFromVectors(h_fomt_itpu_vertcount[counter],totASS2_itpu_vertcount_entire[counter],totREC_vertcount_entire[counter],"effic");
-  fillPlotFromVectors(h_fomt_ootpu_eta[counter],totASS2_ootpu_eta_entire[counter],totRECeta[counter],"effic");
-  fillPlotFromVectors(h_fomt_ootpu_vertcount[counter],totASS2_ootpu_entire[counter],totREC_ootpu_entire[counter],"effic");
+  //fillPlotFromPlots(h_fomt_eta[counter],totFOMT_eta[counter],h_assoc2etaSig[counter]->getTH1(),"pileup");
+  //fillPlotFromPlots(h_fomt_vertcount[counter],totFOMT_vertcount[counter],h_assoc2_vertcount_entire_signal[counter]->getTH1(),"pileup");
+  //fillPlotFromPlots(h_fomt_sig_eta[counter],h_assoc2etaSig[counter],h_recoeta[counter]->getTH1(),"fakerate");
+  //fillPlotFromPlots(h_fomt_sig_vertcount[counter],h_assoc2_vertcount_entire_signal[counter],h_reco_vertcount_entire[counter]->getTH1(),"fakerate");
+  //fillPlotFromPlots(h_fomt_itpu_eta[counter],h_assoc2_itpu_eta_entire[counter],h_recoeta[counter]->getTH1(),"effic");
+  //fillPlotFromPlots(h_fomt_itpu_vertcount[counter],h_assoc2_itpu_vertcount_entire[counter],h_reco_vertcount_entire[counter]->getTH1(),"effic");
+  //fillPlotFromPlots(h_fomt_ootpu_eta[counter],h_assoc2_ootpu_eta_entire[counter]->getTH1(),h_recoeta[counter]->getTH1(),"effic");
+  fillPlotFromPlots(h_fomt_ootpu_vertcount[counter],h_assoc2_ootpu_entire[counter]->getTH1(),h_reco_ootpu_entire[counter]->getTH1(),"effic");
 
-  fillPlotFromVectors(h_effic_PU_eta[counter],totASSeta[counter],totCONeta[counter],"pileup");
-  fillPlotFromVectors(h_effic_PU_vertcount[counter],totASS_vertcount_entire[counter],totCONvertcount[counter],"pileup");
-  fillPlotFromVectors(h_effic_PU_zpos[counter],totASS_zpos[counter],totCONzpos[counter],"pileup");
+  fillPlotFromPlots(h_effic_PU_eta[counter],h_assoceta[counter]->getTH1(),h_con_eta[counter]->getTH1(),"pileup");
+  fillPlotFromPlots(h_effic_PU_vertcount[counter],h_assoc_vertcount_entire[counter]->getTH1(),h_con_vertcount[counter]->getTH1(),"pileup");
+  fillPlotFromPlots(h_effic_PU_zpos[counter],h_assoczpos[counter]->getTH1(),h_con_zpos[counter]->getTH1(),"pileup");
 
 }
 
@@ -1631,111 +1245,6 @@ void MTVHistoProducerAlgoForTracker::fillProfileHistosFromVectors(int counter){
   //       doProfileX(phires_vs_phi[counter],h_phiresmean_vs_phi[counter]);
 }
 
-void MTVHistoProducerAlgoForTracker::fillHistosFromVectors(int counter){
-  fillPlotFromVector(h_algo[counter],totREC_algo[counter]);
-
-  fillPlotFromVector(h_recoeta[counter],totRECeta[counter]);
-  fillPlotFromVector(h_simuleta[counter],totSIMeta[counter]);
-  fillPlotFromVector(h_assoceta[counter],totASSeta[counter]);
-  fillPlotFromVector(h_assoc2eta[counter],totASS2eta[counter]);
-  fillPlotFromVector(h_loopereta[counter],totloopeta[counter]);
-  fillPlotFromVector(h_misideta[counter],totmisideta[counter]);
-
-  fillPlotFromVector(h_recopT[counter],totRECpT[counter]);
-  fillPlotFromVector(h_simulpT[counter],totSIMpT[counter]);
-  fillPlotFromVector(h_assocpT[counter],totASSpT[counter]);
-  fillPlotFromVector(h_assoc2pT[counter],totASS2pT[counter]);
-  fillPlotFromVector(h_looperpT[counter],totlooppT[counter]);
-  fillPlotFromVector(h_misidpT[counter],totmisidpT[counter]);
-
-  fillPlotFromVector(h_recohit[counter],totREC_hit[counter]);
-  fillPlotFromVector(h_simulhit[counter],totSIM_hit[counter]);
-  fillPlotFromVector(h_assochit[counter],totASS_hit[counter]);
-  fillPlotFromVector(h_assoc2hit[counter],totASS2_hit[counter]);
-  fillPlotFromVector(h_looperhit[counter],totloop_hit[counter]);
-  fillPlotFromVector(h_misidhit[counter],totmisid_hit[counter]);
-
-  fillPlotFromVector(h_recophi[counter],totREC_phi[counter]);
-  fillPlotFromVector(h_simulphi[counter],totSIM_phi[counter]);
-  fillPlotFromVector(h_assocphi[counter],totASS_phi[counter]);
-  fillPlotFromVector(h_assoc2phi[counter],totASS2_phi[counter]);
-  fillPlotFromVector(h_looperphi[counter],totloop_phi[counter]);
-  fillPlotFromVector(h_misidphi[counter],totmisid_phi[counter]);
-
-  fillPlotFromVector(h_recodxy[counter],totREC_dxy[counter]);
-  fillPlotFromVector(h_simuldxy[counter],totSIM_dxy[counter]);
-  fillPlotFromVector(h_assocdxy[counter],totASS_dxy[counter]);
-  fillPlotFromVector(h_assoc2dxy[counter],totASS2_dxy[counter]);
-  fillPlotFromVector(h_looperdxy[counter],totloop_dxy[counter]);
-  fillPlotFromVector(h_misiddxy[counter],totmisid_dxy[counter]);
-
-  fillPlotFromVector(h_recodz[counter],totREC_dz[counter]);
-  fillPlotFromVector(h_simuldz[counter],totSIM_dz[counter]);
-  fillPlotFromVector(h_assocdz[counter],totASS_dz[counter]);
-  fillPlotFromVector(h_assoc2dz[counter],totASS2_dz[counter]);
-  fillPlotFromVector(h_looperdz[counter],totloop_dz[counter]);
-  fillPlotFromVector(h_misiddz[counter],totmisid_dz[counter]);
-
-  fillPlotFromVector(h_simulvertpos[counter],totSIM_vertpos[counter]);
-  fillPlotFromVector(h_assocvertpos[counter],totASS_vertpos[counter]);
-
-  fillPlotFromVector(h_simulzpos[counter],totSIM_zpos[counter]);
-  fillPlotFromVector(h_assoczpos[counter],totASS_zpos[counter]);
-
-  fillPlotFromVector(h_reco_vertcount_entire[counter],totREC_vertcount_entire[counter]);
-  fillPlotFromVector(h_simul_vertcount_entire[counter],totSIM_vertcount_entire[counter]);
-  fillPlotFromVector(h_assoc_vertcount_entire[counter],totASS_vertcount_entire[counter]);
-  fillPlotFromVector(h_assoc2_vertcount_entire[counter],totASS2_vertcount_entire[counter]);
-
-  fillPlotFromVector(h_reco_vertcount_barrel[counter],totREC_vertcount_barrel[counter]);
-  fillPlotFromVector(h_simul_vertcount_barrel[counter],totSIM_vertcount_barrel[counter]);
-  fillPlotFromVector(h_assoc_vertcount_barrel[counter],totASS_vertcount_barrel[counter]);
-  fillPlotFromVector(h_assoc2_vertcount_barrel[counter],totASS2_vertcount_barrel[counter]);
-
-  fillPlotFromVector(h_reco_vertcount_fwdpos[counter],totREC_vertcount_fwdpos[counter]);
-  fillPlotFromVector(h_simul_vertcount_fwdpos[counter],totSIM_vertcount_fwdpos[counter]);
-  fillPlotFromVector(h_assoc_vertcount_fwdpos[counter],totASS_vertcount_fwdpos[counter]);
-  fillPlotFromVector(h_assoc2_vertcount_fwdpos[counter],totASS2_vertcount_fwdpos[counter]);
-
-  fillPlotFromVector(h_reco_vertcount_fwdneg[counter],totREC_vertcount_fwdneg[counter]);
-  fillPlotFromVector(h_simul_vertcount_fwdneg[counter],totSIM_vertcount_fwdneg[counter]);
-  fillPlotFromVector(h_assoc_vertcount_fwdneg[counter],totASS_vertcount_fwdneg[counter]);
-  fillPlotFromVector(h_assoc2_vertcount_fwdneg[counter],totASS2_vertcount_fwdneg[counter]);
-
-  fillPlotFromVector(h_simul_vertz_entire[counter],totSIM_vertz_entire[counter]);
-  fillPlotFromVector(h_assoc_vertz_entire[counter],totASS_vertz_entire[counter]);
-
-  fillPlotFromVector(h_simul_vertz_barrel[counter],totSIM_vertz_barrel[counter]);
-  fillPlotFromVector(h_assoc_vertz_barrel[counter],totASS_vertz_barrel[counter]);
-
-  fillPlotFromVector(h_simul_vertz_fwdpos[counter],totSIM_vertz_fwdpos[counter]);
-  fillPlotFromVector(h_assoc_vertz_fwdpos[counter],totASS_vertz_fwdpos[counter]);
-
-  fillPlotFromVector(h_simul_vertz_fwdneg[counter],totSIM_vertz_fwdneg[counter]);
-  fillPlotFromVector(h_assoc_vertz_fwdneg[counter],totASS_vertz_fwdneg[counter]);
-
-  fillPlotFromVector(h_reco_ootpu_entire[counter],totREC_ootpu_entire[counter]);
-  fillPlotFromVector(h_assoc2_ootpu_entire[counter],totASS2_ootpu_entire[counter]);
-
-  fillPlotFromVector(h_reco_ootpu_barrel[counter],totREC_ootpu_barrel[counter]);
-  fillPlotFromVector(h_assoc2_ootpu_barrel[counter],totASS2_ootpu_barrel[counter]);
-
-  fillPlotFromVector(h_reco_ootpu_fwdpos[counter],totREC_ootpu_fwdpos[counter]);
-  fillPlotFromVector(h_assoc2_ootpu_fwdpos[counter],totASS2_ootpu_fwdpos[counter]);
-
-  fillPlotFromVector(h_reco_ootpu_fwdneg[counter],totREC_ootpu_fwdneg[counter]);
-  fillPlotFromVector(h_assoc2_ootpu_fwdneg[counter],totASS2_ootpu_fwdneg[counter]);
-
-  fillPlotFromVector(h_con_eta[counter],totCONeta[counter]);
-  fillPlotFromVector(h_con_vertcount[counter],totCONvertcount[counter]);
-  fillPlotFromVector(h_con_zpos[counter],totCONzpos[counter]);
-
-}
-
-
-
-
-
 
 void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int count,
 									 const reco::GenParticle& tp,
@@ -1744,165 +1253,85 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
 									 double dxySim, double dzSim, int nSimHits,
 									 const reco::Track* track,
 									 int numVertices, double vertz){
+
   bool isMatched = track;
 
   if((*GpSelectorForEfficiencyVsEta)(tp)){
     //effic vs hits
-    int nSimHitsInBounds = std::min((int)nSimHits,int(maxHit-1));
-    totSIM_hit[count][nSimHitsInBounds]++;
+    fillPlotNoFlow(h_simulhit[count],(int)nSimHits);
     if(isMatched) {
-      totASS_hit[count][nSimHitsInBounds]++;
+      fillPlotNoFlow(h_assochit[count],(int)nSimHits);
       nrecHit_vs_nsimHit_sim2rec[count]->Fill( track->numberOfValidHits(),nSimHits);
     }
-
     //effic vs eta
-    for (unsigned int f=0; f<etaintervals[count].size()-1; f++){
-      if (getEta(momentumTP.eta())>etaintervals[count][f]&&
-	  getEta(momentumTP.eta())<=etaintervals[count][f+1]) {
-	totSIMeta[count][f]++;
-	if (isMatched) {
-	  totASSeta[count][f]++;
-	}
-      }
-
-    } // END for (unsigned int f=0; f<etaintervals[w].size()-1; f++){
-
+    fillPlotNoFlow(h_simuleta[count],getEta(momentumTP.eta()));
+    if (isMatched) fillPlotNoFlow(h_assoceta[count],getEta(momentumTP.eta()));
+    //efficiency vs dR
+    //fillPlotNoFlow(h_simuldr[count],dR);
+    //if (isMatched) fillPlotNoFlow(h_assocdr[count],dR);
     //effic vs num pileup vertices
-    for (unsigned int f=0; f<vertcountintervals[count].size()-1; f++){
-      if (numVertices == vertcountintervals[count][f]) {
-        totSIM_vertcount_entire[count][f]++;
-        if (isMatched) {
-          totASS_vertcount_entire[count][f]++;
-        }
-      }
-      if (numVertices == vertcountintervals[count][f] && momentumTP.eta() <= 0.9 && momentumTP.eta() >= -0.9) {
-        totSIM_vertcount_barrel[count][f]++;
-        if (isMatched) {
-          totASS_vertcount_barrel[count][f]++;
-        }
-      }
-      if (numVertices == vertcountintervals[count][f] && momentumTP.eta() > 0.9) {
-        totSIM_vertcount_fwdpos[count][f]++;
-        if (isMatched) {
-          totASS_vertcount_fwdpos[count][f]++;
-        }
-      }
-      if (numVertices == vertcountintervals[count][f] && momentumTP.eta() < -0.9) {
-        totSIM_vertcount_fwdneg[count][f]++;
-        if (isMatched) {
-          totASS_vertcount_fwdneg[count][f]++;
-        }
-      }
+    fillPlotNoFlow(h_simul_vertcount_entire[count],numVertices);
+    if (isMatched) fillPlotNoFlow(h_assoc_vertcount_entire[count],numVertices);
+    if (momentumTP.eta() <= 0.9 && momentumTP.eta() >= -0.9) {
+      fillPlotNoFlow(h_simul_vertcount_barrel[count],numVertices);
+      if (isMatched) fillPlotNoFlow(h_assoc_vertcount_barrel[count],numVertices);
     }
-
+    if (momentumTP.eta() > 0.9) {
+      fillPlotNoFlow(h_simul_vertcount_fwdpos[count],numVertices);
+      if (isMatched) fillPlotNoFlow(h_assoc_vertcount_fwdpos[count],numVertices);
+    }
+    if (momentumTP.eta() < -0.9) {
+      fillPlotNoFlow(h_simul_vertcount_fwdneg[count],numVertices);
+      if (isMatched) fillPlotNoFlow(h_assoc_vertcount_fwdneg[count],numVertices);
+    }
   }
 
   if((*GpSelectorForEfficiencyVsPhi)(tp)){
-    for (unsigned int f=0; f<phiintervals[count].size()-1; f++){
-      if (momentumTP.phi() > phiintervals[count][f]&&
-	  momentumTP.phi() <=phiintervals[count][f+1]) {
-	totSIM_phi[count][f]++;
-	if (isMatched) {
-	  totASS_phi[count][f]++;
-	}
-      }
-    } // END for (unsigned int f=0; f<phiintervals[count].size()-1; f++){
+    fillPlotNoFlow(h_simulphi[count],momentumTP.phi());
+    if (isMatched) fillPlotNoFlow(h_assocphi[count],momentumTP.phi());
   }
 
   if((*GpSelectorForEfficiencyVsPt)(tp)){
-    for (unsigned int f=0; f<pTintervals[count].size()-1; f++){
-      if (getPt(sqrt(momentumTP.perp2()))>pTintervals[count][f]&&
-	  getPt(sqrt(momentumTP.perp2()))<=pTintervals[count][f+1]) {
-	totSIMpT[count][f]++;
-	if (isMatched) {
-	  totASSpT[count][f]++;
-	}
-      }
-    } // END for (unsigned int f=0; f<pTintervals[count].size()-1; f++){
+    fillPlotNoFlow(h_simulpT[count],getPt(sqrt(momentumTP.perp2())));
+    if (isMatched) fillPlotNoFlow(h_assocpT[count],getPt(sqrt(momentumTP.perp2())));
   }
 
   if((*GpSelectorForEfficiencyVsVTXR)(tp)){
-    for (unsigned int f=0; f<dxyintervals[count].size()-1; f++){
-      if (dxySim>dxyintervals[count][f]&&
-	  dxySim<=dxyintervals[count][f+1]) {
-	totSIM_dxy[count][f]++;
-	if (isMatched) {
-	  totASS_dxy[count][f]++;
-	}
-      }
-    } // END for (unsigned int f=0; f<dxyintervals[count].size()-1; f++){
+    fillPlotNoFlow(h_simuldxy[count],dxySim);
+    if (isMatched) fillPlotNoFlow(h_assocdxy[count],dxySim);
 
-    for (unsigned int f=0; f<vertposintervals[count].size()-1; f++){
-      if (sqrt(vertexTP.perp2())>vertposintervals[count][f]&&
-	  sqrt(vertexTP.perp2())<=vertposintervals[count][f+1]) {
-	totSIM_vertpos[count][f]++;
-	if (isMatched) {
-	  totASS_vertpos[count][f]++;
-	}
-      }
-    } // END for (unsigned int f=0; f<vertposintervals[count].size()-1; f++){
+    fillPlotNoFlow(h_simulvertpos[count],sqrt(vertexTP.perp2()));
+    if (isMatched) fillPlotNoFlow(h_assocvertpos[count],sqrt(vertexTP.perp2()));
   }
 
   if((*GpSelectorForEfficiencyVsVTXZ)(tp)){
-    for (unsigned int f=0; f<dzintervals[count].size()-1; f++){
-      if (dzSim>dzintervals[count][f]&&
-	  dzSim<=dzintervals[count][f+1]) {
-	totSIM_dz[count][f]++;
-	if (isMatched) {
-	  totASS_dz[count][f]++;
-	}
-      }
-    } // END for (unsigned int f=0; f<dzintervals[count].size()-1; f++){
+    fillPlotNoFlow(h_simuldz[count],dzSim);
+    if (isMatched) fillPlotNoFlow(h_assocdz[count],dzSim);
 
+    fillPlotNoFlow(h_simulzpos[count],vertexTP.z());
+    if (isMatched) fillPlotNoFlow(h_assoczpos[count],vertexTP.z());
 
-    for (unsigned int f=0; f<zposintervals[count].size()-1; f++){
-        if (vertexTP.z()>zposintervals[count][f]&&vertexTP.z()<=zposintervals[count][f+1]) {
-	        totSIM_zpos[count][f]++;
-	        if (isMatched) totASS_zpos[count][f]++;
-        }
-        if (vertz>zposintervals[count][f]&&vertz<=zposintervals[count][f+1]) {
-	        totSIM_vertz_entire[count][f]++;
-	        if (isMatched) totASS_vertz_entire[count][f]++;
-        }
-        if (vertz>zposintervals[count][f]&&vertz<=zposintervals[count][f+1] && fabs(momentumTP.eta())<0.9) {
-	        totSIM_vertz_barrel[count][f]++;
-	        if (isMatched) totASS_vertz_barrel[count][f]++;
-        }
-        if (vertz>zposintervals[count][f]&&vertz<=zposintervals[count][f+1] && momentumTP.eta()>0.9) {
-	        totSIM_vertz_fwdpos[count][f]++;
-	        if (isMatched) totASS_vertz_fwdpos[count][f]++;
-        }
-        if (vertz>zposintervals[count][f]&&vertz<=zposintervals[count][f+1] && momentumTP.eta()<-0.9) {
-	        totSIM_vertz_fwdneg[count][f]++;
-	        if (isMatched) totASS_vertz_fwdneg[count][f]++;
-        }
-    } // END for (unsigned int f=0; f<zposintervals[count].size()-1; f++){
+    fillPlotNoFlow(h_simul_vertz_entire[count],vertz);
+    if (isMatched) fillPlotNoFlow(h_assoc_vertz_entire[count],vertz);
+    if (momentumTP.eta() <= 0.9 && momentumTP.eta() >= -0.9) {
+      fillPlotNoFlow(h_simul_vertz_barrel[count],vertz);
+      if (isMatched) fillPlotNoFlow(h_assoc_vertz_barrel[count],vertz);
+    }
+    if (momentumTP.eta() > 0.9) {
+      fillPlotNoFlow(h_simul_vertz_fwdpos[count],vertz);
+      if (isMatched) fillPlotNoFlow(h_assoc_vertz_fwdpos[count],vertz);
+    }
+    if (momentumTP.eta() < -0.9) {
+      fillPlotNoFlow(h_simul_vertz_fwdneg[count],vertz);
+      if (isMatched) fillPlotNoFlow(h_assoc_vertz_fwdneg[count],vertz);
+    }
   }
 
   //Special investigations for PU
   if(((*GpSelectorForEfficiencyVsCon)(tp)) && (!((*GpSelectorForEfficiencyVsEta)(tp)))){
-
-   //efficPU vs eta
-    for (unsigned int f=0; f<etaintervals[count].size()-1; f++){
-      if (getEta(momentumTP.eta())>etaintervals[count][f]&&
-	  getEta(momentumTP.eta())<=etaintervals[count][f+1]) {
-	totCONeta[count][f]++;
-      }
-    } // END for (unsigned int f=0; f<etaintervals[w].size()-1; f++){
-
-    //efficPU vs num pileup vertices
-    for (unsigned int f=0; f<vertcountintervals[count].size()-1; f++){
-      if (numVertices == vertcountintervals[count][f]) {
-	totCONvertcount[count][f]++;
-      }
-    } // END for (unsigned int f=0; f<vertcountintervals[count].size()-1; f++){
-
-    for (unsigned int f=0; f<zposintervals[count].size()-1; f++){
-      if (vertexTP.z()>zposintervals[count][f]&&vertexTP.z()<=zposintervals[count][f+1]) {
-	totCONzpos[count][f]++;
-      }
-    } // END for (unsigned int f=0; f<zposintervals[count].size()-1; f++){
-
+    fillPlotNoFlow(h_con_eta[count],getEta(momentumTP.eta()));
+    fillPlotNoFlow(h_con_vertcount[count],numVertices);
+    fillPlotNoFlow(h_con_zpos[count],vertexTP.z());
   }
 
 }
