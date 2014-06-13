@@ -1,13 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
-l1tCaloParamsSource = cms.ESSource(
+caloParamsSource = cms.ESSource(
     "EmptyESSource",
     recordName = cms.string('L1TCaloParamsRcd'),
     iovIsRunNotTime = cms.bool(True),
     firstValid = cms.vuint32(1)
 )
 
-l1tCaloStage2Params = cms.ESProducer(
+caloParams = cms.ESProducer(
     "l1t::CaloParamsESProducer",
 
     # towers
@@ -26,24 +26,25 @@ l1tCaloStage2Params = cms.ESProducer(
     regionPUSParams  = cms.vdouble(),
 
     # EG
-    egLsb                      = cms.double(0.5),
-    egSeedThreshold            = cms.double(2.),
-    egNeighbourThreshold       = cms.double(1.),
-    egHcalThreshold            = cms.double(1.),
-    egMaxHcalEt                = cms.double(0.),
-    egEtToRemoveHECut          = cms.double(128.),
-    egMaxHOverELUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egMaxHOverELUT.txt"),
-    egShapeIdLUTFile           = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egShapeIdLUT.txt"),
-    egIsoPUSType               = cms.string("None"),
-    egIsoLUTFile               = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egIsoLUT_PU40bx25.txt"),
-    egIsoAreaNrTowersEta       = cms.uint32(2),
-    egIsoAreaNrTowersPhi       = cms.uint32(4),
-    egIsoVetoNrTowersPhi       = cms.uint32(3),
+    egLsb                = cms.double(0.5),
+    egSeedThreshold      = cms.double(2.),
+    egNeighbourThreshold = cms.double(1.),
+    egHcalThreshold      = cms.double(1.),
+    egMaxHcalEt          = cms.double(0.),
+    egEtToRemoveHECut    = cms.double(128.),
+    egMaxHOverE          = cms.double(0.15),
+egMaxHOverELUTFile       = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egMaxHOverELUT.txt"),
+    egShapeIdLUTFile     = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egShapeIdLUT.txt"),
+    egCalibrationLUTFile = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egCalibrationLUT.txt"),
+    egIsoPUSType         = cms.string("None"),
+    egIsoLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egIsoLUT.txt"),
+    egIsoAreaNrTowersEta = cms.uint32(2),
+    egIsoAreaNrTowersPhi = cms.uint32(4),
+    egIsoVetoNrTowersPhi = cms.uint32(3),
     egIsoPUEstTowerGranularity = cms.uint32(1),
     egIsoMaxEtaAbsForTowerSum  = cms.uint32(4),
     egIsoMaxEtaAbsForIsoSum    = cms.uint32(27),
-    egCalibrationLUTFile       = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egCalibrationLUT.txt"),
-
+    
     # Tau
     tauLsb                = cms.double(0.5),
     tauSeedThreshold      = cms.double(0.),
@@ -56,6 +57,7 @@ l1tCaloStage2Params = cms.ESProducer(
     jetSeedThreshold      = cms.double(0.),
     jetNeighbourThreshold = cms.double(0.),
     jetPUSType            = cms.string("None"),
+    jetPUSParams          = cms.vdouble(),
     jetCalibrationType    = cms.string("None"),
     jetCalibrationParams  = cms.vdouble(),
 

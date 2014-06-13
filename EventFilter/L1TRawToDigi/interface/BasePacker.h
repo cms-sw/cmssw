@@ -21,7 +21,6 @@ namespace l1t {
    class BasePacker {
       public:
          virtual Blocks pack(const edm::Event&) = 0;
-         virtual void fetchToken(L1TDigiToRaw*) = 0;
    };
 }
 

@@ -1,26 +1,49 @@
 #include "DataFormats/L1Trigger/interface/Jet.h"
-#include "EventFilter/L1TRawToDigi/interface/UnpackerFactory.h"
 
-#include "JetUnpacker.h"
+#include "FWCore/Framework/interface/one/EDProducerBase.h"
+#include "FWCore/Framework/interface/Event.h"
+
+#include "EventFilter/L1TRawToDigi/interface/UnpackerFactory.h"
 
 namespace l1t {
    class JetUnpacker : public BaseUnpacker {
       public:
-         virtual bool unpack(const unsigned char *data, const unsigned block_id, const unsigned size);
-
-         virtual void setCollections(UnpackerCollections& coll) {
-            res = coll.getJetCollection();
-         };
+         JetUnpacker(const edm::ParameterSet&, edm::Event&);
+         ~JetUnpacker();
+         virtual bool unpack(const unsigned char *data, const unsigned block_id, const unsigned size) override;
       private:
-         JetBxCollection* res;
+         edm::Event& ev_;
+         std::auto_ptr<JetBxCollection> res_;
    };
 
-   std::vector<UnpackerItem> JetUnpackerFactory::create(unsigned fw, const int fedid) {
-      return {std::make_pair(5, std::shared_ptr<BaseUnpacker>(new JetUnpacker()))};
+   class JetUnpackerFactory : public BaseUnpackerFactory {
+      public:
+         JetUnpackerFactory(const edm::ParameterSet&, edm::one::EDProducerBase&);
+         virtual std::vector<UnpackerItem> create(edm::Event&, const unsigned& fw, const int fedid);
+
+      private:
+         const edm::ParameterSet& cfg_;
+         edm::one::EDProducerBase& prod_;
+   };
+}
+
+// Implementation
+
+namespace l1t {
+   JetUnpacker::JetUnpacker(const edm::ParameterSet& cfg, edm::Event& ev) :
+      ev_(ev),
+      res_(new JetBxCollection())
+   {
    };
 
-   bool JetUnpacker::unpack(const unsigned char *data, const unsigned block_id, const unsigned size) {
+   JetUnpacker::~JetUnpacker()
+   {
+      ev_.put(res_);
+   };
 
+   bool
+   JetUnpacker::unpack(const unsigned char *data, const unsigned block_id, const unsigned size)
+   {
      int nBX = int(ceil(size / 12.)); // Since there are 12 jets reported per event (see CMS IN-2013/005)
 
      // Find the first and last BXs
@@ -57,11 +80,22 @@ namespace l1t {
 	 jet.setHwPhi((raw_data >> 19) & 0xFF);
          jet.setHwQual((raw_data >> 27) & 0x7); // Assume 3 bits for now? Leaves 2 bits spare
 
-         res->push_back(bx,jet);
+         res_->push_back(bx,jet);
        }
      }
 
      return true;
    }
 
+   JetUnpackerFactory::JetUnpackerFactory(const edm::ParameterSet& cfg, edm::one::EDProducerBase& prod) : cfg_(cfg), prod_(prod)
+   {
+      prod_.produces<JetBxCollection>();
+   }
+
+   std::vector<UnpackerItem>
+   JetUnpackerFactory::create(edm::Event& ev, const unsigned& fw, const int fedid) {
+      return {std::make_pair(5, std::shared_ptr<BaseUnpacker>(new JetUnpacker(cfg_, ev)))};
+   };
 }
+
+DEFINE_L1TUNPACKER(l1t::JetUnpackerFactory);

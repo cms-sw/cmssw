@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from L1Trigger.L1TCalorimeter.l1tStage1CaloParams_cfi import *
+from L1Trigger.L1TCalorimeter.caloStage1Params_cfi import *
 
 # HCAL TP hack
 from L1Trigger.L1TCalorimeter.L1TRerunHCALTP_FromRaw_cff import *
@@ -8,7 +8,7 @@ from L1Trigger.L1TCalorimeter.L1TRerunHCALTP_FromRaw_cff import *
 # RCT
 # HCAL input would be from hcalDigis if hack not needed
 from L1Trigger.Configuration.SimL1Emulator_cff import simRctDigis
-simRctDigis.ecalDigis = cms.VInputTag( cms.InputTag( 'ecalDigis' ) )
+simRctDigis.ecalDigis = cms.VInputTag( cms.InputTag( 'ecalDigis:EcalTriggerPrimitives' ) )
 simRctDigis.hcalDigis = cms.VInputTag( cms.InputTag( 'simHcalTriggerPrimitiveDigis' ) )
 
 # stage 1 itself

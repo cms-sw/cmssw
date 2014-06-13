@@ -48,6 +48,18 @@ namespace l1t {
     CaloParamsStage1* const params_;
     //double regionLSB_;
   };
+
+  class Stage1Layer2JetAlgorithmImpSimpleHW : public Stage1Layer2JetAlgorithm {
+  public:
+    Stage1Layer2JetAlgorithmImpSimpleHW(CaloParamsStage1* params);
+    virtual ~Stage1Layer2JetAlgorithmImpSimpleHW();
+    virtual void processEvent(const std::vector<l1t::CaloRegion> & regions,
+			      const std::vector<l1t::CaloEmCand> & EMCands,
+			      std::vector<l1t::Jet> * jets);
+  private:
+    CaloParamsStage1* const params_;
+    //double regionLSB_;
+  };
 }
 
 #endif

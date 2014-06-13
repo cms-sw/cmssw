@@ -1,40 +1,50 @@
 #include "DataFormats/L1TCalorimeter/interface/CaloTower.h"
-#include "EventFilter/L1TRawToDigi/interface/UnpackerFactory.h"
 
-#include "CaloTowerUnpacker.h"
+#include "FWCore/Framework/interface/one/EDProducerBase.h"
+#include "FWCore/Framework/interface/Event.h"
+
+#include "EventFilter/L1TRawToDigi/interface/UnpackerFactory.h"
 
 namespace l1t {
    class CaloTowerUnpacker : public BaseUnpacker {
       public:
-
-     virtual bool unpack(const unsigned char *data, const unsigned block_id, const unsigned size);
-
-         virtual void setCollections(UnpackerCollections& coll) {
-            res = coll.getCaloTowerCollection();
-         };
+         CaloTowerUnpacker(const edm::ParameterSet&, edm::Event&);
+         ~CaloTowerUnpacker();
+         virtual bool unpack(const unsigned char *data, const unsigned block_id, const unsigned size);
       private:
-         CaloTowerBxCollection* res;
+         edm::Event& ev_;
+         std::auto_ptr<CaloTowerBxCollection> res_;
    };
 
-  std::vector<UnpackerItem> CaloTowerUnpackerFactory::create(unsigned fw, const int fedid) {
-    std::vector<UnpackerItem> towersMap;
-    
-     // Map all even number links, which are Rx links and need unpacking to the same instance of the CaloTowerUnpacker
-     // which receives the block_ID and can convert this to phi
+   class CaloTowerUnpackerFactory : public BaseUnpackerFactory {
+      public:
+         CaloTowerUnpackerFactory(const edm::ParameterSet&, edm::one::EDProducerBase&);
+         virtual std::vector<UnpackerItem> create(edm::Event&, const unsigned& fw, const int fedid);
 
-     auto unpacker = std::shared_ptr<BaseUnpacker>(new CaloTowerUnpacker());
+      private:
+         const edm::ParameterSet& cfg_;
+         edm::one::EDProducerBase& prod_;
+   };
+}
 
-     for (int link = 0; link < 144; link++){
-       if (link % 2 == 0) towersMap.push_back(std::make_pair(link, unpacker)); 
-     }
-     
-     return towersMap;
+// Implementation
 
+namespace l1t {
+   CaloTowerUnpacker::CaloTowerUnpacker(const edm::ParameterSet& cfg, edm::Event& ev) :
+      ev_(ev),
+      res_(new CaloTowerBxCollection())
+   {
    };
 
-  bool CaloTowerUnpacker::unpack(const unsigned char *data, const unsigned block_id, const unsigned size) {
-    
-    int nBX = int(ceil(size/82.)); // Since there is one Rx link per block with 2*28 slices in barrel and endcap + 2*13 for upgraded HF - check this!!
+   CaloTowerUnpacker::~CaloTowerUnpacker()
+   {
+      ev_.put(res_);
+   };
+
+   bool
+   CaloTowerUnpacker::unpack(const unsigned char *data, const unsigned block_id, const unsigned size)
+   {
+      int nBX = int(ceil(size/82.)); // Since there is one Rx link per block with 2*28 slices in barrel and endcap + 2*13 for upgraded HF - check this!!
 
      // Find the first and last BXs
      int firstBX = -(std::ceil((double)nBX/2.)-1);
@@ -69,7 +79,7 @@ namespace l1t {
 	   tower1.setHwEta(-1*(1+frame/2));
 	 }
 	 
-	 res->push_back(bx,tower1);
+	 res_->push_back(bx,tower1);
 
 	 // Second calo tower is in the MSW with phi+1
 	 l1t::CaloTower tower2 = l1t::CaloTower();
@@ -85,7 +95,7 @@ namespace l1t {
 	   tower1.setHwEta(-1*(1+frame/2));
 	 }
 	 
-	 res->push_back(bx,tower2);
+	 res_->push_back(bx,tower2);
 	 
        }
      }
@@ -93,4 +103,29 @@ namespace l1t {
      return true;
 
   }
+
+   CaloTowerUnpackerFactory::CaloTowerUnpackerFactory(const edm::ParameterSet& cfg, edm::one::EDProducerBase& prod) : cfg_(cfg), prod_(prod)
+   {
+      prod_.produces<CaloTowerBxCollection>();
+   }
+
+   std::vector<UnpackerItem>
+   CaloTowerUnpackerFactory::create(edm::Event& ev, const unsigned& fw, const int fedid)
+   {
+    std::vector<UnpackerItem> towersMap;
+    
+     // Map all even number links, which are Rx links and need unpacking to the same instance of the CaloTowerUnpacker
+     // which receives the block_ID and can convert this to phi
+
+     auto unpacker = std::shared_ptr<BaseUnpacker>(new CaloTowerUnpacker(cfg_, ev));
+
+     for (int link = 0; link < 144; link++){
+       if (link % 2 == 0) towersMap.push_back(std::make_pair(link, unpacker)); 
+     }
+     
+     return towersMap;
+
+   };
 };
+
+DEFINE_L1TUNPACKER(l1t::CaloTowerUnpackerFactory);

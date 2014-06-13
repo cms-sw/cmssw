@@ -24,7 +24,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -33,7 +33,9 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 namespace l1t {
-   class L1TRawToDigi : public edm::EDProducer {
+   class BaseUnpackerFactory;
+
+   class L1TRawToDigi : public edm::one::EDProducer<edm::one::SharedResources, edm::one::WatchRuns, edm::one::WatchLuminosityBlocks> {
       public:
          explicit L1TRawToDigi(const edm::ParameterSet&);
          ~L1TRawToDigi();
@@ -41,14 +43,12 @@ namespace l1t {
          static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
       private:
-         virtual void beginJob() override;
          virtual void produce(edm::Event&, const edm::EventSetup&) override;
-         virtual void endJob() override;
          
-         //virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
-         //virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
-         //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-         //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+         virtual void beginRun(edm::Run const&, edm::EventSetup const&) override {};
+         virtual void endRun(edm::Run const&, edm::EventSetup const&) override {};
+         virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {};
+         virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override {};
 
          // ----------member data ---------------------------
          // FIXME is actually fixed by the firmware version
@@ -56,6 +56,7 @@ namespace l1t {
 
          edm::InputTag inputLabel_;
          int fedId_;
+         std::vector<std::auto_ptr<BaseUnpackerFactory>> factories_;
    };
 }
 

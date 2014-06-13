@@ -5,8 +5,17 @@
 #include <unordered_map>
 #include <vector>
 
+#include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "EventFilter/L1TRawToDigi/interface/BaseUnpacker.h"
 #include "EventFilter/L1TRawToDigi/interface/Block.h"
+
+namespace edm {
+   class Event;
+   class ParameterSet;
+   namespace one {
+      class EDProducerBase;
+   }
+}
 
 namespace l1t {
    typedef std::pair<BlockId, std::shared_ptr<l1t::BaseUnpacker>> UnpackerItem;
@@ -18,16 +27,29 @@ namespace l1t {
      return res;
    };
 
+   class BaseUnpackerFactory {
+      public:
+         virtual std::vector<UnpackerItem> create(edm::Event&, const unsigned&, const int fedid) = 0;
+   };
+
+   typedef BaseUnpackerFactory*(fct)(const edm::ParameterSet&, edm::one::EDProducerBase&);
+   typedef edmplugin::PluginFactory<fct> UnpackerFactoryFacility;
+
    class UnpackerFactory {
       public:
-         static UnpackerMap createUnpackers(unsigned fw, const int fedid);
+         ~UnpackerFactory();
+
+         static const UnpackerFactory* get();
+
+         std::auto_ptr<BaseUnpackerFactory> makeUnpackerFactory(const std::string&, const edm::ParameterSet&, edm::one::EDProducerBase&) const;
 
       private:
-         virtual std::vector<UnpackerItem> create(unsigned fw, const int fedid) = 0;
-
-         static std::vector<UnpackerFactory*> createFactories();
-         static std::vector<UnpackerFactory*> factories_;
+         UnpackerFactory();
+         static const UnpackerFactory instance_;
    };
 }
+
+#define DEFINE_L1TUNPACKER(type) \
+   DEFINE_EDM_PLUGIN(l1t::UnpackerFactoryFacility,type,#type)
 
 #endif
