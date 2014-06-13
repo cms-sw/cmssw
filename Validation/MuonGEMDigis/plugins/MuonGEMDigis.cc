@@ -137,7 +137,7 @@ MuonGEMDigis::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
     theGEMStripDigiValidation->bookHisto(gem_geometry_);
     theGEMCSCPadDigiValidation->bookHisto(gem_geometry_);
     theGEMCSCCoPadDigiValidation->bookHisto(gem_geometry_);
-    theGEMDigiTrackMatch->bookHisto();
+    theGEMDigiTrackMatch->bookHisto(gem_geometry_);
   }
 }
 

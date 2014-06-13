@@ -84,6 +84,26 @@ TProfile* MuonGEMDigis_Harvesting::ComputeEff(TH1F* num, TH1F* denum )
 	return efficHist;
 }
 
+void MuonGEMDigis_Harvesting::ProcessBooking( DQMStore* dbe_, const char* label, TString suffix, TH1F* track_hist, TH1F* sh_hist )
+{
+	const char* dbe_path = "MuonGEMDigisV/GEMDigisTask/";
+	
+	TString dbe_label = TString(dbe_path)+label+suffix;
+	if( dbe_->get(dbe_label.Data()) != nullptr && sh_hist !=nullptr && track_hist !=nullptr ) {
+		TH1F* hist =    (TH1F*)dbe_->get( dbe_label.Data() )->getTH1F()->Clone();
+		TProfile* profile = ComputeEff( hist, track_hist);
+		TProfile* profile_sh = ComputeEff( hist, sh_hist );
+		profile_sh->SetName( (profile->GetName()+std::string("_sh")).c_str());
+		TString x_axis_title = TString(hist->GetXaxis()->GetTitle());
+		TString title  = TString::Format("Eff. for a SimTrack to have an associated GEM Strip in %s;%s;Eff.",suffix.Data(),x_axis_title.Data());
+		TString title2 = TString::Format("Eff. for a SimTrack to have an associated GEM Strip in %s with a matched SimHit;%s;Eff.",suffix.Data(),x_axis_title.Data() );
+		profile->SetTitle( title.Data());
+		profile_sh->SetTitle( title2.Data() );
+	  dbe_->bookProfile( profile->GetName(),profile); 
+	  dbe_->bookProfile( profile_sh->GetName(),profile_sh); 
+	}
+	return;
+}
 
 void
 MuonGEMDigis_Harvesting::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -112,115 +132,48 @@ MuonGEMDigis_Harvesting::beginRun(edm::Run const&, edm::EventSetup const& iSetup
 void 
 MuonGEMDigis_Harvesting::endRun(edm::Run const&, edm::EventSetup const&)
 {
+	const char* dbe_path = "MuonGEMDigisV/GEMDigisTask/";
   dbe_->cd();
-  dbe_->setCurrentFolder("MuonGEMDigisV/GEMDigisTask");
-  
-  std::vector< std::string > suffix;
-  suffix.push_back("_l1");
-  suffix.push_back("_l2");
-  suffix.push_back("_l1or2");
-  suffix.push_back("_l1and2");
-  TH1F* gem_trk_phi = nullptr;  
-  TH1F* gem_trk_eta = nullptr;
-  TH1F* sh_eta[4]={nullptr};
-  TH1F* sh_phi[4]={nullptr};
-  
-  if ( dbe_->get("MuonGEMDigisV/GEMDigisTask/track_phi") != nullptr && dbe_->get("MuonGEMDigisV/GEMDigisTask/track_eta") !=nullptr ) {
-    gem_trk_phi = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigisTask/track_phi")->getTH1F()->Clone();
-    gem_trk_eta = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigisTask/track_eta")->getTH1F()->Clone();
-    gem_trk_phi->Sumw2();
-    gem_trk_eta->Sumw2();
-  }
-  
-  if( dbe_->get("MuonGEMDigisV/GEMDigisTask/dg_sh_eta"+suffix[0]) !=nullptr && dbe_->get("MuonGEMDigisV/GEMDigisTask/dg_sh_phi"+suffix[0]) !=nullptr ) {
-    for ( int i =0 ; i< 4 ; i++) {
-      sh_eta[i] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigisTask/dg_sh_eta"+suffix[i])->getTH1F()->Clone();
-      sh_eta[i]->Sumw2();
-      sh_phi[i] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigisTask/dg_sh_phi"+suffix[i])->getTH1F()->Clone();
-      sh_phi[i]->Sumw2();
-    }
+  dbe_->setCurrentFolder(dbe_path);
+ 
+	const char* l_suffix[4] = {"_l1","_l2","_l1or2","_l1and2"};
+	const char* s_suffix[3] = {"_st1","_st2_short","_st2_long"};	 
 
-  }
-  if( dbe_->get("MuonGEMDigisV/GEMDigisTask/dg_eta"+suffix[0]) !=nullptr && sh_eta[0] !=nullptr && gem_trk_eta !=nullptr ) {
-    for ( int i =0 ; i< 4 ; i++) {
-      TH1F* dg_eta =    (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigisTask/dg_eta"+suffix[i])->getTH1F()->Clone();
-			TProfile* p_dg_eta = ComputeEff( dg_eta, gem_trk_eta);
-			TProfile* p_dg_eta_2 = ComputeEff( dg_eta, sh_eta[i] );
-			p_dg_eta_2->SetName( (p_dg_eta_2->GetName()+std::string("_sh")).c_str());
-			TString title  = TString::Format("Eff. for a SimTrack to have an associated GEM Strip in %s;|#eta|;Eff.",suffix[i].c_str());
-			TString title2 = TString::Format("Eff. for a SimTrack to have an associated GEM Strip in %s with a matched SimHit;|#eta|;Eff.",suffix[i].c_str());
-			p_dg_eta->SetTitle( title.Data());
-			p_dg_eta_2->SetTitle( title2.Data() );
-      dbe_->bookProfile( p_dg_eta->GetName(),p_dg_eta); 
-      dbe_->bookProfile( p_dg_eta_2->GetName(),p_dg_eta_2); 
-    }
-  }
-  if( dbe_->get("MuonGEMDigisV/GEMDigisTask/pad_eta"+suffix[0]) !=nullptr && sh_eta[0] !=nullptr && gem_trk_eta !=nullptr )  {
-    for ( int i =0 ; i< 4 ; i++) {
-      TH1F* pad_eta;
-      if ( i <3) { 
-        pad_eta = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigisTask/pad_eta"+suffix[i])->getTH1F()->Clone();
-      }
-      else       {
-        pad_eta = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigisTask/copad_eta")->getTH1F()->Clone();
-      }
-      pad_eta->Sumw2();
-      
-      TProfile* p_pad_eta = ComputeEff( pad_eta, gem_trk_eta);
-      TProfile* p_pad_eta_2 = ComputeEff( pad_eta, sh_eta[i]);
-			p_pad_eta_2->SetName( (p_pad_eta_2->GetName()+std::string("_sh")).c_str());
+  TH1F* gem_trk_phi[3];  
+  TH1F* gem_trk_eta[3];
+  TH1F* sh_eta[3][4];
+  TH1F* sh_phi[3][4];
+	
+	for( int i = 0 ; i < 3 ; i++) {
+		TString eta_label = TString(dbe_path)+"track_eta"+s_suffix[i];
+		TString phi_label = TString(dbe_path)+"track_phi"+s_suffix[i];
+		//if ( dbe_->get(eta_label.Data()) == nullptr ) std::cout<<"missing eta"<<std::endl;	
+		//if ( dbe_->get(phi_label.Data()) == nullptr ) std::cout<<"missing phi"<<std::endl;
+	
+		if ( dbe_->get(eta_label.Data()) != nullptr && dbe_->get(phi_label.Data()) !=nullptr ) {
+	    gem_trk_eta[i] = (TH1F*)dbe_->get(eta_label.Data())->getTH1F()->Clone();
+	    gem_trk_eta[i]->Sumw2();
 
-			TString title  = TString::Format("Eff. for a SimTrack to have an associated GEM Pad in %s;|#eta|;Eff.",suffix[i].c_str());
-			TString title2 = TString::Format("Eff. for a SimTrack to have an associated GEM Pad in %s with a matched SimHit;|#eta|;Eff.",suffix[i].c_str());
-			p_pad_eta->SetTitle( title.Data() );
-			p_pad_eta_2->SetTitle( title2.Data());
-      dbe_->bookProfile( p_pad_eta->GetName(),p_pad_eta); 
-      dbe_->bookProfile( p_pad_eta_2->GetName(),p_pad_eta_2); 
-    }
-  }
-
-  if( dbe_->get("MuonGEMDigisV/GEMDigisTask/dg_phi"+suffix[0]) !=nullptr && sh_eta[0] !=nullptr && gem_trk_phi !=nullptr) {
-    for ( int i =0 ; i< 4 ; i++) {
-      TH1F* dg_phi =    (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigisTask/dg_phi"+suffix[i])->getTH1F()->Clone();
-      dg_phi->Sumw2();
-
-			TProfile* p_dg_phi = ComputeEff( dg_phi, gem_trk_phi);
-			TProfile* p_dg_phi_2 = ComputeEff( dg_phi, sh_phi[i]);
-
-			p_dg_phi_2->SetName( (p_dg_phi_2->GetName()+std::string("_sh")).c_str());
-
-			TString title  = TString::Format("Eff. for a SimTrack to have an associated GEM Strip in %s;|#phi|;Eff.",suffix[i].c_str());
-			TString title2 = TString::Format("Eff. for a SimTrack to have an associated GEM Strip in %s with a matched SimHit;|#phi|;Eff.",suffix[i].c_str());
-			p_dg_phi->SetTitle( title.Data() );
-			p_dg_phi_2->SetTitle( title2.Data() );
-      dbe_->bookProfile( p_dg_phi->GetName(), p_dg_phi) ; 
-      dbe_->bookProfile( p_dg_phi_2->GetName(),p_dg_phi_2); 
-    }
-  }
-  if( dbe_->get("MuonGEMDigisV/GEMDigisTask/pad_phi"+suffix[0]) !=nullptr && sh_phi[0] !=nullptr && gem_trk_phi !=nullptr)  {
-    for ( int i =0 ; i< 4 ; i++) {
-      TH1F* pad_phi;
-      if ( i <3) { 
-        pad_phi = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigisTask/pad_phi"+suffix[i])->getTH1F()->Clone();
-      }
-      else       {
-        pad_phi = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigisTask/copad_phi")->getTH1F()->Clone();
-      }
-      pad_phi->Sumw2();
-			TProfile* p_pad_phi   = ComputeEff( pad_phi, gem_trk_phi);
-			TProfile* p_pad_phi_2 = ComputeEff( pad_phi, sh_phi[i]);
-			p_pad_phi_2->SetName( (p_pad_phi_2->GetName()+std::string("_sh")).c_str());
-
-			TString title  = TString::Format("Eff. for a SimTrack to have an associated GEM Pad in %s;|#phi|;Eff.",suffix[i].c_str());
-			TString title2 = TString::Format("Eff. for a SimTrack to have an associated GEM Pad in %s with a matched SimHit;|#phi|;Eff.",suffix[i].c_str());
-			p_pad_phi->SetTitle( title.Data());
-			p_pad_phi_2->SetTitle( title2.Data()); 
-
-      dbe_->bookProfile( p_pad_phi->GetName(),p_pad_phi); 
-      dbe_->bookProfile( p_pad_phi_2->GetName(),p_pad_phi_2); 
-    }
-  }
-
+	    gem_trk_phi[i] = (TH1F*)dbe_->get(phi_label.Data())->getTH1F()->Clone();
+	    gem_trk_phi[i]->Sumw2();
+			for( int j = 0; j < 4 ; j++) { 
+ 				TString suffix = TString( l_suffix[j])+TString( s_suffix[i] );
+				TString eta_label = TString(dbe_path)+"dg_sh_eta"+suffix;
+				TString phi_label = TString(dbe_path)+"dg_sh_phi"+suffix;
+  			if( dbe_->get(eta_label.Data() ) !=nullptr && dbe_->get(phi_label.Data()) !=nullptr ) {
+				 sh_eta[i][j] = (TH1F*)dbe_->get(eta_label.Data())->getTH1F()->Clone();
+		 	   sh_eta[i][j]->Sumw2();
+		 	   sh_phi[i][j] = (TH1F*)dbe_->get(phi_label.Data())->getTH1F()->Clone();
+		 	   sh_phi[i][j]->Sumw2();
+  			}
+				ProcessBooking( dbe_, "dg_eta", suffix, gem_trk_eta[i], sh_eta[i][j]); 
+				ProcessBooking( dbe_, "pad_eta", suffix, gem_trk_eta[i], sh_eta[i][j]); 
+				ProcessBooking( dbe_, "dg_phi",suffix, gem_trk_phi[i], sh_phi[i][j]);
+				ProcessBooking( dbe_, "pad_phi",suffix,gem_trk_phi[i], sh_phi[i][j]);
+  		}
+  	}
+	}
+  /*
   if( dbe_->get("MuonGEMDigisV/GEMDigisTask/dg_lx_even") != nullptr) { 
 
     TH1F* gem_dg_lx_even[5];
@@ -276,6 +229,8 @@ MuonGEMDigis_Harvesting::endRun(edm::Run const&, edm::EventSetup const&)
 			delete eff_dg_ly_odd;
     }
   }
+  */
+
 }
 
 

@@ -7,11 +7,11 @@ GEMStripDigiValidation::GEMStripDigiValidation(DQMStore* dbe,
 void GEMStripDigiValidation::bookHisto(const GEMGeometry* geom) { 
   theGEMGeometry = geom;  
 
-  int nstripsGE11  = theGEMGeometry->regions()[0]->stations()[0]->superChambers()[0]->chambers()[0]->etaPartitions()[0]->nstrips();
-  int nstripsGE21 = 0;
 
   int nregions = theGEMGeometry->regions().size();
   int nstations = theGEMGeometry->regions()[0]->stations().size(); 
+  int nstripsGE11  = theGEMGeometry->regions()[0]->stations()[0]->superChambers()[0]->chambers()[0]->etaPartitions()[0]->nstrips();
+  int nstripsGE21 = 0;
   
   if ( nstations > 1 ) {
     nstripsGE21  = theGEMGeometry->regions()[0]->stations()[1]->superChambers()[0]->chambers()[0]->etaPartitions()[0]->nstrips();

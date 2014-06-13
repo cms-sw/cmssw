@@ -33,9 +33,10 @@ public:
 
   void buildLUT();
   std::pair<int,int> getClosestChambers(int region, float phi);
+	std::pair<double, double> getEtaRangeForPhi( int station );
   bool isSimTrackGood(const SimTrack& );
   void setGeometry(const GEMGeometry* geom); 
-  virtual void bookHisto() = 0 ;
+  virtual void bookHisto(const GEMGeometry* geom) = 0 ;
 
 
  protected:
@@ -48,6 +49,8 @@ public:
   std::pair<std::vector<float>,std::vector<int> > positiveLUT_;
   std::pair<std::vector<float>,std::vector<int> > negativeLUT_;
 
+	std::vector< double > etaRangeForPhi;
+
   edm::Handle<edm::SimTrackContainer> sim_tracks;
   edm::Handle<edm::SimVertexContainer> sim_vertices;
   
@@ -56,6 +59,7 @@ public:
   float maxEta_;
   float radiusCenter_, chamberHeight_;
 	int useRoll_;
+  unsigned int nstation;
 };
 
 #endif

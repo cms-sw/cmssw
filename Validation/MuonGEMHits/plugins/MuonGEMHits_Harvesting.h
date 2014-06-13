@@ -12,7 +12,8 @@
 
 #include "Validation/MuonGEMHits/interface/GEMHitsValidation.h"
 #include "Validation/MuonGEMHits/interface/GEMSimTrackMatch.h"
-class MuonGEMHits_Harvesting : public edm::EDAnalyzer
+#include "Validation/MuonGEMHits/interface/AbstractHarvester.h"
+class MuonGEMHits_Harvesting : public AbstractHarvester
 {
 public:
   /// constructor
@@ -32,8 +33,6 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-
-  DQMStore* dbe_;
-  std::string outputFile_;
+	//DQMStore* dbe_;
 };
 #endif
