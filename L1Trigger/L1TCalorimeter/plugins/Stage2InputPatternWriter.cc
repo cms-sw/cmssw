@@ -106,7 +106,7 @@ Stage2InputPatternWriter::Stage2InputPatternWriter(const edm::ParameterSet& iCon
   filename_ = iConfig.getUntrackedParameter<std::string>("filename", "pattern.txt");
 
   nChan_ = 4;
-  nQuad_ = 36;
+  nQuad_ = 18;
 
   nFramePerEvent_ = 32;
 
@@ -216,30 +216,32 @@ Stage2InputPatternWriter::endJob()
   file << "Board MP7_TEST" << std::endl;
 
   // quad/chan numbers
-  file << "Quad/Chan :\t";
+  file << " Quad/Chan : ";
   for ( unsigned i=0; i<nQuad_; ++i ) {
     for ( unsigned j=0; j<nChan_; ++j ) {
-      file << "  q" << i << "c" << j << "\t";
+      file << "   q" << i << "c" << j << "   ";
     }
   }
   file << std::endl;
 
   // link numbers
-  file << "Link :\t";
+  file << "      Link : ";
   for ( unsigned i=0; i<nQuad_; ++i ) {
     for ( unsigned j=0; j<nChan_; ++j ) {
-      file << "  " << (i*nChan_)+j << "\t";
+      file << "    " << (i*nChan_)+j << "       ";
     }
   }
 
+  file << std::endl;
+
   // then the data
   for ( unsigned iFrame=0; iFrame<nFrame_; ++iFrame ) {
-    file << "Frame " << iFrame << "\t";
+    file << "Frame " << std::setw(4) << std::setfill('0') << iFrame << " : ";
     for ( unsigned iQuad=0; iQuad<nQuad_; ++iQuad ) {
       for ( unsigned iChan=0; iChan<nChan_; ++iChan ) {
 	unsigned iLink = (iQuad*nChan_)+iChan;
 	if (iLink<data_.size() && iFrame<data_.at(iLink).size()) {
-	  file << std::hex << data_.at(iLink).at(iFrame) << "\t";
+	  file << "1v" << std::hex << std::setw(8) << std::setfill('0') << data_.at(iLink).at(iFrame) << " ";
 	}
 	else {
 	  std::cerr << "Out of range : " << iLink << ", " << iFrame << std::endl;

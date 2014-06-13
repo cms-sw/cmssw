@@ -26,7 +26,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
+    input = cms.untracked.int32(32)
 )
 
 # Input source
@@ -83,23 +83,6 @@ process.generator = cms.EDProducer("FlatRandomPtGunProducer",
     firstRun = cms.untracked.uint32(1)
 )
 
-# upgrade calo stage 2
-process.load('L1Trigger.L1TCalorimeter.caloStage2Params_cfi')
-process.load('L1Trigger.L1TCalorimeter.L1TCaloStage2_cff')
-process.caloStage2Layer1Digis.ecalToken = cms.InputTag("simEcalTriggerPrimitiveDigis")
-process.caloStage2Layer1Digis.hcalToken = cms.InputTag("simHcalTriggerPrimitiveDigis")
-process.esTest = cms.EDAnalyzer("EventSetupRecordDataGetter",
-   toGet = cms.VPSet(cms.PSet(
-   record = cms.string('L1TCaloParamsRcd'),
-   data = cms.vstring('l1tCaloParams'))),
-   verbose = cms.untracked.bool(True)
-				)
-	    
-
-process.load('L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi')
-
-process.load('L1Trigger.L1TCalorimeter.l1tStage2InputPatternWriter_cfi')
-
 # enable debug message logging for our modules
 process.MessageLogger = cms.Service(
     "MessageLogger",
@@ -120,14 +103,21 @@ process.MessageLogger = cms.Service(
 process.load("CommonTools.UtilAlgos.TFileService_cfi")
 process.TFileService.fileName = cms.string('l1t.root')
 
+# upgrade calo stage 2
+process.load('L1Trigger.L1TCalorimeter.caloStage2Params_cfi')
+process.load('L1Trigger.L1TCalorimeter.L1TCaloStage2_cff')
+process.caloStage2Layer1Digis.ecalToken = cms.InputTag("simEcalTriggerPrimitiveDigis")
+process.caloStage2Layer1Digis.hcalToken = cms.InputTag("simHcalTriggerPrimitiveDigis")
+
+process.load('L1Trigger.L1TCalorimeter.l1tStage2InputPatternWriter_cfi')
+process.l1tStage2InputPatternWriter.filename = cms.untracked.string("pattern-SingleE25-32evt.txt")
+
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)
 process.simulation_step = cms.Path(process.psim)
 process.digitisation_step = cms.Path(process.pdigi)
 process.L1simulation_step = cms.Path(process.SimL1Emulator
-				     +process.esTest
 				     +process.L1TCaloStage2
-				     +process.l1tStage2CaloAnalyzer
 				     +process.l1tStage2InputPatternWriter)
 process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
 process.endjob_step = cms.EndPath(process.endOfProcess)
