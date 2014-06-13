@@ -71,7 +71,7 @@ MTVHistoProducerAlgoForTrackerBlock = cms.PSet(
     nintZpos = cms.int32(60),                               
     #
     # dR
-    mindr = cms.double(0.0001),
+    mindr = cms.double(0.001),
     maxdr = cms.double(1),
     nintdr = cms.int32(100),
 
