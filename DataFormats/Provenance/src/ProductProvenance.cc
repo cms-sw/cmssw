@@ -40,7 +40,7 @@ namespace edm {
   {}
 
    ProductProvenance::ProductProvenance(BranchID const& bid,
-				    boost::shared_ptr<Parentage> pPtr) :
+				    std::shared_ptr<Parentage> pPtr) :
     branchID_(bid),
     parentageID_(pPtr->id()),
     transient_() {
@@ -53,7 +53,7 @@ namespace edm {
     branchID_(bid),
     parentageID_(),
     transient_() {
-      parentagePtr() = boost::shared_ptr<Parentage>(new Parentage);
+      parentagePtr() = std::make_shared<Parentage>();
       parentagePtr()->setParents(parents);
       parentageID_ = parentagePtr()->id();
       ParentageRegistry::instance()->insertMapped(*parentagePtr());

@@ -1,9 +1,9 @@
-#ifndef DataFormats_Common_HideStdSharedPtrFromRoot_h
-#define DataFormats_Common_HideStdSharedPtrFromRoot_h
-#if defined(__CINT__) || defined(__MAKECINT__) || defined(__REFLEX__)
+#ifndef FWCore_Utilities_HideStdSharedPtrFromRoot_h
+#define FWCore_Utilities_HideStdSharedPtrFromRoot_h
+#if defined(__GCCXML__)
 // -*- C++ -*-
 //
-// Package:     DataFormats/Common
+// Package:     FWCore/Utilities
 // Class  :     HideStdSharedPtrFromRoot
 // 
 /**
@@ -33,12 +33,16 @@ namespace std {
     void* data_;
     unsigned long count_;
   public:
+    shared_ptr();
+    shared_ptr(T*);
     void reset(T* iValue=0);
     T* get();
     T const* get() const;
     
     T* operator->();
     T const* operator->() const;
+
+    T operator*() const;
     
     operator bool() const;
   };

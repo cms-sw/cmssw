@@ -27,7 +27,7 @@ If failedToGet() returns false but isValid() is also false then no attempt
 #include "DataFormats/Common/interface/WrapperHolder.h"
 #include "DataFormats/Provenance/interface/ProductProvenance.h"
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 namespace cms {
   class Exception;
@@ -55,7 +55,7 @@ namespace edm {
       productProvenance_(productProvenance) {}
 
     ///Used when the attempt to get the data failed
-    OutputHandle(boost::shared_ptr<cms::Exception> const& iWhyFailed):
+    OutputHandle(std::shared_ptr<cms::Exception> const& iWhyFailed):
       product_(),
       desc_(0),
       productProvenance_(0),
@@ -94,7 +94,7 @@ namespace edm {
       return product_;
     }
 
-    boost::shared_ptr<cms::Exception> whyFailed() const {
+    std::shared_ptr<cms::Exception> whyFailed() const {
       return whyFailed_;
     }
 
@@ -110,7 +110,7 @@ namespace edm {
     WrapperHolder product_;
     BranchDescription const* desc_;
     ProductProvenance* productProvenance_;
-    boost::shared_ptr<cms::Exception> whyFailed_;
+    std::shared_ptr<cms::Exception> whyFailed_;
   };
 
   // Free swap function

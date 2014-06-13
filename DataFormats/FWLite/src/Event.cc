@@ -90,9 +90,9 @@ namespace fwlite {
   fileVersion_(-1),
   parameterSetRegistryFilled_(false),
   dataHelper_(branchMap_.getEventTree(),
-              boost::shared_ptr<HistoryGetterBase>(new EventHistoryGetter(this)),
-              boost::shared_ptr<BranchMapReader>(&branchMap_,NoDelete()),
-              boost::shared_ptr<edm::EDProductGetter>(new internal::ProductGetter(this)),
+              std::shared_ptr<HistoryGetterBase>(new EventHistoryGetter(this)),
+              std::shared_ptr<BranchMapReader>(&branchMap_,NoDelete()),
+              std::shared_ptr<edm::EDProductGetter>(new internal::ProductGetter(this)),
               true) {
     if(0 == iFile) {
       throw cms::Exception("NoFile") << "The TFile pointer passed to the constructor was null";
@@ -130,7 +130,7 @@ namespace fwlite {
     if(fileVersion_ >= 7 && fileVersion_ < 17) {
       eventHistoryTree_ = dynamic_cast<TTree*>(iFile->Get(edm::poolNames::eventHistoryTreeName().c_str()));
     }
-    runFactory_ =  boost::shared_ptr<RunFactory>(new RunFactory());
+    runFactory_ =  std::shared_ptr<RunFactory>(new RunFactory());
 
 }
 
@@ -500,8 +500,8 @@ Event::throwProductNotFoundException(std::type_info const& iType, char const* iM
 fwlite::LuminosityBlock const& Event::getLuminosityBlock() const {
   if (not lumi_) {
     // Branch map pointer not really being shared, owned by event, have to trick Lumi
-    lumi_ = boost::shared_ptr<fwlite::LuminosityBlock> (
-             new fwlite::LuminosityBlock(boost::shared_ptr<BranchMapReader>(&branchMap_,NoDelete()),
+    lumi_ = std::shared_ptr<fwlite::LuminosityBlock> (
+             new fwlite::LuminosityBlock(std::shared_ptr<BranchMapReader>(&branchMap_,NoDelete()),
              runFactory_)
           );
   }
@@ -512,7 +512,7 @@ fwlite::LuminosityBlock const& Event::getLuminosityBlock() const {
 }
 
 fwlite::Run const& Event::getRun() const {
-  run_ = runFactory_->makeRun(boost::shared_ptr<BranchMapReader>(&branchMap_,NoDelete()));
+  run_ = runFactory_->makeRun(std::shared_ptr<BranchMapReader>(&branchMap_,NoDelete()));
   edm::RunNumber_t run = eventAuxiliary().run();
   run_->to(run);
   return *run_;

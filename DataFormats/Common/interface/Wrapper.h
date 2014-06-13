@@ -383,7 +383,7 @@ namespace edm {
           pointers.reserve(h->size());
           // NOTE: the following implementation has unusual signature!
           fillView(obj, pointers);
-          helpers = helper_vector_ptr(h);
+          helpers = helper_vector_ptr(h.release());
         }
       }
     };
@@ -399,7 +399,7 @@ namespace edm {
           pointers.reserve(obj.size());
           // NOTE: the following implementation has unusual signature!
           fillView(obj, pointers);
-          helpers = helper_vector_ptr(h);
+          helpers = helper_vector_ptr(h.release());
         }
       }
     };

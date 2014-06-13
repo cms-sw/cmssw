@@ -20,7 +20,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 #include <string>
 #include <vector>
@@ -45,13 +45,13 @@ namespace edm {
 
     typedef std::vector<WorkerInPath> WorkersInPath;
     typedef WorkersInPath::size_type        size_type;
-    typedef boost::shared_ptr<HLTGlobalStatus> TrigResPtr;
+    typedef std::shared_ptr<HLTGlobalStatus> TrigResPtr;
 
     Path(int bitpos, std::string const& path_name,
          WorkersInPath const& workers,
          TrigResPtr trptr,
          ExceptionToActionTable const& actions,
-         boost::shared_ptr<ActivityRegistry> reg,
+         std::shared_ptr<ActivityRegistry> reg,
          StreamContext const* streamContext,
          PathContext::PathType pathType);
 
@@ -110,7 +110,7 @@ namespace edm {
 
     int bitpos_;
     TrigResPtr trptr_;
-    boost::shared_ptr<ActivityRegistry> actReg_;
+    std::shared_ptr<ActivityRegistry> actReg_;
     ExceptionToActionTable const* act_table_;
 
     WorkersInPath workers_;

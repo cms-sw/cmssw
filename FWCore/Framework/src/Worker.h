@@ -41,8 +41,6 @@ the worker is reset().
 #include "FWCore/Utilities/interface/ProductHolderIndex.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 
-#include "boost/shared_ptr.hpp"
-
 #include "FWCore/Framework/src/RunStopwatch.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
@@ -98,7 +96,7 @@ namespace edm {
     ModuleDescription const* descPtr() const {return moduleCallingContext_.moduleDescription(); }
     ///The signals are required to live longer than the last call to 'doWork'
     /// this was done to improve performance based on profiling
-    void setActivityRegistry(boost::shared_ptr<ActivityRegistry> areg);
+    void setActivityRegistry(std::shared_ptr<ActivityRegistry> areg);
     
     void setEarlyDeleteHelper(EarlyDeleteHelper* iHelper);
     
@@ -184,9 +182,9 @@ namespace edm {
     ModuleCallingContext moduleCallingContext_;
 
     ExceptionToActionTable const* actions_; // memory assumed to be managed elsewhere
-    boost::shared_ptr<cms::Exception> cached_exception_; // if state is 'exception'
+    std::shared_ptr<cms::Exception> cached_exception_; // if state is 'exception'
 
-    boost::shared_ptr<ActivityRegistry> actReg_;
+    std::shared_ptr<ActivityRegistry> actReg_;
     
     EarlyDeleteHelper* earlyDeleteHelper_;
   };

@@ -17,14 +17,14 @@
 
 namespace edm {
   GlobalSchedule::GlobalSchedule(TriggerResultInserter* inserter,
-                                 boost::shared_ptr<ModuleRegistry> modReg,
+                                 std::shared_ptr<ModuleRegistry> modReg,
                                  std::vector<std::string> const& iModulesToUse,
                                  ParameterSet& proc_pset,
                                  ProductRegistry& pregistry,
                                  PreallocationConfiguration const& prealloc,
                                  ExceptionToActionTable const& actions,
-                                 boost::shared_ptr<ActivityRegistry> areg,
-                                 boost::shared_ptr<ProcessConfiguration> processConfiguration,
+                                 std::shared_ptr<ActivityRegistry> areg,
+                                 std::shared_ptr<ProcessConfiguration> processConfiguration,
                                  ProcessContext const* processContext) :
     workerManager_(modReg,areg,actions),
     actReg_(areg),

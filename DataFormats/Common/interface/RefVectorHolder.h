@@ -5,6 +5,7 @@
 #include "DataFormats/Common/interface/RefVectorHolderBase.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
+#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 
 namespace edm {
   namespace reftobase {
@@ -56,7 +57,7 @@ namespace edm {
 	bool equal_to(const_iterator_imp const* o) const { return i == dc(o); }
 	bool less_than(const_iterator_imp const* o) const { return i < dc(o); }
 	void assign(const_iterator_imp const* o) { i = dc(o); }
-	boost::shared_ptr<RefHolderBase> deref() const;
+	std::shared_ptr<RefHolderBase> deref() const;
 	difference_type difference(const_iterator_imp const* o) const { return i - dc(o); }
       private:
 	typename REFV::const_iterator const& dc(const_iterator_imp const* o) const {
@@ -91,7 +92,7 @@ namespace edm {
       virtual bool isAvailable() const { return refs_.isAvailable(); }
 
     private:
-      virtual boost::shared_ptr<reftobase::RefHolderBase> refBase(size_t idx) const;
+      virtual std::shared_ptr<reftobase::RefHolderBase> refBase(size_t idx) const;
       REFV refs_;
     };
 
@@ -205,16 +206,24 @@ namespace edm {
     }
 
     template <typename REFV>
-    boost::shared_ptr<RefHolderBase>
+    std::shared_ptr<RefHolderBase>
     RefVectorHolder<REFV>::refBase(size_t idx) const {
-      return boost::shared_ptr<RefHolderBase>(new RefHolder<typename REFV::value_type>(refs_[idx]));
+#ifdef __GCCXML__
+      return std::shared_ptr<RefHolderBase>(new RefHolder<typename REFV::value_type>(refs_[idx]));
+#else
+      return std::shared_ptr<RefHolderBase>(std::make_shared<RefHolder<typename REFV::value_type> >(refs_[idx]));
+#endif
     }
 
     template<typename REFV>
-    boost::shared_ptr<RefHolderBase> RefVectorHolder<REFV>::const_iterator_imp_specific::deref() const {
-      return boost::shared_ptr<RefHolderBase>(new RefHolder<typename REFV::value_type>(*i));
+    std::shared_ptr<RefHolderBase>
+    RefVectorHolder<REFV>::const_iterator_imp_specific::deref() const {
+#ifdef __GCCXML__
+      return std::shared_ptr<RefHolderBase>(new RefHolder<typename REFV::value_type>(*i));
+#else
+      return std::shared_ptr<RefHolderBase>(std::make_shared<RefHolder<typename REFV::value_type> >(*i));
+#endif
     }
-
   }
 }
 

@@ -13,7 +13,7 @@
 namespace edm {
 namespace service {
 
-MainThreadMLscribe::MainThreadMLscribe(boost::shared_ptr<ThreadQueue> tqp) 
+MainThreadMLscribe::MainThreadMLscribe(std::shared_ptr<ThreadQueue> tqp) 
   : m_queue(tqp) 
 {
 }

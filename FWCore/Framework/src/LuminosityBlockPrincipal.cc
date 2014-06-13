@@ -9,8 +9,8 @@
 namespace edm {
 
   LuminosityBlockPrincipal::LuminosityBlockPrincipal(
-      boost::shared_ptr<LuminosityBlockAuxiliary> aux,
-      boost::shared_ptr<ProductRegistry const> reg,
+      std::shared_ptr<LuminosityBlockAuxiliary> aux,
+      std::shared_ptr<ProductRegistry const> reg,
       ProcessConfiguration const& pc,
       HistoryAppender* historyAppender,
       unsigned int index) :

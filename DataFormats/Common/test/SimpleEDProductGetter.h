@@ -1,8 +1,6 @@
 #ifndef DataFormats_Common_SimpleEDProductGetter_h
 #define DataFormats_Common_SimpleEDProductGetter_h
 
-#include "boost/shared_ptr.hpp"
-
 #include "DataFormats/Common/interface/WrapperHolder.h"
 #include "DataFormats/Common/interface/WrapperOwningHolder.h"
 #include "DataFormats/Common/interface/EDProductGetter.h"
