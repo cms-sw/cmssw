@@ -50,8 +50,11 @@ _positionCalcHCAL_semi3D_seedneighbours = cms.PSet(
 )
 
 #topo clusters
+# two possibilities "SharedSeedsClusterizer" and "ArborLikeClusterizer"
+# both give similar results in QCD 80-120 and have the same handles
+# strategies are outlined in the code
 _topoClusterizer_HCAL = cms.PSet(
-    algoName = cms.string("SharedSeedsClusterizer"),    
+    algoName = cms.string("ArborLikeClusterizer"),    
     thresholdsByDetector = cms.VPSet(
     cms.PSet( detector = cms.string("HCAL_BARREL1"),
               gatheringThreshold = cms.double(0.2),
