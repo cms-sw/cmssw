@@ -454,6 +454,9 @@ namespace SingleTopTChannelLepton {
     fill("elecMult_",    eMult   );
     fill("elecMultIso_", eMultIso);
     
+    delete elecSelect;
+    delete elecIso;
+    
 
     /* 
        ------------------------------------------------------------
@@ -959,5 +962,6 @@ SingleTopTChannelLeptonDQM::analyze(const edm::Event& event, const edm::EventSet
     }
  }
 }
+
 
 
