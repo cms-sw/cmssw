@@ -18,6 +18,8 @@ HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_v*			# JIRA: CMSHLT-64
 HLT_Mu17_NoFilters_v*					# JIRA: CMSHLT-64
 HLT_DoubleMu4NoFilters_Jpsi_Displaced_v*		# JIRA: CMSHLT-64
 
+HLT_IsoTkMu24_IterTrk02_v*				# JIRA: CMSHLT-72
+
 HLT_BTagCSV07_v*					# JIRA: CMSHLT-66
 
 HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v*			# JIRA: CMSHLT-65
