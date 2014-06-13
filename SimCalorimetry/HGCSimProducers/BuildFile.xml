@@ -3,6 +3,8 @@
 <use   name="FWCore/Utilities"/>
 <use   name="SimGeneral/MixingModule"/>
 <use   name ="DataFormats/ForwardDetId"/>
+<use   name="Geometry/Records"/>
+<use   name="Geometry/FCalGeometry"/>
 <use   name="hepmc"/>
 <use   name="CLHEP"/>
 <export>

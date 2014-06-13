@@ -24,19 +24,20 @@ class HGCDigitizerBase {
    */
   HGCDigitizerBase(const edm::ParameterSet &ps) : simpleNoiseGen_(0)
     {
-      myCfg_      = ps.getUntrackedParameter<edm::ParameterSet>("digiCfg"); 
-      lsbInKeV_   = myCfg_.getUntrackedParameter<double>("lsbInKeV");
-      noiseInKeV_ = myCfg_.getUntrackedParameter<double>("noiseInKeV");
+      myCfg_     = ps.getUntrackedParameter<edm::ParameterSet>("digiCfg"); 
+      mipInKeV_  = myCfg_.getUntrackedParameter<double>("mipInKeV");
+      lsbInMIP_  = myCfg_.getUntrackedParameter<double>("lsbInMIP");
+      mip2noise_ = myCfg_.getUntrackedParameter<double>("mip2noise");
     }
 
   /**
      @short init a random number generator for noise
    */
   void setRandomNumberEngine(CLHEP::HepRandomEngine& engine) 
-  { 
-    simpleNoiseGen_ = new CLHEP::RandGauss(engine,0,noiseInKeV_);
+  {       
+    simpleNoiseGen_ = new CLHEP::RandGauss(engine,0,mipInKeV_/mip2noise_ );
   }
-
+  
   /**
      @short steer digitization mode
    */
@@ -67,18 +68,16 @@ class HGCDigitizerBase {
 	if(noiseEn<0) noiseEn=0;
  
 	//round to integer (sample will saturate the value according to available bits)
-	uint16_t totalEnInt = floor((totalEn+noiseEn)/lsbInKeV_);
+	uint16_t totalEnInt = floor( ((totalEn+noiseEn)/mipInKeV_) / lsbInMIP_ );
 
 	//0 gain for the moment
 	HGCSample singleSample;
 	singleSample.set(0, totalEnInt );
-	
-	// 	std::cout << totalEn << " -> " << totalEnInt << " " 
-	// 		  << singleSample.gain() << " " << singleSample.adc() << " " 
-	// 		  << std::hex << singleSample.raw() << std::dec << std::endl;
-	
+
 	if(singleSample.adc()==0) continue;
- 
+	
+	//std::cout << totalEn << " -> Gain:" << singleSample.gain() << " #ADC:" << singleSample.adc() << std::endl;
+	
 	//no time information
 	D newDataFrame( it->first );
 	newDataFrame.setSample(0, singleSample);
@@ -110,7 +109,7 @@ class HGCDigitizerBase {
  private:
 
   //
-  double lsbInKeV_,noiseInKeV_;
+  double mipInKeV_, lsbInMIP_, mip2noise_;
 
   //
   mutable CLHEP::RandGauss *simpleNoiseGen_;
