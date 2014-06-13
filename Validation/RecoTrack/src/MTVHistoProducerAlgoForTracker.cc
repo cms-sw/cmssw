@@ -62,6 +62,11 @@ MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::Parame
   maxZpos  = pset.getParameter<double>("maxZpos");
   nintZpos = pset.getParameter<int>("nintZpos");
 
+  //parameters for _vs_dR plots
+  mindr  = pset.getParameter<double>("mindr");
+  maxdr  = pset.getParameter<double>("maxdr");
+  nintdr = pset.getParameter<int>("nintdr");
+
   //parameters for dE/dx plots
   minDeDx  = pset.getParameter<double>("minDeDx");
   maxDeDx  = pset.getParameter<double>("maxDeDx");
@@ -474,6 +479,13 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::IBooker& ibook){
 				      nintZpos,minZpos,maxZpos) );
   h_simulzpos.push_back( ibook.book1D("num_simul_zpos","N of simulated tracks vs z vert position",nintZpos,minZpos,maxZpos) );
 
+  h_assocdr.push_back( ibook.book1D("num_assoc(simToReco)_dr",
+				    "N of associated tracks (simToReco) vs transverse vert position",
+				    nintdr,log10(mindr),log10(maxdr)) );
+  BinLogX(h_assocdr.back()->getTH1F());
+  h_simuldr.push_back( ibook.book1D("num_simul_dr","N of simulated tracks vs transverse vert position",
+				    nintdr,log10(mindr),log10(maxdr)) );
+  BinLogX(h_simuldr.back()->getTH1F());
 
   h_reco_vertcount_entire.push_back( ibook.book1D("num_reco_vertcount_entire","N of reco tracks vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
   h_assoc_vertcount_entire.push_back( ibook.book1D("num_assoc(simToReco)_vertcount_entire","N of associated tracks (simToReco) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
@@ -688,6 +700,8 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistosForStandaloneRunning(DQMStore
   h_effic_vs_dz.push_back( ibook.book1D("effic_vs_dz","effic vs dz",nintDz,minDz,maxDz) );
   h_effic_vs_vertpos.push_back( ibook.book1D("effic_vs_vertpos","effic vs vertpos",nintVertpos,minVertpos,maxVertpos) );
   h_effic_vs_zpos.push_back( ibook.book1D("effic_vs_zpos","effic vs zpos",nintZpos,minZpos,maxZpos) );
+  h_effic_vs_dr.push_back( ibook.book1D("effic_vs_dr","effic vs dr",nintdr,log10(mindr),log10(maxdr)) );
+  BinLogX(h_effic_vs_dr.back()->getTH1F());
   h_effic_vertcount_entire.push_back( ibook.book1D("effic_vertcount_entire","efficiency vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
   h_effic_vertcount_barrel.push_back( ibook.book1D("effic_vertcount_barrel","efficiency in barrel vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
   h_effic_vertcount_fwdpos.push_back( ibook.book1D("effic_vertcount_fwdpos","efficiency in endcap(+) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
@@ -840,7 +854,7 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
 									 const TrackingParticle::Point& vertexTP,
 									 double dxySim, double dzSim, int nSimHits,
 									 const reco::Track* track,
-									 int numVertices, double vertz){
+									 int numVertices, double vertz, double dR){
   bool isMatched = track;
 
   if((*TpSelectorForEfficiencyVsEta)(tp)){
@@ -940,6 +954,7 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
     } // END for (unsigned int f=0; f<vertposintervals[count].size()-1; f++){
   }
 
+
   if((*TpSelectorForEfficiencyVsVTXZ)(tp)){
     for (unsigned int f=0; f<dzintervals[count].size()-1; f++){
       if (dzSim>dzintervals[count][f]&&
@@ -974,6 +989,12 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
 	        if (isMatched) totASS_vertz_fwdneg[count][f]++;
         }
     } // END for (unsigned int f=0; f<zposintervals[count].size()-1; f++){
+  }
+
+  //efficiency vs dR
+  if((*TpSelectorForEfficiencyVsEta)(tp)){
+    h_simuldr[count]->Fill(min(max(dR,h_simuldr[count]->getTH1()->GetXaxis()->GetXmin()),h_simuldr[count]->getTH1()->GetXaxis()->GetXmax()));
+    if (isMatched) h_assocdr[count]->Fill(min(max(dR,h_simuldr[count]->getTH1()->GetXaxis()->GetXmin()),h_simuldr[count]->getTH1()->GetXaxis()->GetXmax()));
   }
 
   //Special investigations for PU
@@ -1540,6 +1561,16 @@ void MTVHistoProducerAlgoForTracker::finalHistoFits(int counter){
   fillPlotFromVectors(h_misidratedz[counter],totmisid_dz[counter],totREC_dz[counter],"effic");
   fillPlotFromVectors(h_effic_vs_vertpos[counter],totASS_vertpos[counter],totSIM_vertpos[counter],"effic");
   fillPlotFromVectors(h_effic_vs_zpos[counter],totASS_zpos[counter],totSIM_zpos[counter],"effic");
+
+  for (int bin=1;bin<=h_effic_vs_dr[counter]->getNbinsX();++bin) {
+    if (h_simuldr[counter]->getBinContent(bin)>0) {
+      double value = ((double) h_assocdr[counter]->getBinContent(bin))/((double) h_simuldr[counter]->getBinContent(bin));
+      double err = sqrt( value*(1-value)/((double) h_simuldr[counter]->getBinContent(bin)) );
+      h_effic_vs_dr[counter]->setBinContent(bin,value);
+      h_effic_vs_dr[counter]->setBinError(bin,err);
+    }
+  }
+  
   fillPlotFromVectors(h_effic_vertcount_entire[counter],totASS_vertcount_entire[counter],totSIM_vertcount_entire[counter],"effic");
   fillPlotFromVectors(h_effic_vertcount_barrel[counter],totASS_vertcount_barrel[counter],totSIM_vertcount_barrel[counter],"effic");
   fillPlotFromVectors(h_effic_vertcount_fwdpos[counter],totASS_vertcount_fwdpos[counter],totSIM_vertcount_fwdpos[counter],"effic");

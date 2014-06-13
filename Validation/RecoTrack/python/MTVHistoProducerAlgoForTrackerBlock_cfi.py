@@ -69,6 +69,11 @@ MTVHistoProducerAlgoForTrackerBlock = cms.PSet(
     minZpos = cms.double(-30),
     maxZpos = cms.double(30),
     nintZpos = cms.int32(60),                               
+    #
+    # dR
+    mindr = cms.double(0.0001),
+    maxdr = cms.double(1),
+    nintdr = cms.int32(100),
 
     # Pileup vertices
     minVertcount = cms.double(-0.5),

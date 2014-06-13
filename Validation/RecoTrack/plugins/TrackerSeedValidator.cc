@@ -261,8 +261,9 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
 	  matchedTrackPointer->setHitPattern(matchedSeedPointer->recHits().first,matchedSeedPointer->recHits().second);
 	}
 
+	double dR=0;//fixme
 	histoProducerAlgo_->fill_recoAssociated_simTrack_histos(w,*tp,tp->momentum(),tp->vertex(),dxySim,dzSim,nSimHits,
-								matchedTrackPointer,puinfo.getPU_NumInteractions(), vtx_z_PU);
+								matchedTrackPointer,puinfo.getPU_NumInteractions(), vtx_z_PU,dR);
 
 	sts++;
 	if (matchedTrackPointer) asts++;
