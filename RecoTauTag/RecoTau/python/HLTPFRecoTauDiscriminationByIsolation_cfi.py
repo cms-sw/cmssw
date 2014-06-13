@@ -2,9 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoTauTag.RecoTau.HLTPFRecoTauQualityCuts_cfi import hltPFTauQualityCuts
 from RecoTauTag.RecoTau.TauDiscriminatorTools import requireLeadTrack, noPrediscriminants
+from RecoTauTag.RecoTau.PFRecoTauDiscriminationByIsolation_cfi import pfRecoTauDiscriminationByIsolation
 
-hltPFRecoTauDiscriminationByIsolation = cms.EDProducer(
-    "PFRecoTauDiscriminationByIsolation",
+hltPFRecoTauDiscriminationByIsolation = pfRecoTauDiscriminationByIsolation.clone(
     PFTauProducer = cms.InputTag('hltPFRecoTauProducer'), #tau collection to discriminate
 
     # Require leading pion ensures that:
