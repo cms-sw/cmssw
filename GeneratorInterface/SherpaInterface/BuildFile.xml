@@ -5,7 +5,6 @@
 <use name="GeneratorInterface/Core"/>
 <use name="GeneratorInterface/ExternalDecays"/>
 <use name="GeneratorInterface/Pythia6Interface"/>
-<use name="boost"/>
 <use name="clhep"/>
 <use name="sherpa"/>
 <use name="frontier_client"/>

@@ -38,8 +38,6 @@ For its usage, see "FWCore/Framework/interface/PrincipalGetAdapter.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 
-#include "boost/shared_ptr.hpp"
-
 #include <memory>
 #include <string>
 #include <set>
@@ -258,7 +256,7 @@ namespace edm {
     ProductPtrVec putProductsWithoutParents_; // ... but not for these
 
     EventAuxiliary const& aux_;
-    boost::shared_ptr<LuminosityBlock const> const luminosityBlock_;
+    std::shared_ptr<LuminosityBlock const> const luminosityBlock_;
 
     // gotBranchIDs_ must be mutable because it records all 'gets',
     // which do not logically modify the PrincipalGetAdapter. gotBranchIDs_ is
@@ -269,7 +267,7 @@ namespace edm {
     void addToGotBranchIDs(Provenance const& prov) const;
 
     // We own the retrieved Views, and have to destroy them.
-    mutable std::vector<boost::shared_ptr<ViewBase> > gotViews_;
+    mutable std::vector<std::shared_ptr<ViewBase> > gotViews_;
     
     StreamID streamID_;
     ModuleCallingContext const* moduleCallingContext_;
@@ -325,7 +323,7 @@ namespace edm {
 
       if(bh.failedToGet()) {
           Handle<View<ELEMENT> > temp(makeHandleExceptionFactory([oid]()->std::shared_ptr<cms::Exception> {
-            std::shared_ptr<cms::Exception> whyFailed(new edm::Exception(edm::errors::ProductNotFound));
+            std::shared_ptr<cms::Exception> whyFailed = std::make_shared<edm::Exception>(edm::errors::ProductNotFound);
             *whyFailed
             << "get View by ID failed: no product with ID = " << oid <<"\n";
             return whyFailed;
@@ -532,8 +530,7 @@ namespace edm {
     //  shared pointer and fill the helper vector
     bh.interface()->fillView(bh.wrapper(), bh.id(), pointersToElements, helpers);
 
-    boost::shared_ptr<View<ELEMENT> >
-      newview(new View<ELEMENT>(pointersToElements, helpers));
+    auto newview = std::make_shared<View<ELEMENT> >(pointersToElements, helpers);
 
     addToGotBranchIDs(*bh.provenance());
     gotViews_.push_back(newview);

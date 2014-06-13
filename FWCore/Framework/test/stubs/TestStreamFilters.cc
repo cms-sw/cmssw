@@ -110,7 +110,7 @@ struct Cache {
       ++m_count;
       gbr = true;
       ger = false;
-      std::shared_ptr<Cache> pCache{ new Cache };
+      auto pCache = std::make_shared<Cache>();
       ++(pCache->run);
       return pCache;
    }
@@ -168,7 +168,7 @@ struct Cache {
       ++m_count;
       gbl = true;
       gel = false;
-      std::shared_ptr<Cache> pCache{ new Cache };
+      auto pCache = std::make_shared<Cache>();
       ++(pCache->lumi);
       return pCache;
    }
@@ -247,7 +247,7 @@ struct Cache {
       ++m_count;
       gbr=true;
       ger=false;
-      std::shared_ptr<Cache> pCache {new Cache };
+      auto pCache = std::make_shared<Cache>();
       ++(pCache->run);
       return pCache;
    }
@@ -262,7 +262,7 @@ struct Cache {
         throw cms::Exception("begin out of sequence")
           << "globalBeginRunSummary seen before globalBeginRun";
       }
-      return std::shared_ptr<Cache>{ new Cache };
+      return std::make_shared<Cache>();
    }
     
     void endRunSummary(edm::Run const&, edm::EventSetup const&, Cache* gCache) const override {
@@ -353,7 +353,7 @@ struct Cache {
       ++m_count;
       gbl = true;
       gel = false;
-      std::shared_ptr<Cache> pCache{ new Cache };
+      auto pCache = std::make_shared<Cache>();
       ++(pCache->lumi);
       return pCache;
     }
@@ -369,7 +369,7 @@ struct Cache {
        throw cms::Exception("begin out of sequence")
          << "globalBeginLuminosityBlockSummary seen before globalBeginLuminosityBlock";
       }
-      return std::shared_ptr<Cache>{ new Cache };
+      return std::make_shared<Cache>();
     }
     
     void endLuminosityBlockSummary(edm::LuminosityBlock const&, edm::EventSetup const&, Cache* gCache) const override {
@@ -446,7 +446,7 @@ struct Cache {
      ++m_count;
       gbr=true;
       ger=false;
-      std::shared_ptr<Cache> pCache{ new Cache };
+      auto pCache = std::make_shared<Cache>();
       ++(pCache->run);
       return pCache;
    }
@@ -495,7 +495,7 @@ struct Cache {
      ++m_count;
       gbr=true;
       ger=false;
-      std::shared_ptr<Cache> pCache{ new Cache };
+      auto pCache = std::make_shared<Cache>();
       ++(pCache->run);
       return pCache;
    }
@@ -575,7 +575,7 @@ struct Cache {
       ++m_count;
       gbl = true;
       gel = false;
-      std::shared_ptr<Cache> pCache{ new Cache };
+      auto pCache = std::make_shared<Cache>();
       ++(pCache->lumi);
       return pCache;
    }
@@ -625,7 +625,7 @@ struct Cache {
       ++m_count;
       gbl = true;
       gel = false;
-      std::shared_ptr<Cache> pCache{ new Cache };
+      auto pCache = std::make_shared<Cache>();
       ++(pCache->lumi);
       return pCache;
    }

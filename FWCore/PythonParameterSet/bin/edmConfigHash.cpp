@@ -9,7 +9,7 @@
 #include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 #include <iostream>
 #include <string>
@@ -29,7 +29,7 @@ int main(int argc, char **argv) try {
     config = std::string(argv[1]);
   }
 
-  boost::shared_ptr<edm::ParameterSet> parameterSet = edm::readConfig(config);
+  std::shared_ptr<edm::ParameterSet> parameterSet = edm::readConfig(config);
   parameterSet->registerIt();
   std::cout << parameterSet->id() << std::endl;
   return 0;

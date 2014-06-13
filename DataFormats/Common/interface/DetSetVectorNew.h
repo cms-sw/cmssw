@@ -10,8 +10,9 @@
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/iterator/counting_iterator.hpp>
 #include <boost/any.hpp>
-#include "boost/shared_ptr.hpp"
+#include <memory>
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
+#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 
 
 #include<vector>
@@ -200,7 +201,7 @@ namespace edmNew {
     explicit DetSetVector(int isubdet=0) :
       m_subdetId(isubdet) {}
 
-    DetSetVector(boost::shared_ptr<dslv::LazyGetter<T> > iGetter, const std::vector<det_id_type>& iDets,
+    DetSetVector(std::shared_ptr<dslv::LazyGetter<T> > iGetter, const std::vector<det_id_type>& iDets,
 		 int isubdet=0);
 
 
@@ -413,7 +414,7 @@ namespace edmNew {
     
 
   template<typename T>
-  inline DetSetVector<T>::DetSetVector(boost::shared_ptr<Getter> iGetter, 
+  inline DetSetVector<T>::DetSetVector(std::shared_ptr<Getter> iGetter, 
 				       const std::vector<det_id_type>& iDets,
 				       int isubdet):  
     m_subdetId(isubdet) {
@@ -437,7 +438,7 @@ namespace edmNew {
     if (item.offset!=-1 || getter.empty() ) return;
     item.offset = int(m_data.size());
     FastFiller ff(*this,item,true);
-    (*boost::any_cast<boost::shared_ptr<Getter> >(&getter))->fill(ff);
+    (*boost::any_cast<std::shared_ptr<Getter> >(&getter))->fill(ff);
   }
 
 

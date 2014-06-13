@@ -7,9 +7,9 @@
 namespace edm {
   SecondaryEventProvider::SecondaryEventProvider(std::vector<ParameterSet>& psets,
                      ProductRegistry& preg,
-                     boost::shared_ptr<ProcessConfiguration> processConfiguration) :
+                     std::shared_ptr<ProcessConfiguration> processConfiguration) :
     exceptionToActionTable_(new ExceptionToActionTable),
-    workerManager_(boost::shared_ptr<ActivityRegistry>(new ActivityRegistry), *exceptionToActionTable_) {
+    workerManager_(std::make_shared<ActivityRegistry>(), *exceptionToActionTable_) {
     std::vector<std::string> shouldBeUsedLabels;
     std::set<std::string> unscheduledLabels;
     const PreallocationConfiguration preallocConfig;

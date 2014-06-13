@@ -30,6 +30,7 @@ This example creates a histogram of Jet Pt, using Jets with Pt above 30 and ETA 
 
 
 #include <iostream>
+#include <memory>
 #include <cmath>      //necessary for absolute function fabs()
 
 using namespace std;
@@ -172,8 +173,8 @@ public:
     return false;
   }// end of method
 
-  boost::shared_ptr<JetIDSelectionFunctor> const &   jetSel()     const { return jetSel_;}
-  boost::shared_ptr<PFJetIDSelectionFunctor> const & pfJetSel()   const { return pfJetSel_;}
+  std::shared_ptr<JetIDSelectionFunctor> const &   jetSel()     const { return jetSel_;}
+  std::shared_ptr<PFJetIDSelectionFunctor> const & pfJetSel()   const { return pfJetSel_;}
 
   vector<pat::Jet>            const &   allCaloJets () const { return *h_jets_; }
   vector<pat::Jet>            const &   allPFJets   () const { return *h_pfjets_; }
@@ -197,8 +198,8 @@ public:
 
 
 protected:
-  boost::shared_ptr<JetIDSelectionFunctor>   jetSel_;
-  boost::shared_ptr<PFJetIDSelectionFunctor> pfJetSel_;
+  std::shared_ptr<JetIDSelectionFunctor>   jetSel_;
+  std::shared_ptr<PFJetIDSelectionFunctor> pfJetSel_;
   edm::InputTag                              jetSrc_;
   edm::InputTag                              pfJetSrc_;
   
@@ -249,8 +250,8 @@ int main (int argc, char* argv[])
   cout << "Getting parameters" << endl;
   // Get the python configuration
   PythonProcessDesc builder(argv[1]);
-  boost::shared_ptr<edm::ProcessDesc> b = builder.processDesc();
-  boost::shared_ptr<edm::ParameterSet> parameters = b->getProcessPSet();
+  std::shared_ptr<edm::ProcessDesc> b = builder.processDesc();
+  std::shared_ptr<edm::ParameterSet> parameters = b->getProcessPSet();
   parameters->registerIt(); 
 
   edm::ParameterSet const& jetStudiesParams    = parameters->getParameter<edm::ParameterSet>("jetStudies");

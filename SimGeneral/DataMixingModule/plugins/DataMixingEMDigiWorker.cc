@@ -5,6 +5,7 @@
 //--------------------------------------------
 
 #include <map>
+#include <memory>
 #include <cmath>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -183,7 +184,7 @@ namespace edm
 
     // EB first
 
-    boost::shared_ptr<Wrapper<EBDigiCollection>  const> EBDigisPTR = 
+    std::shared_ptr<Wrapper<EBDigiCollection>  const> EBDigisPTR = 
       getProductByTag<EBDigiCollection>(*ep, EBPileInputTag_, mcc);
  
    if(EBDigisPTR ) {
@@ -209,7 +210,7 @@ namespace edm
 
     // EE Next
 
-    boost::shared_ptr<Wrapper<EEDigiCollection>  const> EEDigisPTR =
+    std::shared_ptr<Wrapper<EEDigiCollection>  const> EEDigisPTR =
       getProductByTag<EEDigiCollection>(*ep, EEPileInputTag_, mcc);
 
     if(EEDigisPTR ) {
@@ -233,7 +234,7 @@ namespace edm
    }
     // ES Next
 
-    boost::shared_ptr<Wrapper<ESDigiCollection>  const> ESDigisPTR =
+    std::shared_ptr<Wrapper<ESDigiCollection>  const> ESDigisPTR =
       getProductByTag<ESDigiCollection>(*ep, ESPileInputTag_, mcc);
 
     if(ESDigisPTR ) {
