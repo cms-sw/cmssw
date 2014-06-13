@@ -170,7 +170,7 @@ void FunctionChecker::checkASTDecl(const FunctionDecl *FD, AnalysisManager& mgr,
                 if ( dname.compare(dname.size()-1,1,"_") != 0 ) return;
                 llvm::raw_string_ostream os(buf);
                 os << "function '"<< dname << "' is in an extern \"C\" context and most likely accesses or modifies fortran variables in a 'COMMONBLOCK'.\n";
-                clang::ento::PathDiagnosticLocation FDLoc = clang::ento::PathDiagnosticLocation::createBegin(FD, BR.getSourceManager());
+                clang::ento::PathDiagnosticLocation::createBegin(FD, BR.getSourceManager());
 //		BR.EmitBasicReport(FD, "FunctionChecker : COMMONBLOCK variable accessed or modified","ThreadSafety",os.str(), FDLoc);
                 std::string ostring =  "function '" + dname + "' static variable 'COMMONBLOCK'.\n";
 		const char * pPath = std::getenv("LOCALRT");
