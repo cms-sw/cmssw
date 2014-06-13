@@ -103,6 +103,12 @@ namespace edm {
 
     Timing::~Timing() {
     }
+    
+    void Timing::addToCPUTime(StreamID id, double iTime) {
+      //For accounting purposes we effectively can saw we started earlier
+      curr_events_cpu_[id.value()] -= iTime;
+    }
+
 
     void Timing::fillDescriptions(ConfigurationDescriptions& descriptions) {
       ParameterSetDescription desc;
