@@ -39,6 +39,7 @@ using namespace edm;
 #include "SiPixelGenError.h"
 #define LOGERROR(x) std::cout << x << ": "
 #define LOGINFO(x) std::cout << x << ": "
+#define LOGWARNING(x) std::cout << x << ": "
 #define ENDL std::endl
 #endif
 
@@ -294,7 +295,7 @@ bool SiPixelGenError::pushfile(const SiPixelGenErrorDBObject& dbobject,
 			       << ", " << theCurrentTemp.head.fbin[2]
 			       << ", pixel x-size " << theCurrentTemp.head.xsize << ", y-size " << theCurrentTemp.head.ysize << ", zsize " << theCurrentTemp.head.zsize << ENDL;
     
-    LOGWARNING("SiPixelGenError") << "Loading Pixel GenError - " 
+    LOGINFO("SiPixelGenError") << "Loading Pixel GenError - " 
 				  << theCurrentTemp.head.title << " version "
 				  <<theCurrentTemp.head.templ_version <<" code v."
 				  <<code_version<<ENDL;

@@ -48,9 +48,9 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
 #endif
   
   if (theVerboseLevel > 0) 
-    edm::LogWarning("PixelCPEGeneric") 
-      << " constructing a generic algorithm for ideal pixel detector.\n"
-      << " CPEGeneric:: VerboseLevel = " << theVerboseLevel;
+    cout<<"PixelCPEGeneric:" 
+	<< " constructing a generic algorithm for ideal pixel detector.\n"
+	<< " CPEGeneric:: VerboseLevel = " << theVerboseLevel;
 
   // Externally settable cuts  
   the_eff_charge_cut_lowX = conf.getParameter<double>("eff_charge_cut_lowX");

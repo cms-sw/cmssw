@@ -577,7 +577,7 @@ bool SiPixelTemplate::pushfile(const SiPixelTemplateDBObject& dbobject, std::vec
 	  
 	  if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 0A, no template load" << ENDL; return false;}
 	  
-	  LOGWARNING("SiPixelTemplate") << "Loading Pixel Template File - " << theCurrentTemp.head.title 
+	  LOGINFO("SiPixelTemplate") << "Loading Pixel Template File - " << theCurrentTemp.head.title 
 					<<" code version = "<<code_version
 					<<" object version "<<theCurrentTemp.head.templ_version
 					<< ENDL;
@@ -618,7 +618,7 @@ bool SiPixelTemplate::pushfile(const SiPixelTemplateDBObject& dbobject, std::vec
 	    << ", y-size " << theCurrentTemp.head.ysize << ", zsize " << theCurrentTemp.head.zsize << ENDL;
 		
 	  if(theCurrentTemp.head.templ_version < code_version) {
-	    LOGERROR("SiPixelTemplate") << "code expects version "<< code_version << " finds "
+	    LOGWARNING("SiPixelTemplate") << "code expects version "<< code_version << " finds "
 					<< theCurrentTemp.head.templ_version <<", load anyway " << ENDL; 
 	    //return false; // dk
 	  }
