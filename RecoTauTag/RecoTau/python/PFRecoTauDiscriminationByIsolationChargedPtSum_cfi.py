@@ -2,11 +2,11 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoTauTag.RecoTau.PFRecoTauQualityCuts_cfi import PFTauQualityCuts
 from RecoTauTag.RecoTau.TauDiscriminatorTools import requireLeadPion
+from RecoTauTag.RecoTau.PFRecoTauDiscriminationByIsolation_cfi import pfRecoTauDiscriminationByIsolation
 
 # Cut on sum pt < 8GeV  isolation tracks.
 
-pfRecoTauDiscriminationByIsolationChargedSumPt = cms.EDProducer(
-    "PFRecoTauDiscriminationByIsolation",
+pfRecoTauDiscriminationByIsolationChargedSumPt = pfRecoTauDisciminationByIsolation.clone(
     PFTauProducer = cms.InputTag('pfRecoTauProducer'),
 
     # Require leading pion ensures that: theee is at least one track above

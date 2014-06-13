@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 import RecoTauTag.RecoTau.RecoTauCleanerPlugins as cleaners
 import RecoTauTag.RecoTau.PFRecoTauDiscriminationByLeadingPionPtCut_cfi as leadPion_cfi 
-
+from RecoTauTag.RecoTau.RecoTauCleaner_cfi import RecoTauCleaner
 
 '''
 
@@ -15,8 +15,7 @@ Decay mode is selected by the TaNC discriminator
 
 '''
 
-hpsTancRecoTaus = cms.EDProducer(
-    "RecoTauCleaner",
+hpsTancRecoTaus = RecoTauCleaner.clone(
     src = cms.InputTag("combinatoricRecoTaus"),
     cleaners = cms.VPSet(
         cleaners.unitCharge,
