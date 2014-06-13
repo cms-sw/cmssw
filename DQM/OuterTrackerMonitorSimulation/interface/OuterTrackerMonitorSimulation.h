@@ -31,7 +31,7 @@ public:
   virtual void endJob() ;
   virtual void beginRun(const edm::Run&, const edm::EventSetup&);
  
-  MonitorElement* NumberOfStripClus = 0;
+  
 	// CW vs. TPart Eta
 	MonitorElement* TPart_Eta_INormalization = 0;
 	MonitorElement* TPart_Eta_ICW_1 = 0;

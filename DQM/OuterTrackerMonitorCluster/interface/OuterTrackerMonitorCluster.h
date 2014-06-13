@@ -32,34 +32,7 @@ public:
   virtual void beginRun(const edm::Run&, const edm::EventSetup&);
  
   MonitorElement* NumberOfStripClus = 0;
-	// CW vs. TPart Eta
-	MonitorElement* TPart_Eta_INormalization = 0;
-	MonitorElement* TPart_Eta_ICW_1 = 0;
-	MonitorElement* TPart_Eta_ICW_2 = 0;
-	MonitorElement* TPart_Eta_ICW_3 = 0;
-	MonitorElement* TPart_Eta_ONormalization = 0;
-	MonitorElement* TPart_Eta_OCW_1 = 0;
-	MonitorElement* TPart_Eta_OCW_2 = 0;
-	MonitorElement* TPart_Eta_OCW_3 = 0;
-	MonitorElement* TPart_AbsEta_INormalization = 0;
-	MonitorElement* TPart_AbsEta_ICW_1 = 0;
-	MonitorElement* TPart_AbsEta_ICW_2 = 0;
-	MonitorElement* TPart_AbsEta_ICW_3 = 0;
-	MonitorElement* TPart_AbsEta_ONormalization = 0;
-	MonitorElement* TPart_AbsEta_OCW_1 = 0;
-	MonitorElement* TPart_AbsEta_OCW_2 = 0;
-	MonitorElement* TPart_AbsEta_OCW_3 = 0;
-	// TTCluster stacks
-	/*MonitorElement* Cluster_IMem_Barrel = 0;
-	MonitorElement* Cluster_IMem_Endcap = 0;
-	MonitorElement* Cluster_OMem_Barrel = 0;
-	MonitorElement* Cluster_OMem_Endcap = 0;*/
-	MonitorElement* Cluster_Gen_Barrel = 0;
-	MonitorElement* Cluster_Unkn_Barrel = 0;
-	MonitorElement* Cluster_Comb_Barrel = 0;
-	MonitorElement* Cluster_Gen_Endcap = 0;
-	MonitorElement* Cluster_Unkn_Endcap = 0;
-	MonitorElement* Cluster_Comb_Endcap = 0;
+	
 	
 
  private:

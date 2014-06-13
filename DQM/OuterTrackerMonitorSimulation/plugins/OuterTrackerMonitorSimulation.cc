@@ -96,14 +96,6 @@ OuterTrackerMonitorSimulation::~OuterTrackerMonitorSimulation()
 void
 OuterTrackerMonitorSimulation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  edm::Handle< edmNew::DetSetVector<SiStripCluster> > cluster_detsetvektor;
-  iEvent.getByLabel(clusterProducerStrip_, cluster_detsetvektor);
-  int NStripClusters=0;
-  if (!cluster_detsetvektor.isValid()) return;
-  const edmNew::DetSetVector<SiStripCluster> * StrC= cluster_detsetvektor.product();
-  NStripClusters= StrC->data().size();
-  NumberOfStripClus->Fill(NStripClusters);
-	
 	
 	/// TrackingParticles
 	edm::Handle< std::vector< TrackingParticle > > TrackingParticleHandle;
