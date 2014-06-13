@@ -13,8 +13,6 @@ PoolSource: This is an InputSource
 #include "FWCore/Sources/interface/VectorInputSource.h"
 #include "IOPool/Common/interface/RootServiceChecker.h"
 
-#include "boost/shared_ptr.hpp"
-
 #include <array>
 #include <memory>
 #include <string>
@@ -41,9 +39,9 @@ namespace edm {
 
   private:
     virtual void readEvent_(EventPrincipal& eventPrincipal);
-    virtual boost::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_();
+    virtual std::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_();
     virtual void readLuminosityBlock_(LuminosityBlockPrincipal& lumiPrincipal);
-    virtual boost::shared_ptr<RunAuxiliary> readRunAuxiliary_();
+    virtual std::shared_ptr<RunAuxiliary> readRunAuxiliary_();
     virtual void readRun_(RunPrincipal& runPrincipal);
     virtual std::unique_ptr<FileBlock> readFile_();
     virtual void closeFile_();
@@ -70,8 +68,8 @@ namespace edm {
     RootServiceChecker rootServiceChecker_;
     std::unique_ptr<RootInputFileSequence> primaryFileSequence_;
     std::unique_ptr<RootInputFileSequence> secondaryFileSequence_;
-    boost::shared_ptr<RunPrincipal> secondaryRunPrincipal_;
-    boost::shared_ptr<LuminosityBlockPrincipal> secondaryLumiPrincipal_;
+    std::shared_ptr<RunPrincipal> secondaryRunPrincipal_;
+    std::shared_ptr<LuminosityBlockPrincipal> secondaryLumiPrincipal_;
     std::vector<std::unique_ptr<EventPrincipal>> secondaryEventPrincipals_;
     std::array<std::vector<BranchID>, NumBranchTypes>  branchIDsToReplace_;
     

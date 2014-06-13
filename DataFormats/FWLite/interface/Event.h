@@ -49,7 +49,6 @@
 #include <memory>
 #include <cstring>
 #include <string>
-#include "boost/shared_ptr.hpp"
 
 #include "Rtypes.h"
 
@@ -63,6 +62,7 @@
 #include "DataFormats/Provenance/interface/EventProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventID.h"
+#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 
 // forward declarations
 namespace edm {
@@ -172,15 +172,15 @@ namespace fwlite {
          edm::ProcessHistory const& history() const;
          void updateAux(Long_t eventIndex) const;
          void fillParameterSetRegistry() const;
-         void setGetter(boost::shared_ptr<edm::EDProductGetter> getter) { return dataHelper_.setGetter(getter);}
+         void setGetter(std::shared_ptr<edm::EDProductGetter> getter) { return dataHelper_.setGetter(getter);}
 
          // ---------- member data --------------------------------
          TFile* file_;
          // TTree* eventTree_;
          TTree* eventHistoryTree_;
          // Long64_t eventIndex_;
-         mutable boost::shared_ptr<fwlite::LuminosityBlock>  lumi_;
-         mutable boost::shared_ptr<fwlite::Run>  run_;
+         mutable std::shared_ptr<fwlite::LuminosityBlock>  lumi_;
+         mutable std::shared_ptr<fwlite::Run>  run_;
          mutable fwlite::BranchMapReader branchMap_;
 
          //takes ownership of the strings used by the DataKey keys in data_
@@ -197,7 +197,7 @@ namespace fwlite {
          mutable bool parameterSetRegistryFilled_;
 
          fwlite::DataGetterHelper dataHelper_;
-         mutable boost::shared_ptr<RunFactory> runFactory_;
+         mutable std::shared_ptr<RunFactory> runFactory_;
    };
 
 }

@@ -41,19 +41,19 @@ namespace edm {
   ProducerSourceBase::~ProducerSourceBase() {
   }
 
-  boost::shared_ptr<RunAuxiliary>
+  std::shared_ptr<RunAuxiliary>
   ProducerSourceBase::readRunAuxiliary_() {
     Timestamp ts = Timestamp(presentTime_);
     resetNewRun();
-    return boost::shared_ptr<RunAuxiliary>(new RunAuxiliary(eventID_.run(), ts, Timestamp::invalidTimestamp()));
+    return std::make_shared<RunAuxiliary>(eventID_.run(), ts, Timestamp::invalidTimestamp());
   }
 
-  boost::shared_ptr<LuminosityBlockAuxiliary>
+  std::shared_ptr<LuminosityBlockAuxiliary>
   ProducerSourceBase::readLuminosityBlockAuxiliary_() {
-    if (processingMode() == Runs) return boost::shared_ptr<LuminosityBlockAuxiliary>();
+    if (processingMode() == Runs) return std::shared_ptr<LuminosityBlockAuxiliary>();
     Timestamp ts = Timestamp(presentTime_);
     resetNewLumi();
-    return boost::shared_ptr<LuminosityBlockAuxiliary>(new LuminosityBlockAuxiliary(eventID_.run(), eventID_.luminosityBlock(), ts, Timestamp::invalidTimestamp()));
+    return std::make_shared<LuminosityBlockAuxiliary>(eventID_.run(), eventID_.luminosityBlock(), ts, Timestamp::invalidTimestamp());
   }
 
   void

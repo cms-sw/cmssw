@@ -1,6 +1,7 @@
 #include <fcntl.h>
 #include <iomanip>
 #include <iostream>
+#include <memory>
 #include <sstream>
 #include <sys/types.h>
 #include <sys/file.h>
@@ -745,7 +746,7 @@ void FedRawDataInputSource::renameToNextFree(std::string const& fileName) const
 void FedRawDataInputSource::preForkReleaseResources()
 {}
 
-void FedRawDataInputSource::postForkReacquireResources(boost::shared_ptr<edm::multicore::MessageReceiverForSource>)
+void FedRawDataInputSource::postForkReacquireResources(std::shared_ptr<edm::multicore::MessageReceiverForSource>)
 {
   InputSource::rewind();
   setRunAuxiliary(

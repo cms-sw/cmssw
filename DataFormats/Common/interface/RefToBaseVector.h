@@ -7,8 +7,9 @@
  */
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
-#include "boost/shared_ptr.hpp"
+#include <memory>
 #include <vector>
+#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 
 namespace edm {
   template<typename T> class RefToBase;
@@ -37,7 +38,7 @@ namespace edm {
     explicit RefToBaseVector(Handle<C> const& );
     template<typename T1>
     explicit RefToBaseVector(Handle<View<T1> > const& );
-    RefToBaseVector(boost::shared_ptr<reftobase::RefVectorHolderBase> p);
+    RefToBaseVector(std::shared_ptr<reftobase::RefVectorHolderBase> p);
     RefToBaseVector& operator=(RefToBaseVector const& iRHS);
     void swap(RefToBaseVector& other);
 
@@ -127,7 +128,7 @@ namespace edm {
 
   template <class T>
   inline
-  RefToBaseVector<T>::RefToBaseVector(boost::shared_ptr<reftobase::RefVectorHolderBase> p) : 
+  RefToBaseVector<T>::RefToBaseVector(std::shared_ptr<reftobase::RefVectorHolderBase> p) : 
     holder_(new reftobase::IndirectVectorHolder<T>(p)) {
   }
 

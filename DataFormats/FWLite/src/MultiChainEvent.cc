@@ -59,10 +59,10 @@ private:
 				   std::vector<std::string> const& iFileNames2,
 				   bool useSecFileMapSorted)
 {
-  event1_ = boost::shared_ptr<ChainEvent> (new ChainEvent(iFileNames1));
-  event2_ = boost::shared_ptr<ChainEvent> (new ChainEvent(iFileNames2));
+  event1_ = std::shared_ptr<ChainEvent> (new ChainEvent(iFileNames1));
+  event2_ = std::shared_ptr<ChainEvent> (new ChainEvent(iFileNames2));
 
-  getter_ = boost::shared_ptr<internal::MultiProductGetter>(new internal::MultiProductGetter(this));
+  getter_ = std::shared_ptr<internal::MultiProductGetter>(new internal::MultiProductGetter(this));
 
   event1_->setGetter(getter_);
   event2_->setGetter(getter_);

@@ -235,7 +235,7 @@ void TestIndexIntoFile4::testFind() {
     ptr->push_back(4);
     ptr->push_back(7);
     ptr->push_back(6);
-    boost::shared_ptr<IndexIntoFile::EventFinder> shptr(ptr);
+    std::shared_ptr<IndexIntoFile::EventFinder> shptr(ptr);
     indexIntoFile.setEventFinder(shptr);
 
     edm::IndexIntoFile::IndexIntoFileItr iter = indexIntoFile.findPosition(1000, 0, 0);

@@ -13,6 +13,7 @@
 #include "DataFormats/Common/interface/RefCore.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Common/interface/ConstPtrCache.h"
+#include "DataFormats/Common/interface/FillView.h"
 
 namespace edm {
   template<typename T> class View;
@@ -234,7 +235,9 @@ namespace edm {
     typedef typename refhelper::RefToBaseProdTrait<C>::ref_vector_type ref_vector;
     typedef reftobase::RefVectorHolder<ref_vector> holder_type;
     helper_vector_ptr helpers(new holder_type);
+#ifndef __GCCXML__
     detail::reallyFillView(* ref.product(), ref.id(), pointers, * helpers);
+#endif
     product_.setProductPtr(new View<T>(pointers, helpers));
   }
 

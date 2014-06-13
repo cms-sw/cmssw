@@ -5,6 +5,7 @@
 //--------------------------------------------
 
 #include <map>
+#include <memory>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
@@ -244,7 +245,7 @@ namespace edm
     // 
     // Get the digis from the event
 
-   boost::shared_ptr<Wrapper<DTDigiCollection>  const> DTDigisPTR = 
+   std::shared_ptr<Wrapper<DTDigiCollection>  const> DTDigisPTR = 
      getProductByTag<DTDigiCollection>(*ep, DTPileInputTag_, mcc);
  
    if(DTDigisPTR ) {
@@ -270,7 +271,7 @@ namespace edm
     // Get the digis from the event
 
 
-   boost::shared_ptr<Wrapper<RPCDigiCollection>  const> RPCDigisPTR = 
+   std::shared_ptr<Wrapper<RPCDigiCollection>  const> RPCDigisPTR = 
      getProductByTag<RPCDigiCollection>(*ep, RPCPileInputTag_, mcc);
  
    if(RPCDigisPTR ) {
@@ -295,7 +296,7 @@ namespace edm
 
     // Get the digis from the event
 
-   boost::shared_ptr<Wrapper<CSCStripDigiCollection>  const> CSCStripDigisPTR = 
+   std::shared_ptr<Wrapper<CSCStripDigiCollection>  const> CSCStripDigisPTR = 
      getProductByTag<CSCStripDigiCollection>(*ep, CSCStripPileInputTag_, mcc);
  
    if(CSCStripDigisPTR ) {
@@ -326,7 +327,7 @@ namespace edm
 
     // Get the digis from the event
 
-   boost::shared_ptr<Wrapper<CSCWireDigiCollection>  const> CSCWireDigisPTR = 
+   std::shared_ptr<Wrapper<CSCWireDigiCollection>  const> CSCWireDigisPTR = 
      getProductByTag<CSCWireDigiCollection>(*ep, CSCWirePileInputTag_, mcc);
  
    if(CSCWireDigisPTR ) {
@@ -351,7 +352,7 @@ namespace edm
 
    // Get the digis from the event
 
-   boost::shared_ptr<Wrapper<CSCComparatorDigiCollection>  const> CSCComparatorDigisPTR =
+   std::shared_ptr<Wrapper<CSCComparatorDigiCollection>  const> CSCComparatorDigisPTR =
      getProductByTag<CSCComparatorDigiCollection>(*ep, CSCCompPileInputTag_, mcc);
 
    if(CSCComparatorDigisPTR ) {

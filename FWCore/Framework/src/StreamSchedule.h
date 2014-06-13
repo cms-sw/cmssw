@@ -145,8 +145,8 @@ namespace edm {
     typedef std::vector<std::string> vstring;
     typedef std::vector<Path> TrigPaths;
     typedef std::vector<Path> NonTrigPaths;
-    typedef boost::shared_ptr<HLTGlobalStatus> TrigResPtr;
-    typedef boost::shared_ptr<Worker> WorkerPtr;
+    typedef std::shared_ptr<HLTGlobalStatus> TrigResPtr;
+    typedef std::shared_ptr<Worker> WorkerPtr;
     typedef std::vector<Worker*> AllWorkers;
     typedef std::vector<boost::shared_ptr<OutputModuleCommunicator>> AllOutputModuleCommunicators;
 
@@ -155,15 +155,15 @@ namespace edm {
     typedef std::vector<WorkerInPath> PathWorkers;
 
     StreamSchedule(TriggerResultInserter* inserter,
-                   boost::shared_ptr<ModuleRegistry>,
+                   std::shared_ptr<ModuleRegistry>,
                    ParameterSet& proc_pset,
                    service::TriggerNamesService& tns,
                    PreallocationConfiguration const& prealloc,
                    ProductRegistry& pregistry,
                    BranchIDListHelper& branchIDListHelper,
                    ExceptionToActionTable const& actions,
-                   boost::shared_ptr<ActivityRegistry> areg,
-                   boost::shared_ptr<ProcessConfiguration> processConfiguration,
+                   std::shared_ptr<ActivityRegistry> areg,
+                   std::shared_ptr<ProcessConfiguration> processConfiguration,
                    bool allowEarlyDelete,
                    StreamID streamID,
                    ProcessContext const* processContext);
@@ -274,19 +274,19 @@ namespace edm {
     void fillWorkers(ParameterSet& proc_pset,
                      ProductRegistry& preg,
                      PreallocationConfiguration const* prealloc,
-                     boost::shared_ptr<ProcessConfiguration const> processConfiguration,
+                     std::shared_ptr<ProcessConfiguration const> processConfiguration,
                      std::string const& name, bool ignoreFilters, PathWorkers& out,
                      vstring* labelsOnPaths);
     void fillTrigPath(ParameterSet& proc_pset,
                       ProductRegistry& preg,
                       PreallocationConfiguration const* prealloc,
-                      boost::shared_ptr<ProcessConfiguration const> processConfiguration,
+                      std::shared_ptr<ProcessConfiguration const> processConfiguration,
                       int bitpos, std::string const& name, TrigResPtr,
                       vstring* labelsOnTriggerPaths);
     void fillEndPath(ParameterSet& proc_pset,
                      ProductRegistry& preg,
                      PreallocationConfiguration const* prealloc,
-                     boost::shared_ptr<ProcessConfiguration const> processConfiguration,
+                     std::shared_ptr<ProcessConfiguration const> processConfiguration,
                      int bitpos, std::string const& name);
 
     void addToAllWorkers(Worker* w);
@@ -298,7 +298,7 @@ namespace edm {
                                bool allowEarlyDelete);
 
     WorkerManager            workerManager_;
-    boost::shared_ptr<ActivityRegistry>           actReg_;
+    std::shared_ptr<ActivityRegistry>           actReg_;
 
     vstring                  trig_name_list_;
     vstring                  end_path_name_list_;

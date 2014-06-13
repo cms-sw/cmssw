@@ -19,6 +19,7 @@
  */
 
 #include <iostream>
+#include <memory>
 
 namespace edm {
   class ModuleCallingContext;
@@ -75,7 +76,7 @@ public:
     }
     else if(theEventPrincipal)
     {
-       boost::shared_ptr<edm::Wrapper<COLLECTION>  const> digisPTR =
+       std::shared_ptr<edm::Wrapper<COLLECTION>  const> digisPTR =
           edm::getProductByTag<COLLECTION>(*theEventPrincipal, theInputTag, mcc );
        if(digisPTR) {
           digis = digisPTR->product();

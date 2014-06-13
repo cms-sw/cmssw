@@ -170,15 +170,15 @@ namespace edm {
     ++expectedEventNumber_;
   }
 
-  boost::shared_ptr<VectorInputSource> SecondaryProducer::makeSecInput(ParameterSet const& ps) {
+  std::shared_ptr<VectorInputSource> SecondaryProducer::makeSecInput(ParameterSet const& ps) {
     ParameterSet const& sec_input = ps.getParameterSet("input");
     PreallocationConfiguration dummy;
     InputSourceDescription desc(ModuleDescription(),
                                 *productRegistry_,
-				boost::shared_ptr<BranchIDListHelper>(new BranchIDListHelper),
-				boost::shared_ptr<ActivityRegistry>(new ActivityRegistry),
+				std::make_shared<BranchIDListHelper>(),
+				std::make_shared<ActivityRegistry>(),
 				-1, -1, dummy);
-    boost::shared_ptr<VectorInputSource> input_(static_cast<VectorInputSource *>
+    std::shared_ptr<VectorInputSource> input_(static_cast<VectorInputSource *>
       (VectorInputSourceFactory::get()->makeVectorInputSource(sec_input,
       desc).release()));
     return input_;

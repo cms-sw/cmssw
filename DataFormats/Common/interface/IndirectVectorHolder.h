@@ -5,6 +5,7 @@
 #include "DataFormats/Common/interface/RefVectorHolderBase.h"
 #include "DataFormats/Common/interface/IndirectHolder.h"
 #include <memory>
+#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 
 namespace edm {
   namespace reftobase {
@@ -20,7 +21,7 @@ namespace edm {
 
       IndirectVectorHolder();
       IndirectVectorHolder( const IndirectVectorHolder & other);
-      IndirectVectorHolder(boost::shared_ptr<RefVectorHolderBase> p);
+      IndirectVectorHolder(std::shared_ptr<RefVectorHolderBase> p);
       IndirectVectorHolder(RefVectorHolderBase * p);
       virtual ~IndirectVectorHolder();
       IndirectVectorHolder& operator= (IndirectVectorHolder const& rhs);
@@ -105,7 +106,7 @@ namespace edm {
     IndirectVectorHolder<T>::IndirectVectorHolder() : BaseVectorHolder<T>(), helper_( 0 ) { }
 
     template <typename T>
-    IndirectVectorHolder<T>::IndirectVectorHolder(boost::shared_ptr<RefVectorHolderBase> p) :
+    IndirectVectorHolder<T>::IndirectVectorHolder(std::shared_ptr<RefVectorHolderBase> p) :
       BaseVectorHolder<T>(), helper_(p->clone()) { }
 
     template <typename T>
