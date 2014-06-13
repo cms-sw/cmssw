@@ -1,7 +1,7 @@
 #include "Geometry/CaloTopology/interface/HGCalTopology.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 
-#define DebugLog
+//#define DebugLog
 
 HGCalTopology::HGCalTopology(const HGCalDDDConstants& hdcons, 
 			     ForwardSubdetector subdet,
