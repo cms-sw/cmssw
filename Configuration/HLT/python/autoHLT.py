@@ -4,5 +4,5 @@
 autoHLT = {
   'relval'     : 'GRun',
   'test'       : 'GRun',
-  'frozen'     : '2013',
+  'frozen'     : '2014',
 }
