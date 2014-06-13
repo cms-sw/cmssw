@@ -306,7 +306,7 @@ TestRandomNumberServiceGlobal::globalBeginLuminosityBlock(edm::LuminosityBlock c
     std::cout << rng->getEngine(lumi.index()).name() << "\n";
   }
 
-  std::shared_ptr<TestRandomNumberServiceLumiCache> lumiCache(new TestRandomNumberServiceLumiCache);
+  auto lumiCache = std::make_shared<TestRandomNumberServiceLumiCache>();
 
   unsigned int seed0 = seeds_.at(0) + nStreams_;
   if(lumi.luminosityBlockAuxiliary().luminosityBlock() < seedByLumi_.size()) {

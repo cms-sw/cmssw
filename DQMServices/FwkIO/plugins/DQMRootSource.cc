@@ -386,8 +386,8 @@ class DQMRootSource : public edm::InputSource
 
       virtual edm::InputSource::ItemType getNextItemType() override;
       //NOTE: the following is really read next run auxiliary
-      virtual boost::shared_ptr<edm::RunAuxiliary> readRunAuxiliary_() override ;
-      virtual boost::shared_ptr<edm::LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() override ;
+      virtual std::shared_ptr<edm::RunAuxiliary> readRunAuxiliary_() override ;
+      virtual std::shared_ptr<edm::LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_() override ;
       virtual void readRun_(edm::RunPrincipal& rpCache) override;
       virtual void readLuminosityBlock_(edm::LuminosityBlockPrincipal& lbCache) override;
       virtual void readEvent_(edm::EventPrincipal&) override ;
@@ -549,7 +549,7 @@ edm::InputSource::ItemType DQMRootSource::getNextItemType()
   return m_nextItemType;
 }
 
-boost::shared_ptr<edm::RunAuxiliary> DQMRootSource::readRunAuxiliary_()
+std::shared_ptr<edm::RunAuxiliary> DQMRootSource::readRunAuxiliary_()
 {
   //std::cout <<"readRunAuxiliary_"<<std::endl;
   assert(m_nextIndexItr != m_orderedIndices.end());
@@ -561,10 +561,10 @@ boost::shared_ptr<edm::RunAuxiliary> DQMRootSource::readRunAuxiliary_()
   assert(m_historyIDs.size() > runLumiRange.m_historyIDIndex);
   //std::cout <<"readRunAuxiliary_ "<<m_historyIDs[runLumiRange.m_historyIDIndex]<<std::endl;
   m_runAux.setProcessHistoryID(m_historyIDs[runLumiRange.m_historyIDIndex]);    
-  return boost::shared_ptr<edm::RunAuxiliary>( new edm::RunAuxiliary(m_runAux) );
+  return std::make_shared<edm::RunAuxiliary>(m_runAux);
 }
 
-boost::shared_ptr<edm::LuminosityBlockAuxiliary>
+std::shared_ptr<edm::LuminosityBlockAuxiliary>
 DQMRootSource::readLuminosityBlockAuxiliary_()
 {
   //std::cout <<"readLuminosityBlockAuxiliary_"<<std::endl;
@@ -577,7 +577,7 @@ DQMRootSource::readLuminosityBlockAuxiliary_()
   //std::cout <<"lumi "<<m_lumiAux.beginTime().value()<<" "<<runLumiRange.m_beginTime<<std::endl;
   m_lumiAux.setProcessHistoryID(m_historyIDs[runLumiRange.m_historyIDIndex]);    
 
-  return boost::shared_ptr<edm::LuminosityBlockAuxiliary>(new edm::LuminosityBlockAuxiliary(m_lumiAux));
+  return std::make_shared<edm::LuminosityBlockAuxiliary>(m_lumiAux);
 }
 
 void

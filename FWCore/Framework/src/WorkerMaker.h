@@ -82,9 +82,7 @@ protected:
     typedef typename UserType::ModuleType ModuleType;
     typedef MakeModuleHelper<ModuleType> MakerHelperType;
     
-    
-    
-    return std::shared_ptr<maker::ModuleHolder>(new maker::ModuleHolderT<ModuleType>{MakerHelperType::template makeModule<UserType>(p).release(),this});
+    return std::shared_ptr<maker::ModuleHolder>(std::make_shared<maker::ModuleHolderT<ModuleType> >(MakerHelperType::template makeModule<UserType>(p).release(),this));
   }
   
   template <class T>

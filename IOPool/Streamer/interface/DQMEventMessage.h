@@ -40,7 +40,7 @@
 
 #include "IOPool/Streamer/interface/MsgTools.h"
 #include "IOPool/Streamer/interface/MsgHeader.h"
-#include "boost/shared_ptr.hpp"
+#include <memory>
 #include "TObject.h"
 #include <map>
 
@@ -103,7 +103,7 @@ class DQMEventMsgView
   std::string topFolderName() const { return folderName_; }
 
   uint32 subFolderCount() const { return subFolderCount_; }
-  boost::shared_ptr< std::vector<std::string> > subFolderNames() const;
+  std::shared_ptr< std::vector<std::string> > subFolderNames() const;
 
   std::string subFolderName(uint32 const subFolderIndex) const;
   uint32 meCount(std::string const& subFolderName) const;
@@ -121,7 +121,7 @@ class DQMEventMsgView
   uint32 host_name_len_;
   uint32 subFolderCount_;
   std::map<std::string, uint32> subFolderIndexTable_;
-  boost::shared_ptr< std::vector<std::string> > nameListPtr_;
+  std::shared_ptr< std::vector<std::string> > nameListPtr_;
   std::vector<uint32> meCountList_;
 };
 

@@ -22,8 +22,8 @@
 
 namespace edm {
   EventPrincipal::EventPrincipal(
-        boost::shared_ptr<ProductRegistry const> reg,
-        boost::shared_ptr<BranchIDListHelper const> branchIDListHelper,
+        std::shared_ptr<ProductRegistry const> reg,
+        std::shared_ptr<BranchIDListHelper const> branchIDListHelper,
         ProcessConfiguration const& pc,
         HistoryAppender* historyAppender,
         unsigned int streamIndex) :
@@ -111,7 +111,7 @@ namespace edm {
   }
 
   void
-  EventPrincipal::setLuminosityBlockPrincipal(boost::shared_ptr<LuminosityBlockPrincipal> const& lbp) {
+  EventPrincipal::setLuminosityBlockPrincipal(std::shared_ptr<LuminosityBlockPrincipal> const& lbp) {
     luminosityBlockPrincipal_ = lbp;
   }
 
@@ -286,11 +286,11 @@ namespace edm {
   }
 
   void
-  EventPrincipal::setUnscheduledHandler(boost::shared_ptr<UnscheduledHandler> iHandler) {
+  EventPrincipal::setUnscheduledHandler(std::shared_ptr<UnscheduledHandler> iHandler) {
     unscheduledHandler_ = iHandler;
   }
 
-  boost::shared_ptr<UnscheduledHandler>
+  std::shared_ptr<UnscheduledHandler>
   EventPrincipal::unscheduledHandler() const {
      return unscheduledHandler_;
   }

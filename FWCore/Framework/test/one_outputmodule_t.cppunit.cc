@@ -77,13 +77,13 @@ private:
   std::map<Trans,std::function<void(edm::Worker*,edm::OutputModuleCommunicator*)>> m_transToFunc;
   
   edm::ProcessConfiguration m_procConfig;
-  boost::shared_ptr<edm::ProductRegistry> m_prodReg;
-  boost::shared_ptr<edm::BranchIDListHelper> m_idHelper;
+  std::shared_ptr<edm::ProductRegistry> m_prodReg;
+  std::shared_ptr<edm::BranchIDListHelper> m_idHelper;
   std::unique_ptr<edm::EventPrincipal> m_ep;
   edm::HistoryAppender historyAppender_;
-  boost::shared_ptr<edm::LuminosityBlockPrincipal> m_lbp;
-  boost::shared_ptr<edm::RunPrincipal> m_rp;
-  boost::shared_ptr<edm::ActivityRegistry> m_actReg;
+  std::shared_ptr<edm::LuminosityBlockPrincipal> m_lbp;
+  std::shared_ptr<edm::RunPrincipal> m_rp;
+  std::shared_ptr<edm::ActivityRegistry> m_actReg;
   edm::EventSetup* m_es = nullptr;
   edm::ModuleDescription m_desc = {"Dummy","dummy"};
   edm::CPUTimer* m_timer = nullptr;
@@ -91,7 +91,7 @@ private:
   
   typedef edm::service::TriggerNamesService TNS;
   typedef edm::serviceregistry::ServiceWrapper<TNS> w_TNS;
-  boost::shared_ptr<w_TNS> tnsptr_;
+  std::shared_ptr<w_TNS> tnsptr_;
   edm::ServiceToken serviceToken_;
   
   template<typename T>
@@ -240,9 +240,9 @@ m_ep()
   
   std::string uuid = edm::createGlobalIdentifier();
   edm::Timestamp now(1234567UL);
-  boost::shared_ptr<edm::RunAuxiliary> runAux(new edm::RunAuxiliary(eventID.run(), now, now));
+  auto runAux = std::make_shared<edm::RunAuxiliary>(eventID.run(), now, now);
   m_rp.reset(new edm::RunPrincipal(runAux, m_prodReg, m_procConfig, &historyAppender_,0));
-  boost::shared_ptr<edm::LuminosityBlockAuxiliary> lumiAux(new edm::LuminosityBlockAuxiliary(m_rp->run(), 1, now, now));
+  auto lumiAux = std::make_shared<edm::LuminosityBlockAuxiliary>(m_rp->run(), 1, now, now);
   m_lbp.reset(new edm::LuminosityBlockPrincipal(lumiAux, m_prodReg, m_procConfig, &historyAppender_,0));
   m_lbp->setRunPrincipal(m_rp);
   edm::EventAuxiliary eventAux(eventID, uuid, now, true);

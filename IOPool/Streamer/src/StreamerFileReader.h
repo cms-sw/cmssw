@@ -3,8 +3,6 @@
 
 #include "IOPool/Streamer/interface/StreamerInputSource.h"
 
-#include "boost/shared_ptr.hpp"
-
 #include <memory>
 #include <string>
 #include <vector>
@@ -37,7 +35,7 @@ namespace edm {
 
     std::vector<std::string> streamerNames_; // names of Streamer files
     std::unique_ptr<StreamerInputFile> streamReader_;
-    boost::shared_ptr<EventSkipperByID> eventSkipperByID_;
+    std::shared_ptr<EventSkipperByID> eventSkipperByID_;
     int initialNumberOfEventsToSkip_;
   };
 } //end-of-namespace-def

@@ -137,12 +137,12 @@ namespace edm {
     primaryFileSequence_->closeFile_();
   }
 
-  boost::shared_ptr<RunAuxiliary>
+  std::shared_ptr<RunAuxiliary>
   PoolSource::readRunAuxiliary_() {
     return primaryFileSequence_->readRunAuxiliary_();
   }
 
-  boost::shared_ptr<LuminosityBlockAuxiliary>
+  std::shared_ptr<LuminosityBlockAuxiliary>
   PoolSource::readLuminosityBlockAuxiliary_() {
     return primaryFileSequence_->readLuminosityBlockAuxiliary_();
   }
@@ -153,7 +153,7 @@ namespace edm {
     if(secondaryFileSequence_ && !branchIDsToReplace_[InRun].empty()) {
       bool found = secondaryFileSequence_->skipToItem(runPrincipal.run(), 0U, 0U);
       if(found) {
-        boost::shared_ptr<RunAuxiliary> secondaryAuxiliary = secondaryFileSequence_->readRunAuxiliary_();
+        std::shared_ptr<RunAuxiliary> secondaryAuxiliary = secondaryFileSequence_->readRunAuxiliary_();
         checkConsistency(runPrincipal.aux(), *secondaryAuxiliary);
         secondaryRunPrincipal_.reset(new RunPrincipal(secondaryAuxiliary,
                                                       secondaryFileSequence_->fileProductRegistry(),
@@ -177,7 +177,7 @@ namespace edm {
     if(secondaryFileSequence_ && !branchIDsToReplace_[InLumi].empty()) {
       bool found = secondaryFileSequence_->skipToItem(lumiPrincipal.run(), lumiPrincipal.luminosityBlock(), 0U);
       if(found) {
-        boost::shared_ptr<LuminosityBlockAuxiliary> secondaryAuxiliary = secondaryFileSequence_->readLuminosityBlockAuxiliary_();
+        std::shared_ptr<LuminosityBlockAuxiliary> secondaryAuxiliary = secondaryFileSequence_->readLuminosityBlockAuxiliary_();
         checkConsistency(lumiPrincipal.aux(), *secondaryAuxiliary);
         secondaryLumiPrincipal_.reset(new LuminosityBlockPrincipal(secondaryAuxiliary,
                                                                    secondaryFileSequence_->fileProductRegistry(),

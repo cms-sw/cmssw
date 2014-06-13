@@ -76,8 +76,7 @@ testServicesManager::putGetTest()
    CPPUNIT_ASSERT(exceptionThrown);
    
    std::auto_ptr< DummyService > pService(new DummyService);
-   boost::shared_ptr< ServiceWrapper<DummyService> > 
-      ptrWrapper (new ServiceWrapper<DummyService>(pService));
+   auto ptrWrapper = std::make_shared<ServiceWrapper<DummyService> >(pService);
 
    CPPUNIT_ASSERT(sm.put(ptrWrapper));
 
@@ -171,7 +170,7 @@ testServicesManager::legacyTest()
    ps.addParameter("value", value);
    pss.push_back(ps);
    
-   boost::shared_ptr<ServicesManager>  legacy(new ServicesManager(pss));
+   auto legacy = std::make_shared<ServicesManager>(pss);
    CPPUNIT_ASSERT(1 == legacy->get<TestService>().value());
    
    edm::ServiceToken legacyToken(legacy);

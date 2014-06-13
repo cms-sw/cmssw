@@ -22,8 +22,6 @@ is the DataBlock.
 #include "FWCore/Utilities/interface/Signal.h"
 #include "FWCore/Framework/interface/Principal.h"
 
-#include "boost/shared_ptr.hpp"
-
 #include <map>
 #include <memory>
 #include <string>
@@ -51,8 +49,8 @@ namespace edm {
     static int const invalidBunchXing = EventAuxiliary::invalidBunchXing;
     static int const invalidStoreNumber = EventAuxiliary::invalidStoreNumber;
     EventPrincipal(
-        boost::shared_ptr<ProductRegistry const> reg,
-        boost::shared_ptr<BranchIDListHelper const> branchIDListHelper,
+        std::shared_ptr<ProductRegistry const> reg,
+        std::shared_ptr<BranchIDListHelper const> branchIDListHelper,
         ProcessConfiguration const& pc,
         HistoryAppender* historyAppender,
         unsigned int streamIndex = 0);
@@ -88,7 +86,7 @@ namespace edm {
       return (luminosityBlockPrincipal_) ? true : false;
     }
 
-    void setLuminosityBlockPrincipal(boost::shared_ptr<LuminosityBlockPrincipal> const& lbp);
+    void setLuminosityBlockPrincipal(std::shared_ptr<LuminosityBlockPrincipal> const& lbp);
 
     void setRunAndLumiNumber(RunNumber_t run, LuminosityBlockNumber_t lumi);
 
@@ -132,10 +130,10 @@ namespace edm {
 
     RunPrincipal const& runPrincipal() const;
 
-    boost::shared_ptr<ProductProvenanceRetriever> productProvenanceRetrieverPtr() const {return provRetrieverPtr_;}
+    std::shared_ptr<ProductProvenanceRetriever> productProvenanceRetrieverPtr() const {return provRetrieverPtr_;}
 
-    void setUnscheduledHandler(boost::shared_ptr<UnscheduledHandler> iHandler);
-    boost::shared_ptr<UnscheduledHandler> unscheduledHandler() const;
+    void setUnscheduledHandler(std::shared_ptr<UnscheduledHandler> iHandler);
+    std::shared_ptr<UnscheduledHandler> unscheduledHandler() const;
 
     EventSelectionIDVector const& eventSelectionIDs() const;
 
@@ -199,19 +197,19 @@ namespace edm {
 
     EventAuxiliary aux_;
 
-    boost::shared_ptr<LuminosityBlockPrincipal> luminosityBlockPrincipal_;
+    std::shared_ptr<LuminosityBlockPrincipal> luminosityBlockPrincipal_;
 
     // Pointer to the 'retriever' that will get provenance information from the persistent store.
-    boost::shared_ptr<ProductProvenanceRetriever> provRetrieverPtr_;
+    std::shared_ptr<ProductProvenanceRetriever> provRetrieverPtr_;
 
     // Handler for unscheduled modules
-    boost::shared_ptr<UnscheduledHandler> unscheduledHandler_;
+    std::shared_ptr<UnscheduledHandler> unscheduledHandler_;
 
     mutable std::vector<std::string> moduleLabelsRunning_;
 
     EventSelectionIDVector eventSelectionIDs_;
 
-    boost::shared_ptr<BranchIDListHelper const> branchIDListHelper_;
+    std::shared_ptr<BranchIDListHelper const> branchIDListHelper_;
 
     BranchListIndexes branchListIndexes_;
 

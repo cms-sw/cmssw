@@ -19,7 +19,7 @@
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 #include <vector>
 #include <string>
@@ -64,7 +64,7 @@ namespace edm
       testSelectionOverlap(Strings const& pathspec1,
                            Strings const& pathspec2,
                            Strings const& fullTriggerList);
-    boost::shared_ptr<TriggerResults>
+    std::shared_ptr<TriggerResults>
       maskTriggerResults(TriggerResults const& inputResults);
     static std::vector<std::string>
       getEventSelectionVString(edm::ParameterSet const& pset);
