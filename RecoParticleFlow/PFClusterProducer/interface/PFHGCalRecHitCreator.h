@@ -103,10 +103,10 @@ template <typename DET,PFLayer::Layer Layer,ForwardSubdetector subdet>
 	else if (rcleaned) 
 	  cleaned->push_back(rh);
       }
-      LogDebug("HGCalRecHitCreator") 
+      edm::LogError("HGCalRecHitCreator") 
 	<<  "Skipped " << skipped_rechits 
 	<< " out of " << rechits.size() << " rechits!" << std::endl;
-      LogDebug("HGCalRecHitCreator")
+      edm::LogError("HGCalRecHitCreator")
 	<< "Created " << out->size() << " PFRecHits!" << std::endl;
     }
 
