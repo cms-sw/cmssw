@@ -34,12 +34,17 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::processEvent(const std::vector<l
 
 
 void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::CaloCluster>& clusters, std::vector<l1t::Tau>& taus){
+  //std::cout<<"---------------   NEW EVENT -----------------------------\n";
+  //std::cout<<"---------------------------------------------------------\n";
   // navigator
   l1t::CaloStage2Nav caloNav; 
 
-  for ( auto itr = clusters.cbegin(); itr != clusters.end(); ++itr ) {
+  // Temp copy of clusters (needed to set merging flags)
+  std::vector<l1t::CaloCluster> tmpClusters(clusters);
+  // First loop: setting merging flags
+  for ( auto itr = tmpClusters.begin(); itr != tmpClusters.end(); ++itr ) {
     if( itr->isValid() ){
-      const l1t::CaloCluster& mainCluster = *itr;
+      l1t::CaloCluster& mainCluster = *itr;
       int iEta = mainCluster.hwEta();
       int iPhi = mainCluster.hwPhi();
       int iEtaP = caloNav.offsetIEta(iEta, 1);
@@ -49,14 +54,17 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
       int iPhiM2 = caloNav.offsetIPhi(iPhi, -2);
       int iPhiM3 = caloNav.offsetIPhi(iPhi, -3);
 
-      const l1t::CaloCluster& clusterN2  = l1t::CaloTools::getCluster(clusters, iEta, iPhiM2);
-      const l1t::CaloCluster& clusterN3  = l1t::CaloTools::getCluster(clusters, iEta, iPhiM3);
-      const l1t::CaloCluster& clusterN2W = l1t::CaloTools::getCluster(clusters, iEtaM, iPhiM2);
-      const l1t::CaloCluster& clusterN2E = l1t::CaloTools::getCluster(clusters, iEtaP, iPhiM2);
-      const l1t::CaloCluster& clusterS2  = l1t::CaloTools::getCluster(clusters, iEta, iPhiP2);
-      const l1t::CaloCluster& clusterS3  = l1t::CaloTools::getCluster(clusters, iEta, iPhiP3);
-      const l1t::CaloCluster& clusterS2W = l1t::CaloTools::getCluster(clusters, iEtaM, iPhiP2);
-      const l1t::CaloCluster& clusterS2E = l1t::CaloTools::getCluster(clusters, iEtaP, iPhiP2);
+
+      //std::cout<<"Merging: first pass. Cluster eta="<<mainCluster.hwEta()<<", phi="<<mainCluster.hwPhi()<<", E="<<mainCluster.hwPt()<<"\n";
+
+      const l1t::CaloCluster& clusterN2  = l1t::CaloTools::getCluster(tmpClusters, iEta, iPhiM2);
+      const l1t::CaloCluster& clusterN3  = l1t::CaloTools::getCluster(tmpClusters, iEta, iPhiM3);
+      const l1t::CaloCluster& clusterN2W = l1t::CaloTools::getCluster(tmpClusters, iEtaM, iPhiM2);
+      const l1t::CaloCluster& clusterN2E = l1t::CaloTools::getCluster(tmpClusters, iEtaP, iPhiM2);
+      const l1t::CaloCluster& clusterS2  = l1t::CaloTools::getCluster(tmpClusters, iEta, iPhiP2);
+      const l1t::CaloCluster& clusterS3  = l1t::CaloTools::getCluster(tmpClusters, iEta, iPhiP3);
+      const l1t::CaloCluster& clusterS2W = l1t::CaloTools::getCluster(tmpClusters, iEtaM, iPhiP2);
+      const l1t::CaloCluster& clusterS2E = l1t::CaloTools::getCluster(tmpClusters, iEtaP, iPhiP2);
 
       std::list<l1t::CaloCluster> satellites;
       if(clusterN2 .isValid()) satellites.push_back(clusterN2);
@@ -71,16 +79,144 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
       if(satellites.size()>0) {
         satellites.sort();
         const l1t::CaloCluster& secondaryCluster = satellites.back();
+
+        if(secondaryCluster>mainCluster) {
+          // is secondary
+          mainCluster.setClusterFlag(CaloCluster::IS_SECONDARY, true);
+          // to be merged up or down?
+          if(secondaryCluster.hwPhi()==iPhiP2 || secondaryCluster.hwPhi()==iPhiP3) {
+            mainCluster.setClusterFlag(CaloCluster::MERGE_UPDOWN, true); // 1 (down)
+          }
+          else if(secondaryCluster.hwPhi()==iPhiM2 || secondaryCluster.hwPhi()==iPhiM3) {
+            mainCluster.setClusterFlag(CaloCluster::MERGE_UPDOWN, false); // 0 (up)
+          }
+          // to be merged left or right?
+          if(secondaryCluster.hwEta()==iEtaP) {
+            mainCluster.setClusterFlag(CaloCluster::MERGE_LEFTRIGHT, true); // 1 (right)
+          }
+          else if(secondaryCluster.hwEta()==iEta || secondaryCluster.hwEta()==iEtaM) {
+            mainCluster.setClusterFlag(CaloCluster::MERGE_LEFTRIGHT, false); // 0 (left)
+          }
+        }
+        else {
+          // is main cluster
+          mainCluster.setClusterFlag(CaloCluster::IS_SECONDARY, false);
+          // to be merged up or down?
+          if(secondaryCluster.hwPhi()==iPhiP2 || secondaryCluster.hwPhi()==iPhiP3) {
+            mainCluster.setClusterFlag(CaloCluster::MERGE_UPDOWN, true); // 1 (down)
+          }
+          else if(secondaryCluster.hwPhi()==iPhiM2 || secondaryCluster.hwPhi()==iPhiM3) {
+            mainCluster.setClusterFlag(CaloCluster::MERGE_UPDOWN, false); // 0 (up)
+          }
+          // to be merged left or right?
+          if(secondaryCluster.hwEta()==iEtaP) {
+            mainCluster.setClusterFlag(CaloCluster::MERGE_LEFTRIGHT, true); // 1 (right)
+          }
+          else if(secondaryCluster.hwEta()==iEta || secondaryCluster.hwEta()==iEtaM) {
+            mainCluster.setClusterFlag(CaloCluster::MERGE_LEFTRIGHT, false); // 0 (left)
+          }
+        }
+        //std::cout<<"   Max neighbor cluster eta="<<secondaryCluster.hwEta()<<", phi="<<secondaryCluster.hwPhi()<<", E="<<secondaryCluster.hwPt()<<"\n";
+        //std::cout<<"   Flags: sec="<<mainCluster.checkClusterFlag(CaloCluster::IS_SECONDARY);
+        //std::cout<<", ud="<<mainCluster.checkClusterFlag(CaloCluster::MERGE_UPDOWN);
+        //std::cout<<", lr="<<mainCluster.checkClusterFlag(CaloCluster::MERGE_LEFTRIGHT)<<"\n";
+      }
+    }
+  }
+  // Second loop: do the actual merging based on merging flags
+  for ( auto itr = tmpClusters.begin(); itr != tmpClusters.end(); ++itr ) {
+    if( itr->isValid() ){
+      l1t::CaloCluster& mainCluster = *itr;
+      int iEta = mainCluster.hwEta();
+      int iPhi = mainCluster.hwPhi();
+      int iEtaP = caloNav.offsetIEta(iEta, 1);
+      int iEtaM = caloNav.offsetIEta(iEta, -1);
+      int iPhiP2 = caloNav.offsetIPhi(iPhi, 2);
+      int iPhiP3 = caloNav.offsetIPhi(iPhi, 3);
+      int iPhiM2 = caloNav.offsetIPhi(iPhi, -2);
+      int iPhiM3 = caloNav.offsetIPhi(iPhi, -3);
+
+      //std::cout<<"Merging: second pass. Cluster eta="<<mainCluster.hwEta()<<", phi="<<mainCluster.hwPhi()<<", E="<<mainCluster.hwPt()<<"\n";
+
+      const l1t::CaloCluster& clusterN2  = l1t::CaloTools::getCluster(tmpClusters, iEta, iPhiM2);
+      const l1t::CaloCluster& clusterN3  = l1t::CaloTools::getCluster(tmpClusters, iEta, iPhiM3);
+      const l1t::CaloCluster& clusterN2W = l1t::CaloTools::getCluster(tmpClusters, iEtaM, iPhiM2);
+      const l1t::CaloCluster& clusterN2E = l1t::CaloTools::getCluster(tmpClusters, iEtaP, iPhiM2);
+      const l1t::CaloCluster& clusterS2  = l1t::CaloTools::getCluster(tmpClusters, iEta, iPhiP2);
+      const l1t::CaloCluster& clusterS3  = l1t::CaloTools::getCluster(tmpClusters, iEta, iPhiP3);
+      const l1t::CaloCluster& clusterS2W = l1t::CaloTools::getCluster(tmpClusters, iEtaM, iPhiP2);
+      const l1t::CaloCluster& clusterS2E = l1t::CaloTools::getCluster(tmpClusters, iEtaP, iPhiP2);
+
+      std::list<l1t::CaloCluster> satellites;
+      if(clusterN2 .isValid()) satellites.push_back(clusterN2);
+      if(clusterN3 .isValid()) satellites.push_back(clusterN3);
+      if(clusterN2W.isValid()) satellites.push_back(clusterN2W);
+      if(clusterN2E.isValid()) satellites.push_back(clusterN2E);
+      if(clusterS2 .isValid()) satellites.push_back(clusterS2);
+      if(clusterS3 .isValid()) satellites.push_back(clusterS3);
+      if(clusterS2W.isValid()) satellites.push_back(clusterS2W);
+      if(clusterS2E.isValid()) satellites.push_back(clusterS2E);
+
+      // neighbour exists
+      if(satellites.size()>0) {
+        satellites.sort();
+        const l1t::CaloCluster& secondaryCluster = satellites.back();
+        // this is the most energetic cluster
+        // merge with the secondary cluster if it is not merged to an other one
         if(mainCluster>secondaryCluster) {
-          math::XYZTLorentzVector p4;
-          l1t::Tau tau( p4, mainCluster.hwPt()+secondaryCluster.hwPt(), mainCluster.hwEta(), mainCluster.hwPhi(), 0);
-          taus.push_back(tau);
+          bool canBeMerged = true;
+          bool mergeUp = (secondaryCluster.hwPhi()==iPhiM2 || secondaryCluster.hwPhi()==iPhiM3);
+          bool mergeLeft = (secondaryCluster.hwEta()==iEtaM);
+          bool mergeRight = (secondaryCluster.hwEta()==iEtaP);
+
+          if(mergeUp && !secondaryCluster.checkClusterFlag(CaloCluster::MERGE_UPDOWN)) canBeMerged = false;
+          //std::cout<<"  "<<(mergeUp && !secondaryCluster.checkClusterFlag(CaloCluster::MERGE_UPDOWN));
+          if(!mergeUp && secondaryCluster.checkClusterFlag(CaloCluster::MERGE_UPDOWN)) canBeMerged = false;
+          //std::cout<<"  "<<(!mergeUp && secondaryCluster.checkClusterFlag(CaloCluster::MERGE_UPDOWN));
+          if(mergeLeft && !secondaryCluster.checkClusterFlag(CaloCluster::MERGE_LEFTRIGHT)) canBeMerged = false;
+          //std::cout<<"  "<<(mergeLeft && !secondaryCluster.checkClusterFlag(CaloCluster::MERGE_LEFTRIGHT));
+          if(mergeRight && secondaryCluster.checkClusterFlag(CaloCluster::MERGE_LEFTRIGHT)) canBeMerged = false;
+          //std::cout<<"  "<<(mergeRight && secondaryCluster.checkClusterFlag(CaloCluster::MERGE_LEFTRIGHT))<<"\n";
+          if(canBeMerged) {
+            math::XYZTLorentzVector p4;
+            l1t::Tau tau( p4, mainCluster.hwPt()+secondaryCluster.hwPt(), mainCluster.hwEta(), mainCluster.hwPhi(), 0);
+            taus.push_back(tau);
+            //std::cout<<"   Make tau, Merging cluster eta="<<secondaryCluster.hwEta()<<", phi="<<secondaryCluster.hwPhi()<<", E="<<secondaryCluster.hwPt()<<"\n";
+          }
+          else {
+            math::XYZTLorentzVector p4;
+            l1t::Tau tau( p4, mainCluster.hwPt(), mainCluster.hwEta(), mainCluster.hwPhi(), 0);
+            taus.push_back(tau);
+            //std::cout<<"   Make tau, No merging\n";
+          }
+        }
+        else {
+          bool canBeKept = false;
+          bool mergeUp = (secondaryCluster.hwPhi()==iPhiM2 || secondaryCluster.hwPhi()==iPhiM3);
+          bool mergeLeft = (secondaryCluster.hwEta()==iEtaM);
+          bool mergeRight = (secondaryCluster.hwEta()==iEtaP);
+
+          if(mergeUp && !secondaryCluster.checkClusterFlag(CaloCluster::MERGE_UPDOWN)) canBeKept = true;
+          //std::cout<<"  "<<(mergeUp && !secondaryCluster.checkClusterFlag(CaloCluster::MERGE_UPDOWN));
+          if(!mergeUp && secondaryCluster.checkClusterFlag(CaloCluster::MERGE_UPDOWN)) canBeKept = true;
+          //std::cout<<"  "<<(!mergeUp && secondaryCluster.checkClusterFlag(CaloCluster::MERGE_UPDOWN));
+          if(mergeLeft && !secondaryCluster.checkClusterFlag(CaloCluster::MERGE_LEFTRIGHT)) canBeKept = true;
+          //std::cout<<"  "<<(mergeLeft && !secondaryCluster.checkClusterFlag(CaloCluster::MERGE_LEFTRIGHT));
+          if(mergeRight && secondaryCluster.checkClusterFlag(CaloCluster::MERGE_LEFTRIGHT)) canBeKept = true;
+          //std::cout<<"  "<<(mergeRight && secondaryCluster.checkClusterFlag(CaloCluster::MERGE_LEFTRIGHT))<<"\n";
+          if(canBeKept) {
+            math::XYZTLorentzVector p4;
+            l1t::Tau tau( p4, mainCluster.hwPt(), mainCluster.hwEta(), mainCluster.hwPhi(), 0);
+            taus.push_back(tau);
+            //std::cout<<"   Make tau, No merging\n";
+          }
         }
       }
       else {
         math::XYZTLorentzVector p4;
         l1t::Tau tau( p4, mainCluster.hwPt(), mainCluster.hwEta(), mainCluster.hwPhi(), 0);
         taus.push_back(tau);
+        //std::cout<<"   Make tau, No merging\n";
       }
     }
   }

@@ -532,6 +532,19 @@ void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::refining(const std::vector<l
       if(cluster.checkClusterFlag(CaloCluster::EXT_UP))  cluster.setHwPt(cluster.hwPt() + towerEtNN);
       if(cluster.checkClusterFlag(CaloCluster::EXT_DOWN))cluster.setHwPt(cluster.hwPt() + towerEtSS);
 
+      // Recompute tower energies based on trimming and extension flags
+      // Used to compute the fine-grain position
+      towerEtNW = (cluster.checkClusterFlag(CaloCluster::TRIM_NW)   ? towerEtNW : 0);
+      towerEtN  = (cluster.checkClusterFlag(CaloCluster::TRIM_N)    ? towerEtN  : 0);
+      towerEtNE = (cluster.checkClusterFlag(CaloCluster::TRIM_NE)   ? towerEtNE : 0);
+      towerEtE  = (cluster.checkClusterFlag(CaloCluster::TRIM_E)    ? towerEtE  : 0);
+      towerEtSE = (cluster.checkClusterFlag(CaloCluster::TRIM_SE)   ? towerEtSE : 0);
+      towerEtS  = (cluster.checkClusterFlag(CaloCluster::TRIM_S)    ? towerEtS  : 0);
+      towerEtSW = (cluster.checkClusterFlag(CaloCluster::TRIM_SW)   ? towerEtSW : 0);
+      towerEtW  = (cluster.checkClusterFlag(CaloCluster::TRIM_W)    ? towerEtW  : 0);
+      towerEtNN = (!cluster.checkClusterFlag(CaloCluster::EXT_UP)   ? towerEtNN : 0);
+      towerEtSS = (!cluster.checkClusterFlag(CaloCluster::EXT_DOWN) ? towerEtSS : 0);
+
       // Compute fine-grain position
       int fgEta = 0;
       int fgPhi = 0;

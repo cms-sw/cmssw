@@ -139,7 +139,7 @@ float l1t::CaloTools::towerPhi(int ieta, int iphi)
 float l1t::CaloTools::towerEtaSize(int ieta)
 {
   std::pair<float,float> bounds = towerEtaBounds(ieta);
-  float size = (bounds.second-bounds.first)/2.;
+  float size = (bounds.second-bounds.first);
   return size;
 }
 
