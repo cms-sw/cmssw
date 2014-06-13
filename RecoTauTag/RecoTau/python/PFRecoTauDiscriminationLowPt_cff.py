@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
-from  RecoTauTag.RecoTau.PFRecoTauDiscriminationByTrackIsolation_cfi  import pfRecoTauDiscriminationByTrackIsolation
+from RecoTauTag.RecoTau.PFRecoTauDiscriminationByTrackIsolation_cfi  import pfRecoTauDiscriminationByTrackIsolation
+from RecoTauTag.RecoTau.PFTauDiscriminatorLogicalAndProducer_cfi import PFTauDiscriminatorLogicalAndProducer
+
 lowptpfTauDiscrByTrackIsolation = pfRecoTauDiscriminationByTrackIsolation.clone()
 lowptpfTauDiscrByTrackIsolation.PFTauProducer  = cms.InputTag('pfLayer0Taus')
 lowptpfTauDiscrByTrackIsolation.Prediscriminants.leadTrack.Producer = cms.InputTag('fixedConePFTauDiscriminationByLeadingTrackFinding')
@@ -25,8 +27,7 @@ pfRecoTauByCharge.PFTauProducer  = cms.InputTag('pfLayer0Taus')
 pfRecoTauByCharge.ApplyOneOrThreeProngCut                    = cms.bool(True)
 
 
-DiscrLowPtTau = cms.EDProducer(
-    "PFTauDiscriminatorLogicalAndProducer",
+DiscrLowPtTau = PFTauDiscriminatorLogicalAndProducer.clone(
     PFTauProducer = cms.InputTag('pfLayer0Taus'),
     Prediscriminants = cms.PSet(
     BooleanOperator = cms.string("and"),

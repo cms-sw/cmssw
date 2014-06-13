@@ -88,7 +88,7 @@ private:
   Worker::~Worker() {
   }
 
-  void Worker::setActivityRegistry(boost::shared_ptr<ActivityRegistry> areg) {
+  void Worker::setActivityRegistry(std::shared_ptr<ActivityRegistry> areg) {
     actReg_ = areg;
   }
 

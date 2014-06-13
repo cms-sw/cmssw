@@ -15,15 +15,15 @@
 
 namespace edm {
   
-  WorkerRegistry::WorkerRegistry(boost::shared_ptr<ActivityRegistry> areg) :
+  WorkerRegistry::WorkerRegistry(std::shared_ptr<ActivityRegistry> areg) :
     modRegistry_(new ModuleRegistry),
     m_workerMap(),
     actReg_(areg)
   {
   }
   
-  WorkerRegistry::WorkerRegistry(boost::shared_ptr<ActivityRegistry> areg,
-                                 boost::shared_ptr<ModuleRegistry> modReg):
+  WorkerRegistry::WorkerRegistry(std::shared_ptr<ActivityRegistry> areg,
+                                 std::shared_ptr<ModuleRegistry> modReg):
   modRegistry_(modReg),
   m_workerMap(),
   actReg_(areg)

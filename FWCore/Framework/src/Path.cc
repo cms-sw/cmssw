@@ -14,7 +14,7 @@ namespace edm {
              WorkersInPath const& workers,
              TrigResPtr trptr,
              ExceptionToActionTable const& actions,
-             boost::shared_ptr<ActivityRegistry> areg,
+             std::shared_ptr<ActivityRegistry> areg,
              StreamContext const* streamContext,
              PathContext::PathType pathType) :
     stopwatch_(),

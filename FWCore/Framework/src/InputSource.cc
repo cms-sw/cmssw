@@ -44,8 +44,8 @@ namespace edm {
           return (lastDigit == 1 ? st : (lastDigit == 2 ? nd : rd));
         }
         template <typename T>
-        boost::shared_ptr<T> createSharedPtrToStatic(T* ptr) {
-          return boost::shared_ptr<T>(ptr, do_nothing_deleter());
+        std::shared_ptr<T> createSharedPtrToStatic(T* ptr) {
+          return std::shared_ptr<T>(ptr, do_nothing_deleter());
         }
   }
 
@@ -228,15 +228,15 @@ namespace edm {
     return state_;
   }
 
-  boost::shared_ptr<LuminosityBlockAuxiliary>
+  std::shared_ptr<LuminosityBlockAuxiliary>
   InputSource::readLuminosityBlockAuxiliary() {
-    return callWithTryCatchAndPrint<boost::shared_ptr<LuminosityBlockAuxiliary> >( [this](){ return readLuminosityBlockAuxiliary_(); },
+    return callWithTryCatchAndPrint<std::shared_ptr<LuminosityBlockAuxiliary> >( [this](){ return readLuminosityBlockAuxiliary_(); },
                                                                                    "Calling InputSource::readLuminosityBlockAuxiliary_" );
   }
 
-  boost::shared_ptr<RunAuxiliary>
+  std::shared_ptr<RunAuxiliary>
   InputSource::readRunAuxiliary() {
-    return callWithTryCatchAndPrint<boost::shared_ptr<RunAuxiliary> >( [this](){ return readRunAuxiliary_(); },
+    return callWithTryCatchAndPrint<std::shared_ptr<RunAuxiliary> >( [this](){ return readRunAuxiliary_(); },
                                                                        "Calling InputSource::readRunAuxiliary_" );
   }
 
@@ -518,7 +518,7 @@ namespace edm {
   }
 
   void
-  InputSource::doPostForkReacquireResources(boost::shared_ptr<multicore::MessageReceiverForSource> iReceiver) {
+  InputSource::doPostForkReacquireResources(std::shared_ptr<multicore::MessageReceiverForSource> iReceiver) {
     callWithTryCatchAndPrint<void>( [this, &iReceiver](){ postForkReacquireResources(iReceiver); },
                                     "Calling InputSource::postForkReacquireResources" );
   }
@@ -563,7 +563,7 @@ namespace edm {
   InputSource::preForkReleaseResources() {}
 
   void
-  InputSource::postForkReacquireResources(boost::shared_ptr<multicore::MessageReceiverForSource> iReceiver) {
+  InputSource::postForkReacquireResources(std::shared_ptr<multicore::MessageReceiverForSource> iReceiver) {
     receiver_ = iReceiver;
     receiver_->receive();
     numberOfEventsBeforeBigSkip_ = receiver_->numberOfConsecutiveIndices();

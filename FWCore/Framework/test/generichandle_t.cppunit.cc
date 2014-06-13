@@ -83,14 +83,14 @@ void testGenericHandle::failgetbyLabelTest() {
   edm::Timestamp time;
   std::string uuid = edm::createGlobalIdentifier();
   edm::ProcessConfiguration pc("PROD", edm::ParameterSetID(), edm::getReleaseVersion(), edm::getPassID());
-  boost::shared_ptr<edm::ProductRegistry> preg(new edm::ProductRegistry);
+  auto preg = std::make_shared<edm::ProductRegistry>();
   preg->setFrozen();
-  boost::shared_ptr<edm::RunAuxiliary> runAux(new edm::RunAuxiliary(id.run(), time, time));
-  boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, preg, pc, &historyAppender_,0));
-  boost::shared_ptr<edm::LuminosityBlockAuxiliary> lumiAux(new edm::LuminosityBlockAuxiliary(rp->run(), 1, time, time));
-  boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, preg, pc, &historyAppender_,0));
+  auto runAux = std::make_shared<edm::RunAuxiliary>(id.run(), time, time);
+  auto rp = std::make_shared<edm::RunPrincipal>(runAux, preg, pc, &historyAppender_,0);
+  auto lumiAux = std::make_shared<edm::LuminosityBlockAuxiliary>(rp->run(), 1, time, time);
+  auto lbp = std::make_shared<edm::LuminosityBlockPrincipal>(lumiAux, preg, pc, &historyAppender_,0);
   lbp->setRunPrincipal(rp);
-  boost::shared_ptr<edm::BranchIDListHelper> branchIDListHelper(new edm::BranchIDListHelper());
+  auto branchIDListHelper = std::make_shared<edm::BranchIDListHelper>();
   branchIDListHelper->updateFromRegistry(*preg);
   edm::EventAuxiliary eventAux(id, uuid, time, true);
   edm::EventPrincipal ep(preg, branchIDListHelper, pc, &historyAppender_,edm::StreamID::invalidStreamID());
@@ -142,8 +142,7 @@ void testGenericHandle::getbyLabelTest() {
 
   edm::ParameterSet dummyProcessPset;
   dummyProcessPset.registerIt();
-  boost::shared_ptr<edm::ProcessConfiguration> processConfiguration(
-    new edm::ProcessConfiguration());
+  auto processConfiguration = std::make_shared<edm::ProcessConfiguration>();
   processConfiguration->setParameterSetID(dummyProcessPset.id());
 
   edm::ParameterSet pset;
@@ -165,7 +164,7 @@ void testGenericHandle::getbyLabelTest() {
   std::unique_ptr<edm::ProductRegistry> preg(new edm::ProductRegistry);
   preg->addProduct(product);
   preg->setFrozen();
-  boost::shared_ptr<edm::BranchIDListHelper> branchIDListHelper(new edm::BranchIDListHelper());
+  auto branchIDListHelper = std::make_shared<edm::BranchIDListHelper>();
   branchIDListHelper->updateFromRegistry(*preg);
 
   edm::ProductRegistry::ProductList const& pl = preg->productList();
@@ -176,11 +175,11 @@ void testGenericHandle::getbyLabelTest() {
   edm::Timestamp fakeTime;
   std::string uuid = edm::createGlobalIdentifier();
   edm::ProcessConfiguration pc("PROD", dummyProcessPset.id(), edm::getReleaseVersion(), edm::getPassID());
-  boost::shared_ptr<edm::ProductRegistry const> pregc(preg.release());
-  boost::shared_ptr<edm::RunAuxiliary> runAux(new edm::RunAuxiliary(col.run(), fakeTime, fakeTime));
-  boost::shared_ptr<edm::RunPrincipal> rp(new edm::RunPrincipal(runAux, pregc, pc, &historyAppender_,0));
-  boost::shared_ptr<edm::LuminosityBlockAuxiliary> lumiAux(new edm::LuminosityBlockAuxiliary(rp->run(), 1, fakeTime, fakeTime));
-  boost::shared_ptr<edm::LuminosityBlockPrincipal>lbp(new edm::LuminosityBlockPrincipal(lumiAux, pregc, pc, &historyAppender_,0));
+  std::shared_ptr<edm::ProductRegistry const> pregc(preg.release());
+  auto runAux = std::make_shared<edm::RunAuxiliary>(col.run(), fakeTime, fakeTime);
+  auto rp = std::make_shared<edm::RunPrincipal>(runAux, pregc, pc, &historyAppender_,0);
+  auto lumiAux = std::make_shared<edm::LuminosityBlockAuxiliary>(rp->run(), 1, fakeTime, fakeTime);
+  auto lbp = std::make_shared<edm::LuminosityBlockPrincipal>(lumiAux, pregc, pc, &historyAppender_,0);
   lbp->setRunPrincipal(rp);
   edm::EventAuxiliary eventAux(col, uuid, fakeTime, true);
   edm::EventPrincipal ep(pregc, branchIDListHelper, pc, &historyAppender_,edm::StreamID::invalidStreamID());
@@ -188,7 +187,7 @@ void testGenericHandle::getbyLabelTest() {
   ep.fillEventPrincipal(eventAux, phr);
   ep.setLuminosityBlockPrincipal(lbp);
   edm::BranchDescription const& branchFromRegistry = it->second;
-  boost::shared_ptr<edm::Parentage> entryDescriptionPtr(new edm::Parentage);
+  auto entryDescriptionPtr = std::make_shared<edm::Parentage>();
   edm::ProductProvenance prov(branchFromRegistry.branchID(), entryDescriptionPtr);
   edm::BranchDescription const desc(branchFromRegistry);
   ep.put(desc, pprod, prov);
@@ -197,8 +196,7 @@ void testGenericHandle::getbyLabelTest() {
   try {
     edm::ParameterSet dummyProcessPset;
     dummyProcessPset.registerIt();
-    boost::shared_ptr<edm::ProcessConfiguration> processConfiguration(
-      new edm::ProcessConfiguration());
+    auto processConfiguration = std::make_shared<edm::ProcessConfiguration>();
     processConfiguration->setParameterSetID(dummyProcessPset.id());
 
     edm::ParameterSet pset;

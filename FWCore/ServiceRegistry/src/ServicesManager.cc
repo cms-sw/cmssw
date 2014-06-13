@@ -40,7 +40,7 @@
 namespace edm {
    namespace serviceregistry {
 
-      ServicesManager::MakerHolder::MakerHolder(boost::shared_ptr<ServiceMakerBase> iMaker,
+      ServicesManager::MakerHolder::MakerHolder(std::shared_ptr<ServiceMakerBase> iMaker,
                                                 ParameterSet& iPSet,
                                                 ActivityRegistry& iRegistry) :
       maker_(iMaker),
@@ -78,7 +78,7 @@ namespace edm {
                                        ServiceLegacy iLegacy,
                                        std::vector<ParameterSet>& iConfiguration,
                                        bool associate) :
-            associatedManager_(associate ? iToken.manager_ : boost::shared_ptr<ServicesManager>()),
+            associatedManager_(associate ? iToken.manager_ : std::shared_ptr<ServicesManager>()),
             type2Maker_(new Type2Maker) {
          fillListOfMakers(iConfiguration);
 
@@ -237,7 +237,7 @@ namespace edm {
               itParamEnd = iConfiguration.end();
               itParam != itParamEnd;
               ++itParam) {
-            boost::shared_ptr<ServiceMakerBase> base(ServicePluginFactory::get()->create(itParam->getParameter<std::string>("@service_type")));
+            std::shared_ptr<ServiceMakerBase> base(ServicePluginFactory::get()->create(itParam->getParameter<std::string>("@service_type")));
 
             if(0 == base.get()) {
                throw Exception(errors::Configuration, "Service")
@@ -271,7 +271,7 @@ namespace edm {
       ServicesManager::createServices() {
 
          //create a shared_ptr of 'this' that will not delete us
-         boost::shared_ptr<ServicesManager> shareThis(this, NoOp());
+         std::shared_ptr<ServicesManager> shareThis(this, NoOp());
 
          ServiceToken token(shareThis);
 
