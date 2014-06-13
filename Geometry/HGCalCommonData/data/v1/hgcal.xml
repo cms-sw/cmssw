@@ -30,7 +30,7 @@
   <Constant name="rMaxEEMax"  value="([rMaxHGCal1]+[slope2]*([zMaxEE]-[zHGCal1]))"/>
   <Constant name="rMaxHEMin"  value="([rMaxHGCal1]+[slope2]*([zMinHE]-[zHGCal1]))"/>
   <Constant name="rMaxHEMax"  value="[rMaxHGCal3]"/>
-  <Constant name="factor1"    value="cos(2.5*deg)"/>
+  <Constant name="factor1"    value="cos(10*deg)"/>
   <Constant name="factor2"    value="cos(10*deg)"/>
   <Constant name="rMapHGCal1" value="[rMaxHGCal1]*[factor1]"/>
   <Constant name="rMapHGCal2" value="[rMaxHGCal2]*[factor1]"/>
@@ -50,7 +50,7 @@
     <ZSection z="[zHGCal3]" rMin="[rMinHGCal3]" rMax="[rMaxHGCal3]"/>
     <ZSection z="[zHGCal5]" rMin="[rMinHGCal5]" rMax="[rMaxHGCal3]"/>
   </Polycone>
-  <Polyhedra name="HGCalEE" numSide="72" startPhi="357.5*deg" deltaPhi="360*deg">
+  <Polyhedra name="HGCalEE" numSide="18" startPhi="350*deg" deltaPhi="360*deg">
     <ZSection z="[zMinEE]" rMin="[rMinEEMin]" rMax="[rMapEEMin]"/>
     <ZSection z="[zMaxEE]" rMin="[rMinEEMax]" rMax="[rMapEEMax]"/>
   </Polyhedra>

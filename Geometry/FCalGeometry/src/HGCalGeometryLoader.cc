@@ -21,7 +21,8 @@ HGCalGeometry* HGCalGeometryLoader::build (const HGCalTopology& topology) {
   HGCalGeometry* geom = new HGCalGeometry (topology);
   unsigned int numberOfCells = topology.totalGeomModules(); // both sides
 #ifdef DebugLog
-  std::cout << "Number of Cells " << numberOfCells << " Shape parameters "
+  std::cout << "Number of Cells " << numberOfCells << " for sub-detector "
+	    << topology.subDetector() << " Shape parameters "
 	    << HGCalGeometry::k_NumberOfShapes << ":" 
 	    << HGCalGeometry::k_NumberOfParametersPerShape << std::endl;
 #endif
@@ -54,7 +55,7 @@ HGCalGeometry* HGCalGeometryLoader::build (const HGCalTopology& topology) {
     for (volItr = topology.dddConstants().getFirstModule(true);
 	 volItr != topology.dddConstants().getLastModule(true); ++volItr) {
       if (volItr->lay == layer) {
-	double alpha = ((detType & subSec == 0) ? -fabs(volItr->alpha) :
+	double alpha = ((detType && subSec == 0) ? -fabs(volItr->alpha) :
 			fabs(volItr->alpha));
 	params[0] = volItr->dz;
 	params[1] = params[2] = 0;
