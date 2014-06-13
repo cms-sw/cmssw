@@ -23,7 +23,7 @@ void CSCTMBHeader2007::setEventInformation(const CSCDMBHeader & dmbHeader)
 {
     bits.cscID = dmbHeader.dmbID();
     bits.l1aNumber = dmbHeader.l1a();
-    bits.bxnCount = dmbHeader.bxn();
+//    bits.bxnCount = dmbHeader.bxn();
 }
 
  ///returns CLCT digis
@@ -113,6 +113,7 @@ CSCTMBHeader2007::addCLCT0(const CSCCLCTDigi & digi)
   bits.clct0_cfeb_high = (cfeb>>1);
   bits.clct0_bxn = digi.getBX();
   bits.bxnPreTrigger = digi.getFullBX();
+  bits.bxnCount = (digi.getFullBX() + 167) & 0xFFF;
 }
 
 void
