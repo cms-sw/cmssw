@@ -32,6 +32,7 @@ public:
   }
   virtual uint16_t NTBins() const = 0;
   virtual uint16_t NCFEBs() const = 0;
+  virtual void setNCFEBs(uint16_t ncfebs) = 0;
   virtual uint16_t firmwareRevision() const = 0;
   ///returns CLCT digis
   virtual std::vector<CSCCLCTDigi> CLCTDigis(uint32_t idlayer) = 0;
