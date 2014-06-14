@@ -828,6 +828,16 @@ step1FastUpg2015Defaults =merge([{'-s':'GEN,SIM,RECO,EI,HLT:@relval,VALIDATION',
                            '--datatier':'GEN-SIM-DIGI-RECO,DQMIO',
                            '--relval':'27000,3000'},
                            step1Defaults])
+step1FastPUNewMixing =merge([{'-s':'GEN,SIM,RECO',
+                           '--fast':'',
+                           '--conditions'  :'auto:run2_mc',
+                           '--magField'    :'38T_PostLS1',
+                           '--customise'   :'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
+                           '--eventcontent':'FASTPU',
+                           '--datatier':'GEN-SIM-RECO',
+                           '--relval':'27000,3000'},
+                           step1Defaults])
+
 
 #step1FastDefaults
 steps['TTbarFS']=merge([{'cfg':'TTbar_Tauola_8TeV_cfi'},Kby(100,1000),step1FastDefaults])
@@ -855,6 +865,9 @@ steps['QCD_Pt_3000_3500FS_13']=merge([{'cfg':'QCD_Pt_3000_3500_13TeV_cfi'},Kby(1
 steps['H130GGgluonfusionFS_13']=merge([{'cfg':'H130GGgluonfusion_13TeV_cfi'},step1FastUpg2015Defaults])
 steps['SingleMuPt10FS_UP15']=merge([{'cfg':'SingleMuPt10_cfi'},step1FastUpg2015Defaults])
 steps['SingleMuPt100FS_UP15']=merge([{'cfg':'SingleMuPt100_cfi'},step1FastUpg2015Defaults])
+
+#step1FastPU
+steps['MinBiasFS_13_ForMixing']=merge([{'cfg':'MinBias_13TeV_cfi'},Kby(100,1000),step1FastPUNewMixing])
 
 steps['TTbarSFS']=merge([{'cfg':'TTbar_Tauola_8TeV_cfi'},
                         {'-s':'GEN,SIM',
