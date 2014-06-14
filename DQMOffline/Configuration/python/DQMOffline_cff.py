@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from DQMServices.Components.DQMMessageLogger_cfi import *
 from DQMServices.Components.DQMDcsInfo_cfi import *
 from DQMServices.Components.DQMFastTimerService_cff import *
+from DQMServices.Components.DQMFastTimerServiceLuminosity_cfi import *
 
 from DQMOffline.Ecal.ecal_dqm_source_offline_cff import *
 from DQM.HcalMonitorModule.hcal_dqm_source_fileT0_cff import *
@@ -74,6 +75,7 @@ DQMOfflinePhysics = cms.Sequence( dqmPhysics )
 
 
 DQMOfflineCommon = cms.Sequence( dqmDcsInfo *
+                                 dqmFastTimerServiceLuminosity *
                                  DQMMessageLogger *
                                  SiStripDQMTier0Common *
                                  TrackingDQMSourceTier0Common *
