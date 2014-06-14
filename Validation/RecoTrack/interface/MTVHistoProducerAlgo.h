@@ -44,14 +44,15 @@ class MTVHistoProducerAlgo{
 						   const TrackingParticle::Vector& momentumTP, const TrackingParticle::Point& vertexTP,
 						   double dxy, double dz, int nSimHits,
 						   const reco::Track* track,
-						   int numVertices, double vertz, double dR)=0;
+						   int numVertices, //double vertz, 
+						   double dR)=0;
 
   virtual void fill_recoAssociated_simTrack_histos(int count,
 						   const reco::GenParticle& tp,
 						   const TrackingParticle::Vector & momentumTP, const TrackingParticle::Point & vertexTP,
 						   double dxy, double dz, int nSimHits,
 						   const reco::Track* track,
-						   int numVertices, double vertz)=0;
+						   int numVertices/*, double vertz*/)=0;
 
   virtual void fill_generic_recoTrack_histos(int count,
 				     	     const reco::Track& track,
@@ -61,7 +62,7 @@ class MTVHistoProducerAlgo{
 				     	     bool isChargeMatched,
 					     int numAssocRecoTracks,
                          	             int numVertices,
-                         		     int tpbunchcrossing,
+                         		     //int tpbunchcrossing,
 				             int nSimHits,
    					     double sharedFraction, double dR)=0;
 

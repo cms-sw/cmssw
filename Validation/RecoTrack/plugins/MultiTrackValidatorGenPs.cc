@@ -238,7 +238,7 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
 	*/
         int nSimHits = 0;
 
-        double vtx_z_PU = vertexTP.z();
+        //double vtx_z_PU = vertexTP.z();
 	/*
         for (size_t j = 0; j < tv.size(); j++) {
             if (tp->eventId().event() == tv[j].eventId().event()) {
@@ -248,7 +248,7 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
         }
 	*/
 
-	histoProducerAlgo_->fill_recoAssociated_simTrack_histos(w,*tp,momentumTP,vertexTP,dxyGen,dzGen,nSimHits,matchedTrackPointer,puinfo.getPU_NumInteractions(), vtx_z_PU);
+	histoProducerAlgo_->fill_recoAssociated_simTrack_histos(w,*tp,momentumTP,vertexTP,dxyGen,dzGen,nSimHits,matchedTrackPointer,puinfo.getPU_NumInteractions()/*, vtx_z_PU*/);
 
 	sts++;
 	if (matchedTrackPointer) asts++;
@@ -306,7 +306,7 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
 	bool isGenMatched(false);
 	bool isChargeMatched(true);
 	int numAssocRecoTracks = 0;
-        int tpbx = 0;
+        //int tpbx = 0;
 	int nSimHits = 0;
 	double sharedFraction = 0.;
 	std::vector<std::pair<GenParticleRef, double> > tp;
@@ -345,8 +345,8 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
 	}
 	
 
-	double dR=0;//fxime
-	histoProducerAlgo_->fill_generic_recoTrack_histos(w,*track,bs.position(),isGenMatched,isSigGenMatched, isChargeMatched, numAssocRecoTracks, puinfo.getPU_NumInteractions(), tpbx, nSimHits, sharedFraction,dR);
+	double dR=0;//fixme
+	histoProducerAlgo_->fill_generic_recoTrack_histos(w,*track,bs.position(),isGenMatched,isSigGenMatched, isChargeMatched, numAssocRecoTracks, puinfo.getPU_NumInteractions(), /*tpbx,*/ nSimHits, sharedFraction,dR);
 
 	// dE/dx
 	//	reco::TrackRef track2  = reco::TrackRef( trackCollection, i );

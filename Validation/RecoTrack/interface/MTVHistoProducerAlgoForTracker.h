@@ -45,14 +45,15 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
 					   const TrackingParticle::Vector& momentumTP, const TrackingParticle::Point& vertexTP,
 					   double dxy, double dz, int nSimHits,
 					   const reco::Track* track,
-					   int numVertices, double vertz, double dR);
+					   int numVertices, //double vertz, 
+					   double dR);
 
   void fill_recoAssociated_simTrack_histos(int count,
 					   const reco::GenParticle& tp,
 					   const TrackingParticle::Vector& momentumTP, const TrackingParticle::Point& vertexTP,
 					   double dxy, double dz, int nSimHits,
 					   const reco::Track* track,
-					   int numVertices, double vertz);
+					   int numVertices/*, double vertz*/);
 
 
   void fill_generic_recoTrack_histos(int count,
@@ -63,7 +64,7 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
 				     bool isChargeMatched,
 				     int numAssocRecoTracks,
 				     int numVertices,
-				     int tpbunchcrossing,
+				     //int tpbunchcrossing,
 				     int nSimHits,
 				     double sharedFraction,
 				     double dR);
@@ -112,7 +113,7 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
   //private data members
   TrackingParticleSelector* generalTpSelector;
   TrackingParticleSelector* TpSelectorForEfficiencyVsEta;
-  TrackingParticleSelector* TpSelectorForEfficiencyVsCon;
+  //TrackingParticleSelector* TpSelectorForEfficiencyVsCon;
   TrackingParticleSelector* TpSelectorForEfficiencyVsPhi;
   TrackingParticleSelector* TpSelectorForEfficiencyVsPt;
   TrackingParticleSelector* TpSelectorForEfficiencyVsVTXR;
@@ -120,7 +121,7 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
 
   GenParticleCustomSelector* generalGpSelector;
   GenParticleCustomSelector* GpSelectorForEfficiencyVsEta;
-  GenParticleCustomSelector* GpSelectorForEfficiencyVsCon;
+  //GenParticleCustomSelector* GpSelectorForEfficiencyVsCon;
   GenParticleCustomSelector* GpSelectorForEfficiencyVsPhi;
   GenParticleCustomSelector* GpSelectorForEfficiencyVsPt;
   GenParticleCustomSelector* GpSelectorForEfficiencyVsVTXR;
@@ -129,6 +130,7 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
   double minEta, maxEta;  int nintEta;  bool useFabsEta;
   double minPt, maxPt;  int nintPt;   bool useInvPt;   bool useLogPt;
   double minHit, maxHit;  int nintHit;
+  double minPu, maxPu;  int nintPu;
   double minLayers, maxLayers;  int nintLayers;
   double minPhi, maxPhi;  int nintPhi;
   double minDxy, maxDxy;  int nintDxy;
@@ -155,6 +157,7 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
   std::vector<MonitorElement*> h_effic,  h_fakerate, h_recoeta, h_assoceta, h_assoc2eta, h_simuleta, h_loopereta, h_misideta, h_looprate, h_misidrate;
   std::vector<MonitorElement*> h_efficPt, h_fakeratePt, h_recopT, h_assocpT, h_assoc2pT, h_simulpT, h_looperpT, h_misidpT, h_loopratepT, h_misidratepT;
   std::vector<MonitorElement*> h_effic_vs_hit, h_fake_vs_hit, h_recohit, h_assochit, h_assoc2hit, h_simulhit, h_looperhit, h_misidhit, h_loopratehit, h_misidratehit;
+  std::vector<MonitorElement*> h_effic_vs_pu, h_fake_vs_pu, h_recopu, h_assocpu, h_assoc2pu, h_simulpu, h_looperpu, h_misidpu, h_loopratepu, h_misidratepu;
   std::vector<MonitorElement*> h_effic_vs_phi, h_fake_vs_phi, h_recophi, h_assocphi, h_assoc2phi, h_simulphi, h_looperphi, h_misidphi, h_loopratephi, h_misidratephi;
   std::vector<MonitorElement*> h_effic_vs_dxy, h_fake_vs_dxy, h_recodxy, h_assocdxy, h_assoc2dxy, h_simuldxy, h_looperdxy, h_misiddxy, h_loopratedxy, h_misidratedxy;
   std::vector<MonitorElement*> h_effic_vs_dz, h_fake_vs_dz, h_recodz, h_assocdz, h_assoc2dz, h_simuldz, h_looperdz, h_misiddz, h_loopratedz, h_misidratedz;
@@ -162,22 +165,22 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
   std::vector<MonitorElement*> h_effic_vs_vertpos, h_effic_vs_zpos, h_assocvertpos, h_simulvertpos, h_assoczpos, h_simulzpos;
   std::vector<MonitorElement*> h_effic_vs_dr, h_fakerate_vs_dr, h_assocdr, h_assoc2dr, h_simuldr, h_recodr;
   std::vector<MonitorElement*> h_pt, h_eta, h_pullTheta,h_pullPhi,h_pullDxy,h_pullDz,h_pullQoverp;
-  std::vector<MonitorElement*> h_effic_vertcount_entire,  h_fakerate_vertcount_entire, h_reco_vertcount_entire, h_assoc_vertcount_entire, h_assoc2_vertcount_entire, h_simul_vertcount_entire;
-  std::vector<MonitorElement*> h_effic_vertcount_barrel,  h_fakerate_vertcount_barrel, h_reco_vertcount_barrel, h_assoc_vertcount_barrel, h_assoc2_vertcount_barrel, h_simul_vertcount_barrel;
-  std::vector<MonitorElement*> h_effic_vertcount_fwdpos,  h_fakerate_vertcount_fwdpos, h_reco_vertcount_fwdpos, h_assoc_vertcount_fwdpos, h_assoc2_vertcount_fwdpos, h_simul_vertcount_fwdpos;
-  std::vector<MonitorElement*> h_effic_vertcount_fwdneg,  h_fakerate_vertcount_fwdneg, h_reco_vertcount_fwdneg, h_assoc_vertcount_fwdneg, h_assoc2_vertcount_fwdneg, h_simul_vertcount_fwdneg;
-  std::vector<MonitorElement*> h_effic_vertz_entire,  h_assoc_vertz_entire, h_simul_vertz_entire;
-  std::vector<MonitorElement*> h_effic_vertz_barrel,  h_assoc_vertz_barrel, h_simul_vertz_barrel;
-  std::vector<MonitorElement*> h_effic_vertz_fwdpos,  h_assoc_vertz_fwdpos, h_simul_vertz_fwdpos;
-  std::vector<MonitorElement*> h_effic_vertz_fwdneg,  h_assoc_vertz_fwdneg, h_simul_vertz_fwdneg;
+  //std::vector<MonitorElement*> h_effic_vertcount_entire,  h_fakerate_vertcount_entire, h_reco_vertcount_entire, h_assoc_vertcount_entire, h_assoc2_vertcount_entire, h_simul_vertcount_entire;
+  //std::vector<MonitorElement*> h_effic_vertcount_barrel,  h_fakerate_vertcount_barrel, h_reco_vertcount_barrel, h_assoc_vertcount_barrel, h_assoc2_vertcount_barrel, h_simul_vertcount_barrel;
+  //std::vector<MonitorElement*> h_effic_vertcount_fwdpos,  h_fakerate_vertcount_fwdpos, h_reco_vertcount_fwdpos, h_assoc_vertcount_fwdpos, h_assoc2_vertcount_fwdpos, h_simul_vertcount_fwdpos;
+  //std::vector<MonitorElement*> h_effic_vertcount_fwdneg,  h_fakerate_vertcount_fwdneg, h_reco_vertcount_fwdneg, h_assoc_vertcount_fwdneg, h_assoc2_vertcount_fwdneg, h_simul_vertcount_fwdneg;
+  //std::vector<MonitorElement*> h_effic_vertz_entire,  h_assoc_vertz_entire, h_simul_vertz_entire;
+  //std::vector<MonitorElement*> h_effic_vertz_barrel,  h_assoc_vertz_barrel, h_simul_vertz_barrel;
+  //std::vector<MonitorElement*> h_effic_vertz_fwdpos,  h_assoc_vertz_fwdpos, h_simul_vertz_fwdpos;
+  //std::vector<MonitorElement*> h_effic_vertz_fwdneg,  h_assoc_vertz_fwdneg, h_simul_vertz_fwdneg;
   std::vector<MonitorElement*> h_algo;
-  std::vector<MonitorElement*> h_fakerate_ootpu_entire, h_reco_ootpu_entire, h_assoc2_ootpu_entire;
-  std::vector<MonitorElement*> h_fakerate_ootpu_barrel, h_reco_ootpu_barrel, h_assoc2_ootpu_barrel;
-  std::vector<MonitorElement*> h_fakerate_ootpu_fwdpos, h_reco_ootpu_fwdpos, h_assoc2_ootpu_fwdpos;
-  std::vector<MonitorElement*> h_fakerate_ootpu_fwdneg, h_reco_ootpu_fwdneg, h_assoc2_ootpu_fwdneg;
-  std::vector<MonitorElement*> h_fomt_eta, h_fomt_sig_eta, h_fomt_vertcount, h_fomt_sig_vertcount;
-  std::vector<MonitorElement*> h_fomt_itpu_eta, h_fomt_sig_itpu_eta, h_fomt_itpu_vertcount, h_fomt_sig_itpu_vertcount;
-  std::vector<MonitorElement*> h_fomt_ootpu_eta, h_fomt_ootpu_vertcount;
+  //std::vector<MonitorElement*> h_fakerate_ootpu_entire, h_reco_ootpu_entire, h_assoc2_ootpu_entire;
+  //std::vector<MonitorElement*> h_fakerate_ootpu_barrel, h_reco_ootpu_barrel, h_assoc2_ootpu_barrel;
+  //std::vector<MonitorElement*> h_fakerate_ootpu_fwdpos, h_reco_ootpu_fwdpos, h_assoc2_ootpu_fwdpos;
+  //std::vector<MonitorElement*> h_fakerate_ootpu_fwdneg, h_reco_ootpu_fwdneg, h_assoc2_ootpu_fwdneg;
+  //std::vector<MonitorElement*> h_fomt_eta, h_fomt_sig_eta, h_fomt_vertcount, h_fomt_sig_vertcount;
+  //std::vector<MonitorElement*> h_fomt_itpu_eta, h_fomt_sig_itpu_eta, h_fomt_itpu_vertcount, h_fomt_sig_itpu_vertcount;
+  //std::vector<MonitorElement*> h_fomt_ootpu_eta, h_fomt_ootpu_vertcount;
   std::vector<MonitorElement*> h_assoc2_itpu_eta, h_assoc2_itpu_sig_eta, h_assoc2eta_sig;
   std::vector<MonitorElement*> h_assoc2_itpu_vertcount, h_assoc2_itpu_sig_vertcount;
   std::vector<MonitorElement*> h_assoc2_ootpu_eta, h_assoc2_ootpu_vertcount;
