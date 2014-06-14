@@ -11,7 +11,7 @@ filesRelValProdTTbarAODSIM = cms.untracked.vstring(
                         #, numberOfFiles = 1
                         #, useDAS        = True
                         #)
-        '/store/relval/CMSSW_7_0_0_pre11/RelValProdTTbar/AODSIM/START70_V4-v1/00000/D0516C65-766A-E311-B744-00259059642E.root'
+        '/store/relval/CMSSW_7_0_0_pre13//RelValProdTTbar/AODSIM/START70_V6-v1/00000/72A14013-0590-E311-9660-0025905A609A.root'
     )
 
 # /RelValProdTTbar/CMSSW_7_0_0_pre11-START70_V4-v1/GEN-SIM-RECO
@@ -24,7 +24,7 @@ filesRelValProdTTbarGENSIMRECO = cms.untracked.vstring(
                         #, numberOfFiles = 1
                         #, useDAS        = True
                         #)
-        '/store/relval/CMSSW_7_0_0_pre11/RelValProdTTbar/GEN-SIM-RECO/START70_V4-v1/00000/0EA82C3C-646A-E311-9CB3-0025905A6070.root'
+        '/store/relval/CMSSW_7_0_0_pre13//RelValProdTTbar/GEN-SIM-RECO/START70_V6-v1/00000/30F48FBB-FC8F-E311-BDCB-0025905964A6.root'
     )
 
 # /RelValTTbar_13/CMSSW_7_0_0_pre11-PU50ns_POSTLS162_V5-v1/GEN-SIM-RECO
