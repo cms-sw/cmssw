@@ -26,7 +26,6 @@ using edm::service::UnixSignalService;
 using edm::PrintEventSetupDataRetrieval;
 
 DEFINE_FWK_SERVICE(Tracer);
-DEFINE_FWK_SERVICE(Timing);
 DEFINE_FWK_SERVICE(CPU);
 DEFINE_FWK_SERVICE(PrintEventSetupDataRetrieval);
 
