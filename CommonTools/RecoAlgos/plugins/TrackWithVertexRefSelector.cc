@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
+#include "CommonTools/UtilAlgos/interface/ObjectSelectorStream.h"
 
 #include "CommonTools/UtilAlgos/interface/SingleElementCollectionSelectorPlusEvent.h"
 #include "CommonTools/RecoAlgos/interface/TrackWithVertexSelector.h"
@@ -7,7 +7,7 @@
 namespace reco { 
   namespace modules {
 
-typedef ObjectSelector<
+typedef ObjectSelectorStream<
   SingleElementCollectionSelectorPlusEvent<
           reco::TrackCollection,
           ::TrackWithVertexSelector,
