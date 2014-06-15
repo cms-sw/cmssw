@@ -31,10 +31,6 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::processEvent(const std::vector<l
 
   merging(clusters, taus);
 
-  for(auto itrTau=taus.begin();itrTau!=taus.end();itrTau++) {
-    l1t::Tau tau = *itrTau;
-
-  }
 }
 
 
