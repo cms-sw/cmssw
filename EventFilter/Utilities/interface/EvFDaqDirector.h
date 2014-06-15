@@ -6,13 +6,15 @@
 #include "DataFormats/Provenance/interface/RunID.h"
 
 #include "EventFilter/Utilities/interface/FFFNamingSchema.h"
-#include "DirManager.h"
+#include "EventFilter/Utilities/interface/DirManager.h"
 
 //std headers
 #include <string>
 #include <sstream>
 #include <iomanip>
 #include <vector>
+#include <list>
+#include <mutex>
 
 //system headers
 //#include <sys/types.h>
@@ -25,6 +27,9 @@
 class SystemBounds;
 class GlobalContext;
 class StreamID;
+
+class InputFile;
+class InputChunk;
 
 namespace evf{
 
@@ -41,6 +46,7 @@ namespace evf{
       void preallocate(edm::service::SystemBounds const& bounds);
       void preBeginRun(edm::GlobalContext const& globalContext);
       void postEndRun(edm::GlobalContext const& globalContext);
+      void preGlobalEndLumi(edm::GlobalContext const& globalContext);
       void preSourceEvent(edm::StreamID const& streamID);
       //std::string &baseDir(){return base_dir_;}
       std::string &baseRunDir(){return run_dir_;}
@@ -48,17 +54,26 @@ namespace evf{
       std::string &buBaseRunOpenDir(){return bu_run_open_dir_;}
 
       std::string findCurrentRunDir(){ return dirManager_.findRunDir(run_);}
+      std::string getInputJsonFilePath(const unsigned int ls, const unsigned int index) const;
       std::string getRawFilePath(const unsigned int ls, const unsigned int index) const;
       std::string getOpenRawFilePath(const unsigned int ls, const unsigned int index) const;
       std::string getOpenInputJsonFilePath(const unsigned int ls, const unsigned int index) const;
       std::string getOpenDatFilePath(const unsigned int ls, std::string const& stream) const;
+      std::string getOpenOutputJsonFilePath(const unsigned int ls, std::string const& stream) const;
       std::string getOutputJsonFilePath(const unsigned int ls, std::string const& stream) const;
       std::string getMergedDatFilePath(const unsigned int ls, std::string const& stream) const;
       std::string getInitFilePath(std::string const& stream) const;
+      std::string getOpenProtocolBufferHistogramFilePath(const unsigned int ls, std::string const& stream) const;
+      std::string getProtocolBufferHistogramFilePath(const unsigned int ls, std::string const& stream) const;
+      std::string getMergedProtocolBufferHistogramFilePath(const unsigned int ls, std::string const& stream) const;
+      std::string getOpenRootHistogramFilePath(const unsigned int ls, std::string const& stream) const;
+      std::string getRootHistogramFilePath(const unsigned int ls, std::string const& stream) const;
+      std::string getMergedRootHistogramFilePath(const unsigned int ls, std::string const& stream) const;
       std::string getEoLSFilePathOnBU(const unsigned int ls) const;
       std::string getEoLSFilePathOnFU(const unsigned int ls) const;
       std::string getEoRFilePath() const;
       std::string getEoRFilePathOnFU() const;
+      std::string getRunOpenDirPath() const {return run_dir_ +"/open";}
       void removeFile(unsigned int ls, unsigned int index);
       void removeFile(std::string );
 
@@ -81,6 +96,11 @@ namespace evf{
       void unlockFULocal();
       void lockFULocal2();
       void unlockFULocal2();
+      void createRunOpendirMaybe();
+      void setDeleteTracking( std::mutex* fileDeleteLock,std::list<std::pair<int,InputFile*>> *filesToDelete) {
+        fileDeleteLockPtr_=fileDeleteLock;
+        filesToDeletePtr_ = filesToDelete;
+      }
 
 
     private:
@@ -142,6 +162,9 @@ namespace evf{
       evf::FastMonitoringService * fms_ = nullptr;
       std::vector<int> streamFileTracker_;
       int currentFileIndex_ = -1;
+
+      std::mutex *fileDeleteLockPtr_ = nullptr;
+      std::list<std::pair<int,InputFile*>> *filesToDeletePtr_ = nullptr;
 
       pthread_mutex_t init_lock_ = PTHREAD_MUTEX_INITIALIZER;
 

@@ -9,11 +9,12 @@
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "boost/filesystem.hpp"
 
 #include "EventFilter/Utilities/interface/MicroStateService.h"
-#include "EventFilter/Utilities/plugins/FastMonitoringThread.h"
+#include "EventFilter/Utilities/interface/FastMonitoringThread.h"
 
 #include <string>
 #include <vector>
@@ -160,7 +161,7 @@ namespace evf{
       void dowork() { // the function to be called in the thread. Thread completes when function returns.
         monInit_.exchange(true,std::memory_order_acquire);
 	while (!fmt_.m_stoprequest) {
-	  std::cout << "Current states: Ms=" << fmt_.m_data.fastMacrostateJ_.value()
+	  edm::LogInfo("FastMonitoringService") << "Current states: Ms=" << fmt_.m_data.fastMacrostateJ_.value()
 	            << " ms=" << encPath_[0].encode(ministate_[0])
 	            << " us=" << encModule_.encode(microstate_[0]) << std::endl;
 

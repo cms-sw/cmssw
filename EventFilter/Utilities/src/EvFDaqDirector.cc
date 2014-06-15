@@ -5,8 +5,9 @@
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "EventFilter/Utilities/plugins/EvFDaqDirector.h"
-#include "EventFilter/Utilities/plugins/FastMonitoringService.h"
+#include "EventFilter/Utilities/interface/EvFDaqDirector.h"
+#include "EventFilter/Utilities/interface/FastMonitoringService.h"
+#include "EventFilter/Utilities/plugins/FedRawDataInputSource.h"
 
 
 #include <iostream>
@@ -86,6 +87,7 @@ namespace evf {
     reg.watchPreGlobalBeginRun(this, &EvFDaqDirector::preBeginRun);
     reg.watchPostGlobalEndRun(this, &EvFDaqDirector::postEndRun);
     reg.watchPreSourceEvent(this, &EvFDaqDirector::preSourceEvent);
+    reg.watchPreGlobalEndLumi(this,&EvFDaqDirector::preGlobalEndLumi);
 
     std::stringstream ss;
     ss << "run" << std::setfill('0') << std::setw(6) << run_;
@@ -112,9 +114,11 @@ namespace evf {
 					  << run_dir_ << " mkdir error:" << strerror(errno);
     }
 
-    //create fu-local.lock in run dir
+    //create fu-local.lock in run open dir
     if (!directorBu_) {
-      std::string fulocal_lock_ = run_dir_+"/"+"fu-local.lock";
+
+      createRunOpendirMaybe();
+      std::string fulocal_lock_ = getRunOpenDirPath() +"/fu-local.lock";
       fulocal_rwlock_fd_ = open(fulocal_lock_.c_str(), O_RDWR | O_CREAT, S_IRWXU | S_IWGRP | S_IRGRP | S_IWOTH | S_IROTH);//O_RDWR?
       if (fulocal_rwlock_fd_==-1)
         throw cms::Exception("DaqDirector") << " Error creating/opening a local lock file -: " << fulocal_lock_.c_str() << " : " << strerror(errno);
@@ -234,9 +238,59 @@ namespace evf {
     }
   }
 
+  void EvFDaqDirector::preGlobalEndLumi(edm::GlobalContext const& globalContext)
+  {
+    //delete all files belonging to just closed lumi
+    unsigned int ls = globalContext.luminosityBlockID().luminosityBlock();
+    if (!fileDeleteLockPtr_ || !filesToDeletePtr_) {
+      edm::LogWarning("EvFDaqDirector") << " Handles to check for files to delete were not set by the input source...";
+      return;
+    }
+
+    std::unique_lock<std::mutex> lkw(*fileDeleteLockPtr_);
+    auto it = filesToDeletePtr_->begin();
+    while (it!=filesToDeletePtr_->end()) {
+      if (it->second->lumi_ ==  ls) {
+        const boost::filesystem::path filePath(it->second->fileName_);
+        LogDebug("EvFDaqDirector") << "Deleting input file -:" << it->second->fileName_;
+        try {
+          //rarely this fails but file gets deleted
+          boost::filesystem::remove(filePath);
+        }
+        catch (const boost::filesystem::filesystem_error& ex)
+        {
+          edm::LogError("EvFDaqDirector") << " - deleteFile BOOST FILESYSTEM ERROR CAUGHT -: " << ex.what() << ". Trying again.";
+          usleep(10000);
+          try {
+            boost::filesystem::remove(filePath);
+          }
+            catch (...) {/*file gets deleted first time but exception is still thrown*/}
+        }
+        catch (std::exception& ex)
+        {
+          edm::LogError("EvFDaqDirector") << " - deleteFile std::exception CAUGHT -: " << ex.what() << ". Trying again.";
+          usleep(10000);
+          try {
+	    boost::filesystem::remove(filePath);
+          } catch (...) {/*file gets deleted first time but exception is still thrown*/}
+        }
+        
+        delete it->second;
+	it = filesToDeletePtr_->erase(it);
+      }
+      else it++;
+    }
+  }
+
   inline void EvFDaqDirector::preSourceEvent(edm::StreamID const& streamID) {
     streamFileTracker_[streamID]=currentFileIndex_;
   }
+
+
+  std::string EvFDaqDirector::getInputJsonFilePath(const unsigned int ls, const unsigned int index) const {
+    return bu_run_dir_ + "/" + fffnaming::inputJsonFileName(run_,ls,index);
+  }
+
 
   std::string EvFDaqDirector::getRawFilePath(const unsigned int ls, const unsigned int index) const {
     return bu_run_dir_ + "/" + fffnaming::inputRawFileName(run_,ls,index);
@@ -246,13 +300,17 @@ namespace evf {
     return bu_run_dir_ + "/open/" + fffnaming::inputRawFileName(run_,ls,index);
   }
 
-
   std::string EvFDaqDirector::getOpenInputJsonFilePath(const unsigned int ls, const unsigned int index) const {
     return bu_run_dir_ + "/open/" + fffnaming::inputJsonFileName(run_,ls,index);
   }
 
+
   std::string EvFDaqDirector::getOpenDatFilePath(const unsigned int ls, std::string const& stream) const {
     return run_dir_ + "/open/" + fffnaming::streamerDataFileNameWithPid(run_,ls,stream);
+  }
+
+  std::string EvFDaqDirector::getOpenOutputJsonFilePath(const unsigned int ls, std::string const& stream) const {
+    return run_dir_ + "/open/" + fffnaming::streamerJsonFileNameWithPid(run_,ls,stream);
   }
 
   std::string EvFDaqDirector::getOutputJsonFilePath(const unsigned int ls, std::string const& stream) const {
@@ -265,6 +323,30 @@ namespace evf {
 
   std::string EvFDaqDirector::getInitFilePath(std::string const& stream) const {
     return run_dir_ + "/" + fffnaming::initFileNameWithPid(run_,0,stream);
+  }
+
+  std::string EvFDaqDirector::getOpenProtocolBufferHistogramFilePath(const unsigned int ls, std::string const& stream) const {
+    return run_dir_ + "/open/" + fffnaming::protocolBufferHistogramFileNameWithPid(run_,ls,stream);
+  }
+
+  std::string EvFDaqDirector::getProtocolBufferHistogramFilePath(const unsigned int ls, std::string const& stream) const {
+    return run_dir_ + "/" + fffnaming::protocolBufferHistogramFileNameWithPid(run_,ls,stream);
+  }
+
+  std::string EvFDaqDirector::getMergedProtocolBufferHistogramFilePath(const unsigned int ls, std::string const& stream) const {
+    return run_dir_ + "/" + fffnaming:: protocolBufferHistogramFileNameWithInstance(run_,ls,stream,hostname_);
+  }
+
+  std::string EvFDaqDirector::getOpenRootHistogramFilePath(const unsigned int ls, std::string const& stream) const {
+    return run_dir_ + "/open/" + fffnaming::rootHistogramFileNameWithPid(run_,ls,stream);
+  }
+
+  std::string EvFDaqDirector::getRootHistogramFilePath(const unsigned int ls, std::string const& stream) const {
+    return run_dir_ + "/" + fffnaming::rootHistogramFileNameWithPid(run_,ls,stream);
+  }
+
+  std::string EvFDaqDirector::getMergedRootHistogramFilePath(const unsigned int ls, std::string const& stream) const {
+    return run_dir_ + "/" + fffnaming:: rootHistogramFileNameWithInstance(run_,ls,stream,hostname_);
   }
 
   std::string EvFDaqDirector::getEoLSFilePathOnBU(const unsigned int ls) const {
@@ -423,7 +505,7 @@ namespace evf {
     nextIndex++;
 
     // 1. Check suggested file
-    nextFile = getRawFilePath(ls,index);
+    nextFile = getInputJsonFilePath(ls,index);
     if (stat(nextFile.c_str(), &buf) == 0) {
      
       previousFileSize_ = buf.st_size;
@@ -435,15 +517,19 @@ namespace evf {
       bool eolFound = (stat(getEoLSFilePathOnBU(ls).c_str(), &buf) == 0);
       unsigned int startingLumi = ls;
       while (eolFound) {
+        //DEBUG!
+        //remove this for testing (might not be necessary after all..)
+        /*
         // recheck that no raw file appeared in the meantime
         if (stat(nextFile.c_str(), &buf) == 0) {
           previousFileSize_ = buf.st_size;
           fsize = buf.st_size;
           return true;
         }
+        */
 	// this lumi ended, check for files
 	++ls;
-	nextFile = getRawFilePath(ls,0);
+	nextFile = getInputJsonFilePath(ls,0);
 	if (stat(nextFile.c_str(), &buf) == 0) {
 	  // a new file was found at new lumisection, index 0
 	  index = 0;
@@ -556,5 +642,15 @@ namespace evf {
     flock(fulocal_rwlock_fd2_,LOCK_UN);
   }
 
+
+  void EvFDaqDirector::createRunOpendirMaybe() {
+    // create open dir if not already there
+
+    boost::filesystem::path openPath = getRunOpenDirPath();
+    if (!boost::filesystem::is_directory(openPath)) {
+      LogDebug("EvFDaqDirector") << "<open> FU dir not found. Creating... -:" << openPath.string();
+      boost::filesystem::create_directories(openPath);
+    }
+  }
 
 }
