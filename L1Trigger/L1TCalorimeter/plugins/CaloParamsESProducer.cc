@@ -137,6 +137,31 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
   std::shared_ptr<l1t::LUT> tauIsoLUT( new l1t::LUT(tauIsoLUTStream) );
   m_params.setTauIsolationLUT(tauIsoLUT);
 
+  edm::FileInPath tauCalibrationLUTFileBarrelA = conf.getParameter<edm::FileInPath>("tauCalibrationLUTFileBarrelA");
+  edm::FileInPath tauCalibrationLUTFileBarrelB = conf.getParameter<edm::FileInPath>("tauCalibrationLUTFileBarrelB");
+  edm::FileInPath tauCalibrationLUTFileBarrelC = conf.getParameter<edm::FileInPath>("tauCalibrationLUTFileBarrelC");
+  edm::FileInPath tauCalibrationLUTFileEndcapsA = conf.getParameter<edm::FileInPath>("tauCalibrationLUTFileEndcapsA");
+  edm::FileInPath tauCalibrationLUTFileEndcapsB = conf.getParameter<edm::FileInPath>("tauCalibrationLUTFileEndcapsB");
+  edm::FileInPath tauCalibrationLUTFileEndcapsC = conf.getParameter<edm::FileInPath>("tauCalibrationLUTFileEndcapsC");
+  std::ifstream tauCalibrationLUTStreamBarrelA(tauCalibrationLUTFileBarrelA.fullPath());
+  std::ifstream tauCalibrationLUTStreamBarrelB(tauCalibrationLUTFileBarrelB.fullPath());
+  std::ifstream tauCalibrationLUTStreamBarrelC(tauCalibrationLUTFileBarrelC.fullPath());
+  std::ifstream tauCalibrationLUTStreamEndcapsA(tauCalibrationLUTFileEndcapsA.fullPath());
+  std::ifstream tauCalibrationLUTStreamEndcapsB(tauCalibrationLUTFileEndcapsB.fullPath());
+  std::ifstream tauCalibrationLUTStreamEndcapsC(tauCalibrationLUTFileEndcapsC.fullPath());
+  std::shared_ptr<l1t::LUT> tauCalibrationLUTBarrelA( new l1t::LUT(tauCalibrationLUTStreamBarrelA) );
+  std::shared_ptr<l1t::LUT> tauCalibrationLUTBarrelB( new l1t::LUT(tauCalibrationLUTStreamBarrelB) );
+  std::shared_ptr<l1t::LUT> tauCalibrationLUTBarrelC( new l1t::LUT(tauCalibrationLUTStreamBarrelC) );
+  std::shared_ptr<l1t::LUT> tauCalibrationLUTEndcapsA( new l1t::LUT(tauCalibrationLUTStreamEndcapsA) );
+  std::shared_ptr<l1t::LUT> tauCalibrationLUTEndcapsB( new l1t::LUT(tauCalibrationLUTStreamEndcapsB) );
+  std::shared_ptr<l1t::LUT> tauCalibrationLUTEndcapsC( new l1t::LUT(tauCalibrationLUTStreamEndcapsC) );
+  m_params.setTauCalibrationLUTBarrelA(tauCalibrationLUTBarrelA);
+  m_params.setTauCalibrationLUTBarrelB(tauCalibrationLUTBarrelB);
+  m_params.setTauCalibrationLUTBarrelC(tauCalibrationLUTBarrelC);
+  m_params.setTauCalibrationLUTEndcapsA(tauCalibrationLUTEndcapsA);
+  m_params.setTauCalibrationLUTEndcapsB(tauCalibrationLUTEndcapsB);
+  m_params.setTauCalibrationLUTEndcapsC(tauCalibrationLUTEndcapsC);
+
   // jets
   m_params.setJetLsb(conf.getParameter<double>("jetLsb"));
   m_params.setJetSeedThreshold(conf.getParameter<double>("jetSeedThreshold"));

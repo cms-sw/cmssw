@@ -46,11 +46,18 @@ egMaxHOverELUTFile       = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egMaxHO
     egIsoMaxEtaAbsForIsoSum    = cms.uint32(27),
     
     # Tau
-    tauLsb                = cms.double(0.5),
-    tauSeedThreshold      = cms.double(0.),
-    tauNeighbourThreshold = cms.double(0.),
-    tauIsoPUSType         = cms.string("None"),
-    tauIsoLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauIsoLUT.txt"),
+    tauLsb                        = cms.double(0.5),
+    tauSeedThreshold              = cms.double(0.),
+    tauNeighbourThreshold         = cms.double(0.),
+    tauIsoPUSType                 = cms.string("None"),
+    tauIsoLUTFile                 = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauIsoLUT.txt"),
+    tauCalibrationLUTFileBarrelA  = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCalibrationLUTBarrelA.txt"),
+    tauCalibrationLUTFileBarrelB  = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCalibrationLUTBarrelB.txt"),
+    tauCalibrationLUTFileBarrelC  = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCalibrationLUTBarrelC.txt"),
+    tauCalibrationLUTFileEndcapsA = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCalibrationLUTEndcapsA.txt"),
+    tauCalibrationLUTFileEndcapsB = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCalibrationLUTEndcapsB.txt"),
+    tauCalibrationLUTFileEndcapsC = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCalibrationLUTEndcapsC.txt"),
+
 
     # jets
     jetLsb                = cms.double(0.5),

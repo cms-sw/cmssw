@@ -28,6 +28,16 @@ void l1t::CaloCluster::setClusterFlag(ClusterFlag flag, bool val)
   }
 };
 
+void l1t::CaloCluster::setHwPtEm(int pt)
+{
+  m_hwPtEm = pt;
+}
+
+void l1t::CaloCluster::setHwPtHad(int pt)
+{
+  m_hwPtHad = pt;
+}
+
 void l1t::CaloCluster::setHwSeedPt(int pt)
 {
   m_hwSeedPt = pt;
@@ -61,6 +71,16 @@ bool l1t::CaloCluster::checkClusterFlag(ClusterFlag flag) const
 bool l1t::CaloCluster::isValid() const
 {
     return ( checkClusterFlag(PASS_THRES_SEED) && checkClusterFlag(PASS_FILTER_CLUSTER) );
+}
+
+int l1t::CaloCluster::hwPtEm()const
+{
+  return m_hwPtEm;
+}
+
+int l1t::CaloCluster::hwPtHad()const
+{
+  return m_hwPtHad;
 }
 
 int l1t::CaloCluster::hwSeedPt() const

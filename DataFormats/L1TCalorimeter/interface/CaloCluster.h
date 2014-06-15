@@ -38,7 +38,12 @@ namespace l1t {
 
       ~CaloCluster();
 
+
+
+
       void setClusterFlag(ClusterFlag flag, bool val=true);
+      void setHwPtEm( int pt );
+      void setHwPtHad( int pt );
       void setHwSeedPt(int pt);
       void setFgEta(int fgEta);
       void setFgPhi(int fgPhi);
@@ -47,6 +52,8 @@ namespace l1t {
 
       bool checkClusterFlag(ClusterFlag flag) const;
       bool isValid() const;
+      int hwPtEm() const;
+      int hwPtHad() const;
       int hwSeedPt() const;
       int fgEta() const;
       int fgPhi() const;
@@ -64,6 +71,8 @@ namespace l1t {
       int m_clusterFlags; // see ClusterFlag bits (17 bits, will evolve)
 
       // Energies
+      int m_hwPtEm;
+      int m_hwPtHad;
       int m_hwSeedPt;
 
       // fine grained position
