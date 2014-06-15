@@ -338,6 +338,7 @@ baseDataSetRelease=[
     'CMSSW_7_0_5_patch1-PU25ns_POSTLS170_V7-v1',     # 25ns premixed dataset
     'CMSSW_7_0_5_patch1-PU50ns_POSTLS170_V6-v1'      # 50ns premixed dataset
     ]
+#baseDataSetReleaseForMiniAOD is defined at the end of this file, for miniAOD validation
 
 # note: INPUT commands to be added once GEN-SIM w/ 13TeV+PostLS1Geo will be available 
 steps['MinBiasINPUT']={'INPUT':InputInfo(dataSet='/RelValMinBias/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
@@ -1390,7 +1391,71 @@ steps['SKIMCOSD']={'-s':'SKIM:all',
                    '--scenario':'cosmics',
                    '--filein':'file:step2.root',
                    '--secondfilein':'filelist:step1_dasquery.log'}
-                 
+
+# miniAOD 
+
+#cmsDriver.py miniAOD_data-prod -s PAT -n 100 --data --filein /store/relval/CMSSW_7_0_0/SingleMu/RECO/GR_R_70_V1_RelVal_zMu2012D-v2/00000/0259E46E-F698-E311-8CFD-003048FF9AC6.root  --eventcontent MINIAOD --runUnscheduled --conditions GR_R_70_V1::All --no_exec
+#cmsDriver.py miniAOD-prod -s PAT -n 100 --mc --filein /store/relval/CMSSW_7_0_0/RelValTTbar_13/GEN-SIM-RECO/PU50ns_POSTLS170_V4-v2/00000/265B9219-FF98-E311-BF4A-02163E00EA95.root  --eventcontent MINIAODSIM --runUnscheduled --conditions auto:startup --no_exec
+#cmsDriver.py miniAOD-fsim-prod -s PAT -n 100 --mc --fast --filein /store/relval/CMSSW_7_0_0/RelValTTbar_13/GEN-SIM-DIGI-RECO/POSTLS170_V3_FastSim-v2/00000/109B6DF8-A798-E311-A88F-02163E00A0F0.root --eventcontent MINIAODSIM --runUnscheduled --conditions POSTLS170_V3::All --no_exec
+
+baseDataSetReleaseForMiniAOD=[
+    'CMSSW_7_0_0-PU25ns_POSTLS170_V3-v2',            # 25ns normal mixing (for miniAOD)
+    'CMSSW_7_0_0-PU50ns_POSTLS170_V4-v2',            # 50ns normal mixing (for miniAOD)
+    'CMSSW_7_0_0-GR_R_70_V1_RelVal_'                 # For real data
+    ]
+
+stepMiniAODDefaults = { '-s'              : 'PAT',
+                        '--runUnscheduled': '',
+                        '-n'              : '100'
+                        }
+stepMiniAODData = merge([{'--conditions'   : 'GR_R_70_V1::All',
+                          '--data'         : '',
+                          '--datatier'     : 'MINIAOD',
+                          '--eventcontent' : 'MINIAOD'
+                          },stepMiniAODDefaults])
+stepMiniAODMC = merge([{'--conditions'   : 'auto:upgradePLS1',
+                        '--mc'           : '',
+                        '--datatier'     : 'MINIAODSIM',
+                        '--eventcontent' : 'MINIAODSIM'
+                        },stepMiniAODDefaults])
+stepMiniAODMC50ns = merge([{'--conditions'   : 'auto:upgradePLS150ns',
+                            '--mc'           : '',
+                            '--datatier'     : 'MINIAODSIM',
+                            '--eventcontent' : 'MINIAODSIM'
+                        },stepMiniAODDefaults])
+stepMiniAODMCFS = merge([{'--conditions'   : 'auto:upgradePLS150',
+                          '--mc'           : '',
+                          '--fast'         : '',
+                          '--datatier'     : 'MINIAODSIM',
+                          '--eventcontent' : 'MINIAODSIM'
+                          },stepMiniAODDefaults])
+stepMiniAODMCFS50ns = merge([{'--conditions'   : 'auto:upgradePLS150ns',
+                              '--mc'           : '',
+                              '--fast'         : '',
+                              '--datatier'     : 'MINIAODSIM',
+                              '--eventcontent' : 'MINIAODSIM'
+                              },stepMiniAODDefaults])
+
+steps['MINIAODDATA']=merge([stepMiniAODData])
+steps['MINIAODMC']=merge([stepMiniAODMC])
+steps['MINIAODMC50']=merge([stepMiniAODMC50ns])
+steps['MINIAODMCFS']=merge([stepMiniAODMCFS])
+steps['MINIAODMCFS50']=merge([stepMiniAODMCFS50ns])
+
+# 13 TeV RECO
+steps['ZEE_13MINIAOD']={'INPUT':InputInfo(dataSet='/RelValZEE_13/%s/GEN-SIM-RECO'%(baseDataSetReleaseForMiniAOD[0],),location='STD')}
+steps['ZmumuJets_Pt_20_300_13MINIAOD']={'INPUT':InputInfo(dataSet='/RelValZmumuJets_Pt_20_300_GEN_13/%s/GEN-SIM-RECO'%(baseDataSetReleaseForMiniAOD[0],),location='STD')}
+steps['TTbar_13MINIAOD']={'INPUT':InputInfo(dataSet='/RelValTTbar_13/%s/GEN-SIM-RECO'%(baseDataSetReleaseForMiniAOD[0],),location='STD')}
+steps['H130GGgluonfusion_13MINIAOD']={'INPUT':InputInfo(dataSet='/RelValH130GGgluonfusion_13/%s/GEN-SIM-RECO'%(baseDataSetReleaseForMiniAOD[0],),location='STD')}
+steps['QQH1352T_Tauola_13MINIAOD']={'INPUT':InputInfo(dataSet='/RelValQQH1352T_Tauola_13/%s/GEN-SIM-RECO'%(baseDataSetReleaseForMiniAOD[0],),location='STD')}
+steps['ZTT_13MINIAOD']={'INPUT':InputInfo(dataSet='/RelValZTT_13/%s/GEN-SIM-RECO'%(baseDataSetReleaseForMiniAOD[0],),location='STD')}
+
+#Data
+steps['RunMinBias2012DMINIAOD']={'INPUT':InputInfo(dataSet='/MinimumBias/%smb2012D-v2/RECO'%(baseDataSetReleaseForMiniAOD[2],),location='STD')}
+steps['RunMu2012DMINIAOD']={'INPUT':InputInfo(dataSet='/SingleMu/%smu2012A-v2/RECO'%(baseDataSetReleaseForMiniAOD[2],),location='STD')}
+steps['RunPhoton2012DMINIAOD']={'INPUT':InputInfo(dataSet='/SinglePhoton/%sphoton2012D-v2/RECO'%(baseDataSetReleaseForMiniAOD[2],),location='STD')}
+steps['RunEl2012DMINIAOD']={'INPUT':InputInfo(dataSet='/SingleElectron/%selectron2012D-v2/RECO'%(baseDataSetReleaseForMiniAOD[2],),location='STD')}
+steps['RunJet2012DMINIAOD']={'INPUT':InputInfo(dataSet='/JetHT/%sjet2012D-v2/RECO'%(baseDataSetReleaseForMiniAOD[2],),location='STD')}
 
 #### for special wfs ###
 #steps['TTbar_REDIGI_RERECO']=merge([{'cfg':'TTbar_Tauola_8TeV_cfi',
