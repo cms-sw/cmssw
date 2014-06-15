@@ -246,3 +246,16 @@ FEVTDEBUGHLTEventContent.outputCommands.extend(FastSimRecoLocalTrackerFEVT.outpu
 FEVTDEBUGHLTEventContent.outputCommands.extend(FastSimRecoLocalCaloFEVT.outputCommands)
 FEVTDEBUGHLTEventContent.outputCommands.extend(FastSimRecoTrackerFEVT.outputCommands)
 FEVTDEBUGHLTEventContent.outputCommands.extend(FastSimParticleFlowFEVT.outputCommands) 
+
+#####################################################################
+#
+# To be used only to create the MinBias sample for "new mixing" (--eventcontent=FASTPU)
+#
+#####################################################################
+FASTPUEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *', 
+                                           'keep *_famosSimHits_*_*',
+                                           'keep *_MuonSimHits_*_*',
+                                           'keep Traj*_*_*_*',
+                                           'keep *_generalTracks_*_*')
+    )
