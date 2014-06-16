@@ -79,7 +79,14 @@ def miniAOD_customizeCommon(process):
     process.patJetGenJetMatchCA8.matched =  'slimmedGenJets'
     process.load("RecoJets.JetProducers.ak8PFJetsCHS_groomingValueMaps_cfi")# import ak8PFJetsCHSPrunedLinks, ak8PFJetsCHSFilteredLinks, ak8PFJetsCHSTrimmedLinks
     process.load("RecoJets.JetProducers.ca8PFJetsCHS_groomingValueMaps_cfi")#  import ca8PFJetsCHSPrunedLinks, ca8PFJetsCHSFilteredLinks, ca8PFJetsCHSTrimmedLinks
-    process.load('RecoJets.Configuration.RecoPFJets_cff')
+    from RecoJets.Configuration.RecoPFJets_cff import ca8PFJetsCHSPruned, ak8PFJetsCHSPruned,ca8PFJetsCHSFiltered, ak8PFJetsCHSFiltered,ca8PFJetsCHSTrimmed, ak8PFJetsCHSTrimmed 
+    process.ca8PFJetsCHSPruned = ca8PFJetsCHSPruned.clone()
+    process.ak8PFJetsCHSPruned = ak8PFJetsCHSPruned.clone()
+    process.ca8PFJetsCHSFiltered = ca8PFJetsCHSFiltered.clone()
+    process.ak8PFJetsCHSFiltered = ak8PFJetsCHSFiltered.clone()
+    process.ca8PFJetsCHSTrimmed = ca8PFJetsCHSFiltered.clone()
+    process.ak8PFJetsCHSTrimmed = ak8PFJetsCHSFiltered.clone()
+
     process.patJetsCA8.userData.userFloats.src += ['ca8PFJetsCHSPrunedLinks']
     # add cmsTopTagger
     process.cmsTopTagPFJetsCHSLinksCA8 = process.ca8PFJetsCHSPrunedLinks.clone()
