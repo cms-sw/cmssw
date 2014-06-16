@@ -14,8 +14,6 @@
 #include "DataFormats/L1Trigger/interface/EtSum.h"
 //#include "CondFormats/L1TObjects/interface/CaloParams.h"
 #include "L1Trigger/L1TCalorimeter/interface/CaloParamsStage1.h"
-
-
 #include <vector>
 
 namespace l1t {
@@ -36,7 +34,7 @@ void EtSumToGtScales(CaloParamsStage1 *params,
 		       const std::vector<l1t::EtSum> * input,
 		       std::vector<l1t::EtSum> *output);
 
-
+const unsigned int gtEta(const unsigned int iEta);
 }
 
 #endif

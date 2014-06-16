@@ -22,7 +22,10 @@ namespace l1t {
         TRIM_LEFT           = 11,
         TRIM_RIGHT          = 12,
         EXT_UP              = 13,
-        EXT_DOWN            = 14
+        EXT_DOWN            = 14,
+        IS_SECONDARY        = 15,
+        MERGE_UPDOWN        = 16, // 0=up, 1=down
+        MERGE_LEFTRIGHT     = 17 // 0=left, 1=right
       };
 
     public:
@@ -35,7 +38,12 @@ namespace l1t {
 
       ~CaloCluster();
 
+
+
+
       void setClusterFlag(ClusterFlag flag, bool val=true);
+      void setHwPtEm( int pt );
+      void setHwPtHad( int pt );
       void setHwSeedPt(int pt);
       void setFgEta(int fgEta);
       void setFgPhi(int fgPhi);
@@ -44,6 +52,8 @@ namespace l1t {
 
       bool checkClusterFlag(ClusterFlag flag) const;
       bool isValid() const;
+      int hwPtEm() const;
+      int hwPtHad() const;
       int hwSeedPt() const;
       int fgEta() const;
       int fgPhi() const;
@@ -58,9 +68,11 @@ namespace l1t {
 
     private:
       // Summary of clustering outcomes
-      int m_clusterFlags; // see ClusterFlag bits (15 bits, will evolve)
+      int m_clusterFlags; // see ClusterFlag bits (17 bits, will evolve)
 
       // Energies
+      int m_hwPtEm;
+      int m_hwPtHad;
       int m_hwSeedPt;
 
       // fine grained position
@@ -74,10 +86,6 @@ namespace l1t {
 
   typedef BXVector<CaloCluster> CaloClusterBxCollection;
 
- 
-  //bool operator>(const CaloCluster& cll, const CaloCluster& clr) {return  operator< (clr,cll);};
-  //bool operator<=(const CaloCluster& cll, const CaloCluster& clr) {return !operator> (cll,clr);};
-  //bool operator>=(const CaloCluster& cll, const CaloCluster& clr) {return !operator< (cll,clr);};
   
 }
 

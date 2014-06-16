@@ -54,7 +54,7 @@ process.load('L1Trigger.L1TCalorimeter.L1TCaloStage1_HIFromRaw_cff')
 ## changes to L1 algorithms begin here, the list is exhaustive.
 ## commented values should be the default
 ## see L1Trigger/L1TCalorimeter/python/l1tCaloStage1Digis_cfi.py for more info
-#process.caloStage1Digis.FirmwareVersion = cms.uint32(1) # 1=HI algos, 2=PP algos
+process.caloStage1Digis.FirmwareVersion = cms.uint32(3) # 1=HI algos, 2=PP algos
 #process.caloStage1Digis.egRelativeJetIsolationCut = cms.double(0.5)
 #process.caloStage1Digis.tauRelativeJetIsolationCut = cms.double(1.)
 #process.caloStage1Digis.regionETCutForHT = cms.uint32(7)
@@ -62,14 +62,14 @@ process.load('L1Trigger.L1TCalorimeter.L1TCaloStage1_HIFromRaw_cff')
 #process.caloStage1Digis.minGctEtaForSums = cms.int32(4)
 #process.caloStage1Digis.maxGctEtaForSums = cms.int32(17)
 
-#process.l1tCaloParams.egLsb = cms.double(1.0),
-#process.l1tCaloParams.egSeedThreshold = cms.double(1.),
-#process.l1tCaloParams.jetLsb = cms.double(0.5),
-#process.l1tCaloParams.jetSeedThreshold = cms.double(10.),
-#process.l1tCaloParams.etSumLsb = cms.double(0.5),
-#process.l1tCaloParams.etSumEtaMin = cms.vint32(-999, -999, -999, -999),
-#process.l1tCaloParams.etSumEtaMax = cms.vint32(999,  999,  999,  999),
-#process.l1tCaloParams.etSumEtThreshold = cms.vdouble(0.,  0.,   0.,   0.)
+#process.l1tCaloStage1Params.egLsb = cms.double(1.0),
+#process.l1tCaloStage1Params.egSeedThreshold = cms.double(1.),
+#process.l1tCaloStage1Params.jetLsb = cms.double(0.5),
+#process.l1tCaloStage1Params.jetSeedThreshold = cms.double(0.), #HI doesn't need a jet seed threshold to reduce rate
+#process.l1tCaloStage1Params.etSumLsb = cms.double(0.5),
+#process.l1tCaloStage1Params.etSumEtaMin = cms.vint32(-999, -999, -999, -999),
+#process.l1tCaloStage1Params.etSumEtaMax = cms.vint32(999,  999,  999,  999),
+#process.l1tCaloStage1Params.etSumEtThreshold = cms.vdouble(0.,  0.,   0.,   0.)
 
 process.p1 = cms.Path(
     process.L1TCaloStage1_HIFromRaw

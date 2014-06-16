@@ -86,7 +86,7 @@ namespace l1t {
     std::string egIsoPUSType() const { return egIsoPUSType_; }
     l1t::LUT* egIsolationLUT() { return egIsolationLUT_.get(); }
     std::string egCalibrationType() const { return egCalibrationType_; }
-    //std::vector<double> egCalibrationParams() { return egCalibrationParams_; }
+    std::vector<double> egCalibrationParams() { return egCalibrationParams_; }
     l1t::LUT* egCalibrationLUT() { return egCalibrationLUT_.get(); }
 
     void setEgLsb(double lsb) { egLsb_ = lsb; }
@@ -108,7 +108,7 @@ namespace l1t {
     void setEgIsoPUSType(std::string type) { egIsoPUSType_ = type; }
     void setEgIsolationLUT(std::shared_ptr<LUT> lut) { egIsolationLUT_ = lut; }
     void setEgCalibrationType(std::string type) { egCalibrationType_ = type; }
-    //void setEgCalibrationParams(std::vector<double> params) { egCalibrationParams_ = params; }
+    void setEgCalibrationParams(std::vector<double> params) { egCalibrationParams_ = params; }
     void setEgCalibrationLUT(std::shared_ptr<LUT> lut) { egCalibrationLUT_ = lut; }
 
 
@@ -123,6 +123,12 @@ namespace l1t {
     l1t::LUT* tauIsolationLUT() { return tauIsolationLUT_.get(); }
     std::string tauCalibrationType() const { return tauCalibrationType_; }
     std::vector<double> tauCalibrationParams() { return tauCalibrationParams_; }
+    l1t::LUT* tauCalibrationLUTBarrelA() { return tauCalibrationLUTBarrelA_.get(); }
+    l1t::LUT* tauCalibrationLUTBarrelB() { return tauCalibrationLUTBarrelB_.get(); }
+    l1t::LUT* tauCalibrationLUTBarrelC() { return tauCalibrationLUTBarrelC_.get(); }
+    l1t::LUT* tauCalibrationLUTEndcapsA() { return tauCalibrationLUTEndcapsA_.get(); }
+    l1t::LUT* tauCalibrationLUTEndcapsB() { return tauCalibrationLUTEndcapsB_.get(); }
+    l1t::LUT* tauCalibrationLUTEndcapsC() { return tauCalibrationLUTEndcapsC_.get(); }
 
     void setTauLsb(double lsb) { tauLsb_ = lsb; }
     void setTauSeedThreshold(double thresh) { tauSeedThreshold_ = thresh; }
@@ -132,6 +138,12 @@ namespace l1t {
     void setTauIsolationLUT(std::shared_ptr<LUT> lut) { tauIsolationLUT_ = lut; }
     void setTauCalibrationType(std::string type) { tauCalibrationType_ = type; }
     void setTauCalibrationParams(std::vector<double> params) { tauCalibrationParams_ = params; }
+    void setTauCalibrationLUTBarrelA(std::shared_ptr<LUT> lut) { tauCalibrationLUTBarrelA_ = lut; }
+    void setTauCalibrationLUTBarrelB(std::shared_ptr<LUT> lut) { tauCalibrationLUTBarrelB_ = lut; }
+    void setTauCalibrationLUTBarrelC(std::shared_ptr<LUT> lut) { tauCalibrationLUTBarrelC_ = lut; }
+    void setTauCalibrationLUTEndcapsA(std::shared_ptr<LUT> lut) { tauCalibrationLUTEndcapsA_ = lut; }
+    void setTauCalibrationLUTEndcapsB(std::shared_ptr<LUT> lut) { tauCalibrationLUTEndcapsB_ = lut; }
+    void setTauCalibrationLUTEndcapsC(std::shared_ptr<LUT> lut) { tauCalibrationLUTEndcapsC_ = lut; }
 
     // jets
     double jetLsb() const { return jetLsb_; }
@@ -289,7 +301,7 @@ namespace l1t {
     std::string egCalibrationType_;
 
     // EG calibration coefficients
-    //std::vector<double> egCalibrationParams_;
+    std::vector<double> egCalibrationParams_;
     std::shared_ptr<l1t::LUT> egCalibrationLUT_;
 
     // EG isolation PUS
@@ -325,6 +337,12 @@ namespace l1t {
 
     // Tau calibration coefficients
     std::vector<double> tauCalibrationParams_;
+    std::shared_ptr<l1t::LUT> tauCalibrationLUTBarrelA_;
+    std::shared_ptr<l1t::LUT> tauCalibrationLUTBarrelB_;
+    std::shared_ptr<l1t::LUT> tauCalibrationLUTBarrelC_;
+    std::shared_ptr<l1t::LUT> tauCalibrationLUTEndcapsA_;
+    std::shared_ptr<l1t::LUT> tauCalibrationLUTEndcapsB_;
+    std::shared_ptr<l1t::LUT> tauCalibrationLUTEndcapsC_;
 
 
 

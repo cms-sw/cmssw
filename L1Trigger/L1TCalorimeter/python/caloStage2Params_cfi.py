@@ -39,11 +39,17 @@ caloStage2Params.egIsoMaxEtaAbsForIsoSum    = cms.uint32(27)
 caloStage2Params.egCalibrationLUTFile       = cms.FileInPath("L1Trigger/L1TCalorimeter/data/egCalibrationLUT.txt")
 
 # Tau
-caloStage2Params.tauLsb                = cms.double(0.5)
-caloStage2Params.tauSeedThreshold      = cms.double(0.)
-caloStage2Params.tauNeighbourThreshold = cms.double(0.)
-caloStage2Params.tauIsoPUSType         = cms.string("None")
-caloStage2Params.tauIsoLUTFile         = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauIsoLUT.txt")
+caloStage2Params.tauLsb                        = cms.double(0.5)
+caloStage2Params.tauSeedThreshold              = cms.double(0.)
+caloStage2Params.tauNeighbourThreshold         = cms.double(0.)
+caloStage2Params.tauIsoPUSType                 = cms.string("None")
+caloStage2Params.tauIsoLUTFile                 = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauIsoLUT.txt")
+caloStage2Params.tauCalibrationLUTFileBarrelA  = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCalibrationLUTBarrelA.txt")
+caloStage2Params.tauCalibrationLUTFileBarrelB  = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCalibrationLUTBarrelB.txt")
+caloStage2Params.tauCalibrationLUTFileBarrelC  = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCalibrationLUTBarrelC.txt")
+caloStage2Params.tauCalibrationLUTFileEndcapsA = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCalibrationLUTEndcapsA.txt")
+caloStage2Params.tauCalibrationLUTFileEndcapsB = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCalibrationLUTEndcapsB.txt")
+caloStage2Params.tauCalibrationLUTFileEndcapsC = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCalibrationLUTEndcapsC.txt")
 
 # jets
 caloStage2Params.jetLsb                = cms.double(0.5)

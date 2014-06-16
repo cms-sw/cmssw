@@ -7,8 +7,6 @@
 
 #include "L1Trigger/L1TCalorimeter/interface/legacyGtHelper.h"
 
-const unsigned int gtEta(const unsigned int iEta);
-
 namespace l1t {
 
   void JetToGtScales(CaloParamsStage1 *params,
@@ -83,10 +81,10 @@ namespace l1t {
       output->push_back(gtEtSum);
     }
   }
-}
 
-const unsigned int gtEta(const unsigned int iEta)
-{
-  unsigned rctEta = (iEta<11 ? 10-iEta : iEta-11);
-  return (((rctEta % 7) & 0x7) | (iEta<11 ? 0x8 : 0));
+  const unsigned int gtEta(const unsigned int iEta)
+  {
+    unsigned rctEta = (iEta<11 ? 10-iEta : iEta-11);
+    return (((rctEta % 7) & 0x7) | (iEta<11 ? 0x8 : 0));
+  }
 }
