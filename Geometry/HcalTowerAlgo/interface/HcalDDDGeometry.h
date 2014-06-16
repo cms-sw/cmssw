@@ -9,6 +9,8 @@
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 #include "CondFormats/AlignmentRecord/interface/HcalAlignmentRcd.h"
 #include "Geometry/Records/interface/HcalGeometryRecord.h"
+#include "FWCore/Utilities/interface/thread_safety_macros.h"
+#include <atomic>
 
 class HcalDDDGeometry : public CaloSubdetectorGeometry {
 
@@ -45,11 +47,11 @@ private:
   void fillDetIds() const ;
 
   std::vector<HcalCellType> hcalCells_;
-  mutable std::vector<DetId> m_hbIds ;
-  mutable std::vector<DetId> m_heIds ;
-  mutable std::vector<DetId> m_hoIds ;
-  mutable std::vector<DetId> m_hfIds ;
-  mutable std::vector<DetId> m_emptyIds ;
+  CMS_THREAD_GUARD(m_filledDetIds) mutable std::vector<DetId> m_hbIds ;
+  CMS_THREAD_GUARD(m_filledDetIds) mutable std::vector<DetId> m_heIds ;
+  CMS_THREAD_GUARD(m_filledDetIds) mutable std::vector<DetId> m_hoIds ;
+  CMS_THREAD_GUARD(m_filledDetIds) mutable std::vector<DetId> m_hfIds ;
+  CMS_THREAD_GUARD(m_filledDetIds) mutable std::vector<DetId> m_emptyIds ;
 
   const HcalTopology& topo_;
   double              etaMax_;
@@ -58,6 +60,7 @@ private:
   HECellVec m_heCellVec ;
   HOCellVec m_hoCellVec ;
   HFCellVec m_hfCellVec ;
+  mutable std::atomic<bool> m_filledDetIds;
 };
 
 #endif

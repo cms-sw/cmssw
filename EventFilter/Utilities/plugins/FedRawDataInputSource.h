@@ -13,7 +13,7 @@
 
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
-#include "EventFilter/Utilities/plugins/EvFDaqDirector.h"
+#include "EventFilter/Utilities/interface/EvFDaqDirector.h"
 #include "FWCore/Sources/interface/RawInputSource.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Sources/interface/DaqProvenanceHelper.h"
@@ -23,6 +23,9 @@
 class FEDRawDataCollection;
 class InputSourceDescription;
 class ParameterSet;
+
+class InputFile;
+class InputChunk;
 
 namespace evf {
 class FastMonitoringService;
@@ -35,7 +38,8 @@ class DataPointDefinition;
 
 class FedRawDataInputSource: public edm::RawInputSource {
 
-class InputFile;
+friend class InputFile;
+friend class InputChunk;
 
 public:
   explicit FedRawDataInputSource(edm::ParameterSet const&,edm::InputSourceDescription const&);
@@ -106,72 +110,6 @@ private:
    *
    **/
 
-  struct InputChunk {
-    unsigned char * buf_;
-    InputChunk *next_ = nullptr;
-    uint32_t size_;
-    uint32_t usedSize_ = 0;
-    unsigned int index_;
-    unsigned int offset_;
-    unsigned int fileIndex_;
-    std::atomic<bool> readComplete_;
-
-    InputChunk(unsigned int index, uint32_t size): size_(size),index_(index) {
-      buf_ = new unsigned char[size_];
-      reset(0,0,0);
-    }
-    void reset(unsigned int newOffset, unsigned int toRead, unsigned int fileIndex) {
-      offset_=newOffset;
-      usedSize_=toRead;
-      fileIndex_=fileIndex;
-      readComplete_=false;
-    }
-
-    ~InputChunk() {delete[] buf_;}
-  };
-
-  struct InputFile {
-    FedRawDataInputSource *parent_;
-    evf::EvFDaqDirector::FileStatus status_;
-    unsigned int lumi_;
-    std::string fileName_;
-    uint32_t fileSize_;
-    uint32_t nChunks_;
-    unsigned int nEvents_;
-    unsigned int nProcessed_;
-
-    tbb::concurrent_vector<InputChunk*> chunks_;
-
-    uint32_t  bufferPosition_ = 0;
-    uint32_t  chunkPosition_ = 0;
-    unsigned int currentChunk_ = 0;
-
-    InputFile(evf::EvFDaqDirector::FileStatus status, unsigned int lumi = 0, std::string const& name = std::string(), 
-	uint32_t fileSize =0, uint32_t nChunks=0, unsigned int nEvents=0, FedRawDataInputSource *parent = nullptr):
-      parent_(parent),
-      status_(status),
-      lumi_(lumi),
-      fileName_(name),
-      fileSize_(fileSize),
-      nChunks_(nChunks),
-      nEvents_(nEvents),
-      nProcessed_(0)
-    {
-      for (unsigned int i=0;i<nChunks;i++)
-	chunks_.push_back(nullptr);
-    }
-
-    InputFile(std::string & name):fileName_(name) {}
-
-    bool waitForChunk(unsigned int chunkid) {
-      //some atomics to make sure everything is cache synchronized for the main thread
-      return chunks_[chunkid]!=nullptr && chunks_[chunkid]->readComplete_;
-    }
-    bool advance(unsigned char* & dataPosition, const size_t size);
-    void moveToPreviousChunk(const size_t size, const size_t offset);
-    void rewindChunk(const size_t size);
-  };
-
   typedef std::pair<InputFile*,InputChunk*> ReaderInfo;
 
   InputFile *currentFile_ = nullptr;
@@ -199,6 +137,7 @@ private:
   int currentFileIndex_ = -1;
   std::list<std::pair<int,InputFile*>> filesToDelete_;
   std::list<std::pair<int,std::string>> fileNamesToDelete_;
+  std::mutex fileDeleteLock_;
   std::vector<int> *streamFileTrackerPtr_ = nullptr;
   unsigned int nStreams_ = 0;
   unsigned int checkEvery_ = 10;
@@ -215,6 +154,75 @@ private:
   std::atomic<bool> threadInit_;
 
 };
+
+
+struct InputChunk {
+  unsigned char * buf_;
+  InputChunk *next_ = nullptr;
+  uint32_t size_;
+  uint32_t usedSize_ = 0;
+  unsigned int index_;
+  unsigned int offset_;
+  unsigned int fileIndex_;
+  std::atomic<bool> readComplete_;
+
+  InputChunk(unsigned int index, uint32_t size): size_(size),index_(index) {
+    buf_ = new unsigned char[size_];
+    reset(0,0,0);
+  }
+  void reset(unsigned int newOffset, unsigned int toRead, unsigned int fileIndex) {
+    offset_=newOffset;
+    usedSize_=toRead;
+    fileIndex_=fileIndex;
+    readComplete_=false;
+  }
+
+  ~InputChunk() {delete[] buf_;}
+};
+
+
+struct InputFile {
+  FedRawDataInputSource *parent_;
+  evf::EvFDaqDirector::FileStatus status_;
+  unsigned int lumi_;
+  std::string fileName_;
+  uint32_t fileSize_;
+  uint32_t nChunks_;
+  unsigned int nEvents_;
+  unsigned int nProcessed_;
+
+  tbb::concurrent_vector<InputChunk*> chunks_;
+
+  uint32_t  bufferPosition_ = 0;
+  uint32_t  chunkPosition_ = 0;
+  unsigned int currentChunk_ = 0;
+
+  InputFile(evf::EvFDaqDirector::FileStatus status, unsigned int lumi = 0, std::string const& name = std::string(), 
+      uint32_t fileSize =0, uint32_t nChunks=0, unsigned int nEvents=0, FedRawDataInputSource *parent = nullptr):
+    parent_(parent),
+    status_(status),
+    lumi_(lumi),
+    fileName_(name),
+    fileSize_(fileSize),
+    nChunks_(nChunks),
+    nEvents_(nEvents),
+    nProcessed_(0)
+  {
+    for (unsigned int i=0;i<nChunks;i++)
+      chunks_.push_back(nullptr);
+  }
+
+  InputFile(std::string & name):fileName_(name) {}
+
+  bool waitForChunk(unsigned int chunkid) {
+    //some atomics to make sure everything is cache synchronized for the main thread
+    return chunks_[chunkid]!=nullptr && chunks_[chunkid]->readComplete_;
+  }
+  bool advance(unsigned char* & dataPosition, const size_t size);
+  void moveToPreviousChunk(const size_t size, const size_t offset);
+  void rewindChunk(const size_t size);
+};
+
 
 #endif // EventFilter_Utilities_FedRawDataInputSource_h
 

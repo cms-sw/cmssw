@@ -76,7 +76,7 @@ class HLTProcessOptions(object):
     self.l1         = None        # (*) if set, override the L1 menu
     self.l1Xml      = None        # (*) if set, override the L1 menu Xml
     self.emulator   = None        # (*) if set, run (part of) the L1 emulator instead of taking the L1 results from the data
-    self.unprescale = False       # (*) if set, unprescale all paths
+    self.prescale   = None        # (*) if set, force the use of a specific prescale column. If set to "none", unprescale all paths
     self.open       = False       #     if set, cms.ignore all filters, making all paths run on and accept all events
     self.errortype  = False       #     if set, change all HLTTriggerTypeFilter EDFilters to accept only error events (SelectedTriggerType = 0)
     self.profiling  = False       #     if set, instrument the menu for profiling measurements
@@ -102,19 +102,23 @@ class HLTProcessOptions(object):
       object.__setattr__(self, name, ConnectionL1TMenuXml(value))
     elif name is 'fastsim' and value:
       # '--fastsim' implies '--fragment' and '--mc'
-      object.__setattr__(self, 'fastsim',    True)
-      object.__setattr__(self, 'fragment',   True)
-      object.__setattr__(self, 'data',       False)
+      object.__setattr__(self, 'fastsim',   True)
+      object.__setattr__(self, 'fragment',  True)
+      object.__setattr__(self, 'data',      False)
     elif name is 'open' and value:
       # '--open' implies '--unprescale'
-      object.__setattr__(self, 'open',       True)
-      object.__setattr__(self, 'unprescale', True)
+      object.__setattr__(self, 'open',      True)
+      object.__setattr__(self, 'prescale',  "none")
+    elif name is 'prescale' and value is not None:
+      # '--open' overrides '--prescale', set the prescale value only if '--open' is not set
+      if not self.open:
+        object.__setattr__(self, 'prescale', value)
     elif name is 'profiling' and value:
       # '--profiling'
-      object.__setattr__(self, 'profiling',  True)
+      object.__setattr__(self, 'profiling', True)
     elif name is 'timing' and value:
       # '--timing' implies '--profiling'
-      object.__setattr__(self, 'timing',     True)
-      object.__setattr__(self, 'profiling',  True)
+      object.__setattr__(self, 'timing',    True)
+      object.__setattr__(self, 'profiling', True)
     else:
       object.__setattr__(self, name, value)

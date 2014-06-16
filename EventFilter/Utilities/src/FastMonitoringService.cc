@@ -1,4 +1,4 @@
-#include "EventFilter/Utilities/plugins/FastMonitoringService.h"
+#include "EventFilter/Utilities/interface/FastMonitoringService.h"
 #include <iostream>
 
 #include "FWCore/Framework/interface/Event.h"
@@ -10,7 +10,7 @@
 #include "FWCore/ServiceRegistry/interface/GlobalContext.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/ServiceRegistry/interface/PathContext.h"
-#include "EventFilter/Utilities/plugins/EvFDaqDirector.h"
+#include "EventFilter/Utilities/interface/EvFDaqDirector.h"
 #include "EventFilter/Utilities/interface/FileIO.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
@@ -108,7 +108,7 @@ namespace evf{
       throw cms::Exception("FastMonitoringService") << "EvFDaqDirector is not present";
     
     }
-    boost::filesystem::path runDirectory(edm::Service<evf::EvFDaqDirector>()->findCurrentRunDir());
+    boost::filesystem::path runDirectory(edm::Service<evf::EvFDaqDirector>()->baseRunDir());
     workingDirectory_ = runDirectory_ = runDirectory;
     workingDirectory_ /= "mon";
 
@@ -317,10 +317,11 @@ namespace evf{
                 edm::LogInfo("FastMonitoringService") << "Run interrupted. Skip writing EoL information -: "
                                                       << processedEventsPerLumi_[lumi] << " events were processed in LUMI " << lumi;
                 //this will prevent output modules from producing json file for possibly incomplete lumi
-                processedEventsPerLumi_[lumi];
+                processedEventsPerLumi_[lumi]=0;
                 return;
               }
-              throw cms::Exception("FastMonitoringService") << "SOURCE did not send update for lumi block. LUMI -:" << lumi;
+              //disable this exception, so service can be used standalone (will be thrown if output module asks for this information)
+              //throw cms::Exception("FastMonitoringService") << "SOURCE did not send update for lumi block. LUMI -:" << lumi;
 	    }
 	    else {
 	      if (itr->second!=processedEventsPerLumi_[lumi]) {
@@ -548,7 +549,7 @@ namespace evf{
       return proc;
     }
     else {
-      throw cms::Exception("FastMonitoringService") << "output module wants already deleted LS event count for LUMI -: "<<lumi;
+      throw cms::Exception("FastMonitoringService") << "output module wants already deleted (or never reported by SOURCE) lumisection event count for LUMI -: "<<lumi;
       return 0;
     }
   }
