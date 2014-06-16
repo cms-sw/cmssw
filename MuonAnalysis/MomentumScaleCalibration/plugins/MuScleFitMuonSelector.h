@@ -95,19 +95,19 @@ class MuScleFitMuonSelector
       
       Double_t hitsTk(0), hitsMuon(0), ptError(0);
       if ( const reco::Muon* myMu = dynamic_cast<const reco::Muon*>(&(*track))  ){
-	hitsTk =   myMu->innerTrack()->hitPattern().numberOfValidTrackerHits();
-	hitsMuon = myMu->innerTrack()->hitPattern().numberOfValidMuonHits();
-	ptError =  myMu->innerTrack()->ptError();
+          hitsTk =   myMu->innerTrack()->hitPattern().numberOfValidTrackerHits(reco::HitPattern::TRACK_HITS);
+          hitsMuon = myMu->innerTrack()->hitPattern().numberOfValidMuonHits(reco::HitPattern::TRACK_HITS);
+          ptError =  myMu->innerTrack()->ptError();
       }
       else if ( const pat::Muon* myMu = dynamic_cast<const pat::Muon*>(&(*track)) ) {
-	hitsTk =   myMu->innerTrack()->hitPattern().numberOfValidTrackerHits();
-	hitsMuon = myMu->innerTrack()->hitPattern().numberOfValidMuonHits();
-	ptError =  myMu->innerTrack()->ptError();
+          hitsTk =   myMu->innerTrack()->hitPattern().numberOfValidTrackerHits(reco::HitPattern::TRACK_HITS);
+          hitsMuon = myMu->innerTrack()->hitPattern().numberOfValidMuonHits(reco::HitPattern::TRACK_HITS);
+          ptError =  myMu->innerTrack()->ptError();
       }
       else if (const reco::Track* myMu = dynamic_cast<const reco::Track*>(&(*track))){
-	hitsTk =   myMu->hitPattern().numberOfValidTrackerHits();
-	hitsMuon = myMu->hitPattern().numberOfValidMuonHits();
-	ptError =  myMu->ptError();
+          hitsTk =   myMu->hitPattern().numberOfValidTrackerHits(reco::HitPattern::TRACK_HITS);
+          hitsMuon = myMu->hitPattern().numberOfValidMuonHits(reco::HitPattern::TRACK_HITS);
+          ptError =  myMu->ptError();
       }
       
       MuScleFitMuon muon(mu,track->charge(),ptError,hitsTk,hitsMuon);

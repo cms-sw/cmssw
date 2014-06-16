@@ -322,7 +322,7 @@ void TrackEfficiencyMonitor::analyze(const edm::Event& iEvent, const edm::EventS
   
   if(!trackEfficiency_ && tkTracks->size() == 1 ){
     if( (tkTracks->front()).normalizedChi2() < 5 &&
-    (tkTracks->front()).hitPattern().numberOfValidHits() > 8)
+    (tkTracks->front()).hitPattern().numberOfValidHits(reco::HitPattern::TRACK_HITS) > 8)
      testSTATracks(tkTracks,staTracks);  
   }
   
@@ -402,7 +402,7 @@ void TrackEfficiencyMonitor::testTrackerTracks(edm::Handle<reco::TrackCollection
     //---------------------------------------------------       
     nCompatibleLayers = compatibleLayers(navigationSchool, theTSOSCompLayers);
     
-    if(isInTrackerAcceptance && (*staTracks)[idxUpMuon].hitPattern().numberOfValidHits() > 28)
+    if(isInTrackerAcceptance && (*staTracks)[idxUpMuon].hitPattern().numberOfValidHits(reco::HitPattern::TRACK_HITS) > 28)
     {
       //---------------------------------------------------
       //count the number of good muon candidates

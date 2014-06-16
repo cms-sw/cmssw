@@ -211,18 +211,18 @@ testGeneralTracks::produce(edm::Event& iEvent, const edm::EventSetup& iSetup )
     reco::TrackCollection::const_iterator itk0 = tkColl[0]->begin();
     reco::TrackCollection::const_iterator itk0_e = tkColl[0]->end();
     for(;itk0!=itk0_e;++itk0){
-      //std::cout << "quality " << itk0->quality(_trackQuality) << std::endl;
-      if(!(itk0->quality(_trackQuality)) ) {
-	//std::cout << "evt " << totalNEvt << "\tTRACK REMOVED" << std::endl;
-	continue;
-      } 
-      if(ievt==0) numfullHP++;
-      if(ievt==1) numfastHP++;
-     TracksvsEtaP[ievt]->Fill(etaGen,pGen,1.);
-     HitsvsEta[ievt]->Fill(etaGen,itk0->found(),1.);
-     HitsvsP[ievt]->Fill(pGen,itk0->found(),1.);
-     LayersvsEta[ievt]->Fill(etaGen,itk0->hitPattern().trackerLayersWithMeasurement(),1.);
-     LayersvsP[ievt]->Fill(pGen,itk0->hitPattern().trackerLayersWithMeasurement(),1.);
+        //std::cout << "quality " << itk0->quality(_trackQuality) << std::endl;
+        if(!(itk0->quality(_trackQuality)) ) {
+            //std::cout << "evt " << totalNEvt << "\tTRACK REMOVED" << std::endl;
+            continue;
+        } 
+        if(ievt==0) numfullHP++;
+        if(ievt==1) numfastHP++;
+        TracksvsEtaP[ievt]->Fill(etaGen,pGen,1.);
+        HitsvsEta[ievt]->Fill(etaGen,itk0->found(),1.);
+        HitsvsP[ievt]->Fill(pGen,itk0->found(),1.);
+        LayersvsEta[ievt]->Fill(etaGen,itk0->hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS), 1.);
+        LayersvsP[ievt]->Fill(pGen,itk0->hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS), 1.);
     }
 
     //    std::cout << "\t\t Number of Tracks " << std::endl;

@@ -226,12 +226,12 @@ void PatTrackAnalyzer::analyze(const edm::Event &event, const edm::EventSetup &e
 
 			double absEta = std::abs(track.eta());
 			// now fill the number of hits in a layer depending on eta
-			plots.pxbHitsEta->Fill(absEta, hits.numberOfValidPixelBarrelHits());
-			plots.pxeHitsEta->Fill(absEta, hits.numberOfValidPixelEndcapHits());
-			plots.tibHitsEta->Fill(absEta, hits.numberOfValidStripTIBHits());
-			plots.tobHitsEta->Fill(absEta, hits.numberOfValidStripTOBHits());
-			plots.tidHitsEta->Fill(absEta, hits.numberOfValidStripTIDHits());
-			plots.tecHitsEta->Fill(absEta, hits.numberOfValidStripTECHits());
+			plots.pxbHitsEta->Fill(absEta, hits.numberOfValidPixelBarrelHits(reco::HitPattern::TRACK_HITS));
+			plots.pxeHitsEta->Fill(absEta, hits.numberOfValidPixelEndcapHits(reco::HitPattern::TRACK_HITS));
+			plots.tibHitsEta->Fill(absEta, hits.numberOfValidStripTIBHits(reco::HitPattern::TRACK_HITS));
+			plots.tobHitsEta->Fill(absEta, hits.numberOfValidStripTOBHits(reco::HitPattern::TRACK_HITS));
+			plots.tidHitsEta->Fill(absEta, hits.numberOfValidStripTIDHits(reco::HitPattern::TRACK_HITS));
+			plots.tecHitsEta->Fill(absEta, hits.numberOfValidStripTECHits(reco::HitPattern::TRACK_HITS));
 		}
 	}
 }
