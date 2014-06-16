@@ -162,7 +162,7 @@ unsigned int Vx3DHLTAnalyzer::HitCounter(const Event& iEvent)
 {
   edm::Handle<SiPixelRecHitCollection> rechitspixel;
   iEvent.getByToken(pixelHitCollection, rechitspixel);
-
+  
   unsigned int counter = 0;
   
   for (SiPixelRecHitCollection::const_iterator j = rechitspixel->begin(); j != rechitspixel->end(); j++)
@@ -172,12 +172,14 @@ unsigned int Vx3DHLTAnalyzer::HitCounter(const Event& iEvent)
 }
 
 
-char* Vx3DHLTAnalyzer::formatTime (const time_t& t)
+std::string Vx3DHLTAnalyzer::formatTime (const time_t& t)
 {
   char ts[25];
   strftime(ts, sizeof(ts), "%Y.%m.%d %H:%M:%S %Z", gmtime(&t));
+  
+  std::string ts_string(ts);
 
-  return ts;
+  return ts_string;
 }
 
 
