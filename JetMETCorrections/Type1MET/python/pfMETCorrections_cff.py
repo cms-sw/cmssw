@@ -10,7 +10,7 @@ from CommonTools.ParticleFlow.TopProjectors.pfNoJet_cfi import pfNoJet
 # the new TopProjectors now work with Ptrs
 # a conversion is needed if objects are not available
 # add them upfront of the sequence
-ak4PFJetsPtrs = cms.EDProducer("PFJetFwdPtrProducer",
+pfJetsPtrForMetCorr = cms.EDProducer("PFJetFwdPtrProducer",
    src = cms.InputTag("ak4PFJets")
 )
 # this one is needed only if the input file doesn't have it
@@ -22,12 +22,12 @@ from RecoParticleFlow.PFProducer.pfLinker_cff import particleFlowPtrs
 # FIXME: THIS IS A WASTE, BUT NOT CLEAR HOW TO FIX IT CLEANLY: the module
 # downstream operates with View<reco::Candidate>, I wish one could read
 # it from std::vector<PFCandidateFwdPtr> directly
-pfCandsNotInJetPtrs = pfNoJet.clone(
-    topCollection = cms.InputTag('ak4PFJetsPtrs'),
+pfCandsNotInJetsPtrForMetCorr = pfNoJet.clone(
+    topCollection = cms.InputTag('pfJetsPtrForMetCorr'),
     bottomCollection = cms.InputTag('particleFlowPtrs')
 )
-pfCandsNotInJet = cms.EDProducer("PFCandidateFromFwdPtrProducer",
-    src = cms.InputTag("pfCandsNotInJetPtrs")
+pfCandsNotInJetsForMetCorr = cms.EDProducer("PFCandidateFromFwdPtrProducer",
+    src = cms.InputTag("pfCandsNotInJetsPtrForMetCorr")
 )
 
 #--------------------------------------------------------------------------------
@@ -50,7 +50,7 @@ pfJetMETcorr = cms.EDProducer("PFJetMETcorrInputProducer",
 #--------------------------------------------------------------------------------
 # produce Type 2 MET corrections for selected PFCandidates
 pfCandMETcorr = cms.EDProducer("PFCandMETcorrInputProducer",
-    src = cms.InputTag('pfCandsNotInJet')
+    src = cms.InputTag('pfCandsNotInJetsForMetCorr')
 )
 #--------------------------------------------------------------------------------
 
@@ -106,10 +106,10 @@ pfType1p2CorrectedMet = cms.EDProducer("CorrectedPFMETProducer",
 #--------------------------------------------------------------------------------
 # define sequence to run all modules
 producePFMETCorrections = cms.Sequence(
-    ak4PFJetsPtrs
+    pfJetsPtrForMetCorr
    * particleFlowPtrs
-   * pfCandsNotInJetPtrs
-   * pfCandsNotInJet
+   * pfCandsNotInJetsPtrForMetCorr
+   * pfCandsNotInJetsForMetCorr
    * pfJetMETcorr
    * pfCandMETcorr
    * pfchsMETcorr
