@@ -13,9 +13,9 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include <boost/shared_ptr.hpp>
 class CSCDMBHeader;
-class CSCTMBHeader2006;
-class CSCTMBHeader2007;
-class CSCTMBHeader2013;
+struct CSCTMBHeader2006;
+struct CSCTMBHeader2007;
+struct CSCTMBHeader2013;
 
 
 class CSCTMBHeader {
