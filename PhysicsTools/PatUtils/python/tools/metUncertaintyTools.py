@@ -9,6 +9,8 @@ from PhysicsTools.PatUtils.patPFMETCorrections_cff import *
 import RecoMET.METProducers.METSigParams_cfi as jetResolutions
 from PhysicsTools.PatAlgos.producersLayer1.metProducer_cfi import patMETs
 
+from propagateMEtUncertainties import propagateMEtUncertainties
+
 class RunMEtUncertainties(ConfigToolBase):
 
     """ Shift energy of electrons, photons, muons, tau-jets and other jets
@@ -139,62 +141,6 @@ class RunMEtUncertainties(ConfigToolBase):
                                     getattr(process, "metUncertaintySequence"+postfix), postfix)
 
         return smearedJetCollection
-
-    def _propagateMEtUncertainties(self, process,
-                                   particleCollection, particleType, shiftType, particleCollectionShiftUp, particleCollectionShiftDown,
-                                   metProducer, sequence, postfix):
-
-        # produce MET correction objects
-        # (sum of differences in four-momentum between original and up/down shifted particle collection)
-        moduleMETcorrShiftUp = cms.EDProducer("ShiftedParticleMETcorrInputProducer",
-            srcOriginal = cms.InputTag(particleCollection),
-            srcShifted = cms.InputTag(particleCollectionShiftUp)
-        )
-        moduleMETcorrShiftUpName = "patPFMETcorr%s%sUp" % (particleType, shiftType)
-        moduleMETcorrShiftUpName += postfix
-        setattr(process, moduleMETcorrShiftUpName, moduleMETcorrShiftUp)
-        sequence += moduleMETcorrShiftUp
-        moduleMETcorrShiftDown = moduleMETcorrShiftUp.clone(
-            srcShifted = cms.InputTag(particleCollectionShiftDown)
-        )
-        moduleMETcorrShiftDownName = "patPFMETcorr%s%sDown" % (particleType, shiftType)
-        moduleMETcorrShiftDownName += postfix
-        setattr(process, moduleMETcorrShiftDownName, moduleMETcorrShiftDown)
-        sequence += moduleMETcorrShiftDown
-
-        # propagate effects of up/down shifts to MET
-        moduleMETshiftUp = metProducer.clone(
-            src = cms.InputTag(metProducer.label()),
-            srcType1Corrections = cms.VInputTag(
-                cms.InputTag(moduleMETcorrShiftUpName)
-            )
-        )
-        metProducerLabel = metProducer.label()
-        if postfix != "":
-            if metProducerLabel[-len(postfix):] == postfix:
-                metProducerLabel = metProducerLabel[0:-len(postfix)]
-            else:
-                raise StandardError("Tried to remove postfix %s from label %s, but it wasn't there" % (postfix, metProducerLabel))
-        moduleMETshiftUpName = "%s%s%sUp" % (metProducerLabel, particleType, shiftType)
-        moduleMETshiftUpName += postfix
-        setattr(process, moduleMETshiftUpName, moduleMETshiftUp)
-        sequence += moduleMETshiftUp
-        moduleMETshiftDown = moduleMETshiftUp.clone(
-            srcType1Corrections = cms.VInputTag(
-                cms.InputTag(moduleMETcorrShiftDownName)
-            )
-        )
-        moduleMETshiftDownName = "%s%s%sDown" % (metProducerLabel, particleType, shiftType)
-        moduleMETshiftDownName += postfix
-        setattr(process, moduleMETshiftDownName, moduleMETshiftDown)
-        sequence += moduleMETshiftDown
-
-        metCollectionsUp_Down = [
-            moduleMETshiftUpName,
-            moduleMETshiftDownName
-        ]
-
-        return metCollectionsUp_Down
 
     def _initializeInputTag(self, input, default):
         retVal = None
@@ -460,7 +406,7 @@ class RunMEtUncertainties(ConfigToolBase):
                 configtools.cloneProcessingSnippet(process, process.producePatPFMETCorrections, postfix)
 
         # add "nominal" (unshifted) pat::MET collections
-        getattr(process, "pfCandsNotInJet"+postfix).bottomCollection = pfCandCollection
+        getattr(process, "pfCandsNotInJetsForMetCorr"+postfix).bottomCollection = pfCandCollection
         getattr(process, "selectedPatJetsForMETtype1p2Corr"+postfix).src = shiftedParticleCollections['lastJetCollection']
         getattr(process, "selectedPatJetsForMETtype2Corr"+postfix).src = shiftedParticleCollections['lastJetCollection']
 
@@ -557,14 +503,14 @@ class RunMEtUncertainties(ConfigToolBase):
 
         # propagate shifts in jet energy to "raw" (uncorrected) and Type 1 corrected MET
         metCollectionsUp_DownForRawMEt = \
-            self._propagateMEtUncertainties(
+            propagateMEtUncertainties(
               process, shiftedParticleCollections['lastJetCollection'], "Jet", "En",
               shiftedParticleCollections['jetCollectionEnUpForRawMEt'], shiftedParticleCollections['jetCollectionEnDownForRawMEt'],
               getattr(process, "patPFMet"+postfix), metUncertaintySequence, postfix)
         collectionsToKeep.extend(metCollectionsUp_DownForRawMEt)
 
         metCollectionsUp_DownForCorrMEt = \
-            self._propagateMEtUncertainties(
+            propagateMEtUncertainties(
               process, shiftedParticleCollections['lastJetCollection'], "Jet", "En",
               shiftedParticleCollections['jetCollectionEnUpForCorrMEt'], shiftedParticleCollections['jetCollectionEnDownForCorrMEt'],
               getattr(process, "patType1CorrectedPFMet"+postfix), metUncertaintySequence, postfix)
@@ -629,7 +575,7 @@ class RunMEtUncertainties(ConfigToolBase):
                                  getattr(process, "patType1CorrectedPFMet"+postfix) ]:
 
                 metCollectionsUp_Down = \
-                    self._propagateMEtUncertainties(
+                    propagateMEtUncertainties(
                       process, shiftedParticleCollections['lastJetCollection'], "Jet", "Res",
                       shiftedParticleCollections['jetCollectionResUp'], shiftedParticleCollections['jetCollectionResDown'],
                       metProducer, metUncertaintySequence, postfix)
@@ -799,7 +745,7 @@ class RunMEtUncertainties(ConfigToolBase):
 
             if self._isValidInputTag(shiftedParticleCollections['electronCollection']):
                 metCollectionsUp_Down = \
-                    self._propagateMEtUncertainties(
+                    propagateMEtUncertainties(
                       process, shiftedParticleCollections['electronCollection'].value(), "Electron", "En",
                       shiftedParticleCollections['electronCollectionEnUp'], shiftedParticleCollections['electronCollectionEnDown'],
                       metProducer, metUncertaintySequence, postfix)
@@ -807,7 +753,7 @@ class RunMEtUncertainties(ConfigToolBase):
 
             if self._isValidInputTag(shiftedParticleCollections['photonCollection']):
                 metCollectionsUp_Down = \
-                    self._propagateMEtUncertainties(
+                    propagateMEtUncertainties(
                       process, shiftedParticleCollections['photonCollection'].value(), "Photon", "En",
                       shiftedParticleCollections['photonCollectionEnUp'], shiftedParticleCollections['photonCollectionEnDown'],
                       metProducer, metUncertaintySequence, postfix)
@@ -815,7 +761,7 @@ class RunMEtUncertainties(ConfigToolBase):
 
             if self._isValidInputTag(shiftedParticleCollections['muonCollection']):
                 metCollectionsUp_Down = \
-                    self._propagateMEtUncertainties(
+                    propagateMEtUncertainties(
                       process, shiftedParticleCollections['muonCollection'].value(), "Muon", "En",
                       shiftedParticleCollections['muonCollectionEnUp'], shiftedParticleCollections['muonCollectionEnDown'],
                       metProducer, metUncertaintySequence, postfix)
@@ -823,7 +769,7 @@ class RunMEtUncertainties(ConfigToolBase):
 
             if self._isValidInputTag(shiftedParticleCollections['tauCollection']):
                 metCollectionsUp_Down = \
-                    self._propagateMEtUncertainties(
+                    propagateMEtUncertainties(
                       process, shiftedParticleCollections['tauCollection'].value(), "Tau", "En",
                       shiftedParticleCollections['tauCollectionEnUp'], shiftedParticleCollections['tauCollectionEnDown'],
                       metProducer, metUncertaintySequence, postfix)
@@ -1071,7 +1017,7 @@ class RunMEtUncertainties(ConfigToolBase):
                                         'pfMEtMVAJetResDown'+postfix, 'patPFMetMVAJetResDown', collectionsToKeep, postfix)
 
             setattr(process, "pfCandsNotInJetUnclusteredEnUpForPFMEtByMVA"+postfix, cms.EDProducer("ShiftedPFCandidateProducer",
-                src = cms.InputTag('pfCandsNotInJet'),
+                src = cms.InputTag('pfCandsNotInJetsForMetCorr'),
                 shiftBy = cms.double(+1.*varyByNsigmas),
                 uncertainty = cms.double(0.10)
             ))
