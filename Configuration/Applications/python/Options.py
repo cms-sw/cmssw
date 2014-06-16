@@ -34,6 +34,12 @@ parser.add_option("--conditions",
                   default=None,
                   dest="conditions")
 
+parser.add_option("--useNewDB",
+                  help="use new DB (with blobified payloads)",
+                  action="store_true",
+                  default=False,
+                  dest="useNewDB")
+
 parser.add_option("--eventcontent",
                   help="What event content to write out. Default=FEVTDEBUG, or FEVT (for cosmics)",
                   default='RECOSIM',
