@@ -72,7 +72,7 @@ class Vx3DHLTAnalyzer : public DQMEDAnalyzer {
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
       virtual unsigned int HitCounter(const edm::Event& iEvent);
-      virtual char* formatTime(const time_t& t);
+      virtual std::string formatTime(const time_t& t);
       virtual int MyFit(std::vector<double>* vals);
       virtual void reset(std::string ResetType);
       virtual void writeToFile(std::vector<double>* vals,

@@ -15,7 +15,7 @@ foreach gtag ( Data Line )
   if ( $GTAG == LINE ) then
     set GTAG = STARTUP
   endif
-  foreach table ( GRun PIon 2013 HIon )
+  foreach table ( GRun PIon 2014 HIon )
     set oldfile = On${gtag}_HLT_${table}.py
     set newfile = ONLINE_HLT_${table}_${GTAG}.py
     rm -f $newfile
