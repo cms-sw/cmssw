@@ -106,6 +106,7 @@
   (( double, EFF_NODATA_SIGFAIL,   5.0 , "statistical significance for not reportingelements in HW (EventProcessor)" )) \
   (( unsigned int, EVENTS_ECHO, 1000, "frequency in events to print echo message (EventProcessor)" )) \
   (( std::string, FOLDER_FED, "" , "root file folder name to be used for FED histograms (EventProcessor)" )) \
+  (( bool, PREBOOK_ALL_HISTOS, true, "pre-book all FED, DDU, CSC histogragrams before run begins" )) \
   \
   \
 
