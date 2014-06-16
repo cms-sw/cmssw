@@ -74,10 +74,19 @@ def miniAOD_customizeCommon(process):
     )
     #add CA8   
     from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
-    #
-    addJetCollection(process, labelName = 'CA8', jetSource = cms.InputTag('ca8PFJetsCHS'),algo= 'CA', rParam = 0.8)
+    addJetCollection(process, labelName = 'CA8', jetSource = cms.InputTag('ca8PFJetsCHS'),algo= 'CA', rParam = 0.8, jetCorrections = ('AK7PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None') )
+    process.patJetsCA8.userData.userFloats.src = [] # start with empty list of user floats
     process.selectedPatJetsCA8.cut = cms.string("pt > 100")
     process.patJetGenJetMatchCA8.matched =  'slimmedGenJets'
+    from RecoJets.JetProducers.ca8PFJetsCHS_groomingValueMaps_cfi import ca8PFJetsCHSPrunedLinks
+    process.ca8PFJetsCHSPrunedLinks = ca8PFJetsCHSPrunedLinks.clone()
+    process.patJetsCA8.userData.userFloats.src += ['ca8PFJetsCHSPrunedLinks']
+    # add cmsTopTagger (note: it is already run in RECO, we just add the value)
+    process.cmsTopTagPFJetsCHSLinksCA8 = ca8PFJetsCHSPrunedLinks.clone()
+    process.cmsTopTagPFJetsCHSLinksCA8.src = cms.InputTag("ca8PFJetsCHS")
+    process.cmsTopTagPFJetsCHSLinksCA8.matched = cms.InputTag("cmsTopTagPFJetsCHS")
+    process.patJetsCA8.userData.userFloats.src += ['cmsTopTagPFJetsCHSLinksCA8']
+
     #
     from PhysicsTools.PatAlgos.tools.trigTools import switchOnTriggerStandAlone
     switchOnTriggerStandAlone( process, outputModule = '' )
