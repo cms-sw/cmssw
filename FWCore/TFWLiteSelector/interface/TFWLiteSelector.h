@@ -50,7 +50,6 @@ class TList;
 // user include files
 
 #include "FWCore/TFWLiteSelector/interface/TFWLiteSelectorBasic.h"
-#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 
 // forward declarations
 template <class TWorker>

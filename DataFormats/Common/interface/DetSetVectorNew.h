@@ -12,7 +12,6 @@
 #include <boost/any.hpp>
 #include <memory>
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
-#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 
 
 #include<vector>

@@ -8,7 +8,6 @@
 #include <memory>
 
 #include <map>
-#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 
 // Change log
 //

@@ -36,7 +36,6 @@ to be returned, *not* the ordinal number of the T to be returned.
 #include "DataFormats/Common/interface/DetSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "DataFormats/Common/interface/Ref.h"
-#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 
 namespace edm {
 
