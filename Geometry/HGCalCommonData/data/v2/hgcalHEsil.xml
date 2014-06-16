@@ -57,6 +57,20 @@
    0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1,
    0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1,
    0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1 </Vector>
+  <Vector name="LayerThick" type="numeric" nEntries="85"> 
+   50.0*mm,
+   59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm,
+   59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm,
+   59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm,
+   59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm,
+   59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm,
+   59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm,
+   59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm,
+   59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm,
+   59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm,
+   59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm,
+   59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm,
+   59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm, 59.3*mm </Vector>
   <Numeric name="zMinBlock"   value="[hgcal:zMinHE]"/>
   <Numeric name="Sectors"     value="72"/>
   <Numeric name="SlopeBottom" value="[etaMax:slope]"/>
