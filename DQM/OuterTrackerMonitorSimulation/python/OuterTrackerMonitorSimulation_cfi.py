@@ -10,34 +10,34 @@ OuterTrackerMonitorSimulation = cms.EDAnalyzer('OuterTrackerMonitorSimulation',
 # TPart Pt
     TH1TPart_Pt = cms.PSet(
         Nbinsx = cms.int32(25),
-        xmax = cms.double(50.0),                      
+        xmax = cms.double(100.0),                      
         xmin = cms.double(0.0)
         ),
 
 # TPart Eta/Phi
     TH1TPart_Angle_Pt10 = cms.PSet(
-        Nbinsx = cms.int32(60),
+        Nbinsx = cms.int32(45),
         xmax = cms.double(3.1416),                      
         xmin = cms.double(-3.1416)
         ),
 
 # Sim Vertex XY
     TH1SimVtx_XY = cms.PSet(
-        Nbinsx = cms.int32(100),
-        xmax = cms.double(0.4),                      
-        xmin = cms.double(-0.4),
-				Nbinsy = cms.int32(100),
-				ymax = cms.double(0.4),                      
-        ymin = cms.double(-0.4)
+        Nbinsx = cms.int32(25),
+        xmax = cms.double(0.05),                      
+        xmin = cms.double(-0.05),
+				Nbinsy = cms.int32(25),
+				ymax = cms.double(0.05),                      
+        ymin = cms.double(-0.05)
         ),
 
 # Sim Vertex RZ
     TH1SimVtx_RZ = cms.PSet(
-        Nbinsx = cms.int32(100),
-        xmax = cms.double(50.0),                      
-        xmin = cms.double(-50.0),
-				Nbinsy = cms.int32(100),
-				ymax = cms.double(0.4),                      
+        Nbinsx = cms.int32(30),
+        xmax = cms.double(30.0),                      
+        xmin = cms.double(-30.0),
+				Nbinsy = cms.int32(25),
+				ymax = cms.double(0.05),                      
         ymin = cms.double(0.0)
         ),
 

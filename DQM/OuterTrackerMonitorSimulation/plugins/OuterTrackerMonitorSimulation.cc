@@ -335,7 +335,7 @@ OuterTrackerMonitorSimulation::beginRun(const edm::Run& run, const edm::EventSet
 																			psTPart_Angle_Pt10.getParameter<int32_t>("Nbinsx"),
 																			psTPart_Angle_Pt10.getParameter<double>("xmin"),
 																			psTPart_Angle_Pt10.getParameter<double>("xmax"));
-	TPart_Phi_Pt10->setAxisTitle("TPart_Eta_Pt10", 1);
+	TPart_Phi_Pt10->setAxisTitle("TPart_Phi_Pt10", 1);
 	TPart_Phi_Pt10->setAxisTitle("Number of Events", 2);
 	
 	edm::ParameterSet psSimVtx_XY =  conf_.getParameter<edm::ParameterSet>("TH1SimVtx_XY");
@@ -475,9 +475,9 @@ OuterTrackerMonitorSimulation::beginRun(const edm::Run& run, const edm::EventSet
 	
 	HistoName = "TPart_AbsEta_OCW_2";
 	TPart_AbsEta_OCW_2 = dqmStore_->book1D(HistoName, HistoName,
-																			psTPart_Eta_CW.getParameter<int32_t>("Nbinsx"),
-																			psTPart_Eta_CW.getParameter<double>("xmin"),
-																			psTPart_Eta_CW.getParameter<double>("xmax"));
+																			psTPart_AbsEta_CW.getParameter<int32_t>("Nbinsx"),
+																			psTPart_AbsEta_CW.getParameter<double>("xmin"),
+																			psTPart_AbsEta_CW.getParameter<double>("xmax"));
 	TPart_AbsEta_OCW_2->setAxisTitle("TPart_AbsEta_OCW_2", 1);
 	TPart_AbsEta_OCW_2->setAxisTitle("Number of Events", 2);
 	
