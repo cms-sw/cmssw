@@ -101,6 +101,113 @@ OuterTrackerMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
   NStripClusters= StrC->data().size();
   NumberOfStripClus->Fill(NStripClusters);
 	
+	
+	/// TrackingParticles
+	edm::Handle< std::vector< TrackingParticle > > TrackingParticleHandle;
+	iEvent.getByLabel( "mix", "MergedTrackTruth", TrackingParticleHandle );
+	/// Track Trigger
+	edm::Handle< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > > > PixelDigiTTClusterHandle;	// same for stubs
+	iEvent.getByLabel( "TTClustersFromPixelDigis", "ClusterInclusive", PixelDigiTTClusterHandle );
+	/// Track Trigger MC Truth
+	edm::Handle< TTClusterAssociationMap< Ref_PixelDigi_ > > MCTruthTTClusterHandle;
+	iEvent.getByLabel( "TTClusterAssociatorFromPixelDigis", "ClusterInclusive", MCTruthTTClusterHandle );
+	
+	/// Eta coverage
+	/// Go on only if there are TrackingParticles
+  if( TrackingParticleHandle->size() > 0)
+  {
+  	/// Loop over the TrackingParticles
+		unsigned int tpCnt = 0;
+		std::vector< TrackingParticle >::const_iterator iterTP;
+		for(iterTP = TrackingParticleHandle->begin(); iterTP !=	TrackingParticleHandle->end(); ++iterTP)
+		{
+			/// Make the pointer
+  		edm::Ptr<TrackingParticle> tempTPPtr( TrackingParticleHandle, tpCnt++ );
+			
+			/// Search the cluster MC map
+			std::vector< edm::Ref< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >, TTCluster< Ref_PixelDigi_ > > > theseClusters = MCTruthTTClusterHandle->findTTClusterRefs( tempTPPtr );
+			
+		}	// end loop TrackingParticles
+  } // end if there are TrackingParticles
+	
+	/// Loop over the input Clusters
+	typename edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >::const_iterator inputIter;
+	typename edmNew::DetSet< TTCluster< Ref_PixelDigi_ > >::const_iterator contentIter;
+	for ( inputIter = PixelDigiTTClusterHandle->begin();
+			 inputIter != PixelDigiTTClusterHandle->end();
+			 ++inputIter )
+	{
+		for ( contentIter = inputIter->begin();
+				 contentIter != inputIter->end();
+				 ++contentIter )
+		{
+			/// Make the reference to be put in the map
+			edm::Ref< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >, TTCluster< Ref_PixelDigi_ > > tempCluRef = edmNew::makeRefTo( PixelDigiTTClusterHandle, contentIter );
+
+			StackedTrackerDetId detIdClu( tempCluRef->getDetId() );		// find it!
+			unsigned int memberClu = tempCluRef->getStackMember();
+			bool genuineClu     = MCTruthTTClusterHandle->isGenuine( tempCluRef );
+			bool combinClu      = MCTruthTTClusterHandle->isCombinatoric( tempCluRef );
+			//bool unknownClu     = MCTruthTTClusterHandle->isUnknown( tempCluRef );
+			//int partClu         = 999999999;
+			if ( genuineClu )
+			{
+				edm::Ptr< TrackingParticle > thisTP = MCTruthTTClusterHandle->findTrackingParticlePtr( tempCluRef );
+				//partClu = thisTP->pdgId();
+			}
+
+			if ( detIdClu.isBarrel() )
+			{
+				if ( memberClu == 0 )
+				{
+					Cluster_IMem_Barrel->Fill( detIdClu.iLayer() );
+				}
+				else
+				{
+					Cluster_OMem_Barrel->Fill( detIdClu.iLayer() );
+				}
+
+				if ( genuineClu )
+				{
+					Cluster_Gen_Barrel->Fill( detIdClu.iLayer() );
+				}
+				else if ( combinClu )
+				{
+					Cluster_Comb_Barrel->Fill( detIdClu.iLayer() );
+				}
+				else
+				{
+					Cluster_Unkn_Barrel->Fill( detIdClu.iLayer() );
+				}
+
+			}	// end if isBarrel()
+			else if ( detIdClu.isEndcap() )
+			{
+				if ( memberClu == 0 )
+				{
+					Cluster_IMem_Endcap->Fill( detIdClu.iDisk() );
+				}
+				else
+				{
+					Cluster_OMem_Endcap->Fill( detIdClu.iDisk() );
+				}
+
+				if ( genuineClu )
+				{
+					Cluster_Gen_Endcap->Fill( detIdClu.iDisk() );
+				}
+				else if ( combinClu )
+				{
+					Cluster_Comb_Endcap->Fill( detIdClu.iDisk() );
+				}
+				else
+				{
+					Cluster_Unkn_Endcap->Fill( detIdClu.iDisk() );
+				}
+
+			}	// end if isEndcap()
+		}	// end loop contentIter
+	}	// end loop inputIter
 }
 
 
@@ -124,6 +231,90 @@ OuterTrackerMonitorCluster::beginRun(const edm::Run& run, const edm::EventSetup&
 	NumberOfStripClus->setAxisTitle("# of Clusters in Strip", 1);
 	NumberOfStripClus->setAxisTitle("Number of Events", 2);
 	
+	
+	dqmStore_->setCurrentFolder(topFolderName_+"/Clusters/");
+	
+	// TTCluster stacks
+	edm::ParameterSet psTTClusterStacks =  conf_.getParameter<edm::ParameterSet>("TH1TTCluster_Stack");
+	HistoName = "Cluster_IMem_Barrel";
+	Cluster_IMem_Barrel = dqmStore_->book1D(HistoName, HistoName,
+																				psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
+																				psTTClusterStacks.getParameter<double>("xmin"),
+																				psTTClusterStacks.getParameter<double>("xmax"));
+	Cluster_IMem_Barrel->setAxisTitle("Inner TTCluster Stack", 1);
+	Cluster_IMem_Barrel->setAxisTitle("Number of Clusters", 2);
+	
+	HistoName = "Cluster_IMem_Endcap";
+	Cluster_IMem_Endcap = dqmStore_->book1D(HistoName, HistoName,
+																				psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
+																				psTTClusterStacks.getParameter<double>("xmin"),
+																				psTTClusterStacks.getParameter<double>("xmax"));
+	Cluster_IMem_Endcap->setAxisTitle("Inner TTCluster Stack", 1);
+	Cluster_IMem_Endcap->setAxisTitle("Number of Clusters", 2);
+	
+	HistoName = "Cluster_OMem_Barrel";
+	Cluster_OMem_Barrel = dqmStore_->book1D(HistoName, HistoName,
+																				psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
+																				psTTClusterStacks.getParameter<double>("xmin"),
+																				psTTClusterStacks.getParameter<double>("xmax"));
+	Cluster_OMem_Barrel->setAxisTitle("Outer TTCluster Stack", 1);
+	Cluster_OMem_Barrel->setAxisTitle("Number of Clusters", 2);
+	
+	HistoName = "Cluster_IMem_Endcap";
+	Cluster_OMem_Endcap = dqmStore_->book1D(HistoName, HistoName,
+																				psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
+																				psTTClusterStacks.getParameter<double>("xmin"),
+																				psTTClusterStacks.getParameter<double>("xmax"));
+	Cluster_OMem_Endcap->setAxisTitle("Outer TTCluster Stack", 1);
+	Cluster_OMem_Endcap->setAxisTitle("Number of Clusters", 2);
+	
+	HistoName = "Cluster_Gen_Barrel";
+	Cluster_Gen_Barrel = dqmStore_->book1D(HistoName, HistoName,
+																				psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
+																				psTTClusterStacks.getParameter<double>("xmin"),
+																				psTTClusterStacks.getParameter<double>("xmax"));
+	Cluster_Gen_Barrel->setAxisTitle("Genuine TTCluster Stack", 1);
+	Cluster_Gen_Barrel->setAxisTitle("Number of Clusters", 2);
+	
+	HistoName = "Cluster_Unkn_Barrel";
+	Cluster_Unkn_Barrel = dqmStore_->book1D(HistoName, HistoName,
+																				psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
+																				psTTClusterStacks.getParameter<double>("xmin"),
+																				psTTClusterStacks.getParameter<double>("xmax"));
+	Cluster_Unkn_Barrel->setAxisTitle("Unknown TTCluster Stack", 1);
+	Cluster_Unkn_Barrel->setAxisTitle("Number of Clusters", 2);
+	
+	HistoName = "Cluster_Comb_Barrel";
+	Cluster_Comb_Barrel = dqmStore_->book1D(HistoName, HistoName,
+																				psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
+																				psTTClusterStacks.getParameter<double>("xmin"),
+																				psTTClusterStacks.getParameter<double>("xmax"));
+	Cluster_Comb_Barrel->setAxisTitle("Combinatorial TTCluster Stack", 1);
+	Cluster_Comb_Barrel->setAxisTitle("Number of Clusters", 2);
+	
+	HistoName = "Cluster_Gen_Endcap";
+	Cluster_Gen_Endcap = dqmStore_->book1D(HistoName, HistoName,
+																				psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
+																				psTTClusterStacks.getParameter<double>("xmin"),
+																				psTTClusterStacks.getParameter<double>("xmax"));
+	Cluster_Gen_Endcap->setAxisTitle("Genuine TTCluster Stack", 1);
+	Cluster_Gen_Endcap->setAxisTitle("Number of Clusters", 2);
+	
+	HistoName = "Cluster_Unkn_Endcap";
+	Cluster_Unkn_Endcap = dqmStore_->book1D(HistoName, HistoName,
+																				psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
+																				psTTClusterStacks.getParameter<double>("xmin"),
+																				psTTClusterStacks.getParameter<double>("xmax"));
+	Cluster_Unkn_Endcap->setAxisTitle("Unknown TTCluster Stack", 1);
+	Cluster_Unkn_Endcap->setAxisTitle("Number of Clusters", 2);
+	
+	HistoName = "Cluster_Comb_Endcap";
+	Cluster_Comb_Endcap = dqmStore_->book1D(HistoName, HistoName,
+																				psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
+																				psTTClusterStacks.getParameter<double>("xmin"),
+																				psTTClusterStacks.getParameter<double>("xmax"));
+	Cluster_Comb_Endcap->setAxisTitle("Combinatorial TTCluster Stack", 1);
+	Cluster_Comb_Endcap->setAxisTitle("Number of Clusters", 2);
 	
 }//end of method
 

@@ -107,7 +107,7 @@ OuterTrackerMonitorSimulation::analyze(const edm::Event& iEvent, const edm::Even
 	edm::Handle< TTClusterAssociationMap< Ref_PixelDigi_ > > MCTruthTTClusterHandle;
 	iEvent.getByLabel( "TTClusterAssociatorFromPixelDigis", "ClusterInclusive", MCTruthTTClusterHandle );
 	
-	/// Eta coverage
+	
 	/// Go on only if there are TrackingParticles
   if( TrackingParticleHandle->size() > 0)
   {
@@ -116,6 +116,29 @@ OuterTrackerMonitorSimulation::analyze(const edm::Event& iEvent, const edm::Even
 		std::vector< TrackingParticle >::const_iterator iterTP;
 		for(iterTP = TrackingParticleHandle->begin(); iterTP !=	TrackingParticleHandle->end(); ++iterTP)
 		{
+			/// Get the corresponding vertex
+			/// Assume perfectly round beamspot
+			/// Correct and get the correct TrackingParticle Vertex position wrt beam center
+			if ( iterTP->vertex().rho() >= 2 )
+				continue;
+			
+			/// Check beamspot and correction
+			SimVtx_XY->Fill( iterTP->vertex().x(), iterTP->vertex().y() );
+			SimVtx_RZ->Fill( iterTP->vertex().z(), iterTP->vertex().rho() );
+			
+			/// Here we have only tracks form primary vertices
+			/// Check Pt spectrum and pseudorapidity for over-threshold tracks
+			TPart_Pt->Fill( iterTP->p4().pt() );
+			if ( iterTP->p4().pt() > 10.0 )
+			{
+				TPart_Eta_Pt10->Fill( iterTP->momentum().eta() );
+				TPart_Phi_Pt10->Fill( iterTP->momentum().phi() > M_PI ?
+															iterTP->momentum().phi() - 2*M_PI :
+															iterTP->momentum().phi() );
+			}
+
+			
+			/// Eta coverage
 			/// Make the pointer
   		edm::Ptr<TrackingParticle> tempTPPtr( TrackingParticleHandle, tpCnt++ );
 			
@@ -195,83 +218,83 @@ OuterTrackerMonitorSimulation::analyze(const edm::Event& iEvent, const edm::Even
   } // end if there are TrackingParticles
 	
 	/// Loop over the input Clusters
-typename edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >::const_iterator inputIter;
-typename edmNew::DetSet< TTCluster< Ref_PixelDigi_ > >::const_iterator contentIter;
-for ( inputIter = PixelDigiTTClusterHandle->begin();
-		 inputIter != PixelDigiTTClusterHandle->end();
-		 ++inputIter )
-{
-	for ( contentIter = inputIter->begin();
-			 contentIter != inputIter->end();
-			 ++contentIter )
+	typename edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >::const_iterator inputIter;
+	typename edmNew::DetSet< TTCluster< Ref_PixelDigi_ > >::const_iterator contentIter;
+	for ( inputIter = PixelDigiTTClusterHandle->begin();
+			 inputIter != PixelDigiTTClusterHandle->end();
+			 ++inputIter )
 	{
-		/// Make the reference to be put in the map
-		edm::Ref< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >, TTCluster< Ref_PixelDigi_ > > tempCluRef = edmNew::makeRefTo( PixelDigiTTClusterHandle, contentIter );
-
-		StackedTrackerDetId detIdClu( tempCluRef->getDetId() );		// find it!
-		unsigned int memberClu = tempCluRef->getStackMember();
-		bool genuineClu     = MCTruthTTClusterHandle->isGenuine( tempCluRef );
-		bool combinClu      = MCTruthTTClusterHandle->isCombinatoric( tempCluRef );
-		//bool unknownClu     = MCTruthTTClusterHandle->isUnknown( tempCluRef );
-		//int partClu         = 999999999;
-		if ( genuineClu )
+		for ( contentIter = inputIter->begin();
+				 contentIter != inputIter->end();
+				 ++contentIter )
 		{
-			edm::Ptr< TrackingParticle > thisTP = MCTruthTTClusterHandle->findTrackingParticlePtr( tempCluRef );
-			//partClu = thisTP->pdgId();
-		}
+			/// Make the reference to be put in the map
+			edm::Ref< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >, TTCluster< Ref_PixelDigi_ > > tempCluRef = edmNew::makeRefTo( PixelDigiTTClusterHandle, contentIter );
 
-		if ( detIdClu.isBarrel() )
-		{
-			if ( memberClu == 0 )
-			{
-				Cluster_IMem_Barrel->Fill( detIdClu.iLayer() );
-			}
-			else
-			{
-				Cluster_OMem_Barrel->Fill( detIdClu.iLayer() );
-			}
-			
+			StackedTrackerDetId detIdClu( tempCluRef->getDetId() );		// find it!
+			unsigned int memberClu = tempCluRef->getStackMember();
+			bool genuineClu     = MCTruthTTClusterHandle->isGenuine( tempCluRef );
+			bool combinClu      = MCTruthTTClusterHandle->isCombinatoric( tempCluRef );
+			//bool unknownClu     = MCTruthTTClusterHandle->isUnknown( tempCluRef );
+			//int partClu         = 999999999;
 			if ( genuineClu )
 			{
-				Cluster_Gen_Barrel->Fill( detIdClu.iLayer() );
+				edm::Ptr< TrackingParticle > thisTP = MCTruthTTClusterHandle->findTrackingParticlePtr( tempCluRef );
+				//partClu = thisTP->pdgId();
 			}
-			else if ( combinClu )
+
+			if ( detIdClu.isBarrel() )
 			{
-				Cluster_Comb_Barrel->Fill( detIdClu.iLayer() );
-			}
-			else
+				if ( memberClu == 0 )
+				{
+					Cluster_IMem_Barrel->Fill( detIdClu.iLayer() );
+				}
+				else
+				{
+					Cluster_OMem_Barrel->Fill( detIdClu.iLayer() );
+				}
+
+				if ( genuineClu )
+				{
+					Cluster_Gen_Barrel->Fill( detIdClu.iLayer() );
+				}
+				else if ( combinClu )
+				{
+					Cluster_Comb_Barrel->Fill( detIdClu.iLayer() );
+				}
+				else
+				{
+					Cluster_Unkn_Barrel->Fill( detIdClu.iLayer() );
+				}
+
+			}	// end if isBarrel()
+			else if ( detIdClu.isEndcap() )
 			{
-				Cluster_Unkn_Barrel->Fill( detIdClu.iLayer() );
-			}
-			
-		}	// end if isBarrel()
-		else if ( detIdClu.isEndcap() )
-		{
-			if ( memberClu == 0 )
-			{
-				Cluster_IMem_Endcap->Fill( detIdClu.iDisk() );
-			}
-			else
-			{
-				Cluster_OMem_Endcap->Fill( detIdClu.iDisk() );
-			}
-			
-			if ( genuineClu )
-			{
-				Cluster_Gen_Endcap->Fill( detIdClu.iDisk() );
-			}
-			else if ( combinClu )
-			{
-				Cluster_Comb_Endcap->Fill( detIdClu.iDisk() );
-			}
-			else
-			{
-				Cluster_Unkn_Endcap->Fill( detIdClu.iDisk() );
-			}
-			
-		}	// end if isEndcap()
-	}	// end loop contentIter
-}	// end loop inputIter
+				if ( memberClu == 0 )
+				{
+					Cluster_IMem_Endcap->Fill( detIdClu.iDisk() );
+				}
+				else
+				{
+					Cluster_OMem_Endcap->Fill( detIdClu.iDisk() );
+				}
+
+				if ( genuineClu )
+				{
+					Cluster_Gen_Endcap->Fill( detIdClu.iDisk() );
+				}
+				else if ( combinClu )
+				{
+					Cluster_Comb_Endcap->Fill( detIdClu.iDisk() );
+				}
+				else
+				{
+					Cluster_Unkn_Endcap->Fill( detIdClu.iDisk() );
+				}
+
+			}	// end if isEndcap()
+		}	// end loop contentIter
+	}	// end loop inputIter
 	
 }
 
@@ -286,11 +309,63 @@ OuterTrackerMonitorSimulation::beginRun(const edm::Run& run, const edm::EventSet
 	folder_organizer.setSiStripFolder();
 	
 	
-	dqmStore_->setCurrentFolder(topFolderName_+"/Clusters/");
+	dqmStore_->setCurrentFolder(topFolderName_+"/Validation/");
+	
+	/// TrackingParticle and TrackingVertex
+	edm::ParameterSet psTPart_Pt =  conf_.getParameter<edm::ParameterSet>("TH1TPart_Pt");
+	std::string HistoName = "TPart_Pt";
+	TPart_Pt = dqmStore_->book1D(HistoName, HistoName,
+																			psTPart_Pt.getParameter<int32_t>("Nbinsx"),
+																			psTPart_Pt.getParameter<double>("xmin"),
+																			psTPart_Pt.getParameter<double>("xmax"));
+	TPart_Pt->setAxisTitle("TPart_Pt", 1);
+	TPart_Pt->setAxisTitle("Number of Events", 2);
+	
+	edm::ParameterSet psTPart_Angle_Pt10 =  conf_.getParameter<edm::ParameterSet>("TH1TPart_Angle_Pt10");
+	HistoName = "TPart_Eta_Pt10";
+	TPart_Eta_Pt10 = dqmStore_->book1D(HistoName, HistoName,
+																			psTPart_Angle_Pt10.getParameter<int32_t>("Nbinsx"),
+																			psTPart_Angle_Pt10.getParameter<double>("xmin"),
+																			psTPart_Angle_Pt10.getParameter<double>("xmax"));
+	TPart_Eta_Pt10->setAxisTitle("TPart_Eta_Pt10", 1);
+	TPart_Eta_Pt10->setAxisTitle("Number of Events", 2);
+	
+	HistoName = "TPart_Phi_Pt10";
+	TPart_Phi_Pt10 = dqmStore_->book1D(HistoName, HistoName,
+																			psTPart_Angle_Pt10.getParameter<int32_t>("Nbinsx"),
+																			psTPart_Angle_Pt10.getParameter<double>("xmin"),
+																			psTPart_Angle_Pt10.getParameter<double>("xmax"));
+	TPart_Phi_Pt10->setAxisTitle("TPart_Eta_Pt10", 1);
+	TPart_Phi_Pt10->setAxisTitle("Number of Events", 2);
+	
+	edm::ParameterSet psSimVtx_XY =  conf_.getParameter<edm::ParameterSet>("TH1SimVtx_XY");
+	HistoName = "SimVtx_XY";
+	SimVtx_XY = dqmStore_->book2D(HistoName, HistoName,
+																			psSimVtx_XY.getParameter<int32_t>("Nbinsx"),
+																			psSimVtx_XY.getParameter<double>("xmin"),
+																			psSimVtx_XY.getParameter<double>("xmax"),
+																			psSimVtx_XY.getParameter<int32_t>("Nbinsy"),
+																			psSimVtx_XY.getParameter<double>("ymin"),
+																			psSimVtx_XY.getParameter<double>("ymax"));
+	SimVtx_XY->setAxisTitle("SimVtx x", 1);
+	SimVtx_XY->setAxisTitle("SimVtx y", 2);
+	
+	edm::ParameterSet psSimVtx_RZ =  conf_.getParameter<edm::ParameterSet>("TH1SimVtx_RZ");
+	HistoName = "SimVtx_RZ";
+	SimVtx_RZ = dqmStore_->book2D(HistoName, HistoName,
+																			psSimVtx_RZ.getParameter<int32_t>("Nbinsx"),
+																			psSimVtx_RZ.getParameter<double>("xmin"),
+																			psSimVtx_RZ.getParameter<double>("xmax"),
+																			psSimVtx_RZ.getParameter<int32_t>("Nbinsy"),
+																			psSimVtx_RZ.getParameter<double>("ymin"),
+																			psSimVtx_RZ.getParameter<double>("ymax"));
+	SimVtx_RZ->setAxisTitle("SimVtx #rho", 1);
+	SimVtx_RZ->setAxisTitle("SimVtx z", 2);
+	
 	
 	// Inner
 	edm::ParameterSet psTPart_Eta_CW =  conf_.getParameter<edm::ParameterSet>("TH1TPart_Eta_CW");
-	std::string HistoName = "TPart_Eta_ICW_1";
+	HistoName = "TPart_Eta_ICW_1";
 	TPart_Eta_ICW_1 = dqmStore_->book1D(HistoName, HistoName,
 																			psTPart_Eta_CW.getParameter<int32_t>("Nbinsx"),
 																			psTPart_Eta_CW.getParameter<double>("xmin"),

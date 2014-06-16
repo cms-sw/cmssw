@@ -32,6 +32,12 @@ public:
   virtual void beginRun(const edm::Run&, const edm::EventSetup&);
  
   
+	// TrackingParticle and TrackingVertex
+	MonitorElement* TPart_Pt = 0;
+	MonitorElement* TPart_Eta_Pt10 = 0;
+	MonitorElement* TPart_Phi_Pt10 = 0;
+	MonitorElement* SimVtx_XY = 0;
+	MonitorElement* SimVtx_RZ = 0;
 	// CW vs. TPart Eta
 	MonitorElement* TPart_Eta_INormalization = 0;
 	MonitorElement* TPart_Eta_ICW_1 = 0;
