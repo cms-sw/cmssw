@@ -1,4 +1,3 @@
-#include "FWCore/Utilities/interface/boostWorkAround.h"
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/PtrVector.h"
 #include "DataFormats/Common/interface/Ptr.h"

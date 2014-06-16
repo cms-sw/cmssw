@@ -1,4 +1,3 @@
-#include "FWCore/Utilities/interface/boostWorkAround.h"
 #include <vector>
 #include "FWCore/MessageLogger/interface/ErrorSummaryEntry.h"
 

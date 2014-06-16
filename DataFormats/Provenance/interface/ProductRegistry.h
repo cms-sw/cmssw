@@ -21,7 +21,6 @@
 #include <map>
 #include <string>
 #include <vector>
-#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 
 namespace edm {
   class ProductHolderIndexHelper;

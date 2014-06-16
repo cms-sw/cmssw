@@ -5,7 +5,6 @@
 #include "DataFormats/Common/interface/RefVectorHolderBase.h"
 #include "DataFormats/Common/interface/IndirectHolder.h"
 #include <memory>
-#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 
 namespace edm {
   namespace reftobase {

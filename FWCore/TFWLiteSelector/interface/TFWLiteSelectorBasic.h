@@ -25,8 +25,6 @@ allows you to access data using an edm::Event.
 
 // user include files
 
-#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
-
 // forward declarations
 class TFile;
 class TList;

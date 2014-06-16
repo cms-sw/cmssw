@@ -6,15 +6,9 @@
 WrapperInterfaceBase: The base class of all things that will be inserted into the Event.
 /
 ----------------------------------------------------------------------*/
-#ifdef __ROOTCLING__
-#define BOOST_SP_NO_ATOMIC_ACCESS
-#define BOOST_SP_DISABLE_THREADS
-#endif
-#include "boost/shared_ptr.hpp"
-
+#include <memory>
 #include <typeinfo>
 #include <vector>
-#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 
 namespace edm {
   class ProductID;

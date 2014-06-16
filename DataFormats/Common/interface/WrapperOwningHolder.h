@@ -8,7 +8,6 @@
 #include "DataFormats/Common/interface/WrapperHolder.h"
 
 #include <memory>
-#include "FWCore/Utilities/interface/HideStdSharedPtrFromRoot.h"
 
 namespace edm {
   class WrapperOwningHolder : private WrapperHolder {

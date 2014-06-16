@@ -1,4 +1,3 @@
-#include "FWCore/Utilities/interface/boostWorkAround.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
 //Add includes for your classes here

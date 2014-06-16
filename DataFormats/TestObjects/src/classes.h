@@ -1,4 +1,3 @@
-#include "FWCore/Utilities/interface/boostWorkAround.h"
 #include "DataFormats/Common/interface/SortedCollection.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/Common/interface/AssociationVector.h"

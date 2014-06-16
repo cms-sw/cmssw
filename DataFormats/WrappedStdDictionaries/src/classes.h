@@ -1,4 +1,3 @@
-#include "FWCore/Utilities/interface/boostWorkAround.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
 #include <map>
