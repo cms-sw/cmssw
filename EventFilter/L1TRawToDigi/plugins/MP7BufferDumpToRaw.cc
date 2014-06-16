@@ -191,9 +191,11 @@ MP7BufferDumpToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // check size of vectors now !
 
   // now create the raw data array
-  int nBlocks  = nRxLinks_ + nTxLinks_;
-  int blockSize = nFramesPerEvent_+1; 
-  int evtSize  = nBlocks * blockSize;
+  int nBlocks    = nRxLinks_ + nTxLinks_;
+  int blockSize  = nFramesPerEvent_+1; 
+  int evtSize    = (nBlocks * blockSize)*4;
+
+  edm::LogInfo("mp7") << "nBlocks=" << nBlocks << ", blockSize=" << nFramesPerEvent_+1 << ", evtSize=" << evtSize << std::endl;
 
   // create the collection
   std::auto_ptr<FEDRawDataCollection> rawColl(new FEDRawDataCollection()); 
@@ -207,9 +209,11 @@ MP7BufferDumpToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   for (int iBlock=0; iBlock<nRxLinks_ && iWord<evtSize; ++iBlock) {
 
-    feddata.data()[iWord+2] = nFramesPerEvent_ & 0xf;
-    feddata.data()[iWord+3] = iBlock & 0xf ;
+    feddata.data()[iWord+2] = blockSize & 0xff;
+    feddata.data()[iWord+3] = iBlock & 0xff ;
     iWord+=4;
+
+    edm::LogInfo("mp7") << "Rx Block : " << (iBlock&0xff) << " " << (blockSize&0xff) << std::endl;
 
     for (int i=0; i<nFramesPerEvent_; ++i) {
       if (i<(int)rxData.size() && iBlock<(int)rxData.at(i).size()) {
@@ -223,9 +227,11 @@ MP7BufferDumpToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   for (int iBlock=0; iBlock<nTxLinks_ && iWord<evtSize; ++iBlock) {
 
-    feddata.data()[iWord+2] = nFramesPerEvent_ & 0xf;
-    feddata.data()[iWord+3] = (iBlock+txBlockOffset_) & 0xf;
+    feddata.data()[iWord+2] = blockSize & 0xff;
+    feddata.data()[iWord+3] = (iBlock+txBlockOffset_) & 0xff;
     iWord+=4;
+
+    edm::LogInfo("mp7") << "Tx Block : " << (iBlock&0xff) << " " << (blockSize&0xff) << std::endl;
 
     for (int i=0; i<nFramesPerEvent_; ++i) {
       if (i<(int)txData.size() && iBlock<(int)txData.at(i).size()) {

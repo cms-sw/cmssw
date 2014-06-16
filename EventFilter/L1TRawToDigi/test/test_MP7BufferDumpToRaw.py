@@ -18,7 +18,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
+    input = cms.untracked.int32(32)
 )
 
 # Input source
@@ -28,30 +28,21 @@ process.options = cms.untracked.PSet(
 
 )
 
-# Production Info
-process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.19 $'),
-    annotation = cms.untracked.string('SingleElectronPt10_cfi.py nevts:1'),
-    name = cms.untracked.string('Applications')
-)
 
 # Output definition
 
-process.output = cms.OutputModule(
-    "PoolOutputModule",
-    splitLevel = cms.untracked.int32(0),
-    eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
-    outputCommands = cms.untracked.vstring("keep *",
-					   "drop *_mix_*_*"),
-    fileName = cms.untracked.string('L1T_EDM.root'),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string(''),
-        dataTier = cms.untracked.string('')
-    )
-#    SelectEvents = cms.untracked.PSet(
-#        SelectEvents = cms.vstring('generation_step')
+#process.output = cms.OutputModule(
+#    "PoolOutputModule",
+#    splitLevel = cms.untracked.int32(0),
+#    eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
+#    outputCommands = cms.untracked.vstring("keep *",
+#					   "drop *_mix_*_*"),
+#    fileName = cms.untracked.string('L1T_EDM.root'),
+#    dataset = cms.untracked.PSet(
+#        filterName = cms.untracked.string(''),
+#        dataTier = cms.untracked.string('')
 #    )
-)
+#)
 
 # Additional output definition
 
@@ -119,6 +110,7 @@ process.path = cms.Path(
     process.mp7BufferDumpToRaw
     +process.dumpRaw
     +process.l1tDigis
+    +process.l1tStage2CaloAnalyzer
 )
 
 #process.out = cms.EndPath(
