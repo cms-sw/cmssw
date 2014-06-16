@@ -104,7 +104,19 @@ void FDumper::VisitCallExpr( CallExpr *CE ) {
 	std::string tname = ""; 
 	if ( pPath != NULL ) tname += std::string(pPath);
 	tname+="/tmp/function-dumper.txt.unsorted";
-	std::string ostring = "function '"+ mdname +  "' " + "calls function '" + mname + "'\n"; 
+	std::string ostring;
+	CXXMemberCallExpr * CXE = llvm::dyn_cast<CXXMemberCallExpr>(CE);
+	if (CXE) {
+		const CXXMethodDecl * CD = CXE->getMethodDecl();
+		const CXXRecordDecl * RD = CXE->getRecordDecl();
+		const Expr * IOA = CXE->getImplicitObjectArgument();
+		const CXXMethodDecl * AMD = llvm::dyn_cast<CXXMethodDecl>(D);
+		if ( AMD && CD && RD && CD->isVirtual() && RD == AMD->getParent() ) ostring = "function '"+ mdname +  "' " + "calls function '" + mname + " virtual'\n";
+		else ostring = "function '"+ mdname +  "' " + "calls function '" + mname + "'\n"; 
+	} else {
+		if (FD->isVirtualAsWritten() || FD->isPure()) ostring = "function '"+ mdname +  "' " + "calls function '" + mname + " virtual'\n"; 
+		else ostring = "function '"+ mdname +  "' " + "calls function '" + mname + "'\n"; 
+	}
 	std::ofstream file(tname.c_str(),std::ios::app);
 	file<<ostring;
 	VisitChildren(CE);
@@ -124,9 +136,9 @@ void FunctionDumper::checkASTDecl(const CXXMethodDecl *MD, AnalysisManager& mgr,
 	std::string tname=""; 
 	if ( pPath != NULL ) tname += std::string(pPath);
 	tname += "/tmp/function-dumper.txt.unsorted";
-        for (auto I = MD->begin_overridden_methods(), E = MD->end_overridden_methods(); I!=E; ++I) {
+	for (auto I = MD->begin_overridden_methods(), E = MD->end_overridden_methods(); I!=E; ++I) {
 		std::string oname = support::getQualifiedName(*(*I));
-		std::string ostring = "function '" +  mname + "' " + "overrides function '" + oname + "'\n";
+		std::string ostring = "function '" +  mname + "' " + "overrides function '" + oname + " virtual'\n";
 		std::ofstream file(tname.c_str(),std::ios::app);
 		file<<ostring;
 	}
