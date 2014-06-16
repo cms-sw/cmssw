@@ -63,6 +63,37 @@
    0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1,
    0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1
   </Vector>
+  <Vector name="LayerThick" type="numeric" nEntries="180"> 
+    6.8*mm,  6.8*mm,  6.8*mm,  6.8*mm,  6.8*mm,  6.8*mm, 
+    6.8*mm,  6.8*mm,  6.8*mm,  6.8*mm,  6.8*mm,  6.8*mm,
+    6.8*mm,  6.8*mm,  6.8*mm,  6.8*mm,  6.8*mm,  6.8*mm,
+    6.8*mm,  6.8*mm,  6.8*mm,  6.8*mm,  6.8*mm,  6.8*mm,
+    6.8*mm,  6.8*mm,  6.8*mm,  6.8*mm,  6.8*mm,  6.8*mm,
+    6.8*mm,  6.8*mm,  6.8*mm,  6.8*mm,  6.8*mm,  6.8*mm,
+    6.8*mm,  6.8*mm,  6.8*mm,  6.8*mm,  6.8*mm,  6.8*mm,
+    6.8*mm,  6.8*mm,  6.8*mm,  6.8*mm,  6.8*mm,  6.8*mm,
+    6.8*mm,  6.8*mm,  6.8*mm,  6.8*mm,  6.8*mm,  6.8*mm,
+    6.8*mm,  6.8*mm,  6.8*mm,  6.8*mm,  6.8*mm,  6.8*mm,
+    8.5*mm,  8.5*mm,  8.5*mm,  8.5*mm,  8.5*mm,  8.5*mm,
+    8.5*mm,  8.5*mm,  8.5*mm,  8.5*mm,  8.5*mm,  8.5*mm,
+    8.5*mm,  8.5*mm,  8.5*mm,  8.5*mm,  8.5*mm,  8.5*mm,
+    8.5*mm,  8.5*mm,  8.5*mm,  8.5*mm,  8.5*mm,  8.5*mm,
+    8.5*mm,  8.5*mm,  8.5*mm,  8.5*mm,  8.5*mm,  8.5*mm,
+    8.5*mm,  8.5*mm,  8.5*mm,  8.5*mm,  8.5*mm,  8.5*mm,
+    8.5*mm,  8.5*mm,  8.5*mm,  8.5*mm,  8.5*mm,  8.5*mm,
+    8.5*mm,  8.5*mm,  8.5*mm,  8.5*mm,  8.5*mm,  8.5*mm,
+    8.5*mm,  8.5*mm,  8.5*mm,  8.5*mm,  8.5*mm,  8.5*mm,
+    8.5*mm,  8.5*mm,  8.5*mm,  8.5*mm,  8.5*mm,  8.5*mm,
+   10.7*mm, 10.7*mm, 10.7*mm, 10.7*mm, 10.7*mm, 10.7*mm,
+   10.7*mm, 10.7*mm, 10.7*mm, 10.7*mm, 10.7*mm, 10.7*mm,
+   10.7*mm, 10.7*mm, 10.7*mm, 10.7*mm, 10.7*mm, 10.7*mm,
+   10.7*mm, 10.7*mm, 10.7*mm, 10.7*mm, 10.7*mm, 10.7*mm,
+   10.7*mm, 10.7*mm, 10.7*mm, 10.7*mm, 10.7*mm, 10.7*mm,
+   10.7*mm, 10.7*mm, 10.7*mm, 10.7*mm, 10.7*mm, 10.7*mm,
+   10.7*mm, 10.7*mm, 10.7*mm, 10.7*mm, 10.7*mm, 10.7*mm,
+   10.7*mm, 10.7*mm, 10.7*mm, 10.7*mm, 10.7*mm, 10.7*mm,
+   10.7*mm, 10.7*mm, 10.7*mm, 10.7*mm, 10.7*mm, 10.7*mm,
+   10.7*mm, 10.7*mm, 10.7*mm, 10.7*mm, 10.7*mm, 10.7*mm </Vector>
   <Numeric name="zMinBlock"   value="[hgcal:zMinEE]"/>
   <Numeric name="Sectors"     value="18"/>
   <Numeric name="SlopeBottom" value="[etaMax:slope]"/>
