@@ -181,7 +181,7 @@ OuterTrackerMonitorSimulation::analyze(const edm::Event& iEvent, const edm::Even
 						else if ( clusterWidth == 2 )
 						{
 							TPart_AbsEta_OCW_2->Fill( fabs( tempTPPtr->momentum().eta() ) );
-							TPart_Eta_OCW_3->Fill( tempTPPtr->momentum().eta() );
+							TPart_Eta_OCW_2->Fill( tempTPPtr->momentum().eta() );
 						}
 						else
 						{
@@ -209,6 +209,7 @@ for ( inputIter = PixelDigiTTClusterHandle->begin();
 		edm::Ref< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >, TTCluster< Ref_PixelDigi_ > > tempCluRef = edmNew::makeRefTo( PixelDigiTTClusterHandle, contentIter );
 
 		StackedTrackerDetId detIdClu( tempCluRef->getDetId() );		// find it!
+		unsigned int memberClu = tempCluRef->getStackMember();
 		bool genuineClu     = MCTruthTTClusterHandle->isGenuine( tempCluRef );
 		bool combinClu      = MCTruthTTClusterHandle->isCombinatoric( tempCluRef );
 		//bool unknownClu     = MCTruthTTClusterHandle->isUnknown( tempCluRef );
@@ -221,14 +222,14 @@ for ( inputIter = PixelDigiTTClusterHandle->begin();
 
 		if ( detIdClu.isBarrel() )
 		{
-			/*if ( memberClu == 0 )
+			if ( memberClu == 0 )
 			{
 				Cluster_IMem_Barrel->Fill( detIdClu.iLayer() );
 			}
 			else
 			{
 				Cluster_OMem_Barrel->Fill( detIdClu.iLayer() );
-			}*/
+			}
 			
 			if ( genuineClu )
 			{
@@ -246,14 +247,14 @@ for ( inputIter = PixelDigiTTClusterHandle->begin();
 		}	// end if isBarrel()
 		else if ( detIdClu.isEndcap() )
 		{
-			/*if ( memberClu == 0 )
+			if ( memberClu == 0 )
 			{
 				Cluster_IMem_Endcap->Fill( detIdClu.iDisk() );
 			}
 			else
 			{
 				Cluster_OMem_Endcap->Fill( detIdClu.iDisk() );
-			}*/
+			}
 			
 			if ( genuineClu )
 			{
@@ -424,7 +425,7 @@ OuterTrackerMonitorSimulation::beginRun(const edm::Run& run, const edm::EventSet
 	
 	// TTCluster stacks
 	edm::ParameterSet psTTClusterStacks =  conf_.getParameter<edm::ParameterSet>("TH1TTCluster_Stack");
-	/*std::string HistoName = "Cluster_IMem_Barrel";
+	HistoName = "Cluster_IMem_Barrel";
 	Cluster_IMem_Barrel = dqmStore_->book1D(HistoName, HistoName,
 																				psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
 																				psTTClusterStacks.getParameter<double>("xmin"),
@@ -448,13 +449,13 @@ OuterTrackerMonitorSimulation::beginRun(const edm::Run& run, const edm::EventSet
 	Cluster_OMem_Barrel->setAxisTitle("Outer TTCluster Stack", 1);
 	Cluster_OMem_Barrel->setAxisTitle("Number of Events", 2);
 	
-	std::string HistoName = "Cluster_IMem_Endcap";
+	HistoName = "Cluster_IMem_Endcap";
 	Cluster_OMem_Endcap = dqmStore_->book1D(HistoName, HistoName,
 																				psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
 																				psTTClusterStacks.getParameter<double>("xmin"),
 																				psTTClusterStacks.getParameter<double>("xmax"));
 	Cluster_OMem_Endcap->setAxisTitle("Outer TTCluster Stack", 1);
-	Cluster_OMem_Endcap->setAxisTitle("Number of Events", 2);*/
+	Cluster_OMem_Endcap->setAxisTitle("Number of Events", 2);
 	
 	HistoName = "Cluster_Gen_Barrel";
 	Cluster_Gen_Barrel = dqmStore_->book1D(HistoName, HistoName,
