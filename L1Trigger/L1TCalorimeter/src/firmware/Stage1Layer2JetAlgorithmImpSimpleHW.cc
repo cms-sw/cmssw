@@ -31,26 +31,26 @@ void Stage1Layer2JetAlgorithmImpSimpleHW::processEvent(const std::vector<l1t::Ca
   simpleHWSubtraction(regions, subRegions);
   passThroughJets(subRegions, preGtJets);
 
-  // drop the 4 LSB before passing to GT
-  for(std::vector<l1t::Jet>::const_iterator itJet = preGtJets->begin();
-	itJet != preGtJets->end(); ++itJet){
-      const unsigned newEta = itJet->hwEta();
-      const uint16_t rankPt = (itJet->hwPt() >> 4);
-      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > ldummy(0,0,0,0);
-      l1t::Jet gtJet(*&ldummy, rankPt, newEta, itJet->hwPhi(), itJet->hwQual());
-      jets->push_back(gtJet);
-  }
-
-  delete subRegions;
-  delete preGtJets;
-
   //the jets should be sorted, highest pT first.
   // do not truncate the tau list, GT converter handles that
   auto comp = [&](l1t::Jet i, l1t::Jet j)-> bool {
     return (i.hwPt() < j.hwPt() );
   };
 
-  std::sort(jets->begin(), jets->end(), comp);
-  std::reverse(jets->begin(), jets->end());
+  std::sort(preGtJets->begin(), preGtJets->end(), comp);
+  std::reverse(preGtJets->begin(), preGtJets->end());
 
+
+  // drop the 4 LSB before passing to GT
+  for(std::vector<l1t::Jet>::const_iterator itJet = preGtJets->begin();
+      itJet != preGtJets->end(); ++itJet){
+    const unsigned newEta = gtEta(itJet->hwEta());
+    const uint16_t rankPt = (itJet->hwPt() >> 4);
+    ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > ldummy(0,0,0,0);
+    l1t::Jet gtJet(*&ldummy, rankPt, newEta, itJet->hwPhi(), itJet->hwQual());
+    jets->push_back(gtJet);
+  }
+
+  delete subRegions;
+  delete preGtJets;
 }
