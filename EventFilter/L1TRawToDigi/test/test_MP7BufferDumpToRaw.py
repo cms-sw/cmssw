@@ -31,18 +31,18 @@ process.options = cms.untracked.PSet(
 
 # Output definition
 
-#process.output = cms.OutputModule(
-#    "PoolOutputModule",
-#    splitLevel = cms.untracked.int32(0),
-#    eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
-#    outputCommands = cms.untracked.vstring("keep *",
-#					   "drop *_mix_*_*"),
-#    fileName = cms.untracked.string('L1T_EDM.root'),
-#    dataset = cms.untracked.PSet(
-#        filterName = cms.untracked.string(''),
-#        dataTier = cms.untracked.string('')
-#    )
-#)
+process.output = cms.OutputModule(
+    "PoolOutputModule",
+    splitLevel = cms.untracked.int32(0),
+    eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
+    outputCommands = cms.untracked.vstring("keep *",
+					   "drop *_mix_*_*"),
+    fileName = cms.untracked.string('L1T_EDM.root'),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string(''),
+        dataTier = cms.untracked.string('')
+    )
+)
 
 # Additional output definition
 
@@ -110,9 +110,9 @@ process.path = cms.Path(
     process.mp7BufferDumpToRaw
     +process.dumpRaw
     +process.l1tDigis
-    +process.l1tStage2CaloAnalyzer
+#    +process.l1tStage2CaloAnalyzer
 )
 
-#process.out = cms.EndPath(
-#process.output
-#)
+process.out = cms.EndPath(
+    process.output
+)
