@@ -10,7 +10,7 @@ from CommonTools.ParticleFlow.pfJets_cff import *
 from CommonTools.ParticleFlow.pfTaus_cff import *
 
 #delta beta weighting
-from CommonTools.ParticleFlow.deltaBetaWeights_cff  import *
+#from CommonTools.ParticleFlow.deltaBetaWeights_cff  import *
 
 # sequential top projection cleaning
 from CommonTools.ParticleFlow.TopProjectors.pfNoMuon_cfi import * 
@@ -39,7 +39,7 @@ PFBRECO = cms.Sequence(
     pfNoPileUpSequence +
     pfNoPileUpJMESequence +
     pfParticleSelectionSequence + 
-    pfDeltaBetaWeightingSequence +
+#    pfDeltaBetaWeightingSequence +
     pfPhotonSequence +
     pfMuonSequence + 
     pfNoMuon +
