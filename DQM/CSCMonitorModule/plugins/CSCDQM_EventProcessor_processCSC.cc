@@ -1262,8 +1262,13 @@ namespace cscdqm {
 //     CSCCFEBTimeSlice *  timeSlice[N_CFEBs][16];
 //     CSCCFEBDataWord * timeSample[N_CFEBs][16][6][16];
     int Pedestal[N_CFEBs][6][16];
+    #ifdef __clang__
+    std::vector<std::array<std::array<std::pair<int,int>, 6>, 16>> CellPeak(N_CFEBs);
+    std::fill(CellPeak.begin(), CellPeak.end(), std::array<std::array<std::pair<int,int>, 6>, 16>{});
+    #else
     std::pair<int,int> CellPeak[N_CFEBs][6][16];
     memset(CellPeak, 0, sizeof(CellPeak));
+    #endif
 //     float PedestalError[N_CFEBs][6][16];
 //     CSCCFEBSCAControllerWord scaControllerWord[5][16][6];
     bool CheckCFEB = true;
