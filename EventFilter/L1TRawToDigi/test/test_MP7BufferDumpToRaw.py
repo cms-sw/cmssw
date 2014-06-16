@@ -18,7 +18,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
+    input = cms.untracked.int32(32)
 )
 
 # Input source
@@ -119,8 +119,9 @@ process.path = cms.Path(
     process.mp7BufferDumpToRaw
     +process.dumpRaw
     +process.l1tDigis
+#    +process.l1tStage2CaloAnalyzer
 )
 
-#process.out = cms.EndPath(
-#process.output
-#)
+process.out = cms.EndPath(
+    process.output
+)
