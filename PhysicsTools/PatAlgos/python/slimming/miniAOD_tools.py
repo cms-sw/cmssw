@@ -79,7 +79,7 @@ def miniAOD_customizeCommon(process):
     process.patJetGenJetMatchCA8.matched =  'slimmedGenJets'
     process.load("RecoJets.JetProducers.ak8PFJetsCHS_groomingValueMaps_cfi")# import ak8PFJetsCHSPrunedLinks, ak8PFJetsCHSFilteredLinks, ak8PFJetsCHSTrimmedLinks
     process.load("RecoJets.JetProducers.ca8PFJetsCHS_groomingValueMaps_cfi")#  import ca8PFJetsCHSPrunedLinks, ca8PFJetsCHSFilteredLinks, ca8PFJetsCHSTrimmedLinks
-#    process.load('RecoJets.Configuration.RecoPFJets_cff')
+    process.load('RecoJets.Configuration.RecoPFJets_cff')
     process.patJetsCA8.userData.userFloats.src += ['ca8PFJetsCHSPrunedLinks']
     # add cmsTopTagger
     process.cmsTopTagPFJetsCHSLinksCA8 = process.ca8PFJetsCHSPrunedLinks.clone()
