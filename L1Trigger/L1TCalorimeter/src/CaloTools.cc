@@ -12,17 +12,11 @@ const l1t::CaloTower& l1t::CaloTools::getTower(const std::vector<l1t::CaloTower>
 {
   size_t towerIndex = CaloTools::caloTowerHash(iEta, iPhi);
   if(towerIndex<towers.size()){
-    if(towers[towerIndex].hwEta()!=iEta || towers[towerIndex].hwPhi()!=iPhi){ //it failed, this is bad, but we will not log the error due to policy and silently attempt to do a brute force search instead 
-      // std::cout <<"error, tower "<<towers[towerIndex].hwEta()<<" "<<towers[towerIndex].hwPhi()<<" does not match "<<iEta<<" "<<iPhi<<" index "<<towerIndex<<" nr towrs "<<towers.size()<<std::endl;
+    if(towers[towerIndex].hwEta()!=iEta || towers[towerIndex].hwPhi()!=iPhi){ 
       for(size_t towerNr=0;towerNr<towers.size();towerNr++){
 	if(towers[towerNr].hwEta()==iEta && towers[towerNr].hwPhi()==iPhi) return towers[towerNr];
       }     
-    }else return towers[towerIndex];
-  
-<<<<<<< HEAD
-
-=======
->>>>>>> eb1b378... speeding up CaloTools::getCaloTower to use a hash rather than brute force search
+    }else return towers[towerIndex];  
   }
   return nullTower_;
 }
