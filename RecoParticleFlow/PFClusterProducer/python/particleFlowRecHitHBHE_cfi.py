@@ -1,11 +1,11 @@
 import FWCore.ParameterSet.Config as cms
-particleFlowRecHitHBHEHO = cms.EDProducer("PFRecHitProducer",
+particleFlowRecHitHBHE = cms.EDProducer("PFRecHitProducer",
     navigator = cms.PSet(
         name = cms.string("PFRecHitHCALNavigator")
     ),
     producers = cms.VPSet(
            cms.PSet(
-             name = cms.string("PFHBHERecHitCreator"),
+             name = cms.string("PFHBHERecHitCreatorPulses"),
              src  = cms.InputTag("hbhereco",""),
              qualityTests = cms.VPSet(
                   cms.PSet(
