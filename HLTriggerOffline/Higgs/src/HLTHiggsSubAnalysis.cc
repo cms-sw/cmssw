@@ -254,16 +254,10 @@ void HLTHiggsSubAnalysis::bookHistograms(DQMStore::IBooker &ibooker)
     {
         std::string nameGlobalEfficiency = "SummaryPaths_"+_analysisname+"_"+sources[i];
         
-        TH1F *hSummary = new TH1F(nameGlobalEfficiency.c_str(),nameGlobalEfficiency.c_str(),_hltPathsToCheck.size(), 0, _hltPathsToCheck.size());
-        hSummary->Sumw2();
-        _elements[nameGlobalEfficiency] = ibooker.book1D(nameGlobalEfficiency, hSummary);
-        delete hSummary;
+        _elements[nameGlobalEfficiency] = ibooker.book1D(nameGlobalEfficiency.c_str(),nameGlobalEfficiency.c_str(),_hltPathsToCheck.size(), 0, _hltPathsToCheck.size());
         
         std::string nameGlobalEfficiencyPassing= nameGlobalEfficiency+"_passingHLT";
-        TH1F *hSummaryPassing = new TH1F(nameGlobalEfficiencyPassing.c_str(),nameGlobalEfficiencyPassing.c_str(),_hltPathsToCheck.size(), 0, _hltPathsToCheck.size());
-        hSummaryPassing->Sumw2();
-        _elements[nameGlobalEfficiencyPassing] = ibooker.book1D(nameGlobalEfficiencyPassing, hSummaryPassing);
-        delete hSummaryPassing;
+        _elements[nameGlobalEfficiencyPassing] = ibooker.book1D(nameGlobalEfficiencyPassing.c_str(),nameGlobalEfficiencyPassing.c_str(),_hltPathsToCheck.size(), 0, _hltPathsToCheck.size());
         
         std::string title = "nb of interations in the event";
         std::string nameVtxPlot = "trueVtxDist_"+_analysisname+"_"+sources[i];
@@ -271,9 +265,8 @@ void HLTHiggsSubAnalysis::bookHistograms(DQMStore::IBooker &ibooker)
         int    nBins = (int)params[0];
         double min   = params[1];
         double max   = params[2];
-        TH1F *hPu = new TH1F(nameVtxPlot.c_str(), title.c_str(), nBins, min, max);
-        hPu->Sumw2();
-        _elements[nameVtxPlot] = ibooker.book1D(nameVtxPlot, hPu);
+
+        _elements[nameVtxPlot] = ibooker.book1D(nameVtxPlot.c_str(), title.c_str(), nBins, min, max);
         for (size_t j = 0 ; j < _hltPathsToCheck.size() ; j++){
                 std::string path = _hltPathsToCheck[j];
                 std::string shortpath = path;
@@ -282,10 +275,8 @@ void HLTHiggsSubAnalysis::bookHistograms(DQMStore::IBooker &ibooker)
                         shortpath = path.substr(0, path.rfind("_v"));
                 }
             std::string titlePassing = "nb of interations in the event passing path " + shortpath;
-            hPu->SetTitle(titlePassing.c_str());
-        	_elements[nameVtxPlot+"_"+shortpath] = ibooker.book1D(nameVtxPlot+"_"+shortpath, hPu);
+        	_elements[nameVtxPlot+"_"+shortpath] = ibooker.book1D(nameVtxPlot+"_"+shortpath, titlePassing.c_str(), nBins, min, max);
         }
-        delete hPu;
     }
 }
 
