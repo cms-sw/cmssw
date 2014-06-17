@@ -1,6 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
+
 from DQM.OuterTrackerMonitorClient.OuterTrackerMonitorClusterClient_cfi import *
+from DQM.OuterTrackerMonitorSimulation.OuterTrackerMonitorSimulationClient_cfi import *
+
 
 #siStripOfflineAnalyser = cms.EDAnalyzer("OuterTrackerOfflineDQM",
     #GlobalStatusFilling      = cms.untracked.int32(2),
@@ -47,5 +50,6 @@ from DQM.OuterTrackerMonitorClient.OuterTrackerMonitorClusterClient_cfi import *
 #TkDetMap = cms.Service("TkDetMap")
 #SiStripDetInfoFileReade = cms.Service("SiStripDetInfoFileReader")
 
-OuterTrackerClient = cms.Sequence(OuterTrackerMonitorClusterClient)
+OuterTrackerClient = cms.Sequence(OuterTrackerMonitorClusterClient *
+                                  OuterTrackerMonitorSimulationClient)
 
