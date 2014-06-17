@@ -68,7 +68,7 @@ def miniAOD_customizeCommon(process):
     from PhysicsTools.PatAlgos.tools.jetTools import switchJetCollection
     #switch to AK4 for CSA14/70X release (should be default in 71X)
     switchJetCollection(process, jetSource = cms.InputTag('ak4PFJetsCHS'),  
-    jetCorrections = ('AK5PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), ''),
+    jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), ''),
     btagDiscriminators = ['jetBProbabilityBJetTags', 'jetProbabilityBJetTags', 'trackCountingHighPurBJetTags', 'trackCountingHighEffBJetTags', 'simpleSecondaryVertexHighEffBJetTags',
                          'simpleSecondaryVertexHighPurBJetTags', 'combinedSecondaryVertexBJetTags' , 'combinedInclusiveSecondaryVertexBJetTags' ],
     )
