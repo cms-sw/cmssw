@@ -21,6 +21,8 @@ StackingAction::StackingAction(const edm::ParameterSet & p)
 {
   trackNeutrino  = p.getParameter<bool>("TrackNeutrino");
   killHeavy      = p.getParameter<bool>("KillHeavy");
+  killGamma      = p.getParameter<bool>("KillGamma");
+  kmaxGamma      = p.getParameter<double>("GammaThreshold")*MeV;
   kmaxIon        = p.getParameter<double>("IonThreshold")*MeV;
   kmaxProton     = p.getParameter<double>("ProtonThreshold")*MeV;
   kmaxNeutron    = p.getParameter<double>("NeutronThreshold")*MeV;
@@ -125,6 +127,7 @@ StackingAction::StackingAction(const edm::ParameterSet & p)
 				       << killDeltaRay
 				       << " Kill hadrons/ions flag: "
 				       << killHeavy;
+
 
   if(killHeavy) {
     edm::LogInfo("SimG4CoreApplication") << "StackingAction kill protons below " 
@@ -258,6 +261,15 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track * aTra
     }
     if (classification != fKill && isItLongLived(aTrack)) 
       { classification = fKill; }
+    
+    if (classification != fKill && killGamma && pdg == 22 && ke < kmaxGamma) 
+      { 
+	classification = fKill; 
+	//std::cout << "### next gamma killed E(MeV)= " << ke
+	//	  << "  " <<  aTrack->GetCreatorProcess()->GetProcessName()
+	//	  << std::endl;
+      }
+    
 
     if (killDeltaRay && classification != fKill 
 	&& aTrack->GetCreatorProcess()->GetProcessSubType() == fIonisation) {

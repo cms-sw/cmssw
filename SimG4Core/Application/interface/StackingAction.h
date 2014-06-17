@@ -48,8 +48,10 @@ private:
   bool                          savePDandCinAll;
   bool                          killInCalo, killInCaloEfH;
   bool                          killHeavy, trackNeutrino, killDeltaRay;
+  bool                          killGamma;
   double                        limitEnergyForVacuum;
   double                        kmaxIon, kmaxNeutron, kmaxProton;
+  double                        kmaxGamma;
   double                        maxTrackTime;
   unsigned int                  numberTimes;
   std::vector<double>           maxTrackTimes;
