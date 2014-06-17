@@ -20,7 +20,7 @@
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h" 
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchNextLayers.h"
+#include "RecoEgamma/EgammaAlgos/interface/PixelMatchNextLayers.h"
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"

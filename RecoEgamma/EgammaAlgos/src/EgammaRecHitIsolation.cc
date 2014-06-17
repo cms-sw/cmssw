@@ -13,7 +13,7 @@
 #include <Math/VectorUtil.h>
 
 //CMSSW includes
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaRecHitIsolation.h"
+#include "RecoEgamma/EgammaAlgos/interface/EgammaRecHitIsolation.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"

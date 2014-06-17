@@ -22,7 +22,7 @@
 
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "RecoEgamma/PhotonIdentification/interface/PhotonIsolationCalculator.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
+#include "RecoEgamma/EgammaAlgos/interface/EgammaTowerIsolation.h"
 
 //#include "Geometry/Records/interface/CaloGeometryRecord.h"
 //#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"

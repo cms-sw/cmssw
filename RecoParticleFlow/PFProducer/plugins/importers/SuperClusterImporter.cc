@@ -8,7 +8,7 @@
 #include "RecoParticleFlow/PFProducer/interface/PFBlockElementSCEqual.h"
 
 // for single tower H/E
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHadTower.h"
+#include "RecoEgamma/EgammaAlgos/interface/EgammaHadTower.h"
 
 //quick pT for superclusters
 inline double ptFast( const double energy,

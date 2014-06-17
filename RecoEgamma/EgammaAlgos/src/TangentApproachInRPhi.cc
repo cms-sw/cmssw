@@ -1,4 +1,4 @@
-#include "RecoEgamma/EgammaPhotonAlgos/interface/TangentApproachInRPhi.h"
+#include "RecoEgamma/EgammaAlgos/interface/TangentApproachInRPhi.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h" 
 #include "MagneticField/Engine/interface/MagneticField.h"
 

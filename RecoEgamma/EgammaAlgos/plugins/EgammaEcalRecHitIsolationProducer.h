@@ -25,7 +25,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaRecHitIsolation.h"
+#include "RecoEgamma/EgammaAlgos/interface/EgammaRecHitIsolation.h"
 
 //
 // class declaration

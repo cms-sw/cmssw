@@ -21,8 +21,8 @@
 #include "DataFormats/Candidate/interface/CandAssociation.h"
 
 
-#include "RecoEgamma/EgammaIsolationAlgos/plugins/EgammaElectronTkIsolationProducer.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/ElectronTkIsolation.h"
+#include "RecoEgamma/EgammaAlgos/plugins/EgammaElectronTkIsolationProducer.h"
+#include "RecoEgamma/EgammaAlgos/interface/ElectronTkIsolation.h"
 
 EgammaElectronTkIsolationProducer::EgammaElectronTkIsolationProducer(const edm::ParameterSet& config) : conf_(config)
 {

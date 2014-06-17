@@ -31,7 +31,7 @@
 <use   name="MagneticField/Engine"/>
 <use   name="RecoCaloTools/Selectors"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
-<use   name="RecoEgamma/EgammaIsolationAlgos"/>
+<use   name="RecoEgamma/EgammaAlgos"/>
 <use   name="RecoEgamma/EgammaTools"/>
 <use   name="RecoEgamma/ElectronIdentification"/>
 <use   name="RecoLocalCalo/EcalRecAlgos"/>

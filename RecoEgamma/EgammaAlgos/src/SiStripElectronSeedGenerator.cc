@@ -45,7 +45,7 @@ Description: SiStrip-driven electron seed finding algorithm.
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 
 
-#include "RecoEgamma/EgammaElectronAlgos/interface/SiStripElectronSeedGenerator.h"
+#include "RecoEgamma/EgammaAlgos/interface/SiStripElectronSeedGenerator.h"
 
 SiStripElectronSeedGenerator::SiStripElectronSeedGenerator(const edm::ParameterSet &pset, const SiStripElectronSeedGenerator::Tokens& tokens)
  : beamSpotTag_(tokens.token_bs),

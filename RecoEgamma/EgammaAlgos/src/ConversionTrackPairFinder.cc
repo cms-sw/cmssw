@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <memory>
-#include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionTrackPairFinder.h"
+#include "RecoEgamma/EgammaAlgos/interface/ConversionTrackPairFinder.h"
 // Framework
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 //

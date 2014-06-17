@@ -14,7 +14,7 @@
 
 // user include files
 #include "DataFormats/EgammaCandidates/interface/SiStripElectronFwd.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/SiStripElectronAlgo.h"
+#include "RecoEgamma/EgammaAlgos/interface/SiStripElectronAlgo.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 

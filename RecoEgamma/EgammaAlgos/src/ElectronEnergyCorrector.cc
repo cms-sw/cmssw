@@ -1,7 +1,7 @@
 
-#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronEnergyCorrector.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/EnergyUncertaintyElectronSpecific.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
+#include "RecoEgamma/EgammaAlgos/interface/ElectronEnergyCorrector.h"
+#include "RecoEgamma/EgammaAlgos/interface/EnergyUncertaintyElectronSpecific.h"
+#include "RecoEgamma/EgammaAlgos/interface/ElectronUtilities.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "TMath.h"

@@ -6,11 +6,11 @@ class MultiTrajectoryStateTransform ;
 class MultiTrajectoryStateMode ;
 class EcalClusterFunctionBaseClass ;
 
-#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronHcalHelper.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/RegressionHelper.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaRecHitIsolation.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/ElectronTkIsolation.h"
+#include "RecoEgamma/EgammaAlgos/interface/ElectronHcalHelper.h"
+#include "RecoEgamma/EgammaAlgos/interface/RegressionHelper.h"
+#include "RecoEgamma/EgammaAlgos/interface/EgammaTowerIsolation.h"
+#include "RecoEgamma/EgammaAlgos/interface/EgammaRecHitIsolation.h"
+#include "RecoEgamma/EgammaAlgos/interface/ElectronTkIsolation.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"

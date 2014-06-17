@@ -1,5 +1,5 @@
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
-#include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionBarrelEstimator.h"
+#include "RecoEgamma/EgammaAlgos/interface/ConversionBarrelEstimator.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h" 

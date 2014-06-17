@@ -1,4 +1,4 @@
-#include "RecoEgamma/EgammaIsolationAlgos/interface/PfBlockBasedIsolation.h"
+#include "RecoEgamma/EgammaAlgos/interface/PfBlockBasedIsolation.h"
 #include <cmath>
 #include "DataFormats/Math/interface/deltaR.h"
 

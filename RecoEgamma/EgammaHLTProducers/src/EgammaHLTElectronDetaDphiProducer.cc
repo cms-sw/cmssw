@@ -21,7 +21,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
+#include "RecoEgamma/EgammaAlgos/interface/ElectronUtilities.h"
 
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 

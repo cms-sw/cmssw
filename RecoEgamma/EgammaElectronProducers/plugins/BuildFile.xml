@@ -1,5 +1,5 @@
-<use   name="RecoEgamma/EgammaElectronAlgos"/>
-<use   name="RecoEgamma/EgammaIsolationAlgos"/>
+<use   name="RecoEgamma/EgammaAlgos"/>
+<use   name="RecoEgamma/EgammaAlgos"/>
 <use   name="RecoTracker/CkfPattern"/>
 <use   name="RecoTracker/TrackProducer"/>
 <use   name="Geometry/CommonDetUnit"/>

@@ -2,7 +2,7 @@
 // user include files
 #include "Validation/RecoEgamma/plugins/ElectronMcSignalValidator.h"
 
-#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
+#include "RecoEgamma/EgammaAlgos/interface/ElectronUtilities.h"
 
 //#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"

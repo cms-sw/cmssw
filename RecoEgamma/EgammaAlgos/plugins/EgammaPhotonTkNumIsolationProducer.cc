@@ -7,7 +7,7 @@
 //*****************************************************************************
 
 
-#include "RecoEgamma/EgammaIsolationAlgos/plugins/EgammaPhotonTkNumIsolationProducer.h"
+#include "RecoEgamma/EgammaAlgos/plugins/EgammaPhotonTkNumIsolationProducer.h"
 
 // Framework
 #include "DataFormats/Common/interface/Handle.h"
@@ -17,7 +17,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
-#include "RecoEgamma/EgammaIsolationAlgos/interface/PhotonTkIsolation.h"
+#include "RecoEgamma/EgammaAlgos/interface/PhotonTkIsolation.h"
 
 
 EgammaPhotonTkNumIsolationProducer::EgammaPhotonTkNumIsolationProducer(const edm::ParameterSet& config) : conf_(config)

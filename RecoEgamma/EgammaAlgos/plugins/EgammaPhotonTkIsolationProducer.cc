@@ -7,7 +7,7 @@
 //*****************************************************************************
 
 
-#include "RecoEgamma/EgammaIsolationAlgos/plugins/EgammaPhotonTkIsolationProducer.h"
+#include "RecoEgamma/EgammaAlgos/plugins/EgammaPhotonTkIsolationProducer.h"
 
 // Framework
 #include "DataFormats/Common/interface/Handle.h"
@@ -20,7 +20,7 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
-#include "RecoEgamma/EgammaIsolationAlgos/interface/PhotonTkIsolation.h"
+#include "RecoEgamma/EgammaAlgos/interface/PhotonTkIsolation.h"
 
 
 EgammaPhotonTkIsolationProducer::EgammaPhotonTkIsolationProducer(const edm::ParameterSet& config) : conf_(config)

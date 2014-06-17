@@ -19,8 +19,8 @@
 //
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h" 
 #include "CLHEP/Vector/ThreeVector.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/BarrelMeasurementEstimator.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/ForwardMeasurementEstimator.h"
+#include "RecoEgamma/EgammaAlgos/interface/BarrelMeasurementEstimator.h"
+#include "RecoEgamma/EgammaAlgos/interface/ForwardMeasurementEstimator.h"
 #include <vector>
 
 class DetLayer;

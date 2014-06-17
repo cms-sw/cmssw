@@ -1,6 +1,6 @@
-#include "RecoEgamma/EgammaPhotonAlgos/interface/OutInConversionSeedFinder.h"
-#include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionBarrelEstimator.h"
-#include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionForwardEstimator.h"
+#include "RecoEgamma/EgammaAlgos/interface/OutInConversionSeedFinder.h"
+#include "RecoEgamma/EgammaAlgos/interface/ConversionBarrelEstimator.h"
+#include "RecoEgamma/EgammaAlgos/interface/ConversionForwardEstimator.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 //
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

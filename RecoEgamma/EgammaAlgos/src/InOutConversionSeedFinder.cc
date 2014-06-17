@@ -1,8 +1,8 @@
-#include "RecoEgamma/EgammaPhotonAlgos/interface/InOutConversionSeedFinder.h"
-#include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionBarrelEstimator.h"
-#include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionForwardEstimator.h"
+#include "RecoEgamma/EgammaAlgos/interface/InOutConversionSeedFinder.h"
+#include "RecoEgamma/EgammaAlgos/interface/ConversionBarrelEstimator.h"
+#include "RecoEgamma/EgammaAlgos/interface/ConversionForwardEstimator.h"
 
-#include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionFastHelix.h"
+#include "RecoEgamma/EgammaAlgos/interface/ConversionFastHelix.h"
 
 // Field
 //

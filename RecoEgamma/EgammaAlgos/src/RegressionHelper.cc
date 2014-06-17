@@ -1,7 +1,7 @@
 #include "Geometry/Records/interface/CaloTopologyRecord.h"
 #include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
 
-#include "RecoEgamma/EgammaElectronAlgos/interface/RegressionHelper.h"
+#include "RecoEgamma/EgammaAlgos/interface/RegressionHelper.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
 #include "DataFormats/Math/interface/deltaR.h"

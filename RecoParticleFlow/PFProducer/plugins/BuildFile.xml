@@ -17,7 +17,7 @@
   <use   name="RecoParticleFlow/PFProducer"/>
   <use   name="RecoEcal/EgammaCoreTools"/>
   <use   name="Geometry/CaloTopology"/>
-  <use   name="RecoEgamma/EgammaIsolationAlgos"/>
+  <use   name="RecoEgamma/EgammaAlgos"/>
   <use   name="RecoEgamma/PhotonIdentification"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
@@ -41,7 +41,7 @@
   <use   name="RecoParticleFlow/PFProducer"/>
   <use   name="RecoEcal/EgammaCoreTools"/>
   <use   name="Geometry/CaloTopology"/>
-  <use   name="RecoEgamma/EgammaIsolationAlgos"/>
+  <use   name="RecoEgamma/EgammaAlgos"/>
   <use   name="RecoEgamma/PhotonIdentification"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
@@ -65,7 +65,7 @@
   <use   name="RecoParticleFlow/PFProducer"/>
   <use   name="RecoEcal/EgammaCoreTools"/>
   <use   name="Geometry/CaloTopology"/>
-  <use   name="RecoEgamma/EgammaIsolationAlgos"/>
+  <use   name="RecoEgamma/EgammaAlgos"/>
   <use   name="RecoEgamma/PhotonIdentification"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
@@ -89,7 +89,7 @@
   <use   name="RecoParticleFlow/PFProducer"/>
   <use   name="RecoEcal/EgammaCoreTools"/>
   <use   name="Geometry/CaloTopology"/>
-  <use   name="RecoEgamma/EgammaIsolationAlgos"/>
+  <use   name="RecoEgamma/EgammaAlgos"/>
   <use   name="RecoEgamma/PhotonIdentification"/>
   <flags   EDM_PLUGIN="1"/>
 </library>

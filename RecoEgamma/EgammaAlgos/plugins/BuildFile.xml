@@ -12,7 +12,7 @@
 <use   name="Geometry/Records"/>
 <use   name="RecoCaloTools/Selectors"/>
 <use   name="CommonTools/Statistics"/>
-<use   name="RecoEgamma/EgammaIsolationAlgos"/>
+<use   name="RecoEgamma/EgammaAlgos"/>
 <use   name="CondFormats/EcalObjects"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="RecoLocalCalo/EcalRecAlgos"/>

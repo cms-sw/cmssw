@@ -14,7 +14,7 @@
 #include <Math/VectorUtil.h>
 
 //CMSSW includes
-#include "RecoEgamma/EgammaIsolationAlgos/plugins/EgammaEcalExtractor.h"
+#include "RecoEgamma/EgammaAlgos/plugins/EgammaEcalExtractor.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
 using namespace egammaisolation;

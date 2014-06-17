@@ -1,4 +1,4 @@
-#include "RecoEgamma/EgammaIsolationAlgos/plugins/ParticleBasedIsoProducer.h"
+#include "RecoEgamma/EgammaAlgos/plugins/ParticleBasedIsoProducer.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"

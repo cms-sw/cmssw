@@ -12,7 +12,7 @@
 #include <Math/VectorUtil.h>
 
 //CMSSW includes
-#include "RecoEgamma/EgammaIsolationAlgos/interface/ElectronTkIsolation.h"
+#include "RecoEgamma/EgammaAlgos/interface/ElectronTkIsolation.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"

@@ -29,9 +29,9 @@
 //
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 //
-#include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionTrackEcalImpactPoint.h"
-#include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionTrackPairFinder.h"
-#include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionVertexFinder.h"
+#include "RecoEgamma/EgammaAlgos/interface/ConversionTrackEcalImpactPoint.h"
+#include "RecoEgamma/EgammaAlgos/interface/ConversionTrackPairFinder.h"
+#include "RecoEgamma/EgammaAlgos/interface/ConversionVertexFinder.h"
 #include "RecoEgamma/EgammaPhotonProducers/interface/ConvertedPhotonProducer.h"
 //
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
@@ -41,7 +41,7 @@
 #include "TrackingTools/TransientTrack/interface/TrackTransientTrack.h"
 #include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistance.h"
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
+#include "RecoEgamma/EgammaAlgos/interface/EgammaTowerIsolation.h"
 
 ConvertedPhotonProducer::ConvertedPhotonProducer(const edm::ParameterSet& config) : 
   conf_(config), 

@@ -14,7 +14,7 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 
-#include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionSeedFinder.h"
+#include "RecoEgamma/EgammaAlgos/interface/ConversionSeedFinder.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"

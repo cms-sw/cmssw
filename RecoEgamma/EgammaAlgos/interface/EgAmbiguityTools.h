@@ -5,9 +5,9 @@
 class MultiTrajectoryStateTransform ;
 class MultiTrajectoryStateMode ;
 
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaRecHitIsolation.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/ElectronTkIsolation.h"
+#include "RecoEgamma/EgammaAlgos/interface/EgammaTowerIsolation.h"
+#include "RecoEgamma/EgammaAlgos/interface/EgammaRecHitIsolation.h"
+#include "RecoEgamma/EgammaAlgos/interface/ElectronTkIsolation.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"

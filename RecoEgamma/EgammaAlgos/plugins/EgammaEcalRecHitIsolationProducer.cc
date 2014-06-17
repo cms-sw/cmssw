@@ -7,7 +7,7 @@
 //*****************************************************************************
 
 
-#include "RecoEgamma/EgammaIsolationAlgos/plugins/EgammaEcalRecHitIsolationProducer.h"
+#include "RecoEgamma/EgammaAlgos/plugins/EgammaEcalRecHitIsolationProducer.h"
 
 // Framework
 #include "FWCore/Framework/interface/EventSetup.h"

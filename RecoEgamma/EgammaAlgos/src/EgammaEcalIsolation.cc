@@ -14,7 +14,7 @@
 #include <Math/VectorUtil.h>
 
 //CMSSW includes
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaEcalIsolation.h"
+#include "RecoEgamma/EgammaAlgos/interface/EgammaEcalIsolation.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
 using namespace ROOT::Math::VectorUtil ;

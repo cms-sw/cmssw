@@ -1,4 +1,4 @@
-#include "RecoEgamma/EgammaIsolationAlgos/plugins/EleIsoDetIdCollectionProducer.h"
+#include "RecoEgamma/EgammaAlgos/plugins/EleIsoDetIdCollectionProducer.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/EventSetup.h"

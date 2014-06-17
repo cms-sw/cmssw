@@ -23,10 +23,10 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
 
-#include "RecoEgamma/EgammaElectronAlgos/interface/BarrelMeasurementEstimator.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/ForwardMeasurementEstimator.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchStartLayers.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/FTSFromVertexToPointFactory.h"
+#include "RecoEgamma/EgammaAlgos/interface/BarrelMeasurementEstimator.h"
+#include "RecoEgamma/EgammaAlgos/interface/ForwardMeasurementEstimator.h"
+#include "RecoEgamma/EgammaAlgos/interface/PixelMatchStartLayers.h"
+#include "RecoEgamma/EgammaAlgos/interface/FTSFromVertexToPointFactory.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"

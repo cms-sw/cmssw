@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <memory>
-#include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionTrackEcalImpactPoint.h"
+#include "RecoEgamma/EgammaAlgos/interface/ConversionTrackEcalImpactPoint.h"
 // Framework
 //
 

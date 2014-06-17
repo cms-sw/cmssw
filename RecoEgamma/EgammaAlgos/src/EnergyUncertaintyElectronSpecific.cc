@@ -1,4 +1,4 @@
-#include "RecoEgamma/EgammaElectronAlgos/interface/EnergyUncertaintyElectronSpecific.h"
+#include "RecoEgamma/EgammaAlgos/interface/EnergyUncertaintyElectronSpecific.h"
 #include "TMath.h"
 
 #include <iostream>

@@ -15,7 +15,7 @@
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
 //
 //
-#include "RecoEgamma/EgammaElectronAlgos/interface/FTSFromVertexToPointFactory.h"
+#include "RecoEgamma/EgammaAlgos/interface/FTSFromVertexToPointFactory.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
 

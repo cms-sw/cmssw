@@ -15,7 +15,7 @@
 //CMSSW includes
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
 
-#include "RecoEgamma/EgammaIsolationAlgos/plugins/EgammaRecHitExtractor.h"
+#include "RecoEgamma/EgammaAlgos/plugins/EgammaRecHitExtractor.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"

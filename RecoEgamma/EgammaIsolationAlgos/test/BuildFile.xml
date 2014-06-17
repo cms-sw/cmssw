@@ -1,4 +1,4 @@
-<use name="RecoEgamma/EgammaIsolationAlgos"/>
+<use name="RecoEgamma/EgammaAlgos"/>
 <bin file="EgammaTowerIso_t.cpp" />
 <library   file="TestEgammaTowerIso.cc" name="TestEgammaTowerIso">
 <flags   EDM_PLUGIN="1"/>

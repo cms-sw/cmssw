@@ -15,8 +15,8 @@
 //         Created:  Mon Mar 27 13:22:06 CEST 2006
 //
 
-#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronSeedGenerator.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
+#include "RecoEgamma/EgammaAlgos/interface/ElectronSeedGenerator.h"
+#include "RecoEgamma/EgammaAlgos/interface/ElectronUtilities.h"
 
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"

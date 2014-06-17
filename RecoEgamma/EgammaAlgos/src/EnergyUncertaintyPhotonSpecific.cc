@@ -1,4 +1,4 @@
-#include "RecoEgamma/EgammaPhotonAlgos/interface/EnergyUncertaintyPhotonSpecific.h"
+#include "RecoEgamma/EgammaAlgos/interface/EnergyUncertaintyPhotonSpecific.h"
 #include "TMath.h"
 
 #include <iostream>

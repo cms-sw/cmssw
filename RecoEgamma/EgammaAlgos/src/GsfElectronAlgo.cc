@@ -1,10 +1,10 @@
 
-#include "RecoEgamma/EgammaElectronAlgos/interface/GsfElectronAlgo.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/EgAmbiguityTools.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronClassification.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronMomentumCorrector.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronEnergyCorrector.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
+#include "RecoEgamma/EgammaAlgos/interface/GsfElectronAlgo.h"
+#include "RecoEgamma/EgammaAlgos/interface/EgAmbiguityTools.h"
+#include "RecoEgamma/EgammaAlgos/interface/ElectronClassification.h"
+#include "RecoEgamma/EgammaAlgos/interface/ElectronMomentumCorrector.h"
+#include "RecoEgamma/EgammaAlgos/interface/ElectronEnergyCorrector.h"
+#include "RecoEgamma/EgammaAlgos/interface/ElectronUtilities.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionFinder.h"
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"

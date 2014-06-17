@@ -13,7 +13,7 @@
  *
  ************************************************************/
 
-#include "RecoEgamma/EgammaElectronAlgos/interface/PixelHitMatcher.h"
+#include "RecoEgamma/EgammaAlgos/interface/PixelHitMatcher.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"

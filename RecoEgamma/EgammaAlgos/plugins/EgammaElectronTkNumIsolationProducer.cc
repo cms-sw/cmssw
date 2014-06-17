@@ -21,8 +21,8 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 
-#include "RecoEgamma/EgammaIsolationAlgos/plugins/EgammaElectronTkNumIsolationProducer.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/ElectronTkIsolation.h"
+#include "RecoEgamma/EgammaAlgos/plugins/EgammaElectronTkNumIsolationProducer.h"
+#include "RecoEgamma/EgammaAlgos/interface/ElectronTkIsolation.h"
 
 EgammaElectronTkNumIsolationProducer::EgammaElectronTkNumIsolationProducer(const edm::ParameterSet& config) : conf_(config)
 {

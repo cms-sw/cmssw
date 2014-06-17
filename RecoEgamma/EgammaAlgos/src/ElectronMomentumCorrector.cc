@@ -1,4 +1,4 @@
-#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronMomentumCorrector.h"
+#include "RecoEgamma/EgammaAlgos/interface/ElectronMomentumCorrector.h"
 
 
 #include "TrackingTools/GsfTools/interface/MultiGaussianState1D.h"

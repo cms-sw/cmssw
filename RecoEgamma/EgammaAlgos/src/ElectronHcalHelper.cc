@@ -1,8 +1,8 @@
 
-#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronHcalHelper.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHcalIsolation.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHadTower.h"
+#include "RecoEgamma/EgammaAlgos/interface/ElectronHcalHelper.h"
+#include "RecoEgamma/EgammaAlgos/interface/EgammaHcalIsolation.h"
+#include "RecoEgamma/EgammaAlgos/interface/EgammaTowerIsolation.h"
+#include "RecoEgamma/EgammaAlgos/interface/EgammaHadTower.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 

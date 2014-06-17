@@ -14,7 +14,7 @@
 //
 #include "RecoTracker/CkfPattern/interface/RedundantSeedCleaner.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
-#include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionTrackFinder.h"
+#include "RecoEgamma/EgammaAlgos/interface/ConversionTrackFinder.h"
 
 // C/C++ headers
 #include <string>

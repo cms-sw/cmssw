@@ -1,6 +1,6 @@
 #include <iostream>
 #include <memory>
-#include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionVertexFinder.h"
+#include "RecoEgamma/EgammaAlgos/interface/ConversionVertexFinder.h"
 // Framework
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

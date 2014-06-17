@@ -1,6 +1,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 //
-#include "RecoEgamma/EgammaPhotonAlgos/interface/InOutConversionTrackFinder.h"
+#include "RecoEgamma/EgammaAlgos/interface/InOutConversionTrackFinder.h"
 
 //
 #include "RecoTracker/CkfPattern/interface/SeedCleanerByHitPosition.h"

@@ -19,7 +19,7 @@
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 #include <iostream> 
 #include <algorithm>
-#include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchStartLayers.h"
+#include "RecoEgamma/EgammaAlgos/interface/PixelMatchStartLayers.h"
 
 PixelMatchStartLayers::PixelMatchStartLayers() {}
 

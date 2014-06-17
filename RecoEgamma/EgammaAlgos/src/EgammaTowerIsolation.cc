@@ -7,7 +7,7 @@
 //*****************************************************************************
 
 //CMSSW includes
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
+#include "RecoEgamma/EgammaAlgos/interface/EgammaTowerIsolation.h"
 #include<cassert>
 
 

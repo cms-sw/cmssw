@@ -7,7 +7,7 @@
 //*****************************************************************************
 
 
-#include "RecoEgamma/EgammaIsolationAlgos/plugins/EgammaTowerIsolationProducer.h"
+#include "RecoEgamma/EgammaAlgos/plugins/EgammaTowerIsolationProducer.h"
 
 // Framework
 #include "DataFormats/Common/interface/Handle.h"

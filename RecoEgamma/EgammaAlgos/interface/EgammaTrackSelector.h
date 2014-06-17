@@ -1,7 +1,7 @@
 #ifndef EgammaIsolationAlgos_EgammaTrackSelector_H
 #define EgammaIsolationAlgos_EgammaTrackSelector_H
 
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaRange.h"
+#include "RecoEgamma/EgammaAlgos/interface/EgammaRange.h"
 #include "DataFormats/RecoCandidate/interface/IsoDepositDirection.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"

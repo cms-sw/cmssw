@@ -1,7 +1,7 @@
 
-#include "RecoEgamma/EgammaElectronAlgos/interface/PixelHitMatcher.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchNextLayers.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
+#include "RecoEgamma/EgammaAlgos/interface/PixelHitMatcher.h"
+#include "RecoEgamma/EgammaAlgos/interface/PixelMatchNextLayers.h"
+#include "RecoEgamma/EgammaAlgos/interface/ElectronUtilities.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"

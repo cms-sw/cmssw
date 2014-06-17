@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <memory>
-#include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionHitChecker.h"
+#include "RecoEgamma/EgammaAlgos/interface/ConversionHitChecker.h"
 // Framework
 //
 #include "TrackingTools/PatternTools/interface/Trajectory.h"

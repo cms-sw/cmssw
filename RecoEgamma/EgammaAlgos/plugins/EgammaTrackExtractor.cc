@@ -1,9 +1,9 @@
-#include "RecoEgamma/EgammaIsolationAlgos/plugins/EgammaTrackExtractor.h"
+#include "RecoEgamma/EgammaAlgos/plugins/EgammaTrackExtractor.h"
 
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaRange.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaRecHitIsolation.h"
+#include "RecoEgamma/EgammaAlgos/interface/EgammaRange.h"
+#include "RecoEgamma/EgammaAlgos/interface/EgammaRecHitIsolation.h"
 #include "DataFormats/RecoCandidate/interface/IsoDepositDirection.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTrackSelector.h"
+#include "RecoEgamma/EgammaAlgos/interface/EgammaTrackSelector.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"

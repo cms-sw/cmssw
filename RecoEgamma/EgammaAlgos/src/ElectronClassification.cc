@@ -1,4 +1,4 @@
-#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronClassification.h"
+#include "RecoEgamma/EgammaAlgos/interface/ElectronClassification.h"
 
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 

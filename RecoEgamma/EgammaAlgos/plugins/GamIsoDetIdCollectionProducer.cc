@@ -1,4 +1,4 @@
-#include "RecoEgamma/EgammaIsolationAlgos/plugins/GamIsoDetIdCollectionProducer.h"
+#include "RecoEgamma/EgammaAlgos/plugins/GamIsoDetIdCollectionProducer.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/EventSetup.h"

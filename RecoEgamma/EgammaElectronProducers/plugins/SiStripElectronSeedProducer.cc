@@ -8,7 +8,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/SiStripElectronSeedGenerator.h"
+#include "RecoEgamma/EgammaAlgos/interface/SiStripElectronSeedGenerator.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 

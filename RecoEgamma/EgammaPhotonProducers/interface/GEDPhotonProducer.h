@@ -24,7 +24,7 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/PfBlockBasedIsolation.h"
+#include "RecoEgamma/EgammaAlgos/interface/PfBlockBasedIsolation.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "RecoEgamma/PhotonIdentification/interface/PFPhotonIsolationCalculator.h"
 #include "RecoEgamma/PhotonIdentification/interface/PhotonIsolationCalculator.h"
@@ -33,7 +33,7 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h" 
 #include "CondFormats/EcalObjects/interface/EcalFunctionParameters.h" 
-#include "RecoEgamma/EgammaPhotonAlgos/interface/PhotonEnergyCorrector.h"
+#include "RecoEgamma/EgammaAlgos/interface/PhotonEnergyCorrector.h"
 
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"

@@ -1,7 +1,7 @@
 // Package:    EgammaElectronAlgos
 // Class:      SeedFilter.
 
-#include "RecoEgamma/EgammaElectronAlgos/interface/SeedFilter.h"
+#include "RecoEgamma/EgammaAlgos/interface/SeedFilter.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 
 

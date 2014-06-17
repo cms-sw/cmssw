@@ -1,4 +1,4 @@
-#include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionFastHelix.h"
+#include "RecoEgamma/EgammaAlgos/interface/ConversionFastHelix.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastLine.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "TrackingTools/TrajectoryParametrization/interface/CurvilinearTrajectoryError.h"

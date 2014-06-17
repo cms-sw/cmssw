@@ -18,7 +18,7 @@
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 
-#include "RecoEgamma/EgammaPhotonAlgos/interface/EnergyUncertaintyPhotonSpecific.h"
+#include "RecoEgamma/EgammaAlgos/interface/EnergyUncertaintyPhotonSpecific.h"
 #include <iostream>
 
 #include "RecoEgamma/EgammaTools/interface/BaselinePFSCRegression.h"

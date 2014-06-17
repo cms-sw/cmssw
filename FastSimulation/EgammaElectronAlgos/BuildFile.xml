@@ -17,7 +17,7 @@
 <use   name="Geometry/Records"/>
 <use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="MagneticField/Records"/>
-<use   name="RecoEgamma/EgammaIsolationAlgos"/>
+<use   name="RecoEgamma/EgammaAlgos"/>
 <use   name="RecoTracker/Record"/>
 <use   name="RecoTracker/TkDetLayers"/>
 <use   name="RecoTracker/TkSeedGenerator"/>

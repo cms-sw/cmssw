@@ -19,8 +19,8 @@
 //
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 //  Abstract classes for the conversion tracking components
-#include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionSeedFinder.h"
-#include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionTrackFinder.h"
+#include "RecoEgamma/EgammaAlgos/interface/ConversionSeedFinder.h"
+#include "RecoEgamma/EgammaAlgos/interface/ConversionTrackFinder.h"
 // Class header file
 #include "RecoEgamma/EgammaPhotonProducers/interface/ConversionTrackCandidateProducer.h"
 //
@@ -28,12 +28,12 @@
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
-#include "RecoEgamma/EgammaPhotonAlgos/interface/OutInConversionSeedFinder.h"
-#include "RecoEgamma/EgammaPhotonAlgos/interface/InOutConversionSeedFinder.h"
-#include "RecoEgamma/EgammaPhotonAlgos/interface/OutInConversionTrackFinder.h"
-#include "RecoEgamma/EgammaPhotonAlgos/interface/InOutConversionTrackFinder.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaRecHitIsolation.h"
+#include "RecoEgamma/EgammaAlgos/interface/OutInConversionSeedFinder.h"
+#include "RecoEgamma/EgammaAlgos/interface/InOutConversionSeedFinder.h"
+#include "RecoEgamma/EgammaAlgos/interface/OutInConversionTrackFinder.h"
+#include "RecoEgamma/EgammaAlgos/interface/InOutConversionTrackFinder.h"
+#include "RecoEgamma/EgammaAlgos/interface/EgammaTowerIsolation.h"
+#include "RecoEgamma/EgammaAlgos/interface/EgammaRecHitIsolation.h"
 
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"

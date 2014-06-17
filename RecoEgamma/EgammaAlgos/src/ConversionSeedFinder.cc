@@ -1,6 +1,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-#include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionSeedFinder.h"
+#include "RecoEgamma/EgammaAlgos/interface/ConversionSeedFinder.h"
 // Field
 // Geometry
 #include "Geometry/Records/interface/IdealGeometryRecord.h"

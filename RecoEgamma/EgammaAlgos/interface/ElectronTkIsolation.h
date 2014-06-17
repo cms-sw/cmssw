@@ -19,7 +19,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTrackSelector.h"
+#include "RecoEgamma/EgammaAlgos/interface/EgammaTrackSelector.h"
 
 #include<string>
 

@@ -1,8 +1,8 @@
-#include "RecoEgamma/EgammaElectronAlgos/interface/EgAmbiguityTools.h"
+#include "RecoEgamma/EgammaAlgos/interface/EgAmbiguityTools.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 
-#include "RecoEgamma/EgammaElectronAlgos/interface/EgAmbiguityTools.h"
-//#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronHcalHelper.h"
+#include "RecoEgamma/EgammaAlgos/interface/EgAmbiguityTools.h"
+//#include "RecoEgamma/EgammaAlgos/interface/ElectronHcalHelper.h"
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"

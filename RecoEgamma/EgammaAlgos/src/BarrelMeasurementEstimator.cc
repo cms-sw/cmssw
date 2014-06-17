@@ -16,8 +16,8 @@
 //
 //
 
-#include "RecoEgamma/EgammaElectronAlgos/interface/BarrelMeasurementEstimator.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
+#include "RecoEgamma/EgammaAlgos/interface/BarrelMeasurementEstimator.h"
+#include "RecoEgamma/EgammaAlgos/interface/ElectronUtilities.h"
 #include "RecoTracker/TkTrackingRegions/interface/GlobalDetRangeZPhi.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "TrackingTools/DetLayers/interface/rangesIntersect.h"

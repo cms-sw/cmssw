@@ -15,7 +15,7 @@
 
 
 //CMSSW includes
-#include "RecoEgamma/EgammaIsolationAlgos/plugins/EgammaTowerExtractor.h"
+#include "RecoEgamma/EgammaAlgos/plugins/EgammaTowerExtractor.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"

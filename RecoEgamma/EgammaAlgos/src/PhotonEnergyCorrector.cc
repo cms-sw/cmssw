@@ -1,4 +1,4 @@
-#include "RecoEgamma/EgammaPhotonAlgos/interface/PhotonEnergyCorrector.h"
+#include "RecoEgamma/EgammaAlgos/interface/PhotonEnergyCorrector.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -8,7 +8,7 @@
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 
-#include "RecoEgamma/EgammaPhotonAlgos/interface/EnergyUncertaintyPhotonSpecific.h"
+#include "RecoEgamma/EgammaAlgos/interface/EnergyUncertaintyPhotonSpecific.h"
 
 PhotonEnergyCorrector::PhotonEnergyCorrector( const edm::ParameterSet& config, edm::ConsumesCollector && iC) {
 

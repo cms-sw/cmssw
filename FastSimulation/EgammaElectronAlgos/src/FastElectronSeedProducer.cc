@@ -19,7 +19,7 @@
 #include "FastElectronSeedProducer.h"
 #include "FastElectronSeedGenerator.h"
 
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHcalIsolation.h"
+#include "RecoEgamma/EgammaAlgos/interface/EgammaHcalIsolation.h"
 #include "RecoEgamma/EgammaTools/interface/HoECalculator.h"
 #include "RecoCaloTools/Selectors/interface/CaloConeSelector.h"
 

@@ -1,4 +1,4 @@
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
+#include "RecoEgamma/EgammaAlgos/interface/EgammaTowerIsolation.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
 

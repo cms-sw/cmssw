@@ -14,7 +14,7 @@
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "RecoCaloTools/Selectors/interface/CaloConeSelector.h"
 #include "RecoEgamma/EgammaPhotonProducers/interface/PhotonCoreProducer.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
+#include "RecoEgamma/EgammaAlgos/interface/EgammaTowerIsolation.h"
 
 
 PhotonCoreProducer::PhotonCoreProducer(const edm::ParameterSet& config) : 

@@ -5,7 +5,7 @@
 // Package:     EgammaElectronAlgos
 // Class  :     SiStripElectronAlgo
 // 
-/**\class SiStripElectronAlgo SiStripElectronAlgo.h RecoEgamma/EgammaElectronAlgos/interface/SiStripElectronAlgo.h
+/**\class SiStripElectronAlgo SiStripElectronAlgo.h RecoEgamma/EgammaAlgos/interface/SiStripElectronAlgo.h
 
  Description: <one line class summary>
 

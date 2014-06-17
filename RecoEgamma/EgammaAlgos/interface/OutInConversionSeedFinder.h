@@ -11,7 +11,7 @@
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
-#include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionSeedFinder.h"
+#include "RecoEgamma/EgammaAlgos/interface/ConversionSeedFinder.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
 
 #include "TrackingTools/DetLayers/interface/MeasurementEstimator.h"

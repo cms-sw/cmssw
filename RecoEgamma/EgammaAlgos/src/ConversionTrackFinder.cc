@@ -1,5 +1,5 @@
 //
-#include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionTrackFinder.h"
+#include "RecoEgamma/EgammaAlgos/interface/ConversionTrackFinder.h"
 //
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "RecoTracker/CkfPattern/interface/TransientInitialStateEstimator.h"

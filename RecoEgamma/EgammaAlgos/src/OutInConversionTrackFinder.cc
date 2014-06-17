@@ -1,4 +1,4 @@
-#include "RecoEgamma/EgammaPhotonAlgos/interface/OutInConversionTrackFinder.h"
+#include "RecoEgamma/EgammaAlgos/interface/OutInConversionTrackFinder.h"
 //
 #include "RecoTracker/CkfPattern/interface/SeedCleanerByHitPosition.h"
 #include "RecoTracker/CkfPattern/interface/CachingSeedCleanerByHitPosition.h"
