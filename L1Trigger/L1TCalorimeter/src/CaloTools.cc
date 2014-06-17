@@ -10,8 +10,15 @@ const l1t::CaloCluster l1t::CaloTools::nullCluster_;
 //with standarising the layout of std::vector<l1t::CaloTower>
 const l1t::CaloTower& l1t::CaloTools::getTower(const std::vector<l1t::CaloTower>& towers,int iEta,int iPhi)
 {
-  for(size_t towerNr=0;towerNr<towers.size();towerNr++){
-    if(towers[towerNr].hwEta()==iEta && towers[towerNr].hwPhi()==iPhi) return towers[towerNr];
+  size_t towerIndex = CaloTools::caloTowerHash(iEta, iPhi);
+  if(towerIndex<towers.size()){
+    if(towers[towerIndex].hwEta()!=iEta || towers[towerIndex].hwPhi()!=iPhi){ //it failed, this is bad, but we will not log the error due to policy and silently attempt to do a brute force search instead 
+      // std::cout <<"error, tower "<<towers[towerIndex].hwEta()<<" "<<towers[towerIndex].hwPhi()<<" does not match "<<iEta<<" "<<iPhi<<" index "<<towerIndex<<" nr towrs "<<towers.size()<<std::endl;
+      for(size_t towerNr=0;towerNr<towers.size();towerNr++){
+	if(towers[towerNr].hwEta()==iEta && towers[towerNr].hwPhi()==iPhi) return towers[towerNr];
+      }     
+    }else return towers[towerIndex];
+  
   }
   return nullTower_;
 }
@@ -113,3 +120,40 @@ size_t l1t::CaloTools::calNrTowers(int iEtaMin,int iEtaMax,int iPhiMin,int iPhiM
   }
   return nrTowers;
 }
+
+std::pair<float,float> l1t::CaloTools::towerEtaBounds(int ieta)
+{
+  if(ieta==0) ieta = 1;
+  if(ieta>32) ieta = 32;
+  if(ieta<-32) ieta = -32;
+  const float towerEtas[33] = {0,0.087,0.174,0.261,0.348,0.435,0.522,0.609,0.696,0.783,0.870,0.957,1.044,1.131,1.218,1.305,1.392,1.479,1.566,1.653,1.740,1.830,1.930,2.043,2.172,2.322,2.5,2.650,3.000,3.5,4.0,4.5,5.0}; 
+  return std::make_pair( towerEtas[abs(ieta)-1],towerEtas[abs(ieta)] );
+}
+
+float l1t::CaloTools::towerEta(int ieta)
+{
+  std::pair<float,float> bounds = towerEtaBounds(ieta);
+  float eta = (bounds.second+bounds.first)/2.;
+  float sign = ieta>0 ? 1. : -1.;
+  return sign*eta; 
+}
+
+float l1t::CaloTools::towerPhi(int ieta, int iphi)
+{
+  return (float(iphi)-0.5)*towerPhiSize(ieta);
+}
+
+float l1t::CaloTools::towerEtaSize(int ieta)
+{
+  std::pair<float,float> bounds = towerEtaBounds(ieta);
+  float size = (bounds.second-bounds.first);
+  return size;
+}
+
+float l1t::CaloTools::towerPhiSize(int ieta)
+{
+  if(abs(ieta)<=28) return 2.*M_PI/72.;
+  else return 2.*M_PI/18.;
+}
+
+

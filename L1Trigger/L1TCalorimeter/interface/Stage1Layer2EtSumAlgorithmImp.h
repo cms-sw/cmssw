@@ -19,31 +19,45 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "L1Trigger/L1TCalorimeter/interface/Stage1Layer2EtSumAlgorithm.h"
-#include "CondFormats/L1TObjects/interface/CaloParams.h"
+//#include "CondFormats/L1TObjects/interface/CaloParams.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloParamsStage1.h"
+
 
 namespace l1t {
 
   class Stage1Layer2EtSumAlgorithmImpPP : public Stage1Layer2EtSumAlgorithm {
   public:
-    Stage1Layer2EtSumAlgorithmImpPP(const CaloParams*);
+    Stage1Layer2EtSumAlgorithmImpPP(CaloParamsStage1* params);
     virtual ~Stage1Layer2EtSumAlgorithmImpPP();
     virtual void processEvent(const std::vector<l1t::CaloRegion> & regions,
 			      const std::vector<l1t::CaloEmCand> & EMCands,
 			      std::vector<l1t::EtSum> * sums);
 
-    // input parameters  
+    // input parameters
     int regionETCutForHT;
     int regionETCutForMET;
     int minGctEtaForSums;
     int maxGctEtaForSums;
 
-    double emScale,jetScale;
+    double egLsb,jetLsb;
   private:
+    CaloParamsStage1* const params_;
     double regionPhysicalEt(const l1t::CaloRegion&) const;
 
     std::vector<double> sinPhi;
     std::vector<double> cosPhi;
 
+  };
+
+  class Stage1Layer2CentralityAlgorithm : public Stage1Layer2EtSumAlgorithm {
+  public:
+    Stage1Layer2CentralityAlgorithm(CaloParamsStage1* params);
+    virtual ~Stage1Layer2CentralityAlgorithm();
+    virtual void processEvent(const std::vector<l1t::CaloRegion> & regions,
+			      const std::vector<l1t::CaloEmCand> & EMCands,
+			      std::vector<l1t::EtSum> * sums);
+  private:
+    CaloParamsStage1* const params_;
   };
 }
 
