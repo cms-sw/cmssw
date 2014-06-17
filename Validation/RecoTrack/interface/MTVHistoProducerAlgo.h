@@ -44,7 +44,7 @@ class MTVHistoProducerAlgo{
 						   const TrackingParticle::Vector& momentumTP, const TrackingParticle::Point& vertexTP,
 						   double dxy, double dz, int nSimHits,
 						   const reco::Track* track,
-						   int numVertices, double vertz)=0;
+						   int numVertices, double vertz, double dR)=0;
 
   virtual void fill_recoAssociated_simTrack_histos(int count,
 						   const reco::GenParticle& tp,
@@ -63,7 +63,7 @@ class MTVHistoProducerAlgo{
                          	             int numVertices,
                          		     int tpbunchcrossing,
 				             int nSimHits,
-   					     double sharedFraction)=0;
+   					     double sharedFraction, double dR)=0;
 
   virtual void fill_dedx_recoTrack_histos(int count, edm::RefToBase<reco::Track>& trackref,const std::vector< edm::ValueMap<reco::DeDxData> >& v_dEdx)=0;
   //  virtual void fill_dedx_recoTrack_histos(reco::TrackRef trackref, std::vector< edm::ValueMap<reco::DeDxData> > v_dEdx)=0;
@@ -109,6 +109,11 @@ class MTVHistoProducerAlgo{
 			   std::vector<int>& numerator,
 			   std::vector<int>& denominator,
 			   std::string type);
+
+  void fillPlotFromPlots(MonitorElement* h,
+			 TH1* numerator,
+			 TH1* denominator,
+			 std::string type);
 
   void BinLogX(TH1*h);
 
