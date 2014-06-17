@@ -1,11 +1,11 @@
-#ifndef EgammaIsolationAlgos_EgammaEcalIsolation_h
-#define EgammaIsolationAlgos_EgammaEcalIsolation_h
+#ifndef EgammaAlgos_EgammaEcalIsolation_h
+#define EgammaAlgos_EgammaEcalIsolation_h
 
 //*****************************************************************************
 // File:      EgammaEcalIsolation.h
 // ----------------------------------------------------------------------------
 // Type:      Class implementation header
-// Package:   EgammaIsolationAlgos/EgammaIsolationAlgos
+// Package:   EgammaAlgos/EgammaAlgos
 // Class:     EgammaEcalIsolation
 // Language:  Standard C++
 // Project:   CMS

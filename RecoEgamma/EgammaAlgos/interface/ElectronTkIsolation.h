@@ -1,5 +1,5 @@
-#ifndef EgammaIsolationAlgos_ElectronTkIsolation_h
-#define EgammaIsolationAlgos_ElectronTkIsolation_h
+#ifndef EgammaAlgos_ElectronTkIsolation_h
+#define EgammaAlgos_ElectronTkIsolation_h
 //*****************************************************************************
 // File:      ElectronTkIsolation.h
 // ----------------------------------------------------------------------------

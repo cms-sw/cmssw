@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
-from RecoEgamma.EgammaIsolationAlgos.pfBlockBasedIsolation_cfi import *
+from RecoEgamma.EgammaAlgos.pfBlockBasedIsolation_cfi import *
 
 #
 # particle based isolatio 

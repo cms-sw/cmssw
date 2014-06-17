@@ -35,7 +35,7 @@ public:
 
   virtual reco::IsoDeposit deposit (const edm::Event & ev,
       const edm::EventSetup & evSetup, const reco::Track & muon) const {
-        edm::LogWarning("EgammaIsolationAlgos|EgammaTrackExtractor")
+        edm::LogWarning("EgammaAlgos|EgammaTrackExtractor")
            << "This Function is not implemented, bad IsoDeposit Returned";
         return reco::IsoDeposit( reco::isodeposit::Direction(1,1) );
       }

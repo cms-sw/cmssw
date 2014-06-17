@@ -1,5 +1,5 @@
-#ifndef EgammaIsolationAlgos_EgammaRange_H
-#define EgammaIsolationAlgos_EgammaRange_H
+#ifndef EgammaAlgos_EgammaRange_H
+#define EgammaAlgos_EgammaRange_H
 
 /** \class egammaisolation::EgammaRange
  *  Define a range [aMin,aMax] 

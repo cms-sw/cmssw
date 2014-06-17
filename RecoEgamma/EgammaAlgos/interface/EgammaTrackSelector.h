@@ -1,5 +1,5 @@
-#ifndef EgammaIsolationAlgos_EgammaTrackSelector_H
-#define EgammaIsolationAlgos_EgammaTrackSelector_H
+#ifndef EgammaAlgos_EgammaTrackSelector_H
+#define EgammaAlgos_EgammaTrackSelector_H
 
 #include "RecoEgamma/EgammaAlgos/interface/EgammaRange.h"
 #include "DataFormats/RecoCandidate/interface/IsoDepositDirection.h"

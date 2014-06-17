@@ -197,7 +197,7 @@ void CalibratedPatElectronProducer::produce( edm::Event & event, const edm::Even
             double combinedMomentumError = ele->p4Error(ele->candidateP4Kind());
             // FIXME : p4Error not filled for pure tracker electrons
             // Recompute it using the parametrization implemented in
-            // RecoEgamma/EgammaElectronAlgos/src/ElectronEnergyCorrector.cc::simpleParameterizationUncertainty()
+            // RecoEgamma/EgammaAlgos/src/ElectronEnergyCorrector.cc::simpleParameterizationUncertainty()
             if( !ele->ecalDrivenSeed() )
             {
                 double error = 999. ;

@@ -18,6 +18,6 @@
 <use   name="RecoLocalCalo/EcalRecAlgos"/>
 <export>
 </export>
-<library   file="*.cc" name="RecoEgammaEgammaIsolationAlgosPlugins">
+<library   file="*.cc" name="RecoEgammaEgammaAlgosPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>

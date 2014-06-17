@@ -23,6 +23,6 @@ process.maxEvents = cms.untracked.PSet(
 
 #process.Timing = cms.Service("Timing")
 
-process.load("RecoEgamma.EgammaIsolationAlgos.interestingEgammaIsoDetIdsSequence_cff")
+process.load("RecoEgamma.EgammaAlgos.interestingEgammaIsoDetIdsSequence_cff")
 process.p1 = cms.Path(process.interestingEgammaIsoDetIds)
 process.outpath = cms.EndPath(process.out)

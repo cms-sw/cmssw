@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoEgamma.EgammaIsolationAlgos.eleHcalExtractorBlocks_cff import *
+from RecoEgamma.EgammaAlgos.eleHcalExtractorBlocks_cff import *
 
 #This module is defined for the user who would like to study HCAL
 #isolation with RecHits.

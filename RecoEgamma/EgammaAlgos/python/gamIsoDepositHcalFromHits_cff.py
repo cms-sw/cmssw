@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoEgamma.EgammaIsolationAlgos.gamHcalExtractorBlocks_cff import *
+from RecoEgamma.EgammaAlgos.gamHcalExtractorBlocks_cff import *
 
 gamIsoDepositHcalFromHits = cms.EDProducer("CandIsoDepositProducer",
     src = cms.InputTag("photons"),

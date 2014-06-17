@@ -65,7 +65,7 @@ reco::IsoDeposit::Veto EgammaTrackExtractor::veto(const reco::IsoDeposit::Direct
 
 IsoDeposit EgammaTrackExtractor::deposit(const Event & event, const EventSetup & eventSetup, const Candidate & candTk) const
 {
-    static std::string metname = "EgammaIsolationAlgos|EgammaTrackExtractor";
+    static std::string metname = "EgammaAlgos|EgammaTrackExtractor";
 
     reco::isodeposit::Direction candDir;
     double dzCut=0;

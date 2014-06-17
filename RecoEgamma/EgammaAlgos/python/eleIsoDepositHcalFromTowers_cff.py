@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoEgamma.EgammaIsolationAlgos.eleHcalExtractorBlocks_cff import *
+from RecoEgamma.EgammaAlgos.eleHcalExtractorBlocks_cff import *
 
 eleIsoDepositHcalFromTowers = cms.EDProducer("CandIsoDepositProducer",
     src = cms.InputTag("gedGsfElectrons"),

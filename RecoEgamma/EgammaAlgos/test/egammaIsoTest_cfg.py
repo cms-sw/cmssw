@@ -30,8 +30,8 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(200)
 )
 
-process.load("RecoEgamma.EgammaIsolationAlgos.egammaIsolationSequence_cff")
-process.load("RecoEgamma.EgammaIsolationAlgos.egammaIsolationSequencePAT_cff")
+process.load("RecoEgamma.EgammaAlgos.egammaIsolationSequence_cff")
+process.load("RecoEgamma.EgammaAlgos.egammaIsolationSequencePAT_cff")
 
 #Couple extra modules to test that the new abs(energy) was working:
 #Get IsoDeposits with no min energy cut, all RecHits stored

@@ -1,5 +1,5 @@
-#ifndef EgammaIsolationAlgos_EgammaHcalIsolation_h
-#define EgammaIsolationAlgos_EgammaHcalIsolation_h
+#ifndef EgammaAlgos_EgammaHcalIsolation_h
+#define EgammaAlgos_EgammaHcalIsolation_h
 //*****************************************************************************
 // File:      EgammaHcalIsolation.h
 // ----------------------------------------------------------------------------
