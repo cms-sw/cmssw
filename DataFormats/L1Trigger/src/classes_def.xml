@@ -35,6 +35,18 @@
   <class name="l1t::MuonBxCollection"/>
   <class name="edm::Wrapper<l1t::MuonBxCollection>"/>
 
+  <class name="l1t::HFRingSum" ClassVersion="10">
+   <version ClassVersion="10" checksum="1082747839"/>
+  </class>
+  <class name="l1t::HFRingSumBxCollection"/>
+  <class name="edm::Wrapper<l1t::HFRingSumBxCollection>"/>
+
+  <class name="l1t::HFBitCount" ClassVersion="10">
+   <version ClassVersion="10" checksum="3236782348"/>
+  </class>
+  <class name="l1t::HFBitCountBxCollection"/>
+  <class name="edm::Wrapper<l1t::HFBitCountBxCollection>"/>
+
   <class name="l1extra::L1EmParticle" ClassVersion="10">
    <version ClassVersion="10" checksum="2019457791"/>
   </class>
