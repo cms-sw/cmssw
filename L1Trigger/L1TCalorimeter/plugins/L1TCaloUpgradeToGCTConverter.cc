@@ -41,6 +41,8 @@ l1t::L1TCaloUpgradeToGCTConverter::L1TCaloUpgradeToGCTConverter(const ParameterS
   TauToken_ = consumes<l1t::TauBxCollection>(iConfig.getParameter<InputTag>("InputCollection"));
   JetToken_ = consumes<l1t::JetBxCollection>(iConfig.getParameter<InputTag>("InputCollection"));
   EtSumToken_ = consumes<l1t::EtSumBxCollection>(iConfig.getParameter<InputTag>("InputCollection"));
+  HFRingSumToken_ = consumes<l1t::HFRingSumBxCollection>(iConfig.getParameter<edm::InputTag>("InputCollection"));
+  HFBitCountToken_ = consumes<l1t::HFBitCountBxCollection>(iConfig.getParameter<edm::InputTag>("InputCollection"));
 }
 
 
@@ -70,6 +72,12 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
   Handle<l1t::EtSumBxCollection> EtSum;
   e.getByToken(EtSumToken_,EtSum);
 
+  Handle<l1t::HFRingSumBxCollection> HFRingSum;
+  e.getByToken(HFRingSumToken_, HFRingSum);
+
+  Handle<l1t::HFBitCountBxCollection> HFBitCount;
+  e.getByToken(HFBitCountToken_, HFBitCount);
+
   // create the em and jet collections
   std::auto_ptr<L1GctEmCandCollection> isoEmResult(new L1GctEmCandCollection( ) );
   std::auto_ptr<L1GctEmCandCollection> nonIsoEmResult(new L1GctEmCandCollection( ) );
@@ -96,15 +104,6 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
   // Assume BX is the same for all collections
   int firstBX = EGamma->getFirstBX();
   int lastBX = EGamma->getLastBX();
-  // //Finding the BX range for each input collection
-  // int firstBxEGamma = EGamma->getFirstBX();
-  // int lastBxEGamma = EGamma->getLastBX();
-  // int firstBxTau = Tau->getFirstBX();
-  // int lastBxTau = Tau->getLastBX();
-  // int firstBxJet = Jet->getFirstBX();
-  // int lastBxJet = Jet->getLastBX();
-  // int firstBxEtSum = EtSum->getFirstBX();
-  // int lastBxEtSum = EtSum->getLastBX();
 
   for(int itBX=firstBX; itBX!=lastBX+1; ++itBX){
 
@@ -198,6 +197,32 @@ l1t::L1TCaloUpgradeToGCTConverter::produce(Event& e, const EventSetup& es)
 	LogError("l1t|stage 1 Converter") <<" Unknown EtSumType --- EtSum collection will not be saved...\n ";
       }
     }
+
+    for (l1t::HFRingSumBxCollection::const_iterator itHFRingSum = HFRingSum->begin(itBX);
+	 itHFRingSum != HFRingSum->end(itBX); ++itHFRingSum){
+      // L1GctHFRingEtSums sum = L1GctHFRingEtSums::fromConcRingSums(const uint16_t capBlock,
+      // 								  const uint16_t capIndex,
+      // 								  const int16_t bx,
+      // 								  const uint32_t data);
+      L1GctHFRingEtSums sum = L1GctHFRingEtSums::fromConcRingSums(0,
+								  0,
+								  itBX,
+								  itHFRingSum->hwPt() & 0xfff);
+      hfRingEtSumResult->push_back(sum);
+    }
+
+    for (l1t::HFBitCountBxCollection::const_iterator itHFBitCount = HFBitCount->begin(itBX);
+	 itHFBitCount != HFBitCount->end(itBX); ++itHFBitCount){
+      // static L1GctHFBitCounts fromConcHFBitCounts(const uint16_t capBlock,
+      // 						  const uint16_t capIndex,
+      // 						  const int16_t bx,
+      // 						  const uint32_t data);
+      L1GctHFBitCounts bitcount = L1GctHFBitCounts::fromConcHFBitCounts(0,
+									0,
+									itBX,
+									itHFBitCount->hwPt() & 0xfff);
+    }
+
   }
 
   e.put(isoEmResult,"isoEm");
