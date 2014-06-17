@@ -64,8 +64,7 @@ namespace l1t {
       std::auto_ptr<FEDRawDataCollection> raw_coll(new FEDRawDataCollection());
       FEDRawData& fed_data = raw_coll->FEDData(fedId_);
 
-      unsigned int size = 24; // 16 for the header, 8 for the footer
-      size += 12; // the L1T header...
+      unsigned int size = 20; // 12 for the L1T header, 8 for the footer
       unsigned int words = 0;
       for (const auto& block: blocks)
          // add one for the block header
