@@ -1404,28 +1404,28 @@ stepMiniAODDefaults = { '-s'              : 'PAT',
                         '--runUnscheduled': '',
                         '-n'              : '100'
                         }
-stepMiniAODData = merge([{'--conditions'   : 'GR_R_70_V1::All',
+stepMiniAODData = merge([{'--conditions'   : 'GR_70_V2_AN1::All',
                           '--data'         : '',
                           '--datatier'     : 'MINIAOD',
                           '--eventcontent' : 'MINIAOD'
                           },stepMiniAODDefaults])
-stepMiniAODMC = merge([{'--conditions'   : 'auto:upgradePLS1',
+stepMiniAODMC = merge([{'--conditions'   : 'PLS170_V7AN1::All',
                         '--mc'           : '',
                         '--datatier'     : 'MINIAODSIM',
                         '--eventcontent' : 'MINIAODSIM'
                         },stepMiniAODDefaults])
-stepMiniAODMC50ns = merge([{'--conditions'   : 'auto:upgradePLS150ns',
+stepMiniAODMC50ns = merge([{'--conditions'   : 'PLS170_V6AN1::All',
                             '--mc'           : '',
                             '--datatier'     : 'MINIAODSIM',
                             '--eventcontent' : 'MINIAODSIM'
                         },stepMiniAODDefaults])
-stepMiniAODMCFS = merge([{'--conditions'   : 'auto:upgradePLS150',
+stepMiniAODMCFS = merge([{'--conditions'   : 'PLS170_V7AN1::All',
                           '--mc'           : '',
                           '--fast'         : '',
                           '--datatier'     : 'MINIAODSIM',
                           '--eventcontent' : 'MINIAODSIM'
                           },stepMiniAODDefaults])
-stepMiniAODMCFS50ns = merge([{'--conditions'   : 'auto:upgradePLS150ns',
+stepMiniAODMCFS50ns = merge([{'--conditions'   : 'PLS170_V6AN1::All',
                               '--mc'           : '',
                               '--fast'         : '',
                               '--datatier'     : 'MINIAODSIM',
