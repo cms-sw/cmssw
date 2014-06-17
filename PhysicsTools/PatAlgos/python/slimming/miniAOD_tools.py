@@ -74,18 +74,31 @@ def miniAOD_customizeCommon(process):
     )
     #add CA8   
     from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
-    addJetCollection(process, labelName = 'CA8', jetSource = cms.InputTag('ca8PFJetsCHS'),algo= 'CA', rParam = 0.8, jetCorrections = ('AK7PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None') )
-    process.patJetsCA8.userData.userFloats.src = [] # start with empty list of user floats
-    process.selectedPatJetsCA8.cut = cms.string("pt > 100")
-    process.patJetGenJetMatchCA8.matched =  'slimmedGenJets'
-    from RecoJets.JetProducers.ca8PFJetsCHS_groomingValueMaps_cfi import ca8PFJetsCHSPrunedLinks
-    process.ca8PFJetsCHSPrunedLinks = ca8PFJetsCHSPrunedLinks.clone()
-    process.patJetsCA8.userData.userFloats.src += ['ca8PFJetsCHSPrunedLinks']
-    # add cmsTopTagger (note: it is already run in RECO, we just add the value)
-    process.cmsTopTagPFJetsCHSLinksCA8 = ca8PFJetsCHSPrunedLinks.clone()
-    process.cmsTopTagPFJetsCHSLinksCA8.src = cms.InputTag("ca8PFJetsCHS")
-    process.cmsTopTagPFJetsCHSLinksCA8.matched = cms.InputTag("cmsTopTagPFJetsCHS")
-    process.patJetsCA8.userData.userFloats.src += ['cmsTopTagPFJetsCHSLinksCA8']
+    addJetCollection(process, labelName = 'AK8', jetSource = cms.InputTag('ak8PFJetsCHS'),algo= 'AK', rParam = 0.8, jetCorrections = ('AK7PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None') )
+    process.patJetsAK8.userData.userFloats.src = [] # start with empty list of user floats
+    process.selectedPatJetsAK8.cut = cms.string("pt > 100")
+    process.patJetGenJetMatchAK8.matched =  'slimmedGenJets'
+    ## AK8 groomed masses
+    from RecoJets.Configuration.RecoPFJets_cff import ak8PFJetsCHSPruned, ak8PFJetsCHSFiltered, ak8PFJetsCHSTrimmed 
+    process.ak8PFJetsCHSPruned   = ak8PFJetsCHSPruned.clone()
+    process.ak8PFJetsCHSTrimmed  = ak8PFJetsCHSTrimmed.clone()
+    process.ak8PFJetsCHSFiltered = ak8PFJetsCHSFiltered.clone()
+    process.load("RecoJets.JetProducers.ak8PFJetsCHS_groomingValueMaps_cfi")
+    process.patJetsAK8.userData.userFloats.src += ['ak8PFJetsCHSPrunedLinks','ak8PFJetsCHSTrimmedLinks','ak8PFJetsCHSFilteredLinks']
+    ### CA8 groomed masses (for the matched jet): doesn't seem to work, it produces tons of warnings "Matched jets separated by dR greater than distMax=0.8"
+    # from RecoJets.Configuration.RecoPFJets_cff import ca8PFJetsCHSFiltered, ca8PFJetsCHSTrimmed # ca8PFJetsCHSPruned is already in AOD
+    # process.ca8PFJetsCHSTrimmed  = ca8PFJetsCHSTrimmed.clone()
+    # process.ca8PFJetsCHSFiltered = ca8PFJetsCHSFiltered.clone()
+    # process.load("RecoJets.JetProducers.ca8PFJetsCHS_groomingValueMaps_cfi")
+    # process.ca8PFJetsCHSPrunedLinks.src   = cms.InputTag("ak8PFJetsCHS")
+    # process.ca8PFJetsCHSTrimmedLinks.src  = cms.InputTag("ak8PFJetsCHS")
+    # process.ca8PFJetsCHSFilteredLinks.src = cms.InputTag("ak8PFJetsCHS")
+    # process.patJetsAK8.userData.userFloats.src += ['ca8PFJetsCHSPrunedLinks','ca8PFJetsCHSTrimmedLinks','ca8PFJetsCHSFilteredLinks']
+    ## cmsTopTagger (note: it is already run in RECO, we just add the value)
+    process.cmsTopTagPFJetsCHSLinksAK8 = process.ak8PFJetsCHSPrunedLinks.clone()
+    process.cmsTopTagPFJetsCHSLinksAK8.src = cms.InputTag("ak8PFJetsCHS")
+    process.cmsTopTagPFJetsCHSLinksAK8.matched = cms.InputTag("cmsTopTagPFJetsCHS")
+    process.patJetsAK8.userData.userFloats.src += ['cmsTopTagPFJetsCHSLinksAK8']
 
     #
     from PhysicsTools.PatAlgos.tools.trigTools import switchOnTriggerStandAlone
