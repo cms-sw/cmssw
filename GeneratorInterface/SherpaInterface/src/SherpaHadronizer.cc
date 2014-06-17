@@ -18,7 +18,6 @@
 #include "GeneratorInterface/Core/interface/GeneratorFilter.h"
 #include "GeneratorInterface/Core/interface/HadronizerFilter.h"
 #include "GeneratorInterface/SherpaInterface/interface/SherpackFetcher.h"
-#include "GeneratorInterface/Core/interface/RNDMEngineAccess.h"
 
 #include "CLHEP/Random/RandomEngine.h"
 
