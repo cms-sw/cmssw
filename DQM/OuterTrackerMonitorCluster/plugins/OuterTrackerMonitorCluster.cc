@@ -186,7 +186,7 @@ OuterTrackerMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
 						else if ( clusterWidth == 2 )
 						{
 							TPart_AbsEta_OCW_2->Fill( fabs( tempTPPtr->momentum().eta() ) );
-							TPart_Eta_OCW_3->Fill( tempTPPtr->momentum().eta() );
+							TPart_Eta_OCW_2->Fill( tempTPPtr->momentum().eta() );
 						}
 						else
 						{
@@ -214,10 +214,13 @@ for ( inputIter = PixelDigiTTClusterHandle->begin();
 		edm::Ref< edmNew::DetSetVector< TTCluster< Ref_PixelDigi_ > >, TTCluster< Ref_PixelDigi_ > > tempCluRef = edmNew::makeRefTo( PixelDigiTTClusterHandle, contentIter );
 
 		StackedTrackerDetId detIdClu( tempCluRef->getDetId() );		// find it!
+                unsigned int memberClu = tempCluRef->getStackMember();
+                unsigned int widClu = tempCluRef->findWidth();
 		bool genuineClu     = MCTruthTTClusterHandle->isGenuine( tempCluRef );
 		bool combinClu      = MCTruthTTClusterHandle->isCombinatoric( tempCluRef );
 		//bool unknownClu     = MCTruthTTClusterHandle->isUnknown( tempCluRef );
 		//int partClu         = 999999999;
+                Cluster_W->Fill( widClu, memberClu );
 		if ( genuineClu )
 		{
 			edm::Ptr< TrackingParticle > thisTP = MCTruthTTClusterHandle->findTrackingParticlePtr( tempCluRef );
@@ -226,14 +229,14 @@ for ( inputIter = PixelDigiTTClusterHandle->begin();
 
 		if ( detIdClu.isBarrel() )
 		{
-			/*if ( memberClu == 0 )
+                        if ( memberClu == 0 )
 			{
 				Cluster_IMem_Barrel->Fill( detIdClu.iLayer() );
 			}
 			else
 			{
 				Cluster_OMem_Barrel->Fill( detIdClu.iLayer() );
-			}*/
+			}
 			
 			if ( genuineClu )
 			{
@@ -251,14 +254,14 @@ for ( inputIter = PixelDigiTTClusterHandle->begin();
 		}	// end if isBarrel()
 		else if ( detIdClu.isEndcap() )
 		{
-			/*if ( memberClu == 0 )
+			if ( memberClu == 0 )
 			{
 				Cluster_IMem_Endcap->Fill( detIdClu.iDisk() );
 			}
 			else
 			{
 				Cluster_OMem_Endcap->Fill( detIdClu.iDisk() );
-			}*/
+			}
 			
 			if ( genuineClu )
 			{
@@ -294,9 +297,9 @@ OuterTrackerMonitorCluster::beginRun(const edm::Run& run, const edm::EventSetup&
 	edm::ParameterSet StripCluster =  conf_.getParameter<edm::ParameterSet>("TH1NClusStrip");
 	std::string HistoName = "NumberOfClustersInStrip";
 	NumberOfStripClus = dqmStore_->book1D(HistoName, HistoName,
-																				StripCluster.getParameter<int32_t>("Nbinsx"),
-																				StripCluster.getParameter<double>("xmin"),
-																				StripCluster.getParameter<double>("xmax"));
+	StripCluster.getParameter<int32_t>("Nbinsx"),
+	StripCluster.getParameter<double>("xmin"),
+	StripCluster.getParameter<double>("xmax"));
 	NumberOfStripClus->setAxisTitle("# of Clusters in Strip", 1);
 	NumberOfStripClus->setAxisTitle("Number of Events", 2);
 	
@@ -307,33 +310,33 @@ OuterTrackerMonitorCluster::beginRun(const edm::Run& run, const edm::EventSetup&
 	edm::ParameterSet psTPart_Eta_CW =  conf_.getParameter<edm::ParameterSet>("TH1TPart_Eta_CW");
 	HistoName = "TPart_Eta_ICW_1";
 	TPart_Eta_ICW_1 = dqmStore_->book1D(HistoName, HistoName,
-																			psTPart_Eta_CW.getParameter<int32_t>("Nbinsx"),
-																			psTPart_Eta_CW.getParameter<double>("xmin"),
-																			psTPart_Eta_CW.getParameter<double>("xmax"));
+	psTPart_Eta_CW.getParameter<int32_t>("Nbinsx"),
+	psTPart_Eta_CW.getParameter<double>("xmin"),
+	psTPart_Eta_CW.getParameter<double>("xmax"));
 	TPart_Eta_ICW_1->setAxisTitle("TPart_Eta_ICW_1", 1);
-	TPart_Eta_ICW_1->setAxisTitle("Number of Events", 2);
+	TPart_Eta_ICW_1->setAxisTitle("Number of Clusters", 2);
 	
 	HistoName = "TPart_Eta_ICW_2";
 	TPart_Eta_ICW_2 = dqmStore_->book1D(HistoName, HistoName,
-																			psTPart_Eta_CW.getParameter<int32_t>("Nbinsx"),
-																			psTPart_Eta_CW.getParameter<double>("xmin"),
-																			psTPart_Eta_CW.getParameter<double>("xmax"));
+	psTPart_Eta_CW.getParameter<int32_t>("Nbinsx"),
+	psTPart_Eta_CW.getParameter<double>("xmin"),
+	psTPart_Eta_CW.getParameter<double>("xmax"));
 	TPart_Eta_ICW_2->setAxisTitle("TPart_Eta_ICW_2", 1);
-	TPart_Eta_ICW_2->setAxisTitle("Number of Events", 2);
+	TPart_Eta_ICW_2->setAxisTitle("Number of Clusters", 2);
 	
 	HistoName = "TPart_Eta_ICW_3";
 	TPart_Eta_ICW_3 = dqmStore_->book1D(HistoName, HistoName,
-																			psTPart_Eta_CW.getParameter<int32_t>("Nbinsx"),
-																			psTPart_Eta_CW.getParameter<double>("xmin"),
-																			psTPart_Eta_CW.getParameter<double>("xmax"));
+	psTPart_Eta_CW.getParameter<int32_t>("Nbinsx"),
+	psTPart_Eta_CW.getParameter<double>("xmin"),
+	psTPart_Eta_CW.getParameter<double>("xmax"));
 	TPart_Eta_ICW_3->setAxisTitle("TPart_Eta_ICW_3", 1);
-	TPart_Eta_ICW_3->setAxisTitle("Number of Events", 2);
+	TPart_Eta_ICW_3->setAxisTitle("Number of Clusters", 2);
 	
 	HistoName = "TPart_Eta_INormalization";
 	TPart_Eta_INormalization = dqmStore_->book1D(HistoName, HistoName,
-																							 psTPart_Eta_CW.getParameter<int32_t>("Nbinsx"),
-																							 psTPart_Eta_CW.getParameter<double>("xmin"),
-																							 psTPart_Eta_CW.getParameter<double>("xmax"));
+	psTPart_Eta_CW.getParameter<int32_t>("Nbinsx"),
+	psTPart_Eta_CW.getParameter<double>("xmin"),
+	psTPart_Eta_CW.getParameter<double>("xmax"));
 	TPart_Eta_INormalization->setAxisTitle("TPart_Eta_INormalization", 1);
 	TPart_Eta_INormalization->setAxisTitle("Number of Events", 2);
 	
@@ -341,184 +344,198 @@ OuterTrackerMonitorCluster::beginRun(const edm::Run& run, const edm::EventSetup&
 	edm::ParameterSet psTPart_AbsEta_CW =  conf_.getParameter<edm::ParameterSet>("TH1TPart_AbsEta_CW");
 	HistoName = "TPart_AbsEta_ICW_1";
 	TPart_AbsEta_ICW_1 = dqmStore_->book1D(HistoName, HistoName,
-																			psTPart_AbsEta_CW.getParameter<int32_t>("Nbinsx"),
-																			psTPart_AbsEta_CW.getParameter<double>("xmin"),
-																			psTPart_AbsEta_CW.getParameter<double>("xmax"));
+	psTPart_AbsEta_CW.getParameter<int32_t>("Nbinsx"),
+	psTPart_AbsEta_CW.getParameter<double>("xmin"),
+	psTPart_AbsEta_CW.getParameter<double>("xmax"));
 	TPart_AbsEta_ICW_1->setAxisTitle("TPart_AbsEta_ICW_1", 1);
-	TPart_AbsEta_ICW_1->setAxisTitle("Number of Events", 2);
+	TPart_AbsEta_ICW_1->setAxisTitle("Number of Clusters", 2);
 	
 	HistoName = "TPart_AbsEta_ICW_2";
 	TPart_AbsEta_ICW_2 = dqmStore_->book1D(HistoName, HistoName,
-																			psTPart_AbsEta_CW.getParameter<int32_t>("Nbinsx"),
-																			psTPart_AbsEta_CW.getParameter<double>("xmin"),
-																			psTPart_AbsEta_CW.getParameter<double>("xmax"));
+	psTPart_AbsEta_CW.getParameter<int32_t>("Nbinsx"),
+	psTPart_AbsEta_CW.getParameter<double>("xmin"),
+	psTPart_AbsEta_CW.getParameter<double>("xmax"));
 	TPart_AbsEta_ICW_2->setAxisTitle("TPart_AbsEta_ICW_2", 1);
-	TPart_AbsEta_ICW_2->setAxisTitle("Number of Events", 2);
+	TPart_AbsEta_ICW_2->setAxisTitle("Number of Clusters", 2);
 	
 	HistoName = "TPart_AbsEta_ICW_3";
 	TPart_AbsEta_ICW_3 = dqmStore_->book1D(HistoName, HistoName,
-																			psTPart_AbsEta_CW.getParameter<int32_t>("Nbinsx"),
-																			psTPart_AbsEta_CW.getParameter<double>("xmin"),
-																			psTPart_AbsEta_CW.getParameter<double>("xmax"));
+	psTPart_AbsEta_CW.getParameter<int32_t>("Nbinsx"),
+	psTPart_AbsEta_CW.getParameter<double>("xmin"),
+	psTPart_AbsEta_CW.getParameter<double>("xmax"));
 	TPart_AbsEta_ICW_3->setAxisTitle("TPart_AbsEta_ICW_3", 1);
-	TPart_AbsEta_ICW_3->setAxisTitle("Number of Events", 2);
+	TPart_AbsEta_ICW_3->setAxisTitle("Number of Clusters", 2);
 	
 	HistoName = "TPart_AbsEta_INormalization";
 	TPart_AbsEta_INormalization = dqmStore_->book1D(HistoName, HistoName,
-																							 psTPart_AbsEta_CW.getParameter<int32_t>("Nbinsx"),
-																							 psTPart_AbsEta_CW.getParameter<double>("xmin"),
-																							 psTPart_AbsEta_CW.getParameter<double>("xmax"));
+	psTPart_AbsEta_CW.getParameter<int32_t>("Nbinsx"),
+	psTPart_AbsEta_CW.getParameter<double>("xmin"),
+	psTPart_AbsEta_CW.getParameter<double>("xmax"));
 	TPart_AbsEta_INormalization->setAxisTitle("TPart_AbsEta_INormalization", 1);
 	TPart_AbsEta_INormalization->setAxisTitle("Number of Events", 2);
 	
 	// Outer
 	HistoName = "TPart_Eta_OCW_1";
 	TPart_Eta_OCW_1 = dqmStore_->book1D(HistoName, HistoName,
-																			psTPart_Eta_CW.getParameter<int32_t>("Nbinsx"),
-																			psTPart_Eta_CW.getParameter<double>("xmin"),
-																			psTPart_Eta_CW.getParameter<double>("xmax"));
+	psTPart_Eta_CW.getParameter<int32_t>("Nbinsx"),
+	psTPart_Eta_CW.getParameter<double>("xmin"),
+	psTPart_Eta_CW.getParameter<double>("xmax"));
 	TPart_Eta_OCW_1->setAxisTitle("TPart_Eta_OCW_1", 1);
-	TPart_Eta_OCW_1->setAxisTitle("Number of Events", 2);
+	TPart_Eta_OCW_1->setAxisTitle("Number of Clusters", 2);
 	
 	HistoName = "TPart_Eta_OCW_2";
 	TPart_Eta_OCW_2 = dqmStore_->book1D(HistoName, HistoName,
-																			psTPart_Eta_CW.getParameter<int32_t>("Nbinsx"),
-																			psTPart_Eta_CW.getParameter<double>("xmin"),
-																			psTPart_Eta_CW.getParameter<double>("xmax"));
+	psTPart_Eta_CW.getParameter<int32_t>("Nbinsx"),
+	psTPart_Eta_CW.getParameter<double>("xmin"),
+	psTPart_Eta_CW.getParameter<double>("xmax"));
 	TPart_Eta_OCW_2->setAxisTitle("TPart_Eta_OCW_2", 1);
-	TPart_Eta_OCW_2->setAxisTitle("Number of Events", 2);
+	TPart_Eta_OCW_2->setAxisTitle("Number of Clusters", 2);
 	
 	HistoName = "TPart_Eta_OCW_3";
 	TPart_Eta_OCW_3 = dqmStore_->book1D(HistoName, HistoName,
-																			psTPart_Eta_CW.getParameter<int32_t>("Nbinsx"),
-																			psTPart_Eta_CW.getParameter<double>("xmin"),
-																			psTPart_Eta_CW.getParameter<double>("xmax"));
+	psTPart_Eta_CW.getParameter<int32_t>("Nbinsx"),
+	psTPart_Eta_CW.getParameter<double>("xmin"),
+	psTPart_Eta_CW.getParameter<double>("xmax"));
 	TPart_Eta_OCW_3->setAxisTitle("TPart_Eta_OCW_3", 1);
-	TPart_Eta_OCW_3->setAxisTitle("Number of Events", 2);
+	TPart_Eta_OCW_3->setAxisTitle("Number of Clusters", 2);
 	
 	HistoName = "TPart_Eta_ONormalization";
 	TPart_Eta_ONormalization = dqmStore_->book1D(HistoName, HistoName,
-																							 psTPart_Eta_CW.getParameter<int32_t>("Nbinsx"),
-																							 psTPart_Eta_CW.getParameter<double>("xmin"),
-																							 psTPart_Eta_CW.getParameter<double>("xmax"));
+	psTPart_Eta_CW.getParameter<int32_t>("Nbinsx"),
+	psTPart_Eta_CW.getParameter<double>("xmin"),
+	psTPart_Eta_CW.getParameter<double>("xmax"));
 	TPart_Eta_ONormalization->setAxisTitle("TPart_Eta_ONormalization", 1);
 	TPart_Eta_ONormalization->setAxisTitle("Number of Events", 2);
 	
 	
 	HistoName = "TPart_AbsEta_OCW_1";
 	TPart_AbsEta_OCW_1 = dqmStore_->book1D(HistoName, HistoName,
-																			psTPart_AbsEta_CW.getParameter<int32_t>("Nbinsx"),
-																			psTPart_AbsEta_CW.getParameter<double>("xmin"),
-																			psTPart_AbsEta_CW.getParameter<double>("xmax"));
+	psTPart_AbsEta_CW.getParameter<int32_t>("Nbinsx"),
+	psTPart_AbsEta_CW.getParameter<double>("xmin"),
+	psTPart_AbsEta_CW.getParameter<double>("xmax"));
 	TPart_AbsEta_OCW_1->setAxisTitle("TPart_AbsEta_OCW_1", 1);
-	TPart_AbsEta_OCW_1->setAxisTitle("Number of Events", 2);
+	TPart_AbsEta_OCW_1->setAxisTitle("Number of Clusters", 2);
 	
 	HistoName = "TPart_AbsEta_OCW_2";
 	TPart_AbsEta_OCW_2 = dqmStore_->book1D(HistoName, HistoName,
-																			psTPart_Eta_CW.getParameter<int32_t>("Nbinsx"),
-																			psTPart_Eta_CW.getParameter<double>("xmin"),
-																			psTPart_Eta_CW.getParameter<double>("xmax"));
+	psTPart_Eta_CW.getParameter<int32_t>("Nbinsx"),
+	psTPart_Eta_CW.getParameter<double>("xmin"),
+	psTPart_Eta_CW.getParameter<double>("xmax"));
 	TPart_AbsEta_OCW_2->setAxisTitle("TPart_AbsEta_OCW_2", 1);
-	TPart_AbsEta_OCW_2->setAxisTitle("Number of Events", 2);
+	TPart_AbsEta_OCW_2->setAxisTitle("Number of Clusters", 2);
 	
 	HistoName = "TPart_AbsEta_OCW_3";
 	TPart_AbsEta_OCW_3 = dqmStore_->book1D(HistoName, HistoName,
-																			psTPart_AbsEta_CW.getParameter<int32_t>("Nbinsx"),
-																			psTPart_AbsEta_CW.getParameter<double>("xmin"),
-																			psTPart_AbsEta_CW.getParameter<double>("xmax"));
+	psTPart_AbsEta_CW.getParameter<int32_t>("Nbinsx"),
+	psTPart_AbsEta_CW.getParameter<double>("xmin"),
+	psTPart_AbsEta_CW.getParameter<double>("xmax"));
 	TPart_AbsEta_OCW_3->setAxisTitle("TPart_AbsEta_OCW_3", 1);
-	TPart_AbsEta_OCW_3->setAxisTitle("Number of Events", 2);
+	TPart_AbsEta_OCW_3->setAxisTitle("Number of Clusters", 2);
 	
 	HistoName = "TPart_AbsEta_ONormalization";
 	TPart_AbsEta_ONormalization = dqmStore_->book1D(HistoName, HistoName,
-																							 psTPart_AbsEta_CW.getParameter<int32_t>("Nbinsx"),
-																							 psTPart_AbsEta_CW.getParameter<double>("xmin"),
-																							 psTPart_AbsEta_CW.getParameter<double>("xmax"));
+	psTPart_AbsEta_CW.getParameter<int32_t>("Nbinsx"),
+	psTPart_AbsEta_CW.getParameter<double>("xmin"),
+	psTPart_AbsEta_CW.getParameter<double>("xmax"));
 	TPart_AbsEta_ONormalization->setAxisTitle("TPart_AbsEta_ONormalization", 1);
 	TPart_AbsEta_ONormalization->setAxisTitle("Number of Events", 2);
 	
 	
 	// TTCluster stacks
 	edm::ParameterSet psTTClusterStacks =  conf_.getParameter<edm::ParameterSet>("TH1TTCluster_Stack");
-	/*std::string HistoName = "Cluster_IMem_Barrel";
+	HistoName = "Cluster_IMem_Barrel";
 	Cluster_IMem_Barrel = dqmStore_->book1D(HistoName, HistoName,
-																				psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
-																				psTTClusterStacks.getParameter<double>("xmin"),
-																				psTTClusterStacks.getParameter<double>("xmax"));
+	psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
+	psTTClusterStacks.getParameter<double>("xmin"),
+	psTTClusterStacks.getParameter<double>("xmax"));
 	Cluster_IMem_Barrel->setAxisTitle("Inner TTCluster Stack", 1);
-	Cluster_IMem_Barrel->setAxisTitle("Number of Events", 2);
+	Cluster_IMem_Barrel->setAxisTitle("Number of Clusters", 2);
 	
 	HistoName = "Cluster_IMem_Endcap";
 	Cluster_IMem_Endcap = dqmStore_->book1D(HistoName, HistoName,
-																				psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
-																				psTTClusterStacks.getParameter<double>("xmin"),
-																				psTTClusterStacks.getParameter<double>("xmax"));
+	psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
+	psTTClusterStacks.getParameter<double>("xmin"),
+	psTTClusterStacks.getParameter<double>("xmax"));
 	Cluster_IMem_Endcap->setAxisTitle("Inner TTCluster Stack", 1);
-	Cluster_IMem_Endcap->setAxisTitle("Number of Events", 2);
+	Cluster_IMem_Endcap->setAxisTitle("Number of Clusters", 2);
 	
 	HistoName = "Cluster_OMem_Barrel";
 	Cluster_OMem_Barrel = dqmStore_->book1D(HistoName, HistoName,
-																				psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
-																				psTTClusterStacks.getParameter<double>("xmin"),
-																				psTTClusterStacks.getParameter<double>("xmax"));
+	psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
+	psTTClusterStacks.getParameter<double>("xmin"),
+	psTTClusterStacks.getParameter<double>("xmax"));
 	Cluster_OMem_Barrel->setAxisTitle("Outer TTCluster Stack", 1);
-	Cluster_OMem_Barrel->setAxisTitle("Number of Events", 2);
+	Cluster_OMem_Barrel->setAxisTitle("Number of Clusters", 2);
 	
-	std::string HistoName = "Cluster_IMem_Endcap";
+	HistoName = "Cluster_OMem_Endcap";
 	Cluster_OMem_Endcap = dqmStore_->book1D(HistoName, HistoName,
-																				psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
-																				psTTClusterStacks.getParameter<double>("xmin"),
-																				psTTClusterStacks.getParameter<double>("xmax"));
+	psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
+	psTTClusterStacks.getParameter<double>("xmin"),
+	psTTClusterStacks.getParameter<double>("xmax"));
 	Cluster_OMem_Endcap->setAxisTitle("Outer TTCluster Stack", 1);
-	Cluster_OMem_Endcap->setAxisTitle("Number of Events", 2);*/
+	Cluster_OMem_Endcap->setAxisTitle("Number of Clusters", 2);
 	
 	HistoName = "Cluster_Gen_Barrel";
 	Cluster_Gen_Barrel = dqmStore_->book1D(HistoName, HistoName,
-																				psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
-																				psTTClusterStacks.getParameter<double>("xmin"),
-																				psTTClusterStacks.getParameter<double>("xmax"));
+	psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
+	psTTClusterStacks.getParameter<double>("xmin"),
+	psTTClusterStacks.getParameter<double>("xmax"));
 	Cluster_Gen_Barrel->setAxisTitle("Genuine TTCluster Stack", 1);
 	Cluster_Gen_Barrel->setAxisTitle("Number of Events", 2);
 	
 	HistoName = "Cluster_Unkn_Barrel";
 	Cluster_Unkn_Barrel = dqmStore_->book1D(HistoName, HistoName,
-																				psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
-																				psTTClusterStacks.getParameter<double>("xmin"),
-																				psTTClusterStacks.getParameter<double>("xmax"));
+	psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
+	psTTClusterStacks.getParameter<double>("xmin"),
+	psTTClusterStacks.getParameter<double>("xmax"));
 	Cluster_Unkn_Barrel->setAxisTitle("Unknown TTCluster Stack", 1);
 	Cluster_Unkn_Barrel->setAxisTitle("Number of Events", 2);
 	
 	HistoName = "Cluster_Comb_Barrel";
 	Cluster_Comb_Barrel = dqmStore_->book1D(HistoName, HistoName,
-																				psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
-																				psTTClusterStacks.getParameter<double>("xmin"),
-																				psTTClusterStacks.getParameter<double>("xmax"));
+	psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
+	psTTClusterStacks.getParameter<double>("xmin"),
+	psTTClusterStacks.getParameter<double>("xmax"));
 	Cluster_Comb_Barrel->setAxisTitle("Combinatorial TTCluster Stack", 1);
 	Cluster_Comb_Barrel->setAxisTitle("Number of Events", 2);
 	
 	HistoName = "Cluster_Gen_Endcap";
 	Cluster_Gen_Endcap = dqmStore_->book1D(HistoName, HistoName,
-																				psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
-																				psTTClusterStacks.getParameter<double>("xmin"),
-																				psTTClusterStacks.getParameter<double>("xmax"));
+	psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
+	psTTClusterStacks.getParameter<double>("xmin"),
+	psTTClusterStacks.getParameter<double>("xmax"));
 	Cluster_Gen_Endcap->setAxisTitle("Genuine TTCluster Stack", 1);
 	Cluster_Gen_Endcap->setAxisTitle("Number of Events", 2);
 	
 	HistoName = "Cluster_Unkn_Endcap";
 	Cluster_Unkn_Endcap = dqmStore_->book1D(HistoName, HistoName,
-																				psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
-																				psTTClusterStacks.getParameter<double>("xmin"),
-																				psTTClusterStacks.getParameter<double>("xmax"));
+	psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
+	psTTClusterStacks.getParameter<double>("xmin"),
+	psTTClusterStacks.getParameter<double>("xmax"));
 	Cluster_Unkn_Endcap->setAxisTitle("Unknown TTCluster Stack", 1);
 	Cluster_Unkn_Endcap->setAxisTitle("Number of Events", 2);
 	
 	HistoName = "Cluster_Comb_Endcap";
 	Cluster_Comb_Endcap = dqmStore_->book1D(HistoName, HistoName,
-																				psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
-																				psTTClusterStacks.getParameter<double>("xmin"),
-																				psTTClusterStacks.getParameter<double>("xmax"));
+	psTTClusterStacks.getParameter<int32_t>("Nbinsx"),
+	psTTClusterStacks.getParameter<double>("xmin"),
+	psTTClusterStacks.getParameter<double>("xmax"));
 	Cluster_Comb_Endcap->setAxisTitle("Combinatorial TTCluster Stack", 1);
 	Cluster_Comb_Endcap->setAxisTitle("Number of Events", 2);
+        
+        //Cluster Width
+        edm::ParameterSet psTTClusterWidth =  conf_.getParameter<edm::ParameterSet>("TH2TTCluster_Width");
+        HistoName = "Cluster_W";
+        Cluster_W = dqmStore_->book2D(HistoName, HistoName,
+        psTTClusterWidth.getParameter<int32_t>("Nbinsx"),
+        psTTClusterWidth.getParameter<double>("xmin"),
+        psTTClusterWidth.getParameter<double>("xmax"),
+        psTTClusterWidth.getParameter<int32_t>("Nbinsy"),
+        psTTClusterWidth.getParameter<double>("ymin"),
+        psTTClusterWidth.getParameter<double>("ymax"));
+        Cluster_W->setAxisTitle("Cluster Width", 1);
+        Cluster_W->setAxisTitle("Stack Member", 2);
+        
 	
 }//end of method
 
