@@ -7,7 +7,7 @@ from JetMETCorrections.Type1MET.correctionTermsPfMetType1Type2_cff import *
 pfJetMETcorr = corrPfMetType1.clone()
 
 #--------------------------------------------------------------------------------
-from JetMETCorrections.Type1MET.correctionTermsPfMetType0RecoTrack_cff import pfchsMETcorr
+from JetMETCorrections.Type1MET.correctionTermsPfMetType0RecoTrack_cff import *
 
 #--------------------------------------------------------------------------------
 # use MET corrections to produce Type 1 / Type 1 + 2 corrected PFMET objects
