@@ -50,16 +50,17 @@ public:
 	MonitorElement* TPart_AbsEta_OCW_2 = 0;
 	MonitorElement* TPart_AbsEta_OCW_3 = 0;
 	// TTCluster stacks
-	/*MonitorElement* Cluster_IMem_Barrel = 0;
+	MonitorElement* Cluster_IMem_Barrel = 0;
 	MonitorElement* Cluster_IMem_Endcap = 0;
 	MonitorElement* Cluster_OMem_Barrel = 0;
-	MonitorElement* Cluster_OMem_Endcap = 0;*/
+	MonitorElement* Cluster_OMem_Endcap = 0;
 	MonitorElement* Cluster_Gen_Barrel = 0;
 	MonitorElement* Cluster_Unkn_Barrel = 0;
 	MonitorElement* Cluster_Comb_Barrel = 0;
 	MonitorElement* Cluster_Gen_Endcap = 0;
 	MonitorElement* Cluster_Unkn_Endcap = 0;
 	MonitorElement* Cluster_Comb_Endcap = 0;
+        MonitorElement* Cluster_W = 0;
 	
 
  private:
