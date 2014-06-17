@@ -10,7 +10,6 @@
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include <cmath>
-#include <Geometry/RPCGeometry/interface/RPCGeomServ.h>
 
 using namespace std;
 using namespace edm;
@@ -38,10 +37,6 @@ RPCDigiValid::~RPCDigiValid()
 void RPCDigiValid::analyze(const Event& event, const EventSetup& eventSetup)
 {
 
-  countEvent++;
-  //  cout << endl <<"--- [RPCDigiQuality] Analysing Event: #Run: " << event.id().run()
-  //       << " #Event: " << event.id().event() << endl;
-
   // Get the RPC Geometry
   edm::ESHandle<RPCGeometry> rpcGeom;
   eventSetup.get<MuonGeometryRecord> ().get(rpcGeom);
@@ -63,7 +58,6 @@ void RPCDigiValid::analyze(const Event& event, const EventSetup& eventSetup)
     const RPCRoll* soll = dynamic_cast<const RPCRoll*> (rpcGeom->roll(Rsid));
     int ptype = simIt->particleType();
 
-    //    std::cout <<"This is a Simhit with Parent "<<ptype<<std::endl;
     if (ptype == 13 || ptype == -13)
     {
 
@@ -76,8 +70,6 @@ void RPCDigiValid::analyze(const Event& event, const EventSetup& eventSetup)
       buff.push_back(simIt->localPosition().x());
 
       allsims[Rsid] = buff;
-
-      // std::cout << "allsims[Rsid] = "  << std::endl;
     }
     GlobalPoint p = soll->toGlobal(simIt->localPosition());
 
@@ -100,8 +92,6 @@ void RPCDigiValid::analyze(const Event& event, const EventSetup& eventSetup)
         xyvDmin4->Fill(sim_x, sim_y);
       }
     }
-
-    //    xyview->Fill(p.x(),p.y());
     rzview->Fill(p.z(), p.perp());
   }
   //loop over Digis
@@ -111,11 +101,6 @@ void RPCDigiValid::analyze(const Event& event, const EventSetup& eventSetup)
     const RPCDetId Rsid = (*detUnitIt).first;
     const RPCRoll* roll = dynamic_cast<const RPCRoll*> (rpcGeom->roll(Rsid));
 
-    RPCGeomServ rpcsrv(roll->id());
-    std::string name = rpcsrv.name();
-    //std:: cout << (roll->id().rawId()) << "\t" << name << std::endl;
-
-
     const RPCDigiCollection::Range& range = (*detUnitIt).second;
     std::vector<double> sims;
     if (allsims.find(Rsid) != allsims.end())
@@ -123,8 +108,7 @@ void RPCDigiValid::analyze(const Event& event, const EventSetup& eventSetup)
       sims = allsims[Rsid];
     }
 
-    //int ndigi=0;
-    double ndigi = 0;
+    int ndigi=0;
     for (RPCDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; ++digiIt)
     {
       StripProf->Fill(digiIt->strip());
@@ -140,56 +124,8 @@ void RPCDigiValid::analyze(const Event& event, const EventSetup& eventSetup)
         if (Rsid.station() == 4)
           BxDisc_4Min->Fill(digiIt->bx());
       }
-      map<int, double>* stripRate = mapRollStripRate[Rsid.rawId()];
-      map<int, double>* stripNoisyRate = mapRollNoisyStripRate[Rsid.rawId()];
-      //init map strip rate
-      if (stripRate == 0)
-      {
-        stripRate = new map<int, double> ();
-        mapRollStripRate[Rsid.rawId()] = stripRate;
-      }
-      (*stripRate)[digiIt->strip()] += 1;
-
-      //noisy only
-      if (sims.size() == 0)
-      {
-        if (stripNoisyRate == 0)
-        {
-          stripNoisyRate = new map<int, double> ();
-          mapRollNoisyStripRate[Rsid.rawId()] = stripNoisyRate;
-        }
-        (*stripNoisyRate)[digiIt->strip()] += 1;
-
-      }
-
-      //      std::cout << Rsid.rawId() << "\tstrip = " << digiIt->strip() << std::endl;
       ndigi++;
-      //      std::cout << "digis = " <<  ndigi << std::endl;
     }
-
-    double area = 0.0;
-    double stripArea = 0.0;
-
-    if (Rsid.region() == 0)
-    {
-      const RectangularStripTopology* top_ = dynamic_cast<const RectangularStripTopology*> (&(roll->topology()));
-      float xmin = (top_->localPosition(0.)).x();
-      float xmax = (top_->localPosition((float) roll->nstrips())).x();
-      float striplength = (top_->stripLength());
-      area = striplength * (xmax - xmin);
-      stripArea = area / ((float) roll->nstrips());
-    }
-    else
-    {
-      const TrapezoidalStripTopology* top_ = dynamic_cast<const TrapezoidalStripTopology*> (&(roll->topology()));
-      float xmin = (top_->localPosition(0.)).x();
-      float xmax = (top_->localPosition((float) roll->nstrips())).x();
-      float striplength = (top_->stripLength());
-      area = striplength * (xmax - xmin);
-      stripArea = area / ((float) roll->nstrips());
-    }
-
-    mapRollTruCount[Rsid] += 1;
 
     if (sims.size() == 0)
     {
@@ -202,14 +138,7 @@ void RPCDigiValid::analyze(const Event& event, const EventSetup& eventSetup)
       {
         noiseCLSEndcaps->Fill(ndigi);
       }
-
-      mapRollCls[Rsid] += ndigi;
-      mapRollFakeCount[Rsid] += 1;
     }
-    mapRollArea[Rsid] = area;
-    mapRollStripArea[Rsid] = stripArea;
-    mapRollName[Rsid] = name;
-
     //CLS histos
     if (Rsid.region() == 0)
     {
@@ -252,7 +181,6 @@ void RPCDigiValid::analyze(const Event& event, const EventSetup& eventSetup)
         CLS_Endcap_4->Fill(ndigi);
     }
 
-    //cls histos
     if (sims.size() == 1 && ndigi == 1)
     {
       double dis = roll->centreOfStrip(range.first->strip()).x() - sims[0];
@@ -360,8 +288,6 @@ void RPCDigiValid::endJob()
 
 void RPCDigiValid::beginRun(edm::Run const& run, edm::EventSetup const& eSetup)
 {
-  countEvent = 0;
-
   if (dbe_)
   {
     dbe_->setCurrentFolder("RPCDigisV/RPCDigis");
