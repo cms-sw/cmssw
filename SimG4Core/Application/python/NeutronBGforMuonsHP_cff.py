@@ -5,10 +5,10 @@ def customise(process):
     # fragment allowing to simulate neutron background in muon system
 
   if hasattr(process,'g4SimHits'):
-    # time window 10 millisecond
+    # time window 100 millisecond
     process.common_maximum_time.MaxTrackTime = cms.double(100000000.0)
     process.common_maximum_time.DeadRegions = cms.vstring()
-    # Physics List XS
+    # Physics List HP
     process.g4SimHits.Physics.type = cms.string('SimG4Core/Physics/FTFP_BERT_HP_EML')
     process.g4SimHits.Physics.CutsOnProton  = cms.untracked.bool(False)
     process.g4SimHits.Physics.FlagMuNucl  = cms.bool(True)
