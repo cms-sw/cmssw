@@ -26,8 +26,8 @@ OuterTrackerMonitorSimulation = cms.EDAnalyzer('OuterTrackerMonitorSimulation',
         Nbinsx = cms.int32(25),
         xmax = cms.double(0.05),                      
         xmin = cms.double(-0.05),
-				Nbinsy = cms.int32(25),
-				ymax = cms.double(0.05),                      
+        Nbinsy = cms.int32(25),
+        ymax = cms.double(0.05),                      
         ymin = cms.double(-0.05)
         ),
 
@@ -36,8 +36,8 @@ OuterTrackerMonitorSimulation = cms.EDAnalyzer('OuterTrackerMonitorSimulation',
         Nbinsx = cms.int32(30),
         xmax = cms.double(30.0),                      
         xmin = cms.double(-30.0),
-				Nbinsy = cms.int32(25),
-				ymax = cms.double(0.05),                      
+        Nbinsy = cms.int32(25),
+        ymax = cms.double(0.05),                      
         ymin = cms.double(0.0)
         ),
 
