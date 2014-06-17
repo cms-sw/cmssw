@@ -1,8 +1,8 @@
-#ifndef EgammaElectronAlgos_SiStripElectronAlgo_h
-#define EgammaElectronAlgos_SiStripElectronAlgo_h
+#ifndef EgammaAlgos_SiStripElectronAlgo_h
+#define EgammaAlgos_SiStripElectronAlgo_h
 // -*- C++ -*-
 //
-// Package:     EgammaElectronAlgos
+// Package:     EgammaAlgos
 // Class  :     SiStripElectronAlgo
 // 
 /**\class SiStripElectronAlgo SiStripElectronAlgo.h RecoEgamma/EgammaAlgos/interface/SiStripElectronAlgo.h

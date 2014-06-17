@@ -2,10 +2,10 @@
 #define BarrelMeasurementEstimator_H
 // -*- C++ -*-
 //
-// Package:    EgammaElectronAlgos
+// Package:    EgammaAlgos
 // Class:      BarrelMeasurementEstimator
 //
-/**\class ElectronSeedProducer EgammaElectronAlgos/BarrelMeasurementEstimator
+/**\class ElectronSeedProducer EgammaAlgos/BarrelMeasurementEstimator
 
  Description: MeasurementEstimator for Pixel Barrel, ported from ORCA
  Class defining the search area in the barrel in the pixel match

@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    EgammaElectronAlgos
+// Package:    EgammaAlgos
 // Class:      ElectronSeedGenerator.
 //
-/**\class ElectronSeedGenerator EgammaElectronAlgos/ElectronSeedGenerator
+/**\class ElectronSeedGenerator EgammaAlgos/ElectronSeedGenerator
 
  Description: Top algorithm producing ElectronSeeds, ported from ORCA
 

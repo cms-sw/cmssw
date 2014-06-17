@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    EgammaElectronAlgos
+// Package:    EgammaAlgos
 // Class:      SiStripElectronSeedGenerator.
 //
-/**\class SiStripElectronSeedGenerator EgammaElectronAlgos/SiStripElectronSeedGenerator
+/**\class SiStripElectronSeedGenerator EgammaAlgos/SiStripElectronSeedGenerator
 
 Description: SiStrip-driven electron seed finding algorithm.
 

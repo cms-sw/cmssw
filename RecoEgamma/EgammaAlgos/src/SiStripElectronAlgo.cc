@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Package:     EgammaElectronAlgos
+// Package:     EgammaAlgos
 // Class  :     SiStripElectronAlgo
 // 
 // Implementation:

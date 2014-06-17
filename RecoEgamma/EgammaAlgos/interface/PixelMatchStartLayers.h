@@ -2,10 +2,10 @@
 #define PIXELMATCHSTARTLAYERS_H
 // -*- C++ -*-
 //
-// Package:    EgammaElectronAlgos
+// Package:    EgammaAlgos
 // Class:      PixelMatchStartLayers
 // 
-/**\class PixelMatchStartLayers EgammaElectronAlgos/PixelMatchStartLayers
+/**\class PixelMatchStartLayers EgammaAlgos/PixelMatchStartLayers
 
  Description: class to find the innermost pixel forward layers
 

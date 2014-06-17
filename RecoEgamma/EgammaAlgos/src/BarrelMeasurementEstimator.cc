@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    EgammaElectronAlgos
+// Package:    EgammaAlgos
 // Class:      BarrelMeasurementEstimator
 //
-/**\class ElectronSeedProducer EgammaElectronAlgos/BarrelMeasurementEstimator
+/**\class ElectronSeedProducer EgammaAlgos/BarrelMeasurementEstimator
 
  Description: MeasurementEstimator for Pixel Barrel, ported from ORCA
 

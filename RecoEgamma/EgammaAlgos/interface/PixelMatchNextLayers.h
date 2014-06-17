@@ -2,10 +2,10 @@
 #define PIXELMATCHNEXTLAYERS_H
 // -*- C++ -*-
 //
-// Package:    EgammaElectronAlgos
+// Package:    EgammaAlgos
 // Class:      PixelMatchNextLayers
 // 
-/**\class PixelMatchNextLayers EgammaElectronAlgos/PixelMatchNextLayers
+/**\class PixelMatchNextLayers EgammaAlgos/PixelMatchNextLayers
 
  Description: class to find the compatible hits in the next layer
 

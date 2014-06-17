@@ -3,10 +3,10 @@
 
 // -*- C++ -*-
 //
-// Package:    EgammaElectronAlgos
+// Package:    EgammaAlgos
 // Class:      PixelHitMatcher
 //
-/**\class PixelHitMatcher EgammaElectronAlgos/PixelHitMatcher
+/**\class PixelHitMatcher EgammaAlgos/PixelHitMatcher
 
  Description: Class to match an ECAL cluster to the pixel hits.
   Two compatible hits in the pixel layers are required.

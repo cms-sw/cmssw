@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    EgammaElectronAlgos
+// Package:    EgammaAlgos
 // Class:      FTSFromVertexToPointFactory
 // 
-/**\class FTSFromVertexToPointFactory EgammaElectronAlgos/FTSFromVertexToPointFactory
+/**\class FTSFromVertexToPointFactory EgammaAlgos/FTSFromVertexToPointFactory
 
  Description: Utility class to create FTS from supercluster
 

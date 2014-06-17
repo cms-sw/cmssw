@@ -2,7 +2,7 @@
 #define FTSFROMVERTEXTOPOINTFACTORY_H
 // -*- C++ -*-
 //
-// Package:    EgammaElectronAlgos
+// Package:    EgammaAlgos
 // Class:      FTSFromVertexToPointFactory
 // 
 /**

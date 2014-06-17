@@ -1,6 +1,6 @@
 
-#ifndef __EgammaElectronAlgos_RegressionHelper_h__
-#define __EgammaElectronAlgos_RegressionHelper_h__
+#ifndef __EgammaAlgos_RegressionHelper_h__
+#define __EgammaAlgos_RegressionHelper_h__
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"

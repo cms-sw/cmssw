@@ -1,4 +1,4 @@
-// Package:    EgammaElectronAlgos
+// Package:    EgammaAlgos
 // Class:      SeedFilter.
 
 #include "RecoEgamma/EgammaAlgos/interface/SeedFilter.h"

@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    EgammaElectronAlgos
+// Package:    EgammaAlgos
 // Class:      ForwardMeasurementEstimator
 //
-/**\class ForwardMeasurementEstimator EgammaElectronAlgos/ForwardMeasurementEstimator
+/**\class ForwardMeasurementEstimator EgammaAlgos/ForwardMeasurementEstimator
 
  Description: MeasurementEstimator for Pixel Endcap, ported from ORCA
 

@@ -3,10 +3,10 @@
 
 // -*- C++ -*-
 //
-// Package:    EgammaElectronAlgos
+// Package:    EgammaAlgos
 // Class:      ForwardMeasurementEstimator
 //
-/**\class ForwardMeasurementEstimator EgammaElectronAlgos/ForwardMeasurementEstimator
+/**\class ForwardMeasurementEstimator EgammaAlgos/ForwardMeasurementEstimator
 
  Description: Class defining the search area in the forward disks in the pixel match, ported from ORCA
 

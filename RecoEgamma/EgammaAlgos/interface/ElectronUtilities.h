@@ -1,5 +1,5 @@
-#ifndef RecoEgamma_EgammaElectronAlgos_ElectronUtilities_H
-#define RecoEgamma_EgammaElectronAlgos_ElectronUtilities_H
+#ifndef RecoEgamma_EgammaAlgos_ElectronUtilities_H
+#define RecoEgamma_EgammaAlgos_ElectronUtilities_H
 
 #include <DataFormats/GeometryVector/interface/GlobalPoint.h>
 #include <DataFormats/GeometryVector/interface/GlobalVector.h>
