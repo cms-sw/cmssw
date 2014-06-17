@@ -7,7 +7,6 @@
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="RecoEgamma/EgammaHLTAlgos"/>
 <use   name="RecoEgamma/EgammaAlgos"/>
-<use   name="RecoEgamma/EgammaAlgos"/>
 <use   name="MagneticField/Engine"/>
 <use   name="MagneticField/Records"/>
 <use   name="DataFormats/DetId"/>
