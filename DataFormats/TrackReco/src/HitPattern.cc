@@ -76,25 +76,6 @@ void HitPattern::clear(void)
     memset(this->hitPattern, EMPTY_PATTERN, sizeof(uint16_t) * HitPattern::MaxHits);
 }
 
-std::pair<uint8_t, uint8_t> HitPattern::getCategoryIndexRange(HitCategory category) const
-{
-    switch (category) {
-    case ALL_HITS:
-        return std::pair<uint8_t, uint8_t>(0, hitCount);
-        break;
-    case TRACK_HITS:
-        return std::pair<uint8_t, uint8_t>(beginTrackHits, endTrackHits);
-        break;
-    case MISSING_INNER_HITS:
-        return std::pair<uint8_t, uint8_t>(beginInner, endInner);
-        break;
-    case MISSING_OUTER_HITS:
-        return std::pair<uint8_t, uint8_t>(beginOuter, endOuter);
-        break;
-    }
-    return std::pair<uint8_t, uint8_t>(-1, -1);
-}
-
 int HitPattern::countHits(HitCategory category, filterType filter) const
 {
     int count = 0;

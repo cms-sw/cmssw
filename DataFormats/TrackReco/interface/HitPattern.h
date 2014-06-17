@@ -388,6 +388,25 @@ private:
     uint8_t endOuter;
 };
 
+inline std::pair<uint8_t, uint8_t> HitPattern::getCategoryIndexRange(HitCategory category) const
+{
+    switch (category) {
+    case ALL_HITS:
+        return std::pair<uint8_t, uint8_t>(0, hitCount);
+        break;
+    case TRACK_HITS:
+        return std::pair<uint8_t, uint8_t>(beginTrackHits, endTrackHits);
+        break;
+    case MISSING_INNER_HITS:
+        return std::pair<uint8_t, uint8_t>(beginInner, endInner);
+        break;
+    case MISSING_OUTER_HITS:
+        return std::pair<uint8_t, uint8_t>(beginOuter, endOuter);
+        break;
+    }
+    return std::pair<uint8_t, uint8_t>(-1, -1);
+}
+
 template<typename I>
 bool HitPattern::appendHits(const I &begin, const I &end)
 {
