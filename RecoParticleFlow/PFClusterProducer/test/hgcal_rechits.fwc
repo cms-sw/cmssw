@@ -685,7 +685,7 @@
      <string>92</string>
    </config>
    <config name="y" version="0">
-     <string>32</string>
+     <string>44</string>
    </config>
    <config name="width" version="0">
      <string>1263</string>
@@ -733,7 +733,7 @@
       <string>1</string>
     </config>
     <config name="Show Camera Guide" version="0">
-      <string>0</string>
+      <string>1</string>
     </config>
     <config name="UseGlobalEnergyScale" version="0">
       <string>0</string>
