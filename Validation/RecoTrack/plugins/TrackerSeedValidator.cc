@@ -261,8 +261,9 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
 	  matchedTrackPointer->setHitPattern(matchedSeedPointer->recHits().first,matchedSeedPointer->recHits().second);
 	}
 
+	double dR=0;//fixme
 	histoProducerAlgo_->fill_recoAssociated_simTrack_histos(w,*tp,tp->momentum(),tp->vertex(),dxySim,dzSim,nSimHits,
-								matchedTrackPointer,puinfo.getPU_NumInteractions(), vtx_z_PU);
+								matchedTrackPointer,puinfo.getPU_NumInteractions(), vtx_z_PU,dR);
 
 	sts++;
 	if (matchedTrackPointer) asts++;
@@ -345,9 +346,10 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
 	  edm::LogVerbatim("SeedValidator") << "TrajectorySeed #" << rT << " NOT associated to any TrackingParticle" << "\n";
 	}
 
+	double dR = 0.;//fixme
 	histoProducerAlgo_->fill_generic_recoTrack_histos(w,*trackFromSeed,bs.position(),isSimMatched,isSigSimMatched,
 							  isChargeMatched, numAssocSeeds, puinfo.getPU_NumInteractions(),
-							  tpbx, nSimHits, sharedFraction);
+							  tpbx, nSimHits, sharedFraction, dR);
 
 	//Fill other histos
  	try{

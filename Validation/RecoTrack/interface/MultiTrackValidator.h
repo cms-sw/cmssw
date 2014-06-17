@@ -46,8 +46,11 @@ class MultiTrackValidator : public thread_unsafe::DQMEDAnalyzer, protected Multi
   //(i.e. "denominator" of the efficiency ratio)
   TrackingParticleSelector tpSelector;				      
   CosmicTrackingParticleSelector cosmictpSelector;
+  TrackingParticleSelector dRtpSelector;				      
 
   edm::EDGetTokenT<SimHitTPAssociationProducer::SimHitTPAssociationList> _simHitTpMapTag;
+  edm::EDGetTokenT<edm::View<reco::Track> > labelTokenForDrCalculation;
+
 };
 
 
