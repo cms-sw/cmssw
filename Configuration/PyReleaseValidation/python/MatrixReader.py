@@ -240,7 +240,6 @@ class MatrixReader(object):
                         cmd  = 'cmsDriver.py '+cfg+' '+opts
                     else:
                         cmd  = 'cmsDriver.py step'+str(stepIndex+1)+' '+opts
-                    cmd += ' --useCondDBv2 '  # set the default to use the conditionsDB v2
                     if self.wm:
                         cmd+=' --io %s.io --python %s.py'%(stepName,stepName)
                     if self.addCommand:
