@@ -22,6 +22,8 @@
 #include "Stage1Layer2EtSumAlgorithm.h"
 #include "Stage1Layer2JetAlgorithm.h"
 #include "Stage1Layer2TauAlgorithm.h"
+#include "Stage1Layer2HFRingSumAlgorithm.h"
+#include "Stage1Layer2HFBitCountAlgorithm.h"
 
 namespace l1t {
 
@@ -35,7 +37,9 @@ namespace l1t {
 			      std::vector<EGamma> * egammas,
 			      std::vector<Tau> * taus,
 			      std::vector<Jet> * jets,
-			      std::vector<EtSum> * etsums);
+			      std::vector<EtSum> * etsums,
+			      std::vector<HFRingSum> * hfringsums,
+			      std::vector<HFBitCount> * hfbitcounts);
   private:
 
     int m_fwv;
@@ -45,11 +49,8 @@ namespace l1t {
     Stage1Layer2TauAlgorithm* m_tauAlgo;
     Stage1Layer2JetAlgorithm* m_jetAlgo;
     Stage1Layer2EtSumAlgorithm* m_sumAlgo;
-
-    //Stage1Layer2JetSumAlgorithm* m_jetSumAlgo;
-    //Stage1Layer2TowerAlgorithm* m_towerAlgo;
-    //CaloStage1Algorithm* m_clusterAlgo;
-
+    Stage1Layer2HFRingSumAlgorithm* m_hfRingAlgo;
+    Stage1Layer2HFBitCountAlgorithm* m_hfBitAlgo;
   };
 
 }

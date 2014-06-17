@@ -1,31 +1,31 @@
 ///
-/// \class l1t::Stage1Layer2CentralityAlgorithm
+/// \class l1t::Stage1Layer2FlowAlgorithm
 ///
 /// \authors: Gian Michele Innocenti
 ///           R. Alex Barbieri
 ///
-/// Description: Centrality Algorithm HI
+/// Description: Flow Algorithm HI
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "L1Trigger/L1TCalorimeter/interface/Stage1Layer2HFBitCountAlgorithmImp.h"
+#include "L1Trigger/L1TCalorimeter/interface/Stage1Layer2HFRingSumAlgorithmImp.h"
 #include "L1Trigger/L1TCalorimeter/interface/PUSubtractionMethods.h"
 #include "L1Trigger/L1TCalorimeter/interface/legacyGtHelper.h"
 
-l1t::Stage1Layer2CentralityAlgorithm::Stage1Layer2CentralityAlgorithm(CaloParamsStage1* params) : params_(params)
+l1t::Stage1Layer2FlowAlgorithm::Stage1Layer2FlowAlgorithm(CaloParamsStage1* params) : params_(params)
 {
 
 }
 
 
-l1t::Stage1Layer2CentralityAlgorithm::~Stage1Layer2CentralityAlgorithm() {
+l1t::Stage1Layer2FlowAlgorithm::~Stage1Layer2FlowAlgorithm() {
 
 
 }
 
 
-void l1t::Stage1Layer2CentralityAlgorithm::processEvent(const std::vector<l1t::CaloRegion> & regions,
-							const std::vector<l1t::CaloEmCand> & EMCands,
-							std::vector<l1t::HFBitCount> * counts) {
+void l1t::Stage1Layer2FlowAlgorithm::processEvent(const std::vector<l1t::CaloRegion> & regions,
+						  const std::vector<l1t::CaloEmCand> & EMCands,
+						  std::vector<l1t::HFRingSum> * counts) {
 
   // ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > etLorentz(0,0,0,0);
 

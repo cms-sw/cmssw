@@ -49,16 +49,16 @@ namespace l1t {
 
   };
 
-  class Stage1Layer2CentralityAlgorithm : public Stage1Layer2EtSumAlgorithm {
-  public:
-    Stage1Layer2CentralityAlgorithm(CaloParamsStage1* params);
-    virtual ~Stage1Layer2CentralityAlgorithm();
-    virtual void processEvent(const std::vector<l1t::CaloRegion> & regions,
-			      const std::vector<l1t::CaloEmCand> & EMCands,
-			      std::vector<l1t::EtSum> * sums);
-  private:
-    CaloParamsStage1* const params_;
-  };
+  /* class Stage1Layer2CentralityAlgorithm : public Stage1Layer2EtSumAlgorithm { */
+  /* public: */
+  /*   Stage1Layer2CentralityAlgorithm(CaloParamsStage1* params); */
+  /*   virtual ~Stage1Layer2CentralityAlgorithm(); */
+  /*   virtual void processEvent(const std::vector<l1t::CaloRegion> & regions, */
+  /* 			      const std::vector<l1t::CaloEmCand> & EMCands, */
+  /* 			      std::vector<l1t::EtSum> * sums); */
+  /* private: */
+  /*   CaloParamsStage1* const params_; */
+  /* }; */
 }
 
 #endif

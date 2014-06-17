@@ -22,6 +22,8 @@
 #include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
+#include "DataFormats/L1Trigger/interface/HFRingSum.h"
+#include "DataFormats/L1Trigger/interface/HFBitCount.h"
 
 #include "FWCore/Framework/interface/Event.h"
 
@@ -34,7 +36,9 @@ namespace l1t {
 			      std::vector<EGamma> * egammas,
 			      std::vector<Tau> * taus,
 			      std::vector<Jet> * jets,
-			      std::vector<EtSum> * etsums) = 0;
+			      std::vector<EtSum> * etsums,
+			      std::vector<HFRingSum> * hfringsums,
+			      std::vector<HFBitCount> * hfbitcounts) = 0;
 
     virtual ~Stage1Layer2MainProcessor(){};
   };

@@ -47,6 +47,8 @@
 #include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
+#include "DataFormats/L1Trigger/interface/HFRingSum.h"
+#include "DataFormats/L1Trigger/interface/HFBitCount.h"
 
 #include "L1Trigger/L1TCalorimeter/interface/Stage1Layer2MainProcessor.h"
 #include "L1Trigger/L1TCalorimeter/interface/Stage1Layer2FirmwareFactory.h"
@@ -112,6 +114,8 @@ namespace l1t {
     produces<BXVector<l1t::Tau>>();
     produces<BXVector<l1t::Jet>>();
     produces<BXVector<l1t::EtSum>>();
+    produces<BXVector<l1t::HFRingSum>>();
+    produces<BXVector<l1t::HFBitCount>>();
 
     // register what you consume and keep token for later access:
     regionToken = consumes<BXVector<l1t::CaloRegion>>(iConfig.getParameter<InputTag>("CaloRegions"));
@@ -130,13 +134,16 @@ namespace l1t {
     //m_fwv = boost::shared_ptr<FirmwareVersion>(new FirmwareVersion()); //not const during testing
 
     if (ifwv == 1){
-      LogDebug("l1t|stage 1 jets") << "Stage1Layer2Producer -- Running HI implementation\n";
+      LogDebug("l1t|stage1firmware") << "Stage1Layer2Producer -- Running HI implementation\n";
       std::cout << "Stage1Layer2Producer -- Running HI implementation\n";
     }else if (ifwv == 2){
-      LogDebug("l1t|stage 1 jets") << "Stage1Layer2Producer -- Running pp implementation\n";
+      LogDebug("l1t|stage1firmware") << "Stage1Layer2Producer -- Running pp implementation\n";
       std::cout << "Stage1Layer2Producer -- Running pp implementation\n";
+    } else if (ifwv == 3){
+      LogDebug("l1t|stage1firmware") << "Stage1Layer2Producer -- Running SimpleHW implementation\n";
+      std::cout << "Stage1Layer2Producer -- Running SimpleHW implementation -- for testing only\n";
     }else{
-      LogError("l1t|stage 1 jets") << "Stage1Layer2Producer -- Unknown implementation.\n";
+      LogError("l1t|stage1firmware") << "Stage1Layer2Producer -- Unknown implementation.\n";
       std::cout << "Stage1Layer2Producer -- Unknown implementation.\n";
     }
     //m_fwv->setFirmwareVersion(ifwv); // =1 HI, =2 PP
@@ -149,7 +156,7 @@ namespace l1t {
     //printf("Success create.\n");
     if (! m_fw) {
       // we complain here once per job
-      LogError("l1t|stage 1 jets") << "Stage1Layer2Producer: firmware could not be configured.\n";
+      LogError("l1t|stage1firmware") << "Stage1Layer2Producer: firmware could not be configured.\n";
     }
 
     // set cache id to zero, will be set at first beginRun:
@@ -191,11 +198,15 @@ Stage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup)
   std::auto_ptr<l1t::TauBxCollection> taus (new l1t::TauBxCollection);
   std::auto_ptr<l1t::JetBxCollection> jets (new l1t::JetBxCollection);
   std::auto_ptr<l1t::EtSumBxCollection> etsums (new l1t::EtSumBxCollection);
+  std::auto_ptr<l1t::HFRingSumBxCollection> hfringsums (new l1t::HFRingSumBxCollection);
+  std::auto_ptr<l1t::HFBitCountBxCollection> hfbitcounts (new l1t::HFBitCountBxCollection);
 
   egammas->setBXRange(bxFirst, bxLast);
   taus->setBXRange(bxFirst, bxLast);
   jets->setBXRange(bxFirst, bxLast);
   etsums->setBXRange(bxFirst, bxLast);
+  hfringsums->setBXRange(bxFirst, bxLast);
+  hfbitcounts->setBXRange(bxFirst, bxLast);
 
   //producer is responsible for splitting the BXVector into pieces for
   //the firmware to handle
@@ -210,6 +221,8 @@ Stage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup)
     std::vector<l1t::Tau> *localTaus = new std::vector<l1t::Tau>();
     std::vector<l1t::Jet> *localJets = new std::vector<l1t::Jet>();
     std::vector<l1t::EtSum> *localEtSums = new std::vector<l1t::EtSum>();
+    std::vector<l1t::HFRingSum> *localHFRingSums = new std::vector<l1t::HFRingSum>();
+    std::vector<l1t::HFBitCount> *localHFBitCounts = new std::vector<l1t::HFBitCount>();
 
     // copy over the inputs -> there must be a better way to do this
     for(std::vector<l1t::CaloRegion>::const_iterator region = caloRegions->begin(i);
@@ -221,7 +234,8 @@ Stage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup)
 
     //run the firmware on one event
     m_fw->processEvent(*localEmCands, *localRegions,
-		       localEGammas, localTaus, localJets, localEtSums);
+		       localEGammas, localTaus, localJets, localEtSums,
+		       localHFRingSums, localHFBitCounts);
 
     // copy the output into the BXVector -> there must be a better way
     for(std::vector<l1t::EGamma>::const_iterator eg = localEGammas->begin(); eg != localEGammas->end(); ++eg)
@@ -232,6 +246,11 @@ Stage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup)
       jets->push_back(i, *jet);
     for(std::vector<l1t::EtSum>::const_iterator etsum = localEtSums->begin(); etsum != localEtSums->end(); ++etsum)
       etsums->push_back(i, *etsum);
+    for(std::vector<l1t::HFRingSum>::const_iterator hfringsum = localHFRingSums->begin(); hfringsum != localHFRingSums->end(); ++hfringsum)
+      hfringsums->push_back(i, *hfringsum);
+    for(std::vector<l1t::HFBitCount>::const_iterator hfbitcount = localHFBitCounts->begin(); hfbitcount != localHFBitCounts->end(); ++hfbitcount)
+      hfbitcounts->push_back(i, *hfbitcount);
+
 
     delete localRegions;
     delete localEmCands;
@@ -239,7 +258,8 @@ Stage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup)
     delete localTaus;
     delete localJets;
     delete localEtSums;
-
+    delete localHFRingSums;
+    delete localHFBitCounts;
   }
 
 
@@ -247,7 +267,8 @@ Stage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup)
   iEvent.put(taus);
   iEvent.put(jets);
   iEvent.put(etsums);
-
+  iEvent.put(hfringsums);
+  iEvent.put(hfbitcounts);
 }
 
 // ------------ method called once each job just before starting event loop ------------
