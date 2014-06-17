@@ -6,9 +6,10 @@
 
 namespace l1t {
    L1TRawToDigi::L1TRawToDigi(const edm::ParameterSet& config) :
-      inputLabel_(config.getParameter<edm::InputTag>("InputLabel")),
       fedId_(config.getParameter<int>("FedId"))
    {
+      fedData_ = consumes<FEDRawDataCollection>(config.getParameter<edm::InputTag>("InputLabel"));
+
       auto factory_names = config.getParameter<std::vector<std::string>>("Unpackers");
       for (const auto& name: factory_names)
          factories_.push_back(UnpackerFactory::get()->makeUnpackerFactory(name, config, *this));
@@ -31,11 +32,10 @@ namespace l1t {
       using namespace edm;
 
       edm::Handle<FEDRawDataCollection> feds;
-      event.getByLabel(inputLabel_, feds);
+      event.getByToken(fedData_, feds);
 
       if (!feds.isValid()) {
-         LogError("L1T") << "Cannot unpack: no collection found with input tag "
-            << inputLabel_;
+         LogError("L1T") << "Cannot unpack: no collection found";
          return;
       }
 
