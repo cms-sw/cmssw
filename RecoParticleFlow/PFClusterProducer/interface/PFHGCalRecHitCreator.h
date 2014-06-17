@@ -70,7 +70,7 @@ template <typename DET,PFLayer::Layer Layer,ForwardSubdetector subdet>
 	  continue;
 	}
   
-	const auto& position = thisCell->getPosition();
+	const GlobalPoint position( std::move( hgcGeo.getPosition( detid ) ) );
 	//std::cout << "geometry cell position: " << position << std::endl;
 
 	reco::PFRecHit rh( detid.rawId(),Layer,
@@ -78,7 +78,7 @@ template <typename DET,PFLayer::Layer Layer,ForwardSubdetector subdet>
 			   position.x(), position.y(), position.z(), 
 			   0, 0, 0 ); 
 	
-	const CaloCellGeometry::CornersVec& corners = thisCell->getCorners();
+	const HGCalGeometry::CornersVec corners( std::move( hgcGeo.getCorners( detid ) ) );
 	assert( corners.size() == 8 );
 
 	rh.setNECorner( corners[0].x(), corners[0].y(),  corners[0].z() );
