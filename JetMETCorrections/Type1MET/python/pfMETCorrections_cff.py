@@ -52,16 +52,10 @@ pfJetMETcorr = cms.EDProducer("PFJetMETcorrInputProducer",
 pfCandMETcorr = cms.EDProducer("PFCandMETcorrInputProducer",
     src = cms.InputTag('pfCandsNotInJetsForMetCorr')
 )
-#--------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------
-# produce Type 0 MET corrections for selected vertices
-pfchsMETcorr = cms.EDProducer("PFchsMETcorrInputProducer",
-    src = cms.InputTag('offlinePrimaryVertices'),
-    goodVtxNdof = cms.uint32(4),
-    goodVtxZ = cms.double(24)
-)
-#--------------------------------------------------------------------------------
+from JetMETCorrections.Type1MET.correctionTermsPfMetType0RecoTrack_cff import pfchsMETcorr
+
 
 #--------------------------------------------------------------------------------
 # use MET corrections to produce Type 1 / Type 1 + 2 corrected PFMET objects
