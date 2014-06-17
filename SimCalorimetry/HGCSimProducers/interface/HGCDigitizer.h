@@ -12,6 +12,8 @@
 #include "SimCalorimetry/HGCSimProducers/interface/HGCHEfrontDigitizer.h"
 #include "SimCalorimetry/HGCSimProducers/interface/HGCHEbackDigitizer.h"
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "Geometry/FCalGeometry/interface/HGCalGeometry.h"
 
 #include <vector>
 #include <map>
@@ -32,7 +34,7 @@ public:
    */
   void accumulate(edm::Event const& e, edm::EventSetup const& c);
   void accumulate(PileUpEventPrincipal const& e, edm::EventSetup const& c);
-  void accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, int bxCrossing);
+  void accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, int bxCrossing,const edm::ESHandle<HGCalGeometry> &geom);
 
   /**
      @short actions at the start/end of event
