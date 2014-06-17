@@ -1,61 +1,13 @@
 import FWCore.ParameterSet.Config as cms
 
-# load jet energy correction parameters
-from JetMETCorrections.Configuration.JetCorrectionServices_cff import *
+#--------------------------------------------------------------------------------
+from JetMETCorrections.Type1MET.correctionTermsPfMetType1Type2_cff import *
 
 #--------------------------------------------------------------------------------
-# select PFCandidates ("unclustered energy") not within jets
-# for Type 2 MET correction
-from CommonTools.ParticleFlow.TopProjectors.pfNoJet_cfi import pfNoJet
-# the new TopProjectors now work with Ptrs
-# a conversion is needed if objects are not available
-# add them upfront of the sequence
-pfJetsPtrForMetCorr = cms.EDProducer("PFJetFwdPtrProducer",
-   src = cms.InputTag("ak4PFJets")
-)
-# this one is needed only if the input file doesn't have it
-# solved automatically with unscheduled execution
-from RecoParticleFlow.PFProducer.pfLinker_cff import particleFlowPtrs
-# particleFlowPtrs = cms.EDProducer("PFCandidateFwdPtrProducer",
-#    src = cms.InputTag("particleFlow")
-# )
-# FIXME: THIS IS A WASTE, BUT NOT CLEAR HOW TO FIX IT CLEANLY: the module
-# downstream operates with View<reco::Candidate>, I wish one could read
-# it from std::vector<PFCandidateFwdPtr> directly
-pfCandsNotInJetsPtrForMetCorr = pfNoJet.clone(
-    topCollection = cms.InputTag('pfJetsPtrForMetCorr'),
-    bottomCollection = cms.InputTag('particleFlowPtrs')
-)
-pfCandsNotInJetsForMetCorr = cms.EDProducer("PFCandidateFromFwdPtrProducer",
-    src = cms.InputTag("pfCandsNotInJetsPtrForMetCorr")
-)
-
-#--------------------------------------------------------------------------------
-
-#--------------------------------------------------------------------------------
-# produce Type 1 + 2 MET corrections for PFJets
-pfJetMETcorr = cms.EDProducer("PFJetMETcorrInputProducer",
-    src = cms.InputTag('ak4PFJets'),
-    offsetCorrLabel = cms.string("ak4PFL1Fastjet"),
-    jetCorrLabel = cms.string("ak4PFL1FastL2L3"), # NOTE: use "ak4PFL1FastL2L3" for MC / "ak4PFL1FastL2L3Residual" for Data
-    jetCorrEtaMax = cms.double(9.9),
-    type1JetPtThreshold = cms.double(10.0),
-    skipEM = cms.bool(True),
-    skipEMfractionThreshold = cms.double(0.90),
-    skipMuons = cms.bool(True),
-    skipMuonSelection = cms.string("isGlobalMuon | isStandAloneMuon")
-)
-#--------------------------------------------------------------------------------
-
-#--------------------------------------------------------------------------------
-# produce Type 2 MET corrections for selected PFCandidates
-pfCandMETcorr = cms.EDProducer("PFCandMETcorrInputProducer",
-    src = cms.InputTag('pfCandsNotInJetsForMetCorr')
-)
+pfJetMETcorr = corrPfMetType1.clone()
 
 #--------------------------------------------------------------------------------
 from JetMETCorrections.Type1MET.correctionTermsPfMetType0RecoTrack_cff import pfchsMETcorr
-
 
 #--------------------------------------------------------------------------------
 # use MET corrections to produce Type 1 / Type 1 + 2 corrected PFMET objects
