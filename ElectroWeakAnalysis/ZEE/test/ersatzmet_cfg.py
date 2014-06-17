@@ -22,7 +22,7 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = cms.string('STARTUP31X_V4::All')
-process.load("RecoEgamma.EgammaIsolationAlgos.egammaIsolationSequence_cff")
+process.load("RecoEgamma.EgammaAlgos.egammaIsolationSequence_cff")
 process.electronHcalTowerIsolationLcone.intRadius = 0.0
 #process.load("RecoEcal.EgammaClusterProducers.geometryForClustering_cff")
 process.load("Geometry.CaloEventSetup.CaloTopology_cfi")

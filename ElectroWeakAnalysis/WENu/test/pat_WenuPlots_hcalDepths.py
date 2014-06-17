@@ -80,7 +80,7 @@ process.makeLayer1METs = cms.Sequence( # process.patMETCorrections * process.lay
                                       process.layer1RawCaloMETs)
 ## %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ## modify the final pat sequence: keep only electrons + METS (muons are needed for met corrections)
-process.load("RecoEgamma.EgammaIsolationAlgos.egammaIsolationSequence_cff")
+process.load("RecoEgamma.EgammaAlgos.egammaIsolationSequence_cff")
 process.electronEcalRecHitIsolationLcone.ecalBarrelRecHitProducer = cms.InputTag("reducedEcalRecHitsEB")
 process.electronEcalRecHitIsolationScone.ecalBarrelRecHitProducer = cms.InputTag("reducedEcalRecHitsEB")
 process.electronEcalRecHitIsolationLcone.ecalEndcapRecHitProducer = cms.InputTag("reducedEcalRecHitsEE")

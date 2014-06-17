@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 # define our AlCa isolation sequence
 #
 
-from RecoEgamma.EgammaIsolationAlgos.eleIsolationSequence_cff import *
+from RecoEgamma.EgammaAlgos.eleIsolationSequence_cff import *
 
 #this copy might look silly, but it can be useful to decouple from
 #the standard isolation sequence

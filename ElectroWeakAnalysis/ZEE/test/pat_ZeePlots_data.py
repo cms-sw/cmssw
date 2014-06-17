@@ -55,7 +55,7 @@ myDesiredMetCollection = 'layer1RawCaloMETs'
 process.makePatMETs = cms.Sequence(process.layer1RawCaloMETs)
 ## %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ## modify the final pat sequence: keep only electrons + METS (muons are needed for met corrections)
-process.load("RecoEgamma.EgammaIsolationAlgos.egammaIsolationSequence_cff")
+process.load("RecoEgamma.EgammaAlgos.egammaIsolationSequence_cff")
 #process.patElectronIsolation = cms.Sequence(process.egammaIsolationSequence)
 #
 process.patElectrons.isoDeposits = cms.PSet()
