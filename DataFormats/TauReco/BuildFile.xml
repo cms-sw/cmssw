@@ -1,3 +1,4 @@
+<use name="FWCore/Common"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/RecoCandidate"/>
 <use   name="DataFormats/Candidate"/>
@@ -5,7 +6,6 @@
 <use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/JetReco"/>
 <use   name="DataFormats/ParticleFlowCandidate"/>
-<use   name="RecoVertex/VertexTools"/>
 <use   name="rootrflx"/>
 <use   name="rootcore"/>
 <flags LCG_DICT_HEADER="classes_hlt.h classes_1.h classes_2.h classes_3.h"/>

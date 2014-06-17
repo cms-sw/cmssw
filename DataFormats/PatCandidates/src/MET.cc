@@ -183,3 +183,31 @@ void MET::setPtPhi_(UncorInfo& uci) const {
   uci.pt = sqrt(lpx*lpx + lpy*lpy);
   uci.phi = atan2(lpy, lpx);
 }
+
+MET::Vector2 MET::shiftedP2(MET::METUncertainty shift, MET::METUncertaintyLevel level)  const {
+    const std::vector<PackedMETUncertainty> &v = (level == Type1 ? uncertaintiesType1_ : (level == Type1p2 ? uncertaintiesType1p2_ : uncertaintiesRaw_));
+    if (v.empty()) throw cms::Exception("Unsupported", "MET uncertainties not available for the specified correction type");
+    Vector2 ret{ (px() + v[shift].dpx()), (py() + v[shift].dpy()) };
+    return ret;
+}
+MET::Vector MET::shiftedP3(MET::METUncertainty shift, MET::METUncertaintyLevel level)  const {
+    const std::vector<PackedMETUncertainty> &v = (level == Type1 ? uncertaintiesType1_ : (level == Type1p2 ? uncertaintiesType1p2_ : uncertaintiesRaw_));
+    if (v.empty()) throw cms::Exception("Unsupported", "MET uncertainties not available for the specified correction type");
+    return Vector(px() + v[shift].dpx(), py() + v[shift].dpy(), 0);
+}
+MET::LorentzVector MET::shiftedP4(METUncertainty shift, MET::METUncertaintyLevel level)  const {
+    const std::vector<PackedMETUncertainty> &v = (level == Type1 ? uncertaintiesType1_ : (level == Type1p2 ? uncertaintiesType1p2_ : uncertaintiesRaw_));
+    if (v.empty()) throw cms::Exception("Unsupported", "MET uncertainties not available for the specified correction type");
+    double x = px() + v[shift].dpx(), y = py() + v[shift].dpy();
+    return LorentzVector(x, y, 0, std::hypot(x,y));
+}
+double MET::shiftedSumEt(MET::METUncertainty shift, MET::METUncertaintyLevel level) const {
+    const std::vector<PackedMETUncertainty> &v = (level == Type1 ? uncertaintiesType1_ : (level == Type1p2 ? uncertaintiesType1p2_ : uncertaintiesRaw_));
+    if (v.empty()) throw cms::Exception("Unsupported", "MET uncertainties not available for the specified correction type");
+    return sumEt() + v[shift].dsumEt();
+}
+void MET::setShift(double px, double py, double sumEt, MET::METUncertainty shift, MET::METUncertaintyLevel level) {
+    std::vector<PackedMETUncertainty> &v = (level == Type1 ? uncertaintiesType1_ : (level == Type1p2 ? uncertaintiesType1p2_ : uncertaintiesRaw_));
+    if (v.empty()) v.resize(METUncertaintySize);
+    v[shift].set(px - this->px(), py - this->py(), sumEt - this->sumEt());
+}

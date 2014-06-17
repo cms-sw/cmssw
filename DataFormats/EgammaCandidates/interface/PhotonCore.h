@@ -76,6 +76,9 @@ namespace reco {
     /// get vector of references to one leg Conversion's
     reco::ConversionRefVector conversionsOneLeg() const {return conversionsOneLeg_;} 
 
+    void setConversions(const reco::ConversionRefVector &conversions) { conversions_ = conversions; }
+    void setConversionsOneLeg(const reco::ConversionRefVector &conversions) { conversionsOneLeg_ = conversions; }
+    
     /// get reference to electron seed if existing
     reco::ElectronSeedRefVector electronPixelSeeds() const {return electronSeed_;}
     bool isPFlowPhoton() const {return isPFlowPhoton_;} 

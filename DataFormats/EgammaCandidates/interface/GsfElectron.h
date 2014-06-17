@@ -163,6 +163,7 @@ class GsfElectron : public RecoCandidate
 
     // accessors
     virtual GsfElectronCoreRef core() const ;
+    void setCore(const reco::GsfElectronCoreRef &core) { core_ = core; }
 
     // forward core methods
     virtual SuperClusterRef superCluster() const { return core()->superCluster() ; }
@@ -275,6 +276,9 @@ class GsfElectron : public RecoCandidate
     math::XYZVectorF trackMomentumAtEleClus() const { return trackExtrapolations_.momentumAtEleClus ; }
     math::XYZVectorF trackMomentumAtVtxWithConstraint() const { return trackExtrapolations_.momentumAtVtxWithConstraint ; }
     const TrackExtrapolations & trackExtrapolations() const { return trackExtrapolations_ ; }
+
+    // setter (if you know what you're doing)
+    void setTrackExtrapolations(const TrackExtrapolations &te) { trackExtrapolations_ = te; }
 
     // for backward compatibility
     math::XYZPointF TrackPositionAtVtx() const { return trackPositionAtVtx() ; }
@@ -393,6 +397,9 @@ class GsfElectron : public RecoCandidate
     float hcalDepth2OverEcalBc() const { return showerShape_.hcalDepth2OverEcalBc ; }
     float hcalOverEcalBc() const { return hcalDepth1OverEcalBc() + hcalDepth2OverEcalBc() ; }
     const ShowerShape & showerShape() const { return showerShape_ ; }
+
+    // setters (if you know what you're doing)
+    void setShowerShape(const ShowerShape &s) { showerShape_ = s; }
 
     // for backward compatibility
     float scSigmaEtaEta() const { return sigmaEtaEta() ; }
@@ -725,6 +732,9 @@ class GsfElectron : public RecoCandidate
     float p4Error( P4Kind kind ) const ;
     P4Kind candidateP4Kind() const { return corrections_.candidateP4Kind ; }
     const Corrections & corrections() const { return corrections_ ; }
+    
+    // bare setter (if you know what you're doing)
+    void setCorrections(const Corrections &c) { corrections_ = c; }
 
     // for backward compatibility
     void setEcalEnergyError( float energyError ) { setCorrectedEcalEnergyError(energyError) ; }

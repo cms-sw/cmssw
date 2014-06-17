@@ -353,14 +353,14 @@ def switchToPFJets(process, input=cms.InputTag('pfNoTauClones'), algo='AK5', pos
     print "************************ "
     print "input collection: ", input
 
-    if( algo == 'IC5' ):
-        genJetCollection = cms.InputTag('iterativeCone5GenJetsNoNu')
-    elif algo == 'AK5':
-        genJetCollection = cms.InputTag('ak5GenJetsNoNu')
+    if algo == 'AK5':
+        genJetCollection = cms.InputTag('ak5GenJetsNoNu'+postfix)
+        rParam=0.5
     elif algo == 'AK7':
-        genJetCollection = cms.InputTag('ak7GenJetsNoNu')
+        genJetCollection = cms.InputTag('ak7GenJetsNoNu'+postfix)
+        rParam=0.7
     else:
-        print 'bad jet algorithm:', algo, '! for now, only IC5, AK5 and AK7 are allowed. If you need other algorithms, please contact Colin'
+        print 'bad jet algorithm:', algo, '! for now, only AK5 and AK7 are allowed. If you need other algorithms, please contact Colin'
         sys.exit(1)
 
     # changing the jet collection in PF2PAT:
@@ -372,12 +372,13 @@ def switchToPFJets(process, input=cms.InputTag('pfNoTauClones'), algo='AK5', pos
 
     switchJetCollection(process,
                         jetSource = input,
-			algo=algo,
-			postfix=postfix,
+                        algo=algo,
+                        rParam=rParam,
+                        genJetCollection=genJetCollection,
+                        postfix=postfix,
                         jetTrackAssociation=True,
                         jetCorrections=inputJetCorrLabel,
                         outputModules = outputModules,
-			#btagDiscriminators = ['combinedSecondaryVertexBJetTags',]
                         )
 
     # check whether L1FastJet is in the list of correction levels or not
@@ -423,35 +424,20 @@ def adaptPVs(process, pvCollection=cms.InputTag('offlinePrimaryVertices'), postf
     print "***********************************"
 
     # PV sources to be exchanged:
-    pvExchange = ['Vertices','vertices','pvSrc','primaryVertices','srcPVs']
+    pvExchange = ['Vertices','vertices','pvSrc','primaryVertices','srcPVs','primaryVertex']
     # PV sources NOT to be exchanged:
-    #noPvExchange = ['src','PVProducer','primaryVertexSrc','vertexSrc','primaryVertex']
-
-    # find out all added jet collections (they don't belong to PF2PAT)
-    interPostfixes = []
-    for m in process.producerNames().split(' '):
-        if m.startswith('patJets') and m.endswith(postfix) and not len(m)==len('patJets')+len(postfix):
-            interPostfix = m.replace('patJets','')
-            interPostfix = interPostfix.replace(postfix,'')
-            interPostfixes.append(interPostfix)
+    #noPvExchange = ['src','PVProducer','primaryVertexSrc','vertexSrc']
 
     # exchange the primary vertex source of all relevant modules
-    for m in process.producerNames().split(' '):
-        modName = m.replace(postfix,'')
+    for m in (process.producerNames().split(' ') + process.filterNames().split(' ')):
         # only if the module has a source with a relevant name
         for namePvSrc in pvExchange:
             if hasattr(getattr(process,m),namePvSrc):
-                # only if the module is not coming from an added jet collection
-                interPostFixFlag = False
-                for pfix in interPostfixes:
-                    if modName.endswith(pfix):
-                        interPostFixFlag = True
-                        break
-                if not interPostFixFlag:
-                    setattr(getattr(process,m),namePvSrc,deepcopy(pvCollection))
+                #print m
+                setattr(getattr(process,m),namePvSrc,deepcopy(pvCollection))
 
 
-def usePF2PAT(process,runPF2PAT=True, jetAlgo='ak5', runOnMC=True, postfix="", jetCorrections=('AK5PFchs', ['L1FastJet','L2Relative','L3Absolute'],'None'), pvCollection=cms.InputTag('offlinePrimaryVertices',), typeIMetCorrections=False, outputModules=['out'],excludeFromTopProjection=['Tau']):
+def usePF2PAT(process,runPF2PAT=True, jetAlgo='AK5', runOnMC=True, postfix="", jetCorrections=('AK5PFchs', ['L1FastJet','L2Relative','L3Absolute'],'None'), pvCollection=cms.InputTag('goodOfflinePrimaryVerticesPFlow',), typeIMetCorrections=False, outputModules=['out'],excludeFromTopProjection=['Tau']):
     # PLEASE DO NOT CLOBBER THIS FUNCTION WITH CODE SPECIFIC TO A GIVEN PHYSICS OBJECT.
     # CREATE ADDITIONAL FUNCTIONS IF NEEDED.
 
@@ -515,22 +501,21 @@ def usePF2PAT(process,runPF2PAT=True, jetAlgo='ak5', runOnMC=True, postfix="", j
     # adapt primary vertex collection
     adaptPVs(process, pvCollection=pvCollection, postfix=postfix)
 
-    if runOnMC:
-
-	loadWithPostfix(process,"CommonTools.ParticleFlow.genForPF2PAT_cff",postfix)
-
-    else:
+    if not runOnMC:
         runOnData(process,postfix=postfix,outputModules=outputModules)
 
     # Configure Top Projections
-    getattr(process,"pfNoPileUp"+postfix).enable = True
-    getattr(process,"pfNoMuon"+postfix).enable = True
-    getattr(process,"pfNoElectron"+postfix).enable = True
+    getattr(process,"pfNoPileUpJME"+postfix).enable = True
+    getattr(process,"pfNoMuonJME"+postfix).enable = True
+    getattr(process,"pfNoElectronJME"+postfix).enable = True
     getattr(process,"pfNoTau"+postfix).enable = False
     getattr(process,"pfNoJet"+postfix).enable = True
     exclusionList = ''
     for object in excludeFromTopProjection:
-	   getattr(process,"pfNo"+object+postfix).enable = False
-	   exclusionList=exclusionList+object+','
+        jme = ''
+        if object in ['Muon','Electron']:
+            jme = 'JME'
+        getattr(process,"pfNo"+object+jme+postfix).enable = False
+        exclusionList=exclusionList+object+','
     exclusionList=exclusionList.rstrip(',')
-    print "Done: PF2PAT interfaced to PAT, postfix=", postfix,", Exluded from Top Projection:",exclusionList
+    print "Done: PF2PAT interfaced to PAT, postfix=", postfix,", Excluded from Top Projection:",exclusionList

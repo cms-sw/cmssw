@@ -22,6 +22,9 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/PatCandidates/interface/Isolation.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/Common/interface/AtomicPtrCache.h"
 
 
 // Define typedefs for convenience
@@ -39,7 +42,7 @@ namespace reco {
 
 // Class definition
 namespace pat {
-
+  class PATPhotonSlimmer;
 
   class Photon : public PATObject<reco::Photon> {
 
@@ -64,9 +67,29 @@ namespace pat {
       // ---- methods for content embedding ----
       /// override the superCluster method from CaloJet, to access the internal storage of the supercluster
       reco::SuperClusterRef superCluster() const;
+      /// direct access to the seed cluster
+      reco::CaloClusterPtr seed() const; 
+
+      //method to access the basic clusters
+      const std::vector<reco::CaloCluster>& basicClusters() const { return basicClusters_ ; }
+      //method to access the preshower clusters
+      const std::vector<reco::CaloCluster>& preshowerClusters() const { return preshowerClusters_ ; }      
+      
+      //method to access embedded ecal RecHits
+      const EcalRecHitCollection * recHits() const { return &recHits_;}      
+      
       /// method to store the photon's supercluster internally
       void embedSuperCluster();
-
+      /// method to store the electron's seedcluster internally
+      void embedSeedCluster();
+      /// method to store the electron's basic clusters
+      void embedBasicClusters();
+      /// method to store the electron's preshower clusters
+      void embedPreshowerClusters();
+      /// method to store the RecHits internally - can be called from the PATElectronProducer
+      void embedRecHits(const EcalRecHitCollection * rechits); 
+      
+      
       // ---- methods for access the generated photon ----
       /// return the match to the generated photon
       const reco::Candidate * genPhoton() const { return genParticle(); }
@@ -198,21 +221,88 @@ namespace pat {
       /// Sets user-level IsoDeposit
       void userIsoDeposit(const IsoDeposit &dep, uint8_t index=0) { setIsoDeposit(IsolationKeys(UserBaseIso + index), dep); }
 
+      //// normal shower shape variables
+      //float sigmaIphiIphi() const { return sigmaIphiIphi_; }
+      //float sigmaIetaIphi() const { return sigmaIetaIphi_; }
+      // non-zero-suppressed and no-fractions shower shapes
+      float full5x5_e1x5() const { return full5x5_showerShape_.e1x5; }
+      float full5x5_e2x5() const { return full5x5_showerShape_.e2x5; }
+      float full3x3_e3x3() const { return full5x5_showerShape_.e3x3; }
+      float full5x5_e5x5() const { return full5x5_showerShape_.e5x5; }
+      float full5x5_maxEnergyXtal() const { return full5x5_showerShape_.maxEnergyXtal; }
+      float full5x5_sigmaEtaEta()   const { return full5x5_showerShape_.sigmaEtaEta; }
+      float full5x5_sigmaIetaIeta() const { return full5x5_showerShape_.sigmaIetaIeta; }
+      //float full5x5_sigmaIphiIphi() const { return full5x5_sigmaIphiIphi_; }
+      //float full5x5_sigmaIetaIphi() const { return full5x5_sigmaIetaIphi_; }
+      float full5x5_r1x5() const { return full5x5_showerShape_.e1x5 / full5x5_showerShape_.e5x5; }
+      float full5x5_r2x5() const { return full5x5_showerShape_.e2x5 / full5x5_showerShape_.e5x5; }
+      float full5x5_r9()   const { return full5x5_showerShape_.e3x3 / superCluster()->rawEnergy(); }
+      // the hcal ones only differ in the denominator and so aren't really worth saving
+      float full5x5_hadronicDepth1OverEm() const { return hadronicDepth1OverEm(); /* this is identical to the ZS one */ }
+      float full5x5_hadronicDepth2OverEm() const { return hadronicDepth1OverEm(); /* this is identical to the ZS one */ }
+      float full5x5_hadronicOverEm() const { return full5x5_hadronicDepth1OverEm() + full5x5_hadronicDepth2OverEm() ; }    
+      float full5x5_hadTowDepth1OverEm() const { return hadTowDepth1OverEm() * (superCluster()->energy()/full5x5_e5x5()); }
+      float full5x5_hadTowDepth2OverEm() const { return hadTowDepth2OverEm() * (superCluster()->energy()/full5x5_e5x5()); }
+      float full5x5_hadTowOverEm() const { return full5x5_hadTowDepth1OverEm() + full5x5_hadTowDepth2OverEm(); }
+      // setters
+      void full5x5_setShowerShape(const ShowerShape &s) { full5x5_showerShape_ = s; }
+      //void full5x5_setSigmaIphiIphi(float sigmaIphiIphi) { full5x5_sigmaIphiIphi_ = sigmaIphiIphi; }
+      //void full5x5_setSigmaIetaIphi(float sigmaIetaIphi) { full5x5_sigmaIetaIphi_ = sigmaIetaIphi; }
+
+
+
       /// pipe operator (introduced to use pat::Photon with PFTopProjectors)
       friend std::ostream& reco::operator<<(std::ostream& out, const pat::Photon& obj);
+
+      /// References to PFCandidates (e.g. to recompute isolation)
+      void setPackedPFCandidateCollection(const edm::RefProd<pat::PackedCandidateCollection> & refprod) ; 
+      /// References to PFCandidates linked to this object (e.g. for isolation vetos or masking before jet reclustering)
+      edm::RefVector<pat::PackedCandidateCollection> associatedPackedPFCandidates() const ;
+      /// References to PFCandidates linked to this object (e.g. for isolation vetos or masking before jet reclustering)
+      void setAssociatedPackedPFCandidates(const edm::RefVector<pat::PackedCandidateCollection> &refvector) ;
+
+      /// get the number of non-null PFCandidates
+      size_t numberOfSourceCandidatePtrs() const { return associatedPackedFCandidateIndices_.size(); }
+      /// get the source candidate pointer with index i
+      reco::CandidatePtr sourceCandidatePtr( size_type i ) const;
+
+      friend class PATPhotonSlimmer;
 
     protected:
 
       // ---- for content embedding ----
       bool embeddedSuperCluster_;
       std::vector<reco::SuperCluster> superCluster_;
+      /// Place to temporarily store the electron's supercluster after relinking the seed to it
+      edm::AtomicPtrCache<std::vector<reco::SuperCluster> > superClusterRelinked_;
+      /// Place to store electron's basic clusters internally 
+      std::vector<reco::CaloCluster> basicClusters_;
+      /// Place to store electron's preshower clusters internally      
+      std::vector<reco::CaloCluster> preshowerClusters_;      
+      /// True if seed cluster is stored internally
+      bool embeddedSeedCluster_;
+      /// Place to store electron's seed cluster internally
+      std::vector<reco::CaloCluster> seedCluster_;
+      /// True if RecHits stored internally
+      bool embeddedRecHits_;    
+      /// Place to store electron's RecHits internally (5x5 around seed+ all RecHits)
+      EcalRecHitCollection recHits_;      
       // ---- photon ID's holder ----
       std::vector<IdPair> photonIDs_;
       // ---- Isolation and IsoDeposit related datamebers ----
       typedef std::vector<std::pair<IsolationKeys, pat::IsoDeposit> > IsoDepositPairs;
       IsoDepositPairs    isoDeposits_;
       std::vector<float> isolations_;
+      
+      // ---- link to PackedPFCandidates
+      edm::RefProd<pat::PackedCandidateCollection> packedPFCandidates_;
+      std::vector<uint16_t> associatedPackedFCandidateIndices_;
 
+      ///// ---- normal shower shapes (if needed)
+      //float sigmaIetaIphi_, sigmaIphiIphi_;
+      // ---- full5x5 shower shapes
+      ShowerShape full5x5_showerShape_;
+      //float full5x5_sigmaIetaIphi_, full5x5_sigmaIphiIphi_;
   };
 
 

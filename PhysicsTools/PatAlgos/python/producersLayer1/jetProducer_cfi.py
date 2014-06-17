@@ -69,7 +69,10 @@ patJets = cms.EDProducer("PATJetProducer",
     partonJetSource     = cms.InputTag("NOT_IMPLEMENTED"),          ## ParticleJet source to be used for the matching
     # jet flavour idetification configurables
     getJetMCFlavour    = cms.bool(True),
-    JetPartonMapSource = cms.InputTag("patJetFlavourAssociation"),
+    useLegacyJetMCFlavour = cms.bool(False),
+    addJetFlavourInfo  = cms.bool(False),
+    JetPartonMapSource = cms.InputTag("patJetFlavourAssociationLegacy"),
+    JetFlavourInfoSource = cms.InputTag("patJetFlavourAssociation"),
     # efficiencies
     addEfficiencies = cms.bool(False),
     efficiencies    = cms.PSet(),

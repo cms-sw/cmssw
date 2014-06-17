@@ -18,20 +18,22 @@ from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
 from PhysicsTools.PatAlgos.tools.jetTools import switchJetCollection
 
 ## uncomment the following lines to add ak5PFJetsCHS to your PAT output
+labelAK5PFCHS = 'AK5PFCHS'
 postfixAK5PFCHS = 'Copy'
 addJetCollection(
    process,
    postfix   = postfixAK5PFCHS,
-   labelName = 'AK5PFCHS',
+   labelName = labelAK5PFCHS,
    jetSource = cms.InputTag('ak5PFJetsCHS'),
    jetCorrections = ('AK5PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2')
    )
-process.out.outputCommands.append( 'drop *_selectedPatJetsAK5PFCHS%s_caloTowers_*'%( postfixAK5PFCHS ) )
+process.out.outputCommands.append( 'drop *_selectedPatJets%s%s_caloTowers_*'%( labelAK5PFCHS, postfixAK5PFCHS ) )
 
 # uncomment the following lines to add ak5PFJets to your PAT output
+labelAK5PF = 'AK5PF'
 addJetCollection(
    process,
-   labelName = 'AK5PF',
+   labelName = labelAK5PF,
    jetSource = cms.InputTag('ak5PFJets'),
    jetCorrections = ('AK5PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-1'),
    btagDiscriminators = [
@@ -44,7 +46,23 @@ addJetCollection(
      , 'combinedSecondaryVertexBJetTags'
      ],
    )
-process.out.outputCommands.append( 'drop *_selectedPatJetsAK5PF_caloTowers_*' )
+process.out.outputCommands.append( 'drop *_selectedPatJets%s_caloTowers_*'%( labelAK5PF ) )
+
+# uncomment the following lines to add ca8PFJetsCHSPruned to your PAT output
+labelCA8PFCHSPruned = 'CA8PFCHSPruned'
+addJetCollection(
+   process,
+   labelName = labelCA8PFCHSPruned,
+   jetSource = cms.InputTag('ca8PFJetsCHSPruned'),
+   algo = 'CA8',
+   rParam = 0.8,
+   genJetCollection = cms.InputTag('ak8GenJets'),
+   jetCorrections = ('AK5PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None'), # FIXME: Use proper JECs, as soon as available
+   btagDiscriminators = [
+       'combinedSecondaryVertexBJetTags'
+     ],
+   )
+process.out.outputCommands.append( 'drop *_selectedPatJets%s_caloTowers_*'%( labelCA8PFCHSPruned ) )
 
 # uncomment the following lines to switch to ak5CaloJets in your PAT output
 switchJetCollection(
@@ -63,6 +81,7 @@ switchJetCollection(
    )
 process.patJets.addJetID=True
 process.patJets.jetIDMap="ak5JetID"
+process.patJets.useLegacyJetMCFlavour=True # Need to use legacy flavour since the new flavour requires jet constituents which are dropped for CaloJets from AOD
 process.out.outputCommands.append( 'keep *_selectedPatJets_caloTowers_*' )
 process.out.outputCommands.append( 'drop *_selectedPatJets_pfCandidates_*' )
 

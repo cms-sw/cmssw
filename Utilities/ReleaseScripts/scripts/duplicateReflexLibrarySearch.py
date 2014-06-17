@@ -32,6 +32,7 @@ typedefsDict = \
 #Ordered List to search for matched packages
 equivDict = \
      [
+         {'L1TCalorimeter'        : ['l1t::CaloTower.*']},
          {'GsfTracking'           : ['reco::GsfTrack(Collection|).*(MomentumConstraint|VertexConstraint)', 'Trajectory.*reco::GsfTrack']},
          {'ParallelAnalysis'      : ['examples::TrackAnalysisAlgorithm']},
          {'PatCandidates'         : ['pat::PATObject','pat::Lepton']},
@@ -89,7 +90,7 @@ def searchClassDefXml ():
     xmlFiles = []
     for srcDir in [os.environ.get('CMSSW_BASE'),os.environ.get('CMSSW_RELEASE_BASE')]:
       if not len(srcDir): continue
-      for xml in commands.getoutput ('cd '+os.path.join(srcDir,'src')+'; find . -name "*classes_def.xml" -print').split ('\n'):
+      for xml in commands.getoutput ('cd '+os.path.join(srcDir,'src')+'; find . -name "*classes_def.xml" -follow -print').split ('\n'):
         if xml and (not xml in xmlFiles):
           xmlFiles.append(xml)
     if options.showXMLs:
@@ -233,9 +234,12 @@ def searchClassDefXml ():
 def searchDuplicatePlugins ():
     """ Searches the edmpluginFile to find any duplicate
     plugins."""
-    edmpluginFile = os.path.join(os.environ.get('CMSSW_BASE'),'lib',os.environ.get('SCRAM_ARCH'),'.edmplugincache')
-    if len (os.environ.get('CMSSW_RELEASE_BASE')):
-      edmpluginFile = edmpluginFile+ ' ' + os.path.join(os.environ.get('CMSSW_RELEASE_BASE'),'lib',os.environ.get('SCRAM_ARCH'),'.edmplugincache')
+    edmpluginFile = ''
+    libenv = 'LD_LIBRARY_PATH'
+    if os.environ.get('SCRAM_ARCH').startswith('osx'): libenv = 'DYLD_FALLBACK_LIBRARY_PATH'
+    for libdir in os.environ.get(libenv).split(':'):
+      if os.path.exists(libdir+'/.edmplugincache'): edmpluginFile = edmpluginFile + ' ' + libdir+'/.edmplugincache'
+    if edmpluginFile == '': edmpluginFile = os.path.join(os.environ.get('CMSSW_BASE'),'lib',os.environ.get('SCRAM_ARCH'),'.edmplugincache')
     cmd = "cat %s | awk '{print $2\" \"$1}' | sort | uniq | awk '{print $1}' | sort | uniq -c | grep '2 ' | awk '{print $2}'" % edmpluginFile
     output = commands.getoutput (cmd).split('\n')
     for line in output:

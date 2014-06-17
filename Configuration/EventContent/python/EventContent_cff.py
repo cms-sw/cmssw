@@ -22,7 +22,7 @@ import FWCore.ParameterSet.Config as cms
 #    Raw2Digi step is done on this file.
 #
 #  PREMIXRAW
-#    extension of GENRAW for output of second stage of PreMixing using the DataMixer.  
+#    extension of RAWSIM for output of second stage of PreMixing using the DataMixer.  
 #
 #  RAWDEBUG(RAWSIM+ALL_SIM_INFO), RAWDEBUGHLT(RAWDEBUG+HLTDEBUG)
 #
@@ -515,7 +515,7 @@ PREMIXEventContent.outputCommands.extend(GENRAWEventContent.outputCommands)
 PREMIXEventContent.outputCommands.append('keep RPCDetIdRPCDigiMuonDigiCollection_simMuonRPCDigis_*_*')
 PREMIXEventContent.outputCommands.append('keep CrossingFramePlaybackInfoExtended_*_*_*')
 
-PREMIXRAWEventContent.outputCommands.extend(GENRAWEventContent.outputCommands)
+PREMIXRAWEventContent.outputCommands.extend(RAWSIMEventContent.outputCommands)
 PREMIXRAWEventContent.outputCommands.append('keep CrossingFramePlaybackInfoExtended_*_*_*')
 PREMIXRAWEventContent.outputCommands.append('drop CrossingFramePlaybackInfoExtended_mix_*_*')
 PREMIXRAWEventContent.outputCommands.append('drop PileupSummaryInfos_addPileupInfo_*_*')            
@@ -754,3 +754,24 @@ REDIGIEventContent.inputCommands.extend(IOMCRAW.outputCommands)
 REDIGIEventContent.inputCommands.extend(GeneratorInterfaceRAW.outputCommands)
 REDIGIEventContent.inputCommands.append('drop *_randomEngineStateProducer_*_*')
 
+
+########### and mini AOD
+
+MINIAODEventContent= cms.PSet(    
+    outputCommands = cms.untracked.vstring('drop *'),
+    eventAutoFlushCompressedSize=cms.untracked.int32(15*1024*1024),
+    compressionAlgorithm=cms.untracked.string("LZMA"),
+    compressionLevel=cms.untracked.int32(4)
+)
+
+MINIAODSIMEventContent= cms.PSet(    
+    outputCommands = cms.untracked.vstring('drop *'),
+    eventAutoFlushCompressedSize=cms.untracked.int32(15*1024*1024),
+    compressionAlgorithm=cms.untracked.string("LZMA"),
+    compressionLevel=cms.untracked.int32(4)
+)
+
+from PhysicsTools.PatAlgos.slimming.slimming_cff import MicroEventContent,MicroEventContentMC
+
+MINIAODEventContent.outputCommands.extend(MicroEventContent.outputCommands)
+MINIAODSIMEventContent.outputCommands.extend(MicroEventContentMC.outputCommands)

@@ -13,6 +13,10 @@ process.source = cms.Source("EmptyIOVSource",
                             interval = cms.uint64(1)
                             )
 
+# the DB Geometry is NOT used because in this cfg only one tag is taken from the DB and no GT is used. To be fixed if this is a problem
+process.load('Configuration.Geometry.GeometryExtended_cff')
+process.TrackerTopologyEP = cms.ESProducer("TrackerTopologyEP")
+
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 
 process.poolDBESSource = cms.ESSource(

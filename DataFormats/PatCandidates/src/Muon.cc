@@ -4,7 +4,7 @@
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "FWCore/Utilities/interface/Exception.h"
-
+#include "DataFormats/Common/interface/RefToPtr.h"
 #include <limits>
 
 using namespace pat;
@@ -193,6 +193,29 @@ reco::TrackRef Muon::dytTrack() const {
   }
 }
 
+/// reference to Track giving best momentum (global PFlow algo) 
+reco::TrackRef Muon::muonBestTrack() const {
+  if (embeddedMuonBestTrack_) {
+    return reco::TrackRef(&muonBestTrack_, 0);
+  } else {
+    return reco::Muon::muonBestTrack();
+  }
+}
+
+/// reference to Track giving best momentum (muon only) 
+reco::TrackRef Muon::tunePMuonBestTrack() const {
+  if (embeddedTunePMuonBestTrack_) {
+    return reco::TrackRef(&tunePMuonBestTrack_, 0);
+  } else if (muonBestTrackType() == tunePMuonBestTrackType()) {
+    return muonBestTrack();
+  } else {
+    return reco::Muon::tunePMuonBestTrack();
+  }
+}
+
+
+
+
 /// reference to the source IsolatedPFCandidates
 reco::PFCandidateRef Muon::pfCandidateRef() const {
   if (embeddedPFCandidate_) {
@@ -204,22 +227,56 @@ reco::PFCandidateRef Muon::pfCandidateRef() const {
 
 /// reference to the parent PF candidate for use in TopProjector
 reco::CandidatePtr Muon::sourceCandidatePtr( size_type i ) const {
-  if (embeddedPFCandidate_) {
-    return reco::CandidatePtr( pfCandidateRef_.id(), pfCandidateRef_.get(), pfCandidateRef_.key() ); 
-  } else {
-    return reco::CandidatePtr();
-  }
+  if(pfCandidateRef_.isNonnull() && i==0 ) return reco::CandidatePtr(edm::refToPtr(pfCandidateRef_) );
+  if(refToOrig_.isNonnull() &&  pfCandidateRef_.isNonnull() && i==1 ) return refToOrig_;
+  if(refToOrig_.isNonnull() && ! pfCandidateRef_.isNonnull() && i==0 ) return refToOrig_;
+  return reco::CandidatePtr();
 }
 
 /// embed the Track selected to be the best measurement of the muon parameters
-void Muon::embedMuonBestTrack() {
+void Muon::embedMuonBestTrack(bool force) {
   muonBestTrack_.clear();
-  if (reco::Muon::muonBestTrack().isNonnull()) {
+  bool alreadyEmbedded = force;
+  if (!force) {
+      switch (muonBestTrackType()) {
+        case None: alreadyEmbedded = true; break;
+        case InnerTrack: if (embeddedTrack_) alreadyEmbedded = true; break;
+        case OuterTrack: if (embeddedStandAloneMuon_) alreadyEmbedded = true; break;
+        case CombinedTrack: if (embeddedCombinedMuon_) alreadyEmbedded = true; break;
+        case TPFMS: if (embeddedTpfmsMuon_) alreadyEmbedded = true; break;
+        case Picky: if (embeddedPickyMuon_) alreadyEmbedded = true; break;
+        case DYT: if (embeddedDytMuon_) alreadyEmbedded = true; break;
+      }
+  }
+  if (!alreadyEmbedded) {
       muonBestTrack_.push_back(*reco::Muon::muonBestTrack());
       embeddedMuonBestTrack_ = true;
   }
 }
 
+/// embed the Track selected to be the best measurement of the muon parameters
+void Muon::embedTunePMuonBestTrack(bool force) {
+  tunePMuonBestTrack_.clear();
+  bool alreadyEmbedded = force;
+  if (!force) {
+      switch (muonBestTrackType()) {
+          case None: alreadyEmbedded = true; break;
+          case InnerTrack: if (embeddedTrack_) alreadyEmbedded = true; break;
+          case OuterTrack: if (embeddedStandAloneMuon_) alreadyEmbedded = true; break;
+          case CombinedTrack: if (embeddedCombinedMuon_) alreadyEmbedded = true; break;
+          case TPFMS: if (embeddedTpfmsMuon_) alreadyEmbedded = true; break;
+          case Picky: if (embeddedPickyMuon_) alreadyEmbedded = true; break;
+          case DYT: if (embeddedDytMuon_) alreadyEmbedded = true; break;
+      }
+      if (muonBestTrackType() == tunePMuonBestTrackType()) {
+          if (embeddedMuonBestTrack_) alreadyEmbedded = true;
+      }
+  }
+  if (!alreadyEmbedded) {
+      tunePMuonBestTrack_.push_back(*reco::Muon::tunePMuonBestTrack());
+      embeddedTunePMuonBestTrack_ = true;
+  }
+}
 
 
 /// embed the Track reconstructed in the tracker only
