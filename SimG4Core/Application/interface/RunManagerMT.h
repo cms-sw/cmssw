@@ -92,6 +92,10 @@ public:
     return m_producers;
   }
 
+  const DDDWorld& world() const {
+    return *m_world;
+  }
+
   SimTrackManager* GetSimTrackManager();
   void             Connect(RunAction*);
   void             Connect(EventAction*);
@@ -147,6 +151,7 @@ private:
   edm::ParameterSet m_p;
   //ExceptionHandler* m_CustomExceptionHandler ;
 
+  std::unique_ptr<DDDWorld> m_world;
   AttachSD * m_attach;
   std::vector<SensitiveTkDetector*> m_sensTkDets;
   std::vector<SensitiveCaloDetector*> m_sensCaloDets;

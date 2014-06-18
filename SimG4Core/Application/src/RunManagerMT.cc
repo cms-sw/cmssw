@@ -163,13 +163,13 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF, co
   // DDDWorld: get the DDCV from the ES and use it to build the World
   G4LogicalVolumeToDDLogicalPartMap map_;
   SensitiveDetectorCatalog catalog_;
-  const DDDWorld * world = new DDDWorld(pDD, map_, catalog_, m_check);
-  m_registry.dddWorldSignal_(world);
+  m_world.reset(new DDDWorld(pDD, map_, catalog_, m_check));
+  m_registry.dddWorldSignal_(m_world.get());
 
 #ifdef MK_IGNORE
   if("" != m_WriteFile) {
     G4GDMLParser gdml;
-    gdml.Write(m_WriteFile, world->GetWorldVolume());
+    gdml.Write(m_WriteFile, m_world->GetWorldVolume());
   }
 
   if (m_pUseMagneticField)
@@ -195,7 +195,7 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF, co
   
   std::pair< std::vector<SensitiveTkDetector*>,
     std::vector<SensitiveCaloDetector*> > sensDets = 
-    m_attach->create(*world,*pDD,catalog_,m_p,m_trackManager.get(),
+    m_attach->create(*m_world,*pDD,catalog_,m_p,m_trackManager.get(),
 		     m_registry);
       
   m_sensTkDets.swap(sensDets.first);
