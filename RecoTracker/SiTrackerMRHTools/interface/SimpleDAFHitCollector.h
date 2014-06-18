@@ -12,8 +12,8 @@ class SimpleDAFHitCollector :public MultiRecHitCollector {
 	explicit SimpleDAFHitCollector(const MeasurementTracker* measurementTracker,
 				 const SiTrackerMultiRecHitUpdator* updator,
 			         const MeasurementEstimator* est,
-				 const Propagator* propagator
-				 ):MultiRecHitCollector(measurementTracker), theUpdator(updator), theEstimator(est), thePropagator(propagator){}
+				 const Propagator* propagator, bool debug
+				 ):MultiRecHitCollector(measurementTracker), theUpdator(updator), theEstimator(est), thePropagator(propagator), debug_(debug){}
 			
 
 	virtual ~SimpleDAFHitCollector(){}
@@ -40,7 +40,7 @@ class SimpleDAFHitCollector :public MultiRecHitCollector {
 	const MeasurementEstimator* theEstimator;
 	//this actually is not used in the fastMeasurement method 	
 	const Propagator* thePropagator; 
-	
+	const bool debug_;
 
 };
 

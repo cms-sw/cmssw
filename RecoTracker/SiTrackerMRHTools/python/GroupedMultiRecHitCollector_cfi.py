@@ -7,7 +7,8 @@ groupedMultiRecHitCollector = cms.ESProducer("MultiRecHitCollectorESProducer",
     propagatorOpposite = cms.string('OppositeRungeKuttaTrackerPropagator'),
     MeasurementTrackerName = cms.string(''),
     estimator = cms.string('RelaxedChi2'),
-    Mode = cms.string('Grouped')
+    Mode = cms.string('Grouped'),
+    Debug = cms.bool(False)
 )
 
 

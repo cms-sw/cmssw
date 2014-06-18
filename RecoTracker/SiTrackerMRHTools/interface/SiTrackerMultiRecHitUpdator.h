@@ -32,7 +32,7 @@ public:
   SiTrackerMultiRecHitUpdator(const TransientTrackingRecHitBuilder* builder,
 			      const TrackingRecHitPropagator* hitpropagator,
 			      const float Chi2Cut,
-			      const std::vector<double>& anAnnealingProgram);
+			      const std::vector<double>& anAnnealingProgram, bool debug);
   virtual ~SiTrackerMultiRecHitUpdator(){};
   
   //calls the update method in order to build a SiTrackerMultiRecHit 
@@ -81,6 +81,7 @@ private:
   double theChi2Cut;
   const std::vector<double> theAnnealingProgram;
   TkClonerImpl theHitCloner;
+  bool debug_;
 
 };
 #endif

@@ -26,9 +26,9 @@ public:
 				 const SiTrackerMultiRecHitUpdator* updator,
 			         const MeasurementEstimator* est,
 				 const Propagator* propagator,
-				 const Propagator* reversePropagator):
+				 const Propagator* reversePropagator, bool debug):
 		MultiRecHitCollector(measurementTracker), theUpdator(updator), 
-		theEstimator(est), thePropagator(propagator), theReversePropagator(reversePropagator){}
+		theEstimator(est), thePropagator(propagator), theReversePropagator(reversePropagator), debug_(debug){}
 			
 
 	virtual ~GroupedDAFHitCollector(){}
@@ -49,7 +49,7 @@ private:
 	const MeasurementEstimator* theEstimator;
 	const Propagator* thePropagator;
 	const Propagator* theReversePropagator;
-
+	const bool debug_;
 };
 
 

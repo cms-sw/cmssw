@@ -12,11 +12,13 @@
 SiTrackerMultiRecHitUpdator::SiTrackerMultiRecHitUpdator(const TransientTrackingRecHitBuilder* builder,
 							 const TrackingRecHitPropagator* hitpropagator,
 							 const float Chi2Cut,
-						         const std::vector<double>& anAnnealingProgram):
+						         const std::vector<double>& anAnnealingProgram,
+							 bool debug):
   theBuilder(builder),
   theHitPropagator(hitpropagator),
   theChi2Cut(Chi2Cut),
-  theAnnealingProgram(anAnnealingProgram){
+  theAnnealingProgram(anAnnealingProgram),
+  debug_(debug){
     theHitCloner = static_cast<TkTransientTrackingRecHitBuilder const *>(builder)->cloner();
   }
 
@@ -24,7 +26,9 @@ SiTrackerMultiRecHitUpdator::SiTrackerMultiRecHitUpdator(const TransientTracking
 TransientTrackingRecHit::RecHitPointer  SiTrackerMultiRecHitUpdator::buildMultiRecHit(const std::vector<const TrackingRecHit*>& rhv,
                                                                           	      TrajectoryStateOnSurface tsos,
  										      float annealing) const{
-//  std::cout << " Calling SiTrackerMultiRecHitUpdator::buildMultiRecHit with AnnealingFactor: "  << annealing << std::endl;
+  if(debug_){
+    std::cout << " Calling SiTrackerMultiRecHitUpdator::buildMultiRecHit with AnnealingFactor: "  << annealing << std::endl;
+  }
   TransientTrackingRecHit::ConstRecHitContainer tcomponents;	
   for (std::vector<const TrackingRecHit*>::const_iterator iter = rhv.begin(); iter != rhv.end(); iter++){
     TransientTrackingRecHit::RecHitPointer transient = theBuilder->build(*iter);
@@ -37,7 +41,9 @@ TransientTrackingRecHit::RecHitPointer  SiTrackerMultiRecHitUpdator::buildMultiR
 TransientTrackingRecHit::RecHitPointer SiTrackerMultiRecHitUpdator::update( TransientTrackingRecHit::ConstRecHitPointer original,
                                                                 	    TrajectoryStateOnSurface tsos,
 									    double annealing) const{
-//  std::cout << " Calling SiTrackerMultiRecHitUpdator::update with AnnealingFactor: "  << annealing << std::endl;
+  if(debug_){
+    std::cout << " Calling SiTrackerMultiRecHitUpdator::update with AnnealingFactor: "  << annealing << std::endl;
+  }
   LogTrace("SiTrackerMultiRecHitUpdator") << "Calling SiTrackerMultiRecHitUpdator::update with AnnealingFactor: "  << annealing;
 
   if (original->isValid())
@@ -146,18 +152,22 @@ TransientTrackingRecHit::RecHitPointer SiTrackerMultiRecHitUpdator::update( Tran
 					   << " position " << mymap[counter].first->localPosition() 
 					   << " error " << mymap[counter].first->localPositionError()
 					   << " with weight " << p;
-//    std::cout << "  Component hit type " << typeid(*mymap[counter].first).name()
-//                                           << " position " << mymap[counter].first->localPosition()
-//                                           << " \n\terror " << mymap[counter].first->localPositionError()
-//                                           << " with weight " << p << std::endl;
+    if(debug_){
+      std::cout << "  Component hit type " << typeid(*mymap[counter].first).name()
+                                           << " position " << mymap[counter].first->localPosition()
+                                           << " \n\terror " << mymap[counter].first->localPositionError()
+                                           << " with weight " << p << std::endl;
+    }
     counter++;
   }
  
   SiTrackerMultiRecHitUpdator::LocalParameters param = calcParameters(tsos, normmap);
 
   SiTrackerMultiRecHit updated(param.first, param.second, *normmap.front().first->det(), normmap, annealing);
-//  std::cout << " Updated Hit position " << updated.localPosition() 
-//   					  << " updated error " << updated.localPositionError() << std::endl;
+  if(debug_){
+    std::cout << " Updated Hit position " << updated.localPosition() 
+  					  << " updated error " << updated.localPositionError() << std::endl;
+  }
   LogTrace("SiTrackerMultiRecHitUpdator") << " Updated Hit position " << updated.localPosition() 
    					  << " updated error " << updated.localPositionError() << std::endl;
 

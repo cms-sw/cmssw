@@ -6,7 +6,8 @@ simpleMultiRecHitCollector = cms.ESProducer("MultiRecHitCollectorESProducer",
     ComponentName = cms.string('simpleMultiRecHitCollector'),
     MeasurementTrackerName = cms.string(''),
     estimator = cms.string('RelaxedChi2Simple'),
-    Mode = cms.string('Simple')
+    Mode = cms.string('Simple'),
+    Debug = cms.bool(False)	
 )
 
 

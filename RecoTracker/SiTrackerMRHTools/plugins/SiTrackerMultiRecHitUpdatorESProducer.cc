@@ -33,8 +33,9 @@ SiTrackerMultiRecHitUpdatorESProducer::produce(const MultiRecHitRecord & iRecord
   edm::ESHandle<TrackingRecHitPropagator> hhitpropagator;
   iRecord.getRecord<CkfComponentsRecord>().getRecord<TrackingComponentsRecord>().get(hitpropagator, hhitpropagator);		
 
+  bool debug = pset_.getParameter<bool>("Debug");
   //_updator  = boost::shared_ptr<SiTrackerMultiRecHitUpdator>(new SiTrackerMultiRecHitUpdator(pDD.product(), pp, sp, mp, annealingProgram));
-  _updator  = boost::shared_ptr<SiTrackerMultiRecHitUpdator>(new SiTrackerMultiRecHitUpdator(hbuilder.product(),hhitpropagator.product(), Chi2Cut, annealingProgram));
+  _updator  = boost::shared_ptr<SiTrackerMultiRecHitUpdator>(new SiTrackerMultiRecHitUpdator(hbuilder.product(),hhitpropagator.product(), Chi2Cut, annealingProgram, debug));
    // _updator  = boost::shared_ptr<SiTrackerMultiRecHitUpdator>(new SiTrackerMultiRecHitUpdator(hhitpropagator.product(),annealingProgram));
   return _updator;
 }

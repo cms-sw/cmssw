@@ -21,7 +21,6 @@ vector<TrajectoryMeasurement> GroupedDAFHitCollector::recHits(const Trajectory& 
 							      const MeasurementTrackerEvent *theMTE) const
 {
 
-  std::cout << " Calling GroupedDAFHitCollector::recHits" << std::endl;
   LayerMeasurements theLM (theMTE->measurementTracker(), *theMTE);
 
   //WARNING: At the moment the trajectories has the measurements with reversed sorting after the track smoothing

@@ -36,8 +36,6 @@ void DAFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
 						 TrajAnnealingCollection& trajann,
 						 bool TrajAnnSaving_) const
 {
-//  std::cout << "////////////////////////////////////////////////////////\n"
-//	    << "DAFTrackProducerAlgorithm::runWithCandidate: Number of Trajectories: " << theTrajectoryCollection.size() << "\n";
   edm::LogInfo("TrackProducer") << "Number of Trajectories: " << theTrajectoryCollection.size() << "\n";
   int cont = 0;
 
@@ -197,7 +195,7 @@ Trajectory DAFTrackProducerAlgorithm::fit(const std::pair<TransientTrackingRecHi
 
   if( newVec.isValid() )  return newVec; 
   else{
-    //std::cout << "Fit no valid." << std::endl;
+    std::cout << "Fit no valid." << std::endl;
     return Trajectory();
   }
 

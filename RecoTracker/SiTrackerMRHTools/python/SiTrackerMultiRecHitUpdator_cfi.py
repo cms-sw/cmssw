@@ -5,7 +5,8 @@ siTrackerMultiRecHitUpdator = cms.ESProducer("SiTrackerMultiRecHitUpdatorESProdu
     TTRHBuilder = cms.string('WithAngleAndTemplate'),
     HitPropagator = cms.string('trackingRecHitPropagator'),
     AnnealingProgram = cms.vdouble(80.0, 9.0, 4.0, 1.0, 1.0,  1.0),
-    ChiSquareCut =cms.double(15.0)
+    ChiSquareCut =cms.double(15.0),
+    Debug = cms.bool(False)
 )
 
 

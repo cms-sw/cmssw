@@ -39,6 +39,7 @@ MultiRecHitCollectorESProducer::produce(const MultiRecHitRecord& iRecord){
   std::string propagatorAlongName    = conf_.getParameter<std::string>("propagatorAlong");
   std::string estimatorName          = conf_.getParameter<std::string>("estimator"); 
   std::string measurementTrackerName = conf_.getParameter<std::string>("MeasurementTrackerName");
+  bool debug = conf_.getParameter<bool>("Debug");
 
 
   ESHandle<SiTrackerMultiRecHitUpdator> mrhuhandle;
@@ -58,13 +59,13 @@ MultiRecHitCollectorESProducer::produce(const MultiRecHitRecord& iRecord){
 									         mrhuhandle.product(),
 										 estimatorhandle.product(),
 										 propagatorhandle.product(),
-										 propagatorOppositehandle.product()));
+										 propagatorOppositehandle.product(), debug));
   } 
   else {
 	_collector  = boost::shared_ptr<MultiRecHitCollector>(new SimpleDAFHitCollector(measurementhandle.product(),
                                                                                  mrhuhandle.product(),
                                                                                  estimatorhandle.product(),
-                                                                                 propagatorhandle.product()));
+                                                                                 propagatorhandle.product(), debug));
   }
   	
   return _collector;
