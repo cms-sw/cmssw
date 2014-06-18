@@ -57,6 +57,9 @@ public:
 
 private :
 
+  //used for initialization
+  bool checkValidDetIds_;
+
   //input/output names
   std::string hitCollection_,digiCollection_;
 

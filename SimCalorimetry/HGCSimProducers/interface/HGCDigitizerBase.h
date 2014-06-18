@@ -57,7 +57,6 @@ class HGCDigitizerBase {
 	it!=simData.end();
 	it++)
       {
-
 	//convert total energy GeV->keV->ADC counts
 	double totalEn(0);
 	for(size_t i=0; i<it->second.size(); i++) totalEn+= (it->second)[i];
@@ -75,8 +74,6 @@ class HGCDigitizerBase {
 	singleSample.set(0, totalEnInt );
 
 	if(singleSample.adc()==0) continue;
-	
-	//std::cout << totalEn << " -> Gain:" << singleSample.gain() << " #ADC:" << singleSample.adc() << std::endl;
 	
 	//no time information
 	D newDataFrame( it->first );
