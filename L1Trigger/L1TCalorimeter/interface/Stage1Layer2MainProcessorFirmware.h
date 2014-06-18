@@ -14,7 +14,9 @@
 #define Stage1Layer2MainProcessorFirmware_H
 
 #include "L1Trigger/L1TCalorimeter/interface/Stage1Layer2MainProcessor.h"
-#include "CondFormats/L1TObjects/interface/CaloParams.h"
+//#include "CondFormats/L1TObjects/interface/CaloParams.h"
+#include "L1Trigger/L1TCalorimeter/interface/CaloParamsStage1.h"
+
 
 #include "Stage1Layer2EGammaAlgorithm.h"
 #include "Stage1Layer2EtSumAlgorithm.h"
@@ -25,8 +27,8 @@ namespace l1t {
 
   class Stage1Layer2MainProcessorFirmwareImp1 : public Stage1Layer2MainProcessor {
   public:
-    //Stage1Layer2MainProcessorFirmwareImp1(const FirmwareVersion & fwv /*const CaloParams & dbPars*/);
-    Stage1Layer2MainProcessorFirmwareImp1(const int fwv , CaloParams* dbPars);
+    //Stage1Layer2MainProcessorFirmwareImp1(const FirmwareVersion & fwv /*const CaloParamsStage1 & dbPars*/);
+    Stage1Layer2MainProcessorFirmwareImp1(const int fwv , CaloParamsStage1* dbPars);
     virtual ~Stage1Layer2MainProcessorFirmwareImp1();
     virtual void processEvent(const std::vector<CaloEmCand> &,
                               const std::vector<CaloRegion> &,
@@ -37,7 +39,7 @@ namespace l1t {
   private:
 
     int m_fwv;
-    CaloParams* m_db;
+    CaloParamsStage1* m_db;
 
     Stage1Layer2EGammaAlgorithm* m_egAlgo;
     Stage1Layer2TauAlgorithm* m_tauAlgo;
