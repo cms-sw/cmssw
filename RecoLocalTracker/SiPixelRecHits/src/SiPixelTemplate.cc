@@ -618,7 +618,7 @@ bool SiPixelTemplate::pushfile(const SiPixelTemplateDBObject& dbobject, std::vec
 	    << ", y-size " << theCurrentTemp.head.ysize << ", zsize " << theCurrentTemp.head.zsize << ENDL;
 		
 	  if(theCurrentTemp.head.templ_version < code_version) {
-	    LOGWARNING("SiPixelTemplate") << "code expects version "<< code_version << " finds "
+	    LOGINFO("SiPixelTemplate") << "code expects version "<< code_version << " finds "
 					<< theCurrentTemp.head.templ_version <<", load anyway " << ENDL; 
 	    //return false; // dk
 	  }
