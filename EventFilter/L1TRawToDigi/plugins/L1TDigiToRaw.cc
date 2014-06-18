@@ -73,13 +73,7 @@ namespace l1t {
       int mod = size % 8;
       size = (mod == 0) ? size : size + 8 - mod;
       fed_data.resize(size);
-      unsigned char * header = fed_data.data();
-      unsigned char * payload = header + 16;
-      unsigned char * footer = header + size - 8;
-
-      FEDHeader fed_header(header);
-      // FIXME the 0 is the BX id
-      fed_header.set(header, 1, event.id().event(), 0, fedId_);
+      unsigned char * payload = fed_data.data();
 
       // create the header
       payload = push(payload, 0);
@@ -91,9 +85,6 @@ namespace l1t {
          for (const auto& word: block.load)
             payload = push(payload, word);
       }
-
-      FEDTrailer trailer(footer);
-      trailer.set(footer, size / 8, evf::compute_crc(header, size), 0, 0);
 
       event.put(raw_coll);
    }

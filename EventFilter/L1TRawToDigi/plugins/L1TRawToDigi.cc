@@ -64,9 +64,9 @@ namespace l1t {
       uint32_t payload_size = (id >> 8) & 0xFFFF;
       // uint32_t event_type = id & 0xFF;
 
-      if (l1tRcd.size() < payload_size * 4 + 36) {
+      if (l1tRcd.size() < payload_size * 4 + 20) {
          LogError("L1T") << "Cannot unpack: invalid L1T raw data size in header (size = "
-            << l1tRcd.size() << ", expected " << payload_size * 4 + 36
+            << l1tRcd.size() << ", expected " << payload_size * 4 + 20
             << " + padding). Returning empty collections!";
          return;
       }
@@ -82,12 +82,6 @@ namespace l1t {
 
       auto payload_end = idx + payload_size * 4;
       for (unsigned int b = 0; idx < payload_end; ++b) {
-         // FIXME Number of blocks actually fixed by firmware
-         if (b >= MAX_BLOCKS) {
-            LogError("L1T") << "Reached block limit - bailing out from this event!";
-            break;
-         }
-
          // Parse block
          uint32_t block_hdr = pop(data, idx);
          uint32_t block_id = (block_hdr >> 24) & 0xFF;
