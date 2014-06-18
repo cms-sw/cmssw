@@ -15,7 +15,7 @@
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 class MonitorElement;
-#include "TObjArray.h"
+
 namespace edm { class Event; class EventSetup; class Run;}
 
 
@@ -26,14 +26,12 @@ public:
   virtual ~RPCMonitorLinkSynchro();
  
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
- 
+  void dqmBeginRun(const edm::Run& r, const edm::EventSetup& c) ;
   virtual void endLuminosityBlock(const edm::LuminosityBlock&,const edm::EventSetup&);
   virtual void analyze(const edm::Event&, const edm::EventSetup&);  
   virtual  const RPCRawSynchro::ProdItem & select(const RPCRawSynchro::ProdItem &v, const edm::Event&, const edm::EventSetup&) { return v; };
-  virtual void endJob();
-
+ 
 protected:
-  virtual TObjArray histos() const;
   edm::ParameterSet theConfig;
   edm::ESWatcher<RPCEMapRcd> theCablingWatcher;
   RPCLinkSynchroStat theSynchroStat;

@@ -1,30 +1,15 @@
 #include "DQM/RPCMonitorClient/interface/RPCMonitorLinkSynchro.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQM/RPCMonitorClient/interface/RPCLinkSynchroHistoMaker.h"
 
-#include "DataFormats/Common/interface/Handle.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESTransientHandle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESWatcher.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 #include "CondFormats/RPCObjects/interface/RPCEMap.h"
-#include "CondFormats/DataRecord/interface/RPCEMapRcd.h"
 #include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
-
-#include "CondFormats/DataRecord/interface/RPCEMapRcd.h"
-
-#include "DQM/RPCMonitorClient/interface/RPCLinkSynchroHistoMaker.h"
-#include "TH1F.h"
-#include "TH2F.h"
-#include "TFile.h"
-
-//#include "UserCode/konec/test/R2DTimerObserver.h"
-
 
 
 RPCMonitorLinkSynchro::RPCMonitorLinkSynchro( const edm::ParameterSet& cfg) 
@@ -48,10 +33,7 @@ void RPCMonitorLinkSynchro::endLuminosityBlock(const edm::LuminosityBlock& ls, c
 
 
 
-
-void RPCMonitorLinkSynchro::bookHistograms(DQMStore::IBooker & ibooker,
-				     edm::Run const &  iRun ,
-				     edm::EventSetup const & es ) {
+void RPCMonitorLinkSynchro::dqmBeginRun(const edm::Run& r, const edm::EventSetup& es){
   if (theCablingWatcher.check(es)) {
     edm::ESTransientHandle<RPCEMap> readoutMapping;
     es.get<RPCEMapRcd>().get(readoutMapping);
@@ -60,8 +42,11 @@ void RPCMonitorLinkSynchro::bookHistograms(DQMStore::IBooker & ibooker,
     theSynchroStat.init(cabling, theConfig.getUntrackedParameter<bool>("dumpDelays"));
     delete cabling;
   }
+}
 
-
+void RPCMonitorLinkSynchro::bookHistograms(DQMStore::IBooker & ibooker,
+				     edm::Run const &  iRun ,
+				     edm::EventSetup const & es ) {
   ibooker.cd();
   ibooker.setCurrentFolder("RPC/LinkMonitor/");
 
@@ -90,22 +75,6 @@ void RPCMonitorLinkSynchro::bookHistograms(DQMStore::IBooker & ibooker,
 
 }
 
-TObjArray RPCMonitorLinkSynchro::histos() const
-{
-  TObjArray result;
-  result.Add(me_delaySummary->getTH1F());
-  result.Add(me_delaySpread->getTH2F());
-  result.Add(me_topOccup->getTH2F());
-  result.Add(me_topSpread->getTH2F());
-  for (unsigned int i=0;i<=2;i++) result.Add(me_notComplete[i]->getTH2F());
-  return result;
-}
-
-
-void RPCMonitorLinkSynchro::endJob()
-{
-  if (theConfig.getUntrackedParameter<bool>("dumpDelays")) edm::LogInfo("RPCMonitorLinkSynchro DumpDelays") <<  theSynchroStat.dumpDelays();
-}
 
 void RPCMonitorLinkSynchro::analyze(const edm::Event& ev, const edm::EventSetup& es)
 {
