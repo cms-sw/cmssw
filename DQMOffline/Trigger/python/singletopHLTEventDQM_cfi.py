@@ -39,7 +39,7 @@ SingleTopSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM"
           '& isGlobalMuon'
           '& globalTrack.normalizedChi2<10'
           '& innerTrack.hitPattern().trackerLayersWithMeasurement(\'TRACK_HITS\') > 5'
-          '& innerTrack.hitPattern().numberOfValidPixelHits(\'TRACK_HITS\') > 0'
+          '& innerTrack.hitPattern().numberOfValidPixelHits() > 0'
           '& numberOfMatches>1'),
       ## when omitted isolated muon multiplicity plot will be equi-
       ## valent to inclusive muon multiplicity plot                                                    
@@ -127,7 +127,7 @@ SingleTopSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM"
           '& isGlobalMuon'
           '& globalTrack.normalizedChi2<10'
           '& innerTrack.hitPattern().trackerLayersWithMeasurement(\'TRACK_HITS\') > 5'
-          '& innerTrack.hitPattern().numberOfValidPixelHits(\'TRACK_HITS\') > 0'
+          '& innerTrack.hitPattern().numberOfValidPixelHits() > 0'
           '& numberOfMatches>1'
           '& (pfIsolationR04.sumChargedHadronPt+pfIsolationR04.sumPhotonEt+pfIsolationR04.sumNeutralHadronEt)/pt<0.12'),
       min    = cms.int32(1),

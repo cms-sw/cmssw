@@ -79,7 +79,7 @@ process.goodMuonsNotIso = cms.EDFilter("MuonSelector",
                                        '&& isolationR03().sumPt<1000.0'
                                        '&& abs(innerTrack().dxy)<0.5'
                                        '&& globalTrack().hitPattern().numberOfValidMuonHits() > 0'
-                                       '&& globalTrack.hitPattern().numberOfValidStripHits(\'TRACK_HITS\') >= 10'
+                                       '&& globalTrack.hitPattern().numberOfValidStripHits() >= 10'
                                        '&& globalTrack().normalizedChi2()<10'),
                                    filter = cms.bool(True)
                                  )
@@ -92,7 +92,7 @@ process.goodMuons = cms.EDFilter("MuonSelector",
                                        '&& isolationR03().sumPt<3.0'
                                        '&& abs(innerTrack().dxy)<0.5'
                                        '&& globalTrack().hitPattern().numberOfValidMuonHits() > 0'
-                                       '&& globalTrack.hitPattern().numberOfValidStripHits(\'TRACK_HITS\') >= 10'
+                                       '&& globalTrack.hitPattern().numberOfValidStripHits() >= 10'
                                        '&& globalTrack().normalizedChi2()<10'),
                                    filter = cms.bool(True)
                                  )

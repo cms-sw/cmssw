@@ -204,26 +204,26 @@ public:
     void printHitPattern(HitCategory category, int position, std::ostream &stream) const;
     void print(HitCategory category, std::ostream &stream = std::cout) const;
 
-    bool hasValidHitInFirstPixelBarrel(HitCategory category) const; // has valid hit in PXB layer 1
-    bool hasValidHitInFirstPixelEndcap(HitCategory category) const; // has valid hit in PXF layer 1
+    bool hasValidHitInFirstPixelBarrel() const; // has valid hit in PXB layer 1
+    bool hasValidHitInFirstPixelEndcap() const; // has valid hit in PXF layer 1
 
     int numberOfHits(HitCategory category) const;                 // not-null
 
     int numberOfTrackerHits(HitCategory category) const;          // not-null, tracker
     int numberOfMuonHits() const;                                 // not-null, muon
 
-    int numberOfValidHits(HitCategory category) const;            // not-null, valid
-    int numberOfValidTrackerHits(HitCategory category) const;     // not-null, valid, tracker
+    int numberOfValidHits() const;                                // not-null, valid
+    int numberOfValidTrackerHits() const;                         // not-null, valid, tracker
     int numberOfValidMuonHits() const;                            // not-null, valid, muon
 
-    int numberOfValidPixelHits(HitCategory category) const;       // not-null, valid, pixel
-    int numberOfValidPixelBarrelHits(HitCategory category) const; // not-null, valid, pixel PXB
-    int numberOfValidPixelEndcapHits(HitCategory category) const; // not-null, valid, pixel PXF
-    int numberOfValidStripHits(HitCategory category) const;       // not-null, valid, strip
-    int numberOfValidStripTIBHits(HitCategory category) const;    // not-null, valid, strip TIB
-    int numberOfValidStripTIDHits(HitCategory category) const;    // not-null, valid, strip TID
-    int numberOfValidStripTOBHits(HitCategory category) const;    // not-null, valid, strip TOB
-    int numberOfValidStripTECHits(HitCategory category) const;    // not-null, valid, strip TEC
+    int numberOfValidPixelHits() const;       // not-null, valid, pixel
+    int numberOfValidPixelBarrelHits() const; // not-null, valid, pixel PXB
+    int numberOfValidPixelEndcapHits() const; // not-null, valid, pixel PXF
+    int numberOfValidStripHits() const;       // not-null, valid, strip
+    int numberOfValidStripTIBHits() const;    // not-null, valid, strip TIB
+    int numberOfValidStripTIDHits() const;    // not-null, valid, strip TID
+    int numberOfValidStripTOBHits() const;    // not-null, valid, strip TOB
+    int numberOfValidStripTECHits() const;    // not-null, valid, strip TEC
     int numberOfValidMuonDTHits() const;      // not-null, valid, muon DT
     int numberOfValidMuonCSCHits() const;     // not-null, valid, muon CSC
     int numberOfValidMuonRPCHits() const;     // not-null, valid, muon RPC
@@ -672,14 +672,14 @@ inline int HitPattern::numberOfMuonHits() const
     return countHits(TRACK_HITS, muonHitFilter);
 }
 
-inline int HitPattern::numberOfValidHits(HitCategory category) const
+inline int HitPattern::numberOfValidHits() const
 {
-    return countHits(category, validHitFilter);
+    return countHits(TRACK_HITS, validHitFilter);
 }
 
-inline int HitPattern::numberOfValidTrackerHits(HitCategory category) const
+inline int HitPattern::numberOfValidTrackerHits() const
 {
-    return countTypedHits(category, validHitFilter, trackerHitFilter);
+    return countTypedHits(TRACK_HITS, validHitFilter, trackerHitFilter);
 }
 
 inline int HitPattern::numberOfValidMuonHits() const
@@ -687,44 +687,44 @@ inline int HitPattern::numberOfValidMuonHits() const
     return countTypedHits(TRACK_HITS, validHitFilter, muonHitFilter);
 }
 
-inline int HitPattern::numberOfValidPixelHits(HitCategory category) const
+inline int HitPattern::numberOfValidPixelHits() const
 {
-    return countTypedHits(category, validHitFilter, pixelHitFilter);
+    return countTypedHits(TRACK_HITS, validHitFilter, pixelHitFilter);
 }
 
-inline int HitPattern::numberOfValidPixelBarrelHits(HitCategory category) const
+inline int HitPattern::numberOfValidPixelBarrelHits() const
 {
-    return countTypedHits(category, validHitFilter, pixelBarrelHitFilter);
+    return countTypedHits(TRACK_HITS, validHitFilter, pixelBarrelHitFilter);
 }
 
-inline int HitPattern::numberOfValidPixelEndcapHits(HitCategory category) const
+inline int HitPattern::numberOfValidPixelEndcapHits() const
 {
-    return countTypedHits(category, validHitFilter, pixelEndcapHitFilter);
+    return countTypedHits(TRACK_HITS, validHitFilter, pixelEndcapHitFilter);
 }
 
-inline int HitPattern::numberOfValidStripHits(HitCategory category) const
+inline int HitPattern::numberOfValidStripHits() const
 {
-    return countTypedHits(category, validHitFilter, stripHitFilter);
+    return countTypedHits(TRACK_HITS, validHitFilter, stripHitFilter);
 }
 
-inline int HitPattern::numberOfValidStripTIBHits(HitCategory category) const
+inline int HitPattern::numberOfValidStripTIBHits() const
 {
-    return countTypedHits(category, validHitFilter, stripTIBHitFilter);
+    return countTypedHits(TRACK_HITS, validHitFilter, stripTIBHitFilter);
 }
 
-inline int HitPattern::numberOfValidStripTIDHits(HitCategory category) const
+inline int HitPattern::numberOfValidStripTIDHits() const
 {
-    return countTypedHits(category, validHitFilter, stripTIDHitFilter);
+    return countTypedHits(TRACK_HITS, validHitFilter, stripTIDHitFilter);
 }
 
-inline int HitPattern::numberOfValidStripTOBHits(HitCategory category) const
+inline int HitPattern::numberOfValidStripTOBHits() const
 {
-    return countTypedHits(category, validHitFilter, stripTOBHitFilter);
+    return countTypedHits(TRACK_HITS, validHitFilter, stripTOBHitFilter);
 }
 
-inline int HitPattern::numberOfValidStripTECHits(HitCategory category) const
+inline int HitPattern::numberOfValidStripTECHits() const
 {
-    return countTypedHits(category, validHitFilter, stripTECHitFilter);
+    return countTypedHits(TRACK_HITS, validHitFilter, stripTECHitFilter);
 }
 
 inline int HitPattern::numberOfValidMuonDTHits() const

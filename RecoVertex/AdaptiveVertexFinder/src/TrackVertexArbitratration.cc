@@ -27,7 +27,7 @@ bool TrackVertexArbitration::trackFilterArbitrator(const reco::TrackRef &track) 
                 return false;
         if (track->pt() < trackMinPt)
                 return false;
-        if (track->hitPattern().numberOfValidPixelHits(HitPattern::TRACK_HITS) < trackMinPixels)
+        if (track->hitPattern().numberOfValidPixelHits() < trackMinPixels)
                 return false;
 
         return true;

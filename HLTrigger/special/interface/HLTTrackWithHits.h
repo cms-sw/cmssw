@@ -65,9 +65,9 @@ private:
       const reco::Track & track = (*oHandle)[i];
       if (track.pt() < MinPT_) continue;
       const reco::HitPattern & hits = track.hitPattern();
-      if ( MinBPX_>0 && hits.numberOfValidPixelBarrelHits(reco::HitPattern::TRACK_HITS) >= MinBPX_ ) { ++count; continue; }
-      if ( MinFPX_>0 && hits.numberOfValidPixelEndcapHits(reco::HitPattern::TRACK_HITS) >= MinFPX_ ) { ++count; continue; }
-      if ( MinPXL_>0 && hits.numberOfValidPixelHits(reco::HitPattern::TRACK_HITS) >= MinPXL_ )       { ++count; continue; }
+      if ( MinBPX_>0 && hits.numberOfValidPixelBarrelHits() >= MinBPX_ ) { ++count; continue; }
+      if ( MinFPX_>0 && hits.numberOfValidPixelEndcapHits() >= MinFPX_ ) { ++count; continue; }
+      if ( MinPXL_>0 && hits.numberOfValidPixelHits() >= MinPXL_ )       { ++count; continue; }
     }
 
     bool answer=(count>=minN_ && count<=maxN_);

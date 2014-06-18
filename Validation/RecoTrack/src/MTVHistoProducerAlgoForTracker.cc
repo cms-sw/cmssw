@@ -1184,12 +1184,12 @@ void MTVHistoProducerAlgoForTracker::fill_simAssociated_recoTrack_histos(int cou
     //chi2 and #hit vs eta: fill 2D histos
     chi2_vs_eta[count]->Fill(getEta(track.eta()),track.normalizedChi2());
     nhits_vs_eta[count]->Fill(getEta(track.eta()),track.numberOfValidHits());
-    nPXBhits_vs_eta[count]->Fill(getEta(track.eta()),track.hitPattern().numberOfValidPixelBarrelHits(reco::HitPattern::TRACK_HITS));
-    nPXFhits_vs_eta[count]->Fill(getEta(track.eta()),track.hitPattern().numberOfValidPixelEndcapHits(reco::HitPattern::TRACK_HITS));
-    nTIBhits_vs_eta[count]->Fill(getEta(track.eta()),track.hitPattern().numberOfValidStripTIBHits(reco::HitPattern::TRACK_HITS));
-    nTIDhits_vs_eta[count]->Fill(getEta(track.eta()),track.hitPattern().numberOfValidStripTIDHits(reco::HitPattern::TRACK_HITS));
-    nTOBhits_vs_eta[count]->Fill(getEta(track.eta()),track.hitPattern().numberOfValidStripTOBHits(reco::HitPattern::TRACK_HITS));
-    nTEChits_vs_eta[count]->Fill(getEta(track.eta()),track.hitPattern().numberOfValidStripTECHits(reco::HitPattern::TRACK_HITS));
+    nPXBhits_vs_eta[count]->Fill(getEta(track.eta()),track.hitPattern().numberOfValidPixelBarrelHits());
+    nPXFhits_vs_eta[count]->Fill(getEta(track.eta()),track.hitPattern().numberOfValidPixelEndcapHits());
+    nTIBhits_vs_eta[count]->Fill(getEta(track.eta()),track.hitPattern().numberOfValidStripTIBHits());
+    nTIDhits_vs_eta[count]->Fill(getEta(track.eta()),track.hitPattern().numberOfValidStripTIDHits());
+    nTOBhits_vs_eta[count]->Fill(getEta(track.eta()),track.hitPattern().numberOfValidStripTOBHits());
+    nTEChits_vs_eta[count]->Fill(getEta(track.eta()),track.hitPattern().numberOfValidStripTECHits());
     nLayersWithMeas_vs_eta[count]->Fill(getEta(track.eta()),track.hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS));
     nPXLlayersWithMeas_vs_eta[count]->Fill(getEta(track.eta()),track.hitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS));
     int LayersAll = track.hitPattern().stripLayersWithMeasurement(reco::HitPattern::TRACK_HITS);

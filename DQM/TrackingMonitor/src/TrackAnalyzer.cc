@@ -1231,27 +1231,27 @@ void TrackAnalyzer::fillHistosForTrackerSpecific(const reco::Track & track)
     switch(substr) {
     case StripSubdetector::TIB :
       nValidLayers  = track.hitPattern().stripTIBLayersWithMeasurement(reco::HitPattern::TRACK_HITS);       // case 0: strip TIB
-      nValidRecHits = track.hitPattern().numberOfValidStripTIBHits(reco::HitPattern::TRACK_HITS);           // case 0: strip TIB
+      nValidRecHits = track.hitPattern().numberOfValidStripTIBHits();           // case 0: strip TIB
       break;
     case StripSubdetector::TID :
       nValidLayers  = track.hitPattern().stripTIDLayersWithMeasurement(reco::HitPattern::TRACK_HITS);       // case 0: strip TID
-      nValidRecHits = track.hitPattern().numberOfValidStripTIDHits(reco::HitPattern::TRACK_HITS);           // case 0: strip TID
+      nValidRecHits = track.hitPattern().numberOfValidStripTIDHits();           // case 0: strip TID
       break;
     case StripSubdetector::TOB :
       nValidLayers  = track.hitPattern().stripTOBLayersWithMeasurement(reco::HitPattern::TRACK_HITS);       // case 0: strip TOB
-      nValidRecHits = track.hitPattern().numberOfValidStripTOBHits(reco::HitPattern::TRACK_HITS);           // case 0: strip TOB
+      nValidRecHits = track.hitPattern().numberOfValidStripTOBHits();           // case 0: strip TOB
       break;
     case StripSubdetector::TEC :
       nValidLayers  = track.hitPattern().stripTECLayersWithMeasurement(reco::HitPattern::TRACK_HITS);       // case 0: strip TEC
-      nValidRecHits = track.hitPattern().numberOfValidStripTECHits(reco::HitPattern::TRACK_HITS);           // case 0: strip TEC
+      nValidRecHits = track.hitPattern().numberOfValidStripTECHits();           // case 0: strip TEC
       break;
     case PixelSubdetector::PixelBarrel :
       nValidLayers  = track.hitPattern().pixelBarrelLayersWithMeasurement(reco::HitPattern::TRACK_HITS);    // case 0: pixel PXB
-      nValidRecHits = track.hitPattern().numberOfValidPixelBarrelHits(reco::HitPattern::TRACK_HITS);        // case 0: pixel PXB
+      nValidRecHits = track.hitPattern().numberOfValidPixelBarrelHits();        // case 0: pixel PXB
       break;
     case PixelSubdetector::PixelEndcap :
       nValidLayers  = track.hitPattern().pixelEndcapLayersWithMeasurement(reco::HitPattern::TRACK_HITS);    // case 0: pixel PXF
-      nValidRecHits = track.hitPattern().numberOfValidPixelEndcapHits(reco::HitPattern::TRACK_HITS);        // case 0: pixel PXF
+      nValidRecHits = track.hitPattern().numberOfValidPixelEndcapHits();        // case 0: pixel PXF
       break;
     default :
       break;

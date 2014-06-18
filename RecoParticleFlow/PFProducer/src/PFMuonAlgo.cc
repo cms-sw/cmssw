@@ -319,7 +319,7 @@ PFMuonAlgo::isTrackerTightMuon( const reco::MuonRef& muonRef ) {
   reco::TrackRef trackerMu = muonRef->track();
   const reco::Track& track = *trackerMu;
   
-  unsigned nTrackerHits =  track.hitPattern().numberOfValidTrackerHits(HitPattern::TRACK_HITS);
+  unsigned nTrackerHits =  track.hitPattern().numberOfValidTrackerHits();
   
   if(nTrackerHits<=12) return false;
   
@@ -483,9 +483,9 @@ PFMuonAlgo::isTightMuonPOG(const reco::MuonRef& muonRef) {
   //const reco::TrackRef& combinedMuon = muonRef->combinedMuon();    
   const reco::TrackRef& combinedMuon = muonRef->globalTrack();    
   
-  if(combinedMuon->hitPattern().numberOfValidTrackerHits(HitPattern::TRACK_HITS) < 11) return false;
+  if(combinedMuon->hitPattern().numberOfValidTrackerHits() < 11) return false;
   
-  if(combinedMuon->hitPattern().numberOfValidPixelHits(HitPattern::TRACK_HITS) == 0) return false;
+  if(combinedMuon->hitPattern().numberOfValidPixelHits() == 0) return false;
   
   if(combinedMuon->hitPattern().numberOfValidMuonHits() == 0) return false;  
 
@@ -521,9 +521,9 @@ PFMuonAlgo::printMuonProperties(const reco::MuonRef& muonRef){
         << std::endl;
 
     std::cout << "  # of Valid Tracker Hits " 
-        << combinedMu->hitPattern().numberOfValidTrackerHits(HitPattern::TRACK_HITS) << std::endl;
+        << combinedMu->hitPattern().numberOfValidTrackerHits() << std::endl;
     std::cout << "  # of Valid Pixel Hits " 
-        << combinedMu->hitPattern().numberOfValidPixelHits(HitPattern::TRACK_HITS) << std::endl;
+        << combinedMu->hitPattern().numberOfValidPixelHits() << std::endl;
   }
   if ( muonRef->isStandAloneMuon() ){
     reco::TrackRef standAloneMu = muonRef->standAloneMuon();
@@ -547,7 +547,7 @@ PFMuonAlgo::printMuonProperties(const reco::MuonRef& muonRef){
       std::cout<<" TR,  pt: " << trackerMu->pt()
           << " +/- " << trackerMu->ptError()/trackerMu->pt()
           << " chi**2 TR : " << trackerMu->normalizedChi2()<<std::endl;
-      std::cout<<" nTrackerHits " << track.hitPattern().numberOfValidTrackerHits(HitPattern::TRACK_HITS) << std::endl;
+      std::cout<<" nTrackerHits " << track.hitPattern().numberOfValidTrackerHits() << std::endl;
       std::cout<< "TMLastStationAngLoose               "
           << muon::isGoodMuon(*muonRef,muon::TMLastStationAngLoose) << std::endl
           << "TMLastStationAngTight               "

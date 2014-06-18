@@ -223,8 +223,8 @@ RecoTauPiZeroStripPlugin2::return_type RecoTauPiZeroStripPlugin2::operator()(con
                 << " ("
                 << "dZ = " << candTrack->dz(vertexAssociator_.associatedVertex(jet)->position())
                 << ", dXY = " << candTrack->dxy(vertexAssociator_.associatedVertex(jet)->position())
-                << ", numHits = " << candTrack->hitPattern().numberOfValidTrackerHits(reco::HitPattern::TRACK_HITS)
-                << ", numPxlHits = " << candTrack->hitPattern().numberOfValidPixelHits(reco::HitPattern::TRACK_HITS)
+                << ", numHits = " << candTrack->hitPattern().numberOfValidTrackerHits()
+                << ", numPxlHits = " << candTrack->hitPattern().numberOfValidPixelHits()
                 << ", chi2 = " << candTrack->normalizedChi2()
                 << ", dPt/Pt = " << (candTrack->ptError()/candTrack->pt())
                 << ")" ;

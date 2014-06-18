@@ -131,7 +131,7 @@ namespace reco {
     //  hit pattern
     const HitPattern &hitPattern() const { return track().hitPattern(); }
     /// number of hits found 
-    unsigned short numberOfValidHits() const { return track().hitPattern().numberOfValidHits(HitPattern::TRACK_HITS); }
+    unsigned short numberOfValidHits() const { return track().hitPattern().numberOfValidHits(); }
     /// number of hits lost
     unsigned short numberOfLostHits() const { return track().hitPattern().numberOfLostHits(HitPattern::TRACK_HITS); }
     /// chi-squared of the fit

@@ -135,7 +135,7 @@ class PFMuonSelector : public Selector<pat::Muon> {
       minTrackerLayers = static_cast<int> (muon.track()->hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS));
       minValidMuonHits = static_cast<int> (muon.globalTrack()->hitPattern().numberOfValidMuonHits());
       _ip = muon.dB();
-      minPixelHits = muon.innerTrack()->hitPattern().numberOfValidPixelHits(reco::HitPattern::TRACK_HITS);
+      minPixelHits = muon.innerTrack()->hitPattern().numberOfValidPixelHits();
     }
 
     int minMatchedStations = muon.numberOfMatches();

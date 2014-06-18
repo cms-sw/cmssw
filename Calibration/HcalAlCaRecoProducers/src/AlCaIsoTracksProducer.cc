@@ -281,7 +281,7 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     
     if (ptrack < m_pCut || track->pt() < m_ptCut ) continue; 
  
-    if (track->hitPattern().numberOfValidHits(reco::HitPattern::TRACK_HITS) < nHitsMinCore_) continue;
+    if (track->hitPattern().numberOfValidHits() < nHitsMinCore_) continue;
 
     // check that track is not in the region of L1 jet
     double l1jDR=deltaR(track->eta(), track->phi(), getL1triggerDirection(iEvent,tok_hlt_,l1FilterTag_).first,getL1triggerDirection(iEvent,tok_hlt_,l1FilterTag_).second);
@@ -312,7 +312,7 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
       {
 	itrk1++;
 	if (track == track1) continue;
-        if (track->hitPattern().numberOfValidHits(reco::HitPattern::TRACK_HITS) < nHitsMinIso_) continue;
+        if (track->hitPattern().numberOfValidHits() < nHitsMinIso_) continue;
 	double ptrack1 = sqrt(track1->px()*track1->px()+track1->py()*track1->py()+track1->pz()*track1->pz());
 	
 	TrackDetMatchInfo info1 = trackAssociator_.associate(iEvent, iSetup, trackAssociator_.getFreeTrajectoryState(iSetup, *track1), parameters_);

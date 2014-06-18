@@ -315,10 +315,10 @@ TrackCount::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
      m_hnlosthits->Fill(it->hitPattern().numberOfLostTrackerHits(reco::HitPattern::TRACK_HITS));
 
-     m_hnrhits->Fill(it->hitPattern().numberOfValidTrackerHits(reco::HitPattern::TRACK_HITS));
-     m_hnpixelrhits->Fill(it->hitPattern().numberOfValidPixelHits(reco::HitPattern::TRACK_HITS));
-     m_hnstriprhits->Fill(it->hitPattern().numberOfValidStripHits(reco::HitPattern::TRACK_HITS));
-     m_hnhitphieta->Fill(it->eta(),it->phi(),it->hitPattern().numberOfValidTrackerHits(reco::HitPattern::TRACK_HITS));
+     m_hnrhits->Fill(it->hitPattern().numberOfValidTrackerHits());
+     m_hnpixelrhits->Fill(it->hitPattern().numberOfValidPixelHits());
+     m_hnstriprhits->Fill(it->hitPattern().numberOfValidStripHits());
+     m_hnhitphieta->Fill(it->eta(),it->phi(),it->hitPattern().numberOfValidTrackerHits());
 
      m_hnlostlayers->Fill(it->hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS));
 

@@ -332,7 +332,7 @@ std::vector<MuScleFitMuon> MuScleFit::fillMuonCollection( const std::vector<T>& 
     applyBias(mu, track->charge());
     if (debug_>0) std::cout<<"track charge: "<<track->charge()<<std::endl;
 
-    Double_t hitsTk = track->innerTrack()->hitPattern().numberOfValidTrackerHits(reco::HitPattern::TRACK_HITS);
+    Double_t hitsTk = track->innerTrack()->hitPattern().numberOfValidTrackerHits();
     Double_t hitsMuon = track->innerTrack()->hitPattern().numberOfValidMuonHits();
     Double_t ptError = track->innerTrack()->ptError();
     MuScleFitMuon muon(mu,track->charge(),ptError,hitsTk,hitsMuon,false);

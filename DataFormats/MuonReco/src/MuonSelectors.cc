@@ -751,7 +751,7 @@ bool muon::isTightMuon(const reco::Muon& muon, const reco::Vertex& vtx){
     
   
   bool hits = muon.innerTrack()->hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS) > 5 
-      && muon.innerTrack()->hitPattern().numberOfValidPixelHits(reco::HitPattern::TRACK_HITS) > 0; 
+      && muon.innerTrack()->hitPattern().numberOfValidPixelHits() > 0; 
 
   
   bool ip = fabs(muon.muonBestTrack()->dxy(vtx.position())) < 0.2 && fabs(muon.muonBestTrack()->dz(vtx.position())) < 0.5;
@@ -790,7 +790,7 @@ bool muon::isHighPtMuon(const reco::Muon& muon, const reco::Vertex& vtx){
   if(!muID) return false;
 
   bool hits = muon.innerTrack()->hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS) > 5 
-      && muon.innerTrack()->hitPattern().numberOfValidPixelHits(reco::HitPattern::TRACK_HITS) > 0; 
+      && muon.innerTrack()->hitPattern().numberOfValidPixelHits() > 0; 
 
   bool momQuality = muon.muonBestTrack()->ptError()/muon.muonBestTrack()->pt() < 0.3;
 

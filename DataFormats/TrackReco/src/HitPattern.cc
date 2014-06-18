@@ -260,10 +260,9 @@ uint16_t HitPattern::getHitPatternByAbsoluteIndex(int position) const
     return getHitPattern(ALL_HITS, position);
 }
 
-bool HitPattern::hasValidHitInFirstPixelBarrel(HitCategory category) const
+bool HitPattern::hasValidHitInFirstPixelBarrel() const
 {
-    std::pair<uint8_t, uint8_t> range = getCategoryIndexRange(category);
-    for (int i = range.first; i < range.second; ++i) {
+    for (int i = beginTrackHits; i < endTrackHits; ++i) {
         uint16_t pattern = getHitPatternByAbsoluteIndex(i);
         if (pixelBarrelHitFilter(pattern) && (getLayer(pattern) == 1)
                 && validHitFilter(pattern)) {
@@ -273,10 +272,9 @@ bool HitPattern::hasValidHitInFirstPixelBarrel(HitCategory category) const
     return false;
 }
 
-bool HitPattern::hasValidHitInFirstPixelEndcap(HitCategory category) const
+bool HitPattern::hasValidHitInFirstPixelEndcap() const
 {
-    std::pair<uint8_t, uint8_t> range = getCategoryIndexRange(category);
-    for (int i = range.first; i < range.second; ++i) {
+    for (int i = beginTrackHits; i < endTrackHits; ++i) {
         uint16_t pattern = getHitPatternByAbsoluteIndex(i);
         if (pixelEndcapHitFilter(pattern) && (getLayer(pattern) == 1)
                 && validHitFilter(pattern)) {

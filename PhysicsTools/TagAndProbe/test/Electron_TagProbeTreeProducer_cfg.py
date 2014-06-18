@@ -898,7 +898,7 @@ ProbeVariablesToStore = cms.PSet(
     probe_gsfEle_convDist = cms.string("convDist"),
     probe_gsfEle_convDcot = cms.string("convDcot"),
     probe_gsfEle_convRadius = cms.string("convRadius"),        
-    probe_gsfEle_hasValidHitInFirstPixelBarrel = cms.string("gsfTrack.hitPattern().hasValidHitInFirstPixelBarrel(\'TRACK_HITS\')"),
+    probe_gsfEle_hasValidHitInFirstPixelBarrel = cms.string("gsfTrack.hitPattern().hasValidHitInFirstPixelBarrel()"),
     ## super cluster quantities
     probe_sc_energy = cms.string("superCluster.energy"),
     probe_sc_et    = cms.string("superCluster.energy*sin(superClusterPosition.theta)"),    
@@ -976,7 +976,7 @@ TagVariablesToStore = cms.PSet(
     gsfEle_convDist = cms.string("convDist"),
     gsfEle_convDcot = cms.string("convDcot"),
     gsfEle_convRadius = cms.string("convRadius"),     
-    gsfEle_hasValidHitInFirstPixelBarrel = cms.string("gsfTrack.hitPattern().hasValidHitInFirstPixelBarrel(\'TRACK_HITS\')"),
+    gsfEle_hasValidHitInFirstPixelBarrel = cms.string("gsfTrack.hitPattern().hasValidHitInFirstPixelBarrel()"),
     ## super cluster quantities
     sc_energy = cms.string("superCluster.energy"),
     sc_et     = cms.string("superCluster.energy*sin(superClusterPosition.theta)"),    

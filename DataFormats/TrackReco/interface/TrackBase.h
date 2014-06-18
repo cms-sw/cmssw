@@ -789,7 +789,7 @@ inline double TrackBase::dzError() const
 // number of valid hits found
 inline unsigned short TrackBase::numberOfValidHits() const
 {
-    return hitPattern_.numberOfValidHits(HitPattern::TRACK_HITS);
+    return hitPattern_.numberOfValidHits();
 }
 
 // number of cases where track crossed a layer without getting a hit.
@@ -801,14 +801,10 @@ inline unsigned short TrackBase::numberOfLostHits() const
 // fraction of valid hits on the track
 inline double TrackBase::validFraction() const
 {
-    int valid = hitPattern_.numberOfValidTrackerHits(HitPattern::TRACK_HITS);
+    int valid = hitPattern_.numberOfValidTrackerHits();
     int lost  = hitPattern_.numberOfLostTrackerHits(HitPattern::TRACK_HITS);
     int lostIn = hitPattern_.numberOfLostTrackerHits(HitPattern::MISSING_INNER_HITS);
     int lostOut = hitPattern_.numberOfLostTrackerHits(HitPattern::MISSING_OUTER_HITS);
-
-    if (lost + lostIn + lostOut != hitPattern_.numberOfLostTrackerHits(HitPattern::ALL_HITS)) {
-        std::cout << "ERROR" << std::endl;
-    }
 
     if ((valid + lost + lostIn + lostOut) == 0) {
         return -1;

@@ -16,7 +16,7 @@ goodMuons = cms.EDFilter("PATMuonSelector",
     src = cms.InputTag("patMuonsForZmumuSelection"),
     cut = cms.string(
         'pt > 8 && abs(eta) < 2.5 && isGlobalMuon && isPFMuon'
-        ' && track.getHtPattern.trackerLayersWithMeasurement(\'TRACK_HITS\') > 5 & innerTrack.hitPattern().numberOfValidPixelHits(\'TRACK_HITS\') > 0'
+        ' && track.getHtPattern.trackerLayersWithMeasurement(\'TRACK_HITS\') > 5 & innerTrack.hitPattern().numberOfValidPixelHits() > 0'
         ' && abs(dB) < 0.2 && globalTrack.normalizedChi2 < 10'
         ' && globalTrack.hitPattern().numberOfValidMuonHits() > 0 && numberOfMatchedStations > 1'
     ),

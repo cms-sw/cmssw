@@ -63,7 +63,7 @@ pair<float,IsolatedTauTagInfo> ConeIsolationAlgorithm::tag(const JetTracksAssoci
          (*it)->normalizedChi2()                      <  m_cutMaxChiSquared             &&
          fabs((*it)->dxy(pv.position()))                            <  m_cutMaxTIP                    &&
          (*it)->recHitsSize()                         >= (unsigned int) m_cutTotalHits  &&
-         (*it)->hitPattern().numberOfValidPixelHits(HitPattern::TRACK_HITS) >= m_cutPixelHits ) 
+         (*it)->hitPattern().numberOfValidPixelHits() >= m_cutPixelHits ) 
     {
       if (useVertexConstrain_ && z_pv > -500.) {
         if (fabs((*it)->dz(pv.position())) < dZ_vertex)

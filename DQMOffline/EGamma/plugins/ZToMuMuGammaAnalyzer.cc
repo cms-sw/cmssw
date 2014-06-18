@@ -942,8 +942,8 @@ bool ZToMuMuGammaAnalyzer::basicMuonSelection ( const reco::Muon & mu) {
   int pixHits=0;
   int tkHits=0;
   if ( mu.innerTrack().isNonnull() ) {
-    pixHits=mu.innerTrack()->hitPattern().numberOfValidPixelHits(reco::HitPattern::TRACK_HITS);
-    tkHits=mu.innerTrack()->hitPattern().numberOfValidStripHits(reco::HitPattern::TRACK_HITS);
+    pixHits=mu.innerTrack()->hitPattern().numberOfValidPixelHits();
+    tkHits=mu.innerTrack()->hitPattern().numberOfValidStripHits();
   }
 
   if ( pixHits+tkHits < minPixStripHits_ ) result=false;
@@ -957,7 +957,7 @@ bool ZToMuMuGammaAnalyzer::muonSelection ( const reco::Muon & mu,  const reco::B
   if ( fabs( mu.globalTrack()->dxy(beamSpot)) > muonMaxDxy_ )       result=false;
   if ( mu.numberOfMatches() < muonMatches_ )                                   result=false;
 
-  if ( mu.track()->hitPattern().numberOfValidPixelHits(reco::HitPattern::TRACK_HITS) <  validPixHits_ )     result=false;
+  if ( mu.track()->hitPattern().numberOfValidPixelHits() <  validPixHits_ )     result=false;
   if ( mu.globalTrack()->hitPattern().numberOfValidMuonHits() < validMuonHits_ ) result=false;
   if ( !mu.isTrackerMuon() )                                        result=false;
   // track isolation 

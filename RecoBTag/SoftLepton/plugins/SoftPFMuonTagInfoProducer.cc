@@ -140,7 +140,7 @@ bool SoftPFMuonTagInfoProducer::isTightMuon(const reco::Muon* muon) {
     && muon->numberOfMatchedStations()                                  > 1
     && fabs(muon->muonBestTrack()->dxy(vertex->position()))             < 0.2
     && fabs(muon->muonBestTrack()->dz(vertex->position()))              < 0.5
-    && muon->innerTrack()->hitPattern().numberOfValidPixelHits(reco::HitPattern::TRACK_HITS)        > 0
+    && muon->innerTrack()->hitPattern().numberOfValidPixelHits()        > 0
     && muon->track()->hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS)       > 5
   ;
 }

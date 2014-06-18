@@ -130,9 +130,9 @@ CheckHitPattern::Result CheckHitPattern::analyze(const edm::EventSetup& iSetup,
       << " dxy=" << track.dxy()
       << " sz="  <<track.dz()
       << " eta="  <<track.eta()
-      <<" barrel hits=" << track.hitPattern().numberOfValidPixelHits(reco::HitPattern::TRACK_HITS)
-      <<"/"  <<  track.hitPattern().numberOfValidStripTIBHits(reco::HitPattern::TRACK_HITS)
-      <<"/"  <<  track.hitPattern().numberOfValidStripTOBHits(reco::HitPattern::TRACK_HITS);
+      <<" barrel hits=" << track.hitPattern().numberOfValidPixelHits()
+      <<"/"  <<  track.hitPattern().numberOfValidStripTIBHits()
+      <<"/"  <<  track.hitPattern().numberOfValidStripTOBHits();
   LogDebug("CHP")<<"VERT: r="<<vert.position().perp()<<" z="<<vert.position().z();
   //  if (vert.position().perp() < 3.5 && fabs(vert.position().z()) < 10. && fabs(track.eta()) < 1 && fabs(track.dxy()) < 2 && fabs(track.dz()) < 2 && track.hitPattern().numberOfValidPixelHits() == 0 && track.hitPattern().numberOfValidStripTIBHits() == 0) LogDebug("CHP")<<"LOOKATTHISTRACK";
   // Get hit patterns of this track

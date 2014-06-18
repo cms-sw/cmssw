@@ -529,8 +529,8 @@ void HLTMuon::analyze(const edm::Handle<reco::MuonCollection>                 & 
       muonl3chg[imu3c] = candref->charge();
 
       muonl3normchi2[imu3c] = tk->normalizedChi2();
-      muonl3npixelhits[imu3c] = tk->hitPattern().numberOfValidPixelHits(reco::HitPattern::TRACK_HITS);
-      muonl3ntrackerhits[imu3c] = tk->hitPattern().numberOfValidTrackerHits(reco::HitPattern::TRACK_HITS);
+      muonl3npixelhits[imu3c] = tk->hitPattern().numberOfValidPixelHits();
+      muonl3ntrackerhits[imu3c] = tk->hitPattern().numberOfValidTrackerHits();
       muonl3nmuonhits[imu3c] = tk->hitPattern().numberOfValidMuonHits();
 
       if (isoMap3.isValid()){

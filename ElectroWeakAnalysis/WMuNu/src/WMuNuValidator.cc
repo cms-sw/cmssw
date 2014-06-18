@@ -443,7 +443,7 @@ bool WMuNuValidator::filter (Event & ev, const EventSetup &) {
             double normalizedChi2 = gm->normalizedChi2();
             double validmuonhits=gm->hitPattern().numberOfValidMuonHits();
             //double standalonehits=mu.outerTrack()->numberOfValidHits();
-            double trackerHits = gm->hitPattern().numberOfValidTrackerHits(HitPattern::TRACK_HITS);
+            double trackerHits = gm->hitPattern().numberOfValidTrackerHits();
             LogTrace("") << "\t... dxy, normalizedChi2, trackerHits, isTrackerMuon?: " << dxy << " [cm], " << normalizedChi2 << ", " << trackerHits << ", " << mu.isTrackerMuon();
             if (fabs(dxy)<dxyCut_) muon_sel[2] = true;
             else if (fastOption_) continue;

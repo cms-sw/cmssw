@@ -812,13 +812,13 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
 
     if (iMuon->isGlobalMuon()) {
       double gtHitPat = iMuon->globalTrack()->hitPattern().numberOfHits(HitPattern::TRACK_HITS)
-        - iMuon->globalTrack()->hitPattern().numberOfValidHits(HitPattern::TRACK_HITS);
+        - iMuon->globalTrack()->hitPattern().numberOfValidHits();
 
       double itHitPat = iMuon->innerTrack()->hitPattern().numberOfHits(HitPattern::TRACK_HITS)
-        - iMuon->innerTrack()->hitPattern().numberOfValidHits(HitPattern::TRACK_HITS);
+        - iMuon->innerTrack()->hitPattern().numberOfValidHits();
 
       double otHitPat = iMuon->outerTrack()->hitPattern().numberOfHits(HitPattern::TRACK_HITS)
-        - iMuon->outerTrack()->hitPattern().numberOfValidHits(HitPattern::TRACK_HITS);
+        - iMuon->outerTrack()->hitPattern().numberOfValidHits();
       
       commonME_->hNInvalidHitsGTHitPattern_->Fill(gtHitPat);
       commonME_->hNInvalidHitsITHitPattern_->Fill(itHitPat);

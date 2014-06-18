@@ -756,8 +756,8 @@ TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
        quality_ = itTrack->qualityMask();
        foundhits_ = itTrack->found();
        lostHits_  = itTrack->lost();
-       foundhitsStrips_ =  itTrack->hitPattern().numberOfValidStripHits(reco::HitPattern::TRACK_HITS);
-       foundhitsPixels_ =  itTrack->hitPattern().numberOfValidPixelHits(reco::HitPattern::TRACK_HITS);
+       foundhitsStrips_ =  itTrack->hitPattern().numberOfValidStripHits();
+       foundhitsPixels_ =  itTrack->hitPattern().numberOfValidPixelHits();
        losthitsStrips_  =  itTrack->hitPattern().numberOfLostStripHits(reco::HitPattern::TRACK_HITS);
        losthitsPixels_  =  itTrack->hitPattern().numberOfLostPixelHits(reco::HitPattern::TRACK_HITS);
        nLayers_ = uint32_t(itTrack->hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS));

@@ -703,8 +703,8 @@ void Triplet::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
     
     const reco::HitPattern &hp = iTrack->hitPattern();
     
-    h045->Fill(hp.numberOfValidTrackerHits(reco::HitPattern::TRACK_HITS));
-    h046->Fill(hp.numberOfValidPixelBarrelHits(reco::HitPattern::TRACK_HITS));
+    h045->Fill(hp.numberOfValidTrackerHits());
+    h046->Fill(hp.numberOfValidPixelBarrelHits());
     h047->Fill(hp.trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS));
     h048->Fill(hp.pixelBarrelLayersWithMeasurement(reco::HitPattern::TRACK_HITS));
     

@@ -124,7 +124,7 @@ void TrackMaker::SetVars(HWW& hww, const edm::Event& iEvent, const edm::EventSet
     }
     
     const reco::HitPattern& pattern = i->hitPattern();    
-    hww.trks_valid_pixelhits() .push_back(pattern.numberOfValidPixelHits(reco::HitPattern::TRACK_HITS));
+    hww.trks_valid_pixelhits() .push_back(pattern.numberOfValidPixelHits());
       
     if(i->extra().isAvailable()) {
       bool valid_hit      = false;
