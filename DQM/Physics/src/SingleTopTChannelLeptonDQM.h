@@ -49,7 +49,7 @@ namespace SingleTopTChannelLepton {
     /// default contructor
     MonitorEnsemble(const char* label, const edm::ParameterSet& cfg, const edm::VParameterSet& vcfg, edm::ConsumesCollector && iC );
     /// default destructor
-    ~MonitorEnsemble(){delete pvSelect_;};
+    ~MonitorEnsemble(){delete pvSelect_;}
     
     /// book histograms in subdirectory _directory_
     void book(std::string directory);
