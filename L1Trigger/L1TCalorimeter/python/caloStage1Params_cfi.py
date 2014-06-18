@@ -22,6 +22,7 @@ caloStage1Params.tauSeedThreshold      = cms.double(7.)
 caloStage1Params.jetLsb                = cms.double(0.5)
 caloStage1Params.jetSeedThreshold      = cms.double(10.)
 caloStage1Params.jetNeighbourThreshold = cms.double(0.)
+caloStage1Params.jetCalibrationType    = cms.string("Stage1JEC")
 caloStage1Params.jetCalibrationParams  = jetSF_8TeV_data
 
 # sums
