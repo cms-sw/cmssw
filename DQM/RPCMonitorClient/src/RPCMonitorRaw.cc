@@ -79,24 +79,7 @@ void RPCMonitorRaw::bookHistograms(DQMStore::IBooker & ibooker,
   }
 
 }
-void RPCMonitorRaw::endJob()
-{
-bool writeHistos = theConfig.getUntrackedParameter<bool>("writeHistograms", false);
-  if (writeHistos) {
-    std::string histoFile = theConfig.getUntrackedParameter<std::string>("histoFileName"); 
-    TFile f(histoFile.c_str(),"RECREATE");
-    for (int i=0; i<3; ++i) {
-      me_t[i]->getTH1F()->Write();
-      me_e[i]->getTH1F()->Write();
-      std::vector<MonitorElement* > & wh = theWatchedErrorHistos[i];
-      for (std::vector<MonitorElement* >::const_iterator it=wh.begin(); it != wh.end(); ++it)(*it)->getTH2F()->Write(); 
-    }
-    me_mapGoodEvents->getTH2F()->Write();
-    me_mapBadEvents->getTH2F()->Write();
-    edm::LogInfo(" END JOB, histos saved!");
-    f.Close();
-  }
-}
+
 
 
 void RPCMonitorRaw::analyze(const  edm::Event& ev, const edm::EventSetup& es) 
