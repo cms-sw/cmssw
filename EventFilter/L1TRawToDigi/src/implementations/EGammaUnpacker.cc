@@ -55,6 +55,8 @@ namespace l1t {
        lastBX = ceil((double)nBX/2.);
      }
 
+     res_->setBXRange(firstBX, lastBX);
+
      // Initialise index
      int unsigned i = 0;
 
