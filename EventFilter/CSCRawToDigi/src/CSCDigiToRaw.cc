@@ -404,13 +404,16 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
 
       std::map<int, CSCDDUEventData> dduMap;
       unsigned int ddu_fmt_version = 0x7; /// 2013 Format
+      const unsigned postLS1_map [] = { 841, 842, 843, 844, 845, 846, 847, 848, 849,
+                                     831, 832, 833, 834, 835, 836, 837, 838, 839,
+                                     861, 862, 863, 864, 865, 866, 867, 868, 869,
+                                     851, 852, 853, 854, 855, 856, 857, 858, 859 };
 
 
-      /// Create dummy DDu buffers
-      for (unsigned int iddu=FEDNumbering::MINCSCDDUFEDID;
-	//           iddu<=FEDNumbering::MAXCSCDDUFEDID; ++iddu)   // loop over DDUs
-	  iddu<FEDNumbering::MINCSCDDUFEDID+36; ++iddu)
+      /// Create dummy DDU buffers
+      for (unsigned int i = 0; i < 36; i++)
         {
+	  unsigned int iddu = postLS1_map[i];
           // make a new one
           CSCDDUHeader newDDUHeader(bx,l1a, iddu, ddu_fmt_version);
 
@@ -418,11 +421,10 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
         }
 
 
-       // Loop over post-LS1 DDU FEDs
-      for (unsigned int iddu=FEDNumbering::MINCSCDDUFEDID;
-          //  iddu<=FEDNumbering::MAXCSCDDUFEDID; ++iddu)   
-	  iddu<FEDNumbering::MINCSCDDUFEDID+36; ++iddu)
+      /// Loop over post-LS1 DDU FEDs
+      for (unsigned int i = 0; i < 36; i++)
         {
+	  unsigned int iddu = postLS1_map[i];
           // for every chamber with data, add to a DDU in this DCC Event
           for (map<CSCDetId, CSCEventData>::iterator chamberItr = theChamberDataMap.begin();
                chamberItr != theChamberDataMap.end(); ++chamberItr)
@@ -434,15 +436,15 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
                 {
 
                   int dduID    = mapping->ddu(chamberItr->first); // try to switch to DDU ID mapping
-                  if ((dduID >= FEDNumbering::MINCSCDDUFEDID) && (dduID <= FEDNumbering::MAXCSCDDUFEDID) ) // DDU ID is in expected FED ID range
+                  if ((dduID >= FEDNumbering::MINCSCDDUFEDID) && (dduID <= FEDNumbering::MAXCSCDDUFEDID) ) // DDU ID is in expectedi post-LS1 FED ID range
                     {
                       indexDDU = dduID;
                     }
                   else // Messy
                     {
-                      // Lets try to change 1-36 ID range to MINCSCDDUFEDID+id range
+                      // Lets try to change pre-LS1 1-36 ID range to post-LS1 MINCSCDDUFEDID - MAXCSCDDUFEDID range
                       dduID &= 0xFF;
-                      if ((dduID <= 36) && (dduID > 0)) indexDDU = FEDNumbering::MINCSCDDUFEDID + dduID-1;
+                      if ((dduID <= 36) && (dduID > 0)) indexDDU = postLS1_map[dduID -1]; // indexDDU = FEDNumbering::MINCSCDDUFEDID + dduID-1;
                     }
 
                 }
