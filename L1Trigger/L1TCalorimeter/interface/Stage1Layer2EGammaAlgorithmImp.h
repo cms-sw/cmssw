@@ -40,11 +40,6 @@ namespace l1t {
     		  const std::vector<l1t::CaloRegion> & regions)  const;
     double AssociatedJetPt(int ieta, int iphi,
 		           const std::vector<l1t::Jet> * jets) const;
-    int egSeedThreshold;
-    int jetSeedThreshold;
-    double egLsb, jetLsb;
-    double egRelativeJetIsolationCut;
-    // double HoverECut;
   };
 }
 

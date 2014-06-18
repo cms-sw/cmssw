@@ -33,13 +33,7 @@ namespace l1t {
 			      const std::vector<l1t::CaloEmCand> & EMCands,
 			      std::vector<l1t::EtSum> * sums);
 
-    // input parameters
-    int regionETCutForHT;
-    int regionETCutForMET;
-    int minGctEtaForSums;
-    int maxGctEtaForSums;
-
-    double egLsb,jetLsb;
+    double jetLsb;
   private:
     CaloParamsStage1* const params_;
     double regionPhysicalEt(const l1t::CaloRegion&) const;

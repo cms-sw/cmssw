@@ -14,24 +14,11 @@
 
 l1t::Stage1Layer2EtSumAlgorithmImpPP::Stage1Layer2EtSumAlgorithmImpPP(CaloParamsStage1* params) : params_(params)
 {
-  regionETCutForHT=params->regionETCutForHT();
-  regionETCutForMET=params->regionETCutForMET();
-  minGctEtaForSums=params->minGctEtaForSums();
-  maxGctEtaForSums=params->maxGctEtaForSums();
-
-  egLsb=params_->egLsb();
-  jetLsb=params_->jetLsb();
-
-  regionPUSType = params_->regionPUSType();
-  regionPUSParams = params_->regionPUSParams();
-
   //now do what ever initialization is needed
   for(unsigned int i = 0; i < L1CaloRegionDetId::N_PHI; i++) {
     sinPhi.push_back(sin(2. * 3.1415927 * i * 1.0 / L1CaloRegionDetId::N_PHI));
     cosPhi.push_back(cos(2. * 3.1415927 * i * 1.0 / L1CaloRegionDetId::N_PHI));
   }
-
-  // std::cout << "jetLsb: " << jetLsb  << "\tegLsb: " << egLsb  << std::endl;
 }
 
 
@@ -62,6 +49,15 @@ void l1t::Stage1Layer2EtSumAlgorithmImpPP::processEvent(const std::vector<l1t::C
 
   //Region Correction will return uncorrected subregions if
   //regionPUSType is set to None in the config
+  jetLsb=params_->jetLsb();
+
+  int regionETCutForHT=params_->regionETCutForHT();
+  int regionETCutForMET=params_->regionETCutForMET();
+  int minGctEtaForSums=params_->minGctEtaForSums();
+  int maxGctEtaForSums=params_->maxGctEtaForSums();
+
+  std::string regionPUSType = params_->regionPUSType();
+  std::vector<double> regionPUSParams = params_->regionPUSParams();
   RegionCorrection(regions, EMCands, subRegions, regionPUSParams, regionPUSType);
 
   for(std::vector<CaloRegion>::const_iterator region = subRegions->begin(); region != subRegions->end(); region++) {

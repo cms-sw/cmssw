@@ -19,18 +19,7 @@ using namespace std;
 using namespace l1t;
 
 
-Stage1Layer2EGammaAlgorithmImpPP::Stage1Layer2EGammaAlgorithmImpPP(CaloParamsStage1* params) : params_(params)
-{
-
-  egLsb=params_->egLsb();
-  jetLsb=params_->jetLsb();
-
-  regionPUSType = params_->regionPUSType();
-  regionPUSParams = params_->regionPUSParams();
-  egSeedThreshold= floor( params_->egSeedThreshold()/egLsb + 0.5);
-  jetSeedThreshold= floor( params_->jetSeedThreshold()/jetLsb + 0.5);
-  egRelativeJetIsolationCut = params_->egRelativeJetIsolationCut();
-}
+Stage1Layer2EGammaAlgorithmImpPP::Stage1Layer2EGammaAlgorithmImpPP(CaloParamsStage1* params) : params_(params) {};
 
 Stage1Layer2EGammaAlgorithmImpPP::~Stage1Layer2EGammaAlgorithmImpPP(){};
 
@@ -38,8 +27,15 @@ Stage1Layer2EGammaAlgorithmImpPP::~Stage1Layer2EGammaAlgorithmImpPP(){};
 
 void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::CaloEmCand> & EMCands, const std::vector<l1t::CaloRegion> & regions, const std::vector<l1t::Jet> * jets, std::vector<l1t::EGamma>* egammas) {
 
-  // double EGrelativeJetIsolationCut = 1;
-  // HoverECut = 0.05;
+
+  double egLsb=params_->egLsb();
+  double jetLsb=params_->jetLsb();
+  int egSeedThreshold= floor( params_->egSeedThreshold()/egLsb + 0.5);
+  int jetSeedThreshold= floor( params_->jetSeedThreshold()/jetLsb + 0.5);
+  double egRelativeJetIsolationCut = params_->egRelativeJetIsolationCut();
+
+  std::string regionPUSType = params_->regionPUSType();
+  std::vector<double> regionPUSParams = params_->regionPUSParams();
 
   std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
   std::vector<l1t::EGamma> *preGtEGammas = new std::vector<l1t::EGamma>();
@@ -60,6 +56,7 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
     int eg_et = egCand->hwPt();
     int eg_eta = egCand->hwEta();
     int eg_phi = egCand->hwPhi();
+    // std::cout << "eg_et: " << eg_et << " thresh: " << egSeedThreshold << std::endl;
     if(eg_et <= egSeedThreshold) continue;
 
 
