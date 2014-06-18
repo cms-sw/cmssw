@@ -233,7 +233,8 @@ L1TkMuonFromExtendedProducer::produce(edm::Event& iEvent, const edm::EventSetup&
       if (dEta < etaCut && dPhi < phiCut){
 	Ptr< L1TkTrackType > l1tkPtr(l1tksH, match_idx);
 	auto p3 = matchTk.getMomentum();
-	float p4e = sqrt(0.105658369*0.105658369 + p3.mag());
+	float p4e = sqrt(0.105658369*0.105658369 + p3.mag2() );
+
 	math::XYZTLorentzVector l1tkp4(p3.x(), p3.y(), p3.z(), p4e);
 
 	auto tkv3=matchTk.getPOCA();

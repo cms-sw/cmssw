@@ -51,6 +51,11 @@
 
 #include "DataFormats/Math/interface/deltaPhi.h"
 
+#include "SLHCUpgradeSimulations/L1TrackTrigger/interface/pTFrom2Stubs.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StackedTrackerGeometry.h"
+#include "Geometry/Records/interface/StackedTrackerGeometryRecord.h"
+
+
 #include <string>
 #include "TMath.h"
 
@@ -102,6 +107,7 @@ class L1TkElectronTrackProducer : public edm::EDProducer {
 	bool RelativeIsolation;
 
         float trkQualityChi2;
+	bool useTwoStubsPT;
         float trkQualityPtMin; 
         std::vector<double> dPhiCutoff;
         std::vector<double> dRCutoff;
@@ -139,6 +145,7 @@ L1TkElectronTrackProducer::L1TkElectronTrackProducer(const edm::ParameterSet& iC
    // parameters to select tracks to match with L1EG
    trkQualityChi2  = (float)iConfig.getParameter<double>("TrackChi2");
    trkQualityPtMin = (float)iConfig.getParameter<double>("TrackMinPt");
+   useTwoStubsPT   = iConfig.getParameter<bool>("useTwoStubsPT");
    dPhiCutoff      = iConfig.getParameter< std::vector<double> >("TrackEGammaDeltaPhi"); 
    dRCutoff        = iConfig.getParameter< std::vector<double> >("TrackEGammaDeltaR"); 
    dEtaCutoff      = (float)iConfig.getParameter<double>("TrackEGammaDeltaEta"); 
@@ -154,6 +161,13 @@ void
 L1TkElectronTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::auto_ptr<L1TkElectronParticleCollection> result(new L1TkElectronParticleCollection);
   
+
+	// geometry needed to call pTFrom2Stubs
+  edm::ESHandle<StackedTrackerGeometry>           stackedGeometryHandle;
+  iSetup.get<StackedTrackerGeometryRecord>().get(stackedGeometryHandle);
+  const StackedTrackerGeometry* theStackedGeometry = stackedGeometryHandle.product(); 
+
+
   edm::Handle<L1EmParticleCollection> EGammaHandle;
   iEvent.getByLabel(L1EGammaInputTag,EGammaHandle);
   l1extra::L1EmParticleCollection eGammaCollection = (*EGammaHandle.product());
@@ -198,7 +212,11 @@ L1TkElectronTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     int itrack = -1;
     for (trackIter = L1TkTrackHandle->begin(); trackIter != L1TkTrackHandle->end(); ++trackIter) {
       edm::Ptr< L1TkTrackType > L1TrackPtr( L1TkTrackHandle, itr) ;
-      double trkPt = trackIter->getMomentum().perp();
+      double trkPt_fit = trackIter->getMomentum().perp();
+      double trkPt_stubs = pTFrom2Stubs::pTFrom2( trackIter, theStackedGeometry);
+      double trkPt = trkPt_fit;
+      if ( useTwoStubsPT ) trkPt = trkPt_stubs ;
+
       if ( trkPt > trkQualityPtMin && trackIter->getChi2() < trkQualityChi2) {
 	double dPhi = 99.;
 	double dR = 99.;
