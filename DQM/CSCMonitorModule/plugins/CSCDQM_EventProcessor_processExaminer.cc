@@ -43,7 +43,12 @@ bool EventProcessor::processExaminer(const CSCDCCExaminer& binChecker, const CSC
           int dduID = (*ddu_itr)&0xFF;
           if ( ((*ddu_itr) >= FEDNumbering::MINCSCDDUFEDID) && ((*ddu_itr) <= FEDNumbering::MAXCSCDDUFEDID) )   /// New CSC readout without DCCs. CMS CSC DDU ID range 830-869
             {
-              dduID = (*ddu_itr) - FEDNumbering::MINCSCDDUFEDID + 1; /// TODO: Can require DDU-RUI remapping for actual system
+              // dduID = (*ddu_itr) - FEDNumbering::MINCSCDDUFEDID + 1; /// TODO: Can require DDU-RUI remapping for actual system
+	      dduID = cscdqm::Utility::getRUIfromDDUId((*ddu_itr));
+	      if (dduID < 0) {
+                  LOG_WARN <<  "DDU source ID (" << (*ddu_itr) << ") is out of valid range. Remapping to DDU ID 1.";
+                  dduID = 1;
+                }
             }
           if (errs != 0)
             {
