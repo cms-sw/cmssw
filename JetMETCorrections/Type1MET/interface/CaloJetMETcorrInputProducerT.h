@@ -108,7 +108,8 @@ class CaloJetMETcorrInputProducerT : public edm::EDProducer
       cfg.getParameter<double>("type2ExtraCorrFactor") : 1.;
     if ( cfg.exists("type2ResidualCorrFileName") ) {
       edm::FileInPath residualCorrFileName = cfg.getParameter<edm::FileInPath>("type2ResidualCorrFileName");
-      if ( !residualCorrFileName.isLocal()) 
+      //if ( !residualCorrFileName.isLocal()) 
+      if ( residualCorrFileName.location()!=edm::FileInPath::Local) 
 	throw cms::Exception("PFJetMETcorrInputProducer") 
 	  << " Failed to find File = " << residualCorrFileName << " !!\n";
       JetCorrectorParameters residualCorr(residualCorrFileName.fullPath().data());
