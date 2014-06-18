@@ -62,6 +62,7 @@ DQMOfflinePOG = cms.Sequence( DQMOfflinePrePOG *
 
 DQMOffline = cms.Sequence( DQMOfflinePreDPG *
                            DQMOfflinePrePOG *
+                           dqmFastTimerServiceLuminosity *
                            DQMMessageLogger )
 
 DQMOfflinePrePOGMC = cms.Sequence( pvMonitor *
@@ -75,7 +76,6 @@ DQMOfflinePhysics = cms.Sequence( dqmPhysics )
 
 
 DQMOfflineCommon = cms.Sequence( dqmDcsInfo *
-                                 dqmFastTimerServiceLuminosity *
                                  DQMMessageLogger *
                                  SiStripDQMTier0Common *
                                  TrackingDQMSourceTier0Common *
