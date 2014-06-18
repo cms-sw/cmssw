@@ -22,18 +22,7 @@ using namespace l1t;
 
 Stage1Layer2TauAlgorithmImpPP::Stage1Layer2TauAlgorithmImpPP(CaloParamsStage1* params) : params_(params)
 {
-  jetLsb=params_->jetLsb();
-
-  regionPUSType = params_->regionPUSType();
-  regionPUSParams = params_->regionPUSParams();
-  tauSeedThreshold= floor( params_->tauSeedThreshold()/jetLsb + 0.5); // convert GeV to HW units
-  jetSeedThreshold= floor( params_->jetSeedThreshold()/jetLsb + 0.5); // convert GeV to HW units
-  tauRelativeJetIsolationCut = params_->tauRelativeJetIsolationCut();
-
-  double dswitchOffTauIso(100.); // value at which to switch of Tau iso requirement (GeV)
   do2x1Algo=false;
-
-  switchOffTauIso= floor( dswitchOffTauIso/jetLsb + 0.5);  // convert GeV to HW units
 }
 
 Stage1Layer2TauAlgorithmImpPP::~Stage1Layer2TauAlgorithmImpPP(){};
@@ -45,6 +34,17 @@ void l1t::Stage1Layer2TauAlgorithmImpPP::processEvent(const std::vector<l1t::Cal
 						      const std::vector<l1t::CaloRegion> & regions,
 						      const std::vector<l1t::Jet> * jets,
 						      std::vector<l1t::Tau> * taus) {
+
+  double towerLsb = params_->towerLsbSum();
+
+  std::string regionPUSType = params_->regionPUSType();
+  std::vector<double> regionPUSParams = params_->regionPUSParams();
+  int tauSeedThreshold= floor( params_->tauSeedThreshold()/towerLsb + 0.5); // convert GeV to HW units
+  int jetSeedThreshold= floor( params_->jetSeedThreshold()/towerLsb + 0.5); // convert GeV to HW units
+  double tauRelativeJetIsolationCut = params_->tauRelativeJetIsolationCut();
+
+  double dswitchOffTauIso(100.); // value at which to switch of Tau iso requirement (GeV)
+  int switchOffTauIso= floor( dswitchOffTauIso/towerLsb + 0.5);  // convert GeV to HW units
 
   std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
 

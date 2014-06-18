@@ -54,7 +54,7 @@ namespace l1t {
          // FIXME is actually fixed by the firmware version
          static const unsigned MAX_BLOCKS = 256;
 
-         edm::InputTag inputLabel_;
+         edm::EDGetTokenT<FEDRawDataCollection> fedData_;
          int fedId_;
          std::vector<std::auto_ptr<BaseUnpackerFactory>> factories_;
    };
