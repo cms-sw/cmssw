@@ -60,7 +60,7 @@ process.load('FWCore.MessageService.MessageLogger_cfi')
 #process.load('L1Trigger/L1TYellow/l1t_debug_messages_cfi')
 #process.load('L1Trigger/L1TYellow/l1t_info_messages_cfi')
 
-process.load('L1Trigger/L1TGlobal/l1tGt_debug_messages_cfi')
+process.load('L1Trigger/L1TGlobal/debug_messages_cfi')
 process.MessageLogger.l1t_debug.l1t.limit = cms.untracked.int32(100000)
 
 process.maxEvents = cms.untracked.PSet(
@@ -102,7 +102,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:upgradePLS1', '')
 # Flag to switch between using MC particles and injecting individual particles
 useMCtoGT = True
 
-process.dumpGT = cms.EDAnalyzer("l1t::L1TGlobalInputTester",
+process.dumpGT = cms.EDAnalyzer("l1t::GtInputDump",
                 egInputTag    = cms.InputTag("gtInput"),
 		muInputTag    = cms.InputTag("gtInput"),
 		tauInputTag   = cms.InputTag("gtInput"),
@@ -112,7 +112,7 @@ process.dumpGT = cms.EDAnalyzer("l1t::L1TGlobalInputTester",
 process.dumpED = cms.EDAnalyzer("EventContentAnalyzer")
 process.dumpES = cms.EDAnalyzer("PrintEventSetupContent")
 
-process.mcL1GTinput = cms.EDProducer("l1t::L1uGtGenToInputProducer",
+process.mcL1GTinput = cms.EDProducer("l1t::GenToInputProducer",
                                      bxFirst = cms.int32(-2),
                                      bxLast = cms.int32(2),
 				     maxMuCand = cms.int32(8),
@@ -133,7 +133,7 @@ process.mcL1GTinput.maxEGCand  = cms.int32(12)
 process.mcL1GTinput.maxTauCand = cms.int32(8)
 
 # Fake the input
-process.fakeL1GTinput = cms.EDProducer("l1t::L1TGlobalFakeInputProducer",
+process.fakeL1GTinput = cms.EDProducer("l1t::FakeInputProducer",
 
 # Note: There is no error checking on these parameters...you are responsible. 
                        egParams = cms.untracked.PSet(
@@ -175,18 +175,18 @@ process.fakeL1GTinput = cms.EDProducer("l1t::L1TGlobalFakeInputProducer",
                     )
 
 ## Load our L1 menu
-process.load('L1Trigger.L1TGlobal.L1uGtStableParametersConfig_cff')
+process.load('L1Trigger.L1TGlobal.StableParametersConfig_cff')
 
-process.load('L1Trigger.L1TGlobal.l1uGtTriggerMenuXml_cfi')
-process.l1uGtTriggerMenuXml.TriggerMenuLuminosity = 'startup'
-#process.l1uGtTriggerMenuXml.DefXmlFile = 'L1_Example_Menu_2013.xml'
-process.l1uGtTriggerMenuXml.DefXmlFile = 'L1Menu_Reference_2014.xml'
+process.load('L1Trigger.L1TGlobal.TriggerMenuXml_cfi')
+process.TriggerMenuXml.TriggerMenuLuminosity = 'startup'
+#process.TriggerMenuXml.DefXmlFile = 'L1_Example_Menu_2013.xml'
+process.TriggerMenuXml.DefXmlFile = 'L1Menu_Reference_2014.xml'
 
-process.load('L1Trigger.L1TGlobal.L1uGtTriggerMenuConfig_cff')
-process.es_prefer_l1GtParameters = cms.ESPrefer('l1t::L1uGtTriggerMenuXmlProducer','l1uGtTriggerMenuXml')
+process.load('L1Trigger.L1TGlobal.TriggerMenuConfig_cff')
+process.es_prefer_l1GtParameters = cms.ESPrefer('l1t::TriggerMenuXmlProducer','TriggerMenuXml')
 
 
-process.simL1uGtDigis = cms.EDProducer("l1t::L1uGtProducer",
+process.simL1uGtDigis = cms.EDProducer("l1t::GtProducer",
     #TechnicalTriggersUnprescaled = cms.bool(False),
     ProduceL1GtObjectMapRecord = cms.bool(True),
     AlgorithmTriggersUnmasked = cms.bool(False),
@@ -202,7 +202,7 @@ process.simL1uGtDigis = cms.EDProducer("l1t::L1uGtProducer",
     Verbosity = cms.untracked.int32(0)
 )
 
-process.dumpGTRecord = cms.EDAnalyzer("l1t::L1uGtRecordDump",
+process.dumpGTRecord = cms.EDAnalyzer("l1t::GtRecordDump",
                 egInputTag    = cms.InputTag("gtInput"),
 		muInputTag    = cms.InputTag("gtInput"),
 		tauInputTag   = cms.InputTag("gtInput"),
@@ -228,7 +228,7 @@ process.l1GtTrigReport.L1GtRecordInputTag = "simL1uGtDigis"
 process.l1GtTrigReport.PrintVerbosity = 2
 process.report = cms.Path(process.l1GtTrigReport)
 
-process.MessageLogger.categories.append("L1uGtMuonConditon")
+process.MessageLogger.categories.append("MuConditon")
 
 if useMCtoGT:
     process.gtInput = process.mcL1GTinput.clone()
