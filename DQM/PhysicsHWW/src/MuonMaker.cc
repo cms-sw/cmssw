@@ -154,7 +154,7 @@ void MuonMaker::SetVars(HWW& hww, const edm::Event& iEvent, const edm::EventSetu
 
     hww.mus_gfit_chi2()         .push_back( globalTrack.isNonnull() ? globalTrack->chi2()               :  -9999.        );
     hww.mus_gfit_ndof()         .push_back( globalTrack.isNonnull() ? globalTrack->ndof()               :  -9999         );
-    hww.mus_gfit_validSTAHits() .push_back( globalTrack.isNonnull() ? globalTrack->hitPattern().numberOfValidMuonHits(reco::HitPattern::TRACK_HITS)    : -9999         );
+    hww.mus_gfit_validSTAHits() .push_back( globalTrack.isNonnull() ? globalTrack->hitPattern().numberOfValidMuonHits()    : -9999         );
 
     //////////////////
     // Muon Quality //

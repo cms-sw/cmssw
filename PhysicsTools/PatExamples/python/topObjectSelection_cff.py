@@ -15,7 +15,7 @@ looseMuons = cleanPatMuons.clone(
     '(trackIso+caloIso)/pt < 0.1 &'
     'innerTrack.numberOfValidHits > 10 &'
     'globalTrack.normalizedChi2 < 10.0 &'
-    'globalTrack.hitPattern().numberOfValidMuonHits(\'TRACK_HITS\') > 0 &'
+    'globalTrack.hitPattern().numberOfValidMuonHits() > 0 &'
     'abs(dB) < 0.02',
     checkOverlaps = cms.PSet(
       jets = cms.PSet(

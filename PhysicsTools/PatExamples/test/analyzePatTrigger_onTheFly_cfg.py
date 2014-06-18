@@ -36,7 +36,7 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
 process.patJetCorrFactors.useRho = False
 
-process.selectedPatMuons.cut = 'isTrackerMuon=1 & isGlobalMuon=1 & innerTrack.numberOfValidHits>=11 & globalTrack.normalizedChi2<10.0  & globalTrack.hitPattern().numberOfValidMuonHits(\'TRACK_HITS\')>0 & abs(dB)<0.02 & (trackIso+caloIso)/pt<0.05'
+process.selectedPatMuons.cut = 'isTrackerMuon=1 & isGlobalMuon=1 & innerTrack.numberOfValidHits>=11 & globalTrack.normalizedChi2<10.0  & globalTrack.hitPattern().numberOfValidMuonHits()>0 & abs(dB)<0.02 & (trackIso+caloIso)/pt<0.05'
 
 ## ---
 ## Define the path

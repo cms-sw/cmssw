@@ -176,11 +176,11 @@ HLTMuonDimuonL2Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSet
       if (tk1->numberOfValidHits()<min_Nhits_) continue;
 
       // number of stations
-      if (tk1->hitPattern().muonStationsWithAnyHits(HitPattern::TRACK_HITS) < min_Nstations_) continue;
+      if (tk1->hitPattern().muonStationsWithAnyHits() < min_Nstations_) continue;
 
       // number of chambers
-      if(tk1->hitPattern().dtStationsWithAnyHits(HitPattern::TRACK_HITS)
-              + tk1->hitPattern().cscStationsWithAnyHits(HitPattern::TRACK_HITS) < min_Nchambers_) continue;
+      if(tk1->hitPattern().dtStationsWithAnyHits()
+              + tk1->hitPattern().cscStationsWithAnyHits() < min_Nchambers_) continue;
 
       //dr cut
       //if (fabs(tk1->d0())>max_Dr_) continue;
@@ -213,11 +213,11 @@ HLTMuonDimuonL2Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSet
             if (tk2->numberOfValidHits()<min_Nhits_) continue;
 
 	    // number of stations
-	    if (tk2->hitPattern().muonStationsWithAnyHits(HitPattern::TRACK_HITS) < min_Nstations_) continue;
+	    if (tk2->hitPattern().muonStationsWithAnyHits() < min_Nstations_) continue;
 
 	    // number of chambers
-	    if(tk2->hitPattern().dtStationsWithAnyHits(HitPattern::TRACK_HITS) +
-	       tk2->hitPattern().cscStationsWithAnyHits(HitPattern::TRACK_HITS) < min_Nchambers_) continue;
+	    if(tk2->hitPattern().dtStationsWithAnyHits() +
+	       tk2->hitPattern().cscStationsWithAnyHits() < min_Nchambers_) continue;
 
             //dr cut
             //if (fabs(tk2->d0())>max_Dr_) continue;

@@ -538,7 +538,7 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
             double normalizedChi2 = gm->normalizedChi2();
             double trackerHits = tk->hitPattern().numberOfValidTrackerHits(HitPattern::TRACK_HITS);
             int pixelHits = tk->hitPattern().numberOfValidPixelHits(HitPattern::TRACK_HITS);
-            int muonHits = gm->hitPattern().numberOfValidMuonHits(HitPattern::TRACK_HITS);
+            int muonHits = gm->hitPattern().numberOfValidMuonHits();
             int nMatches = mu.numberOfMatches();
 
             LogTrace("") << "\t... dxy, normalizedChi2, trackerHits, isTrackerMuon?: " << dxy << " [cm], " << normalizedChi2 << ", " << trackerHits << ", " << mu.isTrackerMuon();
@@ -688,7 +688,7 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup & iSet) {
                                     double normalizedChi22 = gm2->normalizedChi2();
                                     double trackerHits2    = tk2->hitPattern().numberOfValidTrackerHits(HitPattern::TRACK_HITS);
                                     int    pixelHits2      = tk2->hitPattern().numberOfValidPixelHits(HitPattern::TRACK_HITS);
-                                    int    muonHits2       = gm2->hitPattern().numberOfValidMuonHits(HitPattern::TRACK_HITS);
+                                    int    muonHits2       = gm2->hitPattern().numberOfValidMuonHits();
                                     int    nMatches2       = mu2.numberOfMatches();
 				    bool quality2=true;
                                     if (normalizedChi22>normalizedChi2Cut_) quality2 = false;

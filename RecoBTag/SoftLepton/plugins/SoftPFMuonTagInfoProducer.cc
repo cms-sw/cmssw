@@ -136,7 +136,7 @@ bool SoftPFMuonTagInfoProducer::isTightMuon(const reco::Muon* muon) {
   return  muon->isGlobalMuon()
     && muon->isPFMuon()
     && muon->muonBestTrack()->normalizedChi2()                          < 10.
-    && (muon->globalTrack().isNonnull() ? muon->globalTrack()->hitPattern().numberOfValidMuonHits(reco::HitPattern::TRACK_HITS) : -1)        > 0
+    && (muon->globalTrack().isNonnull() ? muon->globalTrack()->hitPattern().numberOfValidMuonHits() : -1)        > 0
     && muon->numberOfMatchedStations()                                  > 1
     && fabs(muon->muonBestTrack()->dxy(vertex->position()))             < 0.2
     && fabs(muon->muonBestTrack()->dz(vertex->position()))              < 0.5

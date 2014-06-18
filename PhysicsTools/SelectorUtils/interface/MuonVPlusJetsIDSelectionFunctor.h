@@ -343,7 +343,7 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
     }
 
     int nhits = static_cast<int>( muon.numberOfValidHits() );
-    int nValidMuonHits = static_cast<int> (muon.globalTrack()->hitPattern().numberOfValidMuonHits(reco::HitPattern::TRACK_HITS));
+    int nValidMuonHits = static_cast<int> (muon.globalTrack()->hitPattern().numberOfValidMuonHits());
 
     double ecalVeto = muon.isolationR03().emVetoEt;
     double hcalVeto = muon.isolationR03().hadVetoEt;
@@ -428,7 +428,7 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
     }
 
     int nhits = static_cast<int>( muon.numberOfValidHits() );
-    int nValidMuonHits = static_cast<int> (muon.globalTrack()->hitPattern().numberOfValidMuonHits(reco::HitPattern::TRACK_HITS));
+    int nValidMuonHits = static_cast<int> (muon.globalTrack()->hitPattern().numberOfValidMuonHits());
 
     double ecalVeto = muon.isolationR03().emVetoEt;
     double hcalVeto = muon.isolationR03().hadVetoEt;
@@ -524,7 +524,7 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
     }
 
     int nhits = static_cast<int>( muon.numberOfValidHits() );
-    int nValidMuonHits = static_cast<int> (muon.globalTrack()->hitPattern().numberOfValidMuonHits(reco::HitPattern::TRACK_HITS));
+    int nValidMuonHits = static_cast<int> (muon.globalTrack()->hitPattern().numberOfValidMuonHits());
 
     double ecalVeto = muon.isolationR03().emVetoEt;
     double hcalVeto = muon.isolationR03().hadVetoEt;

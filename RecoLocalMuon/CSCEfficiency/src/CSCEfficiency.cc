@@ -142,7 +142,7 @@ bool CSCEfficiency::filter(edm::Event & event, const edm::EventSetup& eventSetup
       DataFlow->Fill(33.);
       if(muon->track()->hitPattern().numberOfValidPixelHits(reco::HitPattern::TRACK_HITS) < 1 ||
               muon->track()->hitPattern().numberOfValidTrackerHits(reco::HitPattern::TRACK_HITS) < 11 ||
-              muon->combinedMuon()->hitPattern().numberOfValidMuonHits(reco::HitPattern::TRACK_HITS) < 1 ||
+              muon->combinedMuon()->hitPattern().numberOfValidMuonHits() < 1 ||
               muon->combinedMuon()->normalizedChi2() > 10. ||
               muon->numberOfMatches() < 2){
           continue;

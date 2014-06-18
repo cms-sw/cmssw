@@ -159,7 +159,7 @@ bool MuonMETValueMapProducer::should_type_MuonCandidateValuesUsed(const reco::Mu
   if(globTk->chi2()/globTk->ndof() > maxNormChi2_) return false;
   if(fabs(globTk->dxy(beamSpotPosition)) > fabs(maxd0_)) return false;
   if(siTk->numberOfValidHits() < minnHits_) return false;
-  if(globTk->hitPattern().numberOfValidMuonHits(reco::HitPattern::TRACK_HITS) < minnValidStaHits_) return false;
+  if(globTk->hitPattern().numberOfValidMuonHits() < minnValidStaHits_) return false;
   return true;
 }
   

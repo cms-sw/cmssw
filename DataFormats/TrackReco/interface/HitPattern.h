@@ -208,11 +208,14 @@ public:
     bool hasValidHitInFirstPixelEndcap(HitCategory category) const; // has valid hit in PXF layer 1
 
     int numberOfHits(HitCategory category) const;                 // not-null
+
     int numberOfTrackerHits(HitCategory category) const;          // not-null, tracker
-    int numberOfMuonHits(HitCategory category) const;             // not-null, muon
+    int numberOfMuonHits() const;                                 // not-null, muon
+
     int numberOfValidHits(HitCategory category) const;            // not-null, valid
     int numberOfValidTrackerHits(HitCategory category) const;     // not-null, valid, tracker
-    int numberOfValidMuonHits(HitCategory category) const;        // not-null, valid, muon
+    int numberOfValidMuonHits() const;                            // not-null, valid, muon
+
     int numberOfValidPixelHits(HitCategory category) const;       // not-null, valid, pixel
     int numberOfValidPixelBarrelHits(HitCategory category) const; // not-null, valid, pixel PXB
     int numberOfValidPixelEndcapHits(HitCategory category) const; // not-null, valid, pixel PXF
@@ -221,12 +224,13 @@ public:
     int numberOfValidStripTIDHits(HitCategory category) const;    // not-null, valid, strip TID
     int numberOfValidStripTOBHits(HitCategory category) const;    // not-null, valid, strip TOB
     int numberOfValidStripTECHits(HitCategory category) const;    // not-null, valid, strip TEC
-    int numberOfValidMuonDTHits(HitCategory category) const;      // not-null, valid, muon DT
-    int numberOfValidMuonCSCHits(HitCategory category) const;     // not-null, valid, muon CSC
-    int numberOfValidMuonRPCHits(HitCategory category) const;     // not-null, valid, muon RPC
+    int numberOfValidMuonDTHits() const;      // not-null, valid, muon DT
+    int numberOfValidMuonCSCHits() const;     // not-null, valid, muon CSC
+    int numberOfValidMuonRPCHits() const;     // not-null, valid, muon RPC
+
     int numberOfLostHits(HitCategory category) const;             // not-null, not valid
     int numberOfLostTrackerHits(HitCategory category) const;      // not-null, not valid, tracker
-    int numberOfLostMuonHits(HitCategory category) const;         // not-null, not valid, muon
+    int numberOfLostMuonHits() const;                             // not-null, not valid, muon
     int numberOfLostPixelHits(HitCategory category) const;        // not-null, not valid, pixel
     int numberOfLostPixelBarrelHits(HitCategory category) const;  // not-null, not valid, pixel PXB
     int numberOfLostPixelEndcapHits(HitCategory category) const;  // not-null, not valid, pixel PXF
@@ -235,16 +239,19 @@ public:
     int numberOfLostStripTIDHits(HitCategory category) const;     // not-null, not valid, strip TID
     int numberOfLostStripTOBHits(HitCategory category) const;     // not-null, not valid, strip TOB
     int numberOfLostStripTECHits(HitCategory category) const;     // not-null, not valid, strip TEC
-    int numberOfLostMuonDTHits(HitCategory category) const;       // not-null, not valid, muon DT
-    int numberOfLostMuonCSCHits(HitCategory category) const;      // not-null, not valid, muon CSC
-    int numberOfLostMuonRPCHits(HitCategory category) const;      // not-null, not valid, muon RPC
-    int numberOfBadHits(HitCategory category) const;              // not-null, bad (only used in Muon Ch.)
-    int numberOfBadMuonHits(HitCategory category) const;          // not-null, bad, muon
-    int numberOfBadMuonDTHits(HitCategory category) const;        // not-null, bad, muon DT
-    int numberOfBadMuonCSCHits(HitCategory category) const;       // not-null, bad, muon CSC
-    int numberOfBadMuonRPCHits(HitCategory category) const;       // not-null, bad, muon RPC
+    int numberOfLostMuonDTHits() const;       // not-null, not valid, muon DT
+    int numberOfLostMuonCSCHits() const;      // not-null, not valid, muon CSC
+    int numberOfLostMuonRPCHits() const;      // not-null, not valid, muon RPC
+
+    int numberOfBadHits() const;              // not-null, bad (only used in Muon Ch.)
+    int numberOfBadMuonHits() const;          // not-null, bad, muon
+    int numberOfBadMuonDTHits() const;        // not-null, bad, muon DT
+    int numberOfBadMuonCSCHits() const;       // not-null, bad, muon CSC
+    int numberOfBadMuonRPCHits() const;       // not-null, bad, muon RPC
+
     int numberOfInactiveHits(HitCategory category) const;         // not-null, inactive
     int numberOfInactiveTrackerHits(HitCategory category) const;  // not-null, inactive, tracker
+
     int numberOfExpectedInnerHits(HitCategory category) const;
     int numberOfExpectedOuterHits(HitCategory category) const;
 
@@ -300,39 +307,39 @@ public:
     int stripTECLayersNull(HitCategory category) const;                  // case NULL_RETURN: strip TEC
 
     /// subdet = 0(all), 1(DT), 2(CSC), 3(RPC); hitType=-1(all), 0=valid, 3=bad
-    int muonStations(HitCategory category, int subdet, int hitType) const ;
+    int muonStations(int subdet, int hitType) const ;
 
-    int muonStationsWithValidHits(HitCategory category) const;
-    int muonStationsWithBadHits(HitCategory category) const;
-    int muonStationsWithAnyHits(HitCategory category) const;
+    int muonStationsWithValidHits() const;
+    int muonStationsWithBadHits() const;
+    int muonStationsWithAnyHits() const;
 
-    int dtStationsWithValidHits(HitCategory category) const;
-    int dtStationsWithBadHits(HitCategory category) const;
-    int dtStationsWithAnyHits(HitCategory category) const;
+    int dtStationsWithValidHits() const;
+    int dtStationsWithBadHits() const;
+    int dtStationsWithAnyHits() const;
 
-    int cscStationsWithValidHits(HitCategory category) const;
-    int cscStationsWithBadHits(HitCategory category) const;
-    int cscStationsWithAnyHits(HitCategory category) const;
+    int cscStationsWithValidHits() const;
+    int cscStationsWithBadHits() const;
+    int cscStationsWithAnyHits() const;
 
-    int rpcStationsWithValidHits(HitCategory category) const;
-    int rpcStationsWithBadHits(HitCategory category) const;
-    int rpcStationsWithAnyHits(HitCategory category) const;
-
-    /// hitType=-1(all), 0=valid, 3=bad; 0 = no stations at all
-    int innermostMuonStationWithHits(HitCategory category, int hitType) const;
-    int innermostMuonStationWithValidHits(HitCategory category) const;
-    int innermostMuonStationWithBadHits(HitCategory category) const;
-    int innermostMuonStationWithAnyHits(HitCategory category) const;
+    int rpcStationsWithValidHits() const;
+    int rpcStationsWithBadHits() const;
+    int rpcStationsWithAnyHits() const;
 
     /// hitType=-1(all), 0=valid, 3=bad; 0 = no stations at all
-    int outermostMuonStationWithHits(HitCategory category, int hitType) const;
-    int outermostMuonStationWithValidHits(HitCategory category) const;
-    int outermostMuonStationWithBadHits(HitCategory category) const;
-    int outermostMuonStationWithAnyHits(HitCategory category) const;
+    int innermostMuonStationWithHits(int hitType) const;
+    int innermostMuonStationWithValidHits() const;
+    int innermostMuonStationWithBadHits() const;
+    int innermostMuonStationWithAnyHits() const;
 
-    int numberOfDTStationsWithRPhiView(HitCategory category) const;
-    int numberOfDTStationsWithRZView(HitCategory category) const;
-    int numberOfDTStationsWithBothViews(HitCategory category) const;
+    /// hitType=-1(all), 0=valid, 3=bad; 0 = no stations at all
+    int outermostMuonStationWithHits(int hitType) const;
+    int outermostMuonStationWithValidHits() const;
+    int outermostMuonStationWithBadHits() const;
+    int outermostMuonStationWithAnyHits() const;
+
+    int numberOfDTStationsWithRPhiView() const;
+    int numberOfDTStationsWithRZView() const;
+    int numberOfDTStationsWithBothViews() const;
 
 private:
     // 3 bits for hit type
@@ -660,9 +667,9 @@ inline int HitPattern::numberOfTrackerHits(HitCategory category) const
     return countHits(category, trackerHitFilter);
 }
 
-inline int HitPattern::numberOfMuonHits(HitCategory category) const
+inline int HitPattern::numberOfMuonHits() const
 {
-    return countHits(category, muonHitFilter);
+    return countHits(TRACK_HITS, muonHitFilter);
 }
 
 inline int HitPattern::numberOfValidHits(HitCategory category) const
@@ -675,9 +682,9 @@ inline int HitPattern::numberOfValidTrackerHits(HitCategory category) const
     return countTypedHits(category, validHitFilter, trackerHitFilter);
 }
 
-inline int HitPattern::numberOfValidMuonHits(HitCategory category) const
+inline int HitPattern::numberOfValidMuonHits() const
 {
-    return countTypedHits(category, validHitFilter, muonHitFilter);
+    return countTypedHits(TRACK_HITS, validHitFilter, muonHitFilter);
 }
 
 inline int HitPattern::numberOfValidPixelHits(HitCategory category) const
@@ -720,19 +727,19 @@ inline int HitPattern::numberOfValidStripTECHits(HitCategory category) const
     return countTypedHits(category, validHitFilter, stripTECHitFilter);
 }
 
-inline int HitPattern::numberOfValidMuonDTHits(HitCategory category) const
+inline int HitPattern::numberOfValidMuonDTHits() const
 {
-    return countTypedHits(category, validHitFilter, muonDTHitFilter);
+    return countTypedHits(TRACK_HITS, validHitFilter, muonDTHitFilter);
 }
 
-inline int HitPattern::numberOfValidMuonCSCHits(HitCategory category) const
+inline int HitPattern::numberOfValidMuonCSCHits() const
 {
-    return countTypedHits(category, validHitFilter, muonCSCHitFilter);
+    return countTypedHits(TRACK_HITS, validHitFilter, muonCSCHitFilter);
 }
 
-inline int HitPattern::numberOfValidMuonRPCHits(HitCategory category) const
+inline int HitPattern::numberOfValidMuonRPCHits() const
 {
-    return countTypedHits(category, validHitFilter, muonRPCHitFilter);
+    return countTypedHits(TRACK_HITS, validHitFilter, muonRPCHitFilter);
 }
 
 inline int HitPattern::numberOfLostHits(HitCategory category) const
@@ -745,9 +752,9 @@ inline int HitPattern::numberOfLostTrackerHits(HitCategory category) const
     return countTypedHits(category, missingHitFilter, trackerHitFilter);
 }
 
-inline int HitPattern::numberOfLostMuonHits(HitCategory category) const
+inline int HitPattern::numberOfLostMuonHits() const
 {
-    return countTypedHits(category, missingHitFilter, muonHitFilter);
+    return countTypedHits(TRACK_HITS, missingHitFilter, muonHitFilter);
 }
 
 inline int HitPattern::numberOfLostPixelHits(HitCategory category) const
@@ -790,44 +797,44 @@ inline int HitPattern::numberOfLostStripTECHits(HitCategory category) const
     return countTypedHits(category, missingHitFilter, stripTECHitFilter);
 }
 
-inline int HitPattern::numberOfLostMuonDTHits(HitCategory category) const
+inline int HitPattern::numberOfLostMuonDTHits() const
 {
-    return countTypedHits(category, missingHitFilter, muonDTHitFilter);
+    return countTypedHits(TRACK_HITS, missingHitFilter, muonDTHitFilter);
 }
 
-inline int HitPattern::numberOfLostMuonCSCHits(HitCategory category) const
+inline int HitPattern::numberOfLostMuonCSCHits() const
 {
-    return countTypedHits(category, missingHitFilter, muonCSCHitFilter);
+    return countTypedHits(TRACK_HITS, missingHitFilter, muonCSCHitFilter);
 }
 
-inline int HitPattern::numberOfLostMuonRPCHits(HitCategory category) const
+inline int HitPattern::numberOfLostMuonRPCHits() const
 {
-    return countTypedHits(category, missingHitFilter, muonRPCHitFilter);
+    return countTypedHits(TRACK_HITS, missingHitFilter, muonRPCHitFilter);
 }
 
-inline int HitPattern::numberOfBadHits(HitCategory category) const
+inline int HitPattern::numberOfBadHits() const
 {
-    return countHits(category, badHitFilter);
+    return countHits(TRACK_HITS, badHitFilter);
 }
 
-inline int HitPattern::numberOfBadMuonHits(HitCategory category) const
+inline int HitPattern::numberOfBadMuonHits() const
 {
-    return countTypedHits(category, inactiveHitFilter, muonHitFilter);
+    return countTypedHits(TRACK_HITS, inactiveHitFilter, muonHitFilter);
 }
 
-inline int HitPattern::numberOfBadMuonDTHits(HitCategory category) const
+inline int HitPattern::numberOfBadMuonDTHits() const
 {
-    return countTypedHits(category, inactiveHitFilter, muonDTHitFilter);
+    return countTypedHits(TRACK_HITS, inactiveHitFilter, muonDTHitFilter);
 }
 
-inline int HitPattern::numberOfBadMuonCSCHits(HitCategory category) const
+inline int HitPattern::numberOfBadMuonCSCHits() const
 {
-    return countTypedHits(category, inactiveHitFilter, muonCSCHitFilter);
+    return countTypedHits(TRACK_HITS, inactiveHitFilter, muonCSCHitFilter);
 }
 
-inline int HitPattern::numberOfBadMuonRPCHits(HitCategory category) const
+inline int HitPattern::numberOfBadMuonRPCHits() const
 {
-    return countTypedHits(category, inactiveHitFilter, muonRPCHitFilter);
+    return countTypedHits(TRACK_HITS, inactiveHitFilter, muonRPCHitFilter);
 }
 
 inline int HitPattern::numberOfInactiveHits(HitCategory category) const
@@ -930,94 +937,94 @@ inline int HitPattern::stripLayersNull(HitCategory category) const
            stripTECLayersNull(category);
 }
 
-inline int HitPattern::muonStationsWithValidHits(HitCategory category) const
+inline int HitPattern::muonStationsWithValidHits() const
 {
-    return muonStations(category, 0, 0);
+    return muonStations(0, 0);
 }
 
-inline int HitPattern::muonStationsWithBadHits(HitCategory category) const
+inline int HitPattern::muonStationsWithBadHits() const
 {
-    return muonStations(category, 0, 3);
+    return muonStations(0, 3);
 }
 
-inline int HitPattern::muonStationsWithAnyHits(HitCategory category) const
+inline int HitPattern::muonStationsWithAnyHits() const
 {
-    return muonStations(category, 0, -1);
+    return muonStations(0, -1);
 }
 
-inline int HitPattern::dtStationsWithValidHits(HitCategory category) const
+inline int HitPattern::dtStationsWithValidHits() const
 {
-    return muonStations(category, 1, 0);
+    return muonStations(1, 0);
 }
 
-inline int HitPattern::dtStationsWithBadHits(HitCategory category) const
+inline int HitPattern::dtStationsWithBadHits() const
 {
-    return muonStations(category, 1, 3);
+    return muonStations(1, 3);
 }
 
-inline int HitPattern::dtStationsWithAnyHits(HitCategory category) const
+inline int HitPattern::dtStationsWithAnyHits() const
 {
-    return muonStations(category, 1, -1);
+    return muonStations(1, -1);
 }
 
-inline int HitPattern::cscStationsWithValidHits(HitCategory category) const
+inline int HitPattern::cscStationsWithValidHits() const
 {
-    return muonStations(category, 2, 0);
+    return muonStations(2, 0);
 }
 
-inline int HitPattern::cscStationsWithBadHits(HitCategory category) const
+inline int HitPattern::cscStationsWithBadHits() const
 {
-    return muonStations(category, 2, 3);
+    return muonStations(2, 3);
 }
 
-inline int HitPattern::cscStationsWithAnyHits(HitCategory category) const
+inline int HitPattern::cscStationsWithAnyHits() const
 {
-    return muonStations(category, 2, -1);
+    return muonStations(2, -1);
 }
 
-inline int HitPattern::rpcStationsWithValidHits(HitCategory category) const
+inline int HitPattern::rpcStationsWithValidHits() const
 {
-    return muonStations(category, 3, 0);
+    return muonStations(3, 0);
 }
 
-inline int HitPattern::rpcStationsWithBadHits(HitCategory category) const
+inline int HitPattern::rpcStationsWithBadHits() const
 {
-    return muonStations(category, 3, 3);
+    return muonStations(3, 3);
 }
 
-inline int HitPattern::rpcStationsWithAnyHits(HitCategory category) const
+inline int HitPattern::rpcStationsWithAnyHits() const
 {
-    return muonStations(category, 3, -1);
+    return muonStations(3, -1);
 }
 
-inline int HitPattern::innermostMuonStationWithValidHits(HitCategory category) const
+inline int HitPattern::innermostMuonStationWithValidHits() const
 {
-    return innermostMuonStationWithHits(category, 0);
+    return innermostMuonStationWithHits(0);
 }
 
-inline int HitPattern::innermostMuonStationWithBadHits(HitCategory category) const
+inline int HitPattern::innermostMuonStationWithBadHits() const
 {
-    return innermostMuonStationWithHits(category, 3);
+    return innermostMuonStationWithHits(3);
 }
 
-inline int HitPattern::innermostMuonStationWithAnyHits(HitCategory category) const
+inline int HitPattern::innermostMuonStationWithAnyHits() const
 {
-    return innermostMuonStationWithHits(category, -1);
+    return innermostMuonStationWithHits(-1);
 }
 
-inline int HitPattern::outermostMuonStationWithValidHits(HitCategory category) const
+inline int HitPattern::outermostMuonStationWithValidHits() const
 {
-    return outermostMuonStationWithHits(category, 0);
+    return outermostMuonStationWithHits(0);
 }
 
-inline int HitPattern::outermostMuonStationWithBadHits(HitCategory category) const
+inline int HitPattern::outermostMuonStationWithBadHits() const
 {
-    return outermostMuonStationWithHits(category, 3);
+    return outermostMuonStationWithHits(3);
 }
 
-inline int HitPattern::outermostMuonStationWithAnyHits(HitCategory category) const
+inline int HitPattern::outermostMuonStationWithAnyHits() const
 {
-    return outermostMuonStationWithHits(category, -1);
+    return outermostMuonStationWithHits(-1);
 }
 
 } // namespace reco

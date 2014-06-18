@@ -958,7 +958,7 @@ bool ZToMuMuGammaAnalyzer::muonSelection ( const reco::Muon & mu,  const reco::B
   if ( mu.numberOfMatches() < muonMatches_ )                                   result=false;
 
   if ( mu.track()->hitPattern().numberOfValidPixelHits(reco::HitPattern::TRACK_HITS) <  validPixHits_ )     result=false;
-  if ( mu.globalTrack()->hitPattern().numberOfValidMuonHits(reco::HitPattern::TRACK_HITS) < validMuonHits_ ) result=false;
+  if ( mu.globalTrack()->hitPattern().numberOfValidMuonHits() < validMuonHits_ ) result=false;
   if ( !mu.isTrackerMuon() )                                        result=false;
   // track isolation 
   if ( mu.isolationR03().sumPt > muonTrackIso_ )                                result=false;

@@ -274,8 +274,8 @@ PFMuonAlgo::isGlobalTightMuon( const reco::MuonRef& muonRef ) {
       
     // Check the quality of the stand-alone muon : 
     // good chi**2 and large number of hits and good pt error
-    if ((standAloneMu->hitPattern().numberOfValidMuonDTHits(HitPattern::TRACK_HITS) < 22
-                && standAloneMu->hitPattern().numberOfValidMuonCSCHits(HitPattern::TRACK_HITS) < 15)
+    if ((standAloneMu->hitPattern().numberOfValidMuonDTHits() < 22
+                && standAloneMu->hitPattern().numberOfValidMuonCSCHits() < 15)
             || standAloneMu->normalizedChi2() > 10.
             || standAloneMu->ptError()/standAloneMu->pt() > 0.20) {
         result = false;
@@ -348,8 +348,8 @@ PFMuonAlgo::isGlobalLooseMuon( const reco::MuonRef& muonRef ) {
   reco::TrackRef combinedMu = muonRef->combinedMuon();
   reco::TrackRef trackerMu = muonRef->track();
  
-  unsigned nMuonHits = standAloneMu->hitPattern().numberOfValidMuonDTHits(HitPattern::TRACK_HITS)
-      + 2 * standAloneMu->hitPattern().numberOfValidMuonCSCHits(HitPattern::TRACK_HITS);
+  unsigned nMuonHits = standAloneMu->hitPattern().numberOfValidMuonDTHits()
+      + 2 * standAloneMu->hitPattern().numberOfValidMuonCSCHits();
     
   bool quality = false;
   
@@ -442,8 +442,8 @@ PFMuonAlgo::isIsolatedMuon( const reco::MuonRef& muonRef ){
   reco::TrackRef standAloneMu = muonRef->standAloneMuon();
 
   if ( !muonRef->isTrackerMuon() ){
-    if(standAloneMu->hitPattern().numberOfValidMuonDTHits(HitPattern::TRACK_HITS) == 0 
-            && standAloneMu->hitPattern().numberOfValidMuonCSCHits(HitPattern::TRACK_HITS) == 0){
+    if(standAloneMu->hitPattern().numberOfValidMuonDTHits() == 0 
+            && standAloneMu->hitPattern().numberOfValidMuonCSCHits() == 0){
         return false;
     }
   }
@@ -487,7 +487,7 @@ PFMuonAlgo::isTightMuonPOG(const reco::MuonRef& muonRef) {
   
   if(combinedMuon->hitPattern().numberOfValidPixelHits(HitPattern::TRACK_HITS) == 0) return false;
   
-  if(combinedMuon->hitPattern().numberOfValidMuonHits(HitPattern::TRACK_HITS) == 0) return false;  
+  if(combinedMuon->hitPattern().numberOfValidMuonHits() == 0) return false;  
 
   return true;
 
@@ -510,14 +510,14 @@ PFMuonAlgo::printMuonProperties(const reco::MuonRef& muonRef){
     std::cout<<" GL,  pt: " << combinedMu->pt() 
 	<< " +/- " << combinedMu->ptError()/combinedMu->pt() 
 	     << " chi**2 GBL : " << combinedMu->normalizedChi2()<<std::endl;
-    std::cout << " Total Muon Hits : " << combinedMu->hitPattern().numberOfValidMuonHits(HitPattern::TRACK_HITS)
-        << "/" << combinedMu->hitPattern().numberOfLostMuonHits(HitPattern::TRACK_HITS)
-        << " DT Hits : " << combinedMu->hitPattern().numberOfValidMuonDTHits(HitPattern::TRACK_HITS)
-        << "/" << combinedMu->hitPattern().numberOfLostMuonDTHits(HitPattern::TRACK_HITS)
-        << " CSC Hits : " << combinedMu->hitPattern().numberOfValidMuonCSCHits(HitPattern::TRACK_HITS)
-        << "/" << combinedMu->hitPattern().numberOfLostMuonCSCHits(HitPattern::TRACK_HITS)
-        << " RPC Hits : " << combinedMu->hitPattern().numberOfValidMuonRPCHits(HitPattern::TRACK_HITS)
-        << "/" << combinedMu->hitPattern().numberOfLostMuonRPCHits(HitPattern::TRACK_HITS)
+    std::cout << " Total Muon Hits : " << combinedMu->hitPattern().numberOfValidMuonHits()
+        << "/" << combinedMu->hitPattern().numberOfLostMuonHits()
+        << " DT Hits : " << combinedMu->hitPattern().numberOfValidMuonDTHits()
+        << "/" << combinedMu->hitPattern().numberOfLostMuonDTHits()
+        << " CSC Hits : " << combinedMu->hitPattern().numberOfValidMuonCSCHits()
+        << "/" << combinedMu->hitPattern().numberOfLostMuonCSCHits()
+        << " RPC Hits : " << combinedMu->hitPattern().numberOfValidMuonRPCHits()
+        << "/" << combinedMu->hitPattern().numberOfLostMuonRPCHits()
         << std::endl;
 
     std::cout << "  # of Valid Tracker Hits " 
@@ -530,12 +530,12 @@ PFMuonAlgo::printMuonProperties(const reco::MuonRef& muonRef){
     std::cout << " ST,  pt: " << standAloneMu->pt() 
         << " +/- " << standAloneMu->ptError()/standAloneMu->pt() 
         << " eta : " << standAloneMu->eta()  
-        << " DT Hits : " << standAloneMu->hitPattern().numberOfValidMuonDTHits(HitPattern::TRACK_HITS)
-        << "/" << standAloneMu->hitPattern().numberOfLostMuonDTHits(HitPattern::TRACK_HITS)
-        << " CSC Hits : " << standAloneMu->hitPattern().numberOfValidMuonCSCHits(HitPattern::TRACK_HITS)
-        << "/" << standAloneMu->hitPattern().numberOfLostMuonCSCHits(HitPattern::TRACK_HITS)
-        << " RPC Hits : " << standAloneMu->hitPattern().numberOfValidMuonRPCHits(HitPattern::TRACK_HITS)
-        << "/" << standAloneMu->hitPattern().numberOfLostMuonRPCHits(HitPattern::TRACK_HITS)
+        << " DT Hits : " << standAloneMu->hitPattern().numberOfValidMuonDTHits()
+        << "/" << standAloneMu->hitPattern().numberOfLostMuonDTHits()
+        << " CSC Hits : " << standAloneMu->hitPattern().numberOfValidMuonCSCHits()
+        << "/" << standAloneMu->hitPattern().numberOfLostMuonCSCHits()
+        << " RPC Hits : " << standAloneMu->hitPattern().numberOfValidMuonRPCHits()
+        << "/" << standAloneMu->hitPattern().numberOfLostMuonRPCHits()
         << " chi**2 STA : " << standAloneMu->normalizedChi2()
         << std::endl;
   }
@@ -601,8 +601,8 @@ PFMuonAlgo::printMuonProperties(const reco::MuonRef& muonRef){
       fabs(1./standAloneMu->pt() -1./trackerMu->pt()) 	 
       /sqrt(sigmaStandAlone*sigmaStandAlone + sigmaTracker*sigmaTracker) : 100.; 	 
     
-    double delta = standAloneMu->hitPattern().numberOfValidMuonDTHits(HitPattern::TRACK_HITS)
-        + standAloneMu->hitPattern().numberOfValidMuonCSCHits(HitPattern::TRACK_HITS) > 0 ?
+    double delta = standAloneMu->hitPattern().numberOfValidMuonDTHits()
+        + standAloneMu->hitPattern().numberOfValidMuonCSCHits() > 0 ?
         std::min(delta3,std::min(delta1,delta2)) : std::max(delta3,std::max(delta1,delta2)); 	 
 
     std::cout << "delta = " << delta << " delta1 "<<delta1<<" delta2 "<<delta2<<" delta3 "<<delta3<<std::endl; 	 

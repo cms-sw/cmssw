@@ -589,7 +589,7 @@ bool muon::isGoodMuon( const reco::Muon& muon, SelectionType type,
       break;
     case muon::GlobalMuonPromptTight:
       return muon.isGlobalMuon() && muon.globalTrack()->normalizedChi2()<10. 
-          && muon.globalTrack()->hitPattern().numberOfValidMuonHits(reco::HitPattern::TRACK_HITS) >0;
+          && muon.globalTrack()->hitPattern().numberOfValidMuonHits() >0;
       break;
       // For "Loose" algorithms we choose maximum y quantity cuts of 1E9 instead of
       // 9999 as before.  We do this because the muon methods return 999999 (note
@@ -785,7 +785,7 @@ bool muon::isSoftMuon(const reco::Muon& muon, const reco::Vertex& vtx){
 
 bool muon::isHighPtMuon(const reco::Muon& muon, const reco::Vertex& vtx){
   bool muID = muon.isGlobalMuon() 
-      && muon.globalTrack()->hitPattern().numberOfValidMuonHits(reco::HitPattern::TRACK_HITS) > 0 
+      && muon.globalTrack()->hitPattern().numberOfValidMuonHits() > 0 
       && (muon.numberOfMatchedStations() > 1);
   if(!muID) return false;
 

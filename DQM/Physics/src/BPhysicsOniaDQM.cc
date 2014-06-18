@@ -330,7 +330,7 @@ bool BPhysicsOniaDQM::selGlobalMuon(const reco::Muon &recoMu)
   return (isMuonInAccept(recoMu) &&
           iTrack->found() > 11 &&
           gTrack->chi2()/gTrack->ndof() < 20.0 &&
-          gTrack->hitPattern().numberOfValidMuonHits(reco::HitPattern::TRACK_HITS) > 0 &&
+          gTrack->hitPattern().numberOfValidMuonHits() > 0 &&
           iTrack->chi2()/iTrack->ndof() < 4.0 &&
           //recoMu.muonID("TrackerMuonArbitrated") &&
           //recoMu.muonID("TMLastStationAngTight") &&

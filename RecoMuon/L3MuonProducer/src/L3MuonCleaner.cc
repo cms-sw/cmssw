@@ -44,7 +44,7 @@ void L3MuonCleaner::produce(edm::Event& event, const edm::EventSetup&){
   for ( reco::TrackCollection::const_iterator trk=tracks->begin(); trk!=tracks->end(); ++trk ){
     if (trk->normalizedChi2()>m_maxNormalizedChi2) continue;
     if (trk->hitPattern().numberOfValidTrackerHits(reco::HitPattern::TRACK_HITS) < m_minTrkHits) continue;
-    if (trk->hitPattern().numberOfValidMuonHits(reco::HitPattern::TRACK_HITS) < m_minMuonHits) continue;
+    if (trk->hitPattern().numberOfValidMuonHits() < m_minMuonHits) continue;
     outTracks->push_back(*trk);
   }
   event.put(outTracks);

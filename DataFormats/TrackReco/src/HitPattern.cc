@@ -791,11 +791,10 @@ uint16_t HitPattern::isStereo(DetId i)
     }
 }
 
-int HitPattern::muonStations(HitCategory category, int subdet, int hitType) const
+int HitPattern::muonStations(int subdet, int hitType) const
 {
     int stations[4] = {0, 0, 0, 0};
-    std::pair<uint8_t, uint8_t> range = getCategoryIndexRange(category);
-    for (int i = range.first; i < range.second; ++i) {
+    for (int i = beginTrackHits; i < endTrackHits; ++i) {
         uint16_t pattern = getHitPatternByAbsoluteIndex(i);
         if (muonHitFilter(pattern)
                 && (subdet == 0   || int(getSubStructure(pattern)) == subdet)
@@ -807,11 +806,10 @@ int HitPattern::muonStations(HitCategory category, int subdet, int hitType) cons
     return stations[0] + stations[1] + stations[2] + stations[3];
 }
 
-int HitPattern::innermostMuonStationWithHits(HitCategory category, int hitType) const
+int HitPattern::innermostMuonStationWithHits(int hitType) const
 {
     int ret = 0;
-    std::pair<uint8_t, uint8_t> range = getCategoryIndexRange(category);
-    for (int i = range.first; i < range.second; ++i) {
+    for (int i = beginTrackHits; i < endTrackHits; ++i) {
         uint16_t pattern = getHitPatternByAbsoluteIndex(i);
         if (muonHitFilter(pattern)
                 && (hitType == -1 || int(getHitType(pattern)) == hitType)) {
@@ -825,11 +823,10 @@ int HitPattern::innermostMuonStationWithHits(HitCategory category, int hitType) 
     return ret;
 }
 
-int HitPattern::outermostMuonStationWithHits(HitCategory category, int hitType) const
+int HitPattern::outermostMuonStationWithHits(int hitType) const
 {
     int ret = 0;
-    std::pair<uint8_t, uint8_t> range = getCategoryIndexRange(category);
-    for (int i = range.first; i < range.second; ++i) {
+    for (int i = beginTrackHits; i < endTrackHits; ++i) {
         uint16_t pattern = getHitPatternByAbsoluteIndex(i);
         if (muonHitFilter(pattern) &&
                 (hitType == -1 || int(getHitType(pattern)) == hitType)) {
@@ -842,11 +839,10 @@ int HitPattern::outermostMuonStationWithHits(HitCategory category, int hitType) 
     return ret;
 }
 
-int HitPattern::numberOfDTStationsWithRPhiView(HitCategory category) const
+int HitPattern::numberOfDTStationsWithRPhiView() const
 {
     int stations[4] = {0, 0, 0, 0};
-    std::pair<uint8_t, uint8_t> range = getCategoryIndexRange(category);
-    for (int i = range.first; i < range.second; ++i) {
+    for (int i = beginTrackHits; i < endTrackHits; ++i) {
         uint16_t pattern = getHitPatternByAbsoluteIndex(i);
 
         if (muonDTHitFilter(pattern) && validHitFilter(pattern)
@@ -857,11 +853,10 @@ int HitPattern::numberOfDTStationsWithRPhiView(HitCategory category) const
     return stations[0] + stations[1] + stations[2] + stations[3];
 }
 
-int HitPattern::numberOfDTStationsWithRZView(HitCategory category) const
+int HitPattern::numberOfDTStationsWithRZView() const
 {
     int stations[4] = {0, 0, 0, 0};
-    std::pair<uint8_t, uint8_t> range = getCategoryIndexRange(category);
-    for (int i = range.first; i < range.second; ++i) {
+    for (int i = beginTrackHits; i < endTrackHits; ++i) {
         uint16_t pattern = getHitPatternByAbsoluteIndex(i);
         if (muonDTHitFilter(pattern) && validHitFilter(pattern)
                 && getDTSuperLayer(pattern) == 2) {
@@ -871,11 +866,10 @@ int HitPattern::numberOfDTStationsWithRZView(HitCategory category) const
     return stations[0] + stations[1] + stations[2] + stations[3];
 }
 
-int HitPattern::numberOfDTStationsWithBothViews(HitCategory category) const
+int HitPattern::numberOfDTStationsWithBothViews() const
 {
     int stations[4][2] = {{0, 0}, {0, 0}, {0, 0}, {0, 0}};
-    std::pair<uint8_t, uint8_t> range = getCategoryIndexRange(category);
-    for (int i = range.first; i < range.second; ++i) {
+    for (int i = beginTrackHits; i < endTrackHits; ++i) {
         uint16_t pattern = getHitPatternByAbsoluteIndex(i);
         if (muonDTHitFilter(pattern) && validHitFilter(pattern)) {
             stations[getMuonStation(pattern) - 1][getDTSuperLayer(pattern) == 2] = 1;
