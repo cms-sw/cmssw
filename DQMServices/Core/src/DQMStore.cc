@@ -362,7 +362,10 @@ void DQMStore::mergeAndResetMEsRunSummaryCache(uint32_t run,
     if (me != data_.end()) {
       if (verbose_ > 1)
         std::cout << "Found global Object, using it. ";
-      me->getTH1()->Add(i->getTH1());
+
+      //don't take any action if the ME is an INT || FLOAT || STRING
+      if(me->kind() >= MonitorElement::DQM_KIND_TH1F)
+	me->getTH1()->Add(i->getTH1());
     } else {
       if (verbose_ > 1)
         std::cout << "No global Object found. ";
@@ -410,7 +413,10 @@ void DQMStore::mergeAndResetMEsLuminositySummaryCache(uint32_t run,
     if (me != data_.end()) {
       if (verbose_ > 1)
         std::cout << "Found global Object, using it --> ";
-      me->getTH1()->Add(i->getTH1());
+      
+      //don't take any action if the ME is an INT || FLOAT || STRING
+      if(me->kind() >= MonitorElement::DQM_KIND_TH1F)
+	me->getTH1()->Add(i->getTH1());
     } else {
       if (verbose_ > 1)
         std::cout << "No global Object found. ";
