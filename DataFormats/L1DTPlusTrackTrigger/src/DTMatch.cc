@@ -175,7 +175,7 @@ DTMatch& DTMatch::operator = ( const DTMatch& aDTM )
 
 /*** DT TRIGGER MOMENTUM PARAMETERISATION ***/
 /// Return function for the parameterised Pt
-int DTMatch::getDTPt()
+int DTMatch::getDTPt() const
 {
   /// For high quality seeds, it comes from a fit to PhiB [int] as a function of Pt [GeV/c]
   /// PhiB [int] = A + B / Pt [GeV/c]
@@ -199,7 +199,7 @@ int DTMatch::getDTPt()
 }
 
 /// Return function for the minimum allowed parameterised Pt
-int DTMatch::getDTPtMin( float nSigmas )
+int DTMatch::getDTPtMin( float nSigmas ) const
 {
   /// For high quality seeds, it comes from a fit to PhiB [int] as a function of Pt [GeV/c]
   /// PhiB [int] = A + B / Pt [GeV/c]
@@ -225,7 +225,7 @@ int DTMatch::getDTPtMin( float nSigmas )
 }
 
 /// Return function for the maximum allowed parameterised Pt
-int DTMatch::getDTPtMax( float nSigmas )
+int DTMatch::getDTPtMax( float nSigmas ) const
 {
   /// For high quality seeds, it comes from a fit to PhiB [int] as a function of Pt [GeV/c]
   /// PhiB [int] = A + B / Pt [GeV/c]
@@ -237,13 +237,13 @@ int DTMatch::getDTPtMax( float nSigmas )
   int iWh = this->getDTWheel() + 2;
   float thisPhiB = fabs( static_cast< float >(this->getDTTSPhiB()) );
   float thisSigmaPhiB = this->getPredSigmaPhiB();
+  float thisPhiBMin = thisPhiB - nSigmas * thisSigmaPhiB;
 
   /// By Station + 2*Wheel
   float B_Pt[10] = {-668.1, -433.6, -757.8, -524.7, -751.8, -539.5, -757.5, -525.6, -667.0, -435.0};
 
-  if ( thisPhiB > 0.0 )
+  if ( thisPhiBMin > 0.0 )
   {
-    float thisPhiBMin = thisPhiB - nSigmas * thisSigmaPhiB;
     return static_cast< int >( fabs(B_Pt[iSt+2*iWh]) / thisPhiBMin + 1);
   }
 
@@ -266,7 +266,16 @@ bool DTMatch::checkStubPhiMatch( int anotherPhi, unsigned int aLayer, float nSig
 bool DTMatch::checkStubThetaMatch( int anotherTheta, unsigned int aLayer, float nSigmas ) const
 {
   int deltaTheta = abs( this->getPredStubTheta( aLayer ) - anotherTheta );
-  if ( deltaTheta < nSigmas * this->getPredStubSigmaTheta( aLayer ) )
+  int dtStubSigmaTheta = this->getPredStubSigmaTheta( aLayer );
+
+  /// Check the theta flag (if false, rough theta is used,
+  /// and a wire-based correction has been set)
+  if ( !this->getThetaFlag() )
+  {
+    dtStubSigmaTheta += this->getDeltaTheta();
+  }
+
+  if ( deltaTheta < nSigmas * dtStubSigmaTheta )
   {
     return true;
   }
@@ -835,10 +844,14 @@ unsigned int DTMatch::findPtBin( float aPtInv, unsigned int aMethod )
 void DTMatch::findPtTTTrackBin()
 {
   /// Here's the curvature table
+/*
   float cutPtInvTK[24] = { 0.2533,0.2026,0.1689,0.1448,0.1266,0.1014,
                            0.0845,0.0724,0.0634,0.0564,0.0508,0.0406,0.0339,
                            0.0291,0.0255,0.0227,0.0204,0.0171,0.0147,0.0129,
                            0.0115,0.0104,0.0087,0.0075 };
+*/
+
+  float const cutPtInvTK[24] = {0.2525, 0.2019, 0.1682, 0.1441, 0.1261, 0.1008, 0.0840, 0.0720, 0.0630, 0.0560, 0.0504, 0.0403, 0.0336, 0.0288, 0.0252, 0.0224, 0.0202, 0.0168, 0.0144, 0.0127, 0.0113, 0.0101, 0.0085, 0.0073};
 
   /// Start by setting 0 as default value
   this->setPtTTTrackBin(binPt[0]);
