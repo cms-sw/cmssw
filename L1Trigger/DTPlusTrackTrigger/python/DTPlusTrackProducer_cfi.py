@@ -19,6 +19,8 @@ DTPlusTrackProducer = cms.EDProducer(
     numSigmasForTkMatch = cms.untracked.double(3.),
     numSigmasForPtMatch = cms.untracked.double(3.),
 
+    minL1TrackPt = cms.untracked.double(2.),
+
     minRInvB = cms.untracked.double( 0.00000045 ),
     maxRInvB = cms.untracked.double( 1.0 ),
     station2Correction = cms.untracked.double( 1.0 ),

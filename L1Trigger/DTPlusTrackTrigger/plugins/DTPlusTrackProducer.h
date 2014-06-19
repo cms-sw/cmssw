@@ -56,6 +56,9 @@ class DTPlusTrackProducer : public edm::EDProducer
     double numSigmasTk;
     double numSigmasPt;
 
+    /// Min Pt of L1Tracks for matching
+    double minL1TrackPt;
+
     /// Some constraints for finding the Pt with several methods
     double minRInvB;
     double maxRInvB;

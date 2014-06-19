@@ -390,7 +390,7 @@ void DTUtilities::getDTTrigger()
         /// Leave the matched BTI Id to 0x0
 
         /// Set needed data for correct extrapolation search and flag for missing theta
-        float deltaTheta = fabs( ( posFirstWire.theta() - posLastWire.theta() ) / 2. );
+        float deltaTheta = fabs( ( posFirstWire.theta() - posLastWire.theta() ) / sqrt(12.) ); /// Error set to sigma of flat distribution
         aDTMatch->setThetaCorrection( deltaTheta );
 
         if ( st == 1 || st == 2 )
