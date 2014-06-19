@@ -22,6 +22,10 @@ def customise(process):
     process.g4SimHits.StackingAction.MaxTrackTime = cms.double(100000000.0)
     process.g4SimHits.StackingAction.MaxTimeNames = cms.vstring('ZDCRegion')
     process.g4SimHits.StackingAction.MaxTrackTimes = cms.vdouble(2000)
+    process.g4SimHits.StackingAction.KillHeavy = cms.bool(True)
+    process.g4SimHits.StackingAction.IonThreshold = cms.double(0.001)
+    process.g4SimHits.StackingAction.ProtonThreshold = cms.double(0.001)
+    process.g4SimHits.StackingAction.NeutronThreshold = cms.double(0.0)
     # stepping action
     process.g4SimHits.SteppingAction.MaxTrackTime = cms.double(100000000.0)
     process.g4SimHits.SteppingAction.MaxTimeNames = cms.vstring('ZDCRegion')

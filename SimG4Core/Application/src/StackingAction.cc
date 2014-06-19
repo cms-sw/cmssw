@@ -195,6 +195,17 @@ G4ClassificationOfNewTrack StackingAction::ClassifyNewTrack(const G4Track * aTra
 	classification = fKill;
     }
     if (isItLongLived(aTrack)) classification = fKill;
+
+    if (classification != fKill && pdg == 22 && 
+	aTrack->GetKineticEnergy() < 0.5*keV) 
+      { 
+	classification = fKill; 
+	//std::cout << "### next gamma killed E(MeV)= " << ke
+	//	  << "  " <<  aTrack->GetCreatorProcess()->GetProcessName()
+	//	  << std::endl;
+      }
+ 
+
     if (killDeltaRay) {
       if (aTrack->GetCreatorProcess()->GetProcessType() == fElectromagnetic &&
 	  aTrack->GetCreatorProcess()->GetProcessSubType() == fIonisation)
