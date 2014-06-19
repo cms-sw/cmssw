@@ -362,13 +362,13 @@ def connect(database='pro', init=False, verbose=0):
         'arc':           lambda: _getCMSFrontierSQLAlchemyConnectionString('FrontierArc'),
         'int':           lambda: _getCMSFrontierSQLAlchemyConnectionString('FrontierInt'),
         'dev':           lambda: _getCMSFrontierSQLAlchemyConnectionString('FrontierPrep'),
-        'boost':         lambda: _getCMSFrontierSQLAlchemyConnectionString('FrontierPrep', 'cms_test_conditions'),
+        'boost':         lambda: _getCMSFrontierSQLAlchemyConnectionString('FrontierPrep', 'cms_conditions'),
 
         'orapro':        lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcon_adg'),
         'oraarc':        lambda: _getCMSOracleSQLAlchemyConnectionString('cmsarc_lb'),
         'oraint':        lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcoff_int'),
         'oradev':        lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcoff_prep'),
-        'oraboost':      lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcoff_prep', 'cms_test_conditions'),
+        'oraboost':      lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcoff_prep', 'cms_conditions'),
 
         'onlineorapro':  lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcon_prod'),
         'onlineoraint':  lambda: _getCMSOracleSQLAlchemyConnectionString('cmsintr_lb'),
