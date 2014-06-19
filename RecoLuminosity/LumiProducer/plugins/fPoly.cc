@@ -32,14 +32,10 @@ lumi::fPoly::getCorrection(float luminonorm,float intglumi,unsigned int nBXs)con
     avglumi=c1*luminonorm/nBXs;
   }
   float Afterglow=1.0;
-  if(m_afterglowmap.size()!=0){
-    std::map< unsigned int, float >::const_iterator afterglowit=--m_afterglowmap.end();
-    if(nBXs>=afterglowit->first){
-      Afterglow=afterglowit->second;
-    }else{
-      afterglowit=m_afterglowmap.upper_bound(nBXs);
-      --afterglowit;
-      Afterglow=afterglowit->second;
+  if(!m_afterglowmap.empty()){
+    std::map< unsigned int, float >::const_iterator afterglowit=m_afterglowmap.lower_bound(nBXs+1);
+    if(afterglowit != m_afterglowmap.begin()){
+      Afterglow=(--afterglowit)->second;
     }
   }
   float driftterm=1.0;
