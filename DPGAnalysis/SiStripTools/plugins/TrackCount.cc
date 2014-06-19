@@ -308,7 +308,7 @@ TrackCount::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 				     << it->ndof() << " "
 				     << it->hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS) << " "
 				     << it->hitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS) << " "
-				     << it->hitPattern().numberOfValidStripLayersWithMonoAndStereo(reco::HitPattern::TRACK_HITS) << " "
+				     << it->hitPattern().numberOfValidStripLayersWithMonoAndStereo() << " "
 				     << it->hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS) << " ";
 
      }

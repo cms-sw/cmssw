@@ -206,40 +206,40 @@ bool HitPattern::appendHit(const DetId &id, TrackingRecHit::Type hitType)
         // so we already have hits of T in the vector and we don't want to
         // mess them with T' hits.
         if unlikely(((hitCount != endTrackHits) && (0 != beginTrackHits || 0 != endTrackHits))) {
-            cms::Exception("HitPattern") 
-                << "TRACK_HITS" 
-                << " were stored on this object before hits of some other category were inserted "
-                << "but hits of the same category should be inserted in a row. "
-                << "Please rework the code so it inserts all "
-                << "TRACK_HITS"
-                << " in a row.";
+            cms::Exception("HitPattern")
+                    << "TRACK_HITS"
+                    << " were stored on this object before hits of some other category were inserted "
+                    << "but hits of the same category should be inserted in a row. "
+                    << "Please rework the code so it inserts all "
+                    << "TRACK_HITS"
+                    << " in a row.";
             return false;
         }
         return insertTrackHit(pattern);
         break;
     case TrackingRecHit::missing_inner:
         if unlikely(((hitCount != endInner) && (0 != beginInner || 0 != endInner))) {
-             cms::Exception("HitPattern") 
-                << "MISSING_INNER_HITS" 
-                << " were stored on this object before hits of some other category were inserted "
-                << "but hits of the same category should be inserted in a row. "
-                << "Please rework the code so it inserts all "
-                << "MISSING_INNER_HITS"
-                << " in a row.";
-             return false;
+            cms::Exception("HitPattern")
+                    << "MISSING_INNER_HITS"
+                    << " were stored on this object before hits of some other category were inserted "
+                    << "but hits of the same category should be inserted in a row. "
+                    << "Please rework the code so it inserts all "
+                    << "MISSING_INNER_HITS"
+                    << " in a row.";
+            return false;
         }
         return insertExpectedInnerHit(pattern);
         break;
     case TrackingRecHit::missing_outer:
         if unlikely(((hitCount != endOuter) && (0 != beginOuter || 0 != endOuter))) {
-              cms::Exception("HitPattern") 
-                << "MISSING_OUTER_HITS"
-                << " were stored on this object before hits of some other category were inserted "
-                << "but hits of the same category should be inserted in a row. "
-                << "Please rework the code so it inserts all "
-                << "MISSING_OUTER_HITS"
-                << " in a row.";
-              return false;
+            cms::Exception("HitPattern")
+                    << "MISSING_OUTER_HITS"
+                    << " were stored on this object before hits of some other category were inserted "
+                    << "but hits of the same category should be inserted in a row. "
+                    << "Please rework the code so it inserts all "
+                    << "MISSING_OUTER_HITS"
+                    << " in a row.";
+            return false;
         }
         return insertExpectedOuterHit(pattern);
         break;
@@ -284,13 +284,7 @@ bool HitPattern::hasValidHitInFirstPixelEndcap() const
     return false;
 }
 
-int HitPattern::numberOfHits(HitCategory category) const
-{
-    std::pair<uint8_t, uint8_t> range = getCategoryIndexRange(category);
-    return range.second - range.first;
-}
-
-int HitPattern::numberOfValidStripLayersWithMonoAndStereo(HitCategory category, uint16_t stripdet, uint16_t layer) const
+int HitPattern::numberOfValidStripLayersWithMonoAndStereo(uint16_t stripdet, uint16_t layer) const
 {
     bool hasMono[SubstrMask + 1][LayerMask + 1];
     bool hasStereo[SubstrMask + 1][LayerMask + 1];
@@ -298,8 +292,7 @@ int HitPattern::numberOfValidStripLayersWithMonoAndStereo(HitCategory category, 
     memset(hasStereo, 0, sizeof(hasStereo));
 
     // mark which layers have mono/stereo hits
-    std::pair<uint8_t, uint8_t> range = getCategoryIndexRange(category);
-    for (int i = range.first; i < range.second; ++i) {
+    for (int i = beginTrackHits; i < endTrackHits; ++i) {
         uint16_t pattern = getHitPatternByAbsoluteIndex(i);
         uint16_t subStructure = getSubStructure(pattern);
 
@@ -338,29 +331,29 @@ int HitPattern::numberOfValidStripLayersWithMonoAndStereo(HitCategory category, 
     return count;
 }
 
-int HitPattern::numberOfValidStripLayersWithMonoAndStereo(HitCategory category) const
+int HitPattern::numberOfValidStripLayersWithMonoAndStereo() const
 {
-    return numberOfValidStripLayersWithMonoAndStereo(category, 0, 0);
+    return numberOfValidStripLayersWithMonoAndStereo(0, 0);
 }
 
-int HitPattern::numberOfValidTOBLayersWithMonoAndStereo(HitCategory category, uint32_t layer) const
+int HitPattern::numberOfValidTOBLayersWithMonoAndStereo(uint32_t layer) const
 {
-    return numberOfValidStripLayersWithMonoAndStereo(category, StripSubdetector::TOB, layer);
+    return numberOfValidStripLayersWithMonoAndStereo(StripSubdetector::TOB, layer);
 }
 
-int HitPattern::numberOfValidTIBLayersWithMonoAndStereo(HitCategory category, uint32_t layer) const
+int HitPattern::numberOfValidTIBLayersWithMonoAndStereo(uint32_t layer) const
 {
-    return numberOfValidStripLayersWithMonoAndStereo(category, StripSubdetector::TIB, layer);
+    return numberOfValidStripLayersWithMonoAndStereo(StripSubdetector::TIB, layer);
 }
 
-int HitPattern::numberOfValidTIDLayersWithMonoAndStereo(HitCategory category, uint32_t layer) const
+int HitPattern::numberOfValidTIDLayersWithMonoAndStereo(uint32_t layer) const
 {
-    return numberOfValidStripLayersWithMonoAndStereo(category, StripSubdetector::TID, layer);
+    return numberOfValidStripLayersWithMonoAndStereo(StripSubdetector::TID, layer);
 }
 
-int HitPattern::numberOfValidTECLayersWithMonoAndStereo(HitCategory category, uint32_t layer) const
+int HitPattern::numberOfValidTECLayersWithMonoAndStereo(uint32_t layer) const
 {
-    return numberOfValidStripLayersWithMonoAndStereo(category, StripSubdetector::TEC, layer);
+    return numberOfValidStripLayersWithMonoAndStereo(StripSubdetector::TEC, layer);
 }
 
 uint32_t HitPattern::getTrackerLayerCase(HitCategory category, uint16_t substr, uint16_t layer) const
@@ -441,8 +434,7 @@ int HitPattern::pixelBarrelLayersWithMeasurement(HitCategory category) const
     int count = 0;
     uint16_t NPixBarrel = 4;
     for (uint16_t layer = 1; layer <= NPixBarrel; layer++) {
-        if (getTrackerLayerCase(category,
-                                PixelSubdetector::PixelBarrel, layer) == HIT_TYPE::VALID) {
+        if (getTrackerLayerCase(category, PixelSubdetector::PixelBarrel, layer) == HIT_TYPE::VALID) {
             count++;
         }
     }

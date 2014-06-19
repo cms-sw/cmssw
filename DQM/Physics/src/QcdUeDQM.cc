@@ -672,7 +672,7 @@ bool QcdUeDQM::trackSelection(const reco::Track &trk, const reco::BeamSpot* bs, 
     fill1D(hNtrackerPixelLayer_, trk.hitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS));
 
     fill1D(hNtrackerStripPixelLayer_, (trk.hitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS)
-                + trk.hitPattern().numberOfValidStripLayersWithMonoAndStereo(reco::HitPattern::TRACK_HITS)));
+                + trk.hitPattern().numberOfValidStripLayersWithMonoAndStereo()));
 
     fill1D(hRatioPtErrorPt_,(trk.ptError()/trk.pt()));
     fill1D(hTrkPt_,trk.pt());
@@ -741,7 +741,7 @@ bool QcdUeDQM::trackSelection(const reco::Track &trk, const reco::BeamSpot* bs, 
     if(bsuse_ == 1){
         if(hasPIX1 && pxlLayerMinCutbool && layerMinCutbool 
                 && (trk.hitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS) + 
-                    trk.hitPattern().numberOfValidStripLayersWithMonoAndStereo(reco::HitPattern::TRACK_HITS)) >= min3DHit_ 
+                    trk.hitPattern().numberOfValidStripLayersWithMonoAndStereo()) >= min3DHit_ 
                 && ptErrorbool && fabs(trk.pt()) >= ptMin_ &&  trk.eta() >= minRapidity_ 
                 && trk.eta() <= maxRapidity_ &&  fabs(trk.dxy(bs->position())/trk.dxyError()) < tip_ 
                 && fabs(trk.dz(bs->position())/trk.dzError()) < lip_ && trk.normalizedChi2()<=maxChi2_ 
@@ -753,7 +753,7 @@ bool QcdUeDQM::trackSelection(const reco::Track &trk, const reco::BeamSpot* bs, 
     if(bsuse_ == 0){
         if(hasPIX1 && pxlLayerMinCutbool && layerMinCutbool 
                 && (trk.hitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS) +
-                    trk.hitPattern().numberOfValidStripLayersWithMonoAndStereo(reco::HitPattern::TRACK_HITS)) >= min3DHit_
+                    trk.hitPattern().numberOfValidStripLayersWithMonoAndStereo()) >= min3DHit_
                 && ptErrorbool && fabs(trk.pt()) >= ptMin_ && trk.eta() >= minRapidity_ 
                 && trk.eta() <= maxRapidity_ && fabs(trk.dxy(vtx.position())/trk.dxyError()) < tip_
                 && fabs(trk.dz(vtx.position())/trk.dzError()) < lip_

@@ -310,7 +310,7 @@ void MultiTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
   // Cuts on numbers of layers with hits/3D hits/lost hits.
   uint32_t nlayers     = tk.hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS);
   uint32_t nlayers3D   = tk.hitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS) +
-    tk.hitPattern().numberOfValidStripLayersWithMonoAndStereo(reco::HitPattern::TRACK_HITS);
+    tk.hitPattern().numberOfValidStripLayersWithMonoAndStereo();
   uint32_t nlayersLost = tk.hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS);
   LogDebug("TrackSelection") << "cuts on nlayers: " << nlayers << " " << nlayers3D << " " << nlayersLost << " vs " 
 			     << min_layers_[tsNum] << " " << min_3Dlayers_[tsNum] << " " << max_lostLayers_[tsNum];
@@ -515,7 +515,7 @@ void MultiTrackSelector::processMVA(edm::Event& evt, const edm::EventSetup& es)
     tmva_ndof_ = trk.ndof();
     tmva_nlayers_ = trk.hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS);
     tmva_nlayers3D_ = trk.hitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS)
-        + trk.hitPattern().numberOfValidStripLayersWithMonoAndStereo(reco::HitPattern::TRACK_HITS);
+        + trk.hitPattern().numberOfValidStripLayersWithMonoAndStereo();
     tmva_nlayerslost_ = trk.hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS);
     float chi2n =  trk.normalizedChi2();
     float chi2n_no1Dmod = chi2n;

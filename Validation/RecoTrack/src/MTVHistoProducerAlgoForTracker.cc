@@ -1193,7 +1193,7 @@ void MTVHistoProducerAlgoForTracker::fill_simAssociated_recoTrack_histos(int cou
     nLayersWithMeas_vs_eta[count]->Fill(getEta(track.eta()),track.hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS));
     nPXLlayersWithMeas_vs_eta[count]->Fill(getEta(track.eta()),track.hitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS));
     int LayersAll = track.hitPattern().stripLayersWithMeasurement(reco::HitPattern::TRACK_HITS);
-    int Layers2D = track.hitPattern().numberOfValidStripLayersWithMonoAndStereo(reco::HitPattern::TRACK_HITS);
+    int Layers2D = track.hitPattern().numberOfValidStripLayersWithMonoAndStereo();
     int Layers1D = LayersAll - Layers2D;
     nSTRIPlayersWithMeas_vs_eta[count]->Fill(getEta(track.eta()),LayersAll);
     nSTRIPlayersWith1dMeas_vs_eta[count]->Fill(getEta(track.eta()),Layers1D);
