@@ -443,7 +443,6 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	bool isSimMatched(false);
     bool isChargeMatched(true);
     int numAssocRecoTracks = 0;
-    //int tpbx = 0;
 	int nSimHits = 0;
 	double sharedFraction = 0.;
 	std::vector<std::pair<TrackingParticleRef, double> > tp;
@@ -456,7 +455,6 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
         if (tp[0].first->charge() != track->charge()) isChargeMatched = false;
         if(simRecColl.find(tp[0].first) != simRecColl.end()) numAssocRecoTracks = simRecColl[tp[0].first].size();
         //std::cout << numAssocRecoTracks << std::endl;
-	//tpbx = tp[0].first->eventId().bunchCrossing();
 	    at++;
 	    for (unsigned int tp_ite=0;tp_ite<tp.size();++tp_ite){
               TrackingParticle trackpart = *(tp[tp_ite].first);

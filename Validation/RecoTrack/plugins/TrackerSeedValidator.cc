@@ -303,7 +303,6 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
 	bool isSimMatched(false);
 	bool isChargeMatched(true);
 	int numAssocSeeds = 0;
-        //int tpbx = 0;
 	int nSimHits = 0;
 	double sharedFraction = 0.;
 	std::vector<std::pair<TrackingParticleRef, double> > tp;
@@ -317,7 +316,6 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
 	    if (tp[0].first->charge() != seed->startingState().parameters().charge()) isChargeMatched = false;
 	    if(simRecColl.find(tp[0].first) != simRecColl.end()) numAssocSeeds = simRecColl[tp[0].first].size();
 	    //std::cout << numAssocRecoTracks << std::endl;
-	    //tpbx = tp[0].first->eventId().bunchCrossing();
 
 	    at++;
 

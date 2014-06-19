@@ -291,7 +291,6 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
 	bool isGenMatched(false);
 	bool isChargeMatched(true);
 	int numAssocRecoTracks = 0;
-        //int tpbx = 0;
 	int nSimHits = 0;
 	double sharedFraction = 0.;
 	std::vector<std::pair<GenParticleRef, double> > tp;
@@ -307,9 +306,6 @@ void MultiTrackValidatorGenPs::analyze(const edm::Event& event, const edm::Event
 	    if (tp[0].first->charge() != track->charge()) isChargeMatched = false;
 	    if(genRecColl.find(tp[0].first) != genRecColl.end()) numAssocRecoTracks = genRecColl[tp[0].first].size();
 	    //std::cout << numAssocRecoTracks << std::endl;
-	    /*
-	    tpbx = tp[0].first->eventId().bunchCrossing();
-	    */
 	    at++;
 	    for (unsigned int tp_ite=0;tp_ite<tp.size();++tp_ite){ 
               GenParticle trackpart = *(tp[tp_ite].first);
