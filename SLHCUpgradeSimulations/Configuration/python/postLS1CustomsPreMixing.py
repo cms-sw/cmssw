@@ -35,7 +35,7 @@ def customisePostLS1(process):
 def digiEventContent(process):
     #extend the event content
 
-    alist=['RAWSIM','FEVTDEBUG','FEVTDEBUGHLT','GENRAW','RAWSIMHLT','FEVT','PREMIX','PREMIXRAW']
+    alist=['RAWSIM','RAWDEBUG','FEVTDEBUG','FEVTDEBUGHLT','GENRAW','RAWSIMHLT','FEVT','PREMIX','PREMIXRAW']
     for a in alist:
         b=a+'output'
         if hasattr(process,b):
