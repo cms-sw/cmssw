@@ -121,14 +121,9 @@ MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::Parame
   ParameterSet GpSelectorForEfficiencyVsVTXRPSet = pset.getParameter<ParameterSet>("GpSelectorForEfficiencyVsVTXR");
   ParameterSet GpSelectorForEfficiencyVsVTXZPSet = pset.getParameter<ParameterSet>("GpSelectorForEfficiencyVsVTXZ");
 
-  //ParameterSet TpSelectorForEfficiencyVsConPSet = TpSelectorForEfficiencyVsEtaPSet;
-  //Entry name("signalOnly",false,true);
-  //TpSelectorForEfficiencyVsConPSet.insert(true,"signalOnly",name);
-
   using namespace reco::modules;
   generalTpSelector               = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(generalTpSelectorPSet, iC));
   TpSelectorForEfficiencyVsEta    = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsEtaPSet, iC));
-  //TpSelectorForEfficiencyVsCon    = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsConPSet, iC));
   TpSelectorForEfficiencyVsPhi    = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsPhiPSet, iC));
   TpSelectorForEfficiencyVsPt     = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsPtPSet, iC));
   TpSelectorForEfficiencyVsVTXR   = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsVTXRPSet, iC));
@@ -136,7 +131,6 @@ MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::Parame
 
   generalGpSelector               = new GenParticleCustomSelector(ParameterAdapter<GenParticleCustomSelector>::make(generalGpSelectorPSet, iC));
   GpSelectorForEfficiencyVsEta    = new GenParticleCustomSelector(ParameterAdapter<GenParticleCustomSelector>::make(GpSelectorForEfficiencyVsEtaPSet, iC));
-  //GpSelectorForEfficiencyVsCon    = new GenParticleCustomSelector(ParameterAdapter<GenParticleCustomSelector>::make(GpSelectorForEfficiencyVsEtaPSet, iC));
   GpSelectorForEfficiencyVsPhi    = new GenParticleCustomSelector(ParameterAdapter<GenParticleCustomSelector>::make(GpSelectorForEfficiencyVsPhiPSet, iC));
   GpSelectorForEfficiencyVsPt     = new GenParticleCustomSelector(ParameterAdapter<GenParticleCustomSelector>::make(GpSelectorForEfficiencyVsPtPSet, iC));
   GpSelectorForEfficiencyVsVTXR   = new GenParticleCustomSelector(ParameterAdapter<GenParticleCustomSelector>::make(GpSelectorForEfficiencyVsVTXRPSet, iC));
@@ -161,7 +155,6 @@ MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::Parame
 MTVHistoProducerAlgoForTracker::~MTVHistoProducerAlgoForTracker(){
   delete generalTpSelector;
   delete TpSelectorForEfficiencyVsEta;
-  //delete TpSelectorForEfficiencyVsCon;
   delete TpSelectorForEfficiencyVsPhi;
   delete TpSelectorForEfficiencyVsPt;
   delete TpSelectorForEfficiencyVsVTXR;
@@ -169,7 +162,6 @@ MTVHistoProducerAlgoForTracker::~MTVHistoProducerAlgoForTracker(){
 
   delete generalGpSelector;
   delete GpSelectorForEfficiencyVsEta;
-  //delete GpSelectorForEfficiencyVsCon;
   delete GpSelectorForEfficiencyVsPhi;
   delete GpSelectorForEfficiencyVsPt;
   delete GpSelectorForEfficiencyVsVTXR;
@@ -267,58 +259,6 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::IBooker& ibook){
   BinLogX(h_assocdr.back()->getTH1F());
   BinLogX(h_assoc2dr.back()->getTH1F());
   BinLogX(h_simuldr.back()->getTH1F());
-
-//   h_reco_vertcount_entire.push_back( ibook.book1D("num_reco_vertcount_entire","N of reco tracks vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-//   h_assoc_vertcount_entire.push_back( ibook.book1D("num_assoc(simToReco)_vertcount_entire","N of associated tracks (simToReco) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-//   h_assoc2_vertcount_entire.push_back( ibook.book1D("num_assoc(recoToSim)_vertcount_entire","N of associated (recoToSim) tracks vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-//   h_simul_vertcount_entire.push_back( ibook.book1D("num_simul_vertcount_entire","N of simulated tracks vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-
-//   h_reco_vertcount_barrel.push_back( ibook.book1D("num_reco_vertcount_barrel","N of reco tracks in barrel vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-//   h_assoc_vertcount_barrel.push_back( ibook.book1D("num_assoc(simToReco)_vertcount_barrel","N of associated tracks (simToReco) in barrel vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-//   h_assoc2_vertcount_barrel.push_back( ibook.book1D("num_assoc(recoToSim)_vertcount_barrel","N of associated (recoToSim) tracks in barrel vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-//   h_simul_vertcount_barrel.push_back( ibook.book1D("num_simul_vertcount_barrel","N of simulated tracks in barrel vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-
-//   h_reco_vertcount_fwdpos.push_back( ibook.book1D("num_reco_vertcount_fwdpos","N of reco tracks in endcap(+) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-//   h_assoc_vertcount_fwdpos.push_back( ibook.book1D("num_assoc(simToReco)_vertcount_fwdpos","N of associated tracks (simToReco) in endcap(+) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-//   h_assoc2_vertcount_fwdpos.push_back( ibook.book1D("num_assoc(recoToSim)_vertcount_fwdpos","N of associated (recoToSim) tracks in endcap(+) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-//   h_simul_vertcount_fwdpos.push_back( ibook.book1D("num_simul_vertcount_fwdpos","N of simulated tracks in endcap(+) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-
-//   h_reco_vertcount_fwdneg.push_back( ibook.book1D("num_reco_vertcount_fwdneg","N of reco tracks in endcap(-) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-//   h_assoc_vertcount_fwdneg.push_back( ibook.book1D("num_assoc(simToReco)_vertcount_fwdneg","N of associated tracks (simToReco) in endcap(-) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-//   h_assoc2_vertcount_fwdneg.push_back( ibook.book1D("num_assoc(recoToSim)_vertcount_fwdneg","N of associated (recoToSim) tracks in endcap(-) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-//   h_simul_vertcount_fwdneg.push_back( ibook.book1D("num_simul_vertcount_fwdneg","N of simulated tracks in endcap(-) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-
-//   h_assoc_vertz_entire.push_back( ibook.book1D("num_assoc(simToReco)_vertz_entire","N of associated tracks (simToReco) in entire vs z of primary intercation vertex",nintZpos,minZpos,maxZpos) );
-//   h_simul_vertz_entire.push_back( ibook.book1D("num_simul_vertz_entire","N of simulated tracks in entire vs N of pileup vertices",nintZpos,minZpos,maxZpos) );
-
-//   h_assoc_vertz_barrel.push_back( ibook.book1D("num_assoc(simToReco)_vertz_barrel","N of associated tracks (simToReco) in barrel vs z of primary intercation vertex",nintZpos,minZpos,maxZpos) );
-//   h_simul_vertz_barrel.push_back( ibook.book1D("num_simul_vertz_barrel","N of simulated tracks in barrel vs N of pileup vertices",nintZpos,minZpos,maxZpos) );
-
-//   h_assoc_vertz_fwdpos.push_back( ibook.book1D("num_assoc(simToReco)_vertz_fwdpos","N of associated tracks (simToReco) in endcap(+) vs z of primary interaction vertex",nintZpos,minZpos,maxZpos) );
-//   h_simul_vertz_fwdpos.push_back( ibook.book1D("num_simul_vertz_fwdpos","N of simulated tracks in endcap(+) vs z of primary interaction vertex",nintZpos,minZpos,maxZpos) );
-
-//   h_assoc_vertz_fwdneg.push_back( ibook.book1D("num_assoc(simToReco)_vertz_fwdneg","N of associated tracks (simToReco) in endcap(-) vs N of pileup vertices",nintZpos,minZpos,maxZpos) );
-//   h_simul_vertz_fwdneg.push_back( ibook.book1D("num_simul_vertz_fwdneg","N of simulated tracks in endcap(-) vs z of primary interaction vertex",nintZpos,minZpos,maxZpos) );
-// /*
-//   h_assoc2_itpu_eta.push_back( ibook.book1D("num_assoc(recoToSim)_itpu_eta_entire","N of associated tracks (simToReco) from in time pileup vs eta",nintEta,minEta,maxEta) );
-//   h_assoc2_itpu_sig_eta.push_back( ibook.book1D("num_assoc(recoToSim)_itpu_eta_entire_signal","N of associated tracks (simToReco) from in time pileup vs eta",nintEta,minEta,maxEta) );
-//   h_assoc2_itpu_vertcount.push_back( ibook.book1D("num_assoc(recoToSim)_itpu_vertcount_entire","N of associated tracks (simToReco) from in time pileup vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-//   h_assoc2_itpu_sig_vertcount.push_back( ibook.book1D("num_assoc(recoToSim)_itpu_vertcount_entire_signal","N of associated tracks (simToReco) from in time pileup vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );*/
-
-//   h_reco_ootpu_eta.push_back( ibook.book1D("num_reco_ootpu_eta_entire","N of reco tracks vs eta",nintEta,minEta,maxEta) );
-//   h_reco_ootpu_vertcount.push_back( ibook.book1D("num_reco_ootpu_vertcount_entire","N of reco tracks vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-
-//   h_assoc2_ootpu_entire.push_back( ibook.book1D("num_assoc(recoToSim)_ootpu_eta_entire","N of associated tracks (simToReco) from out of time pileup vs eta",nintEta,minEta,maxEta) );
-//   h_assoc2_ootpu_vertcount.push_back( ibook.book1D("num_assoc(recoToSim)_ootpu_vertcount_entire","N of associated tracks (simToReco) from out of time pileup vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-
-//   h_reco_ootpu_entire.push_back( ibook.book1D("num_reco_ootpu_entire","N of reco tracks vs z of primary interaction vertex",nintVertcount,minVertcount,maxVertcount) );
-//   h_assoc2_ootpu_barrel.push_back( ibook.book1D("num_assoc(recoToSim)_ootpu_barrel","N of associated tracks (simToReco) from out of time pileup in barrel vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-//   h_reco_ootpu_barrel.push_back( ibook.book1D("num_reco_ootpu_barrel","N of reco tracks in barrel vs z of primary interaction vertex",nintVertcount,minVertcount,maxVertcount) );
-//   h_assoc2_ootpu_fwdpos.push_back( ibook.book1D("num_assoc(recoToSim)_ootpu_fwdpos","N of associated tracks (simToReco) from out of time pileup in endcap(+) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-//   h_reco_ootpu_fwdpos.push_back( ibook.book1D("num_reco_ootpu_fwdpos","N of reco tracks in endcap(+) vs z of primary interaction vertex",nintVertcount,minVertcount,maxVertcount) );
-//   h_assoc2_ootpu_fwdneg.push_back( ibook.book1D("num_assoc(recoToSim)_ootpu_fwdneg","N of associated tracks (simToReco) from out of time pileup in endcap(-) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-//   h_reco_ootpu_fwdneg.push_back( ibook.book1D("num_reco_ootpu_fwdneg","N of reco tracks in endcap(-) vs z of primary interaction vertex",nintVertcount,minVertcount,maxVertcount) );
-
 
   /////////////////////////////////
 
@@ -451,11 +391,6 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(DQMStore::IBooker& ibook){
   h_dedx_sat1.push_back( ibook.book1D("h_dedx_sat1","dE/dx number of measurements with saturation",nintHit,minHit,maxHit) );
   h_dedx_sat2.push_back( ibook.book1D("h_dedx_sat2","dE/dx number of measurements with saturation",nintHit,minHit,maxHit) );
 
-  // PU special stuff
-  //h_con_eta.push_back( ibook.book1D("num_con_eta","N of PU tracks vs eta",nintEta,minEta,maxEta) );
-  //h_con_vertcount.push_back( ibook.book1D("num_con_vertcount","N of PU tracks vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  //h_con_zpos.push_back( ibook.book1D("num_con_zpos","N of PU tracks vs z of primary interaction vertex",nintZpos,minZpos,maxZpos) );
-
 
   if(useLogPt){
     BinLogX(dzres_vs_pt.back()->getTH2F());
@@ -484,14 +419,6 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistosForStandaloneRunning(DQMStore
   h_effic_vs_zpos.push_back( ibook.book1D("effic_vs_zpos","effic vs zpos",nintZpos,minZpos,maxZpos) );
   h_effic_vs_dr.push_back( ibook.book1D("effic_vs_dr","effic vs dr",nintdr,log10(mindr),log10(maxdr)) );
   BinLogX(h_effic_vs_dr.back()->getTH1F());
-  //h_effic_vertcount_entire.push_back( ibook.book1D("effic_vertcount_entire","efficiency vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  //h_effic_vertcount_barrel.push_back( ibook.book1D("effic_vertcount_barrel","efficiency in barrel vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  //h_effic_vertcount_fwdpos.push_back( ibook.book1D("effic_vertcount_fwdpos","efficiency in endcap(+) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  //h_effic_vertcount_fwdneg.push_back( ibook.book1D("effic_vertcount_fwdneg","efficiency in endcap(-) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  //h_effic_vertz_entire.push_back( ibook.book1D("effic_vertz_entire","efficiency vs z of primary interaction vertex",nintZpos,minZpos,maxZpos) );
-  //h_effic_vertz_barrel.push_back( ibook.book1D("effic_vertz_barrel","efficiency in barrel vs z of primary interaction vertex",nintZpos,minZpos,maxZpos) );
-  //h_effic_vertz_fwdpos.push_back( ibook.book1D("effic_vertz_fwdpos","efficiency in endcap(+) vs z of primary interaction vertex",nintZpos,minZpos,maxZpos) );
-  //h_effic_vertz_fwdneg.push_back( ibook.book1D("effic_vertz_fwdneg","efficiency in endcap(-) vs z of primary interaction vertex",nintZpos,minZpos,maxZpos) );
 
   h_looprate.push_back( ibook.book1D("duplicatesRate","loop rate vs #eta",nintEta,minEta,maxEta) );
   h_misidrate.push_back( ibook.book1D("chargeMisIdRate","misid rate vs #eta",nintEta,minEta,maxEta) );
@@ -516,27 +443,6 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistosForStandaloneRunning(DQMStore
   h_fake_vs_dz.push_back( ibook.book1D("fakerate_vs_dz","fake vs dz",nintDz,minDz,maxDz) );
   h_fakerate_vs_dr.push_back( ibook.book1D("fakerate_vs_dr","fakerate vs dr",nintdr,log10(mindr),log10(maxdr)) );
   BinLogX(h_fakerate_vs_dr.back()->getTH1F());
-  //h_fakerate_vertcount_entire.push_back( ibook.book1D("fakerate_vertcount_entire","fake rate vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  //h_fakerate_vertcount_barrel.push_back( ibook.book1D("fakerate_vertcount_barrel","fake rate in barrel vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  //h_fakerate_vertcount_fwdpos.push_back( ibook.book1D("fakerate_vertcount_fwdpos","fake rate in endcap(+) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  //h_fakerate_vertcount_fwdneg.push_back( ibook.book1D("fakerate_vertcount_fwdneg","fake rate in endcap(-) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  //h_fakerate_ootpu_entire.push_back( ibook.book1D("fakerate_ootpu_eta_entire","Out of time pileup fake rate vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  //h_fakerate_ootpu_barrel.push_back( ibook.book1D("fakerate_ootpu_barrel","Out of time pileup fake rate in barrel vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  //h_fakerate_ootpu_fwdpos.push_back( ibook.book1D("fakerate_ootpu_fwdpos","Out of time pileup fake rate in endcap(+) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  //h_fakerate_ootpu_fwdneg.push_back( ibook.book1D("fakerate_ootpu_fwdneg","Out of time pileup fake rate in endcap(-) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-
-  //h_fomt_eta.push_back( ibook.book1D("fomt","fraction of misreconstructed tracks vs #eta",nintEta,minEta,maxEta) );
-  //h_fomt_sig_eta.push_back( ibook.book1D("fomt_signal","fraction of misreconstructed tracks vs #eta",nintEta,minEta,maxEta) );
-  //h_fomt_vertcount.push_back( ibook.book1D("fomt_vertcount","fraction of misreconstructed tracks vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  //h_fomt_sig_vertcount.push_back( ibook.book1D("fomt_vertcount_signal","fraction of misreconstructed tracks vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  //h_fomt_ootpu_eta.push_back( ibook.book1D("fomt_ootpu_eta","Out of time pileup fraction of misreconstructed tracks vs #eta",nintEta,minEta,maxEta) );
-  //h_fomt_ootpu_vertcount.push_back( ibook.book1D("fomt_ootpu_vertcount","Out of time pileup fraction of misreconstructed tracks vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  //h_fomt_itpu_eta.push_back( ibook.book1D("fomt_itpu_eta","In time pileup fraction of misreconstructed tracks vs eta",nintEta,minEta,maxEta) );
-  //h_fomt_itpu_vertcount.push_back( ibook.book1D("fomt_itpu_vertcount","In time pileup fraction of misreconstructed tracks vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-
-  //h_effic_PU_eta.push_back( ibook.book1D("effic_PU_eta","PU efficiency vs #eta",nintEta,minEta,maxEta) );
-  //h_effic_PU_vertcount.push_back( ibook.book1D("effic_PU_vertcount","PU efficiency s N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  //h_effic_PU_zpos.push_back( ibook.book1D("effic_PU_zpos","PU efficiency vs z of primary interaction vertex",nintZpos,minZpos,maxZpos) );
 
   h_chi2meanhitsh.push_back( ibook.bookProfile("chi2mean_vs_nhits","mean #chi^{2} vs nhits",25,0,25,100,0,10) );
   h_chi2meanh.push_back( ibook.bookProfile("chi2mean","mean #chi^{2} vs #eta",nintEta,minEta,maxEta, 200, 0, 20) );
@@ -640,7 +546,7 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
 									 const TrackingParticle::Point& vertexTP,
 									 double dxySim, double dzSim, int nSimHits,
 									 const reco::Track* track,
-									 int numVertices, //double vertz, 
+									 int numVertices,
 									 double dR){
   bool isMatched = track;
 
@@ -660,21 +566,6 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
     //efficiency vs dR
     fillPlotNoFlow(h_simuldr[count],dR);
     if (isMatched) fillPlotNoFlow(h_assocdr[count],dR);
-    //effic vs num pileup vertices
-    //fillPlotNoFlow(h_simul_vertcount_entire[count],numVertices);
-    //if (isMatched) fillPlotNoFlow(h_assoc_vertcount_entire[count],numVertices);
-    //if (momentumTP.eta() <= 0.9 && momentumTP.eta() >= -0.9) {
-    //fillPlotNoFlow(h_simul_vertcount_barrel[count],numVertices);
-    //if (isMatched) fillPlotNoFlow(h_assoc_vertcount_barrel[count],numVertices);
-    //}
-    //if (momentumTP.eta() > 0.9) {
-    //fillPlotNoFlow(h_simul_vertcount_fwdpos[count],numVertices);
-    //if (isMatched) fillPlotNoFlow(h_assoc_vertcount_fwdpos[count],numVertices);
-    //}
-    //if (momentumTP.eta() < -0.9) {
-    //fillPlotNoFlow(h_simul_vertcount_fwdneg[count],numVertices);
-    //if (isMatched) fillPlotNoFlow(h_assoc_vertcount_fwdneg[count],numVertices);
-    //}
   }
 
   if((*TpSelectorForEfficiencyVsPhi)(tp)){
@@ -702,29 +593,7 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
 
     fillPlotNoFlow(h_simulzpos[count],vertexTP.z());
     if (isMatched) fillPlotNoFlow(h_assoczpos[count],vertexTP.z());
-
-    //fillPlotNoFlow(h_simul_vertz_entire[count],vertz);
-    //if (isMatched) fillPlotNoFlow(h_assoc_vertz_entire[count],vertz);
-    //if (momentumTP.eta() <= 0.9 && momentumTP.eta() >= -0.9) {
-    //fillPlotNoFlow(h_simul_vertz_barrel[count],vertz);
-    //if (isMatched) fillPlotNoFlow(h_assoc_vertz_barrel[count],vertz);
-    //}
-    //if (momentumTP.eta() > 0.9) {
-    //fillPlotNoFlow(h_simul_vertz_fwdpos[count],vertz);
-    //if (isMatched) fillPlotNoFlow(h_assoc_vertz_fwdpos[count],vertz);
-    //}
-    //if (momentumTP.eta() < -0.9) {
-    //fillPlotNoFlow(h_simul_vertz_fwdneg[count],vertz);
-    //if (isMatched) fillPlotNoFlow(h_assoc_vertz_fwdneg[count],vertz);
-    //}
   }
-
-  //Special investigations for PU
-  //if(((*TpSelectorForEfficiencyVsCon)(tp)) && (!((*TpSelectorForEfficiencyVsEta)(tp)))){
-  //fillPlotNoFlow(h_con_eta[count],getEta(momentumTP.eta()));
-  //fillPlotNoFlow(h_con_vertcount[count],numVertices);
-  //fillPlotNoFlow(h_con_zpos[count],vertexTP.z());
-  //}
 
 }
 
@@ -761,7 +630,6 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
 								   bool isChargeMatched,
 								   int numAssocRecoTracks,
 								   int numVertices,
-								   //int tpbunchcrossing, 
 								   int nSimHits,
 								   double sharedFraction,
 								   double dR){
@@ -776,16 +644,10 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
     fillPlotNoFlow(h_assoc2eta[count],getEta(track.momentum().eta()));
     if (!isChargeMatched) fillPlotNoFlow(h_misideta[count],getEta(track.momentum().eta()));
     if (numAssocRecoTracks>1) fillPlotNoFlow(h_loopereta[count],getEta(track.momentum().eta()));
-    //if (tpbunchcrossing==0) totASS2_itpu_eta_entire[count][f]++;//fixme
-    //if (tpbunchcrossing!=0) totASS2_ootpu_eta_entire[count][f]++;//fixme
     nrecHit_vs_nsimHit_rec2sim[count]->Fill( track.numberOfValidHits(),nSimHits);
     h_assocFraction[count]->Fill( sharedFraction);
     h_assocSharedHit[count]->Fill( sharedHits);
   }
-  //if (isSigMatched) {
-  //totASS2etaSig[count][f]++;//fixme
-  //if (tpbunchcrossing==0) totASS2_itpu_eta_entire_signal[count][f]++;//fixme
-  //}
 
   fillPlotNoFlow(h_recophi[count],track.momentum().phi());
   if (isMatched) {
@@ -833,43 +695,6 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
   //fakerate vs dR
   h_recodr[count]->Fill(min(max(dR,h_recodr[count]->getTH1()->GetXaxis()->GetXmin()),h_recodr[count]->getTH1()->GetXaxis()->GetXmax()));
   if (isMatched) h_assoc2dr[count]->Fill(min(max(dR,h_recodr[count]->getTH1()->GetXaxis()->GetXmin()),h_recodr[count]->getTH1()->GetXaxis()->GetXmax()));
-
-  //fillPlotNoFlow(h_reco_vertcount_entire[count],numVertices);
-  //fillPlotNoFlow(h_reco_ootpu_entire[count],numVertices);
-  //if (isMatched) {
-  //fillPlotNoFlow(h_assoc2_vertcount_entire[count],numVertices);
-    //if (tpbunchcrossing==0) totASS2_itpu_vertcount_entire[count][f]++;//fixme
-    //fillPlotNoFlow(h_assoc2_ootpu_entire[count],numVertices);
-  //}
-  //if (isSigMatched) {//fixme
-    //totASS2_vertcount_entire_signal[count][f]++;//fixme
-    //if (tpbunchcrossing==0) totASS2_itpu_vertcount_entire_signal[count][f]++;//fixme
-  //}
-  //if (track.eta() <= 0.9 && track.eta() >= -0.9) {
-  //fillPlotNoFlow(h_reco_vertcount_barrel[count],numVertices);
-  //fillPlotNoFlow(h_reco_ootpu_barrel[count],numVertices);
-  //if (isMatched) {
-  //fillPlotNoFlow(h_assoc2_vertcount_barrel[count],numVertices);
-  //fillPlotNoFlow(h_assoc2_ootpu_barrel[count],numVertices);
-  //}
-  //}
-  //if (track.eta() > 0.9) {
-  //fillPlotNoFlow(h_reco_vertcount_fwdpos[count],numVertices);
-  //fillPlotNoFlow(h_reco_ootpu_fwdpos[count],numVertices);
-  //if (isMatched) {
-  //fillPlotNoFlow(h_assoc2_vertcount_fwdpos[count],numVertices);
-  //fillPlotNoFlow(h_assoc2_ootpu_fwdpos[count],numVertices);
-  //}
-  //}
-  //if (track.eta() < -0.9) {
-  //fillPlotNoFlow(h_reco_vertcount_fwdneg[count],numVertices);
-  //fillPlotNoFlow(h_reco_ootpu_fwdneg[count],numVertices);
-  //if (isMatched) {
-  //fillPlotNoFlow(h_assoc2_vertcount_fwdneg[count],numVertices);
-  //fillPlotNoFlow(h_assoc2_ootpu_fwdneg[count],numVertices);
-  //}
-  //}
-
 }
 
 
@@ -1177,12 +1002,6 @@ void MTVHistoProducerAlgoForTracker::finalHistoFits(int counter){
   fsyt_thetapPhi.getFittedMeanWithError(h_thetapullphimean[counter]);
 
   //effic&fake;
-  //for (unsigned int ite = 0;ite<totASSeta[counter].size();ite++) totFOMT_eta[counter][ite]=totASS2eta[counter][ite]-totASS2etaSig[counter][ite];
-  //for (unsigned int ite = 0;ite<totASS2_vertcount_entire[counter].size();ite++)
-  //  totFOMT_vertcount[counter][ite]=totASS2_vertcount_entire[counter][ite]-totASS2_vertcount_entire_signal[counter][ite];
-  //for (unsigned int ite = 0;ite<totASS2_itpu_eta_entire[counter].size();ite++) totASS2_itpu_eta_entire[counter][ite]-=totASS2_itpu_eta_entire_signal[counter][ite];
-  //for (unsigned int ite = 0;ite<totASS2_itpu_vertcount_entire[counter].size();ite++) totASS2_itpu_vertcount_entire[counter][ite]-=totASS2_itpu_vertcount_entire_signal[counter][ite];
-
   fillPlotFromPlots(h_effic[counter],h_assoceta[counter]->getTH1(),h_simuleta[counter]->getTH1(),"effic");
   fillPlotFromPlots(h_fakerate[counter],h_assoc2eta[counter]->getTH1(),h_recoeta[counter]->getTH1(),"fakerate");
   fillPlotFromPlots(h_looprate[counter],h_loopereta[counter]->getTH1(),h_recoeta[counter]->getTH1(),"effic");
@@ -1215,36 +1034,6 @@ void MTVHistoProducerAlgoForTracker::finalHistoFits(int counter){
   fillPlotFromPlots(h_effic_vs_zpos[counter],h_assoczpos[counter]->getTH1(),h_simulzpos[counter]->getTH1(),"effic");
   fillPlotFromPlots(h_effic_vs_dr[counter],h_assocdr[counter]->getTH1(),h_simuldr[counter]->getTH1(),"effic");
   fillPlotFromPlots(h_fakerate_vs_dr[counter],h_assoc2dr[counter]->getTH1(),h_recodr[counter]->getTH1(),"fakerate");
-  //fillPlotFromPlots(h_effic_vertcount_entire[counter],h_assoc_vertcount_entire[counter]->getTH1(),h_simul_vertcount_entire[counter]->getTH1(),"effic");
-  //fillPlotFromPlots(h_effic_vertcount_barrel[counter],h_assoc_vertcount_barrel[counter]->getTH1(),h_simul_vertcount_barrel[counter]->getTH1(),"effic");
-  //fillPlotFromPlots(h_effic_vertcount_fwdpos[counter],h_assoc_vertcount_fwdpos[counter]->getTH1(),h_simul_vertcount_fwdpos[counter]->getTH1(),"effic");
-  //fillPlotFromPlots(h_effic_vertcount_fwdneg[counter],h_assoc_vertcount_fwdneg[counter]->getTH1(),h_simul_vertcount_fwdneg[counter]->getTH1(),"effic");
-  //fillPlotFromPlots(h_fakerate_vertcount_entire[counter],h_assoc2_vertcount_entire[counter]->getTH1(),h_reco_vertcount_entire[counter]->getTH1(),"fakerate");
-  //fillPlotFromPlots(h_fakerate_vertcount_barrel[counter],h_assoc2_vertcount_barrel[counter]->getTH1(),h_reco_vertcount_barrel[counter]->getTH1(),"fakerate");
-  //fillPlotFromPlots(h_fakerate_vertcount_fwdpos[counter],h_assoc2_vertcount_fwdpos[counter]->getTH1(),h_reco_vertcount_fwdpos[counter]->getTH1(),"fakerate");
-  //fillPlotFromPlots(h_fakerate_vertcount_fwdneg[counter],h_assoc2_vertcount_fwdneg[counter]->getTH1(),h_reco_vertcount_fwdneg[counter]->getTH1(),"fakerate");
-  //fillPlotFromPlots(h_effic_vertz_entire[counter],h_assoc_vertz_entire[counter]->getTH1(),h_simul_vertz_entire[counter]->getTH1(),"effic");
-  //fillPlotFromPlots(h_effic_vertz_barrel[counter],h_assoc_vertz_barrel[counter]->getTH1(),h_simul_vertz_barrel[counter]->getTH1(),"effic");
-  //fillPlotFromPlots(h_effic_vertz_fwdpos[counter],h_assoc_vertz_fwdpos[counter]->getTH1(),h_simul_vertz_fwdpos[counter]->getTH1(),"effic");
-  //fillPlotFromPlots(h_effic_vertz_fwdneg[counter],h_assoc_vertz_fwdneg[counter]->getTH1(),h_simul_vertz_fwdneg[counter]->getTH1(),"effic");
-  //fillPlotFromPlots(h_fakerate_ootpu_entire[counter],h_assoc2_ootpu_entire[counter]->getTH1(),h_reco_ootpu_entire[counter]->getTH1(),"effic");
-  //fillPlotFromPlots(h_fakerate_ootpu_barrel[counter],h_assoc2_ootpu_barrel[counter]->getTH1(),h_reco_ootpu_barrel[counter]->getTH1(),"effic");
-  //fillPlotFromPlots(h_fakerate_ootpu_fwdpos[counter],h_assoc2_ootpu_fwdpos[counter]->getTH1(),h_reco_ootpu_fwdpos[counter]->getTH1(),"effic");
-  //fillPlotFromPlots(h_fakerate_ootpu_fwdneg[counter],h_assoc2_ootpu_fwdneg[counter]->getTH1(),h_reco_ootpu_fwdneg[counter]->getTH1(),"effic");
-
-  //fillPlotFromPlots(h_fomt_eta[counter],totFOMT_eta[counter],h_assoc2etaSig[counter]->getTH1(),"pileup");
-  //fillPlotFromPlots(h_fomt_vertcount[counter],totFOMT_vertcount[counter],h_assoc2_vertcount_entire_signal[counter]->getTH1(),"pileup");
-  //fillPlotFromPlots(h_fomt_sig_eta[counter],h_assoc2etaSig[counter],h_recoeta[counter]->getTH1(),"fakerate");
-  //fillPlotFromPlots(h_fomt_sig_vertcount[counter],h_assoc2_vertcount_entire_signal[counter],h_reco_vertcount_entire[counter]->getTH1(),"fakerate");
-  //fillPlotFromPlots(h_fomt_itpu_eta[counter],h_assoc2_itpu_eta_entire[counter],h_recoeta[counter]->getTH1(),"effic");
-  //fillPlotFromPlots(h_fomt_itpu_vertcount[counter],h_assoc2_itpu_vertcount_entire[counter],h_reco_vertcount_entire[counter]->getTH1(),"effic");
-  //fillPlotFromPlots(h_fomt_ootpu_eta[counter],h_assoc2_ootpu_eta_entire[counter]->getTH1(),h_recoeta[counter]->getTH1(),"effic");
-  //fillPlotFromPlots(h_fomt_ootpu_vertcount[counter],h_assoc2_ootpu_entire[counter]->getTH1(),h_reco_ootpu_entire[counter]->getTH1(),"effic");
-
-  //fillPlotFromPlots(h_effic_PU_eta[counter],h_assoceta[counter]->getTH1(),h_con_eta[counter]->getTH1(),"pileup");
-  //fillPlotFromPlots(h_effic_PU_vertcount[counter],h_assoc_vertcount_entire[counter]->getTH1(),h_con_vertcount[counter]->getTH1(),"pileup");
-  //fillPlotFromPlots(h_effic_PU_zpos[counter],h_assoczpos[counter]->getTH1(),h_con_zpos[counter]->getTH1(),"pileup");
-
 }
 
 void MTVHistoProducerAlgoForTracker::fillProfileHistosFromVectors(int counter){
@@ -1284,7 +1073,7 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
 									 const TrackingParticle::Point& vertexTP,
 									 double dxySim, double dzSim, int nSimHits,
 									 const reco::Track* track,
-									 int numVertices/*, double vertz*/){
+									 int numVertices){
 
   bool isMatched = track;
 
@@ -1302,8 +1091,7 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
     fillPlotNoFlow(h_simulpu[count],numVertices);
     if (isMatched) fillPlotNoFlow(h_assocpu[count],numVertices);
     //efficiency vs dR
-    //fillPlotNoFlow(h_simuldr[count],dR);
-    //if (isMatched) fillPlotNoFlow(h_assocdr[count],dR);
+    //not implemented for now
   }
 
   if((*GpSelectorForEfficiencyVsPhi)(tp)){
