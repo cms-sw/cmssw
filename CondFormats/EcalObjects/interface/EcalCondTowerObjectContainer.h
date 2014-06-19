@@ -6,7 +6,7 @@
 #include "DataFormats/EcalDetId/interface/EcalContainer.h"
 #include "DataFormats/EcalDetId/interface/EcalTrigTowerDetId.h"
 #include "DataFormats/EcalDetId/interface/EcalScDetId.h"
-
+#include "CondFormats/EcalObjects/interface/throwInvalidRawIdException.h"
 
 // #include <cstdio>
 
@@ -109,7 +109,8 @@ class EcalCondTowerObjectContainer {
 			} else if(  id.subdetId() == EcalEndcap  ) { 
 			  return ee_[rawId];
 			} else {
-                          thread_local static Item dummy;
+			  ecalobjects::throwInvalidRawIdException("EcalCondTowerObjectContainer<T>::operator[]",rawId);
+			  static T dummy;
 			  return dummy;
                         }
                 }

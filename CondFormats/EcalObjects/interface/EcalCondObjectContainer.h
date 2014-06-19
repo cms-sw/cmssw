@@ -7,6 +7,8 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
+#include "CondFormats/EcalObjects/interface/throwInvalidRawIdException.h"
+
 template < typename T >
 class EcalCondObjectContainer {
         public:
@@ -51,7 +53,7 @@ class EcalCondObjectContainer {
                                         }
                                         break;
                                 default:
-                                        // FIXME (add throw)
+    				        ecalobjects::throwInvalidRawIdException("EcalCondObjectContainer<T>::insert",a.first);
                                         return;
                         }
                 }
@@ -76,7 +78,6 @@ class EcalCondObjectContainer {
                                         }
                                         break;
                                 default:
-                                        // FIXME (add throw)
                                         return ee_.end();
                         }
                 }
@@ -124,9 +125,12 @@ class EcalCondObjectContainer {
                                         }
                                         break;
                                 default:
-                                        // FIXME (add throw)
-                                        thread_local static Item dummy;
-                                        return dummy;
+				        {
+					        ecalobjects::throwInvalidRawIdException("EcalCondObjectContainer<T>::operator[]",rawId);
+						static T dummy;
+						return dummy;
+					}
+
                         }
                 }
 #else
@@ -148,9 +152,9 @@ class EcalCondObjectContainer {
                                         }
                                         break;
                                 default:
-                                        // FIXME (add throw)
-                                        // sizeof(Item) <= sizeof(int64_t) for all Items.
-                                        return Item();
+					        ecalobjects::throwInvalidRawIdException("EcalCondObjectContainer<T>::operator[]",rawId);
+						// sizeof(Item) <= sizeof(int64_t) for all Items.
+						return Item();
                         }
                 }
                 
