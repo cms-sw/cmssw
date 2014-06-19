@@ -37,3 +37,7 @@ L1TkPhotons = cms.EDProducer("L1TkEmParticleProducer",
         L1VertexInputTag = cms.InputTag("NotUsed"),     # Used only when PrimaryVtxConstrain = True
 )
 
+
+L1TkPhotonsTightIsol = L1TkPhotons.clone()
+L1TkPhotonsTightIsol.IsoCut = cms.double( 0.10)
+
