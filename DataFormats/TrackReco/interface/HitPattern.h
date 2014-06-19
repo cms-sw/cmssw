@@ -120,10 +120,9 @@ public:
     };
 
     enum HitCategory {
-        ALL_HITS = 0,
-        TRACK_HITS = 1,
-        MISSING_INNER_HITS = 2,
-        MISSING_OUTER_HITS = 3
+        TRACK_HITS = 0,
+        MISSING_INNER_HITS = 1,
+        MISSING_OUTER_HITS = 2
     };
 
     static const unsigned short MaxHits = 72;
@@ -393,9 +392,6 @@ private:
 inline std::pair<uint8_t, uint8_t> HitPattern::getCategoryIndexRange(HitCategory category) const
 {
     switch (category) {
-    case ALL_HITS:
-        return std::pair<uint8_t, uint8_t>(0, hitCount);
-        break;
     case TRACK_HITS:
         return std::pair<uint8_t, uint8_t>(beginTrackHits, endTrackHits);
         break;

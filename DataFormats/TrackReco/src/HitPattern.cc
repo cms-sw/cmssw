@@ -251,13 +251,19 @@ bool HitPattern::appendHit(const DetId &id, TrackingRecHit::Type hitType)
 uint16_t HitPattern::getHitPattern(HitCategory category, int position) const
 {
     std::pair<uint8_t, uint8_t> range = getCategoryIndexRange(category);
-    return ((position + range.first) < range.second) ? hitPattern[position + range.first] : HitPattern::EMPTY_PATTERN;
+    if unlikely((position < 0 || (position + range.first) >= range.second)){
+        return HitPattern::EMPTY_PATTERN;
+    }
+    return  hitPattern[position + range.first];
 }
 
 
 uint16_t HitPattern::getHitPatternByAbsoluteIndex(int position) const
 {
-    return getHitPattern(ALL_HITS, position);
+    if unlikely((position < 0 || position >= hitCount)){
+        return HitPattern::EMPTY_PATTERN;
+    }
+    return hitPattern[position];
 }
 
 bool HitPattern::hasValidHitInFirstPixelBarrel() const
