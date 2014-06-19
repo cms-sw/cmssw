@@ -51,7 +51,8 @@ namespace L1TkElectronTrackMatchAlgo {
   }
 // --------------- calculate deltaPhi between Track and EGamma object                 
   double deltaR(const GlobalPoint& epos, const edm::Ptr< L1TkTrackType > & pTrk){
-    double dPhi = fabs(reco::deltaPhi(epos.phi(), pTrk->getMomentum().phi()));
+    //double dPhi = fabs(reco::deltaPhi(epos.phi(), pTrk->getMomentum().phi()));
+    double dPhi = L1TkElectronTrackMatchAlgo::deltaPhi(epos, pTrk);
     double dEta = deltaEta(epos, pTrk);
     return sqrt(dPhi*dPhi + dEta*dEta);
   }

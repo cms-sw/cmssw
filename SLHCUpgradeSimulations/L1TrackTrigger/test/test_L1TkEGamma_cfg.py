@@ -4,10 +4,11 @@ process = cms.Process("ALL")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
 #
-# This runs over a file that already contains the L1Tracks.
+# This first creates the collection of "L1Tracks for electrons" by running
+# the FullTrackingSequence. 
 #
 # It produces the following objects :
 #    - L1EG objects obtained by running the SLHCCaloTrigger sequence
@@ -41,6 +42,17 @@ process.source = cms.Source("PoolSource",
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'PH2_1K_FB_V3::All', '')
+
+
+# ---------------------------------------------------------------------------
+#
+# --- Create the collection of special tracks for electrons
+#
+
+process.load("SLHCUpgradeSimulations.L1TrackTrigger.L1TrackingSequence_cfi")
+process.pTracking = cms.Path( process.ElectronTrackingSequence )
+
+# ---------------------------------------------------------------------------
 
 
 
