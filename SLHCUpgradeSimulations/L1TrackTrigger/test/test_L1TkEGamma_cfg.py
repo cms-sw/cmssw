@@ -105,6 +105,10 @@ process.L1Reco = cms.Path( process.l1extraParticles )
 process.load("SLHCUpgradeSimulations.L1TrackTrigger.L1TkEmParticleProducer_cfi")
 process.pL1TkPhotons = cms.Path( process.L1TkPhotons )
 
+# ---- "photons", tighter isolation working point  -  e.g. for SinglePhoton trigger
+process.pL1TkPhotonsTightIsol = cms.Path( process.L1TkPhotonsTightIsol )
+
+
 # ----  "electrons" from L1Tracks. Inclusive electrons :
 
 process.load("SLHCUpgradeSimulations.L1TrackTrigger.L1TkElectronTrackProducer_cfi")
