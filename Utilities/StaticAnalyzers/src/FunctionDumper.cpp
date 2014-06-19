@@ -109,7 +109,6 @@ void FDumper::VisitCallExpr( CallExpr *CE ) {
 	if (CXE) {
 		const CXXMethodDecl * CD = CXE->getMethodDecl();
 		const CXXRecordDecl * RD = CXE->getRecordDecl();
-		const Expr * IOA = CXE->getImplicitObjectArgument();
 		const CXXMethodDecl * AMD = llvm::dyn_cast<CXXMethodDecl>(D);
 		if ( AMD && CD && RD && CD->isVirtual() && RD == AMD->getParent() ) ostring = "function '"+ mdname +  "' " + "calls function '" + mname + " virtual'\n";
 		else ostring = "function '"+ mdname +  "' " + "calls function '" + mname + "'\n"; 
