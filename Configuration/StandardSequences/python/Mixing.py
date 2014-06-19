@@ -110,6 +110,7 @@ addMixingScenario("FS_2012_Startup_inTimeOnly",{'file': 'FastSimulation.PileUpPr
 addMixingScenario("FS_2012_Summer_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_2012_Summer_inTimeOnly_cff'})
 addMixingScenario("FS_mix_2012_Startup_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.mix_2012_Startup_inTimeOnly_cff'})
 addMixingScenario("FS_mix_2012_Summer_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.mix_2012_Summer_inTimeOnly_cff'})
+addMixingScenario("FS_mix_2012_Summer_50ns_PoissonOOTPU",{'file': 'FastSimulation.PileUpProducer.mix_2012_Summer_50ns_PoissonOOTPU_cfi'}) # note: eventually we want absolute synchronization between FastSim and FullSim PU scenarios, and files like this one should be moved to SimGeneral/MixingModule ; to be done after full validation
 addMixingScenario("FS_CSA14_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_CSA14_inTimeOnly_cff'})
 addMixingScenario("FS_E13TeV_AVE_10_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_E13TeV_AVE_10_inTimeOnly_cff'})
 addMixingScenario("FS_E13TeV_AVE_20_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_E13TeV_AVE_20_inTimeOnly_cff'})
