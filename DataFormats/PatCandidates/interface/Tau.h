@@ -30,6 +30,7 @@
 #include "DataFormats/PatCandidates/interface/TauPFSpecific.h"
 #include "DataFormats/PatCandidates/interface/TauCaloSpecific.h"
 #include "DataFormats/PatCandidates/interface/TauJetCorrFactors.h"
+#include "DataFormats/PatCandidates/interface/TauPFEssential.h"
 
 #include "DataFormats/Common/interface/AtomicPtrCache.h"
 // Define typedefs for convenience
@@ -43,10 +44,12 @@ namespace pat {
 namespace reco {
   /// pipe operator (introduced to use pat::Tau with PFTopProjectors)
   std::ostream& operator<<(std::ostream& out, const pat::Tau& obj);
+  //  bool sortByPt(const CandidatePtrVector::const_iterator &lhs, const CandidatePtrVector::const_iterator &rhs) { return (*lhs)->pt() < (*rhs)->pt(); }
 }
 
 // Class definition
 namespace pat {
+  
 
   class PATTauSlimmer;
 
@@ -155,6 +158,7 @@ namespace pat {
       bool isPFTau() const { return !pfSpecific_.empty(); }
       /// return PFTau info or throw exception 'not PFTau'
       const pat::tau::TauPFSpecific & pfSpecific() const ;
+      const pat::tau::TauPFEssential & pfEssential() const;
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
       const reco::PFJetRef & pfJetRef() const { return pfSpecific().pfJetRef_; }
@@ -264,6 +268,8 @@ namespace pat {
       const reco::CandidatePtr leadCand() const;
       /// return the PFCandidates if available (reference or embedded), or the PackedPFCandidate on miniAOD 
       /// note that the vector is returned by value.
+      bool ExistSignalCands() const;
+      bool ExistIsolationCands() const;
       reco::CandidatePtrVector signalCands() const;
       /// return the PFCandidates if available (reference or embedded), or the PackedPFCandidate on miniAOD 
       /// note that the vector is returned by value.
@@ -288,8 +294,12 @@ namespace pat {
       reco::CandidatePtrVector isolationGammaCands() const;
 
       /// setters for the PtrVectors (for miniAOD)
-      void setSignalCands(const reco::CandidatePtrVector &ptrs) { signalCandPtrs_ = ptrs; }
-      void setIsolationCands(const reco::CandidatePtrVector &ptrs) { isolationCandPtrs_ = ptrs; }
+      void setSignalChargedHadrCands(const reco::CandidatePtrVector &ptrs) { signalChargedHadrCandPtrs_ = ptrs;}
+      void setSignalNeutralHadrCands(const reco::CandidatePtrVector &ptrs) { signalNeutralHadrCandPtrs_ = ptrs;}
+      void setSignalGammaCands(const reco::CandidatePtrVector &ptrs) { signalGammaCandPtrs_ = ptrs;}
+      void setIsolationChargedHadrCands(const reco::CandidatePtrVector &ptrs) { isolationChargedHadrCandPtrs_ = ptrs;}
+      void setIsolationNeutralHadrCands(const reco::CandidatePtrVector &ptrs) { isolationNeutralHadrCandPtrs_ = ptrs;}
+      void setIsolationGammaCands(const reco::CandidatePtrVector &ptrs) { isolationGammaCandPtrs_ = ptrs;}
 
       /// ----- Top Projection business ------- 
       /// get the number of non-null PFCandidates
@@ -301,20 +311,20 @@ namespace pat {
       /// ---- Tau lifetime information ----
       /// Filled from PFTauTIPAssociation.
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau	
-      const reco::PFTauTransverseImpactParameter::Point& dxy_PCA() const { return pfSpecific().dxy_PCA_; }
-      double dxy() const { return pfSpecific().dxy_; }
-      double dxy_error() const { return pfSpecific().dxy_error_; }
+      const reco::PFTauTransverseImpactParameter::Point& dxy_PCA() const { return pfEssential().dxy_PCA_; }
+      double dxy() const { return pfEssential().dxy_; }
+      double dxy_error() const { return pfEssential().dxy_error_; }
       double dxy_Sig() const;
-      const reco::VertexRef& primaryVertex() const { return pfSpecific().pv_; }
-      const reco::PFTauTransverseImpactParameter::Point& primaryVertexPos() const { return pfSpecific().pvPos_; }
-      const reco::PFTauTransverseImpactParameter::CovMatrix& primaryVertexCov() const { return pfSpecific().pvCov_; }
-      bool hasSecondaryVertex() const { return pfSpecific().hasSV_; }
-      const reco::PFTauTransverseImpactParameter::Vector& flightLength() const { return pfSpecific().flightLength_; } 
-      double flightLengthSig() const { return pfSpecific().flightLengthSig_; }
+      const reco::VertexRef& primaryVertex() const { return pfEssential().pv_; }
+      const reco::PFTauTransverseImpactParameter::Point& primaryVertexPos() const { return pfEssential().pvPos_; }
+      const reco::PFTauTransverseImpactParameter::CovMatrix& primaryVertexCov() const { return pfEssential().pvCov_; }
+      bool hasSecondaryVertex() const { return pfEssential().hasSV_; }
+      const reco::PFTauTransverseImpactParameter::Vector& flightLength() const { return pfEssential().flightLength_; } 
+      double flightLengthSig() const { return pfEssential().flightLengthSig_; }
       reco::PFTauTransverseImpactParameter::CovMatrix flightLengthCov() const;
-      const reco::VertexRef& secondaryVertex() const { return pfSpecific().sv_; }
-      const reco::PFTauTransverseImpactParameter::Point& secondaryVertexPos() const { return pfSpecific().svPos_; }
-      const reco::PFTauTransverseImpactParameter::CovMatrix& secondaryVertexCov() const { return pfSpecific().svCov_; }
+      const reco::VertexRef& secondaryVertex() const { return pfEssential().sv_; }
+      const reco::PFTauTransverseImpactParameter::Point& secondaryVertexPos() const { return pfEssential().svPos_; }
+      const reco::PFTauTransverseImpactParameter::CovMatrix& secondaryVertexCov() const { return pfEssential().svCov_; }
 
       /// Methods copied from reco::Jet.
       /// (accessible from reco::CaloTau/reco::PFTau via reco::CaloTauTagInfo/reco::PFTauTagInfo)
@@ -324,7 +334,7 @@ namespace pat {
       float etaphiMoment() const;
 
       /// reconstructed tau decay mode (specific to PFTau)
-      int decayMode() const { return pfSpecific().decayMode_; }
+      int decayMode() const { return pfEssential().decayMode_; }
       /// set decay mode
       void setDecayMode(int);
 
@@ -395,6 +405,7 @@ namespace pat {
 	return correctedTauJet(level, set).p4(); 
       }
 
+
       friend class PATTauSlimmer;
 
     protected:
@@ -410,6 +421,7 @@ namespace pat {
       void addJECFactors(const TauJetCorrFactors& jec) {jec_.push_back(jec); };
       /// initialize the jet to a given JEC level during creation starting from Uncorrected
       void initializeJEC(unsigned int level, const unsigned int set = 0);
+
 
   private:
       // ---- for content embedding ----
@@ -460,13 +472,13 @@ namespace pat {
       // ---- tau ID's holder ----
       std::vector<IdPair> tauIDs_;
 
-      // ---- CaloTau specific variables  ----
-      /// holder for CaloTau info, or empty vector if PFTau
-      std::vector<pat::tau::TauCaloSpecific> caloSpecific_;
-
       // ---- PFTau specific variables  ----
       /// holder for PFTau info, or empty vector if CaloTau
       std::vector<pat::tau::TauPFSpecific> pfSpecific_;
+
+      // ---- CaloTau specific variables  ----
+      /// holder for CaloTau info, or empty vector if PFTau
+      std::vector<pat::tau::TauCaloSpecific> caloSpecific_;
 
       // ---- energy scale correction factors ----
       // energy scale correction factors; the string carries a potential label if
@@ -480,8 +492,17 @@ namespace pat {
       unsigned int currentJECLevel_;
 
       // ---- references to packed pf candidates -----
-      reco::CandidatePtrVector signalCandPtrs_;
-      reco::CandidatePtrVector isolationCandPtrs_;
+      reco::CandidatePtrVector signalChargedHadrCandPtrs_;
+      reco::CandidatePtrVector signalNeutralHadrCandPtrs_;
+      reco::CandidatePtrVector signalGammaCandPtrs_;
+
+      reco::CandidatePtrVector isolationChargedHadrCandPtrs_;
+      reco::CandidatePtrVector isolationNeutralHadrCandPtrs_;
+      reco::CandidatePtrVector isolationGammaCandPtrs_;
+
+      // -- essential info to keep
+
+      std::vector<pat::tau::TauPFEssential>  pfEssential_;
 
 
   };

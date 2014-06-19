@@ -45,8 +45,6 @@ MicroEventContent = cms.PSet(
         'keep patPackedCandidates_packedPFCandidates_*_*',
 
         'keep double_fixedGridRho*__*', 
-        'keep double_ak5*_rho_*', 
-        'keep doubles_ak5*_rhos_*', 
 
         'keep *_selectedPatTrigger_*_PAT',
         'keep patPackedTriggerPrescales_patTrigger__PAT',

@@ -62,22 +62,44 @@ def miniAOD_customizeCommon(process):
     process.selectedPatJets.cut = cms.string("pt > 10")
     process.selectedPatMuons.cut = cms.string("pt > 5 || isPFMuon || (pt > 3 && (isGlobalMuon || isStandAloneMuon || numberOfMatches > 0 || muonID('RPCMuLoose')))") 
     process.selectedPatElectrons.cut = cms.string("") 
-    process.selectedPatTaus.cut = cms.string("pt > 20 && tauID('decayModeFinding')> 0.5")
+    process.selectedPatTaus.cut = cms.string("pt > 18. && tauID('decayModeFinding')> 0.5")
     process.selectedPatPhotons.cut = cms.string("")
     #
     from PhysicsTools.PatAlgos.tools.jetTools import switchJetCollection
     #switch to AK4 for CSA14/70X release (should be default in 71X)
     switchJetCollection(process, jetSource = cms.InputTag('ak4PFJetsCHS'),  
-    jetCorrections = ('AK5PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), ''),
+    jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), ''),
     btagDiscriminators = ['jetBProbabilityBJetTags', 'jetProbabilityBJetTags', 'trackCountingHighPurBJetTags', 'trackCountingHighEffBJetTags', 'simpleSecondaryVertexHighEffBJetTags',
                          'simpleSecondaryVertexHighPurBJetTags', 'combinedSecondaryVertexBJetTags' , 'combinedInclusiveSecondaryVertexBJetTags' ],
     )
     #add CA8   
     from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
-    #
-    addJetCollection(process, labelName = 'CA8', jetSource = cms.InputTag('ca8PFJetsCHS'),algo= 'CA', rParam = 0.8)
-    process.selectedPatJetsCA8.cut = cms.string("pt > 100")
-    process.patJetGenJetMatchCA8.matched =  'slimmedGenJets'
+    addJetCollection(process, labelName = 'AK8', jetSource = cms.InputTag('ak8PFJetsCHS'),algo= 'AK', rParam = 0.8, jetCorrections = ('AK7PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'None') )
+    process.patJetsAK8.userData.userFloats.src = [] # start with empty list of user floats
+    process.selectedPatJetsAK8.cut = cms.string("pt > 100")
+    process.patJetGenJetMatchAK8.matched =  'slimmedGenJets'
+    ## AK8 groomed masses
+    from RecoJets.Configuration.RecoPFJets_cff import ak8PFJetsCHSPruned, ak8PFJetsCHSFiltered, ak8PFJetsCHSTrimmed 
+    process.ak8PFJetsCHSPruned   = ak8PFJetsCHSPruned.clone()
+    process.ak8PFJetsCHSTrimmed  = ak8PFJetsCHSTrimmed.clone()
+    process.ak8PFJetsCHSFiltered = ak8PFJetsCHSFiltered.clone()
+    process.load("RecoJets.JetProducers.ak8PFJetsCHS_groomingValueMaps_cfi")
+    process.patJetsAK8.userData.userFloats.src += ['ak8PFJetsCHSPrunedLinks','ak8PFJetsCHSTrimmedLinks','ak8PFJetsCHSFilteredLinks']
+    ### CA8 groomed masses (for the matched jet): doesn't seem to work, it produces tons of warnings "Matched jets separated by dR greater than distMax=0.8"
+    # from RecoJets.Configuration.RecoPFJets_cff import ca8PFJetsCHSFiltered, ca8PFJetsCHSTrimmed # ca8PFJetsCHSPruned is already in AOD
+    # process.ca8PFJetsCHSTrimmed  = ca8PFJetsCHSTrimmed.clone()
+    # process.ca8PFJetsCHSFiltered = ca8PFJetsCHSFiltered.clone()
+    # process.load("RecoJets.JetProducers.ca8PFJetsCHS_groomingValueMaps_cfi")
+    # process.ca8PFJetsCHSPrunedLinks.src   = cms.InputTag("ak8PFJetsCHS")
+    # process.ca8PFJetsCHSTrimmedLinks.src  = cms.InputTag("ak8PFJetsCHS")
+    # process.ca8PFJetsCHSFilteredLinks.src = cms.InputTag("ak8PFJetsCHS")
+    # process.patJetsAK8.userData.userFloats.src += ['ca8PFJetsCHSPrunedLinks','ca8PFJetsCHSTrimmedLinks','ca8PFJetsCHSFilteredLinks']
+    ## cmsTopTagger (note: it is already run in RECO, we just add the value)
+    process.cmsTopTagPFJetsCHSLinksAK8 = process.ak8PFJetsCHSPrunedLinks.clone()
+    process.cmsTopTagPFJetsCHSLinksAK8.src = cms.InputTag("ak8PFJetsCHS")
+    process.cmsTopTagPFJetsCHSLinksAK8.matched = cms.InputTag("cmsTopTagPFJetsCHS")
+    process.patJetsAK8.userData.userFloats.src += ['cmsTopTagPFJetsCHSLinksAK8']
+
     #
     from PhysicsTools.PatAlgos.tools.trigTools import switchOnTriggerStandAlone
     switchOnTriggerStandAlone( process, outputModule = '' )
