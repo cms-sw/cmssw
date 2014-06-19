@@ -36,36 +36,7 @@ public:
 
  protected:
 
-  bool test( const TrajectoryMeasurement & tm, int foundHits) const 
-  {
-    //first check min number of hits 
-    if (foundHits < theMinHits ){ return true;}
-
-    // check for momentum below limit
-    const FreeTrajectoryState& fts = *tm.updatedState().freeTrajectoryState();
-
-    //avoid doing twice the check in TBC and QF
-    // We make it thread local so that we avoid race conditions between
-    // threads, and we make sure there is no cache contention between them.
-    static thread_local bool answerMemory=false;
-    static thread_local FreeTrajectoryState ftsMemory;
-    if (ftsMemory.parameters().vector() == fts.parameters().vector()) { return answerMemory;}
-    ftsMemory=fts;
-
-    //if p_T is way too small: stop
-    double pT = fts.momentum().perp();
-    if (pT<0.010) {answerMemory=false; return false;}
-    //if error is way too big: stop
-    double invError = TrajectoryStateAccessor(fts).inversePtError();
-    if (invError > 1.e10) {answerMemory=false;return false;}
-
-    //calculate the actual pT cut: 
-    if ((1/pT + theNSigma*invError ) < 1/thePtThreshold ) {answerMemory=false; return false;}
-    //    first term is the minimal value of pT (pT-N*sigma(pT))
-    //    secon term is the cut
-
-    answerMemory=true; return true;
-  }
+  bool test( const TrajectoryMeasurement & tm, int foundHits) const;
 
   double thePtThreshold;
   double theNSigma;
