@@ -306,26 +306,26 @@ TrackCount::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 				     << it->normalizedChi2() << " "
 				     << it->chi2() << " "
 				     << it->ndof() << " "
-				     << it->hitPattern().trackerLayersWithMeasurement() << " "
-				     << it->hitPattern().pixelLayersWithMeasurement() << " "
+				     << it->hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS) << " "
+				     << it->hitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS) << " "
 				     << it->hitPattern().numberOfValidStripLayersWithMonoAndStereo() << " "
-				     << it->hitPattern().trackerLayersWithoutMeasurement() << " ";
+				     << it->hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS) << " ";
 
      }
 
-     m_hnlosthits->Fill(it->hitPattern().numberOfLostTrackerHits());
+     m_hnlosthits->Fill(it->hitPattern().numberOfLostTrackerHits(reco::HitPattern::TRACK_HITS));
 
      m_hnrhits->Fill(it->hitPattern().numberOfValidTrackerHits());
      m_hnpixelrhits->Fill(it->hitPattern().numberOfValidPixelHits());
      m_hnstriprhits->Fill(it->hitPattern().numberOfValidStripHits());
      m_hnhitphieta->Fill(it->eta(),it->phi(),it->hitPattern().numberOfValidTrackerHits());
 
-     m_hnlostlayers->Fill(it->hitPattern().trackerLayersWithoutMeasurement());
+     m_hnlostlayers->Fill(it->hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS));
 
-     m_hnlayers->Fill(it->hitPattern().trackerLayersWithMeasurement());
-     m_hnpixellayers->Fill(it->hitPattern().pixelLayersWithMeasurement());
-     m_hnstriplayers->Fill(it->hitPattern().stripLayersWithMeasurement());
-     m_hnlayerphieta->Fill(it->eta(),it->phi(),it->hitPattern().trackerLayersWithMeasurement());
+     m_hnlayers->Fill(it->hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS));
+     m_hnpixellayers->Fill(it->hitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS));
+     m_hnstriplayers->Fill(it->hitPattern().stripLayersWithMeasurement(reco::HitPattern::TRACK_HITS));
+     m_hnlayerphieta->Fill(it->eta(),it->phi(),it->hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS));
 
      m_halgo->Fill(it->algo());
 

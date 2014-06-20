@@ -145,30 +145,35 @@ reco::Track pat::PackedCandidate::pseudoTrack() const {
     reco::HitPattern hp, hpExpIn;
     int i=0;
     LostInnerHits innerLost = lostInnerHits();
+    
+    reco::Track tk(normalizedChi2_*ndof,ndof,vertex_,math::XYZVector(p3.x(),p3.y(),p3.z()),charge(),m,reco::TrackBase::undefAlgorithm,reco::TrackBase::loose);
+    
+    if(innerLost == validHitInFirstPixelBarrelLayer){
+        tk.appendHitPattern(PXBDetId(1,0,0), TrackingRecHit::valid); 
+        i++; 
+    }
+    for(;i<numberOfPixelHits_; i++) {
+       tk.appendHitPattern( PXBDetId(i>1?3:2,0,0), TrackingRecHit::valid); 
+    }
+    
+    for(;i<numberOfHits_;i++) {
+	   tk.appendHitPattern(TIBDetId(1,0,0,1,1,0), TrackingRecHit::valid); 
+    }
+
     switch (innerLost) {
         case validHitInFirstPixelBarrelLayer:
-            hp.set(PXBDetId(1,0,0), TrackingRecHit::valid, i); 
-            i++; 
             break;
         case noLostInnerHits:
             break;
         case oneLostInnerHit:
-            hpExpIn.set(PXBDetId(1,0,0), TrackingRecHit::missing, 0);
+            tk.appendHitPattern(PXBDetId(1,0,0), TrackingRecHit::missing_inner);
             break;
         case moreLostInnerHits:
-            hpExpIn.set(PXBDetId(1,0,0), TrackingRecHit::missing, 0);
-            hpExpIn.set(PXBDetId(2,0,0), TrackingRecHit::missing, 1);
+            tk.appendHitPattern(PXBDetId(1,0,0), TrackingRecHit::missing_inner);
+            tk.appendHitPattern(PXBDetId(2,0,0), TrackingRecHit::missing_inner);
             break;
     };
-    for(;i<numberOfPixelHits_; i++) {
-       hp.set( PXBDetId(i>1?3:2,0,0), TrackingRecHit::valid, i); 
-    }
-    for(;i<numberOfHits_;i++) {
-	   hp.set( TIBDetId(1,0,0,1,1,0), TrackingRecHit::valid, i); 
-     }
-    reco::Track tk(normalizedChi2_*ndof,ndof,vertex_,math::XYZVector(p3.x(),p3.y(),p3.z()),charge(),m,reco::TrackBase::undefAlgorithm,reco::TrackBase::loose);
-    tk.setHitPattern(hp);
-    tk.setTrackerExpectedHitsInner(hpExpIn);
+
     if (trackHighPurity()) tk.setQuality(reco::TrackBase::highPurity);
     return tk;
 }

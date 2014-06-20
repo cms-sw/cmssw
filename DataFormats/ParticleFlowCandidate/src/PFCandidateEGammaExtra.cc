@@ -59,7 +59,7 @@ void PFCandidateEGammaExtra::setKfTrackRef(const reco::TrackRef & ref){
   float chi2_kf=-0.01;
   // if the reference is null, it does not mean that the variables have not been set
   if(kfTrackRef_.isNonnull()) {
-    nhit_kf=(float)kfTrackRef_->hitPattern().trackerLayersWithMeasurement();
+    nhit_kf=(float)kfTrackRef_->hitPattern().trackerLayersWithMeasurement(HitPattern::TRACK_HITS);
     chi2_kf=kfTrackRef_->normalizedChi2();
   }
   setVariable(MVA_NhitsKf,nhit_kf);

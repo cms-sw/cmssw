@@ -1205,8 +1205,8 @@ void MTVHistoProducerAlgoForTracker::fill_simAssociated_recoTrack_histos(int cou
     h_losthits[count]->Fill(track.numberOfLostHits());
     chi2_vs_nhits[count]->Fill(track.numberOfValidHits(),track.normalizedChi2());
     h_charge[count]->Fill( track.charge() );
-    h_nmisslayers_inner[count]->Fill(track.trackerExpectedHitsInner().numberOfHits());
-    h_nmisslayers_outer[count]->Fill(track.trackerExpectedHitsOuter().numberOfHits());
+    h_nmisslayers_inner[count]->Fill(track.hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS));
+    h_nmisslayers_outer[count]->Fill(track.hitPattern().numberOfHits(reco::HitPattern::MISSING_OUTER_HITS));
 
     //chi2 and #hit vs eta: fill 2D histos
     chi2_vs_eta[count]->Fill(getEta(track.eta()),track.normalizedChi2());
@@ -1217,9 +1217,9 @@ void MTVHistoProducerAlgoForTracker::fill_simAssociated_recoTrack_histos(int cou
     nTIDhits_vs_eta[count]->Fill(getEta(track.eta()),track.hitPattern().numberOfValidStripTIDHits());
     nTOBhits_vs_eta[count]->Fill(getEta(track.eta()),track.hitPattern().numberOfValidStripTOBHits());
     nTEChits_vs_eta[count]->Fill(getEta(track.eta()),track.hitPattern().numberOfValidStripTECHits());
-    nLayersWithMeas_vs_eta[count]->Fill(getEta(track.eta()),track.hitPattern().trackerLayersWithMeasurement());
-    nPXLlayersWithMeas_vs_eta[count]->Fill(getEta(track.eta()),track.hitPattern().pixelLayersWithMeasurement());
-    int LayersAll = track.hitPattern().stripLayersWithMeasurement();
+    nLayersWithMeas_vs_eta[count]->Fill(getEta(track.eta()),track.hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS));
+    nPXLlayersWithMeas_vs_eta[count]->Fill(getEta(track.eta()),track.hitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS));
+    int LayersAll = track.hitPattern().stripLayersWithMeasurement(reco::HitPattern::TRACK_HITS);
     int Layers2D = track.hitPattern().numberOfValidStripLayersWithMonoAndStereo();
     int Layers1D = LayersAll - Layers2D;
     nSTRIPlayersWithMeas_vs_eta[count]->Fill(getEta(track.eta()),LayersAll);

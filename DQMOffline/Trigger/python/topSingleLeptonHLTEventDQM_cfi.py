@@ -44,7 +44,14 @@ topSingleLeptonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
     muonExtras = cms.PSet(
       ## when omitted muon plots will be filled w/o additional pre-
       ## selection of the muon candidates                                                                                            
-      select = cms.string("pt>26 & abs(eta)<2.1 & isPFMuon & isGlobalMuon & globalTrack.normalizedChi2<10 & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 & numberOfMatches>1"),
+      select = cms.string('pt>26'
+          '& abs(eta)<2.1'
+          '& isPFMuon'
+          '& isGlobalMuon'
+          '& globalTrack.normalizedChi2<10'
+          '& innerTrack.hitPattern().trackerLayersWithMeasurement(\'TRACK_HITS\') > 5'
+          '& innerTrack.hitPattern().numberOfValidPixelHits() > 0'
+          '& numberOfMatches>1'),
       ## when omitted isolated muon multiplicity plot will be equi-
       ## valent to inclusive muon multiplicity plot                                                    
       isolation = cms.string("(pfIsolationR04.sumChargedHadronPt+pfIsolationR04.sumPhotonEt+pfIsolationR04.sumNeutralHadronEt)/pt<0.2"),
@@ -153,7 +160,14 @@ topSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
     muonExtras = cms.PSet(
       ## when omitted muon plots will be filled w/o additional pre-
       ## selection of the muon candidates                                                
-      select = cms.string("pt>26 & abs(eta)<2.1 & isPFMuon & isGlobalMuon & globalTrack.normalizedChi2<10 & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 & numberOfMatches>1"),
+      select = cms.string('pt>26'
+          '& abs(eta)<2.1'
+          '& isPFMuon'
+          '& isGlobalMuon'
+          '& globalTrack.normalizedChi2<10'
+          '& innerTrack.hitPattern().trackerLayersWithMeasurement(\'TRACK_HITS\')>5'
+          '& innerTrack.hitPattern().numberOfValidPixelHits()>0'
+          '& numberOfMatches>1'),
       ## when omitted isolated muon multiplicity plot will be equi-
       ## valent to inclusive muon multiplicity plot                                                    
       isolation = cms.string("(pfIsolationR04.sumChargedHadronPt+pfIsolationR04.sumPhotonEt+pfIsolationR04.sumNeutralHadronEt)/pt<0.2"),
@@ -234,7 +248,15 @@ topSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM",
     cms.PSet(
       label  = cms.string("muons:step1"),
       src    = cms.InputTag("muons"),
-      select = cms.string("pt>26 & abs(eta)<2.1 & isPFMuon & isGlobalMuon & globalTrack.normalizedChi2<10 & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 & numberOfMatches>1 & (pfIsolationR04.sumChargedHadronPt+pfIsolationR04.sumPhotonEt+pfIsolationR04.sumNeutralHadronEt)/pt<0.12"),
+      select = cms.string('pt>26'
+          '& abs(eta)<2.1'
+          '& isPFMuon'
+          '& isGlobalMuon'
+          '& globalTrack.normalizedChi2<10'
+          '& innerTrack.hitPattern().trackerLayersWithMeasurement(\'TRACK_HITS\') > 5'
+          '& innerTrack.hitPattern().numberOfValidPixelHits() > 0'
+          '& numberOfMatches>1'
+          '& (pfIsolationR04.sumChargedHadronPt+pfIsolationR04.sumPhotonEt+pfIsolationR04.sumNeutralHadronEt)/pt<0.12'),
       min    = cms.int32(1),
       max    = cms.int32(1),
     ),

@@ -325,19 +325,16 @@ bool BPhysicsOniaDQM::isMuonInAccept(const reco::Muon &recoMu)
 bool BPhysicsOniaDQM::selGlobalMuon(const reco::Muon &recoMu)
 {
   TrackRef iTrack = recoMu.innerTrack();
-  const reco::HitPattern &p = iTrack->hitPattern();
-
   TrackRef gTrack = recoMu.globalTrack();
-  const reco::HitPattern &q = gTrack->hitPattern();
 
   return (isMuonInAccept(recoMu) &&
           iTrack->found() > 11 &&
           gTrack->chi2()/gTrack->ndof() < 20.0 &&
-          q.numberOfValidMuonHits() > 0 &&
+          gTrack->hitPattern().numberOfValidMuonHits() > 0 &&
           iTrack->chi2()/iTrack->ndof() < 4.0 &&
           //recoMu.muonID("TrackerMuonArbitrated") &&
           //recoMu.muonID("TMLastStationAngTight") &&
-          p.pixelLayersWithMeasurement() > 1 &&
+          iTrack->hitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS) > 1 &&
           fabs(iTrack->dxy(RefVtx)) < 3.0 &&
           fabs(iTrack->dz(RefVtx)) < 15.0 );
 }
@@ -345,14 +342,13 @@ bool BPhysicsOniaDQM::selGlobalMuon(const reco::Muon &recoMu)
 bool BPhysicsOniaDQM::selTrackerMuon(const reco::Muon &recoMu)
 {
   TrackRef iTrack = recoMu.innerTrack();
-  const reco::HitPattern &p = iTrack->hitPattern();
 
   return (isMuonInAccept(recoMu) &&
           iTrack->found() > 11 &&
           iTrack->chi2()/iTrack->ndof() < 4.0 &&
           //recoMu.muonID("TrackerMuonArbitrated") &&
           //recoMu.muonID("TMLastStationAngTight") &&
-          p.pixelLayersWithMeasurement() > 1 &&
+          iTrack->hitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS) > 1 &&
           fabs(iTrack->dxy(RefVtx)) < 3.0 &&
           fabs(iTrack->dz(RefVtx)) < 15.0 );
 }

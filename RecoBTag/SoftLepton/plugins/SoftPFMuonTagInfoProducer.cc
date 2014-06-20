@@ -125,8 +125,8 @@ bool SoftPFMuonTagInfoProducer::isLooseMuon(const reco::Muon* muon) {
 }
 bool SoftPFMuonTagInfoProducer::isSoftMuon(const reco::Muon* muon) {
   return  muon::isGoodMuon(*muon, muon::TMOneStationTight)
-    && muon->track()->hitPattern().trackerLayersWithMeasurement()       > 5
-    && muon->innerTrack()->hitPattern().pixelLayersWithMeasurement()    > 1
+    && muon->track()->hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS)       > 5
+    && muon->innerTrack()->hitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS)    > 1
     && muon->muonBestTrack()->normalizedChi2()                          < 1.8
     && muon->innerTrack()->dxy(vertex->position())                      < 3.
     && muon->innerTrack()->dz(vertex->position())                       < 30.
@@ -141,7 +141,7 @@ bool SoftPFMuonTagInfoProducer::isTightMuon(const reco::Muon* muon) {
     && fabs(muon->muonBestTrack()->dxy(vertex->position()))             < 0.2
     && fabs(muon->muonBestTrack()->dz(vertex->position()))              < 0.5
     && muon->innerTrack()->hitPattern().numberOfValidPixelHits()        > 0
-    && muon->track()->hitPattern().trackerLayersWithMeasurement()       > 5
+    && muon->track()->hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS)       > 5
   ;
 }
 

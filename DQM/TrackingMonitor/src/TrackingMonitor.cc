@@ -524,7 +524,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	  NumberOfRecHitsPerTrackVsLS->Fill(static_cast<double>(iEvent.id().luminosityBlock()),track->recHitsSize());
 
 	totalRecHits    += track->numberOfValidHits();
-	totalLayers     += track->hitPattern().trackerLayersWithMeasurement();
+	totalLayers     += track->hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS);
 	
 	// do analysis per track
 	theTrackAnalyzer->analyze(iEvent, iSetup, *track);
