@@ -124,7 +124,7 @@ class L1EGCrystalClusterProducer : public edm::EDProducer {
 L1EGCrystalClusterProducer::L1EGCrystalClusterProducer(const edm::ParameterSet& iConfig) :
    EtminForStore(iConfig.getParameter<double>("EtminForStore")),
    debug(iConfig.getUntrackedParameter<bool>("debug", false)),
-   useECalEndcap(iConfig.getUntrackedParameter<bool>("useECalEndcap", false))
+   useECalEndcap(iConfig.getParameter<bool>("useECalEndcap"))
 {
    produces<l1slhc::L1EGCrystalClusterCollection>("EGCrystalCluster");
    produces<l1extra::L1EmParticleCollection>("EGammaCrystal");
@@ -151,7 +151,7 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
    // using RecHits (https://cmssdt.cern.ch/SDT/doxygen/CMSSW_6_1_2_SLHC6/doc/html/d8/dc9/classEcalRecHit.html)
    edm::Handle<EcalRecHitCollection> pcalohits;
    iEvent.getByLabel("ecalRecHit","EcalRecHitsEB",pcalohits);
-   for(auto hit : *pcalohits.product())
+   for(auto& hit : *pcalohits.product())
    {
       if(hit.energy() > 0.2)
       {
@@ -173,7 +173,7 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
       // using RecHits (https://cmssdt.cern.ch/SDT/doxygen/CMSSW_6_1_2_SLHC6/doc/html/d8/dc9/classEcalRecHit.html)
       edm::Handle<EcalRecHitCollection> pcalohitsEndcap;
       iEvent.getByLabel("ecalRecHit","EcalRecHitsEE",pcalohitsEndcap);
-      for(auto hit : *pcalohitsEndcap.product())
+      for(auto& hit : *pcalohitsEndcap.product())
       {
          if(hit.energy() > 0.2)
          {
@@ -192,7 +192,7 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
    // Retrive hcal hits
    edm::Handle<HBHERecHitCollection> hbhecoll;
    iEvent.getByLabel("hbheprereco", hbhecoll);
-   for (auto hit : *hbhecoll.product())
+   for (auto& hit : *hbhecoll.product())
    {
       if ( hit.energy() > 0.1 )
       {
@@ -307,9 +307,10 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
       if ( cluster.hovere() < ((cluster.pt() > 35) ? 0.5 : 0.5+pow(cluster.pt()-35,2)/350. )
               && cluster.isolation() < ((cluster.pt() > 35) ? 1.3 : 1.3+pow(cluster.pt()-35,2)*4/(35*35) ) )
       {
-	 if  (totalPt >= EtminForStore) {
-         l1EGammaCrystal->push_back(l1extra::L1EmParticle(p4, edm::Ref<L1GctEmCandCollection>(), 0));
-	 }
+         // Optional min. Et cut
+         if  (cluster.pt() >= EtminForStore) {
+            l1EGammaCrystal->push_back(l1extra::L1EmParticle(p4, edm::Ref<L1GctEmCandCollection>(), 0));
+         }
       }
    }
 
