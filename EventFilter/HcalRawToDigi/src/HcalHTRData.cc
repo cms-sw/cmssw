@@ -11,8 +11,6 @@ const int HcalHTRData::MAXIMUM_SAMPLES_PER_CHANNEL = 20;
 #endif
 #include <string.h>
 #include <stdio.h>
-#include <bitset>
-#include <iostream>
 
 HcalHTRData::HcalHTRData() : m_formatVersion(-2), m_rawLength(0), m_rawConst(0), m_ownData(0) { }
 HcalHTRData::HcalHTRData(const unsigned short* data, int length) {
@@ -253,7 +251,6 @@ void HcalHTRData::pack(unsigned char* daq_lengths, unsigned short* daq_samples,
       unsigned short basedata=daq_samples[ichan*MAXIMUM_SAMPLES_PER_CHANNEL+isample]&0x7FF;
       if (do_capid) basedata=(basedata&0x7F)|(0x200)|((isample%4)<<7);
       ptr[daq_words_total]=chanid|basedata;
-      	    std::cout << " dp " << (std::bitset<16>)(chanid|basedata) << std::endl;
       daq_words_total++;
     }
   }
