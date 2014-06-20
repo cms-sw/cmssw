@@ -781,8 +781,8 @@ PFElecTkProducer::resolveGsfTracks(const vector<reco::GsfPFRecTrack>  & GsfPFVec
 		   << " minBremDphi " <<  minBremDphi 
 		   << " nETot " << nETot 
 		   << " iETot " << iETot 
-		   << " nLostHits " <<  nGsfTrack->trackerExpectedHitsInner().numberOfLostHits() 
-		   << " iLostHits " << iGsfTrack->trackerExpectedHitsInner().numberOfLostHits() << endl;
+		   << " nLostHits " <<  nGsfTrack->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS) 
+		   << " iLostHits " << iGsfTrack->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS) << endl;
 	    
 	    // apply selection only if one track has lost hits
 	    if(applyAngularGsfClean_) {
@@ -805,8 +805,8 @@ PFElecTkProducer::resolveGsfTracks(const vector<reco::GsfPFRecTrack>  & GsfPFVec
 		   << " minBremDphi " <<  minBremDphi 
 		   << " nETot " << nETot 
 		   << " iETot " << iETot 
-		   << " nLostHits " <<  nGsfTrack->trackerExpectedHitsInner().numberOfLostHits() 
-		   << " iLostHits " << iGsfTrack->trackerExpectedHitsInner().numberOfLostHits() << endl;
+		   << " nLostHits " <<  nGsfTrack->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS) 
+		   << " iLostHits " << iGsfTrack->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS) << endl;
 	    
 	    if(nEcalDriven == false && nETot == 0.) {
 	      n_keepGsf = false;
@@ -1090,8 +1090,8 @@ bool PFElecTkProducer::isInnerMost(const reco::GsfTrackRef& nGsfTrack,
   // copied by the class RecoEgamma/EgammaElectronAlgos/src/EgAmbiguityTools.cc
   // obsolete but the code is kept: now using lost hits method
 
-  reco::HitPattern gsfHitPattern1 = nGsfTrack->hitPattern();
-  reco::HitPattern gsfHitPattern2 = iGsfTrack->hitPattern();
+  const reco::HitPattern &gsfHitPattern1 = nGsfTrack->hitPattern();
+  const reco::HitPattern &gsfHitPattern2 = iGsfTrack->hitPattern();
   
   // retrieve first valid hit
   int gsfHitCounter1 = 0 ;
@@ -1110,8 +1110,8 @@ bool PFElecTkProducer::isInnerMost(const reco::GsfTrackRef& nGsfTrack,
      elHitsIt2++, gsfHitCounter2++ )
     { if (((**elHitsIt2).isValid())) break ; }
   
-  uint32_t gsfHit1 = gsfHitPattern1.getHitPattern(gsfHitCounter1) ;
-  uint32_t gsfHit2 = gsfHitPattern2.getHitPattern(gsfHitCounter2) ;
+  uint32_t gsfHit1 = gsfHitPattern1.getHitPattern(HitPattern::TRACK_HITS, gsfHitCounter1) ;
+  uint32_t gsfHit2 = gsfHitPattern2.getHitPattern(HitPattern::TRACK_HITS, gsfHitCounter2) ;
   
   
   if (gsfHitPattern1.getSubStructure(gsfHit1)!=gsfHitPattern2.getSubStructure(gsfHit2))
@@ -1133,8 +1133,8 @@ bool PFElecTkProducer::isInnerMostWithLostHits(const reco::GsfTrackRef& nGsfTrac
 					       bool& sameLayer) {
   
   // define closest using the lost hits on the expectedhitsineer
-  unsigned int nLostHits = nGsfTrack->trackerExpectedHitsInner().numberOfLostHits();
-  unsigned int iLostHits = iGsfTrack->trackerExpectedHitsInner().numberOfLostHits();
+  unsigned int nLostHits = nGsfTrack->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS);
+  unsigned int iLostHits = iGsfTrack->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS);
   
   if (nLostHits!=iLostHits) {
     return (nLostHits > iLostHits);

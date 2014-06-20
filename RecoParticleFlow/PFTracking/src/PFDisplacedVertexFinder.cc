@@ -429,7 +429,7 @@ PFDisplacedVertexFinder::fitVertexFromSeed(PFDisplacedVertexSeed& displacedVerte
 		 << " pt = " <<  transTracksRaw[i].track().pt()
 		 << " dxy (wrt (0,0,0)) = " << transTracksRaw[i].track().dxy()
 		 << " nHits = " << transTracksRaw[i].track().numberOfValidHits()
-		 << " nOuterHits = " << transTracksRaw[i].track().trackerExpectedHitsOuter().numberOfHits() << endl;
+		 << " nOuterHits = " << transTracksRaw[i].track().hitPattern().numberOfHits(HitPattern::MISSING_OUTER_HITS) << endl;
 	} 
       } else {
 	

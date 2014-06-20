@@ -9,9 +9,9 @@ process = cms.Process("ZMuMuMCanalysis")
 process.load("ElectroWeakAnalysis.Skimming.patCandidatesForZMuMuSubskim_cff")
 #### quality cut to apply or not
 process.patAODTrackCands.cut = 'pt > 20.'
-process.selectedPatTracks.cut = 'pt > 20. & abs(eta)<2.1 & ( track().hitPattern().numberOfValidStripHits  + track().hitPattern().numberOfValidPixelHits)>= 10 & track().normalizedChi2()<10.'
+process.selectedPatTracks.cut = 'pt > 20. & abs(eta)<2.1 & ( track().hitPattern().numberOfValidStripHits + track().hitPattern().numberOfValidPixelHits)>= 10 & track().normalizedChi2()<10.'
 
-process.selectedPatMuons.cut = 'pt > 20. & abs(eta)<2.1 & ( (isGlobalMuon & (globalTrack().hitPattern().numberOfValidStripHits  + globalTrack().hitPattern().numberOfValidPixelHits)>= 10 & globalTrack().normalizedChi2()<10. & outerTrack().hitPattern().numberOfValidMuonHits>0 ) ||  (isStandAloneMuon & outerTrack().normalizedChi2()<10. & outerTrack().hitPattern().numberOfValidMuonHits>0 ))'
+process.selectedPatMuons.cut = 'pt > 20. & abs(eta)<2.1 & ( (isGlobalMuon & (globalTrack().hitPattern().numberOfValidStripHits + globalTrack().hitPattern().numberOfValidPixelHits)>= 10 & globalTrack().normalizedChi2()<10. & outerTrack().hitPattern().numberOfValidMuonHits>0 ) ||  (isStandAloneMuon & outerTrack().normalizedChi2()<10. & outerTrack().hitPattern().numberOfValidMuonHits>0))'
 
 
 ### temporarly form 31X-->35X reprocessed spring10 data

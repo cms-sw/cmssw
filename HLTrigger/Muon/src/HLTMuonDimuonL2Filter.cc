@@ -180,7 +180,7 @@ HLTMuonDimuonL2Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSet
 
       // number of chambers
       if(tk1->hitPattern().dtStationsWithAnyHits() +
-	 tk1->hitPattern().cscStationsWithAnyHits() < min_Nchambers_) continue;
+        tk1->hitPattern().cscStationsWithAnyHits() < min_Nchambers_) continue;
 
       //dr cut
       //if (fabs(tk1->d0())>max_Dr_) continue;
