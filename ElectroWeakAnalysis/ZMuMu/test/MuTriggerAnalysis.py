@@ -74,26 +74,14 @@ process.TFileService = cms.Service("TFileService",
 ### muon with all quality cuts except iso 
 process.goodMuonsNotIso = cms.EDFilter("MuonSelector",
                                    src = cms.InputTag("muons"),
-                                   cut = cms.string('isGlobalMuon=1'
-                                       '&& isTrackerMuon'
-                                       '&& isolationR03().sumPt<1000.0'
-                                       '&& abs(innerTrack().dxy)<0.5'
-                                       '&& globalTrack().hitPattern().numberOfValidMuonHits() > 0'
-                                       '&& globalTrack.hitPattern().numberOfValidStripHits() >= 10'
-                                       '&& globalTrack().normalizedChi2()<10'),
+                                   cut = cms.string('isGlobalMuon=1 && isTrackerMuon && isolationR03().sumPt<1000.0 && abs(innerTrack().dxy)<0.5 && globalTrack().hitPattern().numberOfValidMuonHits() > 0 && globalTrack.hitPattern().numberOfValidStripHits() >= 10 && globalTrack().normalizedChi2()<10'),
                                    filter = cms.bool(True)
                                  )
 
 ### all quality cuts
 process.goodMuons = cms.EDFilter("MuonSelector",
                                    src = cms.InputTag("muons"),
-                                   cut = cms.string('isGlobalMuon=1'
-                                       '&& isTrackerMuon'
-                                       '&& isolationR03().sumPt<3.0'
-                                       '&& abs(innerTrack().dxy)<0.5'
-                                       '&& globalTrack().hitPattern().numberOfValidMuonHits() > 0'
-                                       '&& globalTrack.hitPattern().numberOfValidStripHits() >= 10'
-                                       '&& globalTrack().normalizedChi2()<10'),
+                                   cut = cms.string('isGlobalMuon=1 && isTrackerMuon && isolationR03().sumPt<3.0 && abs(innerTrack().dxy)<0.5 && globalTrack().hitPattern().numberOfValidMuonHits() > 0 && globalTrack.hitPattern().numberOfValidStripHits() >= 10 && globalTrack().normalizedChi2()<10'),
                                    filter = cms.bool(True)
                                  )
 

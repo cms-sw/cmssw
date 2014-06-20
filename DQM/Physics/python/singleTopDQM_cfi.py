@@ -262,19 +262,7 @@ singleTopMuonMediumDQM = cms.EDAnalyzer("SingleTopTChannelLeptonDQM",
    cms.PSet(
       label  = cms.string("muons/pf:step0"),
       src    = cms.InputTag("particleFlow"),
-      select = cms.string('muonRef.pt>20'
-          '& abs(muonRef.eta)<2.1'
-          '& muonRef.isNonnull'
-          '& muonRef.innerTrack.isNonnull'
-          '& muonRef.isGlobalMuon'
-          '& muonRef.isTrackerMuon'
-          '& muonRef.innerTrack.numberOfValidHits>10'
-          '& muonRef.globalTrack.hitPattern().numberOfValidMuonHits()>0'
-          '& muonRef.globalTrack.normalizedChi2<10'
-          '& muonRef.innerTrack.hitPattern().pixelLayersWithMeasurement(\'TRACK_HITS\')>=1'
-          '& muonRef.numberOfMatches>1'
-          '& abs(muonRef.innerTrack.dxy)<0.02'
-          '& (muonRef.pfIsolationR04.sumChargedHadronPt + muonRef.pfIsolationR04.sumNeutralHadronEt + muonRef.pfIsolationR04.sumPhotonEt)/muonRef.pt < 0.15'),
+      select = cms.string("muonRef.pt>20 & abs(muonRef.eta)<2.1 & muonRef.isNonnull & muonRef.innerTrack.isNonnull & muonRef.isGlobalMuon & muonRef.isTrackerMuon & muonRef.innerTrack.numberOfValidHits>10 & muonRef.globalTrack.hitPattern().numberOfValidMuonHits()>0 & muonRef.globalTrack.normalizedChi2<10 & muonRef.innerTrack.hitPattern().pixelLayersWithMeasurement(\'TRACK_HITS\')>=1 & muonRef.numberOfMatches>1 & abs(muonRef.innerTrack.dxy)<0.02 & (muonRef.pfIsolationR04.sumChargedHadronPt + muonRef.pfIsolationR04.sumNeutralHadronEt + muonRef.pfIsolationR04.sumPhotonEt)/muonRef.pt < 0.15"),
 
       min    = cms.int32(1),
       max    = cms.int32(1),
