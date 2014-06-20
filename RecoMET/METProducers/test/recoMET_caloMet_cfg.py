@@ -7,7 +7,6 @@ process = cms.Process("TEST")
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 ##____________________________________________________________________________||
-process.load("RecoMET.Configuration.CaloTowersOptForMET_cff")
 process.load("RecoMET.METProducers.CaloMET_cfi")
 process.load("RecoMET.METProducers.METSigParams_cfi")
 process.load("RecoMET.METProducers.MetMuonCorrections_cff")
@@ -53,8 +52,6 @@ process.caloMetWithSignificance = process.caloMet.clone(
 
 ##____________________________________________________________________________||
 process.p = cms.Path(
-    process.calotoweroptmaker *
-    process.calotoweroptmakerWithHO *
     process.towerMakerWithHO *
     process.caloMet *
     process.caloMetBEFO *
