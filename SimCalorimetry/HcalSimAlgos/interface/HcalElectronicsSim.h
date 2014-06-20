@@ -21,7 +21,7 @@ class HcalCoderFactory;
 class HcalElectronicsSim {
 public:
   HcalElectronicsSim(HcalAmplifier * amplifier, 
-                     const HcalCoderFactory * coderFactory);
+                     const HcalCoderFactory * coderFactory, bool PreMix);
   ~HcalElectronicsSim();
 
   void setRandomEngine(CLHEP::HepRandomEngine & engine);
@@ -47,6 +47,7 @@ private:
 
   int theStartingCapId;
   bool theStartingCapIdIsRandom;
+  bool PreMixDigis;
 };
 
   
