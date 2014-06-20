@@ -214,21 +214,11 @@ RecoTauPiZeroStripPlugin2::return_type RecoTauPiZeroStripPlugin2::operator()(con
 	edm::LogPrint("RecoTauPiZeroStripPlugin2") << "--> assigning seedCandId = " << seedCands.size() ;
         const reco::TrackBaseRef candTrack = getTrack(*cand);
         if ( candTrack.isNonnull() ) {
-            edm::LogPrint("RecoTauPiZeroStripPlugin2") 
-                << "track: Pt = " << candTrack->pt()
-                << " eta = " << candTrack->eta()
-                << ", phi = " << candTrack->phi()
-                << ", charge = " << candTrack->charge() ;
-            edm::LogPrint("RecoTauPiZeroStripPlugin2")
-                << " ("
-                << "dZ = " << candTrack->dz(vertexAssociator_.associatedVertex(jet)->position())
-                << ", dXY = " << candTrack->dxy(vertexAssociator_.associatedVertex(jet)->position())
-                << ", numHits = " << candTrack->hitPattern().numberOfValidTrackerHits()
-                << ", numPxlHits = " << candTrack->hitPattern().numberOfValidPixelHits()
-                << ", chi2 = " << candTrack->normalizedChi2()
-                << ", dPt/Pt = " << (candTrack->ptError()/candTrack->pt())
-                << ")" ;
-        }
+	  edm::LogPrint("RecoTauPiZeroStripPlugin2") << "track: Pt = " << candTrack->pt() << " eta = " << candTrack->eta() << ", phi = " << candTrack->phi() << ", charge = " << candTrack->charge() ;
+	  edm::LogPrint("RecoTauPiZeroStripPlugin2") << " (dZ = " << candTrack->dz(vertexAssociator_.associatedVertex(jet)->position()) << ", dXY = " << candTrack->dxy(vertexAssociator_.associatedVertex(jet)->position()) << "," 
+		    << " numHits = " << candTrack->hitPattern().numberOfValidTrackerHits() << ", numPxlHits = " << candTrack->hitPattern().numberOfValidPixelHits() << "," 
+		    << " chi2 = " << candTrack->normalizedChi2() << ", dPt/Pt = " << (candTrack->ptError()/candTrack->pt()) << ")" ;
+	}
 	edm::LogPrint("RecoTauPiZeroStripPlugin2") << "ECAL Et: calibrated = " << (*cand)->ecalEnergy()*sin((*cand)->theta()) << "," 
 		  << " raw = " << (*cand)->rawEcalEnergy()*sin((*cand)->theta()) ;
 	edm::LogPrint("RecoTauPiZeroStripPlugin2") << "HCAL Et: calibrated = " << (*cand)->hcalEnergy()*sin((*cand)->theta()) << "," 

@@ -189,7 +189,7 @@ bool HLTMuonL2PreFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iS
 	}
 	if( cutOnChambers_ &&
 	    ( mu->hitPattern().dtStationsWithAnyHits() +
-          mu->hitPattern().cscStationsWithAnyHits() < minNchambers_[i]) ) {
+	      mu->hitPattern().cscStationsWithAnyHits() < minNchambers_[i]) ) {
 	  failNchambers=true;
 	}
 	break;
