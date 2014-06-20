@@ -6,7 +6,7 @@
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="DataFormats/BeamSpot"/>
 <use   name="Geometry/CaloGeometry"/>
-<use   name="RecoEgamma/EgammaIsolationAlgos"/>
+<use   name="RecoEgamma/EgammaAlgos"/>
 <export>
   <lib   name="1"/>
 </export>

@@ -25,11 +25,11 @@
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHcalIsolation.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaRecHitIsolation.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/PhotonTkIsolation.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaEcalIsolation.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
+#include "RecoEgamma/EgammaAlgos/interface/EgammaHcalIsolation.h"
+#include "RecoEgamma/EgammaAlgos/interface/EgammaRecHitIsolation.h"
+#include "RecoEgamma/EgammaAlgos/interface/PhotonTkIsolation.h"
+#include "RecoEgamma/EgammaAlgos/interface/EgammaEcalIsolation.h"
+#include "RecoEgamma/EgammaAlgos/interface/EgammaTowerIsolation.h"
 
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"

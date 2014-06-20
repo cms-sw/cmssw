@@ -17,7 +17,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "TrackingTools/GsfTools/interface/MultiTrajectoryStateTransform.h"
 #include "TrackingTools/GsfTools/interface/MultiTrajectoryStateMode.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
+#include "RecoEgamma/EgammaAlgos/interface/ElectronUtilities.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"

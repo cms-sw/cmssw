@@ -7,8 +7,8 @@ from RecoEgamma.EgammaPhotonProducers.conversionSequence_cff import *
 from RecoEgamma.EgammaPhotonProducers.conversionTrackSequence_cff import *
 from RecoEgamma.EgammaPhotonProducers.allConversionSequence_cff import *
 from RecoEgamma.EgammaPhotonProducers.gedPhotonSequence_cff import *
-from RecoEgamma.EgammaIsolationAlgos.egammaIsolationSequence_cff import *
-from RecoEgamma.EgammaIsolationAlgos.interestingEgammaIsoDetIdsSequence_cff import *
+from RecoEgamma.EgammaAlgos.egammaIsolationSequence_cff import *
+from RecoEgamma.EgammaAlgos.interestingEgammaIsoDetIdsSequence_cff import *
 from RecoEgamma.PhotonIdentification.photonId_cff import *
 from RecoEgamma.ElectronIdentification.electronIdSequence_cff import *
 from RecoEgamma.EgammaHFProducers.hfEMClusteringSequence_cff import *

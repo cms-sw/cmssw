@@ -2,7 +2,7 @@
 #ifndef GsfElectronBaseProducer_h
 #define GsfElectronBaseProducer_h
 
-#include "RecoEgamma/EgammaElectronAlgos/interface/GsfElectronAlgo.h"
+#include "RecoEgamma/EgammaAlgos/interface/GsfElectronAlgo.h"
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
@@ -22,7 +22,7 @@ namespace edm
   class ConfigurationDescriptions ;
  }
 
-#include "RecoEgamma/EgammaElectronAlgos/interface/GsfElectronAlgo.h"
+#include "RecoEgamma/EgammaAlgos/interface/GsfElectronAlgo.h"
 #include "DataFormats/Common/interface/Handle.h"
 
 class GsfElectronBaseProducer : public edm::stream::EDProducer<>

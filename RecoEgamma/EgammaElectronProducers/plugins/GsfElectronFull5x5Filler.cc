@@ -1,6 +1,6 @@
 
 #include "GsfElectronFull5x5Filler.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/GsfElectronAlgo.h"
+#include "RecoEgamma/EgammaAlgos/interface/GsfElectronAlgo.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"

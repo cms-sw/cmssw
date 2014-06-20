@@ -19,7 +19,7 @@ namespace edm {
 }
 
 //#include "RecoEgamma/EgammaTools/interface/HoECalculator.h"
-//#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHcalIsolation.h"
+//#include "RecoEgamma/EgammaAlgos/interface/EgammaHcalIsolation.h"
 #include "RecoCaloTools/Selectors/interface/CaloDualConeSelector.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "FWCore/Framework/interface/ESHandle.h"

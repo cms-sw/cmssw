@@ -247,13 +247,13 @@ famosPhotonSequence = cms.Sequence(
 
 # Add pre-calculated isolation sums for electrons (NB for photons they are stored in the Photon. All is done in the
 # sequence above
-from RecoEgamma.EgammaIsolationAlgos.egammaIsolationSequence_cff import *
+from RecoEgamma.EgammaAlgos.egammaIsolationSequence_cff import *
 
 #Add egamma ecal interesting rec hits
-from RecoEgamma.EgammaIsolationAlgos.interestingEleIsoDetIdModule_cff import *
-from RecoEgamma.EgammaIsolationAlgos.interestingGamIsoDetIdModule_cff import *
+from RecoEgamma.EgammaAlgos.interestingEleIsoDetIdModule_cff import *
+from RecoEgamma.EgammaAlgos.interestingGamIsoDetIdModule_cff import *
 
-from RecoEgamma.EgammaIsolationAlgos.interestingEgammaIsoDetIdsSequence_cff import *
+from RecoEgamma.EgammaAlgos.interestingEgammaIsoDetIdsSequence_cff import *
 
 
 

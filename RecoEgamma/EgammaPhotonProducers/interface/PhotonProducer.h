@@ -31,7 +31,7 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h" 
 #include "CondFormats/EcalObjects/interface/EcalFunctionParameters.h" 
-#include "RecoEgamma/EgammaPhotonAlgos/interface/PhotonEnergyCorrector.h"
+#include "RecoEgamma/EgammaAlgos/interface/PhotonEnergyCorrector.h"
 
 // PhotonProducer inherits from EDProducer, so it can be a module:
 class PhotonProducer : public edm::stream::EDProducer<> {

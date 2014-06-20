@@ -5,7 +5,7 @@
 <use name="DataFormats/MuonReco"/>
 <use name="RecoEcal/EgammaCoreTools"/>
 <use name="DataFormats/Math"/>
-<use name="RecoEgamma/EgammaIsolationAlgos"/>
+<use name="RecoEgamma/EgammaAlgos"/>
 <use name="Geometry/CaloTopology"/>
 <use name="Geometry/CaloGeometry"/>
 <use name="DQMServices/Components"/>

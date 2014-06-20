@@ -1,5 +1,5 @@
 <use   name="RecoEgamma/Examples"/>
-<use   name="RecoEgamma/EgammaElectronAlgos"/>
+<use   name="RecoEgamma/EgammaAlgos"/>
 <use   name="RecoEgamma/EgammaMCTools"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="RecoTracker/TkDetLayers"/>

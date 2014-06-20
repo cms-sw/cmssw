@@ -29,11 +29,11 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 
 #include "RecoEgamma/EgammaPhotonProducers/interface/PhotonProducer.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
+#include "RecoEgamma/EgammaAlgos/interface/EgammaTowerIsolation.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h" 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h" 
 #include "RecoEcal/EgammaCoreTools/plugins/EcalClusterCrackCorrection.h"
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHadTower.h"
+#include "RecoEgamma/EgammaAlgos/interface/EgammaHadTower.h"
 
 PhotonProducer::PhotonProducer(const edm::ParameterSet& config) : 
 

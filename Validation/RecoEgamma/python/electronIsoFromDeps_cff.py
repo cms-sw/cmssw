@@ -2,8 +2,8 @@
 # computing of isolation from deposits,
 # as provided by Matthew LeBourgeois
 
-from RecoEgamma.EgammaIsolationAlgos.egammaIsolationSequence_cff import *
-from RecoEgamma.EgammaIsolationAlgos.egammaIsolationSequencePAT_cff import *
+from RecoEgamma.EgammaAlgos.egammaIsolationSequence_cff import *
+from RecoEgamma.EgammaAlgos.egammaIsolationSequencePAT_cff import *
 
 # create both IsoDeposits from the full collection and the reduced collection
 

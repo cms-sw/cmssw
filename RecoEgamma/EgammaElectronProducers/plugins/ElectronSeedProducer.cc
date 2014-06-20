@@ -18,13 +18,13 @@
 
 #include "ElectronSeedProducer.h"
 
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHcalIsolation.h"
+#include "RecoEgamma/EgammaAlgos/interface/EgammaHcalIsolation.h"
 //#include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
-#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronSeedGenerator.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronHcalHelper.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/SeedFilter.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
+#include "RecoEgamma/EgammaAlgos/interface/ElectronSeedGenerator.h"
+#include "RecoEgamma/EgammaAlgos/interface/ElectronHcalHelper.h"
+#include "RecoEgamma/EgammaAlgos/interface/SeedFilter.h"
+#include "RecoEgamma/EgammaAlgos/interface/ElectronUtilities.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"

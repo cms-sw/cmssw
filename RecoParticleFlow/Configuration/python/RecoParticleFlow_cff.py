@@ -18,7 +18,7 @@ from RecoParticleFlow.PFProducer.pfLinker_cff import *
 
 from CommonTools.ParticleFlow.pfParticleSelection_cff import *
 
-from RecoEgamma.EgammaIsolationAlgos.particleBasedIsoProducer_cff import *
+from RecoEgamma.EgammaAlgos.particleBasedIsoProducer_cff import *
 
 particleFlowReco = cms.Sequence( particleFlowTrackWithDisplacedVertex*
 #                                 pfGsfElectronCiCSelectionSequence*

@@ -92,7 +92,7 @@ process.eidRobustHighEnergy.reducedEndcapRecHitCollection = cms.InputTag("reduce
 ##
 ##  this is how to compute isolation yourself for testing purposes
 ##
-#process.load("RecoEgamma.EgammaIsolationAlgos.egammaIsolationSequence_cff")
+#process.load("RecoEgamma.EgammaAlgos.egammaIsolationSequence_cff")
 #process.electronEcalRecHitIsolationLcone.ecalBarrelRecHitProducer = cms.InputTag("reducedEcalRecHitsEB")
 #process.electronEcalRecHitIsolationLcone.ecalEndcapRecHitProducer = cms.InputTag("reducedEcalRecHitsEB")
 #process.electronEcalRecHitIsolationLcone.ecalBarrelRecHitCollection = cms.InputTag("")

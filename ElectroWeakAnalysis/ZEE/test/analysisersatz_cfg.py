@@ -47,9 +47,9 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = cms.string("STARTUP31X_V4::All")
-process.load("RecoEgamma.EgammaIsolationAlgos.egammaIsolationSequence_cff")
+process.load("RecoEgamma.EgammaAlgos.egammaIsolationSequence_cff")
 #process.load("RecoEcal.EgammaClusterProducers.geometryForClustering_cff")
-#process.load("RecoEgamma.EgammaIsolationAlgos.egammaIsolationSequencePAT_cff")
+#process.load("RecoEgamma.EgammaAlgos.egammaIsolationSequencePAT_cff")
 
 from ElectroWeakAnalysis.ZEE.ersatzmet_cfi import ErsatzMEtParams
 

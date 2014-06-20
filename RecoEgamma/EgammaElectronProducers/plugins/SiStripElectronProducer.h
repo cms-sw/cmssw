@@ -26,7 +26,7 @@
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "DataFormats/EgammaCandidates/interface/SiStripElectron.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/SiStripElectronAlgo.h"
+#include "RecoEgamma/EgammaAlgos/interface/SiStripElectronAlgo.h"
 #include "DataFormats/EgammaCandidates/interface/SiStripElectronFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 

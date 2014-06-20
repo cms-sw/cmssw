@@ -12,7 +12,7 @@
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
-#include "RecoEgamma/EgammaElectronAlgos/interface/FTSFromVertexToPointFactory.h"
+#include "RecoEgamma/EgammaAlgos/interface/FTSFromVertexToPointFactory.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/Math/interface/Point3D.h"
 

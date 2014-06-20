@@ -51,10 +51,10 @@ Implementation:
 
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
-#include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionVertexFinder.h"
+#include "RecoEgamma/EgammaAlgos/interface/ConversionVertexFinder.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "RecoEgamma/EgammaPhotonAlgos/interface/TangentApproachInRPhi.h"
-#include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionHitChecker.h"
+#include "RecoEgamma/EgammaAlgos/interface/TangentApproachInRPhi.h"
+#include "RecoEgamma/EgammaAlgos/interface/ConversionHitChecker.h"
 
 
 //Kinematic constraint vertex fitter

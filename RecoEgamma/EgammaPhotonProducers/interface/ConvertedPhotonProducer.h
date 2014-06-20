@@ -25,7 +25,7 @@
 #include "DataFormats/Common/interface/View.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionLikelihoodCalculator.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
-#include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionTrackPairFinder.h"
+#include "RecoEgamma/EgammaAlgos/interface/ConversionTrackPairFinder.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/EgammaTrackReco/interface/TrackCaloClusterAssociation.h"
 
