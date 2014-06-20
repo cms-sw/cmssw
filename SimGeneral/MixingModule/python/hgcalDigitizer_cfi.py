@@ -24,9 +24,9 @@ hgchefrontDigitizer.digiCfg.mip2noise = cms.untracked.double(7.0)
 hgchebackDigitizer = hgceeDigitizer.clone()
 hgchebackDigitizer.hitCollection = cms.untracked.string("HGCHitsHEback")
 hgchebackDigitizer.digiCollection = cms.untracked.string("HGCDigisHEback")
-hgchefrontDigitizer.digiCfg.mipInKeV = cms.untracked.double(1498.4)
-hgchefrontDigitizer.digiCfg.lsbInMIP = cms.untracked.double(0.25)
-hgchefrontDigitizer.digiCfg.mip2noise = cms.untracked.double(5.0)
+hgchebackDigitizer.digiCfg.mipInKeV = cms.untracked.double(1498.4)
+hgchebackDigitizer.digiCfg.lsbInMIP = cms.untracked.double(0.25)
+hgchebackDigitizer.digiCfg.mip2noise = cms.untracked.double(5.0)
 
 
 
