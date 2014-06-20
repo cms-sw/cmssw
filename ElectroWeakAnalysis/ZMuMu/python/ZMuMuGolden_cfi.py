@@ -8,7 +8,7 @@ import copy
 
 goodGlobalMuons = cms.EDFilter("MuonViewRefSelector",
   src = cms.InputTag("muons"),
-  cut = cms.string('isGlobalMuon = 1 & isTrackerMuon = 1 &  pt > 20 & abs(eta)<2.1 & isolationR03().sumPt<3.0 & abs(globalTrack().dxy)<0.2 & globalTrack().hitPattern().numberOfValidTrackerHits() > 10'),
+  cut = cms.string('isGlobalMuon = 1 & isTrackerMuon = 1 &  pt > 20 & abs(eta)<2.1 & isolationR03().sumPt<3.0 & abs(globalTrack().dxy)<0.2 & globalTrack().hitPattern().numberOfValidTrackerHits>10'),
   filter = cms.bool(True)                                
 )
 

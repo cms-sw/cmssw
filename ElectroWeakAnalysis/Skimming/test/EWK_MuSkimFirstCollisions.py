@@ -102,7 +102,7 @@ process.eventDump = cms.EDAnalyzer(
 # require at least two tracks with pt>.5, to hopefully remove further cosmic contaminations  
 process.tracks = cms.EDFilter("TrackSelector",
   src=cms.InputTag("generalTracks"),
-  cut = cms.string('abs(dxy)<0.5 && pt > 0.5 && hitPattern().numberOfValidPixelHits() > 0'),
+  cut = cms.string('abs(dxy)<0.5 && pt > 0.5 && hitPattern().numberOfValidPixelHits>0'),
   filter = cms.bool(True)                                
 )
 
