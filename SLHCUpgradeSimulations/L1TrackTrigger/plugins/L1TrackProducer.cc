@@ -90,6 +90,8 @@
 #include "DataFormats/GeometryCommonDetAlgo/interface/MeasurementVector.h"
 #include "DataFormats/GeometrySurface/interface/BoundPlane.h"
 
+#include "SLHCUpgradeSimulations/L1TrackTrigger/interface/StubPtConsistency.h"
+
 //////////////
 // STD HEADERS
 #include <memory>
@@ -480,7 +482,7 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     aTrack.setChi2(track.chisq4par(),4);
 
-
+    
     //Now do the 5 parameter fit
 
     GlobalPoint bsPosition5par(track.d0()*cos(track.phi0()),-track.d0()*sin(track.phi0()),track.z0());
@@ -498,9 +500,6 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     aTrack.setRInv(track.rinv(),5);
 
     aTrack.setChi2(track.chisq(),5);
-
-
-
     
     
     vector<L1TStub> stubs = track.getStubs();
@@ -529,6 +528,15 @@ void L1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       }
     }
+
+
+    // pt consistency
+    float consistency4par = StubPtConsistency::getConsistency(aTrack, theStackedGeometry, mMagneticFieldStrength, 4); 
+    aTrack.setStubPtConsistency(consistency4par, 4);
+
+    float consistency5par = StubPtConsistency::getConsistency(aTrack, theStackedGeometry, mMagneticFieldStrength, 5); 
+    aTrack.setStubPtConsistency(consistency5par,5);
+
 
     L1TkTracksForOutput->push_back(aTrack);
 
