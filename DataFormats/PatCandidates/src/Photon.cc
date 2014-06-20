@@ -13,7 +13,37 @@ Photon::Photon() :
     PATObject<reco::Photon>(reco::Photon()),
     embeddedSuperCluster_(false),
     embeddedSeedCluster_(false),
-    embeddedRecHits_(false)
+    embeddedRecHits_(false),
+    passElectronVeto_(false),
+    hasPixelSeed_(false),
+    seedEnergy_(0.0),
+    eMax_(0.0),
+    e2nd_(0.0),
+    e3x3_(0.0),
+    eTop_(0.0),
+    eBottom_(0.0),
+    eLeft_(0.0),
+    eRight_(0.0),
+    see_(-999.),
+    spp_(-999.),
+    sep_(-999.),
+    maxDR_(-999.),
+    maxDRDPhi_(-999.),
+    maxDRDEta_(-999.),
+    maxDRRawEnergy_(-999.),
+    subClusRawE1_(-999.),
+    subClusRawE2_(-999.),
+    subClusRawE3_(-999.),
+    subClusDPhi1_(-999.),
+    subClusDPhi2_(-999.),
+    subClusDPhi3_(-999.),
+    subClusDEta1_(-999.),
+    subClusDEta2_(-999.),
+    subClusDEta3_(-999.),
+    cryEta_(-999.),
+    cryPhi_(-999),
+    iEta_(-999),
+    iPhi_(-999)
 {
 }
 
@@ -22,7 +52,37 @@ Photon::Photon(const reco::Photon & aPhoton) :
     PATObject<reco::Photon>(aPhoton),
     embeddedSuperCluster_(false),
     embeddedSeedCluster_(false),
-    embeddedRecHits_(false)
+    embeddedRecHits_(false),
+    passElectronVeto_(false),
+    hasPixelSeed_(false),
+    seedEnergy_(0.0),
+    eMax_(0.0),
+    e2nd_(0.0),
+    e3x3_(0.0),
+    eTop_(0.0),
+    eBottom_(0.0),
+    eLeft_(0.0),
+    eRight_(0.0),
+    see_(-999.),
+    spp_(-999.),
+    sep_(-999.),
+    maxDR_(-999.),
+    maxDRDPhi_(-999.),
+    maxDRDEta_(-999.),
+    maxDRRawEnergy_(-999.),
+    subClusRawE1_(-999.),
+    subClusRawE2_(-999.),
+    subClusRawE3_(-999.),
+    subClusDPhi1_(-999.),
+    subClusDPhi2_(-999.),
+    subClusDPhi3_(-999.),
+    subClusDEta1_(-999.),
+    subClusDEta2_(-999.),
+    subClusDEta3_(-999.),
+    cryEta_(-999.),
+    cryPhi_(-999),
+    iEta_(-999),
+    iPhi_(-999)
 {
 }
 
@@ -31,7 +91,37 @@ Photon::Photon(const edm::RefToBase<reco::Photon> & aPhotonRef) :
     PATObject<reco::Photon>(aPhotonRef),
     embeddedSuperCluster_(false),
     embeddedSeedCluster_(false),
-    embeddedRecHits_(false)
+    embeddedRecHits_(false),
+    passElectronVeto_(false),
+    hasPixelSeed_(false),
+    seedEnergy_(0.0),
+    eMax_(0.0),
+    e2nd_(0.0),
+    e3x3_(0.0),
+    eTop_(0.0),
+    eBottom_(0.0),
+    eLeft_(0.0),
+    eRight_(0.0),
+    see_(-999.),
+    spp_(-999.),
+    sep_(-999.),
+    maxDR_(-999.),
+    maxDRDPhi_(-999.),
+    maxDRDEta_(-999.),
+    maxDRRawEnergy_(-999.),
+    subClusRawE1_(-999.),
+    subClusRawE2_(-999.),
+    subClusRawE3_(-999.),
+    subClusDPhi1_(-999.),
+    subClusDPhi2_(-999.),
+    subClusDPhi3_(-999.),
+    subClusDEta1_(-999.),
+    subClusDEta2_(-999.),
+    subClusDEta3_(-999.),
+    cryEta_(-999.),
+    cryPhi_(-999),
+    iEta_(-999),
+    iPhi_(-999)
 {
 }
 
@@ -40,7 +130,37 @@ Photon::Photon(const edm::Ptr<reco::Photon> & aPhotonRef) :
     PATObject<reco::Photon>(aPhotonRef),
     embeddedSuperCluster_(false),
     embeddedSeedCluster_(false),
-    embeddedRecHits_(false)
+    embeddedRecHits_(false),
+    passElectronVeto_(false),
+    hasPixelSeed_(false),
+    seedEnergy_(0.0),
+    eMax_(0.0),
+    e2nd_(0.0),
+    e3x3_(0.0),
+    eTop_(0.0),
+    eBottom_(0.0),
+    eLeft_(0.0),
+    eRight_(0.0),
+    see_(-999.),
+    spp_(-999.),
+    sep_(-999.),
+    maxDR_(-999.),
+    maxDRDPhi_(-999.),
+    maxDRDEta_(-999.),
+    maxDRRawEnergy_(-999.),
+    subClusRawE1_(-999.),
+    subClusRawE2_(-999.),
+    subClusRawE3_(-999.),
+    subClusDPhi1_(-999.),
+    subClusDPhi2_(-999.),
+    subClusDPhi3_(-999.),
+    subClusDEta1_(-999.),
+    subClusDEta2_(-999.),
+    subClusDEta3_(-999.),
+    cryEta_(-999.),
+    cryPhi_(-999),
+    iEta_(-999),
+    iPhi_(-999)
 {
 }
 
@@ -48,21 +168,21 @@ Photon::Photon(const edm::Ptr<reco::Photon> & aPhotonRef) :
 Photon::~Photon() {
 }
 
-std::ostream& 
-reco::operator<<(std::ostream& out, const pat::Photon& obj) 
+std::ostream&
+reco::operator<<(std::ostream& out, const pat::Photon& obj)
 {
   if(!out) return out;
-  
+
   out << "\tpat::Photon: ";
   out << std::setiosflags(std::ios::right);
   out << std::setiosflags(std::ios::fixed);
   out << std::setprecision(3);
-  out << " E/pT/eta/phi " 
+  out << " E/pT/eta/phi "
       << obj.energy()<<"/"
       << obj.pt()<<"/"
       << obj.eta()<<"/"
       << obj.phi();
-  return out; 
+  return out;
 }
 
 /// override the superCluster method from CaloJet, to access the internal storage of the supercluster
@@ -135,7 +255,7 @@ void Photon::embedBasicClusters() {
     reco::CaloCluster_iterator itsclE = reco::Photon::superCluster()->clustersEnd();
     for(;itscl!=itsclE;++itscl){
       basicClusters_.push_back( **itscl ) ;
-    } 
+    }
   }
 }
 
