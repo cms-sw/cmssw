@@ -5,7 +5,6 @@ class Matrix(dict):
             print "overwritting",key,"not allowed"
         else:
             self.update({float(key):WF(float(key),value)})
-
             
 #the class to collect all possible steps
 class Steps(dict):
@@ -101,7 +100,6 @@ def merge(dictlist,TELL=False):
         reducedlist.append(d)
         return merge(reducedlist,TELL)
 
-
 # step1 gensim
 step1Defaults = {'--relval'      : None, # need to be explicitly set
                  '-s'            : 'GEN,SIM',
@@ -110,6 +108,7 @@ step1Defaults = {'--relval'      : None, # need to be explicitly set
                  '--datatier'    : 'GEN-SIM',
                  '--eventcontent': 'RAWSIM',
                  }
+
 # 2015 step1 gensim
 step1Up2015Defaults = {'-s' : 'GEN,SIM',
                              '-n'            : 10,
@@ -123,16 +122,12 @@ step1Up2015Defaults = {'-s' : 'GEN,SIM',
 # differences between upgradePLS150ns and upgradePLS1 ought to be irrelevant for GEN-SIM
 #step1Up2015Defaults50ns = merge([{'--conditions':'auto:upgradePLS150ns'},step1Up2015Defaults])
 
-
 steps = Steps()
 #wmsplit = {}
 
-#### Production test section ####
-steps['ProdMinBias']=merge([{'cfg':'MinBias_8TeV_cfi','--relval':'9000,300'},step1Defaults])
-steps['ProdTTbar']=merge([{'cfg':'TTbar_Tauola_8TeV_cfi','--relval':'9000,100'},step1Defaults])
-steps['ProdQCD_Pt_3000_3500']=merge([{'cfg':'QCD_Pt_3000_3500_8TeV_cfi','--relval':'9000,50'},step1Defaults])
-
+##############
 #### data ####
+##############
 #list of run to harvest for 2010A: 144086,144085,144084,144083,144011,139790,139789,139788,139787,138937,138934,138924,138923
 #list of run to harvest for 2010B: 149442,149291,149181,149011,148822,147929,147115,146644
 Run2010ASk=[138937,138934,138924,138923,139790,139789,139788,139787,144086,144085,144084,144083,144011]
@@ -187,7 +182,6 @@ steps['HighMet2011B']={'INPUT':InputInfo(dataSet='/Jet/Run2011B-HighMET-19Nov201
 steps['RunHI2010']={'INPUT':InputInfo(dataSet='/HIAllPhysics/HIRun2010-v1/RAW',label='hi2010',run=[152698],events=10000,location='STD')}
 steps['RunHI2011']={'INPUT':InputInfo(dataSet='/HIMinBiasUPC/HIRun2011-v1/RAW',label='hi2011',run=[182124],events=10000,location='STD')}
 
-
 Run2012A=[191226]
 Run2012ASk=Run2012A+[]
 steps['RunMinBias2012A']={'INPUT':InputInfo(dataSet='/MinimumBias/Run2012A-v1/RAW',label='mb2012A',run=Run2012A, events=100000,location='STD')}
@@ -201,7 +195,6 @@ steps['WElSkim2012A']={'INPUT':InputInfo(dataSet='/SingleElectron/Run2012A-WElec
 steps['ZMuSkim2012A']={'INPUT':InputInfo(dataSet='/SingleMu/Run2012A-ZMu-13Jul2012-v1/RAW-RECO',label='zMu2012A',location='STD',run=Run2012ASk)}
 steps['ZElSkim2012A']={'INPUT':InputInfo(dataSet='/DoubleElectron/Run2012A-ZElectron-13Jul2012-v1/RAW-RECO',label='zEl2012A',run=Run2012ASk)}
 steps['HighMet2012A']={'INPUT':InputInfo(dataSet='/HT/Run2012A-HighMET-13Jul2012-v1/RAW-RECO',label='hMet2012A',run=Run2012ASk)}
-
 
 Run2012B=[194533]
 Run2012Bsk=Run2012B+[194912,195016]
@@ -229,7 +222,6 @@ steps['ZElSkim2012C']={'INPUT':InputInfo(dataSet='/DoubleElectron/Run2012C-ZElec
 #RunHighPU2012C=[198588]
 #steps['RunZBias2012C']={'INPUT':InputInfo(dataSet='/ZeroBias/Run2012C-v1/RAW',label='zb2012C',location='STD',run=RunHighPU2012C,events=100000)}
 
-
 Run2012D=[208307]
 Run2012Dsk=Run2012D+[207454]
 steps['RunMinBias2012D']={'INPUT':InputInfo(dataSet='/MinimumBias/Run2012D-v1/RAW',label='mb2012D',run=Run2012D, events=100000,location='STD')}
@@ -241,8 +233,9 @@ steps['ZMuSkim2012D']={'INPUT':InputInfo(dataSet='/SingleMu/Run2012D-ZMu-PromptS
 steps['WElSkim2012D']={'INPUT':InputInfo(dataSet='/SingleElectron/Run2012D-WElectron-PromptSkim-v1/USER',label='wEl2012D',location='STD',run=Run2012Dsk)}
 steps['ZElSkim2012D']={'INPUT':InputInfo(dataSet='/DoubleElectron/Run2012D-ZElectron-PromptSkim-v1/RAW-RECO',label='zEl2012D',location='STD',run=Run2012Dsk)}
 
-#### Standard release validation samples ####
-
+################################################
+#### Standard release validation MC samples ####
+################################################
 stCond={'--conditions':'auto:startup'}
 def Kby(N,s):
     return {'--relval':'%s000,%s'%(N,s)}
@@ -257,24 +250,19 @@ def gen2015(fragment,howMuch):
     global step1Up2015Defaults
     return merge([{'cfg':fragment},howMuch,step1Up2015Defaults])
 
-### Production test: 13 TeV equivalents
+#################################
+#### Production test section ####
+#################################
+steps['ProdMinBias']=merge([{'cfg':'MinBias_8TeV_cfi','--relval':'9000,300'},step1Defaults])
+steps['ProdTTbar']=merge([{'cfg':'TTbar_Tauola_8TeV_cfi','--relval':'9000,100'},step1Defaults])
+steps['ProdQCD_Pt_3000_3500']=merge([{'cfg':'QCD_Pt_3000_3500_8TeV_cfi','--relval':'9000,50'},step1Defaults])
 steps['ProdMinBias_13']=gen2015('MinBias_13TeV_cfi',Kby(9,100))
 steps['ProdTTbar_13']=gen2015('TTbar_Tauola_13TeV_cfi',Kby(9,100))
 steps['ProdZEE_13']=gen2015('ZEE_13TeV_cfi',Kby(9,100))
 steps['ProdQCD_Pt_3000_3500_13']=gen2015('QCD_Pt_3000_3500_13TeV_cfi',Kby(9,100))
 # GF include branched wf comparing relVal and prod
 
-steps['MinBias']=gen('MinBias_8TeV_cfi',Kby(9,300))
-steps['QCD_Pt_3000_3500']=gen('QCD_Pt_3000_3500_8TeV_cfi',Kby(9,25))
-steps['QCD_Pt_600_800']=gen('QCD_Pt_600_800_8TeV_cfi',Kby(9,50))
-steps['QCD_Pt_80_120']=gen('QCD_Pt_80_120_8TeV_cfi',Kby(9,100))
-steps['MinBias_13']=gen2015('MinBias_13TeV_cfi',Kby(100,300)) # set HS to provide adequate pool for PU
-steps['QCD_Pt_3000_3500_13']=gen2015('QCD_Pt_3000_3500_13TeV_cfi',Kby(9,25))
-steps['QCD_Pt_600_800_13']=gen2015('QCD_Pt_600_800_13TeV_cfi',Kby(9,50))
-steps['QCD_Pt_80_120_13']=gen2015('QCD_Pt_80_120_13TeV_cfi',Kby(9,100))
-
-steps['QCD_Pt_30_80_BCtoE_8TeV']=gen('QCD_Pt_30_80_BCtoE_8TeV',Kby(9000,100))
-steps['QCD_Pt_80_170_BCtoE_8TeV']=gen('QCD_Pt_80_170_BCtoE_8TeV',Kby(9000,100))
+### Particle guns
 steps['SingleElectronPt10']=gen('SingleElectronPt10_cfi',Kby(9,3000))
 steps['SingleElectronPt35']=gen('SingleElectronPt35_cfi',Kby(9,500))
 steps['SingleElectronPt1000']=gen('SingleElectronPt1000_cfi',Kby(9,50))
@@ -295,26 +283,39 @@ steps['SingleMuPt1_UP15']=gen2015('SingleMuPt1_cfi',Kby(25,1000))
 steps['SingleMuPt10_UP15']=gen2015('SingleMuPt10_cfi',Kby(25,500))
 steps['SingleMuPt100_UP15']=gen2015('SingleMuPt100_cfi',Kby(9,500))
 steps['SingleMuPt1000_UP15']=gen2015('SingleMuPt1000_cfi',Kby(9,500))
+
+### 8TeV GEN-SIM
+steps['MinBias']=gen('MinBias_8TeV_cfi',Kby(9,300))
+steps['QCD_Pt_3000_3500']=gen('QCD_Pt_3000_3500_8TeV_cfi',Kby(9,25))
+steps['QCD_Pt_600_800']=gen('QCD_Pt_600_800_8TeV_cfi',Kby(9,50))
+steps['QCD_Pt_80_120']=gen('QCD_Pt_80_120_8TeV_cfi',Kby(9,100))
+steps['QCD_Pt_30_80_BCtoE_8TeV']=gen('QCD_Pt_30_80_BCtoE_8TeV',Kby(9000,100))
+steps['QCD_Pt_80_170_BCtoE_8TeV']=gen('QCD_Pt_80_170_BCtoE_8TeV',Kby(9000,100))
+steps['QCD_FlatPt_15_3000']=gen('QCDForPF_8TeV_cfi',Kby(5,100))
+steps['QCD_FlatPt_15_3000HS']=gen('QCDForPF_8TeV_cfi',Kby(50,100))
 steps['TTbar']=gen('TTbar_Tauola_8TeV_cfi',Kby(9,100))
 steps['TTbarLepton']=gen('TTbarLepton_Tauola_8TeV_cfi',Kby(9,100))
 steps['ZEE']=gen('ZEE_8TeV_cfi',Kby(9,100))
 steps['Wjet_Pt_80_120']=gen('Wjet_Pt_80_120_8TeV_cfi',Kby(9,100))
 steps['Wjet_Pt_3000_3500']=gen('Wjet_Pt_3000_3500_8TeV_cfi',Kby(9,50))
 steps['LM1_sfts']=gen('LM1_sfts_8TeV_cfi',Kby(9,100))
-steps['QCD_FlatPt_15_3000']=gen('QCDForPF_8TeV_cfi',Kby(5,100))
-steps['QCD_FlatPt_15_3000HS']=gen('QCDForPF_8TeV_cfi',Kby(50,100))
+steps['ZpMM_2250_8TeV_Tauola']=gen('ZpMM_2250_8TeV_Tauola_cfi',Kby(9,100))
+steps['ZpEE_2250_8TeV_Tauola']=gen('ZpEE_2250_8TeV_Tauola_cfi',Kby(9,100))
+steps['ZpTT_1500_8TeV_Tauola']=gen('ZpTT_1500_8TeV_Tauola_cfi',Kby(9,100))
+
+### 13TeV GEN-SIM
+steps['MinBias_13']=gen2015('MinBias_13TeV_cfi',Kby(100,300)) # set HS to provide adequate pool for PU
+steps['QCD_Pt_3000_3500_13']=gen2015('QCD_Pt_3000_3500_13TeV_cfi',Kby(9,25))
+steps['QCD_Pt_600_800_13']=gen2015('QCD_Pt_600_800_13TeV_cfi',Kby(9,50))
+steps['QCD_Pt_80_120_13']=gen2015('QCD_Pt_80_120_13TeV_cfi',Kby(9,100))
+steps['QCD_FlatPt_15_3000_13']=gen2015('QCDForPF_13TeV_cfi',Kby(9,100))
+steps['QCD_FlatPt_15_3000HS_13']=gen2015('QCDForPF_13TeV_cfi',Kby(50,100))
 steps['TTbar_13']=gen2015('TTbar_Tauola_13TeV_cfi',Kby(9,100))
 steps['TTbarLepton_13']=gen2015('TTbarLepton_Tauola_13TeV_cfi',Kby(9,100))
 steps['ZEE_13']=gen2015('ZEE_13TeV_cfi',Kby(9,100))
 steps['Wjet_Pt_80_120_13']=gen2015('Wjet_Pt_80_120_13TeV_cfi',Kby(9,100))
 steps['Wjet_Pt_3000_3500_13']=gen2015('Wjet_Pt_3000_3500_13TeV_cfi',Kby(9,50))
 steps['LM1_sfts_13']=gen2015('LM1_sfts_13TeV_cfi',Kby(9,100))
-steps['QCD_FlatPt_15_3000_13']=gen2015('QCDForPF_13TeV_cfi',Kby(9,100))
-steps['QCD_FlatPt_15_3000HS_13']=gen2015('QCDForPF_13TeV_cfi',Kby(50,100))
-
-steps['ZpMM_2250_8TeV_Tauola']=gen('ZpMM_2250_8TeV_Tauola_cfi',Kby(9,100))
-steps['ZpEE_2250_8TeV_Tauola']=gen('ZpEE_2250_8TeV_Tauola_cfi',Kby(9,100))
-steps['ZpTT_1500_8TeV_Tauola']=gen('ZpTT_1500_8TeV_Tauola_cfi',Kby(9,100))
 steps['ZpMM_2250_13TeV_Tauola']=gen2015('ZpMM_2250_13TeV_Tauola_cfi',Kby(9,100))
 steps['ZpEE_2250_13TeV_Tauola']=gen2015('ZpEE_2250_13TeV_Tauola_cfi',Kby(9,100))
 steps['ZpTT_1500_13TeV_Tauola']=gen2015('ZpTT_1500_13TeV_Tauola_cfi',Kby(9,100))
@@ -338,6 +339,7 @@ baseDataSetRelease=[
     'CMSSW_7_0_5_patch1-PU25ns_POSTLS170_V7-v1',     # 25ns premixed dataset
     'CMSSW_7_0_5_patch1-PU50ns_POSTLS170_V6-v1'      # 50ns premixed dataset
     ]
+#baseDataSetReleaseForMiniAOD is defined at the end of this file, for miniAOD validation
 
 # note: INPUT commands to be added once GEN-SIM w/ 13TeV+PostLS1Geo will be available 
 steps['MinBiasINPUT']={'INPUT':InputInfo(dataSet='/RelValMinBias/%s/GEN-SIM'%(baseDataSetRelease[0],),location='STD')}
@@ -1390,7 +1392,73 @@ steps['SKIMCOSD']={'-s':'SKIM:all',
                    '--scenario':'cosmics',
                    '--filein':'file:step2.root',
                    '--secondfilein':'filelist:step1_dasquery.log'}
-                 
+
+# miniAOD
+baseDataSetReleaseForMiniAOD=[
+    'CMSSW_7_0_0-PU25ns_POSTLS170_V3-v2',            # 25ns normal mixing (for miniAOD)
+    'CMSSW_7_0_0-PU50ns_POSTLS170_V4-v2',            # 50ns normal mixing (for miniAOD)
+    'CMSSW_7_0_0-GR_R_70_V1_RelVal_'                 # For real data
+    ]
+
+stepMiniAODDefaults = { '-s'              : 'PAT',
+                        '--runUnscheduled': '',
+                        '-n'              : '100'
+                        }
+stepMiniAODData = merge([{'--conditions'   : 'auto:com10',
+                          '--data'         : '',
+                          '--datatier'     : 'MINIAOD',
+                          '--eventcontent' : 'MINIAOD'
+                          },stepMiniAODDefaults])
+stepMiniAODMC = merge([{'--conditions'   : 'auto:upgradePLS1',
+                        '--mc'           : '',
+                        '--datatier'     : 'MINIAODSIM',
+                        '--eventcontent' : 'MINIAODSIM'
+                        },stepMiniAODDefaults])
+stepMiniAODMC50ns = merge([{'--conditions'   : 'auto:upgradePLS150ns',
+                            '--mc'           : '',
+                            '--datatier'     : 'MINIAODSIM',
+                            '--eventcontent' : 'MINIAODSIM'
+                        },stepMiniAODDefaults])
+stepMiniAODMCFS = merge([{'--conditions'   : 'auto:upgradePLS1',
+                          '--mc'           : '',
+                          '--fast'         : '',
+                          '--datatier'     : 'MINIAODSIM',
+                          '--eventcontent' : 'MINIAODSIM'
+                          },stepMiniAODDefaults])
+stepMiniAODMCFS50ns = merge([{'--conditions'   : 'auto:upgradePLS150ns',
+                              '--mc'           : '',
+                              '--fast'         : '',
+                              '--datatier'     : 'MINIAODSIM',
+                              '--eventcontent' : 'MINIAODSIM'
+                              },stepMiniAODDefaults])
+
+steps['MINIAODDATA']=merge([{'--filein':'file:step3.root'},stepMiniAODData])
+steps['MINIAODDATAStep2']=merge([{'--filein':'file:step2.root'},stepMiniAODData])
+steps['MINIAODMC']=merge([{'--filein':'file:step3.root'},stepMiniAODMC])
+steps['MINIAODMC50']=merge([{'--filein':'file:step3.root'},stepMiniAODMC50ns])
+steps['MINIAODMCFS']=merge([{'--filein':'file:step3.root'},stepMiniAODMCFS])
+steps['MINIAODMCFS50']=merge([{'--filein':'file:step3.root'},stepMiniAODMCFS50ns])
+
+steps['MINIAODDATAINPUT']=merge([stepMiniAODData])
+steps['MINIAODMCINPUT']=merge([stepMiniAODMC])
+steps['MINIAODMC50INPUT']=merge([stepMiniAODMC50ns])
+steps['MINIAODMCFSINPUT']=merge([stepMiniAODMCFS])
+steps['MINIAODMCFS50INPUT']=merge([stepMiniAODMCFS50ns])
+
+# 13 TeV RECO
+steps['ZEE_13MINIAOD']={'INPUT':InputInfo(dataSet='/RelValZEE_13/%s/GEN-SIM-RECO'%(baseDataSetReleaseForMiniAOD[0],),location='STD')}
+steps['ZmumuJets_Pt_20_300_13MINIAOD']={'INPUT':InputInfo(dataSet='/RelValZmumuJets_Pt_20_300_GEN_13/%s/GEN-SIM-RECO'%(baseDataSetReleaseForMiniAOD[0],),location='STD')}
+steps['TTbar_13MINIAOD']={'INPUT':InputInfo(dataSet='/RelValTTbar_13/%s/GEN-SIM-RECO'%(baseDataSetReleaseForMiniAOD[0],),location='STD')}
+steps['H130GGgluonfusion_13MINIAOD']={'INPUT':InputInfo(dataSet='/RelValH130GGgluonfusion_13/%s/GEN-SIM-RECO'%(baseDataSetReleaseForMiniAOD[0],),location='STD')}
+steps['QQH1352T_Tauola_13MINIAOD']={'INPUT':InputInfo(dataSet='/RelValQQH1352T_Tauola_13/%s/GEN-SIM-RECO'%(baseDataSetReleaseForMiniAOD[0],),location='STD')}
+steps['ZTT_13MINIAOD']={'INPUT':InputInfo(dataSet='/RelValZTT_13/%s/GEN-SIM-RECO'%(baseDataSetReleaseForMiniAOD[0],),location='STD')}
+
+#Data
+steps['RunMinBias2012DMINIAOD']={'INPUT':InputInfo(dataSet='/MinimumBias/%smb2012D-v2/RECO'%(baseDataSetReleaseForMiniAOD[2],),location='STD')}
+steps['RunMu2012DMINIAOD']={'INPUT':InputInfo(dataSet='/SingleMu/%smu2012A-v2/RECO'%(baseDataSetReleaseForMiniAOD[2],),location='STD')}
+steps['RunPhoton2012DMINIAOD']={'INPUT':InputInfo(dataSet='/SinglePhoton/%sphoton2012D-v2/RECO'%(baseDataSetReleaseForMiniAOD[2],),location='STD')}
+steps['RunEl2012DMINIAOD']={'INPUT':InputInfo(dataSet='/SingleElectron/%selectron2012D-v2/RECO'%(baseDataSetReleaseForMiniAOD[2],),location='STD')}
+steps['RunJet2012DMINIAOD']={'INPUT':InputInfo(dataSet='/JetHT/%sjet2012D-v2/RECO'%(baseDataSetReleaseForMiniAOD[2],),location='STD')}
 
 #### for special wfs ###
 #steps['TTbar_REDIGI_RERECO']=merge([{'cfg':'TTbar_Tauola_8TeV_cfi',
