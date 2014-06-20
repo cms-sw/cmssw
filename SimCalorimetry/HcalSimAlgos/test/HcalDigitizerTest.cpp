@@ -223,7 +223,7 @@ int main() {
   bool PM2 = false;
   HcalAmplifier amplifier(&parameterMap, addNoise, PM1, PM2);
   HcalCoderFactory coderFactory(HcalCoderFactory::NOMINAL);
-  HcalElectronicsSim electronicsSim(&amplifier, &coderFactory);
+  HcalElectronicsSim electronicsSim(&amplifier, &coderFactory,PM1);
   amplifier.setDbService(&calibratorHandle);
   amplifier.setRandomEngine(randomEngine);
   electronicsSim.setRandomEngine(randomEngine);
