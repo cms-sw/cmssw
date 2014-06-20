@@ -35,6 +35,8 @@ namespace l1t {
 
   private:
     CaloParamsStage1* const params_;
+    std::vector<double> cosPhi;
+    std::vector<double> sinPhi;
   };
 }
 

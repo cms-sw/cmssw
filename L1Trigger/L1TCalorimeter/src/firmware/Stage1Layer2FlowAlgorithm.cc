@@ -1,7 +1,7 @@
 ///
 /// \class l1t::Stage1Layer2FlowAlgorithm
 ///
-/// \authors: Gian Michele Innocenti
+/// \authors: Maxime Guilbaud
 ///           R. Alex Barbieri
 ///
 /// Description: Flow Algorithm HI
@@ -13,39 +13,44 @@
 
 l1t::Stage1Layer2FlowAlgorithm::Stage1Layer2FlowAlgorithm(CaloParamsStage1* params) : params_(params)
 {
-
+  //now do what ever initialization is needed
+  for(unsigned int i = 0; i < L1CaloRegionDetId::N_PHI; i++) {
+    sinPhi.push_back(sin(2. * 3.1415927 * i * 1.0 / L1CaloRegionDetId::N_PHI));
+    cosPhi.push_back(cos(2. * 3.1415927 * i * 1.0 / L1CaloRegionDetId::N_PHI));
+  }
 }
 
 
-l1t::Stage1Layer2FlowAlgorithm::~Stage1Layer2FlowAlgorithm() {
-
-
-}
+l1t::Stage1Layer2FlowAlgorithm::~Stage1Layer2FlowAlgorithm() {}
 
 
 void l1t::Stage1Layer2FlowAlgorithm::processEvent(const std::vector<l1t::CaloRegion> & regions,
 						  const std::vector<l1t::CaloEmCand> & EMCands,
 						  std::vector<l1t::CaloSpare> * spares) {
+  double q2x = 0;
+  double q2y = 0;
+  double regionET=0.;
 
-  // ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > etLorentz(0,0,0,0);
+  for(std::vector<CaloRegion>::const_iterator region = regions.begin(); region != regions.end(); region++) {
 
-  // // convert back to hardware ET
-  // l1t::EtSum etMiss(*&etLorentz,EtSum::EtSumType::kMissingEt,MET/jetLsb ,0,iPhiET,0);
-  // l1t::EtSum htMiss(*&etLorentz,EtSum::EtSumType::kMissingHt,MHT/jetLsb ,0,iPhiHT,0);
-  // l1t::EtSum etTot (*&etLorentz,EtSum::EtSumType::kTotalEt,sumET/jetLsb,0,0,0);
-  // l1t::EtSum htTot (*&etLorentz,EtSum::EtSumType::kTotalHt,sumHT/jetLsb ,0,0,0);
+    int ieta=region->hwEta();
+    if (ieta > 3 && ieta < 18) {
+      continue;
+    }
 
-  // std::vector<l1t::EtSum> *preGtEtSums = new std::vector<l1t::EtSum>();
+    int iphi=region->hwPhi();
+    regionET=region->hwPt();
 
-  // preGtEtSums->push_back(etMiss);
-  // preGtEtSums->push_back(htMiss);
-  // preGtEtSums->push_back(etTot);
-  // preGtEtSums->push_back(htTot);
+    q2x+= regionET * cosPhi[iphi];
+    q2y+= regionET * sinPhi[iphi];
+  }
 
-  // // All algorithms
-  // EtSumToGtScales(params_, preGtEtSums, etsums);
+  double HFq2 = q2x*q2x+q2y*q2y;
+  //double psi2 = 0.5 * atan(q2y/q2x);
 
-  // delete subRegions;
-  // delete preGtEtSums;
+  ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > dummy(0,0,0,0);
 
+  l1t::CaloSpare V2 (*&dummy,CaloSpare::CaloSpareType::V2,(int)HFq2,0,0,0);
+
+  spares->push_back(V2);
 }
