@@ -1433,6 +1433,7 @@ stepMiniAODMCFS50ns = merge([{'--conditions'   : 'PLS170_V6AN1::All',
                               },stepMiniAODDefaults])
 
 steps['MINIAODDATA']=merge([{'--filein':'file:step3.root'},stepMiniAODData])
+steps['MINIAODDATAStep2']=merge([{'--filein':'file:step2.root'},stepMiniAODData])
 steps['MINIAODMC']=merge([{'--filein':'file:step3.root'},stepMiniAODMC])
 steps['MINIAODMC50']=merge([{'--filein':'file:step3.root'},stepMiniAODMC50ns])
 steps['MINIAODMCFS']=merge([{'--filein':'file:step3.root'},stepMiniAODMCFS])
