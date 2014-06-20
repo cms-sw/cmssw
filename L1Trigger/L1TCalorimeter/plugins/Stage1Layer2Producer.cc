@@ -113,8 +113,7 @@ namespace l1t {
     produces<BXVector<l1t::Tau>>();
     produces<BXVector<l1t::Jet>>();
     produces<BXVector<l1t::EtSum>>();
-    produces<BXVector<l1t::CaloSpare>>("HFRingSums");
-    produces<BXVector<l1t::CaloSpare>>("HFBitCounts");
+    produces<BXVector<l1t::CaloSpare>>();
 
     // register what you consume and keep token for later access:
     regionToken = consumes<BXVector<l1t::CaloRegion>>(iConfig.getParameter<InputTag>("CaloRegions"));
