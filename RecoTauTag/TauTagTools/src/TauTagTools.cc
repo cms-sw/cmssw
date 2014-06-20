@@ -81,7 +81,7 @@ void replaceSubStr(string& s,const string& oldSubStr,const string& newSubStr){
 	  (**iTk).normalizedChi2()<=tkmaxChi2 &&
 	  fabs((**iTk).dxy(pv.position()))<=tkmaxipt &&
 	  (**iTk).numberOfValidHits()>=tkminTrackerHitsn &&
-	  (**iTk).hitPattern().numberOfValidPixelHits() >= tkminPixelHitsn)
+	  (**iTk).hitPattern().numberOfValidPixelHits()>=tkminPixelHitsn)
 	filteredTracks.push_back(*iTk);
     }
     return filteredTracks;
@@ -94,7 +94,7 @@ void replaceSubStr(string& s,const string& oldSubStr,const string& newSubStr){
 	  (**iTk).normalizedChi2()<=tkmaxChi2 &&
 	  fabs((**iTk).dxy(pv.position()))<=tkmaxipt &&
 	  (**iTk).numberOfValidHits()>=tkminTrackerHitsn &&
-	  (**iTk).hitPattern().numberOfValidPixelHits() >= tkminPixelHitsn &&
+	  (**iTk).hitPattern().numberOfValidPixelHits()>=tkminPixelHitsn &&
 	  fabs((**iTk).dz(pv.position()))<=tktorefpointmaxDZ)
 	filteredTracks.push_back(*iTk);
     }
@@ -129,7 +129,7 @@ void replaceSubStr(string& s,const string& oldSubStr,const string& newSubStr){
 	    (*PFChargedHadrCand_rectk).normalizedChi2()<=ChargedHadrCand_tkmaxChi2 &&
 	    fabs((*PFChargedHadrCand_rectk).dxy(pv.position()))<=ChargedHadrCand_tkmaxipt &&
 	    (*PFChargedHadrCand_rectk).numberOfValidHits()>=ChargedHadrCand_tkminTrackerHitsn &&
-	    (*PFChargedHadrCand_rectk).hitPattern().numberOfValidPixelHits() >= ChargedHadrCand_tkminPixelHitsn) 
+	    (*PFChargedHadrCand_rectk).hitPattern().numberOfValidPixelHits()>=ChargedHadrCand_tkminPixelHitsn) 
 	  filteredPFChargedHadrCands.push_back(*iPFCand);
       }
     }
@@ -147,7 +147,7 @@ void replaceSubStr(string& s,const string& oldSubStr,const string& newSubStr){
 	    (*PFChargedHadrCand_rectk).normalizedChi2()<=ChargedHadrCand_tkmaxChi2 &&
 	    fabs((*PFChargedHadrCand_rectk).dxy(pv.position()))<=ChargedHadrCand_tkmaxipt &&
 	    (*PFChargedHadrCand_rectk).numberOfValidHits()>=ChargedHadrCand_tkminTrackerHitsn &&
-	    (*PFChargedHadrCand_rectk).hitPattern().numberOfValidPixelHits() >= ChargedHadrCand_tkminPixelHitsn &&
+	    (*PFChargedHadrCand_rectk).hitPattern().numberOfValidPixelHits()>=ChargedHadrCand_tkminPixelHitsn &&
 	    fabs((*PFChargedHadrCand_rectk).dz(pv.position()))<=ChargedHadrCand_tktorefpointmaxDZ)
 	  filteredPFChargedHadrCands.push_back(*iPFCand);
       }

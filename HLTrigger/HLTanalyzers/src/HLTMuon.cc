@@ -383,8 +383,7 @@ void HLTMuon::analyze(const edm::Handle<reco::MuonCollection>                 & 
       muonl2nhits[imu2c] = tk->numberOfValidHits();
       muonl2nchambers[imu2c] = validChambers(tk);
       muonl2nstat[imu2c] = tk->hitPattern().muonStationsWithAnyHits();
-      muonl2ndtcscstat[imu2c] = tk->hitPattern().dtStationsWithAnyHits()
-          + tk->hitPattern().cscStationsWithAnyHits();
+      muonl2ndtcscstat[imu2c] = tk->hitPattern().dtStationsWithAnyHits() + tk->hitPattern().cscStationsWithAnyHits();
 
       // At present we do not cut on this, but on a 90% CL value "ptLx" defined here below
       // We should change this in the future and cut directly on "pt", to avoid unnecessary complications and risks

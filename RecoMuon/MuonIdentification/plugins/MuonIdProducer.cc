@@ -462,20 +462,16 @@ void MuonIdProducer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
 bool validateGlobalMuonPair( const reco::MuonTrackLinks& goodMuon,
 			     const reco::MuonTrackLinks& badMuon )
 {
-  if (std::min(goodMuon.globalTrack()->hitPattern().numberOfValidMuonHits(),
-		 badMuon.globalTrack()->hitPattern().numberOfValidMuonHits()) > 10){
+  if ( std::min(goodMuon.globalTrack()->hitPattern().numberOfValidMuonHits(),
+		  badMuon.globalTrack()->hitPattern().numberOfValidMuonHits()) > 10){
     if ( goodMuon.globalTrack()->normalizedChi2() >
 	  badMuon.globalTrack()->normalizedChi2() )
       return false;
     else
       return true;
   }
-
-  if (goodMuon.globalTrack()->hitPattern().numberOfValidMuonHits()
-          < badMuon.globalTrack()->hitPattern().numberOfValidMuonHits()){
-      return false;
-  }
-
+  if ( goodMuon.globalTrack()->hitPattern().numberOfValidMuonHits() <
+       badMuon.globalTrack()->hitPattern().numberOfValidMuonHits() ) return false;
   return true;
 }
 

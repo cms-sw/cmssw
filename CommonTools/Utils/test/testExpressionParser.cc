@@ -150,7 +150,7 @@ void testExpressionParser::checkAll() {
     checkTrack("covariance(1, 0)", trk.covariance(1, 0));
     checkTrack("covariance(1, 1)", trk.covariance(1, 1));
     checkTrack("momentum.x", trk.momentum().x());
-    checkTrack("hitPattern.numberOfValidHits()", trk.hitPattern().numberOfValidHits());
+    checkTrack("hitPattern.numberOfValidHits", trk.hitPattern().numberOfValidHits());
     checkTrack("extra.outerPhi", trk.extra()->outerPhi());
     checkTrack("referencePoint.R", trk.referencePoint().R());
     checkTrack("algo", reco::Track::iter2);

@@ -1225,7 +1225,7 @@ bool CSCSkim::doBFieldStudySelection(edm::Handle<reco::TrackCollection> saMuons,
 
       float pDef  = global->p();
       float redChiSq = global->globalTrack()->normalizedChi2();
-      const reco::HitPattern &hp = (global->globalTrack())->hitPattern();
+      const reco::HitPattern& hp = (global->globalTrack())->hitPattern();
       // int nTotalHits = hp.numberOfHits();
       //    int nValidHits = hp.numberOfValidHits();
       int nTrackerHits = hp.numberOfValidTrackerHits();

@@ -179,8 +179,8 @@ HLTMuonDimuonL2Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSet
       if (tk1->hitPattern().muonStationsWithAnyHits() < min_Nstations_) continue;
 
       // number of chambers
-      if(tk1->hitPattern().dtStationsWithAnyHits()
-              + tk1->hitPattern().cscStationsWithAnyHits() < min_Nchambers_) continue;
+      if(tk1->hitPattern().dtStationsWithAnyHits() +
+        tk1->hitPattern().cscStationsWithAnyHits() < min_Nchambers_) continue;
 
       //dr cut
       //if (fabs(tk1->d0())>max_Dr_) continue;

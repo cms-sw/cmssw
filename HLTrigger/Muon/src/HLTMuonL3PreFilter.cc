@@ -186,7 +186,8 @@ HLTMuonL3PreFilter::hltFilter(Event& iEvent, const EventSetup& iSetup, trigger::
        if (fabs(tk->dxy(beamSpot.position())) > max_DXYBeamSpot_ ) continue;
 
        //min muon hits cut
-       if (tk->hitPattern().numberOfValidMuonHits() < min_NmuonHits_ ) continue;
+       reco::HitPattern trackHits = tk->hitPattern();
+       if (trackHits.numberOfValidMuonHits() < min_NmuonHits_ ) continue;
 
        //pt difference cut
        double candPt = cand->pt();

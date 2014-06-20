@@ -5,7 +5,7 @@ TkAlGoodIdMuonSelector = cms.EDFilter("MuonSelector",
     cut = cms.string('isGlobalMuon &'
                      'isTrackerMuon &'
                      'numberOfMatches > 1 &'
-                     'globalTrack.hitPattern().numberOfValidMuonHits() > 0 &'
+                     'globalTrack.hitPattern.numberOfValidMuonHits > 0 &'
                      'abs(eta) < 2.5 &'
                      'globalTrack.normalizedChi2 < 20.'),
     filter = cms.bool(True)
