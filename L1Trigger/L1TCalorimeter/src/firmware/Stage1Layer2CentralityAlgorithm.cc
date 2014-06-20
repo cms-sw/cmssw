@@ -27,25 +27,18 @@ void l1t::Stage1Layer2CentralityAlgorithm::processEvent(const std::vector<l1t::C
 							const std::vector<l1t::CaloEmCand> & EMCands,
 							std::vector<l1t::CaloSpare> * spares) {
 
-  // ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > etLorentz(0,0,0,0);
+  int sumET = 0;
+  int regionET=0;
 
-  // // convert back to hardware ET
-  // l1t::EtSum etMiss(*&etLorentz,EtSum::EtSumType::kMissingEt,MET/jetLsb ,0,iPhiET,0);
-  // l1t::EtSum htMiss(*&etLorentz,EtSum::EtSumType::kMissingHt,MHT/jetLsb ,0,iPhiHT,0);
-  // l1t::EtSum etTot (*&etLorentz,EtSum::EtSumType::kTotalEt,sumET/jetLsb,0,0,0);
-  // l1t::EtSum htTot (*&etLorentz,EtSum::EtSumType::kTotalHt,sumHT/jetLsb ,0,0,0);
+  for(std::vector<CaloRegion>::const_iterator region = regions.begin(); region != regions.end(); region++) {
 
-  // std::vector<l1t::EtSum> *preGtEtSums = new std::vector<l1t::EtSum>();
-
-  // preGtEtSums->push_back(etMiss);
-  // preGtEtSums->push_back(htMiss);
-  // preGtEtSums->push_back(etTot);
-  // preGtEtSums->push_back(htTot);
-
-  // // All algorithms
-  // EtSumToGtScales(params_, preGtEtSums, etsums);
-
-  // delete subRegions;
-  // delete preGtEtSums;
-
+    if (region->hwEta() > 3 && region->hwEta() < 18) {
+      continue;
+    }
+    regionET=region->hwPt();
+    sumET +=regionET;
+  }
+  ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > dummy(0,0,0,0);
+  l1t::CaloSpare centrality (*&dummy,CaloSpare::CaloSpareType::Centrality,sumET,0,0,0);
+  spares->push_back(centrality);
 }
