@@ -252,7 +252,7 @@ void MuonTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 		  for(std::vector<const TrackingRecHit*>::const_iterator ihit = phiHits.begin();
 		      ihit != phiHits.end(); ++ihit) {
 		    TrackingRecHit* seghit = (*ihit)->clone();
-		    newTrk->setHitPattern( *seghit, index_hit);
+             newTrk->appendHitPattern(*seghit);
 		    //		    edm::LogVerbatim("MuonTrackProducer")<<"hit pattern for position "<<index_hit<<" set to:";
 		    //		    newTrk->hitPattern().printHitPattern(index_hit, std::cout);
 		    index_hit++;
@@ -267,7 +267,7 @@ void MuonTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 		  for(std::vector<const TrackingRecHit*>::const_iterator ihit = zedHits.begin();
 		      ihit != zedHits.end(); ++ihit) {
 		    TrackingRecHit* seghit = (*ihit)->clone();
-		    newTrk->setHitPattern( *seghit, index_hit);
+            newTrk->appendHitPattern(*seghit);
 		    //		    edm::LogVerbatim("MuonTrackProducer")<<"hit pattern for position "<<index_hit<<" set to:";
 		    //		    newTrk->hitPattern().printHitPattern(index_hit, std::cout);
 		    index_hit++;
@@ -295,7 +295,7 @@ void MuonTrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 		for(std::vector<const TrackingRecHit*>::const_iterator ihit = hits.begin();
 		    ihit != hits.end(); ++ihit) {
 		  TrackingRecHit* seghit = (*ihit)->clone();
-		  newTrk->setHitPattern( *seghit, index_hit);
+          newTrk->appendHitPattern(*seghit);
 		  //		    edm::LogVerbatim("MuonTrackProducer")<<"hit pattern for position "<<index_hit<<" set to:";
 		  //		    newTrk->hitPattern().printHitPattern(index_hit, std::cout);
 		  index_hit++;
