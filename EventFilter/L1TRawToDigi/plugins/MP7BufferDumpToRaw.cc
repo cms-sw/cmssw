@@ -216,7 +216,11 @@ MP7BufferDumpToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     for (int i=0; i<nFramesPerEvent_; ++i) {
       if (i<(int)rxData.size() && iBlock<(int)rxData.at(i).size()) {
-	feddata.data()[iWord] = rxData.at(i).at(iBlock);
+	feddata.data()[iWord] = rxData.at(i).at(iBlock) & 0xff;
+	feddata.data()[iWord+1] = (rxData.at(i).at(iBlock) >> 8) & 0xff;
+	feddata.data()[iWord+2] = (rxData.at(i).at(iBlock) >> 16) & 0xff;
+	feddata.data()[iWord+3] = (rxData.at(i).at(iBlock) >> 24) & 0xff;
+        std::cout << cnt++ << ": " << (unsigned int) feddata.data()[iWord] << " vs " << rxData.at(i).at(iBlock) << std::endl;
 	iWord+=4;
       }
       else edm::LogError("l1t|mp7") << "Error. i=" << i << " iBlock=" << iBlock << std::endl;
@@ -232,7 +236,10 @@ MP7BufferDumpToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     for (int i=0; i<nFramesPerEvent_; ++i) {
       if (i<(int)txData.size() && iBlock<(int)txData.at(i).size()) {
-	feddata.data()[iWord] = txData.at(i).at(iBlock);
+	feddata.data()[iWord] = txData.at(i).at(iBlock) & 0xff;
+	feddata.data()[iWord+1] = (txData.at(i).at(iBlock) >> 8) & 0xff;
+	feddata.data()[iWord+2] = (txData.at(i).at(iBlock) >> 16) & 0xff;
+	feddata.data()[iWord+3] = (txData.at(i).at(iBlock) >> 24) & 0xff;
 	iWord+=4;
       }
       else edm::LogError("l1t|mp7") << "Error. i=" << i << " iBlock=" << iBlock << std::endl;
