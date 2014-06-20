@@ -16,15 +16,7 @@
 using namespace std;
 using namespace l1t;
 
-Stage1Layer2JetAlgorithmImpPP::Stage1Layer2JetAlgorithmImpPP(CaloParamsStage1* params) : params_(params)
-{
-  jetLsb=params_->jetLsb();
-  jetSeedThreshold= floor( params_->jetSeedThreshold()/jetLsb + 0.5);
-  regionPUSType = params_->regionPUSType();
-  regionPUSParams = params_->regionPUSParams();
-  jetCalibrationType = params_->jetCalibrationType();
-  jetCalibrationParams = params_->jetCalibrationParams();
-}
+Stage1Layer2JetAlgorithmImpPP::Stage1Layer2JetAlgorithmImpPP(CaloParamsStage1* params) : params_(params) {};
 
 Stage1Layer2JetAlgorithmImpPP::~Stage1Layer2JetAlgorithmImpPP(){};
 
@@ -38,6 +30,12 @@ void Stage1Layer2JetAlgorithmImpPP::processEvent(const std::vector<l1t::CaloRegi
   std::vector<l1t::Jet> * uncalibjets = new std::vector<l1t::Jet>();
   std::vector<l1t::Jet> * preGtJets = new std::vector<l1t::Jet>();
 
+  double towerLsb = params_->towerLsbSum();
+  int jetSeedThreshold = floor( params_->jetSeedThreshold()/towerLsb + 0.5);
+  std::string regionPUSType = params_->regionPUSType();
+  std::vector<double> regionPUSParams = params_->regionPUSParams();
+  std::string jetCalibrationType = params_->jetCalibrationType();
+  std::vector<double> jetCalibrationParams = params_->jetCalibrationParams();
 
   //Region Correction will return uncorrected subregions
   //if regionPUSType is set to None in the config
@@ -48,7 +46,7 @@ void Stage1Layer2JetAlgorithmImpPP::processEvent(const std::vector<l1t::CaloRegi
 
   //will return jets with no response corrections
   //if jetCalibrationType is set to None in the config
-  JetCalibration(uncalibjets, jetCalibrationParams, preGtJets, jetCalibrationType, jetLsb);
+  JetCalibration(uncalibjets, jetCalibrationParams, preGtJets, jetCalibrationType, towerLsb);
 
   // takes input jets (using region scales/eta) and outputs jets using Gt scales/eta
   JetToGtScales(params_, preGtJets, jets);

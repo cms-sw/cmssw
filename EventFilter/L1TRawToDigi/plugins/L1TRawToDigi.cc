@@ -6,9 +6,10 @@
 
 namespace l1t {
    L1TRawToDigi::L1TRawToDigi(const edm::ParameterSet& config) :
-      inputLabel_(config.getParameter<edm::InputTag>("InputLabel")),
       fedId_(config.getParameter<int>("FedId"))
    {
+      fedData_ = consumes<FEDRawDataCollection>(config.getParameter<edm::InputTag>("InputLabel"));
+
       auto factory_names = config.getParameter<std::vector<std::string>>("Unpackers");
       for (const auto& name: factory_names)
          factories_.push_back(UnpackerFactory::get()->makeUnpackerFactory(name, config, *this));
@@ -31,11 +32,10 @@ namespace l1t {
       using namespace edm;
 
       edm::Handle<FEDRawDataCollection> feds;
-      event.getByLabel(inputLabel_, feds);
+      event.getByToken(fedData_, feds);
 
       if (!feds.isValid()) {
-         LogError("L1T") << "Cannot unpack: no collection found with input tag "
-            << inputLabel_;
+         LogError("L1T") << "Cannot unpack: no collection found";
          return;
       }
 
@@ -48,9 +48,7 @@ namespace l1t {
       }
 
       const unsigned char *data = l1tRcd.data();
-      // FIXME is the 8 right?
-      // const unsigned data_end = l1tRcd.size() - 8;
-      unsigned idx = 16;
+      unsigned idx = 0;
 
       // Extract header data
       // uint32_t event_id = pop(data, idx) & 0xFFFFFF;
@@ -66,9 +64,9 @@ namespace l1t {
       uint32_t payload_size = (id >> 8) & 0xFFFF;
       // uint32_t event_type = id & 0xFF;
 
-      if (l1tRcd.size() < payload_size * 4 + 36) {
+      if (l1tRcd.size() < payload_size * 4 + 20) {
          LogError("L1T") << "Cannot unpack: invalid L1T raw data size in header (size = "
-            << l1tRcd.size() << ", expected " << payload_size * 4 + 36
+            << l1tRcd.size() << ", expected " << payload_size * 4 + 20
             << " + padding). Returning empty collections!";
          return;
       }
@@ -84,12 +82,6 @@ namespace l1t {
 
       auto payload_end = idx + payload_size * 4;
       for (unsigned int b = 0; idx < payload_end; ++b) {
-         // FIXME Number of blocks actually fixed by firmware
-         if (b >= MAX_BLOCKS) {
-            LogError("L1T") << "Reached block limit - bailing out from this event!";
-            break;
-         }
-
          // Parse block
          uint32_t block_hdr = pop(data, idx);
          uint32_t block_id = (block_hdr >> 24) & 0xFF;

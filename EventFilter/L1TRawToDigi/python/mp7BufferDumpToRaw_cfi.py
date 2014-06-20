@@ -6,8 +6,24 @@ mp7BufferDumpToRaw = cms.EDProducer(
     txFile          = cms.untracked.string("tx_summary.txt"),
     fedId           = cms.untracked.int32(100),
     nHeaders        = cms.untracked.int32(3),
-    nFramesPerEvent = cms.untracked.int32(32),
-    txBlockOffset   = cms.untracked.int32(72),
+    nFramesPerEvent = cms.untracked.int32(41),
     nRxLinks        = cms.untracked.int32(72),
-    nTxLinks        = cms.untracked.int32(72)
+    nTxLinks        = cms.untracked.int32(72),
+    rxBlockLength   = cms.untracked.vint32(41,41,41,41,41,41,41,41,41,
+                                           41,41,41,41,41,41,41,41,41,
+                                           41,41,41,41,41,41,41,41,41,
+                                           41,41,41,41,41,41,41,41,41,
+                                           41,41,41,41,41,41,41,41,41,
+                                           41,41,41,41,41,41,41,41,41,
+                                           41,41,41,41,41,41,41,41,41,
+                                           41,41,41,41,41,41,41,41,41),
+    txBlockLength   = cms.untracked.vint32(12,12,8,4,0,0,0,0,0,
+                                           0,0,0,0,0,0,0,0,0,
+                                           0,0,0,0,0,0,0,0,0,
+                                           0,0,0,0,0,0,0,0,0,
+                                           0,0,0,0,0,0,0,0,0,
+                                           0,0,0,0,0,0,0,0,0,
+                                           0,0,0,0,0,0,0,0,0,
+                                           0,0,0,0,0,0,0,0,0)
+
 )

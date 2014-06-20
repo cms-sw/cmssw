@@ -49,12 +49,7 @@ namespace l1t {
     //int tauSeed;
     //double relativeIsolationCut;
     //double relativeJetIsolationCut;
-    int tauSeedThreshold;
-    int jetSeedThreshold;
-    int switchOffTauIso;
     bool do2x1Algo;
-    double jetLsb;
-    double tauRelativeJetIsolationCut;
   };
 }
 #endif

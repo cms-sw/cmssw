@@ -15,16 +15,16 @@
 using namespace std;
 using namespace l1t;
 
-Stage1Layer2JetAlgorithmImpHI::Stage1Layer2JetAlgorithmImpHI(CaloParamsStage1* params) : params_(params)
-{
-  jetSeedThreshold= floor( params_->jetSeedThreshold()/jetLsb + 0.5);
-}
+Stage1Layer2JetAlgorithmImpHI::Stage1Layer2JetAlgorithmImpHI(CaloParamsStage1* params) : params_(params) { };
 
 Stage1Layer2JetAlgorithmImpHI::~Stage1Layer2JetAlgorithmImpHI(){};
 
 void Stage1Layer2JetAlgorithmImpHI::processEvent(const std::vector<l1t::CaloRegion> & regions,
 						 const std::vector<l1t::CaloEmCand> & EMCands,
 						 std::vector<l1t::Jet> * jets){
+
+  double towerLsb = params_->towerLsbSum();
+  int jetSeedThreshold= floor( params_->jetSeedThreshold()/towerLsb + 0.5);
 
   std::vector<l1t::CaloRegion> *subRegions = new std::vector<l1t::CaloRegion>();
   std::vector<l1t::Jet> *preGtJets = new std::vector<l1t::Jet>();
