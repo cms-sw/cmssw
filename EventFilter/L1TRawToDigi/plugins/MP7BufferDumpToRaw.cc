@@ -210,8 +210,8 @@ MP7BufferDumpToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   for (int iBlock=0; iBlock<nRxLinks_ && iWord<evtSize * 4 + 12; ++iBlock) {
 
-    feddata.data()[iWord+2] = nFramesPerEvent_ & 0xf;
-    feddata.data()[iWord+3] = iBlock & 0xf ;
+    feddata.data()[iWord+2] = nFramesPerEvent_ & 0xff;
+    feddata.data()[iWord+3] = iBlock & 0xff;
     iWord+=4;
 
     for (int i=0; i<nFramesPerEvent_; ++i) {
@@ -226,8 +226,8 @@ MP7BufferDumpToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   for (int iBlock=0; iBlock<nTxLinks_ && iWord<evtSize * 4 + 12; ++iBlock) {
 
-    feddata.data()[iWord+2] = nFramesPerEvent_ & 0xf;
-    feddata.data()[iWord+3] = (iBlock+txBlockOffset_) & 0xf;
+    feddata.data()[iWord+2] = nFramesPerEvent_ & 0xff;
+    feddata.data()[iWord+3] = (iBlock+txBlockOffset_) & 0xff;
     iWord+=4;
 
     for (int i=0; i<nFramesPerEvent_; ++i) {
