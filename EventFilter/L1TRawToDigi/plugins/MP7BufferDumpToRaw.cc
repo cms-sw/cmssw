@@ -202,10 +202,13 @@ MP7BufferDumpToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   FEDRawData& feddata=rawColl->FEDData(fedId_);
   
   // Allocate space for header+trailer+payload
-  feddata.resize(evtSize);
-  int iWord=0;
+  feddata.resize(evtSize * 4 + 24);
+  int iWord=12;
 
-  for (int iBlock=0; iBlock<nRxLinks_ && iWord<evtSize; ++iBlock) {
+  feddata.data()[9] = evtSize & 0xff;
+  feddata.data()[10] = (evtSize >> 8) & 0xff;
+
+  for (int iBlock=0; iBlock<nRxLinks_ && iWord<evtSize * 4 + 12; ++iBlock) {
 
     feddata.data()[iWord+2] = nFramesPerEvent_ & 0xf;
     feddata.data()[iWord+3] = iBlock & 0xf ;
@@ -221,7 +224,7 @@ MP7BufferDumpToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   }
 
-  for (int iBlock=0; iBlock<nTxLinks_ && iWord<evtSize; ++iBlock) {
+  for (int iBlock=0; iBlock<nTxLinks_ && iWord<evtSize * 4 + 12; ++iBlock) {
 
     feddata.data()[iWord+2] = nFramesPerEvent_ & 0xf;
     feddata.data()[iWord+3] = (iBlock+txBlockOffset_) & 0xf;
