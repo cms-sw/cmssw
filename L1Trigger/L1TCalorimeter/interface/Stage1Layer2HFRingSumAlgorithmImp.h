@@ -31,7 +31,7 @@ namespace l1t {
     virtual ~Stage1Layer2FlowAlgorithm();
     virtual void processEvent(const std::vector<l1t::CaloRegion> & regions,
 			      const std::vector<l1t::CaloEmCand> & EMCands,
-			      std::vector<l1t::HFRingSum> * sums);
+			      std::vector<l1t::CaloSpare> * spares);
 
   private:
     CaloParamsStage1* const params_;

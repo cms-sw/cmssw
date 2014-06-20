@@ -68,8 +68,7 @@ void Stage1Layer2MainProcessorFirmwareImp1::processEvent(const std::vector<CaloE
 							 std::vector<Tau> * taus,
 							 std::vector<Jet> * jets,
 							 std::vector<EtSum> * etsums,
-							 std::vector<HFRingSum> * hfringsums,
-							 std::vector<HFBitCount> * hfbitcounts){
+							 std::vector<CaloSpare> * calospares){
   if(m_jetAlgo)
     m_jetAlgo->processEvent(regions, emcands, jets); // need to run jets before egammas and taus for rel. isol. cuts
   if(m_egAlgo)
@@ -82,8 +81,8 @@ void Stage1Layer2MainProcessorFirmwareImp1::processEvent(const std::vector<CaloE
   if(m_sumAlgo)
     m_sumAlgo->processEvent(regions, emcands, etsums);
   if(m_hfRingAlgo)
-    m_hfRingAlgo->processEvent(regions, emcands, hfringsums);
+    m_hfRingAlgo->processEvent(regions, emcands, calospares);
   if(m_hfBitAlgo)
-    m_hfBitAlgo->processEvent(regions, emcands, hfbitcounts);
+    m_hfBitAlgo->processEvent(regions, emcands, calospares);
 
 }

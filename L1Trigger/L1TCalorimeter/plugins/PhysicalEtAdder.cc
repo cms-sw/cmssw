@@ -30,15 +30,13 @@ l1t::PhysicalEtAdder::PhysicalEtAdder(const edm::ParameterSet& ps) {
   produces<l1t::TauBxCollection>();
   produces<l1t::JetBxCollection>();
   produces<l1t::EtSumBxCollection>();
-  produces<l1t::HFRingSumBxCollection>();
-  produces<l1t::HFBitCountBxCollection>();
+  produces<l1t::CaloSpareBxCollection>();
 
   EGammaToken_ = consumes<l1t::EGammaBxCollection>(ps.getParameter<edm::InputTag>("InputCollection"));
   TauToken_ = consumes<l1t::TauBxCollection>(ps.getParameter<edm::InputTag>("InputCollection"));
   JetToken_ = consumes<l1t::JetBxCollection>(ps.getParameter<edm::InputTag>("InputCollection"));
   EtSumToken_ = consumes<l1t::EtSumBxCollection>(ps.getParameter<edm::InputTag>("InputCollection"));
-  HFRingSumToken_ = consumes<l1t::HFRingSumBxCollection>(ps.getParameter<edm::InputTag>("InputCollection"));
-  HFBitCountToken_ = consumes<l1t::HFBitCountBxCollection>(ps.getParameter<edm::InputTag>("InputCollection"));
+  CaloSpareToken_ = consumes<l1t::CaloSpareBxCollection>(ps.getParameter<edm::InputTag>("InputCollection"));
 }
 
 l1t::PhysicalEtAdder::~PhysicalEtAdder() {
@@ -54,22 +52,19 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::auto_ptr<l1t::TauBxCollection> new_taus (new l1t::TauBxCollection);
   std::auto_ptr<l1t::JetBxCollection> new_jets (new l1t::JetBxCollection);
   std::auto_ptr<l1t::EtSumBxCollection> new_etsums (new l1t::EtSumBxCollection);
-  std::auto_ptr<l1t::HFRingSumBxCollection> new_hfringsums (new l1t::HFRingSumBxCollection);
-  std::auto_ptr<l1t::HFBitCountBxCollection> new_hfbitcounts (new l1t::HFBitCountBxCollection);
+  std::auto_ptr<l1t::CaloSpareBxCollection> new_calospares (new l1t::CaloSpareBxCollection);
 
   edm::Handle<l1t::EGammaBxCollection> old_egammas;
   edm::Handle<l1t::TauBxCollection> old_taus;
   edm::Handle<l1t::JetBxCollection> old_jets;
   edm::Handle<l1t::EtSumBxCollection> old_etsums;
-  edm::Handle<l1t::HFRingSumBxCollection> old_hfringsums;
-  edm::Handle<l1t::HFBitCountBxCollection> old_hfbitcounts;
+  edm::Handle<l1t::CaloSpareBxCollection> old_calospares;
 
   iEvent.getByToken(EGammaToken_, old_egammas);
   iEvent.getByToken(TauToken_, old_taus);
   iEvent.getByToken(JetToken_, old_jets);
   iEvent.getByToken(EtSumToken_, old_etsums);
-  iEvent.getByToken(HFRingSumToken_, old_hfringsums);
-  iEvent.getByToken(HFBitCountToken_, old_hfbitcounts);
+  iEvent.getByToken(CaloSpareToken_, old_calospares);
 
   //get the proper scales for conversion to physical et
   edm::ESHandle< L1CaloEtScale > emScale ;
@@ -88,8 +83,7 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   new_taus->setBXRange(firstBX, lastBX);
   new_jets->setBXRange(firstBX, lastBX);
   new_taus->setBXRange(firstBX, lastBX);
-  new_hfringsums->setBXRange(firstBX, lastBX);
-  new_hfbitcounts->setBXRange(firstBX, lastBX);
+  new_calospares->setBXRange(firstBX, lastBX);
 
   for(int bx = firstBX; bx <= lastBX; ++bx)
   {
@@ -182,20 +176,12 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     }
 
-    for(l1t::HFRingSumBxCollection::const_iterator itHFRingSum = old_hfringsums->begin(bx);
-	itHFRingSum != old_hfringsums->end(bx); ++itHFRingSum)
+    for(l1t::CaloSpareBxCollection::const_iterator itCaloSpare = old_calospares->begin(bx);
+	itCaloSpare != old_calospares->end(bx); ++itCaloSpare)
     {
       //just pass through for now
       //a different scale is needed depending on the type
-      new_hfringsums->push_back(bx, *itHFRingSum);
-    }
-
-    for(l1t::HFBitCountBxCollection::const_iterator itHFBitCount = old_hfbitcounts->begin(bx);
-	itHFBitCount != old_hfbitcounts->end(bx); ++itHFBitCount)
-    {
-      //just pass through for now
-      //a different scale is needed depending on the type
-      new_hfbitcounts->push_back(bx, *itHFBitCount);
+      new_calospares->push_back(bx, *itCaloSpare);
     }
   }
 
@@ -203,8 +189,7 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.put(new_taus);
   iEvent.put(new_jets);
   iEvent.put(new_etsums);
-  iEvent.put(new_hfringsums);
-  iEvent.put(new_hfbitcounts);
+  iEvent.put(new_calospares);
 }
 
 // ------------ method called once each job just before starting event loop  ------------

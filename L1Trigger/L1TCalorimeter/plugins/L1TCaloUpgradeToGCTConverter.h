@@ -36,8 +36,7 @@
 #include "DataFormats/L1Trigger/interface/Tau.h"
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
-#include "DataFormats/L1Trigger/interface/HFRingSum.h"
-#include "DataFormats/L1Trigger/interface/HFBitCount.h"
+#include "DataFormats/L1Trigger/interface/CaloSpare.h"
 
 #include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
 
@@ -70,8 +69,7 @@ namespace l1t {
     EDGetToken TauToken_;
     EDGetToken JetToken_;
     EDGetToken EtSumToken_;
-    EDGetToken HFRingSumToken_;
-    EDGetToken HFBitCountToken_;
+    EDGetToken CaloSpareToken_;
   };
 }
 #endif

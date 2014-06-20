@@ -25,7 +25,7 @@ l1t::Stage1Layer2FlowAlgorithm::~Stage1Layer2FlowAlgorithm() {
 
 void l1t::Stage1Layer2FlowAlgorithm::processEvent(const std::vector<l1t::CaloRegion> & regions,
 						  const std::vector<l1t::CaloEmCand> & EMCands,
-						  std::vector<l1t::HFRingSum> * counts) {
+						  std::vector<l1t::CaloSpare> * spares) {
 
   // ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > etLorentz(0,0,0,0);
 

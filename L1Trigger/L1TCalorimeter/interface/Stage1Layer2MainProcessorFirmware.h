@@ -38,8 +38,7 @@ namespace l1t {
 			      std::vector<Tau> * taus,
 			      std::vector<Jet> * jets,
 			      std::vector<EtSum> * etsums,
-			      std::vector<HFRingSum> * hfringsums,
-			      std::vector<HFBitCount> * hfbitcounts);
+			      std::vector<CaloSpare> * calospares);
   private:
 
     int m_fwv;

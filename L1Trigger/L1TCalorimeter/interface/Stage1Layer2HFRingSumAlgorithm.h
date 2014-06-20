@@ -15,7 +15,7 @@
 
 #include "DataFormats/L1TCalorimeter/interface/CaloRegion.h"
 #include "DataFormats/L1TCalorimeter/interface/CaloEmCand.h"
-#include "DataFormats/L1Trigger/interface/HFRingSum.h"
+#include "DataFormats/L1Trigger/interface/CaloSpare.h"
 
 #include <vector>
 
@@ -25,7 +25,7 @@ namespace l1t {
   public:
     virtual void processEvent(const std::vector<l1t::CaloRegion> & regions,
 			      const std::vector<l1t::CaloEmCand> & EMCands,
-			      std::vector<l1t::HFRingSum> * sums) = 0;
+			      std::vector<l1t::CaloSpare> * spares) = 0;
 
     virtual ~Stage1Layer2HFRingSumAlgorithm(){};
   };
