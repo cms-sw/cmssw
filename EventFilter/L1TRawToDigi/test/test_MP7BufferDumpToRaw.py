@@ -98,6 +98,7 @@ process.dumpRaw = cms.EDAnalyzer(
 # raw to digi
 import EventFilter.L1TRawToDigi.l1tRawToDigi_cfi
 process.l1tDigis = EventFilter.L1TRawToDigi.l1tRawToDigi_cfi.l1tRawToDigi.clone()
+process.l1tDigis.FedId = cms.int32(1)
 process.l1tDigis.InputLabel = cms.InputTag("mp7BufferDumpToRaw")
 
 # upgrade calo stage 2
