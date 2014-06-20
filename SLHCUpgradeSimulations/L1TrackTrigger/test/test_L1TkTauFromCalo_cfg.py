@@ -8,10 +8,10 @@ import SLHCUpgradeSimulations.L1TrackTrigger.tools.datasetsHelper as m_datasetsH
 process = cms.Process("Tau")
 
 #
-# This configuration runs over a file that contains the L1Tracks
-# and the tracker digis.
-# It creates L1TkTausFromCalo by clustering together high-pT L1Tracks 
+# This configuration creates L1TkTausFromCalo by clustering together high-pT L1Tracks 
 # and matching them to stage-2 L1CaloTaus.
+# Th1 L1Tracks are recreated at the beginning, to benefit from the latest
+# L1Tracking improvements.
 #
 
 from SLHCUpgradeSimulations.L1TrackTrigger.singleTau1pFiles_cfi import *
@@ -42,6 +42,23 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'PH2_1K_FB_V3::All', '')
 
+
+
+# ---------------------------------------------------------------------------
+#
+# --- Recreate the L1Tracks to benefit from the latest updates
+#
+
+process.load("SLHCUpgradeSimulations.L1TrackTrigger.L1TrackingSequence_cfi")
+process.pTracking = cms.Path( process.FullTrackingSequence )
+
+# ---------------------------------------------------------------------------
+
+
+# ---------------------------------------------------------------------------
+
+# -- the usual L1Calo stuff
+
 # Load Sequences: (Check that the following are all needed)
 process.load("Configuration.StandardSequences.Services_cff")
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff") ###check this for MC!
@@ -71,38 +88,30 @@ HcalTPGCoderULUT.LUTGenerationMode    = cms.bool(True)
 process.valRctDigis.hcalDigis         = cms.VInputTag(cms.InputTag('valHcalTriggerPrimitiveDigis'))
 process.L1CaloTowerProducer.HCALDigis =  cms.InputTag("valHcalTriggerPrimitiveDigis")
 
-# Produce calibrated (eT-corrected) L1CaloTaus:
-process.L1CaloTauCorrectionsProducer = cms.EDProducer("L1CaloTauCorrectionsProducer", 
-     L1TausInputTag = cms.InputTag("SLHCL1ExtraParticles","Taus") 
-)
+# ---------------------------------------------------------------------------
 
-# Setup the L1TkTauFromCalo producer:
-process.L1TkTauFromCaloProducer = cms.EDProducer("L1TkTauFromCaloProducer",
-      #L1TausInputTag                   = cms.InputTag("SLHCL1ExtraParticles","Taus"),
-      L1TausInputTag                   = cms.InputTag("L1CaloTauCorrectionsProducer","CalibratedTaus"),
-      L1TrackInputTag                  = cms.InputTag("TTTracksFromPixelDigis","Level1TTTracks"),
-      L1TkTrack_ApplyVtxIso            = cms.bool( True  ),      # Produce vertex-isolated L1TkTaus?
-      L1TkTrack_VtxIsoZ0Max            = cms.double( 1.0  ),     # Max vertex z for L1TkTracks for VtxIsolation [cm]
-      L1TkTrack_NStubsMin              = cms.uint32(  5   ),     # Min number of stubs per L1TkTrack [unitless]
-      L1TkTrack_PtMin_AllTracks        = cms.double(  2.0 ),     # Min pT applied on all L1TkTracks [GeV]
-      L1TkTrack_PtMin_SignalTracks     = cms.double(  10.0),     # Min pT applied on signal L1TkTracks [GeV]
-      L1TkTrack_PtMin_IsoTracks        = cms.double(  2.0 ),     # Min pT applied on isolation L1TkTracks [GeV]
-      L1TkTrack_RedChiSquareEndcapMax  = cms.double(  5.0 ),     # Max red-chi squared for L1TkTracks in Endcap
-      L1TkTrack_RedChiSquareBarrelMax  = cms.double(  2.0 ),     # Max red-chi squared for L1TkTracks in Barrel
-      L1TkTrack_VtxZ0Max               = cms.double( 30.0 ),     # Max vertex z for L1TkTracks [cm] 
-      DeltaR_L1TkTau_L1TkTrack         = cms.double( 0.10 ),     # Cone size for L1TkTracks assigned to L1TkTau
-      DeltaR_L1TkTauIsolation          = cms.double( 0.40 ),     # Isolation cone size for L1TkTau
-      DeltaR_L1TkTau_L1CaloTau         = cms.double( 0.15 ),     # Matching cone for L1TkTau and L1CaloTau
-      L1CaloTau_EtMin                  = cms.double( 5.0  ),     # Min eT applied on all L1CaloTaus [GeV]
-      RemoveL1TkTauTracksFromIsoCalculation = cms.bool( False ), # Remove tracks used in L1TkTau construction from VtxIso calculation?
-)
 
-process.pCorr = cms.Path( process.L1CaloTauCorrectionsProducer )
-process.pTaus = cms.Path( process.L1TkTauFromCaloProducer )
+
+
+# ------------------------------------------------------------------------------
+#
+# --- the caloTau producers :
+#	L1CaloTauCorrectionsProducer   does a recalibration of the CaloTaus
+#	L1TkTauFromCaloProducer  produces the Tk-matched CaloTaus
+
+
+process.load("SLHCUpgradeSimulations.L1TrackTrigger.L1CaloTauSequences_cfi")
+
+process.CaloTaus = cms.Path( process.CaloTauSequence )
+
+# ------------------------------------------------------------------------------
+
+
+
 
 # Define the output module
 process.Out = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "output.root" ), #"L1TkTausFromCalo.root"
+    fileName = cms.untracked.string( "output.root" ), 
     fastCloning = cms.untracked.bool( False ),
     outputCommands = cms.untracked.vstring( 'drop *')
 )

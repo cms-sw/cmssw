@@ -7,7 +7,8 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 #
-# This runs over a file that already contains the L1Tracks.
+# This first creates the collection of "L1Tracks for electrons" by running
+# the FullTrackingSequence.
 #
 # It produces the following objects :
 #    - L1EG objects obtained by running the SLHCCaloTrigger sequence
@@ -20,20 +21,21 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 # that have been created. 
 
 
+# to run over the test rate sample (part 1) :
+from SLHCUpgradeSimulations.L1TrackTrigger.minBiasFiles_p1_cfi import *
 process.source = cms.Source("PoolSource",
-     fileNames = cms.untracked.vstring(
+     fileNames = minBiasFiles_p1
+)
+
+# to run over another sample:
+#process.source = cms.Source("PoolSource",
      # electron file:
      #'/store/group/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Electrons/PU140/m1_SingleElectron_E2023TTI_PU140.root',
      #'/store/group/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Electrons/PU140/m2_SingleElectron_E2023TTI_PU140.root',
      #'/store/group/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Electrons/PU140/m1_SinglePositron_E2023TTI_PU140.root',
      #'/store/group/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Electrons/PU140/m2_SinglePositron_E2023TTI_PU140.root'
-     #
-     # rate test sample:
-     '/store/group/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Neutrinos/PU140_newGT/m1_SingleNeutrino_E2023TTI_PU140.root',
-     '/store/group/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Neutrinos/PU140_newGT/m2_SingleNeutrino_E2023TTI_PU140.root'
-     #
-     )
-)
+     #)
+#)
 
 
 # ---- Global Tag :
@@ -42,6 +44,15 @@ from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'PH2_1K_FB_V3::All', '')
 
 
+# ---------------------------------------------------------------------------
+#
+# --- Create the collection of special tracks for electrons
+#
+
+process.load("SLHCUpgradeSimulations.L1TrackTrigger.L1TrackingSequence_cfi")
+process.pTracking = cms.Path( process.ElectronTrackingSequence )
+
+# ---------------------------------------------------------------------------
 
 
 # ---------------------------------------------------------------------------
@@ -90,6 +101,7 @@ process.load('Configuration.StandardSequences.Reconstruction_cff')
 process.reconstruction_step = cms.Path( process.calolocalreco )
 
 process.L1EGammaCrystalsProducer = cms.EDProducer("L1EGCrystalClusterProducer",
+   EtminForStore = cms.double( -999.),
    debug = cms.untracked.bool(False),
    useECalEndcap = cms.untracked.bool(True)
 )
@@ -106,7 +118,6 @@ process.pSasha = cms.Path( process.L1EGammaCrystalsProducer )
 #       information of the xtal level clusters.
 
 process.l1ExtraCrystalProducer = cms.EDProducer("L1ExtraCrystalPosition",
-   EtminForStore = cms.double( 4. ),
    eGammaSrc = cms.InputTag("SLHCL1ExtraParticlesNewClustering","EGamma"),
    eClusterSrc = cms.InputTag("L1EGammaCrystalsProducer","EGCrystalCluster")
 )

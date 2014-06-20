@@ -4,7 +4,7 @@ process = cms.Process("ALL")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(20) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
 #
 # This runs over a file that already contains the L1Tracks.
@@ -32,11 +32,14 @@ process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 
 # ---------------------------------------------------------------------------
 #
-# --- Recreate the L1Tracks to benefit from the latest updates
+# --- Recreate the L1Tracks to benefit from the latest updates, and create
+#     the collection of special tracks for electrons
 #
 
 process.load("SLHCUpgradeSimulations.L1TrackTrigger.L1TrackingSequence_cfi")
-process.pTracking = cms.Path( process.DefaultTrackingSequence )
+#process.pTracking = cms.Path( process.DefaultTrackingSequence )
+process.pTracking = cms.Path( process.FullTrackingSequence )
+
 
 # ---------------------------------------------------------------------------
 
@@ -101,6 +104,9 @@ process.es_prefer_dt = cms.ESPrefer("DTConfigTrivialProducer","L1DTConfig")
 process.load("SLHCUpgradeSimulations.L1TrackTrigger.L1TkEmParticleProducer_cfi")
 process.pL1TkPhotons = cms.Path( process.L1TkPhotons )
         
+# ---- "photons", tighter isolation working point  -  e.g. for SinglePhoton trigger
+process.pL1TkPhotonsTightIsol = cms.Path( process.L1TkPhotonsTightIsol )
+
 # ----  "electrons" from L1Tracks. Inclusive electrons :
 
 process.load("SLHCUpgradeSimulations.L1TrackTrigger.L1TkElectronTrackProducer_cfi")
