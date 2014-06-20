@@ -54,7 +54,7 @@ process.load('L1Trigger.L1TCalorimeter.L1TCaloStage1_HIFromRaw_cff')
 ## changes to L1 algorithms begin here, the list is exhaustive.
 ## commented values should be the default
 ## see L1Trigger/L1TCalorimeter/python/l1tCaloStage1Digis_cfi.py for more info
-process.caloStage1Digis.FirmwareVersion = cms.uint32(3) # 1=HI algos, 2=PP algos
+#process.caloStage1Digis.FirmwareVersion = cms.uint32(3) # 1=HI algos, 2=PP algos
 #process.caloStage1Digis.egRelativeJetIsolationCut = cms.double(0.5)
 #process.caloStage1Digis.tauRelativeJetIsolationCut = cms.double(1.)
 #process.caloStage1Digis.regionETCutForHT = cms.uint32(7)
