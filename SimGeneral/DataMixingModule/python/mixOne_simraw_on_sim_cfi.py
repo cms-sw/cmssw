@@ -54,6 +54,8 @@ muonDTDigis.inputLabel = 'rawDataCollector'
 #muonRPCDigis.InputLabel = 'rawDataCollector'
 #castorDigis.InputLabel = 'rawDataCollector'
 
+hcalDigis.FilterDataQuality = cms.bool(False)
+
 hcalSimBlock.HcalPreMixStage2 = cms.bool(True)
 
 mixData = cms.EDProducer("DataMixingModule",

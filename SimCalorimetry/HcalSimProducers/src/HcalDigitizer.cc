@@ -184,12 +184,12 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet& ps, edm::ConsumesCollector
 
   //  std::cout << "HcalDigitizer: theUpgradeCoderFactory created" << std::endl;
 
-  theHBHEElectronicsSim = new HcalElectronicsSim(theHBHEAmplifier, theCoderFactory);
-  theHFElectronicsSim = new HcalElectronicsSim(theHFAmplifier, theCoderFactory);
-  theHOElectronicsSim = new HcalElectronicsSim(theHOAmplifier, theCoderFactory);
-  theZDCElectronicsSim = new HcalElectronicsSim(theZDCAmplifier, theCoderFactory);
-  theUpgradeHBHEElectronicsSim = new HcalElectronicsSim(theHBHEAmplifier, theUpgradeCoderFactory);
-  theUpgradeHFElectronicsSim = new HcalElectronicsSim(theHFAmplifier, theUpgradeCoderFactory);
+  theHBHEElectronicsSim = new HcalElectronicsSim(theHBHEAmplifier, theCoderFactory, PreMix1);
+  theHFElectronicsSim = new HcalElectronicsSim(theHFAmplifier, theCoderFactory, PreMix1);
+  theHOElectronicsSim = new HcalElectronicsSim(theHOAmplifier, theCoderFactory, PreMix1);
+  theZDCElectronicsSim = new HcalElectronicsSim(theZDCAmplifier, theCoderFactory, PreMix1);
+  theUpgradeHBHEElectronicsSim = new HcalElectronicsSim(theHBHEAmplifier, theUpgradeCoderFactory, PreMix1);
+  theUpgradeHFElectronicsSim = new HcalElectronicsSim(theHFAmplifier, theUpgradeCoderFactory, PreMix1);
 
   //  std::cout << "HcalDigitizer: theUpgradeElectronicsSim created" <<  std::endl; 
 
