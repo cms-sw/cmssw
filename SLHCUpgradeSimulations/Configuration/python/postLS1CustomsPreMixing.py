@@ -60,9 +60,7 @@ def customise_Validation(process):
     #process.validation_step.remove(process.hltHiggsValidator)
     return process
 
-
 def customise_Digi(process):
-    process=digiEventContent(process)
     process=digiEventContent(process)
     if hasattr(process,'mix') and hasattr(process.mix,'digitizers'):
         if hasattr(process.mix.digitizers,'hcal') and hasattr(process.mix.digitizers.hcal,'ho'):
