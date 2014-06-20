@@ -16,7 +16,7 @@ class Track{
   double phi0;
   double eta0;
   double z0;
-  vector<short> stub_ids;
+  vector<int> stub_ids;
 
  public:
   /**
@@ -67,12 +67,12 @@ class Track{
      \brief Add a stub to the list of stubs used to create the track
      \param s The ID of the stub
   **/
-  void addStubIndex(short s);
+  void addStubIndex(int s);
   /**
      \brief Get the list of the index of stubs used to compute the track
      \return A vector with the list of index
   **/
-  vector<short> getStubs();
+  vector<int> getStubs();
 
   /**
      \brief CLear the list of stubs used to create the track

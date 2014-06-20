@@ -139,6 +139,17 @@ void Pattern::link(Detector& d, const vector< vector<int> >& sec, const vector<m
   }
 }
 
+#ifdef IPNL_USE_CUDA
+void Pattern::linkCuda(patternBank* p, deviceDetector* d, int pattern_index, const vector< vector<int> >& sec, const vector<map<int, vector<int> > >& modules, vector<int> layers,
+                       unsigned int* cache){
+  memset(cache,PATTERN_UNUSED,PATTERN_LAYERS*PATTERN_SSTRIPS*sizeof(unsigned int));
+  for(int i=0;i<nb_layer;i++){
+    layer_strips[i]->getSuperStripCuda(i, sec[i], modules[i], layers[i], cache+i*PATTERN_SSTRIPS);
+  }
+  cudaSetLink(p,pattern_index*PATTERN_SIZE,cache);
+}
+#endif
+
 vector<Hit*> Pattern::getHits(){
   vector<Hit*> hits;
   for(int i=0;i<nb_layer;i++){

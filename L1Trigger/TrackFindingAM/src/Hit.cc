@@ -1,6 +1,6 @@
 #include "../interface/Hit.h"
 
-Hit::Hit(char l, char lad, char zp, char seg, short strip, short idx, int tp, float pt, float ip, float eta, float phi0, float p_x, float p_y, float p_z, float p_x0, float p_y0, float p_z0){
+Hit::Hit(char l, char lad, char zp, char seg, short strip, int idx, int tp, float pt, float ip, float eta, float phi0, float p_x, float p_y, float p_z, float p_x0, float p_y0, float p_z0){
   layer = l;
   ladder = lad;
   zPos = zp;
@@ -60,7 +60,7 @@ short Hit::getStripNumber() const{
   return stripNumber;
 }
 
-short Hit::getID() const{
+int Hit::getID() const{
   return stub_idx;
 }
 

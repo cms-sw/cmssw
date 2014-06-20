@@ -64,20 +64,17 @@ void PrincipalTrackFitter::fit(){
       fit->x2p(coords,coords_PCA);
       Track* fit_track = fit->getTrack(coords_PCA);
       fit_track->setPhi0(fit_track->getPhi0()+sec_phi);//correction de la rotation en PHI
-      cout<<"PT estime de la trace : "<<fit_track->getCurve()<<endl;
-      cout<<"PHI estime de la trace : "<<fit_track->getPhi0()<<endl;
-      cout<<"D0 estime de la trace : "<<fit_track->getD0()<<endl;
-      cout<<"ETA estime de la trace : "<<fit_track->getEta0()<<endl;
-      cout<<"Z0 estime de la trace : "<<fit_track->getZ0()<<endl;
+      cout<<"Track PT estimation : "<<fit_track->getCurve()<<endl;
+      cout<<"Track PHI estimation : "<<fit_track->getPhi0()<<endl;
+      cout<<"Track D0 estimation : "<<fit_track->getD0()<<endl;
+      cout<<"Track ETA estimation : "<<fit_track->getEta0()<<endl;
+      cout<<"Track Z0 estimation : "<<fit_track->getZ0()<<endl;
       if(fit_track->getCurve()<-200)
 	fit_track->setCurve(1.0);
       tracks.push_back(fit_track);
     }
     cout<<endl;
   }
-  //  FitParams* fp;
-  //map<string, FitParams*>::iterator it = params.find(oss.str());
-  // if(it==params.end()){//not found
 }
 
 TrackFitter* PrincipalTrackFitter::clone(){
@@ -163,22 +160,12 @@ void PrincipalTrackFitter::addTrackForMultiDimFit(int* tracker, double* coord, d
 }
 
 bool PrincipalTrackFitter::hasPrincipalParams(){
-  //bool complete=true;
-  //int total=0;
-  //int ok = 0;
   for(map<string, FitParams*>::iterator itr = params.begin(); itr != params.end(); ++itr){
-    //total++;
     if(!itr->second->hasPrincipalParams()){
-      //complete=false;
-      //      cout<<"manque : "<<itr->first<<endl;
       return false;
     }
-    //else
-    //  ok++;
   }
   return true;
-  //cout<<"Principal : "<<ok<<"/"<<total<<endl;
-  //return complete;
 }
 
 void PrincipalTrackFitter::forcePrincipalParamsComputing(){
@@ -194,22 +181,12 @@ void PrincipalTrackFitter::forcePrincipalParamsComputing(){
 }
 
 bool PrincipalTrackFitter::hasMultiDimFitParams(){
-  //bool complete=true;
-  //int total=0;
-  //int ok = 0;
   for(map<string, FitParams*>::iterator itr = params.begin(); itr != params.end(); ++itr){
-    //total++;
     if(!itr->second->hasMultiDimFitParams()){
-      //complete=false;
-      //cout<<"manque : "<<itr->first<<endl;
       return false;
     }
-    //else
-    //  ok++;
   }
   return true;
-  //cout<<"MultiDimFit : "<<ok<<"/"<<total<<endl;
-  //return complete;
 }
 
 void PrincipalTrackFitter::forceMultiDimFitParamsComputing(){

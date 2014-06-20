@@ -47,12 +47,12 @@ void Track::setZ0(double p_b){
   z0=p_b;
 }
 
-void Track::addStubIndex(short s){
+void Track::addStubIndex(int s){
   if(s>=0)
     stub_ids.push_back(s);
 }
 
-vector<short> Track::getStubs(){
+vector<int> Track::getStubs(){
   return stub_ids;
 }
 

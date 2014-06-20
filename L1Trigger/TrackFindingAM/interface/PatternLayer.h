@@ -9,13 +9,19 @@
 
 #include "Detector.h"
 
+#ifdef IPNL_USE_CUDA
+#include "gpu.h"
+#include "omp.h"
+#endif
+
 #include <boost/serialization/split_member.hpp>
 
 using namespace std;
 
 /**
    \brief Layer part of a pattern
-   This class contains the bits for one layer
+   This class contains the bits for one layer.
+   This is an abstract class which should be implemented to be used (see class CMSPatternLayer for an example).
 **/
 
 class PatternLayer{
@@ -33,10 +39,12 @@ class PatternLayer{
      \brief Map between GRAY code and decimal values
    **/
   static map<string, int> GRAY_POSITIONS;
+
   /**
      \brief Cache between DC bits values and positions
   **/
   static map<string, vector<string> > positions_cache;
+  
   /**
      \brief Constructor
   **/
@@ -93,7 +101,17 @@ class PatternLayer{
      \return A list of SuperStrip*. If no DC bits are used we have only one value.
   **/
   virtual vector<SuperStrip*> getSuperStrip(int l, const vector<int>& ladd, const map<int, vector<int> >& modules, Detector& d)=0;
-
+#ifdef IPNL_USE_CUDA
+  /**
+     \brief Retrieve the SuperStrip objects corresponding to the PatternLayer from the Detector structure
+     \param l The layer of the PatternLayer (starting from 0)
+     \param ladd The ladders of this layer for the current sector
+     \param modules The modules in the current sector
+     \param layerID The ID of the current layer
+     \param v : pointer on an allocated array of 8 integers used for the results (index of the superstrip in the detector).
+  **/
+  virtual void getSuperStripCuda(int l, const vector<int>& ladd, const map<int, vector<int> >& modules, int layerID, unsigned int* v)=0;
+#endif
  /**
      \brief Allows to display a PatternLayer as a string
   **/
@@ -124,14 +142,17 @@ class PatternLayer{
 
 
  protected:
+  /**
+     The value of the pattern layer (16 bits)
+   **/
   bitset<LAYER_BITS> bits;
-  /*  
+  /**  
       4 possible values for a DC bit:
-      0 : 0
-      1 : 1
-      2 : X (Don't Care)
-      3 : UNUSED
-  */
+        - 0 : 0
+        - 1 : 1
+	- 2 : X (Don't Care)
+	- 3 : UNUSED
+  **/
   char dc_bits[DC_BITS];
 
   friend class boost::serialization::access;
