@@ -372,16 +372,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 
 
         int nSimHits = tp->numberOfTrackerHits();
-
-        double vtx_z_PU = vertexTP.z();
-        for (size_t j = 0; j < tv.size(); j++) {
-            if (tp->eventId().event() == tv[j].eventId().event()) {
-                vtx_z_PU = tv[j].position().z();
-                break;
-            }
-        }
-
-	histoProducerAlgo_->fill_recoAssociated_simTrack_histos(w,*tp,momentumTP,vertexTP,dxySim,dzSim,nSimHits,matchedTrackPointer,puinfo.getPU_NumInteractions(), vtx_z_PU,dR);
+	histoProducerAlgo_->fill_recoAssociated_simTrack_histos(w,*tp,momentumTP,vertexTP,dxySim,dzSim,nSimHits,matchedTrackPointer,puinfo.getPU_NumInteractions(), dR);
           sts++;
           if (matchedTrackPointer) asts++;
 
@@ -452,7 +443,6 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	bool isSimMatched(false);
     bool isChargeMatched(true);
     int numAssocRecoTracks = 0;
-        int tpbx = 0;
 	int nSimHits = 0;
 	double sharedFraction = 0.;
 	std::vector<std::pair<TrackingParticleRef, double> > tp;
@@ -465,7 +455,6 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
         if (tp[0].first->charge() != track->charge()) isChargeMatched = false;
         if(simRecColl.find(tp[0].first) != simRecColl.end()) numAssocRecoTracks = simRecColl[tp[0].first].size();
         //std::cout << numAssocRecoTracks << std::endl;
-	    tpbx = tp[0].first->eventId().bunchCrossing();
 	    at++;
 	    for (unsigned int tp_ite=0;tp_ite<tp.size();++tp_ite){
               TrackingParticle trackpart = *(tp[tp_ite].first);
@@ -484,7 +473,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	}
 
 	double dR=dR_trk[i];
-	histoProducerAlgo_->fill_generic_recoTrack_histos(w,*track,bs.position(),isSimMatched,isSigSimMatched, isChargeMatched, numAssocRecoTracks, puinfo.getPU_NumInteractions(), tpbx, nSimHits, sharedFraction,dR);
+	histoProducerAlgo_->fill_generic_recoTrack_histos(w,*track,bs.position(),isSimMatched,isSigSimMatched, isChargeMatched, numAssocRecoTracks, puinfo.getPU_NumInteractions(), nSimHits, sharedFraction,dR);
 
 	// dE/dx
 	//	reco::TrackRef track2  = reco::TrackRef( trackCollection, i );
@@ -558,7 +547,6 @@ void MultiTrackValidator::endRun(Run const&, EventSetup const&) {
     for (unsigned int www=0;www<label.size();www++){
       if(!skipHistoFit && runStandalone)	histoProducerAlgo_->finalHistoFits(w);
       if (runStandalone) histoProducerAlgo_->fillProfileHistosFromVectors(w);
-      histoProducerAlgo_->fillHistosFromVectors(w);
       w++;
     }
   }
