@@ -10,7 +10,6 @@ void MTVHistoProducerAlgo::doProfileX(TH2 * th2, MonitorElement* me){
   }
 }
 
-
 void MTVHistoProducerAlgo::fillPlotFromVector(MonitorElement* h, std::vector<int>& vec) {
   for (unsigned int j=0; j<vec.size(); j++){
     h->setBinContent(j+1, vec[j]);
