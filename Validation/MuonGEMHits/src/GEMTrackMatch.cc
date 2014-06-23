@@ -12,6 +12,7 @@ GEMTrackMatch::GEMTrackMatch(DQMStore* dbe, std::string simInputLabel , edm::Par
    simInputLabel_= simInputLabel;
    dbe_= dbe;
    useRoll_ = 1 ;
+   etaRangeForPhi = cfg_.getUntrackedParameter< std::vector<double> >("EtaRangeForPhi");
 }
 
 
@@ -68,7 +69,6 @@ void GEMTrackMatch::setGeometry(const GEMGeometry* geom)
 	 if ( theGEMGeometry->etaPartition( GEMDetId(1,1,1,1,1,1) ) == nullptr) isOddOK = false;
 	 if ( theGEMGeometry->etaPartition( GEMDetId(1,1,1,1,2,1) ) == nullptr) isEvenOK = false;
 	 if ( !isEvenOK || !isOddOK) useRoll_=2;
-	 //std::cout<<"We will use eta partition  : " <<use_roll<<std::endl;
 
   const auto top_chamber = static_cast<const GEMEtaPartition*>(theGEMGeometry->idToDetUnit(GEMDetId(1,1,1,1,1,useRoll_))); 
   const int nEtaPartitions(theGEMGeometry->chamber(GEMDetId(1,1,1,1,1,useRoll_))->nEtaPartitions());
@@ -96,4 +96,13 @@ std::pair<int,int> GEMTrackMatch::getClosestChambers(int region, float phi)
   return std::make_pair(LUT.at(upper - phis.begin()), (LUT.at((upper - phis.begin() + 1)%maxChamberId_)));
 }
 
+std::pair<double, double> GEMTrackMatch::getEtaRangeForPhi( int station ) 
+{
+	std::pair<double, double> range;
+	if( station== 0 )      range = std::make_pair( etaRangeForPhi[0],etaRangeForPhi[1]) ; 
+	else if( station== 1 ) range = std::make_pair( etaRangeForPhi[2],etaRangeForPhi[3]) ; 
+	else if( station== 2 ) range = std::make_pair( etaRangeForPhi[4],etaRangeForPhi[5]) ; 
+
+	return range;
+}
 

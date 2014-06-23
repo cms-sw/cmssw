@@ -46,17 +46,17 @@
 #include "Validation/MuonGEMHits/interface/SimTrackMatchManager.h"
 #include "Validation/MuonGEMHits/plugins/MuonGEMHits_Harvesting.h"
 
-
+using namespace std;
 MuonGEMHits_Harvesting::MuonGEMHits_Harvesting(const edm::ParameterSet& ps)
 {
   dbe_ = edm::Service<DQMStore>().operator->();
+	dbe_path_ = std::string("MuonGEMHitsV/GEMHitsTask/");
 }
 
 
 MuonGEMHits_Harvesting::~MuonGEMHits_Harvesting()
 {
 }
-
 
 void
 MuonGEMHits_Harvesting::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -86,81 +86,50 @@ void
 MuonGEMHits_Harvesting::endRun(edm::Run const&, edm::EventSetup const&)
 {
   dbe_->cd();
-  dbe_->setCurrentFolder("MuonGEMHitsV/GEMHitsTask");
-  TH1F* track_eta[5]={nullptr};
-  TH1F* track_phi[5]={nullptr};
-  TH1F* gem_lx_even[5]={nullptr};
-  TH1F* gem_ly_even[5]={nullptr};
-  TH1F* gem_lx_odd[5]={nullptr};
-  TH1F* gem_ly_odd[5]={nullptr};
-  if ( dbe_->get("MuonGEMHitsV/GEMHitsTask/track_eta")!=nullptr ) {
-    track_eta[0] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMHitsTask/track_eta")->getTH1F()->Clone(); 
-    track_eta[1] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMHitsTask/track_eta_l1")->getTH1F()->Clone(); 
-    track_eta[2] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMHitsTask/track_eta_l2")->getTH1F()->Clone(); 
-    track_eta[3] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMHitsTask/track_eta_l1or2")->getTH1F()->Clone(); 
-    track_eta[4] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMHitsTask/track_eta_l1and2")->getTH1F()->Clone(); 
-  }
-  if ( dbe_->get("MuonGEMHitsV/GEMHitsTask/track_phi")!=nullptr ) {
-    track_phi[0] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMHitsTask/track_phi")->getTH1F()->Clone(); 
-    track_phi[1] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMHitsTask/track_phi_l1")->getTH1F()->Clone(); 
-    track_phi[2] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMHitsTask/track_phi_l2")->getTH1F()->Clone(); 
-    track_phi[3] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMHitsTask/track_phi_l1or2")->getTH1F()->Clone(); 
-    track_phi[4] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMHitsTask/track_phi_l1and2")->getTH1F()->Clone(); 
-  }
+  dbe_->setCurrentFolder(dbe_path_.c_str());
+	string l_suffix[4] = {"_l1","_l2","_l1or2","_l1and2"};
+	string s_suffix[3] = {"_st1","_st2_short","_st2_long"};
+	//string c_suffix[2] = {"_even","_odd"};
+  TH1F* track_eta[3];
+  TH1F* track_phi[3];
+	//TH1F* sh_eta[4][3];
+	//TH1F* sh_phi[4][3];
+	//TH1F* gem_lx[3][2];
+	//TH1F* gem_ly[3][2];
 
-  if ( dbe_->get("MuonGEMHitsV/GEMHitsTask/gem_lx_even")!=nullptr ) {
-    gem_lx_even[0] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMHitsTask/gem_lx_even")->getTH1F()->Clone(); 
-    gem_lx_even[1] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMHitsTask/gem_lx_even_l1")->getTH1F()->Clone(); 
-    gem_lx_even[2] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMHitsTask/gem_lx_even_l2")->getTH1F()->Clone(); 
-    gem_lx_even[3] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMHitsTask/gem_lx_even_l1or2")->getTH1F()->Clone(); 
-    gem_lx_even[4] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMHitsTask/gem_lx_even_l1and2")->getTH1F()->Clone(); 
-  }
-  if ( dbe_->get("MuonGEMHitsV/GEMHitsTask/gem_ly_even")!=nullptr ) {
-    gem_ly_even[0] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMHitsTask/gem_ly_even")->getTH1F()->Clone(); 
-    gem_ly_even[1] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMHitsTask/gem_ly_even_l1")->getTH1F()->Clone(); 
-    gem_ly_even[2] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMHitsTask/gem_ly_even_l2")->getTH1F()->Clone(); 
-    gem_ly_even[3] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMHitsTask/gem_ly_even_l1or2")->getTH1F()->Clone(); 
-    gem_ly_even[4] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMHitsTask/gem_ly_even_l1and2")->getTH1F()->Clone(); 
-  }
-  if ( dbe_->get("MuonGEMHitsV/GEMHitsTask/gem_lx_odd")!=nullptr ) {
-    gem_lx_odd[0] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMHitsTask/gem_lx_odd")->getTH1F()->Clone(); 
-    gem_lx_odd[1] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMHitsTask/gem_lx_odd_l1")->getTH1F()->Clone(); 
-    gem_lx_odd[2] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMHitsTask/gem_lx_odd_l2")->getTH1F()->Clone(); 
-    gem_lx_odd[3] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMHitsTask/gem_lx_odd_l1or2")->getTH1F()->Clone(); 
-    gem_lx_odd[4] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMHitsTask/gem_lx_odd_l1and2")->getTH1F()->Clone(); 
-  }
-  if ( dbe_->get("MuonGEMHitsV/GEMHitsTask/gem_ly_odd")!=nullptr ) {
-    gem_ly_odd[0] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMHitsTask/gem_ly_odd")->getTH1F()->Clone(); 
-    gem_ly_odd[1] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMHitsTask/gem_ly_odd_l1")->getTH1F()->Clone(); 
-    gem_ly_odd[2] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMHitsTask/gem_ly_odd_l2")->getTH1F()->Clone(); 
-    gem_ly_odd[3] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMHitsTask/gem_ly_odd_l1or2")->getTH1F()->Clone(); 
-    gem_ly_odd[4] = (TH1F*)dbe_->get("MuonGEMHitsV/GEMHitsTask/gem_ly_odd_l1and2")->getTH1F()->Clone(); 
-  }
-  if( track_eta[0] !=nullptr && track_phi[0] != nullptr && gem_lx_even[0] != nullptr && gem_ly_even[0] != nullptr && gem_lx_odd[0] != nullptr && gem_ly_odd[0] != nullptr  ) {
-    for ( int i= 0; i<5 ; i++) {
-      track_eta[i]->Sumw2();
-      track_phi[i]->Sumw2();
-      gem_lx_even[i]->Sumw2();
-      gem_ly_even[i]->Sumw2();
-      gem_lx_odd[i]->Sumw2();
-      gem_ly_odd[i]->Sumw2();
-    }
-    for ( int i= 1; i<5 ; i++) {
-      track_eta[i]->Divide( track_eta[0]);
-      track_phi[i]->Divide( track_phi[0]);
-      gem_lx_even[i]->Divide( gem_lx_even[0]);
-      gem_ly_even[i]->Divide( gem_ly_even[0]);
-      gem_lx_odd[i]->Divide( gem_lx_odd[0]); 
-      gem_ly_odd[i]->Divide( gem_ly_odd[0]);
- 
-      dbe_->book1D( TString::Format("%s%s","eff_",track_eta[i]->GetName()),track_eta[i]);    
-      dbe_->book1D( TString::Format("%s%s","eff_",track_phi[i]->GetName()),track_phi[i]);    
-      dbe_->book1D( TString::Format("%s%s","eff_",gem_lx_even[i]->GetName()),gem_lx_even[i]);    
-      dbe_->book1D( TString::Format("%s%s","eff_",gem_ly_even[i]->GetName()),gem_ly_even[i]);    
-      dbe_->book1D( TString::Format("%s%s","eff_",gem_lx_odd[i]->GetName()),gem_lx_odd[i]);    
-      dbe_->book1D( TString::Format("%s%s","eff_",gem_ly_odd[i]->GetName()),gem_ly_odd[i]);    
-    }
-  }
+	for ( int i = 0 ; i< 3 ; i++) {
+		track_eta[i]=nullptr;
+		track_phi[i]=nullptr;
+		for ( int j= 0 ; j<4 ; j++) {
+			//sh_eta[j][i]=nullptr;
+			//sh_phi[j][i]=nullptr;
+		}
+		for ( int j=0; j<2; j++) {
+		  //gem_lx[i][j]=nullptr;
+		  //gem_ly[i][j]=nullptr;
+		}
+	}
+
+	for(int i=0 ; i<3 ; i++) {
+		string suffix = s_suffix[i];
+		string track_eta_name = dbe_path_+"track_eta"+suffix;
+		if ( dbe_->get(track_eta_name.c_str()) != nullptr) track_eta[i] = (TH1F*)dbe_->get(track_eta_name.c_str())->getTH1F()->Clone();
+		string track_phi_name = dbe_path_+"track_phi"+suffix;
+		if ( dbe_->get(track_phi_name.c_str()) != nullptr) track_phi[i] = (TH1F*)dbe_->get(track_phi_name.c_str())->getTH1F()->Clone();
+		for( int j=0 ; j<4; j++) {
+			suffix = l_suffix[j]+s_suffix[i];
+			ProcessBooking( "sh_eta"+suffix,track_eta[i]);
+			ProcessBooking( "sh_phi"+suffix,track_phi[i]);
+  	}
+		/*
+		for( int j=0 ; j<2 ; j++) {
+			suffix = s_suffix[i]+c_suffix[j]; 
+			string gem_lx_title = dir+"gem_lx"+suffix;
+		  if ( dbe_->get(gem_lx_title.c_str())!=nullptr ) gem_lx[i][j] = (TH1F*)dbe_->get(gem_lx_title.c_str())->getTH1F()->Clone();
+			
+		} 
+		*/
+	}
   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
 }
 
