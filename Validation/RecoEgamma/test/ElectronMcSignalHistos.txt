@@ -5,9 +5,9 @@ ElectronMcSignalValidator/h_recEleNum                       1 1 1 0
 ElectronMcSignalValidator/h_recCoreNum                      1 1 1 0
 ElectronMcSignalValidator/h_recTrackNum                     1 1 1 0
 ElectronMcSignalValidator/h_recSeedNum                      1 1 1 1
-        
+
 Basic electron quantities       
-        
+
 ElectronMcSignalValidator/h_ele_charge                      1 1 1 0
 ElectronMcSignalValidator/h_ele_vertexPt                    1 1 1 0
 ElectronMcSignalValidator/h_ele_vertexEta                   1 1 1 0
@@ -247,14 +247,17 @@ ElectronMcSignalValidator/h_ele_ptQmisid      0 1 1 0 0 ElectronMcSignalValidato
 ElectronMcSignalValidator/h_ele_zQmisid       0 1 1 0 0 ElectronMcSignalValidator/h_mc_Z_matched_qmisid      ElectronMcSignalValidator/h_mc_Z
 ElectronMcSignalValidator/h_ele_chargeInfo    1 1 1 1 0
 
-Provenance and pflow data
+Provenance 
 
 ElectronMcSignalValidator/h_ele_provenance                  1 1 0 0
 ElectronMcSignalValidator/h_ele_provenance_barrel           1 1 0 0
 ElectronMcSignalValidator/h_ele_provenance_endcaps          1 1 1 0
 ElectronMcSignalValidator/h_ele_mva                         1 1 0 0
 ElectronMcSignalValidator/h_ele_mva_barrel                  1 1 0 0
-ElectronMcSignalValidator/h_ele_mva_endcaps                 1 1 1 0
+ElectronMcSignalValidator/h_ele_mva_endcaps                 1 1 1 1
+
+pflow variables
+
 ElectronMcSignalValidator/h_ele_chargedHadronIso           1 1 0 0
 ElectronMcSignalValidator/h_ele_chargedHadronIso_barrel    1 1 0 0
 ElectronMcSignalValidator/h_ele_chargedHadronIso_endcaps   1 1 1 0
