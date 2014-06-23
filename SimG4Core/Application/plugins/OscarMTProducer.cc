@@ -21,7 +21,7 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "CLHEP/Random/Random.h"
+#include "Randomize.hh"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -257,21 +257,21 @@ StaticRandomEngineSetUnset::StaticRandomEngineSetUnset(
   }
   m_currentEngine = &(rng->getEngine(streamID));
 
-  m_previousEngine = CLHEP::HepRandom::getTheEngine();
-  CLHEP::HepRandom::setTheEngine(m_currentEngine);
+  m_previousEngine = G4Random::getTheEngine();
+  G4Random::setTheEngine(m_currentEngine);
 }
 
 StaticRandomEngineSetUnset::StaticRandomEngineSetUnset(
       CLHEP::HepRandomEngine * engine) 
 {
   m_currentEngine = engine;
-  m_previousEngine = CLHEP::HepRandom::getTheEngine();
-  CLHEP::HepRandom::setTheEngine(m_currentEngine);
+  m_previousEngine = G4Random::getTheEngine();
+  G4Random::setTheEngine(m_currentEngine);
 }
 
 StaticRandomEngineSetUnset::~StaticRandomEngineSetUnset() 
 {
-  CLHEP::HepRandom::setTheEngine(m_previousEngine);
+  G4Random::setTheEngine(m_previousEngine);
 }
 
 CLHEP::HepRandomEngine* StaticRandomEngineSetUnset::getEngine() const 
