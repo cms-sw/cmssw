@@ -33,6 +33,7 @@ public:
   MonitorElement* theStrip[2][3][2];
   MonitorElement* theStrip_bx[2][3][2];
   MonitorElement* theStrip_zr[2][3][2];
+  std::map< std::string, MonitorElement* > theStrip_ch_eta;
 
 };
 

@@ -36,6 +36,41 @@ void GEMStripDigiValidation::bookHisto(const GEMGeometry* geom) {
       }
     }
   }
+ 
+  // All chamber XY (cm) plots
+	//auto& chamber = theGEMGeometry
+	for( auto& region : theGEMGeometry->regions() ) {
+		for( auto& station : region->stations() ) {
+			for( auto& ring : station->rings() ) {
+				for( auto& sCh : ring->superChambers() ) {
+					for ( auto& ch : sCh->chambers() ) {
+						auto roll_front(ch->etaPartitions().front());
+						auto roll_back(ch->etaPartitions().back());
+						const BoundPlane& bSurface_front(roll_front->surface());
+						const BoundPlane& bSurface_back(roll_back->surface());
+						auto& parameter_front = ( roll_front->specs()->parameters());
+						auto& parameter_back(  roll_back->specs()->parameters());
+						float height_front( parameter_front[2]*2);
+						float height_back( parameter_back[2]*2);
+						LocalPoint front_lTop(0,height_front,0);
+						LocalPoint back_lBot(0,-height_back,0);
+						GlobalPoint front_gTop(bSurface_front.toGlobal( front_lTop));	
+						GlobalPoint  back_gBot(bSurface_back.toGlobal( back_lBot));	
+						std::cout<< front_gTop.eta()<<" "<< front_gTop.phi()<<std::endl;
+						std::cout<< back_gBot.eta()<< " "<<back_gBot.phi()<<std::endl;
+						GEMDetId chId( ch->id());
+						std::stringstream ss;
+						ss<<chId;
+						std::string name_prefix = ss.str()+"_eta";
+						std::string title_prefix = ss.str()+" eta plots";
+						MonitorElement* temp = dbe_->book1D(name_prefix.c_str(), title_prefix.c_str(),200,TMath::Abs( front_gTop.eta()), TMath::Abs( back_gBot.eta()));
+						theStrip_ch_eta.insert( std::map<std::string, MonitorElement*>::value_type(ss.str(), temp)) ; 
+					}
+				}
+			}
+		} 
+	}
+
 }
 
 
@@ -64,6 +99,7 @@ void GEMStripDigiValidation::analyze(const edm::Event& e,
     Short_t region = (Short_t) id.region();
     Short_t layer = (Short_t) id.layer();
     Short_t station = (Short_t) id.station();
+		//Short_t chamber = (Short_t) id.chamber();
 
     GEMDigiCollection::const_iterator digiItr;
     //loop over digis of given roll
@@ -76,6 +112,7 @@ void GEMStripDigiValidation::analyze(const edm::Event& e,
 
       GlobalPoint gp = surface.toGlobal(lp);
       Float_t g_r = (Float_t) gp.perp();
+      //Float_t g_eta = (Float_t) gp.eta();
       Float_t g_phi = (Float_t) gp.phi();
       Float_t g_x = (Float_t) gp.x();
       Float_t g_y = (Float_t) gp.y();
