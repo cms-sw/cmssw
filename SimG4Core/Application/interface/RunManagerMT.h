@@ -70,27 +70,20 @@ public:
   ~RunManagerMT();
 
   void initG4(const DDCompactView *pDD, const MagneticField *pMF, const HepPDT::ParticleDataTable *fPDGTable, const edm::EventSetup & es);
-  void initializeUserActions();
-  void initializeRun();
 
   void stopG4();
-  void terminateRun();
-  void abortRun(bool softAbort=false);
-  const G4Run * currentRun() const { return m_currentRun; }
-  void produce(edm::Event& inpevt, const edm::EventSetup& es);
-  void abortEvent();
-  const Generator * generator() const { return m_generator; }
-  const G4Event * currentEvent() const { return m_currentEvent; }
-  G4SimEvent * simEvent() { return m_simEvent; }
-  std::vector<SensitiveTkDetector*>& sensTkDetectors() { 
-    return m_sensTkDets; 
-  }
-  std::vector<SensitiveCaloDetector*>& sensCaloDetectors() { 
-    return m_sensCaloDets; 
-  }
-  std::vector<boost::shared_ptr<SimProducer> > producers() const {
-    return m_producers;
-  }
+
+  // Keep these to keep SimTrackManager compiling for now, probably to
+  // be moved to RunManagerMTWorker
+  void abortRun(bool softAbort=false) {}
+  void abortEvent() {}
+  G4SimEvent * simEvent() { return nullptr; }
+  SimTrackManager* GetSimTrackManager() { return nullptr; }
+  void             Connect(RunAction*) {}
+  void             Connect(EventAction*) {}
+  void             Connect(TrackingAction*) {}
+  void             Connect(SteppingAction*) {}
+
 
   const DDDWorld& world() const {
     return *m_world;
@@ -104,18 +97,9 @@ public:
     return m_physicsList.get();
   }
 
-  SimTrackManager* GetSimTrackManager();
-  void             Connect(RunAction*);
-  void             Connect(EventAction*);
-  void             Connect(TrackingAction*);
-  void             Connect(SteppingAction*);
-
 protected:
 
-  G4Event * generateEvent( edm::Event& inpevt );
-  void resetGenParticleId( edm::Event& inpevt );
-  void DumpMagneticField( const G4Field*) const;
- 
+
 private:
 
   G4RunManagerKernel * m_kernel;
@@ -132,11 +116,6 @@ private:
   bool m_runAborted;
   bool firstRun;
   bool m_pUseMagneticField;
-  G4Run * m_currentRun;
-  G4Event * m_currentEvent;
-  G4SimEvent * m_simEvent;
-  RunAction * m_userRunAction;
-  SimRunInterface * m_runInterface;
 
   //edm::EDGetTokenT<edm::HepMCProduct> m_HepMC;
 
