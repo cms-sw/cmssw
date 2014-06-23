@@ -16,6 +16,7 @@
 
 //
 HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps) :
+  checkValidDetIds_(true),
   theHGCEEDigitizer_(ps),
   theHGCHEbackDigitizer_(ps),
   theHGCHEfrontDigitizer_(ps),
@@ -45,7 +46,7 @@ HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps) :
 }
 
 //
-void HGCDigitizer::initializeEvent(edm::Event const& e, edm::EventSetup const& es)
+void HGCDigitizer::initializeEvent(edm::Event const& e, edm::EventSetup const& es) 
 {
   resetSimHitDataAccumulator(); 
 }
@@ -165,6 +166,22 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, i
       if(itime<0 || itime>(int)simHitIt->second.size()) continue;
       (simHitIt->second)[itime] += ien;
     }
+  
+  //add base data for noise simulation
+  if(!checkValidDetIds_) return;
+  if(!geom.isValid()) return;
+  HGCSimHitData baseData(10,0);
+  const std::vector<DetId> &validIds=geom->getValidDetIds(); 
+  int nadded(0);
+  for(std::vector<DetId>::const_iterator it=validIds.begin(); it!=validIds.end(); it++)
+    {
+      uint32_t id(it->rawId());
+      if(simHitAccumulator_.find(id)!=simHitAccumulator_.end()) continue;
+      simHitAccumulator_[id]=baseData;
+      nadded++;
+    }
+  std::cout << "Added " << nadded << " detIds without " << hitCollection_ << " in first event processed" << std::endl;
+  checkValidDetIds_=false;
 }
 
 //

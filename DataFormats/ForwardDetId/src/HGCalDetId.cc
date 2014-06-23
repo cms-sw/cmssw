@@ -25,6 +25,7 @@ HGCalDetId::HGCalDetId(ForwardSubdetector subdet, int zp, int lay, int sec, int 
   uint32_t rawid=0;
   rawid |= ((cell   & 0xffff) << 0 );
   rawid |= ((sec    & 0x7f)   << 16);
+  if(subsec<0) subsec=0;
   rawid |= ((subsec & 0x1)    << 23);
   rawid |= ((lay    & 0x7f)   << 24);
   if (zp>0) rawid |= ((zp     & 0x1)    << 31);
