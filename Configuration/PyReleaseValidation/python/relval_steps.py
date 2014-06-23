@@ -336,8 +336,8 @@ baseDataSetRelease=[
     'CMSSW_6_2_0_patch1-POSTLS162_V1_30Aug2013-v2',  # for _13  TeV samples with postLs1 geometry and updated mag field
     'CMSSW_6_2_0_patch1-POSTLS162_V1_30Aug2013HS-v3',# only for MB, to go away once GEN-SIM will be remade
     'CMSSW_6_2_0_patch1-POSTLS162_V1_30Aug2013-v3',  # for _13  RelValZmumuJets_Pt_20_300_GEN_13 and two others
-    'CMSSW_7_0_5_patch1-PU25ns_POSTLS170_V7-v1',     # 25ns premixed dataset
-    'CMSSW_7_0_5_patch1-PU50ns_POSTLS170_V6-v1'      # 50ns premixed dataset
+    'CMSSW_7_0_6-PU25ns_PLS170_V7AN1-v1',            # 25ns premixed dataset
+    'CMSSW_7_0_6-PU50ns_PLS170_V6AN1-v1'             # 50ns premixed dataset
     ]
 #baseDataSetReleaseForMiniAOD is defined at the end of this file, for miniAOD validation
 
@@ -1023,8 +1023,8 @@ digiPremixUp2015Defaults50ns=merge([{'--conditions':'auto:upgradePLS150ns'},
 steps['DIGIPRMXUP15_PU25']=merge([digiPremixUp2015Defaults25ns])
 steps['DIGIPRMXUP15_PU50']=merge([digiPremixUp2015Defaults50ns])
 premixProd = {'-s'             : 'DIGIPREMIX_S2,DATAMIX,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco',
-              '--eventcontent' : 'PREMIXRAW',
-              '--datatier'     : 'PREMIXRAW'} #GF: check this datatier name
+              '--eventcontent' : 'PREMIX-RAW',
+              '--datatier'     : 'PREMIX-RAW'}
 steps['DIGIPRMXUP15_PROD_PU25']=merge([premixProd,digiPremixUp2015Defaults25ns])
 steps['DIGIPRMXUP15_PROD_PU50']=merge([premixProd,digiPremixUp2015Defaults50ns])
 
