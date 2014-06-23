@@ -96,6 +96,14 @@ public:
     return *m_world;
   }
 
+  // In order to share the physics list with the worker threads, we
+  // need a non-const pointer. Thread-safety is handled inside Geant4
+  // with TLS. Should we consider a friend declaration here in order
+  // to avoid misuse?
+  PhysicsList *physicsListForWorker() const {
+    return m_physicsList.get();
+  }
+
   SimTrackManager* GetSimTrackManager();
   void             Connect(RunAction*);
   void             Connect(EventAction*);
@@ -116,7 +124,7 @@ private:
   std::string m_InTag ;
     
   bool m_nonBeam;
-  std::auto_ptr<PhysicsList> m_physicsList;
+  std::unique_ptr<PhysicsList> m_physicsList;
   PrimaryTransformer * m_primaryTransformer;
   bool m_managerInitialized;
   bool m_runInitialized;

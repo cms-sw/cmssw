@@ -15,6 +15,8 @@
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
+#include "SimG4Core/Physics/interface/PhysicsList.h"
+
 #include "G4Event.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4Threading.hh"
@@ -23,6 +25,7 @@
 #include "G4WorkerRunManagerKernel.hh"
 
 #include <atomic>
+#include <thread>
 
 // from https://hypernews.cern.ch/HyperNews/CMS/get/edmFramework/3302/2.html
 namespace {
@@ -78,7 +81,10 @@ void RunManagerMTWorker::initializeThread(const RunManagerMT& runManagerMaster) 
   // Set the geometry and physics list for the worker, share from master
   DDDWorld::SetAsWorld(runManagerMaster.world().GetWorldVolumeForWorker());
 
-  // TODO: physics list still missing
+  PhysicsList *physicsList = runManagerMaster.physicsListForWorker();
+  physicsList->InitializeWorker();
+  kernel->SetPhysics(physicsList);
+  kernel->InitializePhysics();
 }
 
 void RunManagerMTWorker::produce(const edm::Event& inpevt, const edm::EventSetup& es, const RunManagerMT& runManagerMaster) {
@@ -110,7 +116,13 @@ void RunManagerMTWorker::produce(const edm::Event& inpevt, const edm::EventSetup
        
     abortRun(false);
   } else {
-    //m_kernel->GetEventManager()->ProcessOneEvent(m_currentEvent);
+    /*
+    G4RunManagerKernel *kernel = G4WorkerRunManagerKernel::GetRunManagerKernel();
+    if(!kernel)
+      throw cms::Exception("Assert") << "No G4WorkerRunManagerKernel yet for thread " << getThreadIndex() << ", id " << std::hex << std::this_thread::get_id();
+
+    kernel->GetEventManager()->ProcessOneEvent(m_currentEvent.get());
+    */
   }
     
   edm::LogWarning("SimG4CoreApplication") // FIXME: should be LogInfo
