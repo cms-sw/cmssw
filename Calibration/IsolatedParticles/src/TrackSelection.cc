@@ -23,8 +23,8 @@ namespace spr{
 
     const reco::HitPattern &hitp = pTrack->hitPattern();
     if (parameters.minLayerCrossed>0 || parameters.minOuterHit>0) {
-        if (parameters.minLayerCrossed > 0 && hitp.trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS) < parameters.minLayerCrossed) select = false;
-        if (parameters.minOuterHit > 0 && (hitp.stripTOBLayersWithMeasurement(reco::HitPattern::TRACK_HITS) + hitp.stripTECLayersWithMeasurement(reco::HitPattern::TRACK_HITS)) < parameters.minOuterHit) select = false;
+        if (parameters.minLayerCrossed > 0 && hitp.trackerLayersWithMeasurement() < parameters.minLayerCrossed) select = false;
+        if (parameters.minOuterHit > 0 && (hitp.stripTOBLayersWithMeasurement() + hitp.stripTECLayersWithMeasurement()) < parameters.minOuterHit) select = false;
         if (debug) {
             std::cout << "Default Hit Pattern with " << hitp.numberOfHits(reco::HitPattern::TRACK_HITS) << " hits" << std::endl;
             hitp.print(reco::HitPattern::TRACK_HITS, std::cout);

@@ -593,12 +593,12 @@ void DAClusterizerInZ_vect::dump(const double beta, const vertex_t & y,
 				LogDebug("DAClusterizerinZ_vectorized")  << "-";
 			}
 			LogDebug("DAClusterizerinZ_vectorized")  << setw(1)
-			 << tks.tt[i]->track().hitPattern().pixelBarrelLayersWithMeasurement(reco::HitPattern::TRACK_HITS); // see DataFormats/TrackReco/interface/HitPattern.h
+			 << tks.tt[i]->track().hitPattern().pixelBarrelLayersWithMeasurement(); // see DataFormats/TrackReco/interface/HitPattern.h
 			LogDebug("DAClusterizerinZ_vectorized")  << setw(1)
-			 << tks.tt[i]->track().hitPattern().pixelEndcapLayersWithMeasurement(reco::HitPattern::TRACK_HITS);
+			 << tks.tt[i]->track().hitPattern().pixelEndcapLayersWithMeasurement();
 			LogDebug("DAClusterizerinZ_vectorized")  << setw(1) << hex
-					<< tks.tt[i]->track().hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS)
-					- tks.tt[i]->track().hitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS)
+					<< tks.tt[i]->track().hitPattern().trackerLayersWithMeasurement()
+					- tks.tt[i]->track().hitPattern().pixelLayersWithMeasurement()
 					<< dec;
 			LogDebug("DAClusterizerinZ_vectorized")  << "=" << setw(1) << hex
 					<< tks.tt[i]->track().hitPattern().numberOfHits(reco::HitPattern::MISSING_OUTER_HITS)

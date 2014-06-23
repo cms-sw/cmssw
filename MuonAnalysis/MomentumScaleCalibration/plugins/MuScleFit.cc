@@ -1459,7 +1459,7 @@ bool MuScleFit::selGlobalMuon(const pat::Muon* aMuon) {
           iTrack->chi2()/iTrack->ndof() < 4.0 &&
 	  aMuon->muonID("TrackerMuonArbitrated") &&
 	  aMuon->muonID("TMLastStationAngTight") &&
-      iTrack->hitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS) > 1 &&
+      iTrack->hitPattern().pixelLayersWithMeasurement() > 1 &&
 	  fabs(iTrack->dxy()) < 3.0 &&  //should be done w.r.t. PV!
           fabs(iTrack->dz()) < 15.0 );//should be done w.r.t. PV!
 }
@@ -1474,7 +1474,7 @@ bool MuScleFit::selTrackerMuon(const pat::Muon* aMuon) {
 	  iTrack->chi2()/iTrack->ndof() < 4.0 &&
 	  aMuon->muonID("TrackerMuonArbitrated") &&
 	  aMuon->muonID("TMLastStationAngTight") &&
-      iTrack->hitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS) > 1 &&
+      iTrack->hitPattern().pixelLayersWithMeasurement() > 1 &&
 	  fabs(iTrack->dxy()) < 3.0 && //should be done w.r.t. PV!
           fabs(iTrack->dz()) < 15.0 );//should be done w.r.t. PV!
  

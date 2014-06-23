@@ -503,7 +503,7 @@ void ElectronTestAnalyzer::myVar(const reco::GsfElectron& ele,
 
   myMVAVar_fbrem           =  ele.fbrem();
   myMVAVar_kfchi2          =  (validKF) ? myTrackRef->normalizedChi2() : 0 ;
-  myMVAVar_kfhits          =  (validKF) ? myTrackRef->hitPattern().trackerLayersWithMeasurement(HitPattern::TRACK_HITS) : -1.;
+  myMVAVar_kfhits          =  (validKF) ? myTrackRef->hitPattern().trackerLayersWithMeasurement() : -1.;
   //  myMVAVar_kfhits          =  (validKF) ? myTrackRef->numberOfValidHits() : -1. ;   // for analysist save also this
   myMVAVar_gsfchi2         =  ele.gsfTrack()->normalizedChi2();  // to be checked
 

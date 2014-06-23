@@ -778,7 +778,7 @@ float PFEGammaAlgo::EvaluateSingleLegMVA(const reco::PFBlockRef& blockref,
   //calculate MVA Variables  
   chi2=elements[track_index].trackRef()->chi2()/elements[track_index].trackRef()->ndof(); 
   nlost=elements[track_index].trackRef()->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS); 
-  nlayers=elements[track_index].trackRef()->hitPattern().trackerLayersWithMeasurement(HitPattern::TRACK_HITS); 
+  nlayers=elements[track_index].trackRef()->hitPattern().trackerLayersWithMeasurement(); 
   track_pt=elements[track_index].trackRef()->pt();  
   STIP=elements[track_index].trackRefPF()->STIP();  
    
@@ -2114,7 +2114,7 @@ calculate_ele_mva(const PFEGammaAlgo::ProtoEGObject& RO,
       // tracking observables
       const double ptModeErrorGsf = RefGSF->ptModeError();
       dPtOverPt_gsf = (ptModeErrorGsf > 0. ? ptModeErrorGsf/Pt_gsf : 1.0);
-      nhit_gsf = RefGSF->hitPattern().trackerLayersWithMeasurement(HitPattern::TRACK_HITS);
+      nhit_gsf = RefGSF->hitPattern().trackerLayersWithMeasurement();
       chi2_gsf = RefGSF->normalizedChi2();
       DPtOverPt_gsf =  (Pt_gsf - gsfElement->Pout().pt())/Pt_gsf;
       // kalman filter vars
@@ -2122,7 +2122,7 @@ calculate_ele_mva(const PFEGammaAlgo::ProtoEGObject& RO,
       chi2_kf = -0.01;
       DPtOverPt_kf = -0.01;
       if( RefKF.isNonnull() ) {
-	nhit_kf = RefKF->hitPattern().trackerLayersWithMeasurement(HitPattern::TRACK_HITS);
+	nhit_kf = RefKF->hitPattern().trackerLayersWithMeasurement();
 	chi2_kf = RefKF->normalizedChi2();
 	// not used for moment, weird behavior of variable
 	// DPtOverPt_kf = (RefKF->pt() - RefKF->outerPt())/RefKF->pt();

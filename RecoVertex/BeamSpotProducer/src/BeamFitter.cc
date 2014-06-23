@@ -262,15 +262,15 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
     if (!isMuon_) {
       const reco::HitPattern &trkHP = track->hitPattern();
 
-      fnPixelLayerMeas = trkHP.pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS);
-      fnStripLayerMeas = trkHP.stripLayersWithMeasurement(reco::HitPattern::TRACK_HITS);
-      fnTotLayerMeas = trkHP.trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS);
-      fnPXBLayerMeas = trkHP.pixelBarrelLayersWithMeasurement(reco::HitPattern::TRACK_HITS);
-      fnPXFLayerMeas = trkHP.pixelEndcapLayersWithMeasurement(reco::HitPattern::TRACK_HITS);
-      fnTIBLayerMeas = trkHP.stripTIBLayersWithMeasurement(reco::HitPattern::TRACK_HITS);
-      fnTIDLayerMeas = trkHP.stripTIDLayersWithMeasurement(reco::HitPattern::TRACK_HITS);
-      fnTOBLayerMeas = trkHP.stripTOBLayersWithMeasurement(reco::HitPattern::TRACK_HITS);
-      fnTECLayerMeas = trkHP.stripTECLayersWithMeasurement(reco::HitPattern::TRACK_HITS);
+      fnPixelLayerMeas = trkHP.pixelLayersWithMeasurement();
+      fnStripLayerMeas = trkHP.stripLayersWithMeasurement();
+      fnTotLayerMeas = trkHP.trackerLayersWithMeasurement();
+      fnPXBLayerMeas = trkHP.pixelBarrelLayersWithMeasurement();
+      fnPXFLayerMeas = trkHP.pixelEndcapLayersWithMeasurement();
+      fnTIBLayerMeas = trkHP.stripTIBLayersWithMeasurement();
+      fnTIDLayerMeas = trkHP.stripTIDLayersWithMeasurement();
+      fnTOBLayerMeas = trkHP.stripTOBLayersWithMeasurement();
+      fnTECLayerMeas = trkHP.stripTECLayersWithMeasurement();
     } else {
       fnTotLayerMeas = track->numberOfValidHits();
     }

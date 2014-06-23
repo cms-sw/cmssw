@@ -19,32 +19,28 @@
 // The hits of a track are saved in unit16_t hitPattern[MaxHits].
 //
 //                                            uint16_t
-// +------------+--------+---------------+---------------------------+-----------------+----------------+
-// |   padding  |  tk/mu | sub-structure |     sub-sub-structure     |     stereo      |    hit type    |
-// +------------+--------+---------------+---------------------------+-----------------+----------------+
-// | 15 14 13 12|   11   | 10   9    8   | 7      6     5     4      |        3        |   2    1    0  |  bit
-// +------------+--------+---------------+---------------------------+-----------------+----------------|
-// | 0  0  0  0 | tk = 1 |    PXB = 1    | layer = 1-3               |                 | hit type = 0-5 |
-// | 0  0  0  0 | tk = 1 |    PXF = 2    | disk  = 1-2               |                 | hit type = 0-5 |
-// | 0  0  0  0 | tk = 1 |    TIB = 3    | layer = 1-4               | 0=rphi,1=stereo | hit type = 0-5 |
-// | 0  0  0  0 | tk = 1 |    TID = 4    | wheel = 1-3               | 0=rphi,1=stereo | hit type = 0-5 |
-// | 0  0  0  0 | tk = 1 |    TOB = 5    | layer = 1-6               | 0=rphi,1=stereo | hit type = 0-5 |
-// | 0  0  0  0 | tk = 1 |    TEC = 6    | wheel = 1-9               | 0=rphi,1=stereo | hit type = 0-5 |
-// | 0  0  0  0 | mu = 0 |    DT  = 1    | 4*(stat-1)+superlayer     |                 | hit type = 0-3 |
-// | 0  0  0  0 | mu = 0 |    CSC = 2    | 4*(stat-1)+(ring-1)       |                 | hit type = 0-3 |
-// | 0  0  0  0 | mu = 0 |    RPC = 3    | 4*(stat-1)+2*layer+region |                 | hit type = 0-3 |
-// +------------+--------+---------------+---------------------------+-----------------+----------------+
+// +--------+---------------+---------------------------+-----------------+----------------+
+// |  tk/mu | sub-structure |     sub-sub-structure     |     stereo      |    hit type    |
+// +--------+---------------+---------------------------+-----------------+----------------+
+// |   11   | 10   9    8   | 7      6     5     4      |        3        |   2    1    0  |  bit
+// +--------+---------------+---------------------------+-----------------+----------------|
+// | tk = 1 |    PXB = 1    | layer = 1-3               |                 | hit type = 0-5 |
+// | tk = 1 |    PXF = 2    | disk  = 1-2               |                 | hit type = 0-5 |
+// | tk = 1 |    TIB = 3    | layer = 1-4               | 0=rphi,1=stereo | hit type = 0-5 |
+// | tk = 1 |    TID = 4    | wheel = 1-3               | 0=rphi,1=stereo | hit type = 0-5 |
+// | tk = 1 |    TOB = 5    | layer = 1-6               | 0=rphi,1=stereo | hit type = 0-5 |
+// | tk = 1 |    TEC = 6    | wheel = 1-9               | 0=rphi,1=stereo | hit type = 0-5 |
+// | mu = 0 |    DT  = 1    | 4*(stat-1)+superlayer     |                 | hit type = 0-3 |
+// | mu = 0 |    CSC = 2    | 4*(stat-1)+(ring-1)       |                 | hit type = 0-3 |
+// | mu = 0 |    RPC = 3    | 4*(stat-1)+2*layer+region |                 | hit type = 0-3 |
+// +--------+---------------+---------------------------+-----------------+----------------+
 //
 //  hit type, see DataFormats/TrackingRecHit/interface/TrackingRecHit.h
-//      valid    = valid hit                                     = 0
-//      missing  = detector is good, but no rec hit found        = 1
-//      inactive = detector is off, so there was no hope         = 2
-//      bad      = there were many bad strips within the ellipse = 3
-//      missingInner = 4
-//      missingOuter = 5
+//      VALID    = valid hit                                     = 0
+//      MISSING  = detector is good, but no rec hit found        = 1
+//      INACTIVE = detector is off, so there was no hope         = 2
+//      BAD      = there were many bad strips within the ellipse = 3
 //
-//  padding: Padding content does not matter, but I will strongly encourage
-//           you to keep then under control and set to ZERO.
 
 // It had been shown by Zongru using a 100 GeV muon sample with 5000 events
 // uniform in eta and phi, the average (maximum) number of tracker hits is
@@ -68,11 +64,11 @@
 // array for the layer together and returns one of the four cases
 //
 //     crossed
-//        layer case 0: valid + (missing, off, bad) ==> with measurement
-//        layer case 1: missing + (off, bad) ==> without measurement
-//        layer case 2: off, bad ==> totally off or bad, cannot say much
+//        layer case 0: VALID + (MISSING, OFF, BAD) ==> with measurement
+//        layer case 1: MISSING + (OFF, BAD) ==> without measurement
+//        layer case 2: OFF, BAD ==> totally off or bad, cannot say much
 //     not crossed
-//        layer case 999999: track outside acceptance or in gap ==> null
+//        layer case NULL_RETURN: track outside acceptance or in gap ==> null
 //
 // Given a tracker layer, specified by sub-structure and layer, the method
 // getTrackerMonoStereo(substr, layer) groups all of the valid hits in the hit
@@ -254,15 +250,15 @@ public:
     uint32_t getTrackerLayerCase(HitCategory category, uint16_t substr, uint16_t layer) const;
     uint16_t getTrackerMonoStereo(HitCategory category, uint16_t substr, uint16_t layer) const;
 
-    int trackerLayersWithMeasurement(HitCategory category) const;        // case 0: tracker
-    int pixelLayersWithMeasurement(HitCategory category) const;          // case 0: pixel
-    int stripLayersWithMeasurement(HitCategory category) const;          // case 0: strip
-    int pixelBarrelLayersWithMeasurement(HitCategory category) const;    // case 0: pixel PXB
-    int pixelEndcapLayersWithMeasurement(HitCategory category) const;    // case 0: pixel PXF
-    int stripTIBLayersWithMeasurement(HitCategory category) const;       // case 0: strip TIB
-    int stripTIDLayersWithMeasurement(HitCategory category) const;       // case 0: strip TID
-    int stripTOBLayersWithMeasurement(HitCategory category) const;       // case 0: strip TOB
-    int stripTECLayersWithMeasurement(HitCategory category) const;       // case 0: strip TEC
+    int trackerLayersWithMeasurement() const;        // case 0: tracker
+    int pixelLayersWithMeasurement() const;          // case 0: pixel
+    int stripLayersWithMeasurement() const;          // case 0: strip
+    int pixelBarrelLayersWithMeasurement() const;    // case 0: pixel PXB
+    int pixelEndcapLayersWithMeasurement() const;    // case 0: pixel PXF
+    int stripTIBLayersWithMeasurement() const;       // case 0: strip TIB
+    int stripTIDLayersWithMeasurement() const;       // case 0: strip TID
+    int stripTOBLayersWithMeasurement() const;       // case 0: strip TOB
+    int stripTECLayersWithMeasurement() const;       // case 0: strip TEC
 
     int trackerLayersWithoutMeasurement(HitCategory category) const;     // case 1: tracker
     int pixelLayersWithoutMeasurement(HitCategory category) const;       // case 1: pixel
@@ -274,25 +270,25 @@ public:
     int stripTOBLayersWithoutMeasurement(HitCategory category) const;    // case 1: strip TOB
     int stripTECLayersWithoutMeasurement(HitCategory category) const;    // case 1: strip TEC
 
-    int trackerLayersTotallyOffOrBad(HitCategory category) const;        // case 2: tracker
-    int pixelLayersTotallyOffOrBad(HitCategory category) const;          // case 2: pixel
-    int stripLayersTotallyOffOrBad(HitCategory category) const;          // case 2: strip
-    int pixelBarrelLayersTotallyOffOrBad(HitCategory category) const;    // case 2: pixel PXB
-    int pixelEndcapLayersTotallyOffOrBad(HitCategory category) const;    // case 2: pixel PXF
-    int stripTIBLayersTotallyOffOrBad(HitCategory category) const;       // case 2: strip TIB
-    int stripTIDLayersTotallyOffOrBad(HitCategory category) const;       // case 2: strip TID
-    int stripTOBLayersTotallyOffOrBad(HitCategory category) const;       // case 2: strip TOB
-    int stripTECLayersTotallyOffOrBad(HitCategory category) const;       // case 2: strip TEC
+    int trackerLayersTotallyOffOrBad() const;        // case 2: tracker
+    int pixelLayersTotallyOffOrBad() const;          // case 2: pixel
+    int stripLayersTotallyOffOrBad() const;          // case 2: strip
+    int pixelBarrelLayersTotallyOffOrBad() const;    // case 2: pixel PXB
+    int pixelEndcapLayersTotallyOffOrBad() const;    // case 2: pixel PXF
+    int stripTIBLayersTotallyOffOrBad() const;       // case 2: strip TIB
+    int stripTIDLayersTotallyOffOrBad() const;       // case 2: strip TID
+    int stripTOBLayersTotallyOffOrBad() const;       // case 2: strip TOB
+    int stripTECLayersTotallyOffOrBad() const;       // case 2: strip TEC
 
-    int trackerLayersNull(HitCategory category) const;                   // case NULL_RETURN: tracker
-    int pixelLayersNull(HitCategory category) const;                     // case NULL_RETURN: pixel
-    int stripLayersNull(HitCategory category) const;                     // case NULL_RETURN: strip
-    int pixelBarrelLayersNull(HitCategory category) const;               // case NULL_RETURN: pixel PXB
-    int pixelEndcapLayersNull(HitCategory category) const;               // case NULL_RETURN: pixel PXF
-    int stripTIBLayersNull(HitCategory category) const;                  // case NULL_RETURN: strip TIB
-    int stripTIDLayersNull(HitCategory category) const;                  // case NULL_RETURN: strip TID
-    int stripTOBLayersNull(HitCategory category) const;                  // case NULL_RETURN: strip TOB
-    int stripTECLayersNull(HitCategory category) const;                  // case NULL_RETURN: strip TEC
+    int trackerLayersNull() const;                   // case NULL_RETURN: tracker
+    int pixelLayersNull() const;                     // case NULL_RETURN: pixel
+    int stripLayersNull() const;                     // case NULL_RETURN: strip
+    int pixelBarrelLayersNull() const;               // case NULL_RETURN: pixel PXB
+    int pixelEndcapLayersNull() const;               // case NULL_RETURN: pixel PXF
+    int stripTIBLayersNull() const;                  // case NULL_RETURN: strip TIB
+    int stripTIDLayersNull() const;                  // case NULL_RETURN: strip TID
+    int stripTOBLayersNull() const;                  // case NULL_RETURN: strip TOB
+    int stripTECLayersNull() const;                  // case NULL_RETURN: strip TEC
 
     /// subdet = 0(all), 1(DT), 2(CSC), 3(RPC); hitType=-1(all), 0=valid, 3=bad
     int muonStations(int subdet, int hitType) const ;
@@ -860,20 +856,20 @@ inline int HitPattern::numberOfInactiveTrackerHits(HitCategory category) const
     return countTypedHits(category, inactiveHitFilter, trackerHitFilter);
 }
 
-inline int HitPattern::trackerLayersWithMeasurement(HitCategory category) const
+inline int HitPattern::trackerLayersWithMeasurement() const
 {
-    return pixelLayersWithMeasurement(category) + stripLayersWithMeasurement(category);
+    return pixelLayersWithMeasurement() + stripLayersWithMeasurement();
 }
 
-inline int HitPattern::pixelLayersWithMeasurement(HitCategory category) const
+inline int HitPattern::pixelLayersWithMeasurement() const
 {
-    return pixelBarrelLayersWithMeasurement(category) + pixelEndcapLayersWithMeasurement(category);
+    return pixelBarrelLayersWithMeasurement() + pixelEndcapLayersWithMeasurement();
 }
 
-inline int HitPattern::stripLayersWithMeasurement(HitCategory category) const
+inline int HitPattern::stripLayersWithMeasurement() const
 {
-    return stripTIBLayersWithMeasurement(category) + stripTIDLayersWithMeasurement(category) +
-           stripTOBLayersWithMeasurement(category) + stripTECLayersWithMeasurement(category);
+    return stripTIBLayersWithMeasurement() + stripTIDLayersWithMeasurement() +
+           stripTOBLayersWithMeasurement() + stripTECLayersWithMeasurement();
 }
 
 inline int HitPattern::trackerLayersWithoutMeasurement(HitCategory category) const
@@ -896,44 +892,44 @@ inline int HitPattern::stripLayersWithoutMeasurement(HitCategory category) const
            stripTECLayersWithoutMeasurement(category);
 }
 
-inline int HitPattern::trackerLayersTotallyOffOrBad(HitCategory category) const
+inline int HitPattern::trackerLayersTotallyOffOrBad() const
 {
-    return pixelLayersTotallyOffOrBad(category) +
-           stripLayersTotallyOffOrBad(category);
+    return pixelLayersTotallyOffOrBad() +
+           stripLayersTotallyOffOrBad();
 }
 
-inline int HitPattern::pixelLayersTotallyOffOrBad(HitCategory category) const
+inline int HitPattern::pixelLayersTotallyOffOrBad() const
 {
-    return pixelBarrelLayersTotallyOffOrBad(category) +
-           pixelEndcapLayersTotallyOffOrBad(category);
+    return pixelBarrelLayersTotallyOffOrBad() +
+           pixelEndcapLayersTotallyOffOrBad();
 }
 
-inline int HitPattern::stripLayersTotallyOffOrBad(HitCategory category) const
+inline int HitPattern::stripLayersTotallyOffOrBad() const
 {
-    return stripTIBLayersTotallyOffOrBad(category) +
-           stripTIDLayersTotallyOffOrBad(category) +
-           stripTOBLayersTotallyOffOrBad(category) +
-           stripTECLayersTotallyOffOrBad(category);
+    return stripTIBLayersTotallyOffOrBad() +
+           stripTIDLayersTotallyOffOrBad() +
+           stripTOBLayersTotallyOffOrBad() +
+           stripTECLayersTotallyOffOrBad();
 }
 
-inline int HitPattern::trackerLayersNull(HitCategory category) const
+inline int HitPattern::trackerLayersNull() const
 {
-    return pixelLayersNull(category) +
-           stripLayersNull(category);
+    return pixelLayersNull() +
+           stripLayersNull();
 }
 
-inline int HitPattern::pixelLayersNull(HitCategory category) const
+inline int HitPattern::pixelLayersNull() const
 {
-    return pixelBarrelLayersNull(category) +
-           pixelEndcapLayersNull(category);
+    return pixelBarrelLayersNull() +
+           pixelEndcapLayersNull();
 }
 
-inline int HitPattern::stripLayersNull(HitCategory category) const
+inline int HitPattern::stripLayersNull() const
 {
-    return stripTIBLayersNull(category) +
-           stripTIDLayersNull(category) +
-           stripTOBLayersNull(category) +
-           stripTECLayersNull(category);
+    return stripTIBLayersNull() +
+           stripTIDLayersNull() +
+           stripTOBLayersNull() +
+           stripTECLayersNull();
 }
 
 inline int HitPattern::muonStationsWithValidHits() const

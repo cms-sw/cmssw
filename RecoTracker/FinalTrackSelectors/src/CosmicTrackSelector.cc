@@ -165,8 +165,8 @@ bool CosmicTrackSelector::select(const reco::BeamSpot &vertexBeamSpot, const rec
   using namespace std; 
   
   // Cuts on numbers of layers with hits/3D hits/lost hits.
-  uint32_t nlayers     = tk.hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS);
-  uint32_t nlayers3D   = tk.hitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS) +
+  uint32_t nlayers     = tk.hitPattern().trackerLayersWithMeasurement();
+  uint32_t nlayers3D   = tk.hitPattern().pixelLayersWithMeasurement() +
       tk.hitPattern().numberOfValidStripLayersWithMonoAndStereo();
   uint32_t nlayersLost = tk.hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS);
   

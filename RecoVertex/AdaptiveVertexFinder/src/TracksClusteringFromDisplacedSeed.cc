@@ -100,7 +100,7 @@ std::vector<TracksClusteringFromDisplacedSeed::Cluster> TracksClusteringFromDisp
                         << " ref " << it->trackBaseRef().key()
                         << " " << ip.second.value()
                         << " " << ip.second.significance()
-                        << " " << it->track().hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS)
+                        << " " << it->track().hitPattern().trackerLayersWithMeasurement()
                         << " " << it->track().pt()
                         << " " << it->track().eta()
                         << std::endl;

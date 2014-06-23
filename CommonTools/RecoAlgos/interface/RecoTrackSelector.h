@@ -100,8 +100,8 @@ class RecoTrackSelector {
       if (std::find(algorithm_.begin(),algorithm_.end(),t.algo())==algorithm_.end()) algo_ok = false;
     }
     return
-      (t.hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS) >= minHit_ &&
-       (t.hitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS) +
+      (t.hitPattern().trackerLayersWithMeasurement() >= minHit_ &&
+       (t.hitPattern().pixelLayersWithMeasurement() +
         t.hitPattern().numberOfValidStripLayersWithMonoAndStereo()) >= min3DHit_ &&
        fabs(t.pt()) >= ptMin_ &&
        t.eta() >= minRapidity_ && t.eta() <= maxRapidity_ &&

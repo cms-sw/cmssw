@@ -143,7 +143,7 @@ goodPtResolution( const reco::TrackRef& trackref) const {
   const double Pt = trackref->pt();
   const double DPt = trackref->ptError();
   const unsigned int NHit = 
-    trackref->hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS);
+    trackref->hitPattern().trackerLayersWithMeasurement();
   const unsigned int NLostHit = 
     trackref->hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS);
   const unsigned int LostHits = trackref->numberOfLostHits();

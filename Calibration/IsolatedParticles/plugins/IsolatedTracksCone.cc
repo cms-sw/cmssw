@@ -393,9 +393,9 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent,
     ////////////////////////////
 
     const reco::HitPattern& hitp = pTrack->hitPattern();
-    int nLayersCrossed = hitp.trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS);
-    int nOuterHits     = hitp.stripTOBLayersWithMeasurement(reco::HitPattern::TRACK_HITS) + 
-        hitp.stripTECLayersWithMeasurement(reco::HitPattern::TRACK_HITS);
+    int nLayersCrossed = hitp.trackerLayersWithMeasurement();
+    int nOuterHits     = hitp.stripTOBLayersWithMeasurement() + 
+        hitp.stripTECLayersWithMeasurement();
 
     
     double simP = 0;

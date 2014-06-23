@@ -389,8 +389,8 @@ uint32_t HitPattern::getTrackerLayerCase(HitCategory category, uint16_t substr, 
         if ((pattern & mask) == tk_substr_layer) {
             uint16_t hitType = (pattern >> HitTypeOffset) & HitTypeMask;
             if (hitType < layerCase) {
-                // treats BADS and MISSING as the same type
-                layerCase = (hitType == HIT_TYPE::BAD ? HIT_TYPE::MISSING : hitType);
+                // treats BADS and INACTIVE as the same type
+                layerCase = (hitType == HIT_TYPE::BAD ? HIT_TYPE::INACTIVE : hitType);
                 if (layerCase == HIT_TYPE::VALID) {
                     break;
                 }
@@ -438,68 +438,68 @@ uint16_t HitPattern::getTrackerMonoStereo(HitCategory category, uint16_t substr,
     return monoStereo;
 }
 
-int HitPattern::pixelBarrelLayersWithMeasurement(HitCategory category) const
+int HitPattern::pixelBarrelLayersWithMeasurement() const
 {
     int count = 0;
     uint16_t NPixBarrel = 4;
     for (uint16_t layer = 1; layer <= NPixBarrel; layer++) {
-        if (getTrackerLayerCase(category, PixelSubdetector::PixelBarrel, layer) == HIT_TYPE::VALID) {
+        if (getTrackerLayerCase(TRACK_HITS, PixelSubdetector::PixelBarrel, layer) == HIT_TYPE::VALID) {
             count++;
         }
     }
     return count;
 }
 
-int HitPattern::pixelEndcapLayersWithMeasurement(HitCategory category) const
+int HitPattern::pixelEndcapLayersWithMeasurement() const
 {
     int count = 0;
     uint16_t NPixForward = 3;
     for (uint16_t layer = 1; layer <= NPixForward; layer++) {
-        if (getTrackerLayerCase(category, PixelSubdetector::PixelEndcap, layer) == HIT_TYPE::VALID) {
+        if (getTrackerLayerCase(TRACK_HITS, PixelSubdetector::PixelEndcap, layer) == HIT_TYPE::VALID) {
             count++;
         }
     }
     return count;
 }
 
-int HitPattern::stripTIBLayersWithMeasurement(HitCategory category) const
+int HitPattern::stripTIBLayersWithMeasurement() const
 {
     int count = 0;
     for (uint16_t layer = 1; layer <= 4; layer++) {
-        if (getTrackerLayerCase(category, StripSubdetector::TIB, layer) == HIT_TYPE::VALID) {
+        if (getTrackerLayerCase(TRACK_HITS, StripSubdetector::TIB, layer) == HIT_TYPE::VALID) {
             count++;
         }
     }
     return count;
 }
 
-int HitPattern::stripTIDLayersWithMeasurement(HitCategory category) const
+int HitPattern::stripTIDLayersWithMeasurement() const
 {
     int count = 0;
     for (uint16_t layer = 1; layer <= 3; layer++) {
-        if (getTrackerLayerCase(category, StripSubdetector::TID, layer) == HIT_TYPE::VALID) {
+        if (getTrackerLayerCase(TRACK_HITS, StripSubdetector::TID, layer) == HIT_TYPE::VALID) {
             count++;
         }
     }
     return count;
 }
 
-int HitPattern::stripTOBLayersWithMeasurement(HitCategory category) const
+int HitPattern::stripTOBLayersWithMeasurement() const
 {
     int count = 0;
     for (uint16_t layer = 1; layer <= 6; layer++) {
-        if (getTrackerLayerCase(category, StripSubdetector::TOB, layer) == HIT_TYPE::VALID) {
+        if (getTrackerLayerCase(TRACK_HITS, StripSubdetector::TOB, layer) == HIT_TYPE::VALID) {
             count++;
         }
     }
     return count;
 }
 
-int HitPattern::stripTECLayersWithMeasurement(HitCategory category) const
+int HitPattern::stripTECLayersWithMeasurement() const
 {
     int count = 0;
     for (uint16_t layer = 1; layer <= 9; layer++) {
-        if (getTrackerLayerCase(category, StripSubdetector::TEC, layer) == HIT_TYPE::VALID) {
+        if (getTrackerLayerCase(TRACK_HITS, StripSubdetector::TEC, layer) == HIT_TYPE::VALID) {
             count++;
         }
     }
@@ -575,137 +575,137 @@ int HitPattern::stripTECLayersWithoutMeasurement(HitCategory category) const
 }
 
 
-int HitPattern::pixelBarrelLayersTotallyOffOrBad(HitCategory category) const
+int HitPattern::pixelBarrelLayersTotallyOffOrBad() const
 {
     int count = 0;
     uint16_t NPixBarrel = 4;
     for (uint16_t layer = 1; layer <= NPixBarrel; layer++) {
-        if (getTrackerLayerCase(category, PixelSubdetector::PixelBarrel, layer) == HIT_TYPE::INACTIVE) {
+        if (getTrackerLayerCase(TRACK_HITS, PixelSubdetector::PixelBarrel, layer) == HIT_TYPE::INACTIVE) {
             count++;
         }
     }
     return count;
 }
 
-int HitPattern::pixelEndcapLayersTotallyOffOrBad(HitCategory category) const
+int HitPattern::pixelEndcapLayersTotallyOffOrBad() const
 {
     int count = 0;
     uint16_t NPixForward = 3;
     for (uint16_t layer = 1; layer <= NPixForward; layer++) {
-        if (getTrackerLayerCase(category, PixelSubdetector::PixelEndcap, layer) == HIT_TYPE::INACTIVE) {
+        if (getTrackerLayerCase(TRACK_HITS, PixelSubdetector::PixelEndcap, layer) == HIT_TYPE::INACTIVE) {
             count++;
         }
     }
     return count;
 }
 
-int HitPattern::stripTIBLayersTotallyOffOrBad(HitCategory category) const
+int HitPattern::stripTIBLayersTotallyOffOrBad() const
 {
     int count = 0;
     for (uint16_t layer = 1; layer <= 4; layer++) {
-        if (getTrackerLayerCase(category, StripSubdetector::TIB, layer) == HIT_TYPE::INACTIVE) {
+        if (getTrackerLayerCase(TRACK_HITS, StripSubdetector::TIB, layer) == HIT_TYPE::INACTIVE) {
             count++;
         }
     }
     return count;
 }
 
-int HitPattern::stripTIDLayersTotallyOffOrBad(HitCategory category) const
+int HitPattern::stripTIDLayersTotallyOffOrBad() const
 {
     int count = 0;
     for (uint16_t layer = 1; layer <= 3; layer++) {
-        if (getTrackerLayerCase(category, StripSubdetector::TID, layer) == HIT_TYPE::INACTIVE) {
+        if (getTrackerLayerCase(TRACK_HITS, StripSubdetector::TID, layer) == HIT_TYPE::INACTIVE) {
             count++;
         }
     }
     return count;
 }
 
-int HitPattern::stripTOBLayersTotallyOffOrBad(HitCategory category) const
+int HitPattern::stripTOBLayersTotallyOffOrBad() const
 {
     int count = 0;
     for (uint16_t layer = 1; layer <= 6; layer++) {
 
-        if (getTrackerLayerCase(category, StripSubdetector::TOB, layer) == HIT_TYPE::INACTIVE) {
+        if (getTrackerLayerCase(TRACK_HITS, StripSubdetector::TOB, layer) == HIT_TYPE::INACTIVE) {
             count++;
         }
     }
     return count;
 }
 
-int HitPattern::stripTECLayersTotallyOffOrBad(HitCategory category) const
+int HitPattern::stripTECLayersTotallyOffOrBad() const
 {
     int count = 0;
     for (uint16_t layer = 1; layer <= 9; layer++) {
-        if (getTrackerLayerCase(category, StripSubdetector::TEC, layer) == HIT_TYPE::INACTIVE) {
+        if (getTrackerLayerCase(TRACK_HITS, StripSubdetector::TEC, layer) == HIT_TYPE::INACTIVE) {
             count++;
         }
     }
     return count;
 }
 
-int HitPattern::pixelBarrelLayersNull(HitCategory category) const
+int HitPattern::pixelBarrelLayersNull() const
 {
     int count = 0;
     uint16_t NPixBarrel = 4;
     for (uint16_t layer = 1; layer <= NPixBarrel; layer++) {
-        if (getTrackerLayerCase(category, PixelSubdetector::PixelBarrel, layer) == NULL_RETURN) {
+        if (getTrackerLayerCase(TRACK_HITS, PixelSubdetector::PixelBarrel, layer) == NULL_RETURN) {
             count++;
         }
     }
     return count;
 }
 
-int HitPattern::pixelEndcapLayersNull(HitCategory category) const
+int HitPattern::pixelEndcapLayersNull() const
 {
     int count = 0;
     uint16_t NPixForward = 3;
     for (uint16_t layer = 1; layer <= NPixForward; layer++) {
-        if (getTrackerLayerCase(category, PixelSubdetector::PixelEndcap, layer) == NULL_RETURN) {
+        if (getTrackerLayerCase(TRACK_HITS, PixelSubdetector::PixelEndcap, layer) == NULL_RETURN) {
             count++;
         }
     }
     return count;
 }
 
-int HitPattern::stripTIBLayersNull(HitCategory category) const
+int HitPattern::stripTIBLayersNull() const
 {
     int count = 0;
     for (uint16_t layer = 1; layer <= 4; layer++) {
-        if (getTrackerLayerCase(category, StripSubdetector::TIB, layer) == NULL_RETURN) {
+        if (getTrackerLayerCase(TRACK_HITS, StripSubdetector::TIB, layer) == NULL_RETURN) {
             count++;
         }
     }
     return count;
 }
 
-int HitPattern::stripTIDLayersNull(HitCategory category) const
+int HitPattern::stripTIDLayersNull() const
 {
     int count = 0;
     for (uint16_t layer = 1; layer <= 3; layer++) {
-        if (getTrackerLayerCase(category, StripSubdetector::TID, layer) == NULL_RETURN) {
+        if (getTrackerLayerCase(TRACK_HITS, StripSubdetector::TID, layer) == NULL_RETURN) {
             count++;
         }
     }
     return count;
 }
 
-int HitPattern::stripTOBLayersNull(HitCategory category) const
+int HitPattern::stripTOBLayersNull() const
 {
     int count = 0;
     for (uint16_t layer = 1; layer <= 6; layer++) {
-        if (getTrackerLayerCase(category, StripSubdetector::TOB, layer) == NULL_RETURN) {
+        if (getTrackerLayerCase(TRACK_HITS, StripSubdetector::TOB, layer) == NULL_RETURN) {
             count++;
         }
     }
     return count;
 }
 
-int HitPattern::stripTECLayersNull(HitCategory category) const
+int HitPattern::stripTECLayersNull() const
 {
     int count = 0;
     for (uint16_t layer = 1; layer <= 9; layer++) {
-        if (getTrackerLayerCase(category, StripSubdetector::TEC, layer) == NULL_RETURN) {
+        if (getTrackerLayerCase(TRACK_HITS, StripSubdetector::TEC, layer) == NULL_RETURN) {
             count++;
         }
     }

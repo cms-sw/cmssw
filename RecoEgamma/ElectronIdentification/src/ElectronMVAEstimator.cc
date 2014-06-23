@@ -60,7 +60,7 @@ double ElectronMVAEstimator::mva(const reco::GsfElectron& myElectron, int nverti
   validKF = (myTrackRef.isNonnull());  
 
   kfchi2 = (validKF) ? myTrackRef->normalizedChi2() : 0 ;
-  kfhits = (validKF) ? myTrackRef->hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS) : -1.; 
+  kfhits = (validKF) ? myTrackRef->hitPattern().trackerLayersWithMeasurement() : -1.; 
   dist = myElectron.convDist();
   dcot = myElectron.convDcot();
   eta = myElectron.eta();

@@ -1327,7 +1327,7 @@ bool PFPhotonAlgo::EvaluateSingleLegMVA(const reco::PFBlockRef& blockref, const 
   //calculate MVA Variables  
   chi2=elements[track_index].trackRef()->chi2()/elements[track_index].trackRef()->ndof();
   nlost=elements[track_index].trackRef()->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS);
-  nlayers=elements[track_index].trackRef()->hitPattern().trackerLayersWithMeasurement(HitPattern::TRACK_HITS);
+  nlayers=elements[track_index].trackRef()->hitPattern().trackerLayersWithMeasurement();
   track_pt=elements[track_index].trackRef()->pt();  
   STIP=elements[track_index].trackRefPF()->STIP();  
    

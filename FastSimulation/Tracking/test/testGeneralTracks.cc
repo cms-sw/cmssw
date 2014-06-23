@@ -221,8 +221,8 @@ testGeneralTracks::produce(edm::Event& iEvent, const edm::EventSetup& iSetup )
         TracksvsEtaP[ievt]->Fill(etaGen,pGen,1.);
         HitsvsEta[ievt]->Fill(etaGen,itk0->found(),1.);
         HitsvsP[ievt]->Fill(pGen,itk0->found(),1.);
-        LayersvsEta[ievt]->Fill(etaGen,itk0->hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS), 1.);
-        LayersvsP[ievt]->Fill(pGen,itk0->hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS), 1.);
+        LayersvsEta[ievt]->Fill(etaGen,itk0->hitPattern().trackerLayersWithMeasurement(), 1.);
+        LayersvsP[ievt]->Fill(pGen,itk0->hitPattern().trackerLayersWithMeasurement(), 1.);
     }
 
     //    std::cout << "\t\t Number of Tracks " << std::endl;

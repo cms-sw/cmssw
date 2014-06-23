@@ -306,8 +306,8 @@ TrackCount::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 				     << it->normalizedChi2() << " "
 				     << it->chi2() << " "
 				     << it->ndof() << " "
-				     << it->hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS) << " "
-				     << it->hitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS) << " "
+				     << it->hitPattern().trackerLayersWithMeasurement() << " "
+				     << it->hitPattern().pixelLayersWithMeasurement() << " "
 				     << it->hitPattern().numberOfValidStripLayersWithMonoAndStereo() << " "
 				     << it->hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS) << " ";
 
@@ -322,10 +322,10 @@ TrackCount::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
      m_hnlostlayers->Fill(it->hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS));
 
-     m_hnlayers->Fill(it->hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS));
-     m_hnpixellayers->Fill(it->hitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS));
-     m_hnstriplayers->Fill(it->hitPattern().stripLayersWithMeasurement(reco::HitPattern::TRACK_HITS));
-     m_hnlayerphieta->Fill(it->eta(),it->phi(),it->hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS));
+     m_hnlayers->Fill(it->hitPattern().trackerLayersWithMeasurement());
+     m_hnpixellayers->Fill(it->hitPattern().pixelLayersWithMeasurement());
+     m_hnstriplayers->Fill(it->hitPattern().stripLayersWithMeasurement());
+     m_hnlayerphieta->Fill(it->eta(),it->phi(),it->hitPattern().trackerLayersWithMeasurement());
 
      m_halgo->Fill(it->algo());
 

@@ -24,7 +24,7 @@ tightMuonParams = cms.PSet(
         "isGlobalMuon && isPFMuon && isTrackerMuon",
         "abs(eta) < 2.4",
         "innerTrack.hitPattern().numberOfValidPixelHits() > 0",
-        "innerTrack.hitPattern().trackerLayersWithMeasurement(\'TRACK_HITS\') > 5",
+        "innerTrack.hitPattern().trackerLayersWithMeasurement() > 5",
         "(pfIsolationR04().sumChargedHadronPt + max(pfIsolationR04().sumNeutralHadronEt + pfIsolationR04().sumPhotonEt - pfIsolationR04().sumPUPt/2,0.0))/pt < 0.12", 
         "globalTrack.hitPattern().numberOfValidMuonHits() > 0",
         "globalTrack.normalizedChi2 < 10",

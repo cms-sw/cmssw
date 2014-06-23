@@ -185,7 +185,7 @@ void TrackMaker::SetVars(HWW& hww, const edm::Event& iEvent, const edm::EventSet
       }
     }
     
-    hww.trks_nlayers()    .push_back( i->hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS) );
+    hww.trks_nlayers()    .push_back( i->hitPattern().trackerLayersWithMeasurement() );
 
   } // End loop on tracks
 

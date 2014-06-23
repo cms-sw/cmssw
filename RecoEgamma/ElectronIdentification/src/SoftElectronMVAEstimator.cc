@@ -132,7 +132,7 @@ double SoftElectronMVAEstimator::mva(const reco::GsfElectron& myElectron,const e
   reco::TrackRef myTrackRef     = myElectron.closestCtfTrackRef();
   validKF                       = (myTrackRef.isAvailable() && myTrackRef.isNonnull());
   kfchi2                	=(validKF) ? myTrackRef->normalizedChi2() : 0 ;
-  kfhits                	=(validKF) ? myTrackRef->hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS) : -1.;
+  kfhits                	=(validKF) ? myTrackRef->hitPattern().trackerLayersWithMeasurement() : -1.;
   gsfchi2               	=myElectron.gsfTrack()->normalizedChi2();
   SigmaPtOverPt         	=myElectron.gsfTrack().get()->ptModeError()/myElectron.gsfTrack().get()->ptMode() ;
   deta                  	=myElectron.deltaEtaSuperClusterTrackAtVtx();

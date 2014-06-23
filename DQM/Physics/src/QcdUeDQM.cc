@@ -668,10 +668,10 @@ bool QcdUeDQM::trackSelection(const reco::Track &trk, const reco::BeamSpot* bs, 
     if(sizevtx!=1) return 0;    //selection events with only a vertex
 
     //Fill basic information of all the tracks
-    fill1D(hNtrackerLayer_, trk.hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS));
-    fill1D(hNtrackerPixelLayer_, trk.hitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS));
+    fill1D(hNtrackerLayer_, trk.hitPattern().trackerLayersWithMeasurement());
+    fill1D(hNtrackerPixelLayer_, trk.hitPattern().pixelLayersWithMeasurement());
 
-    fill1D(hNtrackerStripPixelLayer_, (trk.hitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS)
+    fill1D(hNtrackerStripPixelLayer_, (trk.hitPattern().pixelLayersWithMeasurement()
                 + trk.hitPattern().numberOfValidStripLayersWithMonoAndStereo()));
 
     fill1D(hRatioPtErrorPt_,(trk.ptError()/trk.pt()));
@@ -690,13 +690,13 @@ bool QcdUeDQM::trackSelection(const reco::Track &trk, const reco::BeamSpot* bs, 
     fill1D(hBeamSpot_z_,bs->z0());
 
     //number of layers
-    bool layerMinCutbool = (trk.hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS) >= minHit_
-            || (trk.hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS) == 3
-                && trk.hitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS) == 3 
+    bool layerMinCutbool = (trk.hitPattern().trackerLayersWithMeasurement() >= minHit_
+            || (trk.hitPattern().trackerLayersWithMeasurement() == 3
+                && trk.hitPattern().pixelLayersWithMeasurement() == 3 
                 && allowTriplets_));
 
     //number of pixel layers
-    bool pxlLayerMinCutbool = (trk.hitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS) >=pxlLayerMinCut_);
+    bool pxlLayerMinCutbool = (trk.hitPattern().pixelLayersWithMeasurement() >=pxlLayerMinCut_);
 
     // cut on the hits in pixel layers
     bool hasPIX1 = false;
@@ -717,8 +717,8 @@ bool QcdUeDQM::trackSelection(const reco::Track &trk, const reco::BeamSpot* bs, 
 
     // cut on the pT error
     bool ptErrorbool = (trk.ptError()/trk.pt() < ptErr_pt_ 
-            || (trk.hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS) == 3
-                && trk.hitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS) == 3
+            || (trk.hitPattern().trackerLayersWithMeasurement() == 3
+                && trk.hitPattern().pixelLayersWithMeasurement() == 3
                 && allowTriplets_));
 
     // quality cut
@@ -740,7 +740,7 @@ bool QcdUeDQM::trackSelection(const reco::Track &trk, const reco::BeamSpot* bs, 
 
     if(bsuse_ == 1){
         if(hasPIX1 && pxlLayerMinCutbool && layerMinCutbool 
-                && (trk.hitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS) + 
+                && (trk.hitPattern().pixelLayersWithMeasurement() + 
                     trk.hitPattern().numberOfValidStripLayersWithMonoAndStereo()) >= min3DHit_ 
                 && ptErrorbool && fabs(trk.pt()) >= ptMin_ &&  trk.eta() >= minRapidity_ 
                 && trk.eta() <= maxRapidity_ &&  fabs(trk.dxy(bs->position())/trk.dxyError()) < tip_ 
@@ -752,7 +752,7 @@ bool QcdUeDQM::trackSelection(const reco::Track &trk, const reco::BeamSpot* bs, 
 
     if(bsuse_ == 0){
         if(hasPIX1 && pxlLayerMinCutbool && layerMinCutbool 
-                && (trk.hitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS) +
+                && (trk.hitPattern().pixelLayersWithMeasurement() +
                     trk.hitPattern().numberOfValidStripLayersWithMonoAndStereo()) >= min3DHit_
                 && ptErrorbool && fabs(trk.pt()) >= ptMin_ && trk.eta() >= minRapidity_ 
                 && trk.eta() <= maxRapidity_ && fabs(trk.dxy(vtx.position())/trk.dxyError()) < tip_

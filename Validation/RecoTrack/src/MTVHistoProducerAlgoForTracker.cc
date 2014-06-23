@@ -1217,9 +1217,9 @@ void MTVHistoProducerAlgoForTracker::fill_simAssociated_recoTrack_histos(int cou
     nTIDhits_vs_eta[count]->Fill(getEta(track.eta()),track.hitPattern().numberOfValidStripTIDHits());
     nTOBhits_vs_eta[count]->Fill(getEta(track.eta()),track.hitPattern().numberOfValidStripTOBHits());
     nTEChits_vs_eta[count]->Fill(getEta(track.eta()),track.hitPattern().numberOfValidStripTECHits());
-    nLayersWithMeas_vs_eta[count]->Fill(getEta(track.eta()),track.hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS));
-    nPXLlayersWithMeas_vs_eta[count]->Fill(getEta(track.eta()),track.hitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS));
-    int LayersAll = track.hitPattern().stripLayersWithMeasurement(reco::HitPattern::TRACK_HITS);
+    nLayersWithMeas_vs_eta[count]->Fill(getEta(track.eta()),track.hitPattern().trackerLayersWithMeasurement());
+    nPXLlayersWithMeas_vs_eta[count]->Fill(getEta(track.eta()),track.hitPattern().pixelLayersWithMeasurement());
+    int LayersAll = track.hitPattern().stripLayersWithMeasurement();
     int Layers2D = track.hitPattern().numberOfValidStripLayersWithMonoAndStereo();
     int Layers1D = LayersAll - Layers2D;
     nSTRIPlayersWithMeas_vs_eta[count]->Fill(getEta(track.eta()),LayersAll);

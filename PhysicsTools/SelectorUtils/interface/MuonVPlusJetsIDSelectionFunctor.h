@@ -443,7 +443,7 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
 
     double z_mu = muon.vertex().z();
 
-    int nPixelHits = muon.innerTrack()->hitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS);
+    int nPixelHits = muon.innerTrack()->hitPattern().pixelLayersWithMeasurement();
 
     int nMatchedStations = muon.numberOfMatches();
 
@@ -539,7 +539,7 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
 
     double z_mu = muon.vertex().z();
 
-    int nPixelHits = muon.innerTrack()->hitPattern().pixelLayersWithMeasurement(reco::HitPattern::TRACK_HITS);
+    int nPixelHits = muon.innerTrack()->hitPattern().pixelLayersWithMeasurement();
 
     int nMatchedStations = muon.numberOfMatches();
 

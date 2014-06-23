@@ -420,7 +420,7 @@ TVector3 MuonTCMETValueMapProducer::propagateTrack( const reco::Muon* muon)
 //____________________________________________________________________________||
 int MuonTCMETValueMapProducer::nLayers(const reco::TrackRef track)
 {
-  return track->hitPattern().trackerLayersWithMeasurement(reco::HitPattern::TRACK_HITS);
+  return track->hitPattern().trackerLayersWithMeasurement();
 }
 
 //____________________________________________________________________________||

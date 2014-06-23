@@ -1460,7 +1460,7 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
       float m_el=0.00051;
       Ein_gsf =sqrt(RefGSF->pMode()*
 		    RefGSF->pMode()+m_el*m_el);
-      // nhits_gsf = RefGSF->hitPattern().trackerLayersWithMeasurement(HitPattern::TRACK_HITS);
+      // nhits_gsf = RefGSF->hitPattern().trackerLayersWithMeasurement();
     }
     float Eout_gsf = GsfEl->Pout().t();
     float Etaout_gsf = GsfEl->positionAtECALEntrance().eta();
@@ -1621,7 +1621,7 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 	if(RefGSF->ptModeError() > 0.)
 	  dPtOverPt_gsf = RefGSF->ptModeError()/Pt_gsf;
 	
-	nhit_gsf= RefGSF->hitPattern().trackerLayersWithMeasurement(HitPattern::TRACK_HITS);
+	nhit_gsf= RefGSF->hitPattern().trackerLayersWithMeasurement();
 	chi2_gsf = RefGSF->normalizedChi2();
 	// change GsfEl->Pout().pt() as soon the PoutMode is on the GsfTrack DataFormat
 	DPtOverPt_gsf =  (RefGSF->ptMode() - GsfEl->Pout().pt())/RefGSF->ptMode();
@@ -1631,7 +1631,7 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 	chi2_kf = -0.01;
 	DPtOverPt_kf = -0.01;
 	if (RefKF.isNonnull()) {
-	  nhit_kf= RefKF->hitPattern().trackerLayersWithMeasurement(HitPattern::TRACK_HITS);
+	  nhit_kf= RefKF->hitPattern().trackerLayersWithMeasurement();
 	  chi2_kf = RefKF->normalizedChi2();
 	  // Not used, strange behaviour to be checked. And Kf->OuterPt is 
 	  // in track extra. 
@@ -1965,7 +1965,7 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
       has_gsf=true;
      
       charge= RefGSF->chargeMode();
-      nhit_gsf= RefGSF->hitPattern().trackerLayersWithMeasurement(HitPattern::TRACK_HITS);
+      nhit_gsf= RefGSF->hitPattern().trackerLayersWithMeasurement();
       
       momentum_gsf.SetPx(RefGSF->pxMode());
       momentum_gsf.SetPy(RefGSF->pyMode());
@@ -2013,7 +2013,7 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
 	if (RefKF.isNonnull()) {
 	  has_kf = true;
 	  // dpt_kf=(RefKF->ptError()*RefKF->ptError());
-	  nhit_kf=RefKF->hitPattern().trackerLayersWithMeasurement(HitPattern::TRACK_HITS);
+	  nhit_kf=RefKF->hitPattern().trackerLayersWithMeasurement();
 	  momentum_kf.SetPx(RefKF->px());
 	  momentum_kf.SetPy(RefKF->py());
 	  momentum_kf.SetPz(RefKF->pz());
