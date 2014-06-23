@@ -96,54 +96,95 @@ const std::string * ElectronDqmAnalyzerBase::find( const std::string & name )
    }
  }
 
-void ElectronDqmAnalyzerBase::beginJob()
+// --- AC ---
+void ElectronDqmAnalyzerBase::dqmBeginRun( edm::Run const & , edm::EventSetup const & ) 
  {
-  store_ = edm::Service<DQMStore>().operator->() ;
+ store_ = edm::Service<DQMStore>().operator->() ;
   if (!store_)
    { edm::LogError("ElectronDqmAnalyzerBase::prepareStore")<<"No DQMStore found !" ; }
   store_->setVerbose(verbosity_) ;
   if (inputFile_!="")
    { store_->open(inputFile_) ; }
   store_->setCurrentFolder(outputInternalPath_) ;
-  book() ;
+    // --- AC ---
+    std::cout << "CurrentFolder from dqmBeginRun : " << outputInternalPath_ << std::endl; // to be removed
  }
 
 void ElectronDqmAnalyzerBase::endRun( edm::Run const &, edm::EventSetup const & )
  {
   if (finalStep_=="AtRunEnd")
    {
+    // --- AC ---
+    std::cout << "endRun()" << std::endl; // to be removed
+    std::cout << "cout CurrentFolder from endRun() : " << outputInternalPath_ << std::endl; // to be removed
     if (finalDone_)
      { edm::LogWarning("ElectronDqmAnalyzerBase::endRun")<<"finalize() already called" ; }
+	
     store_->setCurrentFolder(outputInternalPath_) ;
+	std::cout << "appel finalize from endRun() : " << std::endl; // to be removed
     finalize() ;
+	std::cout << "final done from endRun() : " << std::endl; // to be removed
     finalDone_ = true ;
+
+    // --- AC ---
+    // --- transfert from endJob()
+    std::cout << "endRun()endJob()" << " final step : "<<finalStep_<<" outputFile_ : "<<outputFile_<<std::endl; // to be removed
+    if (outputFile_!="")
+     { 
+     std::cout << "endRun()job end : save from jobEnd " << outputFile_ << std::endl; // to be removed
+     store_->save(outputFile_) ; 
+	 } /**/
    }
  }
-void ElectronDqmAnalyzerBase::endLuminosityBlock( edm::LuminosityBlock const &, edm::EventSetup const & )
+
+ void ElectronDqmAnalyzerBase::endLuminosityBlock( edm::LuminosityBlock const &, edm::EventSetup const & )
  {
   if (finalStep_=="AtLumiEnd")
    {
+    // --- AC ---
+    std::cout << "lumi end" << std::endl; // to be removed
+    std::cout << "CurrentFolder from endLuminosityBlock : " << outputInternalPath_ << std::endl; // to be removed
     if (finalDone_)
      { edm::LogWarning("ElectronDqmAnalyzerBase::endLuminosityBlock")<<"finalize() already called" ; }
     store_->setCurrentFolder(outputInternalPath_) ;
     finalize() ;
     finalDone_ = true ;
    }
- }
+ }/**/
 
 void ElectronDqmAnalyzerBase::endJob()
  {
+  std::cout << "endJob()" << " final step : "<<finalStep_<<" outputFile_ : "<<outputFile_<<std::endl; // to be removed
   if (finalStep_=="AtJobEnd")
    {
+    // --- AC ---
+    std::cout << "endJob()" << std::endl; // to be removed
+    std::cout << "CurrentFolder from endJob() : " << outputInternalPath_ << std::endl; // to be removed
     if (finalDone_)
      { edm::LogWarning("ElectronDqmAnalyzerBase::endJob")<<"finalize() already called" ; }
+	
+	std::cout << "store from endJob() : " << std::endl; // to be removed
     store_->setCurrentFolder(outputInternalPath_) ;
+	std::cout << "finalize from endJob() : " << std::endl; // to be removed
     finalize() ;
+	std::cout << "final done from endJob() : " << std::endl; // to be removed
     finalDone_ = true ;
    }
   if (outputFile_!="")
-   { store_->save(outputFile_) ; }
- }
+   {
+    // --- AC ---
+   std::cout << "endJob() : save from endJob() " << outputFile_ << std::endl; // to be removed
+   store_->save(outputFile_) ; }
+ } /**/
+
+void ElectronDqmAnalyzerBase::bookHistograms( DQMStore::IBooker & ibooker_, edm::Run const &, edm::EventSetup const &) 
+{
+ edm::LogInfo("DQMAnalyzeBase::bookHistograms") << std::endl;
+ 
+ //book at beginRun
+ std::cout << "DQMAnalyzeBase::bookHistograms " << std::endl; // to be removed
+
+} /**/
 
 MonitorElement * ElectronDqmAnalyzerBase::get( const std::string & name )
  {
@@ -199,40 +240,42 @@ void ElectronDqmAnalyzerBase::remove_other_dirs()
  }
 
 MonitorElement * ElectronDqmAnalyzerBase::bookH1andDivide
- ( const std::string & name, const std::string & num, const std::string & denom,
+ ( DQMStore::IBooker & iBooker, 
+   const std::string & name, const std::string & num, const std::string & denom,
    const std::string & titleX, const std::string & titleY,
    const std::string & title )
- { return bookH1andDivide(name,get(num),get(denom),titleX,titleY,title) ;  }
+ { return bookH1andDivide(iBooker, name,get(num),get(denom),titleX,titleY,title) ;  }
 
 MonitorElement * ElectronDqmAnalyzerBase::bookH2andDivide
- ( const std::string & name, const std::string & num, const std::string & denom,
+ ( DQMStore::IBooker & iBooker, 
+   const std::string & name, const std::string & num, const std::string & denom,
    const std::string & titleX, const std::string & titleY,
    const std::string & title )
- { return bookH2andDivide(name,get(num),get(denom),titleX,titleY,title) ; }
+ { return bookH2andDivide(iBooker, name,get(num),get(denom),titleX,titleY,title) ; }
 
 MonitorElement * ElectronDqmAnalyzerBase::cloneH1
- ( const std::string & clone, const std::string & original,
+ ( DQMStore::IBooker & iBooker, 
+   const std::string & clone, const std::string & original,
    const std::string & title )
- { return cloneH1(clone,get(original),title) ; }
+ { return cloneH1(iBooker, clone,get(original),title) ; }
 
 MonitorElement * ElectronDqmAnalyzerBase::profileX
- ( const std::string & me2d, const std::string & title, const std::string & titleX, const std::string & titleY,
+ ( DQMStore::IBooker & iBooker, const std::string & me2d, const std::string & title, const std::string & titleX, const std::string & titleY,
    Double_t minimum, Double_t maximum )
- { return profileX(get(me2d),title,titleX,titleY,minimum,maximum) ; }
+ { return profileX(iBooker,get(me2d),title,titleX,titleY,minimum,maximum) ; }
 
 MonitorElement * ElectronDqmAnalyzerBase::profileY
- ( const std::string & me2d,
-   const std::string & title, const std::string & titleX, const std::string & titleY,
+ ( DQMStore::IBooker & iBooker, const std::string & me2d, const std::string & title, const std::string & titleX, const std::string & titleY,
    Double_t minimum, Double_t maximum )
- { return profileY(get(me2d),title,titleX,titleY,minimum,maximum) ; }
+ { return profileY(iBooker,get(me2d),title,titleX,titleY,minimum,maximum) ; }
 
 MonitorElement * ElectronDqmAnalyzerBase::bookH1
- ( const std::string & name, const std::string & title,
+ ( DQMStore::IBooker & iBooker, const std::string & name, const std::string & title,
    int nchX, double lowX, double highX,
    const std::string & titleX, const std::string & titleY,
    Option_t * option )
  {
-  MonitorElement * me = store_->book1D(newName(name),title,nchX,lowX,highX) ;
+  MonitorElement * me = iBooker.book1D(newName(name),title,nchX,lowX,highX) ;
   if (titleX!="") { me->getTH1F()->GetXaxis()->SetTitle(titleX.c_str()) ; }
   if (titleY!="") { me->getTH1F()->GetYaxis()->SetTitle(titleY.c_str()) ; }
   if (TString(option)!="") { me->getTH1F()->SetOption(option) ; }
@@ -240,12 +283,12 @@ MonitorElement * ElectronDqmAnalyzerBase::bookH1
  }
 
 MonitorElement * ElectronDqmAnalyzerBase::bookH1withSumw2
- ( const std::string & name, const std::string & title,
+ ( DQMStore::IBooker & iBooker, const std::string & name, const std::string & title,
    int nchX, double lowX, double highX,
    const std::string & titleX, const std::string & titleY,
    Option_t * option )
  {
-  MonitorElement * me = store_->book1D(newName(name),title,nchX,lowX,highX) ;
+  MonitorElement * me = iBooker.book1D(newName(name),title,nchX,lowX,highX) ;
   me->getTH1F()->Sumw2() ;
   if (titleX!="") { me->getTH1F()->GetXaxis()->SetTitle(titleX.c_str()) ; }
   if (titleY!="") { me->getTH1F()->GetYaxis()->SetTitle(titleY.c_str()) ; }
@@ -254,13 +297,13 @@ MonitorElement * ElectronDqmAnalyzerBase::bookH1withSumw2
  }
 
 MonitorElement * ElectronDqmAnalyzerBase::bookH2
- ( const std::string & name, const std::string & title,
+ ( DQMStore::IBooker & iBooker, const std::string & name, const std::string & title,
    int nchX, double lowX, double highX,
    int nchY, double lowY, double highY,
    const std::string & titleX, const std::string & titleY,
    Option_t * option )
  {
-  MonitorElement * me = store_->book2D(newName(name),title,nchX,lowX,highX,nchY,lowY,highY) ;
+  MonitorElement * me = iBooker.book2D(newName(name),title,nchX,lowX,highX,nchY,lowY,highY) ;
   if (titleX!="") { me->getTH2F()->GetXaxis()->SetTitle(titleX.c_str()) ; }
   if (titleY!="") { me->getTH2F()->GetYaxis()->SetTitle(titleY.c_str()) ; }
   if (TString(option)!="") { me->getTH2F()->SetOption(option) ; }
@@ -268,13 +311,13 @@ MonitorElement * ElectronDqmAnalyzerBase::bookH2
  }
 
 MonitorElement * ElectronDqmAnalyzerBase::bookH2withSumw2
- ( const std::string & name, const std::string & title,
+ ( DQMStore::IBooker & iBooker, const std::string & name, const std::string & title,
    int nchX, double lowX, double highX,
    int nchY, double lowY, double highY,
    const std::string & titleX, const std::string & titleY,
    Option_t * option )
  {
-  MonitorElement * me = store_->book2D(newName(name),title,nchX,lowX,highX,nchY,lowY,highY) ;
+  MonitorElement * me = iBooker.book2D(newName(name),title,nchX,lowX,highX,nchY,lowY,highY) ;
   me->getTH2F()->Sumw2() ;
   if (titleX!="") { me->getTH2F()->GetXaxis()->SetTitle(titleX.c_str()) ; }
   if (titleY!="") { me->getTH2F()->GetYaxis()->SetTitle(titleY.c_str()) ; }
@@ -283,13 +326,13 @@ MonitorElement * ElectronDqmAnalyzerBase::bookH2withSumw2
  }
 
 MonitorElement * ElectronDqmAnalyzerBase::bookP1
- ( const std::string & name, const std::string & title,
+ ( DQMStore::IBooker & iBooker, const std::string & name, const std::string & title,
    int nchX, double lowX, double highX,
              double lowY, double highY,
    const std::string & titleX, const std::string & titleY,
    Option_t * option )
  {
-  MonitorElement * me = store_->bookProfile(newName(name),title,nchX,lowX,highX,lowY,highY," ") ;
+  MonitorElement * me = iBooker.bookProfile(newName(name),title,nchX,lowX,highX,lowY,highY," ") ;
   if (titleX!="") { me->getTProfile()->GetXaxis()->SetTitle(titleX.c_str()) ; }
   if (titleY!="") { me->getTProfile()->GetYaxis()->SetTitle(titleY.c_str()) ; }
   if (TString(option)!="") { me->getTProfile()->SetOption(option) ; }
@@ -297,7 +340,8 @@ MonitorElement * ElectronDqmAnalyzerBase::bookP1
  }
 
 MonitorElement * ElectronDqmAnalyzerBase::bookH1andDivide
- ( const std::string & name, MonitorElement * num, MonitorElement * denom,
+ ( DQMStore::IBooker & iBooker, 
+   const std::string & name, MonitorElement * num, MonitorElement * denom,
    const std::string & titleX, const std::string & titleY,
    const std::string & title )
  {
@@ -310,13 +354,14 @@ MonitorElement * ElectronDqmAnalyzerBase::bookH1andDivide
   h_temp->GetYaxis()->SetTitle(titleY.c_str()) ;
   if (title!="") { h_temp->SetTitle(title.c_str()) ; }
   if (verbosity_>0) { h_temp->Print() ; }
-  MonitorElement * me = store_->book1D(name2,h_temp) ;
+  MonitorElement * me = iBooker.book1D(name2,h_temp) ;
   delete h_temp ;
   return me ;
  }
 
 MonitorElement * ElectronDqmAnalyzerBase::bookH2andDivide
- ( const std::string & name, MonitorElement * num, MonitorElement * denom,
+ ( DQMStore::IBooker & iBooker, 
+   const std::string & name, MonitorElement * num, MonitorElement * denom,
    const std::string & titleX, const std::string & titleY,
    const std::string & title )
  {
@@ -329,13 +374,14 @@ MonitorElement * ElectronDqmAnalyzerBase::bookH2andDivide
   h_temp->GetYaxis()->SetTitle(titleY.c_str()) ;
   if (title!="") { h_temp->SetTitle(title.c_str()) ; }
   if (verbosity_>0) { h_temp->Print() ; }
-  MonitorElement * me = store_->book2D(name2,h_temp) ;
+  MonitorElement * me = iBooker.book2D(name2,h_temp) ;
   delete h_temp ;
   return me ;
  }
 
 MonitorElement * ElectronDqmAnalyzerBase::cloneH1
- ( const std::string & name, MonitorElement * original,
+ ( DQMStore::IBooker & iBooker, 
+   const std::string & name, MonitorElement * original,
    const std::string & title )
  {
   if (!original) return 0 ;
@@ -343,42 +389,45 @@ MonitorElement * ElectronDqmAnalyzerBase::cloneH1
   TH1F * h_temp = (TH1F *)original->getTH1F()->Clone(name2.c_str()) ;
   h_temp->Reset() ;
   if (title!="") { h_temp->SetTitle(title.c_str()) ; }
-  MonitorElement * me = store_->book1D(name2,h_temp) ;
+  MonitorElement * me = iBooker.book1D(name2,h_temp) ;
   delete h_temp ;
   return me ;
  }
 
 MonitorElement * ElectronDqmAnalyzerBase::profileX
- ( MonitorElement * me2d,
+ ( DQMStore::IBooker & iBooker, MonitorElement * me2d, 
    const std::string & title, const std::string & titleX, const std::string & titleY,
    Double_t minimum, Double_t maximum )
  {
   std::string name2 = me2d->getName()+"_pfx" ;
+  std::cout << "profileX : " << name2 << std::endl; // to be removed
   TProfile * p1_temp = me2d->getTH2F()->ProfileX() ;
   if (title!="") { p1_temp->SetTitle(title.c_str()) ; }
   if (titleX!="") { p1_temp->GetXaxis()->SetTitle(titleX.c_str()) ; }
   if (titleY!="") { p1_temp->GetYaxis()->SetTitle(titleY.c_str()) ; }
   if (minimum!=-1111) { p1_temp->SetMinimum(minimum) ; }
   if (maximum!=-1111) { p1_temp->SetMaximum(maximum) ; }
-  MonitorElement * me = store_->bookProfile(name2,p1_temp) ;
+  MonitorElement * me = iBooker.bookProfile(name2,p1_temp) ;
   delete p1_temp ;
   return me ;
  }
 
 MonitorElement * ElectronDqmAnalyzerBase::profileY
- ( MonitorElement * me2d,
+ ( DQMStore::IBooker & iBooker, MonitorElement * me2d,
    const std::string & title, const std::string & titleX, const std::string & titleY,
    Double_t minimum, Double_t maximum )
  {
   std::string name2 = me2d->getName()+"_pfy" ;
+  std::cout << "profileY : " << name2 << std::endl; // to be removed
   TProfile * p1_temp = me2d->getTH2F()->ProfileY() ;
   if (title!="") { p1_temp->SetTitle(title.c_str()) ; }
   if (titleX!="") { p1_temp->GetXaxis()->SetTitle(titleX.c_str()) ; }
   if (titleY!="") { p1_temp->GetYaxis()->SetTitle(titleY.c_str()) ; }
   if (minimum!=-1111) { p1_temp->SetMinimum(minimum) ; }
   if (maximum!=-1111) { p1_temp->SetMaximum(maximum) ; }
-  MonitorElement * me = store_->bookProfile(name2,p1_temp) ;
+  MonitorElement * me = iBooker.bookProfile(name2,p1_temp) ;
   delete p1_temp ;
   return me ;
  }
+
 
