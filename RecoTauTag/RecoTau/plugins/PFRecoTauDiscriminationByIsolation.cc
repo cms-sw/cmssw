@@ -45,8 +45,8 @@ class PFRecoTauDiscriminationByIsolation : public PFTauDiscriminationProducerBas
       "applyRelativeSumPtCut");
     maximumRelativeSumPt_ = pset.getParameter<double>(
       "relativeSumPtCut");
-    offsetRelativeSumPt_ = pset.getParameter<double>(
-      "relativeSumPtOffset");
+    offsetRelativeSumPt_ = pset.exists("relativeSumPtOffset") ?
+      pset.getParameter<double>("relativeSumPtOffset") : 0.0;
 
     storeRawOccupancy_ = pset.exists("storeRawOccupancy") ?
       pset.getParameter<bool>("storeRawOccupancy") : false;
