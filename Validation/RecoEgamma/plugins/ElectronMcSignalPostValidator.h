@@ -9,8 +9,14 @@ class ElectronMcSignalPostValidator : public ElectronDqmAnalyzerBase
   public:
     explicit ElectronMcSignalPostValidator( const edm::ParameterSet & conf ) ;
     virtual ~ElectronMcSignalPostValidator() ;
-    virtual void book() ;
+//    virtual void book() ;
+    virtual void bookHistograms( DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) ;
     virtual void finalize() ;
+
+  private:
+    // histos
+    MonitorElement *h1_ele_xOverX0VsEta ;
+	
  } ;
 
 #endif
