@@ -4,6 +4,8 @@ patPhotons = cms.EDProducer("PATPhotonProducer",
     # input collection
     photonSource = cms.InputTag("gedPhotons"),
              
+    beamLineSrc = cms.InputTag("offlineBeamSpot"),
+
     reducedBarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
     reducedEndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE"),             
              
