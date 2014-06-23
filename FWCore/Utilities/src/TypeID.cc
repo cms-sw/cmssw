@@ -2,8 +2,8 @@
 
 ----------------------------------------------------------------------*/
 #include <cassert>
-#include <map>
 #include <ostream>
+#include "tbb/concurrent_unordered_map.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/FriendlyName.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -34,11 +34,18 @@ namespace {
     }
   }
 }
+  struct TypeIDHasher {
+    size_t operator()(TypeID const& tid) const {
+      tbb::tbb_hash<std::string> hasher;
+      return hasher(std::string(tid.name()));
+    }
+  };
+
 
   std::string const&
   TypeID::className() const {
-    typedef std::map<edm::TypeID, std::string> Map;
-    static thread_local Map s_typeToName;
+    typedef tbb::concurrent_unordered_map<edm::TypeID, std::string, TypeIDHasher> Map;
+    static Map s_typeToName;
 
     auto itFound = s_typeToName.find(*this);
     if(s_typeToName.end() == itFound) {
