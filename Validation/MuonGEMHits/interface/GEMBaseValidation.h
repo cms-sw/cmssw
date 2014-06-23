@@ -4,6 +4,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
+#include "Geometry/GEMGeometry/interface/GEMEtaPartitionSpecs.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
