@@ -67,7 +67,7 @@
         <rMaterial name="materials:Polyethylene" />
       </MaterialFraction>
     </CompositeMaterial>
-    <CompositeMaterial name="T_RuggRibbon" density="1.010544*g/cm3" method="mixture by weight" pork="true" symbol=" ">
+    <CompositeMaterial name="TIBTID_T_RuggRibbon" density="1.010544*g/cm3" method="mixture by weight" pork="true" symbol=" ">
       <MaterialFraction fraction="0.67168">
         <rMaterial name="materials:Polyethylene" />
       </MaterialFraction>
@@ -239,7 +239,7 @@
     </CompositeMaterial>
     <CompositeMaterial name="TIBTID_OptoPanelFront" density="0.066816*g/cm3" method="mixture by weight" pork="true" symbol=" ">
       <MaterialFraction fraction="0.8808">
-        <rMaterial name="tibtidcommonmaterial:T_RuggRibbon" />
+        <rMaterial name="tibtidcommonmaterial:TIBTID_T_RuggRibbon" />
       </MaterialFraction>
       <MaterialFraction fraction="0.08973">
         <rMaterial name="trackermaterial:T_Aluminium" />
@@ -284,7 +284,7 @@
         <rMaterial name="trackermaterial:T_FR4" />
       </MaterialFraction>
       <MaterialFraction fraction="0.20893">
-        <rMaterial name="tibtidcommonmaterial:T_RuggRibbon" />
+        <rMaterial name="tibtidcommonmaterial:TIBTID_T_RuggRibbon" />
       </MaterialFraction>
       <MaterialFraction fraction="0.58144">
         <rMaterial name="tibtidcommonmaterial:T_FiberPigtail" />
@@ -362,7 +362,7 @@
         <rMaterial name="tibtidcommonmaterial:T_Cu10mmPipe" />
       </MaterialFraction>
       <MaterialFraction fraction="0.0472998518237542">
-        <rMaterial name="tibtidcommonmaterial:T_RuggRibbon" />
+        <rMaterial name="tibtidcommonmaterial:TIBTID_T_RuggRibbon" />
       </MaterialFraction>
       <MaterialFraction fraction="0.00355998884762294">
         <rMaterial name="trackermaterial:T_Copper" />
@@ -382,7 +382,7 @@
         <rMaterial name="tibtidcommonmaterial:T_Cu10mmPipe" />
       </MaterialFraction>
       <MaterialFraction fraction="0.0572197614737023">
-        <rMaterial name="tibtidcommonmaterial:T_RuggRibbon" />
+        <rMaterial name="tibtidcommonmaterial:TIBTID_T_RuggRibbon" />
       </MaterialFraction>
     </CompositeMaterial>
     <CompositeMaterial name="TIBTID_PA" density="3.299736*g/cm3" method="mixture by weight" pork="true" symbol=" ">

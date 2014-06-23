@@ -14,12 +14,525 @@ using std::pair;
 using std::make_pair;
 
 // INITIALISE STATIC VARIABLES
-GctFormatTranslateV35::BlockLengthMap GctFormatTranslateV35::m_blockLength = GctFormatTranslateV35::BlockLengthMap();
-GctFormatTranslateV35::BlockNameMap GctFormatTranslateV35::m_blockName = GctFormatTranslateV35::BlockNameMap();
-GctFormatTranslateV35::BlockIdToUnpackFnMap GctFormatTranslateV35::m_blockUnpackFn = GctFormatTranslateV35::BlockIdToUnpackFnMap();
-GctFormatTranslateV35::BlkToRctCrateMap GctFormatTranslateV35::m_rctEmCrate = GctFormatTranslateV35::BlkToRctCrateMap();
-GctFormatTranslateV35::BlkToRctCrateMap GctFormatTranslateV35::m_rctJetCrate = GctFormatTranslateV35::BlkToRctCrateMap();
-GctFormatTranslateV35::BlockIdToEmCandIsoBoundMap GctFormatTranslateV35::m_internEmIsoBounds = GctFormatTranslateV35::BlockIdToEmCandIsoBoundMap();
+/*** Setup BlockID to BlockLength Map ***/
+const GctFormatTranslateV35::BlockLengthMap GctFormatTranslateV35::m_blockLength = {
+// Miscellaneous Blocks
+    {0x000,0},      // NULL
+    // ConcJet FPGA
+    {0x580,12},     // ConcJet: Input TrigPathA (Jet Cands)
+    {0x581,2},      // ConcJet: Input TrigPathB (HF Rings)
+    {0x583,8},      // ConcJet: Jet Cands and Counts Output to GT
+    {0x587,4},      // ConcJet: BX & Orbit Info
+    // ConcElec FPGA
+    {0x680,16},     // ConcElec: Input TrigPathA (EM Cands)
+    {0x681,6},      // ConcElec: Input TrigPathB (Et Sums)
+    {0x682,2},      // ConcElec: Input TrigPathC (Ht Sums)
+    {0x683,6},      // ConcElec: EM Cands and Energy Sums Output to GT
+    {0x686,2},      // ConcElec: Test (GT Serdes Loopback)
+    {0x687,4},      // ConcElec: BX & Orbit Info
+    // Electron Leaf FPGAs
+    {0x800,20},     // Leaf0ElecPosEtaU1: Sort Input
+    {0x803,4},      // Leaf0ElecPosEtaU1: Sort Output
+    {0x804,15},     // Leaf0ElecPosEtaU1: Raw Input
+    {0x880,16},     // Leaf0ElecPosEtaU2: Sort Input
+    {0x883,4},      // Leaf0ElecPosEtaU2: Sort Output
+    {0x884,12},     // Leaf0ElecPosEtaU2: Raw Input
+    {0xc00,20},     // Leaf0ElecNegEtaU1: Sort Input
+    {0xc03,4},      // Leaf0ElecNegEtaU1: Sort Output
+    {0xc04,15},     // Leaf0ElecNegEtaU1: Raw Input
+    {0xc80,16},     // Leaf0ElecNegEtaU2: Sort Input
+    {0xc83,4},      // Leaf0ElecNegEtaU2: Sort Output
+    {0xc84,12},     // Leaf0ElecNegEtaU2: Raw Input
+    // Wheel Pos-eta Jet FPGA
+    {0x300,27},     // WheelPosEtaJet: Input TrigPathA (Jet Sort)
+    {0x303,6},      // WheelPosEtaJet: Output TrigPathA (Jet Sort)
+    {0x306,32},     // WheelPosEtaJet: Test (deprecated)  (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
+    {0x307,4},      // WheelPosEtaJet: Info (deprecated)  (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
+    // Wheel Pos-eta Energy FPGA
+    {0x380,21},     // WheelPosEtaEnergy: Input TrigPathA (Et)
+    {0x381,3},      // WheelPosEtaEnergy: Input TrigPathB (Ht)
+    {0x383,7},      // WheelPosEtaEnergy: Output TrigPathA (Et)
+    {0x385,2},      // WheelPosEtaEnergy: Output TrigPathB (Ht)
+    {0x386,32},     // WheelPosEtaEnergy: Test
+    {0x387,6},      // WheelPosEtaEnergy: BX & Orbit Info   (Potential data incompatibility between V24/V25 where block length=4, and V27.1 where block length=6)
+    // Wheel Neg-eta Jet FPGA
+    {0x700,27},     // WheelNegEtaJet: Input TrigPathA (Jet Sort)
+    {0x703,6},      // WheelNegEtaJet: Output TrigPathA (Jet Sort)
+    {0x706,32},     // WheelNegEtaJet: Test (deprecated)  (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
+    {0x707,4},      // WheelNegEtaJet: Info (deprecated)  (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
+    // Wheel Neg-eta Energy FPGA
+    {0x780,21},     // WheelNegEtaEnergy: Input TrigPathA (Et)
+    {0x781,3},      // WheelNegEtaEnergy: Input TrigPathB (Ht)
+    {0x783,7},      // WheelNegEtaEnergy: Output TrigPathA (Et)
+    {0x785,2},      // WheelNegEtaEnergy: Output TrigPathB (Ht)
+    {0x786,32},     // WheelNegEtaEnergy: Test
+    {0x787,6},      // WheelNegEtaEnergy: BX & Orbit Info   (Potential data incompatibility between V24/V25 where block length=4, and V27.1 where block length=6)
+    // Jet Leaf FPGAs - Positive Eta 
+    {0x900,12},     // Leaf1JetPosEtaU1: JF2 Input
+    {0x901,3},      // Leaf1JetPosEtaU1: JF2 Shared Received
+    {0x902,3},      // Leaf1JetPosEtaU1: JF2 Shared Sent
+    {0x903,10},     // Leaf1JetPosEtaU1: JF2 Output
+    {0x904,8},      // Leaf1JetPosEtaU1: JF2 Raw Input
+    {0x908,12},     // Leaf1JetPosEtaU1: JF3 Input
+    {0x909,3},      // Leaf1JetPosEtaU1: JF3 Shared Received
+    {0x90a,3},      // Leaf1JetPosEtaU1: JF3 Shared Sent
+    {0x90b,10},     // Leaf1JetPosEtaU1: JF3 Output
+    {0x90c,8},      // Leaf1JetPosEtaU1: JF3 Raw Input
+    {0x980,3},      // Leaf1JetPosEtaU2: Eta0 Input
+    {0x984,6},      // Leaf1JetPosEtaU2: Eta0 Raw Input
+    {0x988,12},     // Leaf1JetPosEtaU2: JF1 Input
+    {0x989,3},      // Leaf1JetPosEtaU2: JF1 Shared Received
+    {0x98a,3},      // Leaf1JetPosEtaU2: JF1 Shared Sent
+    {0x98b,10},     // Leaf1JetPosEtaU2: JF1 Output
+    {0x98c,8},      // Leaf1JetPosEtaU2: JF1 Raw Input
+    {0xa00,12},     // Leaf2JetPosEtaU1: JF2 Input
+    {0xa01,3},      // Leaf2JetPosEtaU1: JF2 Shared Received
+    {0xa02,3},      // Leaf2JetPosEtaU1: JF2 Shared Sent
+    {0xa03,10},     // Leaf2JetPosEtaU1: JF2 Output
+    {0xa04,8},      // Leaf2JetPosEtaU1: JF2 Raw Input
+    {0xa08,12},     // Leaf2JetPosEtaU1: JF3 Input
+    {0xa09,3},      // Leaf2JetPosEtaU1: JF3 Shared Received
+    {0xa0a,3},      // Leaf2JetPosEtaU1: JF3 Shared Sent
+    {0xa0b,10},     // Leaf2JetPosEtaU1: JF3 Output
+    {0xa0c,8},      // Leaf2JetPosEtaU1: JF3 Raw Input
+    {0xa80,3},      // Leaf2JetPosEtaU2: Eta0 Input
+    {0xa84,6},      // Leaf2JetPosEtaU2: Eta0 Raw Input
+    {0xa88,12},     // Leaf2JetPosEtaU2: JF1 Input
+    {0xa89,3},      // Leaf2JetPosEtaU2: JF1 Shared Received
+    {0xa8a,3},      // Leaf2JetPosEtaU2: JF1 Shared Sent
+    {0xa8b,10},     // Leaf2JetPosEtaU2: JF1 Output
+    {0xa8c,8},      // Leaf2JetPosEtaU2: JF1 Raw Input
+    {0xb00,12},     // Leaf3JetPosEtaU1: JF2 Input
+    {0xb01,3},      // Leaf3JetPosEtaU1: JF2 Shared Received
+    {0xb02,3},      // Leaf3JetPosEtaU1: JF2 Shared Sent
+    {0xb03,10},     // Leaf3JetPosEtaU1: JF2 Output
+    {0xb04,8},      // Leaf3JetPosEtaU1: JF2 Raw Input
+    {0xb08,12},     // Leaf3JetPosEtaU1: JF3 Input
+    {0xb09,3},      // Leaf3JetPosEtaU1: JF3 Shared Received
+    {0xb0a,3},      // Leaf3JetPosEtaU1: JF3 Shared Sent
+    {0xb0b,10},     // Leaf3JetPosEtaU1: JF3 Output
+    {0xb0c,8},      // Leaf3JetPosEtaU1: JF3 Raw Input
+    {0xb80,3},      // Leaf3JetPosEtaU2: Eta0 Input
+    {0xb84,6},      // Leaf3JetPosEtaU2: Eta0 Raw Input
+    {0xb88,12},     // Leaf3JetPosEtaU2: JF1 Input
+    {0xb89,3},      // Leaf3JetPosEtaU2: JF1 Shared Received
+    {0xb8a,3},      // Leaf3JetPosEtaU2: JF1 Shared Sent
+    {0xb8b,10},     // Leaf3JetPosEtaU2: JF1 Output
+    {0xb8c,8},      // Leaf3JetPosEtaU2: JF1 Raw Input
+    // Jet Leaf FPGAs - Negative Eta 
+    {0xd00,12},     // Leaf1JetNegEtaU1: JF2 Input
+    {0xd01,3},      // Leaf1JetNegEtaU1: JF2 Shared Received
+    {0xd02,3},      // Leaf1JetNegEtaU1: JF2 Shared Sent
+    {0xd03,10},     // Leaf1JetNegEtaU1: JF2 Output
+    {0xd04,8},      // Leaf1JetNegEtaU1: JF2 Raw Input
+    {0xd08,12},     // Leaf1JetNegEtaU1: JF3 Input
+    {0xd09,3},      // Leaf1JetNegEtaU1: JF3 Shared Received
+    {0xd0a,3},      // Leaf1JetNegEtaU1: JF3 Shared Sent
+    {0xd0b,10},     // Leaf1JetNegEtaU1: JF3 Output
+    {0xd0c,8},      // Leaf1JetNegEtaU1: JF3 Raw Input
+    {0xd80,3},      // Leaf1JetNegEtaU2: Eta0 Input
+    {0xd84,6},      // Leaf1JetNegEtaU2: Eta0 Raw Input
+    {0xd88,12},     // Leaf1JetNegEtaU2: JF1 Input
+    {0xd89,3},      // Leaf1JetNegEtaU2: JF1 Shared Received
+    {0xd8a,3},      // Leaf1JetNegEtaU2: JF1 Shared Sent
+    {0xd8b,10},     // Leaf1JetNegEtaU2: JF1 Output
+    {0xd8c,8},      // Leaf1JetNegEtaU2: JF1 Raw Input
+    {0xe00,12},     // Leaf2JetNegEtaU1: JF2 Input
+    {0xe01,3},      // Leaf2JetNegEtaU1: JF2 Shared Received
+    {0xe02,3},      // Leaf2JetNegEtaU1: JF2 Shared Sent
+    {0xe03,10},     // Leaf2JetNegEtaU1: JF2 Output
+    {0xe04,8},      // Leaf2JetNegEtaU1: JF2 Raw Input
+    {0xe08,12},     // Leaf2JetNegEtaU1: JF3 Input
+    {0xe09,3},      // Leaf2JetNegEtaU1: JF3 Shared Received
+    {0xe0a,3},      // Leaf2JetNegEtaU1: JF3 Shared Sent
+    {0xe0b,10},     // Leaf2JetNegEtaU1: JF3 Output
+    {0xe0c,8},      // Leaf2JetNegEtaU1: JF3 Raw Input
+    {0xe80,3},      // Leaf2JetNegEtaU2: Eta0 Input
+    {0xe84,6},      // Leaf2JetNegEtaU2: Eta0 Raw Input
+    {0xe88,12},     // Leaf2JetNegEtaU2: JF1 Input
+    {0xe89,3},      // Leaf2JetNegEtaU2: JF1 Shared Received
+    {0xe8a,3},      // Leaf2JetNegEtaU2: JF1 Shared Sent
+    {0xe8b,10},     // Leaf2JetNegEtaU2: JF1 Output
+    {0xe8c,8},      // Leaf2JetNegEtaU2: JF1 Raw Input
+    {0xf00,12},     // Leaf3JetNegEtaU1: JF2 Input
+    {0xf01,3},      // Leaf3JetNegEtaU1: JF2 Shared Received
+    {0xf02,3},      // Leaf3JetNegEtaU1: JF2 Shared Sent
+    {0xf03,10},     // Leaf3JetNegEtaU1: JF2 Output
+    {0xf04,8},      // Leaf3JetNegEtaU1: JF2 Raw Input
+    {0xf08,12},     // Leaf3JetNegEtaU1: JF3 Input
+    {0xf09,3},      // Leaf3JetNegEtaU1: JF3 Shared Received
+    {0xf0a,3},      // Leaf3JetNegEtaU1: JF3 Shared Sent
+    {0xf0b,10},     // Leaf3JetNegEtaU1: JF3 Output
+    {0xf0c,8},      // Leaf3JetNegEtaU1: JF3 Raw Input
+    {0xf80,3},      // Leaf3JetNegEtaU2: Eta0 Input
+    {0xf84,6},      // Leaf3JetNegEtaU2: Eta0 Raw Input
+    {0xf88,12},     // Leaf3JetNegEtaU2: JF1 Input    
+    {0xf89,3},      // Leaf3JetNegEtaU2: JF1 Shared Received
+    {0xf8a,3},      // Leaf3JetNegEtaU2: JF1 Shared Sent
+    {0xf8b,10},     // Leaf3JetNegEtaU2: JF1 Output
+    {0xf8c,8}       // Leaf3JetNegEtaU2: JF1 Raw Input
+};
+
+/*** Setup BlockID to BlockName Map ***/
+const GctFormatTranslateV35::BlockNameMap GctFormatTranslateV35::m_blockName ={
+    // Miscellaneous Blocks
+    {0x000,"NULL"},
+    // ConcJet FPGA
+    {0x580,"ConcJet: Input TrigPathA (Jet Cands)"},
+    {0x581,"ConcJet: Input TrigPathB (HF Rings)"},
+    {0x583,"ConcJet: Jet Cands and Counts Output to GT"},
+    {0x587,"ConcJet: BX & Orbit Info"},
+    // ConcElec FPGA
+    {0x680,"ConcElec: Input TrigPathA (EM Cands)"},
+    {0x681,"ConcElec: Input TrigPathB (Et Sums)"},
+    {0x682,"ConcElec: Input TrigPathC (Ht Sums)"},
+    {0x683,"ConcElec: EM Cands and Energy Sums Output to GT"},
+    {0x686,"ConcElec: Test (GT Serdes Loopback)"},
+    {0x687,"ConcElec: BX & Orbit Info"},
+    // Electron Leaf FPGAs
+    {0x800,"Leaf0ElecPosEtaU1: Sort Input"},
+    {0x803,"Leaf0ElecPosEtaU1: Sort Output"},
+    {0x804,"Leaf0ElecPosEtaU1: Raw Input"},
+    {0x880,"Leaf0ElecPosEtaU2: Sort Input"},
+    {0x883,"Leaf0ElecPosEtaU2: Sort Output"},
+    {0x884,"Leaf0ElecPosEtaU2: Raw Input"},
+    {0xc00,"Leaf0ElecNegEtaU1: Sort Input"},
+    {0xc03,"Leaf0ElecNegEtaU1: Sort Output"},
+    {0xc04,"Leaf0ElecNegEtaU1: Raw Input"},
+    {0xc80,"Leaf0ElecNegEtaU2: Sort Input"},
+    {0xc83,"Leaf0ElecNegEtaU2: Sort Output"},
+    {0xc84,"Leaf0ElecNegEtaU2: Raw Input"},
+    // Wheel Pos-eta Jet FPGA
+    {0x300,"WheelPosEtaJet: Input TrigPathA (Jet Sort)"},
+    {0x303,"WheelPosEtaJet: Output TrigPathA (Jet Sort)"},
+    {0x306,"WheelPosEtaJet: Test (deprecated)"},  // (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
+    {0x307,"WheelPosEtaJet: Info (deprecated)"},  // (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
+    // Wheel Pos-eta Energy FPGA
+    {0x380,"WheelPosEtaEnergy: Input TrigPathA (Et)"},
+    {0x381,"WheelPosEtaEnergy: Input TrigPathB (Ht)"},
+    {0x383,"WheelPosEtaEnergy: Output TrigPathA (Et)"},
+    {0x385,"WheelPosEtaEnergy: Output TrigPathB (Ht)"},
+    {0x386,"WheelPosEtaEnergy: Test"},
+    {0x387,"WheelPosEtaEnergy: BX & Orbit Info"},
+    // Wheel Neg-eta Jet FPGA
+    {0x700,"WheelNegEtaJet: Input TrigPathA (Jet Sort)"},
+    {0x703,"WheelNegEtaJet: Output TrigPathA (Jet Sort)"},
+    {0x706,"WheelNegEtaJet: Test (deprecated)"},  // (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
+    {0x707,"WheelNegEtaJet: Info (deprecated)"},  // (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
+    // Wheel Neg-eta Energy FPGA
+    {0x780,"WheelNegEtaEnergy: Input TrigPathA (Et)"},
+    {0x781,"WheelNegEtaEnergy: Input TrigPathB (Ht)"},
+    {0x783,"WheelNegEtaEnergy: Output TrigPathA (Et)"},
+    {0x785,"WheelNegEtaEnergy: Output TrigPathB (Ht)"},
+    {0x786,"WheelNegEtaEnergy: Test"},
+    {0x787,"WheelNegEtaEnergy: BX & Orbit Info"},
+    // Jet Leaf FPGAs - Positive Eta
+    {0x900,"Leaf1JetPosEtaU1: JF2 Input"},
+    {0x901,"Leaf1JetPosEtaU1: JF2 Shared Received"},
+    {0x902,"Leaf1JetPosEtaU1: JF2 Shared Sent"},
+    {0x903,"Leaf1JetPosEtaU1: JF2 Output"},
+    {0x904,"Leaf1JetPosEtaU1: JF2 Raw Input"},
+    {0x908,"Leaf1JetPosEtaU1: JF3 Input"},
+    {0x909,"Leaf1JetPosEtaU1: JF3 Shared Received"},
+    {0x90a,"Leaf1JetPosEtaU1: JF3 Shared Sent"},
+    {0x90b,"Leaf1JetPosEtaU1: JF3 Output"},
+    {0x90c,"Leaf1JetPosEtaU1: JF3 Raw Input"},
+    {0x980,"Leaf1JetPosEtaU2: Eta0 Input"},  // Next Leaf Start
+    {0x984,"Leaf1JetPosEtaU2: Eta0 Raw Input"},
+    {0x988,"Leaf1JetPosEtaU2: JF1 Input"},
+    {0x989,"Leaf1JetPosEtaU2: JF1 Shared Received"},
+    {0x98a,"Leaf1JetPosEtaU2: JF1 Shared Sent"},
+    {0x98b,"Leaf1JetPosEtaU2: JF1 Output"},
+    {0x98c,"Leaf1JetPosEtaU2: JF1 Raw Input"},
+    {0xa00,"Leaf2JetPosEtaU1: JF2 Input"},  // Next Leaf Start
+    {0xa01,"Leaf2JetPosEtaU1: JF2 Shared Received"},
+    {0xa02,"Leaf2JetPosEtaU1: JF2 Shared Sent"},
+    {0xa03,"Leaf2JetPosEtaU1: JF2 Output"},
+    {0xa04,"Leaf2JetPosEtaU1: JF2 Raw Input"},
+    {0xa08,"Leaf2JetPosEtaU1: JF3 Input"},
+    {0xa09,"Leaf2JetPosEtaU1: JF3 Shared Received"},
+    {0xa0a,"Leaf2JetPosEtaU1: JF3 Shared Sent"},
+    {0xa0b,"Leaf2JetPosEtaU1: JF3 Output"},
+    {0xa0c,"Leaf2JetPosEtaU1: JF3 Raw Input"},
+    {0xa80,"Leaf2JetPosEtaU2: Eta0 Input"},  // Next Leaf Start
+    {0xa84,"Leaf2JetPosEtaU2: Eta0 Raw Input"},
+    {0xa88,"Leaf2JetPosEtaU2: JF1 Input"},
+    {0xa89,"Leaf2JetPosEtaU2: JF1 Shared Received"},
+    {0xa8a,"Leaf2JetPosEtaU2: JF1 Shared Sent"},
+    {0xa8b,"Leaf2JetPosEtaU2: JF1 Output"},
+    {0xa8c,"Leaf2JetPosEtaU2: JF1 Raw Input"},
+    {0xb00,"Leaf3JetPosEtaU1: JF2 Input"},  // Next Leaf Start
+    {0xb01,"Leaf3JetPosEtaU1: JF2 Shared Received"},
+    {0xb02,"Leaf3JetPosEtaU1: JF2 Shared Sent"},
+    {0xb03,"Leaf3JetPosEtaU1: JF2 Output"},
+    {0xb04,"Leaf3JetPosEtaU1: JF2 Raw Input"},
+    {0xb08,"Leaf3JetPosEtaU1: JF3 Input"},
+    {0xb09,"Leaf3JetPosEtaU1: JF3 Shared Received"},
+    {0xb0a,"Leaf3JetPosEtaU1: JF3 Shared Sent"},
+    {0xb0b,"Leaf3JetPosEtaU1: JF3 Output"},
+    {0xb0c,"Leaf3JetPosEtaU1: JF3 Raw Input"},
+    {0xb80,"Leaf3JetPosEtaU2: Eta0 Input"},  // Next Leaf Start
+    {0xb84,"Leaf3JetPosEtaU2: Eta0 Raw Input"},
+    {0xb88,"Leaf3JetPosEtaU2: JF1 Input"},
+    {0xb89,"Leaf3JetPosEtaU2: JF1 Shared Received"},
+    {0xb8a,"Leaf3JetPosEtaU2: JF1 Shared Sent"},
+    {0xb8b,"Leaf3JetPosEtaU2: JF1 Output"},
+    {0xb8c,"Leaf3JetPosEtaU2: JF1 Raw Input"},
+    // Jet Leaf FPGAs - Negative Eta
+    {0xd00,"Leaf1JetNegEtaU1: JF2 Input"},       // START OF NEG ETA JET LEAVES
+    {0xd01,"Leaf1JetNegEtaU1: JF2 Shared Received"},
+    {0xd02,"Leaf1JetNegEtaU1: JF2 Shared Sent"},
+    {0xd03,"Leaf1JetNegEtaU1: JF2 Output"},
+    {0xd04,"Leaf1JetNegEtaU1: JF2 Raw Input"},
+    {0xd08,"Leaf1JetNegEtaU1: JF3 Input"},
+    {0xd09,"Leaf1JetNegEtaU1: JF3 Shared Received"},
+    {0xd0a,"Leaf1JetNegEtaU1: JF3 Shared Sent"},
+    {0xd0b,"Leaf1JetNegEtaU1: JF3 Output"},
+    {0xd0c,"Leaf1JetNegEtaU1: JF3 Raw Input"},
+    {0xd80,"Leaf1JetNegEtaU2: Eta0 Input"},  // Next Leaf Start
+    {0xd84,"Leaf1JetNegEtaU2: Eta0 Raw Input"},
+    {0xd88,"Leaf1JetNegEtaU2: JF1 Input"},
+    {0xd89,"Leaf1JetNegEtaU2: JF1 Shared Received"},
+    {0xd8a,"Leaf1JetNegEtaU2: JF1 Shared Sent"},
+    {0xd8b,"Leaf1JetNegEtaU2: JF1 Output"},
+    {0xd8c,"Leaf1JetNegEtaU2: JF1 Raw Input"},
+    {0xe00,"Leaf2JetNegEtaU1: JF2 Input"},  // Next Leaf Start
+    {0xe01,"Leaf2JetNegEtaU1: JF2 Shared Received"},
+    {0xe02,"Leaf2JetNegEtaU1: JF2 Shared Sent"},
+    {0xe03,"Leaf2JetNegEtaU1: JF2 Output"},
+    {0xe04,"Leaf2JetNegEtaU1: JF2 Raw Input"},
+    {0xe08,"Leaf2JetNegEtaU1: JF3 Input"},
+    {0xe09,"Leaf2JetNegEtaU1: JF3 Shared Received"},
+    {0xe0a,"Leaf2JetNegEtaU1: JF3 Shared Sent"},
+    {0xe0b,"Leaf2JetNegEtaU1: JF3 Output"},
+    {0xe0c,"Leaf2JetNegEtaU1: JF3 Raw Input"},
+    {0xe80,"Leaf2JetNegEtaU2: Eta0 Input"},  // Next Leaf Start
+    {0xe84,"Leaf2JetNegEtaU2: Eta0 Raw Input"},
+    {0xe88,"Leaf2JetNegEtaU2: JF1 Input"},
+    {0xe89,"Leaf2JetNegEtaU2: JF1 Shared Received"},
+    {0xe8a,"Leaf2JetNegEtaU2: JF1 Shared Sent"},
+    {0xe8b,"Leaf2JetNegEtaU2: JF1 Output"},
+    {0xe8c,"Leaf2JetNegEtaU2: JF1 Raw Input"},
+    {0xf00,"Leaf3JetNegEtaU1: JF2 Input"},  // Next Leaf Start
+    {0xf01,"Leaf3JetNegEtaU1: JF2 Shared Received"},
+    {0xf02,"Leaf3JetNegEtaU1: JF2 Shared Sent"},
+    {0xf03,"Leaf3JetNegEtaU1: JF2 Output"},
+    {0xf04,"Leaf3JetNegEtaU1: JF2 Raw Input"},
+    {0xf08,"Leaf3JetNegEtaU1: JF3 Input"},
+    {0xf09,"Leaf3JetNegEtaU1: JF3 Shared Received"},
+    {0xf0a,"Leaf3JetNegEtaU1: JF3 Shared Sent"},
+    {0xf0b,"Leaf3JetNegEtaU1: JF3 Output"},
+    {0xf0c,"Leaf3JetNegEtaU1: JF3 Raw Input"},
+    {0xf80,"Leaf3JetNegEtaU2: Eta0 Input"},  // Next Leaf Start
+    {0xf84,"Leaf3JetNegEtaU2: Eta0 Raw Input"},
+    {0xf88,"Leaf3JetNegEtaU2: JF1 Input"},
+    {0xf89,"Leaf3JetNegEtaU2: JF1 Shared Received"},
+    {0xf8a,"Leaf3JetNegEtaU2: JF1 Shared Sent"},
+    {0xf8b,"Leaf3JetNegEtaU2: JF1 Output"},
+    {0xf8c,"Leaf3JetNegEtaU2: JF1 Raw Input"}
+};
+
+/*** Setup BlockID to Unpack-Function Map ***/
+const GctFormatTranslateV35::BlockIdToUnpackFnMap GctFormatTranslateV35::m_blockUnpackFn = {
+    // Miscellaneous Blocks
+    {0x000,&GctFormatTranslateV35::blockDoNothing},                    // NULL
+    // ConcJet FPGA                                                             
+    {0x580,&GctFormatTranslateV35::blockToGctTrigObjects},             // ConcJet: Input TrigPathA (Jet Cands)
+    {0x581,&GctFormatTranslateV35::blockToGctInternRingSums},          // ConcJet: Input TrigPathB (HF Rings)
+    {0x583,&GctFormatTranslateV35::blockToGctJetCandsAndCounts},       // ConcJet: Jet Cands and Counts Output to GT
+    {0x587,&GctFormatTranslateV35::blockDoNothing},                    // ConcJet: BX & Orbit Info
+    // ConcElec FPGA                                                            
+    {0x680,&GctFormatTranslateV35::blockToGctInternEmCand},            // ConcElec: Input TrigPathA (EM Cands)
+    {0x681,&GctFormatTranslateV35::blockToGctInternEtSums},            // ConcElec: Input TrigPathB (Et Sums)
+    {0x682,&GctFormatTranslateV35::blockToGctInternEtSums},            // ConcElec: Input TrigPathC (Ht Sums)
+    {0x683,&GctFormatTranslateV35::blockToGctEmCandsAndEnergySums},    // ConcElec: EM Cands and Energy Sums Output to GT
+    {0x686,&GctFormatTranslateV35::blockDoNothing},                    // ConcElec: Test (GT Serdes Loopback)
+    {0x687,&GctFormatTranslateV35::blockDoNothing},                    // ConcElec: BX & Orbit Info
+    // Electron Leaf FPGAs                                                      
+    {0x800,&GctFormatTranslateV35::blockToGctInternEmCand},            // Leaf0ElecPosEtaU1: Sort Input
+    {0x803,&GctFormatTranslateV35::blockToGctInternEmCand},            // Leaf0ElecPosEtaU1: Sort Output
+    {0x804,&GctFormatTranslateV35::blockToFibresAndToRctEmCand},       // Leaf0ElecPosEtaU1: Raw Input
+    {0x880,&GctFormatTranslateV35::blockToGctInternEmCand},            // Leaf0ElecPosEtaU2: Sort Input
+    {0x883,&GctFormatTranslateV35::blockToGctInternEmCand},            // Leaf0ElecPosEtaU2: Sort Output
+    {0x884,&GctFormatTranslateV35::blockToFibresAndToRctEmCand},       // Leaf0ElecPosEtaU2: Raw Input
+    {0xc00,&GctFormatTranslateV35::blockToGctInternEmCand},            // Leaf0ElecNegEtaU1: Sort Input
+    {0xc03,&GctFormatTranslateV35::blockToGctInternEmCand},            // Leaf0ElecNegEtaU1: Sort Output
+    {0xc04,&GctFormatTranslateV35::blockToFibresAndToRctEmCand},       // Leaf0ElecNegEtaU1: Raw Input
+    {0xc80,&GctFormatTranslateV35::blockToGctInternEmCand},            // Leaf0ElecNegEtaU2: Sort Input
+    {0xc83,&GctFormatTranslateV35::blockToGctInternEmCand},            // Leaf0ElecNegEtaU2: Sort Output
+    {0xc84,&GctFormatTranslateV35::blockToFibresAndToRctEmCand},       // Leaf0ElecNegEtaU2: Raw Input
+    // Wheel Pos-eta Jet FPGA                                                   
+    {0x300,&GctFormatTranslateV35::blockToGctJetClusterMinimal},       // WheelPosEtaJet: Input TrigPathA (Jet Sort)
+    {0x303,&GctFormatTranslateV35::blockToGctTrigObjects},             // WheelPosEtaJet: Output TrigPathA (Jet Sort)
+    {0x306,&GctFormatTranslateV35::blockDoNothing},                    // WheelPosEtaJet: Test (deprecated)  (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
+    {0x307,&GctFormatTranslateV35::blockDoNothing},                    // WheelPosEtaJet: Info (deprecated)  (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
+    // Wheel Pos-eta Energy FPGA                                                
+    {0x380,&GctFormatTranslateV35::blockToGctWheelInputInternEtAndRingSums},     // WheelPosEtaEnergy: Input TrigPathA (Et)
+    {0x381,&GctFormatTranslateV35::blockToGctInternEtSums},            // WheelPosEtaEnergy: Input TrigPathB (Ht)
+    {0x383,&GctFormatTranslateV35::blockToGctWheelOutputInternEtAndRingSums},     // WheelPosEtaEnergy: Output TrigPathA (Et)
+    {0x385,&GctFormatTranslateV35::blockToGctInternEtSums},            // WheelPosEtaEnergy: Output TrigPathB (Ht)
+    {0x386,&GctFormatTranslateV35::blockDoNothing},                    // WheelPosEtaEnergy: Test
+    {0x387,&GctFormatTranslateV35::blockDoNothing},                    // WheelPosEtaEnergy: BX & Orbit Info   (Potential data incompatibility between V24/V25 where block length=4, and V27.1 where block length=6)
+    // Wheel Neg-eta Jet FPGA                                                   
+    {0x700,&GctFormatTranslateV35::blockToGctJetClusterMinimal},       // WheelNegEtaJet: Input TrigPathA (Jet Sort)
+    {0x703,&GctFormatTranslateV35::blockToGctTrigObjects},             // WheelNegEtaJet: Output TrigPathA (Jet Sort)
+    {0x706,&GctFormatTranslateV35::blockDoNothing},                    // WheelNegEtaJet: Test (deprecated)  (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
+    {0x707,&GctFormatTranslateV35::blockDoNothing},                    // WheelNegEtaJet: Info (deprecated)  (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
+    // Wheel Neg-eta Energy FPGA                                                
+    {0x780,&GctFormatTranslateV35::blockToGctWheelInputInternEtAndRingSums},     // WheelNegEtaEnergy: Input TrigPathA (Et)
+    {0x781,&GctFormatTranslateV35::blockToGctInternEtSums},            // WheelNegEtaEnergy: Input TrigPathB (Ht)
+    {0x783,&GctFormatTranslateV35::blockToGctWheelOutputInternEtAndRingSums},     // WheelNegEtaEnergy: Output TrigPathA (Et)
+    {0x785,&GctFormatTranslateV35::blockToGctInternEtSums},            // WheelNegEtaEnergy: Output TrigPathB (Ht)
+    {0x786,&GctFormatTranslateV35::blockDoNothing},                    // WheelNegEtaEnergy: Test
+    {0x787,&GctFormatTranslateV35::blockDoNothing},                    // WheelNegEtaEnergy: BX & Orbit Info   (Potential data incompatibility between V24/V25 where block length=4, and V27.1 where block length=6)
+    // Jet Leaf FPGAs - Positive Eta
+    {0x900,&GctFormatTranslateV35::blockToRctCaloRegions},             // Leaf1JetPosEtaU1: JF2 Input
+    {0x901,&GctFormatTranslateV35::blockToGctJetPreCluster},           // Leaf1JetPosEtaU1: JF2 Shared Received
+    {0x902,&GctFormatTranslateV35::blockToGctJetPreCluster},           // Leaf1JetPosEtaU1: JF2 Shared Sent
+    {0x903,&GctFormatTranslateV35::blockToGctInternEtSumsAndJetCluster},// Leaf1JetPosEtaU1: JF2 Output
+    {0x904,&GctFormatTranslateV35::blockToFibres},                     // Leaf1JetPosEtaU1: JF2 Raw Input
+    {0x908,&GctFormatTranslateV35::blockToRctCaloRegions},             // Leaf1JetPosEtaU1: JF3 Input
+    {0x909,&GctFormatTranslateV35::blockToGctJetPreCluster},           // Leaf1JetPosEtaU1: JF3 Shared Received
+    {0x90a,&GctFormatTranslateV35::blockToGctJetPreCluster},           // Leaf1JetPosEtaU1: JF3 Shared Sent
+    {0x90b,&GctFormatTranslateV35::blockToGctInternEtSumsAndJetCluster},// Leaf1JetPosEtaU1: JF3 Output
+    {0x90c,&GctFormatTranslateV35::blockToFibres},                     // Leaf1JetPosEtaU1: JF3 Raw Input
+    {0x980,&GctFormatTranslateV35::blockDoNothing},                    // Leaf1JetPosEtaU2: Eta0 Input
+    {0x984,&GctFormatTranslateV35::blockToFibres},                     // Leaf1JetPosEtaU2: Eta0 Raw Input
+    {0x988,&GctFormatTranslateV35::blockToRctCaloRegions},             // Leaf1JetPosEtaU2: JF1 Input
+    {0x989,&GctFormatTranslateV35::blockToGctJetPreCluster},           // Leaf1JetPosEtaU2: JF1 Shared Received
+    {0x98a,&GctFormatTranslateV35::blockToGctJetPreCluster},           // Leaf1JetPosEtaU2: JF1 Shared Sent
+    {0x98b,&GctFormatTranslateV35::blockToGctInternEtSumsAndJetCluster},// Leaf1JetPosEtaU2: JF1 Output
+    {0x98c,&GctFormatTranslateV35::blockToFibres},                     // Leaf1JetPosEtaU2: JF1 Raw Input
+    {0xa00,&GctFormatTranslateV35::blockToRctCaloRegions},             // Leaf2JetPosEtaU1: JF2 Input
+    {0xa01,&GctFormatTranslateV35::blockToGctJetPreCluster},           // Leaf2JetPosEtaU1: JF2 Shared Received
+    {0xa02,&GctFormatTranslateV35::blockToGctJetPreCluster},           // Leaf2JetPosEtaU1: JF2 Shared Sent
+    {0xa03,&GctFormatTranslateV35::blockToGctInternEtSumsAndJetCluster},// Leaf2JetPosEtaU1: JF2 Output
+    {0xa04,&GctFormatTranslateV35::blockToFibres},                     // Leaf2JetPosEtaU1: JF2 Raw Input
+    {0xa08,&GctFormatTranslateV35::blockToRctCaloRegions},             // Leaf2JetPosEtaU1: JF3 Input
+    {0xa09,&GctFormatTranslateV35::blockToGctJetPreCluster},           // Leaf2JetPosEtaU1: JF3 Shared Received
+    {0xa0a,&GctFormatTranslateV35::blockToGctJetPreCluster},           // Leaf2JetPosEtaU1: JF3 Shared Sent
+    {0xa0b,&GctFormatTranslateV35::blockToGctInternEtSumsAndJetCluster},// Leaf2JetPosEtaU1: JF3 Output
+    {0xa0c,&GctFormatTranslateV35::blockToFibres},                     // Leaf2JetPosEtaU1: JF3 Raw Input
+    {0xa80,&GctFormatTranslateV35::blockDoNothing},                    // Leaf2JetPosEtaU2: Eta0 Input
+    {0xa84,&GctFormatTranslateV35::blockToFibres},                     // Leaf2JetPosEtaU2: Eta0 Raw Input
+    {0xa88,&GctFormatTranslateV35::blockToRctCaloRegions},             // Leaf2JetPosEtaU2: JF1 Input
+    {0xa89,&GctFormatTranslateV35::blockToGctJetPreCluster},           // Leaf2JetPosEtaU2: JF1 Shared Received
+    {0xa8a,&GctFormatTranslateV35::blockToGctJetPreCluster},           // Leaf2JetPosEtaU2: JF1 Shared Sent
+    {0xa8b,&GctFormatTranslateV35::blockToGctInternEtSumsAndJetCluster},// Leaf2JetPosEtaU2: JF1 Output
+    {0xa8c,&GctFormatTranslateV35::blockToFibres},                     // Leaf2JetPosEtaU2: JF1 Raw Input
+    {0xb00,&GctFormatTranslateV35::blockToRctCaloRegions},             // Leaf3JetPosEtaU1: JF2 Input
+    {0xb01,&GctFormatTranslateV35::blockToGctJetPreCluster},           // Leaf3JetPosEtaU1: JF2 Shared Received
+    {0xb02,&GctFormatTranslateV35::blockToGctJetPreCluster},           // Leaf3JetPosEtaU1: JF2 Shared Sent
+    {0xb03,&GctFormatTranslateV35::blockToGctInternEtSumsAndJetCluster},// Leaf3JetPosEtaU1: JF2 Output
+    {0xb04,&GctFormatTranslateV35::blockToFibres},                     // Leaf3JetPosEtaU1: JF2 Raw Input
+    {0xb08,&GctFormatTranslateV35::blockToRctCaloRegions},             // Leaf3JetPosEtaU1: JF3 Input
+    {0xb09,&GctFormatTranslateV35::blockToGctJetPreCluster},           // Leaf3JetPosEtaU1: JF3 Shared Received
+    {0xb0a,&GctFormatTranslateV35::blockToGctJetPreCluster},           // Leaf3JetPosEtaU1: JF3 Shared Sent
+    {0xb0b,&GctFormatTranslateV35::blockToGctInternEtSumsAndJetCluster},// Leaf3JetPosEtaU1: JF3 Output
+    {0xb0c,&GctFormatTranslateV35::blockToFibres},                     // Leaf3JetPosEtaU1: JF3 Raw Input
+    {0xb80,&GctFormatTranslateV35::blockDoNothing},                    // Leaf3JetPosEtaU2: Eta0 Input
+    {0xb84,&GctFormatTranslateV35::blockToFibres},                     // Leaf3JetPosEtaU2: Eta0 Raw Input
+    {0xb88,&GctFormatTranslateV35::blockToRctCaloRegions},             // Leaf3JetPosEtaU2: JF1 Input
+    {0xb89,&GctFormatTranslateV35::blockToGctJetPreCluster},           // Leaf3JetPosEtaU2: JF1 Shared Received
+    {0xb8a,&GctFormatTranslateV35::blockToGctJetPreCluster},           // Leaf3JetPosEtaU2: JF1 Shared Sent
+    {0xb8b,&GctFormatTranslateV35::blockToGctInternEtSumsAndJetCluster},// Leaf3JetPosEtaU2: JF1 Output
+    {0xb8c,&GctFormatTranslateV35::blockToFibres},                     // Leaf3JetPosEtaU2: JF1 Raw Input
+    // Jet Leaf FPGAs - Negative Eta
+    {0xd00,&GctFormatTranslateV35::blockToRctCaloRegions},             // Leaf1JetNegEtaU1: JF2 Input
+    {0xd01,&GctFormatTranslateV35::blockToGctJetPreCluster},           // Leaf1JetNegEtaU1: JF2 Shared Received
+    {0xd02,&GctFormatTranslateV35::blockToGctJetPreCluster},           // Leaf1JetNegEtaU1: JF2 Shared Sent
+    {0xd03,&GctFormatTranslateV35::blockToGctInternEtSumsAndJetCluster},// Leaf1JetNegEtaU1: JF2 Output
+    {0xd04,&GctFormatTranslateV35::blockToFibres},                     // Leaf1JetNegEtaU1: JF2 Raw Input
+    {0xd08,&GctFormatTranslateV35::blockToRctCaloRegions},             // Leaf1JetNegEtaU1: JF3 Input
+    {0xd09,&GctFormatTranslateV35::blockToGctJetPreCluster},           // Leaf1JetNegEtaU1: JF3 Shared Received
+    {0xd0a,&GctFormatTranslateV35::blockToGctJetPreCluster},           // Leaf1JetNegEtaU1: JF3 Shared Sent
+    {0xd0b,&GctFormatTranslateV35::blockToGctInternEtSumsAndJetCluster},// Leaf1JetNegEtaU1: JF3 Output
+    {0xd0c,&GctFormatTranslateV35::blockToFibres},                     // Leaf1JetNegEtaU1: JF3 Raw Input
+    {0xd80,&GctFormatTranslateV35::blockDoNothing},                    // Leaf1JetNegEtaU2: Eta0 Input
+    {0xd84,&GctFormatTranslateV35::blockToFibres},                     // Leaf1JetNegEtaU2: Eta0 Raw Input
+    {0xd88,&GctFormatTranslateV35::blockToRctCaloRegions},             // Leaf1JetNegEtaU2: JF1 Input
+    {0xd89,&GctFormatTranslateV35::blockToGctJetPreCluster},           // Leaf1JetNegEtaU2: JF1 Shared Received
+    {0xd8a,&GctFormatTranslateV35::blockToGctJetPreCluster},           // Leaf1JetNegEtaU2: JF1 Shared Sent
+    {0xd8b,&GctFormatTranslateV35::blockToGctInternEtSumsAndJetCluster},// Leaf1JetNegEtaU2: JF1 Output
+    {0xd8c,&GctFormatTranslateV35::blockToFibres},                     // Leaf1JetNegEtaU2: JF1 Raw Input
+    {0xe00,&GctFormatTranslateV35::blockToRctCaloRegions},             // Leaf2JetNegEtaU1: JF2 Input
+    {0xe01,&GctFormatTranslateV35::blockToGctJetPreCluster},           // Leaf2JetNegEtaU1: JF2 Shared Received
+    {0xe02,&GctFormatTranslateV35::blockToGctJetPreCluster},           // Leaf2JetNegEtaU1: JF2 Shared Sent
+    {0xe03,&GctFormatTranslateV35::blockToGctInternEtSumsAndJetCluster},// Leaf2JetNegEtaU1: JF2 Output
+    {0xe04,&GctFormatTranslateV35::blockToFibres},                     // Leaf2JetNegEtaU1: JF2 Raw Input
+    {0xe08,&GctFormatTranslateV35::blockToRctCaloRegions},             // Leaf2JetNegEtaU1: JF3 Input
+    {0xe09,&GctFormatTranslateV35::blockToGctJetPreCluster},           // Leaf2JetNegEtaU1: JF3 Shared Received
+    {0xe0a,&GctFormatTranslateV35::blockToGctJetPreCluster},           // Leaf2JetNegEtaU1: JF3 Shared Sent
+    {0xe0b,&GctFormatTranslateV35::blockToGctInternEtSumsAndJetCluster},// Leaf2JetNegEtaU1: JF3 Output
+    {0xe0c,&GctFormatTranslateV35::blockToFibres},                     // Leaf2JetNegEtaU1: JF3 Raw Input
+    {0xe80,&GctFormatTranslateV35::blockDoNothing},                    // Leaf2JetNegEtaU2: Eta0 Input
+    {0xe84,&GctFormatTranslateV35::blockToFibres},                     // Leaf2JetNegEtaU2: Eta0 Raw Input
+    {0xe88,&GctFormatTranslateV35::blockToRctCaloRegions},             // Leaf2JetNegEtaU2: JF1 Input
+    {0xe89,&GctFormatTranslateV35::blockToGctJetPreCluster},           // Leaf2JetNegEtaU2: JF1 Shared Received
+    {0xe8a,&GctFormatTranslateV35::blockToGctJetPreCluster},           // Leaf2JetNegEtaU2: JF1 Shared Sent
+    {0xe8b,&GctFormatTranslateV35::blockToGctInternEtSumsAndJetCluster},// Leaf2JetNegEtaU2: JF1 Output
+    {0xe8c,&GctFormatTranslateV35::blockToFibres},                     // Leaf2JetNegEtaU2: JF1 Raw Input
+    {0xf00,&GctFormatTranslateV35::blockToRctCaloRegions},             // Leaf3JetNegEtaU1: JF2 Input
+    {0xf01,&GctFormatTranslateV35::blockToGctJetPreCluster},           // Leaf3JetNegEtaU1: JF2 Shared Received
+    {0xf02,&GctFormatTranslateV35::blockToGctJetPreCluster},           // Leaf3JetNegEtaU1: JF2 Shared Sent
+    {0xf03,&GctFormatTranslateV35::blockToGctInternEtSumsAndJetCluster},// Leaf3JetNegEtaU1: JF2 Output
+    {0xf04,&GctFormatTranslateV35::blockToFibres},                     // Leaf3JetNegEtaU1: JF2 Raw Input
+    {0xf08,&GctFormatTranslateV35::blockToRctCaloRegions},             // Leaf3JetNegEtaU1: JF3 Input
+    {0xf09,&GctFormatTranslateV35::blockToGctJetPreCluster},           // Leaf3JetNegEtaU1: JF3 Shared Received
+    {0xf0a,&GctFormatTranslateV35::blockToGctJetPreCluster},           // Leaf3JetNegEtaU1: JF3 Shared Sent
+    {0xf0b,&GctFormatTranslateV35::blockToGctInternEtSumsAndJetCluster},// Leaf3JetNegEtaU1: JF3 Output
+    {0xf0c,&GctFormatTranslateV35::blockToFibres},                     // Leaf3JetNegEtaU1: JF3 Raw Input
+    {0xf80,&GctFormatTranslateV35::blockDoNothing},                    // Leaf3JetNegEtaU2: Eta0 Input
+    {0xf84,&GctFormatTranslateV35::blockToFibres},                     // Leaf3JetNegEtaU2: Eta0 Raw Input
+    {0xf88,&GctFormatTranslateV35::blockToRctCaloRegions},             // Leaf3JetNegEtaU2: JF1 Input
+    {0xf89,&GctFormatTranslateV35::blockToGctJetPreCluster},           // Leaf3JetNegEtaU2: JF1 Shared Received
+    {0xf8a,&GctFormatTranslateV35::blockToGctJetPreCluster},           // Leaf3JetNegEtaU2: JF1 Shared Sent
+    {0xf8b,&GctFormatTranslateV35::blockToGctInternEtSumsAndJetCluster},// Leaf3JetNegEtaU2: JF1 Output
+    {0xf8c,&GctFormatTranslateV35::blockToFibres}                      // Leaf3JetNegEtaU2: JF1 Raw Input
+};
+
+/*** Setup RCT Em Crate Map ***/
+const GctFormatTranslateV35::BlkToRctCrateMap GctFormatTranslateV35::m_rctEmCrate = {
+  {0x804,13},
+  {0x884,9},
+  {0xc04,4},
+  {0xc84,0}
+};
+
+/*** Setup RCT jet crate map. ***/
+const GctFormatTranslateV35::BlkToRctCrateMap GctFormatTranslateV35::m_rctJetCrate = {
+  {0x900,9},  // PosEta Leaf 1 JF2
+    {0x908,10}, // PosEta Leaf 1 JF3
+    {0x988,17}, // PosEta Leaf 1 JF1 
+    {0xa00,12}, // PosEta Leaf 2 JF2
+    {0xa08,13}, // PosEta Leaf 2 JF3
+    {0xa88,11}, // PosEta Leaf 2 JF1 
+    {0xb00,15}, // PosEta Leaf 3 JF2
+    {0xb08,16}, // PosEta Leaf 3 JF3
+    {0xb88,14}, // PosEta Leaf 3 JF1 
+    {0xd00,0},  // NegEta Leaf 1 JF2
+    {0xd08,1},  // NegEta Leaf 1 JF3
+    {0xd88,8},  // NegEta Leaf 1 JF1 
+    {0xe00,3},  // NegEta Leaf 2 JF2
+    {0xe08,4},  // NegEta Leaf 2 JF3
+    {0xe88,2},  // NegEta Leaf 2 JF1 
+    {0xf00,6},  // NegEta Leaf 3 JF2
+    {0xf08,7},  // NegEta Leaf 3 JF3
+    {0xf88,5}   // NegEta Leaf 3 JF1 
+};
+
+/*** Setup Block ID map for pipeline payload positions of isolated Internal EM Cands. ***/
+const GctFormatTranslateV35::BlockIdToEmCandIsoBoundMap GctFormatTranslateV35::m_internEmIsoBounds = {
+    {0x680 , IsoBoundaryPair(8,15)},
+    {0x800 , IsoBoundaryPair(0, 9)},
+    {0x803 , IsoBoundaryPair(0, 1)},
+    {0x880 , IsoBoundaryPair(0, 7)},
+    {0x883 , IsoBoundaryPair(0, 1)},
+    {0xc00 , IsoBoundaryPair(0, 9)},
+    {0xc03 , IsoBoundaryPair(0, 1)},
+    {0xc80 , IsoBoundaryPair(0, 7)},
+    {0xc83 , IsoBoundaryPair(0, 1)}
+};
 
 
 // PUBLIC METHODS
@@ -27,525 +540,6 @@ GctFormatTranslateV35::BlockIdToEmCandIsoBoundMap GctFormatTranslateV35::m_inter
 GctFormatTranslateV35::GctFormatTranslateV35(bool hltMode, bool unpackSharedRegions):
   GctFormatTranslateBase(hltMode, unpackSharedRegions)
 {
-  static bool initClass = true;
-
-  if(initClass)
-  {
-    initClass = false;
-
-    /*** Setup BlockID to BlockLength Map ***/
-    // Miscellaneous Blocks
-    m_blockLength.insert(make_pair(0x000,0));      // NULL
-    // ConcJet FPGA
-    m_blockLength.insert(make_pair(0x580,12));     // ConcJet: Input TrigPathA (Jet Cands)
-    m_blockLength.insert(make_pair(0x581,2));      // ConcJet: Input TrigPathB (HF Rings)
-    m_blockLength.insert(make_pair(0x583,8));      // ConcJet: Jet Cands and Counts Output to GT
-    m_blockLength.insert(make_pair(0x587,4));      // ConcJet: BX & Orbit Info
-    // ConcElec FPGA
-    m_blockLength.insert(make_pair(0x680,16));     // ConcElec: Input TrigPathA (EM Cands)
-    m_blockLength.insert(make_pair(0x681,6));      // ConcElec: Input TrigPathB (Et Sums)
-    m_blockLength.insert(make_pair(0x682,2));      // ConcElec: Input TrigPathC (Ht Sums)
-    m_blockLength.insert(make_pair(0x683,6));      // ConcElec: EM Cands and Energy Sums Output to GT
-    m_blockLength.insert(make_pair(0x686,2));      // ConcElec: Test (GT Serdes Loopback)
-    m_blockLength.insert(make_pair(0x687,4));      // ConcElec: BX & Orbit Info
-    // Electron Leaf FPGAs
-    m_blockLength.insert(make_pair(0x800,20));     // Leaf0ElecPosEtaU1: Sort Input
-    m_blockLength.insert(make_pair(0x803,4));      // Leaf0ElecPosEtaU1: Sort Output
-    m_blockLength.insert(make_pair(0x804,15));     // Leaf0ElecPosEtaU1: Raw Input
-    m_blockLength.insert(make_pair(0x880,16));     // Leaf0ElecPosEtaU2: Sort Input
-    m_blockLength.insert(make_pair(0x883,4));      // Leaf0ElecPosEtaU2: Sort Output
-    m_blockLength.insert(make_pair(0x884,12));     // Leaf0ElecPosEtaU2: Raw Input
-    m_blockLength.insert(make_pair(0xc00,20));     // Leaf0ElecNegEtaU1: Sort Input
-    m_blockLength.insert(make_pair(0xc03,4));      // Leaf0ElecNegEtaU1: Sort Output
-    m_blockLength.insert(make_pair(0xc04,15));     // Leaf0ElecNegEtaU1: Raw Input
-    m_blockLength.insert(make_pair(0xc80,16));     // Leaf0ElecNegEtaU2: Sort Input
-    m_blockLength.insert(make_pair(0xc83,4));      // Leaf0ElecNegEtaU2: Sort Output
-    m_blockLength.insert(make_pair(0xc84,12));     // Leaf0ElecNegEtaU2: Raw Input
-    // Wheel Pos-eta Jet FPGA
-    m_blockLength.insert(make_pair(0x300,27));     // WheelPosEtaJet: Input TrigPathA (Jet Sort)
-    m_blockLength.insert(make_pair(0x303,6));      // WheelPosEtaJet: Output TrigPathA (Jet Sort)
-    m_blockLength.insert(make_pair(0x306,32));     // WheelPosEtaJet: Test (deprecated)  (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
-    m_blockLength.insert(make_pair(0x307,4));      // WheelPosEtaJet: Info (deprecated)  (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
-    // Wheel Pos-eta Energy FPGA
-    m_blockLength.insert(make_pair(0x380,21));     // WheelPosEtaEnergy: Input TrigPathA (Et)
-    m_blockLength.insert(make_pair(0x381,3));      // WheelPosEtaEnergy: Input TrigPathB (Ht)
-    m_blockLength.insert(make_pair(0x383,7));      // WheelPosEtaEnergy: Output TrigPathA (Et)
-    m_blockLength.insert(make_pair(0x385,2));      // WheelPosEtaEnergy: Output TrigPathB (Ht)
-    m_blockLength.insert(make_pair(0x386,32));     // WheelPosEtaEnergy: Test
-    m_blockLength.insert(make_pair(0x387,6));      // WheelPosEtaEnergy: BX & Orbit Info   (Potential data incompatibility between V24/V25 where block length=4, and V27.1 where block length=6)
-    // Wheel Neg-eta Jet FPGA
-    m_blockLength.insert(make_pair(0x700,27));     // WheelNegEtaJet: Input TrigPathA (Jet Sort)
-    m_blockLength.insert(make_pair(0x703,6));      // WheelNegEtaJet: Output TrigPathA (Jet Sort)
-    m_blockLength.insert(make_pair(0x706,32));     // WheelNegEtaJet: Test (deprecated)  (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
-    m_blockLength.insert(make_pair(0x707,4));      // WheelNegEtaJet: Info (deprecated)  (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
-    // Wheel Neg-eta Energy FPGA
-    m_blockLength.insert(make_pair(0x780,21));     // WheelNegEtaEnergy: Input TrigPathA (Et)
-    m_blockLength.insert(make_pair(0x781,3));      // WheelNegEtaEnergy: Input TrigPathB (Ht)
-    m_blockLength.insert(make_pair(0x783,7));      // WheelNegEtaEnergy: Output TrigPathA (Et)
-    m_blockLength.insert(make_pair(0x785,2));      // WheelNegEtaEnergy: Output TrigPathB (Ht)
-    m_blockLength.insert(make_pair(0x786,32));     // WheelNegEtaEnergy: Test
-    m_blockLength.insert(make_pair(0x787,6));      // WheelNegEtaEnergy: BX & Orbit Info   (Potential data incompatibility between V24/V25 where block length=4, and V27.1 where block length=6)
-    // Jet Leaf FPGAs - Positive Eta 
-    m_blockLength.insert(make_pair(0x900,12));     // Leaf1JetPosEtaU1: JF2 Input
-    m_blockLength.insert(make_pair(0x901,3));      // Leaf1JetPosEtaU1: JF2 Shared Received
-    m_blockLength.insert(make_pair(0x902,3));      // Leaf1JetPosEtaU1: JF2 Shared Sent
-    m_blockLength.insert(make_pair(0x903,10));     // Leaf1JetPosEtaU1: JF2 Output
-    m_blockLength.insert(make_pair(0x904,8));      // Leaf1JetPosEtaU1: JF2 Raw Input
-    m_blockLength.insert(make_pair(0x908,12));     // Leaf1JetPosEtaU1: JF3 Input
-    m_blockLength.insert(make_pair(0x909,3));      // Leaf1JetPosEtaU1: JF3 Shared Received
-    m_blockLength.insert(make_pair(0x90a,3));      // Leaf1JetPosEtaU1: JF3 Shared Sent
-    m_blockLength.insert(make_pair(0x90b,10));     // Leaf1JetPosEtaU1: JF3 Output
-    m_blockLength.insert(make_pair(0x90c,8));      // Leaf1JetPosEtaU1: JF3 Raw Input
-    m_blockLength.insert(make_pair(0x980,3));      // Leaf1JetPosEtaU2: Eta0 Input
-    m_blockLength.insert(make_pair(0x984,6));      // Leaf1JetPosEtaU2: Eta0 Raw Input
-    m_blockLength.insert(make_pair(0x988,12));     // Leaf1JetPosEtaU2: JF1 Input
-    m_blockLength.insert(make_pair(0x989,3));      // Leaf1JetPosEtaU2: JF1 Shared Received
-    m_blockLength.insert(make_pair(0x98a,3));      // Leaf1JetPosEtaU2: JF1 Shared Sent
-    m_blockLength.insert(make_pair(0x98b,10));     // Leaf1JetPosEtaU2: JF1 Output
-    m_blockLength.insert(make_pair(0x98c,8));      // Leaf1JetPosEtaU2: JF1 Raw Input
-    m_blockLength.insert(make_pair(0xa00,12));     // Leaf2JetPosEtaU1: JF2 Input
-    m_blockLength.insert(make_pair(0xa01,3));      // Leaf2JetPosEtaU1: JF2 Shared Received
-    m_blockLength.insert(make_pair(0xa02,3));      // Leaf2JetPosEtaU1: JF2 Shared Sent
-    m_blockLength.insert(make_pair(0xa03,10));     // Leaf2JetPosEtaU1: JF2 Output
-    m_blockLength.insert(make_pair(0xa04,8));      // Leaf2JetPosEtaU1: JF2 Raw Input
-    m_blockLength.insert(make_pair(0xa08,12));     // Leaf2JetPosEtaU1: JF3 Input
-    m_blockLength.insert(make_pair(0xa09,3));      // Leaf2JetPosEtaU1: JF3 Shared Received
-    m_blockLength.insert(make_pair(0xa0a,3));      // Leaf2JetPosEtaU1: JF3 Shared Sent
-    m_blockLength.insert(make_pair(0xa0b,10));     // Leaf2JetPosEtaU1: JF3 Output
-    m_blockLength.insert(make_pair(0xa0c,8));      // Leaf2JetPosEtaU1: JF3 Raw Input
-    m_blockLength.insert(make_pair(0xa80,3));      // Leaf2JetPosEtaU2: Eta0 Input
-    m_blockLength.insert(make_pair(0xa84,6));      // Leaf2JetPosEtaU2: Eta0 Raw Input
-    m_blockLength.insert(make_pair(0xa88,12));     // Leaf2JetPosEtaU2: JF1 Input
-    m_blockLength.insert(make_pair(0xa89,3));      // Leaf2JetPosEtaU2: JF1 Shared Received
-    m_blockLength.insert(make_pair(0xa8a,3));      // Leaf2JetPosEtaU2: JF1 Shared Sent
-    m_blockLength.insert(make_pair(0xa8b,10));     // Leaf2JetPosEtaU2: JF1 Output
-    m_blockLength.insert(make_pair(0xa8c,8));      // Leaf2JetPosEtaU2: JF1 Raw Input
-    m_blockLength.insert(make_pair(0xb00,12));     // Leaf3JetPosEtaU1: JF2 Input
-    m_blockLength.insert(make_pair(0xb01,3));      // Leaf3JetPosEtaU1: JF2 Shared Received
-    m_blockLength.insert(make_pair(0xb02,3));      // Leaf3JetPosEtaU1: JF2 Shared Sent
-    m_blockLength.insert(make_pair(0xb03,10));     // Leaf3JetPosEtaU1: JF2 Output
-    m_blockLength.insert(make_pair(0xb04,8));      // Leaf3JetPosEtaU1: JF2 Raw Input
-    m_blockLength.insert(make_pair(0xb08,12));     // Leaf3JetPosEtaU1: JF3 Input
-    m_blockLength.insert(make_pair(0xb09,3));      // Leaf3JetPosEtaU1: JF3 Shared Received
-    m_blockLength.insert(make_pair(0xb0a,3));      // Leaf3JetPosEtaU1: JF3 Shared Sent
-    m_blockLength.insert(make_pair(0xb0b,10));     // Leaf3JetPosEtaU1: JF3 Output
-    m_blockLength.insert(make_pair(0xb0c,8));      // Leaf3JetPosEtaU1: JF3 Raw Input
-    m_blockLength.insert(make_pair(0xb80,3));      // Leaf3JetPosEtaU2: Eta0 Input
-    m_blockLength.insert(make_pair(0xb84,6));      // Leaf3JetPosEtaU2: Eta0 Raw Input
-    m_blockLength.insert(make_pair(0xb88,12));     // Leaf3JetPosEtaU2: JF1 Input
-    m_blockLength.insert(make_pair(0xb89,3));      // Leaf3JetPosEtaU2: JF1 Shared Received
-    m_blockLength.insert(make_pair(0xb8a,3));      // Leaf3JetPosEtaU2: JF1 Shared Sent
-    m_blockLength.insert(make_pair(0xb8b,10));     // Leaf3JetPosEtaU2: JF1 Output
-    m_blockLength.insert(make_pair(0xb8c,8));      // Leaf3JetPosEtaU2: JF1 Raw Input
-    // Jet Leaf FPGAs - Negative Eta 
-    m_blockLength.insert(make_pair(0xd00,12));     // Leaf1JetNegEtaU1: JF2 Input
-    m_blockLength.insert(make_pair(0xd01,3));      // Leaf1JetNegEtaU1: JF2 Shared Received
-    m_blockLength.insert(make_pair(0xd02,3));      // Leaf1JetNegEtaU1: JF2 Shared Sent
-    m_blockLength.insert(make_pair(0xd03,10));     // Leaf1JetNegEtaU1: JF2 Output
-    m_blockLength.insert(make_pair(0xd04,8));      // Leaf1JetNegEtaU1: JF2 Raw Input
-    m_blockLength.insert(make_pair(0xd08,12));     // Leaf1JetNegEtaU1: JF3 Input
-    m_blockLength.insert(make_pair(0xd09,3));      // Leaf1JetNegEtaU1: JF3 Shared Received
-    m_blockLength.insert(make_pair(0xd0a,3));      // Leaf1JetNegEtaU1: JF3 Shared Sent
-    m_blockLength.insert(make_pair(0xd0b,10));     // Leaf1JetNegEtaU1: JF3 Output
-    m_blockLength.insert(make_pair(0xd0c,8));      // Leaf1JetNegEtaU1: JF3 Raw Input
-    m_blockLength.insert(make_pair(0xd80,3));      // Leaf1JetNegEtaU2: Eta0 Input
-    m_blockLength.insert(make_pair(0xd84,6));      // Leaf1JetNegEtaU2: Eta0 Raw Input
-    m_blockLength.insert(make_pair(0xd88,12));     // Leaf1JetNegEtaU2: JF1 Input
-    m_blockLength.insert(make_pair(0xd89,3));      // Leaf1JetNegEtaU2: JF1 Shared Received
-    m_blockLength.insert(make_pair(0xd8a,3));      // Leaf1JetNegEtaU2: JF1 Shared Sent
-    m_blockLength.insert(make_pair(0xd8b,10));     // Leaf1JetNegEtaU2: JF1 Output
-    m_blockLength.insert(make_pair(0xd8c,8));      // Leaf1JetNegEtaU2: JF1 Raw Input
-    m_blockLength.insert(make_pair(0xe00,12));     // Leaf2JetNegEtaU1: JF2 Input
-    m_blockLength.insert(make_pair(0xe01,3));      // Leaf2JetNegEtaU1: JF2 Shared Received
-    m_blockLength.insert(make_pair(0xe02,3));      // Leaf2JetNegEtaU1: JF2 Shared Sent
-    m_blockLength.insert(make_pair(0xe03,10));     // Leaf2JetNegEtaU1: JF2 Output
-    m_blockLength.insert(make_pair(0xe04,8));      // Leaf2JetNegEtaU1: JF2 Raw Input
-    m_blockLength.insert(make_pair(0xe08,12));     // Leaf2JetNegEtaU1: JF3 Input
-    m_blockLength.insert(make_pair(0xe09,3));      // Leaf2JetNegEtaU1: JF3 Shared Received
-    m_blockLength.insert(make_pair(0xe0a,3));      // Leaf2JetNegEtaU1: JF3 Shared Sent
-    m_blockLength.insert(make_pair(0xe0b,10));     // Leaf2JetNegEtaU1: JF3 Output
-    m_blockLength.insert(make_pair(0xe0c,8));      // Leaf2JetNegEtaU1: JF3 Raw Input
-    m_blockLength.insert(make_pair(0xe80,3));      // Leaf2JetNegEtaU2: Eta0 Input
-    m_blockLength.insert(make_pair(0xe84,6));      // Leaf2JetNegEtaU2: Eta0 Raw Input
-    m_blockLength.insert(make_pair(0xe88,12));     // Leaf2JetNegEtaU2: JF1 Input
-    m_blockLength.insert(make_pair(0xe89,3));      // Leaf2JetNegEtaU2: JF1 Shared Received
-    m_blockLength.insert(make_pair(0xe8a,3));      // Leaf2JetNegEtaU2: JF1 Shared Sent
-    m_blockLength.insert(make_pair(0xe8b,10));     // Leaf2JetNegEtaU2: JF1 Output
-    m_blockLength.insert(make_pair(0xe8c,8));      // Leaf2JetNegEtaU2: JF1 Raw Input
-    m_blockLength.insert(make_pair(0xf00,12));     // Leaf3JetNegEtaU1: JF2 Input
-    m_blockLength.insert(make_pair(0xf01,3));      // Leaf3JetNegEtaU1: JF2 Shared Received
-    m_blockLength.insert(make_pair(0xf02,3));      // Leaf3JetNegEtaU1: JF2 Shared Sent
-    m_blockLength.insert(make_pair(0xf03,10));     // Leaf3JetNegEtaU1: JF2 Output
-    m_blockLength.insert(make_pair(0xf04,8));      // Leaf3JetNegEtaU1: JF2 Raw Input
-    m_blockLength.insert(make_pair(0xf08,12));     // Leaf3JetNegEtaU1: JF3 Input
-    m_blockLength.insert(make_pair(0xf09,3));      // Leaf3JetNegEtaU1: JF3 Shared Received
-    m_blockLength.insert(make_pair(0xf0a,3));      // Leaf3JetNegEtaU1: JF3 Shared Sent
-    m_blockLength.insert(make_pair(0xf0b,10));     // Leaf3JetNegEtaU1: JF3 Output
-    m_blockLength.insert(make_pair(0xf0c,8));      // Leaf3JetNegEtaU1: JF3 Raw Input
-    m_blockLength.insert(make_pair(0xf80,3));      // Leaf3JetNegEtaU2: Eta0 Input
-    m_blockLength.insert(make_pair(0xf84,6));      // Leaf3JetNegEtaU2: Eta0 Raw Input
-    m_blockLength.insert(make_pair(0xf88,12));     // Leaf3JetNegEtaU2: JF1 Input    
-    m_blockLength.insert(make_pair(0xf89,3));      // Leaf3JetNegEtaU2: JF1 Shared Received
-    m_blockLength.insert(make_pair(0xf8a,3));      // Leaf3JetNegEtaU2: JF1 Shared Sent
-    m_blockLength.insert(make_pair(0xf8b,10));     // Leaf3JetNegEtaU2: JF1 Output
-    m_blockLength.insert(make_pair(0xf8c,8));      // Leaf3JetNegEtaU2: JF1 Raw Input
-
-
-    /*** Setup BlockID to BlockName Map ***/
-    // Miscellaneous Blocks
-    m_blockName.insert(make_pair(0x000,"NULL"));
-    // ConcJet FPGA
-    m_blockName.insert(make_pair(0x580,"ConcJet: Input TrigPathA (Jet Cands)"));
-    m_blockName.insert(make_pair(0x581,"ConcJet: Input TrigPathB (HF Rings)"));
-    m_blockName.insert(make_pair(0x583,"ConcJet: Jet Cands and Counts Output to GT"));
-    m_blockName.insert(make_pair(0x587,"ConcJet: BX & Orbit Info"));
-    // ConcElec FPGA
-    m_blockName.insert(make_pair(0x680,"ConcElec: Input TrigPathA (EM Cands)"));
-    m_blockName.insert(make_pair(0x681,"ConcElec: Input TrigPathB (Et Sums)"));
-    m_blockName.insert(make_pair(0x682,"ConcElec: Input TrigPathC (Ht Sums)"));
-    m_blockName.insert(make_pair(0x683,"ConcElec: EM Cands and Energy Sums Output to GT"));
-    m_blockName.insert(make_pair(0x686,"ConcElec: Test (GT Serdes Loopback)"));
-    m_blockName.insert(make_pair(0x687,"ConcElec: BX & Orbit Info"));
-    // Electron Leaf FPGAs
-    m_blockName.insert(make_pair(0x800,"Leaf0ElecPosEtaU1: Sort Input"));
-    m_blockName.insert(make_pair(0x803,"Leaf0ElecPosEtaU1: Sort Output"));
-    m_blockName.insert(make_pair(0x804,"Leaf0ElecPosEtaU1: Raw Input"));
-    m_blockName.insert(make_pair(0x880,"Leaf0ElecPosEtaU2: Sort Input"));
-    m_blockName.insert(make_pair(0x883,"Leaf0ElecPosEtaU2: Sort Output"));
-    m_blockName.insert(make_pair(0x884,"Leaf0ElecPosEtaU2: Raw Input"));
-    m_blockName.insert(make_pair(0xc00,"Leaf0ElecNegEtaU1: Sort Input"));
-    m_blockName.insert(make_pair(0xc03,"Leaf0ElecNegEtaU1: Sort Output"));
-    m_blockName.insert(make_pair(0xc04,"Leaf0ElecNegEtaU1: Raw Input"));
-    m_blockName.insert(make_pair(0xc80,"Leaf0ElecNegEtaU2: Sort Input"));
-    m_blockName.insert(make_pair(0xc83,"Leaf0ElecNegEtaU2: Sort Output"));
-    m_blockName.insert(make_pair(0xc84,"Leaf0ElecNegEtaU2: Raw Input"));
-    // Wheel Pos-eta Jet FPGA
-    m_blockName.insert(make_pair(0x300,"WheelPosEtaJet: Input TrigPathA (Jet Sort)"));
-    m_blockName.insert(make_pair(0x303,"WheelPosEtaJet: Output TrigPathA (Jet Sort)"));
-    m_blockName.insert(make_pair(0x306,"WheelPosEtaJet: Test (deprecated)"));  // (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
-    m_blockName.insert(make_pair(0x307,"WheelPosEtaJet: Info (deprecated)"));  // (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
-    // Wheel Pos-eta Energy FPGA
-    m_blockName.insert(make_pair(0x380,"WheelPosEtaEnergy: Input TrigPathA (Et)"));
-    m_blockName.insert(make_pair(0x381,"WheelPosEtaEnergy: Input TrigPathB (Ht)"));
-    m_blockName.insert(make_pair(0x383,"WheelPosEtaEnergy: Output TrigPathA (Et)"));
-    m_blockName.insert(make_pair(0x385,"WheelPosEtaEnergy: Output TrigPathB (Ht)"));
-    m_blockName.insert(make_pair(0x386,"WheelPosEtaEnergy: Test"));
-    m_blockName.insert(make_pair(0x387,"WheelPosEtaEnergy: BX & Orbit Info"));
-    // Wheel Neg-eta Jet FPGA
-    m_blockName.insert(make_pair(0x700,"WheelNegEtaJet: Input TrigPathA (Jet Sort)"));
-    m_blockName.insert(make_pair(0x703,"WheelNegEtaJet: Output TrigPathA (Jet Sort)"));
-    m_blockName.insert(make_pair(0x706,"WheelNegEtaJet: Test (deprecated)"));  // (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
-    m_blockName.insert(make_pair(0x707,"WheelNegEtaJet: Info (deprecated)"));  // (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
-    // Wheel Neg-eta Energy FPGA
-    m_blockName.insert(make_pair(0x780,"WheelNegEtaEnergy: Input TrigPathA (Et)"));
-    m_blockName.insert(make_pair(0x781,"WheelNegEtaEnergy: Input TrigPathB (Ht)"));
-    m_blockName.insert(make_pair(0x783,"WheelNegEtaEnergy: Output TrigPathA (Et)"));
-    m_blockName.insert(make_pair(0x785,"WheelNegEtaEnergy: Output TrigPathB (Ht)"));
-    m_blockName.insert(make_pair(0x786,"WheelNegEtaEnergy: Test"));
-    m_blockName.insert(make_pair(0x787,"WheelNegEtaEnergy: BX & Orbit Info"));
-    // Jet Leaf FPGAs - Positive Eta
-    m_blockName.insert(make_pair(0x900,"Leaf1JetPosEtaU1: JF2 Input"));
-    m_blockName.insert(make_pair(0x901,"Leaf1JetPosEtaU1: JF2 Shared Received"));
-    m_blockName.insert(make_pair(0x902,"Leaf1JetPosEtaU1: JF2 Shared Sent"));
-    m_blockName.insert(make_pair(0x903,"Leaf1JetPosEtaU1: JF2 Output"));
-    m_blockName.insert(make_pair(0x904,"Leaf1JetPosEtaU1: JF2 Raw Input"));
-    m_blockName.insert(make_pair(0x908,"Leaf1JetPosEtaU1: JF3 Input"));
-    m_blockName.insert(make_pair(0x909,"Leaf1JetPosEtaU1: JF3 Shared Received"));
-    m_blockName.insert(make_pair(0x90a,"Leaf1JetPosEtaU1: JF3 Shared Sent"));
-    m_blockName.insert(make_pair(0x90b,"Leaf1JetPosEtaU1: JF3 Output"));
-    m_blockName.insert(make_pair(0x90c,"Leaf1JetPosEtaU1: JF3 Raw Input"));
-    m_blockName.insert(make_pair(0x980,"Leaf1JetPosEtaU2: Eta0 Input"));  // Next Leaf Start
-    m_blockName.insert(make_pair(0x984,"Leaf1JetPosEtaU2: Eta0 Raw Input"));
-    m_blockName.insert(make_pair(0x988,"Leaf1JetPosEtaU2: JF1 Input"));
-    m_blockName.insert(make_pair(0x989,"Leaf1JetPosEtaU2: JF1 Shared Received"));
-    m_blockName.insert(make_pair(0x98a,"Leaf1JetPosEtaU2: JF1 Shared Sent"));
-    m_blockName.insert(make_pair(0x98b,"Leaf1JetPosEtaU2: JF1 Output"));
-    m_blockName.insert(make_pair(0x98c,"Leaf1JetPosEtaU2: JF1 Raw Input"));
-    m_blockName.insert(make_pair(0xa00,"Leaf2JetPosEtaU1: JF2 Input"));  // Next Leaf Start
-    m_blockName.insert(make_pair(0xa01,"Leaf2JetPosEtaU1: JF2 Shared Received"));
-    m_blockName.insert(make_pair(0xa02,"Leaf2JetPosEtaU1: JF2 Shared Sent"));
-    m_blockName.insert(make_pair(0xa03,"Leaf2JetPosEtaU1: JF2 Output"));
-    m_blockName.insert(make_pair(0xa04,"Leaf2JetPosEtaU1: JF2 Raw Input"));
-    m_blockName.insert(make_pair(0xa08,"Leaf2JetPosEtaU1: JF3 Input"));
-    m_blockName.insert(make_pair(0xa09,"Leaf2JetPosEtaU1: JF3 Shared Received"));
-    m_blockName.insert(make_pair(0xa0a,"Leaf2JetPosEtaU1: JF3 Shared Sent"));
-    m_blockName.insert(make_pair(0xa0b,"Leaf2JetPosEtaU1: JF3 Output"));
-    m_blockName.insert(make_pair(0xa0c,"Leaf2JetPosEtaU1: JF3 Raw Input"));
-    m_blockName.insert(make_pair(0xa80,"Leaf2JetPosEtaU2: Eta0 Input"));  // Next Leaf Start
-    m_blockName.insert(make_pair(0xa84,"Leaf2JetPosEtaU2: Eta0 Raw Input"));
-    m_blockName.insert(make_pair(0xa88,"Leaf2JetPosEtaU2: JF1 Input"));
-    m_blockName.insert(make_pair(0xa89,"Leaf2JetPosEtaU2: JF1 Shared Received"));
-    m_blockName.insert(make_pair(0xa8a,"Leaf2JetPosEtaU2: JF1 Shared Sent"));
-    m_blockName.insert(make_pair(0xa8b,"Leaf2JetPosEtaU2: JF1 Output"));
-    m_blockName.insert(make_pair(0xa8c,"Leaf2JetPosEtaU2: JF1 Raw Input"));
-    m_blockName.insert(make_pair(0xb00,"Leaf3JetPosEtaU1: JF2 Input"));  // Next Leaf Start
-    m_blockName.insert(make_pair(0xb01,"Leaf3JetPosEtaU1: JF2 Shared Received"));
-    m_blockName.insert(make_pair(0xb02,"Leaf3JetPosEtaU1: JF2 Shared Sent"));
-    m_blockName.insert(make_pair(0xb03,"Leaf3JetPosEtaU1: JF2 Output"));
-    m_blockName.insert(make_pair(0xb04,"Leaf3JetPosEtaU1: JF2 Raw Input"));
-    m_blockName.insert(make_pair(0xb08,"Leaf3JetPosEtaU1: JF3 Input"));
-    m_blockName.insert(make_pair(0xb09,"Leaf3JetPosEtaU1: JF3 Shared Received"));
-    m_blockName.insert(make_pair(0xb0a,"Leaf3JetPosEtaU1: JF3 Shared Sent"));
-    m_blockName.insert(make_pair(0xb0b,"Leaf3JetPosEtaU1: JF3 Output"));
-    m_blockName.insert(make_pair(0xb0c,"Leaf3JetPosEtaU1: JF3 Raw Input"));
-    m_blockName.insert(make_pair(0xb80,"Leaf3JetPosEtaU2: Eta0 Input"));  // Next Leaf Start
-    m_blockName.insert(make_pair(0xb84,"Leaf3JetPosEtaU2: Eta0 Raw Input"));
-    m_blockName.insert(make_pair(0xb88,"Leaf3JetPosEtaU2: JF1 Input"));
-    m_blockName.insert(make_pair(0xb89,"Leaf3JetPosEtaU2: JF1 Shared Received"));
-    m_blockName.insert(make_pair(0xb8a,"Leaf3JetPosEtaU2: JF1 Shared Sent"));
-    m_blockName.insert(make_pair(0xb8b,"Leaf3JetPosEtaU2: JF1 Output"));
-    m_blockName.insert(make_pair(0xb8c,"Leaf3JetPosEtaU2: JF1 Raw Input"));
-    // Jet Leaf FPGAs - Negative Eta
-    m_blockName.insert(make_pair(0xd00,"Leaf1JetNegEtaU1: JF2 Input"));       // START OF NEG ETA JET LEAVES
-    m_blockName.insert(make_pair(0xd01,"Leaf1JetNegEtaU1: JF2 Shared Received"));
-    m_blockName.insert(make_pair(0xd02,"Leaf1JetNegEtaU1: JF2 Shared Sent"));
-    m_blockName.insert(make_pair(0xd03,"Leaf1JetNegEtaU1: JF2 Output"));
-    m_blockName.insert(make_pair(0xd04,"Leaf1JetNegEtaU1: JF2 Raw Input"));
-    m_blockName.insert(make_pair(0xd08,"Leaf1JetNegEtaU1: JF3 Input"));
-    m_blockName.insert(make_pair(0xd09,"Leaf1JetNegEtaU1: JF3 Shared Received"));
-    m_blockName.insert(make_pair(0xd0a,"Leaf1JetNegEtaU1: JF3 Shared Sent"));
-    m_blockName.insert(make_pair(0xd0b,"Leaf1JetNegEtaU1: JF3 Output"));
-    m_blockName.insert(make_pair(0xd0c,"Leaf1JetNegEtaU1: JF3 Raw Input"));
-    m_blockName.insert(make_pair(0xd80,"Leaf1JetNegEtaU2: Eta0 Input"));  // Next Leaf Start
-    m_blockName.insert(make_pair(0xd84,"Leaf1JetNegEtaU2: Eta0 Raw Input"));
-    m_blockName.insert(make_pair(0xd88,"Leaf1JetNegEtaU2: JF1 Input"));
-    m_blockName.insert(make_pair(0xd89,"Leaf1JetNegEtaU2: JF1 Shared Received"));
-    m_blockName.insert(make_pair(0xd8a,"Leaf1JetNegEtaU2: JF1 Shared Sent"));
-    m_blockName.insert(make_pair(0xd8b,"Leaf1JetNegEtaU2: JF1 Output"));
-    m_blockName.insert(make_pair(0xd8c,"Leaf1JetNegEtaU2: JF1 Raw Input"));
-    m_blockName.insert(make_pair(0xe00,"Leaf2JetNegEtaU1: JF2 Input"));  // Next Leaf Start
-    m_blockName.insert(make_pair(0xe01,"Leaf2JetNegEtaU1: JF2 Shared Received"));
-    m_blockName.insert(make_pair(0xe02,"Leaf2JetNegEtaU1: JF2 Shared Sent"));
-    m_blockName.insert(make_pair(0xe03,"Leaf2JetNegEtaU1: JF2 Output"));
-    m_blockName.insert(make_pair(0xe04,"Leaf2JetNegEtaU1: JF2 Raw Input"));
-    m_blockName.insert(make_pair(0xe08,"Leaf2JetNegEtaU1: JF3 Input"));
-    m_blockName.insert(make_pair(0xe09,"Leaf2JetNegEtaU1: JF3 Shared Received"));
-    m_blockName.insert(make_pair(0xe0a,"Leaf2JetNegEtaU1: JF3 Shared Sent"));
-    m_blockName.insert(make_pair(0xe0b,"Leaf2JetNegEtaU1: JF3 Output"));
-    m_blockName.insert(make_pair(0xe0c,"Leaf2JetNegEtaU1: JF3 Raw Input"));
-    m_blockName.insert(make_pair(0xe80,"Leaf2JetNegEtaU2: Eta0 Input"));  // Next Leaf Start
-    m_blockName.insert(make_pair(0xe84,"Leaf2JetNegEtaU2: Eta0 Raw Input"));
-    m_blockName.insert(make_pair(0xe88,"Leaf2JetNegEtaU2: JF1 Input"));
-    m_blockName.insert(make_pair(0xe89,"Leaf2JetNegEtaU2: JF1 Shared Received"));
-    m_blockName.insert(make_pair(0xe8a,"Leaf2JetNegEtaU2: JF1 Shared Sent"));
-    m_blockName.insert(make_pair(0xe8b,"Leaf2JetNegEtaU2: JF1 Output"));
-    m_blockName.insert(make_pair(0xe8c,"Leaf2JetNegEtaU2: JF1 Raw Input"));
-    m_blockName.insert(make_pair(0xf00,"Leaf3JetNegEtaU1: JF2 Input"));  // Next Leaf Start
-    m_blockName.insert(make_pair(0xf01,"Leaf3JetNegEtaU1: JF2 Shared Received"));
-    m_blockName.insert(make_pair(0xf02,"Leaf3JetNegEtaU1: JF2 Shared Sent"));
-    m_blockName.insert(make_pair(0xf03,"Leaf3JetNegEtaU1: JF2 Output"));
-    m_blockName.insert(make_pair(0xf04,"Leaf3JetNegEtaU1: JF2 Raw Input"));
-    m_blockName.insert(make_pair(0xf08,"Leaf3JetNegEtaU1: JF3 Input"));
-    m_blockName.insert(make_pair(0xf09,"Leaf3JetNegEtaU1: JF3 Shared Received"));
-    m_blockName.insert(make_pair(0xf0a,"Leaf3JetNegEtaU1: JF3 Shared Sent"));
-    m_blockName.insert(make_pair(0xf0b,"Leaf3JetNegEtaU1: JF3 Output"));
-    m_blockName.insert(make_pair(0xf0c,"Leaf3JetNegEtaU1: JF3 Raw Input"));
-    m_blockName.insert(make_pair(0xf80,"Leaf3JetNegEtaU2: Eta0 Input"));  // Next Leaf Start
-    m_blockName.insert(make_pair(0xf84,"Leaf3JetNegEtaU2: Eta0 Raw Input"));
-    m_blockName.insert(make_pair(0xf88,"Leaf3JetNegEtaU2: JF1 Input"));
-    m_blockName.insert(make_pair(0xf89,"Leaf3JetNegEtaU2: JF1 Shared Received"));
-    m_blockName.insert(make_pair(0xf8a,"Leaf3JetNegEtaU2: JF1 Shared Sent"));
-    m_blockName.insert(make_pair(0xf8b,"Leaf3JetNegEtaU2: JF1 Output"));
-    m_blockName.insert(make_pair(0xf8c,"Leaf3JetNegEtaU2: JF1 Raw Input"));
-
-
-    /*** Setup BlockID to Unpack-Function Map ***/
-    // Miscellaneous Blocks
-    m_blockUnpackFn[0x000] = &GctFormatTranslateV35::blockDoNothing;                    // NULL
-    // ConcJet FPGA                                                             
-    m_blockUnpackFn[0x580] = &GctFormatTranslateV35::blockToGctTrigObjects;             // ConcJet: Input TrigPathA (Jet Cands)
-    m_blockUnpackFn[0x581] = &GctFormatTranslateV35::blockToGctInternRingSums;          // ConcJet: Input TrigPathB (HF Rings)
-    m_blockUnpackFn[0x583] = &GctFormatTranslateV35::blockToGctJetCandsAndCounts;       // ConcJet: Jet Cands and Counts Output to GT
-    m_blockUnpackFn[0x587] = &GctFormatTranslateV35::blockDoNothing;                    // ConcJet: BX & Orbit Info
-    // ConcElec FPGA                                                            
-    m_blockUnpackFn[0x680] = &GctFormatTranslateV35::blockToGctInternEmCand;            // ConcElec: Input TrigPathA (EM Cands)
-    m_blockUnpackFn[0x681] = &GctFormatTranslateV35::blockToGctInternEtSums;            // ConcElec: Input TrigPathB (Et Sums)
-    m_blockUnpackFn[0x682] = &GctFormatTranslateV35::blockToGctInternEtSums;            // ConcElec: Input TrigPathC (Ht Sums)
-    m_blockUnpackFn[0x683] = &GctFormatTranslateV35::blockToGctEmCandsAndEnergySums;    // ConcElec: EM Cands and Energy Sums Output to GT
-    m_blockUnpackFn[0x686] = &GctFormatTranslateV35::blockDoNothing;                    // ConcElec: Test (GT Serdes Loopback)
-    m_blockUnpackFn[0x687] = &GctFormatTranslateV35::blockDoNothing;                    // ConcElec: BX & Orbit Info
-    // Electron Leaf FPGAs                                                      
-    m_blockUnpackFn[0x800] = &GctFormatTranslateV35::blockToGctInternEmCand;            // Leaf0ElecPosEtaU1: Sort Input
-    m_blockUnpackFn[0x803] = &GctFormatTranslateV35::blockToGctInternEmCand;            // Leaf0ElecPosEtaU1: Sort Output
-    m_blockUnpackFn[0x804] = &GctFormatTranslateV35::blockToFibresAndToRctEmCand;       // Leaf0ElecPosEtaU1: Raw Input
-    m_blockUnpackFn[0x880] = &GctFormatTranslateV35::blockToGctInternEmCand;            // Leaf0ElecPosEtaU2: Sort Input
-    m_blockUnpackFn[0x883] = &GctFormatTranslateV35::blockToGctInternEmCand;            // Leaf0ElecPosEtaU2: Sort Output
-    m_blockUnpackFn[0x884] = &GctFormatTranslateV35::blockToFibresAndToRctEmCand;       // Leaf0ElecPosEtaU2: Raw Input
-    m_blockUnpackFn[0xc00] = &GctFormatTranslateV35::blockToGctInternEmCand;            // Leaf0ElecNegEtaU1: Sort Input
-    m_blockUnpackFn[0xc03] = &GctFormatTranslateV35::blockToGctInternEmCand;            // Leaf0ElecNegEtaU1: Sort Output
-    m_blockUnpackFn[0xc04] = &GctFormatTranslateV35::blockToFibresAndToRctEmCand;       // Leaf0ElecNegEtaU1: Raw Input
-    m_blockUnpackFn[0xc80] = &GctFormatTranslateV35::blockToGctInternEmCand;            // Leaf0ElecNegEtaU2: Sort Input
-    m_blockUnpackFn[0xc83] = &GctFormatTranslateV35::blockToGctInternEmCand;            // Leaf0ElecNegEtaU2: Sort Output
-    m_blockUnpackFn[0xc84] = &GctFormatTranslateV35::blockToFibresAndToRctEmCand;       // Leaf0ElecNegEtaU2: Raw Input
-    // Wheel Pos-eta Jet FPGA                                                   
-    m_blockUnpackFn[0x300] = &GctFormatTranslateV35::blockToGctJetClusterMinimal;       // WheelPosEtaJet: Input TrigPathA (Jet Sort)
-    m_blockUnpackFn[0x303] = &GctFormatTranslateV35::blockToGctTrigObjects;             // WheelPosEtaJet: Output TrigPathA (Jet Sort)
-    m_blockUnpackFn[0x306] = &GctFormatTranslateV35::blockDoNothing;                    // WheelPosEtaJet: Test (deprecated)  (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
-    m_blockUnpackFn[0x307] = &GctFormatTranslateV35::blockDoNothing;                    // WheelPosEtaJet: Info (deprecated)  (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
-    // Wheel Pos-eta Energy FPGA                                                
-    m_blockUnpackFn[0x380] = &GctFormatTranslateV35::blockToGctWheelInputInternEtAndRingSums;     // WheelPosEtaEnergy: Input TrigPathA (Et)
-    m_blockUnpackFn[0x381] = &GctFormatTranslateV35::blockToGctInternEtSums;            // WheelPosEtaEnergy: Input TrigPathB (Ht)
-    m_blockUnpackFn[0x383] = &GctFormatTranslateV35::blockToGctWheelOutputInternEtAndRingSums;     // WheelPosEtaEnergy: Output TrigPathA (Et)
-    m_blockUnpackFn[0x385] = &GctFormatTranslateV35::blockToGctInternEtSums;            // WheelPosEtaEnergy: Output TrigPathB (Ht)
-    m_blockUnpackFn[0x386] = &GctFormatTranslateV35::blockDoNothing;                    // WheelPosEtaEnergy: Test
-    m_blockUnpackFn[0x387] = &GctFormatTranslateV35::blockDoNothing;                    // WheelPosEtaEnergy: BX & Orbit Info   (Potential data incompatibility between V24/V25 where block length=4, and V27.1 where block length=6)
-    // Wheel Neg-eta Jet FPGA                                                   
-    m_blockUnpackFn[0x700] = &GctFormatTranslateV35::blockToGctJetClusterMinimal;       // WheelNegEtaJet: Input TrigPathA (Jet Sort)
-    m_blockUnpackFn[0x703] = &GctFormatTranslateV35::blockToGctTrigObjects;             // WheelNegEtaJet: Output TrigPathA (Jet Sort)
-    m_blockUnpackFn[0x706] = &GctFormatTranslateV35::blockDoNothing;                    // WheelNegEtaJet: Test (deprecated)  (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
-    m_blockUnpackFn[0x707] = &GctFormatTranslateV35::blockDoNothing;                    // WheelNegEtaJet: Info (deprecated)  (Doesn't exist in V27.1 format, but does in V24 & V25, so keep for CRUZET2 data compatibility reasons)
-    // Wheel Neg-eta Energy FPGA                                                
-    m_blockUnpackFn[0x780] = &GctFormatTranslateV35::blockToGctWheelInputInternEtAndRingSums;     // WheelNegEtaEnergy: Input TrigPathA (Et)
-    m_blockUnpackFn[0x781] = &GctFormatTranslateV35::blockToGctInternEtSums;            // WheelNegEtaEnergy: Input TrigPathB (Ht)
-    m_blockUnpackFn[0x783] = &GctFormatTranslateV35::blockToGctWheelOutputInternEtAndRingSums;     // WheelNegEtaEnergy: Output TrigPathA (Et)
-    m_blockUnpackFn[0x785] = &GctFormatTranslateV35::blockToGctInternEtSums;            // WheelNegEtaEnergy: Output TrigPathB (Ht)
-    m_blockUnpackFn[0x786] = &GctFormatTranslateV35::blockDoNothing;                    // WheelNegEtaEnergy: Test
-    m_blockUnpackFn[0x787] = &GctFormatTranslateV35::blockDoNothing;                    // WheelNegEtaEnergy: BX & Orbit Info   (Potential data incompatibility between V24/V25 where block length=4, and V27.1 where block length=6)
-    // Jet Leaf FPGAs - Positive Eta
-    m_blockUnpackFn[0x900] = &GctFormatTranslateV35::blockToRctCaloRegions;             // Leaf1JetPosEtaU1: JF2 Input
-    m_blockUnpackFn[0x901] = &GctFormatTranslateV35::blockToGctJetPreCluster;           // Leaf1JetPosEtaU1: JF2 Shared Received
-    m_blockUnpackFn[0x902] = &GctFormatTranslateV35::blockToGctJetPreCluster;           // Leaf1JetPosEtaU1: JF2 Shared Sent
-    m_blockUnpackFn[0x903] = &GctFormatTranslateV35::blockToGctInternEtSumsAndJetCluster;// Leaf1JetPosEtaU1: JF2 Output
-    m_blockUnpackFn[0x904] = &GctFormatTranslateV35::blockToFibres;                     // Leaf1JetPosEtaU1: JF2 Raw Input
-    m_blockUnpackFn[0x908] = &GctFormatTranslateV35::blockToRctCaloRegions;             // Leaf1JetPosEtaU1: JF3 Input
-    m_blockUnpackFn[0x909] = &GctFormatTranslateV35::blockToGctJetPreCluster;           // Leaf1JetPosEtaU1: JF3 Shared Received
-    m_blockUnpackFn[0x90a] = &GctFormatTranslateV35::blockToGctJetPreCluster;           // Leaf1JetPosEtaU1: JF3 Shared Sent
-    m_blockUnpackFn[0x90b] = &GctFormatTranslateV35::blockToGctInternEtSumsAndJetCluster;// Leaf1JetPosEtaU1: JF3 Output
-    m_blockUnpackFn[0x90c] = &GctFormatTranslateV35::blockToFibres;                     // Leaf1JetPosEtaU1: JF3 Raw Input
-    m_blockUnpackFn[0x980] = &GctFormatTranslateV35::blockDoNothing;                    // Leaf1JetPosEtaU2: Eta0 Input
-    m_blockUnpackFn[0x984] = &GctFormatTranslateV35::blockToFibres;                     // Leaf1JetPosEtaU2: Eta0 Raw Input
-    m_blockUnpackFn[0x988] = &GctFormatTranslateV35::blockToRctCaloRegions;             // Leaf1JetPosEtaU2: JF1 Input
-    m_blockUnpackFn[0x989] = &GctFormatTranslateV35::blockToGctJetPreCluster;           // Leaf1JetPosEtaU2: JF1 Shared Received
-    m_blockUnpackFn[0x98a] = &GctFormatTranslateV35::blockToGctJetPreCluster;           // Leaf1JetPosEtaU2: JF1 Shared Sent
-    m_blockUnpackFn[0x98b] = &GctFormatTranslateV35::blockToGctInternEtSumsAndJetCluster;// Leaf1JetPosEtaU2: JF1 Output
-    m_blockUnpackFn[0x98c] = &GctFormatTranslateV35::blockToFibres;                     // Leaf1JetPosEtaU2: JF1 Raw Input
-    m_blockUnpackFn[0xa00] = &GctFormatTranslateV35::blockToRctCaloRegions;             // Leaf2JetPosEtaU1: JF2 Input
-    m_blockUnpackFn[0xa01] = &GctFormatTranslateV35::blockToGctJetPreCluster;           // Leaf2JetPosEtaU1: JF2 Shared Received
-    m_blockUnpackFn[0xa02] = &GctFormatTranslateV35::blockToGctJetPreCluster;           // Leaf2JetPosEtaU1: JF2 Shared Sent
-    m_blockUnpackFn[0xa03] = &GctFormatTranslateV35::blockToGctInternEtSumsAndJetCluster;// Leaf2JetPosEtaU1: JF2 Output
-    m_blockUnpackFn[0xa04] = &GctFormatTranslateV35::blockToFibres;                     // Leaf2JetPosEtaU1: JF2 Raw Input
-    m_blockUnpackFn[0xa08] = &GctFormatTranslateV35::blockToRctCaloRegions;             // Leaf2JetPosEtaU1: JF3 Input
-    m_blockUnpackFn[0xa09] = &GctFormatTranslateV35::blockToGctJetPreCluster;           // Leaf2JetPosEtaU1: JF3 Shared Received
-    m_blockUnpackFn[0xa0a] = &GctFormatTranslateV35::blockToGctJetPreCluster;           // Leaf2JetPosEtaU1: JF3 Shared Sent
-    m_blockUnpackFn[0xa0b] = &GctFormatTranslateV35::blockToGctInternEtSumsAndJetCluster;// Leaf2JetPosEtaU1: JF3 Output
-    m_blockUnpackFn[0xa0c] = &GctFormatTranslateV35::blockToFibres;                     // Leaf2JetPosEtaU1: JF3 Raw Input
-    m_blockUnpackFn[0xa80] = &GctFormatTranslateV35::blockDoNothing;                    // Leaf2JetPosEtaU2: Eta0 Input
-    m_blockUnpackFn[0xa84] = &GctFormatTranslateV35::blockToFibres;                     // Leaf2JetPosEtaU2: Eta0 Raw Input
-    m_blockUnpackFn[0xa88] = &GctFormatTranslateV35::blockToRctCaloRegions;             // Leaf2JetPosEtaU2: JF1 Input
-    m_blockUnpackFn[0xa89] = &GctFormatTranslateV35::blockToGctJetPreCluster;           // Leaf2JetPosEtaU2: JF1 Shared Received
-    m_blockUnpackFn[0xa8a] = &GctFormatTranslateV35::blockToGctJetPreCluster;           // Leaf2JetPosEtaU2: JF1 Shared Sent
-    m_blockUnpackFn[0xa8b] = &GctFormatTranslateV35::blockToGctInternEtSumsAndJetCluster;// Leaf2JetPosEtaU2: JF1 Output
-    m_blockUnpackFn[0xa8c] = &GctFormatTranslateV35::blockToFibres;                     // Leaf2JetPosEtaU2: JF1 Raw Input
-    m_blockUnpackFn[0xb00] = &GctFormatTranslateV35::blockToRctCaloRegions;             // Leaf3JetPosEtaU1: JF2 Input
-    m_blockUnpackFn[0xb01] = &GctFormatTranslateV35::blockToGctJetPreCluster;           // Leaf3JetPosEtaU1: JF2 Shared Received
-    m_blockUnpackFn[0xb02] = &GctFormatTranslateV35::blockToGctJetPreCluster;           // Leaf3JetPosEtaU1: JF2 Shared Sent
-    m_blockUnpackFn[0xb03] = &GctFormatTranslateV35::blockToGctInternEtSumsAndJetCluster;// Leaf3JetPosEtaU1: JF2 Output
-    m_blockUnpackFn[0xb04] = &GctFormatTranslateV35::blockToFibres;                     // Leaf3JetPosEtaU1: JF2 Raw Input
-    m_blockUnpackFn[0xb08] = &GctFormatTranslateV35::blockToRctCaloRegions;             // Leaf3JetPosEtaU1: JF3 Input
-    m_blockUnpackFn[0xb09] = &GctFormatTranslateV35::blockToGctJetPreCluster;           // Leaf3JetPosEtaU1: JF3 Shared Received
-    m_blockUnpackFn[0xb0a] = &GctFormatTranslateV35::blockToGctJetPreCluster;           // Leaf3JetPosEtaU1: JF3 Shared Sent
-    m_blockUnpackFn[0xb0b] = &GctFormatTranslateV35::blockToGctInternEtSumsAndJetCluster;// Leaf3JetPosEtaU1: JF3 Output
-    m_blockUnpackFn[0xb0c] = &GctFormatTranslateV35::blockToFibres;                     // Leaf3JetPosEtaU1: JF3 Raw Input
-    m_blockUnpackFn[0xb80] = &GctFormatTranslateV35::blockDoNothing;                    // Leaf3JetPosEtaU2: Eta0 Input
-    m_blockUnpackFn[0xb84] = &GctFormatTranslateV35::blockToFibres;                     // Leaf3JetPosEtaU2: Eta0 Raw Input
-    m_blockUnpackFn[0xb88] = &GctFormatTranslateV35::blockToRctCaloRegions;             // Leaf3JetPosEtaU2: JF1 Input
-    m_blockUnpackFn[0xb89] = &GctFormatTranslateV35::blockToGctJetPreCluster;           // Leaf3JetPosEtaU2: JF1 Shared Received
-    m_blockUnpackFn[0xb8a] = &GctFormatTranslateV35::blockToGctJetPreCluster;           // Leaf3JetPosEtaU2: JF1 Shared Sent
-    m_blockUnpackFn[0xb8b] = &GctFormatTranslateV35::blockToGctInternEtSumsAndJetCluster;// Leaf3JetPosEtaU2: JF1 Output
-    m_blockUnpackFn[0xb8c] = &GctFormatTranslateV35::blockToFibres;                     // Leaf3JetPosEtaU2: JF1 Raw Input
-    // Jet Leaf FPGAs - Negative Eta
-    m_blockUnpackFn[0xd00] = &GctFormatTranslateV35::blockToRctCaloRegions;             // Leaf1JetNegEtaU1: JF2 Input
-    m_blockUnpackFn[0xd01] = &GctFormatTranslateV35::blockToGctJetPreCluster;           // Leaf1JetNegEtaU1: JF2 Shared Received
-    m_blockUnpackFn[0xd02] = &GctFormatTranslateV35::blockToGctJetPreCluster;           // Leaf1JetNegEtaU1: JF2 Shared Sent
-    m_blockUnpackFn[0xd03] = &GctFormatTranslateV35::blockToGctInternEtSumsAndJetCluster;// Leaf1JetNegEtaU1: JF2 Output
-    m_blockUnpackFn[0xd04] = &GctFormatTranslateV35::blockToFibres;                     // Leaf1JetNegEtaU1: JF2 Raw Input
-    m_blockUnpackFn[0xd08] = &GctFormatTranslateV35::blockToRctCaloRegions;             // Leaf1JetNegEtaU1: JF3 Input
-    m_blockUnpackFn[0xd09] = &GctFormatTranslateV35::blockToGctJetPreCluster;           // Leaf1JetNegEtaU1: JF3 Shared Received
-    m_blockUnpackFn[0xd0a] = &GctFormatTranslateV35::blockToGctJetPreCluster;           // Leaf1JetNegEtaU1: JF3 Shared Sent
-    m_blockUnpackFn[0xd0b] = &GctFormatTranslateV35::blockToGctInternEtSumsAndJetCluster;// Leaf1JetNegEtaU1: JF3 Output
-    m_blockUnpackFn[0xd0c] = &GctFormatTranslateV35::blockToFibres;                     // Leaf1JetNegEtaU1: JF3 Raw Input
-    m_blockUnpackFn[0xd80] = &GctFormatTranslateV35::blockDoNothing;                    // Leaf1JetNegEtaU2: Eta0 Input
-    m_blockUnpackFn[0xd84] = &GctFormatTranslateV35::blockToFibres;                     // Leaf1JetNegEtaU2: Eta0 Raw Input
-    m_blockUnpackFn[0xd88] = &GctFormatTranslateV35::blockToRctCaloRegions;             // Leaf1JetNegEtaU2: JF1 Input
-    m_blockUnpackFn[0xd89] = &GctFormatTranslateV35::blockToGctJetPreCluster;           // Leaf1JetNegEtaU2: JF1 Shared Received
-    m_blockUnpackFn[0xd8a] = &GctFormatTranslateV35::blockToGctJetPreCluster;           // Leaf1JetNegEtaU2: JF1 Shared Sent
-    m_blockUnpackFn[0xd8b] = &GctFormatTranslateV35::blockToGctInternEtSumsAndJetCluster;// Leaf1JetNegEtaU2: JF1 Output
-    m_blockUnpackFn[0xd8c] = &GctFormatTranslateV35::blockToFibres;                     // Leaf1JetNegEtaU2: JF1 Raw Input
-    m_blockUnpackFn[0xe00] = &GctFormatTranslateV35::blockToRctCaloRegions;             // Leaf2JetNegEtaU1: JF2 Input
-    m_blockUnpackFn[0xe01] = &GctFormatTranslateV35::blockToGctJetPreCluster;           // Leaf2JetNegEtaU1: JF2 Shared Received
-    m_blockUnpackFn[0xe02] = &GctFormatTranslateV35::blockToGctJetPreCluster;           // Leaf2JetNegEtaU1: JF2 Shared Sent
-    m_blockUnpackFn[0xe03] = &GctFormatTranslateV35::blockToGctInternEtSumsAndJetCluster;// Leaf2JetNegEtaU1: JF2 Output
-    m_blockUnpackFn[0xe04] = &GctFormatTranslateV35::blockToFibres;                     // Leaf2JetNegEtaU1: JF2 Raw Input
-    m_blockUnpackFn[0xe08] = &GctFormatTranslateV35::blockToRctCaloRegions;             // Leaf2JetNegEtaU1: JF3 Input
-    m_blockUnpackFn[0xe09] = &GctFormatTranslateV35::blockToGctJetPreCluster;           // Leaf2JetNegEtaU1: JF3 Shared Received
-    m_blockUnpackFn[0xe0a] = &GctFormatTranslateV35::blockToGctJetPreCluster;           // Leaf2JetNegEtaU1: JF3 Shared Sent
-    m_blockUnpackFn[0xe0b] = &GctFormatTranslateV35::blockToGctInternEtSumsAndJetCluster;// Leaf2JetNegEtaU1: JF3 Output
-    m_blockUnpackFn[0xe0c] = &GctFormatTranslateV35::blockToFibres;                     // Leaf2JetNegEtaU1: JF3 Raw Input
-    m_blockUnpackFn[0xe80] = &GctFormatTranslateV35::blockDoNothing;                    // Leaf2JetNegEtaU2: Eta0 Input
-    m_blockUnpackFn[0xe84] = &GctFormatTranslateV35::blockToFibres;                     // Leaf2JetNegEtaU2: Eta0 Raw Input
-    m_blockUnpackFn[0xe88] = &GctFormatTranslateV35::blockToRctCaloRegions;             // Leaf2JetNegEtaU2: JF1 Input
-    m_blockUnpackFn[0xe89] = &GctFormatTranslateV35::blockToGctJetPreCluster;           // Leaf2JetNegEtaU2: JF1 Shared Received
-    m_blockUnpackFn[0xe8a] = &GctFormatTranslateV35::blockToGctJetPreCluster;           // Leaf2JetNegEtaU2: JF1 Shared Sent
-    m_blockUnpackFn[0xe8b] = &GctFormatTranslateV35::blockToGctInternEtSumsAndJetCluster;// Leaf2JetNegEtaU2: JF1 Output
-    m_blockUnpackFn[0xe8c] = &GctFormatTranslateV35::blockToFibres;                     // Leaf2JetNegEtaU2: JF1 Raw Input
-    m_blockUnpackFn[0xf00] = &GctFormatTranslateV35::blockToRctCaloRegions;             // Leaf3JetNegEtaU1: JF2 Input
-    m_blockUnpackFn[0xf01] = &GctFormatTranslateV35::blockToGctJetPreCluster;           // Leaf3JetNegEtaU1: JF2 Shared Received
-    m_blockUnpackFn[0xf02] = &GctFormatTranslateV35::blockToGctJetPreCluster;           // Leaf3JetNegEtaU1: JF2 Shared Sent
-    m_blockUnpackFn[0xf03] = &GctFormatTranslateV35::blockToGctInternEtSumsAndJetCluster;// Leaf3JetNegEtaU1: JF2 Output
-    m_blockUnpackFn[0xf04] = &GctFormatTranslateV35::blockToFibres;                     // Leaf3JetNegEtaU1: JF2 Raw Input
-    m_blockUnpackFn[0xf08] = &GctFormatTranslateV35::blockToRctCaloRegions;             // Leaf3JetNegEtaU1: JF3 Input
-    m_blockUnpackFn[0xf09] = &GctFormatTranslateV35::blockToGctJetPreCluster;           // Leaf3JetNegEtaU1: JF3 Shared Received
-    m_blockUnpackFn[0xf0a] = &GctFormatTranslateV35::blockToGctJetPreCluster;           // Leaf3JetNegEtaU1: JF3 Shared Sent
-    m_blockUnpackFn[0xf0b] = &GctFormatTranslateV35::blockToGctInternEtSumsAndJetCluster;// Leaf3JetNegEtaU1: JF3 Output
-    m_blockUnpackFn[0xf0c] = &GctFormatTranslateV35::blockToFibres;                     // Leaf3JetNegEtaU1: JF3 Raw Input
-    m_blockUnpackFn[0xf80] = &GctFormatTranslateV35::blockDoNothing;                    // Leaf3JetNegEtaU2: Eta0 Input
-    m_blockUnpackFn[0xf84] = &GctFormatTranslateV35::blockToFibres;                     // Leaf3JetNegEtaU2: Eta0 Raw Input
-    m_blockUnpackFn[0xf88] = &GctFormatTranslateV35::blockToRctCaloRegions;             // Leaf3JetNegEtaU2: JF1 Input
-    m_blockUnpackFn[0xf89] = &GctFormatTranslateV35::blockToGctJetPreCluster;           // Leaf3JetNegEtaU2: JF1 Shared Received
-    m_blockUnpackFn[0xf8a] = &GctFormatTranslateV35::blockToGctJetPreCluster;           // Leaf3JetNegEtaU2: JF1 Shared Sent
-    m_blockUnpackFn[0xf8b] = &GctFormatTranslateV35::blockToGctInternEtSumsAndJetCluster;// Leaf3JetNegEtaU2: JF1 Output
-    m_blockUnpackFn[0xf8c] = &GctFormatTranslateV35::blockToFibres;                     // Leaf3JetNegEtaU2: JF1 Raw Input
-
-
-    /*** Setup RCT Em Crate Map ***/
-    m_rctEmCrate[0x804] = 13;
-    m_rctEmCrate[0x884] = 9;
-    m_rctEmCrate[0xc04] = 4;
-    m_rctEmCrate[0xc84] = 0;
-
-
-    /*** Setup RCT jet crate map. ***/
-    m_rctJetCrate[0x900] = 9;  // PosEta Leaf 1 JF2
-    m_rctJetCrate[0x908] = 10; // PosEta Leaf 1 JF3
-    m_rctJetCrate[0x988] = 17; // PosEta Leaf 1 JF1 
-    m_rctJetCrate[0xa00] = 12; // PosEta Leaf 2 JF2
-    m_rctJetCrate[0xa08] = 13; // PosEta Leaf 2 JF3
-    m_rctJetCrate[0xa88] = 11; // PosEta Leaf 2 JF1 
-    m_rctJetCrate[0xb00] = 15; // PosEta Leaf 3 JF2
-    m_rctJetCrate[0xb08] = 16; // PosEta Leaf 3 JF3
-    m_rctJetCrate[0xb88] = 14; // PosEta Leaf 3 JF1 
-    m_rctJetCrate[0xd00] = 0;  // NegEta Leaf 1 JF2
-    m_rctJetCrate[0xd08] = 1;  // NegEta Leaf 1 JF3
-    m_rctJetCrate[0xd88] = 8;  // NegEta Leaf 1 JF1 
-    m_rctJetCrate[0xe00] = 3;  // NegEta Leaf 2 JF2
-    m_rctJetCrate[0xe08] = 4;  // NegEta Leaf 2 JF3
-    m_rctJetCrate[0xe88] = 2;  // NegEta Leaf 2 JF1 
-    m_rctJetCrate[0xf00] = 6;  // NegEta Leaf 3 JF2
-    m_rctJetCrate[0xf08] = 7;  // NegEta Leaf 3 JF3
-    m_rctJetCrate[0xf88] = 5;  // NegEta Leaf 3 JF1 
-
-
-    /*** Setup Block ID map for pipeline payload positions of isolated Internal EM Cands. ***/
-    m_internEmIsoBounds[0x680] = IsoBoundaryPair(8,15);
-    m_internEmIsoBounds[0x800] = IsoBoundaryPair(0, 9);
-    m_internEmIsoBounds[0x803] = IsoBoundaryPair(0, 1);
-    m_internEmIsoBounds[0x880] = IsoBoundaryPair(0, 7);
-    m_internEmIsoBounds[0x883] = IsoBoundaryPair(0, 1);
-    m_internEmIsoBounds[0xc00] = IsoBoundaryPair(0, 9);
-    m_internEmIsoBounds[0xc03] = IsoBoundaryPair(0, 1);
-    m_internEmIsoBounds[0xc80] = IsoBoundaryPair(0, 7);
-    m_internEmIsoBounds[0xc83] = IsoBoundaryPair(0, 1);
-  }
 }
 
 GctFormatTranslateV35::~GctFormatTranslateV35()
@@ -741,10 +735,11 @@ void GctFormatTranslateV35::blockToGctInternEmCand(const unsigned char * d, cons
   unsigned int numCandPairs = hdr.blockLength();
 
   // Debug assertion to prevent problems if definitions not up to date.
+  auto found = internEmIsoBounds().find(id);
   assert(internEmIsoBounds().find(id) != internEmIsoBounds().end());  
 
-  unsigned int lowerIsoPairBound = internEmIsoBounds()[id].first;
-  unsigned int upperIsoPairBound = internEmIsoBounds()[id].second;
+  unsigned int lowerIsoPairBound = found->second.first;
+  unsigned int upperIsoPairBound = found->second.second;
 
   // Re-interpret pointer to 16 bits so it sees one candidate at a time.
   const uint16_t * p = reinterpret_cast<const uint16_t *>(d);
@@ -798,7 +793,9 @@ void GctFormatTranslateV35::blockToRctEmCand(const unsigned char * d, const GctB
   unsigned int bx = 0;
 
   // loop over crates
-  for (unsigned int crate=rctEmCrateMap()[id]; crate<rctEmCrateMap()[id]+length/3; ++crate) {
+  auto found = rctEmCrateMap().find(id);
+  assert(found != rctEmCrateMap().end());
+  for (unsigned int crate=found->second; crate<found->second+length/3; ++crate) {
 
     // read SC SFP words
     for (unsigned short iSfp=0 ; iSfp<4 ; ++iSfp) {
@@ -836,10 +833,11 @@ void GctFormatTranslateV35::blockToRctCaloRegions(const unsigned char * d, const
   unsigned int length = hdr.blockLength();
 
   // Debug assertion to prevent problems if definitions not up to date.
-  assert(rctJetCrateMap().find(id) != rctJetCrateMap().end());  
+  auto found = rctJetCrateMap().find(id);
+  assert(found != rctJetCrateMap().end());  
   
   // get crate (need this to get ieta and iphi)
-  unsigned int crate=rctJetCrateMap()[id];
+  unsigned int crate=found->second;
 
   // re-interpret pointer
   const uint16_t * p = reinterpret_cast<const uint16_t *>(d);
