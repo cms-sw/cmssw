@@ -11,8 +11,7 @@
 
 namespace edm {
 
-
-DQMFileIterator::LumiEntry DQMFileIterator::LumiEntry::load_json(
+DQMFileIterator::LumiEntry DQMFileIterator::LumiEntry::load_json_data(
     const std::string& filename, int lumiNumber) {
   boost::property_tree::ptree pt;
   read_json(filename, pt);
@@ -20,10 +19,29 @@ DQMFileIterator::LumiEntry DQMFileIterator::LumiEntry::load_json(
   LumiEntry lumi;
 
   // We rely on n_events to be the first item on the array...
-  lumi.n_events = std::next(pt.get_child("data").begin(), 1)->second
-      .get_value<std::size_t>();
-  lumi.datafilename = std::next(pt.get_child("data").begin(), 2)->second
-      .get_value<std::string>();
+  lumi.n_events = std::next(pt.get_child("data").begin(), 1)
+                      ->second.get_value<std::size_t>();
+  lumi.datafilename = std::next(pt.get_child("data").begin(), 2)
+                          ->second.get_value<std::string>();
+  lumi.definition = pt.get<std::string>("definition");
+  lumi.source = pt.get<std::string>("source");
+
+  lumi.ls = lumiNumber;
+  return lumi;
+}
+
+DQMFileIterator::LumiEntry DQMFileIterator::LumiEntry::load_json_pb(
+    const std::string& filename, int lumiNumber) {
+  boost::property_tree::ptree pt;
+  read_json(filename, pt);
+
+  LumiEntry lumi;
+
+  // We rely on n_events to be the first item on the array...
+  lumi.n_events = std::next(pt.get_child("data").begin(), 1)
+                      ->second.get_value<std::size_t>();
+  lumi.datafilename = std::next(pt.get_child("data").begin(), 4)
+                          ->second.get_value<std::string>();
   lumi.definition = pt.get<std::string>("definition");
   lumi.source = pt.get<std::string>("source");
 
@@ -39,12 +57,12 @@ DQMFileIterator::EorEntry DQMFileIterator::EorEntry::load_json(
   EorEntry eor;
 
   // We rely on n_events to be the first item on the array...
-  eor.n_events = std::next(pt.get_child("data").begin(), 1)->second
-      .get_value<std::size_t>();
-  eor.n_lumi = std::next(pt.get_child("data").begin(), 2)->second
-      .get_value<std::size_t>();
-  eor.datafilename = std::next(pt.get_child("data").begin(), 2)->second
-      .get_value<std::string>();
+  eor.n_events = std::next(pt.get_child("data").begin(), 1)
+                     ->second.get_value<std::size_t>();
+  eor.n_lumi = std::next(pt.get_child("data").begin(), 2)
+                   ->second.get_value<std::size_t>();
+  eor.datafilename = std::next(pt.get_child("data").begin(), 2)
+                         ->second.get_value<std::string>();
   eor.definition = pt.get<std::string>("definition");
   eor.source = pt.get<std::string>("source");
   eor.loaded = true;
@@ -52,8 +70,9 @@ DQMFileIterator::EorEntry DQMFileIterator::EorEntry::load_json(
   return eor;
 }
 
+DQMFileIterator::DQMFileIterator(ParameterSet const& pset, JsonType t)
+    : type_(t), state_(EOR) {
 
-DQMFileIterator::DQMFileIterator(ParameterSet const& pset): state_(EOR) {
   runNumber_ = pset.getUntrackedParameter<unsigned int>("runNumber");
   runInputDir_ = pset.getUntrackedParameter<std::string>("runInputDir");
   streamLabel_ = pset.getUntrackedParameter<std::string>("streamLabel");
@@ -92,11 +111,13 @@ bool DQMFileIterator::hasNext() {
 }
 
 std::string DQMFileIterator::make_path_jsn(int lumi) {
-  return str(boost::format("%s/run%06d_ls%04d%s.jsn") % runPath_ % runNumber_ % lumi % streamLabel_);
+  return str(boost::format("%s/run%06d_ls%04d%s.jsn") % runPath_ % runNumber_ %
+             lumi % streamLabel_);
 }
 
 std::string DQMFileIterator::make_path_eor() {
-  return str(boost::format("%s/run%06d_ls0000_EoR.jsn") % runPath_ % runNumber_);
+  return str(boost::format("%s/run%06d_ls0000_EoR.jsn") % runPath_ %
+             runNumber_);
 }
 
 std::string DQMFileIterator::make_path_data(const LumiEntry& lumi) {
@@ -143,7 +164,12 @@ void DQMFileIterator::collect() {
       break;
     }
 
-    LumiEntry lumi = LumiEntry::load_json(fn, nextLumi);
+    LumiEntry lumi;
+    if (type_ == JS_PROTOBUF)
+      lumi = LumiEntry::load_json_pb(fn, nextLumi);
+    else
+      lumi = LumiEntry::load_json_data(fn, nextLumi);
+
     lastLumiSeen_ = nextLumi;
     queue_.push(lumi);
 
@@ -170,12 +196,15 @@ void DQMFileIterator::update_state() {
   }
 
   if (state_ != old_state) {
-    logFileAction("Streamer state changed: ", std::to_string(old_state) + "->" + std::to_string(state_));
+    logFileAction("Streamer state changed: ",
+                  std::to_string(old_state) + "->" + std::to_string(state_));
   }
 }
 
-void DQMFileIterator::logFileAction(const std::string& msg, const std::string& fileName) const {
-  edm::LogAbsolute("fileAction") << std::setprecision(0) << edm::TimeOfDay() << "  " << msg << fileName;
+void DQMFileIterator::logFileAction(const std::string& msg,
+                                    const std::string& fileName) const {
+  edm::LogAbsolute("fileAction") << std::setprecision(0) << edm::TimeOfDay()
+                                 << "  " << msg << fileName;
   edm::FlushMessageLog();
 }
 
@@ -195,9 +224,7 @@ void DQMFileIterator::delay() {
   updateWatchdog();
 }
 
-
-void DQMFileIterator::fillDescription(
-    ParameterSetDescription& desc) {
+void DQMFileIterator::fillDescription(ParameterSetDescription& desc) {
 
   desc.addUntracked<unsigned int>("runNumber")
       ->setComment("Run number passed via configuration file.");
@@ -211,6 +238,5 @@ void DQMFileIterator::fillDescription(
   desc.addUntracked<std::string>("runInputDir")
       ->setComment("Directory where the DQM files will appear.");
 }
-
 
 } /* end of namespace */

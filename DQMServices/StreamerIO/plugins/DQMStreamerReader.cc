@@ -30,7 +30,7 @@ namespace edm {
 DQMStreamerReader::DQMStreamerReader(ParameterSet const& pset,
                                      InputSourceDescription const& desc)
     : StreamerInputSource(pset, desc),
-      fiterator_(pset),
+      fiterator_(pset, DQMFileIterator::JS_DATA),
       streamReader_(),
       eventSkipperByID_(EventSkipperByID::create(pset).release()) {
 
@@ -48,7 +48,6 @@ DQMStreamerReader::DQMStreamerReader(ParameterSet const& pset,
 }
 
 DQMStreamerReader::~DQMStreamerReader() { closeFile_(); }
-
 
 void DQMStreamerReader::reset_() {
   // We have to load at least a single header,

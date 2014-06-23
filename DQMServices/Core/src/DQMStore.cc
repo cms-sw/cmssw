@@ -337,6 +337,11 @@ void DQMStore::mergeAndResetMEsRunSummaryCache(uint32_t run,
               << run
               << ", stream: " << streamId
               << " module: " << moduleId << std::endl;
+
+  if (LSbasedMode_) {
+    return;
+  }
+
   std::string null_str("");
   MonitorElement proto(&null_str, null_str, run, streamId, moduleId);
   std::set<MonitorElement>::const_iterator e = data_.end();
@@ -2018,7 +2023,8 @@ DQMStore::forceReset(void)
 /// extract object (TH1F, TH2F, ...) from <to>; return success flag
 /// flag fromRemoteNode indicating if ME arrived from different node
 bool
-DQMStore::extract(TObject *obj, const std::string &dir, bool overwrite)
+DQMStore::extract(TObject *obj, const std::string &dir,
+  bool overwrite, bool collateHistograms)
 {
   // NB: Profile histograms inherit from TH*D, checking order matters.
   MonitorElement *refcheck = 0;
@@ -2029,7 +2035,7 @@ DQMStore::extract(TObject *obj, const std::string &dir, bool overwrite)
       me = bookProfile(dir, h->GetName(), (TProfile *) h->Clone());
     else if (overwrite)
       me->copyFrom(h);
-    else if (isCollateME(me) || collateHistograms_)
+    else if (isCollateME(me) || collateHistograms)
       collateProfile(me, h);
     refcheck = me;
   }
@@ -2040,7 +2046,7 @@ DQMStore::extract(TObject *obj, const std::string &dir, bool overwrite)
       me = bookProfile2D(dir, h->GetName(), (TProfile2D *) h->Clone());
     else if (overwrite)
       me->copyFrom(h);
-    else if (isCollateME(me) || collateHistograms_)
+    else if (isCollateME(me) || collateHistograms)
       collateProfile2D(me, h);
     refcheck = me;
   }
@@ -2051,7 +2057,7 @@ DQMStore::extract(TObject *obj, const std::string &dir, bool overwrite)
       me = book1D(dir, h->GetName(), (TH1F *) h->Clone());
     else if (overwrite)
       me->copyFrom(h);
-    else if (isCollateME(me) || collateHistograms_)
+    else if (isCollateME(me) || collateHistograms)
       collate1D(me, h);
     refcheck = me;
   }
@@ -2062,7 +2068,7 @@ DQMStore::extract(TObject *obj, const std::string &dir, bool overwrite)
       me = book1S(dir, h->GetName(), (TH1S *) h->Clone());
     else if (overwrite)
       me->copyFrom(h);
-    else if (isCollateME(me) || collateHistograms_)
+    else if (isCollateME(me) || collateHistograms)
       collate1S(me, h);
     refcheck = me;
   }
@@ -2073,7 +2079,7 @@ DQMStore::extract(TObject *obj, const std::string &dir, bool overwrite)
       me = book1DD(dir, h->GetName(), (TH1D *) h->Clone());
     else if (overwrite)
       me->copyFrom(h);
-    else if (isCollateME(me) || collateHistograms_)
+    else if (isCollateME(me) || collateHistograms)
       collate1DD(me, h);
     refcheck = me;
   }
@@ -2084,7 +2090,7 @@ DQMStore::extract(TObject *obj, const std::string &dir, bool overwrite)
       me = book2D(dir, h->GetName(), (TH2F *) h->Clone());
     else if (overwrite)
       me->copyFrom(h);
-    else if (isCollateME(me) || collateHistograms_)
+    else if (isCollateME(me) || collateHistograms)
       collate2D(me, h);
     refcheck = me;
   }
@@ -2095,7 +2101,7 @@ DQMStore::extract(TObject *obj, const std::string &dir, bool overwrite)
       me = book2S(dir, h->GetName(), (TH2S *) h->Clone());
     else if (overwrite)
       me->copyFrom(h);
-    else if (isCollateME(me) || collateHistograms_)
+    else if (isCollateME(me) || collateHistograms)
       collate2S(me, h);
     refcheck = me;
   }
@@ -2106,7 +2112,7 @@ DQMStore::extract(TObject *obj, const std::string &dir, bool overwrite)
       me = book2DD(dir, h->GetName(), (TH2D *) h->Clone());
     else if (overwrite)
       me->copyFrom(h);
-    else if (isCollateME(me) || collateHistograms_)
+    else if (isCollateME(me) || collateHistograms)
       collate2DD(me, h);
     refcheck = me;
   }
@@ -2117,7 +2123,7 @@ DQMStore::extract(TObject *obj, const std::string &dir, bool overwrite)
       me = book3D(dir, h->GetName(), (TH3F *) h->Clone());
     else if (overwrite)
       me->copyFrom(h);
-    else if (isCollateME(me) || collateHistograms_)
+    else if (isCollateME(me) || collateHistograms)
       collate3D(me, h);
     refcheck = me;
   }
@@ -2283,7 +2289,7 @@ DQMStore::extract(TObject *obj, const std::string &dir, bool overwrite)
     s += n->GetTitle();
     s += '<'; s += '/'; s += n->GetName(); s += '>';
     TObjString os(s.c_str());
-    return extract(&os, dir, overwrite);
+    return extract(&os, dir, overwrite, collateHistograms_);
   }
   else
   {
@@ -2393,7 +2399,7 @@ void DQMStore::savePB(const std::string &filename,
                   << " LumiFlag: " << (*mi).getLumiFlag()
                   << " streamId: " << (*mi).streamId()
                   << " moduleId: " << (*mi).moduleId()
-                  << " fullpathname: " << (*mi).getPathname() << std::endl;
+                  << " fullpathname: " << (*mi).getFullname() << std::endl;
 
       // Skip if it isn't a direct child.
       if (*di != *mi->data_.dirname)
@@ -2779,7 +2785,7 @@ DQMStore::readDirectory(TFile *file,
                   << "' into '" << dirpart << "'\n";
 
       makeDirectory(dirpart);
-      if (extract(obj.get(), dirpart, overwrite))
+      if (extract(obj.get(), dirpart, overwrite, collateHistograms_))
         ++count;
     }
   }
@@ -2793,7 +2799,7 @@ DQMStore::readDirectory(TFile *file,
                 << "' into '" << dirpart << "'\n";
 
     makeDirectory(dirpart);
-    if (extract(delayed.front(), dirpart, overwrite))
+    if (extract(delayed.front(), dirpart, overwrite, collateHistograms_))
       ++count;
 
     delete delayed.front();
@@ -2994,10 +3000,12 @@ DQMStore::readFilePB(const std::string &filename,
        */
       MonitorElement *me = findObject(path, objname);
 
-      bool oldCollate = collateHistograms_;
-      collateHistograms_ = true;
-      extract(static_cast<TObject *>(obj), path, false);
-      collateHistograms_ = oldCollate;
+      /* Run histograms should be collated and not overwritten,
+       * Lumi histograms should be overwritten (and collate flag is not checked)
+       */
+      bool overwrite = h.flags() & DQMNet::DQM_PROP_LUMI;
+      bool collate = !(h.flags() & DQMNet::DQM_PROP_LUMI);
+      extract(static_cast<TObject *>(obj), path, overwrite, collate);
 
       if (me == nullptr) {
         me = findObject(path, objname);

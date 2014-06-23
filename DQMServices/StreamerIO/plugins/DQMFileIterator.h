@@ -27,7 +27,9 @@ class DQMFileIterator {
     std::string definition;
     std::string source;
 
-    static LumiEntry load_json(const std::string& filename, int lumiNumber);
+    static LumiEntry load_json_pb(const std::string& filename, int lumiNumber);
+    static LumiEntry load_json_data(const std::string& filename,
+                                    int lumiNumber);
   };
 
   struct EorEntry {
@@ -48,7 +50,12 @@ class DQMFileIterator {
     EOR = 2,
   };
 
-  DQMFileIterator(ParameterSet const& pset);
+  enum JsonType {
+    JS_PROTOBUF,
+    JS_DATA,
+  };
+
+  DQMFileIterator(ParameterSet const& pset, JsonType t);
   ~DQMFileIterator();
   void initialise(int run, const std::string&, const std::string&);
 
@@ -69,14 +76,19 @@ class DQMFileIterator {
   void update_state();
 
   /* misc helpers for input sources */
-  void logFileAction(const std::string& msg, const std::string& fileName="") const;
+  void logFileAction(const std::string& msg,
+                     const std::string& fileName = "") const;
   void delay();
   void updateWatchdog();
-  unsigned int runNumber() { return runNumber_; };
+  unsigned int runNumber() {
+    return runNumber_;
+  };
 
   static void fillDescription(ParameterSetDescription& d);
 
  private:
+  JsonType type_;
+
   unsigned int runNumber_;
   std::string runInputDir_;
   std::string streamLabel_;

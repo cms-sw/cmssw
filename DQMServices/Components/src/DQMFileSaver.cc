@@ -27,6 +27,7 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/format.hpp>
 
 //--------------------------------------------------------
 const std::string DQMFileSaver::streamPrefix_("stream");
@@ -257,8 +258,10 @@ DQMFileSaver::fillJson(int run, int lumi, const std::string& dataFilePathName, b
   // The availability test of the FastMonitoringService was done in the ctor.
   bpt::ptree data;
   bpt::ptree processedEvents, acceptedEvents, errorEvents, bitmask, fileList, fileSize, inputFiles;
-  processedEvents.put("", fms_->getEventsProcessedForLumi(lumi)); // Processed events
-  acceptedEvents.put("", fms_->getEventsProcessedForLumi(lumi)); // Accepted events, same as processed for our purposes
+
+  processedEvents.put("", fms_ ? (fms_->getEventsProcessedForLumi(lumi)) : -1); // Processed events
+  acceptedEvents.put("", fms_ ? (fms_->getEventsProcessedForLumi(lumi)) : -1); // Accepted events, same as processed for our purposes
+
   errorEvents.put("", 0); // Error events
   bitmask.put("", 0); // Bitmask of abs of CMSSW return code
   fileList.put("", dataFileName); // Data file the information refers to
@@ -274,10 +277,16 @@ DQMFileSaver::fillJson(int run, int lumi, const std::string& dataFilePathName, b
   data.push_back(std::make_pair("", inputFiles));
 
   pt.add_child("data", data);
-  // The availability test of the EvFDaqDirector Service was done in the ctor.
-  bfs::path outJsonDefName(edm::Service<evf::EvFDaqDirector>()->baseRunDir()); //we assume this file is written bu the EvF Output module
-  outJsonDefName /= (std::string("output_") + oss_pid.str() + std::string(".jsd"));
-  pt.put("definition", outJsonDefName.string());
+
+  if (fakeFilterUnitMode_) {
+    pt.put("definition", "/fakeDefinition.jsn");
+  } else {
+    // The availability test of the EvFDaqDirector Service was done in the ctor.
+    bfs::path outJsonDefName(edm::Service<evf::EvFDaqDirector>()->baseRunDir()); //we assume this file is written bu the EvF Output module
+    outJsonDefName /= (std::string("output_") + oss_pid.str() + std::string(".jsd"));
+    pt.put("definition", outJsonDefName.string());
+  }
+
   char sourceInfo[64]; //host and pid information
   sprintf(sourceInfo, "%s_%d", host, pid);
   pt.put("source", sourceInfo);
@@ -289,14 +298,39 @@ DQMFileSaver::saveForFilterUnit(const std::string& rewrite, int run, int lumi,  
   // get from DAQ2 services where to store the files according to their format
   namespace bpt = boost::property_tree;
   bpt::ptree pt;
+
+  std::string openJsonFilePathName;
+  std::string jsonFilePathName;
   std::string openHistoFilePathName;
   std::string histoFilePathName;
-  std::string openJsonFilePathName = edm::Service<evf::EvFDaqDirector>()->getOpenOutputJsonFilePath(lumi, stream_label_);
-  std::string jsonFilePathName = edm::Service<evf::EvFDaqDirector>()->getOutputJsonFilePath(lumi, stream_label_);
+
+  // create the files names
+  if (fakeFilterUnitMode_) {
+    std::string runDir = str(boost::format("%s/run%06d") % dirName_ % run);
+    std::string baseName = str(boost::format("%s/run%06d_ls%04d_%s") % runDir % run % lumi % stream_label_ );
+
+    boost::filesystem::create_directories(runDir);
+
+    jsonFilePathName = baseName + ".jsn";
+    openJsonFilePathName = jsonFilePathName + ".open";
+
+    histoFilePathName = baseName + dataFileExtension(fileFormat);
+    openHistoFilePathName = histoFilePathName + ".open";
+  } else {
+    openJsonFilePathName = edm::Service<evf::EvFDaqDirector>()->getOpenOutputJsonFilePath(lumi, stream_label_);
+    jsonFilePathName = edm::Service<evf::EvFDaqDirector>()->getOutputJsonFilePath(lumi, stream_label_);
+
+    if (fileFormat == ROOT) {
+      openHistoFilePathName = edm::Service<evf::EvFDaqDirector>()->getOpenRootHistogramFilePath(lumi, stream_label_);
+      histoFilePathName = edm::Service<evf::EvFDaqDirector>()->getRootHistogramFilePath(lumi, stream_label_);
+    } else if (fileFormat == PB) {
+      openHistoFilePathName = edm::Service<evf::EvFDaqDirector>()->getOpenProtocolBufferHistogramFilePath(lumi, stream_label_);
+      histoFilePathName = edm::Service<evf::EvFDaqDirector>()->getProtocolBufferHistogramFilePath(lumi, stream_label_);
+    }
+  }
+
   if (fileFormat == ROOT)
   {
-    openHistoFilePathName = edm::Service<evf::EvFDaqDirector>()->getOpenRootHistogramFilePath(lumi, stream_label_);
-    histoFilePathName = edm::Service<evf::EvFDaqDirector>()->getRootHistogramFilePath(lumi, stream_label_);
     // Save the file with the full directory tree,
     // modifying it according to @a rewrite,
     // but not looking for MEs inside the DQMStore, as in the online case,
@@ -314,8 +348,6 @@ DQMFileSaver::saveForFilterUnit(const std::string& rewrite, int run, int lumi,  
   }
   else if (fileFormat == PB)
   {
-    openHistoFilePathName = edm::Service<evf::EvFDaqDirector>()->getOpenProtocolBufferHistogramFilePath(lumi, stream_label_);
-    histoFilePathName = edm::Service<evf::EvFDaqDirector>()->getProtocolBufferHistogramFilePath(lumi, stream_label_);
     // Save the file in the open directory.
     // TODO(diguida): check if this is multithread friendly!
     dbe_->savePB(openHistoFilePathName, filterName_);
@@ -324,7 +356,7 @@ DQMFileSaver::saveForFilterUnit(const std::string& rewrite, int run, int lumi,  
     throw cms::Exception("DQMFileSaver")
           << "Internal error, can save files"
           << " only in ROOT or ProtocolBuffer format.";
-  this->fillJson(run, lumi, openHistoFilePathName, pt);
+  this->fillJson(run, lumi, histoFilePathName, pt);
   // Write the json file in the open directory.
   write_json(openJsonFilePathName, pt);
   // Now move the the data and json files into the output directory.
@@ -389,6 +421,8 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
 {
   // Determine the file saving convention, and adjust defaults accordingly.
   std::string convention = ps.getUntrackedParameter<std::string>("convention", "Offline");
+  fakeFilterUnitMode_ = ps.getUntrackedParameter<bool>("fakeFilterUnitMode", false);
+
   if (convention == "Offline")
     convention_ = Offline;
   else if (convention == "Online")
@@ -533,6 +567,11 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
     version[7]='\0';
     fileBaseName_ = dirName_ + "/" + producer_ + version;
   }
+  else if (fakeFilterUnitMode_)
+  {
+    edm::LogInfo("DQMFileSaver")
+      << "Fake FU mode, files are saved under <dirname>/runXXXXXX/runXXXXXX_lsXXXX_<stream_Label>.pb.\n";
+  }
   else
   {
     // For FU, dirName_ will not be considered at all
@@ -542,6 +581,7 @@ DQMFileSaver::DQMFileSaver(const edm::ParameterSet &ps)
     //check that DAQ2 services are available: throw if not
     fms_ = (evf::FastMonitoringService *) (edm::Service<evf::MicroStateService>().operator->());
     evf::EvFDaqDirector * daqDirector = (evf::EvFDaqDirector *) (edm::Service<evf::EvFDaqDirector>().operator->());
+
     if (!(fms_ && daqDirector))
       throw cms::Exception("DQMFileSaver")
               << "Internal error, cannot initialize DAQ services.";
@@ -576,7 +616,7 @@ DQMFileSaver::globalBeginRun(const edm::Run &r, const edm::EventSetup &) const
   // it is needed by the HLT deamon in order to start merging
   // The run number is established in the service
   // TODO(diguida): check that they are the same?
-  if (convention_ == FilterUnit)
+  if ((convention_ == FilterUnit) && (!fakeFilterUnitMode_))
   {
     evf::EvFDaqDirector * daqDirector = (evf::EvFDaqDirector *) (edm::Service<evf::EvFDaqDirector>().operator->());
     const std::string initFileName = daqDirector->getInitFilePath(stream_label_);
@@ -679,6 +719,42 @@ DQMFileSaver::globalEndRun(const edm::Run & iRun, const edm::EventSetup &) const
 	  << "Internal error.  Can only save files in endRun()"
 	  << " in Online and Offline modes.";
     }
+
+  // create a fake EoR file for testing purposes.
+  if (fakeFilterUnitMode_) {
+    edm::LogInfo("DQMFileSaver")
+      << "Producing fake EoR file.\n";
+
+    std::string runDir = str(boost::format("%s/run%06d") % dirName_ % irun);
+    std::string jsonFilePathName = str(boost::format("%s/run%06d_ls0000_EoR.jsn") % runDir % irun);
+    std::string openJsonFilePathName = jsonFilePathName + ".open";
+
+    boost::filesystem::create_directories(runDir);
+
+    using namespace boost::property_tree;
+    ptree pt;
+    ptree data;
+
+    ptree child1, child2, child3;
+
+    child1.put("", -1);    // Processed
+    child2.put("", -1);    // Accepted
+    child3.put("", nlumi_);  // number of lumi
+
+    data.push_back(std::make_pair("", child1));
+    data.push_back(std::make_pair("", child2));
+    data.push_back(std::make_pair("", child3));
+
+    pt.add_child("data", data);
+    pt.put("definition", "/non-existant/");
+    pt.put("source", "--hostname--");
+
+    std::ofstream file(jsonFilePathName);
+    write_json(file, pt, true);
+    file.close();
+
+    rename(openJsonFilePathName.c_str(), jsonFilePathName.c_str());
+  }
 }
 
 void

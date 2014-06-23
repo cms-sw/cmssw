@@ -621,7 +621,7 @@ class DQMStore
   void        reset(void);
   void        forceReset(void);
 
-  bool        extract(TObject *obj, const std::string &dir, bool overwrite);
+  bool        extract(TObject *obj, const std::string &dir, bool overwrite, bool collateHistograms);
   TObject *   extractNextObject(TBufferFile&) const;
 
   // ---------------------- Booking ------------------------------------

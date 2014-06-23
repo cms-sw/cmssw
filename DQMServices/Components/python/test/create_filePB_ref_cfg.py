@@ -34,16 +34,15 @@ process.filler = cms.EDAnalyzer("DummyBookFillDQMStore" + b.mt_postfix(),
                                 book_at_beginRun = cms.untracked.bool(b.getBookLogic('BR')))
 
 process.out = cms.OutputModule("DQMRootOutputModule",
-                               fileName = cms.untracked.string("dqm_file4.root"))
+                               fileName = cms.untracked.string("dqm_filePB_ref.root"))
 
 
 process.p = cms.Path(process.filler)
-process.dqmsave_step = cms.Path(process.dqmSaver)
 process.o = cms.EndPath(process.out)
 
 process.schedule = cms.Schedule(
     process.p,
-    process.dqmsave_step
+    process.o
 )
 
 process.add_(cms.Service("DQMStore"))
@@ -67,14 +66,7 @@ if len(sys.argv) > 3:
 
 #----------------------------------------------------------#
 #global options
-process.DQMStore.LSbasedMode = cms.untracked.bool(True)
-process.DQMStore.verbose = cms.untracked.int32(5)
-
-process.dqmSaver.workflow = ''
-process.dqmSaver.convention = 'FilterUnit'
-process.dqmSaver.saveByLumiSection = True
-process.dqmSaver.fileFormat = cms.untracked.string('PB')
-process.dqmSaver.fakeFilterUnitMode = cms.untracked.bool(True)
-
+#process.DQMStore.LSbasedMode = cms.untracked.bool(True)
+#process.DQMStore.verbose = cms.untracked.int32(5)
 
 #process.add_(cms.Service("Tracer"))

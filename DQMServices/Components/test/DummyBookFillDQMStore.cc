@@ -262,6 +262,13 @@ DummyBookFillDQMStore::~DummyBookFillDQMStore() {
 void
 DummyBookFillDQMStore::analyze(edm::Event const& iEvent,
                                edm::EventSetup const& iSetup) {
+
+  std::vector<boost::shared_ptr<FillerBase> >::iterator it = m_runFillers.begin();
+  std::vector<boost::shared_ptr<FillerBase> >::iterator ite = m_runFillers.end();
+  for (; it != ite; ++it)
+    (*it)->fill();
+
+
 //   using namespace edm;
   /* This is an event example
   //Read 'ExampleData' from the Event
@@ -299,10 +306,6 @@ void DummyBookFillDQMStore::beginRun(edm::Run const&, edm::EventSetup const&) {
 
 // ------------ method called when ending the processing of a run  ------------
 void DummyBookFillDQMStore::endRun(edm::Run const&, edm::EventSetup const&) {
-  std::vector<boost::shared_ptr<FillerBase> >::iterator it = m_runFillers.begin();
-  std::vector<boost::shared_ptr<FillerBase> >::iterator ite = m_runFillers.end();
-  for (; it != ite; ++it)
-    (*it)->fill();
 }
 
 // ------------ method called when starting to processes a luminosity block  ------------

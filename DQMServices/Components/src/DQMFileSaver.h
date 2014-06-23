@@ -32,7 +32,7 @@ public:
   {
     Online,
     Offline,
-    FilterUnit
+    FilterUnit,
   };
 
   enum FileFormat
@@ -60,9 +60,10 @@ private:
   std::string	dirName_;
   std::string   child_;
   std::string	filterName_;
-  int        	version_;
-  bool		runIsComplete_;
-  bool          enableMultiThread_;
+  int   version_;
+  bool  runIsComplete_;
+  bool  enableMultiThread_;
+  bool  fakeFilterUnitMode_;
 
   int		saveByLumiSection_;
   int		saveByRun_;
