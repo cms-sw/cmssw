@@ -277,7 +277,7 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF, co
   //  G4cout << "Output of G4ParticleTable DumpTable:" << G4endl;
   //  G4ParticleTable::GetParticleTable()->DumpTable("ALL");
   
-  initializeRun();
+  //initializeRun();
   firstRun= false;
 }
 

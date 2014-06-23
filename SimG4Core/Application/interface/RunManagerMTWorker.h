@@ -18,6 +18,7 @@ class RunManagerMT;
 
 class G4Event;
 class G4SimEvent;
+class G4Run;
 
 class RunManagerMTWorker {
 public:
@@ -44,6 +45,8 @@ private:
 
   std::unique_ptr<G4Event> m_currentEvent;
   std::unique_ptr<G4SimEvent> m_simEvent;
+
+  static thread_local std::unique_ptr<G4Run> m_currentRun;
 
   SimActivityRegistry m_registry;
 };

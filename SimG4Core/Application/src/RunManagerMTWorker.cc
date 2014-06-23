@@ -10,6 +10,7 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "SimG4Core/Notification/interface/SimActivityRegistry.h"
+#include "SimG4Core/Notification/interface/SimG4Exception.h"
 
 #include "SimG4Core/Geometry/interface/DDDWorld.h"
 
@@ -18,11 +19,13 @@
 #include "SimG4Core/Physics/interface/PhysicsList.h"
 
 #include "G4Event.hh"
+#include "G4Run.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4Threading.hh"
 #include "G4UImanager.hh"
 #include "G4WorkerThread.hh"
 #include "G4WorkerRunManagerKernel.hh"
+#include "G4StateManager.hh"
 
 #include <atomic>
 #include <thread>
@@ -41,6 +44,7 @@ namespace {
 }
 
 thread_local bool RunManagerMTWorker::m_threadInitialized = false;
+thread_local std::unique_ptr<G4Run> RunManagerMTWorker::m_currentRun;
 
 RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig):
   m_generator(iConfig.getParameter<edm::ParameterSet>("Generator")),
@@ -85,6 +89,14 @@ void RunManagerMTWorker::initializeThread(const RunManagerMT& runManagerMaster) 
   physicsList->InitializeWorker();
   kernel->SetPhysics(physicsList);
   kernel->InitializePhysics();
+
+  const bool kernelInit = kernel->RunInitialization();
+  if(!kernelInit)
+    throw SimG4Exception("G4WorkerRunManagerKernel initialization failed");
+
+  // Initialize run
+  m_currentRun.reset(new G4Run());
+  G4StateManager::GetStateManager()->SetNewState(G4State_GeomClosed);
 }
 
 void RunManagerMTWorker::produce(const edm::Event& inpevt, const edm::EventSetup& es, const RunManagerMT& runManagerMaster) {
@@ -116,17 +128,15 @@ void RunManagerMTWorker::produce(const edm::Event& inpevt, const edm::EventSetup
        
     abortRun(false);
   } else {
-    /*
     G4RunManagerKernel *kernel = G4WorkerRunManagerKernel::GetRunManagerKernel();
     if(!kernel)
-      throw cms::Exception("Assert") << "No G4WorkerRunManagerKernel yet for thread " << getThreadIndex() << ", id " << std::hex << std::this_thread::get_id();
+      throw cms::Exception("Assert") << "No G4WorkerRunManagerKernel yet for thread index" << getThreadIndex() << ", id " << std::hex << std::this_thread::get_id();
 
     kernel->GetEventManager()->ProcessOneEvent(m_currentEvent.get());
-    */
   }
     
   edm::LogWarning("SimG4CoreApplication") // FIXME: should be LogInfo
-    << " RunManagerMT: saved : Event  " << inpevt.id().event() 
+    << " RunManagerMTWorker: saved : Event  " << inpevt.id().event() 
     << " stream id " << inpevt.streamID()
     << " thread index " << getThreadIndex()
     << " of weight " << m_simEvent->weight()
