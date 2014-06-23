@@ -107,7 +107,7 @@ DTTrig::createTUs(const edm::EventSetup& iSetup ){
     DTChamberId chid = chamb->id();
     TU_iterator it = _cache.find(chid);
     if ( it != _cache.end()) {
-      std::cout << "DTTrig::init: Trigger unit already exists" << std::endl;
+      if (_debug) std::cout << "DTTrig::init: Trigger unit already exists" << std::endl;
       continue;
     }
 

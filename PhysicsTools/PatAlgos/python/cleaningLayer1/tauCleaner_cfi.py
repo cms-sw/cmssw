@@ -6,7 +6,7 @@ cleanPatTaus = cms.EDProducer("PATTauCleaner",
     # preselection (any string-based cut on pat::Tau)
     preselection = cms.string(
         'tauID("decayModeFinding") > 0.5 &'
-        ' tauID("byLooseCombinedIsolationDeltaBetaCorr") > 0.5 &'
+        ' tauID("byLooseCombinedIsolationDeltaBetaCorr3Hits") > 0.5 &'
         ' tauID("againstMuonTight") > 0.5 &'
         ' tauID("againstElectronMedium") > 0.5'
     ),

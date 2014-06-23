@@ -120,6 +120,8 @@ workflows[135.5] = ['ZTT_13',['ZTTFS_13','HARVESTUP15FS']]
 workflows[135.6]  = ['QCD_FlatPt_15_3000_13', ['QCDFlatPt153000FS_13','HARVESTUP15FS']]
 workflows[135.7] = ['H130GGgluonfusion_13', ['H130GGgluonfusionFS_13','HARVESTUP15FS']]
 
+### MinBias fastsim_13 TeV for mixing ###
+workflows[135.8] = ['',['MinBiasFS_13_ForMixing']]
 
 ### standard set ###
 ## particle guns

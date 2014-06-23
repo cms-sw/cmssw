@@ -256,6 +256,7 @@ def gen2015(fragment,howMuch):
 ### Production test: 13 TeV equivalents
 steps['ProdMinBias_13']=gen2015('MinBias_13TeV_cfi',Kby(9,100))
 steps['ProdTTbar_13']=gen2015('TTbar_Tauola_13TeV_cfi',Kby(9,100))
+steps['ProdZEE_13']=gen2015('ZEE_13TeV_cfi',Kby(9,100))
 steps['ProdQCD_Pt_3000_3500_13']=gen2015('QCD_Pt_3000_3500_13TeV_cfi',Kby(9,100))
 # GF include branched wf comparing relVal and prod
 
@@ -828,6 +829,16 @@ step1FastUpg2015Defaults =merge([{'-s':'GEN,SIM,RECO,EI,HLT:@relval,VALIDATION',
                            '--datatier':'GEN-SIM-DIGI-RECO,DQMIO',
                            '--relval':'27000,3000'},
                            step1Defaults])
+step1FastPUNewMixing =merge([{'-s':'GEN,SIM,RECO',
+                           '--fast':'',
+                           '--conditions'  :'auto:run2_mc',
+                           '--magField'    :'38T_PostLS1',
+                           '--customise'   :'SLHCUpgradeSimulations/Configuration/postLS1Customs.customisePostLS1',
+                           '--eventcontent':'FASTPU',
+                           '--datatier':'GEN-SIM-RECO',
+                           '--relval':'27000,3000'},
+                           step1Defaults])
+
 
 #step1FastDefaults
 steps['TTbarFS']=merge([{'cfg':'TTbar_Tauola_8TeV_cfi'},Kby(100,1000),step1FastDefaults])
@@ -855,6 +866,9 @@ steps['QCD_Pt_3000_3500FS_13']=merge([{'cfg':'QCD_Pt_3000_3500_13TeV_cfi'},Kby(1
 steps['H130GGgluonfusionFS_13']=merge([{'cfg':'H130GGgluonfusion_13TeV_cfi'},step1FastUpg2015Defaults])
 steps['SingleMuPt10FS_UP15']=merge([{'cfg':'SingleMuPt10_cfi'},step1FastUpg2015Defaults])
 steps['SingleMuPt100FS_UP15']=merge([{'cfg':'SingleMuPt100_cfi'},step1FastUpg2015Defaults])
+
+#step1FastPU
+steps['MinBiasFS_13_ForMixing']=merge([{'cfg':'MinBias_13TeV_cfi'},Kby(100,1000),step1FastPUNewMixing])
 
 steps['TTbarSFS']=merge([{'cfg':'TTbar_Tauola_8TeV_cfi'},
                         {'-s':'GEN,SIM',
@@ -999,6 +1013,47 @@ steps['DIGIUP17']=merge([step2Upg2017Defaults])
 #add this line when testing from an input file that is not strictly GEN-SIM
 #addForAll(step2,{'--process':'DIGI'})
 
+
+# PRE-MIXING : https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideSimulation#Pre_Mixing_Instructions
+premixUp2015Defaults = {
+    '--evt_type'    : 'SingleNuE10_cfi',
+    '-s'            : 'GEN,SIM,DIGIPREMIX,L1,DIGI2RAW',
+    '-n'            : '10',
+    '--conditions'  : 'auto:upgradePLS1', # 25ns GT; dedicated dict for 50ns
+    '--datatier'    : 'GEN-SIM-DIGI-RAW',
+    '--eventcontent': 'PREMIX',
+    '--magField'    : '38T_PostLS1',
+    '--geometry'    : 'Extended2015',
+    '--customise'   : 'SLHCUpgradeSimulations/Configuration/postLS1CustomsPreMixing.customisePostLS1' # temporary replacement for premix; to be brought back to customisePostLS1
+}
+premixUp2015Defaults50ns = merge([{'--conditions':'auto:upgradePLS150ns'},premixUp2015Defaults])
+
+steps['PREMIXUP15_PU25']=merge([PU25,Kby(100,100),premixUp2015Defaults])
+steps['PREMIXUP15_PU50']=merge([PU50,Kby(100,100),premixUp2015Defaults50ns])
+
+digiPremixUp2015Defaults25ns = { 
+    '--conditions'   : 'auto:upgradePLS1',
+    '-s'             : 'DIGIPREMIX_S2:pdigi_valid,DATAMIX,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco',
+   '--pileup_input'  :  'das:/RelValPREMIXUP15_PU25/%s/GEN-SIM-DIGI-RAW'%baseDataSetRelease[9],
+    '--eventcontent' : 'FEVTDEBUGHLT',
+    '--datatier'     : 'GEN-SIM-DIGI-RAW-HLTDEBUG',
+    '--datamix'      : 'PreMix',
+    '--customise'    : 'SLHCUpgradeSimulations/Configuration/postLS1CustomsPreMixing.customisePostLS1', # temporary replacement for premix; to be brought back to customisePostLS1
+    '--geometry'     : 'Extended2015',
+    '--magField'     : '38T_PostLS1',
+    }
+digiPremixUp2015Defaults50ns=merge([{'--conditions':'auto:upgradePLS150ns'},
+                                    {'--pileup_input' : 'das:/RelValPREMIXUP15_PU50/%s/GEN-SIM-DIGI-RAW'%baseDataSetRelease[10]},
+                                    digiPremixUp2015Defaults25ns])
+steps['DIGIPRMXUP15_PU25']=merge([digiPremixUp2015Defaults25ns])
+steps['DIGIPRMXUP15_PU50']=merge([digiPremixUp2015Defaults50ns])
+premixProd = {'-s'             : 'DIGIPREMIX_S2,DATAMIX,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco',
+              '--eventcontent' : 'PREMIXRAW',
+              '--datatier'     : 'PREMIXRAW'} #GF: check this datatier name
+steps['DIGIPRMXUP15_PROD_PU25']=merge([premixProd,digiPremixUp2015Defaults25ns])
+steps['DIGIPRMXUP15_PROD_PU50']=merge([premixProd,digiPremixUp2015Defaults50ns])
+
+
 dataReco={'--conditions':'auto:run1_data',
           '-s':'RAW2DIGI,L1Reco,RECO,EI,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias,DQM',
           '--datatier':'RECO,DQMIO',
@@ -1124,11 +1179,28 @@ steps['RECOUP15_PU50']=merge([PU50,step3Up2015Defaults50ns])
 # for premixing: no --pileup_input for replay; GEN-SIM only available for in-time event, from FEVTDEBUGHLT previous step
 steps['RECOPRMXUP15_PU25']=merge([
         {'-s':'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM'},
+        {'--customise':'SLHCUpgradeSimulations/Configuration/postLS1CustomsPreMixing.customisePostLS1'}, # temporary replacement for premix; to be brought back to customisePostLS1
+        {'--geometry'  : 'Extended2015'},
         step3Up2015Defaults])
 steps['RECOPRMXUP15_PU50']=merge([
         {'-s':'RAW2DIGI,L1Reco,RECO,EI,VALIDATION,DQM'},
+        {'--customise':'SLHCUpgradeSimulations/Configuration/postLS1CustomsPreMixing.customisePostLS1'}, # temporary replacement for premix; to be brought back to customisePostLS1
+        {'--geometry'  : 'Extended2015'},
         step3Up2015Defaults50ns])
 
+recoPremixUp15prod = merge([
+        {'-s':'RAW2DIGI,L1Reco,RECO,EI'},
+        {'--datatier' : 'GEN-SIM-RECO,AODSIM'}, 
+        {'--eventcontent' : 'RECOSIM,AODSIM'},
+        {'--customise':'SLHCUpgradeSimulations/Configuration/postLS1CustomsPreMixing.customisePostLS1'}, # temporary replacement for premix; to be brought back to customisePostLS1
+        {'--geometry'  : 'Extended2015'},
+        step3Up2015Defaults])
+
+steps['RECOPRMXUP15PROD_PU25']=merge([
+        recoPremixUp15prod])
+steps['RECOPRMXUP15PROD_PU50']=merge([
+        {'--conditions':'auto:upgradePLS150ns'},
+        recoPremixUp15prod])
 
 #wmsplit['RECOPU1']=1
 steps['RECOPUDBG']=merge([{'--eventcontent':'RECODEBUG,DQM'},steps['RECOPU1']])

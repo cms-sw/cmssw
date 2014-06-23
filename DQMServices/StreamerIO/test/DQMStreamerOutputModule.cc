@@ -11,11 +11,6 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 
-#include "EventFilter/Utilities/interface/JsonMonitorable.h"
-#include "EventFilter/Utilities/interface/FastMonitor.h"
-#include "EventFilter/Utilities/interface/JSONSerializer.h"
-#include "EventFilter/Utilities/plugins/FastMonitoringService.h"
-
 #include "IOPool/Streamer/interface/StreamerOutputFile.h"
 #include "IOPool/Streamer/interface/InitMsgBuilder.h"
 #include "IOPool/Streamer/interface/EventMsgBuilder.h"
