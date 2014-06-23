@@ -290,6 +290,8 @@ L1MuonParticleExtendedProducer::produce( edm::Event& iEvent,
 		sData.sigmaPhi = dPhi/sqrt(12.); //just the roundoff uncertainty (could be worse)
 		sData.sigmaEta = dEta/sqrt(12.);
 
+		sData.bendPhi = aDigi->getGEMDPhi(); //FIXME: need something in normal global coordinates
+		
 		sData.bendPhiInt = aDigi->getCLCTPattern();
 		if (aDigi->getBend()) sData.bendPhiInt*=-1;
 	      } //LCTs for a given anID
