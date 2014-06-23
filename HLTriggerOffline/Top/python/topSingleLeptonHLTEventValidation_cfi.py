@@ -23,7 +23,8 @@ topSingleMuonHLTValidation = cms.EDAnalyzer('TopSingleLeptonHLTValidation',
         minJets      = cms.untracked.uint32(4),
         # Trigger
         sTrigger     = cms.untracked.string("TriggerResults"),
-        vsPaths      = cms.untracked.vstring(['HLT_IsoMu17_eta2p1_TriCentralPFNoPUJet45_35_25','HLT_IsoMu17_eta2p1_TriCentralPFNoPUJet30']),
+        #vsPaths      = cms.untracked.vstring(['HLT_IsoMu17_eta2p1_TriCentralPFNoPUJet45_35_25','HLT_IsoMu17_eta2p1_TriCentralPFNoPUJet30']),
+        vsPaths      = cms.untracked.vstring(['HLT_IsoMu24_IterTrk02']),
 )
 
 # ttbar semi electronique
@@ -49,5 +50,6 @@ topSingleElectronHLTValidation = cms.EDAnalyzer('TopSingleLeptonHLTValidation',
         minJets      = cms.untracked.uint32(4),
         # Trigger
         sTrigger     = cms.untracked.string("TriggerResults"),
-        vsPaths      = cms.untracked.vstring(['HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet45_35_25','HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet30']),
+        #vsPaths      = cms.untracked.vstring(['HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet45_35_25','HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet30']),
+        vsPaths      = cms.untracked.vstring(['HLT_Ele27_WP80_Gsf']),
 )
