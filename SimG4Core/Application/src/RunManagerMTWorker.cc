@@ -20,6 +20,7 @@
 #include "G4Threading.hh"
 #include "G4UImanager.hh"
 #include "G4WorkerThread.hh"
+#include "G4WorkerRunManagerKernel.hh"
 
 #include <atomic>
 
@@ -69,6 +70,10 @@ void RunManagerMTWorker::initializeThread(const RunManagerMT& runManagerMaster) 
 
   // Initialize worker part of shared resources (geometry, physics)
   G4WorkerThread::BuildGeometryAndPhysicsVector();
+
+  // Create worker run manager
+  G4RunManagerKernel *kernel = G4WorkerRunManagerKernel::GetRunManagerKernel();
+  if(!kernel) kernel = new G4WorkerRunManagerKernel();
 
   // Set the geometry and physics list for the worker, share from master
   DDDWorld::SetAsWorld(runManagerMaster.world().GetWorldVolumeForWorker());
