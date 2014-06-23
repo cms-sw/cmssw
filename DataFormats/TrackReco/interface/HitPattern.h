@@ -114,9 +114,7 @@ public:
         VALID = 0,
         MISSING = 1,
         INACTIVE = 2,
-        BAD = 3,
-        MISSING_INNER = 4,
-        MISSING_OUTER = 5
+        BAD = 3
     };
 
     enum HitCategory {
@@ -125,7 +123,6 @@ public:
         MISSING_OUTER_HITS = 2
     };
 
-    static const unsigned short MaxHits = 72;
     static const uint32_t NULL_RETURN = 999999;
     static const uint16_t EMPTY_PATTERN = 0x0;
 
@@ -136,9 +133,6 @@ public:
     static bool missingHitFilter(uint16_t pattern);
     static bool inactiveHitFilter(uint16_t pattern);
     static bool badHitFilter(uint16_t pattern);
-
-    static bool expectedInnerHitFilter(uint16_t pattern);
-    static bool expectedOuterHitFilter(uint16_t pattern);
 
     static bool pixelHitFilter(uint16_t pattern);
     static bool pixelBarrelHitFilter(uint16_t pattern);
@@ -336,29 +330,28 @@ public:
     int numberOfDTStationsWithBothViews() const;
 
 private:
+    const static unsigned short ARRAY_LENGTH = 72;
+    const static unsigned short HIT_LENGTH = 11;
+    const static unsigned short MaxHits =  72;//(sizeof(uint16_t) * ARRAY_LENGTH) / HIT_LENGTH;
     // 3 bits for hit type
     const static unsigned short HitTypeOffset = 0;
-    const static unsigned short HitTypeMask = 0x7;
+    const static unsigned short HitTypeMask = 0x3;
 
     // 1 bit to identify the side in double-sided detectors
-    const static unsigned short SideOffset = 3;
+    const static unsigned short SideOffset = 2;
     const static unsigned short SideMask = 0x1;
 
     // 4 bits to identify the layer/disk/wheel within the substructure
-    const static unsigned short LayerOffset = 4;
+    const static unsigned short LayerOffset = 3;
     const static unsigned short LayerMask = 0xF;
 
     // 3 bits to identify the tracker/muon detector substructure
-    const static unsigned short SubstrOffset = 8;
+    const static unsigned short SubstrOffset = 7;
     const static unsigned short SubstrMask = 0x7;
 
     // 1 bit to distinguish tracker and muon subsystems
-    const static unsigned short SubDetectorOffset = 11;
+    const static unsigned short SubDetectorOffset = 10;
     const static unsigned short SubDetectorMask = 0x1;
-
-    //////////////////////////////////////////////////////
-    // unused bits start at offset 12 -> bits [12, 15]. //
-    //////////////////////////////////////////////////////
 
     // detector side for tracker modules (mono/stereo)
     static uint16_t isStereo(DetId i);
@@ -373,6 +366,7 @@ private:
     bool insertTrackHit(const uint16_t pattern);
     bool insertExpectedInnerHit(const uint16_t pattern);
     bool insertExpectedOuterHit(const uint16_t pattern);
+    void insertHit(const uint16_t pattern);
 
     uint16_t getHitPatternByAbsoluteIndex(int position) const;
 
@@ -414,6 +408,41 @@ bool HitPattern::appendHits(const I &begin, const I &end)
         }
     }
     return true;
+}
+
+inline uint16_t HitPattern::getHitPattern(HitCategory category, int position) const
+{
+    std::pair<uint8_t, uint8_t> range = getCategoryIndexRange(category);
+    if unlikely((position < 0 || (position + range.first) >= range.second)) {
+        return HitPattern::EMPTY_PATTERN;
+    }
+
+    return getHitPatternByAbsoluteIndex(range.first + position);
+}
+
+inline int HitPattern::countHits(HitCategory category, filterType filter) const
+{
+    int count = 0;
+    std::pair<uint8_t, uint8_t> range = getCategoryIndexRange(category);
+    for (int i = range.first; i < range.second; ++i) {
+        if (filter(getHitPatternByAbsoluteIndex(i))) {
+            ++count;
+        }
+    }
+    return count;
+}
+
+inline int HitPattern::countTypedHits(HitCategory category, filterType typeFilter, filterType filter) const
+{
+    int count = 0;
+    std::pair<uint8_t, uint8_t> range = getCategoryIndexRange(category);
+    for (int i = range.first; i < range.second; ++i) {
+        uint16_t pattern = getHitPatternByAbsoluteIndex(i);
+        if (typeFilter(pattern) && filter(pattern)) {
+            ++count;
+        }
+    }
+    return count;
 }
 
 inline bool HitPattern::pixelHitFilter(uint16_t pattern)
@@ -627,10 +656,7 @@ inline bool HitPattern::validHitFilter(uint16_t pattern)
 
 inline bool HitPattern::missingHitFilter(uint16_t pattern)
 {
-    uint16_t hitType = getHitType(pattern);
-    return (hitType == HitPattern::MISSING ||
-            hitType == HitPattern::MISSING_INNER ||
-            hitType == HitPattern::MISSING_OUTER);
+    return getHitType(pattern) == HitPattern::MISSING;
 }
 
 inline bool HitPattern::inactiveHitFilter(uint16_t pattern)
@@ -641,16 +667,6 @@ inline bool HitPattern::inactiveHitFilter(uint16_t pattern)
 inline bool HitPattern::badHitFilter(uint16_t pattern)
 {
     return getHitType(pattern) == HitPattern::BAD;
-}
-
-inline bool HitPattern::expectedInnerHitFilter(uint16_t pattern)
-{
-    return getHitType(pattern) == HitPattern::MISSING_INNER;
-}
-
-inline bool HitPattern::expectedOuterHitFilter(uint16_t pattern)
-{
-    return getHitType(pattern) == HitPattern::MISSING_OUTER;
 }
 
 inline int HitPattern::numberOfHits(HitCategory category) const

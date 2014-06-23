@@ -76,31 +76,6 @@ void HitPattern::clear(void)
     memset(this->hitPattern, EMPTY_PATTERN, sizeof(uint16_t) * HitPattern::MaxHits);
 }
 
-int HitPattern::countHits(HitCategory category, filterType filter) const
-{
-    int count = 0;
-    std::pair<uint8_t, uint8_t> range = getCategoryIndexRange(category);
-    for (int i = range.first; i < range.second; ++i) {
-        if (filter(getHitPatternByAbsoluteIndex(i))) {
-            ++count;
-        }
-    }
-    return count;
-}
-
-int HitPattern::countTypedHits(HitCategory category, filterType typeFilter, filterType filter) const
-{
-    int count = 0;
-    std::pair<uint8_t, uint8_t> range = getCategoryIndexRange(category);
-    for (int i = range.first; i < range.second; ++i) {
-        uint16_t pattern = getHitPatternByAbsoluteIndex(i);
-        if (typeFilter(pattern) && filter(pattern)) {
-            ++count;
-        }
-    }
-    return count;
-}
-
 bool HitPattern::appendHit(const TrackingRecHitRef &ref)
 {
     return appendHit(*ref);
@@ -157,13 +132,14 @@ uint16_t HitPattern::encode(const DetId &id, TrackingRecHit::Type hitType)
             layer = ((CSCDetId(id.rawId()).station() - 1) << 2);
             layer |= (CSCDetId(id.rawId()).ring() - 1);
             break;
-        case MuonSubdetId::RPC: {
-            RPCDetId rpcid(id.rawId());
-            layer = ((rpcid.station() - 1) << 2);
-            layer |= (rpcid.station() <= 2) ? ((rpcid.layer() - 1) << 1) : 0x0;
-            layer |= abs(rpcid.region());
-        }
-        break;
+        case MuonSubdetId::RPC: 
+            {
+                RPCDetId rpcid(id.rawId());
+                layer = ((rpcid.station() - 1) << 2);
+                layer |= (rpcid.station() <= 2) ? ((rpcid.layer() - 1) << 1) : 0x0;
+                layer |= abs(rpcid.region());
+            }
+            break;
         }
     }
 
@@ -179,7 +155,11 @@ uint16_t HitPattern::encode(const DetId &id, TrackingRecHit::Type hitType)
 
     pattern |= (side & SideMask) << SideOffset;
 
-    pattern |= (hitType & HitTypeMask) << HitTypeOffset;
+    TrackingRecHit::Type patternHitType = (hitType == TrackingRecHit::missing_inner ||
+                                           hitType == TrackingRecHit::missing_outer) ? TrackingRecHit::missing : hitType;
+
+    pattern |= (patternHitType & HitTypeMask) << HitTypeOffset;
+
     return pattern;
 }
 
@@ -196,6 +176,7 @@ bool HitPattern::appendHit(const DetId &id, TrackingRecHit::Type hitType)
     }
 
     uint16_t pattern = HitPattern::encode(id, hitType);
+
     switch (hitType) {
     case TrackingRecHit::valid:
     case TrackingRecHit::missing:
@@ -248,22 +229,47 @@ bool HitPattern::appendHit(const DetId &id, TrackingRecHit::Type hitType)
     return false;
 }
 
-uint16_t HitPattern::getHitPattern(HitCategory category, int position) const
-{
-    std::pair<uint8_t, uint8_t> range = getCategoryIndexRange(category);
-    if unlikely((position < 0 || (position + range.first) >= range.second)){
-        return HitPattern::EMPTY_PATTERN;
-    }
-    return  hitPattern[position + range.first];
-}
-
-
 uint16_t HitPattern::getHitPatternByAbsoluteIndex(int position) const
 {
-    if unlikely((position < 0 || position >= hitCount)){
+    if unlikely((position < 0 || position >= hitCount)) {
         return HitPattern::EMPTY_PATTERN;
     }
-    return hitPattern[position];
+    //return hitPattern[position];
+    /*
+    Note: you are not taking a consecutive sequence of HIT_LENGTH bits starting from position * HIT_LENGTH
+     as the bit order in the words are reversed. 
+     e.g. if position = 0 you take the lowest 10 bits of the first word.
+
+     I hope this can clarify what is the memory layout of such thing
+
+    straight 01234567890123456789012345678901 | 23456789012345678901234567890123 | 4567
+    (global) 0         1         2         3  | 3       4         5         6    | 6  
+    words    [--------------0---------------] | [--------------1---------------] | [---   
+    word     01234567890123456789012345678901 | 01234567890123456789012345678901 | 0123
+    (str)   0         1         2         3  | 0         1         2         3  | 0
+          [--------------0---------------] | [--------------1---------------] | [---   
+    word     10987654321098765432109876543210 | 10987654321098765432109876543210 | 1098
+    (rev)   32         21        10        0 | 32         21        10        0 | 32  
+    reverse  10987654321098765432109876543210 | 32109876543210987654321098765432 | 5432
+             32         21        10        0 | 6  65        54        43      3   9
+
+     ugly enough, but it's not my fault, I was not even in CMS at that time   [gpetrucc] 
+    */
+  
+    uint16_t bitEndOffset = (position + 1) * HIT_LENGTH;
+    uint8_t secondWord   = (bitEndOffset >> 4);
+    uint8_t secondWordBits = bitEndOffset & (16 - 1); // that is, bitEndOffset % 32
+    if (secondWordBits >= HIT_LENGTH) { // full block is in this word
+      uint8_t lowBitsToTrash = secondWordBits - HIT_LENGTH;
+      uint32_t myResult = (hitPattern[secondWord] >> lowBitsToTrash) & ((1 << HIT_LENGTH) - 1);
+      return myResult;
+    } else {
+      uint8_t  firstWordBits   = HIT_LENGTH - secondWordBits;
+      uint32_t firstWordBlock  = hitPattern[secondWord - 1] >> (16 - firstWordBits);
+      uint32_t secondWordBlock = hitPattern[secondWord] & ((1 << secondWordBits) - 1);
+      uint32_t myResult = firstWordBlock + (secondWordBlock << firstWordBits);
+      return myResult;
+    }
 }
 
 bool HitPattern::hasValidHitInFirstPixelBarrel() const
@@ -384,10 +390,7 @@ uint32_t HitPattern::getTrackerLayerCase(HitCategory category, uint16_t substr, 
             uint16_t hitType = (pattern >> HitTypeOffset) & HitTypeMask;
             if (hitType < layerCase) {
                 // treats BADS and MISSING as the same type
-                layerCase = (hitType == HIT_TYPE::BAD ||
-                             hitType == HIT_TYPE::MISSING_INNER ||
-                             hitType == HIT_TYPE::MISSING_OUTER)
-                            ? HIT_TYPE::MISSING : hitType;
+                layerCase = (hitType == HIT_TYPE::BAD ? HIT_TYPE::MISSING : hitType);
                 if (layerCase == HIT_TYPE::VALID) {
                     break;
                 }
@@ -878,12 +881,24 @@ int HitPattern::numberOfDTStationsWithBothViews() const
            + stations[3][0] * stations[3][1];
 }
 
+void HitPattern::insertHit(const uint16_t pattern)
+{
+    //hitPattern[hitCount] = pattern;
+    int offset = hitCount * HIT_LENGTH;
+    for (int i = 0; i < HIT_LENGTH; i++) {
+        int pos = offset + i;
+        uint32_t bit = (pattern >> i) & 0x1;
+        // equivalent to: hitPattern[pos >> 4] += bit << ((offset + i) & (16 - 1));
+        hitPattern[pos / 16] += bit << ((offset + i) % 16);
+    }
+}
+
 bool HitPattern::insertTrackHit(const uint16_t pattern)
 {
     // if begin is 0, this is the first hit of this type being inserted, so
     // we need to update begin so it points to the correct index, the first
     // empty index.
-    // unlikely, because it will happen only once, inserting
+    // unlikely, because it will happen only when inserting
     // the first hit of this type
     if unlikely((0 == beginTrackHits && 0 == endTrackHits)) {
         beginTrackHits = hitCount;
@@ -891,9 +906,7 @@ bool HitPattern::insertTrackHit(const uint16_t pattern)
         endTrackHits = beginTrackHits;
     }
 
-    // we know there is space available because trackHitsCache have preference and
-    // HitPattern is not full if we've reached this far.
-    hitPattern[hitCount] = pattern;
+    insertHit(pattern);
     hitCount++;
     endTrackHits++;
 
@@ -902,16 +915,12 @@ bool HitPattern::insertTrackHit(const uint16_t pattern)
 
 bool HitPattern::insertExpectedInnerHit(const uint16_t pattern)
 {
-    // Storing Hits has preference over storing expectedHits.
-    // end == 0 means we haven't inserted any hits yet, but we still might,
-    // so we neeed to check for reservations.
-
     if unlikely((0 == beginInner && 0 == endInner)) {
         beginInner = hitCount;
         endInner = beginInner;
     }
 
-    hitPattern[hitCount] = pattern;
+    insertHit(pattern);
     hitCount++;
     endInner++;
 
@@ -925,7 +934,7 @@ bool HitPattern::insertExpectedOuterHit(const uint16_t pattern)
         endOuter = beginOuter;
     }
 
-    hitPattern[hitCount] = pattern;
+    insertHit(pattern);
     hitCount++;
     endOuter++;
 
