@@ -53,7 +53,7 @@ void DDHGCalEEAlgo::initialize(const DDNumericArguments & nArgs,
   for (unsigned int i=0; i<layerType.size(); ++i)
     edm::LogInfo("HGCalGeom") << "Layer [" << i << "] with material type " 
 			      << layerType[i] << " height type "
-			      << heightType[i] << "block thickness "
+			      << heightType[i] << " block thickness "
 			      << thickBlock[i];
 
   sectors       = (int)(nArgs["Sectors"]);
