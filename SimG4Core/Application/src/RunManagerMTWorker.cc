@@ -1,4 +1,5 @@
 #include "SimG4Core/Application/interface/RunManagerMTWorker.h"
+#include "SimG4Core/Application/interface/RunManagerMT.h"
 #include "SimG4Core/Application/interface/G4SimEvent.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -9,6 +10,8 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "SimG4Core/Notification/interface/SimActivityRegistry.h"
+
+#include "SimG4Core/Geometry/interface/DDDWorld.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
@@ -68,28 +71,9 @@ void RunManagerMTWorker::initializeThread(const RunManagerMT& runManagerMaster) 
   G4WorkerThread::BuildGeometryAndPhysicsVector();
 
   // Set the geometry and physics list for the worker, share from master
+  DDDWorld::SetAsWorld(runManagerMaster.world().GetWorldVolumeForWorker());
 
-  // In Geant4MT TBB examples it is the G4VUserDetectorConstruction
-  // that is shared between the master and worker threads. I guess in
-  // our case this means that would correspond the DDDWorld if it
-  // wouldn't do its work in the constructor. Since it does, just
-  // repeat it here.
-
-
-  /*
-
-        G4VUserDetectorConstruction* detectorCtion = 
-           const_cast<G4VUserDetectorConstruction*>(
-               masterRM->GetUserDetectorConstruction());
-      
-      t_localRM->G4RunManager::SetUserInitialization(detectorCtion);
-
-      G4VUserPhysicsList* physicslist = 
-        const_cast<G4VUserPhysicsList*>( masterRM->GetUserPhysicsList() );
-      
-      t_localRM->SetUserInitialization(physicslist);
-
-  */
+  // TODO: physics list still missing
 }
 
 void RunManagerMTWorker::produce(const edm::Event& inpevt, const edm::EventSetup& es, const RunManagerMT& runManagerMaster) {
