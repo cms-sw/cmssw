@@ -1023,7 +1023,7 @@ digiPremixUp2015Defaults50ns=merge([{'--conditions':'auto:upgradePLS150ns'},
 steps['DIGIPRMXUP15_PU25']=merge([digiPremixUp2015Defaults25ns])
 steps['DIGIPRMXUP15_PU50']=merge([digiPremixUp2015Defaults50ns])
 premixProd = {'-s'             : 'DIGIPREMIX_S2,DATAMIX,L1,DIGI2RAW,HLT:@relval,RAW2DIGI,L1Reco',
-              '--eventcontent' : 'PREMIX-RAW',
+              '--eventcontent' : 'PREMIXRAW',
               '--datatier'     : 'PREMIX-RAW'}
 steps['DIGIPRMXUP15_PROD_PU25']=merge([premixProd,digiPremixUp2015Defaults25ns])
 steps['DIGIPRMXUP15_PROD_PU50']=merge([premixProd,digiPremixUp2015Defaults50ns])
