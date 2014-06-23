@@ -45,15 +45,16 @@ FlatEvtVtxGenerator::~FlatEvtVtxGenerator()
 
 //Hep3Vector * FlatEvtVtxGenerator::newVertex() {
 HepMC::FourVector* FlatEvtVtxGenerator::newVertex(CLHEP::HepRandomEngine* engine) {
-  double aX,aY,aZ;
+  double aX,aY,aZ,aT;
   aX = CLHEP::RandFlat::shoot(engine, fMinX, fMaxX);
   aY = CLHEP::RandFlat::shoot(engine, fMinY, fMaxY);
   aZ = CLHEP::RandFlat::shoot(engine, fMinZ, fMaxZ);
+  aT = CLHEP::RandFlat::shoot(engine, fMinZ, fMaxZ);
 
   //if (fVertex == 0) fVertex = new CLHEP::Hep3Vector;
   //fVertex->set(aX,aY,aZ);
   if ( fVertex == 0 ) fVertex = new HepMC::FourVector() ;
-  fVertex->set(aX,aY,aZ,fTimeOffset);
+  fVertex->set(aX,aY,aZ,aT+fTimeOffset);
 
   return fVertex;
 }
