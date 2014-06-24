@@ -128,7 +128,7 @@ bool DQMStreamerReader::openNextFile_() {
   fiterator_.pop();
 
   if (boost::filesystem::exists(p)) {
-    openFile_(fiterator_.make_path_data(lumi));
+    openFile_(p);
     return true;
   } else {
     /* dat file missing */

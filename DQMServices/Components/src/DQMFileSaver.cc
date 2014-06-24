@@ -356,24 +356,14 @@ DQMFileSaver::saveForFilterUnit(const std::string& rewrite, int run, int lumi,  
     throw cms::Exception("DQMFileSaver")
           << "Internal error, can save files"
           << " only in ROOT or ProtocolBuffer format.";
-  this->fillJson(run, lumi, histoFilePathName, pt);
-  // Write the json file in the open directory.
-  write_json(openJsonFilePathName, pt);
+
   // Now move the the data and json files into the output directory.
-  int result = rename(openHistoFilePathName.c_str(), histoFilePathName.c_str());
-  // Check that the histogram file is there
-  struct stat histoFileStat;
-  if ((result != 0) || (stat(histoFilePathName.c_str(), &histoFileStat) != 0))
-    throw cms::Exception("DQMFileSaver")
-          << "Internal error, cannot get data file: "
-    << histoFilePathName;
-  // TODO(diguida): check that the histogram file size after renaming is the same as the one in the json tree
-  result = rename(openJsonFilePathName.c_str(), jsonFilePathName.c_str());
-  if (result != 0)
-    throw cms::Exception("DQMFileSaver")
-          << "Internal error, cannot move json file: "
-    << openJsonFilePathName
-    << " into: " << jsonFilePathName;
+  rename(openHistoFilePathName.c_str(), histoFilePathName.c_str());
+
+  // Write the json file in the open directory.
+  fillJson(run, lumi, histoFilePathName, pt);
+  write_json(openJsonFilePathName, pt);
+  rename(openJsonFilePathName.c_str(), jsonFilePathName.c_str());
 }
 
 void
