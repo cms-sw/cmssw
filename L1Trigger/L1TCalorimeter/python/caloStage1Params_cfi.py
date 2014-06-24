@@ -14,9 +14,11 @@ caloStage1Params.regionPUSParams  = regionSubtraction_PU40_MC13TeV
 # EG
 caloStage1Params.egLsb                = cms.double(1.)
 caloStage1Params.egSeedThreshold      = cms.double(1.)
+caloStage1Params.egRelativeJetIsolationCut = cms.double(0.5)
 
 # Tau
 caloStage1Params.tauSeedThreshold      = cms.double(7.)
+caloStage1Params.tauRelativeJetIsolationCut = cms.double(1.)
 
 # jets
 caloStage1Params.jetLsb                = cms.double(0.5)
@@ -27,7 +29,7 @@ caloStage1Params.jetCalibrationParams  = jetSF_8TeV_data
 
 # sums
 caloStage1Params.etSumLsb                = cms.double(0.5)
-caloStage1Params.etSumEtaMin             = cms.vint32(-999, -999, -999, -999)
-caloStage1Params.etSumEtaMax             = cms.vint32(999,  999,  999,  999)
-caloStage1Params.etSumEtThreshold        = cms.vdouble(0.,  0.,   0.,   0.)
+caloStage1Params.etSumEtaMin             = cms.vint32(4, 4) #ET, HT
+caloStage1Params.etSumEtaMax             = cms.vint32(17, 17) #ET, HT
+caloStage1Params.etSumEtThreshold        = cms.vdouble(0., 7.) #ET, HT
 

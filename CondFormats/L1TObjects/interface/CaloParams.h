@@ -182,19 +182,6 @@ namespace l1t {
     friend std::ostream& operator<<(std::ostream& o, const CaloParams & p) { p.print(o); return o; }
 
 
-
-    // redundant ?
-
-    void setRegionETCutForHT(unsigned etcut) { regionETCutForHT_ = etcut; }
-    void setRegionETCutForMET(unsigned etcut) { regionETCutForMET_ = etcut; }
-    void setMinGctEtaForSums(int eta) { minGctEtaForSums_ = eta; }
-    void setMaxGctEtaForSums(int eta) { maxGctEtaForSums_ = eta; }
-
-    unsigned int regionETCutForHT() const { return regionETCutForHT_; }
-    unsigned int regionETCutForMET() const { return regionETCutForMET_; }
-    int minGctEtaForSums() const { return minGctEtaForSums_; }
-    int maxGctEtaForSums() const { return maxGctEtaForSums_; }
-
   private:
 
     /* Towers */
@@ -386,12 +373,6 @@ namespace l1t {
     // minimum eta for EtSums (index is particular EtSum.  ETT=1, HTT=2, MET=3, MHT=4, other values reserved).
     std::vector<double> etSumEtThreshold_;
 
-
-    // these are redundant with etSumEtaMin_, etSumEtaMax_, etSumEtThreshold_ etc.
-    unsigned regionETCutForHT_;
-    unsigned regionETCutForMET_;
-    int minGctEtaForSums_;
-    int maxGctEtaForSums_;
 
 
   };

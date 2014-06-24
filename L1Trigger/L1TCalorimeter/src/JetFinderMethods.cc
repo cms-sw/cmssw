@@ -44,7 +44,7 @@ namespace l1t {
     }
   }
 
-  void slidingWindowJetFinder(const int jetSeedThreshold, const std::vector<l1t::CaloRegion> * regions,
+  void slidingWindowJetFinder(const double jetSeedThreshold, const std::vector<l1t::CaloRegion> * regions,
 			      std::vector<l1t::Jet> * uncalibjets)
   {
     // std::cout << "Jet Seed: " << jetSeedThreshold << std::endl;

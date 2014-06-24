@@ -96,6 +96,7 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
   m_params.setEgHcalThreshold(conf.getParameter<double>("egHcalThreshold"));
   m_params.setEgMaxHcalEt(conf.getParameter<double>("egMaxHcalEt"));
   m_params.setEgEtToRemoveHECut(conf.getParameter<double>("egEtToRemoveHECut"));
+  m_params.setEgRelativeJetIsolationCut(conf.getParameter<double>("egRelativeJetIsolationCut"));
 
   edm::FileInPath egMaxHOverELUTFile = conf.getParameter<edm::FileInPath>("egMaxHOverELUTFile");
   std::ifstream egMaxHOverELUTStream(egMaxHOverELUTFile.fullPath());
@@ -131,6 +132,7 @@ CaloParamsESProducer::CaloParamsESProducer(const edm::ParameterSet& conf)
   m_params.setTauSeedThreshold(conf.getParameter<double>("tauSeedThreshold"));
   m_params.setTauNeighbourThreshold(conf.getParameter<double>("tauNeighbourThreshold"));
   m_params.setTauIsoPUSType(conf.getParameter<std::string>("tauIsoPUSType"));
+  m_params.setTauRelativeJetIsolationCut(conf.getParameter<double>("tauRelativeJetIsolationCut"));
 
   edm::FileInPath tauIsoLUTFile = conf.getParameter<edm::FileInPath>("tauIsoLUTFile");
   std::ifstream tauIsoLUTStream(tauIsoLUTFile.fullPath());

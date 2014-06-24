@@ -12,7 +12,7 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 #process.load('L1Trigger/L1TYellow/l1t_debug_messages_cfi')
 #process.load('L1Trigger/L1TYellow/l1t_info_messages_cfi')
-process.load('L1Trigger/L1TCalorimeter/l1tStage1CaloParams_cfi')
+process.load('L1Trigger/L1TCalorimeter/caloStage1Params_cfi')
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10)
@@ -61,13 +61,7 @@ process.Layer2HW = cms.EDProducer(
     "l1t::Stage1Layer2Producer",
     CaloRegions = cms.InputTag("rctLayer2Format"),
     CaloEmCands = cms.InputTag("rctLayer2Format"),
-    FirmwareVersion = cms.uint32(1),  ## 1=HI algo, 2= pp algo
-    regionETCutForHT = cms.uint32(7),
-    regionETCutForMET = cms.uint32(0),
-    minGctEtaForSums = cms.int32(4),
-    maxGctEtaForSums = cms.int32(17),
-    egRelativeJetIsolationCut = cms.double(1.), ## eg isolation cut
-    tauRelativeJetIsolationCut = cms.double(1.) ## tau isolation cut
+    FirmwareVersion = cms.uint32(1)  ## 1=HI algo, 2= pp algo
     )
 
 process.Layer2Phys = cms.EDProducer("l1t::PhysicalEtAdder",

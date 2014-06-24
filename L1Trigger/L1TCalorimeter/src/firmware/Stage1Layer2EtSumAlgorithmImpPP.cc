@@ -28,7 +28,7 @@ l1t::Stage1Layer2EtSumAlgorithmImpPP::~Stage1Layer2EtSumAlgorithmImpPP() {
 }
 
 double l1t::Stage1Layer2EtSumAlgorithmImpPP::regionPhysicalEt(const l1t::CaloRegion& cand) const {
-
+ 
   return jetLsb*cand.hwPt();
 }
 
@@ -51,35 +51,46 @@ void l1t::Stage1Layer2EtSumAlgorithmImpPP::processEvent(const std::vector<l1t::C
   //regionPUSType is set to None in the config
   jetLsb=params_->jetLsb();
 
-  int regionETCutForHT=params_->regionETCutForHT();
-  int regionETCutForMET=params_->regionETCutForMET();
-  int minGctEtaForSums=params_->minGctEtaForSums();
-  int maxGctEtaForSums=params_->maxGctEtaForSums();
+  int etSumEtaMinEt = params_->etSumEtaMin(0);
+  int etSumEtaMaxEt = params_->etSumEtaMax(0);
+  double etSumEtThresholdEt = params_->etSumEtThreshold(0);
+
+  int etSumEtaMinHt = params_->etSumEtaMin(1);
+  int etSumEtaMaxHt = params_->etSumEtaMax(1);
+  double etSumEtThresholdHt = params_->etSumEtThreshold(1);
 
   std::string regionPUSType = params_->regionPUSType();
   std::vector<double> regionPUSParams = params_->regionPUSParams();
   RegionCorrection(regions, EMCands, subRegions, regionPUSParams, regionPUSType);
 
   for(std::vector<CaloRegion>::const_iterator region = subRegions->begin(); region != subRegions->end(); region++) {
-    if (region->hwEta() < minGctEtaForSums || region->hwEta() > maxGctEtaForSums) {
+    if (region->hwEta() < etSumEtaMinEt || region->hwEta() > etSumEtaMaxEt) {
       continue;
     }
 
     double regionET= regionPhysicalEt(*region);
 
-    // if (region->hwPt()>0)
-    //   std::cout << "ETA/PHI:" << region->hwEta() <<"/" << region->hwPhi() << "\tPhysical Region ET: " << regionET << "\tHardware Region ET: " << region->hwPt() << std::endl;
-    if(regionET >= regionETCutForMET){
+    if(regionET >= etSumEtThresholdEt){
       sumET += (int) regionET;
       sumEx += (int) (((double) regionET) * cosPhi[region->hwPhi()]);
       sumEy += (int) (((double) regionET) * sinPhi[region->hwPhi()]);
     }
-    if(regionET >= regionETCutForHT) {
+  }
+
+  for(std::vector<CaloRegion>::const_iterator region = subRegions->begin(); region != subRegions->end(); region++) {
+    if (region->hwEta() < etSumEtaMinHt || region->hwEta() > etSumEtaMaxHt) {
+      continue;
+    }
+
+    double regionET= regionPhysicalEt(*region);
+
+    if(regionET >= etSumEtThresholdHt) {
       sumHT += (int) regionET;
       sumHx += (int) (((double) regionET) * cosPhi[region->hwPhi()]);
       sumHy += (int) (((double) regionET) * sinPhi[region->hwPhi()]);
     }
   }
+
   double MET = ((unsigned int) sqrt(sumEx * sumEx + sumEy * sumEy));
   double MHT = ((unsigned int) sqrt(sumHx * sumHx + sumHy * sumHy));
 
@@ -89,8 +100,8 @@ void l1t::Stage1Layer2EtSumAlgorithmImpPP::processEvent(const std::vector<l1t::C
   double physicalPhiHT = atan2(sumHy, sumHx) + 3.1415927;
   unsigned int iPhiHT = L1CaloRegionDetId::N_PHI * (physicalPhiHT) / (2 * 3.1415927);
 
-  // std::cout << "MET:" << MET << "\tHT: " << MHT << std::endl;
-  // std::cout << "sumMET:" << sumET << "\tsumHT: " << sumHT << std::endl;
+  //std::cout << "MET:" << MET << "\tHT: " << MHT << std::endl;
+  //std::cout << "sumMET:" << sumET << "\tsumHT: " << sumHT << std::endl;
 
   const ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > etLorentz(0,0,0,0);
 

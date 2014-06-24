@@ -34,6 +34,8 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
   int jetSeedThreshold= floor( params_->jetSeedThreshold()/jetLsb + 0.5);
   double egRelativeJetIsolationCut = params_->egRelativeJetIsolationCut();
 
+  //std::cout << "egrelativejetiso " << egRelativeJetIsolationCut << std::endl;
+
   std::string regionPUSType = params_->regionPUSType();
   std::vector<double> regionPUSParams = params_->regionPUSParams();
 

@@ -16,7 +16,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 100
 #process.load('L1Trigger/L1TYellow/l1t_debug_messages_cfi')
 #process.load('L1Trigger/L1TYellow/l1t_info_messages_cfi')
 
-process.load('L1Trigger/L1TCalorimeter/l1tStage1CaloParams_cfi')
+process.load('L1Trigger/L1TCalorimeter/caloStage1Params_cfi')
 
 process.load('EventFilter/L1TRawToDigi/l1tDigiToRaw_cfi')
 process.load('EventFilter/L1TRawToDigi/l1tRawToDigi_cfi')
@@ -71,13 +71,7 @@ process.Layer2HW = cms.EDProducer(
     "l1t::Stage1Layer2Producer",
     CaloRegions = cms.InputTag("rctLayer2Format"),
     CaloEmCands = cms.InputTag("rctLayer2Format"),
-    FirmwareVersion = cms.uint32(2),  ## 1=HI algo, 2= pp algo
-    egRelativeJetIsolationCut = cms.double(0.5), ## eg isolation cut
-    tauRelativeJetIsolationCut = cms.double(1.), ## tau isolation cut
-    regionETCutForHT = cms.uint32(7),
-    regionETCutForMET = cms.uint32(0),
-    minGctEtaForSums = cms.int32(4),
-    maxGctEtaForSums = cms.int32(17)
+    FirmwareVersion = cms.uint32(2)  ## 1=HI algo, 2= pp algo
     )
 
 process.Layer2Phys = cms.EDProducer("l1t::PhysicalEtAdder",

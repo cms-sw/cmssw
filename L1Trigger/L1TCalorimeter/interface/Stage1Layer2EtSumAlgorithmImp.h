@@ -33,6 +33,14 @@ namespace l1t {
 			      const std::vector<l1t::CaloEmCand> & EMCands,
 			      std::vector<l1t::EtSum> * sums);
 
+    int etSumEtaMinHt;
+    int etSumEtaMaxHt;
+    double etSumEtThresholdHt;
+  
+    int etSumEtaMinEt;
+    int etSumEtaMaxEt;
+    double etSumEtThresholdEt;
+
     double jetLsb;
   private:
     CaloParamsStage1* const params_;
