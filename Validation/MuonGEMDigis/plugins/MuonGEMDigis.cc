@@ -145,6 +145,8 @@ MuonGEMDigis::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
 void 
 MuonGEMDigis::endRun(edm::Run const&, edm::EventSetup const&)
 {
+  theGEMStripDigiValidation->savePhiPlot();
+  
   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
 }
 

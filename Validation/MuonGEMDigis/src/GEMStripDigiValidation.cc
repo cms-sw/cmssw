@@ -1,4 +1,5 @@
 #include "Validation/MuonGEMDigis/interface/GEMStripDigiValidation.h"
+#include <iomanip>
 GEMStripDigiValidation::GEMStripDigiValidation(DQMStore* dbe,
                                                const edm::InputTag & inputTag, const edm::ParameterSet& pbInfo)
 :  GEMBaseValidation(dbe, inputTag, pbInfo)
@@ -36,41 +37,33 @@ void GEMStripDigiValidation::bookHisto(const GEMGeometry* geom) {
       }
     }
   }
- 
   // All chamber XY (cm) plots
 	//auto& chamber = theGEMGeometry
-	for( auto& region : theGEMGeometry->regions() ) {
-		for( auto& station : region->stations() ) {
-			for( auto& ring : station->rings() ) {
-				for( auto& sCh : ring->superChambers() ) {
-					for ( auto& ch : sCh->chambers() ) {
-						auto roll_front(ch->etaPartitions().front());
-						auto roll_back(ch->etaPartitions().back());
-						const BoundPlane& bSurface_front(roll_front->surface());
-						const BoundPlane& bSurface_back(roll_back->surface());
-						auto& parameter_front = ( roll_front->specs()->parameters());
-						auto& parameter_back(  roll_back->specs()->parameters());
-						float height_front( parameter_front[2]*2);
-						float height_back( parameter_back[2]*2);
-						LocalPoint front_lTop(0,height_front,0);
-						LocalPoint back_lBot(0,-height_back,0);
-						GlobalPoint front_gTop(bSurface_front.toGlobal( front_lTop));	
-						GlobalPoint  back_gBot(bSurface_back.toGlobal( back_lBot));	
-						std::cout<< front_gTop.eta()<<" "<< front_gTop.phi()<<std::endl;
-						std::cout<< back_gBot.eta()<< " "<<back_gBot.phi()<<std::endl;
-						GEMDetId chId( ch->id());
-						std::stringstream ss;
-						ss<<chId;
-						std::string name_prefix = ss.str()+"_eta";
-						std::string title_prefix = ss.str()+" eta plots";
-						MonitorElement* temp = dbe_->book1D(name_prefix.c_str(), title_prefix.c_str(),200,TMath::Abs( front_gTop.eta()), TMath::Abs( back_gBot.eta()));
-						theStrip_ch_eta.insert( std::map<std::string, MonitorElement*>::value_type(ss.str(), temp)) ; 
-					}
-				}
-			}
-		} 
+	for( auto& region : theGEMGeometry->regions() ) 
+	for( auto& station : region->stations() ) { 
+		std::stringstream ss1;
+ 	  ss1<<"Re "<<region->region()<<" St "<<station->station()<<"_dphi";
+		std::string st_title = std::string( ss1.str()+";delta Phi(#Delta#phi);Entries");
+		std::cout<<ss1.str()<<std::endl;
+		MonitorElement* st_temp;
+		if ( station->station() == 1 ) st_temp = dbe_->book1D(ss1.str(),st_title,2000.,8.5,12.5);
+		if ( station->station() == 2 || station->station() == 3 ) st_temp = dbe_->book1D(ss1.str(),st_title,2000.,18.5,22.5);
+		theStrip_st_dphi.insert( std::map<std::string, MonitorElement*>::value_type(ss1.str(), st_temp ));
+		for( auto& ring : station->rings() ) 
+		for( auto& sCh : ring->superChambers() ) 
+		for ( auto& ch : sCh->chambers() ) 
+		for ( auto& roll : ch->etaPartitions()){
+			auto& parameters(roll->specs()->parameters());
+			float nStrips(parameters[3]);
+			GEMDetId roId( roll->id());
+			std::stringstream ss;
+ 		  ss<<roId;
+			std::string name_prefix = ss.str()+"_strip_phi_dist";
+			std::string title_prefix = ss.str()+" strips' phi distribution;# of strip ; Azimuthal angle (#phi)";
+			MonitorElement* temp = dbe_->book1D(name_prefix.c_str(), title_prefix.c_str(),nStrips,1,nStrips+1);
+			theStrip_ro_phi.insert( std::map<std::string, MonitorElement*>::value_type(name_prefix, temp)) ; 
+		}
 	}
-
 }
 
 
@@ -78,7 +71,49 @@ GEMStripDigiValidation::~GEMStripDigiValidation() {
  
 
 }
+void GEMStripDigiValidation::savePhiPlot(){
+	for( auto& region : theGEMGeometry->regions() ) 
+	for( auto& station : region->stations() ){
+		for( auto& ring : station->rings() ) 
+		for( auto& sCh : ring->superChambers() ) 
+		for ( auto& ch : sCh->chambers() ) 
+		for ( auto& roll : ch->etaPartitions()){
+			//const BoundPlane& bSurface(roll->surface());
+			const StripTopology* topology(&(roll->specificTopology()));
+			// base_bottom, base_top, height, strips, pads (all half length)
+			auto& parameters(roll->specs()->parameters());
+			float nStrips(parameters[3]);
 
+			GEMDetId roId( roll->id());
+			std::stringstream ss;
+	    ss<<roId;
+			std::string name_prefix = ss.str()+"_strip_phi_dist";
+			double phi_0 = 0.0;
+			double phi_1 = 0.0;
+
+			double phi_max_1 = 0.0;
+			double phi_max = 0.0;
+			for( unsigned int i=0; i<=nStrips ; i++) {
+				LocalPoint lEdgeN(topology->localPosition((float)i));
+				double cstripN( roll->toGlobal( lEdgeN).phi().degrees());
+				theStrip_ro_phi[name_prefix.c_str()]->Fill(i,cstripN);
+				if ( i==0 ) phi_0 = cstripN;
+				if ( i==1 ) phi_1 = cstripN;
+				if ( i==nStrips ) phi_max = cstripN;
+				if ( i==nStrips-1 ) phi_max_1 = cstripN;
+			}
+			std::cout<<std::fixed;
+			std::cout.precision(4);	
+			std::cout<<"GEMDetId :"<<roId<< "strip #0 : "<<phi_0 <<"strip #max_1 : "<<phi_max_1<<std::endl;
+			std::cout<<"GEMDetId :"<<roId<< "strip #1 : "<<phi_1 <<"strip #max : "<<phi_max<<std::endl;
+
+			ss.str("");
+ 	  	ss<<"Re "<<region->region()<<" St "<<station->station()<<"_dphi";
+ 	 		//ss<<region->region()<<station->station()<<"_dphi";
+			theStrip_st_dphi[ss.str()]->Fill( TMath::Abs(phi_max- phi_0));
+		}
+	}
+}
 
 void GEMStripDigiValidation::analyze(const edm::Event& e,
                                      const edm::EventSetup&)

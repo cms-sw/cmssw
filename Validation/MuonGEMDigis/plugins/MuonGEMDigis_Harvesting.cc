@@ -173,64 +173,6 @@ MuonGEMDigis_Harvesting::endRun(edm::Run const&, edm::EventSetup const&)
   		}
   	}
 	}
-  /*
-  if( dbe_->get("MuonGEMDigisV/GEMDigisTask/dg_lx_even") != nullptr) { 
-
-    TH1F* gem_dg_lx_even[5];
-    gem_dg_lx_even[0] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigisTask/dg_lx_even")->getTH1F()->Clone(); 
-    gem_dg_lx_even[1] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigisTask/dg_lx_even_l1")->getTH1F()->Clone();
-    gem_dg_lx_even[2] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigisTask/dg_lx_even_l2")->getTH1F()->Clone();
-    gem_dg_lx_even[3] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigisTask/dg_lx_even_l1or2")->getTH1F()->Clone();
-    gem_dg_lx_even[4] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigisTask/dg_lx_even_l1and2")->getTH1F()->Clone();
- 
-    TH1F* gem_dg_ly_even[5];
-    gem_dg_ly_even[0] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigisTask/dg_ly_even")->getTH1F()->Clone(); 
-    gem_dg_ly_even[1] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigisTask/dg_ly_even_l1")->getTH1F()->Clone();
-    gem_dg_ly_even[2] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigisTask/dg_ly_even_l2")->getTH1F()->Clone();
-    gem_dg_ly_even[3] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigisTask/dg_ly_even_l1or2")->getTH1F()->Clone();
-    gem_dg_ly_even[4] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigisTask/dg_ly_even_l1and2")->getTH1F()->Clone();
- 
-    TH1F* gem_dg_lx_odd[5];
-    gem_dg_lx_odd[0] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigisTask/dg_lx_odd")->getTH1F()->Clone(); 
-    gem_dg_lx_odd[1] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigisTask/dg_lx_odd_l1")->getTH1F()->Clone();
-    gem_dg_lx_odd[2] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigisTask/dg_lx_odd_l2")->getTH1F()->Clone();
-    gem_dg_lx_odd[3] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigisTask/dg_lx_odd_l1or2")->getTH1F()->Clone();
-    gem_dg_lx_odd[4] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigisTask/dg_lx_odd_l1and2")->getTH1F()->Clone();
- 
-    TH1F* gem_dg_ly_odd[5];
-    gem_dg_ly_odd[0] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigisTask/dg_ly_odd")->getTH1F()->Clone(); 
-    gem_dg_ly_odd[1] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigisTask/dg_ly_odd_l1")->getTH1F()->Clone();
-    gem_dg_ly_odd[2] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigisTask/dg_ly_odd_l2")->getTH1F()->Clone();
-    gem_dg_ly_odd[3] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigisTask/dg_ly_odd_l1or2")->getTH1F()->Clone();
-    gem_dg_ly_odd[4] = (TH1F*)dbe_->get("MuonGEMDigisV/GEMDigisTask/dg_ly_odd_l1and2")->getTH1F()->Clone();
- 
-    for ( int i= 0; i<5 ; i++) {
-      gem_dg_lx_even[i]->Sumw2(); 
-      gem_dg_ly_even[i]->Sumw2(); 
-      gem_dg_lx_odd[i]->Sumw2(); 
-      gem_dg_ly_odd[i]->Sumw2(); 
- 
-    }
-    for( int i=1 ; i<5 ; i++) {
-      //gem_dg_lx_even[i]->Divide( gem_dg_lx_even[i], gem_dg_lx_even[0],1.0,1.0,"B");
-			TProfile* eff_dg_lx_even = ComputeEff(gem_dg_lx_even[i],gem_dg_lx_even[0]);
-			TProfile* eff_dg_ly_even = ComputeEff(gem_dg_ly_even[i],gem_dg_ly_even[0]);
-			TProfile* eff_dg_lx_odd  = ComputeEff(gem_dg_lx_odd[i] ,gem_dg_lx_odd[0]);
-			TProfile* eff_dg_ly_odd  = ComputeEff(gem_dg_ly_odd[i] ,gem_dg_ly_odd[0]);
-      
-      dbe_->bookProfile( eff_dg_lx_even->GetName(), eff_dg_lx_even ); 
-      dbe_->bookProfile( eff_dg_ly_even->GetName(), eff_dg_ly_even ); 
-      dbe_->bookProfile( eff_dg_lx_odd->GetName(), eff_dg_lx_odd ); 
-      dbe_->bookProfile( eff_dg_ly_odd->GetName(), eff_dg_ly_odd ); 
-
-			delete eff_dg_lx_even;
-			delete eff_dg_ly_even;
-			delete eff_dg_lx_odd;
-			delete eff_dg_ly_odd;
-    }
-  }
-  */
-
 }
 
 
