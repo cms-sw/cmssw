@@ -256,6 +256,7 @@ DummyBookFillDQMStoreMultiThread::~DummyBookFillDQMStoreMultiThread() {
 void
 DummyBookFillDQMStoreMultiThread::analyze(edm::Event const& iEvent,
                                edm::EventSetup const& iSetup) {
+
 //   using namespace edm;
   /* This is an event example
   //Read 'ExampleData' from the Event

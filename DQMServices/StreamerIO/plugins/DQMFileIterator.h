@@ -2,6 +2,8 @@
 #define IOPool_DQMStreamer_DQMFilerIterator_h
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "boost/filesystem.hpp"
 
@@ -25,7 +27,9 @@ class DQMFileIterator {
     std::string definition;
     std::string source;
 
-    static LumiEntry load_json(const std::string& filename, int lumiNumber);
+    static LumiEntry load_json_pb(const std::string& filename, int lumiNumber);
+    static LumiEntry load_json_data(const std::string& filename,
+                                    int lumiNumber);
   };
 
   struct EorEntry {
@@ -46,12 +50,18 @@ class DQMFileIterator {
     EOR = 2,
   };
 
-  DQMFileIterator();
+  enum JsonType {
+    JS_PROTOBUF,
+    JS_DATA,
+  };
+
+  DQMFileIterator(ParameterSet const& pset, JsonType t);
   ~DQMFileIterator();
   void initialise(int run, const std::string&, const std::string&);
 
   State state();
 
+  /* methods to iterate the actual files */
   const LumiEntry& front();
   void pop();
   bool hasNext();
@@ -60,14 +70,31 @@ class DQMFileIterator {
   std::string make_path_eor();
   std::string make_path_data(const LumiEntry& lumi);
 
+  /* control */
+  void reset();
   void collect();
-
   void update_state();
 
+  /* misc helpers for input sources */
+  void logFileAction(const std::string& msg,
+                     const std::string& fileName = "") const;
+  void delay();
+  void updateWatchdog();
+  unsigned int runNumber() {
+    return runNumber_;
+  };
+
+  static void fillDescription(ParameterSetDescription& d);
+
  private:
-  int run_;
-  std::string run_path_;
+  JsonType type_;
+
+  unsigned int runNumber_;
+  std::string runInputDir_;
   std::string streamLabel_;
+  unsigned int delayMillis_;
+
+  std::string runPath_;
 
   int lastLumiSeen_;
   EorEntry eor_;
