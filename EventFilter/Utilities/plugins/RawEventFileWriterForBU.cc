@@ -1,7 +1,7 @@
 // $Id: RawEventFileWriterForBU.cc,v 1.1.2.6 2013/03/28 14:56:53 aspataru Exp $
 
 #include "EventFilter/Utilities/plugins/RawEventFileWriterForBU.h"
-#include "EventFilter/Utilities/plugins/EvFDaqDirector.h"
+#include "EventFilter/Utilities/interface/EvFDaqDirector.h"
 #include "EventFilter/Utilities/interface/FileIO.h"
 #include "EventFilter/Utilities/interface/JSONSerializer.h"
 
@@ -127,13 +127,15 @@ void RawEventFileWriterForBU::doOutputEventFragment(unsigned char* dataPtr, unsi
 
 void RawEventFileWriterForBU::initialize(std::string const& destinationDir, std::string const& name, int ls)
 {
-  std::string oldFileName = fileName_;
-  fileName_ = name;
   destinationDir_ = destinationDir;
 
-  if (!writtenJSDs_) {
+  if (closefd()) finishFileWrite(ls);
 
-    std::stringstream ss;
+  fileName_ = name;
+
+  if (!writtenJSDs_) {
+    writeJsds();
+/*    std::stringstream ss;
     ss << destinationDir_ << "/jsd";
     mkdir(ss.str().c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
 
@@ -163,11 +165,11 @@ void RawEventFileWriterForBU::initialize(std::string const& destinationDir, std:
       JSONSerializer::serialize(&eorJsonDef_,content);
       FileIO::writeStringToFile(eorJSDName, content);
     }
-
+*/
     writtenJSDs_=true;
 
   }
-  closefd();
+
   outfd_ = open(fileName_.c_str(), O_WRONLY | O_CREAT,  S_IRWXU | S_IRWXG | S_IRWXO);
    edm::LogInfo("RawEventFileWriterForBU") << " opened " << fileName_;
   if(outfd_ < 0) { //attention here... it may happen that outfd_ is *not* set (e.g. missing initialize call...)
@@ -176,18 +178,59 @@ void RawEventFileWriterForBU::initialize(std::string const& destinationDir, std:
       << ": " << strerror(errno) << "\n";
   }
 
-  //move old file to done directory
-  if (!oldFileName.empty()) {
+  perFileEventCount_.value() = 0;
+  perLumiFileCount_.value()++;
 
+
+  adlera_ = 1;
+  adlerb_ = 0;
+}
+
+void RawEventFileWriterForBU::writeJsds()
+{
+
+  std::stringstream ss;
+  ss << destinationDir_ << "/jsd";
+  mkdir(ss.str().c_str(), S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+
+  std::string rawJSDName = ss.str()+"/rawData.jsd";
+  std::string eolJSDName = ss.str()+"/EoLS.jsd";
+  std::string eorJSDName = ss.str()+"/EoR.jsd";
+
+  fileMon_->setDefPath(rawJSDName);
+  lumiMon_->setDefPath(eolJSDName);
+  runMon_->setDefPath(eorJSDName);
+
+  struct stat   fstat;
+  if (stat (rawJSDName.c_str(), &fstat) != 0) {
+    std::string content;
+    JSONSerializer::serialize(&rawJsonDef_,content);
+    FileIO::writeStringToFile(rawJSDName, content);
+  }
+
+  if (stat (eolJSDName.c_str(), &fstat) != 0) {
+    std::string content;
+    JSONSerializer::serialize(&eolJsonDef_,content);
+    FileIO::writeStringToFile(eolJSDName, content);
+  }
+
+  if (stat (eorJSDName.c_str(), &fstat) != 0) {
+    std::string content;
+    JSONSerializer::serialize(&eorJsonDef_,content);
+    FileIO::writeStringToFile(eorJSDName, content);
+  }
+}
+
+void RawEventFileWriterForBU::finishFileWrite(int ls)
+{
 
     //move raw file from open to run directory
-    rename(oldFileName.c_str(),(destinationDir_+oldFileName.substr(oldFileName.rfind("/"))).c_str());
-
+    rename(fileName_.c_str(),(destinationDir_+fileName_.substr(fileName_.rfind("/"))).c_str());
+ 
     //create equivalent JSON file
-
     std::stringstream ss;
     //TODO:fix this to use DaqDirector convention and better extension replace
-    boost::filesystem::path source(oldFileName);
+    boost::filesystem::path source(fileName_);
     std::string path = source.replace_extension(".jsn").string();
 
     fileMon_->snap(ls);
@@ -200,19 +243,12 @@ void RawEventFileWriterForBU::initialize(std::string const& destinationDir, std:
     edm::LogInfo("RawEventFileWriterForBU") << "Wrote JSON input file: " << path 
 					    << " with perFileEventCount = " << perFileEventCount_.value();
 
-  }
-
-  perFileEventCount_.value() = 0;
-  perLumiFileCount_.value()++;
-
-
-  adlera_ = 1;
-  adlerb_ = 0;
 }
+
 
 void RawEventFileWriterForBU::endOfLS(int ls)
 {
-  closefd();
+  if (closefd()) finishFileWrite(ls);
   lumiMon_->snap(ls);
 
   std::ostringstream ostr;
@@ -220,8 +256,8 @@ void RawEventFileWriterForBU::endOfLS(int ls)
   if (run_==-1) makeRunPrefix(destinationDir_);
 
   ostr << destinationDir_ << "/"<< runPrefix_ << "_ls" << std::setfill('0') << std::setw(4) << ls << "_EoLS" << ".jsn";
-  outfd_ = open(ostr.str().c_str(), O_WRONLY | O_CREAT,  S_IWUSR | S_IRUSR | S_IWGRP | S_IRGRP | S_IWOTH | S_IROTH);
-  closefd();
+  //outfd_ = open(ostr.str().c_str(), O_WRONLY | O_CREAT,  S_IWUSR | S_IRUSR | S_IWGRP | S_IRGRP | S_IWOTH | S_IROTH);
+  //closefd();
 
   std::string path = ostr.str();
   lumiMon_->outputFullJSON(path, ls);

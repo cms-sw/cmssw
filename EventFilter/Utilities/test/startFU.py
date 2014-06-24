@@ -124,11 +124,11 @@ process.b = cms.EDAnalyzer("ExceptionGenerator",
 process.p1 = cms.Path(process.a*process.filter1)
 process.p2 = cms.Path(process.b*process.filter2)
 
-process.streamA = cms.OutputModule("Stream",
+process.streamA = cms.OutputModule("EvFOutputModule",
     SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring( 'p1' ))
 )
 
-process.streamB = cms.OutputModule("Stream",
+process.streamB = cms.OutputModule("EvFOutputModule",
     SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring( 'p2' ))
 )
 

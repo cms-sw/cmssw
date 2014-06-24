@@ -112,6 +112,8 @@ setupEnv()
      export PATH=${ROOTSYS}/bin:$PATH
      # move cmsShow.exe to libexec
      SHELLDIR=$SHELLDIR/libexec
+   else
+     export FROM_RELEASE=true
    fi
 }
 
