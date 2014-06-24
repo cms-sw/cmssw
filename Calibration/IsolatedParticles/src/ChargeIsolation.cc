@@ -193,7 +193,8 @@ namespace spr{
     
       // Get track qual, nlayers, and hit pattern
       if (pTrack2->quality(trackQuality_)) trkQual_maxNearP  = 1;
-      nLayers_maxNearP = pTrack2->hitPattern().trackerLayersWithMeasurement() ;        
+      const reco::HitPattern& hitp = pTrack2->hitPattern();
+      nLayers_maxNearP = hitp.trackerLayersWithMeasurement() ;        
     
       // Skip if the neighboring track candidate is the iso-track
       // candidate
