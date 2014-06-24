@@ -10,11 +10,13 @@ _noseeds_HGCHEB = cms.PSet(
 )
 
 #topo clusters
-_arborClusterizer_HGCHEB = cms.PSet(
-    algoName = cms.string("SimpleArborClusterizer"),    
-    cellSize = cms.double(10.0),
-    layerThickness = cms.double(7.0),
-    thresholdsByDetector = cms.VPSet()
+#for arbor this is more a pre-clustering step to find little clusters
+_arborTopoClusterizer_HGCHEB = cms.PSet(
+    algoName = cms.string("IntraLayerClusteringAlgorithm"),    
+    IntraLayerMaxDistance = cms.double( 186.0 ), # hit separation in mm
+    ShouldSplitClusterInSingleCaloHitClusters = cms.bool(False), # splitsmall clusters
+    MaximumSizeForClusterSplitting = cms.uint32( 3 ), #largest of small clusters to split
+    thresholdsByDetector = cms.VPSet( )
 )
 
 particleFlowClusterHGCHEB = cms.EDProducer(
@@ -22,7 +24,7 @@ particleFlowClusterHGCHEB = cms.EDProducer(
     recHitsSource = cms.InputTag("particleFlowRecHitHGCHEB"),
     recHitCleaners = cms.VPSet(),
     seedFinder = _noseeds_HGCHEB,
-    initialClusteringStep = _arborClusterizer_HGCHEB,
+    initialClusteringStep = _arborTopoClusterizer_HGCHEB,
     pfClusterBuilder = cms.PSet( ),
     positionReCalc = cms.PSet(),
     energyCorrector = cms.PSet()
