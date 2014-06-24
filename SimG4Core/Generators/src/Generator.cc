@@ -88,32 +88,30 @@ Generator::Generator(const ParameterSet & p) :
 Generator::~Generator() 
 {}
 
-void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
+void Generator::HepMC2G4(const HepMC::GenEvent * evt, G4Event * g4evt)
 {
 
-  if ( *(evt_orig->vertices_begin()) == 0 ) {
+  if ( *(evt->vertices_begin()) == 0 ) {
     throw SimG4Exception("SimG4CoreGenerator: Corrupted Event - GenEvent with no vertex");
   }  
-  
-  HepMC::GenEvent* evt = new HepMC::GenEvent(*evt_orig);
   
   if (evt->weights().size() > 0) {
 
     weight_ = evt->weights()[0] ;
     for (unsigned int iw=1; iw<evt->weights().size(); ++iw) {
 
-      // terminate if the versot of weights contains a zero-weight
+      // terminate if the vector of weights contains a zero-weight
       if ( evt->weights()[iw] <= 0 ) break;
       weight_ *= evt->weights()[iw] ;
     }     
   }
   
-  if (vtx_ != 0) delete vtx_;
+  if (vtx_ != 0) { delete vtx_; }
   vtx_ = new math::XYZTLorentzVector((*(evt->vertices_begin()))->position().x(),
                                      (*(evt->vertices_begin()))->position().y(),
                                      (*(evt->vertices_begin()))->position().z(),
                                      (*(evt->vertices_begin()))->position().t());
-  
+
   if(verbose > 0) {
     evt->print();
     LogDebug("SimG4CoreGenerator") << "Primary Vertex = (" 
@@ -178,7 +176,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
     double t1 = (*vitr)->position().t()*mm/c_light;
 
     G4PrimaryVertex* g4vtx = new G4PrimaryVertex(x1, y1, z1, t1);
-    
+
     for (pitr= (*vitr)->particles_begin(HepMC::children);
          pitr != (*vitr)->particles_end(HepMC::children); ++pitr){
 
@@ -323,7 +321,6 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
 	}
       }
       if(toBeAdded){
-        
         G4int pdgcode= (*pitr)-> pdg_id();
         G4PrimaryParticle* g4prim= 
           new G4PrimaryParticle(pdgcode, px*GeV, py*GeV, pz*GeV);
@@ -352,18 +349,6 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
 	}
         if ( verbose > 1 ) g4prim->Print();
         g4vtx->SetPrimary(g4prim);
-
-        // impose also proper time for status=1 and available end_vertex
-        // VI: this is impossible, so commented out 
-	/*
-        if ( 1 == status && decay_length > 0.0) {
-          double proper_time = decay_length/(p.Beta()*p.Gamma()*c_light);
-          if ( verbose > 1 ) LogDebug("SimG4CoreGenerator") 
-	    <<"Setting proper time for beta="<<p.Beta()<<" gamma="
-	    <<p.Gamma()<<" Proper time=" <<proper_time/ns<<" ns" ;
-          g4prim->SetProperTime(proper_time);
-        }
-	*/
       }
     }
 
@@ -379,23 +364,18 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
     if ( verbose > 1 ) g4vtx->Print();
     g4evt->AddPrimaryVertex(g4vtx);
   }
-  
-  delete evt;
 }
 
 void Generator::particleAssignDaughters( G4PrimaryParticle* g4p, 
 					 HepMC::GenParticle* vp, 
 					 double decaylength)
 {
-  // V.I.: not needed anymore
-  //if (!(vp->end_vertex())) return;
-   
-  if ( verbose > 1 ) 
+  if ( verbose > 1 ) {
     LogDebug("SimG4CoreGenerator") 
       << "Special case of long decay length \n" 
       << "Assign daughters with to mother with decaylength=" 
       << decaylength/cm << " cm";
-
+  }
   math::XYZTLorentzVector p(vp->momentum().px(), vp->momentum().py(), 
 			    vp->momentum().pz(), vp->momentum().e());
 
@@ -459,6 +439,7 @@ void Generator::particleAssignDaughters( G4PrimaryParticle* g4p,
 
     (*vpdec)->set_status(1000+(*vpdec)->status()); 
     g4p->SetDaughter(g4daught);
+
     if ( verbose > 1 ) g4daught->Print();
   }
 }
