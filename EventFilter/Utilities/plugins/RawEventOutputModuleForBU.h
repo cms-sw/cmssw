@@ -10,7 +10,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 
-#include "EvFDaqDirector.h"
+#include "EventFilter/Utilities/interface/EvFDaqDirector.h"
 #include "EvFBuildingThrottle.h"
 
 #include "boost/shared_array.hpp"

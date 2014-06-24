@@ -436,7 +436,6 @@ CombinedSVSoftLeptonComputer::operator () (const TrackIPTagInfo &ipInfo,
 			vars.insert(btau::leptonSip3d,propertiesElec.sip3d , true);	
 			vars.insert(btau::leptonDeltaR,propertiesElec.deltaR , true);	
 			vars.insert(btau::leptonRatioRel,propertiesElec.ratioRel , true);	
-			vars.insert(btau::leptonP0Par,propertiesElec.p0Par , true);	
 			vars.insert(btau::leptonEtaRel,propertiesElec.etaRel , true);	
 			vars.insert(btau::leptonRatio,propertiesElec.ratio , true);	
 		}
