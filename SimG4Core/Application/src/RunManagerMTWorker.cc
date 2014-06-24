@@ -29,6 +29,7 @@
 
 #include <atomic>
 #include <thread>
+#include <sstream>
 
 // from https://hypernews.cern.ch/HyperNews/CMS/get/edmFramework/3302/2.html
 namespace {
@@ -102,7 +103,7 @@ void RunManagerMTWorker::initializeThread(const RunManagerMT& runManagerMaster) 
 void RunManagerMTWorker::produce(const edm::Event& inpevt, const edm::EventSetup& es, const RunManagerMT& runManagerMaster) {
 
   if(!m_threadInitialized) {
-    edm::LogWarning("SimG4CoreApplication") << "RunManagerMTWorker::produce(): stream " << inpevt.streamID() << " thread " << getThreadIndex() << " initializing";
+    LogDebug("SimG4CoreApplication") << "RunManagerMTWorker::produce(): stream " << inpevt.streamID() << " thread " << getThreadIndex() << " initializing";
     initializeThread(runManagerMaster);
     m_threadInitialized = true;
   }
@@ -129,13 +130,15 @@ void RunManagerMTWorker::produce(const edm::Event& inpevt, const edm::EventSetup
     abortRun(false);
   } else {
     G4RunManagerKernel *kernel = G4WorkerRunManagerKernel::GetRunManagerKernel();
-    if(!kernel)
-      throw cms::Exception("Assert") << "No G4WorkerRunManagerKernel yet for thread index" << getThreadIndex() << ", id " << std::hex << std::this_thread::get_id();
-
+    if(!kernel) {
+      std::stringstream ss;
+      ss << "No G4WorkerRunManagerKernel yet for thread index" << getThreadIndex() << ", id " << std::hex << std::this_thread::get_id();
+      throw SimG4Exception(ss.str());
+    }
     kernel->GetEventManager()->ProcessOneEvent(m_currentEvent.get());
   }
     
-  edm::LogWarning("SimG4CoreApplication") // FIXME: should be LogInfo
+  edm::LogInfo("SimG4CoreApplication")
     << " RunManagerMTWorker: saved : Event  " << inpevt.id().event() 
     << " stream id " << inpevt.streamID()
     << " thread index " << getThreadIndex()

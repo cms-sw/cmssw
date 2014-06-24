@@ -139,15 +139,8 @@ private:
   //ExceptionHandler* m_CustomExceptionHandler ;
 
   std::unique_ptr<DDDWorld> m_world;
-  AttachSD * m_attach;
-  std::vector<SensitiveTkDetector*> m_sensTkDets;
-  std::vector<SensitiveCaloDetector*> m_sensCaloDets;
-
   SimActivityRegistry m_registry;
-  std::vector<boost::shared_ptr<SimWatcher> > m_watchers;
-  std::vector<boost::shared_ptr<SimProducer> > m_producers;
     
-  std::auto_ptr<SimTrackManager> m_trackManager;
   sim::FieldBuilder             *m_fieldBuilder;
     
   edm::InputTag m_theLHCTlinkTag;

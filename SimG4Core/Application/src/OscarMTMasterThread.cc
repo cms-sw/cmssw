@@ -41,27 +41,27 @@ OscarMTMasterThread::OscarMTMasterThread(std::shared_ptr<RunManagerMTInit> runMa
       // G4 initialization finish, send signal to the other thread to continue
       m_startCanProceed = true;
       m_startCv.notify_one();
-      //edm::LogWarning("Test") << "Master thread, notified main thread";
+      LogDebug("OscarMTMasterThread") << "Master thread, notified main thread";
 
       // Lock the other mutex, and wait a signal via the condition variable
       std::unique_lock<std::mutex> lk2(m_stopMutex);
-      //edm::LogWarning("Test") << "Master thread, locked mutex, starting wait";
+      LogDebug("OscarMTMasterThread") << "Master thread, locked mutex, starting wait";
       m_stopCanProceed = false;
       m_stopCv.wait(lk2, [&](){return m_stopCanProceed;});
 
       // After getting a signal from the CMSSW thread, do clean-up
-      //edm::LogWarning("Test") << "Master thread, woke up, starting cleanup";
+      LogDebug("OscarMTMasterThread") << "Master thread, woke up, starting cleanup";
       runManagerMaster->stopG4();
 
-      //edm::LogWarning("Test") << "Master thread, stopped G4, am I unique owner? " << runManagerMaster.unique();
+      LogDebug("OscarMTMasterThread") << "Master thread, stopped G4, am I unique owner? " << runManagerMaster.unique();
 
       // must be done in this thread, segfault otherwise
       runManagerMaster.reset();
       G4PhysicalVolumeStore::Clean();
 
-      //edm::LogWarning("Test") << "Master thread, reseted shared_ptr";
+      LogDebug("OscarMTMasterThread") << "Master thread, reseted shared_ptr";
       lk2.unlock();
-      //edm::LogWarning("Test") << "Master thread, finished";
+      LogDebug("OscarMTMasterThread") << "Master thread, finished";
     });
 
   // Start waiting a signal from the condition variable (releases the lock temporarily)
@@ -69,23 +69,22 @@ OscarMTMasterThread::OscarMTMasterThread(std::shared_ptr<RunManagerMTInit> runMa
   m_startCv.wait(lk, [&](){return m_startCanProceed;});
   // Unlock the lock
   lk.unlock();
-  //edm::LogWarning("Test") << "Main thread, again address " << esprod.pDD;
 }
 
 OscarMTMasterThread::~OscarMTMasterThread() {
-  //edm::LogWarning("Test") << "Main thread, destructor";
+  LogDebug("OscarMTMasterThread") << "Main thread, destructor";
   // Release our instance of the shared master run manager, so that
   // the G4 master thread can do the cleanup. Then notify the master
   // thread, and join it.
   {
     std::lock_guard<std::mutex> lk(m_stopMutex);
     m_runManagerMaster.reset();
-    //edm::LogWarning("Test") << "Main thread, reseted shared_ptr";
+    LogDebug("OscarMTMasterThread") << "Main thread, reseted shared_ptr";
   }
-  //edm::LogWarning("Test") << "Main thread, going to signal master thread";
+  LogDebug("OscarMTMasterThread") << "Main thread, going to signal master thread";
   m_stopCanProceed = true;
   m_stopCv.notify_one();
-  //edm::LogWarning("Test") << "Main thread, going to join master thread";
+  LogDebug("OscarMTMasterThread") << "Main thread, going to join master thread";
   m_masterThread.join();
-  //edm::LogWarning("Test") << "Main thread, finished";
+  LogDebug("OscarMTMasterThread") << "Main thread, finished";
 }
