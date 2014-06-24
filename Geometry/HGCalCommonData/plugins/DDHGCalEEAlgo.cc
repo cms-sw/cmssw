@@ -35,6 +35,7 @@ void DDHGCalEEAlgo::initialize(const DDNumericArguments & nArgs,
   rotstr        = sArgs["Rotation"];
   layerType     = dbl_to_int(vArgs["LayerType"]);
   heightType    = dbl_to_int(vArgs["HeightType"]);
+  thickBlock    = vArgs["LayerThick"];
   zMinBlock     = nArgs["zMinBlock"];
   for (unsigned int i=0; i<materials.size(); ++i) {
     copyNumber.push_back(1);
@@ -52,7 +53,8 @@ void DDHGCalEEAlgo::initialize(const DDNumericArguments & nArgs,
   for (unsigned int i=0; i<layerType.size(); ++i)
     edm::LogInfo("HGCalGeom") << "Layer [" << i << "] with material type " 
 			      << layerType[i] << " height type "
-			      << heightType[i];
+			      << heightType[i] << "block thickness "
+			      << thickBlock[i];
 
   sectors       = (int)(nArgs["Sectors"]);
   slopeB        = nArgs["SlopeBottom"];
@@ -93,37 +95,12 @@ void DDHGCalEEAlgo::constructLayers(DDLogicalPart module, DDCompactView& cpv) {
   DDRotation rot(DDName(DDSplit(rotstr).first, DDSplit(rotstr).second));
 
   double  zi(zMinBlock), zz(zMinBlock);
-  double layer0_thick(0);
-  if(idName == "HGCalEEM"){
-    for (unsigned int j=0; j<names.size()-1; j++) {
-      int jj = layerType[j];
-      layer0_thick += thick[jj];
-    }
-  }
-
   for (unsigned int i=0; i<layerType.size(); i++) {
     int     ii    = layerType[i];
     int     copy  = copyNumber[ii];
     ++copyNumber[ii];
+    double layer_thick = thickBlock[i];
 
-    double layer_thick(0);
-    if(idName == "HGCalEEM"){
-      if (i<names.size()-1) 
-	layer_thick = layer0_thick;
-      else if (i<11*names.size()-1) 
-	layer_thick = layer0_thick + thick[0];
-      else if (i<21*names.size()-1) 
-	layer_thick = layer0_thick + thick[1];
-      else 
-	layer_thick = layer0_thick + thick[2];
-    }
-    else {
-      if (i == 0) 
-	layer_thick = thick[ii];
-      else 
-	layer_thick = thick[0] + thick[1] + 3*thick[2] + thick[3] + thick[4];
-    }
-    
     if (heightType[i] == 0) zz = zi;
     double  zlayer = zz + layer_thick;
     double  zo     = zi + thick[ii];
@@ -136,7 +113,8 @@ void DDHGCalEEAlgo::constructLayers(DDLogicalPart module, DDCompactView& cpv) {
     edm::LogInfo("HGCalGeom") << "DDHGCalEEAlgo test: Layer " << i << ":" 
 			      << ii << " Front " << zi << ", " << rinF << ", " 
 			      << routF << " Back " << zo << ", " << rinB 
-			      << ", " << routB << " superlayer thickness " << layer_thick;
+			      << ", " << routB << " superlayer thickness " 
+			      << layer_thick;
     DDHGCalEEAlgo::HGCalEEPar parm = parameterLayer(rinF, routF, rinB, 
 						    routB, zi, zo);
     DDSolid solid = DDSolidFactory::trap(DDName(name, idNameSpace), 
@@ -177,9 +155,9 @@ DDHGCalEEAlgo::parameterLayer(double rinF, double routF, double rinB,
   //Given rin, rout compute parameters of the trapezoid and 
   //position of the trapezoid for a standrd layer
   double alpha = CLHEP::pi/sectors;
-  edm::LogInfo("HCalGeom") << "Input: Front " << rinF << " " << routF << " "
-			   << zi << " Back " << rinB << " " << routB << " "
-			   << zo << " Alpha " << alpha/CLHEP::deg;
+  edm::LogInfo("HGCalGeom") << "Input: Front " << rinF << " " << routF << " "
+			    << zi << " Back " << rinB << " " << routB << " "
+			    << zo << " Alpha " << alpha/CLHEP::deg;
 
   parm.yh2  = parm.yh1  = 0.5 * (routF*cos(alpha) - rinB);
   parm.bl2  = parm.bl1  = rinB  * tan(alpha);
@@ -188,21 +166,24 @@ DDHGCalEEAlgo::parameterLayer(double rinF, double routF, double rinB,
   parm.ypos = 0.0;
   parm.zpos = 0.5*(zi+zo);
   parm.alp  = parm.theta  = parm.phi = 0;
-  edm::LogInfo("HCalGeom") << "Output Dimensions " << parm.yh1 << " " 
-			   << parm.bl1 << " " << parm.tl1 << " " << parm.yh2 
-			   << " " << parm.bl2 << " " << parm.tl2 << " " 
-			   << parm.alp/CLHEP::deg <<" " <<parm.theta/CLHEP::deg
-			   << " " << parm.phi/CLHEP::deg << " Position " 
-			   << parm.xpos << " " << parm.ypos << " " <<parm.zpos;
+  edm::LogInfo("HGCalGeom") << "Output Dimensions " << parm.yh1 << " " 
+			    << parm.bl1 << " " << parm.tl1 << " " << parm.yh2 
+			    << " " << parm.bl2 << " " << parm.tl2 << " " 
+			    << parm.alp/CLHEP::deg <<" "<<parm.theta/CLHEP::deg
+			    << " " << parm.phi/CLHEP::deg << " Position " 
+			    << parm.xpos << " " << parm.ypos <<" " <<parm.zpos;
   return parm;
 }
 
 double DDHGCalEEAlgo::rMax(double z) {
 
   double r(0);
+  unsigned int ik(0);
   for (unsigned int k=0; k<slopeT.size(); ++k) {
     if (z < zFront[k]) break;
-    r = rMaxFront[k] + (z - zFront[k]) * slopeT[k];
+    r  = rMaxFront[k] + (z - zFront[k]) * slopeT[k];
+    ik = k;
   }
+  edm::LogInfo("HGCalGeom") << "rMax : " << z << ":" << ik << ":" << r ;
   return r;
 }

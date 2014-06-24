@@ -95,9 +95,6 @@
     <Parameter name="GroupingXY" value="1"/>
     <Parameter name="GroupingXY" value="1"/>
     <Parameter name="GroupingXY" value="1"/>
-    <Parameter name="GroupingXY" value="1"/>
-    <Parameter name="GroupingXY" value="1"/>
-    <Parameter name="GroupingXY" value="1"/>
     <Parameter name="GroupingZ"  value="1"/>
     <Parameter name="GroupingZ"  value="1"/>
     <Parameter name="GroupingZ"  value="-1"/>
@@ -187,9 +184,6 @@
     <Parameter name="GroupingZ"  value="-1"/>
     <Parameter name="GroupingZ"  value="30"/>
     <Parameter name="GroupingZ"  value="30"/>
-    <Parameter name="GroupingZ"  value="-1"/>
-    <Parameter name="GroupingZ"  value="31"/>
-    <Parameter name="GroupingZ"  value="31"/>
     <Parameter name="GroupingZ"  value="-1"/>
   </SpecPar>
   <SpecPar name="HGCalHESiliconReco">
@@ -291,6 +285,10 @@
     <Parameter name="GroupingXY" value="1"/>
     <Parameter name="GroupingXY" value="1"/>
     <Parameter name="GroupingXY" value="1"/>
+    <Parameter name="GroupingXY" value="1"/>
+    <Parameter name="GroupingXY" value="1"/>
+    <Parameter name="GroupingXY" value="1"/>
+    <Parameter name="GroupingXY" value="1"/>
     <Parameter name="GroupingZ"  value="1"/>
     <Parameter name="GroupingZ"  value="1"/>
     <Parameter name="GroupingZ"  value="2"/>
@@ -311,6 +309,10 @@
     <Parameter name="GroupingZ"  value="9"/>
     <Parameter name="GroupingZ"  value="10"/>
     <Parameter name="GroupingZ"  value="10"/>
+    <Parameter name="GroupingZ"  value="11"/>
+    <Parameter name="GroupingZ"  value="11"/>
+    <Parameter name="GroupingZ"  value="12"/>
+    <Parameter name="GroupingZ"  value="12"/>
   </SpecPar>
 </SpecParSection>
 
