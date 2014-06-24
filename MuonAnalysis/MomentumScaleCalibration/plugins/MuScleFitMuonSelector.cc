@@ -29,16 +29,19 @@ MuScleFitMuonSelector::getStatus1Muon(const reco::Candidate* status3Muon){
 bool MuScleFitMuonSelector::selGlobalMuon(const pat::Muon* aMuon)
 {
   reco::TrackRef iTrack = aMuon->innerTrack();
+  const reco::HitPattern& p = iTrack->hitPattern();
+
   reco::TrackRef gTrack = aMuon->globalTrack();
+  const reco::HitPattern& q = gTrack->hitPattern();
 
   return (//isMuonInAccept(aMuon) &&// no acceptance cuts!
     iTrack->found() > 11 &&
     gTrack->chi2()/gTrack->ndof() < 20.0 &&
-    gTrack->hitPattern().numberOfValidMuonHits() > 0 &&
+    q.numberOfValidMuonHits() > 0 &&
     iTrack->chi2()/iTrack->ndof() < 4.0 &&
     aMuon->muonID("TrackerMuonArbitrated") &&
     aMuon->muonID("TMLastStationAngTight") &&
-    iTrack->hitPattern().pixelLayersWithMeasurement() > 1 &&
+    p.pixelLayersWithMeasurement() > 1 &&
     fabs(iTrack->dxy()) < 3.0 &&  //should be done w.r.t. PV!
     fabs(iTrack->dz()) < 15.0 //should be done w.r.t. PV!
   );
@@ -47,13 +50,14 @@ bool MuScleFitMuonSelector::selGlobalMuon(const pat::Muon* aMuon)
 bool MuScleFitMuonSelector::selTrackerMuon(const pat::Muon* aMuon)
 {
   reco::TrackRef iTrack = aMuon->innerTrack();
+  const reco::HitPattern& p = iTrack->hitPattern();
 
   return (//isMuonInAccept(aMuon) // no acceptance cuts!
     iTrack->found() > 11 &&
     iTrack->chi2()/iTrack->ndof() < 4.0 &&
     aMuon->muonID("TrackerMuonArbitrated") &&
     aMuon->muonID("TMLastStationAngTight") &&
-    iTrack->hitPattern().pixelLayersWithMeasurement() > 1 &&
+    p.pixelLayersWithMeasurement() > 1 &&
     fabs(iTrack->dxy()) < 3.0 && //should be done w.r.t. PV!
     fabs(iTrack->dz()) < 15.0 //should be done w.r.t. PV!
   );

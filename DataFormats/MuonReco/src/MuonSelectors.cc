@@ -588,8 +588,7 @@ bool muon::isGoodMuon( const reco::Muon& muon, SelectionType type,
       return ! muon.isTrackerMuon() || muon.numberOfMatches(arbitrationType)>0;
       break;
     case muon::GlobalMuonPromptTight:
-      return muon.isGlobalMuon() && muon.globalTrack()->normalizedChi2()<10. 
-          && muon.globalTrack()->hitPattern().numberOfValidMuonHits() >0;
+      return muon.isGlobalMuon() && muon.globalTrack()->normalizedChi2()<10. && muon.globalTrack()->hitPattern().numberOfValidMuonHits() >0;
       break;
       // For "Loose" algorithms we choose maximum y quantity cuts of 1E9 instead of
       // 9999 as before.  We do this because the muon methods return 999999 (note
@@ -750,8 +749,8 @@ bool muon::isTightMuon(const reco::Muon& muon, const reco::Vertex& vtx){
   bool muID = isGoodMuon(muon,GlobalMuonPromptTight) && (muon.numberOfMatchedStations() > 1);
     
   
-  bool hits = muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 
-      && muon.innerTrack()->hitPattern().numberOfValidPixelHits() > 0; 
+  bool hits = muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 &&
+    muon.innerTrack()->hitPattern().numberOfValidPixelHits() > 0; 
 
   
   bool ip = fabs(muon.muonBestTrack()->dxy(vtx.position())) < 0.2 && fabs(muon.muonBestTrack()->dz(vtx.position())) < 0.5;
@@ -771,8 +770,8 @@ bool muon::isSoftMuon(const reco::Muon& muon, const reco::Vertex& vtx){
 
   if(!muID) return false;
   
-  bool layers = muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 
-      && muon.innerTrack()->hitPattern().pixelLayersWithMeasurement() > 1;
+  bool layers = muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 &&
+    muon.innerTrack()->hitPattern().pixelLayersWithMeasurement() > 1;
 
   bool chi2 = muon.innerTrack()->normalizedChi2() < 1.8;  
   
@@ -784,13 +783,11 @@ bool muon::isSoftMuon(const reco::Muon& muon, const reco::Vertex& vtx){
 
 
 bool muon::isHighPtMuon(const reco::Muon& muon, const reco::Vertex& vtx){
-  bool muID = muon.isGlobalMuon() 
-      && muon.globalTrack()->hitPattern().numberOfValidMuonHits() > 0 
-      && (muon.numberOfMatchedStations() > 1);
+  bool muID =   muon.isGlobalMuon() && muon.globalTrack()->hitPattern().numberOfValidMuonHits() >0 && (muon.numberOfMatchedStations() > 1);
   if(!muID) return false;
 
-  bool hits = muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 
-      && muon.innerTrack()->hitPattern().numberOfValidPixelHits() > 0; 
+  bool hits = muon.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 &&
+    muon.innerTrack()->hitPattern().numberOfValidPixelHits() > 0; 
 
   bool momQuality = muon.muonBestTrack()->ptError()/muon.muonBestTrack()->pt() < 0.3;
 
@@ -828,4 +825,3 @@ int muon::sharedSegments( const reco::Muon& mu, const reco::Muon& mu2, unsigned 
   
     return ret; 
 }
-
