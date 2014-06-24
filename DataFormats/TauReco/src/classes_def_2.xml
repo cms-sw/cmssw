@@ -1,6 +1,7 @@
 <lcgdict>
   
-  <class name="reco::PFTau" ClassVersion="14">
+  <class name="reco::PFTau" ClassVersion="15">
+    <version ClassVersion="15" checksum="4105994460"/>
     <version ClassVersion="14" checksum="3087106015"/>
     <version ClassVersion="13" checksum="1088944403"/>
     <version ClassVersion="12" checksum="3369965409"/>
@@ -228,7 +229,8 @@ for(auto const& ref : onfile.selectedIsolationPFGammaCands_) {
   <class name="edm::RefVector<std::vector<reco::RecoTauPiZero>,reco::RecoTauPiZero,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoTauPiZero>,reco::RecoTauPiZero> >"/>
   <class name="edm::reftobase::Holder<reco::CompositePtrCandidate, edm::Ref<std::vector<reco::RecoTauPiZero>,reco::RecoTauPiZero,edm::refhelper::FindUsingAdvance<std::vector<reco::RecoTauPiZero>,reco::RecoTauPiZero> > >" />
 
-  <class name="reco::PFRecoTauChargedHadron" ClassVersion="11">
+  <class name="reco::PFRecoTauChargedHadron" ClassVersion="12">
+   <version ClassVersion="12" checksum="935991225" />
    <version ClassVersion="11" checksum="858406271" />
    <version ClassVersion="10" checksum="4027987990"/>
   </class>
