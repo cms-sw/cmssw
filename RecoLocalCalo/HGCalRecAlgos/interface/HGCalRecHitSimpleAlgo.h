@@ -17,8 +17,8 @@ class HGCalRecHitSimpleAlgo : public HGCalRecHitAbsAlgo {
  public:
   // default ctor
   HGCalRecHitSimpleAlgo() {
-    adcToGeVConstant_ = 1;
-    adcToGeVConstantIsSet_ = true;
+    adcToGeVConstant_ = -1;
+    adcToGeVConstantIsSet_ = false;
   }
 
   virtual void setADCToGeVConstant(const float& value) {
@@ -42,9 +42,9 @@ class HGCalRecHitSimpleAlgo : public HGCalRecHitAbsAlgo {
     }
 
     //    float clockToNsConstant = 25;
-    float energy = uncalibRH.amplitude();
-    //    float time   = uncalibRH.jitter();
-    float time   = 0; // fast-track digi conversion
+    float energy = uncalibRH.amplitude() * adcToGeVConstant_;
+    float time   = uncalibRH.jitter();
+    if(time<0) time   = 0; // fast-track digi conversion
 
     HGCRecHit rh( uncalibRH.id(), energy, time );
 
