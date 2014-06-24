@@ -2,34 +2,36 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
 
 <ConstantsSection label="hgcal.xml" eval="true">
-  <Constant name="zHGCal1"    value="3200.0*mm"/>
-  <Constant name="zHGCal2"    value="3887.85*mm"/>
-  <Constant name="zHGCal3"    value="4488.35*mm"/>
-  <Constant name="zHGCal4"    value="5227.85*mm"/>
-  <Constant name="zMinEE"     value="3200.0*mm"/>
-  <Constant name="zMaxEE"     value="3488.85*mm"/>
-  <Constant name="zMinHE"     value="3488.85*mm"/>
-  <Constant name="zMaxHE"     value="5227.85*mm"/>
+  <Constant name="etaMinF"    value="1.495"/>
+  <Constant name="slope2"     value="tan(2.0*atan(exp(-[etaMinF])))"/>
+  <Constant name="slope3"     value="tan(53.0*deg)"/>
+  <Constant name="z1Beam"     value="2412.7*mm"/>
+  <Constant name="zHGCal1"    value="3170.0*mm"/>
+  <Constant name="rMaxHGCal1" value="([zHGCal1]*[slope2])"/>
+  <Constant name="zHGCal2"    value="([z1Beam]*[slope3]/([slope3]-[slope2]))"/>
+  <Constant name="rMaxHGCal2" value="([zHGCal2]*[slope2])"/>
+  <Constant name="rMaxHGCal3" value="2639.0*mm"/>
+  <Constant name="rMaxHGCal4" value="2459.0*mm"/>
+  <Constant name="zHGCal3"    value="(([rMaxHGCal3]/[slope3])+[z1Beam])"/>
+  <Constant name="zHGCal4"    value="4880.0*mm"/>
+  <Constant name="zHGCal5"    value="5228.0*mm"/>
+  <Constant name="zMinEE"     value="[zHGCal1]"/>
+  <Constant name="zMaxEE"     value="3489.0*mm"/>
+  <Constant name="zMinHE"     value="[zMaxEE]"/>
+  <Constant name="zMaxHE"     value="[zHGCal5]"/>
   <Constant name="rMinHGCal1" value="[etaMax:slope]*[zHGCal1]"/>
   <Constant name="rMinHGCal2" value="[etaMax:slope]*[zHGCal2]"/>    
   <Constant name="rMinHGCal3" value="[etaMax:slope]*[zHGCal3]"/>
   <Constant name="rMinHGCal4" value="[etaMax:slope]*[zHGCal4]"/>
+  <Constant name="rMinHGCal5" value="[etaMax:slope]*[zHGCal5]"/>
   <Constant name="rMinEEMin"  value="[etaMax:slope]*[zMinEE]"/>
   <Constant name="rMinEEMax"  value="[etaMax:slope]*[zMaxEE]"/>
   <Constant name="rMinHEMin"  value="[etaMax:slope]*[zMinHE]"/>
   <Constant name="rMinHEMax"  value="[etaMax:slope]*[zMaxHE]"/>
-  <Constant name="thetaMax2"  value="25.672*deg"/>
-  <Constant name="thetaMax3"  value="53.0*deg"/>
-  <Constant name="rMaxHGCal1" value="1531.38*mm"/>
-  <Constant name="rMaxHGCal2" value="1778.45*mm"/>
-  <Constant name="rMaxHGCal3" value="2630.00*mm"/>
-  <Constant name="rMaxHGCal4" value="[rMaxHGCal3]"/>
-  <Constant name="slope2"     value="([rMaxHGCal2]-[rMaxHGCal1])/([zHGCal2]-[zHGCal1])"/>
-  <Constant name="slope3"     value="([rMaxHGCal3]-[rMaxHGCal2])/([zHGCal3]-[zHGCal2])"/>
-  <Constant name="rMaxEEMin"  value="([rMaxHGCal1]+[slope2]*([zMinEE]-[zHGCal1]))"/>
-  <Constant name="rMaxEEMax"  value="([rMaxHGCal1]+[slope2]*([zMaxEE]-[zHGCal1]))"/>
-  <Constant name="rMaxHEMin"  value="([rMaxHGCal1]+[slope2]*([zMinHE]-[zHGCal1]))"/>
-  <Constant name="rMaxHEMax"  value="[rMaxHGCal3]"/>
+  <Constant name="rMaxEEMin"  value="([slope2]*[zMinEE])"/>
+  <Constant name="rMaxEEMax"  value="([slope2]*[zMaxEE])"/>
+  <Constant name="rMaxHEMin"  value="([slope2]*[zMinHE])"/>
+  <Constant name="rMaxHEMax"  value="[rMaxHGCal4]"/>
   <Constant name="factor1"    value="cos(10*deg)"/>
   <Constant name="factor2"    value="cos(10*deg)"/>
   <Constant name="rMapEEMin"  value="[rMaxEEMin]*[factor1]"/>
@@ -37,6 +39,7 @@
   <Constant name="rMapHEMin"  value="[rMaxHEMin]*[factor1]"/>
   <Constant name="rMapHGCal2" value="[rMaxHGCal2]*[factor1]"/>
   <Constant name="rMapHGCal3" value="[rMaxHGCal3]*[factor2]"/>
+  <Constant name="rMapHGCal4" value="[rMaxHGCal4]*[factor2]"/>
   <Constant name="rMapHEMax"  value="[rMaxHEMax]*[factor2]"/>
 </ConstantsSection>
 
@@ -45,7 +48,9 @@
     <ZSection z="[zHGCal1]" rMin="[rMinHGCal1]" rMax="[rMaxHGCal1]"/>
     <ZSection z="[zHGCal2]" rMin="[rMinHGCal2]" rMax="[rMaxHGCal2]"/>
     <ZSection z="[zHGCal3]" rMin="[rMinHGCal3]" rMax="[rMaxHGCal3]"/>
+    <ZSection z="[zHGCal4]" rMin="[rMinHGCal4]" rMax="[rMaxHGCal3]"/>
     <ZSection z="[zHGCal4]" rMin="[rMinHGCal4]" rMax="[rMaxHGCal4]"/>
+    <ZSection z="[zHGCal5]" rMin="[rMinHGCal5]" rMax="[rMaxHGCal4]"/>
   </Polycone>
   <Polyhedra name="HGCalEE" numSide="18" startPhi="350*deg" deltaPhi="360*deg">
     <ZSection z="[zMinEE]" rMin="[rMinEEMin]" rMax="[rMapEEMin]"/>
@@ -55,6 +60,8 @@
     <ZSection z="[zMinHE]"  rMin="[rMinHEMin]"  rMax="[rMapHEMin]"/>
     <ZSection z="[zHGCal2]" rMin="[rMinHGCal2]" rMax="[rMapHGCal2]"/>
     <ZSection z="[zHGCal3]" rMin="[rMinHGCal3]" rMax="[rMapHGCal3]"/>
+    <ZSection z="[zHGCal4]" rMin="[rMinHGCal4]" rMax="[rMapHGCal3]"/>
+    <ZSection z="[zHGCal4]" rMin="[rMinHGCal4]" rMax="[rMapHGCal4]"/>
     <ZSection z="[zMaxHE]"  rMin="[rMinHEMax]"  rMax="[rMapHEMax]"/>
   </Polyhedra>
 </SolidSection>
