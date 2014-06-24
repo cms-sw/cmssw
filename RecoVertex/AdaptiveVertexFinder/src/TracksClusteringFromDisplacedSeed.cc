@@ -96,7 +96,7 @@ std::vector<TracksClusteringFromDisplacedSeed::Cluster> TracksClusteringFromDisp
                 if(ip.first && ip.second.value() >= min3DIPValue && ip.second.significance() >= min3DIPSignificance && ip.second.value() <= max3DIPValue && ip.second.significance() <= max3DIPSignificance)
                   { 
 #ifdef VTXDEBUG
-                    std::cout << "new seed " << it-selectedTracks.begin() << " ref " << it->trackBaseRef().key() << " " << ip.second.value() << " " << ip.second.significance() << " " << it->track().hitPattern().trackerLayersWithMeasurement() << " " << it->track().pt() << " " << it->track().eta() << std::endl;
+                    std::cout << "new seed " <<  it-selectedTracks.begin() << " ref " << it->trackBaseRef().key()  << " " << ip.second.value() << " " << ip.second.significance() << " " << it->track().hitPattern().trackerLayersWithMeasurement() << " " << it->track().pt() << " " << it->track().eta() << std::endl;
 #endif
                     seeds.push_back(*it);  
                   }
