@@ -37,7 +37,11 @@ namespace edm {
   void
   maybeThrowMissingDictionaryException(TypeID const& productType, bool isElement, std::vector<std::string> const& missingDictionaries) {
     if(binary_search_all(missingDictionaries, productType.className())) {
-      checkDictionaries(isElement ? productType.className() : wrappedClassName(productType.className()), false);
+      if(isElement) {
+        checkTypeDictionary(productType.className());
+      } else {
+        checkClassDictionary(wrappedClassName(productType.className()));
+      }
       throwMissingDictionariesException();
     }
   }

@@ -18,7 +18,7 @@ namespace edm {
   void loadCap(std::string const& name) {
     FDEBUG(1) << "Loading dictionary for " << name << "\n";
     edmplugin::PluginCapabilities::get()->load(dictionaryPlugInPrefix() + name);
-    checkDictionaries(name);
+    checkClassDictionaries(name, true);
     if (!missingTypes().empty()) {
       StringSet missing = missingTypes();
       missingTypes().clear();

@@ -56,11 +56,13 @@ bool
 is_RefToBaseVector(TypeWithDict const& possible_ref_vector,
                    TypeWithDict& value_type);
 
-void checkDictionaries(std::string const& name, bool noComponents = false);
+bool checkClassDictionary(std::string const& name);
+void checkClassDictionaries(std::string const& name, bool recursive = true);
+bool checkTypeDictionary(std::string const& name);
+void checkTypeDictionaries(std::string const& name, bool recursive = true);
 void throwMissingDictionariesException();
 void loadMissingDictionaries();
 StringSet& missingTypes();
-StringSet& foundTypes();
 
 void public_base_classes(TypeWithDict const& type,
                          std::vector<TypeWithDict>& baseTypes);
