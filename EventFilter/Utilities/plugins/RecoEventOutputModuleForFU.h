@@ -14,7 +14,7 @@
 #include "EventFilter/Utilities/interface/FastMonitor.h"
 #include "EventFilter/Utilities/interface/JSONSerializer.h"
 #include "EventFilter/Utilities/interface/FileIO.h"
-#include "EventFilter/Utilities/plugins/FastMonitoringService.h"
+#include "EventFilter/Utilities/interface/FastMonitoringService.h"
 
 
 namespace evf {
@@ -43,31 +43,9 @@ namespace evf {
     virtual void beginLuminosityBlock(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*);
     virtual void endLuminosityBlock(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*);
 
-    void initializeStreams() {
-      // find run dir
-      boost::filesystem::path runDirectory(
-					   edm::Service<evf::EvFDaqDirector>()->findCurrentRunDir());
-      datapath_ = runDirectory.string();
-      LogDebug("RecoEventOutputModuleForFU") << "writing .dat files to -: "
-						 << datapath_;
-      // create open dir if not already there
-      boost::filesystem::path openPath = runDirectory;
-      openPath /= "open";
-      // do these dirs need to be created?
-      bool foundOpenDir = false;
-      if (boost::filesystem::is_directory(openPath))
-	foundOpenDir = true;
-      if (!foundOpenDir) {
-	LogDebug("RecoEventOutputModuleForFU") << "<open> FU dir not found. Creating... -:" << openPath.string();
-	boost::filesystem::create_directories(openPath);
-      }
-    }
-
   private:
     std::auto_ptr<Consumer> c_;
     std::string stream_label_;
-    std::string events_base_filename_;
-    std::string datapath_;
     boost::filesystem::path openDatFilePath_;
     IntJ processed_;
     mutable IntJ accepted_;
@@ -96,7 +74,11 @@ namespace evf {
     filesize_(0),
     inputFiles_()
   {
-    initializeStreams();
+    std::string baseRunDir = edm::Service<evf::EvFDaqDirector>()->baseRunDir();
+    LogDebug("RecoEventOutputModuleForFU") << "writing .dat files to -: " << baseRunDir;
+    // create open dir if not already there
+    edm::Service<evf::EvFDaqDirector>()->createRunOpendirMaybe();
+
     fms_ = (evf::FastMonitoringService *)(edm::Service<evf::MicroStateService>().operator->());
     
     processed_.setName("Processed");
@@ -115,8 +97,10 @@ namespace evf {
     outJsonDef_.addLegendItem("Filelist","string",DataPointDefinition::MERGE);
     outJsonDef_.addLegendItem("Filesize","integer",DataPointDefinition::SUM);
     outJsonDef_.addLegendItem("InputFiles","string",DataPointDefinition::CAT);
-    std::stringstream ss;
-    ss << edm::Service<evf::EvFDaqDirector>()->baseRunDir() << "/" << "output_" << getpid() << ".jsd";
+    std::stringstream tmpss,ss;
+    tmpss << baseRunDir << "/open/" << "output_" << getpid() << ".jsd";
+    ss << baseRunDir << "/" << "output_" << getpid() << ".jsd";
+    std::string outTmpJsonDefName = tmpss.str();
     std::string outJsonDefName = ss.str();
 
     edm::Service<evf::EvFDaqDirector>()->lockInitLock();
@@ -125,7 +109,8 @@ namespace evf {
       LogDebug("RecoEventOutputModuleForFU") << "writing output definition file -: " << outJsonDefName;
       std::string content;
       JSONSerializer::serialize(&outJsonDef_,content);
-      FileIO::writeStringToFile(outJsonDefName, content);
+      FileIO::writeStringToFile(outTmpJsonDefName, content);
+      boost::filesystem::rename(outTmpJsonDefName,outJsonDefName);
     }
     edm::Service<evf::EvFDaqDirector>()->unlockInitLock();
 

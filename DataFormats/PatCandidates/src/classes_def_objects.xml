@@ -41,7 +41,7 @@
    <version ClassVersion="11" checksum="489577659"/>
    <version ClassVersion="10" checksum="2367573922"/>
   </class>
-  <class name="pat::Tau"  ClassVersion="13">
+  <class name="pat::Tau"  ClassVersion="15">
    <field name="isolationTracksTransientRefVector_" transient="true"/>
    <field name="signalTracksTransientRefVector_" transient="true"/>
    <field name="signalPFCandsTransientPtrs_" transient="true"/>
@@ -52,6 +52,8 @@
    <field name="isolationPFChargedHadrCandsTransientPtrs_" transient="true"/>
    <field name="isolationPFNeutralHadrCandsTransientPtrs_" transient="true"/>
    <field name="isolationPFGammaCandsTransientPtrs_" transient="true"/>
+   <version ClassVersion="15" checksum="3797478883"/>
+   <version ClassVersion="14" checksum="3966509354"/>
    <version ClassVersion="13" checksum="2969928320"/>
    <version ClassVersion="12" checksum="2900944238"/>
    <version ClassVersion="11" checksum="3100353428"/>
@@ -90,7 +92,8 @@
   <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="isolationPFGammaCandsTransientPtrs_">
   <![CDATA[isolationPFGammaCandsTransientPtrs_.reset();]]>
   </ioread>
-  <class name="pat::tau::TauPFSpecific"  ClassVersion="13">
+  <class name="pat::tau::TauPFSpecific"  ClassVersion="14">
+   <version ClassVersion="14" checksum="1401440164"/>
    <version ClassVersion="13" checksum="3129436753"/>
    <version ClassVersion="12" checksum="941745608"/>
    <version ClassVersion="11" checksum="3975939304"/>
@@ -102,8 +105,13 @@
    <version ClassVersion="10" checksum="2692173055"/>
   </class>
   <class name="std::vector<pat::tau::TauCaloSpecific>" />
+  <class name="pat::tau::TauPFEssential" ClassVersion="10">
+    <version ClassVersion="10" checksum="1628501942" />
+  </class>
+  <class name="std::vector<pat::tau::TauPFEssential>" />
   <class name="pat::Photon"  ClassVersion="12">
    <field name="superClusterRelinked_" transient="true"/>
+   <version ClassVersion="13" checksum="3948496360"/>
    <version ClassVersion="12" checksum="2518470540"/>
    <version ClassVersion="11" checksum="3277818926"/>
    <version ClassVersion="10" checksum="865744757"/>

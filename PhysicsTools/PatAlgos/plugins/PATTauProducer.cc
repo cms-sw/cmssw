@@ -367,23 +367,24 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       edm::Handle<reco::PFTauCollection> pfTaus;
       iEvent.getByToken(pfTauToken_, pfTaus);
       reco::PFTauRef pfTauRef(pfTaus, idx);
-
       edm::Handle<PFTauTIPAssociationByRef> tauLifetimeInfos;
       iEvent.getByToken(tauTransverseImpactParameterToken_, tauLifetimeInfos);
       const reco::PFTauTransverseImpactParameter& tauLifetimeInfo = *(*tauLifetimeInfos)[pfTauRef];
-      pat::tau::TauPFSpecific& aTauPFSpecific = aTau.pfSpecific_[0];
-      aTauPFSpecific.dxy_PCA_ = tauLifetimeInfo.dxy_PCA();
-      aTauPFSpecific.dxy_ = tauLifetimeInfo.dxy();
-      aTauPFSpecific.dxy_error_ = tauLifetimeInfo.dxy_error();
-      aTauPFSpecific.pv_ = tauLifetimeInfo.primaryVertex();
-      aTauPFSpecific.pvPos_ = tauLifetimeInfo.primaryVertexPos();
-      aTauPFSpecific.pvCov_ = tauLifetimeInfo.primaryVertexCov();
-      aTauPFSpecific.hasSV_ = tauLifetimeInfo.hasSecondaryVertex();
-      aTauPFSpecific.flightLength_ = tauLifetimeInfo.flightLength();
-      aTauPFSpecific.flightLengthSig_ = tauLifetimeInfo.flightLengthSig();
-      aTauPFSpecific.sv_ = tauLifetimeInfo.secondaryVertex();
-      aTauPFSpecific.svPos_ = tauLifetimeInfo.secondaryVertexPos();
-      aTauPFSpecific.svCov_ = tauLifetimeInfo.secondaryVertexCov();
+      pat::tau::TauPFEssential& aTauPFEssential = aTau.pfEssential_[0];
+      aTauPFEssential.dxy_PCA_ = tauLifetimeInfo.dxy_PCA();
+      aTauPFEssential.dxy_ = tauLifetimeInfo.dxy();
+      aTauPFEssential.dxy_error_ = tauLifetimeInfo.dxy_error();
+      //      aTauPFEssential.pv_ = tauLifetimeInfo.primaryVertex();
+      // aTauPFEssential.pvPos_ = tauLifetimeInfo.primaryVertexPos();
+      // aTauPFEssential.pvCov_ = tauLifetimeInfo.primaryVertexCov();
+      aTauPFEssential.hasSV_ = tauLifetimeInfo.hasSecondaryVertex();
+      if(tauLifetimeInfo.hasSecondaryVertex()){
+	aTauPFEssential.flightLength_ = tauLifetimeInfo.flightLength();
+	aTauPFEssential.flightLengthSig_ = tauLifetimeInfo.flightLengthSig();
+	//      aTauPFEssential.sv_ = tauLifetimeInfo.secondaryVertex();
+	// aTauPFEssential.svPos_ = tauLifetimeInfo.secondaryVertexPos();
+	// aTauPFEssential.svCov_ = tauLifetimeInfo.secondaryVertexCov();
+      }
     }
 
     // Isolation

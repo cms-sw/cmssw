@@ -10,9 +10,9 @@ using namespace std;
 
 
 bool FEDNumbering::init_ = true;
-bool *FEDNumbering::in_ = new bool[1024];
+bool *FEDNumbering::in_ = new bool[MAXFEDID+1];
 
-vector<string> FEDNumbering::from_(1024,"");
+vector<string> FEDNumbering::from_(MAXFEDID+1,"");
 
 int FEDNumbering::lastFEDId(){
   return MAXFEDID;
@@ -126,32 +126,47 @@ void FEDNumbering::init()
   for(i=MINDAQeFEDFEDID; i<=MAXDAQeFEDFEDID; i++)
     {
       in_[i] = true;
-      from_[i] = "DAQeFED";
+      from_[i] = "DAQ";
     }
   for(i=MINDAQmFEDFEDID; i<=MAXDAQmFEDFEDID; i++)
     {
       in_[i] = true;
-      from_[i] = "DAQmFED";
+      from_[i] = "DAQ";
+    }
+  for(i=MINTCDSuTCAFEDID; i<=MAXTCDSuTCAFEDID; i++)
+    {
+      in_[i] = true;
+      from_[i] = "TCDS";
+    }
+  for(i=MINHCALuTCAFEDID; i<=MAXHCALuTCAFEDID; i++)
+    {
+      in_[i] = true;
+      from_[i] = "Hcal";
+    }
+  for(i=MINSiPixeluTCAFEDID; i<=MAXSiPixeluTCAFEDID; i++)
+    {
+      in_[i] = true;
+      from_[i] = "SiPixel";
     }
 
 
   init_ = false;
 }
 
-bool FEDNumbering::inRange(int i) 
+bool FEDNumbering::inRange(int i)
 {
   if(init_) init();
   return in_[i];
 }
-bool FEDNumbering::inRangeNoGT(int i) 
+bool FEDNumbering::inRangeNoGT(int i)
 {
   if(init_) init();
   if((i>=MINTriggerGTPFEDID && i<=MAXTriggerGTPFEDID) || (i>=MINTriggerEGTPFEDID && i<=MAXTriggerEGTPFEDID)) return false;
   return in_[i];
 }
 
-string const &FEDNumbering::fromDet(int i) 
+string const &FEDNumbering::fromDet(int i)
 {
   if(init_) init();
   return from_[i];
-}  
+}
