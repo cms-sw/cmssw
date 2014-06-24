@@ -21,7 +21,7 @@ HitPattern::HitPattern() :
     beginOuter(0),
     endOuter(0)
 {
-    memset(hitPattern, HitPattern::EMPTY_PATTERN, sizeof(uint16_t) * HitPattern::MaxHits);
+    memset(hitPattern, HitPattern::EMPTY_PATTERN, sizeof(uint16_t) * HitPattern::ARRAY_LENGTH);
 }
 
 HitPattern::HitPattern(const HitPattern &other) :
@@ -33,7 +33,7 @@ HitPattern::HitPattern(const HitPattern &other) :
     beginOuter(other.beginOuter),
     endOuter(other.endOuter)
 {
-    memcpy(this->hitPattern, other.hitPattern, sizeof(uint16_t) * HitPattern::MaxHits);
+    memcpy(this->hitPattern, other.hitPattern, sizeof(uint16_t) * HitPattern::ARRAY_LENGTH);
 }
 
 HitPattern::~HitPattern()
@@ -58,7 +58,7 @@ HitPattern & HitPattern::operator=(const HitPattern &other)
     this->beginOuter = other.beginOuter;
     this->endOuter = other.endOuter;
 
-    memcpy(this->hitPattern, other.hitPattern, sizeof(uint16_t) * HitPattern::MaxHits);
+    memcpy(this->hitPattern, other.hitPattern, sizeof(uint16_t) * HitPattern::ARRAY_LENGTH);
 
     return *this;
 }
@@ -73,7 +73,7 @@ void HitPattern::clear(void)
     this->beginOuter = 0;
     this->endOuter = 0;
 
-    memset(this->hitPattern, EMPTY_PATTERN, sizeof(uint16_t) * HitPattern::MaxHits);
+    memset(this->hitPattern, EMPTY_PATTERN, sizeof(uint16_t) * HitPattern::ARRAY_LENGTH);
 }
 
 bool HitPattern::appendHit(const TrackingRecHitRef &ref)

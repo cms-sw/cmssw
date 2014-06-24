@@ -326,9 +326,10 @@ public:
     int numberOfDTStationsWithBothViews() const;
 
 private:
-    const static unsigned short ARRAY_LENGTH = 72;
+    const static unsigned short ARRAY_LENGTH = 50;
     const static unsigned short HIT_LENGTH = 11;
-    const static unsigned short MaxHits =  72;//(sizeof(uint16_t) * ARRAY_LENGTH) / HIT_LENGTH;
+    const static unsigned short MaxHits = (8 * sizeof(uint16_t) * ARRAY_LENGTH) / HIT_LENGTH;
+    
     // 3 bits for hit type
     const static unsigned short HitTypeOffset = 0;
     const static unsigned short HitTypeMask = 0x3;
@@ -352,10 +353,13 @@ private:
     // detector side for tracker modules (mono/stereo)
     static uint16_t isStereo(DetId i);
     static bool stripSubdetectorHitFilter(uint16_t pattern, StripSubdetector::SubDetector substructure);
+    
     static uint16_t encode(const TrackingRecHit &hit);
     static uint16_t encode(const DetId &id, TrackingRecHit::Type hitType);
+    
     // generic count methods
     typedef bool filterType(uint16_t);
+    
     int countHits(HitCategory category, filterType filter) const;
     int countTypedHits(HitCategory category, filterType typeFilter, filterType filter) const;
 
@@ -368,7 +372,7 @@ private:
 
     std::pair<uint8_t, uint8_t> getCategoryIndexRange(HitCategory category) const;
 
-    uint16_t hitPattern[MaxHits];
+    uint16_t hitPattern[ARRAY_LENGTH];
     uint8_t hitCount;
 
     uint8_t beginTrackHits;
