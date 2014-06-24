@@ -13,11 +13,11 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 b = booking.BookingParams(sys.argv)
 b.doCheck(testOnly=False)
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(25))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
 process.source = cms.Source("EmptySource",
                             firstLuminosityBlock = cms.untracked.uint32(1),
                             firstEvent = cms.untracked.uint32(1),
-                            numberEventsInLuminosityBlock = cms.untracked.uint32(10))
+                            numberEventsInLuminosityBlock = cms.untracked.uint32(1))
 
 
 elements = c.createElements()
@@ -64,9 +64,15 @@ if len(sys.argv) > 3:
         process.DQMStore.forceResetOnBeginRun = cms.untracked.bool(True)
 
 
-#----------------------------------------------------------#
-#global options
-#process.DQMStore.LSbasedMode = cms.untracked.bool(True)
-#process.DQMStore.verbose = cms.untracked.int32(5)
+#----------------------------------------------------------#                                                                                                                                      
+### global options Online ###                                                                                                                                                                       
+process.DQMStore.LSbasedMode = cms.untracked.bool(False)
+process.DQMStore.verbose = cms.untracked.int32(5)
 
-#process.add_(cms.Service("Tracer"))
+process.dqmSaver.workflow = ''
+process.dqmSaver.convention = 'FilterUnit'
+process.dqmSaver.saveByLumiSection = -1
+process.dqmSaver.fileFormat = cms.untracked.string('ROOT')
+process.dqmSaver.fakeFilterUnitMode = cms.untracked.bool(True)
+
+#process.add_(cms.Service("Tracer"))              

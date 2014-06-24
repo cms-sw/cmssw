@@ -13,11 +13,11 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 b = booking.BookingParams(sys.argv)
 b.doCheck(testOnly=False)
 
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(25))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
 process.source = cms.Source("EmptySource",
                             firstLuminosityBlock = cms.untracked.uint32(1),
                             firstEvent = cms.untracked.uint32(1),
-                            numberEventsInLuminosityBlock = cms.untracked.uint32(10))
+                            numberEventsInLuminosityBlock = cms.untracked.uint32(1))
 
 
 elements = c.createElements()

@@ -25,14 +25,17 @@ process.eff = cms.EDAnalyzer("DQMGenericClient",
                              resolution = cms.vstring(),
                              subDirs = cms.untracked.vstring(folder))
 
-process.dqmSaver.workflow = cms.untracked.string("/Test/FilePB/DQM")
-process.dqmSaver.saveByLumiSection = cms.untracked.int32(1)
+process.dqmSaver.workflow = cms.untracked.string("")
+process.dqmSaver.saveByLumiSection = cms.untracked.int32(-1)
 process.dqmSaver.saveByRun = cms.untracked.int32(1)
+process.dqmSaver.convention = 'Online'
+
 
 process.p = cms.Path(process.harvester + process.eff)
 process.o = cms.EndPath(process.dqmSaver)
 
 process.add_(cms.Service("DQMStore"))
-#process.DQMStore.verbose = cms.untracked.int32(3)
+process.DQMStore.verbose = cms.untracked.int32(5)
+
 #process.add_(cms.Service("Tracer"))
 
