@@ -28,10 +28,9 @@ namespace edm {
   namespace {
     void checkDicts(BranchDescription const& productDesc) {
       if(productDesc.transient()) {
-        checkDictionaries(productDesc.fullClassName(), true);
-        checkDictionaries(wrappedClassName(productDesc.fullClassName()), true);
+        checkClassDictionaries(wrappedClassName(productDesc.fullClassName()), false);
       } else {
-        checkDictionaries(wrappedClassName(productDesc.fullClassName()), false);
+        checkClassDictionaries(wrappedClassName(productDesc.fullClassName()), true);
       }
     }
   }
@@ -283,11 +282,9 @@ namespace edm {
 
       //only do the following if the data is supposed to be available in the event
       if(desc.present()) {
-        TypeWithDict type(TypeWithDict::byName(desc.className()));
-        TypeWithDict wrappedType(TypeWithDict::byName(wrappedClassName(desc.className())));
-        if(!bool(type) || !bool(wrappedType)) {
-          missingDicts.insert(desc.className());
-        } else {
+        bool hasDict = checkTypeDictionary(desc.className()) && checkClassDictionary(wrappedClassName(desc.className()));
+        if(hasDict) {
+          TypeWithDict type(TypeWithDict::byName(desc.className()));
           ProductHolderIndex index =
             productLookup(desc.branchType())->insert(type,
                                                      desc.moduleLabel().c_str(),

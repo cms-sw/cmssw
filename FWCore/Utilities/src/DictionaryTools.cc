@@ -6,8 +6,9 @@
 #include "FWCore/Utilities/interface/MemberWithDict.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 
+#include "TClass.h"
 #include "TInterpreter.h"
-#include "TROOT.h"
+#include "THashTable.h"
 
 #include "boost/algorithm/string.hpp"
 #include "boost/thread/tss.hpp"
@@ -24,7 +25,6 @@ namespace edm {
     return prefix;
   }
 
-  static StringSet foundTypes_;
   static StringSet missingTypes_;
 
   bool
@@ -83,139 +83,78 @@ namespace edm {
     return find_nested_type_named(member_type, possibleRefVector, value_type);
   }
 
-  static int const oneParamArraySize = 6;
-  std::string const oneParam[oneParamArraySize] = {
-    "vector",
-    "basic_string",
-    "set",
-    "list",
-    "deque",
-    "multiset"
-  };
-
-  static int const twoParamArraySize = 3;
-
-  static std::string const twoParam[twoParamArraySize] = {
-    "map",
-    "pair",
-    "multimap"
-  };
-
-  static
-  bool
-  hasCintDictionary(std::string const& name) {
-    ClassInfo_t* ci = gInterpreter->ClassInfo_Factory(name.c_str());
-    return gInterpreter->ClassInfo_IsValid(ci);
-  }
-
-  // Checks if there is a dictionary for the Type t.
-  // If noComponents is false, checks members and base classes recursively.
-  // If noComponents is true, checks Type t only.
-  static
-  void
-  checkType(TypeWithDict t, bool noComponents = false) {
-    // ToType strips const, volatile, array, pointer, reference, etc.,
-    // and also translates typedefs.
-    // To be safe, we do this recursively until we either get a void type or the same type.
-    for (TypeWithDict x(t.toType()); x != t &&
-         x.typeInfo() != typeid(void); t = x, x = t.toType()) {}
-    std::string name(t.name());
-    boost::trim(name);
-    if (foundTypes().end() != foundTypes().find(name) ||
-        missingTypes().end() != missingTypes().find(name)) {
-      // Already been processed. Prevents infinite loop.
-      return;
-    }
-    if (name.empty() || t.isFundamental() || t.isEnum() ||
-        t.typeInfo() == typeid(void)) {
-      foundTypes().insert(name);
-      return;
-    }
-    if (!bool(t)) {
-      if (hasCintDictionary(name)) {
-        foundTypes().insert(name);
-      }
-      else {
-        missingTypes().insert(name);
-      }
-      return;
-    }
-    foundTypes().insert(name);
-    if (noComponents) {
-      return;
-    }
-    if (name.find("std::") == 0) {
-      if (t.isTemplateInstance()) {
-        std::string::size_type n = name.find('<');
-        int cnt = 0;
-        if (std::find(oneParam, oneParam + oneParamArraySize, name.substr(5,
-                      n - 5)) != (oneParam + oneParamArraySize)) {
-          cnt = 1;
-        }
-        else if (std::find(twoParam, twoParam + twoParamArraySize, name.substr(5,
-                           n - 5)) != (twoParam + twoParamArraySize)) {
-          cnt = 2;
-        }
-        for (int i = 0; i < cnt; ++i) {
-          checkType(t.templateArgumentAt(i));
-        }
-      }
-    }
-    else {
-      TypeDataMembers members(t);
-      for (auto const& m : members) {
-        MemberWithDict M(m);
-        if (!M.isTransient() && !M.isStatic()) {
-          checkType(M.typeOf());
-        }
-      }
-      TypeBases bases(t);
-      for (auto const& b : bases) {
-        BaseWithDict B(b);
-        checkType(B.typeOf());
-      }
-    }
-  }
-
   StringSet&
   missingTypes() {
     return missingTypes_;
   }
 
-  StringSet&
-  foundTypes() {
-    // The only purpose of this cache is to stop infinite recursion.
-    // ROOT maintains its own internal cache.
-    return foundTypes_;
+  bool
+  checkTypeDictionary(std::string const& name) {
+    TClass *cl = TClass::GetClass(name.c_str(), true);
+    if(cl == nullptr) {
+      // Assume not a class
+      return true;
+    }
+    if(!cl->HasDictionary()) {
+      missingTypes().insert(cl->GetName());
+      return false;
+    }
+    return true;
   }
 
   void
-  checkDictionaries(std::string const& name, bool noComponents) {
-    TypeWithDict null;
-    TypeWithDict t(TypeWithDict::byName(name));
-    if (!bool(t)) {
-      //if (name == std::string("void")) {
-      //  foundTypes().insert(name);
-      //}
-      //else {
-        missingTypes().insert(name);
-      //}
+  checkTypeDictionaries(std::string const& name, bool recursive) {
+    TClass *cl = TClass::GetClass(name.c_str(), true);
+    if(cl == nullptr) {
+      // Assume not a class
       return;
     }
-    checkType(t, noComponents);
+    THashTable result;
+    cl->GetMissingDictionaries(result, recursive); 
+    for(auto const& item : result) {
+      TClass const* cl = static_cast<TClass const*>(item);
+      missingTypes().insert(cl->GetName());
+    }
+  }
+
+  bool
+  checkClassDictionary(std::string const& name) {
+    TClass *cl = TClass::GetClass(name.c_str(), true);
+    if(cl == nullptr) {
+      throw Exception(errors::DictionaryNotFound)
+          << "No TClass for class: '" << name << "'" << std::endl;
+    }
+    if(!cl->HasDictionary()) {
+      missingTypes().insert(cl->GetName());
+      return false;
+    }
+    return true;
+  }
+
+  void
+  checkClassDictionaries(std::string const& name, bool recursive) {
+    TClass *cl = TClass::GetClass(name.c_str(), true);
+    if(cl == nullptr) {
+      throw Exception(errors::DictionaryNotFound)
+          << "No TClass for class: '" << name << "'" << std::endl;
+    }
+    THashTable result;
+    cl->GetMissingDictionaries(result, recursive); 
+    for(auto const& item : result) {
+      TClass const* cl = static_cast<TClass const*>(item);
+      missingTypes().insert(cl->GetName());
+    }
   }
 
   void
   throwMissingDictionariesException() {
     if (!missingTypes().empty()) {
       std::ostringstream ostr;
-      for (StringSet::const_iterator it = missingTypes().begin(),
-           itEnd = missingTypes().end();
-           it != itEnd; ++it) {
-        ostr << *it << "\n\n";
+      for(auto const& item : missingTypes()) {
+        ostr << item << "\n\n";
       }
       throw Exception(errors::DictionaryNotFound)
-          << "No REFLEX data dictionary found for the following classes:\n\n"
+          << "No data dictionary found for the following classes:\n\n"
           << ostr.str()
           << "Most likely each dictionary was never generated,\n"
           << "but it may be that it was generated in the wrong package.\n"
@@ -233,18 +172,16 @@ namespace edm {
   loadMissingDictionaries() {
     while (!missingTypes().empty()) {
       StringSet missing(missingTypes());
-      for (StringSet::const_iterator it = missing.begin(), itEnd = missing.end();
-           it != itEnd; ++it) {
+      for(auto const& item : missing) {
         try {
-          gROOT->GetClass(it->c_str(), kTRUE);
+          TClass::GetClass(item.c_str(), kTRUE);
         }
         // We don't want to fail if we can't load a plug-in.
         catch (...) {}
       }
       missingTypes().clear();
-      for (StringSet::const_iterator it = missing.begin(), itEnd = missing.end();
-           it != itEnd; ++it) {
-        checkDictionaries(*it);
+      for(auto const& item : missing) {
+        checkTypeDictionaries(item, true);
       }
       if (missingTypes() == missing) {
         break;

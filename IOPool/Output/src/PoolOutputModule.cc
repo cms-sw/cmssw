@@ -94,8 +94,7 @@ namespace edm {
       SelectedProducts const& keptVector = keptProducts()[branchType];
       for(SelectedProducts::const_iterator it = keptVector.begin(), itEnd = keptVector.end(); it != itEnd; ++it) {
         BranchDescription const& prod = **it;
-        checkDictionaries(prod.fullClassName(), true);
-        checkDictionaries(wrappedClassName(prod.fullClassName()), true);
+        checkClassDictionaries(wrappedClassName(prod.fullClassName()), false);
       }
     }
   }
