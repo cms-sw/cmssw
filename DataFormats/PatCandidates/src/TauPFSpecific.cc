@@ -43,11 +43,7 @@ pat::tau::TauPFSpecific::TauPFSpecific(const reco::PFTau& tau) :
     // Muon rejection variables
     caloComp_(tau.caloComp()),
     segComp_(tau.segComp()),
-    muonDecision_(tau.muonDecision()),
-    decayMode_(tau.decayMode()),
-    dxy_(0.),
-    dxy_error_(1.e+3),
-    hasSV_(false)
+    muonDecision_(tau.muonDecision())
 {
   if ( tau.jetRef().isAvailable() && tau.jetRef().isNonnull() ) { // CV: add protection to ease transition to new CMSSW 4_2_x RecoTauTags
     reco::Jet::EtaPhiMoments etaPhiStatistics = tau.jetRef()->etaPhiStatistics();
