@@ -18,7 +18,7 @@ process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
+    input = cms.untracked.int32(10)
 )
 
 # Input source
@@ -28,12 +28,6 @@ process.options = cms.untracked.PSet(
 
 )
 
-# Production Info
-process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.19 $'),
-    annotation = cms.untracked.string('SingleElectronPt10_cfi.py nevts:1'),
-    name = cms.untracked.string('Applications')
-)
 
 # Output definition
 
@@ -48,9 +42,6 @@ process.output = cms.OutputModule(
         filterName = cms.untracked.string(''),
         dataTier = cms.untracked.string('')
     )
-#    SelectEvents = cms.untracked.PSet(
-#        SelectEvents = cms.vstring('generation_step')
-#    )
 )
 
 # Additional output definition
@@ -98,6 +89,7 @@ process.dumpRaw = cms.EDAnalyzer(
 # raw to digi
 import EventFilter.L1TRawToDigi.l1tRawToDigi_cfi
 process.l1tDigis = EventFilter.L1TRawToDigi.l1tRawToDigi_cfi.l1tRawToDigi.clone()
+process.l1tDigis.FedId = cms.int32(1)
 process.l1tDigis.InputLabel = cms.InputTag("mp7BufferDumpToRaw")
 
 # upgrade calo stage 2
@@ -119,8 +111,9 @@ process.path = cms.Path(
     process.mp7BufferDumpToRaw
     +process.dumpRaw
     +process.l1tDigis
+#    +process.l1tStage2CaloAnalyzer
 )
 
-#process.out = cms.EndPath(
-#process.output
-#)
+process.out = cms.EndPath(
+    process.output
+)

@@ -64,8 +64,7 @@ namespace l1t {
       std::auto_ptr<FEDRawDataCollection> raw_coll(new FEDRawDataCollection());
       FEDRawData& fed_data = raw_coll->FEDData(fedId_);
 
-      unsigned int size = 24; // 16 for the header, 8 for the footer
-      size += 12; // the L1T header...
+      unsigned int size = 20; // 12 for the L1T header, 8 for the footer
       unsigned int words = 0;
       for (const auto& block: blocks)
          // add one for the block header
@@ -74,13 +73,7 @@ namespace l1t {
       int mod = size % 8;
       size = (mod == 0) ? size : size + 8 - mod;
       fed_data.resize(size);
-      unsigned char * header = fed_data.data();
-      unsigned char * payload = header + 16;
-      unsigned char * footer = header + size - 8;
-
-      FEDHeader fed_header(header);
-      // FIXME the 0 is the BX id
-      fed_header.set(header, 1, event.id().event(), 0, fedId_);
+      unsigned char * payload = fed_data.data();
 
       // create the header
       payload = push(payload, 0);
@@ -92,9 +85,6 @@ namespace l1t {
          for (const auto& word: block.load)
             payload = push(payload, word);
       }
-
-      FEDTrailer trailer(footer);
-      trailer.set(footer, size / 8, evf::compute_crc(header, size), 0, 0);
 
       event.put(raw_coll);
    }
