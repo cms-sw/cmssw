@@ -7,6 +7,7 @@
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/FCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/CSCGeometry/interface/CSCChamber.h"
@@ -85,6 +86,13 @@ FWRecoGeometryESProducer::produce( const FWRecoGeometryRecord& record )
   m_trackerGeom = (const TrackerGeometry*) m_geomRecord->slaveGeometry( detId );
   
   record.getRecord<CaloGeometryRecord>().get( m_caloGeom );
+
+  m_hgcGeom.push_back(edm::ESHandle<HGCalGeometry>());
+  record.getRecord<IdealGeometryRecord>().get( "HGCalEESensitive", m_hgcGeom.back() );
+  m_hgcGeom.push_back(edm::ESHandle<HGCalGeometry>());
+  record.getRecord<IdealGeometryRecord>().get( "HGCalHESiliconSensitive", m_hgcGeom.back() );
+  m_hgcGeom.push_back(edm::ESHandle<HGCalGeometry>());
+  record.getRecord<IdealGeometryRecord>().get( "HGCalHEScintillatorSensitive", m_hgcGeom.back() );
   
   addPixelBarrelGeometry( );
   addPixelForwardGeometry();
@@ -441,6 +449,19 @@ FWRecoGeometryESProducer::addCaloGeometry( void )
     const CaloCellGeometry::CornersVec& cor( m_caloGeom->getGeometry( *it )->getCorners());
     unsigned int id = insert_id( it->rawId());
     fillPoints( id, cor.begin(), cor.end());
+  }
+
+  // do the HGCal if we actually got it
+  for( const auto& hgcGeom : m_hgcGeom ){
+    if( hgcGeom.product() ) {
+      const std::vector<DetId>& hids = hgcGeom->getValidDetIds();
+      std::cout << "got hgc detector with " << hids.size() << " valid det ids!" << std::endl;
+      for( const auto& hid : hids ) {
+	const HGCalGeometry::CornersVec cor( std::move( hgcGeom->getCorners( hid ) ) );
+	unsigned int id = insert_id( hid.rawId() );
+	fillPoints( id, cor.begin(), cor.end() );
+      }
+    }
   }
 }
 

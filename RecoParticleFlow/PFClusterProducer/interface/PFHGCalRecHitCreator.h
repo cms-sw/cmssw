@@ -50,10 +50,11 @@ template <typename DET,PFLayer::Layer Layer,ForwardSubdetector subdet>
 	const DET detid(hgrh.detid());
 	
 	if( subdet != detid.subdet() ) {
-	  std::cout << "subdet expected: " << subdet 
-		    << " subdet gotten: " << detid.subdet() << std::endl;
+	  throw cms::Exception("IncorrectHGCSubdetector")
+	    << "subdet expected: " << subdet 
+	    << " subdet gotten: " << detid.subdet() << std::endl;
 	}
-	assert(subdet == detid.subdet() && "Incorrect subdetector for this importer!");
+	
 	double energy = hgrh.energy();
 	double time = hgrh.time();	
 	
@@ -69,7 +70,7 @@ template <typename DET,PFLayer::Layer Layer,ForwardSubdetector subdet>
 	  continue;
 	}
   
-	const auto& position = thisCell->getPosition();
+	const GlobalPoint position( std::move( hgcGeo.getPosition( detid ) ) );
 	//std::cout << "geometry cell position: " << position << std::endl;
 
 	reco::PFRecHit rh( detid.rawId(),Layer,
@@ -77,7 +78,7 @@ template <typename DET,PFLayer::Layer Layer,ForwardSubdetector subdet>
 			   position.x(), position.y(), position.z(), 
 			   0, 0, 0 ); 
 	
-	const CaloCellGeometry::CornersVec& corners = thisCell->getCorners();
+	const HGCalGeometry::CornersVec corners( std::move( hgcGeo.getCorners( detid ) ) );
 	assert( corners.size() == 8 );
 
 	rh.setNECorner( corners[0].x(), corners[0].y(),  corners[0].z() );
@@ -102,10 +103,10 @@ template <typename DET,PFLayer::Layer Layer,ForwardSubdetector subdet>
 	else if (rcleaned) 
 	  cleaned->push_back(rh);
       }
-      LogDebug("HGCalRecHitCreator") 
+      edm::LogError("HGCalRecHitCreator") 
 	<<  "Skipped " << skipped_rechits 
 	<< " out of " << rechits.size() << " rechits!" << std::endl;
-      edm::LogInfo("HGCalRecHitCreator")
+      edm::LogError("HGCalRecHitCreator")
 	<< "Created " << out->size() << " PFRecHits!" << std::endl;
     }
 
