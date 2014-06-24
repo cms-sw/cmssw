@@ -186,13 +186,13 @@ if legacy:
     process.load('L1TriggerConfig.L1GtConfigProducers.L1GtTriggerMenuConfig_cff')
     process.es_prefer_l1GtParameters = cms.ESPrefer('L1GtTriggerMenuXmlProducer','l1GtTriggerMenuXml')
 else:
-    process.load('L1Trigger.L1TGlobal.l1uGtTriggerMenuXml_cfi')
-    process.l1uGtTriggerMenuXml.TriggerMenuLuminosity = 'startup'
-    #process.l1uGtTriggerMenuXml.DefXmlFile = 'L1_Example_Menu_2013.xml'
-    process.l1uGtTriggerMenuXml.DefXmlFile = 'L1Menu_Reference_2014.xml'
+    process.load('L1Trigger.L1TGlobal.TriggerMenuXml_cfi')
+    process.TriggerMenuXml.TriggerMenuLuminosity = 'startup'
+    #process.TriggerMenuXml.DefXmlFile = 'L1_Example_Menu_2013.xml'
+    process.TriggerMenuXml.DefXmlFile = 'L1Menu_Reference_2014.xml'
 
     process.load('L1Trigger.L1TGlobal.L1uGtTriggerMenuConfig_cff')
-    process.es_prefer_l1GtParameters = cms.ESPrefer('l1t::L1uGtTriggerMenuXmlProducer','l1uGtTriggerMenuXml')
+    process.es_prefer_l1GtParameters = cms.ESPrefer('l1t::TriggerMenuXmlProducer','TriggerMenuXml')
 
     outputFile = 'l1_nugun_newL1MenuParser.root'
     dumpFile   = 'dumpedConfig_newL1MenuParser.py'
