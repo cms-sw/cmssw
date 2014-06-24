@@ -94,6 +94,22 @@ def miniAOD_customizeCommon(process):
     process.cmsTopTagPFJetsCHSLinksCA8.matched = cms.InputTag("cmsTopTagPFJetsCHS")
     process.patJetsCA8.userData.userFloats.src += ['cmsTopTagPFJetsCHSLinksCA8']
 
+    #QJetsAdder
+    process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService", QJetsAdderCA8 = cms.PSet(initialSeed = cms.untracked.uint32(7)), QJetsAdder = cms.PSet(initialSeed = cms.untracked.uint32(7)))
+    process.load('RecoJets.JetProducers.qjetsadder_cfi')
+    process.QJetsAdderCA8 = process.QJetsAdder.clone()
+    process.QJetsAdderCA8.src = cms.InputTag("ca8PFJetsCHS")
+    process.QJetsAdderCA8.jetRad = cms.double(0.8)
+    process.QJetsAdderCA8.jetAlgo = cms.string('CA')
+    process.patJetsCA8.userData.userFloats.src += ['QJetsAdderCA8:QjetsVolatility']
+
+    # add Njetiness
+    process.load('RecoJets.JetProducers.nJettinessAdder_cfi')
+    process.NjettinessCA8 = process.Njettiness.clone()
+    process.NjettinessCA8.src = cms.InputTag("ca8PFJetsCHS")
+    process.NjettinessCA8.cone = cms.double(0.8)
+    process.patJetsCA8.userData.userFloats.src += ['NjettinessCA8:tau1','NjettinessCA8:tau2','NjettinessCA8:tau3']
+
     #
     from PhysicsTools.PatAlgos.tools.trigTools import switchOnTriggerStandAlone
     switchOnTriggerStandAlone( process, outputModule = '' )
