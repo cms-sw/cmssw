@@ -263,10 +263,6 @@ void
 DummyBookFillDQMStore::analyze(edm::Event const& iEvent,
                                edm::EventSetup const& iSetup) {
 
-  std::vector<boost::shared_ptr<FillerBase> >::iterator it = m_runFillers.begin();
-  std::vector<boost::shared_ptr<FillerBase> >::iterator ite = m_runFillers.end();
-  for (; it != ite; ++it)
-    (*it)->fill();
 
 
 //   using namespace edm;
@@ -296,6 +292,11 @@ void DummyBookFillDQMStore::beginJob() {
 
 // ------------ method called once each job just after ending the event loop  ------------
 void DummyBookFillDQMStore::endJob() {
+  std::vector<boost::shared_ptr<FillerBase> >::iterator it = m_runFillers.begin();
+  std::vector<boost::shared_ptr<FillerBase> >::iterator ite = m_runFillers.end();
+  for (; it != ite; ++it)
+    (*it)->fill();
+  std::cout << "filling histos" << std::endl;
 }
 
 // ------------ method called when starting to processes a run  ------------

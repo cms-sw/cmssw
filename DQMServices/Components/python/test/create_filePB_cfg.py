@@ -66,7 +66,7 @@ if len(sys.argv) > 3:
 
 
 #----------------------------------------------------------#
-#global options
+### global options Online ###
 process.DQMStore.LSbasedMode = cms.untracked.bool(True)
 process.DQMStore.verbose = cms.untracked.int32(5)
 
@@ -75,6 +75,5 @@ process.dqmSaver.convention = 'FilterUnit'
 process.dqmSaver.saveByLumiSection = True
 process.dqmSaver.fileFormat = cms.untracked.string('PB')
 process.dqmSaver.fakeFilterUnitMode = cms.untracked.bool(True)
-
 
 #process.add_(cms.Service("Tracer"))

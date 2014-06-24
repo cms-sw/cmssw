@@ -2364,6 +2364,7 @@ DQMStore::cdInto(const std::string &path) const
 void DQMStore::savePB(const std::string &filename,
                       const std::string &path /* = "" */,
 		      const uint32_t run /* = 0 */,
+		      const uint32_t lumi /* = 0 */,
 		      const bool resetMEsAfterWriting /* = false */)
 {
   using google::protobuf::io::FileOutputStream;
@@ -2390,8 +2391,10 @@ void DQMStore::savePB(const std::string &filename,
 
     // Loop over monitor elements in this directory.
     MonitorElement proto(&*di, std::string(), run, 0, 0);
+    proto.setLumi(lumi);
+
     mi = data_.lower_bound(proto);
-    for ( ; mi != me && isSubdirectory(*di, *mi->data_.dirname); ++mi)
+    for ( ; mi != me && isSubdirectory(*di, *mi->data_.dirname) && ((*mi).lumi() == lumi); ++mi)
     {
       if (verbose_ > 1)
         std::cout << "Run: " << (*mi).run()
@@ -2479,6 +2482,7 @@ DQMStore::save(const std::string &filename,
                const std::string &pattern /* = "" */,
                const std::string &rewrite /* = "" */,
                const uint32_t run /* = 0 */,
+               const uint32_t lumi /* = 0 */,
                SaveReferenceTag ref /* = SaveWithReference */,
                int minStatus /* = dqm::qstatus::STATUS_OK */,
                const std::string &fileupdate /* = RECREATE */,
@@ -2538,8 +2542,10 @@ DQMStore::save(const std::string &filename,
 
     // Loop over monitor elements in this directory.
     MonitorElement proto(&*di, std::string(), run, 0, 0);
+    proto.setLumi(lumi);
+
     mi = data_.lower_bound(proto);
-    for ( ; mi != me && isSubdirectory(*di, *mi->data_.dirname); ++mi)
+    for ( ; mi != me && isSubdirectory(*di, *mi->data_.dirname) && ((*mi).lumi() == lumi); ++mi)
     {
       if (verbose_ > 1)
         std::cout << "DQMStore::save: Run: " << (*mi).run()
@@ -2548,6 +2554,7 @@ DQMStore::save(const std::string &filename,
                   << " streamId: " << (*mi).streamId()
                   << " moduleId: " << (*mi).moduleId()
                   << " fullpathname: " << (*mi).getFullname() << std::endl;
+
       // Skip if it isn't a direct child.
       if (*di != *mi->data_.dirname) {
 	if (verbose_ > 1)

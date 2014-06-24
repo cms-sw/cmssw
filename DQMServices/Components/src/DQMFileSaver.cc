@@ -103,6 +103,7 @@ DQMFileSaver::saveForOffline(const std::string &workflow, int run, int lumi) con
                "^(Reference/)?([^/]+)",
                rewrite,
                enableMultiThread_ ? run : 0,
+               lumi,
                (DQMStore::SaveReferenceTag) saveReference_,
                saveReferenceQMin_,
                fileUpdate_ ? "UPDATE" : "RECREATE");
@@ -122,6 +123,7 @@ DQMFileSaver::saveForOffline(const std::string &workflow, int run, int lumi) con
                    systems[i]+"/EventInfo", "^(Reference/)?([^/]+)",
                    rewrite,
                    enableMultiThread_ ? run : 0,
+                   lumi,
                    DQMStore::SaveWithoutReference,
                    dqm::qstatus::STATUS_OK,
                    fileUpdate_ ? "UPDATE" : "RECREATE");
@@ -153,6 +155,7 @@ doSaveForOnline(DQMStore *store,
                 rxpat,
                 rewrite,
                 enableMultiThread ? run : 0,
+                0,
                 saveref,
                 saveRefQMin);
   else if (fileFormat == DQMFileSaver::PB)
@@ -242,7 +245,7 @@ DQMFileSaver::fillJson(int run, int lumi, const std::string& dataFilePathName, b
   if (hostnameReturn == -1)
     throw cms::Exception("DQMFileSaver")
           << "Internal error, cannot get host name";
-  //TODO(diguida): use a fake pid for testing purposes
+  
   int pid = getpid();
   std::ostringstream oss_pid;
   oss_pid << pid;
@@ -335,12 +338,12 @@ DQMFileSaver::saveForFilterUnit(const std::string& rewrite, int run, int lumi,  
     // modifying it according to @a rewrite,
     // but not looking for MEs inside the DQMStore, as in the online case,
     // nor filling new MEs, as in the offline case.
-    // TODO(diguida): check if this is multithread friendly!
     dbe_->save(openHistoFilePathName,
                "",
                "^(Reference/)?([^/]+)",
                rewrite,
 	             enableMultiThread_ ? run : 0,
+               lumi,
                (DQMStore::SaveReferenceTag) saveReference_,
                saveReferenceQMin_,
                fileUpdate_ ? "UPDATE" : "RECREATE",
@@ -349,8 +352,11 @@ DQMFileSaver::saveForFilterUnit(const std::string& rewrite, int run, int lumi,  
   else if (fileFormat == PB)
   {
     // Save the file in the open directory.
-    // TODO(diguida): check if this is multithread friendly!
-    dbe_->savePB(openHistoFilePathName, filterName_);
+    dbe_->savePB(openHistoFilePathName,
+                 filterName_,
+    	           enableMultiThread_ ? run : 0,
+                 lumi,
+                 true);
   }
   else
     throw cms::Exception("DQMFileSaver")
