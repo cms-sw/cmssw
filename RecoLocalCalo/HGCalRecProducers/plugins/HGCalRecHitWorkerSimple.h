@@ -9,6 +9,7 @@
 
 #include "RecoLocalCalo/HGCalRecProducers/interface/HGCalRecHitWorkerBaseClass.h"
 #include "RecoLocalCalo/HGCalRecAlgos/interface/HGCalRecHitSimpleAlgo.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -20,9 +21,12 @@ class HGCalRecHitWorkerSimple : public HGCalRecHitWorkerBaseClass {
                 void set(const edm::EventSetup& es);
                 bool run(const edm::Event& evt, const HGCUncalibratedRecHit& uncalibRH, HGCRecHitCollection & result);
 
-
-
         protected:
+
+		double HGCEEmipInKeV_, HGCEElsbInMIP_, HGCEEmip2noise_;
+		double HGCHEFmipInKeV_, HGCHEFlsbInMIP_, HGCHEFmip2noise_;
+		double HGCHEBmipInKeV_, HGCHEBlsbInMIP_, HGCHEBmip2noise_;
+		double hgceeADCtoGeV_, hgchefADCtoGeV_, hgchebADCtoGeV_;
 
                 std::vector<int> v_chstatus_;
 
