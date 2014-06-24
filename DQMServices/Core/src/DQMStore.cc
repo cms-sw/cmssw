@@ -2391,10 +2391,11 @@ void DQMStore::savePB(const std::string &filename,
 
     // Loop over monitor elements in this directory.
     MonitorElement proto(&*di, std::string(), run, 0, 0);
-    proto.setLumi(lumi);
+    if (enableMultiThread_)
+      proto.setLumi(lumi);
 
     mi = data_.lower_bound(proto);
-    for ( ; mi != me && isSubdirectory(*di, *mi->data_.dirname) && ((*mi).lumi() == lumi); ++mi)
+    for ( ; mi != me && isSubdirectory(*di, *mi->data_.dirname); ++mi)
     {
       if (verbose_ > 1)
         std::cout << "Run: " << (*mi).run()
@@ -2403,6 +2404,10 @@ void DQMStore::savePB(const std::string &filename,
                   << " streamId: " << (*mi).streamId()
                   << " moduleId: " << (*mi).moduleId()
                   << " fullpathname: " << (*mi).getFullname() << std::endl;
+
+      // Upper bound in the loop over the MEs
+      if (enableMultiThread_ && ((*mi).lumi() != lumi))
+	break;
 
       // Skip if it isn't a direct child.
       if (*di != *mi->data_.dirname)
@@ -2542,10 +2547,11 @@ DQMStore::save(const std::string &filename,
 
     // Loop over monitor elements in this directory.
     MonitorElement proto(&*di, std::string(), run, 0, 0);
-    proto.setLumi(lumi);
+    if (enableMultiThread_)
+      proto.setLumi(lumi);
 
     mi = data_.lower_bound(proto);
-    for ( ; mi != me && isSubdirectory(*di, *mi->data_.dirname) && ((*mi).lumi() == lumi); ++mi)
+    for ( ; mi != me && isSubdirectory(*di, *mi->data_.dirname); ++mi)
     {
       if (verbose_ > 1)
         std::cout << "DQMStore::save: Run: " << (*mi).run()
@@ -2554,6 +2560,10 @@ DQMStore::save(const std::string &filename,
                   << " streamId: " << (*mi).streamId()
                   << " moduleId: " << (*mi).moduleId()
                   << " fullpathname: " << (*mi).getFullname() << std::endl;
+
+      // Upper bound in the loop over the MEs
+      if (enableMultiThread_ && ((*mi).lumi() != lumi))
+        break;
 
       // Skip if it isn't a direct child.
       if (*di != *mi->data_.dirname) {
