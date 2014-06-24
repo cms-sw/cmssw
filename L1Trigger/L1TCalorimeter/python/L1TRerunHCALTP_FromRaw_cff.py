@@ -12,5 +12,6 @@ HcalTPGCoderULUT.LUTGenerationMode = cms.bool(True)
 
 L1TRerunHCALTP_FromRAW = cms.Sequence(
     hcalDigis
-    +simHcalTriggerPrimitiveDigis
+    * ecalDigis
+    * simHcalTriggerPrimitiveDigis
 )
