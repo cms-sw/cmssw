@@ -46,7 +46,8 @@ private:
   std::unique_ptr<G4Event> m_currentEvent;
   std::unique_ptr<G4SimEvent> m_simEvent;
 
-  static thread_local std::unique_ptr<G4Run> m_currentRun;
+  //static thread_local std::unique_ptr<G4Run> m_currentRun;
+  static thread_local G4Run *m_currentRun;
 
   SimActivityRegistry m_registry;
 };

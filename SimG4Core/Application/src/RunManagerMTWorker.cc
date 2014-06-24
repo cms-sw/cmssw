@@ -45,7 +45,8 @@ namespace {
 }
 
 thread_local bool RunManagerMTWorker::m_threadInitialized = false;
-thread_local std::unique_ptr<G4Run> RunManagerMTWorker::m_currentRun;
+//thread_local std::unique_ptr<G4Run> RunManagerMTWorker::m_currentRun;
+thread_local G4Run *RunManagerMTWorker::m_currentRun = nullptr;
 
 RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig):
   m_generator(iConfig.getParameter<edm::ParameterSet>("Generator")),
@@ -96,7 +97,8 @@ void RunManagerMTWorker::initializeThread(const RunManagerMT& runManagerMaster) 
     throw SimG4Exception("G4WorkerRunManagerKernel initialization failed");
 
   // Initialize run
-  m_currentRun.reset(new G4Run());
+  //m_currentRun.reset(new G4Run());
+  m_currentRun = new G4Run();
   G4StateManager::GetStateManager()->SetNewState(G4State_GeomClosed);
 }
 
