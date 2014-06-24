@@ -72,7 +72,7 @@ for (int b_idx=0;b_idx<maxblock;b_idx++)  for (int t_idx=0;t_idx<maxthread;t_idx
   if (ir>=0)
     {
       d_hough[ith*nbinrho+ir]+=1;
-      d_hough_layer[ith*nbinrho+ir]|=(1<<(d_layer[is]&0xFFFF));
+      d_hough_layer[ith*nbinrho+ir]|=(1<<((d_layer[is]>>HOUGH_LAYER_START_BIT)&HOUGH_LAYER_MASK));
     }
     }}
 
@@ -270,7 +270,7 @@ void copyFromValCPU(int maxblock,int maxthread,unsigned int ith,unsigned int ir,
 	{
 	  float x=d_xi[ib],y=d_yi[ib],r=d_ri[ib],z=d_zi[ib];
 	  unsigned int la=di_layer[ib]; 
-	  unsigned int zinfo=(di_layer[ib]>>16)&0x3; 
+	  unsigned int zinfo=(di_layer[ib]>>HOUGH_ZINFO_START_BIT)&HOUGH_ZINFO_MASK;
 	  d_xo[id]=x;
 	  d_yo[id]=y;
 	  d_ro[id]=r;
@@ -348,8 +348,7 @@ void copyPositionCPU(int maxblock,int maxthread,unsigned int* d_map,float* d_xi,
 	{
 	  float x=d_xi[ib],y=d_yi[ib],r=d_ri[ib],z=d_zi[ib];
 	  unsigned int la=di_layer[ib]; 
-	  //unsigned int l=di_layer[ib]&0xFFFF; 
-	  unsigned int zinfo=(di_layer[ib]>>16)&0xF; 
+	  unsigned int zinfo=(di_layer[ib]>>HOUGH_ZINFO_START_BIT)&HOUGH_ZINFO_MASK;
 	  d_xo[id]=x;
 	  d_yo[id]=y;
 	  d_ro[id]=r;

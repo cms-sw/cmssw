@@ -113,6 +113,14 @@ void SectorTree::link(Detector& d){
   }
 }
 
+#ifdef IPNL_USE_CUDA
+void SectorTree::linkCuda(patternBank* p, deviceDetector* d){
+  for(unsigned int i=0;i<sector_list.size();i++){
+    sector_list[i]->linkCuda(p,d);
+  }
+}
+#endif
+
 vector<Sector*> SectorTree::getActivePatternsPerSector(int active_threshold){
   vector<Sector*> list;
   for(unsigned int i=0;i<sector_list.size();i++){

@@ -15,7 +15,7 @@ class Hit{
   char zPos;
   char segment;
   short stripNumber;
-  short stub_idx;
+  int stub_idx;
   int part_id;
   float part_pt;
   float part_ip;
@@ -51,7 +51,7 @@ class Hit{
      \param p_y0 The Y0 coordinate of the hit in the tracker
      \param p_z0 The Z0 coordinate of the hit in the tracker
   **/
-  Hit(char l, char lad, char zp, char seg, short strip, short idx, int tp, float pt, float ip, float eta, float phi0, float p_x, float p_y, float p_z, float p_x0, float p_y0, float p_z0);
+  Hit(char l, char lad, char zp, char seg, short strip, int idx, int tp, float pt, float ip, float eta, float phi0, float p_x, float p_y, float p_z, float p_x0, float p_y0, float p_z0);
   /**
      \brief The copy Constructor
   **/
@@ -85,7 +85,7 @@ class Hit{
      \brief Get the ID of the hit in the event
      \return The ID of the Hit
   **/
-  short getID() const;
+  int getID() const;
   /**
      \brief Get the original particule ID of the hit
      \return The particule ID of the Hit

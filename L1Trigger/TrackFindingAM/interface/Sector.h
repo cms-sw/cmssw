@@ -210,6 +210,12 @@ class Sector{
   **/
   int getLayerID(int i) const;
 
+  /**
+     \brief Get the layers ID
+     \return The layer ids in a vector
+  **/
+  vector<int> getLayersID() const;
+  
  /**
      \brief Get the layer index
      \param i The ID of the layer
@@ -249,6 +255,14 @@ class Sector{
      \param d The Detector object
   **/
   void link(Detector& d);
+#ifdef IPNL_USE_CUDA
+  /**
+     On the GPU device, link all the patterns contained in the sector to the super strips contained in the Detector object
+     \param p The bank on the device
+     \param d The virtual detector on the device
+  **/
+  void linkCuda(patternBank* p, deviceDetector* d);
+#endif
   /**
      \brief Get the active patterns of the sector
      \param active_threshold The minimum number of hit super strips to activate the pattern

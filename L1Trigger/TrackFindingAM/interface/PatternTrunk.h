@@ -12,6 +12,10 @@
 #include <boost/serialization/map.hpp>
 #include "GradedPattern.h"
 
+#ifdef IPNL_USE_CUDA
+#include "gpu_struct.h"
+#endif
+
 using namespace std;
 
 /**
@@ -78,6 +82,19 @@ class PatternTrunk{
      \param modules The modules in the sector (one vector per ladder)
   **/  
   void link(Detector& d, const vector< vector<int> >& sec, const vector<map<int, vector<int> > >& modules);
+
+#ifdef IPNL_USE_CUDA
+ /**
+     \brief Link the low definition patterns to the detector structure
+     \param p the pattern bank structure on the device
+     \param d The detector structure on the device
+     \param pattern_index The index of the pattern in the bank
+     \param sec The ladders in the sector
+     \param modules The modules in the sector (one vector per ladder)
+     \param layers List of layers IDs
+  **/  
+  void linkCuda(patternBank* p, deviceDetector* d, int pattern_index, const vector< vector<int> >& sec, const vector<map<int, vector<int> > >& modules, vector<int> layers, unsigned int* cache);
+#endif
 
   /**
      \brief Change the DC bits of the LDP to take the parameter's DC bits into account (used while merging banks)

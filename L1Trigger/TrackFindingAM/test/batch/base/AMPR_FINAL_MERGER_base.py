@@ -12,7 +12,7 @@
 # Author: S.Viret (viret@in2p3.fr)
 # Date        : 17/02/2014
 #
-# Script tested with release CMSSW_6_2_0_SLHC7
+# Script tested with release CMSSW_6_2_0_SLHC14
 #
 #########################
 
@@ -24,8 +24,8 @@ process = cms.Process('AMPR')
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('Configuration.EventContent.EventContent_cff')
-process.load('Configuration.Geometry.GeometryExtendedPhase2TkBE5DReco_cff')
-process.load('Configuration.Geometry.GeometryExtendedPhase2TkBE5D_cff')
+process.load('Configuration.Geometry.GeometryExtendedPhase2TkBE5DPixel10DReco_cff')
+process.load('Configuration.Geometry.GeometryExtendedPhase2TkBE5DPixel10D_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 process.load('L1Trigger.TrackFindingAM.L1AMTrack_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
@@ -74,8 +74,11 @@ process.schedule = cms.Schedule(process.L1AMPR_step,process.endjob_step,process.
 
 # Automatic addition of the customisation function
 
-from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5D import customise as customiseBE5D
-from SLHCUpgradeSimulations.Configuration.phase2TkCustomsBE5D import l1EventContent as customise_ev_BE5D
+from SLHCUpgradeSimulations.Configuration.combinedCustoms import customiseBE5DPixel10D
+from SLHCUpgradeSimulations.Configuration.combinedCustoms import customise_ev_BE5DPixel10D
 
-process=customiseBE5D(process)
-process=customise_ev_BE5D(process)
+process=customiseBE5DPixel10D(process)
+process=customise_ev_BE5DPixel10D(process)
+
+# End of customisation functions	
+

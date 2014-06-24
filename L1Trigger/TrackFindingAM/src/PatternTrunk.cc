@@ -71,6 +71,12 @@ void PatternTrunk::link(Detector& d, const vector< vector<int> >& sec, const vec
   lowDefPattern->link(d, sec, modules);
 }
 
+#ifdef IPNL_USE_CUDA
+void PatternTrunk::linkCuda(patternBank* p, deviceDetector* d, int pattern_index, const vector< vector<int> >& sec, const vector<map<int, vector<int> > >& modules, vector<int> layers, unsigned int* cache){
+  lowDefPattern->linkCuda(p,d,pattern_index, sec, modules, layers, cache);
+}
+#endif
+
 GradedPattern* PatternTrunk::getActivePattern(int active_threshold){
   if(lowDefPattern->isActive(active_threshold)){
     return new GradedPattern(*lowDefPattern);

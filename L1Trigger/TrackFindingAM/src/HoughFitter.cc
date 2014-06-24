@@ -93,14 +93,14 @@ void HoughFitter::fit(vector<Hit*> hits){
       zinfo=1;//pixel on barrel
     if (layer>10 && hits[j]->getLadder()<9)
       zinfo=2;//pixel on endcap
-    h_layer[j]= layer | (zinfo<<16) | (hits[j]->getID()<<18);
+    h_layer[j]= (layer&HOUGH_LAYER_MASK<<HOUGH_LAYER_START_BIT) | ((zinfo&HOUGH_ZINFO_MASK)<<HOUGH_ZINFO_START_BIT) | ((hits[j]->getID()&HOUGH_ID_MASK)<<HOUGH_ID_START_BIT);
     //check if we are in barrel, hybrid or endcap sector
     if(layer>10){
       barrel = false;
       layers.insert(layer);
     }
   }
-
+ 
   int sectorType = 0;
   if(!barrel){
     float sum=0;
@@ -131,7 +131,7 @@ void HoughFitter::fit(vector<Hit*> hits){
     Track* fit_track = new Track((*it).pt, 0, (*it).phi, (*it).eta, (*it).z0);
     for(unsigned int i=0;i<(*it).layers.size();i++){
       unsigned int value = (*it).layers[i];
-      short id = value>>18;
+      int id = (value>>HOUGH_ID_START_BIT)&HOUGH_ID_MASK;
       fit_track->addStubIndex(id);
     }
     tracks.push_back(fit_track);
@@ -155,7 +155,6 @@ void HoughFitter::fit(){
 	activatedHits.push_back(allHits[j]);
     }
   }
-
   fit(activatedHits);
  
 }

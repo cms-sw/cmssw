@@ -17,7 +17,7 @@ vector<SuperStrip*> CMSPatternLayer::getSuperStrip(int l, const vector<int>& lad
   vector<SuperStrip*> v;
 
   if(getPhi()==15){ // this is a fake superstrip! We link it to the dump superstrip
-    vector<string> positions=getPositionsFromDC();
+    vector<string> positions = getPositionsFromDC();
     for(unsigned int i=0;i<positions.size();i++){
       SuperStrip* patternStrip = d.getDump();
       v.push_back(patternStrip);
@@ -37,7 +37,7 @@ vector<SuperStrip*> CMSPatternLayer::getSuperStrip(int l, const vector<int>& lad
 	  Segment* patternSegment = patternModule->getSegment(getSegment());
 	  if(patternSegment!=NULL){
 	    int base_index = getStrip()*factor;
-	    vector<string> positions = getPositionsFromDC();
+	    vector<string> positions=getPositionsFromDC();
 	    for(unsigned int i=0;i<positions.size();i++){
 	      SuperStrip* patternStrip = patternSegment->getSuperStripFromIndex(base_index+PatternLayer::GRAY_POSITIONS[positions[i]]);
 	      v.push_back(patternStrip);
@@ -51,6 +51,34 @@ vector<SuperStrip*> CMSPatternLayer::getSuperStrip(int l, const vector<int>& lad
   }
   return v;
 }
+
+#ifdef IPNL_USE_CUDA
+void CMSPatternLayer::getSuperStripCuda(int l, const vector<int>& ladd, const map<int, vector<int> >& modules, int layerID, unsigned int* v){
+  int nb_dc = getDCBitsNumber();
+  int factor = (int)pow(2.0,nb_dc);
+
+  if(getPhi()==15){ // this is a fake superstrip! -> No index
+    return;
+  }
+  else{
+    int layer_index = cuda_layer_index[layerID];
+    if(layer_index!=-1){
+      int ladderID = ladd[getPhi()];//getPhi() is the position in the sector;ladd[getPhi()] gives the ID of the ladder
+      map<int, vector<int> >::const_iterator iterator = modules.find(ladderID); // get the vector of module IDs for this ladder
+      int moduleID = iterator->second[getModule()];// get the module ID from its position
+      int segment = getSegment();
+      int base_index = getStrip()*factor;
+      vector<string> positions=getPositionsFromDC();
+      for(unsigned int i=0;i<positions.size();i++){
+	int index = layer_index*SIZE_LAYER+ladderID*SIZE_LADDER+moduleID*SIZE_MODULE+segment*SIZE_SEGMENT+base_index+PatternLayer::GRAY_POSITIONS[positions[i]];
+	v[i]=index;
+      }
+      return;
+    }
+    cout<<"Error : can not link layer "<<l<<" ladder "<<ladd[getPhi()]<<" module "<<getModule()<<" segment "<<getSegment()<<" strip "<<getStrip()<<endl;
+  }
+}
+#endif
 
 void CMSPatternLayer::setValues(short m, short phi, short strip, short seg){
   bits |= (m&MOD_MASK)<<MOD_START_BIT |
@@ -208,11 +236,11 @@ int CMSPatternLayer::getNbModules(int layerID, int ladderID){
     case 6:return 36;
     case 7:return 40;
     case 8:return 40;
-    case 9:return 48;
+    case 9:return 52;
     case 10:return 56;
     case 11:return 64;
     case 12:return 68;
-    case 13:return 72;
+    case 13:return 76;
     case 14:return 80;
     default:return 80;
     }
@@ -228,15 +256,15 @@ map<int, pair<float,float> > CMSPatternLayer::getLayerDefInEta(){
   eta[8]=pair<float,float>(-1.2,1.2);
   eta[9]=pair<float,float>(-1.1,1.1);
   eta[10]=pair<float,float>(-0.9,0.9);
-  eta[11]=pair<float,float>(1.1,2.4);
-  eta[12]=pair<float,float>(1.2,2.4);
-  eta[13]=pair<float,float>(1.3,2.4);
-  eta[14]=pair<float,float>(1.4,2.5);
-  eta[15]=pair<float,float>(1.6,2.5);
-  eta[18]=pair<float,float>(-2.4,-1.1);
-  eta[19]=pair<float,float>(-2.4,-1.2);
-  eta[20]=pair<float,float>(-2.4,-1.3);
-  eta[21]=pair<float,float>(-2.5,-1.4);
-  eta[22]=pair<float,float>(-2.5,-1.6);
+  eta[11]=pair<float,float>(1.08,2.24);
+  eta[12]=pair<float,float>(1.21,2.45);
+  eta[13]=pair<float,float>(1.36,2.5);
+  eta[14]=pair<float,float>(1.49,2.5);
+  eta[15]=pair<float,float>(1.65,2.5);
+  eta[18]=pair<float,float>(-2.24,-1.08);
+  eta[19]=pair<float,float>(-2.45,-1.21);
+  eta[20]=pair<float,float>(-2.5,-1.36);
+  eta[21]=pair<float,float>(-2.5,-1.49);
+  eta[22]=pair<float,float>(-2.5,-1.65);
   return eta;
 }

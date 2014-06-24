@@ -62,6 +62,17 @@ class PatternTree{
      \param modules The modules in the sector (one vector per ladder)
   **/
   void link(Detector& d, const vector< vector<int> >& sec, const vector<map<int, vector<int> > >& modules);
+#ifdef IPNL_USE_CUDA
+  /**
+     \brief Link all patterns to the detector structure
+     \param p the pattern bank structure on the device
+     \param d The detector structure on the device
+     \param sec The ladders in the sector (one vector per layer)
+     \param modules The modules in the sector (one vector per ladder)
+     \param layers The layers IDs
+  **/
+  void linkCuda(patternBank* p, deviceDetector* d, const vector< vector<int> >& sec, const vector<map<int, vector<int> > >& modules, vector<int> layers);
+#endif
   /**
      \brief Returns a vector of copies of the active patterns
      \brief active_threshold The minimum number of hit super strips to activate the pattern

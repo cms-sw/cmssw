@@ -33,14 +33,6 @@ typedef struct
   uint16_t layer;
 } stub_t;
 
-#define STUBID(layer,ladder,module,segment,strip) (((layer&0x7f)<<25)|((ladder&0x7f)<<18)|((module&0x7f)<<11)| ((segment&0x1)<<10)| (strip&0x3ff))
-#define LAYER(ID) ((ID>>25)&0x7F)
-#define LADDER(ID) ((ID>>18)&0x7F)
-#define MODULE(ID) ((ID>>11)&0x7F)
-#define SEGMENT(ID) ((ID>>10)&0x1)
-#define STRIP(ID) ((I&0x3FF))
-
-
 typedef struct
 {
   std::vector<uint32_t> stubs_id;
