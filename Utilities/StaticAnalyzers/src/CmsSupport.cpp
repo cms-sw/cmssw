@@ -88,6 +88,7 @@ std::string support::getQualifiedName(const clang::NamedDecl &d) {
 
 bool support::isSafeClassName(const std::string &name) {
   std::string atomic = "std::atomic";
+  std::string satomic = "struct std::atomic";
   std::string uatomic = "std::__atomic_";
   std::string mutex = "std::mutex";
   std::string rmutex = "std::recursive_mutex";
@@ -104,7 +105,7 @@ bool support::isSafeClassName(const std::string &name) {
   std::string once = "std::once_flag";
   std::string conce = "struct std::once_flag";
   
-  if ( name.substr(0,atomic.length()) == atomic || name.substr(0,catomic.length()) == catomic
+  if ( name.substr(0,atomic.length()) == atomic || name.substr(0,catomic.length()) == catomic || name.substr(0,satomic.length()) == satomic
 	|| name.substr(0,uatomic.length()) == uatomic  || name.substr(0,cuatomic.length()) == cuatomic
 	|| name.substr(0,mutex.length()) == mutex || name.substr(0,cmutex.length()) == cmutex 
 	|| name.substr(0,rmutex.length()) == rmutex || name.substr(0,crmutex.length()) == rmutex 
