@@ -45,10 +45,10 @@ signalMuonCut += ' && isGlobalMuon'                                             
 signalMuonCut += ' && pt > 26.'                                                                       # transverse momentum
 signalMuonCut += ' && abs(eta) < 2.1'                                                                 # pseudo-rapisity range
 signalMuonCut += ' && globalTrack.normalizedChi2 < 10.'                                               # muon ID: 'isGlobalMuonPromptTight'
-signalMuonCut += ' && track.hitPattern().trackerLayersWithMeasurement() > 5'                              # muon ID: 'isGlobalMuonPromptTight'
-signalMuonCut += ' && globalTrack.hitPattern().numberOfValidMuonHits()> 0'                               # muon ID: 'isGlobalMuonPromptTight'
+signalMuonCut += ' && track.hitPattern.trackerLayersWithMeasurement > 5'                              # muon ID: 'isGlobalMuonPromptTight'
+signalMuonCut += ' && globalTrack.hitPattern.numberOfValidMuonHits > 0'                               # muon ID: 'isGlobalMuonPromptTight'
 signalMuonCut += ' && abs(dB) < 0.2'                                                                  # 2-dim impact parameter with respect to beam spot (s. "PAT muon configuration" above)
-signalMuonCut += ' && innerTrack.hitPattern().numberOfValidPixelHits() > 0'                               # tracker reconstruction
+signalMuonCut += ' && innerTrack.hitPattern.numberOfValidPixelHits > 0'                               # tracker reconstruction
 signalMuonCut += ' && numberOfMatchedStations > 1'                                                    # muon chamber reconstruction
 signalMuonCut += ' && (chargedHadronIso+neutralHadronIso+photonIso-0.5*puChargedHadronIso)/pt < 0.12' # relative isolation w/ Delta beta corrections (factor 0.5)
 

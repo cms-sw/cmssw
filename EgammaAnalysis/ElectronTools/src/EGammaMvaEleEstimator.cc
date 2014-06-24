@@ -989,7 +989,7 @@ Double_t EGammaMvaEleEstimator::mvaValue(const reco::GsfElectron& ele,
   // Pure tracking variables
   fMVAVar_fbrem           =  ele.fbrem();
   fMVAVar_kfchi2          =  (validKF) ? myTrackRef->normalizedChi2() : 0 ;
-  fMVAVar_kfhits          =  (validKF) ? myTrackRef->hitPattern().trackerLayersWithMeasurement() : -1.; 
+  fMVAVar_kfhits          =  (validKF) ? myTrackRef->hitPattern().trackerLayersWithMeasurement() : -1. ; 
   fMVAVar_kfhitsall          =  (validKF) ? myTrackRef->numberOfValidHits() : -1. ;   //  save also this in your ntuple as possible alternative
   fMVAVar_gsfchi2         =  ele.gsfTrack()->normalizedChi2();  
 
@@ -1123,7 +1123,7 @@ Double_t EGammaMvaEleEstimator::mvaValue(const reco::GsfElectron& ele,
   // Pure tracking variables
   fMVAVar_fbrem           =  ele.fbrem();
   fMVAVar_kfchi2          =  (validKF) ? myTrackRef->normalizedChi2() : 0 ;
-  fMVAVar_kfhits          =  (validKF) ? myTrackRef->hitPattern().trackerLayersWithMeasurement() : -1.; 
+  fMVAVar_kfhits          =  (validKF) ? myTrackRef->hitPattern().trackerLayersWithMeasurement() : -1. ; 
   fMVAVar_gsfchi2         =  ele.gsfTrack()->normalizedChi2();  
 
   

@@ -220,7 +220,7 @@ bool MuonTCMETValueMapProducer::isGoodMuon( const reco::Muon* muon )
   if( fabs( muon->eta() ) > muoneta_ )                return false;
   if( nhits < muonhits_ )                             return false;
   if( chi2 > muonchi2_ )                              return false;
-  if(globalTrack->hitPattern().numberOfValidMuonHits() < muonMinValidStaHits_) return false;
+  if( globalTrack->hitPattern().numberOfValidMuonHits() < muonMinValidStaHits_) return false;
 
   //reject muons with tracker dpt/pt > X
   if( !siTrack.isNonnull() )                                return false;
@@ -420,7 +420,8 @@ TVector3 MuonTCMETValueMapProducer::propagateTrack( const reco::Muon* muon)
 //____________________________________________________________________________||
 int MuonTCMETValueMapProducer::nLayers(const reco::TrackRef track)
 {
-  return track->hitPattern().trackerLayersWithMeasurement();
+  const reco::HitPattern& p = track->hitPattern();
+  return p.trackerLayersWithMeasurement();
 }
 
 //____________________________________________________________________________||
