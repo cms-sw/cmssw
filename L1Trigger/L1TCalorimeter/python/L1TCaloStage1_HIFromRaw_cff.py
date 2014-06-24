@@ -13,6 +13,7 @@ from L1Trigger.L1TCalorimeter.L1TCaloStage1_cff import *
 rctUpgradeFormatDigis.regionTag = cms.InputTag("simRctDigis")
 rctUpgradeFormatDigis.emTag = cms.InputTag("simRctDigis")
 caloStage1Digis.FirmwareVersion = cms.uint32(1) # 1=HI algos, 2=PP al
+caloStage1Params.jetSeedThreshold = cms.double(0.)
 
 # GT
 from L1Trigger.Configuration.SimL1Emulator_cff import simGtDigis
