@@ -1291,29 +1291,17 @@ void DTDataIntegrityTask::analyze(const edm::Event& e, const edm::EventSetup& c)
   edm::Handle<DTROS25Collection> ros25Product;
   e.getByToken(ros25Token, ros25Product);
   
-  // To be written
-  // FIXME: to be passed by configuration?
-  // Loop over the DT FEDs
-  int FEDIDmin = 0/*, FEDIDMax = 0*/;
-//   if (useStandardFEDid_){
-  FEDIDmin = FEDNumbering::MINDTFEDID;
-//   FEDIDMax = FEDNumbering::MAXDTFEDID;
-//   }
-//   else {
-//     FEDIDmin = minFEDid_;
-//     FEDIDMax = maxFEDid_;
-//   }
-  
   DTDDUData dduData;
   std::vector<DTROS25Data> ros25Data;
   
-//   for (int id=FEDIDmin; id<=FEDIDMax; ++id){ 
   if(dduProduct.isValid() && ros25Product.isValid()) {
     for(unsigned int i=0; i<dduProduct->size(); ++i)
     {
       dduData = dduProduct->at(i);
       ros25Data = ros25Product->at(i);
-      int id = FEDIDmin+i;
+      // FIXME: passing id variable is not needed anymore - change processFED interface for next release!
+      FEDHeader header = dduData.getDDUHeader();
+      int id = header.sourceID();
       processFED(dduData, ros25Data, id);
       for(unsigned int j=0; j < ros25Data.size(); ++j) {
         int rosid = j+1;

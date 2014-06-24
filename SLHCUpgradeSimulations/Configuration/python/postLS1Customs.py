@@ -83,9 +83,9 @@ def customise_Digi(process):
             process.mix.digitizers.hcal.ho.pixels = cms.int32(2500)
             process.mix.digitizers.hcal.ho.doSiPMSmearing = cms.bool(False)
         if hasattr(process.mix.digitizers,'hcal') and hasattr(process.mix.digitizers.hcal,'hf1'):
-            process.mix.digitizers.hcal.hf1.samplingFactor = cms.double(0.50)
+            process.mix.digitizers.hcal.hf1.samplingFactor = cms.double(0.60)
         if hasattr(process.mix.digitizers,'hcal') and hasattr(process.mix.digitizers.hcal,'hf2'):
-            process.mix.digitizers.hcal.hf2.samplingFactor = cms.double(0.75)
+            process.mix.digitizers.hcal.hf2.samplingFactor = cms.double(0.60)
     return process
 
 

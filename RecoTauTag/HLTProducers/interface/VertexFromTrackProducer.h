@@ -52,7 +52,7 @@ public:
   edm::ParameterSet config() const { return theConfig; }
   edm::InputTag trackLabel;
   edm::EDGetTokenT<edm::View<reco::Track> > trackToken;
-  edm::EDGetTokenT<reco::RecoCandidate> candidateToken;
+  edm::EDGetTokenT<edm::View<reco::RecoCandidate> > candidateToken;
   edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> triggerFilterElectronsSrc;
   edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> triggerFilterMuonsSrc;
   edm::EDGetTokenT<edm::View<reco::Vertex> > vertexLabel;
