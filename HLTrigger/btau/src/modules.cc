@@ -24,6 +24,12 @@ DEFINE_FWK_MODULE(HLTmmkFilter);
 #include "HLTmmkkFilter.h"
 DEFINE_FWK_MODULE(HLTmmkkFilter);
 
+#include "HLTmumutkVtxProducer.h"
+DEFINE_FWK_MODULE(HLTmumutkVtxProducer);
+
+#include "HLTmumutkFilter.h"
+DEFINE_FWK_MODULE(HLTmumutkFilter);
+
 #include "ConeIsolation.h"
 DEFINE_FWK_MODULE(ConeIsolation);
 

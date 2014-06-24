@@ -10,6 +10,7 @@
 #include "G4Decay.hh"
 #include "G4hMultipleScattering.hh"
 #include "G4hIonisation.hh"
+#include "G4CoulombScattering.hh"
 #include "G4ProcessManager.hh"
 
 #include "G4LeptonConstructor.hh"
@@ -69,7 +70,7 @@ void CustomPhysicsListSS::addCustomPhysics(){
       G4ProcessManager* pmanager = particle->GetProcessManager();
       if(pmanager) {
 	if(particle->GetPDGCharge()/eplus != 0) {
-	  pmanager->AddProcess(new G4hMultipleScattering,-1, 1, 1);
+	  pmanager->AddProcess(new G4CoulombScattering,  -1,-1, 1);
 	  pmanager->AddProcess(new G4hIonisation,        -1, 2, 2);
 	}
 	if(cp!=0) {
@@ -104,7 +105,7 @@ void CustomPhysicsListSS::setupRHadronPhycis(G4ParticleDefinition* particle)
   if(pmanager){
     if(!myHelper) myHelper = new G4ProcessHelper(myConfig);
     if(particle->GetPDGCharge()/eplus != 0){
-      pmanager->AddProcess(new G4hMultipleScattering,-1, 1, 1);
+      pmanager->AddProcess(new G4CoulombScattering,  -1,-1, 1);
       pmanager->AddProcess(new G4hIonisation,        -1, 2, 2);
     }
     pmanager->AddDiscreteProcess(new FullModelHadronicProcess(myHelper)); //GHEISHA
@@ -117,7 +118,7 @@ void CustomPhysicsListSS::setupSUSYPhycis(G4ParticleDefinition* particle)
   G4ProcessManager* pmanager = particle->GetProcessManager();
   if(pmanager){
     if(particle->GetPDGCharge()/eplus != 0){
-      pmanager->AddProcess(new G4hMultipleScattering,-1, 1, 1);
+      pmanager->AddProcess(new G4CoulombScattering,  -1,-1, 1);
       pmanager->AddProcess(new G4hIonisation,        -1, 2, 2);
     }
     pmanager->AddProcess(new G4Decay, 1, -1, 3);
