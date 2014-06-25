@@ -29,7 +29,8 @@ DDDWorld::~DDDWorld() {}
 
 void DDDWorld::SetAsWorld(G4VPhysicalVolume * pv) {
   G4RunManagerKernel * kernel = G4RunManagerKernel::GetRunManagerKernel();
-  if (kernel != 0) kernel->DefineWorldVolume(pv);
+  if(kernel) kernel->DefineWorldVolume(pv);
+  else edm::LogError("SimG4CoreGeometry") << "No G4RunManagerKernel?";
   edm::LogInfo("SimG4CoreGeometry") << " World volume defined ";
 }
 
