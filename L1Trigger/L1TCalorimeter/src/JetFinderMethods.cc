@@ -49,19 +49,19 @@ namespace l1t {
   {
     // std::cout << "Jet Seed: " << jetSeedThreshold << std::endl;
     for(std::vector<CaloRegion>::const_iterator region = regions->begin(); region != regions->end(); region++) {
-      double regionET = region->hwPt(); //regionPhysicalEt(*region);
+      int regionET = region->hwPt(); //regionPhysicalEt(*region);
       if (regionET  <= jetSeedThreshold) continue;
-      double neighborN_et = 0;
-      double neighborS_et = 0;
-      double neighborE_et = 0;
-      double neighborW_et = 0;
-      double neighborNE_et = 0;
-      double neighborSW_et = 0;
-      double neighborNW_et = 0;
-      double neighborSE_et = 0;
+      int neighborN_et = 0;
+      int neighborS_et = 0;
+      int neighborE_et = 0;
+      int neighborW_et = 0;
+      int neighborNE_et = 0;
+      int neighborSW_et = 0;
+      int neighborNW_et = 0;
+      int neighborSE_et = 0;
       unsigned int nNeighbors = 0;
       for(std::vector<CaloRegion>::const_iterator neighbor = regions->begin(); neighbor != regions->end(); neighbor++) {
-	double neighborET = neighbor->hwPt(); //regionPhysicalEt(*neighbor);
+	int neighborET = neighbor->hwPt(); //regionPhysicalEt(*neighbor);
 	if(deltaGctPhi(*region, *neighbor) == 1 &&
 	   (region->hwEta()    ) == neighbor->hwEta()) {
 	  neighborN_et = neighborET;
