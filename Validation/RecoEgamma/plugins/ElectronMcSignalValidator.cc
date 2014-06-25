@@ -707,12 +707,12 @@ void ElectronMcSignalValidator::bookHistograms( DQMStore::IBooker & iBooker, edm
   h2_ele_PhiMnPhiTrueVsEta = ElectronDqmAnalyzerBase::bookH2(iBooker, "PhiMnPhiTrueVsEta","ele momentum  phi - gen  phi vs eta",eta2D_nbin,eta_min,eta_max,dphi_nbin/2,dphi_min,dphi_max);
   h2_ele_PhiMnPhiTrueVsPhi = ElectronDqmAnalyzerBase::bookH2(iBooker, "PhiMnPhiTrueVsPhi","ele momentum  phi - gen  phi vs phi",phi2D_nbin,phi_min,phi_max,dphi_nbin/2,dphi_min,dphi_max);
   h2_ele_PhiMnPhiTrueVsPt = ElectronDqmAnalyzerBase::bookH2(iBooker, "PhiMnPhiTrueVsPt","ele momentum  phi - gen  phi vs pt",pt2D_nbin,0.,pt_max,dphi_nbin/2,dphi_min,dphi_max);
-  h1_ele_ecalEnergyError = bookH1withSumw2(iBooker, "ecalEnergyError","",error_nbin,0,enerror_max);
-  h1_ele_ecalEnergyError_barrel = bookH1withSumw2(iBooker, "ecalEnergyError_barrel","",30,0,30);
-  h1_ele_ecalEnergyError_endcaps = bookH1withSumw2(iBooker, "ecalEnergyError_endcaps","",error_nbin,0,enerror_max);
-  h1_ele_combinedP4Error = bookH1withSumw2(iBooker, "combinedP4Error","",error_nbin,0,enerror_max);
-  h1_ele_combinedP4Error_barrel = bookH1withSumw2(iBooker, "combinedP4Error_barrel","",30,0,30);
-  h1_ele_combinedP4Error_endcaps = bookH1withSumw2(iBooker, "combinedP4Error_endcaps","",error_nbin,0,enerror_max);
+  h1_ele_ecalEnergyError = bookH1withSumw2(iBooker, "ecalEnergyError","Regression estimate of the ECAL energy error",error_nbin,0,enerror_max);
+  h1_ele_ecalEnergyError_barrel = bookH1withSumw2(iBooker, "ecalEnergyError_barrel","Regression estimate of the ECAL energy error - barrel",30,0,30);
+  h1_ele_ecalEnergyError_endcaps = bookH1withSumw2(iBooker, "ecalEnergyError_endcaps","Regression estimate of the ECAL energy error - endcaps",error_nbin,0,enerror_max);
+  h1_ele_combinedP4Error = bookH1withSumw2(iBooker, "combinedP4Error","Estimated error on the combined momentum",error_nbin,0,enerror_max);
+  h1_ele_combinedP4Error_barrel = bookH1withSumw2(iBooker, "combinedP4Error_barrel","Estimated error on the combined momentum - barrel",30,0,30);
+  h1_ele_combinedP4Error_endcaps = bookH1withSumw2(iBooker, "combinedP4Error_endcaps","Estimated error on the combined momentum - endcaps",error_nbin,0,enerror_max);
 
   // matched electron, superclusters
   setBookPrefix("h_scl") ;
