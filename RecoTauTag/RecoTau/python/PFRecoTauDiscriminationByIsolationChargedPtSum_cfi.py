@@ -6,7 +6,7 @@ from RecoTauTag.RecoTau.PFRecoTauDiscriminationByIsolation_cfi import pfRecoTauD
 
 # Cut on sum pt < 8GeV  isolation tracks.
 
-pfRecoTauDiscriminationByIsolationChargedSumPt = pfRecoTauDisciminationByIsolation.clone(
+pfRecoTauDiscriminationByIsolationChargedSumPt = pfRecoTauDiscriminationByIsolation.clone(
     PFTauProducer = cms.InputTag('pfRecoTauProducer'),
 
     # Require leading pion ensures that: theee is at least one track above
