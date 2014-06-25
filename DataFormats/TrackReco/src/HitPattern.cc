@@ -234,7 +234,6 @@ uint16_t HitPattern::getHitPatternByAbsoluteIndex(int position) const
     if unlikely((position < 0 || position >= hitCount)) {
         return HitPattern::EMPTY_PATTERN;
     }
-    //return hitPattern[position];
     /*
     Note: you are not taking a consecutive sequence of HIT_LENGTH bits starting from position * HIT_LENGTH
      as the bit order in the words are reversed. 
@@ -883,7 +882,6 @@ int HitPattern::numberOfDTStationsWithBothViews() const
 
 void HitPattern::insertHit(const uint16_t pattern)
 {
-    //hitPattern[hitCount] = pattern;
     int offset = hitCount * HIT_LENGTH;
     for (int i = 0; i < HIT_LENGTH; i++) {
         int pos = offset + i;

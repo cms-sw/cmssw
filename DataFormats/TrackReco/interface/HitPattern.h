@@ -118,6 +118,9 @@ public:
         MISSING_INNER_HITS = 1,
         MISSING_OUTER_HITS = 2
     };
+    const static unsigned short ARRAY_LENGTH = 50;
+    const static unsigned short HIT_LENGTH = 11;
+    const static unsigned short MaxHits = (8 * sizeof(uint16_t) * ARRAY_LENGTH) / HIT_LENGTH;
 
     static const uint32_t NULL_RETURN = 999999;
     static const uint16_t EMPTY_PATTERN = 0x0;
@@ -220,7 +223,7 @@ public:
     int numberOfLostStripTIDHits(HitCategory category) const;     // not-null, not valid, strip TID
     int numberOfLostStripTOBHits(HitCategory category) const;     // not-null, not valid, strip TOB
     int numberOfLostStripTECHits(HitCategory category) const;     // not-null, not valid, strip TEC
-    
+
     int numberOfMuonHits() const;             // not-null, muon
     int numberOfValidMuonHits() const;        // not-null, valid, muon
     int numberOfValidMuonDTHits() const;      // not-null, valid, muon DT
@@ -326,10 +329,7 @@ public:
     int numberOfDTStationsWithBothViews() const;
 
 private:
-    const static unsigned short ARRAY_LENGTH = 50;
-    const static unsigned short HIT_LENGTH = 11;
-    const static unsigned short MaxHits = (8 * sizeof(uint16_t) * ARRAY_LENGTH) / HIT_LENGTH;
-    
+
     // 3 bits for hit type
     const static unsigned short HitTypeOffset = 0;
     const static unsigned short HitTypeMask = 0x3;
@@ -353,13 +353,16 @@ private:
     // detector side for tracker modules (mono/stereo)
     static uint16_t isStereo(DetId i);
     static bool stripSubdetectorHitFilter(uint16_t pattern, StripSubdetector::SubDetector substructure);
-    
+
     static uint16_t encode(const TrackingRecHit &hit);
     static uint16_t encode(const DetId &id, TrackingRecHit::Type hitType);
-    
+
     // generic count methods
     typedef bool filterType(uint16_t);
-    
+
+    template<typename F>
+    void call(HitCategory category, filterType typeFilter, F f) const;
+
     int countHits(HitCategory category, filterType filter) const;
     int countTypedHits(HitCategory category, filterType typeFilter, filterType filter) const;
 
@@ -430,6 +433,20 @@ inline int HitPattern::countHits(HitCategory category, filterType filter) const
         }
     }
     return count;
+}
+
+
+template<typename F>
+void HitPattern::call(HitCategory category, filterType typeFilter, F f) const
+{
+    std::pair<uint8_t, uint8_t> range = getCategoryIndexRange(category);
+    for (int i = range.first; i < range.second; i++) {
+        uint16_t pattern = getHitPatternByAbsoluteIndex(i);
+        // f() return false to ask to stop looping
+        if (typeFilter(pattern) && !f(pattern)) {
+            break;
+        }
+    }
 }
 
 inline int HitPattern::countTypedHits(HitCategory category, filterType typeFilter, filterType filter) const
@@ -1025,6 +1042,85 @@ inline int HitPattern::outermostMuonStationWithAnyHits() const
 {
     return outermostMuonStationWithHits(-1);
 }
+
+#ifndef CMS_NOCXX11 // cint....
+
+template<int N = HitPattern::MaxHits>
+struct PatternSet {
+    static constexpr int MaxHits = N;
+    unsigned char hit[N];
+    unsigned char nhit;
+
+    unsigned char const *begin() const
+    {
+        return hit;
+    }
+
+    unsigned char const *end() const
+    {
+        return hit + nhit;
+    }
+
+    unsigned char  *begin()
+    {
+        return hit;
+    }
+
+    unsigned char  *end()
+    {
+        return hit + nhit;
+    }
+
+    int size() const
+    {
+        return nhit;
+    }
+
+    unsigned char operator[](int i) const
+    {
+        return hit[i];
+    }
+
+    PatternSet() : nhit(0) {}
+
+    PatternSet(HitPattern::HitCategory category, HitPattern const &hp)
+    {
+        fill(category, hp);
+    }
+
+    void fill(HitPattern::HitCategory category, HitPattern const &hp)
+    {
+        int lhit = 0;
+        auto unpack = [&lhit, this](uint16_t pattern) -> bool {
+            unsigned char p = 255 & (pattern >> 3);
+            hit[lhit++] = p;
+
+            // bouble sort
+            if (lhit > 1) {
+                for (auto h = hit + lhit - 1; h != hit; --h) {
+                    if ((*(h - 1)) <= p) {
+                        break;
+                    }
+                    (*h) = *(h - 1);
+                    *(h - 1) = p;
+                }
+            }
+            return lhit < MaxHits;
+        };
+
+        hp.call(category, HitPattern::validHitFilter, unpack);
+        nhit = lhit;
+    }
+};
+
+template<int N>
+inline PatternSet<N> commonHits(PatternSet<N> const &p1, PatternSet<N> const &p2)
+{
+    PatternSet<N> comm;
+    comm.nhit = std::set_intersection(p1.begin(), p1.end(), p2.begin(), p2.end(), comm.begin()) - comm.begin();
+    return comm;
+}
+#endif // gcc11
 
 } // namespace reco
 
