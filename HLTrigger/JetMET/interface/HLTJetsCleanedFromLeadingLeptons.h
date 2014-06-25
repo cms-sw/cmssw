@@ -216,7 +216,7 @@ void HLTJetsCleanedFromLeadingLeptons<JetType>::produce(edm::Event &iEvent,
     }
     
     trigger::VRphoton photons;
-    filterOutput->getObjects(trigger::TriggerElectron, photons);
+    filterOutput->getObjects(trigger::TriggerPhoton, photons);
     
     for (auto const &eRef: photons)  // the collection might be empty
     {
