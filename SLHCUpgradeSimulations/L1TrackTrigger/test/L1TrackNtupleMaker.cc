@@ -104,6 +104,7 @@ private:
   std::vector<float>* m_trk_phi;
   std::vector<float>* m_trk_z0;
   std::vector<float>* m_trk_chi2; 
+  std::vector<float>* m_trk_consistency; 
   std::vector<int>*   m_trk_nstub;
   std::vector<int>*   m_trk_genuine;
   std::vector<int>*   m_trk_unknown;
@@ -124,6 +125,7 @@ private:
   std::vector<float>* m_matchtrk_phi;
   std::vector<float>* m_matchtrk_z0;
   std::vector<float>* m_matchtrk_chi2; 
+  std::vector<float>* m_matchtrk_consistency; 
   std::vector<int>*   m_matchtrk_nstub;
   std::vector<int>*   m_matchtrk_genuine;
 
@@ -134,6 +136,7 @@ private:
   std::vector<float>* m_matchtrk5p_z0;
   std::vector<float>* m_matchtrk5p_d0;
   std::vector<float>* m_matchtrk5p_chi2; 
+  std::vector<float>* m_matchtrk5p_consistency; 
 
 };
 
@@ -190,6 +193,7 @@ void L1TrackNtupleMaker::beginJob()
   m_trk_phi   = new std::vector<float>;
   m_trk_z0    = new std::vector<float>;
   m_trk_chi2  = new std::vector<float>;
+  m_trk_consistency = new std::vector<float>;
   m_trk_nstub = new std::vector<int>;
   m_trk_genuine      = new std::vector<int>;
   m_trk_unknown      = new std::vector<int>;
@@ -208,6 +212,7 @@ void L1TrackNtupleMaker::beginJob()
   m_matchtrk_phi   = new std::vector<float>;
   m_matchtrk_z0    = new std::vector<float>;
   m_matchtrk_chi2  = new std::vector<float>;
+  m_matchtrk_consistency = new std::vector<float>;
   m_matchtrk_nstub = new std::vector<int>;
   m_matchtrk_genuine = new std::vector<int>;
 
@@ -217,6 +222,7 @@ void L1TrackNtupleMaker::beginJob()
   m_matchtrk5p_z0    = new std::vector<float>;
   m_matchtrk5p_d0    = new std::vector<float>;
   m_matchtrk5p_chi2  = new std::vector<float>;
+  m_matchtrk5p_consistency = new std::vector<float>;
   
 
   // ntuple
@@ -227,6 +233,7 @@ void L1TrackNtupleMaker::beginJob()
   eventTree->Branch("trk_phi",   &m_trk_phi);
   eventTree->Branch("trk_z0",    &m_trk_z0);
   eventTree->Branch("trk_chi2",  &m_trk_chi2);
+  eventTree->Branch("trk_consistency", &m_trk_consistency);
   eventTree->Branch("trk_nstub", &m_trk_nstub);
   eventTree->Branch("trk_genuine",      &m_trk_genuine);
   eventTree->Branch("trk_unknown",      &m_trk_unknown);
@@ -245,6 +252,7 @@ void L1TrackNtupleMaker::beginJob()
   eventTree->Branch("matchtrk_phi",     &m_matchtrk_phi);
   eventTree->Branch("matchtrk_z0",      &m_matchtrk_z0);
   eventTree->Branch("matchtrk_chi2",    &m_matchtrk_chi2);
+  eventTree->Branch("matchtrk_consistency", &m_matchtrk_consistency);
   eventTree->Branch("matchtrk_nstub",   &m_matchtrk_nstub);
   eventTree->Branch("matchtrk_genuine", &m_matchtrk_genuine);
 
@@ -254,6 +262,7 @@ void L1TrackNtupleMaker::beginJob()
   eventTree->Branch("matchtrk5p_z0",      &m_matchtrk5p_z0);
   eventTree->Branch("matchtrk5p_d0",      &m_matchtrk5p_d0);
   eventTree->Branch("matchtrk5p_chi2",    &m_matchtrk5p_chi2);
+  eventTree->Branch("matchtrk5p_consistency", &m_matchtrk5p_consistency);
 
 }
 
@@ -275,6 +284,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
   m_trk_phi->clear();
   m_trk_z0->clear();
   m_trk_chi2->clear();
+  m_trk_consistency->clear();
   m_trk_nstub->clear();
   m_trk_genuine->clear();
   m_trk_unknown->clear();
@@ -293,6 +303,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
   m_matchtrk_phi->clear();
   m_matchtrk_z0->clear();
   m_matchtrk_chi2->clear();
+  m_matchtrk_consistency->clear();
   m_matchtrk_nstub->clear();
   m_matchtrk_genuine->clear();
 
@@ -302,6 +313,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
   m_matchtrk5p_z0->clear();
   m_matchtrk5p_d0->clear();
   m_matchtrk5p_chi2->clear();
+  m_matchtrk5p_consistency->clear();
 
 
 
@@ -346,6 +358,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
     float tmp_trk_phi  = iterL1Track->getMomentum().phi();
     float tmp_trk_z0   = iterL1Track->getPOCA().z(); //cm
     float tmp_trk_chi2 = iterL1Track->getChi2();
+    float tmp_trk_consistency = iterL1Track->getStubPtConsistency();
     int tmp_trk_nstub  = (int) iterL1Track->getStubRefs().size();
     
     if (tmp_trk_pt < 2.0) continue; 
@@ -370,6 +383,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
     m_trk_phi->push_back(tmp_trk_phi);
     m_trk_z0 ->push_back(tmp_trk_z0);
     m_trk_chi2 ->push_back(tmp_trk_chi2);
+    m_trk_consistency->push_back(tmp_trk_consistency);
     m_trk_nstub->push_back(tmp_trk_nstub);
     m_trk_genuine->push_back(tmp_trk_genuine);
     m_trk_unknown->push_back(tmp_trk_unknown);
@@ -467,6 +481,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
 	       << " eta = " << matchedTracks.at(it)->getMomentum().eta()
 	       << " phi = " << matchedTracks.at(it)->getMomentum().phi()
 	       << " chi2 = " << matchedTracks.at(it)->getChi2() 
+	       << " consistency = " << matchedTracks.at(it)->getStubPtConsistency() 
 	       << " z0 = " << matchedTracks.at(it)->getPOCA().z() 
 	       << " nstub = " << matchedTracks.at(it)->getStubRefs().size();
 	  if (tmp_trk_genuine) cout << " (genuine!) " << endl;
@@ -503,6 +518,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
     float tmp_matchtrk_phi  = -999;
     float tmp_matchtrk_z0   = -999;
     float tmp_matchtrk_chi2 = -999;
+    float tmp_matchtrk_consistency = -999;
     int tmp_matchtrk_nstub  = -999;
     int tmp_matchtrk_genuine = -999;
 
@@ -512,6 +528,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
     float tmp_matchtrk5p_z0   = -999;
     float tmp_matchtrk5p_d0   = -999;
     float tmp_matchtrk5p_chi2 = -999;
+    float tmp_matchtrk5p_consistency = -999;
 
     if (nMatch > 1) cout << "WARNING *** 2 or more matches to genuine L1 tracks ***" << endl;
 
@@ -521,6 +538,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
       tmp_matchtrk_phi  = matchedTracks.at(i_track)->getMomentum().phi();
       tmp_matchtrk_z0   = matchedTracks.at(i_track)->getPOCA().z();
       tmp_matchtrk_chi2 = matchedTracks.at(i_track)->getChi2();
+      tmp_matchtrk_consistency = matchedTracks.at(i_track)->getStubPtConsistency();
       tmp_matchtrk_nstub  = (int) matchedTracks.at(i_track)->getStubRefs().size();
       tmp_matchtrk_genuine = 1;
 
@@ -535,6 +553,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
       tmp_matchtrk5p_d0   = matchedTracks.at(i_track)->getPOCA(5).perp()*sign;
 
       tmp_matchtrk5p_chi2 = matchedTracks.at(i_track)->getChi2(5);
+      tmp_matchtrk5p_consistency = matchedTracks.at(i_track)->getStubPtConsistency(5);
     }
 
     m_tp_pt->push_back(tmp_tp_pt);
@@ -550,6 +569,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
     m_matchtrk_phi->push_back(tmp_matchtrk_phi);
     m_matchtrk_z0 ->push_back(tmp_matchtrk_z0);
     m_matchtrk_chi2 ->push_back(tmp_matchtrk_chi2);
+    m_matchtrk_consistency->push_back(tmp_matchtrk_consistency);
     m_matchtrk_nstub->push_back(tmp_matchtrk_nstub);
     m_matchtrk_genuine->push_back(tmp_matchtrk_genuine);
 
@@ -559,6 +579,7 @@ void L1TrackNtupleMaker::analyze(const edm::Event& iEvent, const edm::EventSetup
     m_matchtrk5p_z0 ->push_back(tmp_matchtrk5p_z0);
     m_matchtrk5p_d0 ->push_back(tmp_matchtrk5p_d0);
     m_matchtrk5p_chi2->push_back(tmp_matchtrk5p_chi2);
+    m_matchtrk5p_consistency->push_back(tmp_matchtrk5p_consistency);
     
   } //end loop tracking particles
   
