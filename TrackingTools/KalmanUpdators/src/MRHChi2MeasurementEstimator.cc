@@ -16,7 +16,7 @@ std::pair<bool, double> MRHChi2MeasurementEstimator::estimate(const TrajectorySt
     case 2:       return estimate<2>(tsos,aRecHit);
     //avoid the not-2D  hit due to the final sum  
     case ( 1 || 3 || 4 || 5 ):{
-//      std::cout << "WARNING:The hit is not 2D: does not count in the MRH Chi2 estimation." <<  std::endl;
+      LogDebug("MRHChi2MeasurementEstimator") << "WARNING:The hit is not 2D: does not count in the MRH Chi2 estimation." ;
       double est = 0.0; 
       return  HitReturnType(false, est);
       }

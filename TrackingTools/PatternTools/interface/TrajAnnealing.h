@@ -23,7 +23,6 @@ public:
 
     TrajAnnealing( Trajectory, float );
 
-    void Debug() const;
     float getAnnealing() const { return annealing_; }
     Trajectory getTraj() const { return traj_; }
 
