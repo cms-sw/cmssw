@@ -68,7 +68,7 @@ namespace l1t {
       //rankPt = params->jetScale().rank((uint16_t)itEtSum->hwPt());
       rankPt = (uint16_t)itEtSum->hwPt();
       if (EtSum::EtSumType::kMissingHt == itEtSum->getType())
-	rankPt = params->HtMissScale().rank(itEtSum->hwPt()*emScale->linearLsb());
+	rankPt = params->HtMissScale().rank(itEtSum->hwPt()*params->emScale().linearLsb());
 
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > ldummy(0,0,0,0);
 
