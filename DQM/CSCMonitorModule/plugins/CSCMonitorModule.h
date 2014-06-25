@@ -30,8 +30,11 @@
 /// DQM Framework stuff
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
+
 #include <DQMServices/Core/interface/DQMStore.h>
 #include <DQMServices/Core/interface/MonitorElement.h>
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+
 #include <FWCore/ServiceRegistry/interface/Service.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/EventSetup.h>
@@ -71,7 +74,7 @@ static const unsigned int MAX_DMB_SLOT = 10;
  * @class CSCMonitorModule
  * @brief Common CSC DQM Module that uses CSCDQM Framework  
  */
-class CSCMonitorModule: public edm::EDAnalyzer, public cscdqm::MonitorObjectProvider {
+class CSCMonitorModule: public DQMEDAnalyzer, public cscdqm::MonitorObjectProvider {
  
   /**
    * Global stuff
@@ -86,13 +89,16 @@ class CSCMonitorModule: public edm::EDAnalyzer, public cscdqm::MonitorObjectProv
 
     cscdqm::Configuration     config;
     cscdqm::Dispatcher       *dispatcher;
-    DQMStore                 *dbe;
+    // DQMStore                 *dbe;
+    DQMStore::IBooker	      *ibooker;
     edm::InputTag             inputTag;
     bool                      prebookEffParams;
     bool                      processDcsScalers;
 
     /** Pointer to crate mapping from database **/
     const CSCCrateMap* pcrate;
+
+    std::vector<std::string> maskedHW;
 
 #ifdef DQMGLOBAL
     edm::EDGetTokenT<DcsStatusCollection> dcstoken;
@@ -122,12 +128,13 @@ class CSCMonitorModule: public edm::EDAnalyzer, public cscdqm::MonitorObjectProv
   protected:
 
     void beginJob() { }
-    void beginRun(const edm::Run& r, const edm::EventSetup& c);
+    // void beginRun(const edm::Run& r, const edm::EventSetup& c);
     void setup() { }
     void analyze(const edm::Event& e, const edm::EventSetup& c);
     void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) { }
     void endRun(const edm::Run& r, const edm::EventSetup& c) { }
     void endJob() { }
+    void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 };
 
