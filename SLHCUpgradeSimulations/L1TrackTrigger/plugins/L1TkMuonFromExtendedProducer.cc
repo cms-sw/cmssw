@@ -90,6 +90,7 @@ private:
   //  bool closest_ ;
   bool correctGMTPropForTkZ_;
 
+  bool use5ParameterFit_;
 } ;
 
 
@@ -114,6 +115,7 @@ L1TkMuonFromExtendedProducer::L1TkMuonFromExtendedProducer(const edm::ParameterS
 
    correctGMTPropForTkZ_ = iConfig.getParameter<bool>("correctGMTPropForTkZ");
 
+   use5ParameterFit_     = iConfig.getParameter<bool>("use5ParameterFit");
    produces<L1TkMuonParticleCollection>();
 }
 
@@ -175,6 +177,11 @@ L1TkMuonFromExtendedProducer::produce(edm::Event& iEvent, const edm::EventSetup&
       //apply something specific here
     }
 
+    const auto& rpcCand = l1mu.rpcCand();
+    if (!rpcCand.empty()){
+      //apply something specific here
+    }
+
     float drmin = 999;
     float ptmax = -1;
     if (ptmax < 0) ptmax = -1;	// dummy
@@ -186,20 +193,23 @@ L1TkMuonFromExtendedProducer::produce(edm::Event& iEvent, const edm::EventSetup&
     LogDebug("MDEBUG")<<"have a gmt, look for a match ";
     for (auto l1tk : l1tks ){
       il1tk++;
-      float l1tk_pt = l1tk.getMomentum().perp();
+
+      unsigned int nPars = 4;
+      if (use5ParameterFit_) nPars = 5;
+      float l1tk_pt = l1tk.getMomentum(nPars).perp();
       if (l1tk_pt < PTMINTRA_) continue;
 
-      float l1tk_z  = l1tk.getPOCA().z();
+      float l1tk_z  = l1tk.getPOCA(nPars).z();
       if (fabs(l1tk_z) > ZMAX_) continue;
 
-      float l1tk_chi2 = l1tk.getChi2();
+      float l1tk_chi2 = l1tk.getChi2(nPars);
       if (l1tk_chi2 > CHI2MAX_) continue;
       
       int l1tk_nstubs = l1tk.getStubRefs().size();
       if ( l1tk_nstubs < nStubsmin_) continue;
 
-      float l1tk_eta = l1tk.getMomentum().eta();
-      float l1tk_phi = l1tk.getMomentum().phi();
+      float l1tk_eta = l1tk.getMomentum(nPars).eta();
+      float l1tk_phi = l1tk.getMomentum(nPars).phi();
 
 
       float dr2 = deltaR2(l1mu_eta, l1mu_phi, l1tk_eta, l1tk_phi);
@@ -232,15 +242,18 @@ L1TkMuonFromExtendedProducer::produce(edm::Event& iEvent, const edm::EventSetup&
 			 <<" mutk "<<l1mu.pt()<<" "<<l1mu.eta()<<" "<<l1mu.phi()<<" delta "<<dEta<<" "<<dPhi<<" cut "<<etaCut<<" "<<phiCut;
       if (dEta < etaCut && dPhi < phiCut){
 	Ptr< L1TkTrackType > l1tkPtr(l1tksH, match_idx);
-	auto p3 = matchTk.getMomentum();
+
+	unsigned int nPars = 4;
+	if (use5ParameterFit_) nPars = 5;
+	auto p3 = matchTk.getMomentum(nPars);
 	float p4e = sqrt(0.105658369*0.105658369 + p3.mag2() );
 
 	math::XYZTLorentzVector l1tkp4(p3.x(), p3.y(), p3.z(), p4e);
 
-	auto tkv3=matchTk.getPOCA();
+	auto tkv3=matchTk.getPOCA(nPars);
 	math::XYZPoint v3(tkv3.x(), tkv3.y(), tkv3.z());
 	float trkisol = -999;
-	int l1tk_q = matchTk.getRInv()>0? 1: -1;
+	int l1tk_q = matchTk.getRInv(nPars)>0? 1: -1;
 
 	L1TkMuonParticle l1tkmu(reco::LeafCandidate(l1tk_q, l1tkp4, v3, -13*l1tk_q ));
 	l1tkmu.setTrkPtr(l1tkPtr);
