@@ -12,17 +12,50 @@
 
 // system include files
 #include <iostream>
+#include <map>
 
 // user include files
-#include "FWCore/Services/src/PrintEventSetupDataRetrieval.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
 #include "FWCore/Framework/interface/ComponentDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/EventSetupRecordKey.h"
+#include "FWCore/Framework/interface/DataKey.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
 
 namespace edm {
+   class PrintEventSetupDataRetrieval: public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one::WatchLuminosityBlocks> {
+   public:
+      PrintEventSetupDataRetrieval(edm::ParameterSet const&);
+      
+      void analyze( edm::Event const&, edm::EventSetup const&) override;
+      
+      void beginRun( edm::Run const&, edm::EventSetup const&) override;
+      void endRun(edm::Run const&, edm::EventSetup const&) override;
+      
+      void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+      void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+      
+      static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+   private:
+      void check(EventSetup const&);
+      // ---------- member data --------------------------------
+      typedef std::map<eventsetup::EventSetupRecordKey, std::pair<unsigned long long, std::map<eventsetup::DataKey,bool> > > RetrievedDataMap;
+      
+      RetrievedDataMap m_retrievedDataMap;
+      std::vector<eventsetup::EventSetupRecordKey> m_recordKeys;
+      bool m_printProviders;
+      
+      bool m_checkDuringBeginRun;
+      bool m_checkDuringBeginLumi;
+      bool m_checkDuringEvent;
+      
+   };
 //
 // constants, enums and typedefs
 //
@@ -34,19 +67,12 @@ namespace edm {
 //
 // constructors and destructor
 //
-   PrintEventSetupDataRetrieval::PrintEventSetupDataRetrieval(const ParameterSet& iPS,
-                                                              ActivityRegistry&iRegistry):
-   m_printProviders(iPS.getUntrackedParameter<bool>("printProviders"))
+   PrintEventSetupDataRetrieval::PrintEventSetupDataRetrieval(const ParameterSet& iPS):
+    m_printProviders(iPS.getUntrackedParameter<bool>("printProviders")),
+    m_checkDuringBeginRun(iPS.getUntrackedParameter<bool>("checkDuringBeginRun")),
+    m_checkDuringBeginLumi(iPS.getUntrackedParameter<bool>("checkDuringBeginLumi")),
+    m_checkDuringEvent(iPS.getUntrackedParameter<bool>("checkDuringEvent"))
    {
-      if(iPS.getUntrackedParameter<bool>("checkAfterBeginRun")) {
-         iRegistry.watchPostBeginRun(this, &PrintEventSetupDataRetrieval::postBeginRun);
-      }
-      if(iPS.getUntrackedParameter<bool>("checkAfterBeginLumi")) {
-         iRegistry.watchPostBeginLumi(this, &PrintEventSetupDataRetrieval::postBeginLumi);
-      }
-      if(iPS.getUntrackedParameter<bool>("checkAfterEvent")) {
-         iRegistry.watchPostProcessEvent(this, &PrintEventSetupDataRetrieval::postProcessEvent);
-      }
    }
 
 // PrintEventSetupDataRetrieval::PrintEventSetupDataRetrieval(const PrintEventSetupDataRetrieval& rhs)
@@ -62,14 +88,14 @@ namespace edm {
       edm::ParameterSetDescription desc;
       desc.addUntracked<bool>("printProviders",false)->setComment(
       "If 'true' also print which ES module provides the data");
-      desc.addUntracked<bool>("checkAfterBeginRun",false)->setComment(
-       "If 'true' check for retrieved data after each begin run is processed");
-      desc.addUntracked<bool>("checkAfterBeginLumi",false)->setComment(
-       "If 'true' check for retrieved data after each begin lumi is processed");
-      desc.addUntracked<bool>("checkAfterEvent",true)->setComment(
-       "If 'true' check for retrieved data after an event is processed");
+      desc.addUntracked<bool>("checkDuringBeginRun",false)->setComment(
+       "If 'true' check for retrieved data during each begin run is processed");
+      desc.addUntracked<bool>("checkDuringBeginLumi",false)->setComment(
+       "If 'true' check for retrieved data during each begin lumi is processed");
+      desc.addUntracked<bool>("checkDuringEvent",true)->setComment(
+       "If 'true' check for retrieved data during an event is processed");
       descriptions.add("PrintEventSetupDataRetrieval", desc);
-      descriptions.setComment("This service reports when EventSetup data is retrieved by a module in the job.");
+      descriptions.setComment("This analyzer reports when EventSetup data is retrieved by a module in the job.");
    }
 
 //
@@ -88,20 +114,28 @@ namespace edm {
 // member functions
 //
    void 
-   PrintEventSetupDataRetrieval::postProcessEvent(Event const&, EventSetup const& iES) {
-      check(iES);
+   PrintEventSetupDataRetrieval::analyze(Event const&, EventSetup const& iES) {
+      if(m_checkDuringEvent) { check(iES); }
    }
 
    void 
-   PrintEventSetupDataRetrieval::postBeginRun(Run const&, EventSetup const& iES) {
-      check(iES);
+   PrintEventSetupDataRetrieval::beginRun(Run const&, EventSetup const& iES) {
+      if(m_checkDuringBeginRun) { check(iES); }
    }
 
-   void 
-   PrintEventSetupDataRetrieval::postBeginLumi(LuminosityBlock const&, EventSetup const& iES) {
-      check(iES);
+   void
+   PrintEventSetupDataRetrieval::endRun(Run const&, EventSetup const&) {
    }
-   
+
+   void
+   PrintEventSetupDataRetrieval::beginLuminosityBlock(LuminosityBlock const&, EventSetup const& iES) {
+      if(m_checkDuringBeginLumi) { check(iES); }
+   }
+
+   void
+   PrintEventSetupDataRetrieval::endLuminosityBlock(LuminosityBlock const&, EventSetup const&) {
+   }
+
    void PrintEventSetupDataRetrieval::check(EventSetup const& iES) {
       //std::cout <<"postProcessEvent"<<std::endl;
       m_recordKeys.clear();
@@ -165,3 +199,8 @@ namespace edm {
 // static member functions
 //
 }
+
+//define this as a plug-in
+using edm::PrintEventSetupDataRetrieval;
+DEFINE_FWK_MODULE(PrintEventSetupDataRetrieval);
+
