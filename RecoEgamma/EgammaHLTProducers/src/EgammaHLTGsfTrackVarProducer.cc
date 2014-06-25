@@ -44,7 +44,7 @@ EgammaHLTGsfTrackVarProducer::EgammaHLTGsfTrackVarProducer(const edm::ParameterS
   produces < reco::RecoEcalCandidateIsolationMap >( "Dphi" ).setBranchAlias( "dphi" );
   produces < reco::RecoEcalCandidateIsolationMap >( "OneOESuperMinusOneOP" );
   produces < reco::RecoEcalCandidateIsolationMap >( "OneOESeedMinusOneOP" );
-  
+  produces < reco::RecoEcalCandidateIsolationMap >( "MissingHits" ).setBranchAlias( "missinghits" );
 }
 
 EgammaHLTGsfTrackVarProducer::~EgammaHLTGsfTrackVarProducer()
@@ -143,9 +143,13 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::Event& iEvent, const edm::EventS
 	if(scRef->seed().isNonnull() && scRef->seed()->energy()!=0 && trkP!=0){
 	  if(fabs(1/scRef->seed()->energy() - 1/trkP)<oneOverESeedMinusOneOverPValue) oneOverESeedMinusOneOverPValue =fabs(1/scRef->seed()->energy() - 1/trkP);
 	}
-	
-	if(fabs(scAtVtx.dEta())<dEtaInValue) dEtaInValue=fabs(scAtVtx.dEta()); //we are allowing them to come from different tracks
-	if(fabs(scAtVtx.dPhi())<dPhiInValue) dPhiInValue=fabs(scAtVtx.dPhi());//we are allowing them to come from different tracks
+
+	if (gsfTracks[trkNr]->trackerExpectedHitsInner().numberOfLostHits() < missingHitsValue) 
+	  missingHitsValue = gsfTracks[trkNr]->trackerExpectedHitsInner().numberOfLostHits();
+	if (fabs(scAtVtx.dEta())<dEtaInValue) 
+	  dEtaInValue=fabs(scAtVtx.dEta()); //we are allowing them to come from different tracks
+	if (fabs(scAtVtx.dPhi())<dPhiInValue) 
+	  dPhiInValue=fabs(scAtVtx.dPhi());//we are allowing them to come from different tracks
       }	
     }
    
