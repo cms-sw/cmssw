@@ -19,6 +19,11 @@ namespace edm {
 
 class DQMFileIterator {
  public:
+  enum JsonType {
+    JS_PROTOBUF,
+    JS_DATA,
+  };
+
   struct LumiEntry {
     int ls;
 
@@ -27,9 +32,7 @@ class DQMFileIterator {
     std::string definition;
     std::string source;
 
-    static LumiEntry load_json_pb(const std::string& filename, int lumiNumber);
-    static LumiEntry load_json_data(const std::string& filename,
-                                    int lumiNumber);
+    static LumiEntry load_json(const std::string& filename, int lumiNumber, JsonType type);
   };
 
   struct EorEntry {
@@ -50,10 +53,6 @@ class DQMFileIterator {
     EOR = 2,
   };
 
-  enum JsonType {
-    JS_PROTOBUF,
-    JS_DATA,
-  };
 
   DQMFileIterator(ParameterSet const& pset, JsonType t);
   ~DQMFileIterator();

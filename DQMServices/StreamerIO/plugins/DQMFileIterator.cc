@@ -11,8 +11,8 @@
 
 namespace edm {
 
-DQMFileIterator::LumiEntry DQMFileIterator::LumiEntry::load_json_data(
-    const std::string& filename, int lumiNumber) {
+DQMFileIterator::LumiEntry DQMFileIterator::LumiEntry::load_json(
+    const std::string& filename, int lumiNumber, JsonType type) {
   boost::property_tree::ptree pt;
   read_json(filename, pt);
 
@@ -21,31 +21,19 @@ DQMFileIterator::LumiEntry DQMFileIterator::LumiEntry::load_json_data(
   // We rely on n_events to be the first item on the array...
   lumi.n_events = std::next(pt.get_child("data").begin(), 1)
                       ->second.get_value<std::size_t>();
-  lumi.datafilename = std::next(pt.get_child("data").begin(), 2)
-                          ->second.get_value<std::string>();
   lumi.definition = pt.get<std::string>("definition");
   lumi.source = pt.get<std::string>("source");
 
   lumi.ls = lumiNumber;
-  return lumi;
-}
 
-DQMFileIterator::LumiEntry DQMFileIterator::LumiEntry::load_json_pb(
-    const std::string& filename, int lumiNumber) {
-  boost::property_tree::ptree pt;
-  read_json(filename, pt);
-
-  LumiEntry lumi;
-
-  // We rely on n_events to be the first item on the array...
-  lumi.n_events = std::next(pt.get_child("data").begin(), 1)
-                      ->second.get_value<std::size_t>();
-  lumi.datafilename = std::next(pt.get_child("data").begin(), 4)
+  if (type == JS_PROTOBUF) {
+    lumi.datafilename = std::next(pt.get_child("data").begin(), 4)
                           ->second.get_value<std::string>();
-  lumi.definition = pt.get<std::string>("definition");
-  lumi.source = pt.get<std::string>("source");
+  } else {
+    lumi.datafilename = std::next(pt.get_child("data").begin(), 3)
+                          ->second.get_value<std::string>();
+  }
 
-  lumi.ls = lumiNumber;
   return lumi;
 }
 
@@ -165,10 +153,7 @@ void DQMFileIterator::collect() {
     }
 
     LumiEntry lumi;
-    if (type_ == JS_PROTOBUF)
-      lumi = LumiEntry::load_json_pb(fn, nextLumi);
-    else
-      lumi = LumiEntry::load_json_data(fn, nextLumi);
+    lumi = LumiEntry::load_json(fn, nextLumi, type_);
 
     lastLumiSeen_ = nextLumi;
     queue_.push(lumi);
