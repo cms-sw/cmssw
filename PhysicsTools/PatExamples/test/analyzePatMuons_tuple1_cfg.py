@@ -4,7 +4,7 @@ process = cms.Process("Test")
 
 process.source = cms.Source("PoolSource",
   fileNames = cms.untracked.vstring(
-    "file:patTuple.root"
+    "file:patTuple_standard.root"
   )
 )
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
@@ -15,7 +15,7 @@ process.MessageLogger = cms.Service("MessageLogger")
 ## This is an example of the use of the plain edm::Tuple dumper to analyze pat::Muons
 process.patMuonAnalyzer = cms.EDProducer(
     "CandViewNtpProducer", 
-    src = cms.InputTag("cleanPatMuons"),
+    src = cms.InputTag("selectedPatMuons"),
     lazyParser = cms.untracked.bool(True),
     prefix = cms.untracked.string(""),
     eventInfo = cms.untracked.bool(True),
