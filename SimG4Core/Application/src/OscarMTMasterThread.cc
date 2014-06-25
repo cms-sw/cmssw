@@ -11,7 +11,10 @@
 
 
 OscarMTMasterThread::OscarMTMasterThread(std::shared_ptr<RunManagerMTInit> runManagerInit, const edm::EventSetup& iSetup):
-  m_runManagerInit(runManagerInit)
+  m_runManagerInit(runManagerInit),
+  m_startCanProceed(false),
+  m_stopCanProceed(false),
+  m_stopped(false)
 {
 
   const edm::ParameterSet& pset = m_runManagerInit->parameterSet();
@@ -72,7 +75,18 @@ OscarMTMasterThread::OscarMTMasterThread(std::shared_ptr<RunManagerMTInit> runMa
 }
 
 OscarMTMasterThread::~OscarMTMasterThread() {
-  LogDebug("OscarMTMasterThread") << "Main thread, destructor";
+  if(!m_stopped) {
+    edm::LogError("OscarMTMasterThread") << "OscarMTMasterThread::stopThread() has not been called to stop Geant4 and join the master thread";
+  }
+}
+
+void OscarMTMasterThread::stopThread() const {
+  std::lock_guard<std::mutex> lk(m_stopThreadMutex);
+  if(m_stopped) {
+    edm::LogError("OscarMTMasterThread") << "Second call to OscarMTMasterThread::stopThread(), not doing anything";
+    return;
+  }
+  LogDebug("OscarMTMasterThread") << "Main thread, stopThread()";
   // Release our instance of the shared master run manager, so that
   // the G4 master thread can do the cleanup. Then notify the master
   // thread, and join it.
@@ -87,4 +101,6 @@ OscarMTMasterThread::~OscarMTMasterThread() {
   LogDebug("OscarMTMasterThread") << "Main thread, going to join master thread";
   m_masterThread.join();
   LogDebug("OscarMTMasterThread") << "Main thread, finished";
+  m_stopped = true;
 }
+

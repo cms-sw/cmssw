@@ -89,6 +89,7 @@ std::shared_ptr<OscarMTMasterThread> OscarMTProducer::globalBeginRun(const edm::
 }
 
 void OscarMTProducer::globalEndRun(const edm::Run& iRun, const edm::EventSetup& iSetup, const RunContext *iContext) {
+  iContext->run()->stopThread();
 }
 
 void OscarMTProducer::globalEndJob(edm::ParameterSet *iConfig) {
