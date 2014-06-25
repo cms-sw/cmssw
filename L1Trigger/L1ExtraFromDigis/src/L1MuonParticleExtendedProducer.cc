@@ -47,6 +47,10 @@ public:
 private:
   virtual void produce(edm::Event&, const edm::EventSetup&);
 
+  //some helper functions
+  float getSigmaEta(float eta, float etaP, float etaM) const;
+  float getSigmaPhi(float phi, float phiP, float phiM) const;
+
   edm::InputTag gmtROSource_ ;
   edm::InputTag csctfSource_ ;
 
@@ -114,7 +118,15 @@ L1MuonParticleExtendedProducer::produce( edm::Event& iEvent,
   int curMuCollIdx = -1; //index of the GMT-based
   for (auto gmtRO : gmtROs.getRecords()){
     vector<int> cscGmtIdxs(4,-1); //index into muColl for a given CSC cand
-    for (auto const gmtCand : gmtRO.getGMTCands() ){
+    vector<int> dtGmtIdxs(4,-1); //index into muColl for a given DT cand
+
+    auto const gmtCands = gmtRO.getGMTCands();
+    auto const dtCands  = gmtRO.getDTBXCands();
+    auto const cscCands = gmtRO.getCSCCands();
+    auto const rpcBrlCands = gmtRO.getBrlRPCCands();
+    auto const rpcFwdCands = gmtRO.getFwdRPCCands();
+
+    for (auto const gmtCand : gmtCands){
       if (gmtCand.empty()) continue;
       
       float pt = muPtScale->getPtScale()->getLowEdge( gmtCand.ptIndex() ) + 1.e-6 ;
@@ -131,39 +143,40 @@ L1MuonParticleExtendedProducer::produce( edm::Event& iEvent,
       math::PtEtaPhiMLorentzVector p4( pt, eta, phi, muonMassGeV_);
       L1MuonParticle l1muP(gmtCand.charge(), p4, gmtCand, gmtCand.bx());
       int cscGmtIdx = -1;
-      if (!gmtCand.isRPC() && gmtCand.isFwd()) cscGmtIdx = gmtCand.getDTCSCIndex();
+      if ((!gmtCand.isRPC()) && gmtCand.isFwd()) cscGmtIdx = gmtCand.getDTCSCIndex();
+      int dtGmtIdx = -1;
+      if ((!gmtCand.isRPC()) && (!gmtCand.isFwd())) dtGmtIdx = gmtCand.getDTCSCIndex();
+      int rpcGmtIdx = -1;
+      if (gmtCand.isRPC()) rpcGmtIdx = gmtCand.getRPCIndex();
 
       muColl->push_back(L1MuonParticleExtended(l1muP));
       curMuCollIdx++;
       if (cscGmtIdx>=0) cscGmtIdxs[cscGmtIdx] = curMuCollIdx;
+      if (dtGmtIdx>=0) dtGmtIdxs[dtGmtIdx] = curMuCollIdx;
       L1MuonParticleExtended* aGmtCand = &muColl->back();
 
-      float sigmaEta=99;
-      float dEtaP = std::abs(etaP - eta);
-      float dEtaM = std::abs(etaM - eta);
-      if (dEtaP  < 1 && dEtaM < 1 && dEtaP  > 0 && dEtaM > 0){
-	sigmaEta = sqrt(dEtaP*dEtaM); //take geom mean for no particular reason
-      } else if (dEtaP < 1 || dEtaM < 1) {
-	sigmaEta = dEtaP < dEtaM && dEtaP >0  ? dEtaP : dEtaM;
-      } 
-      sigmaEta = sigmaEta/sqrt(12.);
-      
-      float sigmaPhi=99;
-      float dPhiP = std::abs(deltaPhi(phiP, phi));
-      float dPhiM = std::abs(deltaPhi(phiM, phi));
-      if (dPhiP  < 1 && dPhiM < 1 && dPhiP > 0 && dPhiM > 0){
-	sigmaPhi = sqrt(dPhiP*dPhiM); //take geom mean for no particular reason
-      } else if (dPhiP < 1 || dPhiM < 1) {
-	sigmaPhi = dPhiP < dPhiM && dPhiP > 0 ? dPhiP : dPhiM;
-      } 
-      sigmaPhi = sigmaPhi/sqrt(12.);
+      float sigmaEta = getSigmaEta(eta, etaP, etaM);
+      float sigmaPhi = getSigmaPhi(phi, phiP, phiM);
 
       aGmtCand->setSigmaEta(sigmaEta);
       aGmtCand->setSigmaPhi(sigmaPhi);
       aGmtCand->setQuality(gmtCand.quality());
-      
+
+      //set regional candidates known to this GMT candidate here
+      if (dtGmtIdx>=0)  aGmtCand->setDtCand(dtCands.at(dtGmtIdx)); //use .at, don't really trust the size
+      if (cscGmtIdx>=0) aGmtCand->setCscCand(cscCands.at(cscGmtIdx));
+      if (rpcGmtIdx>=0){
+	if (gmtCand.isFwd()) aGmtCand->setRpcCand(rpcFwdCands.at(rpcGmtIdx));
+	else aGmtCand->setRpcCand(rpcBrlCands.at(rpcGmtIdx));
+      }
     }
-    if (1< 2){ //at the moment this is not really "ALL", just up to 4 from CSCTF
+    // I fill station level data derived from different kind of regional candidates below
+    // this data is filled for both the GMT candidate and the regional candidates before GMT sorting
+    // to avoid copy-paste, gmt-driven cands (started in the loop above) are modified below
+    // only CSCTF details are filled in full
+
+    // The intent is to create one L1MuExtended for each CSCTF track available
+    if (1< 2){ //at the moment this is not really "ALL", just up to 4 from CSCTF showing up in the GMTReadoutRecord
       unsigned cscInd = -1;
       for (auto const csctfReg : gmtRO.getCSCCands() ){
 	cscInd++;
@@ -189,29 +202,11 @@ L1MuonParticleExtendedProducer::produce( edm::Event& iEvent,
 
 	L1MuonParticleExtended cscParticleTmp(l1muP);
 	cscParticleTmp.setCscCand(csctfReg);
-	if (gmtParticle) gmtParticle->setCscCand(csctfReg);
 	cscColl->push_back(cscParticleTmp);
 	L1MuonParticleExtended* cscParticle = &cscColl->back();
 
-	float sigmaEta=99;
-	float dEtaP = std::abs(etaP - eta);
-	float dEtaM = std::abs(etaM - eta);
-	if (dEtaP  < 1 && dEtaM < 1 && dEtaP  > 0 && dEtaM > 0){
-	  sigmaEta = sqrt(dEtaP*dEtaM); //take geom mean for no particular reason
-	} else if (dEtaP < 1 || dEtaM < 1) {
-	  sigmaEta = dEtaP < dEtaM && dEtaP >0 ? dEtaP : dEtaM;
-	} 
-	sigmaEta = sigmaEta/sqrt(12.);
-
-	float sigmaPhi=99;
-	float dPhiP = std::abs(deltaPhi(phiP, phi));
-	float dPhiM = std::abs(deltaPhi(phiM, phi));
-	if (dPhiP  < 1 && dPhiM < 1 && dPhiP > 0 && dPhiM > 0){
-	  sigmaPhi = sqrt(dPhiP*dPhiM); //take geom mean for no particular reason
-	} else if (dPhiP < 1 || dPhiM < 1) {
-	  sigmaPhi = dPhiP < dPhiM && dPhiP > 0 ? dPhiP : dPhiM;
-	} 
-	sigmaPhi = sigmaPhi/sqrt(12.);
+	float sigmaEta = getSigmaEta(eta, etaP, etaM);
+	float sigmaPhi = getSigmaPhi(phi, phiP, phiM);
 
 	cscParticle->setSigmaEta(sigmaEta);
 	cscParticle->setSigmaPhi(sigmaPhi);
@@ -295,6 +290,8 @@ L1MuonParticleExtendedProducer::produce( edm::Event& iEvent,
 		sData.sigmaPhi = dPhi/sqrt(12.); //just the roundoff uncertainty (could be worse)
 		sData.sigmaEta = dEta/sqrt(12.);
 
+		sData.bendPhi = aDigi->getGEMDPhi(); //FIXME: need something in normal global coordinates
+		
 		sData.bendPhiInt = aDigi->getCLCTPattern();
 		if (aDigi->getBend()) sData.bendPhiInt*=-1;
 	      } //LCTs for a given anID
@@ -312,6 +309,35 @@ L1MuonParticleExtendedProducer::produce( edm::Event& iEvent,
   if (writeAllCSCTFs_) iEvent.put( cscColl, "csc" );
 }
 
+float L1MuonParticleExtendedProducer::getSigmaEta(float eta, float etaP, float etaM) const{
+  float sigmaEta=99;
+
+  float dEtaP = std::abs(etaP - eta);
+  float dEtaM = std::abs(etaM - eta);
+  if (dEtaP  < 1 && dEtaM < 1 && dEtaP  > 0 && dEtaM > 0){
+    sigmaEta = sqrt(dEtaP*dEtaM); //take geom mean for no particular reason                                                                                                                                                            
+  } else if (dEtaP < 1 || dEtaM < 1) {
+    sigmaEta = dEtaP < dEtaM && dEtaP >0  ? dEtaP : dEtaM;
+  }
+
+  sigmaEta = sigmaEta/sqrt(12.);
+
+  return sigmaEta;
+}
+
+float L1MuonParticleExtendedProducer::getSigmaPhi(float phi, float phiP, float phiM) const{
+  float sigmaPhi=99;
+  float dPhiP = std::abs(deltaPhi(phiP, phi));
+  float dPhiM = std::abs(deltaPhi(phiM, phi));
+  if (dPhiP  < 1 && dPhiM < 1 && dPhiP > 0 && dPhiM > 0){
+    sigmaPhi = sqrt(dPhiP*dPhiM); //take geom mean for no particular reason                                                                                                                                                            
+  } else if (dPhiP < 1 || dPhiM < 1) {
+    sigmaPhi = dPhiP < dPhiM && dPhiP > 0 ? dPhiP : dPhiM;
+  }
+  sigmaPhi = sigmaPhi/sqrt(12.);
+
+  return sigmaPhi;
+}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(L1MuonParticleExtendedProducer);
