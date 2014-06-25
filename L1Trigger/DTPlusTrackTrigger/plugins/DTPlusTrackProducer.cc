@@ -28,6 +28,9 @@ DTPlusTrackProducer::DTPlusTrackProducer( const edm::ParameterSet& pSet ) :
   numSigmasTk = pSet.getUntrackedParameter< double >( "numSigmasForTkMatch", 3. );
   numSigmasPt = pSet.getUntrackedParameter< double >( "numSigmasForPtMatch", 3. );
 
+  /// Minimum Pt of L1 Tracks for matching
+  minL1TrackPt = pSet.getUntrackedParameter< double >( "minL1TrackPt", 2. );
+
   /// Get some constraints for finding the Pt with several methods
   minRInvB = pSet.getUntrackedParameter< double >( "minRInvB", 0.00000045 );
   maxRInvB = pSet.getUntrackedParameter< double >( "maxRInvB", 1.0 );
@@ -365,7 +368,7 @@ std::cerr<<theMagneticField<<std::endl;
       } /// End of loop over the layers
 
       /// Then match to the tracks
-      /// This is the "classical" inside-out matching
+      /// This is the "classical" outside-inside matching
 
       /// Get all the TTTracks within matching window
       std::vector< edm::Ptr< TTTrack< Ref_PixelDigi_ > > > allTracksInWindow;
@@ -380,10 +383,18 @@ std::cerr<<theMagneticField<<std::endl;
         edm::Ptr< TTTrack< Ref_PixelDigi_ > > tempTrackPtr( TTTrackHandle, jTrack++ );
 
         /// Redundant Pt threshold
-        if ( inputIter->getMomentum().perp() < 2 )
+        if ( inputIter->getMomentum().perp() < minL1TrackPt )
         {
           continue;
         }
+
+        /// Additional quality cut
+        if ( inputIter->getChi2() >= 100 )
+          continue;
+        if ( fabs(inputIter->getPOCA().z()) >= 25. )
+          continue;
+        if ( inputIter->getStubRefs().size() < 3 )
+          continue;
 
         /// Check distance with the TTTrack
         GlobalVector tkMom = tempTrackPtr->getMomentum();
@@ -521,7 +532,10 @@ std::cerr<<theMagneticField<<std::endl;
         } /// End of loop over tracks
 
         /// If any, store the matched track
-        thisDTMatch->setPtMatchedTrackPtr( theClosestTrack );
+        if ( minPtDifference < 999999 )
+        {
+          thisDTMatch->setPtMatchedTrackPtr( theClosestTrack );
+        }
       }
 
 #ifdef npDEBUG
