@@ -87,9 +87,7 @@ void DAFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
 
       } //end of annealing program
 
-      //std::cout << (1.*checkHits(*ivtraj, currentTraj))/(1.*(*ivtraj).measurements().size())*100. <<  std::endl;
-
-      LogDebug("DAFTrackProducerAlgorithm") << "Ended annealing program " << std::endl;
+      LogDebug("DAFTrackProducerAlgorithm") << "Ended annealing program with " << (1.*checkHits(*ivtraj, currentTraj))/(1.*(*ivtraj).measurements().size())*100. << " unchanged." << std::endl;
 
       //computing the ndof keeping into account the weights
       ndof = calculateNdof(currentTraj);
@@ -195,7 +193,7 @@ Trajectory DAFTrackProducerAlgorithm::fit(const std::pair<TransientTrackingRecHi
 
   if( newVec.isValid() )  return newVec; 
   else{
-    std::cout << "Fit no valid." << std::endl;
+    LogDebug("DAFTrackProducerAlgorithm") << "Fit no valid.";
     return Trajectory();
   }
 
@@ -220,7 +218,6 @@ bool DAFTrackProducerAlgorithm::buildTrack (const Trajectory vtraj,
     if (vtraj.direction() == alongMomentum) {
     //if (theTraj->direction() == oppositeToMomentum) {
       innertsos = vtraj.firstMeasurement().updatedState();
-      //std::cout << "Inner momentum " << innertsos.globalParameters().momentum().mag() << std::endl;	
     } else { 
       innertsos = vtraj.lastMeasurement().updatedState();
     }
@@ -339,7 +336,7 @@ int DAFTrackProducerAlgorithm::checkHits( Trajectory iInitTraj, const Trajectory
   int ihit = 0;
 
   if ( initmeasurements.empty() || finalmeasurements.empty() || initmeasurements.size() != finalmeasurements.size() ){
-    //std::cout << "Initial or Final Trajectory empty or with different size." << std::endl;
+    LogDebug("DAFTrackProducerAlgorithm") << "Initial or Final Trajectory empty or with different size.";
     return 0;
   }
           

@@ -40,7 +40,6 @@ DAFTrackProducer::DAFTrackProducer(const edm::ParameterSet& iConfig):
 
 void DAFTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setup)
 {
-//  std::cout << "Analyzing event number: " << theEvent.id() << "\n";
   edm::LogInfo("DAFTrackProducer") << "Analyzing event number: " << theEvent.id() << "\n";
   
   //empty output collections
@@ -102,7 +101,6 @@ void DAFTrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setu
            outputTrajectoryColl, algoResults, theBuilder.product());
   putInEvtTrajAnn(theEvent, trajannResults, outputTrajAnnColl);
 
-//  std::cout << "DAFTrackProducer: end the DAF algorithm." << "\n";
   LogDebug("DAFTrackProducer") << "end the DAF algorithm." << "\n";
 }
 

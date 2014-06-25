@@ -35,11 +35,9 @@ std::pair<bool, double> MRHChi2MeasurementEstimator::estimate(const TrajectorySt
   double est=0;
 
   double annealing = mHit.getAnnealingFactor();
-//  std::cout << "  Current annealing factor is " << annealing;               
   LogDebug("MRHChi2MeasurementEstimator") << "Current annealing factor is " << annealing;               
 
   std::vector<const TrackingRecHit*> components = mHit.recHits();
-//  std::cout << "; this hit has " << components.size() << " components\n";     
   LogDebug("MRHChi2MeasurementEstimator") << "this hit has " << components.size() << " components";     
 
   int iComp = 0;
@@ -65,7 +63,6 @@ std::pair<bool, double> MRHChi2MeasurementEstimator::estimate(const TrajectorySt
       edm::LogError("SiTrackerMultiRecHitUpdator")<<"SiTrackerMultiRecHitUpdator::ComputeParameters2dim: W not valid!"<<std::endl;
     }
 
-//    std::cout << "  Hit with weight " << mHit.weight(iComp) << std::endl; 
     LogDebug("MRHChi2MeasurementEstimator") << "Hit with weight " << mHit.weight(iComp); 
     est += ROOT::Math::Similarity(r, V)*mHit.weight(iComp);
 

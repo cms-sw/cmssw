@@ -86,12 +86,11 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
     // if unlikely(hit.det() == nullptr) continue;
 
     if unlikely( (!hit.isValid()) && hit.surface() == nullptr) {
-       std::cout << "TrackFitters" << " Error: invalid hit with no GeomDet attached .... skipping" << std::endl;
        LogDebug("TrackFitters")<< " Error: invalid hit with no GeomDet attached .... skipping";
       continue;
     }
-   if (hit.det() && hit.geographicalId()<1000U) std::cout << "Problem 0 det id for " << typeid(hit).name() << ' ' <<  hit.det()->geographicalId()  << std::endl;
-   if (hit.isValid() && hit.geographicalId()<1000U) std::cout << "Problem 0 det id for " << typeid(hit).name() << ' ' <<  hit.det()->geographicalId()  << std::endl;
+   //if (hit.det() && hit.geographicalId()<1000U) LogDebug("TrackFitters")<< "Problem 0 det id for " << typeid(hit).name() << ' ' <<  hit.det()->geographicalId() ;
+   //if (hit.isValid() && hit.geographicalId()<1000U) LogDebug("TrackFitters")<< "Problem 0 det id for " << typeid(hit).name() << ' ' <<  hit.det()->geographicalId();
 
 #ifdef EDM_ML_DEBUG
     if (hit.isValid()) {

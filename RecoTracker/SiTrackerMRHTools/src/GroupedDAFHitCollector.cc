@@ -43,9 +43,6 @@ vector<TrajectoryMeasurement> GroupedDAFHitCollector::recHits(const Trajectory& 
 	//add a protection if all the measurement are on the same layer
 	if(mol.size()<2)return vector<TrajectoryMeasurement>();
 
-	//first layer
-	//  cout<<"DAFHitCollectionFromRecTrack: first layer"<<endl;
-
 	//it assumes that the measurements are sorted in the smoothing direction
 	//TrajectoryStateOnSurface current = (*(mol.begin()+1)).second.front().updatedState();
 	TrajectoryStateOnSurface current = (*(mol.rbegin()+1)).second.back().updatedState();
@@ -58,29 +55,23 @@ vector<TrajectoryMeasurement> GroupedDAFHitCollector::recHits(const Trajectory& 
 	//remind that:
 	//groupedMeasurements will return at least a measurement with an invalid hit with no detid
 	LogDebug("MultiRecHitCollector") << "Layer "  << mol.back().first  << " has " << mol.back().second.size() << " measurements";
-	//debug
-        std::cout << " Original measurements are:\n";
         LogTrace("MultiRecHitCollector") << "Original measurements are:";
         for( unsigned int iLay = 0; iLay < mol.size(); iLay++){
-          std::cout << "  Layer "  << mol.at(iLay).first  << " has " << mol.at(iLay).second.size() << " measurements:\n";
+          LogTrace("MultiRecHitCollector") << "  Layer "  << mol.at(iLay).first  << " has " << mol.at(iLay).second.size() << " measurements:";
           vector<TrajectoryMeasurement>::const_iterator ibeg = (mol.at(iLay)).second.begin();
           vector<TrajectoryMeasurement>::const_iterator iend = (mol.at(iLay)).second.end();
           for (vector<TrajectoryMeasurement>::const_iterator imeas = ibeg; imeas != iend; ++imeas){
             if (imeas->recHit()->isValid()){
-              std::cout << "   Valid Hit with DetId " << imeas->recHit()->geographicalId().rawId()
+              LogTrace("MultiRecHitCollector") << "   Valid Hit with DetId " << imeas->recHit()->geographicalId().rawId()
                         << " local position " << imeas->recHit()->hit()->localPosition()
-                        << " global position " << imeas->recHit()->hit()->globalPosition() << "\n";
-              LogTrace("MultiRecHitCollector") << "Valid Hit with DetId " << imeas->recHit()->geographicalId().rawId()
-                                               << " local position " << imeas->recHit()->hit()->localPosition();
+                        << " global position " << imeas->recHit()->hit()->globalPosition() ;
             } else {
-              std::cout << "   Invalid Hit with DetId " << imeas->recHit()->geographicalId().rawId() << std::endl; 
-              LogTrace("MultiRecHitCollector") << "Invalid Hit with DetId " << imeas->recHit()->geographicalId().rawId(); 
+              LogTrace("MultiRecHitCollector") << "   Invalid Hit with DetId " << imeas->recHit()->geographicalId().rawId(); 
             }
           }
         }
 
 	//ERICA: I have to understand how are set the TM now. REPLACE THIS PART!!
-	std::cout << " Grouped measurements are:\n";
         vector<TrajectoryMeasurementGroup> groupedMeas;
 	if (mol.back().first) 
 	  groupedMeas = theLM.groupedMeasurements(*(mol.back().first), current, 
@@ -120,9 +111,8 @@ vector<TrajectoryMeasurement> GroupedDAFHitCollector::recHits(const Trajectory& 
 	  //if (current.isValid()) current.rescaleError(10);
 	}
 
-	std::cout << " Ending GroupedDAFHitCollector::recHits >> Original Measurement size "  << meas.size() 
-		  << "\n                                      >> GroupedDAFHitCollector returned " << result.size() << " measurements" << std::endl;
-	LogTrace("MultiRecHitCollector") << "Original Measurement size "  << meas.size() << " GroupedDAFHitCollector returned " << result.size() << " measurements";
+	LogTrace("MultiRecHitCollector") << " Ending GroupedDAFHitCollector::recHits >> Original Measurement size "  << meas.size() 
+		  << "\n                                      >> GroupedDAFHitCollector returned " << result.size() << " measurements";
 	//results are sorted in the fitting direction
 
  //	adding a protection against too few hits and invalid hits (due to failed propagation on the same surface of the original hits)
@@ -194,7 +184,7 @@ void GroupedDAFHitCollector::buildMultiRecHits(const vector<TrajectoryMeasuremen
         hits.push_back(imeas->recHit()->hit());
       }
       else{
-        std::cout << "     This hit is not valid and will not enter in the MRH. " << std::endl;
+        LogTrace("MultiRecHitCollector") << "     This hit is not valid and will not enter in the MRH. " ;
       }
     }
 
