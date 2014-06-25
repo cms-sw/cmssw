@@ -7,7 +7,10 @@
 #include "DetectorDescription/Core/interface/DDValue.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Core/interface/DDConstant.h"
+#include "DetectorDescription/Core/interface/DDVector.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
+#include "DetectorDescription/RegressionTest/interface/DDErrorDetection.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
@@ -425,8 +428,8 @@ int HcalDDDSimConstants::phiNumber(int phi, int units) const {
 
 void HcalDDDSimConstants::printTiles() const {
  
-  std::cout << "Tile Information for HB:\n" << "========================\n\n";
-  for (int eta=etaMin[0]; eta<= etaMax[0]; eta++) {
+  std::cout << "Tile Information for HB:\n" << "from " << etaMin.at(0) << " to " << etaMin.at(0) << "========================\n\n";
+  for (int eta=etaMin.at(0); eta<= etaMax.at(0); eta++) {
     int dmax = 1;
     if (depths[0][eta-1] < 17) dmax = 2;
     for (int depth=1; depth<=dmax; depth++) 
@@ -478,7 +481,7 @@ void HcalDDDSimConstants::initialize(const DDCompactView& cpv) {
 
   if (ok) {
     //Load the SpecPars
-    loadSpecPars(fv);
+    loadSpecPars();
 
     //Load the Geometry parameters
     loadGeometry(fv);
@@ -490,23 +493,24 @@ void HcalDDDSimConstants::initialize(const DDCompactView& cpv) {
   }
 }
 
-void HcalDDDSimConstants::loadSpecPars(const DDFilteredView& fv) {
-
-  DDsvalues_type sv(fv.mergedSpecifics());
-
+void
+HcalDDDSimConstants::loadSpecPars( void )
+{
   // Phi Offset
-  int nphi=5;
-  phioff = getDDDArray("phioff",sv,nphi);
+  phioff = getDDVector( "phioff" );
+
 #ifdef DebugLog
-  std::cout << "HcalDDDSimConstants: " << nphi << " phioff values";
-  for (int i=0; i<nphi; i++) 
-    std::cout << " [" << i << "] = " << phioff[i]/CLHEP::deg;
+  std::cout << "HcalDDDSimConstants: " << phioff.size() << " phioff values";
+  int i = 0;
+  for( std::vector<double>::const_iterator it = phioff.begin(), itEnd = phioff.end(); it != itEnd; ++it ) 
+    std::cout << " [" << ++i << "] = " << (*it)/CLHEP::deg;
   std::cout << std::endl;
 #endif
 
   //Eta table
-  nEta     = 0;
-  etaTable = getDDDArray("etaTable",sv,nEta);
+  etaTable = getDDVector("etaTable");
+  nEta = etaTable.size();
+
 #ifdef DebugLog
   std::cout << "HcalDDDSimConstants: " << nEta << " entries for etaTable";
   for (int i=0; i<nEta; i++) std::cout << " [" << i << "] = " << etaTable[i];
@@ -514,8 +518,9 @@ void HcalDDDSimConstants::loadSpecPars(const DDFilteredView& fv) {
 #endif
 
   //R table
-  nR     = 0;
-  rTable = getDDDArray("rTable",sv,nR);
+  rTable = getDDVector("rTable");
+  nR = rTable.size();
+  
 #ifdef DebugLog
   std::cout << "HcalDDDSimConstants: " << nR << " entries for rTable";
   for (int i=0; i<nR; i++) 
@@ -524,16 +529,18 @@ void HcalDDDSimConstants::loadSpecPars(const DDFilteredView& fv) {
 #endif
 
   //Phi bins
-  nPhi   = nEta - 1;
-  phibin = getDDDArray("phibin",sv,nPhi);
+  phibin = getDDVector("phibin");
+
 #ifdef DebugLog
-  std::cout << "HcalDDDSimConstants: " << nPhi << " entries for phibin";
-  for (int i=0; i<nPhi; i++)
+  int ii = phibin.size();
+  std::cout << "HcalDDDSimConstants: " << ii << " entries for phibin";
+  for (int i=0; i<ii; i++)
     std::cout << " [" << i << "] = " << phibin[i]/CLHEP::deg;
   std::cout << std::endl;
 #endif
+
   nPhiF = nR - 1;
-  phitable = getDDDArray("phitable",sv,nPhiF);
+  phitable = getDDVector("phitable");
 #ifdef DebugLog
   std::cout << "HcalDDDSimConstants: " << nPhiF << " entries for phitable";
   for (int i=0; i<nPhiF; i++)
@@ -543,44 +550,48 @@ void HcalDDDSimConstants::loadSpecPars(const DDFilteredView& fv) {
 
   //Layer grouping
   char name[20];
-  int  layers = 19;
+
   for (int i=0; i<nEta-1; ++i) {
     sprintf (name, "layerGroupEta%d", i+1);
-    layerGroup[i] = dbl_to_int(getDDDArray(name,sv,layers));
-    if (layers == 0) {
-      layerGroup[i] = layerGroup[i-1]; 
-      layers        = (int)(layerGroup[i].size());
+    if( checkDDVector( name ))
+    { 
+      layerGroup[i] = dbl_to_int( getDDVector( name ));
     }
+    else
+    {
+      layerGroup[i] = layerGroup[i-1]; 
+    }
+    
 #ifdef DebugLog
-    std::cout << "HcalDDDSimConstants:Read " << name << ":";
+  int  layers = 19;
+  std::cout << "HcalDDDSimConstants:Read " << name << ":";
     for (int k=0; k<layers; k++) 
       std::cout << " [" << k << "] = " << layerGroup[i][k];
     std::cout << std::endl;
 #endif
-    layers = -1;
   }
 
   // Minimum and maximum eta boundaries
-  int ndx  = 3;
-  etaMin   = dbl_to_int(getDDDArray("etaMin",sv,ndx));
-  etaMax   = dbl_to_int(getDDDArray("etaMax",sv,ndx));
-  etaRange = getDDDArray("etaRange",sv,ndx);
+  etaMin   = dbl_to_int(getDDVector( "etaMin" ));
+  etaMax   = dbl_to_int(getDDVector( "etaMax" ));
+  etaRange = getDDVector( "etaRange" );
   etaMin[0] = 1;
   etaMax[1] = nEta-1;
   etaMax[2] = etaMin[2]+nR-2;
 #ifdef DebugLog
-  for (int i=0; i<ndx; i++) 
+  int iii  = 3;
+  for (int i=0; i<iii; i++) 
     std::cout << "HcalDDDSimConstants: etaMin[" << i << "] = " << etaMin[i]
 	      << " etaMax[" << i << "] = "<< etaMax[i] << " etaRange[" << i 
 	      << "] = " << etaRange[i] << std::endl;
 #endif
 
   // Geometry parameters for HF
-  int ngpar = 7;
-  gparHF    = getDDDArray("gparHF",sv,ngpar);
+  gparHF    = getDDVector( "gparHF" );
   dlShort   = gparHF[0];
   zVcal     = gparHF[4];
 #ifdef DebugLog
+  int ngpar = 7;
   std::cout << "HcalDDDSimConstants: dlShort " << dlShort << " zVcal " << zVcal
 	    << " and " << ngpar << " other parameters";
   for (int i=0; i<ngpar; ++i)
@@ -589,9 +600,9 @@ void HcalDDDSimConstants::loadSpecPars(const DDFilteredView& fv) {
 #endif
 
   // nOff
-  int noff = 3;
-  nOff     = dbl_to_int(getDDDArray("noff",sv,noff));
+  nOff     = dbl_to_int(getDDVector( "noff" ));
 #ifdef DebugLog
+  int noff = 3;
   std::cout << "HcalDDDSimConstants: " << noff << " nOff parameters: ";
   for (int i=0; i<noff; i++)
     std::cout << " [" << i << "] = " << nOff[i];
@@ -599,42 +610,48 @@ void HcalDDDSimConstants::loadSpecPars(const DDFilteredView& fv) {
 #endif
 
   //Gains and Shifts for HB depths
-  ndx      = 4;
-  gainHB   = getDDDArray("HBGains",sv,ndx);
-  shiftHB  = dbl_to_int(getDDDArray("HBShift",sv,ndx));
+  gainHB   = getDDVector( "HBGains" );
+  shiftHB  = dbl_to_int( getDDVector( "HBShift" ));
 #ifdef DebugLog
-  std::cout << "HcalDDDSimConstants:: Gain factor and Shift for HB depth "
-	    << "layers:" << std::endl;
-  for (int i=0; i<ndx; i++)
-    std::cout <<" gainHB[" <<  i << "] = " << gainHB[i] << " shiftHB[" << i 
-	      << "] = " << shiftHB[i];
-  std::cout << std::endl;
+  {
+    int ndx      = 4;
+    std::cout << "HcalDDDSimConstants:: Gain factor and Shift for HB depth "
+	      << "layers:" << std::endl;
+    for (int i=0; i<ndx; i++)
+      std::cout <<" gainHB[" <<  i << "] = " << gainHB[i] << " shiftHB[" << i 
+		<< "] = " << shiftHB[i];
+    std::cout << std::endl;
+  }
 #endif
 
   //Gains and Shifts for HE depths
-  ndx      = 4;
-  gainHE   = getDDDArray("HEGains",sv,ndx);
-  shiftHE  = dbl_to_int(getDDDArray("HEShift",sv,ndx));
+  gainHE   = getDDVector( "HEGains" );
+  shiftHE  = dbl_to_int(getDDVector( "HEShift" ));
 #ifdef DebugLog
-  std::cout << "HcalDDDSimConstants:: Gain factor and Shift for HE depth "
-	    << "layers:" << std::endl;
-  for (int i=0; i<ndx; i++)
-    std::cout <<" gainHE[" <<  i << "] = " << gainHE[i] << " shiftHE[" << i 
-	      << "] = " << shiftHE[i];
-  std::cout << std::endl;
+  {    
+    int ndx      = 4;
+    std::cout << "HcalDDDSimConstants:: Gain factor and Shift for HE depth "
+	      << "layers:" << std::endl;
+    for (int i=0; i<ndx; i++)
+      std::cout <<" gainHE[" <<  i << "] = " << gainHE[i] << " shiftHE[" << i 
+		<< "] = " << shiftHE[i];
+    std::cout << std::endl;
+  }
 #endif
   
   //Gains and Shifts for HF depths
-  ndx      = 4;
-  gainHF   = getDDDArray("HFGains",sv,ndx);
-  shiftHF  = dbl_to_int(getDDDArray("HFShift",sv,ndx));
+  gainHF   = getDDVector( "HFGains" );
+  shiftHF  = dbl_to_int(getDDVector( "HFShift" ));
 #ifdef DebugLog
-  std::cout << "HcalDDDSimConstants:: Gain factor and Shift for HF depth "
-	    << "layers:" << std::endl;
-  for (int i=0; i<ndx; i++)
-    std::cout <<" gainHF[" <<  i << "] = " << gainHF[i] << " shiftHF[" << i
-	      << "] = " << shiftHF[i];
-  std::cout << std::endl;
+  {
+    int ndx      = 4;
+    std::cout << "HcalDDDSimConstants:: Gain factor and Shift for HF depth "
+	      << "layers:" << std::endl;
+    for (int i=0; i<ndx; i++)
+      std::cout <<" gainHF[" <<  i << "] = " << gainHF[i] << " shiftHF[" << i
+		<< "] = " << shiftHF[i];
+    std::cout << std::endl;
+  }
 #endif
 
   //Transform some of the parameters
@@ -652,11 +669,11 @@ void HcalDDDSimConstants::loadSpecPars(const DDFilteredView& fv) {
       if (maxDepth[1] < laymax) maxDepth[1] = laymax;
     }
   }
-#ifdef DebugLog
+  //#ifdef DebugLog
   for (int i=0; i<4; ++i)
     std::cout << "Detector Type [" << i << "] iEta " << etaMin[i] << ":" 
 	      << etaMax[i] << " MaxDepth " << maxDepth[i] << std::endl;
-#endif
+  //#endif
 
   int maxdepth = (maxDepth[1]>maxDepth[0]) ? maxDepth[1] : maxDepth[0];
   for (int i=0; i<maxdepth; ++i) {
@@ -670,11 +687,12 @@ void HcalDDDSimConstants::loadSpecPars(const DDFilteredView& fv) {
       }
       depths[i].push_back(ll);
     }
-#ifdef DebugLog
+
+    //#ifdef DebugLog
     std::cout << "Depth " << i << " with " << depths[i].size() << " etas:";
     for (int k=0; k<nEta-1; ++k) std::cout << " " << depths[i][k];
     std::cout << std::endl;
-#endif
+    //#endif
   }
 }
 
@@ -981,47 +999,47 @@ void HcalDDDSimConstants::loadGeometry(const DDFilteredView& _fv) {
 #endif
 }
 
-std::vector<double> HcalDDDSimConstants::getDDDArray(const std::string & str, 
-						     const DDsvalues_type & sv,
-						     int & nmin) const {
-#ifdef DebugLog
-  std::cout << "HcalDDDSimConstants:getDDDArray called for " << str
-	    << " with nMin "  << nmin << std::endl;
-#endif
-  DDValue value(str);
-  if (DDfetch(&sv,value)) {
-#ifdef DebugLog
-    std::cout << "HcalDDDSimConstants: " << value << std::endl;
-#endif
-    const std::vector<double> & fvec = value.doubles();
-    int nval = fvec.size();
-    if (nmin > 0) {
-      if (nval < nmin) {
-	edm::LogError("HCalGeom") << "HcalDDDSimConstants : # of " << str 
-				  << " bins " << nval << " < " << nmin 
-				  << " ==> illegal";
-	throw cms::Exception("DDException") << "HcalDDDSimConstants: cannot get array " << str;
-      }
-    } else {
-      if (nval < 1 && nmin == 0) {
-	edm::LogError("HCalGeom") << "HcalDDDSimConstants : # of " << str
-				  << " bins " << nval << " < 2 ==> illegal"
-				  << " (nmin=" << nmin << ")";
-	throw cms::Exception("DDException") << "HcalDDDSimConstants: cannot get array " << str;
-      }
+bool
+HcalDDDSimConstants::checkDDVector( const std::string & str ) const
+{
+  DDVector::iterator<DDVector> vit;
+  DDVector::iterator<DDVector> ved( DDVector::end());
+
+  for(; vit != ved; ++vit )
+  {
+    if( vit->isDefined().second )
+    {
+      DDName vname( vit->name());
+      if( vname.name() == str )
+	return true;
     }
-    nmin = nval;
-    return fvec;
-  } else {
-    if (nmin >= 0) {
-      edm::LogError("HCalGeom") << "HcalDDDRecConstants: cannot get array "
-				<< str;
-      throw cms::Exception("DDException") << "HcalDDDRecConstants: cannot get array " << str;
-    }
-    std::vector<double> fvec;
-    nmin = 0;
-    return fvec;
   }
+
+  return false;
+}
+
+std::vector<double>
+HcalDDDSimConstants::getDDVector( const std::string & str ) const
+{
+  DDVector::iterator<DDVector> vit;
+  DDVector::iterator<DDVector> ved( DDVector::end());
+  if( vit == ved )
+    throw cms::Exception( "DDException" ) << "HcalDDDSimConstants: vectors are empty, cannot get array " << str;
+
+  for (; vit != ved; ++vit )
+  {
+    if( vit->isDefined().second )
+    {
+      DDName vname( vit->name());
+      if( vname.name() == str )
+      {
+	const std::vector<double> & fvec = vit->values();
+	return fvec;
+      }
+    }
+  }
+  
+  throw cms::Exception( "DDException" ) << "HcalDDDSimConstants: cannot get array " << str;
 }
 
 unsigned int HcalDDDSimConstants::find(int element, 
@@ -1166,11 +1184,14 @@ double HcalDDDSimConstants::getGain(HcalSubdetector subdet, int depth) const {
   return gain;
 }
 
-void HcalDDDSimConstants::printTileHB(int eta, int depth) const {
-
-  double etaL   = etaTable[eta-1];
+void
+HcalDDDSimConstants::printTileHB( int eta, int depth ) const
+{
+  std::cout << "HcalDDDSimConstants::printTileHB for eta " << eta << " and depth " << depth << "\n";
+  
+  double etaL   = etaTable.at(eta-1);
   double thetaL = 2.*atan(exp(-etaL));
-  double etaH   = etaTable[eta];
+  double etaH   = etaTable.at(eta);
   double thetaH = 2.*atan(exp(-etaH));
   int    layL=0, layH=0;
   if (depth == 1) {
