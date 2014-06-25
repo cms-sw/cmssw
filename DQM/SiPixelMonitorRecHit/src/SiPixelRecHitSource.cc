@@ -64,8 +64,8 @@ SiPixelRecHitSource::SiPixelRecHitSource(const edm::ParameterSet& iConfig) :
   diskOn( conf_.getUntrackedParameter<bool>("diskOn",false) ), 
   isUpgrade( conf_.getUntrackedParameter<bool>("isUpgrade",false) )
 {
-   theDMBE = edm::Service<DQMStore>().operator->();
-   LogInfo ("PixelDQM") << "SiPixelRecHitSource::SiPixelRecHitSource: Got DQM BackEnd interface"<<endl;
+  firstRun = true;
+  LogInfo ("PixelDQM") << "SiPixelRecHitSource::SiPixelRecHitSource: Got DQM BackEnd interface"<<endl;
 }
 
 
@@ -82,12 +82,7 @@ SiPixelRecHitSource::~SiPixelRecHitSource()
 }
 
 
-void SiPixelRecHitSource::beginJob(){
-  firstRun = true;
-}
-
-
-void SiPixelRecHitSource::beginRun(const edm::Run& r, const edm::EventSetup& iSetup){
+void SiPixelRecHitSource::dqmBeginRun(const edm::Run& r, const edm::EventSetup& iSetup){
 
   LogInfo ("PixelDQM") << " SiPixelRecHitSource::beginJob - Initialisation ... " << std::endl;
   LogInfo ("PixelDQM") << "Mod/Lad/Lay/Phi " << modOn << "/" << ladOn << "/" 
@@ -101,21 +96,12 @@ void SiPixelRecHitSource::beginRun(const edm::Run& r, const edm::EventSetup& iSe
     // Build map
     buildStructure(iSetup);
     // Book Monitoring Elements
-    bookMEs();
     firstRun = false;
   }
 }
 
-
-void SiPixelRecHitSource::endJob(void){
-
-
-  if(saveFile){
-    LogInfo ("PixelDQM") << " SiPixelRecHitSource::endJob - Saving Root File " << std::endl;
-    std::string outputFile = conf_.getParameter<std::string>("outputFile");
-    theDMBE->save( outputFile );
-  }
-
+void SiPixelRecHitSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run const &, edm::EventSetup const &){
+  bookMEs(iBooker);
 }
 
 //------------------------------------------------------------------
@@ -165,11 +151,9 @@ void SiPixelRecHitSource::analyze(const edm::Event& iEvent, const edm::EventSetu
 	  float lerr_x = sqrt(lerr.xx());
 	  float lerr_y = sqrt(lerr.yy());
 	  //std::cout << "errors " << lerr_x << " " << lerr_y << std::endl;
-	  //cout << "hh" << endl;
 	  (*struct_iter).second->fill(rechit_x, rechit_y, sizeX, sizeY, lerr_x, lerr_y, 
 	                              modOn, ladOn, layOn, phiOn, bladeOn, diskOn, ringOn, 
 				      twoDimOn, reducedSet);
-	  //cout << "ii" << endl;
 	
 	}
       }
@@ -200,70 +184,63 @@ void SiPixelRecHitSource::buildStructure(const edm::EventSetup& iSetup){
     if(dynamic_cast<PixelGeomDetUnit const *>((*it))!=0){
 
       DetId detId = (*it)->geographicalId();
-      // const GeomDetUnit      * geoUnit = pDD->idToDetUnit( detId );
-      //const PixelGeomDetUnit * pixDet  = dynamic_cast<const PixelGeomDetUnit*>(geoUnit);
-
-     	  
-	  
-	      // SiPixelRecHitModule *theModule = new SiPixelRecHitModule(id, rechit_x, rechit_y, x_res, y_res, x_pull, y_pull);
-	
-	
-            if((detId.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) ||
-               (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap))){ 
-	      uint32_t id = detId();
-	      SiPixelRecHitModule* theModule = new SiPixelRecHitModule(id);
-	      if(detId.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) {
-                if(isPIB) continue;
-		LogDebug ("PixelDQM") << " ---> Adding Barrel Module " <<  detId.rawId() << endl;
-		thePixelStructure.insert(pair<uint32_t,SiPixelRecHitModule*> (id,theModule));
+      
+      if((detId.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) ||
+	 (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap))){ 
+	uint32_t id = detId();
+	SiPixelRecHitModule* theModule = new SiPixelRecHitModule(id);
+	if(detId.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) {
+	  if(isPIB) continue;
+	  LogDebug ("PixelDQM") << " ---> Adding Barrel Module " <<  detId.rawId() << endl;
+	  thePixelStructure.insert(pair<uint32_t,SiPixelRecHitModule*> (id,theModule));
 		
-	      }	else if( (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) && (!isUpgrade)) {
-		LogDebug ("PixelDQM") << " ---> Adding Endcap Module " <<  detId.rawId() << endl;
-                PixelEndcapName::HalfCylinder side = PixelEndcapName(DetId(id)).halfCylinder();
-                int disk   = PixelEndcapName(DetId(id)).diskName();
-                int blade  = PixelEndcapName(DetId(id)).bladeName();
-                int panel  = PixelEndcapName(DetId(id)).pannelName();
-                int module = PixelEndcapName(DetId(id)).plaquetteName();
+	}	else if( (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) && (!isUpgrade)) {
+	  LogDebug ("PixelDQM") << " ---> Adding Endcap Module " <<  detId.rawId() << endl;
+	  PixelEndcapName::HalfCylinder side = PixelEndcapName(DetId(id)).halfCylinder();
+	  int disk   = PixelEndcapName(DetId(id)).diskName();
+	  int blade  = PixelEndcapName(DetId(id)).bladeName();
+	  int panel  = PixelEndcapName(DetId(id)).pannelName();
+	  int module = PixelEndcapName(DetId(id)).plaquetteName();
 
-                char sside[80];  sprintf(sside,  "HalfCylinder_%i",side);
-                char sdisk[80];  sprintf(sdisk,  "Disk_%i",disk);
-                char sblade[80]; sprintf(sblade, "Blade_%02i",blade);
-                char spanel[80]; sprintf(spanel, "Panel_%i",panel);
-                char smodule[80];sprintf(smodule,"Module_%i",module);
-                std::string side_str = sside;
-	        std::string disk_str = sdisk;
-	        bool mask = side_str.find("HalfCylinder_1")!=string::npos||
-	                    side_str.find("HalfCylinder_2")!=string::npos||
-		            side_str.find("HalfCylinder_4")!=string::npos||
-		            disk_str.find("Disk_2")!=string::npos;
-	        if(isPIB && mask) continue;
+	  char sside[80];  sprintf(sside,  "HalfCylinder_%i",side);
+	  char sdisk[80];  sprintf(sdisk,  "Disk_%i",disk);
+	  char sblade[80]; sprintf(sblade, "Blade_%02i",blade);
+	  char spanel[80]; sprintf(spanel, "Panel_%i",panel);
+	  char smodule[80];sprintf(smodule,"Module_%i",module);
+	  std::string side_str = sside;
+	  std::string disk_str = sdisk;
+	  bool mask = side_str.find("HalfCylinder_1")!=string::npos||
+	    side_str.find("HalfCylinder_2")!=string::npos||
+	    side_str.find("HalfCylinder_4")!=string::npos||
+	    disk_str.find("Disk_2")!=string::npos;
+	  if(isPIB && mask) continue;
 	
-		thePixelStructure.insert(pair<uint32_t,SiPixelRecHitModule*> (id,theModule));
-	      }	else if( (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) && (isUpgrade)) {
-		LogDebug ("PixelDQM") << " ---> Adding Endcap Module " <<  detId.rawId() << endl;
-                PixelEndcapNameUpgrade::HalfCylinder side = PixelEndcapNameUpgrade(DetId(id)).halfCylinder();
-                int disk   = PixelEndcapNameUpgrade(DetId(id)).diskName();
-                int blade  = PixelEndcapNameUpgrade(DetId(id)).bladeName();
-                int panel  = PixelEndcapNameUpgrade(DetId(id)).pannelName();
-                int module = PixelEndcapNameUpgrade(DetId(id)).plaquetteName();
+	  thePixelStructure.insert(pair<uint32_t,SiPixelRecHitModule*> (id,theModule));
+	}	else if( (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap)) && (isUpgrade)) {
+	  LogDebug ("PixelDQM") << " ---> Adding Endcap Module " <<  detId.rawId() << endl;
+	  PixelEndcapNameUpgrade::HalfCylinder side = PixelEndcapNameUpgrade(DetId(id)).halfCylinder();
+	  int disk   = PixelEndcapNameUpgrade(DetId(id)).diskName();
+	  int blade  = PixelEndcapNameUpgrade(DetId(id)).bladeName();
+	  int panel  = PixelEndcapNameUpgrade(DetId(id)).pannelName();
+	  int module = PixelEndcapNameUpgrade(DetId(id)).plaquetteName();
 
-                char sside[80];  sprintf(sside,  "HalfCylinder_%i",side);
-                char sdisk[80];  sprintf(sdisk,  "Disk_%i",disk);
-                char sblade[80]; sprintf(sblade, "Blade_%02i",blade);
-                char spanel[80]; sprintf(spanel, "Panel_%i",panel);
-                char smodule[80];sprintf(smodule,"Module_%i",module);
-                std::string side_str = sside;
-	        std::string disk_str = sdisk;
-	        bool mask = side_str.find("HalfCylinder_1")!=string::npos||
-	                    side_str.find("HalfCylinder_2")!=string::npos||
-		            side_str.find("HalfCylinder_4")!=string::npos||
-		            disk_str.find("Disk_2")!=string::npos;
-	        if(isPIB && mask) continue;
+	  char sside[80];  sprintf(sside,  "HalfCylinder_%i",side);
+	  char sdisk[80];  sprintf(sdisk,  "Disk_%i",disk);
+	  char sblade[80]; sprintf(sblade, "Blade_%02i",blade);
+	  char spanel[80]; sprintf(spanel, "Panel_%i",panel);
+	  char smodule[80];sprintf(smodule,"Module_%i",module);
+	  std::string side_str = sside;
+	  std::string disk_str = sdisk;
+	  bool mask = side_str.find("HalfCylinder_1")!=string::npos||
+	    side_str.find("HalfCylinder_2")!=string::npos||
+	    side_str.find("HalfCylinder_4")!=string::npos||
+	    disk_str.find("Disk_2")!=string::npos;
+	  if(isPIB && mask) continue;
 	
-		thePixelStructure.insert(pair<uint32_t,SiPixelRecHitModule*> (id,theModule));
-	      }//endif(isUpgrade)
-	    }
-	}	    
+	  thePixelStructure.insert(pair<uint32_t,SiPixelRecHitModule*> (id,theModule));
+	}//endif(isUpgrade)
+      }
+    }	    
   }
 
   LogInfo ("PixelDQM") << " *** Pixel Structure Size " << thePixelStructure.size() << endl;
@@ -271,7 +248,7 @@ void SiPixelRecHitSource::buildStructure(const edm::EventSetup& iSetup){
 //------------------------------------------------------------------
 // Book MEs
 //------------------------------------------------------------------
-void SiPixelRecHitSource::bookMEs(){
+void SiPixelRecHitSource::bookMEs(DQMStore::IBooker & iBooker){
   
   std::map<uint32_t,SiPixelRecHitModule*>::iterator struct_iter;
     
@@ -282,7 +259,7 @@ void SiPixelRecHitSource::bookMEs(){
     /// Create folder tree and book histograms 
     if(modOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first,0,isUpgrade)){
-	(*struct_iter).second->book( conf_,0,twoDimOn, reducedSet, isUpgrade);
+	(*struct_iter).second->book( conf_,iBooker,0,twoDimOn, reducedSet, isUpgrade);
       } else {
 	if(!isPIB) throw cms::Exception("LogicError")
 	  << "[SiPixelDigiSource::bookMEs] Creation of DQM folder failed";
@@ -290,42 +267,42 @@ void SiPixelRecHitSource::bookMEs(){
     }
     if(ladOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first,1,isUpgrade)){
-	(*struct_iter).second->book( conf_,1,twoDimOn, reducedSet, isUpgrade);
+	(*struct_iter).second->book( conf_,iBooker,1,twoDimOn, reducedSet, isUpgrade);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH LADDER-FOLDER\n";
       }
     }
     if(layOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first,2,isUpgrade)){
-	(*struct_iter).second->book( conf_,2,twoDimOn, reducedSet, isUpgrade);
+	(*struct_iter).second->book( conf_,iBooker,2,twoDimOn, reducedSet, isUpgrade);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH LAYER-FOLDER\n";
       }
     }
     if(phiOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first,3,isUpgrade)){
-	(*struct_iter).second->book( conf_,3,twoDimOn, reducedSet, isUpgrade);
+	(*struct_iter).second->book( conf_,iBooker,3,twoDimOn, reducedSet, isUpgrade);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH PHI-FOLDER\n";
       }
     }
     if(bladeOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first,4,isUpgrade)){
-	(*struct_iter).second->book( conf_,4,twoDimOn, reducedSet, isUpgrade);
+	(*struct_iter).second->book( conf_,iBooker,4,twoDimOn, reducedSet, isUpgrade);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH BLADE-FOLDER\n";
       }
     }
     if(diskOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first,5,isUpgrade)){
-	(*struct_iter).second->book( conf_,5,twoDimOn, reducedSet, isUpgrade);
+	(*struct_iter).second->book( conf_,iBooker,5,twoDimOn, reducedSet, isUpgrade);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH DISK-FOLDER\n";
       }
     }
     if(ringOn){
       if(theSiPixelFolder.setModuleFolder((*struct_iter).first,6,isUpgrade)){
-	(*struct_iter).second->book( conf_,6,twoDimOn, reducedSet, isUpgrade);
+	(*struct_iter).second->book( conf_,iBooker,6,twoDimOn, reducedSet, isUpgrade);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH RING-FOLDER\n";
       }
