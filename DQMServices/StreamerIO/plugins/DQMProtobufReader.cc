@@ -38,17 +38,7 @@ InputSource::ItemType DQMProtobufReader::getNextItemType() {
 
     // skip to the next file if we have no files openned yet
     if (fiterator_.hasNext()) {
-      const LumiEntry& lumi = fiterator_.front();
-      std::string p = fiterator_.make_path_data(lumi);
-
-      if (boost::filesystem::exists(p)) {
-        // fiterator_.logFileAction("Initiating request to open file ", p);
-        return InputSource::IsLumi;
-      } else {
-        fiterator_.logFileAction("Data file is missing ", p);
-        fiterator_.pop();
-        continue;
-      }
+      return InputSource::IsLumi;
     }
 
     fiterator_.delay();
@@ -94,9 +84,12 @@ void DQMProtobufReader::readLuminosityBlock_(
   fiterator_.logFileAction("readLuminosityBlock_");
   edm::Service<DQMStore> store;
 
-  const DQMFileIterator::LumiEntry& lumi = fiterator_.front();
-  std::string p = fiterator_.make_path_data(lumi);
+  edm::Service<edm::JobReport> jr;
+  jr->reportInputLumiSection(lbCache.id().run(),
+                             lbCache.id().luminosityBlock());
+  lbCache.fillLuminosityBlockPrincipal(processHistoryRegistryForUpdate());
 
+  // clear the old lumi histograms
   std::vector<MonitorElement*> allMEs = store->getAllContents("");
   for (auto const& ME : allMEs) {
     // We do not want to reset Run Products here!
@@ -105,16 +98,20 @@ void DQMProtobufReader::readLuminosityBlock_(
     }
   }
 
+  // load the new file
+  const DQMFileIterator::LumiEntry& lumi = fiterator_.front();
+  std::string p = fiterator_.make_path_data(lumi);
+  if (! boost::filesystem::exists(p)) {
+    fiterator_.logFileAction("Data file is missing ", p);
+    fiterator_.pop();
+    return;
+  }
+
   fiterator_.logFileAction("Initiating request to open file ", p);
   fiterator_.logFileAction("Successfully opened file ", p);
   store->load(p);
   fiterator_.logFileAction("Closed file ", p);
   fiterator_.pop();
-
-  edm::Service<edm::JobReport> jr;
-  jr->reportInputLumiSection(lbCache.id().run(),
-                             lbCache.id().luminosityBlock());
-  lbCache.fillLuminosityBlockPrincipal(processHistoryRegistryForUpdate());
 };
 
 void DQMProtobufReader::readEvent_(edm::EventPrincipal&) {};

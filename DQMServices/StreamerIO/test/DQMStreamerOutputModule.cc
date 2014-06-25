@@ -174,7 +174,7 @@ void DQMStreamerOutputModule::stop() const {
   ptree pt;
   ptree data;
 
-  ptree child1, child2, child3;
+  ptree child1, child2, child3, child4;
 
   child1.put("", processed_);    // Processed
   child2.put("", processed_);    // Processed
