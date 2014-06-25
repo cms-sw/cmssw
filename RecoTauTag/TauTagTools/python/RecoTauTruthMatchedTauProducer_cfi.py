@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 import RecoTauTag.RecoTau.RecoTauCleanerPlugins as cleaners
-from RecoTauTag.RecoTau.RecoTauCleaner import RecoTauCleaner
+from RecoTauTag.RecoTau.RecoTauCleaner_cfi import RecoTauCleaner
 
 trueRecoTaus = RecoTauCleaner.clone(
     src = cms.InputTag("combinatoricRecoTaus"),
