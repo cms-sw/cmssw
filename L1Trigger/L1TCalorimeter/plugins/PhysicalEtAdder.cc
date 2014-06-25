@@ -156,12 +156,12 @@ l1t::PhysicalEtAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     for(l1t::EtSumBxCollection::const_iterator itEtSum = old_etsums->begin(bx);
 	itEtSum != old_etsums->end(bx); ++itEtSum)
     {
-      const double et = itEtSum->hwPt() * emScale->linearLsb();
+      double et = itEtSum->hwPt() * emScale->linearLsb();
       //hack while we figure out the right scales
       //double et = emScale->et( itEtSum->hwPt() );
       const l1t::EtSum::EtSumType sumType = itEtSum->getType();
-      //if(sumType == EtSum::EtSumType::kMissingHt)
-      //et = htMissScale->et( itEtSum->hwPt() );
+      if(sumType == EtSum::EtSumType::kMissingHt)
+	et = htMissScale->et( itEtSum->hwPt() );
 
       const double eta = getPhysicalEta(itEtSum->hwEta());
       const double phi = getPhysicalPhi(itEtSum->hwPhi());

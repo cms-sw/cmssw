@@ -32,9 +32,6 @@ namespace l1t {
     for(std::vector<l1t::EGamma>::const_iterator itEGamma = input->begin();
 	itEGamma != input->end(); ++itEGamma){
       const unsigned newEta = gtEta(itEGamma->hwEta());
-      // const uint16_t rankPt = params->emScale().rank((uint16_t)itEGamma->hwPt());
-
-      // LA  Hack till we get the right em scale from conditions DB
       const uint16_t rankPt = (uint16_t)itEGamma->hwPt();
 
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > ldummy(0,0,0,0);
@@ -70,8 +67,8 @@ namespace l1t {
       // Hack for now to make sure they come out with the right scale
       //rankPt = params->jetScale().rank((uint16_t)itEtSum->hwPt());
       rankPt = (uint16_t)itEtSum->hwPt();
-	//if (EtSum::EtSumType::kMissingHt == itEtSum->getType())
-	//rankPt = params->HtMissScale().rank((uint16_t)itEtSum->hwPt());
+      if (EtSum::EtSumType::kMissingHt == itEtSum->getType())
+	rankPt = params->HtMissScale().rank(itEtSum->hwPt()*emScale->linearLsb());
 
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > ldummy(0,0,0,0);
 
