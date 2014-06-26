@@ -41,6 +41,7 @@ public:
   ~RunManagerMTWorker();
 
   void beginRun(const RunManagerMT& runManagerMaster, const edm::EventSetup& es);
+  void endRun();
 
   void produce(const edm::Event& inpevt, const edm::EventSetup& es, const RunManagerMT& runManagerMaster);
 
@@ -65,6 +66,7 @@ private:
   G4Event *generateEvent(const edm::Event& inpevt);
 
   static thread_local bool m_threadInitialized;
+  static thread_local bool m_runTerminated;
 
   Generator m_generator;
   std::string m_InTag;

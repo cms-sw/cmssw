@@ -56,11 +56,9 @@
 
 //#include "SimG4Core/Application/interface/ExceptionHandler.h"
 
-RunManagerMT::RunManagerMT(edm::ParameterSet const & p) 
-  :   m_generator(0), m_nonBeam(p.getParameter<bool>("NonBeamEvent")), 
-      m_primaryTransformer(0), 
+RunManagerMT::RunManagerMT(edm::ParameterSet const & p):
       m_managerInitialized(false), 
-      m_runInitialized(false), m_runTerminated(false), m_runAborted(false),
+      m_runTerminated(false), m_runAborted(false),
       firstRun(true),
       m_pUseMagneticField(p.getParameter<bool>("UseMagneticField")),
       m_PhysicsTablesDir(p.getParameter<std::string>("PhysicsTablesDirectory")),
@@ -74,8 +72,6 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const & p)
       m_p(p), m_fieldBuilder(0),
       m_theLHCTlinkTag(p.getParameter<edm::InputTag>("theLHCTlinkTag"))
 {    
-  //m_HepMC = iC.consumes<edm::HepMCProduct>(p.getParameter<edm::InputTag>("HepMCProduct"));
-
   G4RunManagerKernel *kernel = G4MTRunManagerKernel::GetRunManagerKernel();
   if(!kernel) m_kernel = new G4MTRunManagerKernel();
   else {
@@ -89,11 +85,11 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const & p)
   if("" != m_FieldFile) { m_FieldFile += ".txt"; } 
 
   m_InTag = m_pGenerator.getParameter<std::string>("HepMCProductLabel") ;
-
 }
 
 RunManagerMT::~RunManagerMT() 
-{ 
+{
+  if(!m_runTerminated) { terminateRun(); }
   G4StateManager::GetStateManager()->SetNewState(G4State_Quit);
   G4GeometryManager::GetInstance()->OpenGeometry();
 }
@@ -201,8 +197,16 @@ void  RunManagerMT::Connect(RunAction* runAction)
 
 void RunManagerMT::stopG4()
 {
-  //std::cout << "RunManagerMT::stopG4" << std::endl;
   G4StateManager::GetStateManager()->SetNewState(G4State_Quit);
+  if(!m_runTerminated) { terminateRun(); }
+}
+
+void RunManagerMT::terminateRun() {
+  m_userRunAction.reset();
+  if(m_kernel && !m_runTerminated) {
+    m_kernel->RunTermination();
+    m_runTerminated = true;
+  }
 }
 
 void RunManagerMT::DumpMagneticField(const G4Field* field) const

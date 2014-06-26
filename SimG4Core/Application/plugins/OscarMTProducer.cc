@@ -107,6 +107,9 @@ OscarMTProducer::beginRun(const edm::Run & r, const edm::EventSetup & es)
 void 
 OscarMTProducer::endRun(const edm::Run&, const edm::EventSetup&)
 {
+  // Random number generation not allowed here
+  StaticRandomEngineSetUnset random(nullptr);
+  m_runManagerWorker->endRun();
 }
 
 void OscarMTProducer::produce(edm::Event & e, const edm::EventSetup & es)

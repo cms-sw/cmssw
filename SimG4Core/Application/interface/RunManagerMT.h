@@ -93,6 +93,7 @@ public:
   }
 
 private:
+  void terminateRun();
   void DumpMagneticField( const G4Field*) const;
 
   G4RunManagerKernel * m_kernel;
@@ -100,15 +101,12 @@ private:
   Generator * m_generator;
   std::string m_InTag ;
     
-  bool m_nonBeam;
   std::unique_ptr<PhysicsList> m_physicsList;
-  PrimaryTransformer * m_primaryTransformer;
   bool m_managerInitialized;
-  bool m_runInitialized;
   bool m_runTerminated;
   bool m_runAborted;
   bool firstRun;
-  bool m_pUseMagneticField;
+  const bool m_pUseMagneticField;
   std::unique_ptr<RunAction> m_userRunAction;
   std::unique_ptr<SimRunInterface> m_runInterface;
 

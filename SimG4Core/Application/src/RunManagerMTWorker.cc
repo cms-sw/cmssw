@@ -94,6 +94,7 @@ namespace {
 }
 
 thread_local bool RunManagerMTWorker::m_threadInitialized = false;
+thread_local bool RunManagerMTWorker::m_runTerminated = false;
 thread_local G4Run *RunManagerMTWorker::m_currentRun = nullptr;
 thread_local RunAction *RunManagerMTWorker::m_userRunAction = nullptr;
 thread_local SimRunInterface *RunManagerMTWorker::m_runInterface = nullptr;
@@ -125,12 +126,18 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig):
   createWatchers(m_p, m_registry, m_watchers, m_producers);
 }
 
-RunManagerMTWorker::~RunManagerMTWorker() {}
+RunManagerMTWorker::~RunManagerMTWorker() {
+  if(!m_runTerminated) { terminateRun(); }
+}
 
 void RunManagerMTWorker::beginRun(const RunManagerMT& runManagerMaster, const edm::EventSetup& es) {
   // Stream-specific beginRun
   // unfortunately does not work for per-thread initialization since framework does not guarantee to run them on differente threads...
   //edm::LogWarning("SimG4CoreApplication") << "RunManagerMTWorker::beginRun(): thread " << getThreadIndex();
+}
+
+void RunManagerMTWorker::endRun() {
+  terminateRun();
 }
 
 void RunManagerMTWorker::initializeThread(const RunManagerMT& runManagerMaster, const edm::EventSetup& es) {
@@ -266,6 +273,14 @@ void RunManagerMTWorker::terminateRun() {
     m_userRunAction->EndOfRunAction(m_currentRun);
     delete m_userRunAction;
     m_userRunAction = nullptr;
+  }
+
+  G4RunManagerKernel *kernel = G4WorkerRunManagerKernel::GetRunManagerKernel();
+  if(!kernel && !m_runTerminated) {
+    m_currentEvent.reset();
+    m_simEvent.reset();
+    kernel->RunTermination();
+    m_runTerminated = true;
   }
 }
 
