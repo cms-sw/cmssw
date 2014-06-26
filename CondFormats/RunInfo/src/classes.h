@@ -1,6 +1,6 @@
 #include "CondFormats/RunInfo/src/headers.h"
 
-namespace {
+namespace CondFormats_RunInfo {
   struct dictionary {
     std::vector<runinfo_test::RunNumber::Item>::iterator tmp0;
     std::vector<L1TriggerScaler::Lumi>::iterator tmp1;
