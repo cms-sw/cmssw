@@ -44,10 +44,6 @@ SegmentToTrackAssociator::SegmentToTrackAssociator( const edm::ParameterSet& iCo
     
 }
 
-
-SegmentToTrackAssociator::~SegmentToTrackAssociator();
-
-
 void SegmentToTrackAssociator::clear()
 {
   indexCollectionDT.clear();
