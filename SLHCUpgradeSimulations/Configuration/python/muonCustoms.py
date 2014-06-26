@@ -297,7 +297,7 @@ def customise_csc_hlt(process):
     process.CSCGeometryESModule.useGangedStripsInME1a = False
     
     process.hltCsc2DRecHits.readBadChannels = cms.bool(False)
-    process.hltCsc2DRecHits.CSCUseGasGainCorrection = cms.bool(False)
+    process.hltCsc2DRecHits.CSCUseGasGainCorrections = cms.bool(False)
     
     # Switch input for CSCRecHitD to  s i m u l a t e d  digis
     
