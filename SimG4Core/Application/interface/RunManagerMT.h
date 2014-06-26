@@ -90,10 +90,8 @@ public:
     return m_physicsList.get();
   }
 
-protected:
-
-
 private:
+  void DumpMagneticField( const G4Field*) const;
 
   G4RunManagerKernel * m_kernel;
     
