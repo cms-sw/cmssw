@@ -56,7 +56,7 @@ static
 TrackerG4SimHitNumberingScheme&
 numberingScheme(const DDCompactView& cpv, const GeometricDet& det)
 {
-   static TrackerG4SimHitNumberingScheme s_scheme(cpv, det);
+   static thread_local TrackerG4SimHitNumberingScheme s_scheme(cpv, det);
    return s_scheme;
 }
 

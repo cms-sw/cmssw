@@ -17,12 +17,21 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "SimG4Core/Notification/interface/SimActivityRegistry.h"
 #include "SimG4Core/Notification/interface/SimG4Exception.h"
+#include "SimG4Core/Notification/interface/BeginOfJob.h"
+
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
 
 #include "SimG4Core/Geometry/interface/DDDWorld.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "SimG4Core/Physics/interface/PhysicsList.h"
+
+#include "SimG4Core/SensitiveDetector/interface/AttachSD.h"
 
 #include "G4Event.hh"
 #include "G4Run.hh"
@@ -51,11 +60,13 @@ namespace {
 }
 
 thread_local bool RunManagerMTWorker::m_threadInitialized = false;
-//thread_local std::unique_ptr<G4Run> RunManagerMTWorker::m_currentRun;
 thread_local G4Run *RunManagerMTWorker::m_currentRun = nullptr;
 thread_local RunAction *RunManagerMTWorker::m_userRunAction = nullptr;
 thread_local SimRunInterface *RunManagerMTWorker::m_runInterface = nullptr;
 thread_local SimTrackManager *RunManagerMTWorker::m_trackManager = nullptr;
+thread_local SimActivityRegistry RunManagerMTWorker::m_registry;
+thread_local std::vector<SensitiveTkDetector*> RunManagerMTWorker::m_sensTkDets;
+thread_local std::vector<SensitiveCaloDetector*> RunManagerMTWorker::m_sensCaloDets;
 
 RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig):
   m_generator(iConfig.getParameter<edm::ParameterSet>("Generator")),
@@ -66,7 +77,8 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig):
   m_pEventAction(iConfig.getParameter<edm::ParameterSet>("EventAction")),
   m_pStackingAction(iConfig.getParameter<edm::ParameterSet>("StackingAction")),
   m_pTrackingAction(iConfig.getParameter<edm::ParameterSet>("TrackingAction")),
-  m_pSteppingAction(iConfig.getParameter<edm::ParameterSet>("SteppingAction"))
+  m_pSteppingAction(iConfig.getParameter<edm::ParameterSet>("SteppingAction")),
+  m_p(iConfig)
 {
 
   edm::Service<SimActivityRegistry> otherRegistry;
@@ -85,7 +97,7 @@ void RunManagerMTWorker::beginRun(const RunManagerMT& runManagerMaster, const ed
   //edm::LogWarning("SimG4CoreApplication") << "RunManagerMTWorker::beginRun(): thread " << getThreadIndex();
 }
 
-void RunManagerMTWorker::initializeThread(const RunManagerMT& runManagerMaster) {
+void RunManagerMTWorker::initializeThread(const RunManagerMT& runManagerMaster, const edm::EventSetup& es) {
   // I guess everything initialized here should be in thread_local storage
 
   int thisID = getThreadIndex();
@@ -107,6 +119,33 @@ void RunManagerMTWorker::initializeThread(const RunManagerMT& runManagerMaster) 
   // we need the track manager now
   m_trackManager = new SimTrackManager();
 
+  // Get DDCompactView, or would it be better to get the object from
+  // runManagerMaster instead of EventSetup in here?
+  edm::ESTransientHandle<DDCompactView> pDD;
+  es.get<IdealGeometryRecord>().get(pDD);
+
+  // attach sensitive detector
+  AttachSD attach;
+  std::pair< std::vector<SensitiveTkDetector*>,
+    std::vector<SensitiveCaloDetector*> > sensDets =
+    attach.create(runManagerMaster.world(),
+                  (*pDD),
+                  runManagerMaster.catalog(),
+                  m_p,
+                  m_trackManager,
+                  m_registry);
+
+  m_sensTkDets.swap(sensDets.first);
+  m_sensCaloDets.swap(sensDets.second);
+
+  edm::LogInfo("SimG4CoreApplication")
+    << " RunManagerMTWorker: Sensitive Detector "
+    << "building finished; found "
+    << m_sensTkDets.size()
+    << " Tk type Producers, and "
+    << m_sensCaloDets.size()
+    << " Calo type producers ";
+
   // Set the physics list for the worker, share from master
   PhysicsList *physicsList = runManagerMaster.physicsListForWorker();
   physicsList->InitializeWorker();
@@ -117,12 +156,14 @@ void RunManagerMTWorker::initializeThread(const RunManagerMT& runManagerMaster) 
   if(!kernelInit)
     throw SimG4Exception("G4WorkerRunManagerKernel initialization failed");
 
+  //tell all interesting parties that we are beginning the job
+  BeginOfJob aBeginOfJob(&es);
+  m_registry.beginOfJobSignal_(&aBeginOfJob);
+
   initializeUserActions();
 
   // Initialize run
-  //m_currentRun.reset(new G4Run());
-  m_currentRun = new G4Run();
-  G4StateManager::GetStateManager()->SetNewState(G4State_GeomClosed);
+  initializeRun();
 }
 
 void RunManagerMTWorker::initializeUserActions() {
@@ -155,11 +196,48 @@ void RunManagerMTWorker::initializeUserActions() {
 
 }
 
+void  RunManagerMTWorker::Connect(RunAction* runAction)
+{
+  runAction->m_beginOfRunSignal.connect(m_registry.beginOfRunSignal_);
+  runAction->m_endOfRunSignal.connect(m_registry.endOfRunSignal_);
+}
+
+void  RunManagerMTWorker::Connect(EventAction* eventAction)
+{
+  eventAction->m_beginOfEventSignal.connect(m_registry.beginOfEventSignal_);
+  eventAction->m_endOfEventSignal.connect(m_registry.endOfEventSignal_);
+}
+
+void  RunManagerMTWorker::Connect(TrackingAction* trackingAction)
+{
+  trackingAction->m_beginOfTrackSignal.connect(m_registry.beginOfTrackSignal_);
+  trackingAction->m_endOfTrackSignal.connect(m_registry.endOfTrackSignal_);
+}
+
+void  RunManagerMTWorker::Connect(SteppingAction* steppingAction)
+{
+  steppingAction->m_g4StepSignal.connect(m_registry.g4StepSignal_);
+}
+
+void RunManagerMTWorker::initializeRun() {
+  m_currentRun = new G4Run();
+  G4StateManager::GetStateManager()->SetNewState(G4State_GeomClosed);
+  if (m_userRunAction!=0) { m_userRunAction->BeginOfRunAction(m_currentRun); }
+}
+
+void RunManagerMTWorker::terminateRun() {
+  if (m_userRunAction!=0) {
+    m_userRunAction->EndOfRunAction(m_currentRun);
+    delete m_userRunAction;
+    m_userRunAction = nullptr;
+  }
+}
+
 void RunManagerMTWorker::produce(const edm::Event& inpevt, const edm::EventSetup& es, const RunManagerMT& runManagerMaster) {
 
   if(!m_threadInitialized) {
     LogDebug("SimG4CoreApplication") << "RunManagerMTWorker::produce(): stream " << inpevt.streamID() << " thread " << getThreadIndex() << " initializing";
-    initializeThread(runManagerMaster);
+    initializeThread(runManagerMaster, es);
     m_threadInitialized = true;
   }
   m_runInterface->setRunManagerMTWorker(this); // For UserActions
@@ -208,6 +286,10 @@ void RunManagerMTWorker::abortEvent() {
 }
 
 void RunManagerMTWorker::abortRun(bool softAbort) {
+  if (!softAbort) { abortEvent(); }
+  delete m_currentRun;
+  m_currentRun = nullptr;
+  terminateRun();
 }
 
 G4Event * RunManagerMTWorker::generateEvent(const edm::Event& inpevt) {

@@ -8,7 +8,6 @@
 
 #include "SimG4Core/Geometry/interface/DDDWorld.h"
 #include "SimG4Core/Geometry/interface/G4LogicalVolumeToDDLogicalPartMap.h"
-#include "SimG4Core/Geometry/interface/SensitiveDetectorCatalog.h"
 
 #include "SimG4Core/SensitiveDetector/interface/AttachSD.h"
 
@@ -105,8 +104,7 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF, co
   
   // DDDWorld: get the DDCV from the ES and use it to build the World
   G4LogicalVolumeToDDLogicalPartMap map_;
-  SensitiveDetectorCatalog catalog_;
-  m_world.reset(new DDDWorld(pDD, map_, catalog_, m_check));
+  m_world.reset(new DDDWorld(pDD, map_, m_catalog, m_check));
   m_registry.dddWorldSignal_(m_world.get());
 
   if("" != m_WriteFile) {

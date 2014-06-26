@@ -28,6 +28,9 @@ class SteppingAction;
 
 class SimRunInterface;
 
+class SensitiveTkDetector;
+class SensitiveCaloDetector;
+
 class RunManagerMTWorker {
 public:
   RunManagerMTWorker(const edm::ParameterSet& iConfig);
@@ -42,15 +45,18 @@ public:
 
   G4SimEvent * simEvent() { return m_simEvent.get(); }
   SimTrackManager* GetSimTrackManager() { return m_trackManager; }
-  void             Connect(RunAction*) {}
-  void             Connect(EventAction*) {}
-  void             Connect(TrackingAction*) {}
-  void             Connect(SteppingAction*) {}
+  void             Connect(RunAction*);
+  void             Connect(EventAction*);
+  void             Connect(TrackingAction*);
+  void             Connect(SteppingAction*);
 
 
 private:
-  void initializeThread(const RunManagerMT& runManagerMaster);
+  void initializeThread(const RunManagerMT& runManagerMaster, const edm::EventSetup& es);
   void initializeUserActions();
+
+  void initializeRun();
+  void terminateRun();
 
   G4Event *generateEvent(const edm::Event& inpevt);
 
@@ -65,6 +71,10 @@ private:
   edm::ParameterSet m_pStackingAction;
   edm::ParameterSet m_pTrackingAction;
   edm::ParameterSet m_pSteppingAction;
+  edm::ParameterSet m_p;
+
+  static thread_local std::vector<SensitiveTkDetector*> m_sensTkDets;
+  static thread_local std::vector<SensitiveCaloDetector*> m_sensCaloDets;
 
   static thread_local RunAction *m_userRunAction;
   static thread_local SimRunInterface *m_runInterface;
@@ -72,10 +82,9 @@ private:
   std::unique_ptr<G4Event> m_currentEvent;
   std::unique_ptr<G4SimEvent> m_simEvent;
 
-  //static thread_local std::unique_ptr<G4Run> m_currentRun;
   static thread_local G4Run *m_currentRun;
 
-  SimActivityRegistry m_registry;
+  static thread_local SimActivityRegistry m_registry;
 
   static thread_local SimTrackManager *m_trackManager;
 };

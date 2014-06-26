@@ -8,10 +8,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "SimG4Core/SensitiveDetector/interface/AttachSD.h"
-#include "SimG4Core/SensitiveDetector/interface/SensitiveDetector.h"
-#include "SimG4Core/SensitiveDetector/interface/SensitiveTkDetector.h"
-#include "SimG4Core/SensitiveDetector/interface/SensitiveCaloDetector.h"
+#include "SimG4Core/Geometry/interface/SensitiveDetectorCatalog.h"
 
 #include "SimG4Core/Notification/interface/SimActivityRegistry.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
@@ -37,6 +34,7 @@ class G4SimEvent;
 
 class RunAction;
 
+class DDCompactView;
 class DDDWorld;
 class MagneticField;
 
@@ -80,6 +78,10 @@ public:
 
   const DDDWorld& world() const {
     return *m_world;
+  }
+
+  const SensitiveDetectorCatalog& catalog() const {
+    return m_catalog;
   }
 
   // In order to share the physics list with the worker threads, we
@@ -128,6 +130,7 @@ private:
 
   std::unique_ptr<DDDWorld> m_world;
   SimActivityRegistry m_registry;
+  SensitiveDetectorCatalog m_catalog;
     
   sim::FieldBuilder             *m_fieldBuilder;
     
