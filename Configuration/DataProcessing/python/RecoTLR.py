@@ -24,6 +24,30 @@ def customiseCosmicData(process):
 
     return process
 
+
+
+##############################################################################
+# this is supposed to be added on top of other (Run1) data customs
+def customiseDataRun2Common(process):
+    process.CSCGeometryESModule.useGangedStripsInME1a = cms.bool(False)
+    process.CSCIndexerESProducer.AlgoName=cms.string("CSCIndexerPostls1")
+    process.CSCChannelMapperESProducer.AlgoName=cms.string("CSCChannelMapperPostls1")
+    process.csc2DRecHits.readBadChannels = cms.bool(False)
+    process.csc2DRecHits.CSCUseGasGainCorrections = cms.bool(False)
+    if hasattr(process,'valCscTriggerPrimitiveDigis'):
+        #this is not doing anything at the moment
+        process.valCscTriggerPrimitiveDigis.commonParam.gangedME1a = cms.untracked.bool(False)
+    if hasattr(process,'valCsctfTrackDigis'):
+        process.valCsctfTrackDigis.gangedME1a = cms.untracked.bool(False)
+    return process
+
+##############################################################################
+def customiseCosmicDataRun2(process):
+    process = customiseCosmicData(process)
+    process = customiseDataRun2Common(process)
+    return process
+
+
 ##############################################################################
 def customiseCosmicMC(process):
     
@@ -46,6 +70,12 @@ def customiseExpress(process):
     return process
 
 ##############################################################################
+def customiseExpressRun2(process):
+    process = customiseExpress(process)
+    process = customiseDataRun2Common(process)
+    return process
+
+##############################################################################
 def customisePrompt(process):
     process= customisePPData(process)
 
@@ -54,6 +84,11 @@ def customisePrompt(process):
     return process
 
 ##############################################################################
+def customisePromptRun2(process):
+    process = customisePrompt(process)
+    process = customiseDataRun2Common(process)
+    return process
+
 ##############################################################################
 
 #gone with the fact that there is no difference between production and development sequence
