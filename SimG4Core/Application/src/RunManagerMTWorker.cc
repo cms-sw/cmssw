@@ -334,6 +334,34 @@ void RunManagerMTWorker::produce(const edm::Event& inpevt, const edm::EventSetup
 }
 
 void RunManagerMTWorker::abortEvent() {
+  if(m_runTerminated) { return; }
+  G4RunManagerKernel *kernel = G4WorkerRunManagerKernel::GetRunManagerKernel();
+  G4Track* t = kernel->GetEventManager()->GetTrackingManager()->GetTrack();
+
+  // CMS-specific act
+  //
+  TrackingAction* uta =
+    static_cast<TrackingAction *>(kernel->GetEventManager()->GetUserTrackingAction());
+  uta->PostUserTrackingAction(t) ;
+
+  m_currentEvent->SetEventAborted();
+
+  // do NOT call this method for now
+  // because it'll set abortRequested=true (withing G4EventManager)
+  // this will make Geant4, in the event *next* after the aborted one
+  // NOT to get the primary, thus there's NOTHING to trace, and it goes
+  // to the end of G4Event::DoProcessing(G4Event*), where abortRequested
+  // will be reset to true again
+  //
+  //kernel->GetEventManager()->AbortCurrentEvent();
+  //
+  // instead, mimic what it does, except (re)setting abortRequested
+  //
+  kernel->GetEventManager()->GetStackManager()->clear() ;
+  kernel->GetEventManager()->GetTrackingManager()->EventAborted() ;
+
+  G4StateManager* stateManager = G4StateManager::GetStateManager();
+  stateManager->SetNewState(G4State_GeomClosed);
 }
 
 void RunManagerMTWorker::abortRun(bool softAbort) {
