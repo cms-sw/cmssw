@@ -8,11 +8,11 @@ pixelVertices = cms.EDProducer("PrimaryVertexProducer",
                                         
     TkFilterParameters = cms.PSet(
         algorithm=cms.string('filter'),
-        maxNormalizedChi2 = cms.double(100.0),
+        maxNormalizedChi2 = cms.double(50.0),
         minPixelLayersWithHits=cms.int32(3),
         minSiliconLayersWithHits = cms.int32(3),
-        maxD0Significance = cms.double(100.0), 
-        minPt = cms.double(0.0),
+        maxD0Significance = cms.double(20.0), 
+        minPt = cms.double(0.3),
         trackQuality = cms.string("any")
     ),
 
