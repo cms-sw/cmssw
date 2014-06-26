@@ -55,7 +55,7 @@ void ClusterTPAssociationProducer::produce(edm::Event& iEvent, const edm::EventS
 
   // Pixel Cluster
   edm::Handle<edmNew::DetSetVector<SiPixelCluster> > pixelClusters;
-  iEvent.getByToken(pixelClustersToken_,pixelClusters);
+  bool foundPixelClusters = iEvent.getByToken(pixelClustersToken_,pixelClusters);
 
   // Strip Cluster
   edm::Handle<edmNew::DetSetVector<SiStripCluster> > stripClusters;
@@ -83,38 +83,38 @@ void ClusterTPAssociationProducer::produce(edm::Event& iEvent, const edm::EventS
     }
   }
 
-  // Pixel Clusters 
-  for (edmNew::DetSetVector<SiPixelCluster>::const_iterator iter  = pixelClusters->begin(); 
-                                                            iter != pixelClusters->end(); ++iter) 
-  {
-    uint32_t detid = iter->id(); 
-    DetId detId(detid);
-    edmNew::DetSet<SiPixelCluster> link_pixel = (*iter);
-    for (edmNew::DetSet<SiPixelCluster>::const_iterator di  = link_pixel.begin(); 
-	                                                di != link_pixel.end(); ++di) 
-    {
-      const SiPixelCluster& cluster = (*di);
-      edm::Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster> c_ref = 
-          edmNew::makeRefTo(pixelClusters, di);
-
-      std::set<std::pair<uint32_t, EncodedEventId> > simTkIds; 
-      for (int irow = cluster.minPixelRow(); irow <= cluster.maxPixelRow(); ++irow) {
-	for (int icol = cluster.minPixelCol(); icol <= cluster.maxPixelCol(); ++icol) {
-	  uint32_t channel = PixelChannelIdentifier::pixelToChannel(irow, icol);
-	  std::vector<std::pair<uint32_t, EncodedEventId> > trkid(getSimTrackId<PixelDigiSimLink>(sipixelSimLinks, detId, channel));
-	  if (trkid.size()==0) continue; 
-	  simTkIds.insert(trkid.begin(),trkid.end());
+  if ( foundPixelClusters ) {
+    // Pixel Clusters 
+    for (edmNew::DetSetVector<SiPixelCluster>::const_iterator iter  = pixelClusters->begin(); 
+                                                            iter != pixelClusters->end(); ++iter) {
+      uint32_t detid = iter->id(); 
+      DetId detId(detid);
+      edmNew::DetSet<SiPixelCluster> link_pixel = (*iter);
+      for (edmNew::DetSet<SiPixelCluster>::const_iterator di  = link_pixel.begin(); 
+	   di != link_pixel.end(); ++di) {
+	const SiPixelCluster& cluster = (*di);
+	edm::Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster> c_ref = 
+	  edmNew::makeRefTo(pixelClusters, di);
+	
+	std::set<std::pair<uint32_t, EncodedEventId> > simTkIds; 
+	for (int irow = cluster.minPixelRow(); irow <= cluster.maxPixelRow(); ++irow) {
+	  for (int icol = cluster.minPixelCol(); icol <= cluster.maxPixelCol(); ++icol) {
+	    uint32_t channel = PixelChannelIdentifier::pixelToChannel(irow, icol);
+	    std::vector<std::pair<uint32_t, EncodedEventId> > trkid(getSimTrackId<PixelDigiSimLink>(sipixelSimLinks, detId, channel));
+	    if (trkid.size()==0) continue; 
+	    simTkIds.insert(trkid.begin(),trkid.end());
+	  }
+	}
+	for (std::set<std::pair<uint32_t, EncodedEventId> >::const_iterator iset  = simTkIds.begin(); 
+	     iset != simTkIds.end(); iset++) {
+	  auto ipos = mapping.find(*iset);
+	  if (ipos != mapping.end()) {
+	    //std::cout << "cluster in detid: " << detid << " from tp: " << ipos->second.key() << " " << iset->first << std::endl;
+	    clusterTPList->push_back(std::make_pair(OmniClusterRef(c_ref), ipos->second));
+	  }
 	}
       }
-      for (std::set<std::pair<uint32_t, EncodedEventId> >::const_iterator iset  = simTkIds.begin(); 
-                                                                          iset != simTkIds.end(); iset++) {
-	auto ipos = mapping.find(*iset);
-        if (ipos != mapping.end()) {
-	  //std::cout << "cluster in detid: " << detid << " from tp: " << ipos->second.key() << " " << iset->first << std::endl;
-          clusterTPList->push_back(std::make_pair(OmniClusterRef(c_ref), ipos->second));
-        }
-      }
-    } 
+    }
   }
 
   if ( foundStripClusters ) {
@@ -151,8 +151,10 @@ void ClusterTPAssociationProducer::produce(edm::Event& iEvent, const edm::EventS
       } 
     }
   }
+
   iEvent.put(clusterTPList);
 }
+
 template <typename T>
 std::vector<std::pair<uint32_t, EncodedEventId> >
 //std::pair<uint32_t, EncodedEventId>
