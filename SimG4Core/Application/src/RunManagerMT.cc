@@ -2,10 +2,6 @@
 #include "SimG4Core/Application/interface/PrimaryTransformer.h"
 #include "SimG4Core/Application/interface/SimRunInterface.h"
 #include "SimG4Core/Application/interface/RunAction.h"
-#include "SimG4Core/Application/interface/EventAction.h"
-#include "SimG4Core/Application/interface/StackingAction.h"
-#include "SimG4Core/Application/interface/TrackingAction.h"
-#include "SimG4Core/Application/interface/SteppingAction.h"
 #include "SimG4Core/Application/interface/SimTrackManager.h"
 #include "SimG4Core/Application/interface/G4SimEvent.h"
 #include "SimG4Core/Application/interface/ParametrisedEMPhysics.h"
@@ -71,15 +67,10 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const & p)
       m_PhysicsTablesDir(p.getParameter<std::string>("PhysicsTablesDirectory")),
       m_StorePhysicsTables(p.getParameter<bool>("StorePhysicsTables")),
       m_RestorePhysicsTables(p.getParameter<bool>("RestorePhysicsTables")),
-      m_EvtMgrVerbosity(p.getUntrackedParameter<int>("G4EventManagerVerbosity",0)),
       m_pField(p.getParameter<edm::ParameterSet>("MagneticField")),
       m_pGenerator(p.getParameter<edm::ParameterSet>("Generator")),
       m_pPhysics(p.getParameter<edm::ParameterSet>("Physics")),
       m_pRunAction(p.getParameter<edm::ParameterSet>("RunAction")),      
-      m_pEventAction(p.getParameter<edm::ParameterSet>("EventAction")),
-      m_pStackingAction(p.getParameter<edm::ParameterSet>("StackingAction")),
-      m_pTrackingAction(p.getParameter<edm::ParameterSet>("TrackingAction")),
-      m_pSteppingAction(p.getParameter<edm::ParameterSet>("SteppingAction")),
       m_G4Commands(p.getParameter<std::vector<std::string> >("G4Commands")),
       m_p(p), m_fieldBuilder(0),
       m_theLHCTlinkTag(p.getParameter<edm::InputTag>("theLHCTlinkTag"))
@@ -144,6 +135,8 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF, co
     throw SimG4Exception("G4RunManagerKernel initialization failed!"); 
   }
 
+  initializeUserActions();
+
   for (unsigned it=0; it<m_G4Commands.size(); it++) {
     edm::LogInfo("SimG4CoreApplication") << "RunManagerMT:: Requests UI: "
                                          << m_G4Commands[it];
@@ -156,6 +149,19 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF, co
   //  G4ParticleTable::GetParticleTable()->DumpTable("ALL");
   
   firstRun= false;
+}
+
+void RunManagerMT::initializeUserActions() {
+  m_runInterface.reset(new SimRunInterface(this, true));
+
+  m_userRunAction.reset(new RunAction(m_pRunAction, m_runInterface.get()));
+  Connect(m_userRunAction.get());
+}
+
+void  RunManagerMT::Connect(RunAction* runAction)
+{
+  runAction->m_beginOfRunSignal.connect(m_registry.beginOfRunSignal_);
+  runAction->m_endOfRunSignal.connect(m_registry.endOfRunSignal_);
 }
 
 void RunManagerMT::stopG4()

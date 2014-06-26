@@ -34,12 +34,8 @@ class PhysicsList;
 class SimWatcher;
 class SimProducer;
 class G4SimEvent;
-class SimTrackManager;
 
 class RunAction;
-class EventAction; 
-class TrackingAction;
-class SteppingAction;
 
 class DDDWorld;
 class MagneticField;
@@ -71,18 +67,15 @@ public:
 
   void initG4(const DDCompactView *pDD, const MagneticField *pMF, const HepPDT::ParticleDataTable *fPDGTable, const edm::EventSetup & es);
 
+  void initializeUserActions();
+
   void stopG4();
 
-  // Keep these to keep SimTrackManager compiling for now, probably to
-  // be moved to RunManagerMTWorker
+  void             Connect(RunAction*);
+
+  // Keep this to keep ExceptionHandler to compile, probably removed
+  // later (or functionality moved to RunManagerMTWorker)
   void abortRun(bool softAbort=false) {}
-  void abortEvent() {}
-  G4SimEvent * simEvent() { return nullptr; }
-  SimTrackManager* GetSimTrackManager() { return nullptr; }
-  void             Connect(RunAction*) {}
-  void             Connect(EventAction*) {}
-  void             Connect(TrackingAction*) {}
-  void             Connect(SteppingAction*) {}
 
 
   const DDDWorld& world() const {
@@ -116,13 +109,14 @@ private:
   bool m_runAborted;
   bool firstRun;
   bool m_pUseMagneticField;
+  std::unique_ptr<RunAction> m_userRunAction;
+  std::unique_ptr<SimRunInterface> m_runInterface;
 
   //edm::EDGetTokenT<edm::HepMCProduct> m_HepMC;
 
   std::string m_PhysicsTablesDir;
   bool m_StorePhysicsTables;
   bool m_RestorePhysicsTables;
-  int m_EvtMgrVerbosity;
   bool m_check;
   edm::ParameterSet m_pGeometry;
   edm::ParameterSet m_pField;
@@ -130,10 +124,6 @@ private:
   edm::ParameterSet m_pVertexGenerator;
   edm::ParameterSet m_pPhysics; 
   edm::ParameterSet m_pRunAction;      
-  edm::ParameterSet m_pEventAction;
-  edm::ParameterSet m_pStackingAction;
-  edm::ParameterSet m_pTrackingAction;
-  edm::ParameterSet m_pSteppingAction;
   std::vector<std::string> m_G4Commands;
   edm::ParameterSet m_p;
   //ExceptionHandler* m_CustomExceptionHandler ;

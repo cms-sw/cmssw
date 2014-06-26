@@ -1,6 +1,12 @@
 #include "SimG4Core/Application/interface/RunManagerMTWorker.h"
 #include "SimG4Core/Application/interface/RunManagerMT.h"
 #include "SimG4Core/Application/interface/G4SimEvent.h"
+#include "SimG4Core/Application/interface/SimRunInterface.h"
+#include "SimG4Core/Application/interface/RunAction.h"
+#include "SimG4Core/Application/interface/EventAction.h"
+#include "SimG4Core/Application/interface/StackingAction.h"
+#include "SimG4Core/Application/interface/TrackingAction.h"
+#include "SimG4Core/Application/interface/SteppingAction.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -47,11 +53,20 @@ namespace {
 thread_local bool RunManagerMTWorker::m_threadInitialized = false;
 //thread_local std::unique_ptr<G4Run> RunManagerMTWorker::m_currentRun;
 thread_local G4Run *RunManagerMTWorker::m_currentRun = nullptr;
+thread_local RunAction *RunManagerMTWorker::m_userRunAction = nullptr;
+thread_local SimRunInterface *RunManagerMTWorker::m_runInterface = nullptr;
+thread_local SimTrackManager *RunManagerMTWorker::m_trackManager = nullptr;
 
 RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig):
   m_generator(iConfig.getParameter<edm::ParameterSet>("Generator")),
   m_InTag(iConfig.getParameter<edm::ParameterSet>("Generator").getParameter<std::string>("HepMCProductLabel")),
-  m_nonBeam(iConfig.getParameter<bool>("NonBeamEvent"))
+  m_nonBeam(iConfig.getParameter<bool>("NonBeamEvent")),
+  m_EvtMgrVerbosity(iConfig.getUntrackedParameter<int>("G4EventManagerVerbosity",0)),
+  m_pRunAction(iConfig.getParameter<edm::ParameterSet>("RunAction")),
+  m_pEventAction(iConfig.getParameter<edm::ParameterSet>("EventAction")),
+  m_pStackingAction(iConfig.getParameter<edm::ParameterSet>("StackingAction")),
+  m_pTrackingAction(iConfig.getParameter<edm::ParameterSet>("TrackingAction")),
+  m_pSteppingAction(iConfig.getParameter<edm::ParameterSet>("SteppingAction"))
 {
 
   edm::Service<SimActivityRegistry> otherRegistry;
@@ -71,6 +86,8 @@ void RunManagerMTWorker::beginRun(const RunManagerMT& runManagerMaster, const ed
 }
 
 void RunManagerMTWorker::initializeThread(const RunManagerMT& runManagerMaster) {
+  // I guess everything initialized here should be in thread_local storage
+
   int thisID = getThreadIndex();
 
   // Initialize per-thread output
@@ -84,9 +101,13 @@ void RunManagerMTWorker::initializeThread(const RunManagerMT& runManagerMaster) 
   G4RunManagerKernel *kernel = G4WorkerRunManagerKernel::GetRunManagerKernel();
   if(!kernel) kernel = new G4WorkerRunManagerKernel();
 
-  // Set the geometry and physics list for the worker, share from master
+  // Set the geometry for the worker, share from master
   DDDWorld::SetAsWorld(runManagerMaster.world().GetWorldVolumeForWorker());
 
+  // we need the track manager now
+  m_trackManager = new SimTrackManager();
+
+  // Set the physics list for the worker, share from master
   PhysicsList *physicsList = runManagerMaster.physicsListForWorker();
   physicsList->InitializeWorker();
   kernel->SetPhysics(physicsList);
@@ -96,10 +117,42 @@ void RunManagerMTWorker::initializeThread(const RunManagerMT& runManagerMaster) 
   if(!kernelInit)
     throw SimG4Exception("G4WorkerRunManagerKernel initialization failed");
 
+  initializeUserActions();
+
   // Initialize run
   //m_currentRun.reset(new G4Run());
   m_currentRun = new G4Run();
   G4StateManager::GetStateManager()->SetNewState(G4State_GeomClosed);
+}
+
+void RunManagerMTWorker::initializeUserActions() {
+  m_runInterface = new SimRunInterface(this, false);
+
+  m_userRunAction = new RunAction(m_pRunAction, m_runInterface);
+  m_userRunAction->SetMaster(false);
+  Connect(m_userRunAction);
+
+  G4RunManagerKernel *kernel = G4WorkerRunManagerKernel::GetRunManagerKernel();
+  G4EventManager * eventManager = kernel->GetEventManager();
+  eventManager->SetVerboseLevel(m_EvtMgrVerbosity);
+
+  EventAction * userEventAction =
+    new EventAction(m_pEventAction, m_runInterface, m_trackManager);
+  Connect(userEventAction);
+  eventManager->SetUserAction(userEventAction);
+
+  TrackingAction* userTrackingAction =
+    new TrackingAction(userEventAction,m_pTrackingAction);
+  Connect(userTrackingAction);
+  eventManager->SetUserAction(userTrackingAction);
+
+  SteppingAction* userSteppingAction =
+    new SteppingAction(userEventAction,m_pSteppingAction); 
+  Connect(userSteppingAction);
+  eventManager->SetUserAction(userSteppingAction);
+
+  eventManager->SetUserAction(new StackingAction(m_pStackingAction));
+
 }
 
 void RunManagerMTWorker::produce(const edm::Event& inpevt, const edm::EventSetup& es, const RunManagerMT& runManagerMaster) {
@@ -109,6 +162,7 @@ void RunManagerMTWorker::produce(const edm::Event& inpevt, const edm::EventSetup
     initializeThread(runManagerMaster);
     m_threadInitialized = true;
   }
+  m_runInterface->setRunManagerMTWorker(this); // For UserActions
 
 
   m_currentEvent.reset(generateEvent(inpevt));
