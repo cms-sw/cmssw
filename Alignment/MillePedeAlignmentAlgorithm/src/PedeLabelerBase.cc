@@ -21,8 +21,8 @@ const unsigned int PedeLabelerBase::theMinLabel = 1; // must be > 0
 
 PedeLabelerBase::PedeLabelerBase(const TopLevelAlignables &alignables,
 				 const edm::ParameterSet &config)
-  :theOpenRunRange(std::make_pair<RunNumber,RunNumber>(cond::timeTypeSpecs[cond::runnumber].beginValue,
-						       cond::timeTypeSpecs[cond::runnumber].endValue))
+  :theOpenRunRange(std::make_pair<RunNumber,RunNumber>((RunNumber)cond::timeTypeSpecs[cond::runnumber].beginValue,
+						       (RunNumber)cond::timeTypeSpecs[cond::runnumber].endValue))
 {
   
 }
