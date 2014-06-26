@@ -7,6 +7,7 @@
 #include "SimG4CMS/Calo/interface/HFFibreFiducial.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
+#include "DetectorDescription/Core/interface/DDVector.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -91,7 +92,7 @@ HFShowerParam::HFShowerParam(std::string & name, const DDCompactView & cpv,
   if (dodet) {
     DDsvalues_type sv(fv.mergedSpecifics());
     //Special Geometry parameters
-    gpar      = getDDDArray("gparHF",sv);
+    gpar      = getDDVector( "gparHF" );
     edm::LogInfo("HFShower") << "HFShowerParam: " <<gpar.size() <<" gpar (cm)";
     for (unsigned int ig=0; ig<gpar.size(); ig++)
       edm::LogInfo("HFShower") << "HFShowerParam: gpar[" << ig << "] = "
@@ -414,28 +415,26 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(G4Step * aStep,
   return hits;
 }
 
-std::vector<double> HFShowerParam::getDDDArray(const std::string & str, 
-                                               const DDsvalues_type & sv) {
-#ifdef DebugLog
-  LogDebug("HFShower") << "HFShowerParam:getDDDArray called for " << str;
-#endif
-  DDValue value(str);
-  if (DDfetch(&sv,value)) {
-#ifdef DebugLog
-    LogDebug("HFShower") << value;
-#endif
-    const std::vector<double> & fvec = value.doubles();
-    int nval = fvec.size();
-    if (nval < 2) {
-      edm::LogError("HFShower") << "HFShowerParam : # of " << str 
-                                << " bins " << nval << " < 2 ==> illegal";
-      throw cms::Exception("Unknown", "HFShowerParam") << "nval < 2 for array "
-                                                       << str << "\n";
+std::vector<double>
+HFShowerParam::getDDVector( const std::string & str ) const
+{
+  DDVector::iterator<DDVector> vit;
+  DDVector::iterator<DDVector> ved( DDVector::end());
+  if( vit == ved )
+    throw cms::Exception( "DDException" ) << "HFShowerParam: vectors are empty, cannot get array " << str;
+
+  for (; vit != ved; ++vit )
+  {
+    if( vit->isDefined().second )
+    {
+      DDName vname( vit->name());
+      if( vname.name() == str )
+      {
+	const std::vector<double> & fvec = vit->values();
+	return fvec;
+      }
     }
-    return fvec;
-  } else {
-    edm::LogError("HFShower") << "HFShowerParam : cannot get array " << str;
-    throw cms::Exception("Unknown", "HFShowerParam")  << "cannot get array "
-                                                      << str << "\n";
   }
+  
+  throw cms::Exception( "DDException" ) << "HcalDDDSimConstants: cannot get array " << str;
 }

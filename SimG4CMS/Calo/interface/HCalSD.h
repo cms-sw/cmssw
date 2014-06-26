@@ -52,6 +52,7 @@ private:
   uint32_t                      setDetUnitId(int, G4ThreeVector, int, int);
   std::vector<double>           getDDDArray(const std::string&, 
                                             const DDsvalues_type&);
+  std::vector<double>   	getDDVector( const std::string & ) const;
   std::vector<G4String>         getNames(DDFilteredView&);
   bool                          isItHF(G4Step *);
   bool                          isItHF(G4String);

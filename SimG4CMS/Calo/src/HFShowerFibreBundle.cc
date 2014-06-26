@@ -7,6 +7,7 @@
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
+#include "DetectorDescription/Core/interface/DDVector.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -45,7 +46,7 @@ HFShowerFibreBundle::HFShowerFibreBundle(std::string & name,
     DDsvalues_type sv0(fv0.mergedSpecifics());
 
     //Special Geometry parameters
-    rTable   = getDDDArray("rTable",sv0);
+    rTable   = getDDVector("rTable");
     edm::LogInfo("HFShower") << "HFShowerFibreBundle: " << rTable.size() 
 			     << " rTable (cm)";
     for (unsigned int ig=0; ig<rTable.size(); ig++)
@@ -206,4 +207,28 @@ std::vector<double> HFShowerFibreBundle::getDDDArray(const std::string & str,
     throw cms::Exception("Unknown", "HFShowerFibreBundle") 
       << "cannot get array " << str << "\n";
   }
+}
+
+std::vector<double>
+HFShowerFibreBundle::getDDVector( const std::string & str ) const
+{
+  DDVector::iterator<DDVector> vit;
+  DDVector::iterator<DDVector> ved( DDVector::end());
+  if( vit == ved )
+    throw cms::Exception( "DDException" ) << "HFShowerParam: vectors are empty, cannot get array " << str;
+
+  for (; vit != ved; ++vit )
+  {
+    if( vit->isDefined().second )
+    {
+      DDName vname( vit->name());
+      if( vname.name() == str )
+      {
+	const std::vector<double> & fvec = vit->values();
+	return fvec;
+      }
+    }
+  }
+  
+  throw cms::Exception( "DDException" ) << "HcalDDDSimConstants: cannot get array " << str;
 }
