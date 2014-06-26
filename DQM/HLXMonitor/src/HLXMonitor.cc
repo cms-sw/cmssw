@@ -824,7 +824,8 @@ void HLXMonitor::SaveDQMFile(){
                      "^(Reference/)?([^/]+)",
                      rewrite,
                      0,
-		                 (DQMStore::SaveReferenceTag)saveReference_, saveReferenceQMin_);
+		     0,
+		     (DQMStore::SaveReferenceTag)saveReference_, saveReferenceQMin_);
 
   //dbe_->save(tempStreamer.str());
 }

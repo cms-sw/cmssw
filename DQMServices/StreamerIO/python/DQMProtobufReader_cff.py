@@ -21,12 +21,6 @@ options.register('streamLabel',
                  VarParsing.VarParsing.varType.string,
                  "Stream label used in json discovery.")
 
-options.register('minEventsPerLumi',
-                 1, # default value
-                 VarParsing.VarParsing.multiplicity.singleton,
-                 VarParsing.VarParsing.varType.int,
-                 "Minimum number of events to process per lumisection.")
-
 options.register('delayMillis',
                  500, # default value
                  VarParsing.VarParsing.multiplicity.singleton,
@@ -54,13 +48,11 @@ options.register('endOfRunKills',
 options.parseArguments()
 
 # Input source
-DQMStreamerReader = cms.Source("DQMStreamerReader",
-    SelectEvents = cms.untracked.vstring("*"),
+DQMProtobufReader = cms.Source("DQMProtobufReader",
     runNumber = cms.untracked.uint32(options.runNumber),
     runInputDir = cms.untracked.string(options.runInputDir),
     streamLabel = cms.untracked.string(options.streamLabel),
 
-    minEventsPerLumi = cms.untracked.int32(options.minEventsPerLumi),
     delayMillis = cms.untracked.uint32(options.delayMillis),
     skipFirstLumis = cms.untracked.bool(options.skipFirstLumis),
     deleteDatFiles = cms.untracked.bool(options.deleteDatFiles),
