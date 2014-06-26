@@ -486,7 +486,7 @@ class SiPixelTemplate {
      return chi2xminc2m_[i];} //!< 1st pass chi2 min search: minimum x-chisq for merged clusters 
    float fbin(int i) {
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
-      if(i < 0 || i > 2) {throw cms::Exception("DataCorrupt") << "SiPixelTemplate::chi2xminc2m called with illegal index = " << i << std::endl;}
+      if(i < 0 || i > 2) {throw cms::Exception("DataCorrupt") << "SiPixelTemplate::fbin called with illegal index = " << i << std::endl;}
 #else
       assert(i>=0 && i<3);
 #endif

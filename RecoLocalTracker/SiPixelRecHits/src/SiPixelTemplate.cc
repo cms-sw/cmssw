@@ -111,6 +111,10 @@ using namespace edm;
 #define ENDL std::endl
 #endif
 
+namespace {
+  const float fbin0=1.50f, fbin1=1.00f, fbin2=0.85f;
+}
+
 //**************************************************************** 
 //! This routine initializes the global template structures from 
 //! an external file template_summary_zpNNNN where NNNN are four  
@@ -187,9 +191,9 @@ bool SiPixelTemplate::pushfile(int filenum, std::vector< SiPixelTemplateStore > 
 	    theCurrentTemp.head.ss50 = theCurrentTemp.head.s50;
 	    theCurrentTemp.head.lorybias = theCurrentTemp.head.lorywidth/2.f;
 	    theCurrentTemp.head.lorxbias = theCurrentTemp.head.lorxwidth/2.f;
-	    theCurrentTemp.head.fbin[0] = 1.50f;
-	    theCurrentTemp.head.fbin[1] = 1.00f;
-	    theCurrentTemp.head.fbin[2] = 0.85f;
+	    theCurrentTemp.head.fbin[0] = fbin0;
+	    theCurrentTemp.head.fbin[1] = fbin1;
+	    theCurrentTemp.head.fbin[2] = fbin2;
 	  }
 		
 	  LOGINFO("SiPixelTemplate") << "Template ID = " << theCurrentTemp.head.ID << ", Template Version " << theCurrentTemp.head.templ_version << ", Bfield = " << theCurrentTemp.head.Bfield 
@@ -591,9 +595,9 @@ bool SiPixelTemplate::pushfile(const SiPixelTemplateDBObject& dbobject, std::vec
 	    theCurrentTemp.head.ss50 = theCurrentTemp.head.s50;
 	    theCurrentTemp.head.lorybias = theCurrentTemp.head.lorywidth/2.f;
 	    theCurrentTemp.head.lorxbias = theCurrentTemp.head.lorxwidth/2.f;
-	    theCurrentTemp.head.fbin[0] = 1.50f;
-	    theCurrentTemp.head.fbin[1] = 1.00f;
-	    theCurrentTemp.head.fbin[2] = 0.85f;
+	    theCurrentTemp.head.fbin[0] = fbin0;
+	    theCurrentTemp.head.fbin[1] = fbin1;
+	    theCurrentTemp.head.fbin[2] = fbin2;
 	    //std::cout<<" set fbin  "<< theCurrentTemp.head.fbin[0]<<" "<<theCurrentTemp.head.fbin[1]<<" "
 	    //	     <<theCurrentTemp.head.fbin[2]<<std::endl;
 	  }
@@ -2393,7 +2397,7 @@ int SiPixelTemplate::qbin(int id, float cotalpha, float cotbeta, float locBz, fl
     auto fq = qtotal/qavg;
     int  binq;
     // since fbin is undefined I define it here d.k. 6/14
-    fbin_[0]=1.5; fbin_[1]=1.0; fbin_[2]=0.85; 
+    fbin_[0]=fbin0; fbin_[1]=fbin1; fbin_[2]=fbin2; 
 
     if(fq > fbin_[0]) {
       binq=0;

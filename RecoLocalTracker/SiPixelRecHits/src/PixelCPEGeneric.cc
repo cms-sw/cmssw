@@ -18,7 +18,7 @@
 #include <iostream>
 using namespace std;
 
-//#define NEW_CPEERROR // must be constistent with base.cc, generic cc/h and genericProducer.cc 
+#define NEW_CPEERROR // must be constistent with base.cc, generic cc/h and genericProducer.cc 
 
 namespace {
   constexpr float micronsToCm = 1.0e-4;
@@ -46,11 +46,11 @@ PixelCPEGeneric::PixelCPEGeneric(edm::ParameterSet const & conf,
 				 const SiPixelLorentzAngle * lorentzAngleWidth=0) 
   : PixelCPEBase(conf, mag, geom, lorentzAngle, genErrorDBObject, templateDBobject,lorentzAngleWidth,0) {
 #endif
-  
+
   if (theVerboseLevel > 0) 
-    cout<<"PixelCPEGeneric:" 
-	<< " constructing a generic algorithm for ideal pixel detector.\n"
-	<< " CPEGeneric:: VerboseLevel = " << theVerboseLevel;
+    LogDebug("PixelCPEGeneric") 
+      << " constructing a generic algorithm for ideal pixel detector.\n"
+      << " CPEGeneric:: VerboseLevel = " << theVerboseLevel;
 
   // Externally settable cuts  
   the_eff_charge_cut_lowX = conf.getParameter<double>("eff_charge_cut_lowX");
@@ -247,7 +247,7 @@ PixelCPEGeneric::localPosition(DetParam const & theDetParam, ClusterParam & theC
       if(useLAWidthFromGenError) {
 	chargeWidthX = (-micronsToCm*gtempl.lorxwidth());
 	chargeWidthY = (-micronsToCm*gtempl.lorywidth());
-	//cout<< " redefine la width (gen-error) "<< chargeWidthX<<" "<< chargeWidthY <<endl;
+	if(MYDEBUG) cout<< " redefine la width (gen-error) "<< chargeWidthX<<" "<< chargeWidthY <<endl;
       }
       if(MYDEBUG) cout<<" GenError: "<<gtemplID_<<endl;
       
@@ -636,8 +636,10 @@ PixelCPEGeneric::localError(DetParam const & theDetParam,  ClusterParam & theClu
 
   unsigned int sizex = theClusterParam.theCluster->sizeX();
   unsigned int sizey = theClusterParam.theCluster->sizeY();
-  if( int(sizex) != (maxPixelRow - minPixelRow+1) ) cout<<" wrong x"<<endl;
-  if( int(sizey) != (maxPixelCol - minPixelCol+1) ) cout<<" wrong y"<<endl;
+  if(MYDEBUG) {
+    if( int(sizex) != (maxPixelRow - minPixelRow+1) ) cout<<" wrong x"<<endl;
+    if( int(sizey) != (maxPixelCol - minPixelCol+1) ) cout<<" wrong y"<<endl;
+  }
 
   // Find if cluster contains double (big) pixels. 
   bool bigInX = theDetParam.theRecTopol->containsBigPixelInX( minPixelRow, maxPixelRow ); 	 
