@@ -1,10 +1,11 @@
 #ifndef SimG4Core_Application_RunManagerMTWorker_H
 #define SimG4Core_Application_RunManagerMTWorker_H
 
-#include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include "SimG4Core/Generators/interface/Generator.h"
 #include "SimG4Core/Notification/interface/SimActivityRegistry.h"
+#include "SimDataFormats/Forward/interface/LHCTransportLinkContainer.h"
 
 #include <memory>
 #include "boost/shared_ptr.hpp"
@@ -13,6 +14,8 @@ namespace edm {
   class ParameterSet;
   class Event;
   class EventSetup;
+  class ConsumesCollector;
+  class HepMCProduct;
 }
 class Generator;
 class RunManagerMT;
@@ -37,7 +40,7 @@ class SimProducer;
 
 class RunManagerMTWorker {
 public:
-  RunManagerMTWorker(const edm::ParameterSet& iConfig);
+  RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& i);
   ~RunManagerMTWorker();
 
   void beginRun(const RunManagerMT& runManagerMaster, const edm::EventSetup& es);
@@ -70,7 +73,8 @@ private:
   static thread_local bool m_runTerminated;
 
   Generator m_generator;
-  std::string m_InTag;
+  edm::EDGetTokenT<edm::HepMCProduct> m_InToken;
+  edm::EDGetTokenT<edm::LHCTransportLinkContainer> m_theLHCTlinkToken;
   const bool m_nonBeam;
   const int m_EvtMgrVerbosity;
   edm::ParameterSet m_pRunAction;
@@ -94,8 +98,6 @@ private:
 
   std::vector<boost::shared_ptr<SimWatcher> > m_watchers;
   std::vector<boost::shared_ptr<SimProducer> > m_producers;
-
-  edm::InputTag m_theLHCTlinkTag;
 };
 
 #endif

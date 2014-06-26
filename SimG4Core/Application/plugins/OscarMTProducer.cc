@@ -1,6 +1,7 @@
 #include "FWCore/PluginManager/interface/PluginManager.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimG4Core/Application/interface/OscarMTProducer.h"
@@ -65,8 +66,7 @@ OscarMTProducer::OscarMTProducer(edm::ParameterSet const & p, const edm::Paramet
   // Random number generation not allowed here
   StaticRandomEngineSetUnset random(nullptr);
 
-  consumes<edm::HepMCProduct>(p.getParameter<edm::InputTag>("HepMCProductLabel"));
-  m_runManagerWorker.reset(new RunManagerMTWorker(p));
+  m_runManagerWorker.reset(new RunManagerMTWorker(p, consumesCollector()));
 }
 
 OscarMTProducer::~OscarMTProducer() 

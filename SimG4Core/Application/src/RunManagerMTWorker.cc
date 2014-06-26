@@ -13,6 +13,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "SimG4Core/Notification/interface/SimActivityRegistry.h"
@@ -103,9 +104,10 @@ thread_local SimActivityRegistry RunManagerMTWorker::m_registry;
 thread_local std::vector<SensitiveTkDetector*> RunManagerMTWorker::m_sensTkDets;
 thread_local std::vector<SensitiveCaloDetector*> RunManagerMTWorker::m_sensCaloDets;
 
-RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig):
+RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC):
   m_generator(iConfig.getParameter<edm::ParameterSet>("Generator")),
-  m_InTag(iConfig.getParameter<edm::ParameterSet>("Generator").getParameter<std::string>("HepMCProductLabel")),
+  m_InToken(iC.consumes<edm::HepMCProduct>(iConfig.getParameter<edm::ParameterSet>("Generator").getParameter<std::string>("HepMCProductLabel"))),
+  m_theLHCTlinkToken(iC.consumes<edm::LHCTransportLinkContainer>(iConfig.getParameter<edm::InputTag>("theLHCTlinkTag"))),
   m_nonBeam(iConfig.getParameter<bool>("NonBeamEvent")),
   m_EvtMgrVerbosity(iConfig.getUntrackedParameter<int>("G4EventManagerVerbosity",0)),
   m_pRunAction(iConfig.getParameter<edm::ParameterSet>("RunAction")),
@@ -113,8 +115,7 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig):
   m_pStackingAction(iConfig.getParameter<edm::ParameterSet>("StackingAction")),
   m_pTrackingAction(iConfig.getParameter<edm::ParameterSet>("TrackingAction")),
   m_pSteppingAction(iConfig.getParameter<edm::ParameterSet>("SteppingAction")),
-  m_p(iConfig),
-  m_theLHCTlinkTag(iConfig.getParameter<edm::InputTag>("theLHCTlinkTag"))
+  m_p(iConfig)
 {
 
   edm::Service<SimActivityRegistry> otherRegistry;
@@ -379,7 +380,7 @@ G4Event * RunManagerMTWorker::generateEvent(const edm::Event& inpevt) {
   G4Event * evt = new G4Event(inpevt.id().event());
   edm::Handle<edm::HepMCProduct> HepMCEvt;
 
-  inpevt.getByLabel(m_InTag, HepMCEvt);
+  inpevt.getByToken(m_InToken, HepMCEvt);
 
   m_generator.setGenEvent(HepMCEvt->GetEvent());
 
@@ -403,7 +404,7 @@ G4Event * RunManagerMTWorker::generateEvent(const edm::Event& inpevt) {
 void RunManagerMTWorker::resetGenParticleId(const edm::Event& inpevt)
 {
   edm::Handle<edm::LHCTransportLinkContainer> theLHCTlink;
-  inpevt.getByLabel( m_theLHCTlinkTag, theLHCTlink );
+  inpevt.getByToken( m_theLHCTlinkToken, theLHCTlink );
   if ( theLHCTlink.isValid() ) {
     m_trackManager->setLHCTransportLink( theLHCTlink.product() );
   }
