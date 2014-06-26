@@ -58,6 +58,15 @@ public:
   void             Connect(TrackingAction*);
   void             Connect(SteppingAction*);
 
+  std::vector<SensitiveTkDetector*>& sensTkDetectors() {
+    return m_sensTkDets; 
+  }
+  std::vector<SensitiveCaloDetector*>& sensCaloDetectors() {
+    return m_sensCaloDets; 
+  }
+  std::vector<boost::shared_ptr<SimProducer> > producers() {
+    return m_producers;
+  }
 
 private:
   void initializeThread(const RunManagerMT& runManagerMaster, const edm::EventSetup& es);
