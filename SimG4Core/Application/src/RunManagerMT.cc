@@ -149,10 +149,26 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF, co
   m_kernel->SetPhysics(phys);
   m_kernel->InitializePhysics();
 
+  m_physicsList->ResetStoredInAscii();
+  std::string tableDir = m_PhysicsTablesDir;
+  if (m_RestorePhysicsTables) {
+    m_physicsList->SetPhysicsTableRetrieved(tableDir);
+  }
+
   if (m_kernel->RunInitialization()) { m_managerInitialized = true; }
   else { 
     throw SimG4Exception("G4RunManagerKernel initialization failed!"); 
   }
+
+  if (m_StorePhysicsTables)
+    {
+      std::ostringstream dir;
+      dir << tableDir << '\0';
+      std::string cmd = std::string("/control/shell mkdir -p ")+tableDir;
+      if (!std::ifstream(dir.str().c_str(), std::ios::in))
+        G4UImanager::GetUIpointer()->ApplyCommand(cmd);
+      m_physicsList->StorePhysicsTable(tableDir);
+    }
 
   initializeUserActions();
 
