@@ -1,7 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
 ##____________________________________________________________________________||
-from JetMETCorrections.Type1MET.pfMETCorrections_cff import *
+pfchsMETcorr = cms.EDProducer(
+    "PFchsMETcorrInputProducer",
+    src = cms.InputTag('offlinePrimaryVertices'),
+    goodVtxNdof = cms.uint32(4),
+    goodVtxZ = cms.double(24)
+)
 
 ##____________________________________________________________________________||
 corrPfMetType0RecoTrack = cms.EDProducer(
