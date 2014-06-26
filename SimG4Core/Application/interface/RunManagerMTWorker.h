@@ -64,6 +64,7 @@ private:
   void terminateRun();
 
   G4Event *generateEvent(const edm::Event& inpevt);
+  void resetGenParticleId(const edm::Event& inpevt);
 
   static thread_local bool m_threadInitialized;
   static thread_local bool m_runTerminated;
@@ -93,6 +94,8 @@ private:
 
   std::vector<boost::shared_ptr<SimWatcher> > m_watchers;
   std::vector<boost::shared_ptr<SimProducer> > m_producers;
+
+  edm::InputTag m_theLHCTlinkTag;
 };
 
 #endif

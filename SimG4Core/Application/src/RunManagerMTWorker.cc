@@ -113,7 +113,8 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig):
   m_pStackingAction(iConfig.getParameter<edm::ParameterSet>("StackingAction")),
   m_pTrackingAction(iConfig.getParameter<edm::ParameterSet>("TrackingAction")),
   m_pSteppingAction(iConfig.getParameter<edm::ParameterSet>("SteppingAction")),
-  m_p(iConfig)
+  m_p(iConfig),
+  m_theLHCTlinkTag(iConfig.getParameter<edm::InputTag>("theLHCTlinkTag"))
 {
 
   edm::Service<SimActivityRegistry> otherRegistry;
@@ -382,7 +383,10 @@ G4Event * RunManagerMTWorker::generateEvent(const edm::Event& inpevt) {
 
   m_generator.setGenEvent(HepMCEvt->GetEvent());
 
-  // STUFF MISSING
+  // required to reset the GenParticle Id for particles transported
+  // along the beam pipe
+  // to their original value for SimTrack creation
+  resetGenParticleId( inpevt );
 
   if (!m_nonBeam) 
     {
@@ -396,3 +400,11 @@ G4Event * RunManagerMTWorker::generateEvent(const edm::Event& inpevt) {
   return evt;
 }
 
+void RunManagerMTWorker::resetGenParticleId(const edm::Event& inpevt)
+{
+  edm::Handle<edm::LHCTransportLinkContainer> theLHCTlink;
+  inpevt.getByLabel( m_theLHCTlinkTag, theLHCTlink );
+  if ( theLHCTlink.isValid() ) {
+    m_trackManager->setLHCTransportLink( theLHCTlink.product() );
+  }
+}
