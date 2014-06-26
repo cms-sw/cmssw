@@ -51,6 +51,28 @@ void Stage1Layer2JetAlgorithmImpSimpleHW::processEvent(const std::vector<l1t::Ca
     jets->push_back(gtJet);
   }
 
+  int cJets = 0;
+  int fJets = 0;
+  printf("Central 4x4s\n");
+  printf("pt\teta\phi\n");
+  for(std::vector<l1t::Jet>::const_iterator itJet = jets->begin();
+      itJet != jets->end(); ++itJet){
+    if(itJet->hwQual == 2) continue;
+    cJets++;
+    printf("%i\t%i\t%i\n",itJet->hwPt(), itJet->hwEta(), itJet->hwPhi());
+    if(cJets == 4) break;
+  }
+
+  printf("Forward 4x4s\n");
+  printf("pt\teta\phi\n");
+  for(std::vector<l1t::Jet>::const_iterator itJet = jets->begin();
+      itJet != jets->end(); ++itJet){
+    if(itJet->hwQual != 2) continue;
+    fJets++;
+    printf("%i\t%i\t%i\n",itJet->hwPt(), itJet->hwEta(), itJet->hwPhi());
+    if(fJets == 4) break;
+  }
+
   delete subRegions;
   delete preGtJets;
 }

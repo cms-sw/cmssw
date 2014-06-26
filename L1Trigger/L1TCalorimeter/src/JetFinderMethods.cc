@@ -31,12 +31,12 @@ namespace l1t {
 		       std::vector<l1t::Jet> * uncalibjets)
   {
     for(std::vector<CaloRegion>::const_iterator region = regions->begin(); region != regions->end(); region++) {
-      if( region->hwEta() < 4 || region->hwEta() > 17) continue;
-
+      int jetQual = 0;
+      if( region->hwEta() < 4 || region->hwEta() > 17) 
+	jetQual = 2;
       int jetET = region->hwPt();
       int jetEta = region->hwEta();
       int jetPhi = region->hwPhi();
-      int jetQual = 0;
 
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > jetLorentz(0,0,0,0);
       l1t::Jet theJet(*&jetLorentz, jetET, jetEta, jetPhi, jetQual);

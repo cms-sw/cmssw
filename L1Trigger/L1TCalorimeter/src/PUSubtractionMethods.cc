@@ -56,10 +56,14 @@ namespace l1t {
   {
     for(std::vector<CaloRegion>::const_iterator region = regions.begin();
 	region != regions.end(); region++){
-      int subPt = region->hwPt();
       int subEta = region->hwEta();
       int subPhi = region->hwPhi();
-
+      int subPt = region->hwPt();
+      
+      if(subPt != (2<<10)-1)
+	subPt = subPt - (10+subEta); // arbitrary value chosen in meeting
+      if(subPt < 0)
+	subPt = 0;
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > ldummy(0,0,0,0);
 
       CaloRegion newSubRegion(*&ldummy, 0, 0, subPt, subEta, subPhi, 0, 0, 0);
