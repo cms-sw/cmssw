@@ -109,6 +109,11 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF, co
   m_world.reset(new DDDWorld(pDD, map_, catalog_, m_check));
   m_registry.dddWorldSignal_(m_world.get());
 
+  if("" != m_WriteFile) {
+    G4GDMLParser gdml;
+    gdml.Write(m_WriteFile, m_world->GetWorldVolume());
+  }
+
   // setup the magnetic field
   if (m_pUseMagneticField)
     {
