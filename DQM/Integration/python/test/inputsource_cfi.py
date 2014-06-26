@@ -54,6 +54,7 @@ runType.setRunType(options.runkey.strip())
 source = cms.Source("DQMStreamerReader",
     runNumber = cms.untracked.uint32(options.runNumber),
     runInputDir = cms.untracked.string(options.runInputDir),
+    SelectEvents = cms.untracked.vstring('*'),
     streamLabel = cms.untracked.string(''),
     minEventsPerLumi = cms.untracked.int32(1),
     delayMillis = cms.untracked.uint32(500),
