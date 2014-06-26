@@ -97,7 +97,7 @@ ProcMLP::ProcMLP(const char *name,
 	std::copy(calib->layers.begin(), calib->layers.end(),
 	          std::back_inserter(layers));
 
-	for(unsigned int i = 0; i < layers.size(); i++) {
+	for(size_t i = 0; i < layers.size(); i++) {
 		maxTmp = std::max<unsigned int>(maxTmp, layers[i].neurons);
 		if (i > 0 && layers[i - 1].neurons != layers[i].inputs)
 			throw cms::Exception("ProcMLPInput")
