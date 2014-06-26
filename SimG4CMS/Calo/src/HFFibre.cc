@@ -8,7 +8,7 @@
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
-#include "DetectorDescription/Core/interface/DDVector.h"
+#include "DetectorDescription/Core/interface/DDVectorGetter.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
@@ -89,14 +89,14 @@ HFFibre::HFFibre(std::string & name, const DDCompactView & cpv,
 
     //Special Geometry parameters
     int nb    = -1;
-    gpar      = getDDVector( "gparHF" );
+    gpar      = DDVectorGetter::get( "gparHF" );
     edm::LogInfo("HFShower") << "HFFibre: " << nb <<" gpar (cm)";
     for (int i=0; i<nb; i++)
       edm::LogInfo("HFShower") << "HFFibre: gpar[" << i << "] = "
 			       << gpar[i]/cm << " cm";
 
     nBinR     = -1;
-    radius    = getDDVector( "rTable" );
+    radius    = DDVectorGetter::get( "rTable" );
     edm::LogInfo("HFShower") << "HFFibre: " << nBinR <<" rTable (cm)";
     for (int i=0; i<nBinR; i++)
       edm::LogInfo("HFShower") << "HFFibre: radius[" << i << "] = "
@@ -222,28 +222,4 @@ std::vector<double> HFFibre::getDDDArray(const std::string & str,
       return fvec;
     }
   }
-}
-
-std::vector<double>
-HFFibre::getDDVector( const std::string & str ) const
-{
-  DDVector::iterator<DDVector> vit;
-  DDVector::iterator<DDVector> ved( DDVector::end());
-  if( vit == ved )
-    throw cms::Exception( "DDException" ) << "HFShowerParam: vectors are empty, cannot get array " << str;
-
-  for (; vit != ved; ++vit )
-  {
-    if( vit->isDefined().second )
-    {
-      DDName vname( vit->name());
-      if( vname.name() == str )
-      {
-	const std::vector<double> & fvec = vit->values();
-	return fvec;
-      }
-    }
-  }
-  
-  throw cms::Exception( "DDException" ) << "HcalDDDSimConstants: cannot get array " << str;
 }

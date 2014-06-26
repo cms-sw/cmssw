@@ -13,7 +13,7 @@
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
-#include "DetectorDescription/Core/interface/DDVector.h"
+#include "DetectorDescription/Core/interface/DDVectorGetter.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -266,7 +266,7 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
     if (fv6.firstChild()) {
       DDsvalues_type sv(fv6.mergedSpecifics());
       //Special Geometry parameters
-      gpar      = getDDVector("gparHF");
+      gpar      = DDVectorGetter::get("gparHF");
       edm::LogInfo("HcalSim") << "HCalSD: " << gpar.size() << " gpar (cm)";
       for (unsigned int ig=0; ig<gpar.size(); ig++)
 	edm::LogInfo("HcalSim") << "HCalSD: gpar[" << ig << "] = "
@@ -1172,28 +1172,4 @@ void HCalSD::plotHF(G4ThreeVector& hitPoint, bool emType) {
   } else {
     if (hzvhad != 0) hzvhad->Fill(zv);
   }
-}
-
-std::vector<double>
-HCalSD::getDDVector( const std::string & str ) const
-{
-  DDVector::iterator<DDVector> vit;
-  DDVector::iterator<DDVector> ved( DDVector::end());
-  if( vit == ved )
-    throw cms::Exception( "DDException" ) << "HFShowerParam: vectors are empty, cannot get array " << str;
-
-  for (; vit != ved; ++vit )
-  {
-    if( vit->isDefined().second )
-    {
-      DDName vname( vit->name());
-      if( vname.name() == str )
-      {
-	const std::vector<double> & fvec = vit->values();
-	return fvec;
-      }
-    }
-  }
-  
-  throw cms::Exception( "DDException" ) << "HcalDDDSimConstants: cannot get array " << str;
 }

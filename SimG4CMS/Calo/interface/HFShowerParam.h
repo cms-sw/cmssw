@@ -46,8 +46,6 @@ public:
   
 private:    
 
-  std::vector<double>   getDDVector( const std::string & ) const;
-
   HFShowerLibrary*      showerLibrary;
   HFFibre*              fibre;
   HFGflash*             gflash;

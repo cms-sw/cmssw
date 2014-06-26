@@ -29,9 +29,6 @@ public:
 private:    
 
   std::vector<double>   getDDDArray(const std::string&, const DDsvalues_type&);
-  std::vector<double>   getDDVector( const std::string & ) const;
-
-private:    
 
   HFCherenkov           *cherenkov1, *cherenkov2;
   double                facTube, facCone; //Packing factors

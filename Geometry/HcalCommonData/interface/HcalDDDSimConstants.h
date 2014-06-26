@@ -64,8 +64,6 @@ private:
   void                initialize(const DDCompactView& cpv);
   void                loadSpecPars( void );
   void                loadGeometry(const DDFilteredView& fv);
-  bool		      checkDDVector( const std::string & ) const;
-  std::vector<double> getDDVector( const std::string & ) const;
   unsigned            find (int element, std::vector<int>& array) const;
   double              deltaEta(int det, int eta, int depth) const;
   double              getEta(int det, int etaR, int zside, int depth=1) const;
