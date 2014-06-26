@@ -21,4 +21,17 @@
   <class pattern="std::pair<ROOT::Math::PositionVector3D<*>,float>"/>
   <class pattern="std::vector<std::pair<ROOT::Math::PositionVector3D<*>,float> >"/>
 </selection>
+<exclusion>
+  <!-- Excluded to avoid duplicate warnings because these dictionaries are defined in ROOT -->
+  <class name= "ROOT::Math::PtEtaPhiE4D<double>"/>
+  <class name= "ROOT::Math::PxPyPzE4D<double>"/>
+  <class name= "ROOT::Math::Cartesian3D<double>"/>
+  <class name= "ROOT::Math::CylindricalEta3D<double>"/>
+  <class name= "ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >"/>
+  <class name= "ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double> >"/>
+  <class name= "ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> >"/>
+  <class name= "ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag>"/>
+  <class name= "ROOT::Math::DisplacementVector3D<ROOT::Math::CylindricalEta3D<double>,ROOT::Math::DefaultCoordinateSystemTag>"/>
+  <class name= "ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag>"/>
+</exclusion>
 </lcgdict>
