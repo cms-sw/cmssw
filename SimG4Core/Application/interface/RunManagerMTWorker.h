@@ -7,6 +7,7 @@
 #include "SimG4Core/Notification/interface/SimActivityRegistry.h"
 
 #include <memory>
+#include "boost/shared_ptr.hpp"
 
 namespace edm {
   class ParameterSet;
@@ -30,6 +31,9 @@ class SimRunInterface;
 
 class SensitiveTkDetector;
 class SensitiveCaloDetector;
+
+class SimWatcher;
+class SimProducer;
 
 class RunManagerMTWorker {
 public:
@@ -73,20 +77,20 @@ private:
   edm::ParameterSet m_pSteppingAction;
   edm::ParameterSet m_p;
 
+  static thread_local RunAction *m_userRunAction;
+  static thread_local SimRunInterface *m_runInterface;
+  static thread_local SimActivityRegistry m_registry;
+  static thread_local SimTrackManager *m_trackManager;
   static thread_local std::vector<SensitiveTkDetector*> m_sensTkDets;
   static thread_local std::vector<SensitiveCaloDetector*> m_sensCaloDets;
 
-  static thread_local RunAction *m_userRunAction;
-  static thread_local SimRunInterface *m_runInterface;
+  static thread_local G4Run *m_currentRun;
 
   std::unique_ptr<G4Event> m_currentEvent;
   std::unique_ptr<G4SimEvent> m_simEvent;
 
-  static thread_local G4Run *m_currentRun;
-
-  static thread_local SimActivityRegistry m_registry;
-
-  static thread_local SimTrackManager *m_trackManager;
+  std::vector<boost::shared_ptr<SimWatcher> > m_watchers;
+  std::vector<boost::shared_ptr<SimProducer> > m_producers;
 };
 
 #endif

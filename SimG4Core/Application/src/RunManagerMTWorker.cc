@@ -18,6 +18,7 @@
 #include "SimG4Core/Notification/interface/SimActivityRegistry.h"
 #include "SimG4Core/Notification/interface/SimG4Exception.h"
 #include "SimG4Core/Notification/interface/BeginOfJob.h"
+#include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -57,6 +58,39 @@ namespace {
   static thread_local int s_thread_index = get_new_thread_index();
 
   int getThreadIndex() { return s_thread_index; }
+
+  void createWatchers(const edm::ParameterSet& iP,
+                      SimActivityRegistry& iReg,
+                      std::vector<boost::shared_ptr<SimWatcher> >& oWatchers,
+                      std::vector<boost::shared_ptr<SimProducer> >& oProds
+                      )
+  {
+    using namespace std;
+    using namespace edm;
+    if(!iP.exists("Watchers"))
+      return;
+
+    vector<ParameterSet> watchers = iP.getParameter<vector<ParameterSet> >("Watchers");
+
+    for(vector<ParameterSet>::iterator itWatcher = watchers.begin();
+        itWatcher != watchers.end();
+        ++itWatcher) {
+      std::unique_ptr<SimWatcherMakerBase> maker(
+        SimWatcherFactory::get()->create(itWatcher->getParameter<std::string>("type"))
+      );
+      if(maker.get()==0) {
+        throw SimG4Exception("Unable to find the requested Watcher");
+      }
+
+      boost::shared_ptr<SimWatcher> watcherTemp;
+      boost::shared_ptr<SimProducer> producerTemp;
+      maker->make(*itWatcher,iReg,watcherTemp,producerTemp);
+      oWatchers.push_back(watcherTemp);
+      if(producerTemp) {
+        oProds.push_back(producerTemp);
+      }
+    }
+  }
 }
 
 thread_local bool RunManagerMTWorker::m_threadInitialized = false;
@@ -87,6 +121,8 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig):
   if(otherRegistry){
     m_registry.connect(*otherRegistry);
   }
+
+  createWatchers(m_p, m_registry, m_watchers, m_producers);
 }
 
 RunManagerMTWorker::~RunManagerMTWorker() {}
