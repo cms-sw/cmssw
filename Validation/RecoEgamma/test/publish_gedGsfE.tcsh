@@ -65,7 +65,7 @@ PileUp) echo "PileUp"
 	;;
 Fast) echo "Fast"
 	echo "**"
-	for j in vsFull vsFast
+	for j in VsFull VsFast
 		do
 		for i in TTbarStartup ZEEStartup
 #		for i in ZEEStartup
