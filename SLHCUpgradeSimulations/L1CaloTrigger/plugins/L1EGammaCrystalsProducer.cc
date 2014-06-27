@@ -317,7 +317,9 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
       // This is a dynamic falling quadratic cut in pt, trying to squeeze as much efficiency as possible
       // out of the cut variables, which should have been pt-independent, but are not.
       if ( cluster.hovere() < ((cluster.pt() > 35) ? 0.5 : 0.5+pow(cluster.pt()-35,2)/350. )
-              && cluster.isolation() < ((cluster.pt() > 35) ? 1.3 : 1.3+pow(cluster.pt()-35,2)*4/(35*35) ) )
+           && cluster.isolation() < ((cluster.pt() > 35) ? 1.3 : 1.3+pow(cluster.pt()-35,2)*4/(35*35) )
+           && (cluster.GetCrystalPt(4)/(cluster.GetCrystalPt(0)+cluster.GetCrystalPt(1)) < ( (cluster.pt() < 20) ? 0.08:0.08*(1+(cluster.pt()-20)/30.) ) )
+           && ((cluster.pt() > 10) ? (cluster.GetCrystalPt(4)/(cluster.GetCrystalPt(0)+cluster.GetCrystalPt(1)) > 0.):true) )
       {
          // Optional min. Et cut
          if  (cluster.pt() >= EtminForStore) {
