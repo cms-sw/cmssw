@@ -353,19 +353,19 @@ MuonME0Digis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                     if(re==1) meCollection["strip_dg_zr_rp1"]->Fill(me0_digi_.g_z,glb_R);
                     
                     /*-------------XY Occupancy---------------*/
-                    if(re==-1 && la==1) meCollection["strip_dg_xy_rm1_l1"]->Fill(me0_sh.globalX,me0_sh.globalY);
-                    if(re==-1 && la==2) meCollection["strip_dg_xy_rm1_l2"]->Fill(me0_sh.globalX,me0_sh.globalY);
-                    if(re==-1 && la==3) meCollection["strip_dg_xy_rm1_l3"]->Fill(me0_sh.globalX,me0_sh.globalY);
-                    if(re==-1 && la==4) meCollection["strip_dg_xy_rm1_l4"]->Fill(me0_sh.globalX,me0_sh.globalY);
-                    if(re==-1 && la==5) meCollection["strip_dg_xy_rm1_l5"]->Fill(me0_sh.globalX,me0_sh.globalY);
-                    if(re==-1 && la==6) meCollection["strip_dg_xy_rm1_l6"]->Fill(me0_sh.globalX,me0_sh.globalY);
+                    if(re==-1 && la==1) meCollection["strip_dg_xy_rm1_l1"]->Fill(me0_digi_.g_x,me0_digi_.g_y);
+                    if(re==-1 && la==2) meCollection["strip_dg_xy_rm1_l2"]->Fill(me0_digi_.g_x,me0_digi_.g_y);
+                    if(re==-1 && la==3) meCollection["strip_dg_xy_rm1_l3"]->Fill(me0_digi_.g_x,me0_digi_.g_y);
+                    if(re==-1 && la==4) meCollection["strip_dg_xy_rm1_l4"]->Fill(me0_digi_.g_x,me0_digi_.g_y);
+                    if(re==-1 && la==5) meCollection["strip_dg_xy_rm1_l5"]->Fill(me0_digi_.g_x,me0_digi_.g_y);
+                    if(re==-1 && la==6) meCollection["strip_dg_xy_rm1_l6"]->Fill(me0_digi_.g_x,me0_digi_.g_y);
                     
-                    if(re==1 && la==1) meCollection["strip_dg_xy_rp1_l1"]->Fill(me0_sh.globalX,me0_sh.globalY);
-                    if(re==1 && la==2) meCollection["strip_dg_xy_rp1_l2"]->Fill(me0_sh.globalX,me0_sh.globalY);
-                    if(re==1 && la==3) meCollection["strip_dg_xy_rp1_l3"]->Fill(me0_sh.globalX,me0_sh.globalY);
-                    if(re==1 && la==4) meCollection["strip_dg_xy_rp1_l4"]->Fill(me0_sh.globalX,me0_sh.globalY);
-                    if(re==1 && la==5) meCollection["strip_dg_xy_rp1_l5"]->Fill(me0_sh.globalX,me0_sh.globalY);
-                    if(re==1 && la==6) meCollection["strip_dg_xy_rp1_l6"]->Fill(me0_sh.globalX,me0_sh.globalY);
+                    if(re==1 && la==1) meCollection["strip_dg_xy_rp1_l1"]->Fill(me0_digi_.g_x,me0_digi_.g_y);
+                    if(re==1 && la==2) meCollection["strip_dg_xy_rp1_l2"]->Fill(me0_digi_.g_x,me0_digi_.g_y);
+                    if(re==1 && la==3) meCollection["strip_dg_xy_rp1_l3"]->Fill(me0_digi_.g_x,me0_digi_.g_y);
+                    if(re==1 && la==4) meCollection["strip_dg_xy_rp1_l4"]->Fill(me0_digi_.g_x,me0_digi_.g_y);
+                    if(re==1 && la==5) meCollection["strip_dg_xy_rp1_l5"]->Fill(me0_digi_.g_x,me0_digi_.g_y);
+                    if(re==1 && la==6) meCollection["strip_dg_xy_rp1_l6"]->Fill(me0_digi_.g_x,me0_digi_.g_y);
                     
                     /*------------ (x_digi_sim - x_digi_rec) ------------*/
                     meCollection["digiDX"]->Fill(me0_digi_.g_x_sim-me0_digi_.g_x);
