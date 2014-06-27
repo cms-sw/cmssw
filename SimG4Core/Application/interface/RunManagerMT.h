@@ -75,13 +75,16 @@ public:
   // later (or functionality moved to RunManagerMTWorker)
   void abortRun(bool softAbort=false) {}
 
-
   const DDDWorld& world() const {
     return *m_world;
   }
 
   const SensitiveDetectorCatalog& catalog() const {
     return m_catalog;
+  }
+
+  const std::vector<std::string>& G4Commands() const {
+    return m_G4Commands;
   }
 
   // In order to share the physics list with the worker threads, we

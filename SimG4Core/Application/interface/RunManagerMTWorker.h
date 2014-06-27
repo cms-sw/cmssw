@@ -17,6 +17,7 @@ namespace edm {
   class ConsumesCollector;
   class HepMCProduct;
 }
+class CustomUIsession;
 class Generator;
 class RunManagerMT;
 
@@ -93,6 +94,7 @@ private:
   edm::ParameterSet m_pSteppingAction;
   edm::ParameterSet m_p;
 
+  static thread_local std::unique_ptr<CustomUIsession> m_UIsession;
   static thread_local RunAction *m_userRunAction;
   static thread_local SimRunInterface *m_runInterface;
   static thread_local SimActivityRegistry m_registry;

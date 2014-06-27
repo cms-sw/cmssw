@@ -7,6 +7,7 @@
 #include "SimG4Core/Application/interface/StackingAction.h"
 #include "SimG4Core/Application/interface/TrackingAction.h"
 #include "SimG4Core/Application/interface/SteppingAction.h"
+#include "SimG4Core/Application/interface/CustomUIsession.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -47,6 +48,7 @@
 #include <atomic>
 #include <thread>
 #include <sstream>
+
 
 // from https://hypernews.cern.ch/HyperNews/CMS/get/edmFramework/3302/2.html
 namespace {
@@ -96,13 +98,14 @@ namespace {
 
 thread_local bool RunManagerMTWorker::m_threadInitialized = false;
 thread_local bool RunManagerMTWorker::m_runTerminated = false;
-thread_local G4Run *RunManagerMTWorker::m_currentRun = nullptr;
+thread_local std::unique_ptr<CustomUIsession> RunManagerMTWorker::m_UIsession;
 thread_local RunAction *RunManagerMTWorker::m_userRunAction = nullptr;
 thread_local SimRunInterface *RunManagerMTWorker::m_runInterface = nullptr;
-thread_local SimTrackManager *RunManagerMTWorker::m_trackManager = nullptr;
 thread_local SimActivityRegistry RunManagerMTWorker::m_registry;
+thread_local SimTrackManager *RunManagerMTWorker::m_trackManager = nullptr;
 thread_local std::vector<SensitiveTkDetector*> RunManagerMTWorker::m_sensTkDets;
 thread_local std::vector<SensitiveCaloDetector*> RunManagerMTWorker::m_sensCaloDets;
+thread_local G4Run *RunManagerMTWorker::m_currentRun = nullptr;
 
 RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC):
   m_generator(iConfig.getParameter<edm::ParameterSet>("Generator")),
@@ -117,7 +120,6 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::Co
   m_pSteppingAction(iConfig.getParameter<edm::ParameterSet>("SteppingAction")),
   m_p(iConfig)
 {
-
   edm::Service<SimActivityRegistry> otherRegistry;
   //Look for an outside SimActivityRegistry
   // this is used by the visualization code
@@ -150,6 +152,7 @@ void RunManagerMTWorker::initializeThread(const RunManagerMT& runManagerMaster, 
   // Initialize per-thread output
   G4Threading::G4SetThreadId( thisID );
   G4UImanager::GetUIpointer()->SetUpForAThread( thisID );
+  m_UIsession.reset(new CustomUIsession());
 
   // Initialize worker part of shared resources (geometry, physics)
   G4WorkerThread::BuildGeometryAndPhysicsVector();
@@ -206,6 +209,12 @@ void RunManagerMTWorker::initializeThread(const RunManagerMT& runManagerMaster, 
   m_registry.beginOfJobSignal_(&aBeginOfJob);
 
   initializeUserActions();
+
+  for(const std::string& command: runManagerMaster.G4Commands()) {
+    edm::LogInfo("SimG4CoreApplication") << "RunManagerMTWorker:: Requests UI: "
+                                         << command;
+    G4UImanager::GetUIpointer()->ApplyCommand(command);
+  }
 
   // Initialize run
   initializeRun();
