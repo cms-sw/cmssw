@@ -16,8 +16,8 @@
 
 // Includes and namespace
 #include "Pythia8/Pythia.h"
-#include "GeneratorInput.h"
-#include "JetMatching.h"
+#include "GeneratorInterface/PartonShowerVeto/interface/GeneratorInput.h"
+#include "GeneratorInterface/PartonShowerVeto/interface/JetMatchingPy8Internal.h"
 using namespace Pythia8;
 
 //==========================================================================

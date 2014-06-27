@@ -19,6 +19,7 @@
 //
 #include "GeneratorInterface/Pythia8Interface/plugins/JetMatchingHook.h"
 #include "GeneratorInterface/PartonShowerVeto/interface/JetMatchingPy8Internal.h"
+#include "GeneratorInterface/PartonShowerVeto/interface/SetNumberOfPartonsDynamically.h"
 
 // Emission Veto Hooks
 //
@@ -99,6 +100,7 @@ class Pythia8Hadronizer : public BaseHadronizer, public Py8InterfaceBase {
     //
     JetMatchingHook* fJetMatchingHook;
     JetMatchingMadgraph *fJetMatchingPy8InternalHook;
+    SetNumberOfPartonsDynamically *fSetNumberOfPartonsDynamicallyHook;
     
     // Emission Veto Hooks
     //
@@ -130,7 +132,7 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   LHEInputFileName(params.getUntrackedParameter<string>("LHEInputFileName","")),
   fInitialState(PP),
   fReweightUserHook(0),fReweightRapUserHook(0),fReweightPtHatRapUserHook(0),
-  fJetMatchingHook(0),fJetMatchingPy8InternalHook(0),
+  fJetMatchingHook(0),fJetMatchingPy8InternalHook(0), fSetNumberOfPartonsDynamicallyHook(0),
   fEmissionVetoHook(0),fEmissionVetoHook1(0)
 {
 
@@ -237,6 +239,9 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
       else if (scheme == "MadgraphPy8Internal") {
         fJetMatchingPy8InternalHook = new ::JetMatchingMadgraph;
       }
+      else if (scheme == "CKKWPy8Internal") {
+        fSetNumberOfPartonsDynamicallyHook = new SetNumberOfPartonsDynamically;
+      }
   }
 
   // Emission vetos
@@ -278,6 +283,7 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   if(fReweightPtHatRapUserHook) NHooks++;
   if(fJetMatchingHook) NHooks++;
   if(fJetMatchingPy8InternalHook) NHooks++;
+  if (fSetNumberOfPartonsDynamicallyHook) NHooks++;
   if(fEmissionVetoHook) NHooks++;
   if(fEmissionVetoHook1) NHooks++;
   if(NHooks > 1)
@@ -288,6 +294,7 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   if(fReweightPtHatRapUserHook) fMasterGen->setUserHooksPtr(fReweightPtHatRapUserHook);
   if(fJetMatchingHook) fMasterGen->setUserHooksPtr(fJetMatchingHook);
   if(fJetMatchingPy8InternalHook) fMasterGen->setUserHooksPtr(fJetMatchingPy8InternalHook);
+  if (fSetNumberOfPartonsDynamicallyHook) fMasterGen->setUserHooksPtr(fSetNumberOfPartonsDynamicallyHook);
   if(fEmissionVetoHook || fEmissionVetoHook1) {
     std::cout << "Turning on Emission Veto Hook";
     if(fEmissionVetoHook1) std::cout << " 1";
