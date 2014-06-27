@@ -54,7 +54,8 @@ _HGCEE_ElectronEnergy = cms.PSet(
     weights = cms.vdouble(weight_vec),
     effMip_to_InverseGeV_a = cms.double(168.0),
     effMip_to_InverseGeV_b = cms.double(0.6871),
-    effMip_to_InverseGeV_c = cms.double(0.9038)
+    effMip_to_InverseGeV_c = cms.double(0.9038),
+    MipValueInGeV = cms.double(55.1*1e-6)
 )
 
 particleFlowClusterHGCEE = cms.EDProducer(
