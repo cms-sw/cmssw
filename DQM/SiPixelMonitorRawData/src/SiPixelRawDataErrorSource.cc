@@ -267,7 +267,7 @@ void SiPixelRawDataErrorSource::bookMEs(DQMStore::IBooker & iBooker){
     /// Create folder tree and book histograms 
 
     if(modOn){
-      if(!theSiPixelFolder.setModuleFolder((*struct_iter).first,0,isUpgrade)) {
+      if(!theSiPixelFolder.setModuleFolder(iBooker,(*struct_iter).first,0,isUpgrade)) {
         //std::cout<<"PIB! not booking histograms for non-PIB modules!"<<std::endl;
         if(!isPIB) throw cms::Exception("LogicError")
                        << "[SiPixelRawDataErrorSource::bookMEs] Creation of DQM folder failed";
@@ -275,13 +275,13 @@ void SiPixelRawDataErrorSource::bookMEs(DQMStore::IBooker & iBooker){
     }
     
     if(ladOn){
-      if(!theSiPixelFolder.setModuleFolder((*struct_iter).first,1,isUpgrade)) {
+      if(!theSiPixelFolder.setModuleFolder(iBooker,(*struct_iter).first,1,isUpgrade)) {
         LogDebug ("PixelDQM") << "PROBLEM WITH LADDER-FOLDER\n";
       }
     }
     
     if(bladeOn){
-      if(!theSiPixelFolder.setModuleFolder((*struct_iter).first,4,isUpgrade)) {
+      if(!theSiPixelFolder.setModuleFolder(iBooker,(*struct_iter).first,4,isUpgrade)) {
         LogDebug ("PixelDQM") << "PROBLEM WITH BLADE-FOLDER\n";
       }
     }
@@ -290,7 +290,7 @@ void SiPixelRawDataErrorSource::bookMEs(DQMStore::IBooker & iBooker){
 
   for(struct_iter2 = theFEDStructure.begin(); struct_iter2 != theFEDStructure.end(); struct_iter2++){
     /// Create folder tree for errors without detId and book histograms 
-    if(!theSiPixelFolder.setFedFolder((*struct_iter2).first)) {
+    if(!theSiPixelFolder.setFedFolder(iBooker,(*struct_iter2).first)) {
       throw cms::Exception("LogicError")
 	<< "[SiPixelRawDataErrorSource::bookMEs] Creation of DQM folder failed";
     }

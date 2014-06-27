@@ -15,20 +15,18 @@
 
 /// Constructor
 SiPixelFolderOrganizer::SiPixelFolderOrganizer() :
-  rootFolder("Pixel"),
-  slash("/"),
-  dbe_(edm::Service<DQMStore>().operator->())
+  rootFolder("Pixel")
 {  
 }
 
 SiPixelFolderOrganizer::~SiPixelFolderOrganizer() {}
 
-bool SiPixelFolderOrganizer::setModuleFolder(const uint32_t& rawdetid, int type, bool isUpgrade) {
+bool SiPixelFolderOrganizer::setModuleFolder(DQMStore::IBooker& iBooker, const uint32_t& rawdetid, int type, bool isUpgrade) {
 
   bool flag = false;
 
    if(rawdetid == 0) {
-     dbe_->setCurrentFolder(rootFolder);
+     iBooker.setCurrentFolder(rootFolder);
      flag = true;
    }
    ///
@@ -67,7 +65,7 @@ bool SiPixelFolderOrganizer::setModuleFolder(const uint32_t& rawdetid, int type,
      
      //std::cout<<"set barrel folder: "<<rawdetid<<" : "<<sfolder.str().c_str()<<std::endl;
      
-     dbe_->setCurrentFolder(sfolder.str().c_str());
+     iBooker.setCurrentFolder(sfolder.str().c_str());
      flag = true;
      } else if (isUpgrade) {
        //for endcap types there is nothing to do: 
@@ -100,7 +98,7 @@ bool SiPixelFolderOrganizer::setModuleFolder(const uint32_t& rawdetid, int type,
        
        //std::cout<<"set barrel folder: "<<rawdetid<<" : "<<sfolder.str().c_str()<<std::endl;
        
-       dbe_->setCurrentFolder(sfolder.str().c_str());
+       iBooker.setCurrentFolder(sfolder.str().c_str());
        flag = true;
      }//endif(isUpgrade)
    } 
@@ -142,7 +140,7 @@ bool SiPixelFolderOrganizer::setModuleFolder(const uint32_t& rawdetid, int type,
      
      //std::cout<<"set endcap folder: "<<rawdetid<<" : "<<sfolder.str().c_str()<<std::endl;
      
-      dbe_->setCurrentFolder(sfolder.str().c_str());
+      iBooker.setCurrentFolder(sfolder.str().c_str());
       flag = true;
 
      } else if (isUpgrade) {
@@ -178,7 +176,7 @@ bool SiPixelFolderOrganizer::setModuleFolder(const uint32_t& rawdetid, int type,
        
        //std::cout<<"set endcap folder: "<<rawdetid<<" : "<<sfolder.str().c_str()<<std::endl;
        
-       dbe_->setCurrentFolder(sfolder.str().c_str());
+       iBooker.setCurrentFolder(sfolder.str().c_str());
        flag = true;
      }//endifendcap&&isUpgrade
    } else throw cms::Exception("LogicError")
@@ -188,14 +186,14 @@ bool SiPixelFolderOrganizer::setModuleFolder(const uint32_t& rawdetid, int type,
 
 }
 
-bool SiPixelFolderOrganizer::setFedFolder(const uint32_t FedId) {
+bool SiPixelFolderOrganizer::setFedFolder(DQMStore::IBooker& iBooker, const uint32_t FedId) {
 
   std::string subDetectorFolder = "AdditionalPixelErrors";
   char sFed[80];  sprintf(sFed,  "FED_%i",FedId);
   std::ostringstream sfolder;
   
   sfolder << rootFolder << "/" << subDetectorFolder << "/" << sFed;
-  dbe_->setCurrentFolder(sfolder.str().c_str());
+  iBooker.setCurrentFolder(sfolder.str().c_str());
   
   return true;
 
