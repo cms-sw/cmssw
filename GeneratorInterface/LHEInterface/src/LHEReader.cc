@@ -145,6 +145,7 @@ class LHEReader::XMLHandler : public XMLDocument::Handler {
         wgt_info weightsinevent;
         int                             npLO;
         int                             npNLO;
+        std::map<int,float>             scalesmap;
 };
 
 static void attributesToDom(DOMElement *dom, const Attributes &attributes)
@@ -205,6 +206,19 @@ void LHEReader::XMLHandler::startElement(const XMLCh *const uri,
     } else if (name == "wgt") {
       xmlEventNodes[1]->appendChild(elem);
     }
+    else if (name == "scales") {
+      for (XMLSize_t iscale=0; iscale<attributes.getLength(); ++iscale) {
+        int ipart = 0;
+        const char *scalename = XMLSimpleStr(attributes.getQName(iscale));
+        sscanf(scalename,"pt_start_%d",&ipart);
+        
+        float scaleval;
+        const char *scalevalstr = XMLSimpleStr(attributes.getValue(iscale));
+        sscanf(scalevalstr,"%e",&scaleval);
+        
+        scalesmap[ipart] = scaleval;
+      }
+    }
     xmlEventNodes.push_back(elem);
     return;
   } else if (mode != kNone) {
@@ -229,6 +243,7 @@ void LHEReader::XMLHandler::startElement(const XMLCh *const uri,
     if(xmlEvent)  xmlEvent->release();
     xmlEvent = impl->createDocument(0, qname, 0);
     weightsinevent.resize(0);
+    scalesmap.clear();
     
     npLO = -99;
     npNLO = -99;
@@ -511,6 +526,15 @@ LHEReader::~LHEReader()
 	}
 	lheevent->setNpLO(handler->npLO);
         lheevent->setNpNLO(handler->npNLO);
+        //fill scales
+        if (handler->scalesmap.size()>0) {
+          std::vector<float> &scales = lheevent->scales();
+          scales = std::vector<float>(lheevent->getHEPEUP()->NUP, -1.);
+          for (const std::pair<int,float> &scale : handler->scalesmap) {
+            //index differs by one
+            scales[scale.first-1] = scale.second;
+          }
+        }
         return lheevent;
       }
     }

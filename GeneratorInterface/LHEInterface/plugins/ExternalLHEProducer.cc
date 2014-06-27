@@ -165,7 +165,7 @@ ExternalLHEProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
                 partonLevel->weights().end(),
                 boost::bind(&LHEEventProduct::addWeight,
                             product.get(), _1));
-  product->setPtclus(partonLevel->ptclus());  
+  product->setScales(partonLevel->scales());
   product->setNpLO(partonLevel->npLO());
   product->setNpNLO(partonLevel->npNLO());
   std::for_each(partonLevel->getComments().begin(),

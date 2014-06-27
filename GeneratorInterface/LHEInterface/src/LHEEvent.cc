@@ -103,15 +103,7 @@ LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
 	      pdf.reset();
 	    } else
 	      continue;
-	  }
-          else if(tag=="#ptclus"){//
-                ptclus_.clear();
-                float val;
-                while(ss>>val){
-                        ptclus_.push_back(val);
-                }
-               continue;
-          }	  
+	  }	  
 	  comments.push_back(line + "\n");
 	}
 	
@@ -145,7 +137,7 @@ LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
 	weights_(product.weights()),
 	comments(product.comments_begin(), product.comments_end()),
 	counted(false), readAttemptCounter(0),
-	originalXWGTUP_(product.originalXWGTUP()), ptclus_(product.ptclus()),
+	originalXWGTUP_(product.originalXWGTUP()), scales_(product.scales()),
 	npLO_(product.npLO()), npNLO_(product.npNLO())
 {
 }

@@ -35,8 +35,8 @@ class LHEEventProduct {
 	double originalXWGTUP() const { return originalXWGTUP_; }
 	const std::vector<WGT>& weights() const { return weights_; }
 
-	const std::vector<float> &ptclus() const { return ptclus_; }
-	void setPtclus(const std::vector<float> &ptclus) { ptclus_ = ptclus; }
+	const std::vector<float> &scales() const { return scales_; }
+	void setScales(const std::vector<float> &scales) { scales_ = scales; }
 	
         int npLO() const { return npLO_; }
         int npNLO() const { return npNLO_; }
@@ -101,7 +101,7 @@ class LHEEventProduct {
 	std::auto_ptr<PDF>		pdf_;
 	std::vector<WGT>                weights_;
 	double                          originalXWGTUP_;
-        std::vector<float>              ptclus_; //scale value used to exclude EWK-produced partons from matching
+        std::vector<float>              scales_; //scale value used to exclude EWK-produced partons from matching
         int                             npLO_; //number of partons for LO process (used to steer matching/merging)
         int                             npNLO_; //number of partons for NLO process (used to steer matching/merging)
 };
