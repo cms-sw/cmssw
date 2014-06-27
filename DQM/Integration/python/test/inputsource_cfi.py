@@ -7,13 +7,13 @@ from dqmPythonTypes import *
 options = VarParsing.VarParsing('analysis')
 
 options.register('runNumber',
-                 194533,
+                 111,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "Run number.")
 
 options.register('runInputDir',
-                 '/fff/BU0/test',
+                 '/tmp',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "Directory where the DQM files will appear.")
