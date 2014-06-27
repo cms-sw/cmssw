@@ -22,6 +22,8 @@
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 
+#include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
+#include "FWCore/ServiceRegistry/interface/StreamContext.h"
 
 
 #include "TGLabel.h"
@@ -37,6 +39,7 @@ FWPathsPopup::windowIsClosing()
 FWPathsPopup::FWPathsPopup(FWFFLooper *looper, FWGUIManager *guiManager)
    : TGMainFrame(gClient->GetRoot(), 400, 600),
      m_info(0),
+     m_event(0),
      m_looper(looper),
      m_hasChanges(false),
      m_moduleLabel(0),
@@ -84,6 +87,14 @@ FWPathsPopup::FWPathsPopup(FWFFLooper *looper, FWGUIManager *guiManager)
 
    Layout();
 }
+
+
+void
+FWPathsPopup::setEvent(const edm::Event* x)
+{
+   m_event= x;
+}
+
 
 /** Handle pressing of esc. 
  */
@@ -162,23 +173,23 @@ FWPathsPopup::setup(const edm::ScheduleInfo *info)
 
 /** Gets called by CMSSW as modules are about to be processed. **/
 void
-FWPathsPopup::postModule(edm::ModuleDescription const& description)
+FWPathsPopup::postModuleEvent(edm::StreamContext const &s, edm::ModuleCallingContext const &mcc)
 {
-   m_guiManager->updateStatus((description.moduleName() + " processed.").c_str());
+   m_guiManager->updateStatus((mcc.moduleDescription()->moduleName() + " processed.").c_str());
    gSystem->ProcessEvents();
 }
 
 /** Gets called by CMSSW as we process modules. **/
 void
-FWPathsPopup::preModule(edm::ModuleDescription const& description)
+FWPathsPopup::preModuleEvent(edm::StreamContext const &s, edm::ModuleCallingContext const &mcc)
 {
-   m_guiManager->updateStatus(("Processing " + description.moduleName() + "...").c_str());
+   m_guiManager->updateStatus(("Processing " + mcc.moduleDescription()->moduleName()  + "...").c_str());
    gSystem->ProcessEvents();
 }
 
 
 void
-FWPathsPopup::postProcessEvent(edm::Event const& event, edm::EventSetup const& eventSetup)
+FWPathsPopup::postEvent(edm::StreamContext const&)
 {
    m_guiManager->updateStatus("Done processing.");
    gSystem->ProcessEvents();
@@ -186,23 +197,23 @@ FWPathsPopup::postProcessEvent(edm::Event const& event, edm::EventSetup const& e
    // Get the last process name from the process history:
    // this should be the one specified in the cfg file
  
-   if (event.processHistory().empty()) {
+   if (m_event->processHistory().empty()) {
       fwLog(fwlog::kInfo) << "Path GUI:: no process history available.\n";
       return;
    }
-   edm::ProcessHistory::const_iterator pi = event.processHistory().end() - 1;
+   edm::ProcessHistory::const_iterator pi = m_event->processHistory().end() - 1;
    std::string processName = pi->processName();
    
    // It's called TriggerResults but actually contains info on all paths
    edm::InputTag tag("TriggerResults", "", processName);
    edm::Handle<edm::TriggerResults> triggerResults;
-   event.getByLabel(tag, triggerResults);
+   m_event->getByLabel(tag, triggerResults);
 
    std::vector<FWPSetTableManager::PathUpdate> pathUpdates;
 
    if (triggerResults.isValid())
    {
-      edm::TriggerNames triggerNames = event.triggerNames(*triggerResults);
+      edm::TriggerNames triggerNames = m_event->triggerNames(*triggerResults);
      
       for (size_t i = 0, e = triggerResults->size(); i != e; ++i)
       {
