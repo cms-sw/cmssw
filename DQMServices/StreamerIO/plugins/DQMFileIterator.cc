@@ -100,8 +100,7 @@ std::string DQMFileIterator::make_path_jsn(int lumi) {
 }
 
 std::string DQMFileIterator::make_path_eor() {
-  return str(boost::format("%s/run%06d_ls0000_EoR.jsn") % runPath_ %
-             runNumber_);
+  return str(boost::format("%s/run%06d_ls0000_EoR.jsn") % runPath_ % runNumber_);
 }
 
 std::string DQMFileIterator::make_path_data(const LumiEntry& lumi) {
@@ -130,9 +129,9 @@ void DQMFileIterator::collect() {
     logFileAction("Checking eor file: ", fn_eor);
 
     if (boost::filesystem::exists(fn_eor)) {
-      eor_ = EorEntry::load_json(fn_eor);
-
-      logFileAction("Loaded eor file: ", fn_eor);
+      logFileAction("eor file exist ", fn_eor);
+      //      eor_ = EorEntry::load_json(fn_eor);
+      //      logFileAction("Loaded eor file: ", fn_eor);
     }
   }
 
