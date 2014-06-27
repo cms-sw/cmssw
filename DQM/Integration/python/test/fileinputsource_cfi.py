@@ -10,8 +10,11 @@ maxEvents = cms.untracked.PSet(
 )
 
 # Parameters for runType
+import FWCore.ParameterSet.VarParsing as VarParsing
 import sys
 from dqmPythonTypes import *
+
+options = VarParsing.VarParsing('analysis')
 
 options.register('runtype',
          'cosmic_run',
