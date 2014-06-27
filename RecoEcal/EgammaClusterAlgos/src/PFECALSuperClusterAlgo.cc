@@ -251,6 +251,10 @@ loadAndSortPFClusters(const edm::Event &iEvent) {
 	_clustersEE.push_back(calib_cluster);
       }
       break;
+    case PFLayer::HGC_ECAL:
+      if( calib_cluster->energy() > threshPFClusterEndcap_ ) {
+	_clustersEE.push_back(calib_cluster);
+      }
     default:
       break;
     }
@@ -308,6 +312,13 @@ buildSuperCluster(CalibClusterPtr& seed,
 				 << superClustersEE_->size() + 1
 				 << " in the ECAL endcap!" << std::endl;
     isEE = true;
+    break;
+  case PFLayer::HGC_ECAL:    
+    IsClusteredWithSeed.phiwidthSuperCluster_ = phiwidthSuperClusterEndcap_; 
+    IsClusteredWithSeed.etawidthSuperCluster_ = etawidthSuperClusterEndcap_;
+    edm::LogInfo("PFClustering") << "Building HGC SC number "  
+				 << superClustersEE_->size() + 1
+				 << " in the HGC ECAL!" << std::endl;    
     break;
   default:
     break;
@@ -489,6 +500,9 @@ buildSuperCluster(CalibClusterPtr& seed,
       superClustersEB_->push_back(new_sc);
       break;
     case PFLayer::ECAL_ENDCAP:    
+      superClustersEE_->push_back(new_sc);    
+      break;
+    case PFLayer::HGC_ECAL:    
       superClustersEE_->push_back(new_sc);    
       break;
     default:
