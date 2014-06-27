@@ -36,13 +36,13 @@ matchMCTaus = cms.Sequence(matchMCTausShrinkingCone)
 #  QCD Truth matchers   #
 #########################
 
-matchMCQCDInsideOut = matchMCTausInsideOut.clone(
-#   qcdTruthMatchingReqs,
+matchMCQCDInsideOut = cms.EDProducer("PFTauDecayModeTruthMatcher",
+    qcdTruthMatchingReqs,
     src = cms.InputTag("makeMCQCDTauDecayModes"),
     matched = cms.InputTag("pfRecoTauProducerInsideOut")
 )
 
-matchMCQCDShrinkingCone = matchMCTausInsideOut.clone(
+matchMCQCDShrinkingCone = matchMCQCDInsideOut.clone(
 #   qcdTruthMatchingReqs,
     src = cms.InputTag("makeMCQCDTauDecayModes"),
     matched = cms.InputTag("shrinkingConePFTauProducer")
