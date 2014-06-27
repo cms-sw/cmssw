@@ -12,10 +12,18 @@
 
 #include <iostream>
 
+//Using this function with the 'const static within s_dummyPSet'
+// guarantees that even if multiple threads call s_dummyPSet at the
+// same time, only the 'first' one registers the dummy PSet.
+static const edm::ParameterSet initializeDummyPSet() {
+  edm::ParameterSet dummy;
+  dummy.registerIt();
+  return std::move(dummy);
+}
+
 static const edm::ParameterSet* s_dummyPSet()
 {
-  static edm::ParameterSet dummyPSet;
-  dummyPSet.registerIt();
+  static const edm::ParameterSet dummyPSet{initializeDummyPSet()};
   return &dummyPSet;
 }
 
