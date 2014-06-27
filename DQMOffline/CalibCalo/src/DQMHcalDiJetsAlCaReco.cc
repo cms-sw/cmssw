@@ -64,55 +64,57 @@ eventCounter_(0)
 DQMHcalDiJetsAlCaReco::~DQMHcalDiJetsAlCaReco()
 {}
 
-//--------------------------------------------------------
 void DQMHcalDiJetsAlCaReco::beginJob(){
-   
+}
+//--------------------------------------------------------
+void DQMHcalDiJetsAlCaReco::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & /* iRun*/, edm::EventSetup const & /* iSetup */)
+{  
 
   // create and cd into new folder
-  dbe_->setCurrentFolder(folderName_);
+  ibooker.setCurrentFolder(folderName_);
 
   // book some histograms 1D
-  hiDistrRecHitEnergyEBEE_ = dbe_->book1D("RecHitEnergyEBEE", "the number of hits inside jets", 100, 0, 800);
+  hiDistrRecHitEnergyEBEE_ = ibooker.book1D("RecHitEnergyEBEE", "the number of hits inside jets", 100, 0, 800);
   hiDistrRecHitEnergyEBEE_->setAxisTitle("E, GeV", 1);
   hiDistrRecHitEnergyEBEE_->setAxisTitle("# rechits", 2);
 
-  hiDistrRecHitEnergyHBHE_ = dbe_->book1D("RecHitEnergyHBHE", "the number of hits inside jets", 100,0, 800);
+  hiDistrRecHitEnergyHBHE_ = ibooker.book1D("RecHitEnergyHBHE", "the number of hits inside jets", 100,0, 800);
   hiDistrRecHitEnergyHBHE_->setAxisTitle("E, GeV", 1);
   hiDistrRecHitEnergyHBHE_->setAxisTitle("# rechits", 2);
 
-  hiDistrRecHitEnergyHF_ = dbe_->book1D("RecHitEnergyHF", "the number of hits inside jets", 150,0, 1500); 
+  hiDistrRecHitEnergyHF_ = ibooker.book1D("RecHitEnergyHF", "the number of hits inside jets", 150,0, 1500); 
   hiDistrRecHitEnergyHF_->setAxisTitle("E, GeV", 1);
   hiDistrRecHitEnergyHF_->setAxisTitle("# rechits", 2);
 
-  hiDistrRecHitEnergyHO_ = dbe_->book1D("RecHitEnergyHO", "the number of hits inside jets", 100,0, 100); 
+  hiDistrRecHitEnergyHO_ = ibooker.book1D("RecHitEnergyHO", "the number of hits inside jets", 100,0, 100); 
   hiDistrRecHitEnergyHO_->setAxisTitle("E, GeV", 1);
   hiDistrRecHitEnergyHO_->setAxisTitle("# rechits", 2);
 
-  hiDistrProbeJetEnergy_ = dbe_->book1D("ProbeJetEnergy", "the energy of probe jets", 250,0, 2500); 
+  hiDistrProbeJetEnergy_ = ibooker.book1D("ProbeJetEnergy", "the energy of probe jets", 250,0, 2500); 
   hiDistrProbeJetEnergy_->setAxisTitle("E, GeV", 1);
   hiDistrProbeJetEnergy_->setAxisTitle("# jets", 2);
 
-  hiDistrProbeJetEta_ = dbe_->book1D("ProbeJetEta", "the number of probe jets", 100, -5., 5.); 
+  hiDistrProbeJetEta_ = ibooker.book1D("ProbeJetEta", "the number of probe jets", 100, -5., 5.); 
   hiDistrProbeJetEta_->setAxisTitle("#eta", 1);
   hiDistrProbeJetEta_->setAxisTitle("# jets", 2);
 
-  hiDistrProbeJetPhi_ = dbe_->book1D("ProbeJetPhi", "the number of probe jets", 50, -3.14, 3.14); 
+  hiDistrProbeJetPhi_ = ibooker.book1D("ProbeJetPhi", "the number of probe jets", 50, -3.14, 3.14); 
   hiDistrProbeJetPhi_->setAxisTitle("#phi", 1);
   hiDistrProbeJetPhi_->setAxisTitle("# jets", 2);
 
-  hiDistrTagJetEnergy_ = dbe_->book1D("TagJetEnergy", "the energy of tsg jets", 250,0, 2500); 
+  hiDistrTagJetEnergy_ = ibooker.book1D("TagJetEnergy", "the energy of tsg jets", 250,0, 2500); 
   hiDistrTagJetEnergy_->setAxisTitle("E, GeV", 1);
   hiDistrTagJetEnergy_->setAxisTitle("# jets", 2);
 
-  hiDistrTagJetEta_ = dbe_->book1D("TagJetEta", "the number of  tag jets", 100, -5., 5.); 
+  hiDistrTagJetEta_ = ibooker.book1D("TagJetEta", "the number of  tag jets", 100, -5., 5.); 
   hiDistrTagJetEta_->setAxisTitle("#eta", 1);
   hiDistrTagJetEta_->setAxisTitle("# jets", 2);
 
-  hiDistrTagJetPhi_ = dbe_->book1D("TagJetPhi", "the number of tag jets", 50, -3.14, 3.14); 
+  hiDistrTagJetPhi_ = ibooker.book1D("TagJetPhi", "the number of tag jets", 50, -3.14, 3.14); 
   hiDistrTagJetPhi_->setAxisTitle("#phi", 1);
   hiDistrTagJetPhi_->setAxisTitle("# jets", 2);
 
-  hiDistrEtThirdJet_ = dbe_->book1D("EtThirdJet", "Et of the third jet", 90, 0, 90); 
+  hiDistrEtThirdJet_ = ibooker.book1D("EtThirdJet", "Et of the third jet", 90, 0, 90); 
 
 
 //==================================================================================
@@ -121,9 +123,9 @@ void DQMHcalDiJetsAlCaReco::beginJob(){
 }
 
 //--------------------------------------------------------
-void DQMHcalDiJetsAlCaReco::beginRun(const edm::Run& r, const EventSetup& context) {
-
-}
+//void DQMHcalDiJetsAlCaReco::beginRun() {
+//
+//}
 
 //--------------------------------------------------------
 void DQMHcalDiJetsAlCaReco::beginLuminosityBlock(const LuminosityBlock& lumiSeg, 
