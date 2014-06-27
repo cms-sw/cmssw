@@ -21,8 +21,6 @@ DQMFileIterator::LumiEntry DQMFileIterator::LumiEntry::load_json(
   // We rely on n_events to be the first item on the array...
   lumi.n_events = std::next(pt.get_child("data").begin(), 1)
                       ->second.get_value<std::size_t>();
-  lumi.definition = pt.get<std::string>("definition");
-  lumi.source = pt.get<std::string>("source");
 
   lumi.ls = lumiNumber;
 
@@ -51,8 +49,6 @@ DQMFileIterator::EorEntry DQMFileIterator::EorEntry::load_json(
                    ->second.get_value<std::size_t>();
   eor.datafilename = std::next(pt.get_child("data").begin(), 2)
                          ->second.get_value<std::string>();
-  eor.definition = pt.get<std::string>("definition");
-  eor.source = pt.get<std::string>("source");
   eor.loaded = true;
 
   return eor;
