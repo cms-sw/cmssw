@@ -34,7 +34,7 @@ runParameters.register ('runtype',
   "Type of Run in CMS")
 
 runParameters.register ('runkey',
-  'pp_run',
+  'cosmic_run',
   VarParsing.multiplicity.singleton,
   VarParsing.varType.string,
   "Run Keys of CMS")
@@ -45,6 +45,6 @@ runParameters.register ('runkey',
 
 runType = RunType(['pp_run','cosmic_run','hi_run','hpu_run'])
 if not runParameters.runkey.strip():
-  runParameters.runkey = 'pp_run'
+  runParameters.runkey = 'cosmic_run'
 
 runType.setRunType(runParameters.runkey.strip())

@@ -8,9 +8,7 @@ process.options = cms.untracked.PSet(
 #### leave the following few lines uncommented for online running
 process.load("DQM.Integration.test.inputsource_cfi")
 process.load("DQM.Integration.test.environment_cfi")
-process.DQMEventStreamHttpReader.SelectHLTOutput = cms.untracked.string('hltOutputHLTDQMResults')
-process.DQMEventStreamHttpReader.maxEventRequestRate = cms.untracked.double(1000.0)
-process.DQMEventStreamHttpReader.consumerName = 'HLTTrigerResults'
+#process.DQMEventStreamHttpReader.SelectHLTOutput = cms.untracked.string('hltOutputHLTDQMResults')
 
 #### end first online running section
 
@@ -45,9 +43,7 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 
 process.dqmSaver.version = 2
 process.dqmSaver.saveByRun = 1
-process.dqmSaver.saveByMinute = -1
 process.dqmSaver.saveByLumiSection = -1
-process.dqmSaver.saveByTime = -1
 #process.load("Configuration.StandardSequences.GeometryPilot2_cff")
 #process.load("Configuration.StandardSequences.MagneticField_cff")
 #process.GlobalTrackingGeometryESProducer = cms.ESProducer( "GlobalTrackingGeometryESProducer" ) # for muon hlt dqm

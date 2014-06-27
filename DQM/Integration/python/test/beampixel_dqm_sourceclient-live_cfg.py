@@ -7,10 +7,10 @@ process = cms.Process("BeamPixel")
 # Common for PP and HI running
 #----------------------------
 ### @@@@@@ Comment when running locally @@@@@@ ###
-#process.load("DQM.Integration.test.inputsource_cfi")
+process.load("DQM.Integration.test.inputsource_cfi")
 
 # for testing in lxplus
-process.load("DQM.Integration.test.fileinputsource_cfi")
+#process.load("DQM.Integration.test.fileinputsource_cfi")
 
 #----------------------------
 # HLT Filter
@@ -35,9 +35,9 @@ process.dqmEnv.subSystemFolder = "BeamPixel"
 # Sub-system Configuration
 #----------------------------
 ### @@@@@@ Comment when running locally @@@@@@ ###
-#process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
+process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
 # Condition for lxplus
-process.load("DQM.Integration.test.FrontierCondition_GT_Offline_cfi") 
+#process.load("DQM.Integration.test.FrontierCondition_GT_Offline_cfi") 
 ### @@@@@@ Comment when running locally @@@@@@ ###
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("Configuration.StandardSequences.Services_cff")

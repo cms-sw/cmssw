@@ -8,8 +8,8 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 # Event Source
 #----------------------------
 process.load("DQM.Integration.test.inputsource_cfi")
-process.DQMEventStreamHttpReader.consumerName = 'DQM Luminosity Consumer'
-process.DQMEventStreamHttpReader.SelectHLTOutput = cms.untracked.string('hltOutputALCALUMIPIXELS')
+#process.DQMEventStreamHttpReader.consumerName = 'DQM Luminosity Consumer'
+#process.DQMEventStreamHttpReader.SelectHLTOutput = cms.untracked.string('hltOutputALCALUMIPIXELS')
 
 #----------------------------
 # DQM Environment
