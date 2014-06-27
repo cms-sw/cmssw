@@ -124,7 +124,7 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF, co
     }
 
   // Create physics list
-  std::auto_ptr<PhysicsListMakerBase> 
+  std::unique_ptr<PhysicsListMakerBase>
     physicsMaker(PhysicsListFactory::get()->create(
       m_pPhysics.getParameter<std::string> ("type")));
   if (physicsMaker.get()==0) {

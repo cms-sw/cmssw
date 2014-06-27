@@ -132,6 +132,9 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::Co
 
 RunManagerMTWorker::~RunManagerMTWorker() {
   if(!m_runTerminated) { terminateRun(); }
+  // RunManagerMT has 'delete m_runInterface' in the destructor, but
+  // doesn't make much sense here because it is thread_local and we're
+  // not guaranteed to run the destructor on each of the threads.
 }
 
 void RunManagerMTWorker::beginRun(const RunManagerMT& runManagerMaster, const edm::EventSetup& es) {
@@ -348,6 +351,7 @@ void RunManagerMTWorker::abortEvent() {
   if(m_runTerminated) { return; }
   G4RunManagerKernel *kernel = G4WorkerRunManagerKernel::GetRunManagerKernel();
   G4Track* t = kernel->GetEventManager()->GetTrackingManager()->GetTrack();
+  t->SetTrackStatus(fStopAndKill) ;
 
   // CMS-specific act
   //
