@@ -42,16 +42,12 @@ DeltaBetaWeights::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<edm::View<reco::Candidate> > src;
   
 
-  // edm::Handle<reco::PFCandidateCollection> pfCharged;
-  // edm::Handle<reco::PFCandidateCollection> pfPU;
-  // edm::Handle<reco::PFCandidateCollection> src;
-
   iEvent.getByToken(src_token,src);
   iEvent.getByToken(pfCharged_token,pfCharged);
   iEvent.getByToken(pfPU_token,pfPU);
 
   double sumNPU = .0;
-  double sumPU = .0;
+  double sumPU =  .0;
 
   std::auto_ptr<reco::PFCandidateCollection> out(new reco::PFCandidateCollection); 
 
@@ -60,9 +56,8 @@ DeltaBetaWeights::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if (cand.charge() !=0) {
       // this part of code should be executed only if input collection is not entirely composed of neutral candidates, i.e. never by default
       edm::LogWarning("DeltaBetaWeights") << "Trying to reweight charged particle... saving it to output collection without any change";
-      reco::PFCandidate charged = reco::PFCandidate(cand.charge(),cand.p4(),reco::PFCandidate::ParticleType::X);
-      charged.setParticleType(charged.translatePdgIdToType(cand.pdgId()));
-      out->push_back(charged);
+      out->emplace_back(cand.charge(),cand.p4(),reco::PFCandidate::ParticleType::X);
+      (out->back()).setParticleType((out->back()).translatePdgIdToType(cand.pdgId()));
       continue;
     }
 
