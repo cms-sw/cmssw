@@ -404,8 +404,10 @@ namespace evf {
 	if (testModeNoBuilderUnit_)
 	  fscanf(fu_rw_lock_stream, "%u %u %u %u", &readLs, &readIndex,
 		 &jumpLs, &jumpIndex);
-	else
+	else {
 	  fscanf(fu_rw_lock_stream, "%u %u", &readLs, &readIndex);
+	  edm::LogInfo("EvFDaqDirector") << "Read fu.lock file file -: " << readLs << ":" << readIndex;
+        }
 
 	// try to bump
 	bool bumpedOk = bumpFile(readLs, readIndex, nextFile, fsize);
@@ -517,16 +519,14 @@ namespace evf {
       bool eolFound = (stat(getEoLSFilePathOnBU(ls).c_str(), &buf) == 0);
       unsigned int startingLumi = ls;
       while (eolFound) {
-        //DEBUG!
-        //remove this for testing (might not be necessary after all..)
-        /*
+
         // recheck that no raw file appeared in the meantime
         if (stat(nextFile.c_str(), &buf) == 0) {
           previousFileSize_ = buf.st_size;
           fsize = buf.st_size;
           return true;
         }
-        */
+
 	// this lumi ended, check for files
 	++ls;
 	nextFile = getInputJsonFilePath(ls,0);
