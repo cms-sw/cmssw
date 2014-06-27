@@ -21,23 +21,26 @@ RunManagerMTInit::RunManagerMTInit(const edm::ParameterSet& iConfig):
 
 RunManagerMTInit::~RunManagerMTInit() {}
 
-RunManagerMTInit::ESProducts RunManagerMTInit::readES(const edm::EventSetup& iSetup) {
-  bool geomChanged = idealGeomRcdWatcher_.check(iSetup);
-  if (geomChanged && (!firstRun)) {
-    throw cms::Exception("BadConfig") 
-      << "[SimG4Core RunManager]\n"
-      << "The Geometry configuration is changed during the job execution\n"
-      << "this is not allowed, the geometry must stay unchanged\n";
-  }
-  if (m_pUseMagneticField) {
-    bool magChanged = idealMagRcdWatcher_.check(iSetup);
-    if (magChanged && (!firstRun)) {
+RunManagerMTInit::ESProducts RunManagerMTInit::readES(const edm::EventSetup& iSetup) const {
+  taskQueue_.pushAndWait([this, &iSetup] {
+    bool geomChanged = idealGeomRcdWatcher_.check(iSetup);
+    if (geomChanged && (!firstRun)) {
       throw cms::Exception("BadConfig") 
-	<< "[SimG4Core RunManager]\n"
-	<< "The MagneticField configuration is changed during the job execution\n"
-	<< "this is not allowed, the MagneticField must stay unchanged\n";
+        << "[SimG4Core RunManager]\n"
+        << "The Geometry configuration is changed during the job execution\n"
+        << "this is not allowed, the geometry must stay unchanged\n";
     }
-  }
+    if (m_pUseMagneticField) {
+      bool magChanged = idealMagRcdWatcher_.check(iSetup);
+      if (magChanged && (!firstRun)) {
+        throw cms::Exception("BadConfig") 
+          << "[SimG4Core RunManager]\n"
+          << "The MagneticField configuration is changed during the job execution\n"
+          << "this is not allowed, the MagneticField must stay unchanged\n";
+      }
+    }
+    firstRun = false;
+  });
 
   ESProducts ret;
 
@@ -55,6 +58,5 @@ RunManagerMTInit::ESProducts RunManagerMTInit::readES(const edm::EventSetup& iSe
   edm::ESHandle<HepPDT::ParticleDataTable> fTable;
   iSetup.get<PDTRecord>().get(fTable);
   ret.pTable = fTable.product();
-  firstRun = false;
   return ret;
 }

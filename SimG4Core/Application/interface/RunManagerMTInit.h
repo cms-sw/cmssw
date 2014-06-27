@@ -3,6 +3,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESWatcher.h"
+#include "FWCore/Concurrency/interface/SerialTaskQueue.h"
  
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -30,15 +31,16 @@ public:
     const MagneticField *pMF;
     const HepPDT::ParticleDataTable *pTable;
   };
-  ESProducts readES(const edm::EventSetup& iSetup);
+  ESProducts readES(const edm::EventSetup& iSetup) const;
 
 private:
   edm::ParameterSet m_p;
 
-  edm::ESWatcher<IdealGeometryRecord> idealGeomRcdWatcher_;
-  edm::ESWatcher<IdealMagneticFieldRecord> idealMagRcdWatcher_;
+  mutable edm::SerialTaskQueue taskQueue_;
+  mutable edm::ESWatcher<IdealGeometryRecord> idealGeomRcdWatcher_;
+  mutable edm::ESWatcher<IdealMagneticFieldRecord> idealMagRcdWatcher_;
+  mutable bool firstRun;
 
-  bool firstRun;
   const bool m_pUseMagneticField;
 };
 
