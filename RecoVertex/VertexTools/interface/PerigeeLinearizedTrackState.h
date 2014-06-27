@@ -153,7 +153,7 @@ private:
   	const TrajectoryStateOnSurface& tsos)
      : theLinPoint(linP), theTrack(track), 
      theTSOS(tsos),  theCharge(theTrack.charge()), jacobiansAvailable(false) {
-     assert(edm::isFinite(linP.x()));
+     // assert(edm::isFinite(linP.x()));
     }
 
   /** Method calculating the track parameters and the Jacobians.
