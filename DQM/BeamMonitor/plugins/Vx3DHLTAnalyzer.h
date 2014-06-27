@@ -24,7 +24,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -62,7 +62,7 @@ double pi;
 double VxErrCorr;       // Coefficient to compensate the under-estimation of the vertex errors
 
 
-class Vx3DHLTAnalyzer : public DQMEDAnalyzer {
+class Vx3DHLTAnalyzer : public thread_unsafe::DQMEDAnalyzer {
    public:
       explicit Vx3DHLTAnalyzer(const edm::ParameterSet&);
       ~Vx3DHLTAnalyzer();
