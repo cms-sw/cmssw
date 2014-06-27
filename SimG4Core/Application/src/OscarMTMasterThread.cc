@@ -31,12 +31,12 @@ OscarMTMasterThread::OscarMTMasterThread(std::shared_ptr<RunManagerMTInit> runMa
         // Lock the mutex (i.e. wait until the creating thread has called cv.wait()
         std::lock_guard<std::mutex> lk2(m_startMutex);
 
+        //UIsession manager for message handling
+        uiSession.reset(new CustomUIsession());
+
         // Create the master run manager, and share it to the CMSSW thread
         runManagerMaster = std::make_shared<RunManagerMT>(pset);
         m_runManagerMaster = runManagerMaster;
-
-        //UIsession manager for message handling
-        uiSession.reset(new CustomUIsession());
 
         // Initialize Geant4
         runManagerMaster->initG4(esprod.pDD, esprod.pMF, esprod.pTable, iSetup);
