@@ -8,6 +8,7 @@
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
+#include "DetectorDescription/Core/interface/DDVectorGetter.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
@@ -88,14 +89,14 @@ HFFibre::HFFibre(std::string & name, const DDCompactView & cpv,
 
     //Special Geometry parameters
     int nb    = -1;
-    gpar      = getDDDArray("gparHF",sv,nb);
+    gpar      = DDVectorGetter::get( "gparHF" );
     edm::LogInfo("HFShower") << "HFFibre: " << nb <<" gpar (cm)";
     for (int i=0; i<nb; i++)
       edm::LogInfo("HFShower") << "HFFibre: gpar[" << i << "] = "
 			       << gpar[i]/cm << " cm";
 
     nBinR     = -1;
-    radius    = getDDDArray("rTable",sv,nBinR);
+    radius    = DDVectorGetter::get( "rTable" );
     edm::LogInfo("HFShower") << "HFFibre: " << nBinR <<" rTable (cm)";
     for (int i=0; i<nBinR; i++)
       edm::LogInfo("HFShower") << "HFFibre: radius[" << i << "] = "

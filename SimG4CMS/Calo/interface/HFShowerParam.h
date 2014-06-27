@@ -46,8 +46,6 @@ public:
   
 private:    
 
-  std::vector<double>   getDDDArray(const std::string&, const DDsvalues_type&);
-
   HFShowerLibrary*      showerLibrary;
   HFFibre*              fibre;
   HFGflash*             gflash;

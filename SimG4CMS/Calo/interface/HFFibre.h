@@ -36,8 +36,6 @@ protected:
   std::vector<double> getDDDArray(const std::string&, 
 				  const DDsvalues_type&, int&);
 
-private:
-
   double                      cFibre;
   std::vector<double>         gpar, radius;
   std::vector<double>         shortFL, longFL;

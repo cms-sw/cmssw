@@ -30,8 +30,6 @@ private:
 
   std::vector<double>   getDDDArray(const std::string&, const DDsvalues_type&);
 
-private:    
-
   HFCherenkov*          cherenkov;
   double                pePerGeV;        // PE per GeV of energy deposit
   int                   indexR, indexF;

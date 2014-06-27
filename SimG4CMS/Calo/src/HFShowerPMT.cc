@@ -7,6 +7,7 @@
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
+#include "DetectorDescription/Core/interface/DDVectorGetter.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -37,7 +38,7 @@ HFShowerPMT::HFShowerPMT(std::string & name, const DDCompactView & cpv,
     DDsvalues_type sv0(fv0.mergedSpecifics());
 
     //Special Geometry parameters
-    rTable   = getDDDArray("rTable",sv0);
+    rTable   = DDVectorGetter::get("rTable");
     edm::LogInfo("HFShower") << "HFShowerPMT: " << rTable.size() 
 			     << " rTable (cm)";
     for (unsigned int ig=0; ig<rTable.size(); ig++)

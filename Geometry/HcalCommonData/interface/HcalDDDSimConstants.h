@@ -62,10 +62,8 @@ public:
        
 private:
   void                initialize(const DDCompactView& cpv);
-  void                loadSpecPars(const DDFilteredView& fv);
+  void                loadSpecPars( void );
   void                loadGeometry(const DDFilteredView& fv);
-  std::vector<double> getDDDArray(const std::string &, 
-				  const DDsvalues_type &, int &) const;
   unsigned            find (int element, std::vector<int>& array) const;
   double              deltaEta(int det, int eta, int depth) const;
   double              getEta(int det, int etaR, int zside, int depth=1) const;
@@ -83,7 +81,6 @@ private:
   int                 nEta;     // Number of bins in eta for HB and HE
   std::vector<double> rTable;   // R-table
   int                 nR;       // Number of bins in r
-  int                 nPhi;     // Number of bins in phibin
   std::vector<double> phibin;   // Phi step for all eta bins (HB, HE and HO)
   int                 nPhiF;    // Number of bins in phitable
   std::vector<double> phitable; // Phi step for all eta bins (HF)
