@@ -35,6 +35,8 @@ DQMFileIterator::LumiEntry DQMFileIterator::LumiEntry::load_json(
   return lumi;
 }
 
+  // Content of Eor json file is ignored for the moment since 
+  // the content is not stable
 DQMFileIterator::EorEntry DQMFileIterator::EorEntry::load_json(
     const std::string& filename) {
   boost::property_tree::ptree pt;
@@ -129,6 +131,7 @@ void DQMFileIterator::collect() {
     logFileAction("Checking eor file: ", fn_eor);
 
     if (boost::filesystem::exists(fn_eor)) {
+      eor_.loaded = true;
       logFileAction("eor file exist ", fn_eor);
       //      eor_ = EorEntry::load_json(fn_eor);
       //      logFileAction("Loaded eor file: ", fn_eor);
