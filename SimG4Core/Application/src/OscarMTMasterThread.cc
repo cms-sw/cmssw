@@ -10,7 +10,7 @@
 
 
 
-OscarMTMasterThread::OscarMTMasterThread(std::shared_ptr<RunManagerMTInit> runManagerInit, const edm::EventSetup& iSetup):
+OscarMTMasterThread::OscarMTMasterThread(const RunManagerMTInit *runManagerInit, const edm::EventSetup& iSetup):
   m_runManagerInit(runManagerInit),
   m_startCanProceed(false),
   m_stopCanProceed(false),

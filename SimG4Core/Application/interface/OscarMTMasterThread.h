@@ -15,7 +15,7 @@ class RunManagerMT;
 
 class OscarMTMasterThread {
 public:
-  OscarMTMasterThread(std::shared_ptr<RunManagerMTInit> runManager, const edm::EventSetup& iSetup);
+  OscarMTMasterThread(const RunManagerMTInit *runManagerInit, const edm::EventSetup& iSetup);
   ~OscarMTMasterThread();
 
   void stopThread() const;
@@ -25,7 +25,7 @@ public:
   const RunManagerMT *runManagerMasterPtr() const { return m_runManagerMaster.get(); }
   
 private:
-  std::shared_ptr<RunManagerMTInit> m_runManagerInit;
+  const RunManagerMTInit *m_runManagerInit;
   mutable std::shared_ptr<RunManagerMT> m_runManagerMaster;
   mutable std::thread m_masterThread;
   std::mutex m_startMutex;
