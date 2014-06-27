@@ -64,15 +64,17 @@ FWFFHelper::FWFFHelper(const edm::ParameterSet &ps, const edm::ActivityRegistry 
       std::cerr <<"Insufficient GL support. " << iException.what() << std::endl;
       throw;
    }
+
+// AMT workaround for an agressive clenup in 5.43.18
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,34,18)
-   // AMT workaround for an agressive clenup in 5.43.18
    if (!gStyle) {
       TColor::fgInitDone=false;
       TColor::InitializeColors();
       TStyle::BuildStyles();
       gROOT->SetStyle(gEnv->GetValue("Canvas.Style", "Modern"));
       gStyle = gROOT->GetStyle("Classic");
-      TEveManager::Create(kFALSE, "FIV");
    }
 #endif
+
+    TEveManager::Create(kFALSE, "FIV");
 }
