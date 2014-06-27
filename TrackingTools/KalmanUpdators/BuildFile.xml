@@ -1,4 +1,4 @@
-<flags   CXXFLAGS="-O3"/>
+<flags   CXXFLAGS="-Ofast -mrecip"/>
 <use   name="boost"/>
 <use   name="clhep"/>
 <use   name="RecoTracker/TransientTrackingRecHit"/>

@@ -1,5 +1,6 @@
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateClosestToPoint.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 // Private constructor
 
@@ -7,6 +8,10 @@ TrajectoryStateClosestToPoint::
 TrajectoryStateClosestToPoint(const FTS& originalFTS, const GlobalPoint& referencePoint) :
   theFTS(originalFTS), theRefPoint(referencePoint),valid(true), theFTSavailable(true) {
   try {
+    if (edm::isNotFinite(originalFTS.momentum().x())) 
+       edm::LogWarning("TrajectoryStateClosestToPoint") << "NaN mom " << originalFTS.momentum() << " at " << originalFTS.position();
+    if (edm::isNotFinite(referencePoint.x()))
+       edm::LogWarning("TrajectoryStateClosestToPoint") << "NaN refP " << referencePoint;
     theParameters = PerigeeConversions::ftsToPerigeeParameters(originalFTS, referencePoint, thePt);
     if (theFTS.hasError()) {
       thePerigeeError = PerigeeConversions::ftsToPerigeeError(originalFTS);

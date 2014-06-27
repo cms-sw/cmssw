@@ -3,6 +3,7 @@
 #include "MagneticField/Engine/interface/MagneticField.h" 
 #include <cmath>
 #include <vdt/vdtMath.h>
+#include <cassert>
 
 PerigeeTrajectoryParameters PerigeeConversions::ftsToPerigeeParameters
   (const FTS& originalFTS, const GlobalPoint& referencePoint, double & pt)
@@ -11,7 +12,7 @@ PerigeeTrajectoryParameters PerigeeConversions::ftsToPerigeeParameters
   GlobalVector impactDistance = originalFTS.position() - referencePoint;
 
   pt = originalFTS.momentum().perp();
-  if (pt==0.) throw cms::Exception("PerigeeConversions", "Track with pt=0");
+  if (pt==0.) assert(pt>0); //  throw cms::Exception("PerigeeConversions", "Track with pt=0");
   
   double theta = originalFTS.momentum().theta();
   double phi = originalFTS.momentum().phi();

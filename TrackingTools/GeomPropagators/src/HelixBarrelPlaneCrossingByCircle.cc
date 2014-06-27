@@ -7,6 +7,9 @@
 #include <algorithm>
 #include <cfloat>
 
+#include<cassert>
+#include<iostream>
+
 HelixBarrelPlaneCrossingByCircle::
 HelixBarrelPlaneCrossingByCircle( const PositionType& pos,
 				  const DirectionType& dir,
@@ -66,11 +69,14 @@ HelixBarrelPlaneCrossingByCircle::pathLength( const Plane& plane)
   double ny = n.y();  // convert to double
   double distCx = theStartingPos.x() - theXCenter;
   double distCy = theStartingPos.y() - theYCenter;
-
+  
+  if ( (nx==0) & (ny==0) ) { std::cout << "barrel??? " << n << ' ' << plane.rotation() << std::endl; return std::make_pair(false,0.); }
+  // assert(distToPlane!=0);
+ 
   double nfac, dfac;
   double A, B, C;
   bool solveForX;
-  if (fabs(nx) > fabs(ny)) {
+  if (std::abs(nx) > std::abs(ny)) {
     solveForX = false;
     nfac = ny/nx;
     dfac = distToPlane/nx;
@@ -110,7 +116,7 @@ HelixBarrelPlaneCrossingByCircle::pathLength( const Plane& plane)
     // protect asin 
     double sinAlpha = 0.5*theDmag*theRho;
     if ( std::abs(sinAlpha)>1.)  sinAlpha = std::copysign(1.,sinAlpha);
-    theS = theActualDir*2./(theRho*theSinTheta) * asin( sinAlpha);
+    theS = theActualDir*2./(theRho*theSinTheta) * std::asin(sinAlpha);
     return ResultType( true, theS);
   }
   else return ResultType( false, 0.);

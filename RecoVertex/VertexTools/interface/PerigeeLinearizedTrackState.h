@@ -8,6 +8,7 @@
 #include "Math/SMatrix.h"
 #include "DataFormats/CLHEP/interface/Migration.h"
 
+#include "FWCore/Utilities/interface/isFinite.h"
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 
@@ -151,7 +152,9 @@ private:
    PerigeeLinearizedTrackState(const GlobalPoint & linP, const reco::TransientTrack & track, 
   	const TrajectoryStateOnSurface& tsos)
      : theLinPoint(linP), theTrack(track), 
-     theTSOS(tsos),  theCharge(theTrack.charge()), jacobiansAvailable(false) {}
+     theTSOS(tsos),  theCharge(theTrack.charge()), jacobiansAvailable(false) {
+     // assert(edm::isFinite(linP.x()));
+    }
 
   /** Method calculating the track parameters and the Jacobians.
    */

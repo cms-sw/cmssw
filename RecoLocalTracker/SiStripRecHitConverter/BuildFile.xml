@@ -1,3 +1,5 @@
+<flags   CXXFLAGS="-Ofast"/>
+
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="DataFormats/Common"/>

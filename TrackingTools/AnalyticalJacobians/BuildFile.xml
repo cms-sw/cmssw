@@ -1,3 +1,4 @@
+<flags   CXXFLAGS="-O3 -mrecip"/>
 <export>
   <lib   name="1"/>
 </export>

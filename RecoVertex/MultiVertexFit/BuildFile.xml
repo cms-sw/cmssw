@@ -1,3 +1,4 @@
+<flags   CXXFLAGS="-Ofast -mrecip"/>
 <use   name="CommonTools/Clustering1D"/>
 <use   name="DataFormats/GeometryCommonDetAlgo"/>
 <use   name="DataFormats/GeometryVector"/>
