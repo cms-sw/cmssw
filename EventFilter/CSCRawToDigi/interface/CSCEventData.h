@@ -20,6 +20,9 @@ class CSCStripDigi;
 class CSCComparatorOutput;
 #include <map>
 #include <vector>
+#ifndef LOCAL_UNPACK
+#include <atomic>
+#endif
 #include "EventFilter/CSCRawToDigi/interface/CSCDMBHeader.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDMBTrailer.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDMBHeader.h"
@@ -142,7 +145,11 @@ class CSCEventData {
   unsigned int calcALCTcrc(std::vector< std::pair<unsigned int, unsigned short*> > &vec);
 
 
+#ifdef LOCAL_UNPACK
   static bool debug;
+#else
+  static std::atomic<bool> debug;
+#endif
   //uint16_t dataPresent; // 7 bit word which will tell if alct, clct, and 5 cfebs are present
   static void selfTest();
 

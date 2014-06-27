@@ -9,7 +9,11 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 
+#ifdef LOCAL_UNPACK
 bool CSCEventData::debug = false;
+#else
+std::atomic<bool> CSCEventData::debug{false};
+#endif
 
 CSCEventData::CSCEventData(int chamberType, uint16_t format_version) :
     theDMBHeader(format_version),
