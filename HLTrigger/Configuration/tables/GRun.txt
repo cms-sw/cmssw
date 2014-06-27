@@ -1,10 +1,10 @@
 # "GRun" menu
 
-HLT_Ele27_WP80_Gsf_v*					# JIRA: CMSHLT-63
-HLT_Ele17_Ele8_Gsf_v*					# JIRA: CMSHLT-63
-HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v*			# JIRA: CMSHLT-63
-HLT_Photon20_CaloIdVL_IsoL_v*				# JIRA: CMSHLT-63
-HLT_Photon26_R9Id85_Photon18_CaloId10_Iso50_v*		# JIRA: CMSHLT-63
+HLT_Ele27_WP80_Gsf_v*					# JIRA: CMSHLT-63, updated by CMSHLT-71
+HLT_Ele17_Ele8_Gsf_v*					# JIRA: CMSHLT-63, updated by CMSHLT-71
+HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v*			# JIRA: CMSHLT-63, updated by CMSHLT-71
+HLT_Photon20_CaloIdVL_IsoL_v*				# JIRA: CMSHLT-63, updated by CMSHLT-71
+HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass70_v*  # JIRA: CMSHLT-76
 
 HLT_PFMET180_NoiseCleaned_v*				# JIRA: CMSHLT-62
 HLT_PFchMET90_NoiseCleaned_v*				# JIRA: CMSHLT-62
