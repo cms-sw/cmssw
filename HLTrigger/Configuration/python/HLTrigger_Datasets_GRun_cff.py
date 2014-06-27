@@ -39,6 +39,6 @@ streamA_datasetInitialPD_selector.triggerConditions = cms.vstring('HLT_BTagCSV07
     'HLT_PFNoPUJet260_v1', 
     'HLT_PFchMET90_NoiseCleaned_v1', 
     'HLT_Photon20_CaloIdVL_IsoL_v1', 
-    'HLT_Photon26_R9Id85_Photon18_CaloId10_Iso50_v1', 
+    'HLT_Photon26_R9Id85_OR_CaloId10_Iso50_Photon18_R9Id85_OR_CaloId10_Iso50_Mass70_v1', 
     'HLT_ReducedIterativeTracking_v1')
 
