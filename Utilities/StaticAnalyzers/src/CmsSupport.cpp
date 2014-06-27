@@ -88,6 +88,7 @@ std::string support::getQualifiedName(const clang::NamedDecl &d) {
 
 bool support::isSafeClassName(const std::string &name) {
   static const std::string atomic = "std::atomic";
+  static const std::string satomic = "struct std::atomic";
   static const std::string uatomic = "std::__atomic_";
   static const std::string mutex = "std::mutex";
   static const std::string rmutex = "std::recursive_mutex";
