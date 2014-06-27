@@ -39,6 +39,8 @@ namespace l1t {
          return;
       }
 
+      LogDebug("L1T") << "Found FEDRawDataCollection";
+
       const FEDRawData& l1tRcd = feds->FEDData(fedId_);
 
       if (l1tRcd.size() < 20) {
@@ -51,18 +53,26 @@ namespace l1t {
       unsigned idx = 0;
 
       // Extract header data
-      // uint32_t event_id = pop(data, idx) & 0xFFFFFF;
+      uint32_t event_id = pop(data, idx) & 0xFFFFFF;
 
+      //      uint32_t id = pop(data, idx);
       uint32_t id = pop(data, idx);
-      id = pop(data, idx);
-      // uint32_t bx_id = (id >> 16) & 0xFFF;
-      // uint32_t orbit_id = (id >> 4) & 0x1F;
-      // uint32_t board_id = id & 0xF;
+      uint32_t bx_id = (id >> 16) & 0xFFF;
+      uint32_t orbit_id = (id >> 4) & 0x1F;
+      uint32_t board_id = id & 0xF;
 
       id = pop(data, idx);
       uint32_t fw_id = (id >> 24) & 0xFF;
       uint32_t payload_size = (id >> 8) & 0xFFFF;
-      // uint32_t event_type = id & 0xFF;
+      uint32_t event_type = id & 0xFF;
+
+      LogDebug("L1T") << "Found AMC13 header: Event Number " << event_id
+                      << " Board ID " << board_id
+                      << " Orbit Number " << orbit_id
+                      << " BX Number " << bx_id 
+                      << " FW version " << fw_id
+                      << " Event Type " << event_type
+                      << " Payload size " << payload_size; 
 
       if (l1tRcd.size() < payload_size * 4 + 20) {
          LogError("L1T") << "Cannot unpack: invalid L1T raw data size in header (size = "
@@ -86,6 +96,8 @@ namespace l1t {
          uint32_t block_hdr = pop(data, idx);
          uint32_t block_id = (block_hdr >> 24) & 0xFF;
          uint32_t block_size = (block_hdr >> 16) & 0xFF;
+
+         LogDebug("L1T") << "Found MP7 header: block ID " << block_id << " block size " << block_size;
 
          auto unpacker = unpackers.find(block_id);
          if (unpacker == unpackers.end()) {

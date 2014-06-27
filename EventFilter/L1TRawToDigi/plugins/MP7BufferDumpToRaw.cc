@@ -266,7 +266,7 @@ MP7BufferDumpToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   for (int iBlock=0; iBlock<nTxLinks_ && iWord<evtSize * 4 + 12; ++iBlock) {
 
     int blockId     = (2*iBlock)+1;
-    int blockLength = rxBlockLength_.at(iBlock);
+    int blockLength = txBlockLength_.at(iBlock);
 
     feddata.data()[iWord+2] = blockLength & 0xff;
     feddata.data()[iWord+3] = blockId & 0xff;
