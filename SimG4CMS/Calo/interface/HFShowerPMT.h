@@ -7,6 +7,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "SimG4CMS/Calo/interface/HFCherenkov.h"
 
@@ -21,7 +22,7 @@ class HFShowerPMT {
 public:    
 
   HFShowerPMT(std::string & name, const DDCompactView & cpv, 
-	      edm::ParameterSet const & p);
+	      const HcalDDDSimConstants& hcons, edm::ParameterSet const & p);
   virtual ~HFShowerPMT();
   double                getHits(G4Step * aStep);
   double                getRadius();
@@ -29,6 +30,8 @@ public:
 private:    
 
   std::vector<double>   getDDDArray(const std::string&, const DDsvalues_type&);
+
+private:    
 
   HFCherenkov*          cherenkov;
   double                pePerGeV;        // PE per GeV of energy deposit
