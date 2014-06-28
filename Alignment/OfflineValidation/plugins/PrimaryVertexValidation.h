@@ -63,7 +63,6 @@
 #include "RecoVertex/PrimaryVertexProducer/interface/TrackFilterForPVFinding.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/TrackClusterizerInZ.h"
 #include "RecoVertex/PrimaryVertexProducer/interface/PrimaryVertexProducerAlgorithm.h"
-
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 
 // system include files
