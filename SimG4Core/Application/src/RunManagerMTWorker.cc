@@ -165,7 +165,7 @@ void RunManagerMTWorker::initializeThread(const RunManagerMT& runManagerMaster, 
   if(!kernel) kernel = new G4WorkerRunManagerKernel();
 
   // Set the geometry for the worker, share from master
-  DDDWorld::SetAsWorld(runManagerMaster.world().GetWorldVolumeForWorker());
+  DDDWorld::WorkerSetAsWorld(runManagerMaster.world().GetWorldVolumeForWorker());
 
   // we need the track manager now
   m_trackManager = new SimTrackManager();
