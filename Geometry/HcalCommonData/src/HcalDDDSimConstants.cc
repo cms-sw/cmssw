@@ -34,7 +34,7 @@ HcalDDDSimConstants::HcalDDDSimConstants(const DDCompactView& cpv) {
 
 HcalDDDSimConstants::~HcalDDDSimConstants() { 
 #ifdef DebugLog
-  std::cout << "destructed!!!" << std::endl;
+  std::cout << "HcalDDDSimConstants::destructed!!!" << std::endl;
 #endif
 }
 
