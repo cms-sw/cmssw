@@ -97,13 +97,15 @@ database_help = '''
       arc           Archive      Frontier       read-only
       int           Integration  Frontier       read-only
       dev           Development  Frontier       read-only
-      boost         Development  Frontier       read-only
+      boost         Production   Frontier       read-only
+      boostprep     Development  Frontier       read-only
 
       orapro        Production   Oracle (ADG)   read-only   Password required.
       oraarc        Archive      Oracle         read-only   Password required.
       oraint        Integration  Oracle         read-write  Password required.
       oradev        Development  Oracle         read-write  Password required.
-      oraboost      Development  Oracle         read-write  Password required.
+      oraboost      Production   Oracle (ADG)   read-write  Password required.
+      oraboostprep  Development  Oracle         read-write  Password required.
 
       onlineorapro  Production   Oracle         read-write  Password required. Online only.
       onlineoraint  Online Int   Oracle         read-write  Password required. Online only.
@@ -362,13 +364,15 @@ def connect(database='pro', init=False, verbose=0):
         'arc':           lambda: _getCMSFrontierSQLAlchemyConnectionString('FrontierArc'),
         'int':           lambda: _getCMSFrontierSQLAlchemyConnectionString('FrontierInt'),
         'dev':           lambda: _getCMSFrontierSQLAlchemyConnectionString('FrontierPrep'),
-        'boost':         lambda: _getCMSFrontierSQLAlchemyConnectionString('FrontierPrep', 'cms_test_conditions'),
+        'boost':         lambda: _getCMSFrontierSQLAlchemyConnectionString('FrontierProd', 'cms_conditions'),
+        'boostprep':     lambda: _getCMSFrontierSQLAlchemyConnectionString('FrontierPrep', 'cms_conditions'),
 
         'orapro':        lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcon_adg'),
         'oraarc':        lambda: _getCMSOracleSQLAlchemyConnectionString('cmsarc_lb'),
         'oraint':        lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcoff_int'),
         'oradev':        lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcoff_prep'),
-        'oraboost':      lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcoff_prep', 'cms_test_conditions'),
+        'oraboost':      lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcon_adg'  , 'cms_conditions'),
+        'oraboostprep':  lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcoff_prep', 'cms_conditions'),
 
         'onlineorapro':  lambda: _getCMSOracleSQLAlchemyConnectionString('cms_orcon_prod'),
         'onlineoraint':  lambda: _getCMSOracleSQLAlchemyConnectionString('cmsintr_lb'),
