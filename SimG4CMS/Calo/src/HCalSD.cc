@@ -13,7 +13,6 @@
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
-#include "DetectorDescription/Core/interface/DDVectorGetter.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -106,6 +105,7 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
 			  << "Application of Fiducial Cut " << applyFidCut;
 
   numberingFromDDD = new HcalNumberingFromDDD(name, cpv);
+  const HcalDDDSimConstants& hcons = numberingFromDDD->ddConstants(); 
   HcalNumberingScheme* scheme;
   if (testNumber || forTBH2) 
     scheme = dynamic_cast<HcalNumberingScheme*>(new HcalTestNumberingScheme(forTBH2));
@@ -119,10 +119,10 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   std::string attribute, value;
   if (useHF) {
     if (useParam) {
-      showerParam = new HFShowerParam(name, cpv, p);
+      showerParam = new HFShowerParam(name, cpv, hcons, p);
     }  else {
-      if (useShowerLibrary) showerLibrary = new HFShowerLibrary(name, cpv, p);
-      hfshower  = new HFShower(name, cpv, p, 0);
+      if (useShowerLibrary) showerLibrary = new HFShowerLibrary(name, cpv, hcons, p);
+      hfshower  = new HFShower(name, cpv, hcons, p, 0);
     }
 
     // HF volume names
@@ -203,7 +203,7 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
       edm::LogInfo("HcalSim") << "HCalSD:  (" << i << ") " << pmtNames[i]
                               << " LV " << pmtLV[i];
     }
-    if (pmtNames.size() > 0) showerPMT = new HFShowerPMT (name, cpv, p);
+    if (pmtNames.size() > 0) showerPMT = new HFShowerPMT (name, cpv, hcons, p);
   
     // HF Fibre bundles
     value     = "HFFibreBundleStraight";
@@ -253,30 +253,21 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
                               << " LV " << fibre2LV[i];
     }
     if (fibre1LV.size() > 0 || fibre2LV.size() > 0) 
-      showerBundle = new HFShowerFibreBundle (name, cpv, p);
+      showerBundle = new HFShowerFibreBundle (name, cpv, hcons, p);
 
-    attribute = "OnlyForHcalSimNumbering"; 
-    value     = "any";
-    DDSpecificsFilter filter6;
-    DDValue           ddv6(attribute,value,0);
-    filter6.setCriteria(ddv6, DDSpecificsFilter::not_equals,
-			DDSpecificsFilter::AND, true, true);
-    DDFilteredView fv6(cpv);
-    fv6.addFilter(filter6);
-    if (fv6.firstChild()) {
-      DDsvalues_type sv(fv6.mergedSpecifics());
-      //Special Geometry parameters
-      gpar      = DDVectorGetter::get("gparHF");
-      edm::LogInfo("HcalSim") << "HCalSD: " << gpar.size() << " gpar (cm)";
-      for (unsigned int ig=0; ig<gpar.size(); ig++)
-	edm::LogInfo("HcalSim") << "HCalSD: gpar[" << ig << "] = "
-				<< gpar[ig]/cm << " cm";
-    } else {
-      edm::LogWarning("HcalSim") << "HCalSD: cannot get filtered "
-				 << " view for " << attribute << " matching " 
-				 << name;
-    }
+    //Special Geometry parameters
+    gpar      = hcons.getGparHF();
+    edm::LogInfo("HcalSim") << "HCalSD: " << gpar.size() << " gpar (cm)";
+    for (unsigned int ig=0; ig<gpar.size(); ig++)
+      edm::LogInfo("HcalSim") << "HCalSD: gpar[" << ig << "] = "
+			      << gpar[ig]/cm << " cm";
   }
+
+  //Layer0 Weight
+  layer0wt = hcons.getLayer0Wt();
+  edm::LogInfo("HcalSim") << "HCalSD: " << layer0wt.size() << " Layer0Wt";
+  for (unsigned int it=0; it<layer0wt.size(); ++it)
+    edm::LogInfo("HcalSim") << "HCalSD: [" << it << "] " << layer0wt[it];
 
   //Material list for HB/HE/HO sensitive detectors
   attribute = "OnlyForHcalSimNumbering"; 
@@ -290,12 +281,6 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   bool dodet = fv2.firstChild();
 
   DDsvalues_type sv(fv2.mergedSpecifics());
-  //Layer0 Weight
-  layer0wt = getDDDArray("Layer0Wt",sv);
-  edm::LogInfo("HcalSim") << "HCalSD: " << layer0wt.size() << " Layer0Wt";
-  for (unsigned int it=0; it<layer0wt.size(); ++it)
-    edm::LogInfo("HcalSim") << "HCalSD: [" << it << "] " << layer0wt[it];
-
   const G4MaterialTable * matTab = G4Material::GetMaterialTable();
   std::vector<G4Material*>::const_iterator matite;
   while (dodet) {

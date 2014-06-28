@@ -7,7 +7,6 @@
 #include "SimG4CMS/Calo/interface/HFFibreFiducial.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
-#include "DetectorDescription/Core/interface/DDVectorGetter.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -28,9 +27,10 @@
 //#define mkdebug
 
 HFShowerParam::HFShowerParam(std::string & name, const DDCompactView & cpv,
+			     const HcalDDDSimConstants& hcons,
                              edm::ParameterSet const & p) : showerLibrary(0), 
-                                                            fibre(0),gflash(0),
-                                                            fillHisto(false) { 
+							    fibre(0),gflash(0),
+							    fillHisto(false) { 
   edm::ParameterSet m_HF  = p.getParameter<edm::ParameterSet>("HFShower");
   pePerGeV                = m_HF.getParameter<double>("PEPerGeV");
   trackEM                 = m_HF.getParameter<bool>("TrackEM");
@@ -80,33 +80,16 @@ HFShowerParam::HFShowerParam(std::string & name, const DDCompactView & cpv,
   }
 #endif
   
-  G4String attribute = "OnlyForHcalSimNumbering"; 
-  G4String value     = "any";
-  DDValue val(attribute, value, 0.0);
-  DDSpecificsFilter filter;
-  filter.setCriteria(val, DDSpecificsFilter::not_equals,
-		     DDSpecificsFilter::AND, true, true);
-  DDFilteredView fv(cpv);
-  fv.addFilter(filter);
-  bool dodet = fv.firstChild();
-  if (dodet) {
-    DDsvalues_type sv(fv.mergedSpecifics());
-    //Special Geometry parameters
-    gpar      = DDVectorGetter::get( "gparHF" );
-    edm::LogInfo("HFShower") << "HFShowerParam: " <<gpar.size() <<" gpar (cm)";
-    for (unsigned int ig=0; ig<gpar.size(); ig++)
-      edm::LogInfo("HFShower") << "HFShowerParam: gpar[" << ig << "] = "
-                               << gpar[ig]/cm << " cm";
-  } else {
-    edm::LogError("HFShower") << "HFShowerParam: cannot get filtered "
-                              << " view for " << attribute << " matching " << name;
-    throw cms::Exception("Unknown", "HFShowerParam") << "cannot match " << attribute
-                                                     << " to " << name <<"\n";
-  }
+  //Special Geometry parameters
+  gpar      = hcons.getGparHF();
+  edm::LogInfo("HFShower") << "HFShowerParam: " <<gpar.size() <<" gpar (cm)";
+  for (unsigned int ig=0; ig<gpar.size(); ig++)
+    edm::LogInfo("HFShower") << "HFShowerParam: gpar[" << ig << "] = "
+			     << gpar[ig]/cm << " cm";
   
-  if (useShowerLibrary) showerLibrary = new HFShowerLibrary(name, cpv, p);
+  if (useShowerLibrary) showerLibrary = new HFShowerLibrary(name,cpv,hcons,p);
   if (useGflash)        gflash        = new HFGflash(p);
-  fibre = new HFFibre(name, cpv, p);
+  fibre = new HFFibre(name, cpv, hcons, p);
   attLMeanInv = fibre->attLength(lambdaMean);
   edm::LogInfo("HFShower") << "att. length used for (lambda=" << lambdaMean
                            << ") = " << 1/(attLMeanInv*cm) << " cm";
