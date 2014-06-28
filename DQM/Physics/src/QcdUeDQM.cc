@@ -663,91 +663,107 @@ void QcdUeDQM::fillProfile(std::vector<MonitorElement*> &mes, double valx, doubl
 //--------------------------------------------------------------------------------------------------
 bool QcdUeDQM::trackSelection(const reco::Track &trk, const reco::BeamSpot* bs, const reco::Vertex& vtx, int sizevtx )
 {
-//-------------Fill basic histograms---------
+    bool goodTrk = false;
 
+    if(sizevtx!=1) return 0;    //selection events with only a vertex
 
-//-------------------------------------------
+    //Fill basic information of all the tracks
+    fill1D(hNtrackerLayer_, trk.hitPattern().trackerLayersWithMeasurement());
+    fill1D(hNtrackerPixelLayer_, trk.hitPattern().pixelLayersWithMeasurement());
 
- bool goodTrk = false;
+    fill1D(hNtrackerStripPixelLayer_, (trk.hitPattern().pixelLayersWithMeasurement()
+                + trk.hitPattern().numberOfValidStripLayersWithMonoAndStereo()));
 
- if(sizevtx!=1) return 0;    //selection events with only a vertex
+    fill1D(hRatioPtErrorPt_,(trk.ptError()/trk.pt()));
+    fill1D(hTrkPt_,trk.pt());
+    fill1D(hTrkEta_,trk.eta());
+    fill1D(hTrkPhi_,trk.phi());
+    fill1D(hRatioDxySigmaDxyBS_,(trk.dxy(bs->position())/trk.dxyError()));
+    fill1D(hRatioDxySigmaDxyPV_,(trk.dxy(vtx.position())/trk.dxyError()));
+    fill1D(hRatioDzSigmaDzBS_,(trk.dz(bs->position())/trk.dzError()));
+    fill1D(hRatioDzSigmaDzPV_,(trk.dz(vtx.position())/trk.dzError()));
+    fill1D(hTrkChi2_,trk.normalizedChi2());
+    fill1D(hTrkNdof_,trk.ndof());
 
- //Fill basic information of all the tracks
-  fill1D(hNtrackerLayer_,trk.hitPattern().trackerLayersWithMeasurement());
-  fill1D(hNtrackerPixelLayer_,trk.hitPattern().pixelLayersWithMeasurement());
-  fill1D(hNtrackerStripPixelLayer_,(trk.hitPattern().pixelLayersWithMeasurement() +  trk.hitPattern().numberOfValidStripLayersWithMonoAndStereo()));
-  fill1D(hRatioPtErrorPt_,(trk.ptError()/trk.pt()));
-  fill1D(hTrkPt_,trk.pt());
-  fill1D(hTrkEta_,trk.eta());
-  fill1D(hTrkPhi_,trk.phi());
-  fill1D(hRatioDxySigmaDxyBS_,(trk.dxy(bs->position())/trk.dxyError()));
-  fill1D(hRatioDxySigmaDxyPV_,(trk.dxy(vtx.position())/trk.dxyError()));
-  fill1D(hRatioDzSigmaDzBS_,(trk.dz(bs->position())/trk.dzError()));
-  fill1D(hRatioDzSigmaDzPV_,(trk.dz(vtx.position())/trk.dzError()));
-  fill1D(hTrkChi2_,trk.normalizedChi2());
-  fill1D(hTrkNdof_,trk.ndof());
+    fill1D(hBeamSpot_x_,bs->x0());
+    fill1D(hBeamSpot_y_,bs->y0());
+    fill1D(hBeamSpot_z_,bs->z0());
 
-  fill1D(hBeamSpot_x_,bs->x0());
-  fill1D(hBeamSpot_y_,bs->y0());
-  fill1D(hBeamSpot_z_,bs->z0());
+    //number of layers
+    bool layerMinCutbool = (trk.hitPattern().trackerLayersWithMeasurement() >= minHit_
+            || (trk.hitPattern().trackerLayersWithMeasurement() == 3
+                && trk.hitPattern().pixelLayersWithMeasurement() == 3 
+                && allowTriplets_));
 
- //number of layers
- bool layerMinCutbool=false;
-    if (trk.hitPattern().trackerLayersWithMeasurement() >= minHit_ ||
-                (trk.hitPattern().trackerLayersWithMeasurement()==3 && trk.hitPattern().pixelLayersWithMeasurement()==3 && allowTriplets_))
-      layerMinCutbool=true;
+    //number of pixel layers
+    bool pxlLayerMinCutbool = (trk.hitPattern().pixelLayersWithMeasurement() >=pxlLayerMinCut_);
 
-
-  //number of pixel layers
- bool pxlLayerMinCutbool=false;
-    if (trk.hitPattern().pixelLayersWithMeasurement() >=pxlLayerMinCut_) pxlLayerMinCutbool=true;
-
-
- // cut on the hits in pixel layers
- bool hasPIX1 = false;
+    // cut on the hits in pixel layers
+    bool hasPIX1 = false;
     if (requirePIX1_) {
-      const reco::HitPattern& p = trk.hitPattern();
-      for (int i=0; i<p.numberOfHits(); i++) {
-        uint32_t hit = p.getHitPattern(i);
-        if (p.validHitFilter(hit) && p.pixelHitFilter(hit) && p.getLayer(hit)==1) hasPIX1 = true;
-      }
-    }else hasPIX1 = true;
-
- // cut on the pT error
- bool ptErrorbool=false;
-    if (trk.ptError()/trk.pt() < ptErr_pt_ ||
-        (trk.hitPattern().trackerLayersWithMeasurement()==3 && trk.hitPattern().pixelLayersWithMeasurement()==3 && allowTriplets_)) ptErrorbool=true;
- // quality cut
- bool quality_ok = true;
- if (quality_.size()!=0) {
-      quality_ok = false;
-      for (unsigned int i = 0; i<quality_.size();++i) {
-        if (trk.quality(quality_[i])){
-          quality_ok = true;
-          break;
+        const reco::HitPattern &p = trk.hitPattern();
+        for (int i = 0; i < p.numberOfHits(reco::HitPattern::TRACK_HITS); i++) {
+            uint32_t hit = p.getHitPattern(reco::HitPattern::TRACK_HITS, i);
+            if (reco::HitPattern::validHitFilter(hit)
+                    && reco::HitPattern::pixelHitFilter(hit) 
+                    && reco::HitPattern::getLayer(hit) == 1){
+                hasPIX1 = true;
+                break;
+            }
         }
-      }
-    }
- //-----
- bool algo_ok = true;
-    if (algorithm_.size()!=0) {
-      if (std::find(algorithm_.begin(),algorithm_.end(),trk.algo())==algorithm_.end()) algo_ok = false;
+    }else {
+        hasPIX1 = true;
     }
 
+    // cut on the pT error
+    bool ptErrorbool = (trk.ptError()/trk.pt() < ptErr_pt_ 
+            || (trk.hitPattern().trackerLayersWithMeasurement() == 3
+                && trk.hitPattern().pixelLayersWithMeasurement() == 3
+                && allowTriplets_));
 
- if(bsuse_==1)
-      {
-    if(hasPIX1 &&  pxlLayerMinCutbool && layerMinCutbool &&  (trk.hitPattern().pixelLayersWithMeasurement() +  trk.hitPattern().numberOfValidStripLayersWithMonoAndStereo()) >= min3DHit_ && ptErrorbool && fabs(trk.pt()) >= ptMin_ &&  trk.eta() >= minRapidity_ && trk.eta() <= maxRapidity_ &&  fabs(trk.dxy(bs->position())/trk.dxyError()) < tip_ &&  fabs(trk.dz(bs->position())/trk.dzError()) < lip_  &&  trk.normalizedChi2()<=maxChi2_ &&  quality_ok &&  algo_ok)goodTrk=true ;
-      }
+    // quality cut
+    bool quality_ok = true;
+    if (quality_.size() != 0) {
+        quality_ok = false;
+        for (unsigned int i = 0; i < quality_.size();++i) {
+            if (trk.quality(quality_[i])){
+                quality_ok = true;
+                break;
+            }
+        }
+    }
+    //-----
+    bool algo_ok = true;
+    if (algorithm_.size() != 0) {
+        if (std::find(algorithm_.begin(),algorithm_.end(),trk.algo())==algorithm_.end()) algo_ok = false;
+    }
 
-    if(bsuse_==0)
-     {
-       if(hasPIX1 &&  pxlLayerMinCutbool &&  layerMinCutbool &&  (trk.hitPattern().pixelLayersWithMeasurement() +  trk.hitPattern().numberOfValidStripLayersWithMonoAndStereo())  >= min3DHit_ && ptErrorbool && fabs(trk.pt()) >= ptMin_ && trk.eta() >= minRapidity_ && trk.eta() <= maxRapidity_ && fabs(trk.dxy(vtx.position())/trk.dxyError()) < tip_ && fabs(trk.dz(vtx.position())/trk.dzError()) < lip_  && trk.normalizedChi2()<=maxChi2_ && quality_ok &&  algo_ok)goodTrk=true;
+    if(bsuse_ == 1){
+        if(hasPIX1 && pxlLayerMinCutbool && layerMinCutbool 
+                && (trk.hitPattern().pixelLayersWithMeasurement() + 
+                    trk.hitPattern().numberOfValidStripLayersWithMonoAndStereo()) >= min3DHit_ 
+                && ptErrorbool && fabs(trk.pt()) >= ptMin_ &&  trk.eta() >= minRapidity_ 
+                && trk.eta() <= maxRapidity_ &&  fabs(trk.dxy(bs->position())/trk.dxyError()) < tip_ 
+                && fabs(trk.dz(bs->position())/trk.dzError()) < lip_ && trk.normalizedChi2()<=maxChi2_ 
+                && quality_ok && algo_ok){
+            goodTrk = true;
+        }
+    }
 
-     }
+    if(bsuse_ == 0){
+        if(hasPIX1 && pxlLayerMinCutbool && layerMinCutbool 
+                && (trk.hitPattern().pixelLayersWithMeasurement() +
+                    trk.hitPattern().numberOfValidStripLayersWithMonoAndStereo()) >= min3DHit_
+                && ptErrorbool && fabs(trk.pt()) >= ptMin_ && trk.eta() >= minRapidity_ 
+                && trk.eta() <= maxRapidity_ && fabs(trk.dxy(vtx.position())/trk.dxyError()) < tip_
+                && fabs(trk.dz(vtx.position())/trk.dzError()) < lip_
+                && trk.normalizedChi2()<=maxChi2_ && quality_ok &&  algo_ok){
+            goodTrk = true;
+        }
 
-  return goodTrk;
+    }
 
+    return goodTrk;
  }
 
 
