@@ -31,20 +31,6 @@ class KfComponentsHolder {
             const AlgebraicSymMatrix55 & tsosLocalErrors 
         ) ;
 
-/*
-  // backward compatible call
-        template <unsigned int D>
-        void setup(
-            typename AlgebraicROOTObject<D>::Vector       *params,
-            typename AlgebraicROOTObject<D,D>::SymMatrix  *errors,
-            typename AlgebraicROOTObject<D,5>::Matrix     *projection,
-            typename AlgebraicROOTObject<D>::Vector       *measuredParams,
-            typename AlgebraicROOTObject<D,D>::SymMatrix  *measuredErrors,
-            const AlgebraicVector5 & tsosLocalParameters, 
-            const AlgebraicSymMatrix55 & tsosLocalErrors 
-        ) ;
-
-*/
 
         template <unsigned int D>
         typename AlgebraicROOTObject<D>::Vector & params() { 
