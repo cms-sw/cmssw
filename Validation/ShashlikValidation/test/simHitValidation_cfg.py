@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("SIM")
-
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
 process.load("Configuration.StandardSequences.SimulationRandomNumberGeneratorSeeds_cff")
@@ -19,18 +18,16 @@ process.load('Configuration.StandardSequences.SimIdeal_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-
-process.load("DQMServices.Core.DQM_cfg")
-process.DQM.collectorHost = ''
-process.load("DQMServices.Components.MEtoEDMConverter_cfi")
-process.load("Validation.ShashlikValidation.simhitValidation_cfi")
-
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(5) )
-
 process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
 process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
 process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
+
+process.Timing = cms.Service("Timing")
+
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(5)
+)
 
 process.source = cms.Source("EmptySource",
     firstRun        = cms.untracked.uint32(1),
@@ -51,29 +48,38 @@ process.generator = cms.EDProducer("FlatRandomEGunProducer",
     AddAntiParticle = cms.bool(False)
 )
 
-process.options = cms.untracked.PSet(
-
-)
 
 # Output definition
 
+
 process.ValidationOutput = cms.OutputModule("PoolOutputModule",
                                             outputCommands = cms.untracked.vstring('drop *', 'keep *_MEtoEDMConverter_*_*'),
-                                            fileName = cms.untracked.string('output.root'),
-)
+                                            fileName = cms.untracked.string('file:output.root'),
+                                            )
+
+process.load("DQMServices.Core.DQM_cfg")
+process.DQM.collectorHost = ''
+process.load("DQMServices.Components.MEtoEDMConverter_cfi")
+process.load("Validation.ShashlikValidation.simhitValidation_cfi")
+process.shashlikSimHitValidation.Verbosity     = 0
 
 # Other statements
 process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['upgradePLS3']
 
+
+# Path and EndPath definitions
 process.generation_step = cms.Path(process.generator)
 process.simulation_step = cms.Path(process.psim)
 process.p1 = cms.Path(process.shashlikSimHitValidation)
 process.p2 = cms.Path(process.MEtoEDMConverter)
 process.output_step = cms.EndPath(process.ValidationOutput)
 
+
 # Schedule definition
 process.schedule = cms.Schedule(process.generation_step,process.simulation_step,process.p1,process.p2,process.output_step)
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_FTFP_BERT_EML'
-process.shashlikSimHitValidation.Verbosity     = 1
+process.g4SimHits.Physics.DefaultCutValue   = 0.1
+
+#print process.dumpPython()
