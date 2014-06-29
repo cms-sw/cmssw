@@ -27,6 +27,7 @@ public:
 
   struct ESProducts {
     ESProducts(): pDD(nullptr), pMF(nullptr), pTable(nullptr) {}
+    void reset() { pDD = nullptr; pMF = nullptr; pTable = nullptr; }
     const DDCompactView *pDD;
     const MagneticField *pMF;
     const HepPDT::ParticleDataTable *pTable;
