@@ -121,7 +121,8 @@ void OscarMTMasterThread::beginRun(const edm::EventSetup& iSetup) const {
   std::unique_lock<std::mutex> lk2(m_threadMutex);
 
   // Reading from ES must be done in the main (CMSSW) thread
-  m_esProducts = m_runManagerInit->readES(iSetup);
+  if(!m_esProducts.isSet())
+    m_esProducts = m_runManagerInit->readES(iSetup);
 
   m_masterThreadState = ThreadState::BeginRun;
   m_masterCanProceed = true;
@@ -130,7 +131,6 @@ void OscarMTMasterThread::beginRun(const edm::EventSetup& iSetup) const {
   m_notifyMasterCv.notify_one();
   m_notifyMainCv.wait(lk2, [&](){return m_mainCanProceed;});
 
-  m_esProducts.reset();
   lk2.unlock();
   LogDebug("OscarMTMasterThread") << "Main thread: Finish beginRun";
 }

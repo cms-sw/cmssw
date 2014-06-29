@@ -27,12 +27,13 @@ public:
 
   struct ESProducts {
     ESProducts(): pDD(nullptr), pMF(nullptr), pTable(nullptr) {}
-    void reset() { pDD = nullptr; pMF = nullptr; pTable = nullptr; }
+    bool isSet() const { return pDD != nullptr; }
     const DDCompactView *pDD;
     const MagneticField *pMF;
     const HepPDT::ParticleDataTable *pTable;
   };
   ESProducts readES(const edm::EventSetup& iSetup) const;
+  void checkES(const edm::EventSetup& iSetup) const;
 
 private:
   edm::ParameterSet m_p;

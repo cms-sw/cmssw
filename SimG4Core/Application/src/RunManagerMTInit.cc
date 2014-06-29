@@ -21,7 +21,7 @@ RunManagerMTInit::RunManagerMTInit(const edm::ParameterSet& iConfig):
 
 RunManagerMTInit::~RunManagerMTInit() {}
 
-RunManagerMTInit::ESProducts RunManagerMTInit::readES(const edm::EventSetup& iSetup) const {
+void RunManagerMTInit::checkES(const edm::EventSetup& iSetup) const {
   taskQueue_.pushAndWait([this, &iSetup] {
     bool geomChanged = idealGeomRcdWatcher_.check(iSetup);
     if (geomChanged && (!firstRun)) {
@@ -41,6 +41,10 @@ RunManagerMTInit::ESProducts RunManagerMTInit::readES(const edm::EventSetup& iSe
     }
     firstRun = false;
   });
+}
+
+RunManagerMTInit::ESProducts RunManagerMTInit::readES(const edm::EventSetup& iSetup) const {
+  checkES(iSetup);
 
   ESProducts ret;
 
