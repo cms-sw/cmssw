@@ -17,7 +17,7 @@ namespace {
     typedef typename AlgebraicROOTObject<D>::Vector VecD;
     using ROOT::Math::SMatrixNoInit;
     
-    VecD r, rMeas; SMatDD R, RMeas;
+    VecD r, rMeas; SMatDD R(SMatrixNoInit{}), RMeas(SMatrixNoInit{});
     MatD5 dummyProjMatrix=SMatrixNoInit{};
     ProjectMatrix<double,5,D> dummyProjFunc;
     auto && v = tsos.localParameters().vector();
