@@ -744,6 +744,7 @@ void HitPattern::printHitPattern(HitCategory category, int position, std::ostrea
 
 void HitPattern::print(HitCategory category, std::ostream &stream) const
 {
+    stream << "HitPattern" << std::endl;
     for (int i = 0; i < numberOfHits(category); ++i) {
         printHitPattern(category, i, stream);
     }
