@@ -43,6 +43,7 @@
 #include "G4ParticleTable.hh"
 #include "G4Field.hh"
 #include "G4FieldManager.hh"
+#include "G4CascadeInterface.hh"
 
 #include "G4GDMLParser.hh"
 #include "G4SystemOfUnits.hh"
@@ -144,6 +145,14 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF, co
   
   m_kernel->SetPhysics(phys);
   m_kernel->InitializePhysics();
+  // The following line was with the following comment in
+  // G4MTRunManager::InitializePhysics() in 10.00.p01; in practice
+  // needed to initialize certain singletons during the master thread
+  // initialization in order to avoid races later...
+  //
+  //BERTINI, this is needed to create pseudo-particles, to be removed
+  G4CascadeInterface::Initialize();
+  //
 
   m_physicsList->ResetStoredInAscii();
   std::string tableDir = m_PhysicsTablesDir;
