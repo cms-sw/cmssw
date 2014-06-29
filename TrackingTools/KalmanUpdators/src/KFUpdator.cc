@@ -20,8 +20,6 @@ TrajectoryStateOnSurface lupdate(const TrajectoryStateOnSurface& tsos,
   using ROOT::Math::SMatrixNoInit;
   double pzSign = tsos.localParameters().pzSign();
 
-  //MeasurementExtractor me(tsos);
-
   auto && x = tsos.localParameters().vector();
   auto && C = tsos.localError().matrix();
 
