@@ -889,6 +889,7 @@ void HitPattern::insertHit(const uint16_t pattern)
         // equivalent to: hitPattern[pos >> 4] += bit << ((offset + i) & (16 - 1));
         hitPattern[pos / 16] += bit << ((offset + i) % 16);
     }
+    hitCount++;
 }
 
 bool HitPattern::insertTrackHit(const uint16_t pattern)
@@ -905,7 +906,6 @@ bool HitPattern::insertTrackHit(const uint16_t pattern)
     }
 
     insertHit(pattern);
-    hitCount++;
     endTrackHits++;
 
     return true;
@@ -919,7 +919,6 @@ bool HitPattern::insertExpectedInnerHit(const uint16_t pattern)
     }
 
     insertHit(pattern);
-    hitCount++;
     endInner++;
 
     return true;
@@ -933,7 +932,6 @@ bool HitPattern::insertExpectedOuterHit(const uint16_t pattern)
     }
 
     insertHit(pattern);
-    hitCount++;
     endOuter++;
 
     return true;

@@ -239,8 +239,8 @@ public:
     int numberOfBadMuonCSCHits() const;       // not-null, bad, muon CSC
     int numberOfBadMuonRPCHits() const;       // not-null, bad, muon RPC
 
-    int numberOfInactiveHits(HitCategory category) const;         // not-null, inactive
-    int numberOfInactiveTrackerHits(HitCategory category) const;  // not-null, inactive, tracker
+    int numberOfInactiveHits() const;         // not-null, inactive
+    int numberOfInactiveTrackerHits() const;  // not-null, inactive, tracker
 
     // count strip layers that have non-null, valid mono and stereo hits
     int numberOfValidStripLayersWithMonoAndStereo(uint16_t stripdet, uint16_t layer) const;
@@ -867,14 +867,14 @@ inline int HitPattern::numberOfBadMuonRPCHits() const
     return countTypedHits(TRACK_HITS, inactiveHitFilter, muonRPCHitFilter);
 }
 
-inline int HitPattern::numberOfInactiveHits(HitCategory category) const
+inline int HitPattern::numberOfInactiveHits() const
 {
-    return countHits(category, inactiveHitFilter);
+    return countHits(TRACK_HITS, inactiveHitFilter);
 }
 
-inline int HitPattern::numberOfInactiveTrackerHits(HitCategory category) const
+inline int HitPattern::numberOfInactiveTrackerHits() const
 {
-    return countTypedHits(category, inactiveHitFilter, trackerHitFilter);
+    return countTypedHits(TRACK_HITS, inactiveHitFilter, trackerHitFilter);
 }
 
 inline int HitPattern::trackerLayersWithMeasurement() const
