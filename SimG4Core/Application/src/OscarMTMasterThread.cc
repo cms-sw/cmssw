@@ -9,7 +9,7 @@
 
 
 
-OscarMTMasterThread::OscarMTMasterThread(const RunManagerMTInit *runManagerInit, const edm::EventSetup& iSetup):
+OscarMTMasterThread::OscarMTMasterThread(const RunManagerMTInit *runManagerInit):
   m_runManagerInit(runManagerInit),
   m_masterThreadState(ThreadState::NotExist),
   m_masterCanProceed(false),
@@ -18,7 +18,6 @@ OscarMTMasterThread::OscarMTMasterThread(const RunManagerMTInit *runManagerInit,
 {
 
   const edm::ParameterSet& pset = m_runManagerInit->parameterSet();
-  m_esProducts = m_runManagerInit->readES(iSetup);
 
   // Lock the mutex
   //std::unique_lock<std::mutex> lk(m_notifyMasterMutex);
@@ -106,17 +105,6 @@ OscarMTMasterThread::OscarMTMasterThread(const RunManagerMTInit *runManagerInit,
   LogDebug("OscarMTMasterThread") << "Main thread: Signal master for initialization";
   m_notifyMainCv.wait(lk, [&](){return m_mainCanProceed;});
 
-  // Then start run
-  m_masterThreadState = ThreadState::BeginRun;
-  m_masterCanProceed = true;
-  m_mainCanProceed = false;
-  LogDebug("OscarMTMasterThread") << "Main thread: Signal master for BeginRun";
-  m_notifyMasterCv.notify_one();
-  m_notifyMainCv.wait(lk, [&](){return m_mainCanProceed;});
-
-  m_esProducts.reset();
-
-  // Unlock the lock
   lk.unlock();
   LogDebug("OscarMTMasterThread") << "Main thread: Finish constructor";
 }
@@ -127,14 +115,27 @@ OscarMTMasterThread::~OscarMTMasterThread() {
   }
 }
 
-void OscarMTMasterThread::stopThread() const {
+void OscarMTMasterThread::beginRun(const edm::EventSetup& iSetup) {
+  std::unique_lock<std::mutex> lk2(m_threadMutex);
+
+  // Reading from ES must be done in the main (CMSSW) thread
+  m_esProducts = m_runManagerInit->readES(iSetup);
+
+  m_masterThreadState = ThreadState::BeginRun;
+  m_masterCanProceed = true;
+  m_mainCanProceed = false;
+  LogDebug("OscarMTMasterThread") << "Main thread: Signal master for BeginRun";
+  m_notifyMasterCv.notify_one();
+  m_notifyMainCv.wait(lk2, [&](){return m_mainCanProceed;});
+
+  m_esProducts.reset();
+  lk2.unlock();
+  LogDebug("OscarMTMasterThread") << "Main thread: Finish beginRun";
+}
+
+void OscarMTMasterThread::endRun() const {
   std::lock_guard<std::mutex> lk(m_protectMutex);
-  if(m_stopped) {
-    edm::LogError("OscarMTMasterThread") << "Second call to OscarMTMasterThread::stopThread(), not doing anything";
-    return;
-  }
-  LogDebug("OscarMTMasterThread") << "Main thread: stopThread()";
-  // First stop run
+
   std::unique_lock<std::mutex> lk2(m_threadMutex);
   m_masterThreadState = ThreadState::EndRun;
   m_mainCanProceed = false;
@@ -142,10 +143,22 @@ void OscarMTMasterThread::stopThread() const {
   LogDebug("OscarMTMasterThread") << "Main thread: signal master thread for EndRun";
   m_notifyMasterCv.notify_one();
   m_notifyMainCv.wait(lk2, [&](){return m_mainCanProceed;});
+  lk2.unlock();
+  LogDebug("OscarMTMasterThread") << "Main thread: Finish endRun";
+}
+
+void OscarMTMasterThread::stopThread() const {
+  std::lock_guard<std::mutex> lk(m_protectMutex);
+  if(m_stopped) {
+    edm::LogError("OscarMTMasterThread") << "Second call to OscarMTMasterThread::stopThread(), not doing anything";
+    return;
+  }
+  LogDebug("OscarMTMasterThread") << "Main thread: stopThread()";
 
   // Release our instance of the shared master run manager, so that
   // the G4 master thread can do the cleanup. Then notify the master
   // thread, and join it.
+  std::unique_lock<std::mutex> lk2(m_threadMutex);
   m_runManagerMaster.reset();
   LogDebug("OscarMTMasterThread") << "Main thread: reseted shared_ptr";
 

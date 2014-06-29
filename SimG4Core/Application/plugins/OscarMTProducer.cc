@@ -137,11 +137,13 @@ std::shared_ptr<OscarMTMasterThread> OscarMTProducer::globalBeginRun(const edm::
   // Random number generation not allowed here
   StaticRandomEngineSetUnset random(nullptr);
 
-  auto masterThread = std::make_shared<OscarMTMasterThread>(runManagerMTInit, iSetup);
+  auto masterThread = std::make_shared<OscarMTMasterThread>(runManagerMTInit);
+  masterThread->beginRun(iSetup);
   return masterThread;
 }
 
 void OscarMTProducer::globalEndRun(const edm::Run& iRun, const edm::EventSetup& iSetup, const RunContext *iContext) {
+  iContext->run()->endRun();
   iContext->run()->stopThread();
 }
 

@@ -17,9 +17,11 @@ class RunManagerMT;
 
 class OscarMTMasterThread {
 public:
-  OscarMTMasterThread(const RunManagerMTInit *runManagerInit, const edm::EventSetup& iSetup);
+  OscarMTMasterThread(const RunManagerMTInit *runManagerInit);
   ~OscarMTMasterThread();
 
+  void beginRun(const edm::EventSetup& iSetup);
+  void endRun() const;
   void stopThread() const;
 
   const RunManagerMTInit& runManagerInit() const { return *m_runManagerInit; }
