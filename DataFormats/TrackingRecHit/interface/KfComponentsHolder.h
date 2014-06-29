@@ -48,6 +48,7 @@ class KfComponentsHolder {
             return  * reinterpret_cast<typename AlgebraicROOTObject<D,D>::SymMatrix *>(errors_);
         }
 
+
         template <unsigned int D>
         typename AlgebraicROOTObject<D,5>::Matrix & projection() { 
 #ifdef Debug_KfComponentsHolder
@@ -55,6 +56,8 @@ class KfComponentsHolder {
 #endif
             return  * reinterpret_cast<typename AlgebraicROOTObject<D,5>::Matrix *>(projection_);
         }
+
+
 
         template <unsigned int D>
         ProjectMatrix<double,5,D> & projFunc() { 
