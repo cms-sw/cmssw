@@ -1,5 +1,5 @@
 //
-//  SiPixelTemplate.cc  Version 8.30 
+//  SiPixelTemplate.cc  Version 9.00 
 //
 //  Add goodness-of-fit info and spare entries to templates, version number in template header, more error checking
 //  Add correction for (Q_F-Q_L)/(Q_F+Q_L) bias
@@ -65,7 +65,13 @@
 //  V8.25 - Incorporate VI's speed changes into the current version
 //  V8.26 - Modify the Vavilov lookups to work better with the FPix (offset y-templates)
 //  V8.30 - Change the splitting template generation and access to improve speed and eliminate triple index boost::multiarray
-
+//  V8.31 - Add correction factor: measured/true charge
+//  V8.31 - Fix version number bug in db object I/O (pushfile)
+//  V8.32 - Check for illegal qmin during loading
+//  V8.33 - Fix small type conversion warnings
+//  V8.40 - Incorporate V.I. optimizations
+//  V9.00 - Expand header to include multi and single dcol thresholds, LA biases, and (variable) Qbin definitions
+// Due to a bug I have to fix fbin to 1.5,1.0,0.85. Delete version testing. d.k. 5/14
 //  Created by Morris Swartz on 10/27/06.
 //
 //
@@ -93,6 +99,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #define LOGERROR(x) LogError(x)
 #define LOGINFO(x) LogInfo(x)
+#define LOGWARNING(x) LogWarning(x)
 #define ENDL " "
 #include "FWCore/Utilities/interface/Exception.h"
 using namespace edm;
@@ -103,6 +110,10 @@ using namespace edm;
 #define LOGINFO(x) std::cout << x << ": "
 #define ENDL std::endl
 #endif
+
+namespace {
+  const float fbin0=1.50f, fbin1=1.00f, fbin2=0.85f;
+}
 
 //**************************************************************** 
 //! This routine initializes the global template structures from 
@@ -148,35 +159,56 @@ bool SiPixelTemplate::pushfile(int filenum, std::vector< SiPixelTemplateStore > 
 	
 	if(in_file.is_open()) {
 		
-		// Create a local template storage entry
+	  // Create a local template storage entry
 		
-		SiPixelTemplateStore theCurrentTemp;
+	  SiPixelTemplateStore theCurrentTemp;
+	  
+	  // Read-in a header string first and print it    
+	  
+	  for (i=0; (c=in_file.get()) != '\n'; ++i) {
+	    if(i < 79) {theCurrentTemp.head.title[i] = c;}
+	  }
+	  if(i > 78) {i=78;}
+	  theCurrentTemp.head.title[i+1] ='\0';
+	  LOGINFO("SiPixelTemplate") << "Loading Pixel Template File - " << theCurrentTemp.head.title << ENDL;
+	  
+	  // next, the header information     
+	  
+	  in_file >> theCurrentTemp.head.ID  >> theCurrentTemp.head.templ_version >> theCurrentTemp.head.Bfield >> theCurrentTemp.head.NTy >> theCurrentTemp.head.NTyx >> theCurrentTemp.head.NTxx
+		  >> theCurrentTemp.head.Dtype >> theCurrentTemp.head.Vbias >> theCurrentTemp.head.temperature >> theCurrentTemp.head.fluence >> theCurrentTemp.head.qscale
+		  >> theCurrentTemp.head.s50 >> theCurrentTemp.head.lorywidth >> theCurrentTemp.head.lorxwidth >> theCurrentTemp.head.ysize >> theCurrentTemp.head.xsize >> theCurrentTemp.head.zsize;
+	  
+	  if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 0A, no template load" << ENDL; return false;}
+	  
+	  if(theCurrentTemp.head.templ_version > 17) {
+	    in_file >> theCurrentTemp.head.ss50 >> theCurrentTemp.head.lorybias 
+		    >> theCurrentTemp.head.lorxbias >> theCurrentTemp.head.fbin[0] 
+		    >> theCurrentTemp.head.fbin[1] >> theCurrentTemp.head.fbin[2];
+	    
+	    if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 0B, no template load" 
+							    << ENDL; return false;}
+	  } else {
+	    theCurrentTemp.head.ss50 = theCurrentTemp.head.s50;
+	    theCurrentTemp.head.lorybias = theCurrentTemp.head.lorywidth/2.f;
+	    theCurrentTemp.head.lorxbias = theCurrentTemp.head.lorxwidth/2.f;
+	    theCurrentTemp.head.fbin[0] = fbin0;
+	    theCurrentTemp.head.fbin[1] = fbin1;
+	    theCurrentTemp.head.fbin[2] = fbin2;
+	  }
 		
-		// Read-in a header string first and print it    
-		
-		for (i=0; (c=in_file.get()) != '\n'; ++i) {
-			if(i < 79) {theCurrentTemp.head.title[i] = c;}
-		}
-		if(i > 78) {i=78;}
-		theCurrentTemp.head.title[i+1] ='\0';
-		LOGINFO("SiPixelTemplate") << "Loading Pixel Template File - " << theCurrentTemp.head.title << ENDL;
-		
-		// next, the header information     
-		
-		in_file >> theCurrentTemp.head.ID  >> theCurrentTemp.head.templ_version >> theCurrentTemp.head.Bfield >> theCurrentTemp.head.NTy >> theCurrentTemp.head.NTyx >> theCurrentTemp.head.NTxx
-		>> theCurrentTemp.head.Dtype >> theCurrentTemp.head.Vbias >> theCurrentTemp.head.temperature >> theCurrentTemp.head.fluence >> theCurrentTemp.head.qscale
-		>> theCurrentTemp.head.s50 >> theCurrentTemp.head.lorywidth >> theCurrentTemp.head.lorxwidth >> theCurrentTemp.head.ysize >> theCurrentTemp.head.xsize >> theCurrentTemp.head.zsize;
-		
-		if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
-		
-		LOGINFO("SiPixelTemplate") << "Template ID = " << theCurrentTemp.head.ID << ", Template Version " << theCurrentTemp.head.templ_version << ", Bfield = " << theCurrentTemp.head.Bfield 
-		<< ", NTy = " << theCurrentTemp.head.NTy << ", NTyx = " << theCurrentTemp.head.NTyx<< ", NTxx = " << theCurrentTemp.head.NTxx << ", Dtype = " << theCurrentTemp.head.Dtype
+	  LOGINFO("SiPixelTemplate") << "Template ID = " << theCurrentTemp.head.ID << ", Template Version " << theCurrentTemp.head.templ_version << ", Bfield = " << theCurrentTemp.head.Bfield 
+				     << ", NTy = " << theCurrentTemp.head.NTy << ", NTyx = " << theCurrentTemp.head.NTyx<< ", NTxx = " << theCurrentTemp.head.NTxx << ", Dtype = " << theCurrentTemp.head.Dtype
 		<< ", Bias voltage " << theCurrentTemp.head.Vbias << ", temperature "
 		<< theCurrentTemp.head.temperature << ", fluence " << theCurrentTemp.head.fluence << ", Q-scaling factor " << theCurrentTemp.head.qscale
-		<< ", 1/2 threshold " << theCurrentTemp.head.s50 << ", y Lorentz Width " << theCurrentTemp.head.lorywidth << ", x Lorentz width " << theCurrentTemp.head.lorxwidth    
+		<< ", 1/2 multi dcol threshold " << theCurrentTemp.head.s50 << ", 1/2 single dcol threshold " << theCurrentTemp.head.ss50
+      << ", y Lorentz Width " << theCurrentTemp.head.lorywidth << ", y Lorentz Bias " << theCurrentTemp.head.lorybias
+      << ", x Lorentz width " << theCurrentTemp.head.lorxwidth << ", x Lorentz Bias " << theCurrentTemp.head.lorxbias
+      << ", Q/Q_avg fractions for Qbin defs " << theCurrentTemp.head.fbin[0] << ", " << theCurrentTemp.head.fbin[1]
+      << ", " << theCurrentTemp.head.fbin[2]
 		<< ", pixel x-size " << theCurrentTemp.head.xsize << ", y-size " << theCurrentTemp.head.ysize << ", zsize " << theCurrentTemp.head.zsize << ENDL;
 		
-		if(theCurrentTemp.head.templ_version < code_version) {LOGERROR("SiPixelTemplate") << "code expects version " << code_version << ", no template load" << ENDL; return false;}
+
+	  if(theCurrentTemp.head.templ_version < code_version) {LOGERROR("SiPixelTemplate") << "code expects version " << code_version << " finds "<< theCurrentTemp.head.templ_version <<", no template load" << ENDL; return false;}
 		
 #ifdef SI_PIXEL_TEMPLATE_USE_BOOST 
 		
@@ -216,6 +248,10 @@ bool SiPixelTemplate::pushfile(int filenum, std::vector< SiPixelTemplateStore > 
 			>> theCurrentTemp.enty[i].sxtwo >> theCurrentTemp.enty[i].qmin >> theCurrentTemp.enty[i].clsleny >> theCurrentTemp.enty[i].clslenx;
 			
 			if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 3, no template load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
+
+         
+         if(theCurrentTemp.enty[i].qmin <= 0.) {LOGERROR("SiPixelTemplate") << "Error in template ID " << theCurrentTemp.head.ID << " qmin = " << theCurrentTemp.enty[i].qmin << ", run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
+
 			
 			for (j=0; j<2; ++j) {
 				
@@ -317,7 +353,7 @@ bool SiPixelTemplate::pushfile(int filenum, std::vector< SiPixelTemplateStore > 
 			} 
 			
 			in_file >> theCurrentTemp.enty[i].chi2yavgone >> theCurrentTemp.enty[i].chi2yminone >> theCurrentTemp.enty[i].chi2xavgone >> theCurrentTemp.enty[i].chi2xminone >> theCurrentTemp.enty[i].qmin2
-			>> theCurrentTemp.enty[i].mpvvav >> theCurrentTemp.enty[i].sigmavav >> theCurrentTemp.enty[i].kappavav >> theCurrentTemp.enty[i].qavg_spare >> theCurrentTemp.enty[i].spare[0];
+			>> theCurrentTemp.enty[i].mpvvav >> theCurrentTemp.enty[i].sigmavav >> theCurrentTemp.enty[i].kappavav >> theCurrentTemp.enty[i].r_qMeas_qTrue >> theCurrentTemp.enty[i].spare[0];
 			
 			if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 15, no template load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
 			
@@ -460,7 +496,7 @@ bool SiPixelTemplate::pushfile(int filenum, std::vector< SiPixelTemplateStore > 
 				}
 				
 				in_file >> theCurrentTemp.entx[k][i].chi2yavgone >> theCurrentTemp.entx[k][i].chi2yminone >> theCurrentTemp.entx[k][i].chi2xavgone >> theCurrentTemp.entx[k][i].chi2xminone >> theCurrentTemp.entx[k][i].qmin2
-				>> theCurrentTemp.entx[k][i].mpvvav >> theCurrentTemp.entx[k][i].sigmavav >> theCurrentTemp.entx[k][i].kappavav >> theCurrentTemp.entx[k][i].qavg_spare >> theCurrentTemp.entx[k][i].spare[0];
+				>> theCurrentTemp.entx[k][i].mpvvav >> theCurrentTemp.entx[k][i].sigmavav >> theCurrentTemp.entx[k][i].kappavav >> theCurrentTemp.entx[k][i].r_qMeas_qTrue >> theCurrentTemp.entx[k][i].spare[0];
 				
 				if(in_file.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 31, no template load, run # " << theCurrentTemp.entx[k][i].runnum << ENDL; return false;}
 				
@@ -511,7 +547,7 @@ bool SiPixelTemplate::pushfile(const SiPixelTemplateDBObject& dbobject, std::vec
 	int i, j, k, l;
 	float qavg_avg;
 	//	const char *tempfile;
-	const int code_version={16};
+	const int code_version={17};
 	
 	// We must create a new object because dbobject must be a const and our stream must not be
 	SiPixelTemplateDBObject db = dbobject;
@@ -521,195 +557,231 @@ bool SiPixelTemplate::pushfile(const SiPixelTemplateDBObject& dbobject, std::vec
 	SiPixelTemplateStore theCurrentTemp;
 	
 	// Fill the template storage for each template calibration stored in the db
-	for(int m=0; m<db.numOfTempl(); ++m)
-	{
+	for(int m=0; m<db.numOfTempl(); ++m) {
 		
-		// Read-in a header string first and print it    
+	  // Read-in a header string first and print it    
+	  
+	  SiPixelTemplateDBObject::char2float temp;
+	  for (i=0; i<20; ++i) {
+	    temp.f = db.sVector()[db.index()];
+	    theCurrentTemp.head.title[4*i] = temp.c[0];
+	    theCurrentTemp.head.title[4*i+1] = temp.c[1];
+	    theCurrentTemp.head.title[4*i+2] = temp.c[2];
+	    theCurrentTemp.head.title[4*i+3] = temp.c[3];
+	    db.incrementIndex(1);
+	  }
+	  theCurrentTemp.head.title[79] = '\0';
+	  LOGINFO("SiPixelTemplate") << "Loading Pixel Template File - " << theCurrentTemp.head.title << ENDL;
+	  	  
+	  // next, the header information     
+	  
+	  db >> theCurrentTemp.head.ID  >> theCurrentTemp.head.templ_version >> theCurrentTemp.head.Bfield >> theCurrentTemp.head.NTy >> theCurrentTemp.head.NTyx >> theCurrentTemp.head.NTxx
+	     >> theCurrentTemp.head.Dtype >> theCurrentTemp.head.Vbias >> theCurrentTemp.head.temperature >> theCurrentTemp.head.fluence >> theCurrentTemp.head.qscale
+	     >> theCurrentTemp.head.s50 >> theCurrentTemp.head.lorywidth >> theCurrentTemp.head.lorxwidth >> theCurrentTemp.head.ysize >> theCurrentTemp.head.xsize >> theCurrentTemp.head.zsize;
+	  
+	  if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 0A, no template load" << ENDL; return false;}
+	  
+	  LOGINFO("SiPixelTemplate") << "Loading Pixel Template File - " << theCurrentTemp.head.title 
+					<<" code version = "<<code_version
+					<<" object version "<<theCurrentTemp.head.templ_version
+					<< ENDL;
+	  
+	  if(theCurrentTemp.head.templ_version > 17) {
+	    db >> theCurrentTemp.head.ss50 >> theCurrentTemp.head.lorybias >> theCurrentTemp.head.lorxbias >> theCurrentTemp.head.fbin[0] >> theCurrentTemp.head.fbin[1] >> theCurrentTemp.head.fbin[2];
+	    
+	    if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 0B, no template load" 
+						       << ENDL; return false;}
+	  } else {
+	    theCurrentTemp.head.ss50 = theCurrentTemp.head.s50;
+	    theCurrentTemp.head.lorybias = theCurrentTemp.head.lorywidth/2.f;
+	    theCurrentTemp.head.lorxbias = theCurrentTemp.head.lorxwidth/2.f;
+	    theCurrentTemp.head.fbin[0] = fbin0;
+	    theCurrentTemp.head.fbin[1] = fbin1;
+	    theCurrentTemp.head.fbin[2] = fbin2;
+	    //std::cout<<" set fbin  "<< theCurrentTemp.head.fbin[0]<<" "<<theCurrentTemp.head.fbin[1]<<" "
+	    //	     <<theCurrentTemp.head.fbin[2]<<std::endl;
+	  }
+				
+	  LOGINFO("SiPixelTemplate") 
+	    << "Template ID = " << theCurrentTemp.head.ID << ", Template Version " 
+	    << theCurrentTemp.head.templ_version << ", Bfield = " 
+	    << theCurrentTemp.head.Bfield<< ", NTy = " << theCurrentTemp.head.NTy << ", NTyx = " 
+	    << theCurrentTemp.head.NTyx<< ", NTxx = " << theCurrentTemp.head.NTxx << ", Dtype = " 
+	    << theCurrentTemp.head.Dtype<< ", Bias voltage " << theCurrentTemp.head.Vbias << ", temperature "
+	    << theCurrentTemp.head.temperature << ", fluence " << theCurrentTemp.head.fluence 
+	    << ", Q-scaling factor " << theCurrentTemp.head.qscale
+	    << ", 1/2 multi dcol threshold " << theCurrentTemp.head.s50 << ", 1/2 single dcol threshold " 
+	    << theCurrentTemp.head.ss50<< ", y Lorentz Width " << theCurrentTemp.head.lorywidth 
+	    << ", y Lorentz Bias " << theCurrentTemp.head.lorybias
+	    << ", x Lorentz width " << theCurrentTemp.head.lorxwidth 
+	    << ", x Lorentz Bias " << theCurrentTemp.head.lorxbias
+	    << ", Q/Q_avg fractions for Qbin defs " << theCurrentTemp.head.fbin[0] 
+	    << ", " << theCurrentTemp.head.fbin[1]
+	    << ", " << theCurrentTemp.head.fbin[2]
+	    << ", pixel x-size " << theCurrentTemp.head.xsize 
+	    << ", y-size " << theCurrentTemp.head.ysize << ", zsize " << theCurrentTemp.head.zsize << ENDL;
 		
-		SiPixelTemplateDBObject::char2float temp;
-		for (i=0; i<20; ++i) {
-			temp.f = db.sVector()[db.index()];
-			theCurrentTemp.head.title[4*i] = temp.c[0];
-			theCurrentTemp.head.title[4*i+1] = temp.c[1];
-			theCurrentTemp.head.title[4*i+2] = temp.c[2];
-			theCurrentTemp.head.title[4*i+3] = temp.c[3];
-			db.incrementIndex(1);
-		}
-		theCurrentTemp.head.title[79] = '\0';
-		LOGINFO("SiPixelTemplate") << "Loading Pixel Template File - " << theCurrentTemp.head.title << ENDL;
-		
-		// next, the header information     
-		
-		db >> theCurrentTemp.head.ID  >> theCurrentTemp.head.templ_version >> theCurrentTemp.head.Bfield >> theCurrentTemp.head.NTy >> theCurrentTemp.head.NTyx >> theCurrentTemp.head.NTxx
-		>> theCurrentTemp.head.Dtype >> theCurrentTemp.head.Vbias >> theCurrentTemp.head.temperature >> theCurrentTemp.head.fluence >> theCurrentTemp.head.qscale
-		>> theCurrentTemp.head.s50 >> theCurrentTemp.head.lorywidth >> theCurrentTemp.head.lorxwidth >> theCurrentTemp.head.ysize >> theCurrentTemp.head.xsize >> theCurrentTemp.head.zsize;
-		
-		if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file, no template load" << ENDL; return false;}
-		
-		LOGINFO("SiPixelTemplate") << "Template ID = " << theCurrentTemp.head.ID << ", Template Version " << theCurrentTemp.head.templ_version << ", Bfield = " << theCurrentTemp.head.Bfield 
-		<< ", NTy = " << theCurrentTemp.head.NTy << ", NTyx = " << theCurrentTemp.head.NTyx<< ", NTxx = " << theCurrentTemp.head.NTxx << ", Dtype = " << theCurrentTemp.head.Dtype
-		<< ", Bias voltage " << theCurrentTemp.head.Vbias << ", temperature "
-		<< theCurrentTemp.head.temperature << ", fluence " << theCurrentTemp.head.fluence << ", Q-scaling factor " << theCurrentTemp.head.qscale
-		<< ", 1/2 threshold " << theCurrentTemp.head.s50 << ", y Lorentz Width " << theCurrentTemp.head.lorywidth << ", x Lorentz width " << theCurrentTemp.head.lorxwidth    
-		<< ", pixel x-size " << theCurrentTemp.head.xsize << ", y-size " << theCurrentTemp.head.ysize << ", zsize " << theCurrentTemp.head.zsize << ENDL;
-		
-		if(theCurrentTemp.head.templ_version < code_version) {LOGERROR("SiPixelTemplate") << "code expects version " << code_version << ", no template load" << ENDL; return false;}
+	  if(theCurrentTemp.head.templ_version < code_version) {
+	    LOGINFO("SiPixelTemplate") << "code expects version "<< code_version << " finds "
+					<< theCurrentTemp.head.templ_version <<", load anyway " << ENDL; 
+	    //return false; // dk
+	  }
 		
 		
 #ifdef SI_PIXEL_TEMPLATE_USE_BOOST 
 		
-// next, layout the 1-d/2-d structures needed to store template
-		
-		theCurrentTemp.enty.resize(boost::extents[theCurrentTemp.head.NTy]);
-		
-		theCurrentTemp.entx.resize(boost::extents[theCurrentTemp.head.NTyx][theCurrentTemp.head.NTxx]);
+	  // next, layout the 1-d/2-d structures needed to store template
+	  theCurrentTemp.enty.resize(boost::extents[theCurrentTemp.head.NTy]);	
+	  theCurrentTemp.entx.resize(boost::extents[theCurrentTemp.head.NTyx][theCurrentTemp.head.NTxx]);
 		
 #endif
 				
-// next, loop over all barrel y-angle entries   
+	  // next, loop over all barrel y-angle entries   
 		
-		for (i=0; i < theCurrentTemp.head.NTy; ++i) {     
+	  for (i=0; i < theCurrentTemp.head.NTy; ++i) {     
+	    
+	    db >> theCurrentTemp.enty[i].runnum >> theCurrentTemp.enty[i].costrk[0] 
+	       >> theCurrentTemp.enty[i].costrk[1] >> theCurrentTemp.enty[i].costrk[2]; 
+	    
+	    if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 1, no template load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
 			
-			db >> theCurrentTemp.enty[i].runnum >> theCurrentTemp.enty[i].costrk[0] 
-			>> theCurrentTemp.enty[i].costrk[1] >> theCurrentTemp.enty[i].costrk[2]; 
-			
-			if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 1, no template load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
-			
-// Calculate the alpha, beta, and cot(beta) for this entry 
-			
-			theCurrentTemp.enty[i].alpha = static_cast<float>(atan2((double)theCurrentTemp.enty[i].costrk[2], (double)theCurrentTemp.enty[i].costrk[0]));
-			
-			theCurrentTemp.enty[i].cotalpha = theCurrentTemp.enty[i].costrk[0]/theCurrentTemp.enty[i].costrk[2];
-			
-			theCurrentTemp.enty[i].beta = static_cast<float>(atan2((double)theCurrentTemp.enty[i].costrk[2], (double)theCurrentTemp.enty[i].costrk[1]));
-			
-			theCurrentTemp.enty[i].cotbeta = theCurrentTemp.enty[i].costrk[1]/theCurrentTemp.enty[i].costrk[2];
-			
-			db >> theCurrentTemp.enty[i].qavg >> theCurrentTemp.enty[i].pixmax >> theCurrentTemp.enty[i].symax >> theCurrentTemp.enty[i].dyone
-			>> theCurrentTemp.enty[i].syone >> theCurrentTemp.enty[i].sxmax >> theCurrentTemp.enty[i].dxone >> theCurrentTemp.enty[i].sxone;
-			
-			if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 2, no template load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
-			
-			db >> theCurrentTemp.enty[i].dytwo >> theCurrentTemp.enty[i].sytwo >> theCurrentTemp.enty[i].dxtwo 
-			>> theCurrentTemp.enty[i].sxtwo >> theCurrentTemp.enty[i].qmin >> theCurrentTemp.enty[i].clsleny >> theCurrentTemp.enty[i].clslenx;
-			//			     >> theCurrentTemp.enty[i].mpvvav >> theCurrentTemp.enty[i].sigmavav >> theCurrentTemp.enty[i].kappavav;
-			
-			if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 3, no template load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
-			
-			for (j=0; j<2; ++j) {
-				
-				db >> theCurrentTemp.enty[i].ypar[j][0] >> theCurrentTemp.enty[i].ypar[j][1] 
-				>> theCurrentTemp.enty[i].ypar[j][2] >> theCurrentTemp.enty[i].ypar[j][3] >> theCurrentTemp.enty[i].ypar[j][4];
-				
-				if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 4, no template load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
-				
-			}
-			
-			for (j=0; j<9; ++j) {
-				
-				for (k=0; k<TYSIZE; ++k) {db >> theCurrentTemp.enty[i].ytemp[j][k];}
-				
-				if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 5, no template load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
-			}
-			
-			for (j=0; j<2; ++j) {
-				
-				db >> theCurrentTemp.enty[i].xpar[j][0] >> theCurrentTemp.enty[i].xpar[j][1] 
-				>> theCurrentTemp.enty[i].xpar[j][2] >> theCurrentTemp.enty[i].xpar[j][3] >> theCurrentTemp.enty[i].xpar[j][4];
-				
-				if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 6, no template load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
-				
-			}
-			
-			qavg_avg = 0.f;
-			for (j=0; j<9; ++j) {
-				
-				for (k=0; k<TXSIZE; ++k) {db >> theCurrentTemp.enty[i].xtemp[j][k]; qavg_avg += theCurrentTemp.enty[i].xtemp[j][k];} 
-				
-				if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 7, no template load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
-			}
-			theCurrentTemp.enty[i].qavg_avg = qavg_avg/9.;
-			
-			for (j=0; j<4; ++j) {
-				
-				db >> theCurrentTemp.enty[i].yavg[j] >> theCurrentTemp.enty[i].yrms[j] >> theCurrentTemp.enty[i].ygx0[j] >> theCurrentTemp.enty[i].ygsig[j];
-				
-				if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 8, no template load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
-			}
-			
-			for (j=0; j<4; ++j) {
-				
-				db >> theCurrentTemp.enty[i].yflpar[j][0] >> theCurrentTemp.enty[i].yflpar[j][1] >> theCurrentTemp.enty[i].yflpar[j][2] 
-				>> theCurrentTemp.enty[i].yflpar[j][3] >> theCurrentTemp.enty[i].yflpar[j][4] >> theCurrentTemp.enty[i].yflpar[j][5];
-				
-				if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 9, no template load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
-			}
-			
-			for (j=0; j<4; ++j) {
-				
-				db >> theCurrentTemp.enty[i].xavg[j] >> theCurrentTemp.enty[i].xrms[j] >> theCurrentTemp.enty[i].xgx0[j] >> theCurrentTemp.enty[i].xgsig[j];
-				
-				if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 10, no template load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
-			}
-			
-			for (j=0; j<4; ++j) {
-				
-				db >> theCurrentTemp.enty[i].xflpar[j][0] >> theCurrentTemp.enty[i].xflpar[j][1] >> theCurrentTemp.enty[i].xflpar[j][2] 
-				>> theCurrentTemp.enty[i].xflpar[j][3] >> theCurrentTemp.enty[i].xflpar[j][4] >> theCurrentTemp.enty[i].xflpar[j][5];
-				
-				if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 11, no template load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
-			}
-			
-			for (j=0; j<4; ++j) {
-				
-				db >> theCurrentTemp.enty[i].chi2yavg[j] >> theCurrentTemp.enty[i].chi2ymin[j] >> theCurrentTemp.enty[i].chi2xavg[j] >> theCurrentTemp.enty[i].chi2xmin[j];
-				
-				if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 12, no template load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
-			}
-			
-			for (j=0; j<4; ++j) {
-				
-				db >> theCurrentTemp.enty[i].yavgc2m[j] >> theCurrentTemp.enty[i].yrmsc2m[j] >> theCurrentTemp.enty[i].chi2yavgc2m[j] >> theCurrentTemp.enty[i].chi2yminc2m[j];
-				
-				if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 13, no template load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
-			}
-			
-			for (j=0; j<4; ++j) {
-				
-				db >> theCurrentTemp.enty[i].xavgc2m[j] >> theCurrentTemp.enty[i].xrmsc2m[j] >> theCurrentTemp.enty[i].chi2xavgc2m[j] >> theCurrentTemp.enty[i].chi2xminc2m[j];
-				
-				if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 14, no template load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
-			} 
-			
-			for (j=0; j<4; ++j) {
-				
-				db >> theCurrentTemp.enty[i].yavggen[j] >> theCurrentTemp.enty[i].yrmsgen[j] >> theCurrentTemp.enty[i].ygx0gen[j] >> theCurrentTemp.enty[i].ygsiggen[j];
-				
-				if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 14a, no template load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
-			}
-			
-			for (j=0; j<4; ++j) {
-				
-				db >> theCurrentTemp.enty[i].xavggen[j] >> theCurrentTemp.enty[i].xrmsgen[j] >> theCurrentTemp.enty[i].xgx0gen[j] >> theCurrentTemp.enty[i].xgsiggen[j];
-				
-				if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 14b, no template load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
-			} 
-			
-			
-			db >> theCurrentTemp.enty[i].chi2yavgone >> theCurrentTemp.enty[i].chi2yminone >> theCurrentTemp.enty[i].chi2xavgone >> theCurrentTemp.enty[i].chi2xminone >> theCurrentTemp.enty[i].qmin2
-			>> theCurrentTemp.enty[i].mpvvav >> theCurrentTemp.enty[i].sigmavav >> theCurrentTemp.enty[i].kappavav >> theCurrentTemp.enty[i].qavg_spare >> theCurrentTemp.enty[i].spare[0];
-			
-			if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 15, no template load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
-			
-			db >> theCurrentTemp.enty[i].mpvvav2 >> theCurrentTemp.enty[i].sigmavav2 >> theCurrentTemp.enty[i].kappavav2 >> theCurrentTemp.enty[i].qbfrac[0] >> theCurrentTemp.enty[i].qbfrac[1]
-			>> theCurrentTemp.enty[i].qbfrac[2] >> theCurrentTemp.enty[i].fracyone >> theCurrentTemp.enty[i].fracxone >> theCurrentTemp.enty[i].fracytwo >> theCurrentTemp.enty[i].fracxtwo;
-			//			theCurrentTemp.enty[i].qbfrac[3] = 1. - theCurrentTemp.enty[i].qbfrac[0] - theCurrentTemp.enty[i].qbfrac[1] - theCurrentTemp.enty[i].qbfrac[2];
-			
-			if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 16, no template load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
-			
-		}
+	    // Calculate the alpha, beta, and cot(beta) for this entry 
+	    
+	    theCurrentTemp.enty[i].alpha = static_cast<float>(atan2((double)theCurrentTemp.enty[i].costrk[2], (double)theCurrentTemp.enty[i].costrk[0]));
+	    
+	    theCurrentTemp.enty[i].cotalpha = theCurrentTemp.enty[i].costrk[0]/theCurrentTemp.enty[i].costrk[2];
+	    
+	    theCurrentTemp.enty[i].beta = static_cast<float>(atan2((double)theCurrentTemp.enty[i].costrk[2], (double)theCurrentTemp.enty[i].costrk[1]));
+	    
+	    theCurrentTemp.enty[i].cotbeta = theCurrentTemp.enty[i].costrk[1]/theCurrentTemp.enty[i].costrk[2];
+	    
+	    db >> theCurrentTemp.enty[i].qavg >> theCurrentTemp.enty[i].pixmax >> theCurrentTemp.enty[i].symax >> theCurrentTemp.enty[i].dyone
+	       >> theCurrentTemp.enty[i].syone >> theCurrentTemp.enty[i].sxmax >> theCurrentTemp.enty[i].dxone >> theCurrentTemp.enty[i].sxone;
+	    
+	    if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 2, no template load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
+	    
+	    db >> theCurrentTemp.enty[i].dytwo >> theCurrentTemp.enty[i].sytwo >> theCurrentTemp.enty[i].dxtwo 
+	       >> theCurrentTemp.enty[i].sxtwo >> theCurrentTemp.enty[i].qmin >> theCurrentTemp.enty[i].clsleny >> theCurrentTemp.enty[i].clslenx;
+	    //			     >> theCurrentTemp.enty[i].mpvvav >> theCurrentTemp.enty[i].sigmavav >> theCurrentTemp.enty[i].kappavav;
+	    
+	    if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 3, no template load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
+	    
+	    if(theCurrentTemp.enty[i].qmin <= 0.) {LOGERROR("SiPixelTemplate") << "Error in template ID " << theCurrentTemp.head.ID << " qmin = " << theCurrentTemp.enty[i].qmin << ", run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
+	    
+	    for (j=0; j<2; ++j) {
+	      
+	      db >> theCurrentTemp.enty[i].ypar[j][0] >> theCurrentTemp.enty[i].ypar[j][1] 
+		 >> theCurrentTemp.enty[i].ypar[j][2] >> theCurrentTemp.enty[i].ypar[j][3] >> theCurrentTemp.enty[i].ypar[j][4];
+	      
+	      if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 4, no template load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
+	      
+	    }
+	    
+	    for (j=0; j<9; ++j) {
+	      
+	      for (k=0; k<TYSIZE; ++k) {db >> theCurrentTemp.enty[i].ytemp[j][k];}
+	      
+	      if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 5, no template load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
+	    }
+	    
+	    for (j=0; j<2; ++j) {
+	      
+	      db >> theCurrentTemp.enty[i].xpar[j][0] >> theCurrentTemp.enty[i].xpar[j][1] 
+		 >> theCurrentTemp.enty[i].xpar[j][2] >> theCurrentTemp.enty[i].xpar[j][3] >> theCurrentTemp.enty[i].xpar[j][4];
+	      
+	      if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 6, no template load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
+	      
+	    }
+	    
+	    qavg_avg = 0.f;
+	    for (j=0; j<9; ++j) {
+	      
+	      for (k=0; k<TXSIZE; ++k) {db >> theCurrentTemp.enty[i].xtemp[j][k]; qavg_avg += theCurrentTemp.enty[i].xtemp[j][k];} 
+	      
+	      if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 7, no template load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
+	    }
+	    theCurrentTemp.enty[i].qavg_avg = qavg_avg/9.;
+	    
+	    for (j=0; j<4; ++j) {
+	      
+	      db >> theCurrentTemp.enty[i].yavg[j] >> theCurrentTemp.enty[i].yrms[j] >> theCurrentTemp.enty[i].ygx0[j] >> theCurrentTemp.enty[i].ygsig[j];
+	      
+	      if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 8, no template load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
+	    }
+	    
+	    for (j=0; j<4; ++j) {
+	      
+	      db >> theCurrentTemp.enty[i].yflpar[j][0] >> theCurrentTemp.enty[i].yflpar[j][1] >> theCurrentTemp.enty[i].yflpar[j][2] 
+		 >> theCurrentTemp.enty[i].yflpar[j][3] >> theCurrentTemp.enty[i].yflpar[j][4] >> theCurrentTemp.enty[i].yflpar[j][5];
+	      
+	      if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 9, no template load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
+	    }
+	    
+	    for (j=0; j<4; ++j) {
+	      
+	      db >> theCurrentTemp.enty[i].xavg[j] >> theCurrentTemp.enty[i].xrms[j] >> theCurrentTemp.enty[i].xgx0[j] >> theCurrentTemp.enty[i].xgsig[j];
+	      
+	      if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 10, no template load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
+	    }
+	    
+	    for (j=0; j<4; ++j) {
+	      
+	      db >> theCurrentTemp.enty[i].xflpar[j][0] >> theCurrentTemp.enty[i].xflpar[j][1] >> theCurrentTemp.enty[i].xflpar[j][2] 
+		 >> theCurrentTemp.enty[i].xflpar[j][3] >> theCurrentTemp.enty[i].xflpar[j][4] >> theCurrentTemp.enty[i].xflpar[j][5];
+	      
+	      if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 11, no template load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
+	    }
+	    
+	    for (j=0; j<4; ++j) {
+	      
+	      db >> theCurrentTemp.enty[i].chi2yavg[j] >> theCurrentTemp.enty[i].chi2ymin[j] >> theCurrentTemp.enty[i].chi2xavg[j] >> theCurrentTemp.enty[i].chi2xmin[j];
+	      
+	      if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 12, no template load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
+	    }
+	    
+	    for (j=0; j<4; ++j) {
+	      
+	      db >> theCurrentTemp.enty[i].yavgc2m[j] >> theCurrentTemp.enty[i].yrmsc2m[j] >> theCurrentTemp.enty[i].chi2yavgc2m[j] >> theCurrentTemp.enty[i].chi2yminc2m[j];
+	      
+	      if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 13, no template load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
+	    }
+	    
+	    for (j=0; j<4; ++j) {
+	      
+	      db >> theCurrentTemp.enty[i].xavgc2m[j] >> theCurrentTemp.enty[i].xrmsc2m[j] >> theCurrentTemp.enty[i].chi2xavgc2m[j] >> theCurrentTemp.enty[i].chi2xminc2m[j];
+	      
+	      if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 14, no template load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
+	    } 
+	    
+	    for (j=0; j<4; ++j) {
+	      
+	      db >> theCurrentTemp.enty[i].yavggen[j] >> theCurrentTemp.enty[i].yrmsgen[j] >> theCurrentTemp.enty[i].ygx0gen[j] >> theCurrentTemp.enty[i].ygsiggen[j];
+	      
+	      if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 14a, no template load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
+	    }
+	    
+	    for (j=0; j<4; ++j) {
+	      
+	      db >> theCurrentTemp.enty[i].xavggen[j] >> theCurrentTemp.enty[i].xrmsgen[j] >> theCurrentTemp.enty[i].xgx0gen[j] >> theCurrentTemp.enty[i].xgsiggen[j];
+	      
+	      if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 14b, no template load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
+	    } 
+	    
+	    
+	    db >> theCurrentTemp.enty[i].chi2yavgone >> theCurrentTemp.enty[i].chi2yminone >> theCurrentTemp.enty[i].chi2xavgone >> theCurrentTemp.enty[i].chi2xminone >> theCurrentTemp.enty[i].qmin2
+	       >> theCurrentTemp.enty[i].mpvvav >> theCurrentTemp.enty[i].sigmavav >> theCurrentTemp.enty[i].kappavav >> theCurrentTemp.enty[i].r_qMeas_qTrue >> theCurrentTemp.enty[i].spare[0];
+	    
+	    if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 15, no template load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
+	    
+	    db >> theCurrentTemp.enty[i].mpvvav2 >> theCurrentTemp.enty[i].sigmavav2 >> theCurrentTemp.enty[i].kappavav2 >> theCurrentTemp.enty[i].qbfrac[0] >> theCurrentTemp.enty[i].qbfrac[1]
+	       >> theCurrentTemp.enty[i].qbfrac[2] >> theCurrentTemp.enty[i].fracyone >> theCurrentTemp.enty[i].fracxone >> theCurrentTemp.enty[i].fracytwo >> theCurrentTemp.enty[i].fracxtwo;
+	    //			theCurrentTemp.enty[i].qbfrac[3] = 1. - theCurrentTemp.enty[i].qbfrac[0] - theCurrentTemp.enty[i].qbfrac[1] - theCurrentTemp.enty[i].qbfrac[2];
+	    
+	    if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 16, no template load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
+	    
+	  }
 		
-		// next, loop over all barrel x-angle entries   
+	  // next, loop over all barrel x-angle entries   
 		
 		for (k=0; k < theCurrentTemp.head.NTyx; ++k) { 
 			
@@ -755,6 +827,8 @@ bool SiPixelTemplate::pushfile(const SiPixelTemplateDBObject& dbobject, std::vec
 					
 					if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 21, no template load, run # " << theCurrentTemp.entx[k][i].runnum << ENDL; return false;}
 				}
+
+
 				
 				for (j=0; j<2; ++j) {
 					
@@ -841,7 +915,7 @@ bool SiPixelTemplate::pushfile(const SiPixelTemplateDBObject& dbobject, std::vec
 				
 				
 				db >> theCurrentTemp.entx[k][i].chi2yavgone >> theCurrentTemp.entx[k][i].chi2yminone >> theCurrentTemp.entx[k][i].chi2xavgone >> theCurrentTemp.entx[k][i].chi2xminone >> theCurrentTemp.entx[k][i].qmin2
-				>> theCurrentTemp.entx[k][i].mpvvav >> theCurrentTemp.entx[k][i].sigmavav >> theCurrentTemp.entx[k][i].kappavav >> theCurrentTemp.entx[k][i].qavg_spare >> theCurrentTemp.entx[k][i].spare[0];
+				>> theCurrentTemp.entx[k][i].mpvvav >> theCurrentTemp.entx[k][i].sigmavav >> theCurrentTemp.entx[k][i].kappavav >> theCurrentTemp.entx[k][i].r_qMeas_qTrue >> theCurrentTemp.entx[k][i].spare[0];
 				
 				if(db.fail()) {LOGERROR("SiPixelTemplate") << "Error reading file 31, no template load, run # " << theCurrentTemp.entx[k][i].runnum << ENDL; return false;}
 				
@@ -909,50 +983,56 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta, float l
     // Interpolate for a new set of track angles 
     
     // Local variables 
-    int i, j;
-	int ilow, ihigh, iylow, iyhigh, Ny, Nxx, Nyx, imidy, imaxx;
-	float yratio, yxratio, xxratio, sxmax, qcorrect, qxtempcor, symax, chi2xavgone, chi2xminone, cotb, cotalpha0, cotbeta0;
-	bool flip_y;
-//	std::vector <float> xrms(4), xgsig(4), xrmsc2m(4);
-	float chi2xavg[4], chi2xmin[4], chi2xavgc2m[4], chi2xminc2m[4];
+  int i, j;
+  int ilow, ihigh, iylow, iyhigh, Ny, Nxx, Nyx, imidy, imaxx;
+  float yratio, yxratio, xxratio, sxmax, qcorrect, qxtempcor, symax, chi2xavgone, chi2xminone, cotb, cotalpha0, cotbeta0;
+  bool flip_y;
+  //	std::vector <float> xrms(4), xgsig(4), xrmsc2m(4);
+  float chi2xavg[4], chi2xmin[4], chi2xavgc2m[4], chi2xminc2m[4];
 
-
-// Check to see if interpolation is valid     
-
-if(id != id_current_ || cotalpha != cota_current_ || cotbeta != cotb_current_) {
-
-	cota_current_ = cotalpha; cotb_current_ = cotbeta; success_ = true;
+  
+  // Check to see if interpolation is valid     
+  if(id != id_current_ || cotalpha != cota_current_ || cotbeta != cotb_current_) {
+    
+    cota_current_ = cotalpha; cotb_current_ = cotbeta; success_ = true;
+    
+    if(id != id_current_) {
+      
+      // Find the index corresponding to id
+      
+      index_id_ = -1;
+      for(i=0; i<(int)thePixelTemp_.size(); ++i) {
 	
-	if(id != id_current_) {
+	//std::cout<<i<<" "<<id<<" "<<thePixelTemp_[i].head.ID<<std::endl;
 
-// Find the index corresponding to id
-
-       index_id_ = -1;
-       for(i=0; i<(int)thePixelTemp_.size(); ++i) {
-	
-	      if(id == thePixelTemp_[i].head.ID) {
-	   
-	         index_id_ = i;
-		      id_current_ = id;
-				
-// Copy the charge scaling factor to the private variable     
-				
-				qscale_ = thePixelTemp_[index_id_].head.qscale;
-				
-// Copy the pseudopixel signal size to the private variable     
-				
-				s50_ = thePixelTemp_[index_id_].head.s50;
-			
-// Pixel sizes to the private variables     
-				
-				xsize_ = thePixelTemp_[index_id_].head.xsize;
-				ysize_ = thePixelTemp_[index_id_].head.ysize;
-				zsize_ = thePixelTemp_[index_id_].head.zsize;
-				
-				break;
-          }
-	    }
-     }
+	if(id == thePixelTemp_[i].head.ID) {
+	  
+	  index_id_ = i;
+	  id_current_ = id;
+	  
+	  // Copy the charge scaling factor to the private variable     
+	  
+	  qscale_ = thePixelTemp_[index_id_].head.qscale;
+	  
+	  // Copy the pseudopixel signal size to the private variable     
+	  
+	  s50_ = thePixelTemp_[index_id_].head.s50;
+          
+	  // Copy Qbinning info to private variables
+	  
+	  for(j=0; j<3; ++j) {fbin_[j] = thePixelTemp_[index_id_].head.fbin[j];}
+	  //std::cout<<" set fbin  "<< fbin_[0]<<" "<<fbin_[1]<<" "<<fbin_[2]<<std::endl;
+	  
+	  // Pixel sizes to the private variables     
+	  
+	  xsize_ = thePixelTemp_[index_id_].head.xsize;
+	  ysize_ = thePixelTemp_[index_id_].head.ysize;
+	  zsize_ = thePixelTemp_[index_id_].head.zsize;
+	  
+	  break;
+	}
+      }
+    }
 	 
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
     if(index_id_ < 0 || index_id_ >= (int)thePixelTemp_.size()) {
@@ -1217,7 +1297,12 @@ if(id != id_current_ || cotalpha != cota_current_ || cotbeta != cotb_current_) {
 
 	pixmax_=(1.f - yxratio)*((1.f - xxratio)*thePixelTemp_[index_id_].entx[iylow][ilow].pixmax + xxratio*thePixelTemp_[index_id_].entx[iylow][ihigh].pixmax)
 			+yxratio*((1.f - xxratio)*thePixelTemp_[index_id_].entx[iyhigh][ilow].pixmax + xxratio*thePixelTemp_[index_id_].entx[iyhigh][ihigh].pixmax);
-			  
+	
+   
+   r_qMeas_qTrue_=(1.f - yxratio)*((1.f - xxratio)*thePixelTemp_[index_id_].entx[iylow][ilow].r_qMeas_qTrue + xxratio*thePixelTemp_[index_id_].entx[iylow][ihigh].r_qMeas_qTrue)
+   +yxratio*((1.f - xxratio)*thePixelTemp_[index_id_].entx[iyhigh][ilow].r_qMeas_qTrue + xxratio*thePixelTemp_[index_id_].entx[iyhigh][ihigh].r_qMeas_qTrue);
+			
+		  
 	for(i=0; i<4; ++i) {
 		xavg_[i]=(1.f - yxratio)*((1.f - xxratio)*thePixelTemp_[index_id_].entx[iylow][ilow].xavg[i] + xxratio*thePixelTemp_[index_id_].entx[iylow][ihigh].xavg[i])
 				+yxratio*((1.f - xxratio)*thePixelTemp_[index_id_].entx[iyhigh][ilow].xavg[i] + xxratio*thePixelTemp_[index_id_].entx[iyhigh][ihigh].xavg[i]);
@@ -1304,8 +1389,11 @@ if(id != id_current_ || cotalpha != cota_current_ || cotbeta != cotb_current_) {
 	}
 	
 	lorywidth_ = thePixelTemp_[index_id_].head.lorywidth;
-	if(locBz > 0.f) {lorywidth_ = -lorywidth_;}
 	lorxwidth_ = thePixelTemp_[index_id_].head.lorxwidth;
+   lorybias_ = thePixelTemp_[index_id_].head.lorybias;
+   lorxbias_ = thePixelTemp_[index_id_].head.lorxbias;
+   if(locBz > 0.f) {lorywidth_ = -lorywidth_; lorybias_ = -lorybias_;}
+	
 	
   }
 	
@@ -1328,8 +1416,8 @@ bool SiPixelTemplate::interpolate(int id, float cotalpha, float cotbeta)
     
     // Local variables 
     float locBz;
-	locBz = -1.f;
-	if(cotbeta < 0.f) {locBz = -locBz;}
+    locBz = -1.f;
+    if(cotbeta < 0.f) {locBz = -locBz;}
     return SiPixelTemplate::interpolate(id, cotalpha, cotbeta, locBz);
 }
 
@@ -2075,7 +2163,7 @@ void SiPixelTemplate::ytemp3d(int i, int j, std::vector<float>& ytemplate)
 	
 // Calculate the size of the shift in pixels needed to span the entire cluster
 
-    float diff = fabsf(nxpix - clslenx_)/2. + 1.f;
+    float diff = fabsf(nxpix - clslenx_)/2.f + 1.f;
 	int nshift = (int)diff;
 	if((diff - nshift) > 0.5f) {++nshift;}
 
@@ -2177,9 +2265,9 @@ void SiPixelTemplate::xtemp3d(int i, int j, std::vector<float>& xtemplate)
 //! \param lorywidth - (output) the estimated y Lorentz width
 //! \param lorxwidth - (output) the estimated x Lorentz width
 // ************************************************************************************************************ 
-int SiPixelTemplate::qbin(int id, float cotalpha, float cotbeta, float locBz, float qclus, float& pixmx, float& sigmay, float& deltay, float& sigmax, float& deltax, 
-                          float& sy1, float& dy1, float& sy2, float& dy2, float& sx1, float& dx1, float& sx2, float& dx2) // float& lorywidth, float& lorxwidth)
-		 
+int SiPixelTemplate::qbin(int id, float cotalpha, float cotbeta, float locBz, float qclus, float& pixmx, 
+    float& sigmay, float& deltay, float& sigmax, float& deltax,float& sy1, float& dy1, float& sy2, 
+    float& dy2, float& sx1, float& dx1, float& sx2, float& dx2) // float& lorywidth, float& lorxwidth)		 
 {
     // Interpolate for a new set of track angles 
     
@@ -2305,17 +2393,21 @@ int SiPixelTemplate::qbin(int id, float cotalpha, float cotbeta, float locBz, fl
     
     auto qtotal = qscale*qclus;
     
-    // uncertainty and final corrections depend upon total charge bin 	   
-    
+    // uncertainty and final corrections depend upon total charge bin 	       
     auto fq = qtotal/qavg;
     int  binq;
-    if(fq > 1.5f) {
+    // since fbin is undefined I define it here d.k. 6/14
+    fbin_[0]=fbin0; fbin_[1]=fbin1; fbin_[2]=fbin2; 
+
+    if(fq > fbin_[0]) {
       binq=0;
+      //std::cout<<" fq "<<fq<<" "<<qtotal<<" "<<qavg<<" "<<qclus<<" "<<qscale<<" "
+      //       <<fbin_[0]<<" "<<fbin_[1]<<" "<<fbin_[2]<<std::endl;
     } else {
-      if(fq > 1.0f) {
+      if(fq > fbin_[1]) {
 	binq=1;
       } else {
-	if(fq > 0.85f) {
+	if(fq > fbin_[2]) {
 	  binq=2;
 	} else {
 	  binq=3;
