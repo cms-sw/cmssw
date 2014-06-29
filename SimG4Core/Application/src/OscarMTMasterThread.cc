@@ -39,7 +39,7 @@ OscarMTMasterThread::OscarMTMasterThread(const RunManagerMTInit *runManagerInit,
         m_runManagerMaster = runManagerMaster;
 
         // Initialize Geant4
-        runManagerMaster->initG4(esprod.pDD, esprod.pMF, esprod.pTable, iSetup);
+        runManagerMaster->initG4(esprod.pDD, esprod.pMF, esprod.pTable);
       }
       // G4 initialization finish, send signal to the other thread to continue
       m_startCanProceed = true;

@@ -94,7 +94,7 @@ RunManagerMT::~RunManagerMT()
   G4GeometryManager::GetInstance()->OpenGeometry();
 }
 
-void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF, const HepPDT::ParticleDataTable *fPDGTable, const edm::EventSetup & es)
+void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF, const HepPDT::ParticleDataTable *fPDGTable)
 {
   if (m_managerInitialized) return;
   
