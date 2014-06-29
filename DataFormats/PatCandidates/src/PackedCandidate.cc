@@ -149,15 +149,15 @@ reco::Track pat::PackedCandidate::pseudoTrack() const {
     reco::Track tk(normalizedChi2_*ndof,ndof,vertex_,math::XYZVector(p3.x(),p3.y(),p3.z()),charge(),m,reco::TrackBase::undefAlgorithm,reco::TrackBase::loose);
     
     if(innerLost == validHitInFirstPixelBarrelLayer){
-        tk.appendHitPattern(PXBDetId(1,0,0), TrackingRecHit::valid); 
+        tk.appendHitPattern(PXBDetId(1, 0, 0), TrackingRecHit::valid); 
         i++; 
     }
     for(;i<numberOfPixelHits_; i++) {
-       tk.appendHitPattern( PXBDetId(i>1?3:2,0,0), TrackingRecHit::valid); 
+       tk.appendHitPattern(PXBDetId(i > 1 ? 3 : 2, 0, 0), TrackingRecHit::valid); 
     }
     
     for(;i<numberOfHits_;i++) {
-	   tk.appendHitPattern(TIBDetId(1,0,0,1,1,0), TrackingRecHit::valid); 
+	   tk.appendHitPattern(TIBDetId(1, 0, 0, 1, 1, 0), TrackingRecHit::valid); 
     }
 
     switch (innerLost) {
@@ -166,11 +166,11 @@ reco::Track pat::PackedCandidate::pseudoTrack() const {
         case noLostInnerHits:
             break;
         case oneLostInnerHit:
-            tk.appendHitPattern(PXBDetId(1,0,0), TrackingRecHit::missing_inner);
+            tk.appendHitPattern(PXBDetId(1, 0, 0), TrackingRecHit::missing_inner);
             break;
         case moreLostInnerHits:
-            tk.appendHitPattern(PXBDetId(1,0,0), TrackingRecHit::missing_inner);
-            tk.appendHitPattern(PXBDetId(2,0,0), TrackingRecHit::missing_inner);
+            tk.appendHitPattern(PXBDetId(1, 0, 0), TrackingRecHit::missing_inner);
+            tk.appendHitPattern(PXBDetId(2, 0, 0), TrackingRecHit::missing_inner);
             break;
     };
 

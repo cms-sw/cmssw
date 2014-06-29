@@ -27,8 +27,8 @@
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
-#include <vector>
 
+#include <vector>
 
 namespace DataFormats_TrackReco {
   struct dictionary {

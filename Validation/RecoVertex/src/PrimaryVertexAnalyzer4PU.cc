@@ -1317,13 +1317,20 @@ void PrimaryVertexAnalyzer4PU::printRecTrks(const Handle<reco::TrackCollection> 
     }
 
     cout << "hitpattern" << endl;
-    for(int i = 0; i < p.numberOfHits(HitPattern::TRACK_HITS); i++){      p.printHitPattern(HitPattern::TRACK_HITS, i, std::cout);    }
+    for(int i = 0; i < p.numberOfHits(HitPattern::TRACK_HITS); i++){
+        p.printHitPattern(HitPattern::TRACK_HITS, i, std::cout);
+    }
     
     cout << "expected inner " << p.numberOfHits(HitPattern::MISSING_INNER_HITS) << endl;
-    for(int i = 0; i < p.numberOfHits(HitPattern::MISSING_INNER_HITS); i++){      p.printHitPattern(HitPattern::MISSING_INNER_HITS, i, std::cout);    }
+    for(int i = 0; i < p.numberOfHits(HitPattern::MISSING_INNER_HITS); i++){
+        p.printHitPattern(HitPattern::MISSING_INNER_HITS, i, std::cout);
+    }
 
     cout << "expected outer " << p.numberOfHits(HitPattern::MISSING_OUTER_HITS) << endl;
-    for(int i = 0; i < p.numberOfHits(HitPattern::MISSING_OUTER_HITS); i++){      p.printHitPattern(HitPattern::MISSING_OUTER_HITS, i, std::cout);    }
+    for(int i = 0; i < p.numberOfHits(HitPattern::MISSING_OUTER_HITS); i++){
+        p.printHitPattern(HitPattern::MISSING_OUTER_HITS, i, std::cout);
+    }
+
   }
 }
 
