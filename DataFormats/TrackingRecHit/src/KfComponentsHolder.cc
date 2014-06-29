@@ -11,9 +11,12 @@ void KfComponentsHolder::genericFill_(const TrackingRecHit &hit) {
 
    params<D>()     = asSVector<D>(hit.parameters());
    errors<D>()     = asSMatrix<D>(hit.parametersError());
-   projection<D>() = asSMatrix<D,5>(hit.projectionMatrix());
+   // projection<D>() = asSMatrix<D,5>(hit.projectionMatrix());
 
-   const MatD5 & H = projection<D>();
+   MatD5 && H = asSMatrix<D,5>(hit.projectionMatrix());
+  
+   projFunc<D>().fromH(H);
+   doUseProjFunc();
 
    measuredParams<D>() = H * (*tsosLocalParameters_);
    measuredErrors<D>() = ROOT::Math::Similarity(H, (*tsosLocalErrors_));

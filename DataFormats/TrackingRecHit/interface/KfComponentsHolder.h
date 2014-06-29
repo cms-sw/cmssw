@@ -50,11 +50,12 @@ class KfComponentsHolder {
 
 
         template <unsigned int D>
-        typename AlgebraicROOTObject<D,5>::Matrix & projection() { 
+        typename AlgebraicROOTObject<D,5>::Matrix  projection() { 
 #ifdef Debug_KfComponentsHolder
             assert(size_ == D);
 #endif
-            return  * reinterpret_cast<typename AlgebraicROOTObject<D,5>::Matrix *>(projection_);
+            return this->projFunc<D>().matrix();
+            //return  * reinterpret_cast<typename AlgebraicROOTObject<D,5>::Matrix *>(projection_);
         }
 
 
@@ -153,3 +154,4 @@ void KfComponentsHolder::dump() {
 #endif 
 
 #endif
+
