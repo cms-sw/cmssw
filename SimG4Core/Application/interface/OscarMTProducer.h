@@ -35,7 +35,6 @@ public:
   static void globalEndJob(RunManagerMTInit *runManagerInit);
 
 
-  virtual void beginRun(const edm::Run & r,const edm::EventSetup& c) override;
   virtual void endRun(const edm::Run & r,const edm::EventSetup& c) override;
   virtual void produce(edm::Event & e, const edm::EventSetup& c) override;
 

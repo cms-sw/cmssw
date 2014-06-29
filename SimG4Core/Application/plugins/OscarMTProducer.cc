@@ -148,15 +148,6 @@ void OscarMTProducer::globalEndRun(const edm::Run& iRun, const edm::EventSetup& 
 void OscarMTProducer::globalEndJob(RunManagerMTInit *runManagerInit) {
 }
 
-
-void 
-OscarMTProducer::beginRun(const edm::Run & r, const edm::EventSetup & es)
-{
-  // Random number generation not allowed here
-  StaticRandomEngineSetUnset random(nullptr);
-  m_runManagerWorker->beginRun(runCache()->runManagerMaster(), es);
-}
-
 void 
 OscarMTProducer::endRun(const edm::Run&, const edm::EventSetup&)
 {

@@ -2,6 +2,7 @@
 #define SimG4Core_Application_RunManagerMTWorker_H
 
 #include "FWCore/Utilities/interface/EDGetToken.h"
+#include "DataFormats/Provenance/interface/RunID.h"
 
 #include "SimG4Core/Generators/interface/Generator.h"
 #include "SimG4Core/Notification/interface/SimActivityRegistry.h"
@@ -81,6 +82,7 @@ private:
 
   static thread_local bool m_threadInitialized;
   static thread_local bool m_runTerminated;
+  static thread_local edm::RunNumber_t m_currentRunNumber;
 
   Generator m_generator;
   edm::EDGetTokenT<edm::HepMCProduct> m_InToken;

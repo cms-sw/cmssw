@@ -98,6 +98,7 @@ namespace {
 
 thread_local bool RunManagerMTWorker::m_threadInitialized = false;
 thread_local bool RunManagerMTWorker::m_runTerminated = false;
+thread_local edm::RunNumber_t RunManagerMTWorker::m_currentRunNumber = 0;
 thread_local std::unique_ptr<CustomUIsession> RunManagerMTWorker::m_UIsession;
 thread_local RunAction *RunManagerMTWorker::m_userRunAction = nullptr;
 thread_local SimRunInterface *RunManagerMTWorker::m_runInterface = nullptr;
@@ -135,12 +136,6 @@ RunManagerMTWorker::~RunManagerMTWorker() {
   // RunManagerMT has 'delete m_runInterface' in the destructor, but
   // doesn't make much sense here because it is thread_local and we're
   // not guaranteed to run the destructor on each of the threads.
-}
-
-void RunManagerMTWorker::beginRun(const RunManagerMT& runManagerMaster, const edm::EventSetup& es) {
-  // Stream-specific beginRun
-  // unfortunately does not work for per-thread initialization since framework does not guarantee to run them on differente threads...
-  //edm::LogWarning("SimG4CoreApplication") << "RunManagerMTWorker::beginRun(): thread " << getThreadIndex();
 }
 
 void RunManagerMTWorker::endRun() {
@@ -218,9 +213,6 @@ void RunManagerMTWorker::initializeThread(const RunManagerMT& runManagerMaster, 
                                          << command;
     G4UImanager::GetUIpointer()->ApplyCommand(command);
   }
-
-  // Initialize run
-  initializeRun();
 }
 
 void RunManagerMTWorker::initializeUserActions() {
@@ -283,7 +275,7 @@ void RunManagerMTWorker::initializeRun() {
 }
 
 void RunManagerMTWorker::terminateRun() {
-  if (m_userRunAction!=0) {
+  if(m_userRunAction) {
     m_userRunAction->EndOfRunAction(m_currentRun);
     delete m_userRunAction;
     m_userRunAction = nullptr;
@@ -299,11 +291,27 @@ void RunManagerMTWorker::terminateRun() {
 }
 
 void RunManagerMTWorker::produce(const edm::Event& inpevt, const edm::EventSetup& es, const RunManagerMT& runManagerMaster) {
-
+  // The initialization and begin/end run is a bit convoluted due to
+  // - Geant4 deals per-thread
+  // - OscarMTProducer deals per-stream
+  // and framework/TBB is free to schedule work in streams to the
+  // threads as it likes.
+  //
+  // We have to do the per-thread initialization, and per-thread
+  // per-run initialization here by ourselves. 
   if(!m_threadInitialized) {
     LogDebug("SimG4CoreApplication") << "RunManagerMTWorker::produce(): stream " << inpevt.streamID() << " thread " << getThreadIndex() << " initializing";
     initializeThread(runManagerMaster, es);
     m_threadInitialized = true;
+  }
+  // Initialize run
+  if(inpevt.id().run() != m_currentRunNumber) {
+    if(m_currentRunNumber != 0 && !m_runTerminated) {
+      // If previous run in this thread was not terminated via endRun() call, terminate it now
+      terminateRun();
+    }
+    initializeRun();
+    m_currentRunNumber = inpevt.id().run();
   }
   m_runInterface->setRunManagerMTWorker(this); // For UserActions
 
