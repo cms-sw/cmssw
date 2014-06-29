@@ -20,9 +20,9 @@ public:
   OscarMTMasterThread(const RunManagerMTInit *runManagerInit);
   ~OscarMTMasterThread();
 
-  void beginRun(const edm::EventSetup& iSetup);
+  void beginRun(const edm::EventSetup& iSetup) const;
   void endRun() const;
-  void stopThread() const;
+  void stopThread();
 
   const RunManagerMTInit& runManagerInit() const { return *m_runManagerInit; }
   const RunManagerMT& runManagerMaster() const { return *m_runManagerMaster; }
@@ -34,8 +34,8 @@ private:
   };
 
   const RunManagerMTInit *m_runManagerInit;
-  mutable std::shared_ptr<RunManagerMT> m_runManagerMaster;
-  mutable std::thread m_masterThread;
+  std::shared_ptr<RunManagerMT> m_runManagerMaster;
+  std::thread m_masterThread;
   mutable RunManagerMTInit::ESProducts m_esProducts;
 
   mutable std::mutex m_protectMutex;

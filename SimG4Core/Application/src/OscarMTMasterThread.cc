@@ -115,7 +115,9 @@ OscarMTMasterThread::~OscarMTMasterThread() {
   }
 }
 
-void OscarMTMasterThread::beginRun(const edm::EventSetup& iSetup) {
+void OscarMTMasterThread::beginRun(const edm::EventSetup& iSetup) const {
+  std::lock_guard<std::mutex> lk(m_protectMutex);
+
   std::unique_lock<std::mutex> lk2(m_threadMutex);
 
   // Reading from ES must be done in the main (CMSSW) thread
@@ -147,8 +149,7 @@ void OscarMTMasterThread::endRun() const {
   LogDebug("OscarMTMasterThread") << "Main thread: Finish endRun";
 }
 
-void OscarMTMasterThread::stopThread() const {
-  std::lock_guard<std::mutex> lk(m_protectMutex);
+void OscarMTMasterThread::stopThread() {
   if(m_stopped) {
     edm::LogError("OscarMTMasterThread") << "Second call to OscarMTMasterThread::stopThread(), not doing anything";
     return;
