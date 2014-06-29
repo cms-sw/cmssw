@@ -49,7 +49,6 @@ DTDataIntegrityTask.processingMode = 'Online'
 DTDataIntegrityTask.dtDDULabel     = 'dtunpacker'
 DTDataIntegrityTask.dtROS25Label   = 'dtunpacker'
 
-
 # Digi task
 from DQM.DTMonitorModule.dtDigiTask_cfi import *
 from DQM.DTMonitorClient.dtOccupancyTest_cfi import *
