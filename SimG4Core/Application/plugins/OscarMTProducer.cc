@@ -5,7 +5,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimG4Core/Application/interface/OscarMTProducer.h"
-#include "SimG4Core/Application/interface/RunManagerMTInit.h"
 #include "SimG4Core/Application/interface/RunManagerMT.h"
 #include "SimG4Core/Application/interface/RunManagerMTWorker.h"
 #include "SimG4Core/Application/interface/G4SimEvent.h"
@@ -63,13 +62,7 @@ namespace {
     };
 }
 
-OscarMTGlobalCache::OscarMTGlobalCache(const edm::ParameterSet& iConfig):
-  m_runManagerInit(iConfig),
-  m_masterThread(&m_runManagerInit)
-{}
-OscarMTGlobalCache::~OscarMTGlobalCache() {}
-
-OscarMTProducer::OscarMTProducer(edm::ParameterSet const & p, const OscarMTGlobalCache *)
+OscarMTProducer::OscarMTProducer(edm::ParameterSet const & p, const OscarMTMasterThread *)
 {
   // Random number generation not allowed here
   StaticRandomEngineSetUnset random(nullptr);
@@ -132,28 +125,28 @@ OscarMTProducer::OscarMTProducer(edm::ParameterSet const & p, const OscarMTGloba
 OscarMTProducer::~OscarMTProducer() 
 { }
 
-std::unique_ptr<OscarMTGlobalCache> OscarMTProducer::initializeGlobalCache(const edm::ParameterSet& iConfig) {
+std::unique_ptr<OscarMTMasterThread> OscarMTProducer::initializeGlobalCache(const edm::ParameterSet& iConfig) {
   // Random number generation not allowed here
   StaticRandomEngineSetUnset random(nullptr);
 
-  return std::unique_ptr<OscarMTGlobalCache>(new OscarMTGlobalCache(iConfig));
+  return std::unique_ptr<OscarMTMasterThread>(new OscarMTMasterThread(iConfig));
 }
 
-std::shared_ptr<int> OscarMTProducer::globalBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup, const OscarMTGlobalCache *globalCache) {
+std::shared_ptr<int> OscarMTProducer::globalBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup, const OscarMTMasterThread *masterThread) {
   // Random number generation not allowed here
   StaticRandomEngineSetUnset random(nullptr);
 
-  globalCache->masterThread().beginRun(iSetup);
+  masterThread->beginRun(iSetup);
 
   return std::shared_ptr<int>();
 }
 
 void OscarMTProducer::globalEndRun(const edm::Run& iRun, const edm::EventSetup& iSetup, const RunContext *iContext) {
-  iContext->global()->masterThread().endRun();
+  iContext->global()->endRun();
 }
 
-void OscarMTProducer::globalEndJob(OscarMTGlobalCache *globalCache) {
-  globalCache->masterThread().stopThread();
+void OscarMTProducer::globalEndJob(OscarMTMasterThread *masterThread) {
+  masterThread->stopThread();
 }
 
 void 
@@ -174,7 +167,7 @@ void OscarMTProducer::produce(edm::Event & e, const edm::EventSetup & es)
     m_runManagerWorker->sensCaloDetectors();
 
   try {
-    m_runManagerWorker->produce(e, es, globalCache()->masterThread().runManagerMaster());
+    m_runManagerWorker->produce(e, es, globalCache()->runManagerMaster());
 
     std::auto_ptr<edm::SimTrackContainer> 
       p1(new edm::SimTrackContainer);

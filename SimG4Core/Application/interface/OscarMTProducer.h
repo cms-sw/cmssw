@@ -8,7 +8,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Run.h"
 
-#include "SimG4Core/Application/interface/RunManagerMTInit.h"
 #include "SimG4Core/Application/interface/OscarMTMasterThread.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
@@ -18,34 +17,21 @@
 class SimProducer;
 class RunManagerMTWorker;
 
-class OscarMTGlobalCache {
-public:
-  OscarMTGlobalCache(const edm::ParameterSet& iConfig);
-  ~OscarMTGlobalCache();
-
-  OscarMTMasterThread& masterThread() { return m_masterThread; }
-  const OscarMTMasterThread& masterThread() const { return m_masterThread; }
-
-private:
-  RunManagerMTInit m_runManagerInit;
-  OscarMTMasterThread m_masterThread;
-};
-
 class OscarMTProducer : public edm::stream::EDProducer<
-  edm::GlobalCache<OscarMTGlobalCache>,
+  edm::GlobalCache<OscarMTMasterThread>,
   edm::RunCache<int> // for some reason void doesn't compile
 >
 {
 public:
   typedef std::vector<boost::shared_ptr<SimProducer> > Producers;
 
-  explicit OscarMTProducer(edm::ParameterSet const & p, const OscarMTGlobalCache *);
+  explicit OscarMTProducer(edm::ParameterSet const & p, const OscarMTMasterThread *);
   virtual ~OscarMTProducer();
 
-  static std::unique_ptr<OscarMTGlobalCache> initializeGlobalCache(const edm::ParameterSet& iConfig);
-  static std::shared_ptr<int> globalBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup, const OscarMTGlobalCache *globalCache);
+  static std::unique_ptr<OscarMTMasterThread> initializeGlobalCache(const edm::ParameterSet& iConfig);
+  static std::shared_ptr<int> globalBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup, const OscarMTMasterThread *masterThread);
   static void globalEndRun(const edm::Run& iRun, const edm::EventSetup& iSetup, const RunContext *iContext);
-  static void globalEndJob(OscarMTGlobalCache *globalCache);
+  static void globalEndJob(OscarMTMasterThread *masterThread);
 
 
   virtual void endRun(const edm::Run & r,const edm::EventSetup& c) override;

@@ -3,22 +3,30 @@
 #include "SimG4Core/Application/interface/RunManagerMT.h"
 #include "SimG4Core/Application/interface/CustomUIsession.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
+
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "DetectorDescription/Core/interface/DDCompactView.h"
+
+#include "HepPDT/ParticleDataTable.hh"
+#include "SimGeneral/HepPDTRecord/interface/PDTRecord.h"
 
 #include "G4PhysicalVolumeStore.hh"
 
-
-
-OscarMTMasterThread::OscarMTMasterThread(const RunManagerMTInit *runManagerInit):
-  m_runManagerInit(runManagerInit),
+OscarMTMasterThread::OscarMTMasterThread(const edm::ParameterSet& iConfig):
+  m_pUseMagneticField(iConfig.getParameter<bool>("UseMagneticField")),
+  m_pDD(nullptr), m_pMF(nullptr), m_pTable(nullptr),
   m_masterThreadState(ThreadState::NotExist),
   m_masterCanProceed(false),
   m_mainCanProceed(false),
+  m_firstRun(true),
   m_stopped(false)
 {
-
-  const edm::ParameterSet& pset = m_runManagerInit->parameterSet();
-
   // Lock the mutex
   //std::unique_lock<std::mutex> lk(m_notifyMasterMutex);
   std::unique_lock<std::mutex> lk(m_threadMutex);
@@ -42,7 +50,7 @@ OscarMTMasterThread::OscarMTMasterThread(const RunManagerMTInit *runManagerInit)
       uiSession.reset(new CustomUIsession());
 
       // Create the master run manager, and share it to the CMSSW thread
-      runManagerMaster = std::make_shared<RunManagerMT>(pset);
+      runManagerMaster = std::make_shared<RunManagerMT>(iConfig);
       m_runManagerMaster = runManagerMaster;
 
       LogDebug("OscarMTMasterThread") << "Master thread: RunManagerMT initialization finished";
@@ -66,7 +74,7 @@ OscarMTMasterThread::OscarMTMasterThread(const RunManagerMTInit *runManagerInit)
         if(m_masterThreadState == ThreadState::BeginRun) {
           // Initialize Geant4
           LogDebug("OscarMTMasterThread") << "Master thread: Initializing Geant4";
-          runManagerMaster->initG4(m_esProducts.pDD, m_esProducts.pMF, m_esProducts.pTable);
+          runManagerMaster->initG4(m_pDD, m_pMF, m_pTable);
           isG4Alive = true;
         }
         else if(m_masterThreadState == ThreadState::EndRun) {
@@ -121,8 +129,7 @@ void OscarMTMasterThread::beginRun(const edm::EventSetup& iSetup) const {
   std::unique_lock<std::mutex> lk2(m_threadMutex);
 
   // Reading from ES must be done in the main (CMSSW) thread
-  if(!m_esProducts.isSet())
-    m_esProducts = m_runManagerInit->readES(iSetup);
+  readES(iSetup);
 
   m_masterThreadState = ThreadState::BeginRun;
   m_masterCanProceed = true;
@@ -175,3 +182,42 @@ void OscarMTMasterThread::stopThread() {
   m_stopped = true;
 }
 
+void OscarMTMasterThread::readES(const edm::EventSetup& iSetup) const {
+  bool geomChanged = idealGeomRcdWatcher_.check(iSetup);
+  if (geomChanged && (!m_firstRun)) {
+    throw cms::Exception("BadConfig")
+      << "[SimG4Core OscarMTMasterThread]\n"
+      << "The Geometry configuration is changed during the job execution\n"
+      << "this is not allowed, the geometry must stay unchanged\n";
+  }
+  if (m_pUseMagneticField) {
+    bool magChanged = idealMagRcdWatcher_.check(iSetup);
+    if (magChanged && (!m_firstRun)) {
+      throw cms::Exception("BadConfig")
+        << "[SimG4Core OscarMTMasterThread]\n"
+        << "The MagneticField configuration is changed during the job execution\n"
+        << "this is not allowed, the MagneticField must stay unchanged\n";
+    }
+  }
+  // Don't read from ES if not the first run, just as in
+  // RunManager::initG4()
+  if(!m_firstRun)
+    return;
+
+  // DDDWorld: get the DDCV from the ES and use it to build the World
+  edm::ESTransientHandle<DDCompactView> pDD;
+  iSetup.get<IdealGeometryRecord>().get(pDD);
+  m_pDD = pDD.product();
+
+  if(m_pUseMagneticField) {
+    edm::ESHandle<MagneticField> pMF;
+    iSetup.get<IdealMagneticFieldRecord>().get(pMF);
+    m_pMF = pMF.product();
+  }
+
+  edm::ESHandle<HepPDT::ParticleDataTable> fTable;
+  iSetup.get<PDTRecord>().get(fTable);
+  m_pTable = fTable.product();
+
+  m_firstRun = false;
+}
