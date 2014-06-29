@@ -2,9 +2,9 @@
 //  SiPixelGenError.cc  Version 1.00
 //
 //  Object stores Lorentz widths, bias corrections, and errors for the Generic Algorithm
-//
+//  
 //  Created by Morris Swartz on 10/27/06.
-//
+//  Add some debugging messages. d.k. 5/14
 //
 
 //#include <stdlib.h>
@@ -30,6 +30,7 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #define LOGERROR(x) LogError(x)
+#define LOGWARNING(x) LogWarning(x)
 #define LOGINFO(x) LogInfo(x)
 #define ENDL " "
 #include "FWCore/Utilities/interface/Exception.h"
@@ -38,6 +39,7 @@ using namespace edm;
 #include "SiPixelGenError.h"
 #define LOGERROR(x) std::cout << x << ": "
 #define LOGINFO(x) std::cout << x << ": "
+#define LOGWARNING(x) std::cout << x << ": "
 #define ENDL std::endl
 #endif
 
@@ -236,155 +238,159 @@ bool SiPixelGenError::pushfile(int filenum, std::vector< SiPixelGenErrorStore > 
 //! SiPixelGenErrorDBObject
 //! \param dbobject - db storing multiple generic calibrations
 //**************************************************************** 
-bool SiPixelGenError::pushfile(const SiPixelGenErrorDBObject& dbobject, std::vector< SiPixelGenErrorStore > & thePixelTemp_)
-{
-	// Add GenError stored in external dbobject to theGenErrorStore
+bool SiPixelGenError::pushfile(const SiPixelGenErrorDBObject& dbobject, 
+			       std::vector< SiPixelGenErrorStore > & thePixelTemp_) {
+  // Add GenError stored in external dbobject to theGenErrorStore
     
-	// Local variables 
-	int i, j, k;
-	float costrk[3]={0,0,0};
-	//	const char *tempfile;
-	const int code_version={1};
-	
-	// We must create a new object because dbobject must be a const and our stream must not be
-	SiPixelGenErrorDBObject db = dbobject;
-	
-	// Create a local GenError storage entry
-	SiPixelGenErrorStore theCurrentTemp;
-	
-	// Fill the GenError storage for each GenError calibration stored in the db
-	for(int m=0; m<db.numOfTempl(); ++m)
-	{
+  // Local variables 
+  int i, j, k;
+  float costrk[3]={0,0,0};
+  //	const char *tempfile;
+  const int code_version={1};
+  
+  // We must create a new object because dbobject must be a const and our stream must not be
+  SiPixelGenErrorDBObject db = dbobject;
+  
+  // Create a local GenError storage entry
+  SiPixelGenErrorStore theCurrentTemp;
+  
+  // Fill the GenError storage for each GenError calibration stored in the db
+  for(int m=0; m<db.numOfTempl(); ++m) {
 		
-		// Read-in a header string first and print it    
+    // Read-in a header string first and print it    
+    
+    SiPixelGenErrorDBObject::char2float temp;
+    for (i=0; i<20; ++i) {
+      temp.f = db.sVector()[db.index()];
+      theCurrentTemp.head.title[4*i] = temp.c[0];
+      theCurrentTemp.head.title[4*i+1] = temp.c[1];
+      theCurrentTemp.head.title[4*i+2] = temp.c[2];
+      theCurrentTemp.head.title[4*i+3] = temp.c[3];
+      db.incrementIndex(1);
+    }
+
+    theCurrentTemp.head.title[79] = '\0';
+    LOGINFO("SiPixelGenError") << "Loading Pixel GenError File - " 
+			       << theCurrentTemp.head.title << ENDL;
+    
+    // next, the header information     
 		
-		SiPixelGenErrorDBObject::char2float temp;
-		for (i=0; i<20; ++i) {
-			temp.f = db.sVector()[db.index()];
-			theCurrentTemp.head.title[4*i] = temp.c[0];
-			theCurrentTemp.head.title[4*i+1] = temp.c[1];
-			theCurrentTemp.head.title[4*i+2] = temp.c[2];
-			theCurrentTemp.head.title[4*i+3] = temp.c[3];
-			db.incrementIndex(1);
-		}
-		theCurrentTemp.head.title[79] = '\0';
-		LOGINFO("SiPixelGenError") << "Loading Pixel GenError File - " << theCurrentTemp.head.title << ENDL;
-		
-		// next, the header information     
-		
-		
-		db >> theCurrentTemp.head.ID  >> theCurrentTemp.head.templ_version >> theCurrentTemp.head.Bfield >> theCurrentTemp.head.NTy >> theCurrentTemp.head.NTyx >> theCurrentTemp.head.NTxx >> theCurrentTemp.head.Dtype >> theCurrentTemp.head.Vbias >>
-          theCurrentTemp.head.temperature >> theCurrentTemp.head.fluence >> theCurrentTemp.head.qscale >> theCurrentTemp.head.s50 >>
-          theCurrentTemp.head.lorywidth >> theCurrentTemp.head.lorxwidth >> theCurrentTemp.head.ysize >> theCurrentTemp.head.xsize >>
-          theCurrentTemp.head.zsize >> theCurrentTemp.head.ss50 >> theCurrentTemp.head.lorybias >> theCurrentTemp.head.lorxbias >>
-          theCurrentTemp.head.fbin[0] >> theCurrentTemp.head.fbin[1] >> theCurrentTemp.head.fbin[2];
-		
-		if(db.fail()) {LOGERROR("SiPixelGenError") << "Error reading file, no GenError load" << ENDL; return false;}
+    db >> theCurrentTemp.head.ID  >> theCurrentTemp.head.templ_version >> theCurrentTemp.head.Bfield >> theCurrentTemp.head.NTy >> theCurrentTemp.head.NTyx >> theCurrentTemp.head.NTxx >> theCurrentTemp.head.Dtype >> theCurrentTemp.head.Vbias >>
+      theCurrentTemp.head.temperature >> theCurrentTemp.head.fluence >> theCurrentTemp.head.qscale >> theCurrentTemp.head.s50 >>
+      theCurrentTemp.head.lorywidth >> theCurrentTemp.head.lorxwidth >> theCurrentTemp.head.ysize >> theCurrentTemp.head.xsize >>
+      theCurrentTemp.head.zsize >> theCurrentTemp.head.ss50 >> theCurrentTemp.head.lorybias >> theCurrentTemp.head.lorxbias >>
+      theCurrentTemp.head.fbin[0] >> theCurrentTemp.head.fbin[1] >> theCurrentTemp.head.fbin[2];
+    
+    if(db.fail()) {LOGERROR("SiPixelGenError") 
+	<< "Error reading file, no GenError load" << ENDL; return false;}
       
-		LOGINFO("SiPixelGenError") << "GenError ID = " << theCurrentTemp.head.ID << ", GenError Version " << theCurrentTemp.head.templ_version << ", Bfield = " << theCurrentTemp.head.Bfield
-		<< ", NTy = " << theCurrentTemp.head.NTy << ", NTyx = " << theCurrentTemp.head.NTyx<< ", NTxx = " << theCurrentTemp.head.NTxx << ", Dtype = " << theCurrentTemp.head.Dtype
-		<< ", Bias voltage " << theCurrentTemp.head.Vbias << ", temperature "
-		<< theCurrentTemp.head.temperature << ", fluence " << theCurrentTemp.head.fluence << ", Q-scaling factor " << theCurrentTemp.head.qscale
-		<< ", 1/2 multi dcol threshold " << theCurrentTemp.head.s50 << ", 1/2 single dcol threshold " << theCurrentTemp.head.ss50
-      << ", y Lorentz Width " << theCurrentTemp.head.lorywidth << ", y Lorentz Bias " << theCurrentTemp.head.lorybias
-      << ", x Lorentz width " << theCurrentTemp.head.lorxwidth << ", x Lorentz Bias " << theCurrentTemp.head.lorxbias
-      << ", Q/Q_avg fractions for Qbin defs " << theCurrentTemp.head.fbin[0] << ", " << theCurrentTemp.head.fbin[1]
-      << ", " << theCurrentTemp.head.fbin[2]
-		<< ", pixel x-size " << theCurrentTemp.head.xsize << ", y-size " << theCurrentTemp.head.ysize << ", zsize " << theCurrentTemp.head.zsize << ENDL;
-		
-		if(theCurrentTemp.head.templ_version < code_version) {LOGERROR("SiPixelGenError") << "code expects version " << code_version << ", no GenError load" << ENDL; return false;}
-		
-		
+    LOGINFO("SiPixelGenError") << "GenError ID = " << theCurrentTemp.head.ID << ", GenError Version " << theCurrentTemp.head.templ_version << ", Bfield = " << theCurrentTemp.head.Bfield
+			       << ", NTy = " << theCurrentTemp.head.NTy << ", NTyx = " << theCurrentTemp.head.NTyx<< ", NTxx = " << theCurrentTemp.head.NTxx << ", Dtype = " << theCurrentTemp.head.Dtype
+			       << ", Bias voltage " << theCurrentTemp.head.Vbias << ", temperature "
+			       << theCurrentTemp.head.temperature << ", fluence " << theCurrentTemp.head.fluence << ", Q-scaling factor " << theCurrentTemp.head.qscale
+			       << ", 1/2 multi dcol threshold " << theCurrentTemp.head.s50 << ", 1/2 single dcol threshold " << theCurrentTemp.head.ss50
+			       << ", y Lorentz Width " << theCurrentTemp.head.lorywidth << ", y Lorentz Bias " << theCurrentTemp.head.lorybias
+			       << ", x Lorentz width " << theCurrentTemp.head.lorxwidth << ", x Lorentz Bias " << theCurrentTemp.head.lorxbias
+			       << ", Q/Q_avg fractions for Qbin defs " << theCurrentTemp.head.fbin[0] << ", " << theCurrentTemp.head.fbin[1]
+			       << ", " << theCurrentTemp.head.fbin[2]
+			       << ", pixel x-size " << theCurrentTemp.head.xsize << ", y-size " << theCurrentTemp.head.ysize << ", zsize " << theCurrentTemp.head.zsize << ENDL;
+    
+    LOGINFO("SiPixelGenError") << "Loading Pixel GenError - " 
+				  << theCurrentTemp.head.title << " version "
+				  <<theCurrentTemp.head.templ_version <<" code v."
+				  <<code_version<<ENDL;
+    if(theCurrentTemp.head.templ_version < code_version) {
+      LOGERROR("SiPixelGenError") << "code expects version " << code_version 
+				  << ", no GenError load" << ENDL; return false;}
+    		
 #ifdef SI_PIXEL_TEMPLATE_USE_BOOST 
 		
 // next, layout the 1-d/2-d structures needed to store GenError
 		
-		theCurrentTemp.enty.resize(boost::extents[theCurrentTemp.head.NTy]);
-		
-		theCurrentTemp.entx.resize(boost::extents[theCurrentTemp.head.NTyx][theCurrentTemp.head.NTxx]);
-		
+    theCurrentTemp.enty.resize(boost::extents[theCurrentTemp.head.NTy]);
+    
+    theCurrentTemp.entx.resize(boost::extents[theCurrentTemp.head.NTyx][theCurrentTemp.head.NTxx]);
+    
 #endif
-				
-// next, loop over all barrel y-angle entries   
-		
-		for (i=0; i < theCurrentTemp.head.NTy; ++i) {     
-			
-			db >> theCurrentTemp.enty[i].runnum >> costrk[0] >> costrk[1] >> costrk[2];
-			
-			if(db.fail()) {LOGERROR("SiPixelGenError") << "Error reading file 1, no GenError load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
-			
-// Calculate the alpha, beta, and cot(beta) for this entry 
-			
-			theCurrentTemp.enty[i].cotalpha = costrk[0]/costrk[2];
-			
-			theCurrentTemp.enty[i].cotbeta = costrk[1]/costrk[2];
-			
-			db >> theCurrentTemp.enty[i].qavg >> theCurrentTemp.enty[i].pixmax >> theCurrentTemp.enty[i].dyone
-			>> theCurrentTemp.enty[i].syone >> theCurrentTemp.enty[i].dxone >> theCurrentTemp.enty[i].sxone;
-			
-			if(db.fail()) {LOGERROR("SiPixelGenError") << "Error reading file 2, no GenError load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
-			
-			db >> theCurrentTemp.enty[i].dytwo >> theCurrentTemp.enty[i].sytwo >> theCurrentTemp.enty[i].dxtwo 
-			>> theCurrentTemp.enty[i].sxtwo >> theCurrentTemp.enty[i].qmin >> theCurrentTemp.enty[i].qmin2;
-			
-			for (j=0; j<4; ++j) {
-				
-            db >> theCurrentTemp.enty[i].yavggen[j] >> theCurrentTemp.enty[i].yrmsgen[j] >> theCurrentTemp.enty[i].xavggen[j] >> theCurrentTemp.enty[i].xrmsgen[j];
-				
-				if(db.fail()) {LOGERROR("SiPixelGenError") << "Error reading file 14a, no GenError load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
-			}
-						
-		}
-		
-		// next, loop over all barrel x-angle entries   
-		
-		for (k=0; k < theCurrentTemp.head.NTyx; ++k) { 
-			
-			for (i=0; i < theCurrentTemp.head.NTxx; ++i) { 
-				
-				db >> theCurrentTemp.entx[k][i].runnum >> costrk[0] >> costrk[1] >> costrk[2];
-				
-				if(db.fail()) {LOGERROR("SiPixelGenError") << "Error reading file 17, no GenError load, run # " << theCurrentTemp.entx[k][i].runnum << ENDL; return false;}
-				
-				// Calculate the alpha, beta, and cot(beta) for this entry 
-				
-				theCurrentTemp.entx[k][i].cotalpha = costrk[0]/costrk[2];
-				
-				theCurrentTemp.entx[k][i].cotbeta = costrk[1]/costrk[2];
-				
-				db >> theCurrentTemp.entx[k][i].qavg >> theCurrentTemp.entx[k][i].pixmax >> theCurrentTemp.entx[k][i].dyone
-				>> theCurrentTemp.entx[k][i].syone >> theCurrentTemp.entx[k][i].dxone >> theCurrentTemp.entx[k][i].sxone;
-				
-				if(db.fail()) {LOGERROR("SiPixelGenError") << "Error reading file 18, no GenError load, run # " << theCurrentTemp.entx[k][i].runnum << ENDL; return false;}
-				
-				db >> theCurrentTemp.entx[k][i].dytwo >> theCurrentTemp.entx[k][i].sytwo >> theCurrentTemp.entx[k][i].dxtwo 
-				>> theCurrentTemp.entx[k][i].sxtwo >> theCurrentTemp.entx[k][i].qmin >> theCurrentTemp.entx[k][i].qmin2;
-				
-				for (j=0; j<4; ++j) {
-					
-					db >> theCurrentTemp.entx[k][i].yavggen[j] >> theCurrentTemp.entx[k][i].yrmsgen[j] >> theCurrentTemp.entx[k][i].xavggen[j] >> theCurrentTemp.entx[k][i].xrmsgen[j];
-					
-					if(db.fail()) {LOGERROR("SiPixelGenError") << "Error reading file 30a, no GenError load, run # " << theCurrentTemp.entx[k][i].runnum << ENDL; return false;}
-				}
-								
-			}
-		}	
-		
-		
-		// Add this GenError to the store
-		
-		thePixelTemp_.push_back(theCurrentTemp);
+    
+    // next, loop over all barrel y-angle entries   
+    
+    for (i=0; i < theCurrentTemp.head.NTy; ++i) {     
       
-		postInit(thePixelTemp_);
-		
-	}
-	return true;
+      db >> theCurrentTemp.enty[i].runnum >> costrk[0] >> costrk[1] >> costrk[2];
+      
+      if(db.fail()) {LOGERROR("SiPixelGenError") << "Error reading file 1, no GenError load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
+      
+      // Calculate the alpha, beta, and cot(beta) for this entry 
+      
+      theCurrentTemp.enty[i].cotalpha = costrk[0]/costrk[2];
+      
+      theCurrentTemp.enty[i].cotbeta = costrk[1]/costrk[2];
+      
+      db >> theCurrentTemp.enty[i].qavg >> theCurrentTemp.enty[i].pixmax >> theCurrentTemp.enty[i].dyone
+	 >> theCurrentTemp.enty[i].syone >> theCurrentTemp.enty[i].dxone >> theCurrentTemp.enty[i].sxone;
+      
+      if(db.fail()) {LOGERROR("SiPixelGenError") << "Error reading file 2, no GenError load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
+      
+      db >> theCurrentTemp.enty[i].dytwo >> theCurrentTemp.enty[i].sytwo >> theCurrentTemp.enty[i].dxtwo 
+	 >> theCurrentTemp.enty[i].sxtwo >> theCurrentTemp.enty[i].qmin >> theCurrentTemp.enty[i].qmin2;
+      
+      for (j=0; j<4; ++j) {
 	
+	db >> theCurrentTemp.enty[i].yavggen[j] >> theCurrentTemp.enty[i].yrmsgen[j] >> theCurrentTemp.enty[i].xavggen[j] >> theCurrentTemp.enty[i].xrmsgen[j];
+	
+	if(db.fail()) {LOGERROR("SiPixelGenError") << "Error reading file 14a, no GenError load, run # " << theCurrentTemp.enty[i].runnum << ENDL; return false;}
+      }
+      
+    }
+    
+    // next, loop over all barrel x-angle entries   
+    
+    for (k=0; k < theCurrentTemp.head.NTyx; ++k) { 
+      
+      for (i=0; i < theCurrentTemp.head.NTxx; ++i) { 
+	
+	db >> theCurrentTemp.entx[k][i].runnum >> costrk[0] >> costrk[1] >> costrk[2];
+	
+	if(db.fail()) {LOGERROR("SiPixelGenError") << "Error reading file 17, no GenError load, run # " << theCurrentTemp.entx[k][i].runnum << ENDL; return false;}
+	
+	// Calculate the alpha, beta, and cot(beta) for this entry 
+	
+	theCurrentTemp.entx[k][i].cotalpha = costrk[0]/costrk[2];
+	
+	theCurrentTemp.entx[k][i].cotbeta = costrk[1]/costrk[2];
+	
+	db >> theCurrentTemp.entx[k][i].qavg >> theCurrentTemp.entx[k][i].pixmax >> theCurrentTemp.entx[k][i].dyone
+	   >> theCurrentTemp.entx[k][i].syone >> theCurrentTemp.entx[k][i].dxone >> theCurrentTemp.entx[k][i].sxone;
+	
+	if(db.fail()) {LOGERROR("SiPixelGenError") << "Error reading file 18, no GenError load, run # " << theCurrentTemp.entx[k][i].runnum << ENDL; return false;}
+	
+	db >> theCurrentTemp.entx[k][i].dytwo >> theCurrentTemp.entx[k][i].sytwo >> theCurrentTemp.entx[k][i].dxtwo 
+	   >> theCurrentTemp.entx[k][i].sxtwo >> theCurrentTemp.entx[k][i].qmin >> theCurrentTemp.entx[k][i].qmin2;
+	
+	for (j=0; j<4; ++j) {
+	  
+	  db >> theCurrentTemp.entx[k][i].yavggen[j] >> theCurrentTemp.entx[k][i].yrmsgen[j] >> theCurrentTemp.entx[k][i].xavggen[j] >> theCurrentTemp.entx[k][i].xrmsgen[j];
+	  
+	  if(db.fail()) {LOGERROR("SiPixelGenError") << "Error reading file 30a, no GenError load, run # " << theCurrentTemp.entx[k][i].runnum << ENDL; return false;}
+	}
+	
+      }
+    }	
+    
+		
+    // Add this GenError to the store
+		
+    thePixelTemp_.push_back(theCurrentTemp);
+      
+    postInit(thePixelTemp_);
+    
+  }
+  return true;
+  
 } // TempInit 
 
 #endif
-
-
 
 void SiPixelGenError::postInit(std::vector< SiPixelGenErrorStore > & thePixelTemp_) {
    

@@ -470,11 +470,9 @@ void findHotPixels::analyze(const  edm::Event& ev, const edm::EventSetup& es) {
 
   std::pair<int,int> fedIds(FEDNumbering::MINSiPixelFEDID, FEDNumbering::MAXSiPixelFEDID);
   
-  PixelDataFormatter formatter(0);
-  bool dummyErrorBool;
+  //PixelDataFormatter formatter(0); // to get digis
+  //bool dummyErrorBool;
   
-  //typedef unsigned int Word32;
-  //typedef long long Word64;
   typedef uint32_t Word32;
   typedef uint64_t Word64;
   int status=0;
@@ -486,7 +484,7 @@ void findHotPixels::analyze(const  edm::Event& ev, const edm::EventSetup& es) {
   countAllEvents++;
   if(printHeaders) cout<<" Event = "<<countEvents<<endl;
   
-  edm::DetSetVector<PixelDigi> collection;
+  //edm::DetSetVector<PixelDigi> collection; // for digis only
 
 
   // Loop over FEDs
@@ -537,7 +535,7 @@ void findHotPixels::analyze(const  edm::Event& ev, const edm::EventSetup& es) {
     countErrors += countErrorsInFed;
     
     //convert data to digi (dummy for the moment)
-    formatter.interpretRawData( dummyErrorBool, fedId, rawData,  collection, errors);
+    //formatter.interpretRawData( dummyErrorBool, fedId, rawData,  collection, errors);
     //cout<<dummyErrorBool<<" "<<digis.size()<<" "<<errors.size()<<endl;
     
     if(countPixelsInFed>0)  {

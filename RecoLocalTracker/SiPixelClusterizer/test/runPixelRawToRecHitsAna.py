@@ -52,21 +52,40 @@ process.source = cms.Source("PoolSource",
   fileNames = cms.untracked.vstring(
 #    'file:/afs/cern.ch/work/d/dkotlins/public/MC/mu/pt100/digis/digis1.root'
 #    'file:/afs/cern.ch/work/d/dkotlins/public/MC/mu/pt100_71_pre7/digis/digis2_postls171.root'
-    'file:/afs/cern.ch/work/d/dkotlins/public/MC/mu/pt100_71_pre7/digis/digis2_mc71.root'
+#    'file:/afs/cern.ch/work/d/dkotlins/public/MC/mu/pt100_71_pre7/digis/digis2_mc71.root'
+
+#  '/store/relval/CMSSW_7_1_0_pre8/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/PU_PRE_STA71_V4-v1/00000/06397C95-91E2-E311-963D-02163E00B776.root',
+
+ '/store/relval/CMSSW_7_1_0_pre8/RelValSingleMuPt100_UP15/GEN-SIM-DIGI-RAW-HLTDEBUG/PRE_LS171_V9-v1/00000/5AAEC7CC-D7E1-E311-83DD-0025905A6094.root',
+
+# 25ns flat pu=20-50
+#   /store/mc/Spring14dr/TT_Tune4C_13TeV-pythia8-tauola/GEN-SIM-RAW/Flat20to50_POSTLS170_V5-v1/00000/006EBBE4-98DC-E311-B64F-0025905A611E.root
+
+# 50ns poisson pu=50
+#   '/store/mc/Fall13dr/TT_Tune4C_13TeV-pythia8-tauola/GEN-SIM-RAW/tsg_PU40bx50_POSTLS162_V2-v1/00000/00E707E5-0D75-E311-B109-003048678BAE.root',
+
+# 25ns poisson pu=50
+#   /store/mc/Fall13dr/TT_Tune4C_13TeV-pythia8-tauola/GEN-SIM-RAW/tsg_PU40bx25_POSTLS162_V2-v1/00000/00309507-AB75-E311-AB10-0025905A60B2.root
+
+# 25ns poisson pu=20
+#   /store/mc/Fall13dr/TT_Tune4C_13TeV-pythia8-tauola/GEN-SIM-RAW/tsg_PU20bx25_POSTLS162_V2-v1/00000/001E7210-126D-E311-8D68-003048679182.root
+
+
   )
 )
 
 # Choose the global tag here:
+#process.GlobalTag.globaltag = "POSTLS162_V2::All"
 #process.GlobalTag.globaltag = "MC_70_V1::All"
 #process.GlobalTag.globaltag = "START70_V1::All"
-#process.GlobalTag.globaltag = "START71_V1::All"
-process.GlobalTag.globaltag = "MC_71_V1::All"
+process.GlobalTag.globaltag = "START71_V1::All"
+#process.GlobalTag.globaltag = "MC_71_V1::All"
 #process.GlobalTag.globaltag = "POSTLS171_V1::All"
 #process.GlobalTag.globaltag = "PRE_MC_71_V2::All"
 
 
 # DB stuff 
-useLocalDB = True
+useLocalDB = False
 if useLocalDB :
 # Frontier LA 
     process.DBReaderFrontier = cms.ESSource("PoolDBESSource",
@@ -118,7 +137,7 @@ if useLocalDB :
    ) # end process
 # endif
  
-process.myprefer = cms.ESPrefer("PoolDBESSource","DBReaderFrontier")
+#process.myprefer = cms.ESPrefer("PoolDBESSource","DBReaderFrontier")
 #process.myprefer2 = cms.ESPrefer("PoolDBESSource","DBReaderFrontier2")
 
 
@@ -142,9 +161,27 @@ process.myprefer = cms.ESPrefer("PoolDBESSource","DBReaderFrontier")
 
 
 process.o1 = cms.OutputModule("PoolOutputModule",
-                              outputCommands = cms.untracked.vstring('drop *','keep *_*_*_ClusTest'),
-#            fileName = cms.untracked.string('file:clus.root')
-            fileName = cms.untracked.string('file:/afs/cern.ch/work/d/dkotlins/public/MC/mu/pt100_71_pre7/rechits/rechits2_mc71.root')
+            outputCommands = cms.untracked.vstring('drop *','keep *_*_*_ClusTest'),
+            fileName = cms.untracked.string('file:clus.root')
+#            fileName = cms.untracked.string('file:/afs/cern.ch/work/d/dkotlins/public/MC/mu/pt100_71_pre7/rechits/rechits2_mc71.root')
+
+)
+
+process.analysis = cms.EDAnalyzer("ReadPixClusters",
+    Verbosity = cms.untracked.bool(False),
+    src = cms.InputTag("siPixelClusters"),
+)
+
+process.d = cms.EDAnalyzer("TestClusters",
+    Verbosity = cms.untracked.bool(False),
+    src = cms.InputTag("siPixelClusters"),
+    Select1 = cms.untracked.int32(1),  # cut on the num of dets <4 skip, 0 means 4 default 
+    Select2 = cms.untracked.int32(0),  # 6 no bptx, 0 no selection                               
+)
+
+
+process.TFileService = cms.Service("TFileService",
+    fileName = cms.string('histo.root')
 )
 
 #process.Timing = cms.Service("Timing")
@@ -154,26 +191,16 @@ process.o1 = cms.OutputModule("PoolOutputModule",
 # modify clusterie parameters
 #process.siPixelClusters.ClusterThreshold = 4000.0
 
-# DIRECT
-# direct clusterization (no raw step)
-# label of digis 
-process.siPixelClusters.src = 'simSiPixelDigis'
-
-# plus pixel clusters  (OK)
-#process.p1 = cms.Path(process.siPixelClusters)
-# plus pixel rechits (OK)
-process.p1 = cms.Path(process.pixeltrackerlocalreco)
-
 # RAW
 # clusterize through raw (OK)
 # for Raw2digi for simulations 
-#process.siPixelRawData.InputLabel = 'mix'
 #process.siPixelDigis.InputLabel = 'siPixelRawData'
-# process.siStripDigis.ProductLabel = 'SiStripDigiToRaw'
-#process.siPixelClusters.src = 'siPixelDigis'
+process.siPixelDigis.InputLabel = 'rawDataCollector'
+#process.siPixelDigis.InputLabel = 'source'
 
-#process.p1 = cms.Path(process.siPixelRawData)
-#process.p1 = cms.Path(process.siPixelRawData*process.siPixelDigis)
-#process.p1 = cms.Path(process.siPixelRawData*process.siPixelDigis*process.pixeltrackerlocalreco)
+process.siPixelClusters.src = 'siPixelDigis'
 
-process.outpath = cms.EndPath(process.o1)
+#process.p1 = cms.Path(process.siPixelDigis*process.pixeltrackerlocalreco)
+process.p1 = cms.Path(process.siPixelDigis*process.pixeltrackerlocalreco*process.d)
+
+#process.outpath = cms.EndPath(process.o1)

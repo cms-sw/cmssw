@@ -3,12 +3,13 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("MyRawToTracks")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
-#process.load("Configuration.Geometry.GeometryIdeal_cff")
 process.load('Configuration.StandardSequences.GeometryRecoDB_cff')
 #process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.StandardSequences.Services_cff")
+process.load('Configuration.EventContent.EventContent_cff')
+process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
 # for strips 
 #process.load("CalibTracker.SiStripESProducers.SiStripGainSimESProducer_cfi")
@@ -24,30 +25,12 @@ fileNames =  cms.untracked.vstring(
 #   skipEvents = cms.untracked.uint32(5000)
 )
 
-#process.load("Geometry.TrackerSimData.trackerSimGeometryXML_cfi")
-#process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
-#process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
-#process.load("Configuration.StandardSequences.MagneticField_cff")
-
-# Cabling
-#  include "CalibTracker/Configuration/data/Tracker_FakeConditions.cff"
-#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-#process.GlobalTag.connect = "frontier://FrontierProd/CMS_COND_21X_GLOBALTAG"
-#process.GlobalTag.globaltag = "CRAFT_V3P::All"
-#process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
-
-#process.load("CalibTracker.Configuration.SiPixel_FakeConditions_cff")
-#process.load("CalibTracker.Configuration.SiPixelCabling.SiPixelCabling_SQLite_cff")
-#process.siPixelCabling.connect = 'sqlite_file:cabling.db'
-#process.siPixelCabling.toGet = cms.VPSet(cms.PSet(
-#    record = cms.string('SiPixelFedCablingMapRcd'),
-#    tag = cms.string('SiPixelFedCablingMap_v14')
-#))
-
-
 # Choose the global tag here:
 #process.GlobalTag.globaltag = "GR_P_V40::All"
-process.GlobalTag.globaltag = "GR_R_62_V1::All"
+#process.GlobalTag.globaltag = "GR_R_62_V1::All"
+# for data in V7
+#process.GlobalTag.globaltag = "GR_R_71_V1::All"
+process.GlobalTag.globaltag = "PRE_R_71_V3::All"
 
 # process.load("EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi")
 process.load('Configuration.StandardSequences.RawToDigi_cff')
@@ -61,7 +44,6 @@ process.load("RecoLocalTracker.Configuration.RecoLocalTracker_cff")
 # for Raw2digi for data
 process.siPixelDigis.InputLabel = 'rawDataCollector'
 process.siStripDigis.ProductLabel = 'rawDataCollector'
-
 
 # for digi to clu
 #process.siPixelClusters.src = 'siPixelDigis'
@@ -80,8 +62,31 @@ process.MessageLogger = cms.Service("MessageLogger",
 #    )
 )
 
-process.load('Configuration.EventContent.EventContent_cff')
-process.load('Configuration.StandardSequences.EndOfProcess_cff')
+# pixel local reco (RecHits) needs the GenError object,
+# not yet in GT, add here:
+# DB stuff 
+useLocalDBError = True
+if useLocalDBError :
+    process.DBReaderFrontier = cms.ESSource("PoolDBESSource",
+     DBParameters = cms.PSet(
+         messageLevel = cms.untracked.int32(0),
+         authenticationPath = cms.untracked.string('')
+     ),
+     toGet = cms.VPSet(
+       cms.PSet(
+         record = cms.string('SiPixelGenErrorDBObjectRcd'),
+# 	 tag = cms.string("SiPixelGenErrorDBObject38Tv1")
+#        tag = cms.string('SiPixelGenErrorDBObject_38T_2012_IOV7_v1')
+         tag = cms.string('SiPixelGenErrorDBObject_38T_v1_offline')
+ 	 ),
+       ),
+#     connect = cms.string('sqlite_file:siPixelGenErrors38T_2012_IOV7_v1.db')
+#     connect = cms.string('frontier://FrontierProd/CMS_COND_31X_PIXEL')
+#     connect = cms.string('frontier://FrontierPrep/CMS_COND_PIXEL')
+     connect = cms.string('frontier://FrontierProd/CMS_COND_PIXEL_000')
+    ) # end process
+process.myprefer = cms.ESPrefer("PoolDBESSource","DBReaderFrontier")
+
 
 process.out = cms.OutputModule("PoolOutputModule",
     fileName =  cms.untracked.string('file:tracks.root'),
@@ -99,21 +104,21 @@ process.out = cms.OutputModule("PoolOutputModule",
 )
 
 # copy the sequence below from  
-# RecoTracker/IterativeTracking/python/iterativeTk_cff.py
+# RecoTracker/IterativeTracking/python/iterativeTk_cff.py  - 71_pre7
 process.myTracking = cms.Sequence(process.InitialStep*
-                          process.LowPtTripletStep*
-                          process.PixelPairStep*
-                          process.DetachedTripletStep*
-                          process.MixedTripletStep*
-                          process.PixelLessStep*
-                          process.TobTecStep*
-                          process.earlyGeneralTracks*
-                          #process.muonSeededStep*
-                          process.preDuplicateMergingGeneralTracks*
-                          process.generalTracksSequence*
-                          process.ConvStep*
-                          process.conversionStepTracks
-                          )
+                            process.DetachedTripletStep*
+                            process.LowPtTripletStep*
+                            process.PixelPairStep*
+                            process.MixedTripletStep*
+                            process.PixelLessStep*
+                            process.TobTecStep*
+                            process.earlyGeneralTracks*
+                            # muonSeededStep*
+                            process.preDuplicateMergingGeneralTracks*
+                            process.generalTracksSequence*
+                            process.ConvStep*
+                            process.conversionStepTracks
+                            )
 
 #process.p = cms.Path(process.siPixelDigis)
 #process.p = cms.Path(process.siPixelDigis*process.siPixelClusters)
@@ -128,6 +133,8 @@ process.myTracking = cms.Sequence(process.InitialStep*
 #process.p1 = cms.Path(process.siPixelDigis*process.siStripDigis*process.trackerlocalreco*process.offlineBeamSpot*process.recopixelvertexing*process.MeasurementTrackerEvent)
 # trackingGlobalReco, ckftracks, iterTracking - 
 #process.p1 = cms.Path(process.siPixelDigis*process.siStripDigis*process.trackerlocalreco*process.offlineBeamSpot*process.recopixelvertexing*process.MeasurementTrackerEvent*process.myTracking)
-process.p1 = cms.Path(process.siPixelDigis*process.siStripDigis*process.trackerlocalreco*process.offlineBeamSpot*process.recopixelvertexing*process.MeasurementTrackerEvent*process.myTracking*process.vertexreco)
+
+process.p1 = cms.Path(process.siPixelDigis*process.siStripDigis*process.trackerlocalreco*process.offlineBeamSpot*process.siPixelClusterShapeCache*process.recopixelvertexing*process.MeasurementTrackerEvent*process.myTracking*process.vertexreco)
+
 
 process.ep = cms.EndPath(process.out)
