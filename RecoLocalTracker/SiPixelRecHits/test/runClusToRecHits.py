@@ -6,7 +6,7 @@
 
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("ClusTest")
+process = cms.Process("RecHitTest")
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.load("Configuration.Geometry.GeometryIdeal_cff")
@@ -40,8 +40,8 @@ process.MessageLogger = cms.Service("MessageLogger",
 #    destinations = cms.untracked.vstring("log","cout"),
     cout = cms.untracked.PSet(
 #       threshold = cms.untracked.string('INFO')
-#       threshold = cms.untracked.string('ERROR')
         threshold = cms.untracked.string('WARNING')
+#       threshold = cms.untracked.string('ERROR')
     )
 #    log = cms.untracked.PSet(
 #        threshold = cms.untracked.string('DEBUG')
@@ -50,25 +50,57 @@ process.MessageLogger = cms.Service("MessageLogger",
 # get the files from DBS:
 process.source = cms.Source("PoolSource",
   fileNames = cms.untracked.vstring(
-#    'file:/afs/cern.ch/work/d/dkotlins/public/MC/mu/pt100/digis/digis1.root'
-#    'file:/afs/cern.ch/work/d/dkotlins/public/MC/mu/pt100_71_pre7/digis/digis2_postls171.root'
-    'file:/afs/cern.ch/work/d/dkotlins/public/MC/mu/pt100_71_pre7/digis/digis2_mc71.root'
+#    'file:/afs/cern.ch/work/d/dkotlins/public/MC/mu/pt100/clus/clus1.root'
+    'file:/afs/cern.ch/work/d/dkotlins/public/MC/mu/pt100_71_pre7/rechits/rechits2_mc71.root'
+#    '/store/relval/CMSSW_7_1_0_pre7/RelValProdMinBias/GEN-SIM-RECO/PRE_STA71_V3-v1/00000/9E55469D-B2D1-E311-BEA8-02163E00B4B7.root'
+
+#"/store/data/Run2012D/MinimumBias/RECO/PromptReco-v1/000/208/686/F60495B3-1E41-E211-BB7C-003048D3756A.root",
+
+##"/store/data/Run2012D/MinimumBias/RECO/PromptReco-v1/000/208/686/F2BA6B22-2C41-E211-9D7A-003048D2BED6.root",
+## "/store/data/Run2012D/MinimumBias/RECO/PromptReco-v1/000/208/686/E4E6B318-2041-E211-B351-001D09F29114.root",
+## "/store/data/Run2012D/MinimumBias/RECO/PromptReco-v1/000/208/686/B27AC385-3241-E211-AD10-0019B9F4A1D7.root",
+## "/store/data/Run2012D/MinimumBias/RECO/PromptReco-v1/000/208/686/AC6EF0B7-4941-E211-9EFB-003048D374F2.root",
+## "/store/data/Run2012D/MinimumBias/RECO/PromptReco-v1/000/208/686/AA4018D3-2C41-E211-8279-00215AEDFD98.root",
+## "/store/data/Run2012D/MinimumBias/RECO/PromptReco-v1/000/208/686/A8CF653C-4D41-E211-811E-003048673374.root",
+## "/store/data/Run2012D/MinimumBias/RECO/PromptReco-v1/000/208/686/98EEEB5E-4A41-E211-A591-001D09F25460.root",
+## "/store/data/Run2012D/MinimumBias/RECO/PromptReco-v1/000/208/686/96BE2949-2241-E211-9993-001D09F23F2A.root",
+## "/store/data/Run2012D/MinimumBias/RECO/PromptReco-v1/000/208/686/90F6F479-2641-E211-99E5-001D09F29524.root",
+## "/store/data/Run2012D/MinimumBias/RECO/PromptReco-v1/000/208/686/8AAFC294-2141-E211-89E8-003048F1182E.root",
+## "/store/data/Run2012D/MinimumBias/RECO/PromptReco-v1/000/208/686/82B885ED-2241-E211-9877-001D09F252E9.root",
+## "/store/data/Run2012D/MinimumBias/RECO/PromptReco-v1/000/208/686/6440884D-2941-E211-BBA9-0025901D6288.root",
+## "/store/data/Run2012D/MinimumBias/RECO/PromptReco-v1/000/208/686/604E8D2C-2741-E211-B542-003048F11C28.root",
+## "/store/data/Run2012D/MinimumBias/RECO/PromptReco-v1/000/208/686/4EB6D745-2241-E211-9738-001D09F24D8A.root",
+## "/store/data/Run2012D/MinimumBias/RECO/PromptReco-v1/000/208/686/3E863C44-2241-E211-9255-001D09F25041.root",
+## "/store/data/Run2012D/MinimumBias/RECO/PromptReco-v1/000/208/686/3E76F7E8-2741-E211-8249-003048D37666.root",
+## "/store/data/Run2012D/MinimumBias/RECO/PromptReco-v1/000/208/686/3C1D83B8-3641-E211-8C66-0025B32035A2.root",
+## "/store/data/Run2012D/MinimumBias/RECO/PromptReco-v1/000/208/686/2A12A045-2241-E211-8BF5-001D09F2915A.root",
+## "/store/data/Run2012D/MinimumBias/RECO/PromptReco-v1/000/208/686/1661335F-3041-E211-9B96-00237DDBE0E2.root",
+
   )
+)
+
+#process.source.lumisToProcess = cms.untracked.VLuminosityBlockRange('208686:73-208686:463')
+
+# a service to use root histos
+process.TFileService = cms.Service("TFileService",
+    fileName = cms.string('histo.root')
 )
 
 # Choose the global tag here:
 #process.GlobalTag.globaltag = "MC_70_V1::All"
 #process.GlobalTag.globaltag = "START70_V1::All"
-#process.GlobalTag.globaltag = "START71_V1::All"
-process.GlobalTag.globaltag = "MC_71_V1::All"
+#process.GlobalTag.globaltag = "POSTLS170_V5::All"
+process.GlobalTag.globaltag = "START71_V1::All"
+#process.GlobalTag.globaltag = "MC_71_V1::All"
 #process.GlobalTag.globaltag = "POSTLS171_V1::All"
 #process.GlobalTag.globaltag = "PRE_MC_71_V2::All"
-
+# for data
+#process.GlobalTag.globaltag = "GR_R_71_V1::All"
 
 # DB stuff 
+# GenError
 useLocalDB = True
 if useLocalDB :
-# Frontier LA 
     process.DBReaderFrontier = cms.ESSource("PoolDBESSource",
      DBParameters = cms.PSet(
          messageLevel = cms.untracked.int32(0),
@@ -76,30 +108,19 @@ if useLocalDB :
      ),
      toGet = cms.VPSet(
  	 cms.PSet(
-# GenError
           record = cms.string('SiPixelGenErrorDBObjectRcd'),
-#          tag = cms.string('SiPixelGenErrorDBObject38Tv1')
 #          tag = cms.string('SiPixelGenErrorDBObject38TV10')
-#          tag = cms.string('SiPixelGenErrorDBObject38T_v0_mc1')
           tag = cms.string('SiPixelGenErrorDBObject_38T_v1_mc')
-# LA
-# 			record = cms.string("SiPixelLorentzAngleRcd"),
-# 			label = cms.untracked.string("fromAlignment"),
-# 			label = cms.untracked.string("forWidth"),
-# 			tag = cms.string("SiPixelLorentzAngle_v02_mc")
-# 			tag = cms.string("SiPixelLorentzAngle_fromAlignment_v0_mc")
-# 			tag = cms.string("SiPixelLorentzAngle_forWidth_v0_mc")
- 		),
-# 		cms.PSet(
-# 			record = cms.string("SiPixelLorentzAngleSimRcd"),
-# 			tag = cms.string("test_LorentzAngle_Sim")
-# 		)
+ 	 ),
  	),
-#     connect = cms.string('frontier://FrontierProd/CMS_COND_31X_PIXEL')
+#     connect = cms.string('sqlite_file:siPixelGenErrors38T.db')
+#     connect = cms.string('frontier://FrontierProd/CMS_COND_PIXEL_000')
      connect = cms.string('frontier://FrontierPrep/CMS_COND_PIXEL')
     ) # end process
+# endif
 
-# SQ_LITE GenError
+useLocalDB2 = False
+if useLocalDB2 :
     process.DBReaderFrontier2 = cms.ESSource("PoolDBESSource",
      DBParameters = cms.PSet(
          messageLevel = cms.untracked.int32(0),
@@ -107,14 +128,14 @@ if useLocalDB :
      ),
      toGet = cms.VPSet(
  		cms.PSet(
- 			record = cms.string("SiPixelGenErrorDBObjectRcd"),
-# 			label = cms.untracked.string("fromAlignment"),
-# 			tag = cms.string("SiPixelGenErrorDBObject38Tv1")
- 			tag = cms.string("SiPixelGenErrorDBObject38TV10")
+ 			record = cms.string("SiPixelTemplateDBObjectRcd"),
+ 			tag = cms.string("SiPixelTemplateDBObject38TV10")
+# 			tag = cms.string("SiPixelTemplateDBObject38Tv21")
  		),
  	),
-#     connect = cms.string('sqlite_file:siPixelGenErrors38T.db_old')
-     connect = cms.string('sqlite_file:siPixelGenErrors38T.db')
+     connect = cms.string('sqlite_file:siPixelTemplates38T.db')
+#     connect = cms.string('frontier://FrontierPrep/CMS_COND_PIXEL')
+#     connect = cms.string('frontier://FrontierProd/CMS_COND_31X_PIXEL')
    ) # end process
 # endif
  
@@ -142,9 +163,9 @@ process.myprefer = cms.ESPrefer("PoolDBESSource","DBReaderFrontier")
 
 
 process.o1 = cms.OutputModule("PoolOutputModule",
-                              outputCommands = cms.untracked.vstring('drop *','keep *_*_*_ClusTest'),
-#            fileName = cms.untracked.string('file:clus.root')
-            fileName = cms.untracked.string('file:/afs/cern.ch/work/d/dkotlins/public/MC/mu/pt100_71_pre7/rechits/rechits2_mc71.root')
+                              outputCommands = cms.untracked.vstring('drop *','keep *_*_*_RecHitTest'),
+            fileName = cms.untracked.string('file:clus.root')
+#            fileName = cms.untracked.string('file:/afs/cern.ch/work/d/dkotlins/public/MC/mu/pt100_71_pre7/rechits/rechits2_mc71.root')
 )
 
 #process.Timing = cms.Service("Timing")
@@ -159,10 +180,18 @@ process.o1 = cms.OutputModule("PoolOutputModule",
 # label of digis 
 process.siPixelClusters.src = 'simSiPixelDigis'
 
+# read rechits
+process.analysis = cms.EDAnalyzer("ReadPixelRecHit",
+    Verbosity = cms.untracked.bool(False),
+    src = cms.InputTag("siPixelRecHits"),
+)
+
 # plus pixel clusters  (OK)
 #process.p1 = cms.Path(process.siPixelClusters)
 # plus pixel rechits (OK)
-process.p1 = cms.Path(process.pixeltrackerlocalreco)
+#process.p1 = cms.Path(process.pixeltrackerlocalreco*process.analysis)
+# only rechits
+process.p1 = cms.Path(process.siPixelRecHits*process.analysis)
 
 # RAW
 # clusterize through raw (OK)
@@ -176,4 +205,5 @@ process.p1 = cms.Path(process.pixeltrackerlocalreco)
 #process.p1 = cms.Path(process.siPixelRawData*process.siPixelDigis)
 #process.p1 = cms.Path(process.siPixelRawData*process.siPixelDigis*process.pixeltrackerlocalreco)
 
-process.outpath = cms.EndPath(process.o1)
+# save output 
+#process.outpath = cms.EndPath(process.o1)

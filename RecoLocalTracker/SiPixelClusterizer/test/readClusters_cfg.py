@@ -6,6 +6,9 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("cluTest")
 
+process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.MagneticField_38T_cff")
+
 
 import HLTrigger.HLTfilters.hltHighLevel_cfi as hlt
 # accept if 'path_1' succeeds
@@ -40,7 +43,8 @@ process.MessageLogger = cms.Service("MessageLogger",
     destinations = cms.untracked.vstring('cout'),
 #    destinations = cms.untracked.vstring("log","cout"),
     cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('ERROR')
+        threshold = cms.untracked.string('WARNING')
+#        threshold = cms.untracked.string('ERROR')
     )
 #    log = cms.untracked.PSet(
 #        threshold = cms.untracked.string('DEBUG')
@@ -52,10 +56,12 @@ process.source = cms.Source("PoolSource",
 # fill 3273 run 206940
 #  "/store/data/Run2012D/MinimumBias/RECO/PromptReco-v1/000/206/940/FA55823C-312C-E211-94AB-001D09F29533.root",
 # for MC 
-#  'file:/afs/cern.ch/work/d/dkotlins/public/MC/mu/pt100_pre10/clus/clus1.root'
+  'file:clus.root'
 #  'file:/afs/cern.ch/work/d/dkotlins/public/MC/mu/pt100/clus/clus1.root'
 #  'file:/afs/cern.ch/work/d/dkotlins/public/MC/mu/pt100/rechits/rechits1.root'
-  'file:../../../../../CMSSW_7_0_0_pre8/src/EventFilter/SiPixelRawToDigi/test/digis.root'
+#  'file:../../../../../CMSSW_7_0_0_pre8/src/EventFilter/SiPixelRawToDigi/test/digis.root'
+#   'file:/afs/cern.ch/work/d/dkotlins/public/MC/mu/pt100_71_pre7/rechits/rechits2_postls171.root'
+#   'file:/afs/cern.ch/work/d/dkotlins/public/MC/mu/pt100_71_pre7/rechits/rechits2_mc71.root'
 
   )
 )
@@ -67,14 +73,16 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string('histo.root')
 )
 
-process.load("Configuration.StandardSequences.Geometry_cff")
-process.load("Configuration.StandardSequences.MagneticField_38T_cff")
-
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")# Choose the global tag here:
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+# Choose the global tag here:
 # 2012
 #process.GlobalTag.globaltag = 'GR_P_V40::All'
-# MC 2913
-process.GlobalTag.globaltag = 'MC_70_V1::All'
+# MC 2013
+# process.GlobalTag.globaltag = 'MC_70_V1::All'
+# DATA 2014
+process.GlobalTag.globaltag = 'PRE_R_71_V3::All'
+# MC 2014
+#process.GlobalTag.globaltag = 'PRE_STA71_V4::All'
 
 process.analysis = cms.EDAnalyzer("ReadPixClusters",
     Verbosity = cms.untracked.bool(True),
