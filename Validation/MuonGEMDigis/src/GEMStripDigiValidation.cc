@@ -33,7 +33,7 @@ void GEMStripDigiValidation::bookHisto(const GEMGeometry* geom) {
         theStrip[region_num][station_num][layer_num] = dbe_->book1D( ("strip_dg"+name_prefix).c_str(), ("Digi occupancy per stip number: "+label_prefix+";strip number; entries").c_str(), nstrips,0.5,nstrips+0.5);
         theStrip_xy[region_num][station_num][layer_num] = dbe_->book2D( ("strip_dg_xy"+name_prefix).c_str(), ("Digi occupancy: "+label_prefix+";globalX [cm]; globalY[cm]").c_str(), 360, -360,360,360,-360,360);
         theStrip_bx[region_num][station_num][layer_num] = dbe_->book1D( ("strip_dg_bx"+name_prefix).c_str(), ("Bunch crossing: "+label_prefix+"; bunch crossing ; entries").c_str(), 11,-5.5,5.5);
-				theStrip_zr[region_num][station_num][layer_num] = BookHistZR("strp_dg","Strip Digi",region_num,station_num,layer_num);
+				theStrip_zr[region_num][station_num][layer_num] = BookHistZR("strip_dg","Strip Digi",region_num,station_num,layer_num);
       }
     }
   }
@@ -42,7 +42,7 @@ void GEMStripDigiValidation::bookHisto(const GEMGeometry* geom) {
 	for( auto& region : theGEMGeometry->regions() ) 
 	for( auto& station : region->stations() ) { 
 		std::stringstream ss1;
- 	  ss1<<"Re "<<region->region()<<" St "<<station->station()<<"_dphi";
+ 	  ss1<<"deltaPhi_r"<<region->region()<<"_st"<<station->station();
 		std::string st_title = std::string( ss1.str()+";delta Phi(#Delta#phi);Entries");
 		std::cout<<ss1.str()<<std::endl;
 		MonitorElement* st_temp;
@@ -58,8 +58,8 @@ void GEMStripDigiValidation::bookHisto(const GEMGeometry* geom) {
 			GEMDetId roId( roll->id());
 			std::stringstream ss;
  		  ss<<roId;
-			std::string name_prefix = ss.str()+"_strip_phi_dist";
-			std::string title_prefix = ss.str()+" strips' phi distribution;# of strip ; Azimuthal angle (#phi)";
+			std::string name_prefix = "strip_phi_dist_at_"+ss.str();
+			std::string title_prefix = " strips' phi distributio "+ss.str()+";# of strip ; Azimuthal angle (#phi)";
 			MonitorElement* temp = dbe_->book1D(name_prefix.c_str(), title_prefix.c_str(),nStrips,1,nStrips+1);
 			theStrip_ro_phi.insert( std::map<std::string, MonitorElement*>::value_type(name_prefix, temp)) ; 
 		}
@@ -87,29 +87,30 @@ void GEMStripDigiValidation::savePhiPlot(){
 			GEMDetId roId( roll->id());
 			std::stringstream ss;
 	    ss<<roId;
-			std::string name_prefix = ss.str()+"_strip_phi_dist";
+			std::string name_prefix = "strip_phi_dist_at_"+ss.str();
 			double phi_0 = 0.0;
-			double phi_1 = 0.0;
+			//double phi_1 = 0.0;
 
-			double phi_max_1 = 0.0;
+			//double phi_max_1 = 0.0;
 			double phi_max = 0.0;
 			for( unsigned int i=0; i<=nStrips ; i++) {
 				LocalPoint lEdgeN(topology->localPosition((float)i));
 				double cstripN( roll->toGlobal( lEdgeN).phi().degrees());
 				theStrip_ro_phi[name_prefix.c_str()]->Fill(i,cstripN);
 				if ( i==0 ) phi_0 = cstripN;
-				if ( i==1 ) phi_1 = cstripN;
+				//if ( i==1 ) phi_1 = cstripN;
 				if ( i==nStrips ) phi_max = cstripN;
-				if ( i==nStrips-1 ) phi_max_1 = cstripN;
+				//if ( i==nStrips-1 ) phi_max_1 = cstripN;
 			}
+			/*
 			std::cout<<std::fixed;
 			std::cout.precision(4);	
 			std::cout<<"GEMDetId :"<<roId<< "strip #0 : "<<phi_0 <<"strip #max_1 : "<<phi_max_1<<std::endl;
 			std::cout<<"GEMDetId :"<<roId<< "strip #1 : "<<phi_1 <<"strip #max : "<<phi_max<<std::endl;
+      */
 
 			ss.str("");
- 	  	ss<<"Re "<<region->region()<<" St "<<station->station()<<"_dphi";
- 	 		//ss<<region->region()<<station->station()<<"_dphi";
+ 	    ss<<"deltaPhi_r"<<region->region()<<"_st"<<station->station();
 			theStrip_st_dphi[ss.str()]->Fill( TMath::Abs(phi_max- phi_0));
 		}
 	}
