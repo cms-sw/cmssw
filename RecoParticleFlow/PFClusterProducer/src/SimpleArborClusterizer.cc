@@ -38,7 +38,7 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
     if( !rechitMask[i] ) continue;
     const math::XYZPoint& pos = hits[i].position();
     hits_for_arbor.emplace_back(i);
-    arbor_points.emplace_back(pos.x(),pos.y(),pos.z());
+    arbor_points.emplace_back(10*pos.x(),10*pos.y(),10*pos.z());
   }
 
   branches = arbor::Arbor(arbor_points,_cellSize,_layerThickness);
@@ -64,7 +64,7 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
 	reco::PFRecHitRef(input,hits_for_arbor[hit]);
       current.addRecHitFraction(reco::PFRecHitFraction(refhit,1.0));
     }
-    edm::LogError("SimpleArborClusterizer")
+    LogDebug("SimpleArborClusterizer")
       << "Made cluster: " << current << std::endl;
   }
 }

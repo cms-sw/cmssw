@@ -23,6 +23,14 @@ _simplePosCalcHGCEE =  cms.PSet(
 )
 
 #the real arbor clusterizer
+_manqiArborClusterizer_HGCEE = cms.PSet(
+    algoName = cms.string("SimpleArborClusterizer"), 
+    # use basic pad sizes in HGCEE
+    cellSize = cms.double(10.0),
+    layerThickness = cms.double(16.0),
+    thresholdsByDetector = cms.VPSet( )
+)
+
 _arborClusterizer_HGCEE = cms.PSet(
     algoName = cms.string("ArborConnectorClusteringAlgorithm"), 
     # these are taken from the settings for Fine Granularity in ArborPFA
@@ -63,7 +71,7 @@ particleFlowClusterHGCEE = cms.EDProducer(
     recHitsSource = cms.InputTag("particleFlowRecHitHGCEE"),
     recHitCleaners = cms.VPSet(),
     seedFinder = _noseeds_HGCEE,
-    initialClusteringStep = _arborTopoClusterizer_HGCEE,
+    initialClusteringStep = _manqiArborClusterizer_HGCEE,
     pfClusterBuilder = cms.PSet( ), #_arborClusterizer_HGCEE,
     positionReCalc = cms.PSet( ), #_simplePosCalcHGCEE,
     energyCorrector = _HGCEE_ElectronEnergy

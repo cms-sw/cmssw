@@ -27,7 +27,7 @@ FWCaloClusterProxyBuilder::build( const reco::CaloCluster& iData, unsigned int i
    
    TEveBoxSet* boxset = new TEveBoxSet();
    boxset->Reset(TEveBoxSet::kBT_FreeBox, true, 64);
-   boxset->UseSingleColor();
+   //boxset->UseSingleColor();
    boxset->SetPickable(1);
 
    for( std::vector<std::pair<DetId, float> >::iterator it = clusterDetIds.begin(), itEnd = clusterDetIds.end();
@@ -40,6 +40,7 @@ FWCaloClusterProxyBuilder::build( const reco::CaloCluster& iData, unsigned int i
       std::vector<float> pnts(24);    
       fireworks::energyTower3DCorners(corners, (*it).second, pnts);
       boxset->AddBox( &pnts[0]);
+      boxset->DigitColor( (4*clusterDetIds.size()+3*iIndex)%50 + 50, 50);     
    }
 
    boxset->RefitPlex();
