@@ -23,7 +23,8 @@ def setDefaults(process):
       mdtau                        = cms.int32(0),       # mdtau value passed to TAUOLA: 0=no tau decay mode selection,
       useTauolaPolarization        = cms.bool(False),    # disable tau polarization effects in TAUOLA, weight events by weights computed by TauSpinner instead
       transformationMode           = cms.int32(1),       # transformation mode: 0=mumu->mumu, 1=mumu->tautau
-      rfRotationAngle              = cms.double(90.),    # rotation angle around Z-boson direction, used when replacing muons by simulated taus
+      rfRotationAngle              = cms.double(0.),     # rotation angle around Z-boson direction, used when replacing muons by simulated taus
+      rfMirror                     = cms.bool(True),  # mirror at the Z-boson / proton plane
       embeddingMode                = cms.string("RH"),   # embedding mode: 'PF'=particle flow embedding, 'RH'=recHit embedding
       replaceGenOrRecMuonMomenta   = cms.string("rec"),  # take momenta of generated tau leptons from: 'rec'=reconstructed muons, 'gen'=generator level muons
       applyMuonRadiationCorrection = cms.string(""),     # should I correct the momementa of replaced muons for muon -> muon + photon radiation ?
