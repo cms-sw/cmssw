@@ -18,7 +18,6 @@
 #include "Pythia8/Pythia.h"
 #include "GeneratorInterface/PartonShowerVeto/interface/GeneratorInput.h"
 #include "GeneratorInterface/PartonShowerVeto/interface/JetMatchingPy8Internal.h"
-using namespace Pythia8;
 
 //==========================================================================
 
@@ -33,7 +32,7 @@ class JetMatchingAlpgenInputAlpgen : public AlpgenHooks,
 public:
 
   // Constructor and destructor.
-  JetMatchingAlpgenInputAlpgen(Pythia& pythia) : AlpgenHooks(pythia),
+  JetMatchingAlpgenInputAlpgen(Pythia8::Pythia& pythia) : AlpgenHooks(pythia),
     JetMatchingAlpgen() { }
   ~JetMatchingAlpgenInputAlpgen() {}
 
@@ -48,7 +47,7 @@ public:
   virtual bool canVetoProcessLevel() {
     return JetMatchingAlpgen::canVetoProcessLevel();
   }
-  virtual bool doVetoProcessLevel(Event & proc) {
+  virtual bool doVetoProcessLevel(Pythia8::Event & proc) {
     return JetMatchingAlpgen::doVetoProcessLevel(proc);
   }
 
@@ -56,7 +55,7 @@ public:
   virtual bool canVetoPartonLevelEarly() {
     return JetMatchingAlpgen::canVetoPartonLevelEarly();
   }
-  virtual bool doVetoPartonLevelEarly(const Event &proc) {
+  virtual bool doVetoPartonLevelEarly(const Pythia8::Event &proc) {
     return JetMatchingAlpgen::doVetoPartonLevelEarly(proc);
   }
 
@@ -75,7 +74,7 @@ class JetMatchingMadgraphInputAlpgen : public AlpgenHooks,
 public:
 
   // Constructor and destructor.
-  JetMatchingMadgraphInputAlpgen(Pythia& pythia) : AlpgenHooks(pythia),
+  JetMatchingMadgraphInputAlpgen(Pythia8::Pythia& pythia) : AlpgenHooks(pythia),
     JetMatchingMadgraph() {}
   ~JetMatchingMadgraphInputAlpgen() {}
 
@@ -92,7 +91,7 @@ public:
   virtual bool canVetoProcessLevel() {
     return JetMatchingMadgraph::canVetoProcessLevel();
   }
-  virtual bool doVetoProcessLevel(Event& proc) {
+  virtual bool doVetoProcessLevel(Pythia8::Event& proc) {
     return JetMatchingMadgraph::doVetoProcessLevel(proc);
   }
 
@@ -100,7 +99,7 @@ public:
   virtual bool canVetoPartonLevelEarly() {
     return JetMatchingMadgraph::canVetoPartonLevelEarly();
   }
-  virtual bool doVetoPartonLevelEarly(const Event& proc) {
+  virtual bool doVetoPartonLevelEarly(const Pythia8::Event& proc) {
     return JetMatchingMadgraph::doVetoPartonLevelEarly(proc);
   }
 
@@ -117,7 +116,7 @@ public:
   ~CombineMatchingInput() {}
 
   // Return a hook relevant for combination of input and matching.
-  UserHooks* getHook(Pythia& pythia) {
+  Pythia8::UserHooks* getHook(Pythia8::Pythia& pythia) {
 
     // Find input source and matching scheme.
     bool isAlpgenFile = ( pythia.word("Alpgen:file") != "void" );
