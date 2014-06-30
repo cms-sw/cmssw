@@ -15,8 +15,11 @@ namespace Reflex {
           PropertyList(const edm::TypeWithDict   &dict) { 
               m_wp = dict.getClass()->GetAttributeMap();
           }
-          PropertyList(const edm::MemberWithDict &dict) { 
-              m_wp = dict.typeOf().getClass()->GetAttributeMap();
+          PropertyList(const edm::MemberWithDict &dict) : m_wp(0) {
+              TClass* cl = dict.typeOf().getClass();
+              if(cl) {
+                m_wp = cl->GetAttributeMap();
+              }
           }
 
           PropertyList() : m_wp(0) { /* NOOP */ }
