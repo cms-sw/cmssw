@@ -297,7 +297,7 @@ void SiPixelClusterSource::bookMEs(DQMStore::IBooker & iBooker){
 
   std::map<uint32_t,SiPixelClusterModule*>::iterator struct_iter;
     
-  SiPixelFolderOrganizer theSiPixelFolder;
+  SiPixelFolderOrganizer theSiPixelFolder(false);
   
   for(struct_iter = thePixelStructure.begin(); struct_iter != thePixelStructure.end(); struct_iter++){
     

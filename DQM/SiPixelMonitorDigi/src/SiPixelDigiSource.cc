@@ -676,7 +676,7 @@ void SiPixelDigiSource::bookMEs(DQMStore::IBooker & iBooker){
   }  
   std::map<uint32_t,SiPixelDigiModule*>::iterator struct_iter;
  
-  SiPixelFolderOrganizer theSiPixelFolder;
+  SiPixelFolderOrganizer theSiPixelFolder(false);
 
   for(struct_iter = thePixelStructure.begin(); struct_iter != thePixelStructure.end(); struct_iter++){
     /// Create folder tree and book histograms 
