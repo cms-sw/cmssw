@@ -429,7 +429,7 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
 
 void Pythia8Hadronizer::statistics()
 {
-  fMasterGen->statistics(false);
+  fMasterGen->statistics();
 
   double xsec = fMasterGen->info.sigmaGen(); // cross section in mb
   xsec *= 1.0e9; // translate to pb (CMS/Gen "convention" as of May 2009)
@@ -468,17 +468,17 @@ bool Pythia8Hadronizer::hadronize()
     event().reset();
     return false;
   }
-  std::cout<<"in P8"<<std::endl; 	
-  DJR=fJetMatchingPy8InternalHook->GetDJR();
-  std::cout<<"done P8: DJR.size()="<<DJR.size()<<std::endl;
-  nME=fJetMatchingPy8InternalHook->nMEPartons();
-  std::cout<<"nMEok"<<std::endl;
+  
+  if (fJetMatchingPy8InternalHook) {
+    DJR=fJetMatchingPy8InternalHook->GetDJR();
+    nME=fJetMatchingPy8InternalHook->nMEPartons();
+  }
+  
   // update LHE matching statistics
   //
   lheEvent()->count( lhef::LHERunInfo::kAccepted );
 
   event().reset(new HepMC::GenEvent);
-  std::cout<<"returning"<<std::endl;
   return toHepMC.fill_next_event( *(fMasterGen.get()), event().get());
 
 }
