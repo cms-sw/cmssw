@@ -464,7 +464,10 @@ bool Pythia8Hadronizer::hadronize()
 
   bool py8next = fMasterGen->next();
 
-  if (!py8next)
+  double mergeweight = fMasterGen.get()->info.mergingWeight();
+  
+  //protect against 0-weight from ckkw or similar
+  if (!py8next || mergeweight<=0.)
   {
     lheEvent()->count( lhef::LHERunInfo::kSelected );
     event().reset();
@@ -488,8 +491,19 @@ bool Pythia8Hadronizer::hadronize()
   lheEvent()->count( lhef::LHERunInfo::kAccepted );
 
   event().reset(new HepMC::GenEvent);
-  return toHepMC.fill_next_event( *(fMasterGen.get()), event().get());
-
+  bool py8hepmc =  toHepMC.fill_next_event( *(fMasterGen.get()), event().get());
+  if (!py8hepmc) {
+    return false;
+  }
+  
+  //add ckkw merging weight
+  if (mergeweight!=1.) {
+    event()->weights().push_back(mergeweight);
+  }
+  
+  return true;
+  
+  
 }
 
 
