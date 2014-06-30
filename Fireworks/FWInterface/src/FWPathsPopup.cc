@@ -39,7 +39,6 @@ FWPathsPopup::windowIsClosing()
 FWPathsPopup::FWPathsPopup(FWFFLooper *looper, FWGUIManager *guiManager)
    : TGMainFrame(gClient->GetRoot(), 400, 600),
      m_info(0),
-     m_event(0),
      m_looper(looper),
      m_hasChanges(false),
      m_moduleLabel(0),
@@ -86,13 +85,6 @@ FWPathsPopup::FWPathsPopup(FWFFLooper *looper, FWGUIManager *guiManager)
    editor->UnmapWindow();
 
    Layout();
-}
-
-
-void
-FWPathsPopup::setEvent(const edm::Event* x)
-{
-   m_event= x;
 }
 
 
@@ -189,7 +181,7 @@ FWPathsPopup::preModuleEvent(edm::StreamContext const &s, edm::ModuleCallingCont
 
 
 void
-FWPathsPopup::postEvent(edm::StreamContext const&)
+FWPathsPopup::postEvent(edm::Event const &event)
 {
    m_guiManager->updateStatus("Done processing.");
    gSystem->ProcessEvents();
@@ -197,23 +189,23 @@ FWPathsPopup::postEvent(edm::StreamContext const&)
    // Get the last process name from the process history:
    // this should be the one specified in the cfg file
  
-   if (m_event->processHistory().empty()) {
+   if (event.processHistory().empty()) {
       fwLog(fwlog::kInfo) << "Path GUI:: no process history available.\n";
       return;
    }
-   edm::ProcessHistory::const_iterator pi = m_event->processHistory().end() - 1;
+   edm::ProcessHistory::const_iterator pi = event.processHistory().end() - 1;
    std::string processName = pi->processName();
    
    // It's called TriggerResults but actually contains info on all paths
    edm::InputTag tag("TriggerResults", "", processName);
    edm::Handle<edm::TriggerResults> triggerResults;
-   m_event->getByLabel(tag, triggerResults);
+   event.getByLabel(tag, triggerResults);
 
    std::vector<FWPSetTableManager::PathUpdate> pathUpdates;
 
    if (triggerResults.isValid())
    {
-      edm::TriggerNames triggerNames = m_event->triggerNames(*triggerResults);
+      edm::TriggerNames triggerNames = event.triggerNames(*triggerResults);
      
       for (size_t i = 0, e = triggerResults->size(); i != e; ++i)
       {

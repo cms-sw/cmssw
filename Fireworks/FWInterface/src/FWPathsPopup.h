@@ -30,7 +30,7 @@ class FWPathsPopup : public TGMainFrame
 public:
    FWPathsPopup(FWFFLooper *, FWGUIManager *);
 
-   void postEvent(edm::StreamContext const&);
+   void postEvent(edm::Event const &event);
    void postModuleEvent(edm::StreamContext const&, edm::ModuleCallingContext const&);
    void preModuleEvent(edm::StreamContext const&, edm::ModuleCallingContext const&);
    void scheduleReloadEvent();
@@ -43,12 +43,8 @@ public:
 
    virtual Bool_t HandleKey(Event_t* event);
 
-   void setEvent(const edm::Event* x);
-
 private:
    const edm::ScheduleInfo  *m_info;
-
-   const edm::Event         *m_event;
 
 #ifndef __CINT__
    FWFFLooper               *m_looper;

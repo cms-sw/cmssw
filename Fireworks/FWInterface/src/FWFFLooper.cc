@@ -195,8 +195,6 @@ FWFFLooper::attachTo(edm::ActivityRegistry &ar)
 {
    m_pathsGUI = new FWPathsPopup(this, guiManager());
 
-   // ar.watchPostEvent(m_pathsGUI, &FWPathsPopup::postEvent);
-
    ar.watchPostModuleEvent(m_pathsGUI, &FWPathsPopup::postModuleEvent);
    ar.watchPreModuleEvent(m_pathsGUI, &FWPathsPopup::preModuleEvent);
    ar.watchPostEndJob(this, &FWFFLooper::postEndJob);
@@ -394,10 +392,7 @@ FWFFLooper::duringLoop(const edm::Event &event,
    } catch (...) {}
    
 
-   m_pathsGUI->setEvent(&event);
-   // AMT Should this call should be done through ServiceRegistry ?
-   edm::StreamContext* x = 0;
-   m_pathsGUI->postEvent(*x);
+   m_pathsGUI->postEvent(event);
 
    m_isLastEvent = controller.forwardState() == edm::ProcessingController::kAtLastEvent;
    m_isFirstEvent = controller.reverseState() == edm::ProcessingController::kAtFirstEvent;
