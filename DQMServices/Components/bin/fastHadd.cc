@@ -93,6 +93,7 @@ PATH=/afs/cern.ch/work/r/rovere/protocolbuf/bin
 #include <TFile.h>
 #include <TBufferFile.h>
 #include <TObject.h>
+#include <TObjString.h>
 #include <TH1.h>
 #include <TKey.h>
 
@@ -112,19 +113,37 @@ static bool lessThanMME(const std::string &lhs_dirname,
 struct MicroME {
   MicroME(const std::string * full,
           const std::string * dir,
-          const std::string * obj)
-      :fullname(full), dirname(dir), objname(obj) {}
+          const std::string * obj,
+          uint32_t flags = 0)
+      :fullname(full), dirname(dir), objname(obj), flags(flags) {}
   const std::string * fullname;
   const std::string * dirname;
   const std::string * objname;
-  TH1 * obj;
+  mutable TObject * obj;
+
+  uint32_t flags;
 
   bool operator<(const MicroME &rhs) const {
     return lessThanMME(*this->dirname,
                        *this->objname,
                        *rhs.dirname,
                        *rhs.objname);
-  }
+  };
+
+  void add(TObject *obj_to_add) const {
+      DEBUG(1, "Merging: " << obj->GetName() <<
+        " << " << obj_to_add->GetName() << std::endl);
+
+      if (dynamic_cast<TH1 *>(obj) && dynamic_cast<TH1 *>(obj_to_add)) {
+        dynamic_cast<TH1 *>(obj)->Add(dynamic_cast<TH1 *>(obj_to_add));
+      } else if (dynamic_cast<TObjString *>(obj) && dynamic_cast<TObjString *>(obj_to_add)) {
+
+
+      } else {
+        DEBUG(1, "Cannot merge (different types): " << obj->GetName() <<
+          " << " << obj_to_add->GetName() << std::endl);
+      }
+  };
 };
 
 enum TaskType {
@@ -159,7 +178,8 @@ inline TObject * extractNextObject(TBufferFile &buf) {
 static void get_info(const dqmstorepb::ROOTFilePB::Histo &h,
                      std::string &dirname,
                      std::string &objname,
-                     TH1 ** obj) {
+                     TObject ** obj) {
+
   size_t slash = h.full_pathname().rfind('/');
   size_t dirpos = (slash == std::string::npos ? 0 : slash);
   size_t namepos = (slash == std::string::npos ? 0 : slash+1);
@@ -169,7 +189,7 @@ static void get_info(const dqmstorepb::ROOTFilePB::Histo &h,
                   (void*)h.streamed_histo().data(),
                   kFALSE);
   buf.Reset();
-  *obj = static_cast<TH1*>(extractNextObject(buf));
+  *obj = extractNextObject(buf);
   if (!*obj) {
     std::cerr << "Error reading element: " << h.full_pathname() << std::endl;
   }
@@ -207,6 +227,7 @@ void fillMessage(dqmstorepb::ROOTFilePB &dqmstore_output_msg,
     TBufferFile buffer(TBufferFile::kWrite);
     buffer.WriteObject(mi->obj);
     h->set_size(buffer.Length());
+    h->set_flags(mi->flags);
     h->set_streamed_histo((const void*)buffer.Buffer(),
                           buffer.Length());
     delete mi->obj;
@@ -234,8 +255,11 @@ void processDirectory(TFile *file,
         subdir += '/';
       subdir += obj->GetName();
       processDirectory(file, subdir, dirs, objs, fullnames, micromes);
-    } else if (dynamic_cast<TH1 *>(obj)) {
-      (dynamic_cast<TH1*>(obj))->SetDirectory(0);
+    } else if ((dynamic_cast<TH1 *>(obj)) && (dynamic_cast<TObjString *>(obj))) {
+      if (dynamic_cast<TH1 *>(obj)) {
+        dynamic_cast<TH1 *>(obj)->SetDirectory(0);
+      }
+
       DEBUG(2, curdir << "/" << obj->GetName() << "\n");
       MicroME mme(&*(fullnames.insert(curdir
                                       + '/'
@@ -243,7 +267,7 @@ void processDirectory(TFile *file,
                      &*(dirs.insert(curdir).first),
                      &*(objs.insert(obj->GetName()).first));
       if (obj) {
-        mme.obj = dynamic_cast<TH1*>(obj);
+        mme.obj = obj;
         micromes.insert(mme);
       }
     }
@@ -295,7 +319,7 @@ int convertFile(const std::string &output_filename,
                     (void*)h.streamed_histo().data(),
                     kFALSE);
     buf.Reset();
-    TH1 *obj = static_cast<TH1*>(extractNextObject(buf));
+    TObject *obj = static_cast<TH1*>(extractNextObject(buf));
     std::string path,objname;
     get_info(h, path, objname, &obj);
     gDirectory->cd("/");
@@ -354,6 +378,7 @@ int dumpFiles(const std::vector<std::string> &filenames) {
       buf.Reset();
       TObject *obj = extractNextObject(buf);
       DEBUG(1, obj->GetName() << std::endl);
+      DEBUG(1, "Flags: " << h.flags() << std::endl);
     }
   }
   google::protobuf::ShutdownProtobufLibrary();
@@ -391,12 +416,13 @@ int addFiles(const std::string &output_filename,
     for (int i = 0; i < dqmstore_message.histo_size(); i++) {
       std::string path;
       std::string objname;
-      TH1 *obj = NULL;
+      TObject *obj = NULL;
       const dqmstorepb::ROOTFilePB::Histo &h = dqmstore_message.histo(i);
       get_info(h, path, objname, &obj);
       MicroME * mme = new MicroME(&*(fullnames.insert(h.full_pathname()).first),
                                   &*(dirs.insert(path).first),
-                                  &*(objs.insert(objname).first));
+                                  &*(objs.insert(objname).first),
+                                  h.flags());
       if (obj) {
         mme->obj = obj;
         micromes.insert(*mme);
@@ -431,17 +457,18 @@ int addFiles(const std::string &output_filename,
       std::string path;
       std::string objname;
       dqmstorepb::ROOTFilePB::Histo h;
-      TH1 *obj = NULL;
+      TObject *obj = NULL;
       if (elem < dqmstore_msg.histo_size()) {
         dqmstorepb::ROOTFilePB::Histo &h =
             const_cast<dqmstorepb::ROOTFilePB::Histo &>(dqmstore_msg.histo(elem));
         get_info(h, path, objname, &obj);
+
         DEBUG(2, "Comparing " << *(*mi).dirname << "/"
               << *(*mi).objname << " vs "
               << h.full_pathname() << std::endl);
         int diff = (*mi).fullname->compare(h.full_pathname());
         if (diff == 0 && obj != NULL) {
-          (*mi).obj->Add(obj);
+          mi->add(obj);
           delete obj;
           ++elem;
         } else if (! lessThanMME(*(*mi).dirname, *(*mi).objname,
@@ -482,7 +509,7 @@ int addFiles(const std::string &output_filename,
     while (elem < dqmstore_msg.histo_size()) {
       std::string path;
       std::string objname;
-      TH1 *obj = NULL;
+      TObject *obj = NULL;
 
       const dqmstorepb::ROOTFilePB::Histo &h = dqmstore_msg.histo(elem);
       get_info(h, path, objname, &obj);
@@ -491,7 +518,7 @@ int addFiles(const std::string &output_filename,
                                   &*(dirs.insert(path).first),
                                   &*(objs.insert(objname).first));
       if (obj) {
-        mme->obj = const_cast<TH1*>(obj);
+        mme->obj = obj;
         micromes.insert(*mme);
         ++elem;
       }
