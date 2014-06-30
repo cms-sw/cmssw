@@ -14,12 +14,13 @@
 
 #ifdef LOCAL_UNPACK
 bool CSCDDUEventData::debug = false;
+uint32_t CSCDDUEventData::errMask = 0xFFFFFFFF;
 #else
 #include <atomic>
 std::atomic<bool> CSCDDUEventData::debug{false};
+std::atomic<uint32_t> CSCDDUEventData::errMask{0xFFFFFFFF};
 #endif
 
-uint32_t CSCDDUEventData::errMask = 0xFFFFFFFF;
 
 
 CSCDDUEventData::CSCDDUEventData(const CSCDDUHeader & header) 
