@@ -143,6 +143,7 @@ ParticleReplacerZtautau::ParticleReplacerZtautau(const edm::ParameterSet& cfg)
   }
 
   rfRotationAngle_ = cfg.getParameter<double>("rfRotationAngle")*TMath::Pi()/180.;
+  rfMirror_ = cfg.getParameter<bool>("rfMirror");
 
   std::string applyMuonRadiationCorrection_string = cfg.getParameter<std::string>("applyMuonRadiationCorrection");
   if ( applyMuonRadiationCorrection_string != "" ) {
@@ -674,7 +675,7 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerZtautau::produce(const std::vecto
       sumMuonP4_embedded += reco::Candidate::LorentzVector((*genParticle)->momentum().px(), (*genParticle)->momentum().py(), (*genParticle)->momentum().pz(), (*genParticle)->momentum().e());
     }
   }
-  if ( (sumMuonP4_embedded.pt() - sumMuonP4_replaced.pt()) > (1.e-3*sumMuonP4_replaced.pt()) ) {
+  if ( fabs(sumMuonP4_embedded.pt() - sumMuonP4_replaced.pt()) > (1.e-3*sumMuonP4_replaced.pt()) ) {
     edm::LogWarning ("<MCEmbeddingValidationAnalyzer::analyze>")
       << "Transverse momentum of embedded tau leptons = " << sumMuonP4_embedded.pt() 
       << " differs from transverse momentum of replaced muons = " << sumMuonP4_replaced.pt() << " !!" << std::endl;
@@ -872,6 +873,30 @@ namespace
     return p4_rotated;
   }
 
+  reco::Particle::LorentzVector mirror(const reco::Particle::LorentzVector& p4, const reco::Particle::LorentzVector& zAxis, const reco::Particle::LorentzVector& pAxis)
+  {
+    typedef ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>, ROOT::Math::DefaultCoordinateSystemTag> RotVector3;
+
+    // Make zAxis and pAxis orthogonal:
+    // (this is not strictly needed)
+    const RotVector3 pAxisOrtho = pAxis.Vect() - pAxis.Vect().Dot(zAxis.Vect().Unit()) * zAxis.Vect().Unit();
+    assert(fabs(pAxisOrtho.Dot(zAxis.Vect())) < 1e-3);
+
+    // Define a cartesian coordinate system such that the X axis is in the projected proton momentum direction,
+    // the Z axis is in the Z boson direction and the Y axis is orthogonal on the two:
+    const RotVector3 x = pAxisOrtho.Unit();
+    const RotVector3 z = zAxis.Vect().Unit();
+    const RotVector3 y = x.Cross(z).Unit();
+
+    // Mirror the vector on the x-z plane
+    const double ycomp1 = p4.Vect().Dot(y);
+    const RotVector3 y1 = p4.Vect() - 2 * ycomp1 * y;
+    assert(fabs(ycomp1 + y1.Dot(y)) < 1e-3);
+
+    const reco::Particle::LorentzVector p4Mirrored(y1.x(), y1.y(), y1.z(), p4.energy());
+    return p4Mirrored;
+  }
+
   void print(const std::string& label, const reco::Particle::LorentzVector& p4, const reco::Particle::LorentzVector* p4_ref = 0)
   {
     std::cout << label << ": En = " << p4.E() << ", Pt = " << p4.pt() << " (Px = " << p4.px() << ", Py = " << p4.py() << ")," 
@@ -917,9 +942,19 @@ void ParticleReplacerZtautau::transformMuMu2LepLep(CLHEP::HepRandomEngine& rando
       double u = randomEngine.flat();
       rfRotationAngle_value = 2.*TMath::Pi()*u;
     }
-    
+
     muon1P4_rf = rotate(muon1P4_rf, zP4_lab, rfRotationAngle_value);
     muon2P4_rf = rotate(muon2P4_rf, zP4_lab, rfRotationAngle_value);
+  }
+
+  if ( rfMirror_ ) {
+    double protonEn = beamEnergy_;
+    double protonPz = sqrt(square(protonEn) - square(protonMass));
+    const reco::Particle::LorentzVector pplus_lab(0., 0., protonPz, protonEn);
+    const reco::Particle::LorentzVector pplus_rf = boost_to_rf(pplus_lab);
+
+    muon1P4_rf = mirror(muon1P4_rf, zP4_lab, pplus_rf);
+    muon2P4_rf = mirror(muon2P4_rf, zP4_lab, pplus_rf); 
   }
 
   double muon1P_rf2 = square(muon1P4_rf.px()) + square(muon1P4_rf.py()) + square(muon1P4_rf.pz());
