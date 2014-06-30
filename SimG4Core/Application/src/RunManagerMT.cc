@@ -59,19 +59,16 @@
 
 RunManagerMT::RunManagerMT(edm::ParameterSet const & p):
       m_managerInitialized(false), 
-      m_runTerminated(false), m_runAborted(false),
-      firstRun(true),
+      m_runTerminated(false),
       m_pUseMagneticField(p.getParameter<bool>("UseMagneticField")),
       m_PhysicsTablesDir(p.getParameter<std::string>("PhysicsTablesDirectory")),
       m_StorePhysicsTables(p.getParameter<bool>("StorePhysicsTables")),
       m_RestorePhysicsTables(p.getParameter<bool>("RestorePhysicsTables")),
       m_pField(p.getParameter<edm::ParameterSet>("MagneticField")),
-      m_pGenerator(p.getParameter<edm::ParameterSet>("Generator")),
       m_pPhysics(p.getParameter<edm::ParameterSet>("Physics")),
       m_pRunAction(p.getParameter<edm::ParameterSet>("RunAction")),      
       m_G4Commands(p.getParameter<std::vector<std::string> >("G4Commands")),
-      m_p(p), m_fieldBuilder(0),
-      m_theLHCTlinkTag(p.getParameter<edm::InputTag>("theLHCTlinkTag"))
+      m_fieldBuilder(nullptr)
 {    
   G4RunManagerKernel *kernel = G4MTRunManagerKernel::GetRunManagerKernel();
   if(!kernel) m_kernel = new G4MTRunManagerKernel();
@@ -84,8 +81,6 @@ RunManagerMT::RunManagerMT(edm::ParameterSet const & p):
   m_WriteFile = p.getUntrackedParameter<std::string>("FileNameGDML","");
   m_FieldFile = p.getUntrackedParameter<std::string>("FileNameField","");
   if("" != m_FieldFile) { m_FieldFile += ".txt"; } 
-
-  m_InTag = m_pGenerator.getParameter<std::string>("HepMCProductLabel") ;
 }
 
 RunManagerMT::~RunManagerMT() 
@@ -155,9 +150,8 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF, co
   //
 
   m_physicsList->ResetStoredInAscii();
-  std::string tableDir = m_PhysicsTablesDir;
   if (m_RestorePhysicsTables) {
-    m_physicsList->SetPhysicsTableRetrieved(tableDir);
+    m_physicsList->SetPhysicsTableRetrieved(m_PhysicsTablesDir);
   }
 
   if (m_kernel->RunInitialization()) { m_managerInitialized = true; }
@@ -168,11 +162,11 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF, co
   if (m_StorePhysicsTables)
     {
       std::ostringstream dir;
-      dir << tableDir << '\0';
-      std::string cmd = std::string("/control/shell mkdir -p ")+tableDir;
+      dir << m_PhysicsTablesDir << '\0';
+      std::string cmd = std::string("/control/shell mkdir -p ")+m_PhysicsTablesDir;
       if (!std::ifstream(dir.str().c_str(), std::ios::in))
         G4UImanager::GetUIpointer()->ApplyCommand(cmd);
-      m_physicsList->StorePhysicsTable(tableDir);
+      m_physicsList->StorePhysicsTable(m_PhysicsTablesDir);
     }
 
   initializeUserActions();
@@ -187,8 +181,6 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF, co
   //
   //  G4cout << "Output of G4ParticleTable DumpTable:" << G4endl;
   //  G4ParticleTable::GetParticleTable()->DumpTable("ALL");
-  
-  firstRun= false;
 }
 
 void RunManagerMT::initializeUserActions() {

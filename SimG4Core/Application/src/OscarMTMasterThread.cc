@@ -28,7 +28,6 @@ OscarMTMasterThread::OscarMTMasterThread(const edm::ParameterSet& iConfig):
   m_stopped(false)
 {
   // Lock the mutex
-  //std::unique_lock<std::mutex> lk(m_notifyMasterMutex);
   std::unique_lock<std::mutex> lk(m_threadMutex);
 
   LogDebug("OscarMTMasterThread") << "Master thread: Creating master thread";

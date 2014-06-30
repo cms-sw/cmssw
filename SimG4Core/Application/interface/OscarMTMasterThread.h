@@ -58,8 +58,6 @@ private:
 
   mutable std::mutex m_protectMutex;
   mutable std::mutex m_threadMutex;
-  //mutable std::mutex m_notifyMasterMutex;
-  //mutable std::mutex m_notifyMainMutex;
   mutable std::condition_variable m_notifyMasterCv;
   mutable std::condition_variable m_notifyMainCv;
 

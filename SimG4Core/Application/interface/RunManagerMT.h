@@ -101,32 +101,21 @@ private:
 
   G4RunManagerKernel * m_kernel;
     
-  Generator * m_generator;
-  std::string m_InTag ;
-    
   std::unique_ptr<PhysicsList> m_physicsList;
   bool m_managerInitialized;
   bool m_runTerminated;
-  bool m_runAborted;
-  bool firstRun;
   const bool m_pUseMagneticField;
   std::unique_ptr<RunAction> m_userRunAction;
   std::unique_ptr<SimRunInterface> m_runInterface;
 
-  //edm::EDGetTokenT<edm::HepMCProduct> m_HepMC;
-
-  std::string m_PhysicsTablesDir;
+  const std::string m_PhysicsTablesDir;
   bool m_StorePhysicsTables;
   bool m_RestorePhysicsTables;
   bool m_check;
-  edm::ParameterSet m_pGeometry;
   edm::ParameterSet m_pField;
-  edm::ParameterSet m_pGenerator;   
-  edm::ParameterSet m_pVertexGenerator;
   edm::ParameterSet m_pPhysics; 
   edm::ParameterSet m_pRunAction;      
   std::vector<std::string> m_G4Commands;
-  edm::ParameterSet m_p;
   //ExceptionHandler* m_CustomExceptionHandler ;
 
   std::unique_ptr<DDDWorld> m_world;
@@ -135,8 +124,6 @@ private:
     
   sim::FieldBuilder             *m_fieldBuilder;
     
-  edm::InputTag m_theLHCTlinkTag;
-
   std::string m_FieldFile;
   std::string m_WriteFile;
 };
