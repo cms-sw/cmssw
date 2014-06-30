@@ -47,9 +47,6 @@ BaseTrackerRecHit::getKfComponents1D( KfComponentsHolder & holder ) const
   
   ProjectMatrix<double,5,1>  & pf = holder.projFunc<1>();
   pf.index[0] = 3;
-  holder.doUseProjFunc();
-
-
 
   holder.measuredParams<1>() = AlgebraicVector1( holder.tsosLocalParameters().At(3) );
   holder.measuredErrors<1>() = holder.tsosLocalErrors().Sub<AlgebraicSymMatrix11>( 3, 3 );
@@ -71,7 +68,6 @@ BaseTrackerRecHit::getKfComponents2D( KfComponentsHolder & holder ) const
    ProjectMatrix<double,5,2>  & pf = holder.projFunc<2>();
    pf.index[0] = 3;
    pf.index[1] = 4;
-   holder.doUseProjFunc();
 
    holder.measuredParams<2>() = AlgebraicVector2( & holder.tsosLocalParameters().At(3), 2 );
    holder.measuredErrors<2>() = holder.tsosLocalErrors().Sub<AlgebraicSymMatrix22>( 3, 3 );

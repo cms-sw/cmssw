@@ -18,12 +18,11 @@ namespace {
     using ROOT::Math::SMatrixNoInit;
     
     VecD r, rMeas; SMatDD R(SMatrixNoInit{}), RMeas(SMatrixNoInit{});
-    MatD5 dummyProjMatrix=SMatrixNoInit{};
     ProjectMatrix<double,5,D> dummyProjFunc;
     auto && v = tsos.localParameters().vector();
     auto && m = tsos.localError().matrix();
     KfComponentsHolder holder;
-    holder.template setup<D>(&r, &R, &dummyProjMatrix, &dummyProjFunc, &rMeas, &RMeas, v, m);
+    holder.template setup<D>(&r, &R, &dummyProjFunc, &rMeas, &RMeas, v, m);
     aRecHit.getKfComponents(holder);
     
     R += RMeas;

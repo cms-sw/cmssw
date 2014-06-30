@@ -23,16 +23,15 @@ TrajectoryStateOnSurface lupdate(const TrajectoryStateOnSurface& tsos,
   auto && x = tsos.localParameters().vector();
   auto && C = tsos.localError().matrix();
 
-  // projection matrix (should be zeroed)
+  // projection matrix (assume element of "H" to be just 0 or 1)
   ProjectMatrix<double,5,D>  pf;
-  MatD5 H;
  
   // Measurement matrix
   VecD r, rMeas; 
   SMatDD V(SMatrixNoInit{}), VMeas(SMatrixNoInit{});
 
   KfComponentsHolder holder; 
-  holder.template setup<D>(&r, &V, &H, &pf, &rMeas, &VMeas, x, C);
+  holder.template setup<D>(&r, &V, &pf, &rMeas, &VMeas, x, C);
   aRecHit.getKfComponents(holder);
   
   r -= rMeas;
@@ -42,16 +41,10 @@ TrajectoryStateOnSurface lupdate(const TrajectoryStateOnSurface& tsos,
   bool ok = invertPosDefMatrix(R);
 
   // Compute Kalman gain matrix
-  Mat5D K(SMatrixNoInit{});
   AlgebraicMatrix55 M = AlgebraicMatrixID();
-  if likely(holder.useProjFunc() ) {
-    K = C*pf.project(R);
-    pf.projectAndSubtractFrom(M,K);
-  }
-  else {
-    K = (C * ROOT::Math::Transpose(H)) * R;
-    M -=  K * H;
-  }
+  Mat5D K = C*pf.project(R);
+  pf.projectAndSubtractFrom(M,K);
+ 
 
   // Compute local filtered state vector
   AlgebraicVector5 fsv = x + K * r;
