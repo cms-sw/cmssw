@@ -12,6 +12,9 @@
 #include "EventFilter/CSCRawToDigi/interface/CSCVTMBHeaderFormat.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include <boost/shared_ptr.hpp>
+#ifndef LOCAL_UNPACK
+#include <atomic>
+#endif
 class CSCDMBHeader;
 struct CSCTMBHeader2006;
 struct CSCTMBHeader2007;
@@ -143,7 +146,11 @@ private:
 
   //void swapCLCTs(CSCCLCTDigi& digi1, CSCCLCTDigi& digi2);
 
+#ifdef LOCAL_UNPACK
   static bool debug;
+#else
+  static std::atomic<bool> debug;
+#endif
 
   boost::shared_ptr<CSCVTMBHeaderFormat> theHeaderFormat;
   int theFirmwareVersion;
