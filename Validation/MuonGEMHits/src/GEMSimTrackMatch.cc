@@ -84,6 +84,8 @@ void GEMSimTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   iEvent.getByLabel(simInputLabel_, sim_tracks);
   iEvent.getByLabel(simInputLabel_, sim_vertices);
+  
+  if ( !sim_tracks.isValid() || !sim_vertices.isValid()) return;
 
   const edm::SimVertexContainer & sim_vert = *sim_vertices.product();
   const edm::SimTrackContainer & sim_trks = *sim_tracks.product();

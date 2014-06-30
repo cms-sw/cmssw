@@ -78,9 +78,7 @@ void GEMStripDigiValidation::savePhiPlot(){
 		for( auto& sCh : ring->superChambers() ) 
 		for ( auto& ch : sCh->chambers() ) 
 		for ( auto& roll : ch->etaPartitions()){
-			//const BoundPlane& bSurface(roll->surface());
 			const StripTopology* topology(&(roll->specificTopology()));
-			// base_bottom, base_top, height, strips, pads (all half length)
 			auto& parameters(roll->specs()->parameters());
 			float nStrips(parameters[3]);
 
@@ -89,26 +87,14 @@ void GEMStripDigiValidation::savePhiPlot(){
 	    ss<<roId;
 			std::string name_prefix = "strip_phi_dist_at_"+ss.str();
 			double phi_0 = 0.0;
-			//double phi_1 = 0.0;
-
-			//double phi_max_1 = 0.0;
 			double phi_max = 0.0;
 			for( unsigned int i=0; i<=nStrips ; i++) {
 				LocalPoint lEdgeN(topology->localPosition((float)i));
 				double cstripN( roll->toGlobal( lEdgeN).phi().degrees());
 				theStrip_ro_phi[name_prefix.c_str()]->Fill(i,cstripN);
 				if ( i==0 ) phi_0 = cstripN;
-				//if ( i==1 ) phi_1 = cstripN;
 				if ( i==nStrips ) phi_max = cstripN;
-				//if ( i==nStrips-1 ) phi_max_1 = cstripN;
 			}
-			/*
-			std::cout<<std::fixed;
-			std::cout.precision(4);	
-			std::cout<<"GEMDetId :"<<roId<< "strip #0 : "<<phi_0 <<"strip #max_1 : "<<phi_max_1<<std::endl;
-			std::cout<<"GEMDetId :"<<roId<< "strip #1 : "<<phi_1 <<"strip #max : "<<phi_max<<std::endl;
-      */
-
 			ss.str("");
  	    ss<<"deltaPhi_r"<<region->region()<<"_st"<<station->station();
 			theStrip_st_dphi[ss.str()]->Fill( TMath::Abs(phi_max- phi_0));
