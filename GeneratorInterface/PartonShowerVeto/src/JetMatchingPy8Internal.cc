@@ -1359,7 +1359,7 @@ int JetMatchingMadgraph::matchPartonsToJetsLight() {
   //SetDJR(workEventJet);
   //SetnME();
   // No veto
-  std::cout<<"No VETO"<<std::endl;
+  //std::cout<<"No VETO"<<std::endl;
   return NONE;
 }
 

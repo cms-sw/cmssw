@@ -232,7 +232,7 @@ protected:
 	vector<int> result;
       	nME.push_back(origTypeIdx[0].size());
 	nME.push_back(typeIdx[0].size());
-	std::cout<<"Number of partons "<<origTypeIdx[0].size()<<" "<<typeIdx[0].size()<<std::endl;
+	//std::cout<<"Number of partons "<<origTypeIdx[0].size()<<" "<<typeIdx[0].size()<<std::endl;
   } 
 
   // Variables.
