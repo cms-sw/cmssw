@@ -14,7 +14,8 @@ using namespace edm;
 using namespace std;
 
 GenEventInfoProduct::GenEventInfoProduct() :
-	signalProcessID_(0), qScale_(-1.), alphaQCD_(-1.), alphaQED_(-1.)
+	signalProcessID_(0), qScale_(-1.), alphaQCD_(-1.), alphaQED_(-1.),
+	nMEPartons_(-1), nMEPartonsFiltered_(-1)
 {
 }
 
@@ -23,7 +24,8 @@ GenEventInfoProduct::GenEventInfoProduct(const HepMC::GenEvent *evt) :
 	signalProcessID_(evt->signal_process_id()),
 	qScale_(evt->event_scale()),
 	alphaQCD_(evt->alphaQCD()),
-	alphaQED_(evt->alphaQED())
+	alphaQED_(evt->alphaQED()),
+	nMEPartons_(-1), nMEPartonsFiltered_(-1)
 {
 	const HepMC::PdfInfo *hepPDF = evt->pdf_info();    
 	if (hepPDF) {
@@ -46,7 +48,7 @@ GenEventInfoProduct::GenEventInfoProduct(GenEventInfoProduct const &other) :
 	alphaQED_(other.alphaQED_),
 	binningValues_(other.binningValues_),
 	DJRValues_(other.DJRValues_),
-	nMEPartons_(other.nMEPartons_)
+	nMEPartons_(other.nMEPartons_), nMEPartonsFiltered_(other.nMEPartons_)
 {
 	setPDF(other.pdf());
 }
@@ -65,6 +67,7 @@ GenEventInfoProduct &GenEventInfoProduct::operator = (GenEventInfoProduct const 
 	binningValues_ = other.binningValues_;
 	DJRValues_ = other.DJRValues_;
 	nMEPartons_=other.nMEPartons_;
+        nMEPartonsFiltered_=other.nMEPartonsFiltered_;
 
 	setPDF(other.pdf());
 

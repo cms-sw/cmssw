@@ -107,12 +107,16 @@
 
 	<!-- GenEventInfoProduct -->
 
-	<class name="GenEventInfoProduct" ClassVersion="13">
-	 <version ClassVersion="13" checksum="1180070241"/>
-	<version ClassVersion="12" checksum="3650737794"/>
-  <version ClassVersion="11" checksum="1180070241"/>
+ <class name="GenEventInfoProduct" ClassVersion="11">
+  <version ClassVersion="11" checksum="4154339631"/>
   <version ClassVersion="10" checksum="2479857328"/>
  </class>
+ <ioread sourceClass = "GenEventInfoProduct" version="[-10]" targetClass="GenEventInfoProduct" source = "" target="nMEPartons_">
+    <![CDATA[nMEPartons_ = -1;]]>
+ </ioread> 
+ <ioread sourceClass = "GenEventInfoProduct" version="[-10]" targetClass="GenEventInfoProduct" source = "" target="nMEPartonsFiltered_">
+    <![CDATA[nMEPartonsFiltered_ = -1;]]>
+ </ioread> 
 	<class name="edm::Wrapper&lt;GenEventInfoProduct&gt;"/>
 
 	<!-- LHE products -->

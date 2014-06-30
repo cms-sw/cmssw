@@ -120,8 +120,9 @@ class Pythia8Hadronizer : public BaseHadronizer, public Py8InterfaceBase {
     
     std::string slhafile_;
 
-    vector<double> DJR;
-    vector<int> nME;
+    vector<float> DJR;
+    int nME;
+    int nMEFiltered;
 };
 
 const std::vector<std::string> Pythia8Hadronizer::p8SharedResources = { edm::SharedResourceNames::kPythia8 };
@@ -133,7 +134,7 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
   fInitialState(PP),
   fReweightUserHook(0),fReweightRapUserHook(0),fReweightPtHatRapUserHook(0),
   fJetMatchingHook(0),fJetMatchingPy8InternalHook(0), fSetNumberOfPartonsDynamicallyHook(0),
-  fEmissionVetoHook(0),fEmissionVetoHook1(0)
+  fEmissionVetoHook(0),fEmissionVetoHook1(0), nME(-1), nMEFiltered(-1)
 {
 
   // J.Y.: the following 3 parameters are hacked "for a reason"
@@ -451,7 +452,8 @@ bool Pythia8Hadronizer::generatePartonsAndHadronize()
 bool Pythia8Hadronizer::hadronize()
 {
   DJR.resize(0);
-  nME.resize(0);	
+  nME = -1;
+  nMEFiltered = -1;
   if(LHEInputFileName == string()) lhaUP->loadEvent(lheEvent());
 
   if ( fJetMatchingHook ) 
@@ -470,8 +472,15 @@ bool Pythia8Hadronizer::hadronize()
   }
   
   if (fJetMatchingPy8InternalHook) {
-    DJR=fJetMatchingPy8InternalHook->GetDJR();
-    nME=fJetMatchingPy8InternalHook->nMEPartons();
+    const std::vector<double> djrmatch = fJetMatchingPy8InternalHook->GetDJR();
+    //cap size of djr vector to save storage space (keep only up to first 6 elements)
+    unsigned int ndjr = std::min(djrmatch.size(), std::vector<double>::size_type(6));
+    for (unsigned int idjr=0; idjr<ndjr; ++idjr) {
+      DJR.push_back(djrmatch[idjr]);
+    }
+    
+    nME=fJetMatchingPy8InternalHook->nMEPartons()[0];
+    nMEFiltered=fJetMatchingPy8InternalHook->nMEPartons()[1];
   }
   
   // update LHE matching statistics
@@ -572,8 +581,10 @@ void Pythia8Hadronizer::finalizeEvent()
   if (!lhe) {
     eventInfo()->setBinningValues(std::vector<double>(1, fMasterGen->info.pTHat()));
   }
+  
   eventInfo()->setDJR(DJR);
   eventInfo()->setNMEPartons(nME);
+  eventInfo()->setNMEPartonsFiltered(nMEFiltered);
 
   //******** Verbosity ********
 
