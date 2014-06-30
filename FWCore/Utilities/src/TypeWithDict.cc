@@ -652,10 +652,7 @@ namespace edm {
   bool
   TypeWithDict::hasBase(std::string const& basename) const {
     if (class_ == nullptr) {
-      throw Exception(errors::LogicError)
-        << "Function TypeWithDict::hasBase(std::string const&), type\n"
-        << name()
-        << "\nis not a class\n";
+      return false;
     }
     TClass* cl = class_->GetBaseClass(basename.c_str());
     if (cl != nullptr) {
@@ -667,16 +664,10 @@ namespace edm {
   bool
   TypeWithDict::hasBase(TypeWithDict const& basety) const {
     if (class_ == nullptr) {
-      throw Exception(errors::LogicError)
-        << "Function TypeWithDict::hasBase(TypeWithDict const&), type\n"
-        << name()
-        << "\nis not a class\n";
+      return false;
     }
     if (basety.class_ == nullptr) {
-      throw Exception(errors::LogicError)
-        << "Function TypeWithDict::hasBase(TypeWithDict const&), base type\n"
-        << name()
-        << "\nis not a class\n";
+      return false;
     }
     TClass* cl = class_->GetBaseClass(basety.name().c_str());
     if (cl != nullptr) {
