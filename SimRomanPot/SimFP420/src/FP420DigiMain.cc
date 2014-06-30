@@ -89,8 +89,6 @@ FP420DigiMain::FP420DigiMain(const edm::ParameterSet& conf):conf_(conf){
   
   if(verbosity>0) std::cout << "FP420DigiMain moduleThickness=" << moduleThickness << std::endl;
   
-  theFP420NumberingScheme = new FP420NumberingScheme();
-  
   float noiseRMS = ENC*moduleThickness/Thick300;
   
 
@@ -159,11 +157,6 @@ FP420DigiMain::~FP420DigiMain(){
 vector <HDigiFP420> FP420DigiMain::run(const std::vector<PSimHit> &input,
 				       const G4ThreeVector& bfield, unsigned int iu )  {
 
-  /*  
-  int det, zside, sector, zmodule;
-  //  theFP420NumberingScheme->FP420NumberingScheme::unpackMYIndex(iu, rn0, pn0, sn0, det, zside, sector, zmodule);
-  theFP420NumberingScheme->unpackMYIndex(iu, rn0, pn0, sn0, det, zside, sector, zmodule);
-*/  
   thePileUpFP420->reset();
   //  unsigned int detID = det->globalId().rawId();
   //  unsigned int detID = 1;
