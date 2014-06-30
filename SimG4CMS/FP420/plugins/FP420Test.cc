@@ -77,7 +77,6 @@ FP420Test::FP420Test(const edm::ParameterSet &p){
   }
   // Initialization:
 
-  theFP420NumberingScheme = new FP420NumberingScheme();
   pn0 = 6;
   sn0 = 3;
   rn00 = 7;
@@ -134,7 +133,6 @@ FP420Test::FP420Test(const edm::ParameterSet &p){
 
 FP420Test::~FP420Test() {
   //  delete UserNtuples;
-  delete theFP420NumberingScheme;
 
   TFile fp420OutputFile("newntfp420.root","RECREATE");
   std::cout << "FP420 output root file has been created";
@@ -1188,7 +1186,7 @@ void FP420Test::update(const EndOfEvent * evt) {
     int det, zside, sector, zmodule;
 //    CaloNumberingPacker::unpackCastorIndex(unitID, det, zside, sector, zmodule);
     FP420NumberingScheme::unpackFP420Index(unitID, det, zside, sector, zmodule);
-    int justlayer = theFP420NumberingScheme->FP420NumberingScheme::unpackLayerIndex(rn00, zside);// 1,2
+    int justlayer = FP420NumberingScheme::unpackLayerIndex(rn00, zside);// 1,2
     if(justlayer<1||justlayer>2) {
       std::cout << "FP420Test:WRONG  justlayer= " << justlayer << std::endl; 
     }
@@ -1379,20 +1377,20 @@ void FP420Test::update(const EndOfEvent * evt) {
    for (int sector=1; sector < sn0; sector++) {
      for (int zmodule=1; zmodule<pn0; zmodule++) {
        for (int zsideinorder=1; zsideinorder<allplacesforsensors; zsideinorder++) {
-	 int zside = theFP420NumberingScheme->FP420NumberingScheme::realzside(rn00, zsideinorder);//1,3,5,2,4,6
+	 int zside = FP420NumberingScheme::realzside(rn00, zsideinorder);//1,3,5,2,4,6
 	 if (verbosity > 2) {
 	   std::cout << "FP420Test:  sector= " << sector << " zmodule= " << zmodule << " zsideinorder= " << zsideinorder << " zside= " << zside << std::endl; 
 	 }	 
 	 if(zside != 0) {
-	   int justlayer = theFP420NumberingScheme->FP420NumberingScheme::unpackLayerIndex(rn00, zside);// 1,2
+	   int justlayer = FP420NumberingScheme::unpackLayerIndex(rn00, zside);// 1,2
 	   if(justlayer<1||justlayer>2) {
 	     std::cout << "FP420Test:WRONG  justlayer= " << justlayer << std::endl; 
 	   }
-	   int copyinlayer = theFP420NumberingScheme->FP420NumberingScheme::unpackCopyIndex(rn00, zside);// 1,2,3
+	   int copyinlayer = FP420NumberingScheme::unpackCopyIndex(rn00, zside);// 1,2,3
 	   if(copyinlayer<1||copyinlayer>3) {
 	     std::cout << "FP420Test:WRONG  copyinlayer= " << copyinlayer << std::endl; 
 	   }
-	   int orientation = theFP420NumberingScheme->FP420NumberingScheme::unpackOrientation(rn00, zside);// Front: = 1; Back: = 2
+	   int orientation = FP420NumberingScheme::unpackOrientation(rn00, zside);// Front: = 1; Back: = 2
 	   if(orientation<1||orientation>2) {
 	     std::cout << "FP420Test:WRONG  orientation= " << orientation << std::endl; 
 	   }
@@ -1400,7 +1398,7 @@ void FP420Test::update(const EndOfEvent * evt) {
 	   // iu is a continues numbering of planes(!)  over two arm FP420 set up
 	   int detfixed=1;// use this treatment for each set up arm, hence no sense to do it defferently for +FP420 and -FP420;
 	   //                                                                    and  ...[ii] massives have prepared in such a way
-	   unsigned int ii=theFP420NumberingScheme->FP420NumberingScheme::packMYIndex(rn00,pn0,sn0,detfixed,justlayer,sector,zmodule)-1;
+	   unsigned int ii=FP420NumberingScheme::packMYIndex(rn00,pn0,sn0,detfixed,justlayer,sector,zmodule)-1;
 	   // ii = 0-19   --> 20 items
 	   if (verbosity > 2) {
 	     std::cout << "FP420Test:  justlayer = " << justlayer << " copyinlayer = " << copyinlayer << " orientation = " << orientation << " ii= " << ii << std::endl; 
