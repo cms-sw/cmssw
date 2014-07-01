@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from DQM.EcalCommon.CalibCommonParams_cfi import ecalCommonParams
+from DQM.EcalCommon.CommonParams_cfi import ecalCommonParams
 
 from DQM.EcalMonitorClient.IntegrityClient_cfi import ecalIntegrityClient
 from DQM.EcalMonitorClient.RawDataClient_cfi import ecalRawDataClient
