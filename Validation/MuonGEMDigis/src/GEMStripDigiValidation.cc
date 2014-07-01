@@ -31,9 +31,9 @@ void GEMStripDigiValidation::bookHisto(const GEMGeometry* geom) {
 				std::string label_prefix = "region"+regionLabel[region_num]+" station "+stationLabel[station_num] +" layer "+layerLabel[layer_num];
         theStrip_phistrip[region_num][station_num][layer_num] = dbe_->book2D( ("strip_dg_phistrip"+name_prefix).c_str(), ("Digi occupancy: "+label_prefix+"; phi [rad];strip number").c_str(), 280, -TMath::Pi(), TMath::Pi(), nstrips/2,0,nstrips);
         theStrip[region_num][station_num][layer_num] = dbe_->book1D( ("strip_dg"+name_prefix).c_str(), ("Digi occupancy per stip number: "+label_prefix+";strip number; entries").c_str(), nstrips,0.5,nstrips+0.5);
-        theStrip_xy[region_num][station_num][layer_num] = dbe_->book2D( ("strip_dg_xy"+name_prefix).c_str(), ("Digi occupancy: "+label_prefix+";globalX [cm]; globalY[cm]").c_str(), 360, -360,360,360,-360,360);
         theStrip_bx[region_num][station_num][layer_num] = dbe_->book1D( ("strip_dg_bx"+name_prefix).c_str(), ("Bunch crossing: "+label_prefix+"; bunch crossing ; entries").c_str(), 11,-5.5,5.5);
 				theStrip_zr[region_num][station_num][layer_num] = BookHistZR("strip_dg","Strip Digi",region_num,station_num,layer_num);
+				theStrip_xy[region_num][station_num][layer_num] = BookHistXY("strip_dg","Strip Digi",region_num,station_num,layer_num);
       }
     }
   }
@@ -44,7 +44,7 @@ void GEMStripDigiValidation::bookHisto(const GEMGeometry* geom) {
 		std::stringstream ss1;
  	  ss1<<"deltaPhi_r"<<region->region()<<"_st"<<station->station();
 		std::string st_title = std::string( ss1.str()+";delta Phi(#Delta#phi);Entries");
-		std::cout<<ss1.str()<<std::endl;
+		//std::cout<<ss1.str()<<std::endl;
 		MonitorElement* st_temp;
 		if ( station->station() == 1 ) st_temp = dbe_->book1D(ss1.str(),st_title,2000.,8.5,12.5);
 		if ( station->station() == 2 || station->station() == 3 ) st_temp = dbe_->book1D(ss1.str(),st_title,2000.,18.5,22.5);

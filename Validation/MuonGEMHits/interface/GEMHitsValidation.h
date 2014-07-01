@@ -19,6 +19,7 @@ public:
  private:
 
   MonitorElement* gem_sh_xy[2][3][2];
+  std::map< std::string, MonitorElement* > gem_sh_xy_st_ch;
   MonitorElement* gem_sh_zr[2][3][2];
 
   MonitorElement* gem_sh_tof[2][3][2];

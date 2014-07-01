@@ -7,12 +7,14 @@
 
 
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 #include "SimMuon/MCTruth/interface/PSimHitMap.h"
 #include "Geometry/GEMGeometry/interface/GEMGeometry.h"
 
-#include "Validation/MuonGEMHits/interface/GEMHitsValidation.h"
-#include "Validation/MuonGEMHits/interface/GEMSimTrackMatch.h"
+
 #include <TEfficiency.h>
+#include <TGraphAsymmErrors.h>
+#include <TProfile.h>
 class AbstractHarvester : public edm::EDAnalyzer
 {
 public:
@@ -21,17 +23,6 @@ public:
   explicit AbstractHarvester(const edm::ParameterSet&){};
   /// destructor
   virtual ~AbstractHarvester(){} ;
-/*
-  virtual void beginRun(edm::Run const&, edm::EventSetup const&)=0;
-
-  virtual void beginJob()=0 ;
-
-  virtual void analyze(const edm::Event&, const edm::EventSetup&)=0;
-
-  virtual void endJob()=0 ;
-
-  virtual void endRun(const edm::Run&, const edm::EventSetup&)=0 ;
-*/
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   virtual TProfile* ComputeEff( TH1F* num, TH1F* denum);
   virtual void ProcessBooking( std::string label_suffix, TH1F* track_hist, TH1F* sh_hist=nullptr ); 

@@ -11,15 +11,16 @@ GEMBaseValidation::GEMBaseValidation(DQMStore* dbe,
   dbe_ = dbe;
   theInputTag = inputTag;
   plotRange_ = PlotRange;
-	nBinZR = plotRange_.getUntrackedParameter< std::vector<double> >("nBinGlobalZR") ;
-	RangeZR = plotRange_.getUntrackedParameter< std::vector<double> >("RangeGlobalZR");
+	nBinZR_ = plotRange_.getUntrackedParameter< std::vector<double> >("nBinGlobalZR") ;
+	RangeZR_ = plotRange_.getUntrackedParameter< std::vector<double> >("RangeGlobalZR");
+	nBinXY_ = plotRange_.getUntrackedParameter< double >("nBinGlobalXY",360) ;
 
   regionLabel.push_back("-1");
   regionLabel.push_back("1" );
 
   stationLabel.push_back("1");
-  stationLabel.push_back("2_short");
-  stationLabel.push_back("2_long");
+  stationLabel.push_back("2s");
+  stationLabel.push_back("2l");
 
   layerLabel.push_back("1");
   layerLabel.push_back("2");
@@ -38,21 +39,28 @@ MonitorElement* GEMBaseValidation::BookHistZR( const char* name, const char* lab
 	string hist_name  = name+string("_zr_r") + regionLabel[region_num]+"_st"+stationLabel[station_num]+"_l"+layerLabel[layer_num];
   string hist_label = label+string(" occupancy : region")+regionLabel[region_num]+" station "+stationLabel[station_num]+" layer "+layerLabel[layer_num]+" "+" ; globalZ [cm]; globalR[cm]";
 
-  int xbin = (int)nBinZR[station_num]; 
-  int ybin = (int)nBinZR[ nBinZR.size()/2+station_num];
+  int xbin = (int)nBinZR_[station_num]; 
+  int ybin = (int)nBinZR_[ nBinZR_.size()/2+station_num];
   double xmin = 0;
 	double xmax = 0; 
 	double ymin = 0;
 	double ymax = 0;
-	ymin = RangeZR[ RangeZR.size()/2 + station_num*2 + 0]; 
-	ymax = RangeZR[ RangeZR.size()/2 + station_num*2 + 1]; 
+	ymin = RangeZR_[ RangeZR_.size()/2 + station_num*2 + 0]; 
+	ymax = RangeZR_[ RangeZR_.size()/2 + station_num*2 + 1]; 
 	if ( region_num ==0 ) {
-		xmin = -RangeZR[ station_num*2 + 1];
-		xmax = -RangeZR[ station_num*2 + 0];
+		xmin = -RangeZR_[ station_num*2 + 1];
+		xmax = -RangeZR_[ station_num*2 + 0];
   }
   else {
-		xmin = RangeZR[ station_num*2 + 0];
-		xmax = RangeZR[ station_num*2 + 1];
+		xmin = RangeZR_[ station_num*2 + 0];
+		xmax = RangeZR_[ station_num*2 + 1];
   }
   return dbe_->book2D( hist_name, hist_label, xbin, xmin, xmax, ybin,ymin, ymax);
+}
+
+MonitorElement* GEMBaseValidation::BookHistXY( const char* name, const char* label, unsigned int region_num, unsigned int station_num, unsigned int layer_num) {
+
+	string hist_name  = name+string("_xy_r") + regionLabel[region_num]+"_st"+stationLabel[station_num]+"_l"+layerLabel[layer_num];
+  string hist_label = label+string(" occupancy : region")+regionLabel[region_num]+" station "+stationLabel[station_num]+" layer "+layerLabel[layer_num]+" "+" ; globalX [cm]; globalY[cm]";
+  return dbe_->book2D( hist_name, hist_label, nBinXY_, -360,360,nBinXY_,-360,360); 
 }

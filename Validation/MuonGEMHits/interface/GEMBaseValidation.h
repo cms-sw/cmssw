@@ -21,6 +21,7 @@ public:
   virtual void bookHisto(const GEMGeometry* geom) = 0 ;
   virtual void analyze(const edm::Event& e, const edm::EventSetup&) = 0 ;
   MonitorElement* BookHistZR( const char* name, const char* label, unsigned int region_num, unsigned int station_num, unsigned int layer_num =0 ); 
+  MonitorElement* BookHistXY( const char* name, const char* label, unsigned int region_num, unsigned int station_num, unsigned int layer_num =0 ); 
 protected:
 
   std::vector< std::string > regionLabel;
@@ -31,8 +32,9 @@ protected:
   edm::InputTag theInputTag;
   const GEMGeometry* theGEMGeometry;
   edm::ParameterSet plotRange_;
-	std::vector<double> nBinZR;
-  std::vector<double> RangeZR;
+	std::vector<double> nBinZR_;
+  std::vector<double> RangeZR_;
+  double nBinXY_;
 
 };
 

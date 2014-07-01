@@ -9,6 +9,7 @@ gemDigiValidation = cms.EDAnalyzer('MuonGEMDigis',
 	PlotBinInfo = cms.PSet(
 			nBinGlobalZR = cms.untracked.vdouble(200,200,200,150,180,250), 
 			RangeGlobalZR = cms.untracked.vdouble(564,572,786,794,794,802,110,260,170,350,100,350), 
+			nBinGlobalXY = cms.untracked.double(360), 
   ),
 	simTrackMatching = cms.PSet(
             verboseSimHit = cms.untracked.int32(0),
