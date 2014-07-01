@@ -5,13 +5,19 @@
 #include "RecoBTag/ImpactParameter/interface/JetProbabilityComputer.h"
 #include "RecoBTag/ImpactParameter/interface/JetBProbabilityComputer.h"
 //#include "RecoBTag/TrackProbability/interface/JetMassProbabilityComputer.h"
-#include "RecoBTag/ImpactParameter/plugins/TrackIPProducer.h"
+//#include "RecoBTag/ImpactParameter/plugins/TrackIPProducer.h"
+#include "RecoBTag/ImpactParameter/plugins/IPProducer.h"
 #include "RecoBTag/ImpactParameter/interface/NegativeTrackCountingComputer.h"
 #include "RecoBTag/ImpactParameter/interface/TrackCountingComputer.h"
 #include "RecoBTag/ImpactParameter/interface/PromptTrackCountingComputer.h"
 
 
+//DEFINE_FWK_MODULE(TrackIPProducer);
+
+typedef IPProducer<reco::TrackRefVector,reco::JTATagInfo> TrackIPProducer;
 DEFINE_FWK_MODULE(TrackIPProducer);
+//typedef IPProducer<std::vector<reco::CandidatePtr>,reco::BaseTagInfo> TrackIPProducer3;
+//DEFINE_FWK_MODULE(TrackIPProducer3);
 
 typedef JetTagComputerESProducer<TrackCountingComputer>       TrackCountingESProducer;
 DEFINE_FWK_EVENTSETUP_MODULE(TrackCountingESProducer);

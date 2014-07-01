@@ -1,5 +1,5 @@
-#ifndef TrackingTools_TransientTrack_TrackingTransientTrack_h
-#define TrackingTools_TransientTrack_TrackingTransientTrack_h
+#ifndef TrackingTools_TransientTrack_CandTransientTrack_h
+#define TrackingTools_TransientTrack_CandTransientTrack_h
 
 #include <atomic>
 
