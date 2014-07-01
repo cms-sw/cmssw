@@ -11,5 +11,6 @@
 <use name="pythia8"/>
 <flags EDM_PLUGIN="1"/>
 <export>
-	<lib name="GeneratorInterfacePythia8Interface"/>
+       <lib name="GeneratorInterfacePythia8Interface"/>
 </export>
+
