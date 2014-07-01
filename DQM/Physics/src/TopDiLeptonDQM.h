@@ -33,9 +33,6 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-using namespace std;
-using namespace edm;
-
 class TH1F;
 class TH2F;
 class TopDiLeptonDQM : public edm::EDAnalyzer {
@@ -62,7 +59,7 @@ class TopDiLeptonDQM : public edm::EDAnalyzer {
 
     std::string moduleName_;
     std::string outputFile_;
-    edm::EDGetTokenT<TriggerResults> triggerResults_;
+    edm::InputTag triggerResults_;
     std::vector<std::string> hltPaths_;
     std::vector<std::string> hltPaths_sig_;
     std::vector<std::string> hltPaths_trig_;
@@ -77,17 +74,17 @@ class TopDiLeptonDQM : public edm::EDAnalyzer {
     int N_muel;
     int N_elel;
 
-    edm::EDGetTokenT<reco::VertexCollection> vertex_;
+    edm::InputTag vertex_;
     double vertex_X_cut_;
     double vertex_Y_cut_;
     double vertex_Z_cut_;
 
-    edm::EDGetTokenT<reco::MuonCollection> muons_;
+    edm::InputTag muons_;
     double muon_pT_cut_;
     double muon_eta_cut_;
     double muon_iso_cut_;
 
-    edm::EDGetTokenT<reco::GsfElectronCollection> elecs_;
+    edm::InputTag elecs_;
     double elec_pT_cut_;
     double elec_eta_cut_;
     double elec_iso_cut_;
