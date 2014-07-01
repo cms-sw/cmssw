@@ -7,7 +7,7 @@ def customise_extendedTrackerBarrel( process ) :
         for importer in process.particleFlowBlock.elementImporters :
             if importer.source.value()=="particleFlowClusterHFEM" : importer.importerName = cms.string("ClusterImporterForForwardTracker")
             if importer.source.value()=="particleFlowClusterHFHAD" : importer.importerName = cms.string("ClusterImporterForForwardTracker")
-
+    return process
 
 def customise_use3DHCalClusters( process ) :
     if hasattr(process,'reconstruction'):
@@ -25,4 +25,5 @@ def customise_use3DHCalClusters( process ) :
         # Now that I've removed the old entries, I can add the new ones
         process.particleFlowBlock.elementImporters.append( cms.PSet( importerName = cms.string("GenericClusterImporter"), source = cms.InputTag("particleFlowClusterHCALSemi3D") ) )
         process.particleFlowBlock.elementImporters.append( cms.PSet( importerName = cms.string("GenericClusterImporter"), source = cms.InputTag("particleFlowClusterHF") ) )
-            
+    return process
+
