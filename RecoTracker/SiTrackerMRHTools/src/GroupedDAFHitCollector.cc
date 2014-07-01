@@ -13,8 +13,6 @@
 #include <vector>
 #include <map>
 
-#define _debug_GroupedDAFHitCollector_ 
-
 using namespace std;
 
 vector<TrajectoryMeasurement> GroupedDAFHitCollector::recHits(const Trajectory& traj, 
@@ -194,7 +192,7 @@ void GroupedDAFHitCollector::buildMultiRecHits(const vector<TrajectoryMeasuremen
     }
 
     LogTrace("MultiRecHitCollector") << "The best TSOS in this group is " << state << " it lays on surface located at " << state.surface().position();
-#ifdef _debug_GroupedDAFHitCollector_	
+
     LogTrace("MultiRecHitCollector") << "For the MRH on this group the following hits will be used"; 
     for (vector<const TrackingRecHit*>::iterator iter = hits.begin(); iter != hits.end(); iter++){  
       string validity = "valid";
@@ -206,8 +204,7 @@ void GroupedDAFHitCollector::buildMultiRecHits(const vector<TrajectoryMeasuremen
 				       << " surface position " << getMeasurementTracker()->geomTracker()->idToDet((*iter)->geographicalId())->position()  
 				       << " hit local position " << (*iter)->localPosition();
     }
-#endif
-    //ERICA: Why I pass all the hits and only the TSOS of igroup->measurements().front().predictedState() 
+
     result.push_back(TrajectoryMeasurement(state,theUpdator->buildMultiRecHit(hits, state)));
   }
 	//can this happen? it means that the measgroup was not empty but no valid measurement was found inside

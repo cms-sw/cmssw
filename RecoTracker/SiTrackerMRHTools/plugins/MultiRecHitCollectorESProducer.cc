@@ -55,20 +55,20 @@ MultiRecHitCollectorESProducer::produce(const MultiRecHitRecord& iRecord){
 	std::string propagatorOppositeName = conf_.getParameter<std::string>("propagatorOpposite");  
 	ESHandle<Propagator>  propagatorOppositehandle;
   	iRecord.getRecord<CkfComponentsRecord>().getRecord<TrackingComponentsRecord>().get(propagatorOppositeName, propagatorOppositehandle); 
-  	_collector  = boost::shared_ptr<MultiRecHitCollector>(new GroupedDAFHitCollector(measurementhandle.product(),
+  	collector_ = boost::shared_ptr<MultiRecHitCollector>(new GroupedDAFHitCollector(measurementhandle.product(),
 									         mrhuhandle.product(),
 										 estimatorhandle.product(),
 										 propagatorhandle.product(),
 										 propagatorOppositehandle.product(), debug));
   } 
   else {
-	_collector  = boost::shared_ptr<MultiRecHitCollector>(new SimpleDAFHitCollector(measurementhandle.product(),
+	collector_ = boost::shared_ptr<MultiRecHitCollector>(new SimpleDAFHitCollector(measurementhandle.product(),
                                                                                  mrhuhandle.product(),
                                                                                  estimatorhandle.product(),
                                                                                  propagatorhandle.product(), debug));
   }
   	
-  return _collector;
+  return collector_;
 
 }
 

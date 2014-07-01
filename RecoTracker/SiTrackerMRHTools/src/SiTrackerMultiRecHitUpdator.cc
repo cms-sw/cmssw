@@ -24,7 +24,7 @@ SiTrackerMultiRecHitUpdator::SiTrackerMultiRecHitUpdator(const TransientTracking
 
 
 TransientTrackingRecHit::RecHitPointer  SiTrackerMultiRecHitUpdator::buildMultiRecHit(const std::vector<const TrackingRecHit*>& rhv,
-                                                                          	      TrajectoryStateOnSurface tsos,
+                                                                          	      const TrajectoryStateOnSurface& tsos,
  										      float annealing) const{
   LogTrace("SiTrackerMultiRecHitUpdator") << "Calling SiTrackerMultiRecHitUpdator::buildMultiRecHit with AnnealingFactor: "  << annealing;
   TransientTrackingRecHit::ConstRecHitContainer tcomponents;	
@@ -37,7 +37,7 @@ TransientTrackingRecHit::RecHitPointer  SiTrackerMultiRecHitUpdator::buildMultiR
 }
 
 TransientTrackingRecHit::RecHitPointer SiTrackerMultiRecHitUpdator::update( TransientTrackingRecHit::ConstRecHitPointer original,
-                                                                	    TrajectoryStateOnSurface tsos,
+                                                                	    const TrajectoryStateOnSurface& tsos,
 									    double annealing) const{
   LogTrace("SiTrackerMultiRecHitUpdator") << "Calling SiTrackerMultiRecHitUpdator::update with AnnealingFactor: "  << annealing;
 
@@ -61,7 +61,7 @@ TransientTrackingRecHit::RecHitPointer SiTrackerMultiRecHitUpdator::update( Tran
 
 /*------------------------------------------------------------------------------------------------------------------------*/
 TransientTrackingRecHit::RecHitPointer SiTrackerMultiRecHitUpdator::update( TransientTrackingRecHit::ConstRecHitContainer& tcomponents,
-                                                                	    TrajectoryStateOnSurface tsos,
+                                                                	    const TrajectoryStateOnSurface& tsos,
 									    double annealing) const{
 
   if (tcomponents.empty()){

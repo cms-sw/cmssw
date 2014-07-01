@@ -26,7 +26,7 @@ class  MultiRecHitCollectorESProducer: public edm::ESProducer{
   void setConf(const edm::ParameterSet& conf){ conf_ = conf; }
  
  private:
-  boost::shared_ptr<MultiRecHitCollector> _collector;
+  boost::shared_ptr<MultiRecHitCollector> collector_;
   edm::ParameterSet conf_;
 
 };

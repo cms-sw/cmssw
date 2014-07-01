@@ -37,18 +37,18 @@ public:
   
   //calls the update method in order to build a SiTrackerMultiRecHit 
   virtual TransientTrackingRecHit::RecHitPointer  buildMultiRecHit(const std::vector<const TrackingRecHit*>& rhv, 
-								   TrajectoryStateOnSurface tsos,
+								   const TrajectoryStateOnSurface& tsos,
 								   float annealing=1.) const;
   
   //updates an existing SiTrackerMultiRecHit
   //in case a different kind of rechit is passed it returns clone(tsos)
   virtual TransientTrackingRecHit::RecHitPointer  update( TransientTrackingRecHit::ConstRecHitPointer original,  
-							  TrajectoryStateOnSurface tsos,
+							  const TrajectoryStateOnSurface& tsos,
 							  double annealing=1.) const;
   
   //returns a SiTrackerMultiRecHit out of the transient components	
   TransientTrackingRecHit::RecHitPointer update( TransientTrackingRecHit::ConstRecHitContainer& tcomponents,  
-					         TrajectoryStateOnSurface tsos,
+					         const TrajectoryStateOnSurface& tsos,
 						 double annealing=1.) const;
 
   //computes weights or the cut-off value (depending on CutWeight variable)

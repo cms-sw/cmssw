@@ -16,7 +16,8 @@ public:
   typedef BaseTrackerRecHit Base;
   SiTrackerMultiRecHit():
     theHits(),
-    theWeights(){}
+    theWeights(),
+    annealing_(0){}
   virtual ~SiTrackerMultiRecHit(){}	
   
   
