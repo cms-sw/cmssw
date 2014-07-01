@@ -18,10 +18,10 @@ singleTopTChannelLeptonDQM = cms.EDAnalyzer("SingleTopTChannelLeptonDQM",
     directory = cms.string("Physics/Top/SingleTopDQM/"),
     ## [mandatory]
     sources = cms.PSet(
-      muons = cms.InputTag("muons"),
+      muons = cms.InputTag("pfIsolatedMuonsEI"),
       elecs = cms.InputTag("pfIsolatedElectronsEI"),
       jets  = cms.InputTag("ak4PFJetsCHS"),
-      mets  = cms.VInputTag("met", "tcMet", "pfMet"),
+      mets  = cms.VInputTag("met", "tcMet", "pfMetEI"),
       pvs   = cms.InputTag("offlinePrimaryVertices")
     ),
     ## [optional] : when omitted the verbosity level is set to STANDARD
@@ -146,11 +146,11 @@ singleTopMuonMediumDQM = cms.EDAnalyzer("SingleTopTChannelLeptonDQM",
     directory = cms.string("Physics/Top/SingleTopMuonMediumDQM/"),
     ## [mandatory]
     sources = cms.PSet(
-    muons = cms.InputTag("particleFlow"),
+    muons = cms.InputTag("pfIsolatedMuonsEI"),
     elecs_gsf = cms.InputTag("gedGsfElectrons"),
     elecs = cms.InputTag("pfIsolatedElectronsEI"),
     jets  = cms.InputTag("ak4PFJetsCHS"),
-    mets  = cms.VInputTag("met", "tcMet", "pfMet"),
+    mets  = cms.VInputTag("met", "tcMet", "pfMetEI"),
     pvs   = cms.InputTag("offlinePrimaryVertices")
     ),
     ## [optional] : when omitted the verbosity level is set to STANDARD
@@ -265,7 +265,7 @@ singleTopMuonMediumDQM = cms.EDAnalyzer("SingleTopTChannelLeptonDQM",
    ),
    cms.PSet(
       label  = cms.string("muons/pf:step0"),
-      src    = cms.InputTag("particleFlow"),
+      src    = cms.InputTag("pfIsolatedMuonsEI"),
       select = cms.string("muonRef.pt>20 & abs(muonRef.eta)<2.1 & muonRef.isNonnull & muonRef.innerTrack.isNonnull & muonRef.isGlobalMuon & muonRef.isTrackerMuon & muonRef.innerTrack.numberOfValidHits>10 & muonRef.globalTrack.hitPattern.numberOfValidMuonHits>0 & muonRef.globalTrack.normalizedChi2<10 & muonRef.innerTrack.hitPattern.pixelLayersWithMeasurement>=1 &  muonRef.numberOfMatches>1 & abs(muonRef.innerTrack.dxy)<0.02 & (muonRef.pfIsolationR04.sumChargedHadronPt + muonRef.pfIsolationR04.sumNeutralHadronEt + muonRef.pfIsolationR04.sumPhotonEt)/muonRef.pt < 0.15"),
 
       min    = cms.int32(1),
@@ -306,11 +306,11 @@ singleTopElectronMediumDQM = cms.EDAnalyzer("SingleTopTChannelLeptonDQM",
     directory = cms.string("Physics/Top/SingleTopElectronMediumDQM/"),
     ## [mandatory]
     sources = cms.PSet(
-      muons = cms.InputTag("particleFlow"),
+      muons = cms.InputTag("pfIsolatedMuonsEI"),
       elecs_gsf = cms.InputTag("gedGsfElectrons"),
       elecs = cms.InputTag("pfIsolatedElectronsEI"),
       jets  = cms.InputTag("ak4PFJetsCHS"),
-      mets  = cms.VInputTag("met", "tcMet", "pfMet"),
+      mets  = cms.VInputTag("met", "tcMet", "pfMetEI"),
       pvs   = cms.InputTag("offlinePrimaryVertices")
 
     ),
