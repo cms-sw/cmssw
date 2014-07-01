@@ -13,10 +13,10 @@ particleFlowRecHitHGCHEB = cms.EDProducer("PFRecHitProducer",
              qualityTests = cms.VPSet( 
                 cms.PSet(
                   name = cms.string("PFRecHitQTestThresholdInMIPs"),
-                  thresholdInMIPs = cms.double(0.20),
+                  thresholdInMIPs = cms.double(0.6),
                   mipValueInkeV = cms.double(1498.4),
-                  recHitEnergyIs_keV = cms.bool(True),
-                  recHitEnergyMultiplier = cms.double(12.0)
+                  recHitEnergyIs_keV = cms.bool(False),
+                  recHitEnergyMultiplier = cms.double(1.0)
                   ),
                 )
            )          

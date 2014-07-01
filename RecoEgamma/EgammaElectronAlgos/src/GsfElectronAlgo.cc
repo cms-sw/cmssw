@@ -21,6 +21,7 @@
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
@@ -1032,10 +1033,12 @@ void GsfElectronAlgo::setCutBasedPreselectionFlag( GsfElectron * ele, const reco
   LogTrace("GsfElectronAlgo") << "HoE1 : " << ele->hcalDepth1OverEcal() << ", HoE2 : " << ele->hcalDepth2OverEcal();
   double had = ele->hcalOverEcal()*ele->superCluster()->energy() ;
   const reco::CaloCluster & seedCluster = *(ele->superCluster()->seed()) ;
+  int component = seedCluster.hitsAndFractions()[0].first.det();
   int detector = seedCluster.hitsAndFractions()[0].first.subdetId() ;
   bool HoEveto = false ;
   if (detector==EcalBarrel && (had<cfg->maxHBarrel || (had/ele->superCluster()->energy())<cfg->maxHOverEBarrel)) HoEveto=true;
   else if (detector==EcalEndcap && (had<cfg->maxHEndcaps || (had/ele->superCluster()->energy())<cfg->maxHOverEEndcaps)) HoEveto=true;
+  else if (component== DetId::Forward && detector==HGCEE && (had<cfg->maxHEndcaps || (had/ele->superCluster()->energy())<cfg->maxHOverEEndcaps)) HoEveto=true;
   if ( !HoEveto ) return ;
   LogTrace("GsfElectronAlgo") << "H/E criteria are satisfied";
 
@@ -1198,6 +1201,7 @@ void GsfElectronAlgo::createElectron()
   //====================================================
 
   reco::GsfElectron::FiducialFlags fiducialFlags ;
+  int component = seedXtalId.det();
   int detector = seedXtalId.subdetId() ;
   double feta=std::abs(electronData_->superClusterRef->position().eta()) ;
   if (detector==EcalBarrel)
@@ -1232,6 +1236,9 @@ void GsfElectronAlgo::createElectron()
     {
       fiducialFlags.isEE = true;
     }
+  else if( component == DetId::Forward && detector==HGCEE ) {
+    fiducialFlags.isEE = true;
+  }
   else
    { throw cms::Exception("GsfElectronAlgo|UnknownXtalRegion")<<"createElectron(): do not know if it is a barrel or endcap seed cluster !!!!" ; }
 

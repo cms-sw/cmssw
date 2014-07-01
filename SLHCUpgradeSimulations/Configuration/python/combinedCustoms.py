@@ -161,10 +161,19 @@ def cust_2023HGCal(process):
     if hasattr(process,'reconstruction_step'):
         process.particleFlowCluster += process.particleFlowRecHitHGC
         process.particleFlowCluster += process.particleFlowClusterHGC
+        if hasattr(process,'particleFlowSuperClusterECAL'):
+            process.particleFlowSuperClusterHGCEE = process.particleFlowSuperClusterECAL.clone()
+            process.particleFlowSuperClusterHGCEE.PFClusters = cms.InputTag('particleFlowClusterHGCEE')
+            process.particleFlowSuperClusterHGCEE.use_preshower = cms.bool(False)
+            process.particleFlowSuperClusterHGCEE.PFSuperClusterCollectionEndcapWithPreshower = cms.string('')
+            process.particleFlowCluster += process.particleFlowSuperClusterHGCEE
+            if hasattr(process,'ecalDrivenElectronSeeds'):
+                process.ecalDrivenElectronSeeds.endcapSuperClusters = cms.InputTag('particleFlowSuperClusterHGCEE')
     #mod event content
     process.load('RecoLocalCalo.Configuration.hgcalLocalReco_EventContent_cff')
     if hasattr(process,'FEVTDEBUGHLTEventContent'):
         process.FEVTDEBUGHLTEventContent.outputCommands.extend(process.hgcalLocalRecoFEVT.outputCommands)
+        process.FEVTDEBUGHLTEventContent.outputCommands.append('keep *_particleFlowSuperClusterHGCEE_*_*')
     return process
 
 def cust_2023HGCalMuon(process):
@@ -187,10 +196,19 @@ def cust_2023HGCalMuon(process):
     if hasattr(process,'reconstruction_step'):
         process.particleFlowCluster += process.particleFlowRecHitHGC
         process.particleFlowCluster += process.particleFlowClusterHGC
+        if hasattr(process,'particleFlowSuperClusterECAL'):
+            process.particleFlowSuperClusterHGCEE = process.particleFlowSuperClusterECAL.clone()
+            process.particleFlowSuperClusterHGCEE.PFClusters = cms.InputTag('particleFlowClusterHGCEE')
+            process.particleFlowSuperClusterHGCEE.use_preshower = cms.bool(False)
+            process.particleFlowSuperClusterHGCEE.PFSuperClusterCollectionEndcapWithPreshower = cms.string('')
+            process.particleFlowCluster += process.particleFlowSuperClusterHGCEE
+            if hasattr(process,'ecalDrivenElectronSeeds'):
+                process.ecalDrivenElectronSeeds.endcapSuperClusters = cms.InputTag('particleFlowSuperClusterHGCEE')
     #mod event content
     process.load('RecoLocalCalo.Configuration.hgcalLocalReco_EventContent_cff')
     if hasattr(process,'FEVTDEBUGHLTEventContent'):
         process.FEVTDEBUGHLTEventContent.outputCommands.extend(process.hgcalLocalRecoFEVT.outputCommands)
+        process.FEVTDEBUGHLTEventContent.outputCommands.append('keep *_particleFlowSuperClusterHGCEE_*_*')
     return process
 
 def cust_2023Pixel(process):

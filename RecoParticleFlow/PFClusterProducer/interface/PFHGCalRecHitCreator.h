@@ -78,6 +78,8 @@ template <typename DET,PFLayer::Layer Layer,ForwardSubdetector subdet>
 			   position.x(), position.y(), position.z(), 
 			   0, 0, 0 ); 
 	
+	rh.setOriginalRecHit(edm::Ref<HGCRecHitCollection>(recHitHandle,i));
+
 	const HGCalGeometry::CornersVec corners( std::move( hgcGeo.getCorners( detid ) ) );
 	assert( corners.size() == 8 );
 

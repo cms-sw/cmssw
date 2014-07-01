@@ -37,6 +37,8 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 
+#include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -224,9 +226,11 @@ void ElectronSeedProducer::filterClusters
          had2 = hcalHelper_->hcalESumDepth2(scl);
          had = had1+had2 ;
          scle = scl.energy() ;
+	 int component = scl.seed()->hitsAndFractions()[0].first.det() ;
          int detector = scl.seed()->hitsAndFractions()[0].first.subdetId() ;
          if (detector==EcalBarrel && (had<maxHBarrel_ || had/scle<maxHOverEBarrel_)) HoeVeto=true;
          else if (detector==EcalEndcap && (had<maxHEndcaps_ || had/scle<maxHOverEEndcaps_)) HoeVeto=true;
+	 else if (component==DetId::Forward && detector==HGCEE && (had<maxHEndcaps_ || had/scle<maxHOverEEndcaps_)) HoeVeto=true;
          if (HoeVeto)
           {
            sclRefs.push_back(edm::Ref<reco::SuperClusterCollection>(superClusters,i)) ;

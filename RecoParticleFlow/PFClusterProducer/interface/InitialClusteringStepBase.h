@@ -32,7 +32,10 @@ class InitialClusteringStepBase {
 		{"HCAL_BARREL2_RING1",100*(int)PFLayer::HCAL_BARREL2},
 	        {"HCAL_ENDCAP",(int)PFLayer::HCAL_ENDCAP},
 	        {"HF_EM",(int)PFLayer::HF_EM},
-		{"HF_HAD",(int)PFLayer::HF_HAD} }),
+		{"HF_HAD",(int)PFLayer::HF_HAD},
+		{"HGC_ECAL",(int)PFLayer::HGC_ECAL},
+		{"HGC_HCALF",(int)PFLayer::HGC_HCALF},
+		{"HGC_HCALB",(int)PFLayer::HGC_HCALB},}),
     _algoName(conf.getParameter<std::string>("algoName")) { 
     const std::vector<edm::ParameterSet>& thresholds =
     conf.getParameterSetVector("thresholdsByDetector");
