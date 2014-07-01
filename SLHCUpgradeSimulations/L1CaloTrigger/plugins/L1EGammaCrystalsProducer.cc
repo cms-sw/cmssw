@@ -124,7 +124,7 @@ class L1EGCrystalClusterProducer : public edm::EDProducer {
 L1EGCrystalClusterProducer::L1EGCrystalClusterProducer(const edm::ParameterSet& iConfig) :
    EtminForStore(iConfig.getParameter<double>("EtminForStore")),
    debug(iConfig.getUntrackedParameter<bool>("debug", false)),
-   useECalEndcap(iConfig.getUntrackedParameter<bool>("useECalEndcap", false))
+   useECalEndcap(iConfig.getParameter<bool>("useECalEndcap"))
 {
    produces<l1slhc::L1EGCrystalClusterCollection>("EGCrystalCluster");
    produces<l1extra::L1EmParticleCollection>("EGammaCrystal");
@@ -151,7 +151,7 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
    // using RecHits (https://cmssdt.cern.ch/SDT/doxygen/CMSSW_6_1_2_SLHC6/doc/html/d8/dc9/classEcalRecHit.html)
    edm::Handle<EcalRecHitCollection> pcalohits;
    iEvent.getByLabel("ecalRecHit","EcalRecHitsEB",pcalohits);
-   for(auto hit : *pcalohits.product())
+   for(auto& hit : *pcalohits.product())
    {
       if(hit.energy() > 0.2)
       {
@@ -173,7 +173,7 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
       // using RecHits (https://cmssdt.cern.ch/SDT/doxygen/CMSSW_6_1_2_SLHC6/doc/html/d8/dc9/classEcalRecHit.html)
       edm::Handle<EcalRecHitCollection> pcalohitsEndcap;
       iEvent.getByLabel("ecalRecHit","EcalRecHitsEE",pcalohitsEndcap);
-      for(auto hit : *pcalohitsEndcap.product())
+      for(auto& hit : *pcalohitsEndcap.product())
       {
          if(hit.energy() > 0.2)
          {
@@ -192,7 +192,7 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
    // Retrive hcal hits
    edm::Handle<HBHERecHitCollection> hbhecoll;
    iEvent.getByLabel("hbheprereco", hbhecoll);
-   for (auto hit : *hbhecoll.product())
+   for (auto& hit : *hbhecoll.product())
    {
       if ( hit.energy() > 0.1 )
       {
@@ -228,12 +228,15 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
       
       // Find the energy-weighted average position,
       // calculate isolation parameter,
-      // and calculate pileup-corrected pt
+      // calculate pileup-corrected pt,
+      // and quantify likelihood of a brem
       GlobalVector weightedPosition;
       GlobalVector ECalPileUpVector;
       float totalEnergy = 0.;
       float ECalIsolation = 0.;
       float ECalPileUpEnergy = 0.;
+      float sideLobeEnergy = 0.;
+      std::vector<float> crystalPt;
       for(auto& hit : ecalhits)
       {
          if ( !hit.stale &&
@@ -243,6 +246,7 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
             weightedPosition += hit.position*hit.energy;
             totalEnergy += hit.energy;
             hit.stale = true;
+            crystalPt.push_back(hit.pt());
             if ( debug && hit == centerhit )
                std::cout << "\x1B[32m"; // green hilight
             if ( debug && hit.isEndcapHit ) std::cout <<
@@ -265,6 +269,11 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
             {
                ECalIsolation += hit.pt();
             }
+            if ( (!centerhit.isEndcapHit && abs(hit.dieta(centerhit)) < 2 && abs(hit.diphi(centerhit)) >= 3 && abs(hit.diphi(centerhit)) < 6)
+                 || (centerhit.isEndcapHit && fabs(hit.deta(centerhit)) < 0.02 && fabs(hit.dphi(centerhit)) >= 0.0173*3 && fabs(hit.dphi(centerhit)) < 0.0173*6 ))
+            {
+               sideLobeEnergy += hit.pt();
+            }
             if ( hit.pt() < 5. &&
                  ( (!centerhit.isEndcapHit && abs(hit.dieta(centerhit)) < 7 && abs(hit.diphi(centerhit)) < 57 )
                   || (centerhit.isEndcapHit && hit.distanceTo(centerhit) < 50.) ))
@@ -278,6 +287,7 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
       float totalPt = totalEnergy*sin(weightedPosition.theta());
       ECalIsolation /= totalPt;
       float totalPtPUcorr = totalPt - ECalPileUpEnergy*sin(ECalPileUpVector.theta())/19.;
+      float bremStrength = sideLobeEnergy / totalPt;
 
       if ( debug ) std::cout << "Weighted position eta = " << weightedPosition.eta() << ", phi = " << weightedPosition.phi() << std::endl;
       if ( debug ) std::cout << "Total energy = " << totalEnergy << ", total pt = " << totalPt << std::endl;
@@ -298,18 +308,23 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
       
       // Form a l1slhc::L1EGCrystalCluster
       reco::Candidate::PolarLorentzVector p4(totalPt, weightedPosition.eta(), weightedPosition.phi(), 0.);
-      l1slhc::L1EGCrystalCluster cluster(p4, hovere, ECalIsolation, totalPtPUcorr);
+      l1slhc::L1EGCrystalCluster cluster(p4, hovere, ECalIsolation, totalPtPUcorr, bremStrength);
+      // Save pt array
+      cluster.SetCrystalPtInfo(crystalPt);
       trigCrystalClusters->push_back(cluster);
 
       // Save clusters with some cuts
       // This is a dynamic falling quadratic cut in pt, trying to squeeze as much efficiency as possible
       // out of the cut variables, which should have been pt-independent, but are not.
       if ( cluster.hovere() < ((cluster.pt() > 35) ? 0.5 : 0.5+pow(cluster.pt()-35,2)/350. )
-              && cluster.isolation() < ((cluster.pt() > 35) ? 1.3 : 1.3+pow(cluster.pt()-35,2)*4/(35*35) ) )
+           && cluster.isolation() < ((cluster.pt() > 35) ? 1.3 : 1.3+pow(cluster.pt()-35,2)*4/(35*35) )
+           && (cluster.GetCrystalPt(4)/(cluster.GetCrystalPt(0)+cluster.GetCrystalPt(1)) < ( (cluster.pt() < 20) ? 0.08:0.08*(1+(cluster.pt()-20)/30.) ) )
+           && ((cluster.pt() > 10) ? (cluster.GetCrystalPt(4)/(cluster.GetCrystalPt(0)+cluster.GetCrystalPt(1)) > 0.):true) )
       {
-	 if  (totalPt >= EtminForStore) {
-         l1EGammaCrystal->push_back(l1extra::L1EmParticle(p4, edm::Ref<L1GctEmCandCollection>(), 0));
-	 }
+         // Optional min. Et cut
+         if  (cluster.pt() >= EtminForStore) {
+            l1EGammaCrystal->push_back(l1extra::L1EmParticle(p4, edm::Ref<L1GctEmCandCollection>(), 0));
+         }
       }
    }
 
