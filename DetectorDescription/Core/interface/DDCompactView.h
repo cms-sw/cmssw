@@ -111,6 +111,9 @@ public:
 
   //! returns the DDLogicalPart representing the root of the geometrical hierarchy
   const DDLogicalPart & root() const;
+  
+  //! The absolute position of the world
+  DDPosData * worldPosition() const;
 
   //! Prototype version of calculating the weight of a detector component
   double weight(const DDLogicalPart & p) const;
@@ -159,6 +162,8 @@ public:
   DDCompactViewImpl* rep_;
 
  private:
+  DDPosData* worldpos_ ;
+  
     // 2010-01-27 memory patch
     // for copying and protecting DD Store's after parsing is complete.
     DDI::Store<DDName, DDI::Material*> matStore_;

@@ -15,8 +15,6 @@
 
 #include <iostream>
 
-//DDCompactViewmpl * DDCompactView::global_ = 0;
-
 /** 
    Compact-views can be created only after an appropriate geometrical hierarchy
    has been defined using DDpos(). 
@@ -45,13 +43,13 @@ DDCompactView::DDCompactView(const DDLogicalPart & rootnodedata)
   DDLogicalPart::StoreT::instance().setReadOnly(false);
   DDSpecifics::StoreT::instance().setReadOnly(false);
   DDRotation::StoreT::instance().setReadOnly(false);
+  worldpos_ = new DDPosData( DDTranslation(), DDRotation(), 0 );
 }
 
 DDCompactView::~DDCompactView() 
 {  
-  if (rep_ != 0) {
-    delete rep_;
-  }
+  delete rep_;
+  delete worldpos_;
 }
 
 /** 
@@ -70,10 +68,14 @@ DDCompactView::graph_type & DDCompactView::writeableGraph()
 }
 
 const DDLogicalPart & DDCompactView::root() const
-{ 
+{
   return rep_->root(); 
 } 
-
+  
+DDPosData* DDCompactView::worldPosition() const
+{
+  return worldpos_;
+}
 
 DDCompactView::walker_type DDCompactView::walker() const
 {
