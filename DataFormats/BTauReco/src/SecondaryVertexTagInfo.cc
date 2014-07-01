@@ -66,21 +66,21 @@ unsigned int SecondaryVertexTagInfo::nVertexTracks(unsigned int index) const
 TrackRefVector SecondaryVertexTagInfo::selectedTracks() const
 {
 	TrackRefVector trackRefs;
-/*ARTOFIX	const TrackRefVector &trackIPTrackRefs =
+	const TrackRefVector &trackIPTrackRefs =
 				m_trackIPTagInfoRef->selectedTracks();
 
 	for(std::vector<IndexedTrackData>::const_iterator iter =
 		m_trackData.begin(); iter != m_trackData.end(); iter++)
 
 		trackRefs.push_back(trackIPTrackRefs[iter->first]);
-*/
+
 	return trackRefs;
 }
 
 TrackRefVector SecondaryVertexTagInfo::vertexTracks() const
 {
 	TrackRefVector trackRefs;
-/*ARTOFIX	const TrackRefVector &trackIPTrackRefs =
+	const TrackRefVector &trackIPTrackRefs =
 				m_trackIPTagInfoRef->selectedTracks();
 
 	for(std::vector<IndexedTrackData>::const_iterator iter =
@@ -88,14 +88,13 @@ TrackRefVector SecondaryVertexTagInfo::vertexTracks() const
 
 		if (iter->second.associatedToVertex())
 			trackRefs.push_back(trackIPTrackRefs[iter->first]);
-*/
+
 	return trackRefs;
 }  
 
 TrackRefVector SecondaryVertexTagInfo::vertexTracks(unsigned int index) const
 {
 	TrackRefVector trackRefs;
-/*ARTOFIX 
 	const TrackRefVector &trackIPTrackRefs =
 				m_trackIPTagInfoRef->selectedTracks();
 
@@ -104,19 +103,18 @@ TrackRefVector SecondaryVertexTagInfo::vertexTracks(unsigned int index) const
 
 		if (iter->second.associatedToVertex(index))
 			trackRefs.push_back(trackIPTrackRefs[iter->first]);
-*/
+
 	return trackRefs;
 }  
 
 TrackRef SecondaryVertexTagInfo::track(unsigned int index) const
 {
-/*ARTOFIX 	return m_trackIPTagInfoRef->selectedTracks()[m_trackData[index].first]; */
-return TrackRef();
+	return m_trackIPTagInfoRef->selectedTracks()[m_trackData[index].first];
 }
 
 unsigned int SecondaryVertexTagInfo::findTrack(const TrackRef &track) const
 {
-/*ARTOFIX	std::vector<IndexedTrackData>::const_iterator pos =
+	std::vector<IndexedTrackData>::const_iterator pos =
 		std::find_if(m_trackData.begin(), m_trackData.end(),
 		             TrackFinder(m_trackIPTagInfoRef->selectedTracks(),
 		                         track));
@@ -126,8 +124,7 @@ unsigned int SecondaryVertexTagInfo::findTrack(const TrackRef &track) const
 			<< "Track not found in "
 			   "SecondaryVertexTagInfo::findTrack." << std::endl;
 
-	return pos - m_trackData.begin();*/
-return 0;
+	return pos - m_trackData.begin();
 }
 
 const SecondaryVertexTagInfo::TrackData&
