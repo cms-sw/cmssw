@@ -38,7 +38,7 @@ process.DQM.filter = '^(SiStrip|Tracking)(/[^/]+){0,5}$'
 
 process.dqmEnv.subSystemFolder    = "SiStrip"
 process.dqmSaver.producer = "Playback"
-process.dqmSaver.saveByLumiSection = 1
+process.dqmSaver.saveByLumiSection = 30
 
 # uncomment for running in local
 process.dqmSaver.dirName     = '.'
@@ -52,8 +52,8 @@ process.dqmEnvTr = cms.EDAnalyzer("DQMEventInfo",
 ## uncooment for running in local
 ## collector
 #process.DQM.collectorHost = 'vmepcs2b18-20.cms'
-process.DQM.collectorPort = 9190
-process.DQM.collectorHost = 'lxplus414'
+#process.DQM.collectorPort = 9190
+#process.DQM.collectorHost = 'lxplus414'
 #process.DQM.collectorPort = 8070
 
 #--------------------------
