@@ -19,9 +19,9 @@ void GetResol()
   TH1D * funcHisto = new TH1D(TString(funcProfile->GetName())+"histo", TString(funcProfile->GetTitle())+"histo", funcProfile->GetNbinsX(), histo->GetXaxis()->GetXmin(), histo->GetXaxis()->GetXmax());
   for( int i=1; i<=funcHisto->GetNbinsX(); ++i ) {
     funcHisto->SetBinContent(i, funcProfile->GetBinContent(i));
-    // cout << "error["<<i<<"] = " << funcHisto->GetBinContent(i)*(1 - (0.7311228/0.781686)) << endl;
+    // std::cout << "error["<<i<<"] = " << funcHisto->GetBinContent(i)*(1 - (0.7311228/0.781686)) << std::endl;
     funcHisto->SetBinError( i, funcHisto->GetBinContent(i)*(1 - (0.73391182/0.73723)) ); // (0.7648316/0.781686)) );
-    // cout << "value["<<i<<"] = " << funcHisto->GetBinContent(i) << " +- " <<  funcHisto->GetBinError(i) << endl;
+    // std::cout << "value["<<i<<"] = " << funcHisto->GetBinContent(i) << " +- " <<  funcHisto->GetBinError(i) << std::endl;
   }
 
   funcHisto->Draw("E5");

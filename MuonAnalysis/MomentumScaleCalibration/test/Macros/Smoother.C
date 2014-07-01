@@ -2,8 +2,6 @@
 #include "TH1F.h"
 #include "TString.h"
 
-using namespace std;
-
 /**
  * This class receives a TH1 histogram and applies a smoothing.
  * The smoothing can be done in two ways:
@@ -35,15 +33,15 @@ TH1F * Smoother::applySmooth( TH1F * histo, const double & newHistoXmin, const d
   histo->SetAxisRange(newHistoXmin, newHistoXmax);
   int xBinMin = histo->FindBin(newHistoXmin);
   int xBinMax = histo->FindBin(newHistoXmax);
-  cout << "xBinMin = " << xBinMin << endl;
-  cout << "xBinMax = " << xBinMax << endl;
+  std::cout << "xBinMin = " << xBinMin << std::endl;
+  std::cout << "xBinMax = " << xBinMax << std::endl;
 
   double xMin = histo->GetXaxis()->GetXmin();
   double xMax = histo->GetXaxis()->GetXmax();
   int nBins = histo->GetNbinsX();
-  cout << "xMin = " << xMin << endl;
-  cout << "xMax = " << xMax << endl;
-  cout << "nBins = " << nBins << endl;
+  std::cout << "xMin = " << xMin << std::endl;
+  std::cout << "xMax = " << xMax << std::endl;
+  std::cout << "nBins = " << nBins << std::endl;
 
   // Start from the third bin up to the second to last bin
   int smoothedBin = 2;
@@ -60,7 +58,7 @@ TH1F * Smoother::applySmooth( TH1F * histo, const double & newHistoXmin, const d
       // compare the med with the mean of the four points
       double newMed = ((min1+min2+plus1+plus2)/4);
       if( fabs(med/newMed - 1) > ratio_ ) {
-	cout << "Replacing value for bin " << i << " from " << med << " to " << newMed << endl;
+	std::cout << "Replacing value for bin " << i << " from " << med << " to " << newMed << std::endl;
 	// smoothedHisto->SetBinContent(smoothedBin, newMed);
 	smoothedHisto->SetBinContent(i, newMed);
 	continue;
@@ -68,7 +66,7 @@ TH1F * Smoother::applySmooth( TH1F * histo, const double & newHistoXmin, const d
     }
     // smoothedHisto->SetBinContent(smoothedBin, med);
     smoothedHisto->SetBinContent(i, med);
-    cout << "bin["<<i<<"] = " << histo->GetBinContent(i) << endl;
+    std::cout << "bin["<<i<<"] = " << histo->GetBinContent(i) << std::endl;
   }
   return smoothedHisto;
 }
@@ -81,15 +79,15 @@ TH1F * Smoother::applySmoothSingle( TH1F * histo, const double & newHistoXmin, c
   histo->SetAxisRange(newHistoXmin, newHistoXmax);
   int xBinMin = histo->FindBin(newHistoXmin);
   int xBinMax = histo->FindBin(newHistoXmax);
-  cout << "xBinMin = " << xBinMin << endl;
-  cout << "xBinMax = " << xBinMax << endl;
+  std::cout << "xBinMin = " << xBinMin << std::endl;
+  std::cout << "xBinMax = " << xBinMax << std::endl;
 
   double xMin = histo->GetXaxis()->GetXmin();
   double xMax = histo->GetXaxis()->GetXmax();
   int nBins = histo->GetNbinsX();
-  cout << "xMin = " << xMin << endl;
-  cout << "xMax = " << xMax << endl;
-  cout << "nBins = " << nBins << endl;
+  std::cout << "xMin = " << xMin << std::endl;
+  std::cout << "xMax = " << xMax << std::endl;
+  std::cout << "nBins = " << nBins << std::endl;
 
   // Start from the third bin up to the second to last bin
   int smoothedBin = 2;
@@ -102,12 +100,12 @@ TH1F * Smoother::applySmoothSingle( TH1F * histo, const double & newHistoXmin, c
     // compare the med with the mean of the four points
     double newMed = ((min1+plus1)/2);
     if( fabs(med/newMed - 1) > ratio_ ) {
-      cout << "Replacing value for bin " << i << " from " << med << " to " << newMed << endl;
+      std::cout << "Replacing value for bin " << i << " from " << med << " to " << newMed << std::endl;
       smoothedHisto->SetBinContent(i, newMed);
       continue;
     }
     smoothedHisto->SetBinContent(i, med);
-    cout << "bin["<<i<<"] = " << histo->GetBinContent(i) << endl;
+    std::cout << "bin["<<i<<"] = " << histo->GetBinContent(i) << std::endl;
   }
   return smoothedHisto;
 }
