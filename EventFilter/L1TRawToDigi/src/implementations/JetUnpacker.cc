@@ -2,6 +2,7 @@
 
 #include "FWCore/Framework/interface/one/EDProducerBase.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "EventFilter/L1TRawToDigi/interface/UnpackerFactory.h"
 
@@ -44,6 +45,9 @@ namespace l1t {
    bool
    JetUnpacker::unpack(const unsigned char *data, const unsigned block_id, const unsigned size)
    {
+
+     LogDebug("L1T") << "Block ID  = " << block_id << " size = " << size;
+
      int nBX = int(ceil(size / 12.)); // Since there are 12 jets reported per event (see CMS IN-2013/005)
 
      // Find the first and last BXs
@@ -56,6 +60,8 @@ namespace l1t {
      }
 
      res_->setBXRange(firstBX, lastBX);
+
+     LogDebug("L1T") << "nBX = " << nBX << " first BX = " << firstBX << " lastBX = " << lastBX;
 
      // Initialise index
      int unsigned i = 0;
@@ -81,6 +87,8 @@ namespace l1t {
 
 	 jet.setHwPhi((raw_data >> 19) & 0xFF);
          jet.setHwQual((raw_data >> 27) & 0x7); // Assume 3 bits for now? Leaves 2 bits spare
+
+         LogDebug("L1T") << "Jet: eta " << jet.hwEta() << " phi " << jet.hwPhi() << " pT " << jet.hwPt() << " qual " << jet.hwQual();
 
          res_->push_back(bx,jet);
        }

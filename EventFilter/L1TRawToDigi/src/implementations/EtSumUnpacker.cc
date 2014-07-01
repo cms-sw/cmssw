@@ -2,6 +2,7 @@
 
 #include "FWCore/Framework/interface/one/EDProducerBase.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "EventFilter/L1TRawToDigi/interface/UnpackerFactory.h"
 
@@ -44,6 +45,9 @@ namespace l1t {
    bool
    EtSumUnpacker::unpack(const unsigned char *data, const unsigned block_id, const unsigned size)
    {
+
+     LogDebug("L1T") << "Block ID  = " << block_id << " size = " << size;
+
      int nBX = int(ceil(size / 4.)); // Since there are 4 EtSum objects reported per event (see CMS IN-2013/005)
 
      // Find the central, first and last BXs
@@ -56,6 +60,8 @@ namespace l1t {
      }
 
      res_->setBXRange(firstBX, lastBX);
+
+     LogDebug("L1T") << "nBX = " << nBX << " first BX = " << firstBX << " lastBX = " << lastBX;
 
      // Initialise index
      int unsigned i = 0;
@@ -73,6 +79,8 @@ namespace l1t {
        met.setHwPhi((raw_data >> 12) & 0xFF);
        met.setType(l1t::EtSum::kMissingEt);       
 
+       LogDebug("L1T") << "MET: phi " << met.hwPhi() << " pT " << met.hwPt();
+
        res_->push_back(bx,met);
 
        // MHT
@@ -85,6 +93,8 @@ namespace l1t {
        mht.setHwPhi((raw_data >> 12) & 0xFF);
        mht.setType(l1t::EtSum::kMissingHt);       
 
+       LogDebug("L1T") << "MHT: phi " << mht.hwPhi() << " pT " << mht.hwPt();
+
        res_->push_back(bx,mht);       
 
        // ET
@@ -96,6 +106,8 @@ namespace l1t {
        et.setHwPt(raw_data & 0xFFF);
        et.setType(l1t::EtSum::kTotalEt);       
 
+       LogDebug("L1T") << "ET: pT " << et.hwPt();
+
        res_->push_back(bx,et);
 
        // HT
@@ -106,6 +118,8 @@ namespace l1t {
     
        ht.setHwPt(raw_data & 0xFFF);
        ht.setType(l1t::EtSum::kTotalHt);       
+
+       LogDebug("L1T") << "HT: pT " << ht.hwPt();
 
        res_->push_back(bx,ht);
 
