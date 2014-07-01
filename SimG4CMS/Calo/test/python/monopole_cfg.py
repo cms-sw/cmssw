@@ -106,7 +106,7 @@ process.common_maximum_timex = cms.PSet(
 
 process.p1 = cms.Path(process.generator*process.VtxSmeared*process.g4SimHits)
 process.outpath = cms.EndPath(process.o1)
-process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_BERT_EML'
+process.g4SimHits.Physics.type = 'SimG4Core/Physics/QGSP_FTFP_BERT_EML'
 process.g4SimHits.Physics.MonopoleCharge = 1
 process.g4SimHits.Physics.MonopoleDeltaRay = False
 process.g4SimHits.Physics.Verbosity = 1

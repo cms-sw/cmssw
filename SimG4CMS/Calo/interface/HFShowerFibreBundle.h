@@ -7,6 +7,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "SimG4CMS/Calo/interface/HFCherenkov.h"
 
@@ -21,6 +22,7 @@ class HFShowerFibreBundle {
 public:    
 
   HFShowerFibreBundle(std::string & name, const DDCompactView & cpv, 
+		      const HcalDDDSimConstants& hcons,
 		      edm::ParameterSet const & p);
   virtual ~HFShowerFibreBundle();
   double                getHits(G4Step * aStep, bool type);
@@ -29,6 +31,8 @@ public:
 private:    
 
   std::vector<double>   getDDDArray(const std::string&, const DDsvalues_type&);
+
+private:    
 
   HFCherenkov           *cherenkov1, *cherenkov2;
   double                facTube, facCone; //Packing factors
