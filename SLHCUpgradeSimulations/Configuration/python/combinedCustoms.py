@@ -124,6 +124,25 @@ def cust_2023SHCal(process):
             )
             )
         
+    if hasattr(process,'raw2digi_step'):
+        process.ecalDigis.FEDs = cms.vint32(
+            # EE-:
+            #601, 602, 603, 604, 605,
+            #606, 607, 608, 609,
+            # EB-:
+            610, 611, 612, 613, 614, 615,
+            616, 617, 618, 619, 620, 621,
+            622, 623, 624, 625, 626, 627,
+            # EB+:
+            628, 629, 630, 631, 632, 633,
+            634, 635, 636, 637, 638, 639,
+            640, 641, 642, 643, 644, 645,
+            # EE+:
+            #646, 647, 648, 649, 650,
+            #651, 652, 653, 654
+            )
+        print "RAW2DIGI only for EB FEDs"
+
     if hasattr(process,'reconstruction_step'):
     	process.ecalRecHit.EEuncalibRecHitCollection = cms.InputTag("","")
         #remove the old EE pfrechit producer
