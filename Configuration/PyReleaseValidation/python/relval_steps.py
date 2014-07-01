@@ -323,7 +323,7 @@ steps['TTbar_ID']=identitySim(steps['TTbar'])
 
 baseDataSetRelease=[
     'CMSSW_7_1_0_pre7-PRE_STA71_V3-v1', # run1 samples; keep GEN-SIM fixed to 710_pre7, for samples not routinely produced
-    'CMSSW_7_1_0_pre6-PRE_SHI71_V3-v1', # Run1 HI GEN-SIM (only MB = wf 140)
+    'CMSSW_7_1_0_pre8-PRE_SHI71_V7-v1', # Run1 HI GEN-SIM (only MB = wf 140)
     'CMSSW_6_2_0_pre8-PRE_ST62_V8_FastSim-v1', # for fastsim id test
     'CMSSW_6_2_0_pre8-PRE_SH62_V15-v2', # Run1 HI GEN-SIM (only HydjetQ_B3_2760)
     'CMSSW_6_1_0_pre6-STARTHI61_V6-v1', # Run1 HI GEN-SIM (only HydjetQ_B0_2760)
@@ -333,7 +333,7 @@ baseDataSetRelease=[
     'CMSSW_7_1_0_pre5-START71_V1-v1',   # 8 TeV , for the one sample which is part of the routine relval production (MinBias)
     'CMSSW_7_1_0_pre5-START71_V1-v2',   # 8 TeV , for the one sample which is part of the routine relval production (RelValZmumuJets_Pt_20_300, because of -v2)
                                         # this an previous should be unified, when -v2 will be gone
-    'CMSSW_7_1_0_pre6-PRE_LS171_V5-v1', # 13 TeV samples with GEN-SIM from 710pre6; geometry is the updated one provuded by the 710pre6 GT
+    'CMSSW_7_1_0_pre8-PRE_LS171_V9-v1', # 13 TeV samples with GEN-SIM from 710pre8
     ]
 
 # note: INPUT commands to be added once GEN-SIM w/ 13TeV+PostLS1Geo will be available 
@@ -401,8 +401,7 @@ steps['ZmumuJets_Pt_20_300_13INPUT']={'INPUT':InputInfo(dataSet='/RelValZmumuJet
 steps['ADDMonoJet_d3MD3_13INPUT']={'INPUT':InputInfo(dataSet='/RelValADDMonoJet_d3MD3_13/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
 steps['RSKKGluon_m3000GeV_13INPUT']={'INPUT':InputInfo(dataSet='/RelValRSKKGluon_m3000GeV_13/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
 steps['Pythia6_BuJpsiK_TuneZ2star_13INPUT']={'INPUT':InputInfo(dataSet='/RelValPythia6_BuJpsiK_TuneZ2star_13/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
-# new wf, GEN-SIM being made in 71x_pre6: GF uncomment when they'll be available
-#steps['Cosmics_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValCosmics_UP15/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
+steps['Cosmics_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValCosmics_UP15/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
 steps['BeamHalo_13INPUT']={'INPUT':InputInfo(dataSet='/RelValBeamHalo_13/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
 # particle guns with postLS1 geometry recycle GEN-SIM input
 steps['SingleElectronPt10_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleElectronPt10_UP15/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
