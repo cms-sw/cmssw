@@ -450,14 +450,14 @@ def switchToPFJets(process, input=cms.InputTag('pfNoTau'), algo='AK5', postfix =
     print "************************ "
     print "input collection: ", input
 
-    if( algo == 'IC5' ):
-        genJetCollection = cms.InputTag('iterativeCone5GenJetsNoNu')
-    elif algo == 'AK5':
+    if algo == 'AK5':
         genJetCollection = cms.InputTag('ak5GenJetsNoNu')
+        rParam=0.5
     elif algo == 'AK7':
         genJetCollection = cms.InputTag('ak7GenJetsNoNu')
+        rParam=0.7
     else:
-        print 'bad jet algorithm:', algo, '! for now, only IC5, AK5 and AK7 are allowed. If you need other algorithms, please contact Colin'
+        print 'bad jet algorithm:', algo, '! for now, only AK5 and AK7 are allowed. If you need other algorithms, please contact Colin'
         sys.exit(1)
 
     # changing the jet collection in PF2PAT:
@@ -469,13 +469,14 @@ def switchToPFJets(process, input=cms.InputTag('pfNoTau'), algo='AK5', postfix =
     switchJetCollection(process,
                         input,
                         jetIdLabel = algo,
+                        rParam=rParam,
                         doJTA=True,
                         doBTagging=True,
                         jetCorrLabel=inputJetCorrLabel,
                         doType1MET=type1,
                         genJetCollection = genJetCollection,
                         doJetID = True,
-			postfix = postfix,
+                        postfix = postfix,
                         outputModules = outputModules
                         )
     # check whether L1FastJet is in the list of correction levels or not
