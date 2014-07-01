@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_1_1/GRun/V54 (CMSSW_7_1_1)
+# /dev/CMSSW_7_1_1/GRun/V55 (CMSSW_7_1_1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTGRun" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_1_1/GRun/V54')
+  tableName = cms.string('/dev/CMSSW_7_1_1/GRun/V55')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -12356,19 +12356,24 @@ process.hltIter1PixelLayerTriplets = cms.EDProducer( "SeedingLayersEDProducer",
 )
 process.hltIter1PFlowPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer",
     RegionFactoryPSet = cms.PSet( 
-      ComponentName = cms.string( "TauRegionalPixelSeedGenerator" ),
+      ComponentName = cms.string( "CandidateSeededTrackingRegionsProducer" ),
       RegionPSet = cms.PSet( 
+        mode = cms.string( "VerticesFixed" ),
+        maxNRegions = cms.int32( 100 ),
+        maxNVertices = cms.int32( 1 ),
         precise = cms.bool( True ),
-        deltaPhiRegion = cms.double( 1.0 ),
-        originHalfLength = cms.double( 0.1 ),
+        deltaPhi = cms.double( 1.0 ),
+        zErrorBeamSpot = cms.double( 15.0 ),
+        nSigmaZBeamSpot = cms.double( 3.0 ),
+        zErrorVetex = cms.double( 0.1 ),
         originRadius = cms.double( 0.05 ),
-        deltaEtaRegion = cms.double( 1.0 ),
-        vertexSrc = cms.InputTag( "hltPixelVertices" ),
+        measurementTrackerName = cms.string( "hltIter1MaskedMeasurementTrackerEvent" ),
+        deltaEta = cms.double( 1.0 ),
+        vertexCollection = cms.InputTag( "hltPixelVertices" ),
+        beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
         searchOpt = cms.bool( True ),
-        JetSrc = cms.InputTag( "hltIter0TrackAndTauJets4Iter1" ),
-        originZPos = cms.double( 0.0 ),
-        ptMin = cms.double( 0.5 ),
-        measurementTrackerName = cms.string( "hltIter1MaskedMeasurementTrackerEvent" )
+        input = cms.InputTag( "hltIter0TrackAndTauJets4Iter1" ),
+        ptMin = cms.double( 0.5 )
       )
     ),
     SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) ),
@@ -12660,19 +12665,24 @@ process.hltIter2PixelLayerPairs = cms.EDProducer( "SeedingLayersEDProducer",
 )
 process.hltIter2PFlowPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer",
     RegionFactoryPSet = cms.PSet( 
-      ComponentName = cms.string( "TauRegionalPixelSeedGenerator" ),
+      ComponentName = cms.string( "CandidateSeededTrackingRegionsProducer" ),
       RegionPSet = cms.PSet( 
         precise = cms.bool( True ),
-        deltaPhiRegion = cms.double( 0.8 ),
-        originHalfLength = cms.double( 0.05 ),
         originRadius = cms.double( 0.025 ),
-        deltaEtaRegion = cms.double( 0.8 ),
-        vertexSrc = cms.InputTag( "hltPixelVertices" ),
         searchOpt = cms.bool( True ),
-        JetSrc = cms.InputTag( "hltIter1TrackAndTauJets4Iter2" ),
-        originZPos = cms.double( 0.0 ),
         ptMin = cms.double( 1.2 ),
-        measurementTrackerName = cms.string( "hltIter2MaskedMeasurementTrackerEvent" )
+        measurementTrackerName = cms.string( "hltIter2MaskedMeasurementTrackerEvent" ),
+        deltaPhi = cms.double( 0.8 ),
+        deltaEta = cms.double( 0.8 ),
+        vertexCollection = cms.InputTag( "hltPixelVertices" ),
+        mode = cms.string( "VerticesFixed" ),
+        maxNRegions = cms.int32( 100 ),
+        maxNVertices = cms.int32( 1 ),
+        zErrorBeamSpot = cms.double( 15.0 ),
+        nSigmaZBeamSpot = cms.double( 3.0 ),
+        zErrorVetex = cms.double( 0.05 ),
+        beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+        input = cms.InputTag( "hltIter1TrackAndTauJets4Iter2" )
       )
     ),
     SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) ),
@@ -12914,19 +12924,24 @@ process.hltIter3LayerTriplets = cms.EDProducer( "SeedingLayersEDProducer",
 )
 process.hltIter3PFlowMixedSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer",
     RegionFactoryPSet = cms.PSet( 
-      ComponentName = cms.string( "TauRegionalPixelSeedGenerator" ),
+      ComponentName = cms.string( "CandidateSeededTrackingRegionsProducer" ),
       RegionPSet = cms.PSet( 
         precise = cms.bool( True ),
-        deltaPhiRegion = cms.double( 0.5 ),
-        originHalfLength = cms.double( 0.05 ),
         originRadius = cms.double( 0.05 ),
-        deltaEtaRegion = cms.double( 0.5 ),
-        vertexSrc = cms.InputTag( "hltPixelVertices" ),
         searchOpt = cms.bool( True ),
-        JetSrc = cms.InputTag( "hltIter2TrackAndTauJetsIter3" ),
-        originZPos = cms.double( 0.0 ),
         ptMin = cms.double( 0.8 ),
-        measurementTrackerName = cms.string( "hltIter3MaskedMeasurementTrackerEvent" )
+        measurementTrackerName = cms.string( "hltIter3MaskedMeasurementTrackerEvent" ),
+        deltaPhi = cms.double( 0.5 ),
+        deltaEta = cms.double( 0.5 ),
+        vertexCollection = cms.InputTag( "hltPixelVertices" ),
+        mode = cms.string( "VerticesFixed" ),
+        maxNRegions = cms.int32( 100 ),
+        maxNVertices = cms.int32( 1 ),
+        zErrorBeamSpot = cms.double( 15.0 ),
+        nSigmaZBeamSpot = cms.double( 3.0 ),
+        zErrorVetex = cms.double( 0.05 ),
+        beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+        input = cms.InputTag( "hltIter2TrackAndTauJetsIter3" )
       )
     ),
     SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) ),
@@ -13228,19 +13243,24 @@ process.hltIter4PixelLessLayerTriplets = cms.EDProducer( "SeedingLayersEDProduce
 )
 process.hltIter4PFlowPixelLessSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer",
     RegionFactoryPSet = cms.PSet( 
-      ComponentName = cms.string( "TauRegionalPixelSeedGenerator" ),
+      ComponentName = cms.string( "CandidateSeededTrackingRegionsProducer" ),
       RegionPSet = cms.PSet( 
         precise = cms.bool( True ),
-        deltaPhiRegion = cms.double( 0.5 ),
-        originHalfLength = cms.double( 12.0 ),
         originRadius = cms.double( 1.0 ),
-        deltaEtaRegion = cms.double( 0.5 ),
-        vertexSrc = cms.InputTag( "hltPixelVertices" ),
         searchOpt = cms.bool( True ),
-        JetSrc = cms.InputTag( "hltIter3TrackAndTauJets4Iter4" ),
-        originZPos = cms.double( 0.0 ),
         ptMin = cms.double( 0.8 ),
-        measurementTrackerName = cms.string( "hltIter4MaskedMeasurementTrackerEvent" )
+        measurementTrackerName = cms.string( "hltIter4MaskedMeasurementTrackerEvent" ),
+        deltaPhi = cms.double( 0.5 ),
+        deltaEta = cms.double( 0.5 ),
+        vertexCollection = cms.InputTag( "hltPixelVertices" ),
+        mode = cms.string( "VerticesFixed" ),
+        maxNRegions = cms.int32( 100 ),
+        maxNVertices = cms.int32( 1 ),
+        zErrorBeamSpot = cms.double( 15.0 ),
+        nSigmaZBeamSpot = cms.double( 3.0 ),
+        zErrorVetex = cms.double( 12.0 ),
+        beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+        input = cms.InputTag( "hltIter3TrackAndTauJets4Iter4" )
       ),
       RegionPsetFomBeamSpotBlockFixedZ = cms.PSet( 
         beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
