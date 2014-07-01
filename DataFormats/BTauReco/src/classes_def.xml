@@ -30,8 +30,9 @@
   <class name="reco::JTATagInfoRefVector"/>
   <class name="edm::Wrapper<reco::JTATagInfoCollection>"/>
 
-  <class name="reco::SecondaryVertexTagInfo" ClassVersion="10">
+  <class name="reco::SecondaryVertexTagInfo" ClassVersion="11">
    <version ClassVersion="10" checksum="4280698582"/>
+   <version ClassVersion="11" checksum="4112433172"/>
   </class>
   <class name="reco::SecondaryVertexTagInfo::TrackData" ClassVersion="10">
    <version ClassVersion="10" checksum="3899080432"/>
