@@ -292,6 +292,9 @@ class PFRecHitQTestHCALTimeVsDepth : public PFRecHitQTestBase {
     bool test(reco::PFRecHit& hit,const CaloTower& rh,bool& clean) {
       return true;
     }
+    bool test(reco::PFRecHit& hit, const HGCRecHit& rh, bool& clean) {
+      return true;
+    }
 
  protected:
     std::vector<int> depths_;
@@ -358,6 +361,9 @@ class PFRecHitQTestHCALThresholdVsDepth : public PFRecHitQTestBase {
       return true;
     }
 
+    bool test(reco::PFRecHit& hit, const HGCRecHit& rh, bool& clean) {
+      return true;
+    }
  protected:
     std::vector<int> depths_;
     std::vector<double> thresholds_;
