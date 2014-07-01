@@ -101,7 +101,7 @@ class LHEReader::XMLHandler : public XMLDocument::Handler {
   typedef std::vector<std::pair<std::string,std::string> > wgt_info;
 	XMLHandler() :
 		impl(0), gotObject(kNone), mode(kNone),
-		xmlHeader(0), xmlEvent(0), headerOk(false) {}
+		xmlHeader(0), xmlEvent(0), headerOk(false), npLO(-99), npNLO(-99) {}
 	~XMLHandler()
 	{ if (xmlHeader) xmlHeader->release(); 
 	  if (xmlEvent) xmlEvent->release();   }
@@ -144,6 +144,9 @@ class LHEReader::XMLHandler : public XMLDocument::Handler {
 	bool				headerOk;
 	std::vector<LHERunInfo::Header>	headers;
         wgt_info weightsinevent;
+        int                             npLO;
+        int                             npNLO;
+        std::map<int,float>             scalesmap;
 };
 
 static void attributesToDom(DOMElement *dom, const Attributes &attributes)
@@ -198,10 +201,24 @@ void LHEReader::XMLHandler::startElement(const XMLCh *const uri,
     DOMElement *elem = xmlEvent->createElement(qname);    
     attributesToDom(elem, attributes);
 
+    //TODO this is a hack (even more than the rest of this class)
     if( name == "rwgt" ) {
       xmlEventNodes[0]->appendChild(elem);
     } else if (name == "wgt") {
       xmlEventNodes[1]->appendChild(elem);
+    }
+    else if (name == "scales") {
+      for (XMLSize_t iscale=0; iscale<attributes.getLength(); ++iscale) {
+        int ipart = 0;
+        const char *scalename = XMLSimpleStr(attributes.getQName(iscale));
+        sscanf(scalename,"pt_start_%d",&ipart);
+        
+        float scaleval;
+        const char *scalevalstr = XMLSimpleStr(attributes.getValue(iscale));
+        sscanf(scalevalstr,"%e",&scaleval);
+        
+        scalesmap[ipart] = scaleval;
+      }
     }
     xmlEventNodes.push_back(elem);
     return;
@@ -227,6 +244,21 @@ void LHEReader::XMLHandler::startElement(const XMLCh *const uri,
     if(xmlEvent)  xmlEvent->release();
     xmlEvent = impl->createDocument(0, qname, 0);
     weightsinevent.resize(0);
+    scalesmap.clear();
+    
+    npLO = -99;
+    npNLO = -99;
+    const XMLCh *npLOval = attributes.getValue(XMLString::transcode("npLO"));
+    if (npLOval) {
+      const char *npLOs = XMLSimpleStr(npLOval);      
+      sscanf(npLOs,"%d",&npLO);
+    }
+    const XMLCh *npNLOval = attributes.getValue(XMLString::transcode("npNLO"));
+    if (npNLOval) {
+      const char *npNLOs = XMLSimpleStr(npNLOval);      
+      sscanf(npNLOs,"%d",&npNLO);
+    }    
+    
     xmlEventNodes.resize(1);
     xmlEventNodes[0] = xmlEvent->getDocumentElement();
     mode = kEvent;    
@@ -294,11 +326,7 @@ void LHEReader::XMLHandler::endElement(const XMLCh *const uri,
       xmlHeader->release();
       xmlHeader = 0;
     }
-
-    if( name == "rwgt" && mode == kEvent ) return;
-    if( name == "wgt" && mode == kEvent ) return; 
-
-    if (name == "event" && 
+    else if (name == "event" && 
 	mode == kEvent && 
 	xmlEventNodes.size() >= 1) { // handling of weights in LHE file
       for(DOMNode *node = xmlEventNodes[0]->getFirstChild();
@@ -330,6 +358,10 @@ void LHEReader::XMLHandler::endElement(const XMLCh *const uri,
 	  break;
 	}
       }      
+    }
+    else if (mode == kEvent) {
+      //skip unknown tags
+      return;
     }
 
     if (gotObject != kNone)
@@ -492,6 +524,17 @@ LHEReader::~LHEReader()
 	  sscanf(snum.c_str(),"%le",&num);	  
 	  lheevent->addWeight(gen::WeightsInfo(info[i].first,num));
 	}
+	lheevent->setNpLO(handler->npLO);
+        lheevent->setNpNLO(handler->npNLO);
+        //fill scales
+        if (handler->scalesmap.size()>0) {
+          std::vector<float> &scales = lheevent->scales();
+          scales = std::vector<float>(lheevent->getHEPEUP()->NUP, -1.);
+          for (const std::pair<int,float> &scale : handler->scalesmap) {
+            //index differs by one
+            scales[scale.first-1] = scale.second;
+          }
+        }
         return lheevent;
       }
     }

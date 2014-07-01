@@ -5,6 +5,7 @@
 <use   name="GeneratorInterface/Pythia6Interface"/>
 <use   name="GeneratorInterface/AlpgenInterface"/>
 <use   name="GeneratorInterface/LHEInterface"/>
+<use   name="pythia8"/>
 <use   name="f77compiler"/>
 <export>
   <lib   name="1"/>
