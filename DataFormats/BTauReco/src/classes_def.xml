@@ -198,12 +198,7 @@
   <class name="edm::Wrapper<reco::JetEisolAssociationCollection>"/>
 
 
-  <class name="reco::TrackIPTagInfo" ClassVersion="10">
-   <version ClassVersion="10" checksum="2757856754"/>
-  </class>
-  <class name="reco::TrackIPTagInfo::TrackIPData" ClassVersion="10">
-   <version ClassVersion="10" checksum="3653489242"/>
-  </class>
+  <class name="reco::TrackIPTagInfo"/>
   <class name="std::vector<reco::TrackIPTagInfo::TrackIPData>"/>
   <class name="reco::TrackIPTagInfoCollection"/>
   <class name="reco::TrackIPTagInfoRef"/>
