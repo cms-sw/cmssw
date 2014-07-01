@@ -211,7 +211,7 @@ void LHEReader::XMLHandler::startElement(const XMLCh *const uri,
       for (XMLSize_t iscale=0; iscale<attributes.getLength(); ++iscale) {
         int ipart = 0;
         const char *scalename = XMLSimpleStr(attributes.getQName(iscale));
-        sscanf(scalename,"pt_start_%d",&ipart);
+        sscanf(scalename,"pt_clust_%d",&ipart);
         
         float scaleval;
         const char *scalevalstr = XMLSimpleStr(attributes.getValue(iscale));

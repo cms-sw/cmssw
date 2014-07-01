@@ -34,8 +34,7 @@ fi
 mkdir lheevent; cd lheevent
 
 # retrieve the wanted gridpack from the official repository 
-#fn-fileget -c `cmsGetFnConnect frontier://smallfiles` ${repo}/${name}_tarball.tar.gz 
-cp -p /afs/cern.ch/user/b/bendavid/work/mggridpacks/genproductions/bin/MadGraph5_aMCatNLO/${name}_tarball.tar.gz ./
+fn-fileget -c `cmsGetFnConnect frontier://smallfiles` ${repo}/${name}_tarball.tar.gz 
 
 #check the structure of the tarball
 tar xzf ${name}_tarball.tar.gz ; rm -f ${name}_tarball.tar.gz ;
