@@ -7,10 +7,14 @@ L1TkPrimaryVertex = cms.EDProducer('L1TkFastVertexProducer',
      PTMINTRA = cms.double( 2.),        # PTMIN of L1Tracks, in GeV
      nStubsmin = cms.int32( 4 ) ,       # minimum number of stubs
      nStubsPSmin = cms.int32( 3 ),       # minimum number of stubs in PS modules 
+     nBinning = cms.int32( 601 ),        # number of bins for the temp histo (from -30 cm to + 30 cm)
      PTMAX = cms.double( 50. ),          # in GeV. When PTMAX > 0, tracks with PT above PTMAX are considered as
 					 # mismeasured and are treated according to HighPtTracks below.
 					 # When PTMAX < 0, no special treatment is done for high PT tracks.
 					 # If PTMAX < 0, no saturation or truncation is done.
-     HighPtTracks = cms.int32( 0 )	 # when = 0 : truncation. Tracks with PT above PTMAX are ignored 
+     HighPtTracks = cms.int32( 0 ),	 # when = 0 : truncation. Tracks with PT above PTMAX are ignored 
 					 # when = 1 : saturation. Tracks with PT above PTMAX are set to PT=PTMAX.
+     MonteCarloVertex = cms.bool( False ),    #  when True: dont run the vxt finding algo but pick up the MC generated vtx
+     StandardQualityCutsOnTracks = cms.bool( False )    #  Louises quality cuts on tracks
+
 )

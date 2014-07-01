@@ -101,6 +101,10 @@ class L1TkFastVertexProducer : public edm::EDProducer {
 	int nStubsmin ;		// minimum number of stubs 
 	int nStubsPSmin ;	// minimum number of stubs in PS modules 
 
+        int nBinning;   // number of bins used in the temp histogram
+
+        bool MonteCarloVertex;   //
+	bool StandardQualityCutsOnTracks;
         //const StackedTrackerGeometry*                   theStackedGeometry;
 
 	TH1F* htmp;
@@ -145,6 +149,10 @@ L1TkFastVertexProducer::L1TkFastVertexProducer(const edm::ParameterSet& iConfig)
 
   nStubsmin = iConfig.getParameter<int>("nStubsmin");
   nStubsPSmin = iConfig.getParameter<int>("nStubsPSmin");
+  nBinning = iConfig.getParameter<int>("nBinning");
+
+  MonteCarloVertex = iConfig.getParameter<bool>("MonteCarloVertex");
+  StandardQualityCutsOnTracks = iConfig.getParameter<bool>("StandardQualityCutsOnTracks");
 
 
  //int nbins = 300;
@@ -155,9 +163,10 @@ L1TkFastVertexProducer::L1TkFastVertexProducer(const edm::ParameterSet& iConfig)
  //float xmin = -15;
  //float xmax = +15;
 
- int nbins = 600;
- float xmin = -30 + 0.05/2.;
- float xmax = +30 + 0.05/2.;
+ //int nbins = 600;
+ int nbins = nBinning ; // should be odd
+ float xmin = -30 ;
+ float xmax = +30 ;
 
   htmp = new TH1F("htmp",";z (cm); Tracks",nbins,xmin,xmax);
   htmp_weight = new TH1F("htmp_weight",";z (cm); Tracks",nbins,xmin,xmax);
@@ -206,7 +215,6 @@ L1TkFastVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
     // ----------------------------------------------------------------------
 
-/*
         // MC info  ... retrieve the zvertex            
   edm::Handle<edm::HepMCProduct> HepMCEvt;
   iEvent.getByLabel("generator",HepMCEvt);
@@ -239,9 +247,14 @@ L1TkFastVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
              zvtx_gen = pos.z()*mm;
              break;  // there should be one single primary vertex
           }  // end loop over gen vertices
-*/
 
 
+ if (MonteCarloVertex) { 
+     L1TkPrimaryVertex genvtx( zvtx_gen, -999.); 
+     result -> push_back( genvtx );
+     iEvent.put( result);
+     return;
+ }
 
  edm::Handle<L1TkTrackCollectionType> L1TkTrackHandle;
  iEvent.getByLabel(L1TrackInputTag, L1TkTrackHandle);   
@@ -264,6 +277,8 @@ L1TkFastVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     float z  = trackIter->getPOCA().z();
     float chi2 = trackIter->getChi2();
     float pt = trackIter->getMomentum().perp();
+    float eta  = trackIter ->getMomentum().eta();
+
 
     if (fabs(z) > ZMAX ) continue;
     if (chi2 > CHI2MAX) continue;
@@ -299,6 +314,28 @@ L1TkFastVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
        } // end loop over stubs
         if (nstubs < nStubsmin) continue;
         if (nPS < nStubsPSmin) continue;
+
+
+
+	// quality cuts from Louise S, based on the pt-stub compatibility (June 20, 2014)
+     if (StandardQualityCutsOnTracks) {
+
+      float trk_consistency = trackIter ->getStubPtConsistency();
+      int trk_nstub  = (int) trackIter ->getStubRefs().size();
+
+      float chi2dof = chi2 / (2*trk_nstub-4);
+
+      if (trk_nstub < 4) continue;
+      if (chi2 > 100.0) continue;
+      if (trk_nstub == 4) {
+    	if (fabs(eta)<2.2 && trk_consistency>10) continue;
+    	else if (fabs(eta)>2.2 && chi2dof>5.0) continue;
+      }
+      if (pt>10.0 && chi2dof>5.0) continue;
+
+     }
+
+
      htmp -> Fill( z );
      htmp_weight -> Fill( z, pt ); 
    
