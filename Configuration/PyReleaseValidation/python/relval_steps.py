@@ -50,14 +50,12 @@ class InputInfo(object):
         self.ib_blacklist = ib_blacklist
         self.ib_block = ib_block
         
-    def das(self):
-        query_by = "block" if self.ib_block else "dataset"
-        query_source = "{0}#{1}".format(self.dataSet, self.ib_block) if self.ib_block else self.dataSet
+    def das(self, das_options):
         if len(self.run) is not 0:
-            command = ";".join(["das_client.py --limit=0 --query 'file {0}={1} run={2}'".format(query_by, query_source, query_run) for query_run in self.run])
+            command = ";".join(["das_client.py %s --query '%s'" % (das_options, query) for query in self.queries()])
             command = "({0})".format(command)
         else:
-            command = "das_client.py --limit=0 --query 'file {0}={1} site=T2_CH_CERN'".format(query_by, query_source)
+            command = "das_client.py %s --query '%s'" % (das_options, self.queries()[0])
        
         # Run filter on DAS output 
         if self.ib_blacklist:
@@ -70,6 +68,14 @@ class InputInfo(object):
         if len(self.run) != 0:
             return "echo '{\n"+",".join(('"%d":[[1,268435455]]\n'%(x,) for x in self.run))+"}'"
         return None
+
+    def queries(self):
+        query_by = "block" if self.ib_block else "dataset"
+        query_source = "{0}#{1}".format(self.dataSet, self.ib_block) if self.ib_block else self.dataSet
+        if len(self.run) is not 0:
+            return ["file {0}={1} run={2}".format(query_by, query_source, query_run) for query_run in self.run]
+        else:
+            return ["file {0}={1} site=T2_CH_CERN".format(query_by, query_source)]
 
     def __str__(self):
         if self.ib_block:
