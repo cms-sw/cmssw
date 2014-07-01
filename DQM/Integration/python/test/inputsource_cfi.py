@@ -7,13 +7,13 @@ from dqmPythonTypes import *
 options = VarParsing.VarParsing('analysis')
 
 options.register('runNumber',
-                 194533,
+                 111,
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.int,
                  "Run number.")
 
 options.register('runInputDir',
-                 '/fff/BU0/test',
+                 '/tmp',
                  VarParsing.VarParsing.multiplicity.singleton,
                  VarParsing.VarParsing.varType.string,
                  "Directory where the DQM files will appear.")
@@ -27,13 +27,13 @@ options.register('skipFirstLumis',
 # Parameters for runType
 
 options.register('runtype',
-         'pp_run',
+         'cosmic_run',
         VarParsing.VarParsing.multiplicity.singleton,
         VarParsing.VarParsing.varType.string,
           "Type of Run in CMS")
 
 options.register ('runkey',
-          'pp_run',
+          'cosmic_run',
           VarParsing.VarParsing.multiplicity.singleton,
           VarParsing.VarParsing.varType.string,
           "Run Keys of CMS")
@@ -46,7 +46,7 @@ options.parseArguments()
 
 runType = RunType(['pp_run','cosmic_run','hi_run','hpu_run'])
 if not options.runkey.strip():
-  options.runkey = 'pp_run'
+  options.runkey = 'cosmic_run'
 
 runType.setRunType(options.runkey.strip())
 
@@ -54,7 +54,8 @@ runType.setRunType(options.runkey.strip())
 source = cms.Source("DQMStreamerReader",
     runNumber = cms.untracked.uint32(options.runNumber),
     runInputDir = cms.untracked.string(options.runInputDir),
-    streamLabel = cms.untracked.string(''),
+    SelectEvents = cms.untracked.vstring('*'),
+    streamLabel = cms.untracked.string('_streamDQM_StorageManager'),
     minEventsPerLumi = cms.untracked.int32(1),
     delayMillis = cms.untracked.uint32(500),
     skipFirstLumis = cms.untracked.bool(options.skipFirstLumis),
