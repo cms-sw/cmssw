@@ -37,7 +37,7 @@ parser.add_option("--conditions",
 parser.add_option("--useCondDBv1",
                   help="use conditions DB V1",
                   action="store_true",
-                  default=False,
+                  default=True,
                   dest="useCondDBv1")
 
 parser.add_option("--eventcontent",
