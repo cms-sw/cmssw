@@ -76,8 +76,6 @@
 #include <boost/regex.hpp>
 
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
-//-ap #include "TrackingTools/TrackAssociator/interface/TimerStack.h"
-#include "Utilities/Timing/interface/TimerStack.h"
 
 #include "TH1F.h"
 #include <TFile.h>
