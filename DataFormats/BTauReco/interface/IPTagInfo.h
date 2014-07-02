@@ -31,6 +31,9 @@ double etaRel(const math::XYZVector &dir, const math::XYZVector &track) const {
   return 0.5 * log((energy + momPar) / (energy - momPar));
 }
 
+    typedef Container input_container;
+    typedef Base base_class;
+
   struct TrackIPData {
     GlobalPoint closestToJetAxis;
     GlobalPoint closestToGhostTrack;

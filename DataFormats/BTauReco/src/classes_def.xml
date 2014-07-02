@@ -34,15 +34,16 @@
    <version ClassVersion="10" checksum="4280698582"/>
    <version ClassVersion="11" checksum="4112433172"/>
   </class>
-  <class name="reco::SecondaryVertexTagInfo::TrackData" ClassVersion="10">
+<!-- FIXME
+  <class name="reco::SecondaryVertexTagInfo::TrackData" ClassVersion="11">
    <version ClassVersion="10" checksum="3899080432"/>
   </class>
-  <class name="reco::SecondaryVertexTagInfo::VertexData" ClassVersion="10">
+  <class name="reco::SecondaryVertexTagInfo::VertexData" ClassVersion="11">
    <version ClassVersion="10" checksum="337200088"/>
   </class>
   <class name="std::vector<reco::SecondaryVertexTagInfo::VertexData>"/>
   <class name="reco::SecondaryVertexTagInfo::IndexedTrackData"/>
-  <class name="std::vector<reco::SecondaryVertexTagInfo::IndexedTrackData>"/>
+  <class name="std::vector<reco::SecondaryVertexTagInfo::IndexedTrackData>"/> -->
   <class name="reco::SecondaryVertexTagInfoCollection"/>
   <class name="reco::SecondaryVertexTagInfoRef"/>
   <class name="reco::SecondaryVertexTagInfoFwdRef"/>
