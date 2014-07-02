@@ -476,7 +476,7 @@ G4VParticleChange* G4MonopoleTransportation::AlongStepDoIt( const G4Track& track
            G4ParticleTable::GetParticleTable()->FindParticle("opticalphoton");
 
 #ifdef G4VERBOSE
-  static G4int noCalls=0;
+  static thread_local G4int noCalls=0;
   noCalls++;
 #endif
 
@@ -754,7 +754,7 @@ G4MonopoleTransportation::StartTracking(G4Track* aTrack)
   }
 
   // Make sure to clear the chord finders of all fields (ie managers)
-  static G4FieldManagerStore* fieldMgrStore= G4FieldManagerStore::GetInstance();
+  G4FieldManagerStore* fieldMgrStore= G4FieldManagerStore::GetInstance();
   fieldMgrStore->ClearAllChordFindersState(); 
 
   // Update the current touchable handle  (from the track's)
