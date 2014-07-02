@@ -35,6 +35,7 @@
 #include "DataFormats/BTauReco/interface/TauMassTagInfo.h"
 #include "DataFormats/BTauReco/interface/JetEisolAssociation.h"
 #include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
+#include "DataFormats/BTauReco/interface/CandIPTagInfo.h"
 #include "DataFormats/BTauReco/interface/BaseTagInfo.h"
 #include "DataFormats/BTauReco/interface/JTATagInfo.h"
 #include "DataFormats/BTauReco/interface/JetTagInfo.h"
@@ -170,7 +171,6 @@ namespace DataFormats_BTauReco {
     edm::Wrapper<reco::JetEisolAssociationCollection>                   jea_wc;
 
 
-
     reco::TrackIPTagInfo                                                tcip;
     reco::TrackIPTagInfo::TrackIPData                                   tcip_data;
     std::vector<reco::TrackIPTagInfo::TrackIPData>                      tcip_datav;
@@ -181,6 +181,18 @@ namespace DataFormats_BTauReco {
     reco::TrackIPTagInfoRefVector                                       tcip_rv;
 
     edm::Wrapper<reco::TrackIPTagInfoCollection>                        tcip_wc;
+
+    reco::CandIPTagInfo                                                 cdip;
+    reco::CandIPTagInfo::TrackIPData                                    cdip_data;
+    std::vector<reco::CandIPTagInfo::TrackIPData>                       cdip_datav;
+    reco::CandIPTagInfoCollection                                       cdip_c;
+    reco::CandIPTagInfoRef                                              cdip_r;
+    reco::CandIPTagInfoFwdRef                                           cdip_fr;
+    reco::CandIPTagInfoRefProd                                          cdip_rp;
+    reco::CandIPTagInfoRefVector                                        cdip_rv;
+
+    edm::Wrapper<reco::CandIPTagInfoCollection>                         cdip_wc;
+
 
     reco::BaseTagInfo                                                   bti;
     reco::BaseTagInfoCollection                                         bti_c;

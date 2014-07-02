@@ -208,6 +208,15 @@
   <class name="reco::TrackIPTagInfoRefVector"/>
   <class name="edm::Wrapper<reco::TrackIPTagInfoCollection>"/>
 
+  <class name="reco::CandIPTagInfo"/>
+  <class name="std::vector<reco::CandIPTagInfo::TrackIPData>"/>
+  <class name="reco::CandIPTagInfoCollection"/>
+  <class name="reco::CandIPTagInfoRef"/>
+  <class name="reco::CandIPTagInfoFwdRef"/>
+  <class name="reco::CandIPTagInfoRefProd"/>
+  <class name="reco::CandIPTagInfoRefVector"/>
+  <class name="edm::Wrapper<reco::CandIPTagInfoCollection>"/>
+
   <class name="std::vector<Measurement1D>"/>
 
   <!-- RefToBase stuff -->
