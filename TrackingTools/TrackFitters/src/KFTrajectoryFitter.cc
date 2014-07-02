@@ -238,9 +238,11 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
     }
     LogTrace("TrackFitters")
       << "predTsos !" << "\n"
-      << predTsos << "\n"
+      << predTsos 
+      <<" with local position " << predTsos.localPosition()
       <<"currTsos !" << "\n"
-      << currTsos;
+      << currTsos
+      <<" with local position " << currTsos.localPosition();
   }
 
   LogDebug("TrackFitters") << "Found 1 trajectory with " << myTraj.foundHits() << " valid hits\n";

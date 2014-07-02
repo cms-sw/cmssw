@@ -229,11 +229,14 @@ KFTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
 	
 	LogTrace("TrackFitters")
 	  << "predTsos !" << "\n"
-	  << predTsos << "\n"
+	  << predTsos 
+          <<" with local position " << predTsos.localPosition() << "\n\n"
 	  << "currTsos !" << "\n"
 	  << currTsos << "\n"
+          <<" with local position " << currTsos.localPosition() << "\n\n"
 	  << "smooTsos !" << "\n"
-	  << smooTsos << "\n"
+	  << smooTsos 
+          <<" with local position " << smooTsos.localPosition() << "\n\n"
 	  << "smoothing estimate (with combTSOS)=" << estimate << "\n"
 	  << "filtering estimate=" << itm->estimate() << "\n";
 	

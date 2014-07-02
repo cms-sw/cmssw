@@ -117,13 +117,16 @@ TransientTrackingRecHit::RecHitPointer SiTrackerMultiRecHitUpdator::update( Tran
 	ihit != updatedcomponents.end(); ihit++) {
 
     double a_i = ComputeWeight(tsos, *(*ihit), false, annealing); //exp(-0.5*Chi2)/(2.*M_PI*sqrt(det));
+    LogTrace("SiTrackerMultiRecHitUpdator")<< "\t\t a_i:" << a_i ;
     double c_i = ComputeWeight(tsos, *(*ihit), true, annealing);  //exp(-0.5*theChi2Cut/annealing)/(2.*M_PI*sqrt(det));
+    LogTrace("SiTrackerMultiRecHitUpdator")<< "\t\t c_i:" << c_i ;
     mymap.push_back(std::pair<const TrackingRecHit*, float>((*ihit)->hit(), a_i));
 
     a_sum += a_i;
     c_sum += c_i;   
   }
   double total_sum = a_sum + c_sum;    
+  LogTrace("SiTrackerMultiRecHitUpdator")<< "\t\t total sum:" << total_sum ;
 
   unsigned int counter = 0;
   for(std::vector<TransientTrackingRecHit::RecHitPointer>::iterator ihit = updatedcomponents.begin(); 
@@ -174,7 +177,6 @@ double SiTrackerMultiRecHitUpdator::ComputeWeight(const TrajectoryStateOnSurface
   //define tsos position depending on the dimension of the hit
   typename AlgebraicROOTObject<N>::Vector tsospos;
   if( N==1 ){		
-    tsospos[0]=tsos.localPosition().x();
     if(!CutWeight)
     LogTrace("SiTrackerMultiRecHitUpdator")<<  "  TSOS position " << tsos.localPosition();
   }
@@ -190,41 +192,47 @@ double SiTrackerMultiRecHitUpdator::ComputeWeight(const TrajectoryStateOnSurface
               << aRecHit.dimension();
   }
 
-  // define variables that will be used to setup the KfComponentsHolder
-  ProjectMatrix<double,5,N>  pf;
-  typename AlgebraicROOTObject<N,5>::Matrix H;
-  typename AlgebraicROOTObject<N>::Vector r, rMeas;
-  typename AlgebraicROOTObject<N,N>::SymMatrix V, VMeas, W;
-  AlgebraicVector5 x = tsos.localParameters().vector();
-  const AlgebraicSymMatrix55 &C = (tsos.localError().matrix());
+
+  typedef typename AlgebraicROOTObject<N,5>::Matrix MatN5;
+  typedef typename AlgebraicROOTObject<5,N>::Matrix Mat5N;
+  typedef typename AlgebraicROOTObject<N,N>::SymMatrix SMatNN;
+  typedef typename AlgebraicROOTObject<N>::Vector VecN;
+
+  VecN r, rMeas; 
+  SMatNN R, RMeas;
+  MatN5 dummyProjMatrix;
+  auto && v = tsos.localParameters().vector();
+  auto && m = tsos.localError().matrix();
 
   // setup the holder with the correct dimensions and get the values
   KfComponentsHolder holder;
-  holder.template setup<N>(&r, &V, &H, &pf, &rMeas, &VMeas, x, C);
+  holder.template setup<N>(&r, &R, &dummyProjMatrix, &rMeas, &RMeas, v, m);
   aRecHit.getKfComponents(holder);
 
-  typename AlgebraicROOTObject<N>::Vector diff;
-  diff = r - tsospos;
+  VecN diff = r - rMeas;
+  //R += RMeas;						//assume that TSOS is predicted one
+  R *= annealing;					//assume that TSOS is smoothed one
 
-  //assume that TSOS is smoothed one
-  V *= annealing;
-  W = V;
-  //V += me.measuredError(*ihit);// result = b*V + H*C*H.T()
-
-  //ierr will be set to true when inversion is successfull
-  bool ierr = invertPosDefMatrix(W);
+  LogTrace("SiTrackerMultiRecHitUpdator")<< "\t\t r:" << r ;
+  LogTrace("SiTrackerMultiRecHitUpdator")<< "\t\t tsospos:" << tsospos ;
+  LogTrace("SiTrackerMultiRecHitUpdator")<< "\t\t diff:" << diff ;
+  LogTrace("SiTrackerMultiRecHitUpdator")<< "\t\t R:" << R ;
 
   //Det2 method will preserve the content of the Matrix 
   //and return true when the calculation is successfull
   double det;
-  bool ierr2 = V.Det2(det);
+  bool ierr = R.Det2(det);
+
+  bool ierr2 = invertPosDefMatrix(R);			//ierr will be set to true when inversion is successfull
+  double Chi2 = ROOT::Math::Similarity(diff, R);
 
   if( !ierr || !ierr2) {
     LogTrace("SiTrackerMultiRecHitUpdator")<<"SiTrackerMultiRecHitUpdator::ComputeWeight: W not valid!"<<std::endl;
-    LogTrace("SiTrackerMultiRecHitUpdator")<<"V: "<<V<<" AnnealingFactor: "<<annealing<<std::endl;
+    LogTrace("SiTrackerMultiRecHitUpdator")<<"V: "<<R<<" AnnealingFactor: "<<annealing<<std::endl;
   }
 
-  double Chi2 =  ROOT::Math::Similarity(diff,W);// Chi2 = diff.T()*W*diff
+  LogTrace("SiTrackerMultiRecHitUpdator")<< "\t\t det:" << det;
+  LogTrace("SiTrackerMultiRecHitUpdator")<< "\t\t Chi2:" << Chi2;
 
   double temp_weight;
   if( CutWeight ) 	temp_weight = exp(-0.5*theChi2Cut/annealing)/(2.*M_PI*sqrt(det));
