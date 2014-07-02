@@ -129,7 +129,7 @@ void MVAComputer::addProcessor(const VarProcessor* proc)
       << std::endl;
   }
   edm::TypeWithDict refType(type, kIsConstant | kIsReference);
-  edm::FunctionWithDict func = type.functionMemberByName(type.name(), refType.name(), false);
+  edm::FunctionWithDict func = type.functionMemberByName(type.unscopedName(), refType.qualifiedName(), false);
   if (!func) {
     throw cms::Exception("MVAComputerCalibration")
       << "Calibration class "
