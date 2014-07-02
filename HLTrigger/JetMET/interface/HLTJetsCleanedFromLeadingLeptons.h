@@ -169,9 +169,9 @@ void HLTJetsCleanedFromLeadingLeptons<JetType>::fillDescriptions(
 {
     edm::ParameterSetDescription desc;
     
-    desc.add<edm::InputTag>("leptons")->
+    desc.add<edm::InputTag>("leptons", edm::InputTag("triggerFilterObjectWithRefs"))->
      setComment("A collection of leptons that pass an HLT filter");
-    desc.add<edm::InputTag>("jets")->
+    desc.add<edm::InputTag>("jets", edm::InputTag("jetCollection"))->
      setComment("A collection of jets");
     desc.add<double>("minDeltaR", 0.3)->
      setComment("Minimal allowed angular separation between a jet and a lepton");
