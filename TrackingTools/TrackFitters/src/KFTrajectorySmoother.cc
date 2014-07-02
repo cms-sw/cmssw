@@ -78,12 +78,10 @@ KFTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
     //check surface just for safety: should never be ==0 because they are skipped in the fitter 
     // if unlikely(hit->det() == nullptr) continue;
     if unlikely( hit->surface()==nullptr ) {
-	LogDebug("TrackFitters")<< " Error: invalid hit with no GeomDet attached .... skipping";
+	LogDebug("TrackFitters") << " Error: invalid hit with no GeomDet attached .... skipping";
 	continue;
       }
 
-   if (hit->det() && hit->geographicalId()<1000U) std::cout << "Problem 0 det id for " << typeid(*hit).name() << ' ' <<  hit->det()->geographicalId()  << std::endl;
-   if (hit->isValid() && hit->geographicalId()<1000U) std::cout << "Problem 0 det id for " << typeid(*hit).name() << ' ' <<  hit->det()->geographicalId()  << std::endl;
 
 
     if (hitcounter != avtm.size())//no propagation needed for first smoothed (==last fitted) hit 

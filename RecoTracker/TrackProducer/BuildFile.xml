@@ -20,6 +20,7 @@
 <use   name="TrackingTools/GeomPropagators"/>
 <use   name="TrackingTools/PatternTools"/>
 <use   name="TrackingTools/Records"/>
+<use   name="RecoTracker/TransientTrackingRecHit"/>
 <use   name="TrackingTools/TrackFitters"/>
 <use   name="TrackingTools/TrajectoryState"/>
 <use   name="TrackingTools/KalmanUpdators"/>

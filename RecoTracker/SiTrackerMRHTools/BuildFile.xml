@@ -1,0 +1,21 @@
+<use   name="DataFormats/GeometryVector"/>
+<use   name="DataFormats/Math"/>
+<use   name="DataFormats/TrackerRecHit2D"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/Utilities"/>
+<use   name="RecoTracker/MeasurementDet"/>
+<use   name="RecoTracker/TkDetLayers"/>
+<use   name="RecoTracker/TransientTrackingRecHit"/>
+<use   name="TrackingTools/DetLayers"/>
+<use   name="TrackingTools/GeomPropagators"/>
+<use   name="TrackingTools/KalmanUpdators"/>
+<use   name="TrackingTools/MeasurementDet"/>
+<use   name="TrackingTools/PatternTools"/>
+<use   name="TrackingTools/TrajectoryState"/>
+<use   name="TrackingTools/TransientTrackingRecHit"/>
+<use   name="TrackingTools/TrackFitters"/>
+<export>
+  <lib   name="1"/>
+</export>
+
