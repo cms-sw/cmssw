@@ -5,8 +5,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
 
 class GEMHitsValidation : public GEMBaseValidation
 {

@@ -50,7 +50,7 @@ def draw_plot( file1, file2, tDir,oDir ) :
 		key_list.append(x.GetName())
 
 	for hist in key_list :
-		if ( hist.find("Re") != -1 or hist.find("dphi") != -1 ) :
+		if ( hist.find("xz") != -1 or hist.find("strip_phi_dist") != -1 or hist.find("dphi") != -1 ) :
 			draw_occ( oDir, d1.Get(hist), d2.Get(hist) )
 
 if __name__ == '__main__' :

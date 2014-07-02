@@ -11,6 +11,8 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
 class GEMBaseValidation
 {
 public:
@@ -30,6 +32,7 @@ protected:
 
   DQMStore* dbe_;
   edm::InputTag theInputTag;
+  edm::EDGetTokenT< edm::PSimHitContainer> GEMHitsTag_;
   const GEMGeometry* theGEMGeometry;
   edm::ParameterSet plotRange_;
 	std::vector<double> nBinZR_;
