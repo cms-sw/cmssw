@@ -89,7 +89,6 @@
 #include <MagneticField/Engine/interface/MagneticField.h>
 #include <MagneticField/Records/interface/IdealMagneticFieldRecord.h>
 #include <RecoTracker/TransientTrackingRecHit/interface/TSiStripRecHit2DLocalPos.h>
-#include <RecoTracker/TransientTrackingRecHit/interface/TSiTrackerMultiRecHit.h>
 #include <RecoTracker/TransientTrackingRecHit/interface/TSiPixelRecHit.h>
 #include <RecoTracker/TransientTrackingRecHit/interface/TSiStripRecHit1D.h>
 #include "RecoVertex/VertexPrimitives/interface/TransientVertex.h"
@@ -1104,7 +1103,7 @@ std::vector<double> TrackerDpgAnalysis::onTrackAngles(edm::Handle<edmNew::DetSet
 void TrackerDpgAnalysis::insertMeasurement(std::multimap<const uint32_t,std::pair<LocalPoint,double> >& collection,const TransientTrackingRecHit* hit , double tla)
 {
       if(!hit) return;
-      const TSiTrackerMultiRecHit* multihit=dynamic_cast<const TSiTrackerMultiRecHit*>(hit);
+      const SiTrackerMultiRecHit* multihit=dynamic_cast<const SiTrackerMultiRecHit*>(hit);
       const SiStripRecHit2D* singlehit=dynamic_cast<const SiStripRecHit2D*>(hit);
       const SiStripRecHit1D* hit1d=dynamic_cast<const SiStripRecHit1D*>(hit);
       if(hit1d) { //...->33X
