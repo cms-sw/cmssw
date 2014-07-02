@@ -52,18 +52,20 @@ pfClusteringHCAL = cms.Sequence()
 
 #semi3DHCAL=True
 #if semi3DHCAL:
-pfClusteringHCAL = cms.Sequence( particleFlowRecHitHBHEHO      +
-                                 particleFlowRecHitHF          +
-                                 particleFlowClusterHCALSemi3D +
-                                 particleFlowClusterHF           )
+#pfClusteringHCAL = cms.Sequence( particleFlowRecHitHBHEHO      +
+#                                 particleFlowRecHitHF          +
+#                                 particleFlowClusterHCALSemi3D +
+#                                 particleFlowClusterHF           )
 #else:
-#    pfClusteringHCAL = cms.Sequence( towerMakerPF             +
-#                                     particleFlowRecHitHCAL   +
-#                                     particleFlowRecHitHO     +
-#                                     particleFlowClusterHCAL  +
-#                                     particleFlowClusterHFHAD +
-#                                     particleFlowClusterHFEM  +
-#                                     particleFlowClusterHO      )
+
+towerMakerPF = calotowermaker.clone()
+pfClusteringHCAL = cms.Sequence( towerMakerPF             +
+                                 particleFlowRecHitHCAL   +
+                                 particleFlowRecHitHO     +
+                                 particleFlowClusterHCAL  +
+                                 particleFlowClusterHFHAD +
+                                 particleFlowClusterHFEM  +
+                                 particleFlowClusterHO      )
 
 #pfClusteringHCAL = cms.Sequence(particleFlowRecHitHCAL*particleFlowClusterHCAL)
 #pfClusteringHCALall = cms.Sequence(particleFlowClusterHCAL+particleFlowClusterHFHAD+particleFlowClusterHFEM)
@@ -74,7 +76,7 @@ pfClusteringHCAL = cms.Sequence( particleFlowRecHitHBHEHO      +
 #pfClusteringHCAL = cms.Sequence(particleFlowRecHitHCAL*particleFlowClusterHCAL*particleFlowClusterHFHAD*particleFlowClusterHFEM)
 pfClusteringPS = cms.Sequence(particleFlowRecHitPS*particleFlowClusterPS)
 
-towerMakerPF = calotowermaker.clone()
+
 
 # Changed values
 # Don't use calotowers for HO, instead we use RecHits directly, and perform the links with tracks and HCAL clusters.
