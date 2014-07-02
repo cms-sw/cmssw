@@ -47,6 +47,7 @@
 #include "G4SafetyHelper.hh"
 #include "G4FieldManagerStore.hh"
 #include "SimG4Core/Physics/interface/G4Monopole.hh"
+#include "SimG4Core/MagneticField/interface/ChordFinderSetter.h"
 
 class G4VSensitiveDetector;
 
@@ -59,10 +60,10 @@ namespace {
 }
 
 G4MonopoleTransportation::G4MonopoleTransportation(const G4Monopole* mpl,
-						   sim::FieldBuilder* fieldBuilder,
+						   sim::ChordFinderSetter* chordFinderSetter,
 						   G4int verb)
   : G4VProcess( G4String("MonopoleTransportation"), fTransportation ),
-    fFieldBuilder(fieldBuilder),
+    fChordFinderSetter(chordFinderSetter),
     fParticleIsLooping( false ),
     fPreviousSftOrigin (0.,0.,0.),
     fPreviousSafety    ( 0.0 ),
@@ -132,7 +133,7 @@ AlongStepGetPhysicalInteractionLength( const G4Track&  track,
   //magSetup->SetStepperAndChordFinder(1); 
   // change to monopole equation
   G4FieldManager* fieldMgrX=fFieldPropagator->FindAndSetFieldManager(track.GetVolume()); 
-  fFieldBuilder->setStepperAndChordFinder (fieldMgrX, 1);
+  fChordFinderSetter->setStepperAndChordFinder (fieldMgrX, 1);
   
   G4double geometryStepLength, newSafety ; 
   fParticleIsLooping = false ;
@@ -615,7 +616,7 @@ PostStepGetPhysicalInteractionLength( const G4Track& track,
   //magSetup->SetStepperAndChordFinder(0);
   // change back to usual equation
   G4FieldManager* fieldMgr=fFieldPropagator->FindAndSetFieldManager( track.GetVolume() ); 
-  fFieldBuilder->setStepperAndChordFinder (fieldMgr, 0);
+  fChordFinderSetter->setStepperAndChordFinder (fieldMgr, 0);
   
   *pForceCond = Forced ; 
   return DBL_MAX ;  // was kInfinity ; but convention now is DBL_MAX

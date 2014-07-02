@@ -22,6 +22,7 @@ namespace CLHEP {
 
 namespace sim {
   class FieldBuilder;
+  class ChordFinderSetter;
 }
 
 class PrimaryTransformer;
@@ -123,6 +124,7 @@ private:
   SensitiveDetectorCatalog m_catalog;
     
   sim::FieldBuilder             *m_fieldBuilder;
+  std::unique_ptr<sim::ChordFinderSetter> m_chordFinderSetter;
     
   std::string m_FieldFile;
   std::string m_WriteFile;
