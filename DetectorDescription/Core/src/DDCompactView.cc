@@ -33,7 +33,8 @@
 */    
 // 
 DDCompactView::DDCompactView(const DDLogicalPart & rootnodedata)
-  : rep_(new DDCompactViewImpl(rootnodedata))
+  : rep_( new DDCompactViewImpl( rootnodedata )),
+    worldpos_( new DDPosData( DDTranslation(), DDRotation(), 0 ))
 {
   // 2010-01-27 I am leaving this here so that we are sure the global stores
   // are open when a new DDCompactView is being made.  Eventually I want to
@@ -43,14 +44,11 @@ DDCompactView::DDCompactView(const DDLogicalPart & rootnodedata)
   DDLogicalPart::StoreT::instance().setReadOnly(false);
   DDSpecifics::StoreT::instance().setReadOnly(false);
   DDRotation::StoreT::instance().setReadOnly(false);
-  worldpos_ = new DDPosData( DDTranslation(), DDRotation(), 0 );
+  //worldpos_ = new DDPosData( DDTranslation(), DDRotation(), 0 );
 }
 
 DDCompactView::~DDCompactView() 
-{  
-  delete rep_;
-  delete worldpos_;
-}
+{}
 
 /** 
    The compact-view is kept in an acyclic directed multigraph represented
@@ -74,7 +72,7 @@ const DDLogicalPart & DDCompactView::root() const
   
 DDPosData* DDCompactView::worldPosition() const
 {
-  return worldpos_;
+  return worldpos_.get();
 }
 
 DDCompactView::walker_type DDCompactView::walker() const
