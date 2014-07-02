@@ -93,6 +93,9 @@ class L1TkEtMissProducer : public edm::EDProducer {
 	float PTMAX;	// in GeV
         int HighPtTracks;       // saturate or truncate
 
+        bool doPtComp;
+        bool doTightChi2;
+
         //const StackedTrackerGeometry*                   theStackedGeometry;
 
 };
@@ -136,6 +139,8 @@ L1TkEtMissProducer::L1TkEtMissProducer(const edm::ParameterSet& iConfig)
 
   PTMAX = (float)iConfig.getParameter<double>("PTMAX");
   HighPtTracks = iConfig.getParameter<int>("HighPtTracks");
+  doPtComp     = iConfig.getParameter<bool>("doPtComp");
+  doTightChi2 = iConfig.getParameter<bool>("doTightChi2");
 
   produces<L1TkEtMissParticleCollection>("MET");
 
@@ -222,13 +227,14 @@ L1TkEtMissProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   	for (trackIter = L1TkTrackHandle->begin(); trackIter != L1TkTrackHandle->end(); ++trackIter) {
  
     	    float pt = trackIter->getMomentum().perp();
+    	    float eta = trackIter->getMomentum().eta();
     	    float chi2 = trackIter->getChi2();
     	    float ztr  = trackIter->getPOCA().z();
-	
+
     	    if (pt < PTMINTRA) continue;
     	    if (fabs(ztr) > ZMAX ) continue;
     	    if (chi2 > CHI2MAX) continue;
-                
+
 
 	    float pt_rescale = 1;
 
@@ -256,6 +262,30 @@ L1TkEtMissProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             }
             if (nstubs < nStubsmin) continue;
             if (nPS < nStubsPSmin) continue;
+
+
+	    ////_______
+	    ////-------
+	    float trk_consistency = trackIter ->getStubPtConsistency();
+	    float chi2dof = chi2 / (2*nstubs-4);	
+
+	    if(doPtComp) {
+	      //	      if (trk_nstub < 4) continue;
+	      //	      if (trk_chi2 > 100.0) continue;
+	      if (nstubs == 4) {
+		if (fabs(eta)<2.2 && trk_consistency>10) continue;
+		else if (fabs(eta)>2.2 && chi2dof>5.0) continue;
+	      }
+	    }
+
+	    if(doTightChi2) {
+	      if(pt>10.0 && chi2dof>5.0 ) continue;
+	    }
+
+	    ////_______
+	    ////-------
+
+
 
             if ( fabs(ztr - zVTX) <= DeltaZ) {   // eg DeltaZ = 1 mm
 

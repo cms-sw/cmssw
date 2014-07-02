@@ -104,8 +104,10 @@ class L1TkFastVertexProducer : public edm::EDProducer {
         int nBinning;   // number of bins used in the temp histogram
 
         bool MonteCarloVertex;   //
-	bool StandardQualityCutsOnTracks;
         //const StackedTrackerGeometry*                   theStackedGeometry;
+
+	bool doPtComp ;
+	bool doTightChi2 ;
 
 	TH1F* htmp;
 	TH1F* htmp_weight;
@@ -152,7 +154,8 @@ L1TkFastVertexProducer::L1TkFastVertexProducer(const edm::ParameterSet& iConfig)
   nBinning = iConfig.getParameter<int>("nBinning");
 
   MonteCarloVertex = iConfig.getParameter<bool>("MonteCarloVertex");
-  StandardQualityCutsOnTracks = iConfig.getParameter<bool>("StandardQualityCutsOnTracks");
+  doPtComp = iConfig.getParameter<bool>("doPtComp");
+  doTightChi2 = iConfig.getParameter<bool>("doTightChi2");
 
 
  //int nbins = 300;
@@ -194,6 +197,7 @@ void
 L1TkFastVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
+   using namespace std;
  
  std::auto_ptr<L1TkPrimaryVertexCollection> result(new L1TkPrimaryVertexCollection);
 
@@ -215,15 +219,23 @@ L1TkFastVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
     // ----------------------------------------------------------------------
 
+ if (MonteCarloVertex) {
+
         // MC info  ... retrieve the zvertex            
   edm::Handle<edm::HepMCProduct> HepMCEvt;
   iEvent.getByLabel("generator",HepMCEvt);
   
-     const HepMC::GenEvent* MCEvt = HepMCEvt->GetEvent();
-     const double mm=0.1;
+  edm::Handle< vector<reco::GenParticle> > GenParticleHandle;
+  iEvent.getByLabel("genParticles","",GenParticleHandle);
 
+     const double mm=0.1;
      float zvtx_gen = -999;
+
  
+     if ( HepMCEvt.isValid() ) {
+                // using HepMCEvt
+
+     const HepMC::GenEvent* MCEvt = HepMCEvt->GetEvent();
      for ( HepMC::GenEvent::vertex_const_iterator ivertex = MCEvt->vertices_begin(); ivertex != MCEvt->vertices_end(); ++ivertex )
          {
              bool hasParentVertex = false;
@@ -248,8 +260,26 @@ L1TkFastVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
              break;  // there should be one single primary vertex
           }  // end loop over gen vertices
 
+	}
+     else if (GenParticleHandle.isValid() ) {
+        vector<reco::GenParticle>::const_iterator genpartIter ;
+        for (genpartIter = GenParticleHandle->begin(); genpartIter != GenParticleHandle->end(); ++genpartIter) {
+           int status = genpartIter -> status() ;
+	   if (status != 3) continue;
+	   if ( genpartIter -> numberOfMothers() == 0) continue;   // the incoming hadrons
+	   float part_zvertex = genpartIter -> vz() ;
+	   zvtx_gen = part_zvertex ;
+	   break;	// 
+	}
+     }
+     else {
+	edm::LogError("L1TkFastVertexProducer")
+ 	  << "\nerror: try to retrieve the MC vertex (MonteCarloVertex = True) "
+          << "\nbut the input file contains neither edm::HepMCProduct>  nor vector<reco::GenParticle>. Exit"
+          << std::endl;
+     }
 
- if (MonteCarloVertex) { 
+
      L1TkPrimaryVertex genvtx( zvtx_gen, -999.); 
      result -> push_back( genvtx );
      iEvent.put( result);
@@ -318,23 +348,21 @@ L1TkFastVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
 
 	// quality cuts from Louise S, based on the pt-stub compatibility (June 20, 2014)
-     if (StandardQualityCutsOnTracks) {
+    int trk_nstub  = (int) trackIter ->getStubRefs().size();
+    float chi2dof = chi2 / (2*trk_nstub-4);
 
+     if (doPtComp) {
       float trk_consistency = trackIter ->getStubPtConsistency();
-      int trk_nstub  = (int) trackIter ->getStubRefs().size();
-
-      float chi2dof = chi2 / (2*trk_nstub-4);
-
-      if (trk_nstub < 4) continue;
-      if (chi2 > 100.0) continue;
+      //if (trk_nstub < 4) continue;	// done earlier
+      //if (chi2 > 100.0) continue;	// done earlier
       if (trk_nstub == 4) {
     	if (fabs(eta)<2.2 && trk_consistency>10) continue;
     	else if (fabs(eta)>2.2 && chi2dof>5.0) continue;
       }
-      if (pt>10.0 && chi2dof>5.0) continue;
-
-     }
-
+    }
+    if (doTightChi2) {
+          if (pt>10.0 && chi2dof>5.0) continue;
+    }
 
      htmp -> Fill( z );
      htmp_weight -> Fill( z, pt ); 

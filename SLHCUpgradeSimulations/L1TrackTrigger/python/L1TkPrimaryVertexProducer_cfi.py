@@ -15,6 +15,6 @@ L1TkPrimaryVertex = cms.EDProducer('L1TkFastVertexProducer',
      HighPtTracks = cms.int32( 0 ),	 # when = 0 : truncation. Tracks with PT above PTMAX are ignored 
 					 # when = 1 : saturation. Tracks with PT above PTMAX are set to PT=PTMAX.
      MonteCarloVertex = cms.bool( False ),    #  when True: dont run the vxt finding algo but pick up the MC generated vtx
-     StandardQualityCutsOnTracks = cms.bool( False )    #  Louises quality cuts on tracks
-
+     doPtComp = cms.bool( True ),       # track-stubs PT compatibility cut
+     doTightChi2 = cms.bool( True )    # chi2dof < 5 for tracks with PT > 10
 )

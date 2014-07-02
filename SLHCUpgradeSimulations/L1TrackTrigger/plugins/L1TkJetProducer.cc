@@ -91,6 +91,8 @@ private:
   // jet cut 
   //bool JET_HLTETA;  // temporary hack to remove bad jets when using HI HLT jets!
 
+  bool doPtComp;
+  bool doTightChi2;
 
   // geometry for stub info
   const StackedTrackerGeometry* theStackedGeometry;
@@ -114,6 +116,8 @@ L1TkJetProducer::L1TkJetProducer(const edm::ParameterSet& iConfig)
   TRK_NSTUBMIN   = (int)iConfig.getParameter<int>("TRK_NSTUBMIN");
   TRK_NSTUBPSMIN = (int)iConfig.getParameter<int>("TRK_NSTUBPSMIN");
   //JET_HLTETA = (bool)iConfig.getParameter<bool>("JET_HLTETA");
+  doPtComp     = iConfig.getParameter<bool>("doPtComp");
+  doTightChi2 = iConfig.getParameter<bool>("doTightChi2");
   
 }
 
@@ -263,6 +267,31 @@ void L1TkJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	// more track selection
 	if (tmp_trk_nstubPS < TRK_NSTUBPSMIN) continue;
+
+
+	////_______                                                                                                                                                         
+	////-------                                                                                                                                                         
+	float tmp_trk_consistency = trackIter ->getStubPtConsistency();
+	float chi2dof = tmp_trk_chi2 / (2*tmp_trk_nstub-4);
+	
+	if(doPtComp) {
+	  //              if (trk_nstub < 4) continue;                                                                                                                      
+	  //              if (trk_chi2 > 100.0) continue;                                                                                                                   
+	  if (tmp_trk_nstub == 4) {
+	    if (fabs(tmp_trk_eta)<2.2 && tmp_trk_consistency>10) continue;
+	    else if (fabs(tmp_trk_eta)>2.2 && chi2dof>5.0) continue;
+	  }
+	}
+
+            if(doTightChi2) {
+              if(tmp_trk_pt>10.0 && chi2dof>5.0 ) continue;     
+            }      
+	
+	
+	////_______                                                                                                                                                         
+	////-------                                                                                                                                                         
+	
+
 
 
 	// deltaR
