@@ -114,6 +114,8 @@ TrajectorySeedProducer2::passTrackerRecHitQualityCuts(LayerNode& lastnodeofseed,
 		bool compatible=false;
 
 		//TODO: get rid of evil string comp!!!!
+		//if this is important => add a config option to specify if compatibility with PV is required
+		
 		if(seedingAlgo[trackingAlgorithmId] == "PixelLess" ||  seedingAlgo[trackingAlgorithmId] ==  "TobTecLayerPairs")
 		{
 			compatible = true;
@@ -122,30 +124,7 @@ TrajectorySeedProducer2::passTrackerRecHitQualityCuts(LayerNode& lastnodeofseed,
 			//if (!compatible) std::cout<<"reject beam axis"<<std::endl;
 		}
 
-		// Check if the pair is on the requested dets
-		if ( numberOfHits[trackingAlgorithmId] == 2 )
-		{
-
-			if ( seedingAlgo[trackingAlgorithmId] ==  "ThirdMixedPairs" )
-			{
-				//may not be necessary anymore
-				compatible = compatible && theSeedHits0.makesAPairWith3rd(theSeedHits1);
-			}
-			else
-			{
-				//may not be necessary anymore
-				compatible = compatible && theSeedHits0.makesAPairWith(theSeedHits1);
-			}
-		}
 		return compatible;
-	}
-	else if (lastnodeofseed.getDepth()==3)
-	{
-		TrackerRecHit& theSeedHits0 = trackerRecHits[globalHitNumbers[lastnodeofseed.getParent(2)->getGlobalIndex()]];
-		TrackerRecHit& theSeedHits1 = trackerRecHits[globalHitNumbers[lastnodeofseed.getParent(1)->getGlobalIndex()]];
-		TrackerRecHit& theSeedHits2 = trackerRecHits[globalHitNumbers[lastnodeofseed.getParent(0)->getGlobalIndex()]];
-		//may not be necessary anymore
-		return theSeedHits0.makesATripletWith(theSeedHits1,theSeedHits2);
 	}
 
 	return true;
