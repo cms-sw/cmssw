@@ -16,4 +16,11 @@
 <use   name="CLHEP"/>
 <use   name="root"/>
 <use   name="rootrflx"/>
-<flags   EDM_PLUGIN="1"/>
+<!--<flags   EDM_PLUGIN="1"/>-->
+<export>
+<!--  <flags   SEALPLUGIN="1"/>-->
+  <flags EDM_PLUGIN="1"/>
+  <lib   name="1"/>
+</export>
+
+

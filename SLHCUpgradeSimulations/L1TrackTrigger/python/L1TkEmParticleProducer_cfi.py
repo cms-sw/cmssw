@@ -16,7 +16,7 @@ L1TkPhotons = cms.EDProducer("L1TkEmParticleProducer",
                                                 # are considered. ETmin < 0 means that no cut is applied.
         RelativeIsolation = cms.bool( True ),   # default = True. The isolation variable is relative if True,
                                                 # else absolute.
-        IsoCut = cms.double( 0.1 ),             # Cut on the (Trk-based) isolation: only the L1TkEmParticle for which
+        IsoCut = cms.double( 0.23 ),             # Cut on the (Trk-based) isolation: only the L1TkEmParticle for which
                                                 # the isolation is below RelIsoCut are written into
                                                 # the output collection. When RelIsoCut < 0, no cut is applied.
                                                 # When RelativeIsolation = False, IsoCut is in GeV.
@@ -30,7 +30,14 @@ L1TkPhotons = cms.EDProducer("L1TkEmParticleProducer",
         PrimaryVtxConstrain = cms.bool( False ),  # default = False
 						  # if set to True, the L1TkPrimaryVertex is used to constrain
 						  # the tracks entering in the calculation of the isolatiom.
+        #DeltaZConstrain = cms.bool( False ),  # default = False
+                                                  # if set to True, constrain to the z of the leading
+						  # track within DR < DRmax
         DeltaZMax = cms.double( 999. ),    # in cm. Used only when PrimaryVtxConstrain = True
         L1VertexInputTag = cms.InputTag("NotUsed"),     # Used only when PrimaryVtxConstrain = True
 )
+
+
+L1TkPhotonsTightIsol = L1TkPhotons.clone()
+L1TkPhotonsTightIsol.IsoCut = cms.double( 0.10)
 

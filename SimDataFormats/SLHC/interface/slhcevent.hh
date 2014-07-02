@@ -257,9 +257,9 @@ public:
     bool foundclose=false;
 
     for (unsigned int i=0;i<stubs_.size();i++) {
-      if (fabs(stubs_[i].x()-stub.x())<0.2&&
-	  fabs(stubs_[i].y()-stub.y())<0.2&&
-	  fabs(stubs_[i].z()-stub.z())<2.0) {
+      if (fabs(stubs_[i].x()-stub.x())<0.02&&
+	  fabs(stubs_[i].y()-stub.y())<0.02&&
+	  fabs(stubs_[i].z()-stub.z())<0.2) {
 	foundclose=true;
       }
     }

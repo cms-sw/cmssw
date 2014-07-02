@@ -175,8 +175,10 @@ void L1CaloProtoClusterSharing::algorithm( const int &aEta, const int &aPhi )
 
 
         // Calculate Electron Cut and Save it in the Cluster
-        //int lElectronValue = ( int )( 1000. * ( ( double )lSharedCluster.HadEt() ) / ( ( double )lSharedCluster.EmEt() ) );
-        int lElectronValue = ( int )( 1000. * ( ( double )lSharedCluster.seedHadEt() ) / ( ( double )lSharedCluster.seedEmEt() ) );
+	// OLD H/E :
+        int lElectronValue = ( int )( 1000. * ( ( double )lSharedCluster.HadEt() ) / ( ( double )lSharedCluster.EmEt() ) );
+	// MANU NEW :
+        //int lElectronValue = ( int )( 1000. * ( ( double )lSharedCluster.seedHadEt() ) / ( ( double )lSharedCluster.seedEmEt() ) );
         lSharedCluster.setEGammaValue( lElectronValue );
 
 
