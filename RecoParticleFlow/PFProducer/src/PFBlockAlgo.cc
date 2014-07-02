@@ -32,8 +32,11 @@ PFBlockAlgo::PFBlockAlgo() :
 	INIT_ENTRY(PFBlockElement::HFEM),
 	INIT_ENTRY(PFBlockElement::HFHAD),
 	INIT_ENTRY(PFBlockElement::SC),
-	INIT_ENTRY(PFBlockElement::HO) 
-	  } ) {}
+	INIT_ENTRY(PFBlockElement::HO),
+	INIT_ENTRY(PFBlockElement::HGC_ECAL),
+	INIT_ENTRY(PFBlockElement::HGC_HCALF),
+	INIT_ENTRY(PFBlockElement::HGC_HCALB),
+	} ) {}
 
 void PFBlockAlgo::setLinkers(const std::vector<edm::ParameterSet>& confs) {
    constexpr unsigned rowsize = reco::PFBlockElement::kNBETypes;

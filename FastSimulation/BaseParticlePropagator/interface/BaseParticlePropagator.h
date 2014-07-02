@@ -123,6 +123,13 @@ public:
   bool propagateToVFcalEntrance(bool first=true);
   bool propagateToHcalExit(bool first=true);
   bool propagateToHOLayer(bool first=true);
+  bool propagateToHGCEEEntrance(bool first=true);
+  bool propagateToHGCEEExit(bool first=true);
+  bool propagateToHGCHEFEntrance(bool first=true);
+  bool propagateToHGCHEFExit(bool first=true);
+  bool propagateToHGCHEBEntrance(bool first=true);
+  bool propagateToHGCHEBExit(bool first=true);
+
   bool propagateToNominalVertex(const XYZTLorentzVector& hit2=XYZTLorentzVector(0.,0.,0.,0.));
   bool propagateToBeamCylinder(const XYZTLorentzVector& v, double radius=0.); 
   /// Set the propagation characteristics (rCyl, zCyl and first loop only)

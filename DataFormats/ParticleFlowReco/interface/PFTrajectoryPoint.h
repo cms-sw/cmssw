@@ -48,8 +48,17 @@ namespace reco {
       HCALExit = 7,
       /// HO layer
       HOLayer = 8,
+      
+      HGC_ECALEntrance = 9,
+      HGC_ECALExit = 10,
+      
+      HGC_HCALFEntrance = 11,
+      HGC_HCALFExit = 12,
 
-      NLayers = 9
+      HGC_HCALBEntrance = 13,
+      HGC_HCALBExit = 14,
+      
+      NLayers = 15
     };
 
     /// default constructor. Set variables at default dummy values
