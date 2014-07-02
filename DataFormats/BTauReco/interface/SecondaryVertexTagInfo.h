@@ -80,7 +80,7 @@ class TemplatedSecondaryVertexTagInfo : public BaseTagInfo {
 	                const std::vector<IndexedTrackData> &trackData,
 			const std::vector<VertexData> &svData,
 			unsigned int vertexCandidates,
-			const IPTI &trackIPTagInfoRef);
+			 const edm::Ref<std::vector<IPTI> >&);
 
         /// clone
         virtual TemplatedSecondaryVertexTagInfo * clone(void) const {
@@ -165,7 +165,7 @@ template<class IPTI>  TemplatedSecondaryVertexTagInfo<IPTI>::TemplatedSecondaryV
                 const std::vector<IndexedTrackData> &trackData,
 		const std::vector<VertexData> &svData,
 		unsigned int vertexCandidates,
-		const IPTI &trackIPTagInfoRef) :
+		const edm::Ref<std::vector<IPTI> > & trackIPTagInfoRef) :
 	m_trackData(trackData),
 	m_svData(svData),
 	m_vertexCandidates(vertexCandidates),
