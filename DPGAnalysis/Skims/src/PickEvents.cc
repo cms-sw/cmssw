@@ -101,12 +101,6 @@ PickEvents::PickEvents(const edm::ParameterSet& iConfig)
   if (isRunLsBased_ ){     std::cout <<"Selection based on run/luminositySection; file with run/event list: " << std::endl;      }  
   else              {     std::cout <<"Selection based on run/event; file with run/event list: "<< listrunevents_ << std::endl; }
 
-  // debug messages for development  std::cout <<"GF debug IsRunLsBased is: "<< isRunLsBased_ << std::endl;
-  if ( luminositySectionsBlockRanges_.size() ) { 
-    std::cout <<"GF debug first element of luminositySectionsBlockRanges_ is: " 
-	      << luminositySectionsBlockRanges_[0] << std::endl;
-  }
-
 }
 
 
@@ -129,39 +123,29 @@ PickEvents::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    if( isRunLsBased_ ) {
 
-     std::cout << "GF DEBUG: kRun is " << kRun << " kLumi is: " << kLumi << std::endl;
+     // std::cout << "GF DEBUG: kRun is " << kRun << " kLumi is: " << kLumi << std::endl;
 
      for(std::vector<edm::LuminosityBlockRange>::iterator oneLumiRange = luminositySectionsBlockRanges_.begin();
 	 oneLumiRange != luminositySectionsBlockRanges_.end(); ++oneLumiRange)
        {
-
-	 // if the run number does not match the runRange of the present Range -> next step of the loop
-	 //if (   !((*oneLumiRange).startRun() <= kRun       &&   kRun <= (*oneLumiRange).endRun()) ) continue;
-
-	 std::cout << "GF DEBUG: trying run interval [" << (*oneLumiRange).startRun()  << ", " << (*oneLumiRange).endRun() << "] with lumi interval: "
-		   <<  (*oneLumiRange).startLumi()  << ", " << (*oneLumiRange).endLumi() << std::endl;
-
 	 // luminositySectionsBlockRanges_ is sorted according to startRun()
 	 // => if kRun below it, you can stop the loop and return false
 	 if (  kRun < (*oneLumiRange).startRun()        ) {
-	   std::cout << "GF DEBUG: LS has NOT PASSED (early bail-out) ! ***" << std::endl;
+	   // std::cout << "GF DEBUG: LS has NOT PASSED (early bail-out) ! ***" << std::endl;
 	   break;
 	 }
 
-
-	 // if endRun() below kRun, go to the next block
+	 // if endRun() below kRun, go to the next iteration
 	 if (         (*oneLumiRange).endRun() < kRun   ) continue;
 
-	 std::cout << "GF DEBUG: kRun matches the run interval [" << (*oneLumiRange).startRun()  << ", " << (*oneLumiRange).endRun() << "]" << std::endl;
-	 std::cout << "GF DEBUG: now try for LS : kRun is " << kRun << " kLumi is: " << kLumi  << " (" << (*oneLumiRange).startLumi() << ", " << (*oneLumiRange).endLumi()<< std::endl;
 	 // if the run number and lumi section match => exit from the loop
 	 if (   (*oneLumiRange).startLumi() <= kLumi     &&   kLumi <= (*oneLumiRange).endLumi()  )
 	   {
 	     selectThisEvent = true;
-	     std::cout << "GF DEBUG: LS HAS PASSED ! ***" << std::endl;
+	     // std::cout << "GF DEBUG: LS HAS PASSED ! ***" << std::endl;
 	     break;
 	   }
-	 std::cout << "GF DEBUG: LS has NOT PASSED ! ***" << std::endl;
+
        }
 
    }        // end of isRunLsBased_
@@ -205,10 +189,8 @@ PickEvents::beginJob()
 
    if( isRunLsBased_ ) 
      {
-       std::cout << "GF debug sorting luminositySectionsBlockRanges_ to speedup the search. First element before : " << luminositySectionsBlockRanges_[0] << std::endl;
        // sorting luminositySectionsBlockRanges_ according to the starting run of the block allows the speedup the search by an average factor 2
        std::sort (luminositySectionsBlockRanges_.begin(), luminositySectionsBlockRanges_.end(), orderLuminosityBlockRange);
-       std::cout << "GF debug first element after: " << luminositySectionsBlockRanges_[0] << std::endl;
      }      // if isRunLsBased_
 
    else {   // !isRunLsBased_
