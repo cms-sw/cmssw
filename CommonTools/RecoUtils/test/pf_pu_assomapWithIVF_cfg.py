@@ -4,11 +4,15 @@ process = cms.Process("OWNPARTICLES")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(500) )
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('step2.root'),
 )
+
+#process.source = cms.Source("PoolSource",
+    #fileNames = cms.untracked.vstring('file:/user/geisler/QCD_Pt-15to3000_Tune2C_Flat_8TeV_pythia8_AODSIM.root'),
+#)
 
 ### conditions
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
@@ -19,6 +23,7 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load('Configuration.Geometry.GeometryPilot2_cff')
 process.load("Configuration.StandardSequences.RawToDigi_cff")
 process.load("Configuration.EventContent.EventContent_cff")
+process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")	
 	
 process.selectedPrimaryVertexQuality = cms.EDFilter("VertexSelector",
@@ -27,38 +32,39 @@ process.selectedPrimaryVertexQuality = cms.EDFilter("VertexSelector",
 	filter = cms.bool(True),
 )
 		
-### PFCandidate AssociationMap-specific includes
+### IVF-specific includes
+process.load("RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff")
+		
+### AssociationMap-specific includes
 from CommonTools.RecoUtils.pf_pu_assomap_cfi import AssociationMaps
 		
 process.assMap = AssociationMaps.clone(
           VertexCollection = cms.InputTag('selectedPrimaryVertexQuality'),
-)
-		
-### PFCandidate AssociationMap-specific includes
-from CommonTools.RecoUtils.pfcand_assomap_cfi import PFCandAssoMap
-		
-process.PFCand2VertexAM = PFCandAssoMap.clone(
+          IVFVertexCollection = cms.InputTag('inclusiveMergedVertices'),
+)				  
+
+### FirstVertexTracks-specific includes
+from CommonTools.RecoUtils.pf_pu_firstvertextracks_cfi import FirstVertexTracks
+						       
+process.firstVertexTracks = FirstVertexTracks.clone(
+          AssociationMap = cms.InputTag('assMap'),
           VertexCollection = cms.InputTag('selectedPrimaryVertexQuality'),
 )
 		
-### PFCandidateCollection-specific includes
-from CommonTools.RecoUtils.pfcand_nopu_witham_cfi import FirstVertexPFCandidates
-		
-process.PFCand = FirstVertexPFCandidates.clone(
-          VertexPFCandAssociationMap = cms.InputTag('PFCand2VertexAM'),
-          VertexCollection = cms.InputTag('selectedPrimaryVertexQuality'),
-)
 
   
-process.p = cms.Path(  
-	  process.selectedPrimaryVertexQuality
-	* process.assMap
-	* process.PFCand2VertexAM
-	* process.PFCand
+process.p = cms.Path(
+	( process.selectedPrimaryVertexQuality +
+	process.inclusiveVertexing ) *
+	process.assMap *
+	process.firstVertexTracks	
 )
+
+#process.output = cms.OutputModule("PoolOutputModule",
+	#fileName = cms.untracked.string("myOutput.root"),
+ 	#outputCommands = cms.untracked.vstring('drop *',
+		  #'keep *_*_*_OWNPARTICLES'),
+#)
+
+#process.out_step = cms.EndPath(process.output)
 		
-process.myOutput = cms.OutputModule("PoolOutputModule",
-     	fileName = cms.untracked.string('myOutput.root')
-)
-  
-process.e = cms.EndPath( process.myOutput )
