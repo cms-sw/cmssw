@@ -23,6 +23,12 @@
 #include "DataFormats/TrackerRecHit2D/interface/TkCloner.h"
 #include "TrackingTools/PatternTools/interface/TrajAnnealing.h"
 
+
+DAFTrackProducerAlgorithm::DAFTrackProducerAlgorithm(const edm::ParameterSet& conf):
+  conf_(conf),
+  minHits_(conf.getParameter<int>("MinHits")){}
+
+
 void DAFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
 					         const MagneticField * theMF,
 						 const std::vector<Trajectory>& theTrajectoryCollection,
@@ -36,7 +42,7 @@ void DAFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
 						 TrajAnnealingCollection& trajann,
 						 bool TrajAnnSaving_) const
 {
-  edm::LogInfo("TrackProducer") << "Number of Trajectories: " << theTrajectoryCollection.size() << "\n";
+  LogDebug("DAFTrackProducerAlgorithm") << "Number of Trajectories: " << theTrajectoryCollection.size() << "\n";
   int cont = 0;
 
   //running on src trajectory collection
@@ -51,7 +57,7 @@ void DAFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
     //no need to have std::vector<Trajectory> vtraj !
     if ( (*ivtraj).isValid() ){
 
-      edm::LogInfo("TrackProducer") << "The trajectory is valid. \n";
+      LogDebug("DAFTrackProducerAlgorithm") << "The trajectory is valid. \n";
 
       //getting the MultiRecHit collection and the trajectory with a first fit-smooth round
       std::pair<TransientTrackingRecHit::RecHitContainer, TrajectoryStateOnSurface> hits = 
@@ -96,9 +102,9 @@ void DAFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
       //in order to remove tracks with too many outliers.
 
       //std::vector<Trajectory> filtered;
-      //filter(theFitter, vtraj, conf_.getParameter<int>("MinHits"), filtered, builder);				
+      //filter(theFitter, vtraj, minHits_, filtered, builder);				
 
-      if(currentTraj.foundHits() >= conf_.getParameter<int>("MinHits")) {
+      if(currentTraj.foundHits() >= minHits_) {
       
         bool ok = buildTrack(currentTraj, algoResults, ndof, bs) ;
         if(ok) cont++;
@@ -114,7 +120,7 @@ void DAFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
 
   } //end run on track collection
 
-  LogDebug("TrackProducer") << "Number of Tracks found: " << cont << "\n";
+  LogDebug("DAFTrackProducerAlgorithm") << "Number of Tracks found: " << cont << "\n";
 
 }
 /*------------------------------------------------------------------------------------------------------*/
@@ -335,8 +341,13 @@ int DAFTrackProducerAlgorithm::checkHits( Trajectory iInitTraj, const Trajectory
   int nSame = 0;
   int ihit = 0;
 
-  if ( initmeasurements.empty() || finalmeasurements.empty() || initmeasurements.size() != finalmeasurements.size() ){
-    LogDebug("DAFTrackProducerAlgorithm") << "Initial or Final Trajectory empty or with different size.";
+  if( initmeasurements.empty() || finalmeasurements.empty() ){
+    LogDebug("DAFTrackProducerAlgorithm") << "Initial or Final Trajectory empty.";
+    return 0;
+  }
+
+  if( initmeasurements.size() != finalmeasurements.size() ) {
+    LogDebug("DAFTrackProducerAlgorithm") << "Initial and Final Trajectory have different size.";
     return 0;
   }
           

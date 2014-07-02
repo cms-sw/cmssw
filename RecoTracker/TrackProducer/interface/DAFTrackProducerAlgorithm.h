@@ -36,7 +36,7 @@ class DAFTrackProducerAlgorithm {
   
  public:
 
-  DAFTrackProducerAlgorithm(const edm::ParameterSet& pset):conf_(pset){}
+  DAFTrackProducerAlgorithm(const edm::ParameterSet& conf);
   ~DAFTrackProducerAlgorithm() {}
   
   /// Run the Final Fit taking TrackCandidates as input
@@ -91,7 +91,7 @@ class DAFTrackProducerAlgorithm {
   int checkHits( Trajectory iInitTraj, const Trajectory iFinalTraj) const; 
 
   edm::ParameterSet conf_;
-  
+  int minHits_;  
 };
 
 #endif

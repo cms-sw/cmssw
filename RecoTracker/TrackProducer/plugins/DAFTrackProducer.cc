@@ -24,6 +24,7 @@ DAFTrackProducer::DAFTrackProducer(const edm::ParameterSet& iConfig):
   setSrc( consumes<TrackCandidateCollection>(iConfig.getParameter<edm::InputTag>( "src" )),
           consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>( "beamSpot" )),
           consumes<MeasurementTrackerEvent>(iConfig.getParameter<edm::InputTag>( "MeasurementTrackerEvent") ));
+  src_ = consumes<TrajectoryCollection>(iConfig.getParameter<edm::InputTag>( "src" ));
   setAlias( iConfig.getParameter<std::string>( "@module_label" ) );
 
   //register your products
@@ -109,8 +110,7 @@ void DAFTrackProducer::getFromEvt(edm::Event& theEvent,edm::Handle<TrajectoryCol
 
   //get the TrajectoryCollection from the event
   //WARNING: src has always to be redefined in cfg file
-  edm::InputTag src_=getConf().getParameter<edm::InputTag>( "src" );
-  theEvent.getByLabel(src_,theTrajectoryCollection );
+  theEvent.getByToken(src_,theTrajectoryCollection );
 
   //get the BeamSpot
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
@@ -125,8 +125,7 @@ void DAFTrackProducer::putInEvtTrajAnn(edm::Event& theEvent, TrajAnnealingCollec
   outputTrajAnnColl->reserve(size);
 
   for(unsigned int i = 0; i < trajannResults.size() ; i++){
-//    trajannResults.at(i).Debug();
-    outputTrajAnnColl->push_back(trajannResults.at(i));
+    outputTrajAnnColl->push_back(trajannResults[i]);
   }
 
   theEvent.put( outputTrajAnnColl );

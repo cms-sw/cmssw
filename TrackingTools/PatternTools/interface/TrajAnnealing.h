@@ -1,17 +1,14 @@
-/** \class TrajAnnealing
-  *  Allow to save all the traj info
-  *  for each annealing cycle 
-  *  suitable for algorithm like DAF
-  *
-  *  \author in May 2014 by brondolin 
-  */
-
 #ifndef DataFormats_TrajAnnealing_h
 #define DataFormats_TrajAnnealing_h
 
 #include <vector>
 
-//class
+/**  This class allow to save all the traj info
+  *  for each annealing cycle 
+  *  suitable for algorithm like DAF
+  *  (not used in default options)
+ */
+
 class TrajAnnealing 
 {
 public:
@@ -21,7 +18,7 @@ public:
       theWeights(){}
     virtual ~TrajAnnealing(){}
 
-    TrajAnnealing( Trajectory, float );
+    TrajAnnealing( const Trajectory&, float );
 
     float getAnnealing() const { return annealing_; }
     Trajectory getTraj() const { return traj_; }
