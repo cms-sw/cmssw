@@ -14,10 +14,10 @@
 
 //DEFINE_FWK_MODULE(TrackIPProducer);
 
-typedef IPProducer<reco::TrackRefVector,reco::JTATagInfo> TrackIPProducer;
+typedef IPProducer<reco::TrackRefVector,reco::JTATagInfo, IPProducerHelpers::FromJTA> TrackIPProducer;
 DEFINE_FWK_MODULE(TrackIPProducer);
-//typedef IPProducer<std::vector<reco::CandidatePtr>,reco::BaseTagInfo> TrackIPProducer3;
-//DEFINE_FWK_MODULE(TrackIPProducer3);
+typedef IPProducer<std::vector<reco::CandidatePtr>,reco::JetTagInfo,  IPProducerHelpers::FromJetAndCands> CandIPProducer;
+DEFINE_FWK_MODULE(CandIPProducer);
 
 typedef JetTagComputerESProducer<TrackCountingComputer>       TrackCountingESProducer;
 DEFINE_FWK_EVENTSETUP_MODULE(TrackCountingESProducer);
@@ -36,3 +36,4 @@ DEFINE_FWK_EVENTSETUP_MODULE(JetBProbabilityESProducer);
 
 typedef JetTagComputerESProducer<PromptTrackCountingComputer>  PromptTrackCountingESProducer;
 DEFINE_FWK_EVENTSETUP_MODULE(PromptTrackCountingESProducer);
+

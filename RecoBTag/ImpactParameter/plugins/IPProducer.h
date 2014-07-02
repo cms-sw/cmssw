@@ -2,21 +2,123 @@
 #define RecoBTag_IPProducer
 
 // system include files
+#include <cmath>
+#include <memory>
+#include <iostream>
+#include <algorithm>
+
+// user include files
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "DataFormats/Common/interface/View.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/JetReco/interface/JetTracksAssociation.h"
+#include "DataFormats/BTauReco/interface/JetTag.h"
+#include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "TrackingTools/IPTools/interface/IPTools.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+
+#include "RecoVertex/VertexPrimitives/interface/VertexState.h"
+#include "RecoVertex/VertexPrimitives/interface/ConvertError.h"
+#include "RecoVertex/VertexPrimitives/interface/ConvertToFromReco.h"
+#include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
+#include "RecoVertex/GhostTrackFitter/interface/GhostTrack.h"
+#include "RecoVertex/GhostTrackFitter/interface/GhostTrackState.h"
+#include "RecoVertex/GhostTrackFitter/interface/GhostTrackPrediction.h"
+#include "RecoVertex/GhostTrackFitter/interface/GhostTrackFitter.h"
+
+#include "RecoBTag/TrackProbability/interface/HistogramProbabilityEstimator.h"
+#include "DataFormats/BTauReco/interface/JTATagInfo.h"
+#include "DataFormats/BTauReco/interface/JetTagInfo.h"
+
+// system include files
 #include <memory>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 class HistogramProbabilityEstimator;
-template <class Container, class Base> 
+using namespace std;
+using namespace reco;
+using namespace edm;
+using boost::bind;
+
+namespace IPProducerHelpers {
+      class FromJTA{
+	      public:
+		      FromJTA(const edm::ParameterSet& iConfig, edm::ConsumesCollector && iC) : token_associator(iC.consumes<reco::JetTracksAssociationCollection>(iConfig.getParameter<edm::InputTag>("jetTracks"))) 
+			{}
+		      reco::TrackRefVector tracks(edm::Event&,const reco::JTATagInfo & it)
+		      {
+			      return it.tracks();
+		      }
+		      std::vector<reco::JTATagInfo>  makeBaseVector(edm::Event& iEvent){
+			      edm::Handle<JetTracksAssociationCollection> jetTracksAssociation;
+			      iEvent.getByToken(token_associator, jetTracksAssociation);
+			      std::vector<reco::JTATagInfo> bases;
+			      size_t i = 0;
+			      for(JetTracksAssociationCollection::const_iterator it =
+					      jetTracksAssociation->begin();
+					      it != jetTracksAssociation->end(); it++, i++) {
+				      Ref<JetTracksAssociationCollection> jtaRef(jetTracksAssociation, i);
+				      bases.push_back(reco::JTATagInfo(jtaRef));
+			      }
+			      return bases;
+		      }
+
+		      edm::EDGetTokenT<JetTracksAssociationCollection> token_associator;
+      };
+      class FromJetAndCands{
+              public:
+		      FromJetAndCands(const edm::ParameterSet& iConfig,  edm::ConsumesCollector && iC): token_jets(iC.consumes<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>("jets"))),          
+		      token_cands(iC.consumes<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("candidates"))) {}
+
+                      std::vector<reco::CandidatePtr> tracks(edm::Event&,const reco::JetTagInfo & it)
+                      {
+                              return   m_map[&it];
+                      }
+                      std::vector<reco::JetTagInfo>  makeBaseVector(edm::Event& iEvent){
+                              edm::Handle<edm::View<reco::Jet> > jets;
+                              iEvent.getByToken(token_jets, jets);
+                              std::vector<reco::JetTagInfo> bases;
+
+                              edm::Handle<edm::View<reco::Candidate> > cands;
+                              iEvent.getByToken(token_cands, cands);
+
+                              size_t i = 0;
+                              for(edm::View<reco::Jet>::const_iterator it = jets->begin();
+                                              it != jets->end(); it++, i++) {
+                                      edm::RefToBase<reco::Jet> jRef(jets, i);
+                                      bases.push_back(jRef);
+				      //FIXME: add deltaR or any other requirement here
+				      m_map[& bases.back()].push_back(cands->ptrAt(i));	
+                              }
+                              return bases;
+                      }
+		      std::map<const reco::JetTagInfo * ,std::vector<reco::CandidatePtr> > m_map;	
+                      edm::EDGetTokenT<edm::View<reco::Jet> > token_jets;
+                      edm::EDGetTokenT<edm::View<reco::Candidate> >token_cands;
+      };
+}
+template <class Container, class Base, class Helper> 
 class IPProducer : public edm::stream::EDProducer<> {
    public:
       typedef std::vector<reco::IPTagInfo<Container,Base> > Product;	
+      
+
       explicit IPProducer(const edm::ParameterSet&);
       ~IPProducer();
-
 
       virtual void produce(edm::Event&, const edm::EventSetup&);
    private:
@@ -24,7 +126,6 @@ class IPProducer : public edm::stream::EDProducer<> {
 
     const edm::ParameterSet& m_config;
     edm::EDGetTokenT<reco::VertexCollection> token_primaryVertex;
-    edm::EDGetTokenT<reco::JetTracksAssociationCollection> token_associator;
 
     bool m_computeProbabilities;
     bool m_computeGhostTrack;
@@ -43,6 +144,7 @@ class IPProducer : public edm::stream::EDProducer<> {
     bool  m_directionWithTracks;
     bool  m_directionWithGhostTrack;
     bool  m_useTrackQuality;
+    Helper m_helper;
 };
 
 // -*- C++ -*-
@@ -63,58 +165,19 @@ class IPProducer : public edm::stream::EDProducer<> {
 //
 //
 
-// system include files
-#include <cmath>
-#include <memory>
-#include <iostream>
-#include <algorithm>
-
-#include "boost/bind.hpp"
-
-// user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/JetReco/interface/JetTracksAssociation.h"
-#include "DataFormats/BTauReco/interface/JetTag.h"
-#include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
-
-#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-#include "TrackingTools/IPTools/interface/IPTools.h"
-#include "TrackingTools/Records/interface/TransientTrackRecord.h"
-
-#include "RecoVertex/VertexPrimitives/interface/VertexState.h"
-#include "RecoVertex/VertexPrimitives/interface/ConvertError.h"
-#include "RecoVertex/VertexPrimitives/interface/ConvertToFromReco.h"
-#include "RecoVertex/VertexTools/interface/VertexDistance3D.h"
-#include "RecoVertex/GhostTrackFitter/interface/GhostTrack.h"
-#include "RecoVertex/GhostTrackFitter/interface/GhostTrackState.h"
-#include "RecoVertex/GhostTrackFitter/interface/GhostTrackPrediction.h"
-#include "RecoVertex/GhostTrackFitter/interface/GhostTrackFitter.h"
-
-#include "RecoBTag/TrackProbability/interface/HistogramProbabilityEstimator.h"
 
 
-using namespace std;
-using namespace reco;
-using namespace edm;
-using boost::bind;
+
 
 //
 // constructors and destructor
 //
-template <class Container, class Base> IPProducer<Container,Base>::IPProducer(const edm::ParameterSet& iConfig) : 
-  m_config(iConfig)
+template <class Container, class Base, class Helper> IPProducer<Container,Base,Helper>::IPProducer(const edm::ParameterSet& iConfig) : 
+  m_config(iConfig),m_helper(iConfig,consumesCollector())
 {
   m_calibrationCacheId3D = 0;
   m_calibrationCacheId2D = 0;
 
-  token_associator          = consumes<reco::JetTracksAssociationCollection>(m_config.getParameter<edm::InputTag>("jetTracks"));
   token_primaryVertex       = consumes<reco::VertexCollection>(m_config.getParameter<edm::InputTag>("primaryVertex"));
 
   m_computeProbabilities    = m_config.getParameter<bool>("computeProbabilities");
@@ -135,7 +198,7 @@ template <class Container, class Base> IPProducer<Container,Base>::IPProducer(co
   produces<Product>();
 }
 
-template <class Container, class Base> IPProducer<Container,Base>::~IPProducer()
+template <class Container, class Base, class Helper> IPProducer<Container,Base,Helper>::~IPProducer()
 {
 }
 
@@ -143,16 +206,13 @@ template <class Container, class Base> IPProducer<Container,Base>::~IPProducer()
 // member functions
 //
 // ------------ method called to produce the data  ------------
-template <class Container, class Base> void
-IPProducer<Container,Base>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+template <class Container, class Base, class Helper> void
+IPProducer<Container,Base,Helper>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    // Update probability estimator if event setup is changed
    if (m_computeProbabilities)
      checkEventSetup(iSetup);
  
-   //input objects 
-   Handle<reco::JetTracksAssociationCollection> jetTracksAssociation;
-   iEvent.getByToken(token_associator, jetTracksAssociation);
    
    Handle<reco::VertexCollection> primaryVertex;
    iEvent.getByToken(token_primaryVertex, primaryVertex);
@@ -188,18 +248,16 @@ IPProducer<Container,Base>::produce(edm::Event& iEvent, const edm::EventSetup& i
      dummy = Vertex(p, e, 0, 0, 0);
    }
 
-   int i = 0;
-   for(JetTracksAssociationCollection::const_iterator it =
-       					jetTracksAssociation->begin();
-       it != jetTracksAssociation->end(); it++, i++) {
-     Container tracks = it->second;
-     math::XYZVector jetMomentum = it->first->momentum();
+   std::vector<Base> baseTagInfos = m_helper.makeBaseVector(iEvent);
+   for(typename std::vector<Base>::const_iterator it = baseTagInfos.begin();  it != baseTagInfos.end(); it++) {
+     Container tracks = m_helper.tracks(iEvent,*it);
+     math::XYZVector jetMomentum = it->jet()->momentum();
 
      if (m_directionWithTracks) {
        jetMomentum *= 0.5;
        for(typename Container::const_iterator itTrack = tracks.begin();
            itTrack != tracks.end(); ++itTrack)
-         if ((**itTrack).numberOfValidHits() >= m_cutTotalHits)
+//ARFIXME:         if ((**itTrack).numberOfValidHits() >= m_cutTotalHits)
            //minimal quality cuts
            jetMomentum += (*itTrack)->momentum();
      }
@@ -272,13 +330,13 @@ IPProducer<Container,Base>::produce(edm::Event& iEvent, const edm::EventSetup& i
      }
 
      vector<float> prob2D, prob3D;
-     vector<TrackIPTagInfo::TrackIPData> ipData;
+     vector<typename Product::value_type::TrackIPData> ipData;
 
      for(unsigned int ind = 0; ind < transientTracks.size(); ind++) {
-       const Track & track = *selectedTracks[ind];
        const TransientTrack &transientTrack = transientTracks[ind];
+       const Track & track = transientTrack.track();
 
-       TrackIPTagInfo::TrackIPData trackIP;
+       typename Product::value_type::TrackIPData trackIP;
        trackIP.ip3d = IPTools::signedImpactParameter3D(transientTrack, direction, *pv).second;
        trackIP.ip2d = IPTools::signedTransverseImpactParameter(transientTrack, direction, *pv).second;
 
@@ -324,19 +382,17 @@ IPProducer<Container,Base>::produce(edm::Event& iEvent, const edm::EventSetup& i
 
        if (m_computeProbabilities) {
          //probability with 3D ip
-         pair<bool,double> probability = m_probabilityEstimator->probability(m_useTrackQuality, 0,ipData.back().ip3d.significance(),track,*(it->first),*pv);
+         pair<bool,double> probability = m_probabilityEstimator->probability(m_useTrackQuality, 0,ipData.back().ip3d.significance(),track,*(it->jet()),*pv);
          prob3D.push_back(probability.first ? probability.second : -1.);
 
          //probability with 2D ip
-         probability = m_probabilityEstimator->probability(m_useTrackQuality,1,ipData.back().ip2d.significance(),track,*(it->first),*pv);
+         probability = m_probabilityEstimator->probability(m_useTrackQuality,1,ipData.back().ip2d.significance(),track,*(it->jet()),*pv);
          prob2D.push_back(probability.first ? probability.second : -1.);
        } 
      }
 
-     Ref<JetTracksAssociationCollection> jtaRef(jetTracksAssociation, i);
-     result->push_back(
-             TrackIPTagInfo(ipData, prob2D, prob3D, selectedTracks,
-                            Base(jtaRef), pvRef, direction, ghostTrackRef));
+     result->push_back(typename Product::value_type(ipData, prob2D, prob3D, selectedTracks,
+                             *it, pvRef, direction, ghostTrackRef));
    }
  
    if (m_computeGhostTrack)
@@ -352,7 +408,7 @@ IPProducer<Container,Base>::produce(edm::Event& iEvent, const edm::EventSetup& i
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
 #include "FWCore/Framework/interface/EventSetupRecordKey.h"
 
-template <class Container, class Base> void IPProducer<Container,Base>::checkEventSetup(const EventSetup & iSetup)
+template <class Container, class Base, class Helper> void IPProducer<Container,Base,Helper>::checkEventSetup(const EventSetup & iSetup)
  {
   using namespace edm;
   using namespace edm::eventsetup;
