@@ -1496,7 +1496,7 @@ void CSCValidation::doEfficiencies(edm::Handle<CSCWireDigiCollection> wires, edm
   if(theSeg.size()){
     std::map <int , GlobalPoint> extrapolatedPoint;
     std::map <int , GlobalPoint>::iterator it;
-    const std::vector<CSCChamber*> ChamberContainer = cscGeom->chambers();
+    const CSCGeometry::ChamberContainer& ChamberContainer = cscGeom->chambers();
     // Pick which chamber with which segment to test
     for(size_t nCh=0;nCh<ChamberContainer.size();nCh++){
       const CSCChamber *cscchamber = ChamberContainer[nCh];

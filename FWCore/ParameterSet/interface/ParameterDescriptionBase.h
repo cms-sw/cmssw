@@ -96,6 +96,7 @@ namespace edm {
                                      bool optional,
                                      DocFormatHelper & dfh);
 
+    using ParameterDescriptionNode::exists_;
     virtual bool exists_(ParameterSet const& pset, bool isTracked) const = 0;
 
     virtual void insertDefault_(ParameterSet & pset) const = 0;

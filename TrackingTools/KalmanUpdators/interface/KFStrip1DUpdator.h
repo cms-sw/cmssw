@@ -24,7 +24,7 @@ public:
 
   ~KFStrip1DUpdator() {}
 
-  virtual TSOS update(const TSOS& aTsos, const TransientTrackingRecHit& aHit) const;
+  virtual TSOS update(const TSOS& aTsos, const TrackingRecHit& aHit) const;
 
   virtual KFStrip1DUpdator * clone() const 
   {

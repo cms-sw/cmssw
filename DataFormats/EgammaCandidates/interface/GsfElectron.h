@@ -1,4 +1,4 @@
- #ifndef GsfElectron_h
+#ifndef GsfElectron_h
 #define GsfElectron_h
 
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
@@ -87,6 +87,19 @@ class GsfElectron : public RecoCandidate
       const ShowerShape &,
       const ConversionRejection &
      ) ;
+     GsfElectron
+     (
+      int charge,
+      const ChargeInfo &,
+      const GsfElectronCoreRef &,
+      const TrackClusterMatching &,
+      const TrackExtrapolations &,
+      const ClosestCtfTrack &,
+      const FiducialFlags &,
+      const ShowerShape &,
+      const ShowerShape &,
+      const ConversionRejection &
+     ) ;
     GsfElectron * clone() const ;
     GsfElectron * clone
      (
@@ -163,6 +176,7 @@ class GsfElectron : public RecoCandidate
 
     // accessors
     virtual GsfElectronCoreRef core() const ;
+    void setCore(const reco::GsfElectronCoreRef &core) { core_ = core; }
 
     // forward core methods
     virtual SuperClusterRef superCluster() const { return core()->superCluster() ; }
@@ -275,6 +289,9 @@ class GsfElectron : public RecoCandidate
     math::XYZVectorF trackMomentumAtEleClus() const { return trackExtrapolations_.momentumAtEleClus ; }
     math::XYZVectorF trackMomentumAtVtxWithConstraint() const { return trackExtrapolations_.momentumAtVtxWithConstraint ; }
     const TrackExtrapolations & trackExtrapolations() const { return trackExtrapolations_ ; }
+
+    // setter (if you know what you're doing)
+    void setTrackExtrapolations(const TrackExtrapolations &te) { trackExtrapolations_ = te; }
 
     // for backward compatibility
     math::XYZPointF TrackPositionAtVtx() const { return trackPositionAtVtx() ; }
@@ -393,8 +410,28 @@ class GsfElectron : public RecoCandidate
     float hcalDepth2OverEcalBc() const { return showerShape_.hcalDepth2OverEcalBc ; }
     float hcalOverEcalBc() const { return hcalDepth1OverEcalBc() + hcalDepth2OverEcalBc() ; }
     const ShowerShape & showerShape() const { return showerShape_ ; }
+    // non-zero-suppressed and no-fractions shower shapes
+    // ecal energy is always that from the full 5x5 
+    float full5x5_sigmaEtaEta() const { return full5x5_showerShape_.sigmaEtaEta ; }
+    float full5x5_sigmaIetaIeta() const { return full5x5_showerShape_.sigmaIetaIeta ; }
+    float full5x5_sigmaIphiIphi() const { return full5x5_showerShape_.sigmaIphiIphi ; }
+    float full5x5_e1x5() const { return full5x5_showerShape_.e1x5 ; }
+    float full5x5_e2x5Max() const { return full5x5_showerShape_.e2x5Max ; }
+    float full5x5_e5x5() const { return full5x5_showerShape_.e5x5 ; }
+    float full5x5_r9() const { return full5x5_showerShape_.r9 ; }
+    float full5x5_hcalDepth1OverEcal() const { return full5x5_showerShape_.hcalDepth1OverEcal ; }
+    float full5x5_hcalDepth2OverEcal() const { return full5x5_showerShape_.hcalDepth2OverEcal ; }
+    float full5x5_hcalOverEcal() const { return full5x5_hcalDepth1OverEcal() + full5x5_hcalDepth2OverEcal() ; }    
+    float full5x5_hcalDepth1OverEcalBc() const { return full5x5_showerShape_.hcalDepth1OverEcalBc ; }
+    float full5x5_hcalDepth2OverEcalBc() const { return full5x5_showerShape_.hcalDepth2OverEcalBc ; }
+    float full5x5_hcalOverEcalBc() const { return full5x5_hcalDepth1OverEcalBc() + full5x5_hcalDepth2OverEcalBc() ; }
+    const ShowerShape & full5x5_showerShape() const { return full5x5_showerShape_ ; }
 
-    // for backward compatibility
+    // setters (if you know what you're doing)
+    void setShowerShape(const ShowerShape &s) { showerShape_ = s; }
+    void full5x5_setShowerShape(const ShowerShape &s) { full5x5_showerShape_ = s; }
+
+    // for backward compatibility (this will only ever be the ZS shapes!)
     float scSigmaEtaEta() const { return sigmaEtaEta() ; }
     float scSigmaIEtaIEta() const { return sigmaIetaIeta() ; }
     float scE1x5() const { return e1x5() ; }
@@ -409,6 +446,7 @@ class GsfElectron : public RecoCandidate
 
     // attributes
     ShowerShape showerShape_ ;
+    ShowerShape full5x5_showerShape_ ;
 
 
   //=======================================================
@@ -725,6 +763,9 @@ class GsfElectron : public RecoCandidate
     float p4Error( P4Kind kind ) const ;
     P4Kind candidateP4Kind() const { return corrections_.candidateP4Kind ; }
     const Corrections & corrections() const { return corrections_ ; }
+    
+    // bare setter (if you know what you're doing)
+    void setCorrections(const Corrections &c) { corrections_ = c; }
 
     // for backward compatibility
     void setEcalEnergyError( float energyError ) { setCorrectedEcalEnergyError(energyError) ; }

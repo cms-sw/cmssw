@@ -13,13 +13,53 @@
 //#include "CommonDet/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "RecoTracker/TkTrackingRegions/interface/HitRZConstraint.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+
+
+#include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
+#include "DataFormats/TrackingRecHit/interface/mayown_ptr.h"
+
+
+
 class OuterHitPhiPrediction;
 class OuterEstimator;
 class BarrelDetLayer;
 class ForwardDetLayer;
+class MeasurementTrackerEvent;
 
 class RectangularEtaPhiTrackingRegion GCC11_FINAL : public TrackingRegion {
 public:
+  enum class UseMeasurementTracker {
+    kNever = -1,
+    kForSiStrips = 0,
+    kAlways = 1
+  };
+
+  static UseMeasurementTracker intToUseMeasurementTracker(int value) {
+    assert(value >= -1 && value <= 1);
+    return static_cast<UseMeasurementTracker>(value);
+  }
+
+  static UseMeasurementTracker doubleToUseMeasurementTracker(double value) {
+    // mimic the old behaviour
+    if(value >  0.5) return UseMeasurementTracker::kAlways;
+    if(value > -0.5) return UseMeasurementTracker::kForSiStrips;
+    return UseMeasurementTracker::kNever;
+  }
+
+  RectangularEtaPhiTrackingRegion(RectangularEtaPhiTrackingRegion const & rh) :
+    TrackingRegion(rh),
+    theEtaRange(rh.theEtaRange),
+    theLambdaRange(rh.theLambdaRange),
+    thePhiMargin(rh.thePhiMargin),
+    theMeanLambda(rh.theMeanLambda),
+    theMeasurementTrackerUsage(rh.theMeasurementTrackerUsage),
+    thePrecise(rh.thePrecise),
+    theUseEtaPhi(rh.theUseEtaPhi),
+    theMeasurementTracker(rh.theMeasurementTracker) {}
+  
+  RectangularEtaPhiTrackingRegion& operator=(RectangularEtaPhiTrackingRegion const &)=delete;
+  RectangularEtaPhiTrackingRegion(RectangularEtaPhiTrackingRegion &&)=default;
+  RectangularEtaPhiTrackingRegion& operator=(RectangularEtaPhiTrackingRegion &&)=default;
 
   typedef TkTrackingRegionsMargin<float> Margin;
 
@@ -52,15 +92,16 @@ public:
 				   const GlobalPoint & vertexPos,
                                    float ptMin, float rVertex, float zVertex,
                                    float deltaEta, float deltaPhi,
-                                   float whereToUseMeasurementTracker = 0.,
+                                   UseMeasurementTracker whereToUseMeasurementTracker = UseMeasurementTracker::kNever,
                                    bool precise = true,
-                                   const std::string & measurementTrackerName = "",
+                                   const MeasurementTrackerEvent *measurementTracker = nullptr,
 				   bool etaPhiRegion=false) 
-    : TrackingRegionBase( dir, vertexPos, Range( -1/ptMin, 1/ptMin), rVertex, zVertex),
-    thePhiMargin(std::abs(deltaPhi),std::abs(deltaPhi)),
-    theMeasurementTrackerUsage(whereToUseMeasurementTracker), thePrecise(precise),
-    theUseEtaPhi(etaPhiRegion), theMeasurementTrackerName(measurementTrackerName)
-  { initEtaRange(dir, Margin( std::abs(deltaEta),std::abs(deltaEta))); }
+    : RectangularEtaPhiTrackingRegion(dir, vertexPos, Range( -1/ptMin, 1/ptMin), rVertex, zVertex,
+                                      Margin(std::abs(deltaEta), std::abs(deltaEta)),
+                                      Margin(std::abs(deltaPhi), std::abs(deltaPhi)),
+                                      whereToUseMeasurementTracker, precise,
+                                      measurementTracker, etaPhiRegion)
+    {}
  
  /** constructor (asymmetrinc eta and phi margins). <BR>
   * non equal left-right eta and phi bounds around direction are
@@ -73,15 +114,15 @@ public:
                                    float ptMin, float rVertex, float zVertex,
                                    Margin etaMargin,
                                    Margin phiMargin,
-                                   float whereToUseMeasurementTracker = 0.,
+                                   UseMeasurementTracker whereToUseMeasurementTracker = UseMeasurementTracker::kNever,
 				   bool precise = true, 
-                                   const std::string & measurementTrackerName = "",
+                                   const MeasurementTrackerEvent *measurementTracker = nullptr,
 				   bool etaPhiRegion=false) 
-    : TrackingRegionBase( dir, vertexPos, Range( -1/ptMin, 1/ptMin), rVertex, zVertex), 
-    thePhiMargin( phiMargin), theMeasurementTrackerUsage(whereToUseMeasurementTracker), 
-    thePrecise(precise),theUseEtaPhi(etaPhiRegion),
-    theMeasurementTrackerName(measurementTrackerName)
-    { initEtaRange(dir, etaMargin); }
+    : RectangularEtaPhiTrackingRegion(dir, vertexPos, Range( -1/ptMin, 1/ptMin), rVertex, zVertex,
+                                      etaMargin, phiMargin,
+                                      whereToUseMeasurementTracker, precise,
+                                      measurementTracker, etaPhiRegion)
+    {}
 
  /** constructor (explicit pt range, asymmetrinc eta and phi margins). <BR>
   * the meaning of other arguments is the same as in the case of 
@@ -93,13 +134,13 @@ public:
                                    float rVertex, float zVertex,
                                    Margin etaMargin,
                                    Margin phiMargin,
-                                   float whereToUseMeasurementTracker = 0.,
+                                   UseMeasurementTracker whereToUseMeasurementTracker = UseMeasurementTracker::kNever,
                                    bool precise = true,
-                                   const std::string & measurementTrackerName = "",
+                                   const MeasurementTrackerEvent *measurementTracker = nullptr,
 				   bool etaPhiRegion=false) 
     : TrackingRegionBase( dir, vertexPos, invPtRange, rVertex, zVertex),
     thePhiMargin( phiMargin), theMeasurementTrackerUsage(whereToUseMeasurementTracker), thePrecise(precise),theUseEtaPhi(etaPhiRegion),
-    theMeasurementTrackerName(measurementTrackerName)
+    theMeasurementTracker(measurementTracker)
     { initEtaRange(dir, etaMargin); }
 
 
@@ -112,11 +153,6 @@ public:
 
   /// is precise error calculation switched on 
   bool  isPrecise() const { return thePrecise; }
-
-  virtual TrackingRegion::Hits hits(
-      const edm::Event& ev,  
-      const edm::EventSetup& es, 
-      const ctfseeding::SeedingLayer* layer) const;
 
   virtual TrackingRegion::Hits hits(
       const edm::Event& ev,
@@ -138,13 +174,6 @@ public:
   virtual std::string print() const;
 
 private:
-  template <typename T, typename F>
-  TrackingRegion::Hits hits_(
-      const edm::Event& ev,
-      const edm::EventSetup& es,
-      const T& layer,
-      F hitGetter) const;
-
   HitRZCompatibility* checkRZOld(
       const DetLayer* layer, 
       const TrackingRecHit*  outerHit,
@@ -164,10 +193,24 @@ private:
   Range theLambdaRange;
   Margin thePhiMargin;
   float theMeanLambda;
-  float theMeasurementTrackerUsage;
+  const UseMeasurementTracker theMeasurementTrackerUsage;
   bool thePrecise;
   bool theUseEtaPhi;
-  std::string theMeasurementTrackerName;
+  const MeasurementTrackerEvent *theMeasurementTracker;
+
+
+
+  using cacheHitPointer = mayown_ptr<BaseTrackerRecHit>;
+  using cacheHits=std::vector<cacheHitPointer>;
+
+  
+
+  /*  wait... think! 
+   *  done? questions?  think again, look where this region is constructed
+   *  still question? study tracker code for the next couple of weeks, then we may discuss.  
+   */
+  mutable cacheHits cache;
+
 };
 
 #endif

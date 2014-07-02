@@ -23,7 +23,7 @@ class HSCParticleSelector : public edm::EDFilter {
       virtual bool filter(edm::Event&, const edm::EventSetup&) override;
       virtual void endJob() override ;
 
-      edm::InputTag sourceTag_;
+      edm::EDGetTokenT<susybsm::HSCParticleCollection> sourceToken_;
 
       bool			      Filter_;
       std::vector<CandidateSelector*> Selectors;
@@ -37,7 +37,7 @@ HSCParticleSelector::HSCParticleSelector(const edm::ParameterSet& iConfig)
    produces<susybsm::HSCParticleCollection >();
 
    // Input products
-   sourceTag_     = iConfig.getParameter<edm::InputTag> ("source");
+   sourceToken_     = consumes<susybsm::HSCParticleCollection>(iConfig.getParameter<edm::InputTag> ("source"));
    Filter_        = iConfig.getParameter<bool>          ("filter");
 
    // Load all the selections
@@ -45,7 +45,7 @@ HSCParticleSelector::HSCParticleSelector(const edm::ParameterSet& iConfig)
    for(unsigned int i=0;i<SelectionParameters.size();i++){
       Selectors.push_back(new CandidateSelector(SelectionParameters[i]) );
    }
-} 
+}
 
 /////////////////////////////////////////////////////////////////////////////////////
 HSCParticleSelector::~HSCParticleSelector(){
@@ -64,7 +64,7 @@ bool HSCParticleSelector::filter(edm::Event& iEvent, const edm::EventSetup& iSet
 {
       // Source Collection
       edm::Handle<susybsm::HSCParticleCollection > SourceHandle;
-      if (!iEvent.getByLabel(sourceTag_, SourceHandle)) {
+      if (!iEvent.getByToken(sourceToken_, SourceHandle)) {
             edm::LogError("") << ">>> HSCParticleCollection does not exist !!!";
             return false;
       }

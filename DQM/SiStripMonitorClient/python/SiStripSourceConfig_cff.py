@@ -84,6 +84,10 @@ TrackMonColl.FolderName = 'Tracking/TrackParameters'
 TrackMonColl.AlgoName = 'CKFTk'
 TrackMonColl.doSeedParameterHistos = True
 # Sequences
+#removed modules using TkDetMap service
+#SiStripSourcesSimData = cms.Sequence(SiStripMonitorTrackSim*MonitorTrackResidualsSim*TrackMonSim)
+#SiStripSourcesRealData = cms.Sequence(SiStripMonitorTrackReal*MonitorTrackResidualsReal*TrackMonReal)
+#SiStripSourcesRealDataCollision = cms.Sequence(SiStripMonitorTrackColl*MonitorTrackResidualsColl*TrackMonColl)
 SiStripSourcesSimData = cms.Sequence(SiStripMonitorDigi*SiStripMonitorCluster*SiStripMonitorTrackSim*MonitorTrackResidualsSim*TrackMonSim)
 SiStripSourcesRealData = cms.Sequence(SiStripMonitorDigi*SiStripMonitorCluster*SiStripMonitorTrackReal*MonitorTrackResidualsReal*TrackMonReal)
 SiStripSourcesRealDataCollision = cms.Sequence(SiStripMonitorDigi*SiStripMonitorCluster*SiStripMonitorTrackColl*MonitorTrackResidualsColl*TrackMonColl)

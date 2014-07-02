@@ -5,8 +5,6 @@
  *  Description:
  *       Class to hold CCB status
  *
- *  $Date: 2009/03/26 14:10:59 $
- *  $Revision: 1.1 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -19,7 +17,9 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-#include "CondFormats/DTObjects/interface/DTBufferTree.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
+#include "FWCore/Utilities/interface/ConstRespectingPtr.h"
+
 class DTChamberId;
 
 //---------------
@@ -27,6 +27,9 @@ class DTChamberId;
 //---------------
 #include <string>
 #include <vector>
+#include <utility>
+
+template <class Key, class Content> class DTBufferTree;
 
 //              ---------------------
 //              -- Class Interface --
@@ -43,6 +46,8 @@ class DTLVStatusId {
   int stationId;
   int  sectorId;
 
+
+ COND_SERIALIZABLE;
 };
 
 
@@ -58,6 +63,8 @@ class DTLVStatusData {
   int flagCMC;
   int flagDMC;
 
+
+ COND_SERIALIZABLE;
 };
 
 
@@ -141,20 +148,23 @@ class DTLVStatus {
   const_iterator begin() const;
   const_iterator end() const;
 
+  void initialize();
+
  private:
+
+  DTLVStatus(DTLVStatus const&);
+  DTLVStatus& operator=(DTLVStatus const&);
 
   std::string dataVersion;
 
   std::vector< std::pair<DTLVStatusId,DTLVStatusData> > dataList;
 
-  DTBufferTree<int,int>* dBuf;
+  edm::ConstRespectingPtr<DTBufferTree<int,int> > dBuf COND_TRANSIENT;
 
   /// read and store full content
-  void cacheMap() const;
   std::string mapName() const;
 
+
+ COND_SERIALIZABLE;
 };
-
-
 #endif // DTLVStatus_H
-

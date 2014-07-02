@@ -1,23 +1,51 @@
 autoCond = { 
-    # GlobalTag for MC production with perfectly aligned and calibrated detector
-    'mc'                :   'MC_71_V1::All',
+    # GlobalTag for MC production with perfectly aligned and calibrated detector                                                                                                                              
+    'mc'                :   'MC_71_V8::All',
     # GlobalTag for MC production with realistic alignment and calibrations
-    'startup'           :   'START71_V1::All',
+    'startup'           :   'START71_V7::All',
     # GlobalTag for MC production of Heavy Ions events with realistic alignment and calibrations
-    'starthi'           :   'STARTHI71_V1::All',
+    'starthi'           :   'STARTHI71_V13::All',
     # GlobalTag for MC production of p-Pb events with realistic alignment and calibrations
-    'startpa'           :   'STARTHI71_V2::All',
+    'startpa'           :   'STARTHI71_V14::All',
     # GlobalTag for data reprocessing: this should always be the GR_R tag
-    'com10'             :   'GR_R_71_V1::All',
+    'com10'             :   'GR_R_71_V6::All',
     # GlobalTag for running HLT on recent data: this should be the GR_P (prompt reco) global tag until a compatible GR_H tag is available, 
     # then it should point to the GR_H tag and override the connection string and pfnPrefix for use offline
-    'hltonline'         :   'GR_H_V34::All,frontier://FrontierProd/CMS_COND_31X_GLOBALTAG,frontier://FrontierProd/',
+    'hltonline'         :   'GR_H_V37::All,frontier://FrontierProd/CMS_COND_31X_GLOBALTAG,frontier://FrontierProd/',
     # GlobalTag for POSTLS1 upgrade studies:
-    'upgradePLS1'       :   'POSTLS171_V1::All',
-    'upgradePLS150ns'   :   'POSTLS171_V2::All',
+    'upgradePLS1'       :   'POSTLS171_V15::All',
+    'upgradePLS150ns'   :   'POSTLS171_V16::All',
     'upgrade2017'       :   'DES17_70_V2::All', # placeholder (GT not meant for standard RelVal)
     'upgrade2019'       :   'DES19_70_V2::All', # placeholder (GT not meant for standard RelVal)
-    'upgradePLS3'       :   'POSTLS262_V1::All' # placeholder (GT not meant for standard RelVal)
+    'upgradePLS3'       :   'POSTLS262_V1::All', # placeholder (GT not meant for standard RelVal)
+
+    ### NEW KEYS ###
+    # GlobalTag for MC production with perfectly aligned and calibrated detector for Run1
+    'run1_design'       :   'MC_71_V8::All',
+    # GlobalTag for MC production (pp collisions) with realistic alignment and calibrations for Run1
+    'run1_mc'           :   'START71_V7::All',
+    # GlobalTag for MC production (Heavy Ions collisions) with realistic alignment and calibrations for Run1
+    'run1_mc_hi'        :   'STARTHI71_V13::All',
+    # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run1
+    'run1_mc_pPb'       :   'STARTHI71_V14::All',
+    # GlobalTag for MC production with perfectly aligned and calibrated detector for Run2
+    'run2_design'       :   'DESIGN71_V5::All',
+    # GlobalTag for MC production with pessimistic alignment and calibrations for Run2
+    'run2_mc_50ns'      :   'POSTLS171_V16::All',
+    #GlobalTag for MC production with optimistic alignment and calibrations for Run2
+    'run2_mc'           :   'POSTLS171_V15::All',
+    # GlobalTag for Run1 data reprocessing
+    'run1_data'         :   'GR_R_71_V6::All',
+    # GlobalTag for Run2 data reprocessing
+    'run2_data'         :   'GR_R_71_V6::All',
+    # GlobalTag for Run2 HLT: it points to the online GT and overrides the connection string and pfnPrefix for use offline
+    'run2_hlt'          :   'GR_H_V37::All,frontier://FrontierProd/CMS_COND_31X_GLOBALTAG,frontier://FrontierProd/',
+    # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017
+    'phase1_2017_design' :  'DES17_70_V2::All', # placeholder (GT not meant for standard RelVal)
+    # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2019
+    'phase1_2019_design' :  'DES19_70_V2::All', # placeholder (GT not meant for standard RelVal) 
+    # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase2
+    'phase2_design'     :   'POSTLS262_V1::All', # placeholder (GT not meant for standard RelVal)
 }
 
 aliases = {

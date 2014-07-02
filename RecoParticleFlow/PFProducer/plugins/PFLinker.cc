@@ -1,10 +1,5 @@
 #include "RecoParticleFlow/PFProducer/plugins/PFLinker.h"
 
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/MuonReco/interface/MuonToMuonMap.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 #include "RecoParticleFlow/PFProducer/interface/GsfElectronEqual.h"
 #include "RecoParticleFlow/PFProducer/interface/PhotonEqual.h"
@@ -13,14 +8,21 @@
 
 PFLinker::PFLinker(const edm::ParameterSet & iConfig) {
   // vector of InputTag; more than 1 is not for RECO, it is for analysis
-  inputTagPFCandidates_ 
-    = iConfig.getParameter<std::vector<edm::InputTag> >("PFCandidate");
-  inputTagGsfElectrons_
-    = iConfig.getParameter<edm::InputTag>("GsfElectrons");
-  inputTagPhotons_
-    = iConfig.getParameter<edm::InputTag>("Photons");
-  inputTagMuons_
-    = iConfig.getParameter<edm::InputTag>("Muons");
+  
+    std::vector<edm::InputTag> tags  = iConfig.getParameter<std::vector<edm::InputTag> >("PFCandidate");
+  for (unsigned int i=0;i<tags.size();++i)
+    inputTagPFCandidates_.push_back(consumes<reco::PFCandidateCollection>(tags[i]));   
+  
+
+  inputTagGsfElectrons_=consumes<reco::GsfElectronCollection>(
+	      iConfig.getParameter<edm::InputTag>("GsfElectrons"));
+
+  inputTagPhotons_=consumes<reco::PhotonCollection>(iConfig.getParameter<edm::InputTag>("Photons"));
+
+  
+  muonTag_ = iConfig.getParameter<edm::InputTag>("Muons");
+  inputTagMuons_=consumes<reco::MuonCollection>(edm::InputTag(muonTag_.label()));
+  inputTagMuonMap_=consumes<reco::MuonToMuonMap>(muonTag_);
   
   nameOutputPF_ 
     = iConfig.getParameter<std::string>("OutputPF");
@@ -51,7 +53,7 @@ PFLinker::PFLinker(const edm::ParameterSet & iConfig) {
   produces<edm::ValueMap<reco::PFCandidatePtr> > (nameOutputElectronsPF_);
   produces<edm::ValueMap<reco::PFCandidatePtr> > (nameOutputPhotonsPF_);
   produces<edm::ValueMap<reco::PFCandidatePtr> > (nameOutputMergedPF_);
-  if(fillMuonRefs_)  produces<edm::ValueMap<reco::PFCandidatePtr> > (inputTagMuons_.label());
+  if(fillMuonRefs_)  produces<edm::ValueMap<reco::PFCandidatePtr> > (muonTag_.label());
 
 }
 
@@ -63,56 +65,27 @@ void PFLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     pfCandidates_p(new reco::PFCandidateCollection);
   
   edm::Handle<reco::GsfElectronCollection> gsfElectrons;
-  bool status=fetchCollection<reco::GsfElectronCollection>(gsfElectrons,
-						      inputTagGsfElectrons_,
-						      iEvent );
-  std::map<reco::GsfElectronRef,reco::PFCandidatePtr> electronCandidateMap;  
+  iEvent.getByToken(inputTagGsfElectrons_,gsfElectrons);
 
-  if(!status) {
-    std::ostringstream err;
-    err << " Problem in PFLinker: no electron collection called " << inputTagGsfElectrons_ << std::endl;
-    edm::LogError("PFLinker") << err.str();
-  }
+  std::map<reco::GsfElectronRef,reco::PFCandidatePtr> electronCandidateMap;  
 
 
   edm::Handle<reco::PhotonCollection> photons;
-  status=fetchCollection<reco::PhotonCollection>(photons,
-						 inputTagPhotons_,
-						 iEvent );
-  if(!status) {
-    std::ostringstream err;
-    err << " Problem in PFLinker: no photon collection called " << inputTagPhotons_ << std::endl;
-    edm::LogError("PFLinker") << err.str();
-  }
-
-
+  iEvent.getByToken(inputTagPhotons_,photons);
   std::map<reco::PhotonRef,reco::PFCandidatePtr> photonCandidateMap;
 
 
   edm::Handle<reco::MuonToMuonMap> muonMap;
   if(fillMuonRefs_)
-    status=fetchCollection<reco::MuonToMuonMap>(muonMap,
-						inputTagMuons_,
-						iEvent);
+    iEvent.getByToken(inputTagMuonMap_,muonMap);
   std::map<reco::MuonRef,reco::PFCandidatePtr> muonCandidateMap;
   
   unsigned nColPF=inputTagPFCandidates_.size();
   
-  if(!status) {
-    std::ostringstream err;
-    err << " Problem in PFLinker: no muon collection called " << inputTagMuons_ << std::endl;
-    edm::LogError("PFLinker") << err.str();
-  }
-
-  
   edm::Handle<reco::PFCandidateCollection> pfCandidates;
   for(unsigned icol=0;icol<nColPF;++icol) {
-    
-    bool status=fetchCollection<reco::PFCandidateCollection>(pfCandidates, 
-							     inputTagPFCandidates_[icol], 
-							     iEvent );
-    
-    unsigned ncand=(status)?pfCandidates->size():0;
+    iEvent.getByToken(inputTagPFCandidates_[icol],pfCandidates);
+    unsigned ncand=pfCandidates->size();
     
     for( unsigned i=0; i<ncand; ++i) {
       edm::Ptr<reco::PFCandidate> candPtr(pfCandidates,i);
@@ -195,10 +168,10 @@ void PFLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   if(fillMuonRefs_){
     edm::Handle<reco::MuonCollection> muons; 
-    iEvent.getByLabel(inputTagMuons_.label(), muons);
+    iEvent.getByToken(inputTagMuons_, muons);
     
     pfMapMuons = fillValueMap<reco::MuonCollection>(iEvent, 
-						    inputTagMuons_.label(), 
+						    muonTag_.label(), 
 						    muons, 
 						    muonCandidateMap,
 						    pfCandidateRefProd);
@@ -213,22 +186,6 @@ void PFLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   if(fillMuonRefs_) *pfMapMerged += pfMapMuons;
   
   iEvent.put(pfMapMerged,nameOutputMergedPF_);
-}
-
-template<typename T>
-bool PFLinker::fetchCollection(edm::Handle<T>& c, 
-			       const edm::InputTag& tag, 
-			       const edm::Event& iEvent) const {  
-
-  bool found = iEvent.getByLabel(tag, c);
-  
-  if(!found )
-    {
-      std::ostringstream  err;
-      err<<" cannot get " <<tag<<std::endl;
-      edm::LogError("PFLinker")<<err.str();
-    }
-  return found;
 }
 
 

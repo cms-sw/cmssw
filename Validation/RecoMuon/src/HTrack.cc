@@ -4,7 +4,7 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "SimDataFormats/Track/interface/SimTrack.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
+//#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -14,106 +14,100 @@
 
 using namespace std;
 
-HTrack::HTrack(string dirName_,string name,string whereIs):
-  theName(name.c_str()),where(whereIs.c_str()){
+HTrack::HTrack( DQMStore::IBooker & ibooker, string dirName_,string name,string whereIs):theName(name.c_str()),where(whereIs.c_str()){
 
-  dbe_ = edm::Service<DQMStore>().operator->();
-  dbe_->cd();
+  ibooker.cd();
   std::string dirName=dirName_;
   dirName+="/";
   dirName+=name.c_str();
   dirName+="_";
   dirName+=whereIs.c_str();
 
-  dbe_->cd();
-  dbe_->setCurrentFolder(dirName.c_str());
-  
-  hVariables = new HTrackVariables(dirName.c_str(),name,whereIs);
+  ibooker.setCurrentFolder(dirName.c_str());
+  hVariables = new HTrackVariables(ibooker, dirName.c_str(),name,whereIs);
 
-
-  dbe_->cd();
-  dbe_->setCurrentFolder(dirName.c_str());
+  ibooker.cd();
   string resName = dirName;
   resName+="/Resolution";
-  hResolution = new HResolution(resName.c_str(),name+"_Res",whereIs);
-  dbe_->cd();
-  dbe_->setCurrentFolder(dirName.c_str());
-  hTDRResolution = new HResolution(resName.c_str(),name+"_TDRRes",whereIs);
+  hResolution = new HResolution(ibooker, resName.c_str(),name+"_Res",whereIs);
+  ibooker.cd();
+  ibooker.setCurrentFolder(dirName.c_str());
+  hTDRResolution = new HResolution(ibooker, resName.c_str(),name+"_TDRRes",whereIs);
 
-  dbe_->cd();
-  dbe_->setCurrentFolder(dirName.c_str());
+  ibooker.cd();
+  ibooker.setCurrentFolder(dirName.c_str());
   string pullName = dirName;
   pullName+="/Pull";
-  hPull = new HResolution(pullName.c_str(),name+"_Pull",whereIs);
-  hTDRPull = new HResolution(pullName.c_str(),name+"_TDRPull",whereIs);
+  hPull = new HResolution(ibooker, pullName.c_str(),name+"_Pull",whereIs);
+  hTDRPull = new HResolution(ibooker,pullName.c_str(),name+"_TDRPull",whereIs);
   
   
   doSubHisto = false;
 
   if(doSubHisto){
-    dbe_->cd();
-    dbe_->setCurrentFolder(dirName.c_str());
+    ibooker.cd();
+    ibooker.setCurrentFolder(dirName.c_str());
     string subName = dirName;
     subName+="/subHistos";
     // [5-10] GeV range
-    hResolution_5_10 = new HResolution(subName.c_str(),name+"_Res_Pt_5_10",whereIs);
-    hTDRResolution_5_10 = new HResolution(subName.c_str(),name+"_TDRRes_Pt_5_10",whereIs);
-    hPull_5_10 = new HResolution(subName.c_str(),name+"_Pull_Pt_5_10",whereIs);
+    hResolution_5_10 = new HResolution(ibooker, subName.c_str(),name+"_Res_Pt_5_10",whereIs);
+    hTDRResolution_5_10 = new HResolution(ibooker, subName.c_str(),name+"_TDRRes_Pt_5_10",whereIs);
+    hPull_5_10 = new HResolution(ibooker, subName.c_str(),name+"_Pull_Pt_5_10",whereIs);
     
     
-    hResolution_10_40 = new HResolution(subName.c_str(),name+"_Res_Pt_10_40",whereIs);
-    hTDRResolution_10_40 = new HResolution(subName.c_str(),name+"_TDRRes_Pt_10_40",whereIs);
-    hPull_10_40 = new HResolution(subName.c_str(),name+"_Pull_Pt_10_40",whereIs);
+    hResolution_10_40 = new HResolution(ibooker, subName.c_str(),name+"_Res_Pt_10_40",whereIs);
+    hTDRResolution_10_40 = new HResolution(ibooker, subName.c_str(),name+"_TDRRes_Pt_10_40",whereIs);
+    hPull_10_40 = new HResolution(ibooker, subName.c_str(),name+"_Pull_Pt_10_40",whereIs);
     
     
-    hResolution_40_70 = new HResolution(subName.c_str(),name+"_Res_Pt_40_70",whereIs);
-    hTDRResolution_40_70 = new HResolution(subName.c_str(),name+"_TDRRes_Pt_40_70",whereIs);
-    hPull_40_70 = new HResolution(subName.c_str(),name+"_Pull_Pt_40_70",whereIs);
+    hResolution_40_70 = new HResolution(ibooker, subName.c_str(),name+"_Res_Pt_40_70",whereIs);
+    hTDRResolution_40_70 = new HResolution(ibooker, subName.c_str(),name+"_TDRRes_Pt_40_70",whereIs);
+    hPull_40_70 = new HResolution(ibooker, subName.c_str(),name+"_Pull_Pt_40_70",whereIs);
     
     
-    hResolution_70_100 = new HResolution(subName.c_str(),name+"_Res_Pt_70_100",whereIs);
-    hTDRResolution_70_100 = new HResolution(subName.c_str(),name+"_TDRRes_Pt_70_100",whereIs);
-    hPull_70_100 = new HResolution(subName.c_str(),name+"_Pull_Pt_70_100",whereIs);
+    hResolution_70_100 = new HResolution(ibooker, subName.c_str(),name+"_Res_Pt_70_100",whereIs);
+    hTDRResolution_70_100 = new HResolution(ibooker, subName.c_str(),name+"_TDRRes_Pt_70_100",whereIs);
+    hPull_70_100 = new HResolution(ibooker, subName.c_str(),name+"_Pull_Pt_70_100",whereIs);
     
     
-    hResolution_08 = new HResolution(subName.c_str(),name+"_Res_Eta_08",whereIs);
-    hTDRResolution_08 = new HResolution(subName.c_str(),name+"_TDRRes_Eta_08",whereIs);
-    hPull_08 = new HResolution(subName.c_str(),name+"_Pull_Eta_08",whereIs);
+    hResolution_08 = new HResolution(ibooker, subName.c_str(),name+"_Res_Eta_08",whereIs);
+    hTDRResolution_08 = new HResolution(ibooker, subName.c_str(),name+"_TDRRes_Eta_08",whereIs);
+    hPull_08 = new HResolution(ibooker, subName.c_str(),name+"_Pull_Eta_08",whereIs);
     
    	
-    hResolution_08_12 = new HResolution(subName.c_str(),name+"_Res_Eta_08_12",whereIs);
-    hTDRResolution_08_12 = new HResolution(subName.c_str(),name+"_TDRRes_Eta_08_12",whereIs);
-    hPull_08_12 = new HResolution(subName.c_str(),name+"_Pull_Eta_08_12",whereIs);
+    hResolution_08_12 = new HResolution(ibooker, subName.c_str(),name+"_Res_Eta_08_12",whereIs);
+    hTDRResolution_08_12 = new HResolution(ibooker, subName.c_str(),name+"_TDRRes_Eta_08_12",whereIs);
+    hPull_08_12 = new HResolution(ibooker, subName.c_str(),name+"_Pull_Eta_08_12",whereIs);
     
     
-    hResolution_12_21 = new HResolution(subName.c_str(),name+"_Res_Eta_12_21",whereIs);
-    hTDRResolution_12_21 = new HResolution(subName.c_str(),name+"_TDRRes_Eta_12_21",whereIs);
-    hPull_12_21 = new HResolution(subName.c_str(),name+"_Pull_Eta_12_21",whereIs);
+    hResolution_12_21 = new HResolution(ibooker, subName.c_str(),name+"_Res_Eta_12_21",whereIs);
+    hTDRResolution_12_21 = new HResolution(ibooker, subName.c_str(),name+"_TDRRes_Eta_12_21",whereIs);
+    hPull_12_21 = new HResolution(ibooker, subName.c_str(),name+"_Pull_Eta_12_21",whereIs);
     
     
-    hResolution_12_24 = new HResolution(subName.c_str(),name+"_Res_Eta_12_24",whereIs);
-    hTDRResolution_12_24 = new HResolution(subName.c_str(),name+"_TDRRes_Eta_12_24",whereIs);
-    hPull_12_24 = new HResolution(subName.c_str(),name+"_Pull_Eta_12_24",whereIs);
+    hResolution_12_24 = new HResolution(ibooker, subName.c_str(),name+"_Res_Eta_12_24",whereIs);
+    hTDRResolution_12_24 = new HResolution(ibooker, subName.c_str(),name+"_TDRRes_Eta_12_24",whereIs);
+    hPull_12_24 = new HResolution(ibooker, subName.c_str(),name+"_Pull_Eta_12_24",whereIs);
 
     
-    hResolution_12_21_plus = new HResolution(subName.c_str(),name+"_Res_Eta_12_21_plus",whereIs);
-    hTDRResolution_12_21_plus = new HResolution(subName.c_str(),name+"_TDRRes_Eta_12_21_plus",whereIs);
-    hPull_12_21_plus = new HResolution(subName.c_str(),name+"_Pull_Eta_12_21_plus",whereIs);
+    hResolution_12_21_plus = new HResolution(ibooker, subName.c_str(),name+"_Res_Eta_12_21_plus",whereIs);
+    hTDRResolution_12_21_plus = new HResolution(ibooker, subName.c_str(),name+"_TDRRes_Eta_12_21_plus",whereIs);
+    hPull_12_21_plus = new HResolution(ibooker, subName.c_str(),name+"_Pull_Eta_12_21_plus",whereIs);
     
     
-    hResolution_12_24_plus = new HResolution(subName.c_str(),name+"_Res_Eta_12_24_plus",whereIs);
-    hTDRResolution_12_24_plus = new HResolution(subName.c_str(),name+"_TDRRes_Eta_12_24_plus",whereIs);
-    hPull_12_24_plus = new HResolution(subName.c_str(),name+"_Pull_Eta_12_24_plus",whereIs);
+    hResolution_12_24_plus = new HResolution(ibooker, subName.c_str(),name+"_Res_Eta_12_24_plus",whereIs);
+    hTDRResolution_12_24_plus = new HResolution(ibooker, subName.c_str(),name+"_TDRRes_Eta_12_24_plus",whereIs);
+    hPull_12_24_plus = new HResolution(ibooker, subName.c_str(),name+"_Pull_Eta_12_24_plus",whereIs);
     
     
-    hResolution_12_21_minus = new HResolution(subName.c_str(),name+"_Res_Eta_12_21_minus",whereIs);
-    hTDRResolution_12_21_minus = new HResolution(subName.c_str(),name+"_TDRRes_Eta_12_21_minus",whereIs);
-    hPull_12_21_minus = new HResolution(subName.c_str(),name+"_Pull_Eta_12_21_minus",whereIs);
+    hResolution_12_21_minus = new HResolution(ibooker, subName.c_str(),name+"_Res_Eta_12_21_minus",whereIs);
+    hTDRResolution_12_21_minus = new HResolution(ibooker, subName.c_str(),name+"_TDRRes_Eta_12_21_minus",whereIs);
+    hPull_12_21_minus = new HResolution(ibooker, subName.c_str(),name+"_Pull_Eta_12_21_minus",whereIs);
     
     
-    hResolution_12_24_minus = new HResolution(subName.c_str(),name+"_Res_Eta_12_24_minus",whereIs);
-    hTDRResolution_12_24_minus = new HResolution(subName.c_str(),name+"_TDRRes_Eta_12_24_minus",whereIs);
-    hPull_12_24_minus = new HResolution(subName.c_str(),name+"_Pull_Eta_12_24_minus",whereIs);
+    hResolution_12_24_minus = new HResolution(ibooker, subName.c_str(),name+"_Res_Eta_12_24_minus",whereIs);
+    hTDRResolution_12_24_minus = new HResolution(ibooker, subName.c_str(),name+"_TDRRes_Eta_12_24_minus",whereIs);
+    hPull_12_24_minus = new HResolution(ibooker, subName.c_str(),name+"_Pull_Eta_12_24_minus",whereIs);
   }
 }
 
@@ -144,8 +138,8 @@ void HTrack::FillDeltaR(double deltaR){
 }
 
 
-double HTrack::computeEfficiency(HTrackVariables *sim){
-  return hVariables->computeEfficiency(sim);
+double HTrack::computeEfficiency(HTrackVariables *sim,DQMStore::IBooker& ibooker){
+  return hVariables->computeEfficiency(sim,ibooker);
 }
 
 

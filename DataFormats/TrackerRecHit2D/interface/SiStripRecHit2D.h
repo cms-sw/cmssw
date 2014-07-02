@@ -2,49 +2,54 @@
 #define SiStripRecHit2D_H
 
 #include "DataFormats/TrackerRecHit2D/interface/TrackerSingleRecHit.h"
+#include "TkCloner.h"
 
 
 class SiStripRecHit2D GCC11_FINAL : public TrackerSingleRecHit {
 public:
 
-  SiStripRecHit2D(): sigmaPitch_(-1.){}
+  SiStripRecHit2D() {}
 
   ~SiStripRecHit2D() {} 
 
   typedef OmniClusterRef::ClusterStripRef         ClusterRef;
-  typedef OmniClusterRef::ClusterRegionalRef ClusterRegionalRef;
 
   // no position (as in persistent)
   SiStripRecHit2D(const DetId& id,
 		  OmniClusterRef const& clus) : 
-    TrackerSingleRecHit(id, clus),
-    sigmaPitch_(-1.) {}
+    TrackerSingleRecHit(id, clus){}
 
   template<typename CluRef>
-  SiStripRecHit2D( const LocalPoint& pos, const LocalError& err, float isigmaPitch,
-		   const DetId& id, GeomDet const * idet,
+  SiStripRecHit2D( const LocalPoint& pos, const LocalError& err,
+		   GeomDet const & idet,
 		   CluRef const& clus) : 
-    TrackerSingleRecHit(pos,err,id, idet, clus),
-    sigmaPitch_(isigmaPitch) {}
+    TrackerSingleRecHit(pos,err, idet, clus) {}
  
 				
   ClusterRef cluster()  const { return cluster_strip() ; }
   void setClusterRef(ClusterRef const & ref)  {setClusterStripRef(ref);}
 
-  virtual SiStripRecHit2D * clone() const {return new SiStripRecHit2D( * this); }
+  virtual SiStripRecHit2D * clone() const GCC11_OVERRIDE {return new SiStripRecHit2D( * this); }
+#ifdef NO_DICT
+  virtual RecHitPointer cloneSH() const { return std::make_shared<SiStripRecHit2D>(*this);}
+#endif
   
-  virtual int dimension() const {return 2;}
-  virtual void getKfComponents( KfComponentsHolder & holder ) const { getKfComponents2D(holder); }
+  virtual int dimension() const GCC11_OVERRIDE {return 2;}
+  virtual void getKfComponents( KfComponentsHolder & holder ) const GCC11_OVERRIDE { getKfComponents2D(holder); }
 
- 
-  float sigmaPitch() const { return sigmaPitch_;}
-
+  virtual bool canImproveWithTrack() const GCC11_OVERRIDE {return true;}
+private:
+  // double dispatch
+  virtual SiStripRecHit2D * clone(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const GCC11_OVERRIDE {
+    return cloner(*this,tsos);
+  }
+#ifdef NO_DICT
+  virtual  RecHitPointer cloneSH(TkCloner const& cloner, TrajectoryStateOnSurface const& tsos) const GCC11_OVERRIDE {
+    return cloner.makeShared(*this,tsos);
+  }
+#endif 
   
 private:
-
-  /// cache for the matcher....
-  float sigmaPitch_;  // transient....
-
  
 };
 

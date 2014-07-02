@@ -5,8 +5,6 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
 EgammaBasicClusters::EgammaBasicClusters( const edm::ParameterSet& ps )
@@ -40,8 +38,8 @@ EgammaBasicClusters::EgammaBasicClusters( const edm::ParameterSet& ps )
 	hist_max_R_ = ps.getParameter<double>("hist_max_R");
 	hist_bins_R_ = ps.getParameter<int>   ("hist_bins_R");
 
-	barrelBasicClusterCollection_ = ps.getParameter<edm::InputTag>("barrelBasicClusterCollection");
- 	endcapBasicClusterCollection_ = ps.getParameter<edm::InputTag>("endcapBasicClusterCollection");
+	barrelBasicClusterCollection_ = consumes<reco::BasicClusterCollection>(ps.getParameter<edm::InputTag>("barrelBasicClusterCollection"));
+ 	endcapBasicClusterCollection_ = consumes<reco::BasicClusterCollection>(ps.getParameter<edm::InputTag>("endcapBasicClusterCollection"));
 }
 
 EgammaBasicClusters::~EgammaBasicClusters() {}
@@ -124,10 +122,13 @@ void EgammaBasicClusters::beginJob()
 void EgammaBasicClusters::analyze( const edm::Event& evt, const edm::EventSetup& es )
 {
   	edm::Handle<reco::BasicClusterCollection> pBarrelBasicClusters;
-	evt.getByLabel(barrelBasicClusterCollection_, pBarrelBasicClusters);
+	evt.getByToken(barrelBasicClusterCollection_, pBarrelBasicClusters);
 	if (!pBarrelBasicClusters.isValid()) {
+
+	  Labels l;
+	  labelsForToken(barrelBasicClusterCollection_,l);
 	  edm::LogError("EgammaBasicClusters") << "Error! can't get collection with label " 
-					       << barrelBasicClusterCollection_.label();
+					       << l.module;
 	}
 
   	const reco::BasicClusterCollection* barrelBasicClusters = pBarrelBasicClusters.product();
@@ -147,10 +148,13 @@ void EgammaBasicClusters::analyze( const edm::Event& evt, const edm::EventSetup&
 
   	edm::Handle<reco::BasicClusterCollection> pEndcapBasicClusters;
 
-	evt.getByLabel(endcapBasicClusterCollection_, pEndcapBasicClusters);
+	evt.getByToken(endcapBasicClusterCollection_, pEndcapBasicClusters);
 	if (!pEndcapBasicClusters.isValid()) {
+
+	  Labels l;
+	  labelsForToken(endcapBasicClusterCollection_,l);
 	  edm::LogError("EgammaBasicClusters") << "Error! can't get collection with label " 
-					       << endcapBasicClusterCollection_.label();
+					       << l.module;
   	}
 
   	const reco::BasicClusterCollection* endcapBasicClusters = pEndcapBasicClusters.product();

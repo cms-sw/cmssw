@@ -7,17 +7,17 @@
 // system include files
 #include <memory>
 #include <iostream>
+#include <cmath>
 
 // user include files
+#include "DQMOffline/Ecal/interface/ESRecoSummary.h"
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Common/interface/EventBase.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -27,30 +27,31 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include "DataFormats/EcalDetId/interface/ESDetId.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/PreshowerCluster.h"
-#include "DataFormats/EgammaReco/interface/PreshowerClusterFwd.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalTools.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalCleaningAlgo.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalRecHitLess.h"
 
-#include "DQMOffline/Ecal/interface/ESRecoSummary.h"
+// Less than operator for sorting EcalRecHits according to energy.
+class ecalRecHitLess : public std::binary_function<EcalRecHit, EcalRecHit, bool>
+{
+public:
+  bool operator()(EcalRecHit x, EcalRecHit y)
+  {
+    return (x.energy() > y.energy());
+  }
+};
 
-#include <iostream>
-#include <cmath>
-//using namespace std;
 //
 // constructors and destructor
 //
 ESRecoSummary::ESRecoSummary(const edm::ParameterSet& ps)
 {
-
   prefixME_ = ps.getUntrackedParameter<std::string>("prefixME", "");
 
   //now do what ever initialization is needed
@@ -58,38 +59,31 @@ ESRecoSummary::ESRecoSummary(const edm::ParameterSet& ps)
   esClusterCollectionX_      = consumes<reco::PreshowerClusterCollection>(ps.getParameter<edm::InputTag>("ClusterCollectionX_ES"));
   esClusterCollectionY_      = consumes<reco::PreshowerClusterCollection>(ps.getParameter<edm::InputTag>("ClusterCollectionY_ES"));
 
-  dqmStore_ = edm::Service<DQMStore>().operator->();
-
-  // Monitor Elements (ex THXD)
-  dqmStore_->setCurrentFolder(prefixME_ + "/ESRecoSummary"); // to organise the histos in folders
-
   superClusterCollection_EE_ = consumes<reco::SuperClusterCollection>(ps.getParameter<edm::InputTag>("superClusterCollection_EE"));
+}
+
+void
+ESRecoSummary::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&, edm::EventSetup const&)
+{
+    // Monitor Elements (ex THXD)
+  iBooker.setCurrentFolder(prefixME_ + "/ESRecoSummary"); // to organise the histos in folders
+
      
   // Preshower ----------------------------------------------
-  h_recHits_ES_energyMax      = dqmStore_->book1D("recHits_ES_energyMax","recHits_ES_energyMax",200,0.,0.01);
-  h_recHits_ES_time           = dqmStore_->book1D("recHits_ES_time","recHits_ES_time",200,-100.,100.);
+  h_recHits_ES_energyMax      = iBooker.book1D("recHits_ES_energyMax","recHits_ES_energyMax",200,0.,0.01);
+  h_recHits_ES_time           = iBooker.book1D("recHits_ES_time","recHits_ES_time",200,-100.,100.);
 
-  h_esClusters_energy_plane1 = dqmStore_->book1D("esClusters_energy_plane1","esClusters_energy_plane1",200,0.,0.01);
-  h_esClusters_energy_plane2 = dqmStore_->book1D("esClusters_energy_plane2","esClusters_energy_plane2",200,0.,0.01);
-  h_esClusters_energy_ratio  = dqmStore_->book1D("esClusters_energy_ratio","esClusters_energy_ratio",200,0.,20.);
-
+  h_esClusters_energy_plane1 = iBooker.book1D("esClusters_energy_plane1","esClusters_energy_plane1",200,0.,0.01);
+  h_esClusters_energy_plane2 = iBooker.book1D("esClusters_energy_plane2","esClusters_energy_plane2",200,0.,0.01);
+  h_esClusters_energy_ratio  = iBooker.book1D("esClusters_energy_ratio","esClusters_energy_ratio",200,0.,20.);
 }
-
-
-
-ESRecoSummary::~ESRecoSummary()
-{
-        // do anything here that needs to be done at desctruction time
-        // (e.g. close files, deallocate resources etc.)
-}
-
 
 //
 // member functions
 //
 
 // ------------ method called to for each event  ------------
-void ESRecoSummary::analyze(const edm::Event& ev, const edm::EventSetup& iSetup)
+void ESRecoSummary::analyze(const edm::Event& ev, const edm::EventSetup&)
 {
   //Preshower RecHits
   edm::Handle<ESRecHitCollection> recHitsES;
@@ -173,18 +167,6 @@ void ESRecoSummary::analyze(const edm::Event& ev, const edm::EventSetup& iSetup)
   }// end loop over superclusters
 
 }
-
-
-// ------------ method called once each job just before starting event loop  ------------
-        void 
-ESRecoSummary::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-ESRecoSummary::endJob() 
-{}
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(ESRecoSummary);

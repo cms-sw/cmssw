@@ -3,6 +3,8 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <string>
 
@@ -10,7 +12,7 @@ class DQMStore;
 class MonitorElement;
 class TrackingParticle;
 
-class TrackingTruthValid  : public edm::EDAnalyzer {
+class TrackingTruthValid  : public  DQMEDAnalyzer {
  public:
   typedef std::vector<TrackingParticle> TrackingParticleCollection;
   //Constructor
@@ -20,11 +22,12 @@ class TrackingTruthValid  : public edm::EDAnalyzer {
   
   virtual void analyze(const edm::Event&, const edm::EventSetup& );
 
+  void bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es);
   void beginJob(const edm::ParameterSet& conf);
-  void beginRun( const edm::Run&, const edm::EventSetup& ); 
   void endJob();
   
  private:
+  bool runStandalone;
   std::string outputFile;
   
   DQMStore* dbe_;

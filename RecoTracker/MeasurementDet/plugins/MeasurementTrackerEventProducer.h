@@ -2,14 +2,16 @@
 #define MeasurementTrackerEventProducer_h
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoTracker/MeasurementDet/src/TkMeasurementDetSet.h"
+#include "DataFormats/Common/interface/ContainerMask.h"
+#include "DataFormats/DetId/interface/DetIdCollection.h"
 
-class MeasurementTrackerEventProducer : public edm::EDProducer {
+class MeasurementTrackerEventProducer : public edm::stream::EDProducer<> {
 public:
       explicit MeasurementTrackerEventProducer(const edm::ParameterSet &iConfig) ;
       ~MeasurementTrackerEventProducer() {}
@@ -24,9 +26,13 @@ protected:
 
       std::string measurementTrackerLabel_;
       const edm::ParameterSet& pset_;
+      edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster>> thePixelClusterLabel;
+      edm::EDGetTokenT<edmNew::DetSetVector<SiStripCluster>> theStripClusterLabel;
+      edm::EDGetTokenT<edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster>>> thePixelClusterMask;
+      edm::EDGetTokenT<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster>>> theStripClusterMask;
 
-      const std::vector<edm::InputTag>      theInactivePixelDetectorLabels;
-      const std::vector<edm::InputTag>      theInactiveStripDetectorLabels;
+      std::vector<edm::EDGetTokenT<DetIdCollection>>      theInactivePixelDetectorLabels;
+      std::vector<edm::EDGetTokenT<DetIdCollection>>      theInactiveStripDetectorLabels;
 
       bool selfUpdateSkipClusters_;
 };

@@ -66,7 +66,7 @@ DTCombinatorialExtendedPatternReco::reconstruct(const DTSuperLayer* sl,
     
     DTSLRecSegment2D *segment = (**cand);
 
-    theUpdator->update(segment);
+    theUpdator->update(segment,0);
 
     result.push_back(segment);
 
@@ -419,7 +419,7 @@ DTCombinatorialExtendedPatternReco::buildPointsCollection(vector<DTSegmentCand::
     }
 
     DTSegmentCand* newCand = new DTSegmentCand(pointsSet,sl);
-    if (theUpdator->fit(newCand)) candidates.push_back(newCand);
+    if (theUpdator->fit(newCand,0,0)) candidates.push_back(newCand);
     else delete newCand; // bad seg, too few hits
   }
 }
@@ -490,7 +490,7 @@ DTCombinatorialExtendedPatternReco::extendCandidates(vector<DTSegmentCand*>& can
       }
       // fit the segment
       if (debug) cout << "extended cands nHits: " << extendedCand->nHits() <<endl;
-      if (theUpdator->fit(extendedCand)) {
+      if (theUpdator->fit(extendedCand,0,0)) {
         // add to result
         result.push_back(extendedCand);
       } else {

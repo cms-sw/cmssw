@@ -1,6 +1,7 @@
 #ifndef ECALZEROSUPPRESSIONPRODUCER_H
 #define ECALZEROSUPPRESSIONPRODUCER_H
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 //#include "FWCore/Framework/interface/Event.h"
 //#include "DataFormats/Common/interface/Handle.h"
@@ -144,10 +145,23 @@ private:
    */
   bool useCondDb_;
 
+
+  /**  Special switch to turn off SR entirely using special DB entries 
+   */
+
+  bool useFullReadout_;
+
   /** Used when settings_ is imported from configuration file. Just used
    * for memory management. Used settings_ to access to the object
    */
   std::auto_ptr<EcalSRSettings> settingsFromFile_;
+
+  // Tokens for consumes collection:
+
+  edm::EDGetTokenT<EBDigiCollection> EB_token;
+  edm::EDGetTokenT<EEDigiCollection> EE_token;
+  edm::EDGetTokenT<EcalTrigPrimDigiCollection> EcTP_token;
+
 };
 
 #endif

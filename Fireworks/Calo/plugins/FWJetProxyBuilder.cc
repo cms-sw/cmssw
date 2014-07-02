@@ -66,6 +66,7 @@ public:
    REGISTER_PROXYBUILDER_METHODS();
    
 protected:
+   using FWSimpleProxyBuilderTemplate<reco::Jet>::buildViewType;
    virtual void buildViewType(const reco::Jet& iData, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext*);
 
 

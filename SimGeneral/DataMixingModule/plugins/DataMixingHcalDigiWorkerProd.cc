@@ -16,13 +16,19 @@
 using namespace std;
 namespace edm {
   // Constructor 
-  DataMixingHcalDigiWorkerProd::DataMixingHcalDigiWorkerProd(const edm::ParameterSet& ps, edm::ConsumesCollector& iC) : 
+  DataMixingHcalDigiWorkerProd::DataMixingHcalDigiWorkerProd(const edm::ParameterSet& ps, edm::ConsumesCollector&& iC) : 
     HBHEPileInputTag_(ps.getParameter<edm::InputTag>("HBHEPileInputTag")),
     HOPileInputTag_(ps.getParameter<edm::InputTag>("HOPileInputTag")),
     HFPileInputTag_(ps.getParameter<edm::InputTag>("HFPileInputTag")),
     ZDCPileInputTag_(ps.getParameter<edm::InputTag>("ZDCPileInputTag")),
     label_(ps.getParameter<std::string>("Label"))
   {  
+
+    // 
+    tok_hbhe_ = iC.consumes<HBHEDigitizerTraits::DigiCollection>(HBHEPileInputTag_);
+    tok_ho_ = iC.consumes<HODigitizerTraits::DigiCollection>(HOPileInputTag_);
+    tok_hf_ = iC.consumes<HFDigitizerTraits::DigiCollection>(HFPileInputTag_);
+    tok_zdc_ = iC.consumes<ZDCDigitizerTraits::DigiCollection>(ZDCPileInputTag_);
 
     theHBHESignalGenerator = HBHESignalGenerator(HBHEPileInputTag_,tok_hbhe_);
     theHOSignalGenerator = HOSignalGenerator(HOPileInputTag_,tok_ho_);
@@ -44,7 +50,7 @@ namespace edm {
 
     // initialize HcalDigitizer here...
 
-    myHcalDigitizer_ = new HcalDigitizer( ps, iC );
+    myHcalDigitizer_ = new HcalDigiProducer( ps, iC );
 
     myHcalDigitizer_->setHBHENoiseSignalGenerator( & theHBHESignalGenerator );
     myHcalDigitizer_->setHFNoiseSignalGenerator( & theHFSignalGenerator );
@@ -58,9 +64,18 @@ namespace edm {
     delete myHcalDigitizer_;
   }  
 
+  void DataMixingHcalDigiWorkerProd::beginRun(const edm::Run& run, const edm::EventSetup& ES) {
+
+    myHcalDigitizer_->beginRun(run, ES); 
+  }
+
+  void DataMixingHcalDigiWorkerProd::initializeEvent(const edm::Event &e, const edm::EventSetup& ES) {
+    myHcalDigitizer_->initializeEvent(e, ES); 
+  }
+
   void DataMixingHcalDigiWorkerProd::addHcalSignals(const edm::Event &e,const edm::EventSetup& ES) { 
     
-    // nothing to do
+    myHcalDigitizer_->accumulate(e, ES);
 
   } // end of addHcalSignals
 
@@ -69,10 +84,13 @@ namespace edm {
   
     LogDebug("DataMixingHcalDigiWorkerProd") <<"\n===============> adding pileups from event  "<<ep->id()<<" for bunchcrossing "<<bcr;
 
+
     theHBHESignalGenerator.initializeEvent(ep, &ES);
     theHOSignalGenerator.initializeEvent(ep, &ES);
     theHFSignalGenerator.initializeEvent(ep, &ES);
     theZDCSignalGenerator.initializeEvent(ep, &ES);
+
+    // put digis from pileup event into digitizer
 
     theHBHESignalGenerator.fill(mcc);
     theHOSignalGenerator.fill(mcc);
@@ -82,11 +100,14 @@ namespace edm {
   void DataMixingHcalDigiWorkerProd::putHcal(edm::Event &e,const edm::EventSetup& ES) {
 
     // Digitize
-    edm::Service<edm::RandomNumberGenerator> rng;
-    CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
+    //edm::Service<edm::RandomNumberGenerator> rng;
+    //CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
 
-    myHcalDigitizer_->initializeEvent( e, ES );
-    myHcalDigitizer_->finalizeEvent( e, ES, engine );
+    //myHcalDigitizer_->initializeEvent( e, ES );
+
+    //    myHcalDigitizer_->finalizeEvent( e, ES, engine );
+    myHcalDigitizer_->finalizeEvent( e, ES);
+
   }
 
 } //edm

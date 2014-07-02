@@ -24,7 +24,6 @@
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
-#include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
@@ -126,8 +125,6 @@ reco::IsoDeposit EgammaRecHitExtractor::deposit(const edm::Event & iEvent,
   const CaloSubdetectorGeometry* endcapgeom = caloGeom->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
 
   static std::string metname = "EgammaIsolationAlgos|EgammaRecHitExtractor";
-
-  std::auto_ptr<const CaloRecHitMetaCollectionV> barrelRecHits(0), endcapRecHits(0);
 
   //Get barrel ECAL RecHits
   edm::Handle<EcalRecHitCollection> barrelEcalRecHitsH;

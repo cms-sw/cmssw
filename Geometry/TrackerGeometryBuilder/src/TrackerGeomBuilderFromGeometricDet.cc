@@ -100,7 +100,7 @@ void TrackerGeomBuilderFromGeometricDet::buildPixel(std::vector<const GeometricD
 
     std::string const & detName = gdv[i]->name().fullname();
     if (thePixelDetTypeMap.find(detName) == thePixelDetTypeMap.end()) {
-      std::auto_ptr<const Bounds> bounds(gdv[i]->bounds());
+      std::unique_ptr<const Bounds> bounds(gdv[i]->bounds());
       
       PixelTopology* t = 
 	  PixelTopologyBuilder().build(&*bounds,
@@ -136,7 +136,7 @@ void TrackerGeomBuilderFromGeometricDet::buildSilicon(std::vector<const Geometri
 
     std::string const & detName = gdv[i]->name().fullname();
     if (theStripDetTypeMap.find(detName) == theStripDetTypeMap.end()) {
-       std::auto_ptr<const Bounds> bounds(gdv[i]->bounds());
+       std::unique_ptr<const Bounds> bounds(gdv[i]->bounds());
        StripTopology* t =
 	   StripTopologyBuilder().build(&*bounds,
 				       gdv[i]->siliconAPVNum(),
@@ -162,8 +162,8 @@ void TrackerGeomBuilderFromGeometricDet::buildSilicon(std::vector<const Geometri
 
 void TrackerGeomBuilderFromGeometricDet::buildGeomDet(TrackerGeometry* tracker){
   PlaneBuilderForGluedDet gluedplaneBuilder;
-  std::vector<GeomDetUnit*> const & gdu= tracker->detUnits();
-  std::vector<DetId> const & gduId = tracker->detUnitIds();
+  auto  const & gdu= tracker->detUnits();
+  auto  const & gduId = tracker->detUnitIds();
 
   for(u_int32_t i=0;i<gdu.size();i++){
     StripSubdetector sidet( gduId[i].rawId());

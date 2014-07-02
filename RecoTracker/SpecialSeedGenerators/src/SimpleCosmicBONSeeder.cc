@@ -10,18 +10,25 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
-typedef TransientTrackingRecHit::ConstRecHitPointer SeedingHit;
+#include "TrackingTools/TransientTrackingRecHit/interface/SeedingLayerSetsHits.h"
+typedef SeedingHitSet::ConstRecHitPointer SeedingHit;
 
 #include <numeric>
+
+namespace {
+  std::string seedingLayersToString(const SeedingLayerSetsHits::SeedingLayerSet& layer) {
+    return layer[0].name() + "+" + layer[1].name() + "+" + layer[2].name();
+  }
+}
 
 using namespace std;
 SimpleCosmicBONSeeder::SimpleCosmicBONSeeder(edm::ParameterSet const& conf) : 
   conf_(conf),
-  theLsb(conf.getParameter<edm::ParameterSet>("TripletsPSet"), consumesCollector()),
+  seedingLayerToken_(consumes<SeedingLayerSetsHits>(conf.getParameter<edm::InputTag>("TripletsSrc"))),
   writeTriplets_(conf.getParameter<bool>("writeTriplets")),
   seedOnMiddle_(conf.existsAs<bool>("seedOnMiddle") ? conf.getParameter<bool>("seedOnMiddle") : false),
   rescaleError_(conf.existsAs<double>("rescaleError") ? conf.getParameter<double>("rescaleError") : 1.0),
-  tripletsVerbosity_(conf.getParameter<edm::ParameterSet>("TripletsPSet").getUntrackedParameter<uint32_t>("debugLevel",0)),
+  tripletsVerbosity_(conf.getUntrackedParameter<uint32_t>("TripletsDebugLevel",0)),
   seedVerbosity_(conf.getUntrackedParameter<uint32_t>("seedDebugLevel",0)),
   helixVerbosity_(conf.getUntrackedParameter<uint32_t>("helixDebugLevel",0)),
   check_(conf.getParameter<edm::ParameterSet>("ClusterCheckPSet"), consumesCollector()),
@@ -45,8 +52,6 @@ SimpleCosmicBONSeeder::SimpleCosmicBONSeeder(edm::ParameterSet const& conf) :
 
   produces<TrajectorySeedCollection>();
   if (writeTriplets_) produces<edm::OwnVector<TrackingRecHit> >("cosmicTriplets");
-
-  layerTripletNames_ = conf_.getParameter<edm::ParameterSet>("TripletsPSet").getParameter<std::vector<std::string> >("layerList");
 
   if (conf.existsAs<edm::ParameterSet>("ClusterChargeCheck")) {
       edm::ParameterSet cccc = conf.getParameter<edm::ParameterSet>("ClusterChargeCheck");
@@ -126,7 +131,7 @@ SimpleCosmicBONSeeder::init(const edm::EventSetup& iSetup)
 {
     iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
     iSetup.get<TransientRecHitRecord>().get(builderName,TTTRHBuilder);
-
+    cloner =  ((TkTransientTrackingRecHitBuilder const *)(TTTRHBuilder.product()))->cloner();
     // FIXME: these should come from ES too!!
     thePropagatorAl = new PropagatorWithMaterial(alongMomentum,0.1057,&(*magfield) );
     thePropagatorOp = new PropagatorWithMaterial(oppositeToMomentum,0.1057,&(*magfield) );
@@ -138,17 +143,17 @@ struct HigherInnerHit {
     bool operator()(const OrderedHitTriplet &trip1, const OrderedHitTriplet &trip2) const {
         //FIXME: inner gives a SEGV
 #if 0
-        //const TransientTrackingRecHit::ConstRecHitPointer &ihit1 = trip1.inner();
-        //const TransientTrackingRecHit::ConstRecHitPointer &ihit2 = trip2.inner();
-        const TransientTrackingRecHit::ConstRecHitPointer &ihit1 = trip1.middle();
-        const TransientTrackingRecHit::ConstRecHitPointer &ihit2 = trip2.middle();
-        const TransientTrackingRecHit::ConstRecHitPointer &ohit1 = trip1.outer();
-        const TransientTrackingRecHit::ConstRecHitPointer &ohit2 = trip2.outer();
+        //const SeedingHitSet::ConstRecHitPointer &ihit1 = trip1.inner();
+        //const SeedingHitSet::ConstRecHitPointer &ihit2 = trip2.inner();
+        const SeedingHitSet::ConstRecHitPointer &ihit1 = trip1.middle();
+        const SeedingHitSet::ConstRecHitPointer &ihit2 = trip2.middle();
+        const SeedingHitSet::ConstRecHitPointer &ohit1 = trip1.outer();
+        const SeedingHitSet::ConstRecHitPointer &ohit2 = trip2.outer();
 #endif
-        TransientTrackingRecHit::ConstRecHitPointer ihit1 = trip1.inner();
-        TransientTrackingRecHit::ConstRecHitPointer ihit2 = trip2.inner();
-        TransientTrackingRecHit::ConstRecHitPointer ohit1 = trip1.outer();
-        TransientTrackingRecHit::ConstRecHitPointer ohit2 = trip2.outer();
+        SeedingHitSet::ConstRecHitPointer ihit1 = trip1.inner();
+        SeedingHitSet::ConstRecHitPointer ihit2 = trip2.inner();
+        SeedingHitSet::ConstRecHitPointer ohit1 = trip1.outer();
+        SeedingHitSet::ConstRecHitPointer ohit2 = trip2.outer();
         float iy1 = ihit1->globalPosition().y();
         float oy1 = ohit1->globalPosition().y();
         float iy2 = ihit2->globalPosition().y();
@@ -172,33 +177,29 @@ bool SimpleCosmicBONSeeder::triplets(const edm::Event& e, const edm::EventSetup&
 
     hitTriplets.clear();
     hitTriplets.reserve(0);
-    if(theLsb.check(es)) {
-      theLss = theLsb.layers(es);
-    }
-    SeedingLayerSets::const_iterator iLss;
+    edm::Handle<SeedingLayerSetsHits> hlayers;
+    e.getByToken(seedingLayerToken_, hlayers);
+    const SeedingLayerSetsHits& layers = *hlayers;
+    if(layers.numberOfLayersInSet() != 3)
+      throw cms::Exception("CtfSpecialSeedGenerator") << "You are using " << layers.numberOfLayersInSet() <<" layers in set instead of 3 ";
 
     double minRho = region_.ptMin() / ( 0.003 * magfield->inTesla(GlobalPoint(0,0,0)).z() );
 
-    for (iLss = theLss.begin(); iLss != theLss.end(); iLss++){
-        SeedingLayers ls = *iLss;
-        if (ls.size() != 3){
-            throw cms::Exception("CtfSpecialSeedGenerator") << "You are using " << ls.size() <<" layers in set instead of 3 ";
-        }
-
+    for(SeedingLayerSetsHits::LayerSetIndex layerIndex=0; layerIndex < layers.size(); ++layerIndex) {
+        SeedingLayerSetsHits::SeedingLayerSet ls = layers[layerIndex];
         /// ctfseeding SeedinHits and their iterators
-        std::vector<SeedingHit> innerHits  = region_.hits(e, es, &ls[0]);
-        std::vector<SeedingHit> middleHits = region_.hits(e, es, &ls[1]);
-        std::vector<SeedingHit> outerHits  = region_.hits(e, es, &ls[2]);
-        std::vector<SeedingHit>::const_iterator iOuterHit,iMiddleHit,iInnerHit;
+        auto innerHits  = region_.hits(e, es, ls[0]);
+        auto middleHits = region_.hits(e, es, ls[1]);
+        auto outerHits  = region_.hits(e, es, ls[2]);
 
         if (tripletsVerbosity_ > 0) {
-            std::cout << "GenericTripletGenerator iLss = " << layerTripletNames_[iLss - theLss.begin()]
-                    << " (" << (iLss - theLss.begin()) << "): # = " 
+            std::cout << "GenericTripletGenerator iLss = " << seedingLayersToString(ls)
+                    << " (" << layerIndex << "): # = " 
                     << innerHits.size() << "/" << middleHits.size() << "/" << outerHits.size() << std::endl;
         }
 
-        /// Transient Tracking RecHits
-        typedef TransientTrackingRecHit::RecHitPointer TTRH;
+        /// Transient Tracking RecHits (not anymore....)
+        typedef SeedingHitSet::ConstRecHitPointer TTRH;
         std::vector<TTRH> innerTTRHs, middleTTRHs, outerTTRHs;
 
         /// Checks on the cluster charge and on noisy modules
@@ -209,16 +210,18 @@ bool SimpleCosmicBONSeeder::triplets(const edm::Event& e, const edm::EventSetup&
         size_t sizBefore = hitTriplets.size();
         /// Now actually filling in the charges for all the clusters
         int idx = 0;
-        for (iOuterHit = outerHits.begin(), idx = 0; iOuterHit != outerHits.end(); ++idx, ++iOuterHit){
-            outerTTRHs.push_back(ls[2].hitBuilder()->build((**iOuterHit).hit()));
+        for (auto iOuterHit = outerHits.begin(); iOuterHit != outerHits.end(); ++idx, ++iOuterHit){
+	  outerTTRHs.push_back(&(**iOuterHit));
             if (checkCharge_ && !checkCharge(outerTTRHs.back()->hit())) outerOk[idx] = false;
         }
-        for (iMiddleHit = middleHits.begin(), idx = 0; iMiddleHit != middleHits.end(); ++idx, ++iMiddleHit){
-            middleTTRHs.push_back(ls[1].hitBuilder()->build((**iMiddleHit).hit()));
+	idx = 0;
+        for (auto iMiddleHit = middleHits.begin(); iMiddleHit != middleHits.end(); ++idx, ++iMiddleHit){
+	  middleTTRHs.push_back(&(**iMiddleHit));
             if (checkCharge_ && !checkCharge(middleTTRHs.back()->hit())) middleOk[idx] = false;
         }
-        for (iInnerHit = innerHits.begin(), idx = 0; iInnerHit != innerHits.end(); ++idx, ++iInnerHit){
-            innerTTRHs.push_back(ls[0].hitBuilder()->build((**iInnerHit).hit()));
+	idx = 0;
+        for (auto iInnerHit = innerHits.begin(); iInnerHit != innerHits.end(); ++idx, ++iInnerHit){
+            innerTTRHs.push_back(&(**iInnerHit));
             if (checkCharge_ && !checkCharge(innerTTRHs.back()->hit())) innerOk[idx] = false;
         }
         if (checkMaxHitsPerModule_) {
@@ -227,7 +230,7 @@ bool SimpleCosmicBONSeeder::triplets(const edm::Event& e, const edm::EventSetup&
             checkNoisyModules(outerTTRHs,  outerOk);
         }
 
-        for (iOuterHit = outerHits.begin(); iOuterHit != outerHits.end(); iOuterHit++){
+        for (auto iOuterHit = outerHits.begin(); iOuterHit != outerHits.end(); iOuterHit++){
             idx = iOuterHit - outerHits.begin();
             TTRH &       outerTTRH = outerTTRHs[idx];
             GlobalPoint  outerpos  = outerTTRH->globalPosition(); // this caches by itself
@@ -238,7 +241,7 @@ bool SimpleCosmicBONSeeder::triplets(const edm::Event& e, const edm::EventSetup&
                 continue; 
             }
 
-            for (iMiddleHit = middleHits.begin(); iMiddleHit != middleHits.end(); iMiddleHit++){
+            for (auto iMiddleHit = middleHits.begin(); iMiddleHit != middleHits.end(); iMiddleHit++){
                 idx = iMiddleHit - middleHits.begin();
                 TTRH &       middleTTRH = middleTTRHs[idx];
                 GlobalPoint  middlepos  = middleTTRH->globalPosition(); // this caches by itself
@@ -249,7 +252,7 @@ bool SimpleCosmicBONSeeder::triplets(const edm::Event& e, const edm::EventSetup&
                     continue; 
                 }
 
-                for (iInnerHit = innerHits.begin(); iInnerHit != innerHits.end(); iInnerHit++){
+                for (auto iInnerHit = innerHits.begin(); iInnerHit != innerHits.end(); iInnerHit++){
                     idx = iInnerHit - innerHits.begin();
                     TTRH &       innerTTRH = innerTTRHs[idx];
                     GlobalPoint  innerpos  = innerTTRH->globalPosition(); // this caches by itself
@@ -271,7 +274,7 @@ bool SimpleCosmicBONSeeder::triplets(const edm::Event& e, const edm::EventSetup&
 		    
                     if (tripletsVerbosity_ > 2) std::cout << "Trying seed with: " << innerpos << " + " << middlepos << " + " << outerpos << std::endl;
                     if (goodTriplet(innerpos,middlepos,outerpos,minRho)) {
-                        OrderedHitTriplet oht(*iInnerHit,*iMiddleHit,*iOuterHit);
+		      OrderedHitTriplet oht(&(**iInnerHit),&(**iMiddleHit),&(**iOuterHit));
                         hitTriplets.push_back(oht);
                         if ((maxTriplets_ > 0) && (hitTriplets.size() > size_t(maxTriplets_))) {
                             hitTriplets.clear();                      // clear
@@ -295,8 +298,8 @@ bool SimpleCosmicBONSeeder::triplets(const edm::Event& e, const edm::EventSetup&
             }
         }
         if ((tripletsVerbosity_ > 0) && (hitTriplets.size() > sizBefore)) {
-            std::cout << "                        iLss = " << layerTripletNames_[iLss - theLss.begin()]
-                << " (" << (iLss - theLss.begin()) << "): # = " 
+            std::cout << "                        iLss = " << seedingLayersToString(ls)
+                << " (" << layerIndex << "): # = " 
                 << innerHits.size() << "/" << middleHits.size() << "/" << outerHits.size() 
                 << ": Found " << (hitTriplets.size() - sizBefore) << " seeds [running total: " << hitTriplets.size() << "]"
                 << std::endl ;
@@ -330,7 +333,7 @@ bool SimpleCosmicBONSeeder::checkCharge(const TrackingRecHit *hit) const {
 
 // to be fixed to use OmniCluster
 bool SimpleCosmicBONSeeder::checkCharge(const SiStripRecHit2D &hit, int subdetid) const {
-    const SiStripCluster *clust = (hit.cluster().isNonnull() ?  hit.cluster().get() : hit.cluster_regional().get());
+    const SiStripCluster *clust = hit.cluster().get();
     int charge = std::accumulate(clust->amplitudes().begin(), clust->amplitudes().end(), int(0));
     if (tripletsVerbosity_ > 1) {
         std::cerr << "Hit on " << subdetid << ", charge = " << charge << ", threshold = " << chargeThresholds_[subdetid] 
@@ -342,8 +345,8 @@ bool SimpleCosmicBONSeeder::checkCharge(const SiStripRecHit2D &hit, int subdetid
     return charge > chargeThresholds_[subdetid];
 }
 
-void SimpleCosmicBONSeeder::checkNoisyModules(const std::vector<TransientTrackingRecHit::RecHitPointer> &hits, std::vector<bool> &oks) const {
-    typedef TransientTrackingRecHit::RecHitPointer TTRH;
+void SimpleCosmicBONSeeder::checkNoisyModules(const std::vector<SeedingHitSet::ConstRecHitPointer> &hits, std::vector<bool> &oks) const {
+    typedef SeedingHitSet::ConstRecHitPointer TTRH;
     std::vector<TTRH>::const_iterator it = hits.begin(),  start = it,   end = hits.end();
     std::vector<bool>::iterator       ok = oks.begin(), okStart = ok;
     while (start < end) {
@@ -443,24 +446,23 @@ bool SimpleCosmicBONSeeder::seeds(TrajectorySeedCollection &output, const edm::E
     typedef TrajectoryStateOnSurface TSOS;
     
     for (size_t it=0;it<hitTriplets.size();it++){
-        const OrderedHitTriplet &trip = hitTriplets[it];
-
-        GlobalPoint inner = tracker->idToDet((*(trip.inner())).geographicalId())->surface().
-            toGlobal((*(trip.inner())).localPosition());
-
-        GlobalPoint middle = tracker->idToDet((*(trip.middle())).geographicalId())->surface().
-            toGlobal((*(trip.middle())).localPosition());
-
-        GlobalPoint outer = tracker->idToDet((*(trip.outer())).geographicalId())->surface().
-            toGlobal((*(trip.outer())).localPosition());   
-
-        if (seedVerbosity_ > 1)
-            std::cout << "Processing triplet " << it << ": " << inner << " + " << middle << " + " << outer << std::endl;
-
-        if ( (outer.y()-inner.y())*outer.y() < 0 ) {
-            std::swap(inner,outer);
-            std::swap(const_cast<TransientTrackingRecHit::ConstRecHitPointer &>(trip.inner()),
-                      const_cast<TransientTrackingRecHit::ConstRecHitPointer &>(trip.outer()) );
+      OrderedHitTriplet &trip = const_cast<OrderedHitTriplet &>(hitTriplets[it]);
+      
+      GlobalPoint inner = tracker->idToDet((*(trip.inner())).geographicalId())->surface().
+	toGlobal((*(trip.inner())).localPosition());
+      
+      GlobalPoint middle = tracker->idToDet((*(trip.middle())).geographicalId())->surface().
+	toGlobal((*(trip.middle())).localPosition());
+      
+      GlobalPoint outer = tracker->idToDet((*(trip.outer())).geographicalId())->surface().
+	toGlobal((*(trip.outer())).localPosition());   
+      
+      if (seedVerbosity_ > 1)
+	std::cout << "Processing triplet " << it << ": " << inner << " + " << middle << " + " << outer << std::endl;
+      
+      if ( (outer.y()-inner.y())*outer.y() < 0 ) {
+	std::swap(inner,outer);
+	trip = OrderedHitTriplet(trip.outer(),trip.middle(),trip.inner());
 
 //            std::swap(const_cast<ctfseeding::SeedingHit &>(trip.inner()), 
 //                      const_cast<ctfseeding::SeedingHit &>(trip.outer()) );
@@ -543,10 +545,10 @@ bool SimpleCosmicBONSeeder::seeds(TrajectorySeedCollection &output, const edm::E
                 if (seedVerbosity_ > 2)
                     std::cout << "Processing triplet " << it << ", hit " << ih << ": propagated state = " << propagated;
             }
-            const TransientTrackingRecHit::ConstRecHitPointer & tthp   = seedHits[ih];
-            TransientTrackingRecHit::RecHitPointer              newtth = tthp->clone(propagated);
-            hits.push_back(newtth->hit()->clone());
+            SeedingHitSet::ConstRecHitPointer  tthp   = seedHits[ih];
+            auto newtth = static_cast<SeedingHitSet::RecHitPointer>(cloner(*tthp,propagated));
             updated = theUpdator->update(propagated, *newtth);
+            hits.push_back(newtth);
             if (!updated.isValid()) {
                 if (seedVerbosity_ > 1)
                     std::cout << "Processing triplet " << it << ", hit " << ih << ": failed update." << std::endl;

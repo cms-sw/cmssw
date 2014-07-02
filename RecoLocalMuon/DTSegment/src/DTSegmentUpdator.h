@@ -51,24 +51,24 @@ class DTSegmentUpdator{
 
     /** do the linear fit on the hits of the segment candidate and update it.
      * Returns false if the segment candidate is not good() */
-    bool fit(DTSegmentCand* seg, bool allow3par = false, const bool fitdebug = false) const;
+    bool fit(DTSegmentCand* seg, bool allow3par, const bool fitdebug) const;
 
     /** ditto for true segment: since the fit is applied on a true segment, by
      * definition the segment is "good", while it's not the case for just
      * candidates */
-    void fit(DTRecSegment2D* seg, bool allow3par) const;
+    void fit(DTRecSegment2D* seg, bool allow3par, bool block3par) const;
 
     /** ditto for true segment 4D, the fit is done on either projection and then
      * the 4D direction and position is built. Since the fit is applied on a
      * true segment, by definition the segment is "good", while it's not the
      * case for just candidates */
-    void fit(DTRecSegment4D* seg) const;
+    void fit(DTRecSegment4D* seg, bool allow3par) const;
 
     /// recompute hits position and refit the segment4D
-    void update(DTRecSegment4D* seg, const bool calcT0 = false) const;
+    void update(DTRecSegment4D* seg, const bool calcT0, bool allow3par) const;
 
     /// recompute hits position and refit the segment2D
-    void update(DTRecSegment2D* seg) const;
+    void update(DTRecSegment2D* seg, bool allow3par) const;
 
     void calculateT0corr(DTRecSegment2D* seg) const;
     void calculateT0corr(DTRecSegment4D* seg) const;
@@ -103,7 +103,8 @@ class DTSegmentUpdator{
              float& vminf,
              AlgebraicSymMatrix& covMat,
              double& chi2,
-             const bool allow3par = false) const;
+             const bool allow3par = false,
+             const bool block3par = false) const;
 
     bool vdrift_4parfit;
     double T0_hit_resolution;

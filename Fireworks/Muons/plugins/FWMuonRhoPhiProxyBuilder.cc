@@ -23,6 +23,7 @@ private:
    // Disable default assignment operator
    const FWMuonRhoPhiProxyBuilder& operator=( const FWMuonRhoPhiProxyBuilder& );
 
+   using FWSimpleProxyBuilderTemplate<reco::Muon>::build;
    void build( const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;
 
    virtual void localModelChanges( const FWModelId& iId, TEveElement* iCompound,

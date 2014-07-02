@@ -37,7 +37,19 @@ void SeedFromConsecutiveHitsCreator::init(const TrackingRegion & iregion,
   //  edm::ESInputTag mfESInputTag(mfName_);
   //  es.get<IdealMagneticFieldRecord>().get(mfESInputTag, bfield);  
   nomField = bfield->nominalValue();
-  isBOFF = (0==nomField);  
+  isBOFF = (0==nomField);
+
+  edm::ESHandle<TransientTrackingRecHitBuilder> builderH;
+  try { // one sure we need to propagate the ocnfig to HLT
+    es.get<TransientRecHitRecord>().get(TTRHBuilder, builderH);
+    auto builder = (TkTransientTrackingRecHitBuilder const *)(builderH.product());
+    cloner = (*builder).cloner();
+  } catch(...) {
+    es.get<TransientRecHitRecord>().get("hltESPTTRHBWithTrackAngle", builderH);
+    auto builder = (TkTransientTrackingRecHitBuilder const *)(builderH.product());
+    cloner = (*builder).cloner();
+ }
+
 }
 
 void SeedFromConsecutiveHitsCreator::makeSeed(TrajectorySeedCollection & seedCollection,
@@ -60,8 +72,8 @@ void SeedFromConsecutiveHitsCreator::makeSeed(TrajectorySeedCollection & seedCol
 bool SeedFromConsecutiveHitsCreator::initialKinematic(GlobalTrajectoryParameters & kine,
 						      const SeedingHitSet & hits) const{
 
-  TransientTrackingRecHit::ConstRecHitPointer tth1 = hits[0];
-  TransientTrackingRecHit::ConstRecHitPointer tth2 = hits[1];
+  SeedingHitSet::ConstRecHitPointer tth1 = hits[0];
+  SeedingHitSet::ConstRecHitPointer tth2 = hits[1];
   
   const GlobalPoint& vertexPos = region->origin();
 
@@ -130,16 +142,16 @@ void SeedFromConsecutiveHitsCreator::buildSeed(
       : propagator->propagate(updatedState, tracker->idToDet(hit->geographicalId())->surface());
     if (!state.isValid()) return;
     
-    TransientTrackingRecHit::ConstRecHitPointer const &  tth = hits[iHit]; 
+    SeedingHitSet::ConstRecHitPointer   tth = hits[iHit]; 
     
-    TransientTrackingRecHit::RecHitPointer const & newtth = refitHit( tth, state);
+    std::unique_ptr<BaseTrackerRecHit> newtth(refitHit( tth, state));
     
-    if (!checkHit(state,newtth)) return;
+    if (!checkHit(state,&*newtth)) return;
 
     updatedState =  updator.update(state, *newtth);
     if (!updatedState.isValid()) return;
     
-    seedHits.push_back(newtth->hit()->clone());
+    seedHits.push_back(newtth.release());
 
   } 
 
@@ -147,21 +159,21 @@ void SeedFromConsecutiveHitsCreator::buildSeed(
   PTrajectoryStateOnDet const & PTraj = 
     trajectoryStateTransform::persistentState(updatedState, hit->geographicalId().rawId());
   TrajectorySeed seed(PTraj,std::move(seedHits),alongMomentum); 
-  if ( !filter || filter->compatible(seed)) seedCollection.push_back(seed);
+  if ( !filter || filter->compatible(seed)) seedCollection.push_back(std::move(seed));
 
 }
 
-TransientTrackingRecHit::RecHitPointer SeedFromConsecutiveHitsCreator::refitHit(
-      const TransientTrackingRecHit::ConstRecHitPointer &hit, 
-      const TrajectoryStateOnSurface &state) const
+SeedingHitSet::RecHitPointer 
+SeedFromConsecutiveHitsCreator::refitHit(SeedingHitSet::ConstRecHitPointer hit, 
+					 const TrajectoryStateOnSurface &state) const
 {
-  return hit->clone(state);
+  return (SeedingHitSet::RecHitPointer)(cloner(*hit,state));
 }
 
 bool 
 SeedFromConsecutiveHitsCreator::checkHit(
       const TrajectoryStateOnSurface &tsos,
-      const TransientTrackingRecHit::ConstRecHitPointer &hit) const 
+      SeedingHitSet::ConstRecHitPointer hit) const 
 { 
     return (filter ? filter->compatible(tsos,hit) : true); 
 }

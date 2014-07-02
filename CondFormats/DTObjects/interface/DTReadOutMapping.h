@@ -4,9 +4,10 @@
  *
  *  Description:
  *       Class to map read-out channels to physical drift tubes
+ *       Many details related to this class are described in
+ *       internal note IN 2010_033. In particular the compact
+ *       format is described there.
  *
- *  $Date: 2010/01/20 18:20:08 $
- *  $Revision: 1.7 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -19,14 +20,20 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
-#include "CondFormats/DTObjects/interface/DTBufferTree.h"
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
+#include "DataFormats/Common/interface/AtomicPtrCache.h"
+#include "FWCore/Utilities/interface/ConstRespectingPtr.h"
 
 //---------------
 // C++ Headers --
 //---------------
 #include <vector>
 #include <string>
+
+class DTReadOutMappingCache;
+template <class Key, class Content> class DTBufferTree;
 
 //              ---------------------
 //              -- Class Interface --
@@ -51,6 +58,8 @@ class DTReadOutGeometryLink {
   int   layerId;
   int    cellId;
 
+
+ COND_SERIALIZABLE;
 };
 
 
@@ -146,31 +155,30 @@ class DTReadOutMapping {
 
  private:
 
+  DTReadOutMapping(DTReadOutMapping const&);
+  DTReadOutMapping& operator=(DTReadOutMapping const&);
+
+  edm::AtomicPtrCache<DTReadOutMappingCache> const& atomicCache() const { return atomicCache_; }
+  edm::AtomicPtrCache<DTReadOutMappingCache> & atomicCache() { return atomicCache_; }
+
+  static DTReadOutMapping* expandMap( const DTReadOutMapping& compMap );
+
   std::string cellMapVersion;
   std::string  robMapVersion;
 
   std::vector<DTReadOutGeometryLink> readOutChannelDriftTubeMap;
 
-  DTBufferTree<int,int>* mType;
-  DTBufferTree<int,int>* rgBuf;
-  DTBufferTree<int,int>* rgROB;
-  DTBufferTree<int,int>* rgROS;
-  DTBufferTree<int,int>* rgDDU;
-  DTBufferTree<int,int>* grBuf;
-  DTBufferTree<int,
-     std::vector<int>*>* grROB;
-  DTBufferTree<int,
-     std::vector<int>*>* grROS;
-  DTBufferTree<int,
-     std::vector<int>*>* grDDU;
+  edm::AtomicPtrCache<DTReadOutMappingCache> atomicCache_ COND_TRANSIENT;
+  edm::ConstRespectingPtr<DTBufferTree<int,int> > rgBuf   COND_TRANSIENT;
+  edm::ConstRespectingPtr<DTBufferTree<int,int> > grBuf   COND_TRANSIENT;
 
   /// read and store full content
   void cacheMap() const;
+
   std::string mapNameRG() const;
   std::string mapNameGR() const;
 
+
+ COND_SERIALIZABLE;
 };
-
-
 #endif // DTReadOutMapping_H
-

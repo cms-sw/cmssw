@@ -8,34 +8,38 @@
 #include "G4Region.hh"
 #include "G4UserSteppingAction.hh"
 #include "G4VPhysicalVolume.hh"
+#include "G4Track.hh"
 
 #include <string>
 #include <vector>
 
 class EventAction;
 class G4VTouchable;
-class G4Track;
+//class G4Track;
 
 class SteppingAction: public G4UserSteppingAction {
 
 public:
   SteppingAction(EventAction * ea,const edm::ParameterSet & ps);
-  ~SteppingAction();
+  virtual ~SteppingAction();
 
-  void UserSteppingAction(const G4Step * aStep);
+  virtual void UserSteppingAction(const G4Step * aStep);
   
   SimActivityRegistry::G4StepSignal m_g4StepSignal;
 
 private:
 
-  bool catchLowEnergyInVacuum(G4Track * theTrack, double theKenergy); 
-  bool catchLongLived            (const G4Step * aStep);
-  bool killLowEnergy             (const G4Step * aStep);
   bool initPointer();
-  bool isThisVolume(const G4VTouchable* touch, G4VPhysicalVolume* pv);
-  void killTrack                 (const G4Step * aStep);
+
+  bool killInsideDeadRegion(G4Track * theTrack, const G4Region* reg) const;
+  bool catchLongLived(G4Track* theTrack, const G4Region* reg) const;
+  bool killLowEnergy(const G4Step * aStep) const;
+
+  bool isThisVolume(const G4VTouchable* touch, G4VPhysicalVolume* pv) const;
+  void PrintKilledTrack(const G4Track*, const std::string&) const;
 
 private:
+
   EventAction                   *eventAction_;
   G4VPhysicalVolume             *tracker, *calo;
   double                        theCriticalEnergyForVacuum;
@@ -43,15 +47,18 @@ private:
   double                        maxTrackTime;
   std::vector<double>           maxTrackTimes, ekinMins;
   std::vector<std::string>      maxTimeNames, ekinNames, ekinParticles;
-  std::vector<G4Region*>        maxTimeRegions;
+  std::vector<std::string>      deadRegionNames;
+  std::vector<const G4Region*>  maxTimeRegions;
+  std::vector<const G4Region*>  deadRegions;
   std::vector<G4LogicalVolume*> ekinVolumes;
   std::vector<int>              ekinPDG;
-  int                           verbose;
+  unsigned int                  numberTimes;
+  unsigned int                  numberEkins;
+  unsigned int                  numberPart;
+  unsigned int                  ndeadRegions;
 
   bool                          initialized;
   bool                          killBeamPipe;
-  bool                          killByTimeAtRegion;
-  bool                          killByEnergy;
 
 };
 

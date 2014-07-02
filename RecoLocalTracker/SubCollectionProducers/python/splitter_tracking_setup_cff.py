@@ -1,144 +1,163 @@
+import FWCore.ParameterSet.Config as cms
 from RecoLocalTracker.SubCollectionProducers.SeedClusterRemover_cfi import *
-
-seedClusterRemover.stripClusters = 'splitClusters'
-seedClusterRemover.pixelClusters = 'splitClusters'
-
-from RecoTracker.IterativeTracking.ElectronSeeds_cff  import *
-initialStepSeedClusterMask.stripClusters = 'splitClusters'
-initialStepSeedClusterMask.pixelClusters = 'splitClusters'
-
-pixelPairStepSeedClusterMask.stripClusters  = 'splitClusters'
-pixelPairStepSeedClusterMask.pixelClusters = 'splitClusters'
-
-mixedTripletStepSeedClusterMask.stripClusters  = 'splitClusters'
-mixedTripletStepSeedClusterMask.pixelClusters = 'splitClusters'
-
-pixelLessStepSeedClusterMask.stripClusters  = 'splitClusters'
-pixelLessStepSeedClusterMask.pixelClusters = 'splitClusters'
-
-tripletElectronClusterMask.stripClusters  = 'splitClusters'
-tripletElectronClusterMask.pixelClusters = 'splitClusters'
-
-tripletElectronSeedLayers.BPix.HitProducer = 'mySiPixelRecHits'
-tripletElectronSeedLayers.FPix.HitProducer = 'mySiPixelRecHits'
-
-pixelPairElectronSeedLayers.BPix.HitProducer = 'mySiPixelRecHits'
-pixelPairElectronSeedLayers.FPix.HitProducer = 'mySiPixelRecHits'
-
-stripPairElectronSeedLayers.TIB.matchedRecHits = cms.InputTag("mySiStripRecHits","matchedRecHit")
-stripPairElectronSeedLayers.TID.matchedRecHits = cms.InputTag("mySiStripRecHits","matchedRecHit")
-stripPairElectronSeedLayers.TEC.matchedRecHits = cms.InputTag("mySiStripRecHits","matchedRecHit")
-
-from RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi import *
-MeasurementTracker.pixelClusterProducer = cms.string('splitClusters')
-MeasurementTracker.stripClusterProducer = cms.string('splitClusters')
-from RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi import *#new in 700pre8
-MeasurementTrackerEvent.pixelClusterProducer = cms.string('splitClusters')
-MeasurementTrackerEvent.stripClusterProducer = cms.string('splitClusters')
-
-
 from RecoTracker.IterativeTracking.InitialStep_cff import *
-import RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi
-initialStepSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.PixelLayerTriplets.clone()
-
-initialStepSeedLayers.BPix.HitProducer = 'mySiPixelRecHits'
-initialStepSeedLayers.FPix.HitProducer = 'mySiPixelRecHits'
-
-initialStepSeeds.ClusterCheckPSet.PixelClusterCollectionLabel = 'splitClusters'
-initialStepSeeds.ClusterCheckPSet.ClusterCollectionLabel      = 'splitClusters'
-
-initialStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'initialStepSeedLayers'
+from RecoTracker.IterativeTracking.ElectronSeeds_cff  import *
 from RecoTracker.IterativeTracking.LowPtTripletStep_cff import *
-lowPtTripletStepClusters.pixelClusters = 'splitClusters'
-lowPtTripletStepClusters.stripClusters = 'splitClusters'
-lowPtTripletStepSeedLayers.BPix.HitProducer = 'mySiPixelRecHits'
-lowPtTripletStepSeedLayers.FPix.HitProducer = 'mySiPixelRecHits'
-lowPtTripletStepSeeds.ClusterCheckPSet.PixelClusterCollectionLabel = 'splitClusters'
-lowPtTripletStepSeeds.ClusterCheckPSet.ClusterCollectionLabel      = 'splitClusters'
-
 from RecoTracker.IterativeTracking.PixelPairStep_cff import *
-pixelPairStepClusters.pixelClusters = 'splitClusters'
-pixelPairStepClusters.stripClusters = 'splitClusters'
-pixelPairStepSeedLayers.BPix.HitProducer = 'mySiPixelRecHits'
-pixelPairStepSeedLayers.FPix.HitProducer = 'mySiPixelRecHits'
-
-pixelPairStepSeeds.ClusterCheckPSet.PixelClusterCollectionLabel = 'splitClusters'
-pixelPairStepSeeds.ClusterCheckPSet.ClusterCollectionLabel      = 'splitClusters'
 from RecoTracker.IterativeTracking.DetachedTripletStep_cff import *
-detachedTripletStepClusters.pixelClusters = 'splitClusters'
-detachedTripletStepClusters.stripClusters = 'splitClusters'
-detachedTripletStepSeedLayers.BPix.HitProducer = 'mySiPixelRecHits'
-detachedTripletStepSeedLayers.FPix.HitProducer = 'mySiPixelRecHits'
-detachedTripletStepSeeds.ClusterCheckPSet.PixelClusterCollectionLabel = 'splitClusters'
-detachedTripletStepSeeds.ClusterCheckPSet.ClusterCollectionLabel      = 'splitClusters'
-
-from RecoTracker.IterativeTracking.MixedTripletStep_cff import *
-
-mixedTripletStepClusters.pixelClusters = 'splitClusters'
-mixedTripletStepClusters.stripClusters = 'splitClusters'
-
-mixedTripletStepSeedLayersA.BPix.HitProducer = 'mySiPixelRecHits'
-mixedTripletStepSeedLayersA.FPix.HitProducer = 'mySiPixelRecHits'
-mixedTripletStepSeedLayersB.BPix.HitProducer = 'mySiPixelRecHits'
-
-mixedTripletStepSeedsA.ClusterCheckPSet.PixelClusterCollectionLabel = 'splitClusters'
-mixedTripletStepSeedsA.ClusterCheckPSet.ClusterCollectionLabel      = 'splitClusters'
-mixedTripletStepSeedsB.ClusterCheckPSet.PixelClusterCollectionLabel = 'splitClusters'
-mixedTripletStepSeedsB.ClusterCheckPSet.ClusterCollectionLabel      = 'splitClusters'
-
-
-
-from RecoTracker.IterativeTracking.PixelLessStep_cff import *
-pixelLessStepClusters.pixelClusters = 'splitClusters'
-pixelLessStepClusters.stripClusters = 'splitClusters'
-
-pixelLessStepSeeds.ClusterCheckPSet.PixelClusterCollectionLabel = 'splitClusters'
-pixelLessStepSeeds.ClusterCheckPSet.ClusterCollectionLabel      = 'splitClusters'
-
 from RecoTracker.IterativeTracking.TobTecStep_cff import *
-tobTecStepClusters.pixelClusters = 'splitClusters'
-tobTecStepClusters.stripClusters = 'splitClusters'
-tobTecStepSeeds.ClusterCheckPSet.PixelClusterCollectionLabel = 'splitClusters'
-tobTecStepSeeds.ClusterCheckPSet.ClusterCollectionLabel      = 'splitClusters'
-mixedTripletStepSeedLayersA.TEC.matchedRecHits = cms.InputTag("mySiStripRecHits","matchedRecHit")
-mixedTripletStepSeedLayersB.TIB.matchedRecHits = cms.InputTag("mySiStripRecHits","matchedRecHit")
-
-pixelLessStepSeedLayers.TIB.matchedRecHits = cms.InputTag("mySiStripRecHits","matchedRecHit")
-pixelLessStepSeedLayers.TID.matchedRecHits = cms.InputTag("mySiStripRecHits","matchedRecHit")
-pixelLessStepSeedLayers.TEC.matchedRecHits = cms.InputTag("mySiStripRecHits","matchedRecHit")
-tobTecStepSeedLayers.TOB.matchedRecHits = cms.InputTag("mySiStripRecHits","matchedRecHit")
-tobTecStepSeedLayers.TEC.matchedRecHits = cms.InputTag("mySiStripRecHits","matchedRecHit")
-
+from RecoTracker.IterativeTracking.MixedTripletStep_cff import *
+from RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi import *#new in 700pre8
+from RecoTracker.IterativeTracking.PixelLessStep_cff import *
+from  RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_cff import *
 from RecoTracker.ConversionSeedGenerators.ConversionStep_cff import *
-photonConvTrajSeedFromSingleLeg.ClusterCheckPSet.PixelClusterCollectionLabel = 'splitClusters'
-photonConvTrajSeedFromSingleLeg.ClusterCheckPSet.ClusterCollectionLabel      = 'splitClusters'
-convClusters.pixelClusters = 'splitClusters'
-convClusters.stripClusters = 'splitClusters'
-convLayerPairs.BPix.HitProducer = 'mySiPixelRecHits'
-convLayerPairs.FPix.HitProducer = 'mySiPixelRecHits'
-convLayerPairs.TIB1.matchedRecHits = cms.InputTag("mySiStripRecHits","matchedRecHit")
-convLayerPairs.TIB2.matchedRecHits = cms.InputTag("mySiStripRecHits","matchedRecHit")
-convLayerPairs.TIB3.rphiRecHits = cms.InputTag("mySiStripRecHits","rphiRecHit")
-convLayerPairs.TIB4.rphiRecHits = cms.InputTag("mySiStripRecHits","rphiRecHit")
-convLayerPairs.TID1.matchedRecHits = cms.InputTag("mySiStripRecHits","matchedRecHit")
-convLayerPairs.TID1.stereoRecHits = cms.InputTag("mySiStripRecHits","stereoRecHitUnmatched")
-convLayerPairs.TID1.rphiRecHits = cms.InputTag("mySiStripRecHits","rphiRecHitUnmatched")
-convLayerPairs.TID2.matchedRecHits = cms.InputTag("mySiStripRecHits","matchedRecHit")
-convLayerPairs.TID2.stereoRecHits = cms.InputTag("mySiStripRecHits","stereoRecHitUnmatched")
-convLayerPairs.TID2.rphiRecHits = cms.InputTag("mySiStripRecHits","rphiRecHitUnmatched")
-convLayerPairs.TID3.matchedRecHits = cms.InputTag("mySiStripRecHits","matchedRecHit")
-convLayerPairs.TID3.stereoRecHits = cms.InputTag("mySiStripRecHits","stereoRecHitUnmatched")
-convLayerPairs.TID3.rphiRecHits = cms.InputTag("mySiStripRecHits","rphiRecHitUnmatched")
-convLayerPairs.TEC.matchedRecHits = cms.InputTag("mySiStripRecHits","matchedRecHit")
-convLayerPairs.TEC.stereoRecHits = cms.InputTag("mySiStripRecHits","stereoRecHitUnmatched")
-convLayerPairs.TEC.rphiRecHits = cms.InputTag("mySiStripRecHits","rphiRecHitUnmatched")
-convLayerPairs.TOB1.matchedRecHits = cms.InputTag("mySiStripRecHits","matchedRecHit")
-convLayerPairs.TOB2.matchedRecHits = cms.InputTag("mySiStripRecHits","matchedRecHit")
-convLayerPairs.TOB3.rphiRecHits = cms.InputTag("mySiStripRecHits","rphiRecHit")
-convLayerPairs.TOB4.rphiRecHits = cms.InputTag("mySiStripRecHits","rphiRecHit")
-convLayerPairs.TOB5.rphiRecHits = cms.InputTag("mySiStripRecHits","rphiRecHit")
-convLayerPairs.TOB6.rphiRecHits = cms.InputTag("mySiStripRecHits","rphiRecHit")
 
-from RecoLocalCalo.HcalRecProducers.HBHEIsolatedNoiseReflagger_cfi import *
-hbhereco.hbheInput= cms.InputTag("hbheprereco::SPLIT")
 
+def customizeTracking(newpixclusters, newstripclusters, newpixrechits, newstriprechits):
+
+    matchedsplitSiStripRecHits = cms.InputTag(newstriprechits,"matchedRecHit"), 
+    matchedsplitSiPixelRecHits = cms.InputTag(newpixrechits,"matchedRecHit"), 
+    rphisplitSiStripRecHits = cms.InputTag(newstriprechits,"rphiRecHit"), 
+    stereosplitSiStripRecHits = cms.InputTag(newpixrechits,"stereoRecHit"), 
+    
+    seedClusterRemover.stripClusters = newstripclusters
+    seedClusterRemover.pixelClusters = newpixclusters
+
+
+
+    initialStepSeedLayers.BPix.HitProducer =newpixrechits
+    initialStepSeedLayers.FPix.HitProducer =newpixrechits
+    initialStepClusters.pixelClusters = newpixclusters
+    initialStepClusters.stripClusters = newstripclusters
+    initialStepClusters.stripRecHits  =newstriprechits
+    initialStepSeeds.ClusterCheckPSet.PixelClusterCollectionLabel = newpixclusters
+    initialStepSeeds.ClusterCheckPSet.ClusterCollectionLabel      = newstripclusters
+    #initialStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'initialStepSeedLayers'
+
+    initialStepSeedClusterMask.stripClusters = newstripclusters
+    initialStepSeedClusterMask.pixelClusters = newpixclusters
+    
+    pixelPairStepSeedClusterMask.stripClusters  = newstripclusters
+    pixelPairStepSeedClusterMask.pixelClusters = newpixclusters
+    
+    mixedTripletStepSeedClusterMask.stripClusters  = newstripclusters
+    mixedTripletStepSeedClusterMask.pixelClusters = newpixclusters
+
+    
+    tripletElectronClusterMask.stripClusters  = newstripclusters
+    tripletElectronClusterMask.pixelClusters = newpixclusters
+
+    tripletElectronSeedLayers.BPix.HitProducer =newpixrechits
+    tripletElectronSeedLayers.FPix.HitProducer =newpixrechits
+    
+    pixelPairElectronSeedLayers.BPix.HitProducer =newpixrechits
+    pixelPairElectronSeedLayers.FPix.HitProducer =newpixrechits
+    
+    stripPairElectronSeedLayers.TIB.matchedRecHits = cms.InputTag(newstriprechits,"matchedRecHit")
+    stripPairElectronSeedLayers.TID.matchedRecHits = cms.InputTag(newstriprechits,"matchedRecHit")	
+    stripPairElectronSeedLayers.TEC.matchedRecHits = cms.InputTag(newstriprechits,"matchedRecHit")
+
+
+
+    lowPtTripletStepClusters.pixelClusters = newpixclusters
+    lowPtTripletStepClusters.stripClusters = newstripclusters
+    lowPtTripletStepSeedLayers.BPix.HitProducer =newpixrechits
+    lowPtTripletStepSeedLayers.FPix.HitProducer =newpixrechits
+    lowPtTripletStepSeeds.ClusterCheckPSet.PixelClusterCollectionLabel = newpixclusters
+    lowPtTripletStepSeeds.ClusterCheckPSet.ClusterCollectionLabel      = newstripclusters
+    
+
+    pixelPairStepClusters.pixelClusters = newpixclusters
+    pixelPairStepClusters.stripClusters = newstripclusters
+    pixelPairStepSeedLayers.BPix.HitProducer =newpixrechits
+    pixelPairStepSeedLayers.FPix.HitProducer =newpixrechits
+    pixelPairStepSeeds.ClusterCheckPSet.PixelClusterCollectionLabel = newpixclusters
+    pixelPairStepSeeds.ClusterCheckPSet.ClusterCollectionLabel      = newstripclusters
+
+    detachedTripletStepClusters.pixelClusters = newpixclusters
+    detachedTripletStepClusters.stripClusters = newstripclusters
+    detachedTripletStepSeedLayers.BPix.HitProducer =newpixrechits
+    detachedTripletStepSeedLayers.FPix.HitProducer =newpixrechits
+    detachedTripletStepSeeds.ClusterCheckPSet.PixelClusterCollectionLabel = newpixclusters
+    detachedTripletStepSeeds.ClusterCheckPSet.ClusterCollectionLabel      = newstripclusters
+    detachedTripletStepClusters.stripRecHits =newstriprechits
+
+    mixedTripletStepClusters.pixelClusters = newpixclusters
+    mixedTripletStepClusters.stripClusters = newstripclusters
+    mixedTripletStepSeedLayersA.BPix.HitProducer =newpixrechits
+    mixedTripletStepSeedLayersA.FPix.HitProducer =newpixrechits
+    mixedTripletStepSeedLayersB.BPix.HitProducer =newpixrechits
+    mixedTripletStepSeedsA.ClusterCheckPSet.PixelClusterCollectionLabel = newpixclusters
+    mixedTripletStepSeedsA.ClusterCheckPSet.ClusterCollectionLabel      = newstripclusters
+    mixedTripletStepSeedsB.ClusterCheckPSet.PixelClusterCollectionLabel = newpixclusters
+    mixedTripletStepSeedsB.ClusterCheckPSet.ClusterCollectionLabel      = newstripclusters
+    mixedTripletStepSeedLayersA.TEC.matchedRecHits = cms.InputTag(newstriprechits,"matchedRecHit")
+    mixedTripletStepSeedLayersB.TIB.matchedRecHits = cms.InputTag(newstriprechits,"matchedRecHit")
+
+
+
+    pixelLessStepSeedClusterMask.stripClusters  = newstripclusters
+    pixelLessStepSeedClusterMask.pixelClusters = newpixclusters
+    pixelLessStepClusters.pixelClusters = newpixclusters
+    pixelLessStepClusters.stripClusters = newstripclusters
+    pixelLessStepSeeds.ClusterCheckPSet.PixelClusterCollectionLabel = newpixclusters
+    pixelLessStepSeeds.ClusterCheckPSet.ClusterCollectionLabel      = newstripclusters
+    pixelLessStepSeedClusters.stripRecHits = newstriprechits
+    pixelLessStepSeedClusters.pixelClusters = newpixclusters
+    pixelLessStepSeedClusters.stripClusters = newstripclusters
+    pixelLessStepSeedLayers.MTIB.rphiRecHits = cms.InputTag(newstriprechits,"rphiRecHit")
+    pixelLessStepSeedLayers.MTID.rphiRecHits = cms.InputTag(newstriprechits,"rphiRecHit")
+    pixelLessStepSeedLayers.MTEC.rphiRecHits = cms.InputTag(newstriprechits,"rphiRecHit")
+    
+    pixelLessStepSeedLayers.TIB.matchedRecHits = cms.InputTag(newstriprechits,"matchedRecHit")
+    pixelLessStepSeedLayers.TID.matchedRecHits = cms.InputTag(newstriprechits,"matchedRecHit")
+    pixelLessStepSeedLayers.TEC.matchedRecHits = cms.InputTag(newstriprechits,"matchedRecHit")
+    
+    tobTecStepClusters.pixelClusters = newpixclusters
+    tobTecStepClusters.stripClusters = newstripclusters
+    tobTecStepSeedClusters.pixelClusters = newpixclusters
+    tobTecStepSeedClusters.stripClusters = newstripclusters
+    tobTecStepSeedClusters.stripRecHits =newstriprechits
+    tobTecStepSeedLayersPair.TOB.matchedRecHits  = cms.InputTag(newstriprechits,"matchedRecHit")
+    tobTecStepSeedLayersPair.TEC.matchedRecHits  = cms.InputTag(newstriprechits,"matchedRecHit")
+    tobTecStepSeedLayersTripl.TOB.matchedRecHits = cms.InputTag(newstriprechits,"matchedRecHit")
+    tobTecStepSeedLayersTripl.MTOB.rphiRecHits   = cms.InputTag(newstriprechits,"rphiRecHit")
+    tobTecStepSeedLayersTripl.MTEC.rphiRecHits   = cms.InputTag(newstriprechits,"rphiRecHit")
+
+
+    MeasurementTrackerEvent.pixelClusterProducer = newpixclusters
+    MeasurementTrackerEvent.stripClusterProducer = newstripclusters
+
+    globalSeedsFromTriplets.ClusterCheckPSet.ClusterCollectionLabel=newstripclusters
+    globalSeedsFromTriplets.ClusterCheckPSet.PixelClusterCollectionLabel=newpixclusters
+
+
+
+    photonConvTrajSeedFromSingleLeg.ClusterCheckPSet.PixelClusterCollectionLabel = newpixclusters
+    photonConvTrajSeedFromSingleLeg.ClusterCheckPSet.ClusterCollectionLabel      = newstripclusters
+    convClusters.pixelClusters = newpixclusters
+    convClusters.stripClusters = newstripclusters
+    convLayerPairs.BPix.HitProducer =newpixrechits
+    convLayerPairs.FPix.HitProducer =newpixrechits
+    convLayerPairs.TIB1.matchedRecHits = cms.InputTag(newstriprechits,"matchedRecHit")
+    convLayerPairs.TIB2.matchedRecHits = cms.InputTag(newstriprechits,"matchedRecHit")
+    convLayerPairs.TID1.matchedRecHits = cms.InputTag(newstriprechits,"matchedRecHit")
+    convLayerPairs.TID2.matchedRecHits = cms.InputTag(newstriprechits,"matchedRecHit")
+    convLayerPairs.TID3.matchedRecHits = cms.InputTag(newstriprechits,"matchedRecHit")
+    convLayerPairs.TEC.matchedRecHits  = cms.InputTag(newstriprechits,"matchedRecHit")
+    convLayerPairs.TOB1.matchedRecHits = cms.InputTag(newstriprechits,"matchedRecHit")
+    convLayerPairs.TOB2.matchedRecHits = cms.InputTag(newstriprechits,"matchedRecHit")
+    convLayerPairs.TIB3.rphiRecHits = cms.InputTag(newstriprechits,"rphiRecHit")
+    convLayerPairs.TIB4.rphiRecHits = cms.InputTag(newstriprechits,"rphiRecHit")
+    convLayerPairs.TID1.rphiRecHits = cms.InputTag(newstriprechits,"rphiRecHit")
+    convLayerPairs.TID2.rphiRecHits = cms.InputTag(newstriprechits,"rphiRecHit")
+    convLayerPairs.TID3.rphiRecHits = cms.InputTag(newstriprechits,"rphiRecHit")
+    convLayerPairs.TEC.rphiRecHits  = cms.InputTag(newstriprechits,"rphiRecHit")
+    convLayerPairs.TOB3.rphiRecHits = cms.InputTag(newstriprechits,"rphiRecHit")
+    convLayerPairs.TOB4.rphiRecHits = cms.InputTag(newstriprechits,"rphiRecHit")
+    convLayerPairs.TOB5.rphiRecHits = cms.InputTag(newstriprechits,"rphiRecHit")
+    convLayerPairs.TOB6.rphiRecHits = cms.InputTag(newstriprechits,"rstrophiRecHit")
+    convLayerPairs.TID1.stereoRecHits = cms.InputTag(newstriprechits,"stereoRecHit")
+    convLayerPairs.TID2.stereoRecHits = cms.InputTag(newstriprechits,"stereoRecHit")
+    convLayerPairs.TID3.stereoRecHits = cms.InputTag(newstriprechits,"stereoRecHit")
+    convLayerPairs.TEC.stereoRecHits  = cms.InputTag(newstriprechits,"stereoRecHit")

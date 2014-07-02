@@ -15,19 +15,18 @@
 using namespace edm;
 
 namespace {
-
   template <class T>
-  const CaloRecHit* getHit (const T& fCollection, DetId fId) {
+  const typename T::value_type* getHit (const T& fCollection, DetId fId) {
     typename T::const_iterator hit = fCollection.find (fId);
     if (hit != fCollection.end()) return &*hit;
-    return 0;
+    return NULL;
   }
 
   std::vector <const PCaloHit*> getSimHits (const PCaloHitContainer& fCollection, DetId fId) {
     std::vector <const PCaloHit*> result;
     for (unsigned i = 0; i < fCollection.size (); ++i) {
       if (fCollection[i].id() == fId.rawId()) {
-	result.push_back (&(fCollection[i]));
+        result.push_back (&(fCollection[i]));
       }
     }
     return result;
@@ -161,34 +160,45 @@ std::vector <const CaloTower*> JetMatchingTools::getConstituents (const reco::Ca
   for (unsigned i = 0; i < constituents.size(); ++i) result.push_back (&*(constituents[i]));
   return result;
 }
+
 /// get CaloRecHits contributing to the tower
-std::vector <const CaloRecHit*> JetMatchingTools::getConstituents (const CaloTower& fTower) {
-  std::vector <const CaloRecHit*> result;
+std::vector<JetMatchingTools::JetConstituent> JetMatchingTools::getConstituentHits (const CaloTower& fTower) {
+  std::vector<JetConstituent> result;
+
   for (unsigned i = 0; i < fTower.constituentsSize(); ++i) {
     DetId id = fTower.constituent (i);
-    const CaloRecHit* hit = 0;
+
     if (id.det () == DetId::Ecal) {
+      const EcalRecHit *hit = NULL;
+
       if ((EcalSubdetector) id.subdetId () == EcalBarrel) {
- 	hit = getHit (*getEBRecHitCollection (), id);
+        hit = getHit (*getEBRecHitCollection (), id);
       } 
       else if ((EcalSubdetector) id.subdetId () == EcalEndcap) {
-	hit = getHit (*getEERecHitCollection (), id);
+        hit = getHit (*getEERecHitCollection (), id);
       }
-    }
-    else if (id.det () == DetId::Hcal) {
+
+      assert(hit != NULL);
+      if (hit) result.push_back(JetConstituent(*hit));
+      else std::cerr << "Can not find rechit for id " << id.rawId () << std::endl;
+    } else if (id.det () == DetId::Hcal) {
+      const CaloRecHit* hit = NULL;
+
       if ((HcalSubdetector) id.subdetId () == HcalBarrel || (HcalSubdetector) id.subdetId () == HcalEndcap) {
-	hit = getHit (*getHBHERecHitCollection (), id);
+        hit = getHit (*getHBHERecHitCollection (), id);
       }
       else if ((HcalSubdetector) id.subdetId () == HcalOuter) {
-	hit = getHit (*getHORecHitCollection (), id);
+        hit = getHit (*getHORecHitCollection (), id);
       }
       if ((HcalSubdetector) id.subdetId () == HcalForward) {
-	hit = getHit (*getHFRecHitCollection (), id);
+        hit = getHit (*getHFRecHitCollection (), id);
       }
+
+      if (hit) result.push_back(JetConstituent(*hit));
+      else std::cerr << "Can not find rechit for id " << id.rawId () << std::endl;
     }
-    if (hit) result.push_back (hit);
-    else std::cerr << "Can not find rechit for id " << id.rawId () << std::endl;
-  } 
+  }
+
   return result;
 }
 
@@ -266,25 +276,25 @@ std::vector <const reco::GenParticle*> JetMatchingTools::getGenParticles (const 
     for (unsigned iid = 0; iid < detids.size(); ++iid) {
       std::vector <const PCaloHit*> phits = getPCaloHits (detids[iid]);
       for (unsigned iphit = 0; iphit < phits.size(); ++iphit) {
-	int trackId = getTrackId (*(phits[iphit]));
-	if (trackId >= 0) {
-	  int genId = generatorId (trackId);
-	  if (genId >= 0) {
-	    const reco::GenParticle* genPart = getGenParticle (genId);
-	    if (genPart) {
-	      result.insert (genPart);
-	    }
-	    else if (fVerbose) {
-	      std::cerr << "JetMatchingTools::getGenParticles-> Can not convert genId " << genId << " to GenParticle" << std::endl;
-	    }
-	  }
-	  else if (fVerbose) {
-	    std::cerr << "JetMatchingTools::getGenParticles-> Can not convert trackId " << trackId << " to genId" << std::endl;
-	  }
-	}
-	else if (fVerbose) {
-	  std::cerr << "JetMatchingTools::getGenParticles-> Unknown trackId for PCaloHit " << *(phits[iphit]) << std::endl;
-	}
+        int trackId = getTrackId (*(phits[iphit]));
+        if (trackId >= 0) {
+          int genId = generatorId (trackId);
+          if (genId >= 0) {
+            const reco::GenParticle* genPart = getGenParticle (genId);
+            if (genPart) {
+              result.insert (genPart);
+            }
+            else if (fVerbose) {
+              std::cerr << "JetMatchingTools::getGenParticles-> Can not convert genId " << genId << " to GenParticle" << std::endl;
+            }
+          }
+          else if (fVerbose) {
+            std::cerr << "JetMatchingTools::getGenParticles-> Can not convert trackId " << trackId << " to genId" << std::endl;
+          }
+        }
+        else if (fVerbose) {
+          std::cerr << "JetMatchingTools::getGenParticles-> Unknown trackId for PCaloHit " << *(phits[iphit]) << std::endl;
+        }
       }
     }
   }
@@ -303,20 +313,20 @@ double JetMatchingTools::lostEnergyFraction (const reco::CaloJet& fJet ) {
   // follow the chain
   std::vector <const CaloTower*> towers = getConstituents (fJet) ;
   for (unsigned itower = 0; itower < towers.size (); ++itower) {
-    std::vector <const CaloRecHit*> recHits = getConstituents (*(towers[itower]));
+    std::vector<JetConstituent> recHits = getConstituentHits(*(towers[itower]));
     for (unsigned ihit = 0; ihit < recHits.size(); ++ihit) {
       double foundSimEnergy = 0;
       double lostSimEnergy = 0;
-      std::vector <const PCaloHit*> phits = getPCaloHits (recHits[ihit]->detid());
+      std::vector <const PCaloHit*> phits = getPCaloHits (recHits[ihit].id);
       for (unsigned iphit = 0; iphit < phits.size(); ++iphit) {
-	double simEnergy = phits[iphit]->energy ();
-	int trackId = getTrackId (*(phits[iphit]));
-	if (trackId < 0 || generatorId (trackId) < 0)   lostSimEnergy += simEnergy;
-	else   foundSimEnergy += simEnergy;
+        double simEnergy = phits[iphit]->energy ();
+        int trackId = getTrackId (*(phits[iphit]));
+        if (trackId < 0 || generatorId (trackId) < 0)   lostSimEnergy += simEnergy;
+        else   foundSimEnergy += simEnergy;
       }
       if (foundSimEnergy > 0 || lostSimEnergy > 0) {
-	totalEnergy += recHits[ihit]->energy ();
-	lostEnergy += recHits[ihit]->energy () * lostSimEnergy / (foundSimEnergy + lostSimEnergy);
+        totalEnergy += recHits[ihit].energy;
+        lostEnergy += recHits[ihit].energy * lostSimEnergy / (foundSimEnergy + lostSimEnergy);
       }
     }
   }
@@ -325,7 +335,7 @@ double JetMatchingTools::lostEnergyFraction (const reco::CaloJet& fJet ) {
 
   /// energy overlap
 double JetMatchingTools::overlapEnergyFraction (const std::vector <const reco::GenParticle*>& fObject, 
-						const std::vector <const reco::GenParticle*>& fReference) const {
+                                                const std::vector <const reco::GenParticle*>& fReference) const {
   if (fObject.empty()) return 0;
   double totalEnergy = 0;
   double overlapEnergy = 0;

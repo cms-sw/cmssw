@@ -172,7 +172,7 @@ vector<const DetLayer*> StandAloneMuonFilter::compatibleLayers(const DetLayer *i
 
   if(theNavigationType == "Standard"){
     // ask for compatible layers
-    detLayers = initialLayer->compatibleLayers(fts,propDir);  
+    detLayers = theService->muonNavigationSchool()->compatibleLayers(*initialLayer,fts,propDir);
     // I have to fit by hand the first layer until the seedTSOS is defined on the first rechit layer
     // In fact the first layer is not returned by initialLayer->compatibleLayers.
     detLayers.insert(detLayers.begin(),initialLayer);
@@ -358,7 +358,7 @@ bool StandAloneMuonFilter::update(const DetLayer * layer,
 
 void StandAloneMuonFilter::createDefaultTrajectory(const Trajectory & oldTraj, Trajectory & defTraj) {
 
-  Trajectory::DataContainer oldMeas = oldTraj.measurements();
+  Trajectory::DataContainer const & oldMeas = oldTraj.measurements();
   defTraj.reserve(oldMeas.size());
 
   for (Trajectory::DataContainer::const_iterator itm = oldMeas.begin(); itm != oldMeas.end(); itm++) {
@@ -367,8 +367,8 @@ void StandAloneMuonFilter::createDefaultTrajectory(const Trajectory & oldTraj, T
     else {
       MuonTransientTrackingRecHit::MuonRecHitPointer invRhPtr = MuonTransientTrackingRecHit::specificBuild( (*itm).recHit()->det(), (*itm).recHit()->hit() );
       invRhPtr->invalidateHit();
-      TrajectoryMeasurement invRhMeas( (*itm).forwardPredictedState(), (*itm).updatedState(), invRhPtr.get(), (*itm).estimate(), (*itm).layer() );
-      defTraj.push( invRhMeas, (*itm).estimate() );	  
+      TrajectoryMeasurement invRhMeas( (*itm).forwardPredictedState(), (*itm).updatedState(), invRhPtr, (*itm).estimate(), (*itm).layer() );
+      defTraj.push( std::move(invRhMeas), (*itm).estimate() );	  
     }
 
   } // end for

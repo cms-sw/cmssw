@@ -12,6 +12,7 @@
 #include "RecoLocalMuon/DTRecHit/interface/DTRecHitBaseAlgo.h"
 
 class DTMtime;
+class DTRecoUncertainties;
 
 class DTLinearDriftFromDBAlgo : public DTRecHitBaseAlgo {
  public:
@@ -81,6 +82,9 @@ class DTLinearDriftFromDBAlgo : public DTRecHitBaseAlgo {
 
   //Map of meantimes
   const DTMtime *mTimeMap;
+
+  // Map of hit uncertainties
+  const DTRecoUncertainties *uncertMap;
  
   // Times below MinTime (ns) are considered as coming from previous BXs.
   const float minTime;
@@ -94,6 +98,10 @@ class DTLinearDriftFromDBAlgo : public DTRecHitBaseAlgo {
   // Switch recalculating hit parameters from digi time in Step 2 
   // (when off, Step 2 does nothing)
   const bool stepTwoFromDigi;
+
+  // Assign hit uncertainties based on new uncertainties DB 
+  // If false, the value taken from vdrift DB is used instead.
+  bool useUncertDB;
 
   // Switch on/off the verbosity
   const bool debug;

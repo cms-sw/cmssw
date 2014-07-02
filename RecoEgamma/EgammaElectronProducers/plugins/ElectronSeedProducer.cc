@@ -25,6 +25,7 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronHcalHelper.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/SeedFilter.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/Records/interface/CaloTopologyRecord.h"
@@ -108,6 +109,10 @@ ElectronSeedProducer::ElectronSeedProducer( const edm::ParameterSet& iConfig )
     esg_tokens.token_vtx = 
       mayConsume<reco::VertexCollection>(edm::InputTag("offlinePrimaryVerticesWithBS"));
   }
+  if(conf_.existsAs<edm::InputTag>("measurementTrackerEvent")) {
+    esg_tokens.token_measTrkEvt= consumes<MeasurementTrackerEvent>(conf_.getParameter<edm::InputTag>("measurementTrackerEvent"));
+  }
+
   matcher_ = new ElectronSeedGenerator(conf_,esg_tokens) ;
 
   //  get collections from config'
@@ -229,7 +234,7 @@ void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
 void ElectronSeedProducer::filterClusters
  ( const reco::BeamSpot & bs,
    const edm::Handle<reco::SuperClusterCollection> & superClusters,
-   /*HBHERecHitMetaCollection * mhbhe,*/ SuperClusterRefVector & sclRefs,
+   SuperClusterRefVector & sclRefs,
    std::vector<float> & hoe1s, std::vector<float> & hoe2s )
  {
   for (unsigned int i=0;i<superClusters->size();++i)

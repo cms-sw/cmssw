@@ -6,6 +6,7 @@
 */
 
 #include <string.h> // memcpy
+#include <atomic>
 #include "DataFormats/CSCDigi/interface/CSCALCTStatusDigi.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -48,7 +49,7 @@ public:
   static void setDebug(bool debugValue) {debug = debugValue;}
 
   unsigned short * data() {
-    switch (firmwareVersion) {
+    switch (firmwareVersion.load()) {
     case 2006:
       memcpy(theOriginalBuffer, &trailer2006, trailer2006.sizeInWords()*2);
       break;
@@ -67,7 +68,7 @@ public:
   static int sizeInWords() {return 4;}
 
   int getCRC() { 
-    switch (firmwareVersion) {
+    switch (firmwareVersion.load()) {
     case 2006:
       return ((trailer2006.crc1&0x7ff)<<11) | (trailer2006.crc0&0x7ff);
     case 2007:
@@ -80,7 +81,7 @@ public:
   }
 
   bool check() const {
-    switch (firmwareVersion) {
+    switch (firmwareVersion.load()) {
     case 2006:
       return (trailer2006.e0dLine & 0xfff) == 0xe0d;
     case 2007:
@@ -93,7 +94,7 @@ public:
   }
   
   int wordCount() const {
-    switch (firmwareVersion) {
+    switch (firmwareVersion.load()) {
     case 2006:
       return trailer2006.frameCount;
     case 2007:
@@ -106,7 +107,7 @@ public:
   }
   
   unsigned alctCRCCheck() const { 
-    switch (firmwareVersion) {
+    switch (firmwareVersion.load()) {
     case 2006:
       return trailer2006.reserved_3;
     case 2007:
@@ -124,8 +125,8 @@ public:
   CSCALCTTrailer2007 alctTrailer2007() {return trailer2007;}
 
 private:
-  static bool debug;
-  static unsigned short int firmwareVersion;
+  static std::atomic<bool> debug;
+  static std::atomic<unsigned short int> firmwareVersion;
   CSCALCTTrailer2006 trailer2006;
   CSCALCTTrailer2007 trailer2007;
   unsigned short int theOriginalBuffer[4];

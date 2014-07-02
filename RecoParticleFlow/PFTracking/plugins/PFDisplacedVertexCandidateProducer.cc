@@ -11,8 +11,6 @@
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
-#include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertexCandidateFwd.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include <set>
 
@@ -22,14 +20,11 @@ using namespace edm;
 PFDisplacedVertexCandidateProducer::PFDisplacedVertexCandidateProducer(const edm::ParameterSet& iConfig) {
   
   // --- Setup input collection names --- //
-  inputTagTracks_ 
-    = iConfig.getParameter<InputTag>("trackCollection");
+  inputTagTracks_ = consumes<reco::TrackCollection>(iConfig.getParameter<InputTag>("trackCollection"));
 
-  inputTagMainVertex_ 
-    = iConfig.getParameter<InputTag>("mainVertexLabel");
+  inputTagMainVertex_=consumes<reco::VertexCollection>(iConfig.getParameter<InputTag>("mainVertexLabel"));
 
-  inputTagBeamSpot_ 
-    = iConfig.getParameter<InputTag>("offlineBeamSpotLabel");
+  inputTagBeamSpot_ =consumes<reco::BeamSpot>(iConfig.getParameter<InputTag>("offlineBeamSpotLabel"));
 
   verbose_ = 
     iConfig.getUntrackedParameter<bool>("verbose");
@@ -82,13 +77,13 @@ PFDisplacedVertexCandidateProducer::produce(Event& iEvent,
   const MagneticField* theMagField = magField.product();
 
   Handle <reco::TrackCollection> trackCollection;
-  iEvent.getByLabel(inputTagTracks_, trackCollection);
+  iEvent.getByToken(inputTagTracks_, trackCollection);
     
   Handle< reco::VertexCollection > mainVertexHandle;
-  iEvent.getByLabel(inputTagMainVertex_, mainVertexHandle);
+  iEvent.getByToken(inputTagMainVertex_, mainVertexHandle);
 
   Handle< reco::BeamSpot > beamSpotHandle;
-  iEvent.getByLabel(inputTagBeamSpot_, beamSpotHandle);
+  iEvent.getByToken(inputTagBeamSpot_, beamSpotHandle);
 
   pfDisplacedVertexCandidateFinder_.setPrimaryVertex(mainVertexHandle, beamSpotHandle);
   pfDisplacedVertexCandidateFinder_.setInput( trackCollection, theMagField );

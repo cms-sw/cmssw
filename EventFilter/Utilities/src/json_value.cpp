@@ -268,14 +268,11 @@ Value::CZString::isStaticString() const
 Value::Value( ValueType type )
    : type_( type )
    , allocated_( 0 )
-//   , comments_( 0 )
+   , comments_( 0 )
 # ifdef JSON_VALUE_USE_INTERNAL_MAP
    , itemIsUsed_( 0 )
 #endif
 {
-   CommentInfo * test = 0;
-   comments_ = test;
-
    switch ( type )
    {
    case nullValue:
@@ -345,16 +342,12 @@ Value::Value( double value )
 
 Value::Value( const char *value )
    : type_( stringValue )
-//   , allocated_( true )
-//   , comments_( 0 )
+   , allocated_( true )
+   , comments_( 0 )
 # ifdef JSON_VALUE_USE_INTERNAL_MAP
    , itemIsUsed_( 0 )
 #endif
 {
-   int atest = 1;
-   allocated_ = atest;
-   CommentInfo * test =  0;
-   comments_ = test;
    value_.string_ = valueAllocator()->duplicateStringValue( value );
 }
 
@@ -362,16 +355,12 @@ Value::Value( const char *value )
 Value::Value( const char *beginValue, 
               const char *endValue )
    : type_( stringValue )
-//   , allocated_( true )
-//   , comments_( 0 )
+   , allocated_( true )
+   , comments_( 0 )
 # ifdef JSON_VALUE_USE_INTERNAL_MAP
    , itemIsUsed_( 0 )
 #endif
 {
-   int atest = 1;
-   allocated_ = atest;
-   CommentInfo * test =  0;
-   comments_ = test;
    value_.string_ = valueAllocator()->duplicateStringValue( beginValue, 
                                                             UInt(endValue - beginValue) );
 }
@@ -379,16 +368,12 @@ Value::Value( const char *beginValue,
 
 Value::Value( const std::string &value )
    : type_( stringValue )
-//   , allocated_( true )
-//   , comments_( 0 )
+   , allocated_( true )
+   , comments_( 0 )
 # ifdef JSON_VALUE_USE_INTERNAL_MAP
    , itemIsUsed_( 0 )
 #endif
 {
-   int atest = 1;
-   allocated_ = atest;
-   CommentInfo * test =  0;
-   comments_ = test;
    value_.string_ = valueAllocator()->duplicateStringValue( value.c_str(), 
                                                             (unsigned int)value.length() );
 
@@ -450,9 +435,7 @@ Value::Value( const Value &other )
       if ( other.value_.string_ )
       {
          value_.string_ = valueAllocator()->duplicateStringValue( other.value_.string_ );
-         //allocated_ = true;
-         bool test = true;
-         allocated_ = test;
+         allocated_ = true;
       }
       else
          value_.string_ = 0;

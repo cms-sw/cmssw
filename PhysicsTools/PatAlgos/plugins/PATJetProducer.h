@@ -23,6 +23,7 @@
 #include "DataFormats/Common/interface/View.h"
 
 #include "SimDataFormats/JetMatching/interface/JetFlavourMatching.h"
+#include "SimDataFormats/JetMatching/interface/JetFlavourInfoMatching.h"
 
 #include "CommonTools/Utils/interface/PtComparator.h"
 
@@ -61,7 +62,10 @@ namespace pat {
       bool                     embedCaloTowers_;
       bool                     embedPFCandidates_;
       bool                     getJetMCFlavour_;
+      bool                     useLegacyJetMCFlavour_;
+      bool                     addJetFlavourInfo_;
       edm::EDGetTokenT<reco::JetFlavourMatchingCollection> jetPartonMapToken_;
+      edm::EDGetTokenT<reco::JetFlavourInfoMatchingCollection> jetFlavourInfoToken_;
       bool                     addGenPartonMatch_;
       bool                     embedGenPartonMatch_;
       edm::EDGetTokenT<edm::Association<reco::GenParticleCollection> > genPartonToken_;

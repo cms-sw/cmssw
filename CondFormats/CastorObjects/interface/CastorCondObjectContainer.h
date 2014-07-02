@@ -3,6 +3,8 @@
 //
 //Adapted for CASTOR by L. Mundim
 //
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <iostream>
 #include <vector>
 #include "DataFormats/DetId/interface/DetId.h"
@@ -40,6 +42,8 @@ class CastorCondObjectContainer
   unsigned int hashed_id(DetId fId) const;
 
   std::vector<Item> CASTORcontainer;
+
+ COND_SERIALIZABLE;
 };
 
 

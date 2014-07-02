@@ -114,6 +114,9 @@ namespace npstat {
         /** Comparison of axis coordinates within given tolerance */
         bool isClose(const HistoAxis&, double tol) const;
 
+        /** Return rebinned axis */
+        HistoAxis rebin(unsigned newBins) const;
+
         //@{
         /** Method related to "geners" I/O */
         inline gs::ClassId classId() const {return gs::ClassId(*this);}
@@ -125,8 +128,6 @@ namespace npstat {
         static HistoAxis* read(const gs::ClassId& id, std::istream& in);
 
     private:
-        inline HistoAxis() : min_(0.0), max_(0.0), bw_(0.0), nBins_(0) {}
-
         double min_;
         double max_;
         double bw_;
@@ -153,6 +154,7 @@ namespace npstat {
 
         unsigned overflowIndexWeighted(double x, unsigned* binNumber,
                                        double *weight) const;
+        inline HistoAxis() : min_(0.0), max_(0.0), bw_(0.0), nBins_(0) {}
     };
 }
 

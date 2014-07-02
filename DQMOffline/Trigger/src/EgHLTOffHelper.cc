@@ -243,12 +243,10 @@ int OffHelper::fillOffEleVec(std::vector<OffEle>& egHLTOffEles)
 void OffHelper::fillIsolData(const reco::GsfElectron& ele,OffEle::IsolData& isolData)
 {
   EgammaTowerIsolation hcalIsolAlgo(hltHadIsolOuterCone_,hltHadIsolInnerCone_,hltHadIsolEtMin_,hltHadIsolDepth_,caloTowers_.product());
-  EcalRecHitMetaCollection ebHits(*ebRecHits_);
-  EcalRecHitMetaCollection eeHits(*eeRecHits_);
   EgammaRecHitIsolation ecalIsolAlgoEB(hltEMIsolOuterCone_,hltEMIsolInnerConeEB_,hltEMIsolEtaSliceEB_,
-				       hltEMIsolEtMinEB_,hltEMIsolEMinEB_,caloGeom_,&ebHits,ecalSeverityLevel_.product(),DetId::Ecal);
+				       hltEMIsolEtMinEB_,hltEMIsolEMinEB_,caloGeom_,*ebRecHits_,ecalSeverityLevel_.product(),DetId::Ecal);
   EgammaRecHitIsolation ecalIsolAlgoEE(hltEMIsolOuterCone_,hltEMIsolInnerConeEE_,hltEMIsolEtaSliceEE_,
-				       hltEMIsolEtMinEE_,hltEMIsolEMinEE_,caloGeom_,&eeHits,ecalSeverityLevel_.product(),DetId::Ecal);
+				       hltEMIsolEtMinEE_,hltEMIsolEMinEE_,caloGeom_,*eeRecHits_,ecalSeverityLevel_.product(),DetId::Ecal);
   
   isolData.ptTrks=ele.dr03TkSumPt();
   isolData.nrTrks=999; //no longer supported
@@ -388,12 +386,10 @@ int OffHelper::fillOffPhoVec(std::vector<OffPho>& egHLTOffPhos)
 void OffHelper::fillIsolData(const reco::Photon& pho,OffPho::IsolData& isolData)
 {
   EgammaTowerIsolation hcalIsolAlgo(hltHadIsolOuterCone_,hltHadIsolInnerCone_,hltHadIsolEtMin_,hltHadIsolDepth_,caloTowers_.product());
-  EcalRecHitMetaCollection ebHits(*ebRecHits_);
-  EcalRecHitMetaCollection eeHits(*ebRecHits_);
   EgammaRecHitIsolation ecalIsolAlgoEB(hltEMIsolOuterCone_,hltEMIsolInnerConeEB_,hltEMIsolEtaSliceEB_,
-				       hltEMIsolEtMinEB_,hltEMIsolEMinEB_,caloGeom_,&ebHits,ecalSeverityLevel_.product(),DetId::Ecal);
+				       hltEMIsolEtMinEB_,hltEMIsolEMinEB_,caloGeom_,*ebRecHits_,ecalSeverityLevel_.product(),DetId::Ecal);
   EgammaRecHitIsolation ecalIsolAlgoEE(hltEMIsolOuterCone_,hltEMIsolInnerConeEE_,hltEMIsolEtaSliceEE_,
-				       hltEMIsolEtMinEE_,hltEMIsolEMinEE_,caloGeom_,&eeHits,ecalSeverityLevel_.product(),DetId::Ecal);
+				       hltEMIsolEtMinEE_,hltEMIsolEMinEE_,caloGeom_,*eeRecHits_,ecalSeverityLevel_.product(),DetId::Ecal);
   
   isolData.nrTrks = pho.nTrkHollowConeDR03();
   isolData.ptTrks = pho.trkSumPtHollowConeDR03();

@@ -22,10 +22,10 @@
 #include "CondFormats/SiStripObjects/interface/SiStripThreshold.h"
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
-#include "SiTrivialDigitalConverter.h"
-#include "SiGaussianTailNoiseAdder.h"
+#include "SimTracker/SiStripDigitizer/interface/SiTrivialDigitalConverter.h"
+#include "SimTracker/SiStripDigitizer/interface/SiGaussianTailNoiseAdder.h"
 #include "SiHitDigitizer.h"
-#include "SiPileUpSignals.h"
+#include "SimTracker/SiStripDigitizer/interface/SiPileUpSignals.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
@@ -60,7 +60,7 @@ class SiStripDigitizerAlgorithm {
   // Destructor
   ~SiStripDigitizerAlgorithm();
 
-  void initializeDetUnit(StripGeomDetUnit* det, const edm::EventSetup& iSetup);
+  void initializeDetUnit(StripGeomDetUnit const * det, const edm::EventSetup& iSetup);
 
   void initializeEvent(const edm::EventSetup& iSetup);
 

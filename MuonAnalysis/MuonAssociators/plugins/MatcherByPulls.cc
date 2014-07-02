@@ -2,7 +2,7 @@
 //
 // Package:    MuonAnalysis/MuonAssociators
 // Class:      MatcherByPulls
-// 
+//
 /**\class pat::MatcherByPulls MatcherByPulls.cc MuonAnalysis/MuonAssociators/src/MatcherByPulls.cc
 
  Description: Matches RecoCandidates to (Gen)Particles by looking at the pulls fo the track parameters.
@@ -37,12 +37,12 @@
 
 #include "MuonAnalysis/MuonAssociators/interface/MatcherByPullsAlgorithm.h"
 
-/*     ____ _                     _           _                 _   _             
- *    / ___| | __ _ ___ ___    __| | ___  ___| | __ _ _ __ __ _| |_(_) ___  _ __  
- *   | |   | |/ _` / __/ __|  / _` |/ _ \/ __| |/ _` | '__/ _` | __| |/ _ \| '_ \ 
+/*     ____ _                     _           _                 _   _
+ *    / ___| | __ _ ___ ___    __| | ___  ___| | __ _ _ __ __ _| |_(_) ___  _ __
+ *   | |   | |/ _` / __/ __|  / _` |/ _ \/ __| |/ _` | '__/ _` | __| |/ _ \| '_ \
  *   | |___| | (_| \__ \__ \ | (_| |  __/ (__| | (_| | | | (_| | |_| | (_) | | | |
  *    \____|_|\__,_|___/___/  \__,_|\___|\___|_|\__,_|_|  \__,_|\__|_|\___/|_| |_|
- */                                                                               
+ */
 namespace pat {
     template<typename T>
     class MatcherByPulls : public edm::EDProducer {
@@ -54,10 +54,10 @@ namespace pat {
             virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
             /// The RECO objects
-            edm::InputTag src_;
+            edm::EDGetTokenT<edm::View<T> > srcToken_;
 
             /// The MC objects to match against
-            edm::InputTag matched_;
+            edm::EDGetTokenT<std::vector<reco::GenParticle> > matchedToken_;
 
             /// Preselection cut on MC objects
             StringCutObjectSelector<reco::GenParticle>  mcSel_;
@@ -66,22 +66,22 @@ namespace pat {
     };
 }
 
-/*     ____                _                   _             
- *    / ___|___  _ __  ___| |_ _ __ _   _  ___| |_ ___  _ __ 
+/*     ____                _                   _
+ *    / ___|___  _ __  ___| |_ _ __ _   _  ___| |_ ___  _ __
  *   | |   / _ \| '_ \/ __| __| '__| | | |/ __| __/ _ \| '__|
- *   | |__| (_) | | | \__ \ |_| |  | |_| | (__| || (_) | |   
- *    \____\___/|_| |_|___/\__|_|   \__,_|\___|\__\___/|_|   
- *                                                           
- */  
+ *   | |__| (_) | | | \__ \ |_| |  | |_| | (__| || (_) | |
+ *    \____\___/|_| |_|___/\__|_|   \__,_|\___|\__\___/|_|
+ *
+ */
 template<typename T>
 pat::MatcherByPulls<T>::MatcherByPulls(const edm::ParameterSet &iConfig) :
-    src_(iConfig.getParameter<edm::InputTag>("src")),
-    matched_(iConfig.getParameter<edm::InputTag>("matched")),
+    srcToken_(consumes<edm::View<T> >(iConfig.getParameter<edm::InputTag>("src"))),
+    matchedToken_(consumes<std::vector<reco::GenParticle> >(iConfig.getParameter<edm::InputTag>("matched"))),
     mcSel_(iConfig.getParameter<std::string>("matchedSelector")),
     algo_(iConfig)
 {
     produces<edm::Association<std::vector<reco::GenParticle> > >();
-    produces<edm::ValueMap<float> >("pulls"); 
+    produces<edm::ValueMap<float> >("pulls");
 }
 
 template<typename T>
@@ -89,23 +89,23 @@ pat::MatcherByPulls<T>::~MatcherByPulls()
 {
 }
 
-/*    ____                _                
- *   |  _ \ _ __ ___   __| |_   _  ___ ___ 
+/*    ____                _
+ *   |  _ \ _ __ ___   __| |_   _  ___ ___
  *   | |_) | '__/ _ \ / _` | | | |/ __/ _ \
  *   |  __/| | | (_) | (_| | |_| | (_|  __/
  *   |_|   |_|  \___/ \__,_|\__,_|\___\___|
- *                                         
- */  
+ *
+ */
 
 template<typename T>
 void
 pat::MatcherByPulls<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
     typedef std::vector<reco::GenParticle> MCColl;
-    edm::Handle<edm::View<T> > src; 
-    edm::Handle<MCColl> cands; 
-    iEvent.getByLabel(src_,     src);
-    iEvent.getByLabel(matched_, cands);
+    edm::Handle<edm::View<T> > src;
+    edm::Handle<MCColl> cands;
+    iEvent.getByToken(srcToken_,     src);
+    iEvent.getByToken(matchedToken_, cands);
 
     std::vector<uint8_t> candGood(cands->size(),1);
     std::transform(cands->begin(), cands->end(), candGood.begin(), mcSel_);

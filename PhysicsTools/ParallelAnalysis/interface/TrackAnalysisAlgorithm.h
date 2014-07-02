@@ -9,6 +9,7 @@
  *
  */
 
+#include "FWCore/TFWLiteSelector/interface/TFWLiteSelector.h"
 class TH1F;
 class TList;
 class TCanvas;

@@ -1,7 +1,9 @@
 #ifndef TrackingTools_TransientTrackingRecHit_SeedingLayerSetsHits
 #define TrackingTools_TransientTrackingRecHit_SeedingLayerSetsHits
 
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+
+#include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
+#include "DataFormats/TrackingRecHit/interface/mayown_ptr.h"
 
 #include <vector>
 #include <string>
@@ -9,6 +11,7 @@
 
 class DetLayer;
 
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
 /**
  * Class to store TransientTrackingRecHits, names, and DetLayer
  * pointers of each ctfseeding::SeedingLayer as they come from
@@ -23,8 +26,13 @@ class DetLayer;
  */
 class SeedingLayerSetsHits {
 public:
-  typedef TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
-  typedef std::vector<ConstRecHitPointer> Hits;
+  using TkHit = BaseTrackerRecHit;
+  using TkHitRef = BaseTrackerRecHit const &;
+  using HitPointer = mayown_ptr<BaseTrackerRecHit>;
+  using OwnedHits=std::vector<HitPointer>;
+
+  using ConstRecHitPointer = BaseTrackerRecHit const*;
+  using Hits = std::vector<ConstRecHitPointer>;
 
   typedef unsigned short LayerSetIndex;
   typedef unsigned short LayerIndex;
@@ -159,8 +167,13 @@ public:
                        const std::vector<const DetLayer *>& layerDets);
 
   ~SeedingLayerSetsHits();
+   SeedingLayerSetsHits(SeedingLayerSetsHits const&)=delete;
+   SeedingLayerSetsHits& operator=(SeedingLayerSetsHits const&)=delete;
+   SeedingLayerSetsHits(SeedingLayerSetsHits &&)=default;           
+   SeedingLayerSetsHits& operator=(SeedingLayerSetsHits &&)=default;
 
-  void swapHits(std::vector<HitIndex>& layerHitIndices,  Hits& hits);
+
+  void swapHits(std::vector<HitIndex>& layerHitIndices,  OwnedHits& hits);
 
 
   /// Get number of layers in each SeedingLayerSets
@@ -215,7 +228,19 @@ private:
    * List of RecHits of all SeedingLayers. Hits of each layer are
    * identified by the begin indices in layerHitIndices_.
    */
-  std::vector<ConstRecHitPointer> rechits_;
+  OwnedHits rechits_;
 };
+
+
+#else
+class SeedingLayerSetsHits {
+private:
+  SeedingLayerSetsHits(SeedingLayerSetsHits const&){} 
+  SeedingLayerSetsHits& operator=(SeedingLayerSetsHits const&){return *this;}
+
+  std::vector<BaseTrackerRecHit const*> rechits_;
+
+};
+#endif
 
 #endif

@@ -21,8 +21,8 @@
 #include "CondFormats/SiStripObjects/interface/SiStripThreshold.h"
 #include "CondFormats/SiStripObjects/interface/SiStripBadStrip.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripGain.h"
-#include "SiTrivialDigitalConverter.h"
-#include "SiGaussianTailNoiseAdder.h"
+#include "SimTracker/SiStripDigitizer/interface/SiTrivialDigitalConverter.h"
+#include "SimTracker/SiStripDigitizer/interface/SiGaussianTailNoiseAdder.h"
 #include "SiHitDigitizer.h"
 #include "DigiSimLinkPileUpSignals.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
@@ -56,7 +56,7 @@ class DigiSimLinkAlgorithm {
   // Runs the algorithm
   void  run(edm::DetSet<SiStripDigi>&, edm::DetSet<SiStripRawDigi>&,
             const std::vector<std::pair<const PSimHit*, int > >  &, 
-            StripGeomDetUnit *, GlobalVector, float, 
+            StripGeomDetUnit const *, GlobalVector, float, 
             edm::ESHandle<SiStripGain> &, edm::ESHandle<SiStripThreshold> &, 
             edm::ESHandle<SiStripNoises> &, edm::ESHandle<SiStripPedestals> &, edm::ESHandle<SiStripBadStrip> &,
 	    const TrackerTopology *tTopo,

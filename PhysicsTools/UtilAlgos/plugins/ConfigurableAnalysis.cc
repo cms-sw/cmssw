@@ -79,10 +79,10 @@ ConfigurableAnalysis::ConfigurableAnalysis(const edm::ParameterSet& iConfig) :
 
   //configure inputag distributor
   if (iConfig.exists("InputTags"))
-    edm::Service<InputTagDistributorService>()->init(moduleLabel,iConfig.getParameter<edm::ParameterSet>("InputTags"));
+    edm::Service<InputTagDistributorService>()->init(moduleLabel,iConfig.getParameter<edm::ParameterSet>("InputTags"), consumesCollector());
 
   //configure the variable helper
-  edm::Service<VariableHelperService>()->init(moduleLabel,iConfig.getParameter<edm::ParameterSet>("Variables"));
+  edm::Service<VariableHelperService>()->init(moduleLabel,iConfig.getParameter<edm::ParameterSet>("Variables"), consumesCollector());
 
   //list of selections
   selections_ = new Selections(iConfig.getParameter<edm::ParameterSet>("Selections"), consumesCollector());

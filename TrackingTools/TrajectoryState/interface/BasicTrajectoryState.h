@@ -1,9 +1,7 @@
 #ifndef BasicTrajectoryState_H
 #define BasicTrajectoryState_H
 
-#include "TrackingTools/TrajectoryState/interface/ProxyBase.h"
-#include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
-#include "TrackingTools/TrajectoryState/interface/CopyUsingClone.h"
+#include "TrackingTools/TrajectoryState/interface/ProxyBase11.h"
 
 #include "TrackingTools/TrajectoryParametrization/interface/LocalTrajectoryParameters.h"
 #include "TrackingTools/TrajectoryParametrization/interface/LocalTrajectoryError.h"
@@ -20,7 +18,6 @@
 #include "TrackingTools/TrajectoryParametrization/interface/LocalTrajectoryError.h"
 
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
-
 #include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointer.h"
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "TrackingTools/TrajectoryParametrization/interface/TrajectoryStateExceptions.h"
@@ -62,8 +59,6 @@ private :
   mutable unsigned int referenceMax_ =0;
 #endif
 };
-#else
-typedef ReferenceCountedInEvent  BTSCount;
 #endif
 
 /** No so Abstract (anyore) base class for TrajectoryState.
@@ -72,18 +67,15 @@ typedef ReferenceCountedInEvent  BTSCount;
  * VI 8/12/2011   content of BasicSingleTrajectoryState moved here....
  * fully devirtualized
  */
-class BasicTrajectoryState : public BTSCount {
+class BasicTrajectoryState {
   public:
 
   typedef BasicTrajectoryState                              BTSOS;
-  typedef ProxyBase< BTSOS, CopyUsingClone<BTSOS> >         Proxy;
-  typedef ReferenceCountingPointer<BasicTrajectoryState>    RCPtr;
+  typedef ProxyBase11<BTSOS>                                Proxy;
+  typedef Proxy::pointer                           pointer;
   typedef SurfaceSideDefinition::SurfaceSide SurfaceSide;
   typedef Surface SurfaceType;
 
-private:
-  friend class ProxyBase< BTSOS, CopyUsingClone<BTSOS> >;
-  friend class ReferenceCountingPointer<BasicTrajectoryState>;
 public:
 
   // default constructor : to make root happy
@@ -94,69 +86,120 @@ public:
 
   virtual ~BasicTrajectoryState();
 
+  virtual pointer clone() const=0;
+
+#ifndef CMS_NOCXX11
+
+  template<typename T, typename... Args>
+  static std::shared_ptr<BTSOS> build(Args && ...args){ return std::make_shared<T>(std::forward<Args>(args)...);}
+
+  template<typename T, typename... Args>
+  static std::shared_ptr<BTSOS> churn(Args && ...args){ return std::allocate_shared<T>(churn_allocator<T>(),std::forward<Args>(args)...);}
+
+
+
   /** Constructor from FTS and surface. For surfaces with material
    *  the side of the surface should be specified explicitely.
    */
   BasicTrajectoryState( const FreeTrajectoryState& fts,
-			      const SurfaceType& aSurface,
-			      const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface);
-  /** Constructor from global parameters and surface. For surfaces with material
-   *  the side of the surface should be specified explicitely.
+			const SurfaceType& aSurface,
+			const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface);
+
+
+
+  /** Constructor from local parameters, errors and surface. For surfaces 
+   *  with material the side of the surface should be specified explicitely. 
+   *  For multi-states the weight should be specified explicitely.
    */
-  BasicTrajectoryState( const GlobalTrajectoryParameters& par,
-			      const SurfaceType& aSurface,
-			      const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface);
+  BasicTrajectoryState( const LocalTrajectoryParameters& par,
+			const LocalTrajectoryError& err,
+			const SurfaceType& aSurface,
+			const MagneticField* field,
+			const SurfaceSide side=SurfaceSideDefinition::atCenterOfSurface);
+
+
+  /** Constructor from local parameters, errors and surface. For surfaces 
+   *  with material the side of the surface should be specified explicitely.
+   */
+  BasicTrajectoryState( const LocalTrajectoryParameters& par,
+			const SurfaceType& aSurface,
+			const MagneticField* field,
+			const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface) :
+    BasicTrajectoryState(par, InvalidError(), aSurface, field, side){}
+
+
+
+
   /** Constructor from global parameters, errors and surface. For surfaces 
    *  with material the side of the surface should be specified explicitely.
    */
   BasicTrajectoryState( const GlobalTrajectoryParameters& par,
-			      const CartesianTrajectoryError& err,
-			      const SurfaceType& aSurface,
-			      const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface);
+			const CartesianTrajectoryError& err,
+			const SurfaceType& aSurface,
+			const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface);
 
   /** Constructor from global parameters, errors and surface. For surfaces 
    *  with material the side of the surface should be specified explicitely. 
    *  For multi-states the weight should be specified explicitely.
    */
   BasicTrajectoryState( const GlobalTrajectoryParameters& par,
-			      const CurvilinearTrajectoryError& err,
-			      const SurfaceType& aSurface,
-			      const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface,
-			      double weight = 1.);
-  /** Constructor from global parameters, errors and surface. For multi-states the
-   *  weight should be specified explicitely. For backward compatibility without
-   *  specification of the side of the surface.
+			const CurvilinearTrajectoryError& err,
+			const SurfaceType& aSurface,
+			const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface) :
+  theFreeState(par, err),
+  theLocalError(InvalidError()),
+  theLocalParameters(),
+  theLocalParametersValid(false),
+  theValid(true),
+  theSurfaceSide(side), 
+  theSurfaceP( &aSurface), 
+  theWeight(1.)
+  {}
+
+
+  /** Constructor from global parameters and surface. For surfaces with material
+   *  the side of the surface should be specified explicitely.
    */
   BasicTrajectoryState( const GlobalTrajectoryParameters& par,
-			      const CurvilinearTrajectoryError& err,
-			      const SurfaceType& aSurface,
-			      double weight);
-  /** Constructor from local parameters, errors and surface. For surfaces 
-   *  with material the side of the surface should be specified explicitely.
-   */
-  BasicTrajectoryState( const LocalTrajectoryParameters& par,
-			      const SurfaceType& aSurface,
-			      const MagneticField* field,
-			      const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface);
-  /** Constructor from local parameters, errors and surface. For surfaces 
-   *  with material the side of the surface should be specified explicitely. 
-   *  For multi-states the weight should be specified explicitely.
-   */
-  BasicTrajectoryState( const LocalTrajectoryParameters& par,
-			      const LocalTrajectoryError& err,
-			      const SurfaceType& aSurface,
-			      const MagneticField* field,
-			      const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface,
-			      double weight = 1.);
-  /** Constructor from local parameters, errors and surface. For multi-states the
-   *  weight should be specified explicitely. For backward compatibility without
-   *  specification of the side of the surface.
-   */
-  BasicTrajectoryState( const LocalTrajectoryParameters& par,
-			      const LocalTrajectoryError& err,
-			      const SurfaceType& aSurface,
-			      const MagneticField* field,
-			      double weight);
+			const SurfaceType& aSurface,
+			const SurfaceSide side = SurfaceSideDefinition::atCenterOfSurface) :
+    BasicTrajectoryState(par, InvalidError(), aSurface, side){}
+
+
+  // as above, with explicit weight
+  template<typename... Args>
+  BasicTrajectoryState(double iweight, Args && ...args) : BasicTrajectoryState(std::forward<Args>(args)...) {
+    theWeight = iweight;
+  }
+
+
+#endif
+
+  /*
+  virtual void update( const GlobalTrajectoryParameters& par,
+		       const SurfaceType& aSurface,
+		       SurfaceSide side) GCC11_FINAL {
+    theFreeState = FreeTrajectoryState(par);
+    theLocalError = InvalidError();
+    theLocalParametersValid=false;
+    theValid=true;
+    theSurfaceSide=side;
+    theSurfaceP = &aSurface;
+    theWeight = 1.;
+  }
+  virtual void update( const GlobalTrajectoryParameters& par,
+		       const CurvilinearTrajectoryError& err,
+		       const SurfaceType& aSurface,
+		       SurfaceSide side) GCC11_FINAL {
+    theFreeState = FreeTrajectoryState(par,err);
+    theLocalError = InvalidError();
+    theLocalParametersValid=false;
+    theValid=true;
+    theSurfaceSide=side;
+    theSurfaceP = &aSurface;
+    theWeight = 1.;
+  }
+  */
 
   bool isValid() const { return theValid; }
 
@@ -194,7 +237,7 @@ public:
   const CurvilinearTrajectoryError& curvilinearError() const {
     if unlikely(!hasError()) {
 	missingError(" accesing curvilinearerror.");
-	static CurvilinearTrajectoryError crap;
+	static const CurvilinearTrajectoryError crap;
 	return crap;
       }
     return freeTrajectoryState(true)->curvilinearError();
@@ -259,8 +302,6 @@ public:
   }
 
 
-  virtual BasicTrajectoryState* clone() const=0;
-
   virtual bool canUpdateLocalParameters() const { return true; }
 
   virtual void update( const LocalTrajectoryParameters& p,
@@ -273,22 +314,24 @@ public:
                        
 
 
-  virtual void update( const LocalTrajectoryParameters& p,
+  virtual void update( double weight,
+		       const LocalTrajectoryParameters& p,
                        const LocalTrajectoryError& err,
                        const SurfaceType& aSurface,
                        const MagneticField* field,
-                       const SurfaceSide side,
-                       double weight ) ;
+                       const SurfaceSide side);
 
   // update in place and in the very same place
  virtual void update( const LocalTrajectoryParameters& p,
                        const LocalTrajectoryError& err,
                        const SurfaceSide side) GCC11_FINAL;
 
-
+ CurvilinearTrajectoryError & setCurvilinearError() {
+    return theFreeState.setCurvilinearError();
+ }
 
 public:
-  virtual std::vector<TrajectoryStateOnSurface> components() const;
+  virtual std::vector<TrajectoryStateOnSurface> components() const =0;
 
 private:
 
@@ -320,8 +363,11 @@ private:
   SurfaceSide theSurfaceSide;
   ConstReferenceCountingPointer<SurfaceType> theSurfaceP;
 
+#ifdef CMS_NOCXX11
   double theWeight;
-
+#else
+  double theWeight=0.;
+#endif
 };
 
 #endif

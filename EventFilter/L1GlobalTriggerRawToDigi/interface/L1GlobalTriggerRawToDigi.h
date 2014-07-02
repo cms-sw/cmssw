@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -46,7 +46,7 @@ class L1MuTriggerPtScale;
 
 
 // class declaration
-class L1GlobalTriggerRawToDigi : public edm::EDProducer
+class L1GlobalTriggerRawToDigi : public edm::stream::EDProducer<>
 {
 
 public:

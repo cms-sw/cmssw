@@ -45,14 +45,12 @@ bool Py8GunBase::initializeForInternalPartons()
    
    // Key requirement: switch off ProcessLevel, and thereby also PartonLevel.
    fMasterGen->readString("ProcessLevel:all = off");
-   fMasterGen->readString("Standalone:allowResDec=on");
-   // pythia->readString("ProcessLevel::resonanceDecays=on");
+   fMasterGen->readString("ProcessLevel::resonanceDecays=on");
    fMasterGen->init();
    
    // init decayer
    fDecayer->readString("ProcessLevel:all = off"); // Same trick!
-   fDecayer->readString("Standalone:allowResDec=on");
-   // pythia->readString("ProcessLevel::resonanceDecays=on");
+   fDecayer->readString("ProcessLevel::resonanceDecays=on");
    fDecayer->init();
   
    return true;

@@ -87,7 +87,7 @@ void DTGeometryAnalyzer::analyze( const edm::Event& iEvent,
 
   // check layers
   cout << "LAYERS " << dashedLine_ << endl;
-  for(vector<DTLayer*>::const_iterator det = pDD->layers().begin(); 
+  for(vector<const DTLayer*>::const_iterator det = pDD->layers().begin(); 
       det != pDD->layers().end(); ++det){
     const DTTopology& topo = (*det)->specificTopology();
     const BoundPlane& surf=(*det)->surface();
@@ -106,7 +106,7 @@ void DTGeometryAnalyzer::analyze( const edm::Event& iEvent,
 
   // check superlayers
   cout << "SUPERLAYERS " << dashedLine_ << endl;
-  for(vector<DTSuperLayer*>::const_iterator det = pDD->superLayers().begin(); 
+  for(vector<const DTSuperLayer*>::const_iterator det = pDD->superLayers().begin(); 
       det != pDD->superLayers().end(); ++det){
     const BoundPlane& surf=(*det)->surface();
     cout << "SuperLayer " << (*det)->id()
@@ -121,7 +121,7 @@ void DTGeometryAnalyzer::analyze( const edm::Event& iEvent,
 
   // check chamber
   cout << "CHAMBERS " << dashedLine_ << endl;
-  for(vector<DTChamber*>::const_iterator det = pDD->chambers().begin(); 
+  for(vector<const DTChamber*>::const_iterator det = pDD->chambers().begin(); 
       det != pDD->chambers().end(); ++det){
     //cout << "Chamber " << (*det)->geographicalId().det() << endl;
     const BoundPlane& surf=(*det)->surface();

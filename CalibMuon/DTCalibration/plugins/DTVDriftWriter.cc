@@ -67,9 +67,9 @@ void DTVDriftWriter::endJob() {
 
   if(granularity_ == "bySL") {    
      // Get all the sls from the geometry
-     const vector<DTSuperLayer*>& superLayers = dtGeom_->superLayers(); 
-     vector<DTSuperLayer*>::const_iterator sl = superLayers.begin();
-     vector<DTSuperLayer*>::const_iterator sl_end = superLayers.end();
+     const vector<const DTSuperLayer*>& superLayers = dtGeom_->superLayers(); 
+     auto sl = superLayers.begin();
+     auto sl_end = superLayers.end();
      for(; sl != sl_end; ++sl){
         DTSuperLayerId slId = (*sl)->id();
         // Get original value from DB

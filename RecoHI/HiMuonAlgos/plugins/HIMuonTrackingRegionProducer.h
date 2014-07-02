@@ -27,7 +27,7 @@ class HIMuonTrackingRegionProducer : public TrackingRegionProducer {
     
     // initialize region builder
     edm::ParameterSet regionBuilderPSet   = cfg.getParameter<edm::ParameterSet>("MuonTrackingRegionBuilder");
-    theRegionBuilder                      = new MuonTrackingRegionBuilder(regionBuilderPSet);
+    theRegionBuilder                      = new MuonTrackingRegionBuilder(regionBuilderPSet,iC);
 
     // initialize muon service proxy
     edm::ParameterSet servicePSet         = cfg.getParameter<edm::ParameterSet>("ServiceParameters");

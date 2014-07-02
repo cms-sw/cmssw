@@ -117,6 +117,7 @@
 #include "RecoMuon/MuonIdentification/interface/TimeMeasurementSequence.h"
 #include "RecoMuon/TrackingTools/interface/MuonSegmentMatcher.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 //Root Classes
 
@@ -150,18 +151,15 @@
 
 class MuonServiceProxy;
 
-class BeamHaloAnalyzer: public edm::EDAnalyzer {
+class BeamHaloAnalyzer: public DQMEDAnalyzer {
  public:
   explicit BeamHaloAnalyzer(const edm::ParameterSet&);
   ~BeamHaloAnalyzer();
  
  private:
 
-  virtual void beginJob();
-  virtual void beginRun(const edm::Run&, const edm::EventSetup& iSetup);
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   virtual void analyze(const edm::Event& , const edm::EventSetup&);
-  virtual void endJob();
-  virtual void endRun(const edm::Run&, const edm::EventSetup&){ if (OutputFileName!="") dqm->save(OutputFileName);}
 
   edm::InputTag IT_L1MuGMTReadout;
 
@@ -200,6 +198,8 @@ class BeamHaloAnalyzer: public edm::EDAnalyzer {
   std::string FolderName;
 
   std::ofstream* out;
+
+
   double DumpMET;
 
   //Muon-Segment Matching
@@ -208,8 +208,6 @@ class BeamHaloAnalyzer: public edm::EDAnalyzer {
 
   bool StandardDQM;
 
-  // DAQ Tools
-  DQMStore* dqm;
 
   MonitorElement* hEcalHaloData_PhiWedgeMultiplicity;
   MonitorElement* hEcalHaloData_PhiWedgeConstituents;

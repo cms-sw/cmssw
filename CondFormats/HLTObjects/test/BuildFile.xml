@@ -1,0 +1,3 @@
+<bin file="testSerializationHLTObjects.cpp">
+    <use   name="CondFormats/HLTObjects"/>
+</bin>

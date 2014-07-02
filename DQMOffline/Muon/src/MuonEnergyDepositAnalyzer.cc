@@ -23,34 +23,13 @@ using namespace edm;
 
 MuonEnergyDepositAnalyzer::MuonEnergyDepositAnalyzer(const edm::ParameterSet& pSet){
   parameters = pSet;
-
-  theDbe = edm::Service<DQMStore>().operator->();
   
   // the services
   theService = new MuonServiceProxy(parameters.getParameter<ParameterSet>("ServiceParameters"));
 
   theMuonCollectionLabel_ = consumes<reco::MuonCollection>(parameters.getParameter<InputTag>("MuonCollection"));
-}
 
-
-MuonEnergyDepositAnalyzer::~MuonEnergyDepositAnalyzer() { 
-  delete theService;
-}
-
-
-void MuonEnergyDepositAnalyzer::beginJob(){
-  metname = "muEnergyDepositAnalyzer";  
-}
-
-void MuonEnergyDepositAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup){
-  std::string AlgoName = parameters.getParameter<std::string>("AlgoName");
-
-  theDbe->cd();
-  theDbe->setCurrentFolder("Muons/MuonEnergyDepositAnalyzer");
-  
-  LogTrace(metname)<<"[MuonEnergyDepositAnalyzer] Parameters initialization";
-  LogTrace(metname)<<"[MuonEnergyDepositAnalyzer] Run, Event" << iRun << " , "<< iSetup; 
-
+  AlgoName = parameters.getParameter<std::string>("AlgoName");
   emNoBin = parameters.getParameter<int>("emSizeBin");
   emNoMin = parameters.getParameter<double>("emSizeMin");
   emNoMax = parameters.getParameter<double>("emSizeMax");
@@ -74,71 +53,79 @@ void MuonEnergyDepositAnalyzer::beginRun(const edm::Run& iRun, const edm::EventS
   hoS9NoBin = parameters.getParameter<int>("hoS9SizeBin");
   hoS9NoMin = parameters.getParameter<double>("hoS9SizeMin");
   hoS9NoMax = parameters.getParameter<double>("hoS9SizeMax");
+}
+MuonEnergyDepositAnalyzer::~MuonEnergyDepositAnalyzer() {   
+  delete theService;  
+}
+void MuonEnergyDepositAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
+					       edm::Run const & /*iRun*/,
+					       edm::EventSetup const & /* iSetup */){
+  ibooker.cd();
+  ibooker.setCurrentFolder("Muons/MuonEnergyDepositAnalyzer");
 
   std::string histname = "ecalDepositedEnergyBarrel_";
-  ecalDepEnergyBarrel = theDbe->book1D(histname+AlgoName, "Energy deposited in the ECAL barrel cells", emNoBin, emNoMin, emNoMax);
+  ecalDepEnergyBarrel = ibooker.book1D(histname+AlgoName, "Energy deposited in the ECAL barrel cells", emNoBin, emNoMin, emNoMax);
   ecalDepEnergyBarrel->setAxisTitle("GeV");
   
   histname = "ecalDepositedEnergyEndcap_";
-  ecalDepEnergyEndcap = theDbe->book1D(histname+AlgoName, "Energy deposited in the ECAL endcap cells", emNoBin, emNoMin, emNoMax);
+  ecalDepEnergyEndcap = ibooker.book1D(histname+AlgoName, "Energy deposited in the ECAL endcap cells", emNoBin, emNoMin, emNoMax);
   ecalDepEnergyEndcap->setAxisTitle("GeV");
 
   histname = "ecalS9DepositedEnergyBarrel_";
-  ecalS9DepEnergyBarrel = theDbe->book1D(histname+AlgoName, "Energy deposited in the ECAL barrel 3*3 towers", emS9NoBin, emS9NoMin, emS9NoMax);
+  ecalS9DepEnergyBarrel = ibooker.book1D(histname+AlgoName, "Energy deposited in the ECAL barrel 3*3 towers", emS9NoBin, emS9NoMin, emS9NoMax);
   ecalS9DepEnergyBarrel->setAxisTitle("GeV");
   histname = "ecalS9DepositedEnergyEndcap_";
-  ecalS9DepEnergyEndcap = theDbe->book1D(histname+AlgoName, "Energy deposited in the ECAL endcap 3*3 towers", emS9NoBin, emS9NoMin, emS9NoMax);
+  ecalS9DepEnergyEndcap = ibooker.book1D(histname+AlgoName, "Energy deposited in the ECAL endcap 3*3 towers", emS9NoBin, emS9NoMin, emS9NoMax);
   ecalS9DepEnergyEndcap->setAxisTitle("GeV");
   histname = "ecalS9PointingMuDepositedEnergy_Glb_";
-  ecalS9PointingMuDepEnergy_Glb = theDbe->book1D(histname+AlgoName, "Pointing glb muons energy deposited in the ECAL 3*3 towers", emS9NoBin, emS9NoMin, emS9NoMax);
+  ecalS9PointingMuDepEnergy_Glb = ibooker.book1D(histname+AlgoName, "Pointing glb muons energy deposited in the ECAL 3*3 towers", emS9NoBin, emS9NoMin, emS9NoMax);
   ecalS9PointingMuDepEnergy_Glb->setAxisTitle("GeV"); 
   histname = "ecalS9PointingMuDepositedEnergy_Tk_";
-  ecalS9PointingMuDepEnergy_Tk = theDbe->book1D(histname+AlgoName, "Pointing tk muons energy deposited in the ECAL 3*3 towers", emS9NoBin, emS9NoMin, emS9NoMax);
+  ecalS9PointingMuDepEnergy_Tk = ibooker.book1D(histname+AlgoName, "Pointing tk muons energy deposited in the ECAL 3*3 towers", emS9NoBin, emS9NoMin, emS9NoMax);
   ecalS9PointingMuDepEnergy_Tk->setAxisTitle("GeV"); 
   histname = "ecalS9PointingMuDepositedEnergy_Sta_";
-  ecalS9PointingMuDepEnergy_Sta = theDbe->book1D(histname+AlgoName, "Pointing sta muons energy deposited in the ECAL 3*3 towers", emS9NoBin, emS9NoMin, emS9NoMax);
+  ecalS9PointingMuDepEnergy_Sta = ibooker.book1D(histname+AlgoName, "Pointing sta muons energy deposited in the ECAL 3*3 towers", emS9NoBin, emS9NoMin, emS9NoMax);
   ecalS9PointingMuDepEnergy_Sta->setAxisTitle("GeV"); 
   
   histname = "hadDepositedEnergyBarrel_";
-  hcalDepEnergyBarrel = theDbe->book1D(histname+AlgoName, "Energy deposited in the HCAL barrel cells", hadNoBin, hadNoMin, hadNoMax);
+  hcalDepEnergyBarrel = ibooker.book1D(histname+AlgoName, "Energy deposited in the HCAL barrel cells", hadNoBin, hadNoMin, hadNoMax);
   hcalDepEnergyBarrel->setAxisTitle("GeV");
   histname = "hadDepositedEnergyEndcap_";
-  hcalDepEnergyEndcap = theDbe->book1D(histname+AlgoName, "Energy deposited in the HCAL endcap cells", hadNoBin, hadNoMin, hadNoMax);
+  hcalDepEnergyEndcap = ibooker.book1D(histname+AlgoName, "Energy deposited in the HCAL endcap cells", hadNoBin, hadNoMin, hadNoMax);
   hcalDepEnergyEndcap->setAxisTitle("GeV");
   
   histname = "hadS9DepositedEnergyBarrel_";
-  hcalS9DepEnergyBarrel = theDbe->book1D(histname+AlgoName, "Energy deposited in the HCAL barrel 3*3 towers", hadS9NoBin, hadS9NoMin, hadS9NoMax);
+  hcalS9DepEnergyBarrel = ibooker.book1D(histname+AlgoName, "Energy deposited in the HCAL barrel 3*3 towers", hadS9NoBin, hadS9NoMin, hadS9NoMax);
   hcalS9DepEnergyBarrel->setAxisTitle("GeV");
   histname = "hadS9DepositedEnergyEndcap_";
-  hcalS9DepEnergyEndcap = theDbe->book1D(histname+AlgoName, "Energy deposited in the HCAL endcap 3*3 towers", hadS9NoBin, hadS9NoMin, hadS9NoMax);
+  hcalS9DepEnergyEndcap = ibooker.book1D(histname+AlgoName, "Energy deposited in the HCAL endcap 3*3 towers", hadS9NoBin, hadS9NoMin, hadS9NoMax);
   hcalS9DepEnergyEndcap->setAxisTitle("GeV");
   histname = "hadS9PointingMuDepositedEnergy_Glb_";
-  hcalS9PointingMuDepEnergy_Glb = theDbe->book1D(histname+AlgoName, "Pointing glb muons energy deposited in the HCAL endcap 3*3 towers", hadS9NoBin, hadS9NoMin, hadS9NoMax);
+  hcalS9PointingMuDepEnergy_Glb = ibooker.book1D(histname+AlgoName, "Pointing glb muons energy deposited in the HCAL endcap 3*3 towers", hadS9NoBin, hadS9NoMin, hadS9NoMax);
   hcalS9PointingMuDepEnergy_Glb->setAxisTitle("GeV");
   histname = "hadS9PointingMuDepositedEnergy_Tk_";
-  hcalS9PointingMuDepEnergy_Tk = theDbe->book1D(histname+AlgoName, "Pointing tk muons energy deposited in the HCAL endcap 3*3 towers", hadS9NoBin, hadS9NoMin, hadS9NoMax);
+  hcalS9PointingMuDepEnergy_Tk = ibooker.book1D(histname+AlgoName, "Pointing tk muons energy deposited in the HCAL endcap 3*3 towers", hadS9NoBin, hadS9NoMin, hadS9NoMax);
   hcalS9PointingMuDepEnergy_Tk->setAxisTitle("GeV");
   histname = "hadS9PointingMuDepositedEnergy_Sta_";
-  hcalS9PointingMuDepEnergy_Sta = theDbe->book1D(histname+AlgoName, "Pointing sta muons energy deposited in the HCAL endcap 3*3 towers", hadS9NoBin, hadS9NoMin, hadS9NoMax);
+  hcalS9PointingMuDepEnergy_Sta = ibooker.book1D(histname+AlgoName, "Pointing sta muons energy deposited in the HCAL endcap 3*3 towers", hadS9NoBin, hadS9NoMin, hadS9NoMax);
   hcalS9PointingMuDepEnergy_Sta->setAxisTitle("GeV");
 
   histname = "hoDepositedEnergy_";
-  hoDepEnergy = theDbe->book1D(histname+AlgoName, "Energy deposited in the HO cells", hoNoBin, hoNoMin, hoNoMax);
+  hoDepEnergy = ibooker.book1D(histname+AlgoName, "Energy deposited in the HO cells", hoNoBin, hoNoMin, hoNoMax);
   hoDepEnergy->setAxisTitle("GeV");
 
   histname = "hoS9DepositedEnergy_";
-  hoS9DepEnergy = theDbe->book1D(histname+AlgoName, "Energy deposited in the HO 3*3 towers", hoS9NoBin, hoS9NoMin, hoS9NoMax);
+  hoS9DepEnergy = ibooker.book1D(histname+AlgoName, "Energy deposited in the HO 3*3 towers", hoS9NoBin, hoS9NoMin, hoS9NoMax);
   hoS9DepEnergy->setAxisTitle("GeV");
   histname = "hoS9PointingMuDepositedEnergy_Glb_";
-  hoS9PointingMuDepEnergy_Glb = theDbe->book1D(histname+AlgoName, "Pointing glb muons energy deposited in the HO 3*3 towers", hoS9NoBin, hoS9NoMin, hoS9NoMax);
+  hoS9PointingMuDepEnergy_Glb = ibooker.book1D(histname+AlgoName, "Pointing glb muons energy deposited in the HO 3*3 towers", hoS9NoBin, hoS9NoMin, hoS9NoMax);
   hoS9PointingMuDepEnergy_Glb->setAxisTitle("GeV");
   histname = "hoS9PointingMuDepositedEnergy_Tk_";
-  hoS9PointingMuDepEnergy_Tk = theDbe->book1D(histname+AlgoName, "Pointing tk muons energy deposited in the HO 3*3 towers", hoS9NoBin, hoS9NoMin, hoS9NoMax);
+  hoS9PointingMuDepEnergy_Tk = ibooker.book1D(histname+AlgoName, "Pointing tk muons energy deposited in the HO 3*3 towers", hoS9NoBin, hoS9NoMin, hoS9NoMax);
   hoS9PointingMuDepEnergy_Tk->setAxisTitle("GeV");
   histname = "hoS9PointingMuDepositedEnergy_Sta_";
-  hoS9PointingMuDepEnergy_Sta = theDbe->book1D(histname+AlgoName, "Pointing sta muons energy deposited in the HO 3*3 towers", hoS9NoBin, hoS9NoMin, hoS9NoMax);
+  hoS9PointingMuDepEnergy_Sta = ibooker.book1D(histname+AlgoName, "Pointing sta muons energy deposited in the HO 3*3 towers", hoS9NoBin, hoS9NoMin, hoS9NoMax);
   hoS9PointingMuDepEnergy_Sta->setAxisTitle("GeV");
-
 }
 void MuonEnergyDepositAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
   LogTrace(metname)<<"[MuonEnergyDepositAnalyzer] Filling the histos";

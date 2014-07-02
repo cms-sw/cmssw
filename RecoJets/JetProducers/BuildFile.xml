@@ -11,7 +11,9 @@
 <use   name="CommonTools/Utils"/>
 <use   name="fastjet"/>
 <use   name="roottmva"/>
-<use   name="vdt"/>
+<use   name="vdt_headers"/>
+<use   name="boost_serialization"/>
+<use   name="CondFormats/DataRecord"/>
 <export>
   <lib   name="1"/>
 </export>

@@ -37,8 +37,8 @@ namespace evf
     void doOutputEvent(EventMsgBuilder const& msg);
     void doOutputEvent(EventMsgView const& msg);
 
-    void start(){};
-    void stop(){};
+    void start(){}
+    void stop(){}
 
     uint32 get_adler32() const { return stream_writer_events_->adler32();}
 

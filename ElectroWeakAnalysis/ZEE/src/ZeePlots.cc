@@ -26,10 +26,6 @@
 #include "ElectroWeakAnalysis/ZEE/interface/ZeePlots.h"
 
 #include "DataFormats/Math/interface/deltaR.h"
-#include "DataFormats/JetReco/interface/PFJet.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/JetReco/interface/PFJetCollection.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
 ZeePlots::ZeePlots(const edm::ParameterSet& iConfig)
 {
@@ -39,7 +35,7 @@ ZeePlots::ZeePlots(const edm::ParameterSet& iConfig)
 //  ZEE COLLECTION   //////////////////////////////////////////////////////
 //
 
-    zeeCollectionTag_ = iConfig.getUntrackedParameter<edm::InputTag>("zeeCollectionTag");
+    zeeCollectionToken_ = consumes<pat::CompositeCandidateCollection>(iConfig.getUntrackedParameter<edm::InputTag>("zeeCollectionTag"));
 
     // code parameters
     //
@@ -100,12 +96,12 @@ ZeePlots::ZeePlots(const edm::ParameterSet& iConfig)
 
         // Selection Cuts:
         //
-        
+
 	     /*  Electron 1  */
 	 	trackIso1_EB_         =  iConfig.getUntrackedParameter<Double_t>("trackIso0_EB",1000.0);       trackIso1_EE_         =  iConfig.getUntrackedParameter<Double_t>("trackIso0_EE",1000.0);
 	 	ecalIso1_EB_          =  iConfig.getUntrackedParameter<Double_t>("ecalIso0_EB",1000.0);        ecalIso1_EE_          =  iConfig.getUntrackedParameter<Double_t>("ecalIso0_EE",1000.0);
 	 	hcalIso1_EB_          =  iConfig.getUntrackedParameter<Double_t>("hcalIso0_EB",1000.0);        hcalIso1_EE_          =  iConfig.getUntrackedParameter<Double_t>("hcalIso0_EE",1000.0);
-	 
+
 	 	sihih1_EB_            =  iConfig.getUntrackedParameter<Double_t>("sihih0_EB");                 sihih1_EE_            =  iConfig.getUntrackedParameter<Double_t>("sihih0_EE");
 	 	dphi1_EB_             =  iConfig.getUntrackedParameter<Double_t>("dphi0_EB");                  dphi1_EE_             =  iConfig.getUntrackedParameter<Double_t>("dphi0_EE");
 	 	deta1_EB_             =  iConfig.getUntrackedParameter<Double_t>("deta0_EB");                  deta1_EE_             =  iConfig.getUntrackedParameter<Double_t>("deta0_EE");
@@ -113,17 +109,17 @@ ZeePlots::ZeePlots(const edm::ParameterSet& iConfig)
 	 	cIso1_EB_             =  iConfig.getUntrackedParameter<Double_t>("cIso0_EB",1000.0);           cIso1_EE_             =  iConfig.getUntrackedParameter<Double_t>("cIso0_EE",1000.0);
 	 	tip_bspot1_EB_        =  iConfig.getUntrackedParameter<Double_t>("tip_bspot0_EB",1000.0);      tip_bspot1_EE_        =  iConfig.getUntrackedParameter<Double_t>("tip_bspot0_EE",1000.0);
 	 	eop1_EB_              =  iConfig.getUntrackedParameter<Double_t>("eop0_EB",1000.0);            eop1_EE_              =  iConfig.getUntrackedParameter<Double_t>("eop0_EE",1000.0);
-	 
+
 	 	trackIsoUser1_EB_     =  iConfig.getUntrackedParameter<Double_t>("trackIsoUser0_EB",1000.0);   trackIsoUser1_EE_     =  iConfig.getUntrackedParameter<Double_t>("trackIsoUser0_EE",1000.0);
 	 	ecalIsoUser1_EB_      =  iConfig.getUntrackedParameter<Double_t>("ecalIsoUser0_EB",1000.0);    ecalIsoUser1_EE_      =  iConfig.getUntrackedParameter<Double_t>("ecalIsoUser0_EE",1000.0);
 	 	hcalIsoUser1_EB_      =  iConfig.getUntrackedParameter<Double_t>("hcalIsoUser0_EB",1000.0);    hcalIsoUser1_EE_      =  iConfig.getUntrackedParameter<Double_t>("hcalIsoUser0_EE",1000.0);
-	 
+
 	     //  ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-	     
+
 	 	trackIso1_EB_inv      =  iConfig.getUntrackedParameter<Bool_t>("trackIso0_EB_inv",false);      trackIso1_EE_inv      =  iConfig.getUntrackedParameter<Bool_t>("trackIso0_EE_inv",false);
 	 	ecalIso1_EB_inv       =  iConfig.getUntrackedParameter<Bool_t>("ecalIso0_EB_inv",false);       ecalIso1_EE_inv       =  iConfig.getUntrackedParameter<Bool_t>("ecalIso0_EE_inv",false);
 	 	hcalIso1_EB_inv       =  iConfig.getUntrackedParameter<Bool_t>("hcalIso0_EB_inv",false);       hcalIso1_EE_inv       =  iConfig.getUntrackedParameter<Bool_t>("hcalIso0_EE_inv",false);
-	 
+
 	 	sihih1_EB_inv         =  iConfig.getUntrackedParameter<Bool_t>("sihih0_EB_inv",false);         sihih1_EE_inv         =  iConfig.getUntrackedParameter<Bool_t>("sihih0_EE_inv",false);
 	 	dphi1_EB_inv          =  iConfig.getUntrackedParameter<Bool_t>("dphi0_EB_inv",false);          dphi1_EE_inv          =  iConfig.getUntrackedParameter<Bool_t>("dphi0_EE_inv",false);
 	 	deta1_EB_inv          =  iConfig.getUntrackedParameter<Bool_t>("deta0_EB_inv",false);          deta1_EE_inv          =  iConfig.getUntrackedParameter<Bool_t>("deta0_EE_inv",false);
@@ -131,16 +127,16 @@ ZeePlots::ZeePlots(const edm::ParameterSet& iConfig)
 	 	cIso1_EB_inv          =  iConfig.getUntrackedParameter<Bool_t>("cIso0_EB_inv",false);          cIso1_EE_inv          =  iConfig.getUntrackedParameter<Bool_t>("cIso0_EE_inv",false);
 	 	tip_bspot1_EB_inv     =  iConfig.getUntrackedParameter<Bool_t>("tip_bspot0_EB_inv",false);     tip_bspot1_EE_inv     =  iConfig.getUntrackedParameter<Bool_t>("tip_bspot0_EE_inv",false);
 	 	eop1_EB_inv           =  iConfig.getUntrackedParameter<Bool_t>("eop0_EB_inv",false);           eop1_EE_inv           =  iConfig.getUntrackedParameter<Bool_t>("eop0_EE_inv",false);
-	 
+
 	 	trackIsoUser1_EB_inv  =  iConfig.getUntrackedParameter<Bool_t>("trackIsoUser0_EB_inv",false);  trackIsoUser1_EE_inv  =  iConfig.getUntrackedParameter<Bool_t>("trackIsoUser0_EE_inv",false);
 	 	ecalIsoUser1_EB_inv   =  iConfig.getUntrackedParameter<Bool_t>("ecalIsoUser0_EB_inv",false);   ecalIsoUser1_EE_inv   =  iConfig.getUntrackedParameter<Bool_t>("ecalIsoUser0_EE_inv",false);
 	 	hcalIsoUser1_EB_inv   =  iConfig.getUntrackedParameter<Bool_t>("hcalIsoUser0_EB_inv",false);   hcalIsoUser1_EE_inv   =  iConfig.getUntrackedParameter<Bool_t>("hcalIsoUser0_EE_inv",false);
-	 
+
 	     /*  Electron 2  */
 	 	trackIso2_EB_         =  iConfig.getUntrackedParameter<Double_t>("trackIso0_EB",1000.0);       trackIso2_EE_         =  iConfig.getUntrackedParameter<Double_t>("trackIso0_EE",1000.0);
 	 	ecalIso2_EB_          =  iConfig.getUntrackedParameter<Double_t>("ecalIso0_EB",1000.0);        ecalIso2_EE_          =  iConfig.getUntrackedParameter<Double_t>("ecalIso0_EE",1000.0);
 	 	hcalIso2_EB_          =  iConfig.getUntrackedParameter<Double_t>("hcalIso0_EB",1000.0);        hcalIso2_EE_          =  iConfig.getUntrackedParameter<Double_t>("hcalIso0_EE",1000.0);
-	 
+
 	 	sihih2_EB_            =  iConfig.getUntrackedParameter<Double_t>("sihih0_EB");                 sihih2_EE_            =  iConfig.getUntrackedParameter<Double_t>("sihih0_EE");
 	 	dphi2_EB_             =  iConfig.getUntrackedParameter<Double_t>("dphi0_EB");                  dphi2_EE_             =  iConfig.getUntrackedParameter<Double_t>("dphi0_EE");
 	 	deta2_EB_             =  iConfig.getUntrackedParameter<Double_t>("deta0_EB");                  deta2_EE_             =  iConfig.getUntrackedParameter<Double_t>("deta0_EE");
@@ -148,17 +144,17 @@ ZeePlots::ZeePlots(const edm::ParameterSet& iConfig)
 	 	cIso2_EB_             =  iConfig.getUntrackedParameter<Double_t>("cIso0_EB",1000.0);           cIso2_EE_             =  iConfig.getUntrackedParameter<Double_t>("cIso0_EE",1000.0);
 	 	tip_bspot2_EB_        =  iConfig.getUntrackedParameter<Double_t>("tip_bspot0_EB",1000.0);      tip_bspot2_EE_        =  iConfig.getUntrackedParameter<Double_t>("tip_bspot0_EE",1000.0);
 	 	eop2_EB_              =  iConfig.getUntrackedParameter<Double_t>("eop0_EB",1000.0);            eop2_EE_              =  iConfig.getUntrackedParameter<Double_t>("eop0_EE",1000.0);
-	 
+
 	 	trackIsoUser2_EB_     =  iConfig.getUntrackedParameter<Double_t>("trackIsoUser0_EB",1000.0);   trackIsoUser2_EE_     =  iConfig.getUntrackedParameter<Double_t>("trackIsoUser0_EE",1000.0);
 	 	ecalIsoUser2_EB_      =  iConfig.getUntrackedParameter<Double_t>("ecalIsoUser0_EB",1000.0);    ecalIsoUser2_EE_      =  iConfig.getUntrackedParameter<Double_t>("ecalIsoUser0_EE",1000.0);
 	 	hcalIsoUser2_EB_      =  iConfig.getUntrackedParameter<Double_t>("hcalIsoUser0_EB",1000.0);    hcalIsoUser2_EE_      =  iConfig.getUntrackedParameter<Double_t>("hcalIsoUser0_EE",1000.0);
-	 
+
 	     //  ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-	     
+
 	 	trackIso2_EB_inv      =  iConfig.getUntrackedParameter<Bool_t>("trackIso0_EB_inv",false);      trackIso2_EE_inv      =  iConfig.getUntrackedParameter<Bool_t>("trackIso0_EE_inv",false);
 	 	ecalIso2_EB_inv       =  iConfig.getUntrackedParameter<Bool_t>("ecalIso0_EB_inv",false);       ecalIso2_EE_inv       =  iConfig.getUntrackedParameter<Bool_t>("ecalIso0_EE_inv",false);
 	 	hcalIso2_EB_inv       =  iConfig.getUntrackedParameter<Bool_t>("hcalIso0_EB_inv",false);       hcalIso2_EE_inv       =  iConfig.getUntrackedParameter<Bool_t>("hcalIso0_EE_inv",false);
-	 
+
 	 	sihih2_EB_inv         =  iConfig.getUntrackedParameter<Bool_t>("sihih0_EB_inv",false);         sihih2_EE_inv         =  iConfig.getUntrackedParameter<Bool_t>("sihih0_EE_inv",false);
 	 	dphi2_EB_inv          =  iConfig.getUntrackedParameter<Bool_t>("dphi0_EB_inv",false);          dphi2_EE_inv          =  iConfig.getUntrackedParameter<Bool_t>("dphi0_EE_inv",false);
 	 	deta2_EB_inv          =  iConfig.getUntrackedParameter<Bool_t>("deta0_EB_inv",false);          deta2_EE_inv          =  iConfig.getUntrackedParameter<Bool_t>("deta0_EE_inv",false);
@@ -166,7 +162,7 @@ ZeePlots::ZeePlots(const edm::ParameterSet& iConfig)
 	 	cIso2_EB_inv          =  iConfig.getUntrackedParameter<Bool_t>("cIso0_EB_inv",false);          cIso2_EE_inv          =  iConfig.getUntrackedParameter<Bool_t>("cIso0_EE_inv",false);
 	 	tip_bspot2_EB_inv     =  iConfig.getUntrackedParameter<Bool_t>("tip_bspot0_EB_inv",false);     tip_bspot2_EE_inv     =  iConfig.getUntrackedParameter<Bool_t>("tip_bspot0_EE_inv",false);
 	 	eop2_EB_inv           =  iConfig.getUntrackedParameter<Bool_t>("eop0_EB_inv",false);           eop2_EE_inv           =  iConfig.getUntrackedParameter<Bool_t>("eop0_EE_inv",false);
-	 
+
 	 	trackIsoUser2_EB_inv  =  iConfig.getUntrackedParameter<Bool_t>("trackIsoUser0_EB_inv",false);  trackIsoUser2_EE_inv  =  iConfig.getUntrackedParameter<Bool_t>("trackIsoUser0_EE_inv",false);
 	 	ecalIsoUser2_EB_inv   =  iConfig.getUntrackedParameter<Bool_t>("ecalIsoUser0_EB_inv",false);   ecalIsoUser2_EE_inv   =  iConfig.getUntrackedParameter<Bool_t>("ecalIsoUser0_EE_inv",false);
 	 	hcalIsoUser2_EB_inv   =  iConfig.getUntrackedParameter<Bool_t>("hcalIsoUser0_EB_inv",false);   hcalIsoUser2_EE_inv   =  iConfig.getUntrackedParameter<Bool_t>("hcalIsoUser0_EE_inv",false);
@@ -217,12 +213,12 @@ ZeePlots::ZeePlots(const edm::ParameterSet& iConfig)
 
         // Selection Cuts:
         //
-        
+
 	     /*  Electron 1  */
 	 	trackIso1_EB_         =  iConfig.getUntrackedParameter<Double_t>("trackIso1_EB",1000.0);       trackIso1_EE_         =  iConfig.getUntrackedParameter<Double_t>("trackIso1_EE",1000.0);
 	 	ecalIso1_EB_          =  iConfig.getUntrackedParameter<Double_t>("ecalIso1_EB",1000.0);        ecalIso1_EE_          =  iConfig.getUntrackedParameter<Double_t>("ecalIso1_EE",1000.0);
 	 	hcalIso1_EB_          =  iConfig.getUntrackedParameter<Double_t>("hcalIso1_EB",1000.0);        hcalIso1_EE_          =  iConfig.getUntrackedParameter<Double_t>("hcalIso1_EE",1000.0);
-	 
+
 	 	sihih1_EB_            =  iConfig.getUntrackedParameter<Double_t>("sihih1_EB");                 sihih1_EE_            =  iConfig.getUntrackedParameter<Double_t>("sihih1_EE");
 	 	dphi1_EB_             =  iConfig.getUntrackedParameter<Double_t>("dphi1_EB");                  dphi1_EE_             =  iConfig.getUntrackedParameter<Double_t>("dphi1_EE");
 	 	deta1_EB_             =  iConfig.getUntrackedParameter<Double_t>("deta1_EB");                  deta1_EE_             =  iConfig.getUntrackedParameter<Double_t>("deta1_EE");
@@ -230,15 +226,15 @@ ZeePlots::ZeePlots(const edm::ParameterSet& iConfig)
 	 	cIso1_EB_             =  iConfig.getUntrackedParameter<Double_t>("cIso1_EB",1000.0);           cIso1_EE_             =  iConfig.getUntrackedParameter<Double_t>("cIso1_EE",1000.0);
 	 	tip_bspot1_EB_        =  iConfig.getUntrackedParameter<Double_t>("tip_bspot1_EB",1000.0);      tip_bspot1_EE_        =  iConfig.getUntrackedParameter<Double_t>("tip_bspot1_EE",1000.0);
 	 	eop1_EB_              =  iConfig.getUntrackedParameter<Double_t>("eop1_EB",1000.0);            eop1_EE_              =  iConfig.getUntrackedParameter<Double_t>("eop1_EE",1000.0);
-	 
+
 	 	trackIsoUser1_EB_     =  iConfig.getUntrackedParameter<Double_t>("trackIsoUser1_EB",1000.0);   trackIsoUser1_EE_     =  iConfig.getUntrackedParameter<Double_t>("trackIsoUser1_EE",1000.0);
 	 	ecalIsoUser1_EB_      =  iConfig.getUntrackedParameter<Double_t>("ecalIsoUser1_EB",1000.0);    ecalIsoUser1_EE_      =  iConfig.getUntrackedParameter<Double_t>("ecalIsoUser1_EE",1000.0);
-	 	hcalIsoUser1_EB_      =  iConfig.getUntrackedParameter<Double_t>("hcalIsoUser1_EB",1000.0);    hcalIsoUser1_EE_      =  iConfig.getUntrackedParameter<Double_t>("hcalIsoUser1_EE",1000.0);	 
-        //  ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------	     
+	 	hcalIsoUser1_EB_      =  iConfig.getUntrackedParameter<Double_t>("hcalIsoUser1_EB",1000.0);    hcalIsoUser1_EE_      =  iConfig.getUntrackedParameter<Double_t>("hcalIsoUser1_EE",1000.0);
+        //  ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	 	trackIso1_EB_inv      =  iConfig.getUntrackedParameter<Bool_t>("trackIso1_EB_inv",false);      trackIso1_EE_inv      =  iConfig.getUntrackedParameter<Bool_t>("trackIso1_EE_inv",false);
 	 	ecalIso1_EB_inv       =  iConfig.getUntrackedParameter<Bool_t>("ecalIso1_EB_inv",false);       ecalIso1_EE_inv       =  iConfig.getUntrackedParameter<Bool_t>("ecalIso1_EE_inv",false);
 	 	hcalIso1_EB_inv       =  iConfig.getUntrackedParameter<Bool_t>("hcalIso1_EB_inv",false);       hcalIso1_EE_inv       =  iConfig.getUntrackedParameter<Bool_t>("hcalIso1_EE_inv",false);
-	 
+
 	 	sihih1_EB_inv         =  iConfig.getUntrackedParameter<Bool_t>("sihih1_EB_inv",false);         sihih1_EE_inv         =  iConfig.getUntrackedParameter<Bool_t>("sihih1_EE_inv",false);
 	 	dphi1_EB_inv          =  iConfig.getUntrackedParameter<Bool_t>("dphi1_EB_inv",false);          dphi1_EE_inv          =  iConfig.getUntrackedParameter<Bool_t>("dphi1_EE_inv",false);
 	 	deta1_EB_inv          =  iConfig.getUntrackedParameter<Bool_t>("deta1_EB_inv",false);          deta1_EE_inv          =  iConfig.getUntrackedParameter<Bool_t>("deta1_EE_inv",false);
@@ -246,16 +242,16 @@ ZeePlots::ZeePlots(const edm::ParameterSet& iConfig)
 	 	cIso1_EB_inv          =  iConfig.getUntrackedParameter<Bool_t>("cIso1_EB_inv",false);          cIso1_EE_inv          =  iConfig.getUntrackedParameter<Bool_t>("cIso1_EE_inv",false);
 	 	tip_bspot1_EB_inv     =  iConfig.getUntrackedParameter<Bool_t>("tip_bspot1_EB_inv",false);     tip_bspot1_EE_inv     =  iConfig.getUntrackedParameter<Bool_t>("tip_bspot1_EE_inv",false);
 	 	eop1_EB_inv           =  iConfig.getUntrackedParameter<Bool_t>("eop1_EB_inv",false);           eop1_EE_inv           =  iConfig.getUntrackedParameter<Bool_t>("eop1_EE_inv",false);
-	 
+
 	 	trackIsoUser1_EB_inv  =  iConfig.getUntrackedParameter<Bool_t>("trackIsoUser1_EB_inv",false);  trackIsoUser1_EE_inv  =  iConfig.getUntrackedParameter<Bool_t>("trackIsoUser1_EE_inv",false);
 	 	ecalIsoUser1_EB_inv   =  iConfig.getUntrackedParameter<Bool_t>("ecalIsoUser1_EB_inv",false);   ecalIsoUser1_EE_inv   =  iConfig.getUntrackedParameter<Bool_t>("ecalIsoUser1_EE_inv",false);
 	 	hcalIsoUser1_EB_inv   =  iConfig.getUntrackedParameter<Bool_t>("hcalIsoUser1_EB_inv",false);   hcalIsoUser1_EE_inv   =  iConfig.getUntrackedParameter<Bool_t>("hcalIsoUser1_EE_inv",false);
-	 
+
 	     /*  Electron 2  */
 	 	trackIso2_EB_         =  iConfig.getUntrackedParameter<Double_t>("trackIso2_EB",1000.0);       trackIso2_EE_         =  iConfig.getUntrackedParameter<Double_t>("trackIso2_EE",1000.0);
 	 	ecalIso2_EB_          =  iConfig.getUntrackedParameter<Double_t>("ecalIso2_EB",1000.0);        ecalIso2_EE_          =  iConfig.getUntrackedParameter<Double_t>("ecalIso2_EE",1000.0);
 	 	hcalIso2_EB_          =  iConfig.getUntrackedParameter<Double_t>("hcalIso2_EB",1000.0);        hcalIso2_EE_          =  iConfig.getUntrackedParameter<Double_t>("hcalIso2_EE",1000.0);
-	 
+
 	 	sihih2_EB_            =  iConfig.getUntrackedParameter<Double_t>("sihih2_EB");                 sihih2_EE_            =  iConfig.getUntrackedParameter<Double_t>("sihih2_EE");
 	 	dphi2_EB_             =  iConfig.getUntrackedParameter<Double_t>("dphi2_EB");                  dphi2_EE_             =  iConfig.getUntrackedParameter<Double_t>("dphi2_EE");
 	 	deta2_EB_             =  iConfig.getUntrackedParameter<Double_t>("deta2_EB");                  deta2_EE_             =  iConfig.getUntrackedParameter<Double_t>("deta2_EE");
@@ -263,15 +259,15 @@ ZeePlots::ZeePlots(const edm::ParameterSet& iConfig)
 	 	cIso2_EB_             =  iConfig.getUntrackedParameter<Double_t>("cIso2_EB",1000.0);           cIso2_EE_             =  iConfig.getUntrackedParameter<Double_t>("cIso2_EE",1000.0);
 	 	tip_bspot2_EB_        =  iConfig.getUntrackedParameter<Double_t>("tip_bspot2_EB",1000.0);      tip_bspot2_EE_        =  iConfig.getUntrackedParameter<Double_t>("tip_bspot2_EE",1000.0);
 	 	eop2_EB_              =  iConfig.getUntrackedParameter<Double_t>("eop2_EB",1000.0);            eop2_EE_              =  iConfig.getUntrackedParameter<Double_t>("eop2_EE",1000.0);
-	 
+
 	 	trackIsoUser2_EB_     =  iConfig.getUntrackedParameter<Double_t>("trackIsoUser2_EB",1000.0);   trackIsoUser2_EE_     =  iConfig.getUntrackedParameter<Double_t>("trackIsoUser2_EE",1000.0);
 	 	ecalIsoUser2_EB_      =  iConfig.getUntrackedParameter<Double_t>("ecalIsoUser2_EB",1000.0);    ecalIsoUser2_EE_      =  iConfig.getUntrackedParameter<Double_t>("ecalIsoUser2_EE",1000.0);
-	 	hcalIsoUser2_EB_      =  iConfig.getUntrackedParameter<Double_t>("hcalIsoUser2_EB",1000.0);    hcalIsoUser2_EE_      =  iConfig.getUntrackedParameter<Double_t>("hcalIsoUser2_EE",1000.0);	 
-        //  ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------	     
+	 	hcalIsoUser2_EB_      =  iConfig.getUntrackedParameter<Double_t>("hcalIsoUser2_EB",1000.0);    hcalIsoUser2_EE_      =  iConfig.getUntrackedParameter<Double_t>("hcalIsoUser2_EE",1000.0);
+        //  ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 	 	trackIso2_EB_inv      =  iConfig.getUntrackedParameter<Bool_t>("trackIso2_EB_inv",false);      trackIso2_EE_inv      =  iConfig.getUntrackedParameter<Bool_t>("trackIso2_EE_inv",false);
 	 	ecalIso2_EB_inv       =  iConfig.getUntrackedParameter<Bool_t>("ecalIso2_EB_inv",false);       ecalIso2_EE_inv       =  iConfig.getUntrackedParameter<Bool_t>("ecalIso2_EE_inv",false);
 	 	hcalIso2_EB_inv       =  iConfig.getUntrackedParameter<Bool_t>("hcalIso2_EB_inv",false);       hcalIso2_EE_inv       =  iConfig.getUntrackedParameter<Bool_t>("hcalIso2_EE_inv",false);
-	 
+
 	 	sihih2_EB_inv         =  iConfig.getUntrackedParameter<Bool_t>("sihih2_EB_inv",false);         sihih2_EE_inv         =  iConfig.getUntrackedParameter<Bool_t>("sihih2_EE_inv",false);
 	 	dphi2_EB_inv          =  iConfig.getUntrackedParameter<Bool_t>("dphi2_EB_inv",false);          dphi2_EE_inv          =  iConfig.getUntrackedParameter<Bool_t>("dphi2_EE_inv",false);
 	 	deta2_EB_inv          =  iConfig.getUntrackedParameter<Bool_t>("deta2_EB_inv",false);          deta2_EE_inv          =  iConfig.getUntrackedParameter<Bool_t>("deta2_EE_inv",false);
@@ -279,7 +275,7 @@ ZeePlots::ZeePlots(const edm::ParameterSet& iConfig)
 	 	cIso2_EB_inv          =  iConfig.getUntrackedParameter<Bool_t>("cIso2_EB_inv",false);          cIso2_EE_inv          =  iConfig.getUntrackedParameter<Bool_t>("cIso2_EE_inv",false);
 	 	tip_bspot2_EB_inv     =  iConfig.getUntrackedParameter<Bool_t>("tip_bspot2_EB_inv",false);     tip_bspot2_EE_inv     =  iConfig.getUntrackedParameter<Bool_t>("tip_bspot2_EE_inv",false);
 	 	eop2_EB_inv           =  iConfig.getUntrackedParameter<Bool_t>("eop2_EB_inv",false);           eop2_EE_inv           =  iConfig.getUntrackedParameter<Bool_t>("eop2_EE_inv",false);
-	 
+
 	 	trackIsoUser2_EB_inv  =  iConfig.getUntrackedParameter<Bool_t>("trackIsoUser2_EB_inv",false);  trackIsoUser2_EE_inv  =  iConfig.getUntrackedParameter<Bool_t>("trackIsoUser2_EE_inv",false);
 	 	ecalIsoUser2_EB_inv   =  iConfig.getUntrackedParameter<Bool_t>("ecalIsoUser2_EB_inv",false);   ecalIsoUser2_EE_inv   =  iConfig.getUntrackedParameter<Bool_t>("ecalIsoUser2_EE_inv",false);
 	 	hcalIsoUser2_EB_inv   =  iConfig.getUntrackedParameter<Bool_t>("hcalIsoUser2_EB_inv",false);   hcalIsoUser2_EE_inv   =  iConfig.getUntrackedParameter<Bool_t>("hcalIsoUser2_EE_inv",false);
@@ -317,8 +313,8 @@ ZeePlots::ZeePlots(const edm::ParameterSet& iConfig)
 
     if ( includeJetInformationInNtuples_ ) {
 
-        caloJetCollectionTag_ = iConfig.getUntrackedParameter<edm::InputTag>("caloJetCollectionTag");
-        pfJetCollectionTag_   = iConfig.getUntrackedParameter<edm::InputTag>("pfJetCollectionTag");
+        caloJetCollectionToken_ = mayConsume< reco::CaloJetCollection >(iConfig.getUntrackedParameter<edm::InputTag>("caloJetCollectionTag"));
+        pfJetCollectionToken_   = mayConsume< reco::PFJetCollection >(iConfig.getUntrackedParameter<edm::InputTag>("pfJetCollectionTag"));
         DRJetFromElectron_    = iConfig.getUntrackedParameter<Double_t>("DRJetFromElectron");
 
     }
@@ -347,7 +343,7 @@ void ZeePlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
     //  Get the collections here
     //
     edm::Handle<pat::CompositeCandidateCollection> ZeeCands;
-    iEvent.getByLabel(zeeCollectionTag_, ZeeCands);
+    iEvent.getByToken(zeeCollectionToken_, ZeeCands);
 
     if ( ! ZeeCands.isValid() ) {
         std::cout << "Warning: No valid Zee candidates in this event..." << std::endl;
@@ -498,10 +494,10 @@ void ZeePlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
 
         // get hold of the jet collections
         edm::Handle< reco::CaloJetCollection > pCaloJets;
-        iEvent.getByLabel(caloJetCollectionTag_, pCaloJets);
+        iEvent.getByToken(caloJetCollectionToken_, pCaloJets);
 
         edm::Handle< reco::PFJetCollection > pPfJets;
-        iEvent.getByLabel(pfJetCollectionTag_, pPfJets);
+        iEvent.getByToken(pfJetCollectionToken_, pPfJets);
 
         // calo jets now:
         if ( pCaloJets.isValid() ) {
@@ -554,9 +550,6 @@ void ZeePlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
                 delete [] nCaloEta;
                 delete [] nCaloPhi;
             }
-        }
-        else {
-            std::cout << "ZeePlots: Could not get caloJet collection with name "<< caloJetCollectionTag_ << std::endl;
         }
 
         // pf jets now:
@@ -613,9 +606,6 @@ void ZeePlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
                 delete [] nPfPhi;
 
             }
-        }
-        else {
-            std::cout << "ZeePlots: Could not get pfJet collection with name " << pfJetCollectionTag_ << std::endl;
         }
 
     }

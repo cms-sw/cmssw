@@ -7,7 +7,7 @@ reset
 set macro
 
 #Set the input file here
-myfile =  '"<sort -gs -k 2 True_RelValZMM5312_BP7X_noDRR_summary.txt"'
+myfile =  '"<sort -gs -k 2 RelValZMM5312_BP7X_noDRR_summary.txt "'
 
 
 #Set this to 1 to print plots to png files
@@ -152,3 +152,27 @@ set label 99 "Segment Position Pull Width" rotate right at screen 0.02,0.97
 plot \
 @myfile using (($3)==1&&int($4)==1?$15:1/0) title '{/Symbol f} SLs' w p pt  5 ps 1.4 lc 4, \
 @myfile using (($3)==1&&int($4)==2?$15:1/0) title '{/Symbol q} SLs' w p pt 13 ps 1.5 lc 13
+
+### Number of segment ratio
+if (print) {set output "TrueNSegRatio.png"}
+set yrange [0:0.15]
+set label 99 "(ev with more than 2 seg)/(ev with more than 1 seg) " rotate right at screen 0.02,0.97
+plot \
+@myfile using (($3)==1&&int($4)==1?$18:1/0) title '4D segment' w p pt  5 ps 1.4 lc 4
+
+
+### p0
+if (print) {set output "TrueP0.png"}
+set yrange [0:0.8]
+set label 99 "p0" rotate right at screen 0.02,0.97
+plot \
+@myfile using (($3)==1&&int($4)==1?$19:1/0) title '{/Symbol f} SLs' w p pt  5 ps 1.4 lc 4, \
+@myfile using (($3)==1&&int($4)==2?$19:1/0) title '{/Symbol q} SLs' w p pt 13 ps 1.5 lc 13
+
+### p1
+if (print) {set output "TrueP1.png"}
+set yrange [-1:1]
+set label 99 "p0" rotate right at screen 0.02,0.97
+plot \
+@myfile using (($3)==1&&int($4)==1?$20:1/0) title '{/Symbol f} SLs' w p pt  5 ps 1.4 lc 4, \
+@myfile using (($3)==1&&int($4)==2?$20:1/0) title '{/Symbol q} SLs' w p pt 13 ps 1.5 lc 13

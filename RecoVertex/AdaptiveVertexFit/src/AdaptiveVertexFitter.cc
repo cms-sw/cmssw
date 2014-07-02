@@ -27,38 +27,33 @@ namespace {
   // typedef ReferenceCountingPointer<VertexTrack<5> > RefCountedVertexTrack;
   typedef AdaptiveVertexFitter::RefCountedVertexTrack RefCountedVertexTrack;
 
-  GlobalError fitError()
-  {
-    static GlobalError err;
-    static bool once=true;
-    if (once)
-    {
+
+  AlgebraicSymMatrix33 initFitError() {
       // that's how we model the lin pt error for the initial seed!
-      static const float initialError = 10000;
+      const float initialError = 10000;
       AlgebraicSymMatrix33 ret;
       ret(0,0)=initialError;
       ret(1,1)=initialError;
       ret(2,2)=initialError;
-      err=GlobalError ( ret );
-      once=false;
-    }
+      return ret;
+  }
+  GlobalError fitError()
+  {
+    static const GlobalError err( initFitError() );
     return err;
   }
 
-  GlobalError linPointError()
-  {
-    static GlobalError err;
-    static bool once=true;
-    if (once)
-    {
+  AlgebraicSymMatrix33 initLinePointError() {
       // that's how we model the error of the linearization point.
       // for track weighting!
       AlgebraicSymMatrix33 ret;
       ret(0,0)=.3; ret(1,1)=.3; ret(2,2)=3.;
       // ret(0,0)=1e-7; ret(1,1)=1e-7; ret(2,2)=1e-7;
-      err=GlobalError ( ret );
-      once=false;
-    }
+      return ret;
+  }
+  GlobalError linPointError()
+  {
+    static const GlobalError err( initLinePointError() );
     return err;
   }
 
@@ -80,6 +75,7 @@ namespace {
   };
 
   #ifdef STORE_WEIGHTS
+  //NOTE: This is not thread safe
   map < RefCountedLinearizedTrackState, int > ids;
   int iter=0;
 

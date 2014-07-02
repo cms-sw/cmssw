@@ -7,7 +7,7 @@
 #include <cmath>
 #include <functional>
 
-#include "JetMETCorrections/MCJet/plugins/CaloMCTruthTreeProducer.h" 
+#include "JetMETCorrections/MCJet/plugins/CaloMCTruthTreeProducer.h"
 #include "JetMETCorrections/MCJet/plugins/JetUtilMC.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -15,25 +15,23 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
-#include "DataFormats/JetReco/interface/GenJetCollection.h"
 using namespace edm;
 using namespace reco;
 using namespace std;
 //namespace cms
 //{
 
-CaloMCTruthTreeProducer::CaloMCTruthTreeProducer(edm::ParameterSet const& cfg) 
+CaloMCTruthTreeProducer::CaloMCTruthTreeProducer(edm::ParameterSet const& cfg)
 {
-  jets_          = cfg.getParameter<std::string> ("jets");
-  genjets_       = cfg.getParameter<std::string> ("genjets");
+  jets_          = consumes<CaloJetCollection>(edm::InputTag(cfg.getParameter<std::string> ("jets")));
+  genjets_       = consumes<GenJetCollection>(edm::InputTag(cfg.getParameter<std::string> ("genjets")));
+  gen_       = consumes<GenEventInfoProduct>(edm::InputTag("generator"));
   histogramFile_ = cfg.getParameter<std::string> ("histogramFile");
 }
 //////////////////////////////////////////////////////////////////////////////////////////
-void CaloMCTruthTreeProducer::beginJob() 
+void CaloMCTruthTreeProducer::beginJob()
 {
   file_          = new TFile(histogramFile_.c_str(),"RECREATE");
   mcTruthTree_   = new TTree("mcTruthTree","mcTruthTree");
@@ -50,33 +48,33 @@ void CaloMCTruthTreeProducer::beginJob()
   mcTruthTree_->Branch("rank",       &rank_,       "rank_/I");
 }
 //////////////////////////////////////////////////////////////////////////////////////////
-void CaloMCTruthTreeProducer::endJob() 
+void CaloMCTruthTreeProducer::endJob()
 {
-  if (file_ !=0) 
+  if (file_ !=0)
     {
       file_->cd();
-      mcTruthTree_->Write();      
+      mcTruthTree_->Write();
     }
   file_ = 0;
 }
 //////////////////////////////////////////////////////////////////////////////////////////
-void CaloMCTruthTreeProducer::analyze(edm::Event const& event, edm::EventSetup const& iSetup) 
-{ 
+void CaloMCTruthTreeProducer::analyze(edm::Event const& event, edm::EventSetup const& iSetup)
+{
   edm::Handle<GenJetCollection> genjets;
   edm::Handle<CaloJetCollection> jets;
   edm::Handle<GenEventInfoProduct> hEventInfo;
   CaloJetCollection::const_iterator i_jet,i_matched;
   GenJetCollection::const_iterator i_genjet;
-  event.getByLabel (genjets_,genjets);
-  event.getByLabel (jets_,jets);
-  event.getByLabel("generator",hEventInfo);
+  event.getByToken (genjets_,genjets);
+  event.getByToken (jets_,jets);
+  event.getByToken(gen_,hEventInfo);
   ptHat_ = hEventInfo->binningValues()[0];
-  float rr;  
+  float rr;
   int njet(0);
   if (jets->size()>0 && genjets->size()>0)
     {
       for (i_genjet = genjets->begin(); i_genjet != genjets->end(); i_genjet++)
-       {    
+       {
          float rmin(99);
          for(i_jet = jets->begin();i_jet != jets->end(); i_jet++)
            {
@@ -95,14 +93,14 @@ void CaloMCTruthTreeProducer::analyze(edm::Event const& event, edm::EventSetup c
          phiJet_  = i_matched->phi();
          emfJet_  = i_matched->emEnergyFraction();
          dR_      = rmin;
-         rank_    = njet; 	
+         rank_    = njet;
          mcTruthTree_->Fill();
          njet++;
-       }  
-    }      
+       }
+    }
 }
 //////////////////////////////////////////////////////////////////////////////////////////
-CaloMCTruthTreeProducer::~CaloMCTruthTreeProducer() 
+CaloMCTruthTreeProducer::~CaloMCTruthTreeProducer()
 {
   delete file_;
   delete mcTruthTree_;

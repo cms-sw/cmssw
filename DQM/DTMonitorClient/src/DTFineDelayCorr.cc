@@ -110,8 +110,8 @@ void DTFineDelayCorr::runClientDiagnostic() {
   }
 
   //  ** Loop over the chambers ** 
-  vector<DTChamber*>::const_iterator chambIt  = muonGeom->chambers().begin();
-  vector<DTChamber*>::const_iterator chambEnd = muonGeom->chambers().end();
+  vector<const DTChamber*>::const_iterator chambIt  = muonGeom->chambers().begin();
+  vector<const DTChamber*>::const_iterator chambEnd = muonGeom->chambers().end();
   for (; chambIt!=chambEnd; ++chambIt) { 
     DTChamberId chId = (*chambIt)->id();
     uint32_t indexCh = chId.rawId();

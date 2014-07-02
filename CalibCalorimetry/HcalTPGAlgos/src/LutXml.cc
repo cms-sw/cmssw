@@ -534,7 +534,7 @@ int LutXml::create_lut_map( void ){
       unsigned int _base = 16;
       unsigned int _item=0;
       for (int i=0; i!=_string_length; i++){
-	bool _range;
+	bool _range = false;
 	char ch_cur = _str[i];
 	if (_base==16) _range = (ch_cur>='0' and ch_cur<='9') || (ch_cur>='a' and ch_cur<='f') || (ch_cur>='A' and ch_cur<='F');
 	else if (_base==10) _range = (ch_cur>='0' and ch_cur<='9');
@@ -548,7 +548,7 @@ int LutXml::create_lut_map( void ){
 	  if ( (i+1)==_string_length ) last_digit=true;
 	  else{
 	    char ch_next = _str[i+1];
-	    bool _range_next;
+	    bool _range_next = false;
 	    if (_base==16) _range_next = (ch_next>='0' and ch_next<='9') || (ch_next>='a' and ch_next<='f') || (ch_next>='A' and ch_next<='F');
 	    else if (_base==10) _range_next = (ch_next>='0' and ch_next<='9');
 	    if ( !_range_next ) last_digit=true;
@@ -559,8 +559,6 @@ int LutXml::create_lut_map( void ){
 	  }
 	}
       }
-      ////
-      //std::cout << _lut[127] << std::endl;
       // filling the map
       uint32_t _key = 0;
       if (lut_type==1){
@@ -571,7 +569,6 @@ int LutXml::create_lut_map( void ){
 	HcalTrigTowerDetId _id(ieta,iphi);
 	_key = _id.rawId();
       }
-      //lut_map->insert(std::pair<uint32_t,std::vector<unsigned int> >(_key,_lut));
       lut_map.insert(std::pair<uint32_t,std::vector<unsigned int> >(_key,_lut));
     }
   }

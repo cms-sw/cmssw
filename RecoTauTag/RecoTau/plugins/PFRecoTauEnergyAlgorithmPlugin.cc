@@ -40,7 +40,6 @@ class PFRecoTauEnergyAlgorithmPlugin : public RecoTauModifierPlugin
   explicit PFRecoTauEnergyAlgorithmPlugin(const edm::ParameterSet&, edm::ConsumesCollector &&iC);
   virtual ~PFRecoTauEnergyAlgorithmPlugin();
   void operator()(PFTau&) const;
-  virtual void beginJob(edm::EDProducer*);
   virtual void beginEvent();
   virtual void endEvent();
 
@@ -66,9 +65,6 @@ class PFRecoTauEnergyAlgorithmPlugin : public RecoTauModifierPlugin
 }
 
 PFRecoTauEnergyAlgorithmPlugin::~PFRecoTauEnergyAlgorithmPlugin()
-{}
-
-void PFRecoTauEnergyAlgorithmPlugin::beginJob(edm::EDProducer* producer)
 {}
 
 void PFRecoTauEnergyAlgorithmPlugin::beginEvent()

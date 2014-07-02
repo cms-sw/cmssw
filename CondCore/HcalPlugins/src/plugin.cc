@@ -10,6 +10,9 @@
 #include "CondFormats/HcalObjects/interface/AllObjects.h"
 #include "CondFormats/DataRecord/interface/HcalAllRcds.h"
 
+#include "CondFormats/DataRecord/interface/HcalOOTPileupCorrectionRcd.h"
+#include "CondFormats/HcalObjects/interface/OOTPileupCorrectionColl.h"
+
 //
 #include "CondCore/CondDB/interface/Serialization.h"
 
@@ -48,3 +51,4 @@ REGISTER_PLUGIN(HcalLongRecoParamsRcd,HcalLongRecoParams);
 REGISTER_PLUGIN(HcalMCParamsRcd,HcalMCParams);
 REGISTER_PLUGIN(HcalFlagHFDigiTimeParamsRcd,HcalFlagHFDigiTimeParams);
 REGISTER_PLUGIN(HcalTimingParamsRcd,HcalTimingParams);
+REGISTER_PLUGIN(HcalOOTPileupCorrectionRcd,OOTPileupCorrectionColl);

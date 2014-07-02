@@ -14,7 +14,7 @@
 #include "G4Track.hh"
 
 #include <iostream>
-
+//#define DebugLog
 const int MaterialBudgetForward::maxSet;
 
 MaterialBudgetForward::MaterialBudgetForward(const edm::ParameterSet& p) {
@@ -110,13 +110,16 @@ void MaterialBudgetForward::update(const BeginOfTrack* trk) {
   phi = mom.phi();
   stepT = 0;
 
+#ifdef DebugLog
   double theEnergy = aTrack->GetTotalEnergy();
   int    theID     = (int)(aTrack->GetDefinition()->GetPDGEncoding());
-  LogDebug("MaterialBudget") << "MaterialBudgetHcalHistos: Track "
-                             << aTrack->GetTrackID() << " Code " << theID
-                             << " Energy " <<theEnergy/CLHEP::GeV<<" GeV; Eta "
-                             << eta << " Phi " << phi/CLHEP::deg << " PT "
-                             << mom.perp()/CLHEP::GeV << " GeV *****";
+  edm::LogInfo("MaterialBudget") << "MaterialBudgetHcalHistos: Track "
+				 << aTrack->GetTrackID() << " Code " << theID
+				 << " Energy " <<theEnergy/CLHEP::GeV
+				 << " GeV; Eta " << eta << " Phi " 
+				 << phi/CLHEP::deg << " PT "
+				 << mom.perp()/CLHEP::GeV << " GeV *****";
+#endif
 }
  
 void MaterialBudgetForward::update(const G4Step* aStep) {
@@ -148,11 +151,13 @@ void MaterialBudgetForward::update(const G4Step* aStep) {
   stepLen[indx]  = stepT;
   radLen[indx]  += (step/radl);
   intLen[indx]  += (step/intl);
-  LogDebug("MaterialBudget") << "MaterialBudgetForward::Step in "
-			     << touch->GetVolume(0)->GetLogicalVolume()->GetName()
-			     << " Index " << indx <<" Step " << step <<" RadL "
-			     << step/radl << " IntL " << step/intl;
-
+#ifdef DebugLog
+  edm::LogInfo("MaterialBudget") << "MaterialBudgetForward::Step in "
+				 << touch->GetVolume(0)->GetLogicalVolume()->GetName()
+				 << " Index " << indx <<" Step " << step 
+				 << " RadL " << step/radl << " IntL " 
+				 << step/intl;
+#endif
   //----- Stop tracking after selected position
   if (stopAfter(aStep)) {
     G4Track* track = aStep->GetTrack();
@@ -170,13 +175,17 @@ void MaterialBudgetForward::update(const EndOfTrack* trk) {
 	  if (stackOrder[kk] == (int)(ii)) {
 	    radLen[jj]  += radLen[kk];
 	    intLen[jj]  += intLen[kk];
-	    LogDebug("MaterialBudget") << "MaterialBudgetForward::Add " << kk
-				       << ":" << stackOrder[kk] << " to "
-				       << jj <<":" << stackOrder[jj] <<" RadL "
-				       << radLen[kk] << " : " << radLen[jj]
-				       << " IntL " << intLen[kk] << " : "
-				       << intLen[jj] <<" StepL " << stepLen[kk]
-				       << " : " << stepLen[jj];
+#ifdef DebugLog
+	    edm::LogInfo("MaterialBudget") << "MaterialBudgetForward::Add " 
+					   << kk << ":" << stackOrder[kk] 
+					   << " to " << jj <<":" 
+					   << stackOrder[jj] <<" RadL "
+					   << radLen[kk] << " : " << radLen[jj]
+					   << " IntL " << intLen[kk] << " : "
+					   << intLen[jj] <<" StepL " 
+					   << stepLen[kk]<< " : " 
+					   << stepLen[jj];
+#endif
 	    break;
 	  }
 	}
@@ -197,10 +206,12 @@ void MaterialBudgetForward::update(const EndOfTrack* trk) {
     
     std::string name("Unknown");
     if (ii < detTypes.size()) name = detTypes[ii];
-    LogDebug("MaterialBudget") << "MaterialBudgetForward::Volume[" << ii
-			       << "]: " << name << " == Step " << stepLen[ii] 
-			       << " RadL " << radLen[ii] << " IntL " 
-			       << intLen[ii];
+#ifdef DebugLog
+    edm::LogInfo("MaterialBudget") << "MaterialBudgetForward::Volume[" << ii
+				   << "]: " << name << " eta " << eta 
+				   << " == Step " << stepLen[ii] << " RadL " 
+				   << radLen[ii] << " IntL " << intLen[ii];
+#endif
   }
 }
 
@@ -275,19 +286,29 @@ bool MaterialBudgetForward::stopAfter(const G4Step* aStep) {
 
   bool   flag(false);
   for (unsigned int ii=0; ii<etaRegions.size(); ++ii) {
-    //  LogDebug("MaterialBudget") << " MaterialBudgetForward::Eta " << eta << " in Region[" << ii << "] with " << etaRegions[ii] << " type "   << regionTypes[ii] << "|" << boundaries[ii];
+#ifdef DebugLog
+    edm::LogInfo("MaterialBudget") << " MaterialBudgetForward::Eta " << eta 
+				   << " in Region[" << ii << "] with " 
+				   << etaRegions[ii] << " type "   
+				   << regionTypes[ii] << "|" << boundaries[ii];
+#endif
     if (fabs(eta) < etaRegions[ii]) {
       if (regionTypes[ii] == 0) {
 	if (rr >= boundaries[ii]-0.001) flag = true;
       } else {
 	if (zz >= boundaries[ii]-0.001) flag = true;
       }
+#ifdef DebugLog
       if (flag)
-	LogDebug("MaterialBudget") <<" MaterialBudgetForward::Stop after R = " 
-				   << rr << " and Z = " << zz;
+	edm::LogInfo("MaterialBudget") <<" MaterialBudgetForward::Stop after R = " 
+				       << rr << " and Z = " << zz;
+#endif
       break;
     }
   }
-  //  LogDebug("MaterialBudget") <<" MaterialBudgetForward:: R = " << rr << " and Z = "  << zz << " Flag " << flag;
+#ifdef DebugLog
+  edm::LogInfo("MaterialBudget") <<" MaterialBudgetForward:: R = " << rr 
+				 << " and Z = "  << zz << " Flag " << flag;
+#endif
   return flag;
 }

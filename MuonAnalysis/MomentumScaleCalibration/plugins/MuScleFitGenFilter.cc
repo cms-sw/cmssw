@@ -40,6 +40,8 @@ class MuScleFitGenFilter : public edm::EDFilter {
   virtual void endJob() override {};
 
   std::string genParticlesName_;
+  edm::EDGetTokenT<edm::HepMCProduct> evtMCToken_;
+  edm::EDGetTokenT<reco::GenParticleCollection> genParticlesToken_;
   unsigned int totalEvents_;
   unsigned int eventsPassingTheFilter_;
 };
@@ -48,6 +50,8 @@ class MuScleFitGenFilter : public edm::EDFilter {
 // -----------
 MuScleFitGenFilter::MuScleFitGenFilter(const edm::ParameterSet& iConfig) :
   genParticlesName_( iConfig.getUntrackedParameter<std::string>("GenParticlesName", "genParticles") ),
+  evtMCToken_(consumes<edm::HepMCProduct>(edm::InputTag(genParticlesName_))),
+  genParticlesToken_(mayConsume<reco::GenParticleCollection>(edm::InputTag(genParticlesName_))),
   totalEvents_(0),
   eventsPassingTheFilter_(0)
 {
@@ -62,7 +66,7 @@ MuScleFitGenFilter::~MuScleFitGenFilter()
   std::cout << "Events passing the filter = " << eventsPassingTheFilter_ << std::endl;
 }
 
-// Method called for each event 
+// Method called for each event
 // ----------------------------
 bool MuScleFitGenFilter::filter(edm::Event& event, const edm::EventSetup& iSetup)
 {
@@ -72,16 +76,16 @@ bool MuScleFitGenFilter::filter(edm::Event& event, const edm::EventSetup& iSetup
 
   std::pair<lorentzVector,lorentzVector> genPair;
 
-  event.getByLabel( genParticlesName_, evtMC );
+  event.getByToken( evtMCToken_, evtMC );
   if( evtMC.isValid() ) {
 
     genPair = MuScleFitUtils::findGenMuFromRes(evtMC.product());
   }
   else {
     edm::Handle<reco::GenParticleCollection> genParticles;
-    event.getByLabel( genParticlesName_, genParticles );
+    event.getByToken( genParticlesToken_, genParticles );
     if( genParticles.isValid() ) {
-      
+
       genPair = MuScleFitUtils::findGenMuFromRes(genParticles.product());
     }
     else {

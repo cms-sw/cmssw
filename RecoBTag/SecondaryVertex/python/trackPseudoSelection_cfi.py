@@ -7,7 +7,7 @@ trackPseudoSelectionBlock = cms.PSet(
                 variableJTAPars,
                 totalHitsMin = cms.uint32(0),
                 jetDeltaRMax = cms.double(0.3),
-                qualityClass = cms.string('highPurity'),
+                qualityClass = cms.string('any'),
 		pixelHitsMin = cms.uint32(0),
 		maxDistToAxis = cms.double(0.07),
 		maxDecayLen = cms.double(5),

@@ -1,5 +1,6 @@
 #include "QGSPCMS_FTFP_BERT_EML.hh"
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics95msc93.h"
+#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics.h"
 #include "SimG4Core/PhysicsLists/interface/CMSMonopolePhysics.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -12,7 +13,7 @@
 #include "G4HadronicProcessStore.hh"
 
 #include "G4DataQuestionaire.hh"
-#include "HadronPhysicsQGSP_FTFP_BERT.hh"
+#include "G4HadronPhysicsQGSP_FTFP_BERT.hh"
 
 QGSPCMS_FTFP_BERT_EML::QGSPCMS_FTFP_BERT_EML(G4LogicalVolumeToDDLogicalPartMap& map, 
 			   const HepPDT::ParticleDataTable * table_,
@@ -25,17 +26,22 @@ QGSPCMS_FTFP_BERT_EML::QGSPCMS_FTFP_BERT_EML(G4LogicalVolumeToDDLogicalPartMap& 
   bool emPhys  = p.getUntrackedParameter<bool>("EMPhysics",true);
   bool hadPhys = p.getUntrackedParameter<bool>("HadPhysics",true);
   bool tracking= p.getParameter<bool>("TrackingCut");
+  bool munucl  = p.getParameter<bool>("FlagMuNucl");
+  double timeLimit = p.getParameter<double>("MaxTrackTime")*ns;
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
 			      << "QGSP_FTFP_BERT_EML with Flags for EM Physics "
 			      << emPhys << ", for Hadronic Physics "
-			      << hadPhys << " and tracking cut " << tracking;
+			      << hadPhys << " and tracking cut " << tracking
+			      << "   t(ns)= " << timeLimit/ns;
 
   if (emPhys) {
     // EM Physics
-    RegisterPhysics(new CMSEmStandardPhysics95msc93("EM standard msc93",ver,""));
+    RegisterPhysics(new CMSEmStandardPhysics(ver));
 
     // Synchroton Radiation & GN Physics
-    RegisterPhysics(new G4EmExtraPhysics(ver));
+    G4EmExtraPhysics* gn = new G4EmExtraPhysics(ver);
+    if(munucl) { G4String yes = "on"; gn->MuonNuclear(yes); }
+    RegisterPhysics(gn);
   }
 
   // Decays
@@ -48,7 +54,7 @@ QGSPCMS_FTFP_BERT_EML::QGSPCMS_FTFP_BERT_EML(G4LogicalVolumeToDDLogicalPartMap& 
     RegisterPhysics(new G4HadronElasticPhysics(ver));
 
     // Hadron Physics
-    RegisterPhysics(new HadronPhysicsQGSP_FTFP_BERT(ver));
+    RegisterPhysics(new G4HadronPhysicsQGSP_FTFP_BERT(ver));
 
     // Stopping Physics
     RegisterPhysics(new G4StoppingPhysics(ver));
@@ -58,7 +64,9 @@ QGSPCMS_FTFP_BERT_EML::QGSPCMS_FTFP_BERT_EML(G4LogicalVolumeToDDLogicalPartMap& 
 
     // Neutron tracking cut
     if (tracking) {
-      RegisterPhysics(new G4NeutronTrackingCut(ver));
+      G4NeutronTrackingCut* ncut= new G4NeutronTrackingCut(ver);
+      ncut->SetTimeLimit(timeLimit);
+      RegisterPhysics(ncut);
     }
   }
 

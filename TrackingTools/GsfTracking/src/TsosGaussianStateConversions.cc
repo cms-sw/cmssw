@@ -45,12 +45,12 @@ namespace GaussianStateConversions {
     components.reserve(singleStates.size());
     for ( MultiGaussianState<5>::SingleStateContainer::const_iterator ic=singleStates.begin();
 	  ic!=singleStates.end(); ic++ ) {
-      components.push_back(TrajectoryStateOnSurface(LocalTrajectoryParameters((**ic).mean(),
+      components.push_back(TrajectoryStateOnSurface((**ic).weight(), LocalTrajectoryParameters((**ic).mean(),
 									      pzSign,charged),
 						    LocalTrajectoryError((**ic).covariance()),
-						    surface,field,side,(**ic).weight()));
+						    surface,field,side));
     }
-    return TrajectoryStateOnSurface(new BasicMultiTrajectoryState(components));
+    return TrajectoryStateOnSurface((BasicTrajectoryState*)new BasicMultiTrajectoryState(components));
   }
 }
 

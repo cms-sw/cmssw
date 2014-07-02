@@ -35,12 +35,10 @@ class IdealZDCTrapezoid: public CaloCellGeometry
       IdealZDCTrapezoid& operator=( const IdealZDCTrapezoid& idzt ) ;
 
       IdealZDCTrapezoid( const GlobalPoint& faceCenter,
-			 const CornersMgr*  mgr       ,
+			       CornersMgr*  mgr       ,
 			 const CCGFloat*    parm        ) ;
 	 
       virtual ~IdealZDCTrapezoid() ;
-
-      virtual const CornersVec& getCorners() const ;
 
       CCGFloat an() const ;
       CCGFloat dx() const ;
@@ -58,6 +56,9 @@ class IdealZDCTrapezoid: public CaloCellGeometry
 				Pt3D&           ref  ) ;
     
    private:
+      void initCorners(CaloCellGeometry::CornersVec& );
+
+
 };
 
 std::ostream& operator<<( std::ostream& s , const IdealZDCTrapezoid& cell ) ;

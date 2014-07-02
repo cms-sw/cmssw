@@ -302,9 +302,11 @@ make -f .makefile -j$JOBS -k
 
 # compare HLT results
 log "Comparing the results of running each path by itself with those from the full menu"
-if hltCompareResults; then
-  log "done"
-fi
+hltCompareResults
+STATUS=$?
+log "exit status: $STATUS"
+log "done"
 
 # done
 cd ..
+exit $STATUS

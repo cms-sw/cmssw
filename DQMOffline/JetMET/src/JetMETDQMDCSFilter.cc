@@ -11,13 +11,18 @@
 
 #include <iostream>
  
+  //using namespace edm;
+  //using namespace std;
+  //using namespace reco;
+
 //
 // -- Constructor
 //
 JetMETDQMDCSFilter::JetMETDQMDCSFilter( const edm::ParameterSet & pset, edm::ConsumesCollector& iC) {
    verbose_       = pset.getUntrackedParameter<bool>( "DebugOn", false );
    detectorTypes_ = pset.getUntrackedParameter<std::string>( "DetectorTypes", "ecal:hcal");
-   filter_        = pset.getUntrackedParameter<bool>( "Filter", true );
+   filter_        = !pset.getUntrackedParameter<bool>( "alwaysPass", false );
+ 
    detectorOn_    = false;
    if (verbose_) std::cout << "JetMETDQMDCSFilter constructor: " << detectorTypes_ << std::endl;
 
@@ -25,9 +30,23 @@ JetMETDQMDCSFilter::JetMETDQMDCSFilter( const edm::ParameterSet & pset, edm::Con
    passECAL = false, passES = false;
    passHBHE = false, passHF = false, passHO = false;
    passMuon = false;
-
    scalarsToken = iC.consumes<DcsStatusCollection > (std::string("scalersRawToDigi"));
 }
+JetMETDQMDCSFilter::JetMETDQMDCSFilter( const std::string & detectorTypes, edm::ConsumesCollector& iC, const bool verbose, const bool alwaysPass) {
+   verbose_       = verbose;
+   detectorTypes_ = detectorTypes;
+   filter_        = !alwaysPass;
+   scalarsToken = iC.consumes<DcsStatusCollection > (std::string("scalersRawToDigi"));
+
+   detectorOn_    = false;
+   if (verbose_) std::cout << "JetMETDQMDCSFilter constructor: " << detectorTypes_ << std::endl;
+
+   passPIX = false, passSiStrip = false;
+   passECAL = false, passES = false;
+   passHBHE = false, passHF = false, passHO = false;
+   passMuon = false;
+}
+
 //
 // -- Destructor
 //
@@ -119,9 +138,7 @@ bool JetMETDQMDCSFilter::filter(const edm::Event & evt, const edm::EventSetup & 
     }    
 
   }
-
   return detectorOn_;
-
 }
 
 //#include "FWCore/Framework/interface/MakerMacros.h"

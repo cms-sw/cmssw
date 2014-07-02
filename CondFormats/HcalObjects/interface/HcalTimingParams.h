@@ -2,6 +2,8 @@
 #define HcalTimingParams_h
 
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/HcalObjects/interface/HcalTimingParam.h"
 #include "CondFormats/HcalObjects/interface/HcalCondObjectContainer.h"
 
@@ -18,5 +20,7 @@ class HcalTimingParams: public HcalCondObjectContainer<HcalTimingParam>
 
  private:
 
+
+ COND_SERIALIZABLE;
 };
 #endif

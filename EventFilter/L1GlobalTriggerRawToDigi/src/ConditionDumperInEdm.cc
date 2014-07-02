@@ -26,6 +26,7 @@ ConditionDumperInEdm::ConditionDumperInEdm(const edm::ParameterSet& iConfig)
   //per EVENT products
   produces<edm::ConditionsInEventBlock>();
 
+  gtEvmDigisLabelToken_=consumes<L1GlobalTriggerEvmReadoutRecord>(gtEvmDigisLabel_);
 }
 
 
@@ -63,7 +64,7 @@ ConditionDumperInEdm::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   //get the L1 object 
   edm::Handle<L1GlobalTriggerEvmReadoutRecord> gtReadoutRecordData;
-  iEvent.getByLabel(gtEvmDigisLabel_, gtReadoutRecordData);
+  iEvent.getByToken(gtEvmDigisLabelToken_, gtReadoutRecordData);
 
   if (!gtReadoutRecordData.isValid()) {
       LogDebug("ConditionDumperInEdm")

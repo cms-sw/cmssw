@@ -54,7 +54,7 @@ const std::vector<GEMChamber*>& GEMGeometry::chambers() const {
 */
 
 
-const std::vector<GEMEtaPartition*>& GEMGeometry::etaPartitions() const{
+const std::vector<const GEMEtaPartition*>& GEMGeometry::etaPartitions() const{
   return allEtaPartitions;
 }
 
@@ -74,9 +74,9 @@ GEMGeometry::add(GEMEtaPartition* etaPartition){
   theEtaPartitions.push_back(etaPartition);
   theEtaPartitionIds.push_back(etaPartition->geographicalId());
   theDetIds.push_back(etaPartition->geographicalId());
-  GeomDetType* _t = const_cast<GeomDetType*>(&etaPartition->type());
+  GeomDetType const* _t = &etaPartition->type();
   theEtaPartitionTypes.push_back(_t);
-  theMap.insert(std::pair<DetId,GeomDetUnit*>
+  theMap.insert(std::pair<DetId,const GeomDetUnit*>
 		(etaPartition->geographicalId(),etaPartition));
 }
 

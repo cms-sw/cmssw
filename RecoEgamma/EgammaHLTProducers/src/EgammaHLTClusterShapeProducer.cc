@@ -27,6 +27,7 @@ EgammaHLTClusterShapeProducer::EgammaHLTClusterShapeProducer(const edm::Paramete
 
   //register your products
   produces < reco::RecoEcalCandidateIsolationMap >();
+  produces < reco::RecoEcalCandidateIsolationMap >("sigmaIEtaIEta5x5");
 }
 
 EgammaHLTClusterShapeProducer::~EgammaHLTClusterShapeProducer()
@@ -49,9 +50,12 @@ void EgammaHLTClusterShapeProducer::produce(edm::Event& iEvent, const edm::Event
   iEvent.getByToken(recoEcalCandidateProducer_,recoecalcandHandle);
 
   EcalClusterLazyTools lazyTools( iEvent, iSetup, ecalRechitEBToken_, ecalRechitEEToken_ );
-  
+  noZS::EcalClusterLazyTools lazyTools5x5(iEvent, iSetup, ecalRechitEBToken_, ecalRechitEEToken_ );
+
   reco::RecoEcalCandidateIsolationMap clshMap;
-   
+  reco::RecoEcalCandidateIsolationMap clsh5x5Map;
+  
+ 
   for(unsigned int iRecoEcalCand = 0; iRecoEcalCand<recoecalcandHandle->size(); iRecoEcalCand++) {
     
     reco::RecoEcalCandidateRef recoecalcandref(recoecalcandHandle, iRecoEcalCand);
@@ -67,11 +71,18 @@ void EgammaHLTClusterShapeProducer::produce(edm::Event& iEvent, const edm::Event
       double EtaSC = recoecalcandref->eta();
       if (EtaSC > 1.479) sigmaee = sigmaee - 0.02*(EtaSC - 2.3); 
     }
-
-    clshMap.insert(recoecalcandref, sigmaee);
     
+    double sigmaee5x5 = sqrt(lazyTools5x5.localCovariances(*(recoecalcandref->superCluster()->seed()) )[0]);
+    clshMap.insert(recoecalcandref, sigmaee);
+    clsh5x5Map.insert(recoecalcandref,sigmaee5x5);
+
+  
   }
 
+  
+
   std::auto_ptr<reco::RecoEcalCandidateIsolationMap> clushMap(new reco::RecoEcalCandidateIsolationMap(clshMap));
+  std::auto_ptr<reco::RecoEcalCandidateIsolationMap> clush5x5Map(new reco::RecoEcalCandidateIsolationMap(clsh5x5Map));
   iEvent.put(clushMap);
+  iEvent.put(clush5x5Map,"sigmaIEtaIEta5x5");
 }

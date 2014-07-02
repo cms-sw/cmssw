@@ -52,6 +52,8 @@ private:
   MonitorElement* PEDESTAL_REFS;
   MonitorElement* WIDTH_REFS;
 
+  MonitorElement* h2digierr;
+
   struct{
     std::map<HcalCastorDetId,std::map<int, MonitorElement*> > PEDVALS;
     std::map<HcalCastorDetId,std::map<int, MonitorElement*> > SUBVALS;

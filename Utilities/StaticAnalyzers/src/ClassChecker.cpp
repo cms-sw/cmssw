@@ -95,8 +95,6 @@ public:
       AC(ac),
       visitingCallExpr(0) {}
 
- 
-
   bool hasWork() const { return !WList.empty(); }
 
   /// This method adds a CallExpr to the worklist 
@@ -181,11 +179,12 @@ void WalkAST::VisitChildren( clang::Stmt *S) {
 
 
 void WalkAST::CheckBinaryOperator(const clang::BinaryOperator * BO,const clang::MemberExpr *IME) {
-if (BO->isAssignmentOp()) {
+  if (BO->isAssignmentOp()) {
 
 	if (clang::MemberExpr * ME = dyn_cast<clang::MemberExpr>(BO->getLHS())){
 			if (ME->isImplicitAccess()) ReportMember(ME);
-		} else
+		}
+  } else  {
 	if (clang::UnaryOperator * UO = llvm::dyn_cast<clang::UnaryOperator>(BO->getLHS()->IgnoreParenImpCasts()) ) {
 		if (UO->getOpcode() == clang::UnaryOperatorKind::UO_Deref) {
 			if (clang::MemberExpr * ME = dyn_cast<clang::MemberExpr>(UO->getSubExpr()->IgnoreParenImpCasts())){
@@ -204,7 +203,7 @@ if (BO->isAssignmentOp()) {
 				}
 			}
 		}
-	}
+  }
 }
 
 void WalkAST::CheckUnaryOperator(const clang::UnaryOperator * UO,const clang::MemberExpr *E) {
@@ -215,7 +214,7 @@ void WalkAST::CheckUnaryOperator(const clang::UnaryOperator * UO,const clang::Me
 
 
 void WalkAST::CheckCXXOperatorCallExpr(const clang::CXXOperatorCallExpr *OCE,const clang::MemberExpr *E) {
-switch ( OCE->getOperator() ) {
+  switch ( OCE->getOperator() ) {
 
 	case OO_Equal:	
 	case OO_PlusEqual:
@@ -238,8 +237,9 @@ switch ( OCE->getOperator() ) {
 		if (ME->isImplicitAccess())
 			ReportMember(ME);
 	} 
-	
-}
+
+	default: return;
+  }
 
 }
 
@@ -259,9 +259,7 @@ void WalkAST::CheckExplicitCastExpr(const clang::ExplicitCastExpr * CE,const cla
 
 void WalkAST::CheckReturnStmt(const clang::ReturnStmt * RS, const clang::MemberExpr * E){
 	if (const clang::Expr * RE = RS->getRetValue()) {
-		clang::QualType QT = RE->getType();
 		clang::ASTContext &Ctx = AC->getASTContext();
-		clang::QualType Ty = Ctx.getCanonicalType(QT);
 		const clang::CXXMethodDecl * MD;
 		if (visitingCallExpr) 
 			MD = visitingCallExpr->getMethodDecl();
@@ -270,12 +268,32 @@ void WalkAST::CheckReturnStmt(const clang::ReturnStmt * RS, const clang::MemberE
 		if ( llvm::isa<clang::CXXNewExpr>(RE) ) return; 
 		clang::QualType RQT = MD->getResultType();
 		clang::QualType RTy = Ctx.getCanonicalType(RQT);
-		clang::QualType CQT = MD->getCallResultType();
-		clang::QualType CTy = Ctx.getCanonicalType(CQT);
-		if ( (RTy->isPointerType() || RTy->isReferenceType() ) )
+		if ( (RTy->isPointerType() || RTy->isReferenceType() ) ) {
 		if( !support::isConst(RTy) ) {
 			ReportCallReturn(RS);
+			}	
+		}
+		std::string svname = "const class std::vector<";
+		std::string rtname = RTy.getAsString();
+		if (  (RTy->isReferenceType() || RTy ->isRecordType() ) && support::isConst(RTy) && rtname.substr(0,svname.length()) == svname ) {
+			const CXXRecordDecl *RD;
+			if ( RTy->isRecordType() ) RD = RTy->getAsCXXRecordDecl();
+			else RD = RTy->getPointeeCXXRecordDecl();
+			const ClassTemplateSpecializationDecl *SD = dyn_cast<ClassTemplateSpecializationDecl>(RD);
+			for (unsigned J = 0, F = SD->getTemplateArgs().size(); J!=F; ++J) {
+				if (SD->getTemplateArgs().get(J).getKind() == clang::TemplateArgument::Type) {
+					const QualType QAT = SD->getTemplateArgs().get(J).getAsType();
+					if ( QAT->isPointerType() && !support::isConst(QAT)) {
+						std::string buf;
+						llvm::raw_string_ostream os(buf);
+						os << MD->getQualifiedNameAsString() << " is a const member function that returns a const std::vector<*> or const std::vector<*>& "<<rtname<<"\n";
+						std::string tolog = "data class '"+MD->getParent()->getNameAsString()+"' const function '" + MD->getNameAsString() + "' Warning: "+os.str();
+						writeLog(tolog);
+						ReportCallReturn(RS);
+					}
+				}
 			}
+		}
 
 	}
 }
@@ -287,13 +305,13 @@ void WalkAST::VisitCXXConstCastExpr(clang::CXXConstCastExpr *CCE) {
 	clang::ento::PathDiagnosticLocation CELoc = clang::ento::PathDiagnosticLocation::createBegin(CCE, BR.getSourceManager(),AC);
 	if (!m_exception.reportClass( CELoc, BR ) ) return;
 	const clang::CXXMethodDecl * MD = llvm::cast<clang::CXXMethodDecl>(AC->getDecl());
-	std::string tolog = "data class '"+MD->getParent()->getNameAsString()+"' const function '" + MD->getNameAsString() + "'\n";
-	writeLog(tolog);
 	std::string buf;
 	llvm::raw_string_ostream os(buf);
-	os <<"const_cast used "<<tolog;
+	os <<"const_cast used\n";
+	std::string tolog = "data class '"+MD->getParent()->getNameAsString()+"' const function '" + support::getQualifiedName(*MD)+ "' Warning: "+os.str()+".";
+	writeLog(tolog);
 	BugType * BT = new BugType("ClassChecker : const_cast used in const function ","ThreadSafety");
-	BugReport * R = new BugReport(*BT,os.str(),CELoc);
+	BugReport * R = new BugReport(*BT,tolog,CELoc);
 	BR.emitReport(R);
 	return;
 }
@@ -331,7 +349,7 @@ void WalkAST::ReportDeclRef( const clang::DeclRefExpr * DRE) {
 	    	PS->printPretty(os,0,Policy);
 		os << "'.\n";
 		const clang::CXXMethodDecl * MD = llvm::cast<clang::CXXMethodDecl>(AC->getDecl());
-		std::string tolog = "data class '"+MD->getParent()->getNameAsString()+"' const function '" + MD->getNameAsString() + "'\n";
+		std::string tolog = "data class '"+MD->getParent()->getNameAsString()+"' const function '" + support::getQualifiedName(*MD) + "' Warning: "+os.str();
 		writeLog(tolog);
 	    	BugType * BT = new BugType("ClassChecker : non-const static local variable accessed","ThreadSafety");
 		BugReport * R = new BugReport(*BT,os.str(),CELoc);
@@ -347,7 +365,7 @@ void WalkAST::ReportDeclRef( const clang::DeclRefExpr * DRE) {
 	    	PS->printPretty(os,0,Policy);
 		os << "'.\n";
 		const clang::CXXMethodDecl * MD = llvm::cast<clang::CXXMethodDecl>(AC->getDecl());
-		std::string tolog = "data class '"+MD->getParent()->getNameAsString()+"' const function '" + MD->getNameAsString() + "'\n";
+		std::string tolog = "data class '"+MD->getParent()->getNameAsString()+"' const function '" + support::getQualifiedName(*MD) + "' Warning: "+os.str();
 		writeLog(tolog);
 	    	BugType * BT = new BugType("ClassChecker : non-const static member variable accessed","ThreadSafety");
 		BugReport * R = new BugReport(*BT,os.str(),CELoc);
@@ -368,7 +386,7 @@ void WalkAST::ReportDeclRef( const clang::DeclRefExpr * DRE) {
 	    	PS->printPretty(os,0,Policy);
 		os << "'.\n";
 		const clang::CXXMethodDecl * MD = llvm::cast<clang::CXXMethodDecl>(AC->getDecl());
-		std::string tolog = "data class '"+MD->getParent()->getNameAsString()+"' const function '" + MD->getNameAsString() + "'\n";
+		std::string tolog = "data class '"+MD->getParent()->getNameAsString()+"' const function '" + support::getQualifiedName(*MD) + "' Warning: "+os.str();
 		writeLog(tolog);
 	    	BugType * BT = new BugType("ClassChecker : non-const global static variable accessed","ThreadSafety");
 		BugReport * R = new BugReport(*BT,os.str(),CELoc);
@@ -402,7 +420,7 @@ void WalkAST::VisitMemberExpr( clang::MemberExpr *ME) {
 			{ WalkAST::CheckReturnStmt(RS,ME); }
 		if (const clang::CXXConstCastExpr * CCE = llvm::dyn_cast<clang::CXXConstCastExpr>(P))
 			{ WalkAST::ReportCast(CCE);}
-		if (const clang::CXXNewExpr * NE = llvm::dyn_cast<clang::CXXNewExpr>(P)) break;
+		const clang::CXXNewExpr * NE = llvm::dyn_cast<clang::CXXNewExpr>(P);if (NE) break;
 		P = AC->getParentMap().getParent(P);
 	}
 }
@@ -422,28 +440,23 @@ void WalkAST::VisitCXXMemberCallExpr( clang::CXXMemberCallExpr *CE) {
   Execute();
   Visit(CE->getImplicitObjectArgument()->IgnoreParenCasts());
 
-  if (llvm::isa<clang::MemberExpr>(CE->getImplicitObjectArgument()->IgnoreParenCasts() ) ) 
-  if ( !MD->isConst() ) ReportCall(CE);
+  const Expr * IOA = CE->getImplicitObjectArgument()->IgnoreParenCasts();
+  const MemberExpr * ME = dyn_cast<MemberExpr>(IOA);
+  if ( !MD->isConst() && ME && ME->isImplicitAccess() ) ReportCall(CE);
 
   for(int i=0, j=CE->getNumArgs(); i<j; i++) {
-	if (CE->getArg(i))
+    if (CE->getArg(i)) {
 	if ( const clang::Expr *E = llvm::dyn_cast<clang::Expr>(CE->getArg(i)))  {
-		clang::QualType qual_arg = E->getType();
-		if (const clang::MemberExpr *ME=llvm::dyn_cast<clang::MemberExpr>(E))	
-		if (ME->isImplicitAccess()) {
-			clang::ParmVarDecl *PVD=llvm::dyn_cast<clang::ParmVarDecl>(MD->getParamDecl(i));
-			clang::QualType QT = PVD->getOriginalType();
-			const clang::Type * T = QT.getTypePtr();
-			if (!support::isConst(QT))
-			if (T->isReferenceType())
-				{
-				ReportCallArg(CE,i);
-				}
-			}
-	}
+	  const clang::MemberExpr *AME=llvm::dyn_cast<clang::MemberExpr>(E);
+	    if (AME && AME->isImplicitAccess()) {
+		clang::ParmVarDecl *PVD=llvm::dyn_cast<clang::ParmVarDecl>(MD->getParamDecl(i));
+		clang::QualType QT = PVD->getOriginalType();
+		const clang::Type * T = QT.getTypePtr();
+		if (!support::isConst(QT) && T->isReferenceType() && ME && ME->isImplicitAccess()) ReportCallArg(CE,i);
+            }
+        }
+     }
   }
-
-
 }
 
 void WalkAST::ReportMember(const clang::MemberExpr *ME) {
@@ -451,8 +464,8 @@ void WalkAST::ReportMember(const clang::MemberExpr *ME) {
 	clang::Expr * IOA = visitingCallExpr->getImplicitObjectArgument();
 	if (!( IOA->isImplicitCXXThis() || llvm::dyn_cast<CXXThisExpr>(IOA->IgnoreParenCasts()))) return;
 	}
-  llvm::SmallString<100> buf;
-  llvm::raw_svector_ostream os(buf);
+  std::string buf;
+  llvm::raw_string_ostream os(buf);
   CmsException m_exception;
   clang::ento::PathDiagnosticLocation CELoc;
   clang::SourceRange R;
@@ -467,30 +480,34 @@ void WalkAST::ReportMember(const clang::MemberExpr *ME) {
   ME->printPretty(os,0,Policy);
   os << "' is directly or indirectly modified in const function\n";
   const clang::CXXMethodDecl * MD = llvm::cast<clang::CXXMethodDecl>(AC->getDecl());
-  std::string tolog = "data class '"+MD->getParent()->getNameAsString()+"' const function '" + MD->getNameAsString() + "'\n";
+  std::string tolog = "data class '"+MD->getParent()->getNameAsString()+"' const function '" + support::getQualifiedName(*MD) + "' Warning: " + os.str();
   if (!m_exception.reportClass( CELoc, BR ) ) return;
   writeLog(tolog);
-  BR.EmitBasicReport(AC->getDecl(),"Class Checker : Member data modified in const function","ThreadSafety",os.str(),CELoc,R);
+  BR.EmitBasicReport(AC->getDecl(),"Class Checker : Member data modified in const function","ThreadSafety",os.str(),CELoc);
 }
 
 void WalkAST::ReportCall(const clang::CXXMemberCallExpr *CE) {
 
-  if ( support::isSafeClassName( CE->getRecordDecl()->getQualifiedNameAsString() ) ) return; 
-  llvm::SmallString<100> buf;
-  llvm::raw_svector_ostream os(buf);
+  const clang::CXXRecordDecl * RD = CE->getRecordDecl();
+  const clang::CXXMethodDecl * MD = CE->getMethodDecl();
+  if ( !RD || support::isSafeClassName( RD->getQualifiedNameAsString() ) ) return; 
+  std::string buf;
+  llvm::raw_string_ostream os(buf);
 
   CmsException m_exception;
   clang::LangOptions LangOpts;
   LangOpts.CPlusPlus = true;
   clang::PrintingPolicy Policy(LangOpts);
  
-  os << "'";
+  os << "call expr '";
   CE->printPretty(os,0,Policy);
-  os<<"' is a non-const member function that could modify member data object '";
-  CE->getImplicitObjectArgument()->printPretty(os,0,Policy);
-  os << "'\n";
-  const clang::CXXMethodDecl * MD = llvm::cast<clang::CXXMethodDecl>(AC->getDecl());
-  std::string tolog = "data class '"+MD->getParent()->getNameAsString()+"' const function '" + MD->getNameAsString() + "'\n";
+  os << "' with implicit object argument '";
+  CE->getImplicitObjectArgument()->IgnoreParenCasts()->printPretty(os,0,Policy);  
+  os << "'";
+  os<<"' is a non-const member function '"<<MD->getQualifiedNameAsString();
+  os<<"' that could modify member data object of type '"<<RD->getQualifiedNameAsString()<<"'\n";
+  const clang::CXXMethodDecl * ACMD = llvm::cast<clang::CXXMethodDecl>(AC->getDecl()); 
+  std::string tolog = "data class '"+ACMD->getParent()->getNameAsString()+"' const function '" + support::getQualifiedName(*ACMD) + "' Warning: "+os.str();
   clang::ento::PathDiagnosticLocation CELoc =
     clang::ento::PathDiagnosticLocation::createBegin(CE, BR.getSourceManager(),AC);
   if ( support::isSafeClassName(MD->getQualifiedNameAsString()) ) return;
@@ -506,8 +523,8 @@ void WalkAST::ReportCall(const clang::CXXMemberCallExpr *CE) {
 
 
 void WalkAST::ReportCast(const clang::ExplicitCastExpr *CE) {
-  llvm::SmallString<100> buf;
-  llvm::raw_svector_ostream os(buf);
+  std::string buf;
+  llvm::raw_string_ostream os(buf);
 
   CmsException m_exception;
   clang::LangOptions LangOpts;
@@ -518,7 +535,7 @@ void WalkAST::ReportCast(const clang::ExplicitCastExpr *CE) {
   os << "Const qualifier of member data object";
   os <<" was removed via cast expression '";
   const clang::CXXMethodDecl * MD = llvm::cast<clang::CXXMethodDecl>(AC->getDecl());
-  std::string tolog = "data class '"+MD->getParent()->getNameAsString()+"' const function '" + MD->getNameAsString() + "'\n";
+  std::string tolog = "data class '"+MD->getParent()->getNameAsString()+"' const function '" + support::getQualifiedName(*MD) + "' Warning: "+os.str();
   clang::ento::PathDiagnosticLocation CELoc =
     clang::ento::PathDiagnosticLocation::createBegin(CE, BR.getSourceManager(),AC);
 
@@ -533,37 +550,35 @@ void WalkAST::ReportCast(const clang::ExplicitCastExpr *CE) {
 
 void WalkAST::ReportCallArg(const clang::CXXMemberCallExpr *CE,const int i) {
 
-  llvm::SmallString<100> buf;
-  llvm::raw_svector_ostream os(buf);
+  std::string buf;
+  llvm::raw_string_ostream os(buf);
   CmsException m_exception;
   clang::LangOptions LangOpts;
   LangOpts.CPlusPlus = true;
   clang::PrintingPolicy Policy(LangOpts);
 
-  clang::CXXMethodDecl * MD = llvm::dyn_cast<clang::CXXMemberCallExpr>(CE)->getMethodDecl();
+  clang::CXXMethodDecl * CMD = llvm::dyn_cast<clang::CXXMemberCallExpr>(CE)->getMethodDecl();
   const clang::MemberExpr *E = llvm::dyn_cast<clang::MemberExpr>(CE->getArg(i));
-  clang::ParmVarDecl *PVD=llvm::dyn_cast<clang::ParmVarDecl>(MD->getParamDecl(i));
   clang::ValueDecl * VD = llvm::dyn_cast<clang::ValueDecl>(E->getMemberDecl());
   os << "Member data '" << VD->getQualifiedNameAsString();
-  os<< "' is passed to a non-const reference parameter";
-  os <<" of CXX method '" << MD->getQualifiedNameAsString() << "' in const function";
+  os << "' is passed to a non-const reference parameter";
+  os <<" of CXX method '" << CMD->getQualifiedNameAsString() << "' in const function";
   os << "\n";
-  const clang::CXXMethodDecl * ACMD = llvm::cast<clang::CXXMethodDecl>(AC->getDecl());
-  std::string tolog = "data class '"+MD->getParent()->getNameAsString()+"' const function '" + MD->getNameAsString() + "'\n";
+  const clang::CXXMethodDecl * MD = llvm::cast<clang::CXXMethodDecl>(AC->getDecl());
+  std::string tolog = "data class '"+MD->getParent()->getNameAsString()+"' const function '" + support::getQualifiedName(*MD) + "' Warning: "+os.str();
 
   clang::ento::PathDiagnosticLocation ELoc =
    clang::ento::PathDiagnosticLocation::createBegin(CE, BR.getSourceManager(),AC);
-  clang::SourceLocation L = E->getExprLoc();
 
   if (!m_exception.reportClass( ELoc, BR ) ) return;
   writeLog(tolog);
-  BR.EmitBasicReport(CE->getCalleeDecl(),"Class Checker :  Member data passed to non-const reference","ThreadSafety",os.str(),ELoc,L);
+  BR.EmitBasicReport(CE->getCalleeDecl(),"Class Checker :  Member data passed to non-const reference","ThreadSafety",os.str(),ELoc);
 
 }
 
 void WalkAST::ReportCallReturn(const clang::ReturnStmt * RS) {
-  llvm::SmallString<100> buf;
-  llvm::raw_svector_ostream os(buf);
+  std::string buf;
+  llvm::raw_string_ostream os(buf);
 
   CmsException m_exception;
   clang::LangOptions LangOpts;
@@ -571,20 +586,34 @@ void WalkAST::ReportCallReturn(const clang::ReturnStmt * RS) {
   clang::PrintingPolicy Policy(LangOpts);
 
   os << "Returns a pointer or reference to a non-const member data object ";
+  os << " or a const std::vector<*> or const std::vector<*>& ";
   os << "in const function in statement '";
   RS->printPretty(os,0,Policy);
   os << "\n";
   const clang::CXXMethodDecl * MD = llvm::cast<clang::CXXMethodDecl>(AC->getDecl());
-  std::string tolog = "data class '"+MD->getParent()->getNameAsString()+"' const function '" + MD->getNameAsString() + "'\n";
   clang::ento::PathDiagnosticLocation CELoc =
     clang::ento::PathDiagnosticLocation::createBegin(RS, BR.getSourceManager(),AC);
-  
-
   if (!m_exception.reportClass( CELoc, BR ) ) return;
+  std::string tolog = "data class '"+MD->getParent()->getNameAsString()+"' const function '" + support::getQualifiedName(*MD) + "' Warning: "+os.str();
   writeLog(tolog);
-  BugType * BT = new BugType("Class Checker : Const function returns pointer or reference to non-const member data object","ThreadSafety");
-  BugReport * R = new BugReport(*BT,os.str(),CELoc);
-  BR.emitReport(R);
+  clang::ASTContext &Ctx = AC->getASTContext();
+  clang::QualType RQT = MD->getResultType();
+  clang::QualType RTy = Ctx.getCanonicalType(RQT);
+  if ( (RTy->isPointerType() || RTy->isReferenceType() ) ) {
+	if( !support::isConst(RTy) ) {
+		BugType * BT = new BugType("Class Checker : Const function returns pointer or reference to non-const member data object","ThreadSafety");
+		BugReport * R = new BugReport(*BT,os.str(),CELoc);
+		BR.emitReport(R);
+	}
+  }
+  std::string svname = "const class std::vector<";
+  std::string rtname = RTy.getAsString();
+  if (  (RTy->isReferenceType() || RTy ->isRecordType() ) && support::isConst(RTy) && rtname.substr(0,svname.length()) == svname ) {
+	BugType * BT = new BugType("Class Checker : Const function returns member data object of type const std::vector<*> or const std::vector<*>&","ThreadSafety");
+	BugReport * R = new BugReport(*BT,os.str(),CELoc);
+	BR.emitReport(R);
+  }
+
 	 
 }
 
@@ -593,18 +622,19 @@ void ClassChecker::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ento::Ana
                     clang::ento::BugReporter &BR) const {
 
 	const clang::SourceManager &SM = BR.getSourceManager();
+	const char *sfile=SM.getPresumedLoc(RD->getLocation()).getFilename();
+	if (!support::isCmsLocalFile(sfile)) return;
 	
-  	llvm::SmallString<100> buf;
-  	llvm::raw_svector_ostream os(buf);
+  	std::string buf;
+  	llvm::raw_string_ostream os(buf);
 	std::string name = RD->getQualifiedNameAsString();
-//	if ( ! support::isDataClass(name) ) return;
+	if ( ! support::isDataClass(name) ) return;
 	clang::ento::PathDiagnosticLocation DLoc =clang::ento::PathDiagnosticLocation::createBegin( RD, SM );
 	if (  !m_exception.reportClass( DLoc, BR ) ) return;
 
 // Check the class methods (member methods).
 	for (clang::CXXRecordDecl::method_iterator
-		I = RD->method_begin(), E = RD->method_end(); I != E; ++I)  
-		{
+		I = RD->method_begin(), E = RD->method_end(); I != E; ++I)  {
 		clang::ento::PathDiagnosticLocation DLoc =clang::ento::PathDiagnosticLocation::createBegin( (*I) , SM );
 		if (  !m_exception.reportClass( DLoc, BR ) ) continue;
 		if ( !llvm::isa<clang::CXXMethodDecl>((*I)) ) continue;
@@ -615,23 +645,39 @@ void ClassChecker::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ento::Ana
 					clang::Stmt *Body = MD->getBody();
 					clangcms::WalkAST walker(BR, mgr.getAnalysisDeclContext(MD));
 	       				walker.Visit(Body);
-					clang::QualType CQT = MD->getCallResultType();
 					clang::QualType RQT = MD->getResultType();
 					clang::ASTContext &Ctx = BR.getContext();
 					clang::QualType RTy = Ctx.getCanonicalType(RQT);
-					clang::QualType CTy = Ctx.getCanonicalType(CQT);
 					clang::ento::PathDiagnosticLocation ELoc =clang::ento::PathDiagnosticLocation::createBegin( MD , SM );
-					if ((RTy->isPointerType() || RTy->isReferenceType() ))
-					if (!support::isConst(RTy) ) 
-					if ( MD->getNameAsString().find("clone")==std::string::npos )  
-					{
-						llvm::SmallString<100> buf;
-						llvm::raw_svector_ostream os(buf);
+					if ( (RTy->isPointerType() || RTy->isReferenceType() ) &&(!support::isConst(RTy) ) && ( MD->getNameAsString().find("clone")==std::string::npos ) )
+						{
+						std::string buf;
+						llvm::raw_string_ostream os(buf);
 						os << MD->getQualifiedNameAsString() << " is a const member function that returns a pointer or reference to a non-const object \n";
-						std::string tolog = "data class '"+MD->getParent()->getNameAsString()+"' const function '" + MD->getNameAsString() + "'\n";
+						std::string tolog = "data class '"+MD->getParent()->getNameAsString()+"' const function '" + MD->getNameAsString() + "' Warning: "+os.str();
 						writeLog(tolog);
-						clang::SourceRange SR = MD->getSourceRange();
 						BR.EmitBasicReport(MD, "Class Checker : Const function returns pointer or reference to non-const object.","ThreadSafety",os.str(),ELoc);
+						}
+					std::string svname = "const class std::vector<";
+					std::string rtname = RTy.getAsString();
+					if (  (RTy->isReferenceType() || RTy ->isRecordType() ) && support::isConst(RTy) && rtname.substr(0,svname.length()) == svname ) {
+						const CXXRecordDecl *RD;
+						if ( RTy->isRecordType() ) RD = RTy->getAsCXXRecordDecl();
+						else RD = RTy->getPointeeCXXRecordDecl();
+						const ClassTemplateSpecializationDecl *SD = dyn_cast<ClassTemplateSpecializationDecl>(RD);
+						for (unsigned J = 0, F = SD->getTemplateArgs().size(); J!=F; ++J) {
+							if (SD->getTemplateArgs().get(J).getKind() == clang::TemplateArgument::Type) {
+								const QualType QAT = SD->getTemplateArgs().get(J).getAsType();
+								if ( QAT->isPointerType() && !support::isConst(QAT) ) {
+									std::string buf;
+									llvm::raw_string_ostream os(buf);
+									os << MD->getQualifiedNameAsString() << " is a const member function that returns an object of type const std::vector<*> or const std::vector<*>& "<<rtname<<"\n";
+									std::string tolog = "data class '"+MD->getParent()->getNameAsString()+"' const function '" + MD->getNameAsString() + "' Warning: "+os.str();
+									writeLog(tolog);
+									BR.EmitBasicReport(MD, "Class Checker : Const function returns const std::vector<*> or const std::vector<*>&","ThreadSafety",os.str(),ELoc);
+								}
+							}
+						}
 					}
 				}
    	}	/* end of methods loop */

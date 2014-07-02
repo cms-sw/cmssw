@@ -1,6 +1,9 @@
 #ifndef PhysicsTools_PatUtils_interface_MuonVPlusJetsIDSelectionFunctor_h
 #define PhysicsTools_PatUtils_interface_MuonVPlusJetsIDSelectionFunctor_h
 
+#ifndef __GCCXML__
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#endif
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -15,15 +18,24 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
  public: // interface
 
   bool verbose_;
-  
+
   enum Version_t { SUMMER08, FIRSTDATA, SPRING10, FALL10, N_VERSIONS, KITQCD };
 
   MuonVPlusJetsIDSelectionFunctor() {}
 
+#ifndef __GCCXML__
+  MuonVPlusJetsIDSelectionFunctor( edm::ParameterSet const & parameters, edm::ConsumesCollector& iC ) :
+    MuonVPlusJetsIDSelectionFunctor(parameters)
+  {
+    beamLineSrcToken_ = iC.consumes<reco::BeamSpot>(beamLineSrc_);
+    pvSrcToken_ = iC.consumes<std::vector<reco::Vertex> >(pvSrc_);
+  }
+#endif
+
   MuonVPlusJetsIDSelectionFunctor( edm::ParameterSet const & parameters ) {
 
     verbose_ = false;
-    
+
     std::string versionStr = parameters.getParameter<std::string>("version");
 
     Version_t version = N_VERSIONS;
@@ -49,7 +61,7 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
       throw cms::Exception("InvalidInput") << "Expect version to be one of SUMMER08, FIRSTDATA, SPRING10, FALL10" << std::endl;
     }
 
-    initialize( version, 
+    initialize( version,
 		parameters.getParameter<double>("Chi2"),
 		parameters.getParameter<double>("D0")  ,
 		parameters.getParameter<double>("ED0")  ,
@@ -59,17 +71,16 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
 		parameters.getParameter<double>("ECalVeto")   ,
 		parameters.getParameter<double>("HCalVeto")   ,
 		parameters.getParameter<double>("RelIso"),
-		parameters.getParameter<double>("LepZ"), 
+		parameters.getParameter<double>("LepZ"),
 		parameters.getParameter<int>("nPixelHits"),
 		parameters.getParameter<int>("nMatchedStations")
 		);
     if ( parameters.exists("cutsToIgnore") )
       setIgnoredCuts( parameters.getParameter<std::vector<std::string> >("cutsToIgnore") );
-	
+
     retInternal_ = getBitTemplate();
 
     recalcDBFromBSp_ = parameters.getParameter<bool>("RecalcFromBeamSpot");
-    beamLineSrc_ = parameters.getParameter<edm::InputTag>("beamLineSrc");
     pvSrc_ = parameters.getParameter<edm::InputTag>("pvSrc");
   }
 
@@ -93,8 +104,8 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
 
     retInternal_ = getBitTemplate();
   }
-  
-  
+
+
 
 
   void initialize( Version_t version,
@@ -111,7 +122,7 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
 		   int minPixelHits = 1,
 		   int minNMatches = 1 )
   {
-    version_ = version; 
+    version_ = version;
 
     push_back("Chi2",      chi2   );
     push_back("D0",        d0     );
@@ -134,10 +145,10 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
     set("NValMuHits");
     set("ECalVeto");
     set("HCalVeto");
-    set("RelIso");   
+    set("RelIso");
     set("LepZ");
     set("nPixelHits");
-    set("nMatchedStations");  
+    set("nMatchedStations");
 
     indexChi2_          = index_type(&bits_, "Chi2"         );
     indexD0_            = index_type(&bits_, "D0"           );
@@ -164,28 +175,28 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
       set("HCalVeto",false);
       set("LepZ", false);
       set("nPixelHits", false);
-      set("nMatchedStations", false);  
+      set("nMatchedStations", false);
     } else if ( version_ == FIRSTDATA ) {
       set("D0", false );
       set("ED0", false );
       set("NValMuHits",false);
       set("LepZ", false);
       set("nPixelHits", false);
-      set("nMatchedStations", false);  
+      set("nMatchedStations", false);
     } else if (version == SUMMER08 ) {
       set("SD0", false);
-      set("NValMuHits",false);      
+      set("NValMuHits",false);
       set("LepZ", false);
       set("nPixelHits", false);
-      set("nMatchedStations", false);  
+      set("nMatchedStations", false);
 
     }
 
   }
 
-  // Allow for multiple definitions of the cuts. 
-  bool operator()( const pat::Muon & muon, edm::EventBase const & event, pat::strbitset & ret ) 
-  { 
+  // Allow for multiple definitions of the cuts.
+  bool operator()( const pat::Muon & muon, edm::EventBase const & event, pat::strbitset & ret )
+  {
 
     if (version_ == FALL10 ) return fall10Cuts(muon, event, ret);
     else if (version_ == SPRING10 ) return spring10Cuts(muon, event, ret);
@@ -194,17 +205,17 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
     else if ( version_ == KITQCD ) {
       if (verbose_) std::cout << "Calling KIT selection method" << std::endl;
       return kitQCDCuts (muon, event, ret);
-    }      
+    }
     else {
       return false;
     }
   }
 
   // For compatibility with older versions.
-  bool operator()( const pat::Muon & muon, pat::strbitset & ret ) 
-  { 
+  bool operator()( const pat::Muon & muon, pat::strbitset & ret )
+  {
 
-    if (version_ == SPRING10 || version_ == FALL10 ) throw cms::Exception("LogicError") 
+    if (version_ == SPRING10 || version_ == FALL10 ) throw cms::Exception("LogicError")
       << "MuonVPlusJetsSelectionFunctor SPRING10 and FALL10 versions needs the event! Call operator()(muon,event,ret)"
       <<std::endl;
 
@@ -218,7 +229,7 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
 
   using Selector<pat::Muon>::operator();
 
-  // cuts based on craft 08 analysis. 
+  // cuts based on craft 08 analysis.
   bool summer08Cuts( const pat::Muon & muon, pat::strbitset & ret)
   {
 
@@ -227,10 +238,10 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
     double norm_chi2 = muon.normChi2();
     double corr_d0 = muon.dB();
     int nhits = static_cast<int>( muon.numberOfValidHits() );
-    
+
     double ecalVeto = muon.isolationR03().emVetoEt;
     double hcalVeto = muon.isolationR03().hadVetoEt;
-	
+
     double hcalIso = muon.hcalIso();
     double ecalIso = muon.ecalIso();
     double trkIso  = muon.trackIso();
@@ -252,7 +263,7 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
 
 
 
-  // cuts based on craft 08 analysis. 
+  // cuts based on craft 08 analysis.
   bool firstDataCuts( const pat::Muon & muon, pat::strbitset & ret)
   {
 
@@ -263,10 +274,10 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
     double corr_ed0 = muon.edB();
     double corr_sd0 = ( corr_ed0 > 0.000000001 ) ? corr_d0 / corr_ed0 : 999.0;
     int nhits = static_cast<int>( muon.numberOfValidHits() );
-    
+
     double ecalVeto = muon.isolationR03().emVetoEt;
     double hcalVeto = muon.isolationR03().hadVetoEt;
-	
+
     double hcalIso = muon.hcalIso();
     double ecalIso = muon.ecalIso();
     double trkIso  = muon.trackIso();
@@ -284,7 +295,7 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
     if ( relIso        <  cut(indexRelIso_, double()) || ignoreCut(indexRelIso_)  ) passCut(ret, indexRelIso_ );
 
     setIgnored(ret);
-    
+
     return (bool)ret;
   }
 
@@ -307,7 +318,7 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
       reco::BeamSpot beamSpot;
       edm::Handle<reco::BeamSpot> beamSpotHandle;
       event.getByLabel(beamLineSrc_, beamSpotHandle);
-      
+
       if( beamSpotHandle.isValid() ){
 	beamSpot = *beamSpotHandle;
       } else{
@@ -315,13 +326,13 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
 	  << "No beam spot available from EventSetup, not adding high level selection \n";
       }
       beamPoint = reco::TrackBase::Point ( beamSpot.x0(), beamSpot.y0(), beamSpot.z0() );
-      
+
       //Use the beamspot to correct the impact parameter and uncertainty
       reco::TrackRef innerTrack = muon.innerTrack();
       if ( innerTrack.isNonnull() && innerTrack.isAvailable() ) {
 	corr_d0 = -1.0 * innerTrack->dxy( beamPoint );
-	corr_ed0 = sqrt( innerTrack->d0Error() * innerTrack->d0Error() 
-			 + 0.5* beamSpot.BeamWidthX()*beamSpot.BeamWidthX() 
+	corr_ed0 = sqrt( innerTrack->d0Error() * innerTrack->d0Error()
+			 + 0.5* beamSpot.BeamWidthX()*beamSpot.BeamWidthX()
 			 + 0.5* beamSpot.BeamWidthY()*beamSpot.BeamWidthY() );
 	corr_sd0 = ( corr_ed0 > 0.000000001 ) ? corr_d0 / corr_ed0 : 999.0;
 
@@ -333,10 +344,10 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
 
     int nhits = static_cast<int>( muon.numberOfValidHits() );
     int nValidMuonHits = static_cast<int> (muon.globalTrack()->hitPattern().numberOfValidMuonHits());
-    
+
     double ecalVeto = muon.isolationR03().emVetoEt;
     double hcalVeto = muon.isolationR03().hadVetoEt;
-	
+
     double hcalIso = muon.hcalIso();
     double ecalIso = muon.ecalIso();
     double trkIso  = muon.trackIso();
@@ -355,7 +366,7 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
     if ( relIso        <  cut(indexRelIso_, double()) || ignoreCut(indexRelIso_)  ) passCut(ret, indexRelIso_ );
 
     setIgnored(ret);
-    
+
     return (bool)ret;
   }
 
@@ -392,7 +403,7 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
       reco::BeamSpot beamSpot;
       edm::Handle<reco::BeamSpot> beamSpotHandle;
       event.getByLabel(beamLineSrc_, beamSpotHandle);
-      
+
       if( beamSpotHandle.isValid() ){
 	beamSpot = *beamSpotHandle;
       } else{
@@ -400,13 +411,13 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
 	  << "No beam spot available from EventSetup, not adding high level selection \n";
       }
       beamPoint = reco::TrackBase::Point ( beamSpot.x0(), beamSpot.y0(), beamSpot.z0() );
-      
+
       //Use the beamspot to correct the impact parameter and uncertainty
       reco::TrackRef innerTrack = muon.innerTrack();
       if ( innerTrack.isNonnull() && innerTrack.isAvailable() ) {
 	corr_d0 = -1.0 * innerTrack->dxy( beamPoint );
-	corr_ed0 = sqrt( innerTrack->d0Error() * innerTrack->d0Error() 
-			 + 0.5* beamSpot.BeamWidthX()*beamSpot.BeamWidthX() 
+	corr_ed0 = sqrt( innerTrack->d0Error() * innerTrack->d0Error()
+			 + 0.5* beamSpot.BeamWidthX()*beamSpot.BeamWidthX()
 			 + 0.5* beamSpot.BeamWidthY()*beamSpot.BeamWidthY() );
 	corr_sd0 = ( corr_ed0 > 0.000000001 ) ? corr_d0 / corr_ed0 : 999.0;
 
@@ -418,10 +429,10 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
 
     int nhits = static_cast<int>( muon.numberOfValidHits() );
     int nValidMuonHits = static_cast<int> (muon.globalTrack()->hitPattern().numberOfValidMuonHits());
-    
+
     double ecalVeto = muon.isolationR03().emVetoEt;
     double hcalVeto = muon.isolationR03().hadVetoEt;
-	
+
     double hcalIso = muon.hcalIso();
     double ecalIso = muon.ecalIso();
     double trkIso  = muon.trackIso();
@@ -450,7 +461,7 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
     if ( nMatchedStations> cut(indexStations_,int())    || ignoreCut(indexStations_))  passCut(ret, indexStations_);
 
     setIgnored(ret);
-    
+
     return (bool)ret;
   }
 
@@ -458,7 +469,7 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
   // cuts based on top group L+J synchronization exercise
   // this is a copy of fall 10 cuts
   // with a hack to include a double-sided reliso cut
-  
+
   bool kitQCDCuts( const pat::Muon & muon, edm::EventBase const & event, pat::strbitset & ret)
   {
 
@@ -488,7 +499,7 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
       reco::BeamSpot beamSpot;
       edm::Handle<reco::BeamSpot> beamSpotHandle;
       event.getByLabel(beamLineSrc_, beamSpotHandle);
-      
+
       if( beamSpotHandle.isValid() ){
 	beamSpot = *beamSpotHandle;
       } else{
@@ -496,13 +507,13 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
 	  << "No beam spot available from EventSetup, not adding high level selection \n";
       }
       beamPoint = reco::TrackBase::Point ( beamSpot.x0(), beamSpot.y0(), beamSpot.z0() );
-      
+
       //Use the beamspot to correct the impact parameter and uncertainty
       reco::TrackRef innerTrack = muon.innerTrack();
       if ( innerTrack.isNonnull() && innerTrack.isAvailable() ) {
 	corr_d0 = -1.0 * innerTrack->dxy( beamPoint );
-	corr_ed0 = sqrt( innerTrack->d0Error() * innerTrack->d0Error() 
-			 + 0.5* beamSpot.BeamWidthX()*beamSpot.BeamWidthX() 
+	corr_ed0 = sqrt( innerTrack->d0Error() * innerTrack->d0Error()
+			 + 0.5* beamSpot.BeamWidthX()*beamSpot.BeamWidthX()
 			 + 0.5* beamSpot.BeamWidthY()*beamSpot.BeamWidthY() );
 	corr_sd0 = ( corr_ed0 > 0.000000001 ) ? corr_d0 / corr_ed0 : 999.0;
 
@@ -514,10 +525,10 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
 
     int nhits = static_cast<int>( muon.numberOfValidHits() );
     int nValidMuonHits = static_cast<int> (muon.globalTrack()->hitPattern().numberOfValidMuonHits());
-    
+
     double ecalVeto = muon.isolationR03().emVetoEt;
     double hcalVeto = muon.isolationR03().hadVetoEt;
-	
+
     double hcalIso = muon.hcalIso();
     double ecalIso = muon.ecalIso();
     double trkIso  = muon.trackIso();
@@ -548,7 +559,7 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
     ////////////////////////////////////////////////////////////////
     //
     // JMS Dec 13 2010
-    // HACK 
+    // HACK
     // Need double-sided relIso cut to implement data-driven QCD
     //
     //
@@ -558,31 +569,37 @@ class MuonVPlusJetsIDSelectionFunctor : public Selector<pat::Muon> {
 
 
 
-    
+
     setIgnored(ret);
-    
+
     return (bool)ret;
   }
 
 
-  
-  
+
+
  private: // member variables
-  
+
   Version_t version_;
   bool recalcDBFromBSp_;
   edm::InputTag beamLineSrc_;
+#ifndef __GCCXML__
+  edm::EDGetTokenT<reco::BeamSpot> beamLineSrcToken_;
+#endif
   edm::InputTag pvSrc_;
+#ifndef __GCCXML__
+  edm::EDGetTokenT<std::vector<reco::Vertex> > pvSrcToken_;
+#endif
 
-  index_type indexChi2_;          
-  index_type indexD0_;            
-  index_type indexED0_;           
-  index_type indexSD0_;           
-  index_type indexNHits_;         
-  index_type indexNValMuHits_;    
-  index_type indexECalVeto_;      
-  index_type indexHCalVeto_;      
-  index_type indexRelIso_;        
+  index_type indexChi2_;
+  index_type indexD0_;
+  index_type indexED0_;
+  index_type indexSD0_;
+  index_type indexNHits_;
+  index_type indexNValMuHits_;
+  index_type indexECalVeto_;
+  index_type indexHCalVeto_;
+  index_type indexRelIso_;
   index_type indexLepZ_;
   index_type indexPixHits_;
   index_type indexStations_;

@@ -1,5 +1,5 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -17,7 +17,7 @@
 #include "boost/foreach.hpp"
 #include <numeric>
 
-class SiStripClusterToDigiProducer : public edm::EDProducer  {
+class SiStripClusterToDigiProducer : public edm::stream::EDProducer<>  {
 
   typedef   edmNew::DetSetVector<SiStripCluster> ClusterCollection;
   typedef   edmNew::DetSet<SiStripCluster> DetClusterCollection;

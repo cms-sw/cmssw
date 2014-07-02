@@ -57,6 +57,8 @@ class SiPixelHitEfficiencySource : public edm::EDAnalyzer {
     edm::EDGetTokenT<TrajTrackAssociationCollection> tracksrc_;
     edm::EDGetTokenT<edmNew::DetSetVector<SiPixelCluster> > clusterCollectionToken_;
     
+    edm::EDGetTokenT<MeasurementTrackerEvent> measurementTrackerEventToken_;
+
     bool applyEdgeCut_;
     double nSigma_EdgeCut_;
     

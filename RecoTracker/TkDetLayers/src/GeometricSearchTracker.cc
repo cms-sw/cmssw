@@ -3,15 +3,15 @@
 
 using namespace std;
 
-GeometricSearchTracker::GeometricSearchTracker(const vector<BarrelDetLayer*>& pxlBar,
-					       const vector<BarrelDetLayer*>& tib,
-					       const vector<BarrelDetLayer*>& tob,
-					       const vector<ForwardDetLayer*>& negPxlFwd,
-					       const vector<ForwardDetLayer*>& negTid,
-					       const vector<ForwardDetLayer*>& negTec,
-					       const vector<ForwardDetLayer*>& posPxlFwd,
-					       const vector<ForwardDetLayer*>& posTid,
-					       const vector<ForwardDetLayer*>& posTec):
+GeometricSearchTracker::GeometricSearchTracker(const vector<BarrelDetLayer const*>& pxlBar,
+					       const vector<BarrelDetLayer const*>& tib,
+					       const vector<BarrelDetLayer const*>& tob,
+					       const vector<ForwardDetLayer const*>& negPxlFwd,
+					       const vector<ForwardDetLayer const*>& negTid,
+					       const vector<ForwardDetLayer const*>& negTec,
+					       const vector<ForwardDetLayer const*>& posPxlFwd,
+					       const vector<ForwardDetLayer const*>& posTid,
+					       const vector<ForwardDetLayer const*>& posTec):
   thePixelBarrelLayers(pxlBar.begin(),pxlBar.end()),
   theTibLayers(tib.begin(),tib.end()),
   theTobLayers(tob.begin(),tob.end()),
@@ -45,7 +45,7 @@ GeometricSearchTracker::GeometricSearchTracker(const vector<BarrelDetLayer*>& px
   // number the layers 
   int sq=0;
   for (auto l : theAllLayers) 
-    (*l).setSeqNum(sq++);
+    const_cast<DetLayer&>(*l).setSeqNum(sq++);
 
   edm::LogInfo("TkDetLayers")
     << "------ GeometricSearchTracker constructed with: ------" << "\n"
@@ -73,9 +73,8 @@ GeometricSearchTracker::GeometricSearchTracker(const vector<BarrelDetLayer*>& px
 
 
 GeometricSearchTracker::~GeometricSearchTracker(){
-  for(vector<DetLayer*>::const_iterator it=theAllLayers.begin(); it!=theAllLayers.end();it++){
-    delete *it;
-  }
+    for (auto l : theAllLayers)
+    delete const_cast<DetLayer*>(l);
   
 }
 

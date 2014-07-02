@@ -23,9 +23,7 @@
 // user include files
 #include "EventFilter/EcalDigiToRaw/interface/EcalDigiToRaw.h"
 
-#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalDetId/interface/EcalDetIdCollections.h"
-#include "DataFormats/EcalDigi/interface/EcalSrFlag.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
@@ -61,10 +59,16 @@ EcalDigiToRaw::EcalDigiToRaw(const edm::ParameterSet& iConfig)
    instanceNameEB_ = iConfig.getParameter<string>("InstanceEB");
    instanceNameEE_ = iConfig.getParameter<string>("InstanceEE");
 
-   labelTT_ = iConfig.getParameter<edm::InputTag>("labelTT");
+   edm::InputTag EBlabel = edm::InputTag(label_,instanceNameEB_);
+   edm::InputTag EElabel = edm::InputTag(label_,instanceNameEE_);
 
-   labelEBSR_ = iConfig.getParameter<edm::InputTag>("labelEBSRFlags");
-   labelEESR_ = iConfig.getParameter<edm::InputTag>("labelEESRFlags");
+   EBDigiToken_ = consumes<EBDigiCollection>(EBlabel);
+   EEDigiToken_ = consumes<EEDigiCollection>(EElabel);
+
+   labelTT_ = consumes<EcalTrigPrimDigiCollection>(iConfig.getParameter<edm::InputTag>("labelTT"));
+
+   labelEBSR_ = consumes<EBSrFlagCollection>(iConfig.getParameter<edm::InputTag>("labelEBSRFlags"));
+   labelEESR_ = consumes<EESrFlagCollection>(iConfig.getParameter<edm::InputTag>("labelEESRFlags"));
 
    counter_ = 0;
    debug_ = iConfig.getUntrackedParameter<bool>("debug");
@@ -143,7 +147,7 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
      if (debug_) cout << "Creation of the TCC block  " << endl;
      // iEvent.getByType(ecalTrigPrim);
-	iEvent.getByLabel(labelTT_, ecalTrigPrim);
+	iEvent.getByToken(labelTT_, ecalTrigPrim);
 
      // loop on TP's and add one by one to the block
      for (EcalTrigPrimDigiCollection::const_iterator it = ecalTrigPrim -> begin();
@@ -174,7 +178,7 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	if (doBarrel_) {
 
         // iEvent.getByType(ebSrFlags);
-	   iEvent.getByLabel(labelEBSR_, ebSrFlags);
+	   iEvent.getByToken(labelEBSR_, ebSrFlags);
                                                                                                                                                 
            for (EBSrFlagCollection::const_iterator it = ebSrFlags -> begin();
                         it != ebSrFlags -> end(); it++) {
@@ -197,7 +201,7 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	if (doEndCap_) {
 	// iEvent.getByType(eeSrFlags);
-	iEvent.getByLabel(labelEESR_, eeSrFlags);
+	iEvent.getByToken(labelEESR_, eeSrFlags);
 
            for (EESrFlagCollection::const_iterator it = eeSrFlags -> begin();
                         it != eeSrFlags -> end(); it++) {
@@ -226,7 +230,7 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	if (doBarrel_) {
    	if (debug_) cout << "Creation of the TowerBlock ... Barrel case " << endl;
-        iEvent.getByLabel(label_,instanceNameEB_,ebDigis);
+        iEvent.getByToken(EBDigiToken_,ebDigis);
         for (EBDigiCollection::const_iterator it=ebDigis -> begin();
                                 it != ebDigis->end(); it++) {
                 const EBDataFrame& dataframe = *it;
@@ -241,7 +245,7 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	if (doEndCap_) {
 	if (debug_) cout << "Creation of the TowerBlock ... EndCap case " << endl;
-        iEvent.getByLabel(label_,instanceNameEE_,eeDigis);
+        iEvent.getByToken(EEDigiToken_,eeDigis);
         for (EEDigiCollection::const_iterator it=eeDigis -> begin();
                                 it != eeDigis->end(); it++) {
                 const EEDataFrame& dataframe = *it;

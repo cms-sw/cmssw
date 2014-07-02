@@ -24,6 +24,9 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/CrossingFrame/interface/PCrossingFrame.h"
+
 //
 // class decleration
 //
@@ -43,7 +46,8 @@ class InputAnalyzer : public edm::EDAnalyzer {
       // ----------member data ---------------------------
       
       bool dataStep2_;
-      edm::InputTag label_;
+  edm::EDGetTokenT<PCrossingFrame<SimTrack>> labelPCF_;
+  edm::EDGetTokenT<SimTrackContainer> labelSimTr_;
 
   
 };

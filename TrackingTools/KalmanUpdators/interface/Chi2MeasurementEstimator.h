@@ -12,7 +12,7 @@
 
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorBase.h"
 
-class Chi2MeasurementEstimator GCC11_FINAL : public Chi2MeasurementEstimatorBase {
+class Chi2MeasurementEstimator : public Chi2MeasurementEstimatorBase {
 public:
 
   /** Construct with cuts on chi2 and nSigma.

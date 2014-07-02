@@ -34,6 +34,7 @@ private:
   // Disable default assignment operator
   const FWSiPixelDigiProxyBuilder& operator=( const FWSiPixelDigiProxyBuilder& );
 
+  using FWProxyBuilderBase::build;
   virtual void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* ) override;
 };
 

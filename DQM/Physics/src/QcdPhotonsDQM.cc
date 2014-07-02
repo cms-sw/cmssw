@@ -326,19 +326,22 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   bool  found_lead_pho = false;
   int   photon_count_bar = 0;
   int   photon_count_end = 0;
-  // Assumption: reco photons are ordered by Et
-  for (PhotonCollection::const_iterator recoPhoton = photonCollection->begin(); recoPhoton!=photonCollection->end(); recoPhoton++){
-
-    // stop looping over photons once we get to too low Et
-    if ( recoPhoton->et() < theMinPhotonEt_ ) break;
-
+  // False Assumption: reco photons are ordered by Et
+  // find the photon with highest et
+  auto pho_maxet = std::max_element(photonCollection->begin(),
+				    photonCollection->end(),
+				    [](const PhotonCollection::value_type& a,
+				       const PhotonCollection::value_type& b){
+				      return a.et() < b.et();
+				    });
+  if( pho_maxet != photonCollection->end() && pho_maxet->et() >= theMinPhotonEt_ ) {
     /*
     //  Ignore ECAL Spikes
-    const reco::CaloClusterPtr  seed = recoPhoton->superCluster()->seed();
+    const reco::CaloClusterPtr  seed = pho_maxet->superCluster()->seed();
     DetId id = lazyTool.getMaximum(*seed).first; // Cluster shape variables
     //    float time  = -999., outOfTimeChi2 = -999., chi2 = -999.;  // UNUSED
     int   flags=-1, severity = -1;
-    const EcalRecHitCollection & rechits = ( recoPhoton->isEB() ? *EBReducedRecHits : *EEReducedRecHits);
+    const EcalRecHitCollection & rechits = ( pho_maxet->isEB() ? *EBReducedRecHits : *EEReducedRecHits);
     EcalRecHitCollection::const_iterator it = rechits.find( id );
     if( it != rechits.end() ) {
       //      time = it->time(); // UNUSED
@@ -350,20 +353,20 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
       iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
       severity = sevlv->severityLevel( id, rechits);
     }
-    bool isNotSpike = ((recoPhoton->isEB() && (severity!=3 && severity!=4 ) && (flags != 2) ) || recoPhoton->isEE());
+    bool isNotSpike = ((pho_maxet->isEB() && (severity!=3 && severity!=4 ) && (flags != 2) ) || pho_maxet->isEE());
     if (!isNotSpike) continue;  // move on to next photon
     // END of determining ECAL Spikes
     */
 
     bool pho_current_passPhotonID = false;
-    bool pho_current_isEB = recoPhoton->isEB();
-    bool pho_current_isEE = recoPhoton->isEE();
+    bool pho_current_isEB = pho_maxet->isEB();
+    bool pho_current_isEE = pho_maxet->isEE();
 
-    if ( pho_current_isEB && (recoPhoton->sigmaIetaIeta() < 0.01 || recoPhoton->hadronicOverEm() < 0.05) ) {
+    if ( pho_current_isEB && (pho_maxet->sigmaIetaIeta() < 0.01 || pho_maxet->hadronicOverEm() < 0.05) ) {
       // Photon object in barrel passes photon ID
       pho_current_passPhotonID = true;
       photon_count_bar++;
-    } else if ( pho_current_isEE && (recoPhoton->hadronicOverEm() < 0.05) ) {
+    } else if ( pho_current_isEE && (pho_maxet->hadronicOverEm() < 0.05) ) {
       // Photon object in endcap passes photon ID
       pho_current_passPhotonID = true;
       photon_count_end++;
@@ -372,11 +375,12 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
     if (!found_lead_pho) {
       found_lead_pho = true;
       photon_passPhotonID = pho_current_passPhotonID;
-      photon_et  = recoPhoton->et();
-      photon_eta = recoPhoton->eta();
-      photon_phi = recoPhoton->phi();
+      photon_et  = pho_maxet->et();
+      photon_eta = pho_maxet->eta();
+      photon_phi = pho_maxet->phi();
     }
   }
+
 
   // If user requires a photon to be found, but none is, return.
   //   theRequirePhotonFound should pretty much always be set to 'True'

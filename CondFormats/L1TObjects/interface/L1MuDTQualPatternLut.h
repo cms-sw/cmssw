@@ -21,6 +21,8 @@
 // C++ Headers --
 //---------------
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 #include <map>
 
@@ -81,6 +83,8 @@ class L1MuDTQualPatternLut {
 
     LUT m_lut;        // coarse eta values and list of qualified patterns
     
+
+ COND_SERIALIZABLE;
 };
 
 #endif

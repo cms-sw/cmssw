@@ -7,7 +7,7 @@ process.load('DQMOffline.Configuration.DQMOffline_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration/StandardSequences/Reconstruction_cff')
-process.ak5JetTracksAssociatorAtVertex.jets = cms.InputTag("ak5PFJets")
+process.ak4JetTracksAssociatorAtVertex.jets = cms.InputTag("ak4PFJets")
 ## --------------------------------------------------------------------
 ## Frontier Conditions: (adjust accordingly!!!)
 ##
@@ -58,7 +58,7 @@ process.output = cms.OutputModule("PoolOutputModule",
     'keep *_*_*_TOPDQM',
     'drop *_TriggerResults_*_TOPDQM',
     'drop *_simpleEleId70cIso_*_TOPDQM',
-    'drop *_ak5JetTracksAssociatorAtVertex_*_TOPDQM',
+    'drop *_ak4JetTracksAssociatorAtVertex_*_TOPDQM',
     'drop *_btagging_*_TOPDQM',
     'drop *_jetProbabilityBJetTags_*_TOPDQM',
     'drop *_ghostTrackBJetTags_*_TOPDQM',
@@ -89,8 +89,8 @@ process.output = cms.OutputModule("PoolOutputModule",
 
 ## load jet corrections
 process.load("JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff")
-#process.prefer("ak5CaloL2L3")
-process.prefer("ak5PFL2L3")
+#process.prefer("ak4CaloL2L3")
+process.prefer("ak4PFL2L3")
 
 ## check the event content
 process.content = cms.EDAnalyzer("EventContentAnalyzer")
@@ -109,7 +109,7 @@ process.MEtoEDMConverter.deleteAfterCopy = cms.untracked.bool(False)  ## line ad
 ## path definitions
 process.p      = cms.Path(
    #process.content *
-    process.ak5JetTracksAssociatorAtVertex *
+    process.ak4JetTracksAssociatorAtVertex *
     process.btagging *
     process.simpleEleId70cIso          *
 #    process.topDiLeptonOfflineDQM      +
@@ -169,7 +169,7 @@ process.output = cms.OutputModule("PoolOutputModule",
     'keep *_*_*_TOPDQM',
     'drop *_TriggerResults_*_TOPDQM',
     'drop *_simpleEleId70cIso_*_TOPDQM',
-    'drop *_ak5JetTracksAssociatorAtVertex_*_TOPDQM',
+    'drop *_ak4JetTracksAssociatorAtVertex_*_TOPDQM',
     'drop *_btagging_*_TOPDQM',
     'drop *_jetProbabilityBJetTags_*_TOPDQM',
     'drop *_ghostTrackBJetTags_*_TOPDQM',
@@ -200,8 +200,8 @@ process.output = cms.OutputModule("PoolOutputModule",
 
 ## load jet corrections
 process.load("JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff")
-#process.prefer("ak5CaloL2L3")
-process.prefer("ak5PFL2L3")
+#process.prefer("ak4CaloL2L3")
+process.prefer("ak4PFL2L3")
 
 ## check the event content
 process.content = cms.EDAnalyzer("EventContentAnalyzer")
@@ -220,7 +220,7 @@ process.MEtoEDMConverter.deleteAfterCopy = cms.untracked.bool(False)  ## line ad
 ## path definitions
 process.p      = cms.Path(
    #process.content *
-    process.ak5JetTracksAssociatorAtVertex *
+    process.ak4JetTracksAssociatorAtVertex *
     process.btagging *
     process.simpleEleId70cIso          *
 #    process.topDiLeptonOfflineDQM      +

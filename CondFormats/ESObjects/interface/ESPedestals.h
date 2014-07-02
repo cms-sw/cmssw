@@ -2,6 +2,8 @@
 #define ESPedestals_h
 
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/ESObjects/interface/ESCondObjectContainer.h"
 
 struct ESPedestal {
@@ -21,6 +23,8 @@ struct ESPedestal {
         float getRms() const {
                 return rms;
         }
+
+        COND_SERIALIZABLE;
 };
 
 typedef ESCondObjectContainer<ESPedestal> ESPedestalsMap;

@@ -10,8 +10,6 @@
  * \author A. Tumanov, Rice U.
  */
 
-static const char CVSId[] = "$Id: testCSCDigis.cpp,v 1.23 2008/10/29 18:34:41 elmer Exp $";
-
 #include <cppunit/extensions/HelperMacros.h>
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"

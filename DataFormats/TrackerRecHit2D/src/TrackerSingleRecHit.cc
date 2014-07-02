@@ -17,10 +17,9 @@ namespace {
       ref.isValid() << " " <<
       ref.isPixel() << " " <<
       ref.isStrip()  << " " <<
-      ref.isRegional() << " " <<
+//      ref.isRegional() << " " <<
       ref.cluster_strip().isNull() << " " <<
-      ref.cluster_pixel().isNull() << " " <<
-      ref.cluster_regional().isNull()  << " " << std::endl;
+      ref.cluster_pixel().isNull()  << " " << std::endl;
   }
   
   void verify(TrackingRecHit const * thit) {
@@ -111,13 +110,10 @@ TrackerSingleRecHit::sharesInput( const TrackingRecHit* other,
   if (!sameDetModule(*other)) return false;
 
   // move to switch?
-  if (trackerHitRTTI::isSingle(*other)) {
+  if (trackerHitRTTI::isSingleType(*other)) {
     const TrackerSingleRecHit & otherCast = static_cast<const TrackerSingleRecHit&>(*other);
     return sharesInput(otherCast);
   } 
-
-  if (trackerHitRTTI::isProjected(*other)) 
-    return other->sharesInput(this,what);
 
   if (trackerHitRTTI::isMatched(*other) ) {
     if (what == all) return false;

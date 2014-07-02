@@ -2,7 +2,7 @@
 //
 // Package:    SiStripTools
 // Class:      SiStripQualityHistory
-// 
+//
 /**\class SiStripQualityHistory SiStripQualityHistory.cc DPGAnalysis/SiStripTools/plugins/SiStripQualityHistory.cc
 
  Description: <one line class summary>
@@ -93,7 +93,7 @@ class SiStripQualityHistory : public edm::EDAnalyzer {
 // constructors and destructor
 //
 SiStripQualityHistory::SiStripQualityHistory(const edm::ParameterSet& iConfig):
-  m_rhm(),
+  m_rhm(consumesCollector()),
   _monitoredssq(iConfig.getParameter<std::vector<edm::ParameterSet> >("monitoredSiStripQuality")),
   _mode(iConfig.getUntrackedParameter<unsigned int>("granularityMode",Module)),
   m_run(iConfig.getParameter<bool>("runProcess")),
@@ -106,10 +106,10 @@ SiStripQualityHistory::SiStripQualityHistory(const edm::ParameterSet& iConfig):
   edm::Service<TFileService> tfserv;
 
   for(std::vector<edm::ParameterSet>::const_iterator ps=_monitoredssq.begin();ps!=_monitoredssq.end();++ps) {
-    
+
     std::string name = ps->getParameter<std::string>("name");
     //    _history[name] = tfserv->make<TGraph>();
-    //    _history[name]->SetName(name.c_str());     _history[name]->SetTitle(name.c_str()); 
+    //    _history[name]->SetName(name.c_str());     _history[name]->SetTitle(name.c_str());
 
     if(m_run) _history[name] = tfserv->make<TH1F>(name.c_str(),name.c_str(),10,0,10);
 
@@ -125,7 +125,7 @@ SiStripQualityHistory::SiStripQualityHistory(const edm::ParameterSet& iConfig):
 
 SiStripQualityHistory::~SiStripQualityHistory()
 {
- 
+
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
@@ -143,24 +143,24 @@ SiStripQualityHistory::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   //  edm::LogInfo("EventProcessing") << "event being processed";
 
   for(std::vector<edm::ParameterSet>::const_iterator ps=_monitoredssq.begin();ps!=_monitoredssq.end();++ps) {
-    
+
     std::string name = ps->getParameter<std::string>("name");
     std::string label = ps->getParameter<std::string>("ssqLabel");
-    
-    
-    
+
+
+
     edm::ESHandle<SiStripQuality> ssq;
     iSetup.get<SiStripQualityRcd>().get(label,ssq);
-    
+
     std::vector<SiStripQuality::BadComponent> bads = ssq->getBadComponentList();
-    
+
     LogDebug("BadComponents") << bads.size() << " bad components found";
-    
+
     int nbad=0;
-    
+
     if(_mode==Module || _mode==Fiber || _mode==APV) {
       for(std::vector<SiStripQuality::BadComponent>::const_iterator bc=bads.begin();bc!=bads.end();++bc) {
-	
+
 	if(_mode==Module) {
 	  if(bc->BadModule) ++nbad;
 	}
@@ -188,44 +188,44 @@ SiStripQualityHistory::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     if(m_badmodrun.find(name)!=m_badmodrun.end() && m_badmodrun[name] && *m_badmodrun[name]) {
       (*m_badmodrun[name])->Fill(iEvent.orbitNumber(),nbad);
     }
-    
+
   }
 }
 
-void 
+void
 SiStripQualityHistory::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
 
   m_rhm.beginRun(iRun);
-  
+
   // loop on all the SiStripQuality objects to be monitored
 
   for(std::vector<edm::ParameterSet>::const_iterator ps=_monitoredssq.begin();ps!=_monitoredssq.end();++ps) {
-    
+
     std::string name = ps->getParameter<std::string>("name");
     std::string label = ps->getParameter<std::string>("ssqLabel");
-    
+
     if(m_badmodrun.find(name)!=m_badmodrun.end()) {
       if(m_badmodrun[name] && *m_badmodrun[name]) {
 	(*m_badmodrun[name])->SetBit(TH1::kCanRebin);
-	(*m_badmodrun[name])->GetXaxis()->SetTitle("time [Orb#]"); (*m_badmodrun[name])->GetYaxis()->SetTitle("bad components"); 
+	(*m_badmodrun[name])->GetXaxis()->SetTitle("time [Orb#]"); (*m_badmodrun[name])->GetYaxis()->SetTitle("bad components");
       }
     }
-    
+
     if(m_run) {
 
       edm::ESHandle<SiStripQuality> ssq;
       iSetup.get<SiStripQualityRcd>().get(label,ssq);
-      
+
       std::vector<SiStripQuality::BadComponent> bads = ssq->getBadComponentList();
-      
+
       LogDebug("BadComponents") << bads.size() << " bad components found";
-      
+
       int nbad=0;
-      
+
       if(_mode==Module || _mode==Fiber || _mode==APV) {
 	for(std::vector<SiStripQuality::BadComponent>::const_iterator bc=bads.begin();bc!=bads.end();++bc) {
-	  
+
 	  if(_mode==Module) {
 	    if(bc->BadModule) ++nbad;
 	  }
@@ -248,29 +248,29 @@ SiStripQualityHistory::beginRun(const edm::Run& iRun, const edm::EventSetup& iSe
 	  nbad += ssq->decode(*data).range;
 	}
       }
-      
+
       //    _history[name]->SetPoint(_history[name]->GetN(),iRun.run(),nbad);
       char runname[100];
       sprintf(runname,"%d",iRun.run());
       LogDebug("AnalyzedRun") << name << " " << runname << " " << nbad;
       _history[name]->Fill(runname,nbad);
-    }    
+    }
   }
-  
+
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
+void
 SiStripQualityHistory::beginJob()
 {}
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
-SiStripQualityHistory::endJob() 
+void
+SiStripQualityHistory::endJob()
 {
   /*
   for(std::vector<edm::ParameterSet>::const_iterator ps=_monitoredssq.begin();ps!=_monitoredssq.end();++ps) {
-    
+
     std::string name = ps->getParameter<std::string>("name");
     _history[name]->Write();
 

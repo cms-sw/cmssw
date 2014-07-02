@@ -39,7 +39,7 @@ private:
   FEDRawData * rawData( int fedId, unsigned int lvl1_ID, const RPCDigiCollection* , const RPCRecordFormatter& );
 
 private:
-  edm::InputTag dataLabel_;
+  edm::EDGetTokenT<RPCDigiCollection> dataLabel_;
   unsigned long eventCounter_;
   const RPCReadOutMapping * theCabling; 
 

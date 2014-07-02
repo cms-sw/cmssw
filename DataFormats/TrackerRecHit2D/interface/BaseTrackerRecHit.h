@@ -15,28 +15,36 @@ class OmniClusterRef;
 
 namespace trackerHitRTTI {
   // tracking hit can be : single (si1D, si2D, pix), projected, matched or multi
-  enum RTTI { undef=0, single=1, proj=2, match=3, multi=4};
+  enum RTTI { undef=0, single=1, projStereo=2, projMono=3, match=4, multi=5, gs=6};
   inline RTTI rtti(TrackingRecHit const & hit)  { return RTTI(hit.getRTTI());}
   inline bool isUndef(TrackingRecHit const & hit) { return rtti(hit)==undef;}
   inline bool isSingle(TrackingRecHit const & hit)  { return rtti(hit)==single;}
-  inline bool isProjected(TrackingRecHit const & hit)  { return rtti(hit)==proj;}
+  inline bool isProjMono(TrackingRecHit const & hit)  { return rtti(hit)==projMono;}
+  inline bool isProjStereo(TrackingRecHit const & hit)  { return rtti(hit)==projStereo;}
+  inline bool isProjected(TrackingRecHit const & hit)  { return (rtti(hit)==projMono) | (rtti(hit)==projStereo);}
   inline bool isMatched(TrackingRecHit const & hit)  { return rtti(hit)==match;}
   inline bool isMulti(TrackingRecHit const & hit)  { return rtti(hit)==multi;}
+  inline bool isGS(TrackingRecHit const & hit)  { return rtti(hit)==gs;}
+  inline bool isSingleType(TrackingRecHit const & hit)  { return (rtti(hit)>0) & (rtti(hit)<4) ;}
+
+  inline unsigned int  projId(TrackingRecHit const & hit) { return hit.rawId()+int(rtti(hit))-1;}
 }
 
 class BaseTrackerRecHit : public TrackingRecHit { 
 public:
-  BaseTrackerRecHit() {}
+  BaseTrackerRecHit() : qualWord_(0){}
+
+  // fake TTRH interface
+  BaseTrackerRecHit const * hit() const GCC11_FINAL { return this;}  
 
   virtual ~BaseTrackerRecHit() {}
 
   // no position (as in persistent)
   BaseTrackerRecHit(DetId id, trackerHitRTTI::RTTI rt) :  TrackingRecHit(id,(unsigned int)(rt)) {}
-  BaseTrackerRecHit(DetId id, GeomDet const * idet, trackerHitRTTI::RTTI rt) :  TrackingRecHit(id, idet, (unsigned int)(rt)) {}
 
   BaseTrackerRecHit( const LocalPoint& p, const LocalError&e,
-		     DetId id, GeomDet const * idet, trackerHitRTTI::RTTI rt) :  TrackingRecHit(id,idet, (unsigned int)(rt)), pos_(p), err_(e){
-    if unlikely(!hasPositionAndError()) return;
+		     GeomDet const & idet, trackerHitRTTI::RTTI rt) :  
+    TrackingRecHit(idet, (unsigned int)(rt)), pos_(p), err_(e){
     LocalError lape = det()->localAlignmentError();
     if (lape.valid())
       err_ = LocalError(err_.xx()+lape.xx(),
@@ -47,9 +55,13 @@ public:
 
   trackerHitRTTI::RTTI rtti() const { return trackerHitRTTI::rtti(*this);}
   bool isSingle() const { return trackerHitRTTI::isSingle(*this);}
-  bool isProjected() const { return trackerHitRTTI::isProjected(*this);}
   bool isMatched() const { return trackerHitRTTI::isMatched(*this);}
+  bool isProjected() const { return trackerHitRTTI::isProjected(*this);}
+  bool isProjMono() const { return trackerHitRTTI::isProjMono(*this);}
+  bool isProjSterep() const { return trackerHitRTTI::isProjStereo(*this);}
   bool isMulti() const { return trackerHitRTTI::isMulti(*this);}
+
+  virtual bool isPixel() const { return false;}
 
  // used by trackMerger (to be improved)
   virtual OmniClusterRef const & firstClusterRef() const=0;
@@ -107,6 +119,8 @@ public:
 	};
   }
 
+  /// cluster probability, overloaded by pixel rechits.
+  virtual float clusterProbability() const { return 1.f; }
 
 public:
 
@@ -129,6 +143,9 @@ private:
 
   LocalPoint pos_;
   LocalError err_;
+protected:
+  //this comes for free (padding)
+  unsigned int qualWord_;
 };
 
 

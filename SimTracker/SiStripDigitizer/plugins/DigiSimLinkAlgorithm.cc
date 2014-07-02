@@ -71,7 +71,7 @@ DigiSimLinkAlgorithm::~DigiSimLinkAlgorithm(){
 void DigiSimLinkAlgorithm::run(edm::DetSet<SiStripDigi>& outdigi,
 			       edm::DetSet<SiStripRawDigi>& outrawdigi,
 			       const std::vector<std::pair<const PSimHit*, int > > &input,
-			       StripGeomDetUnit *det,
+			       StripGeomDetUnit const *det,
 			       GlobalVector bfield,float langle, 
 			       edm::ESHandle<SiStripGain> & gainHandle,
 			       edm::ESHandle<SiStripThreshold> & thresholdHandle,

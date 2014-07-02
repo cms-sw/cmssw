@@ -41,6 +41,8 @@ public:
 
   virtual int yAxisOrientation() const;
 
+  using Bounds::inside;
+
   virtual bool inside( const Local2DPoint& p) const;
 
   virtual bool inside( const Local3DPoint& p) const;

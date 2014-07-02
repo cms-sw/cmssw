@@ -123,7 +123,7 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, int type, bool tw
   if(type==1 && barrel){
     uint32_t DBladder;
     if (!isUpgrade) { DBladder = PixelBarrelName(DetId(id_)).ladderName();}
-    else if (isUpgrade) { DBladder = PixelBarrelNameUpgrade(DetId(id_)).ladderName();}
+    else { DBladder = PixelBarrelNameUpgrade(DetId(id_)).ladderName();}
     char sladder[80]; sprintf(sladder,"Ladder_%02i",DBladder);
     hid = src.label() + "_" + sladder;
     if(isHalfModule) hid += "H";
@@ -155,7 +155,7 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, int type, bool tw
   if(type==2 && barrel){
     uint32_t DBlayer;
     if (!isUpgrade) { DBlayer = PixelBarrelName(DetId(id_)).layerName(); }
-    else if (isUpgrade) { DBlayer = PixelBarrelNameUpgrade(DetId(id_)).layerName(); }
+    else { DBlayer = PixelBarrelNameUpgrade(DetId(id_)).layerName(); }
     char slayer[80]; sprintf(slayer,"Layer_%i",DBlayer);
     hid = src.label() + "_" + slayer;
     if(!additInfo){
@@ -205,7 +205,7 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, int type, bool tw
   if(type==3 && barrel){
     uint32_t DBmodule;
     if (!isUpgrade) { DBmodule = PixelBarrelName(DetId(id_)).moduleName(); }
-    else if (isUpgrade) { DBmodule = PixelBarrelNameUpgrade(DetId(id_)).moduleName(); }
+    else { DBmodule = PixelBarrelNameUpgrade(DetId(id_)).moduleName(); }
     char smodule[80]; sprintf(smodule,"Ring_%i",DBmodule);
     hid = src.label() + "_" + smodule;
     // Number of digis
@@ -246,7 +246,7 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, int type, bool tw
   if(type==4 && endcap){
     uint32_t blade;
     if (!isUpgrade) { blade= PixelEndcapName(DetId(id_)).bladeName(); }
-    else if (isUpgrade) { blade= PixelEndcapNameUpgrade(DetId(id_)).bladeName(); }
+    else { blade= PixelEndcapNameUpgrade(DetId(id_)).bladeName(); }
     
     char sblade[80]; sprintf(sblade, "Blade_%02i",blade);
     hid = src.label() + "_" + sblade;
@@ -260,7 +260,7 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, int type, bool tw
   if(type==5 && endcap){
     uint32_t disk;
     if (!isUpgrade) { disk = PixelEndcapName(DetId(id_)).diskName(); }
-    else if (isUpgrade) { disk = PixelEndcapNameUpgrade(DetId(id_)).diskName(); }
+    else { disk = PixelEndcapNameUpgrade(DetId(id_)).diskName(); }
     
     char sdisk[80]; sprintf(sdisk, "Disk_%i",disk);
     hid = src.label() + "_" + sdisk;
@@ -291,7 +291,7 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig, int type, bool tw
     if (!isUpgrade) {
       panel= PixelEndcapName(DetId(id_)).pannelName();
       module= PixelEndcapName(DetId(id_)).plaquetteName();
-    } else if (isUpgrade) {
+    } else {
       panel= PixelEndcapNameUpgrade(DetId(id_)).pannelName();
       module= PixelEndcapNameUpgrade(DetId(id_)).plaquetteName();
     }
@@ -507,7 +507,7 @@ int SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input, bool modo
 	  if (!isUpgrade) {
 	    DBpanel= PixelEndcapName(DetId(id_)).pannelName();
 	    DBblade= PixelEndcapName(DetId(id_)).bladeName();
-	  } else if (isUpgrade) {
+	  } else {
 	    DBpanel= PixelEndcapNameUpgrade(DetId(id_)).pannelName();
 	    DBblade= PixelEndcapNameUpgrade(DetId(id_)).bladeName();
 	  }

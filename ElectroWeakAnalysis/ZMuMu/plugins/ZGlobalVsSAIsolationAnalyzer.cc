@@ -37,20 +37,20 @@ public:
 private:
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
   virtual void endJob() override;
-  InputTag src_;
+  EDGetTokenT<CandidateView> srcToken_;
   double dRVeto;
   double dRTrk, dREcal, dRHcal;
   double ptThreshold, etEcalThreshold, etHcalThreshold;
   double alpha, beta;
   double isoCut_;
   unsigned long selGlobal_, selSA_, totGlobal_, totSA_;
-  bool isolated(const Direction & dir, const pat::IsoDeposit * trkIsoDep, 
+  bool isolated(const Direction & dir, const pat::IsoDeposit * trkIsoDep,
 		const pat::IsoDeposit * ecalIsoDep, const pat::IsoDeposit * hcalIsoDep);
   void evaluate(const reco::Candidate* dau);
 };
 
 ZGlobalVsSAIsolationAnalyzer::ZGlobalVsSAIsolationAnalyzer(const ParameterSet& cfg):
-  src_(cfg.getParameter<InputTag>("src")),
+  srcToken_(consumes<CandidateView>(cfg.getParameter<InputTag>("src"))),
   dRVeto(cfg.getParameter<double>("veto")),
   dRTrk(cfg.getParameter<double>("deltaRTrk")),
   dREcal(cfg.getParameter<double>("deltaREcal")),
@@ -64,7 +64,7 @@ ZGlobalVsSAIsolationAnalyzer::ZGlobalVsSAIsolationAnalyzer(const ParameterSet& c
   selGlobal_(0), selSA_(0), totGlobal_(0), totSA_(0) {
 }
 
-bool ZGlobalVsSAIsolationAnalyzer::isolated(const Direction & dir, const pat::IsoDeposit * trkIsoDep, 
+bool ZGlobalVsSAIsolationAnalyzer::isolated(const Direction & dir, const pat::IsoDeposit * trkIsoDep,
 					    const pat::IsoDeposit * ecalIsoDep, const pat::IsoDeposit * hcalIsoDep) {
   IsoDeposit::AbsVetos vetoTrk, vetoEcal, vetoHcal;
   vetoTrk.push_back(new ConeVeto(dir, dRVeto));
@@ -73,12 +73,12 @@ bool ZGlobalVsSAIsolationAnalyzer::isolated(const Direction & dir, const pat::Is
   vetoEcal.push_back(new ThresholdVeto(etEcalThreshold));
   vetoHcal.push_back(new ConeVeto(dir, 0.));
   vetoHcal.push_back(new ThresholdVeto(etHcalThreshold));
-  
+
   double trkIso = trkIsoDep->sumWithin(dir, dRTrk, vetoTrk);
   double ecalIso = ecalIsoDep->sumWithin(dir, dREcal, vetoEcal);
   double hcalIso = hcalIsoDep->sumWithin(dir, dRHcal, vetoHcal);
   double iso = alpha*((0.5*(1+beta)*ecalIso) + (0.5*(1-beta)*hcalIso)) + (1-alpha)*trkIso;
-  return iso < isoCut_;      
+  return iso < isoCut_;
 }
 
 void ZGlobalVsSAIsolationAnalyzer::evaluate(const reco::Candidate* dau) {
@@ -98,20 +98,20 @@ void ZGlobalVsSAIsolationAnalyzer::evaluate(const reco::Candidate* dau) {
     TrackRef sa = dau->get<TrackRef,reco::StandAloneMuonTag>();
     Direction dir = Direction(sa->eta(), sa->phi());
     if(isolated(dir, trkIsoDep, ecalIsoDep, hcalIsoDep)) selSA_++;
-    totSA_++;   
+    totSA_++;
   }
 }
 
 void ZGlobalVsSAIsolationAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup) {
   Handle<CandidateView> dimuons;
-  event.getByLabel(src_, dimuons);
+  event.getByToken(srcToken_, dimuons);
   for(unsigned int i=0; i< dimuons->size(); ++ i) {
     const Candidate & zmm = (* dimuons)[i];
     evaluate(zmm.daughter(0));
     evaluate(zmm.daughter(1));
-  }    
+  }
 }
-  
+
 void ZGlobalVsSAIsolationAnalyzer::endJob() {
   cout << "Isolation efficiency report:" << endl;
   double eff, err;
@@ -119,7 +119,7 @@ void ZGlobalVsSAIsolationAnalyzer::endJob() {
   err = sqrt(eff*(1.-eff)/double(totGlobal_));
   cout <<"Global: " << selGlobal_ << "/" << totGlobal_ << " = " <<eff <<"+/-" << err<< endl;
   eff = double(selSA_)/double(totSA_);
-  err = sqrt(eff*(1.-eff)/double(totSA_));  
+  err = sqrt(eff*(1.-eff)/double(totSA_));
   cout <<"St.Al.: " << selSA_ << "/" << totSA_ << " = " << eff <<"+/-" << err << endl;
 }
 

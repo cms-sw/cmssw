@@ -313,7 +313,6 @@ void popcon::EcalTPGPhysicsConstHandler::getNewObjects()
 		      
 	      	      DetId eb(DetId::Ecal, EcalBarrel);
 		      
-	  	      int count;
 		      for ( iterEB itt=temporaryMapEB.begin() ; itt != temporaryMapEB.end() ; itt++ ){
                        			
 		        if (itt->first == (int)eb.rawId()){ 
@@ -326,8 +325,6 @@ void popcon::EcalTPGPhysicsConstHandler::getNewObjects()
 			   physC->setValue(eb.rawId(),itt->second);
 			
 			}
-			
-			count++; 
 		      }	  
 	  
 	              ++icellsEB;

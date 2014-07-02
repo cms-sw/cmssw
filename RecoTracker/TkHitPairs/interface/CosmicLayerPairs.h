@@ -35,9 +35,9 @@ private:
    //bool isFirstCall;
    std::string _geometry;
 
-   std::vector<BarrelDetLayer*> bl;
-   std::vector<ForwardDetLayer*> fpos;
-   std::vector<ForwardDetLayer*> fneg;
+   std::vector<BarrelDetLayer const*> bl;
+   std::vector<ForwardDetLayer const*> fpos;
+   std::vector<ForwardDetLayer const*> fneg;
    edm::OwnVector<LayerWithHits> TECPlusLayerWithHits;
    edm::OwnVector<LayerWithHits> TECMinusLayerWithHits;
    edm::OwnVector<LayerWithHits> TIBLayerWithHits;

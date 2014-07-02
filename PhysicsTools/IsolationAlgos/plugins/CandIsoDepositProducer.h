@@ -1,7 +1,7 @@
 #ifndef MuonIsolationProducers_CandIsoDepositProducer_H
 #define MuonIsolationProducers_CandIsoDepositProducer_H
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/Common/interface/AssociationVector.h"
@@ -17,7 +17,7 @@
 namespace edm { class Event; }
 namespace edm { class EventSetup; }
 
-class CandIsoDepositProducer : public edm::EDProducer {
+class CandIsoDepositProducer : public edm::stream::EDProducer<> {
 
 public:
   CandIsoDepositProducer(const edm::ParameterSet&);

@@ -151,6 +151,7 @@ namespace HLTOfflineDQMTopSingleLepton {
       std::map<std::string,MonitorElement*> hists_;
 
       /// hlt objects
+      std::string          processName_;
       trigger::Vids        electronIds_;
       trigger::VRelectron  electronRefs_;
       trigger::Vids        muonIds_;
@@ -221,7 +222,7 @@ namespace HLTOfflineDQMTopSingleLepton {
 /// define MonitorSingleLepton to be used
 //using HLTOfflineDQMTopSingleLepton::MonitorSingleLepton;
 
-class TopSingleLeptonHLTOfflineDQM : public DQMEDAnalyzer  {
+class TopSingleLeptonHLTOfflineDQM : public thread_unsafe::DQMEDAnalyzer  {
   public: 
     /// default constructor
     TopSingleLeptonHLTOfflineDQM(const edm::ParameterSet& cfg);

@@ -8,7 +8,7 @@
 #ifndef JetTracksAssociatorExplicit_h
 #define JetTracksAssociatorExplicit_h
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "DataFormats/Common/interface/EDProductfwd.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -16,7 +16,7 @@
 #include "RecoJets/JetAssociationAlgorithms/interface/JetTracksAssociationExplicit.h"
 #include "RecoJets/JetAssociationAlgorithms/interface/JetTracksAssociationExplicit.h"
 
-class JetTracksAssociatorExplicit : public edm::EDProducer {
+class JetTracksAssociatorExplicit : public edm::stream::EDProducer<> {
    public:
       JetTracksAssociatorExplicit(const edm::ParameterSet&);
       virtual ~JetTracksAssociatorExplicit();

@@ -2,8 +2,8 @@
 //
 // Package:    GenPurposeSkimmerData
 // Class:      GenPurposeSkimmerData
-// 
-/**\class GenPurposeSkimmerData GenPurposeSkimmerData.cc 
+//
+/**\class GenPurposeSkimmerData GenPurposeSkimmerData.cc
 
 
  Description: <one line class summary>
@@ -12,11 +12,11 @@
  ===============
    This is a general purpose Skimmer
    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-     It reads datasets and keeps only the analysis-relevant information 
-     and stores it in a simple TTree. 
+     It reads datasets and keeps only the analysis-relevant information
+     and stores it in a simple TTree.
      Code Inspired by the T&P code by Claire Timlin
      Note: a similar code to read PAT tuples is already available
- 
+
    History:
 16.10.08: first version
 24.10.08: added ECAL/HCAL isolation + sigma ieta ieta (S. Harper)
@@ -48,9 +48,6 @@
 //
 //
 //
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/PatCandidates/interface/Muon.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 //
 //
@@ -64,28 +61,34 @@ GenPurposeSkimmerData::GenPurposeSkimmerData(const edm::ParameterSet& ps)
   outputFile_ = ps.getUntrackedParameter<std::string>("outputfile");
   //
   // Electron Collection
-  ElectronCollection_=ps.getUntrackedParameter<edm::InputTag>("ElectronCollection");
+  ElectronCollectionToken_=consumes<pat::ElectronCollection>(ps.getUntrackedParameter<edm::InputTag>("ElectronCollection"));
   //
   // MC:
   //MCCollection_ = ps.getUntrackedParameter<edm::InputTag>("MCCollection");
+  //MCCollectionToken_ = consumes<reco::GenParticleCollection>(MCCollection_);
   //MCMatch_Deta_ = ps.getUntrackedParameter<double>("MCMatch_Deta",0.1);
   //MCMatch_Dphi_ = ps.getUntrackedParameter<double>("MCMatch_Dphi",0.35);
   //
   // MET Collections:
   MetCollectionTag_ = ps.getUntrackedParameter<edm::InputTag>("MetCollectionTag");
-  mcMetCollectionTag_ = ps.getUntrackedParameter<edm::InputTag>("mcMetCollectionTag");
-  t1MetCollectionTag_ = ps.getUntrackedParameter<edm::InputTag>("t1MetCollectionTag");
-  pfMetCollectionTag_ = ps.getUntrackedParameter<edm::InputTag>("pfMetCollectionTag");
-  tcMetCollectionTag_ = ps.getUntrackedParameter<edm::InputTag>("tcMetCollectionTag");
-  //  genMetCollectionTag_ = ps.getUntrackedParameter<edm::InputTag>("genMetCollectionTag");
+  MetCollectionToken_ = consumes<reco::CaloMETCollection>(MetCollectionTag_);
+  mcMetCollectionToken_ = consumes<pat::METCollection>(ps.getUntrackedParameter<edm::InputTag>("mcMetCollectionTag"));
+  t1MetCollectionToken_ = consumes<pat::METCollection>(ps.getUntrackedParameter<edm::InputTag>("t1MetCollectionTag"));
+  pfMetCollectionToken_ = consumes<reco::PFMETCollection>(ps.getUntrackedParameter<edm::InputTag>("pfMetCollectionTag"));
+  tcMetCollectionToken_ = consumes<reco::METCollection>(ps.getUntrackedParameter<edm::InputTag>("tcMetCollectionTag"));
+  //  genMetCollectionToken_ = consumes<reco::GenMETCollection>(ps.getUntrackedParameter<edm::InputTag>("genMetCollectionTag"));
   //
   // HLT parameters:
   // allow info for 2 paths and 2 filters
   // ---------------------------------------------------------------------------
   HLTCollectionE29_= ps.getUntrackedParameter<edm::InputTag>("HLTCollectionE29");
+  HLTCollectionE29Token_ = consumes<trigger::TriggerEvent>(HLTCollectionE29_);
   HLTCollectionE31_= ps.getUntrackedParameter<edm::InputTag>("HLTCollectionE31");
+  HLTCollectionE31Token_ = consumes<trigger::TriggerEvent>(HLTCollectionE31_);
   HLTTriggerResultsE29_ = ps.getUntrackedParameter<edm::InputTag>("HLTTriggerResultsE29");
+  HLTTriggerResultsE29Token_ = consumes<edm::TriggerResults>(HLTTriggerResultsE29_);
   HLTTriggerResultsE31_ = ps.getUntrackedParameter<edm::InputTag>("HLTTriggerResultsE31");
+  HLTTriggerResultsE31Token_ = consumes<edm::TriggerResults>(HLTTriggerResultsE31_);
   //HLTPath_ = ps.getUntrackedParameter<std::string>("HLTPath","HLT_Ele15_LW_L1R");
   //HLTFilterType_ =ps.getUntrackedParameter<edm::InputTag>("HLTFilterType");
   //
@@ -99,17 +102,19 @@ GenPurposeSkimmerData::GenPurposeSkimmerData(const edm::ParameterSet& ps)
   BarrelMaxEta = ps.getUntrackedParameter<double>("BarrelMaxEta");
   EndcapMinEta = ps.getUntrackedParameter<double>("EndcapMinEta");
   EndcapMaxEta = ps.getUntrackedParameter<double>("EndcapMaxEta");
-  // 
-  ctfTracksTag_ = ps.getUntrackedParameter<edm::InputTag>("ctfTracksTag");
-  corHybridsc_  = ps.getUntrackedParameter<edm::InputTag>("corHybridsc");
-  multi5x5sc_   = ps.getUntrackedParameter<edm::InputTag>("multi5x5sc");
+  //
+  ctfTracksToken_ = consumes<reco::TrackCollection>(ps.getUntrackedParameter<edm::InputTag>("ctfTracksTag"));
+  corHybridscToken_  = consumes<reco::SuperClusterCollection>(ps.getUntrackedParameter<edm::InputTag>("corHybridsc"));
+  multi5x5scToken_   = consumes<reco::SuperClusterCollection>(ps.getUntrackedParameter<edm::InputTag>("multi5x5sc"));
+  offlineBeamSpotToken_ = consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot"));
+  pMuonsToken_ = consumes<pat::MuonCollection>(edm::InputTag("selectedLayer1Muons"));
 
 }
 
 
 GenPurposeSkimmerData::~GenPurposeSkimmerData()
 {
- 
+
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
@@ -125,21 +130,21 @@ void
 GenPurposeSkimmerData::analyze(const edm::Event& evt, const edm::EventSetup& es)
 {
   // MC Collection ------------------------------------------------
-  
+
   //  edm::Handle<reco::GenParticleCollection> pGenPart;
-  //  evt.getByLabel(MCCollection_, pGenPart);
+  //  evt.getByToken(MCCollectionToken_, pGenPart);
   //  if ( not  pGenPart.isValid() ) {
   //    std::cout <<"Error! Can't get "<<MCCollection_.label() << std::endl;
   //    return;
   //  }
-  
+
   //  const reco::GenParticleCollection *McCand = pGenPart.product();
-  
+
   // GsF Electron Collection ---------------------------------------
   edm::Handle<pat::ElectronCollection> pElectrons;
 
   try{
-    evt.getByLabel(ElectronCollection_, pElectrons);
+    evt.getByToken(ElectronCollectionToken_, pElectrons);
   }
   catch (cms::Exception)
     {
@@ -156,15 +161,15 @@ GenPurposeSkimmerData::analyze(const edm::Event& evt, const edm::EventSetup& es)
   //
   /*
   edm::Handle<edm::TriggerResults> HLTResultsE29;
-  evt.getByLabel(HLTTriggerResultsE29_, HLTResultsE29);
+  evt.getByToken(HLTTriggerResultsE29Token_, HLTResultsE29);
   if (not HLTResultsE29.isValid()) {
-    std::cout << "HLT Results with label: " << HLTTriggerResultsE29_ 
+    std::cout << "HLT Results with label: " << HLTTriggerResultsE29_
 	      << " not found" << std::endl;
     return;
   }
   //
   edm::Handle<trigger::TriggerEvent> pHLTe29;
-  evt.getByLabel(HLTCollectionE29_, pHLTe29);
+  evt.getByToken(HLTCollectionE29Token_, pHLTe29);
   if (not pHLTe29.isValid()) {
     std::cout << "HLT Results with label: " << HLTCollectionE29_
 	      << " not found" << std::endl;
@@ -180,7 +185,7 @@ GenPurposeSkimmerData::analyze(const edm::Event& evt, const edm::EventSetup& es)
     const edm::TriggerNames & triggerNames = evt.triggerNames(*HLTResultsE29);
     unsigned int trigger_size = HLTResultsE29->size();
     unsigned int trigger_position = triggerNames.triggerIndex(HLTPath_[iT]);
-    if (trigger_position < trigger_size ) 
+    if (trigger_position < trigger_size )
       event_HLTPath[iT] = (int) HLTResultsE29->accept(trigger_position);
     //
     numberOfHLTFilterObjects[iT] = 0;
@@ -201,15 +206,15 @@ GenPurposeSkimmerData::analyze(const edm::Event& evt, const edm::EventSetup& es)
   // High Luminosity Menu (1e31) DISABLED - only low lumi level
   //
   edm::Handle<edm::TriggerResults> HLTResultsE31;
-  evt.getByLabel(HLTTriggerResultsE31_, HLTResultsE31);
+  evt.getByToken(HLTTriggerResultsE31Token_, HLTResultsE31);
   if (not HLTResultsE31.isValid()) {
-      std::cout << "HLT Results with label: " << HLTTriggerResultsE31_ 
+      std::cout << "HLT Results with label: " << HLTTriggerResultsE31_
             << " not found" << std::endl;
     return;
   }
   ////
   edm::Handle<trigger::TriggerEvent> pHLTe31;
-  evt.getByLabel(HLTCollectionE31_, pHLTe31);
+  evt.getByToken(HLTCollectionE31Token_, pHLTe31);
   if (not pHLTe31.isValid()) {
     std::cout << "HLT Results with label: " << HLTCollectionE31_
   	      << " not found" << std::endl;
@@ -223,7 +228,7 @@ GenPurposeSkimmerData::analyze(const edm::Event& evt, const edm::EventSetup& es)
     const edm::TriggerNames & triggerNames = evt.triggerNames(*HLTResultsE31);
     unsigned int trigger_size = HLTResultsE31->size();
     unsigned int trigger_position = triggerNames.triggerIndex(HLTPath_[iT]);
-    if (trigger_position < trigger_size ) 
+    if (trigger_position < trigger_size )
       event_HLTPath[iT] = (int) HLTResultsE31->accept(trigger_position);
     //
     numberOfHLTFilterObjects[iT] = 0;
@@ -240,7 +245,7 @@ GenPurposeSkimmerData::analyze(const edm::Event& evt, const edm::EventSetup& es)
     // not needed
     sum += numberOfHLTFilterObjects[iT];
   }
-  if (sum == 0) { 
+  if (sum == 0) {
     //std::cout << "No trigger found in this event..." << std::endl;
     return;
   }
@@ -249,7 +254,7 @@ GenPurposeSkimmerData::analyze(const edm::Event& evt, const edm::EventSetup& es)
   // print out the triggers that exist in this event
     // comment this out if you want to see the names of the existing triggers
   edm::Handle<trigger::TriggerEvent> pHLTe29;
-  evt.getByLabel(HLTCollectionE29_, pHLTe29);
+  evt.getByToken(HLTCollectionE29Token_, pHLTe29);
   if (not pHLTe29.isValid()){
     std::cout << "Error!!! HLT is missing!" << std::endl;
     return;
@@ -262,7 +267,7 @@ GenPurposeSkimmerData::analyze(const edm::Event& evt, const edm::EventSetup& es)
       const trigger::Keys& KEYS(pHLTe29->filterKeys(filterInd));
       const int nI(VIDS.size());
       const int nK(KEYS.size());
-      int   nObjects = (nI>nK)? nI:nK;     
+      int   nObjects = (nI>nK)? nI:nK;
       const edm::InputTag filterTag = pHLTe29->filterTag(filterInd);
       std::cout << "Found filter with name " << filterTag
 		<< " and #objects: #" << nObjects << std::endl;
@@ -273,22 +278,22 @@ GenPurposeSkimmerData::analyze(const edm::Event& evt, const edm::EventSetup& es)
   // MET Collections:
   //
   edm::Handle<reco::CaloMETCollection> caloMET;
-  evt.getByLabel(MetCollectionTag_, caloMET);  
+  evt.getByToken(MetCollectionToken_, caloMET);
   //
   edm::Handle<pat::METCollection> t1MET;
-  evt.getByLabel(t1MetCollectionTag_, t1MET);
+  evt.getByToken(t1MetCollectionToken_, t1MET);
   //
   edm::Handle<pat::METCollection> mcMET;
-  evt.getByLabel(mcMetCollectionTag_, mcMET);
+  evt.getByToken(mcMetCollectionToken_, mcMET);
   //
   edm::Handle<reco::METCollection> tcMET;
-  evt.getByLabel(tcMetCollectionTag_, tcMET);
+  evt.getByToken(tcMetCollectionToken_, tcMET);
   //
   edm::Handle<reco::PFMETCollection> pfMET;
-  evt.getByLabel(pfMetCollectionTag_, pfMET);
+  evt.getByToken(pfMetCollectionToken_, pfMET);
   //
   //  edm::Handle<reco::GenMETCollection> genMET;
-  //  evt.getByLabel(genMetCollectionTag_, genMET);
+  //  evt.getByToken(genMetCollectionToken_, genMET);
   //
   // initialize the MET variables ........................................
   event_MET     = -99.;   event_MET_phi = -99.;    event_MET_sig = -99.;
@@ -336,25 +341,22 @@ GenPurposeSkimmerData::analyze(const edm::Event& evt, const edm::EventSetup& es)
   //    event_genMET_sig = MET->mEtSig();
   //  }
 
-  //  std::cout << "t1MET: " << event_t1MET  << " twikiT1MET: " 
+  //  std::cout << "t1MET: " << event_t1MET  << " twikiT1MET: "
   //	    << event_twikiT1MET  << ", calo="<<event_MET  << std::endl;
   //
   // some supercluster collections ...........................................
   // correcyedHybridSuperClusters
-  //InputTag corHybridsc("correctedHybridSuperClusters","",InputTagEnding_);
   edm::Handle<reco::SuperClusterCollection> SC1;
-  evt.getByLabel(corHybridsc_,SC1);
+  evt.getByToken(corHybridscToken_,SC1);
   const reco::SuperClusterCollection *sc1 = SC1.product();
   // multi5x5SuperClustersWithPreshower
-  //edm::InputTag multi5x5sc("multi5x5SuperClustersWithPreshower",
-  //			   "", InputTagEnding_);
   edm::Handle<reco::SuperClusterCollection> SC2;
-  evt.getByLabel(multi5x5sc_,SC2);
+  evt.getByToken(multi5x5scToken_,SC2);
   const reco::SuperClusterCollection *sc2 = SC2.product();
   //
   const int n1 =  sc1->size();
   const int n2 =  sc2->size();
-  //std::cout << "SC found: hybrid: " << n1 << ", multi5x5: " 
+  //std::cout << "SC found: hybrid: " << n1 << ", multi5x5: "
   //	    << n2 << std::endl;
   // keep details of the 5 highest ET superclusters
   for (int i=0; i<5; ++i) {
@@ -438,14 +440,14 @@ GenPurposeSkimmerData::analyze(const edm::Event& evt, const edm::EventSetup& es)
   /////// collect the tracks in the event
   //  edm::InputTag ctfTracksTag("generalTracks", "", InputTagEnding_);
   edm::Handle<reco::TrackCollection> ctfTracks;
-  evt.getByLabel(ctfTracksTag_, ctfTracks);
+  evt.getByToken(ctfTracksToken_, ctfTracks);
   const reco::TrackCollection *ctf = ctfTracks.product();
   reco::TrackCollection::const_iterator tr;
   const int ntracks =  ctf->size();
   //
   // get the beam spot for the parameter of the track
   edm::Handle<reco::BeamSpot> pBeamSpot;
-  evt.getByLabel("offlineBeamSpot", pBeamSpot);
+  evt.getByToken(offlineBeamSpotToken_, pBeamSpot);
   const reco::BeamSpot *bspot = pBeamSpot.product();
   const math::XYZPoint bspotPosition = bspot->position();
   //
@@ -496,7 +498,7 @@ GenPurposeSkimmerData::analyze(const edm::Event& evt, const edm::EventSetup& es)
   //
   // keep 4 of the selectedLayer1Muons for reference
   edm::Handle<pat::MuonCollection> pMuons;
-  evt.getByLabel("selectedLayer1Muons", pMuons);
+  evt.getByToken(pMuonsToken_, pMuons);
   const pat::MuonCollection *pmuon = pMuons.product();
   pat::MuonCollection::const_iterator muon;
   const int nmuons =  pMuons->size();
@@ -561,15 +563,15 @@ GenPurposeSkimmerData::analyze(const edm::Event& evt, const edm::EventSetup& es)
     probe_ele_Xvertex_for_tree[i] = -99.0;
     probe_ele_Yvertex_for_tree[i] = -99.0;
     probe_ele_Zvertex_for_tree[i] = -99.0;
-    probe_ele_tip[i] = -999.;    
+    probe_ele_tip[i] = -999.;
 
     probe_sc_eta_for_tree[i] = -99.0;
     probe_sc_et_for_tree[i] = -99.0;
     probe_sc_phi_for_tree[i] = -99.0;
-    
+
     probe_charge_for_tree[i] = -99;
     probe_sc_pass_fiducial_cut[i] = 0;
-    probe_classification_index_for_tree[i]=-99; 
+    probe_classification_index_for_tree[i]=-99;
     //
     // probe isolation values ............
     probe_isolation_value[i] = 999.0;
@@ -606,13 +608,13 @@ GenPurposeSkimmerData::analyze(const edm::Event& evt, const edm::EventSetup& es)
     //
   }
   const pat::ElectronCollection *electrons= pElectrons.product();
-  
+
 
   elec_number_in_event = electrons->size();
-  //std::cout << "In this event " << elec_number_in_event << 
+  //std::cout << "In this event " << elec_number_in_event <<
   //  " electrons were found" << std::endl;
   //  if (elec_number_in_event == 0) return;
- 
+
   std::vector<pat::ElectronRef> UniqueElectrons;
   // edm::LogInfo("") << "Starting loop over electrons.";
   int index =0;
@@ -621,7 +623,7 @@ GenPurposeSkimmerData::analyze(const edm::Event& evt, const edm::EventSetup& es)
   //************* DUPLICATE ******  REMOVAL *******************************
   // 02.06.08: due to a bug in the hybrid algorithm that affects detid ****
   //           we change detid matching to superCluster ref matching ******
-  for(pat::ElectronCollection::const_iterator 
+  for(pat::ElectronCollection::const_iterator
 	elec = electrons->begin(); elec != electrons->end();++elec) {
     const pat::ElectronRef  electronRef(pElectrons, index);
     //Remove duplicate electrons which share a supercluster
@@ -650,7 +652,7 @@ GenPurposeSkimmerData::analyze(const edm::Event& evt, const edm::EventSetup& es)
   //
   // debugging: store electrons after duplicate removal
   elec_1_duplicate_removal = UniqueElectrons.size();
-  //std::cout << "In this event there are " << elec_1_duplicate_removal 
+  //std::cout << "In this event there are " << elec_1_duplicate_removal
   //   	    << " electrons" << std::endl;
   //
   //
@@ -659,7 +661,7 @@ GenPurposeSkimmerData::analyze(const edm::Event& evt, const edm::EventSetup& es)
   //
   // run over probes - now probe electrons and store
   //
-  // the electron collection is now 
+  // the electron collection is now
   // vector<reco::PixelMatchGsfElectronRef>   UniqueElectrons
   std::vector<double> ETs;
   std::vector<pat::ElectronRef>::const_iterator  elec;
@@ -698,8 +700,8 @@ GenPurposeSkimmerData::analyze(const edm::Event& evt, const edm::EventSetup& es)
       probe_sc_phi_for_tree[probeIt] = probeEle->caloPosition().phi();
       probe_sc_et_for_tree[probeIt] = probeEt;
       // fiducial cut ...............................
-      if(fabs(probeEle->caloPosition().eta()) < BarrelMaxEta || 
-	 (fabs(probeEle->caloPosition().eta()) > EndcapMinEta && 
+      if(fabs(probeEle->caloPosition().eta()) < BarrelMaxEta ||
+	 (fabs(probeEle->caloPosition().eta()) > EndcapMinEta &&
 	  fabs(probeEle->caloPosition().eta()) < EndcapMaxEta)){
 	probe_sc_pass_fiducial_cut[probeIt] = 1;
       }
@@ -711,7 +713,7 @@ GenPurposeSkimmerData::analyze(const edm::Event& evt, const edm::EventSetup& es)
       probe_ele_Xvertex_for_tree[probeIt] =probeEle->vx();
       probe_ele_Yvertex_for_tree[probeIt] =probeEle->vy();
       probe_ele_Zvertex_for_tree[probeIt] =probeEle->vz();
-      probe_classification_index_for_tree[probeIt] = 
+      probe_classification_index_for_tree[probeIt] =
 	probeEle->classification();
       double ProbeTIP = probeEle->gsfTrack()->d0();
       probe_ele_tip[probeIt] = ProbeTIP;
@@ -721,22 +723,22 @@ GenPurposeSkimmerData::analyze(const edm::Event& evt, const edm::EventSetup& es)
       // is clearer what you get each time :P
       probe_isolation_value[probeIt] = probeEle->dr03IsolationVariables().tkSumPt;
       probe_ecal_isolation_value[probeIt] = probeEle->dr04IsolationVariables().ecalRecHitSumEt;
-      probe_hcal_isolation_value[probeIt] = 
-	probeEle->dr04IsolationVariables().hcalDepth1TowerSumEt + 
+      probe_hcal_isolation_value[probeIt] =
+	probeEle->dr04IsolationVariables().hcalDepth1TowerSumEt +
 	probeEle->dr04IsolationVariables().hcalDepth2TowerSumEt;
       // one extra isos:
       probe_iso_user[probeIt] = probeEle->dr04IsolationVariables().tkSumPt;
       probe_ecal_iso_user[probeIt] = probeEle->dr03IsolationVariables().ecalRecHitSumEt;
-      probe_hcal_iso_user[probeIt] = 
-	probeEle->dr03IsolationVariables().hcalDepth1TowerSumEt + 
+      probe_hcal_iso_user[probeIt] =
+	probeEle->dr03IsolationVariables().hcalDepth1TowerSumEt +
 	probeEle->dr03IsolationVariables().hcalDepth2TowerSumEt;
       // ele id variables
       double hOverE = probeEle->hadronicOverEm();
       double deltaPhiIn = probeEle->deltaPhiSuperClusterTrackAtVtx();
       double deltaEtaIn = probeEle->deltaEtaSuperClusterTrackAtVtx();
       double eOverP = probeEle->eSuperClusterOverP();
-      double pin  = probeEle->trackMomentumAtVtx().R(); 
-      double pout = probeEle->trackMomentumOut().R(); 
+      double pin  = probeEle->trackMomentumAtVtx().R();
+      double pout = probeEle->trackMomentumOut().R();
       double sigmaee = probeEle->scSigmaEtaEta();
       double sigma_IetaIeta = probeEle->scSigmaIEtaIEta();
       // correct if in endcaps
@@ -762,7 +764,7 @@ GenPurposeSkimmerData::analyze(const edm::Event& evt, const edm::EventSetup& es)
       probe_ele_e5x5[probeIt] = e5x5;
       probe_ele_e2x5[probeIt] = e2x5;
       probe_ele_e1x5[probeIt] = e1x5;
- 
+
       //
       // HLT filter ------------------------------------------------------
       //
@@ -771,7 +773,7 @@ GenPurposeSkimmerData::analyze(const edm::Event& evt, const edm::EventSetup& es)
       /*************************************************************
       for (int filterNum=0; filterNum<10; ++filterNum) {
 	int trigger_int_probe = 0;
-	
+
 	//double hlt_matched_dr   = -1.;
 	const int nF(pHLTe29->sizeFilters());
 	//
@@ -791,7 +793,7 @@ GenPurposeSkimmerData::analyze(const edm::Event& evt, const edm::EventSetup& es)
 	    // this is better to be left out: HLT matching is with an HLT object
 	    // and we don't care what this object is
 	    //if (abs(TO.id())==11 ) { // demand it to be an electron
-	    double dr_ele_HLT = 
+	    double dr_ele_HLT =
 	      reco::deltaR(probeEle->eta(), probeEle->phi(), TO.eta(), TO.phi());
 	    if (fabs(dr_ele_HLT) < ProbeHLTObjMaxDR) {++trigger_int_probe;
 	    //hlt_matched_dr = dr_ele_HLT;
@@ -806,7 +808,7 @@ GenPurposeSkimmerData::analyze(const edm::Event& evt, const edm::EventSetup& es)
       // high lumi filters
       for (int filterNum=10; filterNum<25; ++filterNum) {
       	int trigger_int_probe = 0;
-      	
+
       	//double hlt_matched_dr   = -1.;
       	const int nF(pHLTe31->sizeFilters());
       	//
@@ -823,14 +825,14 @@ GenPurposeSkimmerData::analyze(const edm::Event& evt, const edm::EventSetup& es)
 	  for (int iTrig = 0;iTrig <nK; ++iTrig ) {
 	    const trigger::TriggerObject& TO(TOC[KEYS[iTrig]]);
 	    //if (abs(TO.id())==11 ) { // demand it to be an electron
-	    double dr_ele_HLT = 
+	    double dr_ele_HLT =
 	      reco::deltaR(probeEle->eta(), probeEle->phi(), TO.eta(), TO.phi());
 	    if (fabs(dr_ele_HLT) < ProbeHLTObjMaxDR) {++trigger_int_probe;
 	    //hlt_matched_dr = dr_ele_HLT;
 	    }
 	  }
 	}
-      
+
 	//
 	if(trigger_int_probe>0) probe_pass_trigger_cut[probeIt][filterNum] = 1;
 	//probe_hlt_matched_dr[probeIt] = hlt_matched_dr;
@@ -845,7 +847,7 @@ GenPurposeSkimmerData::analyze(const edm::Event& evt, const edm::EventSetup& es)
       int matched = 0; int mother_id = 999;
       double deta_matched = 999.;      double dphi_matched = 999.;
       double denergy_matched = 999.;
-      for(reco::GenParticleCollection::const_iterator   McParticle = 
+      for(reco::GenParticleCollection::const_iterator   McParticle =
 	    McCand->begin(); McParticle != McCand->end();  ++McParticle)
 	{
 	  // check only for electrons
@@ -868,7 +870,7 @@ GenPurposeSkimmerData::analyze(const edm::Event& evt, const edm::EventSetup& es)
 	      else {
 		edm::LogInfo("info") << "Going too far to find the mum";
 		mother_finder = false;
-	      }		 
+	      }
 	      if (mother_finder) {
 		mother_id = mum->pdgId();
 	      }
@@ -882,7 +884,7 @@ GenPurposeSkimmerData::analyze(const edm::Event& evt, const edm::EventSetup& es)
       probe_mc_matched_mother[probeIt] = mother_id;
       */
     }
-  
+
   probe_tree->Fill();
   ++ tree_fills_;
   delete []  sorted;
@@ -891,7 +893,7 @@ GenPurposeSkimmerData::analyze(const edm::Event& evt, const edm::EventSetup& es)
 
 
 // ------------ method called once each job just before starting event loop  --
-void 
+void
 GenPurposeSkimmerData::beginJob()
 {
   //std::cout << "In beginJob()" << std::endl;
@@ -1015,7 +1017,7 @@ GenPurposeSkimmerData::beginJob()
   probe_tree->Branch("ctf_track_vy", ctf_track_vy, "ctf_track_vy[20]/D");
   probe_tree->Branch("ctf_track_vz", ctf_track_vz, "ctf_track_vz[20]/D");
   probe_tree->Branch("ctf_track_tip", ctf_track_tip, "ctf_track_tip[20]/D");
-  probe_tree->Branch("ctf_track_tip_bs", ctf_track_tip_bs, 
+  probe_tree->Branch("ctf_track_tip_bs", ctf_track_tip_bs,
 		     "ctf_track_tip_bs[20]/D");
   //
   probe_tree->Branch("muon_pt",  muon_pt,  "muon_pt[4]/D");
@@ -1030,7 +1032,7 @@ GenPurposeSkimmerData::beginJob()
 }
 
 // ------------ method called once each job just after ending the event loop  -
-void 
+void
 GenPurposeSkimmerData::endJob() {
   //std::cout << "In endJob()" << std::endl;
   if (tree_fills_ == 0) {

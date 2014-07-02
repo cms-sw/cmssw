@@ -59,7 +59,7 @@ process.ak7PFL2L3Histos = process.ak5CaloL2L3Histos.clone(src = 'ak7PFJetsL2L3')
 process.kt4PFL2L3Histos = process.ak5CaloL2L3Histos.clone(src = 'kt4PFJetsL2L3')
 #process.kt6PFL2L3Histos = process.ak5CaloL2L3Histos.clone(src = 'kt6PFJetsL2L3')
 
-process.ak5JPTL2L3Histos = process.ak5CaloL2L3Histos.clone(src = 'ak5JPTJetsL2L3')
+process.ak4JPTL2L3Histos = process.ak5CaloL2L3Histos.clone(src = 'ak4JPTJetsL2L3')
 process.ak5TrackL2L3Histos = process.ak5CaloL2L3Histos.clone(src = 'ak5TrackJetsL2L3')
 
 #
@@ -75,7 +75,7 @@ process.ak5PFJetsL2L3 * process.ak5PFL2L3Histos * process.ak7PFJetsL2L3 * proces
 process.kt4PFJetsL2L3 * process.kt4PFL2L3Histos *
 #process.kt6PFJetsL2L3 * process.kt6PFL2L3Histos *
 #------ create the corrected jptjet collection and run the histogram module -------
-process.ak5JPTJetsL2L3 * process.ak5JPTL2L3Histos *
+process.ak4JPTJetsL2L3 * process.ak4JPTL2L3Histos *
 #------ create the corrected trackjet collection and run the histogram module -----
 process.ak5TrackJetsL2L3 * process.ak5TrackL2L3Histos
 )

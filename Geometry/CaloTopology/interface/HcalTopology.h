@@ -73,6 +73,8 @@ public:
   bool decIPhi(const HcalDetId& id, HcalDetId &neighbor) const;
   /** Get the detector behind this one */
   bool incrementDepth(HcalDetId& id) const;
+  /** Get the detector in front of this one */
+  bool decrementDepth(HcalDetId& id) const;
 
   int firstHBRing() const {return firstHBRing_;}
   int lastHBRing()  const {return lastHBRing_;}

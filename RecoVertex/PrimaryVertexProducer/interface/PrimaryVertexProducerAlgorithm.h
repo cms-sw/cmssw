@@ -82,6 +82,7 @@ public:
   edm::InputTag trackLabel;
   edm::InputTag beamSpotLabel;
 private:
+  using VertexReconstructor::vertices;
   // ----------member data ---------------------------
   TrackFilterForPVFindingBase* theTrackFilter; 
   TrackClusterizerInZ* theTrackClusterizer;

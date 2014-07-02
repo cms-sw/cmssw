@@ -32,8 +32,7 @@ RKPropagatorInS::propagateWithPath(const FreeTrajectoryState& fts,
 
   SurfaceSideDefinition::SurfaceSide side = PropagationDirectionFromPath()(gp.s(),propagationDirection())==alongMomentum 
     ? SurfaceSideDefinition::beforeSurface : SurfaceSideDefinition::afterSurface;
-  AnalyticalErrorPropagation errorprop;
-  return errorprop( fts, plane, side, gp.parameters(),gp.s());
+  return  analyticalErrorPropagation( fts, plane, side, gp.parameters(),gp.s());
 }
 
 std::pair< TrajectoryStateOnSurface, double> 
@@ -44,8 +43,7 @@ RKPropagatorInS::propagateWithPath (const FreeTrajectoryState& fts, const Cylind
 
   SurfaceSideDefinition::SurfaceSide side = PropagationDirectionFromPath()(gp.s(),propagationDirection())==alongMomentum 
     ? SurfaceSideDefinition::beforeSurface : SurfaceSideDefinition::afterSurface;
-  AnalyticalErrorPropagation errorprop;
-  return errorprop( fts, cyl, side, gp.parameters(),gp.s());
+  return analyticalErrorPropagation( fts, cyl, side, gp.parameters(),gp.s());
   
 }
 
@@ -330,17 +328,6 @@ RKPropagatorInS::propagateParametersOnCylinder( const FreeTrajectoryState& ts,
   return GlobalParametersWithPath();
 }
 
-TrajectoryStateOnSurface 
-RKPropagatorInS::propagate(const FreeTrajectoryState& fts, const Plane& plane) const
-{
-  return propagateWithPath( fts, plane).first;
-}
-
-TrajectoryStateOnSurface
-RKPropagatorInS::propagate( const FreeTrajectoryState& fts, const Cylinder& cyl) const
-{
-  return propagateWithPath( fts, cyl).first;
-}
 
 Propagator * RKPropagatorInS::clone() const
 {

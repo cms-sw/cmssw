@@ -1,6 +1,8 @@
 #ifndef Alignments_H
 #define Alignments_H
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/Alignment/interface/AlignTransform.h"
 
 #include<vector>
@@ -15,5 +17,7 @@ public:
   inline void clear() {m_align.clear();}
 
   std::vector<AlignTransform> m_align;
+
+  COND_SERIALIZABLE;
 };
 #endif // Alignments_H

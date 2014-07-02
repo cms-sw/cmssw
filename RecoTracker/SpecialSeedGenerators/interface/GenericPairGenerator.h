@@ -4,12 +4,14 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "RecoTracker/TkHitPairs/interface/OrderedHitPairs.h"
-#include "RecoTracker/TkSeedingLayers/interface/SeedingLayerSetsBuilder.h"
 #include "RecoTracker/TkSeedingLayers/interface/OrderedSeedingHits.h"
+
+class SeedingLayerSetsHits;
 
 class GenericPairGenerator : public OrderedHitsGenerator {
 	public:
@@ -20,8 +22,7 @@ class GenericPairGenerator : public OrderedHitsGenerator {
 					      const edm::EventSetup& es);
         void clear() { hitPairs.clear();}
 	private:
-	SeedingLayerSetsBuilder theLsb;
-	ctfseeding::SeedingLayerSets theLss;
+	edm::EDGetTokenT<SeedingLayerSetsHits> theSeedingLayerToken;
 	OrderedHitPairs hitPairs;
 };
 

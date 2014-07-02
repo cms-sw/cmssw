@@ -34,24 +34,23 @@ class TrackAnalyzer
         TrackAnalyzer(const edm::ParameterSet&);
 	TrackAnalyzer(const edm::ParameterSet&, edm::ConsumesCollector& iC);
         virtual ~TrackAnalyzer();
-        virtual void beginJob(DQMStore * dqmStore_);
-        virtual void beginRun(DQMStore * dqmStore_);
+        virtual void initHisto(DQMStore::IBooker & ibooker);
 
         virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, const reco::Track& track);
 
         void doSoftReset  (DQMStore * dqmStore_);
-        void doReset      (DQMStore * dqmStore_);
+        void doReset      ();
         void undoSoftReset(DQMStore * dqmStore_);
         void setLumiFlag();
 
     private:
 	void initHistos();
         void fillHistosForState(const edm::EventSetup& iSetup, const reco::Track & track, std::string sname);
-        void bookHistosForState(std::string sname,DQMStore * dqmStore_);
-        void bookHistosForHitProperties(DQMStore * dqmStore_);
-	void bookHistosForLScertification(DQMStore * dqmStore_);
-	void bookHistosForBeamSpot(DQMStore * dqmStore_);
-        void bookHistosForTrackerSpecific(DQMStore * dqmStore_);
+        void bookHistosForState(std::string sname,DQMStore::IBooker & ibooker);
+        void bookHistosForHitProperties(DQMStore::IBooker & ibooker);
+	void bookHistosForLScertification(DQMStore::IBooker & ibooker);
+	void bookHistosForBeamSpot(DQMStore::IBooker & ibooker);
+        void bookHistosForTrackerSpecific(DQMStore::IBooker & ibooker);
         void fillHistosForHitProperties(const edm::EventSetup& iSetup, const reco::Track & track, std::string sname);
 	void fillHistosForLScertification(const edm::EventSetup& iSetup, const reco::Track & track, std::string sname);
         void fillHistosForTrackerSpecific(const reco::Track & track);

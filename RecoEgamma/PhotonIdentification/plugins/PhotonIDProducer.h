@@ -1,7 +1,7 @@
 #ifndef PhotonIDProducer_h
 #define PhotonIDProducer_h
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -10,9 +10,10 @@
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "RecoEgamma/PhotonIdentification/interface/CutBasedPhotonIDAlgo.h"
 #include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 
 
-class PhotonIDProducer : public edm::EDProducer
+class PhotonIDProducer : public edm::stream::EDProducer<>
 {
  public:
 
@@ -26,9 +27,8 @@ class PhotonIDProducer : public edm::EDProducer
   CutBasedPhotonIDAlgo* cutBasedAlgo_; 	   
 
   edm::ParameterSet conf_;
+  edm::EDGetTokenT<reco::PhotonCollection> photonToken_;
 
-  std::string photonProducer_;
-  std::string photonLabel_;
   std::string photonCutBasedIDLooseEMLabel_;
   std::string photonCutBasedIDLooseLabel_;
   std::string photonCutBasedIDTightLabel_;

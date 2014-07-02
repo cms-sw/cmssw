@@ -68,16 +68,16 @@ private:
     int extractGenID(const G4Track * gt) const;
 };
 
-extern G4Allocator<TrackWithHistory> TrackWithHistoryAllocator;
+extern G4ThreadLocal G4Allocator<TrackWithHistory> *fpTrackWithHistoryAllocator;
 
 inline void * TrackWithHistory::operator new(size_t) {
-  void * aTwH;
-  aTwH = (void *) TrackWithHistoryAllocator.MallocSingle();
-  return aTwH;
+  if (!fpTrackWithHistoryAllocator) fpTrackWithHistoryAllocator = 
+    new G4Allocator<TrackWithHistory>;
+  return (void*)fpTrackWithHistoryAllocator->MallocSingle();
 }
 
 inline void TrackWithHistory::operator delete(void * aTwH) {  
-  TrackWithHistoryAllocator.FreeSingle((TrackWithHistory*) aTwH); 
+  fpTrackWithHistoryAllocator->FreeSingle((TrackWithHistory*) aTwH); 
 }
 
 

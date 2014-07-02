@@ -28,50 +28,53 @@ using namespace isodeposit;
 
 class ZMuMuUserData : public edm::EDProducer {
 public:
-  ZMuMuUserData( const edm::ParameterSet & );   
+  ZMuMuUserData( const edm::ParameterSet & );
   typedef math::XYZVector Vector;
 private:
   void produce( edm::Event &, const edm::EventSetup & ) override;
-  
-  InputTag src_,beamSpot_, primaryVertices_, zGenParticlesMatch_;
-  double alpha_, beta_; 
-  string hltPath_; 
+
+  EDGetTokenT<std::vector<reco::CompositeCandidate> > srcToken_;
+  EDGetTokenT<BeamSpot> beamSpotToken_;
+  EDGetTokenT<VertexCollection> primaryVerticesToken_;
+  EDGetTokenT<GenParticleMatch> zGenParticlesMatchToken_;
+  double alpha_, beta_;
+  string hltPath_;
   int counter;
-  
+
 
 };
 
 
 
 ZMuMuUserData::ZMuMuUserData( const ParameterSet & cfg ):
-  src_( cfg.getParameter<InputTag>( "src" ) ),
-  beamSpot_(cfg.getParameter<InputTag>( "beamSpot" ) ),
-  primaryVertices_(cfg.getParameter<InputTag>( "primaryVertices" ) ),
-  zGenParticlesMatch_(cfg.getParameter<InputTag>( "zGenParticlesMatch" ) ),
+  srcToken_(consumes<std::vector<reco::CompositeCandidate> > ( cfg.getParameter<InputTag>( "src" ) ) ),
+  beamSpotToken_(consumes<BeamSpot> (cfg.getParameter<InputTag>( "beamSpot" ) ) ),
+  primaryVerticesToken_(consumes<VertexCollection> (cfg.getParameter<InputTag>( "primaryVertices" ) ) ),
+  zGenParticlesMatchToken_(consumes<GenParticleMatch> (cfg.getParameter<InputTag>( "zGenParticlesMatch" ) ) ),
   alpha_(cfg.getParameter<double>("alpha") ),
-  beta_(cfg.getParameter<double>("beta") ), 
+  beta_(cfg.getParameter<double>("beta") ),
   hltPath_(cfg.getParameter<std::string >("hltPath") ){
   produces<vector<pat::CompositeCandidate> >();
 }
 
 void ZMuMuUserData::produce( Event & evt, const EventSetup & ) {
   Handle<std::vector<reco::CompositeCandidate> > dimuons;
-  evt.getByLabel(src_,dimuons);
+  evt.getByToken(srcToken_,dimuons);
 
   Handle<BeamSpot> beamSpotHandle;
-  evt.getByLabel(beamSpot_, beamSpotHandle);
-  
-  Handle<VertexCollection> primaryVertices;  // Collection of primary Vertices
-  evt.getByLabel(primaryVertices_, primaryVertices);
+  evt.getByToken(beamSpotToken_, beamSpotHandle);
 
-  
+  Handle<VertexCollection> primaryVertices;  // Collection of primary Vertices
+  evt.getByToken(primaryVerticesToken_, primaryVertices);
+
+
   bool isMCMatchTrue=false;
-   
+
   Handle<GenParticleMatch> zGenParticlesMatch;
-  if(evt.getByLabel( zGenParticlesMatch_, zGenParticlesMatch )){
+  if(evt.getByToken( zGenParticlesMatchToken_, zGenParticlesMatch )){
     isMCMatchTrue=true;
   }
-  
+
   //cout<<"isMCMatchTrue"<<isMCMatchTrue <<endl;
   auto_ptr<vector<pat::CompositeCandidate> > dimuonColl( new vector<pat::CompositeCandidate> () );
 
@@ -81,7 +84,7 @@ void ZMuMuUserData::produce( Event & evt, const EventSetup & ) {
     //CandidateBaseRef zRef = dimuons ->refAt(i);
     edm::Ref<std::vector<reco::CompositeCandidate> > zRef(dimuons, i);
     pat::CompositeCandidate dimuon(z);
-    
+
     float trueMass,truePt,trueEta,truePhi,trueY;
     if (isMCMatchTrue){
     GenParticleRef trueZRef  = (*zGenParticlesMatch)[zRef];
@@ -94,13 +97,13 @@ void ZMuMuUserData::produce( Event & evt, const EventSetup & ) {
       truePhi  = z.phi();
       trueY    = z.rapidity();
     } else {
-      trueMass = -100; 
+      trueMass = -100;
       truePt   = -100;
       trueEta  = -100;
       truePhi  = -100;
-      trueY    = -100;  
+      trueY    = -100;
     }
-   
+
     dimuon.addUserFloat("TrueMass",trueMass);
     dimuon.addUserFloat("TruePt",truePt);
     dimuon.addUserFloat("TrueEta",trueEta);
@@ -108,11 +111,11 @@ void ZMuMuUserData::produce( Event & evt, const EventSetup & ) {
     dimuon.addUserFloat("TrueY",trueY);
 
     }
-    const Candidate * dau1 = z.daughter(0); 
-    const Candidate * dau2 = z.daughter(1); 
+    const Candidate * dau1 = z.daughter(0);
+    const Candidate * dau2 = z.daughter(1);
     const pat::Muon & mu1 = dynamic_cast<const pat::Muon&>(*dau1->masterClone());
     const pat::Muon & mu2 = dynamic_cast<const pat::Muon&>(*dau2->masterClone());
-    
+
     /*cout<<"mu1 is null? "<<mu1.isMuon()<<endl;
     cout<<"mu2 is null? "<<mu2.isMuon()<<endl;
     cout<<"mu1 is global?"<<mu1.isGlobalMuon()<<endl;
@@ -147,24 +150,24 @@ void ZMuMuUserData::produce( Event & evt, const EventSetup & ) {
 	zDau1SaPt = - stAloneTrack1->pt();
 	zDau2SaPt =  stAloneTrack2->pt();
       }
-      
+
       Candidate::PolarLorentzVector p4_2(momentum.rho(), momentum.eta(),momentum.phi(), mu_mass);
       double mass = (p4_1+p4_2).mass();
       float zMassSa = mass;
       //cout<<"zMassSa "<<zMassSa;
-      dimuon.addUserFloat("MassSa",zMassSa);  	
-      dimuon.addUserFloat("Dau1SaPt",zDau1SaPt);  	
-      dimuon.addUserFloat("Dau2SaPt",zDau2SaPt);  	
-      dimuon.addUserFloat("Dau1SaPhi",zDau1SaPhi);  	
-      dimuon.addUserFloat("Dau2SaPhi",zDau2SaPhi);  	
-      dimuon.addUserFloat("Dau1SaEta",zDau1SaEta);  	
-      dimuon.addUserFloat("Dau2SaEta",zDau2SaEta);  	
+      dimuon.addUserFloat("MassSa",zMassSa);
+      dimuon.addUserFloat("Dau1SaPt",zDau1SaPt);
+      dimuon.addUserFloat("Dau2SaPt",zDau2SaPt);
+      dimuon.addUserFloat("Dau1SaPhi",zDau1SaPhi);
+      dimuon.addUserFloat("Dau2SaPhi",zDau2SaPhi);
+      dimuon.addUserFloat("Dau1SaEta",zDau1SaEta);
+      dimuon.addUserFloat("Dau2SaEta",zDau2SaEta);
       ++counter;
     }
     dimuonColl->push_back(dimuon);
-    
+
   }
-  
+
 
   evt.put( dimuonColl);
 }

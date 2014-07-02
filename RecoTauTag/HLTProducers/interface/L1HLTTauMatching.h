@@ -26,12 +26,12 @@ class L1HLTTauMatching: public edm::EDProducer {
 
  private:
   std::vector<l1extra::L1JetParticleRef> tauCandRefVec;
-std::vector<l1extra::L1JetParticleRef> jetCandRefVec;
+  std::vector<l1extra::L1JetParticleRef> jetCandRefVec;
   std::vector<l1extra::L1JetParticleRef> objL1CandRefVec;
   l1extra::L1JetParticleRef tauCandRef;
     
-  edm::InputTag jetSrc;
-  edm::InputTag tauTrigger;
+  edm::EDGetTokenT<reco::PFTauCollection> jetSrc;
+  edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> tauTrigger;
   double mEt_Min;
 };
 #endif

@@ -40,7 +40,7 @@ constexpr double nSigmaRZ = 3.4641016151377544; // sqrt(12.)
 constexpr double nSigmaPhi = 3.;
 static float fnSigmaRZ = std::sqrt(12.f);
 
-PixelTripletLargeTipGenerator::PixelTripletLargeTipGenerator(const edm::ParameterSet& cfg)
+PixelTripletLargeTipGenerator::PixelTripletLargeTipGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC)
   : thePairGenerator(0),
     theLayerCache(0),
     useFixedPreFiltering(cfg.getParameter<bool>("useFixedPreFiltering")),

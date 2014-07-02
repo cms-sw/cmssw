@@ -37,6 +37,7 @@
 
 #include <string>
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 //For RecHit
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h" 
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h" 
@@ -44,7 +45,7 @@
 class SiStripDetCabling;
 class SiStripDCSStatus;
 
-class SiStripRecHitsValid : public edm::EDAnalyzer {
+class SiStripRecHitsValid : public DQMEDAnalyzer {
 
  public:
   
@@ -114,14 +115,16 @@ class SiStripRecHitsValid : public edm::EDAnalyzer {
  protected:
 
   virtual void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es);
   void beginJob(const edm::EventSetup& es);
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
   void endJob();
-    
+
  private: 
   //Back-End Interface
   DQMStore* dbe_;
-  std::string outputFile_;
+  bool outputMEsInRootFile;
+  bool runStandalone;
+  std::string outputFileName;
 
   TotalMEs totalMEs;
 
@@ -173,13 +176,13 @@ class SiStripRecHitsValid : public edm::EDAnalyzer {
 
   std::pair<LocalPoint,LocalVector> projectHit( const PSimHit& hit, const StripGeomDetUnit* stripDet,
 							const BoundPlane& plane);
-  void createMEs(const edm::EventSetup& es);
-  void createTotalMEs(); 
-  void createLayerMEs(std::string label);
-  void createSubDetMEs(std::string label);
-  void createStereoAndMatchedMEs(std::string label);
+  void createMEs(DQMStore::IBooker & ibooker,const edm::EventSetup& es);
+  void createTotalMEs(DQMStore::IBooker & ibooker); 
+  void createLayerMEs(DQMStore::IBooker & ibooker,std::string label);
+  void createSubDetMEs(DQMStore::IBooker & ibooker,std::string label);
+  void createStereoAndMatchedMEs(DQMStore::IBooker & ibooker,std::string label);
   
-  MonitorElement* bookME1D(const char* ParameterSetLabel, const char* HistoName, const char* HistoTitle);
+  MonitorElement* bookME1D(DQMStore::IBooker & ibooker,const char* ParameterSetLabel, const char* HistoName, const char* HistoTitle);
 
   inline void fillME(MonitorElement* ME,float value1){if (ME!=0)ME->Fill(value1);}
   inline void fillME(MonitorElement* ME,float value1,float value2){if (ME!=0)ME->Fill(value1,value2);}

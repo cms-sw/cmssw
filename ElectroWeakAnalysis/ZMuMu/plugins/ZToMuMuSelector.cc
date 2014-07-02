@@ -5,68 +5,63 @@
  */
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 class ZToMuMuSelector : public edm::EDFilter {
 public:
   ZToMuMuSelector (const edm::ParameterSet &);
   virtual bool filter(edm::Event&, const edm::EventSetup&) override;
 private:
-  edm::InputTag muonTag_;
-  edm::InputTag isoTag_;
+  edm::EDGetTokenT<reco::TrackCollection> muonToken_;
+  edm::EDGetTokenT<edm::ValueMap<bool> > isoToken_;
   double ptCut_;
   double etaCut_;
   double massZMin_;
   double massZMax_;
 
   bool onlyGlobalMuons_;
-  edm::InputTag trackerTag_;
-  edm::InputTag isoTrackerTag_;
+  edm::EDGetTokenT<reco::TrackCollection> trackerToken_;
+  edm::EDGetTokenT<edm::ValueMap<bool> > isoTrackerToken_;
   int minTrackerHits_;
 };
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/ValueMap.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 using namespace edm;
 using namespace std;
 using namespace reco;
 
 ZToMuMuSelector::ZToMuMuSelector( const ParameterSet & cfg ) :
-      muonTag_(cfg.getParameter<edm::InputTag> ("MuonTag")),
-      isoTag_(cfg.getParameter<edm::InputTag> ("IsolationTag")),
+      muonToken_(consumes<TrackCollection>(cfg.getParameter<edm::InputTag> ("MuonTag"))),
+      isoToken_(consumes<edm::ValueMap<bool> >(cfg.getParameter<edm::InputTag> ("IsolationTag"))),
       ptCut_(cfg.getParameter<double>("PtCut")),
       etaCut_(cfg.getParameter<double>("EtaCut")),
       massZMin_(cfg.getParameter<double>("MassZMin")),
       massZMax_(cfg.getParameter<double>("MassZMax")),
 
       onlyGlobalMuons_(cfg.getParameter<bool>("OnlyGlobalMuons")),
-      trackerTag_(cfg.getUntrackedParameter<edm::InputTag> ("TrackerTag",edm::InputTag("ctfWithMaterialTracks"))),
-      isoTrackerTag_(cfg.getUntrackedParameter<edm::InputTag> ("TrackerIsolationTag",edm::InputTag("zMuMuTrackerIsolations"))),
+      trackerToken_(mayConsume<TrackCollection>(cfg.getUntrackedParameter<edm::InputTag> ("TrackerTag",edm::InputTag("ctfWithMaterialTracks")))),
+      isoTrackerToken_(mayConsume<edm::ValueMap<bool> >(cfg.getUntrackedParameter<edm::InputTag> ("TrackerIsolationTag",edm::InputTag("zMuMuTrackerIsolations")))),
       minTrackerHits_(cfg.getUntrackedParameter<int>("MinTrackerHits",7))
 {
 }
 
 bool ZToMuMuSelector::filter (Event & ev, const EventSetup &) {
 
-      // Note:    try/catch sequences should disappear in the future
-      //          GetByLabel will return a false bool value 
-      //          if the collection is not present
-
       Handle<TrackCollection> muonCollection;
-
-      ev.getByLabel(muonTag_, muonCollection);
+      ev.getByToken(muonToken_, muonCollection);
       if (!muonCollection.isValid()) {
 	LogTrace("") << ">>> Muon collection does not exist !!!";
 	return false;
       }
 
       Handle<edm::ValueMap<bool> > isoMap;
-      ev.getByLabel(isoTag_, isoMap);
+      ev.getByToken(isoToken_, isoMap);
       if (!isoMap.isValid()) {
 	LogTrace("") << ">>> ISO Muon collection does not exist !!!";
 	return false;
@@ -75,13 +70,13 @@ bool ZToMuMuSelector::filter (Event & ev, const EventSetup &) {
       Handle<TrackCollection> trackerCollection;
       Handle<edm::ValueMap<bool> > isoTrackerMap;
       if (!onlyGlobalMuons_) {
-	ev.getByLabel(trackerTag_, trackerCollection);
+	ev.getByToken(trackerToken_, trackerCollection);
 	if (!trackerCollection.isValid()) {
 	  LogTrace("") << ">>> Tracker collection does not exist !!!";
 	  return false;
 	}
-	
-	ev.getByLabel(isoTrackerTag_, isoTrackerMap);
+
+	ev.getByToken(isoTrackerToken_, isoTrackerMap);
 	if (!isoTrackerMap.isValid()) {
 	  LogTrace("") << ">>> ISO Tracker collection does not exist !!!";
 	  return false;

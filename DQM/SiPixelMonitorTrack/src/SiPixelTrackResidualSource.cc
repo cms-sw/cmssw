@@ -126,14 +126,14 @@ void SiPixelTrackResidualSource::beginRun(const edm::Run& r, edm::EventSetup con
   // build theSiPixelStructure with the pixel barrel and endcap dets from TrackerGeometry
   for (TrackerGeometry::DetContainer::const_iterator pxb = TG->detsPXB().begin();  
        pxb!=TG->detsPXB().end(); pxb++) {
-    if (dynamic_cast<PixelGeomDetUnit*>((*pxb))!=0) {
+    if (dynamic_cast<PixelGeomDetUnit const *>((*pxb))!=0) {
       SiPixelTrackResidualModule* module = new SiPixelTrackResidualModule((*pxb)->geographicalId().rawId());
       theSiPixelStructure.insert(pair<uint32_t, SiPixelTrackResidualModule*>((*pxb)->geographicalId().rawId(), module));
     }
   }
   for (TrackerGeometry::DetContainer::const_iterator pxf = TG->detsPXF().begin(); 
        pxf!=TG->detsPXF().end(); pxf++) {
-    if (dynamic_cast<PixelGeomDetUnit*>((*pxf))!=0) {
+    if (dynamic_cast<PixelGeomDetUnit const *>((*pxf))!=0) {
       SiPixelTrackResidualModule* module = new SiPixelTrackResidualModule((*pxf)->geographicalId().rawId());
       theSiPixelStructure.insert(pair<uint32_t, SiPixelTrackResidualModule*>((*pxf)->geographicalId().rawId(), module));
     }
@@ -1090,7 +1090,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
 		meClSizeYOnTrack_bpix->Fill((*clust).sizeY());
 		uint32_t DBlayer;
 		if (!isUpgrade) { DBlayer = PixelBarrelName(DetId((*hit).geographicalId())).layerName(); }
-                else if (isUpgrade) { DBlayer = PixelBarrelNameUpgrade(DetId((*hit).geographicalId())).layerName(); }
+                else { DBlayer = PixelBarrelNameUpgrade(DetId((*hit).geographicalId())).layerName(); }
 		float phi = clustgp.phi(); 
 		float z = clustgp.z();
 		switch(DBlayer){
@@ -1214,7 +1214,7 @@ void SiPixelTrackResidualSource::analyze(const edm::Event& iEvent, const edm::Ev
   if(debug_) std::cout << "clusters not on track: (size " << clustColl.size() << ") ";
 
   for(TrackerGeometry::DetContainer::const_iterator it = TG->dets().begin(); it != TG->dets().end(); it++){
-    //if(dynamic_cast<PixelGeomDetUnit*>((*it))!=0){
+    //if(dynamic_cast<PixelGeomDetUnit const *>((*it))!=0){
     DetId detId = (*it)->geographicalId();
     if(detId>=302055684 && detId<=352477708){ // make sure it's a Pixel module WITHOUT using dynamic_cast!  
       int nofclOnTrack = 0, nofclOffTrack=0; 

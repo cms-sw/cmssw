@@ -11,8 +11,13 @@ PrimaryVertexGenerator::~PrimaryVertexGenerator() {
   if ( boost_ ) delete boost_; 
 }
 
-TMatrixD* 
+const TMatrixD* 
 PrimaryVertexGenerator::boost() const { 
+  return boost_;
+}
+
+TMatrixD* 
+PrimaryVertexGenerator::boost() { 
   return boost_;
 }
 

@@ -71,7 +71,7 @@ DTMeantimerPatternReco::reconstruct(const DTSuperLayer* sl,
   while (cand<candidates.end()) {
     
     DTSLRecSegment2D *segment = (**cand);
-    theUpdator->update(segment);
+    theUpdator->update(segment,1);
 
     if (debug) 
       cout<<"Reconstructed 2D segments "<<*segment<<endl;
@@ -207,7 +207,7 @@ DTMeantimerPatternReco::addHits(const DTSuperLayer* sl, vector<DTSegmentCand::As
 //    cout << "DTMeantimerPatternReco::addHit " << endl << "   Picked " << assHits.size() << " hits, " << hits.size() << " left." << endl;
   
   if (assHits.size()+hits.size()<maxfound) return;
-          
+
   // loop over the remaining hits
   for (hitCont::const_iterator hit=hits.begin(); hit!=hits.end(); ++hit) {
 
@@ -216,7 +216,7 @@ DTMeantimerPatternReco::addHits(const DTSuperLayer* sl, vector<DTSegmentCand::As
 //      cout << "     Trying B: " << **hit<< " wire: " << (*hit)->id() << endl;
 //      printPattern(assHits,*hit);
 //    }
-            
+
     assHits.push_back(DTSegmentCand::AssPoint(*hit, DTEnums::Left));
     std::unique_ptr<DTSegmentCand> left_seg = fitWithT0(sl,assHits, chi2l, t0_corrl,0);
     assHits.pop_back();
@@ -231,7 +231,7 @@ DTMeantimerPatternReco::addHits(const DTSuperLayer* sl, vector<DTSegmentCand::As
 
     bool left_ok=(left_seg)?true:false;
     bool right_ok=(right_seg)?true:false;
-    
+
     if (!left_ok && !right_ok) continue;
 
     foundSomething = true;    
@@ -240,7 +240,7 @@ DTMeantimerPatternReco::addHits(const DTSuperLayer* sl, vector<DTSegmentCand::As
     hitCont hitsForFit;
     for (hitCont::const_iterator tmpHit=hit+1; tmpHit!=hits.end(); tmpHit++) 
       if (geometryFilter((*tmpHit)->id(),(*hit)->id())) hitsForFit.push_back(*tmpHit); 
-      
+
     reverse(hitsForFit.begin(),hitsForFit.end());
 
     // choose only one - left or right
@@ -387,7 +387,7 @@ DTMeantimerPatternReco::printPattern( vector<DTSegmentCand::AssPoint>& assHits, 
   int lay  = ((*hit).id().superlayerId().superLayer()-1)*4 + (*hit).id().layerId().layer() - 1;
   wire[lay]= (*hit).id().wire();
   mark[lay*2]='*';
-  
+
   cout << "   " << mark << endl << "  ";
   for (int i=0; i<12; i++) if (wire[i]) cout << setw(2) << wire[i]; else cout << "  ";
   cout << endl;

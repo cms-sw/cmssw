@@ -59,8 +59,8 @@ void SeedGeneratorForCRack::seeds(TrajectorySeedCollection &output,
     GlobalPoint outer = tracker->idToDet((*(HitPairs[is].outer())).geographicalId())->surface().toGlobal((*(HitPairs[is].outer())).localPosition());
     
     LogDebug("CosmicSeedFinder") <<"inner point of the seed "<<inner <<" outer point of the seed "<<outer; 
-    TransientTrackingRecHit::ConstRecHitPointer inrhit=TTTRHBuilder->build(HitPairs[is].inner()->hit());
-    TransientTrackingRecHit::ConstRecHitPointer outrhit = TTTRHBuilder->build(HitPairs[is].outer()->hit());
+    SeedingHitSet::ConstRecHitPointer inrhit= HitPairs[is].inner();
+    SeedingHitSet::ConstRecHitPointer outrhit = HitPairs[is].outer();
 
     edm::OwnVector<TrackingRecHit> hits;
     hits.push_back(HitPairs[is].outer()->hit()->clone());

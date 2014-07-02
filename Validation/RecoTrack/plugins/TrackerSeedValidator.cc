@@ -34,13 +34,12 @@ using namespace edm;
 
 typedef edm::Ref<edm::HepMCProduct, HepMC::GenParticle > GenParticleRef;
 
-TrackerSeedValidator::TrackerSeedValidator(const edm::ParameterSet& pset):MultiTrackValidatorBase(pset){
+TrackerSeedValidator::TrackerSeedValidator(const edm::ParameterSet& pset):MultiTrackValidatorBase(pset, consumesCollector(),true){
   //theExtractor = IsoDepositExtractorFactory::get()->create( extractorName, extractorPSet, consumesCollector());
 
   ParameterSet psetForHistoProducerAlgo = pset.getParameter<ParameterSet>("histoProducerAlgoBlock");
   string histoProducerAlgoName = psetForHistoProducerAlgo.getParameter<string>("ComponentName");
   histoProducerAlgo_ = MTVHistoProducerAlgoFactory::get()->create(histoProducerAlgoName ,psetForHistoProducerAlgo, consumesCollector());
-  histoProducerAlgo_->setDQMStore(dbe_);
 
   dirName_ = pset.getParameter<std::string>("dirName");
 
@@ -62,51 +61,49 @@ TrackerSeedValidator::TrackerSeedValidator(const edm::ParameterSet& pset):MultiT
 
 TrackerSeedValidator::~TrackerSeedValidator(){delete histoProducerAlgo_;}
 
-void TrackerSeedValidator::beginRun(edm::Run const&, edm::EventSetup const& setup) {
+void TrackerSeedValidator::bookHistograms(DQMStore::IBooker& ibook, edm::Run const&, edm::EventSetup const& setup) {
   setup.get<IdealMagneticFieldRecord>().get(theMF);
   setup.get<TransientRecHitRecord>().get(builderName,theTTRHBuilder);
 
   for (unsigned int ww=0;ww<associators.size();ww++){
     for (unsigned int www=0;www<label.size();www++){
 
-      dbe_->cd();
+      ibook.cd();
       InputTag algo = label[www];
       string dirName=dirName_;
       if (algo.process()!="")
-	dirName+=algo.process()+"_";
+    dirName+=algo.process()+"_";
       if(algo.label()!="")
-	dirName+=algo.label()+"_";
+    dirName+=algo.label()+"_";
       if(algo.instance()!="")
-	dirName+=algo.instance()+"_";
+    dirName+=algo.instance()+"_";
       //      if (dirName.find("Seeds")<dirName.length()){
-      //	dirName.replace(dirName.find("Seeds"),6,"");
+      //    dirName.replace(dirName.find("Seeds"),6,"");
       //      }
       string assoc= associators[ww];
       if (assoc.find("Track")<assoc.length()){
-	assoc.replace(assoc.find("Track"),5,"");
+    assoc.replace(assoc.find("Track"),5,"");
       }
       dirName+=assoc;
       std::replace(dirName.begin(), dirName.end(), ':', '_');
 
-      dbe_->setCurrentFolder(dirName.c_str());
-
+      ibook.setCurrentFolder(dirName.c_str());
 
       // vector of vector initialization
       histoProducerAlgo_->initialize(); //TO BE FIXED. I'D LIKE TO AVOID THIS CALL
 
-      dbe_->goUp(); //Is this really necessary ???
       string subDirName = dirName + "/simulation";
-      dbe_->setCurrentFolder(subDirName.c_str());
+      ibook.setCurrentFolder(subDirName.c_str());
 
       //Booking histograms concerning with simulated tracks
-      histoProducerAlgo_->bookSimHistos();
+      histoProducerAlgo_->bookSimHistos(ibook);
 
-      dbe_->cd();
-      dbe_->setCurrentFolder(dirName.c_str());
+      ibook.cd();
+      ibook.setCurrentFolder(dirName.c_str());
 
       //Booking histograms concerning with reconstructed tracks
-      histoProducerAlgo_->bookRecoHistos();
-      if (runStandalone) histoProducerAlgo_->bookRecoHistosForStandaloneRunning();
+      histoProducerAlgo_->bookRecoHistos(ibook);
+      if (runStandalone) histoProducerAlgo_->bookRecoHistosForStandaloneRunning(ibook);
     }//end loop www
     edm::ESHandle<TrackAssociatorBase> theAssociator;
     for (unsigned int w=0;w<associators.size();w++) {
@@ -115,6 +112,7 @@ void TrackerSeedValidator::beginRun(edm::Run const&, edm::EventSetup const& setu
     }//end loop w
   }// end loop ww
 }
+
 
 void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetup& setup){
 
@@ -126,22 +124,22 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
   setup.get<TrackAssociatorRecord>().get(parametersDefiner,parametersDefinerTP);
 
   edm::Handle<TrackingParticleCollection>  TPCollectionHeff ;
-  event.getByLabel(label_tp_effic,TPCollectionHeff);
+  event.getByToken(label_tp_effic,TPCollectionHeff);
   const TrackingParticleCollection tPCeff = *(TPCollectionHeff.product());
 
   edm::Handle<TrackingParticleCollection>  TPCollectionHfake ;
-  event.getByLabel(label_tp_fake,TPCollectionHfake);
+  event.getByToken(label_tp_fake,TPCollectionHfake);
   const TrackingParticleCollection tPCfake = *(TPCollectionHfake.product());
 
   if (tPCeff.size()==0) {edm::LogInfo("TrackValidator") << "TP Collection for efficiency studies has size = 0! Skipping Event." ; return;}
   if (tPCfake.size()==0) {edm::LogInfo("TrackValidator") << "TP Collection for fake rate studies has size = 0! Skipping Event." ; return;}
 
   edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-  event.getByLabel(bsSrc,recoBeamSpotHandle);
+  event.getByToken(bsSrc,recoBeamSpotHandle);
   reco::BeamSpot bs = *recoBeamSpotHandle;
 
   edm::Handle< vector<PileupSummaryInfo> > puinfoH;
-  event.getByLabel(label_pileupinfo,puinfoH);
+  event.getByToken(label_pileupinfo,puinfoH);
   PileupSummaryInfo puinfo;
 
   for (unsigned int puinfo_ite=0;puinfo_ite<(*puinfoH).size();++puinfo_ite){
@@ -152,7 +150,7 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
   }
 
   edm::Handle<TrackingVertexCollection> tvH;
-  event.getByLabel(label_tv,tvH);
+  event.getByToken(label_tv,tvH);
   TrackingVertexCollection tv = *tvH;
 
   int w=0;
@@ -167,7 +165,7 @@ void TrackerSeedValidator::analyze(const edm::Event& event, const edm::EventSetu
       //get collections from the event
       //
       edm::Handle<edm::View<TrajectorySeed> > seedCollection;
-      event.getByLabel(label[www], seedCollection);
+      event.getByToken(labelTokenSeed[www], seedCollection);
       if (seedCollection->size()==0) {
 	edm::LogInfo("TrackValidator") << "SeedCollection size = 0!" ;
 	continue;
@@ -429,7 +427,7 @@ void TrackerSeedValidator::endRun(edm::Run const&, edm::EventSetup const&) {
       w++;
     }
   }
-  if ( out.size() != 0 && dbe_ ) dbe_->save(out);
+  //if ( out.size() != 0 && dbe_ ) dbe_->save(out);
 }
 
 

@@ -14,8 +14,43 @@
 using namespace std;
 
 // Constructor
-DTHitAssociator::DTHitAssociator(const edm::Event& iEvent, const edm::EventSetup& iSetup, const edm::ParameterSet& conf, bool printRtS):
+DTHitAssociator::DTHitAssociator(const edm::ParameterSet& conf, 
+				 edm::ConsumesCollector && iC) :
+  DTsimhitsTag(conf.getParameter<edm::InputTag>("DTsimhitsTag")),
+  DTsimhitsXFTag(conf.getParameter<edm::InputTag>("DTsimhitsXFTag")),
+  DTdigiTag(conf.getParameter<edm::InputTag>("DTdigiTag")),
+  DTdigisimlinkTag(conf.getParameter<edm::InputTag>("DTdigisimlinkTag")),
+  DTrechitTag(conf.getParameter<edm::InputTag>("DTrechitTag")),
 
+  // nice printout of DT hits
+  dumpDT(conf.getParameter<bool>("dumpDT")),
+  // CrossingFrame used or not ?
+  crossingframe(conf.getParameter<bool>("crossingframe")),
+  // Event contain the DTDigiSimLink collection ?
+  links_exist(conf.getParameter<bool>("links_exist")),
+  // associatorByWire links to a RecHit all the "valid" SimHits on the same DT wire
+  associatorByWire(conf.getParameter<bool>("associatorByWire")),
+
+  printRtS(true)
+{
+
+  if ( crossingframe) {
+    iC.consumes<CrossingFrame<PSimHit> >(DTsimhitsXFTag);
+  }
+  else if (!DTsimhitsTag.label().empty()) {
+    iC.consumes<edm::PSimHitContainer>(DTsimhitsTag);
+  }
+  iC.consumes<DTDigiCollection>(DTdigiTag);
+  iC.consumes<DTDigiSimLinkCollection>(DTdigisimlinkTag);
+
+  if ( dumpDT && printRtS ) {
+    iC.consumes<DTRecHitCollection>(DTrechitTag);
+  }
+
+}
+
+
+DTHitAssociator::DTHitAssociator(const edm::Event& iEvent, const edm::EventSetup& iSetup, const edm::ParameterSet& conf, bool printRtS):
   // input collection labels
   DTsimhitsTag(conf.getParameter<edm::InputTag>("DTsimhitsTag")),
   DTsimhitsXFTag(conf.getParameter<edm::InputTag>("DTsimhitsXFTag")),
@@ -35,6 +70,11 @@ DTHitAssociator::DTHitAssociator(const edm::Event& iEvent, const edm::EventSetup
   printRtS(true)
   
 {  
+  initEvent(iEvent,iSetup);
+}
+
+void DTHitAssociator::initEvent(const edm::Event &iEvent, const edm::EventSetup& iSetup) {
+
   LogTrace("DTHitAssociator") <<"DTHitAssociator constructor: dumpDT = "<<dumpDT
                               <<", crossingframe = "<<crossingframe<<", links_exist = "<<links_exist
                               <<", associatorByWire = "<<associatorByWire;

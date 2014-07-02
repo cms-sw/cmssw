@@ -6,6 +6,12 @@
 
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
+
 class TrackerGeometry;
 class TrajectoryStateOnSurface;
 class PropagatorWithMaterial;
@@ -67,6 +73,15 @@ class TrackCandidateProducer : public edm::EDProducer
 
   edm::InputTag simTracks_;
   double estimatorCut_;
+
+  // tokens
+  edm::EDGetTokenT<edm::View<TrajectorySeed> > seedToken;
+  edm::EDGetTokenT<SiTrackerGSMatchedRecHit2DCollection> recHitToken;
+  edm::EDGetTokenT<edm::SimVertexContainer> simVertexToken;
+  edm::EDGetTokenT<edm::SimTrackContainer> simTrackToken;
+  std::vector<edm::EDGetTokenT<reco::TrackCollection> > trackTokens;
+  std::vector<edm::EDGetTokenT<std::vector<Trajectory> > > trajectoryTokens;
+  std::vector<edm::EDGetTokenT<TrajTrackAssociationCollection> >  assoMapTokens;
 };
 
 #endif

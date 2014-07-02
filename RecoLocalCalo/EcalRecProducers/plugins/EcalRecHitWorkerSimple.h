@@ -39,20 +39,27 @@ class EcalRecHitWorkerSimple : public EcalRecHitWorkerBaseClass {
 		double EELaserMAX_;
 
 
-                edm::ESHandle<EcalIntercalibConstants> ical;
-                edm::ESHandle<EcalTimeCalibConstants> itime;
-                edm::ESHandle<EcalTimeOffsetConstant> offtime;
-                edm::ESHandle<EcalADCToGeVConstant> agc;
-                edm::ESHandle<EcalChannelStatus> chStatus;
-                std::vector<int> v_chstatus_;
-                edm::ESHandle<EcalLaserDbService> laser;
+        edm::ESHandle<EcalIntercalibConstants> ical;
+        edm::ESHandle<EcalTimeCalibConstants> itime;
+        edm::ESHandle<EcalTimeOffsetConstant> offtime;
+        edm::ESHandle<EcalADCToGeVConstant> agc;
+        edm::ESHandle<EcalChannelStatus> chStatus;
+        std::vector<int> v_chstatus_;
+        edm::ESHandle<EcalLaserDbService> laser;
 
-		std::vector<int> v_DB_reco_flags_;
+		// Associate reco flagbit ( outer vector) to many db status flags (inner vector)
+		std::vector<std::vector<uint32_t> > v_DB_reco_flags_;
 
-                bool killDeadChannels_;
-                bool laserCorrection_;
+		uint32_t setFlagBits(const std::vector<std::vector<uint32_t> >& map, 
+				     const uint32_t& status  );
 
-                EcalRecHitSimpleAlgo * rechitMaker_;
+        uint32_t flagmask_; // do not propagate channels with these flags on
+
+        bool killDeadChannels_;
+        bool laserCorrection_;
+        
+        EcalRecHitSimpleAlgo * rechitMaker_;
+
 };
 
 #endif

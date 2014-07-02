@@ -18,6 +18,8 @@
  */
 
 // system include files
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 #include <iosfwd>
 
@@ -82,6 +84,8 @@ private:
     /// L1 GT boards and their mapping
     std::vector<L1GtBoard> m_gtBoardMaps;
 
+
+    COND_SERIALIZABLE;
 };
 
 #endif /*CondFormats_L1TObjects_L1GtBoardMaps_h*/

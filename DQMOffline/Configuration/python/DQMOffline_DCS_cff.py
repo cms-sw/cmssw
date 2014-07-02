@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 siStripDcsInfo = cms.EDAnalyzer("SiStripDcsInfo")
 from DQM.SiPixelCommon.SiPixelOfflineDQM_client_cff import *
-from DQM.EcalBarrelMonitorTasks.EcalDcsInfoTask_cfi import *
+from DQM.EcalMonitorTasks.EcalDcsInfoTask_cfi import *
 from DQM.DTMonitorClient.dtDCSByLumiSummary_cfi import *
 from DQM.HcalMonitorClient.HcalDCSInfo_cfi import *
 from DQM.RPCMonitorClient.RPCDCSSummary_cfi import *

@@ -1,5 +1,6 @@
 #ifdef NEWSMATRIX
 // #include "DataFormats/Math/interface/MulSymMatrix.h"
+#define SMATRIX_USE_CONSTEXPR
 #include "Math/SMatrix.h"
 
 typedef unsigned int IndexType;

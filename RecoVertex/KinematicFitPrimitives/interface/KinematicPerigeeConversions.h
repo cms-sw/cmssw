@@ -1,5 +1,5 @@
 #ifndef KinematicPerigeeConversions_H
-#define KinematicPerigeeConversions_h
+#define KinematicPerigeeConversions_H
 
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicParameters.h"
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicState.h"

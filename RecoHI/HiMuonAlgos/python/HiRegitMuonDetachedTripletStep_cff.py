@@ -40,23 +40,21 @@ hiRegitMuDetachedTripletStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.De
 hiRegitMuDetachedTripletStepSeeds.RegionFactoryPSet.MuonTrackingRegionBuilder.Rescale_Dz      = 4. # max(DeltaZ_Region,Rescale_Dz*vtx->zError())
 hiRegitMuDetachedTripletStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'hiRegitMuDetachedTripletStepSeedLayers'
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
-#hiRegitMuDetachedTripletStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet.ComponentName = 'LowPtClusterShapeSeedComparitor'
+#import RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi
+#hiRegitMuDetachedTripletStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet = RecoPixelVertexing.PixelLowPtUtilities.LowPtClusterShapeSeedComparitor_cfi.LowPtClusterShapeSeedComparitor
 
 # building: feed the new-named seeds
-hiRegitMuDetachedTripletStepTrajectoryFilter = RecoHI.HiTracking.hiRegitDetachedTripletStep_cff.hiRegitDetachedTripletStepTrajectoryFilter.clone(
-    ComponentName    = 'hiRegitMuDetachedTripletStepTrajectoryFilter'
-    )
-hiRegitMuDetachedTripletStepTrajectoryFilter.filterPset.minPt = 0.8 # after each new hit, apply pT cut for traj w/ at least minHitsMinPt = cms.int32(3),
+hiRegitMuDetachedTripletStepTrajectoryFilter = RecoHI.HiTracking.hiRegitDetachedTripletStep_cff.hiRegitDetachedTripletStepTrajectoryFilter.clone()
+hiRegitMuDetachedTripletStepTrajectoryFilter.minPt = 0.8 # after each new hit, apply pT cut for traj w/ at least minHitsMinPt = cms.int32(3),
 
 hiRegitMuDetachedTripletStepTrajectoryBuilder = RecoHI.HiTracking.hiRegitDetachedTripletStep_cff.hiRegitDetachedTripletStepTrajectoryBuilder.clone(
-    ComponentName        = 'hiRegitMuDetachedTripletStepTrajectoryBuilder',
-    trajectoryFilterName = 'hiRegitMuDetachedTripletStepTrajectoryFilter',
+    trajectoryFilter     = cms.PSet(refToPSet_ = cms.string('hiRegitMuDetachedTripletStepTrajectoryFilter')),
     clustersToSkip       = cms.InputTag('hiRegitMuDetachedTripletStepClusters')
 )
 
 hiRegitMuDetachedTripletStepTrackCandidates        =  RecoHI.HiTracking.hiRegitDetachedTripletStep_cff.hiRegitDetachedTripletStepTrackCandidates.clone(
     src               = cms.InputTag('hiRegitMuDetachedTripletStepSeeds'),
-    TrajectoryBuilder = 'hiRegitMuDetachedTripletStepTrajectoryBuilder'
+    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('hiRegitMuDetachedTripletStepTrajectoryBuilder'))
     )
 
 # fitting: feed new-names

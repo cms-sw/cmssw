@@ -32,7 +32,9 @@ Implementation:
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 // -- Ecal
-#include "EventFilter/EcalRawToDigi/plugins/EcalRawToRecHitFacility.h"
+#include "DataFormats/Common/interface/LazyGetter.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitComparison.h"
 // -- Hcal
 #include "EventFilter/HcalRawToDigi/plugins/HcalRawToDigi.h"
 // -- Ecal Preshower

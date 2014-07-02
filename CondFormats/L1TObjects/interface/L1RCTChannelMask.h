@@ -1,5 +1,7 @@
 #ifndef L1TObjects_L1RCTChannelMask_h
 #define L1TObjects_L1RCTChannelMask_h
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <ostream>
 
 
@@ -25,6 +27,8 @@ struct L1RCTChannelMask {
        }
 
   }
+
+  COND_SERIALIZABLE;
 };
 
 #endif

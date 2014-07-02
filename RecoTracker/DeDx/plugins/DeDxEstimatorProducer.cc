@@ -93,12 +93,12 @@ void  DeDxEstimatorProducer::beginRun(edm::Run const& run, const edm::EventSetup
    edm::ESHandle<TrackerGeometry> tkGeom;
    iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );
 
-   vector<GeomDet*> Det = tkGeom->dets();
+   auto const & Det = tkGeom->dets();
    for(unsigned int i=0;i<Det.size();i++){
       DetId  Detid  = Det[i]->geographicalId();
 
-       StripGeomDetUnit* StripDetUnit = dynamic_cast<StripGeomDetUnit*> (Det[i]);
-       PixelGeomDetUnit* PixelDetUnit = dynamic_cast<PixelGeomDetUnit*> (Det[i]);
+       auto StripDetUnit = dynamic_cast<StripGeomDetUnit const*> (Det[i]);
+       auto PixelDetUnit = dynamic_cast<PixelGeomDetUnit const*> (Det[i]);
 
        double Thick=-1, Dist=-1, Norma=-1;
        if(StripDetUnit){
@@ -178,14 +178,13 @@ void DeDxEstimatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	   if(shapetest && !(DeDxTools::shapeSelection((DeDxTools::GetCluster(matchedHit->  monoHit()))->amplitudes()))) hits.push_back(mono);
         }else if(const ProjectedSiStripRecHit2D* projectedHit=dynamic_cast<const ProjectedSiStripRecHit2D*>(recHit)) {
            if(!useStrip) continue;
-           const SiStripRecHit2D* singleHit=&(projectedHit->originalHit());
            DeDxTools::RawHits mono;
 
            mono.trajectoryMeasurement = &(*it);
            mono.angleCosine = cosine;
-           mono.charge = getCharge(DeDxTools::GetCluster(singleHit),mono.NSaturating,singleHit->geographicalId());
-           mono.detId= singleHit->geographicalId();
-	   if(shapetest && !(DeDxTools::shapeSelection((DeDxTools::GetCluster(singleHit))->amplitudes()))) continue;
+           mono.charge = getCharge(DeDxTools::GetCluster(projectedHit->originalHit()),mono.NSaturating,projectedHit->originalId());
+           mono.detId= projectedHit->originalId();
+	   if(shapetest && !(DeDxTools::shapeSelection((DeDxTools::GetCluster(projectedHit->originalHit()))->amplitudes()))) continue;
            hits.push_back(mono);
         }else if(const SiStripRecHit2D* singleHit=dynamic_cast<const SiStripRecHit2D*>(recHit)){
            if(!useStrip) continue;

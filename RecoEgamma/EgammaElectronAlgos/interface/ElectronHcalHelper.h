@@ -5,7 +5,6 @@
 class EgammaHcalIsolation ;
 class EgammaTowerIsolation ;
 
-#include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -14,6 +13,7 @@ class EgammaTowerIsolation ;
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 class EgammaHadTower;
@@ -62,7 +62,6 @@ class ElectronHcalHelper {
   edm::ESHandle<CaloGeometry> caloGeom_ ;
   
   // event data (rechits strategy)    
-  HBHERecHitMetaCollection * mhbhe_ ;
   EgammaHcalIsolation * hcalIso_ ;
   
   // event data (towers strategy)    

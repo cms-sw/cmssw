@@ -40,8 +40,6 @@ namespace {
   constexpr ErrorChecker::Word32 ERROR_mask = ~(~ErrorChecker::Word32(0) << ROC_bits);
   constexpr ErrorChecker::Word32 LINK_mask = ~(~ErrorChecker::Word32(0) << LINK_bits);
   constexpr ErrorChecker::Word32 ROC_mask  = ~(~ErrorChecker::Word32(0) << ROC_bits);
-  constexpr ErrorChecker::Word32 DCOL_mask = ~(~ErrorChecker::Word32(0) << DCOL_bits);
-  constexpr ErrorChecker::Word32 PXID_mask = ~(~ErrorChecker::Word32(0) << PXID_bits);
   constexpr ErrorChecker::Word32 OMIT_ERR_mask = ~(~ErrorChecker::Word32(0) << OMIT_ERR_bits);
 }  
 

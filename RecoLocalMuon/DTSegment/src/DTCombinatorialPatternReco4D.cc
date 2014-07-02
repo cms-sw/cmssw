@@ -169,7 +169,7 @@ DTCombinatorialPatternReco4D::reconstruct() {
 
       std::auto_ptr<DTChamberRecSegment2D> superPhi(**phi);
 
-      theUpdator->update(superPhi.get());
+      theUpdator->update(superPhi.get(),0);
       if(debug) cout << "superPhi: " << *superPhi << endl;
 
       if (hasZed) {
@@ -201,12 +201,12 @@ DTCombinatorialPatternReco4D::reconstruct() {
           if (debug) cout << "Created a 4D seg " << *newSeg << endl;
 
           /// 4d segment: I have the pos along the wire => further update!
-	  theUpdator->update(newSeg);
+	  theUpdator->update(newSeg,0,0);
           if (debug) cout << "     seg updated " <<  *newSeg << endl;
 
 
 	  if(!applyT0corr && computeT0corr) theUpdator->calculateT0corr(newSeg);
-          if(applyT0corr) theUpdator->update(newSeg,true);
+          if(applyT0corr) theUpdator->update(newSeg,true,0);
 
           result.push_back(newSeg);
         }
@@ -219,7 +219,7 @@ DTCombinatorialPatternReco4D::reconstruct() {
 
        //update the segment with the t0 and possibly vdrift correction
         if(!applyT0corr && computeT0corr) theUpdator->calculateT0corr(newSeg);
- 	if(applyT0corr) theUpdator->update(newSeg,true);
+ 	if(applyT0corr) theUpdator->update(newSeg,true,0);
 
         result.push_back(newSeg);
       }
@@ -243,7 +243,7 @@ DTCombinatorialPatternReco4D::reconstruct() {
 		     *newSeg << endl;
 
         if(!applyT0corr && computeT0corr) theUpdator->calculateT0corr(newSeg);
- 	if(applyT0corr) theUpdator->update(newSeg,true);
+ 	if(applyT0corr) theUpdator->update(newSeg,true,0);
 
         result.push_back(newSeg);
       }

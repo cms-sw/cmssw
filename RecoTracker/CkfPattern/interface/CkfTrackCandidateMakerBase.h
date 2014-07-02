@@ -14,7 +14,6 @@
 #include "TrackingTools/TrajectoryCleaning/interface/TrajectoryCleaner.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 #include "RecoTracker/TkNavigation/interface/SimpleNavigationSchool.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
@@ -26,6 +25,8 @@
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
+
+#include <memory>
 
 class TransientInitialStateEstimator;
 
@@ -43,9 +44,6 @@ namespace cms
     virtual void produceBase(edm::Event& e, const edm::EventSetup& es);
 
   protected:
-
-    edm::ParameterSet conf_;
-
     bool theTrackCandidateOutput;
     bool theTrajectoryOutput;
     bool useSplitting;
@@ -55,14 +53,14 @@ namespace cms
 
     unsigned int theMaxNSeeds;
 
-    std::string theTrajectoryBuilderName;
-    const BaseCkfTrajectoryBuilder*  theTrajectoryBuilder;
+    std::unique_ptr<BaseCkfTrajectoryBuilder> theTrajectoryBuilder;
 
     std::string theTrajectoryCleanerName;
     const TrajectoryCleaner*               theTrajectoryCleaner;
 
-    TransientInitialStateEstimator*  theInitialState;
+    std::unique_ptr<TransientInitialStateEstimator> theInitialState;
     
+    const std::string theMagFieldName;
     edm::ESHandle<MagneticField>                theMagField;
     edm::ESHandle<GeometricSearchTracker>       theGeomSearchTracker;
 
@@ -79,10 +77,8 @@ namespace cms
     bool skipClusters_;
     typedef edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > PixelClusterMask;
     typedef edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > StripClusterMask;
-    typedef edm::ContainerMask<edm::LazyGetter<SiStripCluster> >      StripClusterLazyMask;
     edm::EDGetTokenT<PixelClusterMask> maskPixels_;
     edm::EDGetTokenT<StripClusterMask> maskStrips_;
-    edm::EDGetTokenT<StripClusterLazyMask> maskStripsLazy_;
 
     // methods for debugging
     virtual TrajectorySeedCollection::const_iterator lastSeed(TrajectorySeedCollection const& theSeedColl){return theSeedColl.end();}

@@ -153,8 +153,8 @@ void DTDigiForNoiseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   std::map< int,int > DigiPerWirePerEvent;
 
   // Loop over all the chambers
-  vector<DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
-  vector<DTChamber*>::const_iterator ch_end = muonGeom->chambers().end();
+  auto ch_it = muonGeom->chambers().begin();
+  auto ch_end = muonGeom->chambers().end();
   // Loop over the SLs
   for (; ch_it != ch_end; ++ch_it) {
     //    DTChamberId ch = (*ch_it)->id();

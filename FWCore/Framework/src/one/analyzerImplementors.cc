@@ -19,6 +19,7 @@
 namespace edm {
   namespace one {
     namespace impl {
+      template class SharedResourcesUser<edm::one::EDAnalyzerBase>;
       template class RunWatcher<edm::one::EDAnalyzerBase>;
       template class LuminosityBlockWatcher<edm::one::EDAnalyzerBase>;
     }

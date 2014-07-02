@@ -3,6 +3,7 @@
 <use   name="DataFormats/EcalDigi"/>
 <use   name="DataFormats/EcalDetId"/>
 <use   name="boost"/>
+<use   name="boost_serialization"/>
 <export>
   <lib   name="1"/>
 </export>

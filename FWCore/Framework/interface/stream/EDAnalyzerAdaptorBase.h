@@ -40,6 +40,7 @@ namespace edm {
   class EDConsumerBase;
   class PreallocationConfiguration;
   class ProductHolderIndexAndSkipBit;
+  class ActivityRegistry;
 
   namespace maker {
     template<typename T> class ModuleHolderT;
@@ -93,6 +94,7 @@ namespace edm {
       const EDAnalyzerAdaptorBase& operator=(const EDAnalyzerAdaptorBase&); // stop default
       
       bool doEvent(EventPrincipal& ep, EventSetup const& c,
+                   ActivityRegistry*,
                    ModuleCallingContext const*) ;
       void doPreallocate(PreallocationConfiguration const&);
       

@@ -324,9 +324,9 @@ void DTT0Calibration::endJob() {
   if(correctByChamberMean_){
      ///Loop on superlayer to correct between even-odd layers (2 different test pulse lines!)
      // Get all the sls from the setup
-     const vector<DTSuperLayer*> superLayers = dtGeom->superLayers();     
+     const vector<const DTSuperLayer*> superLayers = dtGeom->superLayers();     
      // Loop over all SLs
-     for(vector<DTSuperLayer*>::const_iterator  sl = superLayers.begin();
+     for(auto  sl = superLayers.begin();
 	   sl != superLayers.end(); sl++) {
 
 

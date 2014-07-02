@@ -21,6 +21,8 @@ Monitoring source for general quantities related to tracks.
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -43,7 +45,7 @@ class GetLumi;
 class TProfile;
 class GenericTriggerEventFlag;
 
-class TrackingMonitor : public edm::EDAnalyzer 
+class TrackingMonitor : public DQMEDAnalyzer 
 {
     public:
         explicit TrackingMonitor(const edm::ParameterSet&);
@@ -56,7 +58,8 @@ class TrackingMonitor : public edm::EDAnalyzer
 
         virtual void beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup&  eSetup);
         virtual void analyze(const edm::Event&, const edm::EventSetup&);
-        virtual void beginRun(const edm::Run&, const edm::EventSetup&); 
+	void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+	//        virtual void beginRun(const edm::Run&, const edm::EventSetup&); 
         virtual void endRun(const edm::Run&, const edm::EventSetup&);
 
     private:

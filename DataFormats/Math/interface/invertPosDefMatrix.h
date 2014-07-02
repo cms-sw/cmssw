@@ -1,6 +1,7 @@
 #ifndef DataFormat_Math_invertPosDefMatrix_H
 #define DataFormat_Math_invertPosDefMatrix_H
 
+#define SMATRIX_USE_CONSTEXPR
 #include "Math/SMatrix.h"
 #include "Math/CholeskyDecomp.h"
 // #include "DataFormats/Math/interface/CholeskyDecomp.h"

@@ -20,6 +20,7 @@
 
 // system include files
 #include <string>
+#include <set>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -27,22 +28,28 @@
 // forward declarations
 
 namespace edm {
+   class SharedResourcesAcquirer;
+   
    namespace one {
       namespace impl {
          
-         class SharedResourcesUser {
+         template<typename T>
+         class SharedResourcesUser : public virtual T {
          public:
             template< typename... Args>
-            SharedResourcesUser(Args...) {}
+            SharedResourcesUser(Args... args) : T(args...) {}
             SharedResourcesUser(SharedResourcesUser const&) = delete;
             SharedResourcesUser& operator=(SharedResourcesUser const&) = delete;
             
             virtual ~SharedResourcesUser() {}
             
          protected:
-            static const std::string kUnknownResource;
             
-            void usesResource(std::string const& iName = kUnknownResource);
+            void usesResource(std::string const& iName);
+            void usesResource();
+         private:
+            SharedResourcesAcquirer createAcquirer() override;
+            std::set<std::string> resourceNames_;
          };
          
          template <typename T>

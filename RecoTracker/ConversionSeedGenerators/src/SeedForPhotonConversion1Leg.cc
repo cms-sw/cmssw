@@ -14,7 +14,7 @@
 #include "TrackingTools/GeomPropagators/interface/PropagationExceptions.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
-#include "RecoTracker/TransientTrackingRecHit/interface/TSiStripRecHit2DLocalPos.h"
+#include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 
 //#define mydebug_seed
 template <class T> T sqr( T t) {return t*t;}
@@ -49,8 +49,8 @@ GlobalTrajectoryParameters SeedForPhotonConversion1Leg::initialKinematic(
 {
   GlobalTrajectoryParameters kine;
 
-  TransientTrackingRecHit::ConstRecHitPointer tth1 = hits[0];
-  TransientTrackingRecHit::ConstRecHitPointer tth2 = hits[1];
+  SeedingHitSet::ConstRecHitPointer tth1 = hits[0];
+  SeedingHitSet::ConstRecHitPointer tth2 = hits[1];
 
    // FIXME optimize: move outside loop
     edm::ESHandle<MagneticField> bfield;
@@ -144,6 +144,21 @@ const TrajectorySeed * SeedForPhotonConversion1Leg::buildSeed(
   es.get<TrackingComponentsRecord>().get(thePropagatorLabel, propagatorHandle);
   const Propagator*  propagator = &(*propagatorHandle);
   
+   // get cloner (FIXME: add to config)
+  try { 
+    auto TTRHBuilder = "WithTrackAngle";
+    edm::ESHandle<TransientTrackingRecHitBuilder> builderH;
+    es.get<TransientRecHitRecord>().get(TTRHBuilder, builderH);
+    auto builder = (TkTransientTrackingRecHitBuilder const *)(builderH.product());
+    cloner = (*builder).cloner();
+  } catch(...) {
+    auto TTRHBuilder = "hltESPTTRHBWithTrackAngle";
+    edm::ESHandle<TransientTrackingRecHitBuilder> builderH;
+    es.get<TransientRecHitRecord>().get(TTRHBuilder, builderH);
+    auto builder = (TkTransientTrackingRecHitBuilder const *)(builderH.product());
+    cloner = (*builder).cloner();
+  }
+
   // get updator
   KFUpdator  updator;
   
@@ -154,23 +169,23 @@ const TrajectorySeed * SeedForPhotonConversion1Leg::buildSeed(
   
   const TrackingRecHit* hit = 0;
   for ( unsigned int iHit = 0; iHit < hits.size() && iHit<1; iHit++) {
-    hit = hits[iHit]->hit();
+    hit = hits[iHit];
     TrajectoryStateOnSurface state = (iHit==0) ? 
       propagator->propagate(fts,tracker->idToDet(hit->geographicalId())->surface())
       : propagator->propagate(updatedState, tracker->idToDet(hit->geographicalId())->surface());
     if (!state.isValid()) return 0;
     
-    TransientTrackingRecHit::ConstRecHitPointer tth = hits[iHit]; 
+    SeedingHitSet::ConstRecHitPointer tth = hits[iHit]; 
     
-    TransientTrackingRecHit::RecHitPointer newtth =  refitHit( tth, state);
+    std::unique_ptr<BaseTrackerRecHit> newtth(refitHit( tth, state));
 
     
-    if (!checkHit(state,newtth,es)) return 0;
+    if (!checkHit(state,&*newtth,es)) return 0;
 
     updatedState =  updator.update(state, *newtth);
     if (!updatedState.isValid()) return 0;
     
-    seedHits.push_back(newtth->hit()->clone());
+    seedHits.push_back(newtth.release());
 #ifdef mydebug_seed
     uint32_t detid = hit->geographicalId().rawId();
     (*pss) << "\n[SeedForPhotonConversion1Leg] hit " << iHit;
@@ -188,8 +203,8 @@ const TrajectorySeed * SeedForPhotonConversion1Leg::buildSeed(
   return &seedCollection.back();
 }
 
-TransientTrackingRecHit::RecHitPointer SeedForPhotonConversion1Leg::refitHit(
-      const TransientTrackingRecHit::ConstRecHitPointer &hit, 
+SeedingHitSet::RecHitPointer SeedForPhotonConversion1Leg::refitHit(
+      SeedingHitSet::ConstRecHitPointer hit, 
       const TrajectoryStateOnSurface &state) const
 {
   //const TransientTrackingRecHit* a= hit.get();
@@ -199,5 +214,5 @@ TransientTrackingRecHit::RecHitPointer SeedForPhotonConversion1Leg::refitHit(
 
   //const TSiStripRecHit2DLocalPos* b = dynamic_cast<const TSiStripRecHit2DLocalPos*>(a);
   //return const_cast<TSiStripRecHit2DLocalPos*>(b);
-  return hit->clone(state);
+  return (SeedingHitSet::RecHitPointer)(cloner(*hit,state));
 }

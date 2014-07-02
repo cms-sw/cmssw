@@ -58,7 +58,7 @@ namespace cms
 	pID=mhit->monoClusterRef().id();
       } else if (type == typeid(ProjectedSiStripRecHit2D)) {
 	const ProjectedSiStripRecHit2D *phit = reinterpret_cast<const ProjectedSiStripRecHit2D *>(hit);
-	pID=(&phit->originalHit())->cluster().id();
+	pID= phit->cluster().id();
       } else throw cms::Exception("Unknown RecHit Type") << "RecHit of type " << type.name() << " not supported. (use c++filt to demangle the name)";
     }
 

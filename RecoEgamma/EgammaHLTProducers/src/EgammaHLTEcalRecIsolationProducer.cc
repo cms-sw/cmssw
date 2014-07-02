@@ -101,11 +101,6 @@ void EgammaHLTEcalRecIsolationProducer::produce(edm::Event& iEvent, const edm::E
   edm::Handle<EcalRecHitCollection> ecalEndcapRecHitHandle;
   iEvent.getByToken(ecalEndcapRecHitProducer_, ecalEndcapRecHitHandle);
 
-  //create the meta hit collections inorder that we can pass them into the isolation objects
-
-  EcalRecHitMetaCollection ecalBarrelHits(*ecalBarrelRecHitHandle);
-  EcalRecHitMetaCollection ecalEndcapHits(*ecalEndcapRecHitHandle);
-
   //Get Calo Geometry
   edm::ESHandle<CaloGeometry> pG;
   iSetup.get<CaloGeometryRecord>().get(pG);
@@ -131,9 +126,9 @@ void EgammaHLTEcalRecIsolationProducer::produce(edm::Event& iEvent, const edm::E
   reco::RecoEcalCandidateIsolationMap isoMap;
 
   //create algorithm objects
-  EgammaRecHitIsolation ecalBarrelIsol(egIsoConeSizeOut_,egIsoConeSizeInBarrel_,egIsoJurassicWidth_,egIsoPtMinBarrel_,egIsoEMinBarrel_,edm::ESHandle<CaloGeometry>(caloGeom),&ecalBarrelHits,sevLevel,DetId::Ecal);
+  EgammaRecHitIsolation ecalBarrelIsol(egIsoConeSizeOut_,egIsoConeSizeInBarrel_,egIsoJurassicWidth_,egIsoPtMinBarrel_,egIsoEMinBarrel_,edm::ESHandle<CaloGeometry>(caloGeom),*ecalBarrelRecHitHandle,sevLevel,DetId::Ecal);
   ecalBarrelIsol.setUseNumCrystals(useNumCrystals_);
-  EgammaRecHitIsolation ecalEndcapIsol(egIsoConeSizeOut_,egIsoConeSizeInEndcap_,egIsoJurassicWidth_,egIsoPtMinEndcap_,egIsoEMinEndcap_,edm::ESHandle<CaloGeometry>(caloGeom),&ecalEndcapHits,sevLevel,DetId::Ecal);
+  EgammaRecHitIsolation ecalEndcapIsol(egIsoConeSizeOut_,egIsoConeSizeInEndcap_,egIsoJurassicWidth_,egIsoPtMinEndcap_,egIsoEMinEndcap_,edm::ESHandle<CaloGeometry>(caloGeom),*ecalEndcapRecHitHandle,sevLevel,DetId::Ecal);
   ecalEndcapIsol.setUseNumCrystals(useNumCrystals_);
 
   for (reco::RecoEcalCandidateCollection::const_iterator iRecoEcalCand= recoecalcandHandle->begin(); iRecoEcalCand!=recoecalcandHandle->end(); iRecoEcalCand++) {

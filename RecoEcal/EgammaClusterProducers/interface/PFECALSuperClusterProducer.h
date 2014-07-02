@@ -7,7 +7,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -25,6 +25,7 @@
 #include "Geometry/CaloTopology/interface/CaloTopology.h" 
 
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
 /**\class PFECALSuperClusterProducer 
 
@@ -38,10 +39,8 @@ class CaloSubdetectorGeometry;
 class DetId;
 class GBRForest;
 class GBRWrapperRcd;
-class EcalClusterTools;
 
-
-class PFECALSuperClusterProducer : public edm::EDProducer {
+class PFECALSuperClusterProducer : public edm::stream::EDProducer<> {
  public:  
   explicit PFECALSuperClusterProducer(const edm::ParameterSet&);
   ~PFECALSuperClusterProducer();

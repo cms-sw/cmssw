@@ -3,6 +3,8 @@
 #define CONFIGCODE_TTUBOARDSPECS_H 1
 
 // Include files
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/RPCObjects/interface/RPCTechTriggerConfig.h"
 #include <vector>
 #include <string>
@@ -38,9 +40,13 @@ public:
      
     std::string m_LogicType;
 
-  };
+  
+  COND_SERIALIZABLE;
+};
   
   std::vector<TTUBoardConfig> m_boardspecs;
   
+
+  COND_SERIALIZABLE;
 };
 #endif // CONFIGCODE_TTUBOARDSPECS_H

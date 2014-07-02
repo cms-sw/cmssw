@@ -1,5 +1,7 @@
 #ifndef INCLINOMETERS_H
 #define INCLINOMETERS_H
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include<vector>
 #include<string> 
 class Inclinometers {
@@ -22,9 +24,13 @@ public:
     float Norm_Intercept;
     float Norm_Intercept_Error;
     float Shifts_due_to_shims_etc;
-  };
+  
+  COND_SERIALIZABLE;
+};
   Inclinometers();
   virtual ~Inclinometers();
   std::vector<Item>  m_inclinometers;
+
+  COND_SERIALIZABLE;
 };
 #endif

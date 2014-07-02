@@ -27,10 +27,12 @@ Monitoring source for general quantities related to track dEdx.
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+
 class DQMStore;
 class GenericTriggerEventFlag;
 
-class dEdxAnalyzer : public edm::EDAnalyzer {
+class dEdxAnalyzer : public DQMEDAnalyzer {
  public:
   explicit dEdxAnalyzer(const edm::ParameterSet&);
   ~dEdxAnalyzer();
@@ -43,9 +45,11 @@ class dEdxAnalyzer : public edm::EDAnalyzer {
 
   double mass(double P, double I);
   
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&); 
+  //  virtual void beginRun(const edm::Run&, const edm::EventSetup&); 
   virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
   virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   
  private:
   // ----------member data ---------------------------

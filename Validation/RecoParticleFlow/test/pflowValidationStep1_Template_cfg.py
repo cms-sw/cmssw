@@ -56,7 +56,8 @@ elif dataset == 'TTbar' :
         )
 elif dataset == 'ZEE' :
     sourceFiles = cms.untracked.vstring( 
-        '/store/relval/CMSSW_7_0_0_pre4/RelValZEE/GEN-SIM-RECO/PU_PRE_ST62_V8-v1/00000/1CF2D144-6824-E311-85D5-003048678DD6.root'
+        '/store/relval/CMSSW_7_1_0_pre7/RelValZEE/GEN-SIM-RECO/PRE_STA71_V3-v1/00000/6EAA0A95-68D1-E311-AD8E-0026189438B9.root'
+#        '/store/relval/CMSSW_7_0_0_pre4/RelValZEE/GEN-SIM-RECO/PU_PRE_ST62_V8-v1/00000/1CF2D144-6824-E311-85D5-003048678DD6.root'
         )
 elif dataset == 'SingleElPt35' :
     sourceFiles = cms.untracked.vstring( 
@@ -96,24 +97,26 @@ process.EDM = cms.OutputModule("PoolOutputModule",
 #--------------------------------------------------
 # PFElectron Specific
 #--------------------------------------------------
-process.pfAllElectrons = cms.EDFilter("PdgIdPFCandidateSelector",
-                                      pdgId = cms.vint32(11, -11),
-                                      #src = cms.InputTag("pfNoPileUp")
-                                      src = cms.InputTag("particleFlow")
-                                      )
+# start code moved to python/PFElectronValidation.cff.py
+#process.pfAllElectrons = cms.EDFilter("PdgIdPFCandidateSelector",
+#                                      pdgId = cms.vint32(11, -11),
+#                                      #src = cms.InputTag("pfNoPileUp")
+#                                     src = cms.InputTag("particleFlow")
+#                                      )
 
-process.gensource = cms.EDProducer("GenParticlePruner",
-                                   src = cms.InputTag("genParticles"),
-                                   select = cms.vstring('drop *',
-                                                        # for matching
-                                                        #'keep+ pdgId = 23',
-                                                        'keep pdgId = 11', 
-                                                        'keep pdgId = -11' 
-                                                        ## for fake rate
-                                                        #'keep pdgId = 211', # pi+
-                                                        #'keep pdgId = -211' # pi-
-                                                        )
-                                   )
+#process.gensource = cms.EDProducer("GenParticlePruner",
+#                                   src = cms.InputTag("genParticles"),
+#                                   select = cms.vstring('drop *',
+#                                                        # for matching
+#                                                        #'keep+ pdgId = 23',
+#                                                        'keep pdgId = 11', 
+#                                                        'keep pdgId = -11' 
+#                                                        ## for fake rate
+#                                                        #'keep pdgId = 211', # pi+
+#                                                        #'keep pdgId = -211' # pi-
+#                                                        )
+#                                   )
+# end code moved to python/PFElectronValidation.cff.py
 
 process.pfPileUp = cms.EDProducer("PFPileUp",
                                   Enable = cms.bool(True),
@@ -150,12 +153,14 @@ process.pfElectronBenchmarkGeneric = cms.EDAnalyzer("GenericBenchmarkAnalyzer",
                                             doMetPlots = cms.bool(False)
                                             )
 
-process.pfElectronSequence = cms.Sequence(
-    #process.pfPileUp + 
-    #process.pfNoPileUp + 
-    process.pfAllElectrons + 
-    process.gensource
-    )
+# start code moved to python/PFElectronValidation.cff.py
+#process.pfElectronSequence = cms.Sequence(
+#    #process.pfPileUp + 
+#    #process.pfNoPileUp + 
+#    process.pfAllElectrons + 
+#    process.gensource
+#    )
+# end code moved to python/PFElectronValidation.cff.py
 
 process.dump = cms.EDAnalyzer("EventContentAnalyzer")
 
@@ -255,7 +260,7 @@ process.load("Validation.RecoMET.METRelValForDQM_cff")
 
 # The complete reprocessing
 process.p = cms.Path(
-    process.pfElectronSequence +
+#    process.pfElectronSequence +
 #    process.pfReRecoSequence +  # not needed for global validation used in case of software development
     process.pfJetValidationSequence +
     process.pfMETValidationSequence +

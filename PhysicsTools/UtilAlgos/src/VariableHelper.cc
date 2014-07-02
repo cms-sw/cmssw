@@ -6,7 +6,7 @@
 
 #include <iomanip>
 
-VariableHelper::VariableHelper(const edm::ParameterSet & iConfig){
+VariableHelper::VariableHelper(const edm::ParameterSet & iConfig, edm::ConsumesCollector& iC){
   std::vector<std::string> psetNames;
   iConfig.getParameterSetNames(psetNames);
   for (unsigned int i=0;i!=psetNames.size();++i){
@@ -14,7 +14,7 @@ VariableHelper::VariableHelper(const edm::ParameterSet & iConfig){
     edm::ParameterSet vPset=iConfig.getParameter<edm::ParameterSet>(psetNames[i]);
     std::string method=vPset.getParameter<std::string>("method");
 
-    CachingVariableFactory::get()->create(method,CachingVariable::CachingVariableFactoryArg(vname,variables_,vPset));
+    CachingVariableFactory::get()->create(method,CachingVariable::CachingVariableFactoryArg(vname,variables_,vPset), iC);
   }
 
 }
@@ -36,7 +36,7 @@ std::string VariableHelper::printValues(const edm::Event & event) const{
   iterator it = variables_.begin();
   iterator it_end = variables_.end();
   ss<<std::setw(10)<<event.id().run()<<" : "
-    <<std::setw(10)<<event.id().event();    
+    <<std::setw(10)<<event.id().event();
   for (;it!=it_end;++it) {
     if (it->second->compute(event))
       ss<<" : "<<it->first<<"="<<(*it->second)(event);
@@ -45,7 +45,7 @@ std::string VariableHelper::printValues(const edm::Event & event) const{
   }
   return ss.str();
 }
-const CachingVariable* VariableHelper::variable(std::string name) const{ 
+const CachingVariable* VariableHelper::variable(std::string name) const{
   iterator v=variables_.find(name);
   if (v!=variables_.end())
     return v->second;

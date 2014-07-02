@@ -11,7 +11,7 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 #include "RecoLocalCalo/CaloTowersCreator/interface/CaloTowersCreationAlgo.h"
-
+#include "RecoLocalCalo/CaloTowersCreator/interface/EScales.h"
 
 /** \class CaloTowersCreator
   *  
@@ -74,6 +74,7 @@ private:
   edm::ESWatcher<HcalChannelQualityRcd> hcalChStatusWatcher_;
   edm::ESWatcher<IdealGeometryRecord> caloTowerConstituentsWatcher_;
   edm::ESWatcher<EcalSeverityLevelAlgoRcd>  ecalSevLevelWatcher_;
+  EScales eScales_;
 
 };
 

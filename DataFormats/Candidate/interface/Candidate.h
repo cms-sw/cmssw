@@ -23,7 +23,7 @@
 #include "DataFormats/Candidate/interface/Particle.h"
 
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
-
+#include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 
 class OverlapChecker;
 

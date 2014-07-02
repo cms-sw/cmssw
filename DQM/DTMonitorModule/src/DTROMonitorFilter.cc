@@ -14,7 +14,7 @@
 
 #include <DataFormats/FEDRawData/interface/FEDRawData.h>
 #include <DataFormats/FEDRawData/interface/FEDNumbering.h>
-#include <EventFilter/DTRawToDigi/interface/DTDDUWords.h>
+#include <DataFormats/DTDigi/interface/DTDDUWords.h>
 
 using namespace edm;
 

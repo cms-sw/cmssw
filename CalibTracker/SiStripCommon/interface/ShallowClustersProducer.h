@@ -4,7 +4,11 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
+
+#include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
+
 class SiStripClusterInfo;
 class SiStripProcessedRawDigi;
 class TrackerTopology;
@@ -37,6 +41,9 @@ class ShallowClustersProducer : public edm::EDProducer {
     float outsideasymm() const {return (last-first)/(last+first);}
   };
 
+  edm::EDGetTokenT<edm::DetSetVector<SiStripCluster> >          theClustersToken_;
+  edm::EDGetTokenT<edm::DetSetVector<SiStripProcessedRawDigi> > theDigisToken_;
+  
 };
 
 #endif

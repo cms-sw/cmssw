@@ -16,10 +16,6 @@
 #include <string>
 
 
-static const char CVSId__EcalADCToGeVXMLTranslator[] = 
-"$Id: EcalADCToGeVXMLTranslator.h,v 1.1 2008/11/14 15:46:05 argiro Exp $";
-
-
 class EcalADCToGeVConstant;
 
 class EcalADCToGeVXMLTranslator {

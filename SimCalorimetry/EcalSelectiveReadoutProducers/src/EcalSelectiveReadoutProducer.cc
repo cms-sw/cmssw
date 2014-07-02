@@ -65,9 +65,17 @@ EcalSelectiveReadoutProducer::EcalSelectiveReadoutProducer(const edm::ParameterS
     produces<EESrFlagCollection>(eeSrFlagCollection_);
   }
 
+  useFullReadout_ = false;
+  useFullReadout_ = params.getParameter<bool>("UseFullReadout");
+
   theGeometry = 0;
   theTriggerTowerMap = 0;
   theElecMap = 0;
+
+  EB_token = consumes<EBDigiCollection>(edm::InputTag(digiProducer_, ebdigiCollection_));
+  EE_token = consumes<EEDigiCollection>(edm::InputTag(digiProducer_, eedigiCollection_));;
+  EcTP_token = consumes<EcalTrigPrimDigiCollection>(edm::InputTag(trigPrimProducer_, trigPrimCollection_));;
+
 }
 
 
@@ -82,7 +90,13 @@ EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSetup& 
   if(useCondDb_){
     //getting selective readout configuration:
     edm::ESHandle<EcalSRSettings> hSr;
-    eventSetup.get<EcalSRSettingsRcd>().get(hSr);
+
+    if(useFullReadout_){
+      eventSetup.get<EcalSRSettingsRcd>().get("fullReadout",hSr);
+    }
+    else{
+      eventSetup.get<EcalSRSettingsRcd>().get(hSr);
+    }
     settings_ = hSr.product();
   }
   
@@ -172,7 +186,7 @@ const EBDigiCollection*
 EcalSelectiveReadoutProducer::getEBDigis(edm::Event& event) const
 {
   edm::Handle<EBDigiCollection> hEBDigis;
-  event.getByLabel(digiProducer_, ebdigiCollection_, hEBDigis);
+  event.getByToken(EB_token, hEBDigis);
   //product() method is called before id() in order to get an exception
   //if the handle is not available (check not done by id() method).
   const EBDigiCollection* result = hEBDigis.product();
@@ -188,7 +202,7 @@ const EEDigiCollection*
 EcalSelectiveReadoutProducer::getEEDigis(edm::Event& event) const
 {
   edm::Handle<EEDigiCollection> hEEDigis;
-  event.getByLabel(digiProducer_, eedigiCollection_, hEEDigis);
+  event.getByToken(EE_token, hEEDigis);
   //product() method is called before id() in order to get an exception
   //if the handle is not available (check not done by id() method).
   const EEDigiCollection* result = hEEDigis.product();
@@ -204,7 +218,7 @@ const EcalTrigPrimDigiCollection*
 EcalSelectiveReadoutProducer::getTrigPrims(edm::Event& event) const
 {
   edm::Handle<EcalTrigPrimDigiCollection> hTPDigis;
-  event.getByLabel(trigPrimProducer_, trigPrimCollection_, hTPDigis);
+  event.getByToken(EcTP_token, hTPDigis);
   return hTPDigis.product();
 }
 

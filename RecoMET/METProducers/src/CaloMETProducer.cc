@@ -34,6 +34,7 @@ namespace cms
   CaloMETProducer::CaloMETProducer(const edm::ParameterSet& iConfig)
     : inputToken_(consumes<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("src")))
     , calculateSignificance_(iConfig.getParameter<bool>("calculateSignificance"))
+    , resolutions_(0)
     , globalThreshold_(iConfig.getParameter<double>("globalThreshold"))
   {
     noHF_ = iConfig.getParameter<bool>("noHF");
@@ -41,7 +42,13 @@ namespace cms
     std::string alias(iConfig.getParameter<std::string>("alias"));
     produces<reco::CaloMETCollection>().setBranchAlias(alias.c_str());
 
-    resolutions_ = new metsig::SignAlgoResolutions(iConfig);
+    if (calculateSignificance_) resolutions_ = new metsig::SignAlgoResolutions(iConfig);
+  }
+
+//____________________________________________________________________________||
+  CaloMETProducer::~CaloMETProducer()
+  {
+    if (resolutions_) delete resolutions_;
   }
 
 //____________________________________________________________________________||

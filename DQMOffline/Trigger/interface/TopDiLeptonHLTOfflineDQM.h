@@ -149,6 +149,7 @@ namespace HLTOfflineDQMTopDiLepton {
       std::map<std::string,MonitorElement*> hists_;
 
       /// hlt objects
+      std::string          processName_;
       trigger::Vids        electronIds_;
       trigger::VRelectron  electronRefs_;
       trigger::Vids        muonIds_;
@@ -244,7 +245,7 @@ namespace HLTOfflineDQMTopDiLepton {
 /// define MonitorDiLepton to be used
 //using TopDiLeptonOffline::MonitorDiLepton;
 
-class TopDiLeptonHLTOfflineDQM : public DQMEDAnalyzer  {
+class TopDiLeptonHLTOfflineDQM : public thread_unsafe::DQMEDAnalyzer  {
   public: 
     /// default constructor
     TopDiLeptonHLTOfflineDQM(const edm::ParameterSet& cfg);

@@ -113,6 +113,7 @@ SiPixelTrackingRecHitsValid::SiPixelTrackingRecHitsValid(const edm::ParameterSet
 {
   //Read config file
   MTCCtrack_ = ps.getParameter<bool>("MTCCtrack");
+  runStandalone = ps.getParameter<bool>("runStandalone");
   outputFile_ = ps.getUntrackedParameter<std::string>("outputFile", "pixeltrackingrechitshisto.root");
   siPixelRecHitCollectionToken_ = consumes<SiPixelRecHitCollection>( edm::InputTag( "siPixelRecHits" ) );
   recoTrackCollectionToken_ = consumes<reco::TrackCollection>( edm::InputTag( ps.getUntrackedParameter<std::string>( "src" ) ) );
@@ -120,7 +121,10 @@ SiPixelTrackingRecHitsValid::SiPixelTrackingRecHitsValid(const edm::ParameterSet
   checkType_ = ps.getParameter<bool>("checkType");
   genType_ = ps.getParameter<int>("genType");
   debugNtuple_=ps.getUntrackedParameter<std::string>("debugNtuple", "SiPixelTrackingRecHitsValid_Ntuple.root");
+}
 
+void SiPixelTrackingRecHitsValid::bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es){
+  
   // Book histograms
   dbe_ = edm::Service<DQMStore>().operator->();
   //dbe_->showDirStructure();
@@ -209,7 +213,7 @@ SiPixelTrackingRecHitsValid::SiPixelTrackingRecHitsValid(const edm::ParameterSet
   float forward_chargel = 0.0;
   float forward_chargeh = 100000.0;
 
-  dbe_->setCurrentFolder("Tracking/TrackingRecHits/Pixel/Histograms_per_ring-layer_or_disk-plaquette");
+  ibooker.setCurrentFolder("Tracking/TrackingRecHits/Pixel/Histograms_per_ring-layer_or_disk-plaquette");
 
   // Pixel barrel has 3 layers and 8 rings; book a histogram for each module given by the (layer, ring) pair 
   for (int i=0; i<3 ; i++) // loop over layers
@@ -217,95 +221,95 @@ SiPixelTrackingRecHitsValid::SiPixelTrackingRecHitsValid(const edm::ParameterSet
       Char_t chisto[100];
 
       sprintf(chisto, "meResxBarrelLayer_%d", i+1);
-      meResxBarrelLayer[i] = dbe_->book1D(chisto, chisto, 100, resxl, resxh);
+      meResxBarrelLayer[i] = ibooker.book1D(chisto, chisto, 100, resxl, resxh);
       sprintf(chisto, "meResyBarrelLayer_%d", i+1);
-      meResyBarrelLayer[i] = dbe_->book1D(chisto, chisto, 100, resyl, resyh);	
+      meResyBarrelLayer[i] = ibooker.book1D(chisto, chisto, 100, resyl, resyh);	
       sprintf(chisto, "mePullxBarrelLayer_%d", i+1);
-      mePullxBarrelLayer[i] = dbe_->book1D(chisto, chisto, 100, pullxl, pullxh);
+      mePullxBarrelLayer[i] = ibooker.book1D(chisto, chisto, 100, pullxl, pullxh);
       sprintf(chisto, "mePullyBarrelLayer_%d", i+1);
-      mePullyBarrelLayer[i] = dbe_->book1D(chisto, chisto, 100, pullyl, pullyh);	
+      mePullyBarrelLayer[i] = ibooker.book1D(chisto, chisto, 100, pullyl, pullyh);	
 
       sprintf(chisto, "meResXvsAlphaBarrelFlippedLaddersLayer_%d", i+1);
-      meResXvsAlphaBarrelFlippedLaddersLayer[i] = dbe_->bookProfile(chisto, chisto, 20, barrel_alphal, barrel_alphah, 100, 0.0, resxh, "");
+      meResXvsAlphaBarrelFlippedLaddersLayer[i] = ibooker.bookProfile(chisto, chisto, 20, barrel_alphal, barrel_alphah, 100, 0.0, resxh, "");
       sprintf(chisto, "meResYvsAlphaBarrelFlippedLaddersLayer_%d", i+1);
-      meResYvsAlphaBarrelFlippedLaddersLayer[i] = dbe_->bookProfile(chisto, chisto, 20, barrel_alphal, barrel_alphah, 100, 0.0, resyh, "");
+      meResYvsAlphaBarrelFlippedLaddersLayer[i] = ibooker.bookProfile(chisto, chisto, 20, barrel_alphal, barrel_alphah, 100, 0.0, resyh, "");
       sprintf(chisto, "meResXvsBetaBarrelFlippedLaddersLayer_%d", i+1);
-      meResXvsBetaBarrelFlippedLaddersLayer[i] = dbe_->bookProfile(chisto, chisto, 20, barrel_betal, barrel_betah, 100, 0.0, resxh, "");
+      meResXvsBetaBarrelFlippedLaddersLayer[i] = ibooker.bookProfile(chisto, chisto, 20, barrel_betal, barrel_betah, 100, 0.0, resxh, "");
       sprintf(chisto, "meResYvsBetaBarrelFlippedLaddersLayer_%d", i+1);
-      meResYvsBetaBarrelFlippedLaddersLayer[i] = dbe_->bookProfile(chisto, chisto, 20, barrel_betal, barrel_betah, 100, 0.0, resyh, ""); 
+      meResYvsBetaBarrelFlippedLaddersLayer[i] = ibooker.bookProfile(chisto, chisto, 20, barrel_betal, barrel_betah, 100, 0.0, resyh, ""); 
       
       sprintf(chisto, "meResXvsAlphaBarrelNonFlippedLaddersLayer_%d", i+1);
       meResXvsAlphaBarrelNonFlippedLaddersLayer[i] 
-	= dbe_->bookProfile(chisto, chisto, 20, barrel_alphal, barrel_alphah, 100, 0.0, resxh, "");
+	= ibooker.bookProfile(chisto, chisto, 20, barrel_alphal, barrel_alphah, 100, 0.0, resxh, "");
       sprintf(chisto, "meResYvsAlphaBarrelNonFlippedLaddersLayer_%d", i+1);
       meResYvsAlphaBarrelNonFlippedLaddersLayer[i] 
-	= dbe_->bookProfile(chisto, chisto, 20, barrel_alphal, barrel_alphah, 100, 0.0, resyh, "");
+	= ibooker.bookProfile(chisto, chisto, 20, barrel_alphal, barrel_alphah, 100, 0.0, resyh, "");
       sprintf(chisto, "meResXvsBetaBarrelNonFlippedLaddersLayer_%d", i+1);
       meResXvsBetaBarrelNonFlippedLaddersLayer[i] 
-	= dbe_->bookProfile(chisto, chisto, 20, barrel_betal, barrel_betah, 100, 0.0, resxh, "");
+	= ibooker.bookProfile(chisto, chisto, 20, barrel_betal, barrel_betah, 100, 0.0, resxh, "");
       sprintf(chisto, "meResYvsBetaBarrelNonFlippedLaddersLayer_%d", i+1);
       meResYvsBetaBarrelNonFlippedLaddersLayer[i] 
-	= dbe_->bookProfile(chisto, chisto, 20, barrel_betal, barrel_betah, 100, 0.0, resyh, ""); 
+	= ibooker.bookProfile(chisto, chisto, 20, barrel_betal, barrel_betah, 100, 0.0, resyh, ""); 
 
       for (int j=0; j<8; j++) // loop over rings
 	{
 	  sprintf(chisto, "mePosxBarrelLayerModule_%d_%d", i+1, j+1);
-	  mePosxBarrelLayerModule[i][j] = dbe_->book1D(chisto, chisto, 100, xl, xh);
+	  mePosxBarrelLayerModule[i][j] = ibooker.book1D(chisto, chisto, 100, xl, xh);
 	  sprintf(chisto, "mePosyBarrelLayerModule_%d_%d", i+1, j+1); 
-	  mePosyBarrelLayerModule[i][j] = dbe_->book1D(chisto, chisto, 100, yl, yh);
+	  mePosyBarrelLayerModule[i][j] = ibooker.book1D(chisto, chisto, 100, yl, yh);
 	  sprintf(chisto, "meErrxBarrelLayerModule_%d_%d", i+1, j+1);
-	  meErrxBarrelLayerModule[i][j] = dbe_->book1D(chisto, chisto, 100, errxl, errxh);
+	  meErrxBarrelLayerModule[i][j] = ibooker.book1D(chisto, chisto, 100, errxl, errxh);
 	  sprintf(chisto, "meErryBarrelLayerModule_%d_%d", i+1, j+1);
-	  meErryBarrelLayerModule[i][j] = dbe_->book1D(chisto, chisto, 100, erryl, erryh);	
+	  meErryBarrelLayerModule[i][j] = ibooker.book1D(chisto, chisto, 100, erryl, erryh);	
 	  sprintf(chisto, "meResxBarrelLayerModule_%d_%d", i+1, j+1);
-	  meResxBarrelLayerModule[i][j] = dbe_->book1D(chisto, chisto, 100, resxl, resxh);
+	  meResxBarrelLayerModule[i][j] = ibooker.book1D(chisto, chisto, 100, resxl, resxh);
 	  sprintf(chisto, "meResyBarrelLayerModule_%d_%d", i+1, j+1);
-	  meResyBarrelLayerModule[i][j] = dbe_->book1D(chisto, chisto, 100, resyl, resyh);	
+	  meResyBarrelLayerModule[i][j] = ibooker.book1D(chisto, chisto, 100, resyl, resyh);	
 	  sprintf(chisto, "mePullxBarrelLayerModule_%d_%d", i+1, j+1);
-	  mePullxBarrelLayerModule[i][j] = dbe_->book1D(chisto, chisto, 100, pullxl, pullxh);
+	  mePullxBarrelLayerModule[i][j] = ibooker.book1D(chisto, chisto, 100, pullxl, pullxh);
 	  sprintf(chisto, "mePullyBarrelLayerModule_%d_%d", i+1, j+1);
-	  mePullyBarrelLayerModule[i][j] = dbe_->book1D(chisto, chisto, 100, pullyl, pullyh);	
+	  mePullyBarrelLayerModule[i][j] = ibooker.book1D(chisto, chisto, 100, pullyl, pullyh);	
 	  sprintf(chisto, "meNpixBarrelLayerModule_%d_%d", i+1, j+1);
-	  meNpixBarrelLayerModule[i][j] = dbe_->book1D(chisto, chisto, 100, npixl, npixh);
+	  meNpixBarrelLayerModule[i][j] = ibooker.book1D(chisto, chisto, 100, npixl, npixh);
 	  sprintf(chisto, "meNxpixBarrelLayerModule_%d_%d", i+1, j+1);
-	  meNxpixBarrelLayerModule[i][j] = dbe_->book1D(chisto, chisto, 100, nxpixl, nxpixh);
+	  meNxpixBarrelLayerModule[i][j] = ibooker.book1D(chisto, chisto, 100, nxpixl, nxpixh);
 	  sprintf(chisto, "meNypixBarrelLayerModule_%d_%d", i+1, j+1);
-	  meNypixBarrelLayerModule[i][j] = dbe_->book1D(chisto, chisto, 100, nypixl, nypixh);
+	  meNypixBarrelLayerModule[i][j] = ibooker.book1D(chisto, chisto, 100, nypixl, nypixh);
 	  sprintf(chisto, "meChargeBarrelLayerModule_%d_%d", i+1, j+1);
-	  meChargeBarrelLayerModule[i][j] = dbe_->book1D(chisto, chisto, 100, barrel_chargel, barrel_chargeh);
+	  meChargeBarrelLayerModule[i][j] = ibooker.book1D(chisto, chisto, 100, barrel_chargel, barrel_chargeh);
 	  
 	  sprintf(chisto, "meResXvsAlphaBarrelLayerModule_%d_%d", i+1, j+1);
-	  meResXvsAlphaBarrelLayerModule[i][j] = dbe_->bookProfile(chisto, chisto, 20, barrel_alphal, barrel_alphah, 100, 0.0, resxh, "");
+	  meResXvsAlphaBarrelLayerModule[i][j] = ibooker.bookProfile(chisto, chisto, 20, barrel_alphal, barrel_alphah, 100, 0.0, resxh, "");
 	  sprintf(chisto, "meResYvsAlphaBarrelLayerModule_%d_%d", i+1, j+1);
-	  meResYvsAlphaBarrelLayerModule[i][j] = dbe_->bookProfile(chisto, chisto, 20, barrel_alphal, barrel_alphah, 100, 0.0, resyh, "");
+	  meResYvsAlphaBarrelLayerModule[i][j] = ibooker.bookProfile(chisto, chisto, 20, barrel_alphal, barrel_alphah, 100, 0.0, resyh, "");
 	  sprintf(chisto, "meResXvsBetaBarrelLayerModule_%d_%d", i+1, j+1);
-	  meResXvsBetaBarrelLayerModule[i][j] = dbe_->bookProfile(chisto, chisto, 20, barrel_betal, barrel_betah, 100, 0.0, resxh, "");
+	  meResXvsBetaBarrelLayerModule[i][j] = ibooker.bookProfile(chisto, chisto, 20, barrel_betal, barrel_betah, 100, 0.0, resxh, "");
 	  sprintf(chisto, "meResYvsBetaBarrelLayerModule_%d_%d", i+1, j+1);
-	  meResYvsBetaBarrelLayerModule[i][j] = dbe_->bookProfile(chisto, chisto, 20, barrel_betal, barrel_betah, 100, 0.0, resyh, ""); 
+	  meResYvsBetaBarrelLayerModule[i][j] = ibooker.bookProfile(chisto, chisto, 20, barrel_betal, barrel_betah, 100, 0.0, resyh, ""); 
 	  
 	  sprintf(chisto, "mePullXvsAlphaBarrelLayerModule_%d_%d", i+1, j+1);
-	  mePullXvsAlphaBarrelLayerModule[i][j] = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_alphal, pull_barrel_alphah, 
+	  mePullXvsAlphaBarrelLayerModule[i][j] = ibooker.bookProfile(chisto, chisto, 20, pull_barrel_alphal, pull_barrel_alphah, 
 								    100, pullxl, pullxh, "");
 	  sprintf(chisto, "mePullYvsAlphaBarrelLayerModule_%d_%d", i+1, j+1);
-	  mePullYvsAlphaBarrelLayerModule[i][j] = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_alphal, pull_barrel_alphah, 
+	  mePullYvsAlphaBarrelLayerModule[i][j] = ibooker.bookProfile(chisto, chisto, 20, pull_barrel_alphal, pull_barrel_alphah, 
 								    100, pullyl, pullyh, "");
 	  sprintf(chisto, "mePullXvsBetaBarrelLayerModule_%d_%d", i+1, j+1);
-	  mePullXvsBetaBarrelLayerModule[i][j] = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_betal, pull_barrel_betah, 
+	  mePullXvsBetaBarrelLayerModule[i][j] = ibooker.bookProfile(chisto, chisto, 20, pull_barrel_betal, pull_barrel_betah, 
 								   100, pullxl, pullxh, "");
 	  sprintf(chisto, "mePullYvsBetaBarrelLayerModule_%d_%d", i+1, j+1);
-	  mePullYvsBetaBarrelLayerModule[i][j] = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_betal, pull_barrel_betah, 
+	  mePullYvsBetaBarrelLayerModule[i][j] = ibooker.bookProfile(chisto, chisto, 20, pull_barrel_betal, pull_barrel_betah, 
 								   100, pullyl, pullyh, ""); 
 	  sprintf(chisto, "mePullXvsPhiBarrelLayerModule_%d_%d", i+1, j+1);
-	  mePullXvsPhiBarrelLayerModule[i][j] = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_phil, pull_barrel_phih, 100, 
+	  mePullXvsPhiBarrelLayerModule[i][j] = ibooker.bookProfile(chisto, chisto, 20, pull_barrel_phil, pull_barrel_phih, 100, 
 								  pullxl, pullxh, "");
 	  sprintf(chisto, "mePullYvsPhiBarrelLayerModule_%d_%d", i+1, j+1);
-	  mePullYvsPhiBarrelLayerModule[i][j] = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_phil, pull_barrel_phih, 
+	  mePullYvsPhiBarrelLayerModule[i][j] = ibooker.bookProfile(chisto, chisto, 20, pull_barrel_phil, pull_barrel_phih, 
 								  100, pullyl, pullyh, "");
 	  sprintf(chisto, "mePullXvsEtaBarrelLayerModule_%d_%d", i+1, j+1);
-	  mePullXvsEtaBarrelLayerModule[i][j] = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_etal, pull_barrel_etah, 
+	  mePullXvsEtaBarrelLayerModule[i][j] = ibooker.bookProfile(chisto, chisto, 20, pull_barrel_etal, pull_barrel_etah, 
 								  100, pullxl, pullxh, "");
 	  sprintf(chisto, "mePullYvsEtaBarrelLayerModule_%d_%d", i+1, j+1);
-	  mePullYvsEtaBarrelLayerModule[i][j] = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_etal, pull_barrel_etah, 
+	  mePullYvsEtaBarrelLayerModule[i][j] = ibooker.bookProfile(chisto, chisto, 20, pull_barrel_etal, pull_barrel_etah, 
 								  100, pullyl, pullyh, ""); 
 	} //  for (int j=0; j<8; j++) // loop over rings
       
@@ -323,744 +327,745 @@ SiPixelTrackingRecHitsValid::SiPixelTrackingRecHitsValid(const edm::ParameterSet
 	Char_t chisto[100];
 
 	sprintf(chisto, "mePosxZmPanel1DiskPlaq_%d_%d", i+1, j+1);
-	mePosxZmPanel1DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, xl, xh);
+	mePosxZmPanel1DiskPlaq[i][j] = ibooker.book1D(chisto, chisto, 100, xl, xh);
 	sprintf(chisto, "mePosyZmPanel1DiskPlaq_%d_%d", i+1, j+1);
-	mePosyZmPanel1DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, yl, yh);
+	mePosyZmPanel1DiskPlaq[i][j] = ibooker.book1D(chisto, chisto, 100, yl, yh);
 	sprintf(chisto, "meErrxZmPanel1DiskPlaq_%d_%d", i+1, j+1);
-	meErrxZmPanel1DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, errxl, errxh);
+	meErrxZmPanel1DiskPlaq[i][j] = ibooker.book1D(chisto, chisto, 100, errxl, errxh);
 	sprintf(chisto, "meErryZmPanel1DiskPlaq_%d_%d", i+1, j+1);
-	meErryZmPanel1DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, erryl, erryh);	
+	meErryZmPanel1DiskPlaq[i][j] = ibooker.book1D(chisto, chisto, 100, erryl, erryh);	
 	sprintf(chisto, "meResxZmPanel1DiskPlaq_%d_%d", i+1, j+1);
-	meResxZmPanel1DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, resxl, resxh);
+	meResxZmPanel1DiskPlaq[i][j] = ibooker.book1D(chisto, chisto, 100, resxl, resxh);
 	sprintf(chisto, "meResyZmPanel1DiskPlaq_%d_%d", i+1, j+1);
-	meResyZmPanel1DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, resyl, resyh);	
+	meResyZmPanel1DiskPlaq[i][j] = ibooker.book1D(chisto, chisto, 100, resyl, resyh);	
 	sprintf(chisto, "mePullxZmPanel1DiskPlaq_%d_%d", i+1, j+1);
-	mePullxZmPanel1DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, pullxl, pullxh);
+	mePullxZmPanel1DiskPlaq[i][j] = ibooker.book1D(chisto, chisto, 100, pullxl, pullxh);
 	sprintf(chisto, "mePullyZmPanel1DiskPlaq_%d_%d", i+1, j+1);
-	mePullyZmPanel1DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, pullyl, pullyh);	
+	mePullyZmPanel1DiskPlaq[i][j] = ibooker.book1D(chisto, chisto, 100, pullyl, pullyh);	
 	sprintf(chisto, "meNpixZmPanel1DiskPlaq_%d_%d", i+1, j+1);
-	meNpixZmPanel1DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, npixl, npixh);	
+	meNpixZmPanel1DiskPlaq[i][j] = ibooker.book1D(chisto, chisto, 100, npixl, npixh);	
 	sprintf(chisto, "meNxpixZmPanel1DiskPlaq_%d_%d", i+1, j+1);
-	meNxpixZmPanel1DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, nxpixl, nxpixh);	
+	meNxpixZmPanel1DiskPlaq[i][j] = ibooker.book1D(chisto, chisto, 100, nxpixl, nxpixh);	
 	sprintf(chisto, "meNypixZmPanel1DiskPlaq_%d_%d", i+1, j+1);
-	meNypixZmPanel1DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, nypixl, nypixh);	
+	meNypixZmPanel1DiskPlaq[i][j] = ibooker.book1D(chisto, chisto, 100, nypixl, nypixh);	
 	sprintf(chisto, "meChargeZmPanel1DiskPlaq_%d_%d", i+1, j+1);
-	meChargeZmPanel1DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, forward_chargel, forward_chargeh);	
+	meChargeZmPanel1DiskPlaq[i][j] = ibooker.book1D(chisto, chisto, 100, forward_chargel, forward_chargeh);	
 
 	sprintf(chisto, "meResXvsAlphaZmPanel1DiskPlaq_%d_%d", i+1, j+1);
 	meResXvsAlphaZmPanel1DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_p1_alphal, forward_p1_alphah, 100, 0.0,  resxh, "");
+	  = ibooker.bookProfile(chisto, chisto, 20, forward_p1_alphal, forward_p1_alphah, 100, 0.0,  resxh, "");
 	sprintf(chisto, "meResYvsAlphaZmPanel1DiskPlaq_%d_%d", i+1, j+1);
 	meResYvsAlphaZmPanel1DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_p1_alphal, forward_p1_alphah, 100, 0.0,  resyh, "");
+	  = ibooker.bookProfile(chisto, chisto, 20, forward_p1_alphal, forward_p1_alphah, 100, 0.0,  resyh, "");
 	sprintf(chisto, "meResXvsBetaZmPanel1DiskPlaq_%d_%d", i+1, j+1);
 	meResXvsBetaZmPanel1DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_neg_betal, forward_neg_betah, 100, 0.0,  resxh, "");
+	  = ibooker.bookProfile(chisto, chisto, 20, forward_neg_betal, forward_neg_betah, 100, 0.0,  resxh, "");
 	sprintf(chisto, "meResYvsBetaZmPanel1DiskPlaq_%d_%d", i+1, j+1);
 	meResYvsBetaZmPanel1DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_neg_betal, forward_neg_betah, 100, 0.0,  resyh, "");
+	  = ibooker.bookProfile(chisto, chisto, 20, forward_neg_betal, forward_neg_betah, 100, 0.0,  resyh, "");
 
 	sprintf(chisto, "mePullXvsAlphaZmPanel1DiskPlaq_%d_%d", i+1, j+1);
 	mePullXvsAlphaZmPanel1DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_p1_alphal, pull_forward_p1_alphah, 100, pullxl,pullxh, "");
+	  = ibooker.bookProfile(chisto, chisto, 20, pull_forward_p1_alphal, pull_forward_p1_alphah, 100, pullxl,pullxh, "");
 	sprintf(chisto, "mePullYvsAlphaZmPanel1DiskPlaq_%d_%d", i+1, j+1);
 	mePullYvsAlphaZmPanel1DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_p1_alphal, pull_forward_p1_alphah, 100, pullyl,pullyh, "");
+	  = ibooker.bookProfile(chisto, chisto, 20, pull_forward_p1_alphal, pull_forward_p1_alphah, 100, pullyl,pullyh, "");
 	sprintf(chisto, "mePullXvsBetaZmPanel1DiskPlaq_%d_%d", i+1, j+1);
 	mePullXvsBetaZmPanel1DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_neg_betal, pull_forward_neg_betah, 100, pullxl,pullxh, "");
+	  = ibooker.bookProfile(chisto, chisto, 20, pull_forward_neg_betal, pull_forward_neg_betah, 100, pullxl,pullxh, "");
 	sprintf(chisto, "mePullYvsBetaZmPanel1DiskPlaq_%d_%d", i+1, j+1);
 	mePullYvsBetaZmPanel1DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_neg_betal, pull_forward_neg_betah, 100, pullyl,pullyh, "");
+	  = ibooker.bookProfile(chisto, chisto, 20, pull_forward_neg_betal, pull_forward_neg_betah, 100, pullyl,pullyh, "");
 	sprintf(chisto, "mePullXvsPhiZmPanel1DiskPlaq_%d_%d", i+1, j+1);
 	mePullXvsPhiZmPanel1DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_phil, pull_forward_phih, 100, pullxl,pullxh, "");
+	  = ibooker.bookProfile(chisto, chisto, 20, pull_forward_phil, pull_forward_phih, 100, pullxl,pullxh, "");
 	sprintf(chisto, "mePullYvsPhiZmPanel1DiskPlaq_%d_%d", i+1, j+1);
 	mePullYvsPhiZmPanel1DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_phil, pull_forward_phih, 100, pullyl,pullyh, "");
+	  = ibooker.bookProfile(chisto, chisto, 20, pull_forward_phil, pull_forward_phih, 100, pullyl,pullyh, "");
 	sprintf(chisto, "mePullXvsEtaZmPanel1DiskPlaq_%d_%d", i+1, j+1);
 	mePullXvsEtaZmPanel1DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_neg_etal, pull_forward_neg_etah, 100, pullxl,pullxh, "");
+	  = ibooker.bookProfile(chisto, chisto, 20, pull_forward_neg_etal, pull_forward_neg_etah, 100, pullxl,pullxh, "");
 	sprintf(chisto, "mePullYvsEtaZmPanel1DiskPlaq_%d_%d", i+1, j+1);
 	mePullYvsEtaZmPanel1DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_neg_etal, pull_forward_neg_etah, 100, pullyl,pullyh, "");
+	  = ibooker.bookProfile(chisto, chisto, 20, pull_forward_neg_etal, pull_forward_neg_etah, 100, pullyl,pullyh, "");
 
 	sprintf(chisto, "mePosxZpPanel1DiskPlaq_%d_%d", i+1, j+1);
-	mePosxZpPanel1DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, xl, xh);
+	mePosxZpPanel1DiskPlaq[i][j] = ibooker.book1D(chisto, chisto, 100, xl, xh);
 	sprintf(chisto, "mePosyZpPanel1DiskPlaq_%d_%d", i+1, j+1);
-	mePosyZpPanel1DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, yl, yh);
+	mePosyZpPanel1DiskPlaq[i][j] = ibooker.book1D(chisto, chisto, 100, yl, yh);
 	sprintf(chisto, "meErrxZpPanel1DiskPlaq_%d_%d", i+1, j+1);
-	meErrxZpPanel1DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, errxl, errxh);
+	meErrxZpPanel1DiskPlaq[i][j] = ibooker.book1D(chisto, chisto, 100, errxl, errxh);
 	sprintf(chisto, "meErryZpPanel1DiskPlaq_%d_%d", i+1, j+1);
-	meErryZpPanel1DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, erryl, erryh);	
+	meErryZpPanel1DiskPlaq[i][j] = ibooker.book1D(chisto, chisto, 100, erryl, erryh);	
 	sprintf(chisto, "meResxZpPanel1DiskPlaq_%d_%d", i+1, j+1);
-	meResxZpPanel1DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, resxl, resxh);
+	meResxZpPanel1DiskPlaq[i][j] = ibooker.book1D(chisto, chisto, 100, resxl, resxh);
 	sprintf(chisto, "meResyZpPanel1DiskPlaq_%d_%d", i+1, j+1);
-	meResyZpPanel1DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, resyl, resyh);	
+	meResyZpPanel1DiskPlaq[i][j] = ibooker.book1D(chisto, chisto, 100, resyl, resyh);	
 	sprintf(chisto, "mePullxZpPanel1DiskPlaq_%d_%d", i+1, j+1);
-	mePullxZpPanel1DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, pullxl, pullxh);
+	mePullxZpPanel1DiskPlaq[i][j] = ibooker.book1D(chisto, chisto, 100, pullxl, pullxh);
 	sprintf(chisto, "mePullyZpPanel1DiskPlaq_%d_%d", i+1, j+1);
-	mePullyZpPanel1DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, pullyl, pullyh);	
+	mePullyZpPanel1DiskPlaq[i][j] = ibooker.book1D(chisto, chisto, 100, pullyl, pullyh);	
 	sprintf(chisto, "meNpixZpPanel1DiskPlaq_%d_%d", i+1, j+1);
-	meNpixZpPanel1DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, npixl, npixh);	
+	meNpixZpPanel1DiskPlaq[i][j] = ibooker.book1D(chisto, chisto, 100, npixl, npixh);	
 	sprintf(chisto, "meNxpixZpPanel1DiskPlaq_%d_%d", i+1, j+1);
-	meNxpixZpPanel1DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, nxpixl, nxpixh);	
+	meNxpixZpPanel1DiskPlaq[i][j] = ibooker.book1D(chisto, chisto, 100, nxpixl, nxpixh);	
 	sprintf(chisto, "meNypixZpPanel1DiskPlaq_%d_%d", i+1, j+1);
-	meNypixZpPanel1DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, nypixl, nypixh);	
+	meNypixZpPanel1DiskPlaq[i][j] = ibooker.book1D(chisto, chisto, 100, nypixl, nypixh);	
 	sprintf(chisto, "meChargeZpPanel1DiskPlaq_%d_%d", i+1, j+1);
-	meChargeZpPanel1DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, forward_chargel, forward_chargeh);	
+	meChargeZpPanel1DiskPlaq[i][j] = ibooker.book1D(chisto, chisto, 100, forward_chargel, forward_chargeh);	
 	sprintf(chisto, "meResXvsAlphaZpPanel1DiskPlaq_%d_%d", i+1, j+1);
 	meResXvsAlphaZpPanel1DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_p1_alphal, forward_p1_alphah, 100, 0.0,  resxh, "");
+	  = ibooker.bookProfile(chisto, chisto, 20, forward_p1_alphal, forward_p1_alphah, 100, 0.0,  resxh, "");
 	sprintf(chisto, "meResYvsAlphaZpPanel1DiskPlaq_%d_%d", i+1, j+1);
 	meResYvsAlphaZpPanel1DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_p1_alphal, forward_p1_alphah, 100, 0.0,  resyh, "");
+	  = ibooker.bookProfile(chisto, chisto, 20, forward_p1_alphal, forward_p1_alphah, 100, 0.0,  resyh, "");
 	sprintf(chisto, "meResXvsBetaZpPanel1DiskPlaq_%d_%d", i+1, j+1);
 	meResXvsBetaZpPanel1DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_pos_betal, forward_pos_betah, 100, 0.0,  resxh, "");
+	  = ibooker.bookProfile(chisto, chisto, 20, forward_pos_betal, forward_pos_betah, 100, 0.0,  resxh, "");
 	sprintf(chisto, "meResYvsBetaZpPanel1DiskPlaq_%d_%d", i+1, j+1);
 	meResYvsBetaZpPanel1DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_pos_betal, forward_pos_betah, 100, 0.0,  resyh, "");
+	  = ibooker.bookProfile(chisto, chisto, 20, forward_pos_betal, forward_pos_betah, 100, 0.0,  resyh, "");
 
 	sprintf(chisto, "mePullXvsAlphaZpPanel1DiskPlaq_%d_%d", i+1, j+1);
 	mePullXvsAlphaZpPanel1DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_p1_alphal, pull_forward_p1_alphah, 100, pullxl,pullxh, "");
+	  = ibooker.bookProfile(chisto, chisto, 20, pull_forward_p1_alphal, pull_forward_p1_alphah, 100, pullxl,pullxh, "");
 	sprintf(chisto, "mePullYvsAlphaZpPanel1DiskPlaq_%d_%d", i+1, j+1);
 	mePullYvsAlphaZpPanel1DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_p1_alphal, pull_forward_p1_alphah, 100, pullyl,pullyh, "");
+	  = ibooker.bookProfile(chisto, chisto, 20, pull_forward_p1_alphal, pull_forward_p1_alphah, 100, pullyl,pullyh, "");
 	sprintf(chisto, "mePullXvsBetaZpPanel1DiskPlaq_%d_%d", i+1, j+1);
 	mePullXvsBetaZpPanel1DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_pos_betal, pull_forward_pos_betah, 100, pullxl,pullxh, "");
+	  = ibooker.bookProfile(chisto, chisto, 20, pull_forward_pos_betal, pull_forward_pos_betah, 100, pullxl,pullxh, "");
 	sprintf(chisto, "mePullYvsBetaZpPanel1DiskPlaq_%d_%d", i+1, j+1);
 	mePullYvsBetaZpPanel1DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_pos_betal, pull_forward_pos_betah, 100, pullyl,pullyh, "");
+	  = ibooker.bookProfile(chisto, chisto, 20, pull_forward_pos_betal, pull_forward_pos_betah, 100, pullyl,pullyh, "");
 	sprintf(chisto, "mePullXvsPhiZpPanel1DiskPlaq_%d_%d", i+1, j+1);
 	mePullXvsPhiZpPanel1DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_phil, pull_forward_phih, 100, pullxl,pullxh, "");
+	  = ibooker.bookProfile(chisto, chisto, 20, pull_forward_phil, pull_forward_phih, 100, pullxl,pullxh, "");
 	sprintf(chisto, "mePullYvsPhiZpPanel1DiskPlaq_%d_%d", i+1, j+1);
 	mePullYvsPhiZpPanel1DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_phil, pull_forward_phih, 100, pullyl,pullyh, "");
+	  = ibooker.bookProfile(chisto, chisto, 20, pull_forward_phil, pull_forward_phih, 100, pullyl,pullyh, "");
 	sprintf(chisto, "mePullXvsEtaZpPanel1DiskPlaq_%d_%d", i+1, j+1);
 	mePullXvsEtaZpPanel1DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_pos_etal, pull_forward_pos_etah, 100, pullxl,pullxh, "");
+	  = ibooker.bookProfile(chisto, chisto, 20, pull_forward_pos_etal, pull_forward_pos_etah, 100, pullxl,pullxh, "");
 	sprintf(chisto, "mePullYvsEtaZpPanel1DiskPlaq_%d_%d", i+1, j+1);
 	mePullYvsEtaZpPanel1DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_pos_etal, pull_forward_pos_etah, 100, pullyl,pullyh, "");
+	  = ibooker.bookProfile(chisto, chisto, 20, pull_forward_pos_etal, pull_forward_pos_etah, 100, pullyl,pullyh, "");
 	
 	if ( j>2 ) continue; // panel 2 has only 3 plaquettes
 	
 	sprintf(chisto, "mePosxZmPanel2DiskPlaq_%d_%d", i+1, j+1);
-	mePosxZmPanel2DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, xl, xh);
+	mePosxZmPanel2DiskPlaq[i][j] = ibooker.book1D(chisto, chisto, 100, xl, xh);
 	sprintf(chisto, "mePosyZmPanel2DiskPlaq_%d_%d", i+1, j+1);
-	mePosyZmPanel2DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, yl, yh);
+	mePosyZmPanel2DiskPlaq[i][j] = ibooker.book1D(chisto, chisto, 100, yl, yh);
 	sprintf(chisto, "meErrxZmPanel2DiskPlaq_%d_%d", i+1, j+1);
-	meErrxZmPanel2DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, errxl, errxh);
+	meErrxZmPanel2DiskPlaq[i][j] = ibooker.book1D(chisto, chisto, 100, errxl, errxh);
 	sprintf(chisto, "meErryZmPanel2DiskPlaq_%d_%d", i+1, j+1);
-	meErryZmPanel2DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, erryl, erryh);	
+	meErryZmPanel2DiskPlaq[i][j] = ibooker.book1D(chisto, chisto, 100, erryl, erryh);	
 	sprintf(chisto, "meResxZmPanel2DiskPlaq_%d_%d", i+1, j+1);
-	meResxZmPanel2DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, resxl, resxh);
+	meResxZmPanel2DiskPlaq[i][j] = ibooker.book1D(chisto, chisto, 100, resxl, resxh);
 	sprintf(chisto, "meResyZmPanel2DiskPlaq_%d_%d", i+1, j+1);
-	meResyZmPanel2DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, resyl, resyh);	
+	meResyZmPanel2DiskPlaq[i][j] = ibooker.book1D(chisto, chisto, 100, resyl, resyh);	
 	sprintf(chisto, "mePullxZmPanel2DiskPlaq_%d_%d", i+1, j+1);
-	mePullxZmPanel2DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, pullxl, pullxh);
+	mePullxZmPanel2DiskPlaq[i][j] = ibooker.book1D(chisto, chisto, 100, pullxl, pullxh);
 	sprintf(chisto, "mePullyZmPanel2DiskPlaq_%d_%d", i+1, j+1);
-	mePullyZmPanel2DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, pullyl, pullyh);	
+	mePullyZmPanel2DiskPlaq[i][j] = ibooker.book1D(chisto, chisto, 100, pullyl, pullyh);	
       	sprintf(chisto, "meNpixZmPanel2DiskPlaq_%d_%d", i+1, j+1);
-	meNpixZmPanel2DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, npixl, npixh);	
+	meNpixZmPanel2DiskPlaq[i][j] = ibooker.book1D(chisto, chisto, 100, npixl, npixh);	
 	sprintf(chisto, "meNxpixZmPanel2DiskPlaq_%d_%d", i+1, j+1);
-	meNxpixZmPanel2DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, nxpixl, nxpixh);	
+	meNxpixZmPanel2DiskPlaq[i][j] = ibooker.book1D(chisto, chisto, 100, nxpixl, nxpixh);	
 	sprintf(chisto, "meNypixZmPanel2DiskPlaq_%d_%d", i+1, j+1);
-	meNypixZmPanel2DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, nypixl, nypixh);	
+	meNypixZmPanel2DiskPlaq[i][j] = ibooker.book1D(chisto, chisto, 100, nypixl, nypixh);	
 	sprintf(chisto, "meChargeZmPanel2DiskPlaq_%d_%d", i+1, j+1);
-	meChargeZmPanel2DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, forward_chargel, forward_chargeh);	
+	meChargeZmPanel2DiskPlaq[i][j] = ibooker.book1D(chisto, chisto, 100, forward_chargel, forward_chargeh);	
 	sprintf(chisto, "meResXvsAlphaZmPanel2DiskPlaq_%d_%d", i+1, j+1);
 	meResXvsAlphaZmPanel2DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_p2_alphal, forward_p2_alphah, 100, 0.0,  resxh, "");
+	  = ibooker.bookProfile(chisto, chisto, 20, forward_p2_alphal, forward_p2_alphah, 100, 0.0,  resxh, "");
 	sprintf(chisto, "meResYvsAlphaZmPanel2DiskPlaq_%d_%d", i+1, j+1);
 	meResYvsAlphaZmPanel2DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_p2_alphal, forward_p2_alphah, 100, 0.0,  resyh, "");
+	  = ibooker.bookProfile(chisto, chisto, 20, forward_p2_alphal, forward_p2_alphah, 100, 0.0,  resyh, "");
 	sprintf(chisto, "meResXvsBetaZmPanel2DiskPlaq_%d_%d", i+1, j+1);
 	meResXvsBetaZmPanel2DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_neg_betal, forward_neg_betah, 100, 0.0,  resxh, "");
+	  = ibooker.bookProfile(chisto, chisto, 20, forward_neg_betal, forward_neg_betah, 100, 0.0,  resxh, "");
 	sprintf(chisto, "meResYvsBetaZmPanel2DiskPlaq_%d_%d", i+1, j+1);
 	meResYvsBetaZmPanel2DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_neg_betal, forward_neg_betah, 100, 0.0,  resyh, ""); 
+	  = ibooker.bookProfile(chisto, chisto, 20, forward_neg_betal, forward_neg_betah, 100, 0.0,  resyh, ""); 
 
 	sprintf(chisto, "mePullXvsAlphaZmPanel2DiskPlaq_%d_%d", i+1, j+1);
 	mePullXvsAlphaZmPanel2DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_p2_alphal, pull_forward_p2_alphah, 100, pullxl,pullxh, "");
+	  = ibooker.bookProfile(chisto, chisto, 20, pull_forward_p2_alphal, pull_forward_p2_alphah, 100, pullxl,pullxh, "");
 	sprintf(chisto, "mePullYvsAlphaZmPanel2DiskPlaq_%d_%d", i+1, j+1);
 	mePullYvsAlphaZmPanel2DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_p2_alphal, pull_forward_p2_alphah, 100, pullyl,pullyh, "");
+	  = ibooker.bookProfile(chisto, chisto, 20, pull_forward_p2_alphal, pull_forward_p2_alphah, 100, pullyl,pullyh, "");
 	sprintf(chisto, "mePullXvsBetaZmPanel2DiskPlaq_%d_%d", i+1, j+1);
 	mePullXvsBetaZmPanel2DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_neg_betal, pull_forward_neg_betah, 100, pullxl,pullxh, "");
+	  = ibooker.bookProfile(chisto, chisto, 20, pull_forward_neg_betal, pull_forward_neg_betah, 100, pullxl,pullxh, "");
 	sprintf(chisto, "mePullYvsBetaZmPanel2DiskPlaq_%d_%d", i+1, j+1);
 	mePullYvsBetaZmPanel2DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_neg_betal, pull_forward_neg_betah, 100, pullyl,pullyh, ""); 
+	  = ibooker.bookProfile(chisto, chisto, 20, pull_forward_neg_betal, pull_forward_neg_betah, 100, pullyl,pullyh, ""); 
 	sprintf(chisto, "mePullXvsPhiZmPanel2DiskPlaq_%d_%d", i+1, j+1);
 	mePullXvsPhiZmPanel2DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_phil, pull_forward_phih, 100, pullxl,pullxh, "");
+	  = ibooker.bookProfile(chisto, chisto, 20, pull_forward_phil, pull_forward_phih, 100, pullxl,pullxh, "");
 	sprintf(chisto, "mePullYvsPhiZmPanel2DiskPlaq_%d_%d", i+1, j+1);
 	mePullYvsPhiZmPanel2DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_phil, pull_forward_phih, 100, pullyl,pullyh, "");
+	  = ibooker.bookProfile(chisto, chisto, 20, pull_forward_phil, pull_forward_phih, 100, pullyl,pullyh, "");
 	sprintf(chisto, "mePullXvsEtaZmPanel2DiskPlaq_%d_%d", i+1, j+1);
 	mePullXvsEtaZmPanel2DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_neg_etal, pull_forward_neg_etah, 100, pullxl, pullxh, "");
+	  = ibooker.bookProfile(chisto, chisto, 20, pull_forward_neg_etal, pull_forward_neg_etah, 100, pullxl, pullxh, "");
 	sprintf(chisto, "mePullYvsEtaZmPanel2DiskPlaq_%d_%d", i+1, j+1);
 	mePullYvsEtaZmPanel2DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_neg_etal, pull_forward_neg_etah, 100, pullyl, pullyh, "");
+	  = ibooker.bookProfile(chisto, chisto, 20, pull_forward_neg_etal, pull_forward_neg_etah, 100, pullyl, pullyh, "");
  
 	sprintf(chisto, "mePosxZpPanel2DiskPlaq_%d_%d", i+1, j+1);
-	mePosxZpPanel2DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, xl, xh);
+	mePosxZpPanel2DiskPlaq[i][j] = ibooker.book1D(chisto, chisto, 100, xl, xh);
 	sprintf(chisto, "mePosyZpPanel2DiskPlaq_%d_%d", i+1, j+1);
-	mePosyZpPanel2DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, yl, yh);
+	mePosyZpPanel2DiskPlaq[i][j] = ibooker.book1D(chisto, chisto, 100, yl, yh);
 	sprintf(chisto, "meErrxZpPanel2DiskPlaq_%d_%d", i+1, j+1);
-	meErrxZpPanel2DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, errxl, errxh);
+	meErrxZpPanel2DiskPlaq[i][j] = ibooker.book1D(chisto, chisto, 100, errxl, errxh);
 	sprintf(chisto, "meErryZpPanel2DiskPlaq_%d_%d", i+1, j+1);
-	meErryZpPanel2DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, erryl, erryh);	
+	meErryZpPanel2DiskPlaq[i][j] = ibooker.book1D(chisto, chisto, 100, erryl, erryh);	
 	sprintf(chisto, "meResxZpPanel2DiskPlaq_%d_%d", i+1, j+1);
-	meResxZpPanel2DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, resxl, resxh);
+	meResxZpPanel2DiskPlaq[i][j] = ibooker.book1D(chisto, chisto, 100, resxl, resxh);
 	sprintf(chisto, "meResyZpPanel2DiskPlaq_%d_%d", i+1, j+1);
-	meResyZpPanel2DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, resyl, resyh);	
+	meResyZpPanel2DiskPlaq[i][j] = ibooker.book1D(chisto, chisto, 100, resyl, resyh);	
 	sprintf(chisto, "mePullxZpPanel2DiskPlaq_%d_%d", i+1, j+1);
-	mePullxZpPanel2DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, pullxl, pullxh);
+	mePullxZpPanel2DiskPlaq[i][j] = ibooker.book1D(chisto, chisto, 100, pullxl, pullxh);
 	sprintf(chisto, "mePullyZpPanel2DiskPlaq_%d_%d", i+1, j+1);
-	mePullyZpPanel2DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, pullyl, pullyh);	
+	mePullyZpPanel2DiskPlaq[i][j] = ibooker.book1D(chisto, chisto, 100, pullyl, pullyh);	
 	sprintf(chisto, "meNpixZpPanel2DiskPlaq_%d_%d", i+1, j+1);
-	meNpixZpPanel2DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, npixl, npixh);	
+	meNpixZpPanel2DiskPlaq[i][j] = ibooker.book1D(chisto, chisto, 100, npixl, npixh);	
 	sprintf(chisto, "meNxpixZpPanel2DiskPlaq_%d_%d", i+1, j+1);
-	meNxpixZpPanel2DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, nxpixl, nxpixh);	
+	meNxpixZpPanel2DiskPlaq[i][j] = ibooker.book1D(chisto, chisto, 100, nxpixl, nxpixh);	
 	sprintf(chisto, "meNypixZpPanel2DiskPlaq_%d_%d", i+1, j+1);
-	meNypixZpPanel2DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, nypixl, nypixh);	
+	meNypixZpPanel2DiskPlaq[i][j] = ibooker.book1D(chisto, chisto, 100, nypixl, nypixh);	
 	sprintf(chisto, "meChargeZpPanel2DiskPlaq_%d_%d", i+1, j+1);
-	meChargeZpPanel2DiskPlaq[i][j] = dbe_->book1D(chisto, chisto, 100, forward_chargel, forward_chargeh);	
+	meChargeZpPanel2DiskPlaq[i][j] = ibooker.book1D(chisto, chisto, 100, forward_chargel, forward_chargeh);	
 	sprintf(chisto, "meResXvsAlphaZpPanel2DiskPlaq_%d_%d", i+1, j+1);
 	meResXvsAlphaZpPanel2DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_p2_alphal, forward_p2_alphah, 100, 0.0,  resxh, "");
+	  = ibooker.bookProfile(chisto, chisto, 20, forward_p2_alphal, forward_p2_alphah, 100, 0.0,  resxh, "");
 	sprintf(chisto, "meResYvsAlphaZpPanel2DiskPlaq_%d_%d", i+1, j+1);
 	meResYvsAlphaZpPanel2DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_p2_alphal, forward_p2_alphah, 100, 0.0,  resyh, "");
+	  = ibooker.bookProfile(chisto, chisto, 20, forward_p2_alphal, forward_p2_alphah, 100, 0.0,  resyh, "");
 	sprintf(chisto, "meResXvsBetaZpPanel2DiskPlaq_%d_%d", i+1, j+1);
 	meResXvsBetaZpPanel2DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_pos_betal, forward_pos_betah, 100, 0.0,  resxh, "");
+	  = ibooker.bookProfile(chisto, chisto, 20, forward_pos_betal, forward_pos_betah, 100, 0.0,  resxh, "");
 	sprintf(chisto, "meResYvsBetaZpPanel2DiskPlaq_%d_%d", i+1, j+1);
 	meResYvsBetaZpPanel2DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, forward_pos_betal, forward_pos_betah, 100, 0.0,  resyh, "");
+	  = ibooker.bookProfile(chisto, chisto, 20, forward_pos_betal, forward_pos_betah, 100, 0.0,  resyh, "");
     
   	sprintf(chisto, "mePullXvsAlphaZpPanel2DiskPlaq_%d_%d", i+1, j+1);
 	mePullXvsAlphaZpPanel2DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_p2_alphal, pull_forward_p2_alphah, 100, pullxl,pullxh, "");
+	  = ibooker.bookProfile(chisto, chisto, 20, pull_forward_p2_alphal, pull_forward_p2_alphah, 100, pullxl,pullxh, "");
 	sprintf(chisto, "mePullYvsAlphaZpPanel2DiskPlaq_%d_%d", i+1, j+1);
 	mePullYvsAlphaZpPanel2DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_p2_alphal, pull_forward_p2_alphah, 100, pullyl,pullyh, "");
+	  = ibooker.bookProfile(chisto, chisto, 20, pull_forward_p2_alphal, pull_forward_p2_alphah, 100, pullyl,pullyh, "");
 	sprintf(chisto, "mePullXvsBetaZpPanel2DiskPlaq_%d_%d", i+1, j+1);
 	mePullXvsBetaZpPanel2DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_pos_betal, pull_forward_pos_betah, 100, pullxl,pullxh, "");
+	  = ibooker.bookProfile(chisto, chisto, 20, pull_forward_pos_betal, pull_forward_pos_betah, 100, pullxl,pullxh, "");
 	sprintf(chisto, "mePullYvsBetaZpPanel2DiskPlaq_%d_%d", i+1, j+1);
 	mePullYvsBetaZpPanel2DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_pos_betal, pull_forward_pos_betah, 100, pullyl,pullyh, "");
+	  = ibooker.bookProfile(chisto, chisto, 20, pull_forward_pos_betal, pull_forward_pos_betah, 100, pullyl,pullyh, "");
       	sprintf(chisto, "mePullXvsPhiZpPanel2DiskPlaq_%d_%d", i+1, j+1);
 	mePullXvsPhiZpPanel2DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_phil, pull_forward_phih, 100, pullxl,pullxh, "");
+	  = ibooker.bookProfile(chisto, chisto, 20, pull_forward_phil, pull_forward_phih, 100, pullxl,pullxh, "");
 	sprintf(chisto, "mePullYvsPhiZpPanel2DiskPlaq_%d_%d", i+1, j+1);
 	mePullYvsPhiZpPanel2DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_phil, pull_forward_phih, 100, pullyl,pullyh, "");
+	  = ibooker.bookProfile(chisto, chisto, 20, pull_forward_phil, pull_forward_phih, 100, pullyl,pullyh, "");
 	sprintf(chisto, "mePullXvsEtaZpPanel2DiskPlaq_%d_%d", i+1, j+1);
 	mePullXvsEtaZpPanel2DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_pos_etal, pull_forward_pos_etah, 100, pullxl,pullxh, "");
+	  = ibooker.bookProfile(chisto, chisto, 20, pull_forward_pos_etal, pull_forward_pos_etah, 100, pullxl,pullxh, "");
 	sprintf(chisto, "mePullYvsEtaZpPanel2DiskPlaq_%d_%d", i+1, j+1);
 	mePullYvsEtaZpPanel2DiskPlaq[i][j] 
-	  = dbe_->bookProfile(chisto, chisto, 20, pull_forward_pos_etal, pull_forward_pos_etah, 100, pullyl,pullyh, "");
+	  = ibooker.bookProfile(chisto, chisto, 20, pull_forward_pos_etal, pull_forward_pos_etah, 100, pullyl,pullyh, "");
       
       } // for (int j=0; j<4; j++) // loop over plaquettes
 
-  dbe_->setCurrentFolder("Tracking/TrackingRecHits/Pixel/Histograms_all");
+  ibooker.setCurrentFolder("Tracking/TrackingRecHits/Pixel/Histograms_all");
 
   Char_t chisto[100];
   sprintf(chisto, "mePosxBarrel");
-  mePosxBarrel = dbe_->book1D(chisto, chisto, 100, xl, xh);
+  mePosxBarrel = ibooker.book1D(chisto, chisto, 100, xl, xh);
   sprintf(chisto, "mePosyBarrel"); 
-  mePosyBarrel = dbe_->book1D(chisto, chisto, 100, yl, yh);
+  mePosyBarrel = ibooker.book1D(chisto, chisto, 100, yl, yh);
   sprintf(chisto, "meErrxBarrel");
-  meErrxBarrel = dbe_->book1D(chisto, chisto, 100, errxl, errxh);
+  meErrxBarrel = ibooker.book1D(chisto, chisto, 100, errxl, errxh);
   sprintf(chisto, "meErryBarrel");
-  meErryBarrel = dbe_->book1D(chisto, chisto, 100, erryl, erryh);	
+  meErryBarrel = ibooker.book1D(chisto, chisto, 100, erryl, erryh);	
   sprintf(chisto, "meResxBarrel");
-  meResxBarrel = dbe_->book1D(chisto, chisto, 100, resxl, resxh);
+  meResxBarrel = ibooker.book1D(chisto, chisto, 100, resxl, resxh);
   sprintf(chisto, "meResyBarrel");
-  meResyBarrel = dbe_->book1D(chisto, chisto, 100, resyl, resyh);	
+  meResyBarrel = ibooker.book1D(chisto, chisto, 100, resyl, resyh);	
   sprintf(chisto, "mePullxBarrel");
-  mePullxBarrel = dbe_->book1D(chisto, chisto, 100, pullxl, pullxh);
+  mePullxBarrel = ibooker.book1D(chisto, chisto, 100, pullxl, pullxh);
   sprintf(chisto, "mePullyBarrel");
-  mePullyBarrel = dbe_->book1D(chisto, chisto, 100, pullyl, pullyh);	
+  mePullyBarrel = ibooker.book1D(chisto, chisto, 100, pullyl, pullyh);	
   sprintf(chisto, "meNpixBarrel");
-  meNpixBarrel = dbe_->book1D(chisto, chisto, 100, npixl, npixh);
+  meNpixBarrel = ibooker.book1D(chisto, chisto, 100, npixl, npixh);
   sprintf(chisto, "meNxpixBarrel");
-  meNxpixBarrel = dbe_->book1D(chisto, chisto, 100, nxpixl, nxpixh);
+  meNxpixBarrel = ibooker.book1D(chisto, chisto, 100, nxpixl, nxpixh);
   sprintf(chisto, "meNypixBarrel");
-  meNypixBarrel = dbe_->book1D(chisto, chisto, 100, nypixl, nypixh);
+  meNypixBarrel = ibooker.book1D(chisto, chisto, 100, nypixl, nypixh);
   sprintf(chisto, "meChargeBarrel");
-  meChargeBarrel = dbe_->book1D(chisto, chisto, 100, barrel_chargel, barrel_chargeh);
+  meChargeBarrel = ibooker.book1D(chisto, chisto, 100, barrel_chargel, barrel_chargeh);
   sprintf(chisto, "meResXvsAlphaBarrel");
-  meResXvsAlphaBarrel = dbe_->bookProfile(chisto, chisto, 20, barrel_alphal, barrel_alphah, 100, 0.0, resxh, "");
+  meResXvsAlphaBarrel = ibooker.bookProfile(chisto, chisto, 20, barrel_alphal, barrel_alphah, 100, 0.0, resxh, "");
   sprintf(chisto, "meResYvsAlphaBarrel");
-  meResYvsAlphaBarrel = dbe_->bookProfile(chisto, chisto, 20, barrel_alphal, barrel_alphah, 100, 0.0, resyh, "");	
+  meResYvsAlphaBarrel = ibooker.bookProfile(chisto, chisto, 20, barrel_alphal, barrel_alphah, 100, 0.0, resyh, "");	
   sprintf(chisto, "meResXvsBetaBarrel");
-  meResXvsBetaBarrel = dbe_->bookProfile(chisto, chisto, 20, barrel_betal, barrel_betah, 100, 0.0, resxh, "");
+  meResXvsBetaBarrel = ibooker.bookProfile(chisto, chisto, 20, barrel_betal, barrel_betah, 100, 0.0, resxh, "");
   sprintf(chisto, "meResYvsBetaBarrel");
-  meResYvsBetaBarrel = dbe_->bookProfile(chisto, chisto, 20, barrel_betal, barrel_betah, 100, 0.0, resyh, "");	
+  meResYvsBetaBarrel = ibooker.bookProfile(chisto, chisto, 20, barrel_betal, barrel_betah, 100, 0.0, resyh, "");	
  
   sprintf(chisto, "mePullXvsAlphaBarrel");
-  mePullXvsAlphaBarrel = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_alphal, pull_barrel_alphah, 100, pullxl, pullxh, "");
+  mePullXvsAlphaBarrel = ibooker.bookProfile(chisto, chisto, 20, pull_barrel_alphal, pull_barrel_alphah, 100, pullxl, pullxh, "");
   sprintf(chisto, "mePullYvsAlphaBarrel");
-  mePullYvsAlphaBarrel = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_alphal, pull_barrel_alphah, 100, pullyl, pullyh, "");	
+  mePullYvsAlphaBarrel = ibooker.bookProfile(chisto, chisto, 20, pull_barrel_alphal, pull_barrel_alphah, 100, pullyl, pullyh, "");	
   sprintf(chisto, "mePullXvsBetaBarrel");
-  mePullXvsBetaBarrel = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_betal, pull_barrel_betah, 100, pullxl, pullxh, "");
+  mePullXvsBetaBarrel = ibooker.bookProfile(chisto, chisto, 20, pull_barrel_betal, pull_barrel_betah, 100, pullxl, pullxh, "");
   sprintf(chisto, "mePullYvsBetaBarrel");
-  mePullYvsBetaBarrel = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_betal, pull_barrel_betah, 100, pullyl, pullyh, "");	
+  mePullYvsBetaBarrel = ibooker.bookProfile(chisto, chisto, 20, pull_barrel_betal, pull_barrel_betah, 100, pullyl, pullyh, "");	
   sprintf(chisto, "mePullXvsPhiBarrel");
-  mePullXvsPhiBarrel = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_phil, pull_barrel_phih, 100, pullxl, pullxh, "");
+  mePullXvsPhiBarrel = ibooker.bookProfile(chisto, chisto, 20, pull_barrel_phil, pull_barrel_phih, 100, pullxl, pullxh, "");
   sprintf(chisto, "mePullYvsPhiBarrel");
-  mePullYvsPhiBarrel = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_phil, pull_barrel_phih, 100, pullyl, pullyh, "");	
+  mePullYvsPhiBarrel = ibooker.bookProfile(chisto, chisto, 20, pull_barrel_phil, pull_barrel_phih, 100, pullyl, pullyh, "");	
   sprintf(chisto, "mePullXvsEtaBarrel");
-  mePullXvsEtaBarrel = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_etal, pull_barrel_etah, 100, pullxl, pullxh, "");
+  mePullXvsEtaBarrel = ibooker.bookProfile(chisto, chisto, 20, pull_barrel_etal, pull_barrel_etah, 100, pullxl, pullxh, "");
   sprintf(chisto, "mePullYvsEtaBarrel");
-  mePullYvsEtaBarrel = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_etal, pull_barrel_etah, 100, pullyl, pullyh, "");	
+  mePullYvsEtaBarrel = ibooker.bookProfile(chisto, chisto, 20, pull_barrel_etal, pull_barrel_etah, 100, pullyl, pullyh, "");	
 
   sprintf(chisto, "mePosxBarrelHalfModule");
-  mePosxBarrelHalfModule = dbe_->book1D(chisto, chisto, 100, xl, xh);
+  mePosxBarrelHalfModule = ibooker.book1D(chisto, chisto, 100, xl, xh);
   sprintf(chisto, "mePosxBarrelFullModule");
-  mePosxBarrelFullModule = dbe_->book1D(chisto, chisto, 100, xl, xh);
+  mePosxBarrelFullModule = ibooker.book1D(chisto, chisto, 100, xl, xh);
   sprintf(chisto, "mePosxBarrelFlippedLadders");
-  mePosxBarrelFlippedLadders = dbe_->book1D(chisto, chisto, 100, xl, xh);
+  mePosxBarrelFlippedLadders = ibooker.book1D(chisto, chisto, 100, xl, xh);
   sprintf(chisto, "mePosxBarrelNonFlippedLadders");
-  mePosxBarrelNonFlippedLadders = dbe_->book1D(chisto, chisto, 100, xl, xh);
+  mePosxBarrelNonFlippedLadders = ibooker.book1D(chisto, chisto, 100, xl, xh);
   sprintf(chisto, "mePosyBarrelHalfModule");
-  mePosyBarrelHalfModule = dbe_->book1D(chisto, chisto, 100, yl, yh);
+  mePosyBarrelHalfModule = ibooker.book1D(chisto, chisto, 100, yl, yh);
   sprintf(chisto, "mePosyBarrelFullModule");
-  mePosyBarrelFullModule = dbe_->book1D(chisto, chisto, 100, yl, yh);
+  mePosyBarrelFullModule = ibooker.book1D(chisto, chisto, 100, yl, yh);
   sprintf(chisto, "mePosyBarrelFlippedLadders");
-  mePosyBarrelFlippedLadders = dbe_->book1D(chisto, chisto, 100, yl, yh);
+  mePosyBarrelFlippedLadders = ibooker.book1D(chisto, chisto, 100, yl, yh);
   sprintf(chisto, "mePosyBarrelNonFlippedLadders");
-  mePosyBarrelNonFlippedLadders = dbe_->book1D(chisto, chisto, 100, yl, yh);
+  mePosyBarrelNonFlippedLadders = ibooker.book1D(chisto, chisto, 100, yl, yh);
   
   sprintf(chisto, "meResXvsAlphaBarrelFlippedLadders");
-  meResXvsAlphaBarrelFlippedLadders = dbe_->bookProfile(chisto, chisto, 20, barrel_alphal, barrel_alphah, 100, 0.0, resxh, "");
+  meResXvsAlphaBarrelFlippedLadders = ibooker.bookProfile(chisto, chisto, 20, barrel_alphal, barrel_alphah, 100, 0.0, resxh, "");
   sprintf(chisto, "meResYvsAlphaBarrelFlippedLadders");
-  meResYvsAlphaBarrelFlippedLadders = dbe_->bookProfile(chisto, chisto, 20, barrel_alphal, barrel_alphah, 100, 0.0, resyh, "");	
+  meResYvsAlphaBarrelFlippedLadders = ibooker.bookProfile(chisto, chisto, 20, barrel_alphal, barrel_alphah, 100, 0.0, resyh, "");	
   sprintf(chisto, "meResXvsBetaBarrelFlippedLadders");
-  meResXvsBetaBarrelFlippedLadders = dbe_->bookProfile(chisto, chisto, 20, barrel_betal, barrel_betah, 100, 0.0, resxh, "");
+  meResXvsBetaBarrelFlippedLadders = ibooker.bookProfile(chisto, chisto, 20, barrel_betal, barrel_betah, 100, 0.0, resxh, "");
   sprintf(chisto, "meResYvsBetaBarrelFlippedLadders");
-  meResYvsBetaBarrelFlippedLadders = dbe_->bookProfile(chisto, chisto, 20, barrel_betal, barrel_betah, 100, 0.0, resyh, "");	
+  meResYvsBetaBarrelFlippedLadders = ibooker.bookProfile(chisto, chisto, 20, barrel_betal, barrel_betah, 100, 0.0, resyh, "");	
 
   sprintf(chisto, "mePullXvsAlphaBarrelFlippedLadders");
   mePullXvsAlphaBarrelFlippedLadders 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_alphal, pull_barrel_alphah, 100, pullxl, pullxh, "");
+    = ibooker.bookProfile(chisto, chisto, 20, pull_barrel_alphal, pull_barrel_alphah, 100, pullxl, pullxh, "");
   sprintf(chisto, "mePullYvsAlphaBarrelFlippedLadders");
   mePullYvsAlphaBarrelFlippedLadders 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_alphal, pull_barrel_alphah, 100, pullyl, pullyh, "");	
+    = ibooker.bookProfile(chisto, chisto, 20, pull_barrel_alphal, pull_barrel_alphah, 100, pullyl, pullyh, "");	
   sprintf(chisto, "mePullXvsBetaBarrelFlippedLadders");
   mePullXvsBetaBarrelFlippedLadders 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_betal, pull_barrel_betah, 100, pullxl, pullxh, "");
+    = ibooker.bookProfile(chisto, chisto, 20, pull_barrel_betal, pull_barrel_betah, 100, pullxl, pullxh, "");
   sprintf(chisto, "mePullYvsBetaBarrelFlippedLadders");
   mePullYvsBetaBarrelFlippedLadders 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_betal, pull_barrel_betah, 100, pullyl, pullyh, "");	
+    = ibooker.bookProfile(chisto, chisto, 20, pull_barrel_betal, pull_barrel_betah, 100, pullyl, pullyh, "");	
   sprintf(chisto, "mePullXvsPhiBarrelFlippedLadders");
   mePullXvsPhiBarrelFlippedLadders 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_phil, pull_barrel_phih, 100, pullxl, pullxh, "");
+    = ibooker.bookProfile(chisto, chisto, 20, pull_barrel_phil, pull_barrel_phih, 100, pullxl, pullxh, "");
   sprintf(chisto, "mePullYvsPhiBarrelFlippedLadders");
   mePullYvsPhiBarrelFlippedLadders 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_phil, pull_barrel_phih, 100, pullyl, pullyh, "");	
+    = ibooker.bookProfile(chisto, chisto, 20, pull_barrel_phil, pull_barrel_phih, 100, pullyl, pullyh, "");	
   sprintf(chisto, "mePullXvsEtaBarrelFlippedLadders");
   mePullXvsEtaBarrelFlippedLadders 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_etal, pull_barrel_etah, 100, pullxl, pullxh, "");
+    = ibooker.bookProfile(chisto, chisto, 20, pull_barrel_etal, pull_barrel_etah, 100, pullxl, pullxh, "");
   sprintf(chisto, "mePullYvsEtaBarrelFlippedLadders");
   mePullYvsEtaBarrelFlippedLadders 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_etal, pull_barrel_etah, 100, pullyl, pullyh, "");	
+    = ibooker.bookProfile(chisto, chisto, 20, pull_barrel_etal, pull_barrel_etah, 100, pullyl, pullyh, "");	
 
   
   sprintf(chisto, "meWPullXvsAlphaBarrelFlippedLadders");
   meWPullXvsAlphaBarrelFlippedLadders 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_alphal, pull_barrel_alphah, 100, pullxl, pullxh, "");
+    = ibooker.bookProfile(chisto, chisto, 20, pull_barrel_alphal, pull_barrel_alphah, 100, pullxl, pullxh, "");
   sprintf(chisto, "meWPullYvsAlphaBarrelFlippedLadders");
   meWPullYvsAlphaBarrelFlippedLadders 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_alphal, pull_barrel_alphah, 100, pullyl, pullyh, "");	
+    = ibooker.bookProfile(chisto, chisto, 20, pull_barrel_alphal, pull_barrel_alphah, 100, pullyl, pullyh, "");	
   sprintf(chisto, "meWPullXvsBetaBarrelFlippedLadders");
   meWPullXvsBetaBarrelFlippedLadders 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_betal, pull_barrel_betah, 100, pullxl, pullxh, "");
+    = ibooker.bookProfile(chisto, chisto, 20, pull_barrel_betal, pull_barrel_betah, 100, pullxl, pullxh, "");
   sprintf(chisto, "meWPullYvsBetaBarrelFlippedLadders");
   meWPullYvsBetaBarrelFlippedLadders 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_betal, pull_barrel_betah, 100, pullyl, pullyh, "");	
+    = ibooker.bookProfile(chisto, chisto, 20, pull_barrel_betal, pull_barrel_betah, 100, pullyl, pullyh, "");	
  
   sprintf(chisto, "meResXvsAlphaBarrelNonFlippedLadders");
-  meResXvsAlphaBarrelNonFlippedLadders = dbe_->bookProfile(chisto, chisto, 20, barrel_alphal, barrel_alphah, 100, 0.0, resxh, "");
+  meResXvsAlphaBarrelNonFlippedLadders = ibooker.bookProfile(chisto, chisto, 20, barrel_alphal, barrel_alphah, 100, 0.0, resxh, "");
   sprintf(chisto, "meResYvsAlphaBarrelNonFlippedLadders");
-  meResYvsAlphaBarrelNonFlippedLadders = dbe_->bookProfile(chisto, chisto, 20, barrel_alphal, barrel_alphah, 100, 0.0, resyh, "");	
+  meResYvsAlphaBarrelNonFlippedLadders = ibooker.bookProfile(chisto, chisto, 20, barrel_alphal, barrel_alphah, 100, 0.0, resyh, "");	
   sprintf(chisto, "meResXvsBetaBarrelNonFlippedLadders");
-  meResXvsBetaBarrelNonFlippedLadders = dbe_->bookProfile(chisto, chisto, 20, barrel_betal, barrel_betah, 100, 0.0, resxh, "");
+  meResXvsBetaBarrelNonFlippedLadders = ibooker.bookProfile(chisto, chisto, 20, barrel_betal, barrel_betah, 100, 0.0, resxh, "");
   sprintf(chisto, "meResYvsBetaBarrelNonFlippedLadders");
-  meResYvsBetaBarrelNonFlippedLadders = dbe_->bookProfile(chisto, chisto, 20, barrel_betal, barrel_betah, 100, 0.0, resyh, "");	
+  meResYvsBetaBarrelNonFlippedLadders = ibooker.bookProfile(chisto, chisto, 20, barrel_betal, barrel_betah, 100, 0.0, resyh, "");	
 
   sprintf(chisto, "mePullXvsAlphaBarrelNonFlippedLadders");
   mePullXvsAlphaBarrelNonFlippedLadders 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_alphal, pull_barrel_alphah, 100, pullxl, pullxh, "");
+    = ibooker.bookProfile(chisto, chisto, 20, pull_barrel_alphal, pull_barrel_alphah, 100, pullxl, pullxh, "");
   sprintf(chisto, "mePullYvsAlphaBarrelNonFlippedLadders");
   mePullYvsAlphaBarrelNonFlippedLadders 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_alphal, pull_barrel_alphah, 100, pullyl, pullyh, "");	
+    = ibooker.bookProfile(chisto, chisto, 20, pull_barrel_alphal, pull_barrel_alphah, 100, pullyl, pullyh, "");	
   sprintf(chisto, "mePullXvsBetaBarrelNonFlippedLadders");
   mePullXvsBetaBarrelNonFlippedLadders 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_betal, pull_barrel_betah, 100, pullxl, pullxh, "");
+    = ibooker.bookProfile(chisto, chisto, 20, pull_barrel_betal, pull_barrel_betah, 100, pullxl, pullxh, "");
   sprintf(chisto, "mePullYvsBetaBarrelNonFlippedLadders");
   mePullYvsBetaBarrelNonFlippedLadders 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_betal, pull_barrel_betah, 100, pullyl, pullyh, "");	
+    = ibooker.bookProfile(chisto, chisto, 20, pull_barrel_betal, pull_barrel_betah, 100, pullyl, pullyh, "");	
   sprintf(chisto, "mePullXvsPhiBarrelNonFlippedLadders");
   mePullXvsPhiBarrelNonFlippedLadders 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_phil, pull_barrel_phih, 100, pullxl, pullxh, "");
+    = ibooker.bookProfile(chisto, chisto, 20, pull_barrel_phil, pull_barrel_phih, 100, pullxl, pullxh, "");
   sprintf(chisto, "mePullYvsPhiBarrelNonFlippedLadders");
   mePullYvsPhiBarrelNonFlippedLadders 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_phil, pull_barrel_phih, 100, pullyl, pullyh, "");	
+    = ibooker.bookProfile(chisto, chisto, 20, pull_barrel_phil, pull_barrel_phih, 100, pullyl, pullyh, "");	
   sprintf(chisto, "mePullXvsEtaBarrelNonFlippedLadders");
   mePullXvsEtaBarrelNonFlippedLadders 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_etal, pull_barrel_etah, 100, pullxl, pullxh, "");
+    = ibooker.bookProfile(chisto, chisto, 20, pull_barrel_etal, pull_barrel_etah, 100, pullxl, pullxh, "");
   sprintf(chisto, "mePullYvsEtaBarrelNonFlippedLadders");
   mePullYvsEtaBarrelNonFlippedLadders 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_etal, pull_barrel_etah, 100, pullyl, pullyh, "");	
+    = ibooker.bookProfile(chisto, chisto, 20, pull_barrel_etal, pull_barrel_etah, 100, pullyl, pullyh, "");	
 
 
   sprintf(chisto, "meWPullXvsAlphaBarrelNonFlippedLadders");
   meWPullXvsAlphaBarrelNonFlippedLadders 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_alphal, pull_barrel_alphah, 100, pullxl, pullxh, "");
+    = ibooker.bookProfile(chisto, chisto, 20, pull_barrel_alphal, pull_barrel_alphah, 100, pullxl, pullxh, "");
   sprintf(chisto, "meWPullYvsAlphaBarrelNonFlippedLadders");
   meWPullYvsAlphaBarrelNonFlippedLadders 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_alphal, pull_barrel_alphah, 100, pullyl, pullyh, "");	
+    = ibooker.bookProfile(chisto, chisto, 20, pull_barrel_alphal, pull_barrel_alphah, 100, pullyl, pullyh, "");	
   sprintf(chisto, "meWPullXvsBetaBarrelNonFlippedLadders");
   meWPullXvsBetaBarrelNonFlippedLadders 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_betal, pull_barrel_betah, 100, pullxl, pullxh, "");
+    = ibooker.bookProfile(chisto, chisto, 20, pull_barrel_betal, pull_barrel_betah, 100, pullxl, pullxh, "");
   sprintf(chisto, "meWPullYvsBetaBarrelNonFlippedLadders");
   meWPullYvsBetaBarrelNonFlippedLadders 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_barrel_betal, pull_barrel_betah, 100, pullyl, pullyh, "");	
+    = ibooker.bookProfile(chisto, chisto, 20, pull_barrel_betal, pull_barrel_betah, 100, pullyl, pullyh, "");	
 
 
   sprintf(chisto, "mePosxZmPanel1");
-  mePosxZmPanel1 = dbe_->book1D(chisto, chisto, 100, xl, xh);
+  mePosxZmPanel1 = ibooker.book1D(chisto, chisto, 100, xl, xh);
   sprintf(chisto, "mePosyZmPanel1");
-  mePosyZmPanel1 = dbe_->book1D(chisto, chisto, 100, yl, yh);
+  mePosyZmPanel1 = ibooker.book1D(chisto, chisto, 100, yl, yh);
   sprintf(chisto, "meErrxZmPanel1");
-  meErrxZmPanel1 = dbe_->book1D(chisto, chisto, 100, errxl, errxh);
+  meErrxZmPanel1 = ibooker.book1D(chisto, chisto, 100, errxl, errxh);
   sprintf(chisto, "meErryZmPanel1");
-  meErryZmPanel1 = dbe_->book1D(chisto, chisto, 100, erryl, erryh);	
+  meErryZmPanel1 = ibooker.book1D(chisto, chisto, 100, erryl, erryh);	
   sprintf(chisto, "meResxZmPanel1");
-  meResxZmPanel1 = dbe_->book1D(chisto, chisto, 100, resxl, resxh);
+  meResxZmPanel1 = ibooker.book1D(chisto, chisto, 100, resxl, resxh);
   sprintf(chisto, "meResyZmPanel1");
-  meResyZmPanel1 = dbe_->book1D(chisto, chisto, 100, resyl, resyh);	
+  meResyZmPanel1 = ibooker.book1D(chisto, chisto, 100, resyl, resyh);	
   sprintf(chisto, "mePullxZmPanel1");
-  mePullxZmPanel1 = dbe_->book1D(chisto, chisto, 100, pullxl, pullxh);
+  mePullxZmPanel1 = ibooker.book1D(chisto, chisto, 100, pullxl, pullxh);
   sprintf(chisto, "mePullyZmPanel1");
-  mePullyZmPanel1 = dbe_->book1D(chisto, chisto, 100, pullyl, pullyh);	
+  mePullyZmPanel1 = ibooker.book1D(chisto, chisto, 100, pullyl, pullyh);	
   sprintf(chisto, "meNpixZmPanel1");
-  meNpixZmPanel1 = dbe_->book1D(chisto, chisto, 100, npixl, npixh);	
+  meNpixZmPanel1 = ibooker.book1D(chisto, chisto, 100, npixl, npixh);	
   sprintf(chisto, "meNxpixZmPanel1");
-  meNxpixZmPanel1 = dbe_->book1D(chisto, chisto, 100, nxpixl, nxpixh);	
+  meNxpixZmPanel1 = ibooker.book1D(chisto, chisto, 100, nxpixl, nxpixh);	
   sprintf(chisto, "meNypixZmPanel1");
-  meNypixZmPanel1 = dbe_->book1D(chisto, chisto, 100, nypixl, nypixh);	
+  meNypixZmPanel1 = ibooker.book1D(chisto, chisto, 100, nypixl, nypixh);	
   sprintf(chisto, "meChargeZmPanel1");
-  meChargeZmPanel1 = dbe_->book1D(chisto, chisto, 100, forward_chargel, forward_chargeh);	
+  meChargeZmPanel1 = ibooker.book1D(chisto, chisto, 100, forward_chargel, forward_chargeh);	
   sprintf(chisto, "meResXvsAlphaZmPanel1");
-  meResXvsAlphaZmPanel1 = dbe_->bookProfile(chisto, chisto, 20, forward_p1_alphal, forward_p1_alphah, 100, 0.0,  resxh, "");
+  meResXvsAlphaZmPanel1 = ibooker.bookProfile(chisto, chisto, 20, forward_p1_alphal, forward_p1_alphah, 100, 0.0,  resxh, "");
   sprintf(chisto, "meResYvsAlphaZmPanel1");
-  meResYvsAlphaZmPanel1 = dbe_->bookProfile(chisto, chisto, 20, forward_p1_alphal, forward_p1_alphah, 100, 0.0,  resyh, "");	
+  meResYvsAlphaZmPanel1 = ibooker.bookProfile(chisto, chisto, 20, forward_p1_alphal, forward_p1_alphah, 100, 0.0,  resyh, "");	
   sprintf(chisto, "meResXvsBetaZmPanel1");
-  meResXvsBetaZmPanel1 = dbe_->bookProfile(chisto, chisto, 20, forward_neg_betal, forward_neg_betah, 100, 0.0,  resxh, "");
+  meResXvsBetaZmPanel1 = ibooker.bookProfile(chisto, chisto, 20, forward_neg_betal, forward_neg_betah, 100, 0.0,  resxh, "");
   sprintf(chisto, "meResYvsBetaZmPanel1");
-  meResYvsBetaZmPanel1 = dbe_->bookProfile(chisto, chisto, 20, forward_neg_betal, forward_neg_betah, 100, 0.0,  resyh, "");	
+  meResYvsBetaZmPanel1 = ibooker.bookProfile(chisto, chisto, 20, forward_neg_betal, forward_neg_betah, 100, 0.0,  resyh, "");	
 
   sprintf(chisto, "mePullXvsAlphaZmPanel1");
   mePullXvsAlphaZmPanel1 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_p1_alphal, pull_forward_p1_alphah, 100, pullxl,  pullxh, "");
+    = ibooker.bookProfile(chisto, chisto, 20, pull_forward_p1_alphal, pull_forward_p1_alphah, 100, pullxl,  pullxh, "");
   sprintf(chisto, "mePullYvsAlphaZmPanel1");
   mePullYvsAlphaZmPanel1 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_p1_alphal, pull_forward_p1_alphah, 100, pullyl,  pullyh, "");	
+    = ibooker.bookProfile(chisto, chisto, 20, pull_forward_p1_alphal, pull_forward_p1_alphah, 100, pullyl,  pullyh, "");	
   sprintf(chisto, "mePullXvsBetaZmPanel1");
   mePullXvsBetaZmPanel1 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_neg_betal, pull_forward_neg_betah, 100, pullxl,  pullxh, "");
+    = ibooker.bookProfile(chisto, chisto, 20, pull_forward_neg_betal, pull_forward_neg_betah, 100, pullxl,  pullxh, "");
   sprintf(chisto, "mePullYvsBetaZmPanel1");
   mePullYvsBetaZmPanel1 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_neg_betal, pull_forward_neg_betah, 100, pullyl,  pullyh, "");	
+    = ibooker.bookProfile(chisto, chisto, 20, pull_forward_neg_betal, pull_forward_neg_betah, 100, pullyl,  pullyh, "");	
   sprintf(chisto, "mePullXvsPhiZmPanel1");
   mePullXvsPhiZmPanel1 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_phil, pull_forward_phih, 100, pullxl,  pullxh, "");
+    = ibooker.bookProfile(chisto, chisto, 20, pull_forward_phil, pull_forward_phih, 100, pullxl,  pullxh, "");
   sprintf(chisto, "mePullYvsPhiZmPanel1");
   mePullYvsPhiZmPanel1 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_phil, pull_forward_phih, 100, pullyl,  pullyh, "");	
+    = ibooker.bookProfile(chisto, chisto, 20, pull_forward_phil, pull_forward_phih, 100, pullyl,  pullyh, "");	
   sprintf(chisto, "mePullXvsEtaZmPanel1");
   mePullXvsEtaZmPanel1 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_neg_etal, pull_forward_neg_etah, 100, pullxl,  pullxh, "");
+    = ibooker.bookProfile(chisto, chisto, 20, pull_forward_neg_etal, pull_forward_neg_etah, 100, pullxl,  pullxh, "");
   sprintf(chisto, "mePullYvsEtaZmPanel1");
   mePullYvsEtaZmPanel1 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_neg_etal, pull_forward_neg_etah, 100, pullyl,  pullyh, "");
+    = ibooker.bookProfile(chisto, chisto, 20, pull_forward_neg_etal, pull_forward_neg_etah, 100, pullyl,  pullyh, "");
 
   sprintf(chisto, "meWPullXvsAlphaZmPanel1");
   meWPullXvsAlphaZmPanel1 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_p1_alphal, pull_forward_p1_alphah, 100, pullxl,  pullxh, "");
+    = ibooker.bookProfile(chisto, chisto, 20, pull_forward_p1_alphal, pull_forward_p1_alphah, 100, pullxl,  pullxh, "");
   sprintf(chisto, "meWPullYvsAlphaZmPanel1");
   meWPullYvsAlphaZmPanel1 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_p1_alphal, pull_forward_p1_alphah, 100, pullyl,  pullyh, "");	
+    = ibooker.bookProfile(chisto, chisto, 20, pull_forward_p1_alphal, pull_forward_p1_alphah, 100, pullyl,  pullyh, "");	
   sprintf(chisto, "meWPullXvsBetaZmPanel1");
   meWPullXvsBetaZmPanel1 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_neg_betal, pull_forward_neg_betah, 100, pullxl,  pullxh, "");
+    = ibooker.bookProfile(chisto, chisto, 20, pull_forward_neg_betal, pull_forward_neg_betah, 100, pullxl,  pullxh, "");
   sprintf(chisto, "meWPullYvsBetaZmPanel1");
   meWPullYvsBetaZmPanel1 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_neg_betal, pull_forward_neg_betah, 100, pullyl,  pullyh, "");	
+    = ibooker.bookProfile(chisto, chisto, 20, pull_forward_neg_betal, pull_forward_neg_betah, 100, pullyl,  pullyh, "");	
 
   sprintf(chisto, "mePosxZpPanel1");
-  mePosxZpPanel1 = dbe_->book1D(chisto, chisto, 100, xl, xh);
+  mePosxZpPanel1 = ibooker.book1D(chisto, chisto, 100, xl, xh);
   sprintf(chisto, "mePosyZpPanel1");
-  mePosyZpPanel1 = dbe_->book1D(chisto, chisto, 100, yl, yh);
+  mePosyZpPanel1 = ibooker.book1D(chisto, chisto, 100, yl, yh);
   sprintf(chisto, "meErrxZpPanel1");
-  meErrxZpPanel1 = dbe_->book1D(chisto, chisto, 100, errxl, errxh);
+  meErrxZpPanel1 = ibooker.book1D(chisto, chisto, 100, errxl, errxh);
   sprintf(chisto, "meErryZpPanel1");
-  meErryZpPanel1 = dbe_->book1D(chisto, chisto, 100, erryl, erryh);	
+  meErryZpPanel1 = ibooker.book1D(chisto, chisto, 100, erryl, erryh);	
   sprintf(chisto, "meResxZpPanel1");
-  meResxZpPanel1 = dbe_->book1D(chisto, chisto, 100, resxl, resxh);
+  meResxZpPanel1 = ibooker.book1D(chisto, chisto, 100, resxl, resxh);
   sprintf(chisto, "meResyZpPanel1");
-  meResyZpPanel1 = dbe_->book1D(chisto, chisto, 100, resyl, resyh);	
+  meResyZpPanel1 = ibooker.book1D(chisto, chisto, 100, resyl, resyh);	
   sprintf(chisto, "mePullxZpPanel1");
-  mePullxZpPanel1 = dbe_->book1D(chisto, chisto, 100, pullxl, pullxh);
+  mePullxZpPanel1 = ibooker.book1D(chisto, chisto, 100, pullxl, pullxh);
   sprintf(chisto, "mePullyZpPanel1");
-  mePullyZpPanel1 = dbe_->book1D(chisto, chisto, 100, pullyl, pullyh);	
+  mePullyZpPanel1 = ibooker.book1D(chisto, chisto, 100, pullyl, pullyh);	
   sprintf(chisto, "meNpixZpPanel1");
-  meNpixZpPanel1 = dbe_->book1D(chisto, chisto, 100, npixl, npixh);	
+  meNpixZpPanel1 = ibooker.book1D(chisto, chisto, 100, npixl, npixh);	
   sprintf(chisto, "meNxpixZpPanel1");
-  meNxpixZpPanel1 = dbe_->book1D(chisto, chisto, 100, nxpixl, nxpixh);	
+  meNxpixZpPanel1 = ibooker.book1D(chisto, chisto, 100, nxpixl, nxpixh);	
   sprintf(chisto, "meNypixZpPanel1");
-  meNypixZpPanel1 = dbe_->book1D(chisto, chisto, 100, nypixl, nypixh);	
+  meNypixZpPanel1 = ibooker.book1D(chisto, chisto, 100, nypixl, nypixh);	
   sprintf(chisto, "meChargeZpPanel1");
-  meChargeZpPanel1 = dbe_->book1D(chisto, chisto, 100, forward_chargel, forward_chargeh);	
+  meChargeZpPanel1 = ibooker.book1D(chisto, chisto, 100, forward_chargel, forward_chargeh);	
   sprintf(chisto, "meResXvsAlphaZpPanel1");
-  meResXvsAlphaZpPanel1 = dbe_->bookProfile(chisto, chisto, 20, forward_p1_alphal, forward_p1_alphah, 100, 0.0,  resxh, "");
+  meResXvsAlphaZpPanel1 = ibooker.bookProfile(chisto, chisto, 20, forward_p1_alphal, forward_p1_alphah, 100, 0.0,  resxh, "");
   sprintf(chisto, "meResYvsAlphaZpPanel1");
-  meResYvsAlphaZpPanel1 = dbe_->bookProfile(chisto, chisto, 20, forward_p1_alphal, forward_p1_alphah, 100, 0.0,  resyh, "");	
+  meResYvsAlphaZpPanel1 = ibooker.bookProfile(chisto, chisto, 20, forward_p1_alphal, forward_p1_alphah, 100, 0.0,  resyh, "");	
   sprintf(chisto, "meResXvsBetaZpPanel1");
-  meResXvsBetaZpPanel1 = dbe_->bookProfile(chisto, chisto, 20, forward_pos_betal, forward_pos_betah, 100, 0.0,  resxh, "");
+  meResXvsBetaZpPanel1 = ibooker.bookProfile(chisto, chisto, 20, forward_pos_betal, forward_pos_betah, 100, 0.0,  resxh, "");
   sprintf(chisto, "meResYvsBetaZpPanel1");
-  meResYvsBetaZpPanel1 = dbe_->bookProfile(chisto, chisto, 20, forward_pos_betal, forward_pos_betah, 100, 0.0,  resyh, "");	
+  meResYvsBetaZpPanel1 = ibooker.bookProfile(chisto, chisto, 20, forward_pos_betal, forward_pos_betah, 100, 0.0,  resyh, "");	
  
   sprintf(chisto, "mePullXvsAlphaZpPanel1");
   mePullXvsAlphaZpPanel1 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_p1_alphal, pull_forward_p1_alphah, 100, pullxl,  pullxh, "");
+    = ibooker.bookProfile(chisto, chisto, 20, pull_forward_p1_alphal, pull_forward_p1_alphah, 100, pullxl,  pullxh, "");
   sprintf(chisto, "mePullYvsAlphaZpPanel1");
   mePullYvsAlphaZpPanel1 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_p1_alphal, pull_forward_p1_alphah, 100, pullyl,  pullyh, "");	
+    = ibooker.bookProfile(chisto, chisto, 20, pull_forward_p1_alphal, pull_forward_p1_alphah, 100, pullyl,  pullyh, "");	
   sprintf(chisto, "mePullXvsBetaZpPanel1");
   mePullXvsBetaZpPanel1 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_pos_betal, pull_forward_pos_betah, 100, pullxl,  pullxh, "");
+    = ibooker.bookProfile(chisto, chisto, 20, pull_forward_pos_betal, pull_forward_pos_betah, 100, pullxl,  pullxh, "");
   sprintf(chisto, "mePullYvsBetaZpPanel1");
   mePullYvsBetaZpPanel1 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_pos_betal, pull_forward_pos_betah, 100, pullyl,  pullyh, "");	
+    = ibooker.bookProfile(chisto, chisto, 20, pull_forward_pos_betal, pull_forward_pos_betah, 100, pullyl,  pullyh, "");	
   sprintf(chisto, "mePullXvsPhiZpPanel1");
   mePullXvsPhiZpPanel1 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_phil, pull_forward_phih, 100, pullxl,  pullxh, "");
+    = ibooker.bookProfile(chisto, chisto, 20, pull_forward_phil, pull_forward_phih, 100, pullxl,  pullxh, "");
   sprintf(chisto, "mePullYvsPhiZpPanel1");
   mePullYvsPhiZpPanel1 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_phil, pull_forward_phih, 100, pullyl,  pullyh, "");	
+    = ibooker.bookProfile(chisto, chisto, 20, pull_forward_phil, pull_forward_phih, 100, pullyl,  pullyh, "");	
   sprintf(chisto, "mePullXvsEtaZpPanel1");
   mePullXvsEtaZpPanel1 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_pos_etal, pull_forward_pos_etah, 100, pullxl,  pullxh, "");
+    = ibooker.bookProfile(chisto, chisto, 20, pull_forward_pos_etal, pull_forward_pos_etah, 100, pullxl,  pullxh, "");
   sprintf(chisto, "mePullYvsEtaZpPanel1");
   mePullYvsEtaZpPanel1 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_pos_etal, pull_forward_pos_etah, 100, pullyl,  pullyh, "");
+    = ibooker.bookProfile(chisto, chisto, 20, pull_forward_pos_etal, pull_forward_pos_etah, 100, pullyl,  pullyh, "");
  
   sprintf(chisto, "meWPullXvsAlphaZpPanel1");
   meWPullXvsAlphaZpPanel1 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_p1_alphal, pull_forward_p1_alphah, 100, pullxl,  pullxh, "");
+    = ibooker.bookProfile(chisto, chisto, 20, pull_forward_p1_alphal, pull_forward_p1_alphah, 100, pullxl,  pullxh, "");
   sprintf(chisto, "meWPullYvsAlphaZpPanel1");
   meWPullYvsAlphaZpPanel1 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_p1_alphal, pull_forward_p1_alphah, 100, pullyl,  pullyh, "");	
+    = ibooker.bookProfile(chisto, chisto, 20, pull_forward_p1_alphal, pull_forward_p1_alphah, 100, pullyl,  pullyh, "");	
   sprintf(chisto, "meWPullXvsBetaZpPanel1");
   meWPullXvsBetaZpPanel1 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_pos_betal, pull_forward_pos_betah, 100, pullxl,  pullxh, "");
+    = ibooker.bookProfile(chisto, chisto, 20, pull_forward_pos_betal, pull_forward_pos_betah, 100, pullxl,  pullxh, "");
   sprintf(chisto, "meWPullYvsBetaZpPanel1");
   meWPullYvsBetaZpPanel1 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_pos_betal, pull_forward_pos_betah, 100, pullyl,  pullyh, "");	
+    = ibooker.bookProfile(chisto, chisto, 20, pull_forward_pos_betal, pull_forward_pos_betah, 100, pullyl,  pullyh, "");	
 
   sprintf(chisto, "mePosxZmPanel2");
-  mePosxZmPanel2 = dbe_->book1D(chisto, chisto, 100, xl, xh);
+  mePosxZmPanel2 = ibooker.book1D(chisto, chisto, 100, xl, xh);
   sprintf(chisto, "mePosyZmPanel2");
-  mePosyZmPanel2 = dbe_->book1D(chisto, chisto, 100, yl, yh);
+  mePosyZmPanel2 = ibooker.book1D(chisto, chisto, 100, yl, yh);
   sprintf(chisto, "meErrxZmPanel2");
-  meErrxZmPanel2 = dbe_->book1D(chisto, chisto, 100, errxl, errxh);
+  meErrxZmPanel2 = ibooker.book1D(chisto, chisto, 100, errxl, errxh);
   sprintf(chisto, "meErryZmPanel2");
-  meErryZmPanel2 = dbe_->book1D(chisto, chisto, 100, erryl, erryh);	
+  meErryZmPanel2 = ibooker.book1D(chisto, chisto, 100, erryl, erryh);	
   sprintf(chisto, "meResxZmPanel2");
-  meResxZmPanel2 = dbe_->book1D(chisto, chisto, 100, resxl, resxh);
+  meResxZmPanel2 = ibooker.book1D(chisto, chisto, 100, resxl, resxh);
   sprintf(chisto, "meResyZmPanel2");
-  meResyZmPanel2 = dbe_->book1D(chisto, chisto, 100, resyl, resyh);	
+  meResyZmPanel2 = ibooker.book1D(chisto, chisto, 100, resyl, resyh);	
   sprintf(chisto, "mePullxZmPanel2");
-  mePullxZmPanel2 = dbe_->book1D(chisto, chisto, 100, pullxl, pullxh);
+  mePullxZmPanel2 = ibooker.book1D(chisto, chisto, 100, pullxl, pullxh);
   sprintf(chisto, "mePullyZmPanel2");
-  mePullyZmPanel2 = dbe_->book1D(chisto, chisto, 100, pullyl, pullyh);	
+  mePullyZmPanel2 = ibooker.book1D(chisto, chisto, 100, pullyl, pullyh);	
   sprintf(chisto, "meNpixZmPanel2");
-  meNpixZmPanel2 = dbe_->book1D(chisto, chisto, 100, npixl, npixh);	
+  meNpixZmPanel2 = ibooker.book1D(chisto, chisto, 100, npixl, npixh);	
   sprintf(chisto, "meNxpixZmPanel2");
-  meNxpixZmPanel2 = dbe_->book1D(chisto, chisto, 100, nxpixl, nxpixh);	
+  meNxpixZmPanel2 = ibooker.book1D(chisto, chisto, 100, nxpixl, nxpixh);	
   sprintf(chisto, "meNypixZmPanel2");
-  meNypixZmPanel2 = dbe_->book1D(chisto, chisto, 100, nypixl, nypixh);	
+  meNypixZmPanel2 = ibooker.book1D(chisto, chisto, 100, nypixl, nypixh);	
   sprintf(chisto, "meChargeZmPanel2");
-  meChargeZmPanel2 = dbe_->book1D(chisto, chisto, 100, forward_chargel, forward_chargeh);	
+  meChargeZmPanel2 = ibooker.book1D(chisto, chisto, 100, forward_chargel, forward_chargeh);	
   sprintf(chisto, "meResXvsAlphaZmPanel2");
-  meResXvsAlphaZmPanel2 = dbe_->bookProfile(chisto, chisto, 20, forward_p2_alphal, forward_p2_alphah, 100, 0.0,  resxh, "");
+  meResXvsAlphaZmPanel2 = ibooker.bookProfile(chisto, chisto, 20, forward_p2_alphal, forward_p2_alphah, 100, 0.0,  resxh, "");
   sprintf(chisto, "meResYvsAlphaZmPanel2");
-  meResYvsAlphaZmPanel2 = dbe_->bookProfile(chisto, chisto, 20, forward_p2_alphal, forward_p2_alphah, 100, 0.0,  resyh, "");	
+  meResYvsAlphaZmPanel2 = ibooker.bookProfile(chisto, chisto, 20, forward_p2_alphal, forward_p2_alphah, 100, 0.0,  resyh, "");	
   sprintf(chisto, "meResXvsBetaZmPanel2");
-  meResXvsBetaZmPanel2 = dbe_->bookProfile(chisto, chisto, 20, forward_neg_betal, forward_neg_betah, 100, 0.0,  resxh, "");
+  meResXvsBetaZmPanel2 = ibooker.bookProfile(chisto, chisto, 20, forward_neg_betal, forward_neg_betah, 100, 0.0,  resxh, "");
   sprintf(chisto, "meResYvsBetaZmPanel2");
-  meResYvsBetaZmPanel2 = dbe_->bookProfile(chisto, chisto, 20, forward_neg_betal, forward_neg_betah, 100, 0.0,  resyh, "");	
+  meResYvsBetaZmPanel2 = ibooker.bookProfile(chisto, chisto, 20, forward_neg_betal, forward_neg_betah, 100, 0.0,  resyh, "");	
  
   sprintf(chisto, "mePullXvsAlphaZmPanel2");
   mePullXvsAlphaZmPanel2 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_p2_alphal, pull_forward_p2_alphah, 100, pullxl,  pullxh, "");
+    = ibooker.bookProfile(chisto, chisto, 20, pull_forward_p2_alphal, pull_forward_p2_alphah, 100, pullxl,  pullxh, "");
   sprintf(chisto, "mePullYvsAlphaZmPanel2");
   mePullYvsAlphaZmPanel2 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_p2_alphal, pull_forward_p2_alphah, 100, pullyl,  pullyh, "");	
+    = ibooker.bookProfile(chisto, chisto, 20, pull_forward_p2_alphal, pull_forward_p2_alphah, 100, pullyl,  pullyh, "");	
   sprintf(chisto, "mePullXvsBetaZmPanel2");
   mePullXvsBetaZmPanel2 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_neg_betal, pull_forward_neg_betah, 100, pullxl,  pullxh, "");
+    = ibooker.bookProfile(chisto, chisto, 20, pull_forward_neg_betal, pull_forward_neg_betah, 100, pullxl,  pullxh, "");
   sprintf(chisto, "mePullYvsBetaZmPanel2");
   mePullYvsBetaZmPanel2 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_neg_betal, pull_forward_neg_betah, 100, pullyl,  pullyh, "");	
+    = ibooker.bookProfile(chisto, chisto, 20, pull_forward_neg_betal, pull_forward_neg_betah, 100, pullyl,  pullyh, "");	
   sprintf(chisto, "mePullXvsPhiZmPanel2");
   mePullXvsPhiZmPanel2 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_phil, pull_forward_phih, 100, pullxl,  pullxh, "");
+    = ibooker.bookProfile(chisto, chisto, 20, pull_forward_phil, pull_forward_phih, 100, pullxl,  pullxh, "");
   sprintf(chisto, "mePullYvsPhiZmPanel2");
   mePullYvsPhiZmPanel2 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_phil, pull_forward_phih, 100, pullyl,  pullyh, "");	
+    = ibooker.bookProfile(chisto, chisto, 20, pull_forward_phil, pull_forward_phih, 100, pullyl,  pullyh, "");	
   sprintf(chisto, "mePullXvsEtaZmPanel2");
   mePullXvsEtaZmPanel2 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_neg_etal, pull_forward_neg_etah, 100, pullxl,  pullxh, "");
+    = ibooker.bookProfile(chisto, chisto, 20, pull_forward_neg_etal, pull_forward_neg_etah, 100, pullxl,  pullxh, "");
   sprintf(chisto, "mePullYvsEtaZmPanel2");
   mePullYvsEtaZmPanel2 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_neg_etal, pull_forward_neg_etah, 100, pullyl,  pullyh, "");
+    = ibooker.bookProfile(chisto, chisto, 20, pull_forward_neg_etal, pull_forward_neg_etah, 100, pullyl,  pullyh, "");
 
   sprintf(chisto, "meWPullXvsAlphaZmPanel2");
   meWPullXvsAlphaZmPanel2 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_p2_alphal, pull_forward_p2_alphah, 100, pullxl,  pullxh, "");
+    = ibooker.bookProfile(chisto, chisto, 20, pull_forward_p2_alphal, pull_forward_p2_alphah, 100, pullxl,  pullxh, "");
   sprintf(chisto, "meWPullYvsAlphaZmPanel2");
   meWPullYvsAlphaZmPanel2 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_p2_alphal, pull_forward_p2_alphah, 100, pullyl,  pullyh, "");	
+    = ibooker.bookProfile(chisto, chisto, 20, pull_forward_p2_alphal, pull_forward_p2_alphah, 100, pullyl,  pullyh, "");	
   sprintf(chisto, "meWPullXvsBetaZmPanel2");
   meWPullXvsBetaZmPanel2 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_neg_betal, pull_forward_neg_betah, 100, pullxl,  pullxh, "");
+    = ibooker.bookProfile(chisto, chisto, 20, pull_forward_neg_betal, pull_forward_neg_betah, 100, pullxl,  pullxh, "");
   sprintf(chisto, "meWPullYvsBetaZmPanel2");
   meWPullYvsBetaZmPanel2 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_neg_betal, pull_forward_neg_betah, 100, pullyl,  pullyh, "");	
+    = ibooker.bookProfile(chisto, chisto, 20, pull_forward_neg_betal, pull_forward_neg_betah, 100, pullyl,  pullyh, "");	
 
 
   sprintf(chisto, "mePosxZpPanel2");
-  mePosxZpPanel2 = dbe_->book1D(chisto, chisto, 100, xl, xh);
+  mePosxZpPanel2 = ibooker.book1D(chisto, chisto, 100, xl, xh);
   sprintf(chisto, "mePosyZpPanel2");
-  mePosyZpPanel2 = dbe_->book1D(chisto, chisto, 100, yl, yh);
+  mePosyZpPanel2 = ibooker.book1D(chisto, chisto, 100, yl, yh);
   sprintf(chisto, "meErrxZpPanel2");
-  meErrxZpPanel2 = dbe_->book1D(chisto, chisto, 100, errxl, errxh);
+  meErrxZpPanel2 = ibooker.book1D(chisto, chisto, 100, errxl, errxh);
   sprintf(chisto, "meErryZpPanel2");
-  meErryZpPanel2 = dbe_->book1D(chisto, chisto, 100, erryl, erryh);	
+  meErryZpPanel2 = ibooker.book1D(chisto, chisto, 100, erryl, erryh);	
   sprintf(chisto, "meResxZpPanel2");
-  meResxZpPanel2 = dbe_->book1D(chisto, chisto, 100, resxl, resxh);
+  meResxZpPanel2 = ibooker.book1D(chisto, chisto, 100, resxl, resxh);
   sprintf(chisto, "meResyZpPanel2");
-  meResyZpPanel2 = dbe_->book1D(chisto, chisto, 100, resyl, resyh);	
+  meResyZpPanel2 = ibooker.book1D(chisto, chisto, 100, resyl, resyh);	
   sprintf(chisto, "mePullxZpPanel2");
-  mePullxZpPanel2 = dbe_->book1D(chisto, chisto, 100, pullxl, pullxh);
+  mePullxZpPanel2 = ibooker.book1D(chisto, chisto, 100, pullxl, pullxh);
   sprintf(chisto, "mePullyZpPanel2");
-  mePullyZpPanel2 = dbe_->book1D(chisto, chisto, 100, pullyl, pullyh);	
+  mePullyZpPanel2 = ibooker.book1D(chisto, chisto, 100, pullyl, pullyh);	
   sprintf(chisto, "meNpixZpPanel2");
-  meNpixZpPanel2 = dbe_->book1D(chisto, chisto, 100, npixl, npixh);	
+  meNpixZpPanel2 = ibooker.book1D(chisto, chisto, 100, npixl, npixh);	
   sprintf(chisto, "meNxpixZpPanel2");
-  meNxpixZpPanel2 = dbe_->book1D(chisto, chisto, 100, nxpixl, nxpixh);	
+  meNxpixZpPanel2 = ibooker.book1D(chisto, chisto, 100, nxpixl, nxpixh);	
   sprintf(chisto, "meNypixZpPanel2");
-  meNypixZpPanel2 = dbe_->book1D(chisto, chisto, 100, nypixl, nypixh);	
+  meNypixZpPanel2 = ibooker.book1D(chisto, chisto, 100, nypixl, nypixh);	
   sprintf(chisto, "meChargeZpPanel2");
-  meChargeZpPanel2 = dbe_->book1D(chisto, chisto, 100, forward_chargel, forward_chargeh);	
+  meChargeZpPanel2 = ibooker.book1D(chisto, chisto, 100, forward_chargel, forward_chargeh);	
   sprintf(chisto, "meResXvsAlphaZpPanel2");
-  meResXvsAlphaZpPanel2 = dbe_->bookProfile(chisto, chisto, 20, forward_p2_alphal, forward_p2_alphah, 100, 0.0,  resxh, "");
+  meResXvsAlphaZpPanel2 = ibooker.bookProfile(chisto, chisto, 20, forward_p2_alphal, forward_p2_alphah, 100, 0.0,  resxh, "");
   sprintf(chisto, "meResYvsAlphaZpPanel2");
-  meResYvsAlphaZpPanel2 = dbe_->bookProfile(chisto, chisto, 20, forward_p2_alphal, forward_p2_alphah, 100, 0.0,  resyh, "");	
+  meResYvsAlphaZpPanel2 = ibooker.bookProfile(chisto, chisto, 20, forward_p2_alphal, forward_p2_alphah, 100, 0.0,  resyh, "");	
   sprintf(chisto, "meResXvsBetaZpPanel2");
-  meResXvsBetaZpPanel2 = dbe_->bookProfile(chisto, chisto, 20, forward_pos_betal, forward_pos_betah, 100, 0.0,  resxh, "");
+  meResXvsBetaZpPanel2 = ibooker.bookProfile(chisto, chisto, 20, forward_pos_betal, forward_pos_betah, 100, 0.0,  resxh, "");
   sprintf(chisto, "meResYvsBetaZpPanel2");
-  meResYvsBetaZpPanel2 = dbe_->bookProfile(chisto, chisto, 20, forward_pos_betal, forward_pos_betah, 100, 0.0,  resyh, "");	
+  meResYvsBetaZpPanel2 = ibooker.bookProfile(chisto, chisto, 20, forward_pos_betal, forward_pos_betah, 100, 0.0,  resyh, "");	
  
   sprintf(chisto, "mePullXvsAlphaZpPanel2");
   mePullXvsAlphaZpPanel2 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_p2_alphal, pull_forward_p2_alphah, 100, pullxl,  pullxh, "");
+    = ibooker.bookProfile(chisto, chisto, 20, pull_forward_p2_alphal, pull_forward_p2_alphah, 100, pullxl,  pullxh, "");
   sprintf(chisto, "mePullYvsAlphaZpPanel2");
   mePullYvsAlphaZpPanel2 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_p2_alphal, pull_forward_p2_alphah, 100, pullyl,  pullyh, "");	
+    = ibooker.bookProfile(chisto, chisto, 20, pull_forward_p2_alphal, pull_forward_p2_alphah, 100, pullyl,  pullyh, "");	
   sprintf(chisto, "mePullXvsBetaZpPanel2");
   mePullXvsBetaZpPanel2 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_pos_betal, pull_forward_pos_betah, 100, pullxl,  pullxh, "");
+    = ibooker.bookProfile(chisto, chisto, 20, pull_forward_pos_betal, pull_forward_pos_betah, 100, pullxl,  pullxh, "");
   sprintf(chisto, "mePullYvsBetaZpPanel2");
   mePullYvsBetaZpPanel2 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_pos_betal, pull_forward_pos_betah, 100, pullyl,  pullyh, "");	  
+    = ibooker.bookProfile(chisto, chisto, 20, pull_forward_pos_betal, pull_forward_pos_betah, 100, pullyl,  pullyh, "");	  
   sprintf(chisto, "mePullXvsPhiZpPanel2");
   mePullXvsPhiZpPanel2 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_phil, pull_forward_phih, 100, pullxl,  pullxh, "");
+    = ibooker.bookProfile(chisto, chisto, 20, pull_forward_phil, pull_forward_phih, 100, pullxl,  pullxh, "");
   sprintf(chisto, "mePullYvsPhiZpPanel2");
   mePullYvsPhiZpPanel2 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_phil, pull_forward_phih, 100, pullyl,  pullyh, "");	
+    = ibooker.bookProfile(chisto, chisto, 20, pull_forward_phil, pull_forward_phih, 100, pullyl,  pullyh, "");	
   sprintf(chisto, "mePullXvsEtaZpPanel2");
   mePullXvsEtaZpPanel2 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_pos_etal, pull_forward_pos_etah, 100, pullxl,  pullxh, "");
+    = ibooker.bookProfile(chisto, chisto, 20, pull_forward_pos_etal, pull_forward_pos_etah, 100, pullxl,  pullxh, "");
   sprintf(chisto, "mePullYvsEtaZpPanel2");
   mePullYvsEtaZpPanel2 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_pos_etal, pull_forward_pos_etah, 100, pullyl,  pullyh, "");
+    = ibooker.bookProfile(chisto, chisto, 20, pull_forward_pos_etal, pull_forward_pos_etah, 100, pullyl,  pullyh, "");
 
   sprintf(chisto, "meWPullXvsAlphaZpPanel2");
   meWPullXvsAlphaZpPanel2 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_p2_alphal, pull_forward_p2_alphah, 100, pullxl,  pullxh, "");
+    = ibooker.bookProfile(chisto, chisto, 20, pull_forward_p2_alphal, pull_forward_p2_alphah, 100, pullxl,  pullxh, "");
   sprintf(chisto, "meWPullYvsAlphaZpPanel2");
   meWPullYvsAlphaZpPanel2 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_p2_alphal, pull_forward_p2_alphah, 100, pullyl,  pullyh, "");	
+    = ibooker.bookProfile(chisto, chisto, 20, pull_forward_p2_alphal, pull_forward_p2_alphah, 100, pullyl,  pullyh, "");	
   sprintf(chisto, "meWPullXvsBetaZpPanel2");
   meWPullXvsBetaZpPanel2 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_pos_betal, pull_forward_pos_betah, 100, pullxl,  pullxh, "");
+    = ibooker.bookProfile(chisto, chisto, 20, pull_forward_pos_betal, pull_forward_pos_betah, 100, pullxl,  pullxh, "");
   sprintf(chisto, "meWPullYvsBetaZpPanel2");
   meWPullYvsBetaZpPanel2 
-    = dbe_->bookProfile(chisto, chisto, 20, pull_forward_pos_betal, pull_forward_pos_betah, 100, pullyl,  pullyh, "");
+    = ibooker.bookProfile(chisto, chisto, 20, pull_forward_pos_betal, pull_forward_pos_betah, 100, pullyl,  pullyh, "");
 
   // all hits (not only from tracks) 
   sprintf(chisto, "mePosxBarrel_all_hits");
-  mePosxBarrel_all_hits = dbe_->book1D(chisto, chisto, 100, xl, xh);
+  mePosxBarrel_all_hits = ibooker.book1D(chisto, chisto, 100, xl, xh);
   sprintf(chisto, "mePosyBarrel_all_hits"); 
-  mePosyBarrel_all_hits = dbe_->book1D(chisto, chisto, 100, yl, yh);
+  mePosyBarrel_all_hits = ibooker.book1D(chisto, chisto, 100, yl, yh);
 
   sprintf(chisto, "mePosxZmPanel1_all_hits");
-  mePosxZmPanel1_all_hits = dbe_->book1D(chisto, chisto, 100, xl, xh);
+  mePosxZmPanel1_all_hits = ibooker.book1D(chisto, chisto, 100, xl, xh);
   sprintf(chisto, "mePosyZmPanel1_all_hits");
-  mePosyZmPanel1_all_hits = dbe_->book1D(chisto, chisto, 100, yl, yh);
+  mePosyZmPanel1_all_hits = ibooker.book1D(chisto, chisto, 100, yl, yh);
   sprintf(chisto, "mePosxZmPanel2_all_hits");
-  mePosxZmPanel2_all_hits = dbe_->book1D(chisto, chisto, 100, xl, xh);
+  mePosxZmPanel2_all_hits = ibooker.book1D(chisto, chisto, 100, xl, xh);
   sprintf(chisto, "mePosyZmPanel2_all_hits");
-  mePosyZmPanel2_all_hits = dbe_->book1D(chisto, chisto, 100, yl, yh);
+  mePosyZmPanel2_all_hits = ibooker.book1D(chisto, chisto, 100, yl, yh);
 
   sprintf(chisto, "mePosxZpPanel1_all_hits");
-  mePosxZpPanel1_all_hits = dbe_->book1D(chisto, chisto, 100, xl, xh);
+  mePosxZpPanel1_all_hits = ibooker.book1D(chisto, chisto, 100, xl, xh);
   sprintf(chisto, "mePosyZpPanel1_all_hits");
-  mePosyZpPanel1_all_hits = dbe_->book1D(chisto, chisto, 100, yl, yh);
+  mePosyZpPanel1_all_hits = ibooker.book1D(chisto, chisto, 100, yl, yh);
   sprintf(chisto, "mePosxZpPanel2_all_hits");
-  mePosxZpPanel2_all_hits = dbe_->book1D(chisto, chisto, 100, xl, xh);
+  mePosxZpPanel2_all_hits = ibooker.book1D(chisto, chisto, 100, xl, xh);
   sprintf(chisto, "mePosyZpPanel2_all_hits");
-  mePosyZpPanel2_all_hits = dbe_->book1D(chisto, chisto, 100, yl, yh);
+  mePosyZpPanel2_all_hits = ibooker.book1D(chisto, chisto, 100, yl, yh);
 
   // control histograms
-  meTracksPerEvent     = dbe_->book1D("meTracksPerEvent"    , "meTracksPerEvent"    , 200, 0.0, 200.0);
-  mePixRecHitsPerTrack = dbe_->book1D("mePixRecHitsPerTrack", "mePixRecHitsPerTrack",  6, 0.0,  6.0);
+  meTracksPerEvent     = ibooker.book1D("meTracksPerEvent"    , "meTracksPerEvent"    , 200, 0.0, 200.0);
+  mePixRecHitsPerTrack = ibooker.book1D("mePixRecHitsPerTrack", "mePixRecHitsPerTrack",  6, 0.0,  6.0);
 
 }
 
 // Virtual destructor needed.
 SiPixelTrackingRecHitsValid::~SiPixelTrackingRecHitsValid() 
 {  
-  if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
+  //save local root file only in standalone mode
+  if ( runStandalone && outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
 }  
 
 // Functions that gets called by framework every event

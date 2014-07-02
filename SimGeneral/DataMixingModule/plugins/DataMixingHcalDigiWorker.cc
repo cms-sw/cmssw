@@ -34,7 +34,7 @@ namespace edm
   DataMixingHcalDigiWorker::DataMixingHcalDigiWorker() { }
 
   // Constructor 
-  DataMixingHcalDigiWorker::DataMixingHcalDigiWorker(const edm::ParameterSet& ps) : 
+  DataMixingHcalDigiWorker::DataMixingHcalDigiWorker(const edm::ParameterSet& ps, edm::ConsumesCollector && iC) : 
 							    label_(ps.getParameter<std::string>("Label"))
 
   {                                                         
@@ -56,8 +56,22 @@ namespace edm
     HFPileInputTag_ = ps.getParameter<edm::InputTag>("HFPileInputTag");
     ZDCPileInputTag_ = ps.getParameter<edm::InputTag>("ZDCPileInputTag");
 
+    HBHEDigiToken_ = iC.consumes<HBHEDigiCollection>(HBHEdigiCollectionSig_);
+    HODigiToken_ = iC.consumes<HODigiCollection>(HOdigiCollectionSig_);
+    HFDigiToken_ = iC.consumes<HFDigiCollection>(HFdigiCollectionSig_);
+
+    HBHEDigiPToken_ = iC.consumes<HBHEDigiCollection>(HBHEPileInputTag_);
+    HODigiPToken_ = iC.consumes<HODigiCollection>(HOPileInputTag_);
+    HFDigiPToken_ = iC.consumes<HFDigiCollection>(HFPileInputTag_);
+
     DoZDC_ = false;
     if(ZDCPileInputTag_.label() != "") DoZDC_ = true;
+
+    if(DoZDC_) { 
+      ZDCDigiToken_ = iC.consumes<ZDCDigiCollection>(ZDCdigiCollectionSig_);
+      ZDCDigiPToken_ = iC.consumes<ZDCDigiCollection>(ZDCPileInputTag_);
+    }
+
 
     HBHEDigiCollectionDM_ = ps.getParameter<std::string>("HBHEDigiCollectionDM");
     HODigiCollectionDM_   = ps.getParameter<std::string>("HODigiCollectionDM");
@@ -79,7 +93,6 @@ namespace edm
     ES.get<HcalDbRecord>().get(conditions);                                         
 
 
-
     // fill in maps of hits
 
     LogInfo("DataMixingHcalDigiWorker")<<"===============> adding MC signals for "<<e.id();
@@ -90,7 +103,7 @@ namespace edm
 
    const HBHEDigiCollection*  HBHEDigis = 0;
 
-   if( e.getByLabel( HBHEdigiCollectionSig_, pHBHEDigis) ) {
+   if( e.getByToken( HBHEDigiToken_, pHBHEDigis) ) {
      HBHEDigis = pHBHEDigis.product(); // get a ptr to the product
      LogDebug("DataMixingHcalDigiWorker") << "total # HBHE digis: " << HBHEDigis->size();
    } 
@@ -139,7 +152,7 @@ namespace edm
 
    const HODigiCollection*  HODigis = 0;
 
-   if( e.getByLabel( HOdigiCollectionSig_, pHODigis) ){
+   if( e.getByToken( HODigiToken_, pHODigis) ){
      HODigis = pHODigis.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingHcalDigiWorker") << "total # HO digis: " << HODigis->size();
@@ -181,7 +194,7 @@ namespace edm
 
    const HFDigiCollection*  HFDigis = 0;
 
-   if( e.getByLabel( HFdigiCollectionSig_, pHFDigis) ) {
+   if( e.getByToken( HFDigiToken_, pHFDigis) ) {
      HFDigis = pHFDigis.product(); // get a ptr to the product
 #ifdef DEBUG
      LogDebug("DataMixingHcalDigiWorker") << "total # HF digis: " << HFDigis->size();
@@ -225,7 +238,7 @@ namespace edm
 
      const ZDCDigiCollection*  ZDCDigis = 0;
 
-     if( e.getByLabel( ZDCdigiCollectionSig_, pZDCDigis) ) {
+     if( e.getByToken( ZDCDigiToken_, pZDCDigis) ) {
        ZDCDigis = pZDCDigis.product(); // get a ptr to the product
 #ifdef DEBUG
        LogDebug("DataMixingHcalDigiWorker") << "total # ZDC digis: " << ZDCDigis->size();
@@ -311,6 +324,7 @@ namespace edm
 #endif
        }
     }
+    //else {std::cout << "NO HBHE Digis!!!!" << std::endl;}
     // HO Next
 
     boost::shared_ptr<Wrapper<HODigiCollection>  const> HODigisPTR = 

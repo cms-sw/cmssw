@@ -27,7 +27,7 @@ private:
   computeRectBounds( const std::vector<const GeomDetUnit*> & dets, const Plane& plane) const;
 
   Surface::RotationType 
-  computeRotation( const std::vector<GeomDetUnit*> & dets, 
+  computeRotation( const std::vector<const GeomDetUnit*> & dets, 
 		   const Surface::PositionType& meanPos) const; 
 
 };

@@ -27,10 +27,6 @@ using namespace std;
 
 MuonTestSummary::MuonTestSummary(const edm::ParameterSet& ps){
 
-  dbe = Service<DQMStore>().operator->();
-  dbe->cd();
-  dbe->setCurrentFolder("Muons/TestSummary"); 
-
   // parameter initialization for kinematics test
   etaExpected = ps.getParameter<double>("etaExpected");
   phiExpected = ps.getParameter<double>("phiExpected");
@@ -73,24 +69,13 @@ MuonTestSummary::MuonTestSummary(const edm::ParameterSet& ps){
 
 MuonTestSummary::~MuonTestSummary(){}
 
-void MuonTestSummary::beginJob(void){
-
-  metname = "muonTestSummary";
-  LogTrace(metname)<<"[MuonTestSummary] beginJob: Histo booking";
-  dbe->cd();
-  dbe->setCurrentFolder("Muons/TestSummary"); 
-
-  // book the summary histos
-}
-void MuonTestSummary::beginRun(Run const& run, EventSetup const& eSetup) {
-
-  LogTrace(metname)<<"[MuonTestSummary]: beginRun";
-  
-  dbe->cd();
-  dbe->setCurrentFolder("Muons/TestSummary"); 
+void MuonTestSummary::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter){
+  // BOOKING NEW HISTOGRAMS
+  ibooker.cd();
+  ibooker.setCurrentFolder("Muons/TestSummary"); 
 
   // kinematics test report
-  kinematicsSummaryMap = dbe->book2D("kinematicsSummaryMap","Kinematics test summary",5,1,6,3,1,4);
+  kinematicsSummaryMap = ibooker.book2D("kinematicsSummaryMap","Kinematics test summary",5,1,6,3,1,4);
   kinematicsSummaryMap->setAxisTitle("track monitored",1);
   kinematicsSummaryMap->setBinLabel(1,"GLB",1);
   kinematicsSummaryMap->setBinLabel(2,"TKfromGLB",1);
@@ -103,7 +88,7 @@ void MuonTestSummary::beginRun(Run const& run, EventSetup const& eSetup) {
   kinematicsSummaryMap->setBinLabel(3,"#phi",2);
    
   //chi2 kinematics quality test report
-  chi2TestSummaryMap = dbe->book2D("chi2TestSummaryMap","#chi2 quality test summary",5,1,6,5,1,6);
+  chi2TestSummaryMap = ibooker.book2D("chi2TestSummaryMap","#chi2 quality test summary",5,1,6,5,1,6);
   chi2TestSummaryMap->setAxisTitle("track monitored",1);
   chi2TestSummaryMap->setBinLabel(1,"GLB",1);
   chi2TestSummaryMap->setBinLabel(2,"TKfromGLB",1);
@@ -118,7 +103,7 @@ void MuonTestSummary::beginRun(Run const& run, EventSetup const& eSetup) {
   chi2TestSummaryMap->setBinLabel(5,"#q",2);
 
 //Kolmogorov  kinematics quality test report
-  KolmogorovTestSummaryMap = dbe->book2D("KolmogorovTestSummaryMap","Kolmogorov quality test summary",5,1,6,5,1,6);
+  KolmogorovTestSummaryMap = ibooker.book2D("KolmogorovTestSummaryMap","Kolmogorov quality test summary",5,1,6,5,1,6);
   KolmogorovTestSummaryMap->setAxisTitle("track monitored",1);
   KolmogorovTestSummaryMap->setBinLabel(1,"GLB",1);
   KolmogorovTestSummaryMap->setBinLabel(2,"TKfromGLB",1);
@@ -134,7 +119,7 @@ void MuonTestSummary::beginRun(Run const& run, EventSetup const& eSetup) {
 
 
   // residuals test report
-  residualsSummaryMap = dbe->book2D("residualsSummaryMap","Residuals test summary",4,1,5,4,1,5);
+  residualsSummaryMap = ibooker.book2D("residualsSummaryMap","Residuals test summary",4,1,5,4,1,5);
   residualsSummaryMap->setAxisTitle("residuals",1);
   residualsSummaryMap->setBinLabel(1,"TK-GLB",1);
   residualsSummaryMap->setBinLabel(2,"GLB-STA",1);
@@ -147,7 +132,7 @@ void MuonTestSummary::beginRun(Run const& run, EventSetup const& eSetup) {
   residualsSummaryMap->setBinLabel(4,"q",2);
 
   // muonId test report
-  muonIdSummaryMap = dbe->book2D("muonIdSummaryMap","muonId test summary",4,1,5, 5,1,6);
+  muonIdSummaryMap = ibooker.book2D("muonIdSummaryMap","muonId test summary",4,1,5, 5,1,6);
   muonIdSummaryMap->setAxisTitle("muons",1);
   muonIdSummaryMap->setBinLabel(1,"GLB DT",1);
   muonIdSummaryMap->setBinLabel(2,"GLB CSC",1);
@@ -161,7 +146,7 @@ void MuonTestSummary::beginRun(Run const& run, EventSetup const& eSetup) {
   muonIdSummaryMap->setBinLabel(5,"y rms",2);
 
   // energy test report
-  energySummaryMap = dbe->book2D("energySummaryMap","Energy deposits test summary",3,1,4,3,1,4);
+  energySummaryMap = ibooker.book2D("energySummaryMap","Energy deposits test summary",3,1,4,3,1,4);
   energySummaryMap->setAxisTitle("muons",1);
   energySummaryMap->setBinLabel(1,"GLB",1);
   energySummaryMap->setBinLabel(2,"TK",1);
@@ -172,7 +157,7 @@ void MuonTestSummary::beginRun(Run const& run, EventSetup const& eSetup) {
   energySummaryMap->setBinLabel(3,"H0",2);
 
   // multiplicity tests report
-  multiplicitySummaryMap = dbe->book1D("multiplicitySummaryMap","muon multiplicity test summary",3,1,4);
+  multiplicitySummaryMap = ibooker.book1D("multiplicitySummaryMap","muon multiplicity test summary",3,1,4);
   multiplicitySummaryMap->setAxisTitle("muon");
   multiplicitySummaryMap->setBinLabel(1,"GLB");
   multiplicitySummaryMap->setBinLabel(2,"TK");
@@ -180,10 +165,10 @@ void MuonTestSummary::beginRun(Run const& run, EventSetup const& eSetup) {
 
   
   // summary test report
-  dbe->setCurrentFolder("Muons/EventInfo"); 
-  summaryReport = dbe->bookFloat("reportSummary");
+  ibooker.setCurrentFolder("Muons/EventInfo"); 
+  summaryReport = ibooker.bookFloat("reportSummary");
 
-  summaryReportMap = dbe->book2D("reportSummaryMap","Muon Report Summary Map",3,1,4,7,1,8);
+  summaryReportMap = ibooker.book2D("reportSummaryMap","Muon Report Summary Map",3,1,4,7,1,8);
   summaryReportMap->setAxisTitle("muons",1);
   summaryReportMap->setBinLabel(1,"GLB",1);
   summaryReportMap->setBinLabel(2,"TK",1);
@@ -197,27 +182,27 @@ void MuonTestSummary::beginRun(Run const& run, EventSetup const& eSetup) {
   summaryReportMap->setBinLabel(6,"energyDeposits",2);
   summaryReportMap->setBinLabel(7,"multiplicity",2);
 
-  dbe->setCurrentFolder("Muons/EventInfo/reportSummaryContents");
-  theSummaryContents.push_back(dbe->bookFloat("kinematics_GLB"));
-  theSummaryContents.push_back(dbe->bookFloat("muonId_GLB"));
-  theSummaryContents.push_back(dbe->bookFloat("residuals_GLB"));
-  theSummaryContents.push_back(dbe->bookFloat("GLB"));
-  theSummaryContents.push_back(dbe->bookFloat("kinematics_TK"));
-  theSummaryContents.push_back(dbe->bookFloat("muonId_TK"));
-  theSummaryContents.push_back(dbe->bookFloat("residuals_TK"));
-  theSummaryContents.push_back(dbe->bookFloat("TK"));
-  theSummaryContents.push_back(dbe->bookFloat("kinematics_STA"));
-  theSummaryContents.push_back(dbe->bookFloat("residuals_STA"));
-  theSummaryContents.push_back(dbe->bookFloat("STA"));
-  theSummaryContents.push_back(dbe->bookFloat("energyDeposits"));
-  theSummaryContents.push_back(dbe->bookFloat("multiplicity"));
+  ibooker.setCurrentFolder("Muons/EventInfo/reportSummaryContents");
+  theSummaryContents.push_back(ibooker.bookFloat("kinematics_GLB"));
+  theSummaryContents.push_back(ibooker.bookFloat("muonId_GLB"));
+  theSummaryContents.push_back(ibooker.bookFloat("residuals_GLB"));
+  theSummaryContents.push_back(ibooker.bookFloat("GLB"));
+  theSummaryContents.push_back(ibooker.bookFloat("kinematics_TK"));
+  theSummaryContents.push_back(ibooker.bookFloat("muonId_TK"));
+  theSummaryContents.push_back(ibooker.bookFloat("residuals_TK"));
+  theSummaryContents.push_back(ibooker.bookFloat("TK"));
+  theSummaryContents.push_back(ibooker.bookFloat("kinematics_STA"));
+  theSummaryContents.push_back(ibooker.bookFloat("residuals_STA"));
+  theSummaryContents.push_back(ibooker.bookFloat("STA"));
+  theSummaryContents.push_back(ibooker.bookFloat("energyDeposits"));
+  theSummaryContents.push_back(ibooker.bookFloat("multiplicity"));
 
   // certification report
-  dbe->setCurrentFolder("Muons/EventInfo"); 
-  summaryCertification = dbe->bookFloat("CertificationSummary");
+  ibooker.setCurrentFolder("Muons/EventInfo"); 
+  summaryCertification = ibooker.bookFloat("CertificationSummary");
   summaryCertification->Fill(-1);
 
-  summaryCertificationMap = dbe->book2D("CertificationSummaryMap","Muon Certification Summary Map",9,1,10,7,1,8);
+  summaryCertificationMap = ibooker.book2D("CertificationSummaryMap","Muon Certification Summary Map",9,1,10,7,1,8);
   summaryCertificationMap->setAxisTitle("muons",1);
   summaryCertificationMap->setBinLabel(1,"GLB_Tot",1);
   summaryCertificationMap->setBinLabel(2,"TK_Tot",1);
@@ -237,16 +222,16 @@ void MuonTestSummary::beginRun(Run const& run, EventSetup const& eSetup) {
   summaryCertificationMap->setBinLabel(6,"energyDeposits",2);
   summaryCertificationMap->setBinLabel(7,"multiplicity",2);
 
-  dbe->setCurrentFolder("Muons/EventInfo/CertificationContents");
-  theCertificationContents.push_back(dbe->bookFloat("GLB_Tot"));
-  theCertificationContents.push_back(dbe->bookFloat("STA_Tot"));
-  theCertificationContents.push_back(dbe->bookFloat("TK_Tot"));
-  theCertificationContents.push_back(dbe->bookFloat("GLB_B"));
-  theCertificationContents.push_back(dbe->bookFloat("STA_B"));
-  theCertificationContents.push_back(dbe->bookFloat("TK_B"));
-  theCertificationContents.push_back(dbe->bookFloat("GLB_EC"));
-  theCertificationContents.push_back(dbe->bookFloat("STA_EC"));
-  theCertificationContents.push_back(dbe->bookFloat("TK_EC"));
+  ibooker.setCurrentFolder("Muons/EventInfo/CertificationContents");
+  theCertificationContents.push_back(ibooker.bookFloat("GLB_Tot"));
+  theCertificationContents.push_back(ibooker.bookFloat("STA_Tot"));
+  theCertificationContents.push_back(ibooker.bookFloat("TK_Tot"));
+  theCertificationContents.push_back(ibooker.bookFloat("GLB_B"));
+  theCertificationContents.push_back(ibooker.bookFloat("STA_B"));
+  theCertificationContents.push_back(ibooker.bookFloat("TK_B"));
+  theCertificationContents.push_back(ibooker.bookFloat("GLB_EC"));
+  theCertificationContents.push_back(ibooker.bookFloat("STA_EC"));
+  theCertificationContents.push_back(ibooker.bookFloat("TK_EC"));
 
 
   for (unsigned int icert=0;icert <theCertificationContents.size();icert++){
@@ -293,70 +278,46 @@ void MuonTestSummary::beginRun(Run const& run, EventSetup const& eSetup) {
       summaryCertificationMap->Fill(xBin,yBin,1);
     }
   }
-}
-
-void MuonTestSummary::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
-  //  LogTrace(metname)<<"[MuonTestSummary]: beginLuminosityBlock";
-}
-
-void MuonTestSummary::endLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
-
-  //  LogTrace(metname)<<"[MuonTestSummary]: endLuminosityBlock, performing the DQM LS client operation";
-
-}
-
-void MuonTestSummary::endRun(Run const& run, EventSetup const& eSetup) {
-
-  LogTrace(metname)<<"[MuonTestSummary]: endRun, performing the DQM end of run client operation";
+  ////////////////////////////////////////////////////////////
+  /// DO OTHER OPERATIONS WITH HISTOGRAMS
 
   // fill the kinematics report summary
-  doKinematicsTests("GlbMuon_Glb_", 1);
-  doKinematicsTests("GlbMuon_Tk_", 2);
-  doKinematicsTests("GlbMuon_Sta_",3);
-  doKinematicsTests("TkMuon_", 4);
-  doKinematicsTests("StaMuon_", 5);
+  doKinematicsTests(igetter,"GlbMuon_Glb_", 1);
+  doKinematicsTests(igetter,"GlbMuon_Tk_", 2);
+  doKinematicsTests(igetter,"GlbMuon_Sta_",3);
+  doKinematicsTests(igetter,"TkMuon_", 4);
+  doKinematicsTests(igetter,"StaMuon_", 5);
 
   // fill the residuals report summary
-  doResidualsTests("TkGlb", "eta", 1);
-  doResidualsTests("GlbSta", "eta", 2);
-  doResidualsTests("TkSta", "eta", 3);
-  doResidualsTests("TkGlb", "phi", 1);
-  doResidualsTests("GlbSta", "phi", 2);
-  doResidualsTests("TkSta", "phi", 3);
-  doResidualsTests("TkGlb", "oneOverp", 1);
-  doResidualsTests("GlbSta", "oneOverp", 2);
-  doResidualsTests("TkSta", "oneOverp", 3);
-  doResidualsTests("GlbMuon", "qComparison", -1);
+  doResidualsTests(igetter,"TkGlb", "eta", 1);
+  doResidualsTests(igetter,"GlbSta", "eta", 2);
+  doResidualsTests(igetter,"TkSta", "eta", 3);
+  doResidualsTests(igetter,"TkGlb", "phi", 1);
+  doResidualsTests(igetter,"GlbSta", "phi", 2);
+  doResidualsTests(igetter,"TkSta", "phi", 3);
+  doResidualsTests(igetter,"TkGlb", "oneOverp", 1);
+  doResidualsTests(igetter,"GlbSta", "oneOverp", 2);
+  doResidualsTests(igetter,"TkSta", "oneOverp", 3);
+  doResidualsTests(igetter,"GlbMuon", "qComparison", -1);
 
   // fill the muonID report summary
-  doMuonIDTests();
+  doMuonIDTests(igetter);
 
   // fill the energy report summary
-  doEnergyTests("ecalS9PointingMuDepositedEnergy_","Glb_muons", 1);
-  doEnergyTests("hadS9PointingMuDepositedEnergy_", "Glb_muons", 1);
-  doEnergyTests("hoS9PointingMuDepositedEnergy_", "Glb_muons", 1);
-  doEnergyTests("ecalS9PointingMuDepositedEnergy_", "Tk_muons", 2);
-  doEnergyTests("hadS9PointingMuDepositedEnergy_", "Tk_muons", 2);
-  doEnergyTests("hoS9PointingMuDepositedEnergy_", "Tk_muons", 2);
-  doEnergyTests("ecalS9PointingMuDepositedEnergy_", "Sta_muons", 3);
-  doEnergyTests("hadS9PointingMuDepositedEnergy_", "Sta_muons", 3);
-  doEnergyTests("hoS9PointingMuDepositedEnergy_", "Sta_muons", 3);
+  doEnergyTests(igetter,"ecalS9PointingMuDepositedEnergy_","Glb_muons", 1);
+  doEnergyTests(igetter,"hadS9PointingMuDepositedEnergy_", "Glb_muons", 1);
+  doEnergyTests(igetter,"hoS9PointingMuDepositedEnergy_", "Glb_muons", 1);
+  doEnergyTests(igetter,"ecalS9PointingMuDepositedEnergy_", "Tk_muons", 2);
+  doEnergyTests(igetter,"hadS9PointingMuDepositedEnergy_", "Tk_muons", 2);
+  doEnergyTests(igetter,"hoS9PointingMuDepositedEnergy_", "Tk_muons", 2);
+  doEnergyTests(igetter,"ecalS9PointingMuDepositedEnergy_", "Sta_muons", 3);
+  doEnergyTests(igetter,"hadS9PointingMuDepositedEnergy_", "Sta_muons", 3);
+  doEnergyTests(igetter,"hoS9PointingMuDepositedEnergy_", "Sta_muons", 3);
 
   // fill the multiplicity test summary
-  doMultiplicityTests();
+  doMultiplicityTests(igetter);
   
   // fill the final report summary
-  /*
-  summaryReportMap->setBinContent(1,1,double(kinematicsSummaryMap->getBinContent(1,1)+kinematicsSummaryMap->getBinContent(2,1)+kinematicsSummaryMap->getBinContent(3,1))/3.0);
-  summaryReportMap->setBinContent(2,1,kinematicsSummaryMap->getBinContent(4,1));
-  summaryReportMap->setBinContent(3,1,kinematicsSummaryMap->getBinContent(5,1));
-  summaryReportMap->setBinContent(1,2,double(kinematicsSummaryMap->getBinContent(1,2)+kinematicsSummaryMap->getBinContent(2,2)+kinematicsSummaryMap->getBinContent(3,2))/3.0);
-  summaryReportMap->setBinContent(2,2,kinematicsSummaryMap->getBinContent(4,2));
-  summaryReportMap->setBinContent(3,2,kinematicsSummaryMap->getBinContent(5,2));
-  summaryReportMap->setBinContent(1,3,double(kinematicsSummaryMap->getBinContent(1,3)+kinematicsSummaryMap->getBinContent(2,3)+kinematicsSummaryMap->getBinContent(3,3))/3.0);
-  summaryReportMap->setBinContent(2,3,kinematicsSummaryMap->getBinContent(4,3));
-  summaryReportMap->setBinContent(3,3,kinematicsSummaryMap->getBinContent(5,3));
-  */  
   //Changed to KolmogorovQuality test--------------------------
   summaryReportMap->setBinContent(1,1,double(KolmogorovTestSummaryMap->getBinContent(1,1)+KolmogorovTestSummaryMap->getBinContent(2,1)+KolmogorovTestSummaryMap->getBinContent(3,1))/3.0);
   summaryReportMap->setBinContent(2,1,KolmogorovTestSummaryMap->getBinContent(4,1));
@@ -367,8 +328,6 @@ void MuonTestSummary::endRun(Run const& run, EventSetup const& eSetup) {
   summaryReportMap->setBinContent(1,3,double(KolmogorovTestSummaryMap->getBinContent(1,3)+KolmogorovTestSummaryMap->getBinContent(2,3)+KolmogorovTestSummaryMap->getBinContent(3,3))/3.0);
   summaryReportMap->setBinContent(2,3,KolmogorovTestSummaryMap->getBinContent(4,3));
   summaryReportMap->setBinContent(3,3,KolmogorovTestSummaryMap->getBinContent(5,3));
-
-
 
   //-- modified GH
   double residualsSummary = 0;
@@ -420,11 +379,6 @@ void MuonTestSummary::endRun(Run const& run, EventSetup const& eSetup) {
   summaryReportMap->setBinContent(3,5,-1.0/6.0);
   //--
 
-
-
-  //summaryReportMap->setBinContent(1,6,double(energySummaryMap->getBinContent(1,1)+energySummaryMap->getBinContent(1,2)+energySummaryMap->getBinContent(1,3))/3.0);
-  //summaryReportMap->setBinContent(2,6,double(energySummaryMap->getBinContent(2,1)+energySummaryMap->getBinContent(2,2)+energySummaryMap->getBinContent(2,3))/3.0);
-  //summaryReportMap->setBinContent(3,6,double(energySummaryMap->getBinContent(3,1)+energySummaryMap->getBinContent(3,2)+energySummaryMap->getBinContent(3,3))/3.0);
   summaryReportMap->setBinContent(1,6,double(energySummaryMap->getBinContent(1,1)+energySummaryMap->getBinContent(1,2))/2.0);
   summaryReportMap->setBinContent(2,6,double(energySummaryMap->getBinContent(2,1)+energySummaryMap->getBinContent(2,2))/2.0);
   summaryReportMap->setBinContent(3,6,double(energySummaryMap->getBinContent(3,1)+energySummaryMap->getBinContent(3,2))/2.0);
@@ -512,22 +466,14 @@ void MuonTestSummary::endRun(Run const& run, EventSetup const& eSetup) {
   theCertificationContents[5]->Fill(muonId_TK_B);
   double muonId_TK_EC = double(summaryCertificationMap->getBinContent(8,5));
   theCertificationContents[8]->Fill(muonId_TK_EC);
-
-
-
-
-
-
-
 }
 
 
-void MuonTestSummary::doKinematicsTests(string muonType, int bin){
+void MuonTestSummary::doKinematicsTests(DQMStore::IGetter & igetter, string muonType, int bin){
   
-
   // chi2 test
   string path = "Muons/MuonRecoAnalyzer/" + muonType + "chi2OverDf";
-  MonitorElement * chi2Histo = dbe->get(path);
+  MonitorElement * chi2Histo = igetter.get(path);
 
   if(chi2Histo){
     TH1F * chi2Histo_root = chi2Histo->getTH1F();
@@ -578,7 +524,7 @@ void MuonTestSummary::doKinematicsTests(string muonType, int bin){
 
   // pseudorapidity test
   path = "Muons/MuonRecoAnalyzer/" + muonType + "eta";
-  MonitorElement * etaHisto = dbe->get(path);
+  MonitorElement * etaHisto = igetter.get(path);
 
   if(etaHisto){
     TH1F * etaHisto_root = etaHisto->getTH1F();
@@ -639,7 +585,7 @@ void MuonTestSummary::doKinematicsTests(string muonType, int bin){
 
   // phi test
   path = "Muons/MuonRecoAnalyzer/" + muonType + "phi";
-  MonitorElement * phiHisto = dbe->get(path);
+  MonitorElement * phiHisto = igetter.get(path);
 
   if(phiHisto ){
     TH1F * phiHisto_root = phiHisto->getTH1F();
@@ -698,7 +644,7 @@ void MuonTestSummary::doKinematicsTests(string muonType, int bin){
 
   // pt test
   path = "Muons/MuonRecoAnalyzer/" + muonType + "pt";
-  MonitorElement * ptHisto = dbe->get(path);
+  MonitorElement * ptHisto = igetter.get(path);
 
   if(ptHisto ){
     TH1F * ptHisto_root = ptHisto->getTH1F();
@@ -735,7 +681,7 @@ void MuonTestSummary::doKinematicsTests(string muonType, int bin){
 
   // q test
   path = "Muons/MuonRecoAnalyzer/" + muonType + "q";
-  MonitorElement * qHisto = dbe->get(path);
+  MonitorElement * qHisto = igetter.get(path);
 
   if(ptHisto ){
     TH1F * qHisto_root = qHisto->getTH1F();
@@ -771,14 +717,7 @@ void MuonTestSummary::doKinematicsTests(string muonType, int bin){
   }
 
 }
-
-
-
-
-
-
-
-    //--GH new
+//--GH new
 void MuonTestSummary::GaussFit(string type, string parameter, MonitorElement *  Histo, float &mean, float &mean_err, float &sigma, float &sigma_err) {
   
   // Gaussian Fit
@@ -815,18 +754,12 @@ void MuonTestSummary::GaussFit(string type, string parameter, MonitorElement *  
     sigma_err=1;
   }
 }  
-
-
-
-
-
-
-void MuonTestSummary::doResidualsTests(string type, string parameter, int bin){
+void MuonTestSummary::doResidualsTests(DQMStore::IGetter &igetter, string type, string parameter, int bin){
 
   // residuals test
   if(type!="GlbMuon"){
     string path = "Muons/MuonRecoAnalyzer/Res_" + type + "_" + parameter;
-    MonitorElement * residualsHisto = dbe->get(path);
+    MonitorElement * residualsHisto = igetter.get(path);
     
     float mean = -1;
     float mean_err = -1;
@@ -870,7 +803,7 @@ void MuonTestSummary::doResidualsTests(string type, string parameter, int bin){
     if(type=="TkSta"){
       //look at the pull:
       string path = "Muons/MuonRecoAnalyzer/Pull_" + type + "_" + parameter;
-      MonitorElement * pullHisto = dbe->get(path);
+      MonitorElement * pullHisto = igetter.get(path);
       
       if(pullHisto){
 	
@@ -897,7 +830,7 @@ void MuonTestSummary::doResidualsTests(string type, string parameter, int bin){
   //this part for Global Muons:
   else{
     string path = "Muons/MuonRecoAnalyzer/" + type + "_" + parameter;
-    MonitorElement * residualsHisto = dbe->get(path);
+    MonitorElement * residualsHisto = igetter.get(path);
     
     if(residualsHisto){
       LogTrace(metname) << "[MuonTestSummary]: Test of  Charge Comparison "<<type<<"_"<<parameter<< endl;
@@ -927,7 +860,7 @@ void MuonTestSummary::doResidualsTests(string type, string parameter, int bin){
   
 }
 
-void MuonTestSummary::doMuonIDTests(){
+void MuonTestSummary::doMuonIDTests(DQMStore::IGetter &igetter){
 
   vector<string> muType;
   muType.push_back("GlobalMuons");
@@ -937,7 +870,7 @@ void MuonTestSummary::doMuonIDTests(){
 
     // num matches test
     string path = "Muons/MuonIdDQM/" + muType[i] + "/hNumMatches";
-    MonitorElement * matchesHisto = dbe->get(path);
+    MonitorElement * matchesHisto = igetter.get(path);
     
     if(matchesHisto){
         TH1F * matchesHisto_root = matchesHisto->getTH1F();
@@ -952,19 +885,19 @@ void MuonTestSummary::doMuonIDTests(){
     double numOneSegm_dt = 0;
     int numHistos_dt=0;
     int numHistos_csc=0;
-    MonitorElement * DT1Histo = dbe->get("Muons/MuonIdDQM/" + muType[i] + "/hDT1NumSegments");
+    MonitorElement * DT1Histo = igetter.get("Muons/MuonIdDQM/" + muType[i] + "/hDT1NumSegments");
     if(DT1Histo)
       {numHistos_dt++;
 	if(DT1Histo->getEntries()!=0) numOneSegm_dt+=double(DT1Histo->getBinContent(2))/double(DT1Histo->getEntries());}
-    MonitorElement * DT2Histo = dbe->get("Muons/MuonIdDQM/" + muType[i] + "/hDT2NumSegments");
+    MonitorElement * DT2Histo = igetter.get("Muons/MuonIdDQM/" + muType[i] + "/hDT2NumSegments");
     if(DT2Histo) 
       {numHistos_dt++;
 	if(DT2Histo->getEntries()!=0) numOneSegm_dt+=double(DT2Histo->getBinContent(2))/double(DT2Histo->getEntries());}
-    MonitorElement * DT3Histo = dbe->get("Muons/MuonIdDQM/" + muType[i] + "/hDT3NumSegments");
+    MonitorElement * DT3Histo = igetter.get("Muons/MuonIdDQM/" + muType[i] + "/hDT3NumSegments");
     if(DT3Histo) 
       {numHistos_dt++;
 	if(DT3Histo->getEntries()!=0) numOneSegm_dt+=double(DT3Histo->getBinContent(2))/double(DT3Histo->getEntries());}
-    MonitorElement * DT4Histo = dbe->get("Muons/MuonIdDQM/" + muType[i] + "/hDT4NumSegments"); 
+    MonitorElement * DT4Histo = igetter.get("Muons/MuonIdDQM/" + muType[i] + "/hDT4NumSegments"); 
     if(DT4Histo) 
       {numHistos_dt++;
 	if(DT4Histo->getEntries()!=0) numOneSegm_dt+=double(DT4Histo->getBinContent(2))/double(DT4Histo->getEntries());}
@@ -975,19 +908,19 @@ void MuonTestSummary::doMuonIDTests(){
     }
 
     double numOneSegm_csc = 0;
-    MonitorElement * CSC1Histo = dbe->get("Muons/MuonIdDQM/" + muType[i] + "/hCSC1NumSegments");
+    MonitorElement * CSC1Histo = igetter.get("Muons/MuonIdDQM/" + muType[i] + "/hCSC1NumSegments");
     if(CSC1Histo) 
       {numHistos_csc++;
 	if(CSC1Histo->getEntries()!=0) numOneSegm_csc+=double(CSC1Histo->getBinContent(2))/double(CSC1Histo->getEntries());}
-    MonitorElement * CSC2Histo = dbe->get("Muons/MuonIdDQM/" + muType[i] + "/hCSC2NumSegments");
+    MonitorElement * CSC2Histo = igetter.get("Muons/MuonIdDQM/" + muType[i] + "/hCSC2NumSegments");
     if(CSC2Histo) 
       {numHistos_csc++;
 	if(CSC2Histo->getEntries()!=0) numOneSegm_csc+=double(CSC2Histo->getBinContent(2))/double(CSC2Histo->getEntries());}
-    MonitorElement * CSC3Histo = dbe->get("Muons/MuonIdDQM/" + muType[i] + "/hCSC3NumSegments");
+    MonitorElement * CSC3Histo = igetter.get("Muons/MuonIdDQM/" + muType[i] + "/hCSC3NumSegments");
     if(CSC3Histo) 
       {numHistos_csc++;
 	if(CSC3Histo->getEntries()!=0) numOneSegm_csc+=double(CSC3Histo->getBinContent(2))/double(CSC3Histo->getEntries());}
-    MonitorElement * CSC4Histo = dbe->get("Muons/MuonIdDQM/" + muType[i] + "/hCSC4NumSegments");
+    MonitorElement * CSC4Histo = igetter.get("Muons/MuonIdDQM/" + muType[i] + "/hCSC4NumSegments");
     if(CSC4Histo) 
       {numHistos_csc++;
 	if(CSC4Histo->getEntries()!=0) numOneSegm_csc+=double(CSC4Histo->getBinContent(2))/double(CSC4Histo->getEntries());}
@@ -1041,10 +974,10 @@ void MuonTestSummary::doMuonIDTests(){
     double dtSigmaX_err, dtSigmaY_err, cscSigmaX_err, cscSigmaY_err;
     double dtMeanX, dtMeanY, cscMeanX, cscMeanY;
     double dtMeanX_err, dtMeanY_err, cscMeanX_err, cscMeanY_err;
-    MuonTestSummary::ResidualCheck(muType[i], DTXresHistos, numPlot_dtX, dtMeanX, dtMeanX_err, dtSigmaX, dtSigmaX_err);
-    MuonTestSummary::ResidualCheck(muType[i], DTYresHistos, numPlot_dtY, dtMeanY, dtMeanY_err, dtSigmaY, dtSigmaY_err);
-    MuonTestSummary::ResidualCheck(muType[i], CSCXresHistos, numPlot_cscX, cscMeanX, cscMeanX_err, cscSigmaX, cscSigmaX_err);
-    MuonTestSummary::ResidualCheck(muType[i], CSCYresHistos, numPlot_cscY, cscMeanY, cscMeanY_err, cscSigmaY, cscSigmaY_err);
+    MuonTestSummary::ResidualCheck(igetter, muType[i], DTXresHistos, numPlot_dtX, dtMeanX, dtMeanX_err, dtSigmaX, dtSigmaX_err);
+    MuonTestSummary::ResidualCheck(igetter, muType[i], DTYresHistos, numPlot_dtY, dtMeanY, dtMeanY_err, dtSigmaY, dtSigmaY_err);
+    MuonTestSummary::ResidualCheck(igetter, muType[i], CSCXresHistos, numPlot_cscX, cscMeanX, cscMeanX_err, cscSigmaX, cscSigmaX_err);
+    MuonTestSummary::ResidualCheck(igetter, muType[i], CSCYresHistos, numPlot_cscY, cscMeanY, cscMeanY_err, cscSigmaY, cscSigmaY_err);
 
 
     LogTrace(metname)<<"DT mean must be between: "<<resSegmTrack_mean_min <<" and "<<resSegmTrack_mean_max<<endl;
@@ -1123,7 +1056,7 @@ void MuonTestSummary::doMuonIDTests(){
   
 }
 
-void MuonTestSummary::ResidualCheck(std::string muType, const std::vector<std::string>& resHistos, int &numPlot, double &Mean, double &Mean_err, double &Sigma, double &Sigma_err){
+void MuonTestSummary::ResidualCheck(DQMStore::IGetter &igetter, std::string muType, const std::vector<std::string>& resHistos, int &numPlot, double &Mean, double &Mean_err, double &Sigma, double &Sigma_err){
 
   numPlot=0;
   Mean=0;
@@ -1131,7 +1064,7 @@ void MuonTestSummary::ResidualCheck(std::string muType, const std::vector<std::s
   Sigma=0;
   Sigma_err=0;
   for(uint name=0; name<resHistos.size(); name++){   
-    MonitorElement * resHisto = dbe->get("Muons/MuonIdDQM/" + muType + "/"+resHistos[name]);
+    MonitorElement * resHisto = igetter.get("Muons/MuonIdDQM/" + muType + "/"+resHistos[name]);
     
     if(resHisto){
       TH1F * resHisto_root = resHisto->getTH1F();
@@ -1191,16 +1124,11 @@ void MuonTestSummary::ResidualCheck(std::string muType, const std::vector<std::s
   return;
 
 }
-
-
-
-
-
-void MuonTestSummary::doEnergyTests(string histname, string muonType, int binNumber){
+void MuonTestSummary::doEnergyTests(DQMStore::IGetter &igetter, string histname, string muonType, int binNumber){
 
   // num matches test
   string path = "Muons/MuonEnergyDepositAnalyzer/"+histname+muonType;
-  MonitorElement * energyHisto = dbe->get(path);
+  MonitorElement * energyHisto = igetter.get(path);
   Double_t hPeak=-1, hFWHM=-1;
   if(energyHisto){
     TH1F * energyHisto_root = energyHisto->getTH1F();
@@ -1263,11 +1191,9 @@ void MuonTestSummary::doEnergyTests(string histname, string muonType, int binNum
 
   //missing test on ho distributions
 }
+void MuonTestSummary::doMultiplicityTests(DQMStore::IGetter &igetter){
 
-
-void MuonTestSummary::doMultiplicityTests(){
-
-  MonitorElement* multiplicityHisto = dbe->get("Muons/MuonRecoAnalyzer/muReco");
+  MonitorElement* multiplicityHisto = igetter.get("Muons/MuonRecoAnalyzer/muReco");
   
   if(multiplicityHisto){
     if(multiplicityHisto->getEntries()>20){

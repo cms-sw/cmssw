@@ -57,6 +57,7 @@ using the 'setEventSetup' and 'clearEventSetup' functions.
 // system include files
 #include <map>
 #include <vector>
+#include <atomic>
 
 // forward declarations
 namespace cms {
@@ -212,7 +213,7 @@ namespace edm {
          std::map<DataKey, DataProxy const*> proxies_ ;
          EventSetup const* eventSetup_;
          unsigned long long cacheIdentifier_;
-         mutable bool transientAccessRequested_;
+         mutable std::atomic<bool> transientAccessRequested_;
       };
    }
 }

@@ -10,113 +10,111 @@ MuonIdDQM::MuonIdDQM(const edm::ParameterSet& iConfig){
   useGlobalMuonsNotTrackerMuons_ = iConfig.getUntrackedParameter<bool>("useGlobalMuonsNotTrackerMuons");
   baseFolder_                    = iConfig.getUntrackedParameter<std::string>("baseFolder");
   
-  dbe_ = 0;
-  dbe_ = edm::Service<DQMStore>().operator->();
 }
 
 MuonIdDQM::~MuonIdDQM() {}
 
-void MuonIdDQM::beginJob() {
-}
 
-void MuonIdDQM::beginRun(const edm::Run& irun, const edm::EventSetup& isetup){
+void MuonIdDQM::bookHistograms(DQMStore::IBooker & ibooker,
+			       edm::Run const & /*iRun*/,
+			       edm::EventSetup const & /* iSetup */){
 
    char name[100], title[200];
 
-   dbe_->cd();
-   dbe_->setCurrentFolder(baseFolder_);
+   ibooker.cd();
+   ibooker.setCurrentFolder(baseFolder_);
    // trackerMuon == 0; globalMuon == 1; trackerMuon && !globalMuon == 2; globalMuon && !trackerMuon == 3
    
-   hSegmentIsAssociatedBool = dbe_->book1D("hSegmentIsAssociatedBool", "Segment Is Associated Boolean", 2, -0.5, 1.5);
+   hSegmentIsAssociatedBool = ibooker.book1D("hSegmentIsAssociatedBool", "Segment Is Associated Boolean", 2, -0.5, 1.5);
    
    for (unsigned int i = 0; i < 4; i++) {
       if ((i == 0 && ! useTrackerMuons_) || (i == 1 && ! useGlobalMuons_)) continue;
       if ((i == 2 && ! useTrackerMuonsNotGlobalMuons_) || (i == 3 && ! useGlobalMuonsNotTrackerMuons_)) continue;
-      if (i == 0) dbe_->setCurrentFolder(baseFolder_+"/TrackerMuons");
-      if (i == 1) dbe_->setCurrentFolder(baseFolder_+"/GlobalMuons");
-      if (i == 2) dbe_->setCurrentFolder(baseFolder_+"/TrackerMuonsNotGlobalMuons");
-      if (i == 3) dbe_->setCurrentFolder(baseFolder_+"/GlobalMuonsNotTrackerMuons");
+      if (i == 0) ibooker.setCurrentFolder(baseFolder_+"/TrackerMuons");
+      if (i == 1) ibooker.setCurrentFolder(baseFolder_+"/GlobalMuons");
+      if (i == 2) ibooker.setCurrentFolder(baseFolder_+"/TrackerMuonsNotGlobalMuons");
+      if (i == 3) ibooker.setCurrentFolder(baseFolder_+"/GlobalMuonsNotTrackerMuons");
 
-      hNumChambers[i] = dbe_->book1D("hNumChambers", "Number of Chambers", 17, -0.5, 16.5);
-      hNumMatches[i] = dbe_->book1D("hNumMatches", "Number of Matches", 11, -0.5, 10.5);
-      hNumChambersNoRPC[i] = dbe_->book1D("hNumChambersNoRPC", "Number of Chambers No RPC", 11, -0.5, 10.5);
+      hNumChambers[i] = ibooker.book1D("hNumChambers", "Number of Chambers", 17, -0.5, 16.5);
+      hNumMatches[i] = ibooker.book1D("hNumMatches", "Number of Matches", 11, -0.5, 10.5);
+      hNumChambersNoRPC[i] = ibooker.book1D("hNumChambersNoRPC", "Number of Chambers No RPC", 11, -0.5, 10.5);
 
       // by station
       for(int station = 0; station < 4; ++station)
 	{
          sprintf(name, "hDT%iNumSegments", station+1);
          sprintf(title, "DT Station %i Number of Segments (No Arbitration)", station+1);
-         hDTNumSegments[i][station] = dbe_->book1D(name, title, 11, -0.5, 10.5);
+         hDTNumSegments[i][station] = ibooker.book1D(name, title, 11, -0.5, 10.5);
 
          sprintf(name, "hDT%iDx", station+1);
          sprintf(title, "DT Station %i Delta X", station+1);
-         hDTDx[i][station] = dbe_->book1D(name, title, 100, -100., 100.);
+         hDTDx[i][station] = ibooker.book1D(name, title, 100, -100., 100.);
 
          sprintf(name, "hDT%iPullx", station+1);
          sprintf(title, "DT Station %i Pull X", station+1);
-         hDTPullx[i][station] = dbe_->book1D(name, title, 100, -20., 20.);
+         hDTPullx[i][station] = ibooker.book1D(name, title, 100, -20., 20.);
 
          sprintf(name, "hDT%iDdXdZ", station+1);
          sprintf(title, "DT Station %i Delta DxDz", station+1);
-         hDTDdXdZ[i][station] = dbe_->book1D(name, title, 100, -1., 1.);
+         hDTDdXdZ[i][station] = ibooker.book1D(name, title, 100, -1., 1.);
 
          sprintf(name, "hDT%iPulldXdZ", station+1);
          sprintf(title, "DT Station %i Pull DxDz", station+1);
-         hDTPulldXdZ[i][station] = dbe_->book1D(name, title, 100, -20., 20.);
+         hDTPulldXdZ[i][station] = ibooker.book1D(name, title, 100, -20., 20.);
 
          if (station < 3) {
             sprintf(name, "hDT%iDy", station+1);
             sprintf(title, "DT Station %i Delta Y", station+1);
-            hDTDy[i][station] = dbe_->book1D(name, title, 100, -150., 150.);
+            hDTDy[i][station] = ibooker.book1D(name, title, 100, -150., 150.);
 
             sprintf(name, "hDT%iPully", station+1);
             sprintf(title, "DT Station %i Pull Y", station+1);
-            hDTPully[i][station] = dbe_->book1D(name, title, 100, -20., 20.);
+            hDTPully[i][station] = ibooker.book1D(name, title, 100, -20., 20.);
 
             sprintf(name, "hDT%iDdYdZ", station+1);
             sprintf(title, "DT Station %i Delta DyDz", station+1);
-            hDTDdYdZ[i][station] = dbe_->book1D(name, title, 100, -2., 2.);
+            hDTDdYdZ[i][station] = ibooker.book1D(name, title, 100, -2., 2.);
 
             sprintf(name, "hDT%iPulldYdZ", station+1);
             sprintf(title, "DT Station %i Pull DyDz", station+1);
-            hDTPulldYdZ[i][station] = dbe_->book1D(name, title, 100, -20., 20.);
+            hDTPulldYdZ[i][station] = ibooker.book1D(name, title, 100, -20., 20.);
          }
 
          sprintf(name, "hCSC%iNumSegments", station+1);
          sprintf(title, "CSC Station %i Number of Segments (No Arbitration)", station+1);
-         hCSCNumSegments[i][station] = dbe_->book1D(name, title, 11, -0.5, 10.5);
+         hCSCNumSegments[i][station] = ibooker.book1D(name, title, 11, -0.5, 10.5);
 
          sprintf(name, "hCSC%iDx", station+1);
          sprintf(title, "CSC Station %i Delta X", station+1);
-         hCSCDx[i][station] = dbe_->book1D(name, title, 100, -50., 50.);
+         hCSCDx[i][station] = ibooker.book1D(name, title, 100, -50., 50.);
 
          sprintf(name, "hCSC%iPullx", station+1);
          sprintf(title, "CSC Station %i Pull X", station+1);
-         hCSCPullx[i][station] = dbe_->book1D(name, title, 100, -20., 20.);
+         hCSCPullx[i][station] = ibooker.book1D(name, title, 100, -20., 20.);
 
          sprintf(name, "hCSC%iDdXdZ", station+1);
          sprintf(title, "CSC Station %i Delta DxDz", station+1);
-         hCSCDdXdZ[i][station] = dbe_->book1D(name, title, 100, -1., 1.);
+         hCSCDdXdZ[i][station] = ibooker.book1D(name, title, 100, -1., 1.);
 
          sprintf(name, "hCSC%iPulldXdZ", station+1);
          sprintf(title, "CSC Station %i Pull DxDz", station+1);
-         hCSCPulldXdZ[i][station] = dbe_->book1D(name, title, 100, -20., 20.);
+         hCSCPulldXdZ[i][station] = ibooker.book1D(name, title, 100, -20., 20.);
 
          sprintf(name, "hCSC%iDy", station+1);
          sprintf(title, "CSC Station %i Delta Y", station+1);
-         hCSCDy[i][station] = dbe_->book1D(name, title, 100, -50., 50.);
+         hCSCDy[i][station] = ibooker.book1D(name, title, 100, -50., 50.);
 
          sprintf(name, "hCSC%iPully", station+1);
          sprintf(title, "CSC Station %i Pull Y", station+1);
-         hCSCPully[i][station] = dbe_->book1D(name, title, 100, -20., 20.);
+         hCSCPully[i][station] = ibooker.book1D(name, title, 100, -20., 20.);
 
          sprintf(name, "hCSC%iDdYdZ", station+1);
          sprintf(title, "CSC Station %i Delta DyDz", station+1);
-         hCSCDdYdZ[i][station] = dbe_->book1D(name, title, 100, -1., 1.);
+         hCSCDdYdZ[i][station] = ibooker.book1D(name, title, 100, -1., 1.);
 
          sprintf(name, "hCSC%iPulldYdZ", station+1);
          sprintf(title, "CSC Station %i Pull DyDz", station+1);
-         hCSCPulldYdZ[i][station] = dbe_->book1D(name, title, 100, -20., 20.);
+         hCSCPulldYdZ[i][station] = ibooker.book1D(name, title, 100, -20., 20.);
       }// station
    }
 
@@ -266,9 +264,6 @@ void MuonIdDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
          hSegmentIsAssociatedBool->Fill(0.);
    }// csc segment
 }
-
-void 
-MuonIdDQM::endJob() {}
 
 void MuonIdDQM::Fill(MonitorElement* me, float f) {
    if (fabs(f) > 900000) return;

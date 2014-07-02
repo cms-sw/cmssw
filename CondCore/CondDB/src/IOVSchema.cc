@@ -61,12 +61,13 @@ namespace cond {
     bool TAG::Table::select( const std::string& name, 
 			     cond::TimeType& timeType, 
 			     std::string& objectType, 
+			     cond::SynchronizationType& synchronizationType,
 			     cond::Time_t& endOfValidity,
 			     std::string& description, 
 			     cond::Time_t&  lastValidatedTime ){
-      Query< TIME_TYPE, OBJECT_TYPE, END_OF_VALIDITY, DESCRIPTION, LAST_VALIDATED_TIME > q( m_schema );
+      Query< TIME_TYPE, OBJECT_TYPE, SYNCHRONIZATION, END_OF_VALIDITY, DESCRIPTION, LAST_VALIDATED_TIME > q( m_schema );
       q.addCondition<NAME>( name );
-      for ( auto row : q ) std::tie( timeType, objectType, endOfValidity, description, lastValidatedTime ) = row;
+      for ( auto row : q ) std::tie( timeType, objectType, synchronizationType, endOfValidity, description, lastValidatedTime ) = row;
       
       return q.retrievedRows();
     }
@@ -256,6 +257,12 @@ namespace cond {
       
       inserter.flush();
     }
+
+    void IOV::Table::erase( const std::string& tag ){
+      DeleteBuffer buffer;
+      buffer.addWhereCondition<TAG_NAME>( tag );
+      deleteFromTable( m_schema, tname, buffer );  
+    }
     
     PAYLOAD::Table::Table( coral::ISchema& schema ):
       m_schema( schema ){
@@ -296,34 +303,37 @@ namespace cond {
 
     bool PAYLOAD::Table::select( const cond::Hash& payloadHash, 
 				 std::string& objectType, 
-				 cond::Binary& payloadData ){
-      Query< DATA, OBJECT_TYPE > q( m_schema );
+				 cond::Binary& payloadData,
+				 cond::Binary& streamerInfoData ){
+      Query< DATA, STREAMER_INFO, OBJECT_TYPE > q( m_schema );
       q.addCondition<HASH>( payloadHash );
       for ( auto row : q ) {
-	std::tie( payloadData, objectType ) = row;
+	std::tie( payloadData, streamerInfoData, objectType ) = row;
       }
       return q.retrievedRows();
     }
     
     bool PAYLOAD::Table::insert( const cond::Hash& payloadHash, 
     				 const std::string& objectType,
-    				 const cond::Binary& payloadData, 				      
+    				 const cond::Binary& payloadData, 
+				 const cond::Binary& streamerInfoData,				      
     				 const boost::posix_time::ptime& insertionTime ){
-      cond::Binary dummy;
-      std::string streamerType("ROOT5");
-      dummy.copy( streamerType );
       std::string version("dummy");
-      RowBuffer< HASH, OBJECT_TYPE, DATA, STREAMER_INFO, VERSION, INSERTION_TIME > dataToInsert( std::tie( payloadHash, objectType, payloadData, dummy, version, insertionTime ) ); 
+      cond::Binary sinfoData( streamerInfoData );
+      if( !sinfoData.size() ) sinfoData.copy( std::string("0") );   
+      RowBuffer< HASH, OBJECT_TYPE, DATA, STREAMER_INFO, VERSION, INSERTION_TIME > dataToInsert( std::tie( payloadHash, objectType, payloadData, sinfoData, version, insertionTime ) ); 
       bool failOnDuplicate = false;
       return insertInTable( m_schema, tname, dataToInsert.get(), failOnDuplicate );
     }
 
-    cond::Hash PAYLOAD::Table::insertIfNew( const std::string& payloadObjectType, const cond::Binary& payloadData, 
+    cond::Hash PAYLOAD::Table::insertIfNew( const std::string& payloadObjectType, 
+					    const cond::Binary& payloadData, 
+					    const cond::Binary& streamerInfoData,
 					    const boost::posix_time::ptime& insertionTime ){
       cond::Hash payloadHash = makeHash( payloadObjectType, payloadData );
       // the check on the hash existance is only required to avoid the error message printing in SQLite! once this is removed, this check is useless... 
       if( !select( payloadHash ) ){
-	insert( payloadHash, payloadObjectType, payloadData, insertionTime );
+	insert( payloadHash, payloadObjectType, payloadData, streamerInfoData, insertionTime );
       }
       return payloadHash;
     }
@@ -341,18 +351,18 @@ namespace cond {
 	throwException( "TAG_MIGRATIONtable already exists in this schema.",
 			"TAG::create");
       }
-      TableDescription< SOURCE_ACCOUNT, SOURCE_TAG, TAG_NAME, INSERTION_TIME > descr( tname );
+      TableDescription< SOURCE_ACCOUNT, SOURCE_TAG, TAG_NAME, STATUS_CODE, INSERTION_TIME > descr( tname );
       descr.setPrimaryKey<SOURCE_ACCOUNT, SOURCE_TAG>();
       descr.setForeignKey< TAG_NAME, TAG::NAME >( "TAG_NAME_FK" );
       createTable( m_schema, descr.get() );
     }
     
-    bool TAG_MIGRATION::Table::select( const std::string& sourceAccount, const std::string& sourceTag, std::string& tagName ){
-      Query< TAG_NAME > q( m_schema );
+    bool TAG_MIGRATION::Table::select( const std::string& sourceAccount, const std::string& sourceTag, std::string& tagName, int& statusCode ){
+      Query< TAG_NAME, STATUS_CODE > q( m_schema );
       q.addCondition<SOURCE_ACCOUNT>( sourceAccount );
       q.addCondition<SOURCE_TAG>( sourceTag );
       for ( auto row : q ) {
-	std::tie( tagName ) = row;
+	std::tie( tagName, statusCode ) = row;
       }
       
       return q.retrievedRows();
@@ -360,10 +370,18 @@ namespace cond {
     }
     
     void TAG_MIGRATION::Table::insert( const std::string& sourceAccount, const std::string& sourceTag, const std::string& tagName, 
-				const boost::posix_time::ptime& insertionTime ){
-      RowBuffer< SOURCE_ACCOUNT, SOURCE_TAG, TAG_NAME, INSERTION_TIME > 
-    dataToInsert( std::tie( sourceAccount, sourceTag, tagName, insertionTime ) );
+				       int statusCode, const boost::posix_time::ptime& insertionTime ){
+      RowBuffer< SOURCE_ACCOUNT, SOURCE_TAG, TAG_NAME, STATUS_CODE, INSERTION_TIME > 
+	dataToInsert( std::tie( sourceAccount, sourceTag, tagName, statusCode, insertionTime ) );
       insertInTable( m_schema, tname, dataToInsert.get() );
+    }
+
+    void TAG_MIGRATION::Table::updateValidationCode( const std::string& sourceAccount, const std::string& sourceTag, int statusCode ){
+      UpdateBuffer buffer;
+      buffer.setColumnData< STATUS_CODE >( std::tie( statusCode ) );
+      buffer.addWhereCondition<SOURCE_ACCOUNT>( sourceAccount );
+      buffer.addWhereCondition<SOURCE_TAG>( sourceTag );
+      updateTable( m_schema, tname, buffer );  
     }
     
     IOVSchema::IOVSchema( coral::ISchema& schema ):

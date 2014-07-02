@@ -36,6 +36,10 @@ NegateTrigger = cms.untracked.bool(False),
 # Decide whether to discard empty events or not
 SaveAllToTree = cms.untracked.bool(False),
 
+# Pile-Up related info
+PileUpSummaryInfo = cms.untracked.InputTag("addPileupInfo"),
+PrimaryVertexCollection = cms.untracked.InputTag("offlinePrimaryVertices"),
+
 PATmuons = cms.untracked.bool(False),
 GenParticlesName = cms.untracked.string("genParticles"),
 

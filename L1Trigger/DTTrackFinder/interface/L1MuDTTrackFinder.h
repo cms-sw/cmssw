@@ -37,6 +37,7 @@
 
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 class L1MuDTTFConfig;
 class L1MuDTSecProcMap;
 class L1MuDTSecProcId;
@@ -61,7 +62,7 @@ class L1MuDTTrackFinder {
     typedef std::vector<L1MuRegionalCand>::iterator       TFtracks_iter;
 
     /// constructor
-    L1MuDTTrackFinder(const edm::ParameterSet & ps);
+    L1MuDTTrackFinder(const edm::ParameterSet & ps, edm::ConsumesCollector && iC);
 
     /// destructor
     virtual ~L1MuDTTrackFinder();

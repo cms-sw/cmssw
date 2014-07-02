@@ -18,6 +18,8 @@
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
+#include <cassert>
+
 /*Originally from DQM/Physics by R. Wolf and J. Andrea*/
 using namespace std;
 namespace HLTOfflineDQMTopSingleLepton {
@@ -131,9 +133,11 @@ namespace HLTOfflineDQMTopSingleLepton {
     }
 
     // triggerExtras are optional; they may be omitted or empty
+    processName_ = "HLT";
     if( cfg.existsAs<edm::ParameterSet>("triggerExtras") ){
       edm::ParameterSet triggerExtras=cfg.getParameter<edm::ParameterSet>("triggerExtras");
       triggerTable_= iC.consumes< edm::TriggerResults >(triggerExtras.getParameter<edm::InputTag>("src"));
+      processName_ = triggerExtras.getParameter<edm::InputTag>("src").process();
       triggerPaths_=triggerExtras.getParameter<std::vector<std::string> >("paths");
     }
 
@@ -149,7 +153,7 @@ namespace HLTOfflineDQMTopSingleLepton {
     // and don't forget to do the histogram booking
     folder_=cfg.getParameter<std::string>("directory");
 
-    triggerEventWithRefsTag_ = iC.consumes< trigger::TriggerEventWithRefs >(edm::InputTag("hltTriggerSummaryRAW","","HLT"));
+    triggerEventWithRefsTag_ = iC.consumes< trigger::TriggerEventWithRefs >(edm::InputTag("hltTriggerSummaryRAW","",processName_));
 
   }
 
@@ -495,14 +499,14 @@ namespace HLTOfflineDQMTopSingleLepton {
       // loop over trigger paths 
       for(unsigned int i=0; i<triggerNames.triggerNames().size(); ++i){
         // consider only path from triggerPaths
-        TString name = triggerNames.triggerNames()[i].c_str();
+        string name = triggerNames.triggerNames()[i];
         bool isInteresting = false;
         for (unsigned int j=0; j<triggerPaths.size(); j++) {
-          if (name.Contains(TString(triggerPaths[j]), TString::kIgnoreCase)) isInteresting = true; 
+          if (TString(name.c_str()).Contains(TString(triggerPaths[j]), TString::kIgnoreCase)) isInteresting = true; 
         }
         if (!isInteresting) continue;
         // dump infos on the considered trigger path 
-        const unsigned int triggerIndex = event.triggerNames(*triggerTable).triggerIndex(triggerNames.triggerNames()[i]);
+        const unsigned int triggerIndex = triggerNames.triggerIndex(name);
         // get modules for the considered trigger path
         const vector<string>& moduleLabels(hltConfig.moduleLabels(triggerIndex));
         const unsigned int moduleIndex(triggerTable->index(triggerIndex));
@@ -518,7 +522,7 @@ namespace HLTOfflineDQMTopSingleLepton {
           const string& moduleLabel(moduleLabels[k]);
           const string  moduleType(hltConfig.moduleType(moduleLabel));
           // check whether the module is packed up in TriggerEventWithRef product
-          const unsigned int filterIndex(triggerEventWithRefsHandle->filterIndex(edm::InputTag(moduleLabel,"","HLT")));
+          const unsigned int filterIndex(triggerEventWithRefsHandle->filterIndex(edm::InputTag(moduleLabel,"",processName_)));
           if (filterIndex<triggerEventWithRefsHandle->size()) {
             triggerEventWithRefsHandle->getObjects(filterIndex,electronIds_,electronRefs_);
             const unsigned int nElectrons(electronIds_.size());
@@ -545,7 +549,7 @@ namespace HLTOfflineDQMTopSingleLepton {
         if (kElec > 0) {
           const string& moduleLabelElec(moduleLabels[kElec]);
           const string  moduleTypeElec(hltConfig.moduleType(moduleLabelElec));
-          const unsigned int filterIndexElec(triggerEventWithRefsHandle->filterIndex(edm::InputTag(moduleLabelElec,"","HLT")));
+          const unsigned int filterIndexElec(triggerEventWithRefsHandle->filterIndex(edm::InputTag(moduleLabelElec,"",processName_)));
           triggerEventWithRefsHandle->getObjects(filterIndexElec,electronIds_,electronRefs_);
           for (unsigned int inde = 0; inde < isoElecs.size(); inde++) {
             double deltar = deltaR(*electronRefs_[0],*isoElecs[inde]); 
@@ -563,7 +567,7 @@ namespace HLTOfflineDQMTopSingleLepton {
         if (kMuon > 0) {
           const string& moduleLabelMuon(moduleLabels[kMuon]);
           const string  moduleTypeMuon(hltConfig.moduleType(moduleLabelMuon));
-          const unsigned int filterIndexMuon(triggerEventWithRefsHandle->filterIndex(edm::InputTag(moduleLabelMuon,"","HLT")));
+          const unsigned int filterIndexMuon(triggerEventWithRefsHandle->filterIndex(edm::InputTag(moduleLabelMuon,"",processName_)));
           triggerEventWithRefsHandle->getObjects(filterIndexMuon,muonIds_,muonRefs_);
           for (unsigned int indm = 0; indm < isoMuons.size(); indm++) {
             double deltar = deltaR(*muonRefs_[0],*isoMuons[indm]); 
@@ -586,7 +590,7 @@ namespace HLTOfflineDQMTopSingleLepton {
         if (kJet > 0) {
           const string& moduleLabelJet(moduleLabels[kJet]);
           const string  moduleTypeJet(hltConfig.moduleType(moduleLabelJet));
-          const unsigned int filterIndexJet(triggerEventWithRefsHandle->filterIndex(edm::InputTag(moduleLabelJet,"","HLT")));
+          const unsigned int filterIndexJet(triggerEventWithRefsHandle->filterIndex(edm::InputTag(moduleLabelJet,"",processName_)));
           triggerEventWithRefsHandle->getObjects(filterIndexJet,pfjetIds_,pfjetRefs_);
           for (unsigned int indj = 0; indj < correctedJets.size(); indj++) {
             double deltar1 = deltaR(*pfjetRefs_[0],correctedJets[indj]); 
@@ -708,13 +712,11 @@ TopSingleLeptonHLTOfflineDQM::dqmBeginRun(const edm::Run& iRun, const edm::Event
   using namespace std;
   using namespace edm;
 
-  std::string processName = "HLT"; 
-
   bool changed(true);
-  if (!hltConfig_.init(iRun,iSetup,processName,changed)) {
+  if (!hltConfig_.init(iRun,iSetup,"*",changed)) {
         edm::LogWarning( "TopSingleLeptonHLTOfflineDQM" ) 
             << "Config extraction failure with process name "
-            << processName
+            << hltConfig_.processName()
             << "\n";
         return;
   }

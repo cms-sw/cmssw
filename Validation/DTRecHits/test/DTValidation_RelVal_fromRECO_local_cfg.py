@@ -6,9 +6,12 @@ import FWCore.ParameterSet.Config as cms
 #
 # Configurable options:
 
-reReco = True         # Set this to True to re-reconstruct hits
-skipDeltaSuppr = True # Skip DRR (only when reReco=True)
+reReco = False         # Set this to True to re-reconstruct hits
+skipDeltaSuppr = False # Skip DRR (only when reReco=True)
+step2FromDigi = False  # Remake step-2 hits instead of bypassing step-2; useful when re-fitting segments from hits since hits in 2D segments are otherwise non updated. 
 
+# Optional DB for DT uncertainties, es.  "DTRecoUncertainties.db"
+uncertDB = ""
 
 doAngleCorr = False
 
@@ -28,6 +31,17 @@ process.maxEvents = cms.untracked.PSet(
 
 ## Conditions
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+
+
+## Uncertainty DB
+if uncertDB != "" : 
+    process.GlobalTag.toGet = cms.VPSet(
+        cms.PSet(record = cms.string("DTRecoUncertaintiesRcd"),
+                 tag = cms.string("DTRecoUncertainties_test"),
+                 connect = cms.untracked.string("sqlite_file:"+uncertDB))
+        )
+
+
 
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.Geometry.GeometryIdeal_cff")
@@ -178,6 +192,11 @@ if (skipDeltaSuppr) :
 if (doAngleCorr) :
     process.dt4DSegments.Reco4DAlgoConfig.recAlgoConfig.doAngleCorr = True;
     process.dt4DSegments.Reco4DAlgoConfig.Reco2DAlgoConfig.doAngleCorr = True; #Note: hit recomputation @step2 is not activated anyhow!
+
+if (step2FromDigi) :
+    process.dt4DSegments.Reco4DAlgoConfig.recAlgoConfig.stepTwoFromDigi = True;
+    process.dt4DSegments.Reco4DAlgoConfig.Reco2DAlgoConfig.recAlgoConfig.stepTwoFromDigi = True;
+
 
 if (reReco) :
     #add  process.dt2DSegments if needed

@@ -16,7 +16,7 @@ public:
   : theName(name),
     theSeqNum(seqNum),
     theLayer(layer),
-    theTTRHBuilder(hitBuilder),
+    theTTRHBuilder(static_cast<TkTransientTrackingRecHitBuilder const *>(hitBuilder)),
     theHitExtractor(hitExtractor) { }
 
   ~SeedingLayerImpl() {  }
@@ -29,7 +29,7 @@ public:
   int seqNum() const { return theSeqNum; }
 
   const DetLayer*  detLayer() const { return theLayer; }
-  const TransientTrackingRecHitBuilder * hitBuilder() const { return theTTRHBuilder; }
+  const TkTransientTrackingRecHitBuilder * hitBuilder() const { return theTTRHBuilder; }
 
 private:
   SeedingLayerImpl(const SeedingLayerImpl &);
@@ -38,7 +38,7 @@ private:
   std::string theName;
   int theSeqNum;
   const DetLayer* theLayer;
-  const TransientTrackingRecHitBuilder *theTTRHBuilder;
+  const TkTransientTrackingRecHitBuilder *theTTRHBuilder;
   const HitExtractor * theHitExtractor;
 };
 
@@ -69,7 +69,7 @@ const DetLayer*  SeedingLayer::detLayer() const
   return theImpl->detLayer();
 }
 
-const TransientTrackingRecHitBuilder * SeedingLayer::hitBuilder() const 
+const TkTransientTrackingRecHitBuilder * SeedingLayer::hitBuilder() const 
 {
   return theImpl->hitBuilder();
 }

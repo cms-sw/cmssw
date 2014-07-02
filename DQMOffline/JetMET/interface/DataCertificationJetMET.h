@@ -17,41 +17,38 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 //
 // class decleration
 //
 
-class DataCertificationJetMET : public edm::EDAnalyzer {
+class DataCertificationJetMET : public DQMEDHarvester {
    public:
       explicit DataCertificationJetMET(const edm::ParameterSet&);
       ~DataCertificationJetMET();
 
    private:
-      virtual void beginJob(void) ;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) ;
 
-      virtual void beginRun(const edm::Run&, const edm::EventSetup&) ;
-      virtual void endRun(const edm::Run&, const edm::EventSetup&) ;
-
-      virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
-      virtual void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
+      MonitorElement*  reportSummary;
+      MonitorElement*  CertificationSummary;
+      MonitorElement*  reportSummaryMap;
+      MonitorElement*  CertificationSummaryMap;
 
    // ----------member data ---------------------------
 
    edm::ParameterSet conf_;
-   DQMStore * dbe_;
    edm::Service<TFileService> fs_;
-
    int verbose_;
    bool InMemory_;
    bool isData;
    std::string metFolder;
+   std::string jetAlgo;
+
+   std::string folderName;
 
    bool caloJetMeanTest;
    bool caloJetKSTest;
@@ -65,8 +62,6 @@ class DataCertificationJetMET : public edm::EDAnalyzer {
    bool pfMETKSTest;
    bool tcMETMeanTest;
    bool tcMETKSTest;
-   bool muMETMeanTest;
-   bool muMETKSTest;
 
    bool jetTests[5][2];  //one for each type of jet certification/test type
    bool metTests[5][2];  //one for each type of met certification/test type

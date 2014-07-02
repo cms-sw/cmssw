@@ -15,7 +15,15 @@ trackerDrivenElectronSeeds = cms.EDProducer("GoodSeedProducer",
     Fitter = cms.string('GsfTrajectoryFitter_forPreId'),
     PreGsfLabel = cms.string('SeedsForGsf'),
     MinEOverP = cms.double(0.3),
-    Weights = cms.string('RecoParticleFlow/PFTracking/data/BDT_weights_21.txt'),
+    Weights1 = cms.string('RecoParticleFlow/PFTracking/data/MVA_BDTTrackDrivenSeed_cat1.xml'),
+    Weights2 = cms.string('RecoParticleFlow/PFTracking/data/MVA_BDTTrackDrivenSeed_cat2.xml'),
+    Weights3 = cms.string('RecoParticleFlow/PFTracking/data/MVA_BDTTrackDrivenSeed_cat3.xml'),
+    Weights4 = cms.string('RecoParticleFlow/PFTracking/data/MVA_BDTTrackDrivenSeed_cat4.xml'),
+    Weights5 = cms.string('RecoParticleFlow/PFTracking/data/MVA_BDTTrackDrivenSeed_cat5.xml'),
+    Weights6 = cms.string('RecoParticleFlow/PFTracking/data/MVA_BDTTrackDrivenSeed_cat6.xml'),
+    Weights7 = cms.string('RecoParticleFlow/PFTracking/data/MVA_BDTTrackDrivenSeed_cat7.xml'),
+    Weights8 = cms.string('RecoParticleFlow/PFTracking/data/MVA_BDTTrackDrivenSeed_cat8.xml'),
+    Weights9 = cms.string('RecoParticleFlow/PFTracking/data/MVA_BDTTrackDrivenSeed_cat9.xml'),                                        
     PFEcalClusterLabel = cms.InputTag("particleFlowClusterECAL"),
     PFHcalClusterLabel = cms.InputTag("particleFlowClusterHCAL"),
     PSThresholdFile = cms.string('RecoParticleFlow/PFTracking/data/PSThreshold.dat'),
@@ -36,7 +44,8 @@ trackerDrivenElectronSeeds = cms.EDProducer("GoodSeedProducer",
     UsePreShower =cms.bool(False),
     PreIdLabel = cms.string('preid'),
     ProducePreId = cms.untracked.bool(True),
-    PtThresholdSavePreId = cms.untracked.double(1.0)  
+    PtThresholdSavePreId = cms.untracked.double(1.0),
+    Min_dr = cms.double(0.2)
 )
 
 

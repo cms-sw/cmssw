@@ -23,13 +23,12 @@ AlgebraicSymMatrix BeamSpotTransientTrackingRecHit::parametersError() const
   return m;
 }
 
-void BeamSpotTransientTrackingRecHit::initialize() const
+
+static AlgebraicMatrix initialize()
 {
-  theProjectionMatrix = AlgebraicMatrix( 1, 5, 0);
-  theProjectionMatrix[0][3] = 1;
-  
-  isInitialized = true;
+  AlgebraicMatrix ret( 1, 5, 0);
+  ret[0][3] = 1;
+  return ret;
 }
 
-bool BeamSpotTransientTrackingRecHit::isInitialized(false);
-AlgebraicMatrix BeamSpotTransientTrackingRecHit::theProjectionMatrix;
+const AlgebraicMatrix BeamSpotTransientTrackingRecHit::theProjectionMatrix=initialize();

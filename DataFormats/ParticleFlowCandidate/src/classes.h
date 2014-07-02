@@ -20,6 +20,7 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PileUpPFCandidateFwd.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/Common/interface/Association.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -93,7 +94,8 @@ namespace DataFormats_ParticleFlowCandidate {
     edm::Wrapper<reco::PFCandidateEGammaExtra> eg_cand_w1;  
     edm::Wrapper<std::vector<reco::PFCandidateEGammaExtra> > eg_w1;    
 
-
+    edm::Wrapper<edm::Association<reco::PFCandidateCollection > >    w_asso_pfc;
+ 
     //Association Map classes
     edm::helpers::KeyVal<edm::RefProd<std::vector<reco::Vertex> >,edm::RefProd<std::vector<reco::PFCandidate> > > pm0;
     edm::helpers::KeyVal<edm::Ref<std::vector<reco::Vertex>,reco::Vertex,edm::refhelper::FindUsingAdvance<std::vector<reco::Vertex>,reco::Vertex> >,std::vector<std::pair<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> >,float> > > pmf1;

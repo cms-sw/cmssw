@@ -70,7 +70,8 @@ class SeedToTrackProducer : public edm::EDProducer {
 
       // ----------member data ---------------------------
     
-    edm::InputTag L2seedsTag_;
+    edm::EDGetTokenT<TrajectorySeedCollection> L2seedsTagT_;
+    edm::EDGetTokenT<edm::View<TrajectorySeed> > L2seedsTagS_;
     
     edm::ESHandle<MagneticField> theMGField;
     edm::ESHandle<GlobalTrackingGeometry> theTrackingGeometry;

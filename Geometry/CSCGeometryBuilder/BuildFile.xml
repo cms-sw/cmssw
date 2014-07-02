@@ -6,6 +6,7 @@
  <use name="Geometry/CSCGeometry"/>
  <use name="Geometry/CommonDetUnit"/>
  <use name="Geometry/MuonNumbering"/>
+ <use name="boost_serialization"/>
 <export>
   <lib name="1"/>
 </export>

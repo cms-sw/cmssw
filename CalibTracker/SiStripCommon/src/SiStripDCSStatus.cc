@@ -4,9 +4,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Scalers/interface/DcsStatus.h"
 
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
@@ -24,7 +22,7 @@
 //
 // -- Constructor
 //
-SiStripDCSStatus::SiStripDCSStatus() :
+SiStripDCSStatus::SiStripDCSStatus(edm::ConsumesCollector & iC) :
   TIBTIDinDAQ(false),
   TOBinDAQ(false),
   TECFinDAQ(false),
@@ -32,6 +30,9 @@ SiStripDCSStatus::SiStripDCSStatus() :
   trackerAbsent(false),
   rawdataAbsent(true),
   initialised(false) {
+
+  dcsStatusToken_ = iC.consumes<DcsStatusCollection>(edm::InputTag("scalersRawToDigi"));
+  rawDataToken_   = iC.consumes<FEDRawDataCollection>(edm::InputTag("source"));
 }
 //
 // -- Destructor
@@ -47,7 +48,8 @@ bool SiStripDCSStatus::getStatus(edm::Event const& e, edm::EventSetup const& eSe
   if (!initialised) initialise(e, eSetup);
 
   edm::Handle<DcsStatusCollection> dcsStatus;
-  e.getByLabel("scalersRawToDigi", dcsStatus);
+  //  e.getByLabel("scalersRawToDigi", dcsStatus);
+  e.getByToken(dcsStatusToken_, dcsStatus);
   if ( trackerAbsent || !dcsStatus.isValid())  return retVal;
   if ((*dcsStatus).size() == 0) return retVal;
 
@@ -107,7 +109,8 @@ void SiStripDCSStatus::initialise(edm::Event const& e, edm::EventSetup const& eS
   auto connectedFEDs = fedCabling_->fedIds();
 
   edm::Handle<FEDRawDataCollection> rawDataHandle;
-  e.getByLabel("source", rawDataHandle);
+  //  e.getByLabel("source", rawDataHandle);
+  e.getByToken(rawDataToken_, rawDataHandle);
 
   if ( !rawDataHandle.isValid() ) {
     rawdataAbsent = true;

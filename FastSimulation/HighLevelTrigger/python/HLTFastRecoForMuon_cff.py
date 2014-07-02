@@ -36,6 +36,10 @@ hltL3TrajSeedOIHit = TSG.l3seeds("OIHitCascade")
 hltL3TrajSeedOIHit.ServiceParameters.Propagators = cms.untracked.vstring()
 OIHProp(hltL3TrajSeedOIHit,hltL3TrajSeedOIHit.TkSeedGenerator.iterativeTSG)
 hltL3TrajSeedIOHit = TSG.l3seeds("IOHitCascade")
+hltL3NoFiltersTrajSeedOIHit = TSG.l3seeds("OIHitCascade")
+hltL3NoFiltersTrajSeedOIHit.ServiceParameters.Propagators = cms.untracked.vstring()
+OIHProp(hltL3NoFiltersTrajSeedOIHit,hltL3NoFiltersTrajSeedOIHit.TkSeedGenerator.iterativeTSG)
+hltL3NoFiltersTrajSeedIOHit = TSG.l3seeds("IOHitCascade")
 
 ## Make one TrackCand for each seeder
 from FastSimulation.Muons.TrackCandidateFromL2_cfi import *

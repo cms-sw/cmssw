@@ -4,6 +4,9 @@
 #include "TrackingTools/TrackFitters/interface/TrajectoryStateCombiner.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "DataFormats/TrackerRecHit2D/interface/TkCloner.h"
+#include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
+
 #ifdef EDM_ML_DEBUG
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -24,7 +27,8 @@
 
 KFTrajectorySmoother::~KFTrajectorySmoother() {
 
-  delete thePropagator;
+  delete theAlongPropagator;
+  delete theOppositePropagator;
   delete theUpdator;
   delete theEstimator;
 
@@ -35,15 +39,14 @@ KFTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
 
   if(aTraj.empty()) return Trajectory();
 
-  if (  aTraj.direction() == alongMomentum) {
-    thePropagator->setPropagationDirection(oppositeToMomentum);
-  } else {
-    thePropagator->setPropagationDirection(alongMomentum);
+  const Propagator* usePropagator = theAlongPropagator;
+  if(aTraj.direction() == alongMomentum) {
+    usePropagator = theOppositePropagator;
   }
-  
+
   const std::vector<TM> & avtm = aTraj.measurements();
   
-  Trajectory ret(aTraj.seed(), thePropagator->propagationDirection());
+  Trajectory ret(aTraj.seed(), usePropagator->propagationDirection());
   Trajectory & myTraj = ret;
   myTraj.reserve(avtm.size());
   
@@ -73,13 +76,18 @@ KFTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
     TransientTrackingRecHit::ConstRecHitPointer hit = itm->recHit();
 
     //check surface just for safety: should never be ==0 because they are skipped in the fitter 
+    // if unlikely(hit->det() == nullptr) continue;
     if unlikely( hit->surface()==nullptr ) {
 	LogDebug("TrackFitters")<< " Error: invalid hit with no GeomDet attached .... skipping";
 	continue;
       }
 
+   if (hit->det() && hit->geographicalId()<1000U) std::cout << "Problem 0 det id for " << typeid(*hit).name() << ' ' <<  hit->det()->geographicalId()  << std::endl;
+   if (hit->isValid() && hit->geographicalId()<1000U) std::cout << "Problem 0 det id for " << typeid(*hit).name() << ' ' <<  hit->det()->geographicalId()  << std::endl;
+
+
     if (hitcounter != avtm.size())//no propagation needed for first smoothed (==last fitted) hit 
-      predTsos = thePropagator->propagate( currTsos, *(hit->surface()) );
+      predTsos = usePropagator->propagate( currTsos, *(hit->surface()) );
 
     if unlikely(!predTsos.isValid()) {
 	LogDebug("TrackFitters") << "KFTrajectorySmoother: predicted tsos not valid!";
@@ -171,8 +179,15 @@ KFTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
 	  break;      
 	}
       
-      TransientTrackingRecHit::RecHitPointer preciseHit = hit->clone(combTsos);
-      
+        assert(hit->geographicalId()!=0U);
+       	assert(hit->surface()!=nullptr);
+        assert( (!(hit)->canImproveWithTrack()) | (nullptr!=theHitCloner));
+        assert( (!(hit)->canImproveWithTrack()) | (nullptr!=dynamic_cast<BaseTrackerRecHit const*>(hit.get())));
+        auto preciseHit = theHitCloner->makeShared(hit,combTsos);
+        assert(preciseHit->isValid());
+       	assert(preciseHit->geographicalId()!=0U);
+       	assert(preciseHit->surface()!=nullptr);
+
       if unlikely(!preciseHit->isValid()){
 	  LogTrace("TrackFitters") << "THE Precise HIT IS NOT VALID: using currTsos = predTsos" << "\n";
 	  currTsos = predTsos;
@@ -256,13 +271,20 @@ KFTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
     	  "KFTrajectorySmoother: combined tsos not valid!";
         return Trajectory();
 	}
-      
-      myTraj.push(TM(itm->forwardPredictedState(),
+      assert( (hit->det()==nullptr) || hit->geographicalId()!=0U);
+      if (hit->det()) 
+         myTraj.push(TM(itm->forwardPredictedState(),
 		     predTsos,
     		     combTsos,
     		     hit,
 		     0,
 		     theGeometry->idToLayer(hit->geographicalId()) ));
+     else myTraj.push(TM(itm->forwardPredictedState(),
+                     predTsos,
+                     combTsos,
+                     hit,
+                     0));
+
     }
   } // for loop
   

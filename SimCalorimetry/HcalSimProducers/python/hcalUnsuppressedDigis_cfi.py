@@ -10,6 +10,8 @@ hcalSimBlock = cms.PSet(
     hcalSimParameters,
     # whether cells with MC signal get noise added
     doNoise = cms.bool(True),
+    HcalPreMixStage1 = cms.bool(False),
+    HcalPreMixStage2 = cms.bool(False),
     # whether cells with no MC signal get an empty signal created
     # These empty signals can get noise via the doNoise flag
     doEmpty = cms.bool(True),

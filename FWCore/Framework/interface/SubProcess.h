@@ -1,4 +1,4 @@
-#ifndef FwCore_Framework_SubProcess_h
+#ifndef FWCore_Framework_SubProcess_h
 #define FWCore_Framework_SubProcess_h
 
 #include "FWCore/Framework/interface/EventSetupProvider.h"
@@ -109,6 +109,8 @@ namespace edm {
       schedule_->openOutputFiles(fb);
       if(subProcess_.get()) subProcess_->openOutputFiles(fb);
     }
+
+    void updateBranchIDListHelper(BranchIDLists const&);
 
     // Call respondToOpenInputFile() on all Modules
     void respondToOpenInputFile(FileBlock const& fb);

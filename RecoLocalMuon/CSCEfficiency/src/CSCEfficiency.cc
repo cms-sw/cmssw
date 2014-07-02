@@ -940,7 +940,6 @@ void CSCEfficiency::fillRechitsSegments_info(edm::Handle<CSCRecHit2DCollection> 
       for(size_t jRH = 0; 
 	  jRH<allRechits[idRH.endcap()-1][idRH.station()-1][idRH.ring()-1][idRH.chamber()-FirstCh][idRH.layer()-1].size();
 	  ++jRH){
-	allRechits[idRH.endcap()-1][idRH.station()-1][idRH.ring()-1][idRH.chamber()-FirstCh][idRH.layer()-1][jRH].first;
 	float xDiff = iRH->localPosition().x() - 
 	  allRechits[idRH.endcap()-1][idRH.station()-1][idRH.ring()-1][idRH.chamber()-FirstCh][idRH.layer()-1][jRH].first.x();
 	float yDiff = iRH->localPosition().y() - 

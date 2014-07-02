@@ -1,6 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 from RecoTauTag.RecoTau.PFRecoTauQualityCuts_cfi import PFTauQualityCuts
-
+from RecoTauTag.RecoTau.PFRecoTauPFJetInputs_cfi import PFRecoTauPFJetInputs
+from RecoTauTag.RecoTau.RecoTauCombinatoricProducer_cfi import combinatoricRecoTaus
 '''
 
 Configuration for 'shrinkingCone' PFTau Producer
@@ -27,11 +28,13 @@ _shrinkingConeRecoTausConfig = cms.PSet(
     maxSignalConeChargedHadrons = cms.int32(-1) # CV: upper limit on number of signalConeChargedHadrons disabled per default
 )
 
-shrinkingConeRecoTaus = cms.EDProducer(
-    "RecoTauProducer",
-    jetSrc = cms.InputTag("ak5PFJets"),
-    piZeroSrc = cms.InputTag("ak5PFJetsRecoTauPiZeros"),
-    jetRegionSrc = cms.InputTag("recoTauAK5PFJets08Region"),
+shrinkingConeRecoTaus = combinatoricRecoTaus.clone(
+    jetSrc = PFRecoTauPFJetInputs.inputJetCollection,
+    piZeroSrc = cms.InputTag("ak4PFJetsRecoTauPiZeros"),
+    jetRegionSrc = cms.InputTag("recoTauAK4PFJets08Region"),
+    chargedHadronSrc = cms.InputTag('ak4PFJetsRecoTauChargedHadrons'),
+    minJetPt = cms.double(-1.0),
+    maxJetAbsEta = cms.double(99.0),
     builders = cms.VPSet(
         _shrinkingConeRecoTausConfig
     ),

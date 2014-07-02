@@ -2,10 +2,13 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "CalibCalorimetry/HcalAlgos/interface/HcalTimeSlew.h"
 #include "RecoLocalCalo/HcalRecAlgos/src/HcalTDCReco.h"
-#include <algorithm> // for "max"
-#include <math.h>
+#include "RecoLocalCalo/HcalRecAlgos/interface/rawEnergy.h"
+
+#include <algorithm>
+#include <cmath>
+
 //--- temporary for printouts
-#include<iostream>
+// #include<iostream>
 
 constexpr double MaximumFractionalError = 0.002; // 0.2% error allowed from this source
 
@@ -52,6 +55,31 @@ void HcalSimpleRecAlgo::setForData (int runnum) { runnum_ = runnum;}
 
 void HcalSimpleRecAlgo::setLeakCorrection () { setLeakCorrection_ = true;}
 
+void HcalSimpleRecAlgo::setHBHEPileupCorrection(
+     boost::shared_ptr<AbsOOTPileupCorrection> corr)
+{
+    hbhePileupCorr_ = corr;
+}
+
+void HcalSimpleRecAlgo::setHFPileupCorrection(
+     boost::shared_ptr<AbsOOTPileupCorrection> corr)
+{
+    hfPileupCorr_ = corr;
+}
+
+void HcalSimpleRecAlgo::setHOPileupCorrection(
+     boost::shared_ptr<AbsOOTPileupCorrection> corr)
+{
+    hoPileupCorr_ = corr;
+}
+
+void HcalSimpleRecAlgo::setBXInfo(const BunchXParameter* info,
+                                  const unsigned lenInfo)
+{
+    bunchCrossingInfo_ = info;
+    lenBunchCrossingInfo_ = lenInfo;
+}
+
 ///Timeshift correction for HPDs based on the position of the peak ADC measurement.
 ///  Allows for an accurate determination of the relative phase of the pulse shape from
 ///  the HPD.  Calculated based on a weighted sum of the -1,0,+1 samples relative to the peak
@@ -68,43 +96,216 @@ static float eCorr(int ieta, int iphi, double ampl, int runnum);
 /// Leak correction 
 static float leakCorr(double energy);
 
-namespace HcalSimpleRecAlgoImpl {
-  template<class Digi, class RecHit>
-  inline RecHit reco(const Digi& digi, const HcalCoder& coder, const HcalCalibrations& calibs, 
-		     int ifirst, int n, bool slewCorrect, bool pulseCorrect, const HcalPulseContainmentCorrection* corr,
-		     HcalTimeSlew::BiasSetting slewFlavor, int runnum_, bool useLeak) {
-    CaloSamples tool;
-    coder.adc2fC(digi,tool);
 
-    double ampl=0; int maxI = -1; double maxA = -1e10; float ta=0;
-    double fc_ampl=0;
-    for (int i=ifirst; i<tool.size() && i<n+ifirst; i++) {
-      int capid=digi[i].capid();
-      ta = (tool[i]-calibs.pedestal(capid)); // pedestal subtraction
-      fc_ampl+=ta; 
-      ta*= calibs.respcorrgain(capid) ; // fC --> GeV
-      ampl+=ta;
-      if(ta>maxA){
-	maxA=ta;
-	maxI=i;
-      }
+namespace HcalSimpleRecAlgoImpl {
+  template<class Digi>
+  inline float recoHFTime(const Digi& digi, const int maxI, const double amp_fC,
+                          const bool slewCorrect, double maxA, float t0, float t2)
+  {
+    // Handle negative excursions by moving "zero":
+    float zerocorr=std::min(t0,t2);
+    if (zerocorr<0.f) {
+      t0   -= zerocorr;
+      t2   -= zerocorr;
+      maxA -= zerocorr;
+    }
+    
+    // pair the peak with the larger of the two neighboring time samples
+    float wpksamp=0.f;
+    if (t0>t2) {
+      wpksamp = t0+maxA;
+      if (wpksamp != 0.f) wpksamp = maxA/wpksamp;
+    } else {
+      wpksamp = maxA+t2;
+      if (wpksamp != 0.f) wpksamp = 1.+(t2/wpksamp);
     }
 
-    float time = -9999;
-    ////Cannot calculate time value with max ADC sample at first or last position in window....
-    if(maxI==0 || maxI==(tool.size()-1)) {      
-      LogDebug("HCAL Pulse") << "HcalSimpleRecAlgo::reconstruct :" 
-					       << " Invalid max amplitude position, " 
-					       << " max Amplitude: "<< maxI
-					       << " first: "<<ifirst
-					       << " last: "<<(tool.size()-1)
-					       << std::endl;
-    } else {
-      int capid=digi[maxI-1].capid();
-      float t0 = ((tool[maxI-1]-calibs.pedestal(capid))*calibs.respcorrgain(capid) );
-      capid=digi[maxI+1].capid();
-      float t2 = ((tool[maxI+1]-calibs.pedestal(capid))*calibs.respcorrgain(capid) );
+    float time = (maxI - digi.presamples())*25.0 + timeshift_ns_hf(wpksamp);
 
+    if (slewCorrect && amp_fC > 0.0) {
+      // -5.12327 - put in calibs.timecorr()
+      double tslew=exp(0.337681-5.94689e-4*amp_fC)+exp(2.44628-1.34888e-2*amp_fC);
+      time -= (float)tslew;
+    }
+
+    return time;
+  }
+
+
+  template<class Digi>
+  inline void removePileup(const Digi& digi, const HcalCoder& coder,
+                           const HcalCalibrations& calibs,
+                           const int ifirst, const int n,
+                           const bool pulseCorrect,
+                           const HcalPulseContainmentCorrection* corr,
+                           const AbsOOTPileupCorrection* pileupCorrection,
+                           const BunchXParameter* bxInfo, const unsigned lenInfo,
+                           double* p_maxA, double* p_ampl, double* p_uncorr_ampl,
+                           double* p_fc_ampl, int* p_nRead, int* p_maxI,
+                           bool* leakCorrApplied, float* p_t0, float* p_t2)
+  {
+    CaloSamples cs;
+    coder.adc2fC(digi,cs);
+    const int nRead = cs.size();
+    const int iStop = std::min(nRead, n + ifirst);
+
+    // Signal energy will be calculated both with
+    // and without OOT pileup corrections. Try to
+    // arrange the calculations so that we do not
+    // repeat them.
+    double uncorrectedEnergy[CaloSamples::MAXSAMPLES], buf[CaloSamples::MAXSAMPLES];
+    double* correctedEnergy = 0;
+    double fc_ampl = 0.0, corr_fc_ampl = 0.0;
+    bool pulseShapeCorrApplied = false, readjustTiming = false;
+    *leakCorrApplied = false;
+
+    if (pileupCorrection)
+    {
+        correctedEnergy = &buf[0];
+
+        double correctionInput[CaloSamples::MAXSAMPLES];
+        double gains[CaloSamples::MAXSAMPLES];
+
+        for (int i=0; i<nRead; ++i)
+        {
+            const int capid = digi[i].capid();
+            correctionInput[i] = cs[i] - calibs.pedestal(capid);
+            gains[i] = calibs.respcorrgain(capid);
+        }
+
+        for (int i=ifirst; i<iStop; ++i)
+            fc_ampl += correctionInput[i];
+
+        const bool useGain = pileupCorrection->inputIsEnergy();
+        for (int i=0; i<nRead; ++i)
+        {
+            uncorrectedEnergy[i] = correctionInput[i]*gains[i];
+            if (useGain)
+                correctionInput[i] = uncorrectedEnergy[i];
+        }
+
+        pileupCorrection->apply(digi.id(), correctionInput, nRead,
+                                bxInfo, lenInfo, ifirst, n,
+                                correctedEnergy, CaloSamples::MAXSAMPLES,
+                                &pulseShapeCorrApplied, leakCorrApplied,
+                                &readjustTiming);
+        if (useGain)
+        {
+            // Gain factors have been already applied.
+            // Divide by them for accumulating corr_fc_ampl.
+            for (int i=ifirst; i<iStop; ++i)
+                if (gains[i])
+                    corr_fc_ampl += correctedEnergy[i]/gains[i];
+        }
+        else
+        {
+            for (int i=ifirst; i<iStop; ++i)
+                corr_fc_ampl += correctedEnergy[i];
+            for (int i=0; i<nRead; ++i)
+                correctedEnergy[i] *= gains[i];
+        }
+    }
+    else
+    {
+        correctedEnergy = &uncorrectedEnergy[0];
+
+        // In this situation, we do not need to process all time slices
+        const int istart = std::max(ifirst - 1, 0);
+        const int iend = std::min(n + ifirst + 1, nRead);
+        for (int i=istart; i<iend; ++i)
+        {
+            const int capid = digi[i].capid();
+            float ta = cs[i] - calibs.pedestal(capid);
+            if (i >= ifirst && i < iStop)
+                fc_ampl += ta;
+            ta *= calibs.respcorrgain(capid);
+            uncorrectedEnergy[i] = ta;
+        }
+        corr_fc_ampl = fc_ampl;
+    }
+
+    // Uncorrected and corrected energies
+    double ampl = 0.0, corr_ampl = 0.0;
+    for (int i=ifirst; i<iStop; ++i)
+    {
+        ampl += uncorrectedEnergy[i];
+        corr_ampl += correctedEnergy[i];
+    }
+
+    // Apply phase-based amplitude correction:
+    if (corr && pulseCorrect)
+    {
+        ampl *= corr->getCorrection(fc_ampl);
+        if (pileupCorrection)
+        {
+            if (!pulseShapeCorrApplied)
+                corr_ampl *= corr->getCorrection(corr_fc_ampl);
+        }
+        else
+            corr_ampl = ampl;
+    }
+
+    // Which energies we want to use for timing?
+    const double *etime = readjustTiming ? &correctedEnergy[0] : &uncorrectedEnergy[0];
+    int maxI = -1; double maxA = -1.e300;
+    for (int i=ifirst; i<iStop; ++i)
+        if (etime[i] > maxA)
+        {
+            maxA = etime[i];
+            maxI = i;
+        }
+
+    // Fill out the output
+    *p_maxA = maxA;
+    *p_ampl = corr_ampl;
+    *p_uncorr_ampl = ampl;
+    *p_fc_ampl = readjustTiming ? corr_fc_ampl : fc_ampl;
+    *p_nRead = nRead;
+    *p_maxI = maxI;
+
+    if (maxI <= 0 || maxI >= (nRead-1))
+    {
+      LogDebug("HCAL Pulse") << "HcalSimpleRecAlgoImpl::removePileup :" 
+					       << " Invalid max amplitude position, " 
+					       << " max Amplitude: " << maxI
+					       << " first: " << ifirst
+					       << " last: " << ifirst + n
+					       << std::endl;
+      *p_t0 = 0.f;
+      *p_t2 = 0.f;
+    }
+    else
+    {
+      *p_t0 = etime[maxI - 1];
+      *p_t2 = etime[maxI + 1];
+    }
+  }
+
+
+  template<class Digi, class RecHit>
+  inline RecHit reco(const Digi& digi, const HcalCoder& coder,
+                     const HcalCalibrations& calibs, 
+		     const int ifirst, const int n, const bool slewCorrect,
+                     const bool pulseCorrect, const HcalPulseContainmentCorrection* corr,
+		     const HcalTimeSlew::BiasSetting slewFlavor,
+                     const int runnum, const bool useLeak,
+                     const AbsOOTPileupCorrection* pileupCorrection,
+                     const BunchXParameter* bxInfo, const unsigned lenInfo)
+  {
+    double fc_ampl, ampl, uncorr_ampl, maxA;
+    int nRead, maxI;
+    bool leakCorrApplied;
+    float t0, t2;
+
+    removePileup(digi, coder, calibs, ifirst, n,
+                 pulseCorrect, corr, pileupCorrection,
+                 bxInfo, lenInfo, &maxA, &ampl,
+                 &uncorr_ampl, &fc_ampl, &nRead, &maxI,
+                 &leakCorrApplied, &t0, &t2);
+
+    float time = -9999;
+    if (maxI > 0 && maxI < (nRead - 1))
+    {
       // Handle negative excursions by moving "zero":
       float minA=t0;
       if (maxA<minA) minA=maxA;
@@ -114,269 +315,139 @@ namespace HcalSimpleRecAlgoImpl {
       float wpksamp = (t0 + maxA + t2);
       if (wpksamp!=0) wpksamp=(maxA + 2.0*t2) / wpksamp; 
       time = (maxI - digi.presamples())*25.0 + timeshift_ns_hbheho(wpksamp);
-      if (corr!=0 && pulseCorrect ) {
-	// Apply phase-based amplitude correction:
 
-	/*
-	HcalDetId cell(digi.id());
-	int ieta  = cell.ieta();
-	int iphi  = cell.iphi();
-        int depth = cell.depth();
-	std::cout << "HcalSimpleRecAlgo::reco  cell:  ieta, iphi, depth =  " 
-		  << ieta << ", " << iphi
-		  << ", " << depth 
-                  << "    first, toadd = " << ifirst << ", " << n << std::endl
-	          << "    ampl,  corr,  ampl_after_corr = "
-                  << ampl << ",   " << corr->getCorrection(fc_ampl)
-                  << ",   "
-                  << ampl * corr->getCorrection(fc_ampl) << std::endl;
-	*/
-
-	ampl *= corr->getCorrection(fc_ampl);
-
-      }
       if (slewCorrect) time-=HcalTimeSlew::delay(std::max(1.0,fc_ampl),slewFlavor);
 
       time=time-calibs.timecorr(); // time calibration
     }
 
-
     // Temporary hack to apply energy-dependent corrections to some HB- cells
-    if(runnum_ > 0) {
-      HcalDetId cell(digi.id());
-      int ieta  = cell.ieta();
-      int iphi  = cell.iphi();
-      if( cell.subdet() == HcalBarrel) ampl *= eCorr(ieta,iphi,ampl,runnum_);
+    if (runnum > 0) {
+      const HcalDetId& cell = digi.id();
+      if (cell.subdet() == HcalBarrel) {
+        const int ieta = cell.ieta();
+        const int iphi = cell.iphi();
+        ampl *= eCorr(ieta, iphi, ampl, runnum);
+        uncorr_ampl *= eCorr(ieta, iphi, uncorr_ampl, runnum);
+      }
     }
 
     // Correction for a leak to pre-sample
-    if(useLeak) {
+    if(useLeak && !leakCorrApplied) {
       ampl *= leakCorr(ampl); 
+      uncorr_ampl *= leakCorr(uncorr_ampl); 
     }
 
-
-    return RecHit(digi.id(),ampl,time);    
+    RecHit rh(digi.id(),ampl,time);
+    setRawEnergy(rh, static_cast<float>(uncorr_ampl));
+    return rh;
   }
 }
+
 
 HBHERecHit HcalSimpleRecAlgo::reconstruct(const HBHEDataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const {
   return HcalSimpleRecAlgoImpl::reco<HBHEDataFrame,HBHERecHit>(digi,coder,calibs,
 							       first,toadd,correctForTimeslew_, correctForPulse_,
 							       pulseCorr_->get(digi.id(), toadd, phaseNS_),
 							       HcalTimeSlew::Medium,
-                                                               runnum_, setLeakCorrection_);
+                                                               runnum_, setLeakCorrection_,
+                                                               hbhePileupCorr_.get(),
+                                                               bunchCrossingInfo_, lenBunchCrossingInfo_);
 }
+
 
 HORecHit HcalSimpleRecAlgo::reconstruct(const HODataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const {
   return HcalSimpleRecAlgoImpl::reco<HODataFrame,HORecHit>(digi,coder,calibs,
 							   first,toadd,correctForTimeslew_,correctForPulse_,
 							   pulseCorr_->get(digi.id(), toadd, phaseNS_),
 							   HcalTimeSlew::Slow,
-                                                           runnum_, false);
+                                                           runnum_, false, hoPileupCorr_.get(),
+                                                           bunchCrossingInfo_, lenBunchCrossingInfo_);
 }
+
 
 HcalCalibRecHit HcalSimpleRecAlgo::reconstruct(const HcalCalibDataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const {
   return HcalSimpleRecAlgoImpl::reco<HcalCalibDataFrame,HcalCalibRecHit>(digi,coder,calibs,
 									 first,toadd,correctForTimeslew_,correctForPulse_,
 									 pulseCorr_->get(digi.id(), toadd, phaseNS_),
 									 HcalTimeSlew::Fast,
-                                                                         runnum_, false );
+                                                                         runnum_, false, 0,
+                                                                         bunchCrossingInfo_, lenBunchCrossingInfo_);
 }
-
-/*
-HBHERecHit HcalSimpleRecAlgo::reconstruct(const HBHEDataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const {
-  return HcalSimpleRecAlgoImpl::reco<HBHEDataFrame,HBHERecHit>(digi,coder,calibs,
-							       first,toadd,correctForTimeslew_, correctForPulse_,
-							       pulseCorr_->get(digi.id(), toadd, phaseNS_),
-							       HcalTimeSlew::Medium,
-                                                               setForData_, setLeakCorrection_);
-}
-*/
 
 
 HBHERecHit HcalSimpleRecAlgo::reconstructHBHEUpgrade(const HcalUpgradeDataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const {
-  HBHERecHit result = HcalSimpleRecAlgoImpl::reco<HcalUpgradeDataFrame,HBHERecHit>( digi, coder, calibs, first, toadd, correctForTimeslew_, correctForPulse_, pulseCorr_->get(digi.id(), toadd, phaseNS_), HcalTimeSlew::Medium, false, false);
+  HBHERecHit result = HcalSimpleRecAlgoImpl::reco<HcalUpgradeDataFrame,HBHERecHit>(digi, coder, calibs,
+                                                                                   first, toadd, correctForTimeslew_, correctForPulse_,
+                                                                                   pulseCorr_->get(digi.id(), toadd, phaseNS_),
+                                                                                   HcalTimeSlew::Medium, 0, false,
+                                                                                   hbhePileupCorr_.get(),
+                                                                                   bunchCrossingInfo_, lenBunchCrossingInfo_);
   HcalTDCReco tdcReco;
   tdcReco.reconstruct(digi, result);
   return result;
 }
 
 
-HFRecHit HcalSimpleRecAlgo::reconstruct(const HFDataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const {
-
+HFRecHit HcalSimpleRecAlgo::reconstruct(const HFDataFrame& digi,
+                                        const int first,
+                                        const int toadd,
+                                        const HcalCoder& coder,
+                                        const HcalCalibrations& calibs) const
+{
   const HcalPulseContainmentCorrection* corr = pulseCorr_->get(digi.id(), toadd, phaseNS_);
 
-  CaloSamples tool;
-  coder.adc2fC(digi,tool);
-  
-  double ampl=0; int maxI = -1; double maxA = -1e10; float ta=0; float amp_fC=0;
-  for (int i=first; i<tool.size() && i<first+toadd; i++) {
-    int capid=digi[i].capid();
-    ta = (tool[i]-calibs.pedestal(capid))*calibs.respcorrgain(capid);
-    ampl+=ta;
-    amp_fC += tool[i]-calibs.pedestal(capid);
-    if(ta>maxA){
-      maxA=ta;
-      maxI=i;
-    }
-  }
+  double amp_fC, ampl, uncorr_ampl, maxA;
+  int nRead, maxI;
+  bool leakCorrApplied;
+  float t0, t2;
 
-  float time=-9999.0;
-  ////Cannot calculate time value with max ADC sample at first or last position in window....
-  if(maxI==0 || maxI==(tool.size()-1)) {
-      LogDebug("HCAL Pulse") << "HcalSimpleRecAlgo::reconstruct :" 
-					       << " Invalid max amplitude position, " 
-					       << " max Amplitude: "<< maxI
-					       << " first: "<< first
-					       << " last: "<<(tool.size()-1)
-					       << std::endl;
-  } else {
-    int capid=digi[maxI-1].capid();
-    float t0 = (tool[maxI-1]-calibs.pedestal(capid))*calibs.respcorrgain(capid);
-    capid=digi[maxI+1].capid();
-    float t2 = (tool[maxI+1]-calibs.pedestal(capid))*calibs.respcorrgain(capid);
+  HcalSimpleRecAlgoImpl::removePileup(digi, coder, calibs, first, toadd,
+                                      correctForPulse_, corr, hfPileupCorr_.get(),
+                                      bunchCrossingInfo_, lenBunchCrossingInfo_,
+                                      &maxA, &ampl, &uncorr_ampl, &amp_fC, &nRead,
+                                      &maxI, &leakCorrApplied, &t0, &t2);
 
-    // Handle negative excursions by moving "zero":
-    float zerocorr=std::min(t0,t2);
-    if (zerocorr<0.f) {
-      t0   -= zerocorr;
-      t2   -= zerocorr;
-      maxA -= zerocorr;
-    }
-    
-    // pair the peak with the larger of the two neighboring time samples
-    float wpksamp=0.f;
-    if (t0>t2) {
-      wpksamp = t0+maxA;
-      if (wpksamp != 0.f) wpksamp = maxA/wpksamp;
-    } else {
-      wpksamp = maxA+t2;
-      if (wpksamp != 0.f) wpksamp = 1.+(t2/wpksamp);
-    }
+  float time=-9999.f;
+  if (maxI > 0 && maxI < (nRead - 1))
+      time = HcalSimpleRecAlgoImpl::recoHFTime(digi,maxI,amp_fC,correctForTimeslew_,maxA,t0,t2) -
+             calibs.timecorr();
 
-    time = (maxI - digi.presamples())*25.0 + timeshift_ns_hf(wpksamp);
-
-    if (corr!=0 && correctForPulse_) { 
-      
-      // Apply phase-based amplitude correction:
-      
-      /*
-	HcalDetId cell(digi.id());
-	int ieta  = cell.ieta();
-	int iphi  = cell.iphi();
-        int depth = cell.depth();
-	std::cout << "*** ieta, iphi, depth =  " << ieta << ", " << iphi
-	<< ", " << depth 
-                  << "    first, toadd = " << ifirst << ", " << n << std::endl
-	          << "    ampl,  corr,  ampl_after_corr = "
-                  << ampl << ",   " << corr->getCorrection(fc_ampl)
-                  << ",   "
-                  << ampl * corr->getCorrection(fc_ampl) << std::endl;
-	*/
-      
-      ampl *= corr->getCorrection(amp_fC);
-    }
-
-    if (correctForTimeslew_ && (amp_fC>0)) {
-      // -5.12327 - put in calibs.timecorr()
-      double tslew=exp(0.337681-5.94689e-4*amp_fC)+exp(2.44628-1.34888e-2*amp_fC);
-      time -= (float)tslew;
-    }
-
-    time=time-calibs.timecorr();
-  }
-
-  return HFRecHit(digi.id(),ampl,time); 
+  HFRecHit rh(digi.id(),ampl,time);
+  setRawEnergy(rh, static_cast<float>(uncorr_ampl));
+  return rh;
 }
+
 
 // NB: Upgrade HFRecHit method content is just the same as regular  HFRecHit
 //     with one exclusion: double time (second is dummy) in constructor 
-HFRecHit HcalSimpleRecAlgo::reconstructHFUpgrade(const HcalUpgradeDataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const {
-
+HFRecHit HcalSimpleRecAlgo::reconstructHFUpgrade(const HcalUpgradeDataFrame& digi,
+                                                 const int first,
+                                                 const int toadd,
+                                                 const HcalCoder& coder,
+                                                 const HcalCalibrations& calibs) const
+{
   const HcalPulseContainmentCorrection* corr = pulseCorr_->get(digi.id(), toadd, phaseNS_);
 
-  CaloSamples tool;
-  coder.adc2fC(digi,tool);
-  
-  double ampl=0; int maxI = -1; double maxA = -1e10; float ta=0; float amp_fC=0;
-  for (int i=first; i<tool.size() && i<first+toadd; i++) {
-    int capid=digi[i].capid(); 
-    ta = (tool[i]-calibs.pedestal(capid))*calibs.respcorrgain(capid);
-    ampl+=ta;
-    amp_fC += tool[i]-calibs.pedestal(capid);
-    if(ta>maxA){
-      maxA=ta;
-      maxI=i;
-    }
-  }
+  double amp_fC, ampl, uncorr_ampl, maxA;
+  int nRead, maxI;
+  bool leakCorrApplied;
+  float t0, t2;
 
-  float time=-9999.0;
-  ////Cannot calculate time value with max ADC sample at first or last position in window....
-  if(maxI==0 || maxI==(tool.size()-1)) {
-      LogDebug("HCAL Pulse") << "HcalSimpleRecAlgo::reconstruct :" 
-					       << " Invalid max amplitude position, " 
-					       << " max Amplitude: "<< maxI
-					       << " first: "<< first
-					       << " last: "<<(tool.size()-1)
-					       << std::endl;
-  } else {
-    int capid=digi[maxI-1].capid(); 
-    float t0 = (tool[maxI-1]-calibs.pedestal(capid))*calibs.respcorrgain(capid);
-    capid=digi[maxI+1].capid();    
-    float t2 = (tool[maxI+1]-calibs.pedestal(capid))*calibs.respcorrgain(capid);
+  HcalSimpleRecAlgoImpl::removePileup(digi, coder, calibs, first, toadd,
+                                      correctForPulse_, corr, hfPileupCorr_.get(),
+                                      bunchCrossingInfo_, lenBunchCrossingInfo_,
+                                      &maxA, &ampl, &uncorr_ampl, &amp_fC, &nRead,
+                                      &maxI, &leakCorrApplied, &t0, &t2);
 
-    // Handle negative excursions by moving "zero":
-    float zerocorr=std::min(t0,t2);
-    if (zerocorr<0.f) {
-      t0   -= zerocorr;
-      t2   -= zerocorr;
-      maxA -= zerocorr;
-    }
-    
-    // pair the peak with the larger of the two neighboring time samples
-    float wpksamp=0.f;
-    if (t0>t2) {
-      wpksamp = t0+maxA;
-      if (wpksamp != 0.f) wpksamp = maxA/wpksamp;
-    } else {
-      wpksamp = maxA+t2;
-      if (wpksamp != 0.f) wpksamp = 1.+(t2/wpksamp);
-    }
+  float time=-9999.f;
+  if (maxI > 0 && maxI < (nRead - 1))
+      time = HcalSimpleRecAlgoImpl::recoHFTime(digi,maxI,amp_fC,correctForTimeslew_,maxA,t0,t2) -
+             calibs.timecorr();
 
-    time = (maxI - digi.presamples())*25.0 + timeshift_ns_hf(wpksamp);
-
-    if (corr!=0 && correctForPulse_) { 
-      
-      // Apply phase-based amplitude correction:
-      
-      /*
-	HcalDetId cell(digi.id());
-	int ieta  = cell.ieta();
-	int iphi  = cell.iphi();
-        int depth = cell.depth();
-	std::cout << "*** ieta, iphi, depth =  " << ieta << ", " << iphi
-	<< ", " << depth 
-                  << "    first, toadd = " << ifirst << ", " << n << std::endl
-	          << "    ampl,  corr,  ampl_after_corr = "
-                  << ampl << ",   " << corr->getCorrection(fc_ampl)
-                  << ",   "
-                  << ampl * corr->getCorrection(fc_ampl) << std::endl;
-	*/
-      
-      ampl *= corr->getCorrection(amp_fC);
-    }
-
-    if (correctForTimeslew_ && (amp_fC>0)) {
-      // -5.12327 - put in calibs.timecorr()
-      double tslew=exp(0.337681-5.94689e-4*amp_fC)+exp(2.44628-1.34888e-2*amp_fC);
-      time -= (float)tslew;
-    }
-
-    time=time-calibs.timecorr();
-  }
-
-  return HFRecHit(digi.id(),ampl,time); // new RecHit gets second time = 0.
-
+  HFRecHit rh(digi.id(),ampl,time); // new RecHit gets second time = 0.
+  setRawEnergy(rh, static_cast<float>(uncorr_ampl));
+  return rh;
 }
 
 

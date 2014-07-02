@@ -3,7 +3,7 @@
 
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include <FWCore/Framework/interface/EDAnalyzer.h>
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include <FWCore/Framework/interface/ESHandle.h>
 #include <FWCore/Framework/interface/Event.h>
@@ -23,7 +23,7 @@
 #include <map>
 #include "TH1F.h"
 
-class EfficiencyPlotter: public edm::EDAnalyzer{
+class EfficiencyPlotter: public DQMEDHarvester {
 
 public:
 
@@ -35,21 +35,8 @@ public:
 
 protected:
 
-  /// BeginJob
-  void beginJob(void);
-
-  /// Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
-
-  /// Endjob
-  void endJob();
-
-  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
-
   /// DQM Client Diagnostic
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
-  void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
 
 
 private:

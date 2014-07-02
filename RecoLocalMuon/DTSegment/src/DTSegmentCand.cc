@@ -88,7 +88,7 @@ DTSegmentCand::AssPointCont
 DTSegmentCand::conflictingHitPairs(const DTSegmentCand& seg) const{
   AssPointCont result;
   const AssPointCont & hits2 = seg.theHits;
-  
+
 //  if (nSharedHitPairs(seg)==0) return result;
 
   AssPointCont::const_iterator hitBegin2 = hits2.begin(),   hitEnd2 = hits2.end();
@@ -224,8 +224,9 @@ bool DTSegmentCand::AssPointLessZ::operator()(const AssPoint& pt1,
 }
 
 std::ostream& operator<<(std::ostream& out, const DTSegmentCand& seg) {
-  out <<  " pos: " << seg.position() << " dir: " << seg.direction() 
-      << " chi2/nHits: " << seg.chi2() << "/" << seg.DTSegmentCand::nHits();
+  out <<  " pos: " << seg.position() << " dir: " << seg.direction()
+      << " chi2/nHits: " << seg.chi2() << "/" << seg.DTSegmentCand::nHits()
+      << " t0: " << seg.t0();
   return out;
 }
 

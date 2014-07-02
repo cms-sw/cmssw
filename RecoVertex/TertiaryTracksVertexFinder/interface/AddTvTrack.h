@@ -60,11 +60,11 @@ class AddTvTrack  {
   // Set parameters
   inline void setPrimaryVertices(std::vector<TransientVertex> & 
 				 ThePrimaryVertices) { 
-    thePrimaryVertices = thePrimaryVertices; // TYPO ?!?!?!?!?!?!?!
+    thePrimaryVertices = &ThePrimaryVertices;
   }
   inline void setSecondaryVertices(std::vector<TransientVertex> & 
 				   TheSecondaryVertices) { 
-    theSecondaryVertices = theSecondaryVertices; // TYPO ?!?!?!?!?!?
+    theSecondaryVertices = &TheSecondaryVertices;
   }
   inline void setMaxSigOnDistTrackToB(double maxSigOnDistTrackToB) { 
     MaxSigOnDistTrackToB  = maxSigOnDistTrackToB; 

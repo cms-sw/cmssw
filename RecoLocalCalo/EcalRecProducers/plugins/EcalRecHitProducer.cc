@@ -150,7 +150,7 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
                         for( std::set<EBDetId>::const_iterator it = detIds->begin(); it != detIds->end(); ++it ) {
                                 // get channel status map to treat dead VFE separately
                                 EcalChannelStatusMap::const_iterator chit = chStatus->find( *it );
-                                EcalChannelStatusCode chStatusCode = 1;
+                                EcalChannelStatusCode chStatusCode;
                                 if ( chit != chStatus->end() ) {
                                         chStatusCode = *chit;
                                 } else {
@@ -159,7 +159,7 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
                                                 << "! something wrong with EcalChannelStatus in your DB? ";
                                 }
                                 EcalUncalibratedRecHit urh;
-                                if ( (chStatusCode.getStatusCode() & 0x001F) == 12 ) { // dead VFE (from DB info)
+                                if ( chStatusCode.getStatusCode()  == EcalChannelStatusCode::kDeadVFE ) { // dead VFE (from DB info)
                                         // uses the EcalUncalibratedRecHit to pass the DetId info
                                         urh = EcalUncalibratedRecHit( *it, 0, 0, 0, 0, EcalRecHitWorkerBaseClass::EB_VFE );
                                         if ( recoverEBVFE_ || killDeadChannels_ ) workerRecover_->run( evt, urh, *ebRecHits );
@@ -187,7 +187,7 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
                         for( std::set<EEDetId>::const_iterator it = detIds->begin(); it != detIds->end(); ++it ) {
                                 // get channel status map to treat dead VFE separately
                                 EcalChannelStatusMap::const_iterator chit = chStatus->find( *it );
-                                EcalChannelStatusCode chStatusCode = 1;
+                                EcalChannelStatusCode chStatusCode;
                                 if ( chit != chStatus->end() ) {
                                         chStatusCode = *chit;
                                 } else {
@@ -196,7 +196,7 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
                                                 << "! something wrong with EcalChannelStatus in your DB? ";
                                 }
                                 EcalUncalibratedRecHit urh;
-                                if ( (chStatusCode.getStatusCode() & 0x001F) == 12 ) { // dead VFE (from DB info)
+                                if ( chStatusCode.getStatusCode()  == EcalChannelStatusCode::kDeadVFE) { // dead VFE (from DB info)
                                         // uses the EcalUncalibratedRecHit to pass the DetId info
                                         urh = EcalUncalibratedRecHit( *it, 0, 0, 0, 0, EcalRecHitWorkerBaseClass::EE_VFE );
                                         if ( recoverEEVFE_ || killDeadChannels_ ) workerRecover_->run( evt, urh, *eeRecHits );

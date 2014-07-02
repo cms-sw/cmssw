@@ -16,7 +16,11 @@
 
 const std::string RPCMonitorDigi::regionNames_[3] =  {"Endcap-", "Barrel", "Endcap+"};
 
-RPCMonitorDigi::RPCMonitorDigi( const edm::ParameterSet& pset ):counter(0){
+RPCMonitorDigi::RPCMonitorDigi( const edm::ParameterSet& pset )
+ : counter(0),
+   dcs_(false),
+   numberOfDisks_(0),
+   numberOfInnerRings_(0){
 
   saveRootFile  = pset.getUntrackedParameter<bool>("SaveRootFile", false); 
   RootFileName  = pset.getUntrackedParameter<std::string>("RootFileName", "RPCMonitorDigiDQM.root"); 
@@ -35,9 +39,6 @@ RPCMonitorDigi::RPCMonitorDigi( const edm::ParameterSet& pset ):counter(0){
   rpcRecHitLabel_  = consumes<RPCRecHitCollection>(pset.getParameter<edm::InputTag>("RecHitLabel"));
   scalersRawToDigiLabel_  = consumes<DcsStatusCollection>(pset.getParameter<edm::InputTag>("ScalersRawToDigiLabel"));
 
-  //  numberOfDisks_ = pset.getUntrackedParameter<int>("NumberOfEndcapDisks", 3);
-  // numberOfInnerRings_ = pset.getUntrackedParameter<int>("NumberOfInnermostEndcapRings", 2);
-
   noiseFolder_ = pset.getUntrackedParameter<std::string>("NoiseFolder", "AllHits");
   muonFolder_ = pset.getUntrackedParameter<std::string>("MuonFolder", "Muon");
 
@@ -45,36 +46,11 @@ RPCMonitorDigi::RPCMonitorDigi( const edm::ParameterSet& pset ):counter(0){
 
 RPCMonitorDigi::~RPCMonitorDigi(){}
 
- 
+
 void RPCMonitorDigi::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const &r, edm::EventSetup const & iSetup){
 
   edm::LogInfo ("rpcmonitordigi") <<"[RPCMonitorDigi]: Begin Run " ;
   
-  
-  //Book 
-  this->bookRegionME(ibooker,noiseFolder_, regionNoiseCollection);
-  this->bookSectorRingME(ibooker,noiseFolder_, sectorRingNoiseCollection);
-  this->bookWheelDiskME(ibooker,noiseFolder_, wheelDiskNoiseCollection);
-
-  std::string currentFolder = subsystemFolder_ +"/"+noiseFolder_;
-  ibooker.setCurrentFolder(currentFolder);
- 
-  noiseRPCEvents_ = ibooker.book1D("RPCEvents","RPCEvents", 1, 0.5, 1.5);
-  
-  if(useMuonDigis_ ){
-    this->bookRegionME(ibooker, muonFolder_, regionMuonCollection);
-    this->bookSectorRingME(ibooker, muonFolder_, sectorRingMuonCollection);
-    this->bookWheelDiskME(ibooker, muonFolder_, wheelDiskMuonCollection);
-    
-    currentFolder = subsystemFolder_ +"/"+muonFolder_;
-    ibooker.setCurrentFolder(currentFolder); 
-   
-    muonRPCEvents_ =  ibooker.book1D("RPCEvents", "RPCEvents", 1, 0.5, 1.5);
-    NumberOfMuon_ = ibooker.book1D("NumberOfMuons", "Number of Muons", 11, -0.5, 10.5);
-    NumberOfRecHitMuon_ = ibooker.book1D("NumberOfRecHitMuons", "Number of RPC RecHits per Muon", 8, -0.5, 7.5);
-  }
-   
-
   std::set<int> disk_set, ring_set;
   edm::ESHandle<RPCGeometry> rpcGeo;
   iSetup.get<MuonGeometryRecord>().get(rpcGeo);
@@ -82,8 +58,8 @@ void RPCMonitorDigi::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const 
   //loop on geometry to book all MEs
   edm::LogInfo ("rpcmonitordigi") <<"[RPCMonitorDigi]: Booking histograms per roll. " ;
   for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
-    if(dynamic_cast< RPCChamber* >( *it ) != 0 ){
-      RPCChamber* ch = dynamic_cast< RPCChamber* >( *it ); 
+    if(dynamic_cast< const RPCChamber* >( *it ) != 0 ){
+      const RPCChamber* ch = dynamic_cast< const RPCChamber* >( *it ); 
       std::vector< const RPCRoll*> roles = (ch->rolls());
       if(useRollInfo_){
 	for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
@@ -117,7 +93,30 @@ void RPCMonitorDigi::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const 
 
   numberOfDisks_ = disk_set.size();
   numberOfInnerRings_ = (*ring_set.begin());
+  
+  //Book 
+  this->bookRegionME(ibooker,noiseFolder_, regionNoiseCollection);
+  this->bookSectorRingME(ibooker,noiseFolder_, sectorRingNoiseCollection);
+  this->bookWheelDiskME(ibooker,noiseFolder_, wheelDiskNoiseCollection);
 
+  std::string currentFolder = subsystemFolder_ +"/"+noiseFolder_;
+  ibooker.setCurrentFolder(currentFolder);
+ 
+  noiseRPCEvents_ = ibooker.book1D("RPCEvents","RPCEvents", 1, 0.5, 1.5);
+  
+  if(useMuonDigis_ ){
+    this->bookRegionME(ibooker, muonFolder_, regionMuonCollection);
+    this->bookSectorRingME(ibooker, muonFolder_, sectorRingMuonCollection);
+    this->bookWheelDiskME(ibooker, muonFolder_, wheelDiskMuonCollection);
+    
+    currentFolder = subsystemFolder_ +"/"+muonFolder_;
+    ibooker.setCurrentFolder(currentFolder); 
+   
+    muonRPCEvents_ =  ibooker.book1D("RPCEvents", "RPCEvents", 1, 0.5, 1.5);
+    NumberOfMuon_ = ibooker.book1D("NumberOfMuons", "Number of Muons", 11, -0.5, 10.5);
+    NumberOfRecHitMuon_ = ibooker.book1D("NumberOfRecHitMuons", "Number of RPC RecHits per Muon", 8, -0.5, 7.5);
+  }
+   
   //Clear flags;
   dcs_ = true;
 }

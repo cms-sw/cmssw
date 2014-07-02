@@ -112,12 +112,16 @@ workflows[5.7] = ['H130GGgluonfusion', ['H130GGgluonfusionFS','HARVESTFS']]
 
 ### fastsim_13 TeV ###
 workflows[135.1] = ['TTbar_13', ['TTbarFS_13','HARVESTUP15FS']]
+workflows[135.2] = ['SingleMuPt10', ['SingleMuPt10FS_UP15','HARVESTUP15FS']]
+workflows[135.3] = ['SingleMuPt100', ['SingleMuPt100FS_UP15','HARVESTUP15FS']]
 workflows[135.4] = ['ZEE_13', ['ZEEFS_13','HARVESTUP15FS']]
 workflows[135.5] = ['ZTT_13',['ZTTFS_13','HARVESTUP15FS']]
 
 workflows[135.6]  = ['QCD_FlatPt_15_3000_13', ['QCDFlatPt153000FS_13','HARVESTUP15FS']]
 workflows[135.7] = ['H130GGgluonfusion_13', ['H130GGgluonfusionFS_13','HARVESTUP15FS']]
 
+### MinBias fastsim_13 TeV for mixing ###
+workflows[135.8] = ['',['MinBiasFS_13_ForMixing']]
 
 ### standard set ###
 ## particle guns
@@ -161,7 +165,9 @@ workflows[31] = ['', ['ZTT','DIGI','RECO','HARVEST']]
 workflows[32] = ['', ['H130GGgluonfusion','DIGI','RECO','HARVEST']]
 workflows[33] = ['', ['PhotonJets_Pt_10','DIGI','RECO','HARVEST']]
 workflows[34] = ['', ['QQH1352T_Tauola','DIGI','RECO','HARVEST']]
+workflows[46] = ['', ['ZmumuJets_Pt_20_300']]
 
+# wip gen-sim being made in 71x_pre7: GF wf uncomment once available 
 workflows[7]  = ['', ['Cosmics','DIGICOS','RECOCOS','ALCACOS','HARVESTCOS']]
 workflows[8]  = ['', ['BeamHalo','DIGICOS','RECOCOS','ALCABH','HARVESTCOS']]
 workflows[11] = ['', ['MinBias','DIGI','RECOMIN','HARVEST','ALCAMIN']]
@@ -195,7 +201,9 @@ workflows[1331] = ['', ['ZTT_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1332] = ['', ['H130GGgluonfusion_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1333] = ['', ['PhotonJets_Pt_10_13','DIGIUP15','RECOUP15','HARVESTUP15']]
 workflows[1334] = ['', ['QQH1352T_Tauola_13','DIGIUP15','RECOUP15','HARVESTUP15']]
+workflows[1346] = ['', ['ZmumuJets_Pt_20_300_13']]
 
+workflows[1307]  = ['', ['Cosmics_UP15','DIGIHAL','RECOHAL','ALCAHAL','HARVESTHAL']]
 workflows[1308]  = ['', ['BeamHalo_13','DIGIHAL','RECOHAL','ALCAHAL','HARVESTHAL']]
 workflows[1311] = ['', ['MinBias_13','DIGIUP15','RECOMINUP15','HARVESTUP15','ALCAMIN']]
 workflows[1328] = ['', ['QCD_Pt_80_120_13','DIGIUP15','RECOUP15','HARVESTUP15']]

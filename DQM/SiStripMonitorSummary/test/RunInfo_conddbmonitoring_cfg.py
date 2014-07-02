@@ -90,6 +90,10 @@ process.source = cms.Source("EmptyIOVSource",
     interval = cms.uint64(1)
 )
 
+# the DB Geometry is NOT used because in this cfg only one tag is taken from the DB and no GT is used. To be fixed if this is a problem
+process.load('Configuration.Geometry.GeometryExtended_cff')
+process.TrackerTopologyEP = cms.ESProducer("TrackerTopologyEP")
+
 process.poolDBESSourceRunInfo = cms.ESSource("PoolDBESSource",
    BlobStreamerName = cms.untracked.string('TBufferBlobStreamingService'),
    DBParameters = cms.PSet(
@@ -134,6 +138,7 @@ process.CondDataMonitoring.MonitorSiStripQuality       = True
 process.CondDataMonitoring.MonitorSiStripCabling       = False
 process.CondDataMonitoring.MonitorSiStripApvGain       = False
 process.CondDataMonitoring.MonitorSiStripLorentzAngle  = False
+process.CondDataMonitoring.MonitorSiStripBackPlaneCorrection  = False
 process.CondDataMonitoring.MonitorSiStripLowThreshold  = False
 process.CondDataMonitoring.MonitorSiStripHighThreshold = False
 process.CondDataMonitoring.OutputMEsInRootFile         = True
@@ -157,6 +162,7 @@ process.CondDataMonitoring.SiStripNoisesDQM_PSet.CondObj_fillId        = 'onlyCu
 process.CondDataMonitoring.SiStripQualityDQM_PSet.CondObj_fillId       = 'onlyProfile'
 process.CondDataMonitoring.SiStripApvGainsDQM_PSet.CondObj_fillId      = 'ProfileAndCumul'
 process.CondDataMonitoring.SiStripLorentzAngleDQM_PSet.CondObj_fillId  = 'ProfileAndCumul'
+process.CondDataMonitoring.SiStripBackPlaneCorrectionDQM_PSet.CondObj_fillId  = 'ProfileAndCumul'
 process.CondDataMonitoring.SiStripLowThresholdDQM_PSet.CondObj_fillId  = 'onlyProfile'
 process.CondDataMonitoring.SiStripHighThresholdDQM_PSet.CondObj_fillId = 'onlyProfile'
 
@@ -191,6 +197,11 @@ process.CondDataMonitoring.SiStripLorentzAngleDQM_PSet.TkMap_On     = True
 process.CondDataMonitoring.SiStripLorentzAngleDQM_PSet.TkMapName    = 'LorentzAngleTkMap.png'
 process.CondDataMonitoring.SiStripLorentzAngleDQM_PSet.minValue     = 0.01
 process.CondDataMonitoring.SiStripLorentzAngleDQM_PSet.maxValue     = 0.03
+
+process.CondDataMonitoring.SiStripBackPlaneCorrectionDQM_PSet.TkMap_On     = True
+process.CondDataMonitoring.SiStripBackPlaneCorrectionDQM_PSet.TkMapName    = 'BackPlaneCorrectionTkMap.png'
+process.CondDataMonitoring.SiStripBackPlaneCorrectionDQM_PSet.minValue     = 0.00
+process.CondDataMonitoring.SiStripBackPlaneCorrectionDQM_PSet.maxValue     = 0.10
 
 process.CondDataMonitoring.SiStripLowThresholdDQM_PSet.TkMap_On     = True
 process.CondDataMonitoring.SiStripLowThresholdDQM_PSet.TkMapName     = 'LowThresholdTkMap.png'

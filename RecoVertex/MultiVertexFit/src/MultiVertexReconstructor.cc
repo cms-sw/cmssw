@@ -10,12 +10,14 @@ namespace {
     return 0;
   }
 
+#ifndef __clang__
   inline void remove ( vector < TransientVertex > & vtces,
                 const vector < reco::TransientTrack > & trks )
   {
     cout << "[MultiVertexReconstructor] fixme remove not yet implemented" << endl;
     // remove trks from vtces
   }
+#endif
 
   vector < vector < TrackAndWeight > > recover (
       const vector < TransientVertex > & vtces, const vector < reco::TransientTrack > & trks )

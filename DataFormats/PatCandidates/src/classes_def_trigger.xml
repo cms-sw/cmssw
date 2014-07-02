@@ -24,8 +24,9 @@
   <class name="std::map&lt;std::string, edm::RefProd&lt;edm::Association&lt;std::vector&lt;pat::TriggerObject&gt; &gt; &gt; &gt;::const_iterator" />
   <class name="edm::Wrapper&lt;std::map&lt;std::string, edm::RefProd&lt;edm::Association&lt;std::vector&lt;pat::TriggerObject&gt; &gt; &gt; &gt; &gt;" />
 
-  <class name="pat::TriggerObjectStandAlone"  ClassVersion="10">
+  <class name="pat::TriggerObjectStandAlone"  ClassVersion="11">
    <version ClassVersion="10" checksum="3478292234"/>
+   <version ClassVersion="11" checksum="167266363"/>
   </class>
   <class name="std::vector&lt;pat::TriggerObjectStandAlone&gt;" />
   <class name="std::vector&lt;pat::TriggerObjectStandAlone&gt;::const_iterator" />
@@ -95,6 +96,16 @@
    <version ClassVersion="10" checksum="174329539"/>
   </class>
   <class name="edm::Wrapper&lt;pat::TriggerEvent&gt;" />
+
+  <class name="pat::PackedTriggerPrescales"  ClassVersion="10">
+   <version ClassVersion="10" checksum="2688342584"/>
+   <field name="triggerNames_" transient="true" />
+  </class>
+  <ioread sourceClass="pat::PackedTriggerPrescales"  version="[1-]" targetClass="pat::PackedTriggerPrescales" source="" target="triggerNames_">
+    <![CDATA[triggerNames_ = 0; ]]>
+  </ioread>
+  <class name="edm::Wrapper&lt;pat::PackedTriggerPrescales&gt;" />
+ 
 
   <class pattern="std::iterator&lt;std::random_access_iterator_tag,edm::Ref&lt;std::vector&lt;pat::TriggerPath&gt;,pat::TriggerPath,edm::refhelper::FindUsingAdvance&lt;std::vector&lt;pat::TriggerPath&gt;,pat::TriggerPath&gt; &gt;,*,edm::Ref&lt;std::vector&lt;pat::TriggerPath&gt;,pat::TriggerPath,edm::refhelper::FindUsingAdvance&lt;std::vector&lt;pat::TriggerPath&gt;,pat::TriggerPath&gt; &gt;*,edm::Ref&lt;std::vector&lt;pat::TriggerPath&gt;,pat::TriggerPath,edm::refhelper::FindUsingAdvance&lt;std::vector&lt;pat::TriggerPath&gt;,pat::TriggerPath&gt; &gt;&amp;&gt;"/>
   <class pattern="std::iterator&lt;std::random_access_iterator_tag,edm::Ref&lt;std::vector&lt;pat::TriggerObjectStandAlone&gt;,pat::TriggerObjectStandAlone,edm::refhelper::FindUsingAdvance&lt;std::vector&lt;pat::TriggerObjectStandAlone&gt;,pat::TriggerObjectStandAlone&gt; &gt;,*,edm::Ref&lt;std::vector&lt;pat::TriggerObjectStandAlone&gt;,pat::TriggerObjectStandAlone,edm::refhelper::FindUsingAdvance&lt;std::vector&lt;pat::TriggerObjectStandAlone&gt;,pat::TriggerObjectStandAlone&gt; &gt;*,edm::Ref&lt;std::vector&lt;pat::TriggerObjectStandAlone&gt;,pat::TriggerObjectStandAlone,edm::refhelper::FindUsingAdvance&lt;std::vector&lt;pat::TriggerObjectStandAlone&gt;,pat::TriggerObjectStandAlone&gt; &gt;&amp;&gt;"/>

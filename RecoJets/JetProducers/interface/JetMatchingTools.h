@@ -19,6 +19,7 @@ namespace reco {
   class CaloJet;
   class GenJet;
 }
+
 class CaloTower;
 class CaloRecHit;
 class DetId;
@@ -26,13 +27,24 @@ class PCaloHit;
 
 class JetMatchingTools {
  public:
+  struct JetConstituent {
+    DetId id;
+    double energy;
+
+    JetConstituent() {}
+    ~JetConstituent() {}
+    JetConstituent(const JetConstituent &j) : id(j.id), energy(j.energy) {}
+    JetConstituent(const EcalRecHit &ehit) : id(ehit.detid()), energy(ehit.energy()) {}
+    JetConstituent(const CaloRecHit &ehit) : id(ehit.detid()), energy(ehit.energy()) {}
+  };
+
   JetMatchingTools (const edm::Event& fEvent, edm::ConsumesCollector&& iC );
   ~JetMatchingTools ();
 
   /// get towers contributing to CaloJet
   std::vector <const CaloTower*> getConstituents (const reco::CaloJet& fJet ) ;
   /// get CaloRecHits contributing to the tower
-  std::vector <const CaloRecHit*> getConstituents (const CaloTower& fTower) ;
+  std::vector <JetConstituent> getConstituentHits(const CaloTower& fTower);
   /// get cells contributing to the tower
   std::vector <DetId> getConstituentIds (const CaloTower& fTower) ;
   /// get PCaloHits contributing to the detId
@@ -53,8 +65,6 @@ class JetMatchingTools {
   // reverse propagation
   /// CaloSimHits
   std::vector <const PCaloHit*> getPCaloHits (int fGeneratorId);
-  /// CaloRecHits
-  std::vector <const CaloRecHit*> getCaloRecHits (int fGeneratorId);
   /// CaloTowers
   std::vector <const CaloTower*> getCaloTowers (int fGeneratorId);
 

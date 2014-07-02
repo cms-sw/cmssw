@@ -31,7 +31,6 @@
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/View.h"
@@ -65,6 +64,7 @@ L2MuonProducer::L2MuonProducer(const ParameterSet& parameterSet){
 
   MuonTrajectoryBuilder * trajectoryBuilder = 0;
   // instantiate the concrete trajectory builder in the Track Finder
+
   edm::ConsumesCollector  iC = consumesCollector();
   string typeOfBuilder = parameterSet.existsAs<string>("MuonTrajectoryBuilder") ? 
     parameterSet.getParameter<string>("MuonTrajectoryBuilder") : "StandAloneMuonTrajectoryBuilder";
@@ -116,7 +116,6 @@ void L2MuonProducer::produce(Event& event, const EventSetup& eventSetup){
 
   // Update the services
   theService->update(eventSetup);
-  NavigationSetter setter(*theService->muonNavigationSchool());
   
   // Reconstruct 
   LogTrace(metname)<<"Track Reconstruction"<<endl;

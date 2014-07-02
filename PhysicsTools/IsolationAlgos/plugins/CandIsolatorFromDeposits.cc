@@ -61,7 +61,7 @@ CandIsolatorFromDeposits::SingleDeposit::SingleDeposit(const edm::ParameterSet &
   vstring vetos = iConfig.getParameter< vstring >("vetos");
   reco::isodeposit::EventDependentAbsVeto *evdep;
   for (vstring::const_iterator it = vetos.begin(), ed = vetos.end(); it != ed; ++it) {
-    vetos_.push_back(IsoDepositVetoFactory::make(it->c_str(), evdep));
+    vetos_.push_back(IsoDepositVetoFactory::make(it->c_str(), evdep, iC));
     if (evdep) evdepVetos_.push_back(evdep);
   }
   std::string weight = iConfig.getParameter<std::string>("weight");

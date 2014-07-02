@@ -86,7 +86,7 @@ private:
   std::map<uint32_t, std::vector<int> > theDetIdList;
   edm::ESHandle<TrackerGeometry> pDD;
   edm::ESHandle<MagneticField> pSetup;
-  std::map<unsigned int, StripGeomDetUnit*> detectorUnits;
+  std::map<unsigned int, StripGeomDetUnit const *> detectorUnits;
   std::vector<CLHEP::HepRandomEngine*> randomEngines_;
 };
 

@@ -18,7 +18,6 @@ class BasePartonSelector
 
     virtual void run(const edm::Handle<reco::GenParticleCollection> & particles,
                      std::auto_ptr<reco::GenParticleRefVector> & partons);
-    bool isParton(const reco::Candidate* const cand);
 };
 
 #endif

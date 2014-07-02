@@ -24,8 +24,9 @@
 #include <cstdlib>
 
 // user include files
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -91,7 +92,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -129,7 +130,7 @@ class MuonServiceProxy;
 
 namespace reco
 {
-class CSCHaloDataProducer : public edm::EDProducer {
+class CSCHaloDataProducer : public edm::stream::EDProducer<> {
     
   public:
     explicit CSCHaloDataProducer(const edm::ParameterSet&);
@@ -163,7 +164,15 @@ class CSCHaloDataProducer : public edm::EDProducer {
     edm::InputTag IT_Muon;
     edm::InputTag IT_SA;
 
-
+    // TOKENS
+    edm::EDGetTokenT<reco::MuonCollection> cosmicmuon_token_;
+    edm::EDGetTokenT<reco::MuonTimeExtraMap> csctimemap_token_;
+    edm::EDGetTokenT<reco::MuonCollection> muon_token_;
+    edm::EDGetTokenT<CSCSegmentCollection> cscsegment_token_;
+    edm::EDGetTokenT<CSCRecHit2DCollection> cscrechit_token_;
+    edm::EDGetTokenT<CSCALCTDigiCollection> cscalct_token_;
+    edm::EDGetTokenT<L1MuGMTReadoutCollection> l1mugmtro_token_;
+    edm::EDGetTokenT<edm::TriggerResults> hltresult_token_;
   };
 }
 

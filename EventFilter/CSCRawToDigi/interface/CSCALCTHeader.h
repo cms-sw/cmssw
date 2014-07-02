@@ -38,7 +38,7 @@ class CSCALCTHeader {
   enum FIFO_MODE {NO_DUMP, FULL_DUMP, LOCAL_DUMP};
   unsigned short int FIFOMode()       const {return header2006.fifoMode;} 
   unsigned short int NTBins()         const {
-    switch (firmwareVersion)
+    switch (firmwareVersion.load())
       {
       case 2006:
         return header2006.nTBins;
@@ -54,7 +54,7 @@ class CSCALCTHeader {
   unsigned short int ExtTrig()        const {return header2006.extTrig;}
   unsigned short int CSCID()          const {return header2006.cscID;}
   unsigned short int BXNCount()       const {
-    switch (firmwareVersion)
+    switch (firmwareVersion.load())
       {
       case 2006:
         return header2006.bxnCount;
@@ -67,7 +67,7 @@ class CSCALCTHeader {
       }
   }
   unsigned short int L1Acc()          const {
-    switch (firmwareVersion)
+    switch (firmwareVersion.load())
       {
       case 2006:
         return header2006.l1Acc;
@@ -97,7 +97,7 @@ class CSCALCTHeader {
  
   /// in 16-bit words
   int sizeInWords() {
-    switch (firmwareVersion)
+    switch (firmwareVersion.load())
       {
       case 2006:
         return 8;
@@ -111,7 +111,7 @@ class CSCALCTHeader {
   }
   
   bool check() const {
-    switch (firmwareVersion)
+    switch (firmwareVersion.load())
       {
       case 2006:
 	return header2006.flag_0 == 0xC;

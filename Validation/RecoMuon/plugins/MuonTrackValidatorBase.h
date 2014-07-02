@@ -2,9 +2,9 @@
 #define MuonTrackValidatorBase_h
 
 /** \class MuonTrackValidatorBase
- *  Base class for analyzers that produces histograms to validate Muon Track Reconstruction performances
- *
- */
+* Base class for analyzers that produces histograms to validate Muon Track Reconstruction performances
+*
+*/
 
 #include <memory>
 
@@ -13,8 +13,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
-#include "MagneticField/Engine/interface/MagneticField.h" 
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
@@ -22,7 +22,7 @@
 
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
+
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -36,6 +36,7 @@
 #include <TH1F.h>
 #include <TH2F.h>
 
+class DQMStore;
 class MuonTrackValidatorBase {
  public:
   /// Constructor
@@ -57,7 +58,7 @@ class MuonTrackValidatorBase {
     label_tp_effic(pset.getParameter< edm::InputTag >("label_tp_effic")),
     label_tp_fake(pset.getParameter< edm::InputTag >("label_tp_fake")),
     associators(pset.getParameter< std::vector<std::string> >("associators")),
-    out(pset.getParameter<std::string>("outputFile")),   
+    out(pset.getParameter<std::string>("outputFile")),
     parametersDefiner(pset.getParameter<std::string>("parametersDefiner")),
     min(pset.getParameter<double>("min")),
     max(pset.getParameter<double>("max")),
@@ -149,17 +150,17 @@ class MuonTrackValidatorBase {
     double value,err;
     for (unsigned int j=0; j<numerator.size(); j++){
       if (denominator[j]!=0){
-	if (type=="effic")
-	  value = ((double) numerator[j])/((double) denominator[j]);
-	else if (type=="fakerate")
-	  value = 1-((double) numerator[j])/((double) denominator[j]);
-	else return;
-	err = sqrt( value*(1-value)/(double) denominator[j] );
-	h->setBinContent(j+1, value);
-	h->setBinError(j+1,err);
+if (type=="effic")
+value = ((double) numerator[j])/((double) denominator[j]);
+else if (type=="fakerate")
+value = 1-((double) numerator[j])/((double) denominator[j]);
+else return;
+err = sqrt( value*(1-value)/(double) denominator[j] );
+h->setBinContent(j+1, value);
+h->setBinError(j+1,err);
       }
       else {
-	h->setBinContent(j+1, 0);
+h->setBinContent(j+1, 0);
       }
     }
   }
@@ -191,18 +192,18 @@ class MuonTrackValidatorBase {
     std::vector<double> dzintervalsv;
     std::vector<double> vertposintervalsv;
     std::vector<double> zposintervalsv;
-    std::vector<int>    totSIMveta,totASSveta,totASS2veta,totRECveta;
-    std::vector<int>    totSIMvpT,totASSvpT,totASS2vpT,totRECvpT;
-    std::vector<int>    totSIMv_hit,totASSv_hit,totASS2v_hit,totRECv_hit;
-    std::vector<int>    totSIMv_phi,totASSv_phi,totASS2v_phi,totRECv_phi;
-    std::vector<int>    totSIMv_dxy,totASSv_dxy,totASS2v_dxy,totRECv_dxy;
-    std::vector<int>    totSIMv_dz,totASSv_dz,totASS2v_dz,totRECv_dz;
-    std::vector<int>    totSIMv_vertpos,totASSv_vertpos,totSIMv_zpos,totASSv_zpos; 
+    std::vector<int> totSIMveta,totASSveta,totASS2veta,totRECveta;
+    std::vector<int> totSIMvpT,totASSvpT,totASS2vpT,totRECvpT;
+    std::vector<int> totSIMv_hit,totASSv_hit,totASS2v_hit,totRECv_hit;
+    std::vector<int> totSIMv_phi,totASSv_phi,totASS2v_phi,totRECv_phi;
+    std::vector<int> totSIMv_dxy,totASSv_dxy,totASS2v_dxy,totRECv_dxy;
+    std::vector<int> totSIMv_dz,totASSv_dz,totASS2v_dz,totRECv_dz;
+    std::vector<int> totSIMv_vertpos,totASSv_vertpos,totSIMv_zpos,totASSv_zpos;
 
     // for muon Validation
-    std::vector<int>    totASSveta_Quality05, totASSveta_Quality075;
-    std::vector<int>    totASSvpT_Quality05, totASSvpT_Quality075;
-    std::vector<int>    totASSv_phi_Quality05, totASSv_phi_Quality075;
+    std::vector<int> totASSveta_Quality05, totASSveta_Quality075;
+    std::vector<int> totASSvpT_Quality05, totASSvpT_Quality075;
+    std::vector<int> totASSv_phi_Quality05, totASSv_phi_Quality075;
 
     double step=(max-min)/nint;
     std::ostringstream title,name;
@@ -217,7 +218,7 @@ class MuonTrackValidatorBase {
       //
       totASSveta_Quality05.push_back(0);
       totASSveta_Quality075.push_back(0);
-    }   
+    }
     etaintervals.push_back(etaintervalsv);
     totSIMeta.push_back(totSIMveta);
     totASSeta.push_back(totASSveta);
@@ -248,7 +249,7 @@ class MuonTrackValidatorBase {
     totASS2pT.push_back(totASS2vpT);
     totRECpT.push_back(totRECvpT);
     //
-    totASSpT_Quality05.push_back(totASSvpT_Quality05); 
+    totASSpT_Quality05.push_back(totASSvpT_Quality05);
     totASSpT_Quality075.push_back(totASSvpT_Quality075);
 
     for (int k=1;k<nintHit+1;k++) {
@@ -361,7 +362,7 @@ class MuonTrackValidatorBase {
   edm::EDGetTokenT<TrackingParticleCollection> tp_effic_Token;
   edm::EDGetTokenT<TrackingParticleCollection> tp_fake_Token;
        
-  double  min, max;
+  double min, max;
   int nint;
   bool useFabs;
   double minpT, maxpT;
@@ -381,7 +382,7 @@ class MuonTrackValidatorBase {
   bool useInvPt;
   //
   double ptRes_rangeMin,ptRes_rangeMax,
-    phiRes_rangeMin,phiRes_rangeMax, cotThetaRes_rangeMin,cotThetaRes_rangeMax,    
+    phiRes_rangeMin,phiRes_rangeMax, cotThetaRes_rangeMin,cotThetaRes_rangeMax,
     dxyRes_rangeMin,dxyRes_rangeMax, dzRes_rangeMin,dzRes_rangeMax;
   int ptRes_nbin, cotThetaRes_nbin, phiRes_nbin, dxyRes_nbin, dzRes_nbin;
   bool ignoremissingtkcollection_;
@@ -409,7 +410,7 @@ class MuonTrackValidatorBase {
   std::vector<MonitorElement*> h_assocphi_Quality05, h_assocphi_Quality075;
 
 
-  //2D  
+  //2D
   std::vector<MonitorElement*> nrec_vs_nsim;
   std::vector<MonitorElement*> nrecHit_vs_nsimHit_sim2rec;
   std::vector<MonitorElement*> nrecHit_vs_nsimHit_rec2sim;
@@ -418,7 +419,7 @@ class MuonTrackValidatorBase {
   std::vector<MonitorElement*> h_assocFraction, h_assocSharedHit;
 
   //#hit vs eta: to be used with doProfileX
-  std::vector<MonitorElement*> nhits_vs_eta, 
+  std::vector<MonitorElement*> nhits_vs_eta,
     nDThits_vs_eta,nCSChits_vs_eta,nRPChits_vs_eta;
 
   std::vector<MonitorElement*> h_hits_eta,

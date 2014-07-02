@@ -18,7 +18,7 @@ namespace TopSingleLepton {
   // be used for the top mass estimate
   static const double WMASS = 80.4;
 
-  MonitorEnsemble::MonitorEnsemble(const char* label, const edm::ParameterSet& cfg, edm::ConsumesCollector && iC) : 
+  MonitorEnsemble::MonitorEnsemble(const char* label, const edm::ParameterSet& cfg, edm::ConsumesCollector && iC) :
     label_(label), elecIso_(0), elecSelect_(0), pvSelect_(0), muonIso_(0), muonSelect_(0), jetIDSelect_(0), includeBTag_(false), lowerEdge_(-1.), upperEdge_(-1.), logged_(0)
   {
     // sources have to be given; this PSet is not optional
@@ -28,8 +28,8 @@ namespace TopSingleLepton {
     pvs_ = iC.consumes<edm::View<reco::Vertex> >(sources.getParameter<edm::InputTag>("pvs"));
     jets_ = iC.consumes<edm::View<reco::Jet> >(sources.getParameter<edm::InputTag>("jets"));
     for (edm::InputTag const & tag : sources.getParameter<std::vector<edm::InputTag> >("mets"))
-	    mets_.push_back( iC.consumes<edm::View<reco::MET> >(tag) );	
-    // electronExtras are optional; they may be omitted or 
+	    mets_.push_back( iC.consumes<edm::View<reco::MET> >(tag) );
+    // electronExtras are optional; they may be omitted or
     // empty
     if( cfg.existsAs<edm::ParameterSet>("elecExtras") ){
       edm::ParameterSet elecExtras=cfg.getParameter<edm::ParameterSet>("elecExtras");
@@ -188,7 +188,7 @@ namespace TopSingleLepton {
     // W mass estimate
     hists_["massW_"      ] = store_->book1D("MassW"      , "M(W)"             ,     60,     0.,    300.);
     // Top mass estimate
-    hists_["massTop_"    ] = store_->book1D("MassTop"    , "M(Top)"           ,     50,     0.,    500.);   
+    hists_["massTop_"    ] = store_->book1D("MassTop"    , "M(Top)"           ,     50,     0.,    500.);
     // b-tagged Top mass
     hists_["massBTop_"   ] = store_->book1D("MassBTop"   , "M(Top, 1 b-tag)"  ,     50,     0.,    500.);
     // set bin labels for trigger monitoring
@@ -206,23 +206,23 @@ namespace TopSingleLepton {
     // std isolation variable of the leading electron
     hists_["elecRelIso_" ] = store_->book1D("ElecRelIso" , "Iso_{Rel}(e)"     ,     50,     0.,      1.);
     // multiplicity of btagged jets (for track counting high efficiency) with pt(L2L3)>30
-    hists_["jetMultBEff_"] = store_->book1D("JetMultBEff", "N_{30}(TCHE)"    ,     10,     0.,     10.);   
+    hists_["jetMultBEff_"] = store_->book1D("JetMultBEff", "N_{30}(TCHE)"    ,     10,     0.,     10.);
     // btag discriminator for track counting high efficiency for jets with pt(L2L3)>30
-    hists_["jetBDiscEff_"] = store_->book1D("JetBDiscEff", "Disc_{TCHE}(jet)",     100,     0.,    10.);   
+    hists_["jetBDiscEff_"] = store_->book1D("JetBDiscEff", "Disc_{TCHE}(jet)",     100,     0.,    10.);
     // eta of the 1. leading jet (corrected to L2+L3)
-    hists_["jet1Eta_"    ] = store_->book1D("Jet1Eta"    , "#eta_{L2L3}(jet1)",     60,     -3.,     3.);   
+    hists_["jet1Eta_"    ] = store_->book1D("Jet1Eta"    , "#eta_{L2L3}(jet1)",     60,     -3.,     3.);
     // pt of the 1. leading jet (corrected to L2+L3)
-    hists_["jet1Pt_"     ] = store_->book1D("Jet1Pt"     , "pt_{L2L3}(jet1)"  ,     60,     0.,    300.);   
+    hists_["jet1Pt_"     ] = store_->book1D("Jet1Pt"     , "pt_{L2L3}(jet1)"  ,     60,     0.,    300.);
    // eta of the 2. leading jet (corrected to L2+L3)
-    hists_["jet2Eta_"    ] = store_->book1D("Jet2Eta"    , "#eta_{L2L3}(jet2)",     60,     -3.,     3.);   
+    hists_["jet2Eta_"    ] = store_->book1D("Jet2Eta"    , "#eta_{L2L3}(jet2)",     60,     -3.,     3.);
     // pt of the 2. leading jet (corrected to L2+L3)
-    hists_["jet2Pt_"     ] = store_->book1D("Jet2Pt"     , "pt_{L2L3}(jet2)"  ,     60,     0.,    300.);   
+    hists_["jet2Pt_"     ] = store_->book1D("Jet2Pt"     , "pt_{L2L3}(jet2)"  ,     60,     0.,    300.);
    // eta of the 3. leading jet (corrected to L2+L3)
-    hists_["jet3Eta_"    ] = store_->book1D("Jet3Eta"    , "#eta_{L2L3}(jet3)",     60,     -3.,     3.);   
+    hists_["jet3Eta_"    ] = store_->book1D("Jet3Eta"    , "#eta_{L2L3}(jet3)",     60,     -3.,     3.);
     // pt of the 3. leading jet (corrected to L2+L3)
-    hists_["jet3Pt_"     ] = store_->book1D("Jet3Pt"     , "pt_{L2L3}(jet3)"  ,     60,     0.,    300.);   
+    hists_["jet3Pt_"     ] = store_->book1D("Jet3Pt"     , "pt_{L2L3}(jet3)"  ,     60,     0.,    300.);
    // eta of the 4. leading jet (corrected to L2+L3)
-    hists_["jet4Eta_"    ] = store_->book1D("Jet4Eta"    , "#eta_{L2L3}(jet4)",     60,     -3.,     3.);   
+    hists_["jet4Eta_"    ] = store_->book1D("Jet4Eta"    , "#eta_{L2L3}(jet4)",     60,     -3.,     3.);
     // pt of the 4. leading jet (corrected to L2+L3)
     hists_["jet4Pt_"     ] = store_->book1D("Jet4Pt"     , "pt_{L2L3}(jet4)"  ,     60,     0.,    300.);
     // MET (tc)
@@ -249,13 +249,13 @@ namespace TopSingleLepton {
     // relative electron isolation in ecal+hcal for the leading electron
     hists_["elecCalIso_" ] = store_->book1D("ElecCalIso" , "Iso_{Ecal}(e)"    ,     50,     0.,      1.);
     // multiplicity of btagged jets (for track counting high purity) with pt(L2L3)>30
-    hists_["jetMultBPur_"] = store_->book1D("JetMultBPur", "N_{30}(TCHP)"    ,     10,     0.,     10.);   
+    hists_["jetMultBPur_"] = store_->book1D("JetMultBPur", "N_{30}(TCHP)"    ,     10,     0.,     10.);
     // btag discriminator for track counting high purity
-    hists_["jetBDiscPur_"] = store_->book1D("JetBDiscPur", "Disc_{TCHP}(Jet)",    100,     0.,    10.);   
+    hists_["jetBDiscPur_"] = store_->book1D("JetBDiscPur", "Disc_{TCHP}(Jet)",    100,     0.,    10.);
     // multiplicity of btagged jets (for simple secondary vertex) with pt(L2L3)>30
-    hists_["jetMultBVtx_"] = store_->book1D("JetMultBVtx", "N_{30}(SSVHE)"    ,    10,     0.,     10.);   
+    hists_["jetMultBVtx_"] = store_->book1D("JetMultBVtx", "N_{30}(SSVHE)"    ,    10,     0.,     10.);
     // btag discriminator for simple secondary vertex
-    hists_["jetBDiscVtx_"] = store_->book1D("JetBDiscVtx", "Disc_{SSVHE}(Jet)",    35,    -1.,      6.);   
+    hists_["jetBDiscVtx_"] = store_->book1D("JetBDiscVtx", "Disc_{SSVHE}(Jet)",    35,    -1.,      6.);
     // multiplicity for combined secondary vertex
     hists_["jetMultCSVtx_"]= store_->book1D("JetMultCSV" , "N_{30}(CSV)"     ,      10,     0.,     10.);
     // btag discriminator for combined secondary vertex
@@ -291,7 +291,7 @@ namespace TopSingleLepton {
   {
     // fetch trigger event if configured such
     edm::Handle<edm::TriggerResults> triggerTable;
-     
+
     if(!triggerTable_.isUninitialized()) {
             if( !event.getByToken(triggerTable_, triggerTable) ) return;
     }
@@ -316,18 +316,18 @@ namespace TopSingleLepton {
 
     /*
     ------------------------------------------------------------
-    
+
     Run and Inst. Luminosity information (Inst. Lumi. filled now with a dummy value=5.0)
-    
+
     ------------------------------------------------------------
     */
     if (!event.eventAuxiliary().run()) return;
-    fill("RunNumb_", event.eventAuxiliary().run());   
-    
-    double dummy=5.; fill("InstLumi_", dummy);
-     
+    fill("RunNumb_", event.eventAuxiliary().run());
 
-    /* 
+    double dummy=5.; fill("InstLumi_", dummy);
+
+
+    /*
     ------------------------------------------------------------
 
     Electron Monitoring
@@ -340,7 +340,7 @@ namespace TopSingleLepton {
     if( !event.getByToken(elecs_, elecs) ) return;
 
     // check availability of electron id
-    edm::Handle<edm::ValueMap<float> > electronId; 
+    edm::Handle<edm::ValueMap<float> > electronId;
     if(!electronId_.isUninitialized()) {
       if( !event.getByToken(electronId_, electronId) ) return;
     }
@@ -422,7 +422,7 @@ namespace TopSingleLepton {
 
     // check availability of the btaggers
     edm::Handle<reco::JetTagCollection> btagEff, btagPur, btagVtx, btagCSV;
-    if( includeBTag_ ){ 
+    if( includeBTag_ ){
       if( !event.getByToken(btagEff_, btagEff) ) return;
       if( !event.getByToken(btagPur_, btagPur) ) return;
       if( !event.getByToken(btagVtx_, btagVtx) ) return;
@@ -445,7 +445,7 @@ namespace TopSingleLepton {
 	  << "                                                                                      \n"
 	  << "  ## load jet corrections                                                             \n"
 	  << "  process.load(\"JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff\") \n"
-	  << "  process.prefer(\"ak5CaloL2L3\")                                                     \n"
+	  << "  process.prefer(\"ak4CaloL2L3\")                                                     \n"
 	  << "                                                                                      \n"
 	  << "------------------------------------------------------------------------------------- \n";
       }
@@ -455,15 +455,15 @@ namespace TopSingleLepton {
     std::vector<reco::Jet> correctedJets;
     std::vector<double> JetTagValues;
     unsigned int mult=0, multBEff=0, multBPur=0, multBVtx=0, multCSV=0;
-    
-    edm::Handle<edm::View<reco::Jet> > jets; 
+
+    edm::Handle<edm::View<reco::Jet> > jets;
     if( !event.getByToken(jets_, jets) ) {
 	//cout<<"event does not contain "<<jets_.label()<<endl;
 	return;
      }
 
-    edm::Handle<reco::JetIDValueMap> jetID; 
-    if(jetIDSelect_){ 
+    edm::Handle<reco::JetIDValueMap> jetID;
+    if(jetIDSelect_){
       if( !event.getByToken(jetIDLabel_, jetID) ) return;
     }
 
@@ -499,15 +499,15 @@ namespace TopSingleLepton {
       if( includeBTag_ ){
 	// fill b-discriminators
 	edm::RefToBase<reco::Jet> jetRef = jets->refAt(idx);
-	fill("jetBDiscEff_", (*btagEff)[jetRef]); if( (*btagEff)[jetRef]>btagEffWP_ ) ++multBEff; 
-	fill("jetBDiscPur_", (*btagPur)[jetRef]); if( (*btagPur)[jetRef]>btagPurWP_ ) ++multBPur; 
-	fill("jetBDiscVtx_", (*btagVtx)[jetRef]); if( (*btagVtx)[jetRef]>btagVtxWP_ ) ++multBVtx; 
+	fill("jetBDiscEff_", (*btagEff)[jetRef]); if( (*btagEff)[jetRef]>btagEffWP_ ) ++multBEff;
+	fill("jetBDiscPur_", (*btagPur)[jetRef]); if( (*btagPur)[jetRef]>btagPurWP_ ) ++multBPur;
+	fill("jetBDiscVtx_", (*btagVtx)[jetRef]); if( (*btagVtx)[jetRef]>btagVtxWP_ ) ++multBVtx;
         fill("jetBCVtx_"   , (*btagCSV)[jetRef]); if( (*btagCSV)[jetRef]>btagCSVWP_ ) ++multCSV;
-        
+
         //Fill a vector with Jet b-tag WP for later M3+1tag calculation: CSV tagger
         JetTagValues.push_back( (*btagCSV)[jetRef]);
       }
-      // fill pt (raw or L2L3) for the leading four jets  
+      // fill pt (raw or L2L3) for the leading four jets
       if(idx==0) {fill("jet1Pt_" , monitorJet.pt()); fill("jet1PtRaw_", jet->pt() );
                   fill("jet1Eta_", monitorJet.eta());
 		 };
@@ -526,8 +526,8 @@ namespace TopSingleLepton {
     fill("jetMultBPur_" , multBPur);
     fill("jetMultBVtx_" , multBVtx);
     fill("jetMultCSVtx_", multCSV );
-    
-    /* 
+
+    /*
     ------------------------------------------------------------
 
     MET Monitoring
@@ -556,19 +556,19 @@ namespace TopSingleLepton {
     */
 
     // fill W boson and top mass estimates
-    
+
     Calculate eventKinematics(MAXJETS, WMASS);
     double wMass   = eventKinematics.massWBoson   (correctedJets);
     double topMass = eventKinematics.massTopQuark (correctedJets);
     if(wMass>=0 && topMass>=0 ) {fill("massW_" ,   wMass  );fill("massTop_" , topMass);}
-    
+
     // Fill M3 with Btag (CSV Tight) requirement
-    
+
     if (!includeBTag_) return;
     if (correctedJets.size() != JetTagValues.size()) return;
     double btopMass= eventKinematics.massBTopQuark(correctedJets, JetTagValues, btagCSVWP_);
     if (btopMass>=0) fill("massBTop_", btopMass);
-    
+
     // fill plots for trigger monitoring
     if((lowerEdge_==-1. && upperEdge_==-1.) || (lowerEdge_<wMass && wMass<upperEdge_) ){
       if(!triggerTable_.isUninitialized()) fill(event, *triggerTable, "trigger", triggerPaths_);
@@ -593,7 +593,7 @@ namespace TopSingleLepton {
 
 
 TopSingleLeptonDQM::TopSingleLeptonDQM(const edm::ParameterSet& cfg): vertexSelect_(0), beamspot_(""), beamspotSelect_(0),
-  MuonStep(0), ElectronStep(0), PvStep(0), METStep(0) 
+  MuonStep(0), ElectronStep(0), PvStep(0), METStep(0)
 {
   JetSteps.clear();
   CaloJetSteps.clear();
@@ -604,7 +604,7 @@ TopSingleLeptonDQM::TopSingleLeptonDQM(const edm::ParameterSet& cfg): vertexSele
     edm::ParameterSet trigger=presel.getParameter<edm::ParameterSet>("trigger");
     triggerTable__ = consumes<edm::TriggerResults>(trigger.getParameter<edm::InputTag>("src"));
     triggerPaths_=trigger.getParameter<std::vector<std::string> >("select");
-  } 
+  }
   /*if( presel.existsAs<edm::ParameterSet>("vertex" ) ){
     edm::ParameterSet vertex=presel.getParameter<edm::ParameterSet>("vertex");
     vertex_= vertex.getParameter<edm::InputTag>("src");
@@ -628,7 +628,7 @@ TopSingleLeptonDQM::TopSingleLeptonDQM(const edm::ParameterSet& cfg): vertexSele
     if(selection_.find(key)!=selection_.end()){
       if(type=="muons"){
 		MuonStep = new SelectionStep<reco::Muon>(selection_[key].first, consumesCollector());
-      } 
+      }
       if(type=="elecs"){
       		ElectronStep = new SelectionStep<reco::GsfElectron>(selection_[key].first, consumesCollector());
       }
@@ -646,17 +646,17 @@ TopSingleLeptonDQM::TopSingleLeptonDQM(const edm::ParameterSet& cfg): vertexSele
       }
       if(type=="met"){
 		METStep = new SelectionStep<reco::MET>(selection_[key].first, consumesCollector());
-      } 
+      }
     }
   }
 }
 
 void
 TopSingleLeptonDQM::analyze(const edm::Event& event, const edm::EventSetup& setup)
-{ 
+{
   if(!triggerTable__.isUninitialized() ){
     edm::Handle<edm::TriggerResults> triggerTable;
-    if(!event.getByToken(triggerTable__, triggerTable)) return;	
+    if(!event.getByToken(triggerTable__, triggerTable)) return;
     if(!accept(event, *triggerTable, triggerPaths_)) return;
   }
   if(!beamspot__.isUninitialized()){

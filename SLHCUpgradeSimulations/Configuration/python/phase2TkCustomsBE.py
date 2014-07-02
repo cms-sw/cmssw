@@ -168,8 +168,8 @@ def customise_Reco(process,pileup):
         TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelPairs'),
         skipClusters = cms.InputTag("pixelPairStepClusters"),
     )
-    process.regionalCosmicTrackerSeeds.OrderedHitsFactoryPSet.LayerPSet.layerList  = cms.vstring('BPix10+BPix9')  # Optimize later
-    process.regionalCosmicTrackerSeeds.OrderedHitsFactoryPSet.LayerPSet.BPix = cms.PSet(
+    process.regionalCosmicTrackerSeedingLayers.layerList  = cms.vstring('BPix10+BPix9')  # Optimize later
+    process.regionalCosmicTrackerSeedingLayers.BPix = cms.PSet(
         HitProducer = cms.string('siPixelRecHits'),
         TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelPairs'),
         skipClusters = cms.InputTag("pixelPairStepClusters"),
@@ -311,7 +311,6 @@ def customise_Validation(process):
     return process
 
 def customise_harvesting(process):
-    process.dqmHarvesting.remove(process.jetMETDQMOfflineClient)
     process.dqmHarvesting.remove(process.dataCertificationJetMET)
     process.dqmHarvesting.remove(process.sipixelEDAClient)
     process.dqmHarvesting.remove(process.sipixelCertification)

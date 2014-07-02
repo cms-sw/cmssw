@@ -4,8 +4,8 @@
 
 #include "EventFilter/CSCRawToDigi/interface/CSCALCTTrailer.h"
 
-bool CSCALCTTrailer::debug=false;
-short unsigned int CSCALCTTrailer::firmwareVersion=2006; 
+std::atomic<bool> CSCALCTTrailer::debug{false};
+std::atomic<short unsigned int> CSCALCTTrailer::firmwareVersion{2006}; 
 
 CSCALCTTrailer2006::CSCALCTTrailer2006() {
   bzero(this,  sizeInWords()*2); ///size of the trailer
@@ -61,7 +61,7 @@ CSCALCTTrailer::CSCALCTTrailer(const unsigned short * buf){
   }
 
   ///Now fill data 
-  switch (firmwareVersion) {
+  switch (firmwareVersion.load()) {
   case 2006:
     memcpy(&trailer2006, buf, trailer2006.sizeInWords()*2);
     break;

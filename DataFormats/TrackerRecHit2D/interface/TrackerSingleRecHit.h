@@ -4,6 +4,7 @@
 
 #include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/OmniClusterRef.h"
+#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 
 
 /*  a Hit composed by a "single" measurement
@@ -19,8 +20,6 @@ public:
   
   typedef OmniClusterRef::ClusterPixelRef ClusterPixelRef;
   typedef OmniClusterRef::ClusterStripRef ClusterStripRef;
-  typedef OmniClusterRef::ClusterRegionalRef ClusterRegionalRef;
-
 
   // no position (as in persistent)
   TrackerSingleRecHit(DetId id,
@@ -29,8 +28,20 @@ public:
   
   template<typename CluRef>
   TrackerSingleRecHit(const LocalPoint& p, const LocalError& e,
-		      DetId id, GeomDet const * idet,
-		      CluRef const&  clus) : Base(p,e,id, idet, trackerHitRTTI::single), cluster_(clus){}
+		      GeomDet const & idet,
+		      CluRef const&  clus) : Base(p,e,idet, trackerHitRTTI::single), cluster_(clus){}
+
+  // for projected...
+  template<typename CluRef>
+  TrackerSingleRecHit(const LocalPoint& p, const LocalError& e,
+		      GeomDet const & idet, trackerHitRTTI::RTTI rt,
+		      CluRef const&  clus) : Base(p,e,idet, rt), cluster_(clus){}
+
+
+  // a single hit is on a detunit
+  const GeomDetUnit* detUnit() const {
+    return static_cast<const GeomDetUnit*>(det());
+  }
 
   
   // used by trackMerger (to be improved)
@@ -50,18 +61,18 @@ public:
     return cluster_.cluster_strip();
   }
   
-  ClusterRegionalRef cluster_regional()  const { 
-    return cluster_.cluster_regional();
-  }
-
   SiStripCluster const & stripCluster() const { 
     return cluster_.stripCluster();
   }  
 
+  SiPixelCluster const & pixelCluster() const {
+    return cluster_.pixelCluster();
+  }
+
+
   // void setClusterRef(const &  OmniClusterRef ref) {  cluster_ =ref;}
   void setClusterPixelRef(ClusterPixelRef const & ref) {  cluster_ = OmniClusterRef(ref); }
   void setClusterStripRef(ClusterStripRef const & ref) {  cluster_ = OmniClusterRef(ref); }
-  void setClusterRegionalRef(ClusterRegionalRef const & ref) { cluster_ = OmniClusterRef(ref); }
 
 
 

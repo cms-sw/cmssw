@@ -290,15 +290,15 @@ double PFRecoTauDiscriminationAgainstElectronMVA5GBR::discriminate(const PFTauRe
   }
 
   if ( verbosity_ ) {
-    std::cout<<" Taus : "<<TauProducer_<<std::endl;
-    std::cout << "<PFRecoTauDiscriminationAgainstElectronMVA5::discriminate>:" << std::endl;
-    std::cout << " tau: Pt = " << thePFTauRef->pt() << ", eta = " << thePFTauRef->eta() << ", phi = " << thePFTauRef->phi() << std::endl;
-    std::cout << " mva = " << mva << ", mvaCut = " << mvaCutDummy << ", isGsfElectronMatched = " << isGsfElectronMatched << std::endl;
-    std::cout << " category = " << category << ": workingPoint = " << workingPoint << std::endl;
-    std::cout << " deltaREleTau = " << deltaRDummy << std::endl;
-    std::cout << " charged hadron in tau: "<<(*thePFTauRef).leadPFChargedHadrCand().isNonnull() << std::endl;
-    std::cout << " Prongs in tau: " << thePFTauRef->signalPFChargedHadrCands().size() << std::endl;
-    std::cout << " MVA GBR:" << mva << std::endl;
+    edm::LogPrint("PFTauAgainstEleMVA5") <<" Taus : "<<TauProducer_;
+    edm::LogPrint("PFTauAgainstEleMVA5") << "<PFRecoTauDiscriminationAgainstElectronMVA5::discriminate>:" ;
+    edm::LogPrint("PFTauAgainstEleMVA5") << " tau: Pt = " << thePFTauRef->pt() << ", eta = " << thePFTauRef->eta() << ", phi = " << thePFTauRef->phi() ;
+    edm::LogPrint("PFTauAgainstEleMVA5") << " mva = " << mva << ", mvaCut = " << mvaCutDummy << ", isGsfElectronMatched = " << isGsfElectronMatched ;
+    edm::LogPrint("PFTauAgainstEleMVA5") << " category = " << category << ": workingPoint = " << workingPoint ;
+    edm::LogPrint("PFTauAgainstEleMVA5") << " deltaREleTau = " << deltaRDummy ;
+    edm::LogPrint("PFTauAgainstEleMVA5") << " charged hadron in tau: "<<(*thePFTauRef).leadPFChargedHadrCand().isNonnull() ;
+    edm::LogPrint("PFTauAgainstEleMVA5") << " Prongs in tau: " << thePFTauRef->signalPFChargedHadrCands().size() ;
+    edm::LogPrint("PFTauAgainstEleMVA5") << " MVA GBR:" << mva ;
   }
 
   if ( returnMVA_ ) {

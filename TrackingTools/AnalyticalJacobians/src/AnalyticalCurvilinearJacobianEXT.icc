@@ -87,7 +87,7 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
 
   
   //   1/p - doesn't change since |p1| = |p2|
-  
+  theJacobian(0,0) = 1.;  for (auto i=1;i<5; ++i) theJacobian(0,i)=0.;
   //   lambda
   
   theJacobian(1,0) = -qp*anv*dot(t2,dx);

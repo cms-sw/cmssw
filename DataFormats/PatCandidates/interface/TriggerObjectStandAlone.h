@@ -23,7 +23,7 @@
 
 
 #include "DataFormats/PatCandidates/interface/TriggerObject.h"
-
+namespace edm { class TriggerNames; }
 
 namespace pat {
 
@@ -36,7 +36,9 @@ namespace pat {
       /// Vector of labels of all HLT filters or names od L1 conditions the trigger objects has been used in
       std::vector< std::string > filterLabels_;
       /// Vector of names of all HLT paths or L1 algorithms the trigger objects has been used in
-      std::vector< std::string > pathNames_;
+      std::vector< std::string > pathNames_;  
+      std::vector< uint16_t >    pathIndices_; 
+
       /// Vector alligned with 'pathNames_' of boolean indicating the usage of the trigger object
       /// An element is true, if the corresponding path succeeded and the trigger object was used in the last filter (HLT)
       /// or the corresponding algorithm succeeded as well as the corresponding condition (L1).
@@ -71,6 +73,9 @@ namespace pat {
       /// Check, if the usage indicator vectors have been filled
       bool hasLastFilter() const { return ( pathLastFilterAccepted_.size() > 0 && pathLastFilterAccepted_.size() == pathNames_.size() ); };
       bool hasL3Filter() const { return ( pathL3FilterAccepted_.size() > 0 && pathL3FilterAccepted_.size() == pathNames_.size() ); };
+
+      /// Check if trigger names have been packed by calling packPathNames() and not yet unpacked
+      bool checkIfPathsAreUnpacked(bool throwIfPacked=true) const ;
 
     public:
 
@@ -141,6 +146,11 @@ namespace pat {
       bool algo( const std::string & algorithmName, unsigned algoCondAccepted = 1 ) const { return hasAlgorithmName( algorithmName, bool( algoCondAccepted ) ); };
       /// Calls 'hasCollection(...)' (method override)
       virtual bool coll( const std::string & collName ) const { return hasCollection( collName ); };
+
+      ///  pack trigger names into indices 
+      void packPathNames(const edm::TriggerNames &names) ;
+      ///  unpack trigger names into indices 
+      void unpackPathNames(const edm::TriggerNames &names) ;
 
   };
 

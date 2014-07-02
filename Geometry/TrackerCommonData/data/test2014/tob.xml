@@ -15,7 +15,7 @@
 		<Constant name="StiffenerR" value="0.400*cm"/>
 		<Constant name="RailTopDy" value="8.5*mm"/>
 		<Constant name="RailBottomDy" value="15*mm"/>
-		<Constant name="RailDx" value="5*mm"/>
+		<Constant name="RailDx" value="4.3*mm"/>
 		<Constant name="RailL" value="1.100*m"/>
 		<Constant name="RailInX" value="54.433*cm"/>
 		<Constant name="StiffenerY" value="2.700*cm"/>
@@ -306,7 +306,7 @@
 		</LogicalPart>
 		<LogicalPart name="TIBRailTop" category="unspecified">
 			<rSolid name="TIBRailTop"/>
-			<rMaterial name="trackermaterial:T_CarbonFibreStr"/>
+			<rMaterial name="tobmaterial:TIB_RailTop"/>
 		</LogicalPart>
 		<LogicalPart name="TIBRailBottom" category="unspecified">
 			<rSolid name="TIBRailBottom"/>

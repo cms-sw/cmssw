@@ -1,15 +1,15 @@
 /* \class ZMuMu_MCanalyzer
- * 
+ *
  * author: Davide Piccolo
  *
  * ZMuMu MC analyzer:
- * check muon reco efficiencies from MC truth, 
+ * check muon reco efficiencies from MC truth,
  *
  */
 
 #include "DataFormats/Common/interface/AssociationVector.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "DataFormats/Candidate/interface/CandMatchMap.h" 
+#include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/Candidate/interface/Particle.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -22,7 +22,7 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Candidate/interface/OverlapChecker.h"
 #include "DataFormats/Math/interface/deltaR.h"
-#include "DataFormats/PatCandidates/interface/Muon.h" 
+#include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/GenericParticle.h"
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 #include "DataFormats/Common/interface/AssociationVector.h"
@@ -33,46 +33,47 @@
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/RecoCandidate/interface/IsoDepositVetos.h"
 #include "DataFormats/RecoCandidate/interface/IsoDepositDirection.h"
-
-
-
-
 #include "TH1.h"
 #include "TH2.h"
 #include "TH3.h"
 #include <vector>
+
 using namespace edm;
 using namespace std;
 using namespace reco;
 using namespace reco;
 using namespace isodeposit;
 
+typedef ValueMap<float> IsolationCollection;
 
 class ZMuMu_MCanalyzer : public edm::EDAnalyzer {
 public:
   ZMuMu_MCanalyzer(const edm::ParameterSet& pset);
 private:
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
-  bool check_ifZmumu(const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2); 
-  float getParticlePt(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2); 
-  float getParticleEta(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2); 
-  float getParticlePhi(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2); 
-  Particle::LorentzVector getParticleP4(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2); 
+  bool check_ifZmumu(const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2);
+  float getParticlePt(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2);
+  float getParticleEta(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2);
+  float getParticlePhi(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2);
+  Particle::LorentzVector getParticleP4(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2);
   virtual void endJob() override;
 
-  edm::InputTag zMuMu_, zMuMuMatchMap_; 
-  edm::InputTag zMuStandAlone_, zMuStandAloneMatchMap_;
-  edm::InputTag zMuTrack_, zMuTrackMatchMap_; 
-  edm::InputTag muons_, muonMatchMap_, muonIso_;
-  edm::InputTag tracks_, trackIso_;
-  edm::InputTag genParticles_;
+  EDGetTokenT<CandidateView> zMuMuToken_;
+  EDGetTokenT<GenParticleMatch> zMuMuMatchMapToken_;
+  EDGetTokenT<CandidateView> zMuStandAloneToken_;
+  EDGetTokenT<GenParticleMatch> zMuStandAloneMatchMapToken_;
+  EDGetTokenT<CandidateView> zMuTrackToken_;
+  EDGetTokenT<GenParticleMatch> zMuTrackMatchMapToken_;
+  EDGetTokenT<CandidateView> muonsToken_;
+  EDGetTokenT<CandidateView> tracksToken_;
+  EDGetTokenT<GenParticleCollection> genParticlesToken_;
 
   bool bothMuons_;
 
   double etamin_, etamax_, ptmin_, massMin_, massMax_, isoMax_;
 
   double ptThreshold_, etEcalThreshold_, etHcalThreshold_ ,dRVetoTrk_, dRTrk_, dREcal_ , dRHcal_,  alpha_, beta_;
- 
+
   bool relativeIsolation_;
   string hltPath_;
   reco::CandidateBaseRef globalMuonCandRef_, trackMuonCandRef_, standAloneMuonCandRef_;
@@ -92,33 +93,33 @@ private:
   int nMu1onlyTriggered;               // n. of events zMuMu with mu1 only triggered
 
   int nZMuMu_matched;               // n. of events zMuMu macthed
-  int nZMuSta_matched;              // n  of events zMuSta macthed 
+  int nZMuSta_matched;              // n  of events zMuSta macthed
   int nZMuTrk_matched;              // n. of events zMuTrk mathced
 };
 
 
 template<typename T>
 double isolation(const T * t, double ptThreshold, double etEcalThreshold, double etHcalThreshold , double dRVetoTrk, double dRTrk, double dREcal , double dRHcal,  double alpha, double beta, bool relativeIsolation) {
-  // on 34X: 
+  // on 34X:
   const pat::IsoDeposit * trkIso = t->isoDeposit(pat::TrackIso);
   //  const pat::IsoDeposit * trkIso = t->trackerIsoDeposit();
-  // on 34X 
+  // on 34X
   const pat::IsoDeposit * ecalIso = t->isoDeposit(pat::EcalIso);
   //  const pat::IsoDeposit * ecalIso = t->ecalIsoDeposit();
-  //    on 34X 
-  const pat::IsoDeposit * hcalIso = t->isoDeposit(pat::HcalIso);   
+  //    on 34X
+  const pat::IsoDeposit * hcalIso = t->isoDeposit(pat::HcalIso);
   //    const pat::IsoDeposit * hcalIso = t->hcalIsoDeposit();
 
   Direction dir = Direction(t->eta(), t->phi());
-   
+
   pat::IsoDeposit::AbsVetos vetosTrk;
   vetosTrk.push_back(new ConeVeto( dir, dRVetoTrk ));
   vetosTrk.push_back(new ThresholdVeto( ptThreshold ));
-    
+
   pat::IsoDeposit::AbsVetos vetosEcal;
   vetosEcal.push_back(new ConeVeto( dir, 0.));
   vetosEcal.push_back(new ThresholdVeto( etEcalThreshold ));
-    
+
   pat::IsoDeposit::AbsVetos vetosHcal;
   vetosHcal.push_back(new ConeVeto( dir, 0. ));
   vetosHcal.push_back(new ThresholdVeto( etHcalThreshold ));
@@ -126,7 +127,7 @@ double isolation(const T * t, double ptThreshold, double etEcalThreshold, double
   double isovalueTrk = (trkIso->sumWithin(dRTrk,vetosTrk));
   double isovalueEcal = (ecalIso->sumWithin(dREcal,vetosEcal));
   double isovalueHcal = (hcalIso->sumWithin(dRHcal,vetosHcal));
-    
+
 
   double iso = alpha*( ((1+beta)/2*isovalueEcal) + ((1-beta)/2*isovalueHcal) ) + ((1-alpha)*isovalueTrk) ;
   if(relativeIsolation) iso /= t->pt();
@@ -140,8 +141,8 @@ double candidateIsolation( const reco::Candidate* c, double ptThreshold, double 
   const pat::GenericParticle * trk = dynamic_cast<const pat::GenericParticle*>(&*c->masterClone());
   if(trk != 0) return isolation(trk,  ptThreshold, etEcalThreshold, etHcalThreshold ,dRVetoTrk, dRTrk, dREcal ,
 				dRHcal,  alpha, beta, relativeIsolation);
-  throw edm::Exception(edm::errors::InvalidReference) 
-    << "Candidate daughter #0 is neither pat::Muons nor pat::GenericParticle\n";      
+  throw edm::Exception(edm::errors::InvalidReference)
+    << "Candidate daughter #0 is neither pat::Muons nor pat::GenericParticle\n";
   return -1;
 }
 
@@ -161,30 +162,24 @@ double candidateIsolation( const reco::Candidate* c, double ptThreshold, double 
 #include <iostream>
 #include <iterator>
 #include <cmath>
-using namespace std;
-using namespace reco;
-using namespace edm;
 
+ZMuMu_MCanalyzer::ZMuMu_MCanalyzer(const ParameterSet& pset) :
+  zMuMuToken_(consumes<CandidateView>(pset.getParameter<InputTag>("zMuMu"))),
+  zMuMuMatchMapToken_(mayConsume<GenParticleMatch>(pset.getParameter<InputTag>("zMuMuMatchMap"))),
+  zMuStandAloneToken_(consumes<CandidateView>(pset.getParameter<InputTag>("zMuStandAlone"))),
+  zMuStandAloneMatchMapToken_(mayConsume<GenParticleMatch>(pset.getParameter<InputTag>("zMuStandAloneMatchMap"))),
+  zMuTrackToken_(consumes<CandidateView>(pset.getParameter<InputTag>("zMuTrack"))),
+  zMuTrackMatchMapToken_(mayConsume<GenParticleMatch>(pset.getParameter<InputTag>("zMuTrackMatchMap"))),
+  muonsToken_(consumes<CandidateView>(pset.getParameter<InputTag>("muons"))),
+  tracksToken_(consumes<CandidateView>(pset.getParameter<InputTag>("tracks"))),
+  genParticlesToken_(consumes<GenParticleCollection>(pset.getParameter<InputTag>("genParticles"))),
 
-typedef edm::ValueMap<float> IsolationCollection;
-
-ZMuMu_MCanalyzer::ZMuMu_MCanalyzer(const ParameterSet& pset) : 
-  zMuMu_(pset.getParameter<InputTag>("zMuMu")), 
-  zMuMuMatchMap_(pset.getParameter<InputTag>("zMuMuMatchMap")), 
-  zMuStandAlone_(pset.getParameter<InputTag>("zMuStandAlone")), 
-  zMuStandAloneMatchMap_(pset.getParameter<InputTag>("zMuStandAloneMatchMap")), 
-  zMuTrack_(pset.getParameter<InputTag>("zMuTrack")), 
-  zMuTrackMatchMap_(pset.getParameter<InputTag>("zMuTrackMatchMap")), 
-  muons_(pset.getParameter<InputTag>("muons")), 
-  tracks_(pset.getParameter<InputTag>("tracks")), 
-  genParticles_(pset.getParameter<InputTag>( "genParticles" ) ),
-
-  bothMuons_(pset.getParameter<bool>("bothMuons")), 
-  etamin_(pset.getUntrackedParameter<double>("etamin")),  
-  etamax_(pset.getUntrackedParameter<double>("etamax")),  
-  ptmin_(pset.getUntrackedParameter<double>("ptmin")), 
-  massMin_(pset.getUntrackedParameter<double>("zMassMin")), 
-  massMax_(pset.getUntrackedParameter<double>("zMassMax")), 
+  bothMuons_(pset.getParameter<bool>("bothMuons")),
+  etamin_(pset.getUntrackedParameter<double>("etamin")),
+  etamax_(pset.getUntrackedParameter<double>("etamax")),
+  ptmin_(pset.getUntrackedParameter<double>("ptmin")),
+  massMin_(pset.getUntrackedParameter<double>("zMassMin")),
+  massMax_(pset.getUntrackedParameter<double>("zMassMax")),
   isoMax_(pset.getUntrackedParameter<double>("isomax")),
   ptThreshold_(pset.getUntrackedParameter<double>("ptThreshold")),
   etEcalThreshold_(pset.getUntrackedParameter<double>("etEcalThreshold")),
@@ -196,7 +191,7 @@ ZMuMu_MCanalyzer::ZMuMu_MCanalyzer(const ParameterSet& pset) :
   alpha_(pset.getUntrackedParameter<double>("alpha")),
   beta_(pset.getUntrackedParameter<double>("beta")),
   relativeIsolation_(pset.getUntrackedParameter<bool>("relativeIsolation")),
-  hltPath_(pset.getUntrackedParameter<std::string >("hltPath")) { 
+  hltPath_(pset.getUntrackedParameter<std::string >("hltPath")) {
   Service<TFileService> fs;
 
   // binning of entries array (at moment defined by hand and not in cfg file)
@@ -226,40 +221,40 @@ ZMuMu_MCanalyzer::ZMuMu_MCanalyzer(const ParameterSet& pset) :
 }
 
 void ZMuMu_MCanalyzer::analyze(const Event& event, const EventSetup& setup) {
-  Handle<CandidateView> zMuMu;  
-  Handle<GenParticleMatch> zMuMuMatchMap; //Map of Z made by Mu global + Mu global 
-  Handle<CandidateView> zMuStandAlone;  
+  Handle<CandidateView> zMuMu;
+  Handle<GenParticleMatch> zMuMuMatchMap; //Map of Z made by Mu global + Mu global
+  Handle<CandidateView> zMuStandAlone;
   Handle<GenParticleMatch> zMuStandAloneMatchMap; //Map of Z made by Mu + StandAlone
-  Handle<CandidateView> zMuTrack;  
+  Handle<CandidateView> zMuTrack;
   Handle<GenParticleMatch> zMuTrackMatchMap; //Map of Z made by Mu + Track
   Handle<CandidateView> muons; //Collection of Muons
   Handle<CandidateView> tracks; //Collection of Tracks
 
   Handle<GenParticleCollection> genParticles;  // Collection of Generatd Particles
-  
-  event.getByLabel(zMuMu_, zMuMu); 
-  event.getByLabel(zMuStandAlone_, zMuStandAlone); 
-  event.getByLabel(zMuTrack_, zMuTrack); 
-  event.getByLabel(genParticles_, genParticles);
-  event.getByLabel(muons_, muons); 
-  event.getByLabel(tracks_, tracks); 
+
+  event.getByToken(zMuMuToken_, zMuMu);
+  event.getByToken(zMuStandAloneToken_, zMuStandAlone);
+  event.getByToken(zMuTrackToken_, zMuTrack);
+  event.getByToken(genParticlesToken_, genParticles);
+  event.getByToken(muonsToken_, muons);
+  event.getByToken(tracksToken_, tracks);
 
   /*
   cout << "*********  zMuMu         size : " << zMuMu->size() << endl;
   cout << "*********  zMuStandAlone size : " << zMuStandAlone->size() << endl;
   cout << "*********  zMuTrack      size : " << zMuTrack->size() << endl;
-  cout << "*********  muons         size : " << muons->size() << endl; 	    
+  cout << "*********  muons         size : " << muons->size() << endl;
   cout << "*********  tracks        size : " << tracks->size() << endl;
   */
   //      std::cout<<"Run-> "<<event.id().run()<<std::endl;
-  //      std::cout<<"Event-> "<<event.id().event()<<std::endl; 
+  //      std::cout<<"Event-> "<<event.id().event()<<std::endl;
 
 
   bool zMuMu_found = false;
 
   // loop on ZMuMu
   if (zMuMu->size() > 0 ) {
-    event.getByLabel(zMuMuMatchMap_, zMuMuMatchMap); 
+    event.getByToken(zMuMuMatchMapToken_, zMuMuMatchMap);
     for(unsigned int i = 0; i < zMuMu->size(); ++i) { //loop on candidates
       const Candidate & zMuMuCand = (*zMuMu)[i]; //the candidate
       CandidateBaseRef zMuMuCandRef = zMuMu->refAt(i);
@@ -281,9 +276,9 @@ void ZMuMu_MCanalyzer::analyze(const Event& event, const EventSetup& setup) {
       double mass = zMuMuCand.mass();
 
       // HLT match
-      const pat::TriggerObjectStandAloneCollection mu0HLTMatches = 
+      const pat::TriggerObjectStandAloneCollection mu0HLTMatches =
 	muonDau0.triggerObjectMatchesByPath( hltPath_ );
-      const pat::TriggerObjectStandAloneCollection mu1HLTMatches = 
+      const pat::TriggerObjectStandAloneCollection mu1HLTMatches =
 	muonDau1.triggerObjectMatchesByPath( hltPath_ );
 
       bool trig0found = false;
@@ -296,9 +291,9 @@ void ZMuMu_MCanalyzer::analyze(const Event& event, const EventSetup& setup) {
       GenParticleRef zMuMuMatch = (*zMuMuMatchMap)[zMuMuCandRef];
       if(zMuMuMatch.isNonnull()) {  // ZMuMu matched
 	zMuMu_found = true;
-	nZMuMu_matched++;	
+	nZMuMu_matched++;
 	if (pt0>ptmin_ && pt1>ptmin_ && abs(eta0)>etamin_ && abs(eta1) >etamin_ && abs(eta0)<etamax_ && abs(eta1) <etamax_ && mass >massMin_ && mass < massMax_ && (trig0found || trig1found)) { // kinematic and trigger cuts passed
-	  nGlobalMuonsMatched_passed++; // first global Muon passed kine cuts 
+	  nGlobalMuonsMatched_passed++; // first global Muon passed kine cuts
 	  nGlobalMuonsMatched_passed++; // second global muon passsed kine cuts
 	  if (iso0<isoMax_) nGlobalMuonsMatched_passedIso++;       // first global muon passed the iso cut
 	  if (iso1<isoMax_) nGlobalMuonsMatched_passedIso++;       // second global muon passed the iso cut
@@ -308,7 +303,7 @@ void ZMuMu_MCanalyzer::analyze(const Event& event, const EventSetup& setup) {
 	    if (trig0found && !trig1found) nMu0onlyTriggered++;
 	    if (trig1found && !trig0found) nMu1onlyTriggered++;
 	    // histograms vs eta and pt
-	    if (trig1found) {         // check efficiency of muon0 not imposing the trigger on it 
+	    if (trig1found) {         // check efficiency of muon0 not imposing the trigger on it
 	      h_trackProbe_eta->Fill(eta0);
 	      h_trackProbe_pt->Fill(pt0);
 	      h_staProbe_eta->Fill(eta0);
@@ -316,7 +311,7 @@ void ZMuMu_MCanalyzer::analyze(const Event& event, const EventSetup& setup) {
 	      h_ProbeOk_eta->Fill(eta0);
 	      h_ProbeOk_pt->Fill(pt0);
 	    }
-	    if (trig0found) {         // check efficiency of muon1 not imposing the trigger on it 
+	    if (trig0found) {         // check efficiency of muon1 not imposing the trigger on it
 	      h_trackProbe_eta->Fill(eta1);
 	      h_staProbe_eta->Fill(eta1);
 	      h_trackProbe_pt->Fill(pt1);
@@ -334,7 +329,7 @@ void ZMuMu_MCanalyzer::analyze(const Event& event, const EventSetup& setup) {
   // loop on ZMuSta
   bool zMuSta_found = false;
   if (!zMuMu_found && zMuStandAlone->size() > 0 ) {
-    event.getByLabel(zMuStandAloneMatchMap_, zMuStandAloneMatchMap); 
+    event.getByToken(zMuStandAloneMatchMapToken_, zMuStandAloneMatchMap);
     for(unsigned int i = 0; i < zMuStandAlone->size(); ++i) { //loop on candidates
       const Candidate & zMuStandAloneCand = (*zMuStandAlone)[i]; //the candidate
       CandidateBaseRef zMuStandAloneCandRef = zMuStandAlone->refAt(i);
@@ -346,7 +341,7 @@ void ZMuMu_MCanalyzer::analyze(const Event& event, const EventSetup& setup) {
       //double trkiso0 = muonDau0.trackIso();
       //      const pat::Muon & muonDau1 = dynamic_cast<const pat::Muon &>(*lep1->masterClone());
       //double trkiso1 = muonDau1.trackIso();
-     
+
       double iso0 = candidateIsolation(lep0,ptThreshold_, etEcalThreshold_, etHcalThreshold_,dRVetoTrk_, dRTrk_, dREcal_ , dRHcal_,  alpha_, beta_, relativeIsolation_);
       double iso1 = candidateIsolation(lep1,ptThreshold_, etEcalThreshold_, etHcalThreshold_,dRVetoTrk_, dRTrk_, dREcal_ , dRHcal_,  alpha_, beta_, relativeIsolation_);
 
@@ -357,17 +352,17 @@ void ZMuMu_MCanalyzer::analyze(const Event& event, const EventSetup& setup) {
       double mass = zMuStandAloneCand.mass();
 
       // HLT match (check just dau0 the global)
-      const pat::TriggerObjectStandAloneCollection mu0HLTMatches = 
+      const pat::TriggerObjectStandAloneCollection mu0HLTMatches =
 	muonDau0.triggerObjectMatchesByPath( hltPath_ );
 
       bool trig0found = false;
       if( mu0HLTMatches.size()>0 )
 	trig0found = true;
-      
+
       if(zMuStandAloneMatch.isNonnull()) {  // ZMuStandAlone matched
 	zMuSta_found = true;
-	nZMuSta_matched++;	
-	if (pt0>ptmin_ && pt1>ptmin_ && abs(eta0)>etamin_ && abs(eta1)>etamin_ && abs(eta0)<etamax_ && abs(eta1) <etamax_ && mass >massMin_ && 
+	nZMuSta_matched++;
+	if (pt0>ptmin_ && pt1>ptmin_ && abs(eta0)>etamin_ && abs(eta1)>etamin_ && abs(eta0)<etamax_ && abs(eta1) <etamax_ && mass >massMin_ &&
 	    mass < massMax_ && iso0<isoMax_ && iso1 < isoMax_ && trig0found) { // all cuts and trigger passed
 	  nStaMuonsMatched_passedIso++;
 	  // histograms vs eta and pt
@@ -381,7 +376,7 @@ void ZMuMu_MCanalyzer::analyze(const Event& event, const EventSetup& setup) {
 
   // loop on ZMuTrack
   if (!zMuMu_found && !zMuSta_found && zMuTrack->size() > 0 ) {
-    event.getByLabel(zMuTrackMatchMap_, zMuTrackMatchMap); 
+    event.getByToken(zMuTrackMatchMapToken_, zMuTrackMatchMap);
     for(unsigned int i = 0; i < zMuTrack->size(); ++i) { //loop on candidates
       const Candidate & zMuTrackCand = (*zMuTrack)[i]; //the candidate
       CandidateBaseRef zMuTrackCandRef = zMuTrack->refAt(i);
@@ -402,7 +397,7 @@ void ZMuMu_MCanalyzer::analyze(const Event& event, const EventSetup& setup) {
       double mass = zMuTrackCand.mass();
 
       // HLT match (check just dau0 the global)
-      const pat::TriggerObjectStandAloneCollection mu0HLTMatches = 
+      const pat::TriggerObjectStandAloneCollection mu0HLTMatches =
 	muonDau0.triggerObjectMatchesByPath( hltPath_ );
 
       bool trig0found = false;
@@ -412,7 +407,7 @@ void ZMuMu_MCanalyzer::analyze(const Event& event, const EventSetup& setup) {
       GenParticleRef zMuTrackMatch = (*zMuTrackMatchMap)[zMuTrackCandRef];
       if(zMuTrackMatch.isNonnull()) {  // ZMuTrack matched
 	nZMuTrk_matched++;
-	if (pt0>ptmin_ && pt1>ptmin_ && abs(eta0)>etamin_ && abs(eta1)>etamin_ && abs(eta0)<etamax_ && abs(eta1) <etamax_ && mass >massMin_ && 
+	if (pt0>ptmin_ && pt1>ptmin_ && abs(eta0)>etamin_ && abs(eta1)>etamin_ && abs(eta0)<etamax_ && abs(eta1) <etamax_ && mass >massMin_ &&
 	    mass < massMax_ && iso0<isoMax_ && iso1 < isoMax_ && trig0found) { // all cuts and trigger passed
 	  nTracksMuonsMatched_passedIso++;
 	  // histograms vs eta and pt
@@ -436,9 +431,9 @@ bool ZMuMu_MCanalyzer::check_ifZmumu(const Candidate * dauGen0, const Candidate 
   if (partId0==13 || partId1==13 || partId2==13) muminusFound=true;
   if (partId0==-13 || partId1==-13 || partId2==-13) muplusFound=true;
   if (partId0==23 || partId1==23 || partId2==23) ZFound=true;
-  return muplusFound*muminusFound*ZFound;   
+  return muplusFound*muminusFound*ZFound;
 }
- 
+
 float ZMuMu_MCanalyzer::getParticlePt(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2)
 {
   int partId0 = dauGen0->pdgId();
@@ -471,7 +466,7 @@ float ZMuMu_MCanalyzer::getParticlePt(const int ipart, const Candidate * dauGen0
   }
   return ptpart;
 }
- 
+
 float ZMuMu_MCanalyzer::getParticleEta(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2)
 {
   int partId0 = dauGen0->pdgId();
@@ -570,15 +565,15 @@ Particle::LorentzVector ZMuMu_MCanalyzer::getParticleP4(const int ipart, const C
   }
   return p4part;
 }
- 
+
 
 
 void ZMuMu_MCanalyzer::endJob() {
-  
-  
+
+
   double eff_Iso = double(nGlobalMuonsMatched_passedIso)/nGlobalMuonsMatched_passed;
   double err_effIso = sqrt(eff_Iso*(1-eff_Iso)/nGlobalMuonsMatched_passed);
- 
+
   double n1_afterIso = 2*n2GlobalMuonsMatched_passedIso2Trg+nMu0onlyTriggered+nMu1onlyTriggered+nTracksMuonsMatched_passedIso;
   double n2_afterIso = 2*n2GlobalMuonsMatched_passedIso2Trg+nMu0onlyTriggered+nMu1onlyTriggered+nStaMuonsMatched_passedIso;
   double nGLB_afterIso = 2*n2GlobalMuonsMatched_passedIso2Trg+nMu0onlyTriggered+nMu1onlyTriggered;
@@ -588,7 +583,7 @@ void ZMuMu_MCanalyzer::endJob() {
   double err_effHLT_afterIso= sqrt( effHLT_afterIso * (1 - effHLT_afterIso)/nGLB_afterIso);
   double err_effsta_afterIso = sqrt(effSta_afterIso*(1-effSta_afterIso)/n1_afterIso);
   double err_efftrk_afterIso = sqrt(effTrk_afterIso*(1-effTrk_afterIso)/n2_afterIso);
- 
+
 
   cout << "------------------------------------  Counters  --------------------------------" << endl;
 
@@ -611,8 +606,8 @@ void ZMuMu_MCanalyzer::endJob() {
   cout << "eff Tracker (after Isocut)    : " << effTrk_afterIso << "+/-" << err_efftrk_afterIso << endl;
 
 }
-  
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_FWK_MODULE(ZMuMu_MCanalyzer);
-  
+

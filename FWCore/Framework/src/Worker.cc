@@ -66,12 +66,6 @@ private:
       ModuleCallingContext const& mcc_;
     };
 
-    inline cms::Exception& exceptionContext(ModuleDescription const& iMD,
-                                     cms::Exception& iEx) {
-      iEx << iMD.moduleName() << "/" << iMD.moduleLabel() << "\n";
-      return iEx;
-    }
-
   }
 
   Worker::Worker(ModuleDescription const& iMD, 

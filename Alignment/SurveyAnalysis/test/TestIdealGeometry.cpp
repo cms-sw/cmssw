@@ -158,9 +158,9 @@ TestIdealGeometry::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
   int countDet = 0; 
 
   // Now loop on detector units, and store difference position and orientation w.r.t. survey
-  for ( std::vector<GeomDet*>::const_iterator iGeomDet = trackerGeometry->dets().begin();
+  for ( auto iGeomDet = trackerGeometry->dets().begin();
   		iGeomDet != trackerGeometry->dets().end(); iGeomDet++ )
-    // for ( std::vector<AlignTransform>::const_iterator iGeomDet = alignments->m_align.begin();
+    // for (auto iGeomDet = alignments->m_align.begin();
     //	iGeomDet != alignments->m_align.end(); iGeomDet++ )
 	{
           

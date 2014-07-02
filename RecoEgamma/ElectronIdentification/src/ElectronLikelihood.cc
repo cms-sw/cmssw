@@ -37,12 +37,12 @@ ElectronLikelihood::ElectronLikelihood (const ElectronLikelihoodCalibration *cal
 
 
 ElectronLikelihood::~ElectronLikelihood () {
-  delete _EB0lt15lh ;
-  delete _EB1lt15lh ;
-  delete _EElt15lh ;
-  delete _EB0gt15lh ;
-  delete _EB1gt15lh ;
-  delete _EEgt15lh ;
+  delete _EB0lt15lh.get() ;
+  delete _EB1lt15lh.get() ;
+  delete _EElt15lh.get() ;
+  delete _EB0gt15lh.get() ;
+  delete _EB1gt15lh.get() ;
+  delete _EEgt15lh.get() ;
 }
 
 

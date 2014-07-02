@@ -15,9 +15,9 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "RecoEgamma/EgammaTools/interface/EcalClusterLocal.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 
 class GBRForest;
-class EcalClusterLazyTools;
 
 class EGEnergyCorrector {
   public:

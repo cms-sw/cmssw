@@ -7,7 +7,6 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -33,29 +32,30 @@ typedef TrackingVertex::g4v_iterator                     g4v_iterator;
 void TrackingTruthValid::beginJob(const edm::ParameterSet& conf) {}
 
 TrackingTruthValid::TrackingTruthValid(const edm::ParameterSet& conf)
-  : outputFile( conf.getParameter<std::string>( "outputFile" ) )
+  : runStandalone( conf.getParameter<bool>("runStandalone") )
+  , outputFile( conf.getParameter<std::string>( "outputFile" ) )
   , dbe_( NULL )
   , vec_TrackingParticle_Token_( consumes<TrackingParticleCollection>( conf.getParameter<edm::InputTag>( "src" ) ) ) {}
 
-void TrackingTruthValid::beginRun( const edm::Run&, const edm::EventSetup& ) {
+void TrackingTruthValid::bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es){
   dbe_  = edm::Service<DQMStore>().operator->();
-  dbe_->setCurrentFolder("Tracking/TrackingMCTruth/TrackingParticle");
+  ibooker.setCurrentFolder("Tracking/TrackingMCTruth/TrackingParticle");
   
 
-  meTPMass = dbe_->book1D("TPMass","Tracking Particle Mass",100, -1,+5.);
-  meTPCharge = dbe_->book1D("TPCharge","Tracking Particle Charge",10, -5, 5);
-  meTPId = dbe_->book1D("TPId","Tracking Particle Id",500, -5000, 5000);
-  meTPProc = dbe_->book1D("TPProc","Tracking Particle Proc",20, -0.5, 19.5);
-  meTPAllHits = dbe_->book1D("TPAllHits", "Tracking Particle All Hits", 200, -0.5, 199.5);
-  meTPMatchedHits = dbe_->book1D("TPMatchedHits", "Tracking Particle Matched Hits", 100, -0.5, 99.5);
-  meTPPt = dbe_->book1D("TPPt", "Tracking Particle Pt",100, 0, 100.);
-  meTPEta = dbe_->book1D("TPEta", "Tracking Particle Eta",100, -7., 7.);
-  meTPPhi = dbe_->book1D("TPPhi", "Tracking Particle Phi",100, -4., 4);
-  meTPVtxX = dbe_->book1D("TPVtxX", "Tracking Particle VtxX",100, -100, 100.);
-  meTPVtxY = dbe_->book1D("TPVtxY", "Tracking Particle VtxY",100, -100, 100.);
-  meTPVtxZ = dbe_->book1D("TPVtxZ", "Tracking Particle VtxZ",100, -100, 100.);
-  meTPtip = dbe_->book1D("TPtip", "Tracking Particle tip",100, 0, 1000.);
-  meTPlip = dbe_->book1D("TPlip", "Tracking Particle lip",100, 0, 100.);
+  meTPMass = ibooker.book1D("TPMass","Tracking Particle Mass",100, -1,+5.);
+  meTPCharge = ibooker.book1D("TPCharge","Tracking Particle Charge",10, -5, 5);
+  meTPId = ibooker.book1D("TPId","Tracking Particle Id",500, -5000, 5000);
+  meTPProc = ibooker.book1D("TPProc","Tracking Particle Proc",20, -0.5, 19.5);
+  meTPAllHits = ibooker.book1D("TPAllHits", "Tracking Particle All Hits", 200, -0.5, 199.5);
+  meTPMatchedHits = ibooker.book1D("TPMatchedHits", "Tracking Particle Matched Hits", 100, -0.5, 99.5);
+  meTPPt = ibooker.book1D("TPPt", "Tracking Particle Pt",100, 0, 100.);
+  meTPEta = ibooker.book1D("TPEta", "Tracking Particle Eta",100, -7., 7.);
+  meTPPhi = ibooker.book1D("TPPhi", "Tracking Particle Phi",100, -4., 4);
+  meTPVtxX = ibooker.book1D("TPVtxX", "Tracking Particle VtxX",100, -100, 100.);
+  meTPVtxY = ibooker.book1D("TPVtxY", "Tracking Particle VtxY",100, -100, 100.);
+  meTPVtxZ = ibooker.book1D("TPVtxZ", "Tracking Particle VtxZ",100, -100, 100.);
+  meTPtip = ibooker.book1D("TPtip", "Tracking Particle tip",100, 0, 1000.);
+  meTPlip = ibooker.book1D("TPlip", "Tracking Particle lip",100, 0, 100.);
   
   
   // Prepare Axes Labels for Processes
@@ -183,7 +183,7 @@ void TrackingTruthValid::analyze(const edm::Event& event, const edm::EventSetup&
 }
 
 void TrackingTruthValid::endJob(){ 
-
-  if ( outputFile.size() != 0 && dbe_ ) dbe_->save(outputFile);
+  //Only in standalone mode save local root file 
+  if (runStandalone &&  outputFile.size() != 0 && dbe_ ){dbe_->save(outputFile);}
 
 } 

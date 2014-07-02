@@ -11,12 +11,12 @@ SingleTopSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM"
     ## sub-directory to write the monitor histograms to
     ## [mandatory] : should not be changed w/o explicit
     ## communication to TopCom!
-    directory = cms.string("HLTriggerOffline/SingleTop/SingleMuon/"),
+    directory = cms.string("HLT/TopHLTOffline/SingleTop/SingleMuon/"),
     ## [mandatory]
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
       elecs = cms.InputTag("gedGsfElectrons"),
-      jets  = cms.InputTag("PFJetsFilter"),
+      jets  = cms.InputTag("ak4PFJetsCHS"),
       mets  = cms.VInputTag("met", "tcMet", "pfMet"),
       pvs   = cms.InputTag("offlinePrimaryVertices")
 
@@ -43,7 +43,7 @@ SingleTopSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM"
     jetExtras = cms.PSet(
       ## when omitted monitor plots for pt will be filled from uncorrected
       ## jets
-      jetCorrector = cms.string("ak5PFL2L3"),
+      #jetCorrector = cms.string("ak4PFCHSL2L3"),
       ## when omitted no extra selection will be applied on jets before
       ## filling the monitor histograms; if jetCorrector is present the
       ## selection will be applied to corrected jets                                                
@@ -51,15 +51,15 @@ SingleTopSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM"
       ## when omitted monitor histograms for b-tagging will not be filled 
       jetBTaggers  = cms.PSet(
          trackCountingEff = cms.PSet(
-           label = cms.InputTag("pfJetProbabilityBJetTags" ),
+           label = cms.InputTag("jetProbabilityBJetTags" ),
            workingPoint = cms.double(0.275)
          ),
          trackCountingPur = cms.PSet(
-           label = cms.InputTag("pfTrackCountingHighPurBJetTags" ),
+           label = cms.InputTag("trackCountingHighPurBJetTags" ),
            workingPoint = cms.double(3.41)
          ),
          secondaryVertex  = cms.PSet(
-           label = cms.InputTag("pfCombinedSecondaryVertexBJetTags"),
+           label = cms.InputTag("combinedSecondaryVertexBJetTags"),
            workingPoint = cms.double(0.679)
          )
        ),
@@ -120,15 +120,15 @@ SingleTopSingleMuonHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOfflineDQM"
     ),
     #cms.PSet(
     #  label  = cms.string("jets/pf:step2"),
-    #  src    = cms.InputTag("PFJetsFilter"),
-    #  jetCorrector = cms.string("ak5PFL2L3"),
+    #  src    = cms.InputTag("ak4PFJetsCHS"),
+    #  jetCorrector = cms.string("ak4PFCHSL2L3"),
     #  select = cms.string("pt>40 & abs(eta)<5.0"),
     #  min = cms.int32(1),
     #), 
     cms.PSet(
       label  = cms.string("jets/pf:step2"),
-      src    = cms.InputTag("PFJetsFilter"),
-      jetCorrector = cms.string("ak5PFL2L3"),
+      src    = cms.InputTag("ak4PFJetsCHS"),
+      #jetCorrector = cms.string("ak4PFCHSL2L3"),
       select = cms.string("pt>40 & abs(eta)<5.0"),
       min = cms.int32(2),
     ), 
@@ -146,12 +146,12 @@ SingleTopSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOffline
     ## sub-directory to write the monitor histograms to
     ## [mandatory] : should not be changed w/o explicit
     ## communication to TopCom!
-    directory = cms.string("HLTriggerOffline/SingleTop/SingleElectron/"),
+    directory = cms.string("HLT/TopHLTOffline/SingleTop/SingleElectron/"),
     ## [mandatory]
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
       elecs = cms.InputTag("gedGsfElectrons"),
-      jets  = cms.InputTag("PFJetsFilter"),
+      jets  = cms.InputTag("ak4PFJetsCHS"),
       mets  = cms.VInputTag("met", "tcMet", "pfMet"),
       pvs   = cms.InputTag("offlinePrimaryVertices")
 
@@ -180,7 +180,7 @@ SingleTopSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOffline
     jetExtras = cms.PSet(
       ## when omitted monitor plots for pt will be filled from uncorrected
       ## jets
-      jetCorrector = cms.string("ak5PFL2L3"),
+      #jetCorrector = cms.string("ak4PFCHSL2L3"),
       ## when omitted no extra selection will be applied on jets before
       ## filling the monitor histograms; if jetCorrector is present the
       ## selection will be applied to corrected jets                                                
@@ -188,15 +188,15 @@ SingleTopSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOffline
       ## when omitted monitor histograms for b-tagging will not be filled  
       jetBTaggers  = cms.PSet(
          trackCountingEff = cms.PSet(
-           label = cms.InputTag("pfJetProbabilityBJetTags" ),
+           label = cms.InputTag("jetProbabilityBJetTags" ),
            workingPoint = cms.double(0.275)
          ),
          trackCountingPur = cms.PSet(
-           label = cms.InputTag("pfTrackCountingHighPurBJetTags" ),
+           label = cms.InputTag("trackCountingHighPurBJetTags" ),
            workingPoint = cms.double(3.41)
          ),
          secondaryVertex  = cms.PSet(
-           label = cms.InputTag("pfCombinedSecondaryVertexBJetTags"),
+           label = cms.InputTag("combinedSecondaryVertexBJetTags"),
            workingPoint = cms.double(0.679)
          )
        ),
@@ -258,15 +258,15 @@ SingleTopSingleElectronHLTOfflineDQM = cms.EDAnalyzer("TopSingleLeptonHLTOffline
     ),
     #cms.PSet(
     #  label  = cms.string("jets/pf:step2"),
-    #  src    = cms.InputTag("PFJetsFilter"),
-    #  jetCorrector = cms.string("ak5PFL2L3"),
+    #  src    = cms.InputTag("ak4PFJetsCHS"),
+    #  jetCorrector = cms.string("ak4PFCHSL2L3"),
     #  select = cms.string("pt>40 & abs(eta)<5.0"),
     #  min = cms.int32(1),
     #), 
     cms.PSet(
       label  = cms.string("jets/pf:step2"),
-      src    = cms.InputTag("PFJetsFilter"),
-      jetCorrector = cms.string("ak5PFL2L3"),
+      src    = cms.InputTag("ak4PFJetsCHS"),
+      #jetCorrector = cms.string("ak4PFCHSL2L3"),
       select = cms.string("pt>40 & abs(eta)<5.0"),
       min = cms.int32(2),
     ), 

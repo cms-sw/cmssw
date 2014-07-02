@@ -2,16 +2,16 @@
 #define DQMExample_Step2_H
 
 //Framework
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 //DQM
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
  
-class DQMExample_Step2: public edm::EDAnalyzer{
+class DQMExample_Step2: public DQMEDHarvester{
 
 public:
 
@@ -21,17 +21,12 @@ public:
 protected:
 
   void beginJob();
-  void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
-  void analyze(edm::Event const& e, edm::EventSetup const& eSetup);
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup) ;
-  void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup);
-  void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
-  void endJob();
+  void dqmEndLuminosityBlock(DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const&);  //performed in the endLumi
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;  //performed in the endJob
 
 private:
 
   //private variables
-  DQMStore* dbe_;  
 
   //variables from config file
   std::string numMonitorName_;

@@ -5,9 +5,7 @@
 
 // a Gray code is An ordering of 2n binary numbers such that
 // only one bit changes from one entry to the next
-const unsigned layerGrayCode[] = {3,1,5,6,4,2};
 const unsigned layerInverseGrayCode[] = {1,5,0,4,2,3};
-const unsigned channelGrayCode[] = {0,1,3,2, 6,7,5,4, 12,13,15,14, 10,11,9,8};
 const unsigned channelInverseGrayCode[] = {0,1,3,2, 7,6,4,5, 15,14,12,13, 8,9,11,10};
 
 CSCCFEBTimeSlice::CSCCFEBTimeSlice() 

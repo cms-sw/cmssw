@@ -78,13 +78,13 @@ TrajectoryStateOnSurface
 MultiStatePropagation<T>::setWeight (const TrajectoryStateOnSurface state,
 				     const double weight) const {
   //    if ( state.hasError() )
-  return TrajectoryStateOnSurface(state.localParameters(),
+  return TrajectoryStateOnSurface(weight, state.localParameters(),
 				  state.localError(),
 				  state.surface(),
 				  &(state.globalParameters().magneticField()),
-				  state.surfaceSide(),weight);
+				  state.surfaceSide());
   //    else 
-  //      return TrajectoryStateOnSurface(state.localParameters(),
-  //    				    state.surface(),weight);
+  //      return TrajectoryStateOnSurface(weight, state.localParameters(),
+  //    				    state.surface());
   //      return state;
 }

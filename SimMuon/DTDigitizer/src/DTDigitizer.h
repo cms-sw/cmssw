@@ -11,11 +11,19 @@
 
 #include "FWCore/Framework/interface/EDProducer.h"
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 #include "SimDataFormats/DigiSimLinks/interface/DTDigiSimLinkCollection.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 
 #include "DataFormats/GeometryVector/interface/LocalVector.h"
+// SimHits
+#include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
+#include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
+
+
 
 #include <vector>
 
@@ -119,6 +127,9 @@ class DTDigitizer : public edm::EDProducer {
   //Name of Collection use for create the XF 
   std::string mix_;
   std::string collection_for_XF;
+
+  edm::EDGetTokenT<CrossingFrame<PSimHit> > cf_token;
+
 
 };
 #endif

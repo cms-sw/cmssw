@@ -80,31 +80,45 @@ for type in plot_types:
 	for trig in triggers:
 	    efficiency_strings.append(efficiency_string(obj,type,trig))
 
+
+#add the summary plots
+for an in _config.analysis:
+    for trig in triggers:
+        efficiency_strings.append("Eff_trueVtxDist_"+an+"_gen_"+trig+" ' Efficiency of "+trig+" vs nb of interactions ; nb events passing each path ' trueVtxDist_"+an+"_gen_"+trig+" trueVtxDist_"+an+"_gen")
+
 add_reco_strings(efficiency_strings)
 
-hltHiggsPostHTauNu = hltHiggsPostProcessor.clone()
-hltHiggsPostHTauNu.subDirs = ['HLT/Higgs/Htaunu']
-hltHiggsPostHTauNu.efficiencyProfile = efficiency_strings
+
 
 hltHiggsPostHWW = hltHiggsPostProcessor.clone()
 hltHiggsPostHWW.subDirs = ['HLT/Higgs/HWW']
 hltHiggsPostHWW.efficiencyProfile = efficiency_strings
+hltHiggsEffPostHWW = overallEffPlotter.clone()
+hltHiggsEffPostHWW.analysisName = cms.untracked.string('HWW')
 
 hltHiggsPostHZZ = hltHiggsPostProcessor.clone()
 hltHiggsPostHZZ.subDirs = ['HLT/Higgs/HZZ']
 hltHiggsPostHZZ.efficiencyProfile = efficiency_strings
+hltHiggsEffPostHZZ = overallEffPlotter.clone()
+hltHiggsEffPostHZZ.analysisName = cms.untracked.string('HZZ')
 
 hltHiggsPostHgg = hltHiggsPostProcessor.clone()
 hltHiggsPostHgg.subDirs = ['HLT/Higgs/Hgg']
 hltHiggsPostHgg.efficiencyProfile = efficiency_strings
+hltHiggsEffPostHgg = overallEffPlotter.clone()
+hltHiggsEffPostHgg.analysisName = cms.untracked.string('Hgg')
 
 hltHiggsPostH2tau = hltHiggsPostProcessor.clone()
 hltHiggsPostH2tau.subDirs = ['HLT/Higgs/H2tau']
 hltHiggsPostH2tau.efficiencyProfile = efficiency_strings
+hltHiggsEffPostH2tau = overallEffPlotter.clone()
+hltHiggsEffPostH2tau.analysisName = cms.untracked.string('H2tau')
 
 hltHiggsPostHtaunu = hltHiggsPostProcessor.clone()
 hltHiggsPostHtaunu.subDirs = ['HLT/Higgs/Htaunu']
 hltHiggsPostHtaunu.efficiencyProfile = efficiency_strings
+hltHiggsEffPostHtaunu = overallEffPlotter.clone()
+hltHiggsEffPostHtaunu.analysisName = cms.untracked.string('Htaunu')
 
 
 hltHiggsPostProcessors = cms.Sequence(
@@ -113,4 +127,12 @@ hltHiggsPostProcessors = cms.Sequence(
 		hltHiggsPostHgg+
 		hltHiggsPostHtaunu+
 		hltHiggsPostH2tau
+)
+
+hltEffPost = cms.Sequence(
+    hltHiggsEffPostHWW+
+    hltHiggsEffPostHZZ+
+    hltHiggsEffPostHgg+
+    hltHiggsEffPostH2tau+
+    hltHiggsEffPostHtaunu
 )

@@ -10,7 +10,7 @@
 #include "SiChargeCollectionDrifter.h"
 #include "SiChargeDivider.h"
 #include "SiInduceChargeOnStrips.h"
-#include "SiPileUpSignals.h"
+#include "SimTracker/SiStripDigitizer/interface/SiPileUpSignals.h"
 
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 

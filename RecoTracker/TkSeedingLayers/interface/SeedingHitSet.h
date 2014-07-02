@@ -1,34 +1,38 @@
 #ifndef TkSeedingLayers_SeedingHitSet_H
 #define TkSeedingLayers_SeedingHitSet_H
 
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
 
 class SeedingHitSet {
 public:
 
-  typedef  TransientTrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
+  using      RecHit        = BaseTrackerRecHit;
+  using      RecHitPointer = BaseTrackerRecHit *;
+  using ConstRecHitPointer = BaseTrackerRecHit const *;
 
-  static ConstRecHitPointer nullPtr() { return ConstRecHitPointer();}
+  static ConstRecHitPointer nullPtr() { return nullptr;}
 
-  SeedingHitSet() {}
+  SeedingHitSet() {theRecHits[0]=theRecHits[1]=theRecHits[2]=theRecHits[3]=nullptr;}
 
-  SeedingHitSet(ConstRecHitPointer const & one, ConstRecHitPointer const & two) 
+  SeedingHitSet(ConstRecHitPointer one, ConstRecHitPointer two) 
   // : theRecHits{{one,two,ConstRecHitPointer()}}
   {
     theRecHits[0]=one;
     theRecHits[1]=two;
+    theRecHits[2]=theRecHits[3]=nullptr;
   }
-  SeedingHitSet(ConstRecHitPointer const & one, ConstRecHitPointer const & two, 
-		ConstRecHitPointer const & three) 
+  SeedingHitSet(ConstRecHitPointer  one, ConstRecHitPointer  two, 
+		ConstRecHitPointer three) 
   // : theRecHits{{one,two,three}},
   {
     theRecHits[0]=one;
     theRecHits[1]=two;
     theRecHits[2]=three;
+    theRecHits[3]=nullptr;
   }
   
-  SeedingHitSet(ConstRecHitPointer const & one, ConstRecHitPointer const & two, 
-		ConstRecHitPointer const & three, ConstRecHitPointer const &four) 
+  SeedingHitSet(ConstRecHitPointer one, ConstRecHitPointer two, 
+		ConstRecHitPointer three, ConstRecHitPointer four) 
   {
     theRecHits[0]=one;
     theRecHits[1]=two;
@@ -36,12 +40,11 @@ public:
     theRecHits[3]=four;
   }
   
-  ~SeedingHitSet(){}
-  
-  unsigned int size() const { return theRecHits[3].get() ? 4 : (theRecHits[2].get() ? 3 : ( theRecHits[1].get() ? 2 : 0 ) ); }
 
-  ConstRecHitPointer const &  get(unsigned int i) const { return theRecHits[i]; }
-  ConstRecHitPointer const & operator[](unsigned int i) const { return theRecHits[i]; }
+  unsigned int size() const { return theRecHits[3] ? 4 : (theRecHits[2] ? 3 : ( theRecHits[1] ? 2 : 0 ) ); }
+
+  ConstRecHitPointer  get(unsigned int i) const { return theRecHits[i]; }
+  ConstRecHitPointer  operator[](unsigned int i) const { return theRecHits[i]; }
   
   
 private:

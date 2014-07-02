@@ -40,7 +40,11 @@ void PixelDigiCollection::put(Range input, unsigned int detID) {
 const PixelDigiCollection::Range PixelDigiCollection::get(unsigned int detID) const {
   // get Digis of detID
 
-  PixelDigiCollection::IndexRange returnIndexRange = map_[detID];
+  auto found = map_.find(detID);
+  PixelDigiCollection::IndexRange returnIndexRange{};
+  if(found != map_.end()) {
+    returnIndexRange = found->second;
+  }
 
   PixelDigiCollection::Range returnRange;
   returnRange.first  = container_.begin()+returnIndexRange.first;

@@ -7,6 +7,8 @@
  **/
 
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <iostream>
 #include <boost/cstdint.hpp>
 
@@ -26,5 +28,7 @@ class EcalDAQStatusCode {
 
   private:
     uint16_t status_;
+
+  COND_SERIALIZABLE;
 };
 #endif

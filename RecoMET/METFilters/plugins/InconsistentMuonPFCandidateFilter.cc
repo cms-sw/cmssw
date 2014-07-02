@@ -28,15 +28,15 @@ class InconsistentMuonPFCandidateFilter : public edm::EDFilter {
 public:
   explicit InconsistentMuonPFCandidateFilter(const edm::ParameterSet&);
   ~InconsistentMuonPFCandidateFilter();
-  
+
 private:
   virtual void beginJob() override ;
   virtual bool filter(edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override ;
-  
+
       // ----------member data ---------------------------
-  
-  const edm::InputTag   inputTagPFCandidates_; 
+
+  edm::EDGetTokenT<reco::PFCandidateCollection>   tokenPFCandidates_;
   const double          ptMin_;
   const double          maxPTDiff_;
 
@@ -55,7 +55,7 @@ private:
 // constructors and destructor
 //
 InconsistentMuonPFCandidateFilter::InconsistentMuonPFCandidateFilter(const edm::ParameterSet& iConfig)
-  : inputTagPFCandidates_ ( iConfig.getParameter<edm::InputTag> ("PFCandidates")  )
+  : tokenPFCandidates_ ( consumes<reco::PFCandidateCollection>(iConfig.getParameter<edm::InputTag> ("PFCandidates")  ))
   , ptMin_                ( iConfig.getParameter<double>        ("ptMin")         )
   , maxPTDiff_            ( iConfig.getParameter<double>        ("maxPTDiff")     )
   , taggingMode_          ( iConfig.getParameter<bool>          ("taggingMode")   )
@@ -76,23 +76,23 @@ InconsistentMuonPFCandidateFilter::~InconsistentMuonPFCandidateFilter() { }
 bool
 InconsistentMuonPFCandidateFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  using namespace std;  
+  using namespace std;
   using namespace edm;
 
   Handle<reco::PFCandidateCollection>     pfCandidates;
-  iEvent.getByLabel(inputTagPFCandidates_,pfCandidates);
-  
+  iEvent.getByToken(tokenPFCandidates_,pfCandidates);
+
   bool    foundMuon = false;
 
-  auto_ptr< reco::PFCandidateCollection > 
-    pOutputCandidateCollection( new reco::PFCandidateCollection ); 
+  auto_ptr< reco::PFCandidateCollection >
+    pOutputCandidateCollection( new reco::PFCandidateCollection );
 
   for ( unsigned i=0; i<pfCandidates->size(); i++ ) {
-     
+
     const reco::PFCandidate & cand = (*pfCandidates)[i];
 
-    if ( cand.particleId() != reco::PFCandidate::mu ) continue; 
-    if ( cand.pt() < ptMin_ )                         continue; 
+    if ( cand.particleId() != reco::PFCandidate::mu ) continue;
+    if ( cand.pt() < ptMin_ )                         continue;
 
     const reco::MuonRef       muon  = cand.muonRef();
     if (  muon->isTrackerMuon()
@@ -103,7 +103,7 @@ InconsistentMuonPFCandidateFilter::filter(edm::Event& iEvent, const edm::EventSe
 
     foundMuon = true;
 
-    pOutputCandidateCollection->push_back( cand ); 
+    pOutputCandidateCollection->push_back( cand );
 
     if ( debug_ ) {
       cout << cand << endl;
@@ -115,26 +115,26 @@ InconsistentMuonPFCandidateFilter::filter(edm::Event& iEvent, const edm::EventSe
       if (muon->isGlobalMuon())   cout << muon->globalTrack()->pt();
       else                        cout << "(n/a)";
       cout << endl;
-    }    
+    }
   } // end loop over PF candidates
-   
+
   iEvent.put( pOutputCandidateCollection, "muons" );
 
   bool pass = !foundMuon;
-  
+
   iEvent.put( std::auto_ptr<bool>(new bool(pass)) );
 
   return taggingMode_ || pass;
 }
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
+void
 InconsistentMuonPFCandidateFilter::beginJob()
 {
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
+void
 InconsistentMuonPFCandidateFilter::endJob() {
 }
 

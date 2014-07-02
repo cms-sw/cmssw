@@ -24,10 +24,6 @@ using namespace edm;
 using namespace std;
 
 ESPedestalTask::ESPedestalTask(const edm::ParameterSet& ps) {
-
-  init_ = false;
-
-  dqmStore_	= Service<DQMStore>().operator->();
   
   digitoken_ 	= consumes<ESDigiCollection>(ps.getParameter<InputTag>("DigiLabel"));
   lookup_     	= ps.getUntrackedParameter<FileInPath>("LookupTable");
@@ -39,93 +35,54 @@ ESPedestalTask::ESPedestalTask(const edm::ParameterSet& ps) {
       for (int k=0; k<40; ++k)
 	for (int l=0; l<40; ++l)
 	  senCount_[i][j][k][l] = -1;
-  
-}
 
-ESPedestalTask::~ESPedestalTask() {
-}
-
-void ESPedestalTask::beginJob(void) {
   ievt_ = 0;
 }
 
-void ESPedestalTask::beginRun(const Run& r, const EventSetup& c) {
-
-  if ( ! mergeRuns_ ) this->reset();
-
-}
-
-void ESPedestalTask::endRun(const Run& r, const EventSetup& c) {
-}
-
-void ESPedestalTask::reset(void) {
-
-}
-
-void ESPedestalTask::setup(void) {
-  
-  init_ = true;
-
+void ESPedestalTask::bookHistograms(DQMStore::IBooker& iBooker, Run const&, EventSetup const&)
+{  
   int iz, ip, ix, iy, fed, kchip, pace, bundle, fiber, optorx;
   int senZ_[4288], senP_[4288], senX_[4288], senY_[4288];
   
   // read in look-up table
-  ifstream file;
-  file.open(lookup_.fullPath().c_str());
-  if( file.is_open() ) {
+  ifstream file(lookup_.fullPath().c_str());
+  if(!file.is_open())
+    throw cms::Exception("FileNotFound") << lookup_.fullPath();
     
-    file >> nLines_;
+  file >> nLines_;
     
-    for (int i=0; i<nLines_; ++i) {
-      file>> iz >> ip >> ix >> iy >> fed >> kchip >> pace >> bundle >> fiber >> optorx;
+  for (int i=0; i<nLines_; ++i) {
+    file>> iz >> ip >> ix >> iy >> fed >> kchip >> pace >> bundle >> fiber >> optorx;
       
-      senZ_[i] = iz;
-      senP_[i] = ip;
-      senX_[i] = ix;
-      senY_[i] = iy;
+    senZ_[i] = iz;
+    senP_[i] = ip;
+    senX_[i] = ix;
+    senY_[i] = iy;
 
-      iz = (senZ_[i]==1) ? 0:1;
-      senCount_[iz][senP_[i]-1][senX_[i]-1][senY_[i]-1] = i; 
-    }
-  } 
-  else {
-    cout<<"ESPedestalTask : Look up table file can not be found in "<<lookup_.fullPath().c_str()<<endl;
+    iz = (senZ_[i]==1) ? 0:1;
+    senCount_[iz][senP_[i]-1][senX_[i]-1][senY_[i]-1] = i; 
   }
  
   char hname[300];
   
-  if (dqmStore_) {
-    dqmStore_->setCurrentFolder(prefixME_ + "/ESPedestalTask");
+  iBooker.setCurrentFolder(prefixME_ + "/ESPedestalTask");
     
-    for (int i=0; i<nLines_; ++i) {
-      for (int is=0; is<32; ++is) {
-	sprintf(hname, "ADC Z %d P %d X %d Y %d Str %d", senZ_[i], senP_[i], senX_[i], senY_[i], is+1);
-	meADC_[i][is] = dqmStore_->book1D(hname, hname, 1000, 899.5, 1899.5);
-      }
+  for (int i=0; i<nLines_; ++i) {
+    for (int is=0; is<32; ++is) {
+      sprintf(hname, "ADC Z %d P %d X %d Y %d Str %d", senZ_[i], senP_[i], senX_[i], senY_[i], is+1);
+      meADC_[i][is] = iBooker.book1D(hname, hname, 1000, 899.5, 1899.5);
     }
   }
-
-}
-
-void ESPedestalTask::cleanup(void){
-
-  if ( ! init_ ) return;
-
-  init_ = false;
 }
 
 void ESPedestalTask::endJob(void) {
 
   LogInfo("ESPedestalTask") << "analyzed " << ievt_ << " events";
 
-  if ( enableCleanup_ ) this->cleanup();
-
 }
 
 void ESPedestalTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
   
-  if ( ! init_ ) this->setup();
-
   ievt_++;  
   runNum_ = e.id().run();
   

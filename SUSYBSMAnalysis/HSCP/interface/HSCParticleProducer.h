@@ -2,7 +2,7 @@
 //
 // Package:    HSCParticleProducer
 // Class:      HSCParticleProducer
-// 
+//
 /**\class HSCParticleProducer HSCParticleProducer.h SUSYBSMAnalysis/HSCParticleProducer/interface/HSCParticleProducer.h
 
  Description: Producer for HSCP candidates, merging tracker dt information and rpc information
@@ -67,9 +67,9 @@ class HSCParticleProducer : public edm::EDFilter {
     // ----------member data ---------------------------
     bool          Filter_;
 
-    edm::InputTag m_trackTag;
-    edm::InputTag m_trackIsoTag;
-    edm::InputTag m_muonsTag;
+    edm::EDGetTokenT<reco::TrackCollection> m_trackToken;
+    edm::EDGetTokenT<reco::TrackCollection> m_trackIsoToken;
+    edm::EDGetTokenT<reco::MuonCollection> m_muonsToken;
 
     bool         useBetaFromTk;
     bool         useBetaFromMuon;
