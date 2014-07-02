@@ -29,6 +29,9 @@
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 
 #include "SimG4Core/Geometry/interface/DDDWorld.h"
+#include "SimG4Core/MagneticField/interface/FieldBuilder.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
@@ -44,6 +47,7 @@
 #include "G4WorkerThread.hh"
 #include "G4WorkerRunManagerKernel.hh"
 #include "G4StateManager.hh"
+#include "G4TransportationManager.hh"
 
 #include <atomic>
 #include <thread>
@@ -106,6 +110,7 @@ thread_local SimActivityRegistry RunManagerMTWorker::m_registry;
 thread_local SimTrackManager *RunManagerMTWorker::m_trackManager = nullptr;
 thread_local std::vector<SensitiveTkDetector*> RunManagerMTWorker::m_sensTkDets;
 thread_local std::vector<SensitiveCaloDetector*> RunManagerMTWorker::m_sensCaloDets;
+thread_local sim::FieldBuilder *RunManagerMTWorker::m_fieldBuilder;
 thread_local G4Run *RunManagerMTWorker::m_currentRun = nullptr;
 
 RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC):
@@ -113,7 +118,9 @@ RunManagerMTWorker::RunManagerMTWorker(const edm::ParameterSet& iConfig, edm::Co
   m_InToken(iC.consumes<edm::HepMCProduct>(iConfig.getParameter<edm::ParameterSet>("Generator").getParameter<std::string>("HepMCProductLabel"))),
   m_theLHCTlinkToken(iC.consumes<edm::LHCTransportLinkContainer>(iConfig.getParameter<edm::InputTag>("theLHCTlinkTag"))),
   m_nonBeam(iConfig.getParameter<bool>("NonBeamEvent")),
+  m_pUseMagneticField(iConfig.getParameter<bool>("UseMagneticField")),
   m_EvtMgrVerbosity(iConfig.getUntrackedParameter<int>("G4EventManagerVerbosity",0)),
+  m_pField(iConfig.getParameter<edm::ParameterSet>("MagneticField")),
   m_pRunAction(iConfig.getParameter<edm::ParameterSet>("RunAction")),
   m_pEventAction(iConfig.getParameter<edm::ParameterSet>("EventAction")),
   m_pStackingAction(iConfig.getParameter<edm::ParameterSet>("StackingAction")),
@@ -169,6 +176,22 @@ void RunManagerMTWorker::initializeThread(const RunManagerMT& runManagerMaster, 
   // runManagerMaster instead of EventSetup in here?
   edm::ESTransientHandle<DDCompactView> pDD;
   es.get<IdealGeometryRecord>().get(pDD);
+
+  // setup the magnetic field
+  if (m_pUseMagneticField)
+    {
+      const GlobalPoint g(0.,0.,0.);
+
+      edm::ESHandle<MagneticField> pMF;
+      es.get<IdealMagneticFieldRecord>().get(pMF);
+
+      m_fieldBuilder = new sim::FieldBuilder(pMF.product(), m_pField);
+      G4TransportationManager * tM =
+	G4TransportationManager::GetTransportationManager();
+      m_fieldBuilder->build( tM->GetFieldManager(),
+			     tM->GetPropagatorInField());
+    }
+
 
   // attach sensitive detector
   AttachSD attach;

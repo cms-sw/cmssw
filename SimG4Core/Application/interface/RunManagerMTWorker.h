@@ -18,6 +18,9 @@ namespace edm {
   class ConsumesCollector;
   class HepMCProduct;
 }
+namespace sim {
+  class FieldBuilder;
+}
 class CustomUIsession;
 class Generator;
 class RunManagerMT;
@@ -88,7 +91,9 @@ private:
   edm::EDGetTokenT<edm::HepMCProduct> m_InToken;
   edm::EDGetTokenT<edm::LHCTransportLinkContainer> m_theLHCTlinkToken;
   const bool m_nonBeam;
+  const bool m_pUseMagneticField;
   const int m_EvtMgrVerbosity;
+  edm::ParameterSet m_pField;
   edm::ParameterSet m_pRunAction;
   edm::ParameterSet m_pEventAction;
   edm::ParameterSet m_pStackingAction;
@@ -103,6 +108,7 @@ private:
   static thread_local SimTrackManager *m_trackManager;
   static thread_local std::vector<SensitiveTkDetector*> m_sensTkDets;
   static thread_local std::vector<SensitiveCaloDetector*> m_sensCaloDets;
+  static thread_local sim::FieldBuilder *m_fieldBuilder;
 
   static thread_local G4Run *m_currentRun;
 
