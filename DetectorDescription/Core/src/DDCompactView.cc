@@ -44,7 +44,6 @@ DDCompactView::DDCompactView(const DDLogicalPart & rootnodedata)
   DDLogicalPart::StoreT::instance().setReadOnly(false);
   DDSpecifics::StoreT::instance().setReadOnly(false);
   DDRotation::StoreT::instance().setReadOnly(false);
-  //worldpos_ = new DDPosData( DDTranslation(), DDRotation(), 0 );
 }
 
 DDCompactView::~DDCompactView() 
@@ -166,7 +165,10 @@ void DDCompactView::swap( DDCompactView& repToSwap ) {
   rep_->swap ( *(repToSwap.rep_) );
 }
 
-DDCompactView::DDCompactView() : rep_(new DDCompactViewImpl) { }
+DDCompactView::DDCompactView()
+  : rep_(new DDCompactViewImpl),
+    worldpos_( new DDPosData( DDTranslation(), DDRotation(), 0 ))
+{ }
 
 void DDCompactView::lockdown() {
   // at this point we should have a valid store of DDObjects and we will move these
