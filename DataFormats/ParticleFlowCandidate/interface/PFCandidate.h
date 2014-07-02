@@ -154,6 +154,10 @@ namespace reco {
     /// otherwise, return a null reference
     reco::TrackRef trackRef() const;
 
+    /// return a pointer to the corresponding track, if charged.
+    /// otherwise, return a null pointer
+    virtual const Track * bestTrack() const { return ( trackRef().isNonnull() ? &(*trackRef()) : nullptr ); }
+
     /// set gsftrack reference 
     void setGsfTrackRef(const reco::GsfTrackRef& ref);   
 
