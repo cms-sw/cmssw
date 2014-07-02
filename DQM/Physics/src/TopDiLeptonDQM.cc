@@ -229,7 +229,7 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
 
   edm::Handle<reco::VertexCollection> vertexs;
   evt.getByToken(vertex_, vertexs);
-
+  
   if( vertexs.failedToGet() ) {
 
     //    cout << endl << "----------------------------" << endl;
@@ -401,6 +401,7 @@ void TopDiLeptonDQM::analyze(const edm::Event& evt, const edm::EventSetup& conte
 
   edm::Handle<reco::GsfElectronCollection> elecs;
   evt.getByToken(elecs_, elecs);
+
 
   reco::GsfElectronCollection::const_iterator elec;
 
