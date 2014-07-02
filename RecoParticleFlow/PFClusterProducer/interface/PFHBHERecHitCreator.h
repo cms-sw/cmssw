@@ -1,5 +1,5 @@
-#ifndef RecoParticleFlow_PFClusterProducer_PFHcalRecHitCreator_h
-#define RecoParticleFlow_PFClusterProducer_PFHcalRecHitCreator_h
+#ifndef RecoParticleFlow_PFClusterProducer_PFHBHeRecHitCreator_h
+#define RecoParticleFlow_PFClusterProducer_PFHBHeRecHitCreator_h
 
 #include "RecoParticleFlow/PFClusterProducer/interface/PFRecHitCreatorBase.h"
 
@@ -16,16 +16,13 @@
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 #include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
-
-template <typename Digi, typename Geometry,PFLayer::Layer Layer,int Detector>
-  class PFHcalRecHitCreator :  public  PFRecHitCreatorBase {
+class PFHBHERecHitCreator :  public  PFRecHitCreatorBase {
 
  public:  
-  PFHcalRecHitCreator(const edm::ParameterSet& iConfig,edm::ConsumesCollector& iC):
+  PFHBHERecHitCreator(const edm::ParameterSet& iConfig,edm::ConsumesCollector& iC):
     PFRecHitCreatorBase(iConfig,iC)
     {
-      recHitToken_ = iC.consumes<edm::SortedCollection<Digi>  >(iConfig.getParameter<edm::InputTag>("src"));
-      hoDepth_ = iConfig.getUntrackedParameter<int>("hoDepth",4);
+      recHitToken_ = iC.consumes<edm::SortedCollection<HBHERecHit> >(iConfig.getParameter<edm::InputTag>("src"));
     }
 
     void importRecHits(std::auto_ptr<reco::PFRecHitCollection>&out,std::auto_ptr<reco::PFRecHitCollection>& cleaned ,const edm::Event& iEvent,const edm::EventSetup& iSetup) {
@@ -34,46 +31,48 @@ template <typename Digi, typename Geometry,PFLayer::Layer Layer,int Detector>
 	qualityTests_.at(i)->beginEvent(iEvent,iSetup);
       }
 
-      edm::Handle<edm::SortedCollection<Digi> > recHitHandle;
+      edm::Handle<edm::SortedCollection<HBHERecHit> > recHitHandle;
 
       edm::ESHandle<CaloGeometry> geoHandle;
       iSetup.get<CaloGeometryRecord>().get(geoHandle);
   
       // get the ecal geometry
-      const CaloSubdetectorGeometry *gTmp = 
-	geoHandle->getSubdetectorGeometry(DetId::Hcal, Detector);
-
-      const Geometry *hcalGeo =dynamic_cast< const Geometry* > (gTmp);
-
-
-
+      const CaloSubdetectorGeometry *hcalBarrelGeo = 
+	geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalBarrel);
+      const CaloSubdetectorGeometry *hcalEndcapGeo = 
+	geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalEndcap);
 
       iEvent.getByToken(recHitToken_,recHitHandle);
-      for (unsigned int i=0;i<recHitHandle->size();++i) {
-	const Digi& erh = (*recHitHandle)[i];
+      for( const auto& erh : *recHitHandle ) {      
 	const HcalDetId& detid = (HcalDetId)erh.detid();
 	HcalSubdetector esd=(HcalSubdetector)detid.subdetId();
 	
-	//since hbhe are together kill other detector
-	if (esd !=Detector && Detector != HcalOther  ) 
-	  continue;
-
-
 	double energy = erh.energy();
 	double time = erh.time();
-	int depth =detid.depth();
-	if (Detector == HcalOuter)
-	  depth=hoDepth_;
-	  
+	int depth = detid.depth();
+
 	math::XYZVector position;
 	math::XYZVector axis;
 	
-	const CaloCellGeometry *thisCell;
-	thisCell= hcalGeo->getGeometry(detid);
+	const CaloCellGeometry *thisCell=0;
+	PFLayer::Layer layer = PFLayer::HCAL_BARREL1;
+	switch(esd) {
+	case HcalBarrel:
+	  thisCell =hcalBarrelGeo->getGeometry(detid); 
+	  layer =PFLayer::HCAL_BARREL1;
+	  break;
+
+	case HcalEndcap:
+	  thisCell =hcalEndcapGeo->getGeometry(detid); 
+	  layer =PFLayer::HCAL_ENDCAP;
+	  break;
+	default:
+	  break;
+	}
   
 	// find rechit geometry
 	if(!thisCell) {
-	  edm::LogError("PFHcalRecHitCreator")
+	  edm::LogError("PFHBHERecHitCreator")
 	    <<"warning detid "<<detid.rawId()
 	    <<" not found in geometry"<<std::endl;
 	  continue;
@@ -83,16 +82,12 @@ template <typename Digi, typename Geometry,PFLayer::Layer Layer,int Detector>
 				  thisCell->getPosition().y(),
 				  thisCell->getPosition().z() );
   
-
-
-
-	reco::PFRecHit rh( detid.rawId(),Layer,
+	reco::PFRecHit rh( detid.rawId(),layer,
 			   energy, 
 			   position.x(), position.y(), position.z(), 
 			   0,0,0);
 	rh.setTime(time); //Mike: This we will use later
 	rh.setDepth(depth);
-
 	const CaloCellGeometry::CornersVec& corners = thisCell->getCorners();
 	assert( corners.size() == 8 );
 
@@ -106,8 +101,8 @@ template <typename Digi, typename Geometry,PFLayer::Layer Layer,int Detector>
 	bool keep=true;
 
 	//Apply Q tests
-	for (unsigned int i=0;i<qualityTests_.size();++i) {
-	  if (!qualityTests_.at(i)->test(rh,erh,rcleaned)) {
+	for( const auto& qtest : qualityTests_ ) {
+	  if (!qtest->test(rh,erh,rcleaned)) {
 	    keep = false;
 	    
 	  }
@@ -124,16 +119,11 @@ template <typename Digi, typename Geometry,PFLayer::Layer Layer,int Detector>
 
 
  protected:
-    edm::EDGetTokenT<edm::SortedCollection<Digi> > recHitToken_;
-    int hoDepth_;
+    edm::EDGetTokenT<edm::SortedCollection<HBHERecHit> > recHitToken_;
+
 
 };
 
-typedef PFHcalRecHitCreator<HBHERecHit,CaloSubdetectorGeometry,PFLayer::HCAL_BARREL1,HcalBarrel> PFHBRecHitCreator;
-typedef PFHcalRecHitCreator<HORecHit,CaloSubdetectorGeometry,PFLayer::HCAL_BARREL2,HcalOuter> PFHORecHitCreator;
-typedef PFHcalRecHitCreator<HBHERecHit,CaloSubdetectorGeometry,PFLayer::HCAL_ENDCAP,HcalEndcap> PFHERecHitCreator;
-typedef PFHcalRecHitCreator<HFRecHit,CaloSubdetectorGeometry,PFLayer::HF_EM,HcalForward> PFHFEMRecHitCreator;
-typedef PFHcalRecHitCreator<HFRecHit,CaloSubdetectorGeometry,PFLayer::HF_HAD,HcalForward> PFHFHADRecHitCreator;
 
 
 #endif

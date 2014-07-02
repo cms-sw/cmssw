@@ -95,7 +95,8 @@ class PFPSRecHitCreator :  public  PFRecHitCreatorBase {
 			   position.x(), position.y(), position.z(), 
 			   0.0,0.0,0.0);
 
-
+	rh.setDepth(detid.plane());
+	rh.setTime(erh.time());
 	
 	const CaloCellGeometry::CornersVec& corners = thisCell->getCorners();
 	assert( corners.size() == 8 );

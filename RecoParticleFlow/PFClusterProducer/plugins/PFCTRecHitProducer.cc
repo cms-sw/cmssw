@@ -625,7 +625,7 @@ void PFCTRecHitProducer::produce(edm::Event& iEvent,
 		      theShortHitEnergy29 = 0.;
 		    }	    
 		  }
-		  
+				  
 		  // Some energy must be in the short fibres is there is some energy in the long fibres ! 
 		  if ( theLongHitEnergy29 > longFibre_Cut && 
 		       ( theShortHitEnergy29/theLongHitEnergy29 < shortFibre_Fraction || 
@@ -664,6 +664,7 @@ void PFCTRecHitProducer::produce(edm::Event& iEvent,
 		    }
 		  }
 
+		
 		  // Check that the energy in tower 29 is smaller than in tower 30
 		  // First in long fibres
 		  if ( theLongHitEnergy29 > std::max(theLongHitEnergy,shortFibre_Cut/2) ) { 
@@ -702,7 +703,7 @@ void PFCTRecHitProducer::produce(edm::Event& iEvent,
 		    theShortHitEnergy29 = 0.;
 		  }
 		}
-
+	      
 
 		// Determine EM and HAD after cleaning of short and long fibres
 		energyhadHF = 2.*shortFibre;

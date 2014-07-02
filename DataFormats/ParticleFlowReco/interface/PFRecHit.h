@@ -71,7 +71,9 @@ namespace reco {
     void calculatePositionREP();
 
     void addNeighbour(short x,short y, short z,const PFRecHitRef&);
+    const PFRecHitRef getNeighbour(short x,short y, short z);
     void setTime( double time) { time_ = time; }
+    void setDepth( int depth) { depth_ = depth; }
     void clearNeighbours() {
       neighbours_.clear();
     }
@@ -87,7 +89,7 @@ namespace reco {
       return neighbours_;
     }
 
-    const std::vector<unsigned short>& neighbourInfos() {
+    const std::vector<unsigned short>& neighbourInfos() const {
       return neighbourInfos_;
     }
 
@@ -109,6 +111,9 @@ namespace reco {
 
     /// timing for cleaned hits
     double time() const { return time_; }
+
+    /// depth for segemntation
+    int  depth() const { return depth_; }
 
     /// rechit momentum transverse to the beam, squared.
     double pt2() const { return energy_ * energy_ *
@@ -176,6 +181,10 @@ namespace reco {
 
     /// time
     double              time_;
+
+
+    /// depth
+    int      depth_;
 
     /// rechit cell centre: x, y, z
     math::XYZPoint      position_;
