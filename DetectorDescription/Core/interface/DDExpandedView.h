@@ -135,7 +135,6 @@ protected:
   unsigned int depth_; //!< depth of the scope, 0==unrestricted depth
   DDPosData * worldpos_ ; //!< ???
   std::vector<nav_type> nextBStack_;
-  //std::map<std::string,std::string> dummySpecifics_;    
 };
 
 std::ostream & printNavType(std::ostream &, int const * n, size_t sz);

@@ -4,26 +4,19 @@
 /** 
    After construction the instance corresponds to the root of the geometrical tree.
 */
-DDExpandedView::DDExpandedView(const DDCompactView & cpv)
- : walker_(0),w2_(cpv.graph(),cpv.root()), trans_(DDTranslation()), rot_(DDRotationMatrix()),
-   depth_(0), worldpos_(0)
+DDExpandedView::DDExpandedView( const DDCompactView & cpv )
+  : walker_(0),
+    w2_(cpv.graph(),cpv.root()),
+    trans_( DDTranslation()),
+    rot_( DDRotationMatrix()),
+    depth_( 0 ),
+    worldpos_( cpv.worldPosition())
 {
-  //  std::cout << "Building a DDExpandedView" << std::endl;
-  // MEC:2010-02-08 - consider the ROOT as where you want to start LOOKING at
-  // the DDD, and worldpos_ as the "real" root node of the graph.  MOVE all this 
-  // logic to DDCompactView.  This should really be just the traverser...
-  DDRotation::StoreT::instance().setReadOnly(false);
-  worldpos_ = new DDPosData(DDTranslation(),DDRotation(),0);     
-  DDRotation::StoreT::instance().setReadOnly(true);
-  
   walker_ = &w2_;
 
-  //  std::cout << "Walker: current.first=" << (*walker_).current().first << std::endl;
-  //  std::cout << "Walker: current.second=" << (*walker_).current().second << std::endl;
-  
   DDPosData * pd((*walker_).current().second);
   if (!pd)
-    pd = worldpos_;  
+    pd = worldpos_;
   DDExpandedNode expn((*walker_).current().first,
                       pd,
 		      trans_,
@@ -34,9 +27,7 @@ DDExpandedView::DDExpandedView(const DDCompactView & cpv)
   history_.push_back(expn);		      		      
 }
 
-
 DDExpandedView::~DDExpandedView() { }  
-
 
 const DDLogicalPart & DDExpandedView::logicalPart() const 
 { 
@@ -174,17 +165,6 @@ bool DDExpandedView::firstChild()
                           newTrans, newRot, 0);
     
       history_.push_back(expn);			
-    
-      /* debug output
-      edm::LogInfo("DDExpandedView")  << "FIRSTCHILD: name=" << expn.logicalPart().ddname() 
-           << " rot=";
-	 
-      if (expn.absRotation().isIdentity())
-        edm::LogInfo("DDExpandedView")  << "[none]" << std::endl;
-      else
-        edm::LogInfo("DDExpandedView")  << expn.absRotation() << std::endl;
-      */
-    
       result = true;                     
     } // if firstChild 
   } // if depthNotReached
@@ -280,10 +260,6 @@ void dump(const DDGeoHistory & h)
    int i=0;
    for (; it != h.end(); ++it) {
      edm::LogInfo("DDExpandedView")  << " " << i << it->logicalPart() << std::endl;
-     /*
-          << "     "  << it->logicalPart().material() << std::endl
-	  << "     "  << it->logicalPart().solid() << std::endl;
-     */
      ++i;	  
    }
    edm::LogInfo("DDExpandedView")  << "]---------" << std::endl;
@@ -305,38 +281,31 @@ std::vector< const DDsvalues_type *>  DDExpandedView::specifics() const
   return result;
 }
 
-void  DDExpandedView::specificsV(std::vector<const DDsvalues_type * > & result) const
+void
+DDExpandedView::specificsV(std::vector<const DDsvalues_type * > & result) const
 {
   unsigned int i(0);
-  //edm::LogInfo("DDExpandedView")  << " in ::specifics " << std::endl;
   const std::vector<std::pair<DDPartSelection*, DDsvalues_type*> > & specs = logicalPart().attachedSpecifics();
-  if (specs.size()) { // do only if SpecPar has data defined 
-    //edm::LogInfo("DDExpandedView")  << " found: specifics size=" << specs.size() << std::endl;
+  if( specs.size())
+  {
     result.reserve(specs.size());
     for (; i<specs.size(); ++i) {
       const std::pair<DDPartSelection*,DDsvalues_type*>& sp = specs[i];
       // a part selection
       const DDPartSelection & psel = *(sp.first);
-      //edm::LogInfo("DDExpandedView")  << " partsel.size = " << psel.size() << std::endl;
-      //edm::LogInfo("DDExpandedView")  << " geohistory   = " << geoHistory() << std::endl;
       const DDGeoHistory & hist = geoHistory();
       
-      //dump(hist);
-      //dump(psel);
-      
-      if (DDCompareEqual(hist, psel)()) //edm::LogInfo("DDExpandedView")  << "MATCH!!!!" << std::endl;
+      if (DDCompareEqual(hist, psel)()) 
 	result.push_back( sp.second );
     }
   }  
 }
-							   
 							   
 DDsvalues_type DDExpandedView::mergedSpecifics() const {
   DDsvalues_type merged;
   mergedSpecificsV(merged);
   return merged;
 }
-
 
 void DDExpandedView::mergedSpecificsV(DDsvalues_type & merged) const
 {
@@ -351,9 +320,7 @@ void DDExpandedView::mergedSpecificsV(DDsvalues_type & merged) const
     if (DDCompareEqual(hist, psel)())
       merge(merged,*sp.second);
   }
-  // std::sort(merged.begin(),merged.end());
 }
-
 
 /**
    All navigational commands only operate in the subtree rooted by the
@@ -371,7 +338,6 @@ void DDExpandedView::clearScope()
   scope_.clear();
   depth_=0;
 }
-
 
 void DDExpandedView::reset()
 {
@@ -577,37 +543,3 @@ std::ostream & printNavType(std::ostream & os, int const * n, size_t sz){
   os << ')';
   return os;
 }
-
-
-
-//THIS IS WRONG, THIS IS WRONG, THIS IS WRONG (not functional wrong but in any other case!)
-//THIS IS WRONG, THIS IS STUPID, i bin a depp ...
-/*
-void doit(DDGeoHistory& h) {
-  DDRotationMatrix m1, m2, m3;
-  DDGeoHistory::size_type s(h.size());
-  std::vector<DDRotationMatrix> rotVec(s);
-  std::vector<DDTranslation> transVec(s);
-  
-  DDGeoHistory::size_type c(s);
-  for (int i=0; i<s; ++i) {
-    rotVec[i]   = h[i].posd_->rot_;
-    transVec[i] = h[i].posd_->trans_;          
-  }
-    
-  if (s>1) {
-    for (int i=1; i<s; ++i) {
-      rotVec[i] = rotVec[i-1]*rotVec[i];
-      //h[i].rot_ = h[i-1].posd_->rot_ * h[i].posd_->rot_;
-    }
-    
-    for (int i=1; i<s; ++i)
-       transVec[i] = transVec[i-1] + rotVec[i-1]*transVec[i];
-       //h[i].trans_ = h[i-1].trans_ + h[i-1].rot_ * h[i]  
-  }
-  h[s-1].trans_ = transVec[s-1];
-  h[s-1].rot_ = rotVec[s-1];
-
-}
-*/
-

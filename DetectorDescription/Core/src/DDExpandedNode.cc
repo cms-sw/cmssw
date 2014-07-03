@@ -22,7 +22,8 @@ bool DDExpandedNode::operator==(const DDExpandedNode & n) const {
 
      
 int DDExpandedNode::copyno() const 
-{ 
+{
+  assert( posd_ );
   return posd_->copyno_; 
 }
 
