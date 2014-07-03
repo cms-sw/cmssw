@@ -183,6 +183,16 @@ namespace cond {
       return m_data.get() ? m_data->lastValidatedTime : cond::time::MIN_VAL;
     }
 
+    std::tuple<std::string, boost::posix_time::ptime, boost::posix_time::ptime > IOVProxy::getMetadata() const {
+      if(!m_data.get()) throwException( "No tag has been loaded.","IOVProxy::getMetadata()");
+      checkTransaction( "IOVProxy::getMetadata" );
+      std::tuple<std::string, boost::posix_time::ptime, boost::posix_time::ptime > ret;
+      if(!m_session->iovSchema().tagTable().getMetadata( m_data->tag, std::get<0>( ret ), std::get<1>( ret ), std::get<2>( ret ) ) ){
+	throwException( "Metadata for tag \""+m_data->tag+"\" have not been found in the database.","IOVProxy::getMetadata()");
+      }
+      return ret;
+    }
+
     bool IOVProxy::isEmpty() const {
       return m_data.get() ? ( m_data->sinceGroups.size()==0 && m_data->iovSequence.size()==0 ) : true; 
     }
