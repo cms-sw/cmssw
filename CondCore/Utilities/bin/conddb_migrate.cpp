@@ -7,6 +7,7 @@
 #include "CondCore/CondDB/interface/Utils.h"
 #include "CondCore/CondDB/interface/IOVEditor.h"
 #include "CondCore/CondDB/interface/IOVProxy.h"
+#include "CondCore/CondDB/src/DbCore.h"
 
 #include "CondCore/MetaDataService/interface/MetaData.h"
 
@@ -27,6 +28,7 @@ namespace cond {
       ~MigrateUtilities();
       int execute();
   };
+
 }
 
 cond::MigrateUtilities::MigrateUtilities():Utilities("conddb_migrate"){
@@ -70,6 +72,8 @@ int cond::MigrateUtilities::execute(){
     metadata.listAllTags( tagToProcess );
   }
 
+  cond::DbSession logdb = openDbSession("log", cond::Auth::COND_READER_ROLE, true ); 
+
   persistency::ConnectionPool connPool;
   persistency::Session sourceSession = connPool.createSession( sourceConnect );
 
@@ -108,7 +112,7 @@ int cond::MigrateUtilities::execute(){
       try{
         persistency::UpdatePolicy policy = persistency::NEW;
 	if( replace ) policy = persistency::REPLACE;
-	copyTag( t, sourceSession, destTag, destSession, policy, true, false );
+	migrateTag( t, sourceSession, destTag, destSession, policy, logdb );
 	status = MIGRATED;
         nt_migrated++;
       } catch ( const std::exception& e ){

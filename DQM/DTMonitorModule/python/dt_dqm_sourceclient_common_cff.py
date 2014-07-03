@@ -45,7 +45,9 @@ from Configuration.StandardSequences.FrontierConditions_GlobalTag_cff import *
 from DQM.DTMonitorModule.dtDataIntegrityTask_cfi import *
 from DQM.DTMonitorClient.dtDataIntegrityTest_cfi import *
 from DQM.DTMonitorClient.dtBlockedROChannelsTest_cfi import *
-
+DTDataIntegrityTask.processingMode = 'Online'
+DTDataIntegrityTask.dtDDULabel     = 'dtunpacker'
+DTDataIntegrityTask.dtROS25Label   = 'dtunpacker'
 
 # Digi task
 from DQM.DTMonitorModule.dtDigiTask_cfi import *
@@ -105,7 +107,7 @@ unpackers = cms.Sequence(dtunpacker + dttfunpacker + scalersRawToDigi)
 reco = cms.Sequence(dt1DRecHits + dt4DSegments)
 
 # sequence of DQM tasks to be run on physics events only
-dtDQMTask = cms.Sequence(dtDigiMonitor + dtSegmentAnalysisMonitor + dtTriggerBaseMonitor + dtTriggerLutMonitor + dtNoiseMonitor + dtResolutionAnalysisMonitor)
+dtDQMTask = cms.Sequence(DTDataIntegrityTask + dtDigiMonitor + dtSegmentAnalysisMonitor + dtTriggerBaseMonitor + dtTriggerLutMonitor + dtNoiseMonitor + dtResolutionAnalysisMonitor)
 
 # DQM clients to be run on physics event only
 dtDQMTest = cms.Sequence(dataIntegrityTest + blockedROChannelTest + triggerLutTest + triggerTest + dtOccupancyTest + segmentTest + dtNoiseAnalysisMonitor + dtSummaryClients + dtqTester)
