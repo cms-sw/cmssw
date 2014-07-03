@@ -1,0 +1,124 @@
+#!/usr/bin/env python
+"""Syntax: updateCMLcfgToCurrentRelease [-h] -r relNumber xmlcfgfile newfilename
+	-h              This text
+	-r relNumber    tell the script 
+	xmlcfgfile:     File to update
+	newfilename:    Name of the file where the changes are going to be saved
+	
+Description: This script will read xmlcfgfile and update it according to the 
+	environment variables set through cmsenv or its equivalent. The output file 
+	is written in the current directory; the original file remains unmodified.
+	
+Note: Before you run the script make sure xdaq environment settings have been 
+	properly set up and that cmsenv or its equivalent has been run from the 
+	desired release .
+	
+"""
+import sys, os.path, re
+import getopt as gop
+
+
+def detectCMSSWVersion(fileName):
+	version=""
+	fp=open(fileName)
+	line=fp.readline()
+	total=0
+	while line:
+		if "CMSSW_VERSION=" in line:
+			version=line[line.find("CMSSW_VERSION="):line.find(" ",line.find("CMSSW_VERSION="))]
+			total+=0x1
+		if "CMSSW_BASE=" in line:
+			base=line[line.find("CMSSW_BASE="):line.find(" ",line.find("CMSSW_BASE="))]
+			total+=0x2
+	        if "xdaqPath" in line:
+	        	xdaqPath=line[line.find("xdaqPath="):line.find(" ",line.find("xdaqPath="))]
+			total+=0x4
+	        if "pathToExecutive" in line:
+	        	pathToExecutive=line[line.find("pathToExecutive="):line.find(" ",line.find("pathToExecutive="))]
+			total+=0x8
+	        if "SCRAM_ARCH=" in line:
+	        	arch=re.search(r"slc\d_(ia32|amd64)_gcc\d+",line[line.find("SCRAM_ARCH="):line.find(" ",line.find("SCRAM_ARCH="))]).group(0)
+	        	total+=0x10 
+	        elif "environmentString" in line:
+	        	arch=re.search(r"slc\d_(ia32|amd64)_gcc\d+",line).group(0)
+	        	total+=0x10
+		if total == 0x1F:
+			break
+		line=fp.readline()
+	fp.close()
+	version=version.split("=")[1]
+	base=base.split("=")[1]
+	xdaqPath=xdaqPath.split("=")[1].strip("\"")
+	pathToExecutive=pathToExecutive.split("=")[1].split()[0].strip("\"")
+	return (version,base,xdaqPath,pathToExecutive,arch)
+################################################################################
+def updateFile(fileName,newFileName):
+	import EnviromentSettings as es
+	oldVersion,oldBase,oldxdaqPath,oldpathToExecutive,oldArch=detectCMSSWVersion(fileName)
+	oldVersionNumber=oldVersion.split("_",1)[1]
+	newBase=es.environmentString[es.environmentString.find("CMSSW_BASE="):es.environmentString.find(" ",es.environmentString.find("CMSSW_BASE="))].split("=")[1]
+	newxdaqPath=es.environmentString[es.environmentString.find("XDAQ_ROOT="):es.environmentString.find(" ",es.environmentString.find("XDAQ_ROOT="))].split("=")[1]
+	newpathToExecutive="%s/bin/xdaq.sh" % newxdaqPath
+	newArch=es.environmentString[es.environmentString.find("SCRAM_ARCH="):es.environmentString.find(" ",es.environmentString.find("SCRAM_ARCH="))].split("=")[1]
+	if not os.path.exists(newpathToExecutive):
+		newpathToExecutive="%s/bin/xdaq.exe" % newxdaqPath
+		if not os.path.exists(newpathToExecutive):
+			sys.stderr.write("\nWARNING: Can't find path to executive: %s\n" % newpathToExecutive ) 
+	if oldxdaqPath in oldpathToExecutive:
+		oldpathToExecutive=oldpathToExecutive.replace(oldxdaqPath,newxdaqPath)
+	fp=open(fileName)
+	nfp=open(newFileName,"w")
+	line=fp.readline()
+	while line:
+	        newline=line
+		if "environmentString=" in newline:
+			envStart=line.find("environmentString=")
+			newline=line[0:envStart]
+			quote=line[envStart+18:envStart+19]
+			newline+="environmentString=\""+es.environmentString
+			newline+=line[line.find(quote,envStart+20):]
+		if "<Configuration" in newline:
+			envStart=line.find("path=")
+			newline=line[0:envStart]
+			quote=line[envStart+5:envStart+6]
+			newline+="path=\""+line[envStart+6:line.rfind("/",envStart+6,line.find(quote,envStart+6))+1]+newFileName.rstrip(".xml")
+			newline+=line[line.find(quote,envStart+6):]
+		if oldBase in newline:
+			newline=newline.replace(oldBase,newBase)
+		if oldxdaqPath in newline:
+			newline=newline.replace(oldxdaqPath,newxdaqPath)
+		if oldpathToExecutive in newline:
+			newline=newline.replace(oldpathToExecutive,newpathToExecutive)
+		if oldArch in newline:
+		        newline=newline.replace(oldArch,newArch)
+		nfp.write(newline)
+		line=fp.readline()
+		
+
+################################################################################
+if __name__ == "__main__":             
+	try:
+		(args,filename)=gop.getopt(sys.argv[1:],"h")
+	except getopt.GetoptError:
+		sys.stderr.write(  "Sintax Error unrecognised option\n" )
+		sys.stderr.write( __doc__ )
+		sys.exit(2)
+	for item in args:
+		if item[0]=="-h":
+			sys.stdout.write( __doc__ )
+			sys.exit()
+	if len(filename)==0:
+		sys.stderr.write(  "\nERROR: xdaq XML config file name not present, please specify\n\n" )
+		sys.stdout.write(__doc__)
+	elif len(filename) > 2:
+		sys.stderr.write(  "\nERROR: Too many file names or other arguments, please specify only 2\n\n" )
+		sys.stdout.write(__doc__)
+		sys.exit(2)
+	elif not os.path.exists(filename[0]):
+		sys.stderr.write(  "\nERROR: xdaq XML config file does not exist please verify\n\n" )
+		sys.stdout.write(__doc__)
+		sys.exit(2)
+	try: 
+		updateFile(filename[0],filename[1])
+	except IndexError:
+		print "Please specify the new file name"
