@@ -301,11 +301,11 @@ GhostTrackComputer::operator () (const TrackIPTagInfo &ipInfo,
 	vars.insert(btau::trackSumJetEtRatio,
 	            allKinematics.vectorSum().Et() / ipInfo.jet()->et(), true);
 	vars.insert(btau::trackSip3dSigAboveCharm,
-	            threshTrack(ipInfo, TrackIPTagInfo::IP3DSig, *jet, pv)
+	            threshTrack(ipInfo, reco::btag::IP3DSig, *jet, pv)
 	            					.ip3d.significance(),
 	            true);
 	vars.insert(btau::trackSip2dSigAboveCharm,
-	            threshTrack(ipInfo, TrackIPTagInfo::IP2DSig, *jet, pv)
+	            threshTrack(ipInfo, reco::btag::IP2DSig, *jet, pv)
 	            					.ip2d.significance(),
 	            true);
 

@@ -16,24 +16,10 @@
 #include "DataFormats/GeometryVector/interface/VectorUtil.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
-
-
-
 namespace reco {
-
-template <class Container, class Base>
-class IPTagInfo : public Base {
-public:
-//hide here, but why we have it implemented 3 times?!?
-double etaRel(const math::XYZVector &dir, const math::XYZVector &track) const {
-  double momPar = dir.Dot(track);
-  double energy = sqrt(track.Mag2() + ROOT::Math::Square(0.13957));
-  return 0.5 * log((energy + momPar) / (energy - momPar));
-}
-
-    typedef Container input_container;
-    typedef Base base_class;
-
+namespace btag {
+ template <class T> const reco::Track * toTrack(const T &);
+ 
   struct TrackIPData {
     GlobalPoint closestToJetAxis;
     GlobalPoint closestToGhostTrack;
@@ -49,9 +35,30 @@ double etaRel(const math::XYZVector &dir, const math::XYZVector &track) const {
     double min_pT_dRcut,  max_pT_dRcut;
     double max_pT_trackPTcut;
   };
-  
+  enum SortCriteria { IP3DSig = 0, Prob3D, IP2DSig, Prob2D, 
+                      IP3DValue, IP2DValue };
+
+}
+
+
+
+template <class Container, class Base>
+class IPTagInfo : public Base {
+public:
+//hide here, but why we have it implemented 3 times?!?
+double etaRel(const math::XYZVector &dir, const math::XYZVector &track) const {
+  double momPar = dir.Dot(track);
+  double energy = sqrt(track.Mag2() + ROOT::Math::Square(0.13957));
+  return 0.5 * log((energy + momPar) / (energy - momPar));
+}
+    typedef btag::TrackIPData TrackIPData;
+    typedef btag::variableJTAParameters variableJTAParameters; 	
+    typedef btag::SortCriteria SortCriteria;	
+    typedef Container input_container;
+    typedef Base base_class;
+
   IPTagInfo(
-    const std::vector<TrackIPData> & ipData,
+    const std::vector<btag::TrackIPData> & ipData,
     const std::vector<float> & prob2d,
     const std::vector<float> & prob3d,
     const Container & selected,
@@ -85,7 +92,7 @@ double etaRel(const math::XYZVector &dir, const math::XYZVector &track) const {
   /**
    Vectors of TrackIPData orderd as the selectedTracks()
    */
-  const std::vector<TrackIPData> & impactParameterData() const
+  const std::vector<btag::TrackIPData> & impactParameterData() const
   { return m_data; }
 
   /**
@@ -99,8 +106,6 @@ double etaRel(const math::XYZVector &dir, const math::XYZVector &track) const {
   
   const std::vector<float> & probabilities(int ip) const {return (ip==0)?m_prob3d:m_prob2d; }
 
-  enum SortCriteria { IP3DSig = 0, Prob3D, IP2DSig, Prob2D, 
-                      IP3DValue, IP2DValue };
 
   /**
    Return the list of track index sorted by mode
@@ -110,20 +115,20 @@ double etaRel(const math::XYZVector &dir, const math::XYZVector &track) const {
    probability < cut
    (according to the specified mode)
   */
-  std::vector<size_t> sortedIndexesWithCut(float cut, SortCriteria mode = IP3DSig) const;
+  std::vector<size_t> sortedIndexesWithCut(float cut, SortCriteria mode = reco::btag::IP3DSig) const;
 
   /**
    variable jet-to track association:
    returns vector of bool, indicating for each track whether it passed 
    the variable JTA.
   */
-  std::vector<bool> variableJTA(const variableJTAParameters &params) const;
-  static bool passVariableJTA(const variableJTAParameters &params, double jetpt, double trackpt, double jettrackdr) ;
+  std::vector<bool> variableJTA(const btag::variableJTAParameters &params) const;
+  static bool passVariableJTA(const btag::variableJTAParameters &params, double jetpt, double trackpt, double jettrackdr) ;
 
   /**
    Return the list of track index sorted by mode
   */ 
-  std::vector<size_t> sortedIndexes(SortCriteria mode = IP3DSig) const;
+  std::vector<size_t> sortedIndexes(SortCriteria mode = reco::btag::IP3DSig) const;
   Container sorted(const std::vector<size_t>& indexes) const;
   Container sortedTracks(const std::vector<size_t>& indexes) const {return sorted(indexes);}
 
@@ -137,7 +142,7 @@ double etaRel(const math::XYZVector &dir, const math::XYZVector &track) const {
   const Track * selectedTrack(size_t i) const;
 
 private:
-  std::vector<TrackIPData> m_data;
+  std::vector<btag::TrackIPData> m_data;
   std::vector<float> m_prob2d;   
   std::vector<float> m_prob3d;   
   Container m_selected;
@@ -168,7 +173,7 @@ template <class Container, class Base> TaggingVariableList IPTagInfo<Container,B
    {
      using namespace ROOT::Math;
      const Track * track = selectedTrack(*it);
-     const TrackIPData *data = &m_data[*it];
+     const btag::TrackIPData *data = &m_data[*it];
      math::XYZVector trackMom = track->momentum();
      double trackMag = std::sqrt(trackMom.Mag2());
 
@@ -205,7 +210,7 @@ template<class Container, class Base> Container IPTagInfo<Container,Base>::sorte
  return tr;
 }
 
-template<class Container, class Base> std::vector<bool> IPTagInfo<Container,Base>::variableJTA(const variableJTAParameters &params) const{
+template<class Container, class Base> std::vector<bool> IPTagInfo<Container,Base>::variableJTA(const btag::variableJTAParameters &params) const{
   
   std::vector<bool> result;
 
@@ -233,6 +238,7 @@ template<class Container, class Base> std::vector<bool> IPTagInfo<Container,Base
 
 template<class Container, class Base> std::vector<size_t> IPTagInfo<Container,Base>::sortedIndexes(SortCriteria mode) const
 {
+ using namespace reco::btag;
  float cut=-1e99;
  if((mode == Prob3D || mode == Prob2D)) cut=1e99;
  return sortedIndexesWithCut(cut,mode);
@@ -243,6 +249,7 @@ template<class Container, class Base> std::vector<size_t> IPTagInfo<Container,Ba
  std::multimap<float,size_t> sortedIdx;
  size_t nSelectedTracks = m_selected.size();
  std::vector<size_t> result;
+ using namespace reco::btag;
  
 //check if probabilities are available
  if((mode == Prob3D || mode == Prob2D) && ! hasProbabilities()) 
@@ -294,7 +301,7 @@ if(mode == IP3DSig || mode == IP2DSig ||mode ==  IP3DValue || mode == IP2DValue)
  return result;
 }
 
-template<class Container, class Base> bool IPTagInfo<Container,Base>::passVariableJTA(const variableJTAParameters &params, double jetpT, double trackpT, double jettrackdR) {
+template<class Container, class Base> bool IPTagInfo<Container,Base>::passVariableJTA(const btag::variableJTAParameters &params, double jetpT, double trackpT, double jettrackdR) {
 
   bool pass = false;
 

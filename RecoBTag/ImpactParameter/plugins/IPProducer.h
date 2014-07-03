@@ -330,13 +330,13 @@ IPProducer<Container,Base,Helper>::produce(edm::Event& iEvent, const edm::EventS
      }
 
      vector<float> prob2D, prob3D;
-     vector<typename Product::value_type::TrackIPData> ipData;
+     vector<reco::btag::TrackIPData> ipData;
 
      for(unsigned int ind = 0; ind < transientTracks.size(); ind++) {
        const TransientTrack &transientTrack = transientTracks[ind];
        const Track & track = transientTrack.track();
 
-       typename Product::value_type::TrackIPData trackIP;
+       reco::btag::TrackIPData trackIP;
        trackIP.ip3d = IPTools::signedImpactParameter3D(transientTrack, direction, *pv).second;
        trackIP.ip2d = IPTools::signedTransverseImpactParameter(transientTrack, direction, *pv).second;
 

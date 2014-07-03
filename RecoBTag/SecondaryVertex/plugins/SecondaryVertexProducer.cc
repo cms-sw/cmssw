@@ -24,6 +24,7 @@
 
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 #include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
+#include "DataFormats/BTauReco/interface/CandIPTagInfo.h"
 #include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"
 
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
@@ -62,12 +63,12 @@ namespace {
 	};
 }
 
-
+template <class IPTI>
 class SecondaryVertexProducer : public edm::stream::EDProducer<> {
     public:
 	explicit SecondaryVertexProducer(const edm::ParameterSet &params);
 	~SecondaryVertexProducer();
-
+	typedef std::vector<TemplatedSecondaryVertexTagInfo<IPTI> > Product;
 	virtual void produce(edm::Event &event, const edm::EventSetup &es) override;
 
     private:
@@ -83,8 +84,10 @@ class SecondaryVertexProducer : public edm::stream::EDProducer<> {
 	static ConstraintType getConstraintType(const std::string &name);
 
         edm::EDGetTokenT<reco::BeamSpot> token_BeamSpot;
-        edm::EDGetTokenT<reco::TrackIPTagInfoCollection> token_trackIPTagInfo;
-	TrackIPTagInfo::SortCriteria	sortCriterium;
+        edm::EDGetTokenT<std::vector<IPTI> > token_trackIPTagInfo;
+	typedef typename IPTI::input_container input_container;
+	typedef typename IPTI::input_container::value_type input_item;
+	reco::btag::SortCriteria	sortCriterium;
 	TrackSelector			trackSelector;
 	ConstraintType			constraint;
 	double				constraintScaling;
@@ -98,9 +101,9 @@ class SecondaryVertexProducer : public edm::stream::EDProducer<> {
         double                          extSVDeltaRToJet;      
         edm::EDGetTokenT<reco::VertexCollection> token_extSVCollection;
 };
-
-SecondaryVertexProducer::ConstraintType
-SecondaryVertexProducer::getConstraintType(const std::string &name)
+template <class IPTI>
+typename SecondaryVertexProducer<IPTI>::ConstraintType
+SecondaryVertexProducer<IPTI>::getConstraintType(const std::string &name)
 {
 	if (name == "None")
 		return CONSTRAINT_NONE;
@@ -138,7 +141,8 @@ getGhostTrackFitType(const std::string &name)
 			   "understood." << std::endl;
 }
 
-SecondaryVertexProducer::SecondaryVertexProducer(
+template <class IPTI>
+SecondaryVertexProducer<IPTI>::SecondaryVertexProducer(
 					const edm::ParameterSet &params) :
 	sortCriterium(TrackSorting::getCriterium(params.getParameter<std::string>("trackSort"))),
 	trackSelector(params.getParameter<edm::ParameterSet>("trackSelection")),
@@ -151,7 +155,7 @@ SecondaryVertexProducer::SecondaryVertexProducer(
 	vertexFilter(params.getParameter<edm::ParameterSet>("vertexCuts")),
 	vertexSorting(params.getParameter<edm::ParameterSet>("vertexSelection"))
 {
-	token_trackIPTagInfo =  consumes<reco::TrackIPTagInfoCollection>(params.getParameter<edm::InputTag>("trackIPTagInfos"));
+	token_trackIPTagInfo =  consumes<std::vector<IPTI> >(params.getParameter<edm::InputTag>("trackIPTagInfos"));
 	if (constraint == CONSTRAINT_PV_ERROR_SCALED ||
 	    constraint == CONSTRAINT_PV_BS_Z_ERRORS_SCALED)
 		constraintScaling = params.getParameter<double>("pvErrorScaling");
@@ -167,10 +171,10 @@ SecondaryVertexProducer::SecondaryVertexProducer(
 	   token_extSVCollection =  consumes<reco::VertexCollection>(params.getParameter<edm::InputTag>("extSVCollection"));
        	   extSVDeltaRToJet = params.getParameter<double>("extSVDeltaRToJet");
         }
-	produces<SecondaryVertexTagInfoCollection>();
+	produces<Product>();
 }
-
-SecondaryVertexProducer::~SecondaryVertexProducer()
+template <class IPTI>
+SecondaryVertexProducer<IPTI>::~SecondaryVertexProducer()
 {
 }
 
@@ -209,17 +213,21 @@ namespace {
 			
 } // anonynmous namespace
 
-void SecondaryVertexProducer::produce(edm::Event &event,
+template <class IPTI>
+void SecondaryVertexProducer<IPTI>::produce(edm::Event &event,
                                       const edm::EventSetup &es)
 {
-	typedef std::map<TrackBaseRef, TransientTrack,
-	                 RefToBaseLess<Track> > TransientTrackMap;
+//	typedef std::map<TrackBaseRef, TransientTrack,
+//	                 RefToBaseLess<Track> > TransientTrackMap;
+	//How about good old pointers?
+	typedef std::map<const Track *, TransientTrack> TransientTrackMap;
+	
 
 	edm::ESHandle<TransientTrackBuilder> trackBuilder;
 	es.get<TransientTrackRecord>().get("TransientTrackBuilder",
 	                                   trackBuilder);
 
-	edm::Handle<TrackIPTagInfoCollection> trackIPTagInfos;
+	edm::Handle<std::vector<IPTI> > trackIPTagInfos;
 	event.getByToken(token_trackIPTagInfo, trackIPTagInfos);
 
         // External Sec Vertex collection (e.g. for IVF usage)
@@ -275,13 +283,12 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 
 	// result secondary vertices
 
-	std::auto_ptr<SecondaryVertexTagInfoCollection>
-			tagInfos(new SecondaryVertexTagInfoCollection);
+	std::auto_ptr<Product> tagInfos(new Product);
 
-	for(TrackIPTagInfoCollection::const_iterator iterJets =
+	for(typename std::vector<IPTI>::const_iterator iterJets =
 		trackIPTagInfos->begin(); iterJets != trackIPTagInfos->end();
 		++iterJets) {
-		std::vector<SecondaryVertexTagInfo::IndexedTrackData> trackData;
+		std::vector<typename TemplatedSecondaryVertexTagInfo<IPTI>::IndexedTrackData> trackData;
 //		      std::cout << "Jet " << iterJets-trackIPTagInfos->begin() << std::endl; 
 
 		const Vertex &pv = *iterJets->primaryVertex();
@@ -291,17 +298,17 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 			for(Vertex::trackRef_iterator iter = pv.tracks_begin();
 			    iter != pv.tracks_end(); ++iter) {
 				TransientTrackMap::iterator pos =
-					primariesMap.lower_bound(*iter);
+					primariesMap.lower_bound(iter->get());
 
 				if (pos != primariesMap.end() &&
-				    pos->first == *iter)
+				    pos->first == iter->get())
 					primaries.insert(pos->second);
 				else {
 					TransientTrack track =
 						trackBuilder->build(
 							iter->castTo<TrackRef>());
 					primariesMap.insert(pos,
-						std::make_pair(*iter, track));
+						std::make_pair(iter->get(), track));
 					primaries.insert(track);
 				}
 			}
@@ -316,9 +323,9 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 		std::vector<std::size_t> indices =
 				iterJets->sortedIndexes(sortCriterium);
 
-		TrackRefVector trackRefs = iterJets->sortedTracks(indices);
+		input_container trackRefs = iterJets->sortedTracks(indices);
 
-		const std::vector<TrackIPTagInfo::TrackIPData> &ipData =
+		const std::vector<reco::btag::TrackIPData> &ipData =
 					iterJets->impactParameterData();
 
 		// build transient tracks used for vertex reconstruction
@@ -331,26 +338,25 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 						*iterJets->ghostTrack()));
 
 		for(unsigned int i = 0; i < indices.size(); i++) {
-			typedef SecondaryVertexTagInfo::IndexedTrackData IndexedTrackData;
+			typedef typename TemplatedSecondaryVertexTagInfo<IPTI>::IndexedTrackData IndexedTrackData;
 
-			const TrackRef &trackRef = trackRefs[i];
+			const input_item &trackRef = trackRefs[i];
 
 			trackData.push_back(IndexedTrackData());
 			trackData.back().first = indices[i];
 
 			// select tracks for SV finder
 
-			if (!trackSelector(*trackRef, ipData[indices[i]], *jetRef,
+			if (!trackSelector(*reco::btag::toTrack(trackRef), ipData[indices[i]], *jetRef,
 			                   RecoVertex::convertPos(
 			                   		pv.position()))) {
 				trackData.back().second.svStatus =
-					SecondaryVertexTagInfo::TrackData::trackSelected;
+					  TemplatedSecondaryVertexTagInfo<IPTI>::TrackData::trackSelected;
 				continue;
 			}
 
 			TransientTrackMap::const_iterator pos =
-					primariesMap.find(
-						TrackBaseRef(trackRef));
+					primariesMap.find(reco::btag::toTrack((trackRef)));
 			TransientTrack fitTrack;
 			if (pos != primariesMap.end()) {
 				primaries.erase(pos->second);
@@ -360,7 +366,7 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 			fitTracks.push_back(fitTrack);
 
 			trackData.back().second.svStatus =
-				SecondaryVertexTagInfo::TrackData::trackUsedForVertexFit;
+				  TemplatedSecondaryVertexTagInfo<IPTI>::TrackData::trackUsedForVertexFit;
 
 			if (useGhostTrack) {
 				GhostTrackState gtState(fitTrack);
@@ -500,7 +506,7 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 
 		std::vector<unsigned int> vtxIndices = vertexSorting(SVs);
 
-		std::vector<SecondaryVertexTagInfo::VertexData> svData;
+		std::vector<typename TemplatedSecondaryVertexTagInfo<IPTI>::VertexData> svData;
 
 		svData.resize(vtxIndices.size());
 		for(unsigned int idx = 0; idx < vtxIndices.size(); idx++) {
@@ -521,9 +527,9 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 				if (sv.trackWeight(*iter) < minTrackWeight)
 					continue;
 
-				TrackRefVector::const_iterator pos =
+				typename input_container::const_iterator pos =
 					std::find(trackRefs.begin(), trackRefs.end(),
-					          iter->castTo<TrackRef>());
+					          iter->castTo<input_item>());
 
 				if (pos == trackRefs.end() ) {
 				   if(!useExternalSV)
@@ -534,7 +540,7 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 				} else {
 				unsigned int index = pos - trackRefs.begin();
 				trackData[index].second.svStatus =
-					(SecondaryVertexTagInfo::TrackData::Status)
+					(typename TemplatedSecondaryVertexTagInfo<IPTI>::TrackData::Status)
 					((unsigned int)SecondaryVertexTagInfo::TrackData::trackAssociatedToVertex + idx);
  				}
 			}
@@ -543,9 +549,9 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 		// fill result into tag infos
 
 		tagInfos->push_back(
-			SecondaryVertexTagInfo(
+			TemplatedSecondaryVertexTagInfo<IPTI>(
 				trackData, svData, SVs.size(),
-				TrackIPTagInfoRef(trackIPTagInfos,
+				edm::Ref<std::vector<IPTI> >(trackIPTagInfos,
 					iterJets - trackIPTagInfos->begin())));
 	}
 
@@ -553,4 +559,9 @@ void SecondaryVertexProducer::produce(edm::Event &event,
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(SecondaryVertexProducer);
+typedef SecondaryVertexProducer<TrackIPTagInfo> TrackSecondaryVertexProducer;
+typedef SecondaryVertexProducer<CandIPTagInfo> CandSecondaryVertexProducer;
+
+DEFINE_FWK_MODULE(TrackSecondaryVertexProducer);
+DEFINE_FWK_MODULE(CandSecondaryVertexProducer);
+

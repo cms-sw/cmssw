@@ -93,8 +93,8 @@ class TemplatedSecondaryVertexTagInfo : public BaseTagInfo {
 	virtual edm::RefToBase<Jet> jet(void) const
 	{ return m_trackIPTagInfoRef->jet(); }
 
-	virtual input_container tracks(void) const
-	{ return m_trackIPTagInfoRef->tracks(); }
+//	virtual input_container ipTracks(void) const
+//	{ return m_trackIPTagInfoRef->tracks(); }
 
 //AR TODO is it needed?
 //	const JetTracksAssociationRef &jtaRef(void) const

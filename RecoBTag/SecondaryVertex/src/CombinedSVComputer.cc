@@ -331,13 +331,13 @@ CombinedSVComputer::operator () (const TrackIPTagInfo &ipInfo,
 	            allKinematics.vectorSum().Et() / ipInfo.jet()->et(), true);
 	vars.insert(btau::trackSip3dSigAboveCharm,
 	            flipValue(
-	            	threshTrack(ipInfo, TrackIPTagInfo::IP3DSig, *jet, pv)
+	            	threshTrack(ipInfo, reco::btag::IP3DSig, *jet, pv)
 	            					.ip3d.significance(),
 	            	false),
 	            true);
 	vars.insert(btau::trackSip2dSigAboveCharm,
 	            flipValue(
-	            	threshTrack(ipInfo, TrackIPTagInfo::IP2DSig, *jet, pv)
+	            	threshTrack(ipInfo, reco::btag::IP2DSig, *jet, pv)
 	            					.ip2d.significance(),
 	            	false),
 	            true);
