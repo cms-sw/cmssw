@@ -676,12 +676,12 @@ void SiPixelDigiSource::bookMEs(DQMStore::IBooker & iBooker){
   }  
   std::map<uint32_t,SiPixelDigiModule*>::iterator struct_iter;
  
-  SiPixelFolderOrganizer theSiPixelFolder;
+  SiPixelFolderOrganizer theSiPixelFolder(false);
 
   for(struct_iter = thePixelStructure.begin(); struct_iter != thePixelStructure.end(); struct_iter++){
     /// Create folder tree and book histograms 
     if(modOn){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,0,isUpgrade)){
+      if(theSiPixelFolder.setModuleFolder(iBooker,(*struct_iter).first,0,isUpgrade)){
 	(*struct_iter).second->book( conf_,iBooker,0,twoDimOn,hiRes, reducedSet, twoDimModOn, isUpgrade);
       } else {
 
@@ -690,7 +690,7 @@ void SiPixelDigiSource::bookMEs(DQMStore::IBooker & iBooker){
       }
     }
     if(ladOn){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,1,isUpgrade)){
+      if(theSiPixelFolder.setModuleFolder(iBooker,(*struct_iter).first,1,isUpgrade)){
 	(*struct_iter).second->book( conf_,iBooker,1,twoDimOn,hiRes, reducedSet, isUpgrade);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH LADDER-FOLDER\n";
@@ -698,7 +698,7 @@ void SiPixelDigiSource::bookMEs(DQMStore::IBooker & iBooker){
    
     }
     if(layOn || twoDimOnlyLayDisk){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,2,isUpgrade)){
+      if(theSiPixelFolder.setModuleFolder(iBooker,(*struct_iter).first,2,isUpgrade)){
 	(*struct_iter).second->book( conf_,iBooker,2,twoDimOn,hiRes, reducedSet, twoDimOnlyLayDisk, isUpgrade);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH LAYER-FOLDER\n";
@@ -706,28 +706,28 @@ void SiPixelDigiSource::bookMEs(DQMStore::IBooker & iBooker){
     }
 
     if(phiOn){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,3,isUpgrade)){
+      if(theSiPixelFolder.setModuleFolder(iBooker,(*struct_iter).first,3,isUpgrade)){
 	(*struct_iter).second->book( conf_,iBooker,3,twoDimOn,hiRes, reducedSet, isUpgrade);
 	} else {
         LogDebug ("PixelDQM") << "PROBLEM WITH PHI-FOLDER\n";
       }
     }
     if(bladeOn){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,4,isUpgrade)){
+      if(theSiPixelFolder.setModuleFolder(iBooker,(*struct_iter).first,4,isUpgrade)){
 	(*struct_iter).second->book( conf_,iBooker,4,twoDimOn,hiRes, reducedSet, isUpgrade);
 	} else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH BLADE-FOLDER\n";
       }
     }
     if(diskOn || twoDimOnlyLayDisk){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,5,isUpgrade)){
+      if(theSiPixelFolder.setModuleFolder(iBooker,(*struct_iter).first,5,isUpgrade)){
 	(*struct_iter).second->book( conf_,iBooker,5,twoDimOn,hiRes, reducedSet, twoDimOnlyLayDisk, isUpgrade);
       } else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH DISK-FOLDER\n";
       }
     }
     if(ringOn){
-      if(theSiPixelFolder.setModuleFolder((*struct_iter).first,6,isUpgrade)){
+      if(theSiPixelFolder.setModuleFolder(iBooker,(*struct_iter).first,6,isUpgrade)){
 	(*struct_iter).second->book( conf_,iBooker,6,twoDimOn,hiRes, reducedSet, isUpgrade);
       } else {
 	LogDebug ("PixelDQM") << "PROBLEM WITH RING-FOLDER\n";
