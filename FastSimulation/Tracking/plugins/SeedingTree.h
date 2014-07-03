@@ -79,13 +79,13 @@ class SeedingNode
         
         inline const SeedingNode<DATA>* nextSibling() const
         {
-            if (_childIndex+1>=getParent()._children().size())
+            if (_childIndex+1>=getParent()->_children.size())
             {
                 return nullptr;
             }
             else
             {
-                return _allNodes[getParent()._children()[_childIndex+1]];
+                return _allNodes[getParent()->_children[_childIndex+1]];
             }
         }
         

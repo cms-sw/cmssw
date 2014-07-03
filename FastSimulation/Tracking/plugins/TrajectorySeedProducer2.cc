@@ -93,185 +93,86 @@ TrajectorySeedProducer2::passSimTrackQualityCuts(const SimTrack& theSimTrack, co
 	}
     return true;
 }
-/*
+
 bool
-TrajectorySeedProducer2::passTrackerRecHitQualityCuts(LayerNode& lastnodeofseed, std::vector<int> globalHitNumbers, unsigned int trackingAlgorithmId)
+TrajectorySeedProducer2::pass2HitsCuts(const TrackerRecHit& hit1, const TrackerRecHit& hit2, unsigned int trackingAlgorithmId)
 {
-	//TODO: it seems that currently only a PV compatibility check for the first 2 hits is really important
+	GlobalPoint gpos1 = hit1.globalPosition();
+	GlobalPoint gpos2 = hit2.globalPosition();
+	bool forward = hit1.isForward();
+	double error = std::sqrt(hit1.largerError()+hit2.largerError());
+	bool compatible=false;
 
-	//return true;
-	if (lastnodeofseed.getDepth()==2)
+	//TODO: get rid of evil string comp!!!!
+	//if this is important => add a config option to specify if compatibility with PV is required
+	
+	if(seedingAlgo[trackingAlgorithmId] == "PixelLess" ||  seedingAlgo[trackingAlgorithmId] ==  "TobTecLayerPairs")
 	{
-		TrackerRecHit& theSeedHits0 = trackerRecHits[globalHitNumbers[lastnodeofseed.getParent(1)->getGlobalIndex()]];
-		TrackerRecHit& theSeedHits1 = trackerRecHits[globalHitNumbers[lastnodeofseed.getParent(0)->getGlobalIndex()]];
-		GlobalPoint gpos1 = theSeedHits0.globalPosition();
-		GlobalPoint gpos2 = theSeedHits1.globalPosition();
-		bool forward = theSeedHits0.isForward();
-		double error = std::sqrt(theSeedHits0.largerError()+theSeedHits1.largerError());
-		//	  compatible = compatibleWithVertex(gpos1,gpos2,ialgo);
-		//added out of desperation
-		bool compatible=false;
-
-		//TODO: get rid of evil string comp!!!!
-		//if this is important => add a config option to specify if compatibility with PV is required
-		
-		if(seedingAlgo[trackingAlgorithmId] == "PixelLess" ||  seedingAlgo[trackingAlgorithmId] ==  "TobTecLayerPairs")
-		{
-			compatible = true;
-		} else {
-			compatible = compatibleWithBeamAxis(gpos1,gpos2,error,forward,trackingAlgorithmId);
-			//if (!compatible) std::cout<<"reject beam axis"<<std::endl;
-		}
-
-		return compatible;
+		compatible = true;
+	} else {
+		compatible = compatibleWithBeamAxis(gpos1,gpos2,error,forward,trackingAlgorithmId);
+		//if (!compatible) std::cout<<"reject beam axis"<<std::endl;
 	}
-
-	return true;
+	return compatible;
 }
-*/
+
 
 std::vector<unsigned int> TrajectorySeedProducer2::iterateHits(
 		SiTrackerGSMatchedRecHit2DCollection::const_iterator start,
 		SiTrackerGSMatchedRecHit2DCollection::range range,
+		const std::vector<TrackerRecHit>& trackerRecHits,
 		std::vector<int> hitIndicesInTree,
 		unsigned int trackingAlgorithmId,
 		std::vector<unsigned int>& seedHitNumbers
 	)
 {
-
-
-    /*
-	bool nextHitOnSameLayer=false;
-	bool thisHitOnSameLayer=false;
 	for (SiTrackerGSMatchedRecHit2DCollection::const_iterator itRecHit = start; itRecHit!=range.second; ++itRecHit)
 	{
 	    unsigned int currentHitIndex = itRecHit-range.first;
         std::cout<<"\t hitIndex="<<currentHitIndex;
-		//trackerRecHits.size() is 'absMinRecHits' + including hits on the same layer
 		if ( currentHitIndex >= trackerRecHits.size())
 		{
-			return -1;
+		    //TODO: one can speed things up here if a hit is already too far from the seeding layers (barrel/disks)
+			return std::vector<unsigned int>();
 		}
-		TrackerRecHit& currentTrackerHit = trackerRecHits[currentHitIndex];
-
-		thisHitOnSameLayer=nextHitOnSameLayer;
-		if (currentHitIndex+1 <= trackerRecHits.size())
+		const TrackerRecHit& currentTrackerHit = trackerRecHits[currentHitIndex];
+		
+		//process all hits after currentHit on the same layer
+		for (unsigned int inext = currentHitIndex+1; inext < trackerRecHits.size(); ++inext)
 		{
-			nextHitOnSameLayer=trackerRecHits[currentHitIndex].isOnTheSameLayer(trackerRecHits[currentHitIndex+1]);
-		}
-		if (nextHitOnSameLayer)
-		{
-			//branch here to process an alternative seeding hypothesis using the next hit which will be skip by the main loop
-            std::cout << " -> branched"<<std::endl;
-			int result=TrajectorySeedProducer2::iterateHits(
-					itRecHit+1,
-					range,
-					globalHitNumbers,
-					trackingAlgorithmId,
-					seedHitNumbers
-				);
-			if (result>=0)
+			if (trackerRecHits[currentHitIndex].isOnTheSameLayer(trackerRecHits[inext]))
 			{
-				return result;
+			    //branch here
 			}
-
 		}
-
-		//skip this hit if it was already processed in previous iteration
-		if (!thisHitOnSameLayer)
+        
+		//process currentHit
+		
+		//iterate through the seeding tree
+		const SeedingNode<LayerSpec>* currentNode = _seedingTree.getFirst();
+		while (currentNode!=nullptr)
 		{
-
-			//std::cout<<std::endl;
-			//std::cout<<_rootLayerNode.str()<<std::endl;
-			LayerNode* activeNode = _rootLayerNode.getFirstChild();
-			//std::vector<int> newseedHitNumbers;
-			while (activeNode!=0)
-			{
-				//std::cout<<"visiting: "<<activeNode->getLayer()->name<<activeNode->getLayer()->idLayer<<": "<<activeNode<<std::endl;
-				int& hitNumber = globalHitNumbers[activeNode->getGlobalIndex()];
-				if (hitNumber<0)
-				{
-					if (activeNode->getLayer()->subDet==currentTrackerHit.subDetId() && activeNode->getLayer()->idLayer==currentTrackerHit.layerNumber())
-					{
-                        std::cout << " -> is on requested layer";
-						hitNumber=itRecHit-range.first;
-						if (this->passTrackerRecHitQualityCuts(*activeNode, globalHitNumbers, trackingAlgorithmId))
-						{
-						    std::cout << " -> passed quality cuts";
-							//std::cout<<" -> match"<<std::endl;
-							if (activeNode->getFirstChild()==0)
-							{
-							    std::cout << " -> is seed" <<std::endl;
-							
-								//node has no more children -> seed!
-								//std::cout<<"new seed!"<<std::endl;
-								LayerNode* node = activeNode;
-								while (node->getParent()!=0)
-								{
-									seedHitNumbers.insert(seedHitNumbers.begin(),globalHitNumbers[node->getGlobalIndex()]);
-									//std::cout<<globalHitNumbers[node->getGlobalIndex()]<<",";
-									node = node->getParent();
-								}
-								//std::cout<<std::endl;
-								return 1;
-
-							}
-							else
-							{
-							    std::cout << std::endl;
-							}
-						}
-						else
-						{
-						    std::cout<<" -> failed quality cuts"<<std::endl; 
-							hitNumber=-1;
-						}
-						//per definition only a sibling to the parent can have the same layer again
-						activeNode=activeNode->getParent()->nextSibling();
-						//std::cout<<"   process parent's sibling: " <<activeNode<<std::endl;
-					}
-					else
-					{
-						//the activeNode does not fit to the current hit
-						//test if there are siblings or continue with the parents siblings
-
-						if (activeNode->nextSibling()==0)
-						{
-							activeNode=activeNode->getParent()->nextSibling();
-							//std::cout<<"   process parent's sibling: "<<activeNode<<std::endl;
-						}
-						else
-						{
-							activeNode=activeNode->nextSibling();
-							//std::cout<<"   next sibling:"<<activeNode<<std::endl;
-						}
-					}
-				}
-
-				else
-				{
-					//this node has already a hit assigned
-					//check now either its children or continue with the parent's sibling
-
-					//std::cout<<"   skip active node: hit="<<hitNumber<<std::endl;
-
-					if (activeNode->getFirstChild()==0)
-					{
-						activeNode=activeNode->getParent()->nextSibling();
-						//std::cout<<"   process parent's sibling: "<<activeNode<<std::endl;
-					}
-					else
-					{
-						activeNode=activeNode->getFirstChild();
-						//std::cout<<"   go into children: "<<activeNode<<std::endl;
-					}
-				}
-			}
-			//std::cout<<"---------------"<<std::endl;
+		
+		    int hitNumber = hitIndicesInTree[currentNode->getIndex()]; //-1 if not associated to a hit
+		    if (hitNumber<0) 
+		    {
+		        if (isHitOnLayer(currentTrackerHit,currentNode->getData()))
+		        {
+		            if (passHitTuplesCuts(*currentNode, trackerRecHits, hitIndicesInTree, currentTrackerHit, trackingAlgorithmId))
+		            {
+		                
+		            }
+		        }
+		        else
+		        {
+		            currentNode=currentNode->nextSibling();
+		        }
+		    }
+		    
+	        currentNode=currentNode->next();
 		}
 	}
-	std::cout << " -> no seed"<<std::endl;
-	*/
+
 	return std::vector<unsigned int>();
 	
 }
@@ -428,7 +329,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 			
 			
 			
-			std::vector<unsigned int> seedHitNumbers = iterateHits(recHitRange.first,recHitRange,hitIndicesInTree,ialgo,seedHitNumbers);
+			std::vector<unsigned int> seedHitNumbers = iterateHits(recHitRange.first,recHitRange,trackerRecHits,hitIndicesInTree,ialgo,seedHitNumbers);
 
 			if (seedHitNumbers.size()>0)
 			{

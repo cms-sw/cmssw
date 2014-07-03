@@ -57,15 +57,39 @@ class TrajectorySeedProducer2 : public TrajectorySeedProducer
     \param trackingAlgorithmId id of the seeding algorithm iteration (e.g. "initial step", etc.).
     \return true if a hit fulfills the requirements.
     */
+  inline bool passHitTuplesCuts(const SeedingNode<LayerSpec>& seedingNode,
+        const std::vector<TrackerRecHit>& trackerRecHits,
+		const std::vector<int>& hitIndicesInTree,
+		const TrackerRecHit& currentTrackerHit,
+		unsigned int trackingAlgorithmId
+ )
+ {
+    switch (seedingNode.getDepth())
+    {
+        case 2:
+            const TrackerRecHit& hit1 = trackerRecHits[hitIndicesInTree[seedingNode.getParent()->getIndex()]];
+            const TrackerRecHit& hit2 = currentTrackerHit;
+            return pass2HitsCuts(hit1,hit2,trackingAlgorithmId);
+    }
+    return true;
+ }
+    
+  bool pass2HitsCuts(const TrackerRecHit& hit1, const TrackerRecHit& hit2, unsigned int trackingAlgorithmId);
   
-  //bool passTrackerRecHitQualityCuts(LayerNode& lastnodeofseed, std::vector<int> globalHitNumbers, unsigned int trackingAlgorithmId);
+  
   virtual std::vector<unsigned int> iterateHits(
 	SiTrackerGSMatchedRecHit2DCollection::const_iterator start,
 	SiTrackerGSMatchedRecHit2DCollection::range range,
+	const std::vector<TrackerRecHit>& trackerRecHits,
 	std::vector<int> hitIndicesInTree,
 	unsigned int trackingAlgorithmId,
 	std::vector<unsigned int>& seedHitNumbers
   );
+  
+  inline bool isHitOnLayer(const TrackerRecHit& trackerRecHit, const LayerSpec& layer)
+  {
+    return layer.subDet==trackerRecHit.subDetId() && layer.idLayer==trackerRecHit.layerNumber();
+  }
   
 
 };

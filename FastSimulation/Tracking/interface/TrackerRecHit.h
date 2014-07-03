@@ -128,7 +128,8 @@ public:
   }
 
   // The smaller local error
-  double localError() { 
+  double localError() const
+  { 
 
     // Check if it has been already computed
     if ( theLocalError != 0. ) return theLocalError;
@@ -144,7 +145,8 @@ public:
   }
   
   // The larger local error
-  double largerError() {
+  double largerError() const
+  {
 
     // Check if it has been already computed
     if ( theLargerError != 0. ) return theLargerError;
@@ -176,8 +178,8 @@ public:
   unsigned int theLayerNumber;
   unsigned int theRingNumber;
   unsigned int theCylinderNumber;
-  double theLocalError;
-  double theLargerError;
+  mutable double theLocalError; //only for caching
+  mutable double theLargerError; //only for caching
   bool forward;
 
 };
