@@ -31,8 +31,8 @@
   <class name="edm::Wrapper<reco::JTATagInfoCollection>"/>
 
   <class name="reco::btag::TrackData"/>
-  <class name="reco::btag:::VertexData"/>
-  <class name="std::vector<reco::btag:::VertexData>"/>
+  <class name="reco::btag::VertexData"/>
+  <class name="std::vector<reco::btag::VertexData>"/>
   <class name="reco::btag::IndexedTrackData"/>
   <class name="std::vector<reco::btag::IndexedTrackData>"/> 
   <class name="reco::SecondaryVertexTagInfo"/>
