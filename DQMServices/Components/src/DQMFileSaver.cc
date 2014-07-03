@@ -771,7 +771,7 @@ DQMFileSaver::endJob(void)
   // save JobReport once per job
   char suffix[64];
   sprintf(suffix, "R%09d", irun_.load());
-  std::string filename = onlineOfflineFileName(fileBaseName_, suffix, workflow_, child_, PB);
+  std::string filename = onlineOfflineFileName(fileBaseName_, suffix, workflow_, child_, fileFormat_);
   saveJobReport(filename);
 }
 
