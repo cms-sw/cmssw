@@ -124,6 +124,6 @@ hltMultiTrackValidation = cms.Sequence(
     + hltTrackingParticleRecoTrackAsssociation
     + cutsTPEffic
     + cutsTPFake
-    + hltMultiTrackValidator
+# too noisy    + hltMultiTrackValidator
 )    
 
