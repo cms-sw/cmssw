@@ -14,10 +14,10 @@ process = cms.Process("DQM")
 # Event Source
 #
 # for live online DQM in P5
-#process.load("DQM.Integration.test.inputsource_cfi")
+process.load("DQM.Integration.test.inputsource_cfi")
 #
 # for testing in lxplus
-process.load("DQM.Integration.test.fileinputsource_cfi")
+#process.load("DQM.Integration.test.fileinputsource_cfi")
 
 #----------------------------
 # DQM Environment
@@ -35,11 +35,11 @@ process.dqmSaver.dirName = '.'
 process.DQMStore.referenceFileName = "/dqmdata/dqm/reference/l1t_reference.root"
 
 # Condition for P5 cluster
-#process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
-#es_prefer_GlobalTag = cms.ESPrefer('GlobalTag')
-#process.GlobalTag.RefreshEachRun = cms.untracked.bool(True)
+process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
+es_prefer_GlobalTag = cms.ESPrefer('GlobalTag')
+process.GlobalTag.RefreshEachRun = cms.untracked.bool(True)
 # Condition for lxplus
-process.load("DQM.Integration.test.FrontierCondition_GT_Offline_cfi") 
+#process.load("DQM.Integration.test.FrontierCondition_GT_Offline_cfi") 
 
 #process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")

@@ -15,10 +15,10 @@ process.MessageLogger = cms.Service("MessageLogger",
 # Event Source
 #-----------------------------
 # for live online DQM in P5
-#process.load("DQM.Integration.test.inputsource_cfi")
+process.load("DQM.Integration.test.inputsource_cfi")
 
 # for testing in lxplus
-process.load("DQM.Integration.test.fileinputsource_cfi")
+#process.load("DQM.Integration.test.fileinputsource_cfi")
 
 #----------------------------
 # DQM Environment
@@ -30,13 +30,15 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 #-----------------------------
 #from DQM.Integration.test.environment_cfi import HEAVYION
 
+#process.runType.setRunType('cosmic_run')
+#process.runType.setRunType('pp_run')
+
 process.load("DQM.Integration.test.environment_cfi")
 process.DQM.filter = '^(SiStrip|Tracking)(/[^/]+){0,5}$'
 
 process.dqmEnv.subSystemFolder    = "SiStrip"
 process.dqmSaver.producer = "Playback"
-process.dqmSaver.saveByTime = 60
-process.dqmSaver.saveByMinute = 60
+process.dqmSaver.saveByLumiSection = 30
 
 # uncomment for running in local
 process.dqmSaver.dirName     = '.'
@@ -51,6 +53,8 @@ process.dqmEnvTr = cms.EDAnalyzer("DQMEventInfo",
 ## collector
 #process.DQM.collectorHost = 'vmepcs2b18-20.cms'
 #process.DQM.collectorPort = 9190
+#process.DQM.collectorHost = 'lxplus414'
+#process.DQM.collectorPort = 8070
 
 #--------------------------
 #  Lumi Producer and DB access
@@ -76,9 +80,9 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 # Calibration
 #--------------------------
 # Condition for P5 cluster
-#process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
+process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
 # Condition for lxplus
-process.load("DQM.Integration.test.FrontierCondition_GT_Offline_cfi") 
+#process.load("DQM.Integration.test.FrontierCondition_GT_Offline_cfi") 
 
 #--------------------------------------------
 ## Patch to avoid using Run Info information in reconstruction
@@ -153,7 +157,6 @@ process.eventFilter = cms.EDFilter("SimpleEventFilter",
 process.load("DPGAnalysis.SiStripTools.eventwithhistoryproducerfroml1abc_cfi")
 
 # APV Phase Producer
-#process.load("DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1ts2011_cfi")
 process.load("DPGAnalysis.SiStripTools.apvcyclephaseproducerfroml1tsDB_cfi")
 
 #--------------------------
@@ -189,11 +192,11 @@ process.RecoForDQM_LocalReco     = cms.Sequence(process.siPixelDigis*process.siS
 # Global Plot Switches
 #--------------------------
 process.SiStripMonitorClusterReal.TH1ClusterCharge.moduleswitchon = True
-
+process.SiStripMonitorDigi.TotalNumberOfDigisFailure.subdetswitchon = cms.bool(False)
 
 if (process.runType.getRunType() == process.runType.cosmic_run):
     # event selection for cosmic data
-#    process.DQMStreamHttpReader.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('HLT_L1*','HLT_*Cosmic*','HLT_ZeroBias*'))
+    # process.DQMStreamerReader.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('HLT_L1*','HLT_*Cosmic*','HLT_ZeroBias*'))
     # Reference run for cosmic
     process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/sistrip_reference_cosmic.root'
     # Source and Client config for cosmic data
@@ -203,13 +206,14 @@ if (process.runType.getRunType() == process.runType.cosmic_run):
     process.SiStripAnalyserCosmic.TkMapCreationFrequency  = -1
     process.SiStripAnalyserCosmic.ShiftReportFrequency = -1
     process.SiStripAnalyserCosmic.StaticUpdateFrequency = 5
+    process.SiStripAnalyserCosmic.MonitorSiStripBackPlaneCorrection = cms.bool(False)
     process.SiStripClients           = cms.Sequence(process.SiStripAnalyserCosmic)
 
     # Reco for cosmic data
     process.load('RecoTracker.SpecialSeedGenerators.SimpleCosmicBONSeeder_cfi')
     process.simpleCosmicBONSeeds.ClusterCheckPSet.MaxNumberOfCosmicClusters = 450
 
-    process.RecoForDQM_TrkReco_cosmic = cms.Sequence(process.offlineBeamSpot*process.ctftracksP5)
+    process.RecoForDQM_TrkReco_cosmic = cms.Sequence(process.offlineBeamSpot*process.MeasurementTrackerEvent*process.ctftracksP5)
 
     process.qTester = cms.EDAnalyzer("QualityTester",
                                      qtList = cms.untracked.FileInPath('DQM/SiStripMonitorClient/data/sistrip_qualitytest_config_cosmic.xml'),
@@ -236,7 +240,7 @@ if (process.runType.getRunType() == process.runType.cosmic_run):
 #else :
 if (process.runType.getRunType() == process.runType.pp_run):
     #event selection for pp collisions
-#    process.DQMEventStreamHttpReader.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('HLT_L1*',
+#    process.DQMEventStreamerReader.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('HLT_L1*',
 #                                                                                                  'HLT_Jet*',
 #                                                                                                  'HLT_HT*',
 #                                                                                                  'HLT_MinBias_#*',
@@ -250,6 +254,13 @@ if (process.runType.getRunType() == process.runType.pp_run):
     process.SiStripMonitorDigi.UseDCSFiltering = cms.bool(False)
     process.SiStripMonitorClusterReal.UseDCSFiltering = cms.bool(False)
     
+    process.MonitorTrackResiduals_gentk.Tracks                 = 'earlyGeneralTracks'
+    process.MonitorTrackResiduals_gentk.trajectoryInput        = 'earlyGeneralTracks'
+    process.MonitorTrackResiduals_gentk.TrackProducer          = cms.string('earlyGeneralTracks')
+    process.TrackMon_gentk.TrackProducer          = cms.InputTag("earlyGeneralTracks")
+    process.TrackMon_gentk.allTrackProducer = cms.InputTag("earlyGeneralTracks")
+    process.SiStripMonitorTrack_gentk.TrackProducer    = 'earlyGeneralTracks'
+
     process.SiStripSources_TrkReco   = cms.Sequence(process.SiStripMonitorTrack_gentk*process.MonitorTrackResiduals_gentk*process.TrackMon_gentk)
     process.load("DQM.SiStripMonitorClient.SiStripClientConfigP5_cff")
     process.SiStripAnalyser.UseGoodTracks  = cms.untracked.bool(True)
@@ -257,6 +268,7 @@ if (process.runType.getRunType() == process.runType.pp_run):
     process.SiStripAnalyser.ShiftReportFrequency = -1
     process.SiStripAnalyser.StaticUpdateFrequency = 5
     process.SiStripAnalyser.RawDataTag = cms.untracked.InputTag("rawDataCollector")
+    process.SiStripAnalyser.MonitorSiStripBackPlaneCorrection = cms.bool(False)
     process.SiStripClients           = cms.Sequence(process.SiStripAnalyser)
 
     process.SiStripMonitorDigi.TotalNumberOfDigisFailure.integrateNLumisections = cms.int32(25)
@@ -265,30 +277,33 @@ if (process.runType.getRunType() == process.runType.pp_run):
 
     process.load('RecoTracker.Configuration.RecoTracker_cff')
     
-    process.newCombinedSeeds.seedCollections = cms.VInputTag(
-        cms.InputTag('initialStepSeeds'),
-        )
+    #process.newCombinedSeeds.seedCollections = cms.VInputTag(
+    #    cms.InputTag('initialStepSeeds'),
+    #    )
     
     process.load('RecoTracker.FinalTrackSelectors.MergeTrackCollections_cff')
-    process.generalTracks.TrackProducers = (
+    import RecoTracker.FinalTrackSelectors.earlyGeneralTracks_cfi
+    process.load('RecoTracker.FinalTrackSelectors.earlyGeneralTracks_cfi')
+    process.earlyGeneralTracks.TrackProducers = (
         cms.InputTag('initialStepTracks'),
         )
             
-    process.generalTracks.hasSelector=cms.vint32(1)
-    process.generalTracks.selectedTrackQuals = cms.VInputTag(
-        cms.InputTag("initialStepSelector","initialStep"),
+    process.earlyGeneralTracks.hasSelector=cms.vint32(1)
+    process.earlyGeneralTracks.selectedTrackQuals = cms.VInputTag(
+        # cms.InputTag("initialStepSelector","initialStep"),
+        cms.InputTag("initialStep"),
         )
-    process.generalTracks.setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0), pQual=cms.bool(True) ) )
+    process.earlyGeneralTracks.setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0), pQual=cms.bool(True) ) )
 
     process.load("RecoTracker.IterativeTracking.iterativeTk_cff")
 
     process.iterTracking_FirstStep =cms.Sequence(
         process.InitialStep
-        *process.generalTracks
+        *process.earlyGeneralTracks
         )
 
     #process.RecoForDQM_TrkReco       = cms.Sequence(process.offlineBeamSpot*process.recopixelvertexing*process.ckftracks)
-    process.RecoForDQM_TrkReco       = cms.Sequence(process.offlineBeamSpot*process.recopixelvertexing*process.iterTracking_FirstStep)
+    process.RecoForDQM_TrkReco       = cms.Sequence(process.offlineBeamSpot*process.MeasurementTrackerEvent*process.siPixelClusterShapeCache*process.recopixelvertexing*process.iterTracking_FirstStep)
 
     process.p = cms.Path(process.scalersRawToDigi*
                          process.APVPhases*
@@ -298,7 +313,7 @@ if (process.runType.getRunType() == process.runType.pp_run):
                          process.DQMCommon*
                          process.SiStripClients*
                          process.SiStripSources_LocalReco*
-                         process.hltHighLevel *
+                         process.hltHighLevel*
                          process.RecoForDQM_TrkReco*
                          process.SiStripSources_TrkReco
                          )
@@ -319,13 +334,20 @@ if (process.runType.getRunType() == process.runType.hpu_run):
     # it should already be ok, but the name could be changed
     process.hltHighLevel.HLTPaths = cms.vstring( 'HLT_ZeroBias*' )
 
-#    process.DQMEventStreamHttpReader.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('HLT_600Tower*','HLT_L1*','HLT_Jet*','HLT_HT*','HLT_MinBias_*','HLT_Physics*', 'HLT_ZeroBias*'))
+#    process.DQMEventStreamerReader.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('HLT_600Tower*','HLT_L1*','HLT_Jet*','HLT_HT*','HLT_MinBias_*','HLT_Physics*', 'HLT_ZeroBias*'))
 #
     process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/sistrip_reference_pp.root'
 
     process.SiStripMonitorDigi.UseDCSFiltering = cms.bool(False)
     process.SiStripMonitorClusterReal.UseDCSFiltering = cms.bool(False)
     
+    process.MonitorTrackResiduals_gentk.Tracks                 = 'earlyGeneralTracks'
+    process.MonitorTrackResiduals_gentk.trajectoryInput        = 'earlyGeneralTracks'
+    process.MonitorTrackResiduals_gentk.TrackProducer          = cms.string('earlyGeneralTracks')
+    process.TrackMon_gentk.TrackProducer          = cms.InputTag("earlyGeneralTracks")
+    process.TrackMon_gentk.allTrackProducer = cms.InputTag("earlyGeneralTracks")
+    process.SiStripMonitorTrack_gentk.TrackProducer    = 'earlyGeneralTracks'
+
     process.SiStripSources_TrkReco   = cms.Sequence(process.SiStripMonitorTrack_gentk*process.MonitorTrackResiduals_gentk*process.TrackMon_gentk)
     process.load("DQM.SiStripMonitorClient.SiStripClientConfigP5_cff")
     process.SiStripAnalyser.UseGoodTracks  = cms.untracked.bool(True)
@@ -333,36 +355,40 @@ if (process.runType.getRunType() == process.runType.hpu_run):
     process.SiStripAnalyser.ShiftReportFrequency = -1
     process.SiStripAnalyser.StaticUpdateFrequency = 5
     process.SiStripAnalyser.RawDataTag = cms.untracked.InputTag("rawDataCollector")
+    process.SiStripAnalyser.MonitorSiStripBackPlaneCorrection = cms.bool(False)
     process.SiStripClients           = cms.Sequence(process.SiStripAnalyser)
 
     # Reco for pp collisions
 
     process.load('RecoTracker.Configuration.RecoTracker_cff')
     
-    process.newCombinedSeeds.seedCollections = cms.VInputTag(
-        cms.InputTag('initialStepSeeds'),
-        )
+    #process.newCombinedSeeds.seedCollections = cms.VInputTag(
+    #    cms.InputTag('initialStepSeeds'),
+    #    )
     
     process.load('RecoTracker.FinalTrackSelectors.MergeTrackCollections_cff')
-    process.generalTracks.TrackProducers = (
+    import RecoTracker.FinalTrackSelectors.earlyGeneralTracks_cfi
+    process.load('RecoTracker.FinalTrackSelectors.earlyGeneralTracks_cfi')
+    process.earlyGeneralTracks.TrackProducers = (
         cms.InputTag('initialStepTracks'),
         )
-            
-    process.generalTracks.hasSelector=cms.vint32(1)
-    process.generalTracks.selectedTrackQuals = cms.VInputTag(
-        cms.InputTag("initialStepSelector","initialStep"),
+    
+    process.earlyGeneralTracks.hasSelector=cms.vint32(1)
+    process.earlyGeneralTracks.selectedTrackQuals = cms.VInputTag(
+#        cms.InputTag("initialStepSelector","initialStep"),
+        cms.InputTag("initialStep"),
         )
-    process.generalTracks.setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0), pQual=cms.bool(True) ) )
+    process.earlyGeneralTracks.setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0), pQual=cms.bool(True) ) )
 
     process.load("RecoTracker.IterativeTracking.iterativeTk_cff")
 
     process.iterTracking_FirstStep =cms.Sequence(
         process.InitialStep
-        *process.generalTracks
+        *process.earlyGeneralTracks
         )
 
     #process.RecoForDQM_TrkReco       = cms.Sequence(process.offlineBeamSpot*process.recopixelvertexing*process.ckftracks)
-    process.RecoForDQM_TrkReco       = cms.Sequence(process.offlineBeamSpot*process.recopixelvertexing*process.iterTracking_FirstStep)
+    process.RecoForDQM_TrkReco       = cms.Sequence(process.offlineBeamSpot*process.MeasurementTrackerEvent*process.siPixelClusterShapeCache*process.recopixelvertexing*process.iterTracking_FirstStep)
 
     process.p = cms.Path(process.scalersRawToDigi*
                          process.APVPhases*
@@ -372,7 +398,7 @@ if (process.runType.getRunType() == process.runType.hpu_run):
                          process.DQMCommon*
                          process.SiStripClients*
                          process.SiStripSources_LocalReco*
-                         process.hltHighLevel *
+                         process.hltHighLevel*
                          process.eventFilter*
                          process.RecoForDQM_TrkReco*
                          process.SiStripSources_TrkReco
@@ -426,7 +452,7 @@ if (process.runType.getRunType() == process.runType.hi_run):
         maxClusters = cms.uint32(50000)
         )
     # Trigger selection
-#    process.DQMEventStreamHttpReader.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('HLT_HIJet*','HLT_HICentralityVeto*','HLT_HIFullTrack*','HLT_HIMinBias*'))
+#    process.DQMEventStreamerReader.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('HLT_HIJet*','HLT_HICentralityVeto*','HLT_HIFullTrack*','HLT_HIMinBias*'))
 #
     process.DQMStore.referenceFileName = '/dqmdata/dqm/reference/sistrip_reference_hi.root'
     # Quality test for HI                                                                                                                  
