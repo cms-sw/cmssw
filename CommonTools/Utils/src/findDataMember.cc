@@ -12,6 +12,9 @@
 //
 
 // system include files
+#include "TInterpreter.h"
+#include "TVirtualMutex.h"
+
 #include "FWCore/Utilities/interface/BaseWithDict.h"
 
 // user include files
