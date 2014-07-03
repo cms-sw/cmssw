@@ -35,7 +35,7 @@
   <class name="reco::btag:::VertexData"/>
   <class name="std::vector<reco::btag:::VertexData>"/>
   <class name="reco::btag::IndexedTrackData"/>
-  <class name="std::vector<reco::btag::IndexedTrackData>"/> -->
+  <class name="std::vector<reco::btag::IndexedTrackData>"/> 
   <class name="reco::SecondaryVertexTagInfoCollection"/>
   <class name="reco::SecondaryVertexTagInfoRef"/>
   <class name="reco::SecondaryVertexTagInfoFwdRef"/>

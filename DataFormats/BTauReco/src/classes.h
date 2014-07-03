@@ -55,7 +55,6 @@ namespace DataFormats_BTauReco {
     std::vector<reco::SecondaryVertexTagInfo::VertexData>               sv_vdv;
     reco::SecondaryVertexTagInfo::IndexedTrackData                      sv_itd;
     std::vector<reco::SecondaryVertexTagInfo::IndexedTrackData>         sv_itdv;
-    std::vector<reco::TemplatedSecondaryVertexTagInfo<reco::IPTagInfo<edm::RefVector<std::vector<reco::Track>,reco::Track,edm::refhelper::FindUsingAdvance<std::vector<reco::Track>,reco::Track> >,reco::JTATagInfo> > ::IndexedTrackData> 						   svngeng;
     reco::SecondaryVertexTagInfo                                        sv;
     reco::btag::VertexData						rbsv;
     std::vector<reco::btag::VertexData>					rbsvdata;
