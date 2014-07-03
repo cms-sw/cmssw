@@ -118,6 +118,10 @@ addMixingScenario("FS_mix_2012_Summer_50ns_PoissonOOTPU",{'file': 'FastSimulatio
 addMixingScenario("FS_CSA14_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_CSA14_inTimeOnly_cff'})
 addMixingScenario("FS_E13TeV_AVE_10_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_E13TeV_AVE_10_inTimeOnly_cff'})
 addMixingScenario("FS_E13TeV_AVE_20_inTimeOnly",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_E13TeV_AVE_20_inTimeOnly_cff'})
+addMixingScenario("FS_E8TeV_2012_run198588",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_E8TeV_run198588_cff'})
+addMixingScenario("FS_E8TeV_2012_run203002",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_E8TeV_run203002_cff'})
+addMixingScenario("FS_E8TeV_2012_run209148",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_E8TeV_run209148_cff'})
+addMixingScenario("FS_E8TeV_2012_ZmumugSkim",{'file': 'FastSimulation.PileUpProducer.PileUpSimulator_E8TeV_zmmg_skim_cff'})
 
 #scenarios for L1 tdr work
 addMixingScenario("AVE_10_BX_25ns",{'file': 'SimGeneral.MixingModule.mix_POISSON_average_cfi','BX':25, 'B': (-12,3), 'N': 10})

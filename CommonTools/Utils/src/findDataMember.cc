@@ -12,6 +12,9 @@
 //
 
 // system include files
+#include "TInterpreter.h"
+#include "TVirtualMutex.h"
+
 #include "FWCore/Utilities/interface/BaseWithDict.h"
 
 // user include files
@@ -34,6 +37,7 @@ namespace reco {
          returnValue = type.dataMemberByName(iName);
          if(!returnValue) {
             //check inheriting classes
+            R__LOCKGUARD(gCINTMutex);
             edm::TypeBases bases(type);
             for(auto const& base : bases) {
                returnValue = findDataMember(edm::BaseWithDict(base).typeOf(), iName, oError);
