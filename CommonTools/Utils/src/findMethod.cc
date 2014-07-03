@@ -3,6 +3,8 @@
 #include "CommonTools/Utils/interface/Exception.h"
 #include "FWCore/Utilities/interface/BaseWithDict.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "TInterpreter.h"
+#include "TVirtualMutex.h"
 #include <cassert>
 
 using namespace std;
@@ -141,6 +143,7 @@ namespace reco {
     // if nothing was found, look in parent scopes (without checking for cross-scope overloading, as it's not allowed)
     int baseError=parser::kNameDoesNotExist;
     if(! mem.first) {
+      R__LOCKGUARD(gCINTMutex);
       edm::TypeBases bases(type);
       for(auto const& base : bases) {
 	      if((mem = findMethod(edm::BaseWithDict(base).typeOf(), name, args, fixuppedArgs,iIterator,baseError)).first) break;
