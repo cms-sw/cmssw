@@ -32,6 +32,9 @@
 #include "SimDataFormats/SLHC/interface/StackedTrackerTypes.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
+#include "SLHCUpgradeSimulations/L1TrackTrigger/interface/L1TkTauEtComparator.h"
+
+
 using namespace l1extra ;
 
 // ---------- class declaration  ---------- //
@@ -419,6 +422,8 @@ void L1TkTauFromCaloProducer::produce(edm::Event& iEvent, const edm::EventSetup&
     
   } /// For-loop: m_L1TkClusterToL1TkTracks elements
   
+  //sort( result->begin(), result->end(), L1TkTau::EtComparator() );
+
   iEvent.put( result );
 
 }

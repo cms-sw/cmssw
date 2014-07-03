@@ -188,20 +188,6 @@ process.tkOnlyTaus = cms.Path( process.L1TkTauFromL1Track )
 
 
 
-
-# ---------------------------------------------------------------------------
-
-# Now we produce L1TkEmParticles and L1TkElectrons
-
-
-# ----  "photons" isolated w.r.t. L1Tracks :
-
-process.load("SLHCUpgradeSimulations.L1TrackTrigger.L1TkEmParticleProducer_cfi")
-process.pL1TkPhotons = cms.Path( process.L1TkPhotons )
-
-
-
-
 # ---------------------------------------------------------------------------
 
 

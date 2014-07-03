@@ -4,31 +4,25 @@ process = cms.Process("ALL")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 
 #
-# This runs over a file that already contains the L1Tracks.
+# This reruns the L1Tracking to benefit from the latest updates,
+# runs the SLHCCaloSequence and produce the L1EGammaCrystal objects,
+# and rune the L1TkEmTau producer.
 #
 
 
-# to run over the test rate sample (part 1) :
 from SLHCUpgradeSimulations.L1TrackTrigger.minBiasFiles_p1_cfi import *
+
 process.source = cms.Source("PoolSource",
-     fileNames = minBiasFiles_p1
+      fileNames = minBiasFiles_p1
+	#fileNames = cms.untracked.vstring(
+		## VBF H->tautau
+      #'/store/mc/TTI2023Upg14D/VBF_HToTauTau_125_14TeV_powheg_pythia6/GEN-SIM-DIGI-RAW/PU140bx25_PH2_1K_FB_V3-v1/00000/00114910-0DE9-E311-B42B-0025905A60F4.root',
+     #)
 )
 
-#from SLHCUpgradeSimulations.L1TrackTrigger.singleTau1pFiles_cfi import *
-#process.source = cms.Source("PoolSource",
-#     fileNames = singleTau1pFiles
-#)
-
-
-# to run over another sample:
-#process.source = cms.Source("PoolSource",
-     # electron file:
-     #'/store/group/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Electrons/PU140/m1_SingleElectron_E2023TTI_PU140.root',
-     #)
-#)
 
 
 # ---- Global Tag :
@@ -38,42 +32,54 @@ process.GlobalTag = GlobalTag(process.GlobalTag, 'PH2_1K_FB_V3::All', '')
 
 
 
+# ---------------------------------------------------------------------------
+#
+# --- Recreate the L1Tracks to benefit from the latest updates
+
+process.load('Configuration.Geometry.GeometryExtended2023TTIReco_cff')
+process.load('Geometry.TrackerGeometryBuilder.StackedTrackerGeometry_cfi')
+process.load('Configuration.Geometry.GeometryExtended2023TTI_cff')
+
+process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
+
+process.load("SLHCUpgradeSimulations.L1TrackTrigger.L1TrackingSequence_cfi")
+process.pTracking = cms.Path( process.DefaultTrackingSequence )
+
+
+# ---------------------------------------------------------------------------
+
+
 
 # ---------------------------------------------------------------------------
 #
+# --- Produces the L1calo objects : run the SLHCCaloSequence
+#
 process.load('Configuration.Geometry.GeometryExtended2023TTIReco_cff')
 
-process.L1TkTauFromL1Track = cms.EDProducer("L1TkTauFromL1TrackProducer",
-                                            L1TrackInputTag = cms.InputTag("TTTracksFromPixelDigis","Level1TTTracks"),
-                                            ZMAX = cms.double( 25. ),# in cm
-                                            CHI2MAX = cms.double( 100. ),
-                                            PTMINTRA = cms.double( 2. ),# in GeV
-                                            DRmax = cms.double( 0.5 ),
-                                            nStubsmin = cms.int32( 5 )        # minimum number of stubs
-                                            )
+process.load('Configuration/StandardSequences/L1HwVal_cff')
+process.load('Configuration.StandardSequences.RawToDigi_cff')
+process.load("SLHCUpgradeSimulations.L1CaloTrigger.SLHCCaloTrigger_cff")
 
-process.pTaus = cms.Path( process.L1TkTauFromL1Track )
+# bug fix for missing HCAL TPs in MC RAW
+from SimCalorimetry.HcalTrigPrimProducers.hcaltpdigi_cff import HcalTPGCoderULUT
+HcalTPGCoderULUT.LUTGenerationMode = cms.bool(True)
+process.valRctDigis.hcalDigis             = cms.VInputTag(cms.InputTag('valHcalTriggerPrimitiveDigis'))
+process.L1CaloTowerProducer.HCALDigis =  cms.InputTag("valHcalTriggerPrimitiveDigis")
 
-
-# ---------------------------------------------------------------------------
+process.slhccalo = cms.Path( process.RawToDigi + process.valHcalTriggerPrimitiveDigis+process.SLHCCaloTrigger)
 
 
 # ---------------------------------------------------------------------------
 
-# Run a trivial analyzer that prints the objects
 
-process.ana = cms.EDAnalyzer( 'PrintL1TkObjects' ,
-    L1VtxInputTag = cms.InputTag("L1TkPrimaryVertex"),		# dummy here
-    L1TkEtMissInputTag = cms.InputTag("L1TkEtMiss","MET"),	# dummy here
-    L1TkElectronsInputTag = cms.InputTag("L1TkElectrons","EG"),
-    L1TkPhotonsInputTag = cms.InputTag("L1TkPhotons","EG"),
-    L1TkJetsInputTag = cms.InputTag("L1TkJets","Central"),	# dummy here
-    L1TkHTMInputTag = cms.InputTag("L1TkHTMissCaloHI",""),	# dummy here
-    L1TkMuonsInputTag = cms.InputTag("L1TkMuons","")		# dummy here
+# ---------------------------------------------------------------------------
 
-)
+# --- Produce the L1TkEmTau objects
 
-#process.pAna = cms.Path( process.ana )
+process.load("SLHCUpgradeSimulations.L1TrackTrigger.L1TkEmTauSequence_cfi")
+process.pL1TkEmTaus = cms.Path( process.TkEmTauSequence )
+
+# ---------------------------------------------------------------------------
 
 
 
@@ -88,34 +94,15 @@ process.Out = cms.OutputModule( "PoolOutputModule",
     outputCommands = cms.untracked.vstring( 'drop *')
 )
 
-
-	# raw data
-#process.Out.outputCommands.append('keep *_rawDataCollector_*_*')
+	# the collection of TkEmTau objects to be used for L1Menu :
+process.Out.outputCommands.append('keep *_L1TkEmTauProducer_*_*')
 
 
 	# gen-level information
 #process.Out.outputCommands.append('keep *_generator_*_*')
 #process.Out.outputCommands.append('keep *_*gen*_*_*')
 #process.Out.outputCommands.append('keep *_*Gen*_*_*')
-process.Out.outputCommands.append('keep *_genParticles_*_*')
-
-
-	# the L1Tracks, clusters and stubs
-#process.Out.outputCommands.append('keep *_TTStubsFromPixelDigis_ClusterAccepted_*')
-#process.Out.outputCommands.append('keep *_TTClusterAssociatorFromPixelDigis_ClusterAccepted_*')
-#process.Out.outputCommands.append('keep *_TTStubAssociatorFromPixelDigis_StubAccepted_*')
-#process.Out.outputCommands.append('keep *_TTStubsFromPixelDigis_StubAccepted_*')
-#process.Out.outputCommands.append('keep *_TTTracksFromPixelDigis_Level1TTTracks_*')
-#process.Out.outputCommands.append('keep *_TTTrackAssociatorFromPixelDigis_Level1TTTracks_*')
-
-	# the L1TkTaus
-process.Out.outputCommands.append('keep *_L1TkTauFromL1Track_*_*')
-
-
-# --- to browse the genParticles, one needs to keep the collections of associators below:
-process.Out.outputCommands.append('keep *_TTTrackAssociatorFromPixelDigis_*_*')
-process.Out.outputCommands.append('keep *_TTStubAssociatorFromPixelDigis_*_*')
-process.Out.outputCommands.append('keep *_TTClusterAssociatorFromPixelDigis_*_*')
+#process.Out.outputCommands.append('keep *_genParticles_*_*')
 
 
 process.FEVToutput_step = cms.EndPath(process.Out)

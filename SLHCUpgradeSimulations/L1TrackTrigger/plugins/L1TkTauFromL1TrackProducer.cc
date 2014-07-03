@@ -33,6 +33,9 @@
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
+#include "SLHCUpgradeSimulations/L1TrackTrigger/interface/L1TkTauEtComparator.h"
+
+
 #include <string>
 #include "TMath.h"
 
@@ -302,11 +305,7 @@ L1TkTauFromL1TrackProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
   }
 
-  
-
-
-
-
+   //sort( result->begin(), result->end(), L1TkTau::PtComparator() );
            
  iEvent.put( result );
 

@@ -32,6 +32,8 @@
 #include "SimDataFormats/SLHC/interface/StackedTrackerTypes.h" //for 'L1TkTrack_PixelDigi_Collection', etc..
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
+#include "SLHCUpgradeSimulations/L1TrackTrigger/interface/L1TkTauEtComparator.h"
+
 using namespace l1extra ;
 
 // ---------- class declaration  ---------- //
@@ -105,6 +107,8 @@ void L1CaloTausToTkTausTranslator::produce(edm::Event& iEvent, const edm::EventS
     
   }
   
+  //sort( result->begin(), result->end(), L1TkTau::EtComparator() );
+
   iEvent.put( result );
 
 }
