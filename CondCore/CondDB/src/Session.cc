@@ -105,6 +105,18 @@ namespace cond {
       return editor;
     }
 
+    IOVEditor Session::createIov( const std::string& payloadType, 
+				  const std::string& tag, 
+				  cond::TimeType timeType,
+				  cond::SynchronizationType synchronizationType,
+				  const boost::posix_time::ptime& creationTime ){
+      m_session->openIovDb( SessionImpl::CREATE );
+      if( m_session->iovSchema().tagTable().select( tag ) ) 
+	throwException( "The specified tag \""+tag+"\" already exist in the database.","Session::createIov");
+      IOVEditor editor( m_session, tag, timeType, payloadType, synchronizationType, creationTime );
+      return editor;
+    }
+
     IOVEditor Session::createIovForPayload( const Hash& payloadHash, const std::string& tag, cond::TimeType timeType,
 					    cond::SynchronizationType synchronizationType ){
       m_session->openIovDb( SessionImpl::CREATE );
