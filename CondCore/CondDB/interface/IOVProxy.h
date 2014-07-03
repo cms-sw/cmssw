@@ -93,6 +93,8 @@ namespace cond {
       
       cond::Time_t lastValidatedTime() const;
 
+      std::tuple<std::string, boost::posix_time::ptime, boost::posix_time::ptime > getMetadata() const;
+
       // returns true if at least one IOV is in the sequence.
       bool isEmpty() const;
       

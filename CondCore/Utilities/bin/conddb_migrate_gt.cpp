@@ -53,7 +53,7 @@
 namespace cond {
 
 
-    std::string convert(const std::string & input)
+  std::string convert( const std::string & input, bool online )
     {
       static const boost::regex trivial("oracle://(cms_orcon_adg|cms_orcoff_prep)/([_[:alnum:]]+?)");
       static const boost::regex short_frontier("frontier://([[:alnum:]]+?)/([_[:alnum:]]+?)");
@@ -63,7 +63,7 @@ namespace cond {
       static const std::map<std::string, std::string> frontier_map = {
 	{"PromptProd", "cms_orcon_adg"},
 	{"FrontierProd", "cms_orcon_adg"},
-	{"FrontierOnProd", "cms_orcon_adg"},
+	{"FrontierOnProd", "cms_orcon_prod"},
 	{"FrontierPrep", "cms_orcoff_prep"},
 	{"FrontierArc", "cms_orcon_adg"},
       };
@@ -79,7 +79,9 @@ namespace cond {
 	  size_t len = acct.size()-5;
 	  acct = acct.substr(0,len);
 	}
-	return std::string("oracle://") + frontier_map.at(matches[1]) + "/" + acct;
+	std::string serverName = frontier_map.at(matches[1]);
+	if( online && serverName == "cms_orcon_adg" ) serverName = "cms_orcon_prod";
+	return std::string("oracle://") + serverName + "/" + acct;
       }
 
       if (boost::regex_match(input, matches, long_frontier)) {
@@ -93,7 +95,9 @@ namespace cond {
 	  size_t len = acct.size()-5;
 	  acct = acct.substr(0,len);
 	}
-	return std::string("oracle://") + frontier_map.at(matches2[1]) + "/" + acct;
+	std::string serverName = frontier_map.at(matches2[1]);
+        if( online && serverName == "cms_orcon_adg" ) serverName = "cms_orcon_prod";
+	return std::string("oracle://") + serverName + "/" + acct;
       }
 
       throw std::runtime_error("Could not match input string to any known connection string.");
@@ -131,6 +135,7 @@ cond::MigrateGTUtilities::MigrateGTUtilities():Utilities("conddb_migrate_gt"){
   addOption<std::string>("release","r","release validity (required)");
   addOption<bool>("verbose","v","verbose print out (optional)");
   addOption<bool>("dryRun","n","only display the actions (optional)");
+  addOption<bool>("online","o","online running mode (optional)");  
 }
 
 bool cond::MigrateGTUtilities::getGTList( const std::string& gt, 
@@ -171,6 +176,7 @@ int cond::MigrateGTUtilities::execute(){
   std::string sourceConnect = getOptionValue<std::string>("sourceConnect");
   bool verbose = hasOptionValue("verbose");
   bool dryRun = hasOptionValue("dryRun");
+  bool onlineMode = hasOptionValue("online");
 
   std::vector<std::tuple<std::string,std::string,std::string,std::string,std::string> > gtlist;
   if(! getGTList( gtag, gtlist ) ) throw std::runtime_error( std::string("Source GT ")+gtag+" has not been found." );
@@ -202,7 +208,7 @@ int cond::MigrateGTUtilities::execute(){
     std::string connectionString = std::get<4>( gtitem );
     
     std::cout <<"--> Processing tag "<<tag<<" (objectType: "<<payloadTypeName<<") on account "<<connectionString<<std::endl;
-    std::string sourceConn = convert( connectionString );    // "oracle://cms_orcon_adg/"+account;
+    std::string sourceConn = convert( connectionString, onlineMode );    // "oracle://cms_orcon_adg/"+account;
     std::string destTag("");
     cond::MigrationStatus status;
     bool exists = session.checkMigrationLog( sourceConn, tag, destTag, status );
@@ -216,7 +222,7 @@ int cond::MigrateGTUtilities::execute(){
     } else {
       std::cout <<"    Inserting tag "<<destTag<<std::endl; 
     }
-    if( !dryRun ) newGT.insert( recordName, recordLabel, tag );
+    if( !dryRun ) newGT.insert( recordName, recordLabel, destTag );
   }
   if( !dryRun )newGT.flush(); 
 
