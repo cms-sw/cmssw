@@ -54,7 +54,10 @@ std::ostream& reco::operator<<( std::ostream& out,
     case PFBlockElement::HFEM:
     case PFBlockElement::HFHAD:
     case PFBlockElement::PS1:
-    case PFBlockElement::PS2:    
+    case PFBlockElement::PS2:
+    case PFBlockElement::HGC_ECAL:
+    case PFBlockElement::HGC_HCALF:
+    case PFBlockElement::HGC_HCALB:
       {
         const reco::PFBlockElementCluster& ec =
           dynamic_cast<const reco::PFBlockElementCluster &>( element );

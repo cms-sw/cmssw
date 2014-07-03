@@ -1,37 +1,94 @@
-#include "KDTreeLinkerTrackEcal.h"
+#ifndef KDTreeLinkerTrackHGC_h
+#define KDTreeLinkerTrackHGC_h
 
+#include "RecoParticleFlow/PFProducer/interface/KDTreeLinkerBase.h"
+#include "RecoParticleFlow/PFProducer/interface/KDTreeLinkerTools.h"
+#include "RecoParticleFlow/PFProducer/interface/KDTreeLinkerAlgo.h"
+
+#include "DataFormats/ForwardDetId/interface/HGCEEDetId.h"
+#include "DataFormats/ForwardDetId/interface/HGCHEDetId.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "TMath.h"
 
-// the text name is different so that we can easily
-// construct it when calling the factory
-DEFINE_EDM_PLUGIN(KDTreeLinkerFactory, 
-		  KDTreeLinkerTrackEcal, 
-		  "KDTreeTrackAndECALLinker"); 
+// This class is used to find all links between Tracks and ECAL clusters
+// using a KDTree algorithm.
+// It is used in PFBlockAlgo.cc in the function links().
+template<reco::PFTrajectoryPoint::LayerType the_layer>
+class KDTreeLinkerTrackHGC : public KDTreeLinkerBase
+{
+ public:
+  KDTreeLinkerTrackHGC();
+  ~KDTreeLinkerTrackHGC();
+  
+  // With this method, we create the list of psCluster that we want to link.
+  void insertTargetElt(reco::PFBlockElement		*track);
 
+  // Here, we create the list of ecalCluster that we want to link. From ecalCluster
+  // and fraction, we will create a second list of rechits that will be used to
+  // build the KDTree.
+  void insertFieldClusterElt(reco::PFBlockElement	*hgcCluster);  
 
-KDTreeLinkerTrackEcal::KDTreeLinkerTrackEcal()
+  // The KDTree building from rechits list.
+  void buildTree();
+  
+  // Here we will iterate over all tracks. For each track intersection point with ECAL, 
+  // we will search the closest rechits in the KDTree, from rechits we will find the 
+  // ecalClusters and after that we will check the links between the track and 
+  // all closest ecalClusters.  
+  void searchLinks();
+    
+  // Here, we will store all PS/ECAL founded links in the PFBlockElement class
+  // of each psCluster in the PFmultilinks field.
+  void updatePFBlockEltWithLinks();
+  
+  // Here we free all allocated structures.
+  void clear();
+ 
+ private:
+  // Data used by the KDTree algorithm : sets of Tracks and ECAL clusters.
+  BlockEltSet		targetSet_;
+  BlockEltSet		fieldClusterSet_;
+
+  // Sets of rechits that compose the ECAL clusters. 
+  RecHitSet		rechitsSet_;
+  
+  // Map of linked Track/ECAL clusters.
+  BlockElt2BlockEltMap	target2ClusterLinks_;
+
+  // Map of the ECAL clusters associated to a rechit.
+  RecHit2BlockEltMap	rechit2ClusterLinks_;
+    
+  // KD trees
+  KDTreeLinkerAlgo	tree_;
+
+};
+
+template<reco::PFTrajectoryPoint::LayerType the_layer>
+KDTreeLinkerTrackHGC<the_layer>::KDTreeLinkerTrackHGC()
   : KDTreeLinkerBase()
 {}
 
-KDTreeLinkerTrackEcal::~KDTreeLinkerTrackEcal()
+template<reco::PFTrajectoryPoint::LayerType the_layer>
+KDTreeLinkerTrackHGC<the_layer>::~KDTreeLinkerTrackHGC()
 {
   clear();
 }
 
+
+template<reco::PFTrajectoryPoint::LayerType the_layer>
 void
-KDTreeLinkerTrackEcal::insertTargetElt(reco::PFBlockElement	*track)
+KDTreeLinkerTrackHGC<the_layer>::insertTargetElt(reco::PFBlockElement	*track)
 {
-  if( track->trackRefPF()->extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax ).isValid() ) {
+  if( track->trackRefPF()->extrapolatedPoint( the_layer ).isValid() ) {
     targetSet_.insert(track);
   }
 }
 
-
+template<reco::PFTrajectoryPoint::LayerType the_layer>
 void
-KDTreeLinkerTrackEcal::insertFieldClusterElt(reco::PFBlockElement	*ecalCluster)
+KDTreeLinkerTrackHGC<the_layer>::insertFieldClusterElt(reco::PFBlockElement	*hgcCluster)
 {
-  reco::PFClusterRef clusterref = ecalCluster->clusterRef();
+  reco::PFClusterRef clusterref = hgcCluster->clusterRef();
 
   // This test is more or less done in PFBlockAlgo.h. In others cases, it should be switch on.
   //   if (!((clusterref->layer() == PFLayer::ECAL_ENDCAP) ||
@@ -39,28 +96,55 @@ KDTreeLinkerTrackEcal::insertFieldClusterElt(reco::PFBlockElement	*ecalCluster)
   //     return;
 
   const std::vector<reco::PFRecHitFraction> &fraction = clusterref->recHitFractions();
-
-  // We create a list of ecalCluster
-  fieldClusterSet_.insert(ecalCluster);
+  
+  // We create a list of hgcCluster
+  fieldClusterSet_.insert(hgcCluster);
+  DetId seedId( clusterref->seed() );
+  unsigned seedLayer = 1000;  
+  if( seedId.det() == DetId::Forward ) {
+    if( seedId.subdetId() == HGCEE ) {
+      seedLayer = HGCEEDetId(seedId).layer();
+    } else {
+      seedLayer = HGCHEDetId(seedId).layer();
+    }
+  } else {
+    throw cms::Exception("BadSeedRecHit") 
+      << "HGC KDTree Linker only accepts HGC DetIds! got: " << seedId.det();
+  }
+  
   for(size_t rhit = 0; rhit < fraction.size(); ++rhit) {
     const reco::PFRecHitRef& rh = fraction[rhit].recHitRef();
     double fract = fraction[rhit].fraction();
+    DetId rhId( rh->detId() );
+    unsigned rhLayer = 1000;
 
-    if ((rh.isNull()) || (fract < 1E-4))
+    if( rhId.det() == DetId::Forward ) {
+      if( rhId.subdetId() == HGCEE ) {
+	rhLayer = HGCEEDetId(rhId).layer();
+      } else {
+	rhLayer = HGCHEDetId(rhId).layer();
+      }
+    } else {
+      throw cms::Exception("BadRecHit") 
+	<< "HGC KDTree Linker only accepts HGC DetIds! got: " << rhId.det();
+    }
+
+    if ( (rh.isNull()) || (fract < 1E-4) ||  rhLayer != seedLayer )
       continue;
       
     const reco::PFRecHit& rechit = *rh;
-      
+    
     // We save the links rechit to EcalClusters
-    rechit2ClusterLinks_[&rechit].insert(ecalCluster);
+    rechit2ClusterLinks_[&rechit].insert(hgcCluster);
     
     // We create a liste of rechits
     rechitsSet_.insert(&rechit);
   }
 }
 
+template<reco::PFTrajectoryPoint::LayerType the_layer>
 void 
-KDTreeLinkerTrackEcal::buildTree()
+KDTreeLinkerTrackHGC<the_layer>::buildTree()
 {
   // List of pseudo-rechits that will be used to create the KDTree
   std::vector<KDTreeNodeInfo> eltList;
@@ -100,8 +184,9 @@ KDTreeLinkerTrackEcal::buildTree()
   tree_.build(eltList, region);
 }
 
+template<reco::PFTrajectoryPoint::LayerType the_layer>
 void
-KDTreeLinkerTrackEcal::searchLinks()
+KDTreeLinkerTrackHGC<the_layer>::searchLinks()
 {
   // Must of the code has been taken from LinkByRecHit.cc
 
@@ -116,7 +201,7 @@ KDTreeLinkerTrackEcal::searchLinks()
     (*it)->setIsValidMultilinks(true);
 
     const reco::PFTrajectoryPoint& atECAL = 
-      trackref->extrapolatedPoint(reco::PFTrajectoryPoint::ECALShowerMax);
+      trackref->extrapolatedPoint(the_layer);
 
     // The track didn't reach ecal
     if( ! atECAL.isValid() ) continue;
@@ -127,9 +212,10 @@ KDTreeLinkerTrackEcal::searchLinks()
     double trackPt = sqrt(atVertex.momentum().Vect().Perp2());
     double tracketa = atECAL.positionREP().Eta();
     double trackphi = atECAL.positionREP().Phi();
+    
     double trackx = atECAL.position().X();
     double tracky = atECAL.position().Y();
-    double trackz = atECAL.position().Z();
+    //double trackz = atECAL.position().Z();    
     
     // Estimate the maximal envelope in phi/eta that will be used to find rechit candidates.
     // Same envelope for cap et barrel rechits.
@@ -139,17 +225,19 @@ KDTreeLinkerTrackEcal::searchLinks()
     std::vector<KDTreeNodeInfo> recHits;
     KDTreeBox trackBox(tracketa-range, tracketa+range, trackphi-range, trackphi+range);
     tree_.search(trackBox, recHits);
-    
+
     // Here we check all rechit candidates using the non-approximated method.
     for(std::vector<KDTreeNodeInfo>::const_iterator rhit = recHits.begin(); 
 	rhit != recHits.end(); ++rhit) {
            
       const std::vector< math::XYZPoint >& cornersxyz      = rhit->ptr->getCornersXYZ();
       const math::XYZPoint& posxyz			   = rhit->ptr->position();
-      const reco::PFRecHit::REPPoint &rhrep		   = rhit->ptr->positionREP();
-      const std::vector<reco::PFRecHit::REPPoint>& corners = rhit->ptr->getCornersREP();
-      if(corners.size() != 4) continue;
-      
+      //const reco::PFRecHit::REPPoint &rhrep		   = rhit->ptr->positionREP();
+      //const std::vector<reco::PFRecHit::REPPoint>& corners = rhit->ptr->getCornersREP();
+      //const auto& corners_xyz = rhit->ptr->getCornersXYZ();
+      if(cornersxyz.size() != 4) continue;
+
+      /*
       double rhsizeEta = fabs(corners[0].Eta() - corners[2].Eta());
       double rhsizePhi = fabs(corners[0].Phi() - corners[2].Phi());
       if ( rhsizePhi > M_PI ) rhsizePhi = 2.*M_PI - rhsizePhi;
@@ -158,6 +246,10 @@ KDTreeLinkerTrackEcal::searchLinks()
       double dphi = fabs(rhrep.Phi() - trackphi);
       if ( dphi > M_PI ) dphi = 2.*M_PI - dphi;
       
+      std::cout << the_layer << " rhsize eta/phi: " << rhsizeEta << '/' << rhsizePhi
+		<< " deta/dphi: " << deta << '/' << dphi << " z: " 
+		<< rhit->ptr->position().z() << '/' << atECAL.position().z() << std::endl;
+      */
       // Find all clusters associated to given rechit
       RecHit2BlockEltMap::iterator ret = rechit2ClusterLinks_.find(rhit->ptr);
       
@@ -165,55 +257,35 @@ KDTreeLinkerTrackEcal::searchLinks()
 	  clusterIt != ret->second.end(); clusterIt++) {
 	
 	reco::PFClusterRef clusterref = (*clusterIt)->clusterRef();
-	double clusterz = clusterref->position().Z();
+	//double clusterz = clusterref->position().Z();
 	int fracsNbr = clusterref->recHitFractions().size();
 
-	if (clusterref->layer() == PFLayer::ECAL_BARREL){ // BARREL
-	  // Check if the track is in the barrel
-	  if (fabs(trackz) > 300.) continue;
+	double x[5];
+	double y[5];
+	for ( unsigned jc=0; jc<4; ++jc ) {
+	  math::XYZPoint cornerposxyz = cornersxyz[jc];
+	  x[jc] = cornerposxyz.X() + (cornerposxyz.X()-posxyz.X())
+	    * (1.00+0.50/fracsNbr /std::min(1.,0.5*trackPt));
+	  y[jc] = cornerposxyz.Y() + (cornerposxyz.Y()-posxyz.Y())
+	    * (1.00+0.50/fracsNbr /std::min(1.,0.5*trackPt));
+	}	
+	
+	x[4] = x[0];
+	y[4] = y[0];	
 
-	  double _rhsizeEta = rhsizeEta * (2.00 + 1.0 / (fracsNbr * std::min(1.,trackPt/2.)));
-	  double _rhsizePhi = rhsizePhi * (2.00 + 1.0 / (fracsNbr * std::min(1.,trackPt/2.)));
-	  
-	  // Check if the track and the cluster are linked
-	  if(deta < (_rhsizeEta / 2.) && dphi < (_rhsizePhi / 2.))
-	    target2ClusterLinks_[*it].insert(*clusterIt);
-
-	  
-	} else { // ENDCAP
-
-	  // Check if the track is in the cap
-	  if (fabs(trackz) < 300.) continue;
-	  if (trackz * clusterz < 0.) continue;
-	  
-	  double x[5];
-	  double y[5];
-	  for ( unsigned jc=0; jc<4; ++jc ) {
-	    math::XYZPoint cornerposxyz = cornersxyz[jc];
-	    x[jc] = cornerposxyz.X() + (cornerposxyz.X()-posxyz.X())
-	      * (1.00+0.50/fracsNbr /std::min(1.,0.5*trackPt));
-	    y[jc] = cornerposxyz.Y() + (cornerposxyz.Y()-posxyz.Y())
-	      * (1.00+0.50/fracsNbr /std::min(1.,0.5*trackPt));
-	  }
-	  
-	  x[4] = x[0];
-	  y[4] = y[0];
-	  
-	  bool isinside = TMath::IsInside(trackx,
-					  tracky,
-					  5,x,y);
-	  
-	  // Check if the track and the cluster are linked
-	  if( isinside )
-	    target2ClusterLinks_[*it].insert(*clusterIt);
+	// Check if the track and the cluster are linked
+	if(TMath::IsInside(trackx,tracky,5,x,y)) {
+	  target2ClusterLinks_[*it].insert(*clusterIt);	  
 	}
       }
     }
   }
 }
 
+
+template<reco::PFTrajectoryPoint::LayerType the_layer>
 void
-KDTreeLinkerTrackEcal::updatePFBlockEltWithLinks()
+KDTreeLinkerTrackHGC<the_layer>::updatePFBlockEltWithLinks()
 {
   //TODO YG : Check if cluster positionREP() is valid ?
 
@@ -235,8 +307,9 @@ KDTreeLinkerTrackEcal::updatePFBlockEltWithLinks()
   }
 }
 
+template<reco::PFTrajectoryPoint::LayerType the_layer>
 void
-KDTreeLinkerTrackEcal::clear()
+KDTreeLinkerTrackHGC<the_layer>::clear()
 {
   targetSet_.clear();
   fieldClusterSet_.clear();
@@ -248,3 +321,5 @@ KDTreeLinkerTrackEcal::clear()
 
   tree_.clear();
 }
+
+#endif /* !KDTreeLinkerTrackHGC_h */

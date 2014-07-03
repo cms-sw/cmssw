@@ -517,7 +517,7 @@ BaseParticlePropagator::propagateToHGCEEEntrance(bool first) {
   // Geometry taken from HGC v4 Geometry
   //
   // First propagate to global barrel / endcap cylinder 
-  setPropagationConditions(129.0 , 317.3, first);
+  setPropagationConditions(129.0 , 317.31, first);
   bool done = propagate();
 
   // Go to endcap cylinder in the "barrel cut corner" 
@@ -579,15 +579,6 @@ BaseParticlePropagator::propagateToHGCHEFEntrance(bool first) {
   bool done = propagate();
   propDir = 1;
 
-  // If went through the bottom of HB cylinder -> re-propagate to HEF surface
-  if (done && success == 2) {
-    setPropagationConditions(227.582, 425.89, first);
-    propDir = 0;
-    done = propagate();
-    propDir = 1;
-  }
-
-
   // out of the HB/HE acceptance
   // eta = 3.0 -> cos^2(theta) = 0.99014
   if ( done && cos2ThetaV() > 0.99014 ) success = 0;
@@ -608,15 +599,6 @@ BaseParticlePropagator::propagateToHGCHEBEntrance(bool first) {
   propDir = 0;
   bool done = propagate();
   propDir = 1;
-
-  // If went through the bottom of HB cylinder -> re-propagate to HEB surface
-  if (done && success == 2) {
-    setPropagationConditions(266.88, 524.1, first);
-    propDir = 0;
-    done = propagate();
-    propDir = 1;
-  }
-
 
   // out of the HB/HE acceptance
   // eta = 3.0 -> cos^2(theta) = 0.99014

@@ -261,13 +261,14 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
    // add HGCAL pieces
    theOutParticleHGC.propagateToHGCEEEntrance(false);
    if(theOutParticleHGC.getSuccess() == 2 ) {
-     std::cout << "made it to the HGC ECAL face!" << std::endl;
      pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HGC_ECALEntrance,
 					math::XYZPoint(theOutParticleHGC.vertex()),
-					math::XYZTLorentzVector(theOutParticleHGC.momentum())));
+					math::XYZTLorentzVector(theOutParticleHGC.momentum())));     
    } else {
      pftrack.addPoint(PFTrajectoryPoint());
    }
+   pftrack.addPoint(PFTrajectoryPoint());
+   /*
    theOutParticleHGC.propagateToHGCEEExit(false);
    if( theOutParticleHGC.getSuccess() == 2 ) {
      std::cout << "made it to the HGC ECAL back!" << std::endl;
@@ -277,15 +278,17 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
    } else {
      pftrack.addPoint(PFTrajectoryPoint());
    }
+   */
    theOutParticleHGC.propagateToHGCHEFEntrance(false);
    if(theOutParticleHGC.getSuccess() == 2 ) {
-     std::cout << "made it to the HGC HEF front!" << std::endl;
      pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HGC_HCALFEntrance,
 					math::XYZPoint(theOutParticleHGC.vertex()),
 					math::XYZTLorentzVector(theOutParticleHGC.momentum())));	  
    } else {
      pftrack.addPoint(PFTrajectoryPoint());
    }
+   pftrack.addPoint(PFTrajectoryPoint());
+   /*
    theOutParticleHGC.propagateToHGCHEFExit(false);
    if( theOutParticleHGC.getSuccess() == 2 ) {
      std::cout << "made it to the HGC HEF back!" << std::endl;
@@ -295,16 +298,18 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
    } else {
      pftrack.addPoint(PFTrajectoryPoint());
    }
+   */
    
    theOutParticleHGC.propagateToHGCHEBEntrance(false);
    if(theOutParticleHGC.getSuccess() == 2 ) {
-     std::cout << "made it to the HGC HEB front!" << std::endl;
      pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HGC_HCALBEntrance,
 					math::XYZPoint(theOutParticleHGC.vertex()),
 					math::XYZTLorentzVector(theOutParticleHGC.momentum())));
    } else {
      pftrack.addPoint(PFTrajectoryPoint());
    }
+   pftrack.addPoint(PFTrajectoryPoint());
+   /*
    theOutParticleHGC.propagateToHGCHEBExit(false);
    if( theOutParticleHGC.getSuccess() == 2 ) {
      std::cout << "made it to the HGC HEB back!" << std::endl;
@@ -314,6 +319,7 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
    } else {
      pftrack.addPoint(PFTrajectoryPoint());
    }
+   */
    
    return true;
 }
@@ -555,7 +561,6 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
       // add HGCAL pieces
       theOutParticleHGC.propagateToHGCEEEntrance(false);
       if(theOutParticleHGC.getSuccess() == 2 ) {
-	std::cout << "made it to the HGC ECAL face!" << std::endl;
 	pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HGC_ECALEntrance,
 					   math::XYZPoint(theOutParticleHGC.vertex()),
 					   math::XYZTLorentzVector(theOutParticleHGC.momentum())));
@@ -564,7 +569,6 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
       }
       theOutParticleHGC.propagateToHGCEEExit(false);
       if( theOutParticleHGC.getSuccess() == 2 ) {
-	std::cout << "made it to the HGC ECAL back!" << std::endl;
 	pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HGC_ECALExit,
 					   math::XYZPoint(theOutParticleHGC.vertex()),
 					   math::XYZTLorentzVector(theOutParticleHGC.momentum())));
@@ -574,7 +578,6 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
       
       theOutParticleHGC.propagateToHGCHEFEntrance(false);
       if(theOutParticleHGC.getSuccess() == 2 ) {
-	std::cout << "made it to the HGC HEF front!" << std::endl;
 	pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HGC_HCALFEntrance,
 					   math::XYZPoint(theOutParticleHGC.vertex()),
 					   math::XYZTLorentzVector(theOutParticleHGC.momentum())));	  
@@ -583,7 +586,6 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
       }
       theOutParticleHGC.propagateToHGCHEFExit(false);
       if( theOutParticleHGC.getSuccess() == 2 ) {
-	std::cout << "made it to the HGC HEF back!" << std::endl;
 	pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HGC_HCALFExit,
 					   math::XYZPoint(theOutParticleHGC.vertex()),
 					   math::XYZTLorentzVector(theOutParticleHGC.momentum())));
@@ -593,7 +595,6 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
       
       theOutParticleHGC.propagateToHGCHEBEntrance(false);
       if(theOutParticleHGC.getSuccess() == 2 ) {
-	std::cout << "made it to the HGC HEB front!" << std::endl;
 	pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HGC_HCALBEntrance,
 					     math::XYZPoint(theOutParticleHGC.vertex()),
 					   math::XYZTLorentzVector(theOutParticleHGC.momentum())));
@@ -602,7 +603,6 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
       }
       theOutParticleHGC.propagateToHGCHEBExit(false);
       if( theOutParticleHGC.getSuccess() == 2 ) {
-	std::cout << "made it to the HGC HEB back!" << std::endl;
 	pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::HGC_HCALBExit,
 					   math::XYZPoint(theOutParticleHGC.vertex()),
 					   math::XYZTLorentzVector(theOutParticleHGC.momentum())));

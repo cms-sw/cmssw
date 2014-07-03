@@ -128,7 +128,8 @@ namespace reco {
                                      const PFBlockElement& element );
 
     // Glowinski & Gouzevitch
-    void setMultilinks(const PFMultiLinksTC& ml) {multilinks_ = ml;}
+    void setMultilinks(const PFMultiLinksTC& ml) {multilinks_.linkedClusters.insert(multilinks_.linkedClusters.end(),ml.linkedClusters.begin(),ml.linkedClusters.end());}
+    void clearMultilinks() { multilinks_.linkedClusters.clear(); }
     void setIsValidMultilinks(bool isVal) {multilinks_.isValid = isVal;}
     void setMultilinksList(const PFMultilinksType& links) {multilinks_.linkedClusters = links;}
     
