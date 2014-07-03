@@ -13,6 +13,8 @@
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripProcessedRawDigi.h"
 
+#include "boost/bind.hpp"
+
 #include <functional>
 
 SiStripProcessedRawDigiProducer::SiStripProcessedRawDigiProducer(edm::ParameterSet const& conf)

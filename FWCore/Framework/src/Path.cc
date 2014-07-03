@@ -7,7 +7,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <algorithm>
-#include "boost/bind.hpp"
 
 namespace edm {
   Path::Path(int bitpos, std::string const& path_name,
@@ -159,8 +158,9 @@ namespace edm {
 
   void
   Path::clearCounters() {
+    using std::placeholders::_1;
     timesRun_ = timesPassed_ = timesFailed_ = timesExcept_ = 0;
-    for_all(workers_, boost::bind(&WorkerInPath::clearCounters, _1));
+    for_all(workers_, std::bind(&WorkerInPath::clearCounters, _1));
   }
 
   void

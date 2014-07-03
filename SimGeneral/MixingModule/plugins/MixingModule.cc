@@ -8,6 +8,8 @@
 #include "MixingWorker.h"
 #include "Adjuster.h"
 
+#include "boost/bind.hpp"
+
 #include "CondFormats/RunInfo/interface/MixingModuleConfig.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/EDMException.h"
