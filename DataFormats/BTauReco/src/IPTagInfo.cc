@@ -10,8 +10,8 @@ namespace btag {
 
 }
 
-template <> const reco::Track * reco::IPTagInfo<reco::TrackRefVector,reco::JTATagInfo>::selectedTrack(size_t i) const {return &(*m_selected[i]);}
-template <> const reco::Track * reco::IPTagInfo<std::vector<reco::CandidatePtr>,reco::JetTagInfo>::selectedTrack(size_t i) const {return (*m_selected[i]).bestTrack();}
+//template <> const reco::Track * reco::IPTagInfo<reco::TrackRefVector,reco::JTATagInfo>::selectedTrack(size_t i) const {return &(*m_selected[i]);}
+//template <> const reco::Track * reco::IPTagInfo<std::vector<reco::CandidatePtr>,reco::JetTagInfo>::selectedTrack(size_t i) const {return (*m_selected[i]).bestTrack();}
 }
 
 

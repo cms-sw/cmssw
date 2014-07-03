@@ -139,7 +139,7 @@ double etaRel(const math::XYZVector &dir, const math::XYZVector &track) const {
   const GlobalVector & axis() const { return m_axis; }
   const TrackRef & ghostTrack() const { return m_ghostTrack; }
  
-  const Track * selectedTrack(size_t i) const;
+  const Track * selectedTrack(size_t i) const {return reco::btag::toTrack(m_selected[i]);}
 
 private:
   std::vector<btag::TrackIPData> m_data;
