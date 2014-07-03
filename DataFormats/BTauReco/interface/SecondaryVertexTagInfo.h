@@ -15,33 +15,39 @@
 #include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
 
 namespace reco {
+namespace btag{
+        struct TrackData {
+                enum Status {
+                        trackSelected = 0,
+                        trackUsedForVertexFit,
+                        trackAssociatedToVertex
+                };
+
+                inline bool usedForVertexFit() const
+                { return (int)svStatus >= (int)trackUsedForVertexFit; }
+                inline bool associatedToVertex() const
+                { return (int)svStatus >= (int)trackAssociatedToVertex; }
+                inline bool associatedToVertex(unsigned int index) const
+                { return (int)svStatus == (int)trackAssociatedToVertex + (int)index; }
+
+                Status  svStatus;
+        };
+
+        struct VertexData {
+                reco::Vertex                    vertex;
+                Measurement1D                   dist2d, dist3d;
+                GlobalVector                    direction;
+        };
+	typedef std::pair<unsigned int, TrackData> IndexedTrackData;
+
+}
 template <class IPTI> 
 class TemplatedSecondaryVertexTagInfo : public BaseTagInfo {
     public:
-	struct TrackData {
-		enum Status {
-			trackSelected = 0,
-			trackUsedForVertexFit,
-			trackAssociatedToVertex
-		};
+	typedef reco::btag::TrackData TrackData;
+	typedef reco::btag::VertexData VertexData;
 
-		inline bool usedForVertexFit() const
-		{ return (int)svStatus >= (int)trackUsedForVertexFit; }
-		inline bool associatedToVertex() const
-		{ return (int)svStatus >= (int)trackAssociatedToVertex; }
-		inline bool associatedToVertex(unsigned int index) const
-		{ return (int)svStatus == (int)trackAssociatedToVertex + (int)index; }
-
-		Status	svStatus;
-	};
-
-	struct VertexData {
-		Vertex				vertex;
-		Measurement1D			dist2d, dist3d;
-		GlobalVector			direction;
-	};
-
-	typedef std::pair<unsigned int, TrackData> IndexedTrackData;
+	typedef reco::btag::IndexedTrackData IndexedTrackData;
         struct TrackFinder {
                 TrackFinder(const TrackRefVector &tracks,
                             const TrackRef &track) :

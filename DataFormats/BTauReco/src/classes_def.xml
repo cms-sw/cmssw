@@ -30,20 +30,12 @@
   <class name="reco::JTATagInfoRefVector"/>
   <class name="edm::Wrapper<reco::JTATagInfoCollection>"/>
 
-  <class name="reco::SecondaryVertexTagInfo" ClassVersion="11">
-   <version ClassVersion="10" checksum="4280698582"/>
-   <version ClassVersion="11" checksum="4112433172"/>
-  </class>
-<!-- FIXME
-  <class name="reco::SecondaryVertexTagInfo::TrackData" ClassVersion="11">
-   <version ClassVersion="10" checksum="3899080432"/>
-  </class>
-  <class name="reco::SecondaryVertexTagInfo::VertexData" ClassVersion="11">
-   <version ClassVersion="10" checksum="337200088"/>
-  </class>
-  <class name="std::vector<reco::SecondaryVertexTagInfo::VertexData>"/>
-  <class name="reco::SecondaryVertexTagInfo::IndexedTrackData"/>
-  <class name="std::vector<reco::SecondaryVertexTagInfo::IndexedTrackData>"/> -->
+  <class name="reco::SecondaryVertexTagInfo"/>
+  <class name="reco::btag::TrackData"/>
+  <class name="reco::btag:::VertexData"/>
+  <class name="std::vector<reco::btag:::VertexData>"/>
+  <class name="reco::btag::IndexedTrackData"/>
+  <class name="std::vector<reco::btag::IndexedTrackData>"/> -->
   <class name="reco::SecondaryVertexTagInfoCollection"/>
   <class name="reco::SecondaryVertexTagInfoRef"/>
   <class name="reco::SecondaryVertexTagInfoFwdRef"/>
@@ -200,6 +192,7 @@
   <class name="edm::Wrapper<reco::JetEisolAssociationCollection>"/>
 
 
+  <class name="reco::btag::TrackIPData"/>
   <class name="std::vector<reco::btag::TrackIPData>"/>
   <class name="reco::TrackIPTagInfo"/>
   <class name="reco::TrackIPTagInfoCollection"/>
