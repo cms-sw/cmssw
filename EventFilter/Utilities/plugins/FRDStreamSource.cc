@@ -36,13 +36,22 @@ bool FRDStreamSource::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& the
     }
   }
 
-  const uint32_t headerSize = (4 + 1024) * sizeof(uint32_t); //minimal size to fit any version of FRDEventHeader
-  if ( buffer_.size() < headerSize )
-    buffer_.resize(headerSize);
-  fin_.read(&buffer_[0],headerSize);
-
-  // do we have to handle the case that a smaller header version + payload could fit into max headerSize?
-  assert( fin_.gcount() == headerSize );
+  const uint32_t headerSize[4]={0,2*sizeof(uint32),(4+1024)*sizeof(uint32_t),7*sizeof(uint32_t)};//FRD header size per version
+  if ( detectedFRDversion_==0) {
+    fin_.read((char*)&detectedFRDversion_,sizeof(uint32_t));
+    assert(detectedFRDversion_>0 && detectedFRDversion_<=3);
+    if ( buffer_.size() < headerSize[detectedFRDversion_] )
+      buffer_.resize(headerSize[detectedFRDversion_]);
+    *((uint32_t*)(&buffer_[0]))=detectedFRDversion_;
+    fin_.read(&buffer_[0] + sizeof(uint32_t),headerSize[detectedFRDversion_]-sizeof(uint32_t));
+    assert( fin_.gcount() == headerSize[detectedFRDversion_]-(unsigned int)(sizeof(uint32_t) ));
+  }
+  else {
+    if ( buffer_.size() < headerSize[detectedFRDversion_] )
+      buffer_.resize(headerSize[detectedFRDversion_]);
+    fin_.read(&buffer_[0],headerSize[detectedFRDversion_]);
+    assert( fin_.gcount() == headerSize[detectedFRDversion_] );
+  }
 
   std::unique_ptr<FRDEventMsgView> frdEventMsg(new FRDEventMsgView(&buffer_[0]));
   id = edm::EventID(frdEventMsg->run(), frdEventMsg->lumi(), frdEventMsg->event());
@@ -51,9 +60,9 @@ bool FRDStreamSource::setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& the
   if ( totalSize > buffer_.size() ) {
     buffer_.resize(totalSize);
   }
-  if ( totalSize > headerSize ) {
-    fin_.read(&buffer_[0]+headerSize,totalSize-headerSize);
-    if ( fin_.gcount() != totalSize-headerSize ) {
+  if ( totalSize > headerSize[detectedFRDversion_] ) {
+    fin_.read(&buffer_[0]+headerSize[detectedFRDversion_],totalSize-headerSize[detectedFRDversion_]);
+    if ( fin_.gcount() != totalSize-headerSize[detectedFRDversion_] ) {
       throw cms::Exception("FRDStreamSource::setRunAndEventInfo") <<
         "premature end of file " << *itFileName_;
     }
@@ -107,6 +116,7 @@ void FRDStreamSource::produce(edm::Event& e) {
 
 bool FRDStreamSource::openFile(const std::string& fileName)
 {
+  std::cout << " open file.. " << fileName << std::endl;
   fin_.close();
   fin_.clear();
   size_t pos = fileName.find(':');
