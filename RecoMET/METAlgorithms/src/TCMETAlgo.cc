@@ -240,7 +240,7 @@ reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& se
        }
 
        for (reco::PFClusterCollection::const_iterator it = clustersHFHAD->begin(); it != clustersHFHAD->end(); it++){
-
+	 if( it->layer() != PFLayer::HF_HAD) continue;
          const math::XYZPoint&  cluster_pos = it->position();
          double et = it->energy() / cosh( cluster_pos.eta() ); 
        
@@ -250,7 +250,7 @@ reco::MET TCMETAlgo::CalculateTCMET(edm::Event& event, const edm::EventSetup& se
        }
 
        for (reco::PFClusterCollection::const_iterator it = clustersHFEM->begin(); it != clustersHFEM->end(); it++){
-
+	 if( it->layer() != PFLayer::HF_EM) continue;
          const math::XYZPoint&  cluster_pos = it->position();
          double et = it->energy() / cosh( cluster_pos.eta() ); 
        

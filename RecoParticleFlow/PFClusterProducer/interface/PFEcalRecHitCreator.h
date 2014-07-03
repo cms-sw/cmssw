@@ -100,6 +100,7 @@ template <typename Geometry,PFLayer::Layer Layer,int Detector>
 			   axis.x(), axis.y(), axis.z() ); 
 
 
+	//ECAL has no segmentation so put 1
 	
 	const CaloCellGeometry::CornersVec& corners = thisCell->getCorners();
 	assert( corners.size() == 8 );
@@ -123,6 +124,7 @@ template <typename Geometry,PFLayer::Layer Layer,int Detector>
 	  
 	if(keep) {
 	  rh.setTime(time);
+	  rh.setDepth(1);
 	  out->push_back(rh);
 	}
 	else if (rcleaned) 
