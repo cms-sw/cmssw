@@ -50,14 +50,13 @@ namespace reco {
 namespace DataFormats_BTauReco {
   struct dictionary {
 
-    reco::SecondaryVertexTagInfo::TrackData                             sv_td;
-    reco::SecondaryVertexTagInfo::VertexData                            sv_vd;
-    std::vector<reco::SecondaryVertexTagInfo::VertexData>               sv_vdv;
-    reco::SecondaryVertexTagInfo::IndexedTrackData                      sv_itd;
-    std::vector<reco::SecondaryVertexTagInfo::IndexedTrackData>         sv_itdv;
+    reco::btag::TrackData                             sv_td1;
+    reco::btag::VertexData				rbsv;
+    std::vector<reco::btag::VertexData>               sv_vdv;
+    reco::btag::IndexedTrackData                      sv_itd;
+    std::vector<reco::btag::IndexedTrackData>         sv_itdv;
+
     reco::SecondaryVertexTagInfo                                        sv;
-    reco::btag::VertexData						rbsv;
-    std::vector<reco::btag::VertexData>					rbsvdata;
     reco::SecondaryVertexTagInfoCollection                              sv_c;
     reco::SecondaryVertexTagInfoRef                                     sv_r;
     reco::SecondaryVertexTagInfoFwdRef                                  sv_fr;
