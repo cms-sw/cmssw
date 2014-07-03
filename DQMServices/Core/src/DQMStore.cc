@@ -784,7 +784,7 @@ DQMStore::book(const std::string &dir, const std::string &name,
     refdir += '/';
     refdir += dir;
 
-    if (MonitorElement *refme = findObject(refdir, name))
+    if (findObject(refdir, name))
     {
       me->data_.flags |= DQMNet::DQM_PROP_HAS_REFERENCE;
     }
