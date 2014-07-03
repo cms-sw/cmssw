@@ -14,7 +14,7 @@ class KfComponentsHolder {
     public:
   KfComponentsHolder(){
 #ifdef Debug_KfComponentsHolder
-   size_ == 0;
+   size_ = 0;
 #endif
 }
 
