@@ -99,8 +99,8 @@ process.l1tDigis.InputLabel = cms.InputTag("mp7BufferDumpToRaw")
 
 process.load('L1Trigger.L1TCalorimeter.l1tStage2CaloAnalyzer_cfi')
 process.l1tStage2CaloAnalyzer.towerToken = cms.InputTag("l1tDigis")
-process.l1tStage2CaloAnalyzer.towerPreCompressionToken = cms.InputTag("l1tDigis")
-process.l1tStage2CaloAnalyzer.clusterToken = cms.InputTag("l1tDigis")
+#process.l1tStage2CaloAnalyzer.towerPreCompressionToken = cms.InputTag("l1tDigis")
+process.l1tStage2CaloAnalyzer.clusterToken = cms.InputTag("None")
 process.l1tStage2CaloAnalyzer.egToken = cms.InputTag("l1tDigis")
 process.l1tStage2CaloAnalyzer.tauToken = cms.InputTag("l1tDigis")
 process.l1tStage2CaloAnalyzer.jetToken = cms.InputTag("l1tDigis")
@@ -111,7 +111,7 @@ process.path = cms.Path(
     process.mp7BufferDumpToRaw
     +process.dumpRaw
     +process.l1tDigis
-#    +process.l1tStage2CaloAnalyzer
+    +process.l1tStage2CaloAnalyzer
 )
 
 process.out = cms.EndPath(
