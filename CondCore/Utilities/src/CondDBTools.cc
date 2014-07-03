@@ -2,11 +2,29 @@
 #include "CondCore/Utilities/interface/CondDBImport.h"
 #include "CondCore/CondDB/interface/ConnectionPool.h"
 //
+#include "CondCore/CondDB/src/DbCore.h"
+#include "CondCore/DBCommon/interface/DbTransaction.h"
+//
 #include <boost/filesystem.hpp>
+#include <boost/regex.hpp>
+#include <boost/bind.hpp>
 
 namespace cond {
 
   namespace persistency {
+
+    table( COND_LOG_TABLE ) {
+      column( EXECTIME, std::string );
+      column( IOVTAG,   std::string );
+      column( USERTEXT, std::string );
+    } 
+
+    static const boost::regex popcon_many("PopCon[[:print:]]+?first payload Since ([[:alnum:]]+?),.*");
+    static const boost::regex duplicate("duplicateIOV[[:print:]]+?[S|s]ince[=| ]([[:alnum:]]+?);.*");
+    static const boost::regex popcon_one("PopCon[[:print:]]+?;Since ([[:alnum:]]+?);.*");
+    static const boost::regex exportIOV("exportIOV[[:print:]]+?;since=([[:alnum:]]+?),[[:print:]]+?; *copied=([[:alnum:]]+?);.*");
+    //
+    static const std::string time_0("2008-01-01 00:00:42.000");
 
     size_t copyTag( const std::string& sourceTag, 
 		    Session& sourceSession, 
@@ -78,12 +96,170 @@ namespace cond {
       return niovs;
     }
 
+    bool getInsertionLogs( const std::string& tag, 
+			   cond::DbSession& logDbSession, 
+			   std::vector<std::pair<cond::Time_t,boost::posix_time::ptime> >& loggedInsertions ){
+      logDbSession.transaction().start( true );
+      std::set<cond::Time_t> loggedSinces;
+      Query< COND_LOG_TABLE::EXECTIME, COND_LOG_TABLE::USERTEXT > q( logDbSession.nominalSchema() );
+      q.addCondition<COND_LOG_TABLE::IOVTAG>( tag );
+      for ( auto row : q ) {
+	if( std::get<1>( row ).empty() ) continue;
+	boost::smatch matches;
+	cond::Time_t since_t = 0;
+	size_t copied_n = 0;
+	
+	if (boost::regex_match(std::get<1>( row ), matches, popcon_many )){
+	  since_t = boost::lexical_cast<unsigned long long>(matches[1]);
+	  copied_n = 1;
+	} else if (boost::regex_match(std::get<1>( row ), matches, popcon_one )){
+	  since_t = boost::lexical_cast<unsigned long long>(matches[1]);
+	  copied_n = 1;
+	} else if (boost::regex_match(std::get<1>( row ), matches, exportIOV )){
+	  since_t = boost::lexical_cast<unsigned long long>(matches[1]);
+	  copied_n = boost::lexical_cast<unsigned long long>(matches[2]);
+	} else if( boost::regex_match(std::get<1>( row ), matches, duplicate )){
+	  since_t = boost::lexical_cast<unsigned long long>(matches[1]);
+	  copied_n = 1;
+	} else {
+	  //throwException( "Tag "+tag+": could not parse the PopConLog info entry: "+std::get<1>( row ), "migrateTag" );
+	  std::cout <<"ERROR: tag "<<tag<<": could not parse the PopConLog info entry: \""<<std::get<1>( row )<<"\""<<std::endl;
+	  loggedSinces.clear();
+	  break;
+	}
+	// if the insertion of a given since happens also later ( maybe it was deleted and re-written ), we keep the first insertion time...
+	if( loggedSinces.find( since_t ) == loggedSinces.end() && copied_n>0 ){
+	  std::string s_t = std::get<0>( row );
+          int Y,M,D,h,m,s;
+	  if(sscanf( s_t.c_str(), "%d-%d-%d-%d:%d:%d",&Y,&M,&D,&h,&m,&s) != 6 ){
+	    throwException( "Tag "+tag+": time information can't be parsed.","migrateTag");
+	  }
+	  char parsable_s_t[23];
+	  sprintf( parsable_s_t, "%04d-%02d-%02d %02d:%02d:%02d.000",Y,M,D,h,m,s );
+	  //std::cout <<"## since="<<since_t<<" time="<<std::string( parsable_s_t )<<std::endl;
+	  boost::posix_time::ptime insertionTime = boost::posix_time::time_from_string( std::string( parsable_s_t ) );
+	  loggedInsertions.push_back( std::make_pair( since_t, insertionTime ) );
+	  loggedSinces.insert( since_t );
+	}
+      }
+      logDbSession.transaction().commit();
+      
+      std::sort( loggedInsertions.begin(), 
+		 loggedInsertions.end(), 
+		 boost::bind( std::less<cond::Time_t>(),
+			      boost::bind(&std::pair<cond::Time_t,boost::posix_time::ptime >::first,_1),
+			      boost::bind(&std::pair<cond::Time_t,boost::posix_time::ptime >::first,_2)
+			      ));
+      return loggedInsertions.size()>0;
+    }
+
+    // comparison functor for iov tuples: Time_t only and Time_t,string
+    struct IOVComp {
+      bool operator()( const cond::Time_t& x, const std::pair<cond::Time_t,boost::posix_time::ptime>& y ){ return ( x < y.first ); }
+    };
+    
+    // function to search in the vector the target time
+    template <typename T> typename std::vector<T>::const_iterator search( const cond::Time_t& val, const std::vector<T>& container ){
+      if( !container.size() ) return container.end();
+      auto p = std::upper_bound( container.begin(), container.end(), val, IOVComp() );
+      return (p!= container.begin()) ? p-1 : container.end();
+    }
+
+    size_t migrateTag( const std::string& sourceTag, 
+		       Session& sourceSession, 
+		       const std::string& destTag, 
+		       Session& destSession,
+		       UpdatePolicy policy,
+		       cond::DbSession& logDbSession){
+      persistency::TransactionScope ssc( sourceSession.transaction() );
+      ssc.start();
+      std::cout <<"    Loading source iov..."<<std::endl;
+      persistency::IOVProxy p = sourceSession.readIov( sourceTag, true );
+      if( p.loadedSize()==0 ) {
+        std::cout <<"    Tag contains 0 iovs."<<std::endl; 
+	return 0;
+      }
+
+      std::vector<std::pair<cond::Time_t,boost::posix_time::ptime> > loggedInsertions;
+      std::tuple<std::string, boost::posix_time::ptime, boost::posix_time::ptime > metadata = p.getMetadata();
+      boost::posix_time::ptime creationTime = boost::posix_time::time_from_string( time_0 );
+      if( p.loadedSize() == 1 ){
+	creationTime = std::get<2>(metadata);
+	//std::cout <<"## creation time="<<creationTime<<std::endl;
+      } else {
+	getInsertionLogs( sourceTag, logDbSession, loggedInsertions );
+	if( !loggedInsertions.empty() ) creationTime = loggedInsertions[0].second;
+      }
+      
+      std::cout <<"    Copying tag. Iov size:"<<p.loadedSize()<<" timeType:"<<p.timeType()<<" payloadObjectType=\""<<p.payloadObjectType()<<"\""<<std::endl;
+      
+      persistency::IOVEditor editor;
+      persistency::TransactionScope dsc( destSession.transaction() );
+      dsc.start( false );
+      bool exists = false;
+      if( !destSession.existsDatabase() ) {
+	destSession.createDatabase();
+      } else {
+	exists = destSession.existsIov( destTag );
+      }
+      if( exists ){
+	if( policy == REPLACE ){
+	  destSession.clearIov( destTag );
+	} else if( policy == NEW ){
+	  destSession.transaction().rollback();
+	  throwException("    Tag \""+destTag+"\" already exists.","copyTag");
+	}
+	editor = destSession.editIov( destTag );
+      } else {
+	editor = destSession.createIov( p.payloadObjectType(), destTag, p.timeType(), p.synchronizationType(), creationTime );
+	editor.setDescription( std::get<0>( metadata ));
+      }
+      size_t niovs = 0;
+      std::set<cond::Hash> pids;
+      std::set<cond::Time_t> sinces;
+      for(  auto iov : p ){
+	// skip duplicated sinces
+	if( sinces.find( iov.since ) != sinces.end() ){
+	  std::cout <<"    WARNING. Skipping duplicated since="<<iov.since<<std::endl;
+	  continue;
+	}
+	sinces.insert( iov.since );
+        
+	boost::posix_time::ptime insertionTime = creationTime;
+	if( !loggedInsertions.empty() ){
+	  auto iL = search( iov.since, loggedInsertions );
+	  if( iL != loggedInsertions.end() ) insertionTime = iL->second;
+	}
+
+	// make sure that we import the payload _IN_USE_
+	auto usedIov = p.getInterval( iov.since );
+	std::pair<std::string,boost::shared_ptr<void> > readBackPayload = fetch( usedIov.payloadId, sourceSession );
+	cond::Hash ph = import( readBackPayload.first, readBackPayload.second.get(), destSession );
+	//std::cout <<"## inserting iov "<<iov.since<<" on time "<<insertionTime<<std::endl;
+	editor.insert( iov.since, ph, insertionTime );
+	pids.insert( ph );
+	niovs++;
+	if( niovs && (niovs%1000==0) ) {
+	  std::cout <<"    Total of iov inserted: "<<niovs<<" payloads: "<<pids.size()<<std::endl;
+	  std::cout <<"    Last since imported: "<<iov.since<<std::endl;
+	}
+      } 
+      std::cout <<"    Total of iov inserted: "<<niovs<<" payloads: "<<pids.size()<<std::endl;
+      std::cout <<"    Flushing changes..."<<std::endl;
+      editor.flush();
+      dsc.commit();
+      ssc.commit();
+      return niovs;
+    }
+
+
     size_t importIovs( const std::string& sourceTag, 
 		       Session& sourceSession, 
 		       const std::string& destTag, 
 		       Session& destSession, 
 		       cond::Time_t begin,
 		       cond::Time_t end,
+		       const std::string& description,
 		       bool log ){
       persistency::TransactionScope ssc( sourceSession.transaction() );
       ssc.start();
@@ -94,6 +270,10 @@ namespace cond {
 	return 0;
       } else {
 	if( log ) std::cout <<"    Iov size:"<<p.loadedSize()<<" timeType:"<<p.timeType()<<" payloadObjectType=\""<<p.payloadObjectType()<<"\""<<std::endl;
+      }
+      if( (*p.begin()).since > begin ) begin = (*p.begin()).since;
+      if( end < begin ) {
+	if( log ) std::cout <<"    No Iov in the selected range."<<std::endl; 
       }
       persistency::IOVEditor editor;
       persistency::TransactionScope dsc( destSession.transaction() );
@@ -112,7 +292,8 @@ namespace cond {
 	  throwException( "PayloadType of the destination tag does not match with the source tag payloadType.", "importIovs");
       } else {
 	editor = destSession.createIov( p.payloadObjectType(), destTag, p.timeType(), p.synchronizationType() );
-	editor.setDescription( "Copied tag "+sourceTag+" from "+sourceSession.connectionString() );
+	if( description.empty() ) editor.setDescription( "Created copying tag "+sourceTag+" from "+sourceSession.connectionString() );
+	else editor.setDescription( description );
       }
       size_t niovs = 0;
       std::set<cond::Hash> pids;
@@ -154,6 +335,7 @@ namespace cond {
 		  const std::string& destTag,
 		  cond::Time_t sourceSince,
 		  cond::Time_t destSince,
+		  const std::string& description,
 		  bool log ){
       persistency::TransactionScope ssc( session.transaction() );
       ssc.start( false );
@@ -181,7 +363,8 @@ namespace cond {
 	  throwException( "PayloadType of the destination tag does not match with the source tag payloadType.", "importIovs");
       } else {
 	editor = session.createIov( p.payloadObjectType(), destTag, p.timeType(), p.synchronizationType() );
-	editor.setDescription( "Copied tag "+sourceTag+" from "+session.connectionString()  );
+	if( description.empty() ) editor.setDescription( "Created copying iovs from tag "+sourceTag );
+	else editor.setDescription( description );
       }
 
       editor.insert( destSince, (*iiov).payloadId );
