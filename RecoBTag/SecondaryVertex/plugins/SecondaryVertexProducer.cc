@@ -62,6 +62,7 @@ namespace {
 	};
 }
 
+
 class SecondaryVertexProducer : public edm::stream::EDProducer<> {
     public:
 	explicit SecondaryVertexProducer(const edm::ParameterSet &params);

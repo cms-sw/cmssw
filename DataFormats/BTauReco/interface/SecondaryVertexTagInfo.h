@@ -146,7 +146,6 @@ typedef TemplatedSecondaryVertexTagInfo<TrackIPTagInfo> SecondaryVertexTagInfo;
 
 DECLARE_EDM_REFS(SecondaryVertexTagInfo)
 
-}
 
 #include <functional>
 #include <ext/functional>
@@ -158,7 +157,6 @@ DECLARE_EDM_REFS(SecondaryVertexTagInfo)
 
 #include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"
 
-using namespace reco;
 
 
 template<class IPTI>  TemplatedSecondaryVertexTagInfo<IPTI>::TemplatedSecondaryVertexTagInfo(
@@ -313,5 +311,7 @@ template<class IPTI> TaggingVariableList  TemplatedSecondaryVertexTagInfo<IPTI>:
 
 	vars.finalize();
 	return vars;
+}
+
 }
 #endif // DataFormats_BTauReco_SecondaryVertexTagInfo_h
