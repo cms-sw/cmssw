@@ -12,9 +12,6 @@
 
 
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
-#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
-#define NO_DICT
-#endif
 
 #include<vector>
 #include<memory>
@@ -28,7 +25,7 @@ class KfComponentsHolder;
 class TrackingRecHit {
 public:
 
-#ifdef NO_DICT
+#ifndef __GCCXML__
    using      RecHitPointer = std::shared_ptr<TrackingRecHit const>;  // requires to much editing
    using ConstRecHitPointer = std::shared_ptr<TrackingRecHit const>;   
 #else
@@ -77,7 +74,7 @@ public:
 
   
   virtual TrackingRecHit * clone() const = 0;
-#ifdef NO_DICT
+#ifndef __GCCXML__
   virtual RecHitPointer cloneSH() const { return RecHitPointer(clone());}
   // clone and add the geom (ready for refit)
   RecHitPointer cloneForFit(const GeomDet & idet) const {
@@ -106,7 +103,7 @@ public:
   virtual std::vector<TrackingRecHit*> recHits() = 0;
   virtual void recHitsV(std::vector<TrackingRecHit*> & );
 
-#ifdef NO_DICT
+#ifndef __GCCXML__
   virtual ConstRecHitContainer transientHits() const {
     ConstRecHitContainer result;
     std::vector<const TrackingRecHit*> hits;
@@ -175,7 +172,7 @@ private:
     assert("clone"==nullptr);
     return clone(); // default
   }
-#ifdef NO_DICT
+#ifndef __GCCXML__
   virtual  RecHitPointer cloneSH(TkCloner const&, TrajectoryStateOnSurface const&) const {
     assert("cloneSH"==nullptr);
     return cloneSH(); // default
