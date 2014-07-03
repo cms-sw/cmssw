@@ -4,11 +4,11 @@
 
 #include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "DataFormats/Math/interface/ProjectMatrix.h"
-#include <stdint.h>
+#include <cstdint>
 
 class TrackingRecHit;
 
-#define Debug_KfComponentsHolder
+// #define Debug_KfComponentsHolder
 
 class KfComponentsHolder {
     public:
@@ -31,7 +31,7 @@ class KfComponentsHolder {
             const AlgebraicSymMatrix55 & tsosLocalErrors 
         ) ;
 
-
+/*
   // backward compatible call
         template <unsigned int D>
         void setup(
@@ -44,6 +44,7 @@ class KfComponentsHolder {
             const AlgebraicSymMatrix55 & tsosLocalErrors 
         ) ;
 
+*/
 
         template <unsigned int D>
         typename AlgebraicROOTObject<D>::Vector & params() { 

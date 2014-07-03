@@ -48,8 +48,8 @@ BaseTrackerRecHit::getKfComponents1D( KfComponentsHolder & holder ) const
   AlgebraicMatrix15 & proj = holder.projection<1>();
   proj(0,3) = 1;
   
-   holder.measuredParams<1>() = AlgebraicVector1( holder.tsosLocalParameters().At(3) );
-   holder.measuredErrors<1>() = holder.tsosLocalErrors().Sub<AlgebraicSymMatrix11>( 3, 3 );
+  holder.measuredParams<1>() = AlgebraicVector1( holder.tsosLocalParameters().At(3) );
+  holder.measuredErrors<1>() = holder.tsosLocalErrors().Sub<AlgebraicSymMatrix11>( 3, 3 );
 }
 
 void
