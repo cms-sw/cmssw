@@ -333,7 +333,8 @@ baseDataSetRelease=[
     'CMSSW_7_1_0_pre5-START71_V1-v1',   # 8 TeV , for the one sample which is part of the routine relval production (MinBias)
     'CMSSW_7_1_0_pre5-START71_V1-v2',   # 8 TeV , for the one sample which is part of the routine relval production (RelValZmumuJets_Pt_20_300, because of -v2)
                                         # this an previous should be unified, when -v2 will be gone
-    'CMSSW_7_1_0_pre8-PRE_LS171_V9-v1', # 13 TeV samples with GEN-SIM from 710pre8
+    'CMSSW_7_1_0_pre8-PRE_LS171_V9-v1', # 13 TeV samples with GEN-SIM from 710pre8;
+    'CMSSW_7_1_0_pre8-PRE_LS171_V9_finesplit-v2', #SingleMu GEN-SIM from 710pre8
     ]
 
 # note: INPUT commands to be added once GEN-SIM w/ 13TeV+PostLS1Geo will be available 
@@ -410,10 +411,10 @@ steps['SingleElectronPt1000_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValSingl
 steps['SingleElectronFlatPt1To100_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleElectronFlatPt1To100_UP15/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
 steps['SingleGammaPt10_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleGammaPt10_UP15/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
 steps['SingleGammaPt35_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleGammaPt35_UP15/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
-steps['SingleMuPt1_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt1_UP15/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
-steps['SingleMuPt10_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt10_UP15/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
-steps['SingleMuPt100_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt100_UP15/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
-steps['SingleMuPt1000_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt1000_UP15/%s/GEN-SIM'%(baseDataSetRelease[10],),location='STD')}
+steps['SingleMuPt1_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt1_UP15/%s/GEN-SIM'%(baseDataSetRelease[11],),location='STD')}
+steps['SingleMuPt10_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt10_UP15/%s/GEN-SIM'%(baseDataSetRelease[11],),location='STD')}
+steps['SingleMuPt100_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt100_UP15/%s/GEN-SIM'%(baseDataSetRelease[11],),location='STD')}
+steps['SingleMuPt1000_UP15INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt1000_UP15/%s/GEN-SIM'%(baseDataSetRelease[11],),location='STD')}
 
 #input for fast sim workflows to be added - TODO
 
@@ -1442,3 +1443,42 @@ steps['COPYPASTE']={'-s':'NONE',
                     '--conditions':'auto:run1_mc',
                     '--output':'\'[{"t":"RAW","e":"ALL"}]\'',
                     '--customise_commands':'"process.ALLRAWoutput.fastCloning=cms.untracked.bool(False)"'}
+
+#miniaod
+stepMiniAODDefaults = { '-s'              : 'PAT',
+                        '--runUnscheduled': '',
+                        '-n'              : '100'
+                        }
+stepMiniAODData = merge([{'--conditions'   : 'auto:run1_data',
+                          '--data'         : '',
+                          '--datatier'     : 'MINIAOD',
+                          '--eventcontent' : 'MINIAOD'
+                          },stepMiniAODDefaults])
+stepMiniAODMC = merge([{'--conditions'   : 'auto:run2_mc',
+                        '--mc'           : '',
+                        '--datatier'     : 'MINIAODSIM',
+                        '--eventcontent' : 'MINIAODSIM'
+                        },stepMiniAODDefaults])
+stepMiniAODMC50ns = merge([{'--conditions'   : 'auto:run2_mc_50ns',
+                            '--mc'           : '',
+                            '--datatier'     : 'MINIAODSIM',
+                            '--eventcontent' : 'MINIAODSIM'
+                        },stepMiniAODDefaults])
+stepMiniAODMCFS = merge([{'--conditions'   : 'auto:run2_mc',
+                          '--mc'           : '',
+                          '--fast'         : '',
+                          '--datatier'     : 'MINIAODSIM',
+                          '--eventcontent' : 'MINIAODSIM'
+                          },stepMiniAODDefaults])
+stepMiniAODMCFS50ns = merge([{'--conditions'   : 'auto:run2_mc_50ns',
+                              '--mc'           : '',
+                              '--fast'         : '',
+                              '--datatier'     : 'MINIAODSIM',
+                              '--eventcontent' : 'MINIAODSIM'
+                              },stepMiniAODDefaults])
+
+steps['MINIAODDATA']=merge([{'--filein':'file:step3.root'},stepMiniAODData])
+steps['MINIAODMC']=merge([{'--filein':'file:step3.root'},stepMiniAODMC])
+steps['MINIAODMC50']=merge([{'--filein':'file:step3.root'},stepMiniAODMC50ns])
+steps['MINIAODMCFS']=merge([{'--filein':'file:step1.root'},stepMiniAODMCFS])
+steps['MINIAODMCFS50']=merge([{'--filein':'file:step1.root'},stepMiniAODMCFS50ns])
