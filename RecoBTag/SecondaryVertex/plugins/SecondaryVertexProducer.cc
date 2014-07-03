@@ -64,10 +64,10 @@ namespace {
 }
 
 template <class IPTI>
-class SecondaryVertexProducer : public edm::stream::EDProducer<> {
+class TemplatedSecondaryVertexProducer : public edm::stream::EDProducer<> {
     public:
-	explicit SecondaryVertexProducer(const edm::ParameterSet &params);
-	~SecondaryVertexProducer();
+	explicit TemplatedSecondaryVertexProducer(const edm::ParameterSet &params);
+	~TemplatedSecondaryVertexProducer();
 	typedef std::vector<TemplatedSecondaryVertexTagInfo<IPTI> > Product;
 	virtual void produce(edm::Event &event, const edm::EventSetup &es) override;
 
@@ -102,8 +102,8 @@ class SecondaryVertexProducer : public edm::stream::EDProducer<> {
         edm::EDGetTokenT<reco::VertexCollection> token_extSVCollection;
 };
 template <class IPTI>
-typename SecondaryVertexProducer<IPTI>::ConstraintType
-SecondaryVertexProducer<IPTI>::getConstraintType(const std::string &name)
+typename TemplatedSecondaryVertexProducer<IPTI>::ConstraintType
+TemplatedSecondaryVertexProducer<IPTI>::getConstraintType(const std::string &name)
 {
 	if (name == "None")
 		return CONSTRAINT_NONE;
@@ -119,7 +119,7 @@ SecondaryVertexProducer<IPTI>::getConstraintType(const std::string &name)
 		return CONSTRAINT_PV_PRIMARIES_IN_FIT;
 	else
 		throw cms::Exception("InvalidArgument")
-			<< "SecondaryVertexProducer: ``constraint'' parameter "
+			<< "TemplatedSecondaryVertexProducer: ``constraint'' parameter "
 			   "value \"" << name << "\" not understood."
 			<< std::endl;
 }
@@ -135,14 +135,14 @@ getGhostTrackFitType(const std::string &name)
 		return GhostTrackVertexFinder::kRefitGhostTrackWithVertices;
 	else
 		throw cms::Exception("InvalidArgument")
-			<< "SecondaryVertexProducer: ``fitType'' "
+			<< "TemplatedSecondaryVertexProducer: ``fitType'' "
 			   "parameter value \"" << name << "\" for "
 			   "GhostTrackVertexFinder settings not "
 			   "understood." << std::endl;
 }
 
 template <class IPTI>
-SecondaryVertexProducer<IPTI>::SecondaryVertexProducer(
+TemplatedSecondaryVertexProducer<IPTI>::TemplatedSecondaryVertexProducer(
 					const edm::ParameterSet &params) :
 	sortCriterium(TrackSorting::getCriterium(params.getParameter<std::string>("trackSort"))),
 	trackSelector(params.getParameter<edm::ParameterSet>("trackSelection")),
@@ -174,7 +174,7 @@ SecondaryVertexProducer<IPTI>::SecondaryVertexProducer(
 	produces<Product>();
 }
 template <class IPTI>
-SecondaryVertexProducer<IPTI>::~SecondaryVertexProducer()
+TemplatedSecondaryVertexProducer<IPTI>::~TemplatedSecondaryVertexProducer()
 {
 }
 
@@ -214,7 +214,7 @@ namespace {
 } // anonynmous namespace
 
 template <class IPTI>
-void SecondaryVertexProducer<IPTI>::produce(edm::Event &event,
+void TemplatedSecondaryVertexProducer<IPTI>::produce(edm::Event &event,
                                       const edm::EventSetup &es)
 {
 //	typedef std::map<TrackBaseRef, TransientTrack,
@@ -559,9 +559,9 @@ void SecondaryVertexProducer<IPTI>::produce(edm::Event &event,
 }
 
 //define this as a plug-in
-typedef SecondaryVertexProducer<TrackIPTagInfo> TrackSecondaryVertexProducer;
-typedef SecondaryVertexProducer<CandIPTagInfo> CandSecondaryVertexProducer;
+typedef TemplatedSecondaryVertexProducer<TrackIPTagInfo> SecondaryVertexProducer;
+typedef TemplatedSecondaryVertexProducer<CandIPTagInfo> CandSecondaryVertexProducer;
 
-DEFINE_FWK_MODULE(TrackSecondaryVertexProducer);
+DEFINE_FWK_MODULE(SecondaryVertexProducer);
 DEFINE_FWK_MODULE(CandSecondaryVertexProducer);
 
