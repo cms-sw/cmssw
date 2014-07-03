@@ -8,6 +8,7 @@
 #include "DetectorDescription/Core/interface/DDsvalues.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
 
 #include "G4ThreeVector.hh"
 
@@ -22,7 +23,7 @@ public:
   
   //Constructor and Destructor
   HFFibre(std::string & name, const DDCompactView & cpv,
-	  edm::ParameterSet const & p);
+	  const HcalDDDSimConstants& hcons, edm::ParameterSet const & p);
   ~HFFibre();
 
   double              attLength(double lambda);
@@ -35,6 +36,8 @@ protected:
 
   std::vector<double> getDDDArray(const std::string&, 
 				  const DDsvalues_type&, int&);
+
+private:
 
   double                      cFibre;
   std::vector<double>         gpar, radius;

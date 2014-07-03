@@ -84,8 +84,6 @@ private:
   void                      initialize(const DDCompactView& cpv);
   void                      loadSpecPars(const DDFilteredView& fv);
   void                      loadSimConst();
-  std::vector<double>       getDDDArray(const char *, const DDsvalues_type &, 
-					int &) const;
   std::string               getDDDString(const std::string &, 
 					 const DDsvalues_type &) const;
 
