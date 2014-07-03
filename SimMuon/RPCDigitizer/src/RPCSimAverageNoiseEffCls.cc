@@ -56,6 +56,7 @@ RPCSimAverageNoiseEffCls::RPCSimAverageNoiseEffCls(const edm::ParameterSet& conf
   nbxing=config.getParameter<int>("Nbxing");
   gate=config.getParameter<double>("Gate");
   frate=config.getParameter<double>("Frate");
+  doBkgNoise_=config.getParameter<bool>("doBkgNoise");
 
   if (rpcdigiprint) {
     std::cout <<"Average Efficiency        = "<<aveEff<<std::endl;
@@ -271,6 +272,8 @@ RPCSimAverageNoiseEffCls::simulate(const RPCRoll* roll,
 void RPCSimAverageNoiseEffCls::simulateNoise(const RPCRoll* roll,
                                              CLHEP::HepRandomEngine* engine)
 {
+  if(!doBkgNoise_)
+    return;
 
   RPCDetId rpcId = roll->id();
 
