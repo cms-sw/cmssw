@@ -41,8 +41,10 @@ class TrajectorySeedProducer : public edm::EDProducer
   
   virtual void beginRun(edm::Run const& run, const edm::EventSetup & es) override;
   
-  virtual void produce(edm::Event& e, const edm::EventSetup& es) override;
-  
+  virtual void produce(edm::Event& e, const edm::EventSetup& es) override
+  {
+  }
+  virtual void produce(edm::Event& e, const edm::EventSetup& es, std::vector<std::vector<int>>& hits);
   //
   // 1 = PXB, 2 = PXD, 3 = TIB, 4 = TID, 5 = TOB, 6 = TEC, 0 = not valid
   enum SubDet { NotValid, PXB, PXD, TIB, TID, TOB, TEC};
@@ -57,9 +59,14 @@ class TrajectorySeedProducer : public edm::EDProducer
     Side side;
     unsigned int idLayer;
 
-    bool operator==(const LayerSpec& layer)
+    bool operator==(const LayerSpec& layer) const
 	{
     	return (subDet==layer.subDet) && (side==layer.side) && (idLayer==layer.idLayer);
+	}
+	
+	inline std::string print() const
+	{
+	    return name;
 	}
   };
 

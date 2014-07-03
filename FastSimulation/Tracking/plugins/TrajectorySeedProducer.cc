@@ -368,7 +368,7 @@ TrajectorySeedProducer::beginRun(edm::Run const&, const edm::EventSetup & es) {
   
   // Functions that gets called by framework every event
 void 
-TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {        
+TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es, std::vector<std::vector<int>>& hits) {        
 
 
   //  if( seedingAlgo[0] ==  "FourthPixelLessPairs") std::cout << "Seed producer in 4th iteration " << std::endl;
@@ -468,6 +468,7 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 
     ++nSimTracks;
     unsigned simTrackId = theSimTrackIds[tkId];
+    if (simTrackId!=39) continue;
     const SimTrack& theSimTrack = (*theSimTracks)[simTrackId]; 
 #ifdef FAMOS_DEBUG
     std::cout << "Pt = " << std::sqrt(theSimTrack.momentum().Perp2()) 
@@ -552,7 +553,10 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       
       bool compatible = false;
       
+      int hit1,hit2,hit3=0;
+      
       for ( iterRecHit1 = theRecHitRangeIteratorBegin; iterRecHit1 != theRecHitRangeIteratorEnd; ++iterRecHit1) {
+      hit1=iterRecHit1-theRecHitRangeIteratorBegin;
       //std::cout << (*iterRecHit1).localPosition().phi() << " | J - iterRecHit1"<< std::endl; // 
 	theSeedHits[0] = TrackerRecHit(&(*iterRecHit1),theGeometry,tTopo);
 #ifdef FAMOS_DEBUG
@@ -590,6 +594,7 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	std::cout << "Apparently the first hit is on the requested detector! " << std::endl;
 #endif
 	for ( iterRecHit2 = iterRecHit1+1; iterRecHit2 != theRecHitRangeIteratorEnd; ++iterRecHit2) {
+	hit2=iterRecHit2-theRecHitRangeIteratorBegin;
 	  theSeedHits[1] = TrackerRecHit(&(*iterRecHit2),theGeometry,tTopo);
 #ifdef FAMOS_DEBUG
 	  std::cout << "The second hit position = " << theSeedHits1.globalPosition() << std::endl;
@@ -647,7 +652,7 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 	  compatible = false;
 	  // Check if there is a third satisfying hit otherwise
 	  for ( iterRecHit3 = iterRecHit2+1; iterRecHit3 != theRecHitRangeIteratorEnd; ++iterRecHit3) {
-    
+    hit3=iterRecHit3-theRecHitRangeIteratorBegin;
 	    theSeedHits[2] = TrackerRecHit(&(*iterRecHit3),theGeometry,tTopo);
 #ifdef FAMOS_DEBUG
 	    std::cout << "The third hit position = " << theSeedHits2.globalPosition() << std::endl;
@@ -781,6 +786,17 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es) {
 #ifdef FAMOS_DEBUG
       std::cout << "Trajectory seed created ! " << std::endl;
 #endif
+
+        hits[simTrackId].push_back(hit1);
+        hits[simTrackId].push_back(hit2);
+        hits[simTrackId].push_back(hit3);
+        
+        std::cout<<"simtrack = "<<simTrackId<<", old"<<std::endl;
+        for ( unsigned ihit=0; ihit<recHits.size(); ++ihit ) 
+        {
+	        std::cout<<"\t hit: "<<ihit<<", pos=("<<recHits[ihit].globalPosition().x()<<","<<recHits[ihit].globalPosition().y()<<","<<recHits[ihit].globalPosition().z()<<")"<<std::endl;
+        }
+
       break;
       // End of the loop over seeding algorithms
     }
