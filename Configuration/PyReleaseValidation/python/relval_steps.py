@@ -1118,7 +1118,8 @@ upgradeKeys=['2017',
              'Extended2023SHCalNoTaper4Eta',
              'Extended2023HGCal',
              'Extended2023HGCalMuon4Eta',
-             'Extended2023Muon4Eta'
+             'Extended2023Muon4Eta',
+             'Extended2023HGCalV4'
 	     ]
 upgradeGeoms={ '2017' : 'Extended2017',
                '2019' : 'Extended2019',
@@ -1143,7 +1144,8 @@ upgradeGeoms={ '2017' : 'Extended2017',
                'Extended2023SHCalNoTaper' : 'Extended2023SHCalNoTaper,Extended2023SHCalNoTaperReco',
                'Extended2023SHCalNoTaper4Eta' : 'Extended2023SHCalNoTaper4Eta,Extended2023SHCalNoTaper4EtaReco',
                'Extended2023HGCal' : 'Extended2023HGCal,Extended2023HGCalReco',
-               'Extended2023HGCalMuon4Eta' : 'Extended2023HGCalMuon4Eta,Extended2023HGCalMuon4EtaReco'
+               'Extended2023HGCalMuon4Eta' : 'Extended2023HGCalMuon4Eta,Extended2023HGCalMuon4EtaReco',
+               'Extended2023HGCalV4' : 'Extended2023HGCalV4,Extended2023HGCalMuonReco'
                }
 upgradeGTs={ '2017' : 'auto:upgrade2017',
              '2019' : 'auto:upgrade2019',
@@ -1168,7 +1170,8 @@ upgradeGTs={ '2017' : 'auto:upgrade2017',
              'Extended2023SHCalNoTaper' : 'auto:upgradePLS3',
              'Extended2023SHCalNoTaper4Eta' : 'auto:upgradePLS3',
              'Extended2023HGCal' : 'auto:upgradePLS3',
-             'Extended2023HGCalMuon4Eta' : 'auto:upgradePLS3'
+             'Extended2023HGCalMuon4Eta' : 'auto:upgradePLS3',
+             'Extended2023HGCalV4' : 'auto:upgradePLS3'
              }
 upgradeCustoms={ '2017' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2017',
                  '2019' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2019',
@@ -1193,7 +1196,8 @@ upgradeCustoms={ '2017' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.
                  'Extended2023SHCalNoTaper' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023SHCal',
                  'Extended2023SHCalNoTaper4Eta' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023SHCal',
                  'Extended2023HGCal' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023HGCal',
-                 'Extended2023HGCalMuon4Eta' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023HGCalMuon'
+                 'Extended2023HGCalMuon4Eta' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023HGCalMuon',
+                 'Extended2023HGCalV4' : 'SLHCUpgradeSimulations/Configuration/combinedCustoms.cust_2023HGCalMuon'
                  }
 ### remember that you need to add a new step for phase 2 to include the track trigger
 ### remember that you need to add fastsim
@@ -1231,7 +1235,8 @@ upgradeScenToRun={ '2017':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023SHCalNoTaper':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023SHCalNoTaper4Eta':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
                    'Extended2023HGCal':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
-                   'Extended2023HGCalMuon4Eta':['GenSimFull','DigiFull','RecoFull','HARVESTFull']
+                   'Extended2023HGCalMuon4Eta':['GenSimFull','DigiFull','RecoFull','HARVESTFull'],
+                   'Extended2023HGCalV4' : ['GenSimFull','DigiFull','RecoFull','HARVESTFull']
                    }
 
 upgradeStepDict={}
