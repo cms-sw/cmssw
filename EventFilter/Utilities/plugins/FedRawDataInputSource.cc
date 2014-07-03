@@ -407,14 +407,16 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
 
     unsigned char *dataPosition = currentFile_->chunks_[0]->buf_+ currentFile_->chunkPosition_;
 
-    if (detectedFRDversion_==0) {
-      detectedFRDversion_=*((uint32*)dataPosition);
-      assert(detectedFRDversion_>=1 && detectedFRDversion_<=3);
-    }
- 
-    if (bufferInputRead_ < headerSize[detectedFRDversion_])
+
+    if (!bufferInputRead_ || bufferInputRead_ < headerSize[detectedFRDversion_])
     {
       readNextChunkIntoBuffer(currentFile_);
+
+      if (detectedFRDversion_==0) {
+        detectedFRDversion_=*((uint32*)dataPosition);
+        assert(detectedFRDversion_>=1 && detectedFRDversion_<=3);
+      }
+
       //recalculate chunk position
       dataPosition = currentFile_->chunks_[0]->buf_+ currentFile_->chunkPosition_;
       if ( bufferInputRead_ < headerSize[detectedFRDversion_])
