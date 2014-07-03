@@ -4,7 +4,7 @@ process = cms.Process("ALL")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
 #
 # This first creates the collection of "L1Tracks for electrons" by running
@@ -22,20 +22,21 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
 
 # to run over the test rate sample (part 1) :
-from SLHCUpgradeSimulations.L1TrackTrigger.minBiasFiles_p1_cfi import *
-process.source = cms.Source("PoolSource",
-     fileNames = minBiasFiles_p1
-)
+#from SLHCUpgradeSimulations.L1TrackTrigger.minBiasFiles_p1_cfi import *
+#process.source = cms.Source("PoolSource",
+#     fileNames = minBiasFiles_p1
+#)
 
 # to run over another sample:
-#process.source = cms.Source("PoolSource",
+process.source = cms.Source("PoolSource",
+     fileNames = cms.untracked.vstring(
      # electron file:
-     #'/store/group/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Electrons/PU140/m1_SingleElectron_E2023TTI_PU140.root',
+     '/store/group/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Electrons/PU140/m1_SingleElectron_E2023TTI_PU140.root',
      #'/store/group/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Electrons/PU140/m2_SingleElectron_E2023TTI_PU140.root',
      #'/store/group/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Electrons/PU140/m1_SinglePositron_E2023TTI_PU140.root',
      #'/store/group/comm_trigger/L1TrackTrigger/620_SLHC10/Extended2023TTI/Electrons/PU140/m2_SinglePositron_E2023TTI_PU140.root'
-     #)
-#)
+     )
+)
 
 
 # ---- Global Tag :
@@ -103,7 +104,7 @@ process.reconstruction_step = cms.Path( process.calolocalreco )
 process.L1EGammaCrystalsProducer = cms.EDProducer("L1EGCrystalClusterProducer",
    EtminForStore = cms.double( -999.),
    debug = cms.untracked.bool(False),
-   useECalEndcap = cms.untracked.bool(True)
+   useECalEndcap = cms.bool(True)
 )
 process.pSasha = cms.Path( process.L1EGammaCrystalsProducer )
 
@@ -117,11 +118,17 @@ process.pSasha = cms.Path( process.L1EGammaCrystalsProducer )
 #       L1EG collection. The eta and phi of the L1EG objects is corrected using the
 #       information of the xtal level clusters.
 
-process.l1ExtraCrystalProducer = cms.EDProducer("L1ExtraCrystalPosition",
-   eGammaSrc = cms.InputTag("SLHCL1ExtraParticlesNewClustering","EGamma"),
-   eClusterSrc = cms.InputTag("L1EGammaCrystalsProducer","EGCrystalCluster")
-)
-process.egcrystal_producer = cms.Path(process.l1ExtraCrystalProducer)
+# ---- Note: this is not needed anymore. The latest code of L1EGCrystalClusterProducer,
+#      provides similar rates as the new stage-2 algorithm (and with a better
+#      efficiency). Hence we don;t need anymore to rely on the tower-based
+#      new stage-2 algorithm for the ele-ID of the EGamma object, we can
+#      directly use teh clusters from Sasha & Nick.
+
+#process.l1ExtraCrystalProducer = cms.EDProducer("L1ExtraCrystalPosition",
+#   eGammaSrc = cms.InputTag("SLHCL1ExtraParticlesNewClustering","EGamma"),
+#   eClusterSrc = cms.InputTag("L1EGammaCrystalsProducer","EGCrystalCluster")
+#)
+#process.egcrystal_producer = cms.Path(process.l1ExtraCrystalProducer)
 
 
 
@@ -131,11 +138,6 @@ process.egcrystal_producer = cms.Path(process.l1ExtraCrystalProducer)
 # Now we produce L1TkEmParticles and L1TkElectrons
 
 
-# ----  "photons" isolated w.r.t. L1Tracks :
-
-process.load("SLHCUpgradeSimulations.L1TrackTrigger.L1TkEmParticleProducer_cfi")
-process.pL1TkPhotons = cms.Path( process.L1TkPhotons )
-
 # ----  "electrons" from L1Tracks. Inclusive electrons :
 
 process.load("SLHCUpgradeSimulations.L1TrackTrigger.L1TkElectronTrackProducer_cfi")
@@ -143,63 +145,9 @@ process.pElectrons = cms.Path( process.L1TkElectrons )
 
 	# --- collection of L1TkElectrons made from "crystal-level" L1EG objects
 process.L1TkElectronsCrystal = process.L1TkElectrons.clone()
-process.L1TkElectronsCrystal.L1EGammaInputTag = cms.InputTag("l1ExtraCrystalProducer","EGammaCrystal")
+process.L1TkElectronsCrystal.L1EGammaInputTag = cms.InputTag("L1EGammaCrystalsProducer","EGammaCrystal")
 	# ... of course, the cuts need to be retuned for the xtal-level granularity
 process.pElectronsCrystal = cms.Path( process.L1TkElectronsCrystal )
-
-
-# ----  L1TkElectrons that are isolated w.r.t. L1Tracks :
-
-process.L1TkIsoElectrons = process.L1TkElectrons.clone()
-process.L1TkIsoElectrons.IsoCut = cms.double(0.1)
-process.pElectronsTkIso = cms.Path( process.L1TkIsoElectrons )
-
-# ---- "electrons" from L1Tracks, Inclusive electrons : dedicated low PT sequence
-process.pElectronsLoose = cms.Path( process.L1TkElectronsLoose)
-
-# to test with looser cuts :
-process.L1TkElectronsLooseV2 = process.L1TkElectronsLoose.clone()
-process.L1TkElectronsLooseV2.TrackMinPt = cms.double( 2. )
-process.L1TkElectronsLooseV2.TrackEGammaDeltaPhi = cms.vdouble( 0.2, 0.,0.)
-process.L1TkElectronsLooseV2.TrackEGammaDeltaR = cms.vdouble( 0.2, 0.,0.)
-process.pElectronsLoose2 = cms.Path( process.L1TkElectronsLooseV2 )
-
-# ---- L1TkElectrons that are isolated w.r.t. L1Tracks : dedicated low PT sequence
-process.L1TkIsoElectronsLoose = process.L1TkElectronsLoose.clone()
-process.L1TkIsoElectronsLoose.IsoCut = cms.double(0.1)
-process.pElectronsTkIsoLoose = cms.Path( process.L1TkIsoElectronsLoose )
-
-
-# ----  L1TkElectrons made from L1IsoEG objects, i.e. from L1EG objects that 
-#       are isolated in the calorimeter :
-
-process.L1TkElectronsIsoEG = process.L1TkElectrons.clone()
-process.L1TkElectronsIsoEG.L1EGammaInputTag = cms.InputTag("SLHCL1ExtraParticlesNewClustering","IsoEGamma")
-process.pElectronsIsoEG = cms.Path( process.L1TkElectronsIsoEG )
-
-# ----  "electrons" from stubs  	- not implemented yet.
-#                                               
-#process.L1TkElectronsStubs = cms.EDProducer("L1TkElectronStubsProducer",
-#)                                              
-#process.pElectronsStubs = cms.Path( process.L1TkElectronsStubs )
-
-
-
-# ---------------------------------------------------------------------------
-
-
-# Run a trivial analyzer that prints the objects
-
-process.ana = cms.EDAnalyzer( 'PrintL1TkObjects' ,
-    L1VtxInputTag = cms.InputTag("L1TkPrimaryVertex"),		# dummy here
-    L1TkEtMissInputTag = cms.InputTag("L1TkEtMiss","MET"),	# dummy here
-    L1TkElectronsInputTag = cms.InputTag("L1TkElectrons","EG"),
-    L1TkPhotonsInputTag = cms.InputTag("L1TkPhotons","EG"),
-    L1TkJetsInputTag = cms.InputTag("L1TkJets","Central"),	# dummy here
-    L1TkHTMInputTag = cms.InputTag("L1TkHTMissCaloHI","")	# dummy here
-)
-
-#process.pAna = cms.Path( process.ana )
 
 
 
@@ -242,21 +190,13 @@ process.Out.outputCommands.append('keep l1extraL1Em*_l1extraParticles_*_*')
 process.Out.outputCommands.append('keep *_L1EGammaCrystalsProducer_*_*')
 process.Out.outputCommands.append('keep *_l1ExtraCrystalProducer_*_*')
 
-	# the L1TkEmParticles
-process.Out.outputCommands.append('keep *_L1TkPhotons_*_*')
 
 	# the L1TkElectrons
 process.Out.outputCommands.append('keep *_L1TkElectrons_*_*')
 process.Out.outputCommands.append('keep *_L1TkElectronsCrystal_*_*')   # for crystal-level granularity
-process.Out.outputCommands.append('keep *_L1TkElectronsIsoEG_*_*')
-process.Out.outputCommands.append('keep *_L1TkIsoElectrons_*_*')
-
-process.Out.outputCommands.append('keep *_L1TkElectronsLoose_*_*')
-process.Out.outputCommands.append('keep *_L1TkIsoElectronsLoose_*_*')
-process.Out.outputCommands.append('keep *_L1TkElectronsLooseV2_*_*')
 
 
-# --- to use the genParticles, one needs to keep the collections of associators below:
+# --- to browse the genParticles in ROOT, one needs to keep the collections of associators below:
 process.Out.outputCommands.append('keep *_TTTrackAssociatorFromPixelDigis_*_*')
 process.Out.outputCommands.append('keep *_TTStubAssociatorFromPixelDigis_*_*')
 process.Out.outputCommands.append('keep *_TTClusterAssociatorFromPixelDigis_*_*')
