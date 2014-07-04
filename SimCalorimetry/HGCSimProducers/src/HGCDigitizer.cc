@@ -17,6 +17,7 @@
 //
 HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps) :
   checkValidDetIds_(true),
+  simHitAccumulator_( new HGCSimHitDataAccumulator ),
   theHGCEEDigitizer_(ps),
   theHGCHEbackDigitizer_(ps),
   theHGCHEfrontDigitizer_(ps),
@@ -28,7 +29,7 @@ HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps) :
   maxSimHitsAccTime_ = ps.getUntrackedParameter< uint32_t >("maxSimHitsAccTime");
   bxTime_            = ps.getUntrackedParameter< int32_t >("bxTime");
   doTrivialDigis_    = ps.getUntrackedParameter< bool >("doTrivialDigis");
-
+  
   //get the random number generator
   edm::Service<edm::RandomNumberGenerator> rng;
   if ( ! rng.isAvailable()) {
@@ -57,21 +58,21 @@ void HGCDigitizer::finalizeEvent(edm::Event& e, edm::EventSetup const& es)
   if( producesEEDigis() ) 
     {
       std::auto_ptr<HGCEEDigiCollection> digiResult(new HGCEEDigiCollection() );
-      theHGCEEDigitizer_.run(digiResult,simHitAccumulator_,doTrivialDigis_);
+      theHGCEEDigitizer_.run(digiResult,*simHitAccumulator_,doTrivialDigis_);
       edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " << digiResult->size() <<  " EE hits";
       e.put(digiResult,digiCollection());
     }
   if( producesHEfrontDigis())
     {
       std::auto_ptr<HGCHEDigiCollection> digiResult(new HGCHEDigiCollection() );
-      theHGCHEfrontDigitizer_.run(digiResult,simHitAccumulator_,doTrivialDigis_);
+      theHGCHEfrontDigitizer_.run(digiResult,*simHitAccumulator_,doTrivialDigis_);
       edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " << digiResult->size() <<  " HE front hits";
       e.put(digiResult,digiCollection());
     }
   if( producesHEbackDigis() )
     {
       std::auto_ptr<HGCHEDigiCollection> digiResult(new HGCHEDigiCollection() );
-      theHGCHEbackDigitizer_.run(digiResult,simHitAccumulator_,doTrivialDigis_);
+      theHGCHEbackDigitizer_.run(digiResult,*simHitAccumulator_,doTrivialDigis_);
       edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " << digiResult->size() <<  " HE back hits";
       e.put(digiResult,digiCollection());
     }
@@ -151,16 +152,15 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, i
       itime += bxCrossing;
       if(itime<0) continue;
       
-      //energy deposited
-      double ien   = hit_it->energy();
+      //energy deposited 
+      double ien( hit_it->energy() );
       
       //check if already existing (perhaps could remove this in the future - 2nd event should have all defined)
-      HGCSimHitDataAccumulator::iterator simHitIt=simHitAccumulator_.find(id);
-      if(simHitIt==simHitAccumulator_.end())
+      HGCSimHitDataAccumulator::iterator simHitIt=simHitAccumulator_->find(id);
+      if(simHitIt==simHitAccumulator_->end())
 	{
 	  HGCSimHitData baseData(10,0);
-	  simHitAccumulator_[id]=baseData;
-	  simHitIt=simHitAccumulator_.find(id);
+	  simHitIt=simHitAccumulator_->insert( std::make_pair(id,baseData) ).first;
 	}
       
       //check if time is ok
@@ -181,8 +181,8 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, i
   for(std::vector<DetId>::const_iterator it=validIds.begin(); it!=validIds.end(); it++)
     {
       uint32_t id(it->rawId());
-      if(simHitAccumulator_.find(id)!=simHitAccumulator_.end()) continue;
-      simHitAccumulator_[id]=baseData;
+      if(simHitAccumulator_->find(id)!=simHitAccumulator_->end()) continue;
+      simHitAccumulator_->insert( std::make_pair(id,baseData) );
       nadded++;
     }
   std::cout << "Added " << nadded << " detIds without " << hitCollection_ << " in first event processed" << std::endl;
@@ -199,13 +199,16 @@ void HGCDigitizer::beginRun(const edm::EventSetup & es)
 //
 void HGCDigitizer::endRun()
 {
-  //theShapes->endRun();   
+  //
+  //std::cout << "[HGCDigitizer][DTOR] " << simHitAccumulator_->size() << std::endl; 
+  //for( HGCSimHitDataAccumulator::iterator it = simHitAccumulator_->begin(); it!=simHitAccumulator_->end(); it++)it->second.clear();
+  //simHitAccumulator_->clear();
 }
 
 //
 void HGCDigitizer::resetSimHitDataAccumulator()
 {
-  for( HGCSimHitDataAccumulator::iterator it = simHitAccumulator_.begin(); it!=simHitAccumulator_.end(); it++) 
+  for( HGCSimHitDataAccumulator::iterator it = simHitAccumulator_->begin(); it!=simHitAccumulator_->end(); it++) 
     std::fill(it->second.begin(), it->second.end(),0.); 
 }
 

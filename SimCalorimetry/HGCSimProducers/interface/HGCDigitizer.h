@@ -69,7 +69,7 @@ private :
   //handle sim hits
   int maxSimHitsAccTime_;
   int bxTime_;
-  HGCSimHitDataAccumulator simHitAccumulator_;  
+  HGCSimHitDataAccumulator *simHitAccumulator_;  
   void resetSimHitDataAccumulator();
 
   //digitizers

@@ -24,11 +24,12 @@ class HGCDigitizerBase {
    */
   HGCDigitizerBase(const edm::ParameterSet &ps) : simpleNoiseGen_(0)
     {
-      myCfg_        = ps.getUntrackedParameter<edm::ParameterSet>("digiCfg"); 
-      mipInKeV_     = myCfg_.getUntrackedParameter<double>("mipInKeV");
-      lsbInMIP_     = myCfg_.getUntrackedParameter<double>("lsbInMIP");
-      mip2noise_    = myCfg_.getUntrackedParameter<double>("mip2noise");
-      adcThreshold_ = myCfg_.getUntrackedParameter< uint32_t >("adcThreshold");
+      myCfg_         = ps.getUntrackedParameter<edm::ParameterSet>("digiCfg"); 
+      mipInKeV_      = myCfg_.getUntrackedParameter<double>("mipInKeV");
+      lsbInMIP_      = myCfg_.getUntrackedParameter<double>("lsbInMIP");
+      mip2noise_     = myCfg_.getUntrackedParameter<double>("mip2noise");
+      adcThreshold_  = myCfg_.getUntrackedParameter< uint32_t >("adcThreshold");
+      doTimeSamples_ = myCfg_.getUntrackedParameter< bool >("doTimeSamples");
     }
 
   /**
@@ -60,7 +61,8 @@ class HGCDigitizerBase {
       {
 	//convert total energy GeV->keV->ADC counts
 	double totalEn(0);
-	for(size_t i=0; i<it->second.size(); i++) totalEn+= (it->second)[i];
+	size_t maxSampleToInteg(doTimeSamples_ ? 0 : it->second.size());
+	for(size_t i=0; i<maxSampleToInteg; i++) totalEn+= (it->second)[i];
 	totalEn*=1e6;
 
 	//add noise (in keV)
@@ -111,6 +113,9 @@ class HGCDigitizerBase {
 
   //
   uint32_t adcThreshold_;
+
+  //flag to apply or not time sampling (if false digitize the full energy from SimHit)
+  bool doTimeSamples_;
 
   //
   mutable CLHEP::RandGauss *simpleNoiseGen_;
