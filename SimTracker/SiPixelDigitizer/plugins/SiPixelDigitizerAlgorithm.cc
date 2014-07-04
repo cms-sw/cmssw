@@ -1144,6 +1144,12 @@ void SiPixelDigitizerAlgorithm::make_digis(float thePixelThresholdInE,
 
     if( signalInElectrons >= thePixelThresholdInE) { // check threshold
 
+      if(DetId(detID).subdetId() == PixelSubdetector::PixelBarrel){ // Barrel modules
+	if (tTopo->pxbLayer(detID) > 4) signalInElectrons = theThresholdInE_BPix*6.0;
+      } else {
+	if (tTopo->pxfDisk(detID) > 10) signalInElectrons = theThresholdInE_FPix*6.0;
+      }
+
       int chan =  (*i).first;  // channel number
       std::pair<int,int> ip = PixelDigi::channelToPixel(chan);
       int adc=0;  // ADC count as integer
