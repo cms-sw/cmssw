@@ -35,6 +35,7 @@
   <class name="std::vector<reco::btag::VertexData>"/>
   <class name="reco::btag::IndexedTrackData"/>
   <class name="std::vector<reco::btag::IndexedTrackData>"/> 
+
   <class name="reco::SecondaryVertexTagInfo"/>
   <class name="reco::SecondaryVertexTagInfoCollection"/>
   <class name="reco::SecondaryVertexTagInfoRef"/>
@@ -42,6 +43,14 @@
   <class name="reco::SecondaryVertexTagInfoRefProd"/>
   <class name="reco::SecondaryVertexTagInfoRefVector"/>
   <class name="edm::Wrapper<reco::SecondaryVertexTagInfoCollection>"/>
+
+  <class name="reco::CandSecondaryVertexTagInfo"/>
+  <class name="reco::CandSecondaryVertexTagInfoCollection"/>
+  <class name="reco::CandSecondaryVertexTagInfoRef"/>
+  <class name="reco::CandSecondaryVertexTagInfoFwdRef"/>
+  <class name="reco::CandSecondaryVertexTagInfoRefProd"/>
+  <class name="reco::CandSecondaryVertexTagInfoRefVector"/>
+  <class name="edm::Wrapper<reco::CandSecondaryVertexTagInfoCollection>"/>
 
   <class name="reco::CombinedTauTagInfo" ClassVersion="10">
    <version ClassVersion="10" checksum="3920242404"/>

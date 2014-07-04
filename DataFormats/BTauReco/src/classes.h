@@ -64,6 +64,15 @@ namespace DataFormats_BTauReco {
     reco::SecondaryVertexTagInfoRefVector                               sv_rv;
     edm::Wrapper<reco::SecondaryVertexTagInfoCollection>                sv_wc;
 
+    reco::CandSecondaryVertexTagInfo                                    casv;
+    reco::CandSecondaryVertexTagInfoCollection                          casvtic;
+    reco::CandSecondaryVertexTagInfoRef                                 casvtir;
+    reco::CandSecondaryVertexTagInfoFwdRef                              casvfr;                  
+    reco::CandSecondaryVertexTagInfoRefProd                             casvrp;
+    reco::CandSecondaryVertexTagInfoRefVector                           casvrv;
+    edm::Wrapper<reco::CandSecondaryVertexTagInfoCollection>            casvww;
+
+
     reco::CombinedTauTagInfo                                            ct;
     reco::CombinedTauTagInfoCollection                                  ct_c;
     reco::CombinedTauTagInfoRef                                         ct_r;

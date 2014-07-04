@@ -13,6 +13,7 @@
 #include "DataFormats/JetReco/interface/JetTracksAssociation.h"
 #include "DataFormats/BTauReco/interface/JTATagInfo.h"
 #include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
+#include "DataFormats/BTauReco/interface/CandIPTagInfo.h"
 
 namespace reco {
 namespace btag{
@@ -49,15 +50,15 @@ class TemplatedSecondaryVertexTagInfo : public BaseTagInfo {
 
 	typedef reco::btag::IndexedTrackData IndexedTrackData;
         struct TrackFinder {
-                TrackFinder(const TrackRefVector &tracks,
-                            const TrackRef &track) :
+                TrackFinder(const typename IPTI::input_container &tracks,
+                            const typename IPTI::input_container::value_type &track) :
                         tracks(tracks), track(track) {}
 
                 bool operator () (const IndexedTrackData &idt)
                 { return tracks[idt.first] == track; }
 
-                const TrackRefVector    &tracks;
-                const TrackRef          &track;
+                const typename IPTI::input_container    &tracks;
+                const typename IPTI::input_container::value_type          &track;
         };
 
         struct VertexTrackSelector {
@@ -93,7 +94,7 @@ class TemplatedSecondaryVertexTagInfo : public BaseTagInfo {
             return new TemplatedSecondaryVertexTagInfo(*this);
         }
   
-	const TrackIPTagInfoRef &trackIPTagInfoRef() const
+	const edm::Ref<std::vector<IPTI> > &trackIPTagInfoRef() const
 	{ return m_trackIPTagInfoRef; }
 
 	virtual edm::RefToBase<Jet> jet(void) const
@@ -148,9 +149,10 @@ class TemplatedSecondaryVertexTagInfo : public BaseTagInfo {
 };
 
 typedef TemplatedSecondaryVertexTagInfo<TrackIPTagInfo> SecondaryVertexTagInfo;
-//typedef TemplatedSecondaryVertexTagInfo<CandIPTagInfo> CandSecondaryVertexTagInfo;
+typedef TemplatedSecondaryVertexTagInfo<CandIPTagInfo> CandSecondaryVertexTagInfo;
 
 DECLARE_EDM_REFS(SecondaryVertexTagInfo)
+DECLARE_EDM_REFS(CandSecondaryVertexTagInfo)
 
 
 #include <functional>
