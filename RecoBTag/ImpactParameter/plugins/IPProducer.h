@@ -82,7 +82,7 @@ namespace IPProducerHelpers {
       class FromJetAndCands{
               public:
 		      FromJetAndCands(const edm::ParameterSet& iConfig,  edm::ConsumesCollector && iC): token_jets(iC.consumes<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>("jets"))),          
-		      token_cands(iC.consumes<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("candidates"))) {}
+		      token_cands(iC.consumes<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("candidates"))), maxDeltaR(iConfig.getParameter<double>("maxDeltaR")){}
 
                       std::vector<reco::CandidatePtr> tracks(edm::Event&,const reco::JetTagInfo & it)
                       {
@@ -102,13 +102,18 @@ namespace IPProducerHelpers {
                                       edm::RefToBase<reco::Jet> jRef(jets, i);
                                       bases.push_back(jRef);
 				      //FIXME: add deltaR or any other requirement here
-				      m_map[& bases.back()].push_back(cands->ptrAt(i));	
+				      for(size_t j=0;j<cands->size();j++) {
+					      if((*cands)[j].bestTrack()!=0 &&  ROOT::Math::VectorUtil::DeltaR((*cands)[j].p4(),(*jets)[i].p4()) < maxDeltaR){
+						      m_map[& bases.back()].push_back(cands->ptrAt(j));	
+					      }
+				      }
                               }
                               return bases;
                       }
 		      std::map<const reco::JetTagInfo * ,std::vector<reco::CandidatePtr> > m_map;	
                       edm::EDGetTokenT<edm::View<reco::Jet> > token_jets;
                       edm::EDGetTokenT<edm::View<reco::Candidate> >token_cands;
+		      double maxDeltaR;	
       };
 }
 template <class Container, class Base, class Helper> 
