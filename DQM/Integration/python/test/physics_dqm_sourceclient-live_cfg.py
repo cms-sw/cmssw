@@ -9,10 +9,10 @@ process = cms.Process("Physics")
 #-----------------------------
 
 # for live online DQM in P5
-#process.load("DQM.Integration.test.inputsource_cfi")
+process.load("DQM.Integration.test.inputsource_cfi")
 
 # for testing in lxplus
-process.load("DQM.Integration.test.fileinputsource_cfi")
+#process.load("DQM.Integration.test.fileinputsource_cfi")
 
 #----------------------------
 # DQM Environment
@@ -30,9 +30,9 @@ process.hltTriggerTypeFilter = cms.EDFilter("HLTTriggerTypeFilter",
 )
 
 #---- for P5 (online) DB access
-#process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
+process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
 # Condition for lxplus
-process.load("DQM.Integration.test.FrontierCondition_GT_Offline_cfi") 
+#process.load("DQM.Integration.test.FrontierCondition_GT_Offline_cfi") 
 
 process.load('Configuration/StandardSequences/GeometryIdeal_cff')
 process.load('Configuration/StandardSequences/MagneticField_AutoFromDBCurrent_cff')
