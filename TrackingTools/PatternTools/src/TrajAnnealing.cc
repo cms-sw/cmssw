@@ -20,7 +20,6 @@ TrajAnnealing::TrajAnnealing( const Trajectory& traj, float ann ){
       iend = measurements.begin();
       increment = -1;
     }
-std::cout << "here" << std::endl;
     
     for( Trajectory::DataContainer::const_iterator imeas = ibegin; imeas != iend; imeas += increment ){
 
