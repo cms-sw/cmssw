@@ -574,7 +574,11 @@ fi
 
 if [ "${lbo}" == "LBCR" ] || [ "${lbo}" = "CRSS" ]; then
   touch ${crssfile}.tmp
-  find ./${dir2}/ -name '*'     > tmp.lst && tar --no-recursion -rf ${crssfile}.tmp -T tmp.lst; rm tmp.lst
+  find ./${dir2}/ -name '*'     > tmp.lst 
+  if [ -e Result.db ]; then
+    echo Result.db >> tmp.lst
+  fi
+  tar --no-recursion -rf ${crssfile}.tmp -T tmp.lst; rm tmp.lst
   if [ -e ${dir3} ]; then
   find ./${dir3}/ -name '*'     > tmp.lst && tar --no-recursion -rf ${crssfile}.tmp -T tmp.lst; rm tmp.lst
   fi
@@ -584,11 +588,11 @@ fi
 
 #### create tarball with multiple interactions grid files
 if [ ! "${lbo}" == "EVTS" ]; then
-  migdir=`find ./ -type d -name MIG\*`
+  migdir=`find ./ -name MIG\*`
   echo " <I> MPI (mult. part. int.) grid located in "${migdir}
   migfil=`find ./ -type f -name MPI\*.dat`
   echo " <I> MPI (mult. part. int.) file found: "${migfil}
-  if [ -d "${migdir}" ]; then
+  if [ -d "${migdir}" ] || [ -e "${migdir}" ]; then
     if [ -e "${migfil}" ]; then
       tar -czf ${gridfile} ${migdir} ${migfil}
     else
@@ -653,4 +657,3 @@ mv *.tgz ${fin}/
 # go back to original directory
 cd ${HDIR}
 rm -rf ${shrun}
-

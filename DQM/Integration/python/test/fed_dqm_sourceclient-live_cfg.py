@@ -8,10 +8,10 @@ process.maxEvents = cms.untracked.PSet(
 
 
 # for live online DQM in P5
-#process.load("DQM.Integration.test.inputsource_cfi")
+process.load("DQM.Integration.test.inputsource_cfi")
 
 # for testing in lxplus
-process.load("DQM.Integration.test.fileinputsource_cfi")
+#process.load("DQM.Integration.test.fileinputsource_cfi")
 
 #process.load("DQMServices.Core.DQM_cfg")
 process.load("DQMServices.Components.DQMEnvironment_cfi")

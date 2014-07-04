@@ -29,8 +29,6 @@ class DQMFileIterator {
 
     std::size_t n_events;
     std::string datafilename;
-    std::string definition;
-    std::string source;
 
     static LumiEntry load_json(const std::string& filename, int lumiNumber, JsonType type);
   };
@@ -41,8 +39,6 @@ class DQMFileIterator {
     std::size_t n_events;
     std::size_t n_lumi;
     std::string datafilename;
-    std::string definition;
-    std::string source;
 
     static EorEntry load_json(const std::string& filename);
   };
