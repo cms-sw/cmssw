@@ -185,6 +185,12 @@ bool HcalTopology::validHcal(const HcalDetId& id) const {
   return ok;
 }
 
+bool HcalTopology::validDetId(HcalSubdetector subdet, int ieta, int iphi, 
+			      int depth) const {
+  HcalDetId id(subdet,ieta,iphi,depth);
+  return validHcal(id);
+}
+
 bool HcalTopology::isExcluded(const HcalDetId& id) const {
   bool exed=false;
   // first, check the full detector exclusions...  (fast)

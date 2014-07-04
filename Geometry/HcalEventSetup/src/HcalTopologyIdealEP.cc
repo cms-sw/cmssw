@@ -24,6 +24,8 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
+//#define DebugLog
+
 //
 // constants, enums and typedefs
 //
@@ -38,8 +40,10 @@
 HcalTopologyIdealEP::HcalTopologyIdealEP(const edm::ParameterSet& conf)
   : m_restrictions(conf.getUntrackedParameter<std::string>("Exclude")),
     m_pSet( conf ) {
+#ifdef DebugLog
   std::cout << "HcalTopologyIdealEP::HcalTopologyIdealEP" << std::endl;
   edm::LogInfo("HCAL") << "HcalTopologyIdealEP::HcalTopologyIdealEP";
+#endif
   setWhatProduced(this,
 		  &HcalTopologyIdealEP::produce,
 		  dependsOn( &HcalTopologyIdealEP::hcalRecordCallBack ));
@@ -65,20 +69,22 @@ void HcalTopologyIdealEP::fillDescriptions( edm::ConfigurationDescriptions & des
 // ------------ method called to produce the data  ------------
 HcalTopologyIdealEP::ReturnType
 HcalTopologyIdealEP::produce(const HcalRecNumberingRecord& iRecord) {
+#ifdef DebugLog
   std::cout << "HcalTopologyIdealEP::produce(const IdealGeometryRecord& iRecord)" << std::endl;
   edm::LogInfo("HCAL") << "HcalTopologyIdealEP::produce(const HcalGeometryRecord& iRecord)";
-  
+#endif  
   edm::ESHandle<HcalDDDRecConstants> pHRNDC;
   iRecord.get( pHRNDC );
   const HcalDDDRecConstants* hdc = &(*pHRNDC);
 
+#ifdef DebugLog
   StringToEnumParser<HcalTopologyMode::Mode> eparser;
   HcalTopologyMode::Mode mode = eparser.parseString(hdc->getTopoMode());
   int maxDepthHB = hdc->getMaxDepth(0);
   int maxDepthHE = hdc->getMaxDepth(1);
   std::cout << "mode = " << mode << ", maxDepthHB = " << maxDepthHB << ", maxDepthHE = " << maxDepthHE << std::endl;
   edm::LogInfo("HCAL") << "mode = " << mode << ", maxDepthHB = " << maxDepthHB << ", maxDepthHE = " << maxDepthHE;
-
+#endif
   ReturnType myTopo(new HcalTopology(hdc));
 
   HcalTopologyRestrictionParser parser(*myTopo);
