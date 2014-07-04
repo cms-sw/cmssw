@@ -398,11 +398,15 @@ void PFAlgo::reconstructParticles( const reco::PFBlockCollection& blocks ) {
    
     bool singleEcalOrHcal = false;
     if( elements.size() == 1 ){
-      if( elements[0].type() == reco::PFBlockElement::ECAL ){
+      const reco::PFBlockElement::Type the_type = elements[0].type();
+      if( the_type == reco::PFBlockElement::ECAL ||
+	  the_type == reco::PFBlockElement::HGC_ECAL ){
 	ecalBlockRefs.push_back( blockref );
 	singleEcalOrHcal = true;
       }
-      if( elements[0].type() == reco::PFBlockElement::HCAL ){
+      if( the_type == reco::PFBlockElement::HCAL ||
+	  the_type == reco::PFBlockElement::HGC_HCALF ||
+	  the_type == reco::PFBlockElement::HGC_HCALB    ){
 	hcalBlockRefs.push_back( blockref );
 	singleEcalOrHcal = true;
       }
@@ -621,12 +625,15 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	if(debug_) cout<<"TRACK, stored index, continue"<<endl;
       }
       break;
+    case PFBlockElement::HGC_ECAL:
     case PFBlockElement::ECAL: 
       if ( active[iEle]  ) { 
 	ecalIs.push_back( iEle );
 	if(debug_) cout<<"ECAL, stored index, continue"<<endl;
       }
       continue;
+      //case PFBlockElement::HGC_HCALF:
+      //case PFBlockElement::HGC_HCALB:
     case PFBlockElement::HCAL:
       if ( active[iEle] ) { 
 	hcalIs.push_back( iEle );
@@ -2873,7 +2880,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     }
     
     PFBlockElement::Type type = elements[ iEcal ].type();
-    assert( type == PFBlockElement::ECAL );
+    assert( type == PFBlockElement::ECAL || type == PFBlockElement::HGC_ECAL);
 
     PFClusterRef clusterref = elements[iEcal].clusterRef();
     assert(!clusterref.isNull() );
@@ -2886,7 +2893,11 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     vector<double> ps2Ene(1,static_cast<double>(0.));
     associatePSClusters(iEcal, reco::PFBlockElement::PS2, block, elements, linkData, active, ps2Ene);
     bool crackCorrection = false;
-    float ecalEnergy = calibration_->energyEm(*clusterref,ps1Ene,ps2Ene,crackCorrection);
+    float ecalEnergy = clusterref->energy();
+    if( type != PFBlockElement::HGC_ECAL ) {
+      ecalEnergy = calibration_->energyEm(*clusterref,ps1Ene,ps2Ene,
+					  crackCorrection);
+    }
     // float ecalEnergy = calibration_->energyEm( clusterref->energy() );
     double particleEnergy = ecalEnergy;
     
@@ -3002,6 +3013,9 @@ PFAlgo::reconstructCluster(const reco::PFCluster& cluster,
       break;
     case PFLayer::ECAL_ENDCAP:
     case PFLayer::HCAL_ENDCAP:
+    case PFLayer::HGC_ECAL:
+      //case PFLayer::HGC_HCALF:
+      //case PFLayer::HGC_HCALB:
     case PFLayer::HF_HAD:
     case PFLayer::HF_EM:
       factor = cluster.position().Z()/particleZ;
@@ -3049,10 +3063,13 @@ PFAlgo::reconstructCluster(const reco::PFCluster& cluster,
   switch( cluster.layer() ) {
   case PFLayer::ECAL_BARREL:
   case PFLayer::ECAL_ENDCAP:
+  case PFLayer::HGC_ECAL:
     particleType = PFCandidate::gamma;
     break;
   case PFLayer::HCAL_BARREL1:
-  case PFLayer::HCAL_ENDCAP:    
+  case PFLayer::HCAL_ENDCAP:
+  case PFLayer::HGC_HCALF:
+  case PFLayer::HGC_HCALB:
     particleType = PFCandidate::h0;
     break;
   case PFLayer::HF_HAD:
