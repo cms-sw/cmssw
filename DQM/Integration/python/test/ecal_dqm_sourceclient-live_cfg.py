@@ -73,11 +73,9 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 # Condition for P5 cluster
-#process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
+process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
 # Condition for lxplus
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:com10', '')
+#process.load("DQM.Integration.test.FrontierCondition_GT_Offline_cfi") 
 
 process.GlobalTag.toGet = cms.VPSet(
     cms.PSet(
@@ -157,6 +155,8 @@ process.schedule = cms.Schedule(
 
 process.load("DQM.Integration.test.inputsource_cfi")
 
+# for testing in lxplus
+#process.load("DQM.Integration.test.fileinputsource_cfi")
 
 ### CUSTOMIZATIONS ###
 
@@ -189,13 +189,6 @@ process.ecalMonitorClient.workerParameters.SummaryClient.activeSources = ["Integ
 
 process.dqmEnv.subSystemFolder = cms.untracked.string("Ecal")
 process.dqmSaver.convention = "Online"
-
- ## Source ##
-# for live online DQM in P5
-#process.load("DQM.Integration.test.inputsource_cfi")
-
-# for testing in lxplus
-process.load("DQM.Integration.test.fileinputsource_cfi")
 
  ## Run type specific ##
 

@@ -96,7 +96,8 @@ void DQMStreamerReader::openFile_(std::string newStreamerFile_) {
   InitMsgView const* header = getHeaderMsg();
   deserializeAndMergeWithRegistry(*header, false);
 
-  dumpInitHeader(header);
+  // dump the list of HLT trigger name from the header
+  //  dumpInitHeader(header);
 
   Strings tnames;
   header->hltTriggerNames(tnames);
@@ -296,10 +297,8 @@ bool DQMStreamerReader::acceptEvent(const EventMsgView* evtmsg) {
 
   if (eventSelector_->wantAll() ||
       eventSelector_->acceptEvent(&hltTriggerBits_[0], evtmsg->hltCount())) {
-    std::cout << "----****----- Events is accepted " << std::endl;
     return true;
   } else {
-    std::cout << "----****----- Events is not selected " << std::endl;
     return false;
   }
 }
