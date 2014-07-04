@@ -17,15 +17,15 @@ namespace ecaldqm {
 
     for(int iDCC(0); iDCC < 54; iDCC++){
       if(_runType[iDCC] == EcalDCCHeaderBlock::LASER_STD ||
-	 _runType[iDCC] == EcalDCCHeaderBlock::LASER_GAP ||
+         _runType[iDCC] == EcalDCCHeaderBlock::LASER_GAP ||
          _runType[iDCC] == EcalDCCHeaderBlock::LED_STD ||
          _runType[iDCC] == EcalDCCHeaderBlock::LED_GAP ||
-	 _runType[iDCC] == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
-	 _runType[iDCC] == EcalDCCHeaderBlock::TESTPULSE_GAP ||
+         _runType[iDCC] == EcalDCCHeaderBlock::TESTPULSE_MGPA ||
+         _runType[iDCC] == EcalDCCHeaderBlock::TESTPULSE_GAP ||
          _runType[iDCC] == EcalDCCHeaderBlock::PEDESTAL_STD ||
-	 _runType[iDCC] == EcalDCCHeaderBlock::PEDESTAL_GAP){
-	enable = true;
-	enable_[iDCC] = true;
+         _runType[iDCC] == EcalDCCHeaderBlock::PEDESTAL_GAP){
+        enable = true;
+        enable_[iDCC] = true;
       }
       else
         enable_[iDCC] = false;
@@ -59,8 +59,8 @@ namespace ecaldqm {
     }
 
     std::for_each(_ids.begin(), _ids.end(), [&](EcalElectronicsIdCollection::value_type const& id){
-                    set->fill(EcalElectronicsId(id.dccId(), id.towerId(), 1, id.xtalId()));
-                  });
+        set->fill(EcalElectronicsId(id.dccId(), id.towerId(), 1, id.xtalId()));
+      });
   }
 
   void
@@ -71,18 +71,18 @@ namespace ecaldqm {
     MESet& mePedestal(MEs_.at("Pedestal"));
 
     std::for_each(_digis.begin(), _digis.end(), [&](EcalPnDiodeDigiCollection::value_type const& digi){
-                    const EcalPnDiodeDetId& id(digi.id());
+        const EcalPnDiodeDetId& id(digi.id());
 
-                    if(!enable_[dccId(id) - 1]) return;
+        if(!enable_[dccId(id) - 1]) return;
 
-                    meOccupancy.fill(id);
-                    meOccupancySummary.fill(id);
+        meOccupancy.fill(id);
+        meOccupancySummary.fill(id);
 
-                    for(int iSample(0); iSample < 4; iSample++){
-                      if(digi.sample(iSample).gainId() != 1) break;
-                      mePedestal.fill(id, double(digi.sample(iSample).adc()));
-                    }
-                  });
+        for(int iSample(0); iSample < 4; iSample++){
+          if(digi.sample(iSample).gainId() != 1) break;
+          mePedestal.fill(id, double(digi.sample(iSample).adc()));
+        }
+      });
   }
 
   DEFINE_ECALDQM_WORKER(PNDiodeTask);
