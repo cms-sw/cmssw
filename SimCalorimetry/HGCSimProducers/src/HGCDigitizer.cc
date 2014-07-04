@@ -128,34 +128,33 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, i
 
       //gang SIM->RECO cells
       int layer(simId.layer()), cell(simId.cell());
+      float zPos(0.);
       if(geom.isValid())
 	{
 	  const HGCalTopology &topo=geom->topology();
 	  const HGCalDDDConstants &dddConst=topo.dddConstants();
+	  zPos=dddConst.getFirstTrForm()->h3v.z();
 	  std::pair<int,int> recoLayerCell=dddConst.simToReco(cell,layer,topo.detectorType());
 	  cell  = recoLayerCell.first;
 	  layer = recoLayerCell.second;
 	  if(layer<0) continue;
-
-	  // 	  std::cout << " EE:  " << producesEEDigis()
-	  // 		    << " HEF: " << producesHEfrontDigis()
-	  // 		    << " HEB: " << producesHEbackDigis()
-	  //		    << " (layer,cell)=(" << simId.layer() << "," << simId.cell() << ") -> (" << layer << "," << cell << ")" << std::endl;
 	}
 
-      //this could be changed in the future to use the geometry record
+      //assign the RECO DetId
       DetId id( producesEEDigis() ?
 		(uint32_t)HGCEEDetId(mySubDet_,simId.zside(),layer,simId.sector(),simId.subsector(),cell):
 		(uint32_t)HGCHEDetId(mySubDet_,simId.zside(),layer,simId.sector(),simId.subsector(),cell) );
 
-      //hit time
-      //GlobalPoint globalPos=geom->getPosition( id );
-      //int itime=(int) ( ((hit_it->time()-globalPos.z()/CLHEP::c_light) - bxTime_*bxCrossing)/bxCrossing );
-      int itime = 0; 
-
+      //hit time: [time()]=ns  [zPos]=cm [CLHEP::c_light]=mm/ns
+      //for now accumulate in buckets of bxTime_
+      int itime=floor( (hit_it->time()-zPos/(0.1*CLHEP::c_light))/bxTime_);
+      itime += bxCrossing;
+      if(itime<0) continue;
+      
       //energy deposited
       double ien   = hit_it->energy();
-
+      
+      //check if already existing (perhaps could remove this in the future - 2nd event should have all defined)
       HGCSimHitDataAccumulator::iterator simHitIt=simHitAccumulator_.find(id);
       if(simHitIt==simHitAccumulator_.end())
 	{
@@ -163,7 +162,13 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, i
 	  simHitAccumulator_[id]=baseData;
 	  simHitIt=simHitAccumulator_.find(id);
 	}
-      if(itime<0 || itime>(int)simHitIt->second.size()) continue;
+      
+      //check if time is ok
+      if( itime > (int)(simHitIt->second.size()) )
+        {
+	  continue;
+        }
+      
       (simHitIt->second)[itime] += ien;
     }
   

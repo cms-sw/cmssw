@@ -9,7 +9,8 @@ hgceeDigitizer = cms.PSet( accumulatorType   = cms.string("HGCDigiProducer"),
                            makeDigiSimLinks  = cms.untracked.bool(False),
                            digiCfg = cms.untracked.PSet( mipInKeV  = cms.untracked.double(55.1),
                                                          lsbInMIP  = cms.untracked.double(0.25),
-                                                         mip2noise = cms.untracked.double(7.0)
+                                                         mip2noise = cms.untracked.double(7.0),
+                                                         adcThreshold = cms.untracked.uint32(2)
                                                          )
                            )
 

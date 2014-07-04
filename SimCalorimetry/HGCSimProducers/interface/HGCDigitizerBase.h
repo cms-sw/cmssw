@@ -24,10 +24,11 @@ class HGCDigitizerBase {
    */
   HGCDigitizerBase(const edm::ParameterSet &ps) : simpleNoiseGen_(0)
     {
-      myCfg_     = ps.getUntrackedParameter<edm::ParameterSet>("digiCfg"); 
-      mipInKeV_  = myCfg_.getUntrackedParameter<double>("mipInKeV");
-      lsbInMIP_  = myCfg_.getUntrackedParameter<double>("lsbInMIP");
-      mip2noise_ = myCfg_.getUntrackedParameter<double>("mip2noise");
+      myCfg_        = ps.getUntrackedParameter<edm::ParameterSet>("digiCfg"); 
+      mipInKeV_     = myCfg_.getUntrackedParameter<double>("mipInKeV");
+      lsbInMIP_     = myCfg_.getUntrackedParameter<double>("lsbInMIP");
+      mip2noise_    = myCfg_.getUntrackedParameter<double>("mip2noise");
+      adcThreshold_ = myCfg_.getUntrackedParameter< uint32_t >("adcThreshold");
     }
 
   /**
@@ -73,7 +74,7 @@ class HGCDigitizerBase {
 	HGCSample singleSample;
 	singleSample.set(0, totalEnInt );
 
-	if(singleSample.adc()==0) continue;
+	if(singleSample.adc()<adcThreshold_) continue;
 	
 	//no time information
 	D newDataFrame( it->first );
@@ -107,6 +108,9 @@ class HGCDigitizerBase {
 
   //
   double mipInKeV_, lsbInMIP_, mip2noise_;
+
+  //
+  uint32_t adcThreshold_;
 
   //
   mutable CLHEP::RandGauss *simpleNoiseGen_;
