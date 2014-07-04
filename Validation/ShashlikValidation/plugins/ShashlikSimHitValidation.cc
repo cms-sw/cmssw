@@ -75,6 +75,7 @@ private:
   int                   verbosity_;
   std::map<std::string,MonitorElement*> histmap;
   std::map<std::string,MonitorElement*> histmap2d;
+  std::string outputFile_;
 };
 
 //
@@ -93,6 +94,7 @@ ShashlikSimHitValidation::ShashlikSimHitValidation(const edm::ParameterSet& iCon
   dbe_           = edm::Service<DQMStore>().operator->();
   caloHitSource_ = iConfig.getParameter<std::string>("CaloHitSource");
   verbosity_     = iConfig.getUntrackedParameter<int>("Verbosity",0);
+  outputFile_    = iConfig.getUntrackedParameter<std::string>("OutputFile", "simhitsvalidation.root");
   if (verbosity_ > 0) std::cout << "Start SimHitValidation for PCaloHit at "
 				<< caloHitSource_ << std::endl;
 }  
@@ -179,6 +181,8 @@ void ShashlikSimHitValidation::analyze(const edm::Event& iEvent, const edm::Even
 void ShashlikSimHitValidation::beginJob() {
 
   if (dbe_) {
+    dbe_->setCurrentFolder("EcalSimHitsV/Shashlik");
+    
     histmap["time"] = dbe_->book1D("time","Time distribution of the hits",100,0.,530);
     histmap["timeEwei"] = dbe_->book1D("timeEwei","Energy weighted time distribution of the hits",100,0,530);
     histmap["energy"] = dbe_->book1D("energy","Energy distribution of the hits",100,0,3);
@@ -208,6 +212,7 @@ void ShashlikSimHitValidation::beginJob() {
 
 // ------------ method called once each job just after ending the event loop  ------------
 void ShashlikSimHitValidation::endJob() {
+  //  if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
 }
 
 // ------------ method called when starting to processes a run  ------------
