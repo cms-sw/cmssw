@@ -38,9 +38,9 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 # GLOBALTAG
 #----------
 # Condition for P5 cluster
-#process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
+process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
 # Condition for lxplus
-process.load("DQM.Integration.test.FrontierCondition_GT_Offline_cfi") 
+#process.load("DQM.Integration.test.FrontierCondition_GT_Offline_cfi") 
 
 #----------------
 # DQM Environment
@@ -130,10 +130,10 @@ process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(100)
 # Input Source
 #-------------
 process.load("DQM.Integration.test.inputsource_cfi")
-process.DQMEventStreamHttpReader.consumerName = 'DQM Pixel Luminosity Consumer'
-process.DQMEventStreamHttpReader.SelectHLTOutput = cms.untracked.string('hltOutputALCALUMIPIXELS')
-process.DQMEventStreamHttpReader.maxEventRequestRate = cms.untracked.double(200.0)
-process.DQMEventStreamHttpReader.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('AlCa_LumiPixels_ZeroBias_v*'))
+#process.DQMEventStreamHttpReader.consumerName = 'DQM Pixel Luminosity Consumer'
+#process.DQMEventStreamHttpReader.SelectHLTOutput = cms.untracked.string('hltOutputALCALUMIPIXELS')
+#process.DQMEventStreamHttpReader.maxEventRequestRate = cms.untracked.double(200.0)
+#process.DQMEventStreamHttpReader.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('AlCa_LumiPixels_ZeroBias_v*'))
 
 
 # Only unpack pixel data; there is nothing else, really.
