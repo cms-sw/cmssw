@@ -222,6 +222,9 @@ void LHEReader::XMLHandler::startElement(const XMLCh *const uri,
     }
     xmlEventNodes.push_back(elem);
     return;
+  } else if (mode == kInit) {
+    //skip unknown tags in init block as well
+    return;
   } else if (mode != kNone) {
     throw cms::Exception("InvalidFormat")
       << "LHE file has invalid format" << std::endl;
