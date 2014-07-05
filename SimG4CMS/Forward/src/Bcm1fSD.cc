@@ -32,7 +32,7 @@
 
 Bcm1fSD::Bcm1fSD(std::string name, 
 					   const DDCompactView & cpv,
-					   SensitiveDetectorCatalog & clg, 
+					   const SensitiveDetectorCatalog & clg,
 					   edm::ParameterSet const & p,
 					   const SimTrackManager* manager) : 
   SensitiveTkDetector(name, cpv, clg, p), myName(name), mySimHit(0),

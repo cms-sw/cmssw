@@ -16,8 +16,8 @@
 
 FTFCMS_BIC::FTFCMS_BIC(G4LogicalVolumeToDDLogicalPartMap& map, 
 		       const HepPDT::ParticleDataTable * table_,
-		       sim::FieldBuilder *fieldBuilder_, 
-		       const edm::ParameterSet & p) : PhysicsList(map, table_, fieldBuilder_, p) {
+		       sim::ChordFinderSetter *chordFinderSetter_, 
+		       const edm::ParameterSet & p) : PhysicsList(map, table_, chordFinderSetter_, p) {
 
   G4DataQuestionaire it(photon);
   
@@ -66,6 +66,6 @@ FTFCMS_BIC::FTFCMS_BIC(G4LogicalVolumeToDDLogicalPartMap& map,
   }
 
   // Monopoles
-  RegisterPhysics( new CMSMonopolePhysics(table_,fieldBuilder_,p));
+  RegisterPhysics( new CMSMonopolePhysics(table_,chordFinderSetter_,p));
 }
 
