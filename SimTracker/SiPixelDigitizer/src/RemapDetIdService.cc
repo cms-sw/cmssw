@@ -1,4 +1,4 @@
-#include "RemapDetIdService.h"
+#include <SimTracker/SiPixelDigitizer/interface/RemapDetIdService.h>
 
 #include <iostream>
 #include <fstream>

@@ -22,7 +22,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 // Take these next two lines out as soon as SLHC11 samples no longer need to be processed
 #include <FWCore/ServiceRegistry/interface/Service.h>
-#include "RemapDetIdService.h"
+#include <SimTracker/SiPixelDigitizer/interface/RemapDetIdService.h>
 
 namespace CLHEP {
   class HepRandomEngine;
