@@ -128,17 +128,17 @@ class PFHBHERecHitCreatorPulses :  public  PFRecHitCreatorBase {
 	  samples.push_back(calibrations.respcorrgain(capid[ii]) *
 			    (tool[ii] - calibrations.pedestal(capid[ii]))); 
 
-	  printf("SAMPLE %d ,%f\n",ii,calibrations.respcorrgain(capid[ii]) *
-		 (tool[ii] - calibrations.pedestal(capid[ii])));
+	  //	  printf("SAMPLE %d ,%f\n",ii,calibrations.respcorrgain(capid[ii]) *
+	  //		 (tool[ii] - calibrations.pedestal(capid[ii])));
 	} 
 
 	/////////////////////////////
 	/////////////////////////////
 
 	//NAIVE ALGO By michalis -> Find the maximum and assign the maximum energy
-	//	size_t maxSample  =  (std::max_element(samples.begin(),samples.end()))-samples.begin();
-
-
+	size_t maxSample  =  (std::max_element(samples.begin(),samples.end()))-samples.begin();
+	energy  = samples[maxSample];
+	time = (float)maxSample;
 	int depth = detid.depth();
 
 	math::XYZVector position;

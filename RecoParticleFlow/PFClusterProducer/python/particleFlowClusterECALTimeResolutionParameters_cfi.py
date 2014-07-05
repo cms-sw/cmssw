@@ -20,3 +20,14 @@ _timeResolutionECALEndcap = cms.PSet(
     threshLowE = cms.double(1.),
     threshHighE = cms.double(10.)
   )
+
+_timeResolutionHCAL = cms.PSet(
+    noiseTerm = cms.double(0),
+    constantTerm = cms.double(1.5),
+    noiseTermLowE = cms.double(0),
+    corrTermLowE = cms.double(0.0),
+    constantTermLowE = cms.double(2.5),
+    threshLowE = cms.double(0.5),
+    threshHighE = cms.double(1.)
+  )
+
