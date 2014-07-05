@@ -22,7 +22,7 @@
 //#define DebugLog
 
 CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
-        SensitiveDetectorCatalog & clg, 
+        const SensitiveDetectorCatalog & clg,
         edm::ParameterSet const & p, const SimTrackManager* manager,
         int tSlice, bool ignoreTkID) : 
   SensitiveCaloDetector(name, cpv, clg, p),
@@ -87,9 +87,9 @@ CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
   //
   // Now attach the right detectors (LogicalVolumes) to me
   //
-  std::vector<std::string> lvNames = clg.logicalNames(name);
+  const std::vector<std::string>& lvNames = clg.logicalNames(name);
   this->Register();
-  for (std::vector<std::string>::iterator it=lvNames.begin(); it !=lvNames.end(); ++it) {
+  for (std::vector<std::string>::const_iterator it=lvNames.begin(); it !=lvNames.end(); ++it) {
     this->AssignSD(*it);
 #ifdef DebugLog
     LogDebug("CaloSim") << "CaloSD : Assigns SD to LV " << (*it);

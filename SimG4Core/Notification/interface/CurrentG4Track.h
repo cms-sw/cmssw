@@ -21,8 +21,8 @@ public:
     static int id() { check(); return m_track->GetTrackID(); }
     static const G4Track * track() { check(); return m_track; }
 private:
-    static const G4Track * m_track;
-    static bool m_tracking;
+    static thread_local const G4Track * m_track;
+    static thread_local bool m_tracking;
     static void setTrack(const G4Track *);
     static void postTracking(const G4Track *);
     static void check()	
