@@ -30,6 +30,7 @@ namespace CLHEP {
 
 namespace sim {
   class FieldBuilder;
+  class ChordFinderSetter;
 }
 
 class PrimaryTransformer;
@@ -153,6 +154,7 @@ private:
     
   std::auto_ptr<SimTrackManager> m_trackManager;
   sim::FieldBuilder             *m_fieldBuilder;
+  sim::ChordFinderSetter        *m_chordFinderSetter;
     
   edm::ESWatcher<IdealGeometryRecord> idealGeomRcdWatcher_;
   edm::ESWatcher<IdealMagneticFieldRecord> idealMagRcdWatcher_;
