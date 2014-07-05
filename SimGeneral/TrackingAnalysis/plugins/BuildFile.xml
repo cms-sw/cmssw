@@ -2,6 +2,7 @@
 <use   name="DataFormats/TrackerCommon"/>
 <use   name="DataFormats/HepMCCandidate"/>
 <use   name="SimGeneral/MixingModule"/>
+<use name="SimTracker/SiPixelDigitizer"/>
 <library   file="*.cc" name="SimGeneralTrackingAnalysisPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>
