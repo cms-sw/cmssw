@@ -3,8 +3,8 @@
 
 /** \class HGCalDDDConstants
  *
- * this class reads the constant section of
- * the shashlik-numbering xml-file
+ * this class reads the constant section of the numbering
+ * xml-files of the  high granulairy calorimeter
  *  
  *  $Date: 2014/03/20 00:06:50 $
  * \author Sunanda Banerjee, SINP <sunanda.banerjee@cern.ch>
@@ -40,7 +40,6 @@ public:
   };
 
 
-  HGCalDDDConstants();
   HGCalDDDConstants(const DDCompactView& cpv, std::string & name);
   ~HGCalDDDConstants();
 
@@ -51,7 +50,7 @@ public:
   std::pair<int,int>  findCell(int cell, int lay, int subSec, bool reco) const;
   std::pair<int,int>  findCell(int cell, float h, float bl, float tl, 
 			       float alpha, float cellSize) const;
-  void                initialize(const DDCompactView& cpv, std::string name);
+  bool                isValid(int lay, int mod, int cell, bool reco) const;
   unsigned int        layers(bool reco) const {return (reco ? depthIndex.size() : layerIndex.size());}
   std::pair<float,float> locateCell(int cell, int lay, int subSec,
 				    bool reco) const;
@@ -77,14 +76,13 @@ public:
   std::vector<hgtrform>::const_iterator getLastTrForm()  const { return trform_.end(); }
  
 private:
-  void                checkInitialized() const;
+  void                initialize(const DDCompactView& cpv, std::string name);
   void                loadGeometry(const DDFilteredView& fv, std::string& tag);
   void                loadSpecPars(const DDFilteredView& fv);
   std::vector<double> getDDDArray(const std::string &, 
                                   const DDsvalues_type &, int &) const;
   std::pair<int,float> getIndex(int lay, bool reco) const;
 
-  bool                tobeInitialized;
   int                 nCells, nSectors, nLayers;
   std::vector<double> cellSize_;
   std::vector<hgtrap> modules_, moduler_;

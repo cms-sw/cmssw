@@ -7,6 +7,10 @@
 #include <TFile.h>
 #include "SectorTree.h"
 
+#ifdef IPNL_USE_CUDA
+#include "gpu.h"
+#endif
+
 using namespace std;
 
 /**
@@ -21,6 +25,14 @@ class PatternFinder{
   string outputFileName;
   Detector tracker;
 
+#ifdef IPNL_USE_CUDA
+  deviceDetector* d_detector;  
+  patternBank* d_p_bank;
+  deviceParameters* d_parameters;
+  int nb_blocks;
+  int nb_threads;
+#endif
+
  public:
  /**
      \brief Constructor
@@ -31,6 +43,28 @@ class PatternFinder{
      \param of The name of the output file
   **/
   PatternFinder(int sp, int at, SectorTree* st, string f, string of);
+
+#ifdef IPNL_USE_CUDA
+ /**
+     \brief Constructor
+     \param sp Size of a super strip
+     \param at The minimum number of hit super strip to activate a pattern
+     \param st The SectorTree containing the sectors with their associated patterns
+     \param f The name of the file to analyse
+     \param of The name of the output file
+     \param p The device pattern bank
+     \param d The device detector
+     \param d_p Structure containing device addresses where parameters are stored
+  **/
+  PatternFinder(int sp, int at, SectorTree* st, string f, string of, patternBank* p, deviceDetector* d, deviceParameters* dp);
+
+  /**
+     \brief Get active patterns from list of hits (public for CMSSW).
+  **/
+  int findCuda(int nb,  deviceStubs* d_stubs, cudaStream_t* stream=NULL);
+
+#endif
+
   /**
      \brief Set the SectorTree (contains sectors with their patterns)
      \param s The SectorTree containing the sectors with their associated patterns
@@ -49,6 +83,15 @@ class PatternFinder{
   **/
   void find(int start, int& stop);
 
+#ifdef IPNL_USE_CUDA
+  /**
+     \brief Look for active patterns in events
+     \param start The search will start from this event number
+     \param stop The search will end at this event number
+  **/
+  void findCuda(int start, int& stop, deviceStubs* d_stubs);
+#endif
+
   /**
      \brief Get active patterns from list of hits (public for CMSSW).
   **/
@@ -58,5 +101,12 @@ class PatternFinder{
      \brief Merge 2 files into 1 single file
   **/
   static void mergeFiles(string outputFile, string inputFile1, string inputFile2);
+
+  /**
+     \brief Display all the stubs of events as superstrips
+     \param start The search will start from this event number
+     \param stop The search will end at this event number
+   **/
+  void displayEventsSuperstrips(int start, int& stop);
 };
 #endif

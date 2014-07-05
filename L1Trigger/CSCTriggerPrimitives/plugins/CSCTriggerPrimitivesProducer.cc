@@ -17,6 +17,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "L1Trigger/CSCCommonTrigger/interface/CSCTriggerGeometry.h"
@@ -30,6 +31,9 @@
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 
+#include "DataFormats/GEMDigi/interface/GEMCSCPadDigiCollection.h"
+#include "DataFormats/GEMDigi/interface/GEMCSCCoPadDigiCollection.h"
+
 // Configuration via EventSetup
 #include "CondFormats/CSCObjects/interface/CSCDBL1TPParameters.h"
 #include "CondFormats/DataRecord/interface/CSCDBL1TPParametersRcd.h"
@@ -39,15 +43,24 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
 
   // if false, parameters will be read in from DB using EventSetup mechanism
   // else will use all parameters from the config file
-  debugParameters_ = conf.getUntrackedParameter<bool>("debugParameters",false);
+  debugParameters_ = conf.getParameter<bool>("debugParameters");
 
   wireDigiProducer_ = conf.getParameter<edm::InputTag>("CSCWireDigiProducer");
   compDigiProducer_ = conf.getParameter<edm::InputTag>("CSCComparatorDigiProducer");
-  gemPadProducer_ = conf.getUntrackedParameter<edm::InputTag>("gemPadProducer", edm::InputTag());
-  rpcDigiProducer_ = conf.getUntrackedParameter<edm::InputTag>("rpcDigiProducer", edm::InputTag());
-  checkBadChambers_ = conf.getUntrackedParameter<bool>("checkBadChambers", true);
+  gemPadProducer_ = conf.existsAs<edm::InputTag>("GEMCSCPadDigiProducer")?conf.getParameter<edm::InputTag>("GEMCSCPadDigiProducer"):edm::InputTag("");
+  rpcDigiProducer_ = conf.existsAs<edm::InputTag>("RPCDigiProducer")?conf.getParameter<edm::InputTag>("RPCDigiProducer"):edm::InputTag("");
+  checkBadChambers_ = conf.getParameter<bool>("checkBadChambers");
 
   lctBuilder_ = new CSCTriggerPrimitivesBuilder(conf); // pass on the conf
+
+  edm::Service<edm::RandomNumberGenerator> rng;
+  if (!rng.isAvailable()){
+    throw cms::Exception("Configuration")
+      << "GEMDigiProducer::GEMDigiProducer() - RandomNumberGeneratorService is not present in configuration file.\n"
+      << "Add the service in the configuration file or remove the modules that require it.";
+  }
+  CLHEP::HepRandomEngine& engine = rng->getEngine();
+  lctBuilder_->setRandomEngine(engine);
 
   // register what this produces
   produces<CSCALCTDigiCollection>();
@@ -55,6 +68,7 @@ CSCTriggerPrimitivesProducer::CSCTriggerPrimitivesProducer(const edm::ParameterS
   produces<CSCCLCTPreTriggerCollection>();
   produces<CSCCorrelatedLCTDigiCollection>();
   produces<CSCCorrelatedLCTDigiCollection>("MPCSORTED");
+  produces<GEMCSCCoPadDigiCollection>();
 }
 
 CSCTriggerPrimitivesProducer::~CSCTriggerPrimitivesProducer() {
@@ -144,6 +158,7 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
   std::auto_ptr<CSCCLCTPreTriggerCollection> oc_pretrig(new CSCCLCTPreTriggerCollection);
   std::auto_ptr<CSCCorrelatedLCTDigiCollection> oc_lct(new CSCCorrelatedLCTDigiCollection);
   std::auto_ptr<CSCCorrelatedLCTDigiCollection> oc_sorted_lct(new CSCCorrelatedLCTDigiCollection);
+  std::auto_ptr<GEMCSCCoPadDigiCollection> oc_gemcopad(new GEMCSCCoPadDigiCollection);
 
   if (!wireDigis.isValid()) {
     edm::LogWarning("L1CSCTPEmulatorNoInputCollection")
@@ -166,7 +181,7 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
                                                 std::make_shared<const CSCBadChambers>());
     lctBuilder_->build(temp.get(),
                        wireDigis.product(), compDigis.product(), gemPads, rpcDigis,
-                       *oc_alct, *oc_clct, *oc_pretrig, *oc_lct, *oc_sorted_lct);
+                       *oc_alct, *oc_clct, *oc_pretrig, *oc_lct, *oc_sorted_lct, *oc_gemcopad);
   }
 
   // Put collections in event.
@@ -175,4 +190,5 @@ void CSCTriggerPrimitivesProducer::produce(edm::Event& ev,
   ev.put(oc_pretrig);
   ev.put(oc_lct);
   ev.put(oc_sorted_lct,"MPCSORTED");
+  ev.put(oc_gemcopad);
 }

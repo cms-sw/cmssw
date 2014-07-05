@@ -58,6 +58,8 @@ class RecoTauProducer : public edm::EDProducer
   edm::InputTag jetRegionSrc_;
   edm::InputTag chargedHadronSrc_;
   edm::InputTag piZeroSrc_;
+  double minJetPt_;
+  double maxJetAbsEta_;
   BuilderList builders_;
   ModifierList modifiers_;
   // Optional selection on the output of the taus
@@ -75,6 +77,8 @@ RecoTauProducer::RecoTauProducer(const edm::ParameterSet& pset)
   chargedHadronSrc_ = pset.getParameter<edm::InputTag>("chargedHadronSrc");
   piZeroSrc_ = pset.getParameter<edm::InputTag>("piZeroSrc");
 
+  minJetPt_ = ( pset.exists("minJetPt") ) ? pset.getParameter<double>("minJetPt") : -1.0;
+  maxJetAbsEta_ = ( pset.exists("maxJetAbsEta") ) ? pset.getParameter<double>("maxJetAbsEta") : 99.0;
   typedef std::vector<edm::ParameterSet> VPSet;
   // Get each of our tau builders
   const VPSet& builders = pset.getParameter<VPSet>("builders");
@@ -148,6 +152,8 @@ void RecoTauProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   // Loop over the jets and build the taus for each jet
   BOOST_FOREACH( reco::PFJetRef jetRef, jets ) {
     // Get the jet with extra constituents from an area around the jet
+    if(jetRef->pt() - minJetPt_ < 1e-5) continue;
+    if(fabs(jetRef->eta()) - maxJetAbsEta_ > -1e-5) continue;
     reco::PFJetRef jetRegionRef = (*jetRegionHandle)[jetRef];
     if ( jetRegionRef.isNull() ) {
       throw cms::Exception("BadJetRegionRef") 

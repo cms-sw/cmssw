@@ -11,6 +11,14 @@
 #define RMIN -21.05
 #define RMAX  21.05
 
+#define HOUGH_LAYER_START_BIT 0
+#define HOUGH_ZINFO_START_BIT 6
+#define HOUGH_ID_START_BIT 8
+
+#define  HOUGH_LAYER_MASK 0x3F
+#define  HOUGH_ZINFO_MASK 0x3
+#define  HOUGH_ID_MASK 0xFFFFFF
+
 typedef struct {
   //Parameter
   int nstub;

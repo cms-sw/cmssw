@@ -65,7 +65,6 @@ from RecoJets.JetAssociationProducers.ic5PFJetTracksAssociatorAtVertex_cfi \
         import ic5PFJetTracksAssociatorAtVertex
 ak5PFJetTracksAssociatorAtVertex = ic5PFJetTracksAssociatorAtVertex.clone()
 ak5PFJetTracksAssociatorAtVertex.jets = PFRecoTauPFJetInputs.inputJetCollection
-ak5PFJetTracksAssociatorAtVertex.coneSize = PFRecoTauPFJetInputs.jetConeSize
 tautagInfoModifer = cms.PSet(
     name = cms.string("TTIworkaround"),
     plugin = cms.string("RecoTauTagInfoWorkaroundModifer"),
@@ -81,11 +80,8 @@ recoTauPileUpVertices = cms.EDFilter(
     minTrackSumPt = cms.double(5),
     filter = cms.bool(False),
 )
-# import jet filtering sequence
-from RecoTauTag.RecoTau.PFRecoTauPFJetInputs_cfi import tauInputJets
 
 recoTauCommonSequence = cms.Sequence(
-    tauInputJets *
     ak5PFJetTracksAssociatorAtVertex *
     recoTauAK5PFJets08Region*
     recoTauPileUpVertices*

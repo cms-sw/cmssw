@@ -93,6 +93,9 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
 
   for( const reco::PFRecHitFraction& rhf : cluster.recHitFractions() ) {
     const reco::PFRecHitRef& refhit = rhf.recHitRef();
+
+    // since this is 2D position calc only use neighbours in the same layer
+    if( refhit->depth() != refseed->depth() ) continue;
     
     if( refhit != refseed && _posCalcNCrystals != -1 ) {
       auto pos = std::find(seedNeighbours->begin(),seedNeighbours->end(),
@@ -100,6 +103,8 @@ calculateAndSetPositionActual(reco::PFCluster& cluster) const {
       if( pos == seedNeighbours->end() ) continue;
     }
     
+
+
     const double rh_energy = refhit->energy() * ((float)rhf.fraction());
     const double norm = ( rhf.fraction() < _minFractionInCalc ? 
 			  0.0 : 

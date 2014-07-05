@@ -24,7 +24,6 @@ class HoughFitter:public TrackFitter{
   float *h_z;
   unsigned int *h_layer;
 
-
   friend class boost::serialization::access;
   
   template<class Archive> void save(Archive & ar, const unsigned int version) const
@@ -51,6 +50,7 @@ class HoughFitter:public TrackFitter{
   BOOST_SERIALIZATION_SPLIT_MEMBER()
 
  public:
+
   /**
      \brief Default constructor   
   **/

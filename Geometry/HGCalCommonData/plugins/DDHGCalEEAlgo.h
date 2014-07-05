@@ -45,6 +45,7 @@ private:
   std::vector<int>         heightType;    //Height to be evaluated from itself
   std::vector<int>         copyNumber;    //Copy number offsets for a section
   std::vector<double>      thick;         //Thickness of the material
+  std::vector<double>      thickBlock;    //Thickness of a block of materials
   double                   zMinBlock;     //Starting z-value of the block
   int                      sectors;       //Sectors   
   double                   slopeB;        //Slope at the lower R

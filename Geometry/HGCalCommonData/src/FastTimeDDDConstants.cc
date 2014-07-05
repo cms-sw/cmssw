@@ -13,15 +13,7 @@
 
 //#define DebugLog
 
-FastTimeDDDConstants::FastTimeDDDConstants() : tobeInitialized(true),nCells(0){
-
-#ifdef DebugLog
-  edm::LogInfo("HGCalGeom") << "FastTimeDDDConstants::FastTimeDDDConstants constructor";
-#endif
-
-}
-
-FastTimeDDDConstants::FastTimeDDDConstants(const DDCompactView& cpv) : tobeInitialized(true) {
+FastTimeDDDConstants::FastTimeDDDConstants(const DDCompactView& cpv) {
 
 #ifdef DebugLog
   edm::LogInfo("HGCalGeom") << "FastTimeDDDConstants::FastTimeDDDConstants ( const DDCompactView& cpv ) constructor";
@@ -113,33 +105,6 @@ std::pair<int,int> FastTimeDDDConstants::getXY(double x, double y) const {
   }
 }
 
-void FastTimeDDDConstants::initialize(const DDCompactView& cpv) {
-
-  if (tobeInitialized) {
-    tobeInitialized = false;
-
-    std::string attribute = "Volume"; 
-    std::string value     = "SFBX";
-    DDValue val(attribute, value, 0.0);
-  
-    DDSpecificsFilter filter;
-    filter.setCriteria(val, DDSpecificsFilter::equals);
-    DDFilteredView fv(cpv);
-    fv.addFilter(filter);
-    bool ok = fv.firstChild();
-
-    if (ok) {
-      loadSpecPars(fv);
-
-    } else {
-      edm::LogError("HGCalGeom") << "FastTimeDDDConstants: cannot get filtered"
-				 << " view for " << attribute 
-				 << " not matching " << value;
-      throw cms::Exception("DDException") << "FastTimeDDDConstants: cannot match " << attribute << " to " << value;
-    }
-  }
-}
-
 bool FastTimeDDDConstants::isValidXY(int ix, int iy) const {
   int  iq = quadrant(ix,iy);
   if (iq != 0) {
@@ -184,12 +149,27 @@ int FastTimeDDDConstants::quadrant(int copy) const {
   return iq;
 }
 
-void FastTimeDDDConstants::checkInitialized() const {
-  if (tobeInitialized) {
-    edm::LogError("HGCalGeom") << "FastTimeDDDConstants : to be initialized correctly";
-    throw cms::Exception("DDException") << "FastTimeDDDConstants: to be initialized";
+void FastTimeDDDConstants::initialize(const DDCompactView& cpv) {
+
+  std::string attribute = "Volume"; 
+  std::string value     = "SFBX";
+  DDValue val(attribute, value, 0.0);
+  
+  DDSpecificsFilter filter;
+  filter.setCriteria(val, DDSpecificsFilter::equals);
+  DDFilteredView fv(cpv);
+  fv.addFilter(filter);
+  bool ok = fv.firstChild();
+
+  if (ok) {
+    loadSpecPars(fv);
+  } else {
+    edm::LogError("HGCalGeom") << "FastTimeDDDConstants: cannot get filtered"
+			       << " view for " << attribute 
+			       << " not matching " << value;
+    throw cms::Exception("DDException") << "FastTimeDDDConstants: cannot match " << attribute << " to " << value;
   }
-} 
+}
 
 void FastTimeDDDConstants::loadSpecPars(const DDFilteredView& fv) {
 

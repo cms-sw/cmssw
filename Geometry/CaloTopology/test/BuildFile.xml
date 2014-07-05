@@ -8,6 +8,5 @@
 <flags   EDM_PLUGIN="1"/>
 <library   file="HcalTopologyTester.cc" name="testGeometryHcalTopology"> </library>
 <library   file="ShashlikTopologyTester.cc" name="testGeometryShashlikTopology"> </library>
-<library   file="ShashlikGeometryAnalyzer.cc" name="testGeometryShashlikGeometry"> </library>
 <library   file="CaloTowerTopologyTester.cc" name="testGeometryCaloTowerTopology"> </library>
 <library   file="HGCalTopologyTester.cc" name="testGeometryHCCalTopology"> </library>

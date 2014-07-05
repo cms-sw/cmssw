@@ -62,7 +62,20 @@ class PrincipalFitGenerator{
 		   map<int,pair<float,float> > &eta_limits, float min_pt, float max_pt, float min_eta, float max_eta);
 
  public:
+  /**
+     \brief Constructor of the class
+     \param f The name of the input directory : directory containing root files with single muons events, used to compute the parameters.
+     \param s The SectorTree containing the sector structure and the patterns.
+  **/
   PrincipalFitGenerator(string f, SectorTree *s);
+  /**
+     \brief Method used to compute the parameters used for the PCA
+     \param eta_limits Range in eta of each layer
+     \param min_pt Minimum PT of the tracks used for the computing
+     \param max_pt Maximum PT of the tracks used for the computing
+     \param min_eta Minimum ETA of the tracks used for the computing
+     \param max_eta Maximum ETA of the tracks used for the computing
+   **/
   void generate(map<int,pair<float,float> > eta_limits, float min_pt, float max_pt, float min_eta, float max_eta);
 };
 

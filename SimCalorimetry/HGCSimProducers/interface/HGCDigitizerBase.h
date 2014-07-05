@@ -24,19 +24,20 @@ class HGCDigitizerBase {
    */
   HGCDigitizerBase(const edm::ParameterSet &ps) : simpleNoiseGen_(0)
     {
-      myCfg_      = ps.getUntrackedParameter<edm::ParameterSet>("digiCfg"); 
-      lsbInMeV_   = myCfg_.getUntrackedParameter<double>("lsbInMeV");
-      noiseInMeV_ = myCfg_.getUntrackedParameter<double>("noiseInMeV");
+      myCfg_     = ps.getUntrackedParameter<edm::ParameterSet>("digiCfg"); 
+      mipInKeV_  = myCfg_.getUntrackedParameter<double>("mipInKeV");
+      lsbInMIP_  = myCfg_.getUntrackedParameter<double>("lsbInMIP");
+      mip2noise_ = myCfg_.getUntrackedParameter<double>("mip2noise");
     }
 
   /**
      @short init a random number generator for noise
    */
   void setRandomNumberEngine(CLHEP::HepRandomEngine& engine) 
-  { 
-    simpleNoiseGen_ = new CLHEP::RandGauss(engine,0,noiseInMeV_);
+  {       
+    simpleNoiseGen_ = new CLHEP::RandGauss(engine,0,mipInKeV_/mip2noise_ );
   }
-
+  
   /**
      @short steer digitization mode
    */
@@ -56,29 +57,24 @@ class HGCDigitizerBase {
 	it!=simData.end();
 	it++)
       {
-
-	//convert total energy GeV->ADC counts
+	//convert total energy GeV->keV->ADC counts
 	double totalEn(0);
 	for(size_t i=0; i<it->second.size(); i++) totalEn+= (it->second)[i];
 	totalEn*=1e6;
 
-	//add noise (in MeV)
+	//add noise (in keV)
 	double noiseEn=simpleNoiseGen_->fire();
 	if(noiseEn<0) noiseEn=0;
  
 	//round to integer (sample will saturate the value according to available bits)
-	uint16_t totalEnInt = floor((totalEn+noiseEn)/lsbInMeV_);
+	uint16_t totalEnInt = floor( ((totalEn+noiseEn)/mipInKeV_) / lsbInMIP_ );
 
 	//0 gain for the moment
 	HGCSample singleSample;
 	singleSample.set(0, totalEnInt );
-	
-	// 	std::cout << totalEn << " -> " << totalEnInt << " " 
-	// 		  << singleSample.gain() << " " << singleSample.adc() << " " 
-	// 		  << std::hex << singleSample.raw() << std::dec << std::endl;
-	
+
 	if(singleSample.adc()==0) continue;
- 
+	
 	//no time information
 	D newDataFrame( it->first );
 	newDataFrame.setSample(0, singleSample);
@@ -110,7 +106,7 @@ class HGCDigitizerBase {
  private:
 
   //
-  double lsbInMeV_,noiseInMeV_;
+  double mipInKeV_, lsbInMIP_, mip2noise_;
 
   //
   mutable CLHEP::RandGauss *simpleNoiseGen_;

@@ -124,6 +124,25 @@ def cust_2023SHCal(process):
             )
             )
         
+    if hasattr(process,'raw2digi_step'):
+        process.ecalDigis.FEDs = cms.vint32(
+            # EE-:
+            #601, 602, 603, 604, 605,
+            #606, 607, 608, 609,
+            # EB-:
+            610, 611, 612, 613, 614, 615,
+            616, 617, 618, 619, 620, 621,
+            622, 623, 624, 625, 626, 627,
+            # EB+:
+            628, 629, 630, 631, 632, 633,
+            634, 635, 636, 637, 638, 639,
+            640, 641, 642, 643, 644, 645,
+            # EE+:
+            #646, 647, 648, 649, 650,
+            #651, 652, 653, 654
+            )
+        print "RAW2DIGI only for EB FEDs"
+
     if hasattr(process,'reconstruction_step'):
     	process.ecalRecHit.EEuncalibRecHitCollection = cms.InputTag("","")
         #remove the old EE pfrechit producer
@@ -158,6 +177,22 @@ def cust_2023HGCal(process):
         process.mix.digitizers.hgceeDigitizer=process.hgceeDigitizer
         process.mix.digitizers.hgchebackDigitizer=process.hgchebackDigitizer
         process.mix.digitizers.hgchefrontDigitizer=process.hgchefrontDigitizer
+    if hasattr(process,'reconstruction_step'):
+        process.particleFlowCluster += process.particleFlowRecHitHGC
+        process.particleFlowCluster += process.particleFlowClusterHGC
+        if hasattr(process,'particleFlowSuperClusterECAL'):
+            process.particleFlowSuperClusterHGCEE = process.particleFlowSuperClusterECAL.clone()
+            process.particleFlowSuperClusterHGCEE.PFClusters = cms.InputTag('particleFlowClusterHGCEE')
+            process.particleFlowSuperClusterHGCEE.use_preshower = cms.bool(False)
+            process.particleFlowSuperClusterHGCEE.PFSuperClusterCollectionEndcapWithPreshower = cms.string('')
+            process.particleFlowCluster += process.particleFlowSuperClusterHGCEE
+            if hasattr(process,'ecalDrivenElectronSeeds'):
+                process.ecalDrivenElectronSeeds.endcapSuperClusters = cms.InputTag('particleFlowSuperClusterHGCEE')
+    #mod event content
+    process.load('RecoLocalCalo.Configuration.hgcalLocalReco_EventContent_cff')
+    if hasattr(process,'FEVTDEBUGHLTEventContent'):
+        process.FEVTDEBUGHLTEventContent.outputCommands.extend(process.hgcalLocalRecoFEVT.outputCommands)
+        process.FEVTDEBUGHLTEventContent.outputCommands.append('keep *_particleFlowSuperClusterHGCEE_*_*')
     return process
 
 def cust_2023HGCalMuon(process):
@@ -177,6 +212,22 @@ def cust_2023HGCalMuon(process):
         process.mix.digitizers.hgceeDigitizer=process.hgceeDigitizer
         process.mix.digitizers.hgchebackDigitizer=process.hgchebackDigitizer
         process.mix.digitizers.hgchefrontDigitizer=process.hgchefrontDigitizer
+    if hasattr(process,'reconstruction_step'):
+        process.particleFlowCluster += process.particleFlowRecHitHGC
+        process.particleFlowCluster += process.particleFlowClusterHGC
+        if hasattr(process,'particleFlowSuperClusterECAL'):
+            process.particleFlowSuperClusterHGCEE = process.particleFlowSuperClusterECAL.clone()
+            process.particleFlowSuperClusterHGCEE.PFClusters = cms.InputTag('particleFlowClusterHGCEE')
+            process.particleFlowSuperClusterHGCEE.use_preshower = cms.bool(False)
+            process.particleFlowSuperClusterHGCEE.PFSuperClusterCollectionEndcapWithPreshower = cms.string('')
+            process.particleFlowCluster += process.particleFlowSuperClusterHGCEE
+            if hasattr(process,'ecalDrivenElectronSeeds'):
+                process.ecalDrivenElectronSeeds.endcapSuperClusters = cms.InputTag('particleFlowSuperClusterHGCEE')
+    #mod event content
+    process.load('RecoLocalCalo.Configuration.hgcalLocalReco_EventContent_cff')
+    if hasattr(process,'FEVTDEBUGHLTEventContent'):
+        process.FEVTDEBUGHLTEventContent.outputCommands.extend(process.hgcalLocalRecoFEVT.outputCommands)
+        process.FEVTDEBUGHLTEventContent.outputCommands.append('keep *_particleFlowSuperClusterHGCEE_*_*')
     return process
 
 def cust_2023Pixel(process):
@@ -185,6 +236,7 @@ def cust_2023Pixel(process):
     process=customise_HcalPhase2(process)
     process=customise_ev_BE5DPixel10D(process)
     process=customise_gem2023(process)
+    process=customise_rpc(process)
     process=jetCustoms.customise_jets(process)
     return process
 

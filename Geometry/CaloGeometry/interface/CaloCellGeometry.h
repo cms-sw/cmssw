@@ -75,9 +75,9 @@ public:
   virtual const CornersVec& getCorners() const = 0 ;
 
   /// Returns the position of reference for this cell 
-  const GlobalPoint& getPosition() const {return m_refPoint ; }
-  float etaPos() const { return m_eta;}
-  float phiPos() const { return m_phi;}
+  virtual const GlobalPoint& getPosition() const {return m_refPoint ; }
+  virtual float etaPos() const { return m_eta;}
+  virtual float phiPos() const { return m_phi;}
 
 
 
@@ -116,6 +116,10 @@ protected:
   CornersVec& setCorners() const ;
 
   CaloCellGeometry( void );
+  
+  CaloCellGeometry( const CaloCellGeometry& tr ) ;
+  
+  CaloCellGeometry& operator=( const CaloCellGeometry& tr ) ;
 
 private:
   GlobalPoint         m_refPoint ;

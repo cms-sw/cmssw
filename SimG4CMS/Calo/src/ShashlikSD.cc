@@ -40,13 +40,13 @@ ShashlikSD::ShashlikSD(G4String name, const DDCompactView & cpv,
 
   edm::ParameterSet m_EC = p.getParameter<edm::ParameterSet>("ShashlikSD");
   useBirk      = m_EC.getParameter<bool>("UseBirkLaw");
-  birk1        = m_EC.getParameter<double>("BirkC1")*(g/(MeV*cm2));
+  birk1        = m_EC.getParameter<double>("BirkC1");
   birk2        = m_EC.getParameter<double>("BirkC2");
   birk3        = m_EC.getParameter<double>("BirkC3");
   if (useBirk) {
-    edm::LogInfo("EcalSim")  << "ShashlikSD:: Use of Birks law is set to      " 
-			     << useBirk << "        with three constants kB = "
-			     << birk1 << ", C1 = " << birk2 << ", C2 = " 
+    edm::LogInfo("EcalSim")  << "ShashlikSD:: Use of Birks law is set to      "
+			     << useBirk << "        with three constants a = "
+			     << birk1 << ", b = " << birk2 << ", c = " 
 			     << birk3;
   } else {
     edm::LogInfo("EcalSim")  << "ShashlikSD:: energy deposit is not corrected "
@@ -125,7 +125,7 @@ bool ShashlikSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
     }
     if (edepositEM+edepositHAD>0.) {
       double edepEM(edepositEM), edepHad(edepositHAD);
-      int            fibMax     = (useWeight) ? 5 : 1;
+      int            fibMax     = (useWeight) ? 4 : 1;
       int            roMax      = (roType == 0) ? 1 : 2;
       int            layer      = preStepPoint->GetTouchable()->GetReplicaNumber(0);
       G4ThreeVector  localPoint = setToLocal(preStepPoint->GetPosition(),
@@ -138,12 +138,13 @@ bool ShashlikSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
       uint32_t       id0        = setDetUnitId(aStep);
       if (id0) { // hit is in Shashlik LYSO tile
 	for (int fib = 0; fib < fibMax; ++fib) {
-	  double wt1 = (useWeight) ? fiberWt(fib, localPoint) : 1;
+	  int    fib0= (useWeight) ? fib+1 : fib;
+	  double wt1 = (useWeight) ? fiberWt(fib0, localPoint) : 1;
 	  for (int rx = 0; rx < roMax; ++rx) {
 	    double   wt2    = fiberLoss(layer, rx);
 	    int      ro     = (roType == 0) ? rx : rx+1;
 	    EKDetId  id     = EKDetId(id0);
-	    id.setFiber(fib,ro);
+	    id.setFiber(fib0,ro);
 	    uint32_t unitID = (id.rawId());
 	    currentID.setID(unitID, time, primaryID, depth);
 	    edepositEM      = edepEM*wt1*wt2;
@@ -226,6 +227,32 @@ uint32_t ShashlikSD::setDetUnitId(G4Step *aStep) {
   return EKDetId(ixy.first,ixy.second,0,0,iz).rawId();
 }
 
+G4double ShashlikSD::getAttenuation(G4Step* aStep, double birk1,
+				    double birk2, double birk3) {
+
+  double weight = 1.;
+  double charge = aStep->GetPreStepPoint()->GetCharge();
+  if (charge != 0. && aStep->GetStepLength() > 0) {
+    G4Material* mat = aStep->GetPreStepPoint()->GetMaterial();
+    double density = mat->GetDensity()/(CLHEP::g/CLHEP::cm3);
+    double dE      = aStep->GetTotalEnergyDeposit()/CLHEP::MeV;
+    double dx      = aStep->GetStepLength()/CLHEP::cm;
+    double dedx    = dE/(dx*density);
+    if (dedx > 0) {
+      weight    = birk1/(1.+birk2*dedx+birk3/dedx);
+      if (weight > 1.0) weight = 1.0;
+    }
+#ifdef DebugLog
+    std::cout << "ShashlikSD::getAttenuation in " << mat->GetName() 
+	      << " Charge " << charge << " dE/dx " << dE << ":" << dx << ":"
+	      << density << ":" << dedx << " Birk Const " << birk1 << ", " 
+	      << birk2 << ", " << birk3 << " Weight = " << weight << std::endl;
+#endif
+   }
+  return weight;
+}
+
+
 G4double ShashlikSD::fiberWt(G4int k, G4ThreeVector localPoint) {
 
   double wt(0);
@@ -265,7 +292,7 @@ G4double ShashlikSD::fiberLoss(G4int layer, G4int rx) {
 		exp(-(moduleL+fiberL[layer-1])/attL));
     } else {
       double fbl = (rx == 0) ? moduleL-fiberL[layer-1] : fiberL[layer-1];
-      wt = exp(-fbl/attL);
+      wt = 0.5*exp(-fbl/attL);
     }
   } else {
     if (roType != 0) wt = 0.5;

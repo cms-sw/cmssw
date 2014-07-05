@@ -1,4 +1,5 @@
 #include "../interface/PrincipalFitGenerator.h"
+
 #include "../interface/PatternFinder.h"
 
 PrincipalFitGenerator::PrincipalFitGenerator(string f, SectorTree *s){
@@ -134,8 +135,6 @@ void PrincipalFitGenerator::generatePrincipal(map<int,pair<float,float> > eta_li
     for(unsigned int i=0;i<tracker_layers.size();i++){
       int j = layers[i];
       
-      //data_coord[i*3]=m_stub_x[j]*cos(sec_phi)+m_stub_y[j]*sin(sec_phi);
-      //data_coord[i*3+1]=-m_stub_x[j]*sin(sec_phi)+m_stub_y[j]*cos(sec_phi);
       data_coord[i*3]=m_stub_x[j];
       data_coord[i*3+1]=m_stub_y[j];
       if(m_stub_layer[j]>7)
@@ -173,7 +172,7 @@ void PrincipalFitGenerator::generateMultiDim(map<int,pair<float,float> > eta_lim
   //Get the layers IDs
   vector<int> tracker_layers;
   Sector* first_sector = st->getAllSectors()[0];
-  cout<<"on utilise les layers ";
+  cout<<"We use layers : ";
   for(int i=0;i<first_sector->getNbLayers();i++){
     tracker_layers.push_back(first_sector->getLayerID(i));
     cout<<first_sector->getLayerID(i)<<",";

@@ -33,24 +33,14 @@ class PatternGenerator{
 
   // Containers to load the TTree branches
   int m_stub;
-  vector<int>                   m_stub_tp;  // tp of the particule
-  vector<int>                   m_stub_layer;  // Layer du stub (5 a 10 pour les 6 layers qui nous interessent)
-  vector<int>                   m_stub_module; // Position en Z du module contenant le stub
-  vector<int>                   m_stub_ladder; // Position en PHI du module contenant le stub
-  vector<int>                   m_stub_seg;    // Segment du module contenant le stub
-  vector<int>                   m_stub_strip;  // Strip du cluster interne du stub
-  vector<float>                 m_stub_pxGEN;  // Px de la particule initiale (en GeV/c)
-  vector<float>                 m_stub_pyGEN;  // Py de la particule initiale (en GeV/c)
+  vector<int>                   m_stub_modid;  // Layer du stub (5 a 10 pour les 6 layers qui nous interessent)
+  vector<float>                 m_stub_strip;  // Strip du cluster interne du stub
+  vector<float>                 m_stub_ptGEN;  // PT de la particule initiale
   vector<float>                 m_stub_etaGEN;  // Eta de la particule initiale
 
-  vector<int>                   *p_m_stub_tp;
-  vector<int>                   *p_m_stub_layer;
-  vector<int>                   *p_m_stub_module;
-  vector<int>                   *p_m_stub_ladder;
-  vector<int>                   *p_m_stub_seg;
-  vector<int>                   *p_m_stub_strip;
-  vector<float>                 *p_m_stub_pxGEN;
-  vector<float>                 *p_m_stub_pyGEN;
+  vector<int>                   *p_m_stub_modid;
+  vector<float>                 *p_m_stub_strip;
+  vector<float>                 *p_m_stub_ptGEN;
   vector<float>                 *p_m_stub_etaGEN;
 
   TChain* createTChain(string directoryName, string tchainName);

@@ -6,7 +6,7 @@ RecoTauTagFEVT = cms.PSet(
         'keep *_ak5PFJetsRecoTauPiZeros_*_*',
         'keep *_hpsPFTauProducer_*_*',
         'keep *_hpsPFTauDiscrimination*_*_*',
-        'keep *_hpsPFTau*PtSum_*_*',
+        'keep *_hpsPFTau*PtSum*_*_*',
         'keep *_hpsPFTauTransverseImpactParameters_*_*'
     )
 )
@@ -16,7 +16,7 @@ RecoTauTagRECO = cms.PSet(
         'keep *_ak5PFJetsRecoTauPiZeros_*_*',
         'keep *_hpsPFTauProducer_*_*',
         'keep *_hpsPFTauDiscrimination*_*_*',
-        'keep *_hpsPFTau*PtSum_*_*',
+        'keep *_hpsPFTau*PtSum*_*_*',
         'keep *_hpsPFTauTransverseImpactParameters_*_*'
     )
 )
@@ -26,7 +26,7 @@ RecoTauTagAOD = cms.PSet(
         'keep *_ak5PFJetsRecoTauPiZeros_*_*',
         'keep *_hpsPFTauProducer_*_*',
         'keep *_hpsPFTauDiscrimination*_*_*',
-        'keep *_hpsPFTau*PtSum_*_*',
+        'keep *_hpsPFTau*PtSum*_*_*',
         'keep *_hpsPFTauTransverseImpactParameters_*_*'
     )
 )

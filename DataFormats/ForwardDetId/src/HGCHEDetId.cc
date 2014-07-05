@@ -14,6 +14,7 @@ HGCHEDetId::HGCHEDetId(ForwardSubdetector subdet, int zp, int lay, int sec, int 
 
   id_ |= ((cell   & 0xfff) << 0 );
   id_ |= ((sec    & 0x3f)  << 12);
+  if(subsec<0) subsec=0;
   id_ |= ((subsec & 0x1)   << 18);
   id_ |= ((lay    & 0x1f)  << 19);
   if(zp>0) id_ |= ((zp & 0x1) << 24);
@@ -42,11 +43,16 @@ HGCHEDetId& HGCHEDetId::operator=(const DetId& gen) {
   return (*this);
 }
 
+HGCHEDetId HGCHEDetId::geometryCell () const {
+  int sub = ((subdet() == HGCHEF) ? 0 : ((id_>>18)&0x1));
+  return HGCHEDetId(subdet(), zside(), layer(), sector(), sub, 0);
+}
+
 std::ostream& operator<<(std::ostream& s,const HGCHEDetId& id) {
   if  (id.subdet() == HGCHEF || id.subdet() == HGCHEB ||
        id.subdet() == HGCHET) {
     return s << "isHE=" << id.isHE() << " zpos=" << id.zside() 
-	     << " layer=" << id.layer() << " phi sub-sector" << id.subsector()
+	     << " layer=" << id.layer() << " phi subSector=" << id.subsector()
 	     << " sector=" << id.sector() << " cell=" << id.cell();
   } else {
     return s << std::hex << id.rawId() << std::dec;

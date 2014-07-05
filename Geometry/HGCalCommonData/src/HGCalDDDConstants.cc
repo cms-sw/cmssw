@@ -15,10 +15,8 @@
 
 const double k_ScaleFromDDD = 0.1;
 
-HGCalDDDConstants::HGCalDDDConstants() : tobeInitialized(true) {}
-
 HGCalDDDConstants::HGCalDDDConstants(const DDCompactView& cpv,
-				     std::string& nam) : tobeInitialized(true){
+				     std::string& nam) {
   initialize(cpv, nam);
 #ifdef DebugLog
   std::cout << "HGCalDDDConstants for " << nam << " initialized with " 
@@ -42,6 +40,7 @@ std::pair<int,int> HGCalDDDConstants::assignCell(float x, float y, int lay,
     bl   =  moduler_[i].bl;
     tl   =  moduler_[i].tl;
     alpha=  moduler_[i].alpha;
+    if ((subSec>0 && alpha<0) || (subSec<=0 && alpha>0)) alpha = -alpha;
   } else {
     h    =  modules_[i].h;
     bl   =  modules_[i].bl;
@@ -58,9 +57,9 @@ std::pair<int,int> HGCalDDDConstants::assignCell(float x, float y, float h,
   float a     = (alpha==0) ? (2*h/(tl-bl)) : (h/(tl-bl));
   float b     = 2*h*bl/(tl-bl);
   float x0(x);
-  if      (alpha < 0) x0 -= 0.5*(tl+bl);
-  else if (alpha > 0) x0 += 0.5*(tl+bl);
   int phiSector = (x0 > 0) ? 1 : 0;
+  if      (alpha < 0) {x0 -= 0.5*(tl+bl); phiSector = 0;}
+  else if (alpha > 0) {x0 += 0.5*(tl+bl); phiSector = 1;}
 
   int kx    = floor(fabs(x0)/cellSize);
   int ky    = floor((y+h)/cellSize);
@@ -83,6 +82,7 @@ std::pair<int,int> HGCalDDDConstants::findCell(int cell, int lay, int subSec,
     bl   =  moduler_[i].bl;
     tl   =  moduler_[i].tl;
     alpha=  moduler_[i].alpha;
+    if ((subSec>0 && alpha<0) || (subSec<=0 && alpha>0)) alpha = -alpha;
   } else {
     h    =  modules_[i].h;
     bl   =  modules_[i].bl;
@@ -110,29 +110,12 @@ std::pair<int,int> HGCalDDDConstants::findCell(int cell, float h, float bl,
   return std::pair<int,int>(kx,ky);
 }
 
-void HGCalDDDConstants::initialize(const DDCompactView& cpv, std::string name){
+bool HGCalDDDConstants::isValid(int lay, int mod, int cell, bool reco) const {
 
-  if (tobeInitialized) {
-    tobeInitialized = false;
-    nSectors = nCells = 0;
-
-    std::string attribute = "Volume"; 
-    std::string value     = name;
-    DDValue val(attribute, value, 0);
-  
-    DDSpecificsFilter filter;
-    filter.setCriteria(val, DDSpecificsFilter::equals);
-    DDFilteredView fv(cpv);
-    fv.addFilter(filter);
-    bool ok = fv.firstChild();
-
-    if (ok) {
-      //Load the SpecPars
-      loadSpecPars(fv);
-      //Load the Geometry parameters
-      loadGeometry(fv, name);
-    }
-  }
+  bool ok = ((lay > 0 && lay <= (int)(layers(reco))) && 
+	     (mod > 0 && mod <= sectors()) &&
+	     (cell >=0 && cell < maxCells(lay,reco)));
+  return ok;
 }
 
 std::pair<float,float> HGCalDDDConstants::locateCell(int cell, int lay, 
@@ -148,6 +131,7 @@ std::pair<float,float> HGCalDDDConstants::locateCell(int cell, int lay,
     bl   =  moduler_[i].bl;
     tl   =  moduler_[i].tl;
     alpha=  moduler_[i].alpha;
+    if ((subSec>0 && alpha<0) || (subSec<=0 && alpha>0)) alpha = -alpha;
   } else {
     h    =  modules_[i].h;
     bl   =  modules_[i].bl;
@@ -330,18 +314,34 @@ std::pair<int,int> HGCalDDDConstants::simToReco(int cell, int lay,
   return std::pair<int,int>(kx,depth);
 }
 
-void HGCalDDDConstants::checkInitialized() const {
-  if (tobeInitialized) {
-    edm::LogError("HGCalGeom") << "HGCalDDDConstants : to be initialized correctly";
-    throw cms::Exception("DDException") << "HGCalDDDConstants: to be initialized";
+void HGCalDDDConstants::initialize(const DDCompactView& cpv, std::string name){
+
+  nSectors = nCells = 0;
+
+  std::string attribute = "Volume"; 
+  std::string value     = name;
+  DDValue val(attribute, value, 0);
+  
+  DDSpecificsFilter filter;
+  filter.setCriteria(val, DDSpecificsFilter::equals);
+  DDFilteredView fv(cpv);
+  fv.addFilter(filter);
+  bool ok = fv.firstChild();
+
+  if (ok) {
+    //Load the SpecPars
+    loadSpecPars(fv);
+    //Load the Geometry parameters
+    loadGeometry(fv, name);
   }
-} 
+}
 
 void HGCalDDDConstants::loadGeometry(const DDFilteredView& _fv, 
 				     std::string & sdTag) {
  
   DDFilteredView fv = _fv;
-  bool dodet = true;
+  bool dodet(true), first(true);
+  int  zpFirst(0);
   std::vector<hgtrform> trforms;
  
   while (dodet) {
@@ -356,6 +356,7 @@ void HGCalDDDConstants::loadGeometry(const DDFilteredView& _fv,
       int sec  = (nsiz > 1) ? copy[nsiz-2] : -1;
       int zp   = (nsiz > 3) ? copy[nsiz-4] : -1;
       if (zp !=1 ) zp = -1;
+      if (first) {first = false; zpFirst = zp;}
       const DDTrap & trp = static_cast<DDTrap>(sol);
       HGCalDDDConstants::hgtrap mytr(lay,trp.x1(),trp.x2(),
 				     0.5*(trp.y1()+trp.y2()),
@@ -372,7 +373,7 @@ void HGCalDDDConstants::loadGeometry(const DDFilteredView& _fv,
 	if (layer_.size() == 0) nSectors = 1;
 	layer_.push_back(lay);
       } else if (std::find(layer_.begin(),layer_.end(),lay) == layer_.begin()){
-	++nSectors;
+	if (zp == zpFirst) ++nSectors;
       }
       DD3Vector x, y, z;
       fv.rotation().GetComponents( x, y, z ) ;

@@ -25,6 +25,7 @@ template <typename Digi, typename Geometry,PFLayer::Layer Layer,int Detector>
     PFRecHitCreatorBase(iConfig,iC)
     {
       recHitToken_ = iC.consumes<edm::SortedCollection<Digi>  >(iConfig.getParameter<edm::InputTag>("src"));
+      hoDepth_ = iConfig.getUntrackedParameter<int>("hoDepth",4);
     }
 
     void importRecHits(std::auto_ptr<reco::PFRecHitCollection>&out,std::auto_ptr<reco::PFRecHitCollection>& cleaned ,const edm::Event& iEvent,const edm::EventSetup& iSetup) {
@@ -60,8 +61,10 @@ template <typename Digi, typename Geometry,PFLayer::Layer Layer,int Detector>
 
 	double energy = erh.energy();
 	double time = erh.time();
-
-
+	int depth =detid.depth();
+	if (Detector == HcalOuter)
+	  depth=hoDepth_;
+	  
 	math::XYZVector position;
 	math::XYZVector axis;
 	
@@ -88,6 +91,7 @@ template <typename Digi, typename Geometry,PFLayer::Layer Layer,int Detector>
 			   position.x(), position.y(), position.z(), 
 			   0,0,0);
 	rh.setTime(time); //Mike: This we will use later
+	rh.setDepth(depth);
 
 	const CaloCellGeometry::CornersVec& corners = thisCell->getCorners();
 	assert( corners.size() == 8 );
@@ -121,7 +125,7 @@ template <typename Digi, typename Geometry,PFLayer::Layer Layer,int Detector>
 
  protected:
     edm::EDGetTokenT<edm::SortedCollection<Digi> > recHitToken_;
-
+    int hoDepth_;
 
 };
 

@@ -13,16 +13,7 @@
 
 //#define DebugLog
 
-ShashlikDDDConstants::ShashlikDDDConstants() : tobeInitialized(true), nSM(0),
-					       nColS(0) {
-
-#ifdef DebugLog
-  edm::LogInfo("HGCalGeom") << "ShashlikDDDConstants::ShashlikDDDConstants constructor";
-#endif
-
-}
-
-ShashlikDDDConstants::ShashlikDDDConstants(const DDCompactView& cpv) : tobeInitialized(true) {
+ShashlikDDDConstants::ShashlikDDDConstants(const DDCompactView& cpv) {
 
 #ifdef DebugLog
   edm::LogInfo("HGCalGeom") << "ShashlikDDDConstants::ShashlikDDDConstants ( const DDCompactView& cpv ) constructor";
@@ -79,34 +70,6 @@ std::pair<int,int> ShashlikDDDConstants::getXY(int sm, int mod) const {
   }
 }
 
-void ShashlikDDDConstants::initialize(const DDCompactView& cpv) {
-
-  if (tobeInitialized) {
-
-    std::string attribute = "OnlyForShashlikNumbering"; 
-    std::string value     = "any";
-    DDValue val(attribute, value, 0.0);
-  
-    DDSpecificsFilter filter;
-    filter.setCriteria(val, DDSpecificsFilter::not_equals,
-                       DDSpecificsFilter::AND, true, true);
-    DDFilteredView fv(cpv);
-    fv.addFilter(filter);
-    bool ok = fv.firstChild();
-
-    if (ok) {
-      loadSpecPars(fv);
-      tobeInitialized = false;
-
-    } else {
-      edm::LogError("HGCalGeom") << "ShashlikDDDConstants: cannot get filtered"
-				 << " view for " << attribute 
-				 << " not matching " << value;
-      throw cms::Exception("DDException") << "ShashlikDDDConstants: cannot match " << attribute << " to " << value;
-    }
-  }
-}
-
 bool ShashlikDDDConstants::isValidXY(int ix, int iy) const {
   int  iq = quadrant(ix,iy);
   if (iq != 0) {
@@ -157,10 +120,26 @@ int ShashlikDDDConstants::quadrant(int sm) const {
   return iq;
 }
 
-void ShashlikDDDConstants::checkInitialized() const {
-  if (tobeInitialized) {
-    edm::LogError("HGCalGeom") << "ShashlikDDDConstants : to be initialized correctly";
-    throw cms::Exception("DDException") << "ShashlikDDDConstants: to be initialized";
+void ShashlikDDDConstants::initialize(const DDCompactView& cpv) {
+
+  std::string attribute = "OnlyForShashlikNumbering"; 
+  std::string value     = "any";
+  DDValue val(attribute, value, 0.0);
+  
+  DDSpecificsFilter filter;
+  filter.setCriteria(val, DDSpecificsFilter::not_equals,
+		     DDSpecificsFilter::AND, true, true);
+  DDFilteredView fv(cpv);
+  fv.addFilter(filter);
+  bool ok = fv.firstChild();
+
+  if (ok) {
+    loadSpecPars(fv);
+  } else {
+    edm::LogError("HGCalGeom") << "ShashlikDDDConstants: cannot get filtered"
+			       << " view for " << attribute 
+			       << " not matching " << value;
+    throw cms::Exception("DDException") << "ShashlikDDDConstants: cannot match " << attribute << " to " << value;
   }
 }
 

@@ -6,12 +6,16 @@ namespace reco {
 
 PFRecoTauChargedHadron::PFRecoTauChargedHadron()
   : CompositePtrCandidate(),
-    algo_(kUndefined)
+    algo_(kUndefined),
+    isInEcal_(false),
+    isInVF_(false)
 {}
 
 PFRecoTauChargedHadron::PFRecoTauChargedHadron(PFRecoTauChargedHadronAlgorithm algo, Charge q)
   : CompositePtrCandidate(), 
-    algo_(algo) 
+    algo_(algo),
+    isInEcal_(false),
+    isInVF_(false)
 { 
   if ( q > 0. ) this->setPdgId(+211); 
   else if ( q < 0. ) this->setPdgId(-211); 
@@ -22,7 +26,9 @@ PFRecoTauChargedHadron::PFRecoTauChargedHadron(Charge q, const LorentzVector& p4
 					       int status, bool integerCharge,
 					       PFRecoTauChargedHadronAlgorithm algo)
   : CompositePtrCandidate(q, p4, vtx, 211, status, integerCharge), 
-    algo_(algo) 
+    algo_(algo),
+    isInEcal_(false),
+    isInVF_(false)
 { 
   if ( q > 0. ) this->setPdgId(+211); 
   else if ( q < 0. ) this->setPdgId(-211);   
@@ -30,7 +36,9 @@ PFRecoTauChargedHadron::PFRecoTauChargedHadron(Charge q, const LorentzVector& p4
     
 PFRecoTauChargedHadron::PFRecoTauChargedHadron(const Candidate& c, PFRecoTauChargedHadronAlgorithm algo)
   : CompositePtrCandidate(c),
-    algo_(algo) 
+    algo_(algo),
+    isInEcal_(false),
+    isInVF_(false)
 { 
   if ( c.charge() > 0. ) this->setPdgId(+211); 
   else if ( c.charge() < 0. ) this->setPdgId(-211); 
@@ -57,6 +65,11 @@ const std::vector<PFCandidatePtr>& PFRecoTauChargedHadron::getNeutralPFCandidate
 const math::XYZPointF& PFRecoTauChargedHadron::positionAtECALEntrance() const 
 {
   return positionAtECALEntrance_;
+}
+
+const math::XYZPointF& PFRecoTauChargedHadron::positionAtVFEntrance() const 
+{
+  return positionAtVFEntrance_;
 }
 
 PFRecoTauChargedHadron::PFRecoTauChargedHadronAlgorithm PFRecoTauChargedHadron::algo() const 
@@ -120,6 +133,8 @@ void PFRecoTauChargedHadron::print(std::ostream& stream) const
   }
   stream << "position@ECAL entrance: x = " << this->positionAtECALEntrance().x() << ", y = " << this->positionAtECALEntrance().y() << ", z = " << this->positionAtECALEntrance().z() 
 	 << " (eta = " << this->positionAtECALEntrance().eta() << ", phi = " << this->positionAtECALEntrance().phi() << ")" << std::endl;
+  stream << "position@VF entrance: x = " << this->positionAtVFEntrance().x() << ", y = " << this->positionAtVFEntrance().y() << ", z = " << this->positionAtVFEntrance().z() 
+         << " (eta = " << this->positionAtVFEntrance().eta() << ", phi = " << this->positionAtVFEntrance().phi() << ")" << std::endl;
   std::string algo_string = "undefined";
   if      ( algo_ == kChargedPFCandidate ) algo_string = "chargedPFCandidate";
   else if ( algo_ == kTrack              ) algo_string = "Track";

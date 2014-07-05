@@ -15,6 +15,7 @@ HGCEEDetId::HGCEEDetId(ForwardSubdetector subdet, int zp, int lay, int sec, int 
 
   id_ |= ((cell   & 0xfff) << 0 );
   id_ |= ((sec    & 0x3f)  << 12);
+  if(subsec<0) subsec=0;
   id_ |= ((subsec & 0x1)   << 18);
   id_ |= ((lay    & 0x1f)  << 19);
   if (zp>0) id_ |= ((zp & 0x1) << 24);
@@ -46,7 +47,7 @@ std::ostream& operator<<(std::ostream& s,const HGCEEDetId& id) {
   case(HGCEE) : return s << "isEE=" << id.isEE() 
 			 << " zpos=" << id.zside() 
 			 << " layer=" << id.layer() 
-			 << " phi sub-sector" << id.subsector()
+			 << " phi subSector=" << id.subsector()
 			 << " sector=" << id.sector() 
 			 << " cell=" << id.cell();
   default : return s << id.rawId();

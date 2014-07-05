@@ -94,6 +94,7 @@ class CSCMotherboard
   const unsigned theSector;
   const unsigned theSubsector;
   const unsigned theTrigChamber;
+  unsigned theRing;
 
   /** Flag for MTCC data. */
   bool isMTCC;
@@ -108,6 +109,9 @@ class CSCMotherboard
   unsigned int mpc_block_me1a;
   unsigned int alct_trig_enable, clct_trig_enable, match_trig_enable;
   unsigned int match_trig_window_size, tmb_l1a_window_size;
+
+  /** Central BX */
+  int lct_central_bx;
 
   /** SLHC: whether to not reuse ALCTs that were used by previous matching CLCTs */
   bool drop_used_alcts;

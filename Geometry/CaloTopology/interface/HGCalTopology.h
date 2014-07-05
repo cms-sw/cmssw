@@ -85,13 +85,16 @@ public:
   ///Dense indexing
   virtual uint32_t detId2denseId(const DetId& id) const;
   virtual DetId denseId2detId(uint32_t denseId) const;
+  virtual uint32_t detId2denseGeomId(const DetId& id) const;
 
   ///Is this a valid cell id
   virtual bool valid(const DetId& id) const;
   bool validHashIndex(uint32_t ix) const {return (ix < kSizeForDenseIndexing);}
 
-  const HGCalDDDConstants& dddConstants () const {return hdcons_;}
+  unsigned int totalModules() const {return kSizeForDenseIndexing;}
+  unsigned int totalGeomModules() const {return (unsigned int)(2*kHGeomHalf_);}
 
+  const HGCalDDDConstants& dddConstants () const {return hdcons_;}
   
   /** returns a new DetId offset by nrStepsX and nrStepsY (can be negative),
    * returns DetId(0) if invalid */
@@ -100,12 +103,18 @@ public:
 
   static const int subSectors_ = 2;
 
-  struct idCont {
-    idCont() : iCell(0), iLay(0), iSec(0), iSubSec(0), zside(0), subdet(0) {}
+  struct DecodedDetId {
+    DecodedDetId() : iCell(0), iLay(0), iSec(0), iSubSec(0), zside(0), 
+		     subdet(0) {}
     int                       iCell, iLay, iSec, iSubSec, zside, subdet;
   };
 
+  DecodedDetId geomDenseId2decId(const uint32_t& hi) const;
+  DecodedDetId decode(const DetId& id)  const ;
+  DetId encode(const DecodedDetId& id_) const ;
 
+  ForwardSubdetector subDetector()  const { return subdet_;}
+  bool               detectorType() const { return half_;}
 private:
 
   /// move the nagivator along x, y
@@ -114,13 +123,10 @@ private:
   /// move the nagivator along z
   DetId changeZ(const DetId& id, int nrStepsZ) const ;
 
-  idCont decode(const DetId& id) const ;
-  DetId  encode(const idCont& id_) const ;
-
   const HGCalDDDConstants&    hdcons_;
   ForwardSubdetector          subdet_;
   bool                        half_;
-  int                         sectors_, layers_, cells_, kEKhalf_;
+  int                         sectors_, layers_, cells_, kHGhalf_, kHGeomHalf_;
   std::vector<int>            maxcells_;
   unsigned int                kSizeForDenseIndexing;
 };

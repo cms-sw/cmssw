@@ -2,10 +2,10 @@
 <DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
 
 <SolidSection label="hgcalEE.xml">
- <Polycone name="HGCalEEM" startPhi="350*deg" deltaPhi="20*deg">
-  <ZSection z="[hgcal:zMinEE]" rMin="[hgcal:rMinEEMin]" rMax="[hgcal:rMaxEEMin]"/>
-  <ZSection z="[hgcal:zMaxEE]" rMin="[hgcal:rMinEEMax]" rMax="[hgcal:rMaxEEMax]"/>
- </Polycone>
+ <Polyhedra name="HGCalEEM" numSide="1" startPhi="350*deg" deltaPhi="20*deg">
+  <ZSection z="[hgcal:zMinEE]" rMin="[hgcal:rMinEEMin]" rMax="[hgcal:rMapEEMin]"/>
+  <ZSection z="[hgcal:zMaxEE]" rMin="[hgcal:rMinEEMax]" rMax="[hgcal:rMapEEMax]"/>
+ </Polyhedra>
 </SolidSection> 
 
 <LogicalPartSection label="hgcalEE.xml">
@@ -25,8 +25,8 @@
   <Numeric name="StartAngle"  value="0*deg"/>
   <Numeric name="RangeAngle"  value="360*deg"/>
   <Numeric name="Radius" value="0*m"/>
-  <Vector name="RotateSolid" type="numeric" nEntries="3">
-   0*deg, 0*deg, 0*deg </Vector>
+  <Vector name="Center" type="numeric" nEntries="3"> 0, 0, 0 </Vector>
+  <Vector name="RotateSolid" type="numeric" nEntries="3"> 0.*deg, 0.*deg, 0.*deg </Vector>
  </Algorithm>
  <Algorithm name="hgcal:DDHGCalEEAlgo">
   <rParent name="hgcalEE:HGCalEEM"/>
@@ -65,6 +65,38 @@
    0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1,
    0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1
   </Vector>
+  <Vector name="LayerThick" type="numeric" nEntries="216"> 
+    7.3*mm,  7.3*mm,  7.3*mm,  7.3*mm,  7.3*mm,  7.3*mm,
+    8.9*mm,  8.9*mm,  8.9*mm,  8.9*mm,  8.9*mm,  8.9*mm,  8.9*mm,
+    8.9*mm,  8.9*mm,  8.9*mm,  8.9*mm,  8.9*mm,  8.9*mm,  8.9*mm,
+    8.9*mm,  8.9*mm,  8.9*mm,  8.9*mm,  8.9*mm,  8.9*mm,  8.9*mm,
+    8.9*mm,  8.9*mm,  8.9*mm,  8.9*mm,  8.9*mm,  8.9*mm,  8.9*mm,
+    8.9*mm,  8.9*mm,  8.9*mm,  8.9*mm,  8.9*mm,  8.9*mm,  8.9*mm,
+    8.9*mm,  8.9*mm,  8.9*mm,  8.9*mm,  8.9*mm,  8.9*mm,  8.9*mm,
+    8.9*mm,  8.9*mm,  8.9*mm,  8.9*mm,  8.9*mm,  8.9*mm,  8.9*mm,
+    8.9*mm,  8.9*mm,  8.9*mm,  8.9*mm,  8.9*mm,  8.9*mm,  8.9*mm,
+    8.9*mm,  8.9*mm,  8.9*mm,  8.9*mm,  8.9*mm,  8.9*mm,  8.9*mm,
+    8.9*mm,  8.9*mm,  8.9*mm,  8.9*mm,  8.9*mm,  8.9*mm,  8.9*mm,
+   10.6*mm, 10.6*mm, 10.6*mm, 10.6*mm, 10.6*mm, 10.6*mm, 10.6*mm,
+   10.6*mm, 10.6*mm, 10.6*mm, 10.6*mm, 10.6*mm, 10.6*mm, 10.6*mm,
+   10.6*mm, 10.6*mm, 10.6*mm, 10.6*mm, 10.6*mm, 10.6*mm, 10.6*mm,
+   10.6*mm, 10.6*mm, 10.6*mm, 10.6*mm, 10.6*mm, 10.6*mm, 10.6*mm,
+   10.6*mm, 10.6*mm, 10.6*mm, 10.6*mm, 10.6*mm, 10.6*mm, 10.6*mm,
+   10.6*mm, 10.6*mm, 10.6*mm, 10.6*mm, 10.6*mm, 10.6*mm, 10.6*mm,
+   10.6*mm, 10.6*mm, 10.6*mm, 10.6*mm, 10.6*mm, 10.6*mm, 10.6*mm,
+   10.6*mm, 10.6*mm, 10.6*mm, 10.6*mm, 10.6*mm, 10.6*mm, 10.6*mm,
+   10.6*mm, 10.6*mm, 10.6*mm, 10.6*mm, 10.6*mm, 10.6*mm, 10.6*mm,
+   10.6*mm, 10.6*mm, 10.6*mm, 10.6*mm, 10.6*mm, 10.6*mm, 10.6*mm,
+   12.9*mm, 12.9*mm, 12.9*mm, 12.9*mm, 12.9*mm, 12.9*mm, 12.9*mm,
+   12.9*mm, 12.9*mm, 12.9*mm, 12.9*mm, 12.9*mm, 12.9*mm, 12.9*mm,
+   12.9*mm, 12.9*mm, 12.9*mm, 12.9*mm, 12.9*mm, 12.9*mm, 12.9*mm,
+   12.9*mm, 12.9*mm, 12.9*mm, 12.9*mm, 12.9*mm, 12.9*mm, 12.9*mm,
+   12.9*mm, 12.9*mm, 12.9*mm, 12.9*mm, 12.9*mm, 12.9*mm, 12.9*mm,
+   12.9*mm, 12.9*mm, 12.9*mm, 12.9*mm, 12.9*mm, 12.9*mm, 12.9*mm,
+   12.9*mm, 12.9*mm, 12.9*mm, 12.9*mm, 12.9*mm, 12.9*mm, 12.9*mm,
+   12.9*mm, 12.9*mm, 12.9*mm, 12.9*mm, 12.9*mm, 12.9*mm, 12.9*mm,
+   12.9*mm, 12.9*mm, 12.9*mm, 12.9*mm, 12.9*mm, 12.9*mm, 12.9*mm,
+   12.9*mm, 12.9*mm, 12.9*mm, 12.9*mm, 12.9*mm, 12.9*mm, 12.9*mm </Vector>
   <Numeric name="zMinBlock"   value="[hgcal:zMinEE]"/>
   <Numeric name="Sectors"     value="18"/>
   <Numeric name="SlopeBottom" value="[etaMax:slope]"/>

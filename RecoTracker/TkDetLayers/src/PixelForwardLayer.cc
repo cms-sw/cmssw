@@ -39,8 +39,9 @@ PixelForwardLayer::PixelForwardLayer(vector<const PixelBlade*>& blades):
     theRmin = std::min( theRmin, (*it)->surface().position().perp());
     theRmax = std::max( theRmax, (*it)->surface().position().perp());
   }
-  float split_inner_outer_radius = 0.5 * (theRmin + theRmax);
-  if(theRmax < 15.)  split_inner_outer_radius = 10.;
+  //float split_inner_outer_radius = 0.5 * (theRmin + theRmax);
+  // force the splitting rdius to be 10 cm to cope also with the FPIX disks with only the outer ring 
+  float split_inner_outer_radius = 10.;
   _num_innerpanels = 0;
   for(vector<const GeometricSearchDet*>::const_iterator it=theComps.begin();
       it!=theComps.end();it++){
@@ -226,55 +227,6 @@ PixelForwardLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
     }
   */
 
-  if (this->specificSurface().innerRadius()>17.0) {
-    //do splitting of groups for outer 'pixel' layer of phase 2 tracker
-    //fixme: to be changed when moving to a new DetId schema with 'matched' hits
-    std::vector<DetGroup> splitResult;
-    for (auto gr : result) {
-      if (gr.size()==1) {
-	splitResult.push_back(gr);
-	continue;
-      }
-      //sort according to Z
-      std::sort(gr.begin(),gr.end(),groupSortByZ);
-      DetGroup firstGroup; //this group contains the innermost dets of 2S/PS modules
-      DetGroup secondGroup;//this group contains the outermost dets of 2S/PS modules
-      for (auto dge : gr) {
-	if (firstGroup.size()==0) {
-	  firstGroup.push_back(dge);
-	  continue;
-	}
-	bool foundInFirstGroup = false;
-	for (auto dge_f : firstGroup) {
-	  if (abs(int(dge.det()->geographicalId().rawId())-int(dge_f.det()->geographicalId().rawId()))==4 &&
-	      fabs(dge.det()->position().z()-dge_f.det()->position().z())>0.15 ) {
-	    //std::cout << "found dge for second group with id: " << dge.det()->geographicalId().rawId() << std::endl;
-	    secondGroup.push_back(dge);
-	    foundInFirstGroup = true;
-	    break;
-	  }
-	}
-	if (!foundInFirstGroup )firstGroup.push_back(dge);
-      }
-      splitResult.push_back(firstGroup);
-      if (secondGroup.size()>0) splitResult.push_back(secondGroup);
-    }
-    splitResult.swap(result);
-
-    /*
-      std::cout << "AFTER SPLITTING" <<std::endl;
-      for (auto gr : result) {
-      std::cout << "new group" << std::endl;
-      for (auto dge : gr) {
-      PixelBarrelNameUpgrade name(dge.det()->geographicalId());
-      std::cout << "new det with geom det at r:"<<dge.det()->position().perp()<<" id:"<<dge.det()->geographicalId().rawId()<<" name:"<<name.name()<<" isHalf:"<<name.isHalfModule()<<" tsos at:" <<dge.trajectoryState().globalPosition()<< std::endl;
-      }
-      }
-    */
-
-  }//end of hack for phase 2 stacked layers
-
-
 }
 
 
@@ -379,170 +331,55 @@ PixelForwardLayer::computeCrossings( const TrajectoryStateOnSurface& startingSta
   HelixPlaneCrossing::DirectionType turbineDir( turbineCrossing.direction(thePath.second));
   int closestIndex = 0;
   int nextIndex = 0;
-  // The next if is needed in order to properly treat the PhaseII
-  // geometry in the forward region using a blade-like geometry on a
-  // real ring-based one. As ugly as it could be. 20 [cm] is the
-  // separation in R between true forward pixel blades (inner
-  // w.r.t. 20) and the outer tracker rings (outer w.r.t. 20).
-  if (turbinePoint.perp() < 20) {
-    if(innerDisk)
-      closestIndex = theBinFinder_inner.binIndex(turbinePoint.phi());
-    else
-      closestIndex = theBinFinder_outer.binIndex(turbinePoint.phi());
-
-    HelixArbitraryPlaneCrossing2Order theBladeCrossing(turbinePoint, turbineDir, rho);
-
-    float closestDist = 0;
-    if(innerDisk) {
-      const BoundPlane& closestPlane( static_cast<const BoundPlane&>(
-          theComps[closestIndex]->surface()));
-
-      pair<bool,double> theClosestBladePath = theBladeCrossing.pathLength( closestPlane );
-      LocalPoint closestPos = closestPlane.toLocal(GlobalPoint(theBladeCrossing.position(theClosestBladePath.second)) );
-      closestDist = closestPos.x();
-      // use fact that local X perp to global Y
-      nextIndex = PhiLess()( closestPlane.position().phi(), turbinePoint.phi()) ?
-          closestIndex+1 : closestIndex-1;
-    } else {
-      const BoundPlane& closestPlane( static_cast<const BoundPlane&>(
-          theComps[closestIndex + _num_innerpanels]->surface()));
-
-      pair<bool,double> theClosestBladePath = theBladeCrossing.pathLength( closestPlane );
-      LocalPoint closestPos = closestPlane.toLocal(GlobalPoint(theBladeCrossing.position(theClosestBladePath.second)) );
-      closestDist = closestPos.x();
-      // use fact that local X perp to global Y
-      nextIndex = PhiLess()( closestPlane.position().phi(), turbinePoint.phi()) ?
-          closestIndex+1 : closestIndex-1;
-    }
-
-    float nextDist = 0;
-    if(innerDisk) {
-      const BoundPlane& nextPlane( static_cast<const BoundPlane&>(
-          theComps[ theBinFinder_inner.binIndex(nextIndex)]->surface()));
-      pair<bool,double> theNextBladePath    = theBladeCrossing.pathLength( nextPlane );
-      LocalPoint nextPos = nextPlane.toLocal(GlobalPoint(theBladeCrossing.position(theNextBladePath.second)) );
-      nextDist = nextPos.x();
-    } else {
-      const BoundPlane& nextPlane( static_cast<const BoundPlane&>(
-          theComps[ theBinFinder_outer.binIndex(nextIndex) + _num_innerpanels]->surface()));
-      pair<bool,double> theNextBladePath    = theBladeCrossing.pathLength( nextPlane );
-      LocalPoint nextPos = nextPlane.toLocal(GlobalPoint(theBladeCrossing.position(theNextBladePath.second)) );
-      nextDist = nextPos.x();
-    }
-    if (fabs(closestDist) < fabs(nextDist)) {
-      return SubTurbineCrossings( closestIndex, nextIndex, nextDist);
-    }
-    else {
-      return SubTurbineCrossings( nextIndex, closestIndex, closestDist);
-    }
+  if(innerDisk)
+    closestIndex = theBinFinder_inner.binIndex(turbinePoint.phi());
+  else
+    closestIndex = theBinFinder_outer.binIndex(turbinePoint.phi());
+  
+  HelixArbitraryPlaneCrossing2Order theBladeCrossing(turbinePoint, turbineDir, rho);
+  
+  float closestDist = 0;
+  if(innerDisk) {
+    const BoundPlane& closestPlane( static_cast<const BoundPlane&>(
+								   theComps[closestIndex]->surface()));
+    
+    pair<bool,double> theClosestBladePath = theBladeCrossing.pathLength( closestPlane );
+    LocalPoint closestPos = closestPlane.toLocal(GlobalPoint(theBladeCrossing.position(theClosestBladePath.second)) );
+    closestDist = closestPos.x();
+    // use fact that local X perp to global Y
+    nextIndex = PhiLess()( closestPlane.position().phi(), turbinePoint.phi()) ?
+      closestIndex+1 : closestIndex-1;
   } else {
-    // Special treatment is needed in the PhaseII geometry to properly
-    // handle the forward region of the outer tracker pretending to
-    // use a blade-like geometry on a ring-based one. The main
-    // difference here is that the check it not done on phi first, and
-    // then on R, but it is done directly on R, phi being derived
-    // later on in cascade. In order to do that, the PixelBlade has
-    // been extended to include 2 pair<float, float>, each
-    // representing the range of its front and back component. To be
-    // noted also that the front and back component of a "pixel blade"
-    // in the case of the outer Tracker has no concept of front and
-    // back, but are simply rings at different radii, hence the need
-    // to have 2 pairs into PixelBlade. In particular rings are joint
-    // into a single blade following the counter-intuitive logic 0-7,
-    // 1-8, 2-9, etc..., i.e. using the innermost ring together w/ the
-    // middle one, and so on (see PixelForwardLayerBuilder for further
-    // insight). To get things even more complex, we have to manually
-    // take care of assignign the indices 'closestIndex' and
-    // 'nextIndex' in such a way that the logic behind them did not
-    // change for the rest of the code. The search is now done
-    // everywhere everytime, guessing a-posteriori if the index
-    // belongs to the inner or outer part, and hence adjusting the
-    // indices accordingly (offsetting them of _num_innerpanels).
-    closestIndex = 0;
-    nextIndex = 0;
-    float target_radius = turbinePoint.perp();
-    bool found = false;
-    bool foundNext = false;
-    // The check is done every time on both sides of the blade, front
-    // and back, assigning a posteriori the correct index to the
-    // respective category, either innerDisk or outerDisk. Both checks
-    // have to be performed at the same time since not all indices are
-    // accessible from the different regions (innerdisk has access to
-    // 0-_num_innerpanels, while outer to the remainings).
-    for (auto blade : theComps) {
-      ++closestIndex;
-      // Another horrible hack: once we land on the last ring/blade,
-      // we need to look only in one region(outer) and not the
-      // other(inner) to avoid double counting of hits.
-      if (closestIndex < (int)theComps.size()) {
-        if (dynamic_cast<const PixelBlade*>(blade)->inRange(target_radius, innerDisk) ||
-            dynamic_cast<const PixelBlade*>(blade)->inRange(target_radius, !innerDisk)) {
-          found = true;
-          break;
-        }
-      } else {
-        assert(closestIndex == (int)theComps.size());
-        if (!innerDisk) {
-          if (dynamic_cast<const PixelBlade*>(blade)->inRange(target_radius, innerDisk)) {
-            found = true;
-            break;
-          }
-        }
-      }
-    }
-    int counter = 0;
-    nextIndex = closestIndex;
-    // Do not comment this second loop since potentially it could find
-    // overlapping regions on different rings. In principle, to be
-    // verified in practice.
-    if (found) {
-      for (auto blade : theComps) {
-        // do not test what has been already checked.
-        if (counter < closestIndex) {
-          ++counter;
-          continue ;
-        }
-        ++nextIndex;
-        if (nextIndex < (int)theComps.size()) {
-          if (dynamic_cast<const PixelBlade*>(blade)->inRange(target_radius, innerDisk) ||
-              dynamic_cast<const PixelBlade*>(blade)->inRange(target_radius, !innerDisk)) {
-            foundNext = true;
-            break;
-          }
-        } else {
-          assert(nextIndex == (int)theComps.size());
-          if (!innerDisk) {
-            if (dynamic_cast<const PixelBlade*>(blade)->inRange(target_radius, innerDisk)) {
-              foundNext = true;
-              break;
-            }
-          }
-        }
-      }
-    }
-
-    --closestIndex;
-    --nextIndex;
-    if (!found && !foundNext) {
-      closestIndex = nextIndex = 0;
-    }
-    if (found && !foundNext) {
-      if (closestIndex >= (int)_num_innerpanels) {
-        closestIndex = innerDisk ? 0 : closestIndex - _num_innerpanels;
-      }
-      // Carefully avoid having closestIndex == nextIndex, since this
-      // will trigger a likely double counting of hits.
-      nextIndex = closestIndex + 1;
-    }
-    if (found && foundNext) {
-      if (closestIndex >= (int)_num_innerpanels) {
-        closestIndex = innerDisk ? 0 : closestIndex - _num_innerpanels;
-      }
-      if (nextIndex >= (int)_num_innerpanels) {
-        nextIndex = innerDisk ? 0 : nextIndex - _num_innerpanels;
-      }
-    }
-    return SubTurbineCrossings( closestIndex, nextIndex, 1.);
+    const BoundPlane& closestPlane( static_cast<const BoundPlane&>(
+								   theComps[closestIndex + _num_innerpanels]->surface()));
+    
+    pair<bool,double> theClosestBladePath = theBladeCrossing.pathLength( closestPlane );
+    LocalPoint closestPos = closestPlane.toLocal(GlobalPoint(theBladeCrossing.position(theClosestBladePath.second)) );
+    closestDist = closestPos.x();
+    // use fact that local X perp to global Y
+    nextIndex = PhiLess()( closestPlane.position().phi(), turbinePoint.phi()) ?
+      closestIndex+1 : closestIndex-1;
+  }
+  
+  float nextDist = 0;
+  if(innerDisk) {
+    const BoundPlane& nextPlane( static_cast<const BoundPlane&>(
+								theComps[ theBinFinder_inner.binIndex(nextIndex)]->surface()));
+    pair<bool,double> theNextBladePath    = theBladeCrossing.pathLength( nextPlane );
+    LocalPoint nextPos = nextPlane.toLocal(GlobalPoint(theBladeCrossing.position(theNextBladePath.second)) );
+    nextDist = nextPos.x();
+  } else {
+    const BoundPlane& nextPlane( static_cast<const BoundPlane&>(
+								theComps[ theBinFinder_outer.binIndex(nextIndex) + _num_innerpanels]->surface()));
+    pair<bool,double> theNextBladePath    = theBladeCrossing.pathLength( nextPlane );
+    LocalPoint nextPos = nextPlane.toLocal(GlobalPoint(theBladeCrossing.position(theNextBladePath.second)) );
+    nextDist = nextPos.x();
+  }
+  if (fabs(closestDist) < fabs(nextDist)) {
+    return SubTurbineCrossings( closestIndex, nextIndex, nextDist);
+  }
+  else {
+    return SubTurbineCrossings( nextIndex, closestIndex, closestDist);
   }
 }
 

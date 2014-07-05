@@ -2,6 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 #### PF CLUSTER SHASHLIK ####
 
+from particleFlowClusterECALTimeResolutionParameters_cfi import _timeResolutionECALBarrel, _timeResolutionECALEndcap
+
 #cleaning
 ## no cleaning for Shashlik yet
 
@@ -56,13 +58,20 @@ _positionCalcEK_all_withdepth = cms.PSet(
 
 # pf clustering
 _pfClusterizer_EK = cms.PSet(
-    algoName = cms.string("Basic2DGenericPFlowClusterizer"),
+    algoName = cms.string("PFlow2DClusterizerWithTime"),
     #pf clustering parameters
     minFractionToKeep = cms.double(1e-7),
     positionCalc = _positionCalcECAL_3x3_nodepth,
     allCellsPositionCalc = _positionCalcECAL_all_nodepth,
     positionCalcForConvergence = _positionCalcEK_all_withdepth,
     showerSigma = cms.double(1.1),
+    # The following 2 parameters are only considerd if no
+    # time resolution is provided
+    timeSigmaEB = cms.double(10),
+    timeSigmaEE = cms.double(10), 
+    maxNSigmaTime = cms.double(10.), # Maximum number of sigmas in time 
+    minChi2Prob = cms.double(0.), # Minimum chi2 probability (ignored if 0)
+    clusterTimeResFromSeed = cms.bool(False),
     stoppingTolerance = cms.double(1e-8),
     maxIterations = cms.uint32(50),
     excludeOtherSeeds = cms.bool(True),
@@ -71,7 +80,10 @@ _pfClusterizer_EK = cms.PSet(
     cms.PSet( detector = cms.string("ECAL_ENDCAP"),
               recHitEnergyNorm = cms.double(0.08)
               )
-    )
+    ),
+    #can use ECAL timing here since Shashlik is forced to be the same as EE
+    timeResolutionCalcBarrel = _timeResolutionECALBarrel,
+    timeResolutionCalcEndcap = _timeResolutionECALEndcap
 )
 
 particleFlowClusterEKUncorrected = cms.EDProducer(

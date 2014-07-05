@@ -58,6 +58,9 @@ class PFRecoTauChargedHadron : public CompositePtrCandidate
   /// position at ECAL entrance
   const math::XYZPointF& positionAtECALEntrance() const;
 
+  /// position at VF entrance
+  const math::XYZPointF& positionAtVFEntrance() const;
+
   /// Algorithm that built this charged hadron
   PFRecoTauChargedHadronAlgorithm algo() const;
 
@@ -80,6 +83,10 @@ class PFRecoTauChargedHadron : public CompositePtrCandidate
   std::vector<PFCandidatePtr> neutralPFCandidates_;
 
   math::XYZPointF positionAtECALEntrance_;
+  math::XYZPointF positionAtVFEntrance_;
+
+  bool isInEcal_;
+  bool isInVF_;
 };
 
 std::ostream& operator<<(std::ostream& stream, const PFRecoTauChargedHadron& c);

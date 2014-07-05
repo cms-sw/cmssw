@@ -9,6 +9,10 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
 
+#ifdef IPNL_USE_CUDA
+#include "gpu_struct.h"
+#endif
+
 using namespace std;
 
 
@@ -54,6 +58,7 @@ class CMSPatternLayer : public PatternLayer{
   CMSPatternLayer();
   CMSPatternLayer* clone();
   vector<SuperStrip*> getSuperStrip(int l, const vector<int>& ladd, const map<int, vector<int> >& modules, Detector& d);
+  void getSuperStripCuda(int l, const vector<int>& ladd, const map<int, vector<int> >& modules, int layerID, unsigned int* v);
   
   /**
      \brief Set the values in the patternLayer

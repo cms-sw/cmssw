@@ -49,7 +49,7 @@ process.RandomNumberGeneratorService.VtxSmeared.initialSeed = 123456789
 process.Timing = cms.Service("Timing")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(2)
+    input = cms.untracked.int32(100)
 )
 
 process.source = cms.Source("EmptySource",
@@ -59,7 +59,7 @@ process.source = cms.Source("EmptySource",
 
 process.generator = cms.EDProducer("FlatRandomEGunProducer",
     PGunParameters = cms.PSet(
-        PartID = cms.vint32(13),
+        PartID = cms.vint32(211),
         MinEta = cms.double(1.75),
         MaxEta = cms.double(2.50),
         MinPhi = cms.double(-3.1415926),

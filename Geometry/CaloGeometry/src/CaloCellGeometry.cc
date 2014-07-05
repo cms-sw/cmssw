@@ -49,6 +49,21 @@ CaloCellGeometry::CaloCellGeometry( const CornersVec& cv,
    m_eta( m_refPoint.eta()), m_phi(m_refPoint.phi())
 {}
 
+CaloCellGeometry::CaloCellGeometry( const CaloCellGeometry& tr ) {
+  *this = tr ; 
+}
+
+CaloCellGeometry& CaloCellGeometry::operator=( const CaloCellGeometry& tr ) {
+  if ( this != &tr ) {
+    m_refPoint = tr.m_refPoint;
+    m_corners  = tr.m_corners;
+    m_parms    = tr.m_parms;
+    m_eta      = tr.m_eta;
+    m_phi      = tr.m_phi;
+  }
+  return *this ; 
+}
+
 CaloCellGeometry::CornersVec& 
 CaloCellGeometry::setCorners() const 
 {

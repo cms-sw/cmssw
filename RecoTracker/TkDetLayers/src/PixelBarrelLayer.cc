@@ -141,54 +141,6 @@ PixelBarrelLayer::groupedCompatibleDetsV( const TrajectoryStateOnSurface& tsos,
   }
   */
 
-  if (theInnerCylinder->radius()>17.0) {
-    //do splitting of groups for outer 'pixel' layer of phase 2 tracker
-    //fixme: to be changed when moving to a new DetId schema with 'matched' hits
-    std::vector<DetGroup> splitResult;
-    for (auto gr : result) {
-      if (gr.size()==1) {
-	splitResult.push_back(gr);
-	continue;
-      }
-      //sort according to R
-      std::sort(gr.begin(),gr.end(),groupSortByR);
-      DetGroup firstGroup; //this group contains the first dets of 2S/PS modules
-      DetGroup secondGroup;//this group contains dets on the other side of 2S/PS modules
-      for (auto dge : gr) {
-	if (firstGroup.size()==0) {
-	  firstGroup.push_back(dge);
-	  continue;
-	}
-	bool foundInFirstGroup = false;
-	for (auto dge_f : firstGroup) {
-	  if (abs(int(dge.det()->geographicalId().rawId())-int(dge_f.det()->geographicalId().rawId()))==4 && 
-	      fabs(dge.det()->position().perp()-dge_f.det()->position().perp())>0.15) {
-	    //std::cout << "found dge for second group with id: " << dge.det()->geographicalId().rawId() << std::endl;
-	    secondGroup.push_back(dge);
-	    foundInFirstGroup = true;
-	    break;
-	  }
-	}
-	if (!foundInFirstGroup )firstGroup.push_back(dge);
-      }
-      splitResult.push_back(firstGroup);
-      if (secondGroup.size()>0) splitResult.push_back(secondGroup);
-    }
-    splitResult.swap(result);
- 
-    /*
-    std::cout << "AFTER SPLITTING" <<std::endl;
-    for (auto gr : result) {
-      std::cout << "new group" << std::endl;
-      for (auto dge : gr) {
-	PixelBarrelNameUpgrade name(dge.det()->geographicalId());
-	std::cout << "new det with geom det at r:"<<dge.det()->position().perp()<<" id:"<<dge.det()->geographicalId().rawId()<<" name:"<<name.name()<<" isHalf:"<<name.isHalfModule()<<" tsos at:" <<dge.trajectoryState().globalPosition()<< std::endl;
-      }
-    }
-    */
-
-  }//end of hack for phase 2 stacked layers
-
 }
 
 

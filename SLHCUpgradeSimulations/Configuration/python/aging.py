@@ -87,6 +87,21 @@ def ageHcal(process,lumi):
         process.es_hardcode.HERecalibration = cms.bool(True)
         process.es_hardcode.HFRecalibration = cms.bool(True)
         process.es_hardcode.iLumi = cms.double(float(lumi))
+
+    #change ZS thresholds for SiPMs
+    if hasattr(process,'simHcalDigis'):
+        if lumi<499: #values for 0 to 200
+            process.simHcalDigis.HBlevel=cms.int32(16)
+            process.simHcalDigis.HElevel=cms.int32(16)
+        elif lumi<999: #values for 500
+            process.simHcalDigis.HBlevel=cms.int32(90)
+            process.simHcalDigis.HElevel=cms.int32(30)
+        elif lumi<2999: #values for 1000
+            process.simHcalDigis.HBlevel=cms.int32(140)
+            process.simHcalDigis.HElevel=cms.int32(42)
+        else: #values for 3000
+            process.simHcalDigis.HBlevel=cms.int32(209)
+            process.simHcalDigis.HElevel=cms.int32(76) 
         
     return process
 
@@ -213,6 +228,9 @@ def turn_off_HE_aging(process):
         process.mix.digitizers.hcal.HEDarkening = cms.bool(False)
     if hasattr(process,'es_hardcode'):
         process.es_hardcode.HERecalibration = cms.bool(False)		
+    if hasattr(process,'simHcalDigis'):
+        process.simHcalDigis.HBlevel=cms.int32(16)
+        process.simHcalDigis.HElevel=cms.int32(16)
     return process
 
 def turn_off_HF_aging(process):

@@ -8,6 +8,10 @@
 /**
    \brief Representation of a detector.
    A detector is made of layers->ladders->modules->segments->superStrips
+   This class is used for the pattern recognition step. A Detector is an organized set of superstrip objects. At the beginning of the program each pattern layer (we have nb_layers pattern layers per pattern) will be linked to its corresponding superstrip object in the Detector (a pointer to this object is added to the pattern layer). Then for each event :
+     - For each stub we look for the containing superstrip in the Detector and set it to active
+     - For each pattern we count the total number of active pattern layer (pattern layer with an active superstrip) -> if the number is greater than the threshold the pattern is active.
+     - we reset the detector to 0
 **/
 class Detector{
 

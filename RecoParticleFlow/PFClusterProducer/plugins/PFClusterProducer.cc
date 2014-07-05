@@ -73,14 +73,14 @@ PFClusterProducer::PFClusterProducer(const edm::ParameterSet& conf) :
 void PFClusterProducer::beginLuminosityBlock(const edm::LuminosityBlock& lumi, 
 					     const edm::EventSetup& es) {
   _initialClustering->update(es);
-  _pfClusterBuilder->update(es);
+  if( _pfClusterBuilder ) _pfClusterBuilder->update(es);
   if( _positionReCalc ) _positionReCalc->update(es);
   
 }
 
 void PFClusterProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   _initialClustering->reset();
-  _pfClusterBuilder->reset();
+  if( _pfClusterBuilder ) _pfClusterBuilder->reset();
 
   edm::Handle<reco::PFRecHitCollection> rechits;
   e.getByToken(_rechitsLabel,rechits);  

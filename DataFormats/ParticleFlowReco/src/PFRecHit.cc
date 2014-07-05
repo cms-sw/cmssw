@@ -9,6 +9,7 @@ PFRecHit::PFRecHit() :
   layer_(PFLayer::NONE),
   energy_(0.), 
   time_(-1.),
+  depth_(0),
   position_(math::XYZPoint(0.,0.,0.))
 {
   
@@ -30,6 +31,7 @@ PFRecHit::PFRecHit(unsigned detId,
   layer_(layer),
   energy_(energy), 
   time_(-1.),
+  depth_(0),
   position_(position),
   axisxyz_(axisxyz),
   cornersxyz_(cornersxyz) 
@@ -47,6 +49,7 @@ PFRecHit::PFRecHit(unsigned detId,
   layer_(layer),
   energy_(energy), 
   time_(-1.),
+  depth_(0),
   position_(posx, posy, posz),
   axisxyz_(axisx, axisy, axisz) {
 
@@ -65,7 +68,8 @@ PFRecHit::PFRecHit(const PFRecHit& other) :
   detId_(other.detId_), 
   layer_(other.layer_), 
   energy_(other.energy_), 
-  time_(other.time_), 
+  time_(other.time_),
+  depth_(other.depth_),
   position_(other.position_), 
   positionrep_(other.positionrep_),
   axisxyz_(other.axisxyz_),
@@ -162,6 +166,32 @@ void PFRecHit::addNeighbour(short x,short y,short z,const PFRecHitRef& ref) {
       neighbours4_.push_back(ref);
   }
 }
+
+
+const PFRecHitRef PFRecHit::getNeighbour(short x,short y,short z) {
+  unsigned short absx = abs(x);
+  unsigned short absy = abs(y);
+  unsigned short absz = abs(z);
+
+  unsigned short bitmask=0;
+
+  if (x>0)
+    bitmask = bitmask | 1 ;
+  bitmask = bitmask | (absx << 1);
+  if (y>0)
+    bitmask = bitmask | (1<<4) ;
+  bitmask = bitmask | (absy << 5);
+  if (z>0)
+    bitmask = bitmask | (1<<8) ;
+  bitmask = bitmask | (absz << 9);
+
+  for (unsigned int i=0;i<neighbourInfos_.size();++i) {
+    if (neighbourInfos_[i] == bitmask)
+      return neighbours_[i];
+  }
+  return PFRecHitRef();
+}
+
 
 void PFRecHit::size(double& deta, double& dphi) const {
 

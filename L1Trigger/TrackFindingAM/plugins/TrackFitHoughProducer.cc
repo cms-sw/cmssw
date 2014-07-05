@@ -156,8 +156,11 @@ void TrackFitHoughProducer::produce( edm::Event& iEvent, const edm::EventSetup& 
   {
     /// Loop over Patterns
     unsigned int tkCnt = 0;
-    unsigned int j = 0;
+    unsigned int j     = 0;
+    unsigned int jreal = 0;
+
     std::map< unsigned int , edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > stubMap;
+    std::map< unsigned int , edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_ > >, TTStub< Ref_PixelDigi_ > > > stubMapUsed;
 
     for ( iterTTTrack = TTPatternHandle->begin();
 	  iterTTTrack != TTPatternHandle->end();
@@ -169,7 +172,7 @@ void TrackFitHoughProducer::produce( edm::Event& iEvent, const edm::EventSetup& 
       unsigned int seedSector = tempTrackPtr->getSector();
 
       //      std::cout << "Pattern in sector " << seedSector << " with " 
-      //		<< seedWedge << " active layers contains " 
+      //      		<< seedWedge << " active layers contains " 
       //		<< nStubs << " stubs" << std::endl;
 
       std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_PixelDigi_  > >, TTStub< Ref_PixelDigi_  > > > trackStubs = tempTrackPtr->getStubRefs();
@@ -271,9 +274,19 @@ void TrackFitHoughProducer::produce( edm::Event& iEvent, const edm::EventSetup& 
 
 	if(result.second==true) //this is a new stub -> add it to the list
 	{
+	  ++jreal;
+	  stubMapUsed.insert( std::make_pair( jreal, tempStubRef ) );
+
+	  if (jreal>=16384)
+	  {
+	    cout << "Problem!!!" << endl;
+	    continue;
+	  }
+
 	  Hit* h = new Hit(layer,ladder, module, segment, strip, 
-			   j, tp, spt, ip, eta, phi0, x, y, z, x0, y0, z0);
+			   jreal, tp, spt, ip, eta, phi0, x, y, z, x0, y0, z0);
 	  m_hits->push_back(h);
+
 	}
 
       } /// End of loop over track stubs
@@ -285,6 +298,8 @@ void TrackFitHoughProducer::produce( edm::Event& iEvent, const edm::EventSetup& 
       delete set_it->second;//delete the set*
     }
 
+    // cout<<"j value "<< j << " / " << jreal <<endl;
+    
     /// STEP 2
     /// PAssing the hits in the trackfit
     
@@ -313,16 +328,16 @@ void TrackFitHoughProducer::produce( edm::Event& iEvent, const edm::EventSetup& 
 	tempVec.clear();
 
 	/////// Stubs used for the fit //////////
-	vector<short> stubs = tracks[tt]->getStubs();
+	vector<int> stubs = tracks[tt]->getStubs();
 	for(unsigned int sti=0;sti<stubs.size();sti++)
 	{
-	  //	  cout<<stubs[sti]<<endl;
-	  tempVec.push_back( stubMap[ stubs[sti] ] );
+	  //cout<<stubs[sti]<<endl;
+	  tempVec.push_back( stubMapUsed[ stubs[sti] ] );
 	}
 	/////////////////////////////////////////
 
 
-	double pz = tracks[tt]->getCurve()/(2.*tan(2*atan(exp(-tracks[tt]->getEta0()))));
+	double pz = tracks[tt]->getCurve()/(tan(2*atan(exp(-tracks[tt]->getEta0()))));
 
 	TTTrack< Ref_PixelDigi_ > tempTrack( tempVec );
 	GlobalPoint POCA(0.,0.,tracks[tt]->getZ0());

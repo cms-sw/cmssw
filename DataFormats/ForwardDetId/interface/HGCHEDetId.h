@@ -1,3 +1,4 @@
+
 #ifndef DataFormats_ForwardDetId_HGCHEDetId_H
 #define DataFormats_ForwardDetId_HGCHEDetId_H 1
 
@@ -18,6 +19,11 @@ public:
   HGCHEDetId(const DetId& id);
   /** Assignment from a generic cell id */
   HGCHEDetId& operator=(const DetId& id);
+
+  /** Converter for a geometry cell id
+   * @param id full EKDetId 
+   */
+  HGCHEDetId geometryCell () const;
 
   /// get the subdetector
   ForwardSubdetector subdet() const { return (ForwardSubdetector)(subdetId());}

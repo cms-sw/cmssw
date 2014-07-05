@@ -108,10 +108,14 @@ class PFRecHitCaloNavigator : public PFRecHitNavigatorBase {
       if (!visited_cells[i].first.cell.null()) {
 	const DetId& id = visited_cells[i].first.cell;
 	const Coordinate& coord = visited_cells[i].second;
-	associateNeighbour( id,hit,hits,refProd,
-			    std::get<0>(coord),
-			    std::get<1>(coord),
-			    std::get<2>(coord) );
+	if( std::get<0>(coord) != 0 ||
+	    std::get<1>(coord) != 0 ||
+	    std::get<2>(coord) != 0 ) {
+	  associateNeighbour( id,hit,hits,refProd,
+			      std::get<0>(coord),
+			      std::get<1>(coord),
+			      std::get<2>(coord) );
+	}
       }
     } 
   }

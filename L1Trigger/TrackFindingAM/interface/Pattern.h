@@ -61,6 +61,17 @@ class Pattern{
      \param modules The modules in the sector (one vector per ladder)
   **/
   void link(Detector& d, const vector< vector<int> >& sec, const vector<map<int, vector<int> > >& modules);
+#ifdef IPNL_USE_CUDA
+  /**
+     \brief Create links between patterns and detector on the device
+     \param p the pattern bank structure on the device
+     \param d The detector structure on the device
+     \param pattern_index The index of the pattern in the bank
+     \param modules The modules in the sector (one vector per ladder)
+     \param layers list of layers IDs
+  **/
+  void linkCuda(patternBank* p, deviceDetector* d, int pattern_index, const vector< vector<int> >& sec, const vector<map<int, vector<int> > >& modules, vector<int> layers, unsigned int* cache);
+#endif
   /**
      \brief Reset the links between the pattern layers and the super strips
   **/
