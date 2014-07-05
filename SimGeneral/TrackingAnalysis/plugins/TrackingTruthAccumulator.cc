@@ -43,8 +43,12 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-
-
+// These next two lines are part of a horrible hack to allow backwards compatibility with
+// SLHC11 files. As soon as this facility is no longer required they should be removed,
+// along with a few lines further down in the fillSimHits method.
+// Mark Grimes 05/Jul/2014
+#include <FWCore/ServiceRegistry/interface/Service.h>
+#include <SimTracker/SiPixelDigitizer/interface/RemapDetIdService.h>
 
 //---------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------
@@ -435,6 +439,9 @@ template<class T> void TrackingTruthAccumulator::fillSimHits( std::vector<const 
 {
 	std::vector<std::string> parameterNames=simHitCollectionConfig_.getParameterNames();
 
+	// Part of the SLHC11 backwards compatibility hack. Remove afterwards.
+	edm::Service<simtracker::services::RemapDetIdService> detIdRemapService;
+
 	// loop over the different parameter collections. The names of these are unimportant but
 	// usually set to the sub-detectors, e.g. "muon", "pixel" etcetera.
 	for( const auto& parameterName : parameterNames )
@@ -446,8 +453,13 @@ template<class T> void TrackingTruthAccumulator::fillSimHits( std::vector<const 
 			edm::Handle< std::vector<PSimHit> > hSimHits;
 			event.getByLabel( collectionTag, hSimHits );
 
+			// Part of SLHC11 backwards compatibility hack. Remove afterwards.
+			std::vector<PSimHit> simHits;
+			detIdRemapService->remapCollection( hSimHits, simHits );
+
 			// TODO - implement removing the dead modules
-			for( const auto& simHit : *hSimHits )
+			//for( const auto& simHit : *hSimHits )
+			for( const auto& simHit : simHits )
 			{
 				returnValue.push_back( &simHit );
 			}
