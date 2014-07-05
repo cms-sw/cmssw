@@ -31,7 +31,7 @@ namespace edm{
   class ParameterSet;
 }
 namespace sim {
-   class FieldBuilder;
+   class ChordFinderSetter;
 }
 
 class PhysicsListMakerBase
@@ -44,7 +44,7 @@ class PhysicsListMakerBase
       // ---------- const member functions ---------------------
       virtual std::auto_ptr<PhysicsList> make(G4LogicalVolumeToDDLogicalPartMap&,
 					      const HepPDT::ParticleDataTable * ,
-					      sim::FieldBuilder *,
+					      sim::ChordFinderSetter *,
 					      const edm::ParameterSet&,
 					      SimActivityRegistry&) const = 0;
 

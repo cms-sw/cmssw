@@ -21,7 +21,7 @@
 #include "G4Poisson.hh"
 
 ZdcSD::ZdcSD(G4String name, const DDCompactView & cpv,
-	     SensitiveDetectorCatalog & clg, 
+	     const SensitiveDetectorCatalog & clg,
 	     edm::ParameterSet const & p,const SimTrackManager* manager) : 
   CaloSD(name, cpv, clg, p, manager), numberingScheme(0) {
   edm::ParameterSet m_ZdcSD = p.getParameter<edm::ParameterSet>("ZdcSD");

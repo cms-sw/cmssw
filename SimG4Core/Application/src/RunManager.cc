@@ -20,6 +20,7 @@
 #include "SimG4Core/Physics/interface/PhysicsListFactory.h"
 #include "SimG4Core/Watcher/interface/SimWatcherFactory.h"
 #include "SimG4Core/MagneticField/interface/FieldBuilder.h"
+#include "SimG4Core/MagneticField/interface/ChordFinderSetter.h"
 #include "SimG4Core/MagneticField/interface/Field.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -128,7 +129,7 @@ RunManager::RunManager(edm::ParameterSet const & p)
       m_pTrackingAction(p.getParameter<edm::ParameterSet>("TrackingAction")),
       m_pSteppingAction(p.getParameter<edm::ParameterSet>("SteppingAction")),
       m_G4Commands(p.getParameter<std::vector<std::string> >("G4Commands")),
-      m_p(p), m_fieldBuilder(0),
+      m_p(p), m_fieldBuilder(0), m_chordFinderSetter(nullptr),
       m_theLHCTlinkTag(p.getParameter<edm::InputTag>("theLHCTlinkTag"))
 {    
   //m_HepMC = iC.consumes<edm::HepMCProduct>(p.getParameter<edm::InputTag>("HepMCProduct"));
@@ -211,11 +212,13 @@ void RunManager::initG4(const edm::EventSetup & es)
       es.get<IdealMagneticFieldRecord>().get(pMF);
       const GlobalPoint g(0.,0.,0.);
 
+      m_chordFinderSetter = new sim::ChordFinderSetter();
       m_fieldBuilder = new sim::FieldBuilder(&(*pMF), m_pField);
       G4TransportationManager * tM = 
 	G4TransportationManager::GetTransportationManager();
       m_fieldBuilder->build( tM->GetFieldManager(),
-			     tM->GetPropagatorInField());
+			     tM->GetPropagatorInField(),
+                             m_chordFinderSetter);
       if("" != m_FieldFile) { 
 	DumpMagneticField(tM->GetFieldManager()->GetDetectorField()); 
       }
@@ -256,7 +259,7 @@ void RunManager::initG4(const edm::EventSetup & es)
     throw SimG4Exception("Unable to find the Physics list requested");
   }
   m_physicsList = 
-    physicsMaker->make(map_,fPDGTable,m_fieldBuilder,m_pPhysics,m_registry);
+    physicsMaker->make(map_,fPDGTable,m_chordFinderSetter,m_pPhysics,m_registry);
 
   PhysicsList* phys = m_physicsList.get(); 
   if (phys==0) { 
