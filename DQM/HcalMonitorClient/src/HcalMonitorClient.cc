@@ -78,12 +78,11 @@ HcalMonitorClient::HcalMonitorClient(const edm::ParameterSet& ps)
   Online_                = ps.getUntrackedParameter<bool>("online",false);
 
 
-  if (debug_>0)
-    {
-      std::cout <<"HcalMonitorClient:: The following clients are enabled:"<<std::endl;
-      for (unsigned int i=0;i<enabledClients_.size();++i)
-	  std::cout <<enabledClients_[i]<<std::endl;
-    } // if (debug_>0)
+  if (debug_>0) {
+    std::cout <<"HcalMonitorClient:: The following clients are enabled:"<<std::endl;
+    for (unsigned int i=0;i<enabledClients_.size();++i)
+      std::cout <<enabledClients_[i]<<std::endl;
+  } // if (debug_>0)
 
   // Set all EtaPhiHists pointers to 0 to start
   ChannelStatus=0; 
@@ -193,40 +192,38 @@ void HcalMonitorClient::beginRun(const edm::Run& r, const edm::EventSetup& c)
   // Let's get the channel status quality
   edm::ESHandle<HcalTopology> topo;
   c.get<HcalRecNumberingRecord>().get(topo);
-
+  
   edm::ESHandle<HcalChannelQuality> p;
   c.get<HcalChannelQualityRcd>().get(p);
   chanquality_= new HcalChannelQuality(*p.product());
   if (!chanquality_->topo()) chanquality_->setTopo(topo.product());
- 
-  if (dqmStore_ && ChannelStatus==0)
-    {
-      dqmStore_->setCurrentFolder(prefixME_+"HcalInfo/ChannelStatus");
-      ChannelStatus=new EtaPhiHists;
-      ChannelStatus->setup(dqmStore_,"ChannelStatus");
-      std::stringstream x;
-      for (unsigned int d=0;d<ChannelStatus->depth.size();++d)
-	{
-	  ChannelStatus->depth[d]->Reset();
-	  x<<"1+log2(status) for HCAL depth "<<d+1;
-	  if (ChannelStatus->depth[d]) ChannelStatus->depth[d]->setTitle(x.str().c_str());
-	  x.str("");
-	}
+  hctopo_ = topo.product();
+  for ( unsigned int i=0; i<clients_.size();++i ) 
+    clients_[i]->setTopo(hctopo_);
+  
+  if (dqmStore_ && ChannelStatus==0) {
+    dqmStore_->setCurrentFolder(prefixME_+"HcalInfo/ChannelStatus");
+    ChannelStatus=new EtaPhiHists;
+    ChannelStatus->setup(dqmStore_,"ChannelStatus");
+    std::stringstream x;
+    for (unsigned int d=0;d<ChannelStatus->depth.size();++d) {
+      ChannelStatus->depth[d]->Reset();
+      x<<"1+log2(status) for HCAL depth "<<d+1;
+      if (ChannelStatus->depth[d]) ChannelStatus->depth[d]->setTitle(x.str().c_str());
+      x.str("");
     }
+  }
 
   edm::ESHandle<HcalDbService> conditions;
   c.get<HcalDbRecord>().get(conditions);
   // Now let's setup pedestals
-  if (dqmStore_ )
-    {
-      dqmStore_->setCurrentFolder(prefixME_+"HcalInfo/PedestalsFromCondDB");
-      if (ADC_PedestalFromDBByDepth==0)
-	{
-	  ADC_PedestalFromDBByDepth = new EtaPhiHists;
-	  ADC_PedestalFromDBByDepth->setup(dqmStore_,"ADC Pedestals From Conditions DB");
-	}
-      if (ADC_WidthFromDBByDepth==0)
-	{
+  if (dqmStore_ ) {
+    dqmStore_->setCurrentFolder(prefixME_+"HcalInfo/PedestalsFromCondDB");
+    if (ADC_PedestalFromDBByDepth==0) {
+      ADC_PedestalFromDBByDepth = new EtaPhiHists;
+      ADC_PedestalFromDBByDepth->setup(dqmStore_,"ADC Pedestals From Conditions DB");
+    }
+    if (ADC_WidthFromDBByDepth==0) {
 	  ADC_WidthFromDBByDepth = new EtaPhiHists;
 	  ADC_WidthFromDBByDepth->setup(dqmStore_,"ADC Widths From Conditions DB");
 	}
@@ -628,7 +625,7 @@ void HcalMonitorClient::PlotPedestalValues(const HcalDbService& cond)
 	      for (int phi=0;phi<phibins;++phi)
 		{
 		  iphi=phi+1;
-		  if (!validDetId((HcalSubdetector)(subdet), ieta, iphi, depth+1)) continue;
+		  if (!(hctopo_->validDetId((HcalSubdetector)(subdet), ieta, iphi, depth+1))) continue;
 		  HcalDetId detid((HcalSubdetector)(subdet), ieta, iphi, depth+1);
 		  ADC_ped=0;
 		  ADC_width=0;
