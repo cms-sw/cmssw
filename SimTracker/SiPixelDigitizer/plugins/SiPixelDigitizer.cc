@@ -70,6 +70,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "CLHEP/Random/RandomEngine.h"
 
+
 //
 // constants, enums and typedefs
 //
@@ -125,7 +126,14 @@ namespace cms
   SiPixelDigitizer::accumulatePixelHits(edm::Handle<std::vector<PSimHit> > hSimHits, const TrackerTopology *tTopo) {
     if(hSimHits.isValid()) {
        std::set<unsigned int> detIds;
-       std::vector<PSimHit> const& simHits = *hSimHits.product();
+       // MODIFIED Mark Grimes 05/Jul/2014 - There was a problem reading back production samples made with
+       // SLHC11 because the DetId numbering changed in SLHC13. This is a horrible temporary hack to allow
+       // those samples to be read in newer versions of CMSSW. As soon as this ability is no longer required
+       // the next (i.e. original) line should be uncommented and the two after removed. Forever.
+       //std::vector<PSimHit> const& simHits = *hSimHits.product();
+       std::vector<PSimHit> simHits;
+       detIdRemapService_->remapCollection( hSimHits, simHits );
+       // End of Modification
        for(std::vector<PSimHit>::const_iterator it = simHits.begin(), itEnd = simHits.end(); it != itEnd; ++it) {
          unsigned int detId = (*it).detUnitId();
          if(detIds.insert(detId).second) {
