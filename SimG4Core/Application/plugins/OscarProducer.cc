@@ -18,7 +18,7 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "CLHEP/Random/Random.h"
+#include "Randomize.hh"
 
 #include "FWCore/Concurrency/interface/SharedResourceNames.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -223,21 +223,25 @@ StaticRandomEngineSetUnset::StaticRandomEngineSetUnset(
   }
   m_currentEngine = &(rng->getEngine(streamID));
 
-  m_previousEngine = CLHEP::HepRandom::getTheEngine();
-  CLHEP::HepRandom::setTheEngine(m_currentEngine);
+  // Must use G4Random instead of CLHEP::HepRandom even for the serial
+  // version if Geant4 has been built with MT enabled. If G4 was built
+  // with MT disabled G4Random is defined to be CLHEP::HepRandom,
+  // preserving the old behaviour.
+  m_previousEngine = G4Random::getTheEngine();
+  G4Random::setTheEngine(m_currentEngine);
 }
 
 StaticRandomEngineSetUnset::StaticRandomEngineSetUnset(
       CLHEP::HepRandomEngine * engine) 
 {
   m_currentEngine = engine;
-  m_previousEngine = CLHEP::HepRandom::getTheEngine();
-  CLHEP::HepRandom::setTheEngine(m_currentEngine);
+  m_previousEngine = G4Random::getTheEngine();
+  G4Random::setTheEngine(m_currentEngine);
 }
 
 StaticRandomEngineSetUnset::~StaticRandomEngineSetUnset() 
 {
-  CLHEP::HepRandom::setTheEngine(m_previousEngine);
+  G4Random::setTheEngine(m_previousEngine);
 }
 
 CLHEP::HepRandomEngine* StaticRandomEngineSetUnset::getEngine() const 

@@ -20,7 +20,7 @@ class HFChamberSD : public SensitiveCaloDetector {
 
 public:
 
-  HFChamberSD(std::string, const DDCompactView&, SensitiveDetectorCatalog&,
+  HFChamberSD(std::string, const DDCompactView&, const SensitiveDetectorCatalog&,
 	  edm::ParameterSet const &, const SimTrackManager*);
   virtual ~HFChamberSD();
 

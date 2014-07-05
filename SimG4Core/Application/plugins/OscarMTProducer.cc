@@ -1,13 +1,15 @@
 #include "FWCore/PluginManager/interface/PluginManager.h"
 
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "SimG4Core/Application/interface/OscarMTProducer.h"
-#include "SimG4Core/Application/interface/RunManagerMTInit.h"
 #include "SimG4Core/Application/interface/RunManagerMT.h"
 #include "SimG4Core/Application/interface/RunManagerMTWorker.h"
 #include "SimG4Core/Application/interface/G4SimEvent.h"
+#include "SimG4Core/SensitiveDetector/interface/SensitiveTkDetector.h"
+#include "SimG4Core/SensitiveDetector/interface/SensitiveCaloDetector.h"
 
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
@@ -60,60 +62,157 @@ namespace {
     };
 }
 
-OscarMTProducer::OscarMTProducer(edm::ParameterSet const & p, const edm::ParameterSet *)
+OscarMTProducer::OscarMTProducer(edm::ParameterSet const & p, const OscarMTMasterThread *)
 {
   // Random number generation not allowed here
   StaticRandomEngineSetUnset random(nullptr);
 
-  consumes<edm::HepMCProduct>(p.getParameter<edm::InputTag>("HepMCProductLabel"));
-  m_runManagerWorker.reset(new RunManagerMTWorker(p));
+  m_runManagerWorker.reset(new RunManagerMTWorker(p, consumesCollector()));
+
+  produces<edm::SimTrackContainer>().setBranchAlias("SimTracks");
+  produces<edm::SimVertexContainer>().setBranchAlias("SimVertices");
+  produces<edm::PSimHitContainer>("TrackerHitsPixelBarrelLowTof");
+  produces<edm::PSimHitContainer>("TrackerHitsPixelBarrelHighTof");
+  produces<edm::PSimHitContainer>("TrackerHitsTIBLowTof");
+  produces<edm::PSimHitContainer>("TrackerHitsTIBHighTof");
+  produces<edm::PSimHitContainer>("TrackerHitsTIDLowTof");
+  produces<edm::PSimHitContainer>("TrackerHitsTIDHighTof");
+  produces<edm::PSimHitContainer>("TrackerHitsPixelEndcapLowTof");
+  produces<edm::PSimHitContainer>("TrackerHitsPixelEndcapHighTof");
+  produces<edm::PSimHitContainer>("TrackerHitsTOBLowTof");
+  produces<edm::PSimHitContainer>("TrackerHitsTOBHighTof");
+  produces<edm::PSimHitContainer>("TrackerHitsTECLowTof");
+  produces<edm::PSimHitContainer>("TrackerHitsTECHighTof");
+    
+  produces<edm::PSimHitContainer>("TotemHitsT1");
+  produces<edm::PSimHitContainer>("TotemHitsT2Gem");
+  produces<edm::PSimHitContainer>("TotemHitsRP");
+  produces<edm::PSimHitContainer>("FP420SI");
+  produces<edm::PSimHitContainer>("BSCHits");
+  produces<edm::PSimHitContainer>("PLTHits");
+  produces<edm::PSimHitContainer>("BCM1FHits");
+
+  produces<edm::PCaloHitContainer>("EcalHitsEB");
+  produces<edm::PCaloHitContainer>("EcalHitsEE");
+  produces<edm::PCaloHitContainer>("EcalHitsES");
+  produces<edm::PCaloHitContainer>("HcalHits");
+  produces<edm::PCaloHitContainer>("CaloHitsTk");
+  produces<edm::PSimHitContainer>("MuonDTHits");
+  produces<edm::PSimHitContainer>("MuonCSCHits");
+  produces<edm::PSimHitContainer>("MuonRPCHits");
+  produces<edm::PSimHitContainer>("MuonGEMHits");
+  produces<edm::PCaloHitContainer>("CastorPL");
+  produces<edm::PCaloHitContainer>("CastorFI");
+  produces<edm::PCaloHitContainer>("CastorBU");
+  produces<edm::PCaloHitContainer>("CastorTU");
+  produces<edm::PCaloHitContainer>("EcalTBH4BeamHits");
+  produces<edm::PCaloHitContainer>("HcalTB06BeamHits");
+  produces<edm::PCaloHitContainer>("ZDCHITS");
+  produces<edm::PCaloHitContainer>("ChamberHits");
+  produces<edm::PCaloHitContainer>("FibreHits");
+  produces<edm::PCaloHitContainer>("WedgeHits");
+
+  //register any products
+  m_producers = m_runManagerWorker->producers();
+
+  for(Producers::iterator itProd = m_producers.begin();
+      itProd != m_producers.end(); ++itProd) {
+
+    (*itProd)->registerProducts(*this);
+  }
 }
 
 OscarMTProducer::~OscarMTProducer() 
 { }
 
-std::unique_ptr<edm::ParameterSet> OscarMTProducer::initializeGlobalCache(const edm::ParameterSet& iConfig) {
+std::unique_ptr<OscarMTMasterThread> OscarMTProducer::initializeGlobalCache(const edm::ParameterSet& iConfig) {
   // Random number generation not allowed here
   StaticRandomEngineSetUnset random(nullptr);
 
-  return std::unique_ptr<edm::ParameterSet>(new edm::ParameterSet(iConfig));
+  return std::unique_ptr<OscarMTMasterThread>(new OscarMTMasterThread(iConfig));
 }
 
-std::shared_ptr<OscarMTMasterThread> OscarMTProducer::globalBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup, const edm::ParameterSet *iConfig) {
+std::shared_ptr<int> OscarMTProducer::globalBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup, const OscarMTMasterThread *masterThread) {
   // Random number generation not allowed here
   StaticRandomEngineSetUnset random(nullptr);
 
-  auto runManager = std::make_shared<RunManagerMTInit>(*iConfig);
-  auto masterThread = std::make_shared<OscarMTMasterThread>(runManager, iSetup);
-  return masterThread;
+  masterThread->beginRun(iSetup);
+
+  return std::shared_ptr<int>();
 }
 
 void OscarMTProducer::globalEndRun(const edm::Run& iRun, const edm::EventSetup& iSetup, const RunContext *iContext) {
+  iContext->global()->endRun();
 }
 
-void OscarMTProducer::globalEndJob(edm::ParameterSet *iConfig) {
-}
-
-
-void 
-OscarMTProducer::beginRun(const edm::Run & r, const edm::EventSetup & es)
-{
-  // Random number generation not allowed here
-  StaticRandomEngineSetUnset random(nullptr);
-  m_runManagerWorker->beginRun(runCache()->runManagerMaster(), es);
+void OscarMTProducer::globalEndJob(OscarMTMasterThread *masterThread) {
+  masterThread->stopThread();
 }
 
 void 
 OscarMTProducer::endRun(const edm::Run&, const edm::EventSetup&)
 {
+  // Random number generation not allowed here
+  StaticRandomEngineSetUnset random(nullptr);
+  m_runManagerWorker->endRun();
 }
 
 void OscarMTProducer::produce(edm::Event & e, const edm::EventSetup & es)
 {
   StaticRandomEngineSetUnset random(e.streamID());
 
+  std::vector<SensitiveTkDetector*>& sTk =
+    m_runManagerWorker->sensTkDetectors();
+  std::vector<SensitiveCaloDetector*>& sCalo =
+    m_runManagerWorker->sensCaloDetectors();
+
   try {
-    m_runManagerWorker->produce(e, es, runCache()->runManagerMaster());
+    m_runManagerWorker->produce(e, es, globalCache()->runManagerMaster());
+
+    std::auto_ptr<edm::SimTrackContainer> 
+      p1(new edm::SimTrackContainer);
+    std::auto_ptr<edm::SimVertexContainer> 
+      p2(new edm::SimVertexContainer);
+    G4SimEvent * evt = m_runManagerWorker->simEvent();
+    evt->load(*p1);
+    evt->load(*p2);   
+
+    e.put(p1);
+    e.put(p2);
+
+    for (std::vector<SensitiveTkDetector*>::iterator it = sTk.begin();
+	 it != sTk.end(); ++it) {
+
+      std::vector<std::string> v = (*it)->getNames();
+      for (std::vector<std::string>::iterator in = v.begin();
+	   in!= v.end(); ++in) {
+
+	std::auto_ptr<edm::PSimHitContainer>
+	  product(new edm::PSimHitContainer);
+	(*it)->fillHits(*product,*in);
+	e.put(product,*in);
+      }
+    }
+    for (std::vector<SensitiveCaloDetector*>::iterator it = sCalo.begin();
+	 it != sCalo.end(); ++it) {
+
+      std::vector<std::string>  v = (*it)->getNames();
+
+      for (std::vector<std::string>::iterator in = v.begin();
+	   in!= v.end(); in++) {
+
+	std::auto_ptr<edm::PCaloHitContainer>
+	  product(new edm::PCaloHitContainer);
+	(*it)->fillHits(*product,*in);
+	e.put(product,*in);
+      }
+    }
+
+    for(Producers::iterator itProd = m_producers.begin();
+	itProd != m_producers.end(); ++itProd) {
+
+      (*itProd)->produce(e,es);
+    }
   } catch ( const SimG4Exception& simg4ex ) {
        
     edm::LogInfo("SimG4CoreApplication") << " SimG4Exception caght !" 
