@@ -195,13 +195,16 @@ std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & t
       simhit_collectionMap::const_iterator it = SimHitCollMap.find(theSimHitCollID);
       if (it!= SimHitCollMap.end()) {
 	simHit = it->second;
-	PSimHit theSimHit = simHit[theSimHitAddr.second];
-        result.push_back(theSimHit);
+	unsigned int theSimHitIndex = theSimHitAddr.second;
+	if (theSimHitIndex < simHit.size()) {
+	  PSimHit theSimHit = simHit[theSimHitIndex];
+	  result.push_back(theSimHit);
 
-// 	std::cout << "by CFpos, simHit detId = " << theSimHit.detUnitId() << " address = (" << (theSimHitAddr.first).first
-// 		  << ", " << (theSimHitAddr.first).second << ", " << theSimHitAddr.second
-// 		  << "), process = " << theSimHit.processType() << " (" << theSimHit.eventId().bunchCrossing()
-// 		  << ", " << theSimHit.eventId().event() << ", " << theSimHit.trackId() << ")" << std::endl;
+//           std::cout << "by CFpos, simHit detId =  " << theSimHit.detUnitId() << " address = (" << (theSimHitAddr.first).first
+// 		    << ", " << (theSimHitAddr.first).second << ", " << theSimHitIndex
+// 		    << "), process = " << theSimHit.processType() << " (" << theSimHit.eventId().bunchCrossing()
+// 		    << ", " << theSimHit.eventId().event() << ", " << theSimHit.trackId() << ")" << std::endl;
+	}
       }
     }
     return result;
