@@ -451,15 +451,12 @@ template<class T> void TrackingTruthAccumulator::fillSimHits( std::vector<const 
 		for( const auto& collectionTag : collectionTags )
 		{
 			edm::Handle< std::vector<PSimHit> > hSimHits;
-			event.getByLabel( collectionTag, hSimHits );
-
-			// Part of SLHC11 backwards compatibility hack. Remove afterwards.
-			std::vector<PSimHit> simHits;
-			detIdRemapService->remapCollection( hSimHits, simHits );
+			// Part of SLHC11 backwards compatibility hack. Revert afterwards.
+			//event.getByLabel( collectionTag, hSimHits );
+			detIdRemapService->getByLabel( event, collectionTag, hSimHits );
 
 			// TODO - implement removing the dead modules
-			//for( const auto& simHit : *hSimHits )
-			for( const auto& simHit : simHits )
+			for( const auto& simHit : *hSimHits )
 			{
 				returnValue.push_back( &simHit );
 			}
