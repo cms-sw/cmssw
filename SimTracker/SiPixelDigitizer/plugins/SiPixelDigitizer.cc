@@ -70,7 +70,6 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "CLHEP/Random/RandomEngine.h"
 
-
 //
 // constants, enums and typedefs
 //
