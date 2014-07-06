@@ -43,6 +43,8 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
+
+
 // These next two lines are part of a horrible hack to allow backwards compatibility with
 // SLHC11 files. As soon as this facility is no longer required they should be removed,
 // along with a few lines further down in the fillSimHits method.
