@@ -55,7 +55,18 @@ namespace simtracker
 		 * regardless of whether it was remapped or not. This is probably not a good idea but I
 		 * don't see much of an alternative.
 		 *
-		 * @author Mark Grimes (mark.grimes@bristol.ac.uk)
+		 * The configuration parameters are:
+		 * <table>
+		 * <tr><th>Parameter name    </th><th> Type                       </th><th> Description </th></tr>
+		 * <tr><td> mapFilename      </td><td> edm::FileInPath            </td><td> The filename of the mapping between old DetId and new DetId </td></tr>
+		 * <tr><td> inputCollections </td><td> std::vector<edm::InputTag> </td><td> The list of input collections that should be remapped </td></tr>
+		 * <tr><td> versionsToRemap  </td><td> std::vector<std::string>   </td><td> The CMSSW versions that should be remapped. Note that the version the
+		 *                                                                          collection was made with only needs to contain this string, so e.g.
+		 *                                                                          setting this to "CMSSW_6_2_0_SLHC12" would also remap collections made
+		 *                                                                          with CMSSW_6_2_0_SLHC12_patch1 </td></tr>
+		 * </table>
+		 *
+ 		 * @author Mark Grimes (mark.grimes@bristol.ac.uk)
 		 * @date 05/Jul/2014
 		 */
 		class RemapDetIdService
@@ -71,21 +82,18 @@ namespace simtracker
 
 			/** @brief Checks the provinence and returns the version of CMSSW that the given collection was created in */
 			template<class T> std::string cmsswVersionForProduct( const edm::Handle<T>& handle );
-
-			/** @brief Checks the collection given to see if it has been configured for remapping */
-			bool collectionShouldBeRemapped( const edm::Handle<std::vector<PSimHit> >& handle );
-
-			/** @brief Takes all of the SimHits in the handle supplied, and copies them to the vector changing DetIds as required.
-			 *
-			 * It is safe to call this on a collection that doesn't need remapping. A check is made first, if the collection
-			 * doesn't need to be remapped then it is just copied straight to the vector.
-			 */
-			void remapCollection( const edm::Handle<std::vector<PSimHit> >& handle, std::vector<PSimHit>& returnValue );
 		private:
+			/** @brief Templated version that both of the public methods delegate to. */
 			template<class T> bool getByLabel_( T& event, const edm::InputTag& inputTag, edm::Handle<std::vector<PSimHit> >& handle );
 			std::map<uint32_t,uint32_t> detIdMap_;
-			std::vector<edm::InputTag> inputCollectionNames_;
 			std::vector<std::string> cmsswVersionsToRemap_;
+
+			/** @brief The remapped collections for each InputTag.
+			 *
+			 * As soon as another collection with the same InputTag is requested the stored remapped collection
+			 * is freed and the remapping performed again. The assumption is that this will allow the remapped
+			 * collection to persist for the duration that that the crossing is being processed.
+			 */
 			std::vector< std::pair<edm::InputTag, std::unique_ptr<std::vector<PSimHit> > > > remappedCollections_;
 		};
 
