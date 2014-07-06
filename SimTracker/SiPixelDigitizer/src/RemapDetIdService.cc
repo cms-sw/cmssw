@@ -17,9 +17,9 @@ namespace simtracker { namespace services { DEFINE_FWK_SERVICE( RemapDetIdServic
 
 simtracker::services::RemapDetIdService::RemapDetIdService( const edm::ParameterSet& parameterSet, edm::ActivityRegistry& activityRegister )
 {
-	inputCollectionNames_=parameterSet.getParameter<std::vector<edm::InputTag> >( "inputCollections" );
+	std::vector<edm::InputTag> inputCollectionNames=parameterSet.getParameter<std::vector<edm::InputTag> >( "inputCollections" );
 	// Put in a null pointer to a collection for each of the InputTags
-	for( const auto& tag : inputCollectionNames_ ) remappedCollections_.push_back( std::make_pair(tag,std::unique_ptr<std::vector<PSimHit> >()) );
+	for( const auto& tag : inputCollectionNames ) remappedCollections_.push_back( std::make_pair(tag,std::unique_ptr<std::vector<PSimHit> >()) );
 
 	cmsswVersionsToRemap_=parameterSet.getParameter<std::vector<std::string> >( "versionsToRemap" );
 
@@ -64,13 +64,17 @@ template<class T> bool simtracker::services::RemapDetIdService::getByLabel_( T& 
 			// Use "find" rather than absolute equality in case the string contains
 			// e.g. "_patch3". I only want to remap the collection if it was made with
 			// a version of CMSSW before SLHC13.
-			if( cmsswVersion.find("CMSSW_6_2_0_SLHC11")!=std::string::npos || cmsswVersion.find("CMSSW_6_2_0_SLHC12")!=std::string::npos )
+			for( const auto& cmsswVersionToCheck : cmsswVersionsToRemap_ )
 			{
-				// This collection should be remapped. I'll reset the collection and
-				// set pRemappedCollection to the new one so that I know later to remap
-				auto& collectionPointer=tagCollectionPointerPair.second;
-				collectionPointer.reset( new std::vector<PSimHit>() );
-				pRemappedCollection=collectionPointer.get();
+				if( cmsswVersion.find(cmsswVersionToCheck)!=std::string::npos )
+				{
+					// This collection should be remapped. I'll reset the collection and
+					// set pRemappedCollection to the new one so that I know later to remap
+					auto& collectionPointer=tagCollectionPointerPair.second;
+					collectionPointer.reset( new std::vector<PSimHit>() );
+					pRemappedCollection=collectionPointer.get();
+					break;
+				}
 			}
 		} // end of "if inputTag matches one set in the configuration"
 	} // end of loop over InputTags
@@ -150,68 +154,5 @@ template<class T> std::string simtracker::services::RemapDetIdService::cmsswVers
 	// If control gets this far then the process name for the handle couldn't
 	// be found in the registry. This should never happen.
 	throw std::runtime_error( "cmsswVersionForProduct was queried for a handle who's process is not in the registry" );
-}
-
-bool simtracker::services::RemapDetIdService::collectionShouldBeRemapped( const edm::Handle<std::vector<PSimHit> >& handle )
-{
-	if( !handle.isValid() ) return false;
-
-	// Run through all of the tags and see if this service has been configured to remap
-	// the collection in the handle supplied.
-	for( const auto& configuredTag : inputCollectionNames_ )
-	{
-		if( handle.provenance()->moduleLabel()==configuredTag.label()
-				&& handle.provenance()->productInstanceName()==configuredTag.instance()
-				&& (configuredTag.process()=="" || handle.provenance()->processName()==configuredTag.process()) )
-		{
-			// The service has been configured to remap this collection. Need to check
-			// which version of CMSSW was used to create it.
-			std::string cmsswVersion=cmsswVersionForProduct( handle );
-			// Use "find" rather than absolute equality in case the string contains
-			// e.g. "_patch3". I only want to remap the collection if it was made with
-			// a version of CMSSW before SLHC13.
-			if( cmsswVersion.find("CMSSW_6_2_0_SLHC11")!=std::string::npos ) return true;
-			else if( cmsswVersion.find("CMSSW_6_2_0_SLHC12")!=std::string::npos ) return true;
-			else return false;
-		}
-	}
-
-	// If flow got this far then the collection has not been configured for remapping.
-	return false;
-}
-
-void simtracker::services::RemapDetIdService::remapCollection( const edm::Handle<std::vector<PSimHit> >& handle, std::vector<PSimHit>& returnValue )
-{
-	if( collectionShouldBeRemapped(handle) )
-	{
-		edm::LogInfo("RemapDetIdService") << "Remapping the DetIds for collection " << handle.provenance()->moduleLabel() << " " << handle.provenance()->productInstanceName() << " " << handle.provenance()->processName();
-		for( const auto& simHit : *handle )
-		{
-			uint32_t oldDetId=simHit.detUnitId();
-
-			std::map<uint32_t,uint32_t>::const_iterator iFindResult=detIdMap_.find( oldDetId );
-			if( iFindResult!=detIdMap_.end() ) // If the DetId is in the last of mappings
-			{
-				uint32_t newDetId=iFindResult->second;
-
-				LogDebug("RemapDetIdService") << "    Modifying " << oldDetId << " to " << newDetId;
-				PSimHit modifiedSimHit( simHit.entryPoint(), simHit.exitPoint(),
-						simHit.pabs(), simHit.tof(), simHit.energyLoss(),
-						simHit.particleType(), newDetId, simHit.trackId(),
-						simHit.thetaAtEntry(), simHit.phiAtEntry(), simHit.processType() );
-
-				modifiedSimHit.setEventId( simHit.eventId() );
-
-				returnValue.push_back( std::move(modifiedSimHit) );
-			}
-			else // the DetId does not need to be remapped
-			{
-				LogDebug("RemapDetIdService") << "    Leaving " << oldDetId << " alone";
-				returnValue.push_back( simHit );
-			}
-
-		} // end of loop over simhits
-	}
-	else returnValue=*handle; // If the collection isn't being remapped, just copy over the collection unchanged
 }
 
