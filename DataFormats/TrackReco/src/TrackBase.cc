@@ -5,22 +5,6 @@
 
 using namespace reco;
 
-//  Access the hit pattern, indicating in which Tracker layers the track has hits.
-const HitPattern & TrackBase::hitPattern() const
-{
-    return hitPattern_;
-}
-
-bool TrackBase::appendHitPattern(const DetId &id, TrackingRecHit::Type hitType)
-{
-    return hitPattern_.appendHit(id, hitType);
-}
-
-bool TrackBase::appendHitPattern(const TrackingRecHit &hit)
-{
-    return hitPattern_.appendHit(hit);
-}
-
 // To be kept in synch with the enumerator definitions in TrackBase.h file
 std::string const TrackBase::algoNames[] = {
     "undefAlgorithm",
