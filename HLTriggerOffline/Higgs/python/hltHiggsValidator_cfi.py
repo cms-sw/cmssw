@@ -4,12 +4,12 @@ import FWCore.ParameterSet.Config as cms
 hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
 		
     hltProcessName = cms.string("HLT"),
-    analysis       = cms.vstring("HWW", "HZZ", "Hgg", "Htaunu", "H2tau"),
+    analysis       = cms.vstring("HWW", "HZZ", "Hgg", "Htaunu", "H2tau", "Hbb"),
     
     # -- The instance name of the reco::GenParticles collection
     genParticleLabel = cms.string("genParticles"),
 
-    # -- The nomber of interactions in the event
+    # -- The number of interactions in the event
     pileUpInfoLabel  = cms.string("addPileupInfo"),
 
     # -- The binning of the Pt efficiency plots
@@ -70,6 +70,14 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
     MET_recCut      = cms.string("pt > 75."),  
     MET_cutMinPt    = cms.double(75), # TO BE DEPRECATED
     MET_cutMaxEta   = cms.double(0),  # TO BE DEPRECATED
+    
+    # --- Jets: 
+    Jet_genCut      = cms.string("pt > 0."),
+    Jet_recCut      = cms.string("pt > 0."),  
+    Jet_cutMinPt    = cms.double(0), # TO BE DEPRECATED
+    Jet_cutMaxEta   = cms.double(0),  # TO BE DEPRECATED
+    
+    
 
     # The specific parameters per analysis: the name of the parameter set has to be 
     # the same as the defined ones in the 'analysis' datamember. Each analysis is a PSet
@@ -77,7 +85,7 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
     #    - hltPathsToCheck (cms.vstring) : a list of all the trigger pats to be checked 
     #                 in this analysis. Up to the version number _v, but not including 
     #                 the number in order to avoid this version dependence. Example: HLT_Mu18_v
-    #    - recVarLabel (cms.string): where Var can be Muon, Elec, Photon, CaloMET, PFTau. This 
+    #    - recVarLabel (cms.string): where Var can be Muon, Elec, Photon, CaloMET, PFTau, Jet. This 
     #                 attribute is the name of the INSTANCE LABEL for each RECO collection to 
     #                 be considered in the analysis. Note that the trigger paths rely on some 
     #                 objects which need to be defined here, otherwise the code will complain. 
@@ -141,5 +149,17 @@ hltHiggsValidator = cms.EDAnalyzer("HLTHiggsValidator",
 	    recElecLabel   = cms.string("gedGsfElectrons"),
 	    # -- Analysis specific cuts
 	    minCandidates = cms.uint32(2), 
+	    ),
+    Hbb  = cms.PSet( 
+	    hltPathsToCheck = cms.vstring(
+		    "HLT_QuadJet75_55_35_20_BTagIP_VBF_v",
+		    "HLT_QuadJet75_55_38_20_BTagIP_VBF_v"
+		    ),
+	    #recJetLabel  = cms.string("ak5PFJets"),
+	    recJetLabel  = cms.string("PFJetsFilter"),
+	    # -- Analysis specific cuts
+	    minCandidates = cms.uint32(4), 
+	    isVBFHBB   = cms.untracked.bool(True),
+	    multipleJetCuts = cms.untracked.vdouble(85, 70, 60, 40, 2.4, 300, 2), #pt1, pt2, pt3, pt4, dEtaqq, mqq, dPhibb 
 	    ),
 )
