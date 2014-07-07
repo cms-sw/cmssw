@@ -48,30 +48,33 @@ fi
 case $CHOIX_CALCUL in
 gedvsgedFull) echo "Full"
 	echo "--"
-	for i in Pt10Startup_UP15 Pt1000Startup_UP15 Pt35Startup_UP15 TTbarStartup_13 ZEEStartup_13 QcdPt80Pt120Startup_13
+#	for i in Pt10Startup_UP15 Pt1000Startup_UP15 Pt35Startup_UP15 TTbarStartup_13 ZEEStartup_13 QcdPt80Pt120Startup_13
 #	for i in Pt1000Startup_UP15 TTbarStartup_13 ZEEStartup_13 QcdPt80Pt120Startup_13
+	for i in TTbarStartup_13
 		do 
 			echo " == ${CHOIX_INTERACTION}${CHOIX_CALCUL}${i}_gedGsfE"
-#			${CHOIX_INTERACTION}${CHOIX_CALCUL}${i}_gedGsfE
+			${CHOIX_INTERACTION}${CHOIX_CALCUL}${i}_gedGsfE
 		done
 	;;
 PileUp) echo "PileUp"
 	echo "++"
-	for i in TTbarStartup ZEEStartup
+#	for i in TTbarStartup ZEEStartup
+	for i in TTbarStartup
 		do 
 			echo " == ${CHOIX_INTERACTION}${CHOIX_CALCUL}${i}_gedGsfE"
-#			${CHOIX_INTERACTION}${CHOIX_CALCUL}${i}_gedGsfE
+			${CHOIX_INTERACTION}${CHOIX_CALCUL}${i}_gedGsfE
 		done
 	;;
 Fast) echo "Fast"
 	echo "**"
 	for j in VsFull VsFast
 		do
-		for i in TTbarStartup ZEEStartup
-#		for i in ZEEStartup
+#	for i in TTbarStartup ZEEStartup
+	for i in TTbarStartup
+#	for i in ZEEStartup
 			do 
 				echo " == ${CHOIX_INTERACTION}${CHOIX_CALCUL}${j}${i}_gedGsfE"
-#				${CHOIX_INTERACTION}${CHOIX_CALCUL}${j}${i}_gedGsfE
+				${CHOIX_INTERACTION}${CHOIX_CALCUL}${j}${i}_gedGsfE
 			done
 		done
 	;;
