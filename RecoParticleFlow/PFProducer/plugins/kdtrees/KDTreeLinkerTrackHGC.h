@@ -134,11 +134,13 @@ KDTreeLinkerTrackHGC<the_layer>::insertFieldClusterElt(reco::PFBlockElement	*hgc
       
     const reco::PFRecHit& rechit = *rh;
     
+    /*
     std::cout << "added rechit in layer " << the_layer << ' ' << rechit.position() << ' ' << rechit.positionREP() << std::endl;
     const std::vector< math::XYZPoint >& cornersxyz = rechit.getCornersXYZ();
     for( unsigned i = 0 ; i < cornersxyz.size(); ++i ) {
       std::cout << "\t corner : " << i << " : " << cornersxyz[i] << std::endl;
     }
+    */
     
 
     // We save the links rechit to EcalClusters
@@ -233,7 +235,7 @@ KDTreeLinkerTrackHGC<the_layer>::searchLinks()
     KDTreeBox trackBox(tracketa-range, tracketa+range, trackphi-range, trackphi+range);
     tree_.search(trackBox, recHits);
 
-    std::cout << "got " << recHits.size() << " rechits from the KDtree search." << std::endl;
+    //std::cout << "got " << recHits.size() << " rechits from the KDtree search." << std::endl;
 
     // Here we check all rechit candidates using the non-approximated method.
     for(std::vector<KDTreeNodeInfo>::const_iterator rhit = recHits.begin(); 
@@ -241,7 +243,7 @@ KDTreeLinkerTrackHGC<the_layer>::searchLinks()
            
       const std::vector< math::XYZPoint >& cornersxyz      = rhit->ptr->getCornersXYZ();
       const math::XYZPoint& posxyz			   = rhit->ptr->position();
-      const reco::PFRecHit::REPPoint &rhrep		   = rhit->ptr->positionREP();
+      //const reco::PFRecHit::REPPoint &rhrep		   = rhit->ptr->positionREP();
       //const std::vector<reco::PFRecHit::REPPoint>& corners = rhit->ptr->getCornersREP();
       //const auto& corners_xyz = rhit->ptr->getCornersXYZ();
       if(cornersxyz.size() != 4) continue;
@@ -277,17 +279,18 @@ KDTreeLinkerTrackHGC<the_layer>::searchLinks()
 	    * (1.00+0.50/fracsNbr /std::min(1.,0.5*trackPt));
 	  y[jc] = cornerposxyz.Y() + (cornerposxyz.Y()-posxyz.Y())
 	    * (1.00+0.50/fracsNbr /std::min(1.,0.5*trackPt));
-	  std::cout << "hit corner x/y/z: " << cornerposxyz << std::endl;
-	}	
-
+	  //std::cout << "hit corner x/y/z: " << cornerposxyz << std::endl;
+	}
+	
+	/*
 	std::cout << "hit position x/y/z: " << posxyz
 		  << ' ' <<  rhrep << std::endl;
 	std::cout << "tk position  x/y  : " << trackx << ' ' << tracky
 		  << ' ' << tracketa << ' ' << trackphi << std::endl;
+	*/
 
 	x[4] = x[0];
-	y[4] = y[0];	
-
+	y[4] = y[0];
 
 	// Check if the track and the cluster are linked
 	if(TMath::IsInside(trackx,tracky,5,x,y)) {
