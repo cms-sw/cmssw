@@ -24,12 +24,12 @@ class HGCDigitizerBase {
    */
   HGCDigitizerBase(const edm::ParameterSet &ps) : simpleNoiseGen_(0)
     {
-      myCfg_         = ps.getUntrackedParameter<edm::ParameterSet>("digiCfg"); 
-      mipInKeV_      = myCfg_.getUntrackedParameter<double>("mipInKeV");
-      lsbInMIP_      = myCfg_.getUntrackedParameter<double>("lsbInMIP");
-      mip2noise_     = myCfg_.getUntrackedParameter<double>("mip2noise");
-      adcThreshold_  = myCfg_.getUntrackedParameter< uint32_t >("adcThreshold");
-      doTimeSamples_ = myCfg_.getUntrackedParameter< bool >("doTimeSamples");
+      myCfg_         = ps.getParameter<edm::ParameterSet>("digiCfg"); 
+      mipInKeV_      = myCfg_.getParameter<double>("mipInKeV");
+      lsbInMIP_      = myCfg_.getParameter<double>("lsbInMIP");
+      mip2noise_     = myCfg_.getParameter<double>("mip2noise");
+      adcThreshold_  = myCfg_.getParameter< uint32_t >("adcThreshold");
+      doTimeSamples_ = myCfg_.getParameter< bool >("doTimeSamples");
     }
 
   /**
@@ -43,10 +43,10 @@ class HGCDigitizerBase {
   /**
      @short steer digitization mode
    */
-  void run(std::auto_ptr<DColl> &digiColl,HGCSimHitDataAccumulator &simData,bool doTrivialDigis)
+  void run(std::auto_ptr<DColl> &digiColl,HGCSimHitDataAccumulator &simData,uint32_t digitizationType)
   {
-    if(doTrivialDigis) runTrivial(digiColl,simData);
-    else               runDigitizer(digiColl,simData);
+    if(digitizationType==0) runTrivial(digiColl,simData);
+    else                    runDigitizer(digiColl,simData,digitizationType);
   }
 
 
@@ -90,7 +90,7 @@ class HGCDigitizerBase {
   /**
      @short to be specialized by top class
    */
-  virtual void runDigitizer(std::auto_ptr<DColl> &coll,HGCSimHitDataAccumulator &simData)
+  virtual void runDigitizer(std::auto_ptr<DColl> &coll,HGCSimHitDataAccumulator &simData,uint32_t digitizerType)
   {
     throw cms::Exception("HGCDigitizerBaseException") << " Failed to find specialization of runDigitizer";
   }
@@ -106,19 +106,19 @@ class HGCDigitizerBase {
   //baseline configuration
   edm::ParameterSet myCfg_;
 
- private:
-
-  //
-  double mipInKeV_, lsbInMIP_, mip2noise_;
-
-  //
+  //minimum ADC counts to produce DIGIs
   uint32_t adcThreshold_;
 
   //flag to apply or not time sampling (if false digitize the full energy from SimHit)
   bool doTimeSamples_;
 
-  //
+  //a simple noise generator
   mutable CLHEP::RandGauss *simpleNoiseGen_;
+  
+  //parameters for the trivial digitization scheme
+  double mipInKeV_, lsbInMIP_, mip2noise_;
+  
+ private:
 
 };
 

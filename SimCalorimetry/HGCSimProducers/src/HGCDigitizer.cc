@@ -24,11 +24,11 @@ HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps) :
   mySubDet_(ForwardSubdetector::ForwardEmpty)
 {
   //configure from cfg
-  hitCollection_     = ps.getUntrackedParameter< std::string >("hitCollection");
-  digiCollection_    = ps.getUntrackedParameter< std::string >("digiCollection");
-  maxSimHitsAccTime_ = ps.getUntrackedParameter< uint32_t >("maxSimHitsAccTime");
-  bxTime_            = ps.getUntrackedParameter< int32_t >("bxTime");
-  doTrivialDigis_    = ps.getUntrackedParameter< bool >("doTrivialDigis");
+  hitCollection_     = ps.getParameter< std::string >("hitCollection");
+  digiCollection_    = ps.getParameter< std::string >("digiCollection");
+  maxSimHitsAccTime_ = ps.getParameter< uint32_t >("maxSimHitsAccTime");
+  bxTime_            = ps.getParameter< int32_t >("bxTime");
+  digitizationType_  = ps.getParameter< uint32_t >("digitizationType");
   
   //get the random number generator
   edm::Service<edm::RandomNumberGenerator> rng;
@@ -58,21 +58,21 @@ void HGCDigitizer::finalizeEvent(edm::Event& e, edm::EventSetup const& es)
   if( producesEEDigis() ) 
     {
       std::auto_ptr<HGCEEDigiCollection> digiResult(new HGCEEDigiCollection() );
-      theHGCEEDigitizer_.run(digiResult,*simHitAccumulator_,doTrivialDigis_);
+      theHGCEEDigitizer_.run(digiResult,*simHitAccumulator_,digitizationType_);
       edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " << digiResult->size() <<  " EE hits";
       e.put(digiResult,digiCollection());
     }
   if( producesHEfrontDigis())
     {
       std::auto_ptr<HGCHEDigiCollection> digiResult(new HGCHEDigiCollection() );
-      theHGCHEfrontDigitizer_.run(digiResult,*simHitAccumulator_,doTrivialDigis_);
+      theHGCHEfrontDigitizer_.run(digiResult,*simHitAccumulator_,digitizationType_);
       edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " << digiResult->size() <<  " HE front hits";
       e.put(digiResult,digiCollection());
     }
   if( producesHEbackDigis() )
     {
       std::auto_ptr<HGCHEDigiCollection> digiResult(new HGCHEDigiCollection() );
-      theHGCHEbackDigitizer_.run(digiResult,*simHitAccumulator_,doTrivialDigis_);
+      theHGCHEbackDigitizer_.run(digiResult,*simHitAccumulator_,digitizationType_);
       edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " << digiResult->size() <<  " HE back hits";
       e.put(digiResult,digiCollection());
     }

@@ -63,8 +63,8 @@ private :
   //input/output names
   std::string hitCollection_,digiCollection_;
 
-  //flag for trivial digitization
-  bool doTrivialDigis_;
+  //digitization type (it's up to the specializations to decide it's meaning)
+  int digitizationType_;
 
   //handle sim hits
   int maxSimHitsAccTime_;
