@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# HGC DIGITIZER BASE CONFIGURATIONS
+# Base configurations for HGCal digitizers
 
 # ECAL
 hgceeDigitizer = cms.PSet( accumulatorType   = cms.string("HGCDigiProducer"),

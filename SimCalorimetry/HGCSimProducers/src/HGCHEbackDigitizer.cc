@@ -3,11 +3,15 @@
 //
 HGCHEbackDigitizer::HGCHEbackDigitizer(const edm::ParameterSet &ps) : HGCDigitizerBase(ps)
 {
-  edm::ParameterSet caliceSpec = myCfg_.getParameter<edm::ParameterSet>("caliceSpecific");
-  nPEperMIP_ = caliceSpec.getParameter<double>("nPEperMIP");
-  nTotalPE_  = caliceSpec.getParameter<double>("nTotalPE");
-  xTalk_     = caliceSpec.getParameter<double>("xTalk");
-  sdPixels_  = caliceSpec.getParameter<double>("sdPixels");
+  try{
+    edm::ParameterSet caliceSpec =  ps.getParameter<edm::ParameterSet>("digiCfg").getParameter<edm::ParameterSet>("caliceSpecific");
+    nPEperMIP_ = caliceSpec.getParameter<double>("nPEperMIP");
+    nTotalPE_  = caliceSpec.getParameter<double>("nTotalPE");
+    xTalk_     = caliceSpec.getParameter<double>("xTalk");
+    sdPixels_  = caliceSpec.getParameter<double>("sdPixels");
+  }catch(std::exception &e){
+    //no need to propagate
+  }
 }
 
 //

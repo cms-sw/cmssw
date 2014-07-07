@@ -44,9 +44,9 @@ public:
 
   /**
    */
-  bool producesEEDigis()       { return (hitCollection_.find("EE")!=std::string::npos);      } 
-  bool producesHEfrontDigis()  { return (hitCollection_.find("HEfront")!=std::string::npos); } 
-  bool producesHEbackDigis()   { return (hitCollection_.find("HEback")!=std::string::npos);  } 
+  bool producesEEDigis()       { return (hitCollection_.find("HitsEE")!=std::string::npos);      } 
+  bool producesHEfrontDigis()  { return (hitCollection_.find("HitsHEfront")!=std::string::npos); } 
+  bool producesHEbackDigis()   { return (hitCollection_.find("HitsHEback")!=std::string::npos);  } 
   std::string digiCollection() { return digiCollection_; }
 
   /**
