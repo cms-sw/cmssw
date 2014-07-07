@@ -1,4 +1,4 @@
-#include "Validation/MuonGEMHits/interface/GEMSimTrackMatch.h"
+#include "Validation/MuonGEMHits/interface/GEMTrackMatch.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
@@ -6,13 +6,14 @@
 #include <TMath.h>
 #include <TH1F.h>
 
-GEMTrackMatch::GEMTrackMatch(DQMStore* dbe, std::string simInputLabel , edm::ParameterSet cfg)
+GEMTrackMatch::GEMTrackMatch(DQMStore* dbe, edm::EDGetToken& simTracks, edm::EDGetToken& simVertices, edm::ParameterSet cfg)
 {
    cfg_= cfg; 
-   simInputLabel_= simInputLabel;
    dbe_= dbe;
    useRoll_ = 1 ;
    etaRangeForPhi = cfg_.getUntrackedParameter< std::vector<double> >("EtaRangeForPhi");
+   simTracksToken_ = simTracks;
+   simVerticesToken_ = simVertices;
 }
 
 

@@ -6,8 +6,10 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
@@ -27,7 +29,7 @@
 class GEMTrackMatch 
 {
 public:
-  GEMTrackMatch(DQMStore* dbe, std::string simInputLabel, edm::ParameterSet cfg);
+  GEMTrackMatch(DQMStore* dbe, edm::EDGetToken&, edm::EDGetToken& , edm::ParameterSet cfg);
   virtual ~GEMTrackMatch();
   virtual void analyze(const edm::Event& e, const edm::EventSetup&) = 0 ;
 
@@ -42,7 +44,8 @@ public:
  protected:
 
   edm::ParameterSet cfg_;
-  std::string simInputLabel_;
+  edm::EDGetToken simTracksToken_;
+  edm::EDGetToken simVerticesToken_;
   DQMStore* dbe_; 
   const GEMGeometry* theGEMGeometry;   
 

@@ -6,10 +6,10 @@
 
 using namespace std;
 GEMBaseValidation::GEMBaseValidation(DQMStore* dbe,
-                                               const edm::InputTag & inputTag, const edm::ParameterSet& PlotRange)
+                                               edm::EDGetToken & InputTagToken, const edm::ParameterSet& PlotRange)
 {
   dbe_ = dbe;
-  theInputTag = inputTag;
+  inputToken_ = InputTagToken;
   plotRange_ = PlotRange;
 	nBinZR_ = plotRange_.getUntrackedParameter< std::vector<double> >("nBinGlobalZR") ;
 	RangeZR_ = plotRange_.getUntrackedParameter< std::vector<double> >("RangeGlobalZR");

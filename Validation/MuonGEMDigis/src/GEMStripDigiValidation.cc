@@ -1,8 +1,8 @@
 #include "Validation/MuonGEMDigis/interface/GEMStripDigiValidation.h"
 #include <iomanip>
 GEMStripDigiValidation::GEMStripDigiValidation(DQMStore* dbe,
-                                               const edm::InputTag & inputTag, const edm::ParameterSet& pbInfo)
-:  GEMBaseValidation(dbe, inputTag, pbInfo)
+                                               edm::EDGetToken& stripToken, const edm::ParameterSet& pbInfo)
+:  GEMBaseValidation(dbe, stripToken, pbInfo)
 {}
 
 void GEMStripDigiValidation::bookHisto(const GEMGeometry* geom) { 
@@ -144,10 +144,9 @@ void GEMStripDigiValidation::analyze(const edm::Event& e,
                                      const edm::EventSetup&)
 {
   edm::Handle<GEMDigiCollection> gem_digis;
-  e.getByLabel(theInputTag, gem_digis);
+  e.getByToken(inputToken_, gem_digis);
   if (!gem_digis.isValid()) {
-    edm::LogError("GEMStripDigiValidation") << "Cannot get strips by label "
-                                       << theInputTag.encode();
+    edm::LogError("GEMStripDigiValidation") << "Cannot get strips by Token stripToken.\n";
   }
   for (GEMDigiCollection::DigiRangeIterator cItr=gem_digis->begin(); cItr!=gem_digis->end(); cItr++) {
     GEMDetId id = (*cItr).first;

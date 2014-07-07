@@ -12,7 +12,7 @@
 class GEMDigiTrackMatch : public GEMTrackMatch 
 {
 public:
-  GEMDigiTrackMatch(DQMStore* , std::string , edm::ParameterSet);
+  GEMDigiTrackMatch(DQMStore* , edm::EDGetToken& ,edm::EDGetToken&, edm::ParameterSet);
   ~GEMDigiTrackMatch();
   void analyze(const edm::Event& e, const edm::EventSetup&);
   void bookHisto(const GEMGeometry* geom);

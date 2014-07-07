@@ -7,7 +7,7 @@
 #include <TH1F.h>
 
 using namespace std;
-GEMSimTrackMatch::GEMSimTrackMatch(DQMStore* dbe, std::string simInputLabel , edm::ParameterSet cfg) : GEMTrackMatch(dbe, simInputLabel , cfg)
+GEMSimTrackMatch::GEMSimTrackMatch(DQMStore* dbe, edm::EDGetToken& track, edm::EDGetToken& vertex, edm::ParameterSet cfg) : GEMTrackMatch(dbe,track, vertex,  cfg)
 {
    minPt_  = cfg_.getUntrackedParameter<double>("gemMinPt",5.0);
    minEta_ = cfg_.getUntrackedParameter<double>("gemMinEta",1.55);
@@ -82,8 +82,8 @@ void GEMSimTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   };
   MySimTrack track_;
 
-  iEvent.getByLabel(simInputLabel_, sim_tracks);
-  iEvent.getByLabel(simInputLabel_, sim_vertices);
+  iEvent.getByToken(simTracksToken_, sim_tracks);
+  iEvent.getByToken(simVerticesToken_, sim_vertices);
   
   if ( !sim_tracks.isValid() || !sim_vertices.isValid()) return;
 

@@ -1,8 +1,8 @@
 #include "Validation/MuonGEMDigis/interface/GEMCSCCoPadDigiValidation.h"
 
 GEMCSCCoPadDigiValidation::GEMCSCCoPadDigiValidation(DQMStore* dbe,
-                                               const edm::InputTag & inputTag, const edm::ParameterSet& pbInfo)
-:  GEMBaseValidation(dbe, inputTag, pbInfo) { }
+                                               edm::EDGetToken& inputToken, const edm::ParameterSet& pbInfo)
+:  GEMBaseValidation(dbe, inputToken, pbInfo) { }
 
 void GEMCSCCoPadDigiValidation::bookHisto(const GEMGeometry* geom) {
   theGEMGeometry = geom;
@@ -47,10 +47,9 @@ void GEMCSCCoPadDigiValidation::analyze(const edm::Event& e,
                                      const edm::EventSetup&)
 {
   edm::Handle<GEMCSCPadDigiCollection> gem_digis;
-  e.getByLabel(theInputTag, gem_digis);
+  e.getByToken(inputToken_, gem_digis);
   if (!gem_digis.isValid()) {
-    edm::LogError("GEMCSCCoPadDigiValidation") << "Cannot get pads by label "
-                                       << theInputTag.encode();
+    edm::LogError("GEMCSCCoPadDigiValidation") << "Cannot get pads by token.";
   }
   for (GEMCSCPadDigiCollection::DigiRangeIterator cItr=gem_digis->begin(); cItr!=gem_digis->end(); cItr++) {
 

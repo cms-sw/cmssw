@@ -7,7 +7,7 @@
 class GEMSimTrackMatch : public GEMTrackMatch 
 {
 public:
-  GEMSimTrackMatch(DQMStore* , std::string , edm::ParameterSet);
+  GEMSimTrackMatch(DQMStore* , edm::EDGetToken&, edm::EDGetToken& , edm::ParameterSet);
   ~GEMSimTrackMatch();
   void analyze(const edm::Event& e, const edm::EventSetup&);
   void bookHisto(const GEMGeometry* geom);

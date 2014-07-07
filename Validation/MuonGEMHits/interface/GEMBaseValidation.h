@@ -10,6 +10,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
@@ -17,7 +18,7 @@ class GEMBaseValidation
 {
 public:
   GEMBaseValidation(DQMStore* dbe,
-                         const edm::InputTag & inputTag, const edm::ParameterSet& PlotRange );
+                         edm::EDGetToken& inputToken, const edm::ParameterSet& PlotRange );
   virtual ~GEMBaseValidation();
   void setGeometry(const GEMGeometry* geom);
   virtual void bookHisto(const GEMGeometry* geom) = 0 ;
@@ -31,8 +32,7 @@ protected:
   std::vector< std::string > stationLabel;
 
   DQMStore* dbe_;
-  edm::InputTag theInputTag;
-  edm::EDGetTokenT< edm::PSimHitContainer> GEMHitsTag_;
+  edm::EDGetToken inputToken_;
   const GEMGeometry* theGEMGeometry;
   edm::ParameterSet plotRange_;
 	std::vector<double> nBinZR_;

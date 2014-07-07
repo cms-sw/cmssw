@@ -4,8 +4,7 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include <TMath.h>
 
-GEMHitsValidation::GEMHitsValidation(DQMStore* dbe, const edm::InputTag & inputTag, const edm::ParameterSet& cfg)
-:  GEMBaseValidation(dbe, inputTag, cfg)
+GEMHitsValidation::GEMHitsValidation(DQMStore* dbe, edm::EDGetToken& InputTagToken_ , const edm::ParameterSet& cfg):  GEMBaseValidation(dbe, InputTagToken_, cfg)
 {
 }
 
@@ -89,10 +88,9 @@ void GEMHitsValidation::analyze(const edm::Event& e,
 {
 
   edm::Handle<edm::PSimHitContainer> GEMHits;
-  e.getByLabel(theInputTag, GEMHits);
+  e.getByToken(inputToken_, GEMHits);
   if (!GEMHits.isValid()) {
-    edm::LogError("GEMHitsValidation") << "Cannot get GEMHits by label "
-                                      << theInputTag.encode();
+    edm::LogError("GEMHitsValidation") << "Cannot get GEMHits by Token simInputTagToken";
     return ;
   }
 
