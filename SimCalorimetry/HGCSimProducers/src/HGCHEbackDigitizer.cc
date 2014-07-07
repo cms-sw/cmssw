@@ -58,7 +58,7 @@ void HGCHEbackDigitizer::runCaliceLikeDigitizer(std::auto_ptr<HGCHEDigiCollectio
 	//number of pixels	
 	float x=exp(-npe/nTotalPE_);
 	float nPixel(0);
-	if(xTalk_*x>1) nPixel=std::max( float(nTotalPE_*(1-x)/(1-xTalk_*x)), float(0.) );
+	if(xTalk_*x!=1) nPixel=std::max( float(nTotalPE_*(1-x)/(1-xTalk_*x)), float(0.) );
 	
 	//update signal
 	float nPixelNew(-1);
