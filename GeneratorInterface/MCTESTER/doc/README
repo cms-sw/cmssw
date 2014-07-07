@@ -1,0 +1,42 @@
+#########################################################################
+#
+# README file for MC-Tester in CMSSW
+#
+# MC-Tester made by:
+# 	Nadia Davidson, Piotr Golonka, Tomasz Pierzchala
+#	Tomasz Prezedzinski, Zbigniew Was
+#
+# Original CMSSW implementation by: 
+#	Tomasz Prezedzinski + possible former collaborations	
+#       version rejected because the reading of root files conflicted between CMSSW and MCTester
+#
+# Current version includes modification from the cvs version which is based on the original version with Modifications/Input from Ian M. Nugent
+#
+##########################################################################
+MCTester is contained in 3 components:
+1) The software interface for CMMSW: 
+	GeneratorInterface/MCTESTER/src/MCTesterCMS.cc
+        MCTester >=1.0.25 is an external in CMSSW 
+2) The python script:
+	GeneratorInterface/MCTESTER/python/MCTesterCMS_cfi.py
+   MCTesterCMS_cfi.py is an example configuration for running over generator level output and
+   produces a root file: mc-tester.root. It can be run with the command: cmsRun Validation/EventGenerator/test/MCTesterCMS_cfi.py 	
+   To configure MCTester, the location of the SETUP.C file must be known. Currently, the file can be copied to the working dir, but
+   in future the DataCardWriter will allow for the SETUP.C file to be generated from the python fragment. This configuration file
+   is needed at the analysis stage after running CMMSW.
+3) The software to analyze the output histograms from MCTester:
+	Validation/EventGenerator/test/analyze/
+   This code is executed using the  Makefile (Note: one need to check out Validation/EventGenerator to use this part of the tool). 
+   To generate the pdf file:
+	a) copy 1 version of mc-tester.root to Validation/EventGenerator/test/analyze/prod1 and another
+	   to Validation/EventGenerator/test/analyze/prod2 (Typically 1 version is a control)
+	b) cd Validation/EventGenerator/test/analyze/ and run the code with: make
+	   The output will automatically be produced a pdf. 
+	c) clean the directory with: make clean
+
+Notes:
+   To modify the run parameters edit: ./test/analyze/SETUP.C. For more details see the documentation in:
+	Validation/EventGenerator/doc or
+	https://mc-tester.web.cern.ch/MC-TESTER/
+   Or generate your own SETUP.C. This file is used for both the generation and analysis stage. Please make sure you use it both as input
+   for MCTesterCMS and when running step 3. In future, it is planned to use the DataCardWriter being developed for EvtGen.

@@ -151,7 +151,6 @@ process.ProductionFilterSequence = cms.Sequence(process.generator)
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen+process.TauSpinnerGen+process.TauSpinnerZHFilter)
-#process.genfiltersummary_step = cms.EndPath(process.TauSpinnerGen+process.TauSpinnerZHFilter+process.genFilterSummary)
 process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
 process.validation_step = cms.EndPath(process.genstepfilter+process.genvalid_all)
 process.endjob_step = cms.EndPath(process.endOfProcess)
