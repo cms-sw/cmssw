@@ -61,8 +61,10 @@ class HGCDigitizerBase {
       {
 	//convert total energy GeV->keV->ADC counts
 	double totalEn(0);
-	size_t maxSampleToInteg(doTimeSamples_ ? 0 : it->second.size());
-	for(size_t i=0; i<maxSampleToInteg; i++) totalEn+= (it->second)[i];
+	size_t maxSampleToInteg(doTimeSamples_ ? 1 : it->second.size());
+	for(size_t i=0; i<maxSampleToInteg; i++) {
+	  totalEn+= (it->second)[i];
+	}
 	totalEn*=1e6;
 
 	//add noise (in keV)

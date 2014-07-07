@@ -160,14 +160,12 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, i
       if(simHitIt==simHitAccumulator_->end())
 	{
 	  HGCSimHitData baseData(10,0);
-	  simHitIt=simHitAccumulator_->insert( std::make_pair(id,baseData) ).first;
+	  simHitAccumulator_->insert( std::make_pair(id,baseData) );
+	  simHitIt=simHitAccumulator_->find(id);
 	}
       
       //check if time is ok
-      if( itime > (int)(simHitIt->second.size()) )
-        {
-	  continue;
-        }
+      if( itime > (int)(simHitIt->second.size()) ) continue;
       
       (simHitIt->second)[itime] += ien;
     }
