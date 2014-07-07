@@ -632,8 +632,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	if(debug_) cout<<"ECAL, stored index, continue"<<endl;
       }
       continue;
-      //case PFBlockElement::HGC_HCALF:
-      //case PFBlockElement::HGC_HCALB:
+    case PFBlockElement::HGC_HCALF:
+    case PFBlockElement::HGC_HCALB:
     case PFBlockElement::HCAL:
       if ( active[iEle] ) { 
 	hcalIs.push_back( iEle );
@@ -708,12 +708,31 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
                               ecalElems ,
                               reco::PFBlockElement::ECAL,
 			      reco::PFBlock::LINKTEST_ALL );
+    std::multimap<double, unsigned> hgcEcalElems;
+    block.associatedElements( iTrack,  linkData,
+                              hgcEcalElems ,
+                              reco::PFBlockElement::HGC_ECAL,
+			      reco::PFBlock::LINKTEST_ALL );
+    ecalElems.insert(hgcEcalElems.begin(),hgcEcalElems.end());
+
     
     std::multimap<double, unsigned> hcalElems;
     block.associatedElements( iTrack,  linkData,
                               hcalElems,
                               reco::PFBlockElement::HCAL,
                               reco::PFBlock::LINKTEST_ALL );
+    std::multimap<double, unsigned> hgcHcalFrontElems;
+    block.associatedElements( iTrack,  linkData,
+                              hgcHcalFrontElems ,
+                              reco::PFBlockElement::HGC_HCALF,
+			      reco::PFBlock::LINKTEST_ALL );
+    hcalElems.insert(hgcHcalFrontElems.begin(),hgcHcalFrontElems.end());
+    std::multimap<double, unsigned> hgcHcalBackElems;
+    block.associatedElements( iTrack,  linkData,
+                              hgcHcalBackElems ,
+                              reco::PFBlockElement::HGC_HCALB,
+			      reco::PFBlock::LINKTEST_ALL );
+    hcalElems.insert(hgcHcalBackElems.begin(),hgcHcalBackElems.end());
 
     // When a track has no HCAL cluster linked, but another track is linked to the same
     // ECAL cluster and an HCAL cluster, link the track to the HCAL cluster for 
@@ -748,6 +767,12 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 				  sortedECAL,
 				  reco::PFBlockElement::ECAL,
 				  reco::PFBlock::LINKTEST_ALL );
+	std::multimap<double, unsigned> sortedHGC_ECAL;
+	block.associatedElements( jTrack,  linkData,
+				  sortedHGC_ECAL,
+				  reco::PFBlockElement::HGC_ECAL,
+				  reco::PFBlock::LINKTEST_ALL );
+	sortedECAL.insert(sortedHGC_ECAL.begin(),sortedHGC_ECAL.end());
 	if ( sortedECAL.begin()->second != index ) continue;
 	//std::cout << "With closest ECAL identical " << std::endl;
 
@@ -758,6 +783,18 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 				  sortedHCAL,
 				  reco::PFBlockElement::HCAL,
 				  reco::PFBlock::LINKTEST_ALL );
+	std::multimap<double, unsigned> sortedHGC_HCALF;
+	block.associatedElements( jTrack,  linkData,
+				  sortedHGC_HCALF,
+				  reco::PFBlockElement::HGC_HCALF,
+				  reco::PFBlock::LINKTEST_ALL );
+	sortedHCAL.insert(sortedHGC_HCALF.begin(),sortedHGC_HCALF.end());
+	std::multimap<double, unsigned> sortedHGC_HCALB;
+	block.associatedElements( jTrack,  linkData,
+				  sortedHGC_HCALB,
+				  reco::PFBlockElement::HGC_HCALB,
+				  reco::PFBlock::LINKTEST_ALL );
+	sortedHCAL.insert(sortedHGC_HCALB.begin(),sortedHGC_HCALB.end());
 	if ( !sortedHCAL.size() ) continue;
 	//std::cout << "With an HCAL cluster " << sortedHCAL.begin()->first << std::endl;
 	ntt++;
@@ -776,6 +813,18 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 				hcalElems,
 				reco::PFBlockElement::HCAL,
 				reco::PFBlock::LINKTEST_ALL );
+      std::multimap<double, unsigned> hgcHcalFrontElems;
+      block.associatedElements( iTrack,  linkData,
+				hgcHcalFrontElems ,
+				reco::PFBlockElement::HGC_HCALF,
+				reco::PFBlock::LINKTEST_ALL );
+      hcalElems.insert(hgcHcalFrontElems.begin(),hgcHcalFrontElems.end());
+      std::multimap<double, unsigned> hgcHcalBackElems;
+      block.associatedElements( iTrack,  linkData,
+				hgcHcalBackElems ,
+				reco::PFBlockElement::HGC_HCALB,
+				reco::PFBlock::LINKTEST_ALL );
+      hcalElems.insert(hgcHcalBackElems.begin(),hgcHcalBackElems.end());
 
       if ( debug_ && hcalElems.size() ) 
 	std::cout << "Track linked back to HCAL due to ECAL sharing with other tracks" << std::endl;
@@ -820,7 +869,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
         cout<<"\telement "<<elements[index]<<" linked with distance = "<< dist <<endl;
 	if ( ! active[index] ) cout << "This ECAL is already used - skip it" << endl;      
       }
-      assert( type == PFBlockElement::ECAL );
+      assert( type == PFBlockElement::ECAL || type == PFBlockElement::HGC_ECAL );
 
       // This ECAL is not free (taken by an electron?) - just skip it
       if ( ! active[index] ) continue;      
@@ -988,6 +1037,12 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 				  sortedECAL,
 				  reco::PFBlockElement::ECAL,
 				  reco::PFBlock::LINKTEST_ALL );
+	std::multimap<double, unsigned> sortedHGC_ECAL;
+	block.associatedElements( jTrack,  linkData,
+				  sortedHGC_ECAL,
+				  reco::PFBlockElement::HGC_ECAL,
+				  reco::PFBlock::LINKTEST_ALL );
+	sortedECAL.insert(sortedHGC_ECAL.begin(),sortedHGC_ECAL.end());
 	if ( sortedECAL.begin()->second != thisEcal ) continue;
 
 	// Check if this track is a muon
@@ -1057,7 +1112,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	
 	unsigned index = ie->second;
 	PFBlockElement::Type type = elements[index].type();
-	assert( type == PFBlockElement::ECAL );
+	assert( type == PFBlockElement::ECAL || type == PFBlockElement::HGC_ECAL );
 	if ( debug_ ) std::cout << elements[index] << std::endl;
 	
 	// Just skip clusters already taken
@@ -1284,7 +1339,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
         cout<<"\telement "<<elements[index]<<" linked with distance "<< dist <<endl;
       }
 
-      assert( type == PFBlockElement::HCAL );
+      assert( type == PFBlockElement::HCAL || 
+	      type == PFBlockElement::HGC_HCALF || type == PFBlockElement::HGC_HCALB );
       
       // all hcal clusters except the closest 
       // will be unlinked from the track
@@ -1431,7 +1487,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     unsigned iHcal= hcalIs[i];    
     PFBlockElement::Type type = elements[iHcal].type();
 
-    assert( type == PFBlockElement::HCAL );
+    assert( type == PFBlockElement::HCAL || 
+	    type == PFBlockElement::HGC_HCALF || type == PFBlockElement::HGC_HCALB );
 
     if(debug_) cout<<endl<<elements[iHcal]<<endl;
 
@@ -1541,6 +1598,12 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
                                 sortedEcals,
 				reco::PFBlockElement::ECAL,
 				reco::PFBlock::LINKTEST_ALL );
+      std::multimap<double, unsigned> sortedHGCEcals;
+      block.associatedElements( iTrack,  linkData,
+                                sortedHGCEcals,
+				reco::PFBlockElement::HGC_ECAL,
+				reco::PFBlock::LINKTEST_ALL );
+      sortedEcals.insert(sortedEcals.begin(),sortedEcals.end());
 
       if(debug_) cout<<"\t\t\tnumber of Ecal elements linked to this track: "
                      <<sortedEcals.size()<<endl;     
@@ -1748,7 +1811,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
 	    // Sanity checks
 	    PFBlockElement::Type type = elements[ iEcal ].type();
-	    assert( type == PFBlockElement::ECAL );
+	    assert( type == PFBlockElement::ECAL || type == PFBlockElement::HGC_ECAL );
 	    PFClusterRef eclusterref = elements[iEcal].clusterRef();
 	    assert(!eclusterref.isNull() );
 	      
@@ -1987,6 +2050,12 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 				    sortedEcals,
 				    reco::PFBlockElement::ECAL,
 				    reco::PFBlock::LINKTEST_ALL );
+	  std::multimap<double, unsigned> sortedHGCEcals;
+	  block.associatedElements( iTrack,  linkData,
+				    sortedHGCEcals,
+				    reco::PFBlockElement::HGC_ECAL,
+				    reco::PFBlock::LINKTEST_ALL );
+	  sortedEcals.insert(sortedHGCEcals.begin(),sortedHGCEcals.end());
 	  std::multimap<double, unsigned> sortedHOs;
 	  block.associatedElements( iTrack,  linkData,
 				    sortedHOs,
@@ -2387,7 +2456,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
         unsigned iEcal = iae->second.second;
           
         PFBlockElement::Type typeEcal = elements[iEcal].type();
-        assert(typeEcal == reco::PFBlockElement::ECAL);
+        assert( typeEcal == reco::PFBlockElement::ECAL || 
+	        typeEcal == reco::PFBlockElement::HGC_ECAL );
           
         reco::PFClusterRef clusterRef = elements[iEcal].clusterRef();
         assert( !clusterRef.isNull() );
@@ -2570,7 +2640,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
       // Sanity checks again (well not useful, this time!)
       PFBlockElement::Type type = elements[ iEcal ].type();
-      assert( type == PFBlockElement::ECAL );
+      assert( type == PFBlockElement::ECAL || type == PFBlockElement::HGC_ECAL );
       PFClusterRef eclusterref = elements[iEcal].clusterRef();
       assert(!eclusterref.isNull() );
 
@@ -2635,6 +2705,12 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
                               ecalElems ,
                               reco::PFBlockElement::ECAL,
 			      reco::PFBlock::LINKTEST_ALL );
+    std::multimap<double, unsigned> hgcEcalElems;
+    block.associatedElements( iHcal,  linkData,
+                              hgcEcalElems ,
+                              reco::PFBlockElement::HGC_ECAL,
+			      reco::PFBlock::LINKTEST_ALL );
+    ecalElems.insert(hgcEcalElems.begin(),hgcEcalElems.end());
 
     // Loop on these ECAL elements
     float totalEcal = 0.;
@@ -2645,7 +2721,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       unsigned iEcal = ie->second;
       double dist = ie->first;
       PFBlockElement::Type type = elements[iEcal].type();
-      assert( type == PFBlockElement::ECAL );
+      assert( type == PFBlockElement::ECAL || type == PFBlockElement::HGC_ECAL );
       
       // Check if already used
       if( !active[iEcal] ) continue;
@@ -2674,6 +2750,18 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 				hcalElems ,
 				reco::PFBlockElement::HCAL,
 				reco::PFBlock::LINKTEST_ALL );
+      std::multimap<double, unsigned> hgcHcalFElems;
+      block.associatedElements( iEcal,  linkData,
+				hgcHcalFElems ,
+				reco::PFBlockElement::HGC_HCALF,
+				reco::PFBlock::LINKTEST_ALL );
+      hcalElems.insert(hgcHcalFElems.begin(),hgcHcalFElems.end());
+      std::multimap<double, unsigned> hgcHcalBElems;
+      block.associatedElements( iEcal,  linkData,
+				hgcHcalBElems ,
+				reco::PFBlockElement::HGC_HCALB,
+				reco::PFBlock::LINKTEST_ALL );
+      hcalElems.insert(hgcHcalBElems.begin(),hgcHcalBElems.end());
 
       bool isClosest = true;
       for(IE ih = hcalElems.begin(); ih != hcalElems.end(); ++ih ) {
@@ -2758,6 +2846,18 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 				  hcalElems ,
 				  reco::PFBlockElement::HCAL,
 				  reco::PFBlock::LINKTEST_ALL );
+	std::multimap<double, unsigned> hgcHcalFElems;	
+	block.associatedElements( iHO,  linkData,
+				  hgcHcalFElems ,
+				  reco::PFBlockElement::HGC_HCALF,
+				  reco::PFBlock::LINKTEST_ALL );
+	hcalElems.insert(hgcHcalFElems.begin(),hgcHcalFElems.end());
+	std::multimap<double, unsigned> hgcHcalBElems;
+	block.associatedElements( iHO,  linkData,
+				  hgcHcalBElems ,
+				  reco::PFBlockElement::HGC_HCALB,
+				  reco::PFBlock::LINKTEST_ALL );
+	hcalElems.insert(hgcHcalBElems.begin(),hgcHcalBElems.end());
 	
 	bool isClosest = true;
 	for(IE ih = hcalElems.begin(); ih != hcalElems.end(); ++ih ) {
@@ -3014,8 +3114,8 @@ PFAlgo::reconstructCluster(const reco::PFCluster& cluster,
     case PFLayer::ECAL_ENDCAP:
     case PFLayer::HCAL_ENDCAP:
     case PFLayer::HGC_ECAL:
-      //case PFLayer::HGC_HCALF:
-      //case PFLayer::HGC_HCALB:
+    case PFLayer::HGC_HCALF:
+    case PFLayer::HGC_HCALB:
     case PFLayer::HF_HAD:
     case PFLayer::HF_EM:
       factor = cluster.position().Z()/particleZ;
