@@ -603,8 +603,10 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
   // vectors to store indices to ho, hcal and ecal elements 
   vector<unsigned> hcalIs;
+  vector<bool> hcalIsHG;
   vector<unsigned> hoIs;
   vector<unsigned> ecalIs;
+  vector<bool> ecalIsHG;
   vector<unsigned> trackIs;
   vector<unsigned> ps1Is;
   vector<unsigned> ps2Is;
@@ -629,6 +631,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     case PFBlockElement::ECAL: 
       if ( active[iEle]  ) { 
 	ecalIs.push_back( iEle );
+	ecalIsHG.push_back(type == PFBlockElement::HGC_ECAL);
 	if(debug_) cout<<"ECAL, stored index, continue"<<endl;
       }
       continue;
@@ -637,6 +640,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
     case PFBlockElement::HCAL:
       if ( active[iEle] ) { 
 	hcalIs.push_back( iEle );
+	hcalIsHG.push_back( type == PFBlockElement::HGC_HCALF ||
+			    type == PFBlockElement::HGC_HCALB    );
 	if(debug_) cout<<"HCAL, stored index, continue"<<endl;
       }
       continue;
@@ -1603,7 +1608,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
                                 sortedHGCEcals,
 				reco::PFBlockElement::HGC_ECAL,
 				reco::PFBlock::LINKTEST_ALL );
-      sortedEcals.insert(sortedEcals.begin(),sortedEcals.end());
+      sortedEcals.insert(sortedHGCEcals.begin(),sortedHGCEcals.end());
 
       if(debug_) cout<<"\t\t\tnumber of Ecal elements linked to this track: "
                      <<sortedEcals.size()<<endl;     
