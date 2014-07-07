@@ -67,10 +67,11 @@ class HGCDigitizerBase {
 
 	//add noise (in keV)
 	double noiseEn=simpleNoiseGen_->fire();
-	if(noiseEn<0) noiseEn=0;
- 
+	totalEn += noiseEn;
+	if(totalEn<0) totalEn=0;
+	
 	//round to integer (sample will saturate the value according to available bits)
-	uint16_t totalEnInt = floor( ((totalEn+noiseEn)/mipInKeV_) / lsbInMIP_ );
+	uint16_t totalEnInt = floor( (totalEn/mipInKeV_) / lsbInMIP_ );
 
 	//0 gain for the moment
 	HGCSample singleSample;
