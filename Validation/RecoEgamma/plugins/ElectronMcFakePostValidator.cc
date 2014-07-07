@@ -17,11 +17,11 @@ void ElectronMcFakePostValidator::bookHistograms( DQMStore::IBooker & iBooker, e
   setBookPrefix("h_ele") ;
 
   edm::LogInfo("ElectronMcFakePostValidator::finalize") << "efficiency calculation " ;
-  bookH1andDivide(iBooker, "etaEff","matchingObjectEta_matched","matchingObject_eta","#eta","Efficiency");
-  bookH1andDivide(iBooker, "zEff","matchingObjectZ_matched","matchingObject_z","z (cm)","Efficiency");
-  bookH1andDivide(iBooker, "absetaEff","matchingObjectAbsEta_matched","matchingObject_abseta","|#eta|","Efficiency");
-  bookH1andDivide(iBooker, "ptEff","matchingObjectPt_matched","matchingObject_Pt","p_{T} (GeV/c)","Efficiency");
-  bookH1andDivide(iBooker, "phiEff","matchingObjectPhi_matched","matchingObject_phi","#phi (rad)","Efficiency");
+  bookH1andDivide(iBooker, "etaEff","matchingObjectEta_matched","matchingObject_eta","#eta","Efficiency","", "true");
+  bookH1andDivide(iBooker, "zEff","matchingObjectZ_matched","matchingObject_z","z (cm)","Efficiency","", "true");
+  bookH1andDivide(iBooker, "absetaEff","matchingObjectAbsEta_matched","matchingObject_abseta","|#eta|","Efficiency","", "true");
+  bookH1andDivide(iBooker, "ptEff","matchingObjectPt_matched","matchingObject_Pt","p_{T} (GeV/c)","Efficiency","", "true");
+  bookH1andDivide(iBooker, "phiEff","matchingObjectPhi_matched","matchingObject_phi","#phi (rad)","Efficiency","", "true");/**/
 //    bookH2andDivide(iBooker, "ptEtaEff","matchingObjectPtEta_matched","matchingObjectPtEta","#eta","p_{T} (GeV/c)");
 //
 //    std::cout << "[ElectronMcFakePostValidator] q-misid calculation " << std::endl;
