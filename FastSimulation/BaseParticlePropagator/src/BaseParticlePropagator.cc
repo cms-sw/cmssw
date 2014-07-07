@@ -574,7 +574,7 @@ BaseParticlePropagator::propagateToHGCHEFEntrance(bool first) {
   //
 
   // First propagate to global barrel / endcap cylinder 
-  setPropagationConditions(177.5 , 360.63, first);
+  setPropagationConditions(168.088 , 360.63, first);
   propDir = 0;
   bool done = propagate();
   propDir = 1;
