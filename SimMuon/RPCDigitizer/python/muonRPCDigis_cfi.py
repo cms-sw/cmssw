@@ -17,9 +17,9 @@ simMuonRPCDigis = cms.EDProducer("RPCDigiProducer",
         Gate = cms.double(25.0),
         averageEfficiency = cms.double(0.95),
         Nbxing = cms.int32(9),
-        timeJitter = cms.double(1.0),
-        doBkgNoise = cms.bool(True) #False - no noise and bkg simulation
+        timeJitter = cms.double(1.0)
     ),
+    doBkgNoise = cms.bool(True), #False - no noise and bkg simulation
     Signal = cms.bool(True),
     mixLabel = cms.string('mix'),                                 
     InputCollection = cms.string('g4SimHitsMuonRPCHits'),
