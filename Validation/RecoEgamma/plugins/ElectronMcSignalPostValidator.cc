@@ -17,12 +17,12 @@ void ElectronMcSignalPostValidator::bookHistograms( DQMStore::IBooker & iBooker,
   setBookPrefix("h_ele") ;
 
   edm::LogInfo("ElectronMcSignalPostValidator::finalize") << "efficiency calculation" ;
-  bookH1andDivide(iBooker, "etaEff","mc_Eta_matched","mc_Eta","#eta","Efficiency","");
-  bookH1andDivide(iBooker, "zEff","mc_Z_matched","mc_Z","z (cm)","Efficiency","");
-  bookH1andDivide(iBooker, "absetaEff","mc_AbsEta_matched","mc_AbsEta","|#eta|","Efficiency");
-  bookH1andDivide(iBooker, "ptEff","mc_Pt_matched","mc_Pt","p_{T} (GeV/c)","Efficiency");
-  bookH1andDivide(iBooker, "phiEff","mc_Phi_matched","mc_Phi","#phi (rad)","Efficiency");
-  bookH2andDivide(iBooker, "ptEtaEff","mc_PtEta_matched","mc_PtEta","#eta","p_{T} (GeV/c)");
+  bookH1andDivide(iBooker, "etaEff","mc_Eta_matched","mc_Eta","#eta","Efficiency","","true");
+  bookH1andDivide(iBooker, "zEff","mc_Z_matched","mc_Z","z (cm)","Efficiency","","true");
+  bookH1andDivide(iBooker, "absetaEff","mc_AbsEta_matched","mc_AbsEta","|#eta|","Efficiency","","true");
+  bookH1andDivide(iBooker, "ptEff","mc_Pt_matched","mc_Pt","p_{T} (GeV/c)","Efficiency","","true");
+  bookH1andDivide(iBooker, "phiEff","mc_Phi_matched","mc_Phi","#phi (rad)","Efficiency","","true");
+  bookH2andDivide(iBooker, "ptEtaEff","mc_PtEta_matched","mc_PtEta","#eta","p_{T} (GeV/c)","");/*  */
 
   edm::LogInfo("ElectronMcSignalPostValidator::finalize") << "q-misid calculation" ;
   bookH1andDivide(iBooker, "etaQmisid","mc_Eta_matched_qmisid","mc_Eta","#eta","q misId","");
