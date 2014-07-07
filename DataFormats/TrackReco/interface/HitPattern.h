@@ -22,14 +22,14 @@
 // +--------+---------------+---------------------------+-----------------+----------------+
 // |  tk/mu | sub-structure |     sub-sub-structure     |     stereo      |    hit type    |
 // +--------+---------------+---------------------------+-----------------+----------------+
-// |   11   | 10   9    8   | 7      6     5     4      |        3        |   2    1    0  |  bit
+// |   10   | 9   8    7    |  6     5     4     3      |        2        |    1        0  |  bit
 // +--------+---------------+---------------------------+-----------------+----------------|
-// | tk = 1 |    PXB = 1    | layer = 1-3               |                 | hit type = 0-5 |
-// | tk = 1 |    PXF = 2    | disk  = 1-2               |                 | hit type = 0-5 |
-// | tk = 1 |    TIB = 3    | layer = 1-4               | 0=rphi,1=stereo | hit type = 0-5 |
-// | tk = 1 |    TID = 4    | wheel = 1-3               | 0=rphi,1=stereo | hit type = 0-5 |
-// | tk = 1 |    TOB = 5    | layer = 1-6               | 0=rphi,1=stereo | hit type = 0-5 |
-// | tk = 1 |    TEC = 6    | wheel = 1-9               | 0=rphi,1=stereo | hit type = 0-5 |
+// | tk = 1 |    PXB = 1    | layer = 1-3               |                 | hit type = 0-3 |
+// | tk = 1 |    PXF = 2    | disk  = 1-2               |                 | hit type = 0-3 |
+// | tk = 1 |    TIB = 3    | layer = 1-4               | 0=rphi,1=stereo | hit type = 0-3 |
+// | tk = 1 |    TID = 4    | wheel = 1-3               | 0=rphi,1=stereo | hit type = 0-3 |
+// | tk = 1 |    TOB = 5    | layer = 1-6               | 0=rphi,1=stereo | hit type = 0-3 |
+// | tk = 1 |    TEC = 6    | wheel = 1-9               | 0=rphi,1=stereo | hit type = 0-3 |
 // | mu = 0 |    DT  = 1    | 4*(stat-1)+superlayer     |                 | hit type = 0-3 |
 // | mu = 0 |    CSC = 2    | 4*(stat-1)+(ring-1)       |                 | hit type = 0-3 |
 // | mu = 0 |    RPC = 3    | 4*(stat-1)+2*layer+region |                 | hit type = 0-3 |
@@ -41,7 +41,6 @@
 //      INACTIVE = detector is off, so there was no hope         = 2
 //      BAD      = there were many bad strips within the ellipse = 3
 //
-
 // It had been shown by Zongru using a 100 GeV muon sample with 5000 events
 // uniform in eta and phi, the average (maximum) number of tracker hits is
 // 13 (17) and the average (maximum) number of muon detector hits is about
@@ -155,19 +154,16 @@ public:
     static uint32_t getSubStructure(uint16_t pattern);
     static uint32_t getSubDetector(uint16_t pattern);
 
-    // Muon station (1-4). Only valid for muon patterns, of course.
-    // only for patterns from muon, of course
+    /// Muon station (1-4). Only valid for muon patterns, of course. only for patterns from muon, of course
     static uint16_t getMuonStation(uint16_t pattern);
 
-    // DT superlayer (1-3). Where the "hit" was a DT segment, superlayer is 0.
-    // Only valid for muon DT patterns, of course.
+    /// DT superlayer (1-3). Where the "hit" was a DT segment, superlayer is 0. Only valid for muon DT patterns, of course.
     static uint16_t getDTSuperLayer(uint16_t pattern); // only for DT patterns
 
     /// CSC ring (1-4). Only valid for muon CSC patterns, of course.
     static uint16_t getCSCRing(uint16_t pattern) ;
 
-    /// RPC layer: for station 1 and 2, layer = 1(inner) or 2(outer);
-    // for station 3, 4 layer is always 0. Only valid for muon RPC patterns, of course.
+    /// RPC layer: for station 1 and 2, layer = 1(inner) or 2(outer); for station 3, 4 layer is always 0. Only valid for muon RPC patterns, of course.
     static uint16_t getRPCLayer(uint16_t pattern) ;
 
     /// RPC region: 0 = barrel, 1 = endcap. Only valid for muon RPC patterns, of course.
