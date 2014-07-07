@@ -46,6 +46,7 @@ private:
   std::auto_ptr<FEDRawDataCollection> rawData_;
   std::vector<char> buffer_;
   const bool verifyAdler32_;
+  unsigned int detectedFRDversion_=0;
 };
 
 #endif // EventFilter_Utilities_FRDStreamSource_h
