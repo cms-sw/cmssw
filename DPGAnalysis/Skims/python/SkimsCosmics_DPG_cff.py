@@ -11,10 +11,10 @@ from DPGAnalysis.Skims.Skims_DPG_cff import pathlogerror,SKIMStreamLogError
 from DPGAnalysis.Skims.Skims_DPG_cff import pathlogerrormonitor,SKIMStreamLogErrorMonitor
 
 ############
-from DPGAnalysis.Skims.cosmicSPSkim_cff import *
+from DPGAnalysis.Skims.CosmicSPSkim_cff import *
 
 cosmicMuonsBarrelOnlyPath = cms.Path(cosmicMuonsBarrelOnlySequence)
-cosmicMuonsPath = cms.Path(cosmicMuonsSequence)
+cosmicMuonsPath = cms.Path(cosmicMuonsBarrelOnlyFilter)
 cosmicMuons1LegPath = cms.Path(cosmicMuons1LegSequence)
 globalCosmicMuonsBarrelOnlyPath = cms.Path(globalCosmicMuonsBarrelOnlySequence)
 cosmictrackfinderP5Path = cms.Path(cosmictrackfinderP5Sequence)
@@ -24,6 +24,7 @@ globalCosmicMuons1LegPath = cms.Path(globalCosmicMuons1LegSequence)
 SKIMStreamCosmicSP = cms.FilteredStream(
             responsible = 'MU-POG TRK-DPG',
                     name = 'CosmicSP',
+                    #paths = (cosmicMuons1LegPath
                     paths = (cosmicMuonsBarrelOnlyPath,
                                               cosmicMuonsPath,
                                               cosmicMuons1LegPath,
@@ -39,6 +40,10 @@ SKIMStreamCosmicSP = cms.FilteredStream(
                     )
 
 
+
+
+
+
 """
 from DPGAnalysis.Skims.cscSkim_cff import *
 from DPGAnalysis.Skims.Skims_DPG_cff import pathCSCSkim,SKIMStreamCSC
@@ -46,7 +51,7 @@ from DPGAnalysis.Skims.Skims_DPG_cff import pathCSCSkim,SKIMStreamCSC
 
 
 
-from DPGAnalysis.Skims.cosmicSPSkim_cff import *
+from DPGAnalysis.Skims.CosmicSPSkim_cff import *
 
 cosmicMuonsBarrelOnlyPath = cms.Path(cosmicMuonsBarrelOnlySequence)
 cosmicMuonsPath = cms.Path(cosmicMuonsSequence)
