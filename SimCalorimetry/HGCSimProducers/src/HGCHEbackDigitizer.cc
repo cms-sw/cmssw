@@ -61,10 +61,8 @@ void HGCHEbackDigitizer::runCaliceLikeDigitizer(std::auto_ptr<HGCHEDigiCollectio
 	if(xTalk_*x!=1) nPixel=std::max( float(nTotalPE_*(1-x)/(1-xTalk_*x)), float(0.) );
 	
 	//update signal
-	float nPixelNew(-1);
-	while(nPixelNew<0) nPixelNew=sigGen_->fire(nPixel,sdPixels_);
-	nPixel=nPixelNew;
-
+	nPixel=std::max( float(sigGen_->fire(nPixel,sdPixels_)), float(0.) );
+	
 	//convert to MIP again
 	if(nTotalPE_!=nPixel && (nTotalPE_-xTalk_*nPixel)/(nTotalPE_-nPixel)>0 )
 	  totalMIPs = (nTotalPE_/nPEperMIP_)*log((nTotalPE_-xTalk_*nPixel)/(nTotalPE_-nPixel));
@@ -73,8 +71,7 @@ void HGCHEbackDigitizer::runCaliceLikeDigitizer(std::auto_ptr<HGCHEDigiCollectio
 	
 	//add noise (in MIPs)
 	double noiseMIPs=simpleNoiseGen_->fire(0.,1./mip2noise_);
-	totalMIPs += noiseMIPs;
-	if(totalMIPs<0) totalMIPs=0;
+	totalMIPs=std::max(float(totalMIPs+noiseMIPs),float(0.));
 	
 	//round to integer (sample will saturate the value according to available bits)
 	uint16_t totalEnInt = floor( totalMIPs / lsbInMIP_ );
