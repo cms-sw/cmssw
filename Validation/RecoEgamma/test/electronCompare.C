@@ -144,6 +144,7 @@ int electronCompare()
   eleStyle->SetPadLeftMargin(0.15);
   eleStyle->SetMarkerStyle(21);
   eleStyle->SetMarkerSize(0.8);
+  eleStyle->SetPadRightMargin(0.2) ; 
 
   eleStyle->cd();
 
@@ -468,6 +469,7 @@ int electronCompare()
       histo_new->SetLineWidth(3) ;
       RenderHisto(histo_new,canvas) ;
       histo_new->Draw(newDrawOptions) ;
+      canvas->SetCanvasSize(960, 600); // for larger pictures due to stats
       canvas->Update() ;
       st_new = (TPaveStats*)histo_new->FindObject("stats");
       st_new->SetTextColor(kRed) ;
