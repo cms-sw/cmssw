@@ -45,7 +45,6 @@ std::pair<bool, double> MRHChi2MeasurementEstimator::estimate(const TrajectorySt
 
     // define variables that will be used to setup the KfComponentsHolder
     ProjectMatrix<double,5,N>  pf;
-    typename AlgebraicROOTObject<N,5>::Matrix H;
     typename AlgebraicROOTObject<N>::Vector r, rMeas;
     typename AlgebraicROOTObject<N,N>::SymMatrix V, VMeas;
     AlgebraicVector5 x = tsos.localParameters().vector();
@@ -53,7 +52,7 @@ std::pair<bool, double> MRHChi2MeasurementEstimator::estimate(const TrajectorySt
 
     // setup the holder with the correct dimensions and get the values
     KfComponentsHolder holder;
-    holder.template setup<N>(&r, &V, &H, &pf, &rMeas, &VMeas, x, C);
+    holder.template setup<N>(&r, &V, &pf, &rMeas, &VMeas, x, C);
     (**iter).getKfComponents(holder);
 
     r -= rMeas;
