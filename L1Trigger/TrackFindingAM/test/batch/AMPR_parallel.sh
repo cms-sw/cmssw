@@ -89,9 +89,9 @@ OUTDIR_XROOT=root://$LFC_HOST/$OUTDIR
 # https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideLcgAccess
 #
 
-#source /afs/cern.ch/project/gd/LCG-share/current_3.2/etc/profile.d/grid-env.sh
-#voms-proxy-init --voms cms --valid 100:00 -out $HOME/.globus/gridproxy.cert
-#export X509_USER_PROXY=${HOME}/.globus/gridproxy.cert
+source /afs/cern.ch/project/gd/LCG-share/current_3.2/etc/profile.d/grid-env.sh
+voms-proxy-init --voms cms --valid 100:00 -out $HOME/.globus/gridproxy.cert
+export X509_USER_PROXY=${HOME}/.globus/gridproxy.cert
 
 
 # Then we setup some environment variables
