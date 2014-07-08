@@ -121,7 +121,7 @@ HGCalGeometry::CornersVec HGCalGeometry::getCorners( const DetId& id ) const {
     HGCalTopology::DecodedDetId id_ = topology().decode(id);
     std::pair<float,float> xy = topology().dddConstants().locateCell(id_.iCell,id_.iLay,id_.iSubSec,true);
     float dz = m_cellVec[cellIndex].param()[0];
-    float dx = m_cellVec[cellIndex].param()[11];
+    float dx = 0.5*m_cellVec[cellIndex].param()[11];
     static const int signx[] = {-1,-1,1,1,-1,-1,1,1};
     static const int signy[] = {-1,1,1,-1,-1,1,1,-1};
     static const int signz[] = {-1,-1,-1,-1,1,1,1,1};
