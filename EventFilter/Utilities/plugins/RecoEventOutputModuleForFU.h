@@ -197,7 +197,7 @@ namespace evf {
 
       struct stat istat;
       stat(openDatFilePath_.string().c_str(), &istat);
-      unsigned long readInput=0;
+      off_t readInput=0;
       while (readInput<istat.st_size) {
           unsigned long toRead=  readInput+1024*1024 < istat.st_size ? 1024*1024 : istat.st_size-readInput;
           fread(outBuf_,toRead,1,src);
