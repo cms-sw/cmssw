@@ -148,11 +148,11 @@ def draw_plot( file, tDir,oDir ) :
 	for hist in key_list :
 		if hist.find("track_") != -1 :
 			draw_occ( oDir,d1.Get(hist)) 
-		if (hist.find("lx") !=-1 or hist.find("ly") != -1 ) :
+		if (hist.find("lx") !=-1 or hist.find("ly") != -1 or hist.find("dphi") != -1 or hist.find("_phi_dist") != -1 ) :
 			draw_occ( oDir,d1.Get(hist))
 		if ( hist.find("bx") != -1 ) :
 			draw_bx( oDir, d1.Get(hist)  )
-		elif ( hist.find("xy") !=-1 or hist.find("zr") !=-1 or hist.find("roll_vs_strip")!= -1 or hist.find("phipad")!=-1 or hist.find("phistrip") != -1 ) :
+		elif ( hist.find("xy") !=-1 or hist.find("zr") !=-1 or hist.find("roll_vs_strip")!= -1 or hist.find("phipad")!=-1 or hist.find("phistrip") != -1 or hist.find("phiz") ) :
 			draw_col( oDir, d1.Get(hist) )
 		elif ( hist.find("eff") != -1 ) :
 			draw_eff( oDir, d1.Get(hist) )
