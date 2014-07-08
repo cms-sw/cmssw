@@ -105,8 +105,7 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
   
   pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::ClosestApproach,
 				     posClosest,momClosest));
-  
-  
+
   //BEAMPIPE
   theParticle.setPropagationConditions(PFGeometry::outerRadius(PFGeometry::BeamPipe), 
 				       PFGeometry::outerZ(PFGeometry::BeamPipe), false);
@@ -119,8 +118,6 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
     PFTrajectoryPoint dummyMaxSh;
     pftrack.addPoint(dummyMaxSh); 
   }
-  
-
 
   //trajectory points
 
@@ -152,7 +149,6 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
      PFTrajectoryPoint dummyPS1;
      pftrack.addPoint(dummyPS1); 
    }
-   
 
    theOutParticle.propagateToPreshowerLayer2(false);
    if(theOutParticle.getSuccess()!=0){
@@ -164,7 +160,6 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
      PFTrajectoryPoint dummyPS2;
      pftrack.addPoint(dummyPS2); 
    }
-
    theOutParticle.propagateToEcalEntrance(false);
 
    if(theOutParticle.getSuccess()!=0){
@@ -224,7 +219,7 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
        pftrack.addPoint(dummyHCALentrance); 
      }
    }
-   
+
    //HCAL exit
    // theOutParticle.setMagneticField(0); //Show we propagate as straight line inside HCAL ?
    theOutParticle.propagateToHcalExit(false);
@@ -238,7 +233,6 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
      PFTrajectoryPoint dummyHCALexit;
      pftrack.addPoint(dummyHCALexit); 
    }
-   
    
    //HO layer0
    //   if (abs(theOutParticle.vertex().z())<550) {
@@ -256,6 +250,9 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
        PFTrajectoryPoint dummyHOLayer;
        pftrack.addPoint(dummyHOLayer); 
      }
+   } else {
+     PFTrajectoryPoint dummyHOLayer;
+     pftrack.addPoint(dummyHOLayer); 
    }
 
    // add HGCAL pieces

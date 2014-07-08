@@ -198,6 +198,8 @@ void
 KDTreeLinkerTrackHGC<the_layer>::searchLinks()
 {
   // Must of the code has been taken from LinkByRecHit.cc
+  //std::cout << "running searchLinks() for : " << the_layer 
+  //<< ' ' << targetSet_.size() << std::endl;
 
   // We iterate over the tracks.
   for(BlockEltSet::iterator it = targetSet_.begin(); 
@@ -213,7 +215,10 @@ KDTreeLinkerTrackHGC<the_layer>::searchLinks()
       trackref->extrapolatedPoint(the_layer);
 
     // The track didn't reach ecal
-    if( ! atECAL.isValid() ) continue;
+    if( ! atECAL.isValid() ) {
+      //std::cout << "extrapolation to " << the_layer << " was bad!" << std::endl;
+      continue;
+    }
     
     const reco::PFTrajectoryPoint& atVertex = 
       trackref->extrapolatedPoint( reco::PFTrajectoryPoint::ClosestApproach );
