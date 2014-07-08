@@ -255,7 +255,7 @@ void processDirectory(TFile *file,
         subdir += '/';
       subdir += obj->GetName();
       processDirectory(file, subdir, dirs, objs, fullnames, micromes);
-    } else if ((dynamic_cast<TH1 *>(obj)) && (dynamic_cast<TObjString *>(obj))) {
+    } else if ((dynamic_cast<TH1 *>(obj)) || (dynamic_cast<TObjString *>(obj))) {
       if (dynamic_cast<TH1 *>(obj)) {
         dynamic_cast<TH1 *>(obj)->SetDirectory(0);
       }
@@ -319,7 +319,7 @@ int convertFile(const std::string &output_filename,
                     (void*)h.streamed_histo().data(),
                     kFALSE);
     buf.Reset();
-    TObject *obj = static_cast<TH1*>(extractNextObject(buf));
+    TObject *obj = extractNextObject(buf);
     std::string path,objname;
     get_info(h, path, objname, &obj);
     gDirectory->cd("/");
