@@ -57,6 +57,7 @@ namespace evf {
     boost::shared_ptr<FastMonitor> jsonMonitor_;
     evf::FastMonitoringService *fms_;
     DataPointDefinition outJsonDef_;
+    unsigned char* outBuf_=0;
 
 
   }; //end-of-class-def
@@ -72,7 +73,8 @@ namespace evf {
     retCodeMask_(0),
     filelist_(),
     filesize_(0),
-    inputFiles_()
+    inputFiles_(),
+    outBuf_(new unsigned char[1024*1024])
   {
     std::string baseRunDir = edm::Service<evf::EvFDaqDirector>()->baseRunDir();
     LogDebug("RecoEventOutputModuleForFU") << "writing .dat files to -: " << baseRunDir;
@@ -187,17 +189,28 @@ namespace evf {
     c_->closeOutputFile();
     processed_.value() = fms_->getEventsProcessedForLumi(ls.luminosityBlock());
     if(processed_.value()!=0){
-      int b;
+      //int b;
       // move dat file to one level up - this is VERRRRRY inefficient, come up with a smarter idea
 
       FILE *des = edm::Service<evf::EvFDaqDirector>()->maybeCreateAndLockFileHeadForStream(ls.luminosityBlock(),stream_label_);
       FILE *src = fopen(openDatFilePath_.string().c_str(),"r");
-      if(des != 0 && src !=0){
-	while((b=fgetc(src))!= EOF){
-	  fputc((unsigned char)b,des);
-          filesize++;
-	}
+
+      struct stat istat;
+      stat(openDatFilePath_.string().c_str(), &istat);
+      unsigned long readInput=0;
+      while (readInput<istat.st_size) {
+          unsigned long toRead=  readInput+1024*1024 < istat.st_size ? 1024*1024 : istat.st_size-readInput;
+          fread(outBuf_,toRead,1,src);
+          fwrite(outBuf_,toRead,1,des);
+          readInput+=toRead;
       }
+
+      //if(des != 0 && src !=0){
+      //	while((b=fgetc(src))!= EOF){
+      //	  fputc((unsigned char)b,des);
+      //    filesize++;
+      //	}
+      //}
 
       edm::Service<evf::EvFDaqDirector>()->unlockAndCloseMergeStream();
       fclose(src);
