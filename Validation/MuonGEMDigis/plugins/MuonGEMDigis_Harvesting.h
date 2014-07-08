@@ -30,7 +30,8 @@ public:
 
   virtual void endRun(const edm::Run&, const edm::EventSetup&) ;
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-	TProfile* ComputeEff( TH1F* num, TH1F* denum);
+	virtual TProfile* ComputeEff( TH1F* num, TH1F* denum);
+	virtual void ProcessBooking( DQMStore* dbe_, const char* label, TString suffix, TH1F* track_hist, TH1F* sh_hist );
 
 private:
 

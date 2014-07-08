@@ -1,8 +1,8 @@
 #include "Validation/MuonGEMDigis/interface/GEMCSCCoPadDigiValidation.h"
 
 GEMCSCCoPadDigiValidation::GEMCSCCoPadDigiValidation(DQMStore* dbe,
-                                               const edm::InputTag & inputTag, const edm::ParameterSet& pbInfo)
-:  GEMBaseValidation(dbe, inputTag, pbInfo) { }
+                                               edm::EDGetToken& inputToken, const edm::ParameterSet& pbInfo)
+:  GEMBaseValidation(dbe, inputToken, pbInfo) { }
 
 void GEMCSCCoPadDigiValidation::bookHisto(const GEMGeometry* geom) {
   theGEMGeometry = geom;
@@ -31,6 +31,7 @@ void GEMCSCCoPadDigiValidation::bookHisto(const GEMGeometry* geom) {
         theCSCCoPad_xy[region_num][station_num] = dbe_->book2D( ("copad_dg_xy"+name_prefix).c_str(), ("Digi occupancy: "+label_prefix+";globalX [cm]; globalY[cm]").c_str(), 360, -360,360,360,-360,360);
         theCSCCoPad_bx[region_num][station_num] = dbe_->book1D( ("copad_dg_bx"+name_prefix).c_str(), ("Bunch crossing: "+label_prefix+"; bunch crossing ; entries").c_str(), 11,-5.5,5.5);
 				theCSCCoPad_zr[region_num][station_num] = BookHistZR( "copad_dg","CoPad Digi",region_num,station_num);
+				theCSCCoPad_xy[region_num][station_num] = BookHistXY( "copad_dg","CoPad Digi",region_num,station_num);
       }
     }
 }
@@ -46,10 +47,9 @@ void GEMCSCCoPadDigiValidation::analyze(const edm::Event& e,
                                      const edm::EventSetup&)
 {
   edm::Handle<GEMCSCPadDigiCollection> gem_digis;
-  e.getByLabel(theInputTag, gem_digis);
+  e.getByToken(inputToken_, gem_digis);
   if (!gem_digis.isValid()) {
-    edm::LogError("GEMCSCCoPadDigiValidation") << "Cannot get pads by label "
-                                       << theInputTag.encode();
+    edm::LogError("GEMCSCCoPadDigiValidation") << "Cannot get pads by token.";
   }
   for (GEMCSCPadDigiCollection::DigiRangeIterator cItr=gem_digis->begin(); cItr!=gem_digis->end(); cItr++) {
 
