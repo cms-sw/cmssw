@@ -74,7 +74,7 @@ void GEMStripDigiValidation::bookHisto(const GEMGeometry* geom) {
         nch = (Short_t)roId.chamber();
 
  		    name_prefix<<"r"<<nre<<"_st"<<stationLabel[nst-1]<<"_ch"<<nch;
-        title_prefix<<roId;
+        title_prefix<<"Region "<<nre<<" Station "<<stationLabel[nst-1]<<" Chamber "<<nch;
 
         //name<<"strip_phi_dist_"<<name_prefix.str()<<"_la"<<nla<<"_roll"<<nro;
 			  //title<< " strips' phi distributio at "<<title_prefix.str()<<";# of strip ; Azimuthal angle (#phi)";

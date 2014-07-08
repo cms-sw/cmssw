@@ -59,6 +59,19 @@ def draw_col(target_dir, h, ext =".png", opt = "col"):
 	h.Draw(opt)
 	c.SaveAs(target_dir + c_title + ext)
 
+def draw_col_overflow(target_dir, h, ext =".png", opt = "col"):
+	gStyle.SetStatStyle(0)
+	gStyle.SetOptStat(110200)
+	c = TCanvas(h.GetTitle(),h.GetName(),600,600)
+	c_title = c.GetTitle()
+	c.Clear()
+	if not h:
+		sys.exit('h does not exist')
+	h.SetLineWidth(2)
+	h.SetLineColor(kBlue)
+	h.Draw(opt)
+	c.SaveAs(target_dir + c_title + ext)
+
 def draw_eff(target_dir, h, ext = ".png", opt = ""):
 	c = TCanvas(h.GetTitle(), h.GetName(),600,600)
 	c_title = c.GetTitle()
@@ -152,8 +165,10 @@ def draw_plot( file, tDir,oDir ) :
 			draw_occ( oDir,d1.Get(hist))
 		if ( hist.find("bx") != -1 ) :
 			draw_bx( oDir, d1.Get(hist)  )
-		elif ( hist.find("xy") !=-1 or hist.find("zr") !=-1 or hist.find("roll_vs_strip")!= -1 or hist.find("phipad")!=-1 or hist.find("phistrip") != -1 or hist.find("phiz") ) :
+		elif ( hist.find("xy") !=-1 or hist.find("zr") !=-1 or hist.find("roll_vs_strip")!= -1 or hist.find("phipad")!=-1 or hist.find("phistrip") != -1 ) :
 			draw_col( oDir, d1.Get(hist) )
+		elif ( hist.find("phiz") != -1 ) :
+			draw_col_overflow( oDir, d1.Get(hist) )
 		elif ( hist.find("eff") != -1 ) :
 			draw_eff( oDir, d1.Get(hist) )
 			#print "found "
