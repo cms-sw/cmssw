@@ -28,7 +28,8 @@ ecalLaserClient = cms.untracked.PSet(
         tolerancePNRMSRatio = cms.untracked.double(tolerancePNRMSRatio),
         expectedTiming = cms.untracked.vdouble(expectedTiming),
         toleranceTiming = cms.untracked.double(toleranceTiming),    
-        toleranceTimRMS = cms.untracked.double(toleranceTimRMS)
+        toleranceTimRMS = cms.untracked.double(toleranceTimRMS),
+        laserWavelengths = ecaldqmLaserWavelengths
     ),
     sources = cms.untracked.PSet(
         Timing = ecalLaserTask.MEs.Timing,
