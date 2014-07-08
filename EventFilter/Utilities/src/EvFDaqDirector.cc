@@ -480,7 +480,7 @@ namespace evf {
     if ( fileStatus == noFile ) {
       struct stat buf;
       //edm::LogInfo("EvFDaqDirector") << " looking for EoR file: " << getEoRFilePath().c_str();
-      if ( stat(getEoRFilePath().c_str(), &buf) == 0 )
+      if ( stat(getEoRFilePath().c_str(), &buf) == 0 || stat(bu_run_dir_.c_str(), &buf)!=0)
         fileStatus = runEnded;
     }
     return fileStatus;
