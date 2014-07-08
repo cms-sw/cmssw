@@ -17,6 +17,7 @@
 
 #include <vector>
 #include <map>
+#include <memory>
 
 class PCaloHit;
 class PileUpEventPrincipal;
@@ -69,7 +70,7 @@ private :
   //handle sim hits
   int maxSimHitsAccTime_;
   int bxTime_;
-  HGCSimHitDataAccumulator *simHitAccumulator_;  
+  std::unique_ptr<HGCSimHitDataAccumulator> simHitAccumulator_;  
   void resetSimHitDataAccumulator();
 
   //digitizers
