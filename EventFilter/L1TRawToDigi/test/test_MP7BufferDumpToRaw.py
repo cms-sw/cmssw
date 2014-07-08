@@ -109,7 +109,7 @@ process.l1tStage2CaloAnalyzer.etSumToken = cms.InputTag("l1tDigis")
 # Path and EndPath definitions
 process.path = cms.Path(
     process.mp7BufferDumpToRaw
-    +process.dumpRaw
+#    +process.dumpRaw
     +process.l1tDigis
     +process.l1tStage2CaloAnalyzer
 )
