@@ -257,16 +257,16 @@ uint16_t HitPattern::getHitPatternByAbsoluteIndex(int position) const
   
     uint16_t bitEndOffset = (position + 1) * HIT_LENGTH;
     uint8_t secondWord   = (bitEndOffset >> 4);
-    uint8_t secondWordBits = bitEndOffset & (16 - 1); // that is, bitEndOffset % 32
+    uint8_t secondWordBits = bitEndOffset & (16 - 1); // that is, bitEndOffset % 16
     if (secondWordBits >= HIT_LENGTH) { // full block is in this word
       uint8_t lowBitsToTrash = secondWordBits - HIT_LENGTH;
-      uint32_t myResult = (hitPattern[secondWord] >> lowBitsToTrash) & ((1 << HIT_LENGTH) - 1);
+      uint16_t myResult = (hitPattern[secondWord] >> lowBitsToTrash) & ((1 << HIT_LENGTH) - 1);
       return myResult;
     } else {
       uint8_t  firstWordBits   = HIT_LENGTH - secondWordBits;
-      uint32_t firstWordBlock  = hitPattern[secondWord - 1] >> (16 - firstWordBits);
-      uint32_t secondWordBlock = hitPattern[secondWord] & ((1 << secondWordBits) - 1);
-      uint32_t myResult = firstWordBlock + (secondWordBlock << firstWordBits);
+      uint16_t firstWordBlock  = hitPattern[secondWord - 1] >> (16 - firstWordBits);
+      uint16_t secondWordBlock = hitPattern[secondWord] & ((1 << secondWordBits) - 1);
+      uint16_t myResult = firstWordBlock + (secondWordBlock << firstWordBits);
       return myResult;
     }
 }
@@ -388,7 +388,7 @@ uint32_t HitPattern::getTrackerLayerCase(HitCategory category, uint16_t substr, 
         if ((pattern & mask) == tk_substr_layer) {
             uint16_t hitType = (pattern >> HitTypeOffset) & HitTypeMask;
             if (hitType < layerCase) {
-                // treats BADS and INACTIVE as the same type
+                // BAD and INACTIVE as the same type (as INACTIVE)
                 layerCase = (hitType == HIT_TYPE::BAD ? HIT_TYPE::INACTIVE : hitType);
                 if (layerCase == HIT_TYPE::VALID) {
                     break;
@@ -886,9 +886,9 @@ void HitPattern::insertHit(const uint16_t pattern)
     int offset = hitCount * HIT_LENGTH;
     for (int i = 0; i < HIT_LENGTH; i++) {
         int pos = offset + i;
-        uint32_t bit = (pattern >> i) & 0x1;
-        // equivalent to: hitPattern[pos >> 4] += bit << ((offset + i) & (16 - 1));
-        hitPattern[pos / 16] += bit << ((offset + i) % 16);
+        uint16_t bit = (pattern >> i) & 0x1;
+        //equivalent to hitPattern[pos / 16] += bit << ((offset + i) % 16);
+        hitPattern[pos >> 4] += bit << ((offset + i) & (16 - 1));
     }
     hitCount++;
 }
