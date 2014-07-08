@@ -68,6 +68,7 @@
 #include "FWCore/Framework/src/WorkerRegistry.h"
 #include "FWCore/Framework/src/GlobalSchedule.h"
 #include "FWCore/Framework/src/StreamSchedule.h"
+#include "FWCore/Framework/src/SystemTimeKeeper.h"
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
@@ -249,6 +250,7 @@ namespace edm {
     AllOutputModuleCommunicators         all_output_communicators_;
     PreallocationConfiguration           preallocConfig_;
 
+    std::unique_ptr<SystemTimeKeeper> summaryTimeKeeper_;
 
     bool                           wantSummary_;
 
