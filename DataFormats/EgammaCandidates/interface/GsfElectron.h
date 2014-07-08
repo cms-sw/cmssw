@@ -597,13 +597,11 @@ class GsfElectron : public RecoCandidate
      } ;
 
     // accessors
-    const ShowerShape & pfShowerShape() const { return pfShowerShape_ ; }
     const PflowIsolationVariables & pfIsolationVariables() const { return pfIso_ ; }
     const MvaInput & mvaInput() const { return mvaInput_ ; }
     const MvaOutput & mvaOutput() const { return mvaOutput_ ; }
 
     // setters
-    void setPfShowerShape( const ShowerShape & shape ) { pfShowerShape_ = shape ; }
     void setPfIsolationVariables( const PflowIsolationVariables & iso ) { pfIso_ = iso ; }
     void setMvaInput( const MvaInput & mi ) { mvaInput_ = mi ; }
     void setMvaOutput( const MvaOutput & mo ) { mvaOutput_ = mo ; }
@@ -613,7 +611,6 @@ class GsfElectron : public RecoCandidate
 
   private:
 
-    ShowerShape pfShowerShape_ ;
     PflowIsolationVariables pfIso_ ;
     MvaInput mvaInput_ ;
     MvaOutput mvaOutput_ ;
@@ -665,9 +662,8 @@ class GsfElectron : public RecoCandidate
       {
        float trackFbrem  ;       // the brem fraction from gsf fit: (track momentum in - track momentum out) / track momentum in
        float superClusterFbrem ; // the brem fraction from supercluster: (supercluster energy - electron cluster energy) / supercluster energy
-       float pfSuperClusterFbrem ; // the brem fraction from pflow supercluster
        ClassificationVariables()
-        : trackFbrem(-1.e30), superClusterFbrem(-1.e30), pfSuperClusterFbrem(-1.e30)
+        : trackFbrem(-1.e30), superClusterFbrem(-1.e30)
         {}
       } ;
     enum Classification { UNKNOWN=-1, GOLDEN=0, BIGBREM=1, BADTRACK=2, SHOWERING=3, GAP=4 } ;
@@ -675,7 +671,6 @@ class GsfElectron : public RecoCandidate
     // accessors
     float trackFbrem() const { return classVariables_.trackFbrem ; }
     float superClusterFbrem() const { return classVariables_.superClusterFbrem ; }
-    float pfSuperClusterFbrem() const { return classVariables_.pfSuperClusterFbrem ; }
     const ClassificationVariables & classificationVariables() const { return classVariables_ ; }
     Classification classification() const { return class_ ; }
 
@@ -686,7 +681,6 @@ class GsfElectron : public RecoCandidate
     // setters
     void setTrackFbrem( float fbrem ) { classVariables_.trackFbrem = fbrem ; }
     void setSuperClusterFbrem( float fbrem ) { classVariables_.superClusterFbrem = fbrem ; }
-    void setPfSuperClusterFbrem( float fbrem ) { classVariables_.pfSuperClusterFbrem = fbrem ; }
     void setClassificationVariables( const ClassificationVariables & cv ) { classVariables_ = cv ; }
     void setClassification( Classification myclass ) { class_ = myclass ; }
 

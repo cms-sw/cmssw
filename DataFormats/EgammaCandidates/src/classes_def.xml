@@ -197,10 +197,12 @@
    <version ClassVersion="11" checksum="1838996036"/>
    <version ClassVersion="10" checksum="2145829729"/>
   </class>
-  <class name="reco::GsfElectron::ClassificationVariables" ClassVersion="11">
+  <class name="reco::GsfElectron::ClassificationVariables" ClassVersion="12">
    <version ClassVersion="11" checksum="2094185381"/>
+   <version ClassVersion="12" checksum="1990926670"/>
   </class>
-  <class name="reco::GsfElectron" ClassVersion="14">
+  <class name="reco::GsfElectron" ClassVersion="15">
+   <version ClassVersion="15" checksum="4247473111"/>
    <version ClassVersion="14" checksum="3918953183"/>
    <version ClassVersion="13" checksum="2991498573"/>
    <version ClassVersion="12" checksum="2835360780"/>

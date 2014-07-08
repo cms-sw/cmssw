@@ -1021,30 +1021,32 @@ void GsfElectronAlgo::addPflowInfo()
     setPflowPreselectionFlag(*el) ;
 
     // Shower Shape of pflow cluster
-    if (!((*el)->parentSuperCluster().isNull()))
-     {
-      reco::GsfElectron::ShowerShape pflowShowerShape ;
-      calculateShowerShape((*el)->parentSuperCluster(),true,pflowShowerShape) ;
-      (*el)->setPfShowerShape(pflowShowerShape) ;
-     }
-    else if ((*el)->passingPflowPreselection())
-     { edm::LogError("GsfElectronCoreProducer")<<"Preselected tracker driven GsfTrack with no associated pflow SuperCluster." ; }
+    // Now computed elsewhere
+//    if (!((*el)->parentSuperCluster().isNull()))
+//     {
+//      reco::GsfElectron::ShowerShape pflowShowerShape ;
+//      calculateShowerShape((*el)->parentSuperCluster(),true,pflowShowerShape) ;
+//      (*el)->setPfShowerShape(pflowShowerShape) ;
+//     }
+//    else if ((*el)->passingPflowPreselection())
+//     { edm::LogError("GsfElectronCoreProducer")<<"Preselected tracker driven GsfTrack with no associated pflow SuperCluster." ; }
 
     // PfBrem
-    SuperClusterRef sc = (*el)->parentSuperCluster() ;
-    if (!(sc.isNull()))
-     {
-
-      if (sc->clustersSize()>1)
-       {
-        CaloCluster_iterator first = sc->clustersBegin() ;
-        (*el)->setPfSuperClusterFbrem((sc->energy()-(*first)->energy())/sc->energy()) ;
-       }
-      else
-       { (*el)->setPfSuperClusterFbrem(0.) ; }
-      ElectronClassification theClassifier ;
-      theClassifier.refineWithPflow(**el) ;
-     }
+    // In the GED, now computed elsewhere
+//    SuperClusterRef sc = (*el)->parentSuperCluster() ;
+//    if (!(sc.isNull()))
+//     {
+//
+//      if (sc->clustersSize()>1)
+//       {
+//        CaloCluster_iterator first = sc->clustersBegin() ;
+//        (*el)->setPfSuperClusterFbrem((sc->energy()-(*first)->energy())/sc->energy()) ;
+//       }
+//      else
+//       { (*el)->setPfSuperClusterFbrem(0.) ; }
+//      ElectronClassification theClassifier ;
+//      theClassifier.refineWithPflow(**el) ;
+//    }
    }
  }
 
@@ -1429,12 +1431,10 @@ void GsfElectronAlgo::createElectron()
      { 
        float pf_fbrem =( sc->energy() - cl->energy() ) / sc->energy();
        ele->setSuperClusterFbrem( pf_fbrem ) ;
-       ele->setPfSuperClusterFbrem( pf_fbrem) ;
      }
     else
       { 
 	ele->setSuperClusterFbrem(0) ; 
-	ele->setPfSuperClusterFbrem(0);
       }
    }
 
