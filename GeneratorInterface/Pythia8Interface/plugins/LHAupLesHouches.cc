@@ -46,14 +46,22 @@ bool LHAupLesHouches::setEvent(int inProcId, double mRecalculate)
   setProcess(hepeup.IDPRUP, hepeup.XWGTUP, hepeup.SCALUP,
              hepeup.AQEDUP, hepeup.AQCDUP);
 
-  for(int i = 0; i < hepeup.NUP; i++)
+  const std::vector<float> &scales = event->scales();
+  
+  for(int i = 0; i < hepeup.NUP; i++) {
+    //retrieve scale corresponding to each particle
+    double scalein = -1.;
+    if (scales.size()) {
+      scalein = scales[i];
+    }
     addParticle(hepeup.IDUP[i], hepeup.ISTUP[i],
                 hepeup.MOTHUP[i].first, hepeup.MOTHUP[i].second,
                 hepeup.ICOLUP[i].first, hepeup.ICOLUP[i].second,
                 hepeup.PUP[i][0], hepeup.PUP[i][1],
                 hepeup.PUP[i][2], hepeup.PUP[i][3],
                 hepeup.PUP[i][4], hepeup.VTIMUP[i],
-                hepeup.SPINUP[i]);
+                hepeup.SPINUP[i],scalein);
+  }
 
   const lhef::LHEEvent::PDF *pdf = event->getPDF();
   if (pdf) {
