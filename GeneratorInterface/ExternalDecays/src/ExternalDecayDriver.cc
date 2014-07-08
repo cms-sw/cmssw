@@ -32,6 +32,15 @@ ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset )
       exSharedResources.emplace_back(edm::SharedResourceNames::kPythia6);
       exSharedResources.emplace_back(gen::FortranInstance::kFortranInstance);
     }
+    else if( curSet == "EvtGen130"){
+      std::cout << "EvtGen130" << std::endl;
+      fEvtGenInterface = (EvtGenInterfaceBase*)(EvtGenFactory::get()->create("EvtGen130", pset.getUntrackedParameter< ParameterSet >(curSet)));
+      exSharedResources.emplace_back(edm::SharedResourceNames::kEvtGen);
+      exSharedResources.emplace_back(edm::SharedResourceNames::kPythia8);
+      exSharedResources.emplace_back(edm::SharedResourceNames::kTauola);
+      exSharedResources.emplace_back(edm::SharedResourceNames::kPhotos);
+      exSharedResources.emplace_back(gen::FortranInstance::kFortranInstance);
+    }
     else if ( curSet == "Tauola" || curSet == "Tauolapp113a" ){
       // this is for old tauola27 (+pretauola)
       //
