@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <iostream>
-
+#include <algorithm>
 
 template<class DATA>
 class SeedingNode
@@ -11,14 +11,14 @@ class SeedingNode
     protected:
         const DATA _data;
         const std::vector<SeedingNode<DATA>*>& _allNodes;
-        const unsigned int _index; //the index in allNodes
-        const int _parentIndex; //the parent's index in allNodes
+        unsigned int _index; //the index in allNodes
+        int _parentIndex; //the parent's index in allNodes
         int _childIndex; //the index of this Node in its parent's children vector
         unsigned int _depth; //the depth within the tree (for root: depth=0 && parentIndex=-1
         std::vector<unsigned int> _children;
         
     public:
-        SeedingNode(const DATA& data, std::vector<SeedingNode*>& allNodes, const int parentIndex=-1):
+        SeedingNode(const DATA& data, std::vector<SeedingNode*>& allNodes, int parentIndex=-1):
             _data(data),
             _allNodes(allNodes),
             _index(allNodes.size()),
@@ -31,8 +31,8 @@ class SeedingNode
                 SeedingNode* parent = allNodes[_parentIndex];
                 _depth=parent->_depth+1;
                 _childIndex=parent->_children.size();
-                
                 parent->_children.push_back(_index);
+                
             }
             else
             {
@@ -41,22 +41,42 @@ class SeedingNode
             }
         }
         
+        void sort(std::vector<SeedingNode<DATA>*>& allNodes,unsigned int parentIndex)
+        {
+            _parentIndex=parentIndex;
+            _index=allNodes.size();
+            if (_parentIndex>=0)
+            {
+                allNodes[_parentIndex]->_children[_childIndex]=_index;
+            }
+            allNodes.push_back(this);
+            for (unsigned int ichild=0; ichild<_children.size();++ichild)
+            {
+                _allNodes[_children[ichild]]->sort(allNodes,_index);
+            }
+        }
+        
         bool insert(const std::vector<DATA>& dataList, std::vector<SeedingNode<DATA>*>& allNodes)
         {
             if (_depth+1>=dataList.size())
             {
+                //std::cout<<"\tSeedingNode::insert: return"<<std::endl;
                 return false;
             }
             for (unsigned int ichild=0; ichild<_children.size();++ichild)
             {
                 if (allNodes[_children[ichild]]->getData()==dataList[_depth+1])
                 {
-                    //std::cout<<"insert: has child"<<std::endl;
+                    //std::cout<<"\tSeedingNode::insert: has child "<<dataList[_depth+1].print()<<std::endl;
                     return allNodes[_children[ichild]]->insert(dataList,allNodes);
                 }
             }
-            //std::cout<<"insert: create child"<<std::endl;
+            //std::cout<<"\tSeedingNode::insert: create child "<<dataList[_depth+1].print()<<std::endl;
             SeedingNode<DATA>* node = new SeedingNode<DATA>(dataList[_depth+1],allNodes,_index);
+            if (node->getDepth()+1>=dataList.size())
+            {
+                return true;
+            }
             return node->insert(dataList,allNodes);
         }
         
@@ -67,26 +87,20 @@ class SeedingNode
         
         inline const SeedingNode<DATA>* next() const
         {
-            if (_index+1>=_allNodes.size())
-            {
-                return nullptr;
-            }
-            else
+            if (_index+1<_allNodes.size())
             {
                 return _allNodes[_index+1];
             }
+            return nullptr;
         }
-        
-        inline const SeedingNode<DATA>* nextSibling() const
+       
+        inline const SeedingNode<DATA>* firstChild() const
         {
-            if (_childIndex+1>=getParent()->_children.size())
+            if (_children.size()>0)
             {
-                return nullptr;
+                return _allNodes[_children[0]];
             }
-            else
-            {
-                return _allNodes[getParent()->_children[_childIndex+1]];
-            }
+            return nullptr;
         }
         
         inline unsigned int getIndex() const
@@ -96,13 +110,23 @@ class SeedingNode
         
         inline const SeedingNode* getParent() const
         {
-            return _allNodes[_parentIndex];
+            if (_parentIndex>=0)
+            {
+                return _allNodes[_parentIndex];
+            }
+            return nullptr;
         }
         
-        inline unsigned int getNChildren() const
+        inline unsigned int getChildrenSize() const
         {
             return _children.size();
         }
+        
+        inline const SeedingNode<DATA>* getChild(unsigned int ichild) const
+        {
+            return _allNodes[_children[ichild]];
+        }
+        
         
         inline unsigned int getChildIndex() const
         {
@@ -114,7 +138,7 @@ class SeedingNode
             return _data;
         }
         
-        void print()
+        void print() const
         {
             
             printf("index=%3i, depth=%2i, childIndex=%2i:  ",_index,_depth,_childIndex);
@@ -124,6 +148,14 @@ class SeedingNode
             }
             printf("[%s] \r\n",_data.print().c_str());
             
+        }
+        void printRecursive() const
+        {
+            print();
+            for (unsigned int ichild=0; ichild<_children.size(); ++ichild)
+            {
+                _allNodes[_children[ichild]]->printRecursive();
+            }
         }
 };
 
@@ -141,6 +173,13 @@ class SeedingTree
         //returns true if successfully inserted into tree
         bool insert(const std::vector<DATA>& dataList)
         {
+            /*std::cout<<"SeedingTree::insert (";
+            for (unsigned int i = 0; i< dataList.size(); ++i)
+            {
+                std::cout<<dataList[i].print()<<",";
+            }
+            std::cout<<")"<<std::endl;
+            */
             if (dataList.size()==0)
             {
                 return false;
@@ -149,13 +188,28 @@ class SeedingTree
             {
                 if (_roots[iroot]->getData()==dataList[0])
                 {
+                    //std::cout<<"\tfound root: "<<dataList[0].print()<<std::endl;
                     return _roots[iroot]->insert(dataList,_allNodes);
                 }
             }
+            //std::cout<<"\tnew root: "<<dataList[0].print()<<std::endl;
             SeedingNode<DATA>* node = new SeedingNode<DATA>(dataList[0],_allNodes);
             _roots.push_back(node);
             return node->insert(dataList,_allNodes);
         }
+        
+        void sort()
+        {
+            //this setups depth first ordered indexes.
+            std::vector<SeedingNode<DATA>*> allNodes;
+            for (unsigned int iroot=0; iroot<_roots.size();++iroot)
+            {
+                _roots[iroot]->sort(allNodes,-1);
+            }
+            _allNodes=allNodes;
+        }
+        
+        
         
         inline unsigned int size() const
         {
@@ -171,6 +225,23 @@ class SeedingTree
             else
             {
                 return nullptr;
+            }
+        }
+        
+        void printRecursive()
+        {
+            std::cout<<"SeedingTree: n="<<_allNodes.size()<<" [recursive]"<<std::endl;
+            for (unsigned int iroot=0; iroot<_roots.size();++iroot)
+            {
+                _roots[iroot]->printRecursive();
+            }
+        }
+        void printOrdered()
+        {
+            std::cout<<"SeedingTree: n="<<_allNodes.size()<<" [ordered]"<<std::endl;
+            for (unsigned int inode=0; inode<_allNodes.size();++inode)
+            {
+                _allNodes[inode]->print();
             }
         }
         

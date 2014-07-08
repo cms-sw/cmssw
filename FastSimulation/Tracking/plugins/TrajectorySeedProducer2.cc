@@ -42,21 +42,27 @@
 //for debug only 
 //#define FAMOS_DEBUG
 
+template class SeedingTree<TrajectorySeedProducer::LayerSpec>;
+template class SeedingNode<TrajectorySeedProducer::LayerSpec>;
+
 TrajectorySeedProducer2::TrajectorySeedProducer2(const edm::ParameterSet& conf):
     TrajectorySeedProducer(conf)
 {  
+    std::cout<<std::endl;
+	std::cout<<"config: "<<seedingAlgo[0]<<std::endl;
 	for (unsigned int ilayerset=0; ilayerset<theLayersInSets.size(); ++ ilayerset)
 	{
 		_seedingTree.insert(theLayersInSets[ilayerset]);
 	}
-    std::cout<<std::endl;
-	std::cout<<"config: "<<seedingAlgo[0]<<std::endl;
-    _seedingTree.print();
+    std::cout<<"---------"<<std::endl;
+    _seedingTree.sort();
+    _seedingTree.printRecursive();
+    _seedingTree.printOrdered();
     std::cout<<std::endl;
 } 
 
 bool
-TrajectorySeedProducer2::passSimTrackQualityCuts(const SimTrack& theSimTrack, const SimVertex& theSimVertex, unsigned int trackingAlgorithmId)
+TrajectorySeedProducer2::passSimTrackQualityCuts(const SimTrack& theSimTrack, const SimVertex& theSimVertex, unsigned int trackingAlgorithmId) const
 {
 
 	//require min pT of the simtrack
@@ -95,7 +101,7 @@ TrajectorySeedProducer2::passSimTrackQualityCuts(const SimTrack& theSimTrack, co
 }
 
 bool
-TrajectorySeedProducer2::pass2HitsCuts(const TrackerRecHit& hit1, const TrackerRecHit& hit2, unsigned int trackingAlgorithmId)
+TrajectorySeedProducer2::pass2HitsCuts(const TrackerRecHit& hit1, const TrackerRecHit& hit2, unsigned int trackingAlgorithmId) const
 {
 	GlobalPoint gpos1 = hit1.globalPosition();
 	GlobalPoint gpos2 = hit2.globalPosition();
@@ -116,61 +122,98 @@ TrajectorySeedProducer2::pass2HitsCuts(const TrackerRecHit& hit1, const TrackerR
 	return compatible;
 }
 
+const SeedingNode<TrajectorySeedProducer::LayerSpec>* TrajectorySeedProducer2::insertHit(
+    const std::vector<TrackerRecHit>& trackerRecHits,
+    std::vector<int>& hitIndicesInTree,
+    const SeedingNode<LayerSpec>* node, unsigned int trackerHit,
+    const unsigned int trackingAlgorithmId
+) const
+{
+    if (hitIndicesInTree[node->getIndex()]<0)
+    {
+        const TrackerRecHit& currentTrackerHit = trackerRecHits[trackerHit];
+
+        if (passHitTuplesCuts(*node,trackerRecHits,hitIndicesInTree,currentTrackerHit,trackingAlgorithmId))
+        {
+            hitIndicesInTree[node->getIndex()]=trackerHit;
+            if (node->getChildrenSize()==0)
+            {
+                return node;
+            }
+        }
+    }
+    else
+    {
+        for (unsigned int ichild = 0; ichild<node->getChildrenSize(); ++ichild)
+        {
+            const SeedingNode<LayerSpec>* seed = insertHit(trackerRecHits,hitIndicesInTree,node->getChild(ichild),trackerHit,trackingAlgorithmId);
+            if (seed)
+            {
+                return seed;
+            }
+        }
+    }
+    return nullptr;
+}
+
 
 std::vector<unsigned int> TrajectorySeedProducer2::iterateHits(
 		SiTrackerGSMatchedRecHit2DCollection::const_iterator start,
 		SiTrackerGSMatchedRecHit2DCollection::range range,
 		const std::vector<TrackerRecHit>& trackerRecHits,
 		std::vector<int> hitIndicesInTree,
-		unsigned int trackingAlgorithmId,
-		std::vector<unsigned int>& seedHitNumbers
-	)
+		unsigned int trackingAlgorithmId
+	) const
 {
 	for (SiTrackerGSMatchedRecHit2DCollection::const_iterator itRecHit = start; itRecHit!=range.second; ++itRecHit)
 	{
 	    unsigned int currentHitIndex = itRecHit-range.first;
-        std::cout<<"\t hitIndex="<<currentHitIndex;
+        std::cout<<"hit="<<currentHitIndex<<std::endl;
 		if ( currentHitIndex >= trackerRecHits.size())
 		{
 		    //TODO: one can speed things up here if a hit is already too far from the seeding layers (barrel/disks)
 			return std::vector<unsigned int>();
 		}
-		const TrackerRecHit& currentTrackerHit = trackerRecHits[currentHitIndex];
+		//const TrackerRecHit& currentTrackerHit = trackerRecHits[currentHitIndex];
 		
 		//process all hits after currentHit on the same layer
+		/*
 		for (unsigned int inext = currentHitIndex+1; inext < trackerRecHits.size(); ++inext)
 		{
 			if (trackerRecHits[currentHitIndex].isOnTheSameLayer(trackerRecHits[inext]))
 			{
-			    //branch here
+			    
+			    std::vector<unsigned int> seedHits = iterateHits(
+		            range.first+inext,
+		            range,
+		            trackerRecHits,
+		            hitIndicesInTree,
+		            trackingAlgorithmId
+	            );
+	            if (seedHits.size()>0)
+	            {
+	                return seedHits;
+	            }
+	            
 			}
 		}
+		*/
         
 		//process currentHit
 		
 		//iterate through the seeding tree
-		const SeedingNode<LayerSpec>* currentNode = _seedingTree.getFirst();
-		while (currentNode!=nullptr)
+		const SeedingNode<LayerSpec>* seedNode = insertHit(trackerRecHits,hitIndicesInTree,_seedingTree.getFirst(), currentHitIndex,trackingAlgorithmId);
+		if (seedNode)
 		{
-		
-		    int hitNumber = hitIndicesInTree[currentNode->getIndex()]; //-1 if not associated to a hit
-		    if (hitNumber<0) 
+		    std::vector<unsigned int> seedIndices(seedNode->getDepth()+1);
+		    while (seedNode)
 		    {
-		        if (isHitOnLayer(currentTrackerHit,currentNode->getData()))
-		        {
-		            if (passHitTuplesCuts(*currentNode, trackerRecHits, hitIndicesInTree, currentTrackerHit, trackingAlgorithmId))
-		            {
-		                
-		            }
-		        }
-		        else
-		        {
-		            currentNode=currentNode->nextSibling();
-		        }
+		        seedIndices[seedNode->getDepth()]=hitIndicesInTree[seedNode->getIndex()];
+		        seedNode=seedNode->getParent();
 		    }
-		    
-	        currentNode=currentNode->next();
+		    return seedIndices;
 		}
+		
 	}
 
 	return std::vector<unsigned int>();
@@ -329,7 +372,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 			
 			
 			
-			std::vector<unsigned int> seedHitNumbers = iterateHits(recHitRange.first,recHitRange,trackerRecHits,hitIndicesInTree,ialgo,seedHitNumbers);
+			std::vector<unsigned int> seedHitNumbers = iterateHits(recHitRange.first,recHitRange,trackerRecHits,hitIndicesInTree,ialgo);
 
 			if (seedHitNumbers.size()>0)
 			{
@@ -347,7 +390,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 				std::cout<<"simtrack = "<<currentSimTrackId<<", new"<<std::endl;
 				for ( unsigned ihit=0; ihit<recHits.size(); ++ihit ) 
                 {
-	                std::cout<<"\t hit: "<<ihit<<", pos=("<<recHits[ihit].globalPosition().x()<<","<<recHits[ihit].globalPosition().y()<<","<<recHits[ihit].globalPosition().z()<<")"<<std::endl;
+	                std::cout<<"\t hit: "<<seedHitNumbers[ihit]<<", pos=("<<trackerRecHits[seedHitNumbers[ihit]].globalPosition().x()<<","<<recHits[ihit].globalPosition().y()<<","<<recHits[ihit].globalPosition().z()<<")"<<std::endl;
                 }
 
 
@@ -410,7 +453,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 	
 	TrajectorySeedProducer::produce(e, es, oldhits);
 	
-	/*
+	
 	std::cout<<"summary"<<std::endl;
 	for (unsigned int itrack = 0; itrack<newhits.size(); ++itrack)
 	{
@@ -426,7 +469,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 	    {
 	    }
 	}
-	*/
+	
   
 }
 

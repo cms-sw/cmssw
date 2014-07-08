@@ -47,7 +47,7 @@ class TrajectorySeedProducer2 : public TrajectorySeedProducer
     \param trackingAlgorithmId id of the seeding algorithm iteration (e.g. "initial step", etc.).
     \return true if a track fulfills the requirements.
     */
-   virtual bool passSimTrackQualityCuts(const SimTrack& theSimTrack, const SimVertex& theSimVertex, unsigned int trackingAlgorithmId);
+   virtual bool passSimTrackQualityCuts(const SimTrack& theSimTrack, const SimVertex& theSimVertex, unsigned int trackingAlgorithmId) const;
   
      //! method checks if a TrackerRecHit fulfills the requirements of the current seeding algorithm iteration.
     /*!
@@ -62,19 +62,46 @@ class TrajectorySeedProducer2 : public TrajectorySeedProducer
 		const std::vector<int>& hitIndicesInTree,
 		const TrackerRecHit& currentTrackerHit,
 		unsigned int trackingAlgorithmId
- )
+ ) const
  {
     switch (seedingNode.getDepth())
     {
-        case 2:
-            const TrackerRecHit& hit1 = trackerRecHits[hitIndicesInTree[seedingNode.getParent()->getIndex()]];
+        case 0:
+        {
+            return true;
+            /* example for 1 hits
+                const TrackerRecHit& hit1 = currentTrackerHit;
+                return pass1HitsCuts(hit1,trackingAlgorithmId);
+            */
+        }
+            
+        case 1:
+        {
+            const SeedingNode<LayerSpec>* parentNode = &seedingNode;
+            parentNode = parentNode->getParent();
+            const TrackerRecHit& hit1 = trackerRecHits[hitIndicesInTree[parentNode->getIndex()]];
             const TrackerRecHit& hit2 = currentTrackerHit;
+            
             return pass2HitsCuts(hit1,hit2,trackingAlgorithmId);
+        }
+        case 2:
+        {
+            return true;
+            /* example for 3 hits
+                const SeedingNode<LayerSpec>* parentNode = &seedingNode;
+                parentNode = parentNode->getParent();
+                const TrackerRecHit& hit2 = trackerRecHits[hitIndicesInTree[parentNode->getIndex()]];
+                parentNode = parentNode->getParent();
+                const TrackerRecHit& hit1 = trackerRecHits[hitIndicesInTree[parentNode->getIndex()]];
+                const TrackerRecHit& hit3 = currentTrackerHit;
+                return pass3HitsCuts(hit1,hit2,hit3,trackingAlgorithmId);
+            */
+        }
     }
     return true;
  }
     
-  bool pass2HitsCuts(const TrackerRecHit& hit1, const TrackerRecHit& hit2, unsigned int trackingAlgorithmId);
+  bool pass2HitsCuts(const TrackerRecHit& hit1, const TrackerRecHit& hit2, unsigned int trackingAlgorithmId) const;
   
   
   virtual std::vector<unsigned int> iterateHits(
@@ -82,15 +109,19 @@ class TrajectorySeedProducer2 : public TrajectorySeedProducer
 	SiTrackerGSMatchedRecHit2DCollection::range range,
 	const std::vector<TrackerRecHit>& trackerRecHits,
 	std::vector<int> hitIndicesInTree,
-	unsigned int trackingAlgorithmId,
-	std::vector<unsigned int>& seedHitNumbers
-  );
+	unsigned int trackingAlgorithmId
+  ) const;
   
-  inline bool isHitOnLayer(const TrackerRecHit& trackerRecHit, const LayerSpec& layer)
+  inline bool isHitOnLayer(const TrackerRecHit& trackerRecHit, const LayerSpec& layer) const
   {
     return layer.subDet==trackerRecHit.subDetId() && layer.idLayer==trackerRecHit.layerNumber();
   }
   
+const SeedingNode<TrajectorySeedProducer::LayerSpec>* insertHit(
+    const std::vector<TrackerRecHit>& trackerRecHits,
+    std::vector<int>& hitIndicesInTree,
+    const SeedingNode<LayerSpec>* node, unsigned int trackerHit,const unsigned int trackingAlgorithmId
+) const;
 
 };
 

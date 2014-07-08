@@ -61,7 +61,8 @@ class TrajectorySeedProducer : public edm::EDProducer
 
     bool operator==(const LayerSpec& layer) const
 	{
-    	return (subDet==layer.subDet) && (side==layer.side) && (idLayer==layer.idLayer);
+	    return name == layer.name;
+    	//return (subDet==layer.subDet) && (side==layer.side) && (idLayer==layer.idLayer);
 	}
 	
 	inline std::string print() const
