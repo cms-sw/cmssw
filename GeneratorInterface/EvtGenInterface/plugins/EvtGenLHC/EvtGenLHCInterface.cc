@@ -1,17 +1,18 @@
-#include "GeneratorInterface/EvtGenInterface/interface/EvtGenInterface.h"
+#include "GeneratorInterface/EvtGenInterface/interface/EvtGenLHCInterface.h"
 
 #include "FWCore/PluginManager/interface/PluginManager.h"
-
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "Utilities/General/interface/FileInPath.h"
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "GeneratorInterface/EvtGenInterface/interface/EvtGenFactory.h"
 
 #include "GeneratorInterface/EvtGenInterface/interface/myEvtRandomEngine.h"
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Service.h"
@@ -26,7 +27,7 @@
 using namespace gen;
 using namespace edm;
 
-CLHEP::HepRandomEngine* EvtGenInterface::fRandomEngine;
+CLHEP::HepRandomEngine* EvtGenLHCInterface::fRandomEngine;
 
 extern "C"{
 
@@ -35,7 +36,7 @@ extern "C"{
 
   double phoran_(int *idummy)
   {
-    return EvtGenInterface::flat();
+    return EvtGenLHCInterface::flat();
   }
   extern struct {
     // bool qedrad[NMXHEP];                                                                                                                                                                                                                  
@@ -45,7 +46,7 @@ extern "C"{
 }
 
 
-EvtGenInterface::EvtGenInterface( const ParameterSet& pset )
+EvtGenLHCInterface::EvtGenLHCInterface( const ParameterSet& pset )
 {
 
   ntotal = 0;
@@ -324,13 +325,13 @@ EvtGenInterface::EvtGenInterface( const ParameterSet& pset )
    m_Py6Service = new Pythia6Service;
 }
 
-EvtGenInterface::~EvtGenInterface()
+EvtGenLHCInterface::~EvtGenLHCInterface()
 {
   std::cout << " EvtGenProducer terminating ... " << std::endl; 
   delete m_Py6Service;
 }
 
-void EvtGenInterface::init()
+void EvtGenLHCInterface::init()
 {
   m_EvtGen = new EvtGen (decay_table_s.c_str(), pdt_s.c_str(), the_engine);
   // 4th parameter should be rad cor - set to PHOTOS (default)
@@ -367,12 +368,12 @@ void EvtGenInterface::init()
   return;
 }
 
-HepMC::GenEvent* EvtGenInterface::decay( HepMC::GenEvent* evt )
+HepMC::GenEvent* EvtGenLHCInterface::decay( HepMC::GenEvent* evt )
 {
   if(the_engine->engine() == nullptr) {
     throw edm::Exception(edm::errors::LogicError)
       << "The EvtGen code attempted to use a random number engine while\n"
-      << "the engine pointer was null in EvtGenInterface::decay. This might\n"
+      << "the engine pointer was null in EvtGenLHCInterface::decay. This might\n"
       << "mean that the code was modified to generate a random number outside\n"
       << "the event and beginLuminosityBlock methods, which is not allowed.\n";
   }
@@ -448,7 +449,7 @@ HepMC::GenEvent* EvtGenInterface::decay( HepMC::GenEvent* evt )
   
 }
 
-void EvtGenInterface::addToHepMC(HepMC::GenParticle* partHep, EvtId idEvt, HepMC::GenEvent* theEvent, bool del_daug )
+void EvtGenLHCInterface::addToHepMC(HepMC::GenParticle* partHep, EvtId idEvt, HepMC::GenEvent* theEvent, bool del_daug )
 {
   // Set spin type
   EvtSpinType::spintype stype = EvtPDL::getSpinType(idEvt);
@@ -580,7 +581,7 @@ void EvtGenInterface::addToHepMC(HepMC::GenParticle* partHep, EvtId idEvt, HepMC
 
 /*
 void
-EvtGenInterface::call_pygive(const std::string& iParm ) {
+EvtGenLHCInterface::call_pygive(const std::string& iParm ) {
   
   //call the fortran routine pygive with a fortran string
   PYGIVE( iParm.c_str(), iParm.length() );  
@@ -589,7 +590,7 @@ EvtGenInterface::call_pygive(const std::string& iParm ) {
 */
 
 void 
-EvtGenInterface::go_through_daughters(EvtParticle* part) {
+EvtGenLHCInterface::go_through_daughters(EvtParticle* part) {
 
   int NDaug=part->getNDaug();
   if(NDaug)
@@ -614,7 +615,7 @@ EvtGenInterface::go_through_daughters(EvtParticle* part) {
 }
 
 void 
-EvtGenInterface::update_candlist( int theIndex, HepMC::GenParticle *thePart )
+EvtGenLHCInterface::update_candlist( int theIndex, HepMC::GenParticle *thePart )
 {
   if(nlist<10)                 // not nice ... but is 10 a reasonable maximum?
      {
@@ -639,18 +640,20 @@ EvtGenInterface::update_candlist( int theIndex, HepMC::GenParticle *thePart )
 }
 
 void
-EvtGenInterface::setRandomEngine(CLHEP::HepRandomEngine* v) {
+EvtGenLHCInterface::setRandomEngine(CLHEP::HepRandomEngine* v) {
   the_engine->setRandomEngine(v);
   fRandomEngine=v;
   m_Py6Service->setRandomEngine(v);
 }
 
-double EvtGenInterface::flat(){
+double EvtGenLHCInterface::flat(){
   if ( !fRandomEngine ) {
     throw cms::Exception("LogicError")
-      << "EvtGenInterface::flat: Attempt to generate random number when engine pointer is null\n"
+      << "EvtGenLHCInterface::flat: Attempt to generate random number when engine pointer is null\n"
       << "This might mean that the code was modified to generate a random number outside the\n"
       << "event and beginLuminosityBlock methods, which is not allowed.\n";
   }
   return fRandomEngine->flat();
 }
+
+DEFINE_EDM_PLUGIN(EvtGenFactory, gen::EvtGenLHCInterface, "EvtGenLHC91");
