@@ -80,7 +80,7 @@ std::vector<const TrackingRecHit*> MuonTrackLoader::unpackHit(const TrackingRecH
             hits.push_back(&hit);
         }
     }
-	return hits;
+    return hits;
 }
 
 // constructor (obsolete, should use eventSetUp not service..)

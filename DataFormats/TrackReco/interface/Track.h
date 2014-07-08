@@ -121,57 +121,57 @@ public:
     }
    
     /// x coordinate of momentum vector at the outermost hit position
-    double outerPx()     const {
+    double outerPx() const {
         return extra_->outerPx();
     }
    
     /// y coordinate of momentum vector at the outermost hit position
-    double outerPy()     const {
+    double outerPy() const {
         return extra_->outerPy();
     }
    
     /// z coordinate of momentum vector at the outermost hit position
-    double outerPz()     const {
+    double outerPz() const {
         return extra_->outerPz();
     }
    
     /// x coordinate of the outermost hit position
-    double outerX()      const {
+    double outerX() const {
         return extra_->outerX();
     }
    
     /// y coordinate of the outermost hit position
-    double outerY()      const {
+    double outerY() const {
         return extra_->outerY();
     }
    
     /// z coordinate of the outermost hit position
-    double outerZ()      const {
+    double outerZ() const {
         return extra_->outerZ();
     }
    
     /// magnitude of momentum vector at the outermost hit position
-    double outerP()      const {
+    double outerP() const {
         return extra_->outerP();
     }
    
     /// transverse momentum at the outermost hit position
-    double outerPt()     const {
+    double outerPt() const {
         return extra_->outerPt();
     }
    
     /// azimuthal angle of the  momentum vector at the outermost hit position
-    double outerPhi()    const {
+    double outerPhi() const {
         return extra_->outerPhi();
     }
    
     /// pseudorapidity of the  momentum vector at the outermost hit position
-    double outerEta()    const {
+    double outerEta() const {
         return extra_->outerEta();
     }
    
     /// polar angle of the  momentum vector at the outermost hit position
-    double outerTheta()  const {
+    double outerTheta() const {
         return extra_->outerTheta();
     }
    
