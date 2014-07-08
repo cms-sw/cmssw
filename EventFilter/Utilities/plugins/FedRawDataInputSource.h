@@ -112,6 +112,7 @@ private:
 
   typedef std::pair<InputFile*,InputChunk*> ReaderInfo;
 
+  uint32 detectedFRDversion_=0;
   InputFile *currentFile_ = nullptr;
   bool chunkIsFree_=false;
 
