@@ -279,11 +279,12 @@ def customise_DQM(process,pileup):
     process=customise_trackMon_IterativeTracking_PHASE1PU140(process)
     process.dqmoffline_step.remove(process.Phase1Pu70TrackMonStep2)
     process.dqmoffline_step.remove(process.Phase1Pu70TrackMonStep4)
-    process.globalrechitsanalyze.ROUList = cms.vstring(
-       'g4SimHitsTrackerHitsPixelBarrelLowTof', 
-       'g4SimHitsTrackerHitsPixelBarrelHighTof', 
-       'g4SimHitsTrackerHitsPixelEndcapLowTof', 
-       'g4SimHitsTrackerHitsPixelEndcapHighTof')
+    if hasattr(process,"globalrechitsanalyze") : # Validation takes this out if pileup is more than 30
+       process.globalrechitsanalyze.ROUList = cms.vstring(
+          'g4SimHitsTrackerHitsPixelBarrelLowTof', 
+          'g4SimHitsTrackerHitsPixelBarrelHighTof', 
+          'g4SimHitsTrackerHitsPixelEndcapLowTof', 
+          'g4SimHitsTrackerHitsPixelEndcapHighTof')
     return process
 
 def customise_Validation(process,pileup):
