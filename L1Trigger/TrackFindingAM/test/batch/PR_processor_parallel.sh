@@ -63,7 +63,9 @@ if [ ${1} = "PR" ]; then
     cp $CMSSW_PROJECT_SRC/src/L1Trigger/TrackFindingAM/test/batch/base/AMPR_base.py BH_dummy_${SECBK}_${OUTPUT}.py 
 
     # Finally the script is modified according to the requests
-    
+
+    echo "Threshold set to ",$thresh   
+ 
     sed "s/NEVTS/$STOP/"                                   -i BH_dummy_${SECBK}_${OUTPUT}.py
     sed "s/NSKIP/$START/"                                  -i BH_dummy_${SECBK}_${OUTPUT}.py
     sed "s#INPUTFILENAME#file:$INPUT#"                     -i BH_dummy_${SECBK}_${OUTPUT}.py
