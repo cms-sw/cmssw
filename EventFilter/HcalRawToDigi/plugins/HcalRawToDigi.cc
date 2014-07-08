@@ -105,6 +105,7 @@ void HcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es)
   // Step C: unpack all requested FEDs
   for (std::vector<int>::const_iterator i=fedUnpackList_.begin(); i!=fedUnpackList_.end(); i++) {
     const FEDRawData& fed = rawraw->FEDData(*i);
+    std::cout << "FED " << *i << " size=" << fed.size() << std::endl;
     if (fed.size()==0) {
       if (complainEmptyData_) {
 	if (!silent_) edm::LogWarning("EmptyData") << "No data for FED " << *i;

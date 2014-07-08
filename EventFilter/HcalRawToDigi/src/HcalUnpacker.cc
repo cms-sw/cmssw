@@ -177,6 +177,11 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
   else unpackUTCA(raw,emap,colls,report,silent);
 }
 
+static int slb(uint16_t theSample) { return ((theSample>>13)&0x7); }
+static int slbChan(uint16_t theSample) { return (theSample>>11)&0x3; }
+static int slbAndChan(uint16_t theSample) { return (theSample>>11)&0x1F; }
+
+
 void HcalUnpacker::unpackVME(const FEDRawData& raw, const HcalElectronicsMap& emap,
 			  Collections& colls, HcalUnpackerReport& report, bool silent) {
 
@@ -301,7 +306,7 @@ void HcalUnpacker::unpackVME(const FEDRawData& raw, const HcalElectronicsMap& em
       HOUnrolledTP unrolled[24];
       for (tp_work=tp_begin; tp_work!=tp_end; tp_work++) {
 	if (tp_work->raw()==0xFFFF) continue; // filler word
-	int sector=tp_work->slbChan();
+	int sector=slbChan(tp_work->raw());
 	if (sector>2) continue;
 
 	for (int ibit=0; ibit<8; ibit++) {
@@ -344,11 +349,11 @@ void HcalUnpacker::unpackVME(const FEDRawData& raw, const HcalElectronicsMap& em
     } else { // regular TPs (not HO)
       for (tp_work=tp_begin; tp_work!=tp_end; tp_work++) {
 	if (tp_work->raw()==0xFFFF) continue; // filler word
-	if (tp_work->slbAndChan()!=currFiberChan) { // start new set
+	if (slbAndChan(tp_work->raw())!=currFiberChan) { // start new set
 	  npre=0;
-	  currFiberChan=tp_work->slbAndChan();
+	  currFiberChan=slbAndChan(tp_work->raw());
 	  // lookup the right channel
-	  HcalElectronicsId eid(tp_work->slbChan(),tp_work->slb(),spigot,dccid,htr_cr,htr_slot,htr_tb);
+	  HcalElectronicsId eid(slbChan(tp_work->raw()),slb(tp_work->raw()),spigot,dccid,htr_cr,htr_slot,htr_tb);
 	  DetId did=emap.lookupTrigger(eid);
 	  if (did.null()) {
 	    report.countUnmappedTPDigi(eid);
@@ -368,7 +373,7 @@ void HcalUnpacker::unpackVME(const FEDRawData& raw, const HcalElectronicsMap& em
 	  colls.tpCont->push_back(HcalTriggerPrimitiveDigi(id));
 	  // set the various bits
 	  if (!tpgSOIbitInUse) colls.tpCont->back().setPresamples(nps);
-	  colls.tpCont->back().setZSInfo(htr.isUnsuppressed(),htr.wasMarkAndPassZSTP(tp_work->slb(),tp_work->slbChan()));
+	  colls.tpCont->back().setZSInfo(htr.isUnsuppressed(),htr.wasMarkAndPassZSTP(slb(tp_work->raw()),slbChan(tp_work->raw())));
 
 	  // no hits recorded for current
 	  ncurr=0;
@@ -557,7 +562,7 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
       if (!silent) 
 	edm::LogWarning("Invalid Data") << "CRC Error on uHTR data observed on iamc " << iamc << " of AMC13 with source id " << amc13->sourceId();
       report.countSpigotFormatError();
-      continue;
+      //      continue;
     }
     // this unpacker cannot handle segmented data!
     if (amc13->AMCSegmented(iamc)) {
@@ -576,14 +581,16 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
     HcalUHTRData uhtr(amc13->AMCPayload(iamc),amc13->AMCSize(iamc));
     HcalUHTRData::const_iterator i=uhtr.begin(), iend=uhtr.end();
     while (i!=iend) {
+      ///      std::cout << i.isHeader() << " " << i.flavor() << std::endl;
+
       if (!i.isHeader()) {
 	++i;
 	continue;
       }
       if (i.flavor()==0x5) { // Old-style digis
-	int ifiber=((i.channelid()>>2)&0x7)+1;
+	int ifiber=((i.channelid()>>2)&0x1F);
 	int ichan=(i.channelid()&0x3);
-	HcalElectronicsId eid(0x01,crate,slot,ifiber,ichan);
+	HcalElectronicsId eid(crate,slot,ifiber,ichan, false);
 	DetId did=emap.lookup(eid);
 	
 	if (!did.null()) { // unpack and store...
@@ -632,7 +639,39 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
 	       ++i);
 	}
       } else if (i.flavor()==0x4) { // TP digis
-	
+	int ilink=((i.channelid()>>4)&0x7);
+	int itower=(i.channelid()&0xF);
+	HcalElectronicsId eid(crate,slot,ilink,itower,true);
+	DetId did=emap.lookupTrigger(eid);
+	std::cout << "Unpacking " << eid << " " << i.channelid() << std::endl;
+	if (did.null()) {
+	  report.countUnmappedTPDigi(eid);
+	  if (unknownIdsTrig_.find(eid)==unknownIdsTrig_.end()) {
+	    if (!silent) edm::LogWarning("HCAL") << "HcalUnpacker: No trigger primitive match found for electronics id :" << eid;
+	    unknownIdsTrig_.insert(eid);
+	  }
+	  // Skip it
+	  for (++i; i!=iend && !i.isHeader(); ++i);	
+	} else if (did==HcalTrigTowerDetId::Undefined || 
+		   (did.det()==DetId::Hcal && did.subdetId()==0)) {
+	  for (++i; i!=iend && !i.isHeader(); ++i);	
+	} else {
+	  HcalTrigTowerDetId id(did);
+	  std::cout << "Unpacking " << id << std::endl;
+	  colls.tpCont->push_back(HcalTriggerPrimitiveDigi(id));
+	  int j=0;
+	  for (++i; i!=iend && !i.isHeader(); ++i) {
+	    colls.tpCont->back().setSample(j,i.value());
+	    if (i.soi()) colls.tpCont->back().setPresamples(j);
+	    j++;
+	  }
+	  colls.tpCont->back().setSize(j);
+	}      
+      } else {
+	// consume any not-understood channel data
+	  for (++i;
+	       i!=iend && !i.isHeader();
+	       ++i);	
       }
     }
   }

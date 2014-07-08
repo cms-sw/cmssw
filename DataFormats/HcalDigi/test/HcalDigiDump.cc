@@ -20,6 +20,18 @@ public:
 
 
 HcalDigiDump::HcalDigiDump(edm::ParameterSet const& conf) {
+  consumesMany<HBHEDigiCollection>();
+  consumesMany<HODigiCollection>();
+  consumesMany<HFDigiCollection>();
+  consumesMany<ZDCDigiCollection>();
+  consumesMany<CastorDigiCollection>();
+  consumesMany<CastorTrigPrimDigiCollection>();
+  consumesMany<HcalCalibDigiCollection>();
+  consumesMany<HcalTrigPrimDigiCollection>();
+  consumesMany<HOTrigPrimDigiCollection>();
+  consumesMany<HcalHistogramDigiCollection>();
+  consumesMany<HcalTTPDigiCollection>();
+  consumesMany<HcalUpgradeDigiCollection>();
 }
 
 void HcalDigiDump::analyze(edm::Event const& e, edm::EventSetup const& c) {

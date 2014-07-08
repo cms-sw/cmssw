@@ -3,11 +3,12 @@
 
 static const int HEADER_LENGTH_16BIT=2*sizeof(uint64_t)/sizeof(uint16_t);
 
-HcalUHTRData::const_iterator::const_iterator(const uint16_t* ptr) : m_ptr(ptr) {
+HcalUHTRData::const_iterator::const_iterator(const uint16_t* ptr, const uint16_t* limit) : m_ptr(ptr), m_limit(limit) {
   if (isHeader()) determineMode();
 }
 
 HcalUHTRData::const_iterator& HcalUHTRData::const_iterator::operator++() {
+  if (m_ptr==m_limit) return *this;
   if (m_stepclass==0) m_ptr++;
   else if (m_stepclass==1) {
     if (m_microstep==0) { m_ptr++; m_microstep++; }
@@ -51,11 +52,11 @@ uint8_t HcalUHTRData::const_iterator::fe_tdc() const {
 
 
 HcalUHTRData::const_iterator HcalUHTRData::begin() const {
-  return HcalUHTRData::const_iterator(m_raw16+HEADER_LENGTH_16BIT);
+  return HcalUHTRData::const_iterator(m_raw16+HEADER_LENGTH_16BIT,m_raw16+(m_rawLength64-1)*sizeof(uint64_t)/sizeof(uint16_t));
 }
 
 HcalUHTRData::const_iterator HcalUHTRData::end() const {
-  return HcalUHTRData::const_iterator(m_raw16+(m_rawLength64-1)*sizeof(uint64_t)/sizeof(uint16_t));
+  return HcalUHTRData::const_iterator(m_raw16+(m_rawLength64-1)*sizeof(uint64_t)/sizeof(uint16_t),m_raw16+(m_rawLength64-1)*sizeof(uint64_t)/sizeof(uint16_t));
 }
 
 HcalUHTRData::packer::packer(uint16_t* baseptr) : m_baseptr(baseptr),m_ptr(0),m_flavor(0),m_ministep(0) {

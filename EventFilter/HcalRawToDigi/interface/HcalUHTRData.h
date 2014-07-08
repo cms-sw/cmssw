@@ -39,7 +39,7 @@ class HcalUHTRData {
   
   class const_iterator {
   public:
-    const_iterator(const uint16_t* ptr);
+    const_iterator(const uint16_t* ptr, const uint16_t* limit=0);
     
     bool isHeader() const { return ((*m_ptr)&0x8000)!=0; }    
     int flavor() const { return ((*m_ptr)>>12)&0x7; }    
@@ -64,7 +64,7 @@ class HcalUHTRData {
 
   private:
     void determineMode();
-    const uint16_t* m_ptr;
+    const uint16_t* m_ptr, *m_limit;
     int m_microstep;
     int m_stepclass;
     int m_flavor;

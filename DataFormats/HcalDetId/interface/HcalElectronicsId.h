@@ -22,21 +22,12 @@
 
     For uTCA Electronics:
 
-     [25:21] Subtype
-     [17:13] Readout Crate Id
+     [25]    Is Trigger Id
+     [18:13] Readout Crate Id
      [12:9] Slot
      [8:4]   Fiber
      [3:0]   FiberChanId
 
-     Subtypes:
-        0x01 = 1.6 Gbps precision (3 channel)
-        0x02 = 4.8 Gbps 6 channel ADC+RETDC
-        0x03 = 4.8 Gbps 12 channel FETDC
-        0x04 = 4.8 Gbps 4 channel ADC+RETDC+FETDC
-        0x11 = optical RCT trigger
-        0x12 = 6.4 Gbps HF trigger
-        0x13 = 4.8 Gbps HB/HE trigger
-        0x14 = 6.4 Gbps HB/HE trigger
  */
 class HcalElectronicsId {
 public:
@@ -49,7 +40,7 @@ public:
   /** VME Constructor from slb channel,slb site,spigot,dccid */
   HcalElectronicsId(int slbChan, int slbSite, int spigot, int dccid, int crate, int slot, int tb);
   /** uTCA constructor */
-  HcalElectronicsId(int subtype, int crate, int slot, int fiber, int fiberchan);
+  HcalElectronicsId(int crate, int slot, int fiber, int fiberchan, bool isTrigger);
 
   uint32_t operator()() { return hcalElectronicsId_; }
 
@@ -92,11 +83,11 @@ public:
   /// get the readout VME crate number
   int readoutVMECrateId() const { return crateId(); }
   /// get the readout VME crate number
-  int crateId() const { return (isVMEid())?((hcalElectronicsId_>>20)&0x1F):((hcalElectronicsId_>>13)&0x1F); }
-  /// get a fast, compact, unique index for linear lookups (maximum value = 16384)
-  int linearIndex() const { return (isVMEid())?((hcalElectronicsId_)&0x3FFF):((hcalElectronicsId_)&0x3FFFF); }
+  int crateId() const { return (isVMEid())?((hcalElectronicsId_>>20)&0x1F):((hcalElectronicsId_>>13)&0x3F); }
+  /// get a fast, compact, unique index for linear lookups 
+  int linearIndex() const { return (isVMEid())?((hcalElectronicsId_)&0x3FFF):((hcalElectronicsId_)&0x7FFFF); }
 
-  static const int maxLinearIndex = 0x3FFFF; // 
+  static const int maxLinearIndex = 0x7FFFF; // 
   static const int maxDCCId = 31;
   
   /** Equality operator */
@@ -105,15 +96,6 @@ public:
   int operator!=(const HcalElectronicsId& id) const { return id.hcalElectronicsId_!=hcalElectronicsId_; }
   /// Compare the id to another id for use in a map
   int operator<(const HcalElectronicsId& id) const { return hcalElectronicsId_<id.hcalElectronicsId_; }
-
-  static const int st_PRECISION_1_6              = 0x01;
-  static const int st_PRECISION_4_8_6CHAN        = 0x02;
-  static const int st_PRECISION_4_8_12CHAN_TDC   = 0x03;
-  static const int st_PRECISION_4_8_4CHAN        = 0x04;
-  static const int st_TRIGGER_RCT                = 0x11;
-  static const int st_TRIGGER_HF_6_4             = 0x12;
-  static const int st_TRIGGER_HBHE_4_8           = 0x13;
-  static const int st_TRIGGER_HBHE_6_4           = 0x14;
 
 private:
   uint32_t hcalElectronicsId_;
