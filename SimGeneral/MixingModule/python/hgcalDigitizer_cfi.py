@@ -45,7 +45,7 @@ hgchebackDigitizer = cms.PSet( accumulatorType   = cms.string("HGCDigiProducer")
                                digiCfg = cms.PSet( mipInKeV = cms.double(1498.4),
                                                    lsbInMIP = cms.double(0.25),
                                                    mip2noise = cms.double(5.0),
-                                                   adcThreshold  = cms.uint32(2),
+                                                   adcThreshold  = cms.uint32(4),
                                                    doTimeSamples = cms.bool(True),
                                                    caliceSpecific = cms.PSet( nPEperMIP = cms.double(11.0),
                                                                               nTotalPE  = cms.double(1156),
