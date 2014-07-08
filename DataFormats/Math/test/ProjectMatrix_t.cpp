@@ -37,6 +37,7 @@ int main() {
   SMatDD S(v,3);
 
   std::cout << S << std::endl;
+  std::cout << std::endl;
   
 
   {
@@ -45,8 +46,10 @@ int main() {
   
     SMatNN V = K*H; 
     
+    std::cout << H << std::endl;
     std::cout << K << std::endl;
     std::cout << V << std::endl;
+    std::cout << std::endl;
 
   }
   {
@@ -55,13 +58,28 @@ int main() {
     SMatND K = H.project(S);  
   
     SMatNN V = H.project(K); 
-    
+
+    std::cout << H.matrix() << std::endl;
     std::cout << K << std::endl;
     std::cout << V << std::endl;
+    std::cout << std::endl;
 
   }
 
+  {
 
+    SMatDN HH; HH(0,3)=1; HH(1,4)=1;
+    ProjectMatrix<double,5,2> H; H.fromH(HH);
+    SMatND K = H.project(S);                                                         
+
+    SMatNN V = H.project(K);
+
+    std::cout << H.matrix() << std::endl;
+    std::cout << K << std::endl;
+    std::cout << V << std::endl;
+    std::cout << std::endl;
+
+  }
 
 
   return 0;
