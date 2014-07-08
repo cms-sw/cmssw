@@ -33,7 +33,9 @@ ecalLaserTask = cms.untracked.PSet(
             otype = cms.untracked.string('Ecal2P'),
             btype = cms.untracked.string('DCC'),
             description = cms.untracked.string('Fraction of laser events with measurable laser pulse.'),
-            multi = cms.untracked.int32(4)
+            multi = cms.untracked.PSet(
+                wl = ecaldqmLaserWavelengths
+            )
         ),
         Shape = cms.untracked.PSet(
             multi = cms.untracked.PSet(
