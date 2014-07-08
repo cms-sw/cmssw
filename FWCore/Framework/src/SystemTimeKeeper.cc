@@ -161,23 +161,19 @@ SystemTimeKeeper::startModuleEvent(StreamContext const& iStream, ModuleCallingCo
   mod.m_timer.start();
   ++(mod.m_timesRun);
   
-  if(iModule.type() == ParentContext::Type::kPlaceInPath ) {
-    auto place = iModule.placeInPathContext();
-    
-    auto& inPath = pathTiming(iStream,*(place->pathContext())).m_moduleTiming[place->placeInPath()];
-    inPath.m_timer.start();
-  }
 }
 void SystemTimeKeeper::stopModuleEvent(StreamContext const& iStream,
                                        ModuleCallingContext const& iModule) {
   auto& mod =
   m_streamModuleTiming[iStream.streamID().value()][iModule.moduleDescription()->id()-m_minModuleID];
-  mod.m_timer.stop();
+  auto times = mod.m_timer.stop();
   
   if(iModule.type() == ParentContext::Type::kPlaceInPath ) {
     auto place = iModule.placeInPathContext();
     
-    pathTiming(iStream,*(place->pathContext())).m_moduleTiming[place->placeInPath()].m_timer.stop();
+    auto& modTiming = pathTiming(iStream,*(place->pathContext())).m_moduleTiming[place->placeInPath()];
+    modTiming.m_cpuTime += times.cpu_;
+    modTiming.m_realTime += times.real_;
   }
 
 }
@@ -185,12 +181,14 @@ void SystemTimeKeeper::pauseModuleEvent(StreamContext const& iStream,
                                         ModuleCallingContext const& iModule) {
   auto& mod =
   m_streamModuleTiming[iStream.streamID().value()][iModule.moduleDescription()->id()-m_minModuleID];
-  mod.m_timer.stop();
+  auto times = mod.m_timer.stop();
   
   if(iModule.type() == ParentContext::Type::kPlaceInPath ) {
     auto place = iModule.placeInPathContext();
     
-    pathTiming(iStream,*(place->pathContext())).m_moduleTiming[place->placeInPath()].m_timer.stop();
+    auto& modTiming = pathTiming(iStream,*(place->pathContext())).m_moduleTiming[place->placeInPath()];
+    modTiming.m_cpuTime += times.cpu_;
+    modTiming.m_realTime += times.real_;
   }
 
 }
@@ -200,12 +198,6 @@ SystemTimeKeeper::restartModuleEvent(StreamContext const& iStream,
   auto& mod =
   m_streamModuleTiming[iStream.streamID().value()][iModule.moduleDescription()->id()-m_minModuleID];
   mod.m_timer.start();
-  
-  if(iModule.type() == ParentContext::Type::kPlaceInPath ) {
-    auto place = iModule.placeInPathContext();
-    
-    pathTiming(iStream,*(place->pathContext())).m_moduleTiming[place->placeInPath()].m_timer.start();
-  }
 }
 
 static void
@@ -238,8 +230,8 @@ fillPathSummary(unsigned int iStartIndex,
           modSummary.moduleLabel = iModulesOnPaths[index][modIndex];
         }
         modSummary.timesVisited += modTiming.m_timesVisited;
-        modSummary.realTime += modTiming.m_timer.realTime();
-        modSummary.cpuTime += modTiming.m_timer.cpuTime();
+        modSummary.realTime += modTiming.m_realTime;
+        modSummary.cpuTime += modTiming.m_cpuTime;
       }
     }
   }

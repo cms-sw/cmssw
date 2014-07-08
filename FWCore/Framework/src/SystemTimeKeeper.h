@@ -66,7 +66,8 @@ namespace edm {
     void restartModuleEvent(StreamContext const&, ModuleCallingContext const&);
     
     struct ModuleInPathTiming {
-      CPUTimer m_timer;
+      double m_realTime = 0.;
+      double m_cpuTime = 0.;
       unsigned int m_timesVisited = 0;
     };
     struct PathTiming {
