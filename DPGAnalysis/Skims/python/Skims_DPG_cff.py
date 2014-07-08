@@ -256,7 +256,6 @@ SKIMStreamEcalActivity = cms.FilteredStream(
 #####################
 
 
-
 from DPGAnalysis.Skims.WMuSkim_cff import *
 WMuPath = cms.Path( pfMetWMuNuSeq )
 SKIMStreamWMu = cms.FilteredStream(
