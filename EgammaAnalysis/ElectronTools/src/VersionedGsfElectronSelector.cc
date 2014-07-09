@@ -1,75 +1,53 @@
 #include "EgammaAnalysis/ElectronTools/interface/VersionedGsfElectronSelector.h"
+#include "PhysicsTools/SelectorUtils/interface/CutApplicatorBase.h"
 
 VersionedGsfElectronSelector::
 VersionedGsfElectronSelector( edm::ParameterSet const & parameters ):
   VersionedSelector<reco::GsfElectron>(parameters) {
-  verbose_ = false;
-  
-  Version_t version = N_VERSIONS;
-  std::string versionStr = parameters.getParameter<std::string>("version");
-
-  if ( versionStr == "SPRING11" ) {
-    version = SPRING11;
-  }
-  else {
-    throw cms::Exception("InvalidInput") << "Expect version to be one of SPRING11" << std::endl;
-  }
-  
-  initialize( version,
-	      parameters.getParameter<double>("MVA"),
-	      parameters.getParameter<double>("D0")  ,
-	      parameters.getParameter<int>   ("MaxMissingHits"),
-	      parameters.getParameter<std::string> ("electronIDused"),
-	      parameters.getParameter<bool>  ("ConversionRejection"),
-	      parameters.getParameter<double>("PFIso")
-	      );
-  if ( parameters.exists("cutsToIgnore") )
-    setIgnoredCuts( parameters.getParameter<std::vector<std::string> >("cutsToIgnore") );
-  
+  initialize(parameters);  
   retInternal_ = getBitTemplate();
 }
   
 void VersionedGsfElectronSelector::
-initialize( Version_t version,
-	    double mva,
-	    double d0,
-	    int nMissingHits,
-	    std::string eidUsed,
-	    bool convRej,
-	    double pfiso )
-{
-  version_ = version;
+initialize( const edm::ParameterSet& conf ) {
+  if(initialized_) return;
   
-  //    size_t found;
-  //    found = eidUsed.find("NONE");
-  //  if ( found != string::npos)
-  electronIDvalue_ = eidUsed;
+  const std::vector<edm::ParameterSet>& cutflow =
+    conf.getParameterSetVector("cutFlow");
   
-  push_back("D0",        d0     );
-  push_back("MaxMissingHits", nMissingHits  );
-  push_back("electronID");
-  push_back("ConversionRejection" );
-  push_back("PFIso",    pfiso );
-  push_back("MVA",       mva   );
+  // this lets us keep track of cuts without knowing what they are :D
+  for( const auto& cut : cutflow ) {
+    const std::string& name = cut.getParameter<std::string>("cutName");
+    const bool isIso = cut.getParameter<bool>("isIsolation");    
+    const bool ignored = cut.getParameter<bool>("isIgnored");
+    cuts_.emplace_back(CutApplicatorFactory::get()->create(name,cut));
+    is_isolation_.push_back(isIso);
+    push_back(name);
+    set(name);
+    if(ignored) ignoreCut(name);
+  }  
   
-  set("D0");
-  set("MaxMissingHits");
-  set("electronID");
-  set("ConversionRejection", convRej);
-  set("PFIso");
-  set("MVA");
-  
-  indexD0_             = index_type(&bits_, "D0"           );
-  indexMaxMissingHits_ = index_type(&bits_, "MaxMissingHits" );
-  indexElectronId_     = index_type(&bits_, "electronID" );
-  indexConvRej_        = index_type(&bits_, "ConversionRejection" );
-  indexPFIso_          = index_type(&bits_, "PFIso"       );
-  indexMVA_            = index_type(&bits_, "MVA"         );
+  //have to loop again to set cut indices after all are filled
+  for( const auto& cut: cutflow ) {
+    const std::string& name = cut.getParameter<std::string>("cutName");
+    cut_indices_.emplace_back(&bits_,name);
+  }
+
+  initialized_ = true;
 }
 
-// cuts based on top group L+J synchronization exercise
 bool VersionedGsfElectronSelector::
-spring11Cuts( const reco::GsfElectron & electron, pat::strbitset & ret)
-{  
-  return true;
-}  
+operator()(const reco::GsfElectron & electron,pat::strbitset & ret ) {
+  if( !initialized_ ) {
+    throw cms::Exception("CutNotInitialized")
+      << "VersionedGsfElectronSelector not initialized!" << std::endl;
+  }
+  
+  for( unsigned i = 0; i < cuts_.size(); ++i ) {
+    const bool result = (*cuts_[i])(electron);
+    if( result || ignoreCut(cut_indices_[i]) ) passCut(ret,cut_indices_[i]);
+  }
+  setIgnored(ret);
+
+  return (bool)ret;
+}

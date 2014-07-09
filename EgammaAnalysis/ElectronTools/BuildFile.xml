@@ -17,6 +17,7 @@
 <use   name="DataFormats/TrackReco"/>
 <use   name="TrackingTools/IPTools"/>
 <use   name="PhysicsTools/UtilAlgos"/>
+<use   name="PhysicsTools/SelectorUtils"/>
 <use   name="clhep"/>
 <use   name="root"/>
 <use name="rootrflx"/>

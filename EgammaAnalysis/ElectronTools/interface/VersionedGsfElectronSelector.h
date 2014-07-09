@@ -11,47 +11,21 @@
 #include <iostream>
 
 class VersionedGsfElectronSelector : public VersionedSelector<reco::GsfElectron> {
+ public:
+ VersionedGsfElectronSelector() : 
+  VersionedSelector<reco::GsfElectron>(),
+    initialized_(false) {}
   
- public: // interface
+ VersionedGsfElectronSelector( const edm::ParameterSet& parameters );
   
- bool verbose_;  
- enum Version_t { SPRING11, N_VERSIONS };
-
- VersionedGsfElectronSelector() : VersionedSelector<reco::GsfElectron>( ) {}
-  
- VersionedGsfElectronSelector( edm::ParameterSet const & parameters );
-  
-  void initialize( Version_t version,
-		   double mva = 0.4,
-		   double d0 = 0.02,
-		   int nMissingHits = 1,
-		   std::string eidUsed = "eidTightMC",
-		   bool convRej = true,
-		   double pfiso = 0.15 );
+ void initialize( const edm::ParameterSet& parameters );
 
   // Allow for multiple definitions of the cuts.
-  bool operator()( const reco::GsfElectron & electron, pat::strbitset & ret ) {    
-    return ( version_ == SPRING11 && spring11Cuts(electron, ret) );
-  }
-
-  using VersionedSelector<reco::GsfElectron>::operator();
-
-  // cuts based on top group L+J synchronization exercise
-  bool spring11Cuts( const reco::GsfElectron & electron, pat::strbitset & ret);
-
- private: // member variables
-
-  Version_t version_;
-
-  index_type indexID;
-  index_type indexMaxMissingHits_;
-  index_type indexD0_;
-  index_type indexConvRej_;
-  index_type indexPFIso_;
-  index_type indexMVA_;
-  index_type indexElectronId_;
-
-  std::string electronIDvalue_;
+ bool operator()(const reco::GsfElectron&,pat::strbitset&); 
+ using VersionedSelector<reco::GsfElectron>::operator();
+ 
+ private:
+ bool initialized_; 
 };
 
 #endif
