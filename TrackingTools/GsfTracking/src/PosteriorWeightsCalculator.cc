@@ -23,7 +23,7 @@ std::vector<double> PosteriorWeightsCalculator::weights(const TrackingRecHit& re
   typedef typename AlgebraicROOTObject<5,D>::Matrix Mat5D;
   typedef typename AlgebraicROOTObject<D,D>::SymMatrix SMatDD;
   typedef typename AlgebraicROOTObject<D>::Vector VecD;
-  using ROOT::Math::SMatrixNoInit;
+  using ROOT::Math::SMatrixIdentity;
 
   std::vector<double> weights;
   if ( predictedComponents.empty() )  {
@@ -38,7 +38,7 @@ std::vector<double> PosteriorWeightsCalculator::weights(const TrackingRecHit& re
   chi2s.reserve(predictedComponents.size());
 
   VecD r, rMeas; 
-  SMatDD V(SMatrixNoInit{}), R(SMatrixNoInit{});
+  SMatDD V(SMatrixIdentity{}), R(SMatrixIdentity{});
   AlgebraicVector5 x;
   ProjectMatrix<double,5,D> p;
   //
