@@ -60,7 +60,6 @@
 #include "MessageForSource.h"
 #include "MessageForParent.h"
 
-#include "boost/bind.hpp"
 #include "boost/thread/xtime.hpp"
 
 #include <exception>
@@ -615,11 +614,11 @@ namespace edm {
     }
     schedule_->endJob(c);
     if(hasSubProcess()) {
-      c.call(boost::bind(&SubProcess::doEndJob, subProcess_.get()));
+      c.call(std::bind(&SubProcess::doEndJob, subProcess_.get()));
     }
-    c.call(boost::bind(&InputSource::doEndJob, input_.get()));
+    c.call(std::bind(&InputSource::doEndJob, input_.get()));
     if(looper_) {
-      c.call(boost::bind(&EDLooperBase::endOfJob, looper_));
+      c.call(std::bind(&EDLooperBase::endOfJob, looper_));
     }
     auto actReg = actReg_.get();
     c.call([actReg](){actReg->postEndJobSignal_();});
