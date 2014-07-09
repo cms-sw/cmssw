@@ -57,7 +57,6 @@ TrajectorySeedProducer2::TrajectorySeedProducer2(const edm::ParameterSet& conf):
     std::cout<<"---------"<<std::endl;
     _seedingTree.sort();
     _seedingTree.printRecursive();
-    _seedingTree.printOrdered();
     std::cout<<std::endl;
 } 
 

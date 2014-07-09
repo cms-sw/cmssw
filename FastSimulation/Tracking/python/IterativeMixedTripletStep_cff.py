@@ -18,7 +18,7 @@ iterativeMixedTripletStepSeeds.minRecHits = [3]
 iterativeMixedTripletStepSeeds.pTMin = [0.15]
 iterativeMixedTripletStepSeeds.maxD0 = [10.]
 iterativeMixedTripletStepSeeds.maxZ0 = [30.]
-iterativeMixedTripletStepSeeds.numberOfHits = [2]
+iterativeMixedTripletStepSeeds.numberOfHits = [3]
 iterativeMixedTripletStepSeeds.originRadius = [2.0] # was 1.2
 iterativeMixedTripletStepSeeds.originHalfLength = [10.0] # was 7.0
 iterativeMixedTripletStepSeeds.originpTMin = [0.35] # we need to add another seed for endcaps only, with 0.5
@@ -33,7 +33,9 @@ iterativeMixedTripletStepSeeds.newSyntax = True
 #                                            'BPix1+FPix1_neg+FPix2_neg']
 from RecoTracker.IterativeTracking.MixedTripletStep_cff import mixedTripletStepSeedLayersA
 iterativeMixedTripletStepSeeds.layerList = mixedTripletStepSeedLayersA.layerList
-# NOTE: what about mixedTripletStepSeedLayersB ? Have to think a way to include that as well.
+
+print "list A"
+print mixedTripletStepSeedLayersA.layerList
 
 # candidate producer
 #from FastSimulation.Tracking.IterativeThirdCandidateProducer_cff import *
