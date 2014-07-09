@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process('TOPDQM')
+process = cms.Process('B2GDQM')
 
 ## imports of standard configurations
 process.load('DQMOffline.Configuration.DQMOffline_cff')
@@ -38,24 +38,24 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 ## apply VBTF electronID (needed for the current implementation
-## of topSingleElectronDQMLoose and topSingleElectronDQMMedium)
+## of b2gSingleElectronDQMLoose and b2gSingleElectronDQMMedium)
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("DQM.Physics.topElectronID_cff")
 
-#process.topSingleMuonLooseTriggerDQM.setup.triggerExtras.src  = cms.InputTag("TriggerResults","","REDIGI42X")
-#process.topSingleMuonLooseTriggerDQM.preselection.trigger.src = cms.InputTag("TriggerResults","","REDIGI42X")
-#process.topSingleMuonLooseTriggerDQM.preselection.trigger.select  = cms.vstring(['HLT_Mu15_v2'])
-#process.topSingleMuonMediumTriggerDQM.preselection.trigger.select = cms.vstring(['HLT_Mu15_v2'])
+#process.b2gSingleMuonLooseTriggerDQM.setup.triggerExtras.src  = cms.InputTag("TriggerResults","","REDIGI42X")
+#process.b2gSingleMuonLooseTriggerDQM.preselection.trigger.src = cms.InputTag("TriggerResults","","REDIGI42X")
+#process.b2gSingleMuonLooseTriggerDQM.preselection.trigger.select  = cms.vstring(['HLT_Mu15_v2'])
+#process.b2gSingleMuonMediumTriggerDQM.preselection.trigger.select = cms.vstring(['HLT_Mu15_v2'])
 
 ## output
 process.output = cms.OutputModule("PoolOutputModule",
-  fileName       = cms.untracked.string('topDQM_production.root'),
+  fileName       = cms.untracked.string('b2gDQM_production.root'),
   outputCommands = cms.untracked.vstring(
     'drop *_*_*_*',
-    'keep *_*_*_TOPDQM',
-    'drop *_TriggerResults_*_TOPDQM',
-    'drop *_simpleEleId70cIso_*_TOPDQM',
+    'keep *_*_*_B2GDQM',
+    'drop *_TriggerResults_*_B2GDQM',
+    'drop *_simpleEleId70cIso_*_B2GDQM',
   ),
   splitLevel     = cms.untracked.int32(0),
   dataset = cms.untracked.PSet(
@@ -66,7 +66,7 @@ process.output = cms.OutputModule("PoolOutputModule",
 
 ## load jet corrections
 process.load("JetMETCorrections.Configuration.JetCorrectionServicesAllAlgos_cff")
-process.prefer("ak5CaloL2L3")
+process.prefer("ak4PFL2L3")
 
 ## check the event content
 process.content = cms.EDAnalyzer("EventContentAnalyzer")
@@ -74,38 +74,16 @@ process.content = cms.EDAnalyzer("EventContentAnalyzer")
 ## configure message logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = 'INFO'
-process.MessageLogger.categories.append('TopSingleLeptonTriggerDQM'   )
-process.MessageLogger.cerr.TopSingleLeptonTriggerDQM    = cms.untracked.PSet(limit = cms.untracked.int32(1))
-process.MessageLogger.categories.append('topDiLeptonTriggerDQM')
-process.MessageLogger.cerr.topDiLeptonTriggerDQM = cms.untracked.PSet(limit = cms.untracked.int32(1))
+process.MessageLogger.categories.append('B2GSingleLeptonTriggerDQM'   )
+process.MessageLogger.cerr.B2GSingleLeptonTriggerDQM    = cms.untracked.PSet(limit = cms.untracked.int32(1))
 
 process.MEtoEDMConverter.deleteAfterCopy = cms.untracked.bool(False)  ## line added to avoid crash when changing run number
 
-## To examin more paths at the same time, clone the module
-process.load("HLTriggerOffline.Top.topHLTDQM_cff")
-process.DiMuonMu17_Mu8 = process.DiMuonDQM.clone()
-process.DiMuonMu17_Mu8.preselection.trigger.select = cms.vstring(['HLT_Mu17_Mu8_v17'])#Only one
-process.DiMuonMu17_Mu8.setup.directory = cms.string("HLTriggerOffline/Top/DiMuonMu17_Mu8/")
 
-process.DiMuonMu17_TkMu8 = process.DiMuonDQM.clone()
-process.DiMuonMu17_TkMu8.preselection.trigger.select = cms.vstring(['HLT_Mu17_TkMu8_v10'])#Only one
-process.DiMuonMu17_TkMu8.setup.directory = cms.string("HLTriggerOffline/Top/DiMuonMu17_TkMu8/")
-
-process.DiElectronDQM.preselection.trigger.select = cms.vstring(['HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v17'])#Only one
-process.DiElectronDQM.setup.directory = cms.string("HLTriggerOffline/Top/DiElectron/")
-
-process.ElecMuonMu17Ele8 = process.ElecMuonDQM.clone()
-process.ElecMuonMu17Ele8.preselection.trigger.select = cms.vstring(['HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v7'])#Only one
-process.ElecMuonMu17Ele8.setup.directory = cms.string("HLTriggerOffline/Top/ElecMuonMu17Ele8/")
-
-process.ElecMuonMu8Ele17 = process.ElecMuonDQM.clone()
-process.ElecMuonMu8Ele17.preselection.trigger.select = cms.vstring(['HLT_Mu8_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v7'])#Only one
-process.ElecMuonMu8Ele17.setup.directory = cms.string("HLTriggerOffline/Top/ElecMuonMu8Ele17/")
-
-process.topSingleMuonMediumTriggerDQM.preselection.trigger.select = cms.vstring(['HLT_IsoMu17_eta2p1_TriCentralPFNoPUJet50_40_30_v1'])
-process.topSingleElectronMediumTriggerDQM.preselection.trigger.select = cms.vstring(['HLT_Ele25_CaloIdVT_TrkIdT_TriCentralPFNoPUJet50_40_30_v5'])
-#process.SingleTopSingleElectronTriggerDQM.preselection.trigger.select = cms.vstring(['HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet30_BTagIPIter_v6'])
-process.SingleTopSingleMuonTriggerDQM.preselection.trigger.select = cms.vstring(['HLT_IsoMu17_eta2p1_CentralPFNoPUJet30_BTagIPIter_v1'])
+process.b2gSingleMuonMediumTriggerDQM.preselection.trigger.select = cms.vstring(['HLT_IsoMu17_eta2p1_TriCentralPFNoPUJet50_40_30_v1'])
+process.b2gSingleElectronMediumTriggerDQM.preselection.trigger.select = cms.vstring(['HLT_Ele25_CaloIdVT_TrkIdT_TriCentralPFNoPUJet50_40_30_v5'])
+#process.SingleB2GSingleElectronTriggerDQM.preselection.trigger.select = cms.vstring(['HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralPFNoPUJet30_BTagIPIter_v6'])
+process.SingleB2GSingleMuonTriggerDQM.preselection.trigger.select = cms.vstring(['HLT_IsoMu17_eta2p1_CentralPFNoPUJet30_BTagIPIter_v1'])
 #
 ## add it to the p path below
 
@@ -113,10 +91,10 @@ process.SingleTopSingleMuonTriggerDQM.preselection.trigger.select = cms.vstring(
 process.p      = cms.Path(
    #process.content *
     process.simpleEleId70cIso          *
-    process.topSingleMuonMediumTriggerDQM     +
-    process.topSingleElectronMediumTriggerDQM +
-    process.SingleTopSingleMuonTriggerDQM+
-    process.SingleTopSingleElectronTriggerDQM+
+    process.b2gSingleMuonMediumTriggerDQM     +
+    process.b2gSingleElectronMediumTriggerDQM +
+    process.SingleB2GSingleMuonTriggerDQM+
+    process.SingleB2GSingleElectronTriggerDQM+
     process.DiMuonMu17_Mu8 +
     process.DiMuonMu17_TkMu8 +
     process.DiElectronDQM +
