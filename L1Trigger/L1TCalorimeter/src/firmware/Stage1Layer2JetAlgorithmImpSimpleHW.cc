@@ -12,8 +12,13 @@
 #include "L1Trigger/L1TCalorimeter/interface/PUSubtractionMethods.h"
 #include "L1Trigger/L1TCalorimeter/interface/legacyGtHelper.h"
 
+#include <bitset>
+#include <iostream>
+
 using namespace std;
 using namespace l1t;
+
+unsigned int pack15bits(int pt, int eta, int phi);
 
 Stage1Layer2JetAlgorithmImpSimpleHW::Stage1Layer2JetAlgorithmImpSimpleHW(CaloParamsStage1* params) : params_(params)
 {
@@ -54,25 +59,32 @@ void Stage1Layer2JetAlgorithmImpSimpleHW::processEvent(const std::vector<l1t::Ca
   int cJets = 0;
   int fJets = 0;
   printf("Central 4x4s\n");
-  printf("pt\teta\tphi\n");
+  //printf("pt\teta\tphi\n");
   for(std::vector<l1t::Jet>::const_iterator itJet = jets->begin();
       itJet != jets->end(); ++itJet){
     if(itJet->hwQual() == 2) continue;
     cJets++;
-    printf("%i\t%i\t%i\n",itJet->hwPt(), itJet->hwEta(), itJet->hwPhi());
+    unsigned int packed = pack15bits(itJet->hwPt(), itJet->hwEta(), itJet->hwPhi());
+    cout << bitset<15>(packed).to_string() << endl;
     if(cJets == 4) break;
   }
 
   printf("Forward 4x4s\n");
-  printf("pt\teta\tphi\n");
+  //printf("pt\teta\tphi\n");
   for(std::vector<l1t::Jet>::const_iterator itJet = jets->begin();
       itJet != jets->end(); ++itJet){
     if(itJet->hwQual() != 2) continue;
     fJets++;
-    printf("%i\t%i\t%i\n",itJet->hwPt(), itJet->hwEta(), itJet->hwPhi());
+    unsigned int packed = pack15bits(itJet->hwPt(), itJet->hwEta(), itJet->hwPhi());
+    cout << bitset<15>(packed).to_string() << endl;
     if(fJets == 4) break;
   }
 
   delete subRegions;
   delete preGtJets;
+}
+
+unsigned int pack15bits(int pt, int eta, int phi)
+{
+  return( ((pt & 0x3f)) + ((eta & 0xf) << 6) + ((phi & 0x1f) << 10));
 }
