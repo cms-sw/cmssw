@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 # ttbar semi muonique
-topSingleMuonHLTValidation = cms.EDAnalyzer('TopSingleLeptonHLTValidation',
+b2gSingleMuonHLTValidation = cms.EDAnalyzer('B2GSingleLeptonHLTValidation',
         # Directory
-        sDir         = cms.untracked.string('HLT/TopHLTValidation/Top/SemiMuonic/'),
+        sDir         = cms.untracked.string('HLT/B2GHLTValidation/B2G/SemiMuonic/'),
         # Electrons
         sElectrons   = cms.untracked.string('gedGsfElectrons'),
         ptElectrons  = cms.untracked.double(30.),
@@ -23,13 +23,13 @@ topSingleMuonHLTValidation = cms.EDAnalyzer('TopSingleLeptonHLTValidation',
         minJets      = cms.untracked.uint32(4),
         # Trigger
         sTrigger     = cms.untracked.string("TriggerResults"),
-        vsPaths      = cms.untracked.vstring(['HLT_IsoMu17_eta2p1_TriCentralPFNoPUJet45_35_25','HLT_IsoMu17_eta2p1_TriCentralPFNoPUJet30']),
+        vsPaths      = cms.untracked.vstring(['HLT_Mu40_eta2p1']),
 )
 
 # ttbar semi electronique
-topSingleElectronHLTValidation = cms.EDAnalyzer('TopSingleLeptonHLTValidation',
+b2gSingleElectronHLTValidation = cms.EDAnalyzer('B2GSingleLeptonHLTValidation',
         # Directory
-        sDir         = cms.untracked.string('HLT/TopHLTValidation/Top/SemiElectronic/'),
+        sDir         = cms.untracked.string('HLT/B2GHLTValidation/B2G/SemiElectronic/'),
         # Electrons
         sElectrons   = cms.untracked.string('gedGsfElectrons'),
         ptElectrons  = cms.untracked.double(30.),
@@ -49,5 +49,5 @@ topSingleElectronHLTValidation = cms.EDAnalyzer('TopSingleLeptonHLTValidation',
         minJets      = cms.untracked.uint32(4),
         # Trigger
         sTrigger     = cms.untracked.string("TriggerResults"),
-        vsPaths      = cms.untracked.vstring(['HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet45_35_25','HLT_Ele25_CaloIdVT_CaloIsoVL_TrkIdVL_TrkIsoT_TriCentralPFNoPUJet30']),
+        vsPaths      = cms.untracked.vstring(['HLT_Ele30_CaloIdVT_TrkIdT_PFNoPUJet150_PFNoPUJet25']),
 )

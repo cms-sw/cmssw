@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    HLTriggerOffline/Top
-// Class:      TopSingleLeptonHLTValidation
+// Package:    HLTriggerOffline/B2G
+// Class:      B2GSingleLeptonHLTValidation
 // 
-/**\class TopSingleLeptonHLTValidation TopSingleLeptonHLTValidation.cc HLTriggerOffline/Top/src/TopSingleLeptonHLTValidation.cc
+/**\class B2GSingleLeptonHLTValidation B2GSingleLeptonHLTValidation.cc HLTriggerOffline/B2G/src/B2GSingleLeptonHLTValidation.cc
 
 Description: 
 
@@ -17,7 +17,7 @@ harvesting
 //         Created:  Thu, 16 Jan 2014 16:27:35 GMT
 //
 //
-#include "HLTriggerOffline/Top/interface/TopSingleLeptonHLTValidation.h"
+#include "HLTriggerOffline/B2G/interface/B2GSingleLeptonHLTValidation.h"
 
 // system include files
 #include <memory>
@@ -42,7 +42,7 @@ harvesting
 
 // ------------ method called for each event  ------------
   void
-TopSingleLeptonHLTValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+B2GSingleLeptonHLTValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 { 
   using namespace edm;
 
@@ -51,7 +51,7 @@ TopSingleLeptonHLTValidation::analyze(const edm::Event& iEvent, const edm::Event
   // Electrons 
   Handle< edm::View<reco::GsfElectron> > electrons;
   if (!iEvent.getByToken(tokElectrons_,electrons))
-    edm::LogWarning("TopSingleLeptonHLTValidation") << "Electrons collection not found \n";
+    edm::LogWarning("B2GSingleLeptonHLTValidation") << "Electrons collection not found \n";
   unsigned int nGoodE = 0;
   for(edm::View<reco::GsfElectron>::const_iterator e = electrons->begin(); e != electrons->end(); ++e){
     if (e->pt() < ptElectrons_) continue;
@@ -63,7 +63,7 @@ TopSingleLeptonHLTValidation::analyze(const edm::Event& iEvent, const edm::Event
   // Muons 
   Handle< edm::View<reco::Muon> > muons;
   if (!iEvent.getByToken(tokMuons_,muons))
-    edm::LogWarning("TopSingleLeptonHLTValidation") << "Muons collection not found \n";
+    edm::LogWarning("B2GSingleLeptonHLTValidation") << "Muons collection not found \n";
   unsigned int nGoodM = 0;
   for(edm::View<reco::Muon>::const_iterator m = muons->begin(); m != muons->end(); ++m){
     if (!m->isPFMuon() || !m->isGlobalMuon()) continue;
@@ -76,7 +76,7 @@ TopSingleLeptonHLTValidation::analyze(const edm::Event& iEvent, const edm::Event
   // Jets 
   Handle< edm::View<reco::Jet> > jets;
   if (!iEvent.getByToken(tokJets_,jets)) 
-    edm::LogWarning("TopSingleLeptonHLTValidation") << "Jets collection not found \n";
+    edm::LogWarning("B2GSingleLeptonHLTValidation") << "Jets collection not found \n";
   unsigned int nGoodJ = 0;
   if (minJets_ == 4) {
     for(edm::View<reco::Jet>::const_iterator j = jets->begin(); j != jets->end(); ++j){
@@ -104,7 +104,7 @@ TopSingleLeptonHLTValidation::analyze(const edm::Event& iEvent, const edm::Event
   //Trigger
   Handle<edm::TriggerResults> triggerTable;
   if (!iEvent.getByToken(tokTrigger_,triggerTable))
-    edm::LogWarning("TopSingleLeptonHLTValidation") << "Trigger collection not found \n";
+    edm::LogWarning("B2GSingleLeptonHLTValidation") << "Trigger collection not found \n";
   const edm::TriggerNames& triggerNames = iEvent.triggerNames(*triggerTable);
   for (unsigned int i=0; i<triggerNames.triggerNames().size(); ++i) {
 
@@ -148,7 +148,7 @@ TopSingleLeptonHLTValidation::analyze(const edm::Event& iEvent, const edm::Event
 
 // ------------ booking histograms -----------
   void
-TopSingleLeptonHLTValidation::bookHistograms(DQMStore::IBooker & dbe, edm::Run const &, edm::EventSetup const &)
+B2GSingleLeptonHLTValidation::bookHistograms(DQMStore::IBooker & dbe, edm::Run const &, edm::EventSetup const &)
 {
   dbe.setCurrentFolder(sDir_);
   hDenLeptonPt  = dbe.book1D("PtLeptonAll", "PtLeptonAll", 50, 0., 250.);
@@ -164,7 +164,7 @@ TopSingleLeptonHLTValidation::bookHistograms(DQMStore::IBooker & dbe, edm::Run c
 
 // ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
 void
-TopSingleLeptonHLTValidation::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+B2GSingleLeptonHLTValidation::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;

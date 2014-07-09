@@ -1,9 +1,9 @@
 // -*- C++ -*-
 //
-// Package:    HLTriggerOffline/Top
-// Class:      TopSingleLeptonHLTValidation
+// Package:    HLTriggerOffline/B2G
+// Class:      B2GSingleLeptonHLTValidation
 // 
-/**\class TopSingleLeptonHLTValidation TopSingleLeptonHLTValidation.h HLTriggerOffline/Top/interface/TopSingleLeptonHLTValidation.h
+/**\class B2GSingleLeptonHLTValidation B2GSingleLeptonHLTValidation.h HLTriggerOffline/B2G/interface/B2GSingleLeptonHLTValidation.h
 
  Description: compute efficiencies of trigger paths on offline reco selection with respect to pt and eta
 
@@ -45,10 +45,10 @@
 // class declaration
 //
 
-class TopSingleLeptonHLTValidation : public DQMEDAnalyzer {
+class B2GSingleLeptonHLTValidation : public DQMEDAnalyzer {
    public:
-      explicit TopSingleLeptonHLTValidation(const edm::ParameterSet&);
-      ~TopSingleLeptonHLTValidation();
+      explicit B2GSingleLeptonHLTValidation(const edm::ParameterSet&);
+      ~B2GSingleLeptonHLTValidation();
 
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
@@ -111,8 +111,8 @@ class TopSingleLeptonHLTValidation : public DQMEDAnalyzer {
 //
 // constructors and destructor
 //
-TopSingleLeptonHLTValidation::TopSingleLeptonHLTValidation(const edm::ParameterSet& iConfig) :
-  sDir_(iConfig.getUntrackedParameter<std::string>("sDir","HLTValidation/Top/Efficiencies/")),
+B2GSingleLeptonHLTValidation::B2GSingleLeptonHLTValidation(const edm::ParameterSet& iConfig) :
+  sDir_(iConfig.getUntrackedParameter<std::string>("sDir","HLTValidation/B2G/Efficiencies/")),
   sElectrons_(iConfig.getUntrackedParameter<std::string>("sElectrons","gsfElectrons")),
   ptElectrons_(iConfig.getUntrackedParameter<double>("ptElectrons",0.)),
   etaElectrons_(iConfig.getUntrackedParameter<double>("etaElectrons",0.)),
@@ -123,7 +123,7 @@ TopSingleLeptonHLTValidation::TopSingleLeptonHLTValidation(const edm::ParameterS
   etaMuons_(iConfig.getUntrackedParameter<double>("etaMuons",0.)),
   isoMuons_(iConfig.getUntrackedParameter<double>("isoMuons",0.)),
   minMuons_(iConfig.getUntrackedParameter<unsigned int>("minMuons",0)),
-  sJets_(iConfig.getUntrackedParameter<std::string>("sJets","ak5PFJets")),
+  sJets_(iConfig.getUntrackedParameter<std::string>("sJets","ak4PFJets")),
   ptJets_(iConfig.getUntrackedParameter<double>("ptJets",0.)),
   etaJets_(iConfig.getUntrackedParameter<double>("etaJets",0.)),
   minJets_(iConfig.getUntrackedParameter<unsigned int>("minJets",0)),
@@ -142,7 +142,7 @@ TopSingleLeptonHLTValidation::TopSingleLeptonHLTValidation(const edm::ParameterS
 }
 
 
-TopSingleLeptonHLTValidation::~TopSingleLeptonHLTValidation()
+B2GSingleLeptonHLTValidation::~B2GSingleLeptonHLTValidation()
 {
  
    // do anything here that needs to be done at desctruction time
@@ -152,4 +152,4 @@ TopSingleLeptonHLTValidation::~TopSingleLeptonHLTValidation()
 #endif
 
 //define this as a plug-in
-DEFINE_FWK_MODULE(TopSingleLeptonHLTValidation);
+DEFINE_FWK_MODULE(B2GSingleLeptonHLTValidation);
