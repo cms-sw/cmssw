@@ -2,9 +2,8 @@
 #define DataFormats_Common_DetSetAlgorithm_h
 
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
-#include <boost/ref.hpp>
-#include <boost/function.hpp>
 #include <algorithm>
+#include <functional>
 
 //FIXME remove New when ready
 namespace edmNew {
@@ -24,7 +23,7 @@ namespace edmNew {
     typename DSTV::Range range = detsetRangeFromPair(v,sel);
     for(typename DSTV::const_iterator id=range.first; id!=range.second; id++)
       std::for_each((*id).begin(), (*id).end(),
-		    boost::function<void(const data_type &)>(boost::ref(f)));
+		    std::function<void(const data_type &)>(std::ref(f)));
   }
 
   namespace dstvdetails {

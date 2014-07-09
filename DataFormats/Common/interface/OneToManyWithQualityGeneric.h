@@ -3,10 +3,14 @@
 #include "DataFormats/Common/interface/AssociationMapHelpers.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+#include <functional>
+#else
+#include "boost/bind.hpp"
+#endif
 #include <map>
 #include <vector>
 #include <algorithm>
-#include <boost/bind.hpp>
 
 #include "DataFormats/Common/interface/MapRefViewTrait.h"
 
@@ -78,13 +82,22 @@ namespace edm {
     static void sort(map_type & m) {
       //      using namespace boost::lambda;
       for(typename map_type::iterator i = m.begin(), iEnd = m.end(); i != iEnd; ++i) {
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+        using std::placeholders::_1;
+        using std::placeholders::_2;
+#endif
 	map_assoc & v = i->second;
 	// Q std::pair<index, Q>::*quality = &std::pair<index, Q>::second;
 	// std::sort(v.begin(), v.end(),
 	// 	  bind(quality, boost::lambda::_2) < bind(quality, boost::lambda::_1));
            std::sort(v.begin(), v.end(), 
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+                  std::bind(std::less<Q>(), 
+                  std::bind(&std::pair<index, Q>::second,_2), std::bind( &std::pair<index, Q>::second,_1)
+#else
                   boost::bind(std::less<Q>(), 
                   boost::bind(&std::pair<index, Q>::second,_2), boost::bind( &std::pair<index, Q>::second,_1)
+#endif
                              )
            );
 

@@ -20,11 +20,10 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-#include "boost/bind.hpp"
-#include "boost/mem_fn.hpp"
 #include "FWCore/Utilities/interface/Signal.h"
 
 #include <algorithm>
+#include <functional>
 #include <iostream>
 #include <string>
 #include <map>
@@ -44,11 +43,13 @@ using namespace edmplugin;
 
 PrintLoadingPlugins::PrintLoadingPlugins()
 {   
+   using std::placeholders::_1;
+   using std::placeholders::_2;
    PluginManager *pm = PluginManager::get();
 
-   pm->askedToLoadCategoryWithPlugin_.connect(boost::bind(boost::mem_fn(&PrintLoadingPlugins::askedToLoad),this, _1,_2));
+   pm->askedToLoadCategoryWithPlugin_.connect(std::bind(std::mem_fn(&PrintLoadingPlugins::askedToLoad),this, _1,_2));
    
-   pm->goingToLoad_.connect(boost::bind(boost::mem_fn(&PrintLoadingPlugins::goingToLoad),this, _1));
+   pm->goingToLoad_.connect(std::bind(std::mem_fn(&PrintLoadingPlugins::goingToLoad),this, _1));
 
    
   

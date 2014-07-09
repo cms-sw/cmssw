@@ -1,7 +1,6 @@
 
 #include "IOPool/Streamer/interface/EventBuffer.h"
 #include "boost/thread/thread.hpp"
-#include "boost/bind.hpp"
 #include "boost/signal.hpp"
 
 #include <iostream>
@@ -29,7 +28,7 @@ struct Consumer
 
 Consumer::Consumer(EventBuffer& b, DataSignal& s):
   b_(&b),
-  c_(s.connect(boost::bind(&Consumer::callme,this,_1)))
+  c_(s.connect(std::bind(&Consumer::callme,this,std::placeholders::_1)))
 {
 
 }
@@ -128,9 +127,9 @@ int main(int argc, char* argv[])
   Producer p(buf,total);
   Consumer c(buf,p.sig_),c2(buf,p.sig);
   std::cout << "(2)" << std::endl;
-  boost::thread con(boost::bind(crunner,&c));
-  boost::thread con2(boost::bind(crunner,&c2));
-  boost::thread pro(boost::bind(prunner,&p));
+  boost::thread con(std::bind(crunner,&c));
+  boost::thread con2(std::bind(crunner,&c2));
+  boost::thread pro(std::bind(prunner,&p));
   std::cout << "(3)" << std::endl;
 
   con.join();

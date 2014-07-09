@@ -24,9 +24,6 @@
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
 #include "FWCore/Utilities/interface/DictionaryTools.h"
 
-#include "boost/bind.hpp"
-#include "boost/ref.hpp"
-
 #include <algorithm>
 #include <cassert>
 #include <cstdlib>
@@ -469,6 +466,7 @@ namespace edm {
                                     std::shared_ptr<ProcessConfiguration const> processConfiguration,
                                     int bitpos, std::string const& name, TrigResPtr trptr,
                                     vstring* labelsOnTriggerPaths) {
+    using std::placeholders::_1;
     PathWorkers tmpworkers;
     Workers holder;
     fillWorkers(proc_pset, preg, prealloc, processConfiguration, name, false, tmpworkers, labelsOnTriggerPaths);
@@ -488,7 +486,7 @@ namespace edm {
       empty_trig_paths_.push_back(bitpos);
       empty_trig_path_names_.push_back(name);
     }
-    for_all(holder, boost::bind(&StreamSchedule::addToAllWorkers, this, _1));
+    for_all(holder, std::bind(&StreamSchedule::addToAllWorkers, this, _1));
   }
 
   void StreamSchedule::fillEndPath(ParameterSet& proc_pset,
@@ -496,6 +494,7 @@ namespace edm {
                                    PreallocationConfiguration const* prealloc,
                                    std::shared_ptr<ProcessConfiguration const> processConfiguration,
                                    int bitpos, std::string const& name) {
+    using std::placeholders::_1;
     PathWorkers tmpworkers;
     fillWorkers(proc_pset, preg, prealloc, processConfiguration, name, true, tmpworkers, 0);
     Workers holder;
@@ -510,7 +509,7 @@ namespace edm {
         end_paths_.back().useStopwatch();
       }
     }
-    for_all(holder, boost::bind(&StreamSchedule::addToAllWorkers, this, _1));
+    for_all(holder, std::bind(&StreamSchedule::addToAllWorkers, this, _1));
   }
 
   void StreamSchedule::beginStream() {
@@ -556,7 +555,7 @@ namespace edm {
     std::transform(trig_paths_.begin(),
                    trig_paths_.end(),
                    std::back_inserter(oLabelsToFill),
-                   boost::bind(&Path::name, _1));
+                   std::bind(&Path::name, std::placeholders::_1));
   }
 
   void
@@ -565,9 +564,9 @@ namespace edm {
     TrigPaths::const_iterator itFound =
     std::find_if (trig_paths_.begin(),
                  trig_paths_.end(),
-                 boost::bind(std::equal_to<std::string>(),
+                 std::bind(std::equal_to<std::string>(),
                              iPathLabel,
-                             boost::bind(&Path::name, _1)));
+                             std::bind(&Path::name, std::placeholders::_1)));
     if (itFound!=trig_paths_.end()) {
       oLabelsToFill.reserve(itFound->size());
       for (size_t i = 0; i < itFound->size(); ++i) {
@@ -708,10 +707,11 @@ namespace edm {
 
   void
   StreamSchedule::clearCounters() {
+    using std::placeholders::_1;
     total_events_ = total_passed_ = 0;
-    for_all(trig_paths_, boost::bind(&Path::clearCounters, _1));
-    for_all(end_paths_, boost::bind(&Path::clearCounters, _1));
-    for_all(allWorkers(), boost::bind(&Worker::clearCounters, _1));
+    for_all(trig_paths_, std::bind(&Path::clearCounters, _1));
+    for_all(end_paths_, std::bind(&Path::clearCounters, _1));
+    for_all(allWorkers(), std::bind(&Worker::clearCounters, _1));
   }
 
   void

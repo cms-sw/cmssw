@@ -131,10 +131,10 @@ namespace edm {
                                       std::string const& moduleLabel) const {
     
     ParameterSetDescription const* psetDesc = 0;
-    for_all(descriptions_, boost::bind(&matchLabel,
-                                       _1,
-                                       boost::cref(moduleLabel),
-                                       boost::ref(psetDesc)));
+    for_all(descriptions_, std::bind(&matchLabel,
+                                       std::placeholders::_1,
+                                       std::cref(moduleLabel),
+                                       std::ref(psetDesc)));
 
     // If there is a matching label
     if (psetDesc != 0) {
@@ -156,10 +156,10 @@ namespace edm {
   ConfigurationDescriptions::writeCfis(std::string const& baseType,
                                        std::string const& pluginName) const {
 
-    for_all(descriptions_, boost::bind(&ConfigurationDescriptions::writeCfiForLabel,
-                                       _1,
-                                       boost::cref(baseType),
-                                       boost::cref(pluginName)));
+    for_all(descriptions_, std::bind(&ConfigurationDescriptions::writeCfiForLabel,
+                                       std::placeholders::_1,
+                                       std::cref(baseType),
+                                       std::cref(pluginName)));
   }
 
 
@@ -287,13 +287,13 @@ namespace edm {
     for_all(descriptions_, boost::bind(&ConfigurationDescriptions::printForLabel,
                                        this,
                                        _1,
-                                       boost::ref(os),
-                                       boost::cref(moduleLabel),
+                                       std::ref(os),
+                                       std::cref(moduleLabel),
                                        brief,
                                        printOnlyLabels,
                                        lineWidth,
                                        indentation,
-                                       boost::ref(counter)));
+                                       std::ref(counter)));
 
     if (defaultDescDefined_) {
       printForLabel(os,

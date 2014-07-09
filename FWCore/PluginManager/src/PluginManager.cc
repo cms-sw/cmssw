@@ -11,12 +11,10 @@
 //
 
 // system include files
-#include <boost/bind.hpp>
-#include <boost/mem_fn.hpp>
-
 #include <boost/filesystem/operations.hpp>
 
 #include <fstream>
+#include <functional>
 #include <set>
 
 // TEMPORARY
@@ -47,10 +45,11 @@ namespace edmplugin {
 PluginManager::PluginManager(const PluginManager::Config& iConfig) :
   searchPath_( iConfig.searchPath() )
 {
+    using std::placeholders::_1;
     const boost::filesystem::path kCacheFile(standard::cachefileName());
     //NOTE: This may not be needed :/
     PluginFactoryManager* pfm = PluginFactoryManager::get();
-    pfm->newFactory_.connect(boost::bind(boost::mem_fn(&PluginManager::newFactory),this,_1));
+    pfm->newFactory_.connect(std::bind(std::mem_fn(&PluginManager::newFactory),this,_1));
 
     // When building a single big executable the plugins are already registered in the 
     // PluginFactoryManager, we therefore only need to populate the categoryToInfos_ map

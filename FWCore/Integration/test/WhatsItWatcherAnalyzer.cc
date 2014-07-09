@@ -71,7 +71,7 @@ class WhatsItWatcherAnalyzer : public edm::EDAnalyzer {
 //
 WhatsItWatcherAnalyzer::WhatsItWatcherAnalyzer(const edm::ParameterSet& /*iConfig*/):
   watch1_(this,&WhatsItWatcherAnalyzer::watch1),
-  watch2_(boost::bind(&WhatsItWatcherAnalyzer::watch2,this,_1)),
+  watch2_(std::bind(&WhatsItWatcherAnalyzer::watch2,this,std::placeholders::_1)),
   watchBool_()
 {
    //now do what ever initialization is needed

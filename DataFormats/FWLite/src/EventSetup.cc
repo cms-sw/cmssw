@@ -13,7 +13,6 @@
 // system include files
 #include <cassert>
 #include <algorithm>
-#include "boost/bind.hpp"
 #include "TTree.h"
 #include "TFile.h"
 #include "TKey.h"
@@ -71,9 +70,10 @@ EventSetup::~EventSetup()
 //
 void 
 EventSetup::syncTo(const edm::EventID& iID, const edm::Timestamp& iTime) {
+   using std::placeholders::_1;
    std::for_each(m_records.begin(),
                  m_records.end(),
-                 boost::bind(&Record::syncTo,_1,iID,iTime));
+                 std::bind(&Record::syncTo,_1,iID,iTime));
 }
 
 //
