@@ -54,6 +54,8 @@ process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
 # DB condition for offline test
 #process.load("DQM.Integration.test.FrontierCondition_GT_Offline_cfi") 
 
+process.load("Configuration.Geometry.GeometryIdeal_cff")
+
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 
@@ -122,7 +124,7 @@ process.hcalBeamMonitor.hotrate=0.40
 
 process.load("DQM.HcalMonitorClient.HcalMonitorClient_cfi")
 process.load("DQM.HcalMonitorClient.ZDCMonitorClient_cfi")
-process.load("DQM.HcalMonitorTasks.HcalZDCMonitor_cfi")
+#process.load("DQM.HcalMonitorTasks.HcalZDCMonitor_cfi")
 
 #-----------------------------
 #  Configure Hcal DQM
@@ -278,7 +280,7 @@ process.p = cms.Path(process.hcalDigis
                      *process.hcalMonitorTasksOnlineSequence 
                      *process.hcalClient
                      *process.qTester
-                     *process.hcalZDCMonitor
+                     #*process.hcalZDCMonitor
                      *process.dqmEnv
                      *process.dqmSaver)
 
