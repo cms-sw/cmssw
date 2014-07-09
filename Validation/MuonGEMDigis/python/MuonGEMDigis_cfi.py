@@ -9,7 +9,9 @@ gemDigiValidation = cms.EDAnalyzer('MuonGEMDigis',
 	PlotBinInfo = cms.PSet(
 			nBinGlobalZR = cms.untracked.vdouble(200,200,200,150,180,250), 
 			RangeGlobalZR = cms.untracked.vdouble(564,572,786,794,794,802,110,260,170,350,100,350), 
-			nBinGlobalXY = cms.untracked.double(360), 
+			nBinGlobalXY = cms.untracked.int32(360), 
+			GE11PhiBegin = cms.untracked.double(-5), 
+			GE11PhiStep  = cms.untracked.double(10), 
   ),
 	simTrackMatching = cms.PSet(
 	          #simInputLabel = cms.InputTag('g4SimHits',"MuonGEMHits"),
