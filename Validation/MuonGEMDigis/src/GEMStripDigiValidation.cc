@@ -115,8 +115,6 @@ void GEMStripDigiValidation::bookHisto(const GEMGeometry* geom) {
     if ( nst > 1 ) step = 20;
     MonitorElement* temp2 = dbe_->book2D(name.str().c_str(), title.str().c_str(),100, -5+step*(nch-1), -5+step*nch ,100,zmin-1,zmax+1);
     theStrip_phiz_st_ch.insert( std::map<std::string, MonitorElement*>::value_type(name.str(), temp2)) ;
-    //std::cout<<"name : "<<name.str()<<std::endl;
-    //std::cout<<"xmin : "<<xmin<<"   xmax : "<<xmax<<"    zmin : "<<zmin<<"    zmax : "<<zmax<<std::endl;
    }
   }
 }
@@ -143,8 +141,6 @@ void GEMStripDigiValidation::savePhiPlot(){
       /*
       name<<"strip_phi_dist_"<<name_prefix.str();
       */
-      //std::cout<< name.str()<<std::endl;
-      //std::cout<<std::endl;
 			double phi_0 = 0.0;
 			double phi_max = 0.0;
 			for( unsigned int i=0; i<=nStrips ; i++) {
@@ -165,14 +161,19 @@ void GEMStripDigiValidation::analyze(const edm::Event& e,
                                      const edm::EventSetup&)
 {
   edm::Handle<GEMDigiCollection> gem_digis;
-  e.getByToken(inputToken_, gem_digis);
+  e.getByToken( this->inputToken_, gem_digis);
   if (!gem_digis.isValid()) {
     edm::LogError("GEMStripDigiValidation") << "Cannot get strips by Token stripToken.\n";
+    return ;
   }
   for (GEMDigiCollection::DigiRangeIterator cItr=gem_digis->begin(); cItr!=gem_digis->end(); cItr++) {
     GEMDetId id = (*cItr).first;
 
     const GeomDet* gdet = theGEMGeometry->idToDet(id);
+    if ( gdet == nullptr) { 
+      std::cout<<"Getting DetId failed. Discard this gem strip hit.Maybe it comes from unmatched geometry."<<std::endl;
+      continue; 
+    }
     const BoundPlane & surface = gdet->surface();
     const GEMEtaPartition * roll = theGEMGeometry->etaPartition(id);
 
@@ -180,6 +181,7 @@ void GEMStripDigiValidation::analyze(const edm::Event& e,
     Short_t layer = (Short_t) id.layer();
     Short_t station = (Short_t) id.station();
 		Short_t chamber = (Short_t) id.chamber();
+    
 
     GEMDigiCollection::const_iterator digiItr;
     //loop over digis of given roll

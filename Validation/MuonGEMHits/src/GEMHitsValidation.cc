@@ -25,15 +25,11 @@ void GEMHitsValidation::bookHisto(const GEMGeometry* gem_geo) {
   LogDebug("MuonGEMHitsValidation")<<"+++ Info : finish to get geometry information from ES.\n";
   for( auto& region : theGEMGeometry->regions() )
   for( auto& station : region->stations() ) 
-  for( auto& ring : station->rings())
-  for( auto& sCh : ring->superChambers() ) {
-    GEMDetId id( sCh->id());
-    if ( id.ring() != 1 ) break ; // Only Ring1 is interesting.
-    if ( id.chamber() == 0 ) continue;  // prevent to bug.
-    else if ( id.chamber() == 1 ); 
-    else break;  // Only 2 plots will be booked for odd/even
+  for( auto& ring : station->rings()) {
+    GEMDetId id;
+    if ( ring->ring() != 1 ) break ; // Only Ring1 is interesting.
     std::stringstream hist_name;
-    hist_name<<"gem_sh_xy_r"<<id.region()<<"_st"<<stationLabel[id.station()-1]<<"_";
+    hist_name<<"gem_sh_xy_r"<<region->region()<<"_st"<<stationLabel[station->station()-1]<<"_";
     std::stringstream hist_title;
     hist_title<<"Simhit Global XY Plots at "<<id<<" on ";
     MonitorElement* temp = dbe_->book2D( (hist_name.str()+"even").c_str(), (hist_title.str()+"even").c_str(),nBinXY_,-360,360,nBinXY_,-360,360);
@@ -46,7 +42,15 @@ void GEMHitsValidation::bookHisto(const GEMGeometry* gem_geo) {
     }
     gem_sh_xy_st_ch.insert( std::map<std::string, MonitorElement*>::value_type( hist_name.str()+"even", temp));
     MonitorElement* temp2 = dbe_->book2D( (hist_name.str()+"odd").c_str(), (hist_title.str()+"odd").c_str(),nBinXY_,-360,360,nBinXY_,-360,360);
+    if ( temp2 != nullptr ) {
+      LogDebug("MuonGEMHitsValidation")<<"ME can be acquired!";
+    }
+    else {
+      LogDebug("MuonGEMHitsValidation")<<"ME can not be acquired!";
+      return ;
+    }
     gem_sh_xy_st_ch.insert( std::map<std::string, MonitorElement*>::value_type( hist_name.str()+"odd", temp2));
+    //std::cout<<hist_name.str()<<std::endl;
   }
 
 
@@ -107,9 +111,14 @@ void GEMHitsValidation::analyze(const edm::Event& e,
 
 
     //Int_t even_odd = id.chamber()%2;
+    if ( theGEMGeometry->idToDet(hits->detUnitId()) == nullptr) {
+      std::cout<<"simHit did not matched with GEMGeometry."<<std::endl;
+      continue;
+    }
     const LocalPoint p0(0., 0., 0.);
     const GlobalPoint Gp0(theGEMGeometry->idToDet(hits->detUnitId())->surface().toGlobal(p0));
     const LocalPoint hitLP(hits->localPosition());
+    
     const GlobalPoint hitGP(theGEMGeometry->idToDet(hits->detUnitId())->surface().toGlobal(hitLP));
     Float_t g_r = hitGP.perp();
     Float_t g_x = hitGP.x();
@@ -142,6 +151,7 @@ void GEMHitsValidation::analyze(const edm::Event& e,
     else  chamber = "even";
     std::stringstream hist_name;
     hist_name<<"gem_sh_xy_r"<<id.region()<<"_st"<<stationLabel[id.station()-1]<<"_"<<chamber;
+    //std::cout<<hist_name.str()<<std::endl;
     gem_sh_xy_st_ch[hist_name.str()]->Fill( g_x, g_y); 
    }
 }

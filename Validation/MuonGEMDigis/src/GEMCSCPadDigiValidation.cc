@@ -57,6 +57,10 @@ void GEMCSCPadDigiValidation::analyze(const edm::Event& e,
     GEMDetId id = (*cItr).first;
 
     const GeomDet* gdet = theGEMGeometry->idToDet(id);
+    if ( gdet == nullptr) { 
+      std::cout<<"Getting DetId failed. Discard this gem pad hit.Maybe it comes from unmatched geometry."<<std::endl;
+      continue; 
+    }
     const BoundPlane & surface = gdet->surface();
     const GEMEtaPartition * roll = theGEMGeometry->etaPartition(id);
 
