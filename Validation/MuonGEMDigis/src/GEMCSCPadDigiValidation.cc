@@ -82,9 +82,9 @@ void GEMCSCPadDigiValidation::analyze(const edm::Event& e,
       Float_t g_x = (Float_t) gp.x();
       Float_t g_y = (Float_t) gp.y();
       Float_t g_z = (Float_t) gp.z();
-      edm::LogInfo("GEMCSCPadDIGIValidation")<<"Global x "<<g_x<<"Global y "<<g_y<<"\n";	
-      edm::LogInfo("GEMCSCPadDIGIValidation")<<"Global pad "<<pad<<"Global phi "<<g_phi<<std::endl;	
-      edm::LogInfo("GEMCSCPadDIGIValidation")<<"Global bx "<<bx<<std::endl;	
+      edm::LogInfo("GEMCSCPadDIGIValidation")<<"Global x "<<g_x<<"Global y "<<g_y<<"\n";  
+      edm::LogInfo("GEMCSCPadDIGIValidation")<<"Global pad "<<pad<<"Global phi "<<g_phi<<std::endl; 
+      edm::LogInfo("GEMCSCPadDIGIValidation")<<"Global bx "<<bx<<std::endl; 
 
       int region_num=0;
       int station_num = station-1;

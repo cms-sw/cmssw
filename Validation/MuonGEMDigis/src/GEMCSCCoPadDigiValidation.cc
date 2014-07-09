@@ -30,8 +30,8 @@ void GEMCSCCoPadDigiValidation::bookHisto(const GEMGeometry* geom) {
         theCSCCoPad[region_num][station_num] = dbe_->book1D( ("copad_dg"+name_prefix).c_str(), ("Digi occupancy per pad number: "+label_prefix+";Pad number; entries").c_str(), nPads,0.5,nPads+0.5);
         theCSCCoPad_xy[region_num][station_num] = dbe_->book2D( ("copad_dg_xy"+name_prefix).c_str(), ("Digi occupancy: "+label_prefix+";globalX [cm]; globalY[cm]").c_str(), 360, -360,360,360,-360,360);
         theCSCCoPad_bx[region_num][station_num] = dbe_->book1D( ("copad_dg_bx"+name_prefix).c_str(), ("Bunch crossing: "+label_prefix+"; bunch crossing ; entries").c_str(), 11,-5.5,5.5);
-				theCSCCoPad_zr[region_num][station_num] = BookHistZR( "copad_dg","CoPad Digi",region_num,station_num);
-				theCSCCoPad_xy[region_num][station_num] = BookHistXY( "copad_dg","CoPad Digi",region_num,station_num);
+        theCSCCoPad_zr[region_num][station_num] = BookHistZR( "copad_dg","CoPad Digi",region_num,station_num);
+        theCSCCoPad_xy[region_num][station_num] = BookHistXY( "copad_dg","CoPad Digi",region_num,station_num);
       }
     }
 }
@@ -81,9 +81,9 @@ void GEMCSCCoPadDigiValidation::analyze(const edm::Event& e,
       Float_t g_x = (Float_t) gp.x();
       Float_t g_y = (Float_t) gp.y();
       Float_t g_z = (Float_t) gp.z();
-      edm::LogInfo("GEMCSCCoPadDIGIValidation")<<"Global x "<<g_x<<"Global y "<<g_y<<"\n";	
-      edm::LogInfo("GEMCSCCoPadDIGIValidation")<<"Global pad "<<pad<<"Global phi "<<g_phi<<std::endl;	
-      edm::LogInfo("GEMCSCCoPadDIGIValidation")<<"Global bx "<<bx<<std::endl;	
+      edm::LogInfo("GEMCSCCoPadDIGIValidation")<<"Global x "<<g_x<<"Global y "<<g_y<<"\n";  
+      edm::LogInfo("GEMCSCCoPadDIGIValidation")<<"Global pad "<<pad<<"Global phi "<<g_phi<<std::endl; 
+      edm::LogInfo("GEMCSCCoPadDIGIValidation")<<"Global bx "<<bx<<std::endl; 
 
       int region_num=0;
       int station_num = station-1;
@@ -99,7 +99,7 @@ void GEMCSCCoPadDigiValidation::analyze(const edm::Event& e,
       theCSCCoPad_phipad[region_num][station_num]->Fill(g_phi,pad);
       theCSCCoPad[region_num][station_num]->Fill(pad);
       theCSCCoPad_bx[region_num][station_num]->Fill(bx);
-			theCSCCoPad_zr[region_num][station_num]->Fill(g_z,g_r);
+      theCSCCoPad_zr[region_num][station_num]->Fill(g_z,g_r);
    }
   }
 }
