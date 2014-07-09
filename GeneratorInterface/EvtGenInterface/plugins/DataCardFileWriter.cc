@@ -15,7 +15,7 @@ DataCardFileWriter::DataCardFileWriter(const edm::ParameterSet& pset){
   std::string Base= getenv ("CMSSW_BASE");
   Base+="/src/";
   std::cout << "Writting file:" << Base+FileName << std::endl;
-  ofstream outputFile(Base+FileName);
+  std::ofstream outputFile(Base+FileName);
   std::vector<std::string> FileContent= pset.getParameter<std::vector<std::string> >("FileContent") ;
   for(unsigned int i=0; i<FileContent.size();i++){
     outputFile << FileContent.at(i) << std::endl;

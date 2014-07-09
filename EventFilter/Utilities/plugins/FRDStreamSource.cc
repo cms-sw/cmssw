@@ -1,4 +1,5 @@
 #include <zlib.h>
+#include <iostream>
 
 #include "IOPool/Streamer/interface/FRDEventMessage.h"
 
