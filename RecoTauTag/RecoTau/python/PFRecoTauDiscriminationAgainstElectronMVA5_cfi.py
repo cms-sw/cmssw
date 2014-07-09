@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoTauTag.RecoTau.TauDiscriminatorTools import requireLeadTrack
 
-pfRecoTauDiscriminationAgainstElectronMVA5GBR = cms.EDProducer("PFRecoTauDiscriminationAgainstElectronMVA5GBR",
+pfRecoTauDiscriminationAgainstElectronMVA5 = cms.EDProducer("PFRecoTauDiscriminationAgainstElectronMVA5",
 
     # tau collection to discriminate
     PFTauProducer = cms.InputTag('pfTauProducer'),
@@ -13,10 +13,28 @@ pfRecoTauDiscriminationAgainstElectronMVA5GBR = cms.EDProducer("PFRecoTauDiscrim
     Prediscriminants = requireLeadTrack,
 
     method = cms.string("BDTG"),
-
-    gbrFile = cms.FileInPath('RecoTauTag/RecoTau/data/gbrDiscriminationAgainstElectronMVA5.root'),
+    loadMVAfromDB = cms.bool(False),
+    inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/gbrDiscriminationAgainstElectronMVA5.root'),
     
     returnMVA = cms.bool(True),
+
+    mvaName_NoEleMatch_woGwoGSF_BL = cms.string("gbr_NoEleMatch_woGwoGSF_BL"),
+    mvaName_NoEleMatch_woGwGSF_BL = cms.string("gbr_NoEleMatch_woGwGSF_BL"),
+    mvaName_NoEleMatch_wGwoGSF_BL = cms.string("gbr_NoEleMatch_wGwoGSF_BL"),
+    mvaName_NoEleMatch_wGwGSF_BL = cms.string("gbr_NoEleMatch_wGwGSF_BL"),
+    mvaName_woGwoGSF_BL = cms.string("gbr_woGwoGSF_BL"),
+    mvaName_woGwGSF_BL = cms.string("gbr_woGwGSF_BL"),
+    mvaName_wGwoGSF_BL = cms.string("gbr_wGwoGSF_BL"),
+    mvaName_wGwGSF_BL = cms.string("gbr_wGwGSF_BL"),
+    mvaName_NoEleMatch_woGwoGSF_EC = cms.string("gbr_NoEleMatch_woGwoGSF_EC"),
+    mvaName_NoEleMatch_woGwGSF_EC = cms.string("gbr_NoEleMatch_woGwoGSF_EC"),
+    mvaName_NoEleMatch_wGwoGSF_EC = cms.string("gbr_NoEleMatch_woGwoGSF_EC"),
+    mvaName_NoEleMatch_wGwGSF_EC = cms.string("gbr_NoEleMatch_woGwoGSF_EC"),
+    mvaName_woGwoGSF_EC = cms.string("gbr_woGwoGSF_EC"),
+    mvaName_woGwGSF_EC = cms.string("gbr_woGwGSF_EC"),
+    mvaName_wGwoGSF_EC = cms.string("gbr_wGwoGSF_EC"),
+    mvaName_wGwGSF_EC = cms.string("gbr_wGwGSF_EC"),
+
 
     minMVANoEleMatchWOgWOgsfBL = cms.double(0.0),
     minMVANoEleMatchWOgWgsfBL  = cms.double(0.0),

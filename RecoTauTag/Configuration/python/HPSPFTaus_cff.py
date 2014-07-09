@@ -11,7 +11,7 @@ Sequences for HPS taus
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationByIsolation_cfi                      import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationByLeadingTrackFinding_cfi            import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstElectron_cfi                  import *
-from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstElectronMVA5GBR_cfi           import *
+from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstElectronMVA5_cfi              import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstElectronDeadECAL_cfi          import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstMuon_cfi                      import *
 from RecoTauTag.RecoTau.PFRecoTauDiscriminationAgainstMuon2_cfi                     import *
@@ -131,7 +131,7 @@ hpsPFTauDiscriminationByTightIsolationDBSumPtCorr = hpsPFTauDiscriminationByTigh
     deltaBetaPUTrackPtCutOverride = cms.double(0.5),
     applyDeltaBetaCorrection = True,
     isoConeSizeForDeltaBeta = 0.8,
-    deltaBetaFactor = "%0.4f"%(0.0772/0.1687),
+    deltaBetaFactor = "%0.4f"%(ak5dBetaCorrection),
     applyOccupancyCut = False,
     applySumPtCut = True,
 )
@@ -147,7 +147,7 @@ hpsPFTauDiscriminationByIsolationSeqDBSumPtCorr = cms.Sequence(
 hpsPFTauDiscriminationByVLooseCombinedIsolationDBSumPtCorr = hpsPFTauDiscriminationByVLooseIsolationDBSumPtCorr.clone(
     ApplyDiscriminationByTrackerIsolation = True,
     ApplyDiscriminationByECALIsolation = True,
-    deltaBetaFactor = "%0.4f"%((0.09/0.25)*(0.0772/0.1687)),
+    deltaBetaFactor = "%0.4f"%((0.09/0.25)*(ak5dBetaCorrection)),
     applyOccupancyCut = False,
     applySumPtCut = True,
     maximumSumPtCut = 3.0,
@@ -302,6 +302,8 @@ hpsPFTauDiscriminationByTightMuonRejection3 = hpsPFTauDiscriminationByLooseMuonR
 hpsPFTauDiscriminationByMVArawMuonRejection = pfRecoTauDiscriminationAgainstMuonMVA.clone(
     PFTauProducer = cms.InputTag('hpsPFTauProducer'),
     Prediscriminants = requireDecayMode.clone(),
+    loadMVAfromDB = cms.bool(False),
+    inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/gbrDiscriminationAgainstMuonMVA.root'),
     returnMVA = cms.bool(True)
 )
 ##hpsPFTauDiscriminationByMVALooseMuonRejection = hpsPFTauDiscriminationByMVArawMuonRejection.clone(
@@ -319,6 +321,7 @@ hpsPFTauDiscriminationByMVALooseMuonRejection = recoTauDiscriminantCutMultiplexe
     Prediscriminants = requireDecayMode.clone(),    
     toMultiplex = cms.InputTag('hpsPFTauDiscriminationByMVArawMuonRejection'),
     key = cms.InputTag('hpsPFTauDiscriminationByMVArawMuonRejection:category'),
+    loadMVAfromDB = cms.bool(False),
     inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/wpDiscriminationByMVAMuonRejection.root'),
     mvaOutput_normalization = cms.string("mvaOutput_normalization_opt2"),
     mapping = cms.VPSet(
@@ -334,11 +337,27 @@ hpsPFTauDiscriminationByMVAMediumMuonRejection.mapping[0].cut = cms.string("opt2
 hpsPFTauDiscriminationByMVATightMuonRejection = hpsPFTauDiscriminationByMVALooseMuonRejection.clone()
 hpsPFTauDiscriminationByMVATightMuonRejection.mapping[0].cut = cms.string("opt2eff98_0")
 
-hpsPFTauDiscriminationByMVA5rawElectronRejection = pfRecoTauDiscriminationAgainstElectronMVA5GBR.clone(
+hpsPFTauDiscriminationByMVA5rawElectronRejection = pfRecoTauDiscriminationAgainstElectronMVA5.clone(
     PFTauProducer = cms.InputTag('hpsPFTauProducer'),
     Prediscriminants = requireDecayMode.clone(),
-    method = cms.string("BDTG"),
-    gbrFile = cms.FileInPath('RecoTauTag/RecoTau/data/gbrDiscriminationAgainstElectronMVA5.root'),
+    loadMVAfromDB = cms.bool(False),
+    inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/gbrDiscriminationAgainstElectronMVA5.root'),
+    mvaName_NoEleMatch_woGwoGSF_BL = cms.string("gbr_NoEleMatch_woGwoGSF_BL"),
+    mvaName_NoEleMatch_woGwGSF_BL = cms.string("gbr_NoEleMatch_woGwGSF_BL"),
+    mvaName_NoEleMatch_wGwoGSF_BL = cms.string("gbr_NoEleMatch_wGwoGSF_BL"),
+    mvaName_NoEleMatch_wGwGSF_BL = cms.string("gbr_NoEleMatch_wGwGSF_BL"),
+    mvaName_woGwoGSF_BL = cms.string("gbr_woGwoGSF_BL"),
+    mvaName_woGwGSF_BL = cms.string("gbr_woGwGSF_BL"),
+    mvaName_wGwoGSF_BL = cms.string("gbr_wGwoGSF_BL"),
+    mvaName_wGwGSF_BL = cms.string("gbr_wGwGSF_BL"),
+    mvaName_NoEleMatch_woGwoGSF_EC = cms.string("gbr_NoEleMatch_woGwoGSF_EC"),
+    mvaName_NoEleMatch_woGwGSF_EC = cms.string("gbr_NoEleMatch_woGwoGSF_EC"),
+    mvaName_NoEleMatch_wGwoGSF_EC = cms.string("gbr_NoEleMatch_woGwoGSF_EC"),
+    mvaName_NoEleMatch_wGwGSF_EC = cms.string("gbr_NoEleMatch_woGwoGSF_EC"),
+    mvaName_woGwoGSF_EC = cms.string("gbr_woGwoGSF_EC"),
+    mvaName_woGwGSF_EC = cms.string("gbr_woGwGSF_EC"),
+    mvaName_wGwoGSF_EC = cms.string("gbr_wGwoGSF_EC"),
+    mvaName_wGwGSF_EC = cms.string("gbr_wGwGSF_EC")
 )
 
 hpsPFTauDiscriminationByMVA5VLooseElectronRejection = recoTauDiscriminantCutMultiplexer.clone(
@@ -346,6 +365,7 @@ hpsPFTauDiscriminationByMVA5VLooseElectronRejection = recoTauDiscriminantCutMult
     Prediscriminants = requireDecayMode.clone(),
     toMultiplex = cms.InputTag('hpsPFTauDiscriminationByMVA5rawElectronRejection'),
     key = cms.InputTag('hpsPFTauDiscriminationByMVA5rawElectronRejection:category'),
+    loadMVAfromDB = cms.bool(False),
     inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/wpDiscriminationAgainstElectronMVA5.root'),
     mapping = cms.VPSet(
         cms.PSet(
@@ -564,8 +584,7 @@ hpsPFTauPrimaryVertexProducer = PFTauPrimaryVertexProducer.clone(
             discriminator = cms.InputTag('hpsPFTauDiscriminationByDecayModeFindingNewDMs'),
             selectionCut = cms.double(0.5)
         )
-    ),
-    cut = cms.string("pt > 18.0 & abs(eta) < 2.4")
+    )
 )
 
 hpsPFTauSecondaryVertexProducer = PFTauSecondaryVertexProducer.clone(
@@ -592,7 +611,7 @@ hpsPFTauMVA3IsolationChargedIsoPtSum = hpsPFTauDiscriminationByLooseCombinedIsol
     applySumPtCut = cms.bool(False),
     applyDeltaBetaCorrection = cms.bool(False),
     storeRawSumPt = cms.bool(True),
-    storeRawPUsumPt = cms.bool(False),
+    storeRawPUsumPt = cms.bool(False),     
     customOuterCone = PFRecoTauPFJetInputs.isolationConeSize,
     isoConeSizeForDeltaBeta = cms.double(0.8),
     verbosity = cms.int32(0)
@@ -613,6 +632,7 @@ hpsPFTauMVA3IsolationPUcorrPtSum = hpsPFTauMVA3IsolationChargedIsoPtSum.clone(
 hpsPFTauDiscriminationByIsolationMVA3oldDMwoLTraw = discriminationByIsolationMVA2raw.clone(
     PFTauProducer = cms.InputTag('hpsPFTauProducer'),
     Prediscriminants = requireDecayMode.clone(),
+    loadMVAfromDB = cms.bool(False),
     inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/gbrDiscriminationByIsolationMVA3_oldDMwoLT.root'),
     mvaName = cms.string("tauIdMVAoldDMwoLT"),
     mvaOpt = cms.string("oldDMwoLT"),
@@ -627,6 +647,7 @@ hpsPFTauDiscriminationByVLooseIsolationMVA3oldDMwoLT = discriminationByIsolation
     Prediscriminants = requireDecayMode.clone(),    
     toMultiplex = cms.InputTag('hpsPFTauDiscriminationByIsolationMVA3oldDMwoLTraw'),
     key = cms.InputTag('hpsPFTauDiscriminationByIsolationMVA3oldDMwoLTraw:category'),
+    loadMVAfromDB = cms.bool(False),
     inputFileName = cms.FileInPath('RecoTauTag/RecoTau/data/wpDiscriminationByIsolationMVA3_oldDMwoLT.root'),
     mvaOutput_normalization = cms.string("mvaOutput_normalization_oldDMwoLT"),
     mapping = cms.VPSet(
@@ -770,7 +791,6 @@ hpsPFTauMVAIsolation2Seq = cms.Sequence(
    + hpsPFTauDiscriminationByVTightIsolationMVA3newDMwLT
    + hpsPFTauDiscriminationByVVTightIsolationMVA3newDMwLT    
 )    
-
 
 produceHPSPFTaus = cms.Sequence(
     hpsSelectionDiscriminator
