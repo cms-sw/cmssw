@@ -19,7 +19,6 @@
 #include "Rtypes.h"
 #include "RVersion.h"
 
-#include "boost/bind.hpp"
 #include <limits>
 
 namespace edm {
@@ -226,7 +225,7 @@ namespace edm {
 
   void
   RootOutputTree::fillTTree(std::vector<TBranch*> const& branches) {
-    for_all(branches, boost::bind(&TBranch::Fill, _1));
+    for_all(branches, std::bind(&TBranch::Fill, std::placeholders::_1));
   }
 
   void
