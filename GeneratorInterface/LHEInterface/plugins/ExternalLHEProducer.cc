@@ -27,8 +27,9 @@ Implementation:
 #include <fcntl.h>
 #include <sys/wait.h>
 
-#include <boost/shared_ptr.hpp>
-#include <boost/ptr_container/ptr_deque.hpp>
+#include "boost/bind.hpp"
+#include "boost/shared_ptr.hpp"
+#include "boost/ptr_container/ptr_deque.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"

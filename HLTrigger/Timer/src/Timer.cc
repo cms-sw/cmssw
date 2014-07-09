@@ -21,6 +21,9 @@
 #include "HLTrigger/Timer/interface/Timer.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 
+#include "boost/bind.hpp"
+#include "boost/mem_fn.hpp"
+
 #include <iostream>
 
 using edm::ParameterSet; 
