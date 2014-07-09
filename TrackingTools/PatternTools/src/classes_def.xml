@@ -63,4 +63,6 @@
   <class name="std::vector<TrajAnnealing>" persistent="false"/>
   <class name="edm::Wrapper<std::vector<TrajAnnealing> >" persistent="false"/>
 
+  <!-- This next spec should not really be here, but it is a workaround for a ROOT6 problem (Danilo Piparo).-->
+  <class name="GlobalErrorBase<double,ErrorMatrixTag>" />
 </lcgdict>
