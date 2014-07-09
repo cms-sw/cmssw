@@ -81,7 +81,7 @@ void GEMStripDigiValidation::bookHisto(const GEMGeometry* geom) {
         title_prefix<<"Region "<<nre<<" Station "<<stationLabel[nst-1]<<" Chamber "<<nch;
 
         name<<"strip_phi_dist_"<<name_prefix.str()<<"_la"<<nla<<"_ro"<<nro;
-        title<< " strips' phi distributio at "<<title_prefix.str()<<";# of strip ; Azimuthal angle (#phi)";
+        title<< " strips' phi distributio at "<<title_prefix.str()<<"; Strip number ; Azimuthal angle (#phi)";
         MonitorElement* temp = dbe_->book1D(name.str().c_str(), title_prefix.str().c_str(),nStrips,1,nStrips+1);
         theStrip_ro_phi.insert( std::map<std::string, MonitorElement*>::value_type(name.str(), temp)) ;
 
