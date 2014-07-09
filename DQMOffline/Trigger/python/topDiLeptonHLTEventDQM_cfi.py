@@ -190,11 +190,12 @@ DiMuonHLTOfflineDQM = cms.EDAnalyzer("TopDiLeptonHLTOfflineDQM",
     ## will be empty
     triggerExtras = cms.PSet(
         src = cms.InputTag("TriggerResults","","HLT"),
-        pathsELECMU = cms.vstring([ 'HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v',
-                                    'HLT_Mu8_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v']),
-        pathsDIMUON = cms.vstring([ 'HLT_Mu17_Mu8_v',
-                                    'HLT_Mu17_TkMu8_v']),
-        pathsDIELEC = cms.vstring([ 'HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v'])
+        pathsELECMU = cms.vstring([ 'HLT_Mu17_TrkIsoVVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v',
+                                    'HLT_Mu8_TrkIsoVVL_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v']),
+        pathsDIMUON = cms.vstring([ 'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v',
+                                    'HLT_Mu17_Mu8_v']),
+        pathsDIELEC = cms.vstring([ 'HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v',
+                                    'HLT_Ele17_Ele8_Gsf_v'])
     )    
   ),
                                   
@@ -322,11 +323,12 @@ DiElectronHLTOfflineDQM = cms.EDAnalyzer("TopDiLeptonHLTOfflineDQM",
     ## will be empty
     triggerExtras = cms.PSet(
         src = cms.InputTag("TriggerResults","","HLT"),
-        pathsELECMU = cms.vstring([ 'HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v',
-                                    'HLT_Mu8_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v']),
-        pathsDIMUON = cms.vstring([ 'HLT_Mu17_Mu8_v',
-                                    'HLT_Mu17_TkMu8_v']),
-        pathsDIELEC = cms.vstring([ 'HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v'])
+        pathsELECMU = cms.vstring([ 'HLT_Mu17_TrkIsoVVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v',
+                                    'HLT_Mu8_TrkIsoVVL_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v']),
+        pathsDIMUON = cms.vstring([ 'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v',
+                                    'HLT_Mu17_Mu8_v']),
+        pathsDIELEC = cms.vstring([ 'HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v',
+                                    'HLT_Ele17_Ele8_Gsf_v'])
     )    
   ),
                                   
@@ -455,11 +457,12 @@ ElecMuonHLTOfflineDQM = cms.EDAnalyzer("TopDiLeptonHLTOfflineDQM",
     ## will be empty
     triggerExtras = cms.PSet(
         src = cms.InputTag("TriggerResults","","HLT"),
-        pathsELECMU = cms.vstring([ 'HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v',
-                                    'HLT_Mu8_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v']),
-        pathsDIMUON = cms.vstring([ 'HLT_Mu17_Mu8_v',
-                                    'HLT_Mu17_TkMu8_v']),
-        pathsDIELEC = cms.vstring([ 'HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v'])
+        pathsELECMU = cms.vstring([ 'HLT_Mu17_TrkIsoVVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v',
+                                    'HLT_Mu8_TrkIsoVVL_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v']),
+        pathsDIMUON = cms.vstring([ 'HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_v',
+                                    'HLT_Mu17_Mu8_v']),
+        pathsDIELEC = cms.vstring([ 'HLT_DoubleEle33_CaloIdL_GsfTrkIdVL_v',
+                                    'HLT_Ele17_Ele8_Gsf_v'])
     )    
   ),
                                   
