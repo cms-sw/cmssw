@@ -8,13 +8,13 @@ autoCond = {
     # GlobalTag for MC production of p-Pb events with realistic alignment and calibrations
     'startpa'           :   'STARTHI72_V2',
     # GlobalTag for data reprocessing: this should always be the GR_R tag
-    'com10'             :   'GR_R_72_V1',
+    'com10'             :   'GR_R_72_V2',
     # GlobalTag for running HLT on recent data: this should be the GR_P (prompt reco) global tag until a compatible GR_H tag is available, 
     # then it should point to the GR_H tag and override the connection string and pfnPrefix for use offline
     'hltonline'         :   'GR_H_V37,frontier://FrontierProd/CMS_CONDITIONS,frontier://FrontierProd/',
     # GlobalTag for POSTLS1 upgrade studies:
-    'upgradePLS1'       :   'POSTLS172_V1',
-    'upgradePLS150ns'   :   'POSTLS172_V2',
+    'upgradePLS1'       :   'POSTLS172_V3',
+    'upgradePLS150ns'   :   'POSTLS172_V4',
     'upgrade2017'       :   'DES17_70_V2', # placeholder (GT not meant for standard RelVal)
     'upgrade2019'       :   'DES19_70_V2', # placeholder (GT not meant for standard RelVal)
     'upgradePLS3'       :   'POSTLS262_V1', # placeholder (GT not meant for standard RelVal)
@@ -29,15 +29,15 @@ autoCond = {
     # GlobalTag for MC production (p-Pb collisions) with realistic alignment and calibrations for Run1
     'run1_mc_pPb'       :   'STARTHI72_V2',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Run2
-    'run2_design'       :   'DESIGN72_V1',
+    'run2_design'       :   'DESIGN72_V2',
     # GlobalTag for MC production with pessimistic alignment and calibrations for Run2
-    'run2_mc_50ns'      :   'POSTLS172_V2',
+    'run2_mc_50ns'      :   'POSTLS172_V4',
     #GlobalTag for MC production with optimistic alignment and calibrations for Run2
-    'run2_mc'           :   'POSTLS172_V1',
+    'run2_mc'           :   'POSTLS172_V3',
     # GlobalTag for Run1 data reprocessing
-    'run1_data'         :   'GR_R_72_V1',
+    'run1_data'         :   'GR_R_72_V2',
     # GlobalTag for Run2 data reprocessing
-    'run2_data'         :   'GR_R_72_V1',
+    'run2_data'         :   'GR_R_72_V2',
     # GlobalTag for Run2 HLT: it points to the online GT and overrides the connection string and pfnPrefix for use offline
     'run2_hlt'          :   'GR_H_V37,frontier://FrontierProd/CMS_CONDITIONS,frontier://FrontierProd/',
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2017
