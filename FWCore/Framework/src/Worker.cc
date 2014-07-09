@@ -70,7 +70,6 @@ private:
 
   Worker::Worker(ModuleDescription const& iMD, 
 		 ExceptionToActionTable const* iActions) :
-    stopwatch_(),
     timesRun_(),
     timesVisited_(),
     timesPassed_(),
@@ -182,10 +181,6 @@ private:
     }
   }
 
-  void Worker::useStopwatch(){
-    stopwatch_.reset(new RunStopwatch::StopwatchPointer::element_type);
-  }
-  
   void Worker::pathFinished(EventPrincipal& iEvent) {
     if(earlyDeleteHelper_) {
       earlyDeleteHelper_->pathFinished(iEvent);

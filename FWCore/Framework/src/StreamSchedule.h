@@ -68,7 +68,6 @@
 #include "FWCore/Framework/interface/WorkerManager.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/src/Path.h"
-#include "FWCore/Framework/src/RunStopwatch.h"
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/src/WorkerRegistry.h"
 #include "FWCore/Framework/src/EarlyDeleteHelper.h"
@@ -100,10 +99,8 @@ namespace edm {
   class ExceptionCollector;
   class OutputModuleCommunicator;
   class ProcessContext;
-  class RunStopwatch;
   class UnscheduledCallProducer;
   class WorkerInPath;
-  struct TriggerTimingReport;
   class ModuleRegistry;
   class TriggerResultInserter;
   class PreallocationConfiguration;
@@ -185,10 +182,6 @@ namespace edm {
 
     StreamID streamID() const { return streamID_; }
     
-    std::pair<double, double> timeCpuReal() const {
-      return std::pair<double, double>(stopwatch_->cpuTime(), stopwatch_->realTime());
-    }
-
     /// Return a vector allowing const access to all the
     /// ModuleDescriptions for this StreamSchedule.
 
@@ -235,10 +228,6 @@ namespace edm {
     /// modules-in-path, modules-in-endpath, and modules.
     void getTriggerReport(TriggerReport& rep) const;
 
-    /// Return the trigger timing report information on paths,
-    /// modules-in-path, modules-in-endpath, and modules.
-    void getTriggerTimingReport(TriggerTimingReport& rep) const;
-    
     ///  Clear all the counters in the trigger report.
     void clearCounters();
 
@@ -326,14 +315,12 @@ namespace edm {
     // has been marked for early deletion
     std::vector<EarlyDeleteHelper> earlyDeleteHelpers_;
 
-    RunStopwatch::StopwatchPointer stopwatch_;
     int                            total_events_;
     int                            total_passed_;
     unsigned int                   number_of_unscheduled_modules_;
     
     StreamID                streamID_;
     StreamContext           streamContext_;
-    bool                           wantSummary_;
     volatile bool           endpathsAreActive_;
   };
 
@@ -355,9 +342,6 @@ namespace edm {
 
     T::setStreamContext(streamContext_, ep);
     StreamScheduleSignalSentry<T> sentry(actReg_.get(), &streamContext_);
-
-    // A RunStopwatch, but only if we are processing an event.
-    RunStopwatch stopwatch(stopwatch_);
 
     // This call takes care of the unscheduled processing.
     workerManager_.processOneOccurrence<T>(ep, es, streamID_, &streamContext_, &streamContext_, cleaningUpAfterException);
@@ -382,9 +366,8 @@ namespace edm {
         }
 
         try {
-          CPUTimer timer;
           ParentContext parentContext(&streamContext_);
-          if (results_inserter_.get()) results_inserter_->doWork<T>(ep, es, &timer,streamID_, parentContext, &streamContext_);
+          if (results_inserter_.get()) results_inserter_->doWork<T>(ep, es, streamID_, parentContext, &streamContext_);
         }
         catch (cms::Exception & ex) {
           if (T::isEvent_) {

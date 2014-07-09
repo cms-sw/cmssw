@@ -17,7 +17,6 @@ namespace edm {
              std::shared_ptr<ActivityRegistry> areg,
              StreamContext const* streamContext,
              PathContext::PathType pathType) :
-    stopwatch_(),
     timesRun_(),
     timesPassed_(),
     timesFailed_(),
@@ -36,7 +35,6 @@ namespace edm {
   }
 
   Path::Path(Path const& r) :
-    stopwatch_(r.stopwatch_),
     timesRun_(r.timesRun_),
     timesPassed_(r.timesPassed_),
     timesFailed_(r.timesFailed_),
@@ -161,16 +159,6 @@ namespace edm {
   Path::clearCounters() {
     timesRun_ = timesPassed_ = timesFailed_ = timesExcept_ = 0;
     for_all(workers_, boost::bind(&WorkerInPath::clearCounters, _1));
-  }
-
-  void
-  Path::useStopwatch() {
-    stopwatch_.reset(new RunStopwatch::StopwatchPointer::element_type);
-    for(WorkersInPath::iterator it=workers_.begin(), itEnd = workers_.end();
-        it != itEnd;
-        ++it) {
-      it->useStopwatch();
-    }
   }
 
   void 
