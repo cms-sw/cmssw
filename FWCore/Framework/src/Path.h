@@ -28,8 +28,6 @@
 #include <exception>
 #include <sstream>
 
-#include "FWCore/Framework/src/RunStopwatch.h"
-
 namespace edm {
   class EventPrincipal;
   class ModuleDescription;
@@ -64,17 +62,6 @@ namespace edm {
     int bitPosition() const { return bitpos_; }
     std::string const& name() const { return pathContext_.pathName(); }
 
-    std::pair<double, double> timeCpuReal() const {
-      if(stopwatch_) {
-        return std::pair<double, double>(stopwatch_->cpuTime(), stopwatch_->realTime());
-      }
-      return std::pair<double, double>(0., 0.);
-    }
-
-    std::pair<double, double> timeCpuReal(unsigned int const i) const {
-      return workers_.at(i).timeCpuReal();
-    }
-
     void clearCounters();
 
     int timesRun() const { return timesRun_; }
@@ -93,14 +80,12 @@ namespace edm {
     
     void setEarlyDeleteHelpers(std::map<const Worker*,EarlyDeleteHelper*> const&);
 
-    void useStopwatch();
   private:
 
     // If you define this be careful about the pointer in the
     // PlaceInPathContext object in the contained WorkerInPath objects.
     Path const& operator=(Path const&) = delete; // stop default
 
-    RunStopwatch::StopwatchPointer stopwatch_;
     int timesRun_;
     int timesPassed_;
     int timesFailed_;
@@ -169,13 +154,8 @@ namespace edm {
   void Path::processOneOccurrence(typename T::MyPrincipal& ep, EventSetup const& es,
                                   StreamID const& streamID, typename T::Context const* context) {
 
-    //Create the PathSignalSentry before the RunStopwatch so that
-    // we only record the time spent in the path not from the signal
     int nwrwue = -1;
     PathSignalSentry<T> signaler(actReg_.get(), nwrwue, state_, &pathContext_);
-
-    // A RunStopwatch, but only if we are processing an event.
-    RunStopwatch stopwatch(T::isEvent_ ? stopwatch_ : RunStopwatch::StopwatchPointer());
 
     if (T::isEvent_) {
       ++timesRun_;

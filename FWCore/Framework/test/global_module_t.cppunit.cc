@@ -99,7 +99,6 @@ private:
   std::shared_ptr<edm::ActivityRegistry> m_actReg;
   edm::EventSetup* m_es = nullptr;
   edm::ModuleDescription m_desc = {"Dummy","dummy"};
-  edm::CPUTimer* m_timer = nullptr;
   
   template<typename T>
   void testTransitions(T* iMod, Expectations const& iExpect);
@@ -378,45 +377,45 @@ m_ep()
   m_transToFunc[Trans::kGlobalBeginRun] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionGlobalBegin> Traits;
     edm::ParentContext nullParentContext;
-    iBase->doWork<Traits>(*m_rp,*m_es,m_timer, s_streamID0, nullParentContext, nullptr); };
+    iBase->doWork<Traits>(*m_rp,*m_es, s_streamID0, nullParentContext, nullptr); };
   m_transToFunc[Trans::kStreamBeginRun] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionStreamBegin> Traits;
     edm::ParentContext nullParentContext;
-    iBase->doWork<Traits>(*m_rp,*m_es,m_timer, s_streamID0, nullParentContext, nullptr); };
+    iBase->doWork<Traits>(*m_rp,*m_es, s_streamID0, nullParentContext, nullptr); };
   
   m_transToFunc[Trans::kGlobalBeginLuminosityBlock] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionGlobalBegin> Traits;
     edm::ParentContext nullParentContext;
-    iBase->doWork<Traits>(*m_lbp,*m_es,m_timer, s_streamID0, nullParentContext, nullptr); };
+    iBase->doWork<Traits>(*m_lbp,*m_es, s_streamID0, nullParentContext, nullptr); };
   m_transToFunc[Trans::kStreamBeginLuminosityBlock] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionStreamBegin> Traits;
     edm::ParentContext nullParentContext;
-    iBase->doWork<Traits>(*m_lbp,*m_es,m_timer, s_streamID0, nullParentContext, nullptr); };
+    iBase->doWork<Traits>(*m_lbp,*m_es, s_streamID0, nullParentContext, nullptr); };
   
   m_transToFunc[Trans::kEvent] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::EventPrincipal, edm::BranchActionStreamBegin> Traits;
     edm::StreamContext streamContext(s_streamID0, nullptr);
     edm::ParentContext nullParentContext(&streamContext);
     iBase->setActivityRegistry(m_actReg);
-    iBase->doWork<Traits>(*m_ep,*m_es,m_timer, s_streamID0, nullParentContext, nullptr); };
+    iBase->doWork<Traits>(*m_ep,*m_es, s_streamID0, nullParentContext, nullptr); };
 
   m_transToFunc[Trans::kStreamEndLuminosityBlock] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionStreamEnd> Traits;
     edm::ParentContext nullParentContext;
-    iBase->doWork<Traits>(*m_lbp,*m_es,m_timer, s_streamID0, nullParentContext, nullptr); };
+    iBase->doWork<Traits>(*m_lbp,*m_es, s_streamID0, nullParentContext, nullptr); };
   m_transToFunc[Trans::kGlobalEndLuminosityBlock] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::LuminosityBlockPrincipal, edm::BranchActionGlobalEnd> Traits;
     edm::ParentContext nullParentContext;
-    iBase->doWork<Traits>(*m_lbp,*m_es,m_timer, s_streamID0, nullParentContext, nullptr); };
+    iBase->doWork<Traits>(*m_lbp,*m_es, s_streamID0, nullParentContext, nullptr); };
 
   m_transToFunc[Trans::kStreamEndRun] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionStreamEnd> Traits;
     edm::ParentContext nullParentContext;
-    iBase->doWork<Traits>(*m_rp,*m_es,m_timer, s_streamID0, nullParentContext, nullptr); };
+    iBase->doWork<Traits>(*m_rp,*m_es, s_streamID0, nullParentContext, nullptr); };
   m_transToFunc[Trans::kGlobalEndRun] = [this](edm::Worker* iBase) {
     typedef edm::OccurrenceTraits<edm::RunPrincipal, edm::BranchActionGlobalEnd> Traits;
     edm::ParentContext nullParentContext;
-    iBase->doWork<Traits>(*m_rp,*m_es,m_timer, s_streamID0, nullParentContext, nullptr); };
+    iBase->doWork<Traits>(*m_rp,*m_es, s_streamID0, nullParentContext, nullptr); };
 
   m_transToFunc[Trans::kEndStream] = [this](edm::Worker* iBase) {
     edm::StreamContext streamContext(s_streamID0, nullptr);

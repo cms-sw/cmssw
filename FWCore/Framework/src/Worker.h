@@ -41,7 +41,6 @@ the worker is reset().
 #include "FWCore/Utilities/interface/ProductHolderIndex.h"
 #include "FWCore/Utilities/interface/StreamID.h"
 
-#include "FWCore/Framework/src/RunStopwatch.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include <memory>
@@ -73,7 +72,6 @@ namespace edm {
 
     template <typename T>
     bool doWork(typename T::MyPrincipal&, EventSetup const& c,
-                CPUTimer *const timer,
                 StreamID stream,
                 ParentContext const& parentContext,
                 typename T::Context const* context);
@@ -108,16 +106,10 @@ namespace edm {
     
     virtual Types moduleType() const =0;
 
-    std::pair<double, double> timeCpuReal() const {
-      return std::pair<double, double>(stopwatch_->cpuTime(), stopwatch_->realTime());
-    }
-
     void clearCounters() {
       timesRun_ = timesVisited_ = timesPassed_ = timesFailed_ = timesExcept_ = 0;
     }
     
-    void useStopwatch();
-
     int timesRun() const { return timesRun_; }
     int timesVisited() const { return timesVisited_; }
     int timesPassed() const { return timesPassed_; }
@@ -170,8 +162,6 @@ namespace edm {
     virtual void implPreForkReleaseResources() = 0;
     virtual void implPostForkReacquireResources(unsigned int iChildIndex,
                                                unsigned int iNumberOfChildren) = 0;
-    RunStopwatch::StopwatchPointer stopwatch_;
-
     int timesRun_;
     int timesVisited_;
     int timesPassed_;
@@ -394,14 +384,9 @@ namespace edm {
   template <typename T>
   bool Worker::doWork(typename T::MyPrincipal& ep, 
                       EventSetup const& es,
-                      CPUTimer* const iTimer,
                       StreamID streamID,
                       ParentContext const& parentContext,
                       typename T::Context const* context) {
-
-    // A RunStopwatch, but only if we are processing an event.
-    RunDualStopwatches stopwatch(T::isEvent_ ? stopwatch_ : RunStopwatch::StopwatchPointer(),
-                                 iTimer);
 
     if (T::isEvent_) {
       ++timesVisited_;

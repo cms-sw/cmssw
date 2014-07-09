@@ -41,8 +41,9 @@ class CPUTimer
 
    public:
       CPUTimer();
-      virtual ~CPUTimer();
-
+      ~CPUTimer();
+      CPUTimer(CPUTimer&&) = default;
+  
       struct Times {
          Times():real_(0),cpu_(0) {}
          double real_;
@@ -63,9 +64,9 @@ class CPUTimer
       
       void add(const Times& t);
    private:
-      CPUTimer(const CPUTimer&); // stop default
+      CPUTimer(const CPUTimer&) = delete; // stop default
 
-      const CPUTimer& operator=(const CPUTimer&); // stop default
+      const CPUTimer& operator=(const CPUTimer&) = delete; // stop default
 
       Times calculateDeltaTime() const;
       
