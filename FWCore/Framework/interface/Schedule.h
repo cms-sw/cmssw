@@ -111,7 +111,7 @@ namespace edm {
     typedef std::vector<std::string> vstring;
     typedef std::shared_ptr<Worker> WorkerPtr;
     typedef std::vector<Worker*> AllWorkers;
-    typedef std::vector<boost::shared_ptr<OutputModuleCommunicator> > AllOutputModuleCommunicators;
+    typedef std::vector<std::shared_ptr<OutputModuleCommunicator> > AllOutputModuleCommunicators;
 
     typedef std::vector<Worker*> Workers;
 

@@ -41,8 +41,10 @@ behavior (usually a core dump).
 
 #include "boost/concept_check.hpp"
 #include "boost/mpl/if.hpp"
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+#else
 #include "boost/bind.hpp"
-
+#endif
 
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Common/interface/DetSet.h"
@@ -380,7 +382,11 @@ namespace edm {
   {
     std::transform(this->begin(), this->end(),
 		   std::back_inserter(result),
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+		   std::bind(&DetSet<T>::id,std::placeholders::_1));
+#else
 		   boost::bind(&DetSet<T>::id,_1));
+#endif
   }
 
   template <class T>
