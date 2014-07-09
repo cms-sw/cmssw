@@ -13,7 +13,7 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
-#include "FastSimulation/Tracking/plugins/TrajectorySeedProducer.h"
+#include "FastSimulation/Tracking/interface/SeedingLayerSpec.h"
 
 #include <vector>
 
@@ -106,9 +106,9 @@ public:
   //  bool isOnRequestedDet(const std::vector<unsigned int>& whichDet) const;
   bool isOnRequestedDet(const std::vector<unsigned int>& whichDet, const std::string& seedingAlgo) const; 
   /// request check with 1, 2 and 3 seeds
-  bool isOnRequestedDet(const std::vector<std::vector<TrajectorySeedProducer::LayerSpec> >& theLayersInSets) const;
-  bool isOnRequestedDet(const std::vector<std::vector<TrajectorySeedProducer::LayerSpec> >& theLayersInSets, const TrackerRecHit& theSeedHitSecond) const;
-  bool isOnRequestedDet(const std::vector<std::vector<TrajectorySeedProducer::LayerSpec> >& theLayersInSets, const TrackerRecHit& theSeedHitSecond, const TrackerRecHit& theSeedHitThird) const;
+  bool isOnRequestedDet(const std::vector<std::vector<LayerSpec> >& theLayersInSets) const;
+  bool isOnRequestedDet(const std::vector<std::vector<LayerSpec> >& theLayersInSets, const TrackerRecHit& theSeedHitSecond) const;
+  bool isOnRequestedDet(const std::vector<std::vector<LayerSpec> >& theLayersInSets, const TrackerRecHit& theSeedHitSecond, const TrackerRecHit& theSeedHitThird) const;
 
 
   /// Check if a pair is on the proper combination of detectors

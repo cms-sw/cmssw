@@ -211,24 +211,26 @@ class SeedingTree
         
         
         
-        inline unsigned int size() const
+        inline unsigned int numberOfRoots() const
+        {
+            return _roots.size();
+        }
+        
+        inline unsigned int numberOfNodes() const
         {
             return _allNodes.size();
         }
         
-        inline const SeedingNode<DATA>* getFirst() const
+        inline const SeedingNode<DATA>* getRoot(unsigned int i) const
         {
-            if (size()>0)
+            if (i<_roots.size())
             {
-                return _allNodes[0];
+                return _roots[i];
             }
-            else
-            {
-                return nullptr;
-            }
+            return nullptr;
         }
         
-        void printRecursive()
+        void printRecursive() const
         {
             std::cout<<"SeedingTree: n="<<_allNodes.size()<<" [recursive]"<<std::endl;
             for (unsigned int iroot=0; iroot<_roots.size();++iroot)
@@ -236,7 +238,7 @@ class SeedingTree
                 _roots[iroot]->printRecursive();
             }
         }
-        void printOrdered()
+        void printOrdered() const
         {
             std::cout<<"SeedingTree: n="<<_allNodes.size()<<" [ordered]"<<std::endl;
             for (unsigned int inode=0; inode<_allNodes.size();++inode)

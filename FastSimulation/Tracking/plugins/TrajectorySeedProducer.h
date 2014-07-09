@@ -10,6 +10,9 @@
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "FastSimulation/Tracking/interface/TrackerRecHit.h"
+
+#include "FastSimulation/Tracking/interface/SeedingLayerSpec.h"
 
 #include <vector>
 #include <string>
@@ -44,32 +47,14 @@ class TrajectorySeedProducer : public edm::EDProducer
   virtual void produce(edm::Event& e, const edm::EventSetup& es) override
   {
   }
-  virtual void produce(edm::Event& e, const edm::EventSetup& es, std::vector<std::vector<int>>& hits);
+  virtual void produce(edm::Event& e, const edm::EventSetup& es, std::vector<std::vector<std::pair<int,TrackerRecHit >>>& hits);
   //
   // 1 = PXB, 2 = PXD, 3 = TIB, 4 = TID, 5 = TOB, 6 = TEC, 0 = not valid
   enum SubDet { NotValid, PXB, PXD, TIB, TID, TOB, TEC};
   // 0 = barrel, -1 = neg. endcap, +1 = pos. endcap
   enum Side { BARREL=0, NEG_ENDCAP=-1, POS_ENDCAP=1};
   
-  class LayerSpec
-  {
-  public:
-    std::string name;
-    SubDet subDet;
-    Side side;
-    unsigned int idLayer;
 
-    bool operator==(const LayerSpec& layer) const
-	{
-	    return name == layer.name;
-    	//return (subDet==layer.subDet) && (side==layer.side) && (idLayer==layer.idLayer);
-	}
-	
-	inline std::string print() const
-	{
-	    return name;
-	}
-  };
 
 
   Side setLayerSpecSide(const std::string& layerSpecSide) const;

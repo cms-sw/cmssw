@@ -17,7 +17,6 @@
 #include "FastSimulation/ParticlePropagator/interface/MagneticFieldMapRecord.h"
 
 #include "FastSimulation/Tracking/plugins/TrajectorySeedProducer.h"
-#include "FastSimulation/Tracking/interface/TrackerRecHit.h"
 
 
 #include "TrackingTools/TrajectoryParametrization/interface/CurvilinearTrajectoryError.h"
@@ -368,7 +367,7 @@ TrajectorySeedProducer::beginRun(edm::Run const&, const edm::EventSetup & es) {
   
   // Functions that gets called by framework every event
 void 
-TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es, std::vector<std::vector<int>>& hits) {        
+TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es, std::vector<std::vector<std::pair<int,TrackerRecHit >>>& hits) {        
 
 
   //  if( seedingAlgo[0] ==  "FourthPixelLessPairs") std::cout << "Seed producer in 4th iteration " << std::endl;
@@ -786,16 +785,12 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es, std::v
 #ifdef FAMOS_DEBUG
       std::cout << "Trajectory seed created ! " << std::endl;
 #endif
-
-        hits[simTrackId].push_back(hit1);
-        hits[simTrackId].push_back(hit2);
-        hits[simTrackId].push_back(hit3);
+    
+        hits[simTrackId].push_back(std::pair<int,TrackerRecHit >(hit1,theSeedHits0));
+        hits[simTrackId].push_back(std::pair<int,TrackerRecHit >(hit2,theSeedHits1));
+        if (theSeedHits.size()>2)
+        hits[simTrackId].push_back(std::pair<int,TrackerRecHit >(hit3,theSeedHits2));
         
-        std::cout<<"simtrack = "<<simTrackId<<", old"<<std::endl;
-        for ( unsigned ihit=0; ihit<recHits.size(); ++ihit ) 
-        {
-	        std::cout<<"\t hit: "<<ihit<<", pos=("<<recHits[ihit].globalPosition().x()<<","<<recHits[ihit].globalPosition().y()<<","<<recHits[ihit].globalPosition().z()<<")"<<std::endl;
-        }
 
       break;
       // End of the loop over seeding algorithms

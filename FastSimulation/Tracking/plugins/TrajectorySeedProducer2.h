@@ -6,6 +6,8 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
+#include "FastSimulation/Tracking/interface/TrackerRecHit.h"
+
 #include "FastSimulation/Tracking/plugins/TrajectorySeedProducer.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
@@ -16,6 +18,7 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 
 #include "FastSimulation/Tracking/plugins/SeedingTree.h"
+#include "FastSimulation/Tracking/interface/SeedingLayerSpec.h"
 
 #include <vector>
 #include <sstream>
@@ -117,7 +120,7 @@ class TrajectorySeedProducer2 : public TrajectorySeedProducer
     return layer.subDet==trackerRecHit.subDetId() && layer.idLayer==trackerRecHit.layerNumber();
   }
   
-const SeedingNode<TrajectorySeedProducer::LayerSpec>* insertHit(
+const SeedingNode<LayerSpec>* insertHit(
     const std::vector<TrackerRecHit>& trackerRecHits,
     std::vector<int>& hitIndicesInTree,
     const SeedingNode<LayerSpec>* node, unsigned int trackerHit,const unsigned int trackingAlgorithmId

@@ -75,7 +75,7 @@ TrackerRecHit::init(const TrackerGeometry* theGeometry, const TrackerTopology *t
 }
 
 bool
-TrackerRecHit::isOnRequestedDet(const std::vector<std::vector<TrajectorySeedProducer::LayerSpec> >& theLayersInSets) const{ 
+TrackerRecHit::isOnRequestedDet(const std::vector<std::vector<LayerSpec> >& theLayersInSets) const{ 
   
   for(unsigned int i=0; i<theLayersInSets.size(); ++i) {
     if(theLayersInSets[i][0].subDet==theSubDetId && theLayersInSets[i][0].idLayer==theLayerNumber) return true;
@@ -85,7 +85,7 @@ TrackerRecHit::isOnRequestedDet(const std::vector<std::vector<TrajectorySeedProd
 }
 
 bool
-TrackerRecHit::isOnRequestedDet(const std::vector<std::vector<TrajectorySeedProducer::LayerSpec> >& theLayersInSets,  const TrackerRecHit& theSeedHitSecond) const{ 
+TrackerRecHit::isOnRequestedDet(const std::vector<std::vector<LayerSpec> >& theLayersInSets,  const TrackerRecHit& theSeedHitSecond) const{ 
 
   for(unsigned int i=0; i<theLayersInSets.size(); ++i){
     if( theLayersInSets[i][0].subDet==theSubDetId && theLayersInSets[i][0].idLayer==theLayerNumber &&
@@ -96,7 +96,7 @@ TrackerRecHit::isOnRequestedDet(const std::vector<std::vector<TrajectorySeedProd
 }
 
 bool
-TrackerRecHit::isOnRequestedDet(const std::vector<std::vector<TrajectorySeedProducer::LayerSpec> >& theLayersInSets,  const TrackerRecHit& theSeedHitSecond, const TrackerRecHit& theSeedHitThird) const{ 
+TrackerRecHit::isOnRequestedDet(const std::vector<std::vector<LayerSpec> >& theLayersInSets,  const TrackerRecHit& theSeedHitSecond, const TrackerRecHit& theSeedHitThird) const{ 
 
   for(unsigned int i=0; i<theLayersInSets.size(); ++i){
     if( theLayersInSets[i][0].subDet==theSubDetId && theLayersInSets[i][0].idLayer==theLayerNumber &&
