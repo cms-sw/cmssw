@@ -12,7 +12,6 @@
 <use   name="Geometry/EcalAlgo"/>
 <use   name="DataFormats/Math"/>
 <use   name="TrackingTools/TrackAssociator"/>
-<use   name="Utilities/Timing"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="clhep"/>
 <use   name="FWCore/PluginManager"/>
