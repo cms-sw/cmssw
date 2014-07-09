@@ -37,6 +37,7 @@ public:
 			int lay=-1) const;
   HcalCellType::HcalCell cell(int det, int zside, int depth, int etaR, 
 			      int iphi) const;
+  const HcalDDDSimConstants& ddConstants() const {return *hcalConstants;}
 
 private:
 

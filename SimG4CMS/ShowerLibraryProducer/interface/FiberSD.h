@@ -12,6 +12,8 @@
 #include "SimG4CMS/Calo/interface/HFShower.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Geometry/HcalCommonData/interface/HcalNumberingFromDDD.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
 
 #include "G4Track.hh"
 
@@ -55,6 +57,7 @@ private:
   std::string            theName;
   const SimTrackManager* m_trackManager;
   HFShower*              theShower;
+  HcalNumberingFromDDD*  theNumber;
 
   G4int                  theHCID;
   FiberG4HitsCollection* theHC;

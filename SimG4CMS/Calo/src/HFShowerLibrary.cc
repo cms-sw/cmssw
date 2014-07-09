@@ -21,7 +21,8 @@
 //#define DebugLog
 
 HFShowerLibrary::HFShowerLibrary(std::string & name, const DDCompactView & cpv,
-				 edm::ParameterSet const & p) : fibre(0),hf(0),
+				 const HcalDDDSimConstants& hcons,
+				 edm::ParameterSet const & p) : fibre(0), hf(0),
 								emBranch(0),
 								hadBranch(0),
 								npe(0) {
@@ -102,50 +103,28 @@ HFShowerLibrary::HFShowerLibrary(std::string & name, const DDCompactView & cpv,
   edm::LogInfo("HFShower") << "HFShowerLibrary: Maximum probability cut off " 
 			   << probMax << "  Back propagation of light prob. "
                            << backProb ;
+
+  //Radius (minimum and maximum)
+  std::vector<double> rTable = hcons.getRTableHF();
+  rMin = rTable[0];
+  rMax = rTable[rTable.size()-1];
+  edm::LogInfo("HFShower") << "HFShowerLibrary: rMIN " << rMin/cm 
+			   << " cm and rMax " << rMax/cm;
+
+  //Delta phi
+  std::vector<double> phibin   = hcons.getPhiTableHF();
+  dphi       = phibin[0];
+  edm::LogInfo("HFShower") << "HFShowerLibrary: (Half) Phi Width of wedge " 
+			   << dphi/deg;
   
-  G4String attribute = "OnlyForHcalSimNumbering"; 
-  G4String value     = "any";
-  DDValue val(attribute, value, 0.0);
-  DDSpecificsFilter filter;
-  filter.setCriteria(val, DDSpecificsFilter::not_equals,
-		     DDSpecificsFilter::AND, true, true);
-  DDFilteredView fv(cpv);
-  fv.addFilter(filter);
-  bool dodet = fv.firstChild();
-  if (dodet) {
-    DDsvalues_type sv(fv.mergedSpecifics());
-
-    //Radius (minimum and maximum)
-    int nR     = -1;
-    std::vector<double> rTable = getDDDArray("rTable",sv,nR);
-    rMin = rTable[0];
-    rMax = rTable[nR-1];
-    edm::LogInfo("HFShower") << "HFShowerLibrary: rMIN " << rMin/cm 
-			     << " cm and rMax " << rMax/cm;
-
-    //Delta phi
-    int nPhi   = nR - 1;
-    std::vector<double> phibin   = getDDDArray("phitable",sv,nPhi);
-    dphi       = phibin[0];
-    edm::LogInfo("HFShower") << "HFShowerLibrary: (Half) Phi Width of wedge " 
-			     << dphi/deg;
-
-    //Special Geometry parameters
-    int ngpar = 7;
-    gpar      = getDDDArray("gparHF",sv,ngpar);
-    edm::LogInfo("HFShower") << "HFShowerLibrary: " << ngpar << " gpar (cm)";
-    for (int ig=0; ig<ngpar; ig++)
-      edm::LogInfo("HFShower") << "HFShowerLibrary: gpar[" << ig << "] = "
-			       << gpar[ig]/cm << " cm";
-  } else {
-    edm::LogError("HFShower") << "HFShowerLibrary: cannot get filtered "
-			      << " view for " << attribute << " matching "
-			      << name;
-    throw cms::Exception("Unknown", "HFShowerLibrary")
-      << "cannot match " << attribute << " to " << name <<"\n";
-  }
+  //Special Geometry parameters
+  gpar      = hcons.getGparHF();
+  edm::LogInfo("HFShower") << "HFShowerLibrary: " <<gpar.size() << " gpar (cm)";
+  for (unsigned int ig=0; ig<gpar.size(); ig++)
+    edm::LogInfo("HFShower") << "HFShowerLibrary: gpar[" << ig << "] = "
+			     << gpar[ig]/cm << " cm";
   
-  fibre = new HFFibre(name, cpv, p);
+  fibre = new HFFibre(name, cpv, hcons, p);
   emPDG = epPDG = gammaPDG = 0;
   pi0PDG = etaPDG = nuePDG = numuPDG = nutauPDG= 0;
   anuePDG= anumuPDG = anutauPDG = geantinoPDG = 0;
@@ -590,46 +569,4 @@ void HFShowerLibrary::storePhoton(int j) {
 		       << npe << " " << pe[npe];
 #endif
   npe++;
-}
-
-std::vector<double> HFShowerLibrary::getDDDArray(const std::string & str, 
-						 const DDsvalues_type & sv, 
-						 int & nmin) {
-
-#ifdef DebugLog
-  LogDebug("HFShower") << "HFShowerLibrary:getDDDArray called for " << str 
-		       << " with nMin " << nmin;
-#endif
-  DDValue value(str);
-  if (DDfetch(&sv,value)) {
-#ifdef DebugLog
-    LogDebug("HFShower") << value;
-#endif
-    const std::vector<double> & fvec = value.doubles();
-    int nval = fvec.size();
-    if (nmin > 0) {
-      if (nval < nmin) {
-	edm::LogError("HFShower") << "HFShowerLibrary : # of " << str 
-				  << " bins " << nval << " < " << nmin 
-				  << " ==> illegal";
-	throw cms::Exception("Unknown", "HFShowerLibrary")
-	  << "nval < nmin for array " << str << "\n";
-      }
-    } else {
-      if (nval < 2) {
-	edm::LogError("HFShower") << "HFShowerLibrary : # of " << str 
-				  << " bins " << nval << " < 2 ==> illegal"
-				  << " (nmin=" << nmin << ")";
-	throw cms::Exception("Unknown", "HFShowerLibrary")
-	  << "nval < 2 for array " << str << "\n";
-      }
-    }
-    nmin = nval;
-
-    return fvec;
-  } else {
-    edm::LogError("HFShower") << "HFShowerLibrary : cannot get array " << str;
-    throw cms::Exception("Unknown", "HFShowerLibrary") 
-      << "cannot get array " << str << "\n";
-  }
 }

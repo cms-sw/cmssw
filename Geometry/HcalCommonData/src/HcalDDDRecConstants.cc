@@ -7,13 +7,13 @@
 #include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDValue.h"
 #include "DetectorDescription/Core/interface/DDFilter.h"
-#include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Core/interface/DDVectorGetter.h"
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
+#include "DetectorDescription/RegressionTest/interface/DDErrorDetection.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 //#define DebugLog
-
 
 HcalDDDRecConstants::HcalDDDRecConstants(const DDCompactView& cpv, const HcalDDDSimConstants& hconst) : hcons(hconst) {
 
@@ -24,7 +24,9 @@ HcalDDDRecConstants::HcalDDDRecConstants(const DDCompactView& cpv, const HcalDDD
 }
 
 HcalDDDRecConstants::~HcalDDDRecConstants() { 
-  //  std::cout << "destructed!!!" << std::endl;
+#ifdef DebugLog
+  std::cout << "HcalDDDRecConstants::destructed!!!" << std::endl;
+#endif
 }
 
 std::vector<HcalDDDRecConstants::HcalEtaBin> 
@@ -315,9 +317,9 @@ void HcalDDDRecConstants::loadSpecPars(const DDFilteredView& fv) {
 
   char name[20];
   //Eta grouping
-  nEta     = 0;
   sprintf (name, "etagroup");
-  etaGroup = dbl_to_int(getDDDArray(name,sv,nEta));
+  etaGroup = dbl_to_int(DDVectorGetter::get(name));
+  nEta     = (int)(etaGroup.size());
 #ifdef DebugLog
   std::cout << "HcalDDDRecConstants:Read etaGroup with " << nEta <<" members:";
   for (int i=0; i<nEta; i++) 
@@ -327,7 +329,13 @@ void HcalDDDRecConstants::loadSpecPars(const DDFilteredView& fv) {
 
   //Phi Grouping
   sprintf (name, "phigroup");
-  phiGroup = dbl_to_int(getDDDArray(name,sv,nEta));
+  phiGroup = dbl_to_int(DDVectorGetter::get(name));
+  if (nEta != (int)(phiGroup.size())) {
+    edm::LogError("HCalGeom") << "HcalDDDRecConstants: sizes of the vectors "
+			      << " etaGroup (" << nEta << ") and phiGroup ("
+			      << phiGroup.size() << ") do not match";
+    throw cms::Exception("DDException") << "HcalDDDRecConstants: inconsistent array sizes" << nEta << ":" << phiGroup.size();
+  }
 #ifdef DebugLog
   std::cout << "HcalDDDRecConstants:Read phiGroup with " << nEta <<" members:";
   for (int i=0; i<nEta; i++) 
@@ -336,21 +344,20 @@ void HcalDDDRecConstants::loadSpecPars(const DDFilteredView& fv) {
 #endif
 
   //Layer grouping
-  int layers = 19;
   for (int i=0; i<nEta; ++i) {
     sprintf (name, "layergroupEta%d", i+1);
-    layerGroup[i] = dbl_to_int(getDDDArray(name,sv,layers));
-    if (layers == 0) {
+    if (DDVectorGetter::check(name)) { 
+      layerGroup[i] = dbl_to_int(DDVectorGetter::get(name));
+    } else {
       layerGroup[i] = layerGroup[i-1]; 
-      layers        = (int)(layerGroup[i].size());
     }
 #ifdef DebugLog
+    int layers = 19;
     std::cout << "HcalDDDRecConstants:Read " << name << ":";
     for (int k=0; k<layers; k++) 
       std::cout << " [" << k << "] = " << layerGroup[i][k];
     std::cout << std::endl;
 #endif
-    layers = -1;
   }
 }
 
@@ -486,49 +493,6 @@ void HcalDDDRecConstants::loadSimConst() {
     std::cout << "zHE[" << i << "] = " << gconsHE[i].first << " +- "
 	      << gconsHE[i].second << std::endl; 
 #endif
-}
-
-std::vector<double> HcalDDDRecConstants::getDDDArray(const char * str, 
-						     const DDsvalues_type & sv,
-						     int & nmin) const {
-#ifdef DebugLog
-  std::cout << "HcalDDDRecConstants:getDDDArray called for " << str
-	    << " with nMin "  << nmin << std::endl;
-#endif
-  DDValue value(str);
-  if (DDfetch(&sv,value)) {
-#ifdef DebugLog
-    std::cout << "HcalDDDRecConstants: " << value << std::endl;
-#endif
-    const std::vector<double> & fvec = value.doubles();
-    int nval = fvec.size();
-    if (nmin > 0) {
-      if (nval < nmin) {
-	edm::LogError("HCalGeom") << "HcalDDDRecConstants : # of " << str 
-				  << " bins " << nval << " < " << nmin 
-				  << " ==> illegal";
-	throw cms::Exception("DDException") << "HcalDDDRecConstants: cannot get array " << str;
-      }
-    } else {
-      if (nval < 1 && nmin == 0) {
-	edm::LogError("HCalGeom") << "HcalDDDRecConstants : # of " << str
-				  << " bins " << nval << " < 1 ==> illegal"
-				  << " (nmin=" << nmin << ")";
-	throw cms::Exception("DDException") << "HcalDDDRecConstants: cannot get array " << str;
-      }
-    }
-    nmin = nval;
-    return fvec;
-  } else {
-    if (nmin >= 0) {
-      edm::LogError("HCalGeom") << "HcalDDDRecConstants: cannot get array "
-				<< str;
-      throw cms::Exception("DDException") << "HcalDDDRecConstants: cannot get array " << str;
-    }
-    std::vector<double> fvec;
-    nmin = 0;
-    return fvec;
-  }
 }
 
 std::string HcalDDDRecConstants::getDDDString(const std::string & str, 

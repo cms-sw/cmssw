@@ -23,9 +23,10 @@
 #include<iostream>
 
 HFShower::HFShower(std::string & name, const DDCompactView & cpv, 
-                   edm::ParameterSet const & p, int chk) : cherenkov(0),
-                                                           fibre(0),
-                                                           chkFibre(chk) {
+                   const HcalDDDSimConstants& hcons, 
+		   edm::ParameterSet const & p, int chk) : cherenkov(0),
+							   fibre(0),
+							   chkFibre(chk) {
 
   edm::ParameterSet m_HF = p.getParameter<edm::ParameterSet>("HFShower");
   applyFidCut            = m_HF.getParameter<bool>("ApplyFiducialCut");
@@ -34,33 +35,14 @@ HFShower::HFShower(std::string & name, const DDCompactView & cpv,
   edm::LogInfo("HFShower") << "HFShower:: Maximum probability cut off " 
                            << probMax << " Check flag " << chkFibre;
 
-  G4String attribute = "OnlyForHcalSimNumbering"; 
-  G4String value     = "any";
-  DDValue val(attribute, value, 0.0);
-  DDSpecificsFilter filter;
-  filter.setCriteria(val, DDSpecificsFilter::not_equals,
-		     DDSpecificsFilter::AND, true, true);
-  DDFilteredView fv(cpv);
-  fv.addFilter(filter);
-  bool dodet = fv.firstChild();
-  if ( dodet ) {
-    DDsvalues_type sv(fv.mergedSpecifics());
-
-    //Special Geometry parameters
-    int ngpar = 7;
-    gpar      = getDDDArray("gparHF", sv,ngpar);
-    edm::LogInfo("HFShower") << "HFShower: " << ngpar << " gpar (cm)";
-    for (int ig=0; ig<ngpar; ig++)
-      edm::LogInfo("HFShower") << "HFShower: gpar[" << ig << "] = "
-                               << gpar[ig]/cm << " cm";
-  } else {
-    edm::LogError("HFShower") << "HFShower: cannot get filtered "
-                              << " view for " << attribute << " matching " << name;
-    throw cms::Exception("Unknown", "HFShower")
-      << "cannot match " << attribute << " to " << name <<"\n";
-  }
+  //Special Geometry parameters
+  gpar      = hcons.getGparHF();
+  edm::LogInfo("HFShower") << "HFShower: " << gpar.size() << " gpar (cm)";
+  for (unsigned int ig=0; ig<gpar.size(); ig++)
+    edm::LogInfo("HFShower") << "HFShower: gpar[" << ig << "] = "
+			     << gpar[ig]/cm << " cm";
   cherenkov = new HFCherenkov(m_HF);
-  fibre     = new HFFibre(name, cpv, p);
+  fibre     = new HFFibre(name, cpv, hcons, p);
 }
 
 HFShower::~HFShower() { 
@@ -435,44 +417,6 @@ std::vector<HFShower::Hit> HFShower::getHits(G4Step * aStep, bool forLibrary) {
   }
 
   return hits;
-}
-
-std::vector<double> HFShower::getDDDArray(const std::string & str, 
-                                          const DDsvalues_type & sv, 
-					  int & nmin) {
-#ifdef DebugLog
-  LogDebug("HFShower") << "HFShower:getDDDArray called for " << str 
-                       << " with nMin " << nmin;
-#endif
-  DDValue value(str);
-  if (DDfetch(&sv, value)) {
-#ifdef DebugLog
-    LogDebug("HFShower") << value;
-#endif
-    const std::vector<double> & fvec = value.doubles();
-    int nval = fvec.size();
-    if (nmin > 0) {
-      if (nval < nmin) {
-        edm::LogError("HFShower") << "HFShower : # of " << str << " bins "
-                                  << nval << " < " << nmin  << " ==> illegal";
-        throw cms::Exception("Unknown", "HFShower")
-                                  << "nval < nmin for array " << str << "\n";
-      }
-    } else {
-      if (nval < 2) {
-        edm::LogError("HFShower") << "HFShower : # of " << str << " bins " << nval
-                                  << " < 2 ==> illegal" << " (nmin=" << nmin << ")";
-        throw cms::Exception("Unknown", "HFShower")
-	  << "nval < 2 for array " << str << "\n";
-      }
-    }
-    nmin = nval;
-
-    return fvec;
-  } else {
-    edm::LogError("HFShower") << "HFShower : cannot get array " << str;
-    throw cms::Exception("Unknown", "HFShower") << "cannot get array " << str << "\n";
-  }
 }
 
 void HFShower::initRun(G4ParticleTable *) {// Define PDG codes

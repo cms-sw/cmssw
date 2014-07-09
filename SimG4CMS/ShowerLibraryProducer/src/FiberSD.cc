@@ -18,7 +18,7 @@ FiberSD::FiberSD(std::string name, const DDCompactView & cpv,
 		 SensitiveDetectorCatalog & clg, edm::ParameterSet const & p, 
 		 const SimTrackManager* manager) :
   SensitiveCaloDetector(name, cpv, clg, p), theName(name),
-  m_trackManager(manager), theHCID(-1), theHC(0) {
+  m_trackManager(manager), theShower(0), theNumber(0), theHCID(-1), theHC(0) {
 
   collectionName.insert(name);
   LogDebug("FiberSim") << "***************************************************"
@@ -30,7 +30,9 @@ FiberSD::FiberSD(std::string name, const DDCompactView & cpv,
 		       << "*                                                 *"
 		       << "\n"
 		       << "***************************************************";
-  theShower = new HFShower(name, cpv, p, 1);
+  theNumber = new HcalNumberingFromDDD(name, cpv);
+  const HcalDDDSimConstants& hcons = theNumber->ddConstants(); 
+  theShower = new HFShower(name, cpv, hcons, p, 1);
 
   //
   // Now attach the right detectors (LogicalVolumes) to me
@@ -45,7 +47,7 @@ FiberSD::FiberSD(std::string name, const DDCompactView & cpv,
 }
 
 FiberSD::~FiberSD() {
- 
+  if (theNumber) delete theNumber;
   if (theShower) delete theShower;
   if (theHC)     delete theHC;
 }

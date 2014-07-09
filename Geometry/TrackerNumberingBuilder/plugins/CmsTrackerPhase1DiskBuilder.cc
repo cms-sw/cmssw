@@ -44,6 +44,52 @@ CmsTrackerPhase1DiskBuilder::PhiPosNegSplit_innerOuter( std::vector< GeometricDe
   }
 
   // now put inner disk panels first
+  double radius_split = 0.5 * (theRmin + theRmax);
+  std::vector<const GeometricDet*> theCompsInnerOuter;
+  theCompsInnerOuter.empty();
+  theCompsInnerOuter.clear();
+  //  unsigned int num_inner = 0;
+  for(vector<const GeometricDet*>::const_iterator it=theCompsPosNeg.begin();
+      it!=theCompsPosNeg.end();it++){
+    if((**it).rho() <= radius_split) {
+      theCompsInnerOuter.push_back(*it);
+      //      num_inner++;
+    }
+  }
+  for(vector<const GeometricDet*>::const_iterator it=theCompsPosNeg.begin();
+      it!=theCompsPosNeg.end();it++){
+    if((**it).rho() > radius_split) theCompsInnerOuter.push_back(*it);
+  }
+  //  std::cout << "num of inner = " << num_inner << " with radius less than " << radius_split << std::endl;
+  std::copy(theCompsInnerOuter.begin(), theCompsInnerOuter.end(), begin);
+}
+
+void
+CmsTrackerPhase1DiskBuilder::PhiPosNegSplit_innerOuter_corrected( std::vector< GeometricDet const *>::iterator begin,
+								  std::vector< GeometricDet const *>::iterator end )
+{
+  // first sort in phi, lowest first (-pi to +pi)
+  std::sort( begin, end, PhiSort );
+
+  // now put positive phi (in order) ahead of negative phi as in std geometry
+  std::vector<const GeometricDet*> theCompsPosNeg;
+  theCompsPosNeg.empty();
+  theCompsPosNeg.clear();
+  // also find the average radius (used to split inner and outer disk panels)
+  double theRmin = (**begin).rho();
+  double theRmax = theRmin;
+  for(vector<const GeometricDet*>::const_iterator it=begin;
+      it!=end;it++){
+    if((**it).phi() >= 0) theCompsPosNeg.push_back(*it);
+    theRmin = std::min( theRmin, (**it).rho());
+    theRmax = std::max( theRmax, (**it).rho());
+  }
+  for(vector<const GeometricDet*>::const_iterator it=begin;
+      it!=end;it++){
+    if((**it).phi() < 0) theCompsPosNeg.push_back(*it);
+  }
+
+  // now put inner disk panels first
   //  double radius_split = 0.5 * (theRmin + theRmax);
   // force the split radius to be 100 mm to be able to deal with disks with only outer ring
   double radius_split = 100.;
@@ -149,6 +195,51 @@ CmsTrackerPhase1DiskBuilder::sortNS( DDFilteredView& fv, GeometricDet* det )
   det->clearComponents();
   det->addComponents( zminpanels );
   det->addComponents( zmaxpanels );
+
+  // yet another sorting, this time with the correct code to fix the navigation
+
+  GeometricDet::GeometricDetContainer & comp2 = det->components();
+
+  switch( det->components().front()->type())
+  {
+  case GeometricDet::panel:
+    PhiPosNegSplit_innerOuter_corrected( comp2.begin(), comp2.end());
+    break;
+  default:
+    edm::LogError( "CmsTrackerPhase1DiskBuilder" ) << "ERROR - wrong SubDet to sort..... " << det->components().front()->type();
+  }
+
+  GeometricDet::GeometricDetContainer zminpanels2;  // Here z refers abs(z);
+  GeometricDet::GeometricDetContainer zmaxpanels2;  // So, zmin panel is always closer to ip.
+
+  //  uint32_t 
+  totalblade = comp2.size()/2;
+  //  std::cout << "pixel_disk " << pixel_disk << endl; 
+
+  zminpanels2.reserve( totalblade );
+  zmaxpanels2.reserve( totalblade );
+  for( uint32_t j = 0; j < totalblade; j++ )
+  {
+    if( fabs( comp2[2*j]->translation().z()) > fabs( comp2[ 2*j +1 ]->translation().z()))
+    {
+      zmaxpanels2.push_back( comp2[2*j] );
+      zminpanels2.push_back( comp2[2*j+1] );
+
+    }
+    else if( fabs( comp2[2*j]->translation().z()) < fabs( comp2[ 2*j +1 ]->translation().z()))
+    {
+      zmaxpanels2.push_back( comp2[2*j+1] );
+      zminpanels2.push_back( comp2[2*j] );
+    }
+    else
+    {
+      edm::LogWarning( "CmsTrackerPhase1DiskBuilder" ) << "WARNING - The Z of  both panels are equal! ";
+    }
+  }
+
+  det->clearComponents();
+  det->addComponents( zminpanels2 );
+  det->addComponents( zmaxpanels2 );
 
 }
 
