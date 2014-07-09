@@ -70,7 +70,7 @@ HGCalUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
                         hebDigis = pHGCHEBDigis.product(); // get a ptr to the product
                         edm::LogInfo("HGCalUncalibRecHitInfo") << "total # hebDigis: " << hebDigis->size() ;
                 } else {
-                        edm::LogError("HGCalUncalibRecHitInfo") << "Info!? can't get the product " << hebDigiCollection_;
+                        edm::LogInfo("HGCalUncalibRecHitInfo") << "Info!? can't get the product " << hebDigiCollection_;
                 }
         }
 
