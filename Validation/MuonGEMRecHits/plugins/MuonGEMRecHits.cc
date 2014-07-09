@@ -183,6 +183,10 @@ MuonGEMRecHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByLabel(gemRecHitInput_, gemRecHits_);
   iEvent.getByLabel(gemSimHitInput_, gemSimHits_);
   iEvent.getByLabel(simTrackInput_, simTracks_);
+	if ( !gemRecHits_.isValid() || !gemSimHits_.isValid()|| !simTracks_.isValid()  ) {
+		LogDebug("MuonGEMRecHitsValidation")<<"error! GEMRecHits Validation. Skip this event.\n";
+		return;
+	}
 
   std::vector<int> trackIds;
   std::vector<int> trackType;

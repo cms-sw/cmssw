@@ -21,7 +21,7 @@ class GEMCSCCoPadDigiValidation : public GEMBaseValidation
 {
 public:
   GEMCSCCoPadDigiValidation(DQMStore* dbe,
-                         const edm::InputTag & inputTag, const edm::ParameterSet& pbInfo );
+                         edm::EDGetToken& inputToken, const edm::ParameterSet& pbInfo );
   ~GEMCSCCoPadDigiValidation();
   void analyze(const edm::Event& e, const edm::EventSetup&);
   void bookHisto(const GEMGeometry* geom);
