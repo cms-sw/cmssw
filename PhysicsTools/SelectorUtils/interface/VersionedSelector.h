@@ -31,6 +31,7 @@ class VersionedSelector : public Selector<T> {
  VersionedSelector(const edm::ParameterSet& conf) : 
   Selector<T>() { 
     constexpr unsigned length = MD5_DIGEST_LENGTH;
+    name_ = conf.getParameter<std::string>("electronSelectorName");
     memset(id_md5_,0,length*sizeof(unsigned char));
     std::string tracked, untracked;
     conf.toString(tracked); // get tracked PSet
@@ -56,13 +57,16 @@ class VersionedSelector : public Selector<T> {
   }
   const std::string& md5String() const { return md5_string_; }
 
+  const std::string& name() const { return name_; }
+
  protected:
   std::vector<boost::shared_ptr<candf::CandidateCut> > cuts_;
   std::vector<bool> is_isolation_;
+  std::vector<typename Selector<T>::index_type> cut_indices_;
 
  private:
   unsigned char id_md5_[MD5_DIGEST_LENGTH];
-  std::string md5_string_;
+  std::string md5_string_,name_;
 };
 
 #endif
