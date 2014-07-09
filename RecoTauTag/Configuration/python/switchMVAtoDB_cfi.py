@@ -1,4 +1,4 @@
-'''Customization functions for cmsDriver to get neutral weighted isolation'''
+'''Helper function to switch the MVA input from local root file to the sqlite DB'''
 import FWCore.ParameterSet.Config as cms
 
 #from CommonTools.ParticleFlow.Isolation.tools_cfi import *
@@ -6,17 +6,15 @@ import FWCore.ParameterSet.Config as cms
 from PhysicsTools.PatAlgos.tools.helpers import massSearchReplaceParam
 
 def switchMVAtoDB(process):
-    '''run neutral particle weighting sequence and use it for isolation of electrons, muons and photons
+    '''Replace the MVA input by sqlite file for all MVA discriminators
 
-       syntax: --customise RecoParticleFlow/Configuration/customizeDeltaBetaWeights_cfi.customize
-       It will add 2 new sequences to the RECO sequence that will produce pfWeightedPhotons and 
-       pfWeightedNeutralHadrons. They are produced from pfAllPhotons and pfAllNeutralHadrons by rescaling
-       pt of each particle by a weight that reflects the probability that it is from pileup. The formula is
-       w = sumNPU/(sumNPU+sumPU). The sums are running over all charged particles from the PV (NPU) or from the PU.
-       The function used in the sum is ln(pt(i)/deltaR(i,j)) where i is neutral particle that is being weighted and j
-       is the charged particle (either PU or NPU) that is used to access 'pileupility' of a particle.
+       usage: add following 2 lines to your config file in order to execute this function:
 
-       Neutral isolation of electrons, muons and photons is calculated using the weighed collection.
+          from RecoTauTag.Configuration.switchMVAtoDB_cfi import switchMVAtoDB
+          process = switchMVAtoDB(process)
+
+       The function takes no parameters. The sqlite input is defined in file
+       RecoTauTag/Configuration/python/loadRecoTauTagMVAsFromPrepDB_cfi.py
     '''
     process.load("RecoTauTag.Configuration.loadRecoTauTagMVAsFromPrepDB_cfi")
     massSearchReplaceParam(getattr(process,"produceAndDiscriminateHPSPFTaus"),"loadMVAfromDB", cms.bool(False), cms.bool(True))
