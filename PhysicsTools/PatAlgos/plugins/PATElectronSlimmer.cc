@@ -106,7 +106,7 @@ pat::PATElectronSlimmer::produce(edm::Event & iEvent, const edm::EventSetup & iS
         if (dropRecHits_(electron)) { electron.recHits_ = EcalRecHitCollection(); electron.embeddedRecHits_ = false; }
         if (dropCorrections_(electron)) { electron.setCorrections(reco::GsfElectron::Corrections()); }
         if (dropIsolations_(electron)) { electron.setDr03Isolation(reco::GsfElectron::IsolationVariables()); electron.setDr04Isolation(reco::GsfElectron::IsolationVariables()); electron.setPfIsolationVariables(reco::GsfElectron::PflowIsolationVariables()); }
-        if (dropShapes_(electron)) { electron.setPfShowerShape(reco::GsfElectron::ShowerShape()); electron.setShowerShape(reco::GsfElectron::ShowerShape());  }
+        if (dropShapes_(electron)) { electron.setShowerShape(reco::GsfElectron::ShowerShape());  }
         if (dropExtrapolations_(electron)) { electron.setTrackExtrapolations(reco::GsfElectron::TrackExtrapolations());  }
         if (dropClassifications_(electron)) { electron.setClassificationVariables(reco::GsfElectron::ClassificationVariables()); electron.setClassification(reco::GsfElectron::Classification()); }
         if (linkToPackedPF_) {
