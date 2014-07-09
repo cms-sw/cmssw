@@ -40,7 +40,6 @@ namespace edm {
                                  PreallocationConfiguration const* prealloc,
                                  std::shared_ptr<ProcessConfiguration> processConfiguration,
                                  std::string label,
-                                 bool useStopwatch,
                                  std::set<std::string>& unscheduledLabels,
                                  std::vector<std::string>& shouldBeUsedLabels);
 
@@ -63,7 +62,7 @@ namespace edm {
     
     AllWorkers const& allWorkers() const {return allWorkers_;}
 
-    void addToAllWorkers(Worker* w, bool useStopwatch);
+    void addToAllWorkers(Worker* w);
 
     ExceptionToActionTable const&  actionTable() const {return *actionTable_;}
 
