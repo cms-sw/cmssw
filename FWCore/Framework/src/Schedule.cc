@@ -450,6 +450,37 @@ namespace edm {
       c->setEventSelectionInfo(outputModulePathPositions, preg.anyProductProduced());
       c->selectProducts(preg);
     }
+    
+    if(wantSummary_) {
+      std::vector<const ModuleDescription*> modDesc;
+      const auto& workers = allWorkers();
+      modDesc.reserve(workers.size());
+      
+      std::transform(workers.begin(),workers.end(),
+                     std::back_inserter(modDesc),
+                     [](const Worker* iWorker) -> const ModuleDescription* {
+                       return iWorker->descPtr();
+                     });
+      
+      summaryTimeKeeper_.reset(new SystemTimeKeeper(prealloc.numberOfStreams(),
+                                                    modDesc,
+                                                    tns));
+      auto timeKeeperPtr = summaryTimeKeeper_.get();
+      
+      areg->watchPreModuleEvent(timeKeeperPtr, &SystemTimeKeeper::startModuleEvent);
+      areg->watchPostModuleEvent(timeKeeperPtr, &SystemTimeKeeper::stopModuleEvent);
+      areg->watchPreModuleEventDelayedGet(timeKeeperPtr, &SystemTimeKeeper::pauseModuleEvent);
+      areg->watchPostModuleEventDelayedGet(timeKeeperPtr,&SystemTimeKeeper::restartModuleEvent);
+      
+      areg->watchPreSourceEvent(timeKeeperPtr, &SystemTimeKeeper::startEvent);
+      areg->watchPostEvent(timeKeeperPtr, &SystemTimeKeeper::stopEvent);
+      
+      areg->watchPrePathEvent(timeKeeperPtr, &SystemTimeKeeper::startPath);
+      areg->watchPostPathEvent(timeKeeperPtr, &SystemTimeKeeper::stopPath);
+      //areg->preModuleEventSignal_.connect([timeKeeperPtr](StreamContext const& iContext, ModuleCallingContext const& iMod) {
+      //timeKeeperPtr->startModuleEvent(iContext,iMod);
+      //});
+    }
 
   } // Schedule::Schedule
 
@@ -1005,9 +1036,7 @@ namespace edm {
     rep.eventSummary.totalEvents = 0;
     rep.eventSummary.cpuTime = 0.;
     rep.eventSummary.realTime = 0.;
-    for(auto& s: streamSchedules_) {
-      s->getTriggerTimingReport(rep);
-    }
+    summaryTimeKeeper_->fillTriggerTimingReport(rep);
   }
 
   int

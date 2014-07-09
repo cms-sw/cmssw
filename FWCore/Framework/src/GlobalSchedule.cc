@@ -93,7 +93,7 @@ namespace edm {
 
   void
   GlobalSchedule::addToAllWorkers(Worker* w) {
-    workerManager_.addToAllWorkers(w, false);
+    workerManager_.addToAllWorkers(w);
   }
 
 }

@@ -174,7 +174,7 @@ namespace edm {
     for(auto & worker: allWorkers()) {
       try {
         ParentContext parentContext(context);
-        worker->doWork<T>(p, es, nullptr,StreamID::invalidStreamID(), parentContext, context);
+        worker->doWork<T>(p, es,StreamID::invalidStreamID(), parentContext, context);
       }
       catch (cms::Exception & ex) {
         std::ostringstream ost;
