@@ -101,7 +101,7 @@ namespace edm {
       worker->updateLookup(InEvent,*eventLookup);
     }
     
-    for_all(allWorkers_, boost::bind(&Worker::beginJob, _1));
+    for_all(allWorkers_, std::bind(&Worker::beginJob, std::placeholders::_1));
     loadMissingDictionaries();
   }
 
@@ -121,7 +121,7 @@ namespace edm {
 
   void
   WorkerManager::resetAll() {
-    for_all(allWorkers_, boost::bind(&Worker::reset, _1));
+    for_all(allWorkers_, std::bind(&Worker::reset, std::placeholders::_1));
   }
 
   void
