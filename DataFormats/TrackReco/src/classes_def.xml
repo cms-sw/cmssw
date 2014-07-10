@@ -62,9 +62,13 @@
                 // but that we do not care about because they are not stored in the
                 // HitPattern.
                 const uint8_t DONT_CARE = 1;
+
                 const static unsigned short HitTypeMask = 0x3;
                 const static unsigned short HitTypeOffset = 0;
-
+                
+                const static unsigned short SideMask = 0x1;
+                const static unsigned short SideOffset = 2;
+                
                 const static unsigned short LayerMask = 0xF;
                 const static unsigned short LayerOffset = 3;
 
@@ -82,9 +86,9 @@
                 uint32_t rawHitType = (pattern >> HitTypeOffset) & HitTypeMask;
                 uint32_t layer = (pattern >> LayerOffset) & LayerMask;
                 uint32_t subdet = (pattern >> SubstrOffset) & SubstrMask;
-
                 uint32_t detector = (pattern >> SubDetectorOffset) & SubDetectorMask;
-                
+                uint32_t stereo = (pattern >> SideOffset) & SideMask;
+
                 // DetId::Tracker = 1 and DetId::Muon = 2 but
                 // in HitPattern Tracker = 1 and Muon = 0 so a conversion is needed:
                 if (detector == 0) {
@@ -117,16 +121,16 @@
                         detId = PXFDetId(DONT_CARE, layer, DONT_CARE, DONT_CARE, DONT_CARE);
                         break;
                     case StripSubdetector::TIB:
-                        detId = TIBDetId(layer, DONT_CARE, DONT_CARE, DONT_CARE, DONT_CARE, DONT_CARE);
+                        detId = TIBDetId(layer, DONT_CARE, DONT_CARE, DONT_CARE, DONT_CARE, stereo);
                         break;
                     case StripSubdetector::TID:
-                        detId = TIDDetId(DONT_CARE, layer, DONT_CARE, DONT_CARE, DONT_CARE, DONT_CARE);
+                        detId = TIDDetId(DONT_CARE, layer, DONT_CARE, DONT_CARE, DONT_CARE, stereo);
                         break;
                     case StripSubdetector::TOB:
-                        detId = TOBDetId(layer, DONT_CARE, DONT_CARE, DONT_CARE, DONT_CARE);
+                        detId = TOBDetId(layer, DONT_CARE, DONT_CARE, DONT_CARE, stereo);
                         break;
                     case StripSubdetector::TEC:
-                        detId = TECDetId(DONT_CARE, layer, DONT_CARE, DONT_CARE, DONT_CARE, DONT_CARE, DONT_CARE);
+                        detId = TECDetId(DONT_CARE, layer, DONT_CARE, DONT_CARE, DONT_CARE, DONT_CARE, stereo);
                         break;
                     }
                 } else if (detector == DetId::Muon) {
@@ -156,6 +160,7 @@
             };
 
             auto fillNewHitPatternWithOldHitPattern = [&](const uint32_t oldHitPattern[]) {
+                newObj->clear();
                 for (int i = 0; i < MaxHits; i++) {
                     uint32_t pattern = getHitFromOldHitPattern(oldHitPattern, i);
                     if (pattern == 0) {
@@ -198,6 +203,10 @@
                 const static unsigned short HitTypeMask = 0x3;
                 const static unsigned short HitTypeOffset = 0;
 
+                // 1 bit for mono/stereo
+                const static unsigned short SideMask = 0x1;
+                const static unsigned short SideOffset = 2;
+
                 // 4 bits to identify the layer/disk/wheel within the substructure
                 const static unsigned short LayerMask = 0xF;
                 const static unsigned short LayerOffset = 3;
@@ -214,7 +223,8 @@
                 uint16_t layer = (pattern >> LayerOffset) & LayerMask;
                 uint16_t subdet = (pattern >> SubstrOffset) & SubstrMask;
                 uint16_t detector = ((pattern >> SubDetectorOffset) & SubDetectorMask);
-
+                uint16_t stereo = (pattern >> SideOffset) & SideMask;
+                
                 // DetId::Tracker = 1 and DetId::Muon = 2 but
                 // in HitPattern Tracker = 1 and Muon = 0 so a conversion is needed:
                 if (detector == 0) {
@@ -247,16 +257,16 @@
                         detId = PXFDetId(DONT_CARE, layer, DONT_CARE, DONT_CARE, DONT_CARE);
                         break;
                     case StripSubdetector::TIB:
-                        detId = TIBDetId(layer, DONT_CARE, DONT_CARE, DONT_CARE, DONT_CARE, DONT_CARE);
+                        detId = TIBDetId(layer, DONT_CARE, DONT_CARE, DONT_CARE, DONT_CARE, stereo);
                         break;
                     case StripSubdetector::TID:
-                        detId = TIDDetId(DONT_CARE, layer, DONT_CARE, DONT_CARE, DONT_CARE, DONT_CARE);
+                        detId = TIDDetId(DONT_CARE, layer, DONT_CARE, DONT_CARE, DONT_CARE, stereo);
                         break;
                     case StripSubdetector::TOB:
-                        detId = TOBDetId(layer, DONT_CARE, DONT_CARE, DONT_CARE, DONT_CARE);
+                        detId = TOBDetId(layer, DONT_CARE, DONT_CARE, DONT_CARE, stereo);
                         break;
                     case StripSubdetector::TEC:
-                        detId = TECDetId(DONT_CARE, layer, DONT_CARE, DONT_CARE, DONT_CARE, DONT_CARE, DONT_CARE);
+                        detId = TECDetId(DONT_CARE, layer, DONT_CARE, DONT_CARE, DONT_CARE, DONT_CARE, stereo);
                         break;
                     }
                 } else if (detector == DetId::Muon) {
@@ -305,6 +315,7 @@
             };
 
             auto mergeNewHitPatternsIntoOneNewHitPattern = [&](void) {
+                newObj->resetHitPattern();
                 fillNewHitPatternFromNewHitPattern(onfile.hitPattern_, HitPattern::TRACK_HITS);
                 fillNewHitPatternFromNewHitPattern(onfile.trackerExpectedHitsInner_, HitPattern::MISSING_INNER_HITS);
                 fillNewHitPatternFromNewHitPattern(onfile.trackerExpectedHitsOuter_, HitPattern::MISSING_OUTER_HITS);
