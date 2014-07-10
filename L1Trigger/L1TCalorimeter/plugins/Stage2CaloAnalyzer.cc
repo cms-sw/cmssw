@@ -74,6 +74,13 @@ private:
   edm::EDGetToken m_tauToken;
   edm::EDGetToken m_jetToken;
   edm::EDGetToken m_sumToken;
+
+  bool m_doTowers;
+  bool m_doClusters;
+  bool m_doEGs;
+  bool m_doTaus;
+  bool m_doJets;
+  bool m_doSums;
   
   enum ObjectType{Tower=0x1,
 		  Cluster=0x2,
@@ -111,12 +118,33 @@ Stage2CaloAnalyzer::Stage2CaloAnalyzer(const edm::ParameterSet& iConfig)
    //now do what ever initialization is needed
 
   // register what you consume and keep token for later access:
-  m_towerToken   = consumes<l1t::CaloTowerBxCollection>  (iConfig.getParameter<edm::InputTag>("towerToken"));
-  m_clusterToken = consumes<l1t::CaloClusterBxCollection>(iConfig.getParameter<edm::InputTag>("clusterToken"));
-  m_egToken      = consumes<l1t::EGammaBxCollection>     (iConfig.getParameter<edm::InputTag>("egToken"));
-  m_tauToken     = consumes<l1t::TauBxCollection>        (iConfig.getParameter<edm::InputTag>("tauToken"));
-  m_jetToken     = consumes<l1t::JetBxCollection>        (iConfig.getParameter<edm::InputTag>("jetToken"));
-  m_sumToken     = consumes<l1t::EtSumBxCollection>      (iConfig.getParameter<edm::InputTag>("etSumToken"));
+  edm::InputTag nullTag("None");
+
+  edm::InputTag towerTag = iConfig.getParameter<edm::InputTag>("towerToken");
+  m_towerToken         = consumes<l1t::CaloTowerBxCollection>(towerTag);
+  m_doTowers           = !(towerTag==nullTag);
+
+  edm::InputTag clusterTag = iConfig.getParameter<edm::InputTag>("clusterToken");
+  m_clusterToken         = consumes<l1t::CaloClusterBxCollection>(clusterTag);
+  m_doClusters           = !(clusterTag==nullTag);
+
+  edm::InputTag egTag  = iConfig.getParameter<edm::InputTag>("egToken");
+  m_egToken          = consumes<l1t::EGammaBxCollection>(egTag);
+  m_doEGs            = !(egTag==nullTag);
+
+  edm::InputTag tauTag = iConfig.getParameter<edm::InputTag>("tauToken");
+  m_tauToken         = consumes<l1t::TauBxCollection>(tauTag);
+  m_doTaus           = !(tauTag==nullTag);
+
+  edm::InputTag jetTag = iConfig.getParameter<edm::InputTag>("jetToken");
+  m_jetToken         = consumes<l1t::JetBxCollection>(jetTag);
+  m_doJets           = !(jetTag==nullTag);  
+
+  edm::InputTag sumTag = iConfig.getParameter<edm::InputTag>("etSumToken");
+  m_sumToken         = consumes<l1t::EtSumBxCollection>(sumTag);
+  m_doSums           = !(sumTag==nullTag);
+
+  //  if (m_doTowers) edm::LogInfo("l1t|calo") << "Will fill tower histograms" << std::endl;
 
   types_.push_back( Tower );
   types_.push_back( Cluster );
@@ -162,66 +190,84 @@ Stage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   
   
   // get towers
-  Handle< BXVector<l1t::CaloTower> > towers;
-  iEvent.getByToken(m_towerToken,towers);
+  if (m_doTowers) {
+    Handle< BXVector<l1t::CaloTower> > towers;
+    iEvent.getByToken(m_towerToken,towers);
 
-  for ( auto itr = towers->begin(0); itr != towers->end(0); ++itr ) {
-    het_.at(Tower)->Fill( itr->hwPt() );
-    heta_.at(Tower)->Fill( itr->hwEta() );
-    hphi_.at(Tower)->Fill( itr->hwPhi() );
-    hem_.at(Tower)->Fill( itr->hwEtEm() );
-    hhad_.at(Tower)->Fill( itr->hwEtHad() );
-    hratio_.at(Tower)->Fill( itr->hwEtRatio() );
+    for ( auto itr = towers->begin(0); itr != towers->end(0); ++itr ) {
+      het_.at(Tower)->Fill( itr->hwPt() );
+      heta_.at(Tower)->Fill( itr->hwEta() );
+      hphi_.at(Tower)->Fill( itr->hwPhi() );
+      hem_.at(Tower)->Fill( itr->hwEtEm() );
+      hhad_.at(Tower)->Fill( itr->hwEtHad() );
+      hratio_.at(Tower)->Fill( itr->hwEtRatio() );
+    }
+
   }
 
   // get cluster
-  Handle< BXVector<l1t::CaloCluster> > clusters;
-  iEvent.getByToken(m_clusterToken,clusters);
-
-  for ( auto itr = clusters->begin(0); itr !=clusters->end(0); ++itr ) {
-    het_.at(Cluster)->Fill( itr->hwPt() );
-    heta_.at(Cluster)->Fill( itr->hwEta() );
-    hphi_.at(Cluster)->Fill( itr->hwPhi() );
+  if (m_doClusters) {
+    Handle< BXVector<l1t::CaloCluster> > clusters;
+    iEvent.getByToken(m_clusterToken,clusters);
+    
+    for ( auto itr = clusters->begin(0); itr !=clusters->end(0); ++itr ) {
+      het_.at(Cluster)->Fill( itr->hwPt() );
+      heta_.at(Cluster)->Fill( itr->hwEta() );
+      hphi_.at(Cluster)->Fill( itr->hwPhi() );
+    }
+    
   }
 
-  // get EG
-  Handle< BXVector<l1t::EGamma> > egs;
-  iEvent.getByToken(m_egToken,egs);
+    // get EG
+  if (m_doEGs) {
+    Handle< BXVector<l1t::EGamma> > egs;
+    iEvent.getByToken(m_egToken,egs);
+    
+    for ( auto itr = egs->begin(0); itr != egs->end(0); ++itr ) {
+      het_.at(EG)->Fill( itr->hwPt() );
+      heta_.at(EG)->Fill( itr->hwEta() );
+      hphi_.at(EG)->Fill( itr->hwPhi() );
+    }
 
-  for ( auto itr = egs->begin(0); itr != egs->end(0); ++itr ) {
-    het_.at(EG)->Fill( itr->hwPt() );
-    heta_.at(EG)->Fill( itr->hwEta() );
-    hphi_.at(EG)->Fill( itr->hwPhi() );
   }
 
   // get tau
-  Handle< BXVector<l1t::Tau> > taus;
-  iEvent.getByToken(m_tauToken,taus);
+  if (m_doTaus) {
+    Handle< BXVector<l1t::Tau> > taus;
+    iEvent.getByToken(m_tauToken,taus);
+    
+    for ( auto itr = taus->begin(0); itr != taus->end(0); ++itr ) {
+      het_.at(Tau)->Fill( itr->hwPt() );
+      heta_.at(Tau)->Fill( itr->hwEta() );
+      hphi_.at(Tau)->Fill( itr->hwPhi() );
+    }
 
-  for ( auto itr = taus->begin(0); itr != taus->end(0); ++itr ) {
-    het_.at(Tau)->Fill( itr->hwPt() );
-    heta_.at(Tau)->Fill( itr->hwEta() );
-    hphi_.at(Tau)->Fill( itr->hwPhi() );
   }
 
   // get jet
-  Handle< BXVector<l1t::Jet> > jets;
-  iEvent.getByToken(m_jetToken,jets);
+  if (m_doJets) {
+    Handle< BXVector<l1t::Jet> > jets;
+    iEvent.getByToken(m_jetToken,jets);
+    
+    for ( auto itr = jets->begin(0); itr != jets->end(0); ++itr ) {
+      het_.at(Jet)->Fill( itr->hwPt() );
+      heta_.at(Jet)->Fill( itr->hwEta() );
+      hphi_.at(Jet)->Fill( itr->hwPhi() );
+    }
 
-  for ( auto itr = jets->begin(0); itr != jets->end(0); ++itr ) {
-    het_.at(Jet)->Fill( itr->hwPt() );
-    heta_.at(Jet)->Fill( itr->hwEta() );
-    hphi_.at(Jet)->Fill( itr->hwPhi() );
   }
 
   // get sums
-  Handle< BXVector<l1t::EtSum> > sums;
-  iEvent.getByToken(m_sumToken,sums);
+  if (m_doSums) {
+    Handle< BXVector<l1t::EtSum> > sums;
+    iEvent.getByToken(m_sumToken,sums);
+    
+    for ( auto itr = sums->begin(0); itr != sums->end(0); ++itr ) {
+      het_.at(Sum)->Fill( itr->hwPt() );
+      heta_.at(Sum)->Fill( itr->hwEta() );
+      hphi_.at(Sum)->Fill( itr->hwPhi() );
+    }
 
-  for ( auto itr = sums->begin(0); itr != sums->end(0); ++itr ) {
-    het_.at(Sum)->Fill( itr->hwPt() );
-    heta_.at(Sum)->Fill( itr->hwEta() );
-    hphi_.at(Sum)->Fill( itr->hwPhi() );
   }
 
 }

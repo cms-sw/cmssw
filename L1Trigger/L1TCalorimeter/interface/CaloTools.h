@@ -66,11 +66,19 @@ namespace l1t {
     //hwEt is either ECAL, HCAL or CALO (ECAL+HCAL) Et
     static size_t calNrTowers(int iEtaMin,int iEtaMax,int iPhiMin,int iPhiMax,const std::vector<l1t::CaloTower>& towers,int minHwEt,int maxHwEt,SubDet etMode=CALO);
 
+    // physical eta/phi position and sizes of trigger towers
+    static float towerEta(int ieta);
+    static float towerPhi(int ieta, int iphi);
+    static float towerEtaSize(int ieta);
+    static float towerPhiSize(int ieta);
 
 
   private:
+    // trigger tower eta boundaries
+    static std::pair<float,float> towerEtaBounds(int ieta);
+
     static const l1t::CaloTower nullTower_; //to return when we need to return a tower which was not found/invalid rather than throwing an exception
-    static const l1t::CaloCluster nullCluster_; //to return when we need to return a tower which was not found/invalid rather than throwing an exception
+    static const l1t::CaloCluster nullCluster_; //to return when we need to return a cluster which was not found/invalid rather than throwing an exception
   };
 
 }
