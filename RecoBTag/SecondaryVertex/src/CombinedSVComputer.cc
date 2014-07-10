@@ -131,9 +131,9 @@ CombinedSVComputer::operator () (const TrackIPTagInfo &ipInfo,
 {
 	using namespace ROOT::Math;
 
-/*dm::RefToBase<Jet> jet = ipInfo.jet();
+	edm::RefToBase<Jet> jet = ipInfo.jet();
 	math::XYZVector jetDir = jet->momentum().Unit();
-	bool havePv = ipInfo.primaryVertex().isNonnull();
+/*	bool havePv = ipInfo.primaryVertex().isNonnull();
 	GlobalPoint pv;
 	if (havePv)
 		pv = GlobalPoint(ipInfo.primaryVertex()->x(),
@@ -144,6 +144,40 @@ CombinedSVComputer::operator () (const TrackIPTagInfo &ipInfo,
 */
 	TaggingVariableList vars; // = ipInfo.taggingVariables();
 	fillCommonVariables(vars,ipInfo,svInfo);
+
+        TrackKinematics vertexKinematics;
+
+        int vtx = -1;
+        unsigned int numberofvertextracks = 0;
+
+                IterationRange range = flipIterate(svInfo.nVertices(), true);
+        range_for(i, range) {
+                if (vtx < 0)
+                        vtx = i;
+        
+                numberofvertextracks = numberofvertextracks + (svInfo.secondaryVertex(i)).nTracks();
+
+                                const Vertex &vertex = svInfo.secondaryVertex(i);
+                bool hasRefittedTracks = vertex.hasRefittedTracks();
+                TrackRefVector tracks = svInfo.vertexTracks(i);
+                for(TrackRefVector::const_iterator track = tracks.begin();
+                    track != tracks.end(); track++) {
+                        double w = svInfo.trackWeight(i, *track);
+                        if (w < minTrackWeight)
+                                continue;
+                        if (hasRefittedTracks) {
+                                Track actualTrack =
+                                                vertex.refittedTrack(*track);
+                                vertexKinematics.add(actualTrack, w);
+                                vars.insert(btau::trackEtaRel, etaRel(jetDir,
+                                                actualTrack.momentum()), true);
+                        } else {
+                                vertexKinematics.add(**track, w);
+                                vars.insert(btau::trackEtaRel, etaRel(jetDir,
+                                                (*track)->momentum()), true);
+                        }
+                }
+        }
 
 /*vars.insert(btau::jetPt, jet->pt(), true);
 	vars.insert(btau::jetEta, jet->eta(), true);
