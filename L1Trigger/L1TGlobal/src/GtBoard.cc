@@ -1090,7 +1090,7 @@ void l1t::GtBoard::resetCalo() {
 void l1t::GtBoard::printGmtData(const int iBxInEvent) const {
 
     LogTrace("l1t|Global")
-            << "\nL1GlobalTrigger: GMT data received for BxInEvent = "
+            << "\nl1t::L1GlobalTrigger: GMT data received for BxInEvent = "
             << iBxInEvent << std::endl;
 
     int nrL1Mu = m_candL1Mu->size(iBxInEvent);
