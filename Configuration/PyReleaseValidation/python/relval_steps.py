@@ -1145,7 +1145,7 @@ upgradeGeoms={ '2017' : 'Extended2017',
                'Extended2023SHCalNoTaper4Eta' : 'Extended2023SHCalNoTaper4Eta,Extended2023SHCalNoTaper4EtaReco',
                'Extended2023HGCal' : 'Extended2023HGCal,Extended2023HGCalReco',
                'Extended2023HGCalMuon4Eta' : 'Extended2023HGCalMuon4Eta,Extended2023HGCalMuon4EtaReco',
-               'Extended2023HGCalV4' : 'Extended2023HGCalV4,Extended2023HGCalMuonReco'
+               'Extended2023HGCalV4' : 'Extended2023HGCalV4Muon,Extended2023HGCalV4MuonReco'
                }
 upgradeGTs={ '2017' : 'auto:upgrade2017',
              '2019' : 'auto:upgrade2019',
