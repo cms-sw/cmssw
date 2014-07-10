@@ -12,7 +12,6 @@
 */
 
 #include "FWCore/Framework/src/Worker.h"
-#include "FWCore/Framework/src/RunStopwatch.h"
 #include "FWCore/ServiceRegistry/interface/ParentContext.h"
 #include "FWCore/ServiceRegistry/interface/PlaceInPathContext.h"
 
@@ -32,17 +31,9 @@ namespace edm {
 		   StreamID streamID,
                    typename T::Context const* context);
 
-    std::pair<double,double> timeCpuReal() const {
-      if(stopwatch_) {
-        return std::pair<double,double>(stopwatch_->cpuTime(),stopwatch_->realTime());
-      }
-      return std::pair<double,double>(0.,0.);
-    }
-
     void clearCounters() {
       timesVisited_ = timesPassed_ = timesFailed_ = timesExcept_ = 0;
     }
-    void useStopwatch();
     
     int timesVisited() const { return timesVisited_; }
     int timesPassed() const { return timesPassed_; }
@@ -55,8 +46,6 @@ namespace edm {
     void setPathContext(PathContext const* v) { placeInPathContext_.setPathContext(v); }
 
   private:
-    RunStopwatch::StopwatchPointer stopwatch_;
-
     int timesVisited_;
     int timesPassed_;
     int timesFailed_;
@@ -84,10 +73,10 @@ namespace edm {
 	// identify
         if(T::isEvent_) {
           ParentContext parentContext(&placeInPathContext_);          
-          rc = worker_->doWork<T>(ep, es, stopwatch_.get(),streamID, parentContext, context);
+          rc = worker_->doWork<T>(ep, es,streamID, parentContext, context);
         } else {
           ParentContext parentContext(context);
-          rc = worker_->doWork<T>(ep, es, stopwatch_.get(),streamID, parentContext, context);
+          rc = worker_->doWork<T>(ep, es,streamID, parentContext, context);
         }
         // Ignore return code for non-event (e.g. run, lumi) calls
 	if (!T::isEvent_) rc = true;

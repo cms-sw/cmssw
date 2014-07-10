@@ -23,7 +23,8 @@ std::vector<double> PosteriorWeightsCalculator::weights(const TrackingRecHit& re
   typedef typename AlgebraicROOTObject<5,D>::Matrix Mat5D;
   typedef typename AlgebraicROOTObject<D,D>::SymMatrix SMatDD;
   typedef typename AlgebraicROOTObject<D>::Vector VecD;
-  
+  using ROOT::Math::SMatrixNoInit;
+
   std::vector<double> weights;
   if ( predictedComponents.empty() )  {
     edm::LogError("EmptyPredictedComponents")<<"a multi state is empty. cannot compute any weight.";
@@ -36,9 +37,8 @@ std::vector<double> PosteriorWeightsCalculator::weights(const TrackingRecHit& re
   std::vector<double> chi2s;
   chi2s.reserve(predictedComponents.size());
 
-  MatD5 H; 
   VecD r, rMeas; 
-  SMatDD V, R;
+  SMatDD V(SMatrixNoInit{}), R(SMatrixNoInit{});
   AlgebraicVector5 x;
   ProjectMatrix<double,5,D> p;
   //
@@ -47,18 +47,10 @@ std::vector<double> PosteriorWeightsCalculator::weights(const TrackingRecHit& re
   //  
   double chi2Min(DBL_MAX);
   for ( unsigned int i=0; i<predictedComponents.size(); i++ ) {
-//     MeasurementExtractor me(predictedComponents[i]);
-//     // Residuals of aPredictedState w.r.t. aRecHit, 
-//     //!!!     AlgebraicVector r(recHit.parameters(predictedComponents[i]) - me.measuredParameters(recHit));
-//     VecD r = asSVector<D>(recHit.parameters()) - me.measuredParameters<D>(recHit);
-//     // and covariance matrix of residuals
-//     //!!!     AlgebraicSymMatrix V(recHit.parametersError(predictedComponents[i]));
-//     SMatDD V = asSMatrix<D>(recHit.parametersError());
-//     SMatDD R = V + me.measuredError<D>(recHit);
 
     KfComponentsHolder holder; 
     x = predictedComponents[i].localParameters().vector();
-    holder.template setup<D>(&r, &V, &H, &p, &rMeas, &R, 
+    holder.template setup<D>(&r, &V, &p, &rMeas, &R, 
 			     x, predictedComponents[i].localError().matrix());
     recHit.getKfComponents(holder);
 

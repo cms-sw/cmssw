@@ -42,7 +42,6 @@ namespace edm {
                                               PreallocationConfiguration const* prealloc,
                                               std::shared_ptr<ProcessConfiguration> processConfiguration,
                                               std::string label,
-                                              bool useStopwatch,
                                               std::set<std::string>& unscheduledLabels,
                                               std::vector<std::string>& shouldBeUsedLabels) {
     //Need to
@@ -55,7 +54,7 @@ namespace edm {
       unscheduledLabels.insert(label);
       unscheduled_->addWorker(newWorker);
       //add to list so it gets reset each new event
-      addToAllWorkers(newWorker, useStopwatch);
+      addToAllWorkers(newWorker);
     } else {
       shouldBeUsedLabels.push_back(label);
     }
@@ -101,7 +100,7 @@ namespace edm {
       worker->updateLookup(InEvent,*eventLookup);
     }
     
-    for_all(allWorkers_, boost::bind(&Worker::beginJob, _1));
+    for_all(allWorkers_, std::bind(&Worker::beginJob, std::placeholders::_1));
     loadMissingDictionaries();
   }
 
@@ -121,15 +120,12 @@ namespace edm {
 
   void
   WorkerManager::resetAll() {
-    for_all(allWorkers_, boost::bind(&Worker::reset, _1));
+    for_all(allWorkers_, std::bind(&Worker::reset, std::placeholders::_1));
   }
 
   void
-  WorkerManager::addToAllWorkers(Worker* w, bool useStopwatch) {
+  WorkerManager::addToAllWorkers(Worker* w) {
     if(!search_all(allWorkers_, w)) {
-      if(useStopwatch) {
-        w->useStopwatch();
-      }
       allWorkers_.push_back(w);
     }
   }

@@ -2,7 +2,7 @@
 # using: 
 # Revision: 1.19 
 # Source: /local/reps/CMSSW/CMSSW/Configuration/Applications/python/ConfigBuilder.py,v 
-# with command line options: Configuration/GenProduction/python/SevenTeV/MinBias_TuneZ2star_7TeV_pythia6_cff.py -s GEN --datatier=GEN-SIM-RAW --conditions auto:mc --eventcontent RAWSIM --no_exec -n 10000 --python_filename=rivet_cfg.py --customise=Configuration/GenProduction/rivet_customize.py
+# with command line options: Configuration/GenProduction/python/SevenTeV/QCD_Pt_470to600_Tune4C_7TeV_pythia8_cff.py -s GEN --datatier=GEN-SIM-RAW --conditions auto:mc --eventcontent RAWSIM --no_exec -n 10000 --python_filename=rivet_cfg.py --customise=Configuration/GenProduction/rivet_customize.py
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('GEN')
@@ -34,9 +34,9 @@ process.options = cms.untracked.PSet(
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
-    annotation = cms.untracked.string('PYTHIA6-MinBias TuneZ2star at 7TeV'),
-    name = cms.untracked.string('$Source: /local/reps/CMSSW/CMSSW/Configuration/GenProduction/python/SevenTeV/MinBias_TuneZ2star_7TeV_pythia6_cff.py,v $')
+    version = cms.untracked.string('\\$Revision: 1.1 $'),
+    annotation = cms.untracked.string('Sample with PYTHIA8: QCD dijet production, pThat = 470 .. 600 GeV, Tune4C'),
+    name = cms.untracked.string('\\$Source: /local/reps/CMSSW/CMSSW/Configuration/GenProduction/python/SevenTeV/QCD_Pt_470to600_Tune4C_7TeV_pythia8_cff.py,v $')
 )
 
 # Output definition
@@ -45,7 +45,7 @@ process.RAWSIMoutput = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
     eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
     outputCommands = process.RAWSIMEventContent.outputCommands,
-    fileName = cms.untracked.string('MinBias_TuneZ2star_7TeV_pythia6_cff_py_GEN.root'),
+    fileName = cms.untracked.string('QCD_Pt_470to600_Tune4C_7TeV_pythia8_cff_py_GEN.root'),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string(''),
         dataTier = cms.untracked.string('GEN-SIM-RAW')
@@ -62,53 +62,26 @@ process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:mc', '')
 
-process.generator = cms.EDFilter("Pythia6GeneratorFilter",
-    pythiaPylistVerbosity = cms.untracked.int32(1),
-    filterEfficiency = cms.untracked.double(1.0),
+process.generator = cms.EDFilter("Pythia8GeneratorFilter",
+    pythiaPylistVerbosity = cms.untracked.int32(0),
+    filterEfficiency = cms.untracked.double(1),
     pythiaHepMCVerbosity = cms.untracked.bool(False),
     comEnergy = cms.double(7000.0),
-    crossSection = cms.untracked.double(72700000000),
+    crossSection = cms.untracked.double(77.03948),
     maxEventsToPrint = cms.untracked.int32(0),
     PythiaParameters = cms.PSet(
-        pythiaUESettings = cms.vstring('MSTU(21)=1     ! Check on possible errors during program execution', 
-            'MSTJ(22)=2     ! Decay those unstable particles', 
-            'PARJ(71)=10 .  ! for which ctau  10 mm', 
-            'MSTP(33)=0     ! no K factors in hard cross sections', 
-            'MSTP(2)=1      ! which order running alphaS', 
-            'MSTP(51)=10042 ! structure function chosen (external PDF CTEQ6L1)', 
-            'MSTP(52)=2     ! work with LHAPDF', 
-            'PARP(82)=1.921 ! pt cutoff for multiparton interactions', 
-            'PARP(89)=1800. ! sqrts for which PARP82 is set', 
-            'PARP(90)=0.227 ! Multiple interactions: rescaling power', 
-            'MSTP(95)=6     ! CR (color reconnection parameters)', 
-            'PARP(77)=1.016 ! CR', 
-            'PARP(78)=0.538 ! CR', 
-            'PARP(80)=0.1   ! Prob. colored parton from BBR', 
-            'PARP(83)=0.356 ! Multiple interactions: matter distribution parameter', 
-            'PARP(84)=0.651 ! Multiple interactions: matter distribution parameter', 
-            'PARP(62)=1.025 ! ISR cutoff', 
-            'MSTP(91)=1     ! Gaussian primordial kT', 
-            'PARP(93)=10.0  ! primordial kT-max', 
-            'MSTP(81)=21    ! multiple parton interactions 1 is Pythia default', 
-            'MSTP(82)=4     ! Defines the multi-parton model'),
-        processParameters = cms.vstring('MSEL=0         ! User defined processes', 
-            'MSUB(11)=1     ! Min bias process', 
-            'MSUB(12)=1     ! Min bias process', 
-            'MSUB(13)=1     ! Min bias process', 
-            'MSUB(28)=1     ! Min bias process', 
-            'MSUB(53)=1     ! Min bias process', 
-            'MSUB(68)=1     ! Min bias process', 
-            'MSUB(92)=1     ! Min bias process, single diffractive', 
-            'MSUB(93)=1     ! Min bias process, single diffractive', 
-            'MSUB(94)=1     ! Min bias process, double diffractive', 
-            'MSUB(95)=1     ! Min bias process'),
-        parameterSets = cms.vstring('pythiaUESettings', 
-            'processParameters')
+        processParameters = cms.vstring('Main:timesAllowErrors    = 10000', 
+            'ParticleDecays:limitTau0 = on', 
+            'ParticleDecays:tauMax = 10', 
+            'HardQCD:all = on', 
+            'PhaseSpace:pTHatMin = 470 ', 
+            'PhaseSpace:pTHatMax = 600 ', 
+            'Tune:pp 5', 
+            'Tune:ee 3'),
+        parameterSets = cms.vstring('processParameters')
     )
 )
 
-
-process.ProductionFilterSequence = cms.Sequence(process.generator)
 
 # Path and EndPath definitions
 process.generation_step = cms.Path(process.pgen)
@@ -120,7 +93,7 @@ process.RAWSIMoutput_step = cms.EndPath(process.RAWSIMoutput)
 process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step,process.endjob_step,process.RAWSIMoutput_step)
 # filter all path with the production filter sequence
 for path in process.paths:
-	getattr(process,path)._seq = process.ProductionFilterSequence * getattr(process,path)._seq 
+	getattr(process,path)._seq = process.generator * getattr(process,path)._seq 
 
 # customisation of the process.
 

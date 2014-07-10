@@ -36,12 +36,9 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
-#include "Utilities/Timing/interface/TimingReport.h"
 #include <stack>
 #include <set>
 
-
-#include "Calibration/Tools/interface/TimerStack.h"
 
 
 //
@@ -144,7 +141,6 @@ HTrackDetMatchInfo HTrackAssociator::associate( const edm::Event& iEvent,
 {
    HTrackDetMatchInfo info;
    using namespace edm;
-   HTimerStack timers;
    
    init( iSetup );
    
@@ -230,12 +226,8 @@ void HTrackAssociator::fillEcal( const edm::Event& iEvent,
 				const int idR,
 				const double dR)
 {
-   HTimerStack timers;
-   timers.push("HTrackAssociator::fillEcal");
-   
    ecalDetIdAssociator_.setGeometry(&*theCaloGeometry_);
    
-   timers.push("HTrackAssociator::fillEcal::propagation");
    // ECAL points (EB+EE)
    std::vector<GlobalPoint> ecalPoints;
    ecalPoints.push_back(GlobalPoint(135.,0,310.));
@@ -256,7 +248,6 @@ void HTrackAssociator::fillEcal( const edm::Event& iEvent,
    info.trkGlobPosAtEcal = getPoint(ecalTrajectory[0]);
 
    // Find ECAL crystals
-   timers.pop_and_push("HTrackAssociator::fillEcal::access::EcalBarrel");
    edm::Handle<EBRecHitCollection> EBRecHits;
    edm::Handle<EERecHitCollection> EERecHits;
 //   if (EBRecHitCollectionLabels.empty())
@@ -267,13 +258,11 @@ void HTrackAssociator::fillEcal( const edm::Event& iEvent,
      if (EERecHitCollectionLabels[1]!=EBRecHitCollectionLabels[1]) iEvent.getByLabel (EERecHitCollectionLabels[0], EERecHitCollectionLabels[1], EERecHits);
 //   if (!EERecHits.isValid()) throw cms::Exception("FatalError") << "Unable to find EERecHitCollection in event!\n";
 
-   timers.pop_and_push("HTrackAssociator::fillEcal::matching");
    std::set<DetId> ecalIdsInRegion = ecalDetIdAssociator_.getDetIdsCloseToAPoint(ecalTrajectory[0],idR);
    std::set<DetId> ecalIdsInACone =  ecalDetIdAssociator_.getDetIdsInACone(ecalIdsInRegion, ecalTrajectory, dR);
    std::set<DetId> crossedEcalIds =  ecalDetIdAssociator_.getCrossedDetIds(ecalIdsInRegion, ecalTrajectory);
    
    // add EcalRecHits
-   timers.pop_and_push("HTrackAssociator::fillEcal::addEcalRecHits");
    for(std::set<DetId>::const_iterator itr=crossedEcalIds.begin(); itr!=crossedEcalIds.end();itr++) {
      std::vector<EcalRecHit>::const_iterator hit = (*EBRecHits).find(*itr);
      if(hit != (*EBRecHits).end()) 
@@ -316,13 +305,9 @@ void HTrackAssociator::fillCaloTowers( const edm::Event& iEvent,
 				      const double dR)
 {
    // ECAL hits are not used for the CaloTower identification
-   HTimerStack timers;
-   timers.push("HTrackAssociator::fillCaloTowers");
-
    caloDetIdAssociator_.setGeometry(&*theCaloGeometry_);
    
    // HCAL points (HB+HE)
-   timers.push("HTrackAssociator::fillCaloTowers::propagation");
    std::vector<GlobalPoint> hcalPoints;   
    hcalPoints.push_back(GlobalPoint(135.,0,310.));
    hcalPoints.push_back(GlobalPoint(150.,0,340.));
@@ -356,7 +341,6 @@ void HTrackAssociator::fillCaloTowers( const edm::Event& iEvent,
    info.trkGlobPosAtHcal = getPoint(hcalTrajectory[4]);
 
    // find crossed CaloTowers
-   timers.pop_and_push("HTrackAssociator::fillCaloTowers::access::CaloTowers");
    edm::Handle<CaloTowerCollection> caloTowers;
 
    if (CaloTowerCollectionLabels.empty())
@@ -365,8 +349,6 @@ void HTrackAssociator::fillCaloTowers( const edm::Event& iEvent,
      iEvent.getByLabel (CaloTowerCollectionLabels[0], CaloTowerCollectionLabels[1], caloTowers);
    if (!caloTowers.isValid())  throw cms::Exception("FatalError") << "Unable to find CaloTowers in event!\n";
    
-   timers.push("HTrackAssociator::fillCaloTowers::matching");
-
 // first get DetIds in a predefined NxN region
 //   std::set<DetId> caloTowerIdsInBigRegion = caloDetIdAssociator_.getDetIdsCloseToAPoint(hcalTrajectory[0],idR+1);
    std::set<DetId> caloTowerIdsInRegion = caloDetIdAssociator_.getDetIdsCloseToAPoint(hcalTrajectory[0],idR);
@@ -398,7 +380,6 @@ void HTrackAssociator::fillCaloTowers( const edm::Event& iEvent,
 //   std::cout<<" Number of towers in the region "<<caloTowerIdsInRegion.size()<<" idR= "<<idR<<std::endl;
    
    // add CaloTowers
-   timers.push("HTrackAssociator::fillCaloTowers::addCaloTowers");
    for(std::set<DetId>::const_iterator itr=crossedCaloTowerIds.begin(); itr!=crossedCaloTowerIds.end();itr++)
      {
 	DetId id(*itr);
@@ -451,13 +432,9 @@ void HTrackAssociator::fillHcal( const edm::Event& iEvent,
                                       const FreeTrajectoryState& trajectoryPoint,
                                       const int idR,
                                       const double dR) {
-  HTimerStack timers;
-  timers.push("HTrackAssociator::fillHcal");
-
   hcalDetIdAssociator_.setGeometry(&*theCaloGeometry_);
 
 // HCAL points (HB+HE)
-  timers.push("HTrackAssociator::fillHcal::propagation");
   std::vector<GlobalPoint> hcalPoints;
   hcalPoints.push_back(GlobalPoint(190.,0,400.));
   hcalPoints.push_back(GlobalPoint(240.,0,500.));
@@ -476,7 +453,6 @@ void HTrackAssociator::fillHcal( const edm::Event& iEvent,
   info.isGoodHcal = 1;
 
   info.trkGlobPosAtHcal = getPoint(hcalTrajectory[0]);
-  timers.pop_and_push("HTrackAssociator::fillHcal::access::Hcal");
 
   edm::Handle<HBHERecHitCollection> HBHERecHits;
 //  if (HBHERecHitCollectionLabels.empty())
@@ -484,8 +460,6 @@ void HTrackAssociator::fillHcal( const edm::Event& iEvent,
 //  else
     iEvent.getByLabel (HBHERecHitCollectionLabels[0], HBHERecHitCollectionLabels[1], HBHERecHits);
   if (!HBHERecHits.isValid()) throw cms::Exception("FatalError") << "Unable to find HBHERecHitCollection in event!\n";
-
-  timers.pop_and_push("HTrackAssociator::fillHcal::matching");
 
 // first get DetIds in a predefined NxN region
 //  std::set<DetId> hcalIdsInBigRegion = hcalDetIdAssociator_.getDetIdsCloseToAPoint(hcalTrajectory[0],idR+1);
@@ -501,7 +475,6 @@ void HTrackAssociator::fillHcal( const edm::Event& iEvent,
   hcalIdsInBox = hcalDetIdAssociator_.getDetIdsInACone(crossedHcalIds, hcalTrajectory, -1.);
 
 // add HcalRecHits
-  timers.pop_and_push("HTrackAssociator::fillHcal::addHcalRecHits");
   for(std::set<DetId>::const_iterator itr=crossedHcalIds.begin(); itr!=crossedHcalIds.end();itr++) {
     std::vector<HBHERecHit>::const_iterator hit = (*HBHERecHits).find(*itr);
     if(hit != (*HBHERecHits).end())
@@ -541,13 +514,9 @@ void HTrackAssociator::fillHcalTowers( const edm::Event& iEvent,
 				      const double dR)
 {
    // ECAL hits are not used for the CaloTower identification
-   HTimerStack timers;
-   timers.push("HTrackAssociator::fillCaloTowers");
-
    caloDetIdAssociator_.setGeometry(&*theCaloGeometry_);
    
    // HCAL points (HB+HE)
-   timers.push("HTrackAssociator::fillCaloTowers::propagation");
    std::vector<GlobalPoint> hcalPoints;
    hcalPoints.push_back(GlobalPoint(190.,0,400.));
    hcalPoints.push_back(GlobalPoint(240.,0,500.));
@@ -568,7 +537,6 @@ void HTrackAssociator::fillHcalTowers( const edm::Event& iEvent,
    info.trkGlobPosAtHcal = getPoint(hcalTrajectory[0]);
    
    // find crossed CaloTowers
-   timers.pop_and_push("HTrackAssociator::fillCaloTowers::access::CaloTowers");
    edm::Handle<CaloTowerCollection> caloTowers;
 
    if (CaloTowerCollectionLabels.empty())
@@ -577,7 +545,6 @@ void HTrackAssociator::fillHcalTowers( const edm::Event& iEvent,
      iEvent.getByLabel (CaloTowerCollectionLabels[0], CaloTowerCollectionLabels[1], caloTowers);
    if (!caloTowers.isValid())  throw cms::Exception("FatalError") << "Unable to find CaloTowers in event!\n";
    
-   timers.push("HTrackAssociator::fillCaloTowers::matching");
 
 // first get DetIds in a predefined NxN region
    std::set<DetId> caloTowerIdsInBigRegion = caloDetIdAssociator_.getDetIdsCloseToAPoint(hcalTrajectory[0],idR+1);
@@ -593,7 +560,6 @@ void HTrackAssociator::fillHcalTowers( const edm::Event& iEvent,
    caloTowerIdsInBox = caloDetIdAssociator_.getDetIdsInACone(crossedCaloTowerIds, hcalTrajectory, -1.);
    
    // add CaloTowers
-   timers.push("HTrackAssociator::fillCaloTowers::addCaloTowers");
    for(std::set<DetId>::const_iterator itr=crossedCaloTowerIds.begin(); itr!=crossedCaloTowerIds.end();itr++)
      {
 	DetId id(*itr);
