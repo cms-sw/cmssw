@@ -3,7 +3,7 @@
 
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
-//#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 
 namespace reco {
 
@@ -39,8 +39,8 @@ class TemplatedSecondaryVertex : public SV {
 
 };
 
+typedef TemplatedSecondaryVertex<reco::Vertex> SecondaryVertex; 
 
 } // namespace reco
-
 
 #endif // RecoBTag_SecondaryVertex_SecondaryVertex_h
