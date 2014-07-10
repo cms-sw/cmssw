@@ -4,7 +4,7 @@ process = cms.Process("Test")
 
 process.source = cms.Source("PoolSource",
   fileNames = cms.untracked.vstring(
-    "file:patTuple.root"
+    "file:patTuple_standard.root"
   )
 )
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
@@ -19,7 +19,7 @@ process.MessageLogger = cms.Service("MessageLogger")
 ## PatMuonAnalyzer class in PhysicsTools/PatExamples/interface/PatMuonAnlyzer.h. You will also find
 ## back the input parameters to the module.
 process.patMuonAnalyzer = cms.EDAnalyzer("PatMuonEDAnalyzer",
-  muons = cms.InputTag("cleanPatMuons"),                                             
+  muons = cms.InputTag("selectedPatMuons"),                                             
 )
 
 process.TFileService = cms.Service("TFileService",

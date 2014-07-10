@@ -1,7 +1,7 @@
 #include "SimG4Core/Notification/interface/CurrentG4Track.h"
 
-const G4Track * CurrentG4Track::m_track = 0;
-bool CurrentG4Track::m_tracking = false;
+thread_local const G4Track * CurrentG4Track::m_track = 0;
+thread_local bool CurrentG4Track::m_tracking = false;
 
 void CurrentG4Track::setTrack(const G4Track * t)
 {

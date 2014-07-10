@@ -1,11 +1,11 @@
-# /dev/CMSSW_7_1_1/HIon/V46 (CMSSW_7_1_0_HLT2)
+# /dev/CMSSW_7_1_1/HIon/V55 (CMSSW_7_1_1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTHIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_7_1_1/HIon/V46')
+  tableName = cms.string('/dev/CMSSW_7_1_1/HIon/V55')
 )
 
 process.HLTIter4PSetTrajectoryFilterIT = cms.PSet( 
@@ -445,6 +445,12 @@ process.HLTIter2HighPtTkMuPSetTrajectoryFilterIT = cms.PSet(
   nSigmaMinPt = cms.double( 5.0 ),
   chargeSignificance = cms.double( -1.0 )
 )
+process.HLTPSetPvClusterComparerForIT = cms.PSet( 
+  track_pt_min = cms.double( 2.5 ),
+  track_pt_max = cms.double( 10.0 ),
+  track_chi2_max = cms.double( 9999999.0 ),
+  track_prob_min = cms.double( -1.0 )
+)
 process.streams = cms.PSet(  A = cms.vstring( 'InitialPD' ) )
 process.datasets = cms.PSet(  InitialPD = cms.vstring( 'HLT_CaloJet260_v1' ) )
 
@@ -484,7 +490,7 @@ process.HepPDTESSource = cms.ESSource( "HepPDTESSource",
     pdtFileName = cms.FileInPath( "SimGeneral/HepPDTESSource/data/pythiaparticle.tbl" )
 )
 process.GlobalTag = cms.ESSource( "PoolDBESSource",
-    globaltag = cms.string( "GR_H_V33::All" ),
+    globaltag = cms.string( "GR_H_V33" ),
     RefreshEachRun = cms.untracked.bool( True ),
     RefreshOpenIOVs = cms.untracked.bool( False ),
     toGet = cms.VPSet( 
@@ -501,7 +507,7 @@ process.GlobalTag = cms.ESSource( "PoolDBESSource",
       connectionRetrialPeriod = cms.untracked.int32( 10 )
     ),
     RefreshAlways = cms.untracked.bool( False ),
-    connect = cms.string( "frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_31X_GLOBALTAG" ),
+    connect = cms.string( "frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_CONDITIONS" ),
     ReconnectEachRun = cms.untracked.bool( True ),
     BlobStreamerName = cms.untracked.string( "TBufferBlobStreamingService" )
 )
@@ -1040,11 +1046,11 @@ process.hcalRecAlgos = cms.ESProducer( "HcalRecAlgoESProducer",
 )
 process.hcal_db_producer = cms.ESProducer( "HcalDbProducer" )
 process.hltCombinedSecondaryVertex = cms.ESProducer( "CombinedSecondaryVertexESProducer",
-  categoryVariableName = cms.string( "vertexCategory" ),
+  trackPairV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.03 ) ),
   useTrackWeights = cms.bool( True ),
   useCategories = cms.bool( True ),
   pseudoMultiplicityMin = cms.uint32( 2 ),
-  correctVertexMass = cms.bool( True ),
+  categoryVariableName = cms.string( "vertexCategory" ),
   trackSelection = cms.PSet( 
     totalHitsMin = cms.uint32( 0 ),
     jetDeltaRMax = cms.double( 0.3 ),
@@ -1066,7 +1072,7 @@ process.hltCombinedSecondaryVertex = cms.ESProducer( "CombinedSecondaryVertexESP
   calibrationRecords = cms.vstring( 'CombinedSVRecoVertex',
     'CombinedSVPseudoVertex',
     'CombinedSVNoVertex' ),
-  trackPairV0Filter = cms.PSet(  k0sMassWindow = cms.double( 0.03 ) ),
+  correctVertexMass = cms.bool( True ),
   charmCut = cms.double( 1.5 ),
   vertexFlip = cms.bool( False ),
   minimumTrackWeight = cms.double( 0.5 ),
@@ -2002,53 +2008,6 @@ process.MessageLogger = cms.Service( "MessageLogger",
       'hltL3TkTracksFromL2IOHit',
       'hltL3TkTracksFromL2OIHit' )
 )
-process.PrescaleService = cms.Service( "PrescaleService",
-    forceDefault = cms.bool( False ),
-    prescaleTable = cms.VPSet( 
-      cms.PSet(  pathName = cms.string( "AOutput" ),
-        prescales = cms.vuint32( 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0 )
-      )
-    ),
-    lvl1DefaultLabel = cms.string( "7e33" ),
-    lvl1Labels = cms.vstring( '9e33nopark',
-      'HalfRate',
-      '8e33nopark',
-      '8e33',
-      '7e33',
-      '6e33',
-      '4e33',
-      '2e33',
-      '5e32',
-      '6000Hz',
-      '5000Hz',
-      '4000Hz',
-      '3000Hz',
-      '2000Hz',
-      '1500Hz',
-      '1000Hz',
-      '500Hz',
-      'EM1',
-      'EM2',
-      'PAPilot8Bunches',
-      'PAEM',
-      'PA2MHz',
-      'PA1600kHz',
-      'PA1100kHz',
-      'PA750kHz',
-      'PA500kHz',
-      'PA300kHz',
-      'PA200kHz',
-      'PA140kHz',
-      'PA90kHz',
-      'PA60kHz',
-      'PA40kHz',
-      'PP4MHz',
-      'PAPilot8BunchesEM',
-      'PAPilot4Bunches',
-      'PAPilot4BunchesEM',
-      'CirculatingBeam',
-      'CirculatingBeam+HighRandom' )
-)
 
 process.hltGetConditions = cms.EDAnalyzer( "EventSetupRecordDataGetter",
     toGet = cms.VPSet( 
@@ -2672,12 +2631,6 @@ process.source = cms.Source( "PoolSource",
 if 'hltHfreco' in process.__dict__:
     process.hltHfreco.setNoiseFlags = cms.bool( False )
 
-# remove the HLT prescales
-if 'PrescaleService' in process.__dict__:
-    process.PrescaleService.lvl1DefaultLabel = cms.string( '0' )
-    process.PrescaleService.lvl1Labels       = cms.vstring( '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' )
-    process.PrescaleService.prescaleTable    = cms.VPSet( )
-
 # CMSSW version specific customizations
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
@@ -2731,16 +2684,15 @@ process.options = cms.untracked.PSet(
 
 # override the GlobalTag, connection string and pfnPrefix
 if 'GlobalTag' in process.__dict__:
-    from Configuration.AlCa.GlobalTag import GlobalTag as customiseGlobalTag
-    process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = 'auto:hltonline_HIon', conditions = 'L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2011_v0_mc,L1GtTriggerMenuRcd,frontier://FrontierProd/CMS_COND_31X_L1T')
-    process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG'
+    from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag as customiseGlobalTag
+    process.GlobalTag = customiseGlobalTag(process.GlobalTag, globaltag = 'auto:hltonline_HIon', conditions = 'L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2011_v0_mc,L1GtTriggerMenuRcd,frontier://FrontierProd/CMS_CONDITIONS')
+    process.GlobalTag.connect   = 'frontier://FrontierProd/CMS_CONDITIONS'
     process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/')
     for pset in process.GlobalTag.toGet.value():
         pset.connect = pset.connect.value().replace('frontier://FrontierProd/', 'frontier://FrontierProd/')
-#   Fix for multi-run processing:
+    # fix for multi-run processing
     process.GlobalTag.RefreshEachRun = cms.untracked.bool( False )
     process.GlobalTag.ReconnectEachRun = cms.untracked.bool( False )
-#
 
 if 'MessageLogger' in process.__dict__:
     process.MessageLogger.categories.append('TriggerSummaryProducerAOD')

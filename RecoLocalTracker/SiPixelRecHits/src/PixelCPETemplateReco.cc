@@ -420,14 +420,22 @@ PixelCPETemplateReco::localPosition(DetParam const & theDetParam, ClusterParam &
 	  // the LA width/shift returned by templates use (+)
 	  // the LA width/shift produced by PixelCPEBase for positive LA is (-)
 	  // correct this by iserting (-)
-	  //float templateLorbiasCmX = -micronsToCm*templ.lorxwidth();  // old
-	  //float templateLorbiasCmY = -micronsToCm*templ.lorywidth();
+	  //float temp1 = -micronsToCm*templ.lorxwidth();  // old
+	  //float temp2 = -micronsToCm*templ.lorywidth();  // does not incl 1/2
 	  float templateLorbiasCmX = -micronsToCm*templ.lorxbias();  // new 
-	  float templateLorbiasCmY = -micronsToCm*templ.lorybias();
+	  float templateLorbiasCmY = -micronsToCm*templ.lorybias(); //incl. 1/2
 	  // now, correctly, we can use the difference of shifts  
-	  theClusterParam.templXrec_ += 0.5*(theDetParam.lorentzShiftInCmX - templateLorbiasCmX);
-	  theClusterParam.templYrec_ += 0.5*(theDetParam.lorentzShiftInCmY - templateLorbiasCmY);
-	  //cout << "Templates: la lorentz offset = " <<(0.5*(lorentzShiftInCmX_-templateLorwidthCmX))<< endl; //dk
+	  //theClusterParam.templXrec_ += 0.5*(theDetParam.lorentzShiftInCmX - templateLorbiasCmX);
+	  //theClusterParam.templYrec_ += 0.5*(theDetParam.lorentzShiftInCmY - templateLorbiasCmY);
+	  theClusterParam.templXrec_ += (0.5*(theDetParam.lorentzShiftInCmX) - templateLorbiasCmX);
+	  theClusterParam.templYrec_ += (0.5*(theDetParam.lorentzShiftInCmY) - templateLorbiasCmY);
+	  //cout << "Templates: la lorentz offset = " 
+	  //   <<(0.5*(theDetParam.lorentzShiftInCmX)-templateLorbiasCmX)
+	  //   <<" "<<templateLorbiasCmX<<" "<<templateLorbiasCmY
+	  //   <<" "<<temp1<<" "<<temp2
+	  //   <<" "<<theDetParam.lorentzShiftInCmX
+	  //   <<" "<<theDetParam.lorentzShiftInCmY
+	  //   << endl; //dk
 	} //else {cout<<" LA is 0, disable offset corrections "<<endl;} //dk
       } //else {cout<<" Do not do LA offset correction "<<endl;} //dk
 

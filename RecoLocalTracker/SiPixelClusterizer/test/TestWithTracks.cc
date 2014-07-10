@@ -178,6 +178,17 @@ class TestWithTracks : public edm::EDAnalyzer {
 
   TH1D *hlumi, *hlumi0, *hbx, *hbx0;
 
+  TH1D *recHitXError1,*recHitXError2,*recHitXError3; 
+  TH1D *recHitYError1,*recHitYError2,*recHitYError3; 
+  TH1D *recHitXAlignError1,*recHitXAlignError2,*recHitXAlignError3; 
+  TH1D *recHitYAlignError1,*recHitYAlignError2,*recHitYAlignError3; 
+  TH1D *recHitXError4,*recHitXError5,*recHitXError6,*recHitXError7; 
+  TH1D *recHitYError4,*recHitYError5,*recHitYError6,*recHitYError7; 
+  TH1D *recHitXAlignError4,*recHitXAlignError5,*recHitXAlignError6,*recHitXAlignError7; 
+  TH1D *recHitYAlignError4,*recHitYAlignError5,*recHitYAlignError6,*recHitYAlignError7; 
+  TProfile *hErrorXB,*hErrorYB,*hErrorXF,*hErrorYF; 
+  TProfile *hAErrorXB,*hAErrorYB,*hAErrorXF,*hAErrorYF; 
+
 #ifdef VDM_STUDIES
   TProfile *hcharCluls, *hcharPixls, *hsizeCluls, *hsizeXCluls;
   TProfile *hcharCluls1, *hcharPixls1, *hsizeCluls1, *hsizeXCluls1;
@@ -394,6 +405,50 @@ void TestWithTracks::beginJob() {
    hclusMap1 = fs->make<TH2F>("hclusMap1","clus - lay1",260,-26.,26.,350,-3.5,3.5);
    hclusMap2 = fs->make<TH2F>("hclusMap2","clus - lay2",260,-26.,26.,350,-3.5,3.5);
    hclusMap3 = fs->make<TH2F>("hclusMap3","clus - lay3",260,-26.,26.,350,-3.5,3.5);
+
+
+
+   // RecHit errors
+   // alignment errors
+   recHitXAlignError1 = fs->make<TH1D>("recHitXAlignError1","RecHit X Alignment errors bpix 1", 100, 0., 100.);
+   recHitYAlignError1 = fs->make<TH1D>("recHitYAlignError1","RecHit Y Alignment errors bpix 1", 100, 0., 100.);
+   recHitXAlignError2 = fs->make<TH1D>("recHitXAlignError2","RecHit X Alignment errors bpix 2", 100, 0., 100.);
+   recHitYAlignError2 = fs->make<TH1D>("recHitYAlignError2","RecHit Y Alignment errors bpix 2", 100, 0., 100.);
+   recHitXAlignError3 = fs->make<TH1D>("recHitXAlignError3","RecHit X Alignment errors bpix 3", 100, 0., 100.);
+   recHitYAlignError3 = fs->make<TH1D>("recHitYAlignError3","RecHit Y Alignment errors bpix 3", 100, 0., 100.);
+   recHitXAlignError4 = fs->make<TH1D>("recHitXAlignError4","RecHit X Alignment errors fpix -d2", 100, 0., 100.);
+   recHitYAlignError4 = fs->make<TH1D>("recHitYAlignError4","RecHit Y Alignment errors fpix -d2", 100, 0., 100.);
+   recHitXAlignError5 = fs->make<TH1D>("recHitXAlignError5","RecHit X Alignment errors fpix -d1", 100, 0., 100.);
+   recHitYAlignError5 = fs->make<TH1D>("recHitYAlignError5","RecHit Y Alignment errors fpix -d1", 100, 0., 100.);
+   recHitXAlignError6 = fs->make<TH1D>("recHitXAlignError6","RecHit X Alignment errors fpix +d1", 100, 0., 100.);
+   recHitYAlignError6 = fs->make<TH1D>("recHitYAlignError6","RecHit Y Alignment errors fpix +d1", 100, 0., 100.);
+   recHitXAlignError7 = fs->make<TH1D>("recHitXAlignError7","RecHit X Alignment errors fpix +d2", 100, 0., 100.);
+   recHitYAlignError7 = fs->make<TH1D>("recHitYAlignError7","RecHit Y Alignment errors fpix +d2", 100, 0., 100.);
+
+   recHitXError1 = fs->make<TH1D>("recHitXError1","RecHit X errors bpix 1", 100, 0., 100.);
+   recHitYError1 = fs->make<TH1D>("recHitYError1","RecHit Y errors bpix 1", 100, 0., 100.);
+   recHitXError2 = fs->make<TH1D>("recHitXError2","RecHit X errors bpix 2", 100, 0., 100.);
+   recHitYError2 = fs->make<TH1D>("recHitYError2","RecHit Y errors bpix 2", 100, 0., 100.);
+   recHitXError3 = fs->make<TH1D>("recHitXError3","RecHit X errors bpix 3", 100, 0., 100.);
+   recHitYError3 = fs->make<TH1D>("recHitYError3","RecHit Y errors bpix 3", 100, 0., 100.);
+   recHitXError4 = fs->make<TH1D>("recHitXError4","RecHit X errors fpix -d2", 100, 0., 100.);
+   recHitYError4 = fs->make<TH1D>("recHitYError4","RecHit Y errors fpix -d2", 100, 0., 100.);
+   recHitXError5 = fs->make<TH1D>("recHitXError5","RecHit X errors fpix -d1", 100, 0., 100.);
+   recHitYError5 = fs->make<TH1D>("recHitYError5","RecHit Y errors fpix -d1", 100, 0., 100.);
+   recHitXError6 = fs->make<TH1D>("recHitXError6","RecHit X errors fpix +d1", 100, 0., 100.);
+   recHitYError6 = fs->make<TH1D>("recHitYError6","RecHit Y errors fpix +d1", 100, 0., 100.);
+   recHitXError7 = fs->make<TH1D>("recHitXError7","RecHit X errors fpix +d2", 100, 0., 100.);
+   recHitYError7 = fs->make<TH1D>("recHitYError7","RecHit Y errors fpix +d2", 100, 0., 100.);
+
+  hErrorXB = fs->make<TProfile>("hErrorXB","bpix x errors per ladder",220,0.,220.,0.0,1000.);
+  hErrorXF = fs->make<TProfile>("hErrorXF","fpix x errors per ladder",100,0.,100.,0.0,1000.);
+  hErrorYB = fs->make<TProfile>("hErrorYB","bpix y errors per ladder",220,0.,220.,0.0,1000.);
+  hErrorYF = fs->make<TProfile>("hErrorYF","fpix y errors per ladder",100,0.,100.,0.0,1000.);
+
+  hAErrorXB = fs->make<TProfile>("hAErrorXB","bpix x errors per ladder",220,0.,220.,0.0,1000.);
+  hAErrorXF = fs->make<TProfile>("hAErrorXF","fpix x errors per ladder",100,0.,100.,0.0,1000.);
+  hAErrorYB = fs->make<TProfile>("hAErrorYB","bpix y errors per ladder",220,0.,220.,0.0,1000.);
+  hAErrorYF = fs->make<TProfile>("hAErrorYF","fpix y errors per ladder",100,0.,100.,0.0,1000.);
 
 
 #ifdef VDM_STUDIES
@@ -645,6 +700,8 @@ void TestWithTracks::analyze(const edm::Event& e,
 
   if(PRINT) cout<<" Not fake PVs = "<<pvNotFake<<" good position "<<pvsTrue<<endl;
    
+  // -- Tracks
+  // ----------------------------------------------------------------------
   Handle<reco::TrackCollection> recTracks;
   // e.getByLabel("generalTracks", recTracks);
   // e.getByLabel("ctfWithMaterialTracksP5", recTracks);
@@ -732,7 +789,8 @@ void TestWithTracks::analyze(const edm::Event& e,
 	ladder=pdetId.ladder();
 	// Barrel Z-index=1,8
 	zindex=pdetId.module();
-	
+	if(zindex<5) side=1; else side=2;
+
 	// Convert to online 
 	PixelBarrelName pbn(pdetId);
 	// Shell { mO = 1, mI = 2 , pO =3 , pI =4 };
@@ -784,11 +842,111 @@ void TestWithTracks::analyze(const edm::Event& e,
 
       if(hit) {
 
-	// RecHit (recthits are transient, so not available without ttrack refit)
- 	//double xloc = hit->localPosition().x();// 1st meas coord
- 	//double yloc = hit->localPosition().y();// 2nd meas coord or zero
- 	//double zloc = hit->localPosition().z();// up, always zero
-	//cout<<" rechit loc "<<xloc<<" "<<yloc<<endl;
+	if(pt>1.) { // eliminate low pt tracks
+	  // RecHit (recthits are transient, so not available without track refit)
+	  double xloc = hit->localPosition().x();// 1st meas coord
+	  double yloc = hit->localPosition().y();// 2nd meas coord or zero
+	  //double zloc = hit->localPosition().z();// up, always zero
+	  LocalError lerr = hit->localPositionError();
+	  float lerr_x = sqrt(lerr.xx())*1E4;
+	  float lerr_y = sqrt(lerr.yy())*1E4;
+	  
+	  if( layer == 1) 
+	    {recHitXError1->Fill(lerr_x); recHitYError1->Fill(lerr_y);
+	      hErrorXB->Fill(float(ladder+(110*(side-1))),lerr_x);
+	      hErrorYB->Fill(float(ladder+(110*(side-1))),lerr_y);
+	    }
+	  else if( layer == 2) 
+	    {recHitXError2->Fill(lerr_x); recHitYError2->Fill(lerr_y);
+	      hErrorXB->Fill(float(ladder+25+(110*(side-1))),lerr_x);
+	      hErrorYB->Fill(float(ladder+25+(110*(side-1))),lerr_y);
+
+	    }
+	  else if( layer == 3) 
+	    {recHitXError3->Fill(lerr_x); recHitYError3->Fill(lerr_y);
+	      hErrorXB->Fill(float(ladder+60+(110*(side-1))),lerr_x);
+	      hErrorYB->Fill(float(ladder+60+(110*(side-1))),lerr_y);
+	    }
+	  else if( (disk == 2) && (side==1) ) 
+	    {recHitXError4->Fill(lerr_x); recHitYError4->Fill(lerr_y);
+	      hErrorXF->Fill(float(blade),lerr_x);
+	      hErrorYF->Fill(float(blade),lerr_y);
+
+	    }
+	  else if( (disk == 1) && (side==1) ) 
+	    {recHitXError5->Fill(lerr_x); recHitYError5->Fill(lerr_y);
+	      hErrorXF->Fill(float(blade+25),lerr_x);
+	      hErrorYF->Fill(float(blade+25),lerr_y);
+
+	    }
+	  else if( (disk == 1) && (side==2) ) 
+	    {recHitXError6->Fill(lerr_x); recHitYError6->Fill(lerr_y);
+	      hErrorXF->Fill(float(blade+50),lerr_x);
+	      hErrorYF->Fill(float(blade+50),lerr_y);
+	    }
+	  else if( (disk == 2) && (side==2) ) 
+	    {recHitXError7->Fill(lerr_x); recHitYError7->Fill(lerr_y);
+	      hErrorXF->Fill(float(blade+75),lerr_x);
+	      hErrorYF->Fill(float(blade+75),lerr_y);
+	    }
+	  
+	  LocalError lape = theGeomDet->localAlignmentError();
+	  if (lape.valid()) {
+	    float tmp11= 0.;
+	    if(lape.xx()>0.) tmp11= sqrt(lape.xx())*1E4;
+	    //float tmp12= sqrt(lape.xy())*1E4;
+	    float tmp13= 0.;
+	    if(lape.yy()>0.) tmp13= sqrt(lape.yy())*1E4;
+	    //bool tmp14=tmp2<tmp1;
+	    if( layer == 1) 
+	      {recHitXAlignError1->Fill(tmp11); recHitYAlignError1->Fill(tmp13);
+		hAErrorXB->Fill(float(ladder+(110*(side-1))),tmp11);
+		hAErrorYB->Fill(float(ladder+(110*(side-1))),tmp13);
+	      }
+	    else if( layer == 2) 
+	      {recHitXAlignError2->Fill(tmp11); recHitYAlignError2->Fill(tmp13);
+		hAErrorXB->Fill(float(ladder+25+(110*(side-1))),tmp11);
+		hAErrorYB->Fill(float(ladder+25+(110*(side-1))),tmp13);
+	      }
+	    else if( layer == 3) 
+	      {recHitXAlignError3->Fill(tmp11); recHitYAlignError3->Fill(tmp13);
+		hAErrorXB->Fill(float(ladder+60+(110*(side-1))),tmp11);
+		hAErrorYB->Fill(float(ladder+60+(110*(side-1))),tmp13);
+
+	      }
+	    else if( (disk == 2) && (side==1) ) 
+	      {recHitXAlignError4->Fill(tmp11); recHitYAlignError4->Fill(tmp13);
+		hAErrorXF->Fill(float(blade),tmp11);
+		hAErrorYF->Fill(float(blade),tmp13);
+
+	      }
+	    else if( (disk == 1) && (side==1) ) 
+	      {recHitXAlignError5->Fill(tmp11); recHitYAlignError5->Fill(tmp13);
+		hAErrorXF->Fill(float(blade+25),tmp11);
+		hAErrorYF->Fill(float(blade+25),tmp13);
+	      }
+	    else if( (disk == 1) && (side==2) ) 
+	      {recHitXAlignError6->Fill(tmp11); recHitYAlignError6->Fill(tmp13);
+		hAErrorXF->Fill(float(blade+50),tmp11);
+		hAErrorYF->Fill(float(blade+50),tmp13);
+	      }
+	    else if( (disk == 2) && (side==2) ) 
+	      {recHitXAlignError7->Fill(tmp11); recHitYAlignError7->Fill(tmp13);
+		hAErrorXF->Fill(float(blade+75),tmp11);
+		hAErrorYF->Fill(float(blade+75),tmp13);
+	      }
+	    
+	    
+	    //cout<<tTopo->pxbLayer(detId)<<" "<<tTopo->pxbModule(detId)<<" "<<rows<<" "<<tmp14<<" "
+	    if(PRINT) cout<<" align error "<<layer<<tmp11<<" "<<tmp13<<endl;
+	  } else {
+	    cout<<" lape = 0"<<endl;
+	  }  // if lape
+	  
+	  if(PRINT) cout<<" rechit loc "<<xloc<<" "<<yloc<<" "<<lerr_x<<" "
+			<<lerr_y<<endl;
+	} // limit pt
+       
 	
 	edm::Ref<edmNew::DetSetVector<SiPixelCluster>, SiPixelCluster> const& clust = hit->cluster();
 	//  check if the ref is not null
@@ -1130,12 +1288,10 @@ void TestWithTracks::analyze(const edm::Event& e,
   return;
 
 
-
-
-
 #ifdef USE_TRAJ
+  // Not used 
 
-  //------------------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   // Use Trajectories
 
   edm::Handle<TrajTrackAssociationCollection> trajTrackCollectionHandle;

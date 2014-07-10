@@ -70,7 +70,6 @@ namespace cms
     //  HitDigitizerFP420* theHitDigitizerFP420;
     //    FP420DigiMain stripDigitizer_;
     FP420DigiMain* stripDigitizer_;
-    FP420NumberingScheme * theFP420NumberingScheme;
     //  FP420DigiMain * theFP420DigiMain;
     int numStrips;    // number of strips in the module
     

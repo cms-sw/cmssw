@@ -37,7 +37,7 @@ bool any(const std::vector<T> & v, const T &what)
 }
 
 ECalSD::ECalSD(G4String name, const DDCompactView & cpv,
-	       SensitiveDetectorCatalog & clg, 
+	       const SensitiveDetectorCatalog & clg,
 	       edm::ParameterSet const & p, const SimTrackManager* manager) : 
   CaloSD(name, cpv, clg, p, manager, 
 	 p.getParameter<edm::ParameterSet>("ECalSD").getParameter<int>("TimeSliceUnit"),

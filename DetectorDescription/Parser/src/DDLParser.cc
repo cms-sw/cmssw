@@ -274,7 +274,6 @@ DDLParser::parse( const DDLDocumentProvider& dp )
   SAX2Parser_->setContentHandler(expHandler_);
   for (size_t i = 0; i < fileNames_.size(); ++i)
   {
-    // 	  seal::SealTimer t("DDLParser: parsing expressions of file " +fileNames_[i].first);
     if (!parsed_[i])
     {
       currFileName_ = fileNames_[i].second;

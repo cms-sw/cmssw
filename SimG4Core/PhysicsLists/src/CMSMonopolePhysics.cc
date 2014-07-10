@@ -1,4 +1,5 @@
 #include "SimG4Core/PhysicsLists/interface/CMSMonopolePhysics.h"
+#include "SimG4Core/MagneticField/interface/ChordFinderSetter.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "G4ParticleDefinition.hh"
@@ -16,9 +17,9 @@
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 CMSMonopolePhysics::CMSMonopolePhysics(const HepPDT::ParticleDataTable * pdt,
-				       sim::FieldBuilder * fB_, 
+				       sim::ChordFinderSetter * cfs_, 
 				       const edm::ParameterSet & p) :
-  G4VPhysicsConstructor("Monopole Physics"), fieldBuilder(fB_) {
+  G4VPhysicsConstructor("Monopole Physics"), chordFinderSetter(cfs_) {
   
   verbose   = p.getUntrackedParameter<int>("Verbosity",0);
   magCharge = p.getUntrackedParameter<int>("MonopoleCharge",1);
@@ -123,7 +124,7 @@ void CMSMonopolePhysics::ConstructProcess() {
       if (magn == 0.0 || (!transport)) {
 	pmanager->AddProcess( new G4Transportation(verbose), -1, 0, 0);
       } else {
-	pmanager->AddProcess( new G4MonopoleTransportation(mpl,fieldBuilder,verbose), -1, 0, 0);
+	pmanager->AddProcess( new G4MonopoleTransportation(mpl,chordFinderSetter,verbose), -1, 0, 0);
       }
 
       if (mpl->GetPDGCharge() != 0.0) {

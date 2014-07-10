@@ -11,7 +11,11 @@
 #include <math.h>
 #include <string.h> // memcpy
 
+#ifdef LOCAL_UNPACK
 bool CSCTMBHeader::debug = false;
+#else
+std::atomic<bool> CSCTMBHeader::debug{false};
+#endif
 
 CSCTMBHeader::CSCTMBHeader(int firmwareVersion, int firmwareRevision):
   theHeaderFormat(),

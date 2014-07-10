@@ -283,17 +283,17 @@ if 'hltHfreco' in %(dict)s:
 #          'record'  : 'JetCorrectionsRecord',
 #          'tag'     : 'JetCorrectorParametersCollection_AK5Calo_2012_V8_hlt_mc',
 #          'label'   : 'AK5CaloHLT',
-#          'connect' : '%(connect)s/CMS_COND_31X_PHYSICSTOOLS'
+#          'connect' : '%(connect)s/CMS_CONDITIONS'
 #        }, {
 #          'record'  : 'JetCorrectionsRecord',
 #          'tag'     : 'JetCorrectorParametersCollection_AK5PF_2012_V8_hlt_mc',
 #          'label'   : 'AK5PFHLT',
-#          'connect' : '%(connect)s/CMS_COND_31X_PHYSICSTOOLS'
+#          'connect' : '%(connect)s/CMS_CONDITIONS'
 #        }, {
 #          'record'  : 'JetCorrectionsRecord',
 #          'tag'     : 'JetCorrectorParametersCollection_AK5PFchs_2012_V8_hlt_mc',
 #          'label'   : 'AK5PFchsHLT',
-#          'connect' : '%(connect)s/CMS_COND_31X_PHYSICSTOOLS'
+#          'connect' : '%(connect)s/CMS_CONDITIONS'
 #        }
 #      )
 
@@ -459,13 +459,13 @@ if 'GlobalTag' in %(dict)s:
       self.config.l1.label  = ''
       self.config.l1.tag    = self.config.l1.override
       if not self.config.l1.connect:
-        self.config.l1.connect = '%(connect)s/CMS_COND_31X_L1T'
+        self.config.l1.connect = '%(connect)s/CMS_CONDITIONS'
       self.config.l1cond = '%(tag)s,%(record)s,%(connect)s' % self.config.l1.__dict__
     else:
       self.config.l1cond = None
 
     if self.config.globaltag or self.config.l1cond:
-      text += "    from Configuration.AlCa.GlobalTag import GlobalTag as customiseGlobalTag\n"
+      text += "    from Configuration.AlCa.GlobalTag_condDBv2 import GlobalTag as customiseGlobalTag\n"
       text += "    %(process)sGlobalTag = customiseGlobalTag(%(process)sGlobalTag"
       if self.config.globaltag:
         text += ", globaltag = %s"  % repr(self.config.globaltag)
@@ -473,7 +473,7 @@ if 'GlobalTag' in %(dict)s:
         text += ", conditions = %s" % repr(self.config.l1cond)
       text += ")\n"
 
-    text += """    %(process)sGlobalTag.connect   = '%(connect)s/CMS_COND_31X_GLOBALTAG'
+    text += """    %(process)sGlobalTag.connect   = '%(connect)s/CMS_CONDITIONS'
     %(process)sGlobalTag.pfnPrefix = cms.untracked.string('%(connect)s/')
     for pset in process.GlobalTag.toGet.value():
         pset.connect = pset.connect.value().replace('frontier://FrontierProd/', '%(connect)s/')
@@ -1137,8 +1137,9 @@ if 'GlobalTag' in %%(dict)s:
       self.options['sequences'].append( "-HLTBeginSequenceBPTX" )
       self.options['sequences'].append( "-HLTBeginSequenceAntiBPTX" )
       self.options['sequences'].append( "-HLTHBHENoiseSequence" )
+      self.options['sequences'].append( "-HLTIterativeTrackingIter04" )
+      self.options['sequences'].append( "-HLTIterativeTrackingIter02" )
       self.options['sequences'].append( "-HLTIterativeTracking" )
-      self.options['sequences'].append( "-HLTReducedIterativeTracking" )
       self.options['sequences'].append( "-HLTIterativeTrackingTau3Mu" )
       self.options['sequences'].append( "-HLTIterativeTrackingReg" )
       self.options['sequences'].append( "-HLTIterativeTrackingForElectronsIter02" )

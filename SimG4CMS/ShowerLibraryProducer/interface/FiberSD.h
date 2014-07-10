@@ -29,7 +29,7 @@ class FiberSD : public SensitiveCaloDetector,
 
 public:
 
-  FiberSD(std::string, const DDCompactView&, SensitiveDetectorCatalog&,
+  FiberSD(std::string, const DDCompactView&, const SensitiveDetectorCatalog&,
 	  edm::ParameterSet const &, const SimTrackManager*);
   virtual ~FiberSD();
 

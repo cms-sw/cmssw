@@ -29,11 +29,11 @@ pfTauDecayMode = cms.EDProducer("PFRecoTauDecayModeDeterminator",
       standardDecayModeParams,
       PFTauProducer = cms.InputTag("pfRecoTauProducer"),
 )
-pfTauDecayModeHighEfficiency = pfTauDecayMode.clone(
+pfTauDecayModeHighEfficiency = cms.EDProducer("PFRecoTauDecayModeDeterminator",
     standardDecayModeParams,
     PFTauProducer = cms.InputTag("pfRecoTauProducerHighEfficiency"),
 )
-pfTauDecayModeInsideOut = pfTauDecayMode.clone(
+pfTauDecayModeInsideOut = cms.EDProducer("PFRecoTauDecayModeDeterminator",
     standardDecayModeParams,
     PFTauProducer = cms.InputTag("pfRecoTauProducerInsideOut"),
 )

@@ -826,6 +826,11 @@ void FedRawDataInputSource::readSupervisor()
 	fileQueue_.push(new InputFile(evf::EvFDaqDirector::newLumi, currentLumiSection));
       }
 
+      if( getLSFromFilename_ && currentLumiSection>0 && ls < currentLumiSection) {
+          edm::LogError("FedRawDataInputSource") << "Got old LS ("<<ls<<") file from EvFDAQDirector! Expected LS:" << currentLumiSection<<". Aborting execution."<<std::endl;
+          _exit(-1);
+      }
+
       int dbgcount=0;
       if (status == evf::EvFDaqDirector::noFile) {
 	dbgcount++;

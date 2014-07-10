@@ -71,10 +71,6 @@ TrackProducerFP420::TrackProducerFP420(int asn0, int apn0, int arn0, int axytype
     std::cout << " chiCutX= " << chiCutX << " chiCutY= " << chiCutY << std::endl;
   }
 
-  theFP420NumberingScheme = new FP420NumberingScheme();
-
-
-
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -156,20 +152,20 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
     for (int sector=1; sector < sn0; sector++) {
       for (int zmodule=1; zmodule<pn0; zmodule++) {
 	for (int zsideinorder=1; zsideinorder<allplacesforsensors; zsideinorder++) {
-	  int zside = theFP420NumberingScheme->FP420NumberingScheme::realzside(rn0, zsideinorder);// 1, 3, 5, 2, 4, 6
+	  int zside = FP420NumberingScheme::realzside(rn0, zsideinorder);// 1, 3, 5, 2, 4, 6
 	  if (verbos  == -49) {
 	    std::cout << "TrackProducerFP420:  sector= " << sector << " zmodule= " << zmodule << " zsideinorder= " << zsideinorder << " zside= " << zside << " det= " << det << std::endl; 
 	  }
 	  if(zside != 0) {
-	    int justlayer = theFP420NumberingScheme->FP420NumberingScheme::unpackLayerIndex(rn0, zside);// 1, 2
+	    int justlayer = FP420NumberingScheme::unpackLayerIndex(rn0, zside);// 1, 2
 	    if(justlayer<1||justlayer>2) {
 	      std::cout << "TrackProducerFP420:WRONG  justlayer= " << justlayer << std::endl; 
 	    }
-	    int copyinlayer = theFP420NumberingScheme->FP420NumberingScheme::unpackCopyIndex(rn0, zside);// 1, 2, 3
+	    int copyinlayer = FP420NumberingScheme::unpackCopyIndex(rn0, zside);// 1, 2, 3
 	    if(copyinlayer<1||copyinlayer>3) {
 	      std::cout << "TrackProducerFP420:WRONG  copyinlayer= " << copyinlayer << std::endl; 
 	    }
-	    int orientation = theFP420NumberingScheme->FP420NumberingScheme::unpackOrientation(rn0, zside);// Front: = 1; Back: = 2
+	    int orientation = FP420NumberingScheme::unpackOrientation(rn0, zside);// Front: = 1; Back: = 2
 	    if(orientation<1||orientation>2) {
 	      std::cout << "TrackProducerFP420:WRONG  orientation= " << orientation << std::endl; 
 	    }
@@ -177,7 +173,7 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
 	    //                                                                    and  ...[ii] massives have prepared in use of ii
 	    int detfixed=1;// use this treatment for each set up arm, hence no sense to repete the same for +FP420 and -FP420;
 	    int nlayers=3;// 2=3-1
-	    unsigned int ii = theFP420NumberingScheme->FP420NumberingScheme::packMYIndex(nlayers,pn0,sn0,detfixed,justlayer,sector,zmodule)-1;// substruct 1 from 1(+1), 2(+2), 3(+3),4(+4),5...,6...,7...,8...,9...,10... (1st Station)              ,11...,12...,13,...20... (2nd Station)
+	    unsigned int ii = FP420NumberingScheme::packMYIndex(nlayers,pn0,sn0,detfixed,justlayer,sector,zmodule)-1;// substruct 1 from 1(+1), 2(+2), 3(+3),4(+4),5...,6...,7...,8...,9...,10... (1st Station)              ,11...,12...,13,...20... (2nd Station)
 	    // ii = 0-19   --> 20 items
 	    ///////// unsigned int ii=theFP420NumberingScheme->FP420NumberingScheme::packMYIndex(rn0,pn0,sn0,detfixed,justlayer,sector,zmodule)-1;// OLD
 
@@ -240,7 +236,7 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
 	    //   .
 	    //   GET CLUSTER collection  !!!!
 	    //   .
-	    unsigned int iu=theFP420NumberingScheme->FP420NumberingScheme::packMYIndex(rn0,pn0,sn0,det,zside,sector,zmodule);
+	    unsigned int iu=FP420NumberingScheme::packMYIndex(rn0,pn0,sn0,det,zside,sector,zmodule);
 	    if (verbos > 0 ) {
 	      std::cout << "TrackProducerFP420: check        iu = " << iu << std::endl; 
 	      std::cout << "TrackProducerFP420:  sector= " << sector << " zmodule= " << zmodule << " zside= " << zside << " det= " << det << " rn0= " << rn0 << " pn0= " << pn0 << " sn0= " << sn0 << " copyinlayer= " << copyinlayer << std::endl; 
@@ -561,7 +557,7 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
 	    // iu is a continues numbering of planes(!) 
 	    int detfixed=1;// use this treatment for each set up arm, hence no sense to do it differently for +FP420 and -FP420;
 	    int nlayers=3;// 2=3-1
-	    unsigned int ii = theFP420NumberingScheme->FP420NumberingScheme::packMYIndex(nlayers,pn0,sn0,detfixed,justlayer,sector,zmodule)-1;// substruct 1 from 1(+1), 2(+2), 3(+3),4(+4),5...,6...,7...,8...,9...,10... (1st Station)              ,11...,12...,13,...20... (2nd Station)
+	    unsigned int ii = FP420NumberingScheme::packMYIndex(nlayers,pn0,sn0,detfixed,justlayer,sector,zmodule)-1;// substruct 1 from 1(+1), 2(+2), 3(+3),4(+4),5...,6...,7...,8...,9...,10... (1st Station)              ,11...,12...,13,...20... (2nd Station)
 	    // ii = 0-19   --> 20 items
 	    
 	    if(nA[ii]!=0  && uA[ii]!= nA[ii]) { 
