@@ -167,13 +167,13 @@ B2GSingleLeptonHLTValidation::analyze(const edm::Event& iEvent, const edm::Event
 B2GSingleLeptonHLTValidation::bookHistograms(DQMStore::IBooker & dbe, edm::Run const &, edm::EventSetup const &)
 {
   dbe.setCurrentFolder(sDir_);
-  hDenLeptonPt  = dbe.book1D("PtLeptonAll", "PtLeptonAll", 50, 0., 250.);
+  hDenLeptonPt  = dbe.book1D("PtLeptonAll", "PtLeptonAll", 50, 0., 2500.);
   hDenLeptonEta = dbe.book1D("EtaLeptonAll", "EtaLeptonAll", 30, -3. , 3.);
-  hDenJetPt     = dbe.book1D("PtLastJetAll", "PtLastJetAll", 60, 0., 300.);
+  hDenJetPt     = dbe.book1D("PtLastJetAll", "PtLastJetAll", 60, 0., 3000.);
   hDenJetEta    = dbe.book1D("EtaLastJetAll", "EtaLastJetAll", 30, -3., 3.);
-  hNumLeptonPt  = dbe.book1D("PtLeptonSel", "PtLeptonSel", 50, 0., 250.);
+  hNumLeptonPt  = dbe.book1D("PtLeptonSel", "PtLeptonSel", 50, 0., 2500.);
   hNumLeptonEta = dbe.book1D("EtaLeptonSel", "EtaLeptonSel", 30, -3. , 3.);
-  hNumJetPt     = dbe.book1D("PtLastJetSel", "PtLastJetSel", 60, 0., 300.);
+  hNumJetPt     = dbe.book1D("PtLastJetSel", "PtLastJetSel", 60, 0., 3000.);
   hNumJetEta    = dbe.book1D("EtaLastJetSel", "EtaLastJetSel", 30, -3., 3.);
   // determine number of bins for trigger monitoring
   unsigned int nPaths = vsPaths_.size();
