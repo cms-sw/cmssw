@@ -256,12 +256,13 @@ std::vector<unsigned int> TrajectorySeedProducer2::iterateHits(
 void 
 TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {        
 
+    /*
     std::cout<<std::endl;
 	std::cout<<std::endl;
 	std::cout<<"-------------------"<<std::endl;
 	std::cout<<seedingAlgo[0]<<std::endl;
 	std::cout<<"-------------------"<<std::endl;
-
+    */
 
   //  if( seedingAlgo[0] ==  "FourthPixelLessPairs") std::cout << "Seed producer in 4th iteration " << std::endl;
 
@@ -477,26 +478,26 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 	} //end loop over simtracks
     
     
-    /*
+    
 	for ( unsigned ialgo=0; ialgo<seedingAlgo.size(); ++ialgo )
 	{
 		std::auto_ptr<TrajectorySeedCollection> p(output[ialgo]);
 		e.put(p,seedingAlgo[ialgo]);
 	}
-	*/
 	
 	
 	
-	TrajectorySeedProducer::produce(e, es, oldhits);
+	
+	//TrajectorySeedProducer::produce(e, es, oldhits);
 	
 	
-	
+	/*
 	for (unsigned int itrack = 0; itrack<newhits.size(); ++itrack)
 	{
 	    if ((newhits[itrack].size()>0 && oldhits[itrack].size()==0) || (newhits[itrack].size()==0 && oldhits[itrack].size()>0))
 	    {
 	        //std::cout<<"summary: track="<<itrack<<std::endl;
-	        /*
+	        
 	        if (newhits[itrack].size()>0)
 	        {
 	            std::cout<<"simtrack = "<<itrack<<": new seed"<<std::endl;
@@ -504,7 +505,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 	            {
 	                std::cout<<"\t hit: "<<newhits[itrack][ihit].first<<", "<<newhits[itrack][ihit].second.getSeedingLayer().subDet<<":"<<newhits[itrack][ihit].second.getSeedingLayer().idLayer<<", pos=("<<newhits[itrack][ihit].second.globalPosition().x()<<","<<newhits[itrack][ihit].second.globalPosition().y()<<","<<newhits[itrack][ihit].second.globalPosition().z()<<")"<<std::endl;
 	            }
-	        }*/
+	        }
 	        if (oldhits[itrack].size()>0)
 	        {
 	            std::cout<<"simtrack = "<<itrack<<": old seed"<<std::endl;
@@ -515,7 +516,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 	        }
         }
 	}
-	
+	*/
   
 }
 
