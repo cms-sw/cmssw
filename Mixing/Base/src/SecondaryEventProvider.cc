@@ -20,7 +20,6 @@ namespace edm {
                                                &preallocConfig,
                                                processConfiguration,
                                                label,
-                                               false,
                                                unscheduledLabels,
                                                shouldBeUsedLabels);
     }
