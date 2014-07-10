@@ -23,7 +23,7 @@ jobname = (os.environ.get('JOB_NAME','test'))
 print 'jobname (default=test) = '+str(jobname)
 #
 # --- [number of events (default=1000)]
-nevents = int(os.environ.get('NEVENTS','1000'))
+nevents = int(os.environ.get('NEVENTS','3500'))
 print 'nevents (default=1000) = '+str(nevents)
 #
 # --- [turn on all histograms (default=True)?]
@@ -57,7 +57,8 @@ else:
 ###'/store/relval/CMSSW_5_3_6-GR_R_53_V15_RelVal_jet2012B/JetHT/RECO/v2/00000/FEC61CBE-062A-E211-AA5D-0026189438E4.root').split(",")
 #'/store/relval/CMSSW_7_0_0_pre11/RelValQCD_FlatPt_15_3000HS_13/GEN-SIM-RECO/POSTLS162_V4-v1/00000/F0127B3E-8A6A-E311-9A07-002590593902.root'
 #'/store/relval/CMSSW_7_1_0_pre4_AK4/RelValTTbar_13/GEN-SIM-RECO/POSTLS171_V1-v2/00000/7E11BD2A-5CB5-E311-B931-0025905A60A0.root'
-'/store/relval/CMSSW_7_1_0_pre7/RelValTTbar_13/GEN-SIM-RECO/PRE_LS171_V7-v1/00000/BAD462A0-0CD1-E311-B8EA-02163E00E8E4.root'
+'/store/relval/CMSSW_7_2_0_pre1/JetHT/RECO/GR_R_72_V1_RelVal_jet2012D-v1/00000/0022C8FB-FEFD-E311-AB9D-0025905A60A6.root',
+'/store/relval/CMSSW_7_2_0_pre1/JetHT/RECO/GR_R_72_V1_RelVal_jet2012D-v1/00000/00491ABE-FFFD-E311-A734-002618943950.root'
 )
 print 'List of input files'
 print inputfiles
@@ -190,7 +191,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 
-process.load('Configuration/StandardSequences/EDMtoMEAtRunEnd_cff')
+process.load('Configuration/StandardSequences/EDMtoMEAtJobEnd_cff')
 process.dqmSaver.referenceHandling = cms.untracked.string('all')
 #
 cmssw_version = os.environ.get('CMSSW_VERSION','CMSSW_X_Y_Z')
