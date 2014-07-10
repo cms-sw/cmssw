@@ -15,8 +15,8 @@
 //         Created:  Thu, 16 Jan 2014 16:27:35 GMT
 //
 //
-#ifndef TOPSINGLELEPTONHLTVALIDATION
-#define TOPSINGLELEPTONHLTVALIDATION
+#ifndef B2GSINGLELEPTONHLTVALIDATION
+#define B2GSINGLELEPTONHLTVALIDATION
 
 // system include files
 #include <memory>
@@ -56,6 +56,11 @@ class B2GSingleLeptonHLTValidation : public DQMEDAnalyzer {
    private:
       virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
       void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+      /// deduce monitorPath from label, the label is expected
+      /// to be of type 'selectionPath:monitorPath'
+      std::string monitorPath(const std::string& label) const { return label.substr(label.find(':')+1); };  
+      /// set configurable labels for trigger monitoring histograms
+      void triggerBinLabels(const std::vector<std::string>& labels);
 
       // ----------member data ---------------------------
       // DQM
@@ -68,6 +73,8 @@ class B2GSingleLeptonHLTValidation : public DQMEDAnalyzer {
       MonitorElement* hDenJetPt;
       MonitorElement* hNumJetEta;
       MonitorElement* hDenJetEta;
+      MonitorElement* hNumTriggerMon;
+      MonitorElement* hDenTriggerMon;
       // Electrons
       const reco::GsfElectron *elec_;
       std::string sElectrons_;
@@ -98,7 +105,16 @@ class B2GSingleLeptonHLTValidation : public DQMEDAnalyzer {
       // Flags
       bool isAll_ = false;
       bool isSel_ = false;
+
 };
+
+inline void B2GSingleLeptonHLTValidation::triggerBinLabels(const std::vector<std::string>& labels)
+{
+  for(unsigned int idx=0; idx<labels.size(); ++idx){
+    hNumTriggerMon->setBinLabel( idx+1, "["+monitorPath(labels[idx])+"]", 1);
+    hDenTriggerMon->setBinLabel( idx+1, "["+monitorPath(labels[idx])+"]", 1);
+  }
+}
 
 //
 // constants, enums and typedefs
@@ -123,7 +139,7 @@ B2GSingleLeptonHLTValidation::B2GSingleLeptonHLTValidation(const edm::ParameterS
   etaMuons_(iConfig.getUntrackedParameter<double>("etaMuons",0.)),
   isoMuons_(iConfig.getUntrackedParameter<double>("isoMuons",0.)),
   minMuons_(iConfig.getUntrackedParameter<unsigned int>("minMuons",0)),
-  sJets_(iConfig.getUntrackedParameter<std::string>("sJets","ak4PFJets")),
+  sJets_(iConfig.getUntrackedParameter<std::string>("sJets","ak5PFJets")),
   ptJets_(iConfig.getUntrackedParameter<double>("ptJets",0.)),
   etaJets_(iConfig.getUntrackedParameter<double>("etaJets",0.)),
   minJets_(iConfig.getUntrackedParameter<unsigned int>("minJets",0)),
