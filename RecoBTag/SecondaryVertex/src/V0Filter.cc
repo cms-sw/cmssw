@@ -18,8 +18,8 @@ V0Filter::V0Filter(const edm::ParameterSet &params) :
 {
 }
 
-inline bool
-V0Filter::operator () (const reco::Track **tracks, unsigned int n) const
+bool
+V0Filter::operator () (const reco::Track *const *tracks, unsigned int n) const
 {
 	// only check for K0s for now
 
@@ -68,6 +68,12 @@ V0Filter::operator () (const std::vector<reco::CandidatePtr> & tracks) const
 
 	return (*this)(&trackPtrs[0], tracks.size());
 }
+bool
+V0Filter::operator () (const std::vector<const reco::Track *> & tracks) const
+{
+	return (*this)(&tracks[0], tracks.size());
+}
+
 
 bool
 V0Filter::operator () (const reco::Track *tracks, unsigned int n) const

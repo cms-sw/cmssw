@@ -34,9 +34,6 @@
 
 using namespace reco;
 
-struct CombinedSVComputer::IterationRange {
-	int begin, end, increment;
-};
 
 #define range_for(i, x) \
 	for(int i = (x).begin; i != (x).end; i += (x).increment)
@@ -127,14 +124,6 @@ CombinedSVComputer::threshTrack(const TrackIPTagInfo &trackIPTagInfo,
 	return dummy;
 }
 
-static double etaRel(const math::XYZVector &dir, const math::XYZVector &track)
-{
-	double momPar = dir.Dot(track);
-	double energy = std::sqrt(track.Mag2() +
-	                          ROOT::Math::Square(ParticleMasses::piPlus));
-
-	return 0.5 * std::log((energy + momPar) / (energy - momPar));
-}
 
 TaggingVariableList
 CombinedSVComputer::operator () (const TrackIPTagInfo &ipInfo,
@@ -142,7 +131,7 @@ CombinedSVComputer::operator () (const TrackIPTagInfo &ipInfo,
 {
 	using namespace ROOT::Math;
 
-	edm::RefToBase<Jet> jet = ipInfo.jet();
+/*dm::RefToBase<Jet> jet = ipInfo.jet();
 	math::XYZVector jetDir = jet->momentum().Unit();
 	bool havePv = ipInfo.primaryVertex().isNonnull();
 	GlobalPoint pv;
@@ -152,10 +141,11 @@ CombinedSVComputer::operator () (const TrackIPTagInfo &ipInfo,
 		                 ipInfo.primaryVertex()->z());
 
 	btag::Vertices::VertexType vtxType = btag::Vertices::NoVertex;
-
+*/
 	TaggingVariableList vars; // = ipInfo.taggingVariables();
+	fillCommonVariables(vars,ipInfo,svInfo);
 
-	vars.insert(btau::jetPt, jet->pt(), true);
+/*vars.insert(btau::jetPt, jet->pt(), true);
 	vars.insert(btau::jetEta, jet->eta(), true);
 
 	if (ipInfo.selectedTracks().size() < trackMultiplicityMin)
@@ -375,7 +365,7 @@ CombinedSVComputer::operator () (const TrackIPTagInfo &ipInfo,
 			vars.insert(btau::vertexEnergyRatio, 1, true);
 	}
 
+*/
 	vars.finalize();
-
 	return vars;
 }
