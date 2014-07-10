@@ -108,7 +108,7 @@ class TemplatedSecondaryVertexProducer : public edm::stream::EDProducer<> {
 	bool				useGhostTrack;
 	bool				withPVError;
 	double				minTrackWeight;
-	VertexFilter<SecondaryVertex>	vertexFilter;
+	VertexFilter			vertexFilter;
 	VertexSorting<SecondaryVertex>	vertexSorting;
         bool                            useExternalSV;  
         double                          extSVDeltaRToJet;      
@@ -147,14 +147,14 @@ class TemplatedSecondaryVertexProducer : public edm::stream::EDProducer<> {
 	struct SVFilter :
 		public std::unary_function<const SecondaryVertex&, bool> {
 
-		SVFilter(const VertexFilter<SecondaryVertex> &filter, const Vertex &pv,
+		SVFilter(const VertexFilter &filter, const Vertex &pv,
 		         const GlobalVector &direction) :
 			filter(filter), pv(pv), direction(direction) {}
 
 		inline bool operator () (const SecondaryVertex &sv) const
 		{ return !filter(pv, sv, direction); }
 
-		const VertexFilter<SecondaryVertex>	&filter;
+		const VertexFilter	&filter;
 		const Vertex		&pv;
 		const GlobalVector	&direction;
 	};

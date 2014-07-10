@@ -46,7 +46,7 @@ class BVertexFilter : public edm::stream::EDFilter<> {
       virtual bool filter(edm::Event&, const edm::EventSetup&) override;
       edm::EDGetTokenT<reco::VertexCollection> token_primaryVertex;
       edm::EDGetTokenT<reco::VertexCollection> token_secondaryVertex;
-      reco::VertexFilter<reco::TemplatedSecondaryVertex<reco::Vertex> >                      svFilter;
+      reco::VertexFilter                      svFilter;
       bool                                    useVertexKinematicAsJetAxis;
       int                                     minVertices;
 };
