@@ -48,6 +48,9 @@ class CombinedSVComputer {
 	reco::TaggingVariableList
 	operator () (const reco::TrackIPTagInfo &ipInfo,
 	             const reco::SecondaryVertexTagInfo &svInfo) const;
+	reco::TaggingVariableList
+	operator () (const reco::CandIPTagInfo &ipInfo,
+	             const reco::CandSecondaryVertexTagInfo &svInfo) const;
 ///Hidden here too, but why is it implemented 3 times?!?
 double etaRel(const math::XYZVector &dir, const math::XYZVector &track) const
 {
@@ -66,6 +69,11 @@ double etaRel(const math::XYZVector &dir, const math::XYZVector &track) const
 	double flipValue(double value, bool vertex) const;
 	IterationRange flipIterate(int size, bool vertex) const;
 
+	const reco::CandIPTagInfo::TrackIPData &
+	threshTrack(const reco::CandIPTagInfo &trackIPTagInfo,
+	            const reco::CandIPTagInfo::SortCriteria sort,
+	            const reco::Jet &jet,
+	            const GlobalPoint &pv) const;
 	const reco::TrackIPTagInfo::TrackIPData &
 	threshTrack(const reco::TrackIPTagInfo &trackIPTagInfo,
 	            const reco::TrackIPTagInfo::SortCriteria sort,
@@ -116,14 +124,11 @@ template <class SVTI,class IPTI>     void CombinedSVComputer::fillCommonVariable
         TrackKinematics vertexKinematics;
 
         int vtx = -1;
-        unsigned int numberofvertextracks = 0;
 
                 IterationRange range = flipIterate(svInfo.nVertices(), true);
         range_for(i , range) {
                 if (vtx < 0)
                         vtx = i;
-
-                numberofvertextracks = numberofvertextracks + (svInfo.secondaryVertex(i)).nTracks();
 	}
 /* FIXME: implement in non-common part
                               const Vertex &vertex = svInfo.secondaryVertex(i);
@@ -174,7 +179,6 @@ template <class SVTI,class IPTI>     void CombinedSVComputer::fillCommonVariable
                 vars.insert(btau::vertexJetDeltaR,
                             Geom::deltaR(svInfo.flightDirection(vtx), jetDir),true);
                 vars.insert(btau::jetNSecondaryVertices, svInfo.nVertices(), true);
-                vars.insert(btau::vertexNTracks, numberofvertextracks, true);
         }
 
         std::vector<std::size_t> indices = ipInfo.sortedIndexes(sortCriterium);
