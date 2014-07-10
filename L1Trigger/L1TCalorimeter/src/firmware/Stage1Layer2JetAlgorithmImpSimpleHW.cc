@@ -50,7 +50,9 @@ void Stage1Layer2JetAlgorithmImpSimpleHW::processEvent(const std::vector<l1t::Ca
   for(std::vector<l1t::Jet>::const_iterator itJet = preGtJets->begin();
       itJet != preGtJets->end(); ++itJet){
     const unsigned newEta = gtEta(itJet->hwEta());
+    //std::cout << "pre drop: " << itJet->hwPt();
     const uint16_t rankPt = (itJet->hwPt() >> 4);
+    //std::cout << " post drop: " << rankPt << std::endl;
     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > ldummy(0,0,0,0);
     l1t::Jet gtJet(*&ldummy, rankPt, newEta, itJet->hwPhi(), itJet->hwQual());
     jets->push_back(gtJet);
