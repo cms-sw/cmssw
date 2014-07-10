@@ -1,14 +1,14 @@
-#include "EgammaAnalysis/ElectronTools/interface/VersionedGsfElectronSelector.h"
+#include "EgammaAnalysis/ElectronTools/interface/VersionedPatElectronSelector.h"
 #include "PhysicsTools/SelectorUtils/interface/CutApplicatorBase.h"
 
-VersionedGsfElectronSelector::
-VersionedGsfElectronSelector( edm::ParameterSet const & parameters ):
-  VersionedSelector<reco::GsfElectron>(parameters) {
+VersionedPatElectronSelector::
+VersionedPatElectronSelector( edm::ParameterSet const & parameters ):
+  VersionedSelector<pat::Electron>(parameters) {
   initialize(parameters);  
   retInternal_ = getBitTemplate();
 }
   
-void VersionedGsfElectronSelector::
+void VersionedPatElectronSelector::
 initialize( const edm::ParameterSet& conf ) {
   if(initialized_) return;
   
@@ -36,12 +36,12 @@ initialize( const edm::ParameterSet& conf ) {
   initialized_ = true;
 }
 
-bool VersionedGsfElectronSelector::
-operator()(const reco::GsfElectron & electron,pat::strbitset & ret ) { 
+bool VersionedPatElectronSelector::
+operator()(const pat::Electron & electron,pat::strbitset & ret ) {
   howfar_ = 0;
   if( !initialized_ ) {
     throw cms::Exception("CutNotInitialized")
-      << "VersionedGsfElectronSelector not initialized!" << std::endl;
+      << "VersionedPatElectronSelector not initialized!" << std::endl;
   }
   
   for( unsigned i = 0; i < cuts_.size(); ++i ) {

@@ -31,11 +31,10 @@ class VersionedSelector : public Selector<T> {
  VersionedSelector(const edm::ParameterSet& conf) : 
   Selector<T>() { 
     constexpr unsigned length = MD5_DIGEST_LENGTH;
-    name_ = conf.getParameter<std::string>("electronSelectorName");
+    edm::ParameterSet trackedPart = conf.trackedPart();
+    name_ = conf.getParameter<std::string>("idName");
     memset(id_md5_,0,length*sizeof(unsigned char));
-    std::string tracked, untracked;
-    conf.toString(tracked); // get tracked PSet
-    conf.allToString(untracked); // get untracked parts
+    std::string tracked(trackedPart.dump()), untracked(conf.dump());   
     if ( tracked != untracked ) {
       throw cms::Exception("InvalidConfiguration")
 	<< "VersionedSelector does not allow untracked parameters"
@@ -59,10 +58,13 @@ class VersionedSelector : public Selector<T> {
 
   const std::string& name() const { return name_; }
 
+  const unsigned howFarInCutFlow() const { return howfar_; }
+
  protected:
   std::vector<boost::shared_ptr<candf::CandidateCut> > cuts_;
   std::vector<bool> is_isolation_;
   std::vector<typename Selector<T>::index_type> cut_indices_;
+  unsigned howfar_;
 
  private:
   unsigned char id_md5_[MD5_DIGEST_LENGTH];
