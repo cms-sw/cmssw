@@ -18,7 +18,9 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 namespace reco {
 namespace btag {
- template <class T> const reco::Track * toTrack(const T &);
+
+inline  const reco::Track * toTrack(const reco::TrackRef & t) {return &(*t);}
+inline  const reco::Track * toTrack(const reco::CandidatePtr & c) {return (*c).bestTrack();}
  
   struct TrackIPData {
     GlobalPoint closestToJetAxis;

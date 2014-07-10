@@ -63,12 +63,28 @@ namespace {
 	};
 }
 
-template <class IPTI>
+GlobalVector flightDirection(const reco::Vertex & pv, const reco::Vertex & sv) {
+return  GlobalVector(sv.x() - pv.x(), sv.y() - pv.y(),sv.z() - pv.z());
+}
+GlobalVector flightDirection(const reco::Vertex & pv, const reco::VertexCompositePtrCandidate & sv) {
+return  GlobalVector(sv.vertex().x() - pv.x(), sv.vertex().y() - pv.y(),sv.vertex().z() - pv.z());
+}
+const math::XYZPoint & position(const reco::Vertex & sv)
+{return sv.position();}
+const math::XYZPoint & position(const reco::VertexCompositePtrCandidate & sv)
+{return sv.vertex();}
+
+
+template <class IPTI,class VTX>
 class TemplatedSecondaryVertexProducer : public edm::stream::EDProducer<> {
     public:
 	explicit TemplatedSecondaryVertexProducer(const edm::ParameterSet &params);
 	~TemplatedSecondaryVertexProducer();
-	typedef std::vector<TemplatedSecondaryVertexTagInfo<IPTI> > Product;
+	typedef std::vector<TemplatedSecondaryVertexTagInfo<IPTI,VTX> > Product;
+	typedef TemplatedSecondaryVertex<VTX> SecondaryVertex;
+	typedef typename IPTI::input_container input_container;
+	typedef typename IPTI::input_container::value_type input_item;
+	typedef typename std::vector<reco::btag::IndexedTrackData> TrackDataVector;
 	virtual void produce(edm::Event &event, const edm::EventSetup &es) override;
 
     private:
@@ -80,13 +96,10 @@ class TemplatedSecondaryVertexProducer : public edm::stream::EDProducer<> {
 		CONSTRAINT_PV_ERROR_SCALED,
 		CONSTRAINT_PV_PRIMARIES_IN_FIT
 	};
-
 	static ConstraintType getConstraintType(const std::string &name);
 
         edm::EDGetTokenT<reco::BeamSpot> token_BeamSpot;
         edm::EDGetTokenT<std::vector<IPTI> > token_trackIPTagInfo;
-	typedef typename IPTI::input_container input_container;
-	typedef typename IPTI::input_container::value_type input_item;
 	reco::btag::SortCriteria	sortCriterium;
 	TrackSelector			trackSelector;
 	ConstraintType			constraint;
@@ -95,15 +108,64 @@ class TemplatedSecondaryVertexProducer : public edm::stream::EDProducer<> {
 	bool				useGhostTrack;
 	bool				withPVError;
 	double				minTrackWeight;
-	VertexFilter			vertexFilter;
-	VertexSorting			vertexSorting;
+	VertexFilter<SecondaryVertex>	vertexFilter;
+	VertexSorting<SecondaryVertex>	vertexSorting;
         bool                            useExternalSV;  
         double                          extSVDeltaRToJet;      
-        edm::EDGetTokenT<reco::VertexCollection> token_extSVCollection;
+        edm::EDGetTokenT<edm::View<VTX> > token_extSVCollection;
+
+	void markUsedTracks(TrackDataVector & trackData, const input_container & trackRefs, const SecondaryVertex & sv,size_t idx);
+
+
+//namespace {
+	struct SVBuilder :
+		public std::unary_function<const Vertex&, SecondaryVertex> {
+
+		SVBuilder(const reco::Vertex &pv,
+		          const GlobalVector &direction,
+		          bool withPVError) :
+			pv(pv), direction(direction),
+			withPVError(withPVError) {}
+		SecondaryVertex operator () (const TransientVertex &sv) const;
+/*{ 
+			if(sv.originalTracks()[0].trackBaseRef().isNonnull())
+				return SecondaryVertex(pv, sv, direction, withPVError); 
+			else{
+				std::cout << "Building from Candidates, should not happen!" << std::endl;
+				return SecondaryVertex(pv, sv, direction, withPVError);
+			}
+		}*/
+		SecondaryVertex operator () (const VTX &sv) const
+		{ return SecondaryVertex(pv, sv, direction, withPVError); }
+
+
+		const Vertex		&pv;
+		const GlobalVector	&direction;
+		bool			withPVError;
+	};
+
+	struct SVFilter :
+		public std::unary_function<const SecondaryVertex&, bool> {
+
+		SVFilter(const VertexFilter<SecondaryVertex> &filter, const Vertex &pv,
+		         const GlobalVector &direction) :
+			filter(filter), pv(pv), direction(direction) {}
+
+		inline bool operator () (const SecondaryVertex &sv) const
+		{ return !filter(pv, sv, direction); }
+
+		const VertexFilter<SecondaryVertex>	&filter;
+		const Vertex		&pv;
+		const GlobalVector	&direction;
+	};
+			
+//} // anonynmous namespace
+
+
 };
-template <class IPTI>
-typename TemplatedSecondaryVertexProducer<IPTI>::ConstraintType
-TemplatedSecondaryVertexProducer<IPTI>::getConstraintType(const std::string &name)
+template <class IPTI,class VTX>
+typename TemplatedSecondaryVertexProducer<IPTI,VTX>::ConstraintType
+TemplatedSecondaryVertexProducer<IPTI,VTX>::getConstraintType(const std::string &name)
 {
 	if (name == "None")
 		return CONSTRAINT_NONE;
@@ -141,8 +203,8 @@ getGhostTrackFitType(const std::string &name)
 			   "understood." << std::endl;
 }
 
-template <class IPTI>
-TemplatedSecondaryVertexProducer<IPTI>::TemplatedSecondaryVertexProducer(
+template <class IPTI,class VTX>
+TemplatedSecondaryVertexProducer<IPTI,VTX>::TemplatedSecondaryVertexProducer(
 					const edm::ParameterSet &params) :
 	sortCriterium(TrackSorting::getCriterium(params.getParameter<std::string>("trackSort"))),
 	trackSelector(params.getParameter<edm::ParameterSet>("trackSelection")),
@@ -168,53 +230,18 @@ TemplatedSecondaryVertexProducer<IPTI>::TemplatedSecondaryVertexProducer(
         useExternalSV = false;
         if(params.existsAs<bool>("useExternalSV")) useExternalSV = params.getParameter<bool> ("useExternalSV");
         if(useExternalSV) {
-	   token_extSVCollection =  consumes<reco::VertexCollection>(params.getParameter<edm::InputTag>("extSVCollection"));
+	   token_extSVCollection =  consumes<edm::View<VTX> >(params.getParameter<edm::InputTag>("extSVCollection"));
        	   extSVDeltaRToJet = params.getParameter<double>("extSVDeltaRToJet");
         }
 	produces<Product>();
 }
-template <class IPTI>
-TemplatedSecondaryVertexProducer<IPTI>::~TemplatedSecondaryVertexProducer()
+template <class IPTI,class VTX>
+TemplatedSecondaryVertexProducer<IPTI,VTX>::~TemplatedSecondaryVertexProducer()
 {
 }
 
-namespace {
-	struct SVBuilder :
-		public std::unary_function<const Vertex&, SecondaryVertex> {
-
-		SVBuilder(const reco::Vertex &pv,
-		          const GlobalVector &direction,
-		          bool withPVError) :
-			pv(pv), direction(direction),
-			withPVError(withPVError) {}
-
-		SecondaryVertex operator () (const reco::Vertex &sv) const
-		{ return SecondaryVertex(pv, sv, direction, withPVError); }
-
-		const Vertex		&pv;
-		const GlobalVector	&direction;
-		bool			withPVError;
-	};
-
-	struct SVFilter :
-		public std::unary_function<const SecondaryVertex&, bool> {
-
-		SVFilter(const VertexFilter &filter, const Vertex &pv,
-		         const GlobalVector &direction) :
-			filter(filter), pv(pv), direction(direction) {}
-
-		inline bool operator () (const SecondaryVertex &sv) const
-		{ return !filter(pv, sv, direction); }
-
-		const VertexFilter	&filter;
-		const Vertex		&pv;
-		const GlobalVector	&direction;
-	};
-			
-} // anonynmous namespace
-
-template <class IPTI>
-void TemplatedSecondaryVertexProducer<IPTI>::produce(edm::Event &event,
+template <class IPTI,class VTX>
+void TemplatedSecondaryVertexProducer<IPTI,VTX>::produce(edm::Event &event,
                                       const edm::EventSetup &es)
 {
 //	typedef std::map<TrackBaseRef, TransientTrack,
@@ -231,7 +258,7 @@ void TemplatedSecondaryVertexProducer<IPTI>::produce(edm::Event &event,
 	event.getByToken(token_trackIPTagInfo, trackIPTagInfos);
 
         // External Sec Vertex collection (e.g. for IVF usage)
-        edm::Handle<reco::VertexCollection> extSecVertex;          
+        edm::Handle<edm::View<VTX> > extSecVertex;          
         if(useExternalSV) event.getByToken(token_extSVCollection,extSecVertex);
                                                              
 
@@ -288,7 +315,7 @@ void TemplatedSecondaryVertexProducer<IPTI>::produce(edm::Event &event,
 	for(typename std::vector<IPTI>::const_iterator iterJets =
 		trackIPTagInfos->begin(); iterJets != trackIPTagInfos->end();
 		++iterJets) {
-		std::vector<typename TemplatedSecondaryVertexTagInfo<IPTI>::IndexedTrackData> trackData;
+		TrackDataVector trackData;
 //		      std::cout << "Jet " << iterJets-trackIPTagInfos->begin() << std::endl; 
 
 		const Vertex &pv = *iterJets->primaryVertex();
@@ -338,7 +365,7 @@ void TemplatedSecondaryVertexProducer<IPTI>::produce(edm::Event &event,
 						*iterJets->ghostTrack()));
 
 		for(unsigned int i = 0; i < indices.size(); i++) {
-			typedef typename TemplatedSecondaryVertexTagInfo<IPTI>::IndexedTrackData IndexedTrackData;
+			typedef typename TemplatedSecondaryVertexTagInfo<IPTI,VTX>::IndexedTrackData IndexedTrackData;
 
 			const input_item &trackRef = trackRefs[i];
 
@@ -351,7 +378,7 @@ void TemplatedSecondaryVertexProducer<IPTI>::produce(edm::Event &event,
 			                   RecoVertex::convertPos(
 			                   		pv.position()))) {
 				trackData.back().second.svStatus =
-					  TemplatedSecondaryVertexTagInfo<IPTI>::TrackData::trackSelected;
+					  TemplatedSecondaryVertexTagInfo<IPTI,VTX>::TrackData::trackSelected;
 				continue;
 			}
 
@@ -366,7 +393,7 @@ void TemplatedSecondaryVertexProducer<IPTI>::produce(edm::Event &event,
 			fitTracks.push_back(fitTrack);
 
 			trackData.back().second.svStatus =
-				  TemplatedSecondaryVertexTagInfo<IPTI>::TrackData::trackUsedForVertexFit;
+				  TemplatedSecondaryVertexTagInfo<IPTI,VTX>::TrackData::trackUsedForVertexFit;
 
 			if (useGhostTrack) {
 				GhostTrackState gtState(fitTrack);
@@ -397,9 +424,10 @@ void TemplatedSecondaryVertexProducer<IPTI>::produce(edm::Event &event,
 		// perform actual vertex finding
 
 
-	 	std::vector<reco::Vertex>       extAssoCollection;    
+	 	std::vector<VTX>       extAssoCollection;    
 		std::vector<TransientVertex> fittedSVs;
 		std::vector<SecondaryVertex> SVs;
+		std::cout << "about to fit" << std::endl;
 		if(!useExternalSV){ 
     		  switch(constraint)   {
 		    case CONSTRAINT_NONE:
@@ -465,6 +493,7 @@ void TemplatedSecondaryVertexProducer<IPTI>::produce(edm::Event &event,
 		}
 
 		// build combined SV information and filter
+		std::cout << "fit done" << std::endl;
 
 		SVBuilder svBuilder(pv, jetDir, withPVError);
 		std::remove_copy_if(boost::make_transform_iterator(
@@ -477,11 +506,11 @@ void TemplatedSecondaryVertexProducer<IPTI>::produce(edm::Event &event,
 		// clean up now unneeded collections
              }else{
                   for(size_t iExtSv = 0; iExtSv < extSecVertex->size(); iExtSv++){
-		      const reco::Vertex & extVertex = (*extSecVertex)[iExtSv];
+		      const VTX & extVertex = (*extSecVertex)[iExtSv];
 //    	              GlobalVector vtxDir = GlobalVector(extVertex.p4().X(),extVertex.p4().Y(),extVertex.p4().Z());
 //                     if(Geom::deltaR(extVertex.position() - pv.position(), vtxDir)>0.2) continue; //pointing angle
 //		      std::cout << " dR " << iExtSv << " " << Geom::deltaR( ( extVertex.position() - pv.position() ), jetDir ) << "eta: " << ( extVertex.position() - pv.position()).eta() << " vs " << jetDir.eta() << " phi: "  << ( extVertex.position() - pv.position()).phi() << " vs  " << jetDir.phi() <<  std::endl; 
-	              if( Geom::deltaR( ( extVertex.position() - pv.position() ), jetDir ) >  extSVDeltaRToJet || extVertex.p4().M() < 0.3)
+	              if( Geom::deltaR( ( position(extVertex) - pv.position() ), jetDir ) >  extSVDeltaRToJet || extVertex.p4().M() < 0.3)
                 	continue;
 //		      std::cout << " SV added " << iExtSv << std::endl; 
  		      extAssoCollection.push_back( extVertex );
@@ -494,7 +523,7 @@ void TemplatedSecondaryVertexProducer<IPTI>::produce(edm::Event &event,
 
 
                  }
-//		std::cout << "size: " << SVs.size() << std::endl; 
+		std::cout << "size: " << SVs.size() << std::endl; 
 		gtPred.reset();
 		ghostTrack.reset();
 		gtStates.clear();
@@ -503,10 +532,10 @@ void TemplatedSecondaryVertexProducer<IPTI>::produce(edm::Event &event,
 		extAssoCollection.clear();
 
 		// sort SVs by importance
-
+		
 		std::vector<unsigned int> vtxIndices = vertexSorting(SVs);
 
-		std::vector<typename TemplatedSecondaryVertexTagInfo<IPTI>::VertexData> svData;
+		std::vector<typename TemplatedSecondaryVertexTagInfo<IPTI,VTX>::VertexData> svData;
 
 		svData.resize(vtxIndices.size());
 		for(unsigned int idx = 0; idx < vtxIndices.size(); idx++) {
@@ -515,41 +544,43 @@ void TemplatedSecondaryVertexProducer<IPTI>::produce(edm::Event &event,
 			svData[idx].vertex = sv;
 			svData[idx].dist2d = sv.dist2d();
 			svData[idx].dist3d = sv.dist3d();
-			svData[idx].direction =
-				GlobalVector(sv.x() - pv.x(),
-				             sv.y() - pv.y(),
-				             sv.z() - pv.z());
-
+			svData[idx].direction = flightDirection(pv,sv);
+			markUsedTracks(trackData,trackRefs,sv,idx);
+/*
 			// mark tracks successfully used in vertex fit
+			input_container::const_iterator  iter=decayProductsBegin(sv);
+			input_container::const_iterator  iterEnd=decayProductsEnd(sv);
 
-			for(Vertex::trackRef_iterator iter = sv.tracks_begin();
-			    iter != sv.tracks_end(); iter++) {
-				if (sv.trackWeight(*iter) < minTrackWeight)
+			for(;   iter != iterEnd; iter++) {
+				if (reco::btag::weight(*iter,sv) < minTrackWeight)
 					continue;
+				if(iter->isNonnull()) {
+					typename input_container::const_iterator pos =
+						std::find(trackRefs.begin(), trackRefs.end(),*iter);
 
-				typename input_container::const_iterator pos =
-					std::find(trackRefs.begin(), trackRefs.end(),
-					          iter->castTo<input_item>());
-
-				if (pos == trackRefs.end() ) {
-				   if(!useExternalSV)
-					throw cms::Exception("TrackNotFound")
-						<< "Could not find track from secondary "
-						   "vertex in original tracks."
-						<< std::endl;
+					if (pos == trackRefs.end() ) {
+						if(!useExternalSV)
+							throw cms::Exception("TrackNotFound")
+								<< "Could not find track from secondary "
+								"vertex in original tracks."
+								<< std::endl;
+					} else {
+						unsigned int index = pos - trackRefs.begin();
+						trackData[index].second.svStatus =
+							(typename TemplatedSecondaryVertexTagInfo<IPTI,VTX>::TrackData::Status)
+							((unsigned int)SecondaryVertexTagInfo::TrackData::trackAssociatedToVertex + idx);
+					}
 				} else {
-				unsigned int index = pos - trackRefs.begin();
-				trackData[index].second.svStatus =
-					(typename TemplatedSecondaryVertexTagInfo<IPTI>::TrackData::Status)
-					((unsigned int)SecondaryVertexTagInfo::TrackData::trackAssociatedToVertex + idx);
- 				}
-			}
+					std::cout << "TODO: Track marking cannot work with CandPtr input and standard reco::Vertex " << std::endl;
+				}
+			}*/
+
 		}
 
 		// fill result into tag infos
 
 		tagInfos->push_back(
-			TemplatedSecondaryVertexTagInfo<IPTI>(
+			TemplatedSecondaryVertexTagInfo<IPTI,VTX>(
 				trackData, svData, SVs.size(),
 				edm::Ref<std::vector<IPTI> >(trackIPTagInfos,
 					iterJets - trackIPTagInfos->begin())));
@@ -558,9 +589,65 @@ void TemplatedSecondaryVertexProducer<IPTI>::produce(edm::Event &event,
 	event.put(tagInfos);
 }
 
+//Need specialized template because reco::Vertex iterators are TrackBase and it is a mess to make general
+template <>
+void  TemplatedSecondaryVertexProducer<TrackIPTagInfo,reco::Vertex>::markUsedTracks(TrackDataVector & trackData, const input_container & trackRefs, const SecondaryVertex & sv,size_t idx)
+{
+	for(Vertex::trackRef_iterator iter = sv.tracks_begin();	iter != sv.tracks_end(); iter++) {
+		if (sv.trackWeight(*iter) < minTrackWeight)
+			continue;
+
+		typename input_container::const_iterator pos =
+			std::find(trackRefs.begin(), trackRefs.end(),
+					iter->castTo<input_item>());
+
+		if (pos == trackRefs.end() ) {
+			if(!useExternalSV)
+				throw cms::Exception("TrackNotFound")
+					<< "Could not find track from secondary "
+					"vertex in original tracks."
+					<< std::endl;
+		} else {
+			unsigned int index = pos - trackRefs.begin();
+			trackData[index].second.svStatus =
+				(SecondaryVertexTagInfo::TrackData::Status)
+				((unsigned int)SecondaryVertexTagInfo::TrackData::trackAssociatedToVertex + idx);
+		}
+	}
+
+}
+template <>
+void  TemplatedSecondaryVertexProducer<CandIPTagInfo,reco::VertexCompositePtrCandidate>::markUsedTracks(TrackDataVector & trackData, const input_container & trackRefs, const SecondaryVertex & sv,size_t idx)
+{
+//FIXME TODO do nothing for now
+}
+
+
+template <>
+typename TemplatedSecondaryVertexProducer<TrackIPTagInfo,reco::Vertex>::SecondaryVertex  
+TemplatedSecondaryVertexProducer<TrackIPTagInfo,reco::Vertex>::SVBuilder::operator () (const TransientVertex &sv) const
+{     
+	if(sv.originalTracks()[0].trackBaseRef().isNonnull())
+		return SecondaryVertex(pv, sv, direction, withPVError); 
+	else{
+		std::cout << "Building from Candidates, should not happen!" << std::endl;
+		return SecondaryVertex(pv, sv, direction, withPVError);
+	}
+}
+
+template <>
+typename TemplatedSecondaryVertexProducer<CandIPTagInfo,reco::VertexCompositePtrCandidate>::SecondaryVertex
+TemplatedSecondaryVertexProducer<CandIPTagInfo,reco::VertexCompositePtrCandidate>::SVBuilder::operator () (const TransientVertex &sv) const
+{      
+//TODO: implement it
+ return typename TemplatedSecondaryVertexProducer<CandIPTagInfo,reco::VertexCompositePtrCandidate>::SecondaryVertex();
+}               
+
+
+
 //define this as a plug-in
-typedef TemplatedSecondaryVertexProducer<TrackIPTagInfo> SecondaryVertexProducer;
-typedef TemplatedSecondaryVertexProducer<CandIPTagInfo> CandSecondaryVertexProducer;
+typedef TemplatedSecondaryVertexProducer<TrackIPTagInfo,reco::Vertex> SecondaryVertexProducer;
+typedef TemplatedSecondaryVertexProducer<CandIPTagInfo,reco::VertexCompositePtrCandidate> CandSecondaryVertexProducer;
 
 DEFINE_FWK_MODULE(SecondaryVertexProducer);
 DEFINE_FWK_MODULE(CandSecondaryVertexProducer);

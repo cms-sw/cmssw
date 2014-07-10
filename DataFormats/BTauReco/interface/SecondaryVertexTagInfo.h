@@ -14,9 +14,23 @@
 #include "DataFormats/BTauReco/interface/JTATagInfo.h"
 #include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
 #include "DataFormats/BTauReco/interface/CandIPTagInfo.h"
+#include "DataFormats/Candidate/interface/VertexCompositePtrCandidate.h"
+#include <functional>
+#include <ext/functional>
+#include <algorithm>
+
+#include "FWCore/Utilities/interface/EDMException.h"
+#include "DataFormats/GeometryVector/interface/VectorUtil.h"
+#include "DataFormats/BTauReco/interface/TaggingVariable.h"
+
+
+
 
 namespace reco {
 namespace btag{
+inline float weight(const reco::TrackRef & t, const reco::Vertex &v) {return v.trackWeight(t);}
+inline float weight(const reco::CandidatePtr & c, const reco::VertexCompositePtrCandidate &v) {return std::find(v.daughterPtrVector().begin(),v.daughterPtrVector().end(),c)!=v.daughterPtrVector().end();}
+
         struct TrackData {
                 enum Status {
                         trackSelected = 0,
@@ -33,22 +47,21 @@ namespace btag{
 
                 Status  svStatus;
         };
-
-        struct VertexData {
-                reco::Vertex                    vertex;
-                Measurement1D                   dist2d, dist3d;
-                GlobalVector                    direction;
-        };
 	typedef std::pair<unsigned int, TrackData> IndexedTrackData;
 
 }
-template <class IPTI> 
+template <class IPTI, class VTX> 
 class TemplatedSecondaryVertexTagInfo : public BaseTagInfo {
     public:
 	typedef reco::btag::TrackData TrackData;
-	typedef reco::btag::VertexData VertexData;
-
 	typedef reco::btag::IndexedTrackData IndexedTrackData;
+
+        struct VertexData {
+                VTX                    vertex;
+                Measurement1D                   dist2d, dist3d;
+                GlobalVector                    direction;
+        };
+
         struct TrackFinder {
                 TrackFinder(const typename IPTI::input_container &tracks,
                             const typename IPTI::input_container::value_type &track) :
@@ -107,7 +120,7 @@ class TemplatedSecondaryVertexTagInfo : public BaseTagInfo {
 //	const JetTracksAssociationRef &jtaRef(void) const
 //	{ return m_trackIPTagInfoRef->jtaRef(); }
 
-	const Vertex &secondaryVertex(unsigned int index) const
+	const VTX &secondaryVertex(unsigned int index) const
 	{ return m_svData[index].vertex; }
 
 	unsigned int nSelectedTracks() const { return m_trackData.size(); }
@@ -148,26 +161,15 @@ class TemplatedSecondaryVertexTagInfo : public BaseTagInfo {
 	edm::Ref<std::vector<IPTI> >		m_trackIPTagInfoRef;
 };
 
-typedef TemplatedSecondaryVertexTagInfo<TrackIPTagInfo> SecondaryVertexTagInfo;
-typedef TemplatedSecondaryVertexTagInfo<CandIPTagInfo> CandSecondaryVertexTagInfo;
+typedef TemplatedSecondaryVertexTagInfo<TrackIPTagInfo,reco::Vertex> SecondaryVertexTagInfo;
+typedef TemplatedSecondaryVertexTagInfo<CandIPTagInfo,reco::VertexCompositePtrCandidate> CandSecondaryVertexTagInfo;
 
 DECLARE_EDM_REFS(SecondaryVertexTagInfo)
 DECLARE_EDM_REFS(CandSecondaryVertexTagInfo)
 
 
-#include <functional>
-#include <ext/functional>
-#include <algorithm>
 
-#include "FWCore/Utilities/interface/EDMException.h"
-#include "DataFormats/GeometryVector/interface/VectorUtil.h"
-#include "DataFormats/BTauReco/interface/TaggingVariable.h"
-
-#include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"
-
-
-
-template<class IPTI>  TemplatedSecondaryVertexTagInfo<IPTI>::TemplatedSecondaryVertexTagInfo(
+template<class IPTI,class VTX>  TemplatedSecondaryVertexTagInfo<IPTI,VTX>::TemplatedSecondaryVertexTagInfo(
                 const std::vector<IndexedTrackData> &trackData,
 		const std::vector<VertexData> &svData,
 		unsigned int vertexCandidates,
@@ -179,26 +181,26 @@ template<class IPTI>  TemplatedSecondaryVertexTagInfo<IPTI>::TemplatedSecondaryV
 {
 }
 
-template<class IPTI> unsigned int  TemplatedSecondaryVertexTagInfo<IPTI>::nVertexTracks() const
+template<class IPTI,class VTX> unsigned int  TemplatedSecondaryVertexTagInfo<IPTI,VTX>::nVertexTracks() const
 {
 	return std::count_if(m_trackData.begin(), m_trackData.end(),
 	                     VertexTrackSelector());
 }
 
-template<class IPTI> unsigned int  TemplatedSecondaryVertexTagInfo<IPTI>::nVertexTracks(unsigned int index) const
+template<class IPTI,class VTX> unsigned int  TemplatedSecondaryVertexTagInfo<IPTI,VTX>::nVertexTracks(unsigned int index) const
 {
 	return std::count_if(m_trackData.begin(), m_trackData.end(),
 	                     IndexedVertexTrackSelector(index));
 }
 
-template<class IPTI> 
-typename reco::TemplatedSecondaryVertexTagInfo<IPTI>::input_container  TemplatedSecondaryVertexTagInfo<IPTI>::selectedTracks() const
+template<class IPTI,class VTX> 
+typename reco::TemplatedSecondaryVertexTagInfo<IPTI,VTX>::input_container  TemplatedSecondaryVertexTagInfo<IPTI,VTX>::selectedTracks() const
 {
 	input_container trackRefs;
 	const input_container &trackIPTrackRefs =
 				m_trackIPTagInfoRef->selectedTracks();
 
-	for(typename std::vector<typename reco::TemplatedSecondaryVertexTagInfo<IPTI>::IndexedTrackData>::const_iterator iter =
+	for(typename std::vector<typename reco::TemplatedSecondaryVertexTagInfo<IPTI,VTX>::IndexedTrackData>::const_iterator iter =
 		m_trackData.begin(); iter != m_trackData.end(); iter++)
 
 		trackRefs.push_back(trackIPTrackRefs[iter->first]);
@@ -206,14 +208,14 @@ typename reco::TemplatedSecondaryVertexTagInfo<IPTI>::input_container  Templated
 	return trackRefs;
 }
 
-template<class IPTI> 
-typename TemplatedSecondaryVertexTagInfo<IPTI>::input_container  TemplatedSecondaryVertexTagInfo<IPTI>::vertexTracks() const
+template<class IPTI,class VTX> 
+typename TemplatedSecondaryVertexTagInfo<IPTI,VTX>::input_container  TemplatedSecondaryVertexTagInfo<IPTI,VTX>::vertexTracks() const
 {
 	input_container trackRefs;
 	const input_container &trackIPTrackRefs =
 				m_trackIPTagInfoRef->selectedTracks();
 
-	for(typename std::vector<typename reco::TemplatedSecondaryVertexTagInfo<IPTI>::IndexedTrackData>::const_iterator iter =
+	for(typename std::vector<typename reco::TemplatedSecondaryVertexTagInfo<IPTI,VTX>::IndexedTrackData>::const_iterator iter =
 		m_trackData.begin(); iter != m_trackData.end(); iter++)
 
 		if (iter->second.associatedToVertex())
@@ -222,14 +224,14 @@ typename TemplatedSecondaryVertexTagInfo<IPTI>::input_container  TemplatedSecond
 	return trackRefs;
 }  
 
-template<class IPTI> 
-typename TemplatedSecondaryVertexTagInfo<IPTI>::input_container  TemplatedSecondaryVertexTagInfo<IPTI>::vertexTracks(unsigned int index) const
+template<class IPTI,class VTX> 
+typename TemplatedSecondaryVertexTagInfo<IPTI,VTX>::input_container  TemplatedSecondaryVertexTagInfo<IPTI,VTX>::vertexTracks(unsigned int index) const
 {
 	input_container trackRefs;
 	const input_container &trackIPTrackRefs =
 				m_trackIPTagInfoRef->selectedTracks();
 
-	for(typename std::vector<typename reco::TemplatedSecondaryVertexTagInfo<IPTI>::IndexedTrackData>::const_iterator iter =
+	for(typename std::vector<typename reco::TemplatedSecondaryVertexTagInfo<IPTI,VTX>::IndexedTrackData>::const_iterator iter =
 		m_trackData.begin(); iter != m_trackData.end(); iter++)
 
 		if (iter->second.associatedToVertex(index))
@@ -238,14 +240,14 @@ typename TemplatedSecondaryVertexTagInfo<IPTI>::input_container  TemplatedSecond
 	return trackRefs;
 }  
 
-template<class IPTI> typename TemplatedSecondaryVertexTagInfo<IPTI>::input_container::value_type  TemplatedSecondaryVertexTagInfo<IPTI>::track(unsigned int index) const
+template<class IPTI,class VTX> typename TemplatedSecondaryVertexTagInfo<IPTI,VTX>::input_container::value_type  TemplatedSecondaryVertexTagInfo<IPTI,VTX>::track(unsigned int index) const
 {
 	return m_trackIPTagInfoRef->selectedTracks()[m_trackData[index].first];
 }
 
-template<class IPTI> unsigned int  TemplatedSecondaryVertexTagInfo<IPTI>::findTrack(const typename input_container::value_type &track) const
+template<class IPTI,class VTX> unsigned int  TemplatedSecondaryVertexTagInfo<IPTI,VTX>::findTrack(const typename input_container::value_type &track) const
 {
-	typename std::vector<typename reco::TemplatedSecondaryVertexTagInfo<IPTI>::IndexedTrackData>::const_iterator pos =
+	typename std::vector<typename reco::TemplatedSecondaryVertexTagInfo<IPTI,VTX>::IndexedTrackData>::const_iterator pos =
 		std::find_if(m_trackData.begin(), m_trackData.end(),
 		             TrackFinder(m_trackIPTagInfoRef->selectedTracks(),
 		                         track));
@@ -253,53 +255,53 @@ template<class IPTI> unsigned int  TemplatedSecondaryVertexTagInfo<IPTI>::findTr
 	if (pos == m_trackData.end())
 		throw edm::Exception(edm::errors::InvalidReference)
 			<< "Track not found in "
-			   " TemplatedSecondaryVertexTagInfo<IPTI>::findTrack." << std::endl;
+			   " TemplatedSecondaryVertexTagInfo<IPTI,VTX>::findTrack." << std::endl;
 
 	return pos - m_trackData.begin();
 }
 
-template<class IPTI>
-const typename   TemplatedSecondaryVertexTagInfo<IPTI>::TrackData&  TemplatedSecondaryVertexTagInfo<IPTI>::trackData(unsigned int index) const
+template<class IPTI,class VTX>
+const typename   TemplatedSecondaryVertexTagInfo<IPTI,VTX>::TrackData&  TemplatedSecondaryVertexTagInfo<IPTI,VTX>::trackData(unsigned int index) const
 {
 	return m_trackData[index].second;
 }
 
-template<class IPTI>
-const typename  TemplatedSecondaryVertexTagInfo<IPTI>::TrackData&  TemplatedSecondaryVertexTagInfo<IPTI>::trackData(const typename input_container::value_type &track) const
+template<class IPTI,class VTX>
+const typename  TemplatedSecondaryVertexTagInfo<IPTI,VTX>::TrackData&  TemplatedSecondaryVertexTagInfo<IPTI,VTX>::trackData(const typename input_container::value_type &track) const
 {
 	return m_trackData[findTrack(track)].second;
 }
 
-template<class IPTI> 
-const typename IPTI::TrackIPData& TemplatedSecondaryVertexTagInfo<IPTI>::trackIPData(unsigned int index) const
+template<class IPTI,class VTX> 
+const typename IPTI::TrackIPData& TemplatedSecondaryVertexTagInfo<IPTI,VTX>::trackIPData(unsigned int index) const
 {
 	return m_trackIPTagInfoRef->impactParameterData()[
 						m_trackData[index].first];
 }
 
-template<class IPTI>
-const typename IPTI::TrackIPData& TemplatedSecondaryVertexTagInfo<IPTI>::trackIPData(const typename input_container::value_type &track) const
+template<class IPTI,class VTX>
+const typename IPTI::TrackIPData& TemplatedSecondaryVertexTagInfo<IPTI,VTX>::trackIPData(const typename input_container::value_type &track) const
 {
 	return trackIPData(findTrack(track));
 }
 
-template<class IPTI> float  TemplatedSecondaryVertexTagInfo<IPTI>::trackWeight(unsigned int svIndex,
+template<class IPTI,class VTX> float  TemplatedSecondaryVertexTagInfo<IPTI,VTX>::trackWeight(unsigned int svIndex,
                                           const typename input_container::value_type &track) const
 {
-	return m_svData[svIndex].vertex.trackWeight(track);
+	return reco::btag::weight(track,m_svData[svIndex].vertex);
 }
 
-template<class IPTI> float  TemplatedSecondaryVertexTagInfo<IPTI>::trackWeight(unsigned int svIndex,
+template<class IPTI,class VTX> float  TemplatedSecondaryVertexTagInfo<IPTI,VTX>::trackWeight(unsigned int svIndex,
                                           unsigned int trackIndex) const
 {
 	return trackWeight(svIndex, track(trackIndex));
 }
 
-template<class IPTI> TaggingVariableList  TemplatedSecondaryVertexTagInfo<IPTI>::taggingVariables() const
+template<class IPTI,class VTX> TaggingVariableList  TemplatedSecondaryVertexTagInfo<IPTI,VTX>::taggingVariables() const
 {
 	TaggingVariableList vars;
 
-	for(typename std::vector<typename TemplatedSecondaryVertexTagInfo<IPTI>::VertexData>::const_iterator iter = m_svData.begin();
+	for(typename std::vector<typename TemplatedSecondaryVertexTagInfo<IPTI,VTX>::VertexData>::const_iterator iter = m_svData.begin();
 	    iter != m_svData.end(); iter++) {
 		vars.insert(btau::flightDistance2dVal,
 					iter->dist2d.value(), true);
