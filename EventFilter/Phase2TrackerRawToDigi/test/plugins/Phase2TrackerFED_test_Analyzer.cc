@@ -20,13 +20,13 @@ using namespace std;
 
 // -----------------------------------------------------------------------------
 // 
-Phase2TrackerFED_test_Analyzer::Phase2TrackerFED_test_Analyzer( const edm::ParameterSet& pset ) : 
-  label_(pset.getParameter<edm::InputTag>("InputLabel"))
+Phase2TrackerFED_test_Analyzer::Phase2TrackerFED_test_Analyzer( const edm::ParameterSet& pset )
 {
   LogDebug("Phase2TrackerFED_test_Analyzer")
     << "[Phase2TrackerFED_test_Analyzer::"
     << __func__ << "]"
     << "Constructing object...";
+  token_ = consumes<FEDRawDataCollection>(pset.getParameter<edm::InputTag>("ProductLabel"));
 }
 
 // -----------------------------------------------------------------------------
@@ -63,7 +63,7 @@ void Phase2TrackerFED_test_Analyzer::analyze( const edm::Event& event, const edm
 {
   // Retrieve FEDRawData collection
   edm::Handle<FEDRawDataCollection> buffers;
-  event.getByLabel( "rawDataCollector", buffers );
+  event.getByToken( token_, buffers );
 
 
 

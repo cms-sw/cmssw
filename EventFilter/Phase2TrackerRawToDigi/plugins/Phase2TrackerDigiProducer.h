@@ -12,6 +12,7 @@
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/DetId/interface/DetIdCollection.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDBuffer.h"
 #include "CondFormats/SiStripObjects/interface/Phase2TrackerCabling.h"
 #include "DataFormats/Phase2TrackerDigi/interface/Phase2TrackerDigi.h"
@@ -37,7 +38,7 @@ namespace sistrip {
     
   private:
     unsigned int runNumber_;
-    edm::InputTag productLabel_;
+    edm::EDGetTokenT<FEDRawDataCollection> token_;
     const Phase2TrackerCabling * cabling_;
     uint32_t cacheId_;
     DetIdCollection detids_;

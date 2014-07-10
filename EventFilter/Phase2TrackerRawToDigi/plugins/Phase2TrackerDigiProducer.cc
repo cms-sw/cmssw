@@ -21,12 +21,12 @@ namespace sistrip {
 
   Phase2TrackerDigiProducer::Phase2TrackerDigiProducer( const edm::ParameterSet& pset ) :
     runNumber_(0),
-    productLabel_(pset.getParameter<edm::InputTag>("ProductLabel")),
     cabling_(0),
     cacheId_(0)
   {
     // define product
     produces< edm::DetSetVector<Phase2TrackerDigi> >("ProcessedRaw");
+    token_ = consumes<FEDRawDataCollection>(pset.getParameter<edm::InputTag>("ProductLabel"));
   }
   
   Phase2TrackerDigiProducer::~Phase2TrackerDigiProducer()
@@ -57,7 +57,7 @@ namespace sistrip {
 
     // Retrieve FEDRawData collection
     edm::Handle<FEDRawDataCollection> buffers;
-    event.getByLabel( "rawDataCollector", buffers );
+    event.getByToken( token_, buffers );
 
     // Analyze strip tracker FED buffers in data
     size_t fedIndex;
