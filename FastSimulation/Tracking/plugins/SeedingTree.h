@@ -16,7 +16,7 @@ class SeedingNode
         int _childIndex; //the index of this Node in its parent's children vector
         unsigned int _depth; //the depth within the tree (for root: depth=0 && parentIndex=-1
         std::vector<unsigned int> _children;
-        
+
     public:
         SeedingNode(const DATA& data, std::vector<SeedingNode*>& allNodes, int parentIndex=-1):
             _data(data),
@@ -127,7 +127,6 @@ class SeedingNode
             return _allNodes[_children[ichild]];
         }
         
-        
         inline unsigned int getChildIndex() const
         {
             return _childIndex;
@@ -165,6 +164,7 @@ class SeedingTree
     protected:
         std::vector<SeedingNode<DATA>*> _roots;
         std::vector<SeedingNode<DATA>*> _allNodes;
+        std::set<DATA> _singleSet;
     public:
         SeedingTree()
         {
@@ -173,13 +173,11 @@ class SeedingTree
         //returns true if successfully inserted into tree
         bool insert(const std::vector<DATA>& dataList)
         {
-            /*std::cout<<"SeedingTree::insert (";
             for (unsigned int i = 0; i< dataList.size(); ++i)
             {
-                std::cout<<dataList[i].print()<<",";
+                _singleSet.insert(dataList[i]);
             }
-            std::cout<<")"<<std::endl;
-            */
+
             if (dataList.size()==0)
             {
                 return false;
@@ -196,6 +194,11 @@ class SeedingTree
             SeedingNode<DATA>* node = new SeedingNode<DATA>(dataList[0],_allNodes);
             _roots.push_back(node);
             return node->insert(dataList,_allNodes);
+        }
+        
+        inline const std::set<DATA> getSingleSet() const
+        {
+            return _singleSet;
         }
         
         void sort()

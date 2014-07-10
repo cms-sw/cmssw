@@ -6,8 +6,6 @@ TrackerRecHit::TrackerRecHit(const SiTrackerGSMatchedRecHit2D* theHit,
 			     const TrackerTopology* tTopo) :
   theSplitHit(0),
   theMatchedHit(theHit),
-  theSubDetId(0),
-  theLayerNumber(0),
   theRingNumber(0),
   theCylinderNumber(0),
   theLocalError(0.),
@@ -22,8 +20,6 @@ TrackerRecHit::TrackerRecHit(const SiTrackerGSRecHit2D* theHit,
 			     const TrackerTopology* tTopo ) :
   theSplitHit(theHit),
   theMatchedHit(0),
-  theSubDetId(0),
-  theLayerNumber(0),
   theRingNumber(0),
   theCylinderNumber(0),
   theLocalError(0.),
@@ -38,38 +34,38 @@ TrackerRecHit::init(const TrackerGeometry* theGeometry, const TrackerTopology *t
 
   const DetId& theDetId = hit()->geographicalId();
   theGeomDet = theGeometry->idToDet(theDetId);
-  theSubDetId = theDetId.subdetId(); 
-  if ( theSubDetId == StripSubdetector::TIB) { 
+  seedingLayer.subDet = theDetId.subdetId(); 
+  if ( seedingLayer.subDet == StripSubdetector::TIB) { 
      
-    theLayerNumber = tTopo->tibLayer(theDetId);
-    theCylinderNumber = TrackerInteractionGeometry::TIB+theLayerNumber;
+    seedingLayer.idLayer = tTopo->tibLayer(theDetId);
+    theCylinderNumber = TrackerInteractionGeometry::TIB+seedingLayer.idLayer;
     forward = false;
-  } else if ( theSubDetId ==  StripSubdetector::TOB ) { 
+  } else if ( seedingLayer.subDet ==  StripSubdetector::TOB ) { 
      
-    theLayerNumber = tTopo->tobLayer(theDetId);
-    theCylinderNumber = TrackerInteractionGeometry::TOB+theLayerNumber;
+    seedingLayer.idLayer = tTopo->tobLayer(theDetId);
+    theCylinderNumber = TrackerInteractionGeometry::TOB+seedingLayer.idLayer;
     forward = false;
-  } else if ( theSubDetId ==  StripSubdetector::TID) { 
+  } else if ( seedingLayer.subDet ==  StripSubdetector::TID) { 
     
-    theLayerNumber = tTopo->tidWheel(theDetId);
-    theCylinderNumber = TrackerInteractionGeometry::TID+theLayerNumber;
+    seedingLayer.idLayer = tTopo->tidWheel(theDetId);
+    theCylinderNumber = TrackerInteractionGeometry::TID+seedingLayer.idLayer;
     theRingNumber = tTopo->tidRing(theDetId);
     forward = true;
-  } else if ( theSubDetId ==  StripSubdetector::TEC ) { 
+  } else if ( seedingLayer.subDet ==  StripSubdetector::TEC ) { 
      
-    theLayerNumber = tTopo->tecWheel(theDetId); 
-    theCylinderNumber = TrackerInteractionGeometry::TEC+theLayerNumber;
+    seedingLayer.idLayer = tTopo->tecWheel(theDetId); 
+    theCylinderNumber = TrackerInteractionGeometry::TEC+seedingLayer.idLayer;
     theRingNumber = tTopo->tecRing(theDetId);
     forward = true;
-  } else if ( theSubDetId ==  PixelSubdetector::PixelBarrel ) { 
+  } else if ( seedingLayer.subDet ==  PixelSubdetector::PixelBarrel ) { 
      
-    theLayerNumber = tTopo->pxbLayer(theDetId); 
-    theCylinderNumber = TrackerInteractionGeometry::PXB+theLayerNumber;
+    seedingLayer.idLayer = tTopo->pxbLayer(theDetId); 
+    theCylinderNumber = TrackerInteractionGeometry::PXB+seedingLayer.idLayer;
     forward = false;
-  } else if ( theSubDetId ==  PixelSubdetector::PixelEndcap ) { 
+  } else if ( seedingLayer.subDet ==  PixelSubdetector::PixelEndcap ) { 
      
-    theLayerNumber = tTopo->pxfDisk(theDetId);  
-    theCylinderNumber = TrackerInteractionGeometry::PXD+theLayerNumber;
+    seedingLayer.idLayer = tTopo->pxfDisk(theDetId);  
+    theCylinderNumber = TrackerInteractionGeometry::PXD+seedingLayer.idLayer;
     forward = true;
   }
 }
@@ -78,7 +74,7 @@ bool
 TrackerRecHit::isOnRequestedDet(const std::vector<std::vector<LayerSpec> >& theLayersInSets) const{ 
   
   for(unsigned int i=0; i<theLayersInSets.size(); ++i) {
-    if(theLayersInSets[i][0].subDet==theSubDetId && theLayersInSets[i][0].idLayer==theLayerNumber) return true;
+    if(theLayersInSets[i][0].subDet==seedingLayer.subDet && theLayersInSets[i][0].idLayer==seedingLayer.idLayer) return true;
   }
 
   return false;
@@ -88,7 +84,7 @@ bool
 TrackerRecHit::isOnRequestedDet(const std::vector<std::vector<LayerSpec> >& theLayersInSets,  const TrackerRecHit& theSeedHitSecond) const{ 
 
   for(unsigned int i=0; i<theLayersInSets.size(); ++i){
-    if( theLayersInSets[i][0].subDet==theSubDetId && theLayersInSets[i][0].idLayer==theLayerNumber &&
+    if( theLayersInSets[i][0].subDet==seedingLayer.subDet && theLayersInSets[i][0].idLayer==seedingLayer.idLayer &&
         theLayersInSets[i][1].subDet==theSeedHitSecond.subDetId() && theLayersInSets[i][1].idLayer==theSeedHitSecond.layerNumber()
       ) return true;
   }
@@ -99,7 +95,7 @@ bool
 TrackerRecHit::isOnRequestedDet(const std::vector<std::vector<LayerSpec> >& theLayersInSets,  const TrackerRecHit& theSeedHitSecond, const TrackerRecHit& theSeedHitThird) const{ 
 
   for(unsigned int i=0; i<theLayersInSets.size(); ++i){
-    if( theLayersInSets[i][0].subDet==theSubDetId && theLayersInSets[i][0].idLayer==theLayerNumber &&
+    if( theLayersInSets[i][0].subDet==seedingLayer.subDet && theLayersInSets[i][0].idLayer==seedingLayer.idLayer &&
         theLayersInSets[i][1].subDet==theSeedHitSecond.subDetId() && theLayersInSets[i][1].idLayer==theSeedHitSecond.layerNumber() &&
         theLayersInSets[i][2].subDet==theSeedHitThird.subDetId() && theLayersInSets[i][2].idLayer==theSeedHitThird.layerNumber() 
       ) return true;
@@ -119,28 +115,28 @@ TrackerRecHit::isOnRequestedDet(const std::vector<unsigned int>& whichDet, const
       
     case 1: 
       //Pixel Barrel
-      isOnDet =  theSubDetId==1;
+      isOnDet =  seedingLayer.subDet==1;
       break;
       
     case 2: 
       //Pixel Disks
-      isOnDet = theSubDetId==2;
+      isOnDet = seedingLayer.subDet==2;
       break;
       
     case 3:
       //Inner Barrel
-      isOnDet = theSubDetId==3 && theLayerNumber < 4;
+      isOnDet = seedingLayer.subDet==3 && seedingLayer.idLayer < 4;
       break;
       
     case 4:
       //Inner Disks
-      isOnDet = theSubDetId==4 && theRingNumber < 3;
+      isOnDet = seedingLayer.subDet==4 && theRingNumber < 3;
       break;
       
     case 5:
       //Outer Barrel
       if(seedingAlgo == "TobTecLayerPairs"){
-	isOnDet = theSubDetId==5 && theLayerNumber <3;
+	isOnDet = seedingLayer.subDet==5 && seedingLayer.idLayer <3;
       }else {
 	isOnDet = false;
       }
@@ -149,15 +145,15 @@ TrackerRecHit::isOnRequestedDet(const std::vector<unsigned int>& whichDet, const
     case 6:
       //Tracker EndCap
       if(seedingAlgo == "PixelLessPairs"){
-	isOnDet = theSubDetId==6 && theLayerNumber < 6 && theRingNumber < 3;
+	isOnDet = seedingLayer.subDet==6 && seedingLayer.idLayer < 6 && theRingNumber < 3;
       }else if (seedingAlgo == "TobTecLayerPairs"){
-	//	isOnDet = theSubDetId==6 && theLayerNumber < 8 && theRingNumber < 5;
-	isOnDet = theSubDetId==6 && theLayerNumber < 8 && theRingNumber == 5;
+	//	isOnDet = seedingLayer.subDet==6 && seedingLayer.idLayer < 8 && theRingNumber < 5;
+	isOnDet = seedingLayer.subDet==6 && seedingLayer.idLayer < 8 && theRingNumber == 5;
       } else if (seedingAlgo == "MixedTriplets"){ 
-	//	isOnDet = theSubDetId==6 && theLayerNumber == 2 && theRingNumber == 1;
-	isOnDet = theSubDetId==6 && theLayerNumber < 4 && theRingNumber == 1;
+	//	isOnDet = seedingLayer.subDet==6 && seedingLayer.idLayer == 2 && theRingNumber == 1;
+	isOnDet = seedingLayer.subDet==6 && seedingLayer.idLayer < 4 && theRingNumber == 1;
       } else {
-	isOnDet = theSubDetId==6;
+	isOnDet = seedingLayer.subDet==6;
 	std::cout << "DEBUG - this should never happen" << std::endl;
       }
 

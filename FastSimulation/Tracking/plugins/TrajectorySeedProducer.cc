@@ -467,7 +467,7 @@ TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es, std::v
 
     ++nSimTracks;
     unsigned simTrackId = theSimTrackIds[tkId];
-    if (simTrackId!=39) continue;
+    //if (simTrackId!=0) continue;
     const SimTrack& theSimTrack = (*theSimTracks)[simTrackId]; 
 #ifdef FAMOS_DEBUG
     std::cout << "Pt = " << std::sqrt(theSimTrack.momentum().Perp2()) 

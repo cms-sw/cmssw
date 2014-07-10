@@ -30,13 +30,18 @@ public:
     theSplitHit(0),
     theMatchedHit(0),
     theGeomDet(0),
-    theSubDetId(0),
-    theLayerNumber(0),
+    
+    
     theRingNumber(0), 
     theCylinderNumber(0), 
     theLocalError(0.),
     theLargerError(0.),
-    forward(false) {}
+    forward(false) 
+   {
+    seedingLayer.subDet=0;
+    seedingLayer.idLayer=0;
+    seedingLayer.side=0;
+   }
 
   /// Soft Copy Constructor from private members
   TrackerRecHit( const SiTrackerGSRecHit2D* theSplitHit, 
@@ -44,13 +49,17 @@ public:
     theSplitHit(theSplitHit),
     theMatchedHit(0),
     theGeomDet(other.geomDet()),
-    theSubDetId(other.subDetId()),
-    theLayerNumber(other.layerNumber()),
+    
     theRingNumber(other.ringNumber()), 
     theCylinderNumber(other.cylinderNumber()), 
     theLocalError(0.),
     theLargerError(0.),
-    forward(other.isForward()) {}
+    forward(other.isForward()) 
+    {
+        seedingLayer.subDet=other.subDetId();
+        seedingLayer.idLayer=other.layerNumber();
+        seedingLayer.side=0;
+    }
 
   /// Constructor from a GSRecHit and the Geometry
   TrackerRecHit(const SiTrackerGSRecHit2D* theHit, 
@@ -76,12 +85,17 @@ public:
   inline const GSSiTrackerRecHit2DLocalPos* hit() const { 
     return theSplitHit ? (GSSiTrackerRecHit2DLocalPos*)theSplitHit : 
       (GSSiTrackerRecHit2DLocalPos*)theMatchedHit; }
+      
+  inline const LayerSpec getSeedingLayer() const
+  {
+    return seedingLayer;
+  }
   
   /// The subdet Id
-  inline unsigned int subDetId() const { return theSubDetId; }
+  inline unsigned int subDetId() const { return seedingLayer.subDet; }
   
   /// The Layer Number
-  inline unsigned int layerNumber() const { return theLayerNumber; }
+  inline unsigned int layerNumber() const { return seedingLayer.idLayer; }
   
   /// The Ring Number
   inline unsigned int ringNumber() const { return theRingNumber; }
@@ -111,20 +125,12 @@ public:
   bool isOnRequestedDet(const std::vector<std::vector<LayerSpec> >& theLayersInSets, const TrackerRecHit& theSeedHitSecond, const TrackerRecHit& theSeedHitThird) const;
 
 
-  /// Check if a pair is on the proper combination of detectors
-  bool makesAPairWith(const TrackerRecHit& anotherHit) const;
-  bool makesAPairWith3rd(const TrackerRecHit& anotherHit) const;
-
-  /// Check if a triplet is on the proper combination of detectors
-  bool makesATripletWith(const TrackerRecHit& anotherHit,
-			 const TrackerRecHit& yetAnotherHit) const;
-
   /// Check if two hits are on the same layer of the same subdetector
   inline bool isOnTheSameLayer(const TrackerRecHit& other) const {
     
     return 
-      theSubDetId == other.subDetId() && 
-      theLayerNumber == other.layerNumber();
+      seedingLayer.subDet == other.subDetId() && 
+      seedingLayer.idLayer == other.layerNumber();
   }
 
   // The smaller local error
@@ -174,8 +180,7 @@ public:
   const SiTrackerGSRecHit2D* theSplitHit;
   const SiTrackerGSMatchedRecHit2D* theMatchedHit;
   const GeomDet* theGeomDet;
-  unsigned int theSubDetId; 
-  unsigned int theLayerNumber;
+  LayerSpec seedingLayer;
   unsigned int theRingNumber;
   unsigned int theCylinderNumber;
   mutable double theLocalError; //only for caching

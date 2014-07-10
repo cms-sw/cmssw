@@ -108,10 +108,10 @@ class TrajectorySeedProducer2 : public TrajectorySeedProducer
   
   
   virtual std::vector<unsigned int> iterateHits(
-	SiTrackerGSMatchedRecHit2DCollection::const_iterator start,
-	SiTrackerGSMatchedRecHit2DCollection::range range,
+	unsigned int start,
 	const std::vector<TrackerRecHit>& trackerRecHits,
 	std::vector<int> hitIndicesInTree,
+	bool processSkippedHits,
 	unsigned int trackingAlgorithmId
   ) const;
   
