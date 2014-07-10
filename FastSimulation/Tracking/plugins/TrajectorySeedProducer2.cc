@@ -179,10 +179,10 @@ std::vector<unsigned int> TrajectorySeedProducer2::iterateHits(
 {
 	for (unsigned int irecHit = start; irecHit<trackerRecHits.size(); ++irecHit)
 	{
-
-        //std::cout<<"hit="<<irecHit<<std::endl;
+        unsigned int currentHitIndex=irecHit;
+        //std::cout<<"hit="<<currentHitIndex<<std::endl;
         /*
-		if ( irecHit >= trackerRecHits.size())
+		if ( currentHitIndex >= trackerRecHits.size())
 		{
 		    //TODO: one can speed things up here if a hit is already too far from the seeding layers (barrel/disks)
 			return std::vector<unsigned int>();
@@ -192,15 +192,16 @@ std::vector<unsigned int> TrajectorySeedProducer2::iterateHits(
 		
 		//process all hits after currentHit on the same layer
 		
-		for (unsigned int inext=irecHit+1; inext< trackerRecHits.size(); ++inext)
+		for (unsigned int inext=currentHitIndex+1; inext< trackerRecHits.size(); ++inext)
 		{
-			if (trackerRecHits[irecHit].getSeedingLayer()==trackerRecHits[inext].getSeedingLayer())
+			if (trackerRecHits[currentHitIndex].getSeedingLayer()==trackerRecHits[inext].getSeedingLayer())
 			{
 			    if (processSkippedHits)
 			    {
 			        //std::cout<<"skipping hit: "<<inext<<std::endl;
-	                //std::cout<<"\t\t"<<trackerRecHits[inext].getSeedingLayer().subDet<<":"<<trackerRecHits[inext].getSeedingLayer().idLayer<<std::endl;//<<", pos=("<<trackerRecHits[inext].globalPosition().x()<<","<<trackerRecHits[inext].globalPosition().y()<<","<<trackerRecHits[inext].globalPosition().z()<<")"<<std::endl;
 			        
+	                //std::cout<<"\t\t"<<trackerRecHits[inext].getSeedingLayer().subDet<<":"<<trackerRecHits[inext].getSeedingLayer().idLayer<<std::endl;//<<", pos=("<<trackerRecHits[inext].globalPosition().x()<<","<<trackerRecHits[inext].globalPosition().y()<<","<<trackerRecHits[inext].globalPosition().z()<<")"<<std::endl;
+	                //TODO: check if hit can even be on free position within tree's layer
 			        std::vector<unsigned int> seedHits = iterateHits(
 		                inext,
 		                trackerRecHits,
@@ -212,6 +213,7 @@ std::vector<unsigned int> TrajectorySeedProducer2::iterateHits(
 	                {
 	                    return seedHits;
 	                }
+	                
 	                
                 }
                 irecHit+=1; //skipping all following hits on the same layer
@@ -232,7 +234,7 @@ std::vector<unsigned int> TrajectorySeedProducer2::iterateHits(
 		for (unsigned int iroot=0; seedNode==nullptr && iroot<_seedingTree.numberOfRoots(); ++iroot)
 		{
 		    //std::cout<<"\troot: "<<iroot<<std::endl;
-		    seedNode=insertHit(trackerRecHits,hitIndicesInTree,_seedingTree.getRoot(iroot), irecHit,trackingAlgorithmId);
+		    seedNode=insertHit(trackerRecHits,hitIndicesInTree,_seedingTree.getRoot(iroot), currentHitIndex,trackingAlgorithmId);
 		}
 		if (seedNode)
 		{
@@ -345,7 +347,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 	for (SiTrackerGSMatchedRecHit2DCollection::id_iterator itSimTrackId=theGSRecHits->id_begin();  itSimTrackId!=theGSRecHits->id_end(); ++itSimTrackId )
 	{
 		const unsigned int currentSimTrackId = *itSimTrackId;
-		//if (currentSimTrackId!=0) continue;
+		//if (currentSimTrackId!=286) continue;
 		//std::cout<<"processing simtrack with id: "<<currentSimTrackId<<std::endl;
 		const SimTrack& theSimTrack = (*theSimTracks)[currentSimTrackId];
 
@@ -493,7 +495,8 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 	{
 	    if ((newhits[itrack].size()>0 && oldhits[itrack].size()==0) || (newhits[itrack].size()==0 && oldhits[itrack].size()>0))
 	    {
-	        std::cout<<"summary: track="<<itrack<<std::endl;
+	        //std::cout<<"summary: track="<<itrack<<std::endl;
+	        /*
 	        if (newhits[itrack].size()>0)
 	        {
 	            std::cout<<"simtrack = "<<itrack<<": new seed"<<std::endl;
@@ -501,7 +504,7 @@ TrajectorySeedProducer2::produce(edm::Event& e, const edm::EventSetup& es) {
 	            {
 	                std::cout<<"\t hit: "<<newhits[itrack][ihit].first<<", "<<newhits[itrack][ihit].second.getSeedingLayer().subDet<<":"<<newhits[itrack][ihit].second.getSeedingLayer().idLayer<<", pos=("<<newhits[itrack][ihit].second.globalPosition().x()<<","<<newhits[itrack][ihit].second.globalPosition().y()<<","<<newhits[itrack][ihit].second.globalPosition().z()<<")"<<std::endl;
 	            }
-	        }
+	        }*/
 	        if (oldhits[itrack].size()>0)
 	        {
 	            std::cout<<"simtrack = "<<itrack<<": old seed"<<std::endl;
