@@ -71,8 +71,8 @@ private:
 
   // input file parameters
   int nTextHeaderLines_;
-  //  int txBlockOffset_;
   int maxFramesPerEvent_;
+  int txLatency_;
   int nRxLinks_;
   int nTxLinks_;
 
@@ -113,8 +113,8 @@ MP7BufferDumpToRaw::MP7BufferDumpToRaw(const edm::ParameterSet& iConfig)
   txFilename_ = iConfig.getUntrackedParameter<std::string>("txFile", "tx_summary.txt");
 
   nTextHeaderLines_ = iConfig.getUntrackedParameter<int>("nTextHeaderLines", 3);
-  maxFramesPerEvent_ = iConfig.getUntrackedParameter<int>("nFramesPerEvent", 32);
-  //  txBlockOffset_ = iConfig.getUntrackedParameter<int>("txBlockOffset", 72);
+  maxFramesPerEvent_ = iConfig.getUntrackedParameter<int>("nFramesPerEvent", 41);
+  txLatency_= iConfig.getUntrackedParameter<int>("txLatency", 61);
 
   nRxLinks_ = iConfig.getUntrackedParameter<int>("nRxLinks", 72);
   nTxLinks_ = iConfig.getUntrackedParameter<int>("nTxLinks", 72);
@@ -369,6 +369,7 @@ MP7BufferDumpToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // now add payload
 
   iWord += lenAMCHeader_;
+  std::ostringstream payloadInfo;
 
   for (int iBlock=0; iBlock<nRxLinks_ && iWord<fedSize; ++iBlock) {
 
@@ -380,24 +381,32 @@ MP7BufferDumpToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     feddata.data()[iWord+3] = blockId & 0xff;
     iWord+=4;
 
-    edm::LogInfo("mp7") << "Rx Block : ID=" << (blockId&0xff) << " Length=" << (blockLength&0xff) << std::endl;
+    if (blockLength!=0) {
+      payloadInfo << ", " << (blockId&0xff) << " (" << (blockLength&0xff) << ")";
+    }
 
-    for (int i=0; i<blockLength; ++i) {
-      if (iBlock<(int)rxData.size() && i<(int)rxData.at(iBlock).size()) {
+    if (blockLength>(int)rxData.at(iBlock).size()) {
+      edm::LogError("mp7") << "Read insufficient data for block " << blockId <<". Expected " << blockLength << " read " << rxData.at(iBlock).size() << " from Rx link " << iBlock << std::endl;
+      continue;
+    }
+
+    for (int i=0; i<blockLength && i<(int)rxData.at(iBlock).size(); ++i) {
 	feddata.data()[iWord]   = rxData.at(iBlock).at(i) & 0xff;
 	feddata.data()[iWord+1] = (rxData.at(iBlock).at(i) >> 8) & 0xff;
 	feddata.data()[iWord+2] = (rxData.at(iBlock).at(i) >> 16) & 0xff;
 	feddata.data()[iWord+3] = (rxData.at(iBlock).at(i) >> 24) & 0xff;
 	iWord+=4;
-      }
-      else edm::LogError("mp7") << "Error. i=" << i << " iBlock=" << iBlock << std::endl;
     }
 
   }
 
+  edm::LogInfo("mp7") << "Rx blocks : " << payloadInfo.str() << std::endl;
+
   // now do Tx links
   // strictly these will appear in the wrong place
   // they should be interspersed with Rx channels, not appended
+
+  payloadInfo.str("");
 
   for (int iBlock=0; iBlock<nTxLinks_ && iWord<fedSize; ++iBlock) {
 
@@ -409,20 +418,24 @@ MP7BufferDumpToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     feddata.data()[iWord+3] = blockId & 0xff;
     iWord+=4;
 
-    edm::LogInfo("mp7") << "Tx Block : ID=" << (blockId&0xff) << " Length=" << (blockLength&0xff) << std::endl;
+    payloadInfo << ", " << (blockId&0xff) << "(" << (blockLength&0xff) << ")";
 
-    for (int i=0; i<blockLength; ++i) {
-      if (iBlock<(int)txData.size() && i<(int)txData.at(iBlock).size()) {
-	feddata.data()[iWord]   = txData.at(iBlock).at(i) & 0xff;
-	feddata.data()[iWord+1] = (txData.at(iBlock).at(i) >> 8) & 0xff;
-	feddata.data()[iWord+2] = (txData.at(iBlock).at(i) >> 16) & 0xff;
-	feddata.data()[iWord+3] = (txData.at(iBlock).at(i) >> 24) & 0xff;
-	iWord+=4;
-      }
-      else edm::LogError("mp7") << "Error. i=" << i << " iBlock=" << iBlock << std::endl;
+    if (blockLength>(int)txData.at(iBlock).size()) {
+      edm::LogError("mp7") << "Read insufficient data for block " << blockId <<". Expected " << blockLength << " read " << txData.at(iBlock).size() << " from Tx link " << iBlock << std::endl;
+      continue;
+    }
+
+    for (int i=0; i<blockLength && i<(int)txData.at(iBlock).size(); ++i) {
+      feddata.data()[iWord]   = txData.at(iBlock).at(i) & 0xff;
+      feddata.data()[iWord+1] = (txData.at(iBlock).at(i) >> 8) & 0xff;
+      feddata.data()[iWord+2] = (txData.at(iBlock).at(i) >> 16) & 0xff;
+      feddata.data()[iWord+3] = (txData.at(iBlock).at(i) >> 24) & 0xff;
+      iWord+=4;
     }
 
   }
+
+  edm::LogInfo("mp7") << "Tx blocks : " << payloadInfo.str() << std::endl;
 
   // write AMC trailer
   feddata.data()[iWord]   = evtId & 0xff;
@@ -460,6 +473,9 @@ MP7BufferDumpToRaw::beginJob()
   std::string line;
   for (int i=0; i<nTextHeaderLines_; ++i) {
     std::getline(rxFile_, line);
+  }
+
+  for (int i=0; i<nTextHeaderLines_+txLatency_; ++i) {
     std::getline(txFile_, line);
   }
 
