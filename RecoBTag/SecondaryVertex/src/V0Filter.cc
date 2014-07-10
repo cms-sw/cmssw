@@ -60,6 +60,16 @@ V0Filter::operator () (const reco::TrackRef *tracks, unsigned int n) const
 }
 
 bool
+V0Filter::operator () (const std::vector<reco::CandidatePtr> & tracks) const
+{
+	std::vector<const reco::Track*> trackPtrs(tracks.size());
+	for(unsigned int i = 0; i < tracks.size(); i++)
+		trackPtrs[i] = tracks[i]->bestTrack();
+
+	return (*this)(&trackPtrs[0], tracks.size());
+}
+
+bool
 V0Filter::operator () (const reco::Track *tracks, unsigned int n) const
 {
 	std::vector<const reco::Track*> trackPtrs(n);
@@ -68,3 +78,4 @@ V0Filter::operator () (const reco::Track *tracks, unsigned int n) const
 
 	return (*this)(&trackPtrs[0], n);
 }
+

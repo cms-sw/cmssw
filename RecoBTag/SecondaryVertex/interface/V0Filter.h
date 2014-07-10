@@ -6,6 +6,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 
 namespace reco {
 
@@ -16,6 +17,7 @@ class V0Filter {
 
 	bool operator () (const reco::TrackRef *tracks, unsigned int n) const;
 	bool operator () (const reco::Track *tracks, unsigned int n) const;
+	bool operator () (const std::vector<reco::CandidatePtr> &tracks) const;
 
 	inline bool
 	operator () (const std::vector<reco::TrackRef> &tracks) const

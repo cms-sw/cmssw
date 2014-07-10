@@ -40,21 +40,18 @@ static unsigned int
 computeSharedTracks(const Vertex &pv, const std::vector<CandidatePtr> &svTracks,
                     double minTrackWeight)
 {
-/*      std::set<TrackRef> pvTracks;
+        std::set<const Track *> pvTracks;
         for(std::vector<TrackBaseRef>::const_iterator iter = pv.tracks_begin();
             iter != pv.tracks_end(); iter++)
                 if (pv.trackWeight(*iter) >= minTrackWeight)
-                        pvTracks.insert(iter->castTo<TrackRef>());
+                        pvTracks.insert(iter->get());
 
         unsigned int count = 0;
-        for(std::vector<TrackRef>::const_iterator iter = svTracks.begin();
+        for(std::vector<CandidatePtr>::const_iterator iter = svTracks.begin();
             iter != svTracks.end(); iter++)
-                count += pvTracks.count(*iter);
+                count += pvTracks.count((*iter)->bestTrack());
 
         return count;
-*/
-//FIXME TODO
-return 0;
 }
 
 VertexFilter::VertexFilter(const edm::ParameterSet &params) :
@@ -144,19 +141,14 @@ bool VertexFilter::operator () (const Vertex &pv,
 bool VertexFilter::operator () (const reco::Vertex &pv, 
 				const TemplatedSecondaryVertex<reco::VertexCompositePtrCandidate> &sv,
 	                        const GlobalVector &direction) const {
-//FIXME TODO: properly implement the commented stuff
 
-/*	std::vector<TrackRef> svTracks;
-	for(std::vector<TrackBaseRef>::const_iterator iter = sv.tracks_begin();
-			iter != sv.tracks_end(); iter++)
-		if (sv.trackWeight(*iter) >= minTrackWeight)
-			svTracks.push_back(iter->castTo<TrackRef>());
+	const std::vector<CandidatePtr> & svTracks = sv.daughterPtrVector();
 
 	// minimum number of tracks at vertex
 
 	if (svTracks.size() < multiplicityMin)
 		return false;
-*/
+
 	// invalid errors
 
 	if (sv.dist2d().error() < 0 || sv.dist3d().error() < 0)
@@ -176,11 +168,10 @@ bool VertexFilter::operator () (const reco::Vertex &pv,
 
 	// SV direction filter
 
-/*	if (Geom::deltaR(sv.position() - pv.position(),
+	if (Geom::deltaR(sv.vertex() - pv.position(),
 				(maxDeltaRToJetAxis > 0) ? direction : -direction)
 			> std::abs(maxDeltaRToJetAxis))
 		return false;
-*/
 	// compute fourvector sum of tracks as vertex and cut on inv. mass
 
 	TrackKinematics kin(sv);
@@ -193,19 +184,15 @@ bool VertexFilter::operator () (const reco::Vertex &pv,
 
 	// find shared tracks between PV and SV
 
-/*if (fracPV < 1.0) {
+	if (fracPV < 1.0) {
 		unsigned int sharedTracks =
 			computeSharedTracks(pv, svTracks, minTrackWeight);
 		if ((double)sharedTracks / svTracks.size() > fracPV)
 			return false;
-	}*/
+	}
 
 	// check for V0 vertex
 
-/*	if (sv.hasRefittedTracks())
-		return v0Filter(sv.refittedTracks());
-	else
-		return v0Filter(svTracks);*/
-return true;
+	return v0Filter(svTracks);
 }
 
