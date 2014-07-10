@@ -4,7 +4,7 @@ class MinPtCut : public CutApplicatorBase {
 public:
   MinPtCut(const edm::ParameterSet& c) :
     CutApplicatorBase(c),
-    _minPt(c.getParameter<bool>("minPt")) { }
+    _minPt(c.getParameter<double>("minPt")) { }
   
   result_type asCandidate(const argument_type& cand) const override final {
     return cand.pt() > _minPt;

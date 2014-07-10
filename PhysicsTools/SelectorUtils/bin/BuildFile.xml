@@ -13,5 +13,6 @@
 <use   name="PhysicsTools/SelectorUtils"/>
 <environment>
   <bin   file="testSelection_wplusjets.C">
+  <bin   file="calculateIdMD5.cc"></bin>
   </bin>
 </environment>
