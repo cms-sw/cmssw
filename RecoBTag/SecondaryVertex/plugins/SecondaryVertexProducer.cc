@@ -427,7 +427,6 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::produce(edm::Event &event,
 	 	std::vector<VTX>       extAssoCollection;    
 		std::vector<TransientVertex> fittedSVs;
 		std::vector<SecondaryVertex> SVs;
-		std::cout << "about to fit" << std::endl;
 		if(!useExternalSV){ 
     		  switch(constraint)   {
 		    case CONSTRAINT_NONE:
@@ -493,7 +492,6 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::produce(edm::Event &event,
 		}
 
 		// build combined SV information and filter
-		std::cout << "fit done" << std::endl;
 
 		SVBuilder svBuilder(pv, jetDir, withPVError);
 		std::remove_copy_if(boost::make_transform_iterator(
@@ -523,7 +521,7 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::produce(edm::Event &event,
 
 
                  }
-		std::cout << "size: " << SVs.size() << std::endl; 
+//		std::cout << "size: " << SVs.size() << std::endl; 
 		gtPred.reset();
 		ghostTrack.reset();
 		gtStates.clear();
