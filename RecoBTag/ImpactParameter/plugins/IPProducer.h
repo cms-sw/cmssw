@@ -262,9 +262,8 @@ IPProducer<Container,Base,Helper>::produce(edm::Event& iEvent, const edm::EventS
        jetMomentum *= 0.5;
        for(typename Container::const_iterator itTrack = tracks.begin();
            itTrack != tracks.end(); ++itTrack)
-//ARFIXME:         if ((**itTrack).numberOfValidHits() >= m_cutTotalHits)
-           //minimal quality cuts
-           jetMomentum += (*itTrack)->momentum();
+           if (reco::btag::toTrack(*itTrack)->numberOfValidHits() >= m_cutTotalHits)           //minimal quality cuts
+	           jetMomentum += (*itTrack)->momentum();
      }
 
      Container selectedTracks;
