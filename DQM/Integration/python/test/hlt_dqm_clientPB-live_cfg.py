@@ -15,12 +15,6 @@ process.source = DQMProtobufReader
 process.load("DQM.Integration.test.environment_cfi")
 process.dqmEnv.subSystemFolder = 'HLT'
 #-----------------------------
-# Global tag
-# Condition for P5 cluster
-process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
-# Condition for lxplus
-#process.load("DQM.Integration.test.FrontierCondition_GT_Offline_cfi") 
-
 
 # DQM Modules
 # FastTimerService client
