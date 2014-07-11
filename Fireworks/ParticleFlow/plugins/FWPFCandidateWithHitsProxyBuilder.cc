@@ -100,17 +100,15 @@ FWPFCandidateWithHitsProxyBuilder::build(const FWEventItem* iItem, TEveElementLi
 
    Int_t idx = 0;
    //initPFRecHitsCollections();
+   std::cout << "running proxy builder with hits" << std::endl;
    for( reco::PFCandidateCollection::const_iterator it = candidates->begin(), itEnd = candidates->end(); it != itEnd; ++it, ++idx)
-   {  
-      TEveCompound* comp = createCompound();
-      
-      // printf("products size %d/%d \n", (int)iItem->size(), product->NumChildren());
-
-      const reco::PFCandidate& cand = *it;
-      
-      // track
-      if( std::abs(cand.charge()) > 0 ) {
-         TEveRecTrack t;
+   {     
+       TEveCompound* comp = createCompound();       
+       // printf("products size %d/%d \n", (int)iItem->size(), product->NumChildren());       
+       const reco::PFCandidate& cand = *it;       
+       // track
+       if( std::abs(cand.charge()) >= 0 ) {
+	 TEveRecTrack t;
          t.fBeta = 1.;
          t.fP = TEveVector( cand.px(), cand.py(), cand.pz() );
          t.fV = TEveVector( cand.vertex().x(), cand.vertex().y(), cand.vertex().z() );
@@ -119,12 +117,13 @@ FWPFCandidateWithHitsProxyBuilder::build(const FWEventItem* iItem, TEveElementLi
          trk->MakeTrack();
          fireworks::setTrackTypePF( cand, trk );
          setupAddElement(trk, comp);
-      }
-      // hits
-      comp->SetMainColor(iItem->defaultDisplayProperties().color());
-      addHitsForCandidate(cand, comp, vc);
-      setupAddElement( comp, product );
-      std::cout << "added: " << *it << std::endl;
+       }
+       // hits
+       comp->SetMainColor(iItem->defaultDisplayProperties().color());
+       addHitsForCandidate(cand, comp, vc);
+       setupAddElement( comp, product );
+     
+     std::cout << "added: " << *it << std::endl;
    }
 }
 
@@ -261,7 +260,7 @@ TString boxset_tooltip_callback(TEveDigitSet* ds, Int_t idx)
 //______________________________________________________________________________
 void FWPFCandidateWithHitsProxyBuilder::addHitsForCandidate(const reco::PFCandidate& cand, TEveElement* holder, const FWViewContext* vc)
 { 
-   reco::PFCandidate::ElementsInBlocks eleInBlocks = cand.elementsInBlocks();
+   const reco::PFCandidate::ElementsInBlocks& eleInBlocks = cand.elementsInBlocks();
 
    TEveBoxSet* boxset = 0;
    TEveStraightLineSet* lineset = 0;
@@ -274,6 +273,7 @@ void FWPFCandidateWithHitsProxyBuilder::addHitsForCandidate(const reco::PFCandid
 
       reco::PFBlockRef blockRef = eleInBlocks[elIdx].first;
       unsigned indexInBlock = eleInBlocks[elIdx].second;
+      assert(indexInBlock < blockRef->elements().size());
       edm::Ptr<reco::PFBlock> myBlock(blockRef.id(),blockRef.get(), blockRef.key());
       auto thetype = myBlock->elements()[indexInBlock].type();
       /*
@@ -290,7 +290,7 @@ void FWPFCandidateWithHitsProxyBuilder::addHitsForCandidate(const reco::PFCandid
    
  
       std::vector<float> scaledCorners(24);
-      float scale = vc->getEnergyScale()->getScaleFactor3D()/50;
+      //float scale = vc->getEnergyScale()->getScaleFactor3D()/50;
       if (ieHCAL /*&&  m_collectionHCAL*/) {
          reco::PFClusterRef hcalclusterRef=myBlock->elements()[ieHCAL].clusterRef();
          edm::Ptr<reco::PFCluster> myCluster(hcalclusterRef.id(),hcalclusterRef.get(), hcalclusterRef.key());
@@ -323,42 +323,33 @@ void FWPFCandidateWithHitsProxyBuilder::addHitsForCandidate(const reco::PFCandid
 	     
 	      const float* corners = context().getGeom()->getCorners(hitDetId);
 	      
-               const reco::PFRecHit* hit = NULL;//getHitForDetId(hitDetId);
-               if (hit)
-               {
-                  viewContextBoxScale( corners, hit->energy()*scale, vc->getEnergyScale()->getPlotEt(), scaledCorners, hit);
-                  boxset->AddBox( &scaledCorners[0]);
-                  // setup last box
-                  boxset->DigitColor(holder->GetMainColor());
-                  boxset->DigitUserData((void*)hit);
-                  addBoxAsLines(lineset, &scaledCorners[0]);
-                  hitsFound = true;
-               } else {
-		 fireworks::energyTower3DCorners(corners, hitsandfracs[ihandf].second, scaledCorners);
-		 //viewContextBoxScale( corners, hit->energy()*scale, vc->getEnergyScale()->getPlotEt(), scaledCorners, hit);
-		 boxset->AddBox( &scaledCorners[0]);
-		 // setup last box
-		 boxset->DigitColor(holder->GetMainColor());
-		 boxset->DigitUserData((void*)(&hitsandfracs[ihandf].first));
-		 addBoxAsLines(lineset, &scaledCorners[0]);
-		 hitsFound = true;
-	       }
-               /*
-               // AMT: don't add lines if hit is not found becuse of unconsistency of scaling.
-               else
-               {
-                  addBoxAsLines(lineset, corners);
-               }
-               */
+	      fireworks::energyTower3DCorners(corners, hitsandfracs[ihandf].second, scaledCorners);
+	      //viewContextBoxScale( corners, hit->energy()*scale, vc->getEnergyScale()->getPlotEt(), scaledCorners, hit);
+	      boxset->AddBox( &scaledCorners[0]);
+	      // setup last box
+	      boxset->DigitColor(holder->GetMainColor());
+	      boxset->DigitUserData((void*)(&hitsandfracs[ihandf].first));
+	      addBoxAsLines(lineset, &scaledCorners[0]);
+	      hitsFound = true;
+	      
+	      /*
+	      // AMT: don't add lines if hit is not found becuse of unconsistency of scaling.
+	      else
+	      {
+	      addBoxAsLines(lineset, corners);
+	      }
+	      */
             }
             if (!hitsFound)
-               fwLog(fwlog::kWarning) << Form("Can't find matching hits with for HCAL block %d in RecHit collection. Number of hits %d.\n", elIdx, (int)hitsandfracs.size());
+	      //fwLog(fwlog::kWarning) 
+	      std::cout << Form("Can't find matching hits with for HCAL block %d in RecHit collection. Number of hits %d.\n", elIdx, (int)hitsandfracs.size());
 
 
          }
          else
          {
-            fwLog(fwlog::kInfo) << "empty cluster \n";
+	   //fwLog(fwlog::kInfo) << "empty cluster \n";
+	   std::cout << "empty cluster!" << std::endl;
          }
       }
    } // endloop cand.elementsInBlocks();
