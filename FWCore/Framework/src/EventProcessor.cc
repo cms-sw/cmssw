@@ -1491,7 +1491,7 @@ namespace edm {
 
   bool EventProcessor::endOfLoop() {
     if(looper_) {
-      ModuleChanger changer(schedule_.get());
+      ModuleChanger changer(schedule_.get(),preg_.get());
       looper_->setModuleChanger(&changer);
       EDLooperBase::Status status = looper_->doEndOfLoop(esp_->eventSetup());
       looper_->setModuleChanger(nullptr);
