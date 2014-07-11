@@ -86,16 +86,17 @@ namespace IPProducerHelpers {
 
                       std::vector<reco::CandidatePtr> tracks(edm::Event&,const reco::JetTagInfo & it)
                       {
-                              return   m_map[&it];
+                              return   m_map[it.jet().key()];
                       }
                       std::vector<reco::JetTagInfo>  makeBaseVector(edm::Event& iEvent){
                               edm::Handle<edm::View<reco::Jet> > jets;
                               iEvent.getByToken(token_jets, jets);
                               std::vector<reco::JetTagInfo> bases;
-
+			      
                               edm::Handle<edm::View<reco::Candidate> > cands;
                               iEvent.getByToken(token_cands, cands);
-
+			      m_map.clear();
+			      m_map.resize(jets->size());	
                               size_t i = 0;
                               for(edm::View<reco::Jet>::const_iterator it = jets->begin();
                                               it != jets->end(); it++, i++) {
@@ -104,13 +105,13 @@ namespace IPProducerHelpers {
 				      //FIXME: add deltaR or any other requirement here
 				      for(size_t j=0;j<cands->size();j++) {
 					      if((*cands)[j].bestTrack()!=0 &&  ROOT::Math::VectorUtil::DeltaR((*cands)[j].p4(),(*jets)[i].p4()) < maxDeltaR){
-						      m_map[& bases.back()].push_back(cands->ptrAt(j));	
+						      m_map[i].push_back(cands->ptrAt(j));	
 					      }
 				      }
                               }
                               return bases;
                       }
-		      std::map<const reco::JetTagInfo * ,std::vector<reco::CandidatePtr> > m_map;	
+		      std::vector<std::vector<reco::CandidatePtr> > m_map;	
                       edm::EDGetTokenT<edm::View<reco::Jet> > token_jets;
                       edm::EDGetTokenT<edm::View<reco::Candidate> >token_cands;
 		      double maxDeltaR;	
@@ -273,24 +274,25 @@ IPProducer<Container,Base,Helper>::produce(edm::Event& iEvent, const edm::EventS
          itTrack != tracks.end(); ++itTrack) {
        TransientTrack transientTrack = builder->build(*itTrack);
        const Track & track = transientTrack.track(); //**itTrack;
-/*     cout << " pt " <<  track.pt() <<
+     cout << " pt " <<  track.pt() <<
                " d0 " <<  fabs(track.d0()) <<
                " #hit " <<    track.hitPattern().numberOfValidHits()<<
-               " ipZ " <<   fabs(track.dz()-pvZ)<<
+               " ipZ " <<   fabs(track.dz()-pv->z())<<
                " chi2 " <<  track.normalizedChi2()<<
                " #pixel " <<    track.hitPattern().numberOfValidPixelHits()<< endl;
-*/
+
        if (track.pt() > m_cutMinPt &&
            track.hitPattern().numberOfValidHits() >= m_cutTotalHits &&         // min num tracker hits
            track.hitPattern().numberOfValidPixelHits() >= m_cutPixelHits &&
            track.normalizedChi2() < m_cutMaxChiSquared &&
            std::abs(track.dxy(pv->position())) < m_cutMaxTIP &&
            std::abs(track.dz(pv->position())) < m_cutMaxLIP) {
+	 std::cout << "selected" << std::endl; 	
          selectedTracks.push_back(*itTrack);
          transientTracks.push_back(transientTrack);
        }
      }
-
+	std::cout <<"SIZE: " << transientTracks.size() << std::endl;
      GlobalVector direction(jetMomentum.x(), jetMomentum.y(), jetMomentum.z());
 
      auto_ptr<GhostTrack> ghostTrack;
