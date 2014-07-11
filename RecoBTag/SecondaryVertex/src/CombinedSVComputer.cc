@@ -198,11 +198,11 @@ CombinedSVComputer::operator () (const TrackIPTagInfo &ipInfo,
                                 Track actualTrack =
                                                 vertex.refittedTrack(*track);
                                 vertexKinematics.add(actualTrack, w);
-                                vars.insert(btau::trackEtaRel, etaRel(jetDir,
+                                vars.insert(btau::trackEtaRel, reco::btau::etaRel(jetDir,
                                                 actualTrack.momentum()), true);
                         } else {
                                 vertexKinematics.add(**track, w);
-                                vars.insert(btau::trackEtaRel, etaRel(jetDir,
+                                vars.insert(btau::trackEtaRel, reco::btau::etaRel(jetDir,
                                                 (*track)->momentum()), true);
                         }
                 }
@@ -245,7 +245,7 @@ CombinedSVComputer::operator () (const CandIPTagInfo &ipInfo,
                 for(std::vector<CandidatePtr>::const_iterator track = tracks.begin();
                     track != tracks.end(); track++) {
                                 vertexKinematics.add(*(*track)->bestTrack(), 1.0);
-                                vars.insert(btau::trackEtaRel, etaRel(jetDir,
+                                vars.insert(btau::trackEtaRel, reco::btau::etaRel(jetDir,
                                                 (*track)->momentum()), true);
                         
                 }

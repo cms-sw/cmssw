@@ -1,5 +1,5 @@
-#ifndef BTauReco_IpTagInfo_h
-#define BTauReco_IpTagInfo_h
+#ifndef DataFormats_BTauReco_IpTagInfo_h
+#define DataFormats_BTauReco_IpTagInfo_h
 
 #include "DataFormats/BTauReco/interface/RefMacros.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
@@ -47,12 +47,6 @@ inline  const reco::Track * toTrack(const reco::CandidatePtr & c) {return (*c).b
 template <class Container, class Base>
 class IPTagInfo : public Base {
 public:
-//hide here, but why we have it implemented 3 times?!?
-double etaRel(const math::XYZVector &dir, const math::XYZVector &track) const {
-  double momPar = dir.Dot(track);
-  double energy = sqrt(track.Mag2() + ROOT::Math::Square(0.13957));
-  return 0.5 * log((energy + momPar) / (energy - momPar));
-}
     typedef btag::TrackIPData TrackIPData;
     typedef btag::variableJTAParameters variableJTAParameters; 	
     typedef btag::SortCriteria SortCriteria;	
@@ -181,7 +175,7 @@ template <class Container, class Base> TaggingVariableList IPTagInfo<Container,B
 
      vars.insert(btau::trackMomentum, trackMag, true);
      vars.insert(btau::trackEta, trackMom.Eta(), true);
-     vars.insert(btau::trackEtaRel, etaRel(jetDir, trackMom), true);
+     vars.insert(btau::trackEtaRel, reco::btau::etaRel(jetDir, trackMom), true);
      vars.insert(btau::trackPtRel, VectorUtil::Perp(trackMom, jetDir), true);
      vars.insert(btau::trackPPar, jetDir.Dot(trackMom), true);
      vars.insert(btau::trackDeltaR, VectorUtil::DeltaR(trackMom, jetDir), true);

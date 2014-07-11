@@ -87,15 +87,6 @@ GhostTrackComputer::threshTrack(const TrackIPTagInfo &trackIPTagInfo,
 	return dummy;
 }
 
-static double etaRel(const math::XYZVector &dir, const math::XYZVector &track)
-{
-	double momPar = dir.Dot(track);
-	double energy = std::sqrt(track.Mag2() +
-	                          ROOT::Math::Square(ParticleMasses::piPlus));
-
-	return 0.5 * std::log((energy + momPar) / (energy - momPar));
-}
-
 static void addMeas(std::pair<double, double> &sum, Measurement1D meas)
 {
 	double weight = 1. / meas.error();
@@ -167,11 +158,11 @@ GhostTrackComputer::operator () (const TrackIPTagInfo &ipInfo,
 				Track actualTrack =
 						vertex.refittedTrack(*track);
 				kin.add(actualTrack, w);
-				vars.insert(btau::trackEtaRel, etaRel(jetDir,
+				vars.insert(btau::trackEtaRel, reco::btau::etaRel(jetDir,
 						actualTrack.momentum()), true);
 			} else {
 				kin.add(**track, w);
-				vars.insert(btau::trackEtaRel, etaRel(jetDir,
+				vars.insert(btau::trackEtaRel, reco::btau::etaRel(jetDir,
 						(*track)->momentum()), true);
 			}
 			if (!isTrackVertex)

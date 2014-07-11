@@ -50,15 +50,6 @@ class CombinedSVComputer {
 	reco::TaggingVariableList
 	operator () (const reco::CandIPTagInfo &ipInfo,
 	             const reco::CandSecondaryVertexTagInfo &svInfo) const;
-///Hidden here too, but why is it implemented 3 times?!?
-double etaRel(const math::XYZVector &dir, const math::XYZVector &track) const
-{
-	double momPar = dir.Dot(track);
-	double energy = std::sqrt(track.Mag2() +
-	                          ROOT::Math::Square(reco::ParticleMasses::piPlus));
-
-	return 0.5 * std::log((energy + momPar) / (energy - momPar));
-}
 
     private:
 	struct IterationRange {
@@ -141,11 +132,11 @@ template <class SVTI,class IPTI>     void CombinedSVComputer::fillCommonVariable
                                 Track actualTrack =
                                                 vertex.refittedTrack(*track);
                                 vertexKinematics.add(actualTrack, w);
-                                vars.insert(btau::trackEtaRel, etaRel(jetDir,
+                                vars.insert(btau::trackEtaRel, reco::btau::etaRel(jetDir,
                                                 actualTrack.momentum()), true);
                         } else {
                                 vertexKinematics.add(**track, w);
-                                vars.insert(btau::trackEtaRel, etaRel(jetDir,
+                                vars.insert(btau::trackEtaRel, reco::btau::etaRel(jetDir,
                                                 (*track)->momentum()), true);
                         }
                 }
@@ -275,7 +266,7 @@ template <class SVTI,class IPTI>     void CombinedSVComputer::fillCommonVariable
                 for(std::vector<const Track *>::const_iterator track =
                                                 pseudoVertexTracks.begin();
                     track != pseudoVertexTracks.end(); ++track)
-                        vars.insert(btau::trackEtaRel, etaRel(jetDir,
+                        vars.insert(btau::trackEtaRel, reco::btau::etaRel(jetDir,
                                                 (*track)->momentum()), true);
         }
 
