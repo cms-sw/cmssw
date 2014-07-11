@@ -1,8 +1,9 @@
 #ifndef PHASE2TRACKERDIGI_H
 #define PHASE2TRACKERDIGI_H
 
-#include "boost/cstdint.hpp"
-#include <assert.h> 
+#include <stdint.h>
+#include <utility>
+#include <cassert> 
 
 /**
  * Persistent digi for the Phase 2 tracker 
@@ -16,16 +17,14 @@ public:
   Phase2TrackerDigi( unsigned int packed_channel) : theChannel(packed_channel) {}
 
   Phase2TrackerDigi( unsigned int row, unsigned int col) {
-    assert(row<1016);
-    assert(col<32);
-    theChannel = (row%1016)|((col%32)<<10);
+    theChannel = pixelToChannel(row,col);
   }
 
   Phase2TrackerDigi() : theChannel(0)  {}
 
   // Access to digi information - pixel sensors
-  unsigned int row()     const { return (theChannel & 0x03FF)>>0 ; }
-  unsigned int column()  const { return (theChannel & 0xFC00)>>10; }
+  unsigned int row()     const { return channelToRow(theChannel); }
+  unsigned int column()  const { return channelToColumn(theChannel); }
   // Access to digi information - strip sensors
   unsigned int strip()   const { return row(); }
   unsigned int edge()    const { return column(); } // CD: any better name for that? 
@@ -33,19 +32,19 @@ public:
   unsigned int channel() const { return theChannel; }
 
   static std::pair<unsigned int,unsigned int> channelToPixel( unsigned int ch) {
-    unsigned int row = (ch & 0x03FF)>>0 ;
-    unsigned int col = (ch & 0xFC00)>>10;
-    return std::pair<unsigned int, unsigned int>(row,col);
+    return std::pair<unsigned int, unsigned int>(channelToRow(ch),channelToColumn(ch));
   }
 
-  static int pixelToChannel( unsigned int row, unsigned int col) {
+  static PackedDigiType pixelToChannel( unsigned int row, unsigned int col) {
     assert(row<1016);
     assert(col<32);
-    return (row%1016)|((col%32)<<10);
+    return row|(col<<10);
   }
 
  private:
   PackedDigiType theChannel;
+  static unsigned int channelToRow( unsigned int ch) { return ch & 0x03FF; } // (theChannel & 0x03FF)>>0 
+  static unsigned int channelToColumn( unsigned int ch) { return ch >> 10; } // (theChannel & 0xFC00)>>10
 };  
 
 // Comparison operators
