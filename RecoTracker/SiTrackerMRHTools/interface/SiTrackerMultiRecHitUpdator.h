@@ -23,7 +23,6 @@ class TransientTrackingRecHitBuilder;
 class LocalError;
 class TrackingRecHitPropagator;
 
-
 class SiTrackerMultiRecHitUpdator{
 
 public:
@@ -58,24 +57,18 @@ public:
                                                  const TransientTrackingRecHit& aRecHit, 
 						 bool CutWeight, double annealing=1.) const; 
 
-  //computes parameters for 2 dim hits 
-  std::pair<AlgebraicVector2,AlgebraicSymMatrix22> ComputeParameters2dim(const TrajectoryStateOnSurface& tsos, 
-									 const TransientTrackingRecHit& aRecHit) const;
-  template <unsigned int N> std::pair<AlgebraicVector2,AlgebraicSymMatrix22> ComputeParameters2dim (const TrajectoryStateOnSurface& tsos, 
-												    const TransientTrackingRecHit& aRecHit ) const; 
-
   const std::vector<double>&  annealingProgram() const {return theAnnealingProgram;}
   const std::vector<double>& getAnnealingProgram() const {return theAnnealingProgram;}
 
+  const TransientTrackingRecHitBuilder* getBuilder() const {return theBuilder;}
   
 private:
-  //Obsolete methods
-  //LocalError calcParametersError(TransientTrackingRecHit::ConstRecHitContainer& map) const;
-  //LocalPoint calcParameters(TransientTrackingRecHit::ConstRecHitContainer& map, const LocalError& er) const;
-
+  //computes parameters for 1 dim or 2 dim hits 
   LocalParameters calcParameters(const TrajectoryStateOnSurface& tsos, 
 				 std::vector<std::pair<const TrackingRecHit*, float> >& aHitMap) const;
-  
+  template <unsigned int N> LocalParameters calcParameters(const TrajectoryStateOnSurface& tsos,
+                                 std::vector<std::pair<const TrackingRecHit*, float> >& aHitMap) const;
+ 
   const TransientTrackingRecHitBuilder* theBuilder;
   const TrackingRecHitPropagator* theHitPropagator;
   double theChi2Cut;

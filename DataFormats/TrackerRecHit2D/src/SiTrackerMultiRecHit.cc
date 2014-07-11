@@ -62,20 +62,19 @@ vector<const TrackingRecHit*> SiTrackerMultiRecHit::recHits() const{
 }
 
 vector<TrackingRecHit*> SiTrackerMultiRecHit::recHits() {
-  //        vector<TrackingRecHit*> myhits;
-  //         for(edm::OwnVector<TrackingRecHit>::const_iterator ihit = theHits.begin(); ihit != theHits.end(); ihit++) {
-  //                 const TrackingRecHit* ahit = &(*ihit);
-  //                 myhits.push_back(const_cast<TrackingRecHit*>(ahit));
-  //         }
   return theHits.data();
 }
 
-/*
-void TrackingRecHit::recHitsV(std::vector<const TrackingRecHit*> & v) const {
-  v = recHits();
+
+int SiTrackerMultiRecHit::dimension() const{
+  //supposing all the hits inside of a MRH have the same id == same type
+  int randomComponent = 0; 
+  if(theHits[randomComponent].dimension() == 1 ){  return 1;  }
+  else if(theHits[randomComponent].dimension() == 2 ){  return 2;  }
+  else {  return 0;  }
 }
 
-void TrackingRecHit::recHitsV(std::vector<TrackingRecHit*> & v) {
-  v = recHits();
-}
-*/
+void SiTrackerMultiRecHit::getKfComponents( KfComponentsHolder & holder ) const { 
+  if (dimension() == 1)  getKfComponents1D(holder); 
+  if (dimension() == 2)  getKfComponents2D(holder); 
+} 

@@ -159,6 +159,7 @@ DAFTrackProducerAlgorithm::collectHits(const Trajectory vtraj,
   // I do not have to rescale the error because it is already rescaled in the fit code 
   TrajectoryStateOnSurface initialStateFromTrack = collectedmeas.front().predictedState();
 
+  LogDebug("DAFTrackProducerAlgorithm") << "Pair (hits, TSOS)  with TSOS predicted(collectedmeas.front().predictedState())";
   return std::make_pair(hits, initialStateFromTrack);
 
 }
@@ -168,22 +169,24 @@ DAFTrackProducerAlgorithm::updateHits(const Trajectory vtraj,
 				      const SiTrackerMultiRecHitUpdator* updator,
 				      double annealing) const 
 {
-	TransientTrackingRecHit::RecHitContainer hits;
-	std::vector<TrajectoryMeasurement> vmeas = vtraj.measurements();
-        std::vector<TrajectoryMeasurement>::reverse_iterator imeas;
+  LogDebug("DAFTrackProducerAlgorithm") << "Calling DAFTrackProducerAlgorithm::updateHits";
+  TransientTrackingRecHit::RecHitContainer hits;
+  std::vector<TrajectoryMeasurement> vmeas = vtraj.measurements();
+  std::vector<TrajectoryMeasurement>::reverse_iterator imeas;
 
-	//I run inversely on the trajectory obtained and update the state
-        for (imeas = vmeas.rbegin(); imeas != vmeas.rend(); imeas++){
-              TransientTrackingRecHit::RecHitPointer updated = updator->update(imeas->recHit(), 
-							imeas->updatedState(), annealing);
-             hits.push_back(updated);
-        }
+  //I run inversely on the trajectory obtained and update the state
+  for (imeas = vmeas.rbegin(); imeas != vmeas.rend(); imeas++){
+    TransientTrackingRecHit::RecHitPointer updated = updator->update(imeas->recHit(), 
+						imeas->updatedState(), annealing);
+    hits.push_back(updated);
+  }
 
-	TrajectoryStateOnSurface updatedStateFromTrack = vmeas.back().predictedState();
-	//updatedStateFromTrack.rescaleError(10);
+  TrajectoryStateOnSurface updatedStateFromTrack = vmeas.back().predictedState();
 
-        //return std::make_pair(hits,TrajectoryStateWithArbitraryError()(vmeas.back().updatedState()));
-        return std::make_pair(hits,updatedStateFromTrack);
+  //return std::make_pair(hits,TrajectoryStateWithArbitraryError()(vmeas.back().updatedState()));
+  LogDebug("DAFTrackProducerAlgorithm") << "Pair (hits, TSOS)  with TSOS predicted (vmeas.back().predictedState())";
+
+  return std::make_pair(hits,updatedStateFromTrack);
 }
 /*------------------------------------------------------------------------------------------------------*/
 Trajectory DAFTrackProducerAlgorithm::fit(const std::pair<TransientTrackingRecHit::RecHitContainer,

@@ -104,7 +104,8 @@ Trajectory KFTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
 	<< "SURFACE POSITION" << "\n"
 	<< hit.surface()->position()<<"\n"
 	<< "SURFACE ROTATION" << "\n"
-	<< hit.surface()->rotation();
+	<< hit.surface()->rotation()
+        <<  "dimension " << hit.dimension();
 
       DetId hitId = hit.geographicalId();
 

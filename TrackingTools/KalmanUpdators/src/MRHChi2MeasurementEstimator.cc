@@ -13,10 +13,15 @@ std::pair<bool, double> MRHChi2MeasurementEstimator::estimate(const TrajectorySt
                                    const TrackingRecHit& aRecHit) const {
 
   switch (aRecHit.dimension()) {
+    case 1:       return estimate<1>(tsos,aRecHit);
     case 2:       return estimate<2>(tsos,aRecHit);
-    //avoid the not-2D  hit due to the final sum  
-    case ( 1 || 3 || 4 || 5 ):{
-      LogDebug("MRHChi2MeasurementEstimator") << "WARNING:The hit is not 2D: does not count in the MRH Chi2 estimation." ;
+    //avoid the not-(1D or 2D)  hit due to the final sum  
+    //supposing all the hits inside of a MRH have the same dimension
+    case 3:
+    case 4:
+    case 5:{
+      LogDebug("MRHChi2MeasurementEstimator") << "WARNING:The hit is not 1D either 2D:" 
+					      << " does not count in the MRH Chi2 estimation." ;
       double est = 0.0; 
       return  HitReturnType(false, est);
       }
@@ -31,6 +36,7 @@ template <unsigned int N>
 std::pair<bool, double> MRHChi2MeasurementEstimator::estimate(const TrajectoryStateOnSurface& tsos,
                                                 const TrackingRecHit& aRecHit) const {
  
+  LogDebug("MRHChi2MeasurementEstimator") << "Calling MRHChi2MeasurementEstimator" ;               
   SiTrackerMultiRecHit const & mHit = dynamic_cast<SiTrackerMultiRecHit const &>(aRecHit);  
   double est=0;
 

@@ -4,6 +4,7 @@
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/Utilities"/>
+<use   name="Geometry/CommonDetUnit"/>
 <use   name="RecoTracker/MeasurementDet"/>
 <use   name="RecoTracker/TkDetLayers"/>
 <use   name="RecoTracker/TransientTrackingRecHit"/>

@@ -5,6 +5,7 @@
 #include "DataFormats/TrackingRecHit/interface/InvalidTrackingRecHit.h"
 #include "TrackingTools/MeasurementDet/interface/MeasurementDet.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 
 #include <vector>
 #include <map>
@@ -19,25 +20,14 @@ vector<TrajectoryMeasurement> SimpleDAFHitCollector::recHits(const Trajectory& t
 
   //WARNING: At the moment the trajectories has the measurements 
   //with reversed sorting after the track smoothing
-  const vector<TrajectoryMeasurement>& meas = traj.measurements();
+  const vector<TrajectoryMeasurement> meas = traj.measurements();
 
   if (meas.empty()) return vector<TrajectoryMeasurement>();
 
-  //debug
-  LogTrace("MultiRecHitCollector") << "Original measurements are:";
-  for(vector<TrajectoryMeasurement>::const_iterator itrajmeas = meas.begin(); itrajmeas < meas.end();
-      itrajmeas++) {
-    if (itrajmeas->recHit()->isValid()){
-      LogTrace("MultiRecHitCollector") << "  Valid Hit with DetId " << itrajmeas->recHit()->geographicalId().rawId()
-                	<< " local position " << itrajmeas->recHit()->hit()->localPosition()
-                	<< " global position " << itrajmeas->recHit()->hit()->globalPosition()
-		        << " and r " << itrajmeas->recHit()->hit()->globalPosition().perp() ;
-            } else {
-              LogTrace("MultiRecHitCollector") << "   Invalid Hit with DetId " << itrajmeas->recHit()->geographicalId().rawId();
-            }
-  }
+  LogTrace("MultiRecHitCollector") << "  Original measurements are:";
+  Debug(meas);
 
-  //groups the TrajectoryMeasurements on a sensor by sensor
+  //groups hits on a sensor by sensor with same Id of previous TM
   //we have to sort the TrajectoryMeasurements in the opposite way in the fitting direction
   vector<TrajectoryMeasurement> result;
   for(vector<TrajectoryMeasurement>::const_reverse_iterator itrajmeas = meas.rbegin(); itrajmeas < meas.rend();
@@ -57,19 +47,29 @@ vector<TrajectoryMeasurement> SimpleDAFHitCollector::recHits(const Trajectory& t
         LogTrace("MultiRecHitCollector") << "Something wrong! no valid TSOS found in current group ";
         continue;
       }
+
       //collected hits compatible with the itrajmeas
       if( measDet.measurements(smoothState, *(getEstimator()), tmps)){
+
         LogTrace("MultiRecHitCollector") << "  Found " << tmps.size() << " compatible measurements";
+
         for (std::size_t i=0; i!=tmps.size(); ++i){
+
           DetId idtemps = tmps.hits[i]->geographicalId();
 
           if( idtemps == id && tmps.hits[i]->hit()->isValid() ) {
-            hits.push_back(tmps.hits[i]->hit());
-	    LogTrace("MultiRecHitCollector") << "  Valid compatible measurement with DetId " << tmps.hits[i]->hit()->geographicalId().rawId()
-                        << " local position " << tmps.hits[i]->hit()->localPosition()
-                        << " global position " << tmps.hits[i]->hit()->globalPosition() 
-		        << " and r " << tmps.hits[i]->hit()->globalPosition().perp() ;
+
+	    //fill with the right dimension hit
+            if( itrajmeas->recHit()->dimension() == 1 ){
+	      auto const & hit1 = tmps.hits[i]->hit();
+	      auto const & thit = static_cast<BaseTrackerRecHit const&>(*hit1);
+	      hits.push_back(clone(thit));
+	    } else {
+              hits.push_back(tmps.hits[i]->hit());
+	    }
+
           }
+
         }
 
         //I will keep the Invalid hit, IF this is not the first one       
@@ -102,6 +102,9 @@ vector<TrajectoryMeasurement> SimpleDAFHitCollector::recHits(const Trajectory& t
   }
   LogTrace("MultiRecHitCollector") << " Ending SimpleDAFHitCollector::recHits >> " << result.size();
 
+  LogTrace("MultiRecHitCollector") << "  Original measurements are:";
+  Debug(result);
+
   //adding a protection against too few hits and invalid hits 
   //(due to failed propagation on the same surface of the original hits)
   if (result.size()>2)
@@ -121,67 +124,21 @@ vector<TrajectoryMeasurement> SimpleDAFHitCollector::recHits(const Trajectory& t
 
 }
 
-/*vector<TrajectoryMeasurement> SimpleDAFHitCollector::recHits(const Trajectory& traj, const MeasurementTrackerEvent *theMTE) const{
 
-
-	//it assumes that the measurements are sorted in the smoothing direction
-	vector<TrajectoryMeasurement> meas = traj.measurements();
-	if (meas.empty()) //return TransientTrackingRecHit::ConstRecHitContainer();	
-		return vector<TrajectoryMeasurement>();
-
-
-	//TransientTrackingRecHit::ConstRecHitContainer result;
-	vector<TrajectoryMeasurement> result;
-
-	for(vector<TrajectoryMeasurement>::reverse_iterator imeas = meas.rbegin(); imeas != meas.rend(); imeas++) {
-		//if the rechit is associated to a valid detId  
-		if(imeas->recHit()->geographicalId().rawId()){
-			MeasurementDetWithData md = theMTE->idToDet(imeas->recHit()->geographicalId());
-			vector<TrajectoryMeasurement> currentLayerMeas = md.fastMeasurements(imeas->updatedState(), imeas->updatedState(), *thePropagator, *(getEstimator()));
-	        	buildMultiRecHits(currentLayerMeas, result);
-		} else {
-			result.push_back(*imeas);
-		}
-	}
-	LogTrace("MultiRecHitCollector") << "Original Measurement size "  << meas.size() << " SimpleDAFHitCollector returned " << result.size() << " rechits";
-	//results are sorted in the fitting direction
-	return result;	
+void SimpleDAFHitCollector::Debug( const std::vector<TrajectoryMeasurement> TM ) const
+{
+  for(vector<TrajectoryMeasurement>::const_iterator itrajmeas = TM.begin(); itrajmeas < TM.end();
+      itrajmeas++) {
+    if (itrajmeas->recHit()->isValid()){
+      LogTrace("MultiRecHitCollector") << "  Valid Hit with DetId " << itrajmeas->recHit()->geographicalId().rawId() << " and dim:" << itrajmeas->recHit()->dimension()
+                      //<< " type " << typeid(itrajmeas->recHit()).name()
+                        << " local position " << itrajmeas->recHit()->hit()->localPosition()
+                        << " global position " << itrajmeas->recHit()->hit()->globalPosition()
+                        << " and r " << itrajmeas->recHit()->hit()->globalPosition().perp() ;
+      LogTrace("MultiRecHitCollector") << "  TSOS predicted " << itrajmeas->predictedState().localPosition() ;
+      LogTrace("MultiRecHitCollector") << "  TSOS smoothState " << itrajmeas->updatedState().localPosition() ;
+            } else {
+              LogTrace("MultiRecHitCollector") << "   Invalid Hit with DetId " << itrajmeas->recHit()->geographicalId().rawId();
+            }
+  }
 }
-
-void SimpleDAFHitCollector::buildMultiRecHits(const vector<TrajectoryMeasurement>& vmeas, vector<TrajectoryMeasurement>& result) const {
-
-	if (vmeas.empty()) {
-		LogTrace("MultiRecHitCollector") << "fastMeasurements returned an empty vector, should not happen " ; 
-		//should we do something?
-		//result.push_back(InvalidTransientRecHit::build(0,TrackingRecHit::missing));
-		return;
-	} 
-
-	TrajectoryStateOnSurface state = vmeas.front().predictedState();
-
-	if (state.isValid()==false){
-		LogTrace("MultiRecHitCollector") << "first state is invalid; skipping ";
-		return;
-	}
-
-	vector<const TrackingRecHit*> hits;
-	//	TransientTrackingRecHit::ConstRecHitContainer hits;
-
-	for (vector<TrajectoryMeasurement>::const_iterator imeas = vmeas.begin(); imeas != vmeas.end(); imeas++){
-		if (imeas->recHit()->getType() != TrackingRecHit::missing) {
-                                LogTrace("MultiRecHitCollector") << "This hit is valid ";
-                                hits.push_back(imeas->recHit()->hit());
-                }
-	}
-
-	if (hits.empty()){
-		LogTrace("MultiRecHitCollector") << "No valid hits found ";
-		return;
-	}
-
-	result.push_back(TrajectoryMeasurement(state,theUpdator->buildMultiRecHit(hits, state)));	
-	//	result.push_back(TrajectoryMeasurement(state,theUpdator->update(hits, state)));	
-
-}
-
-*/

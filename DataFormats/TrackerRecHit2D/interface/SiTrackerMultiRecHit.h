@@ -29,8 +29,9 @@ public:
   virtual RecHitPointer cloneSH() const { return std::make_shared<SiTrackerMultiRecHit>(*this);}
 #endif
   
-  virtual int dimension() const {return 2;}
-  virtual void getKfComponents( KfComponentsHolder & holder ) const { getKfComponents2D(holder); }
+//  virtual int dimension() const {return 2;}
+  virtual int dimension() const; 
+  virtual void getKfComponents( KfComponentsHolder & holder ) const;
 
   // at the momement nobody care of MultiHit!!!
   // used by trackMerger (to be improved)
@@ -38,11 +39,9 @@ public:
 
   /// Access to component RecHits (if any)
   virtual std::vector<const TrackingRecHit*> recHits() const;
-//  virtual void recHitsV(std::vector<const TrackingRecHit*> & ) const;
    
   /// Non-const access to component RecHits (if any)
   virtual std::vector<TrackingRecHit*> recHits() ;
-//  virtual void recHitsV(std::vector<TrackingRecHit*> & );
   
   //vector of weights
   std::vector<float> const & weights() const {return theWeights;}
