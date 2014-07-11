@@ -274,25 +274,25 @@ IPProducer<Container,Base,Helper>::produce(edm::Event& iEvent, const edm::EventS
          itTrack != tracks.end(); ++itTrack) {
        TransientTrack transientTrack = builder->build(*itTrack);
        const Track & track = transientTrack.track(); //**itTrack;
-     cout << " pt " <<  track.pt() <<
+ /*    cout << " pt " <<  track.pt() <<
                " d0 " <<  fabs(track.d0()) <<
                " #hit " <<    track.hitPattern().numberOfValidHits()<<
                " ipZ " <<   fabs(track.dz()-pv->z())<<
                " chi2 " <<  track.normalizedChi2()<<
                " #pixel " <<    track.hitPattern().numberOfValidPixelHits()<< endl;
-
+*/
        if (track.pt() > m_cutMinPt &&
            track.hitPattern().numberOfValidHits() >= m_cutTotalHits &&         // min num tracker hits
            track.hitPattern().numberOfValidPixelHits() >= m_cutPixelHits &&
            track.normalizedChi2() < m_cutMaxChiSquared &&
            std::abs(track.dxy(pv->position())) < m_cutMaxTIP &&
            std::abs(track.dz(pv->position())) < m_cutMaxLIP) {
-	 std::cout << "selected" << std::endl; 	
+//	 std::cout << "selected" << std::endl; 	
          selectedTracks.push_back(*itTrack);
          transientTracks.push_back(transientTrack);
        }
      }
-	std::cout <<"SIZE: " << transientTracks.size() << std::endl;
+//	std::cout <<"SIZE: " << transientTracks.size() << std::endl;
      GlobalVector direction(jetMomentum.x(), jetMomentum.y(), jetMomentum.z());
 
      auto_ptr<GhostTrack> ghostTrack;
