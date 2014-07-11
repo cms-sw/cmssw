@@ -19,7 +19,7 @@ class TrackKinematics {
 	TrackKinematics(const reco::Vertex &vertex);
 	TrackKinematics(const reco::VertexCompositePtrCandidate &vertex):
  	       n(vertex.numberOfSourceCandidatePtrs()), sumWeights(vertex.numberOfSourceCandidatePtrs()),
-	       sum(vertex.p4()),weightedSum(vertex.p4()*vertex.numberOfSourceCandidatePtrs()){}
+	       sum(vertex.p4()),weightedSum(vertex.p4()){}
 
 	~TrackKinematics() {}
 
