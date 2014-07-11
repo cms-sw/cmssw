@@ -584,7 +584,8 @@ hpsPFTauPrimaryVertexProducer = PFTauPrimaryVertexProducer.clone(
             discriminator = cms.InputTag('hpsPFTauDiscriminationByDecayModeFindingNewDMs'),
             selectionCut = cms.double(0.5)
         )
-    )
+    ),
+    cut = cms.string("pt > 18.0 & abs(eta) < 2.4")
 )
 
 hpsPFTauSecondaryVertexProducer = PFTauSecondaryVertexProducer.clone(
