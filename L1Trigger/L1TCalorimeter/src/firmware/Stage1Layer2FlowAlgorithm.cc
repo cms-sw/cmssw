@@ -13,11 +13,18 @@
 
 l1t::Stage1Layer2FlowAlgorithm::Stage1Layer2FlowAlgorithm(CaloParamsStage1* params) : params_(params)
 {
-  //now do what ever initialization is needed
-  for(unsigned int i = 0; i < L1CaloRegionDetId::N_PHI; i++) {
-    sinPhi.push_back(sin(2. * 3.1415927 * i * 1.0 / L1CaloRegionDetId::N_PHI));
-    cosPhi.push_back(cos(2. * 3.1415927 * i * 1.0 / L1CaloRegionDetId::N_PHI));
-  }
+ //now do what ever initialization is needed
+ //Converting phi to be as it is define at GCT (-pi to pi instead of 0 to 2*pi)
+ for(unsigned int i = 0; i < L1CaloRegionDetId::N_PHI; i++) {
+   if(i < 10){
+       sinPhi.push_back(sin(2. * 3.1415927 * i * 1.0 / L1CaloRegionDetId::N_PHI));
+       cosPhi.push_back(cos(2. * 3.1415927 * i * 1.0 / L1CaloRegionDetId::N_PHI));
+   }
+   else {
+       sinPhi.push_back(sin(-3.1415927 + 2. * 3.1415927 * (i-9) * 1.0 / L1CaloRegionDetId::N_PHI));
+       cosPhi.push_back(cos(-3.1415927 + 2. * 3.1415927 * (i-9) * 1.0 / L1CaloRegionDetId::N_PHI));
+   }
+ }
 }
 
 
@@ -37,14 +44,13 @@ void l1t::Stage1Layer2FlowAlgorithm::processEvent(const std::vector<l1t::CaloReg
     if (ieta > 3 && ieta < 18) {
       continue;
     }
-
+    
     int iphi=region->hwPhi();
     regionET=region->hwPt();
 
     q2x+= regionET * cosPhi[iphi];
     q2y+= regionET * sinPhi[iphi];
   }
-
   double HFq2 = q2x*q2x+q2y*q2y;
   //double psi2 = 0.5 * atan(q2y/q2x);
 
