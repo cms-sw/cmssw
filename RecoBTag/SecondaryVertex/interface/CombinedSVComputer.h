@@ -80,7 +80,7 @@ double etaRel(const math::XYZVector &dir, const math::XYZVector &track) const
 	            const reco::Jet &jet,
 	            const GlobalPoint &pv) const;
    	template <class SVTI,class IPTI>
-	void fillCommonVariables(reco::TaggingVariableList & vars, const IPTI & ipInfo,const SVTI & svInfo) const;
+	void fillCommonVariables(reco::TaggingVariableList & vars, reco::TrackKinematics & vertexKinematics , const IPTI & ipInfo,const SVTI & svInfo) const;
 
 	bool					trackFlip;
 	bool					vertexFlip;
@@ -98,7 +98,7 @@ double etaRel(const math::XYZVector &dir, const math::XYZVector &track) const
 	reco::V0Filter				trackPairV0Filter;
 };
 
-template <class SVTI,class IPTI>     void CombinedSVComputer::fillCommonVariables(reco::TaggingVariableList & vars, const IPTI & ipInfo, const SVTI & svInfo) const
+template <class SVTI,class IPTI>     void CombinedSVComputer::fillCommonVariables(reco::TaggingVariableList & vars, reco::TrackKinematics & vertexKinematics, const IPTI & ipInfo, const SVTI & svInfo) const
 {
         using namespace ROOT::Math;
         using namespace reco;
@@ -121,7 +121,6 @@ template <class SVTI,class IPTI>     void CombinedSVComputer::fillCommonVariable
                 return;
 
         TrackKinematics allKinematics;
-        TrackKinematics vertexKinematics;
 
         int vtx = -1;
 

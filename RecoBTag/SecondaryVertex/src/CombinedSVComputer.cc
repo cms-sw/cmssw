@@ -173,10 +173,9 @@ CombinedSVComputer::operator () (const TrackIPTagInfo &ipInfo,
 	edm::RefToBase<Jet> jet = ipInfo.jet();
 	math::XYZVector jetDir = jet->momentum().Unit();
 	TaggingVariableList vars; // = ipInfo.taggingVariables();
-	fillCommonVariables(vars,ipInfo,svInfo);
 
         TrackKinematics vertexKinematics;
-
+	//the following is specific depending on the type of vertex
         int vtx = -1;
         unsigned int numberofvertextracks = 0;
 
@@ -212,6 +211,9 @@ CombinedSVComputer::operator () (const TrackIPTagInfo &ipInfo,
 		                vars.insert(btau::vertexNTracks, numberofvertextracks, true);
 	}
 
+	// after we  collected vertex information we let the common code complete the job
+	fillCommonVariables(vars,vertexKinematics,ipInfo,svInfo);
+
 	vars.finalize();
 	return vars;
 }
@@ -225,7 +227,6 @@ CombinedSVComputer::operator () (const CandIPTagInfo &ipInfo,
         edm::RefToBase<Jet> jet = ipInfo.jet();
         math::XYZVector jetDir = jet->momentum().Unit();
         TaggingVariableList vars; // = ipInfo.taggingVariables();
-        fillCommonVariables(vars,ipInfo,svInfo);
 
         TrackKinematics vertexKinematics;
 
@@ -252,6 +253,7 @@ CombinedSVComputer::operator () (const CandIPTagInfo &ipInfo,
 	if(vtx>0){
 		                vars.insert(btau::vertexNTracks, numberofvertextracks, true);
 	}
+        fillCommonVariables(vars,vertexKinematics,ipInfo,svInfo);
         vars.finalize();
         return vars;
 }
