@@ -50,7 +50,7 @@ namespace l1t {
       }
 
       const unsigned char *data = l1tRcd.data();
-      unsigned idx = 0;
+      unsigned idx = 16;
 
       // Extract header data
       uint32_t event_id = pop(data, idx) & 0xFFFFFF;

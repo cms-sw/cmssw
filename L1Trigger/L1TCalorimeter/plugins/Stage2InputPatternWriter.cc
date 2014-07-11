@@ -75,10 +75,14 @@ private:
   unsigned nQuad_;
   unsigned nLink_;
   unsigned nFramePerEvent_;
+  unsigned nClearFrame_;
   unsigned nFrame_;
   
   // data arranged by link and frame
   std::vector< std::vector<int> > data_;
+
+  // data valid flags (just one per frame for now)
+  std::vector<int> dataValid_;
 
   // map of towers onto links/frames
   std::map< int, int > map_;
@@ -108,8 +112,8 @@ Stage2InputPatternWriter::Stage2InputPatternWriter(const edm::ParameterSet& iCon
   nChan_ = 4;
   nQuad_ = 18;
 
-  nFramePerEvent_ = 32;
-
+  nFramePerEvent_ = 41;
+  nClearFrame_ = 4;
   nFrame_ = 0;
 
   nLink_ = nChan_ * nQuad_;
@@ -154,6 +158,8 @@ Stage2InputPatternWriter::analyze(const edm::Event& iEvent, const edm::EventSetu
   // loop over frames
   for ( unsigned iFrame=0; iFrame<nFramePerEvent_; ++iFrame ) {
     
+    dataValid_.push_back( 1 );
+
     // loop over links
     for ( unsigned iQuad=0; iQuad<nQuad_; ++iQuad ) {
       for ( unsigned iChan=0; iChan<nChan_; ++iChan ) {
@@ -179,6 +185,32 @@ Stage2InputPatternWriter::analyze(const edm::Event& iEvent, const edm::EventSetu
 	data |= (tower.hwPt() & 0xff)<<16;
 	data |= (tower.hwEtRatio() & 0x7)<<24;
 	data |= (tower.hwQual() & 0xf)<<28;
+	
+	// add data to output
+	data_.at(iLink).push_back( data );
+
+      }
+
+    }
+
+      nFrame_++;
+
+  }
+
+
+  // loop over clear frames
+  for ( unsigned iFrame=0; iFrame<nClearFrame_; ++iFrame ) {
+    
+    dataValid_.push_back( 0 );
+
+    // loop over links
+    for ( unsigned iQuad=0; iQuad<nQuad_; ++iQuad ) {
+      for ( unsigned iChan=0; iChan<nChan_; ++iChan ) {
+
+	int data=0;
+
+        // get tower ieta, iphi for link
+	unsigned iLink = (iQuad*nChan_)+iChan;
 	
 	// add data to output
 	data_.at(iLink).push_back( data );
@@ -241,7 +273,7 @@ Stage2InputPatternWriter::endJob()
       for ( unsigned iChan=0; iChan<nChan_; ++iChan ) {
 	unsigned iLink = (iQuad*nChan_)+iChan;
 	if (iLink<data_.size() && iFrame<data_.at(iLink).size()) {
-	  file << "1v" << std::hex << std::setw(8) << std::setfill('0') << data_.at(iLink).at(iFrame) << " ";
+	  file << std::hex << ::std::setw(1) << dataValid_.at(iFrame) << "v" << std::hex << std::setw(8) << std::setfill('0') << data_.at(iLink).at(iFrame) << " ";
 	}
 	else {
 	  std::cerr << "Out of range : " << iLink << ", " << iFrame << std::endl;

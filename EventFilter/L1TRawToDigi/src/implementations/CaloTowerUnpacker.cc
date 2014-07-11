@@ -79,45 +79,57 @@ namespace l1t {
 
 	 uint32_t raw_data = pop(data,i); // pop advances the index i internally
 
-         if (raw_data == 0)
-           continue;
+         if ((raw_data & 0xFFFF) != 0) {
 
-	 l1t::CaloTower tower1 = l1t::CaloTower();
+           l1t::CaloTower tower1 = l1t::CaloTower();
     
-	 // First calo tower is in the LSW with phi
-	 tower1.setHwPt(raw_data & 0x1FF);
-	 tower1.setHwQual((raw_data >> 12) & 0xF);
-         tower1.setHwEtRatio((raw_data >>9) & 0x7);
-	 tower1.setHwPhi(link_phi+1); // iPhi starts at 1
+           // First calo tower is in the LSW with phi
+           tower1.setHwPt(raw_data & 0x1FF);
+           tower1.setHwQual((raw_data >> 12) & 0xF);
+           tower1.setHwEtRatio((raw_data >>9) & 0x7);
+           tower1.setHwPhi(link_phi+1); // iPhi starts at 1
 	 
-	 if (link % 2==0) { // Even number links carry Eta+
-	   tower1.setHwEta(frame); // iEta starts at 1
-	 } else { // Odd number links carry Eta-
-	   tower1.setHwEta(-1*frame);
+           if (link % 2==0) { // Even number links carry Eta+
+             tower1.setHwEta(frame); // iEta starts at 1
+           } else { // Odd number links carry Eta-
+             tower1.setHwEta(-1*frame);
+           }
+	 
+           LogDebug("L1T") << "Tower 1: Eta " << tower1.hwEta() 
+                           << " phi " << tower1.hwPhi() 
+                           << " pT " << tower1.hwPt() 
+                           << " frame " << frame 
+                           << " qual " << tower1.hwQual() 
+                           << " EtRatio " << tower1.hwEtRatio();
+
+           res_->push_back(bx,tower1);
+         }
+
+         if (((raw_data >> 16)& 0xFFFF) != 0) {
+
+           // Second calo tower is in the MSW with phi+1
+           l1t::CaloTower tower2 = l1t::CaloTower();
+	 
+           tower2.setHwPt((raw_data >> 16) & 0x1FF);
+           tower2.setHwQual((raw_data >> 28 ) & 0xF);
+           tower2.setHwEtRatio((raw_data >> 25) & 0x7);
+           tower2.setHwPhi(link_phi+2);
+
+           if (link % 2==0) {
+             tower2.setHwEta(frame);
+           } else {
+             tower2.setHwEta(-1*frame);
+           }
+	 
+           LogDebug("L1T") << "Tower 1: Eta " << tower2.hwEta()
+                           << " phi " << tower2.hwPhi()
+                           << " pT " << tower2.hwPt()
+                           << " frame " << frame
+                           << " qual " << tower2.hwQual()
+                           << " EtRatio " << tower2.hwEtRatio();
+
+           res_->push_back(bx,tower2);
 	 }
-	 
-         LogDebug("L1T") << "Tower 1 Eta " << tower1.hwEta() << " phi " << tower1.hwPhi() << " pT " << tower1.hwPt();
-
-	 res_->push_back(bx,tower1);
-
-	 // Second calo tower is in the MSW with phi+1
-	 l1t::CaloTower tower2 = l1t::CaloTower();
-	 
-	 tower2.setHwPt((raw_data >> 16) & 0x1FF);
-	 tower2.setHwQual((raw_data >> 28 ) & 0xF);
-         tower2.setHwEtRatio((raw_data >> 25) & 0x7);
-	 tower2.setHwPhi(link_phi+2);
-
-	 if (link % 2==0) {
-	   tower2.setHwEta(frame);
-	 } else {
-	   tower2.setHwEta(-1*frame);
-	 }
-	 
-         LogDebug("L1T") << "Tower 2 Eta " << tower2.hwEta() << " phi " << tower2.hwPhi() << " pT " << tower2.hwPt();
-
-	 res_->push_back(bx,tower2);
-	 
        }
      }
      
