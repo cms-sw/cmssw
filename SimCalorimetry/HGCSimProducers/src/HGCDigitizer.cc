@@ -160,13 +160,14 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, i
       if(itime<0) continue;
       
       //energy deposited 
-      double ien( hit_it->energy() );
+      HGCSimEn_t ien( hit_it->energy() );
       
       //check if already existing (perhaps could remove this in the future - 2nd event should have all defined)
       HGCSimHitDataAccumulator::iterator simHitIt=simHitAccumulator_->find(id);
       if(simHitIt==simHitAccumulator_->end())
 	{
-	  HGCSimHitData baseData(10,0);
+	  HGCSimHitData baseData;
+	  baseData.fill(0.);
 	  simHitAccumulator_->insert( std::make_pair(id,baseData) );
 	  simHitIt=simHitAccumulator_->find(id);
 	}
@@ -180,7 +181,8 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, i
   //add base data for noise simulation
   if(!checkValidDetIds_) return;
   if(!geom.isValid()) return;
-  HGCSimHitData baseData(10,0);
+  HGCSimHitData baseData;
+  baseData.fill(0.);
   const std::vector<DetId> &validIds=geom->getValidDetIds(); 
   int nadded(0);
   for(std::vector<DetId>::const_iterator it=validIds.begin(); it!=validIds.end(); it++)
@@ -197,24 +199,17 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, i
 //
 void HGCDigitizer::beginRun(const edm::EventSetup & es)
 {
-  //checkGeometry(es);
-  //theShapes->beginRun(es);
 }
 
 //
 void HGCDigitizer::endRun()
 {
-  //
-  //std::cout << "[HGCDigitizer][DTOR] " << simHitAccumulator_->size() << std::endl; 
-  //for( HGCSimHitDataAccumulator::iterator it = simHitAccumulator_->begin(); it!=simHitAccumulator_->end(); it++)it->second.clear();
-  //simHitAccumulator_->clear();
 }
 
 //
 void HGCDigitizer::resetSimHitDataAccumulator()
 {
-  for( HGCSimHitDataAccumulator::iterator it = simHitAccumulator_->begin(); it!=simHitAccumulator_->end(); it++) 
-    std::fill(it->second.begin(), it->second.end(),0.); 
+  for( HGCSimHitDataAccumulator::iterator it = simHitAccumulator_->begin(); it!=simHitAccumulator_->end(); it++)  it->second.fill(0.);
 }
 
 

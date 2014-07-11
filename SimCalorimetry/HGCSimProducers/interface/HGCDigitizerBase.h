@@ -1,17 +1,20 @@
 #ifndef SimCalorimetry_HGCSimProducers_hgcdigitizerbase
 #define SimCalorimetry_HGCSimProducers_hgcdigitizerbase
 
+#include <array>
 #include <iostream>
 #include <vector>
 #include <memory>
+#include <unordered_map>
 
 #include "DataFormats/HGCDigi/interface/HGCDigiCollections.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CLHEP/Random/RandGauss.h"
 
-typedef std::vector<double> HGCSimHitData;
-typedef std::map<uint32_t, HGCSimHitData> HGCSimHitDataAccumulator;
+typedef float HGCSimEn_t;
+typedef std::array<HGCSimEn_t,10> HGCSimHitData;
+typedef std::unordered_map<uint32_t, HGCSimHitData> HGCSimHitDataAccumulator;
 
 template <class D>
 class HGCDigitizerBase {
