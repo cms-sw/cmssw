@@ -521,12 +521,14 @@ void SiPixelDigitizerAlgorithm::calculateInstlumiFactor(PileupMixingContent* puI
 	  instlumi_pow*=instlumi;
 	}
       }
+      _eventPileUp = TrueInteractionList.at(p);
     }
   } 
   else {
     for (int i=0; i<3;i++) {
       _pu_scale[i] = 1.;
     }
+    _eventPileUp = 0.;
   }
 }
 
@@ -1355,7 +1357,7 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
        int module=tTopo->pxbModule(detID);
        if (module<=4) module=5-module;
        else module-=4;
-       
+       if (floor(_eventPileUp) != 0)       
        columnEfficiency *= eff.theLadderEfficiency_BPix[layerIndex-1][ladder-1]*eff.theModuleEfficiency_BPix[layerIndex-1][module-1]*_pu_scale[layerIndex-1];
     }
   } else {                // forward disks
