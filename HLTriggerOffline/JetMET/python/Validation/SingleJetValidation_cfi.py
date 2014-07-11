@@ -15,8 +15,14 @@ foldernm="HLT/HLTJETMET/"
 SingleJetMetPaths = cms.EDAnalyzer("HLTJetMETValidation",
     triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","","HLT"),
     DQMFolder             = cms.untracked.string(foldernm),
-    PatternJetTrg             = cms.untracked.string("HLT_(PF)?Jet([0-9])+(U)?(_v[0-9]+)?$"),
-    PatternMetTrg             = cms.untracked.string("HLT_(PF)?M([E,H])+T([0-9])+(_v[0-9]+)?$"),
+####
+#    PatternJetTrg             = cms.untracked.string("HLT_(PF)?Jet([0-9])+(U)?(_v[0-9]+)?$"),
+#    PatternMetTrg             = cms.untracked.string("HLT_(PF)?M([E,H])+T([0-9])+(_v[0-9]+)?$"),
+####
+#    PatternJetTrg             = cms.untracked.string("HLT_(PF)?Jet([0-9])+(_v[0-9]+)?$"),
+    PatternJetTrg             = cms.untracked.string("HLT_PF(NoPU)?Jet([0-9])+(_v[0-9]+)?$"),                                   
+    PatternMetTrg             = cms.untracked.string("HLT_PF(ch)?MET([0-9])+(_NoiseCleaned+)+(_v[0-9]+)?$"),
+####
     PatternMuTrg             = cms.untracked.string("HLT_Mu([0-9])+(_v[0-9]+)?$"),
     OutputFileName        = cms.untracked.string(rootfile),
     LogFileName           = cms.untracked.string('JetMETSingleJetValidation.log'),
