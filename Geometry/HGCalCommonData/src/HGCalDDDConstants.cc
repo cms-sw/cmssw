@@ -114,7 +114,14 @@ bool HGCalDDDConstants::isValid(int lay, int mod, int cell, bool reco) const {
 
   bool ok = ((lay > 0 && lay <= (int)(layers(reco))) && 
 	     (mod > 0 && mod <= sectors()) &&
-	     (cell >=0 && cell < maxCells(lay,reco)));
+	     (cell >=0 && cell <= maxCells(lay,reco)));
+#ifdef DebugLog
+  if (!ok) std::cout << "HGCalDDDConstants: Layer " << lay << ":" 
+		     << (lay > 0 && (lay <= (int)(layers(reco)))) << " Module "
+		     << mod << ":" << (mod > 0 && mod <= sectors()) << " Cell "
+		     << cell << ":" << (cell >=0 && cell <= maxCells(lay,reco))
+		     << ":" << maxCells(reco) << std::endl; 
+#endif
   return ok;
 }
 
@@ -184,7 +191,7 @@ int HGCalDDDConstants::maxCells(float h, float bl, float tl, float alpha,
   float b     = 2*h*bl/(tl-bl);
   int   ncell(0);
   int   kymax = floor((2*h)/cellSize);
-  for (int iky=0; iky<kymax; ++iky)
+  for (int iky=0; iky<=kymax; ++iky)
     ncell += floor((iky*cellSize+b)/(a*cellSize));
   return ncell;
 }
