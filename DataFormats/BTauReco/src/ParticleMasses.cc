@@ -1,4 +1,4 @@
-#include "RecoBTag/SecondaryVertex/interface/ParticleMasses.h"
+#include "DataFormats/BTauReco/interface/ParticleMasses.h"
 
 namespace reco {
 

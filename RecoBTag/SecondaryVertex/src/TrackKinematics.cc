@@ -4,11 +4,11 @@
 #include <Math/GenVector/PxPyPzE4D.h>
 #include <Math/GenVector/PxPyPzM4D.h>
 
+#include "DataFormats/BTauReco/interface/ParticleMasses.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
-#include "RecoBTag/SecondaryVertex/interface/ParticleMasses.h"
 #include "RecoBTag/SecondaryVertex/interface/TrackKinematics.h"
 
 using namespace reco;

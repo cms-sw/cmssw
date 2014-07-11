@@ -21,8 +21,8 @@
 #include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"  
 #include "DataFormats/BTauReco/interface/TaggingVariable.h"
 #include "DataFormats/BTauReco/interface/VertexTypes.h"
+#include "DataFormats/BTauReco/interface/ParticleMasses.h"
 
-#include "RecoBTag/SecondaryVertex/interface/ParticleMasses.h"
 #include "RecoBTag/SecondaryVertex/interface/TrackSorting.h"
 #include "RecoBTag/SecondaryVertex/interface/TrackSelector.h"
 #include "RecoBTag/SecondaryVertex/interface/TrackKinematics.h"
