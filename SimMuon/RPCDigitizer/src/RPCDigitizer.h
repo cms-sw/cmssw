@@ -55,7 +55,7 @@ private:
   RPCSim* theRPCSim;
   RPCSimSetUp * theSimSetUp;
   std::string theName;
-
+  bool theNoise;
 };
 
 #endif
