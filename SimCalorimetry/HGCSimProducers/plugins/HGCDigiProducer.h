@@ -4,6 +4,8 @@
 #include "SimGeneral/MixingModule/interface/DigiAccumulatorMixMod.h"
 #include "SimCalorimetry/HGCSimProducers/interface/HGCDigitizer.h"
 
+#include <memory>
+
 namespace edm {
   class EDProducer;
   class ParameterSet;
@@ -18,10 +20,10 @@ public:
   virtual void accumulate(PileUpEventPrincipal const&, edm::EventSetup const&) override;
   virtual void beginRun(edm::Run const&, edm::EventSetup const&) override;
   virtual void endRun(edm::Run const&, edm::EventSetup const&) override;
+  ~HGCDigiProducer();
 private:
-
-  
-  HGCDigitizer theDigitizer_;
+  //the digitizer
+  std::unique_ptr<HGCDigitizer> theDigitizer_;
 };
 
 #endif

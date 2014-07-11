@@ -18,9 +18,6 @@
 HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps) :
   checkValidDetIds_(true),
   simHitAccumulator_( new HGCSimHitDataAccumulator ),
-  theHGCEEDigitizer_(ps),
-  theHGCHEbackDigitizer_(ps),
-  theHGCHEfrontDigitizer_(ps),
   mySubDet_(ForwardSubdetector::ForwardEmpty)
 {
   //configure from cfg
@@ -35,15 +32,25 @@ HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps) :
   if ( ! rng.isAvailable()) {
     throw cms::Exception("Configuration") << "HGCDigitizer requires the RandomNumberGeneratorService - please add this service or remove the modules that require it";
   }
-  CLHEP::HepRandomEngine& engine = rng->getEngine();
-  theHGCEEDigitizer_.setRandomNumberEngine(engine);
-  theHGCHEbackDigitizer_.setRandomNumberEngine(engine);
-  theHGCHEfrontDigitizer_.setRandomNumberEngine(engine);
 
-  //subdetector
-  if( producesEEDigis() )      mySubDet_=ForwardSubdetector::HGCEE;
-  if( producesHEfrontDigis() ) mySubDet_=ForwardSubdetector::HGCHEF;
-  if( producesHEbackDigis() )  mySubDet_=ForwardSubdetector::HGCHEB;
+  CLHEP::HepRandomEngine& engine = rng->getEngine();
+  if(hitCollection_.find("HitsEE")!=std::string::npos) { 
+    mySubDet_=ForwardSubdetector::HGCEE;  
+    theHGCEEDigitizer_=std::unique_ptr<HGCEEDigitizer>(new HGCEEDigitizer(ps) ); 
+    theHGCEEDigitizer_->setRandomNumberEngine(engine);
+  }
+  if(hitCollection_.find("HitsHEfront")!=std::string::npos)  
+    { 
+      mySubDet_=ForwardSubdetector::HGCHEF;
+      theHGCHEfrontDigitizer_=std::unique_ptr<HGCHEfrontDigitizer>(new HGCHEfrontDigitizer(ps) );
+      theHGCHEfrontDigitizer_->setRandomNumberEngine(engine);
+    }
+  if(hitCollection_.find("HitsHEback")!=std::string::npos)
+    { 
+      mySubDet_=ForwardSubdetector::HGCHEB;
+      theHGCHEbackDigitizer_=std::unique_ptr<HGCHEbackDigitizer>(new HGCHEbackDigitizer(ps) );
+      theHGCHEbackDigitizer_->setRandomNumberEngine(engine);
+    }
 }
 
 //
@@ -58,21 +65,21 @@ void HGCDigitizer::finalizeEvent(edm::Event& e, edm::EventSetup const& es)
   if( producesEEDigis() ) 
     {
       std::auto_ptr<HGCEEDigiCollection> digiResult(new HGCEEDigiCollection() );
-      theHGCEEDigitizer_.run(digiResult,*simHitAccumulator_,digitizationType_);
+      theHGCEEDigitizer_->run(digiResult,*simHitAccumulator_,digitizationType_);
       edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " << digiResult->size() <<  " EE hits";
       e.put(digiResult,digiCollection());
     }
   if( producesHEfrontDigis())
     {
       std::auto_ptr<HGCHEDigiCollection> digiResult(new HGCHEDigiCollection() );
-      theHGCHEfrontDigitizer_.run(digiResult,*simHitAccumulator_,digitizationType_);
+      theHGCHEfrontDigitizer_->run(digiResult,*simHitAccumulator_,digitizationType_);
       edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " << digiResult->size() <<  " HE front hits";
       e.put(digiResult,digiCollection());
     }
   if( producesHEbackDigis() )
     {
       std::auto_ptr<HGCHEDigiCollection> digiResult(new HGCHEDigiCollection() );
-      theHGCHEbackDigitizer_.run(digiResult,*simHitAccumulator_,digitizationType_);
+      theHGCHEbackDigitizer_->run(digiResult,*simHitAccumulator_,digitizationType_);
       edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " << digiResult->size() <<  " HE back hits";
       e.put(digiResult,digiCollection());
     }
@@ -165,7 +172,7 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, i
 	}
       
       //check if time is ok
-      if( itime > (int)(simHitIt->second.size()) ) continue;
+      if( itime >= (int)(simHitIt->second.size()) ) continue;
       
       (simHitIt->second)[itime] += ien;
     }
@@ -211,9 +218,6 @@ void HGCDigitizer::resetSimHitDataAccumulator()
 }
 
 
-//
-HGCDigitizer::~HGCDigitizer()
-{
-}
+
 
 
