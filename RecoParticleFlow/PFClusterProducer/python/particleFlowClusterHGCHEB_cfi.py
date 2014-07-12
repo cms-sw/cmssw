@@ -19,6 +19,17 @@ _arborTopoClusterizer_HGCHEB = cms.PSet(
     thresholdsByDetector = cms.VPSet( )
 )
 
+#the real arbor clusterizer
+_manqiArborClusterizer_HGCHEB = cms.PSet(
+    algoName = cms.string("SimpleArborClusterizer"), 
+    # use basic pad sizes in HGCEE
+    cellSize = cms.double(30.0),
+    layerThickness = cms.double(55.0),
+    killNoiseClusters = cms.bool(True),
+    maxNoiseClusterSize = cms.uint32(3),
+    thresholdsByDetector = cms.VPSet( )
+)
+
 #weights for layers from P.Silva (26 June 2014)
 weight_vec = [0.0902 for x in range(12)]
 weight_vec.extend([0.1051 for x in range(10)])
@@ -53,7 +64,7 @@ particleFlowClusterHGCHEB = cms.EDProducer(
     recHitsSource = cms.InputTag("particleFlowRecHitHGCHEB"),
     recHitCleaners = cms.VPSet(),
     seedFinder = _noseeds_HGCHEB,
-    initialClusteringStep = _arborTopoClusterizer_HGCHEB,
+    initialClusteringStep = _manqiArborClusterizer_HGCHEB,
     pfClusterBuilder = cms.PSet( ),
     positionReCalc = cms.PSet(),
     energyCorrector = _HGCHEB_HadronEnergy
