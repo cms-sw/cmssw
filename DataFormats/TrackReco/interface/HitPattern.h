@@ -78,6 +78,42 @@
 //         STEREO: valid stereo hit
 //  MONO | STEREO: both
 //
+//
+// Given a track, here is an example usage of hit pattern
+//    
+//     // hit pattern of the track
+//    const reco::HitPattern &p = track->hitPattern();
+//    
+//     // loop over the hits of the track. 
+//    for (int i = 0; i < p.numberOfHits(HitPattern::TRACK_HITS); i++) {
+//        uint32_t hit = p.getHitPattern(HitPattern::TRACK_HITS, i);
+//    
+//        // if the hit is valid and in pixel barrel, print out the layer
+//        if (p.validHitFilter(hit) && p.pixelBarrelHitFilter(hit)){
+//            cout << "valid hit found in pixel barrel layer " 
+//                 << p.getLayer(hit) 
+//                 << endl;
+//        }
+//    
+//        // expert level: printout the hit in 11-bit binary format
+//        cout << "hit in 11-bit binary format = "; 
+//        for (int j = 10; j >= 0; j--){
+//            int bit = (hit >> j) & 0x1;
+//            cout << bit;
+//        }
+//        cout << endl;
+//    }
+//    
+//    //count the number of valid pixel barrel *** hits ***
+//    cout << "number of of valid pixel barrel hits is " 
+//         << p.numberOfValidPixelBarrelHits()
+//         << endl;
+//    
+//    //count the number of pixel barrel *** layers *** with measurement
+//    cout << "number of of pixel barrel layers with measurement is "
+//         << p.pixelBarrelLayersWithMeasurement()
+//         << endl;
+//
 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
