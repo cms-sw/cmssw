@@ -1,4 +1,5 @@
 #include <RecoParticleFlow/PFClusterProducer/interface/Arbor.hh>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <TTree.h>
 #include <algorithm>
 #include <TMath.h>
@@ -56,8 +57,8 @@ void init( float CellSize, float LayerThickness ) {
 	InitLinkThreshold = 2*LayerThickness - 0.01; 
 	IterLinkThreshold = InitLinkThreshold * 2.5;
 
-	cout<<endl<<"Thresholds"<<endl<<endl;
-	cout<<"Init/Iter Threshold "<<InitLinkThreshold<<" : "<<IterLinkThreshold<<endl<<endl;
+	edm::LogVerbatim("ArborInfo") <<endl<<"Thresholds"<<endl<<endl;
+	edm::LogVerbatim("ArborInfo") <<"Init/Iter Threshold "<<InitLinkThreshold<<" : "<<IterLinkThreshold<<endl<<endl;
 
 }
 
@@ -130,16 +131,16 @@ void HitsClassification( linkcoll inputLinks )
 		}
 		else
 		{
-			cout<<"WARNING: UNCLASSIFIED HITS, Begin Index: "<<BeginIndex[i1]<<",  End Index:  "<<EndIndex[i1]<<endl; 
+		  edm::LogWarning("ArborWarning") <<"WARNING: UNCLASSIFIED HITS, Begin Index: "<<BeginIndex[i1]<<",  End Index:  "<<EndIndex[i1]<<endl; 
 		}
         }
 
-	cout<<"Verification of Hits Classification: "<<endl;
-	cout<<"Seed - Simple/Star: "<<SimpleSeedHitsIndex.size()<<" : "<<StarSeedHitsIndex.size()<<endl;
-	cout<<"Joint - Simple/Star: "<<JointHitsIndex.size()<<" : "<<StarJointHitsIndex.size()<<endl;
-	cout<<"Leaves: "<<LeafHitsIndex.size()<<endl;
-	cout<<"IsoHits: "<<IsoHitsIndex.size()<<endl; 
-	cout<<"TotalHits: "<<NHits<<endl; 
+	edm::LogVerbatim("ArborInfo") <<"Verification of Hits Classification: "<<endl;
+	edm::LogVerbatim("ArborInfo") <<"Seed - Simple/Star: "<<SimpleSeedHitsIndex.size()<<" : "<<StarSeedHitsIndex.size()<<endl;
+	edm::LogVerbatim("ArborInfo") <<"Joint - Simple/Star: "<<JointHitsIndex.size()<<" : "<<StarJointHitsIndex.size()<<endl;
+	edm::LogVerbatim("ArborInfo") <<"Leaves: "<<LeafHitsIndex.size()<<endl;
+	edm::LogVerbatim("ArborInfo") <<"IsoHits: "<<IsoHitsIndex.size()<<endl; 
+	edm::LogVerbatim("ArborInfo") <<"TotalHits: "<<NHits<<endl; 
 }
 
 linkcoll LinkClean( std::vector<TVector3> allhits, linkcoll alllinks )
@@ -202,7 +203,7 @@ linkcoll LinkClean( std::vector<TVector3> allhits, linkcoll alllinks )
                 }
         }
 
-        cout<<"NStat "<<NHits<<" : "<<NLinks<<" InitLinks "<<InitLinks.size()<<endl;
+	edm::LogVerbatim("ArborInfo") <<"NStat "<<NHits<<" : "<<NLinks<<" InitLinks "<<InitLinks.size()<<endl;
 
 	return cleanedlinks;
 }
@@ -299,7 +300,7 @@ void EndPointLinkIteration()
 					tmplink.first = LeafIndex;
 					tmplink.second = OldSeedIndex; 
 					Links.push_back(tmplink);
-					cout<<"New Link added in EPLinkIteration"<<endl;
+					edm::LogVerbatim("ArborInfo") <<"New Link added in EPLinkIteration"<<endl;
 				}
 			}
 		}
@@ -421,13 +422,13 @@ void LinkIteration()	//Energy corrections, semi-local correction
 		}
 	}	
 
-	cout<<"Init-Iter Size "<<InitLinks.size()<<" : "<<IterLinks.size()<<endl;
+	edm::LogVerbatim("ArborInfo") <<"Init-Iter Size "<<InitLinks.size()<<" : "<<IterLinks.size()<<endl;
 
 }
 
 void BranchBuilding()
 {
-	cout<<"Build Branch"<<endl;
+	edm::LogVerbatim("ArborInfo") <<"Build Branch"<<endl;
 
 	int NLinks = IterLinks.size();
 	int NBranches = 0;
@@ -454,7 +455,7 @@ void BranchBuilding()
 	for(int i2 = 0; i2 < NHits; i2++)
 	{
 		if(HitEndIndex[i2] > 1)
-			cout<<"WARNING OF INTERNAL LOOP with more than 1 link stopped at the same Hit"<<endl;
+		  edm::LogWarning("ArborWarning") <<"WARNING OF INTERNAL LOOP with more than 1 link stopped at the same Hit"<<endl;
 
 		// cout<<"Begin/End Index "<<HitBeginIndex[i2]<<" : "<<HitEndIndex[i2]<<endl;
 
@@ -581,7 +582,7 @@ void BranchBuilding()
 
 void BushMerging()
 {
-	cout<<"Merging branch"<<endl;
+	edm::LogVerbatim("ArborInfo") <<"Merging branch"<<endl;
 
 	int NBranch = LengthSortBranchCollection.size();
 	std::vector<int> currbranch; 
@@ -595,13 +596,13 @@ void BushMerging()
 
 void BushAbsorbing()
 {
-	cout<<"Absorbing Isolated branches"<<endl;
+	edm::LogVerbatim("ArborInfo") <<"Absorbing Isolated branches"<<endl;
 }
 
 void MakingCMSCluster() // edm::Event& Event, const edm::EventSetup& Setup )
 {
 
-	cout<<"Try to Make CMS Cluster"<<endl;
+	edm::LogVerbatim("ArborInfo") <<"Try to Make CMS Cluster"<<endl;
 
 	int NBranches = LengthSortBranchCollection.size();
 	int NHitsInBranch = 0;
@@ -613,12 +614,12 @@ void MakingCMSCluster() // edm::Event& Event, const edm::EventSetup& Setup )
 		currBranch = LengthSortBranchCollection[i0];
 		NHitsInBranch = currBranch.size();
 
-		cout<<i0<<" th Track has "<<currBranch.size()<<" Hits "<<endl;
-		cout<<"Hits Index "<<endl; 
+		edm::LogVerbatim("ArborInfo") <<i0<<" th Track has "<<currBranch.size()<<" Hits "<<endl;
+		edm::LogVerbatim("ArborInfo") <<"Hits Index "<<endl; 
 
 		for(int j0 = 0; j0 < NHitsInBranch; j0++)
 		{
-			cout<<currBranch[j0]<<", ";
+			edm::LogVerbatim("ArborInfo") <<currBranch[j0]<<", ";
 
 			currHit = cleanedHits[currBranch[j0]];
 		}

@@ -160,7 +160,7 @@ buildClusters(const edm::Handle<reco::PFRecHitCollection>& input,
       }
     }
   }
-  edm::LogError("ClusterReport") 
+  LogDebug("ClusterReport") 
     << "made " << output.size() << " topological clusters!";
 }
 
