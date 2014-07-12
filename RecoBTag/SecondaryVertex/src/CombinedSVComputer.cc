@@ -1,35 +1,3 @@
-#include <iostream>
-#include <cstddef>
-#include <string>
-#include <cmath>
-#include <vector>
-
-#include <Math/VectorUtil.h>
-
-#include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DataFormats/Math/interface/Vector3D.h"
-#include "DataFormats/Math/interface/LorentzVector.h"
-#include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
-#include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include "DataFormats/GeometryVector/interface/GlobalVector.h"
-#include "DataFormats/GeometryVector/interface/VectorUtil.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
-#include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"  
-#include "DataFormats/BTauReco/interface/TaggingVariable.h"
-#include "DataFormats/BTauReco/interface/VertexTypes.h"
-#include "DataFormats/BTauReco/interface/ParticleMasses.h"
-
-#include "RecoVertex/VertexPrimitives/interface/ConvertToFromReco.h"
-
-#include "RecoBTag/SecondaryVertex/interface/TrackSorting.h"
-#include "RecoBTag/SecondaryVertex/interface/TrackSelector.h"
-#include "RecoBTag/SecondaryVertex/interface/TrackKinematics.h"
-#include "RecoBTag/SecondaryVertex/interface/V0Filter.h"
-
 #include "RecoBTag/SecondaryVertex/interface/CombinedSVComputer.h"
 
 using namespace reco;
@@ -85,15 +53,15 @@ inline CombinedSVComputer::IterationRange CombinedSVComputer::flipIterate(
 	return range;
 }
 
-const CandIPTagInfo::TrackIPData &
+const btag::TrackIPData &
 CombinedSVComputer::threshTrack(const CandIPTagInfo &trackIPTagInfo,
-                                const CandIPTagInfo::SortCriteria sort,
+                                const btag::SortCriteria sort,
                                 const reco::Jet &jet,
                                 const GlobalPoint &pv) const
 {
         const CandIPTagInfo::input_container &tracks =
                                         trackIPTagInfo.selectedTracks();
-        const std::vector<CandIPTagInfo::TrackIPData> &ipData =
+        const std::vector<btag::TrackIPData> &ipData =
                                         trackIPTagInfo.impactParameterData();
         std::vector<std::size_t> indices = trackIPTagInfo.sortedIndexes(sort);
 
@@ -101,7 +69,7 @@ CombinedSVComputer::threshTrack(const CandIPTagInfo &trackIPTagInfo,
         TrackKinematics kin;
         range_for(i, range) {
                 std::size_t idx = indices[i];
-                const TrackIPTagInfo::TrackIPData &data = ipData[idx];
+                const btag::TrackIPData &data = ipData[idx];
                 const Track &track = *tracks[idx]->bestTrack();
 
                 if (!trackNoDeltaRSelector(track, data, jet, pv))
@@ -112,7 +80,7 @@ CombinedSVComputer::threshTrack(const CandIPTagInfo &trackIPTagInfo,
                         return data;
         }
 
-        static const CandIPTagInfo::TrackIPData dummy = {
+        static const btag::TrackIPData dummy = {
                 GlobalPoint(),
                 GlobalPoint(),
                 Measurement1D(-1.0, 1.0),
@@ -124,15 +92,15 @@ CombinedSVComputer::threshTrack(const CandIPTagInfo &trackIPTagInfo,
         return dummy;
 }
 
-const TrackIPTagInfo::TrackIPData &
+const btag::TrackIPData &
 CombinedSVComputer::threshTrack(const TrackIPTagInfo &trackIPTagInfo,
-                                const TrackIPTagInfo::SortCriteria sort,
+                                const btag::SortCriteria sort,
                                 const reco::Jet &jet,
                                 const GlobalPoint &pv) const
 {
 	const edm::RefVector<TrackCollection> &tracks =
 					trackIPTagInfo.selectedTracks();
-	const std::vector<TrackIPTagInfo::TrackIPData> &ipData =
+	const std::vector<btag::TrackIPData> &ipData =
 					trackIPTagInfo.impactParameterData();
 	std::vector<std::size_t> indices = trackIPTagInfo.sortedIndexes(sort);
 
@@ -140,7 +108,7 @@ CombinedSVComputer::threshTrack(const TrackIPTagInfo &trackIPTagInfo,
 	TrackKinematics kin;
 	range_for(i, range) {
 		std::size_t idx = indices[i];
-		const TrackIPTagInfo::TrackIPData &data = ipData[idx];
+		const btag::TrackIPData &data = ipData[idx];
 		const Track &track = *tracks[idx];
 
 		if (!trackNoDeltaRSelector(track, data, jet, pv))
@@ -151,7 +119,7 @@ CombinedSVComputer::threshTrack(const TrackIPTagInfo &trackIPTagInfo,
 			return data;
 	}
 
-	static const TrackIPTagInfo::TrackIPData dummy = {
+	static const btag::TrackIPData dummy = {
  		GlobalPoint(),
 		GlobalPoint(),
 		Measurement1D(-1.0, 1.0),
@@ -172,46 +140,43 @@ CombinedSVComputer::operator () (const TrackIPTagInfo &ipInfo,
 
 	edm::RefToBase<Jet> jet = ipInfo.jet();
 	math::XYZVector jetDir = jet->momentum().Unit();
-	TaggingVariableList vars; // = ipInfo.taggingVariables();
+	TaggingVariableList vars;
 
         TrackKinematics vertexKinematics;
-	//the following is specific depending on the type of vertex
+	
+	// the following is specific depending on the type of vertex
         int vtx = -1;
         unsigned int numberofvertextracks = 0;
 
-                IterationRange range = flipIterate(svInfo.nVertices(), true);
-        range_for(i, range) {
-                if (vtx < 0)
-                        vtx = i;
-        
-                numberofvertextracks = numberofvertextracks + (svInfo.secondaryVertex(i)).nTracks();
+	IterationRange range = flipIterate(svInfo.nVertices(), true);
+	range_for(i, range) {
 
-                                const Vertex &vertex = svInfo.secondaryVertex(i);
-                bool hasRefittedTracks = vertex.hasRefittedTracks();
-                TrackRefVector tracks = svInfo.vertexTracks(i);
-                for(TrackRefVector::const_iterator track = tracks.begin();
-                    track != tracks.end(); track++) {
-                        double w = svInfo.trackWeight(i, *track);
-                        if (w < minTrackWeight)
-                                continue;
-                        if (hasRefittedTracks) {
-                                Track actualTrack =
-                                                vertex.refittedTrack(*track);
-                                vertexKinematics.add(actualTrack, w);
-                                vars.insert(btau::trackEtaRel, reco::btau::etaRel(jetDir,
-                                                actualTrack.momentum()), true);
-                        } else {
-                                vertexKinematics.add(**track, w);
-                                vars.insert(btau::trackEtaRel, reco::btau::etaRel(jetDir,
-                                                (*track)->momentum()), true);
-                        }
-                }
+		numberofvertextracks = numberofvertextracks + (svInfo.secondaryVertex(i)).nTracks();
+
+		const Vertex &vertex = svInfo.secondaryVertex(i);
+		bool hasRefittedTracks = vertex.hasRefittedTracks();
+		TrackRefVector tracks = svInfo.vertexTracks(i);
+		for(TrackRefVector::const_iterator track = tracks.begin(); track != tracks.end(); ++track) {
+			double w = svInfo.trackWeight(i, *track);
+			if (w < minTrackWeight)
+				continue;
+			if (hasRefittedTracks) {
+				const Track actualTrack = vertex.refittedTrack(*track);
+				vertexKinematics.add(actualTrack, w);
+				vars.insert(btau::trackEtaRel, reco::btau::etaRel(jetDir,actualTrack.momentum()), true);
+			} else {
+				vertexKinematics.add(**track, w);
+				vars.insert(btau::trackEtaRel, reco::btau::etaRel(jetDir,(*track)->momentum()), true);
+			}
+		}
+		
+		if (vtx < 0) vtx = i;
         }
 	if(vtx>=0){
-		                vars.insert(btau::vertexNTracks, numberofvertextracks, true);
+		vars.insert(btau::vertexNTracks, numberofvertextracks, true);
 	}
 
-	// after we  collected vertex information we let the common code complete the job
+	// after we collected vertex information we let the common code complete the job
 	fillCommonVariables(vars,vertexKinematics,ipInfo,svInfo);
 
 	vars.finalize();
@@ -226,35 +191,35 @@ CombinedSVComputer::operator () (const CandIPTagInfo &ipInfo,
 
         edm::RefToBase<Jet> jet = ipInfo.jet();
         math::XYZVector jetDir = jet->momentum().Unit();
-        TaggingVariableList vars; // = ipInfo.taggingVariables();
+        TaggingVariableList vars;
 
         TrackKinematics vertexKinematics;
-
+	
+	// the following is specific depending on the type of vertex
         int vtx = -1;
         unsigned int numberofvertextracks = 0;
 
-                IterationRange range = flipIterate(svInfo.nVertices(), true);
-        range_for(i, range) {
-                if (vtx < 0)
-                        vtx = i;
+	IterationRange range = flipIterate(svInfo.nVertices(), true);
+	range_for(i, range) {
 
-                numberofvertextracks = numberofvertextracks + (svInfo.secondaryVertex(i)).numberOfSourceCandidatePtrs();
+		numberofvertextracks = numberofvertextracks + (svInfo.secondaryVertex(i)).numberOfSourceCandidatePtrs();
 
-//                const VertexCompositePtrCandidate &vertex = svInfo.secondaryVertex(i);
-                std::vector<CandidatePtr> tracks = svInfo.vertexTracks(i);
-                for(std::vector<CandidatePtr>::const_iterator track = tracks.begin();
-                    track != tracks.end(); track++) {
-                                vertexKinematics.add(*(*track)->bestTrack(), 1.0);
-                                vars.insert(btau::trackEtaRel, reco::btau::etaRel(jetDir,
-                                                (*track)->momentum()), true);
-                        
-                }
-        }
-	if(vtx>0){
-		                vars.insert(btau::vertexNTracks, numberofvertextracks, true);
+		std::vector<CandidatePtr> tracks = svInfo.vertexTracks(i);
+		for(std::vector<CandidatePtr>::const_iterator track = tracks.begin(); track != tracks.end(); ++track) {
+			vertexKinematics.add(*(*track)->bestTrack(), 1.0);
+			vars.insert(btau::trackEtaRel, reco::btau::etaRel(jetDir,(*track)->momentum()), true);
+		}
+		
+		if (vtx < 0) vtx = i;
 	}
-        fillCommonVariables(vars,vertexKinematics,ipInfo,svInfo);
-        vars.finalize();
-        return vars;
+	if(vtx>0){
+		vars.insert(btau::vertexNTracks, numberofvertextracks, true);
+	}
+	
+	// after we collected vertex information we let the common code complete the job
+	fillCommonVariables(vars,vertexKinematics,ipInfo,svInfo);
+	
+	vars.finalize();
+	return vars;
 }
 
