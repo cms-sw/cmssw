@@ -7,7 +7,7 @@
 #include "DataFormats/DetId/interface/DetIdCollection.h"
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "EventFilter/Phase2TrackerRawToDigi/interface/Phase2TrackerFEDBuffer.h"
-#include "boost/cstdint.hpp"
+#include <stdint.h>
 #include <iostream>
 #include <string>
 #include <vector>
