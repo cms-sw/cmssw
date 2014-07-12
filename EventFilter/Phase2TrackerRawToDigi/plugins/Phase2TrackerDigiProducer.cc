@@ -120,18 +120,13 @@ namespace sistrip {
 	{
 	  for ( int icbc = 0; icbc < MAX_CBC_PER_FE; icbc++ )
 	  {
-            // build fake fed id
-            uint32_t key = fedIndex*1000 + ife*10;
-
-
 	    const FEDChannel& channel = buffer->channel(ichan);
 	    if(channel.length() > 0)
 	    {
               // get fedid from cabling
               const Phase2TrackerModule mod = cabling_->findFedCh(std::make_pair(fedIndex, ife));
-              uint32_t detid_test = mod.getDetid();
-              ss << dec << " id from cabling : " << detid_test << endl;
-	      
+              uint32_t detid = mod.getDetid();
+              ss << dec << " id from cabling : " << detid << endl;
               ss << dec << " reading channel : " << icbc << " on FE " << ife;
 	      ss << dec << " with length  : " << (int) channel.length() << endl;
 
@@ -167,10 +162,10 @@ namespace sistrip {
 
               // store beginning and end of this digis for this detid and add this registry to the list
               // and store data
-              Registry regItemTop(key+1, STRIPS_PER_CBC*icbc/2, proc_work_digis_.size(), stripsTop.size());
+              Registry regItemTop(detid+1, STRIPS_PER_CBC*icbc/2, proc_work_digis_.size(), stripsTop.size());
               proc_work_registry_.push_back(regItemTop);
               proc_work_digis_.insert(proc_work_digis_.end(),stripsTop.begin(),stripsTop.end());
-              Registry regItemBottom(key+2, STRIPS_PER_CBC*icbc/2, proc_work_digis_.size(), stripsBottom.size());
+              Registry regItemBottom(detid+2, STRIPS_PER_CBC*icbc/2, proc_work_digis_.size(), stripsBottom.size());
               proc_work_registry_.push_back(regItemBottom);
               proc_work_digis_.insert(proc_work_digis_.end(),stripsBottom.begin(),stripsBottom.end());
 	    }

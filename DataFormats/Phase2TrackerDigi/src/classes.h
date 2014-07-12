@@ -15,7 +15,6 @@ namespace {
     edm::Wrapper< edm::DetSet<Phase2TrackerDigi> > zs2;
     edm::Wrapper< std::vector<edm::DetSet<Phase2TrackerDigi> > > zs3;
     edm::Wrapper< edm::DetSetVector<Phase2TrackerDigi> > zs4;
-    edm::Wrapper<edmNew::DetSetVector<Phase2TrackerDigi> > zs4_bis;
     
   };
 }
