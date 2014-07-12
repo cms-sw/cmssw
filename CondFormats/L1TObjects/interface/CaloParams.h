@@ -129,6 +129,7 @@ namespace l1t {
     l1t::LUT* tauCalibrationLUTEndcapsA() { return tauCalibrationLUTEndcapsA_.get(); }
     l1t::LUT* tauCalibrationLUTEndcapsB() { return tauCalibrationLUTEndcapsB_.get(); }
     l1t::LUT* tauCalibrationLUTEndcapsC() { return tauCalibrationLUTEndcapsC_.get(); }
+    l1t::LUT* tauCalibrationLUTEta() { return tauCalibrationLUTEta_.get(); }
 
     void setTauLsb(double lsb) { tauLsb_ = lsb; }
     void setTauSeedThreshold(double thresh) { tauSeedThreshold_ = thresh; }
@@ -144,6 +145,7 @@ namespace l1t {
     void setTauCalibrationLUTEndcapsA(std::shared_ptr<LUT> lut) { tauCalibrationLUTEndcapsA_ = lut; }
     void setTauCalibrationLUTEndcapsB(std::shared_ptr<LUT> lut) { tauCalibrationLUTEndcapsB_ = lut; }
     void setTauCalibrationLUTEndcapsC(std::shared_ptr<LUT> lut) { tauCalibrationLUTEndcapsC_ = lut; }
+    void setTauCalibrationLUTEta(std::shared_ptr<LUT> lut) { tauCalibrationLUTEta_ = lut; }
 
     // jets
     double jetLsb() const { return jetLsb_; }
@@ -330,6 +332,7 @@ namespace l1t {
     std::shared_ptr<l1t::LUT> tauCalibrationLUTEndcapsA_;
     std::shared_ptr<l1t::LUT> tauCalibrationLUTEndcapsB_;
     std::shared_ptr<l1t::LUT> tauCalibrationLUTEndcapsC_;
+    std::shared_ptr<l1t::LUT> tauCalibrationLUTEta_;
 
 
 

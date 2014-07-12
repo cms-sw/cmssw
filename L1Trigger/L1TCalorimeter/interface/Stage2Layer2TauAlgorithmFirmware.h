@@ -29,7 +29,7 @@ namespace l1t {
   private:
     void merging(const std::vector<l1t::CaloCluster>& clusters, std::vector<l1t::Tau>& taus);
     void loadCalibrationLuts();
-    double calibratedPt(int hwPtEm, int hwPtHad, bool barrel);
+    double calibratedPt(int hwPtEm, int hwPtHad, int ieta);
     
     // parameters
     CaloParams* params_;

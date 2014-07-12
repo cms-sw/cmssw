@@ -50,6 +50,7 @@ caloStage2Params.tauCalibrationLUTFileBarrelC  = cms.FileInPath("L1Trigger/L1TCa
 caloStage2Params.tauCalibrationLUTFileEndcapsA = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCalibrationLUTEndcapsA.txt")
 caloStage2Params.tauCalibrationLUTFileEndcapsB = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCalibrationLUTEndcapsB.txt")
 caloStage2Params.tauCalibrationLUTFileEndcapsC = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCalibrationLUTEndcapsC.txt")
+caloStage2Params.tauCalibrationLUTFileEta      = cms.FileInPath("L1Trigger/L1TCalorimeter/data/tauCalibrationLUTEta.txt")
 
 # jets
 caloStage2Params.jetLsb                = cms.double(0.5)

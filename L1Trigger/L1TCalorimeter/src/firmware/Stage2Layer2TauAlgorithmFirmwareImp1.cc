@@ -131,7 +131,6 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
       l1t::CaloCluster& mainCluster = *itr;
       int iEta = mainCluster.hwEta();
       int iPhi = mainCluster.hwPhi();
-      bool barrel = (iEta<=17);
 
       // physical eta/phi
       double eta = 0.;
@@ -197,14 +196,14 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
           if(mergeRight && secondaryCluster.checkClusterFlag(CaloCluster::MERGE_LEFTRIGHT)) canBeMerged = false;
           //std::cout<<"  "<<(mergeRight && secondaryCluster.checkClusterFlag(CaloCluster::MERGE_LEFTRIGHT))<<"\n";
           if(canBeMerged) {
-            double calibPt = calibratedPt(mainCluster.hwPtEm()+secondaryCluster.hwPtEm(), mainCluster.hwPtHad()+secondaryCluster.hwPtHad(), barrel);
+            double calibPt = calibratedPt(mainCluster.hwPtEm()+secondaryCluster.hwPtEm(), mainCluster.hwPtHad()+secondaryCluster.hwPtHad(), mainCluster.hwEta());
             math::PtEtaPhiMLorentzVector p4(calibPt, eta, phi, 0.);
             l1t::Tau tau( p4, mainCluster.hwPt()+secondaryCluster.hwPt(), mainCluster.hwEta(), mainCluster.hwPhi(), 0);
             taus.push_back(tau);
             //std::cout<<"   Make tau, Merging cluster eta="<<secondaryCluster.hwEta()<<", phi="<<secondaryCluster.hwPhi()<<", E="<<secondaryCluster.hwPt()<<"\n";
           }
           else {
-            double calibPt = calibratedPt(mainCluster.hwPtEm(), mainCluster.hwPtHad(), barrel);
+            double calibPt = calibratedPt(mainCluster.hwPtEm(), mainCluster.hwPtHad(), mainCluster.hwEta());
             math::PtEtaPhiMLorentzVector p4(calibPt, eta, phi, 0.);
             l1t::Tau tau( p4, mainCluster.hwPt(), mainCluster.hwEta(), mainCluster.hwPhi(), 0);
             taus.push_back(tau);
@@ -226,7 +225,7 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
           if(mergeRight && secondaryCluster.checkClusterFlag(CaloCluster::MERGE_LEFTRIGHT)) canBeKept = true;
           //std::cout<<"  "<<(mergeRight && secondaryCluster.checkClusterFlag(CaloCluster::MERGE_LEFTRIGHT))<<"\n";
           if(canBeKept) {
-            double calibPt = calibratedPt(mainCluster.hwPtEm(), mainCluster.hwPtHad(), barrel);
+            double calibPt = calibratedPt(mainCluster.hwPtEm(), mainCluster.hwPtHad(), mainCluster.hwEta());
             math::PtEtaPhiMLorentzVector p4(calibPt, eta, phi, 0.);
             l1t::Tau tau( p4, mainCluster.hwPt(), mainCluster.hwEta(), mainCluster.hwPhi(), 0);
             taus.push_back(tau);
@@ -235,7 +234,7 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
         }
       }
       else {
-        double calibPt = calibratedPt(mainCluster.hwPtEm(), mainCluster.hwPtHad(), barrel);
+        double calibPt = calibratedPt(mainCluster.hwPtEm(), mainCluster.hwPtHad(), mainCluster.hwEta());
         math::PtEtaPhiMLorentzVector p4(calibPt, eta, phi, 0.);
         l1t::Tau tau( p4, mainCluster.hwPt(), mainCluster.hwEta(), mainCluster.hwPhi(), 0);
         taus.push_back(tau);
@@ -247,12 +246,14 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
 
 void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::loadCalibrationLuts()
 {
-  float minScale   = 0.;
-  float maxScale   = 2.;
-  offsetBarrelEH_  = 0.5;
-  offsetBarrelH_   = 1.5;
-  offsetEndcapsEH_ = 0.;
-  offsetEndcapsH_  = 1.5;
+  float minScale    = 0.;
+  float maxScale    = 2.;
+  float minScaleEta = 0.5;
+  float maxScaleEta = 1.5;
+  offsetBarrelEH_   = 0.5;
+  offsetBarrelH_    = 1.5;
+  offsetEndcapsEH_  = 0.;
+  offsetEndcapsH_   = 1.5;
 
   std::vector<l1t::LUT*> luts;
   luts.push_back( params_->tauCalibrationLUTBarrelA()  );
@@ -276,11 +277,25 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::loadCalibrationLuts()
       coefficients_[iLut][addr] = minScale + binSize*y;
     }
   }
+
+  l1t::LUT* lutEta = params_->tauCalibrationLUTEta();
+  size = (1 << lutEta->nrBitsData());
+  nBins = (1 << lutEta->nrBitsAddress());
+  emptyCoeff.resize(nBins,0.);
+  binSize = (maxScaleEta-minScaleEta)/(float)size;
+  coefficients_.push_back(emptyCoeff);
+  for(unsigned addr=0;addr<nBins;addr++) {
+    float y = (float)lutEta->data(addr);
+    coefficients_.back()[addr] = minScaleEta + binSize*y;
+  }
+
 }
 
 
-double l1t::Stage2Layer2TauAlgorithmFirmwareImp1::calibratedPt(int hwPtEm, int hwPtHad, bool barrel)
+double l1t::Stage2Layer2TauAlgorithmFirmwareImp1::calibratedPt(int hwPtEm, int hwPtHad, int ieta)
 {
+  // ET calibration
+  bool barrel = (ieta<=17);
   unsigned int nBins = coefficients_[0].size();
   double e = (double)hwPtEm*params_->tauLsb();
   double h = (double)hwPtHad*params_->tauLsb();
@@ -296,5 +311,12 @@ double l1t::Stage2Layer2TauAlgorithmFirmwareImp1::calibratedPt(int hwPtEm, int h
     double offset = (barrel) ? offsetBarrelH_ : offsetEndcapsH_;
     calibPt = h*coefficients_[2+ilutOffset][ibin]+offset;
   } 
+
+  // eta calibration
+  if(ieta<-28) ieta=-28;
+  if(ieta>28) ieta=28;
+  ibin = (ieta>0 ? ieta+27 : ieta+28);
+  calibPt *= coefficients_.back()[ibin];
+
   return calibPt;
 }
