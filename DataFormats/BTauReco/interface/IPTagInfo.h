@@ -47,9 +47,6 @@ inline  const reco::Track * toTrack(const reco::CandidatePtr & c) {return (*c).b
 template <class Container, class Base>
 class IPTagInfo : public Base {
 public:
-    typedef btag::TrackIPData TrackIPData;
-    typedef btag::variableJTAParameters variableJTAParameters; 	
-    typedef btag::SortCriteria SortCriteria;	
     typedef Container input_container;
     typedef Base base_class;
 
@@ -111,7 +108,7 @@ public:
    probability < cut
    (according to the specified mode)
   */
-  std::vector<size_t> sortedIndexesWithCut(float cut, SortCriteria mode = reco::btag::IP3DSig) const;
+  std::vector<size_t> sortedIndexesWithCut(float cut, btag::SortCriteria mode = reco::btag::IP3DSig) const;
 
   /**
    variable jet-to track association:
@@ -124,7 +121,7 @@ public:
   /**
    Return the list of track index sorted by mode
   */ 
-  std::vector<size_t> sortedIndexes(SortCriteria mode = reco::btag::IP3DSig) const;
+  std::vector<size_t> sortedIndexes(btag::SortCriteria mode = reco::btag::IP3DSig) const;
   Container sorted(const std::vector<size_t>& indexes) const;
   Container sortedTracks(const std::vector<size_t>& indexes) const {return sorted(indexes);}
 
@@ -232,7 +229,7 @@ template<class Container, class Base> std::vector<bool> IPTagInfo<Container,Base
 
 
 
-template<class Container, class Base> std::vector<size_t> IPTagInfo<Container,Base>::sortedIndexes(SortCriteria mode) const
+template<class Container, class Base> std::vector<size_t> IPTagInfo<Container,Base>::sortedIndexes(btag::SortCriteria mode) const
 {
  using namespace reco::btag;
  float cut=-1e99;
@@ -240,7 +237,7 @@ template<class Container, class Base> std::vector<size_t> IPTagInfo<Container,Ba
  return sortedIndexesWithCut(cut,mode);
 }
 
-template<class Container, class Base> std::vector<size_t> IPTagInfo<Container,Base>::sortedIndexesWithCut(float cut, SortCriteria mode) const
+template<class Container, class Base> std::vector<size_t> IPTagInfo<Container,Base>::sortedIndexesWithCut(float cut, btag::SortCriteria mode) const
 {
  std::multimap<float,size_t> sortedIdx;
  size_t nSelectedTracks = m_selected.size();

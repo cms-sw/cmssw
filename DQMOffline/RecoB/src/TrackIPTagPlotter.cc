@@ -611,7 +611,7 @@ void TrackIPTagPlotter::analyzeTag (const reco::BaseTagInfo * baseTagInfo,
                        tagInfo->primaryVertex()->position().y(),
                        tagInfo->primaryVertex()->position().z());
 
-  const std::vector<reco::TrackIPTagInfo::TrackIPData>& ip = tagInfo->impactParameterData();
+  const std::vector<reco::btag::TrackIPData>& ip = tagInfo->impactParameterData();
 
   std::vector<float> prob2d, prob3d;
   if (tagInfo->hasProbabilities()) {

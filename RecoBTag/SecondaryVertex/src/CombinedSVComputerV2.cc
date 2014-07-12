@@ -91,15 +91,15 @@ inline CombinedSVComputerV2::IterationRange CombinedSVComputerV2::flipIterate(
 	return range;
 }
 
-const TrackIPTagInfo::TrackIPData &
+const btag::TrackIPData &
 CombinedSVComputerV2::threshTrack(const TrackIPTagInfo &trackIPTagInfo,
-                                const TrackIPTagInfo::SortCriteria sort,
+                                const btag::SortCriteria sort,
                                 const reco::Jet &jet,
                                 const GlobalPoint &pv) const
 {
 	const edm::RefVector<TrackCollection> &tracks =
 					trackIPTagInfo.selectedTracks();
-	const std::vector<TrackIPTagInfo::TrackIPData> &ipData =
+	const std::vector<btag::TrackIPData> &ipData =
 					trackIPTagInfo.impactParameterData();
 	std::vector<std::size_t> indices = trackIPTagInfo.sortedIndexes(sort);
 
@@ -107,7 +107,7 @@ CombinedSVComputerV2::threshTrack(const TrackIPTagInfo &trackIPTagInfo,
 	TrackKinematics kin;
 	range_for(i, range) {
 		std::size_t idx = indices[i];
-		const TrackIPTagInfo::TrackIPData &data = ipData[idx];
+		const btag::TrackIPData &data = ipData[idx];
 		const Track &track = *tracks[idx];
 
 		if (!trackNoDeltaRSelector(track, data, jet, pv))
@@ -118,7 +118,7 @@ CombinedSVComputerV2::threshTrack(const TrackIPTagInfo &trackIPTagInfo,
 			return data;
 	}
 
-	static const TrackIPTagInfo::TrackIPData dummy = {
+	static const btag::TrackIPData dummy = {
  		GlobalPoint(),
 		GlobalPoint(),
 		Measurement1D(-1.0, 1.0),
@@ -227,7 +227,7 @@ CombinedSVComputerV2::operator () (const TrackIPTagInfo &ipInfo,
 
 	//NOW ATTEMPT TO RECONSTRUCT PSEUDOVERTEX!!!
 	std::vector<std::size_t> indices = ipInfo.sortedIndexes(sortCriterium);
-	const std::vector<TrackIPTagInfo::TrackIPData> &ipData = ipInfo.impactParameterData();
+	const std::vector<btag::TrackIPData> &ipData = ipInfo.impactParameterData();
 	const edm::RefVector<TrackCollection> &tracks = ipInfo.selectedTracks();
   
 	std::vector<TrackRef> pseudoVertexTracks;
@@ -235,7 +235,7 @@ CombinedSVComputerV2::operator () (const TrackIPTagInfo &ipInfo,
 	range = flipIterate(indices.size(), false);
 	range_for(i, range) {
 		std::size_t idx = indices[i];
-		const TrackIPTagInfo::TrackIPData &data = ipData[idx];
+		const btag::TrackIPData &data = ipData[idx];
 		const TrackRef &trackRef = tracks[idx];
 		const Track &track = *trackRef;
 
@@ -268,7 +268,7 @@ CombinedSVComputerV2::operator () (const TrackIPTagInfo &ipInfo,
 	range_for(i, range) {
 
 		std::size_t idx = indices[i];
-		const TrackIPTagInfo::TrackIPData &data = ipData[idx];
+		const btag::TrackIPData &data = ipData[idx];
 		const TrackRef &trackRef = tracks[idx];
 		const Track &track = *trackRef;
 
@@ -291,7 +291,7 @@ CombinedSVComputerV2::operator () (const TrackIPTagInfo &ipInfo,
 				continue;
 
 			std::size_t pairIdx = indices[j];
-			const TrackIPTagInfo::TrackIPData &pairTrackData = ipData[pairIdx];
+			const btag::TrackIPData &pairTrackData = ipData[pairIdx];
 			const TrackRef &pairTrackRef = tracks[pairIdx];
 			const Track &pairTrack = *pairTrackRef;
 

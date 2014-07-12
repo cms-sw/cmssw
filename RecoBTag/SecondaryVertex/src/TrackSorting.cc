@@ -2,7 +2,7 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
+#include "DataFormats/BTauReco/interface/IPTagInfo.h"
 
 #include "RecoBTag/SecondaryVertex/interface/TrackSorting.h"
 

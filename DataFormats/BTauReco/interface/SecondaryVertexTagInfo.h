@@ -57,7 +57,7 @@ class TemplatedSecondaryVertexTagInfo : public BaseTagInfo {
 	typedef reco::btag::IndexedTrackData IndexedTrackData;
 
         struct VertexData {
-                VTX                    vertex;
+                VTX                             vertex;
                 Measurement1D                   dist2d, dist3d;
                 GlobalVector                    direction;
         };
@@ -139,8 +139,8 @@ class TemplatedSecondaryVertexTagInfo : public BaseTagInfo {
 	const TrackData &trackData(unsigned int index) const;
 	const TrackData &trackData(const typename input_container::value_type &track) const;
 
-	const typename IPTI::TrackIPData &trackIPData(unsigned int index) const;
-	const typename IPTI::TrackIPData &trackIPData(const typename input_container::value_type &track) const;
+	const reco::btag::TrackIPData &trackIPData(unsigned int index) const;
+	const reco::btag::TrackIPData &trackIPData(const typename input_container::value_type &track) const;
 
 	float trackWeight(unsigned int svIndex, unsigned int trackindex) const;
 	float trackWeight(unsigned int svIndex, const typename input_container::value_type &track) const;
@@ -273,14 +273,14 @@ const typename  TemplatedSecondaryVertexTagInfo<IPTI,VTX>::TrackData&  Templated
 }
 
 template<class IPTI,class VTX> 
-const typename IPTI::TrackIPData& TemplatedSecondaryVertexTagInfo<IPTI,VTX>::trackIPData(unsigned int index) const
+const reco::btag::TrackIPData& TemplatedSecondaryVertexTagInfo<IPTI,VTX>::trackIPData(unsigned int index) const
 {
 	return m_trackIPTagInfoRef->impactParameterData()[
 						m_trackData[index].first];
 }
 
 template<class IPTI,class VTX>
-const typename IPTI::TrackIPData& TemplatedSecondaryVertexTagInfo<IPTI,VTX>::trackIPData(const typename input_container::value_type &track) const
+const reco::btag::TrackIPData& TemplatedSecondaryVertexTagInfo<IPTI,VTX>::trackIPData(const typename input_container::value_type &track) const
 {
 	return trackIPData(findTrack(track));
 }

@@ -205,6 +205,7 @@
 
   <class name="reco::btag::TrackIPData"/>
   <class name="std::vector<reco::btag::TrackIPData>"/>
+
   <class name="reco::TrackIPTagInfo"/>
   <class name="reco::TrackIPTagInfoCollection"/>
   <class name="reco::TrackIPTagInfoRef"/>

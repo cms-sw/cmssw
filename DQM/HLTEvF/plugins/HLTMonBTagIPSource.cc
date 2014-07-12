@@ -290,7 +290,7 @@ void HLTMonBTagIPSource::analyze(const edm::Event & event, const edm::EventSetup
       const reco::TrackIPTagInfo & info   = (*h_L25TagInfo)[i];
       const reco::Jet & jet = * info.jet();
       const reco::TrackRefVector & tracks = info.selectedTracks();
-      const std::vector<reco::TrackIPTagInfo::TrackIPData> & data = info.impactParameterData();
+      const std::vector<reco::btag::TrackIPData> & data = info.impactParameterData();
       const reco::JetTag & tag = (*h_L25JetTags)[info.jet().key()];
       m_plotL25JetsEnergy->Fill( jet.energy() );
       m_plotL25JetsET->Fill(     jet.et() );
@@ -332,7 +332,7 @@ void HLTMonBTagIPSource::analyze(const edm::Event & event, const edm::EventSetup
       const reco::TrackIPTagInfo & info   = (*h_L3TagInfo)[i];
       const reco::Jet & jet = * info.jet();
       const reco::TrackRefVector & tracks = info.selectedTracks();
-      const std::vector<reco::TrackIPTagInfo::TrackIPData> & data = info.impactParameterData();
+      const std::vector<reco::btag::TrackIPData> & data = info.impactParameterData();
       const reco::JetTag & tag = (*h_L3JetTags)[info.jet().key()];
       m_plotL3JetsEnergy->Fill( jet.energy() );
       m_plotL3JetsET->Fill(     jet.et() );

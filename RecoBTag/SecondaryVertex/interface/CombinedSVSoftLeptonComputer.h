@@ -28,16 +28,16 @@ class CombinedSVSoftLeptonComputer {
 	double flipValue(double value, bool vertex) const;
 	IterationRange flipIterate(int size, bool vertex) const;
 
-	const reco::TrackIPTagInfo::TrackIPData &
+	const reco::btag::TrackIPData &
 	threshTrack(const reco::TrackIPTagInfo &trackIPTagInfo,
-	            const reco::TrackIPTagInfo::SortCriteria sort,
+	            const reco::btag::SortCriteria sort,
 	            const reco::Jet &jet,
 	            const GlobalPoint &pv) const;
 
 	bool					trackFlip;
 	bool					vertexFlip;
 	double					charmCut;
-	reco::TrackIPTagInfo::SortCriteria	sortCriterium;
+	reco::btag::SortCriteria		sortCriterium;
 	reco::TrackSelector			trackSelector;
 	reco::TrackSelector			trackNoDeltaRSelector;
 	reco::TrackSelector			trackPseudoSelector;

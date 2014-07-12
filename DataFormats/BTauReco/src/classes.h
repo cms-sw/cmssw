@@ -50,11 +50,11 @@ namespace reco {
 namespace DataFormats_BTauReco {
   struct dictionary {
 
-    reco::btag::TrackData                             sv_td1;
-    reco::SecondaryVertexTagInfo::VertexData				rbsv;
+    reco::btag::TrackData                                               sv_td;
+    reco::SecondaryVertexTagInfo::VertexData                            rbsv;
     std::vector<reco::SecondaryVertexTagInfo::VertexData>               sv_vdv;
-    reco::btag::IndexedTrackData                      sv_itd;
-    std::vector<reco::btag::IndexedTrackData>         sv_itdv;
+    reco::btag::IndexedTrackData                                        sv_itd;
+    std::vector<reco::btag::IndexedTrackData>                           sv_itdv;
 
     reco::SecondaryVertexTagInfo                                        sv;
     reco::SecondaryVertexTagInfoCollection                              sv_c;
@@ -64,13 +64,13 @@ namespace DataFormats_BTauReco {
     reco::SecondaryVertexTagInfoRefVector                               sv_rv;
     edm::Wrapper<reco::SecondaryVertexTagInfoCollection>                sv_wc;
 
-    reco::CandSecondaryVertexTagInfo::VertexData                            crbsv;
-    std::vector<reco::CandSecondaryVertexTagInfo::VertexData>               csv_vdv;
+    reco::CandSecondaryVertexTagInfo::VertexData                        crbsv;
+    std::vector<reco::CandSecondaryVertexTagInfo::VertexData>           csv_vdv;
 
     reco::CandSecondaryVertexTagInfo                                    casv;
     reco::CandSecondaryVertexTagInfoCollection                          casvtic;
     reco::CandSecondaryVertexTagInfoRef                                 casvtir;
-    reco::CandSecondaryVertexTagInfoFwdRef                              casvfr;                  
+    reco::CandSecondaryVertexTagInfoFwdRef                              casvfr;
     reco::CandSecondaryVertexTagInfoRefProd                             casvrp;
     reco::CandSecondaryVertexTagInfoRefVector                           casvrv;
     edm::Wrapper<reco::CandSecondaryVertexTagInfoCollection>            casvww;
@@ -184,9 +184,10 @@ namespace DataFormats_BTauReco {
     edm::Wrapper<reco::JetEisolAssociationCollection>                   jea_wc;
 
 
+    reco::btag::TrackIPData                                             tip_data;
+    std::vector<reco::btag::TrackIPData>                                tip_datav;
+
     reco::TrackIPTagInfo                                                tcip;
-    reco::TrackIPTagInfo::TrackIPData                                   tcip_data;
-    std::vector<reco::TrackIPTagInfo::TrackIPData>                      tcip_datav;
     reco::TrackIPTagInfoCollection                                      tcip_c;
     reco::TrackIPTagInfoRef                                             tcip_r;
     reco::TrackIPTagInfoFwdRef                                          tcip_fr;
@@ -196,8 +197,6 @@ namespace DataFormats_BTauReco {
     edm::Wrapper<reco::TrackIPTagInfoCollection>                        tcip_wc;
 
     reco::CandIPTagInfo                                                 cdip;
-    reco::CandIPTagInfo::TrackIPData                                    cdip_data;
-    std::vector<reco::CandIPTagInfo::TrackIPData>                       cdip_datav;
     reco::CandIPTagInfoCollection                                       cdip_c;
     reco::CandIPTagInfoRef                                              cdip_r;
     reco::CandIPTagInfoFwdRef                                           cdip_fr;
