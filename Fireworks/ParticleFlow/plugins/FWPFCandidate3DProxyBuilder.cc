@@ -67,12 +67,13 @@ void
 FWPFCandidate3DProxyBuilder::build( const reco::PFCandidate& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) 
 {
   TEveCompound* comp = createCompound();  
+  comp->SetMainColor((unsigned)2.0*myRandom.Uniform(50));
   const reco::PFCandidate::ElementsInBlocks& elems = iData.elementsInBlocks();
   
-  
-
   for( unsigned i = 0 ; i < elems.size(); ++i ) {
+    std::cout << i << ' ' << elems[i].first.isAvailable() << ' ' << elems[i].second << ' ' << elems[i].first->elements().size() << std::endl;
     const reco::PFBlockElement& elem = elems[i].first->elements()[elems[i].second];
+    std::cout << &elem << std::endl;
     switch( elem.type() ) {
     case reco::PFBlockElement::TRACK:
       {
@@ -133,7 +134,7 @@ FWPFCandidate3DProxyBuilder::build( const reco::PFCandidate& iData, unsigned int
       break;
     }
   }
-  comp->SetMainColor((unsigned)myRandom.Uniform(50) + 50);
+  
 
   setupAddElement( comp, &oItemHolder );
 }
