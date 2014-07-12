@@ -76,15 +76,8 @@ FWME0SegmentProxyBuilder::build( const ME0Segment& iData,
 
       geom->localToGlobal( rawid, localSegmentInnerPoint,  globalSegmentInnerPoint, localSegmentOuterPoint,  globalSegmentOuterPoint );
 
-
-      std::cout << "rawid "<<   rawid <<std::endl;
-      std::cout << "debugging:: localSegmentInnerPoint "<<   localSegmentInnerPoint[0]<<", "<< localSegmentInnerPoint[1]<<", " << localSegmentInnerPoint[2] <<std::endl;
-      std::cout << "debugging:: localSegmentOuterPoint "<<   localSegmentOuterPoint[0]<<", "<< localSegmentOuterPoint[1]<<", " << localSegmentOuterPoint[2] <<std::endl;
-      std::cout << "debugging:: globalSegmentInnerPoint "<<   globalSegmentInnerPoint[0]<<", "<< globalSegmentInnerPoint[1]<<", " << globalSegmentInnerPoint[2] <<std::endl;
-
       segmentSet->AddLine( globalSegmentInnerPoint[0], globalSegmentInnerPoint[1], globalSegmentInnerPoint[2],
 			   globalSegmentOuterPoint[0], globalSegmentOuterPoint[1], globalSegmentOuterPoint[2] );
-
       
       // Draw hits included in the segment
       TEvePointSet* pointSet = new TEvePointSet;
