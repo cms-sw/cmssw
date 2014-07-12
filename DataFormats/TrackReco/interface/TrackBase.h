@@ -63,25 +63,25 @@ class TrackBase
 {
 
 public:
-    // parameter dimension
+    /// parameter dimension
     enum { dimension = 5 };
 
-    // error matrix size
+    /// error matrix size
     enum { covarianceSize = dimension * (dimension + 1) / 2 };
 
-    // parameter vector
+    /// parameter vector
     typedef math::Vector<dimension>::type ParameterVector;
 
-    // 5 parameter covariance matrix
+    /// 5 parameter covariance matrix
     typedef math::Error<dimension>::type CovarianceMatrix;
 
-    // spatial vector
+    /// spatial vector
     typedef math::XYZVector Vector;
 
-    // point in the space
+    /// point in the space
     typedef math::XYZPoint Point;
 
-    // enumerator provided indices to the five parameters
+    /// enumerator provided indices to the five parameters
     enum {
         i_qoverp = 0,
         i_lambda,
@@ -90,10 +90,10 @@ public:
         i_dsz
     };
 
-    // index type
+    /// index type
     typedef unsigned int index;
 
-    // track algorithm
+    /// track algorithm
     enum TrackAlgorithm {
         undefAlgorithm = 0, ctf = 1, rs = 2, cosmics = 3, iter0 = 4,
         iter1 = 5, iter2 = 6, iter3 = 7, iter4 = 8, iter5 = 9, iter6 = 10, iter7 = 11, iter8 = 12, iter9 = 13, iter10 = 14,
@@ -109,7 +109,7 @@ public:
 
     static const std::string algoNames[];
 
-    // track quality
+    /// track quality
     enum TrackQuality {
         undefQuality = -1,
         loose = 0,
@@ -166,7 +166,7 @@ public:
     /// dsz parameter (THIS IS NOT the SZ impact parameter to (0,0,0) if refPoint is far from  (0,0,0): see parametrization definition above for details)
     double dsz() const;
 
-    // dz parameter (= dsz/cos(lambda)). This is the track z0 w.r.t (0,0,0) only if the refPoint is close to (0,0,0). See also function dz(myBeamSpot)
+    /// dz parameter (= dsz/cos(lambda)). This is the track z0 w.r.t (0,0,0) only if the refPoint is close to (0,0,0). See also function dz(myBeamSpot)
     double dz() const;
 
     /// momentum vector magnitude
