@@ -8,7 +8,7 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
-#include "RecoTauTag/RecoTau/interface/AntiElectronIDMVA5.h"
+#include "RecoTauTag/RecoTau/interface/AntiElectronIDMVA5GBR.h"
 
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
@@ -26,24 +26,50 @@
 
 using namespace reco;
 
-class PFRecoTauDiscriminationAgainstElectronMVA5 : public PFTauDiscriminationProducerBase  
-{
- public:
-  explicit PFRecoTauDiscriminationAgainstElectronMVA5(const edm::ParameterSet& cfg)
-    : PFTauDiscriminationProducerBase(cfg),
+class PFRecoTauDiscriminationAgainstElectronMVA5GBR : public PFTauDiscriminationProducerBase  {
+public:
+  explicit PFRecoTauDiscriminationAgainstElectronMVA5GBR(const edm::ParameterSet& iConfig)
+    : PFTauDiscriminationProducerBase(iConfig),
       mva_(0),
       category_output_(0)
   {
-    mva_ = new AntiElectronIDMVA5(cfg);
+    method_  = iConfig.getParameter<std::string>("method");
+    gbrFile_ = iConfig.getParameter<edm::FileInPath>("gbrFile");
+    if ( gbrFile_.location() == edm::FileInPath::Unknown) 
+      throw cms::Exception("PFRecoTauDiscriminationAgainstElectronMVA5GBR") 
+	<< " Failed to find File = " << gbrFile_ << " !!\n";
 
-    srcGsfElectrons_ = cfg.getParameter<edm::InputTag>("srcGsfElectrons");
+    returnMVA_                  = iConfig.getParameter<bool>("returnMVA");
+    minMVANoEleMatchWOgWOgsfBL_ = iConfig.getParameter<double>("minMVANoEleMatchWOgWOgsfBL");
+    minMVANoEleMatchWOgWgsfBL_  = iConfig.getParameter<double>("minMVANoEleMatchWOgWgsfBL");
+    minMVANoEleMatchWgWOgsfBL_  = iConfig.getParameter<double>("minMVANoEleMatchWgWOgsfBL");
+    minMVANoEleMatchWgWgsfBL_   = iConfig.getParameter<double>("minMVANoEleMatchWgWgsfBL");
+    minMVAWOgWOgsfBL_           = iConfig.getParameter<double>("minMVAWOgWOgsfBL");
+    minMVAWOgWgsfBL_            = iConfig.getParameter<double>("minMVAWOgWgsfBL");
+    minMVAWgWOgsfBL_            = iConfig.getParameter<double>("minMVAWgWOgsfBL");
+    minMVAWgWgsfBL_             = iConfig.getParameter<double>("minMVAWgWgsfBL");
+    minMVANoEleMatchWOgWOgsfEC_ = iConfig.getParameter<double>("minMVANoEleMatchWOgWOgsfEC");
+    minMVANoEleMatchWOgWgsfEC_  = iConfig.getParameter<double>("minMVANoEleMatchWOgWgsfEC");
+    minMVANoEleMatchWgWOgsfEC_  = iConfig.getParameter<double>("minMVANoEleMatchWgWOgsfEC");
+    minMVANoEleMatchWgWgsfEC_   = iConfig.getParameter<double>("minMVANoEleMatchWgWgsfEC");
+    minMVAWOgWOgsfEC_           = iConfig.getParameter<double>("minMVAWOgWOgsfEC");
+    minMVAWOgWgsfEC_            = iConfig.getParameter<double>("minMVAWOgWgsfEC");
+    minMVAWgWOgsfEC_            = iConfig.getParameter<double>("minMVAWgWOgsfEC");
+    minMVAWgWgsfEC_             = iConfig.getParameter<double>("minMVAWgWgsfEC");
+
+    srcGsfElectrons_ = iConfig.getParameter<edm::InputTag>("srcGsfElectrons");
     GsfElectrons_token = consumes<reco::GsfElectronCollection>(srcGsfElectrons_);
 
-    verbosity_ = ( cfg.exists("verbosity") ) ?
-      cfg.getParameter<int>("verbosity") : 0;
+    mva_ = new AntiElectronIDMVA5GBR();
+    mva_->Initialize_from_file(method_, gbrFile_.fullPath().data());
+
+    verbosity_ = ( iConfig.exists("verbosity") ) ?
+      iConfig.getParameter<int>("verbosity") : 0;
 
     // add category index
-    produces<PFTauDiscriminator>("category");
+    if ( returnMVA_ ) {
+      produces<PFTauDiscriminator>("category");
+    }
   }
 
   void beginEvent(const edm::Event&, const edm::EventSetup&);
@@ -52,7 +78,7 @@ class PFRecoTauDiscriminationAgainstElectronMVA5 : public PFTauDiscriminationPro
 
   void endEvent(edm::Event&);
 
-  ~PFRecoTauDiscriminationAgainstElectronMVA5()
+  ~PFRecoTauDiscriminationAgainstElectronMVA5GBR()
   {
     delete mva_;
   }
@@ -60,11 +86,26 @@ class PFRecoTauDiscriminationAgainstElectronMVA5 : public PFTauDiscriminationPro
 private:
   bool isInEcalCrack(double) const;
 
-  std::string moduleLabel_;
-
-  AntiElectronIDMVA5* mva_;
-  float* mvaInput_;
-
+  std::string method_ ;
+  edm::FileInPath gbrFile_;
+  AntiElectronIDMVA5GBR* mva_;
+  bool returnMVA_ ;
+  double minMVANoEleMatchWOgWOgsfBL_ ;
+  double minMVANoEleMatchWOgWgsfBL_ ;
+  double minMVANoEleMatchWgWOgsfBL_ ;
+  double minMVANoEleMatchWgWgsfBL_ ;
+  double minMVAWOgWOgsfBL_ ;
+  double minMVAWOgWgsfBL_ ;
+  double minMVAWgWOgsfBL_ ;
+  double minMVAWgWgsfBL_ ;
+  double minMVANoEleMatchWOgWOgsfEC_ ;
+  double minMVANoEleMatchWOgWgsfEC_ ;
+  double minMVANoEleMatchWgWOgsfEC_ ;
+  double minMVANoEleMatchWgWgsfEC_ ;
+  double minMVAWOgWOgsfEC_ ;
+  double minMVAWOgWgsfEC_ ;
+  double minMVAWgWOgsfEC_ ;
+  double minMVAWgWgsfEC_ ;
   edm::InputTag srcGsfElectrons_;
   edm::EDGetTokenT<reco::GsfElectronCollection> GsfElectrons_token;
   edm::Handle<reco::GsfElectronCollection> gsfElectrons_;
@@ -75,24 +116,25 @@ private:
   int verbosity_;
 };
 
-void PFRecoTauDiscriminationAgainstElectronMVA5::beginEvent(const edm::Event& evt, const edm::EventSetup& es)
+void PFRecoTauDiscriminationAgainstElectronMVA5GBR::beginEvent(const edm::Event& evt, const edm::EventSetup& es)
 {
-  mva_->beginEvent(evt, es);
-
-  evt.getByToken(Tau_token, taus_);
-  category_output_.reset(new PFTauDiscriminator(TauRefProd(taus_)));
-  tauIndex_ = 0;
-
+  if ( returnMVA_ ) {
+    evt.getByToken(Tau_token, taus_);
+    category_output_.reset(new PFTauDiscriminator(TauRefProd(taus_)));
+    tauIndex_ = 0;
+  }
   evt.getByToken(GsfElectrons_token, gsfElectrons_);
 }
 
-double PFRecoTauDiscriminationAgainstElectronMVA5::discriminate(const PFTauRef& thePFTauRef)
+double PFRecoTauDiscriminationAgainstElectronMVA5GBR::discriminate(const PFTauRef& thePFTauRef)
 {
-  double mvaValue = 1.;
+  double mva = 1.;
+  double workingPoint = 1.;
   double category = -1.;
   bool isGsfElectronMatched = false;
 
   float deltaRDummy = 9.9;
+  float mvaCutDummy = 999;
 
   float tauEtaAtEcalEntrance = -99.;
   float sumEtaTimesEnergy = 0.;
@@ -133,112 +175,156 @@ double PFRecoTauDiscriminationAgainstElectronMVA5::discriminate(const PFTauRef& 
 	deltaRDummy = deltaREleTau;
 	if ( deltaREleTau < 0.3 ) {
 	  double mva_match = mva_->MVAValue(*thePFTauRef, *theGsfElectron);
+	  double workingPoint_match = 0.;
 	  size_t numSignalPFGammaCands = thePFTauRef->signalPFGammaCands().size();
 	  bool hasGsfTrack = thePFTauRef->leadPFChargedHadrCand()->gsfTrackRef().isNonnull();
   	    
 	  //// Veto taus that go to Ecal crack
 	  if ( isInEcalCrack(tauEtaAtEcalEntrance) || isInEcalCrack(leadChargedPFCandEtaAtEcalEntrance) ) {
-	    // add category index
-	    category_output_->setValue(tauIndex_, category);
-	    ++tauIndex_;
-	    // return MVA output value
-	    return -99;
+	    if ( returnMVA_ ) {
+	      // add category index
+	      category_output_->setValue(tauIndex_, category);
+	      ++tauIndex_;
+	      // return MVA output value
+	      return -99;
+	    } else {
+	      //return Workingpoint 0
+	      return 0;
+	    }
 	  }
 	  //// Veto taus that go to Ecal crack
 
+	  double mvaCut = 999.;
 	  if ( TMath::Abs(tauEtaAtEcalEntrance) < 1.479 ) { // Barrel
 	    if        ( numSignalPFGammaCands == 0 && !hasGsfTrack ) {
 	      category = 4.;
+	      mvaCut = minMVAWOgWOgsfBL_;
 	    } else if ( numSignalPFGammaCands == 0 &&  hasGsfTrack ) {
 	      category = 5.;
+	      mvaCut = minMVAWOgWgsfBL_;
 	    } else if ( numSignalPFGammaCands >= 1 && !hasGsfTrack ) {
 	      category = 6.;
+	      mvaCut = minMVAWgWOgsfBL_;
 	    } else if ( numSignalPFGammaCands >= 1 &&  hasGsfTrack ) {
 	      category = 7.;
+	      mvaCut = minMVAWgWgsfBL_;
 	    }
 	  } else { // Endcap
 	    if        ( numSignalPFGammaCands == 0 && !hasGsfTrack ) {
 	      category = 12.;
+	      mvaCut = minMVAWOgWOgsfEC_;
 	    } else if ( numSignalPFGammaCands == 0 &&  hasGsfTrack ) {
 	      category = 13.;
+	      mvaCut = minMVAWOgWgsfEC_;
 	    } else if ( numSignalPFGammaCands >= 1 && !hasGsfTrack ) {
 	      category = 14.;
+	      mvaCut = minMVAWgWOgsfEC_;
 	    } else if ( numSignalPFGammaCands >= 1 &&  hasGsfTrack ) {
 	      category = 15.;
+	      mvaCut = minMVAWgWgsfEC_;
 	    }
 	  }
+	  workingPoint_match = (mva_match > mvaCut);
+	  mvaCutDummy = mvaCut;
 
-	  mvaValue = TMath::Min(mvaValue, mva_match);
+	  mva = TMath::Min(mva, mva_match);
+	  workingPoint = TMath::Min(workingPoint, workingPoint_match);
 	  isGsfElectronMatched = true;
 	} // deltaR < 0.3
       } // electron pt > 10
     } // end of loop over electrons
 
     if ( !isGsfElectronMatched ) {
-      mvaValue = mva_->MVAValue(*thePFTauRef);
+      mva = mva_->MVAValue(*thePFTauRef);
       size_t numSignalPFGammaCands = thePFTauRef->signalPFGammaCands().size();
       bool hasGsfTrack = thePFTauRef->leadPFChargedHadrCand()->gsfTrackRef().isNonnull();
       
       //// Veto taus that go to Ecal crack
       if ( isInEcalCrack(tauEtaAtEcalEntrance) || isInEcalCrack(leadChargedPFCandEtaAtEcalEntrance) ) {
-	// add category index
-	category_output_->setValue(tauIndex_, category);
-	++tauIndex_;
-	// return MVA output value
-	return -99;
+	if ( returnMVA_ ) {
+	  // add category index
+	  category_output_->setValue(tauIndex_, category);
+	  ++tauIndex_;
+	  // return MVA output value
+	  return -99;
+	} else {
+	  //return Workingpoint 0
+	  return 0;
+	}
       }
       //// Veto taus that go to Ecal crack
       
+      double mvaCut = 999.;
       if ( TMath::Abs(tauEtaAtEcalEntrance) < 1.479 ) { // Barrel
 	if        ( numSignalPFGammaCands == 0 && !hasGsfTrack ) {
 	  category = 0.;
+	  mvaCut = minMVANoEleMatchWOgWOgsfBL_;
 	} else if ( numSignalPFGammaCands == 0 &&  hasGsfTrack ) {
 	  category = 1.;
+	  mvaCut = minMVANoEleMatchWOgWgsfBL_;
 	} else if ( numSignalPFGammaCands >= 1 && !hasGsfTrack ) {
 	  category = 2.;
+	  mvaCut = minMVANoEleMatchWgWOgsfBL_;
 	} else if ( numSignalPFGammaCands >= 1 &&  hasGsfTrack ) {
 	  category = 3.;
+	  mvaCut = minMVANoEleMatchWgWgsfBL_;
 	}
       } else { // Endcap
 	if        ( numSignalPFGammaCands == 0 && !hasGsfTrack ) {
 	  category = 8.;
+	  mvaCut = minMVANoEleMatchWOgWOgsfEC_;
 	} else if ( numSignalPFGammaCands == 0 &&  hasGsfTrack ) {
 	  category = 9.;
+	  mvaCut = minMVANoEleMatchWOgWgsfEC_;
 	} else if ( numSignalPFGammaCands >= 1 && !hasGsfTrack ) {
 	  category = 10.;
+	  mvaCut = minMVANoEleMatchWgWOgsfEC_;
 	} else if ( numSignalPFGammaCands >= 1 &&  hasGsfTrack ) {
 	  category = 11.;
+	  mvaCut = minMVANoEleMatchWgWgsfEC_;
 	}
       }
+      workingPoint = (mva > mvaCut);
+      mvaCutDummy = mvaCut;
     }
   }
 
   if ( verbosity_ ) {
+    edm::LogPrint("PFTauAgainstEleMVA5") <<" Taus : "<<TauProducer_;
     edm::LogPrint("PFTauAgainstEleMVA5") << "<PFRecoTauDiscriminationAgainstElectronMVA5::discriminate>:" ;
-    edm::LogPrint("PFTauAgainstEleMVA5") << " tau: Pt = " << thePFTauRef->pt() << ", eta = " << thePFTauRef->eta() << ", phi = " << thePFTauRef->phi();
-    edm::LogPrint("PFTauAgainstEleMVA5") << " deltaREleTau = " << deltaRDummy << ", isGsfElectronMatched = " << isGsfElectronMatched;
-    edm::LogPrint("PFTauAgainstEleMVA5") << " #Prongs = " << thePFTauRef->signalPFChargedHadrCands().size();
-    edm::LogPrint("PFTauAgainstEleMVA5") << " MVA = " << mvaValue << ", category = " << category;
+    edm::LogPrint("PFTauAgainstEleMVA5") << " tau: Pt = " << thePFTauRef->pt() << ", eta = " << thePFTauRef->eta() << ", phi = " << thePFTauRef->phi() ;
+    edm::LogPrint("PFTauAgainstEleMVA5") << " mva = " << mva << ", mvaCut = " << mvaCutDummy << ", isGsfElectronMatched = " << isGsfElectronMatched ;
+    edm::LogPrint("PFTauAgainstEleMVA5") << " category = " << category << ": workingPoint = " << workingPoint ;
+    edm::LogPrint("PFTauAgainstEleMVA5") << " deltaREleTau = " << deltaRDummy ;
+    edm::LogPrint("PFTauAgainstEleMVA5") << " charged hadron in tau: "<<(*thePFTauRef).leadPFChargedHadrCand().isNonnull() ;
+    edm::LogPrint("PFTauAgainstEleMVA5") << " Prongs in tau: " << thePFTauRef->signalPFChargedHadrCands().size() ;
+    edm::LogPrint("PFTauAgainstEleMVA5") << " MVA GBR:" << mva ;
   }
 
-  // add category index
-  category_output_->setValue(tauIndex_, category);
-  ++tauIndex_;
-  // return MVA output value
-  return mvaValue;
+  if ( returnMVA_ ) {
+    // add category index
+    category_output_->setValue(tauIndex_, category);
+    ++tauIndex_;
+    // return MVA output value
+    return mva;
+  } else {
+    return workingPoint;
+  }
 }
 
-void PFRecoTauDiscriminationAgainstElectronMVA5::endEvent(edm::Event& evt)
+void PFRecoTauDiscriminationAgainstElectronMVA5GBR::endEvent(edm::Event& evt)
 {
   // add all category indices to event
-  evt.put(category_output_, "category");
+  if ( returnMVA_ ) {
+    evt.put(category_output_, "category");
+  }
 }
 
 bool
-PFRecoTauDiscriminationAgainstElectronMVA5::isInEcalCrack(double eta) const
+PFRecoTauDiscriminationAgainstElectronMVA5GBR::isInEcalCrack(double eta) const
 {
   double absEta = fabs(eta);
   return (absEta > 1.460 && absEta < 1.558);
 }
 
-DEFINE_FWK_MODULE(PFRecoTauDiscriminationAgainstElectronMVA5);
+DEFINE_FWK_MODULE(PFRecoTauDiscriminationAgainstElectronMVA5GBR);

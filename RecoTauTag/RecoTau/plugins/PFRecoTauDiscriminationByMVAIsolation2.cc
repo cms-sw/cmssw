@@ -25,8 +25,6 @@
 #include "DataFormats/Math/interface/deltaR.h"
 
 #include "CondFormats/EgammaObjects/interface/GBRForest.h"
-#include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
-#include "FWCore/Framework/interface/ESHandle.h"
 
 #include <TMath.h>
 #include <TFile.h>
@@ -53,13 +51,6 @@ namespace
     
     return mva;
   }
-
-  const GBRForest* loadMVAfromDB(const edm::EventSetup& es, const std::string& mvaName)
-  {
-    edm::ESHandle<GBRForest> mva;
-    es.get<GBRWrapperRcd>().get(mvaName, mva);
-    return mva.product();
-  }
 }
 
 class PFRecoTauDiscriminationByIsolationMVA2 : public PFTauDiscriminationProducerBase  
@@ -72,11 +63,9 @@ class PFRecoTauDiscriminationByIsolationMVA2 : public PFTauDiscriminationProduce
       mvaInput_(0),
       category_output_(0)
   {
+    inputFileName_ = cfg.getParameter<edm::FileInPath>("inputFileName");
     mvaName_ = cfg.getParameter<std::string>("mvaName");
-    loadMVAfromDB_ = cfg.exists("loadMVAfromDB") ? cfg.getParameter<bool>("loadMVAfromDB") : false;
-    if ( !loadMVAfromDB_ ) {
-      inputFileName_ = cfg.getParameter<edm::FileInPath>("inputFileName");
-    }    
+    mvaReader_ = loadMVAfromFile(inputFileName_, mvaName_, inputFilesToDelete_);
     std::string mvaOpt_string = cfg.getParameter<std::string>("mvaOpt");
     if      ( mvaOpt_string == "oldDMwoLT" ) mvaOpt_ = kOldDMwoLT;
     else if ( mvaOpt_string == "oldDMwLT"  ) mvaOpt_ = kOldDMwLT;
@@ -109,7 +98,7 @@ class PFRecoTauDiscriminationByIsolationMVA2 : public PFTauDiscriminationProduce
 
   ~PFRecoTauDiscriminationByIsolationMVA2()
   {
-    //delete mvaReader_;
+    delete mvaReader_;
     delete[] mvaInput_;
     for ( std::vector<TFile*>::iterator it = inputFilesToDelete_.begin();
 	  it != inputFilesToDelete_.end(); ++it ) {
@@ -121,9 +110,8 @@ class PFRecoTauDiscriminationByIsolationMVA2 : public PFTauDiscriminationProduce
 
   std::string moduleLabel_;
 
-  std::string mvaName_;
-  bool loadMVAfromDB_;
   edm::FileInPath inputFileName_;
+  std::string mvaName_;
   const GBRForest* mvaReader_;
   enum { kOldDMwoLT, kOldDMwLT, kNewDMwoLT, kNewDMwLT };
   int mvaOpt_;
@@ -151,14 +139,6 @@ class PFRecoTauDiscriminationByIsolationMVA2 : public PFTauDiscriminationProduce
 
 void PFRecoTauDiscriminationByIsolationMVA2::beginEvent(const edm::Event& evt, const edm::EventSetup& es)
 {
-  if ( !mvaReader_ ) {
-    if ( loadMVAfromDB_ ) {
-      mvaReader_ = loadMVAfromDB(es, mvaName_);
-    } else {
-      mvaReader_ = loadMVAfromFile(inputFileName_, mvaName_, inputFilesToDelete_);
-    }
-  }
-
   evt.getByToken(TauTransverseImpactParameters_token, tauLifetimeInfos);
 
   evt.getByToken(ChargedIsoPtSum_token, chargedIsoPtSums_);
@@ -220,14 +200,14 @@ double PFRecoTauDiscriminationByIsolationMVA2::discriminate(const PFTauRef& tau)
         
     double mvaValue = mvaReader_->GetClassifier(mvaInput_);
     if ( verbosity_ ) {
-      edm::LogPrint("PFTauDiscByMVAIsol2") << "<PFRecoTauDiscriminationByIsolationMVA2::discriminate>:";
-      edm::LogPrint("PFTauDiscByMVAIsol2") << " tau: Pt = " << tau->pt() << ", eta = " << tau->eta();
-      edm::LogPrint("PFTauDiscByMVAIsol2") << " isolation: charged = " << chargedIsoPtSum << ", neutral = " << neutralIsoPtSum << ", PUcorr = " << puCorrPtSum;
-      edm::LogPrint("PFTauDiscByMVAIsol2") << " decay mode = " << tauDecayMode;
-      edm::LogPrint("PFTauDiscByMVAIsol2") << " impact parameter: distance = " << tauLifetimeInfo.dxy() << ", significance = " << tauLifetimeInfo.dxy_Sig();
+      edm::LogPrint("PFTauDiscByMVAIsol2") << "<PFRecoTauDiscriminationByIsolationMVA2::discriminate>:" ;
+      edm::LogPrint("PFTauDiscByMVAIsol2") << " tau: Pt = " << tau->pt() << ", eta = " << tau->eta() ;
+      edm::LogPrint("PFTauDiscByMVAIsol2") << " isolation: charged = " << chargedIsoPtSum << ", neutral = " << neutralIsoPtSum << ", PUcorr = " << puCorrPtSum ;
+      edm::LogPrint("PFTauDiscByMVAIsol2") << " decay mode = " << tauDecayMode ;
+      edm::LogPrint("PFTauDiscByMVAIsol2") << " impact parameter: distance = " << tauLifetimeInfo.dxy() << ", significance = " << tauLifetimeInfo.dxy_Sig() ;
       edm::LogPrint("PFTauDiscByMVAIsol2") << " has decay vertex = " << tauLifetimeInfo.hasSecondaryVertex() << ":"
-					   << " distance = " << decayDistMag << ", significance = " << tauLifetimeInfo.flightLengthSig();
-      edm::LogPrint("PFTauDiscByMVAIsol2") << "--> mvaValue = " << mvaValue;
+		<< " distance = " << decayDistMag << ", significance = " << tauLifetimeInfo.flightLengthSig() ;
+      edm::LogPrint("PFTauDiscByMVAIsol2") << "--> mvaValue = " << mvaValue ;
     }
     return mvaValue;
   } else {
