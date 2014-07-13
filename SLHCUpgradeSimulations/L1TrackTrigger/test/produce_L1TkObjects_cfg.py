@@ -78,16 +78,19 @@ process.L1Reco = cms.Path( process.l1extraParticles )
 
 # ----    Produce the L1EGCrystal clusters (code of Sasha Savin & Nick Smith)
 
+# This is now included in L1TkEmTauSequence_cfi.py, which is run later
+
         # first you need the ECAL RecHIts :
-process.load('Configuration.StandardSequences.Reconstruction_cff')
-process.reconstruction_step = cms.Path( process.calolocalreco )
+#process.load('Configuration.StandardSequences.Reconstruction_cff')
+#process.reconstruction_step = cms.Path( process.calolocalreco )
 #
-process.L1EGammaCrystalsProducer = cms.EDProducer("L1EGCrystalClusterProducer",
-   EtminForStore = cms.double( 4. ),
-   debug = cms.untracked.bool(False),
-   useECalEndcap = cms.bool(True)
-)
-process.pSasha = cms.Path( process.L1EGammaCrystalsProducer )
+#
+#process.L1EGammaCrystalsProducer = cms.EDProducer("L1EGCrystalClusterProducer",
+#   EtminForStore = cms.double( 4. ),
+#   debug = cms.untracked.bool(False),
+#   useECalEndcap = cms.bool(True)
+#)
+#process.pSasha = cms.Path( process.L1EGammaCrystalsProducer )
 
 
 	# needed because the calo stuff above clashes with the DTs 
@@ -144,16 +147,18 @@ process.pL1TrkMET = cms.Path( process.L1TkEtMiss )
 # ---------------------------------------------------------------------------
 # --- TkTaus
 
-process.L1TkTauFromL1Track = cms.EDProducer("L1TkTauFromL1TrackProducer",
-                                            L1TrackInputTag = cms.InputTag("TTTracksFromPixelDigis","Level1TTTracks"),
-                                            ZMAX = cms.double( 25. ),# in cm
-                                            CHI2MAX = cms.double( 100. ),
-                                            PTMINTRA = cms.double( 2. ),# in GeV
-                                            DRmax = cms.double( 0.5 ),
-                                            nStubsmin = cms.int32( 5 )        # minimum number of stubs
-                                            )
+process.load("SLHCUpgradeSimulations.L1TrackTrigger.L1TkEmTauSequence_cfi")
+process.pTaus = cms.Path( process.TkEmTauSequence )
 
-process.pTaus = cms.Path( process.L1TkTauFromL1Track )
+#process.L1TkTauFromL1Track = cms.EDProducer("L1TkTauFromL1TrackProducer",
+#                                            L1TrackInputTag = cms.InputTag("TTTracksFromPixelDigis","Level1TTTracks"),
+#                                            ZMAX = cms.double( 25. ),# in cm
+#                                            CHI2MAX = cms.double( 100. ),
+#                                            PTMINTRA = cms.double( 2. ),# in GeV
+#                                            DRmax = cms.double( 0.5 ),
+#                                            nStubsmin = cms.int32( 5 )        # minimum number of stubs
+#                                            )
+#process.pTaus = cms.Path( process.L1TkTauFromL1Track )
 
 # ---------------------------------------------------------------------------
 
@@ -211,7 +216,7 @@ process.Out.outputCommands.append('keep *_L1TkEtMiss*_*_*')
 process.Out.outputCommands.append('keep *_l1extraParticles_MET_*')
 
 	# TkTaus
-process.Out.outputCommands.append('keep *_L1TkTauFromL1Track_*_*')
+process.Out.outputCommands.append('keep *_L1TkEmTauProducer_*_*')
 process.Out.outputCommands.append('keep *_SLHCL1ExtraParticles_Taus_*')
 
 	# jets, HT, MHT
@@ -237,6 +242,7 @@ process.Out.outputCommands.append('keep *_L1TkHTMissVtxHI_*_*')         # from H
 #process.Out.outputCommands.append('keep *_TTStubsFromPixelDigis_StubAccepted_ALL')
 
 process.Out.outputCommands.append('keep *_TTTracksFromPixelDigis_Level1TTTracks_ALL')
+process.Out.outputCommands.append('keep *_TTTrackAssociatorFromPixelDigisLargerPhi_Level1TTTracks_ALL')
 #process.Out.outputCommands.append('keep *_TTTrackAssociatorFromPixelDigis_Level1TTTracks_ALL')
 
 
