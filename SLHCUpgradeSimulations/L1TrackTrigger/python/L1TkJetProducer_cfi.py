@@ -12,5 +12,5 @@ L1TkJets = cms.EDProducer("L1TkJetProducer",
         TRK_NSTUBPSMIN = cms.int32(2),      # minimum number of stubs in PS modules on track
         #JET_HLTETA = cms.bool(False),        # temporary hack, for HLT jets remove jets from bad eta regions
 	doPtComp = cms.bool( True ),	   # track-stubs PT compatibility cut
-    	doTightChi2 = cms.bool( True )    # chi2dof < 5 for tracks with PT > 10
+    	doTightChi2 = cms.bool( False )    # chi2dof < 5 for tracks with PT > 10
 )

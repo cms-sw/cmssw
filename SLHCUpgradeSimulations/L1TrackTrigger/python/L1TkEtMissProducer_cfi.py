@@ -17,7 +17,7 @@ L1TkEtMiss = cms.EDProducer('L1TkEtMissProducer',
                                          # when = 1 : saturation. Tracks with PT above PTMAX are set to PT=PTMAX.
                                          # When PTMAX < 0, no special treatment is done for high PT tracks.
      doPtComp = cms.bool( True ),       # track-stubs PT compatibility cut
-     doTightChi2 = cms.bool( True )    # chi2dof < 5 for tracks with PT > 10
+     doTightChi2 = cms.bool( False )    # chi2dof < 5 for tracks with PT > 10
 
 
 )
