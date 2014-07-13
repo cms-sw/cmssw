@@ -22,6 +22,16 @@ class VersionedGsfElectronSelector : public VersionedSelector<reco::GsfElectron>
 
   // Allow for multiple definitions of the cuts.
  bool operator()(const reco::GsfElectron&,pat::strbitset&); 
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+ bool operator()(const reco::GsfElectron&,
+		 edm::EventBase const&,
+		 pat::strbitset&) override final;
+#else
+ bool operator()(const reco::GsfElectron&,
+		 edm::EventBase const&,
+		 pat::strbitset&);
+#endif
+
  using VersionedSelector<reco::GsfElectron>::operator();
  
  private:
