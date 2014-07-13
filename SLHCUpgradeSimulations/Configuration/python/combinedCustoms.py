@@ -189,7 +189,7 @@ def cust_2023HGCal(process):
             if hasattr(process,'ecalDrivenElectronSeeds'):
                 process.ecalDrivenElectronSeeds.endcapSuperClusters = cms.InputTag('particleFlowSuperClusterHGCEE')
         if hasattr(process,'particleFlowBlock'):
-            process.particleFlowBlock.elementImporters.append( cms.PSet( importerName = cms.string('GenericClusterImporter'),
+            process.particleFlowBlock.elementImporters.append( cms.PSet( importerName = cms.string('HGCECALClusterImporter'),
                                                                          source = cms.InputTag('particleFlowClusterHGCEE') ) )
             process.particleFlowBlock.elementImporters.append( cms.PSet( importerName = cms.string('GenericClusterImporter'),
                                                                          source = cms.InputTag('particleFlowClusterHGCHEF') ) )
@@ -204,6 +204,10 @@ def cust_2023HGCal(process):
             process.particleFlowBlock.linkDefinitions.append( cms.PSet( linkerName = cms.string('TrackAndHGCHEBLinker'),
                                                                         linkType = cms.string('TRACK:HGC_HCALB'),
                                                                         useKDTree = cms.bool(True) ) )
+            process.particleFlowBlock.linkDefinitions.append( cms.PSet( linkType = cms.string('SC:HGC_ECAL'),
+                                                                        SuperClusterMatchByRef = cms.bool(True),
+                                                                        useKDTree = cms.bool(False),
+                                                                        linkerName = cms.string('SCAndECALLinker') ) ) 
     #mod event content
     process.load('RecoLocalCalo.Configuration.hgcalLocalReco_EventContent_cff')
     if hasattr(process,'FEVTDEBUGHLTEventContent'):
@@ -240,7 +244,7 @@ def cust_2023HGCalMuon(process):
             if hasattr(process,'ecalDrivenElectronSeeds'):
                 process.ecalDrivenElectronSeeds.endcapSuperClusters = cms.InputTag('particleFlowSuperClusterHGCEE')
         if hasattr(process,'particleFlowBlock'):
-            process.particleFlowBlock.elementImporters.append( cms.PSet( importerName = cms.string('GenericClusterImporter'),
+            process.particleFlowBlock.elementImporters.append( cms.PSet( importerName = cms.string('HGCECALClusterImporter'),
                                                                          source = cms.InputTag('particleFlowClusterHGCEE') ) )
             process.particleFlowBlock.elementImporters.append( cms.PSet( importerName = cms.string('GenericClusterImporter'),
                                                                          source = cms.InputTag('particleFlowClusterHGCHEF') ) )
@@ -255,6 +259,11 @@ def cust_2023HGCalMuon(process):
             process.particleFlowBlock.linkDefinitions.append( cms.PSet( linkerName = cms.string('TrackAndHGCHEBLinker'),
                                                                         linkType = cms.string('TRACK:HGC_HCALB'),
                                                                         useKDTree = cms.bool(True) ) )
+            process.particleFlowBlock.linkDefinitions.append( cms.PSet( linkType = cms.string('SC:HGC_ECAL'),
+                                                                        SuperClusterMatchByRef = cms.bool(True),
+                                                                        useKDTree = cms.bool(False),
+                                                                        linkerName = cms.string('SCAndECALLinker') ) )
+            
     #mod event content
     process.load('RecoLocalCalo.Configuration.hgcalLocalReco_EventContent_cff')
     if hasattr(process,'FEVTDEBUGHLTEventContent'):

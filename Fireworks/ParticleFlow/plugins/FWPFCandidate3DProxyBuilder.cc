@@ -74,6 +74,7 @@ FWPFCandidate3DProxyBuilder::build( const reco::PFCandidate& iData, unsigned int
     std::cout << i << ' ' << elems[i].first.isAvailable() << ' ' << elems[i].second << ' ' << elems[i].first->elements().size() << std::endl;
     const reco::PFBlockElement& elem = elems[i].first->elements()[elems[i].second];
     std::cout << &elem << std::endl;
+    assert( elems[i].second < elems[i].first->elements().size() );
     switch( elem.type() ) {
     case reco::PFBlockElement::TRACK:
       {
