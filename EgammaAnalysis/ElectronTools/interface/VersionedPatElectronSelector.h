@@ -22,6 +22,15 @@ class VersionedPatElectronSelector : public VersionedSelector<pat::Electron> {
 
   // Allow for multiple definitions of the cuts.
  bool operator()(const pat::Electron&,pat::strbitset&); 
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+ bool operator()(const pat::Electron&,
+		 edm::EventBase const&,
+		 pat::strbitset&) override final;
+#else
+ bool operator()(const pat::Electron&,
+		 edm::EventBase const&,
+		 pat::strbitset&);
+#endif
  using VersionedSelector<pat::Electron>::operator();
  
  private:

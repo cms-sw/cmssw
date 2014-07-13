@@ -80,9 +80,11 @@ VersionedElectronIdProducer(const edm::ParameterSet& iConfig) {
     if( isPAT_ ) { 
       forPat_.emplace_back( new VersionedPatElectronSelector(the_id) );
       calculated_md5 = forPat_.back()->md5String();
+      forPat_.back()->setConsumes(consumesCollector());
     } else {
       forGsf_.emplace_back( new VersionedGsfElectronSelector(the_id) );
       calculated_md5 = forGsf_.back()->md5String();
+      forGsf_.back()->setConsumes(consumesCollector());
     }
     if( idMD5 != calculated_md5 ) {
       throw cms::Exception("IdConfigurationNotValidated")
@@ -102,14 +104,15 @@ VersionedElectronIdProducer(const edm::ParameterSet& iConfig) {
     if( isPOGApproved ) {
       idmsg << "This ID is POG approved!" << std::endl;
     } else {
-      idmsg << "This ID is not POG approved and likely under development,\n"
-	    << "please make sure to report your progress with this ID,\n"
+      idmsg << "This ID is not POG approved and likely under development!!!\n"
+	    << "Please make sure to report your progress with this ID "
 	    << "at the next relevant POG meeting." << std::endl;
     }
 
     edm::LogWarning("IdInformation")
       << idmsg.str();
 
+    produces<std::string>(idname);
     produces<edm::ValueMap<bool> >(idname);
     produces<edm::ValueMap<unsigned> >(idname);
   }
@@ -148,6 +151,8 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
        fillerhowfar.fill();
        iEvent.put(outPass,id->name());
        iEvent.put(outHowFar,id->name());
+       iEvent.put(std::auto_ptr<std::string>(new std::string(id->md5String())),
+					     id->name());
     }
   } else {
     for( const auto& id : forGsf_ ) {
@@ -164,9 +169,11 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       fillerpassfail.fill();
       edm::ValueMap<unsigned>::Filler fillerhowfar(*outHowFar);
       fillerhowfar.insert(electronsHandle, howfar.begin(), howfar.end() );
-      fillerhowfar.fill();
+      fillerhowfar.fill();      
       iEvent.put(outPass,id->name());
       iEvent.put(outHowFar,id->name());
+      iEvent.put(std::auto_ptr<std::string>(new std::string(id->md5String())),
+					     id->name());
     }
   }  
 }
