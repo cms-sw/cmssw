@@ -16,6 +16,11 @@
 #include "PhysicsTools/SelectorUtils/interface/Selector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "PhysicsTools/SelectorUtils/interface/CandidateCut.h"
+
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#endif
+
 // because we need to be able to validate the ID
 #include <openssl/md5.h>
 
@@ -60,6 +65,10 @@ class VersionedSelector : public Selector<T> {
 
   const unsigned howFarInCutFlow() const { return howfar_; }
 
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+  void setConsumes(edm::ConsumesCollector);
+#endif
+
  protected:
   std::vector<boost::shared_ptr<candf::CandidateCut> > cuts_;
   std::vector<bool> is_isolation_;
@@ -68,7 +77,21 @@ class VersionedSelector : public Selector<T> {
 
  private:
   unsigned char id_md5_[MD5_DIGEST_LENGTH];
-  std::string md5_string_,name_;
+   std::string md5_string_,name_;
 };
+
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+#include "PhysicsTools/SelectorUtils/interface/IsolationCutApplicatorBase.h"
+template<class T>
+void VersionedSelector<T>::setConsumes(edm::ConsumesCollector cc) {
+  for( size_t i = 0, cutssize = cuts_.size(); i < cutssize; ++i ) {
+    if( is_isolation_[i] ) {
+      IsolationCutApplicatorBase* asIso = 
+	static_cast<IsolationCutApplicatorBase*>(cuts_[i].get());
+      asIso->setConsumes(cc);
+    }
+  }
+}
+#endif
 
 #endif
