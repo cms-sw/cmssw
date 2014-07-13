@@ -20,7 +20,7 @@ initialize( const edm::ParameterSet& conf ) {
     const std::string& name = cut.getParameter<std::string>("cutName");
     const bool isIso = cut.getParameter<bool>("isIsolation");    
     const bool ignored = cut.getParameter<bool>("isIgnored");
-    cuts_.emplace_back(CutApplicatorFactory::get()->create(name,cut));
+    cuts_.emplace_back(CutApplicatorFactory::get()->create(name,cut));    
     is_isolation_.push_back(isIso);
     push_back(name);
     set(name);
@@ -39,19 +39,35 @@ initialize( const edm::ParameterSet& conf ) {
 bool VersionedPatElectronSelector::
 operator()(const pat::Electron & electron,pat::strbitset & ret ) {
   howfar_ = 0;
+  bool failed = false;
   if( !initialized_ ) {
     throw cms::Exception("CutNotInitialized")
       << "VersionedPatElectronSelector not initialized!" << std::endl;
-  }
-  
+  }  
   for( unsigned i = 0; i < cuts_.size(); ++i ) {
     const bool result = (*cuts_[i])(electron);
     if( result || ignoreCut(cut_indices_[i]) ) {
       passCut(ret,cut_indices_[i]);
-      ++howfar_;
+      if( !failed) ++howfar_;
+    } else {
+      failed = true;
     }
   }
   setIgnored(ret);
-
   return (bool)ret;
+}
+
+bool VersionedPatElectronSelector::
+operator()(const pat::Electron & electron,
+	   edm::EventBase const & e,
+	   pat::strbitset & ret) {
+  // setup isolation needs
+  for( size_t i = 0, cutssize = cuts_.size(); i < cutssize; ++i ) {
+    if( is_isolation_[i] ) {
+      IsolationCutApplicatorBase* asIso = 
+	static_cast<IsolationCutApplicatorBase*>(cuts_[i].get());
+      asIso->setIsolationValuesFromEvent(e);
+    }
+  }
+  return operator()(electron, ret);
 }
