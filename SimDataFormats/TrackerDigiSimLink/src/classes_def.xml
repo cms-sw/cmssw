@@ -11,8 +11,7 @@
  <class name="edm::Wrapper< std::vector<edm::DetSet<PixelDigiSimLink> > >" splitLevel="0" />
  <class name="edm::Wrapper< edm::DetSetVector<PixelDigiSimLink> >" splitLevel="0" />
 
- <class name="StripDigiSimLink" ClassVersion="11">
-  <version ClassVersion="11" checksum="2019711893"/>
+ <class name="StripDigiSimLink" ClassVersion="10">
   <version ClassVersion="10" checksum="2019711893"/>
  </class>
  <class name="edm::DetSet<StripDigiSimLink>"/>
