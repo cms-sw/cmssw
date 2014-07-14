@@ -113,7 +113,7 @@ HLTDiMuonGlbTrkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSet
 	const reco::Muon& mu2(muons->at(filteredMuons.at(j)));
 	if ( std::max( mu1.pt(), mu2.pt()) > std::max(m_minPtMuon1,m_minPtMuon2) &&
 		 deltaR(mu1,mu2)>m_minDR && (mu1.p4() + mu2.p4()).mass() > m_minMass
-		 && (mu1.p4() + mu2.p4()).mass() < m_maxMass && (mu1.p4() + mu2.p4()).Rapidity() > m_maxYDimuon )
+		 && (mu1.p4() + mu2.p4()).mass() < m_maxMass && fabs((mu1.p4() + mu2.p4()).Rapidity()) > m_maxYDimuon )
 	  {
 
 	  if (m_chargeOpt<0) {
