@@ -55,7 +55,7 @@ class VersionedSelector : public Selector<T> {
   }
   
   const unsigned char* md55Raw() const { return id_md5_; } 
-  bool isSameID(const VersionedSelector& other) const {
+  bool operator==(const VersionedSelector& other) const {
     constexpr unsigned length = MD5_DIGEST_LENGTH;
     return ( 0 == memcmp(id_md5_,other.getMD5(),length*sizeof(unsigned char)) );
   }
@@ -71,7 +71,7 @@ class VersionedSelector : public Selector<T> {
 
  protected:
   std::vector<boost::shared_ptr<candf::CandidateCut> > cuts_;
-  std::vector<bool> is_isolation_;
+  std::vector<bool> needs_event_content_;
   std::vector<typename Selector<T>::index_type> cut_indices_;
   unsigned howfar_;
 
@@ -81,14 +81,14 @@ class VersionedSelector : public Selector<T> {
 };
 
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
-#include "PhysicsTools/SelectorUtils/interface/IsolationCutApplicatorBase.h"
+#include "PhysicsTools/SelectorUtils/interface/CutApplicatorWithEventContentBase.h"
 template<class T>
 void VersionedSelector<T>::setConsumes(edm::ConsumesCollector cc) {
   for( size_t i = 0, cutssize = cuts_.size(); i < cutssize; ++i ) {
-    if( is_isolation_[i] ) {
-      IsolationCutApplicatorBase* asIso = 
-	static_cast<IsolationCutApplicatorBase*>(cuts_[i].get());
-      asIso->setConsumes(cc);
+    if( needs_event_content_[i] ) {
+      CutApplicatorWithEventContentBase* needsEvent = 
+	static_cast<CutApplicatorWithEventContentBase*>(cuts_[i].get());
+      needsEvent->setConsumes(cc);
     }
   }
 }
