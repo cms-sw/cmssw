@@ -112,8 +112,7 @@ process.schedule = cms.Schedule(
 )
 
 process.options = cms.untracked.PSet(
-    numberOfThreads = cms.untracked.uint32(8),
-    sizeOfStackForThreadsInKB = cms.untracked.uint32(10*1024),
+    numberOfThreads = cms.untracked.uint32(4),
     numberOfStreams = cms.untracked.uint32(0),
     wantSummary = cms.untracked.bool(True)
 )
