@@ -374,7 +374,7 @@ MP7BufferDumpToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   for (int iBlock=0; iBlock<nRxLinks_ && iWord<fedSize; ++iBlock) {
 
     int blockId     = 2*iBlock;
-    int blockLength = rxBlockLength_.at(iBlock);
+    int blockLength = rxData.at(iBlock).size();
 
     // write block header
     feddata.data()[iWord+2] = blockLength & 0xff;
@@ -386,7 +386,7 @@ MP7BufferDumpToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
 
     if (blockLength>(int)rxData.at(iBlock).size()) {
-      edm::LogError("mp7") << "Read insufficient data for block " << blockId <<". Expected " << blockLength << " read " << rxData.at(iBlock).size() << " from Rx link " << iBlock << std::endl;
+      edm::LogError("mp7") << "Read insufficient data for block " << blockId <<". Expected " << rxBlockLength_.at(iBlock) << " read " << rxData.at(iBlock).size() << " from Rx link " << iBlock << std::endl;
       continue;
     }
 
