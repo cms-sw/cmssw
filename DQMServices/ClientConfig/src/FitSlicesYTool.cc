@@ -88,8 +88,10 @@ void FitSlicesYTool::getRMS(MonitorElement * me){
     for (int bin=1;bin!=h2D->GetNbinsX();bin++){
       TH1D * tmp = h2D->ProjectionY(" ", bin, bin);
       double rms = tmp->GetRMS();
+      double rmsErr = tmp->GetRMSError();
       tmp->Delete();
       me->setBinContent(bin,rms);
+      me->setBinError(bin,rmsErr);
     }
   } else {
     throw cms::Exception("FitSlicesYTool") << "Different number of bins!";
