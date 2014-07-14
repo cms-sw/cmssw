@@ -88,21 +88,17 @@ bool Py8PtGun::generatePartonsAndHadronize()
       {
 	if( 1 <= fabs(particleID) && fabs(particleID) <= 6){ // quarks
 	  (fMasterGen->event).append( -particleID, 23, 0, 101, -px, -py, -pz, ee, mass );
-	  std::cout << "1" << std::endl;
 	}
 	else if (fabs(particleID) == 21){                   // gluons
 	  (fMasterGen->event).append( 21, 23, 102, 101, -px, -py, -pz, ee, mass );
-	  std::cout << "2" << std::endl;
 	}
 	else if ( (fMasterGen->particleData).isParticle( -particleID ) )
 	  {
 	    (fMasterGen->event).append( -particleID, 1, 0, 0, -px, -py, -pz, ee, mass );
-	    std::cout << "3" << std::endl;
 	  }
 	else
 	  {
 	    (fMasterGen->event).append( particleID, 1, 0, 0, -px, -py, -pz, ee, mass );
-	    std::cout << "4" << std::endl;
 	  }
       }
 
@@ -110,7 +106,6 @@ bool Py8PtGun::generatePartonsAndHadronize()
 
    
    if ( !fMasterGen->next() ) return false;
-   (fMasterGen->event).list();
    
    event().reset(new HepMC::GenEvent);
    return toHepMC.fill_next_event( fMasterGen->event, event().get() );
