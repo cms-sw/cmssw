@@ -1,6 +1,6 @@
 #include "EgammaAnalysis/ElectronTools/interface/VersionedGsfElectronSelector.h"
 #include "PhysicsTools/SelectorUtils/interface/CutApplicatorBase.h"
-#include "PhysicsTools/SelectorUtils/interface/IsolationCutApplicatorBase.h"
+#include "PhysicsTools/SelectorUtils/interface/CutApplicatorWithEventContentBase.h"
 
 VersionedGsfElectronSelector::
 VersionedGsfElectronSelector( edm::ParameterSet const & parameters ):
@@ -19,10 +19,10 @@ initialize( const edm::ParameterSet& conf ) {
   // this lets us keep track of cuts without knowing what they are :D
   for( const auto& cut : cutflow ) {
     const std::string& name = cut.getParameter<std::string>("cutName");
-    const bool isIso = cut.getParameter<bool>("isIsolation");    
+    const bool needsContent = cut.getParameter<bool>("needsAdditionalProducts");    
     const bool ignored = cut.getParameter<bool>("isIgnored");
     cuts_.emplace_back(CutApplicatorFactory::get()->create(name,cut));    
-    is_isolation_.push_back(isIso);
+    needs_event_content_.push_back(needsContent);
     push_back(name);
     set(name);
     if(ignored) ignoreCut(name);
@@ -64,10 +64,10 @@ operator()(const reco::GsfElectron & electron,
 	   pat::strbitset & ret) {
   // setup isolation needs
   for( size_t i = 0, cutssize = cuts_.size(); i < cutssize; ++i ) {
-    if( is_isolation_[i] ) {
-      IsolationCutApplicatorBase* asIso = 
-	static_cast<IsolationCutApplicatorBase*>(cuts_[i].get());
-      asIso->setIsolationValuesFromEvent(e);
+    if( needs_event_content_[i] ) {
+      CutApplicatorWithEventContentBase* needsEvent = 
+	static_cast<CutApplicatorWithEventContentBase*>(cuts_[i].get());
+      needsEvent->getEventContent(e);      
     }
   }
   return operator()(electron, ret);
