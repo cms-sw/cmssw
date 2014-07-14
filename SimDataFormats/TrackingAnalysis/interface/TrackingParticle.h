@@ -88,10 +88,12 @@ public:
     tv_iterator decayVertices_end() const;
 
 
-    int charge() const; ///< @brief Electric charge. Note this is taken from the first SimTrack only.
-    int threeCharge() const; ///< @brief Kept for backwards compatibility. Gives 3*charge(), don't know why.
-    const LorentzVector& p4() const; ///< @brief Four-momentum Lorentz vector. Note this is taken from the first SimTrack only.
+    ///< @brief Electric charge. Note this is taken from the first SimTrack only.
+    float charge() const { return g4Tracks_[0].charge(); }
+    ///< Gives charge in unit of quark charge (should be 3 time the abaove)
+    int threeCharge() const { return g4Tracks_[0].threeCharge(); }
 
+    const LorentzVector& p4() const; ///< @brief Four-momentum Lorentz vector. Note this is taken from the first SimTrack only.
 
     Vector momentum() const; ///< spatial momentum vector
 

@@ -24,13 +24,13 @@ TrackingParticle::~TrackingParticle()
 
 int TrackingParticle::pdgId() const
 {
-	if( genParticles_.empty() ) return g4Tracks_.at( 0 ).type();
+	if( genParticles_.empty() ) return g4Tracks_[0].type();
 	else return (*genParticles_.begin())->pdgId();
 }
 
 EncodedEventId TrackingParticle::eventId() const
 {
-	return g4Tracks_.at( 0 ).eventId();
+	return g4Tracks_[0].eventId();
 }
 
 void TrackingParticle::addGenParticle( const reco::GenParticleRef& ref )
@@ -113,19 +113,10 @@ tv_iterator TrackingParticle::decayVertices_end() const
 	return decayVertices_.end();
 }
 
-int TrackingParticle::charge() const
-{
-	return g4Tracks_.at( 0 ).charge();
-}
-
-int TrackingParticle::threeCharge() const
-{
-	return g4Tracks_.at( 0 ).charge()*3;
-}
 
 const TrackingParticle::LorentzVector& TrackingParticle::p4() const
 {
-	return g4Tracks_.at( 0 ).momentum();
+	return g4Tracks_[0].momentum();
 }
 
 TrackingParticle::Vector TrackingParticle::momentum() const

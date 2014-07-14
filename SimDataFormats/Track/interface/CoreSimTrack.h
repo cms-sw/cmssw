@@ -41,6 +41,7 @@ public:
 
     /// charge
     float charge() const;
+    int threeCharge() const { return chargeValue(thePID);}
 
     void setEventId(EncodedEventId e) {eId=e;}
     EncodedEventId eventId() const {return eId;}
