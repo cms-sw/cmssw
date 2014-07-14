@@ -4,9 +4,9 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include <TMath.h>
 
-GEMHitsValidation::GEMHitsValidation(DQMStore* dbe, const edm::InputTag & inputTag, const edm::ParameterSet& cfg)
-:  GEMBaseValidation(dbe, inputTag, cfg)
-{}
+GEMHitsValidation::GEMHitsValidation(DQMStore* dbe, edm::EDGetToken& InputTagToken_ , const edm::ParameterSet& cfg):  GEMBaseValidation(dbe, InputTagToken_, cfg)
+{
+}
 
 void GEMHitsValidation::bookHisto(const GEMGeometry* gem_geo) {
   theGEMGeometry = gem_geo;
@@ -22,15 +22,43 @@ void GEMHitsValidation::bookHisto(const GEMGeometry* gem_geo) {
   edm::LogInfo("MuonGEMHitsValidation")<<"+++ Info : # of stations : "<<nstation<<std::endl;
   edm::LogInfo("MuonGEMHitsValidation")<<"+++ Info : # of eta partition : "<< npart <<std::endl;
 
-  //std::string cham_loc[2] = {"even","odd"}; 
   LogDebug("MuonGEMHitsValidation")<<"+++ Info : finish to get geometry information from ES.\n";
+  for( auto& region : theGEMGeometry->regions() )
+  for( auto& station : region->stations() ) 
+  for( auto& ring : station->rings()) {
+    GEMDetId id;
+    if ( ring->ring() != 1 ) break ; // Only Ring1 is interesting.
+    std::stringstream hist_name;
+    hist_name<<"gem_sh_xy_r"<<region->region()<<"_st"<<stationLabel[station->station()-1]<<"_";
+    std::stringstream hist_title;
+    hist_title<<"Simhit Global XY Plots at "<<id<<" on ";
+    MonitorElement* temp = dbe_->book2D( (hist_name.str()+"even").c_str(), (hist_title.str()+"even").c_str(),nBinXY_,-360,360,nBinXY_,-360,360);
+    if ( temp != nullptr ) {
+      LogDebug("MuonGEMHitsValidation")<<"ME can be acquired!";
+    }
+    else {
+      LogDebug("MuonGEMHitsValidation")<<"ME can not be acquired!";
+      return ;
+    }
+    gem_sh_xy_st_ch.insert( std::map<std::string, MonitorElement*>::value_type( hist_name.str()+"even", temp));
+    MonitorElement* temp2 = dbe_->book2D( (hist_name.str()+"odd").c_str(), (hist_title.str()+"odd").c_str(),nBinXY_,-360,360,nBinXY_,-360,360);
+    if ( temp2 != nullptr ) {
+      LogDebug("MuonGEMHitsValidation")<<"ME can be acquired!";
+    }
+    else {
+      LogDebug("MuonGEMHitsValidation")<<"ME can not be acquired!";
+      return ;
+    }
+    gem_sh_xy_st_ch.insert( std::map<std::string, MonitorElement*>::value_type( hist_name.str()+"odd", temp2));
+    //std::cout<<hist_name.str()<<std::endl;
+  }
+
 
   for( unsigned int region_num = 0 ; region_num < nregion ; region_num++ ) {
     for( unsigned int station_num = 0 ; station_num < nstation ; station_num++) {
       for( unsigned int layer_num = 0 ; layer_num < 2 ; layer_num++) {
           gem_sh_zr[region_num][station_num][layer_num] = BookHistZR("gem_sh","SimHit",region_num,station_num,layer_num);
-
-          std::string hist_name_for_xy  = std::string("gem_sh_xy_r")+regionLabel[region_num]+"_st"+stationLabel[station_num]+"_l"+layerLabel[layer_num];
+          gem_sh_xy[region_num][station_num][layer_num] = BookHistXY("gem_sh","SimHit",region_num,station_num,layer_num);
           std::string hist_name_for_tof  = std::string("gem_sh_tof_r")+regionLabel[region_num]+"_st"+stationLabel[station_num]+"_l"+layerLabel[layer_num];
           std::string hist_name_for_tofMu  = std::string("gem_sh_tofMuon_r")+regionLabel[region_num]+"_st"+stationLabel[station_num]+"_l"+layerLabel[layer_num];
           std::string hist_name_for_eloss  = std::string("gem_sh_energyloss_r")+regionLabel[region_num]+"_st"+stationLabel[station_num]+"_l"+layerLabel[layer_num];
@@ -40,7 +68,7 @@ void GEMHitsValidation::bookHisto(const GEMGeometry* gem_geo) {
           std::string hist_label_for_tofMu = "SimHit TOF(Muon only) : region"+regionLabel[region_num]+" station "+stationLabel[station_num]+" layer "+layerLabel[layer_num]+" "+" ; Time of flight [ns] ; entries";
           std::string hist_label_for_eloss = "SimHit energy loss : region"+regionLabel[region_num]+" station "+stationLabel[station_num]+" layer "+layerLabel[layer_num]+" "+" ; Energy loss [eV] ; entries";
           std::string hist_label_for_elossMu = "SimHit energy loss(Muon only) : region"+regionLabel[region_num]+" station "+stationLabel[station_num]+" layer "+layerLabel[layer_num]+" "+" ; Energy loss [eV] ; entries";
-          gem_sh_xy[region_num][station_num][layer_num] = dbe_->book2D( hist_name_for_xy.c_str(), hist_label_for_xy.c_str(), 360, -360,360,360,-360,360);
+
           
           double tof_min, tof_max;
           if( station_num == 0 ) { tof_min = 18; tof_max = 22; }
@@ -64,10 +92,9 @@ void GEMHitsValidation::analyze(const edm::Event& e,
 {
 
   edm::Handle<edm::PSimHitContainer> GEMHits;
-  e.getByLabel(theInputTag, GEMHits);
+  e.getByToken(inputToken_, GEMHits);
   if (!GEMHits.isValid()) {
-    edm::LogError("GEMHitsValidation") << "Cannot get GEMHits by label "
-                                      << theInputTag.encode();
+    edm::LogError("GEMHitsValidation") << "Cannot get GEMHits by Token simInputTagToken";
     return ;
   }
 
@@ -80,10 +107,18 @@ void GEMHitsValidation::analyze(const edm::Event& e,
     Int_t region = id.region();
     Int_t station = id.station();
     Int_t layer = id.layer();
+
+
+
     //Int_t even_odd = id.chamber()%2;
+    if ( theGEMGeometry->idToDet(hits->detUnitId()) == nullptr) {
+      std::cout<<"simHit did not matched with GEMGeometry."<<std::endl;
+      continue;
+    }
     const LocalPoint p0(0., 0., 0.);
     const GlobalPoint Gp0(theGEMGeometry->idToDet(hits->detUnitId())->surface().toGlobal(p0));
     const LocalPoint hitLP(hits->localPosition());
+    
     const GlobalPoint hitGP(theGEMGeometry->idToDet(hits->detUnitId())->surface().toGlobal(hitLP));
     Float_t g_r = hitGP.perp();
     Float_t g_x = hitGP.x();
@@ -110,5 +145,13 @@ void GEMHitsValidation::analyze(const edm::Event& e,
     gem_sh_xy[(int)(region/2.+0.5)][station-1][layer-1]->Fill(g_x,g_y);
     gem_sh_tof[(int)(region/2.+0.5)][station-1][layer-1]->Fill(timeOfFlight);
     gem_sh_eloss[(int)(region/2.+0.5)][station-1][layer-1]->Fill(energyLoss*1.e9);
+
+    std::string chamber ="";
+    if ( id.chamber() %2 == 1 ) chamber = "odd";
+    else  chamber = "even";
+    std::stringstream hist_name;
+    hist_name<<"gem_sh_xy_r"<<id.region()<<"_st"<<stationLabel[id.station()-1]<<"_"<<chamber;
+    //std::cout<<hist_name.str()<<std::endl;
+    gem_sh_xy_st_ch[hist_name.str()]->Fill( g_x, g_y); 
    }
 }

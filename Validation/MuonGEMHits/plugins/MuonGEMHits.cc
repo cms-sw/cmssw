@@ -48,14 +48,20 @@ MuonGEMHits::MuonGEMHits(const edm::ParameterSet& ps)
 {
   hasGEMGeometry_ = false;
 
-  simInputLabel_ = ps.getUntrackedParameter<std::string>("simInputLabel","g4SimHits"); 
-
   dbe_ = edm::Service<DQMStore>().operator->();
   outputFile_ =  ps.getParameter<std::string>("outputFile");
   const edm::ParameterSet& pbInfo = ps.getParameterSet("PlotBinInfo");
 
-  theGEMHitsValidation = new GEMHitsValidation(dbe_, edm::InputTag(simInputLabel_,"MuonGEMHits"), pbInfo );
-  theGEMSimTrackMatch  = new GEMSimTrackMatch(dbe_, simInputLabel_ , ps.getParameterSet("simTrackMatching") );
+  simInputTagToken_ = consumes<edm::PSimHitContainer>(ps.getParameter<edm::InputTag>("simInputLabel"));
+
+  const edm::ParameterSet& simTrackMatching = ps.getParameterSet("simTrackMatching");
+
+  edm::EDGetToken simTracksToken = consumes< edm::SimTrackContainer >(simTrackMatching.getParameter<edm::InputTag>("simTrackCollection"));
+  edm::EDGetToken simVerticesToken = consumes< edm::SimVertexContainer >(simTrackMatching.getParameter<edm::InputTag>("simVertexCollection"));
+
+
+  theGEMHitsValidation = new GEMHitsValidation(dbe_, simInputTagToken_, pbInfo );
+  theGEMSimTrackMatch  = new GEMSimTrackMatch(dbe_, simTracksToken, simVerticesToken, simTrackMatching );
 }
 
 
@@ -116,7 +122,7 @@ MuonGEMHits::beginRun(edm::Run const&, edm::EventSetup const& iSetup)
   dbe_->setCurrentFolder("MuonGEMHitsV/GEMHitsTask");
   if ( hasGEMGeometry_) { 
     theGEMHitsValidation->bookHisto(gem_geometry_);
-    theGEMSimTrackMatch->bookHisto();   // GEMSimTrackMatch needs not Geometry information for booking histogram.
+    theGEMSimTrackMatch->bookHisto(gem_geometry_);   // GEMSimTrackMatch needs not Geometry information for booking histogram.
   }
 }
 

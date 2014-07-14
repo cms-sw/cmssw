@@ -183,6 +183,10 @@ MuonGEMRecHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByLabel(gemRecHitInput_, gemRecHits_);
   iEvent.getByLabel(gemSimHitInput_, gemSimHits_);
   iEvent.getByLabel(simTrackInput_, simTracks_);
+	if ( !gemRecHits_.isValid() || !gemSimHits_.isValid()|| !simTracks_.isValid()  ) {
+		LogDebug("MuonGEMRecHitsValidation")<<"error! GEMRecHits Validation. Skip this event.\n";
+		return;
+	}
 
   std::vector<int> trackIds;
   std::vector<int> trackType;
@@ -226,6 +230,10 @@ MuonGEMRecHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     gem_simHit_.DeltaPhi = atan(-1*id.region()*pow(-1,id.chamber())*itHit->localPosition().x()/(Gp0.perp() + itHit->localPosition().y()));
     
     const LocalPoint hitLP(itHit->localPosition());
+    if ( gem_geometry_->idToDet(itHit->detUnitId()) == nullptr) {
+      std::cout<<"simHit did not matched with GEMGeometry."<<std::endl;
+      continue;
+    }
     const GlobalPoint hitGP(gem_geometry_->idToDet(itHit->detUnitId())->surface().toGlobal(hitLP));
     gem_simHit_.globalR = hitGP.perp();
     gem_simHit_.globalEta = hitGP.eta();
@@ -262,6 +270,10 @@ MuonGEMRecHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       gem_recHit_.roll = (Short_t) id.roll();
 
       LocalPoint hitLP = recHit->localPosition();
+      if ( gem_geometry_->idToDet((*recHit).gemId()) == nullptr) {
+        std::cout<<"This gem recHit did not matched with GEMGeometry."<<std::endl;
+        continue;
+      }
       GlobalPoint hitGP = gem_geometry_->idToDet((*recHit).gemId())->surface().toGlobal(hitLP);
 
       gem_recHit_.globalR = hitGP.perp();

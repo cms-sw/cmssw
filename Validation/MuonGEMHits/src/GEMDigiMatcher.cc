@@ -41,14 +41,17 @@ GEMDigiMatcher::init()
 {
   edm::Handle<GEMDigiCollection> gem_digis;
   event().getByLabel(gemDigiInput_, gem_digis);
-  matchDigisToSimTrack(*gem_digis.product());
 
   edm::Handle<GEMCSCPadDigiCollection> gem_pads;
   event().getByLabel(gemPadDigiInput_, gem_pads);
-  matchPadsToSimTrack(*gem_pads.product());
 
   edm::Handle<GEMCSCPadDigiCollection> gem_co_pads;
   event().getByLabel(gemPadDigiInput_, gem_co_pads);
+
+  if ( !gem_digis.isValid() || !gem_pads.isValid() || !gem_co_pads.isValid()) return ;
+
+  matchDigisToSimTrack(*gem_digis.product());
+  matchPadsToSimTrack(*gem_pads.product());
   matchCoPadsToSimTrack(*gem_co_pads.product());
 }
 

@@ -31,6 +31,10 @@ from SLHCUpgradeSimulations.Configuration.customise_ecalTime import cust_ecalTim
 import SLHCUpgradeSimulations.Configuration.aging as aging
 import SLHCUpgradeSimulations.Configuration.jetCustoms as jetCustoms
 
+from Geometry.GEMGeometry.gemGeometryCustoms import custom_GE11_8and8partitions_v1 
+from Geometry.GEMGeometry.gemGeometryCustoms import custom_GE11_8and8partitions_v2 
+
+
 def cust_phase1_Pixel10D(process):
     process=customisePostLS1(process)
     process=customisePhase1TkPixel10D(process)
@@ -250,6 +254,20 @@ def cust_2023Muon(process):
     process=customise_me0(process)
     process=jetCustoms.customise_jets(process)
     return process
+
+def cust_2023MuonWithV6(process):
+    process=cust_2023Muon(process)
+    process = custom_GE11_8and8partitions_v1(process)
+    return process
+
+def cust_2023MuonWithV7(process):
+    process=cust_2023Muon(process)
+    process = custom_GE11_8and8partitions_v2(process)
+    return process
+
+
+
+
 
 def cust_2023TTI(process):
     process=customisePostLS1(process)
