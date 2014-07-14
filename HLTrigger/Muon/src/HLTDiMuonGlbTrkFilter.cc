@@ -39,6 +39,8 @@ HLTDiMuonGlbTrkFilter::HLTDiMuonGlbTrkFilter(const edm::ParameterSet& iConfig) :
   m_trkMuonId         = muon::SelectionType(iConfig.getParameter<unsigned int>("trkMuonId"));
   m_minPtMuon1        = iConfig.getParameter<double>("minPtMuon1");
   m_minPtMuon2        = iConfig.getParameter<double>("minPtMuon2");
+  m_maxEtaMuon        = iConfig.getParameter<double>("maxEtaMuon");
+  m_maxYDimuon        = iConfig.getParameter<double>("maxYDimuon");
   m_minMass           = iConfig.getParameter<double>("minMass");
   m_maxMass           = iConfig.getParameter<double>("maxMass");
   m_chargeOpt         = iConfig.getParameter<int> ("ChargeOpt");
@@ -60,6 +62,8 @@ HLTDiMuonGlbTrkFilter::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<unsigned int>("trkMuonId",0);
   desc.add<double>("minPtMuon1",17);
   desc.add<double>("minPtMuon2",8);
+  desc.add<double>("maxEtaMuon",100);
+  desc.add<double>("maxYDimuon",100);
   desc.add<double>("minMass",1);
   desc.add<double>("maxMass",10000000);
   desc.add<int>("ChargeOpt",0);
@@ -91,6 +95,7 @@ HLTDiMuonGlbTrkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSet
     }
     if ( muon.isTrackerMuon() && !muon::isGoodMuon(muon,m_trkMuonId) ) continue;
     if ( muon.pt() < std::min(m_minPtMuon1,m_minPtMuon2) ) continue;
+    if ( fabs(muon.eta()) > m_maxEtaMuon ) continue;
     filteredMuons.push_back(i);
   }
 
@@ -108,7 +113,7 @@ HLTDiMuonGlbTrkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSet
 	const reco::Muon& mu2(muons->at(filteredMuons.at(j)));
 	if ( std::max( mu1.pt(), mu2.pt()) > std::max(m_minPtMuon1,m_minPtMuon2) &&
 		 deltaR(mu1,mu2)>m_minDR && (mu1.p4() + mu2.p4()).mass() > m_minMass
-		 && (mu1.p4() + mu2.p4()).mass() < m_maxMass )
+		 && (mu1.p4() + mu2.p4()).mass() < m_maxMass && (mu1.p4() + mu2.p4()).Rapidity() > m_maxYDimuon )
 	  {
 
 	  if (m_chargeOpt<0) {
