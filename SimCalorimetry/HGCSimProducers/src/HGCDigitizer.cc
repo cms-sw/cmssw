@@ -17,32 +17,40 @@
 //
 HGCDigitizer::HGCDigitizer(const edm::ParameterSet& ps) :
   checkValidDetIds_(true),
-  theHGCEEDigitizer_(ps),
-  theHGCHEbackDigitizer_(ps),
-  theHGCHEfrontDigitizer_(ps),
+  simHitAccumulator_( new HGCSimHitDataAccumulator ),
   mySubDet_(ForwardSubdetector::ForwardEmpty)
 {
   //configure from cfg
-  hitCollection_     = ps.getUntrackedParameter< std::string >("hitCollection");
-  digiCollection_    = ps.getUntrackedParameter< std::string >("digiCollection");
-  maxSimHitsAccTime_ = ps.getUntrackedParameter< uint32_t >("maxSimHitsAccTime");
-  bxTime_            = ps.getUntrackedParameter< int32_t >("bxTime");
-  doTrivialDigis_    = ps.getUntrackedParameter< bool >("doTrivialDigis");
-
+  hitCollection_     = ps.getParameter< std::string >("hitCollection");
+  digiCollection_    = ps.getParameter< std::string >("digiCollection");
+  maxSimHitsAccTime_ = ps.getParameter< uint32_t >("maxSimHitsAccTime");
+  bxTime_            = ps.getParameter< int32_t >("bxTime");
+  digitizationType_  = ps.getParameter< uint32_t >("digitizationType");
+  
   //get the random number generator
   edm::Service<edm::RandomNumberGenerator> rng;
   if ( ! rng.isAvailable()) {
     throw cms::Exception("Configuration") << "HGCDigitizer requires the RandomNumberGeneratorService - please add this service or remove the modules that require it";
   }
-  CLHEP::HepRandomEngine& engine = rng->getEngine();
-  theHGCEEDigitizer_.setRandomNumberEngine(engine);
-  theHGCHEbackDigitizer_.setRandomNumberEngine(engine);
-  theHGCHEfrontDigitizer_.setRandomNumberEngine(engine);
 
-  //subdetector
-  if( producesEEDigis() )      mySubDet_=ForwardSubdetector::HGCEE;
-  if( producesHEfrontDigis() ) mySubDet_=ForwardSubdetector::HGCHEF;
-  if( producesHEbackDigis() )  mySubDet_=ForwardSubdetector::HGCHEB;
+  CLHEP::HepRandomEngine& engine = rng->getEngine();
+  if(hitCollection_.find("HitsEE")!=std::string::npos) { 
+    mySubDet_=ForwardSubdetector::HGCEE;  
+    theHGCEEDigitizer_=std::unique_ptr<HGCEEDigitizer>(new HGCEEDigitizer(ps) ); 
+    theHGCEEDigitizer_->setRandomNumberEngine(engine);
+  }
+  if(hitCollection_.find("HitsHEfront")!=std::string::npos)  
+    { 
+      mySubDet_=ForwardSubdetector::HGCHEF;
+      theHGCHEfrontDigitizer_=std::unique_ptr<HGCHEfrontDigitizer>(new HGCHEfrontDigitizer(ps) );
+      theHGCHEfrontDigitizer_->setRandomNumberEngine(engine);
+    }
+  if(hitCollection_.find("HitsHEback")!=std::string::npos)
+    { 
+      mySubDet_=ForwardSubdetector::HGCHEB;
+      theHGCHEbackDigitizer_=std::unique_ptr<HGCHEbackDigitizer>(new HGCHEbackDigitizer(ps) );
+      theHGCHEbackDigitizer_->setRandomNumberEngine(engine);
+    }
 }
 
 //
@@ -57,21 +65,21 @@ void HGCDigitizer::finalizeEvent(edm::Event& e, edm::EventSetup const& es)
   if( producesEEDigis() ) 
     {
       std::auto_ptr<HGCEEDigiCollection> digiResult(new HGCEEDigiCollection() );
-      theHGCEEDigitizer_.run(digiResult,simHitAccumulator_,doTrivialDigis_);
+      theHGCEEDigitizer_->run(digiResult,*simHitAccumulator_,digitizationType_);
       edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " << digiResult->size() <<  " EE hits";
       e.put(digiResult,digiCollection());
     }
   if( producesHEfrontDigis())
     {
       std::auto_ptr<HGCHEDigiCollection> digiResult(new HGCHEDigiCollection() );
-      theHGCHEfrontDigitizer_.run(digiResult,simHitAccumulator_,doTrivialDigis_);
+      theHGCHEfrontDigitizer_->run(digiResult,*simHitAccumulator_,digitizationType_);
       edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " << digiResult->size() <<  " HE front hits";
       e.put(digiResult,digiCollection());
     }
   if( producesHEbackDigis() )
     {
       std::auto_ptr<HGCHEDigiCollection> digiResult(new HGCHEDigiCollection() );
-      theHGCHEbackDigitizer_.run(digiResult,simHitAccumulator_,doTrivialDigis_);
+      theHGCHEbackDigitizer_->run(digiResult,*simHitAccumulator_,digitizationType_);
       edm::LogInfo("HGCDigitizer") << " @ finalize event - produced " << digiResult->size() <<  " HE back hits";
       e.put(digiResult,digiCollection());
     }
@@ -128,56 +136,60 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, i
 
       //gang SIM->RECO cells
       int layer(simId.layer()), cell(simId.cell());
+      float zPos(0.);
       if(geom.isValid())
 	{
 	  const HGCalTopology &topo=geom->topology();
 	  const HGCalDDDConstants &dddConst=topo.dddConstants();
+	  zPos=dddConst.getFirstTrForm()->h3v.z();
 	  std::pair<int,int> recoLayerCell=dddConst.simToReco(cell,layer,topo.detectorType());
 	  cell  = recoLayerCell.first;
 	  layer = recoLayerCell.second;
 	  if(layer<0) continue;
-
-	  // 	  std::cout << " EE:  " << producesEEDigis()
-	  // 		    << " HEF: " << producesHEfrontDigis()
-	  // 		    << " HEB: " << producesHEbackDigis()
-	  //		    << " (layer,cell)=(" << simId.layer() << "," << simId.cell() << ") -> (" << layer << "," << cell << ")" << std::endl;
 	}
 
-      //this could be changed in the future to use the geometry record
+      //assign the RECO DetId
       DetId id( producesEEDigis() ?
 		(uint32_t)HGCEEDetId(mySubDet_,simId.zside(),layer,simId.sector(),simId.subsector(),cell):
 		(uint32_t)HGCHEDetId(mySubDet_,simId.zside(),layer,simId.sector(),simId.subsector(),cell) );
 
-      //hit time
-      //GlobalPoint globalPos=geom->getPosition( id );
-      //int itime=(int) ( ((hit_it->time()-globalPos.z()/CLHEP::c_light) - bxTime_*bxCrossing)/bxCrossing );
-      int itime = 0; 
-
-      //energy deposited
-      double ien   = hit_it->energy();
-
-      HGCSimHitDataAccumulator::iterator simHitIt=simHitAccumulator_.find(id);
-      if(simHitIt==simHitAccumulator_.end())
+      //hit time: [time()]=ns  [zPos]=cm [CLHEP::c_light]=mm/ns
+      //for now accumulate in buckets of bxTime_
+      int itime=floor( (hit_it->time()-zPos/(0.1*CLHEP::c_light))/bxTime_);
+      itime += bxCrossing;
+      if(itime<0) continue;
+      
+      //energy deposited 
+      HGCSimEn_t ien( hit_it->energy() );
+      
+      //check if already existing (perhaps could remove this in the future - 2nd event should have all defined)
+      HGCSimHitDataAccumulator::iterator simHitIt=simHitAccumulator_->find(id);
+      if(simHitIt==simHitAccumulator_->end())
 	{
-	  HGCSimHitData baseData(10,0);
-	  simHitAccumulator_[id]=baseData;
-	  simHitIt=simHitAccumulator_.find(id);
+	  HGCSimHitData baseData;
+	  baseData.fill(0.);
+	  simHitAccumulator_->insert( std::make_pair(id,baseData) );
+	  simHitIt=simHitAccumulator_->find(id);
 	}
-      if(itime<0 || itime>(int)simHitIt->second.size()) continue;
+      
+      //check if time is ok
+      if( itime >= (int)(simHitIt->second.size()) ) continue;
+      
       (simHitIt->second)[itime] += ien;
     }
   
   //add base data for noise simulation
   if(!checkValidDetIds_) return;
   if(!geom.isValid()) return;
-  HGCSimHitData baseData(10,0);
+  HGCSimHitData baseData;
+  baseData.fill(0.);
   const std::vector<DetId> &validIds=geom->getValidDetIds(); 
   int nadded(0);
   for(std::vector<DetId>::const_iterator it=validIds.begin(); it!=validIds.end(); it++)
     {
       uint32_t id(it->rawId());
-      if(simHitAccumulator_.find(id)!=simHitAccumulator_.end()) continue;
-      simHitAccumulator_[id]=baseData;
+      if(simHitAccumulator_->find(id)!=simHitAccumulator_->end()) continue;
+      simHitAccumulator_->insert( std::make_pair(id,baseData) );
       nadded++;
     }
   std::cout << "Added " << nadded << " detIds without " << hitCollection_ << " in first event processed" << std::endl;
@@ -187,27 +199,20 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits, i
 //
 void HGCDigitizer::beginRun(const edm::EventSetup & es)
 {
-  //checkGeometry(es);
-  //theShapes->beginRun(es);
 }
 
 //
 void HGCDigitizer::endRun()
 {
-  //theShapes->endRun();   
 }
 
 //
 void HGCDigitizer::resetSimHitDataAccumulator()
 {
-  for( HGCSimHitDataAccumulator::iterator it = simHitAccumulator_.begin(); it!=simHitAccumulator_.end(); it++) 
-    std::fill(it->second.begin(), it->second.end(),0.); 
+  for( HGCSimHitDataAccumulator::iterator it = simHitAccumulator_->begin(); it!=simHitAccumulator_->end(); it++)  it->second.fill(0.);
 }
 
 
-//
-HGCDigitizer::~HGCDigitizer()
-{
-}
+
 
 

@@ -8,7 +8,7 @@ class HGCEEDigitizer : public HGCDigitizerBase<HGCEEDataFrame>
 {
  public:
   HGCEEDigitizer(const edm::ParameterSet& ps);
-  void runDigitizer(std::auto_ptr<HGCEEDigiCollection> &digiColl,HGCSimHitDataAccumulator &simData);
+  void runDigitizer(std::auto_ptr<HGCEEDigiCollection> &digiColl,HGCSimHitDataAccumulator &simData,uint32_t digitizationType);
   ~HGCEEDigitizer();
  private:
 

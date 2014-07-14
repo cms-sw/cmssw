@@ -6,7 +6,7 @@ HGCHEfrontDigitizer::HGCHEfrontDigitizer(const edm::ParameterSet &ps) : HGCDigit
 }
 
 //
-void HGCHEfrontDigitizer::runDigitizer(std::auto_ptr<HGCHEDigiCollection> &digiColl,HGCSimHitDataAccumulator &simData)
+void HGCHEfrontDigitizer::runDigitizer(std::auto_ptr<HGCHEDigiCollection> &digiColl,HGCSimHitDataAccumulator &simData,uint32_t digitizationType)
 {
 }
 
