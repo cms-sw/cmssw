@@ -23,8 +23,8 @@ simMuonRPCDigis = cms.EDProducer("RPCDigiProducer",
     Signal = cms.bool(True),
     mixLabel = cms.string('mix'),                                 
     InputCollection = cms.string('g4SimHitsMuonRPCHits'),
-    digiModel = cms.string('RPCSimAverageNoiseEffCls')
-#    digiModel = cms.string('RPCSimAsymmetricCls')
+#    digiModel = cms.string('RPCSimAverageNoiseEffCls')
+    digiModel = cms.string('RPCSimAsymmetricCls')
 #the new digitizer is RPCSimAsymmetricCls
 )
 
