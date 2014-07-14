@@ -88,6 +88,8 @@ class DAFTrackProducerAlgorithm {
 	      int minhits, std::vector<Trajectory>& output,
 	      const TransientTrackingRecHitBuilder* builder) const;
 
+  Trajectory filter(const Trajectory traj) const;
+
   int checkHits( Trajectory iInitTraj, const Trajectory iFinalTraj) const; 
 
   edm::ParameterSet conf_;

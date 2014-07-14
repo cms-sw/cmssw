@@ -57,7 +57,7 @@ void DAFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
     //no need to have std::vector<Trajectory> vtraj !
     if ( (*ivtraj).isValid() ){
 
-      LogDebug("DAFTrackProducerAlgorithm") << "The trajectory is valid. \n";
+      LogDebug("DAFTrackProducerAlgorithm") << "The trajectory #" << cont+1 << " is valid. \n";
 
       //getting the MultiRecHit collection and the trajectory with a first fit-smooth round
       std::pair<TransientTrackingRecHit::RecHitContainer, TrajectoryStateOnSurface> hits = 
@@ -101,11 +101,10 @@ void DAFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
       //checking if the trajectory has the minimum number of valid hits ( weight (>1e-6) )
       //in order to remove tracks with too many outliers.
 
-      //std::vector<Trajectory> filtered;
-      //filter(theFitter, vtraj, minHits_, filtered, builder);				
+      Trajectory filtered = filter(currentTraj);
 
-      if(currentTraj.foundHits() >= minHits_) {
-      
+      if(filtered.foundHits() >= minHits_) {
+
         bool ok = buildTrack(currentTraj, algoResults, ndof, bs) ;
         if(ok) cont++;
 
@@ -253,10 +252,54 @@ bool DAFTrackProducerAlgorithm::buildTrack (const Trajectory vtraj,
 
     return true;
   } 
-  else  
+  else {
+    LogDebug("DAFTrackProducerAlgorithm") <<" BUILDER NOT POSSIBLE: traj is not valid" << std::endl;;
     return false;
+  }
 }
 /*------------------------------------------------------------------------------------------------------*/
+Trajectory DAFTrackProducerAlgorithm::filter(const Trajectory traj) const{
+
+  int ngoodhits = 0;
+  Trajectory myTraj;
+  std::vector<TrajectoryMeasurement> vtm = traj.measurements();
+
+  for (std::vector<TrajectoryMeasurement>::const_iterator tm = vtm.begin(); tm != vtm.end(); tm++){
+    //if the rechit is valid
+    if (tm->recHit()->isValid()) {
+      SiTrackerMultiRecHit const & mHit = dynamic_cast<SiTrackerMultiRecHit const &>(*tm->recHit());
+      std::vector<const TrackingRecHit*> components = mHit.recHits();
+
+      int iComp = 0;
+      bool isGood = false;
+
+      for(std::vector<const TrackingRecHit*>::const_iterator iter = components.begin(); iter != components.end(); iter++, iComp++){ 
+        //if there is at least one component with weight higher than 1e-6 then the hit is not an outlier
+        if (mHit.weight(iComp)>1e-6) {
+	  ngoodhits++; iComp++; 
+	  isGood = true; 
+	  break;
+	}
+      }
+
+      if (isGood) {
+        myTraj.push(*tm);
+      } else {
+        TrajectoryStateOnSurface predtsos = tm->predictedState();
+        myTraj.push(TrajectoryMeasurement( predtsos, std::make_shared<InvalidTrackingRecHit>(*tm->recHit()->det(), TrackingRecHit::missing), 0));
+      }
+    } else {
+      myTraj.push(*tm);
+    }   
+  }
+  
+
+  LogDebug("DAFTrackProducerAlgorithm") << "Original number of valid hits " << traj.foundHits() << "; after filtering " << ngoodhits;
+  return myTraj;
+
+}
+/*------------------------------------------------------------------------------------------------------*/
+
 void  DAFTrackProducerAlgorithm::filter(const TrajectoryFitter* fitter, std::vector<Trajectory>& input, 
 					int minhits, std::vector<Trajectory>& output,
 					const TransientTrackingRecHitBuilder* builder) const 
