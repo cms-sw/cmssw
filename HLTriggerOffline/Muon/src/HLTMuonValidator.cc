@@ -131,6 +131,10 @@ HLTMuonValidator::stepLabels(const vector<string>& modules) {
       else
         steps.push_back("L2Iso");
     }
+    else if (modules[i].find("IsoRhoFiltered") != string::npos) {
+	if (modules[i].find("L3") != string::npos)
+        steps.push_back("L3Iso");
+    }
     else if (modules[i].find("L3") != string::npos)
       steps.push_back("L3");
     else if (modules[i].find("L2") != string::npos)
