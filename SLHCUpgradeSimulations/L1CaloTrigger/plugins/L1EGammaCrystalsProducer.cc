@@ -314,11 +314,11 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
       trigCrystalClusters->push_back(cluster);
 
       // Save clusters with some cuts
-      // This is a dynamic falling quadratic cut in pt, trying to squeeze as much efficiency as possible
+      // This is a dynamic cut in pt, trying to squeeze as much efficiency as possible
       // out of the cut variables, which should have been pt-independent, but are not.
-      if ( cluster.hovere() < ((cluster.pt() > 35) ? 0.5 : 0.5+pow(cluster.pt()-35,2)/350. )
-           && cluster.isolation() < ((cluster.pt() > 35) ? 1.3 : 1.3+pow(cluster.pt()-35,2)*4/(35*35) )
-           && (cluster.GetCrystalPt(4)/(cluster.GetCrystalPt(0)+cluster.GetCrystalPt(1)) < ( (cluster.pt() < 20) ? 0.08:0.08*(1+(cluster.pt()-20)/30.) ) )
+      if ( cluster.hovere() < 14./cluster.pt()+0.05
+           && cluster.isolation() < 40./cluster.pt()+0.1
+           && (cluster.GetCrystalPt(4)/(cluster.GetCrystalPt(0)+cluster.GetCrystalPt(1)) < ( (cluster.pt() < 20) ? 0.08:0.08*(1+(cluster.pt()-20)/25.) ) )
            && ((cluster.pt() > 10) ? (cluster.GetCrystalPt(4)/(cluster.GetCrystalPt(0)+cluster.GetCrystalPt(1)) > 0.):true) )
       {
          // Optional min. Et cut
