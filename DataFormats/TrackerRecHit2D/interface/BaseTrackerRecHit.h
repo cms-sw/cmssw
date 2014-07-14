@@ -139,7 +139,7 @@ private:
   static void check(){}
 #endif
 
-private:
+protected:
 
   LocalPoint pos_;
   LocalError err_;
