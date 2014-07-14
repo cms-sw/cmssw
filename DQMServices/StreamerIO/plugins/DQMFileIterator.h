@@ -8,6 +8,7 @@
 #include "boost/filesystem.hpp"
 
 #include <memory>
+#include <map>
 #include <string>
 #include <queue>
 #include <iterator>
@@ -25,16 +26,20 @@ class DQMFileIterator {
   };
 
   struct LumiEntry {
-    int ls;
+    bool loaded = false;
+    std::string filename;
 
+    int ls;
     std::size_t n_events;
     std::string datafilename;
 
-    static LumiEntry load_json(const std::string& filename, int lumiNumber, JsonType type);
+    static LumiEntry load_json(const std::string& filename, int lumiNumber,
+                               JsonType type);
   };
 
   struct EorEntry {
     bool loaded = false;
+    std::string filename;
 
     std::size_t n_events;
     std::size_t n_lumi;
@@ -49,7 +54,6 @@ class DQMFileIterator {
     EOR = 2,
   };
 
-
   DQMFileIterator(ParameterSet const& pset, JsonType t);
   ~DQMFileIterator();
   void initialise(int run, const std::string&, const std::string&);
@@ -57,17 +61,19 @@ class DQMFileIterator {
   State state();
 
   /* methods to iterate the actual files */
+
+  /* currentLumi_ is the first unprocessed lumi number
+   * lumiReady() returns if it is loadable
+   * front() a reference to the description (LumiEntry)
+   * pop() advances to the next lumi
+   */
+  bool lumiReady();
   const LumiEntry& front();
   void pop();
-  bool hasNext();
-
-  std::string make_path_jsn(int lumi);
-  std::string make_path_eor();
   std::string make_path_data(const LumiEntry& lumi);
 
   /* control */
   void reset();
-  void collect();
   void update_state();
 
   /* misc helpers for input sources */
@@ -75,9 +81,10 @@ class DQMFileIterator {
                      const std::string& fileName = "") const;
   void delay();
   void updateWatchdog();
-  unsigned int runNumber() {
-    return runNumber_;
-  };
+  unsigned int runNumber();
+
+  unsigned int lastLumiFound();
+  void advanceToLumi(unsigned int lumi);
 
   static void fillDescription(ParameterSetDescription& d);
 
@@ -87,16 +94,26 @@ class DQMFileIterator {
   unsigned int runNumber_;
   std::string runInputDir_;
   std::string streamLabel_;
-  unsigned int delayMillis_;
+  unsigned long delayMillis_;
+  long nextLumiTimeoutMillis_;
 
   std::string runPath_;
 
-  int lastLumiSeen_;
   EorEntry eor_;
   State state_;
-  std::queue<LumiEntry> queue_;
 
-  std::chrono::high_resolution_clock::time_point last_collect_;
+  unsigned int currentLumi_;
+  std::map<unsigned int, LumiEntry> lumiSeen_;
+
+  /* this should be different,
+   * since time between hosts might be not in sync */
+  std::time_t runPathMTime_;
+  std::chrono::high_resolution_clock::time_point runPathLastCollect_;
+
+  /* this is for missing lumi files */
+  std::chrono::high_resolution_clock::time_point lastLumiLoad_;
+
+  void collect(bool ignoreTimers);
 };
 
 } /* end of namespace */

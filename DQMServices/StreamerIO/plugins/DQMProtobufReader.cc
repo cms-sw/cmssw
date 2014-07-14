@@ -24,6 +24,8 @@ InputSource::ItemType DQMProtobufReader::getNextItemType() {
   fiterator_.logFileAction("getNextItemType");
 
   for (;;) {
+    fiterator_.update_state();
+
     // check for end of run file and force quit
     if (flagEndOfRunKills_ && (fiterator_.state() != State::OPEN)) {
       return InputSource::IsStop;
@@ -31,13 +33,13 @@ InputSource::ItemType DQMProtobufReader::getNextItemType() {
 
     // check for end of run and quit if everything has been processed.
     // this is the clean exit
-    if ((!fiterator_.hasNext()) && (fiterator_.state() == State::EOR)) {
+    if ((!fiterator_.lumiReady()) && (fiterator_.state() == State::EOR)) {
 
       return InputSource::IsStop;
     }
 
     // skip to the next file if we have no files openned yet
-    if (fiterator_.hasNext()) {
+    if (fiterator_.lumiReady()) {
       return InputSource::IsLumi;
     }
 
@@ -101,7 +103,7 @@ void DQMProtobufReader::readLuminosityBlock_(
   // load the new file
   const DQMFileIterator::LumiEntry& lumi = fiterator_.front();
   std::string p = fiterator_.make_path_data(lumi);
-  if (! boost::filesystem::exists(p)) {
+  if (!boost::filesystem::exists(p)) {
     fiterator_.logFileAction("Data file is missing ", p);
     fiterator_.pop();
     return;
