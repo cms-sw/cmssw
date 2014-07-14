@@ -31,22 +31,23 @@ ME0PreRecoGaussianModel::ME0PreRecoGaussianModel(const edm::ParameterSet& config
 , maxBunch_(config.getParameter<int> ("maxBunch"))
 
 {
-  //params for the simple pol6 model of neutral and electron bkg for ME0:
-  ME0ModNeuBkgParam0 = 5.69e+06;
-  ME0ModNeuBkgParam1 = -293334;
-  ME0ModNeuBkgParam2 = 6279.6;
-  ME0ModNeuBkgParam3 = -71.2928;
-  ME0ModNeuBkgParam4 = 0.452244;
-  ME0ModNeuBkgParam5 = -0.0015191;
-  ME0ModNeuBkgParam6 = 2.1106e-06;
 
-  ME0ModElecBkgParam0 = 3.77712e+06;
-  ME0ModElecBkgParam1 = -199280;
-  ME0ModElecBkgParam2 = 4340.69;
-  ME0ModElecBkgParam3 = -49.922;
-  ME0ModElecBkgParam4 = 0.319699;
-  ME0ModElecBkgParam5 = -0.00108113;
-  ME0ModElecBkgParam6 = 1.50889e-06;
+  //params for the simple pol6 model of neutral and electron bkg for ME0:
+  ME0ModNeuBkgParam0 = 899644;
+  ME0ModNeuBkgParam1 = -30841;
+  ME0ModNeuBkgParam2 = 441.28;
+  ME0ModNeuBkgParam3 = -3.3405;
+  ME0ModNeuBkgParam4 = 0.0140588;
+  ME0ModNeuBkgParam5 = -3.11473e-05;
+  ME0ModNeuBkgParam6 = 2.83736e-08;
+
+  ME0ModElecBkgParam0 = 4.68590e+05;
+  ME0ModElecBkgParam1 = -1.63834e+04;
+  ME0ModElecBkgParam2 = 2.35700e+02;
+  ME0ModElecBkgParam3 = -1.77706e+00;
+  ME0ModElecBkgParam4 = 7.39960e-03;
+  ME0ModElecBkgParam5 = -1.61448e-05;
+  ME0ModElecBkgParam6 = 1.44368e-08;
 
 }
 

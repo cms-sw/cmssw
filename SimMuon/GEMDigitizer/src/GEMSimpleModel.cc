@@ -11,7 +11,6 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandPoissonQ.h"
 #include "CLHEP/Random/RandGaussQ.h"
-#include "CLHEP/Random/RandGamma.h"
 
 #include <cmath>
 #include <utility>
@@ -32,8 +31,7 @@ GEMDigiModel(config)
 , timeResolution_(config.getParameter<double> ("timeResolution"))
 , timeJitter_(config.getParameter<double> ("timeJitter"))
 , averageNoiseRate_(config.getParameter<double> ("averageNoiseRate"))
-//, averageClusterSize_(config.getParameter<double> ("averageClusterSize"))
-, clsParametrization_(config.getParameter<std::vector<double>>("clsParametrization"))
+//, clsParametrization_(config.getParameter<std::vector<double>>("clsParametrization"))
 , signalPropagationSpeed_(config.getParameter<double> ("signalPropagationSpeed"))
 , cosmics_(config.getParameter<bool> ("cosmics"))
 , bxwidth_(config.getParameter<int> ("bxwidth"))
@@ -49,10 +47,10 @@ GEMDigiModel(config)
 {
 //initialise parameters from the fit:
 //params for pol3 model of electron bkg for GE1/1:
-  GE11ElecBkgParam0 = 735.304;
-  GE11ElecBkgParam1 = 0.228203;
-  GE11ElecBkgParam2 = -0.042479;
-  GE11ElecBkgParam3 = 0.000125032;
+  GE11ElecBkgParam0 = 3402.63;
+  GE11ElecBkgParam1 = -42.9979;
+  GE11ElecBkgParam2 = 0.188475;
+  GE11ElecBkgParam3 = -0.0002822;
 
 //params for expo model of electron bkg for GE2/1:
   constElecGE21 = 9.74156e+02;
@@ -103,8 +101,6 @@ GEMSimpleModel::~GEMSimpleModel()
     delete gauss1_;
   if (gauss2_)
     delete gauss2_;
-  if (gamma1_)
-    delete gamma1_;
 }
 
 void GEMSimpleModel::setRandomEngine(CLHEP::HepRandomEngine& eng)
@@ -116,7 +112,6 @@ void GEMSimpleModel::setRandomEngine(CLHEP::HepRandomEngine& eng)
   poisson_ = new CLHEP::RandPoissonQ(eng);
   gauss1_ = new CLHEP::RandGaussQ(eng);
   gauss2_ = new CLHEP::RandGaussQ(eng);
-  gamma1_ = new CLHEP::RandGamma(eng);
 }
 
 void GEMSimpleModel::setup()
@@ -326,39 +321,11 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll)
 
       int clusterSize = 0;
       double randForCls = flat4_->fire(1);
-
-      if(randForCls <= clsParametrization_[0] && randForCls >= 0.)
+      if(randForCls <= 0.53 && randForCls >= 0.)
         clusterSize = 1;
-      else if(randForCls <= clsParametrization_[1] && randForCls > clsParametrization_[0])
+      else
         clusterSize = 2;
-      else if(randForCls <= clsParametrization_[2] && randForCls > clsParametrization_[1])
-        clusterSize = 3;
-      else if(randForCls <= clsParametrization_[3] && randForCls > clsParametrization_[2])
-        clusterSize = 4;
-      else if(randForCls <= clsParametrization_[4] && randForCls > clsParametrization_[3])
-        clusterSize = 5;
-      else if(randForCls <= clsParametrization_[5] && randForCls > clsParametrization_[4])
-        clusterSize = 6;
-      else if(randForCls <= clsParametrization_[6] && randForCls > clsParametrization_[5])
-        clusterSize = 7;
-      else if(randForCls <= clsParametrization_[7] && randForCls > clsParametrization_[6])
-        clusterSize = 8;
-      else if(randForCls <= clsParametrization_[8] && randForCls > clsParametrization_[7])
-        clusterSize = 9;
 
-//odd cls
-      if (clusterSize % 2 != 0)
-      {
-        int clsR = (clusterSize - 1) / 2;
-        for (int i = 1; i <= clsR; ++i)
-        {
-          if (flat1_->fire(1) < averageEfficiency_ && (centralStrip - i > 0))
-            cluster_.push_back(std::pair<int, int>(centralStrip - i, time_hit));
-          if (flat1_->fire(1) < averageEfficiency_ && (centralStrip + i <= nstrips))
-            cluster_.push_back(std::pair<int, int>(centralStrip + i, time_hit));
-        }
-      }
-//even cls
       if (clusterSize % 2 == 0)
       {
         int clsR = (clusterSize - 2) / 2;
@@ -366,28 +333,28 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll)
         {
           if (flat1_->fire(1) < averageEfficiency_ && (centralStrip - 1 > 0))
             cluster_.push_back(std::pair<int, int>(centralStrip - 1, time_hit));
-          for (int i = 1; i <= clsR; ++i)
-          {
+            for (int i = 1; i <= clsR; ++i)
+            {
             if (flat1_->fire(1) < averageEfficiency_ && (centralStrip - 1 - i > 0))
               cluster_.push_back(std::pair<int, int>(centralStrip - 1 - i, time_hit));
             if (flat1_->fire(1) < averageEfficiency_ && (centralStrip + i <= nstrips))
               cluster_.push_back(std::pair<int, int>(centralStrip + i, time_hit));
-          }
+            }
         }
-
         else
         {
-        if (flat1_->fire(1) < averageEfficiency_ && (centralStrip + 1 <= nstrips))
-          cluster_.push_back(std::pair<int, int>(centralStrip + 1, time_hit));
-          for (int i = 1; i <= clsR; ++i)
-          {
-            if (flat1_->fire(1) < averageEfficiency_ && (centralStrip + 1 + i <= nstrips))
-            cluster_.push_back(std::pair<int, int>(centralStrip + 1 + i, time_hit));
-            if (flat1_->fire(1) < averageEfficiency_ && (centralStrip - i < 0))
-            cluster_.push_back(std::pair<int, int>(centralStrip - i, time_hit));
-          }
+          if (flat1_->fire(1) < averageEfficiency_ && (centralStrip + 1 <= nstrips))
+            cluster_.push_back(std::pair<int, int>(centralStrip + 1, time_hit));
+            for (int i = 1; i <= clsR; ++i)
+            {
+              if (flat1_->fire(1) < averageEfficiency_ && (centralStrip + 1 + i <= nstrips))
+                cluster_.push_back(std::pair<int, int>(centralStrip + 1 + i, time_hit));
+              if (flat1_->fire(1) < averageEfficiency_ && (centralStrip - i < 0))
+                cluster_.push_back(std::pair<int, int>(centralStrip - i, time_hit));
+            }
         }
       }
+
       for(auto & digi : cluster_)
       {
         strips_.insert(digi);
@@ -417,81 +384,9 @@ std::vector<std::pair<int, int> > GEMSimpleModel::simulateClustering(const GEMEt
   else
     centralStrip = topology.channel(hit_position);
 
-  GlobalPoint pointSimHit = roll->toGlobal(hit_position);
-  GlobalPoint pointDigiHit = roll->toGlobal(roll->centreOfStrip(centralStrip));
-  double deltaphi = pointSimHit.phi() - pointDigiHit.phi();
-
   // Add central digi to cluster vector
   std::vector<std::pair<int, int> > cluster_;
   cluster_.clear();
   cluster_.push_back(std::pair<int, int>(centralStrip, bx));
-
-  // get the cluster size
-      int clusterSize = 0;
-      double randForCls = flat4_->fire(1);
-
-      if(randForCls <= clsParametrization_[0] && randForCls >= 0.)
-        clusterSize = 1;
-      else if(randForCls <= clsParametrization_[1] && randForCls > clsParametrization_[0])
-        clusterSize = 2;
-      else if(randForCls <= clsParametrization_[2] && randForCls > clsParametrization_[1])
-        clusterSize = 3;
-      else if(randForCls <= clsParametrization_[3] && randForCls > clsParametrization_[2])
-        clusterSize = 4;
-      else if(randForCls <= clsParametrization_[4] && randForCls > clsParametrization_[3])
-        clusterSize = 5;
-      else if(randForCls <= clsParametrization_[5] && randForCls > clsParametrization_[4])
-        clusterSize = 6;
-      else if(randForCls <= clsParametrization_[6] && randForCls > clsParametrization_[5])
-        clusterSize = 7;
-      else if(randForCls <= clsParametrization_[7] && randForCls > clsParametrization_[6])
-        clusterSize = 8;
-      else if(randForCls <= clsParametrization_[8] && randForCls > clsParametrization_[7])
-        clusterSize = 9;
-
-  if (abs(simHit->particleType()) != 13 && fabs(simHit->pabs()) < minPabsNoiseCLS_)
-    return cluster_;
-
-  //odd cls
-  if (clusterSize % 2 != 0)
-  {
-    int clsR = (clusterSize - 1) / 2;
-    for (int i = 1; i <= clsR; ++i)
-    {
-      if (flat1_->fire(1) < averageEfficiency_ && (centralStrip - i > 0))
-        cluster_.push_back(std::pair<int, int>(centralStrip - i, bx));
-      if (flat1_->fire(1) < averageEfficiency_ && (centralStrip + i <= nstrips))
-        cluster_.push_back(std::pair<int, int>(centralStrip + i, bx));
-    }
-  }
-  //even cls
-  if (clusterSize % 2 == 0)
-  {
-    int clsR = (clusterSize - 2) / 2;
-    if (deltaphi <= 0)
-    {
-      if (flat1_->fire(1) < averageEfficiency_ && (centralStrip - 1 > 0))
-        cluster_.push_back(std::pair<int, int>(centralStrip - 1, bx));
-      for (int i = 1; i <= clsR; ++i)
-      {
-        if (flat1_->fire(1) < averageEfficiency_ && (centralStrip - 1 - i > 0))
-          cluster_.push_back(std::pair<int, int>(centralStrip - 1 - i, bx));
-        if (flat1_->fire(1) < averageEfficiency_ && (centralStrip + i <= nstrips))
-          cluster_.push_back(std::pair<int, int>(centralStrip + i, bx));
-      }
-    }
-    else
-    {
-      if (flat1_->fire(1) < averageEfficiency_ && (centralStrip + 1 <= nstrips))
-        cluster_.push_back(std::pair<int, int>(centralStrip + 1, bx));
-      for (int i = 1; i <= clsR; ++i)
-      {
-        if (flat1_->fire(1) < averageEfficiency_ && (centralStrip + 1 + i <= nstrips))
-          cluster_.push_back(std::pair<int, int>(centralStrip + 1 + i, bx));
-        if (flat1_->fire(1) < averageEfficiency_ && (centralStrip - i < 0))
-          cluster_.push_back(std::pair<int, int>(centralStrip - i, bx));
-      }
-    }
-  }
   return cluster_;
 }
