@@ -63,7 +63,7 @@ HGCalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
                         eeUncalibRecHits = pHGCeeUncalibRecHits.product();
                         LogDebug("HGCalRecHitDebug") << "total # HGCee uncalibrated rechits: " << eeUncalibRecHits->size();
                 } else {
-                        edm::LogError("HGCalRecHitError") << "Error! can't get the product " << eeUncalibRecHitCollection_;
+                        edm::LogInfo("HGCalRecHitInfo") << "Info!? can't get the product " << eeUncalibRecHitCollection_;
                 }
         }
 
@@ -73,7 +73,7 @@ HGCalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
                         hefUncalibRecHits = pHGChefUncalibRecHits.product();
                         LogDebug("HGCalRecHitDebug") << "total # HGChef uncalibrated rechits: " << hefUncalibRecHits->size();
                 } else {
-                        edm::LogError("HGCalRecHitError") << "Error! can't get the product " << hefUncalibRecHitCollection_;
+                        edm::LogInfo("HGCalRecHitInfo") << "Info!? can't get the product " << hefUncalibRecHitCollection_;
                 }
         }
 
@@ -83,7 +83,7 @@ HGCalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
                         hebUncalibRecHits = pHGChebUncalibRecHits.product();
                         LogDebug("HGCalRecHitDebug") << "total # HGCheb uncalibrated rechits: " << hebUncalibRecHits->size();
                 } else {
-                        edm::LogError("HGCalRecHitError") << "Error! can't get the product " << hebUncalibRecHitCollection_;
+                        edm::LogInfo("HGCalRecHitInfo") << "Info!? can't get the product " << hebUncalibRecHitCollection_;
                 }
         }
 

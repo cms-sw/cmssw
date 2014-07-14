@@ -50,7 +50,7 @@ HGCalUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
                         eeDigis = pHGCEEDigis.product(); // get a ptr to the product
                         edm::LogInfo("HGCalUncalibRecHitInfo") << "total # eeDigis: " << eeDigis->size() ;
                 } else {
-                        edm::LogError("HGCalUncalibRecHitError") << "Error! can't get the product " << eeDigiCollection_;
+                        edm::LogInfo("HGCalUncalibRecHitInfo") << "Info!? can't get the product " << eeDigiCollection_;
                 }
         }
 
@@ -60,7 +60,7 @@ HGCalUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
                         hefDigis = pHGCHEFDigis.product(); // get a ptr to the product
                         edm::LogInfo("HGCalUncalibRecHitInfo") << "total # hefDigis: " << hefDigis->size() ;
                 } else {
-                        edm::LogError("HGCalUncalibRecHitError") << "Error! can't get the product " << hefDigiCollection_;
+                        edm::LogInfo("HGCalUncalibRecHitInfo") << "Info!? can't get the product " << hefDigiCollection_;
                 }
         }
 
@@ -70,7 +70,7 @@ HGCalUncalibRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
                         hebDigis = pHGCHEBDigis.product(); // get a ptr to the product
                         edm::LogInfo("HGCalUncalibRecHitInfo") << "total # hebDigis: " << hebDigis->size() ;
                 } else {
-                        edm::LogError("HGCalUncalibRecHitError") << "Error! can't get the product " << hebDigiCollection_;
+                        edm::LogInfo("HGCalUncalibRecHitInfo") << "Info!? can't get the product " << hebDigiCollection_;
                 }
         }
 
