@@ -57,12 +57,26 @@ void DQMStreamerReader::reset_() {
   // as ProductRegistry gets frozen after we initialize:
   // https://cmssdt.cern.ch/SDT/lxr/source/FWCore/Framework/src/Schedule.cc#441
 
+  fiterator_.logFileAction(
+      "Waiting for the first lumi in order to initialize.");
+
+  fiterator_.update_state();
+
+  // Fast-forward to the last open file.
+  if (flagSkipFirstLumis_) {
+    unsigned int l = fiterator_.lastLumiFound();
+    if (l > 1) {
+      fiterator_.advanceToLumi(l);
+    }
+  }
+
   for (;;) {
     bool next = prepareNextFile();
+
     // check for end of run
     if (!next) {
-      edm::LogAbsolute("DQMStreamerReader")
-          << "End of run reached before DQMStreamerReader was initialised.";
+      fiterator_.logFileAction(
+          "End of run reached before DQMStreamerReader was initialised.");
       return;
     }
 
@@ -76,14 +90,7 @@ void DQMStreamerReader::reset_() {
     fiterator_.delay();
   }
 
-  // Fast-forward to the last open file.
-  if (flagSkipFirstLumis_) {
-    while (fiterator_.hasNext()) {
-      openNextFile_();
-    }
-  }
-
-  edm::LogAbsolute("DQMStreamerReader") << "DQMStreamerReader initialised.";
+  fiterator_.logFileAction("DQMStreamerReader initialised.");
 }
 
 void DQMStreamerReader::openFile_(std::string newStreamerFile_) {
@@ -133,8 +140,7 @@ bool DQMStreamerReader::openNextFile_() {
     return true;
   } else {
     /* dat file missing */
-    edm::LogAbsolute("DQMStreamerReader")
-        << "Data file (specified in json) is missing: " << p << ", skipping.";
+    fiterator_.logFileAction("Data file (specified in json) is missing:", p);
 
     return false;
   }
@@ -177,6 +183,8 @@ bool DQMStreamerReader::prepareNextFile() {
   typedef DQMFileIterator::State State;
 
   for (;;) {
+    fiterator_.update_state();
+
     // check for end of run file and force quit
     if (flagEndOfRunKills_ && (fiterator_.state() != State::OPEN)) {
       closeFile_();
@@ -185,7 +193,7 @@ bool DQMStreamerReader::prepareNextFile() {
 
     // check for end of run and quit if everything has been processed.
     // this clean exit
-    if ((streamReader_.get() == nullptr) && (!fiterator_.hasNext()) &&
+    if ((streamReader_.get() == nullptr) && (!fiterator_.lumiReady()) &&
         (fiterator_.state() == State::EOR)) {
 
       closeFile_();
@@ -194,8 +202,8 @@ bool DQMStreamerReader::prepareNextFile() {
 
     // if this is end of run and no more files to process
     // close it
-    if ((processedEventPerLs_ >= minEventsPerLs_) && (!fiterator_.hasNext()) &&
-        (fiterator_.state() == State::EOR)) {
+    if ((processedEventPerLs_ >= minEventsPerLs_) &&
+        (!fiterator_.lumiReady()) && (fiterator_.state() == State::EOR)) {
 
       closeFile_();
       return false;
@@ -203,7 +211,7 @@ bool DQMStreamerReader::prepareNextFile() {
 
     // skip to the next file if we have no files openned yet
     if (streamReader_.get() == nullptr) {
-      if (fiterator_.hasNext()) {
+      if (fiterator_.lumiReady()) {
         openNextFile_();
         // we might need to open once more (if .dat is missing)
         continue;
@@ -211,7 +219,7 @@ bool DQMStreamerReader::prepareNextFile() {
     }
 
     // or if there is a next file and enough eventshas been processed.
-    if (fiterator_.hasNext() && (processedEventPerLs_ >= minEventsPerLs_)) {
+    if (fiterator_.lumiReady() && (processedEventPerLs_ >= minEventsPerLs_)) {
       openNextFile_();
       // we might need to open once more (if .dat is missing)
       continue;
