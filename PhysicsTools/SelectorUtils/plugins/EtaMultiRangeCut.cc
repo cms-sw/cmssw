@@ -26,7 +26,7 @@ DEFINE_EDM_PLUGIN(CutApplicatorFactory,EtaMultiRangeCut,"EtaMultiRangeCut");
 CutApplicatorBase::result_type 
 EtaMultiRangeCut::
 asCandidate(const CutApplicatorBase::argument_type& cand) const{
-  const double the_eta = ( _absEta ? std::abs(cand.eta()) : cand.eta() );
+  const double the_eta = ( _absEta ? std::abs(cand->eta()) : cand->eta() );
   bool result = false;
   for(const auto& range : _ranges ) {
     if( the_eta >= range.first && the_eta < range.second ) {
