@@ -122,16 +122,18 @@ HLTDiMuonGlbTrkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSet
 		if (mu1.charge()*mu2.charge()<0) continue;
 	  }
 
-	  reco::TrackRef tk1 = mu1.get<reco::TrackRef>();
-	  reco::TrackRef tk2 = mu2.get<reco::TrackRef>();
-	  reco::TransientTrack mu1TT(*tk1, &(*bFieldHandle));
-	  reco::TransientTrack mu2TT(*tk2, &(*bFieldHandle));
-	  TrajectoryStateClosestToPoint mu1TS = mu1TT.impactPointTSCP();
-	  TrajectoryStateClosestToPoint mu2TS = mu2TT.impactPointTSCP();
-	  if (mu1TS.isValid() && mu2TS.isValid()) {
-		ClosestApproachInRPhi cApp;
-		cApp.calculate(mu1TS.theState(), mu2TS.theState());
-		if (!cApp.status() || cApp.distance() > m_maxDCAMuMu) continue;
+	  if (m_maxDCAMuMu < 9999.9) {
+		reco::TrackRef tk1 = mu1.get<reco::TrackRef>();
+		reco::TrackRef tk2 = mu2.get<reco::TrackRef>();
+		reco::TransientTrack mu1TT(*tk1, &(*bFieldHandle));
+		reco::TransientTrack mu2TT(*tk2, &(*bFieldHandle));
+		TrajectoryStateClosestToPoint mu1TS = mu1TT.impactPointTSCP();
+		TrajectoryStateClosestToPoint mu2TS = mu2TT.impactPointTSCP();
+		if (mu1TS.isValid() && mu2TS.isValid()) {
+		  ClosestApproachInRPhi cApp;
+		  cApp.calculate(mu1TS.theState(), mu2TS.theState());
+		  if (!cApp.status() || cApp.distance() > m_maxDCAMuMu) continue;
+		}
 	  }
 
 	    mus.insert(filteredMuons.at(i));
