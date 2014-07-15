@@ -42,6 +42,8 @@
 #include "DataFormats/L1Trigger/interface/Jet.h"
 #include "DataFormats/L1Trigger/interface/EtSum.h"
 
+#include "TH1F.h"
+#include "TH2F.h"
 
 //
 // class declaration
@@ -100,6 +102,7 @@ private:
   std::map< ObjectType, TH1F* > hem_;
   std::map< ObjectType, TH1F* > hhad_;
   std::map< ObjectType, TH1F* > hratio_;
+  std::map< ObjectType, TH2F* > hetaphi_;
 
 };
 
@@ -145,8 +148,6 @@ Stage2CaloAnalyzer::Stage2CaloAnalyzer(const edm::ParameterSet& iConfig)
   m_sumToken         = consumes<l1t::EtSumBxCollection>(sumTag);
   m_doSums           = !(sumTag==nullTag);
 
-  //  if (m_doTowers) edm::LogInfo("l1t|calo") << "Will fill tower histograms" << std::endl;
-
   types_.push_back( Tower );
   types_.push_back( Cluster );
   types_.push_back( EG );
@@ -183,13 +184,10 @@ Stage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 {
   using namespace edm;
   
-  // only does anything for BX=0 right now
-
   // get TPs ?
   // get regions ?
   // get RCT clusters ?
-  
-  
+
   // get towers
   if (m_doTowers) {
     Handle< BXVector<l1t::CaloTower> > towers;
@@ -208,6 +206,7 @@ Stage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	hem_.at(Tower)->Fill( itr->hwEtEm() );
 	hhad_.at(Tower)->Fill( itr->hwEtHad() );
 	hratio_.at(Tower)->Fill( itr->hwEtRatio() );
+        hetaphi_.at(Tower)->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
       }
 
     }
@@ -222,13 +221,14 @@ Stage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     for ( int ibx=clusters->getFirstBX(); ibx!=clusters->getLastBX(); ++ibx) {
 
       if (ibx>-6 && ibx<6) {
-	hbx_.at(Cluster)->Fill( clusters->size(ibx) );
+  	hbx_.at(Cluster)->Fill( clusters->size(ibx) );
       }
     
       for ( auto itr = clusters->begin(ibx); itr !=clusters->end(ibx); ++itr ) {
-	het_.at(Cluster)->Fill( itr->hwPt() );
-	heta_.at(Cluster)->Fill( itr->hwEta() );
-	hphi_.at(Cluster)->Fill( itr->hwPhi() );
+  	het_.at(Cluster)->Fill( itr->hwPt() );
+  	heta_.at(Cluster)->Fill( itr->hwEta() );
+  	hphi_.at(Cluster)->Fill( itr->hwPhi() );
+        hetaphi_.at(Cluster)->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
       }
 
     }
@@ -250,6 +250,7 @@ Stage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	het_.at(EG)->Fill( itr->hwPt() );
 	heta_.at(EG)->Fill( itr->hwEta() );
 	hphi_.at(EG)->Fill( itr->hwPhi() );
+        hetaphi_.at(EG)->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
       }
       
     }
@@ -271,6 +272,7 @@ Stage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	het_.at(Tau)->Fill( itr->hwPt() );
 	heta_.at(Tau)->Fill( itr->hwEta() );
 	hphi_.at(Tau)->Fill( itr->hwPhi() );
+        hetaphi_.at(Tau)->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
       }
       
     }
@@ -292,6 +294,7 @@ Stage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	het_.at(Jet)->Fill( itr->hwPt() );
 	heta_.at(Jet)->Fill( itr->hwEta() );
 	hphi_.at(Jet)->Fill( itr->hwPhi() );
+        hetaphi_.at(Jet)->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
       }
       
     }
@@ -313,6 +316,7 @@ Stage2CaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	het_.at(Sum)->Fill( itr->hwPt() );
 	heta_.at(Sum)->Fill( itr->hwEta() );
 	hphi_.at(Sum)->Fill( itr->hwPhi() );
+        hetaphi_.at(Sum)->Fill( itr->hwEta(), itr->hwPhi(), itr->hwPt() );
       }
 
     }
@@ -340,6 +344,7 @@ Stage2CaloAnalyzer::beginJob()
     heta_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("eta", "", 70, -35., 35.) ));
     hphi_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("phi", "", 72, 0., 72.) ));
     hbx_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("bx", "", 11, -5.5, 5.5) ));
+    hetaphi_.insert( std::pair< ObjectType, TH2F* >(*itr, dirs_.at(*itr).make<TH2F>("etaphi", "", 83, -41., 41., 72, 1., 72.) ));
     
     if (*itr==Tower) {
       hem_.insert( std::pair< ObjectType, TH1F* >(*itr, dirs_.at(*itr).make<TH1F>("em", "", 50, 0., 100.) ));
