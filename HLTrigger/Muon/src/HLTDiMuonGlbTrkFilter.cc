@@ -44,7 +44,8 @@ HLTDiMuonGlbTrkFilter::HLTDiMuonGlbTrkFilter(const edm::ParameterSet& iConfig) :
   m_minMass           = iConfig.getParameter<double>("minMass");
   m_maxMass           = iConfig.getParameter<double>("maxMass");
   m_chargeOpt         = iConfig.getParameter<int> ("ChargeOpt");
-  m_maxDCAMuMu        = iConfig.getParameter<double>("MaxDCAMuMu");
+  m_maxDCAMuMu        = iConfig.getParameter<double>("maxDCAMuMu");
+  m_maxdEtaMuMu       = iConfig.getParameter<double>("maxdEtaMuMu");
 }
 
 void
@@ -67,7 +68,8 @@ HLTDiMuonGlbTrkFilter::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<double>("minMass",1);
   desc.add<double>("maxMass",10000000);
   desc.add<int>("ChargeOpt",0);
-  desc.add<double>("MaxDCAMuMu",99999.9);
+  desc.add<double>("maxDCAMuMu",99999.9);
+  desc.add<double>("maxdEtaMuMu",99999.9);
   descriptions.add("hltDiMuonGlbTrkFilter",desc);
 }
 
@@ -112,6 +114,7 @@ HLTDiMuonGlbTrkFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSet
 	const reco::Muon& mu1(muons->at(filteredMuons.at(i)));
 	const reco::Muon& mu2(muons->at(filteredMuons.at(j)));
 	if ( std::max( mu1.pt(), mu2.pt()) > std::max(m_minPtMuon1,m_minPtMuon2) &&
+		 fabs(mu2.eta() - mu1.eta()) < m_maxdEtaMuMu &&
 		 deltaR(mu1,mu2)>m_minDR && (mu1.p4() + mu2.p4()).mass() > m_minMass
 		 && (mu1.p4() + mu2.p4()).mass() < m_maxMass && fabs((mu1.p4() + mu2.p4()).Rapidity()) > m_maxYDimuon )
 	  {
