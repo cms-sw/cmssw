@@ -87,12 +87,12 @@ FWRecoGeometryESProducer::produce( const FWRecoGeometryRecord& record )
   
   record.getRecord<CaloGeometryRecord>().get( m_caloGeom );
 
-  m_hgcGeom.push_back(edm::ESHandle<HGCalGeometry>());
-  record.getRecord<IdealGeometryRecord>().get( "HGCalEESensitive", m_hgcGeom.back() );
-  m_hgcGeom.push_back(edm::ESHandle<HGCalGeometry>());
-  record.getRecord<IdealGeometryRecord>().get( "HGCalHESiliconSensitive", m_hgcGeom.back() );
-  m_hgcGeom.push_back(edm::ESHandle<HGCalGeometry>());
-  record.getRecord<IdealGeometryRecord>().get( "HGCalHEScintillatorSensitive", m_hgcGeom.back() );
+  // m_hgcGeom.push_back(edm::ESHandle<HGCalGeometry>());
+  // record.getRecord<IdealGeometryRecord>().get( "HGCalEESensitive", m_hgcGeom.back() );
+  // m_hgcGeom.push_back(edm::ESHandle<HGCalGeometry>());
+  // record.getRecord<IdealGeometryRecord>().get( "HGCalHESiliconSensitive", m_hgcGeom.back() );
+  // m_hgcGeom.push_back(edm::ESHandle<HGCalGeometry>());
+  // record.getRecord<IdealGeometryRecord>().get( "HGCalHEScintillatorSensitive", m_hgcGeom.back() );
   
   addPixelBarrelGeometry( );
   addPixelForwardGeometry();
@@ -292,17 +292,17 @@ FWRecoGeometryESProducer::addME0Geometry( void )
 	unsigned int current = insert_id( rawid );
 	fillShapeAndPlacement( current, roll );
 	  
-	//const StripTopology& topo = roll->specificTopology();
-	//  m_fwGeometry->idToName[current].topology[0] = topo.nstrips();
-	// m_fwGeometry->idToName[current].topology[1] = topo.stripLength();
-	//m_fwGeometry->idToName[current].topology[2] = topo.pitch();
+	const StripTopology& topo = roll->specificTopology();
+	m_fwGeometry->idToName[current].topology[0] = topo.nstrips();
+	m_fwGeometry->idToName[current].topology[1] = topo.stripLength();
+	m_fwGeometry->idToName[current].topology[2] = topo.pitch();
 	
-	//float height = topo.stripLength()/2;
-	// LocalPoint  lTop( 0., height, 0.);
-	//LocalPoint  lBottom( 0., -height, 0.);
-	//m_fwGeometry->idToName[current].topology[3] = roll->localPitch(lTop);
-	//m_fwGeometry->idToName[current].topology[4] = roll->localPitch(lBottom);
-	//m_fwGeometry->idToName[current].topology[5] = roll->npads();
+	float height = topo.stripLength()/2;
+	LocalPoint  lTop( 0., height, 0.);
+	LocalPoint  lBottom( 0., -height, 0.);
+	m_fwGeometry->idToName[current].topology[3] = roll->localPitch(lTop);
+	m_fwGeometry->idToName[current].topology[4] = roll->localPitch(lBottom);
+	m_fwGeometry->idToName[current].topology[5] = roll->npads();
       }
     }
   }

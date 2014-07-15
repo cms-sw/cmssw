@@ -28,6 +28,8 @@
 
 #include "DataFormats/RPCRecHit/interface/RPCRecHitCollection.h"
 #include "DataFormats/GEMRecHit/interface/GEMRecHitCollection.h"
+#include "DataFormats/GEMRecHit/interface/ME0RecHitCollection.h"
+#include "DataFormats/GEMRecHit/interface/ME0SegmentCollection.h"
 
 #include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCWireDigiCollection.h"
@@ -36,6 +38,7 @@
 #include "DataFormats/GEMDigi/interface/GEMDigiCollection.h"
 #include "DataFormats/CSCDigi/interface/CSCRPCDigiCollection.h"
 #include "DataFormats/GEMDigi/interface/GEMCSCPadDigiCollection.h"
+#include "DataFormats/GEMDigi/interface/ME0DigiCollection.h"
 
 #include "Fireworks/Core/interface/FWItemRandomAccessor.h"
 
@@ -46,6 +49,8 @@ REGISTER_TEMPLATE_FWITEMACCESSOR(FWItemRandomAccessor<DTRecSegment4DCollection>,
 REGISTER_TEMPLATE_FWITEMACCESSOR(FWItemRandomAccessor<DTRecHitCollection>,DTRecHitCollection,"DTRecHitCollectionAccessor");
 REGISTER_TEMPLATE_FWITEMACCESSOR(FWItemRandomAccessor<RPCRecHitCollection>,RPCRecHitCollection,"RPCRecHitCollectionAccessor");
 REGISTER_TEMPLATE_FWITEMACCESSOR(FWItemRandomAccessor<GEMRecHitCollection>,GEMRecHitCollection,"GEMRecHitCollectionAccessor");
+REGISTER_TEMPLATE_FWITEMACCESSOR(FWItemRandomAccessor<ME0RecHitCollection>,ME0RecHitCollection,"ME0RecHitCollectionAccessor");
+REGISTER_TEMPLATE_FWITEMACCESSOR(FWItemRandomAccessor<ME0SegmentCollection>,ME0SegmentCollection,"ME0SegmentCollectionAccessor");
 
 typedef FWItemMuonDigiAccessor<DTDigiCollection,DTDigi> DTDigiAccessor;
 REGISTER_TEMPLATE_FWITEMACCESSOR(DTDigiAccessor, DTDigiCollection, "DTDigiCollectionAccessor");
@@ -59,7 +64,6 @@ REGISTER_TEMPLATE_FWITEMACCESSOR(CSCStripDigiAccessor, CSCStripDigiCollection, "
 typedef FWItemMuonDigiAccessor<RPCDigiCollection, RPCDigi> RPCDigiAccessor;
 REGISTER_TEMPLATE_FWITEMACCESSOR(RPCDigiAccessor, RPCDigiCollection, "RPCDigiCollectionAccessor");
 
-
 typedef FWItemMuonDigiAccessor<CSCRPCDigiCollection, CSCRPCDigi> CSCRPCDigiAccessor;
 REGISTER_TEMPLATE_FWITEMACCESSOR(CSCRPCDigiAccessor, CSCRPCDigiCollection, "CSCRPCDigiCollectionAccessor");
 
@@ -68,3 +72,6 @@ REGISTER_TEMPLATE_FWITEMACCESSOR(GEMDigiAccessor, GEMDigiCollection, "GEMDigiCol
 
 typedef FWItemMuonDigiAccessor<GEMCSCPadDigiCollection, GEMCSCPadDigi> GEMCSCPadDigiAccessor;
 REGISTER_TEMPLATE_FWITEMACCESSOR(GEMCSCPadDigiAccessor, GEMCSCPadDigiCollection, "GEMCSCPadDigiCollectionAccessor");
+
+typedef FWItemMuonDigiAccessor<ME0DigiCollection, ME0Digi> ME0DigiAccessor;
+REGISTER_TEMPLATE_FWITEMACCESSOR(ME0DigiAccessor, ME0DigiCollection, "ME0DigiCollectionAccessor");
