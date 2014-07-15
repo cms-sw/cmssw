@@ -132,10 +132,10 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
        std::auto_ptr<edm::ValueMap<unsigned> > outHowFar(new edm::ValueMap<unsigned>() );
        std::vector<bool> passfail;
        std::vector<unsigned> howfar;
-       for(const auto& eleptr : electrons.ptrVector()) {
-	 edm::Ptr<pat::Electron> eleaspat(eleptr);
-	 if( eleaspat.isNonnull() ) {
-	   passfail.push_back((*id)(*eleaspat,iEvent));
+       for(const auto& eleptr : electrons.refVector()) {	 
+	 if( eleptr.isNonnull() ) {
+	   passfail.push_back((*id)(eleptr.castTo<pat::ElectronRef>(),
+				    iEvent));
 	   howfar.push_back(id->howFarInCutFlow());
 	 } else {
 	   throw cms::Exception("InvalidCast")
@@ -160,8 +160,8 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       std::auto_ptr<edm::ValueMap<unsigned> > outHowFar(new edm::ValueMap<unsigned>() );
       std::vector<bool> passfail;
       std::vector<unsigned> howfar;
-      for(const auto& ele : electrons) {
-	passfail.push_back((*id)(ele,iEvent));
+      for(const auto& ele : electrons.refVector()) {
+	passfail.push_back((*id)(ele.castTo<reco::GsfElectronRef>(),iEvent));
 	howfar.push_back(id->howFarInCutFlow());
       }
       edm::ValueMap<bool>::Filler fillerpassfail(*outPass);
