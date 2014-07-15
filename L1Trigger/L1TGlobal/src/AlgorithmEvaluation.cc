@@ -85,7 +85,7 @@ void l1t::AlgorithmEvaluation::evaluateAlgorithm(const int chipNumber,
 
     for (RpnVector::const_iterator it = m_rpnVector.begin(); it != m_rpnVector.end(); it++) {
 
-        //LogTrace("L1GlobalTrigger")
+        //LogTrace("l1t|Global")
         //<< "\nit->operation = " << it->operation
         //<< "\nit->operand =   '" << it->operand << "'\n"
         //<< std::endl;
