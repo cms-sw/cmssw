@@ -156,6 +156,7 @@ goodPtResolution( const reco::TrackRef& trackref) const {
   case reco::TrackBase::iter0:
   case reco::TrackBase::iter1:
   case reco::TrackBase::iter2:
+  case reco::TrackBase::iter7:
     Algo = 0;
     break;
   case reco::TrackBase::iter3:
