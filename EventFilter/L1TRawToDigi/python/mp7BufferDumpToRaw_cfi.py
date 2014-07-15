@@ -8,7 +8,7 @@ mp7BufferDumpToRaw = cms.EDProducer(
     # buffer dump file input parameters
     nTextHeaderLines = cms.untracked.int32(3),
     nFramesPerEvent  = cms.untracked.int32(45),
-    txLatency        = cms.untracked.int32(61),
+    txLatency        = cms.untracked.int32(4),
     nRxLinks         = cms.untracked.int32(72),
     nTxLinks         = cms.untracked.int32(72),
 
@@ -22,6 +22,11 @@ mp7BufferDumpToRaw = cms.EDProducer(
     lenAMC13Trailer  = cms.untracked.int32(0),
     lenAMCHeader     = cms.untracked.int32(12),
     lenAMCTrailer    = cms.untracked.int32(8),
+
+    # these parameters specify the amount of data from each link to be
+    # recorded in the FEDRawData object
+    # if insufficient data is read from any channel to produce the
+    # record, module will pad with zeros
     rxBlockLength    = cms.untracked.vint32(41,41,41,41,41,41,41,41,41,
                                             41,41,41,41,41,41,41,41,41,
                                             41,41,41,41,41,41,41,41,41,
