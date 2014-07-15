@@ -248,8 +248,11 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       //edm::LogInfo("TrackValidator") << "TrackCollection size = 0!" ;
       //continue;
       //}
-      reco::RecoToSimCollection recSimColl;
-      reco::SimToRecoCollection simRecColl;
+      reco::RecoToSimCollection const * recSimCollP=nullptr;
+      reco::SimToRecoCollection const * simRecCollP=nullptr;
+      reco::RecoToSimCollection recSimCollL;
+      reco::SimToRecoCollection simRecCollL;
+
       //associate tracks
       if(UseAssociators){
 	edm::LogVerbatim("TrackValidator") << "Analyzing "
@@ -259,13 +262,15 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 					   << associators[ww].c_str() <<"\n";
 
 	LogTrace("TrackValidator") << "Calling associateRecoToSim method" << "\n";
-	recSimColl=associator[ww]->associateRecoToSim(trackCollection,
+	recSimCollL = std::move(associator[ww]->associateRecoToSim(trackCollection,
 						      TPCollectionHfake,
-						      &event,&setup);
+						      &event,&setup));
+         recSimCollP = &recSimCollL;
 	LogTrace("TrackValidator") << "Calling associateSimToReco method" << "\n";
-	simRecColl=associator[ww]->associateSimToReco(trackCollection,
+	simRecCollL = std::move(associator[ww]->associateSimToReco(trackCollection,
 						      TPCollectionHeff,
-						      &event,&setup);
+						      &event,&setup));
+        simRecCollP = &simRecCollL;
       }
       else{
 	edm::LogVerbatim("TrackValidator") << "Analyzing "
@@ -278,13 +283,16 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 
 	Handle<reco::SimToRecoCollection > simtorecoCollectionH;
 	event.getByToken(associatormapStR,simtorecoCollectionH);
-	simRecColl= *(simtorecoCollectionH.product());
+	simRecCollP = simtorecoCollectionH.product();
 
 	Handle<reco::RecoToSimCollection > recotosimCollectionH;
 	event.getByToken(associatormapRtS,recotosimCollectionH);
-	recSimColl= *(recotosimCollectionH.product());
+	recSimCollP = recotosimCollectionH.product();
       }
 
+      reco::RecoToSimCollection const & recSimColl = *recSimCollP;
+      reco::SimToRecoCollection const & simRecColl = *simRecCollP;
+ 
 
 
       // ########################################################
