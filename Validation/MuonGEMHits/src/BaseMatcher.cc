@@ -68,7 +68,7 @@ BaseMatcher::propagatedPositionGEM(int station=1) const
   const LocalPoint p0(0,0,0);
   const GlobalPoint g_p = GEMGeometry->idToDet(dummy->rawId())->surface().toGlobal(p0);
   const GlobalPoint g_p2 = GEMGeometry->idToDet(dummy2->rawId())->surface().toGlobal(p0);
-  const double z = TMath::Abs( g_p.z() - g_p2.z()) ;
+  const double z = (TMath::Abs( g_p.z() + g_p2.z()))/2. ;
 
   return propagateToZ(endcap*z);
 }
