@@ -188,7 +188,7 @@ HLTMuonValidator::dqmBeginRun(const edm::Run & iRun,
     
     vector<string> labels = moduleLabels(path);
     vector<string> steps = stepLabels(labels);
-   
+
     if (labels.size() > 0 && steps.size() > 0) {
       HLTMuonPlotter analyzer(pset_, shortpath, labels, steps, myTokens_);
       analyzers_.push_back(analyzer);
