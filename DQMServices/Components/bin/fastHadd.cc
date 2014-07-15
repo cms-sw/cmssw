@@ -393,7 +393,7 @@ int addFiles(const std::string &output_filename,
   std::set<std::string> fullnames;
   std::set<MicroME> micromes;
 
-  assert(filenames.size() > 1);
+  assert(filenames.size() > 0);
   DEBUG(1, "Adding file " << filenames[0] << std::endl);
   {
     dqmstorepb::ROOTFilePB dqmstore_message;
