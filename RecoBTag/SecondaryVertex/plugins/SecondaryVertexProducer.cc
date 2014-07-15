@@ -615,23 +615,21 @@ TemplatedSecondaryVertexProducer<CandIPTagInfo,reco::VertexCompositePtrCandidate
 	if(sv.originalTracks().size()>0 && sv.originalTracks()[0].trackBaseRef().isNonnull())
 	{
 		edm::LogError("UnexpectedInputs") << "Building from Tracks, should not happen!";
-		Vertex vtx(sv);
 		VertexCompositePtrCandidate vtxCompPtrCand;
-		Candidate::CovarianceMatrix cov(vtx.covariance());
-		vtxCompPtrCand.fillVertexCovariance(cov);
-		vtxCompPtrCand.setChi2AndNdof(vtx.chi2(), vtx.ndof());
-		vtxCompPtrCand.setVertex(Candidate::Point(vtx.x(),vtx.y(),vtx.z()));
+		
+		vtxCompPtrCand.setCovariance(sv.vertexState().error().matrix_new());
+		vtxCompPtrCand.setChi2AndNdof(sv.totalChiSquared(), sv.degreesOfFreedom());
+		vtxCompPtrCand.setVertex(Candidate::Point(sv.position().x(),sv.position().y(),sv.position().z()));
 		
 		return SecondaryVertex(pv, vtxCompPtrCand, direction, withPVError);
 	}
 	else
 	{
-		Vertex vtx(sv);
 		VertexCompositePtrCandidate vtxCompPtrCand;
-		Candidate::CovarianceMatrix cov(vtx.covariance());
-		vtxCompPtrCand.fillVertexCovariance(cov);
-		vtxCompPtrCand.setChi2AndNdof(vtx.chi2(), vtx.ndof());
-		vtxCompPtrCand.setVertex(Candidate::Point(vtx.x(),vtx.y(),vtx.z()));
+		
+		vtxCompPtrCand.setCovariance(sv.vertexState().error().matrix_new());
+		vtxCompPtrCand.setChi2AndNdof(sv.totalChiSquared(), sv.degreesOfFreedom());
+		vtxCompPtrCand.setVertex(Candidate::Point(sv.position().x(),sv.position().y(),sv.position().z()));
 		
 		Candidate::LorentzVector p4;
 		for(std::vector<reco::TransientTrack>::const_iterator tt = sv.originalTracks().begin(); tt != sv.originalTracks().end(); ++tt)

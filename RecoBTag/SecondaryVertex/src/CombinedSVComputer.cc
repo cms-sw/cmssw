@@ -269,7 +269,7 @@ CombinedSVComputer::operator () (const CandIPTagInfo &ipInfo,
 		
 		if (vtx < 0) vtx = i;
 	}
-	if(vtx>0){
+	if(vtx>=0){
 		if( isUsed(btau::vertexNTracks) ) vars.insert(btau::vertexNTracks, numberofvertextracks, true);
 		if( isUsed(btau::vertexFitProb) ) vars.insert(btau::vertexFitProb,(svInfo.secondaryVertex(vtx)).vertexNormalizedChi2(), true);
 	}
