@@ -640,12 +640,16 @@ TemplatedSecondaryVertexProducer<CandIPTagInfo,reco::VertexCompositePtrCandidate
 				continue;
 			
 			const CandidatePtrTransientTrack* cptt = dynamic_cast<const CandidatePtrTransientTrack*>(tt->basicTransientTrack());
-			if ( cptt!=0 )
+			if ( cptt==0 )
+				edm::LogError("DynamicCastingFailed") << "Casting of TransientTrack to CandidatePtrTransientTrack failed!";
+			else
 			{
 				p4 += cptt->candidate()->p4();
 				vtxCompPtrCand.addDaughter(cptt->candidate());
 			}
 		}
+		vtxCompPtrCand.setP4(p4);
+		
 		return SecondaryVertex(pv, vtxCompPtrCand, direction, withPVError);
 	}
 }
