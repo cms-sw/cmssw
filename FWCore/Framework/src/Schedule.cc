@@ -918,7 +918,8 @@ namespace edm {
   }
 
   bool Schedule::changeModule(std::string const& iLabel,
-                              ParameterSet const& iPSet) {
+                              ParameterSet const& iPSet,
+                              const ProductRegistry& iRegistry) {
     Worker* found = nullptr;
     for (auto const& worker : allWorkers()) {
       if (worker->description().moduleLabel() == iLabel) {
@@ -931,12 +932,23 @@ namespace edm {
     }
     
     auto newMod = moduleRegistry_->replaceModule(iLabel,iPSet,preallocConfig_);
-
+    
     globalSchedule_->replaceModule(newMod,iLabel);
 
     for(auto s: streamSchedules_) {
       s->replaceModule(newMod,iLabel);
     }
+    
+    {
+      //Need to updateLookup in order to make getByToken work
+      auto const runLookup = iRegistry.productLookup(InRun);
+      auto const lumiLookup = iRegistry.productLookup(InLumi);
+      auto const eventLookup = iRegistry.productLookup(InEvent);
+      found->updateLookup(InRun,*runLookup);
+      found->updateLookup(InLumi,*lumiLookup);
+      found->updateLookup(InEvent,*eventLookup);
+    }
+
     return true;
   }
 
