@@ -69,6 +69,7 @@ private:
   CLHEP::RandFlat* flat2_;
   CLHEP::RandFlat* flat3_;
   CLHEP::RandFlat* flat4_;
+  CLHEP::RandFlat* flat5_;
   CLHEP::RandPoissonQ* poisson_;
   CLHEP::RandGaussQ* gauss1_;
   CLHEP::RandGaussQ* gauss2_;

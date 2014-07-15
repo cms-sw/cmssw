@@ -95,6 +95,8 @@ GEMSimpleModel::~GEMSimpleModel()
     delete flat3_;
   if (flat4_)
     delete flat4_;
+  if (flat5_)
+    delete flat5_;
   if (poisson_)
     delete poisson_;
   if (gauss1_)
@@ -109,6 +111,7 @@ void GEMSimpleModel::setRandomEngine(CLHEP::HepRandomEngine& eng)
   flat2_ = new CLHEP::RandFlat(eng);
   flat3_ = new CLHEP::RandFlat(eng);
   flat4_ = new CLHEP::RandFlat(eng);
+  flat5_ = new CLHEP::RandFlat(eng);
   poisson_ = new CLHEP::RandPoissonQ(eng);
   gauss1_ = new CLHEP::RandGaussQ(eng);
   gauss2_ = new CLHEP::RandGaussQ(eng);
@@ -125,17 +128,42 @@ void GEMSimpleModel::simulateSignal(const GEMEtaPartition* roll, const edm::PSim
   detectorHitMap_.clear();
   stripDigiSimLinks_ = StripDigiSimLinks(roll->id().rawId());
 
+  bool digiMuon = false;
+  bool digiElec = false;
+
   for (edm::PSimHitContainer::const_iterator hit = simHits.begin(); hit != simHits.end(); ++hit)
   {
     if (std::abs(hit->particleType()) != 13 && digitizeOnlyMuons_)
       continue;
 
-    // Check GEM efficiency
-    if (flat1_->fire(1) > averageEfficiency_)
+    // Check GEM efficiency for muons and electrons
+    double elecEff = 0.;
+    double partMom = hit->pabs();
+    double checkMuonEff = flat1_->fire(1);
+    double checkElecEff = flat5_->fire(1);
+
+    if(std::abs(hit->particleType()) == 13 && checkMuonEff < averageEfficiency_)
+      digiMuon = true;
+
+    if(std::abs(hit->particleType()) == 11)
+
+    {
+       if(partMom <= 1.95e-03)
+          elecEff = 1.7e-05 * TMath::Exp(2.1*partMom *1000.);
+       if(partMom > 1.95e-03 && partMom < 10.e-03)
+          elecEff = 1.34 * log(7.96e-01 * partMom *1000. -5.75e-01)/(1.34+log(7.96e-01*partMom *1000. - 5.75e-01));
+       if(partMom > 10.e-03)
+          elecEff = 1.;
+       if (checkElecEff < elecEff)
+         digiElec = true;
+    }
+
+//   if (flat1_->fire(1) > averageEfficiency_)
+   if(!(digiMuon || digiElec))
       continue;
     const int bx(getSimHitBx(&(*hit)));
     const std::vector<std::pair<int, int> > cluster(simulateClustering(roll, &(*hit), bx));
-    for (auto & digi : cluster)
+    for  (auto & digi : cluster)
     {
       detectorHitMap_.insert(DetectorHitMap::value_type(digi,&*(hit)));
       strips_.insert(digi);
@@ -372,21 +400,60 @@ void GEMSimpleModel::simulateNoise(const GEMEtaPartition* roll)
 std::vector<std::pair<int, int> > GEMSimpleModel::simulateClustering(const GEMEtaPartition* roll,
     const PSimHit* simHit, const int bx)
 {
-  // const Topology& topology(roll->specs()->topology());
-  const StripTopology& topology = roll->specificTopology();
-  // const LocalPoint& entry(simHit->entryPoint());
+  const StripTopology& topology = roll->specificTopology();  //  const LocalPoint& entry(simHit->entryPoint());
   const LocalPoint& hit_position(simHit->localPosition());
   const int nstrips(roll->nstrips());
-  int centralStrip = 0;
 
+  int centralStrip = 0;
   if (!(topology.channel(hit_position) + 1 > nstrips))
     centralStrip = topology.channel(hit_position) + 1;
   else
     centralStrip = topology.channel(hit_position);
+  GlobalPoint pointSimHit = roll->toGlobal(hit_position);
+  GlobalPoint pointDigiHit = roll->toGlobal(roll->centreOfStrip(centralStrip));
+  double deltaX = pointSimHit.x() - pointDigiHit.x();
 
   // Add central digi to cluster vector
   std::vector<std::pair<int, int> > cluster_;
   cluster_.clear();
   cluster_.push_back(std::pair<int, int>(centralStrip, bx));
+
+//simulate cross talk
+  int clusterSize = 0;
+  double randForCls = flat4_->fire(1);
+  if(randForCls <= 0.525 && randForCls >= 0.)
+    clusterSize = 1;
+  else
+    clusterSize = 2;
+
+  //even cls (2)
+  if (clusterSize % 2 == 0)
+  {
+    int clsR = (clusterSize - 2) / 2;
+    if (deltaX <= 0)
+    {
+      if (flat1_->fire(1) < averageEfficiency_ && (centralStrip - 1 > 0))
+        cluster_.push_back(std::pair<int, int>(centralStrip - 1, bx));
+      for (int i = 1; i <= clsR; ++i)
+      {
+        if (flat1_->fire(1) < averageEfficiency_ && (centralStrip - 1 - i > 0))
+          cluster_.push_back(std::pair<int, int>(centralStrip - 1 - i, bx));
+        if (flat1_->fire(1) < averageEfficiency_ && (centralStrip + i <= nstrips))
+          cluster_.push_back(std::pair<int, int>(centralStrip + i, bx));
+      }
+    }
+    else
+    {
+      if (flat1_->fire(1) < averageEfficiency_ && (centralStrip + 1 <= nstrips))
+        cluster_.push_back(std::pair<int, int>(centralStrip + 1, bx));
+      for (int i = 1; i <= clsR; ++i)
+      {
+        if (flat1_->fire(1) < averageEfficiency_ && (centralStrip + 1 + i <= nstrips))
+          cluster_.push_back(std::pair<int, int>(centralStrip + 1 + i, bx));
+        if (flat1_->fire(1) < averageEfficiency_ && (centralStrip - i < 0))
+          cluster_.push_back(std::pair<int, int>(centralStrip - i, bx));
+      }
+    }
+  }
   return cluster_;
 }
