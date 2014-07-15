@@ -67,7 +67,6 @@ topDiLeptonOfflineDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
       ## when omitted no extra selection will be applied on jets before
       ## filling the monitor histograms; if jetCorrector is present the
       ## selection will be applied to corrected jets
-#      select = cms.string("pt>30. & abs(eta)<2.4 & emEnergyFraction>0.01"), 
       select = cms.string("pt>30. & abs(eta)<2.4 "), 
     ),
     ## [optional] : when omitted no mass window will be applied
@@ -213,7 +212,6 @@ DiMuonDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
       ## when omitted no extra selection will be applied on jets before
       ## filling the monitor histograms; if jetCorrector is present the
       ## selection will be applied to corrected jets
-#      select = cms.string("pt>30. & abs(eta)<2.4 & emEnergyFraction>0.01"), 
       select = cms.string("pt>30. & abs(eta)<2.4 "), 
     ),
     ## [optional] : when omitted no mass window will be applied
@@ -285,7 +283,6 @@ DiMuonDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
       label  = cms.string("jets/pf:step1"),
       src    = cms.InputTag("ak4PFJetsCHS"),
       jetCorrector = cms.string("topDQMak5PFCHSL2L3"),
-#      select = cms.string("pt>30. & abs(eta)<2.4 & emEnergyFraction>0.01"),
       select = cms.string("pt>30. & abs(eta)<2.4 "), 
 #      jetID  = cms.PSet(
 #        label  = cms.InputTag("ak5JetID"),
@@ -358,7 +355,6 @@ DiElectronDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
       ## when omitted no extra selection will be applied on jets before
       ## filling the monitor histograms; if jetCorrector is present the
       ## selection will be applied to corrected jets
-#      select = cms.string("pt>30. & abs(eta)<2.4 & emEnergyFraction>0.01"), 
       select = cms.string("pt>30. & abs(eta)<2.4 "), 
     ),
     ## [optional] : when omitted no mass window will be applied
@@ -433,7 +429,6 @@ DiElectronDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
       src    = cms.InputTag("ak4PFJetsCHS"),
       jetCorrector = cms.string("topDQMak5PFCHSL2L3"),
       select = cms.string("pt>30. & abs(eta)<2.4"), 
-#      select = cms.string("pt>30. & abs(eta)<2.4 & emEnergyFraction>0.01"),
 #      jetID  = cms.PSet(
 #        label  = cms.InputTag("ak5JetID"),
 #        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
@@ -505,7 +500,6 @@ ElecMuonDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
       ## when omitted no extra selection will be applied on jets before
       ## filling the monitor histograms; if jetCorrector is present the
       ## selection will be applied to corrected jets
-#      select = cms.string("pt>30. & abs(eta)<2.4 & emEnergyFraction>0.01"), 
       select = cms.string("pt>30. & abs(eta)<2.4 "), 
     ),
     ## [optional] : when omitted no mass window will be applied
@@ -585,7 +579,6 @@ ElecMuonDQM = cms.EDAnalyzer("TopDiLeptonOfflineDQM",
       label  = cms.string("jets/pf:step2"),
       src    = cms.InputTag("ak4PFJetsCHS"),
       jetCorrector = cms.string("topDQMak5PFCHSL2L3"),
-#      select = cms.string("pt>30. & abs(eta)<2.4 & emEnergyFraction>0.01"),
       select = cms.string("pt>30. & abs(eta)<2.4 "), 
 #      jetID  = cms.PSet(
 #        label  = cms.InputTag("ak5JetID"),

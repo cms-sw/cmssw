@@ -220,10 +220,6 @@ namespace TopDiLeptonOffline {
     hists_["elecNeHadIso_"] = store_->book1D("ElectronNeHadIsoComp"  , "NeHad_{IsoComponent}(e)" ,       50, 0., 5.);
     // photon isolation component of the candidate electron (depending on the decay channel)
     hists_["elecPhIso_"   ] = store_->book1D("ElectronPhIsoComp"  , "Photon_{IsoComponent}(e)"   ,       50, 0., 5.);
-    // calo isolation of the candidate electron (depending on the decay channel)
-    //hists_["elecCalIso_"  ] = store_->book1D("ElecCalIso"  , "Iso_{Cal}(e)"            ,       50,   0.,       1.);
-    // track isolation of the candidate electron (depending on the decay channel)
-    //hists_["elecTrkIso_"  ] = store_->book1D("ElecTrkIso"  , "Iso_{Trk}(e)"            ,       50,   0.,       1.);
     // eta of the leading jet
     hists_["jet1Eta_"     ] = store_->book1D("Jet1Eta"     , "#eta(jet1)"              ,       30,  -5.,       5.); 
     // eta of the 2. leading jet
@@ -353,15 +349,9 @@ namespace TopDiLeptonOffline {
       if(elec->gsfElectronRef().isNull()){ continue ;}
       reco::GsfElectronRef gsf_el = elec->gsfElectronRef();
       // restrict to electrons with good electronId
-      //int idx = elec-elecs->begin();
       if( electronId_.isUninitialized() ? true : ((double)(*electronId)[gsf_el] >= eidCutValue_) ){
-	//      if( electronId_.isUninitialized() ? true : ((int)(*electronId)[elecs->refAt(idx)] & eidPattern_) ){
 	// apply preselection
 	if(!elecSelect_ || (*elecSelect_)(*elec)){
-	  //double isolationTrk = elec->pt()/(elec->pt()+elec->dr03TkSumPt());
-	  //double isolationCal = elec->pt()/(elec->pt()+elec->dr03EcalRecHitSumEt()+elec->dr03HcalTowerSumEt());
-	  //double isolationRel = (elec->dr03TkSumPt()+elec->dr03EcalRecHitSumEt()+elec->dr03HcalTowerSumEt())/elec->pt();
-	  //fill("elecTrkIso_" , isolationTrk); fill("elecCalIso_" , isolationCal); fill("elecRelIso_" , isolationRel);
 	  double el_ChHadIso = gsf_el->pfIsolationVariables().sumChargedHadronPt;
           double el_NeHadIso = gsf_el->pfIsolationVariables().sumNeutralHadronEt;
           double el_PhIso = gsf_el->pfIsolationVariables().sumPhotonEt;
@@ -484,7 +474,6 @@ namespace TopDiLeptonOffline {
 
     // buffer for event logging 
     reco::MET caloMET;
-    //for(std::vector<edm::InputTag>::const_iterator met_=mets_.begin(); met_!=mets_.end(); ++met_){
     for(std::vector<edm::EDGetTokenT<edm::View<reco::MET> > >::const_iterator met_=mets_.begin(); met_!=mets_.end(); ++met_){
 
       edm::Handle<edm::View<reco::MET> > met;
@@ -718,7 +707,6 @@ TopDiLeptonOfflineDQM::analyze(const edm::Event& event, const edm::EventSetup& s
 	} else break;
       }
       if(type=="elecs" && ElectronStep != 0){
-//	SelectionStep<reco::PFCandidate> step(selection_[key].first, consumesCollector());
         if(ElectronStep->select(event,"electron")){++passed;
 	  selection_[key].second->fill(event, setup);
 	} else break;

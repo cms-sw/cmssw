@@ -257,10 +257,6 @@ namespace TopSingleLepton {
     hists_["elecNeHadIso_"] = store_->book1D("ElectronNeHadIsoComp"  , "NeHad_{IsoComponent}(e)" ,       50, 0., 5.);
     // photon isolation component of the candidate electron (depending on the decay channel)
     hists_["elecPhIso_"   ] = store_->book1D("ElectronPhIsoComp"  , "Photon_{IsoComponent}(e)"   ,       50, 0., 5.);
-    // relative electron isolation in tracker for the leading electron
-    //hists_["elecTrkIso_" ] = store_->book1D("ElecTrkIso" , "Iso_{Trk}(e)"     ,     50,     0.,      1.);
-    // relative electron isolation in ecal+hcal for the leading electron
-    //hists_["elecCalIso_" ] = store_->book1D("ElecCalIso" , "Iso_{Ecal}(e)"    ,     50,     0.,      1.);
     // multiplicity of btagged jets (for track counting high purity) with pt(L2L3)>30
     hists_["jetMultBPur_"] = store_->book1D("JetMultBPur", "N_{30}(TCHP)"    ,     10,     0.,     10.);   
     // btag discriminator for track counting high purity
@@ -348,10 +344,6 @@ namespace TopSingleLepton {
     ------------------------------------------------------------
     */
 
-    //fill rho for EA corrections
-    //edm::Handle<double> rho_;
-    //if( !event.getByToken(eventrhoToken_,rho_) ) return;
-    //double rho = *(rho_.product()); 
 
     // fill monitoring plots for electrons
     edm::Handle<edm::View<reco::PFCandidate> > elecs;
@@ -373,9 +365,6 @@ namespace TopSingleLepton {
       if( electronId_.isUninitialized() ? true : ((double)(*electronId)[gsf_el] >= eidCutValue_) ){
 	if(!elecSelect_ || (*elecSelect_)(*elec)){
 
-	  //	  double isolationTrk = elec->pt()/(elec->pt()+elec->dr03TkSumPt());
-	  //	  double isolationCal = elec->pt()/(elec->pt()+elec->dr03EcalRecHitSumEt()+elec->dr03HcalTowerSumEt());
-	  //	  double isolationRel = (elec->dr03TkSumPt()+elec->dr03EcalRecHitSumEt()+elec->dr03HcalTowerSumEt())/elec->pt();
 	  double el_ChHadIso = gsf_el->pfIsolationVariables().sumChargedHadronPt;
 	  double el_NeHadIso = gsf_el->pfIsolationVariables().sumNeutralHadronEt;
 	  double el_PhIso = gsf_el->pfIsolationVariables().sumPhotonEt;
@@ -391,7 +380,6 @@ namespace TopSingleLepton {
 	  }
 	  // in addition to the multiplicity counter buffer the iso
 	  // electron candidates for later overlap check with jets
-	  //  double Aeff = 1.;
 	  ++eMult; if(!elecIso_ || (*elecIso_)(*elec)){ isoElecs.push_back(&(*elec)); ++eMultIso;}
 	}
       }
@@ -498,7 +486,6 @@ namespace TopSingleLepton {
     
     edm::Handle<edm::View<reco::Jet> > jets; 
     if( !event.getByToken(jets_, jets) ) {
-	//cout<<"event does not contain "<<jets_.label()<<endl;
 	return;
      }
 
@@ -526,11 +513,6 @@ namespace TopSingleLepton {
 	reco::Jet sel = *jet; sel.scaleEnergy(corrector ? corrector->correction(*jet) : 1.);
 	StringCutObjectSelector<reco::Jet> jetSelect(jetSelect_); if(!jetSelect(sel)) continue;
       }
-      // check for overlaps -- comment this to be synchronous with the selection
-      //bool overlap=false;
-      //for(std::vector<const reco::PFCandidate*>::const_iterator elec=isoElecs.begin(); elec!=isoElecs.end(); ++elec){
-      //  if(reco::deltaR((*elec)->eta(), (*elec)->phi(), jet->eta(), jet->phi())<0.4){overlap=true; break;}
-      //} if(overlap){continue;}
 
       // prepare jet to fill monitor histograms
       reco::Jet monitorJet = *jet; monitorJet.scaleEnergy(corrector ? corrector->correction(*jet) : 1.);
@@ -645,11 +627,6 @@ TopSingleLeptonDQM::TopSingleLeptonDQM(const edm::ParameterSet& cfg): vertexSele
     triggerTable__ = consumes<edm::TriggerResults>(trigger.getParameter<edm::InputTag>("src"));
     triggerPaths_=trigger.getParameter<std::vector<std::string> >("select");
   } 
-  /*if( presel.existsAs<edm::ParameterSet>("vertex" ) ){
-    edm::ParameterSet vertex=presel.getParameter<edm::ParameterSet>("vertex");
-    vertex_= vertex.getParameter<edm::InputTag>("src");
-    vertexSelect_= new StringCutObjectSelector<reco::Vertex>(vertex.getParameter<std::string>("select"));
-  }*/
   if( presel.existsAs<edm::ParameterSet>("beamspot" ) ){
     edm::ParameterSet beamspot=presel.getParameter<edm::ParameterSet>("beamspot");
     beamspot_= beamspot.getParameter<edm::InputTag>("src");

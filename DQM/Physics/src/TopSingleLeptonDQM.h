@@ -109,8 +109,6 @@ namespace TopSingleLepton {
     //int eidPattern_;
     //the cut for the MVA Id
     double eidCutValue_;
-    //rho for PF Isolation with EA corrections
-    //edm::EDGetTokenT<double> eventrhoToken_;
     /// extra isolation criterion on electron
     StringCutObjectSelector<reco::PFCandidate>* elecIso_;
     /// extra selection on electrons
@@ -257,8 +255,6 @@ class TopSingleLeptonDQM : public edm::EDAnalyzer  {
   edm::EDGetTokenT<edm::TriggerResults> triggerTable__;
   /// trigger paths
   std::vector<std::string> triggerPaths_;
-  /// primary vertex 
-  //edm::InputTag vertex_;
   /// string cut selector
   StringCutObjectSelector<reco::Vertex>* vertexSelect_;
 

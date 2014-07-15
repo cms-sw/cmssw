@@ -50,7 +50,7 @@ namespace TopDiLeptonOffline {
     
   public:
     /// default contructor
-//    MonitorEnsemble(const char* label, const edm::ParameterSet& cfg);
+    /// MonitorEnsemble(const char* label, const edm::ParameterSet& cfg);
     MonitorEnsemble(const char* label, const edm::ParameterSet& cfg, edm::ConsumesCollector && iC );
     /// default destructor
     ~MonitorEnsemble(){};
@@ -92,17 +92,14 @@ namespace TopDiLeptonOffline {
     /// instance label 
     std::string label_;
     /// input sources for monitoring
-    //edm::InputTag elecs_, muons_, jets_; 
     edm::EDGetTokenT<edm::View<reco::Jet> >  jets_; 
     edm::EDGetTokenT<edm::View<reco::PFCandidate> > muons_;
     edm::EDGetTokenT<edm::View<reco::PFCandidate> > elecs_;
 
     /// considers a vector of METs
-    //std::vector<edm::InputTag> mets_;
     std::vector<edm::EDGetTokenT<edm::View<reco::MET> > > mets_;
 
     /// trigger table
-    //edm::InputTag triggerTable_;
     edm::EDGetTokenT<edm::TriggerResults> triggerTable_;
     /// trigger paths for monitoring, expected 
     /// to be of form signalPath:MonitorPath
@@ -111,7 +108,6 @@ namespace TopDiLeptonOffline {
     std::vector<std::string> diMuonPaths_;
 
     /// electronId label
-    //edm::InputTag electronId_;
     edm::EDGetTokenT<edm::ValueMap<float> > electronId_;
     /// electronId pattern we expect the following pattern:
     ///  0: fails
@@ -140,7 +136,6 @@ namespace TopDiLeptonOffline {
     /// jetCorrector
     std::string jetCorrector_;
     /// jetID as an extra selection type 
-    //edm::InputTag jetIDLabel_;
     edm::EDGetTokenT<reco::JetIDValueMap> jetIDLabel_;
     /// extra jetID selection on calo jets
     StringCutObjectSelector<reco::JetID>* jetIDSelect_;
@@ -301,17 +296,14 @@ class TopDiLeptonOfflineDQM : public edm::EDAnalyzer  {
 
  private:
   /// trigger table
-  //edm::InputTag triggerTable_;
   edm::EDGetTokenT<edm::TriggerResults> triggerTable_;
   /// trigger paths
   std::vector<std::string> triggerPaths_;
   /// primary vertex 
-  //edm::InputTag vertex_;
   edm::EDGetTokenT<std::vector<reco::Vertex> > vertex_;
   /// string cut selector
   StringCutObjectSelector<reco::Vertex>* vertexSelect_;
   /// beamspot 
-  //edm::InputTag beamspot_;
   edm::EDGetTokenT<reco::BeamSpot> beamspot_;
   /// string cut selector
   StringCutObjectSelector<reco::BeamSpot>* beamspotSelect_;

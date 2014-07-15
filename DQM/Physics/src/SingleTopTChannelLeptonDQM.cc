@@ -42,13 +42,11 @@ namespace SingleTopTChannelLepton {
       // select is optional; in case it's not found no
       // selection will be applied
       if( elecExtras.existsAs<std::string>("select") ){
-	//	elecSelect_= new StringCutObjectSelector<reco::GsfElectron>(elecExtras.getParameter<std::string>("select"));
 	elecSelect_ = vcfg[1].getParameter<std::string>("select");
       }
       // isolation is optional; in case it's not found no
       // isolation will be applied
       if( elecExtras.existsAs<std::string>("isolation") ){
-	//elecIso_= new StringCutObjectSelector<reco::GsfElectron>(elecExtras.getParameter<std::string>("isolation"));
 	elecIso_= elecExtras.getParameter<std::string>("isolation");
       }
       // electronId is optional; in case it's not found the 
@@ -77,14 +75,11 @@ namespace SingleTopTChannelLepton {
       // select is optional; in case it's not found no
       // selection will be applied
       if( muonExtras.existsAs<std::string>("select") ){
-	//	muonSelect_= new StringCutObjectSelector<reco::Muon>(muonExtras.getParameter<std::string>("select"));
-	//	muonSelect_= muonExtras.getParameter<std::string>("select");
 	muonSelect_ = vcfg[1].getParameter<std::string>("select");
       }
       // isolation is optional; in case it's not found no
       // isolation will be applied
       if( muonExtras.existsAs<std::string>("isolation") ){
-	//	muonIso_= new StringCutObjectSelector<reco::Muon>(muonExtras.getParameter<std::string>("isolation"));
 	muonIso_= muonExtras.getParameter<std::string>("isolation");
       }
     }
@@ -384,12 +379,6 @@ namespace SingleTopTChannelLepton {
        ------------------------------------------------------------
     */
     
-    /*
-    reco::BeamSpot beamSpot;
-    edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-    if( !event.getByToken("offlineBeamSpot",recoBeamSpotHandle)) return;
-    beamSpot = *recoBeamSpotHandle;
-    */
     
     // fill monitoring plots for electrons
     edm::Handle<edm::View<reco::GsfElectron> > elecs_gsf;
@@ -426,7 +415,6 @@ namespace SingleTopTChannelLepton {
 	  double isolationChHad = elec->pt()/(elec->pt()+elec->pfIsolationVariables().sumChargedHadronPt);
 	  double isolationNeuHad = elec->pt()/(elec->pt()+elec->pfIsolationVariables().sumNeutralHadronEt);
 	  double isolationPhoton = elec->pt()/(elec->pt()+elec->pfIsolationVariables().sumPhotonEt);
-	  //	  double PFisolationRel = (elec->pfIsolationVariables().sumChargedHadronPt+elec->pfIsolationVariables().sumNeutralHadronEt+elec->pfIsolationVariables().sumPhotonEt)/elec->pt(); 
 	  double el_ChHadIso = elec->pfIsolationVariables().sumChargedHadronPt;
           double el_NeHadIso = elec->pfIsolationVariables().sumNeutralHadronEt;
           double el_PhIso = elec->pfIsolationVariables().sumPhotonEt;
@@ -477,14 +465,6 @@ namespace SingleTopTChannelLepton {
     reco::Muon mu;
     
 
-    /*
-      if (muons_.label() == "muons"){
-      edm::Handle<edm::View<reco::Muon> > muons;
-      edm::View<reco::Muon>::const_iterator muon;
-      StringCutObjectSelector<reco::Muon> *muonSelect = new StringCutObjectSelector<reco::Muon>(muonSelect_); 
-      StringCutObjectSelector<reco::Muon> *muonIso = new StringCutObjectSelector<reco::Muon>(muonIso_);
-      }
-    */
     
     if( !event.getByToken(muons_, muons )) return;
     for(muonit = muons->begin(); muonit != muons->end(); ++muonit){    // for now, to use Reco::Muon need to substitute  muonit with muon
@@ -886,7 +866,6 @@ SingleTopTChannelLeptonDQM::analyze(const edm::Event& event, const edm::EventSet
     edm::Handle<edm::View<reco::Vertex>> vertex;
     if( !event.getByToken(vertex__, vertex) ) return;
     edm::View<reco::Vertex>::const_iterator pv = vertex->begin();
-    //if ((pv->isFake()) || (pv->ndof() < 4) || (abs(pv->z())>24.) || (pv->position().Rho() > 2.0))
     if(!(*vertexSelect_)(*pv)) return;
   }
   
@@ -924,7 +903,6 @@ SingleTopTChannelLeptonDQM::analyze(const edm::Event& event, const edm::EventSet
 	} else break;
       }
       if(type=="muons/pf" && PFMuonStep != 0){
-	//	cout << "MUON SELECTION" << endl;
         if(PFMuonStep->select(event, "muon")){ ++passed;
           selection_[key].second->fill(event, setup);
 	} else break;
@@ -938,7 +916,6 @@ SingleTopTChannelLeptonDQM::analyze(const edm::Event& event, const edm::EventSet
 	}
       }
       if(type=="jets/pf" ){
-	//	cout << "JET SELECTION" << endl;
 	nPFJetSteps++;
         if(PFJetSteps[nPFJetSteps] != NULL){
 	  if(PFJetSteps[nPFJetSteps]->select(event, setup)){ ++passed;

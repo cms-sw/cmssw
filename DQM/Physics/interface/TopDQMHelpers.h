@@ -233,13 +233,10 @@ SelectionStep<Object>::SelectionStep(const edm::ParameterSet& cfg, edm::Consumes
   
   //  eventrhoToken_ = iC.consumes<double>(edm::InputTag("fixedGridRhoFastjetAll"));
 
-  //cout<<"In new constructor"<<endl;
   src_ = iC.consumes<edm::View<Object> >(cfg.getParameter<edm::InputTag>("src"));
-  //cout<<"// construct min/max if the corresponding params"<<endl;
   // exist otherwise they are initialized with -1
   cfg.exists("min") ? min_= cfg.getParameter<int>("min") : min_= -1;
   cfg.exists("max") ? max_= cfg.getParameter<int>("max") : max_= -1;
-  //cout<<"// read electron extras if they exist"<<endl;
   std::string mygSF = "gedGsfElectrons";
   gsfEs_ = iC.consumes<edm::View<reco::GsfElectron> >(cfg.getUntrackedParameter<edm::InputTag>("myGSF", mygSF));
   if(cfg.existsAs<edm::ParameterSet>("electronId")){ 
@@ -247,21 +244,17 @@ SelectionStep<Object>::SelectionStep(const edm::ParameterSet& cfg, edm::Consumes
     electronId_= iC.consumes<edm::ValueMap<float> >(elecId.getParameter<edm::InputTag>("src"));
     eidCutValue_= elecId.getParameter<double>("cutValue");
   }
-  //cout<<"// read jet corrector label if it exists"<<endl;
   if(cfg.exists("jetCorrector")){ jetCorrector_= cfg.getParameter<std::string>("jetCorrector"); }
-  //cout<<"// read btag information if it exists"<<endl;
   if(cfg.existsAs<edm::ParameterSet>("jetBTagger")){
     edm::ParameterSet jetBTagger=cfg.getParameter<edm::ParameterSet>("jetBTagger");
     btagLabel_=iC.consumes<reco::JetTagCollection>(jetBTagger.getParameter<edm::InputTag>("label"));
     btagWorkingPoint_=jetBTagger.getParameter<double>("workingPoint");
   }
-  //cout<<"// read jetID information if it exists"<<endl;
   if(cfg.existsAs<edm::ParameterSet>("jetID")){
     edm::ParameterSet jetID=cfg.getParameter<edm::ParameterSet>("jetID");
     jetIDLabel_ =iC.consumes<reco::JetIDValueMap>(jetID.getParameter<edm::InputTag>("label"));
     jetIDSelect_= new StringCutObjectSelector<reco::JetID>(jetID.getParameter<std::string>("select"));
   }
-  //cout<<"// end"<<endl;
 }
 
 /// apply selection
@@ -324,7 +317,6 @@ bool SelectionStep<Object>::select(const edm::Event& event, const std::string& t
 
   // determine multiplicity of selected objects
   int n=0;
-  //  unsigned int idx_gsf = 0;
   for(typename edm::View<Object>::const_iterator obj=src->begin(); obj!=src->end(); ++obj){
     
     // special treatment for PF candidates
@@ -338,12 +330,9 @@ bool SelectionStep<Object>::select(const edm::Event& event, const std::string& t
       
       else if (objtmp.gsfElectronRef().isNonnull() && type == "electron") {
         if(select_(*obj)){
-	//  cout<<"Electron is selected"<<endl;
 	  if( electronId_.isUninitialized()){
-        //    cout<<"No Id is requested"<<endl;		
 	    ++n;	
 	  } else if(( (double)(*electronId)[obj->gsfElectronRef()] >= eidCutValue_ )){
-          //  cout<<"Id is requested"<<endl;		
 	    ++n;
 	  }	    
 	  
