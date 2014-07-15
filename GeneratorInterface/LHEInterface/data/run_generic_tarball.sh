@@ -44,8 +44,10 @@ tar xzf ${name}_tarball.tar.gz ; rm -f ${name}_tarball.tar.gz ;
 
 mv cmsgrid_final.lhe $LHEWORKDIR/${name}_final.lhe
 
-ls -l
-echo
+cd $LHEWORKDIR
+
+#cleanup working directory (save space on worker node for edm output)
+rm -rf lheevent
 
 exit 0
 
