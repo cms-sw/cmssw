@@ -254,7 +254,7 @@ std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit & t
       vector<PSimHit>::const_iterator simHitIter = simHitVector.begin();
       vector<PSimHit>::const_iterator simHitIterEnd = simHitVector.end();
       for (;simHitIter != simHitIterEnd; ++simHitIter) {
-	const PSimHit ihit = *simHitIter;
+	const PSimHit& ihit = *simHitIter;
 	unsigned int simHitid = ihit.trackId();
 	EncodedEventId simHiteid = ihit.eventId();
 	for(size_t i=0; i<simtrackid.size();i++) {
